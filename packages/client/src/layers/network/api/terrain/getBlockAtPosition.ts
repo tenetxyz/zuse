@@ -7,17 +7,8 @@ import { getTerrain } from "./utils";
 import {
   Air,
   Bedrock,
-  Clay,
-  Coal,
-  Diamond,
   Dirt,
   Grass,
-  Sand,
-  SmallPlant,
-  Snow,
-  Stone,
-  Structure,
-  Water,
 } from "./occurrence";
 
 export function getEntityAtPosition(
@@ -69,18 +60,9 @@ export function getTerrainBlock({ biome: biomeVector, height }: Terrain, coord: 
   const state: TerrainState = { biomeVector, height, coord, perlin };
   return (
     Bedrock(state) ||
-    Water(state) ||
     Air(state) ||
-    Diamond(state) ||
-    Coal(state) ||
-    Sand(state) ||
-    Snow(state) ||
     Grass(state) ||
-    Stone(state) ||
-    Clay(state) ||
     Dirt(state) ||
-    Structure(state) ||
-    SmallPlant(state) ||
     BlockType.Air
   );
 }

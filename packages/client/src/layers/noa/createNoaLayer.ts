@@ -249,7 +249,6 @@ export function createNoaLayer(network: NetworkLayer) {
     const selectedSlot = getComponentValue(components.SelectedSlot, SingletonEntity)?.value;
     if (selectedSlot == null) return;
     const blockID = [...getEntitiesWithValue(components.InventoryIndex, { value: selectedSlot })][0];
-    // const blockID = blockIndex != null && world.entities[blockIndex];
     if (!blockID) return;
     return blockID;
   }

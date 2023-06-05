@@ -89,7 +89,9 @@ export function createNoaLayer(network: NetworkLayer) {
     PlayerMesh: definePlayerMeshComponent(world),
     UI: defineUIComponent(world),
     InventoryIndex: createLocalCache(createIndexer(defineInventoryIndexComponent(world)), uniqueWorldId),
-    Tutorial: createLocalCache(defineTutorialComponent(world), uniqueWorldId),
+    // Tutorial: createLocalCache(defineTutorialComponent(world), uniqueWorldId),
+    // removed cache from tutorial because it triggers on block mine, and because of this error: omponent with id Tutorial was locally cached 260 times since 11:35:35 PM - the local cache is in an alpha state and should not be used with components that update frequently yet
+    Tutorial: defineTutorialComponent(world),
     PreTeleportPosition: definePreTeleportPositionComponent(world),
     Sounds: defineSoundComponent(world),
   };

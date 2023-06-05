@@ -27,8 +27,9 @@ export function setupNoaEngine(api: API) {
     chunkAddDistance: [CHUNK_RENDER_DISTANCE + 3, CHUNK_RENDER_DISTANCE + 3],
     chunkRemoveDistance: [CHUNK_RENDER_DISTANCE + 8, CHUNK_RENDER_DISTANCE + 8],
     chunkSize: CHUNK_SIZE,
-    gravity: [0, -17, 0],
+    gravity: [0, -20, 0],
     playerStart: [-20000, 100, 20000],
+    airMoveMult: 50,
     blockTestDistance: 7,
     playerHeight: 1.85,
     playerWidth: 0.6,
@@ -50,6 +51,8 @@ export function setupNoaEngine(api: API) {
   // Make player float before world is loaded
   const body = noa.ents.getPhysics(1)?.body;
   if (body) body.gravityMultiplier = 0;
+
+  customizePlayerMovement(noa)
 
   // Note: this is the amount of time, per tick, spent requesting chunks from userland and meshing them
   // IT DOES NOT INCLUDE TIME SPENT BY THE CLIENT GENERATING THE CHUNKS
@@ -135,4 +138,15 @@ export function setupNoaEngine(api: API) {
     return key != null && key != "Air" && !Blocks[key]?.fluid;
   };
   return { noa, setBlock, glow };
+}
+
+function customizePlayerMovement(noa: Engine) {
+  // Note: if you want to write very specific movement overrides, read this: https://github.com/fenomas/noa/issues/147
+  // noa.entities.removeComponent(noa.playerEntity, noa.entities.names.movement)
+  // noa.entities.addComponent(noa.playerEntity, newMovementComponent)
+
+  // Make it so that players can still control their movement while in the air
+  // why? because it feels weird when players lose control of their character: https://www.reddit.com/r/gamedev/comments/j3iigd/why_moving_in_the_air_after_jumping_in_games/
+  noa.ents.getMovement(1).airMoveMult = 20
+  noa.ents.getMovement(1).standingFriction= 100
 }

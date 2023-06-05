@@ -135,7 +135,7 @@ export function Dirt(state: TerrainState): Entity | undefined {
 }
 
 export function SmallPlant(state: TerrainState): Entity | undefined {
-  return; // curtis removed this to boost fps
+  return; // curtis removed this since they're annoying
   const {
     coord: { y },
     height,

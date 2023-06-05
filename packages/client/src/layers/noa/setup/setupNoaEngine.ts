@@ -29,7 +29,6 @@ export function setupNoaEngine(api: API) {
     chunkSize: CHUNK_SIZE,
     gravity: [0, -20, 0],
     playerStart: [-20000, 100, 20000],
-    airMoveMult: 50,
     blockTestDistance: 7,
     playerHeight: 1.85,
     playerWidth: 0.6,

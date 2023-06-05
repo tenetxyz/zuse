@@ -313,7 +313,7 @@ export function createNoaLayer(network: NetworkLayer) {
   setupClouds(noa);
   setupSky(noa);
   setupHand(noa);
-  setupDayNightCycle(noa, glow);
+  // setupDayNightCycle(noa, glow); // Curtis removed this because he had to constantly change his monitor brightness
 
   // Pause noa until initial loading is done
   setTimeout(() => {

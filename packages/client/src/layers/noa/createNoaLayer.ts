@@ -256,12 +256,22 @@ export function createNoaLayer(network: NetworkLayer) {
   function placeSelectedItem(coord: VoxelCoord) {
     const blockID = getSelectedBlockType();
     if (!blockID) return console.warn("No item at selected slot");
+
+    console.log("my owned entities");
+    for(const entity of OwnedBy.entities()){
+      console.log(entity);
+    }
     const ownedEntityOfSelectedType = [
       ...runQuery([HasValue(OwnedBy, { value: to64CharAddress(connectedAddress.get()) }), HasValue(Item, { value: blockID })]),
     ][0];
+    // Curtis thinks there is a bug where queries IGNORE optimistic updates. so this mud1 code broke
+    // const ownedEntityOfSelectedType = [
+    //   ...runQuery([HasValue(OwnedBy, { value: to64CharAddress(connectedAddress.get()) }), HasValue(Item, { value: blockID })]),
+    // ][0];
     if (ownedEntityOfSelectedType == null) return console.warn("No owned item of type", blockID);
     // const itemEntity = world.entities[ownedEntityOfSelectedType];
     const itemEntity = ownedEntityOfSelectedType;
+    console.log("trying to build", itemEntity)
     network.api.build(itemEntity, coord);
   }
 

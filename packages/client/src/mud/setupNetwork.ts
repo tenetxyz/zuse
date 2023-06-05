@@ -22,6 +22,7 @@ import {
 import { to64CharAddress } from "../utils/entity";
 import { SingletonID } from "@latticexyz/network";
 
+
 export type SetupNetworkResult = Awaited<ReturnType<typeof setupNetwork>>;
 
 export async function setupNetwork() {

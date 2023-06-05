@@ -542,6 +542,7 @@ contract LibTerrainSystem is System {
   }
 
   function SmallPlant(VoxelCoord memory coord) public view returns (bytes32) {
+    return 0; // curtis remove this for performance reasons
     int128[4] memory biomeValues = getBiome(coord.x, coord.z);
     int32 height = getHeight(coord.x, coord.z, biomeValues);
     uint8 biome = getMaxBiome(biomeValues);

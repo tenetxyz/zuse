@@ -1,5 +1,5 @@
 import { SyncState } from "@latticexyz/network";
-import { defineComponentSystem, defineEnterSystem, getComponentValueStrict, Has } from "@latticexyz/recs";
+import { defineComponentSystem, defineEnterSystem, getComponentValueStrict, Has, getEntitiesWithValue } from "@latticexyz/recs";
 import { awaitStreamValue } from "@latticexyz/utils";
 import { NetworkLayer } from "../../network";
 import { NoaLayer } from "../types";
@@ -37,7 +37,12 @@ export async function createBlockSystem(network: NetworkLayer, context: NoaLayer
   defineEnterSystem(world, [Has(OptimisticPosition), Has(OptimisticItem)], (update) => {
     if (!live) return;
     const position = getComponentValueStrict(OptimisticPosition, update.entity);
+    console.log("enter world");
+    console.log(update.entity);
+    const entitiesAtPosition = [...getEntitiesWithValue(OptimisticPosition, position)];
+    console.log(entitiesAtPosition);
     const block = getBlockAtPosition(position);
+    console.log(block);
     setBlock(position, block);
   });
 }

@@ -160,8 +160,8 @@ export async function setupNetwork() {
   // Add optimistic updates
   // TODO: Fix indexer() not working in MUD2
   const { withOptimisticUpdates } = actions;
-  contractComponents.Position = withOptimisticUpdates(contractComponents.Position);
-  contractComponents.OwnedBy = withOptimisticUpdates(contractComponents.OwnedBy);
+  contractComponents.Position = createIndexer(withOptimisticUpdates(contractComponents.Position));
+  contractComponents.OwnedBy = createIndexer(withOptimisticUpdates(contractComponents.OwnedBy));
   contractComponents.Item = withOptimisticUpdates(contractComponents.Item);
 
   // --- API ------------------------------------------------------------------------

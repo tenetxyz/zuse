@@ -23,12 +23,15 @@ export function getEntityAtPosition(
 
   let entitiesAtPosition = [...getEntitiesWithValue(Position, coord)];
 
-  // Note: We have to add in these indexes because of a bug in MUD v2 RECS
-  const hackyCoordValue: any = coord;
-  hackyCoordValue["0"] = coord.x;
-  hackyCoordValue["1"] = coord.y;
-  hackyCoordValue["2"] = coord.z;
-  if(entitiesAtPosition.length === 0) entitiesAtPosition = [...getEntitiesWithValue(Position, hackyCoordValue)];
+  if(entitiesAtPosition.length === 0) {
+    // Note: We have to add in these indexes because of a bug in MUD v2 RECS
+    const hackyCoordValue: any = coord;
+    hackyCoordValue["0"] = coord.x;
+    hackyCoordValue["1"] = coord.y;
+    hackyCoordValue["2"] = coord.z;
+
+    entitiesAtPosition = [...getEntitiesWithValue(Position, hackyCoordValue)];
+  }
 
   // Prefer non-air blocks at this position
   return (

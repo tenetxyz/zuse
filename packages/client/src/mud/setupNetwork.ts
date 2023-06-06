@@ -157,10 +157,11 @@ export async function setupNetwork() {
     blockType?: keyof typeof BlockType;
   }>(world, result.txReduced$);
 
-  // Add optimistic updates
-  // TODO: Fix indexer() not working in MUD2
+  // Add optimistic updates and indexers
   const { withOptimisticUpdates } = actions;
-  contractComponents.Position = withOptimisticUpdates(contractComponents.Position);
+  contractComponents.Position = createIndexer(withOptimisticUpdates(contractComponents.Position));
+  // Note: we don't add indexer to OwnedBy because there's current bugs with indexer in MUD 2
+  // contractComponents.OwnedBy = createIndexer(withOptimisticUpdates(contractComponents.OwnedBy));
   contractComponents.OwnedBy = withOptimisticUpdates(contractComponents.OwnedBy);
   contractComponents.Item = withOptimisticUpdates(contractComponents.Item);
 

@@ -70,7 +70,8 @@ export function createNoaLayer(network: NetworkLayer) {
       config: { chainId },
       connectedAddress,
     },
-    components: { OwnedBy, Item, Recipe, Claim, Stake, LoadingState },
+    components: { Recipe, Claim, Stake, LoadingState },
+    contractComponents: { OwnedBy, Item },
     api: { build },
   } = network;
   const uniqueWorldId = chainId + worldAddress;

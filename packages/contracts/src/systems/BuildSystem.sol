@@ -7,12 +7,13 @@ import { VoxelCoord } from "../types.sol";
 import { OwnedBy, Position, PositionTableId, Item } from "../codegen/Tables.sol";
 import { AirID } from "../prototypes/Blocks.sol";
 import { addressToEntityKey } from "../utils.sol";
+import { getUniqueEntity } from "@latticexyz/world/src/modules/uniqueentity/getUniqueEntity.sol";
 
 contract BuildSystem is System {
 
   function build(bytes32 blockEntity, VoxelCoord memory coord) public returns (bytes32) {
 
-    // Require block to be owned by caller
+    // Require block to be owned by caller. TODO: should we remove this if we're in creative mode?
     require(OwnedBy.get(blockEntity) == addressToEntityKey(_msgSender()), "block is not owned by player");
 
     // Require no other ECS blocks at this position except Air
@@ -24,11 +25,12 @@ contract BuildSystem is System {
 
     // TODO: check claim in chunk
 
-    // Remove block from inventory and place it in the world
-    OwnedBy.deleteRecord(blockEntity);
-    Position.set(blockEntity, coord.x, coord.y, coord.z);
+    //    OwnedBy.deleteRecord(blockEntity); We do NOT remove the ownedBy since all players are in creative mode.
+    bytes32 clonedEntity = getUniqueEntity();
 
-    return blockEntity;
+    Item.set(clonedEntity, Item.get(blockEntity));
+    Position.set(clonedEntity, coord.x, coord.y, coord.z);
+    return clonedEntity;
   }
 
 }

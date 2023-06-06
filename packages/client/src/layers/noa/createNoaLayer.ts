@@ -13,7 +13,14 @@ import {
   getEntityString,
   getEntitySymbol,
 } from "@latticexyz/recs";
-import { awaitStreamValue, Coord, isNotEmpty, pickRandom, random, VoxelCoord } from "@latticexyz/utils";
+import {
+  awaitStreamValue,
+  Coord,
+  isNotEmpty,
+  pickRandom,
+  random,
+  VoxelCoord,
+} from "@latticexyz/utils";
 import { NetworkLayer } from "../network";
 import {
   definePlayerDirectionComponent,
@@ -31,7 +38,10 @@ import {
 import { CRAFTING_SIDE, EMPTY_CRAFTING_TABLE } from "./constants";
 import { setupHand } from "./engine/hand";
 import { monkeyPatchMeshComponent } from "./engine/components/monkeyPatchMeshComponent";
-import { registerRotationComponent, registerTargetedRotationComponent } from "./engine/components/rotationComponent";
+import {
+  registerRotationComponent,
+  registerTargetedRotationComponent,
+} from "./engine/components/rotationComponent";
 import { setupClouds, setupSky } from "./engine/sky";
 import { setupNoaEngine } from "./setup";
 import {
@@ -49,7 +59,10 @@ import { registerModelComponent } from "./engine/components/modelComponent";
 import { registerMiningBlockComponent } from "./engine/components/miningBlockComponent";
 import { defineInventoryIndexComponent } from "./components/InventoryIndex";
 import { setupDayNightCycle } from "./engine/dayNightCycle";
-import { getNoaPositionStrict, setNoaPosition } from "./engine/components/utils";
+import {
+  getNoaPositionStrict,
+  setNoaPosition,
+} from "./engine/components/utils";
 import { registerTargetedPositionComponent } from "./engine/components/targetedPositionComponent";
 import { defaultAbiCoder as abi, keccak256 } from "ethers/lib/utils";
 import { SingletonID, SyncState } from "@latticexyz/network";
@@ -83,13 +96,21 @@ export function createNoaLayer(network: NetworkLayer) {
     SelectedSlot: defineSelectedSlotComponent(world),
     CraftingTable: defineCraftingTableComponent(world),
     PlayerPosition: definePlayerPositionComponent(world),
-    LocalPlayerPosition: createLocalCache(defineLocalPlayerPositionComponent(world), uniqueWorldId),
-    PlayerRelayerChunkPosition: createIndexer(definePlayerRelayerChunkPositionComponent(world)),
+    LocalPlayerPosition: createLocalCache(
+      defineLocalPlayerPositionComponent(world),
+      uniqueWorldId
+    ),
+    PlayerRelayerChunkPosition: createIndexer(
+      definePlayerRelayerChunkPositionComponent(world)
+    ),
     PlayerDirection: definePlayerDirectionComponent(world),
     PlayerLastMessage: definePlayerLastMessage(world),
     PlayerMesh: definePlayerMeshComponent(world),
     UI: defineUIComponent(world),
-    InventoryIndex: createLocalCache(createIndexer(defineInventoryIndexComponent(world)), uniqueWorldId),
+    InventoryIndex: createLocalCache(
+      createIndexer(defineInventoryIndexComponent(world)),
+      uniqueWorldId
+    ),
     // Tutorial: createLocalCache(defineTutorialComponent(world), uniqueWorldId),
     // removed cache from tutorial because it triggers on block mine, and because of this error: component with id Tutorial was locally cached 260 times since 11:35:35 PM - the local cache is in an alpha state and should not be used with components that update frequently yet
     Tutorial: defineTutorialComponent(world),
@@ -129,15 +150,18 @@ export function createNoaLayer(network: NetworkLayer) {
 
   // --- API ------------------------------------------------------------------------
   function setCraftingTable(entities: Entity[][]) {
-    setComponent(components.CraftingTable, SingletonEntity, { value: entities.flat().slice(0, 9) });
+    setComponent(components.CraftingTable, SingletonEntity, {
+      value: entities.flat().slice(0, 9),
+    });
   }
 
   // Get a 2d representation of the current crafting table
   // -1 corresponds to empty slots
   function getCraftingTable(): Entity[][] {
-    const flatCraftingTable = (getComponentValue(components.CraftingTable, SingletonEntity)?.value || [
-      ...EMPTY_CRAFTING_TABLE,
-    ]) as Entity[];
+    const flatCraftingTable = (getComponentValue(
+      components.CraftingTable,
+      SingletonEntity
+    )?.value || [...EMPTY_CRAFTING_TABLE]) as Entity[];
 
     const craftingTable: Entity[][] = [];
     for (let i = 0; i < CRAFTING_SIDE; i++) {
@@ -151,7 +175,10 @@ export function createNoaLayer(network: NetworkLayer) {
   }
 
   // Set 2d representation of crafting table
-  function setCraftingTableIndex(index: [number, number], entity: Entity | undefined) {
+  function setCraftingTableIndex(
+    index: [number, number],
+    entity: Entity | undefined
+  ) {
     const craftingTable = getCraftingTable();
     craftingTable[index[0]][index[1]] = entity ?? ("-1" as Entity);
     setCraftingTable(craftingTable);
@@ -172,7 +199,7 @@ export function createNoaLayer(network: NetworkLayer) {
 
     for (let x = 0; x < CRAFTING_SIDE; x++) {
       for (let y = 0; y < CRAFTING_SIDE; y++) {
-        if (getEntityString(getEntitySymbol(craftingTable[x][y])) !== "-1"){
+        if (getEntityString(getEntitySymbol(craftingTable[x][y])) !== "-1") {
           if (minX === -1) minX = x;
           if (minY === -1) minY = y;
           maxX = x;
@@ -181,7 +208,8 @@ export function createNoaLayer(network: NetworkLayer) {
       }
     }
 
-    if ([minX, minY, maxX, maxY].includes(-1)) return { items: [] as Entity[][], types: [] as Entity[][] };
+    if ([minX, minY, maxX, maxY].includes(-1))
+      return { items: [] as Entity[][], types: [] as Entity[][] };
 
     const trimmedCraftingTableItems: Entity[][] = [];
     const trimmedCraftingTableTypes: Entity[][] = [];
@@ -190,14 +218,23 @@ export function createNoaLayer(network: NetworkLayer) {
       trimmedCraftingTableTypes.push([]);
       for (let y = 0; y <= maxY - minY; y++) {
         const blockEntity = craftingTable[x + minX][y + minY];
-        const blockID = ((getEntityString(getEntitySymbol(blockEntity)) !== "-1" && blockEntity) || "0x00") as Entity;
-        const blockType = ((getEntityString(getEntitySymbol(blockEntity)) !== "-1" && getComponentValue(Item, blockEntity)?.value) || "0x00") as Entity;
+        const blockID = ((getEntityString(getEntitySymbol(blockEntity)) !==
+          "-1" &&
+          blockEntity) ||
+          "0x00") as Entity;
+        const blockType = ((getEntityString(getEntitySymbol(blockEntity)) !==
+          "-1" &&
+          getComponentValue(Item, blockEntity)?.value) ||
+          "0x00") as Entity;
         trimmedCraftingTableItems[x].push(blockID);
         trimmedCraftingTableTypes[x].push(blockType);
       }
     }
 
-    return { items: trimmedCraftingTableItems, types: trimmedCraftingTableTypes };
+    return {
+      items: trimmedCraftingTableItems,
+      types: trimmedCraftingTableTypes,
+    };
   }
 
   // Get the block type the current crafting table ingredients hash to
@@ -227,7 +264,8 @@ export function createNoaLayer(network: NetworkLayer) {
   }
 
   function togglePlugins(open?: boolean) {
-    open = open ?? !getComponentValue(components.UI, SingletonEntity)?.showPlugins;
+    open =
+      open ?? !getComponentValue(components.UI, SingletonEntity)?.showPlugins;
     noa.container.setPointerLock(!open);
     updateComponent(components.UI, SingletonEntity, {
       showInventory: false,
@@ -237,7 +275,8 @@ export function createNoaLayer(network: NetworkLayer) {
   }
 
   function toggleInventory(open?: boolean, crafting?: boolean) {
-    open = open ?? !getComponentValue(components.UI, SingletonEntity)?.showInventory;
+    open =
+      open ?? !getComponentValue(components.UI, SingletonEntity)?.showInventory;
     noa.container.setPointerLock(!open);
     updateComponent(components.UI, SingletonEntity, {
       showPlugins: false,
@@ -247,9 +286,16 @@ export function createNoaLayer(network: NetworkLayer) {
   }
 
   function getSelectedBlockType(): Entity | undefined {
-    const selectedSlot = getComponentValue(components.SelectedSlot, SingletonEntity)?.value;
+    const selectedSlot = getComponentValue(
+      components.SelectedSlot,
+      SingletonEntity
+    )?.value;
     if (selectedSlot == null) return;
-    const blockID = [...getEntitiesWithValue(components.InventoryIndex, { value: selectedSlot })][0];
+    const blockID = [
+      ...getEntitiesWithValue(components.InventoryIndex, {
+        value: selectedSlot,
+      }),
+    ][0];
     // const blockID = blockIndex != null && world.entities[blockIndex];
     if (!blockID) return;
     return blockID;
@@ -259,9 +305,13 @@ export function createNoaLayer(network: NetworkLayer) {
     const blockID = getSelectedBlockType();
     if (!blockID) return console.warn("No item at selected slot");
     const ownedEntityOfSelectedType = [
-      ...runQuery([HasValue(OwnedBy, { value: to64CharAddress(connectedAddress.get()) }), HasValue(Item, { value: blockID })]),
+      ...runQuery([
+        HasValue(OwnedBy, { value: to64CharAddress(connectedAddress.get()) }),
+        HasValue(Item, { value: blockID }),
+      ]),
     ][0];
-    if (ownedEntityOfSelectedType == null) return console.warn("No owned item of type", blockID);
+    if (ownedEntityOfSelectedType == null)
+      return console.warn("No owned item of type", blockID);
     // const itemEntity = world.entities[ownedEntityOfSelectedType];
     const itemEntity = ownedEntityOfSelectedType;
     network.api.build(itemEntity, coord);
@@ -290,7 +340,9 @@ export function createNoaLayer(network: NetworkLayer) {
   function playNextTheme() {
     const sounds = getComponentValue(components.Sounds, SingletonEntity);
     if (!sounds?.themes || !isNotEmpty(sounds.themes)) return;
-    const prevThemeIndex = sounds.playingTheme ? sounds.themes.findIndex((e) => e === sounds.playingTheme) : -1;
+    const prevThemeIndex = sounds.playingTheme
+      ? sounds.themes.findIndex((e) => e === sounds.playingTheme)
+      : -1;
     const nextThemeIndex = (prevThemeIndex + 1) % sounds.themes.length;
     const playingTheme = sounds.themes[nextThemeIndex];
     updateComponent(components.Sounds, SingletonEntity, { playingTheme });
@@ -318,25 +370,40 @@ export function createNoaLayer(network: NetworkLayer) {
 
   // Pause noa until initial loading is done
   setTimeout(() => {
-    if (getComponentValue(LoadingState, SingletonEntity)?.state !== SyncState.LIVE) noa.setPaused(true);
+    if (
+      getComponentValue(LoadingState, SingletonEntity)?.state !== SyncState.LIVE
+    )
+      noa.setPaused(true);
   }, 1000);
-  awaitStreamValue(LoadingState.update$, ({ value }) => value[0]?.state === SyncState.LIVE).then(() =>
-    noa.setPaused(false)
-  );
+  awaitStreamValue(
+    LoadingState.update$,
+    ({ value }) => value[0]?.state === SyncState.LIVE
+  ).then(() => noa.setPaused(false));
 
   // --- SETUP STREAMS --------------------------------------------------------------
   // (Create streams as BehaviorSubject to allow for multiple observers and getting the current value)
   const playerPosition$ = new BehaviorSubject(getCurrentPlayerPosition());
-  world.registerDisposer(timer(0, 200).pipe(map(getCurrentPlayerPosition)).subscribe(playerPosition$)?.unsubscribe);
+  world.registerDisposer(
+    timer(0, 200).pipe(map(getCurrentPlayerPosition)).subscribe(playerPosition$)
+      ?.unsubscribe
+  );
 
   const slowPlayerPosition$ = playerPosition$.pipe(throttleTime(10000));
 
   const playerChunk$ = new BehaviorSubject(getCurrentChunk());
-  world.registerDisposer(playerPosition$.pipe(map((pos) => getChunkCoord(pos))).subscribe(playerChunk$)?.unsubscribe);
-
-  const stakeAndClaim$ = new BehaviorSubject(getStakeAndClaim(getCurrentChunk()));
   world.registerDisposer(
-    playerChunk$.pipe(map((coord) => getStakeAndClaim(coord))).subscribe(stakeAndClaim$)?.unsubscribe
+    playerPosition$
+      .pipe(map((pos) => getChunkCoord(pos)))
+      .subscribe(playerChunk$)?.unsubscribe
+  );
+
+  const stakeAndClaim$ = new BehaviorSubject(
+    getStakeAndClaim(getCurrentChunk())
+  );
+  world.registerDisposer(
+    playerChunk$
+      .pipe(map((coord) => getStakeAndClaim(coord)))
+      .subscribe(stakeAndClaim$)?.unsubscribe
   );
 
   const context = {
@@ -364,7 +431,12 @@ export function createNoaLayer(network: NetworkLayer) {
       playRandomTheme,
       playNextTheme,
     },
-    streams: { playerPosition$, slowPlayerPosition$, playerChunk$, stakeAndClaim$ },
+    streams: {
+      playerPosition$,
+      slowPlayerPosition$,
+      playerChunk$,
+      stakeAndClaim$,
+    },
     SingletonEntity,
     audioEngine: Engine.audioEngine,
   };

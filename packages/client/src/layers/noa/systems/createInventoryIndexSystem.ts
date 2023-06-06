@@ -38,7 +38,6 @@ export function createInventoryIndexSystem(network: NetworkLayer, context: NoaLa
   );
 
   defineRxSystem(world, update$, (update) => {
-    // console.log("inventory update called");
     const blockId = getComponentValue(Item, update.entity)?.value as Entity;
     // console.log(blockId);
 
@@ -47,6 +46,7 @@ export function createInventoryIndexSystem(network: NetworkLayer, context: NoaLa
     // Assign the first free inventory index
     if (!hasComponent(InventoryIndex, blockId)) {
       const values = [...InventoryIndex.values.value.values()]; // lol
+      console.log(values)
       let i = 0;
       while (values.includes(i)) i++;
       setComponent(InventoryIndex, blockId, { value: i });

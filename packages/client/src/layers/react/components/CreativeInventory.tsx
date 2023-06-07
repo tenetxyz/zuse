@@ -3,6 +3,7 @@ import { Entity, getEntitiesWithValue } from "@latticexyz/recs";
 import { Layers } from "../../../types";
 import { range } from "@latticexyz/utils";
 import styled from "styled-components";
+import React from "react";
 
 interface Props {
   layers: Layers;
@@ -17,7 +18,7 @@ interface Item {
   blockId: Entity;
 }
 
-export const CreativeInventory: React.FC<Props> = ({ layers, moveItems }) => {
+export const CreativeInventory: React.FC<Props> = ({ layers }) => {
   const {
     components: { ItemPrototype },
     api: { giftVoxel },

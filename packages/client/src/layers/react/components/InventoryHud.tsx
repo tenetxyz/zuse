@@ -227,7 +227,7 @@ export function registerInventoryHud() {
           Slots={Slots}
         />
       ) : (
-        <CreativeInventory layers={layers} moveItems={moveItems} />
+        <CreativeInventory layers={layers} />
       );
 
       const InventoryWrapper = (

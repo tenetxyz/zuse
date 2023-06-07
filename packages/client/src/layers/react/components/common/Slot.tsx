@@ -12,7 +12,10 @@ export const Slot: React.FC<{
   selected?: boolean;
   disabled?: boolean;
 }> = ({ blockID, quantity, onClick, selected, disabled }) => (
-  <AbsoluteBorder borderColor={selected ? "#ffffff" : "transparent"} borderWidth={6}>
+  <AbsoluteBorder
+    borderColor={selected ? "#ffffff" : "transparent"}
+    borderWidth={6}
+  >
     <Border borderColor={"#b1b1b1"}>
       <Border borderColor={"#797979"}>
         <Border borderColor={"rgb(0 0 0 / 10%)"}>

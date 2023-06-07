@@ -1,4 +1,10 @@
-import { Color3, MeshBuilder, Scene, StandardMaterial, GlowLayer } from "@babylonjs/core";
+import {
+  Color3,
+  MeshBuilder,
+  Scene,
+  StandardMaterial,
+  GlowLayer,
+} from "@babylonjs/core";
 import type { Engine } from "noa-engine";
 /*
  * Setup day/night cycle in a hacky way
@@ -47,13 +53,22 @@ export function setupDayNightCycle(noa: Engine, glow: GlowLayer) {
     // sync SUN marker
     const local: number[] = [];
     // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-    const [playerX, playerY, playerZ] = noa.ents.getPositionData(noa.playerEntity)!.position!;
-    const [x, y, z] = noa.globalToLocal([playerX, playerY, playerZ], [0, 0, 0], local);
+    const [playerX, playerY, playerZ] = noa.ents.getPositionData(
+      noa.playerEntity
+    )!.position!;
+    const [x, y, z] = noa.globalToLocal(
+      [playerX, playerY, playerZ],
+      [0, 0, 0],
+      local
+    );
     marker.position.copyFromFloats(x, y, z);
     // move sun
     marker.rotation.z = -(Math.PI * 2 * progress);
     const scene = noa.rendering.getScene();
-    const gradingLevel = Math.max(0, Math.min(3 * Math.sin(-(Math.PI * 2 * progress)), 0.7));
+    const gradingLevel = Math.max(
+      0,
+      Math.min(3 * Math.sin(-(Math.PI * 2 * progress)), 0.7)
+    );
     glow.intensity = Math.max(0, Math.min(1 - gradingLevel, 1)) * 0.4;
     scene.imageProcessingConfiguration.colorGradingTexture.level = gradingLevel;
   };

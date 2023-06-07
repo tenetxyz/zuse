@@ -6,7 +6,8 @@ import { getBlockIconUrl } from "../../../noa/constants";
 export const BlockIcon = styled.div<{ blockID: Entity; scale: number }>`
   width: ${(p) => 16 * p.scale}px;
   height: ${(p) => 16 * p.scale}px;
-  background-image: url("${(p) => getBlockIconUrl(BlockIdToKey[p.blockID]) ?? ""}");
+  background-image: url("${(p) =>
+    getBlockIconUrl(BlockIdToKey[p.blockID]) ?? ""}");
   background-size: 100%;
   image-rendering: pixelated;
   display: grid;

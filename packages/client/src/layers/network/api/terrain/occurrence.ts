@@ -28,4 +28,3 @@ export function Dirt(state: TerrainState): Entity | undefined {
 
   if (y > -63 && y < 10) return BlockType.Dirt;
 }
-

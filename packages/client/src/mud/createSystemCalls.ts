@@ -7,8 +7,7 @@ export type SystemCalls = ReturnType<typeof createSystemCalls>;
 
 export function createSystemCalls(
   { worldSend, txReduced$, singletonEntity }: SetupNetworkResult,
-  { }: ClientComponents
+  {}: ClientComponents
 ) {
-
   return {};
 }

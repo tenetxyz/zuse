@@ -1,15 +1,17 @@
 import React, { ReactNode } from "react";
 import styled from "styled-components";
 
-export const AbsoluteBorder: React.FC<{ children: ReactNode, borderColor: string; borderWidth: number }> = ({
-  children,
-  borderColor,
-  borderWidth,
-}) => {
+export const AbsoluteBorder: React.FC<{
+  children: ReactNode;
+  borderColor: string;
+  borderWidth: number;
+}> = ({ children, borderColor, borderWidth }) => {
   return (
     <Wrapper>
       <>
-        {borderColor !== "transparent" ? <Border borderColor={borderColor} borderWidth={borderWidth} /> : null}
+        {borderColor !== "transparent" ? (
+          <Border borderColor={borderColor} borderWidth={borderWidth} />
+        ) : null}
         {children}
       </>
     </Wrapper>

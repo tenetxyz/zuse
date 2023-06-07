@@ -1,6 +1,11 @@
 import React, { useEffect } from "react";
 import { SingletonID } from "@latticexyz/network";
-import { Entity, getComponentValue, runQuery, HasValue } from "@latticexyz/recs";
+import {
+  Entity,
+  getComponentValue,
+  runQuery,
+  HasValue,
+} from "@latticexyz/recs";
 import { range } from "@latticexyz/utils";
 import styled from "styled-components";
 import { Layers } from "../../../../types";
@@ -21,7 +26,13 @@ export const Crafting: React.FC<{
       api: { craft },
     },
     noa: {
-      api: { getCraftingTable, setCraftingTableIndex, clearCraftingTable, getCraftingResult, getTrimmedCraftingTable },
+      api: {
+        getCraftingTable,
+        setCraftingTableIndex,
+        clearCraftingTable,
+        getCraftingResult,
+        getTrimmedCraftingTable,
+      },
       world,
     },
   } = layers;
@@ -57,8 +68,11 @@ export const Crafting: React.FC<{
     const y = getY(i);
 
     const blockAtIndex = craftingTable[x][y];
-    const blockTypeAtIndex = getComponentValue(Item, blockAtIndex)?.value as Entity | undefined;
-    const blockTypeIndexAtIndex = blockTypeAtIndex && world.entityToIndex.get(blockTypeAtIndex);
+    const blockTypeAtIndex = getComponentValue(Item, blockAtIndex)?.value as
+      | Entity
+      | undefined;
+    const blockTypeIndexAtIndex =
+      blockTypeAtIndex && world.entityToIndex.get(blockTypeAtIndex);
 
     // If we are not holding a block but there is a block at this position, grab the block
     if (holdingBlock == null) {
@@ -78,7 +92,12 @@ export const Crafting: React.FC<{
     // Check if we still own an entity of the held block type
     const blockID = world.entities[holdingBlock];
     const ownedEntitiesOfType = [
-      ...runQuery([HasValue(OptimisticOwnedBy, { value: to64CharAddress(connectedAddress.get()) }), HasValue(Item, { value: blockID })]),
+      ...runQuery([
+        HasValue(OptimisticOwnedBy, {
+          value: to64CharAddress(connectedAddress.get()),
+        }),
+        HasValue(Item, { value: blockID }),
+      ]),
     ];
 
     // If we don't own a block of the held block type, ignore this click
@@ -115,15 +134,29 @@ export const Crafting: React.FC<{
     const x = getX(index);
     const y = getY(index);
     const blockIndex = craftingTable[x][y];
-    const blockID = getComponentValue(Item, blockIndex)?.value as Entity | undefined;
-    return <Slot key={"crafting-slot" + index} blockID={blockID} onClick={() => handleInput(index)} />;
+    const blockID = getComponentValue(Item, blockIndex)?.value as
+      | Entity
+      | undefined;
+    return (
+      <Slot
+        key={"crafting-slot" + index}
+        blockID={blockID}
+        onClick={() => handleInput(index)}
+      />
+    );
   });
 
   return (
     <CraftingWrapper>
-      <CraftingInput sideLength={sideLength}>{[...range(sideLength * sideLength)].map((i) => Slots[i])}</CraftingInput>
+      <CraftingInput sideLength={sideLength}>
+        {[...range(sideLength * sideLength)].map((i) => Slots[i])}
+      </CraftingInput>
       <CraftingOutput>
-        <Slot blockID={getCraftingResult()} onClick={() => handleOutput()} selected={true} />
+        <Slot
+          blockID={getCraftingResult()}
+          onClick={() => handleOutput()}
+          selected={true}
+        />
       </CraftingOutput>
     </CraftingWrapper>
   );

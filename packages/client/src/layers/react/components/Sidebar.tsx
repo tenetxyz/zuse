@@ -7,11 +7,20 @@ import { Balance } from "./Balance";
 import { ChunkExplorer } from "./ChunkExplorer";
 import { JoinSocial } from "./JoinSocial";
 import { filterNullish } from "@latticexyz/utils";
-import { ComponentValue, getComponentValue, SchemaOf, updateComponent } from "@latticexyz/recs";
+import {
+  ComponentValue,
+  getComponentValue,
+  SchemaOf,
+  updateComponent,
+} from "@latticexyz/recs";
 import { Hint } from "./Hint";
 import { Gold } from "./common";
 
-type ObservableType<S extends Observable<unknown>> = S extends Observable<infer T> ? T : never;
+type ObservableType<S extends Observable<unknown>> = S extends Observable<
+  infer T
+>
+  ? T
+  : never;
 
 export function registerSidebar() {
   registerUIComponent(
@@ -41,7 +50,12 @@ export function registerSidebar() {
       const chunk$ = playerChunk$.pipe(
         map((chunk) => {
           const { stake, claim } = getStakeAndClaim(chunk);
-          return { chunk, claim, stake, api: { stake: api.stake, claim: api.claim, getName: api.getName } };
+          return {
+            chunk,
+            claim,
+            stake,
+            api: { stake: api.stake, claim: api.claim, getName: api.getName },
+          };
         })
       );
 
@@ -60,8 +74,14 @@ export function registerSidebar() {
       );
 
       return combineLatest<
-        [ObservableType<typeof chunk$>, ObservableType<typeof balance$>, ObservableType<typeof tutorial$>]
-      >([chunk$, balance$, tutorial$]).pipe(map((props) => ({ props, layers })));
+        [
+          ObservableType<typeof chunk$>,
+          ObservableType<typeof balance$>,
+          ObservableType<typeof tutorial$>
+        ]
+      >([chunk$, balance$, tutorial$]).pipe(
+        map((props) => ({ props, layers }))
+      );
     },
     ({ props, layers }) => {
       const [chunk, balance, tutorial] = props;
@@ -70,7 +90,9 @@ export function registerSidebar() {
         SingletonEntity,
       } = layers.noa;
 
-      function updateTutorial(update: Partial<ComponentValue<SchemaOf<typeof Tutorial>>>) {
+      function updateTutorial(
+        update: Partial<ComponentValue<SchemaOf<typeof Tutorial>>>
+      ) {
         updateComponent(Tutorial, SingletonEntity, update);
       }
 
@@ -78,7 +100,9 @@ export function registerSidebar() {
         <Wrapper>
           <Balance {...balance} />
           <ChunkExplorer {...chunk} />
-          {tutorial?.community && <JoinSocial onClose={() => updateTutorial({ community: false })} />}
+          {tutorial?.community && (
+            <JoinSocial onClose={() => updateTutorial({ community: false })} />
+          )}
           {tutorial?.moving && (
             <Hint onClose={() => updateTutorial({ moving: false })}>
               <Gold>Hint</Gold>: press <Gold>W, A, S, or D</Gold> to move around
@@ -86,12 +110,14 @@ export function registerSidebar() {
           )}
           {tutorial?.mine && (
             <Hint onClose={() => updateTutorial({ mine: false })}>
-              <Gold>Hint</Gold>: press and hold <Gold>left mouse</Gold> or <Gold>F</Gold> to mine a block
+              <Gold>Hint</Gold>: press and hold <Gold>left mouse</Gold> or{" "}
+              <Gold>F</Gold> to mine a block
             </Hint>
           )}
           {tutorial?.build && (
             <Hint onClose={() => updateTutorial({ build: false })}>
-              <Gold>Hint</Gold>: press <Gold>right mouse</Gold> or <Gold>R</Gold> to place a block
+              <Gold>Hint</Gold>: press <Gold>right mouse</Gold> or{" "}
+              <Gold>R</Gold> to place a block
             </Hint>
           )}
           {tutorial?.inventory && (
@@ -101,21 +127,25 @@ export function registerSidebar() {
           )}
           {!tutorial?.mine && tutorial?.claim && (
             <Hint onClose={() => updateTutorial({ claim: false })}>
-              <Gold>Hint</Gold>: find a diamond, press <Gold>X</Gold> to stake it in a chunk, then press <Gold>C</Gold>{" "}
-              to claim the chunk
+              <Gold>Hint</Gold>: find a diamond, press <Gold>X</Gold> to stake
+              it in a chunk, then press <Gold>C</Gold> to claim the chunk
             </Hint>
           )}
           {!tutorial?.mine && !tutorial?.inventory && tutorial?.craft && (
             <Hint onClose={() => updateTutorial({ craft: false })}>
-              <Gold>Hint</Gold>: place wool on top of a flower in the crafting UI (top of inventory) to craft dyed wool
+              <Gold>Hint</Gold>: place wool on top of a flower in the crafting
+              UI (top of inventory) to craft dyed wool
             </Hint>
           )}
-          {!tutorial?.inventory && !tutorial?.mine && !tutorial?.build && tutorial?.teleport && (
-            <Hint onClose={() => updateTutorial({ teleport: false })}>
-              <Gold>Hint</Gold>: press <Gold>O</Gold> to teleport to the spawn point, and <Gold>P</Gold> to back where
-              you were before
-            </Hint>
-          )}
+          {!tutorial?.inventory &&
+            !tutorial?.mine &&
+            !tutorial?.build &&
+            tutorial?.teleport && (
+              <Hint onClose={() => updateTutorial({ teleport: false })}>
+                <Gold>Hint</Gold>: press <Gold>O</Gold> to teleport to the spawn
+                point, and <Gold>P</Gold> to back where you were before
+              </Hint>
+            )}
         </Wrapper>
       );
     }

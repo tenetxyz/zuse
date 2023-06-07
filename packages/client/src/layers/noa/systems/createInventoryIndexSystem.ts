@@ -16,7 +16,10 @@ import { NetworkLayer } from "../../network";
 import { NoaLayer } from "../types";
 import { to64CharAddress } from "../../../utils/entity";
 
-export function createInventoryIndexSystem(network: NetworkLayer, context: NoaLayer) {
+export function createInventoryIndexSystem(
+  network: NetworkLayer,
+  context: NoaLayer
+) {
   const {
     contractComponents: { OwnedBy, Item },
     network: { connectedAddress },
@@ -30,10 +33,14 @@ export function createInventoryIndexSystem(network: NetworkLayer, context: NoaLa
   const connectedAddress$ = computedToStream(connectedAddress);
 
   const update$ = connectedAddress$.pipe(
-    switchMap((address) =>
-          defineQuery([HasValue(OwnedBy, { value: to64CharAddress(address) }), Has(Item)], {
-          runOnInit: true,
-        }).update$
+    switchMap(
+      (address) =>
+        defineQuery(
+          [HasValue(OwnedBy, { value: to64CharAddress(address) }), Has(Item)],
+          {
+            runOnInit: true,
+          }
+        ).update$
     )
   );
 

@@ -1,6 +1,14 @@
 import React from "react";
-import { isNetworkComponentUpdateEvent, NetworkComponentUpdate } from "@latticexyz/network";
-import { ComponentValue, Entity, getComponentValue, SchemaOf } from "@latticexyz/recs";
+import {
+  isNetworkComponentUpdateEvent,
+  NetworkComponentUpdate,
+} from "@latticexyz/network";
+import {
+  ComponentValue,
+  Entity,
+  getComponentValue,
+  SchemaOf,
+} from "@latticexyz/recs";
 import { filter, scan, merge, map } from "rxjs";
 import { BlockIdToKey, BlockTypeKey } from "../../network/constants";
 import { registerUIComponent } from "../engine";
@@ -101,44 +109,53 @@ export function registerBlockExplorer() {
 
       // Group stream of component update events by block number
       return merge(
-        blockNumber$.pipe(map<number, BlockEvent>((blockNumber) => ({ blockNumber }))),
+        blockNumber$.pipe(
+          map<number, BlockEvent>((blockNumber) => ({ blockNumber }))
+        ),
         ecsEvent$
           .pipe(filter(isNetworkComponentUpdateEvent))
           // We're only visualizing the stream of new blocks so skip backfill
-          .pipe(filter(({ txHash }) => txHash !== "worker" && txHash !== "cache"))
           .pipe(
-            map<NetworkComponentUpdate, BlockEvent | undefined>(({ blockNumber, component, value, entity }) => {
-              const componentKey = mappings[component];
+            filter(({ txHash }) => txHash !== "worker" && txHash !== "cache")
+          )
+          .pipe(
+            map<NetworkComponentUpdate, BlockEvent | undefined>(
+              ({ blockNumber, component, value, entity }) => {
+                const componentKey = mappings[component];
 
-              // Item component updates correspond to a mined terrain block
-              if (componentKey === "Item") {
-                // TODO: We added this because value was undefined, should figure out why the original line (below) doesn't work
-                const entityId = getComponentValue(Item, entity)?.value;
-                // const { value: entityId } = value as ComponentValue<SchemaOf<typeof Item>>;
-                const blockType = BlockIdToKey[entityId as Entity];
-                return { blockNumber, blockType, action: "remove" };
-              }
-
-              // Position component updates correspond to a mined or placed ECS block
-              if (componentKey === "Position") {
-                // const entityIndex = world.entityToIndex.get(entity);
-                const entityIndex = entity;
-                const blockTypeId = entityIndex != null ? getComponentValue(Item, entityIndex)?.value : undefined;
-                if (!blockTypeId) {
-                  return;
-                }
-                const blockType = BlockIdToKey[blockTypeId as Entity];
-
-                // If the update includes a position, it corresponds to a placed block
-                if (value) {
-                  return { blockNumber, blockType, action: "add" };
-                }
-                // otherwise it corresponds to a mined ecs block
-                else {
+                // Item component updates correspond to a mined terrain block
+                if (componentKey === "Item") {
+                  // TODO: We added this because value was undefined, should figure out why the original line (below) doesn't work
+                  const entityId = getComponentValue(Item, entity)?.value;
+                  // const { value: entityId } = value as ComponentValue<SchemaOf<typeof Item>>;
+                  const blockType = BlockIdToKey[entityId as Entity];
                   return { blockNumber, blockType, action: "remove" };
                 }
+
+                // Position component updates correspond to a mined or placed ECS block
+                if (componentKey === "Position") {
+                  // const entityIndex = world.entityToIndex.get(entity);
+                  const entityIndex = entity;
+                  const blockTypeId =
+                    entityIndex != null
+                      ? getComponentValue(Item, entityIndex)?.value
+                      : undefined;
+                  if (!blockTypeId) {
+                    return;
+                  }
+                  const blockType = BlockIdToKey[blockTypeId as Entity];
+
+                  // If the update includes a position, it corresponds to a placed block
+                  if (value) {
+                    return { blockNumber, blockType, action: "add" };
+                  }
+                  // otherwise it corresponds to a mined ecs block
+                  else {
+                    return { blockNumber, blockType, action: "remove" };
+                  }
+                }
               }
-            })
+            )
           )
           .pipe(filterNullish())
       )
@@ -146,12 +163,17 @@ export function registerBlockExplorer() {
         .pipe(
           scan<BlockEvent, BlockSummary>((summary, event) => {
             const block =
-              summary.find(([blockNumber]) => event.blockNumber === blockNumber) ||
-              ([event.blockNumber, {}] as BlockSummaryElement);
-            const otherBlocks = summary.filter(([blockNumber]) => event.blockNumber !== blockNumber) as BlockSummary;
+              summary.find(
+                ([blockNumber]) => event.blockNumber === blockNumber
+              ) || ([event.blockNumber, {}] as BlockSummaryElement);
+            const otherBlocks = summary.filter(
+              ([blockNumber]) => event.blockNumber !== blockNumber
+            ) as BlockSummary;
 
             if (event.blockType && event.action) {
-              block[1][event.blockType] = block[1][event.blockType] || { [event.action]: 0 };
+              block[1][event.blockType] = block[1][event.blockType] || {
+                [event.action]: 0,
+              };
               const current = block[1][event.blockType][event.action] || 0;
               block[1][event.blockType][event.action] = current + 1;
             }
@@ -168,16 +190,22 @@ export function registerBlockExplorer() {
             <div
               key={blockNumber}
               className="BlockExplorer-Block"
-              onClick={() => window.open(blockExplorer + "/block/" + blockNumber)}
+              onClick={() =>
+                window.open(blockExplorer + "/block/" + blockNumber)
+              }
             >
-              {blockNumber % 16 === 0 ? <div className="BlockExplorer-BlockNumber">{blockNumber}</div> : null}
+              {blockNumber % 16 === 0 ? (
+                <div className="BlockExplorer-BlockNumber">{blockNumber}</div>
+              ) : null}
               <div className="BlockExplorer-Actions">
                 {Object.entries(block).map(([blockType, counts]) => (
                   <React.Fragment key={blockType}>
                     {counts.add ? (
                       <div className="BlockExplorer-Action">
                         <img src={getBlockIconUrl(blockType as BlockTypeKey)} />
-                        <div className="BlockExplorer-ActionIcon BlockExplorer-ActionIcon--add">+{counts.add}</div>
+                        <div className="BlockExplorer-ActionIcon BlockExplorer-ActionIcon--add">
+                          +{counts.add}
+                        </div>
                       </div>
                     ) : null}
                     {counts.remove ? (

@@ -74,7 +74,18 @@ function defineWoolTree(): Structure {
 export const Tree = defineTree();
 export const WoolTree = defineWoolTree();
 
-export function getStructureBlock(structure: Structure, { x, y, z }: VoxelCoord) {
-  if (x < 0 || y < 0 || z < 0 || x >= STRUCTURE_CHUNK || y >= STRUCTURE_CHUNK || z >= STRUCTURE_CHUNK) return undefined;
+export function getStructureBlock(
+  structure: Structure,
+  { x, y, z }: VoxelCoord
+) {
+  if (
+    x < 0 ||
+    y < 0 ||
+    z < 0 ||
+    x >= STRUCTURE_CHUNK ||
+    y >= STRUCTURE_CHUNK ||
+    z >= STRUCTURE_CHUNK
+  )
+    return undefined;
   return structure[x][y][z];
 }

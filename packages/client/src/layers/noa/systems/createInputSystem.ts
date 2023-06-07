@@ -52,7 +52,7 @@ export function createInputSystem(network: NetworkLayer, context: NoaLayer) {
     streams: { balanceGwei$ },
   } = network;
 
-  // mine targeted block on on left click
+  // mine targeted block on left click
   noa.inputs.bind("fire", "F");
 
   function canInteract() {
@@ -219,24 +219,10 @@ export function createInputSystem(network: NetworkLayer, context: NoaLayer) {
   noa.inputs.bind("inventory", "E");
   noa.inputs.down.on("inventory", () => {
     const showInventory = getComponentValue(UI, SingletonEntity)?.showInventory;
-    // we need to check if the input is not focused, cause when we're searching for an item in the creative move inventory, we may press "e" which will close the inventory
-    if ((!noa.container.hasPointerLock && !showInventory) || isInputFocused()) {
+    if (!noa.container.hasPointerLock && !showInventory) {
       return;
     }
 
-    // disable movement when inventory is open
-    // https://github.com/fenomas/noa/issues/61
-    if (showInventory) {
-      noa.entities.addComponent(
-        noa.playerEntity,
-        noa.ents.names.receivesInputs
-      );
-    } else {
-      noa.entities.removeComponent(
-        noa.playerEntity,
-        noa.ents.names.receivesInputs
-      );
-    }
     toggleInventory();
     updateComponent(Tutorial, SingletonEntity, { inventory: false });
   });
@@ -310,7 +296,3 @@ export function createInputSystem(network: NetworkLayer, context: NoaLayer) {
     setComponent(VoxelSelection, SingletonEntity, { points: points as any });
   });
 }
-const isInputFocused = () => {
-  const activeElement = document.activeElement;
-  return activeElement && activeElement.tagName === "INPUT";
-};

@@ -1,4 +1,10 @@
-import { Component, ComponentValue, defineRxSystem, SchemaOf, updateComponent } from "@latticexyz/recs";
+import {
+  Component,
+  ComponentValue,
+  defineRxSystem,
+  SchemaOf,
+  updateComponent,
+} from "@latticexyz/recs";
 import { NetworkLayer } from "../../network";
 import { NoaLayer } from "../types";
 
@@ -12,7 +18,9 @@ export function createTutorialSystem(network: NetworkLayer, context: NoaLayer) {
     SingletonEntity,
   } = context;
 
-  function updateTutorial(update: Partial<ComponentValue<SchemaOf<typeof Tutorial>>>) {
+  function updateTutorial(
+    update: Partial<ComponentValue<SchemaOf<typeof Tutorial>>>
+  ) {
     updateComponent(Tutorial, SingletonEntity, update);
   }
 

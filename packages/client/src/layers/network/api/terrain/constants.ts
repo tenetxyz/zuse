@@ -5,7 +5,12 @@ export enum Biome {
   Savanna,
 }
 
-export const Biomes: [Biome, Biome, Biome, Biome] = [Biome.Mountains, Biome.Desert, Biome.Forest, Biome.Savanna];
+export const Biomes: [Biome, Biome, Biome, Biome] = [
+  Biome.Mountains,
+  Biome.Desert,
+  Biome.Forest,
+  Biome.Savanna,
+];
 
 // [humidity, heat]
 export const BiomeVectors: { [key in Biome]: [number, number] } = {

@@ -25,7 +25,10 @@ export function getChunkHash(coord: VoxelCoord) {
 }
 
 export function getBiomeHash(coord: VoxelCoord, biome: Biome) {
-  return getCoordHash(Math.floor(coord.x / 300) + Math.floor(coord.z / 300), biome);
+  return getCoordHash(
+    Math.floor(coord.x / 300) + Math.floor(coord.z / 300),
+    biome
+  );
 }
 
 function getChunkCoord({ x, z }: VoxelCoord) {
@@ -43,7 +46,10 @@ export function getTerrain(coord: VoxelCoord, perlin: Perlin): Terrain {
   return { biome, height };
 }
 
-function getChunkOffsetAndHeight(coord: VoxelCoord, perlin: Perlin): { offset: VoxelCoord; height: number } {
+function getChunkOffsetAndHeight(
+  coord: VoxelCoord,
+  perlin: Perlin
+): { offset: VoxelCoord; height: number } {
   const chunkCoord = getChunkCoord(coord);
 
   const centerCoord = {
@@ -62,7 +68,10 @@ function getChunkOffsetAndHeight(coord: VoxelCoord, perlin: Perlin): { offset: V
   return { height, offset };
 }
 
-export function accessState<K extends keyof TerrainState>(state: TerrainState, prop: K): NonNullable<TerrainState[K]> {
+export function accessState<K extends keyof TerrainState>(
+  state: TerrainState,
+  prop: K
+): NonNullable<TerrainState[K]> {
   let value = state[prop];
   if (value != null) return value;
   const { coord, biomeVector, height, perlin } = state;

@@ -1,6 +1,11 @@
 // import { formatEntityID } from "@latticexyz/network";
-import { formatEntityID } from "./entity"
-import { Coord, padToBitLength, to256BitString, toInt32 } from "@latticexyz/utils";
+import { formatEntityID } from "./entity";
+import {
+  Coord,
+  padToBitLength,
+  to256BitString,
+  toInt32,
+} from "@latticexyz/utils";
 
 export function getStakeEntity(chunk: Coord, entity: string) {
   return formatEntityID(

@@ -33,7 +33,10 @@ export function registerLoadingState() {
       // const GodEntityIndex = world.entityToIndex.get(SingletonID);
       const GodEntityIndex = SingletonID;
 
-      const loadingState = GodEntityIndex == null ? null : getComponentValue(LoadingState, GodEntityIndex);
+      const loadingState =
+        GodEntityIndex == null
+          ? null
+          : getComponentValue(LoadingState, GodEntityIndex);
       if (loadingState == null) {
         return <BootScreen initialOpacity={1}>Connecting</BootScreen>;
       }
@@ -43,7 +46,8 @@ export function registerLoadingState() {
           <BootScreen initialOpacity={1}>
             {loadingState.msg}
             <LoadingContainer>
-              {Math.floor(loadingState.percentage)}%<Loading percentage={loadingState.percentage} />
+              {Math.floor(loadingState.percentage)}%
+              <Loading percentage={loadingState.percentage} />
             </LoadingContainer>
           </BootScreen>
         );

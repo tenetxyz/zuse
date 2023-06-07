@@ -1,6 +1,6 @@
 import { useComponentValue } from "@latticexyz/react";
 import { useMUD } from "./MUDContext";
-import {Engine} from "./layers/react/engine";
+import { Engine } from "./layers/react/engine";
 
 export const App = () => {
   const {

@@ -20,7 +20,11 @@ export enum NoaBlockType {
  * array of 6 names: [-x, +x, -y, +y, -z, +z]
  */
 export type Block = {
-  material: string | [string, string] | [string, string, string] | [string, string, string, string, string, string];
+  material:
+    | string
+    | [string, string]
+    | [string, string, string]
+    | [string, string, string, string, string, string];
   type: NoaBlockType;
   frames?: number;
   opaque?: boolean;

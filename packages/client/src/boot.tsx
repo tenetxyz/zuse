@@ -192,16 +192,19 @@ function bootReact() {
 
   if (import.meta.hot) {
     // HMR React components
-    import.meta.hot.accept("./layers/react/components/index.ts", async (module) => {
-      registerUIComponents = module?.registerUIComponents;
-      registerUIComponents();
-    });
+    import.meta.hot.accept(
+      "./layers/react/components/index.ts",
+      async (module) => {
+        registerUIComponents = module?.registerUIComponents;
+        registerUIComponents();
+      }
+    );
   }
 }
 
 export type BootType = Awaited<ReturnType<typeof boot>>;
 
-export async function boot(network: NetworkLayer){
+export async function boot(network: NetworkLayer) {
   bootReact();
   const game = await bootGame(network);
   return game;

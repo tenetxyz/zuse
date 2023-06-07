@@ -8,9 +8,11 @@ import { ActionState } from "@latticexyz/std-client";
 import { ActionStatusIcon } from "./Action";
 import { Observable } from "rxjs";
 
-const DEFAULT_TEXT = "Play OPCraft https://bit.ly/3VCVYyt @latticexyz @optimismFND\n\n";
+const DEFAULT_TEXT =
+  "Play OPCraft https://bit.ly/3VCVYyt @latticexyz @optimismFND\n\n";
 const TWITTER_URL = "https://twitter.com/intent/tweet?text=";
-const SIGNATURE_TEXT = (handle: string, address: string) => `${handle} tweetooor requesting drip to ${address} address`;
+const SIGNATURE_TEXT = (handle: string, address: string) =>
+  `${handle} tweetooor requesting drip to ${address} address`;
 
 export const Balance: React.FC<{
   address: string;
@@ -33,7 +35,9 @@ export const Balance: React.FC<{
   }
 
   async function updateBalance() {
-    const balance = await signer.getBalance().then((v) => v.div(BigNumber.from(10).pow(9)).toNumber());
+    const balance = await signer
+      .getBalance()
+      .then((v) => v.div(BigNumber.from(10).pow(9)).toNumber());
     setBalance(balance);
   }
 
@@ -53,7 +57,8 @@ export const Balance: React.FC<{
   // Fetch the tile until next drip once
   useEffect(() => {
     (async () => {
-      const { username: linkedUsername } = (await faucet?.getLinkedTwitterForAddress({ address })) || {};
+      const { username: linkedUsername } =
+        (await faucet?.getLinkedTwitterForAddress({ address })) || {};
       if (linkedUsername) {
         setUsername(linkedUsername);
         updateTimeUntilDrip(linkedUsername);
@@ -72,7 +77,9 @@ export const Balance: React.FC<{
 
   async function tweet() {
     if (!faucet || !username) return;
-    const signature = ecoji.encode(await signer.signMessage(SIGNATURE_TEXT(username, address)));
+    const signature = ecoji.encode(
+      await signer.signMessage(SIGNATURE_TEXT(username, address))
+    );
     const text = encodeURIComponent(DEFAULT_TEXT + signature);
     window.open(TWITTER_URL + text);
   }
@@ -104,7 +111,11 @@ export const Balance: React.FC<{
   const TwitterBox = (
     <Relative>
       <InputBefore>@</InputBefore>
-      <Input value={username} onChange={(e) => setUsername(e.target.value)} placeholder={"twitter handle"} />
+      <Input
+        value={username}
+        onChange={(e) => setUsername(e.target.value)}
+        placeholder={"twitter handle"}
+      />
       <Buttons>
         <TwitterButton disabled={!username} onClick={tweet}>
           1. Tweet
@@ -120,19 +131,24 @@ export const Balance: React.FC<{
     <>
       <BalanceContainer>
         <p>
-          <Title>Hello,</Title> {username && locked ? "@" + username : address?.substring(0, 6) + "..."}
+          <Title>Hello,</Title>{" "}
+          {username && locked
+            ? "@" + username
+            : address?.substring(0, 6) + "..."}
         </p>
         <p>Balance: {balance} GWEI</p>
         {open ? TwitterBox : null}
         {faucet && (
-          <TwitterButton disabled={!open && timeToDrip > 0} onClick={onRequestDrip}>
+          <TwitterButton
+            disabled={!open && timeToDrip > 0}
+            onClick={onRequestDrip}
+          >
             {open ? (
               "Cancel"
             ) : timeToDrip > 0 ? (
-              `${String(Math.floor(timeToDrip / 60)).padStart(2, "0")}:${String(timeToDrip % 60).padStart(
-                2,
-                "0"
-              )} till next drip`
+              `${String(Math.floor(timeToDrip / 60)).padStart(2, "0")}:${String(
+                timeToDrip % 60
+              ).padStart(2, "0")} till next drip`
             ) : status ? (
               <ActionStatusIcon state={status} />
             ) : (

@@ -2,7 +2,16 @@ import React, { useEffect, useState } from "react";
 import { registerUIComponent } from "../engine";
 import { combineLatest, concat, map, of } from "rxjs";
 import styled from "styled-components";
-import { Background, Button, Center, Checkbox, Container, Gold, IconButton, Title } from "./common";
+import {
+  Background,
+  Button,
+  Center,
+  Checkbox,
+  Container,
+  Gold,
+  IconButton,
+  Title,
+} from "./common";
 import {
   clearLocalCache,
   ComponentValue,
@@ -30,9 +39,16 @@ export function registerPlugins() {
     },
     (layers) => {
       const { Plugin } = layers.network.components;
-      const show$ = concat(of(false), layers.noa.components.UI.update$.pipe(map((e) => e.value[0]?.showPlugins)));
+      const show$ = concat(
+        of(false),
+        layers.noa.components.UI.update$.pipe(
+          map((e) => e.value[0]?.showPlugins)
+        )
+      );
       const plugin$ = concat(of(1), Plugin.update$);
-      return combineLatest([show$, of(layers), plugin$]).pipe(map((props) => ({ props })));
+      return combineLatest([show$, of(layers), plugin$]).pipe(
+        map((props) => ({ props }))
+      );
     },
     ({ props: [show, layers] }) => {
       // Setup local state
@@ -43,7 +59,13 @@ export function registerPlugins() {
       // Unpack relevant variables
       const {
         components: { Plugin, PluginRegistry },
-        api: { addPlugin, reloadPlugin, togglePlugin, addPluginRegistry, reloadPluginRegistryUrl },
+        api: {
+          addPlugin,
+          reloadPlugin,
+          togglePlugin,
+          addPluginRegistry,
+          reloadPluginRegistryUrl,
+        },
         uniqueWorldId,
       } = layers.network;
 
@@ -56,7 +78,12 @@ export function registerPlugins() {
       function handleAddPlugin() {
         try {
           const url = new URL(input);
-          addPlugin({ host: url.origin, path: url.pathname, source: url.href, active: false });
+          addPlugin({
+            host: url.origin,
+            path: url.pathname,
+            source: url.href,
+            active: false,
+          });
           setInput(url.origin + url.pathname);
           setTimeout(() => setMode(InputMode.FILTER), 50);
         } catch (e) {
@@ -97,31 +124,36 @@ export function registerPlugins() {
       // Compute plugins to show
       const pluginEntities = [...getComponentEntities(Plugin)];
 
-      const pluginData: [Entity, ComponentValue<SchemaOf<typeof Plugin>>][] = pluginEntities.map((entity) => [
-        entity,
-        getComponentValueStrict(Plugin, entity),
-      ]);
+      const pluginData: [Entity, ComponentValue<SchemaOf<typeof Plugin>>][] =
+        pluginEntities.map((entity) => [
+          entity,
+          getComponentValueStrict(Plugin, entity),
+        ]);
 
       const filteredPluginData =
         mode === InputMode.FILTER
           ? pluginData.filter(
-              ([, { host, source, path }]) => host.includes(input) || source.includes(input) || path.includes(input)
+              ([, { host, source, path }]) =>
+                host.includes(input) ||
+                source.includes(input) ||
+                path.includes(input)
             )
           : pluginData;
 
-      const plugins = filteredPluginData.reduce<{ [key: string]: [Entity, string, string, boolean][] }>(
-        (acc, curr) => {
-          const [entity, value] = curr;
-          const { host, path, source, active } = value;
-          acc[host] = acc[host] ?? [];
-          acc[host].push([entity, path, source, active]);
-          acc[host].sort((a, b) => (a[1] > b[1] ? 1 : -1));
-          return acc;
-        },
-        {}
-      );
+      const plugins = filteredPluginData.reduce<{
+        [key: string]: [Entity, string, string, boolean][];
+      }>((acc, curr) => {
+        const [entity, value] = curr;
+        const { host, path, source, active } = value;
+        acc[host] = acc[host] ?? [];
+        acc[host].push([entity, path, source, active]);
+        acc[host].sort((a, b) => (a[1] > b[1] ? 1 : -1));
+        return acc;
+      }, {});
 
-      const sortedPlugins = Object.entries(plugins).sort((a, b) => (a[0] > b[0] ? 1 : -1));
+      const sortedPlugins = Object.entries(plugins).sort((a, b) =>
+        a[0] > b[0] ? 1 : -1
+      );
 
       return (
         <Center>
@@ -140,7 +172,9 @@ export function registerPlugins() {
                   <>
                     <Gold>Reload required to remove plugin.</Gold>
                     <ButtonRow>
-                      <PluginButton onClick={() => window.location.reload()}>Reload</PluginButton>
+                      <PluginButton onClick={() => window.location.reload()}>
+                        Reload
+                      </PluginButton>
                       <PluginButton
                         onClick={async () => {
                           clearLocalCache(Plugin, uniqueWorldId);
@@ -154,9 +188,15 @@ export function registerPlugins() {
                     </ButtonRow>
                   </>
                 )}
-                {mode === InputMode.PLUGIN && <PluginButton onClick={handleAddPlugin}>Add plugin</PluginButton>}
+                {mode === InputMode.PLUGIN && (
+                  <PluginButton onClick={handleAddPlugin}>
+                    Add plugin
+                  </PluginButton>
+                )}
                 {mode === InputMode.REGISTRY && (
-                  <PluginButton onClick={handleAddRegistry}>Add plugin registry</PluginButton>
+                  <PluginButton onClick={handleAddRegistry}>
+                    Add plugin registry
+                  </PluginButton>
                 )}
                 {sortedPlugins.map(([host, ps], index) => {
                   return (
@@ -165,11 +205,16 @@ export function registerPlugins() {
                         <PluginHeadline href={ps[0]?.[2]} target="_blank">
                           {host}
                         </PluginHeadline>
-                        <IconButton onClick={() => reloadPluginRegistryUrl(host)} icon={"reload"} />
+                        <IconButton
+                          onClick={() => reloadPluginRegistryUrl(host)}
+                          icon={"reload"}
+                        />
                       </PluginHeadlineRow>
                       {ps.map(([entity, path, source, active], index) => {
                         return (
-                          <PluginContainer key={"plugin/" + host + path + index}>
+                          <PluginContainer
+                            key={"plugin/" + host + path + index}
+                          >
                             <Checkbox
                               checked={active}
                               setChecked={(checked) => {
@@ -177,9 +222,17 @@ export function registerPlugins() {
                                 setReloadRequired(reloadRequired || !checked);
                               }}
                             />
-                            <IconButton onClick={() => reloadPlugin(entity)} icon={"reload"} />
-                            <IconButton onClick={() => window.open(source)} icon={"code"} />
-                            <PluginName>{path.split(".")[0]?.replace("/", "")}</PluginName>
+                            <IconButton
+                              onClick={() => reloadPlugin(entity)}
+                              icon={"reload"}
+                            />
+                            <IconButton
+                              onClick={() => window.open(source)}
+                              icon={"code"}
+                            />
+                            <PluginName>
+                              {path.split(".")[0]?.replace("/", "")}
+                            </PluginName>
                           </PluginContainer>
                         );
                       })}

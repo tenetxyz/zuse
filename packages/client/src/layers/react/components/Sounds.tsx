@@ -5,10 +5,10 @@ import { IconButton } from "./common";
 
 const MAX_VOLUME = 1;
 
-export const Sounds: React.FC<{ playRandomTheme: () => void; playNextTheme: () => void }> = ({
-  playRandomTheme,
-  playNextTheme,
-}) => {
+export const Sounds: React.FC<{
+  playRandomTheme: () => void;
+  playNextTheme: () => void;
+}> = ({ playRandomTheme, playNextTheme }) => {
   const [prevVolume, setPrevVolume] = useState(0);
   const [volume, _setVolume] = useState(0);
   const [unlocked, setUnlocked] = useState(false);
@@ -43,12 +43,24 @@ export const Sounds: React.FC<{ playRandomTheme: () => void; playNextTheme: () =
   return (
     <>
       <Container>
-        <VolumeRow onMouseEnter={() => setShowAdditional(true)} onMouseLeave={() => setShowAdditional(false)}>
-          <IconButton onClick={toggleSound} icon={volume > 0 ? "volume-2" : "volume-x"} />
+        <VolumeRow
+          onMouseEnter={() => setShowAdditional(true)}
+          onMouseLeave={() => setShowAdditional(false)}
+        >
+          <IconButton
+            onClick={toggleSound}
+            icon={volume > 0 ? "volume-2" : "volume-x"}
+          />
           {showAdditional && (
             <>
-              <IconButton onClick={() => setVolume(volume - 0.1)} icon={"volume-minus"} />
-              <IconButton onClick={() => setVolume(volume + 0.1)} icon={"volume-plus"} />
+              <IconButton
+                onClick={() => setVolume(volume - 0.1)}
+                icon={"volume-minus"}
+              />
+              <IconButton
+                onClick={() => setVolume(volume + 0.1)}
+                icon={"volume-plus"}
+              />
             </>
           )}
         </VolumeRow>

@@ -11,7 +11,12 @@ import { NoaBlockType } from "../types";
 import { createMeshBlock } from "./utils";
 import { BlockIndexToKey, BlockTypeKey } from "../../network/constants";
 import { setupScene } from "../engine/setupScene";
-import { CHUNK_RENDER_DISTANCE, CHUNK_SIZE, MIN_HEIGHT, SKY_COLOR } from "./constants";
+import {
+  CHUNK_RENDER_DISTANCE,
+  CHUNK_SIZE,
+  MIN_HEIGHT,
+  SKY_COLOR,
+} from "./constants";
 
 export interface API {
   getTerrainBlockAtPosition: (coord: VoxelCoord) => Entity;
@@ -51,29 +56,54 @@ export function setupNoaEngine(api: API) {
   const body = noa.ents.getPhysics(1)?.body;
   if (body) body.gravityMultiplier = 0;
 
-  customizePlayerMovement(noa)
+  customizePlayerMovement(noa);
 
   // Note: this is the amount of time, per tick, spent requesting chunks from userland and meshing them
   // IT DOES NOT INCLUDE TIME SPENT BY THE CLIENT GENERATING THE CHUNKS
   noa.world.maxProcessingPerTick = 12;
   noa.world.maxProcessingPerRender = 8;
   // Register simple materials
-  const textures = Object.values(Blocks).reduce<string[]>((materials, block) => {
-    if (!block || !block.material) return materials;
-    const blockMaterials = (Array.isArray(block.material) ? block.material : [block.material]) as string[];
-    if (blockMaterials) materials.push(...blockMaterials);
-    return materials;
-  }, []);
+  const textures = Object.values(Blocks).reduce<string[]>(
+    (materials, block) => {
+      if (!block || !block.material) return materials;
+      const blockMaterials = (
+        Array.isArray(block.material) ? block.material : [block.material]
+      ) as string[];
+      if (blockMaterials) materials.push(...blockMaterials);
+      return materials;
+    },
+    []
+  );
 
   for (const texture of textures) {
     noa.registry.registerMaterial(texture, undefined, texture);
   }
 
   // override the two water materials
-  noa.registry.registerMaterial(Textures.TransparentWater, [146 / 255, 215 / 255, 233 / 255, 0.5], undefined, true);
-  noa.registry.registerMaterial(Textures.Water, [1, 1, 1, 0.7], Textures.Water, true);
-  noa.registry.registerMaterial(Textures.Leaves, undefined, Textures.Leaves, true);
-  noa.registry.registerMaterial(Textures.Glass, undefined, Textures.Glass, true);
+  noa.registry.registerMaterial(
+    Textures.TransparentWater,
+    [146 / 255, 215 / 255, 233 / 255, 0.5],
+    undefined,
+    true
+  );
+  noa.registry.registerMaterial(
+    Textures.Water,
+    [1, 1, 1, 0.7],
+    Textures.Water,
+    true
+  );
+  noa.registry.registerMaterial(
+    Textures.Leaves,
+    undefined,
+    Textures.Leaves,
+    true
+  );
+  noa.registry.registerMaterial(
+    Textures.Glass,
+    undefined,
+    Textures.Glass,
+    true
+  );
 
   // Register blocks
 
@@ -84,11 +114,19 @@ export function setupNoaEngine(api: API) {
 
     // Register mesh for mesh blocks
     if (block.type === NoaBlockType.MESH) {
-      const texture = Array.isArray(block.material) ? block.material[0] : block.material;
+      const texture = Array.isArray(block.material)
+        ? block.material[0]
+        : block.material;
       if (texture === null) {
         throw new Error("Can't create a plant block without a material");
       }
-      const mesh = createMeshBlock(noa, scene, texture, key, augmentedBlock.frames);
+      const mesh = createMeshBlock(
+        noa,
+        scene,
+        texture,
+        key,
+        augmentedBlock.frames
+      );
       augmentedBlock.blockMesh = mesh;
       delete augmentedBlock.material;
     }
@@ -105,29 +143,46 @@ export function setupNoaEngine(api: API) {
     }
   }
 
-  noa.world.on("worldDataNeeded", function (id: any, data: any, x: any, y: any, z: any) {
-    // `id` - a unique string id for the chunk
-    // `data` - an `ndarray` of voxel ID data (see: https://github.com/scijs/ndarray)
-    // `x, y, z` - world coords of the corner of the chunk
-    if (y < -MIN_HEIGHT) {
-      noa.world.setChunkData(id, data, undefined);
-      return;
-    }
-    for (let i = 0; i < data.shape[0]; i++) {
-      for (let j = 0; j < data.shape[1]; j++) {
-        for (let k = 0; k < data.shape[2]; k++) {
-          const ecsBlockType = BlockTypeIndex[api.getECSBlockAtPosition({ x: x + i, y: y + j, z: z + k }) as string];
-          if (ecsBlockType !== undefined) {
-            data.set(i, j, k, ecsBlockType);
-          } else {
-            const blockType = BlockTypeIndex[api.getTerrainBlockAtPosition({ x: x + i, y: y + j, z: z + k }) as string];
-            data.set(i, j, k, blockType);
+  noa.world.on(
+    "worldDataNeeded",
+    function (id: any, data: any, x: any, y: any, z: any) {
+      // `id` - a unique string id for the chunk
+      // `data` - an `ndarray` of voxel ID data (see: https://github.com/scijs/ndarray)
+      // `x, y, z` - world coords of the corner of the chunk
+      if (y < -MIN_HEIGHT) {
+        noa.world.setChunkData(id, data, undefined);
+        return;
+      }
+      for (let i = 0; i < data.shape[0]; i++) {
+        for (let j = 0; j < data.shape[1]; j++) {
+          for (let k = 0; k < data.shape[2]; k++) {
+            const ecsBlockType =
+              BlockTypeIndex[
+                api.getECSBlockAtPosition({
+                  x: x + i,
+                  y: y + j,
+                  z: z + k,
+                }) as string
+              ];
+            if (ecsBlockType !== undefined) {
+              data.set(i, j, k, ecsBlockType);
+            } else {
+              const blockType =
+                BlockTypeIndex[
+                  api.getTerrainBlockAtPosition({
+                    x: x + i,
+                    y: y + j,
+                    z: z + k,
+                  }) as string
+                ];
+              data.set(i, j, k, blockType);
+            }
           }
         }
       }
+      noa.world.setChunkData(id, data, undefined);
     }
-    noa.world.setChunkData(id, data, undefined);
-  });
+  );
 
   const { glow } = setupScene(noa);
 
@@ -146,6 +201,6 @@ function customizePlayerMovement(noa: Engine) {
 
   // Make it so that players can still control their movement while in the air
   // why? because it feels weird when players lose control of their character: https://www.reddit.com/r/gamedev/comments/j3iigd/why_moving_in_the_air_after_jumping_in_games/
-  noa.ents.getMovement(1).airMoveMult = 20
-  noa.ents.getMovement(1).standingFriction= 100
+  noa.ents.getMovement(1).airMoveMult = 20;
+  noa.ents.getMovement(1).standingFriction = 100;
 }

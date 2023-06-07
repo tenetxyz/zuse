@@ -6,18 +6,20 @@ export default mudConfig({
     Item: "bytes32",
     ItemPrototype: "bool",
     Name: "string", // This is a shortcut for { schema: "string" }
-    Occurrence: { // Each block generates at diff spots in the world, and each block has a function defining where it should appear. This table points to each block's respective generation function.
+    Occurrence: {
+      // Each block generates at diff spots in the world, and each block has a function defining where it should appear. This table points to each block's respective generation function.
       schema: {
-        functionPointer: "bytes4"
-      }
+        functionPointer: "bytes4",
+      },
     },
     OwnedBy: "bytes32",
     Position: {
-      schema: { // VoxelCoord is removed in MUD2, so we need to manually specify x,y,z
+      schema: {
+        // VoxelCoord is removed in MUD2, so we need to manually specify x,y,z
         x: "int32",
         y: "int32",
-        z: "int32"
-      }
+        z: "int32",
+      },
     },
     Recipe: "bytes32",
     Stake: "uint32",
@@ -25,7 +27,7 @@ export default mudConfig({
       schema: {
         stake: "uint32",
         claimer: "bytes32",
-      }
+      },
     },
   },
   modules: [

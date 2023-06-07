@@ -1,7 +1,10 @@
 import React from "react";
 import styled from "styled-components";
 
-export const LoadingBar: React.FC<{ percentage: number; className?: string }> = ({ percentage, className }) => {
+export const LoadingBar: React.FC<{
+  percentage: number;
+  className?: string;
+}> = ({ percentage, className }) => {
   return (
     <Wrapper className={className}>
       <Inner percentage={percentage} />

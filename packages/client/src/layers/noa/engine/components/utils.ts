@@ -1,7 +1,11 @@
 import { VoxelCoord } from "@latticexyz/utils";
 import { Engine } from "noa-engine";
 
-export function hasNoaComponent(noa: Engine, entity: number, componentName: string): boolean {
+export function hasNoaComponent(
+  noa: Engine,
+  entity: number,
+  componentName: string
+): boolean {
   // eslint-disable-next-line @typescript-eslint/ban-ts-comment
   //@ts-ignore
   const s = noa.entities.getState(entity, componentName);
@@ -11,7 +15,11 @@ export function hasNoaComponent(noa: Engine, entity: number, componentName: stri
   return true;
 }
 
-export function getNoaComponentStrict<S>(noa: Engine, entity: number, componentName: string): S {
+export function getNoaComponentStrict<S>(
+  noa: Engine,
+  entity: number,
+  componentName: string
+): S {
   // eslint-disable-next-line @typescript-eslint/ban-ts-comment
   //@ts-ignore
   const s = noa.entities.getState(entity, componentName);
@@ -21,7 +29,11 @@ export function getNoaComponentStrict<S>(noa: Engine, entity: number, componentN
   return s as S;
 }
 
-export function getNoaComponent<S>(noa: Engine, entity: number, componentName: string): S | undefined {
+export function getNoaComponent<S>(
+  noa: Engine,
+  entity: number,
+  componentName: string
+): S | undefined {
   // eslint-disable-next-line @typescript-eslint/ban-ts-comment
   //@ts-ignore
   const s = noa.entities.getState(entity, componentName);
@@ -45,13 +57,21 @@ export function setNoaComponent<S extends Record<string, any>>(
   }
 }
 
-export function removeNoaComponent(noa: Engine, entity: number, component: string) {
+export function removeNoaComponent(
+  noa: Engine,
+  entity: number,
+  component: string
+) {
   // eslint-disable-next-line @typescript-eslint/ban-ts-comment
   //@ts-ignore
   noa.entities.removeComponent(entity, component);
 }
 
-export function setNoaPosition(noa: Engine, entity: number, position: VoxelCoord) {
+export function setNoaPosition(
+  noa: Engine,
+  entity: number,
+  position: VoxelCoord
+) {
   noa.entities.setPosition(entity, position.x, position.y, position.z);
 }
 

@@ -1,9 +1,17 @@
 import { SyncState } from "@latticexyz/network";
-import { defineRxSystem, getComponentValueStrict, hasComponent, setComponent } from "@latticexyz/recs";
+import {
+  defineRxSystem,
+  getComponentValueStrict,
+  hasComponent,
+  setComponent,
+} from "@latticexyz/recs";
 import { NetworkLayer } from "../../network";
 import { NoaLayer } from "../types";
 
-export function createSyncLocalPlayerPositionSystem(network: NetworkLayer, context: NoaLayer) {
+export function createSyncLocalPlayerPositionSystem(
+  network: NetworkLayer,
+  context: NoaLayer
+) {
   const {
     components: { LoadingState },
   } = network;
@@ -16,7 +24,10 @@ export function createSyncLocalPlayerPositionSystem(network: NetworkLayer, conte
 
   defineRxSystem(world, slowPlayerPosition$, (pos) => {
     if (!hasComponent(LoadingState, SingletonEntity)) return;
-    if (getComponentValueStrict(LoadingState, SingletonEntity).state !== SyncState.LIVE) {
+    if (
+      getComponentValueStrict(LoadingState, SingletonEntity).state !==
+      SyncState.LIVE
+    ) {
       return;
     }
     setComponent(LocalPlayerPosition, SingletonEntity, pos);

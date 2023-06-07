@@ -20,12 +20,20 @@ export interface HandComponent {
 
 export const HAND_COMPONENT = "HAND_COMPONENT";
 
-export function registerHandComponent(noa: Engine, getSelectedBlockType: () => Entity | undefined) {
+export function registerHandComponent(
+  noa: Engine,
+  getSelectedBlockType: () => Entity | undefined
+) {
   // eslint-disable-next-line @typescript-eslint/ban-ts-comment
   //@ts-ignore
   noa.ents.createComponent({
     name: HAND_COMPONENT,
-    state: { isMining: false, handMesh: null, blockMesh: null, blockMaterial: null },
+    state: {
+      isMining: false,
+      handMesh: null,
+      blockMesh: null,
+      blockMaterial: null,
+    },
     system: function (dt: number, states: HandComponent[]) {
       for (let i = 0; i < states.length; i++) {
         const { handMesh, isMining, blockMesh, blockMaterials } = states[i];
@@ -53,7 +61,10 @@ export function registerHandComponent(noa: Engine, getSelectedBlockType: () => E
             scene.stopAnimation(blockMesh);
             scene.beginAnimation(handMesh, 0, 100, true);
             scene.beginAnimation(blockMesh, 0, 100, true);
-          } else if (!isMining && handMesh.animations[0].name.includes("mining")) {
+          } else if (
+            !isMining &&
+            handMesh.animations[0].name.includes("mining")
+          ) {
             handMesh.animations.pop();
             handMesh.animations.push(IDLE_ANIMATION_BOX_HAND);
             blockMesh.animations.pop();

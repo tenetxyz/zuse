@@ -54,8 +54,16 @@ export function setupHand(noa: Engine) {
   const blockMaterials: { [key in BlockTypeKey]?: BABYLON.Material } = {};
   for (const key of Object.keys(UVWraps) as BlockTypeKey[]) {
     if (UVWraps[key] !== undefined) {
-      const blockMaterial = noa.rendering.makeStandardMaterial("blockMaterial-" + key);
-      blockMaterial.diffuseTexture = new Texture(UVWraps[key]!, scene, true, true, Texture.NEAREST_SAMPLINGMODE);
+      const blockMaterial = noa.rendering.makeStandardMaterial(
+        "blockMaterial-" + key
+      );
+      blockMaterial.diffuseTexture = new Texture(
+        UVWraps[key]!,
+        scene,
+        true,
+        true,
+        Texture.NEAREST_SAMPLINGMODE
+      );
       blockMaterials[key as BlockTypeKey] = blockMaterial;
     } else {
       blockMaterials[key as BlockTypeKey] = undefined;
@@ -108,7 +116,11 @@ export function setupHand(noa: Engine) {
   });
 }
 
-function createFaceUV(offset: number[], size: number[], textureSize: number[]): Vector4[] {
+function createFaceUV(
+  offset: number[],
+  size: number[],
+  textureSize: number[]
+): Vector4[] {
   const faceUV = new Array(6);
   faceUV[0] = new Vector4(
     (offset[0] + size[2]) / textureSize[0],

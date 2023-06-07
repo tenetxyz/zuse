@@ -18,7 +18,9 @@ export type GameConfig = {
   blockExplorer?: string;
 };
 
-export const getNetworkConfig: (networkConfig: GameConfig) => SetupContractConfig = (config) => ({
+export const getNetworkConfig: (
+  networkConfig: GameConfig
+) => SetupContractConfig = (config) => ({
   clock: {
     period: config.blockTime,
     initialTime: 0,

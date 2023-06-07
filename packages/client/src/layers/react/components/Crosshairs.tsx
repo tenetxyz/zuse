@@ -13,7 +13,12 @@ export function registerCrosshairs() {
       colEnd: 13,
     },
     (layers) =>
-      concat(of(1), layers.noa.components.UI.update$.pipe(map((e) => (e.value[0]?.showInventory ? null : true)))),
+      concat(
+        of(1),
+        layers.noa.components.UI.update$.pipe(
+          map((e) => (e.value[0]?.showInventory ? null : true))
+        )
+      ),
     () => {
       return <Cross>+</Cross>;
     }

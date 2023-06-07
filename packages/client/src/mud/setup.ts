@@ -1,7 +1,7 @@
 import { createClientComponents } from "./createClientComponents";
 import { createSystemCalls } from "./createSystemCalls";
 import { setupNetwork } from "./setupNetwork";
-import {boot} from "../boot";
+import { boot } from "../boot";
 
 export type SetupResult = Awaited<ReturnType<typeof setup>>;
 

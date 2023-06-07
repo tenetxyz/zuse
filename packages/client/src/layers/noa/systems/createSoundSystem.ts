@@ -51,8 +51,11 @@ export function createSoundSystem(network: NetworkLayer, context: NoaLayer) {
 
   // Register music
   const themes = musicUrls.map((url, index) => {
-    const sound: Sound = new Sound("theme" + index, url, null, null, { volume: 0.5 });
-    sound.onended = () => updateComponent(Sounds, SingletonEntity, { playingTheme: undefined });
+    const sound: Sound = new Sound("theme" + index, url, null, null, {
+      volume: 0.5,
+    });
+    sound.onended = () =>
+      updateComponent(Sounds, SingletonEntity, { playingTheme: undefined });
     return sound.name;
   });
   updateComponent(Sounds, SingletonEntity, { themes });
@@ -90,8 +93,12 @@ export function createSoundSystem(network: NetworkLayer, context: NoaLayer) {
     const prevPlayingTheme = update.value[1]?.playingTheme;
     const playingTheme = update.value[0]?.playingTheme;
 
-    const prevSound = prevPlayingTheme ? scene.getSoundByName(prevPlayingTheme) : undefined;
-    const newSound = playingTheme ? scene.getSoundByName(playingTheme) : undefined;
+    const prevSound = prevPlayingTheme
+      ? scene.getSoundByName(prevPlayingTheme)
+      : undefined;
+    const newSound = playingTheme
+      ? scene.getSoundByName(playingTheme)
+      : undefined;
 
     prevSound?.stop();
     newSound?.play();
@@ -112,7 +119,11 @@ export function createSoundSystem(network: NetworkLayer, context: NoaLayer) {
     [Has(Position), Has(Item)],
     (update) => {
       // Don't play sounds during initial loading
-      if (getComponentValue(LoadingState, SingletonEntity)?.state !== SyncState.LIVE) return;
+      if (
+        getComponentValue(LoadingState, SingletonEntity)?.state !==
+        SyncState.LIVE
+      )
+        return;
 
       // Get data
       const { x, y, z } = playerPosition$.getValue();
@@ -154,16 +165,26 @@ export function createSoundSystem(network: NetworkLayer, context: NoaLayer) {
         if (updateType === UpdateType.Exit) {
           if (itemKey.includes("Wool")) return effect["break"].Wool;
           if (["Log", "Planks"].includes(itemKey)) return effect["break"].Wood;
-          if (["Diamond", "Coal"].includes(itemKey)) return effect["break"].Metal;
-          if (["Stone", "Cobblestone", "MossyCobblestone"].includes(itemKey)) return effect["break"].Stone;
-          return effect["break"][itemKey as keyof typeof effect["break"]] || effect["break"].Dirt;
+          if (["Diamond", "Coal"].includes(itemKey))
+            return effect["break"].Metal;
+          if (["Stone", "Cobblestone", "MossyCobblestone"].includes(itemKey))
+            return effect["break"].Stone;
+          return (
+            effect["break"][itemKey as keyof typeof effect["break"]] ||
+            effect["break"].Dirt
+          );
         }
 
         if (updateType === UpdateType.Enter) {
           if (["Log", "Planks"].includes(itemKey)) return effect["place"].Wood;
-          if (["Diamond", "Coal"].includes(itemKey)) return effect["place"].Metal;
-          if (["Stone", "Cobblestone", "MossyCobblestone"].includes(itemKey)) return effect["place"].Stone;
-          return effect["place"][itemKey as keyof typeof effect["place"]] || effect["place"].Dirt;
+          if (["Diamond", "Coal"].includes(itemKey))
+            return effect["place"].Metal;
+          if (["Stone", "Cobblestone", "MossyCobblestone"].includes(itemKey))
+            return effect["place"].Stone;
+          return (
+            effect["place"][itemKey as keyof typeof effect["place"]] ||
+            effect["place"].Dirt
+          );
         }
       })();
 

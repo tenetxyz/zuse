@@ -1,6 +1,9 @@
 import React from "react";
 import { registerUIComponent } from "../engine";
-import { getComponentEntities, getComponentValueStrict } from "@latticexyz/recs";
+import {
+  getComponentEntities,
+  getComponentValueStrict,
+} from "@latticexyz/recs";
 import { map } from "rxjs";
 import styled from "styled-components";
 import { getBlockIconUrl } from "../../noa/constants";
@@ -64,7 +67,10 @@ export function registerActionQueue() {
       return (
         <ActionQueueList>
           {[...getComponentEntities(Action)].map((e) => {
-            const { state, metadata, txHash } = getComponentValueStrict(Action, e);
+            const { state, metadata, txHash } = getComponentValueStrict(
+              Action,
+              e
+            );
             const { actionType, coord, blockType } = metadata || {};
             const icon = blockType && getBlockIconUrl(blockType);
             return (

@@ -44,10 +44,19 @@ const BREAKING = [
   "./assets/textures/destroy-7.png",
 ];
 
-export function registerMiningBlockComponent(noa: Engine, networkLayer: NetworkLayer) {
+export function registerMiningBlockComponent(
+  noa: Engine,
+  networkLayer: NetworkLayer
+) {
   const scene = noa.rendering.getScene();
   const TEXTURES = BREAKING.map((textureUrl) => {
-    const texture = new BABYLON.Texture(textureUrl, scene, true, true, BABYLON.Texture.NEAREST_SAMPLINGMODE);
+    const texture = new BABYLON.Texture(
+      textureUrl,
+      scene,
+      true,
+      true,
+      BABYLON.Texture.NEAREST_SAMPLINGMODE
+    );
     texture.hasAlpha = true;
     return texture;
   });
@@ -91,7 +100,11 @@ export function registerMiningBlockComponent(noa: Engine, networkLayer: NetworkL
       material.unfreeze();
       material.diffuseTexture = TEXTURES[0];
       for (const _ of [0, 1, 2, 3, 4, 5]) {
-        const mesh = BABYLON.MeshBuilder.CreatePlane("crack", { size: 1.0 }, noa.rendering._scene);
+        const mesh = BABYLON.MeshBuilder.CreatePlane(
+          "crack",
+          { size: 1.0 },
+          noa.rendering._scene
+        );
         mesh.material = material;
         noa.rendering.addMeshToScene(mesh);
         mesh.setEnabled(false);
@@ -105,7 +118,14 @@ export function registerMiningBlockComponent(noa: Engine, networkLayer: NetworkL
     },
     system: function (dt: number, states: MiningBlockComponent[]) {
       for (let i = 0; i < states.length; i++) {
-        const { breakingBlockMeshes, breakingBlockMaterial, block, active, startTimestamp, duration } = states[i];
+        const {
+          breakingBlockMeshes,
+          breakingBlockMaterial,
+          block,
+          active,
+          startTimestamp,
+          duration,
+        } = states[i];
         if (!breakingBlockMeshes.length) {
           return;
         }
@@ -119,7 +139,10 @@ export function registerMiningBlockComponent(noa: Engine, networkLayer: NetworkL
             const normalVector = [...NORMALS[i]];
             const blockPosition = [...localPosition];
             // offset to avoid z-fighting, bigger when camera is far away
-            const dist = glvec3.dist(noa.camera._localGetPosition(), blockPosition);
+            const dist = glvec3.dist(
+              noa.camera._localGetPosition(),
+              blockPosition
+            );
             const slop = 0.001 + 0.001 * dist;
             for (let i = 0; i < 3; i++) {
               if (normalVector[i] === 0) {
@@ -128,18 +151,28 @@ export function registerMiningBlockComponent(noa: Engine, networkLayer: NetworkL
                 blockPosition[i] += normalVector[i] > 0 ? 1 + slop : -slop;
               }
             }
-            breakingBlockMesh.position.copyFromFloats(blockPosition[0], blockPosition[1], blockPosition[2]);
+            breakingBlockMesh.position.copyFromFloats(
+              blockPosition[0],
+              blockPosition[1],
+              blockPosition[2]
+            );
             breakingBlockMesh.rotation.x = normalVector[1] ? Math.PI / 2 : 0;
             breakingBlockMesh.rotation.y = normalVector[0] ? Math.PI / 2 : 0;
             breakingBlockMesh.setEnabled(true);
           }
         } else if (active) {
-          const progress = Math.min(Date.now() - startTimestamp, duration) / duration;
+          const progress =
+            Math.min(Date.now() - startTimestamp, duration) / duration;
           states[i].progress = progress;
           // eslint-disable-next-line @typescript-eslint/ban-ts-comment
           //@ts-ignore
           breakingBlockMaterial.diffuseTexture =
-            TEXTURES[Math.min(Math.floor(progress * (TEXTURES.length + 1)), TEXTURES.length - 1)];
+            TEXTURES[
+              Math.min(
+                Math.floor(progress * (TEXTURES.length + 1)),
+                TEXTURES.length - 1
+              )
+            ];
           if (progress > 0.99) {
             states[i].active = false;
             networkLayer.api.mine(block);
@@ -221,6 +254,10 @@ function createExplosion(
 
   noa.rendering.addMeshToScene(s, false);
   const local: number[] = [];
-  const [x, y, z] = noa.globalToLocal([block.x, block.y + 0.5, block.z], [0, 0, 0], local);
+  const [x, y, z] = noa.globalToLocal(
+    [block.x, block.y + 0.5, block.z],
+    [0, 0, 0],
+    local
+  );
   s.position.copyFromFloats(x + 0.5, y, z + 0.5);
 }

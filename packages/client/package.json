@@ -32,6 +32,7 @@
     "@wagmi/chains": "^0.2.22",
     "contracts": "workspace:*",
     "ethers": "^5.7.2",
+    "fuse.js": "^6.6.2",
     "mobx": "^6.9.0",
     "mobx-react-lite": "^3.4.3",
     "react": "^18.2.0",

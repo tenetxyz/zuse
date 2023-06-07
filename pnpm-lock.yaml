@@ -97,6 +97,9 @@ importers:
       ethers:
         specifier: ^5.7.2
         version: 5.7.2
+      fuse.js:
+        specifier: ^6.6.2
+        version: 6.6.2
       gl-vec3:
         specifier: ^1.1.3
         version: 1.1.3
@@ -229,6 +232,10 @@ importers:
         version: 8.1.1(typescript@5.0.4)
 
 packages:
+  /fuse.js@6.6.2:
+    resolution: {integrity: sha512-cJaJkxCCxC8qIIcPBF9yGxY0W/tVZS3uEISDxhYIdtk8OL93pe+6Zj7LjCqVV4dzbqcriOZ+kQ/NE4RXZHsIGA==}
+    engines: {node: '>=10'}
+    dev: true
 
   /@adraffy/ens-normalize@1.9.0:
     resolution: {integrity: sha512-iowxq3U30sghZotgl4s/oJRci6WPBfNO5YYgk2cIOMCHr3LeGPcsZjCEr+33Q4N+oV3OABDAtA+pyvWjbvBifQ==}

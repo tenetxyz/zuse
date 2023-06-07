@@ -3,7 +3,8 @@ import { Entity, getEntitiesWithValue } from "@latticexyz/recs";
 import { Layers } from "../../../types";
 import { range } from "@latticexyz/utils";
 import styled from "styled-components";
-import React from "react";
+import React, { ChangeEvent, ChangeEventHandler } from "react";
+import Fuse from "fuse.js";
 
 interface Props {
   layers: Layers;
@@ -24,27 +25,50 @@ export const CreativeInventory: React.FC<Props> = ({ layers }) => {
     api: { giftVoxel },
   } = layers.network;
 
+  const [searchValue, setSearchValue] = React.useState<string>("");
   const [items, setItems] = React.useState<Item[]>();
+  const [filteredItems, setFilteredItems] = React.useState<Item[]>([]);
+  const fuse = React.useRef<Fuse<Item>>();
+
   React.useEffect(() => {
     const entities = getEntitiesWithValue(ItemPrototype, { value: true });
     console.log("creative items", entities);
     const unsortedItems = Array.from(entities).map((entity) => {
       return {
-        name: entity as string,
-        description: "tmp desc",
+        name: entity as string, // TODO: update
+        description: "tmp desc", // TODO: update
         blockId: entity,
       };
     });
+
+    const options = {
+      includeScore: true,
+      keys: ["name", "description"],
+    };
+
+    fuse.current = new Fuse(unsortedItems, options);
+
     setItems(unsortedItems.sort((a, b) => a.name.localeCompare(b.name)));
+
     // TODO: this function is probably useful later
     // console.log(BlockIdToKey);
   }, [ItemPrototype]);
 
+  React.useEffect(() => {
+    if (!fuse.current) {
+      return;
+    }
+    const result = fuse.current.search(searchValue);
+    setFilteredItems(result.map((r) => r.item));
+  }, [searchValue]);
+
+  const resultArray = filteredItems.length > 0 ? filteredItems : items;
+
   const Slots = [...range(NUM_ROWS * NUM_COLS)].map((i) => {
-    if (!items || i >= items.length) {
+    if (!resultArray || i >= resultArray.length) {
       return <Slot key={"voxel-search-slot" + i} disabled={true} />;
     }
-    const item = items[i];
+    const item = resultArray[i];
     return (
       <Slot
         key={"slot" + i}
@@ -59,11 +83,17 @@ export const CreativeInventory: React.FC<Props> = ({ layers }) => {
 
   // TODO: figure out if this rendering logic is correct
   return (
-    <ActionBarWrapper>
-      {[...range(NUM_COLS * NUM_ROWS)]
-        .map((i) => i + NUM_COLS)
-        .map((i) => Slots[i])}
-    </ActionBarWrapper>
+    <div>
+      <input
+        value={searchValue}
+        onChange={(e) => setSearchValue(e.target.value)}
+      />
+      <ActionBarWrapper>
+        {[...range(NUM_COLS * NUM_ROWS)]
+          .map((i) => i + NUM_COLS)
+          .map((i) => Slots[i])}
+      </ActionBarWrapper>
+    </div>
   );
 };
 

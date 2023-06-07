@@ -13,12 +13,12 @@ contract BuildSystem is System {
 
   function build(bytes32 blockEntity, VoxelCoord memory coord) public returns (bytes32) {
 
-    // Require block to be owned by caller. TODO: should we remove this if we're in creative mode?
+    // Require block to be owned by caller
     require(OwnedBy.get(blockEntity) == addressToEntityKey(_msgSender()), "block is not owned by player");
 
     // Require no other ECS blocks at this position except Air
     bytes32[] memory entitiesAtPosition = getKeysWithValue(PositionTableId, Position.encode(coord.x, coord.y, coord.z));
-    require(entitiesAtPosition.length == 0 || entitiesAtPosition.length == 1, "can not built at non-empty coord");
+     require(entitiesAtPosition.length == 0 || entitiesAtPosition.length == 1, "can not built at non-empty coord");
     if (entitiesAtPosition.length == 1) {
       require(Item.get(entitiesAtPosition[0]) == AirID, "can not built at non-empty coord (2)");
     }
@@ -26,11 +26,12 @@ contract BuildSystem is System {
     // TODO: check claim in chunk
 
     //    OwnedBy.deleteRecord(blockEntity); We do NOT remove the ownedBy since all players are in creative mode.
-    bytes32 clonedEntity = getUniqueEntity();
 
-    Item.set(clonedEntity, Item.get(blockEntity));
-    Position.set(clonedEntity, coord.x, coord.y, coord.z);
-    return clonedEntity;
+    bytes32 newEntity = getUniqueEntity();
+    Item.set(newEntity, Item.get(blockEntity));
+    Position.set(newEntity, coord.x, coord.y, coord.z);
+
+    return newEntity;
   }
 
 }

@@ -75,10 +75,11 @@ export async function setupNetwork() {
   }
 
   relay && world.registerDisposer(relay.dispose);
-  if (relay)
+  if (relay) {
     console.info(
       "[Relayer] Relayer connected: " + networkConfig.relayServiceUrl
     );
+  }
 
   // Request drip from faucet
   let faucet: any = undefined;
@@ -284,10 +285,13 @@ export async function setupNetwork() {
     const ecsBlock = getECSBlockAtPosition(coord);
     const blockId = ecsBlock ?? getTerrainBlockAtPosition(coord);
 
-    if (blockId == null) throw new Error("entity has no block type");
+    if (blockId == null) {
+      throw new Error("entity has no block type");
+    }
     const blockType = BlockIdToKey[blockId];
     const blockEntity = getEntityAtPosition(coord);
     const airEntity = world.registerEntity();
+    debugger;
 
     actions.add({
       id: `mine+${coord.x}/${coord.y}/${coord.z}` as Entity,

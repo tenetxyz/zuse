@@ -1,25 +1,14 @@
-import React, { useEffect, useMemo, useState } from "react";
 import { Slot } from "./common";
-import {
-  defineQuery,
-  defineRxSystem,
-  Entity,
-  getEntitiesWithValue,
-  HasValue,
-} from "@latticexyz/recs";
-import { NetworkLayer } from "../../network";
+import { Entity, getEntitiesWithValue } from "@latticexyz/recs";
 import { Layers } from "../../../types";
-import { computedToStream, range } from "@latticexyz/utils";
-import { world } from "../../../mud/world";
-import { BlockIdToKey, BlockIndexToId } from "../../network/constants";
+import { range } from "@latticexyz/utils";
 import styled from "styled-components";
-import { INVENTORY_WIDTH } from "./InventoryHud";
 
 interface Props {
   layers: Layers;
   moveItems: (number: number) => void;
 }
-const NUM_COLS = INVENTORY_WIDTH;
+const NUM_COLS = 9;
 const NUM_ROWS = 8;
 
 interface Item {

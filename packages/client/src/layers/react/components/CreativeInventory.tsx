@@ -26,16 +26,6 @@ export const CreativeInventory: React.FC<Props> = ({ layers }) => {
 
   const [items, setItems] = React.useState<Item[]>();
   React.useEffect(() => {
-    // const update$ = defineQuery([HasValue(ItemPrototype, { value: true })], {
-    //   runOnInit: true,
-    // }).update$;
-    //
-    // defineRxSystem(world, update$, (update) => {
-    //   // TODO: investigate why this is triggered so many times
-    //   console.log("creative items", update);
-    //   update.value.
-    // });
-
     const entities = getEntitiesWithValue(ItemPrototype, { value: true });
     console.log("creative items", entities);
     const unsortedItems = Array.from(entities).map((entity) => {

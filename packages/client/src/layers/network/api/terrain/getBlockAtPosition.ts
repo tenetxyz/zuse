@@ -20,18 +20,7 @@ export function getEntityAtPosition(
   coord: VoxelCoord
 ) {
   const { Position, Item } = context;
-
-  let entitiesAtPosition = [...getEntitiesWithValue(Position, coord)];
-
-  if(entitiesAtPosition.length === 0) {
-    // Note: We have to add in these indexes because of a bug in MUD v2 RECS
-    const hackyCoordValue: any = coord;
-    hackyCoordValue["0"] = coord.x;
-    hackyCoordValue["1"] = coord.y;
-    hackyCoordValue["2"] = coord.z;
-
-    entitiesAtPosition = [...getEntitiesWithValue(Position, hackyCoordValue)];
-  }
+  const entitiesAtPosition = [...getEntitiesWithValue(Position, coord)];
 
   // Prefer non-air blocks at this position
   return (

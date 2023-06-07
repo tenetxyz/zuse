@@ -129,7 +129,7 @@ export function createNoaLayer(network: NetworkLayer) {
 
   // Set initial values
   setComponent(components.UI, SingletonEntity, {
-    showComponentBrowser: false,
+    showAdminPanel: false,
     showInventory: false,
     showCrafting: false,
     showPlugins: false,

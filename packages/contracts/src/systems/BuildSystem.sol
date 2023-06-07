@@ -7,6 +7,7 @@ import { VoxelCoord } from "../types.sol";
 import { OwnedBy, Position, PositionTableId, Item } from "../codegen/Tables.sol";
 import { AirID } from "../prototypes/Blocks.sol";
 import { addressToEntityKey } from "../utils.sol";
+import { getUniqueEntity } from "@latticexyz/world/src/modules/uniqueentity/getUniqueEntity.sol";
 
 contract BuildSystem is System {
 
@@ -23,12 +24,12 @@ contract BuildSystem is System {
     }
 
     // TODO: check claim in chunk
+    //    OwnedBy.deleteRecord(blockEntity);
+    bytes32 newEntity = getUniqueEntity();
+    Item.set(newEntity, Item.get(blockEntity));
+    Position.set(newEntity, coord.x, coord.y, coord.z);
 
-    // Remove block from inventory and place it in the world
-    OwnedBy.deleteRecord(blockEntity);
-    Position.set(blockEntity, coord.x, coord.y, coord.z);
-
-    return blockEntity;
+    return newEntity;
   }
 
 }

@@ -1,10 +1,18 @@
 import { SyncState } from "@latticexyz/network";
-import { defineComponentSystem, defineEnterSystem, getComponentValueStrict, Has } from "@latticexyz/recs";
+import {
+  defineComponentSystem,
+  defineEnterSystem,
+  getComponentValueStrict,
+  Has,
+} from "@latticexyz/recs";
 import { awaitStreamValue } from "@latticexyz/utils";
 import { NetworkLayer } from "../../network";
 import { NoaLayer } from "../types";
 
-export async function createBlockSystem(network: NetworkLayer, context: NoaLayer) {
+export async function createBlockSystem(
+  network: NetworkLayer,
+  context: NoaLayer
+) {
   const {
     api: { setBlock },
   } = context;
@@ -17,12 +25,15 @@ export async function createBlockSystem(network: NetworkLayer, context: NoaLayer
     api: { getBlockAtPosition },
   } = network;
 
-  const OptimisticPosition = withOptimisticUpdates(Position);
-  const OptimisticItem = withOptimisticUpdates(Item);
+  const OptimisticPosition = Position;
+  const OptimisticItem = Item;
 
   // Loading state flag
   let live = false;
-  awaitStreamValue(LoadingState.update$, ({ value }) => value[0]?.state === SyncState.LIVE).then(() => (live = true));
+  awaitStreamValue(
+    LoadingState.update$,
+    ({ value }) => value[0]?.state === SyncState.LIVE
+  ).then(() => (live = true));
 
   // "Exit system"
   defineComponentSystem(world, OptimisticPosition, async ({ value }) => {
@@ -34,10 +45,17 @@ export async function createBlockSystem(network: NetworkLayer, context: NoaLayer
   });
 
   // "Enter system"
-  defineEnterSystem(world, [Has(OptimisticPosition), Has(OptimisticItem)], (update) => {
-    if (!live) return;
-    const position = getComponentValueStrict(OptimisticPosition, update.entity);
-    const block = getBlockAtPosition(position);
-    setBlock(position, block);
-  });
+  defineEnterSystem(
+    world,
+    [Has(OptimisticPosition), Has(OptimisticItem)],
+    (update) => {
+      if (!live) return;
+      const position = getComponentValueStrict(
+        OptimisticPosition,
+        update.entity
+      );
+      const block = getBlockAtPosition(position);
+      setBlock(position, block);
+    }
+  );
 }

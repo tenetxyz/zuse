@@ -48,7 +48,10 @@ contract MineSystem is System {
     } else {
       // Else, mine the non-air entity block at this position
       for (uint256 i; i < entitiesAtPosition.length; i++) {
-        if (Item.get(entitiesAtPosition[i]) == blockType) entity = entitiesAtPosition[i];
+        if (Item.get(entitiesAtPosition[i]) == blockType){
+          entity = entitiesAtPosition[i];
+          break;
+        }
       }
       require(entity != 0, "invalid block type");
       Position.deleteRecord(entity);

@@ -69,7 +69,6 @@ import { SingletonID, SyncState } from "@latticexyz/network";
 import { getChunkCoord, getChunkEntity } from "../../utils/chunk";
 import { BehaviorSubject, map, throttleTime, timer } from "rxjs";
 // import { getStakeEntity } from "../../utils/stake"; // commented cause we aren't using it
-import { createCreativeModeSystem } from "./systems/createCreativeModeSystem";
 import { createSpawnPlayerSystem } from "./systems/createSpawnPlayerSystem";
 import { definePlayerMeshComponent } from "./components/PlayerMesh";
 import { Engine } from "@babylonjs/core";
@@ -200,16 +199,21 @@ export function createNoaLayer(network: NetworkLayer) {
     for (let x = 0; x < CRAFTING_SIDE; x++) {
       for (let y = 0; y < CRAFTING_SIDE; y++) {
         if (getEntityString(getEntitySymbol(craftingTable[x][y])) !== "-1") {
-          if (minX === -1) minX = x;
-          if (minY === -1) minY = y;
+          if (minX === -1) {
+            minX = x;
+          }
+          if (minY === -1) {
+            minY = y;
+          }
           maxX = x;
           maxY = y;
         }
       }
     }
 
-    if ([minX, minY, maxX, maxY].includes(-1))
+    if ([minX, minY, maxX, maxY].includes(-1)) {
       return { items: [] as Entity[][], types: [] as Entity[][] };
+    }
 
     const trimmedCraftingTableItems: Entity[][] = [];
     const trimmedCraftingTableTypes: Entity[][] = [];
@@ -290,28 +294,35 @@ export function createNoaLayer(network: NetworkLayer) {
       components.SelectedSlot,
       SingletonEntity
     )?.value;
-    if (selectedSlot == null) return;
+    if (selectedSlot == null) {
+      return;
+    }
     const blockID = [
       ...getEntitiesWithValue(components.InventoryIndex, {
         value: selectedSlot,
       }),
     ][0];
     // const blockID = blockIndex != null && world.entities[blockIndex];
-    if (!blockID) return;
+    if (!blockID) {
+      return;
+    }
     return blockID;
   }
 
   function placeSelectedItem(coord: VoxelCoord) {
     const blockID = getSelectedBlockType();
-    if (!blockID) return console.warn("No item at selected slot");
+    if (!blockID) {
+      return console.warn("No item at selected slot");
+    }
     const ownedEntityOfSelectedType = [
       ...runQuery([
         HasValue(OwnedBy, { value: to64CharAddress(connectedAddress.get()) }),
         HasValue(Item, { value: blockID }),
       ]),
     ][0];
-    if (ownedEntityOfSelectedType == null)
+    if (ownedEntityOfSelectedType == null) {
       return console.warn("No owned item of type", blockID);
+    }
     // const itemEntity = world.entities[ownedEntityOfSelectedType];
     const itemEntity = ownedEntityOfSelectedType;
     network.api.build(itemEntity, coord);
@@ -339,7 +350,9 @@ export function createNoaLayer(network: NetworkLayer) {
 
   function playNextTheme() {
     const sounds = getComponentValue(components.Sounds, SingletonEntity);
-    if (!sounds?.themes || !isNotEmpty(sounds.themes)) return;
+    if (!sounds?.themes || !isNotEmpty(sounds.themes)) {
+      return;
+    }
     const prevThemeIndex = sounds.playingTheme
       ? sounds.themes.findIndex((e) => e === sounds.playingTheme)
       : -1;
@@ -350,7 +363,9 @@ export function createNoaLayer(network: NetworkLayer) {
 
   function playRandomTheme() {
     const sounds = getComponentValue(components.Sounds, SingletonEntity);
-    if (!sounds?.themes || !isNotEmpty(sounds.themes)) return;
+    if (!sounds?.themes || !isNotEmpty(sounds.themes)) {
+      return;
+    }
     const playingTheme = pickRandom(sounds.themes);
     updateComponent(components.Sounds, SingletonEntity, { playingTheme });
   }
@@ -372,8 +387,9 @@ export function createNoaLayer(network: NetworkLayer) {
   setTimeout(() => {
     if (
       getComponentValue(LoadingState, SingletonEntity)?.state !== SyncState.LIVE
-    )
+    ) {
       noa.setPaused(true);
+    }
   }, 1000);
   awaitStreamValue(
     LoadingState.update$,

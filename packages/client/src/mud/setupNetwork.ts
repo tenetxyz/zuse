@@ -238,16 +238,17 @@ export async function setupNetwork() {
   function build(entity: Entity, coord: VoxelCoord) {
     // const entityIndex = world.entityToIndex.get(entity);
     // if (entityIndex == null) return console.warn("trying to place unknown entity", entity);
-    const blockId = getComponentValue(contractComponents.Item, entity)?.value;
+    const voxelType = getComponentValue(contractComponents.Item, entity)?.value;
     // TODO: we need to clone this block before placing!
-    const blockType =
-      blockId != null ? BlockIdToKey[blockId as Entity] : undefined;
+    const blockTypeName =
+      voxelType != null ? BlockIdToKey[voxelType as Entity] : undefined;
+    const newEntityOfSameType = world.registerEntity();
     // const godIndex = world.entityToIndex.get(SingletonID);
     // const creativeMode = godIndex != null && getComponentValue(components.GameConfig, godIndex)?.creativeMode;
 
     actions.add({
       id: `build+${coord.x}/${coord.y}/${coord.z}` as Entity,
-      metadata: { actionType: "build", coord, blockType },
+      metadata: { actionType: "build", coord, blockType: blockTypeName },
       requirement: () => true,
       components: {
         Position: contractComponents.Position,
@@ -265,8 +266,13 @@ export async function setupNetwork() {
         // },
         {
           component: "Position",
-          entity: entity,
+          entity: newEntityOfSameType,
           value: coord,
+        },
+        {
+          component: "Item",
+          entity: newEntityOfSameType,
+          value: { value: voxelType },
         },
       ],
     });
@@ -283,15 +289,15 @@ export async function setupNetwork() {
 
   async function mine(coord: VoxelCoord) {
     const ecsBlock = getECSBlockAtPosition(coord);
-    const blockId = ecsBlock ?? getTerrainBlockAtPosition(coord);
+    const voxelType = ecsBlock ?? getTerrainBlockAtPosition(coord);
 
-    if (blockId == null) {
+    if (voxelType == null) {
       throw new Error("entity has no block type");
     }
-    const blockType = BlockIdToKey[blockId];
+    const blockType = BlockIdToKey[voxelType];
     const blockEntity = getEntityAtPosition(coord);
     const airEntity = world.registerEntity();
-    debugger;
+    // debugger;
 
     actions.add({
       id: `mine+${coord.x}/${coord.y}/${coord.z}` as Entity,
@@ -303,7 +309,7 @@ export async function setupNetwork() {
         Item: contractComponents.Item,
       },
       execute: () => {
-        return mineSystem(coord, blockId);
+        return mineSystem(coord, voxelType);
       },
       updates: () => [
         {

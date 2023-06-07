@@ -1,6 +1,11 @@
-import { setupMUDV2Network, createActionSystem, } from "@latticexyz/std-client";
-import { Entity ,getComponentValue, createIndexer } from "@latticexyz/recs";
-import { createFastTxExecutor, createFaucetService, getSnapSyncRecords, createRelayStream } from "@latticexyz/network";
+import { setupMUDV2Network, createActionSystem } from "@latticexyz/std-client";
+import { Entity, getComponentValue, createIndexer } from "@latticexyz/recs";
+import {
+  createFastTxExecutor,
+  createFaucetService,
+  getSnapSyncRecords,
+  createRelayStream,
+} from "@latticexyz/network";
 import { getNetworkConfig } from "./getNetworkConfig";
 import { defineContractComponents } from "./contractComponents";
 import { world } from "./world";
@@ -8,10 +13,16 @@ import { createPerlin } from "@latticexyz/noise";
 import { BigNumber, Contract, Signer, utils } from "ethers";
 import { JsonRpcProvider } from "@ethersproject/providers";
 import { IWorld__factory } from "contracts/types/ethers-contracts/factories/IWorld__factory";
-import { getTableIds, awaitPromise, computedToStream, VoxelCoord, Coord } from "@latticexyz/utils";
+import {
+  getTableIds,
+  awaitPromise,
+  computedToStream,
+  VoxelCoord,
+  Coord,
+} from "@latticexyz/utils";
 import { map, timer, combineLatest, BehaviorSubject } from "rxjs";
 import storeConfig from "contracts/mud.config";
-import { BlockIdToKey, BlockType } from "../layers/network/constants"
+import { BlockIdToKey, BlockType } from "../layers/network/constants";
 import {
   getECSBlock,
   getTerrain,
@@ -33,7 +44,10 @@ export async function setupNetwork() {
   });
 
   const networkConfig = await getNetworkConfig();
-  const result = await setupMUDV2Network<typeof contractComponents, typeof storeConfig>({
+  const result = await setupMUDV2Network<
+    typeof contractComponents,
+    typeof storeConfig
+  >({
     networkConfig,
     world,
     contractComponents,
@@ -49,15 +63,22 @@ export async function setupNetwork() {
   let relay: Awaited<ReturnType<typeof createRelayStream>> | undefined;
   try {
     relay =
-    networkConfig.relayServiceUrl && playerAddress && signer
-        ? await createRelayStream(signer, networkConfig.relayServiceUrl, playerAddress)
+      networkConfig.relayServiceUrl && playerAddress && signer
+        ? await createRelayStream(
+            signer,
+            networkConfig.relayServiceUrl,
+            playerAddress
+          )
         : undefined;
   } catch (e) {
     console.error(e);
   }
 
   relay && world.registerDisposer(relay.dispose);
-  if (relay) console.info("[Relayer] Relayer connected: " + networkConfig.relayServiceUrl);
+  if (relay)
+    console.info(
+      "[Relayer] Relayer connected: " + networkConfig.relayServiceUrl
+    );
 
   // Request drip from faucet
   let faucet: any = undefined;
@@ -105,7 +126,10 @@ export async function setupNetwork() {
   const provider = result.network.providers.get().json;
   const signerOrProvider = signer ?? provider;
   // Create a World contract instance
-  const worldContract = IWorld__factory.connect(networkConfig.worldAddress, signerOrProvider);
+  const worldContract = IWorld__factory.connect(
+    networkConfig.worldAddress,
+    signerOrProvider
+  );
   const uniqueWorldId = networkConfig.chainId + networkConfig.worldAddress;
 
   if (networkConfig.snapSync) {
@@ -126,7 +150,9 @@ export async function setupNetwork() {
   // Create a fast tx executor
   const fastTxExecutor =
     signer?.provider instanceof JsonRpcProvider
-      ? await createFastTxExecutor(signer as Signer & { provider: JsonRpcProvider })
+      ? await createFastTxExecutor(
+          signer as Signer & { provider: JsonRpcProvider }
+        )
       : null;
 
   // TODO: infer this from fastTxExecute signature?
@@ -138,7 +164,9 @@ export async function setupNetwork() {
     }
   ) => Promise<ReturnType<C[F]>>;
 
-  function bindFastTxExecute<C extends Contract>(contract: C): BoundFastTxExecuteFn<C> {
+  function bindFastTxExecute<C extends Contract>(
+    contract: C
+  ): BoundFastTxExecuteFn<C> {
     return async function (...args) {
       if (!fastTxExecutor) {
         throw new Error("no signer");
@@ -159,10 +187,14 @@ export async function setupNetwork() {
 
   // Add optimistic updates and indexers
   const { withOptimisticUpdates } = actions;
-  contractComponents.Position = createIndexer(withOptimisticUpdates(contractComponents.Position));
+  contractComponents.Position = createIndexer(
+    withOptimisticUpdates(contractComponents.Position)
+  );
   // Note: we don't add indexer to OwnedBy because there's current bugs with indexer in MUD 2
   // contractComponents.OwnedBy = createIndexer(withOptimisticUpdates(contractComponents.OwnedBy));
-  contractComponents.OwnedBy = withOptimisticUpdates(contractComponents.OwnedBy);
+  contractComponents.OwnedBy = withOptimisticUpdates(
+    contractComponents.OwnedBy
+  );
   contractComponents.Item = withOptimisticUpdates(contractComponents.Item);
 
   // --- API ------------------------------------------------------------------------
@@ -193,53 +225,76 @@ export async function setupNetwork() {
     return getComponentValue(contractComponents.Name, entity)?.value;
   }
 
-  async function buildSystem(entity: Entity, coord: VoxelCoord){
-    const tx = await worldSend("build", [to64CharAddress(entity), coord, { gasLimit: 5_000_000 }]);
+  async function buildSystem(entity: Entity, coord: VoxelCoord) {
+    const tx = await worldSend("build", [
+      to64CharAddress(entity),
+      coord,
+      { gasLimit: 5_000_000 },
+    ]);
     return tx;
   }
 
   function build(entity: Entity, coord: VoxelCoord) {
     // const entityIndex = world.entityToIndex.get(entity);
     // if (entityIndex == null) return console.warn("trying to place unknown entity", entity);
-    const blockId = getComponentValue(contractComponents.Item, entity)?.value;
-    const blockType = blockId != null ? BlockIdToKey[blockId as Entity] : undefined;
+    const voxelType = getComponentValue(contractComponents.Item, entity)?.value;
+    // TODO: we need to clone this block before placing!
+    const blockTypeName =
+      voxelType != null ? BlockIdToKey[voxelType as Entity] : undefined;
+    const newEntityOfSameType = world.registerEntity();
     // const godIndex = world.entityToIndex.get(SingletonID);
     // const creativeMode = godIndex != null && getComponentValue(components.GameConfig, godIndex)?.creativeMode;
 
     actions.add({
       id: `build+${coord.x}/${coord.y}/${coord.z}` as Entity,
-      metadata: { actionType: "build", coord, blockType },
+      metadata: { actionType: "build", coord, blockType: blockTypeName },
       requirement: () => true,
-      components: { Position: contractComponents.Position, Item: contractComponents.Item, OwnedBy: contractComponents.OwnedBy },
+      components: {
+        Position: contractComponents.Position,
+        Item: contractComponents.Item,
+        OwnedBy: contractComponents.OwnedBy, // I think it's needed cause we check to see if the owner owns the block we're placing
+      },
       execute: () => {
         return buildSystem(entity, coord);
       },
       updates: () => [
-        {
-          component: "OwnedBy",
-          entity: entity,
-          value: { value: SingletonID },
-        },
+        // commented cause we're in creative mode
+        // {
+        //   component: "OwnedBy",
+        //   entity: entity,
+        //   value: { value: SingletonID },
+        // },
         {
           component: "Position",
-          entity: entity,
+          entity: newEntityOfSameType,
           value: coord,
+        },
+        {
+          component: "Item",
+          entity: newEntityOfSameType,
+          value: { value: voxelType },
         },
       ],
     });
   }
 
-  async function mineSystem(coord: VoxelCoord, blockId: Entity){
-    const tx = await worldSend("mine", [coord, blockId, { gasLimit: 5_000_000 }]);
+  async function mineSystem(coord: VoxelCoord, blockId: Entity) {
+    const tx = await worldSend("mine", [
+      coord,
+      blockId,
+      { gasLimit: 5_000_000 },
+    ]);
     return tx;
   }
 
   async function mine(coord: VoxelCoord) {
     const ecsBlock = getECSBlockAtPosition(coord);
-    const blockId = ecsBlock ?? getTerrainBlockAtPosition(coord);
+    const voxelType = ecsBlock ?? getTerrainBlockAtPosition(coord);
 
-    if (blockId == null) throw new Error("entity has no block type");
-    const blockType = BlockIdToKey[blockId];
+    if (voxelType == null) {
+      throw new Error("entity has no block type");
+    }
+    const blockType = BlockIdToKey[voxelType];
     const blockEntity = getEntityAtPosition(coord);
     const airEntity = world.registerEntity();
 
@@ -247,9 +302,13 @@ export async function setupNetwork() {
       id: `mine+${coord.x}/${coord.y}/${coord.z}` as Entity,
       metadata: { actionType: "mine", coord, blockType },
       requirement: () => true,
-      components: { Position: contractComponents.Position, OwnedBy: contractComponents.OwnedBy, Item: contractComponents.Item },
+      components: {
+        Position: contractComponents.Position,
+        OwnedBy: contractComponents.OwnedBy,
+        Item: contractComponents.Item,
+      },
       execute: () => {
-        return mineSystem(coord, blockId);
+        return mineSystem(coord, voxelType);
       },
       updates: () => [
         {
@@ -271,6 +330,40 @@ export async function setupNetwork() {
     });
   }
 
+  // needed in creative mode, to give the user new voxels
+  function giftVoxel(voxelType: Entity) {
+    const newVoxel = world.registerEntity();
+    const blockType = BlockIdToKey[voxelType];
+
+    actions.add({
+      id: `GiftVoxel+${voxelType}` as Entity,
+      metadata: { actionType: "giftVoxel", blockType },
+      requirement: () => true,
+      components: {
+        OwnedBy: contractComponents.OwnedBy,
+        Item: contractComponents.Item,
+      },
+      execute: async () => {
+        const tx = await worldSend("giftVoxel", [
+          voxelType,
+          { gasLimit: 1_000_000 },
+        ]);
+      },
+      updates: () => [
+        {
+          component: "Item",
+          entity: newVoxel,
+          value: { value: voxelType },
+        },
+        {
+          component: "OwnedBy",
+          entity: playerAddress as Entity,
+          value: null,
+        },
+      ],
+    });
+  }
+
   function stake(chunkCoord: Coord) {
     return 0;
   }
@@ -286,7 +379,9 @@ export async function setupNetwork() {
       .pipe(
         map<[number, Signer | undefined], Promise<number>>(async ([, signer]) =>
           signer
-            ? signer.getBalance().then((v) => v.div(BigNumber.from(10).pow(9)).toNumber())
+            ? signer
+                .getBalance()
+                .then((v) => v.div(BigNumber.from(10).pow(9)).toNumber())
             : new Promise((res) => res(0))
         ),
         awaitPromise()
@@ -312,6 +407,7 @@ export async function setupNetwork() {
       getEntityAtPosition,
       build,
       mine,
+      giftVoxel,
       stake,
       claim,
       getName,

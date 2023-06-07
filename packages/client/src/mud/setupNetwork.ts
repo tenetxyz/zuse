@@ -237,34 +237,42 @@ export async function setupNetwork() {
   function build(entity: Entity, coord: VoxelCoord) {
     // const entityIndex = world.entityToIndex.get(entity);
     // if (entityIndex == null) return console.warn("trying to place unknown entity", entity);
-    const blockId = getComponentValue(contractComponents.Item, entity)?.value;
-    const blockType =
-      blockId != null ? BlockIdToKey[blockId as Entity] : undefined;
+    const voxelType = getComponentValue(contractComponents.Item, entity)?.value;
+    // TODO: we need to clone this block before placing!
+    const blockTypeName =
+      voxelType != null ? BlockIdToKey[voxelType as Entity] : undefined;
+    const newEntityOfSameType = world.registerEntity();
     // const godIndex = world.entityToIndex.get(SingletonID);
     // const creativeMode = godIndex != null && getComponentValue(components.GameConfig, godIndex)?.creativeMode;
 
     actions.add({
       id: `build+${coord.x}/${coord.y}/${coord.z}` as Entity,
-      metadata: { actionType: "build", coord, blockType },
+      metadata: { actionType: "build", coord, blockType: blockTypeName },
       requirement: () => true,
       components: {
         Position: contractComponents.Position,
         Item: contractComponents.Item,
-        OwnedBy: contractComponents.OwnedBy,
+        OwnedBy: contractComponents.OwnedBy, // I think it's needed cause we check to see if the owner owns the block we're placing
       },
       execute: () => {
         return buildSystem(entity, coord);
       },
       updates: () => [
-        {
-          component: "OwnedBy",
-          entity: entity,
-          value: { value: SingletonID },
-        },
+        // commented cause we're in creative mode
+        // {
+        //   component: "OwnedBy",
+        //   entity: entity,
+        //   value: { value: SingletonID },
+        // },
         {
           component: "Position",
-          entity: entity,
+          entity: newEntityOfSameType,
           value: coord,
+        },
+        {
+          component: "Item",
+          entity: newEntityOfSameType,
+          value: { value: voxelType },
         },
       ],
     });
@@ -281,10 +289,12 @@ export async function setupNetwork() {
 
   async function mine(coord: VoxelCoord) {
     const ecsBlock = getECSBlockAtPosition(coord);
-    const blockId = ecsBlock ?? getTerrainBlockAtPosition(coord);
+    const voxelType = ecsBlock ?? getTerrainBlockAtPosition(coord);
 
-    if (blockId == null) throw new Error("entity has no block type");
-    const blockType = BlockIdToKey[blockId];
+    if (voxelType == null) {
+      throw new Error("entity has no block type");
+    }
+    const blockType = BlockIdToKey[voxelType];
     const blockEntity = getEntityAtPosition(coord);
     const airEntity = world.registerEntity();
 
@@ -298,7 +308,7 @@ export async function setupNetwork() {
         Item: contractComponents.Item,
       },
       execute: () => {
-        return mineSystem(coord, blockId);
+        return mineSystem(coord, voxelType);
       },
       updates: () => [
         {
@@ -314,6 +324,40 @@ export async function setupNetwork() {
         {
           component: "Position",
           entity: blockEntity || (Number.MAX_SAFE_INTEGER.toString() as Entity),
+          value: null,
+        },
+      ],
+    });
+  }
+
+  // needed in creative mode, to give the user new voxels
+  function giftVoxel(voxelType: Entity) {
+    const newVoxel = world.registerEntity();
+    const blockType = BlockIdToKey[voxelType];
+
+    actions.add({
+      id: `GiftVoxel+${voxelType}` as Entity,
+      metadata: { actionType: "giftVoxel", blockType },
+      requirement: () => true,
+      components: {
+        OwnedBy: contractComponents.OwnedBy,
+        Item: contractComponents.Item,
+      },
+      execute: async () => {
+        const tx = await worldSend("giftVoxel", [
+          voxelType,
+          { gasLimit: 1_000_000 },
+        ]);
+      },
+      updates: () => [
+        {
+          component: "Item",
+          entity: newVoxel,
+          value: { value: voxelType },
+        },
+        {
+          component: "OwnedBy",
+          entity: playerAddress as Entity,
           value: null,
         },
       ],
@@ -363,6 +407,7 @@ export async function setupNetwork() {
       getEntityAtPosition,
       build,
       mine,
+      giftVoxel,
       stake,
       claim,
       getName,

@@ -21,6 +21,7 @@ import {
   getNoaComponentStrict,
 } from "../engine/components/utils";
 import { NoaLayer } from "../types";
+import { toast } from "react-toastify";
 
 export function createInputSystem(network: NetworkLayer, context: NoaLayer) {
   const {
@@ -29,8 +30,8 @@ export function createInputSystem(network: NetworkLayer, context: NoaLayer) {
       SelectedSlot,
       UI,
       Tutorial,
-      VoxelSelection,
       PreTeleportPosition,
+      VoxelSelection,
     },
     SingletonEntity,
     api: {
@@ -51,7 +52,7 @@ export function createInputSystem(network: NetworkLayer, context: NoaLayer) {
     streams: { balanceGwei$ },
   } = network;
 
-  // mine targeted block on on left click
+  // mine targeted block on left click
   noa.inputs.bind("fire", "F");
 
   function canInteract() {
@@ -218,24 +219,10 @@ export function createInputSystem(network: NetworkLayer, context: NoaLayer) {
   noa.inputs.bind("inventory", "E");
   noa.inputs.down.on("inventory", () => {
     const showInventory = getComponentValue(UI, SingletonEntity)?.showInventory;
-    // we need to check if the input is not focused, cause when we're searching for an item in the creative move inventory, we may press "e" which will close the inventory
-    if ((!noa.container.hasPointerLock && !showInventory) || isInputFocused()) {
+    if (!noa.container.hasPointerLock && !showInventory) {
       return;
     }
 
-    // disable movement when inventory is open
-    // https://github.com/fenomas/noa/issues/61
-    if (showInventory) {
-      noa.entities.addComponent(
-        noa.playerEntity,
-        noa.ents.names.receivesInputs
-      );
-    } else {
-      noa.entities.removeComponent(
-        noa.playerEntity,
-        noa.ents.names.receivesInputs
-      );
-    }
     toggleInventory();
     updateComponent(Tutorial, SingletonEntity, { inventory: false });
   });
@@ -288,8 +275,24 @@ export function createInputSystem(network: NetworkLayer, context: NoaLayer) {
   noa.inputs.down.on("plugins", () => {
     togglePlugins();
   });
+
+  noa.inputs.bind("select-block", "V");
+  noa.inputs.down.on("select-block", () => {
+    // print the block you're looking at to the console
+    if (!noa.targetedBlock) {
+      return;
+    }
+    const points: VoxelCoord[] =
+      getComponentValue(VoxelSelection, SingletonEntity)?.points ?? [];
+    const x = noa.targetedBlock.position[0];
+    const y = noa.targetedBlock.position[1];
+    const z = noa.targetedBlock.position[2];
+    points.push({
+      x,
+      y,
+      z,
+    });
+    toast(`Selected block at ${x}, ${y}, ${z}`);
+    setComponent(VoxelSelection, SingletonEntity, { points: points as any });
+  });
 }
-const isInputFocused = () => {
-  const activeElement = document.activeElement;
-  return activeElement && activeElement.tagName === "INPUT";
-};

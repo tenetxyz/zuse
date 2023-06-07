@@ -34,6 +34,7 @@ import {
   defineTutorialComponent,
   definePreTeleportPositionComponent,
   defineSoundComponent,
+  defineVoxelSelectionComponent,
 } from "./components";
 import { CRAFTING_SIDE, EMPTY_CRAFTING_TABLE } from "./constants";
 import { setupHand } from "./engine/hand";
@@ -116,6 +117,7 @@ export function createNoaLayer(network: NetworkLayer) {
     Tutorial: defineTutorialComponent(world),
     PreTeleportPosition: definePreTeleportPositionComponent(world),
     Sounds: defineSoundComponent(world),
+    VoxelSelection: defineVoxelSelectionComponent(world),
   };
 
   // --- SETUP ----------------------------------------------------------------------
@@ -275,8 +277,16 @@ export function createNoaLayer(network: NetworkLayer) {
   }
 
   function toggleInventory(open?: boolean, crafting?: boolean) {
+    // we need to check if the input is not focused, cause when we're searching for an item in the creative move inventory, we may press "e" which will close the inventory
+    if (isFocusedOnInputElement()) {
+      return;
+    }
+
     open =
       open ?? !getComponentValue(components.UI, SingletonEntity)?.showInventory;
+    // if the inventory is open, we need to disable movement commands or voxel selection commands so the player isn't "interacting" with the world
+    disableOrEnableInputs(open);
+
     noa.container.setPointerLock(!open);
     updateComponent(components.UI, SingletonEntity, {
       showPlugins: false,
@@ -284,6 +294,27 @@ export function createNoaLayer(network: NetworkLayer) {
       showCrafting: Boolean(open && crafting),
     });
   }
+  const disableOrEnableInputs = (open: boolean | undefined) => {
+    if (open) {
+      // disable movement when inventory is open
+      // https://github.com/fenomas/noa/issues/61
+      noa.entities.removeComponent(
+        noa.playerEntity,
+        noa.ents.names.receivesInputs
+      );
+      noa.inputs.unbind("select-block");
+    } else {
+      noa.entities.addComponent(
+        noa.playerEntity,
+        noa.ents.names.receivesInputs
+      );
+      noa.inputs.bind("select-block", "V");
+    }
+  };
+  const isFocusedOnInputElement = () => {
+    const activeElement = document.activeElement;
+    return activeElement && activeElement.tagName === "INPUT";
+  };
 
   function getSelectedBlockType(): Entity | undefined {
     const selectedSlot = getComponentValue(

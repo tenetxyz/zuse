@@ -51,6 +51,7 @@
     "@vitejs/plugin-react": "^3.1.0",
     "eslint-plugin-react": "7.31.11",
     "eslint-plugin-react-hooks": "4.6.0",
+    "tailwindcss": "^3.3.2",
     "vite": "^4.2.1",
     "wait-port": "^1.0.4"
   }

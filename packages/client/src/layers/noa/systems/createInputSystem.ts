@@ -21,6 +21,7 @@ import {
   getNoaComponentStrict,
 } from "../engine/components/utils";
 import { NoaLayer } from "../types";
+import { toast } from "react-toastify";
 
 export function createInputSystem(network: NetworkLayer, context: NoaLayer) {
   const {
@@ -29,8 +30,8 @@ export function createInputSystem(network: NetworkLayer, context: NoaLayer) {
       SelectedSlot,
       UI,
       Tutorial,
-      VoxelSelection,
       PreTeleportPosition,
+      VoxelSelection,
     },
     SingletonEntity,
     api: {
@@ -287,6 +288,26 @@ export function createInputSystem(network: NetworkLayer, context: NoaLayer) {
   noa.inputs.bind("plugins", ";");
   noa.inputs.down.on("plugins", () => {
     togglePlugins();
+  });
+
+  noa.inputs.bind("select-block", "V");
+  noa.inputs.down.on("select-block", () => {
+    // print the block you're looking at to the console
+    if (!noa.targetedBlock) {
+      return;
+    }
+    const points: VoxelCoord[] =
+      getComponentValue(VoxelSelection, SingletonEntity)?.points ?? [];
+    const x = noa.targetedBlock.position[0];
+    const y = noa.targetedBlock.position[1];
+    const z = noa.targetedBlock.position[2];
+    points.push({
+      x,
+      y,
+      z,
+    });
+    toast(`Selected block at ${x}, ${y}, ${z}`);
+    setComponent(VoxelSelection, SingletonEntity, { points: points as any });
   });
 }
 const isInputFocused = () => {

@@ -34,6 +34,7 @@ import {
   defineTutorialComponent,
   definePreTeleportPositionComponent,
   defineSoundComponent,
+  defineVoxelSelectionComponent,
 } from "./components";
 import { CRAFTING_SIDE, EMPTY_CRAFTING_TABLE } from "./constants";
 import { setupHand } from "./engine/hand";
@@ -116,6 +117,7 @@ export function createNoaLayer(network: NetworkLayer) {
     Tutorial: defineTutorialComponent(world),
     PreTeleportPosition: definePreTeleportPositionComponent(world),
     Sounds: defineSoundComponent(world),
+    VoxelSelection: defineVoxelSelectionComponent(world),
   };
 
   // --- SETUP ----------------------------------------------------------------------

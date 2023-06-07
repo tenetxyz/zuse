@@ -18,7 +18,7 @@
     "@latticexyz/dev-tools": "2.0.0-alpha.1.197+5e6cc0f5",
     "@latticexyz/network": "2.0.0-alpha.1.197+5e6cc0f5",
     "@latticexyz/react": "2.0.0-alpha.1.197+5e6cc0f5",
-    "@latticexyz/recs": "2.0.0-alpha.1.197+5e6cc0f5",
+    "@latticexyz/recs": "link:../../../mud/packages/recs",
     "@latticexyz/schema-type": "2.0.0-alpha.1.197+5e6cc0f5",
     "@latticexyz/std-client": "2.0.0-alpha.1.197+5e6cc0f5",
     "@latticexyz/utils": "2.0.0-alpha.1.197+5e6cc0f5",

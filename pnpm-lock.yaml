@@ -65,8 +65,8 @@ importers:
         specifier: 2.0.0-alpha.1.197+5e6cc0f5
         version: 2.0.0-alpha.1.197(typescript@5.0.4)(zod@3.21.4)
       '@latticexyz/recs':
-        specifier: 2.0.0-alpha.1.197+5e6cc0f5
-        version: 2.0.0-alpha.1.197(typescript@5.0.4)(zod@3.21.4)
+        specifier: link:../../../mud/packages/recs
+        version: link:../../../mud/packages/recs
       '@latticexyz/schema-type':
         specifier: 2.0.0-alpha.1.197+5e6cc0f5
         version: 2.0.0-alpha.1.197(typescript@5.0.4)(zod@3.21.4)

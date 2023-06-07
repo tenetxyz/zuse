@@ -253,6 +253,7 @@ export async function setupNetwork() {
       components: {
         Position: contractComponents.Position,
         Item: contractComponents.Item,
+        OwnedBy: contractComponents.OwnedBy, // needed cause we check to see if the owner owns the block we're placing
       },
       execute: () => {
         return buildSystem(entity, coord);

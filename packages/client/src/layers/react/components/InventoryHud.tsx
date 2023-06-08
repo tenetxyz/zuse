@@ -14,6 +14,7 @@ import {
   getEntitiesWithValue,
   Has,
   HasValue,
+  runQuery,
   setComponent,
   UpdateType,
 } from "@latticexyz/recs";
@@ -65,15 +66,15 @@ export function registerInventoryHud() {
         of({}),
         ownedByMeQuery.update$.pipe(
           scan((acc, curr) => {
-            const blockID = getComponentValue(Item, curr.entity)?.value;
-            if (!blockID) return { ...acc };
-            acc[blockID] = acc[blockID] || 0;
+            const blockTypeId = getComponentValue(Item, curr.entity)?.value;
+            if (!blockTypeId) return { ...acc };
+            acc[blockTypeId] = acc[blockTypeId] || 0;
             if (curr.type === UpdateType.Exit) {
-              acc[blockID]--;
+              acc[blockTypeId]--;
               return { ...acc };
             }
 
-            acc[blockID]++;
+            acc[blockTypeId]++;
             return { ...acc };
           }, {} as { [key: string]: number })
         )
@@ -121,6 +122,11 @@ export function registerInventoryHud() {
         balance,
       ] = props;
       const {
+        network: {
+          api: { removeVoxels },
+          contractComponents: { OwnedBy, Item },
+          network: { connectedAddress },
+        },
         noa: {
           api: { playRandomTheme, playNextTheme, toggleInventory },
           components: { InventoryIndex },
@@ -153,10 +159,10 @@ export function registerInventoryHud() {
         const blockIdAtSlot = [
           ...getEntitiesWithValue(InventoryIndex, { value: slot }),
         ][0];
-        const ownedEntitiesOfType = blockIdAtSlot && ownedByMe[blockIdAtSlot];
 
         // If not currently holding a block, grab the block at this slot
         if (holdingBlock == null) {
+          const ownedEntitiesOfType = blockIdAtSlot && ownedByMe[blockIdAtSlot];
           if (ownedEntitiesOfType) setHoldingBlock(blockIdAtSlot);
           return;
         }
@@ -178,6 +184,28 @@ export function registerInventoryHud() {
         setHoldingBlock(undefined);
       }
 
+      function removeItems(slot: number) {
+        console.log("removeItemsAtInventorySlot", slot);
+        const voxelTypeIdAtSlot = [
+          ...getEntitiesWithValue(InventoryIndex, { value: slot }),
+        ][0];
+        if (!voxelTypeIdAtSlot) {
+          return;
+        }
+
+        const ownedEntitiesOfType = [
+          ...runQuery([
+            HasValue(OwnedBy, {
+              value: to64CharAddress(connectedAddress.get()),
+            }),
+            HasValue(Item, { value: voxelTypeIdAtSlot }),
+          ]),
+        ];
+
+        // remove the voxels at this slot
+        removeVoxels(ownedEntitiesOfType);
+      }
+
       // Map each inventory slot to the corresponding block type at this slot index
       const Slots = [...range(INVENTORY_HEIGHT * INVENTORY_WIDTH)].map((i) => {
         const blockId = [
@@ -193,6 +221,7 @@ export function registerInventoryHud() {
             blockID={quantity ? blockId : undefined}
             quantity={quantity || undefined}
             onClick={() => moveItems(i)}
+            onRightClick={() => removeItems(i)}
             disabled={blockId === holdingBlock}
             selected={i === selectedSlot}
           />

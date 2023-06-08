@@ -20,12 +20,7 @@ export function registerCrosshairs() {
         )
       ),
     () => {
-      return (
-        <>
-          <div className="text-red">hi</div>
-          <Cross>+</Cross>
-        </>
-      );
+      return <Cross>+</Cross>;
     }
   );
 }

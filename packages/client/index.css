@@ -34,9 +34,3 @@ body {
     bottom: 26px !important;
     top: unset !important;
 }
-
-/* should we disable this when we launch? Maybe not, it's good to know this data */
-#noa_fps {
-    /*display: none !important;*/
-}
-

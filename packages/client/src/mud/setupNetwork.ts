@@ -191,7 +191,9 @@ export async function setupNetwork() {
     withOptimisticUpdates(contractComponents.Position)
   );
   // Note: we don't add indexer to OwnedBy because there's current bugs with indexer in MUD 2
-  // contractComponents.OwnedBy = createIndexer(withOptimisticUpdates(contractComponents.OwnedBy));
+  // contractComponents.OwnedBy = createIndexer(
+  //   withOptimisticUpdates(contractComponents.OwnedBy)
+  // );
   contractComponents.OwnedBy = withOptimisticUpdates(
     contractComponents.OwnedBy
   );

@@ -75,6 +75,7 @@ export function registerInventoryHud() {
             }
 
             acc[blockTypeId]++;
+            console.log("owned by me updated");
             return { ...acc };
           }, {} as { [key: string]: number })
         )

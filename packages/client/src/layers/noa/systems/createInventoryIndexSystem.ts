@@ -63,8 +63,13 @@ export function createInventoryIndexSystem(
   };
   // removeInventoryIndexesForItemsWeNoLongerOwn();
 
+  // this function assigns inventory indexes to items we own
+  // whenever we get/lose an item, this function is run
   defineRxSystem(world, update$, (update) => {
-    console.log("inventory update called");
+    if (!update.value[0]) {
+      // the block just got removed, so don't assign an inventory index for it
+      return;
+    }
     const blockId = getComponentValue(Item, update.entity)?.value as Entity;
     // console.log(blockId);
 

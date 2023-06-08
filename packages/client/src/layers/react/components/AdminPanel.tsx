@@ -1,6 +1,6 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { registerUIComponent } from "../engine";
-import { concat, map, of } from "rxjs";
+import { combineLatest, concat, map, of } from "rxjs";
 import styled from "styled-components";
 import { CloseableContainer } from "./common";
 
@@ -13,16 +13,44 @@ export function registerAdminPanel() {
       colStart: 1,
       colEnd: 4,
     },
-    (layers) =>
-      layers.noa.components.UI.update$.pipe(
-        map((e) => ({ layers, show: e.value[0]?.showAdminPanel }))
-      ),
-    ({ layers, show }) => {
+    (layers) => {
+      const {
+        network: {
+          contractComponents: { ItemPrototype },
+        },
+        noa: {
+          components: { UI },
+        },
+      } = layers;
+
+      const ItemPrototype$ = ItemPrototype.update$;
+
+      const showAdminPanel = UI.update$.pipe(
+        map((e) => ({ show: e.value[0]?.showAdminPanel }))
+      );
+
+      return combineLatest<
+        [ObservableType<typeof chunk$>, ObservableType<typeof showAdminPanel$>]
+      >([ItemPrototype$, showAdminPanel]).pipe(
+        map((props) => ({ props, layers }))
+      );
+    },
+
+    ({ props, layers }) => {
       const {
         network: { world },
       } = layers;
-      return show ? (
-        // pointerEvents: all is needed so when we click on the admin panel, we don't gain focus on the noa canvas
+      const [ItemProtype$, showAdminPanel] = props;
+
+      useEffect(() => {
+        const subscription = ItemProtype$.subscribe((iprotype) => {
+          console.log(iprotype);
+        });
+        return () => subscription?.unsubscribe();
+      }, []);
+
+      return showAdminPanel.show ? (
+        // "pointerEvents: all" is needed so when we click on the admin panel, we don't gain focus on the noa canvas
         <div
           className="relative z-50 w-full h-full bg-slate-900 p-10 text-white"
           style={{ pointerEvents: "all" }}
@@ -30,7 +58,7 @@ export function registerAdminPanel() {
           <p className="text-2xl">Admin Panel</p>
           <button
             className="p-5 bg-slate-700 cursor-pointer"
-            onClick={() => alert("hi")}
+            onClick={() => console.log("hi")}
           >
             Download Voxels
           </button>

@@ -205,14 +205,14 @@ export function createInputSystem(network: NetworkLayer, context: NoaLayer) {
     setComponent(SelectedSlot, SingletonEntity, { value: key });
   });
 
-  noa.inputs.bind("componentbrowser", "`");
-  noa.inputs.down.on("componentbrowser", () => {
-    const showComponentBrowser = getComponentValue(
+  noa.inputs.bind("admin-panel", "-");
+  noa.inputs.down.on("admin-panel", () => {
+    const showAdminPanel = getComponentValue(
       UI,
       SingletonEntity
-    )?.showComponentBrowser;
+    )?.showAdminPanel;
     updateComponent(UI, SingletonEntity, {
-      showComponentBrowser: !showComponentBrowser,
+      showAdminPanel: !showAdminPanel,
     });
   });
 

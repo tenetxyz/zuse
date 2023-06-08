@@ -83,7 +83,7 @@ export function registerAdminPanel() {
             Download Voxels
           </button>
           <FileUpload
-            buttonText={"upload voxels"}
+            buttonText={"Upload Voxels"}
             onFileUpload={onImportVoxel}
           />
         </div>

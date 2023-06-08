@@ -14,6 +14,7 @@ import {
   getEntitiesWithValue,
   Has,
   HasValue,
+  removeComponent,
   runQuery,
   setComponent,
   UpdateType,
@@ -200,6 +201,10 @@ export function registerInventoryHud() {
             HasValue(Item, { value: voxelTypeIdAtSlot }),
           ]),
         ];
+
+        // since we no longer have items of this type, remove this from the InventoryIndex,
+        // so new items can be placed on that index
+        removeComponent(InventoryIndex, voxelTypeIdAtSlot);
 
         // remove the voxels at this slot
         removeVoxels(ownedEntitiesOfType);

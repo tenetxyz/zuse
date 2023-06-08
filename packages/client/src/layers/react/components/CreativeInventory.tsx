@@ -84,6 +84,7 @@ export const CreativeInventory: React.FC<Props> = ({ layers }) => {
   return (
     <div>
       <input
+        className="bg-slate-700 p-1 ml-2 focus:outline-slate-700 border-1 border-solid mb-1 "
         value={searchValue}
         onChange={(e) => setSearchValue(e.target.value)}
       />

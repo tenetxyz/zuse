@@ -44,21 +44,24 @@ export function createInventoryIndexSystem(
     )
   );
 
-  // on pageLoad, we first loop through all the components, and if there is no item at that index, we remove it
-  const itemsIOwn = runQuery([
-    HasValue(OwnedBy, { value: to64CharAddress(connectedAddress.get()) }),
-    Has(Item),
-  ]);
-  const itemTypesIOwn = new Set(
-    Array.from(itemsIOwn).map(
-      (item) => getComponentValue(Item, item)?.value as Entity
-    )
-  );
-  for (const itemType of InventoryIndex.values.value.keys()) {
-    if (!itemTypesIOwn.has(itemType.description as Entity)) {
-      removeComponent(InventoryIndex, itemType.description as Entity);
+  // TODO: I couldn't get this function to work, as the itemsIOwn query is empty when this first runs
+  const removeInventoryIndexesForItemsWeNoLongerOwn = () => {
+    const itemsIOwn = runQuery([
+      HasValue(OwnedBy, { value: to64CharAddress(connectedAddress.get()) }),
+      Has(Item),
+    ]);
+    const itemTypesIOwn = new Set(
+      Array.from(itemsIOwn).map(
+        (item) => getComponentValue(Item, item)?.value as Entity
+      )
+    );
+    for (const itemType of InventoryIndex.values.value.keys()) {
+      if (!itemTypesIOwn.has(itemType.description as Entity)) {
+        removeComponent(InventoryIndex, itemType.description as Entity);
+      }
     }
-  }
+  };
+  // removeInventoryIndexesForItemsWeNoLongerOwn();
 
   defineRxSystem(world, update$, (update) => {
     console.log("inventory update called");

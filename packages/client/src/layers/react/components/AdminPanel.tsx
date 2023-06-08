@@ -13,52 +13,65 @@ export function registerAdminPanel() {
       colStart: 1,
       colEnd: 4,
     },
-    (layers) => {
+    (layers) =>
+      layers.noa.components.UI.update$.pipe(
+        map((e) => ({ layers, show: e.value[0]?.showAdminPanel }))
+      ),
+    ({ layers, show }) => {
       const {
-        network: {
-          contractComponents: { ItemPrototype },
-        },
-        noa: {
-          components: { UI },
-        },
-      } = layers;
+        components: { ItemPrototype },
+      } = layers.network;
 
-      const ItemPrototype$ = ItemPrototype.update$;
-
-      const showAdminPanel = UI.update$.pipe(
-        map((e) => ({ show: e.value[0]?.showAdminPanel }))
-      );
-
-      return combineLatest<
-        [ObservableType<typeof chunk$>, ObservableType<typeof showAdminPanel$>]
-      >([ItemPrototype$, showAdminPanel]).pipe(
-        map((props) => ({ props, layers }))
-      );
-    },
-
-    ({ props, layers }) => {
-      const {
-        network: { world },
-      } = layers;
-      const [ItemProtype$, showAdminPanel] = props;
-
-      useEffect(() => {
-        const subscription = ItemProtype$.subscribe((iprotype) => {
-          console.log(iprotype);
+      interface JsonComponent {
+        [key: string]: any;
+      }
+      const componentToJson = (component: any): object => {
+        const entries = component.values.value;
+        const res: JsonComponent = {};
+        for (const [key, value] of entries) {
+          res[key.description] = value;
+        }
+        return res;
+      };
+      const downloadVoxels = () => {
+        const itemPrototype = componentToJson(ItemPrototype);
+        saveObjectAsFile("voxels.json", {
+          itemPrototype,
         });
-        return () => subscription?.unsubscribe();
-      }, []);
+      };
 
-      return showAdminPanel.show ? (
+      const saveObjectAsFile = (filename: string, dataObjToWrite: object) => {
+        const blob = new Blob([JSON.stringify(dataObjToWrite)], {
+          type: "text/json",
+        });
+        const link = document.createElement("a");
+
+        link.download = filename;
+        link.href = window.URL.createObjectURL(blob);
+        link.dataset.downloadurl = ["text/json", link.download, link.href].join(
+          ":"
+        );
+
+        const evt = new MouseEvent("click", {
+          view: window,
+          bubbles: true,
+          cancelable: true,
+        });
+
+        link.dispatchEvent(evt);
+        link.remove();
+      };
+
+      return show ? (
         // "pointerEvents: all" is needed so when we click on the admin panel, we don't gain focus on the noa canvas
         <div
-          className="relative z-50 w-full h-full bg-slate-900 p-10 text-white"
+          className="relative z-50 w-full h-full bg-slate-100 p-10 text-white"
           style={{ pointerEvents: "all" }}
         >
           <p className="text-2xl">Admin Panel</p>
           <button
             className="p-5 bg-slate-700 cursor-pointer"
-            onClick={() => console.log("hi")}
+            onClick={downloadVoxels}
           >
             Download Voxels
           </button>

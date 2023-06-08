@@ -44,25 +44,6 @@ export function createInventoryIndexSystem(
     )
   );
 
-  // TODO: I couldn't get this function to work, as the itemsIOwn query is empty when this first runs
-  const removeInventoryIndexesForItemsWeNoLongerOwn = () => {
-    const itemsIOwn = runQuery([
-      HasValue(OwnedBy, { value: to64CharAddress(connectedAddress.get()) }),
-      Has(Item),
-    ]);
-    const itemTypesIOwn = new Set(
-      Array.from(itemsIOwn).map(
-        (item) => getComponentValue(Item, item)?.value as Entity
-      )
-    );
-    for (const itemType of InventoryIndex.values.value.keys()) {
-      if (!itemTypesIOwn.has(itemType.description as Entity)) {
-        removeComponent(InventoryIndex, itemType.description as Entity);
-      }
-    }
-  };
-  // removeInventoryIndexesForItemsWeNoLongerOwn();
-
   // this function assigns inventory indexes to items we own
   // whenever we get/lose an item, this function is run
   defineRxSystem(world, update$, (update) => {

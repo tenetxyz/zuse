@@ -10,6 +10,7 @@ contract RemoveVoxelSystem is System {
         for (uint i = 0; i < voxels.length; i++) {
             require(OwnedBy.get(voxels[i]) == addressToEntityKey(msg.sender), "Voxel not owned by sender");
             // delete the voxel
+            // TODO: delete all values in relevant components as well
             OwnedBy.deleteRecord(voxels[i]);
             Item.deleteRecord(voxels[i]);
         }

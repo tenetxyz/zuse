@@ -75,7 +75,6 @@ export function registerInventoryHud() {
             }
 
             acc[blockTypeId]++;
-            console.log("owned by me updated");
             return { ...acc };
           }, {} as { [key: string]: number })
         )
@@ -186,7 +185,6 @@ export function registerInventoryHud() {
       }
 
       function removeItems(slot: number) {
-        console.log("removeItemsAtInventorySlot", slot);
         const voxelTypeIdAtSlot = [
           ...getEntitiesWithValue(InventoryIndex, { value: slot }),
         ][0];

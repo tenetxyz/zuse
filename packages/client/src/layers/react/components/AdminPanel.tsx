@@ -3,6 +3,7 @@ import { registerUIComponent } from "../engine";
 import { combineLatest, concat, map, of } from "rxjs";
 import styled from "styled-components";
 import { CloseableContainer } from "./common";
+import FileUpload from "../../../utils/components/FileUpload";
 
 export function registerAdminPanel() {
   registerUIComponent(
@@ -22,17 +23,6 @@ export function registerAdminPanel() {
         components: { ItemPrototype },
       } = layers.network;
 
-      interface JsonComponent {
-        [key: string]: any;
-      }
-      const componentToJson = (component: any): object => {
-        const entries = component.values.value;
-        const res: JsonComponent = {};
-        for (const [key, value] of entries) {
-          res[key.description] = value;
-        }
-        return res;
-      };
       const downloadVoxels = () => {
         const itemPrototype = componentToJson(ItemPrototype);
         saveObjectAsFile("voxels.json", {
@@ -40,6 +30,23 @@ export function registerAdminPanel() {
         });
       };
 
+      interface JsonComponent {
+        [key: string]: any;
+      }
+      const componentToJson = (component: any): JsonComponent => {
+        const entries = component.values.value;
+        const res: JsonComponent = {};
+        for (const [key, value] of entries) {
+          res[key.description] = value;
+        }
+        return res;
+      };
+
+      const onImportVoxel = (text: string) => {
+        console.log(text);
+      };
+
+      // from https://stackoverflow.com/questions/19721439/download-json-object-as-a-file-from-browser
       const saveObjectAsFile = (filename: string, dataObjToWrite: object) => {
         const blob = new Blob([JSON.stringify(dataObjToWrite)], {
           type: "text/json",
@@ -70,11 +77,15 @@ export function registerAdminPanel() {
         >
           <p className="text-2xl">Admin Panel</p>
           <button
-            className="p-5 bg-slate-700 cursor-pointer"
+            className="p-5 bg-slate-700 w-full cursor-pointer"
             onClick={downloadVoxels}
           >
             Download Voxels
           </button>
+          <FileUpload
+            buttonText={"upload voxels"}
+            onFileUpload={onImportVoxel}
+          />
         </div>
       ) : null;
     }

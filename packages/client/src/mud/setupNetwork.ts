@@ -191,7 +191,9 @@ export async function setupNetwork() {
     withOptimisticUpdates(contractComponents.Position)
   );
   // Note: we don't add indexer to OwnedBy because there's current bugs with indexer in MUD 2
-  // contractComponents.OwnedBy = createIndexer(withOptimisticUpdates(contractComponents.OwnedBy));
+  // contractComponents.OwnedBy = createIndexer(
+  //   withOptimisticUpdates(contractComponents.OwnedBy)
+  // );
   contractComponents.OwnedBy = withOptimisticUpdates(
     contractComponents.OwnedBy
   );
@@ -246,8 +248,13 @@ export async function setupNetwork() {
     // const creativeMode = godIndex != null && getComponentValue(components.GameConfig, godIndex)?.creativeMode;
 
     actions.add({
-      id: `build+${coord.x}/${coord.y}/${coord.z}` as Entity,
-      metadata: { actionType: "build", coord, blockType: blockTypeName },
+      id: `build+${coord.x}/${coord.y}/${coord.z}` as Entity, // used so we don't send the same transaction twice
+      metadata: {
+        // metadata determines how the transaction dialog box appears in the bottom left corner
+        actionType: "build",
+        coord,
+        blockType: blockTypeName, // Determines the Icon that appears in the dialogue box
+      },
       requirement: () => true,
       components: {
         Position: contractComponents.Position,
@@ -358,9 +365,40 @@ export async function setupNetwork() {
         {
           component: "OwnedBy",
           entity: playerAddress as Entity,
-          value: null,
+          value: newVoxel,
         },
       ],
+    });
+  }
+
+  // needed in creative mode, to allow the user to remove voxels. Otherwise their inventory will fill up
+  function removeVoxels(voxels: Entity[]) {
+    if (voxels.length === 0) {
+      return console.warn("trying to remove 0 voxels");
+    }
+
+    const voxelType = getComponentValue(contractComponents.Item, voxels[0])
+      ?.value as Entity;
+
+    const blockType = BlockIdToKey[voxelType];
+    actions.add({
+      id: `RemoveVoxel+${voxels.toString()}` as Entity,
+      metadata: {
+        actionType: "removeVoxels",
+        blockType,
+      },
+      requirement: () => true,
+      components: {
+        OwnedBy: contractComponents.OwnedBy,
+        Item: contractComponents.Item,
+      },
+      execute: async () => {
+        const tx = await worldSend("removeVoxels", [
+          voxels.map((voxelId) => to64CharAddress(voxelId)),
+          { gasLimit: 1_000_000 },
+        ]);
+      },
+      updates: () => [],
     });
   }
 
@@ -408,6 +446,7 @@ export async function setupNetwork() {
       build,
       mine,
       giftVoxel,
+      removeVoxels,
       stake,
       claim,
       getName,

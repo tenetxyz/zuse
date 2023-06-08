@@ -9,9 +9,10 @@ export const Slot: React.FC<{
   blockID?: Entity;
   quantity?: number;
   onClick?: () => void;
+  onRightClick?: () => void;
   selected?: boolean;
   disabled?: boolean;
-}> = ({ blockID, quantity, onClick, selected, disabled }) => (
+}> = ({ blockID, quantity, onClick, onRightClick, selected, disabled }) => (
   <AbsoluteBorder
     borderColor={selected ? "#ffffff" : "transparent"}
     borderWidth={6}
@@ -19,7 +20,14 @@ export const Slot: React.FC<{
     <Border borderColor={"#b1b1b1"}>
       <Border borderColor={"#797979"}>
         <Border borderColor={"rgb(0 0 0 / 10%)"}>
-          <Inner onClick={onClick} disabled={disabled}>
+          <Inner
+            onClick={onClick}
+            disabled={disabled}
+            onContextMenu={(event: Event) => {
+              event.preventDefault(); // Prevent the default browser context menu from showing up
+              onRightClick && onRightClick();
+            }}
+          >
             {blockID ? (
               <BlockIcon blockID={blockID} scale={4}>
                 {quantity != null ? <Quantity>{quantity}</Quantity> : null}

@@ -8,7 +8,6 @@ import Fuse from "fuse.js";
 
 interface Props {
   layers: Layers;
-  moveItems: (number: number) => void;
 }
 const NUM_COLS = 9;
 const NUM_ROWS = 8;

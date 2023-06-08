@@ -44,8 +44,24 @@ export function createInventoryIndexSystem(
     )
   );
 
+  // on pageLoad, we first loop through all the components, and if there is no item at that index, we remove it
+  const itemsIOwn = runQuery([
+    HasValue(OwnedBy, { value: to64CharAddress(connectedAddress.get()) }),
+    Has(Item),
+  ]);
+  const itemTypesIOwn = new Set(
+    Array.from(itemsIOwn).map(
+      (item) => getComponentValue(Item, item)?.value as Entity
+    )
+  );
+  for (const itemType of InventoryIndex.values.value.keys()) {
+    if (!itemTypesIOwn.has(itemType.description as Entity)) {
+      removeComponent(InventoryIndex, itemType.description as Entity);
+    }
+  }
+
   defineRxSystem(world, update$, (update) => {
-    // console.log("inventory update called");
+    console.log("inventory update called");
     const blockId = getComponentValue(Item, update.entity)?.value as Entity;
     // console.log(blockId);
 

@@ -13,7 +13,7 @@ export function registerUIComponents() {
   registerLoadingState();
   registerActionQueue();
   registerCrosshairs();
-  registerBlockExplorer();
+  // registerBlockExplorer();
   registerInventoryHud();
   registerSidebar();
   registerToast();

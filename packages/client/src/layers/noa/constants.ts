@@ -1,5 +1,5 @@
 import { VoxelCoord } from "@latticexyz/utils";
-import { BlockTypeKey } from "../network/constants";
+import { VoxelTypeKey } from "../network/constants";
 import { Block, NoaBlockType } from "./types";
 
 export const CRAFTING_SIDE = 3;
@@ -70,7 +70,7 @@ export const Textures = {
   Bricks: "./assets/blocks/2-Bricks.png",
 };
 
-export const UVWraps: { [key in BlockTypeKey]: string | undefined } = {
+export const UVWraps: { [key in VoxelTypeKey]: string | undefined } = {
   Air: undefined,
   Grass: "./assets/uv-wraps/grass.png",
   Dirt: "./assets/uv-wraps/dirt.png",
@@ -126,7 +126,7 @@ export const UVWraps: { [key in BlockTypeKey]: string | undefined } = {
   GrassPlant: undefined,
 };
 
-export const Blocks: { [key in BlockTypeKey]: Block | undefined } = {
+export const Blocks: { [key in VoxelTypeKey]: Block | undefined } = {
   Air: undefined,
   Grass: {
     type: NoaBlockType.BLOCK,
@@ -281,7 +281,7 @@ export const Blocks: { [key in BlockTypeKey]: Block | undefined } = {
   },
 };
 
-export function getBlockIconUrl(blockType: BlockTypeKey): string | undefined {
+export function getBlockIconUrl(blockType: VoxelTypeKey): string | undefined {
   const block = Blocks[blockType];
   if (!block) return;
   return Array.isArray(block.material) ? block.material[0] : block.material;

@@ -8,7 +8,7 @@ import {
 } from "@latticexyz/recs";
 import { VoxelCoord } from "@latticexyz/utils";
 import { Perlin } from "@latticexyz/noise";
-import { BlockType } from "../../constants";
+import { VoxelTypeKeyToId } from "../../constants";
 import { Terrain, TerrainState } from "./types";
 import { getTerrain } from "./utils";
 import { Air, Bedrock, Dirt, Grass } from "./occurrence";
@@ -28,7 +28,7 @@ export function getEntityAtPosition(
   return (
     entitiesAtPosition?.find((b) => {
       const voxeltype = getComponentValue(VoxelType, b);
-      return voxeltype && voxeltype.value !== BlockType.Air;
+      return voxeltype && voxeltype.value !== VoxelTypeKeyToId.Air;
     }) ?? entitiesAtPosition[0]
   );
 }
@@ -43,7 +43,8 @@ export function getECSBlock(
 ): Entity | undefined {
   const entityAtPosition = getEntityAtPosition(context, coord);
   if (entityAtPosition == null) return undefined;
-  return getComponentValue(context.VoxelType, entityAtPosition)?.value as Entity;
+  return getComponentValue(context.VoxelType, entityAtPosition)
+    ?.value as Entity;
 }
 
 export function getBlockAtPosition(
@@ -68,6 +69,10 @@ export function getTerrainBlock(
 ): Entity {
   const state: TerrainState = { biomeVector, height, coord, perlin };
   return (
-    Bedrock(state) || Air(state) || Grass(state) || Dirt(state) || BlockType.Air
+    Bedrock(state) ||
+    Air(state) ||
+    Grass(state) ||
+    Dirt(state) ||
+    VoxelTypeKeyToId.Air
   );
 }

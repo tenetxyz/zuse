@@ -20,7 +20,7 @@ import {
   UpdateType,
 } from "@latticexyz/recs";
 import { getBlockIconUrl } from "../../noa/constants";
-import { BlockIdToKey } from "../../network/constants";
+import { VoxelTypeIdToKey } from "../../network/constants";
 import { formatEntityID, to64CharAddress } from "../../../utils/entity";
 import { Sounds } from "./Sounds";
 import { CreativeInventory } from "./CreativeInventory";
@@ -67,7 +67,10 @@ export function registerInventoryHud() {
         of({}),
         ownedByMeQuery.update$.pipe(
           scan((acc, curr) => {
-            const blockTypeId = getComponentValue(VoxelType, curr.entity)?.value;
+            const blockTypeId = getComponentValue(
+              VoxelType,
+              curr.entity
+            )?.value;
             if (!blockTypeId) return { ...acc };
             acc[blockTypeId] = acc[blockTypeId] || 0;
             if (curr.type === UpdateType.Exit) {
@@ -150,7 +153,7 @@ export function registerInventoryHud() {
           return;
         }
 
-        const blockType = BlockIdToKey[holdingBlock];
+        const blockType = VoxelTypeIdToKey[holdingBlock];
         const icon = getBlockIconUrl(blockType);
         document.body.style.cursor = `url(${icon}) 12 12, auto`;
       }, [holdingBlock]);

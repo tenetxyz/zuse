@@ -6,7 +6,7 @@ import {
   updateComponent,
 } from "@latticexyz/recs";
 import { sleep, VoxelCoord } from "@latticexyz/utils";
-import { NetworkLayer, BlockType } from "../../network";
+import { NetworkLayer, VoxelTypeKeyToId } from "../../network";
 import { FAST_MINING_DURATION, SPAWN_POINT } from "../constants";
 import {
   HandComponent,
@@ -92,7 +92,7 @@ export function createInputSystem(network: NetworkLayer, context: NoaLayer) {
 
       if (creativeMode) {
         miningComponent.duration = 10;
-      } else if (getSelectedBlockType() === BlockType.Bedrock) {
+      } else if (getSelectedBlockType() === VoxelTypeKeyToId.Bedrock) {
         miningComponent.duration = FAST_MINING_DURATION;
       }
       return miningComponent;
@@ -179,7 +179,7 @@ export function createInputSystem(network: NetworkLayer, context: NoaLayer) {
             y: targeted[1],
             z: targeted[2],
           }),
-          HasValue(VoxelType, { value: BlockType.Crafting }),
+          HasValue(VoxelType, { value: VoxelTypeKeyToId.Crafting }),
         ]).size > 0
       ) {
         return toggleInventory(true, true);

@@ -1,7 +1,7 @@
 import * as BABYLON from "@babylonjs/core";
 import { Texture, Vector4 } from "@babylonjs/core";
 import { Engine } from "noa-engine";
-import { BlockTypeKey } from "../../network/constants";
+import { VoxelTypeKey } from "../../network/constants";
 import { UVWraps } from "../constants";
 import { HAND_COMPONENT } from "./components/handComponent";
 export const X_HAND = 0.4;
@@ -51,8 +51,8 @@ export function setupHand(noa: Engine) {
   hand.material = handMaterial;
   hand.rotation.x = -Math.PI / 2;
 
-  const blockMaterials: { [key in BlockTypeKey]?: BABYLON.Material } = {};
-  for (const key of Object.keys(UVWraps) as BlockTypeKey[]) {
+  const blockMaterials: { [key in VoxelTypeKey]?: BABYLON.Material } = {};
+  for (const key of Object.keys(UVWraps) as VoxelTypeKey[]) {
     if (UVWraps[key] !== undefined) {
       const blockMaterial = noa.rendering.makeStandardMaterial(
         "blockMaterial-" + key
@@ -64,9 +64,9 @@ export function setupHand(noa: Engine) {
         true,
         Texture.NEAREST_SAMPLINGMODE
       );
-      blockMaterials[key as BlockTypeKey] = blockMaterial;
+      blockMaterials[key as VoxelTypeKey] = blockMaterial;
     } else {
-      blockMaterials[key as BlockTypeKey] = undefined;
+      blockMaterials[key as VoxelTypeKey] = undefined;
     }
   }
   const BLOCK_SIZE = 16;

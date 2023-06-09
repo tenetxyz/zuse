@@ -2,7 +2,7 @@ import * as BABYLON from "@babylonjs/core";
 import { Engine } from "noa-engine";
 import { Entity } from "@latticexyz/recs";
 import { Material } from "@babylonjs/core";
-import { BlockIdToKey, BlockTypeKey } from "../../../network/constants";
+import { VoxelTypeIdToKey, VoxelTypeKey } from "../../../network/constants";
 import {
   IDLE_ANIMATION_BOX_BLOCK,
   IDLE_ANIMATION_BOX_HAND,
@@ -14,7 +14,7 @@ export interface HandComponent {
   isMining: boolean;
   handMesh: BABYLON.Mesh;
   blockMesh: BABYLON.Mesh;
-  blockMaterials: { [key in BlockTypeKey]?: Material };
+  blockMaterials: { [key in VoxelTypeKey]?: Material };
   __id: number;
 }
 
@@ -41,7 +41,7 @@ export function registerHandComponent(
         if (id === noa.playerEntity) {
           // NOTE: for now just animate / change the material of the player hand
           const selectedBlock = getSelectedBlockType();
-          const blockTypeKey = selectedBlock && BlockIdToKey[selectedBlock];
+          const blockTypeKey = selectedBlock && VoxelTypeIdToKey[selectedBlock];
           if (blockTypeKey && blockMaterials[blockTypeKey] !== undefined) {
             // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
             blockMesh.material = blockMaterials[blockTypeKey]!;

@@ -1,7 +1,7 @@
 import { Entity } from "@latticexyz/recs";
 import { keccak256 } from "@latticexyz/utils";
 
-export const BlockType = {
+export const VoxelTypeKeyToId = {
   Air: keccak256("block.Air") as Entity,
   Grass: keccak256("block.Grass") as Entity,
   Dirt: keccak256("block.Dirt") as Entity,
@@ -57,32 +57,32 @@ export const BlockType = {
   Bricks: keccak256("block.Bricks") as Entity,
 };
 
-export type BlockTypeKey = keyof typeof BlockType;
+export type VoxelTypeKey = keyof typeof VoxelTypeKeyToId;
 
-export const BlockIdToIndex = Object.values(BlockType).reduce<{
+export const VoxelTypeIdToIndex = Object.values(VoxelTypeKeyToId).reduce<{
   [key: string]: number;
 }>((acc, id, index) => {
   acc[id] = index;
   return acc;
 }, {});
 
-export const BlockIndexToId = Object.values(BlockType).reduce<{
+export const VoxelTypeIndexToId = Object.values(VoxelTypeKeyToId).reduce<{
   [key: number]: string;
 }>((acc, id, index) => {
   acc[index] = id;
   return acc;
 }, {});
 
-export const BlockIndexToKey = Object.entries(BlockType).reduce<{
-  [key: number]: BlockTypeKey;
+export const VoxelTypeIndexToKey = Object.entries(VoxelTypeKeyToId).reduce<{
+  [key: number]: VoxelTypeKey;
 }>((acc, [key], index) => {
-  acc[index] = key as BlockTypeKey;
+  acc[index] = key as VoxelTypeKey;
   return acc;
 }, {});
 
-export const BlockIdToKey = Object.entries(BlockType).reduce<{
-  [key: Entity]: BlockTypeKey;
+export const VoxelTypeIdToKey = Object.entries(VoxelTypeKeyToId).reduce<{
+  [key: Entity]: VoxelTypeKey;
 }>((acc, [key, id]) => {
-  acc[id] = key as BlockTypeKey;
+  acc[id] = key as VoxelTypeKey;
   return acc;
 }, {});

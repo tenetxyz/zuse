@@ -5,11 +5,11 @@ import "@babylonjs/core/Meshes/Builders/boxBuilder";
 import * as BABYLON from "@babylonjs/core";
 import { VoxelCoord } from "@latticexyz/utils";
 import { Blocks, Textures } from "../constants";
-import { BlockType, BlockTypeIndex } from "../../network";
+import { VoxelTypeKeyToId, BlockTypeIndex } from "../../network";
 import { Entity } from "@latticexyz/recs";
 import { NoaBlockType } from "../types";
 import { createMeshBlock } from "./utils";
-import { BlockIndexToKey, BlockTypeKey } from "../../network/constants";
+import { VoxelTypeIndexToKey, VoxelTypeKey } from "../../network/constants";
 import { setupScene } from "../engine/setupScene";
 import {
   CHUNK_RENDER_DISTANCE,
@@ -110,7 +110,7 @@ export function setupNoaEngine(api: API) {
   // Register blocks
 
   for (const [key, block] of Object.entries(Blocks)) {
-    const index = BlockTypeIndex[BlockType[key as BlockTypeKey]];
+    const index = BlockTypeIndex[VoxelTypeKeyToId[key as VoxelTypeKey]];
     const augmentedBlock = { ...block };
     if (!block) continue;
 
@@ -190,7 +190,7 @@ export function setupNoaEngine(api: API) {
 
   // Change block targeting mechanism
   noa.blockTargetIdCheck = function (index: number) {
-    const key = BlockIndexToKey[index];
+    const key = VoxelTypeIndexToKey[index];
     return key != null && key != "Air" && !Blocks[key]?.fluid;
   };
   return { noa, setBlock, glow };

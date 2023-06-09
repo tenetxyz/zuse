@@ -10,7 +10,7 @@ import {
   SchemaOf,
 } from "@latticexyz/recs";
 import { filter, scan, merge, map } from "rxjs";
-import { BlockIdToKey, BlockTypeKey } from "../../network/constants";
+import { VoxelTypeIdToKey, VoxelTypeKey } from "../../network/constants";
 import { registerUIComponent } from "../engine";
 import styled from "styled-components";
 import { getBlockIconUrl } from "../../noa/constants";
@@ -18,14 +18,14 @@ import { filterNullish } from "@latticexyz/utils";
 
 type BlockEvent = {
   blockNumber: number;
-  blockType?: BlockTypeKey;
+  blockType?: VoxelTypeKey;
   action?: "add" | "remove";
 };
 
 type BlockSummaryElement = [
   number, // block number
   {
-    [blockType in BlockTypeKey]: { add?: number; remove?: number };
+    [blockType in VoxelTypeKey]: { add?: number; remove?: number };
   }
 ];
 
@@ -128,7 +128,7 @@ export function registerBlockExplorer() {
                   // TODO: We added this because value was undefined, should figure out why the original line (below) doesn't work
                   const entityId = getComponentValue(VoxelType, entity)?.value;
                   // const { value: entityId } = value as ComponentValue<SchemaOf<typeof VoxelType>>;
-                  const blockType = BlockIdToKey[entityId as Entity];
+                  const blockType = VoxelTypeIdToKey[entityId as Entity];
                   return { blockNumber, blockType, action: "remove" };
                 }
 
@@ -143,7 +143,7 @@ export function registerBlockExplorer() {
                   if (!blockTypeId) {
                     return;
                   }
-                  const blockType = BlockIdToKey[blockTypeId as Entity];
+                  const blockType = VoxelTypeIdToKey[blockTypeId as Entity];
 
                   // If the update includes a position, it corresponds to a placed block
                   if (value) {
@@ -202,7 +202,7 @@ export function registerBlockExplorer() {
                   <React.Fragment key={blockType}>
                     {counts.add ? (
                       <div className="BlockExplorer-Action">
-                        <img src={getBlockIconUrl(blockType as BlockTypeKey)} />
+                        <img src={getBlockIconUrl(blockType as VoxelTypeKey)} />
                         <div className="BlockExplorer-ActionIcon BlockExplorer-ActionIcon--add">
                           +{counts.add}
                         </div>
@@ -210,7 +210,7 @@ export function registerBlockExplorer() {
                     ) : null}
                     {counts.remove ? (
                       <div className="BlockExplorer-Action">
-                        <img src={getBlockIconUrl(blockType as BlockTypeKey)} />
+                        <img src={getBlockIconUrl(blockType as VoxelTypeKey)} />
                         <div className="BlockExplorer-ActionIcon BlockExplorer-ActionIcon--remove">
                           -{counts.remove}
                         </div>

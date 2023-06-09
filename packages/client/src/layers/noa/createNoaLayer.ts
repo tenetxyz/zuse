@@ -219,15 +219,16 @@ export function createNoaLayer(network: NetworkLayer) {
       trimmedCraftingTableVoxelTypes.push([]);
       trimmedCraftingTableTypes.push([]);
       for (let y = 0; y <= maxY - minY; y++) {
-        const voxel = craftingTable[x + minX][y + minY];
-        const blockID = ((getEntityString(getEntitySymbol(voxel)) !== "-1" &&
-          voxel) ||
+        const rawVoxelId = craftingTable[x + minX][y + minY];
+        const voxel = ((getEntityString(getEntitySymbol(rawVoxelId)) !== "-1" &&
+          rawVoxelId) ||
           "0x00") as Entity;
-        const blockType = ((getEntityString(getEntitySymbol(voxel)) !== "-1" &&
-          getComponentValue(VoxelType, voxel)?.value) ||
+        const voxelType = ((getEntityString(getEntitySymbol(rawVoxelId)) !==
+          "-1" &&
+          getComponentValue(VoxelType, rawVoxelId)?.value) ||
           "0x00") as Entity;
-        trimmedCraftingTableVoxelTypes[x].push(blockID);
-        trimmedCraftingTableTypes[x].push(blockType);
+        trimmedCraftingTableVoxelTypes[x].push(voxel);
+        trimmedCraftingTableTypes[x].push(voxelType);
       }
     }
 

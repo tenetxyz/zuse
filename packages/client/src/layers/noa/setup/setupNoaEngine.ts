@@ -158,7 +158,7 @@ export function setupNoaEngine(api: API) {
       for (let i = 0; i < data.shape[0]; i++) {
         for (let j = 0; j < data.shape[1]; j++) {
           for (let k = 0; k < data.shape[2]; k++) {
-            const ecsBlockType =
+            const eccVoxelType =
               VoxelTypeIdToIndex[
                 api.getEcsVoxelAtPosition({
                   x: x + i,
@@ -166,10 +166,10 @@ export function setupNoaEngine(api: API) {
                   z: z + k,
                 }) as string
               ];
-            if (ecsBlockType !== undefined) {
-              data.set(i, j, k, ecsBlockType);
+            if (eccVoxelType !== undefined) {
+              data.set(i, j, k, eccVoxelType);
             } else {
-              const blockType =
+              const voxelType =
                 VoxelTypeIdToIndex[
                   api.getTerrainVoxelAtPosition({
                     x: x + i,
@@ -177,7 +177,7 @@ export function setupNoaEngine(api: API) {
                     z: z + k,
                   }) as string
                 ];
-              data.set(i, j, k, blockType);
+              data.set(i, j, k, voxelType);
             }
           }
         }

@@ -4,7 +4,7 @@ import { resolveTableId } from "@latticexyz/config";
 export default mudConfig({
   tables: {
     VoxelType: "bytes32", // maps a voxel's entityId -> its type
-    VoxelTypePrototype: "bool",
+    VoxelPrototype: "bool",
     Name: "string", // This is a shortcut for { schema: "string" }
     Occurrence: {
       // Each block generates at diff spots in the world, and each block has a function defining where it should appear. This table points to each block's respective generation function.

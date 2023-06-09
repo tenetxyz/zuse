@@ -30,7 +30,7 @@
 //     defineRecipeComponent,
 //     defineLoadingStateComponent,
 //     defineVoxelTypeComponent,
-//     defineVoxelTypePrototypeComponent,
+//     defineVoxelPrototypeComponent,
 //     defineOccurrenceComponent,
 //     defineStakeComponent,
 //     defineClaimComponent,
@@ -69,7 +69,7 @@
 //     // --- COMPONENTS -----------------------------------------------------------------
 //     const components = {
 //       Position: definePositionComponent(world),
-//       VoxelTypePrototype: defineVoxelTypePrototypeComponent(world),
+//       VoxelPrototype: defineVoxelPrototypeComponent(world),
 //       VoxelType: defineVoxelTypeComponent(world),
 //       Name: defineNameComponent(world),
 //       OwnedBy: defineOwnedByComponent(world),

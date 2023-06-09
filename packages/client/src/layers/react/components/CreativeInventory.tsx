@@ -20,7 +20,7 @@ interface VoxelType {
 
 export const CreativeInventory: React.FC<Props> = ({ layers }) => {
   const {
-    components: { VoxelTypePrototype },
+    components: { VoxelPrototype },
     api: { giftVoxel },
   } = layers.network;
 
@@ -30,7 +30,7 @@ export const CreativeInventory: React.FC<Props> = ({ layers }) => {
   const fuse = React.useRef<Fuse<VoxelType>>();
 
   React.useEffect(() => {
-    const entities = getEntitiesWithValue(VoxelTypePrototype, { value: true });
+    const entities = getEntitiesWithValue(VoxelPrototype, { value: true });
     console.log("creative voxeltypes", entities);
     const unsortedVoxelTypes = Array.from(entities).map((entity) => {
       return {
@@ -51,7 +51,7 @@ export const CreativeInventory: React.FC<Props> = ({ layers }) => {
 
     // TODO: this function is probably useful later
     // console.log(BlockIdToKey);
-  }, [VoxelTypePrototype]);
+  }, [VoxelPrototype]);
 
   React.useEffect(() => {
     if (!fuse.current) {

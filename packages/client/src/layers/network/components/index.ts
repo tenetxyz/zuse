@@ -1,5 +1,5 @@
 export { defineVoxelTypeComponent } from "./VoxelTypeComponent";
-export { defineVoxelTypePrototypeComponent } from "./VoxelTypePrototypeComponent";
+export { defineVoxelPrototypeComponent } from "./VoxelPrototypeComponent";
 export { definePositionComponent } from "./PositionComponent";
 export { defineOwnedByComponent } from "./OwnedByComponent";
 export { defineGameConfigComponent } from "./GameConfigComponent";

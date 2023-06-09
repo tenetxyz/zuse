@@ -5,18 +5,18 @@ import { getKeysWithValue } from "@latticexyz/world/src/modules/keyswithvalue/ge
 import { System } from "@latticexyz/world/src/System.sol";
 import { VoxelCoord } from "../types.sol";
 import { OwnedBy, Position, PositionTableId, VoxelType } from "../codegen/Tables.sol";
-import { AirID } from "../prototypes/Blocks.sol";
+import { AirID } from "../prototypes/Voxels.sol";
 import { addressToEntityKey } from "../utils.sol";
 import { getUniqueEntity } from "@latticexyz/world/src/modules/uniqueentity/getUniqueEntity.sol";
 
 contract BuildSystem is System {
 
-  function build(bytes32 blockEntity, VoxelCoord memory coord) public returns (bytes32) {
+  function build(bytes32 voxel, VoxelCoord memory coord) public returns (bytes32) {
 
-    // Require block to be owned by caller
-    require(OwnedBy.get(blockEntity) == addressToEntityKey(_msgSender()), "block is not owned by player");
+    // Require voxel to be owned by caller
+    require(OwnedBy.get(voxel) == addressToEntityKey(_msgSender()), "voxel is not owned by player");
 
-    // Require no other ECS blocks at this position except Air
+    // Require no other ECS voxels at this position except Air
     bytes32[] memory entitiesAtPosition = getKeysWithValue(PositionTableId, Position.encode(coord.x, coord.y, coord.z));
     require(entitiesAtPosition.length == 0 || entitiesAtPosition.length == 1, "can not built at non-empty coord");
     if (entitiesAtPosition.length == 1) {
@@ -24,9 +24,9 @@ contract BuildSystem is System {
     }
 
     // TODO: check claim in chunk
-    //    OwnedBy.deleteRecord(blockEntity);
+    //    OwnedBy.deleteRecord(voxel);
     bytes32 newEntity = getUniqueEntity();
-    VoxelType.set(newEntity, VoxelType.get(blockEntity));
+    VoxelType.set(newEntity, VoxelType.get(voxel));
     Position.set(newEntity, coord.x, coord.y, coord.z);
 
     return newEntity;

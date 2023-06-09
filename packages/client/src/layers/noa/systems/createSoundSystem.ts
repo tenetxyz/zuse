@@ -21,7 +21,7 @@ export function createSoundSystem(network: NetworkLayer, context: NoaLayer) {
   const {
     components: { LoadingState },
     contractComponents: { VoxelType, Position },
-    api: { getTerrainBlockAtPosition },
+    api: { getTerrainVoxelAtPosition },
   } = network;
   const {
     audioEngine,
@@ -141,17 +141,17 @@ export function createSoundSystem(network: NetworkLayer, context: NoaLayer) {
       if (!voxelType || !position) return;
 
       // Only care about close events
-      const blockPosArr = [position.x, position.y, position.z];
-      const distance = euclidean(playerPosArr, blockPosArr);
+      const voxelPosArr = [position.x, position.y, position.z];
+      const distance = euclidean(playerPosArr, voxelPosArr);
       if (distance > 32) return;
 
-      const blockPosVec = new Vector3(...blockPosArr);
+      const voxelPosVec = new Vector3(...voxelPosArr);
 
       // Find sound to play
       let voxelTypeKey = VoxelTypeIdToKey[voxelType as Entity];
       let updateType = update.type;
 
-      // When mining a terrain block, we get an ECS update for an entering air block instead
+      // When mining a terrain voxel, we get an ECS update for an entering air voxel instead
       // Hack: entity id is the same as entity index for optimistic updates
       if (
         update.type == UpdateType.Enter &&
@@ -160,7 +160,7 @@ export function createSoundSystem(network: NetworkLayer, context: NoaLayer) {
         // const isOptimisticUpdate = world.entities[update.entity] == (update.entity as unknown);
         const isOptimisticUpdate = update.entity == (update.entity as unknown);
         if (!isOptimisticUpdate) return;
-        voxelTypeKey = VoxelTypeIdToKey[getTerrainBlockAtPosition(position)];
+        voxelTypeKey = VoxelTypeIdToKey[getTerrainVoxelAtPosition(position)];
         updateType = UpdateType.Exit;
       }
 
@@ -198,7 +198,7 @@ export function createSoundSystem(network: NetworkLayer, context: NoaLayer) {
       })();
 
       // Play sound
-      sound?.setPosition(blockPosVec);
+      sound?.setPosition(voxelPosVec);
       sound?.play();
     },
     { runOnInit: false }

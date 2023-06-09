@@ -111,13 +111,13 @@ export function registerSidebar() {
           {tutorial?.mine && (
             <Hint onClose={() => updateTutorial({ mine: false })}>
               <Gold>Hint</Gold>: press and hold <Gold>left mouse</Gold> or{" "}
-              <Gold>F</Gold> to mine a block
+              <Gold>F</Gold> to mine a voxel
             </Hint>
           )}
           {tutorial?.build && (
             <Hint onClose={() => updateTutorial({ build: false })}>
               <Gold>Hint</Gold>: press <Gold>right mouse</Gold> or{" "}
-              <Gold>R</Gold> to place a block
+              <Gold>R</Gold> to place a voxel
             </Hint>
           )}
           {tutorial?.inventory && (

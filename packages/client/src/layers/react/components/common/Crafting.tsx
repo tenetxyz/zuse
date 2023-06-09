@@ -72,6 +72,7 @@ export const Crafting: React.FC<{
       ?.value as Entity | undefined;
 
     // TODO: world.entityToIndex doesn't exist??? We need to touch up this entire file if we add crafting
+    // we are mixing up voxel and voxelType in some places in this file I think
     const voxelTypeIndexAtIndex =
       voxelTypeAtIndex && world.entityToIndex.get(voxelTypeAtIndex);
 

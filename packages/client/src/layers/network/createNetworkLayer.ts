@@ -43,7 +43,7 @@
 //     getEntityAtPosition as getEntityAtPositionApi,
 //     getECSBlock,
 //     getTerrain,
-//     getTerrainBlock,
+//     getTerrainVoxel,
 //     getBiome,
 //   } from "./api";
 //   import { createPerlin } from "@latticexyz/noise";
@@ -165,8 +165,8 @@
 //       world,
 //     };
 
-//     function getTerrainBlockAtPosition(position: VoxelCoord) {
-//       return getTerrainBlock(getTerrain(position, perlin), position, perlin);
+//     function getTerrainVoxelAtPosition(position: VoxelCoord) {
+//       return getTerrainVoxel(getTerrain(position, perlin), position, perlin);
 //     }
 
 //     function getECSBlockAtPosition(position: VoxelCoord) {
@@ -213,7 +213,7 @@
 
 //     async function mine(coord: VoxelCoord) {
 //       const ecsBlock = getECSBlockAtPosition(coord);
-//       const blockId = ecsBlock ?? getTerrainBlockAtPosition(coord);
+//       const blockId = ecsBlock ?? getTerrainVoxelAtPosition(coord);
 
 //       if (blockId == null) throw new Error("entity has no block type");
 //       const blockType = BlockIdToKey[blockId];
@@ -415,7 +415,7 @@
 //         transfer,
 //         getBlockAtPosition,
 //         getECSBlockAtPosition,
-//         getTerrainBlockAtPosition,
+//         getTerrainVoxelAtPosition,
 //         getEntityAtPosition,
 //         getBiome,
 //         getName,

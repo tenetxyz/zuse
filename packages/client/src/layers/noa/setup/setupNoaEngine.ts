@@ -114,13 +114,13 @@ export function setupNoaEngine(api: API) {
     const augmentedVoxel = { ...voxel };
     if (!voxel) continue;
 
-    // Register mesh for mesh blocks
+    // Register mesh for mesh voxels
     if (voxel.type === NoaBlockType.MESH) {
       const texture = Array.isArray(voxel.material)
         ? voxel.material[0]
         : voxel.material;
       if (texture === null) {
-        throw new Error("Can't create a plant block without a material");
+        throw new Error("Can't create a plant voxel without a material");
       }
       const mesh = createVoxelMesh(
         noa,
@@ -136,8 +136,8 @@ export function setupNoaEngine(api: API) {
     noa.registry.registerBlock(index, augmentedVoxel);
   }
 
-  function setVoxel(coord: VoxelCoord | number[], block: Entity) {
-    const index = VoxelTypeIdToIndex[block];
+  function setVoxel(coord: VoxelCoord | number[], voxel: Entity) {
+    const index = VoxelTypeIdToIndex[voxel];
     if ("length" in coord) {
       noa.setVoxel(index, coord[0], coord[1], coord[2]);
     } else {
@@ -188,7 +188,7 @@ export function setupNoaEngine(api: API) {
 
   const { glow } = setupScene(noa);
 
-  // Change block targeting mechanism
+  // Change voxel targeting mechanism
   noa.blockTargetIdCheck = function (index: number) {
     const key = VoxelTypeIndexToKey[index];
     return key != null && key != "Air" && !Voxels[key]?.fluid;

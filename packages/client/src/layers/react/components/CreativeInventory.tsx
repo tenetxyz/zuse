@@ -15,7 +15,7 @@ const NUM_ROWS = 8;
 interface VoxelType {
   name: string;
   description: string;
-  blockId: Entity;
+  voxel: Entity;
 }
 
 export const CreativeInventory: React.FC<Props> = ({ layers }) => {
@@ -26,7 +26,9 @@ export const CreativeInventory: React.FC<Props> = ({ layers }) => {
 
   const [searchValue, setSearchValue] = React.useState<string>("");
   const [voxeltypes, setVoxelTypes] = React.useState<VoxelType[]>();
-  const [filteredVoxelTypes, setFilteredVoxelTypes] = React.useState<VoxelType[]>([]);
+  const [filteredVoxelTypes, setFilteredVoxelTypes] = React.useState<
+    VoxelType[]
+  >([]);
   const fuse = React.useRef<Fuse<VoxelType>>();
 
   React.useEffect(() => {
@@ -36,7 +38,7 @@ export const CreativeInventory: React.FC<Props> = ({ layers }) => {
       return {
         name: entity as string, // TODO: update
         description: "tmp desc", // TODO: update
-        blockId: entity,
+        voxel: entity,
       };
     });
 
@@ -47,10 +49,12 @@ export const CreativeInventory: React.FC<Props> = ({ layers }) => {
 
     fuse.current = new Fuse(unsortedVoxelTypes, options);
 
-    setVoxelTypes(unsortedVoxelTypes.sort((a, b) => a.name.localeCompare(b.name)));
+    setVoxelTypes(
+      unsortedVoxelTypes.sort((a, b) => a.name.localeCompare(b.name))
+    );
 
     // TODO: this function is probably useful later
-    // console.log(BlockIdToKey);
+    // console.log(VoxelToKey);
   }, [VoxelPrototype]);
 
   React.useEffect(() => {
@@ -61,7 +65,8 @@ export const CreativeInventory: React.FC<Props> = ({ layers }) => {
     setFilteredVoxelTypes(result.map((r) => r.voxeltype));
   }, [searchValue]);
 
-  const resultArray = filteredVoxelTypes.length > 0 ? filteredVoxelTypes : voxeltypes;
+  const resultArray =
+    filteredVoxelTypes.length > 0 ? filteredVoxelTypes : voxeltypes;
 
   const Slots = [...range(NUM_ROWS * NUM_COLS)].map((i) => {
     if (!resultArray || i >= resultArray.length) {
@@ -71,9 +76,9 @@ export const CreativeInventory: React.FC<Props> = ({ layers }) => {
     return (
       <Slot
         key={"slot" + i}
-        blockID={voxeltype.blockId}
+        voxel={voxeltype.voxel}
         quantity={undefined} // undefined so no number appears
-        onClick={() => giftVoxel(voxeltype.blockId)}
+        onClick={() => giftVoxel(voxeltype.voxel)}
         disabled={false} // false, so if you pick up the voxeltype, it still shows up in the creative inventory
         selected={false} // you can never select an voxeltype in the creative inventory
       />

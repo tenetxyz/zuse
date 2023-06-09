@@ -272,7 +272,7 @@ export async function setupNetwork() {
       components: {
         Position: contractComponents.Position,
         VoxelType: contractComponents.VoxelType,
-        OwnedBy: contractComponents.OwnedBy, // I think it's needed cause we check to see if the owner owns the block we're placing
+        OwnedBy: contractComponents.OwnedBy, // I think it's needed cause we check to see if the owner owns the voxel we're placing
       },
       execute: () => {
         return buildSystem(voxel, coord);
@@ -298,12 +298,8 @@ export async function setupNetwork() {
     });
   }
 
-  async function mineSystem(coord: VoxelCoord, blockId: Entity) {
-    const tx = await worldSend("mine", [
-      coord,
-      blockId,
-      { gasLimit: 5_000_000 },
-    ]);
+  async function mineSystem(coord: VoxelCoord, voxel: Entity) {
+    const tx = await worldSend("mine", [coord, voxel, { gasLimit: 5_000_000 }]);
     return tx;
   }
 
@@ -312,7 +308,7 @@ export async function setupNetwork() {
       getEcsVoxelAtPosition(coord) ?? getTerrainVoxelAtPosition(coord);
 
     if (voxelType == null) {
-      throw new Error("entity has no block type");
+      throw new Error("entity has no VoxelType");
     }
     const voxelTypeKey = VoxelTypeIdToKey[voxelType];
     const voxel = getEntityAtPosition(coord);
@@ -452,7 +448,7 @@ export async function setupNetwork() {
     worldContract,
     actions,
     api: {
-      getTerrainBlockAtPosition: getTerrainVoxelAtPosition,
+      getTerrainVoxelAtPosition: getTerrainVoxelAtPosition,
       getEcsVoxelAtPosition,
       getVoxelAtPosition,
       getEntityAtPosition,

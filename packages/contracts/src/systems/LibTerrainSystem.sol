@@ -5,7 +5,7 @@ pragma solidity >=0.8.0;
 //import { Perlin } from "./Perlin.sol";
 import { ABDKMath64x64 as Math } from "../libraries/ABDKMath64x64.sol";
 import { Biome, STRUCTURE_CHUNK, STRUCTURE_CHUNK_CENTER } from "../constants.sol";
-import { AirID, GrassID, DirtID, LogID, StoneID, SandID, WaterID, CobblestoneID, CoalID, CraftingID, IronID, GoldID, DiamondID, LeavesID, PlanksID, RedFlowerID, GrassPlantID, OrangeFlowerID, MagentaFlowerID, LightBlueFlowerID, LimeFlowerID, PinkFlowerID, GrayFlowerID, LightGrayFlowerID, CyanFlowerID, PurpleFlowerID, BlueFlowerID, GreenFlowerID, BlackFlowerID, KelpID, WoolID, SnowID, ClayID, BedrockID } from "../prototypes/Blocks.sol";
+import { AirID, GrassID, DirtID, LogID, StoneID, SandID, WaterID, CobblestoneID, CoalID, CraftingID, IronID, GoldID, DiamondID, LeavesID, PlanksID, RedFlowerID, GrassPlantID, OrangeFlowerID, MagentaFlowerID, LightBlueFlowerID, LimeFlowerID, PinkFlowerID, GrayFlowerID, LightGrayFlowerID, CyanFlowerID, PurpleFlowerID, BlueFlowerID, GreenFlowerID, BlackFlowerID, KelpID, WoolID, SnowID, ClayID, BedrockID } from "../prototypes/Voxels.sol";
 import { VoxelCoord, Tuple } from "../Types.sol";
 import { div } from "../Utils.sol";
 import { System } from "@latticexyz/world/src/System.sol";
@@ -35,13 +35,13 @@ int128 constant _16 = 16 * 2**64;
 
 contract LibTerrainSystem is System {
 
-  function getTerrainBlock(VoxelCoord memory coord) public view returns (bytes32) {
+  function getTerrainVoxel(VoxelCoord memory coord) public view returns (bytes32) {
     int128[4] memory biome = getBiome(coord.x, coord.z);
     int32 height = getHeight(coord.x, coord.z, biome);
-    return getTerrainBlock(coord.x, coord.y, coord.z, height, biome);
+    return getTerrainVoxel(coord.x, coord.y, coord.z, height, biome);
   }
 
-  function _getTerrainBlock(
+  function _getTerrainVoxel(
     int32,
     int32 y,
     int32,
@@ -83,30 +83,30 @@ contract LibTerrainSystem is System {
     return AirID;
   }
 
-  function getTerrainBlock(
+  function getTerrainVoxel(
     int32 x,
     int32 y,
     int32 z,
     int32 height,
     int128[4] memory biomeValues
   ) internal view returns (bytes32) {
-    bytes32 blockID;
+    bytes32 voxelTypeId;
 
-    blockID = Bedrock(y);
-    if (blockID != 0) return blockID;
+    voxelTypeId = Bedrock(y);
+    if (voxelTypeId != 0) return voxelTypeId;
 
-    blockID = Air(y);
-    if (blockID != 0) return blockID;
+    voxelTypeId = Air(y);
+    if (voxelTypeId != 0) return voxelTypeId;
 
     uint8 biome = getMaxBiome(biomeValues);
 
     int32 distanceFromHeight = height - y;
 
-    blockID = Grass(y);
-    if (blockID != 0) return blockID;
+    voxelTypeId = Grass(y);
+    if (voxelTypeId != 0) return voxelTypeId;
 
-    blockID = Dirt(y);
-    if (blockID != 0) return blockID;
+    voxelTypeId = Dirt(y);
+    if (voxelTypeId != 0) return voxelTypeId;
 
     return AirID;
   }
@@ -321,7 +321,7 @@ contract LibTerrainSystem is System {
   }
 
   //////////////////////////////////////////////////////////////////////////////////////
-  // Block occurrence functions
+  // voxel occurrence functions
   //////////////////////////////////////////////////////////////////////////////////////
 
   function Air(VoxelCoord memory coord) public view returns (bytes32) {

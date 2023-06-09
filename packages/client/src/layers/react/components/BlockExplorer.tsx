@@ -18,14 +18,14 @@ import { filterNullish } from "@latticexyz/utils";
 
 type BlockEvent = {
   blockNumber: number;
-  blockType?: VoxelTypeKey;
+  voxelType?: VoxelTypeKey;
   action?: "add" | "remove";
 };
 
 type BlockSummaryElement = [
   number, // block number
   {
-    [blockType in VoxelTypeKey]: { add?: number; remove?: number };
+    [voxelType in VoxelTypeKey]: { add?: number; remove?: number };
   }
 ];
 
@@ -128,30 +128,30 @@ export function registerBlockExplorer() {
                   // TODO: We added this because value was undefined, should figure out why the original line (below) doesn't work
                   const entityId = getComponentValue(VoxelType, entity)?.value;
                   // const { value: entityId } = value as ComponentValue<SchemaOf<typeof VoxelType>>;
-                  const blockType = VoxelTypeIdToKey[entityId as Entity];
-                  return { blockNumber, blockType, action: "remove" };
+                  const voxelType = VoxelTypeIdToKey[entityId as Entity];
+                  return { blockNumber, voxelType, action: "remove" };
                 }
 
                 // Position component updates correspond to a mined or placed ECS block
                 if (componentKey === "Position") {
                   // const entityIndex = world.entityToIndex.get(entity);
                   const entityIndex = entity;
-                  const blockTypeId =
+                  const voxelTypeId =
                     entityIndex != null
                       ? getComponentValue(VoxelType, entityIndex)?.value
                       : undefined;
-                  if (!blockTypeId) {
+                  if (!voxelTypeId) {
                     return;
                   }
-                  const blockType = VoxelTypeIdToKey[blockTypeId as Entity];
+                  const voxelType = VoxelTypeIdToKey[voxelTypeId as Entity];
 
                   // If the update includes a position, it corresponds to a placed block
                   if (value) {
-                    return { blockNumber, blockType, action: "add" };
+                    return { blockNumber, voxelType, action: "add" };
                   }
                   // otherwise it corresponds to a mined ecs block
                   else {
-                    return { blockNumber, blockType, action: "remove" };
+                    return { blockNumber, voxelType, action: "remove" };
                   }
                 }
               }
@@ -159,7 +159,7 @@ export function registerBlockExplorer() {
           )
           .pipe(filterNullish())
       )
-        .pipe(filter((update) => update.blockType !== "Air"))
+        .pipe(filter((update) => update.voxelType !== "Air"))
         .pipe(
           scan<BlockEvent, BlockSummary>((summary, event) => {
             const block =
@@ -170,12 +170,12 @@ export function registerBlockExplorer() {
               ([blockNumber]) => event.blockNumber !== blockNumber
             ) as BlockSummary;
 
-            if (event.blockType && event.action) {
-              block[1][event.blockType] = block[1][event.blockType] || {
+            if (event.voxelType && event.action) {
+              block[1][event.voxelType] = block[1][event.voxelType] || {
                 [event.action]: 0,
               };
-              const current = block[1][event.blockType][event.action] || 0;
-              block[1][event.blockType][event.action] = current + 1;
+              const current = block[1][event.voxelType][event.action] || 0;
+              block[1][event.voxelType][event.action] = current + 1;
             }
 
             return [...otherBlocks, block].slice(-500);

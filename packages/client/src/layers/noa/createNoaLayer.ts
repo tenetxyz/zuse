@@ -121,7 +121,7 @@ export function createNoaLayer(network: NetworkLayer) {
   };
 
   // --- SETUP ----------------------------------------------------------------------
-  const { noa, setBlock, glow } = setupNoaEngine(network.api);
+  const { noa, setVoxel, glow } = setupNoaEngine(network.api);
 
   // Because NOA and RECS currently use different ECS libraries we need to maintain a mapping of RECS ID to Noa ID
   // A future version of OPCraft will remove the NOA ECS library and use pure RECS only
@@ -211,7 +211,7 @@ export function createNoaLayer(network: NetworkLayer) {
     }
 
     if ([minX, minY, maxX, maxY].includes(-1))
-      return { voxeltypes: [] as Entity[][], types: [] as Entity[][] };
+      return { voxelTypes: [] as Entity[][], types: [] as Entity[][] };
 
     const trimmedCraftingTableVoxelTypes: Entity[][] = [];
     const trimmedCraftingTableTypes: Entity[][] = [];
@@ -219,14 +219,12 @@ export function createNoaLayer(network: NetworkLayer) {
       trimmedCraftingTableVoxelTypes.push([]);
       trimmedCraftingTableTypes.push([]);
       for (let y = 0; y <= maxY - minY; y++) {
-        const blockEntity = craftingTable[x + minX][y + minY];
-        const blockID = ((getEntityString(getEntitySymbol(blockEntity)) !==
-          "-1" &&
-          blockEntity) ||
+        const voxel = craftingTable[x + minX][y + minY];
+        const blockID = ((getEntityString(getEntitySymbol(voxel)) !== "-1" &&
+          voxel) ||
           "0x00") as Entity;
-        const blockType = ((getEntityString(getEntitySymbol(blockEntity)) !==
-          "-1" &&
-          getComponentValue(VoxelType, blockEntity)?.value) ||
+        const blockType = ((getEntityString(getEntitySymbol(voxel)) !== "-1" &&
+          getComponentValue(VoxelType, voxel)?.value) ||
           "0x00") as Entity;
         trimmedCraftingTableVoxelTypes[x].push(blockID);
         trimmedCraftingTableTypes[x].push(blockType);
@@ -234,7 +232,7 @@ export function createNoaLayer(network: NetworkLayer) {
     }
 
     return {
-      voxeltypes: trimmedCraftingTableVoxelTypes,
+      voxelTypes: trimmedCraftingTableVoxelTypes,
       types: trimmedCraftingTableTypes,
     };
   }
@@ -443,7 +441,7 @@ export function createNoaLayer(network: NetworkLayer) {
     mudToNoaId,
     noa,
     api: {
-      setBlock,
+      setBlock: setVoxel,
       setCraftingTable,
       getCraftingTable,
       clearCraftingTable,

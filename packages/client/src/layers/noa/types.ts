@@ -19,7 +19,7 @@ export enum NoaBlockType {
  * array of 3 names: [top, bottom, sides]
  * array of 6 names: [-x, +x, -y, +y, -z, +z]
  */
-export type Block = {
+export type NoaVoxelDef = {
   material:
     | string
     | [string, string]
@@ -31,5 +31,5 @@ export type Block = {
   fluid?: boolean;
   solid?: boolean;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  blockMesh?: any;
+  voxelMesh?: any;
 };

@@ -1,6 +1,6 @@
 import { VoxelCoord } from "@latticexyz/utils";
 import { VoxelTypeKey } from "../network/constants";
-import { Block, NoaBlockType } from "./types";
+import { NoaVoxelDef, NoaBlockType } from "./types";
 
 export const CRAFTING_SIDE = 3;
 export const SPAWN_POINT: VoxelCoord = { x: -1543, y: 11, z: -808 };
@@ -126,7 +126,7 @@ export const UVWraps: { [key in VoxelTypeKey]: string | undefined } = {
   GrassPlant: undefined,
 };
 
-export const Blocks: { [key in VoxelTypeKey]: Block | undefined } = {
+export const Voxels: { [key in VoxelTypeKey]: NoaVoxelDef | undefined } = {
   Air: undefined,
   Grass: {
     type: NoaBlockType.BLOCK,
@@ -284,7 +284,7 @@ export const Blocks: { [key in VoxelTypeKey]: Block | undefined } = {
 export function getVoxelIconUrl(
   voxelTypeKey: VoxelTypeKey
 ): string | undefined {
-  const block = Blocks[voxelTypeKey];
-  if (!block) return;
-  return Array.isArray(block.material) ? block.material[0] : block.material;
+  const voxel = Voxels[voxelTypeKey];
+  if (!voxel) return;
+  return Array.isArray(voxel.material) ? voxel.material[0] : voxel.material;
 }

@@ -68,9 +68,8 @@ export const Crafting: React.FC<{
     const y = getY(i);
 
     const blockAtIndex = craftingTable[x][y];
-    const blockTypeAtIndex = getComponentValue(VoxelType, blockAtIndex)?.value as
-      | Entity
-      | undefined;
+    const blockTypeAtIndex = getComponentValue(VoxelType, blockAtIndex)
+      ?.value as Entity | undefined;
     const blockTypeIndexAtIndex =
       blockTypeAtIndex && world.entityToIndex.get(blockTypeAtIndex);
 
@@ -125,7 +124,7 @@ export const Crafting: React.FC<{
 
   async function handleOutput() {
     if (!craftingResult) return;
-    const { voxeltypes } = getTrimmedCraftingTable();
+    const { voxelTypes } = getTrimmedCraftingTable();
     clearCraftingTable();
     await craft(voxeltypes, craftingResult);
   }

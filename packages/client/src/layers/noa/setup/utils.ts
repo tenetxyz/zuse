@@ -1,14 +1,14 @@
-import { Scene } from "@babylonjs/core";
+import { Mesh, Nullable, Scene } from "@babylonjs/core";
 import { Engine } from "noa-engine";
 import * as BABYLON from "@babylonjs/core";
 
-export function createMeshBlock(
+export function createVoxelMesh(
   noa: Engine,
   scene: Scene,
   texture: string,
   name: string,
   frames = 1
-) {
+): Nullable<Mesh> {
   const matname = name || "mat";
   const tex = new BABYLON.Texture(
     texture,

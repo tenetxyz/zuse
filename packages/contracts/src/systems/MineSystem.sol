@@ -21,7 +21,7 @@ contract MineSystem is System {
 
     // TODO: check claim in chunk
 
-    // Check ECS blocks at coord
+    // Check ECS voxels at coord
     bytes32[] memory entitiesAtPosition = getKeysWithValue(PositionTableId, Position.encode(coord.x, coord.y, coord.z));
 
     bytes32 entity;
@@ -50,7 +50,7 @@ contract MineSystem is System {
       for (uint256 i; i < entitiesAtPosition.length; i++) {
         if (VoxelType.get(entitiesAtPosition[i]) == blockType) entity = entitiesAtPosition[i];
       }
-      require(entity != 0, "invalid block type");
+      require(entity != 0, "invalid voxel type");
       Position.deleteRecord(entity);
     }
 

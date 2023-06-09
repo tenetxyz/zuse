@@ -9,12 +9,12 @@ import { awaitStreamValue } from "@latticexyz/utils";
 import { NetworkLayer } from "../../network";
 import { NoaLayer } from "../types";
 
-export async function createBlockSystem(
+export async function createVoxelSystem(
   network: NetworkLayer,
   context: NoaLayer
 ) {
   const {
-    api: { setBlock },
+    api: { setVoxel },
   } = context;
 
   const {
@@ -22,7 +22,7 @@ export async function createBlockSystem(
     components: { LoadingState },
     contractComponents: { VoxelType, Position },
     actions: { withOptimisticUpdates },
-    api: { getBlockAtPosition },
+    api: { getVoxelAtPosition },
   } = network;
 
   // Loading state flag
@@ -36,8 +36,8 @@ export async function createBlockSystem(
   defineComponentSystem(world, Position, async ({ value }) => {
     if (!live) return;
     if (!value[0] && value[1]) {
-      const block = getBlockAtPosition(value[1]);
-      setBlock(value[1], block);
+      const voxel = getVoxelAtPosition(value[1]);
+      setVoxel(value[1], voxel);
     }
   });
 
@@ -45,7 +45,7 @@ export async function createBlockSystem(
   defineEnterSystem(world, [Has(Position), Has(VoxelType)], (update) => {
     if (!live) return;
     const position = getComponentValueStrict(Position, update.entity);
-    const block = getBlockAtPosition(position);
-    setBlock(position, block);
+    const voxel = getVoxelAtPosition(position);
+    setVoxel(position, voxel);
   });
 }

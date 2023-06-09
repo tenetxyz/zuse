@@ -143,8 +143,8 @@ export default class Ecoji {
         out = out.slice(0, 4);
       }
 
-      output += out.reduce((result, voxeltype) => {
-        result += String.fromCharCode(voxeltype);
+      output += out.reduce((result, item) => {
+        result += String.fromCharCode(item);
         return result;
       }, "");
     }

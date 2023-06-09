@@ -60,7 +60,7 @@ export function registerLoadingState() {
 
 const LoadingContainer = styled.div`
   display: grid;
-  justify-voxeltypes: start;
+  justify-items: start;
   justify-content: start;
   align-items: center;
   height: 30px;

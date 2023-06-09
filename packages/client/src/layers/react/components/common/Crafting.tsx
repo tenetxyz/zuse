@@ -179,7 +179,7 @@ const CraftingInput = styled.div<{ sideLength: number }>`
   background-color: rgb(0 0 0 / 40%);
   display: grid;
   grid-template-columns: repeat(${(p) => p.sideLength}, auto);
-  align-voxeltypes: start;
+  align-items: start;
   justify-content: start;
   pointer-events: all;
   border: 5px lightgray solid;

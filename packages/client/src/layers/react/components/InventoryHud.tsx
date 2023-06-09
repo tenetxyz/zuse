@@ -155,8 +155,8 @@ export function registerInventoryHud() {
         document.body.style.cursor = `url(${icon}) 12 12, auto`;
       }, [holdingBlock]);
 
-      function moveVoxelTypes(slot: number) {
-        console.log("moveVoxelTypes", slot);
+      function moveVoxelType(slot: number) {
+        console.log("moveVoxelType", slot);
         const blockIdAtSlot = [
           ...getEntitiesWithValue(InventoryIndex, { value: slot }),
         ][0];
@@ -185,7 +185,7 @@ export function registerInventoryHud() {
         setHoldingBlock(undefined);
       }
 
-      function removeVoxelTypes(slot: number) {
+      function removeVoxelType(slot: number) {
         const voxelTypeIdAtSlot = [
           ...getEntitiesWithValue(InventoryIndex, { value: slot }),
         ][0];
@@ -224,8 +224,8 @@ export function registerInventoryHud() {
             key={"slot" + i}
             blockID={quantity ? blockId : undefined}
             quantity={quantity || undefined}
-            onClick={() => moveVoxelTypes(i)}
-            onRightClick={() => removeVoxelTypes(i)}
+            onClick={() => moveVoxelType(i)}
+            onRightClick={() => removeVoxelType(i)}
             disabled={blockId === holdingBlock}
             selected={i === selectedSlot}
           />
@@ -274,7 +274,7 @@ export function registerInventoryHud() {
             <AbsoluteBorder borderColor={"#999999"} borderWidth={3}>
               <InventoryContainer>
                 <InventoryModeToggle
-                  // className="text-red text-2xl h-10 cursor-pointer border-2 border-white rounded-md flex justify-center voxeltypes-center"
+                  // className="text-red text-2xl h-10 cursor-pointer border-2 border-white rounded-md flex justify-center items-center"
                   onClick={() =>
                     setIsUsingPersonalInventory(!isUsingPersonalInventory)
                   }
@@ -338,7 +338,7 @@ const ConnectedPlayersContainer = styled.div`
 
 const LogoContainer = styled.div`
   display: grid;
-  justify-voxeltypes: end;
+  justify-items: end;
   padding: 0 20px;
 `;
 
@@ -355,7 +355,7 @@ export const ActionBarWrapper = styled.div`
 
 const BottomBar = styled.div`
   display: grid;
-  align-voxeltypes: end;
+  align-items: end;
   justify-content: space-between;
   grid-template-columns: 1fr auto 1fr;
   width: 100%;
@@ -365,5 +365,5 @@ const BottomBar = styled.div`
 
 const Wrapper = styled(Center)`
   display: grid;
-  align-voxeltypes: end;
+  align-items: end;
 `;

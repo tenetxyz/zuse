@@ -30,6 +30,7 @@ import {
   Vector3,
   Vector4,
 } from "@babylonjs/core";
+import { renderChunkyWireframe } from "./renderWireframes";
 
 export function createInputSystem(network: NetworkLayer, context: NoaLayer) {
   const {
@@ -300,6 +301,7 @@ export function createInputSystem(network: NetworkLayer, context: NoaLayer) {
       y,
       z,
     });
+    renderChunkyWireframe(points.at(-1)!, points.at(-1)!, noa);
 
     // const box = CreateBox("", { size: 1 }, scene);
     // // const material = new StandardMaterial("material", scene);

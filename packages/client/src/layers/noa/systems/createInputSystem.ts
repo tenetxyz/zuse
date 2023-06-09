@@ -277,8 +277,8 @@ export function createInputSystem(network: NetworkLayer, context: NoaLayer) {
     togglePlugins();
   });
 
-  noa.inputs.bind("select-block", "V");
-  noa.inputs.down.on("select-block", () => {
+  noa.inputs.bind("select-voxel", "V");
+  noa.inputs.down.on("select-voxel", () => {
     // print the block you're looking at to the console
     if (!noa.targetedBlock) {
       return;

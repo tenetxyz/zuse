@@ -300,14 +300,14 @@ export function createNoaLayer(network: NetworkLayer) {
         noa.playerEntity,
         noa.ents.names.receivesInputs
       );
-      noa.inputs.unbind("select-block");
+      noa.inputs.unbind("select-voxel");
       noa.inputs.unbind("admin-panel");
     } else {
       noa.entities.addComponent(
         noa.playerEntity,
         noa.ents.names.receivesInputs
       );
-      noa.inputs.bind("select-block", "V");
+      noa.inputs.bind("select-voxel", "V");
       noa.inputs.bind("admin-panel", "-");
     }
   };

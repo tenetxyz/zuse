@@ -303,12 +303,14 @@ export function createNoaLayer(network: NetworkLayer) {
         noa.ents.names.receivesInputs
       );
       noa.inputs.unbind("select-block");
+      noa.inputs.unbind("admin-panel");
     } else {
       noa.entities.addComponent(
         noa.playerEntity,
         noa.ents.names.receivesInputs
       );
       noa.inputs.bind("select-block", "V");
+      noa.inputs.bind("admin-panel", "-");
     }
   };
   const isFocusedOnInputElement = () => {

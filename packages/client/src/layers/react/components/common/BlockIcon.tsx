@@ -11,7 +11,7 @@ export const BlockIcon = styled.div<{ blockID: Entity; scale: number }>`
   background-size: 100%;
   image-rendering: pixelated;
   display: grid;
-  justify-voxeltypes: center;
+  justify-items: center;
   align-items: center;
   font-size: 20px;
 `;

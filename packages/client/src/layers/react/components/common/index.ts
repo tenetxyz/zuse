@@ -30,7 +30,7 @@ export const Center = styled.div`
   height: 100%;
   display: grid;
   align-items: center;
-  justify-voxeltypes: center;
+  justify-items: center;
 `;
 
 export const Gold = styled.span`

@@ -30,7 +30,7 @@ const Cross = styled.div`
   width: 100%;
   display: grid;
   align-items: center;
-  justify-voxeltypes: center;
+  justify-items: center;
   pointer-events: none;
   font-size: 20px;
 `;

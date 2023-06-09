@@ -44,7 +44,7 @@ const Inner = styled.div<{ disabled?: boolean }>`
   width: 64px;
   height: 64px;
   display: grid;
-  justify-voxeltypes: center;
+  justify-items: center;
   align-items: center;
   font-size: 20px;
   opacity: ${(p) => (p.disabled ? 0.5 : 1)};

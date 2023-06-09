@@ -5,7 +5,7 @@ import "@babylonjs/core/Meshes/Builders/boxBuilder";
 import * as BABYLON from "@babylonjs/core";
 import { VoxelCoord } from "@latticexyz/utils";
 import { Blocks, Textures } from "../constants";
-import { VoxelTypeKeyToId, BlockTypeIndex } from "../../network";
+import { VoxelTypeKeyToId, VoxelTypeIdToIndex } from "../../network";
 import { Entity } from "@latticexyz/recs";
 import { NoaBlockType } from "../types";
 import { createMeshBlock } from "./utils";
@@ -110,7 +110,7 @@ export function setupNoaEngine(api: API) {
   // Register blocks
 
   for (const [key, block] of Object.entries(Blocks)) {
-    const index = BlockTypeIndex[VoxelTypeKeyToId[key as VoxelTypeKey]];
+    const index = VoxelTypeIdToIndex[VoxelTypeKeyToId[key as VoxelTypeKey]];
     const augmentedBlock = { ...block };
     if (!block) continue;
 
@@ -137,7 +137,7 @@ export function setupNoaEngine(api: API) {
   }
 
   function setBlock(coord: VoxelCoord | number[], block: Entity) {
-    const index = BlockTypeIndex[block];
+    const index = VoxelTypeIdToIndex[block];
     if ("length" in coord) {
       noa.setBlock(index, coord[0], coord[1], coord[2]);
     } else {
@@ -159,7 +159,7 @@ export function setupNoaEngine(api: API) {
         for (let j = 0; j < data.shape[1]; j++) {
           for (let k = 0; k < data.shape[2]; k++) {
             const ecsBlockType =
-              BlockTypeIndex[
+              VoxelTypeIdToIndex[
                 api.getEcsVoxelAtPosition({
                   x: x + i,
                   y: y + j,
@@ -170,7 +170,7 @@ export function setupNoaEngine(api: API) {
               data.set(i, j, k, ecsBlockType);
             } else {
               const blockType =
-                BlockTypeIndex[
+                VoxelTypeIdToIndex[
                   api.getTerrainBlockAtPosition({
                     x: x + i,
                     y: y + j,

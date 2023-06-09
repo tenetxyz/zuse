@@ -1,8 +1,8 @@
 export {
-  getBlockAtPosition,
+  getVoxelAtPosition,
   getEntityAtPosition,
   getECSBlock,
   getTerrainBlock,
-} from "./terrain/getBlockAtPosition";
+} from "./terrain/getVoxelAtPosition";
 export { getTerrain } from "./terrain/utils";
 export { getBiome } from "./terrain/getBiome";

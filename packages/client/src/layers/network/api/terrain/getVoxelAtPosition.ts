@@ -20,15 +20,15 @@ export function getEntityAtPosition(
     world: World;
   },
   coord: VoxelCoord
-) {
+): Entity | undefined {
   const { Position, VoxelType } = context;
   const entitiesAtPosition = [...getEntitiesWithValue(Position, coord)];
 
   // Prefer non-air blocks at this position
   return (
     entitiesAtPosition?.find((b) => {
-      const voxeltype = getComponentValue(VoxelType, b);
-      return voxeltype && voxeltype.value !== VoxelTypeKeyToId.Air;
+      const voxelType = getComponentValue(VoxelType, b);
+      return voxelType && voxelType.value !== VoxelTypeKeyToId.Air;
     }) ?? entitiesAtPosition[0]
   );
 }
@@ -42,12 +42,12 @@ export function getECSBlock(
   coord: VoxelCoord
 ): Entity | undefined {
   const entityAtPosition = getEntityAtPosition(context, coord);
-  if (entityAtPosition == null) return undefined;
+  if (!entityAtPosition) return undefined;
   return getComponentValue(context.VoxelType, entityAtPosition)
     ?.value as Entity;
 }
 
-export function getBlockAtPosition(
+export function getVoxelAtPosition(
   context: {
     Position: Component<{ x: Type.Number; y: Type.Number; z: Type.Number }>;
     VoxelType: Component<{ value: Type.String }>;
@@ -55,7 +55,7 @@ export function getBlockAtPosition(
   },
   perlin: Perlin,
   coord: VoxelCoord
-) {
+): Entity {
   return (
     getECSBlock(context, coord) ??
     getTerrainBlock(getTerrain(coord, perlin), coord, perlin)

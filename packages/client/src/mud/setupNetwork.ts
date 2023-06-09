@@ -24,13 +24,14 @@ import { map, timer, combineLatest, BehaviorSubject } from "rxjs";
 import storeConfig from "contracts/mud.config";
 import {
   VoxelTypeIdToKey,
+  VoxelTypeKey,
   VoxelTypeKeyToId,
 } from "../layers/network/constants";
 import {
   getECSBlock,
   getTerrain,
   getTerrainBlock,
-  getBlockAtPosition as getBlockAtPositionApi,
+  getVoxelAtPosition as getVoxelAtPositionApi,
   getEntityAtPosition as getEntityAtPositionApi,
 } from "../layers/network/api";
 import { to64CharAddress } from "../utils/entity";
@@ -185,7 +186,7 @@ export async function setupNetwork() {
   const actions = createActionSystem<{
     actionType: string;
     coord?: VoxelCoord;
-    blockType?: keyof typeof VoxelTypeKeyToId;
+    voxelTypeKey?: VoxelTypeKey;
   }>(world, result.txReduced$);
 
   // Add optimistic updates and indexers
@@ -221,10 +222,10 @@ export async function setupNetwork() {
   function getECSBlockAtPosition(position: VoxelCoord) {
     return getECSBlock(terrainContext, position);
   }
-  function getBlockAtPosition(position: VoxelCoord) {
-    return getBlockAtPositionApi(terrainContext, perlin, position);
+  function getVoxelAtPosition(position: VoxelCoord): Entity {
+    return getVoxelAtPositionApi(terrainContext, perlin, position);
   }
-  function getEntityAtPosition(position: VoxelCoord) {
+  function getEntityAtPosition(position: VoxelCoord): Entity | undefined {
     return getEntityAtPositionApi(terrainContext, position);
   }
 
@@ -309,13 +310,13 @@ export async function setupNetwork() {
     if (voxelType == null) {
       throw new Error("entity has no block type");
     }
-    const blockType = VoxelTypeIdToKey[voxelType];
-    const blockEntity = getEntityAtPosition(coord);
+    const voxelTypeKey = VoxelTypeIdToKey[voxelType];
+    const voxel = getEntityAtPosition(coord);
     const airEntity = world.registerEntity();
 
     actions.add({
       id: `mine+${coord.x}/${coord.y}/${coord.z}` as Entity,
-      metadata: { actionType: "mine", coord, blockType },
+      metadata: { actionType: "mine", coord, voxelTypeKey },
       requirement: () => true,
       components: {
         Position: contractComponents.Position,
@@ -338,7 +339,7 @@ export async function setupNetwork() {
         },
         {
           component: "Position",
-          entity: blockEntity || (Number.MAX_SAFE_INTEGER.toString() as Entity),
+          entity: voxel || (Number.MAX_SAFE_INTEGER.toString() as Entity),
           value: null,
         },
       ],
@@ -449,7 +450,7 @@ export async function setupNetwork() {
     api: {
       getTerrainBlockAtPosition,
       getECSBlockAtPosition,
-      getBlockAtPosition,
+      getBlockAtPosition: getVoxelAtPosition,
       getEntityAtPosition,
       build,
       mine,

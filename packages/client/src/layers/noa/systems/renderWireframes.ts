@@ -2,12 +2,14 @@ import {
   Color3,
   Color4,
   CreateBox,
+  Mesh,
   MeshBuilder,
   StandardMaterial,
   Vector3,
 } from "@babylonjs/core";
 import { VoxelCoord } from "@latticexyz/utils";
 import { Engine } from "noa-engine";
+import { Scene } from "@babylonjs/core/scene";
 
 const newVC = (x: number, y: number, z: number): VoxelCoord => ({
   x,
@@ -19,6 +21,8 @@ export const renderChunkyWireframe = (
   coord2: VoxelCoord,
   noa: Engine
 ) => {
+  const scene = noa.rendering.getScene();
+
   // we need to add one to the max values because each coord is on the lowerSouthWest corner of each voxel. Adding one will make the point the upperNorthEast corner of each voxel
   const minX = Math.min(coord1.x, coord2.x);
   const maxX = Math.max(coord1.x, coord2.x) + 1;
@@ -42,9 +46,9 @@ export const renderChunkyWireframe = (
     [newVC(maxX, minY, maxZ), newVC(maxX, maxY, maxZ)],
     [newVC(maxX, maxY, minZ), newVC(maxX, maxY, maxZ)],
   ];
-  adjacentVoxels.forEach((pair) => {
-    drawCuboid(pair[0], pair[1], noa);
-  });
+  const edgeMeshes = adjacentVoxels.map((pair) =>
+    getEdgeMesh(pair[0], pair[1], scene)
+  );
 
   // now draw a cube at each corner
   const corners = [
@@ -57,20 +61,24 @@ export const renderChunkyWireframe = (
     newVC(maxX, maxY, minZ),
     newVC(maxX, maxY, maxZ),
   ];
-  corners.forEach((corner) => {
-    drawCornerCube(corner, noa);
-  });
+
+  const disposeOriginalMeshesAfterCreatingCombinedMesh = true;
+  const cornerMeshes = corners.map((corner) => getCornerMesh(corner, scene));
+  const chunkyWireframe = Mesh.MergeMeshes(
+    edgeMeshes.concat(cornerMeshes),
+    disposeOriginalMeshesAfterCreatingCombinedMesh
+  );
+  noa.rendering.addMeshToScene(chunkyWireframe);
 };
 
-const drawCornerCube = (corner: VoxelCoord, noa: Engine) => {
-  const scene = noa.rendering.getScene();
+const getCornerMesh = (corner: VoxelCoord, scene: Scene): Mesh => {
   const box = CreateBox("", { size: outlineThickness }, scene);
   const material = new StandardMaterial("material", scene);
   material.emissiveColor = new Color3(1, 1, 1);
   box.material = material;
 
   box.position.set(corner.x, corner.y, corner.z);
-  noa.rendering.addMeshToScene(box);
+  return box;
 };
 
 const outlineThickness = 0.05;
@@ -80,8 +88,11 @@ function adjustDimensionSize(dimension: number) {
     ? dimension + outlineThickness
     : dimension - outlineThickness;
 }
-const drawCuboid = (coord1: VoxelCoord, coord2: VoxelCoord, noa: Engine) => {
-  const scene = noa.rendering.getScene();
+const getEdgeMesh = (
+  coord1: VoxelCoord,
+  coord2: VoxelCoord,
+  scene: Scene
+): Mesh => {
   // Calculate the dimensions of the rectangular prism
   let width = Math.abs(coord1.x - coord2.x);
   let height = Math.abs(coord1.y - coord2.y);
@@ -104,7 +115,7 @@ const drawCuboid = (coord1: VoxelCoord, coord2: VoxelCoord, noa: Engine) => {
   const material = new StandardMaterial("material", scene);
   material.emissiveColor = new Color3(1, 1, 1);
   prism.material = material;
-  noa.rendering.addMeshToScene(prism);
+  return prism;
 };
 
 const renderBoxWireframe = (x: number, y: number, z: number, noa: Engine) => {

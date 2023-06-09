@@ -1,5 +1,7 @@
 import {
   Color3,
+  Color4,
+  CreateBox,
   MeshBuilder,
   StandardMaterial,
   Vector3,
@@ -24,29 +26,71 @@ export const renderChunkyWireframe = (
   const maxY = Math.max(coord1.y, coord2.y) + 1;
   const minZ = Math.min(coord1.z, coord2.z);
   const maxZ = Math.max(coord1.z, coord2.z) + 1;
-  drawCuboid(newVC(minX, minY, minZ), newVC(minX, minY, maxZ), noa);
-  drawCuboid(newVC(minX, minY, minZ), newVC(minX, maxY, minZ), noa);
-  drawCuboid(newVC(minX, minY, minZ), newVC(maxX, minY, minZ), noa);
 
-  drawCuboid(newVC(minX, minY, maxZ), newVC(minX, maxY, maxZ), noa);
-  drawCuboid(newVC(minX, minY, maxZ), newVC(maxX, minY, maxZ), noa);
-  drawCuboid(newVC(minX, maxY, minZ), newVC(minX, maxY, maxZ), noa);
+  // given these points, create an array of pairs of adjacent voxels
+  const adjacentVoxels = [
+    [newVC(minX, minY, minZ), newVC(minX, minY, maxZ)],
+    [newVC(minX, minY, minZ), newVC(minX, maxY, minZ)],
+    [newVC(minX, minY, minZ), newVC(maxX, minY, minZ)],
+    [newVC(minX, minY, maxZ), newVC(minX, maxY, maxZ)],
+    [newVC(minX, minY, maxZ), newVC(maxX, minY, maxZ)],
+    [newVC(minX, maxY, minZ), newVC(minX, maxY, maxZ)],
+    [newVC(minX, maxY, minZ), newVC(maxX, maxY, minZ)],
+    [newVC(minX, maxY, maxZ), newVC(maxX, maxY, maxZ)],
+    [newVC(maxX, minY, minZ), newVC(maxX, minY, maxZ)],
+    [newVC(maxX, minY, minZ), newVC(maxX, maxY, minZ)],
+    [newVC(maxX, minY, maxZ), newVC(maxX, maxY, maxZ)],
+    [newVC(maxX, maxY, minZ), newVC(maxX, maxY, maxZ)],
+  ];
+  adjacentVoxels.forEach((pair) => {
+    drawCuboid(pair[0], pair[1], noa);
+  });
 
-  drawCuboid(newVC(minX, maxY, minZ), newVC(maxX, maxY, minZ), noa);
-  drawCuboid(newVC(minX, maxY, maxZ), newVC(maxX, maxY, maxZ), noa);
-  drawCuboid(newVC(maxX, minY, minZ), newVC(maxX, minY, maxZ), noa);
-
-  drawCuboid(newVC(maxX, minY, minZ), newVC(maxX, maxY, minZ), noa);
-  drawCuboid(newVC(maxX, minY, maxZ), newVC(maxX, maxY, maxZ), noa);
-  drawCuboid(newVC(maxX, maxY, minZ), newVC(maxX, maxY, maxZ), noa);
+  // now draw a cube at each corner
+  const corners = [
+    newVC(minX, minY, minZ),
+    newVC(minX, minY, maxZ - halfOutlineThickness),
+    newVC(minX, maxY - halfOutlineThickness, minZ),
+    newVC(minX, maxY - halfOutlineThickness, maxZ - halfOutlineThickness),
+    newVC(maxX - halfOutlineThickness, minY, minZ),
+    newVC(maxX - halfOutlineThickness, minY, maxZ - halfOutlineThickness),
+    newVC(maxX - halfOutlineThickness, maxY - halfOutlineThickness, minZ),
+    newVC(
+      maxX - halfOutlineThickness,
+      maxY - halfOutlineThickness,
+      maxZ - halfOutlineThickness
+    ),
+  ];
+  corners.forEach((corner) => {
+    drawCornerCube(corner, noa);
+  });
 };
 
+const drawCornerCube = (corner: VoxelCoord, noa: Engine) => {
+  const scene = noa.rendering.getScene();
+  const box = CreateBox("", { size: outlineThickness }, scene);
+  box.material = new StandardMaterial("material", scene);
+  box.position.set(corner.x, corner.y, corner.z);
+  noa.rendering.addMeshToScene(box);
+};
+
+const outlineThickness = 0.05;
+const halfOutlineThickness = outlineThickness / 2;
 const drawCuboid = (coord1: VoxelCoord, coord2: VoxelCoord, noa: Engine) => {
   const scene = noa.rendering.getScene();
   // Calculate the dimensions of the rectangular prism
-  const width = Math.abs(coord1.x - coord2.x);
-  const height = Math.abs(coord1.y - coord2.y);
-  const depth = Math.abs(coord1.z - coord2.z);
+  let width = Math.abs(coord1.x - coord2.x);
+  let height = Math.abs(coord1.y - coord2.y);
+  let depth = Math.abs(coord1.z - coord2.z);
+  if (width === 0) {
+    width += outlineThickness;
+  }
+  if (height === 0) {
+    height += outlineThickness;
+  }
+  if (depth === 0) {
+    depth += outlineThickness;
+  }
   const prism = MeshBuilder.CreateBox(
     "prism",
     { width: width, height: height, depth: depth },

@@ -28,9 +28,9 @@ import {
   VoxelTypeKeyToId,
 } from "../layers/network/constants";
 import {
-  getECSBlock,
+  getEcsVoxel,
   getTerrain,
-  getTerrainBlock,
+  getTerrainVoxel,
   getVoxelAtPosition as getVoxelAtPositionApi,
   getEntityAtPosition as getEntityAtPositionApi,
 } from "../layers/network/api";
@@ -215,12 +215,12 @@ export async function setupNetwork() {
     world,
   };
 
-  function getTerrainBlockAtPosition(position: VoxelCoord) {
-    return getTerrainBlock(getTerrain(position, perlin), position, perlin);
+  function getTerrainVoxelAtPosition(position: VoxelCoord): Entity {
+    return getTerrainVoxel(getTerrain(position, perlin), position, perlin);
   }
 
-  function getECSBlockAtPosition(position: VoxelCoord) {
-    return getECSBlock(terrainContext, position);
+  function getEcsVoxelAtPosition(position: VoxelCoord): Entity | undefined {
+    return getEcsVoxel(terrainContext, position);
   }
   function getVoxelAtPosition(position: VoxelCoord): Entity {
     return getVoxelAtPositionApi(terrainContext, perlin, position);
@@ -242,19 +242,23 @@ export async function setupNetwork() {
     return tx;
   }
 
-  function build(entity: Entity, coord: VoxelCoord) {
-    // const entityIndex = world.entityToIndex.get(entity);
-    // if (entityIndex == null) return console.warn("trying to place unknown entity", entity);
+  function build(voxel: Entity, coord: VoxelCoord) {
+    if (!voxel == null) {
+      return console.warn(`trying to place unknown voxel=${voxel}`);
+    }
     const voxelType = getComponentValue(
       contractComponents.VoxelType,
-      entity
+      voxel
     )?.value;
-    // TODO: we need to clone this block before placing!
-    const blockTypeName =
-      voxelType != null ? VoxelTypeIdToKey[voxelType as Entity] : undefined;
-    const newEntityOfSameType = world.registerEntity();
-    // const godIndex = world.entityToIndex.get(SingletonID);
-    // const creativeMode = godIndex != null && getComponentValue(components.GameConfig, godIndex)?.creativeMode;
+
+    if (!voxelType) {
+      return console.warn(
+        `trying to place entity with unknown type. entity=${voxel}`
+      );
+    }
+
+    const voxelTypeKey = VoxelTypeIdToKey[voxelType as Entity];
+    const newVoxelOfSameType = world.registerEntity();
 
     actions.add({
       id: `build+${coord.x}/${coord.y}/${coord.z}` as Entity, // used so we don't send the same transaction twice
@@ -262,7 +266,7 @@ export async function setupNetwork() {
         // metadata determines how the transaction dialog box appears in the bottom left corner
         actionType: "build",
         coord,
-        blockType: blockTypeName, // Determines the Icon that appears in the dialogue box
+        voxelTypeKey, // Determines the Icon that appears in the dialogue box
       },
       requirement: () => true,
       components: {
@@ -271,7 +275,7 @@ export async function setupNetwork() {
         OwnedBy: contractComponents.OwnedBy, // I think it's needed cause we check to see if the owner owns the block we're placing
       },
       execute: () => {
-        return buildSystem(entity, coord);
+        return buildSystem(voxel, coord);
       },
       updates: () => [
         // commented cause we're in creative mode
@@ -282,12 +286,12 @@ export async function setupNetwork() {
         // },
         {
           component: "Position",
-          entity: newEntityOfSameType,
+          entity: newVoxelOfSameType,
           value: coord,
         },
         {
           component: "VoxelType",
-          entity: newEntityOfSameType,
+          entity: newVoxelOfSameType,
           value: { value: voxelType },
         },
       ],
@@ -304,8 +308,8 @@ export async function setupNetwork() {
   }
 
   async function mine(coord: VoxelCoord) {
-    const ecsBlock = getECSBlockAtPosition(coord);
-    const voxelType = ecsBlock ?? getTerrainBlockAtPosition(coord);
+    const voxelType =
+      getEcsVoxelAtPosition(coord) ?? getTerrainVoxelAtPosition(coord);
 
     if (voxelType == null) {
       throw new Error("entity has no block type");
@@ -349,11 +353,11 @@ export async function setupNetwork() {
   // needed in creative mode, to give the user new voxels
   function giftVoxel(voxelType: Entity) {
     const newVoxel = world.registerEntity();
-    const blockType = VoxelTypeIdToKey[voxelType];
+    const voxelTypeKey = VoxelTypeIdToKey[voxelType];
 
     actions.add({
       id: `GiftVoxel+${voxelType}` as Entity,
-      metadata: { actionType: "giftVoxel", blockType },
+      metadata: { actionType: "giftVoxel", voxelTypeKey },
       requirement: () => true,
       components: {
         OwnedBy: contractComponents.OwnedBy,
@@ -389,12 +393,12 @@ export async function setupNetwork() {
     const voxelType = getComponentValue(contractComponents.VoxelType, voxels[0])
       ?.value as Entity;
 
-    const blockType = VoxelTypeIdToKey[voxelType];
+    const voxelTypeKey = VoxelTypeIdToKey[voxelType];
     actions.add({
       id: `RemoveVoxel+${voxels.toString()}` as Entity,
       metadata: {
         actionType: "removeVoxels",
-        blockType,
+        voxelTypeKey,
       },
       requirement: () => true,
       components: {
@@ -448,9 +452,9 @@ export async function setupNetwork() {
     worldContract,
     actions,
     api: {
-      getTerrainBlockAtPosition,
-      getECSBlockAtPosition,
-      getBlockAtPosition: getVoxelAtPosition,
+      getTerrainBlockAtPosition: getTerrainVoxelAtPosition,
+      getEcsVoxelAtPosition,
+      getVoxelAtPosition,
       getEntityAtPosition,
       build,
       mine,
@@ -470,6 +474,6 @@ export async function setupNetwork() {
     faucet,
     worldAddress: networkConfig.worldAddress,
     uniqueWorldId,
-    types: { BlockIdToKey: VoxelTypeIdToKey, BlockType: VoxelTypeKeyToId },
+    types: { VoxelTypeIdToKey, VoxelTypeKeyToId },
   };
 }

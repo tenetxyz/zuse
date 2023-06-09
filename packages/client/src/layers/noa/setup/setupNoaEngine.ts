@@ -160,7 +160,7 @@ export function setupNoaEngine(api: API) {
           for (let k = 0; k < data.shape[2]; k++) {
             const ecsBlockType =
               BlockTypeIndex[
-                api.getECSBlockAtPosition({
+                api.getEcsVoxelAtPosition({
                   x: x + i,
                   y: y + j,
                   z: z + k,

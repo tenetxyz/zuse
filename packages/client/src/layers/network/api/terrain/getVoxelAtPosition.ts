@@ -33,7 +33,7 @@ export function getEntityAtPosition(
   );
 }
 
-export function getECSBlock(
+export function getEcsVoxel(
   context: {
     Position: Component<{ x: Type.Number; y: Type.Number; z: Type.Number }>;
     VoxelType: Component<{ value: Type.String }>;
@@ -57,12 +57,12 @@ export function getVoxelAtPosition(
   coord: VoxelCoord
 ): Entity {
   return (
-    getECSBlock(context, coord) ??
-    getTerrainBlock(getTerrain(coord, perlin), coord, perlin)
+    getEcsVoxel(context, coord) ??
+    getTerrainVoxel(getTerrain(coord, perlin), coord, perlin)
   );
 }
 
-export function getTerrainBlock(
+export function getTerrainVoxel(
   { biome: biomeVector, height }: Terrain,
   coord: VoxelCoord,
   perlin: Perlin

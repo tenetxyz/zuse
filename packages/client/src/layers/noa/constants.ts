@@ -281,8 +281,10 @@ export const Blocks: { [key in VoxelTypeKey]: Block | undefined } = {
   },
 };
 
-export function getBlockIconUrl(blockType: VoxelTypeKey): string | undefined {
-  const block = Blocks[blockType];
+export function getVoxelIconUrl(
+  voxelTypeKey: VoxelTypeKey
+): string | undefined {
+  const block = Blocks[voxelTypeKey];
   if (!block) return;
   return Array.isArray(block.material) ? block.material[0] : block.material;
 }

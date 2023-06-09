@@ -19,7 +19,7 @@ import {
   setComponent,
   UpdateType,
 } from "@latticexyz/recs";
-import { getBlockIconUrl } from "../../noa/constants";
+import { getVoxelIconUrl } from "../../noa/constants";
 import { VoxelTypeIdToKey } from "../../network/constants";
 import { formatEntityID, to64CharAddress } from "../../../utils/entity";
 import { Sounds } from "./Sounds";
@@ -154,7 +154,7 @@ export function registerInventoryHud() {
         }
 
         const blockType = VoxelTypeIdToKey[holdingBlock];
-        const icon = getBlockIconUrl(blockType);
+        const icon = getVoxelIconUrl(blockType);
         document.body.style.cursor = `url(${icon}) 12 12, auto`;
       }, [holdingBlock]);
 

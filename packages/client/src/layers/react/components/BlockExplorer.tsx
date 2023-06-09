@@ -13,7 +13,7 @@ import { filter, scan, merge, map } from "rxjs";
 import { VoxelTypeIdToKey, VoxelTypeKey } from "../../network/constants";
 import { registerUIComponent } from "../engine";
 import styled from "styled-components";
-import { getBlockIconUrl } from "../../noa/constants";
+import { getVoxelIconUrl } from "../../noa/constants";
 import { filterNullish } from "@latticexyz/utils";
 
 type BlockEvent = {
@@ -198,11 +198,13 @@ export function registerBlockExplorer() {
                 <div className="BlockExplorer-BlockNumber">{blockNumber}</div>
               ) : null}
               <div className="BlockExplorer-Actions">
-                {Object.entries(block).map(([blockType, counts]) => (
-                  <React.Fragment key={blockType}>
+                {Object.entries(block).map(([voxelTypeKey, counts]) => (
+                  <React.Fragment key={voxelTypeKey}>
                     {counts.add ? (
                       <div className="BlockExplorer-Action">
-                        <img src={getBlockIconUrl(blockType as VoxelTypeKey)} />
+                        <img
+                          src={getVoxelIconUrl(voxelTypeKey as VoxelTypeKey)}
+                        />
                         <div className="BlockExplorer-ActionIcon BlockExplorer-ActionIcon--add">
                           +{counts.add}
                         </div>
@@ -210,7 +212,9 @@ export function registerBlockExplorer() {
                     ) : null}
                     {counts.remove ? (
                       <div className="BlockExplorer-Action">
-                        <img src={getBlockIconUrl(blockType as VoxelTypeKey)} />
+                        <img
+                          src={getVoxelIconUrl(voxelTypeKey as VoxelTypeKey)}
+                        />
                         <div className="BlockExplorer-ActionIcon BlockExplorer-ActionIcon--remove">
                           -{counts.remove}
                         </div>

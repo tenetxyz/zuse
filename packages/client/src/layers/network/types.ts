@@ -1,4 +1,4 @@
-import { VoxelTypeKeyToId } from "./constants";
+import { VoxelTypeKey, VoxelTypeKeyToId } from "./constants";
 // import { createNetworkLayer } from "./createNetworkLayer";
 import { SetupNetworkResult } from "../../mud/setupNetwork";
 
@@ -6,7 +6,7 @@ import { SetupNetworkResult } from "../../mud/setupNetwork";
 export type NetworkLayer = SetupNetworkResult;
 
 export type Structure = (
-  | typeof VoxelTypeKeyToId[keyof typeof VoxelTypeKeyToId]
+  | typeof VoxelTypeKeyToId[VoxelTypeKey]
   | undefined
 )[][][];
 

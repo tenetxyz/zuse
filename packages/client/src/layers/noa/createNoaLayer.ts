@@ -318,35 +318,34 @@ export function createNoaLayer(network: NetworkLayer) {
     return activeElement && activeElement.tagName === "INPUT";
   };
 
-  function getSelectedBlockType(): Entity | undefined {
+  function getOneVoxelInSelectedSlot(): Entity | undefined {
     const selectedSlot = getComponentValue(
       components.SelectedSlot,
       SingletonEntity
     )?.value;
     if (selectedSlot == null) return;
-    const blockID = [
+    const voxel = [
       ...getEntitiesWithValue(components.InventoryIndex, {
         value: selectedSlot,
       }),
     ][0];
-    // const blockID = blockIndex != null && world.entities[blockIndex];
-    if (!blockID) return;
-    return blockID;
+    if (!voxel) return;
+    return voxel;
   }
 
   function placeSelectedVoxelType(coord: VoxelCoord) {
-    const blockID = getSelectedBlockType();
-    if (!blockID) return console.warn("No voxeltype at selected slot");
-    const ownedEntityOfSelectedType = [
+    const voxel = getOneVoxelInSelectedSlot();
+    if (!voxel) return console.warn("No voxels found at selected slot");
+    const voxelTypeOfSelectedVoxel = [
       ...runQuery([
-        HasValue(OwnedBy, { value: to64CharAddress(connectedAddress.get()) }),
-        HasValue(VoxelType, { value: blockID }),
+        // HasValue(OwnedBy, { value: to64CharAddress(connectedAddress.get()) }),
+        HasValue(VoxelType, { value: voxel }),
       ]),
     ][0];
-    if (ownedEntityOfSelectedType == null)
-      return console.warn("No owned voxeltype of type", blockID);
-    const voxelTypeEntity = ownedEntityOfSelectedType;
-    network.api.build(voxelTypeEntity, coord);
+    if (voxelTypeOfSelectedVoxel == null) {
+      return console.warn(`Your selected voxel has no type voxel=${voxel}`);
+    }
+    network.api.build(voxel, coord);
   }
 
   function getCurrentPlayerPosition() {
@@ -393,7 +392,7 @@ export function createNoaLayer(network: NetworkLayer) {
   registerRotationComponent(noa);
   registerTargetedRotationComponent(noa);
   registerTargetedPositionComponent(noa);
-  registerHandComponent(noa, getSelectedBlockType);
+  registerHandComponent(noa, getOneVoxelInSelectedSlot);
   registerMiningBlockComponent(noa, network);
   setupClouds(noa);
   setupSky(noa);
@@ -449,7 +448,7 @@ export function createNoaLayer(network: NetworkLayer) {
       getCraftingTable,
       clearCraftingTable,
       setCraftingTableIndex,
-      getSelectedBlockType,
+      getSelectedBlockType: getOneVoxelInSelectedSlot,
       getTrimmedCraftingTable,
       getCraftingResult,
       teleport,

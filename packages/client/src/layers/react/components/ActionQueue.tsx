@@ -6,7 +6,7 @@ import {
 } from "@latticexyz/recs";
 import { map } from "rxjs";
 import styled from "styled-components";
-import { getBlockIconUrl } from "../../noa/constants";
+import { getVoxelIconUrl } from "../../noa/constants";
 import { Action as ActionQueueItem } from "./Action";
 
 const ActionQueueList = styled.div`
@@ -72,7 +72,7 @@ export function registerActionQueue() {
               e
             );
             const { actionType, coord, blockType } = metadata || {};
-            const icon = blockType && getBlockIconUrl(blockType);
+            const icon = blockType && getVoxelIconUrl(blockType);
             return (
               <div key={e} className="ActionQueueItem">
                 <ActionQueueItem

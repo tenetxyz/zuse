@@ -22,7 +22,7 @@ export const HAND_COMPONENT = "HAND_COMPONENT";
 
 export function registerHandComponent(
   noa: Engine,
-  getSelectedBlockType: () => Entity | undefined
+  getSelectedVoxelType: () => Entity | undefined
 ) {
   // eslint-disable-next-line @typescript-eslint/ban-ts-comment
   //@ts-ignore
@@ -40,7 +40,7 @@ export function registerHandComponent(
         const id = states[i].__id;
         if (id === noa.playerEntity) {
           // NOTE: for now just animate / change the material of the player hand
-          const selectedBlock = getSelectedBlockType();
+          const selectedBlock = getSelectedVoxelType();
           const blockTypeKey = selectedBlock && VoxelTypeIdToKey[selectedBlock];
           if (blockTypeKey && blockMaterials[blockTypeKey] !== undefined) {
             // eslint-disable-next-line @typescript-eslint/no-non-null-assertion

@@ -16,6 +16,12 @@ const newVC = (x: number, y: number, z: number): VoxelCoord => ({
   y,
   z,
 });
+// renders a wireframe around the cuboid defined by these two points.
+// it's chunky because the edges have thickness
+// how it works:
+// 1) creates the 12 edge meshes. These are the edges of the cuboid
+// 2) combine all of the meshes into one mesh
+// 3) render this final mesh
 export const renderChunkyWireframe = (
   coord1: VoxelCoord,
   coord2: VoxelCoord,
@@ -50,44 +56,19 @@ export const renderChunkyWireframe = (
     getEdgeMesh(pair[0], pair[1], scene)
   );
 
-  // now draw a cube at each corner
-  const corners = [
-    newVC(minX, minY, minZ),
-    newVC(minX, minY, maxZ),
-    newVC(minX, maxY, minZ),
-    newVC(minX, maxY, maxZ),
-    newVC(maxX, minY, minZ),
-    newVC(maxX, minY, maxZ),
-    newVC(maxX, maxY, minZ),
-    newVC(maxX, maxY, maxZ),
-  ];
-
   const disposeOriginalMeshesAfterCreatingCombinedMesh = true;
-  const cornerMeshes = corners.map((corner) => getCornerMesh(corner, scene));
   const chunkyWireframe = Mesh.MergeMeshes(
-    edgeMeshes.concat(cornerMeshes),
+    edgeMeshes,
     disposeOriginalMeshesAfterCreatingCombinedMesh
   );
   noa.rendering.addMeshToScene(chunkyWireframe);
 };
 
-const getCornerMesh = (corner: VoxelCoord, scene: Scene): Mesh => {
-  const box = CreateBox("", { size: outlineThickness }, scene);
-  const material = new StandardMaterial("material", scene);
-  material.emissiveColor = new Color3(1, 1, 1);
-  box.material = material;
-
-  box.position.set(corner.x, corner.y, corner.z);
-  return box;
-};
-
 const outlineThickness = 0.05;
 
-function adjustDimensionSize(dimension: number) {
-  return dimension === 0
-    ? dimension + outlineThickness
-    : dimension - outlineThickness;
-}
+// renders an edge between these two points for the wireframe
+// this function assumes that the two coords differ by only one dimension
+// this edge will run through the entire length of the dimension that they differ in
 const getEdgeMesh = (
   coord1: VoxelCoord,
   coord2: VoxelCoord,
@@ -97,9 +78,9 @@ const getEdgeMesh = (
   let width = Math.abs(coord1.x - coord2.x);
   let height = Math.abs(coord1.y - coord2.y);
   let depth = Math.abs(coord1.z - coord2.z);
-  width = adjustDimensionSize(width);
-  height = adjustDimensionSize(height);
-  depth = adjustDimensionSize(depth);
+  width = width + outlineThickness;
+  height = height + outlineThickness;
+  depth = depth + outlineThickness;
   const prism = MeshBuilder.CreateBox(
     "prism",
     { width: width, height: height, depth: depth },
@@ -116,42 +97,4 @@ const getEdgeMesh = (
   material.emissiveColor = new Color3(1, 1, 1);
   prism.material = material;
   return prism;
-};
-
-const renderBoxWireframe = (x: number, y: number, z: number, noa: Engine) => {
-  renderLine(
-    [
-      new Vector3(x, y, z),
-      new Vector3(x + 1, y, z),
-      new Vector3(x + 1, y + 1, z),
-      new Vector3(x, y + 1, z),
-      new Vector3(x, y, z),
-    ],
-    noa
-  );
-  renderLine(
-    [
-      new Vector3(x, y, z + 1),
-      new Vector3(x + 1, y, z + 1),
-      new Vector3(x + 1, y + 1, z + 1),
-      new Vector3(x, y + 1, z + 1),
-      new Vector3(x, y, z + 1),
-    ],
-    noa
-  );
-  renderLine([new Vector3(x, y, z), new Vector3(x, y, z + 1)], noa);
-  renderLine([new Vector3(x + 1, y, z), new Vector3(x + 1, y, z + 1)], noa);
-  renderLine(
-    [new Vector3(x + 1, y + 1, z), new Vector3(x + 1, y + 1, z + 1)],
-    noa
-  );
-  renderLine([new Vector3(x, y + 1, z), new Vector3(x, y + 1, z + 1)], noa);
-};
-const renderLine = (linePoints: Vector3[], noa: Engine) => {
-  const scene = noa.rendering.getScene();
-  const line = MeshBuilder.CreateLines("line", { points: linePoints }, scene);
-  const material = new StandardMaterial("material", scene);
-  material.emissiveColor = new Color3(1, 1, 1);
-  line.material = material;
-  noa.rendering.addMeshToScene(line);
 };

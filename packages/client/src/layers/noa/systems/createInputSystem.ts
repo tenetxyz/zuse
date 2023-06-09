@@ -22,14 +22,6 @@ import {
 } from "../engine/components/utils";
 import { NoaLayer } from "../types";
 import { toast } from "react-toastify";
-import {
-  Color3,
-  CreateBox,
-  MeshBuilder,
-  StandardMaterial,
-  Vector3,
-  Vector4,
-} from "@babylonjs/core";
 import { renderChunkyWireframe } from "./renderWireframes";
 
 export function createInputSystem(network: NetworkLayer, context: NoaLayer) {
@@ -302,24 +294,6 @@ export function createInputSystem(network: NetworkLayer, context: NoaLayer) {
       z,
     });
     renderChunkyWireframe(points.at(-1)!, points.at(-1)!, noa);
-
-    // const box = CreateBox("", { size: 1 }, scene);
-    // // const material = new StandardMaterial("material", scene);
-    // // box.material = material;
-    // box.position.set(x + 0.5, y + 0.5, z + 0.5);
-    // // box.parent = playerMesh;
-    //
-    // // const boxWireframe = MeshBuilder.CreateLines(
-    // //   "boxWireframe",
-    // //   { points: box.getBoundingInfo().boundingBox.vectors },
-    // //   scene
-    // // );
-    // const material = new StandardMaterial("material", scene);
-    // material.wireframe = true;
-    // box.material = material;
-    // // boxWireframe.material = material;
-    // noa.rendering.addMeshToScene(box);
-
     toast(`Selected block at ${x}, ${y}, ${z}`);
     setComponent(VoxelSelection, SingletonEntity, { points: points as any });
   });

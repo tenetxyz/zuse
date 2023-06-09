@@ -124,7 +124,7 @@ export const Crafting: React.FC<{
 
   async function handleOutput() {
     if (!craftingResult) return;
-    const { voxelTypes } = getTrimmedCraftingTable();
+    const { voxels } = getTrimmedCraftingTable();
     clearCraftingTable();
     await craft(voxeltypes, craftingResult);
   }

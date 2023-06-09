@@ -211,13 +211,13 @@ export function createNoaLayer(network: NetworkLayer) {
     }
 
     if ([minX, minY, maxX, maxY].includes(-1))
-      return { voxelTypes: [] as Entity[][], types: [] as Entity[][] };
+      return { voxels: [] as Entity[][], voxelTypes: [] as Entity[][] };
 
+    const trimmedCraftingTableVoxels: Entity[][] = [];
     const trimmedCraftingTableVoxelTypes: Entity[][] = [];
-    const trimmedCraftingTableTypes: Entity[][] = [];
     for (let x = 0; x <= maxX - minX; x++) {
+      trimmedCraftingTableVoxels.push([]);
       trimmedCraftingTableVoxelTypes.push([]);
-      trimmedCraftingTableTypes.push([]);
       for (let y = 0; y <= maxY - minY; y++) {
         const rawVoxelId = craftingTable[x + minX][y + minY];
         const voxel = ((getEntityString(getEntitySymbol(rawVoxelId)) !== "-1" &&
@@ -227,25 +227,25 @@ export function createNoaLayer(network: NetworkLayer) {
           "-1" &&
           getComponentValue(VoxelType, rawVoxelId)?.value) ||
           "0x00") as Entity;
-        trimmedCraftingTableVoxelTypes[x].push(voxel);
-        trimmedCraftingTableTypes[x].push(voxelType);
+        trimmedCraftingTableVoxels[x].push(voxel);
+        trimmedCraftingTableVoxelTypes[x].push(voxelType);
       }
     }
 
     return {
+      voxels: trimmedCraftingTableVoxels,
       voxelTypes: trimmedCraftingTableVoxelTypes,
-      types: trimmedCraftingTableTypes,
     };
   }
 
   // Get the block type the current crafting table ingredients hash to
   function getCraftingResult(): Entity | undefined {
-    const { types } = getTrimmedCraftingTable();
+    const { voxelTypes } = getTrimmedCraftingTable();
 
     // ABI encode and hash current trimmed crafting table
-    const hash = keccak256(abi.encode(["uint256[][]"], [types]));
+    const hash = keccak256(abi.encode(["uint256[][]"], [voxelTypes]));
 
-    // Check for block types with this recipe hash
+    // Check for voxel types with this recipe hash
     const resultID = [...getEntitiesWithValue(Recipe, { value: hash })][0];
     // const resultID = resultIndex == null ? undefined : world.entities[resultIndex];
     return resultID;

@@ -474,6 +474,6 @@ export async function setupNetwork() {
     faucet,
     worldAddress: networkConfig.worldAddress,
     uniqueWorldId,
-    types: { VoxelTypeIdToKey, VoxelTypeKeyToId },
+    voxelTypes: { VoxelTypeIdToKey, VoxelTypeKeyToId },
   };
 }

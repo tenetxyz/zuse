@@ -73,7 +73,7 @@ import { BehaviorSubject, map, throttleTime, timer } from "rxjs";
 import { createCreativeModeSystem } from "./systems/createCreativeModeSystem";
 import { createSpawnPlayerSystem } from "./systems/createSpawnPlayerSystem";
 import { definePlayerMeshComponent } from "./components/PlayerMesh";
-import { Engine } from "@babylonjs/core";
+import { CreateBox, Engine } from "@babylonjs/core";
 import { to64CharAddress } from "../../utils/entity";
 
 export function createNoaLayer(network: NetworkLayer) {

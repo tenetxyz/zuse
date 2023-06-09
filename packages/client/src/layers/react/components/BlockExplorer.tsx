@@ -100,7 +100,7 @@ export function registerBlockExplorer() {
         network: {
           ecsEvent$,
           mappings,
-          contractComponents: { Item },
+          contractComponents: { VoxelType },
           network: { blockNumber$ },
           world,
           config: { blockExplorer },
@@ -123,11 +123,11 @@ export function registerBlockExplorer() {
               ({ blockNumber, component, value, entity }) => {
                 const componentKey = mappings[component];
 
-                // Item component updates correspond to a mined terrain block
-                if (componentKey === "Item") {
+                // VoxelType component updates correspond to a mined terrain block
+                if (componentKey === "VoxelType") {
                   // TODO: We added this because value was undefined, should figure out why the original line (below) doesn't work
-                  const entityId = getComponentValue(Item, entity)?.value;
-                  // const { value: entityId } = value as ComponentValue<SchemaOf<typeof Item>>;
+                  const entityId = getComponentValue(VoxelType, entity)?.value;
+                  // const { value: entityId } = value as ComponentValue<SchemaOf<typeof VoxelType>>;
                   const blockType = BlockIdToKey[entityId as Entity];
                   return { blockNumber, blockType, action: "remove" };
                 }
@@ -138,7 +138,7 @@ export function registerBlockExplorer() {
                   const entityIndex = entity;
                   const blockTypeId =
                     entityIndex != null
-                      ? getComponentValue(Item, entityIndex)?.value
+                      ? getComponentValue(VoxelType, entityIndex)?.value
                       : undefined;
                   if (!blockTypeId) {
                     return;

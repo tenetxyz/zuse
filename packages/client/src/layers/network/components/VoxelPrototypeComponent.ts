@@ -1,9 +1,9 @@
 import { World } from "@latticexyz/recs";
 import { defineBoolComponent } from "@latticexyz/std-client";
 
-export function defineItemPrototypeComponent(world: World) {
+export function defineVoxelPrototypeComponent(world: World) {
   return defineBoolComponent(world, {
-    id: "ItemPrototype",
-    metadata: { contractId: "component.ItemPrototype" },
+    id: "VoxelPrototype",
+    metadata: { contractId: "component.VoxelPrototype" },
   });
 }

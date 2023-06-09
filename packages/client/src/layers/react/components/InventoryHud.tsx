@@ -27,7 +27,7 @@ import { CreativeInventory } from "./CreativeInventory";
 import { Inventory } from "./Inventory";
 import { UrgentNotification } from "./UrgentNotification";
 
-// This gives us 36 inventory slots. As of now there are 34 types of items, so it should fit.
+// This gives us 36 inventory slots. As of now there are 34 types of voxeltypes, so it should fit.
 export const INVENTORY_WIDTH = 9;
 export const INVENTORY_HEIGHT = 4;
 
@@ -43,7 +43,7 @@ export function registerInventoryHud() {
     (layers) => {
       const {
         network: {
-          contractComponents: { OwnedBy, Item },
+          contractComponents: { OwnedBy, VoxelType },
           streams: { connectedClients$, balanceGwei$ },
           network: { connectedAddress },
         },
@@ -56,7 +56,7 @@ export function registerInventoryHud() {
       const ownedByMeQuery = defineQuery(
         [
           HasValue(OwnedBy, { value: to64CharAddress(connectedAddress.get()) }),
-          Has(Item),
+          Has(VoxelType),
         ],
         {
           runOnInit: true,
@@ -67,7 +67,7 @@ export function registerInventoryHud() {
         of({}),
         ownedByMeQuery.update$.pipe(
           scan((acc, curr) => {
-            const blockTypeId = getComponentValue(Item, curr.entity)?.value;
+            const blockTypeId = getComponentValue(VoxelType, curr.entity)?.value;
             if (!blockTypeId) return { ...acc };
             acc[blockTypeId] = acc[blockTypeId] || 0;
             if (curr.type === UpdateType.Exit) {
@@ -125,7 +125,7 @@ export function registerInventoryHud() {
       const {
         network: {
           api: { removeVoxels },
-          contractComponents: { OwnedBy, Item },
+          contractComponents: { OwnedBy, VoxelType },
           network: { connectedAddress },
         },
         noa: {
@@ -155,8 +155,8 @@ export function registerInventoryHud() {
         document.body.style.cursor = `url(${icon}) 12 12, auto`;
       }, [holdingBlock]);
 
-      function moveItems(slot: number) {
-        console.log("moveItems", slot);
+      function moveVoxelType(slot: number) {
+        console.log("moveVoxelType", slot);
         const blockIdAtSlot = [
           ...getEntitiesWithValue(InventoryIndex, { value: slot }),
         ][0];
@@ -185,7 +185,7 @@ export function registerInventoryHud() {
         setHoldingBlock(undefined);
       }
 
-      function removeItems(slot: number) {
+      function removeVoxelType(slot: number) {
         const voxelTypeIdAtSlot = [
           ...getEntitiesWithValue(InventoryIndex, { value: slot }),
         ][0];
@@ -198,12 +198,12 @@ export function registerInventoryHud() {
             HasValue(OwnedBy, {
               value: to64CharAddress(connectedAddress.get()),
             }),
-            HasValue(Item, { value: voxelTypeIdAtSlot }),
+            HasValue(VoxelType, { value: voxelTypeIdAtSlot }),
           ]),
         ];
 
-        // since we no longer have items of this type, remove this from the InventoryIndex,
-        // so new items can be placed on that index
+        // since we no longer have voxeltypes of this type, remove this from the InventoryIndex,
+        // so new voxeltypes can be placed on that index
         removeComponent(InventoryIndex, voxelTypeIdAtSlot);
 
         // remove the voxels at this slot
@@ -224,8 +224,8 @@ export function registerInventoryHud() {
             key={"slot" + i}
             blockID={quantity ? blockId : undefined}
             quantity={quantity || undefined}
-            onClick={() => moveItems(i)}
-            onRightClick={() => removeItems(i)}
+            onClick={() => moveVoxelType(i)}
+            onRightClick={() => removeVoxelType(i)}
             disabled={blockId === holdingBlock}
             selected={i === selectedSlot}
           />

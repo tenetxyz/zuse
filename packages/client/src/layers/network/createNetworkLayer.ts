@@ -29,8 +29,8 @@
 //     defineGameConfigComponent,
 //     defineRecipeComponent,
 //     defineLoadingStateComponent,
-//     defineItemComponent,
-//     defineItemPrototypeComponent,
+//     defineVoxelTypeComponent,
+//     defineVoxelPrototypeComponent,
 //     defineOccurrenceComponent,
 //     defineStakeComponent,
 //     defineClaimComponent,
@@ -69,8 +69,8 @@
 //     // --- COMPONENTS -----------------------------------------------------------------
 //     const components = {
 //       Position: definePositionComponent(world),
-//       ItemPrototype: defineItemPrototypeComponent(world),
-//       Item: defineItemComponent(world),
+//       VoxelPrototype: defineVoxelPrototypeComponent(world),
+//       VoxelType: defineVoxelTypeComponent(world),
 //       Name: defineNameComponent(world),
 //       OwnedBy: defineOwnedByComponent(world),
 //       GameConfig: defineGameConfigComponent(world),
@@ -154,14 +154,14 @@
 //     const { withOptimisticUpdates } = actions;
 //     components.Position = withOptimisticUpdates(components.Position);
 //     components.OwnedBy = createIndexer(withOptimisticUpdates(components.OwnedBy));
-//     components.Item = withOptimisticUpdates(components.Item);
+//     components.VoxelType = withOptimisticUpdates(components.VoxelType);
 
 //     // --- API ------------------------------------------------------------------------
 
 //     const perlin = await createPerlin();
 //     const terrainContext = {
 //       Position: components.Position,
-//       Item: components.Item,
+//       VoxelType: components.VoxelType,
 //       world,
 //     };
 
@@ -182,7 +182,7 @@
 //     function build(entity: EntityID, coord: VoxelCoord) {
 //       const entityIndex = world.entityToIndex.get(entity);
 //       if (entityIndex == null) return console.warn("trying to place unknown entity", entity);
-//       const blockId = getComponentValue(components.Item, entityIndex)?.value;
+//       const blockId = getComponentValue(components.VoxelType, entityIndex)?.value;
 //       const blockType = blockId != null ? BlockIdToKey[blockId as EntityID] : undefined;
 //       const godIndex = world.entityToIndex.get(GodID);
 //       const creativeMode = godIndex != null && getComponentValue(components.GameConfig, godIndex)?.creativeMode;
@@ -191,7 +191,7 @@
 //         id: `build+${coord.x}/${coord.y}/${coord.z}` as EntityID,
 //         metadata: { actionType: "build", coord, blockType },
 //         requirement: () => true,
-//         components: { Position: components.Position, Item: components.Item, OwnedBy: components.OwnedBy },
+//         components: { Position: components.Position, VoxelType: components.VoxelType, OwnedBy: components.OwnedBy },
 //         execute: () =>
 //           systems[creativeMode ? "system.CreativeBuild" : "system.Build"].executeTyped(BigNumber.from(entity), coord, {
 //             gasLimit: 500_000,
@@ -226,7 +226,7 @@
 //         id: `mine+${coord.x}/${coord.y}/${coord.z}` as EntityID,
 //         metadata: { actionType: "mine", coord, blockType },
 //         requirement: () => true,
-//         components: { Position: components.Position, OwnedBy: components.OwnedBy, Item: components.Item },
+//         components: { Position: components.Position, OwnedBy: components.OwnedBy, VoxelType: components.VoxelType },
 //         execute: () => systems["system.Mine"].executeTyped(coord, blockId, { gasLimit: ecsBlock ? 400_000 : 1_000_000 }),
 //         updates: () => [
 //           {
@@ -235,7 +235,7 @@
 //             value: coord,
 //           },
 //           {
-//             component: "Item",
+//             component: "VoxelType",
 //             entity: airEntity,
 //             value: { value: BlockType.Air },
 //           },
@@ -272,7 +272,7 @@
 //       const diamondEntityIndex = [
 //         ...runQuery([
 //           HasValue(components.OwnedBy, { value: network.connectedAddress.get() }),
-//           HasValue(components.Item, { value: BlockType.Diamond }),
+//           HasValue(components.VoxelType, { value: BlockType.Diamond }),
 //         ]),
 //       ][0];
 
@@ -309,7 +309,7 @@
 //     function transfer(entity: EntityID, receiver: string) {
 //       const entityIndex = world.entityToIndex.get(entity);
 //       if (entityIndex == null) return console.warn("trying to transfer unknown entity", entity);
-//       const blockId = getComponentValue(components.Item, entityIndex)?.value;
+//       const blockId = getComponentValue(components.VoxelType, entityIndex)?.value;
 //       const blockType = blockId != null ? BlockIdToKey[blockId as EntityID] : undefined;
 
 //       actions.add({

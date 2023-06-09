@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0
 pragma solidity >=0.8.0;
 import { IWorld } from "../codegen/world/IWorld.sol";
-import {Occurrence, ItemPrototype} from "../codegen/Tables.sol";
+import {Occurrence, VoxelPrototype} from "../codegen/Tables.sol";
 
 bytes32 constant AirID = bytes32(keccak256("block.Air"));
 bytes32 constant GrassID = bytes32(keccak256("block.Grass"));
@@ -58,87 +58,87 @@ bytes32 constant BedrockID = bytes32(keccak256("block.Bedrock"));
 bytes32 constant BricksID = bytes32(keccak256("block.Bricks"));
 
 function defineBlocks(IWorld world) {
-    ItemPrototype.set(bytes32(GrassID), true);
+    VoxelPrototype.set(bytes32(GrassID), true);
     Occurrence.set(GrassID, world.OGrass.selector);
 
-    ItemPrototype.set(bytes32(DirtID), true);
+    VoxelPrototype.set(bytes32(DirtID), true);
     Occurrence.set(DirtID, world.ODirt.selector);
 
-    ItemPrototype.set(bytes32(BedrockID), true);
+    VoxelPrototype.set(bytes32(BedrockID), true);
     Occurrence.set(BedrockID, world.OBedrock.selector);
 
-    ItemPrototype.set(bytes32(LogID), true);
+    VoxelPrototype.set(bytes32(LogID), true);
 
-    ItemPrototype.set(bytes32(StoneID), true);
+    VoxelPrototype.set(bytes32(StoneID), true);
 
-    ItemPrototype.set(bytes32(SandID), true);
+    VoxelPrototype.set(bytes32(SandID), true);
 
-    ItemPrototype.set(bytes32(WaterID), true);
+    VoxelPrototype.set(bytes32(WaterID), true);
 
-    ItemPrototype.set(bytes32(DiamondID), true);
+    VoxelPrototype.set(bytes32(DiamondID), true);
 
-    ItemPrototype.set(bytes32(CoalID), true);
+    VoxelPrototype.set(bytes32(CoalID), true);
 
-    ItemPrototype.set(bytes32(LeavesID), true);
+    VoxelPrototype.set(bytes32(LeavesID), true);
 
-    ItemPrototype.set(bytes32(WoolID), true);
+    VoxelPrototype.set(bytes32(WoolID), true);
 
-    ItemPrototype.set(bytes32(SnowID), true);
+    VoxelPrototype.set(bytes32(SnowID), true);
 
-    ItemPrototype.set(bytes32(ClayID), true);
+    VoxelPrototype.set(bytes32(ClayID), true);
 
-    ItemPrototype.set(bytes32(RedFlowerID), true);
+    VoxelPrototype.set(bytes32(RedFlowerID), true);
 
-    ItemPrototype.set(bytes32(GrassPlantID), true);
+    VoxelPrototype.set(bytes32(GrassPlantID), true);
 
-    ItemPrototype.set(bytes32(OrangeFlowerID), true);
+    VoxelPrototype.set(bytes32(OrangeFlowerID), true);
 
-    ItemPrototype.set(bytes32(MagentaFlowerID), true);
+    VoxelPrototype.set(bytes32(MagentaFlowerID), true);
 
-    ItemPrototype.set(bytes32(LightBlueFlowerID), true);
+    VoxelPrototype.set(bytes32(LightBlueFlowerID), true);
 
-    ItemPrototype.set(bytes32(LimeFlowerID), true);
+    VoxelPrototype.set(bytes32(LimeFlowerID), true);
 
-    ItemPrototype.set(bytes32(PinkFlowerID), true);
+    VoxelPrototype.set(bytes32(PinkFlowerID), true);
 
-    ItemPrototype.set(bytes32(GrayFlowerID), true);
+    VoxelPrototype.set(bytes32(GrayFlowerID), true);
 
-    ItemPrototype.set(bytes32(LightGrayFlowerID), true);
+    VoxelPrototype.set(bytes32(LightGrayFlowerID), true);
 
-    ItemPrototype.set(bytes32(CyanFlowerID), true);
+    VoxelPrototype.set(bytes32(CyanFlowerID), true);
 
-    ItemPrototype.set(bytes32(PurpleFlowerID), true);
+    VoxelPrototype.set(bytes32(PurpleFlowerID), true);
 
-    ItemPrototype.set(bytes32(BlueFlowerID), true);
+    VoxelPrototype.set(bytes32(BlueFlowerID), true);
 
-    ItemPrototype.set(bytes32(GreenFlowerID), true);
+    VoxelPrototype.set(bytes32(GreenFlowerID), true);
 
-    ItemPrototype.set(bytes32(BlackFlowerID), true);
+    VoxelPrototype.set(bytes32(BlackFlowerID), true);
 
-    ItemPrototype.set(bytes32(KelpID), true);
+    VoxelPrototype.set(bytes32(KelpID), true);
 
-    ItemPrototype.set(bytes32(AirID), true);
-    ItemPrototype.set(bytes32(GlassID), true);
-    ItemPrototype.set(bytes32(SpongeID), true);
-    ItemPrototype.set(bytes32(CobblestoneID), true);
-    ItemPrototype.set(bytes32(CoalID), true);
-    ItemPrototype.set(bytes32(CraftingID), true);
-    ItemPrototype.set(bytes32(IronID), true);
-    ItemPrototype.set(bytes32(GoldID), true);
-    ItemPrototype.set(bytes32(PlanksID), true);
-    ItemPrototype.set(bytes32(OrangeWoolID), true);
-    ItemPrototype.set(bytes32(MagentaWoolID), true);
-    ItemPrototype.set(bytes32(LightBlueWoolID), true);
-    ItemPrototype.set(bytes32(YellowWoolID), true);
-    ItemPrototype.set(bytes32(LimeWoolID), true);
-    ItemPrototype.set(bytes32(PinkWoolID), true);
-    ItemPrototype.set(bytes32(GrayWoolID), true);
-    ItemPrototype.set(bytes32(LightGrayWoolID), true);
-    ItemPrototype.set(bytes32(CyanWoolID), true);
-    ItemPrototype.set(bytes32(PurpleWoolID), true);
-    ItemPrototype.set(bytes32(BlueWoolID), true);
-    ItemPrototype.set(bytes32(BrownWoolID), true);
-    ItemPrototype.set(bytes32(GreenWoolID), true);
-    ItemPrototype.set(bytes32(RedWoolID), true);
-    ItemPrototype.set(bytes32(BlackWoolID), true);
+    VoxelPrototype.set(bytes32(AirID), true);
+    VoxelPrototype.set(bytes32(GlassID), true);
+    VoxelPrototype.set(bytes32(SpongeID), true);
+    VoxelPrototype.set(bytes32(CobblestoneID), true);
+    VoxelPrototype.set(bytes32(CoalID), true);
+    VoxelPrototype.set(bytes32(CraftingID), true);
+    VoxelPrototype.set(bytes32(IronID), true);
+    VoxelPrototype.set(bytes32(GoldID), true);
+    VoxelPrototype.set(bytes32(PlanksID), true);
+    VoxelPrototype.set(bytes32(OrangeWoolID), true);
+    VoxelPrototype.set(bytes32(MagentaWoolID), true);
+    VoxelPrototype.set(bytes32(LightBlueWoolID), true);
+    VoxelPrototype.set(bytes32(YellowWoolID), true);
+    VoxelPrototype.set(bytes32(LimeWoolID), true);
+    VoxelPrototype.set(bytes32(PinkWoolID), true);
+    VoxelPrototype.set(bytes32(GrayWoolID), true);
+    VoxelPrototype.set(bytes32(LightGrayWoolID), true);
+    VoxelPrototype.set(bytes32(CyanWoolID), true);
+    VoxelPrototype.set(bytes32(PurpleWoolID), true);
+    VoxelPrototype.set(bytes32(BlueWoolID), true);
+    VoxelPrototype.set(bytes32(BrownWoolID), true);
+    VoxelPrototype.set(bytes32(GreenWoolID), true);
+    VoxelPrototype.set(bytes32(RedWoolID), true);
+    VoxelPrototype.set(bytes32(BlackWoolID), true);
 }

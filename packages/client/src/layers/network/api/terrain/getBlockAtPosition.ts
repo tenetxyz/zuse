@@ -16,19 +16,19 @@ import { Air, Bedrock, Dirt, Grass } from "./occurrence";
 export function getEntityAtPosition(
   context: {
     Position: Component<{ x: Type.Number; y: Type.Number; z: Type.Number }>;
-    Item: Component<{ value: Type.String }>;
+    VoxelType: Component<{ value: Type.String }>;
     world: World;
   },
   coord: VoxelCoord
 ) {
-  const { Position, Item } = context;
+  const { Position, VoxelType } = context;
   const entitiesAtPosition = [...getEntitiesWithValue(Position, coord)];
 
   // Prefer non-air blocks at this position
   return (
     entitiesAtPosition?.find((b) => {
-      const item = getComponentValue(Item, b);
-      return item && item.value !== BlockType.Air;
+      const voxeltype = getComponentValue(VoxelType, b);
+      return voxeltype && voxeltype.value !== BlockType.Air;
     }) ?? entitiesAtPosition[0]
   );
 }
@@ -36,20 +36,20 @@ export function getEntityAtPosition(
 export function getECSBlock(
   context: {
     Position: Component<{ x: Type.Number; y: Type.Number; z: Type.Number }>;
-    Item: Component<{ value: Type.String }>;
+    VoxelType: Component<{ value: Type.String }>;
     world: World;
   },
   coord: VoxelCoord
 ): Entity | undefined {
   const entityAtPosition = getEntityAtPosition(context, coord);
   if (entityAtPosition == null) return undefined;
-  return getComponentValue(context.Item, entityAtPosition)?.value as Entity;
+  return getComponentValue(context.VoxelType, entityAtPosition)?.value as Entity;
 }
 
 export function getBlockAtPosition(
   context: {
     Position: Component<{ x: Type.Number; y: Type.Number; z: Type.Number }>;
-    Item: Component<{ value: Type.String }>;
+    VoxelType: Component<{ value: Type.String }>;
     world: World;
   },
   perlin: Perlin,

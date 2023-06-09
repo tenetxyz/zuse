@@ -1,5 +1,5 @@
-export { defineItemComponent } from "./ItemComponent";
-export { defineItemPrototypeComponent } from "./ItemPrototypeComponent";
+export { defineVoxelTypeComponent } from "./VoxelTypeComponent";
+export { defineVoxelPrototypeComponent } from "./VoxelPrototypeComponent";
 export { definePositionComponent } from "./PositionComponent";
 export { defineOwnedByComponent } from "./OwnedByComponent";
 export { defineGameConfigComponent } from "./GameConfigComponent";

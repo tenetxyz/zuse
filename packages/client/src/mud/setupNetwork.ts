@@ -197,7 +197,7 @@ export async function setupNetwork() {
   contractComponents.OwnedBy = withOptimisticUpdates(
     contractComponents.OwnedBy
   );
-  contractComponents.Item = withOptimisticUpdates(contractComponents.Item);
+  contractComponents.VoxelType = withOptimisticUpdates(contractComponents.VoxelType);
 
   // --- API ------------------------------------------------------------------------
 
@@ -205,7 +205,7 @@ export async function setupNetwork() {
 
   const terrainContext = {
     Position: contractComponents.Position,
-    Item: contractComponents.Item,
+    VoxelType: contractComponents.VoxelType,
     world,
   };
 
@@ -239,7 +239,7 @@ export async function setupNetwork() {
   function build(entity: Entity, coord: VoxelCoord) {
     // const entityIndex = world.entityToIndex.get(entity);
     // if (entityIndex == null) return console.warn("trying to place unknown entity", entity);
-    const voxelType = getComponentValue(contractComponents.Item, entity)?.value;
+    const voxelType = getComponentValue(contractComponents.VoxelType, entity)?.value;
     // TODO: we need to clone this block before placing!
     const blockTypeName =
       voxelType != null ? BlockIdToKey[voxelType as Entity] : undefined;
@@ -258,7 +258,7 @@ export async function setupNetwork() {
       requirement: () => true,
       components: {
         Position: contractComponents.Position,
-        Item: contractComponents.Item,
+        VoxelType: contractComponents.VoxelType,
         OwnedBy: contractComponents.OwnedBy, // I think it's needed cause we check to see if the owner owns the block we're placing
       },
       execute: () => {
@@ -277,7 +277,7 @@ export async function setupNetwork() {
           value: coord,
         },
         {
-          component: "Item",
+          component: "VoxelType",
           entity: newEntityOfSameType,
           value: { value: voxelType },
         },
@@ -312,7 +312,7 @@ export async function setupNetwork() {
       components: {
         Position: contractComponents.Position,
         OwnedBy: contractComponents.OwnedBy,
-        Item: contractComponents.Item,
+        VoxelType: contractComponents.VoxelType,
       },
       execute: () => {
         return mineSystem(coord, voxelType);
@@ -324,7 +324,7 @@ export async function setupNetwork() {
           value: coord,
         },
         {
-          component: "Item",
+          component: "VoxelType",
           entity: airEntity,
           value: { value: BlockType.Air },
         },
@@ -348,7 +348,7 @@ export async function setupNetwork() {
       requirement: () => true,
       components: {
         OwnedBy: contractComponents.OwnedBy,
-        Item: contractComponents.Item,
+        VoxelType: contractComponents.VoxelType,
       },
       execute: async () => {
         const tx = await worldSend("giftVoxel", [
@@ -358,7 +358,7 @@ export async function setupNetwork() {
       },
       updates: () => [
         {
-          component: "Item",
+          component: "VoxelType",
           entity: newVoxel,
           value: { value: voxelType },
         },
@@ -377,7 +377,7 @@ export async function setupNetwork() {
       return console.warn("trying to remove 0 voxels");
     }
 
-    const voxelType = getComponentValue(contractComponents.Item, voxels[0])
+    const voxelType = getComponentValue(contractComponents.VoxelType, voxels[0])
       ?.value as Entity;
 
     const blockType = BlockIdToKey[voxelType];
@@ -390,7 +390,7 @@ export async function setupNetwork() {
       requirement: () => true,
       components: {
         OwnedBy: contractComponents.OwnedBy,
-        Item: contractComponents.Item,
+        VoxelType: contractComponents.VoxelType,
       },
       execute: async () => {
         const tx = await worldSend("removeVoxels", [

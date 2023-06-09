@@ -12,7 +12,7 @@ interface Props {
 const NUM_COLS = 9;
 const NUM_ROWS = 8;
 
-interface Item {
+interface VoxelType {
   name: string;
   description: string;
   blockId: Entity;
@@ -20,19 +20,19 @@ interface Item {
 
 export const CreativeInventory: React.FC<Props> = ({ layers }) => {
   const {
-    components: { ItemPrototype },
+    components: { VoxelPrototype },
     api: { giftVoxel },
   } = layers.network;
 
   const [searchValue, setSearchValue] = React.useState<string>("");
-  const [items, setItems] = React.useState<Item[]>();
-  const [filteredItems, setFilteredItems] = React.useState<Item[]>([]);
-  const fuse = React.useRef<Fuse<Item>>();
+  const [voxeltypes, setVoxelTypes] = React.useState<VoxelType[]>();
+  const [filteredVoxelTypes, setFilteredVoxelTypes] = React.useState<VoxelType[]>([]);
+  const fuse = React.useRef<Fuse<VoxelType>>();
 
   React.useEffect(() => {
-    const entities = getEntitiesWithValue(ItemPrototype, { value: true });
-    console.log("creative items", entities);
-    const unsortedItems = Array.from(entities).map((entity) => {
+    const entities = getEntitiesWithValue(VoxelPrototype, { value: true });
+    console.log("creative voxeltypes", entities);
+    const unsortedVoxelTypes = Array.from(entities).map((entity) => {
       return {
         name: entity as string, // TODO: update
         description: "tmp desc", // TODO: update
@@ -45,37 +45,37 @@ export const CreativeInventory: React.FC<Props> = ({ layers }) => {
       keys: ["name", "description"],
     };
 
-    fuse.current = new Fuse(unsortedItems, options);
+    fuse.current = new Fuse(unsortedVoxelTypes, options);
 
-    setItems(unsortedItems.sort((a, b) => a.name.localeCompare(b.name)));
+    setVoxelTypes(unsortedVoxelTypes.sort((a, b) => a.name.localeCompare(b.name)));
 
     // TODO: this function is probably useful later
     // console.log(BlockIdToKey);
-  }, [ItemPrototype]);
+  }, [VoxelPrototype]);
 
   React.useEffect(() => {
     if (!fuse.current) {
       return;
     }
     const result = fuse.current.search(searchValue);
-    setFilteredItems(result.map((r) => r.item));
+    setFilteredVoxelTypes(result.map((r) => r.voxeltype));
   }, [searchValue]);
 
-  const resultArray = filteredItems.length > 0 ? filteredItems : items;
+  const resultArray = filteredVoxelTypes.length > 0 ? filteredVoxelTypes : voxeltypes;
 
   const Slots = [...range(NUM_ROWS * NUM_COLS)].map((i) => {
     if (!resultArray || i >= resultArray.length) {
       return <Slot key={"voxel-search-slot" + i} disabled={true} />;
     }
-    const item = resultArray[i];
+    const voxeltype = resultArray[i];
     return (
       <Slot
         key={"slot" + i}
-        blockID={item.blockId}
+        blockID={voxeltype.blockId}
         quantity={undefined} // undefined so no number appears
-        onClick={() => giftVoxel(item.blockId)}
-        disabled={false} // false, so if you pick up the item, it still shows up in the creative inventory
-        selected={false} // you can never select an item in the creative inventory
+        onClick={() => giftVoxel(voxeltype.blockId)}
+        disabled={false} // false, so if you pick up the voxeltype, it still shows up in the creative inventory
+        selected={false} // you can never select an voxeltype in the creative inventory
       />
     );
   });

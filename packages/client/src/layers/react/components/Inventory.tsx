@@ -28,15 +28,15 @@ import { Layers } from "../../../types";
 interface Props {
   layers: Layers;
   craftingSideLength: number;
-  holdingBlock: Entity | undefined;
-  setHoldingBlock: (block: Entity | undefined) => void;
+  holdingVoxel: Entity | undefined;
+  setHoldingVoxel: (voxel: Entity | undefined) => void;
   Slots: JSX.Element[];
 }
 export const Inventory: React.FC<Props> = ({
   layers,
   craftingSideLength,
-  holdingBlock,
-  setHoldingBlock,
+  holdingVoxel,
+  setHoldingVoxel,
   Slots,
 }) => {
   return (
@@ -44,9 +44,9 @@ export const Inventory: React.FC<Props> = ({
       <div>
         <Crafting
           layers={layers}
-          holdingBlock={holdingBlock}
+          holdingVoxel={holdingVoxel}
           sideLength={craftingSideLength}
-          setHoldingBlock={setHoldingBlock}
+          setHoldingVoxel={setHoldingVoxel}
         />
         <ActionBarWrapper>
           {[...range(INVENTORY_WIDTH * (INVENTORY_HEIGHT - 1))]

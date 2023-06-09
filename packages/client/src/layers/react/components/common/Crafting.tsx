@@ -14,10 +14,10 @@ import { to64CharAddress } from "../../../../utils/entity";
 
 export const Crafting: React.FC<{
   layers: Layers;
-  holdingBlock: Entity | undefined;
-  setHoldingBlock: (block: Entity | undefined) => void;
+  holdingVoxel: Entity | undefined;
+  setHoldingVoxelType: (voxel: Entity | undefined) => void;
   sideLength: number;
-}> = ({ layers, holdingBlock, setHoldingBlock, sideLength }) => {
+}> = ({ layers, holdingVoxel, setHoldingVoxelType, sideLength }) => {
   const {
     network: {
       contractComponents: { OwnedBy, VoxelType },
@@ -67,41 +67,43 @@ export const Crafting: React.FC<{
     const x = getX(i);
     const y = getY(i);
 
-    const blockAtIndex = craftingTable[x][y];
-    const blockTypeAtIndex = getComponentValue(VoxelType, blockAtIndex)
+    const voxelAtIndex = craftingTable[x][y];
+    const voxelTypeAtIndex = getComponentValue(VoxelType, voxelAtIndex)
       ?.value as Entity | undefined;
-    const blockTypeIndexAtIndex =
-      blockTypeAtIndex && world.entityToIndex.get(blockTypeAtIndex);
 
-    // If we are not holding a block but there is a block at this position, grab the block
-    if (holdingBlock == null) {
+    // TODO: world.entityToIndex doesn't exist??? We need to touch up this entire file if we add crafting
+    const voxelTypeIndexAtIndex =
+      voxelTypeAtIndex && world.entityToIndex.get(voxelTypeAtIndex);
+
+    // If we are not holding a voxel but there is a voxel at this position, grab the voxel
+    if (holdingVoxel == null) {
       OptimisticOwnedBy.removeOverride(getOverrideId(i));
       setCraftingTableIndex([x, y], undefined);
-      setHoldingBlock(blockTypeIndexAtIndex);
+      setHoldingVoxelType(voxelTypeIndexAtIndex);
       return;
     }
 
-    // If there already is a block of the current type at this position, remove the block
-    if (blockTypeIndexAtIndex === holdingBlock) {
+    // If there already is a voxel of the current type at this position, remove the voxel
+    if (voxelTypeIndexAtIndex === holdingVoxel) {
       OptimisticOwnedBy.removeOverride(getOverrideId(i));
       setCraftingTableIndex([x, y], undefined);
       return;
     }
 
-    // Check if we still own an entity of the held block type
-    const blockID = world.entities[holdingBlock];
+    // Check if we still own an entity of the held voxel type
+    const voxel = world.entities[holdingVoxel];
     const ownedEntitiesOfType = [
       ...runQuery([
         HasValue(OptimisticOwnedBy, {
           value: to64CharAddress(connectedAddress.get()),
         }),
-        HasValue(VoxelType, { value: blockID }),
+        HasValue(VoxelType, { value: voxel }),
       ]),
     ];
 
-    // If we don't own a block of the held block type, ignore this click
+    // If we don't own a voxel of the held voxel type, ignore this click
     if (ownedEntitiesOfType.length === 0) {
-      console.warn("no owned entities of type", blockID, holdingBlock);
+      console.warn("no owned entities of type", voxel, holdingVoxel);
       return;
     }
 
@@ -113,12 +115,12 @@ export const Crafting: React.FC<{
       value: { value: SingletonID },
     });
 
-    // Place the held block on the crafting table
+    // Place the held voxel on the crafting table
     setCraftingTableIndex([x, y], ownedEntityOfType);
 
-    // If this was the last block of this type we own, reset the cursor
+    // If this was the last voxel of this type we own, reset the cursor
     if (ownedEntitiesOfType.length === 1) {
-      setHoldingBlock(undefined);
+      setHoldingVoxelType(undefined);
     }
   }
 
@@ -132,14 +134,14 @@ export const Crafting: React.FC<{
   const Slots = [...range(sideLength * sideLength)].map((index) => {
     const x = getX(index);
     const y = getY(index);
-    const blockIndex = craftingTable[x][y];
-    const blockID = getComponentValue(VoxelType, blockIndex)?.value as
+    const voxelIndex = craftingTable[x][y];
+    const voxel = getComponentValue(VoxelType, voxelIndex)?.value as
       | Entity
       | undefined;
     return (
       <Slot
         key={"crafting-slot" + index}
-        blockID={blockID}
+        voxel={voxel}
         onClick={() => handleInput(index)}
       />
     );
@@ -152,7 +154,7 @@ export const Crafting: React.FC<{
       </CraftingInput>
       <CraftingOutput>
         <Slot
-          blockID={getCraftingResult()}
+          voxel={getCraftingResult()}
           onClick={() => handleOutput()}
           selected={true}
         />

@@ -328,7 +328,6 @@ export function createNoaLayer(network: NetworkLayer) {
         value: selectedSlot,
       }),
     ][0];
-    if (!voxel) return;
     return voxel;
   }
 

@@ -63,15 +63,16 @@ export function registerInventoryHud() {
         }
       );
 
+      // maps voxel type -> number of voxels I own of that type
       const ownedByMe$ = concat<{ [key: string]: number }[]>(
         of({}),
         ownedByMeQuery.update$.pipe(
           scan((acc, curr) => {
             const voxelType = getComponentValue(VoxelType, curr.entity)?.value;
             if (!voxelType) return { ...acc };
-            acc[voxelType] = acc[voxelType] || 0;
+            acc[voxelType] = acc[voxelType] ?? 0;
             if (curr.type === UpdateType.Exit) {
-              acc[voxelType]--;
+              acc[voxelType]--; // why do we decrement here? we don't increment before this line
               return { ...acc };
             }
 
@@ -134,14 +135,16 @@ export function registerInventoryHud() {
         },
       } = layers;
 
-      const [holdingVoxel, setHoldingVoxel] = useState<Entity | undefined>();
+      const [holdingVoxel, setHoldingVoxelType] = useState<
+        Entity | undefined
+      >();
       const [isUsingPersonalInventory, setIsUsingPersonalInventory] =
         useState<boolean>(true);
 
       const { claim } = stakeAndClaim;
 
       useEffect(() => {
-        if (!show) setHoldingVoxel(undefined);
+        if (!show) setHoldingVoxelType(undefined);
       }, [show]);
 
       useEffect(() => {
@@ -157,14 +160,15 @@ export function registerInventoryHud() {
 
       function moveVoxelType(slot: number) {
         console.log("moveVoxelType", slot);
-        const voxelIdAtSlot = [
+        const voxelTypeAtSlot = [
           ...getEntitiesWithValue(InventoryIndex, { value: slot }),
         ][0];
 
         // If not currently holding a voxel, grab the voxel at this slot
         if (holdingVoxel == null) {
-          const ownedEntitiesOfType = voxelIdAtSlot && ownedByMe[voxelIdAtSlot];
-          if (ownedEntitiesOfType) setHoldingVoxel(voxelIdAtSlot);
+          const numVoxelsOfTypeIOwn =
+            voxelTypeAtSlot && ownedByMe[voxelTypeAtSlot];
+          if (numVoxelsOfTypeIOwn > 0) setHoldingVoxelType(voxelTypeAtSlot);
           return;
         }
 
@@ -178,11 +182,11 @@ export function registerInventoryHud() {
           return;
         }
         setComponent(InventoryIndex, holdingVoxel, { value: slot });
-        voxelIdAtSlot &&
-          setComponent(InventoryIndex, voxelIdAtSlot, {
+        voxelTypeAtSlot &&
+          setComponent(InventoryIndex, voxelTypeAtSlot, {
             value: holdingVoxelSlot,
           });
-        setHoldingVoxel(undefined);
+        setHoldingVoxelType(undefined);
       }
 
       function removeVoxelType(slot: number) {
@@ -256,7 +260,7 @@ export function registerInventoryHud() {
           layers={layers}
           craftingSideLength={craftingSideLength}
           holdingVoxel={holdingVoxel}
-          setHoldingVoxel={setHoldingVoxel}
+          setHoldingVoxelType={setHoldingVoxelType}
           Slots={Slots}
         />
       ) : (

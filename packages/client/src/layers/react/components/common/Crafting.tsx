@@ -126,7 +126,7 @@ export const Crafting: React.FC<{
     if (!craftingResult) return;
     const { voxels } = getTrimmedCraftingTable();
     clearCraftingTable();
-    await craft(voxeltypes, craftingResult);
+    await craft(voxels, craftingResult);
   }
 
   const Slots = [...range(sideLength * sideLength)].map((index) => {

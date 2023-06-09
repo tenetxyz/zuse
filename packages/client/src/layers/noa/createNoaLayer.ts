@@ -57,7 +57,7 @@ import {
 } from "./systems";
 import { registerHandComponent } from "./engine/components/handComponent";
 import { registerModelComponent } from "./engine/components/modelComponent";
-import { registerMiningBlockComponent } from "./engine/components/miningVoxelComponent";
+import { registerMiningVoxelComponent } from "./engine/components/miningVoxelComponent";
 import { defineInventoryIndexComponent } from "./components/InventoryIndex";
 import { setupDayNightCycle } from "./engine/dayNightCycle";
 import {
@@ -113,7 +113,7 @@ export function createNoaLayer(network: NetworkLayer) {
       uniqueWorldId
     ),
     // Tutorial: createLocalCache(defineTutorialComponent(world), uniqueWorldId),
-    // removed cache from tutorial because it triggers on block mine, and because of this error: component with id Tutorial was locally cached 260 times since 11:35:35 PM - the local cache is in an alpha state and should not be used with components that update frequently yet
+    // removed cache from tutorial because it triggers on voxel mine, and because of this error: component with id Tutorial was locally cached 260 times since 11:35:35 PM - the local cache is in an alpha state and should not be used with components that update frequently yet
     Tutorial: defineTutorialComponent(world),
     PreTeleportPosition: definePreTeleportPositionComponent(world),
     Sounds: defineSoundComponent(world),
@@ -238,7 +238,7 @@ export function createNoaLayer(network: NetworkLayer) {
     };
   }
 
-  // Get the block type the current crafting table ingredients hash to
+  // Get the voxel type the current crafting table ingredients hash to
   function getCraftingResult(): Entity | undefined {
     const { voxelTypes } = getTrimmedCraftingTable();
 
@@ -392,7 +392,7 @@ export function createNoaLayer(network: NetworkLayer) {
   registerTargetedRotationComponent(noa);
   registerTargetedPositionComponent(noa);
   registerHandComponent(noa, getOneVoxelInSelectedSlot);
-  registerMiningBlockComponent(noa, network);
+  registerMiningVoxelComponent(noa, network);
   setupClouds(noa);
   setupSky(noa);
   setupHand(noa);

@@ -26,7 +26,7 @@ const Container = styled.div`
   background-color: rgb(0 0 0 / 100%);
   display: grid;
   align-content: center;
-  align-voxeltypes: center;
+  align-items: center;
   justify-content: center;
   justify-voxeltypes: center;
   transition: all 2s ease;

@@ -62,7 +62,7 @@ const LoadingContainer = styled.div`
   display: grid;
   justify-voxeltypes: start;
   justify-content: start;
-  align-voxeltypes: center;
+  align-items: center;
   height: 30px;
   width: 100%;
   grid-gap: 20px;

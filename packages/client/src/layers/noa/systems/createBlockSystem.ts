@@ -25,9 +25,6 @@ export async function createBlockSystem(
     api: { getBlockAtPosition },
   } = network;
 
-  const OptimisticPosition = Position;
-  const OptimisticVoxelType = VoxelType;
-
   // Loading state flag
   let live = false;
   awaitStreamValue(
@@ -36,7 +33,7 @@ export async function createBlockSystem(
   ).then(() => (live = true));
 
   // "Exit system"
-  defineComponentSystem(world, OptimisticPosition, async ({ value }) => {
+  defineComponentSystem(world, Position, async ({ value }) => {
     if (!live) return;
     if (!value[0] && value[1]) {
       const block = getBlockAtPosition(value[1]);
@@ -45,17 +42,10 @@ export async function createBlockSystem(
   });
 
   // "Enter system"
-  defineEnterSystem(
-    world,
-    [Has(OptimisticPosition), Has(OptimisticVoxelType)],
-    (update) => {
-      if (!live) return;
-      const position = getComponentValueStrict(
-        OptimisticPosition,
-        update.entity
-      );
-      const block = getBlockAtPosition(position);
-      setBlock(position, block);
-    }
-  );
+  defineEnterSystem(world, [Has(Position), Has(VoxelType)], (update) => {
+    if (!live) return;
+    const position = getComponentValueStrict(Position, update.entity);
+    const block = getBlockAtPosition(position);
+    setBlock(position, block);
+  });
 }

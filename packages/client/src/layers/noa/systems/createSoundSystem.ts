@@ -128,7 +128,7 @@ export function createSoundSystem(network: NetworkLayer, context: NoaLayer) {
       // Get data
       const { x, y, z } = playerPosition$.getValue();
       const playerPosArr = [x, y, z];
-      const voxeltypeType =
+      const voxelType =
         update.type === UpdateType.Exit && isComponentUpdate(update, VoxelType)
           ? update.value[1]?.value
           : getComponentValue(VoxelType, update.entity)?.value;
@@ -138,7 +138,7 @@ export function createSoundSystem(network: NetworkLayer, context: NoaLayer) {
           ? update.value[1]
           : getComponentValue(Position, update.entity);
 
-      if (!voxeltypeType || !position) return;
+      if (!voxelType || !position) return;
 
       // Only care about close events
       const blockPosArr = [position.x, position.y, position.z];
@@ -148,41 +148,47 @@ export function createSoundSystem(network: NetworkLayer, context: NoaLayer) {
       const blockPosVec = new Vector3(...blockPosArr);
 
       // Find sound to play
-      let voxeltypeKey = BlockIdToKey[voxeltypeType as Entity];
+      let voxelTypeKey = BlockIdToKey[voxelType as Entity];
       let updateType = update.type;
 
       // When mining a terrain block, we get an ECS update for an entering air block instead
       // Hack: entity id is the same as entity index for optimistic updates
-      if (update.type == UpdateType.Enter && voxeltypeType === BlockType.Air) {
+      if (update.type == UpdateType.Enter && voxelType === BlockType.Air) {
         // const isOptimisticUpdate = world.entities[update.entity] == (update.entity as unknown);
         const isOptimisticUpdate = update.entity == (update.entity as unknown);
         if (!isOptimisticUpdate) return;
-        voxeltypeKey = BlockIdToKey[getTerrainBlockAtPosition(position)];
+        voxelTypeKey = BlockIdToKey[getTerrainBlockAtPosition(position)];
         updateType = UpdateType.Exit;
       }
 
       const sound: Sound | undefined = (() => {
         if (updateType === UpdateType.Exit) {
-          if (voxeltypeKey.includes("Wool")) return effect["break"].Wool;
-          if (["Log", "Planks"].includes(voxeltypeKey)) return effect["break"].Wood;
-          if (["Diamond", "Coal"].includes(voxeltypeKey))
+          if (voxelTypeKey.includes("Wool")) return effect["break"].Wool;
+          if (["Log", "Planks"].includes(voxelTypeKey))
+            return effect["break"].Wood;
+          if (["Diamond", "Coal"].includes(voxelTypeKey))
             return effect["break"].Metal;
-          if (["Stone", "Cobblestone", "MossyCobblestone"].includes(voxeltypeKey))
+          if (
+            ["Stone", "Cobblestone", "MossyCobblestone"].includes(voxelTypeKey)
+          )
             return effect["break"].Stone;
           return (
-            effect["break"][voxeltypeKey as keyof typeof effect["break"]] ||
+            effect["break"][voxelTypeKey as keyof typeof effect["break"]] ||
             effect["break"].Dirt
           );
         }
 
         if (updateType === UpdateType.Enter) {
-          if (["Log", "Planks"].includes(voxeltypeKey)) return effect["place"].Wood;
-          if (["Diamond", "Coal"].includes(voxeltypeKey))
+          if (["Log", "Planks"].includes(voxelTypeKey))
+            return effect["place"].Wood;
+          if (["Diamond", "Coal"].includes(voxelTypeKey))
             return effect["place"].Metal;
-          if (["Stone", "Cobblestone", "MossyCobblestone"].includes(voxeltypeKey))
+          if (
+            ["Stone", "Cobblestone", "MossyCobblestone"].includes(voxelTypeKey)
+          )
             return effect["place"].Stone;
           return (
-            effect["place"][voxeltypeKey as keyof typeof effect["place"]] ||
+            effect["place"][voxelTypeKey as keyof typeof effect["place"]] ||
             effect["place"].Dirt
           );
         }

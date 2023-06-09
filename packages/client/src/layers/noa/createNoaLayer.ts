@@ -277,7 +277,7 @@ export function createNoaLayer(network: NetworkLayer) {
   }
 
   function toggleInventory(open?: boolean, crafting?: boolean) {
-    // we need to check if the input is not focused, cause when we're searching for an voxeltype in the creative move inventory, we may press "e" which will close the inventory
+    // we need to check if the input is not focused, cause when we're searching for a voxeltype in the creative move inventory, we may press "e" which will close the inventory
     if (isFocusedOnInputElement()) {
       return;
     }
@@ -345,9 +345,8 @@ export function createNoaLayer(network: NetworkLayer) {
     ][0];
     if (ownedEntityOfSelectedType == null)
       return console.warn("No owned voxeltype of type", blockID);
-    // const voxeltypeEntity = world.entities[ownedEntityOfSelectedType];
-    const voxeltypeEntity = ownedEntityOfSelectedType;
-    network.api.build(voxeltypeEntity, coord);
+    const voxelTypeEntity = ownedEntityOfSelectedType;
+    network.api.build(voxelTypeEntity, coord);
   }
 
   function getCurrentPlayerPosition() {

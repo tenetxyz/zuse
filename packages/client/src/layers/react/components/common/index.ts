@@ -29,7 +29,7 @@ export const Center = styled.div`
   width: 100%;
   height: 100%;
   display: grid;
-  align-voxeltypes: center;
+  align-items: center;
   justify-voxeltypes: center;
 `;
 

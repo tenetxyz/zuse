@@ -101,7 +101,7 @@ const ActionBarWrapper = styled.div`
   background-color: rgb(0 0 0 / 40%);
   display: grid;
   grid-template-columns: repeat(9, 1fr);
-  align-voxeltypes: center;
+  align-items: center;
   pointer-events: all;
   border: 5px lightgray solid;
   z-index: 10;

@@ -36,7 +36,10 @@ export function createInventoryIndexSystem(
     switchMap(
       (address) =>
         defineQuery(
-          [HasValue(OwnedBy, { value: to64CharAddress(address) }), Has(VoxelType)],
+          [
+            HasValue(OwnedBy, { value: to64CharAddress(address) }),
+            Has(VoxelType),
+          ],
           {
             runOnInit: true,
           }
@@ -45,13 +48,14 @@ export function createInventoryIndexSystem(
   );
 
   // this function assigns inventory indexes to voxeltypes we own
-  // whenever we get/lose an voxeltype, this function is run
+  // whenever we get/lose a voxeltype, this function is run
   defineRxSystem(world, update$, (update) => {
     if (!update.value[0]) {
       // the block just got removed, so don't assign an inventory index for it
       return;
     }
-    const blockId = getComponentValue(VoxelType, update.entity)?.value as Entity;
+    const blockId = getComponentValue(VoxelType, update.entity)
+      ?.value as Entity;
     // console.log(blockId);
 
     if (blockId == null) return;

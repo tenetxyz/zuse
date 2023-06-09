@@ -313,7 +313,7 @@ const InventoryContainer = styled.div`
   display: grid;
   grid-template-columns: repeat(2, auto);
   justify-content: center;
-  align-voxeltypes: center;
+  align-items: center;
   grid-gap: 10px;
   padding: 20px;
   z-index: 11;
@@ -333,7 +333,7 @@ const ConnectedPlayersContainer = styled.div`
   justify-content: start;
   padding: 0 20px;
   grid-auto-flow: column;
-  align-voxeltypes: center;
+  align-items: center;
 `;
 
 const LogoContainer = styled.div`
@@ -346,7 +346,7 @@ export const ActionBarWrapper = styled.div`
   background-color: rgb(0 0 0 / 40%);
   display: grid;
   grid-template-columns: repeat(9, 1fr);
-  align-voxeltypes: center;
+  align-items: center;
   pointer-events: all;
   border: 5px lightgray solid;
   z-index: 10;

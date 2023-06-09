@@ -76,7 +76,7 @@ const BlockExplorerContainer = styled.div`
     inset: 0;
     display: flex;
     justify-content: center;
-    align-voxeltypes: center;
+    align-items: center;
   }
   .BlockExplorer-ActionIcon--remove {
     color: hsl(0, 100%, 80%);

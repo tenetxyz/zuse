@@ -74,7 +74,7 @@ function defineWoolTree(): Structure {
 export const Tree = defineTree();
 export const WoolTree = defineWoolTree();
 
-export function getStructureBlock(
+export function getStructureVoxel(
   structure: Structure,
   { x, y, z }: VoxelCoord
 ) {

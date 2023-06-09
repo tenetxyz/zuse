@@ -6,9 +6,9 @@ import { AirID, GrassID, DirtID, LogID, StoneID, SandID, WaterID, CobblestoneID,
 import { VoxelCoord } from "../types.sol";
 import { System } from "@latticexyz/world/src/System.sol";
 
-// This system is used to check whether a given block occurs at a given location.
+// This system is used to check whether a given voxel occurs at a given location.
 // For voxels added after deployment of the core contracts, a new contract with a function
-// returning the occurrence of that block can be deployed and linked with the block's Occurrence component.
+// returning the occurrence of that voxel can be deployed and linked with the voxel's Occurrence component.
 contract OccurrenceSystem is System {
 
   function execute(bytes memory arguments) public view returns (bytes memory) {

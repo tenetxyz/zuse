@@ -1,7 +1,7 @@
 import { Entity } from "@latticexyz/recs";
 import { VoxelTypeKeyToId } from "../../constants";
 import { STRUCTURE_CHUNK, Biome } from "./constants";
-import { getStructureBlock, WoolTree, Tree } from "./structures";
+import { getStructureVoxel, WoolTree, Tree } from "./structures";
 import { TerrainState } from "./types";
 import { accessState } from "./utils";
 

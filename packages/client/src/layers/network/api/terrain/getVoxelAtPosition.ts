@@ -24,7 +24,7 @@ export function getEntityAtPosition(
   const { Position, VoxelType } = context;
   const entitiesAtPosition = [...getEntitiesWithValue(Position, coord)];
 
-  // Prefer non-air blocks at this position
+  // Prefer non-air voxels at this position
   return (
     entitiesAtPosition?.find((b) => {
       const voxelType = getComponentValue(VoxelType, b);

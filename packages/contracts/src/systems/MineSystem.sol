@@ -5,7 +5,7 @@ import { getKeysWithValue } from "@latticexyz/world/src/modules/keyswithvalue/ge
 import { getUniqueEntity } from "@latticexyz/world/src/modules/uniqueentity/getUniqueEntity.sol";
 import { System } from "@latticexyz/world/src/System.sol";
 import { VoxelCoord } from "../types.sol";
-import { OwnedBy, Position, PositionTableId, Item } from "../codegen/Tables.sol";
+import { OwnedBy, Position, PositionTableId, VoxelType } from "../codegen/Tables.sol";
 import { AirID, WaterID } from "../prototypes/Blocks.sol";
 import { addressToEntityKey } from "../utils.sol";
 import { IWorld } from "../codegen/world/IWorld.sol";
@@ -39,16 +39,16 @@ contract MineSystem is System {
 
       // Create an ECS block from this coord's terrain block
       entity = getUniqueEntity();
-      Item.set(entity, blockType);
+      VoxelType.set(entity, blockType);
 
       // Place an air block at this position
       bytes32 airEntity = getUniqueEntity();
-      Item.set(airEntity, AirID);
+      VoxelType.set(airEntity, AirID);
       Position.set(airEntity, coord.x, coord.y, coord.z);
     } else {
       // Else, mine the non-air entity block at this position
       for (uint256 i; i < entitiesAtPosition.length; i++) {
-        if (Item.get(entitiesAtPosition[i]) == blockType) entity = entitiesAtPosition[i];
+        if (VoxelType.get(entitiesAtPosition[i]) == blockType) entity = entitiesAtPosition[i];
       }
       require(entity != 0, "invalid block type");
       Position.deleteRecord(entity);

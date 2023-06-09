@@ -29,8 +29,8 @@ const Cross = styled.div`
   height: 100%;
   width: 100%;
   display: grid;
-  align-items: center;
-  justify-items: center;
+  align-voxeltypes: center;
+  justify-voxeltypes: center;
   pointer-events: none;
   font-size: 20px;
 `;

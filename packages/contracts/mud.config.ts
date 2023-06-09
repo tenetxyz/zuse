@@ -3,8 +3,8 @@ import { resolveTableId } from "@latticexyz/config";
 
 export default mudConfig({
   tables: {
-    Item: "bytes32",
-    ItemPrototype: "bool",
+    VoxelType: "bytes32",
+    VoxelTypePrototype: "bool",
     Name: "string", // This is a shortcut for { schema: "string" }
     Occurrence: {
       // Each block generates at diff spots in the world, and each block has a function defining where it should appear. This table points to each block's respective generation function.
@@ -49,7 +49,7 @@ export default mudConfig({
     {
       name: "KeysWithValueModule",
       root: true,
-      args: [resolveTableId("Item")],
+      args: [resolveTableId("VoxelType")],
     },
   ],
 });

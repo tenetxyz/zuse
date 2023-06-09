@@ -27,7 +27,7 @@ import { CreativeInventory } from "./CreativeInventory";
 import { Inventory } from "./Inventory";
 import { UrgentNotification } from "./UrgentNotification";
 
-// This gives us 36 inventory slots. As of now there are 34 types of items, so it should fit.
+// This gives us 36 inventory slots. As of now there are 34 types of voxeltypes, so it should fit.
 export const INVENTORY_WIDTH = 9;
 export const INVENTORY_HEIGHT = 4;
 
@@ -43,7 +43,7 @@ export function registerInventoryHud() {
     (layers) => {
       const {
         network: {
-          contractComponents: { OwnedBy, Item },
+          contractComponents: { OwnedBy, VoxelType },
           streams: { connectedClients$, balanceGwei$ },
           network: { connectedAddress },
         },
@@ -56,7 +56,7 @@ export function registerInventoryHud() {
       const ownedByMeQuery = defineQuery(
         [
           HasValue(OwnedBy, { value: to64CharAddress(connectedAddress.get()) }),
-          Has(Item),
+          Has(VoxelType),
         ],
         {
           runOnInit: true,
@@ -67,7 +67,7 @@ export function registerInventoryHud() {
         of({}),
         ownedByMeQuery.update$.pipe(
           scan((acc, curr) => {
-            const blockTypeId = getComponentValue(Item, curr.entity)?.value;
+            const blockTypeId = getComponentValue(VoxelType, curr.entity)?.value;
             if (!blockTypeId) return { ...acc };
             acc[blockTypeId] = acc[blockTypeId] || 0;
             if (curr.type === UpdateType.Exit) {
@@ -125,7 +125,7 @@ export function registerInventoryHud() {
       const {
         network: {
           api: { removeVoxels },
-          contractComponents: { OwnedBy, Item },
+          contractComponents: { OwnedBy, VoxelType },
           network: { connectedAddress },
         },
         noa: {
@@ -155,8 +155,8 @@ export function registerInventoryHud() {
         document.body.style.cursor = `url(${icon}) 12 12, auto`;
       }, [holdingBlock]);
 
-      function moveItems(slot: number) {
-        console.log("moveItems", slot);
+      function moveVoxelTypes(slot: number) {
+        console.log("moveVoxelTypes", slot);
         const blockIdAtSlot = [
           ...getEntitiesWithValue(InventoryIndex, { value: slot }),
         ][0];
@@ -185,7 +185,7 @@ export function registerInventoryHud() {
         setHoldingBlock(undefined);
       }
 
-      function removeItems(slot: number) {
+      function removeVoxelTypes(slot: number) {
         const voxelTypeIdAtSlot = [
           ...getEntitiesWithValue(InventoryIndex, { value: slot }),
         ][0];
@@ -198,12 +198,12 @@ export function registerInventoryHud() {
             HasValue(OwnedBy, {
               value: to64CharAddress(connectedAddress.get()),
             }),
-            HasValue(Item, { value: voxelTypeIdAtSlot }),
+            HasValue(VoxelType, { value: voxelTypeIdAtSlot }),
           ]),
         ];
 
-        // since we no longer have items of this type, remove this from the InventoryIndex,
-        // so new items can be placed on that index
+        // since we no longer have voxeltypes of this type, remove this from the InventoryIndex,
+        // so new voxeltypes can be placed on that index
         removeComponent(InventoryIndex, voxelTypeIdAtSlot);
 
         // remove the voxels at this slot
@@ -224,8 +224,8 @@ export function registerInventoryHud() {
             key={"slot" + i}
             blockID={quantity ? blockId : undefined}
             quantity={quantity || undefined}
-            onClick={() => moveItems(i)}
-            onRightClick={() => removeItems(i)}
+            onClick={() => moveVoxelTypes(i)}
+            onRightClick={() => removeVoxelTypes(i)}
             disabled={blockId === holdingBlock}
             selected={i === selectedSlot}
           />
@@ -274,7 +274,7 @@ export function registerInventoryHud() {
             <AbsoluteBorder borderColor={"#999999"} borderWidth={3}>
               <InventoryContainer>
                 <InventoryModeToggle
-                  // className="text-red text-2xl h-10 cursor-pointer border-2 border-white rounded-md flex justify-center items-center"
+                  // className="text-red text-2xl h-10 cursor-pointer border-2 border-white rounded-md flex justify-center voxeltypes-center"
                   onClick={() =>
                     setIsUsingPersonalInventory(!isUsingPersonalInventory)
                   }
@@ -313,7 +313,7 @@ const InventoryContainer = styled.div`
   display: grid;
   grid-template-columns: repeat(2, auto);
   justify-content: center;
-  align-items: center;
+  align-voxeltypes: center;
   grid-gap: 10px;
   padding: 20px;
   z-index: 11;
@@ -333,12 +333,12 @@ const ConnectedPlayersContainer = styled.div`
   justify-content: start;
   padding: 0 20px;
   grid-auto-flow: column;
-  align-items: center;
+  align-voxeltypes: center;
 `;
 
 const LogoContainer = styled.div`
   display: grid;
-  justify-items: end;
+  justify-voxeltypes: end;
   padding: 0 20px;
 `;
 
@@ -346,7 +346,7 @@ export const ActionBarWrapper = styled.div`
   background-color: rgb(0 0 0 / 40%);
   display: grid;
   grid-template-columns: repeat(9, 1fr);
-  align-items: center;
+  align-voxeltypes: center;
   pointer-events: all;
   border: 5px lightgray solid;
   z-index: 10;
@@ -355,7 +355,7 @@ export const ActionBarWrapper = styled.div`
 
 const BottomBar = styled.div`
   display: grid;
-  align-items: end;
+  align-voxeltypes: end;
   justify-content: space-between;
   grid-template-columns: 1fr auto 1fr;
   width: 100%;
@@ -365,5 +365,5 @@ const BottomBar = styled.div`
 
 const Wrapper = styled(Center)`
   display: grid;
-  align-items: end;
+  align-voxeltypes: end;
 `;

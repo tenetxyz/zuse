@@ -20,7 +20,7 @@ export const Crafting: React.FC<{
 }> = ({ layers, holdingBlock, setHoldingBlock, sideLength }) => {
   const {
     network: {
-      contractComponents: { OwnedBy, Item },
+      contractComponents: { OwnedBy, VoxelType },
       actions: { withOptimisticUpdates },
       network: { connectedAddress },
       api: { craft },
@@ -68,7 +68,7 @@ export const Crafting: React.FC<{
     const y = getY(i);
 
     const blockAtIndex = craftingTable[x][y];
-    const blockTypeAtIndex = getComponentValue(Item, blockAtIndex)?.value as
+    const blockTypeAtIndex = getComponentValue(VoxelType, blockAtIndex)?.value as
       | Entity
       | undefined;
     const blockTypeIndexAtIndex =
@@ -96,7 +96,7 @@ export const Crafting: React.FC<{
         HasValue(OptimisticOwnedBy, {
           value: to64CharAddress(connectedAddress.get()),
         }),
-        HasValue(Item, { value: blockID }),
+        HasValue(VoxelType, { value: blockID }),
       ]),
     ];
 
@@ -125,16 +125,16 @@ export const Crafting: React.FC<{
 
   async function handleOutput() {
     if (!craftingResult) return;
-    const { items } = getTrimmedCraftingTable();
+    const { voxeltypes } = getTrimmedCraftingTable();
     clearCraftingTable();
-    await craft(items, craftingResult);
+    await craft(voxeltypes, craftingResult);
   }
 
   const Slots = [...range(sideLength * sideLength)].map((index) => {
     const x = getX(index);
     const y = getY(index);
     const blockIndex = craftingTable[x][y];
-    const blockID = getComponentValue(Item, blockIndex)?.value as
+    const blockID = getComponentValue(VoxelType, blockIndex)?.value as
       | Entity
       | undefined;
     return (
@@ -168,7 +168,7 @@ const CraftingWrapper = styled.div`
   display: grid;
   grid-template-columns: repeat(2, auto);
   justify-content: center;
-  align-items: center;
+  align-voxeltypes: center;
   grid-gap: 100px;
   padding: 20px;
   z-index: 11;
@@ -179,7 +179,7 @@ const CraftingInput = styled.div<{ sideLength: number }>`
   background-color: rgb(0 0 0 / 40%);
   display: grid;
   grid-template-columns: repeat(${(p) => p.sideLength}, auto);
-  align-items: start;
+  align-voxeltypes: start;
   justify-content: start;
   pointer-events: all;
   border: 5px lightgray solid;

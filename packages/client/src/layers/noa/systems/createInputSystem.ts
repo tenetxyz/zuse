@@ -38,7 +38,7 @@ export function createInputSystem(network: NetworkLayer, context: NoaLayer) {
     api: {
       toggleInventory,
       togglePlugins,
-      placeSelectedItem,
+      placeSelectedVoxelType,
       getCurrentChunk,
       getSelectedBlockType,
       teleport,
@@ -47,7 +47,7 @@ export function createInputSystem(network: NetworkLayer, context: NoaLayer) {
   } = context;
 
   const {
-    contractComponents: { Item, Position },
+    contractComponents: { VoxelType, Position },
     // api: { stake, claim },
     network: { connectedAddress },
     streams: { balanceGwei$ },
@@ -179,13 +179,13 @@ export function createInputSystem(network: NetworkLayer, context: NoaLayer) {
             y: targeted[1],
             z: targeted[2],
           }),
-          HasValue(Item, { value: BlockType.Crafting }),
+          HasValue(VoxelType, { value: BlockType.Crafting }),
         ]).size > 0
       ) {
         return toggleInventory(true, true);
       }
       if (!canInteract()) return;
-      placeSelectedItem({ x: pos[0], y: pos[1], z: pos[2] });
+      placeSelectedVoxelType({ x: pos[0], y: pos[1], z: pos[2] });
     }
   });
 

@@ -5,7 +5,7 @@ import "forge-std/Test.sol";
 import { MudV2Test } from "@latticexyz/std-contracts/src/test/MudV2Test.t.sol";
 import { IStore } from "@latticexyz/store/src/IStore.sol";
 import { IWorld } from "../../codegen/world/IWorld.sol";
-import { Item, OwnedBy } from "../../codegen/Tables.sol";
+import { VoxelType, OwnedBy } from "../../codegen/Tables.sol";
 
 import { SandID } from "../../prototypes/Blocks.sol";
 import { addressToEntityKey } from "../../utils.sol";
@@ -35,7 +35,7 @@ contract MineSystemTest is MudV2Test {
 
     bytes32 minedEntity = world.mine(coord, SandID);
 
-    assertEq(Item.get(store, minedEntity), SandID);
+    assertEq(VoxelType.get(store, minedEntity), SandID);
     assertEq(OwnedBy.get(store, minedEntity), addressToEntityKey(alice));
     vm.stopPrank();
   }

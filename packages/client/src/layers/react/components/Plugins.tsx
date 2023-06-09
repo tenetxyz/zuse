@@ -267,7 +267,7 @@ const InputBar = styled.input`
 const PluginContainer = styled.div`
   display: grid;
   grid-auto-flow: column;
-  align-items: center;
+  align-voxeltypes: center;
   justify-content: start;
   grid-gap: 5px;
 `;
@@ -311,6 +311,6 @@ const PluginHeadlineRow = styled.div`
   display: grid;
   grid-auto-flow: column;
   grid-gap: 10px;
-  align-items: center;
+  align-voxeltypes: center;
   justify-content: start;
 `;

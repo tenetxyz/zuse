@@ -7,7 +7,7 @@ import {
 import { map } from "rxjs";
 import styled from "styled-components";
 import { getBlockIconUrl } from "../../noa/constants";
-import { Action as ActionQueueItem } from "./Action";
+import { Action as ActionQueueVoxelType } from "./Action";
 
 const ActionQueueList = styled.div`
   width: 240px;
@@ -19,11 +19,11 @@ const ActionQueueList = styled.div`
   gap: 6px;
   padding: 20px;
 
-  .ActionQueueItem {
+  .ActionQueueVoxelType {
     position: relative;
   }
 
-  .ActionQueueItemPosition {
+  .ActionQueueVoxelTypePosition {
     position: absolute;
     left: 100%;
     top: 0;
@@ -74,8 +74,8 @@ export function registerActionQueue() {
             const { actionType, coord, blockType } = metadata || {};
             const icon = blockType && getBlockIconUrl(blockType);
             return (
-              <div key={e} className="ActionQueueItem">
-                <ActionQueueItem
+              <div key={e} className="ActionQueueVoxelType">
+                <ActionQueueVoxelType
                   state={state}
                   icon={icon}
                   title={`${actionType} tx`}
@@ -84,7 +84,7 @@ export function registerActionQueue() {
                 />
                 {/* TODO: conditionally render this for debugging? */}
                 {coord ? (
-                  <div className="ActionQueueItemPosition">
+                  <div className="ActionQueueVoxelTypePosition">
                     <div>X: {coord.x}</div>
                     <div>Y: {coord.y}</div>
                     <div>Z: {coord.z}</div>

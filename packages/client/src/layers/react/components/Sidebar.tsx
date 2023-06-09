@@ -154,7 +154,7 @@ export function registerSidebar() {
 
 const Wrapper = styled.div`
   display: grid;
-  justify-items: end;
+  justify-voxeltypes: end;
   grid-gap: 10px;
   padding: 50px 20px;
 `;

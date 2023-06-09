@@ -20,13 +20,13 @@ export async function createBlockSystem(
   const {
     world,
     components: { LoadingState },
-    contractComponents: { Item, Position },
+    contractComponents: { VoxelType, Position },
     actions: { withOptimisticUpdates },
     api: { getBlockAtPosition },
   } = network;
 
   const OptimisticPosition = Position;
-  const OptimisticItem = Item;
+  const OptimisticVoxelType = VoxelType;
 
   // Loading state flag
   let live = false;
@@ -47,7 +47,7 @@ export async function createBlockSystem(
   // "Enter system"
   defineEnterSystem(
     world,
-    [Has(OptimisticPosition), Has(OptimisticItem)],
+    [Has(OptimisticPosition), Has(OptimisticVoxelType)],
     (update) => {
       if (!live) return;
       const position = getComponentValueStrict(

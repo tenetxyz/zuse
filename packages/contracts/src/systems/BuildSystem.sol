@@ -4,7 +4,7 @@ pragma solidity >=0.8.0;
 import { getKeysWithValue } from "@latticexyz/world/src/modules/keyswithvalue/getKeysWithValue.sol";
 import { System } from "@latticexyz/world/src/System.sol";
 import { VoxelCoord } from "../types.sol";
-import { OwnedBy, Position, PositionTableId, Item } from "../codegen/Tables.sol";
+import { OwnedBy, Position, PositionTableId, VoxelType } from "../codegen/Tables.sol";
 import { AirID } from "../prototypes/Blocks.sol";
 import { addressToEntityKey } from "../utils.sol";
 import { getUniqueEntity } from "@latticexyz/world/src/modules/uniqueentity/getUniqueEntity.sol";
@@ -20,13 +20,13 @@ contract BuildSystem is System {
     bytes32[] memory entitiesAtPosition = getKeysWithValue(PositionTableId, Position.encode(coord.x, coord.y, coord.z));
     require(entitiesAtPosition.length == 0 || entitiesAtPosition.length == 1, "can not built at non-empty coord");
     if (entitiesAtPosition.length == 1) {
-      require(Item.get(entitiesAtPosition[0]) == AirID, "can not built at non-empty coord (2)");
+      require(VoxelType.get(entitiesAtPosition[0]) == AirID, "can not built at non-empty coord (2)");
     }
 
     // TODO: check claim in chunk
     //    OwnedBy.deleteRecord(blockEntity);
     bytes32 newEntity = getUniqueEntity();
-    Item.set(newEntity, Item.get(blockEntity));
+    VoxelType.set(newEntity, VoxelType.get(blockEntity));
     Position.set(newEntity, coord.x, coord.y, coord.z);
 
     return newEntity;

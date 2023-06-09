@@ -21,7 +21,7 @@ export function createInventoryIndexSystem(
   context: NoaLayer
 ) {
   const {
-    contractComponents: { OwnedBy, Item },
+    contractComponents: { OwnedBy, VoxelType },
     network: { connectedAddress },
   } = network;
 
@@ -36,7 +36,7 @@ export function createInventoryIndexSystem(
     switchMap(
       (address) =>
         defineQuery(
-          [HasValue(OwnedBy, { value: to64CharAddress(address) }), Has(Item)],
+          [HasValue(OwnedBy, { value: to64CharAddress(address) }), Has(VoxelType)],
           {
             runOnInit: true,
           }
@@ -44,14 +44,14 @@ export function createInventoryIndexSystem(
     )
   );
 
-  // this function assigns inventory indexes to items we own
-  // whenever we get/lose an item, this function is run
+  // this function assigns inventory indexes to voxeltypes we own
+  // whenever we get/lose an voxeltype, this function is run
   defineRxSystem(world, update$, (update) => {
     if (!update.value[0]) {
       // the block just got removed, so don't assign an inventory index for it
       return;
     }
-    const blockId = getComponentValue(Item, update.entity)?.value as Entity;
+    const blockId = getComponentValue(VoxelType, update.entity)?.value as Entity;
     // console.log(blockId);
 
     if (blockId == null) return;

@@ -20,13 +20,13 @@ export function registerAdminPanel() {
       ),
     ({ layers, show }) => {
       const {
-        components: { ItemPrototype },
+        components: { VoxelTypePrototype },
       } = layers.network;
 
       const downloadVoxels = () => {
-        const itemPrototype = componentToJson(ItemPrototype);
+        const voxeltypePrototype = componentToJson(VoxelTypePrototype);
         saveObjectAsFile("voxels.json", {
-          itemPrototype,
+          voxeltypePrototype,
         });
       };
 

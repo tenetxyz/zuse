@@ -85,7 +85,7 @@ export function createNoaLayer(network: NetworkLayer) {
       connectedAddress,
     },
     components: { Recipe, Claim, Stake, LoadingState },
-    contractComponents: { OwnedBy, Item },
+    contractComponents: { OwnedBy, VoxelType },
     api: { build },
   } = network;
   const uniqueWorldId = chainId + worldAddress;
@@ -211,12 +211,12 @@ export function createNoaLayer(network: NetworkLayer) {
     }
 
     if ([minX, minY, maxX, maxY].includes(-1))
-      return { items: [] as Entity[][], types: [] as Entity[][] };
+      return { voxeltypes: [] as Entity[][], types: [] as Entity[][] };
 
-    const trimmedCraftingTableItems: Entity[][] = [];
+    const trimmedCraftingTableVoxelTypes: Entity[][] = [];
     const trimmedCraftingTableTypes: Entity[][] = [];
     for (let x = 0; x <= maxX - minX; x++) {
-      trimmedCraftingTableItems.push([]);
+      trimmedCraftingTableVoxelTypes.push([]);
       trimmedCraftingTableTypes.push([]);
       for (let y = 0; y <= maxY - minY; y++) {
         const blockEntity = craftingTable[x + minX][y + minY];
@@ -226,15 +226,15 @@ export function createNoaLayer(network: NetworkLayer) {
           "0x00") as Entity;
         const blockType = ((getEntityString(getEntitySymbol(blockEntity)) !==
           "-1" &&
-          getComponentValue(Item, blockEntity)?.value) ||
+          getComponentValue(VoxelType, blockEntity)?.value) ||
           "0x00") as Entity;
-        trimmedCraftingTableItems[x].push(blockID);
+        trimmedCraftingTableVoxelTypes[x].push(blockID);
         trimmedCraftingTableTypes[x].push(blockType);
       }
     }
 
     return {
-      items: trimmedCraftingTableItems,
+      voxeltypes: trimmedCraftingTableVoxelTypes,
       types: trimmedCraftingTableTypes,
     };
   }
@@ -277,7 +277,7 @@ export function createNoaLayer(network: NetworkLayer) {
   }
 
   function toggleInventory(open?: boolean, crafting?: boolean) {
-    // we need to check if the input is not focused, cause when we're searching for an item in the creative move inventory, we may press "e" which will close the inventory
+    // we need to check if the input is not focused, cause when we're searching for an voxeltype in the creative move inventory, we may press "e" which will close the inventory
     if (isFocusedOnInputElement()) {
       return;
     }
@@ -334,20 +334,20 @@ export function createNoaLayer(network: NetworkLayer) {
     return blockID;
   }
 
-  function placeSelectedItem(coord: VoxelCoord) {
+  function placeSelectedVoxelType(coord: VoxelCoord) {
     const blockID = getSelectedBlockType();
-    if (!blockID) return console.warn("No item at selected slot");
+    if (!blockID) return console.warn("No voxeltype at selected slot");
     const ownedEntityOfSelectedType = [
       ...runQuery([
         HasValue(OwnedBy, { value: to64CharAddress(connectedAddress.get()) }),
-        HasValue(Item, { value: blockID }),
+        HasValue(VoxelType, { value: blockID }),
       ]),
     ][0];
     if (ownedEntityOfSelectedType == null)
-      return console.warn("No owned item of type", blockID);
-    // const itemEntity = world.entities[ownedEntityOfSelectedType];
-    const itemEntity = ownedEntityOfSelectedType;
-    network.api.build(itemEntity, coord);
+      return console.warn("No owned voxeltype of type", blockID);
+    // const voxeltypeEntity = world.entities[ownedEntityOfSelectedType];
+    const voxeltypeEntity = ownedEntityOfSelectedType;
+    network.api.build(voxeltypeEntity, coord);
   }
 
   function getCurrentPlayerPosition() {
@@ -457,7 +457,7 @@ export function createNoaLayer(network: NetworkLayer) {
       teleportRandom,
       toggleInventory,
       togglePlugins,
-      placeSelectedItem,
+      placeSelectedVoxelType,
       getCurrentChunk,
       getCurrentPlayerPosition,
       getStakeAndClaim,

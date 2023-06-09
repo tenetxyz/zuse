@@ -28,6 +28,7 @@ import {
   MeshBuilder,
   StandardMaterial,
   Vector3,
+  Vector4,
 } from "@babylonjs/core";
 
 export function createInputSystem(network: NetworkLayer, context: NoaLayer) {
@@ -300,38 +301,22 @@ export function createInputSystem(network: NetworkLayer, context: NoaLayer) {
       z,
     });
 
-    const outline = [
-      new Vector3(x - 0.5, y - 0.5, z - 0.5),
-      new Vector3(x + 0.5, y - 0.5, z - 0.5),
-      new Vector3(x + 0.5, y - 0.5, z + 0.5),
-      new Vector3(x - 0.5, y - 0.5, z + 0.5),
-      new Vector3(x - 0.5, y + 0.5, z - 0.5),
-      new Vector3(x + 0.5, y + 0.5, z - 0.5),
-    ];
-
-    const scene = noa.rendering.getScene();
-    // const line = MeshBuilder.CreateLines("line", { points: outline }, scene);
+    // const box = CreateBox("", { size: 1 }, scene);
+    // // const material = new StandardMaterial("material", scene);
+    // // box.material = material;
+    // box.position.set(x + 0.5, y + 0.5, z + 0.5);
+    // // box.parent = playerMesh;
+    //
+    // // const boxWireframe = MeshBuilder.CreateLines(
+    // //   "boxWireframe",
+    // //   { points: box.getBoundingInfo().boundingBox.vectors },
+    // //   scene
+    // // );
     // const material = new StandardMaterial("material", scene);
-    // material.emissiveColor = new Color3(0, 0, 1); // Red color
-    // line.material = material;
-    // noa.rendering.addMeshToScene(line);
-
-    const box = CreateBox("", { size: 1 }, scene);
-    // const material = new StandardMaterial("material", scene);
+    // material.wireframe = true;
     // box.material = material;
-    box.position.set(x + 0.5, y + 0.5, z + 0.5);
-    // box.parent = playerMesh;
-
-    // const boxWireframe = MeshBuilder.CreateLines(
-    //   "boxWireframe",
-    //   { points: box.getBoundingInfo().boundingBox.vectors },
-    //   scene
-    // );
-    const material = new StandardMaterial("material", scene);
-    material.wireframe = true;
-    box.material = material;
-    // boxWireframe.material = material;
-    noa.rendering.addMeshToScene(box);
+    // // boxWireframe.material = material;
+    // noa.rendering.addMeshToScene(box);
 
     toast(`Selected block at ${x}, ${y}, ${z}`);
     setComponent(VoxelSelection, SingletonEntity, { points: points as any });

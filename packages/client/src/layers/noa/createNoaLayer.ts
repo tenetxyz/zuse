@@ -57,7 +57,7 @@ import {
 } from "./systems";
 import { registerHandComponent } from "./engine/components/handComponent";
 import { registerModelComponent } from "./engine/components/modelComponent";
-import { registerMiningBlockComponent } from "./engine/components/miningBlockComponent";
+import { registerMiningBlockComponent } from "./engine/components/miningVoxelComponent";
 import { defineInventoryIndexComponent } from "./components/InventoryIndex";
 import { setupDayNightCycle } from "./engine/dayNightCycle";
 import {
@@ -441,12 +441,12 @@ export function createNoaLayer(network: NetworkLayer) {
     mudToNoaId,
     noa,
     api: {
-      setBlock: setVoxel,
+      setVoxel,
       setCraftingTable,
       getCraftingTable,
       clearCraftingTable,
       setCraftingTableIndex,
-      getSelectedBlockType: getOneVoxelInSelectedSlot,
+      getOneVoxelInSelectedSlot,
       getTrimmedCraftingTable,
       getCraftingResult,
       teleport,

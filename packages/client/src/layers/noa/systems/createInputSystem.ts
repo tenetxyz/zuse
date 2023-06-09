@@ -13,9 +13,9 @@ import {
   HAND_COMPONENT,
 } from "../engine/components/handComponent";
 import {
-  MiningBlockComponent,
-  MINING_BLOCK_COMPONENT,
-} from "../engine/components/miningBlockComponent";
+  MiningVoxelComponent,
+  MINING_VOXEL_COMPONENT,
+} from "../engine/components/miningVoxelComponent";
 import {
   getNoaComponent,
   getNoaComponentStrict,
@@ -40,7 +40,7 @@ export function createInputSystem(network: NetworkLayer, context: NoaLayer) {
       togglePlugins,
       placeSelectedVoxelType,
       getCurrentChunk,
-      getSelectedBlockType,
+      getOneVoxelInSelectedSlot,
       teleport,
     },
     streams: { stakeAndClaim$, playerPosition$ },
@@ -53,7 +53,7 @@ export function createInputSystem(network: NetworkLayer, context: NoaLayer) {
     streams: { balanceGwei$ },
   } = network;
 
-  // mine targeted block on left click
+  // mine targeted voxel on left click
   noa.inputs.bind("fire", "F");
 
   function canInteract() {
@@ -66,15 +66,15 @@ export function createInputSystem(network: NetworkLayer, context: NoaLayer) {
     // return claim.claimer === formatEntityID(playerAddress);
   }
 
-  function mineTargetedBlock() {
+  function mineTargetedVoxel() {
     if (noa.targetedBlock) {
       if (!canInteract()) return;
       const pos = noa.targetedBlock.position;
       if (pos[1] < -63) return;
-      const miningComponent = getNoaComponentStrict<MiningBlockComponent>(
+      const miningComponent = getNoaComponentStrict<MiningVoxelComponent>(
         noa,
         noa.playerEntity,
-        MINING_BLOCK_COMPONENT
+        MINING_VOXEL_COMPONENT
       );
       // const creativeMode = getComponentValue(GameConfig, SingletonEntity)?.creativeMode;
       const creativeMode = false;
@@ -88,11 +88,12 @@ export function createInputSystem(network: NetworkLayer, context: NoaLayer) {
       }
       miningComponent.active = true;
       handComponent.isMining;
-      miningComponent.block = { x: pos[0], y: pos[1], z: pos[2] };
+      miningComponent.voxel = { x: pos[0], y: pos[1], z: pos[2] };
 
       if (creativeMode) {
         miningComponent.duration = 10;
-      } else if (getSelectedBlockType() === VoxelTypeKeyToId.Bedrock) {
+        // TODO: this function's types is wrong
+      } else if (getOneVoxelInSelectedSlot() === VoxelTypeKeyToId.Bedrock) {
         miningComponent.duration = FAST_MINING_DURATION;
       }
       return miningComponent;
@@ -104,11 +105,11 @@ export function createInputSystem(network: NetworkLayer, context: NoaLayer) {
     if (!noa.container.hasPointerLock) return;
 
     firePressed = true;
-    const miningComponent = mineTargetedBlock();
+    const miningComponent = mineTargetedVoxel();
     while (firePressed) {
       if (!miningComponent?.duration) return;
       await sleep(miningComponent.duration + 100);
-      if (firePressed) mineTargetedBlock();
+      if (firePressed) mineTargetedVoxel();
     }
   });
 
@@ -116,10 +117,10 @@ export function createInputSystem(network: NetworkLayer, context: NoaLayer) {
     if (!noa.container.hasPointerLock) return;
 
     firePressed = false;
-    const miningComponent = getNoaComponentStrict<MiningBlockComponent>(
+    const miningComponent = getNoaComponentStrict<MiningVoxelComponent>(
       noa,
       noa.playerEntity,
-      MINING_BLOCK_COMPONENT
+      MINING_VOXEL_COMPONENT
     );
     const handComponent = getNoaComponentStrict<HandComponent>(
       noa,
@@ -130,13 +131,13 @@ export function createInputSystem(network: NetworkLayer, context: NoaLayer) {
     handComponent.isMining = false;
   });
 
-  noa.on("targetBlockChanged", (targetedBlock: { position: number[] }) => {
+  noa.on("targetVoxelChanged", (targetedVoxel: { position: number[] }) => {
     if (!noa.container.hasPointerLock) return;
 
-    const miningComponent = getNoaComponent<MiningBlockComponent>(
+    const miningComponent = getNoaComponent<MiningVoxelComponent>(
       noa,
       noa.playerEntity,
-      MINING_BLOCK_COMPONENT
+      MINING_VOXEL_COMPONENT
     );
     if (!miningComponent) return;
     const handComponent = getNoaComponentStrict<HandComponent>(
@@ -144,23 +145,23 @@ export function createInputSystem(network: NetworkLayer, context: NoaLayer) {
       noa.playerEntity,
       HAND_COMPONENT
     );
-    if (!targetedBlock) {
+    if (!targetedVoxel) {
       return;
     }
     const {
       position: [x, y, z],
-    } = targetedBlock;
+    } = targetedVoxel;
     if (
-      miningComponent.block.x !== x ||
-      miningComponent.block.y !== y ||
-      miningComponent.block.z !== z
+      miningComponent.voxel.x !== x ||
+      miningComponent.voxel.y !== y ||
+      miningComponent.voxel.z !== z
     ) {
       miningComponent.active = false;
       handComponent.isMining = false;
     }
   });
 
-  // place a block on right click
+  // place a voxel on right click
   noa.inputs.unbind("alt-fire"); // Unbind to remove the default binding of "E"
   noa.inputs.bind("alt-fire", "<mouse 3>", "R");
 
@@ -171,7 +172,7 @@ export function createInputSystem(network: NetworkLayer, context: NoaLayer) {
       const pos = noa.targetedBlock.adjacent;
       const targeted = noa.targetedBlock.position;
 
-      // Open crafting UI if the targeted block is a crafting table
+      // Open crafting UI if the targeted voxel is a crafting table
       if (
         runQuery([
           HasValue(Position, {
@@ -242,10 +243,10 @@ export function createInputSystem(network: NetworkLayer, context: NoaLayer) {
   //   chunk && claim(chunk);
   // });
 
-  noa.inputs.bind("blockexplorer", "B");
-  noa.inputs.down.on("blockexplorer", () => {
+  noa.inputs.bind("voxelexplorer", "B");
+  noa.inputs.down.on("voxelexplorer", () => {
     if (!noa.container.hasPointerLock) return;
-    window.open(network.network.config.blockExplorer);
+    window.open(network.network.config.voxelExplorer);
   });
 
   noa.inputs.bind("spawn", "O");
@@ -279,7 +280,7 @@ export function createInputSystem(network: NetworkLayer, context: NoaLayer) {
 
   noa.inputs.bind("select-voxel", "V");
   noa.inputs.down.on("select-voxel", () => {
-    // print the block you're looking at to the console
+    // print the voxel you're looking at to the console
     if (!noa.targetedBlock) {
       return;
     }
@@ -294,7 +295,7 @@ export function createInputSystem(network: NetworkLayer, context: NoaLayer) {
       z,
     });
     renderChunkyWireframe(points.at(-1)!, points.at(-1)!, noa);
-    toast(`Selected block at ${x}, ${y}, ${z}`);
+    toast(`Selected voxel at ${x}, ${y}, ${z}`);
     setComponent(VoxelSelection, SingletonEntity, { points: points as any });
   });
 }

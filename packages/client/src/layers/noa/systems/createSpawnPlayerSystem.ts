@@ -3,7 +3,7 @@ import { getComponentValueStrict, hasComponent } from "@latticexyz/recs";
 import { awaitStreamValue } from "@latticexyz/utils";
 import { NetworkLayer } from "../../network";
 import { SPAWN_POINT } from "../constants";
-import { MINING_BLOCK_COMPONENT } from "../engine/components/miningBlockComponent";
+import { MINING_BLOCK_COMPONENT } from "../engine/components/miningVoxelComponent";
 import { setNoaPosition } from "../engine/components/utils";
 import { NoaLayer } from "../types";
 

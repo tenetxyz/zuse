@@ -3,7 +3,7 @@ import { resolveTableId } from "@latticexyz/config";
 
 export default mudConfig({
   tables: {
-    VoxelType: "bytes32",
+    VoxelType: "bytes32", // maps a voxel's entityId -> its type
     VoxelTypePrototype: "bool",
     Name: "string", // This is a shortcut for { schema: "string" }
     Occurrence: {

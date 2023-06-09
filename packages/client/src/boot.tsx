@@ -68,8 +68,8 @@ async function bootGame(network: NetworkLayer) {
     // const blockExplorer = params.get("blockExplorer") ?? defaultParams.blockExplorer;
 
     // if (!privateKey) {
-    //   privateKey = localStorage.getVoxelType("burnerWallet") || Wallet.createRandom().privateKey;
-    //   localStorage.setVoxelType("burnerWallet", privateKey);
+    //   privateKey = localStorage.getItem("burnerWallet") || Wallet.createRandom().privateKey;
+    //   localStorage.setItem("burnerWallet", privateKey);
     // }
 
     // let networkLayerConfig: GameConfig | undefined;

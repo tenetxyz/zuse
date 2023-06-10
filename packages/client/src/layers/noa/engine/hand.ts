@@ -77,7 +77,7 @@ export function setupHand(noa: Engine) {
   const voxelFaceUV = createFaceUV(voxelOffset, voxelSize, voxelTextureSize);
 
   const voxelMesh = BABYLON.MeshBuilder.CreateBox(
-    "voxel",
+    "block",
     {
       height: 8 * voxelScale,
       width: 8 * voxelScale,

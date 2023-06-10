@@ -130,7 +130,7 @@ export function createInputSystem(network: NetworkLayer, context: NoaLayer) {
     handComponent.isMining = false;
   });
 
-  noa.on("targetVoxelChanged", (targetedVoxel: { position: number[] }) => {
+  noa.on("targetBlockChanged", (targetedBlock: { position: number[] }) => {
     if (!noa.container.hasPointerLock) return;
 
     const miningComponent = getNoaComponent<MiningVoxelComponent>(
@@ -144,12 +144,12 @@ export function createInputSystem(network: NetworkLayer, context: NoaLayer) {
       noa.playerEntity,
       HAND_COMPONENT
     );
-    if (!targetedVoxel) {
+    if (!targetedBlock) {
       return;
     }
     const {
       position: [x, y, z],
-    } = targetedVoxel;
+    } = targetedBlock;
     if (
       miningComponent.coord.x !== x ||
       miningComponent.coord.y !== y ||

@@ -133,6 +133,7 @@ export function setupNoaEngine(api: API) {
       delete augmentedVoxel.material;
     }
 
+    debugger;
     noa.registry.registerBlock(index, augmentedVoxel);
   }
 

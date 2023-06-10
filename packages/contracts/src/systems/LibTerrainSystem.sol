@@ -117,12 +117,12 @@ contract LibTerrainSystem is System {
     int128[4] memory biome
   ) internal view returns (int32) {
     // Compute perlin height
-    int128 perlin999 = IWorld(_world()).noise2d(x - 550, z + 550, 999, 64);
+    int128 perlin999 = IWorld(_world()).tenet_PerlinSystem_noise2d(x - 550, z + 550, 999, 64);
     int128 continentalHeight = continentalness(perlin999);
     int128 terrainHeight = Math.mul(perlin999, _10);
-    int128 perlin49 = IWorld(_world()).noise2d(x, z, 49, 64);
+    int128 perlin49 = IWorld(_world()).tenet_PerlinSystem_noise2d(x, z, 49, 64);
     terrainHeight = Math.add(terrainHeight, Math.mul(perlin49, _5));
-    terrainHeight = Math.add(terrainHeight, IWorld(_world()).noise2d(x, z, 13, 64));
+    terrainHeight = Math.add(terrainHeight, IWorld(_world()).tenet_PerlinSystem_noise2d(x, z, 13, 64));
     terrainHeight = Math.div(terrainHeight, _16);
 
     // Compute biome height
@@ -135,7 +135,7 @@ contract LibTerrainSystem is System {
     height = Math.add(continentalHeight, Math.div(height, _2));
 
     // Create valleys
-    int128 valley = valleys(Math.div(Math.add(Math.mul(IWorld(_world()).noise2d(x, z, 333, 64), _2), perlin49), _3));
+    int128 valley = valleys(Math.div(Math.add(Math.mul(IWorld(_world()).tenet_PerlinSystem_noise2d(x, z, 333, 64), _2), perlin49), _3));
     height = Math.mul(height, valley);
 
     // Scale height
@@ -143,8 +143,8 @@ contract LibTerrainSystem is System {
   }
 
   function getBiome(int32 x, int32 z) internal view returns (int128[4] memory) {
-    int128 heat = IWorld(_world()).noise2d(x + 222, z + 222, 444, 64);
-    int128 humidity = IWorld(_world()).noise(z, x, 999, 333, 64);
+    int128 heat = IWorld(_world()).tenet_PerlinSystem_noise2d(x + 222, z + 222, 444, 64);
+    int128 humidity = IWorld(_world()).tenet_PerlinSystem_noise(z, x, 999, 333, 64);
 
     Tuple memory biomeVector = Tuple(humidity, heat);
     int128[4] memory biome;
@@ -266,7 +266,7 @@ contract LibTerrainSystem is System {
     }
 
     int128 t = Math.div(Math.sub(x, points[0].x), Math.sub(points[1].x, points[0].x));
-    return IWorld(_world()).lerp(t, points[0].y, points[1].y);
+    return IWorld(_world()).tenet_PerlinSystem_lerp(t, points[0].y, points[1].y);
   }
 
   function continentalness(int128 x) internal view returns (int128) {

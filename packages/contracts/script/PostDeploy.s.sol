@@ -15,7 +15,7 @@ contract PostDeploy is Script {
 
     // Call world init function
     IWorld world = IWorld(worldAddress);
-    world.init();
+    world.tenet_InitSystem_init();
 
     vm.stopBroadcast();
   }

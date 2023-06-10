@@ -240,7 +240,7 @@ export async function setupNetwork() {
   }
 
   async function buildSystem(entity: Entity, coord: VoxelCoord) {
-    const tx = await worldSend("build", [
+    const tx = await worldSend("tenet_BuildSystem_build", [
       to64CharAddress(entity),
       coord,
       { gasLimit: 5_000_000 },
@@ -305,7 +305,7 @@ export async function setupNetwork() {
   }
 
   async function mineSystem(coord: VoxelCoord, voxel: Entity) {
-    const tx = await worldSend("mine", [coord, voxel, { gasLimit: 5_000_000 }]);
+    const tx = await worldSend("tenet_MineSystem_mine", [coord, voxel, { gasLimit: 5_000_000 }]);
     return tx;
   }
 
@@ -366,7 +366,7 @@ export async function setupNetwork() {
         VoxelType: contractComponents.VoxelType,
       },
       execute: async () => {
-        const tx = await worldSend("giftVoxel", [
+        const tx = await worldSend("tenet_GiftVoxelSystem_giftVoxel", [
           voxelType,
           { gasLimit: 1_000_000 },
         ]);
@@ -408,7 +408,7 @@ export async function setupNetwork() {
         VoxelType: contractComponents.VoxelType,
       },
       execute: async () => {
-        const tx = await worldSend("removeVoxels", [
+        const tx = await worldSend("tenet_RemoveVoxelSystem_removeVoxels", [
           voxels.map((voxelId) => to64CharAddress(voxelId)),
           { gasLimit: 1_000_000 },
         ]);

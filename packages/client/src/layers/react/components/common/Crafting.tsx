@@ -15,7 +15,7 @@ import { to64CharAddress } from "../../../../utils/entity";
 export const Crafting: React.FC<{
   layers: Layers;
   holdingVoxelType: Entity | undefined;
-  setHoldingVoxelType: (voxel: Entity | undefined) => void;
+  setHoldingVoxelType: (voxelType: Entity | undefined) => void;
   sideLength: number;
 }> = ({ layers, holdingVoxelType, setHoldingVoxelType, sideLength }) => {
   const {
@@ -89,17 +89,13 @@ export const Crafting: React.FC<{
         HasValue(OwnedBy, {
           value: to64CharAddress(connectedAddress.get()),
         }),
-        HasValue(VoxelType, { value: voxelTypeAtIndex }),
+        HasValue(VoxelType, { value: holdingVoxelType }),
       ]),
     ];
 
     // If we don't own a voxel of the held voxel type, ignore this click
     if (ownedEntitiesOfType.length === 0) {
-      console.warn(
-        "no owned entities of type",
-        voxelTypeAtIndex,
-        holdingVoxelType
-      );
+      console.warn("no owned entities of type", holdingVoxelType);
       return;
     }
 

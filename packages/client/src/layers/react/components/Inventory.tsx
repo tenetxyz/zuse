@@ -28,14 +28,14 @@ import { Layers } from "../../../types";
 interface Props {
   layers: Layers;
   craftingSideLength: number;
-  holdingVoxel: Entity | undefined;
+  holdingVoxelType: Entity | undefined;
   setHoldingVoxelType: (voxelType: Entity | undefined) => void;
   Slots: JSX.Element[];
 }
 export const Inventory: React.FC<Props> = ({
   layers,
   craftingSideLength,
-  holdingVoxel,
+  holdingVoxelType,
   setHoldingVoxelType,
   Slots,
 }) => {
@@ -44,7 +44,7 @@ export const Inventory: React.FC<Props> = ({
       <div>
         <Crafting
           layers={layers}
-          holdingVoxel={holdingVoxel}
+          holdingVoxelType={holdingVoxelType}
           sideLength={craftingSideLength}
           setHoldingVoxelType={setHoldingVoxelType}
         />

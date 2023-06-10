@@ -135,7 +135,7 @@ export function registerInventoryHud() {
         },
       } = layers;
 
-      const [holdingVoxel, setHoldingVoxelType] = useState<
+      const [holdingVoxelType, setHoldingVoxelType] = useState<
         Entity | undefined
       >();
       const [isUsingPersonalInventory, setIsUsingPersonalInventory] =
@@ -148,23 +148,14 @@ export function registerInventoryHud() {
       }, [show]);
 
       useEffect(() => {
-        if (!holdingVoxel) {
+        if (!holdingVoxelType) {
           document.body.style.cursor = "unset";
           return;
-        }
-        const holdingVoxelType = getComponentValue(
-          VoxelType,
-          holdingVoxel
-        )?.value;
-        if (!holdingVoxelType) {
-          return console.warn(
-            `holdingVoxelType is undefined holdingVoxel=${holdingVoxel}`
-          );
         }
         const voxelTypeKey = VoxelTypeIdToKey[holdingVoxelType as Entity];
         const icon = getVoxelIconUrl(voxelTypeKey);
         document.body.style.cursor = `url(${icon}) 12 12, auto`;
-      }, [holdingVoxel]);
+      }, [holdingVoxelType]);
 
       function moveVoxelType(slot: number) {
         console.log("moveVoxelType", slot);
@@ -173,7 +164,7 @@ export function registerInventoryHud() {
         ][0];
 
         // If not currently holding a voxel, grab the voxel at this slot
-        if (holdingVoxel == null) {
+        if (!holdingVoxelType) {
           const numVoxelsOfTypeIOwn =
             voxelTypeAtSlot && numVoxelsIOwnOfType[voxelTypeAtSlot];
           if (numVoxelsOfTypeIOwn > 0) {
@@ -183,18 +174,18 @@ export function registerInventoryHud() {
         }
 
         // Else (if currently holding a voxel), swap the holding voxel with the voxel at this position
-        const holdingVoxelSlot = getComponentValue(
+        const holdingVoxelTypeSlot = getComponentValue(
           InventoryIndex,
-          holdingVoxel
+          holdingVoxelType
         )?.value;
-        if (holdingVoxelSlot == null) {
-          console.warn("holding voxel has no slot", holdingVoxel);
+        if (!holdingVoxelTypeSlot) {
+          console.warn("holding voxel has no slot", holdingVoxelType);
           return;
         }
-        setComponent(InventoryIndex, holdingVoxel, { value: slot });
+        setComponent(InventoryIndex, holdingVoxelType, { value: slot });
         voxelTypeAtSlot &&
           setComponent(InventoryIndex, voxelTypeAtSlot, {
-            value: holdingVoxelSlot,
+            value: holdingVoxelTypeSlot,
           });
         setHoldingVoxelType(undefined);
       }
@@ -239,7 +230,7 @@ export function registerInventoryHud() {
             quantity={quantity || undefined}
             onClick={() => moveVoxelType(i)}
             onRightClick={() => removeVoxelType(i)}
-            disabled={voxelType === holdingVoxel}
+            disabled={voxelType === holdingVoxelType}
             selected={i === selectedSlot}
           />
         );
@@ -268,7 +259,7 @@ export function registerInventoryHud() {
         <Inventory
           layers={layers}
           craftingSideLength={craftingSideLength}
-          holdingVoxel={holdingVoxel}
+          holdingVoxelType={holdingVoxelType}
           setHoldingVoxelType={setHoldingVoxelType}
           Slots={Slots}
         />

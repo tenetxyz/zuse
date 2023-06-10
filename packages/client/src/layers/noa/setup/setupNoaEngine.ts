@@ -4,8 +4,8 @@ import { Engine } from "noa-engine";
 import "@babylonjs/core/Meshes/Builders/boxBuilder";
 import * as BABYLON from "@babylonjs/core";
 import { VoxelCoord } from "@latticexyz/utils";
-import { Voxels, Textures } from "../constants";
-import { VoxelTypeKeyToId, VoxelTypeIdToIndex } from "../../network";
+import { Textures, Voxels } from "../constants";
+import { VoxelTypeIdToIndex, VoxelTypeKeyToId } from "../../network";
 import { Entity } from "@latticexyz/recs";
 import { NoaBlockType } from "../types";
 import { createVoxelMesh } from "./utils";
@@ -122,14 +122,13 @@ export function setupNoaEngine(api: API) {
       if (texture === null) {
         throw new Error("Can't create a plant voxel without a material");
       }
-      const mesh = createVoxelMesh(
+      augmentedVoxel.voxelMesh = createVoxelMesh(
         noa,
         scene,
         texture,
         key,
         augmentedVoxel.frames
       );
-      augmentedVoxel.voxelMesh = mesh;
       delete augmentedVoxel.material;
     }
 

@@ -14,10 +14,10 @@ import { to64CharAddress } from "../../../../utils/entity";
 
 export const Crafting: React.FC<{
   layers: Layers;
-  holdingVoxel: Entity | undefined;
+  holdingVoxelType: Entity | undefined;
   setHoldingVoxelType: (voxel: Entity | undefined) => void;
   sideLength: number;
-}> = ({ layers, holdingVoxel, setHoldingVoxelType, sideLength }) => {
+}> = ({ layers, holdingVoxelType, setHoldingVoxelType, sideLength }) => {
   const {
     network: {
       contractComponents: { OwnedBy, VoxelType },
@@ -69,7 +69,7 @@ export const Crafting: React.FC<{
       ?.value as Entity | undefined;
 
     // If we are not holding a voxel but there is a voxel at this position, grab the voxel
-    if (holdingVoxel == null) {
+    if (!holdingVoxelType) {
       OwnedBy.removeOverride(getOverrideId(i));
       setCraftingTableIndex([x, y], undefined);
       setHoldingVoxelType(voxelTypeAtIndex);
@@ -77,7 +77,7 @@ export const Crafting: React.FC<{
     }
 
     // If there already is a voxel of the current type at this position, remove the voxel
-    if (voxelTypeAtIndex === holdingVoxel) {
+    if (voxelTypeAtIndex === holdingVoxelType) {
       OwnedBy.removeOverride(getOverrideId(i));
       setCraftingTableIndex([x, y], undefined);
       return;
@@ -95,7 +95,11 @@ export const Crafting: React.FC<{
 
     // If we don't own a voxel of the held voxel type, ignore this click
     if (ownedEntitiesOfType.length === 0) {
-      console.warn("no owned entities of type", voxelTypeAtIndex, holdingVoxel);
+      console.warn(
+        "no owned entities of type",
+        voxelTypeAtIndex,
+        holdingVoxelType
+      );
       return;
     }
 

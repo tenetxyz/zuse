@@ -88,7 +88,7 @@ export function createInputSystem(network: NetworkLayer, context: NoaLayer) {
       }
       miningComponent.active = true;
       handComponent.isMining;
-      miningComponent.voxel = { x: pos[0], y: pos[1], z: pos[2] };
+      miningComponent.coord = { x: pos[0], y: pos[1], z: pos[2] };
 
       if (creativeMode) {
         miningComponent.duration = 10;
@@ -151,9 +151,9 @@ export function createInputSystem(network: NetworkLayer, context: NoaLayer) {
       position: [x, y, z],
     } = targetedVoxel;
     if (
-      miningComponent.voxel.x !== x ||
-      miningComponent.voxel.y !== y ||
-      miningComponent.voxel.z !== z
+      miningComponent.coord.x !== x ||
+      miningComponent.coord.y !== y ||
+      miningComponent.coord.z !== z
     ) {
       miningComponent.active = false;
       handComponent.isMining = false;

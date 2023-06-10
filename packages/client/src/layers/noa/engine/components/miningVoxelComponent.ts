@@ -9,7 +9,7 @@ export interface MiningVoxelComponent {
   breakingVoxelMeshes: BABYLON.Mesh[];
   breakingVoxelMaterial: BABYLON.Material;
   active: boolean;
-  voxel: VoxelCoord;
+  coord: VoxelCoord;
   startTimestamp: number;
   progress: number;
   duration: number;
@@ -121,7 +121,7 @@ export function registerMiningVoxelComponent(
         const {
           breakingVoxelMeshes,
           breakingVoxelMaterial,
-          voxel,
+          coord,
           active,
           startTimestamp,
           duration,
@@ -133,7 +133,7 @@ export function registerMiningVoxelComponent(
           states[i].startTimestamp = Date.now();
           states[i].progress = 0;
           const localPosition: number[] = [];
-          noa.globalToLocal([voxel.x, voxel.y, voxel.z], null, localPosition);
+          noa.globalToLocal([coord.x, coord.y, coord.z], null, localPosition);
           // set each breakingVoxelMesh
           for (const [i, breakingVoxelMesh] of breakingVoxelMeshes.entries()) {
             const normalVector = [...NORMALS[i]];
@@ -175,8 +175,8 @@ export function registerMiningVoxelComponent(
             ];
           if (progress > 0.99) {
             states[i].active = false;
-            networkLayer.api.mine(voxel);
-            createExplosion(noa, voxel, particleModel, particleMaterial);
+            networkLayer.api.mine(coord);
+            createExplosion(noa, coord, particleModel, particleMaterial);
           }
         } else if (breakingVoxelMeshes[0].isEnabled()) {
           for (const breakingVoxelMesh of breakingVoxelMeshes) {

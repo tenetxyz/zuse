@@ -19,6 +19,14 @@ contract PostDeploy is Script {
     // uint32 newValue = IWorld(worldAddress).dhvani_IncrementSystem_increment();
     // console.log("Increment via IWorld:", newValue);
 
+    // need to call registerExtension() in the world contract with PoweredSystem
+    // address worldAddress = 0x5FbDB2315678afecb367f032d93F642f64180aa3;
+    bytes4 poweredEventHandler = IWorld(worldAddress).dhvani_PoweredSystem_eventHandler.selector;
+    address deployToWorldAddress = 0x5FbDB2315678afecb367f032d93F642f64180aa3;
+    (bool success, bytes memory result) = deployToWorldAddress.call(abi.encodeWithSignature("tenet_ExtensionSystem_registerExtension(bytes4)", poweredEventHandler));
+    console.log("success");
+    console.logBool(success);
+
     vm.stopBroadcast();
   }
 }

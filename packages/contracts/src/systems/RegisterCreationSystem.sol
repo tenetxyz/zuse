@@ -6,9 +6,9 @@ import { System } from "@latticexyz/world/src/System.sol";
 import { Strings } from "@openzeppelin/contracts/utils/Strings.sol";
 import { IWorld } from "../codegen/world/IWorld.sol";
 import { addressToEntityKey, getEntitiesAtCoord } from "../utils.sol";
-import { OwnedBy, Position, Name, Item, Voxels } from "../codegen/Tables.sol";
+import { OwnedBy, Position, Name, VoxelType, Voxels } from "../codegen/Tables.sol";
 import { VoxelCoord } from "../types.sol";
-import { AirID } from "../prototypes/Blocks.sol";
+import { AirID } from "../prototypes/Voxels.sol";
 //import { CreateBlock } from "../libraries/CreateBlock.sol";
 
 uint256 constant MAX_BLOCKS_IN_CREATION = 100;
@@ -45,8 +45,8 @@ contract RegisterCreationSystem is System {
             VoxelCoord memory repositionedCoord = repositionedCoords[i];
             Position.set(newVoxel, repositionedCoord.x, repositionedCoord.y, repositionedCoord.z);
             // TODO: this should be itemComponent
-            bytes32 voxelType = Item.get(creationVoxelIds[i]);
-            Item.set(newVoxel, voxelType);
+            bytes32 voxelType = VoxelType.get(creationVoxelIds[i]);
+            VoxelType.set(newVoxel, voxelType);
             // TODO: we should init the default components for this voxel type
             // CreateBlock.addCustomComponents(components, blockType, newVoxel);
 

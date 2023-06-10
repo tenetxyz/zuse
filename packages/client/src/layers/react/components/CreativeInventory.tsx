@@ -3,7 +3,7 @@ import { Entity, getEntitiesWithValue } from "@latticexyz/recs";
 import { Layers } from "../../../types";
 import { range } from "@latticexyz/utils";
 import styled from "styled-components";
-import React, { ChangeEvent, ChangeEventHandler } from "react";
+import React from "react";
 import Fuse from "fuse.js";
 
 interface Props {
@@ -33,7 +33,7 @@ export const CreativeInventory: React.FC<Props> = ({ layers }) => {
 
   React.useEffect(() => {
     const voxelTypes = getEntitiesWithValue(VoxelPrototype, { value: true });
-    console.log("creative voxeltypes", voxelTypes);
+    console.log("creative voxelTypes", voxelTypes);
     const unsortedVoxelDescriptions = Array.from(voxelTypes).map(
       (voxelType) => {
         return {
@@ -54,21 +54,17 @@ export const CreativeInventory: React.FC<Props> = ({ layers }) => {
     setVoxelDescriptions(
       unsortedVoxelDescriptions.sort((a, b) => a.name.localeCompare(b.name))
     );
-
-    // TODO: this function is probably useful later
-    // console.log(VoxelToKey);
   }, [VoxelPrototype]);
 
   React.useEffect(() => {
     if (!fuse.current || !voxelDescriptions) {
-      // if there are no voxelDescriptions, then fuse.current wouldn't be valid!
       return;
     }
     const result = fuse.current.search(searchValue).map((r) => r.item);
     const descriptionsToDisplay =
       result.length > 0 ? result : voxelDescriptions;
     setFilteredVoxelDescriptions(descriptionsToDisplay);
-  }, [searchValue]);
+  }, [searchValue, voxelDescriptions]);
 
   const Slots = [...range(NUM_ROWS * NUM_COLS)].map((i) => {
     if (!filteredVoxelDescriptions || i >= filteredVoxelDescriptions.length) {
@@ -87,7 +83,6 @@ export const CreativeInventory: React.FC<Props> = ({ layers }) => {
     );
   });
 
-  // TODO: figure out if this rendering logic is correct
   return (
     <div>
       <input

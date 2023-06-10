@@ -119,16 +119,17 @@ export function setupNoaEngine(api: API) {
       const texture = Array.isArray(voxel.material)
         ? voxel.material[0]
         : voxel.material;
-      if (!texture) {
+      if (texture === null) {
         throw new Error("Can't create a plant voxel without a material");
       }
-      augmentedVoxel.voxelMesh = createVoxelMesh(
+      const mesh = createVoxelMesh(
         noa,
         scene,
         texture,
         key,
         augmentedVoxel.frames
       );
+      augmentedVoxel.voxelMesh = mesh;
       delete augmentedVoxel.material;
     }
 

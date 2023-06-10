@@ -53,7 +53,7 @@ export function registerInventoryHud() {
         },
       } = layers;
 
-      const ownedByMeQuery = defineQuery(
+      const numVoxelsIOwnOfTypeQuery = defineQuery(
         [
           HasValue(OwnedBy, { value: to64CharAddress(connectedAddress.get()) }),
           Has(VoxelType),
@@ -64,9 +64,9 @@ export function registerInventoryHud() {
       );
 
       // maps voxel type -> number of voxels I own of that type
-      const ownedByMe$ = concat<{ [key: string]: number }[]>(
+      const numVoxelsIOwnOfType$ = concat<{ [key: string]: number }[]>(
         of({}),
-        ownedByMeQuery.update$.pipe(
+        numVoxelsIOwnOfTypeQuery.update$.pipe(
           scan((acc, curr) => {
             const voxelType = getComponentValue(VoxelType, curr.entity)?.value;
             if (!voxelType) return { ...acc };
@@ -104,7 +104,7 @@ export function registerInventoryHud() {
       const craftingTable$ = concat(of(0), CraftingTable.update$);
 
       return combineLatest([
-        ownedByMe$,
+        numVoxelsIOwnOfType$,
         showInventory$,
         selectedSlot$,
         stakeAndClaim$,
@@ -116,7 +116,7 @@ export function registerInventoryHud() {
     },
     ({ props }) => {
       const [
-        ownedByMe,
+        numVoxelsIOwnOfType,
         { layers, show, craftingSideLength },
         selectedSlot,
         stakeAndClaim,
@@ -148,12 +148,20 @@ export function registerInventoryHud() {
       }, [show]);
 
       useEffect(() => {
-        if (holdingVoxel == null) {
+        if (!holdingVoxel) {
           document.body.style.cursor = "unset";
           return;
         }
-
-        const voxelTypeKey = VoxelTypeIdToKey[holdingVoxel];
+        const holdingVoxelType = getComponentValue(
+          VoxelType,
+          holdingVoxel
+        )?.value;
+        if (!holdingVoxelType) {
+          return console.warn(
+            `holdingVoxelType is undefined holdingVoxel=${holdingVoxel}`
+          );
+        }
+        const voxelTypeKey = VoxelTypeIdToKey[holdingVoxelType as Entity];
         const icon = getVoxelIconUrl(voxelTypeKey);
         document.body.style.cursor = `url(${icon}) 12 12, auto`;
       }, [holdingVoxel]);
@@ -167,8 +175,10 @@ export function registerInventoryHud() {
         // If not currently holding a voxel, grab the voxel at this slot
         if (holdingVoxel == null) {
           const numVoxelsOfTypeIOwn =
-            voxelTypeAtSlot && ownedByMe[voxelTypeAtSlot];
-          if (numVoxelsOfTypeIOwn > 0) setHoldingVoxelType(voxelTypeAtSlot);
+            voxelTypeAtSlot && numVoxelsIOwnOfType[voxelTypeAtSlot];
+          if (numVoxelsOfTypeIOwn > 0) {
+            setHoldingVoxelType(voxelTypeAtSlot);
+          }
           return;
         }
 
@@ -222,11 +232,11 @@ export function registerInventoryHud() {
         // console.log("getting slots");
         // console.log(InventoryIndex);
         // console.log(voxelId);
-        const quantity = voxelId && ownedByMe[voxelId];
+        const quantity = voxelId && numVoxelsIOwnOfType[voxelId];
         return (
           <Slot
             key={"slot" + i}
-            voxelID={quantity ? voxelId : undefined}
+            voxel={quantity ? voxelId : undefined}
             quantity={quantity || undefined}
             onClick={() => moveVoxelType(i)}
             onRightClick={() => removeVoxelType(i)}

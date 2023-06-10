@@ -202,7 +202,6 @@ export function createInputSystem(network: NetworkLayer, context: NoaLayer) {
 
   noa.inputs.down.on("slot", (e) => {
     if (!noa.container.hasPointerLock) return;
-    console.log(e.key);
     const key = Number(e.key) - 1;
     setComponent(SelectedSlot, SingletonEntity, { value: key });
   });
@@ -246,7 +245,7 @@ export function createInputSystem(network: NetworkLayer, context: NoaLayer) {
   noa.inputs.bind("voxelexplorer", "B");
   noa.inputs.down.on("voxelexplorer", () => {
     if (!noa.container.hasPointerLock) return;
-    window.open(network.network.config.voxelExplorer);
+    window.open(network.network.config.blockExplorer);
   });
 
   noa.inputs.bind("spawn", "O");

@@ -18,7 +18,7 @@ import { filterNullish } from "@latticexyz/utils";
 
 type BlockEvent = {
   blockNumber: number;
-  voxelType?: VoxelTypeKey;
+  VoxelTypeKey?: VoxelTypeKey;
   action?: "add" | "remove";
 };
 
@@ -126,32 +126,40 @@ export function registerBlockExplorer() {
                 // VoxelType component updates correspond to a mined terrain block
                 if (componentKey === "VoxelType") {
                   // TODO: We added this because value was undefined, should figure out why the original line (below) doesn't work
-                  const entityId = getComponentValue(VoxelType, entity)?.value;
+                  const voxelType = getComponentValue(VoxelType, entity)?.value;
                   // const { value: entityId } = value as ComponentValue<SchemaOf<typeof VoxelType>>;
-                  const voxelType = VoxelTypeIdToKey[entityId as Entity];
-                  return { blockNumber, voxelType, action: "remove" };
+                  const voxelTypeKey = VoxelTypeIdToKey[voxelType as Entity];
+                  return { blockNumber, VoxelTypeKey, action: "remove" };
                 }
 
                 // Position component updates correspond to a mined or placed ECS block
                 if (componentKey === "Position") {
                   // const entityIndex = world.entityToIndex.get(entity);
                   const entityIndex = entity;
-                  const voxelTypeId =
+                  const voxelType =
                     entityIndex != null
                       ? getComponentValue(VoxelType, entityIndex)?.value
                       : undefined;
-                  if (!voxelTypeId) {
+                  if (!voxelType) {
                     return;
                   }
-                  const voxelType = VoxelTypeIdToKey[voxelTypeId as Entity];
+                  const voxelTypeKey = VoxelTypeIdToKey[voxelType as Entity];
 
                   // If the update includes a position, it corresponds to a placed block
                   if (value) {
-                    return { blockNumber, voxelType, action: "add" };
+                    return {
+                      blockNumber,
+                      VoxelTypeKey,
+                      action: "add",
+                    };
                   }
                   // otherwise it corresponds to a mined ecs block
                   else {
-                    return { blockNumber, voxelType, action: "remove" };
+                    return {
+                      blockNumber,
+                      VoxelTypeKey,
+                      action: "remove",
+                    };
                   }
                 }
               }
@@ -170,12 +178,12 @@ export function registerBlockExplorer() {
               ([blockNumber]) => event.blockNumber !== blockNumber
             ) as BlockSummary;
 
-            if (event.voxelType && event.action) {
-              block[1][event.voxelType] = block[1][event.voxelType] || {
+            if (event.VoxelTypeKey && event.action) {
+              block[1][event.VoxelTypeKey] = block[1][event.VoxelTypeKey] || {
                 [event.action]: 0,
               };
-              const current = block[1][event.voxelType][event.action] || 0;
-              block[1][event.voxelType][event.action] = current + 1;
+              const current = block[1][event.VoxelTypeKey][event.action] || 0;
+              block[1][event.VoxelTypeKey][event.action] = current + 1;
             }
 
             return [...otherBlocks, block].slice(-500);

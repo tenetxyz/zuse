@@ -139,9 +139,9 @@ export function setupNoaEngine(api: API) {
   function setVoxel(coord: VoxelCoord | number[], voxel: Entity) {
     const index = VoxelTypeIdToIndex[voxel];
     if ("length" in coord) {
-      noa.setVoxel(index, coord[0], coord[1], coord[2]);
+      noa.setBlock(index, coord[0], coord[1], coord[2]);
     } else {
-      noa.setVoxel(index, coord.x, coord.y, coord.z);
+      noa.setBlock(index, coord.x, coord.y, coord.z);
     }
   }
 

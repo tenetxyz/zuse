@@ -29,14 +29,14 @@ interface Props {
   layers: Layers;
   craftingSideLength: number;
   holdingVoxel: Entity | undefined;
-  setHoldingVoxel: (voxel: Entity | undefined) => void;
+  setHoldingVoxelType: (voxelType: Entity | undefined) => void;
   Slots: JSX.Element[];
 }
 export const Inventory: React.FC<Props> = ({
   layers,
   craftingSideLength,
   holdingVoxel,
-  setHoldingVoxel,
+  setHoldingVoxelType,
   Slots,
 }) => {
   return (
@@ -46,7 +46,7 @@ export const Inventory: React.FC<Props> = ({
           layers={layers}
           holdingVoxel={holdingVoxel}
           sideLength={craftingSideLength}
-          setHoldingVoxel={setHoldingVoxel}
+          setHoldingVoxelType={setHoldingVoxelType}
         />
         <ActionBarWrapper>
           {[...range(INVENTORY_WIDTH * (INVENTORY_HEIGHT - 1))]

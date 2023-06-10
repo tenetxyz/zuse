@@ -21,7 +21,6 @@ export const Crafting: React.FC<{
   const {
     network: {
       contractComponents: { OwnedBy, VoxelType },
-      actions: { withOptimisticUpdates },
       network: { connectedAddress },
       api: { craft },
     },
@@ -37,8 +36,6 @@ export const Crafting: React.FC<{
     },
   } = layers;
 
-  const OptimisticOwnedBy = withOptimisticUpdates(OwnedBy);
-
   function getOverrideId(i: number) {
     return ("crafting" + i) as Entity;
   }
@@ -46,7 +43,7 @@ export const Crafting: React.FC<{
   useEffect(() => {
     return () => {
       for (let i = 0; i < sideLength * sideLength; i++) {
-        OptimisticOwnedBy.removeOverride(getOverrideId(i));
+        OwnedBy.removeOverride(getOverrideId(i));
         clearCraftingTable();
       }
     };
@@ -71,47 +68,41 @@ export const Crafting: React.FC<{
     const voxelTypeAtIndex = getComponentValue(VoxelType, voxelAtIndex)
       ?.value as Entity | undefined;
 
-    // TODO: world.entityToIndex doesn't exist??? We need to touch up this entire file if we add crafting
-    // we are mixing up voxel and voxelType in some places in this file I think
-    const voxelTypeIndexAtIndex =
-      voxelTypeAtIndex && world.entityToIndex.get(voxelTypeAtIndex);
-
     // If we are not holding a voxel but there is a voxel at this position, grab the voxel
     if (holdingVoxel == null) {
-      OptimisticOwnedBy.removeOverride(getOverrideId(i));
+      OwnedBy.removeOverride(getOverrideId(i));
       setCraftingTableIndex([x, y], undefined);
-      setHoldingVoxelType(voxelTypeIndexAtIndex);
+      setHoldingVoxelType(voxelTypeAtIndex);
       return;
     }
 
     // If there already is a voxel of the current type at this position, remove the voxel
-    if (voxelTypeIndexAtIndex === holdingVoxel) {
-      OptimisticOwnedBy.removeOverride(getOverrideId(i));
+    if (voxelTypeAtIndex === holdingVoxel) {
+      OwnedBy.removeOverride(getOverrideId(i));
       setCraftingTableIndex([x, y], undefined);
       return;
     }
 
     // Check if we still own an entity of the held voxel type
-    const voxel = world.entities[holdingVoxel];
     const ownedEntitiesOfType = [
       ...runQuery([
-        HasValue(OptimisticOwnedBy, {
+        HasValue(OwnedBy, {
           value: to64CharAddress(connectedAddress.get()),
         }),
-        HasValue(VoxelType, { value: voxel }),
+        HasValue(VoxelType, { value: voxelTypeAtIndex }),
       ]),
     ];
 
     // If we don't own a voxel of the held voxel type, ignore this click
     if (ownedEntitiesOfType.length === 0) {
-      console.warn("no owned entities of type", voxel, holdingVoxel);
+      console.warn("no owned entities of type", voxelTypeAtIndex, holdingVoxel);
       return;
     }
 
     // Set the optimisitic override for this crafting slot
     const ownedEntityOfType = ownedEntitiesOfType[0];
-    OptimisticOwnedBy.removeOverride(getOverrideId(i));
-    OptimisticOwnedBy.addOverride(getOverrideId(i), {
+    OwnedBy.removeOverride(getOverrideId(i));
+    OwnedBy.addOverride(getOverrideId(i), {
       entity: ownedEntityOfType,
       value: { value: SingletonID },
     });

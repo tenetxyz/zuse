@@ -129,11 +129,10 @@ export function setupNoaEngine(api: API) {
         key,
         augmentedVoxel.frames
       );
-      augmentedVoxel.voxelMesh = mesh;
+      augmentedVoxel.blockMesh = mesh;
       delete augmentedVoxel.material;
     }
 
-    debugger;
     noa.registry.registerBlock(index, augmentedVoxel);
   }
 

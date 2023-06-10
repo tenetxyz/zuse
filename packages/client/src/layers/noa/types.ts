@@ -31,5 +31,5 @@ export type NoaVoxelDef = {
   fluid?: boolean;
   solid?: boolean;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  voxelMesh?: any;
+  blockMesh?: any; // this MUST be called blockMesh (not voxelMesh) since it's used by noa
 };

@@ -4,6 +4,8 @@ pragma solidity >=0.8.0;
 import { getKeysWithValue } from "@latticexyz/world/src/modules/keyswithvalue/getKeysWithValue.sol";
 import { getUniqueEntity } from "@latticexyz/world/src/modules/uniqueentity/getUniqueEntity.sol";
 import { hasKey } from "@latticexyz/world/src/modules/keysintable/hasKey.sol";
+import { NamespaceOwner } from "@latticexyz/world/src/tables/NamespaceOwner.sol";
+import { FunctionSelectors } from "@latticexyz/world/src/modules/core/tables/FunctionSelectors.sol";
 import { System } from "@latticexyz/world/src/System.sol";
 import { Extension, ExtensionTableId } from "../codegen/Tables.sol";
 import { addressToEntityKey } from "../utils.sol";
@@ -17,20 +19,17 @@ import { ResourceSelector} from "@latticexyz/world/src/ResourceSelector.sol";
 contract ExtensionSystem is System {
 
   function registerExtension(bytes4 eventHandler) public {
-    address contractAddress = _msgSender();
-    require(uint256(SystemRegistry.get(contractAddress)) != 0, "Caller is not a system"); // cannot be called by an EOA
-    bytes32 resourceSelector = SystemRegistry.get(contractAddress);
-    bytes16 callerNamespace = ResourceSelector.getNamespace(resourceSelector);
+    (bytes16 namespace, , ) = FunctionSelectors.get(eventHandler);
+    require(NamespaceOwner.get(namespace) == _msgSender(), "Caller is not namespace owner");
 
     // check if extension is already registered
-    bytes32[] memory keyTuple = new bytes32[](2);
-    keyTuple[0] = bytes32((callerNamespace));
-    keyTuple[1] = bytes32(bytes20((contractAddress)));
+    bytes32[] memory keyTuple = new bytes32[](1);
+    keyTuple[0] = bytes32((namespace));
     require(!hasKey(ExtensionTableId, keyTuple), "Extension already registered");
 
     // register extension
 
-    Extension.set(callerNamespace, bytes20(contractAddress), eventHandler);
+    Extension.set(namespace, eventHandler);
   }
 
 }

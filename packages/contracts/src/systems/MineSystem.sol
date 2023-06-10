@@ -66,9 +66,8 @@ contract MineSystem is System {
     console.log(extensions.length);
     for (uint256 i; i < extensions.length; i++) {
       // call the extension
-        bytes16 extensionNamespace = bytes16(extensions[0][i]);
-        bytes20 extensionContractAddress = bytes20(extensions[1][i]);
-        bytes4 eventHandler = Extension.get(extensionNamespace, extensionContractAddress);
+        bytes16 extensionNamespace = bytes16(extensions[i][0]);
+        bytes4 eventHandler = Extension.get(extensionNamespace);
         console.log("eventHandler");
         console.logBytes4(eventHandler);
     }

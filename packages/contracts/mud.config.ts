@@ -24,8 +24,7 @@ export default mudConfig({
     },
     Extension: {
       keySchema: {
-        "namespace": "bytes16",
-        "contractAddress": "bytes20",
+        namespace: "bytes16",
       },
       schema: {
         eventHandler: "bytes4",

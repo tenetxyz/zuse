@@ -22,11 +22,19 @@ contract PostDeploy is Script {
     // need to call registerExtension() in the world contract with PoweredSystem
     // address worldAddress = 0x5FbDB2315678afecb367f032d93F642f64180aa3;
     bytes4 poweredEventHandler = IWorld(worldAddress).dhvani_PoweredSystem_eventHandler.selector;
-    address deployToWorldAddress = 0x5FbDB2315678afecb367f032d93F642f64180aa3;
-    (bool success, bytes memory result) = deployToWorldAddress.call(abi.encodeWithSignature("tenet_ExtensionSystem_registerExtension(bytes4)", poweredEventHandler));
+    console.log("post deploy script");
+    console.log(worldAddress);
+    console.logBytes4(poweredEventHandler);
+    // get the namespace
+
+    // address deployToWorldAddress = 0x5FbDB2315678afecb367f032d93F642f64180aa3;
+    // console.log(deployToWorldAddress);
+    (bool success, bytes memory result) = worldAddress.call(abi.encodeWithSignature("tenet_ExtensionSystem_registerExtension(bytes4)", poweredEventHandler));
     console.log("success");
     console.logBool(success);
 
     vm.stopBroadcast();
   }
 }
+
+// forge script PostDeploy --sig run(address) 0x5FbDB2315678afecb367f032d93F642f64180aa3 --broadcast --rpc-url http://127.0.0.1:8545 -vvv

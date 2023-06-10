@@ -5,7 +5,7 @@
   "license": "MIT",
   "scripts": {
     "build": "forge clean && forge build",
-    "deploy": "pnpm run initialize && mud deploy",
+    "deploy": "pnpm run initialize && mud deploy --worldAddress 0x5FbDB2315678afecb367f032d93F642f64180aa3",
     "deploy:hackathon": "pnpm run initialize && mud deploy --profile=hackathon-testnet",
     "deploy:testnet": "pnpm run initialize && mud deploy --profile=lattice-testnet",
     "dev": "pnpm mud dev-contracts --tsgenOutput ./client",

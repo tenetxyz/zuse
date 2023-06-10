@@ -31,7 +31,7 @@ contract CounterTest is MudV2Test {
     assertEq(counter, 1);
 
     // Expect the counter to be 2 after calling increment.
-    world.increment();
+    world.dhvani_IncrementSystem_increment();
     counter = Counter.get(world);
     assertEq(counter, 2);
   }

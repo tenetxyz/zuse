@@ -14,14 +14,13 @@ import { to64CharAddress } from "../../../../utils/entity";
 
 export const Crafting: React.FC<{
   layers: Layers;
-  holdingBlock: Entity | undefined;
-  setHoldingBlock: (block: Entity | undefined) => void;
+  holdingVoxelType: Entity | undefined;
+  setHoldingVoxelType: (voxelType: Entity | undefined) => void;
   sideLength: number;
-}> = ({ layers, holdingBlock, setHoldingBlock, sideLength }) => {
+}> = ({ layers, holdingVoxelType, setHoldingVoxelType, sideLength }) => {
   const {
     network: {
       contractComponents: { OwnedBy, VoxelType },
-      actions: { withOptimisticUpdates },
       network: { connectedAddress },
       api: { craft },
     },
@@ -37,8 +36,6 @@ export const Crafting: React.FC<{
     },
   } = layers;
 
-  const OptimisticOwnedBy = withOptimisticUpdates(OwnedBy);
-
   function getOverrideId(i: number) {
     return ("crafting" + i) as Entity;
   }
@@ -46,7 +43,7 @@ export const Crafting: React.FC<{
   useEffect(() => {
     return () => {
       for (let i = 0; i < sideLength * sideLength; i++) {
-        OptimisticOwnedBy.removeOverride(getOverrideId(i));
+        OwnedBy.removeOverride(getOverrideId(i));
         clearCraftingTable();
       }
     };
@@ -67,80 +64,76 @@ export const Crafting: React.FC<{
     const x = getX(i);
     const y = getY(i);
 
-    const blockAtIndex = craftingTable[x][y];
-    const blockTypeAtIndex = getComponentValue(VoxelType, blockAtIndex)?.value as
-      | Entity
-      | undefined;
-    const blockTypeIndexAtIndex =
-      blockTypeAtIndex && world.entityToIndex.get(blockTypeAtIndex);
+    const voxelAtIndex = craftingTable[x][y];
+    const voxelTypeAtIndex = getComponentValue(VoxelType, voxelAtIndex)
+      ?.value as Entity | undefined;
 
-    // If we are not holding a block but there is a block at this position, grab the block
-    if (holdingBlock == null) {
-      OptimisticOwnedBy.removeOverride(getOverrideId(i));
+    // If we are not holding a voxel but there is a voxel at this position, grab the voxel
+    if (!holdingVoxelType) {
+      OwnedBy.removeOverride(getOverrideId(i));
       setCraftingTableIndex([x, y], undefined);
-      setHoldingBlock(blockTypeIndexAtIndex);
+      setHoldingVoxelType(voxelTypeAtIndex);
       return;
     }
 
-    // If there already is a block of the current type at this position, remove the block
-    if (blockTypeIndexAtIndex === holdingBlock) {
-      OptimisticOwnedBy.removeOverride(getOverrideId(i));
+    // If there already is a voxel of the current type at this position, remove the voxel
+    if (voxelTypeAtIndex === holdingVoxelType) {
+      OwnedBy.removeOverride(getOverrideId(i));
       setCraftingTableIndex([x, y], undefined);
       return;
     }
 
-    // Check if we still own an entity of the held block type
-    const blockID = world.entities[holdingBlock];
+    // Check if we still own an entity of the held voxel type
     const ownedEntitiesOfType = [
       ...runQuery([
-        HasValue(OptimisticOwnedBy, {
+        HasValue(OwnedBy, {
           value: to64CharAddress(connectedAddress.get()),
         }),
-        HasValue(VoxelType, { value: blockID }),
+        HasValue(VoxelType, { value: holdingVoxelType }),
       ]),
     ];
 
-    // If we don't own a block of the held block type, ignore this click
+    // If we don't own a voxel of the held voxel type, ignore this click
     if (ownedEntitiesOfType.length === 0) {
-      console.warn("no owned entities of type", blockID, holdingBlock);
+      console.warn("no owned entities of type", holdingVoxelType);
       return;
     }
 
     // Set the optimisitic override for this crafting slot
     const ownedEntityOfType = ownedEntitiesOfType[0];
-    OptimisticOwnedBy.removeOverride(getOverrideId(i));
-    OptimisticOwnedBy.addOverride(getOverrideId(i), {
+    OwnedBy.removeOverride(getOverrideId(i));
+    OwnedBy.addOverride(getOverrideId(i), {
       entity: ownedEntityOfType,
       value: { value: SingletonID },
     });
 
-    // Place the held block on the crafting table
+    // Place the held voxel on the crafting table
     setCraftingTableIndex([x, y], ownedEntityOfType);
 
-    // If this was the last block of this type we own, reset the cursor
+    // If this was the last voxel of this type we own, reset the cursor
     if (ownedEntitiesOfType.length === 1) {
-      setHoldingBlock(undefined);
+      setHoldingVoxelType(undefined);
     }
   }
 
   async function handleOutput() {
     if (!craftingResult) return;
-    const { voxeltypes } = getTrimmedCraftingTable();
+    const { voxels } = getTrimmedCraftingTable();
     clearCraftingTable();
-    await craft(voxeltypes, craftingResult);
+    await craft(voxels, craftingResult);
   }
 
   const Slots = [...range(sideLength * sideLength)].map((index) => {
     const x = getX(index);
     const y = getY(index);
-    const blockIndex = craftingTable[x][y];
-    const blockID = getComponentValue(VoxelType, blockIndex)?.value as
+    const voxelIndex = craftingTable[x][y];
+    const voxelType = getComponentValue(VoxelType, voxelIndex)?.value as
       | Entity
       | undefined;
     return (
       <Slot
         key={"crafting-slot" + index}
-        blockID={blockID}
+        voxelType={voxelType}
         onClick={() => handleInput(index)}
       />
     );
@@ -153,7 +146,7 @@ export const Crafting: React.FC<{
       </CraftingInput>
       <CraftingOutput>
         <Slot
-          blockID={getCraftingResult()}
+          voxelType={getCraftingResult()}
           onClick={() => handleOutput()}
           selected={true}
         />

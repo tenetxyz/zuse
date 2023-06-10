@@ -5,18 +5,18 @@ import { NetworkLayer } from "../../../network";
 import { VoxelCoord } from "@latticexyz/utils";
 import { MINING_DURATION, Textures } from "../../constants";
 
-export interface MiningBlockComponent {
-  breakingBlockMeshes: BABYLON.Mesh[];
-  breakingBlockMaterial: BABYLON.Material;
+export interface MiningVoxelComponent {
+  breakingVoxelMeshes: BABYLON.Mesh[];
+  breakingVoxelMaterial: BABYLON.Material;
   active: boolean;
-  block: VoxelCoord;
+  coord: VoxelCoord;
   startTimestamp: number;
   progress: number;
   duration: number;
   __id: number;
 }
 
-export const MINING_BLOCK_COMPONENT = "MINING_BLOCK_COMPONENT";
+export const MINING_VOXEL_COMPONENT = "MINING_VOXEL_COMPONENT";
 
 const NORMALS = [
   [0, 0, 1],
@@ -44,7 +44,7 @@ const BREAKING = [
   "./assets/textures/destroy-7.png",
 ];
 
-export function registerMiningBlockComponent(
+export function registerMiningVoxelComponent(
   noa: Engine,
   networkLayer: NetworkLayer
 ) {
@@ -86,15 +86,15 @@ export function registerMiningBlockComponent(
   // eslint-disable-next-line @typescript-eslint/ban-ts-comment
   //@ts-ignore
   noa.ents.createComponent({
-    name: MINING_BLOCK_COMPONENT,
+    name: MINING_VOXEL_COMPONENT,
     state: {
-      breakingBlockMeshes: [],
+      breakingVoxelMeshes: [],
       active: false,
-      block: { x: 0, y: 0, z: 0 },
+      voxel: { x: 0, y: 0, z: 0 },
       startTimestamp: 0,
       duration: MINING_DURATION,
     },
-    onAdd: (id: number, state: MiningBlockComponent) => {
+    onAdd: (id: number, state: MiningVoxelComponent) => {
       const material = noa.rendering.makeStandardMaterial("crack-" + id);
       material.backFaceCulling = false;
       material.unfreeze();
@@ -108,57 +108,57 @@ export function registerMiningBlockComponent(
         mesh.material = material;
         noa.rendering.addMeshToScene(mesh);
         mesh.setEnabled(false);
-        state.breakingBlockMeshes.push(mesh);
+        state.breakingVoxelMeshes.push(mesh);
       }
-      state.breakingBlockMaterial = material;
+      state.breakingVoxelMaterial = material;
       state.active = false;
       state.startTimestamp = 0;
       state.progress = 0;
       state.duration = MINING_DURATION;
     },
-    system: function (dt: number, states: MiningBlockComponent[]) {
+    system: function (dt: number, states: MiningVoxelComponent[]) {
       for (let i = 0; i < states.length; i++) {
         const {
-          breakingBlockMeshes,
-          breakingBlockMaterial,
-          block,
+          breakingVoxelMeshes,
+          breakingVoxelMaterial,
+          coord,
           active,
           startTimestamp,
           duration,
         } = states[i];
-        if (!breakingBlockMeshes.length) {
+        if (!breakingVoxelMeshes.length) {
           return;
         }
-        if (active && !breakingBlockMeshes[0].isEnabled()) {
+        if (active && !breakingVoxelMeshes[0].isEnabled()) {
           states[i].startTimestamp = Date.now();
           states[i].progress = 0;
           const localPosition: number[] = [];
-          noa.globalToLocal([block.x, block.y, block.z], null, localPosition);
-          // set each breakingBlockMesh
-          for (const [i, breakingBlockMesh] of breakingBlockMeshes.entries()) {
+          noa.globalToLocal([coord.x, coord.y, coord.z], null, localPosition);
+          // set each breakingVoxelMesh
+          for (const [i, breakingVoxelMesh] of breakingVoxelMeshes.entries()) {
             const normalVector = [...NORMALS[i]];
-            const blockPosition = [...localPosition];
+            const voxelPosition = [...localPosition];
             // offset to avoid z-fighting, bigger when camera is far away
             const dist = glvec3.dist(
               noa.camera._localGetPosition(),
-              blockPosition
+              voxelPosition
             );
             const slop = 0.001 + 0.001 * dist;
             for (let i = 0; i < 3; i++) {
               if (normalVector[i] === 0) {
-                blockPosition[i] += 0.5;
+                voxelPosition[i] += 0.5;
               } else {
-                blockPosition[i] += normalVector[i] > 0 ? 1 + slop : -slop;
+                voxelPosition[i] += normalVector[i] > 0 ? 1 + slop : -slop;
               }
             }
-            breakingBlockMesh.position.copyFromFloats(
-              blockPosition[0],
-              blockPosition[1],
-              blockPosition[2]
+            breakingVoxelMesh.position.copyFromFloats(
+              voxelPosition[0],
+              voxelPosition[1],
+              voxelPosition[2]
             );
-            breakingBlockMesh.rotation.x = normalVector[1] ? Math.PI / 2 : 0;
-            breakingBlockMesh.rotation.y = normalVector[0] ? Math.PI / 2 : 0;
-            breakingBlockMesh.setEnabled(true);
+            breakingVoxelMesh.rotation.x = normalVector[1] ? Math.PI / 2 : 0;
+            breakingVoxelMesh.rotation.y = normalVector[0] ? Math.PI / 2 : 0;
+            breakingVoxelMesh.setEnabled(true);
           }
         } else if (active) {
           const progress =
@@ -166,7 +166,7 @@ export function registerMiningBlockComponent(
           states[i].progress = progress;
           // eslint-disable-next-line @typescript-eslint/ban-ts-comment
           //@ts-ignore
-          breakingBlockMaterial.diffuseTexture =
+          breakingVoxelMaterial.diffuseTexture =
             TEXTURES[
               Math.min(
                 Math.floor(progress * (TEXTURES.length + 1)),
@@ -175,15 +175,15 @@ export function registerMiningBlockComponent(
             ];
           if (progress > 0.99) {
             states[i].active = false;
-            networkLayer.api.mine(block);
-            createExplosion(noa, block, particleModel, particleMaterial);
+            networkLayer.api.mine(coord);
+            createExplosion(noa, coord, particleModel, particleMaterial);
           }
-        } else if (breakingBlockMeshes[0].isEnabled()) {
-          for (const breakingBlockMesh of breakingBlockMeshes) {
-            breakingBlockMesh.setEnabled(false);
+        } else if (breakingVoxelMeshes[0].isEnabled()) {
+          for (const breakingVoxelMesh of breakingVoxelMeshes) {
+            breakingVoxelMesh.setEnabled(false);
             // eslint-disable-next-line @typescript-eslint/ban-ts-comment
             //@ts-ignore
-            breakingBlockMaterial.diffuseTexture = TEXTURES[0];
+            breakingVoxelMaterial.diffuseTexture = TEXTURES[0];
           }
           states[i].duration = MINING_DURATION;
         }
@@ -194,7 +194,7 @@ export function registerMiningBlockComponent(
 
 function createExplosion(
   noa: Engine,
-  block: VoxelCoord,
+  coord: VoxelCoord,
   particleModel: BABYLON.Mesh,
   particleMaterial: BABYLON.Material
 ) {
@@ -255,7 +255,7 @@ function createExplosion(
   noa.rendering.addMeshToScene(s, false);
   const local: number[] = [];
   const [x, y, z] = noa.globalToLocal(
-    [block.x, block.y + 0.5, block.z],
+    [coord.x, coord.y + 0.5, coord.z],
     [0, 0, 0],
     local
   );

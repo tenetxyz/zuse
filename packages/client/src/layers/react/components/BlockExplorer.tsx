@@ -10,22 +10,25 @@ import {
   SchemaOf,
 } from "@latticexyz/recs";
 import { filter, scan, merge, map } from "rxjs";
-import { BlockIdToKey, BlockTypeKey } from "../../network/constants";
+import { VoxelTypeIdToKey, VoxelTypeKey } from "../../network/constants";
 import { registerUIComponent } from "../engine";
 import styled from "styled-components";
-import { getBlockIconUrl } from "../../noa/constants";
+import { getVoxelIconUrl } from "../../noa/constants";
 import { filterNullish } from "@latticexyz/utils";
 
 type BlockEvent = {
   blockNumber: number;
-  blockType?: BlockTypeKey;
+  voxelTypeKey?: keyof typeof VoxelTypeIdToKey; // for some reason I cannot use VoxelTypeKey here
   action?: "add" | "remove";
 };
 
 type BlockSummaryElement = [
   number, // block number
   {
-    [blockType in BlockTypeKey]: { add?: number; remove?: number };
+    [voxelType in keyof typeof VoxelTypeIdToKey]: {
+      add?: number;
+      remove?: number;
+    };
   }
 ];
 
@@ -126,32 +129,40 @@ export function registerBlockExplorer() {
                 // VoxelType component updates correspond to a mined terrain block
                 if (componentKey === "VoxelType") {
                   // TODO: We added this because value was undefined, should figure out why the original line (below) doesn't work
-                  const entityId = getComponentValue(VoxelType, entity)?.value;
+                  const voxelType = getComponentValue(VoxelType, entity)?.value;
                   // const { value: entityId } = value as ComponentValue<SchemaOf<typeof VoxelType>>;
-                  const blockType = BlockIdToKey[entityId as Entity];
-                  return { blockNumber, blockType, action: "remove" };
+                  const voxelTypeKey = VoxelTypeIdToKey[voxelType as Entity];
+                  return { blockNumber, voxelTypeKey, action: "remove" };
                 }
 
                 // Position component updates correspond to a mined or placed ECS block
                 if (componentKey === "Position") {
                   // const entityIndex = world.entityToIndex.get(entity);
                   const entityIndex = entity;
-                  const blockTypeId =
+                  const voxelType =
                     entityIndex != null
                       ? getComponentValue(VoxelType, entityIndex)?.value
                       : undefined;
-                  if (!blockTypeId) {
+                  if (!voxelType) {
                     return;
                   }
-                  const blockType = BlockIdToKey[blockTypeId as Entity];
+                  const voxelTypeKey = VoxelTypeIdToKey[voxelType as Entity];
 
                   // If the update includes a position, it corresponds to a placed block
                   if (value) {
-                    return { blockNumber, blockType, action: "add" };
+                    return {
+                      blockNumber,
+                      voxelTypeKey,
+                      action: "add",
+                    };
                   }
                   // otherwise it corresponds to a mined ecs block
                   else {
-                    return { blockNumber, blockType, action: "remove" };
+                    return {
+                      blockNumber,
+                      voxelTypeKey,
+                      action: "remove",
+                    };
                   }
                 }
               }
@@ -159,7 +170,7 @@ export function registerBlockExplorer() {
           )
           .pipe(filterNullish())
       )
-        .pipe(filter((update) => update.blockType !== "Air"))
+        .pipe(filter((update) => update.voxelTypeKey !== "Air"))
         .pipe(
           scan<BlockEvent, BlockSummary>((summary, event) => {
             const block =
@@ -170,12 +181,12 @@ export function registerBlockExplorer() {
               ([blockNumber]) => event.blockNumber !== blockNumber
             ) as BlockSummary;
 
-            if (event.blockType && event.action) {
-              block[1][event.blockType] = block[1][event.blockType] || {
+            if (event.voxelTypeKey && event.action) {
+              block[1][event.voxelTypeKey] = block[1][event.voxelTypeKey] || {
                 [event.action]: 0,
               };
-              const current = block[1][event.blockType][event.action] || 0;
-              block[1][event.blockType][event.action] = current + 1;
+              const current = block[1][event.voxelTypeKey][event.action] || 0;
+              block[1][event.voxelTypeKey][event.action] = current + 1;
             }
 
             return [...otherBlocks, block].slice(-500);
@@ -198,11 +209,13 @@ export function registerBlockExplorer() {
                 <div className="BlockExplorer-BlockNumber">{blockNumber}</div>
               ) : null}
               <div className="BlockExplorer-Actions">
-                {Object.entries(block).map(([blockType, counts]) => (
-                  <React.Fragment key={blockType}>
+                {Object.entries(block).map(([voxelTypeKey, counts]) => (
+                  <React.Fragment key={voxelTypeKey}>
                     {counts.add ? (
                       <div className="BlockExplorer-Action">
-                        <img src={getBlockIconUrl(blockType as BlockTypeKey)} />
+                        <img
+                          src={getVoxelIconUrl(voxelTypeKey as VoxelTypeKey)}
+                        />
                         <div className="BlockExplorer-ActionIcon BlockExplorer-ActionIcon--add">
                           +{counts.add}
                         </div>
@@ -210,7 +223,9 @@ export function registerBlockExplorer() {
                     ) : null}
                     {counts.remove ? (
                       <div className="BlockExplorer-Action">
-                        <img src={getBlockIconUrl(blockType as BlockTypeKey)} />
+                        <img
+                          src={getVoxelIconUrl(voxelTypeKey as VoxelTypeKey)}
+                        />
                         <div className="BlockExplorer-ActionIcon BlockExplorer-ActionIcon--remove">
                           -{counts.remove}
                         </div>

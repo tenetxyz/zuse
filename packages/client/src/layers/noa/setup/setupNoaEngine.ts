@@ -4,12 +4,12 @@ import { Engine } from "noa-engine";
 import "@babylonjs/core/Meshes/Builders/boxBuilder";
 import * as BABYLON from "@babylonjs/core";
 import { VoxelCoord } from "@latticexyz/utils";
-import { Blocks, Textures } from "../constants";
-import { BlockType, BlockTypeIndex } from "../../network";
+import { Textures, Voxels } from "../constants";
+import { VoxelTypeIdToIndex, VoxelTypeKeyToId } from "../../network";
 import { Entity } from "@latticexyz/recs";
 import { NoaBlockType } from "../types";
-import { createMeshBlock } from "./utils";
-import { BlockIndexToKey, BlockTypeKey } from "../../network/constants";
+import { createVoxelMesh } from "./utils";
+import { VoxelTypeIndexToKey, VoxelTypeKey } from "../../network/constants";
 import { setupScene } from "../engine/setupScene";
 import {
   CHUNK_RENDER_DISTANCE,
@@ -19,8 +19,8 @@ import {
 } from "./constants";
 
 export interface API {
-  getTerrainBlockAtPosition: (coord: VoxelCoord) => Entity;
-  getECSBlockAtPosition: (coord: VoxelCoord) => Entity | undefined;
+  getTerrainVoxelTypeAtPosition: (coord: VoxelCoord) => Entity;
+  getEcsVoxelTypeAtPosition: (coord: VoxelCoord) => Entity | undefined;
 }
 
 export function setupNoaEngine(api: API) {
@@ -65,13 +65,13 @@ export function setupNoaEngine(api: API) {
   noa.world.maxProcessingPerTick = 12;
   noa.world.maxProcessingPerRender = 8;
   // Register simple materials
-  const textures = Object.values(Blocks).reduce<string[]>(
-    (materials, block) => {
-      if (!block || !block.material) return materials;
-      const blockMaterials = (
-        Array.isArray(block.material) ? block.material : [block.material]
+  const textures = Object.values(Voxels).reduce<string[]>(
+    (materials, voxel) => {
+      if (!voxel || !voxel.material) return materials;
+      const voxelMaterials = (
+        Array.isArray(voxel.material) ? voxel.material : [voxel.material]
       ) as string[];
-      if (blockMaterials) materials.push(...blockMaterials);
+      if (voxelMaterials) materials.push(...voxelMaterials);
       return materials;
     },
     []
@@ -107,37 +107,37 @@ export function setupNoaEngine(api: API) {
     true
   );
 
-  // Register blocks
+  // Register voxels
 
-  for (const [key, block] of Object.entries(Blocks)) {
-    const index = BlockTypeIndex[BlockType[key as BlockTypeKey]];
-    const augmentedBlock = { ...block };
-    if (!block) continue;
+  for (const [key, voxel] of Object.entries(Voxels)) {
+    const index = VoxelTypeIdToIndex[VoxelTypeKeyToId[key as VoxelTypeKey]];
+    const augmentedVoxel = { ...voxel };
+    if (!voxel) continue;
 
-    // Register mesh for mesh blocks
-    if (block.type === NoaBlockType.MESH) {
-      const texture = Array.isArray(block.material)
-        ? block.material[0]
-        : block.material;
+    // Register mesh for mesh voxels
+    if (voxel.type === NoaBlockType.MESH) {
+      const texture = Array.isArray(voxel.material)
+        ? voxel.material[0]
+        : voxel.material;
       if (texture === null) {
-        throw new Error("Can't create a plant block without a material");
+        throw new Error("Can't create a plant voxel without a material");
       }
-      const mesh = createMeshBlock(
+      const mesh = createVoxelMesh(
         noa,
         scene,
         texture,
         key,
-        augmentedBlock.frames
+        augmentedVoxel.frames
       );
-      augmentedBlock.blockMesh = mesh;
-      delete augmentedBlock.material;
+      augmentedVoxel.blockMesh = mesh;
+      delete augmentedVoxel.material;
     }
 
-    noa.registry.registerBlock(index, augmentedBlock);
+    noa.registry.registerBlock(index, augmentedVoxel);
   }
 
-  function setBlock(coord: VoxelCoord | number[], block: Entity) {
-    const index = BlockTypeIndex[block];
+  function setVoxel(coord: VoxelCoord | number[], voxel: Entity) {
+    const index = VoxelTypeIdToIndex[voxel];
     if ("length" in coord) {
       noa.setBlock(index, coord[0], coord[1], coord[2]);
     } else {
@@ -158,26 +158,26 @@ export function setupNoaEngine(api: API) {
       for (let i = 0; i < data.shape[0]; i++) {
         for (let j = 0; j < data.shape[1]; j++) {
           for (let k = 0; k < data.shape[2]; k++) {
-            const ecsBlockType =
-              BlockTypeIndex[
-                api.getECSBlockAtPosition({
+            const ecsVoxelTypeIndex =
+              VoxelTypeIdToIndex[
+                api.getEcsVoxelTypeAtPosition({
                   x: x + i,
                   y: y + j,
                   z: z + k,
                 }) as string
               ];
-            if (ecsBlockType !== undefined) {
-              data.set(i, j, k, ecsBlockType);
+            if (ecsVoxelTypeIndex !== undefined) {
+              data.set(i, j, k, ecsVoxelTypeIndex);
             } else {
-              const blockType =
-                BlockTypeIndex[
-                  api.getTerrainBlockAtPosition({
+              const voxelTypeIndex =
+                VoxelTypeIdToIndex[
+                  api.getTerrainVoxelTypeAtPosition({
                     x: x + i,
                     y: y + j,
                     z: z + k,
                   }) as string
                 ];
-              data.set(i, j, k, blockType);
+              data.set(i, j, k, voxelTypeIndex);
             }
           }
         }
@@ -188,12 +188,12 @@ export function setupNoaEngine(api: API) {
 
   const { glow } = setupScene(noa);
 
-  // Change block targeting mechanism
+  // Change voxel targeting mechanism
   noa.blockTargetIdCheck = function (index: number) {
-    const key = BlockIndexToKey[index];
-    return key != null && key != "Air" && !Blocks[key]?.fluid;
+    const key = VoxelTypeIndexToKey[index];
+    return key != null && key != "Air" && !Voxels[key]?.fluid;
   };
-  return { noa, setBlock, glow };
+  return { noa, setVoxel, glow };
 }
 
 function customizePlayerMovement(noa: Engine) {

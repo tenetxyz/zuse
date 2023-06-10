@@ -1,21 +1,21 @@
 import * as BABYLON from "@babylonjs/core";
 import { Texture, Vector4 } from "@babylonjs/core";
 import { Engine } from "noa-engine";
-import { BlockTypeKey } from "../../network/constants";
+import { VoxelTypeKey } from "../../network/constants";
 import { UVWraps } from "../constants";
 import { HAND_COMPONENT } from "./components/handComponent";
 export const X_HAND = 0.4;
-export const X_BLOCK = 0.7;
+export const X_VOXEL = 0.7;
 export const Y_HAND = -0.6;
-export const Y_BLOCK = -0.6;
+export const Y_VOXEL = -0.6;
 export const Z_HAND = 1;
-export const Z_BLOCK = 1.2;
+export const Z_VOXEL = 1.2;
 export const ANIMATION_SCALE_IDLE = 2;
 export const ANIMATION_SCALE_MINING = 20;
 export const IDLE_ANIMATION_BOX_HAND = createIdleAnimation(Y_HAND);
-export const IDLE_ANIMATION_BOX_BLOCK = createIdleAnimation(Y_BLOCK);
+export const IDLE_ANIMATION_BOX_VOXEL = createIdleAnimation(Y_VOXEL);
 export const MINING_ANIMATION_BOX_HAND = createMiningAnimation(Z_HAND);
-export const MINING_ANIMATION_BOX_BLOCK = createMiningAnimation(Z_BLOCK);
+export const MINING_ANIMATION_BOX_VOXEL = createMiningAnimation(Z_VOXEL);
 
 export function setupHand(noa: Engine) {
   const scene = noa.rendering.getScene();
@@ -51,54 +51,54 @@ export function setupHand(noa: Engine) {
   hand.material = handMaterial;
   hand.rotation.x = -Math.PI / 2;
 
-  const blockMaterials: { [key in BlockTypeKey]?: BABYLON.Material } = {};
-  for (const key of Object.keys(UVWraps) as BlockTypeKey[]) {
+  const voxelMaterials: { [key in VoxelTypeKey]?: BABYLON.Material } = {};
+  for (const key of Object.keys(UVWraps) as VoxelTypeKey[]) {
     if (UVWraps[key] !== undefined) {
-      const blockMaterial = noa.rendering.makeStandardMaterial(
-        "blockMaterial-" + key
+      const voxelMaterial = noa.rendering.makeStandardMaterial(
+        "voxelMaterial-" + key
       );
-      blockMaterial.diffuseTexture = new Texture(
+      voxelMaterial.diffuseTexture = new Texture(
         UVWraps[key]!,
         scene,
         true,
         true,
         Texture.NEAREST_SAMPLINGMODE
       );
-      blockMaterials[key as BlockTypeKey] = blockMaterial;
+      voxelMaterials[key as VoxelTypeKey] = voxelMaterial;
     } else {
-      blockMaterials[key as BlockTypeKey] = undefined;
+      voxelMaterials[key as VoxelTypeKey] = undefined;
     }
   }
-  const BLOCK_SIZE = 16;
-  const blockTextureSize = [BLOCK_SIZE * 4, BLOCK_SIZE * 2];
-  const blockSize = [BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE];
-  const blockScale = 0.07;
-  const blockOffset = [0, 0];
-  const blockFaceUV = createFaceUV(blockOffset, blockSize, blockTextureSize);
+  const VOXEL_SIZE = 16;
+  const voxelTextureSize = [VOXEL_SIZE * 4, VOXEL_SIZE * 2];
+  const voxelSize = [VOXEL_SIZE, VOXEL_SIZE, VOXEL_SIZE];
+  const voxelScale = 0.07;
+  const voxelOffset = [0, 0];
+  const voxelFaceUV = createFaceUV(voxelOffset, voxelSize, voxelTextureSize);
 
-  const block = BABYLON.MeshBuilder.CreateBox(
+  const voxelMesh = BABYLON.MeshBuilder.CreateBox(
     "block",
     {
-      height: 8 * blockScale,
-      width: 8 * blockScale,
-      depth: 8 * blockScale,
-      faceUV: blockFaceUV,
+      height: 8 * voxelScale,
+      width: 8 * voxelScale,
+      depth: 8 * voxelScale,
+      faceUV: voxelFaceUV,
       wrap: true,
     },
     scene
   );
-  block.renderingGroupId = 3;
-  block.rotation.x = -0.1;
-  block.rotation.y = -0.8;
-  block.rotation.z = 0.3;
+  voxelMesh.renderingGroupId = 3;
+  voxelMesh.rotation.x = -0.1;
+  voxelMesh.rotation.y = -0.8;
+  voxelMesh.rotation.z = 0.3;
 
   hand.animations.push(IDLE_ANIMATION_BOX_HAND);
-  block.animations.push(IDLE_ANIMATION_BOX_BLOCK);
+  voxelMesh.animations.push(IDLE_ANIMATION_BOX_VOXEL);
   scene.beginAnimation(hand, 0, 100, true);
-  scene.beginAnimation(block, 0, 100, true);
+  scene.beginAnimation(voxelMesh, 0, 100, true);
   noa.rendering.addMeshToScene(core);
   noa.rendering.addMeshToScene(hand);
-  noa.rendering.addMeshToScene(block);
+  noa.rendering.addMeshToScene(voxelMesh);
   const eyeOffset = 0.9 * noa.ents.getPositionData(noa.playerEntity)!.height;
   noa.entities.addComponentAgain(noa.playerEntity, "mesh", {
     mesh: core,
@@ -107,12 +107,12 @@ export function setupHand(noa: Engine) {
   const { mesh } = noa.entities.getMeshData(noa.playerEntity);
   hand.setParent(mesh);
   hand.position.set(X_HAND, Y_HAND, Z_HAND);
-  block.setParent(mesh);
-  block.position.set(X_BLOCK, Y_BLOCK, Z_BLOCK);
+  voxelMesh.setParent(mesh);
+  voxelMesh.position.set(X_VOXEL, Y_VOXEL, Z_VOXEL);
   noa.entities.addComponentAgain(noa.playerEntity, HAND_COMPONENT, {
     handMesh: hand,
-    blockMesh: block,
-    blockMaterials,
+    voxelMesh,
+    voxelMaterials,
   });
 }
 

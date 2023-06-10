@@ -1,5 +1,5 @@
 import { VoxelCoord } from "@latticexyz/utils";
-import { BlockType } from "../../constants";
+import { VoxelTypeKeyToId } from "../../constants";
 import { Structure } from "../../types";
 import { STRUCTURE_CHUNK } from "./constants";
 
@@ -17,25 +17,25 @@ function defineTree(): Structure {
   const s = getEmptyStructure();
 
   // Trunk
-  s[3][0][3] = BlockType.Log;
-  s[3][1][3] = BlockType.Log;
-  s[3][2][3] = BlockType.Log;
-  s[3][3][3] = BlockType.Log;
+  s[3][0][3] = VoxelTypeKeyToId.Log;
+  s[3][1][3] = VoxelTypeKeyToId.Log;
+  s[3][2][3] = VoxelTypeKeyToId.Log;
+  s[3][3][3] = VoxelTypeKeyToId.Log;
 
   // Leaves
-  s[2][3][3] = BlockType.Leaves;
-  s[3][3][2] = BlockType.Leaves;
-  s[4][3][3] = BlockType.Leaves;
-  s[3][3][4] = BlockType.Leaves;
-  s[2][3][2] = BlockType.Leaves;
-  s[4][3][4] = BlockType.Leaves;
-  s[2][3][4] = BlockType.Leaves;
-  s[4][3][2] = BlockType.Leaves;
-  s[2][4][3] = BlockType.Leaves;
-  s[3][4][2] = BlockType.Leaves;
-  s[4][4][3] = BlockType.Leaves;
-  s[3][4][4] = BlockType.Leaves;
-  s[3][4][3] = BlockType.Leaves;
+  s[2][3][3] = VoxelTypeKeyToId.Leaves;
+  s[3][3][2] = VoxelTypeKeyToId.Leaves;
+  s[4][3][3] = VoxelTypeKeyToId.Leaves;
+  s[3][3][4] = VoxelTypeKeyToId.Leaves;
+  s[2][3][2] = VoxelTypeKeyToId.Leaves;
+  s[4][3][4] = VoxelTypeKeyToId.Leaves;
+  s[2][3][4] = VoxelTypeKeyToId.Leaves;
+  s[4][3][2] = VoxelTypeKeyToId.Leaves;
+  s[2][4][3] = VoxelTypeKeyToId.Leaves;
+  s[3][4][2] = VoxelTypeKeyToId.Leaves;
+  s[4][4][3] = VoxelTypeKeyToId.Leaves;
+  s[3][4][4] = VoxelTypeKeyToId.Leaves;
+  s[3][4][3] = VoxelTypeKeyToId.Leaves;
 
   return s;
 }
@@ -44,29 +44,29 @@ function defineWoolTree(): Structure {
   const s = getEmptyStructure();
 
   // Trunk
-  s[3][0][3] = BlockType.Log;
-  s[3][1][3] = BlockType.Log;
-  s[3][2][3] = BlockType.Log;
-  s[3][3][3] = BlockType.Log;
+  s[3][0][3] = VoxelTypeKeyToId.Log;
+  s[3][1][3] = VoxelTypeKeyToId.Log;
+  s[3][2][3] = VoxelTypeKeyToId.Log;
+  s[3][3][3] = VoxelTypeKeyToId.Log;
 
   // Leaves
-  s[2][2][3] = BlockType.Wool;
-  s[3][2][2] = BlockType.Wool;
-  s[4][2][3] = BlockType.Wool;
-  s[3][2][4] = BlockType.Wool;
-  s[2][3][3] = BlockType.Wool;
-  s[3][3][2] = BlockType.Wool;
-  s[4][3][3] = BlockType.Wool;
-  s[3][3][4] = BlockType.Wool;
-  s[2][3][2] = BlockType.Wool;
-  s[4][3][4] = BlockType.Wool;
-  s[2][3][4] = BlockType.Wool;
-  s[4][3][2] = BlockType.Wool;
-  s[2][4][3] = BlockType.Wool;
-  s[3][4][2] = BlockType.Wool;
-  s[4][4][3] = BlockType.Wool;
-  s[3][4][4] = BlockType.Wool;
-  s[3][4][3] = BlockType.Wool;
+  s[2][2][3] = VoxelTypeKeyToId.Wool;
+  s[3][2][2] = VoxelTypeKeyToId.Wool;
+  s[4][2][3] = VoxelTypeKeyToId.Wool;
+  s[3][2][4] = VoxelTypeKeyToId.Wool;
+  s[2][3][3] = VoxelTypeKeyToId.Wool;
+  s[3][3][2] = VoxelTypeKeyToId.Wool;
+  s[4][3][3] = VoxelTypeKeyToId.Wool;
+  s[3][3][4] = VoxelTypeKeyToId.Wool;
+  s[2][3][2] = VoxelTypeKeyToId.Wool;
+  s[4][3][4] = VoxelTypeKeyToId.Wool;
+  s[2][3][4] = VoxelTypeKeyToId.Wool;
+  s[4][3][2] = VoxelTypeKeyToId.Wool;
+  s[2][4][3] = VoxelTypeKeyToId.Wool;
+  s[3][4][2] = VoxelTypeKeyToId.Wool;
+  s[4][4][3] = VoxelTypeKeyToId.Wool;
+  s[3][4][4] = VoxelTypeKeyToId.Wool;
+  s[3][4][3] = VoxelTypeKeyToId.Wool;
 
   return s;
 }
@@ -74,7 +74,7 @@ function defineWoolTree(): Structure {
 export const Tree = defineTree();
 export const WoolTree = defineWoolTree();
 
-export function getStructureBlock(
+export function getStructureVoxel(
   structure: Structure,
   { x, y, z }: VoxelCoord
 ) {

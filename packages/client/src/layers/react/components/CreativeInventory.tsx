@@ -3,7 +3,7 @@ import { Entity, getEntitiesWithValue } from "@latticexyz/recs";
 import { Layers } from "../../../types";
 import { range } from "@latticexyz/utils";
 import styled from "styled-components";
-import React, { ChangeEvent, ChangeEventHandler } from "react";
+import React from "react";
 import Fuse from "fuse.js";
 
 interface Props {
@@ -12,10 +12,10 @@ interface Props {
 const NUM_COLS = 9;
 const NUM_ROWS = 8;
 
-interface VoxelType {
+interface VoxelDescription {
   name: string;
   description: string;
-  blockId: Entity;
+  voxelType: Entity;
 }
 
 export const CreativeInventory: React.FC<Props> = ({ layers }) => {
@@ -25,62 +25,64 @@ export const CreativeInventory: React.FC<Props> = ({ layers }) => {
   } = layers.network;
 
   const [searchValue, setSearchValue] = React.useState<string>("");
-  const [voxeltypes, setVoxelTypes] = React.useState<VoxelType[]>();
-  const [filteredVoxelTypes, setFilteredVoxelTypes] = React.useState<VoxelType[]>([]);
-  const fuse = React.useRef<Fuse<VoxelType>>();
+  const [voxelDescriptions, setVoxelDescriptions] =
+    React.useState<VoxelDescription[]>();
+  const [filteredVoxelDescriptions, setFilteredVoxelDescriptions] =
+    React.useState<VoxelDescription[]>([]);
+  const fuse = React.useRef<Fuse<VoxelDescription>>();
 
   React.useEffect(() => {
-    const entities = getEntitiesWithValue(VoxelPrototype, { value: true });
-    console.log("creative voxeltypes", entities);
-    const unsortedVoxelTypes = Array.from(entities).map((entity) => {
-      return {
-        name: entity as string, // TODO: update
-        description: "tmp desc", // TODO: update
-        blockId: entity,
-      };
-    });
+    const voxelTypes = getEntitiesWithValue(VoxelPrototype, { value: true });
+    console.log("creative voxelTypes", voxelTypes);
+    const unsortedVoxelDescriptions = Array.from(voxelTypes).map(
+      (voxelType) => {
+        return {
+          name: voxelType as string, // TODO: update
+          description: "tmp desc", // TODO: update
+          voxelType,
+        };
+      }
+    );
 
     const options = {
       includeScore: true,
       keys: ["name", "description"],
     };
 
-    fuse.current = new Fuse(unsortedVoxelTypes, options);
+    fuse.current = new Fuse(unsortedVoxelDescriptions, options);
 
-    setVoxelTypes(unsortedVoxelTypes.sort((a, b) => a.name.localeCompare(b.name)));
-
-    // TODO: this function is probably useful later
-    // console.log(BlockIdToKey);
+    setVoxelDescriptions(
+      unsortedVoxelDescriptions.sort((a, b) => a.name.localeCompare(b.name))
+    );
   }, [VoxelPrototype]);
 
   React.useEffect(() => {
-    if (!fuse.current) {
+    if (!fuse.current || !voxelDescriptions) {
       return;
     }
-    const result = fuse.current.search(searchValue);
-    setFilteredVoxelTypes(result.map((r) => r.voxeltype));
-  }, [searchValue]);
-
-  const resultArray = filteredVoxelTypes.length > 0 ? filteredVoxelTypes : voxeltypes;
+    const result = fuse.current.search(searchValue).map((r) => r.item);
+    const descriptionsToDisplay =
+      result.length > 0 ? result : voxelDescriptions;
+    setFilteredVoxelDescriptions(descriptionsToDisplay);
+  }, [searchValue, voxelDescriptions]);
 
   const Slots = [...range(NUM_ROWS * NUM_COLS)].map((i) => {
-    if (!resultArray || i >= resultArray.length) {
+    if (!filteredVoxelDescriptions || i >= filteredVoxelDescriptions.length) {
       return <Slot key={"voxel-search-slot" + i} disabled={true} />;
     }
-    const voxeltype = resultArray[i];
+    const voxelDescription = filteredVoxelDescriptions[i];
     return (
       <Slot
         key={"slot" + i}
-        blockID={voxeltype.blockId}
+        voxelType={voxelDescription.voxelType}
         quantity={undefined} // undefined so no number appears
-        onClick={() => giftVoxel(voxeltype.blockId)}
+        onClick={() => giftVoxel(voxelDescription.voxelType)}
         disabled={false} // false, so if you pick up the voxeltype, it still shows up in the creative inventory
         selected={false} // you can never select an voxeltype in the creative inventory
       />
     );
   });
 
-  // TODO: figure out if this rendering logic is correct
   return (
     <div>
       <input

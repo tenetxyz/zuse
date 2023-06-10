@@ -1,18 +1,18 @@
 import { Entity } from "@latticexyz/recs";
 import React from "react";
 import styled from "styled-components";
-import { BlockIcon } from "./BlockIcon";
+import { VoxelIcon } from "./VoxelIcon";
 import { AbsoluteBorder } from "./AbsoluteBorder";
 import { Border } from "./Border";
 
 export const Slot: React.FC<{
-  blockID?: Entity;
+  voxelType?: Entity;
   quantity?: number;
   onClick?: () => void;
   onRightClick?: () => void;
   selected?: boolean;
   disabled?: boolean;
-}> = ({ blockID, quantity, onClick, onRightClick, selected, disabled }) => (
+}> = ({ voxelType, quantity, onClick, onRightClick, selected, disabled }) => (
   <AbsoluteBorder
     borderColor={selected ? "#ffffff" : "transparent"}
     borderWidth={6}
@@ -23,15 +23,15 @@ export const Slot: React.FC<{
           <Inner
             onClick={onClick}
             disabled={disabled}
-            onContextMenu={(event: Event) => {
+            onContextMenu={(event: React.MouseEvent<HTMLDivElement>) => {
               event.preventDefault(); // Prevent the default browser context menu from showing up
               onRightClick && onRightClick();
             }}
           >
-            {blockID ? (
-              <BlockIcon blockID={blockID} scale={4}>
+            {voxelType ? (
+              <VoxelIcon voxelType={voxelType} scale={4}>
                 {quantity != null ? <Quantity>{quantity}</Quantity> : null}
-              </BlockIcon>
+              </VoxelIcon>
             ) : null}
           </Inner>
         </Border>

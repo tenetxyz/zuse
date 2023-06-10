@@ -8,7 +8,7 @@ import {
 } from "@latticexyz/recs";
 import { VoxelCoord } from "@latticexyz/utils";
 import { Perlin } from "@latticexyz/noise";
-import { BlockType } from "../../constants";
+import { VoxelTypeKeyToId } from "../../constants";
 import { Terrain, TerrainState } from "./types";
 import { getTerrain } from "./utils";
 import { Air, Bedrock, Dirt, Grass } from "./occurrence";
@@ -20,20 +20,20 @@ export function getEntityAtPosition(
     world: World;
   },
   coord: VoxelCoord
-) {
+): Entity | undefined {
   const { Position, VoxelType } = context;
   const entitiesAtPosition = [...getEntitiesWithValue(Position, coord)];
 
-  // Prefer non-air blocks at this position
+  // Prefer non-air voxels at this position
   return (
     entitiesAtPosition?.find((b) => {
-      const voxeltype = getComponentValue(VoxelType, b);
-      return voxeltype && voxeltype.value !== BlockType.Air;
+      const voxelType = getComponentValue(VoxelType, b);
+      return voxelType && voxelType.value !== VoxelTypeKeyToId.Air;
     }) ?? entitiesAtPosition[0]
   );
 }
 
-export function getECSBlock(
+export function getEcsVoxelType(
   context: {
     Position: Component<{ x: Type.Number; y: Type.Number; z: Type.Number }>;
     VoxelType: Component<{ value: Type.String }>;
@@ -42,11 +42,12 @@ export function getECSBlock(
   coord: VoxelCoord
 ): Entity | undefined {
   const entityAtPosition = getEntityAtPosition(context, coord);
-  if (entityAtPosition == null) return undefined;
-  return getComponentValue(context.VoxelType, entityAtPosition)?.value as Entity;
+  if (!entityAtPosition) return undefined;
+  return getComponentValue(context.VoxelType, entityAtPosition)
+    ?.value as Entity;
 }
 
-export function getBlockAtPosition(
+export function getVoxelAtPosition(
   context: {
     Position: Component<{ x: Type.Number; y: Type.Number; z: Type.Number }>;
     VoxelType: Component<{ value: Type.String }>;
@@ -54,20 +55,24 @@ export function getBlockAtPosition(
   },
   perlin: Perlin,
   coord: VoxelCoord
-) {
+): Entity {
   return (
-    getECSBlock(context, coord) ??
-    getTerrainBlock(getTerrain(coord, perlin), coord, perlin)
+    getEcsVoxelType(context, coord) ??
+    getTerrainVoxel(getTerrain(coord, perlin), coord, perlin)
   );
 }
 
-export function getTerrainBlock(
+export function getTerrainVoxel(
   { biome: biomeVector, height }: Terrain,
   coord: VoxelCoord,
   perlin: Perlin
 ): Entity {
   const state: TerrainState = { biomeVector, height, coord, perlin };
   return (
-    Bedrock(state) || Air(state) || Grass(state) || Dirt(state) || BlockType.Air
+    Bedrock(state) ||
+    Air(state) ||
+    Grass(state) ||
+    Dirt(state) ||
+    VoxelTypeKeyToId.Air
   );
 }

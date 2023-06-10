@@ -13,15 +13,15 @@ import {
 } from "@latticexyz/recs";
 import { euclidean, isNotEmpty, pickRandom } from "@latticexyz/utils";
 import { timer } from "rxjs";
-import { BlockType, NetworkLayer } from "../../network";
-import { BlockIdToKey } from "../../network/constants";
+import { VoxelTypeKeyToId, NetworkLayer } from "../../network";
+import { VoxelTypeIdToKey } from "../../network/constants";
 import { NoaLayer } from "../types";
 
 export function createSoundSystem(network: NetworkLayer, context: NoaLayer) {
   const {
     components: { LoadingState },
     contractComponents: { VoxelType, Position },
-    api: { getTerrainBlockAtPosition },
+    api: { getTerrainVoxelTypeAtPosition },
   } = network;
   const {
     audioEngine,
@@ -141,23 +141,26 @@ export function createSoundSystem(network: NetworkLayer, context: NoaLayer) {
       if (!voxelType || !position) return;
 
       // Only care about close events
-      const blockPosArr = [position.x, position.y, position.z];
-      const distance = euclidean(playerPosArr, blockPosArr);
+      const voxelPosArr = [position.x, position.y, position.z];
+      const distance = euclidean(playerPosArr, voxelPosArr);
       if (distance > 32) return;
 
-      const blockPosVec = new Vector3(...blockPosArr);
+      const voxelPosVec = new Vector3(...voxelPosArr);
 
       // Find sound to play
-      let voxelTypeKey = BlockIdToKey[voxelType as Entity];
+      let voxelTypeKey = VoxelTypeIdToKey[voxelType as Entity];
       let updateType = update.type;
 
-      // When mining a terrain block, we get an ECS update for an entering air block instead
+      // When mining a terrain voxel, we get an ECS update for an entering air voxel instead
       // Hack: entity id is the same as entity index for optimistic updates
-      if (update.type == UpdateType.Enter && voxelType === BlockType.Air) {
+      if (
+        update.type == UpdateType.Enter &&
+        voxelType === VoxelTypeKeyToId.Air
+      ) {
         // const isOptimisticUpdate = world.entities[update.entity] == (update.entity as unknown);
         const isOptimisticUpdate = update.entity == (update.entity as unknown);
         if (!isOptimisticUpdate) return;
-        voxelTypeKey = BlockIdToKey[getTerrainBlockAtPosition(position)];
+        voxelTypeKey = VoxelTypeIdToKey[getTerrainVoxelTypeAtPosition(position)];
         updateType = UpdateType.Exit;
       }
 
@@ -195,7 +198,7 @@ export function createSoundSystem(network: NetworkLayer, context: NoaLayer) {
       })();
 
       // Play sound
-      sound?.setPosition(blockPosVec);
+      sound?.setPosition(voxelPosVec);
       sound?.play();
     },
     { runOnInit: false }

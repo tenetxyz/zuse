@@ -46,7 +46,7 @@ import {
 import { setupClouds, setupSky } from "./engine/sky";
 import { setupNoaEngine } from "./setup";
 import {
-  createBlockSystem,
+  createVoxelSystem,
   createInputSystem,
   createInventoryIndexSystem,
   createPlayerPositionSystem,
@@ -57,7 +57,7 @@ import {
 } from "./systems";
 import { registerHandComponent } from "./engine/components/handComponent";
 import { registerModelComponent } from "./engine/components/modelComponent";
-import { registerMiningBlockComponent } from "./engine/components/miningBlockComponent";
+import { registerMiningVoxelComponent } from "./engine/components/miningVoxelComponent";
 import { defineInventoryIndexComponent } from "./components/InventoryIndex";
 import { setupDayNightCycle } from "./engine/dayNightCycle";
 import {
@@ -113,7 +113,7 @@ export function createNoaLayer(network: NetworkLayer) {
       uniqueWorldId
     ),
     // Tutorial: createLocalCache(defineTutorialComponent(world), uniqueWorldId),
-    // removed cache from tutorial because it triggers on block mine, and because of this error: component with id Tutorial was locally cached 260 times since 11:35:35 PM - the local cache is in an alpha state and should not be used with components that update frequently yet
+    // removed cache from tutorial because it triggers on voxel mine, and because of this error: component with id Tutorial was locally cached 260 times since 11:35:35 PM - the local cache is in an alpha state and should not be used with components that update frequently yet
     Tutorial: defineTutorialComponent(world),
     PreTeleportPosition: definePreTeleportPositionComponent(world),
     Sounds: defineSoundComponent(world),
@@ -121,7 +121,7 @@ export function createNoaLayer(network: NetworkLayer) {
   };
 
   // --- SETUP ----------------------------------------------------------------------
-  const { noa, setBlock, glow } = setupNoaEngine(network.api);
+  const { noa, setVoxel, glow } = setupNoaEngine(network.api);
 
   // Because NOA and RECS currently use different ECS libraries we need to maintain a mapping of RECS ID to Noa ID
   // A future version of OPCraft will remove the NOA ECS library and use pure RECS only
@@ -211,42 +211,41 @@ export function createNoaLayer(network: NetworkLayer) {
     }
 
     if ([minX, minY, maxX, maxY].includes(-1))
-      return { voxeltypes: [] as Entity[][], types: [] as Entity[][] };
+      return { voxels: [] as Entity[][], voxelTypes: [] as Entity[][] };
 
+    const trimmedCraftingTableVoxels: Entity[][] = [];
     const trimmedCraftingTableVoxelTypes: Entity[][] = [];
-    const trimmedCraftingTableTypes: Entity[][] = [];
     for (let x = 0; x <= maxX - minX; x++) {
+      trimmedCraftingTableVoxels.push([]);
       trimmedCraftingTableVoxelTypes.push([]);
-      trimmedCraftingTableTypes.push([]);
       for (let y = 0; y <= maxY - minY; y++) {
-        const blockEntity = craftingTable[x + minX][y + minY];
-        const blockID = ((getEntityString(getEntitySymbol(blockEntity)) !==
-          "-1" &&
-          blockEntity) ||
+        const rawVoxelId = craftingTable[x + minX][y + minY];
+        const voxel = ((getEntityString(getEntitySymbol(rawVoxelId)) !== "-1" &&
+          rawVoxelId) ||
           "0x00") as Entity;
-        const blockType = ((getEntityString(getEntitySymbol(blockEntity)) !==
+        const voxelType = ((getEntityString(getEntitySymbol(rawVoxelId)) !==
           "-1" &&
-          getComponentValue(VoxelType, blockEntity)?.value) ||
+          getComponentValue(VoxelType, rawVoxelId)?.value) ||
           "0x00") as Entity;
-        trimmedCraftingTableVoxelTypes[x].push(blockID);
-        trimmedCraftingTableTypes[x].push(blockType);
+        trimmedCraftingTableVoxels[x].push(voxel);
+        trimmedCraftingTableVoxelTypes[x].push(voxelType);
       }
     }
 
     return {
-      voxeltypes: trimmedCraftingTableVoxelTypes,
-      types: trimmedCraftingTableTypes,
+      voxels: trimmedCraftingTableVoxels,
+      voxelTypes: trimmedCraftingTableVoxelTypes,
     };
   }
 
-  // Get the block type the current crafting table ingredients hash to
+  // Get the voxel type the current crafting table ingredients hash to
   function getCraftingResult(): Entity | undefined {
-    const { types } = getTrimmedCraftingTable();
+    const { voxelTypes } = getTrimmedCraftingTable();
 
     // ABI encode and hash current trimmed crafting table
-    const hash = keccak256(abi.encode(["uint256[][]"], [types]));
+    const hash = keccak256(abi.encode(["uint256[][]"], [voxelTypes]));
 
-    // Check for block types with this recipe hash
+    // Check for voxel types with this recipe hash
     const resultID = [...getEntitiesWithValue(Recipe, { value: hash })][0];
     // const resultID = resultIndex == null ? undefined : world.entities[resultIndex];
     return resultID;
@@ -302,14 +301,14 @@ export function createNoaLayer(network: NetworkLayer) {
         noa.playerEntity,
         noa.ents.names.receivesInputs
       );
-      noa.inputs.unbind("select-block");
+      noa.inputs.unbind("select-voxel");
       noa.inputs.unbind("admin-panel");
     } else {
       noa.entities.addComponent(
         noa.playerEntity,
         noa.ents.names.receivesInputs
       );
-      noa.inputs.bind("select-block", "V");
+      noa.inputs.bind("select-voxel", "V");
       noa.inputs.bind("admin-panel", "-");
     }
   };
@@ -318,35 +317,24 @@ export function createNoaLayer(network: NetworkLayer) {
     return activeElement && activeElement.tagName === "INPUT";
   };
 
-  function getSelectedBlockType(): Entity | undefined {
+  function getVoxelTypeInSelectedSlot(): Entity | undefined {
     const selectedSlot = getComponentValue(
       components.SelectedSlot,
       SingletonEntity
     )?.value;
     if (selectedSlot == null) return;
-    const blockID = [
+    const voxelType = [
       ...getEntitiesWithValue(components.InventoryIndex, {
         value: selectedSlot,
       }),
     ][0];
-    // const blockID = blockIndex != null && world.entities[blockIndex];
-    if (!blockID) return;
-    return blockID;
+    return voxelType;
   }
 
   function placeSelectedVoxelType(coord: VoxelCoord) {
-    const blockID = getSelectedBlockType();
-    if (!blockID) return console.warn("No voxeltype at selected slot");
-    const ownedEntityOfSelectedType = [
-      ...runQuery([
-        HasValue(OwnedBy, { value: to64CharAddress(connectedAddress.get()) }),
-        HasValue(VoxelType, { value: blockID }),
-      ]),
-    ][0];
-    if (ownedEntityOfSelectedType == null)
-      return console.warn("No owned voxeltype of type", blockID);
-    const voxelTypeEntity = ownedEntityOfSelectedType;
-    network.api.build(voxelTypeEntity, coord);
+    const voxelType = getVoxelTypeInSelectedSlot();
+    if (!voxelType) return console.warn("No voxels found at selected slot");
+    network.api.build(voxelType, coord);
   }
 
   function getCurrentPlayerPosition() {
@@ -393,8 +381,8 @@ export function createNoaLayer(network: NetworkLayer) {
   registerRotationComponent(noa);
   registerTargetedRotationComponent(noa);
   registerTargetedPositionComponent(noa);
-  registerHandComponent(noa, getSelectedBlockType);
-  registerMiningBlockComponent(noa, network);
+  registerHandComponent(noa, getVoxelTypeInSelectedSlot);
+  registerMiningVoxelComponent(noa, network);
   setupClouds(noa);
   setupSky(noa);
   setupHand(noa);
@@ -444,12 +432,12 @@ export function createNoaLayer(network: NetworkLayer) {
     mudToNoaId,
     noa,
     api: {
-      setBlock,
+      setVoxel,
       setCraftingTable,
       getCraftingTable,
       clearCraftingTable,
       setCraftingTableIndex,
-      getSelectedBlockType,
+      getVoxelTypeInSelectedSlot,
       getTrimmedCraftingTable,
       getCraftingResult,
       teleport,
@@ -475,7 +463,7 @@ export function createNoaLayer(network: NetworkLayer) {
 
   // --- SYSTEMS --------------------------------------------------------------------
   createInputSystem(network, context);
-  createBlockSystem(network, context);
+  createVoxelSystem(network, context);
   createPlayerPositionSystem(network, context);
   createRelaySystem(network, context);
   createInventoryIndexSystem(network, context);

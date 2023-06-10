@@ -19,8 +19,8 @@ import {
   setComponent,
   UpdateType,
 } from "@latticexyz/recs";
-import { getBlockIconUrl } from "../../noa/constants";
-import { BlockIdToKey } from "../../network/constants";
+import { getVoxelIconUrl } from "../../noa/constants";
+import { VoxelTypeIdToKey } from "../../network/constants";
 import { formatEntityID, to64CharAddress } from "../../../utils/entity";
 import { Sounds } from "./Sounds";
 import { CreativeInventory } from "./CreativeInventory";
@@ -53,7 +53,7 @@ export function registerInventoryHud() {
         },
       } = layers;
 
-      const ownedByMeQuery = defineQuery(
+      const numVoxelsIOwnOfTypeQuery = defineQuery(
         [
           HasValue(OwnedBy, { value: to64CharAddress(connectedAddress.get()) }),
           Has(VoxelType),
@@ -63,19 +63,20 @@ export function registerInventoryHud() {
         }
       );
 
-      const ownedByMe$ = concat<{ [key: string]: number }[]>(
+      // maps voxel type -> number of voxels I own of that type
+      const numVoxelsIOwnOfType$ = concat<{ [key: string]: number }[]>(
         of({}),
-        ownedByMeQuery.update$.pipe(
+        numVoxelsIOwnOfTypeQuery.update$.pipe(
           scan((acc, curr) => {
-            const blockTypeId = getComponentValue(VoxelType, curr.entity)?.value;
-            if (!blockTypeId) return { ...acc };
-            acc[blockTypeId] = acc[blockTypeId] || 0;
+            const voxelType = getComponentValue(VoxelType, curr.entity)?.value;
+            if (!voxelType) return { ...acc };
+            acc[voxelType] = acc[voxelType] ?? 0;
             if (curr.type === UpdateType.Exit) {
-              acc[blockTypeId]--;
+              acc[voxelType]--; // why do we decrement here? we don't increment before this line
               return { ...acc };
             }
 
-            acc[blockTypeId]++;
+            acc[voxelType]++;
             return { ...acc };
           }, {} as { [key: string]: number })
         )
@@ -103,7 +104,7 @@ export function registerInventoryHud() {
       const craftingTable$ = concat(of(0), CraftingTable.update$);
 
       return combineLatest([
-        ownedByMe$,
+        numVoxelsIOwnOfType$,
         showInventory$,
         selectedSlot$,
         stakeAndClaim$,
@@ -115,7 +116,7 @@ export function registerInventoryHud() {
     },
     ({ props }) => {
       const [
-        ownedByMe,
+        numVoxelsIOwnOfType,
         { layers, show, craftingSideLength },
         selectedSlot,
         stakeAndClaim,
@@ -134,55 +135,59 @@ export function registerInventoryHud() {
         },
       } = layers;
 
-      const [holdingBlock, setHoldingBlock] = useState<Entity | undefined>();
+      const [holdingVoxelType, setHoldingVoxelType] = useState<
+        Entity | undefined
+      >();
       const [isUsingPersonalInventory, setIsUsingPersonalInventory] =
         useState<boolean>(true);
 
       const { claim } = stakeAndClaim;
 
       useEffect(() => {
-        if (!show) setHoldingBlock(undefined);
+        if (!show) setHoldingVoxelType(undefined);
       }, [show]);
 
       useEffect(() => {
-        if (holdingBlock == null) {
+        if (!holdingVoxelType) {
           document.body.style.cursor = "unset";
           return;
         }
-
-        const blockType = BlockIdToKey[holdingBlock];
-        const icon = getBlockIconUrl(blockType);
+        const voxelTypeKey = VoxelTypeIdToKey[holdingVoxelType as Entity];
+        const icon = getVoxelIconUrl(voxelTypeKey);
         document.body.style.cursor = `url(${icon}) 12 12, auto`;
-      }, [holdingBlock]);
+      }, [holdingVoxelType]);
 
       function moveVoxelType(slot: number) {
         console.log("moveVoxelType", slot);
-        const blockIdAtSlot = [
+        const voxelTypeAtSlot = [
           ...getEntitiesWithValue(InventoryIndex, { value: slot }),
         ][0];
 
-        // If not currently holding a block, grab the block at this slot
-        if (holdingBlock == null) {
-          const ownedEntitiesOfType = blockIdAtSlot && ownedByMe[blockIdAtSlot];
-          if (ownedEntitiesOfType) setHoldingBlock(blockIdAtSlot);
+        // If not currently holding a voxel, grab the voxel at this slot
+        if (!holdingVoxelType) {
+          const numVoxelsOfTypeIOwn =
+            voxelTypeAtSlot && numVoxelsIOwnOfType[voxelTypeAtSlot];
+          if (numVoxelsOfTypeIOwn > 0) {
+            setHoldingVoxelType(voxelTypeAtSlot);
+          }
           return;
         }
 
-        // Else (if currently holding a block), swap the holding block with the block at this position
-        const holdingBlockSlot = getComponentValue(
+        // Else (if currently holding a voxel), swap the holding voxel with the voxel at this position
+        const holdingVoxelTypeSlot = getComponentValue(
           InventoryIndex,
-          holdingBlock
+          holdingVoxelType
         )?.value;
-        if (holdingBlockSlot == null) {
-          console.warn("holding block has no slot", holdingBlock);
+        if (!holdingVoxelTypeSlot) {
+          console.warn("holding voxel has no slot", holdingVoxelType);
           return;
         }
-        setComponent(InventoryIndex, holdingBlock, { value: slot });
-        blockIdAtSlot &&
-          setComponent(InventoryIndex, blockIdAtSlot, {
-            value: holdingBlockSlot,
+        setComponent(InventoryIndex, holdingVoxelType, { value: slot });
+        voxelTypeAtSlot &&
+          setComponent(InventoryIndex, voxelTypeAtSlot, {
+            value: holdingVoxelTypeSlot,
           });
-        setHoldingBlock(undefined);
+        setHoldingVoxelType(undefined);
       }
 
       function removeVoxelType(slot: number) {
@@ -210,23 +215,22 @@ export function registerInventoryHud() {
         removeVoxels(ownedEntitiesOfType);
       }
 
-      // Map each inventory slot to the corresponding block type at this slot index
+      // Map each inventory slot to the corresponding voxel type at this slot index
       const Slots = [...range(INVENTORY_HEIGHT * INVENTORY_WIDTH)].map((i) => {
-        const blockId = [
+        const voxelType = [
           ...getEntitiesWithValue(InventoryIndex, { value: i }),
         ][0];
         // console.log("getting slots");
         // console.log(InventoryIndex);
-        // console.log(blockId);
-        const quantity = blockId && ownedByMe[blockId];
+        const quantity = voxelType && numVoxelsIOwnOfType[voxelType];
         return (
           <Slot
             key={"slot" + i}
-            blockID={quantity ? blockId : undefined}
+            voxelType={quantity ? voxelType : undefined}
             quantity={quantity || undefined}
             onClick={() => moveVoxelType(i)}
             onRightClick={() => removeVoxelType(i)}
-            disabled={blockId === holdingBlock}
+            disabled={voxelType === holdingVoxelType}
             selected={i === selectedSlot}
           />
         );
@@ -255,8 +259,8 @@ export function registerInventoryHud() {
         <Inventory
           layers={layers}
           craftingSideLength={craftingSideLength}
-          holdingBlock={holdingBlock}
-          setHoldingBlock={setHoldingBlock}
+          holdingVoxelType={holdingVoxelType}
+          setHoldingVoxelType={setHoldingVoxelType}
           Slots={Slots}
         />
       ) : (

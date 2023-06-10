@@ -51,21 +51,20 @@ export function createInventoryIndexSystem(
   // whenever we get/lose a voxeltype, this function is run
   defineRxSystem(world, update$, (update) => {
     if (!update.value[0]) {
-      // the block just got removed, so don't assign an inventory index for it
+      // the voxel just got removed, so don't assign an inventory index for it
       return;
     }
-    const blockId = getComponentValue(VoxelType, update.entity)
+    const voxelType = getComponentValue(VoxelType, update.entity)
       ?.value as Entity;
-    // console.log(blockId);
 
-    if (blockId == null) return;
+    if (voxelType == null) return;
 
     // Assign the first free inventory index
-    if (!hasComponent(InventoryIndex, blockId)) {
+    if (!hasComponent(InventoryIndex, voxelType)) {
       const values = [...InventoryIndex.values.value.values()]; // lol
       let i = 0;
       while (values.includes(i)) i++;
-      setComponent(InventoryIndex, blockId, { value: i });
+      setComponent(InventoryIndex, voxelType, { value: i });
     }
   });
 }

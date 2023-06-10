@@ -1,5 +1,5 @@
 import styled from "styled-components";
-export { BlockIcon } from "./BlockIcon";
+export { VoxelIcon } from "./VoxelIcon";
 export { Slot } from "./Slot";
 export { Border } from "./Border";
 export { AbsoluteBorder } from "./AbsoluteBorder";

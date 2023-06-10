@@ -1,5 +1,11 @@
 import { setupMUDV2Network, createActionSystem } from "@latticexyz/std-client";
-import { Entity, getComponentValue, createIndexer } from "@latticexyz/recs";
+import {
+  Entity,
+  getComponentValue,
+  createIndexer,
+  runQuery,
+  HasValue,
+} from "@latticexyz/recs";
 import {
   createFastTxExecutor,
   createFaucetService,
@@ -242,18 +248,18 @@ export async function setupNetwork() {
     return tx;
   }
 
-  function build(voxel: Entity, coord: VoxelCoord) {
-    if (!voxel == null) {
-      return console.warn(`trying to place unknown voxel=${voxel}`);
-    }
-    const voxelType = getComponentValue(
-      contractComponents.VoxelType,
-      voxel
-    )?.value;
-
-    if (!voxelType) {
+  function build(voxelType: Entity, coord: VoxelCoord) {
+    const voxelInstanceOfVoxelType = [
+      ...runQuery([
+        HasValue(contractComponents.OwnedBy, {
+          value: to64CharAddress(playerAddress),
+        }),
+        HasValue(contractComponents.VoxelType, { value: voxelType }),
+      ]),
+    ][0];
+    if (!voxelInstanceOfVoxelType) {
       return console.warn(
-        `trying to place entity with unknown type. entity=${voxel}`
+        `cannot find a voxel (that you own) for voxelType=${voxelType}`
       );
     }
 
@@ -275,7 +281,7 @@ export async function setupNetwork() {
         OwnedBy: contractComponents.OwnedBy, // I think it's needed cause we check to see if the owner owns the voxel we're placing
       },
       execute: () => {
-        return buildSystem(voxel, coord);
+        return buildSystem(voxelInstanceOfVoxelType, coord);
       },
       updates: () => [
         // commented cause we're in creative mode

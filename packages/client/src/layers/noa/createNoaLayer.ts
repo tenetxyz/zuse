@@ -317,33 +317,24 @@ export function createNoaLayer(network: NetworkLayer) {
     return activeElement && activeElement.tagName === "INPUT";
   };
 
-  function getOneVoxelInSelectedSlot(): Entity | undefined {
+  function getVoxelTypeInSelectedSlot(): Entity | undefined {
     const selectedSlot = getComponentValue(
       components.SelectedSlot,
       SingletonEntity
     )?.value;
     if (selectedSlot == null) return;
-    const voxel = [
+    const voxelType = [
       ...getEntitiesWithValue(components.InventoryIndex, {
         value: selectedSlot,
       }),
     ][0];
-    return voxel;
+    return voxelType;
   }
 
   function placeSelectedVoxelType(coord: VoxelCoord) {
-    const voxel = getOneVoxelInSelectedSlot();
-    if (!voxel) return console.warn("No voxels found at selected slot");
-    const voxelTypeOfSelectedVoxel = [
-      ...runQuery([
-        // HasValue(OwnedBy, { value: to64CharAddress(connectedAddress.get()) }),
-        HasValue(VoxelType, { value: voxel }),
-      ]),
-    ][0];
-    if (voxelTypeOfSelectedVoxel == null) {
-      return console.warn(`Your selected voxel has no type voxel=${voxel}`);
-    }
-    network.api.build(voxel, coord);
+    const voxelType = getVoxelTypeInSelectedSlot();
+    if (!voxelType) return console.warn("No voxels found at selected slot");
+    network.api.build(voxelType, coord);
   }
 
   function getCurrentPlayerPosition() {
@@ -390,7 +381,7 @@ export function createNoaLayer(network: NetworkLayer) {
   registerRotationComponent(noa);
   registerTargetedRotationComponent(noa);
   registerTargetedPositionComponent(noa);
-  registerHandComponent(noa, getOneVoxelInSelectedSlot);
+  registerHandComponent(noa, getVoxelTypeInSelectedSlot);
   registerMiningVoxelComponent(noa, network);
   setupClouds(noa);
   setupSky(noa);
@@ -446,7 +437,7 @@ export function createNoaLayer(network: NetworkLayer) {
       getCraftingTable,
       clearCraftingTable,
       setCraftingTableIndex,
-      getOneVoxelInSelectedSlot,
+      getVoxelTypeInSelectedSlot,
       getTrimmedCraftingTable,
       getCraftingResult,
       teleport,

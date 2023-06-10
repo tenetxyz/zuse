@@ -40,7 +40,7 @@ export function createInputSystem(network: NetworkLayer, context: NoaLayer) {
       togglePlugins,
       placeSelectedVoxelType,
       getCurrentChunk,
-      getOneVoxelInSelectedSlot,
+      getVoxelTypeInSelectedSlot,
       teleport,
     },
     streams: { stakeAndClaim$, playerPosition$ },
@@ -92,8 +92,7 @@ export function createInputSystem(network: NetworkLayer, context: NoaLayer) {
 
       if (creativeMode) {
         miningComponent.duration = 10;
-        // TODO: this function's types is wrong
-      } else if (getOneVoxelInSelectedSlot() === VoxelTypeKeyToId.Bedrock) {
+      } else if (getVoxelTypeInSelectedSlot() === VoxelTypeKeyToId.Bedrock) {
         miningComponent.duration = FAST_MINING_DURATION;
       }
       return miningComponent;

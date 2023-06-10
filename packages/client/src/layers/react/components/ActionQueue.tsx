@@ -71,15 +71,15 @@ export function registerActionQueue() {
               Action,
               e
             );
-            const { actionType, coord, blockType } = metadata || {};
-            const icon = blockType && getVoxelIconUrl(blockType);
+            const { actionType, coord, voxelTypeKey } = metadata || {};
+            const icon = voxelTypeKey && getVoxelIconUrl(voxelTypeKey);
             return (
               <div key={e} className="ActionQueueItem">
                 <ActionQueueItem
                   state={state}
                   icon={icon}
                   title={`${actionType} tx`}
-                  description={blockType}
+                  description={voxelTypeKey}
                   link={txHash && blockExplorer + "/tx/" + txHash}
                 />
                 {/* TODO: conditionally render this for debugging? */}

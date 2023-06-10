@@ -15,5 +15,11 @@ export default mudConfig({
       },
     },
   },
-  modules: [],
+  modules: [
+    {
+      name: "KeysInTableModule",
+      root: false,
+      args: [resolveTableId("Powered")],
+    },
+  ],
 });

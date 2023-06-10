@@ -6,13 +6,13 @@ import { AbsoluteBorder } from "./AbsoluteBorder";
 import { Border } from "./Border";
 
 export const Slot: React.FC<{
-  voxel?: Entity;
+  voxelType?: Entity;
   quantity?: number;
   onClick?: () => void;
   onRightClick?: () => void;
   selected?: boolean;
   disabled?: boolean;
-}> = ({ voxel, quantity, onClick, onRightClick, selected, disabled }) => (
+}> = ({ voxelType, quantity, onClick, onRightClick, selected, disabled }) => (
   <AbsoluteBorder
     borderColor={selected ? "#ffffff" : "transparent"}
     borderWidth={6}
@@ -23,13 +23,13 @@ export const Slot: React.FC<{
           <Inner
             onClick={onClick}
             disabled={disabled}
-            onContextMenu={(event: Event) => {
+            onContextMenu={(event: React.MouseEvent<HTMLDivElement>) => {
               event.preventDefault(); // Prevent the default browser context menu from showing up
               onRightClick && onRightClick();
             }}
           >
-            {voxel ? (
-              <VoxelIcon voxel={voxel} scale={4}>
+            {voxelType ? (
+              <VoxelIcon voxelType={voxelType} scale={4}>
                 {quantity != null ? <Quantity>{quantity}</Quantity> : null}
               </VoxelIcon>
             ) : null}

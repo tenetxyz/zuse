@@ -127,13 +127,13 @@ export const Crafting: React.FC<{
     const x = getX(index);
     const y = getY(index);
     const voxelIndex = craftingTable[x][y];
-    const voxel = getComponentValue(VoxelType, voxelIndex)?.value as
+    const voxelType = getComponentValue(VoxelType, voxelIndex)?.value as
       | Entity
       | undefined;
     return (
       <Slot
         key={"crafting-slot" + index}
-        voxel={voxel}
+        voxelType={voxelType}
         onClick={() => handleInput(index)}
       />
     );
@@ -146,7 +146,7 @@ export const Crafting: React.FC<{
       </CraftingInput>
       <CraftingOutput>
         <Slot
-          voxel={getCraftingResult()}
+          voxelType={getCraftingResult()}
           onClick={() => handleOutput()}
           selected={true}
         />

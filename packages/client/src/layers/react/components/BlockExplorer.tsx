@@ -10,7 +10,7 @@ import {
   SchemaOf,
 } from "@latticexyz/recs";
 import { filter, scan, merge, map } from "rxjs";
-import { VoxelTypeIdToKey, VoxelTypeKey } from "../../network/constants";
+import { VoxelTypeIdToKey } from "../../network/constants";
 import { registerUIComponent } from "../engine";
 import styled from "styled-components";
 import { getVoxelIconUrl } from "../../noa/constants";
@@ -18,14 +18,17 @@ import { filterNullish } from "@latticexyz/utils";
 
 type BlockEvent = {
   blockNumber: number;
-  VoxelTypeKey?: VoxelTypeKey;
+  VoxelTypeKey?: keyof typeof VoxelTypeIdToKey; // for some reason I cannot use VoxelTypeKey here
   action?: "add" | "remove";
 };
 
 type BlockSummaryElement = [
   number, // block number
   {
-    [voxelType in VoxelTypeKey]: { add?: number; remove?: number };
+    [voxelType in keyof typeof VoxelTypeIdToKey]: {
+      add?: number;
+      remove?: number;
+    };
   }
 ];
 

@@ -226,21 +226,20 @@ export function registerInventoryHud() {
 
       // Map each inventory slot to the corresponding voxel type at this slot index
       const Slots = [...range(INVENTORY_HEIGHT * INVENTORY_WIDTH)].map((i) => {
-        const voxelId = [
+        const voxelType = [
           ...getEntitiesWithValue(InventoryIndex, { value: i }),
         ][0];
         // console.log("getting slots");
         // console.log(InventoryIndex);
-        // console.log(voxelId);
-        const quantity = voxelId && numVoxelsIOwnOfType[voxelId];
+        const quantity = voxelType && numVoxelsIOwnOfType[voxelType];
         return (
           <Slot
             key={"slot" + i}
-            voxel={quantity ? voxelId : undefined}
+            voxelType={quantity ? voxelType : undefined}
             quantity={quantity || undefined}
             onClick={() => moveVoxelType(i)}
             onRightClick={() => removeVoxelType(i)}
-            disabled={voxelId === holdingVoxel}
+            disabled={voxelType === holdingVoxel}
             selected={i === selectedSlot}
           />
         );

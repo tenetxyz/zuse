@@ -165,7 +165,7 @@
 //       world,
 //     };
 
-//     function getTerrainVoxelAtPosition(position: VoxelCoord) {
+//     function getTerrainVoxelTypeAtPosition(position: VoxelCoord) {
 //       return getTerrainVoxel(getTerrain(position, perlin), position, perlin);
 //     }
 
@@ -213,7 +213,7 @@
 
 //     async function mine(coord: VoxelCoord) {
 //       const ecsBlock = getECSBlockAtPosition(coord);
-//       const blockId = ecsBlock ?? getTerrainVoxelAtPosition(coord);
+//       const blockId = ecsBlock ?? getTerrainVoxelTypeAtPosition(coord);
 
 //       if (blockId == null) throw new Error("entity has no block type");
 //       const blockType = BlockIdToKey[blockId];
@@ -415,7 +415,7 @@
 //         transfer,
 //         getBlockAtPosition,
 //         getECSBlockAtPosition,
-//         getTerrainVoxelAtPosition,
+//         getTerrainVoxelTypeAtPosition,
 //         getEntityAtPosition,
 //         getBiome,
 //         getName,

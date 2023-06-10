@@ -1,7 +1,7 @@
 export {
   getVoxelAtPosition,
   getEntityAtPosition,
-  getEcsVoxel,
+  getEcsVoxelType,
   getTerrainVoxel,
 } from "./terrain/getVoxelAtPosition";
 export { getTerrain } from "./terrain/utils";

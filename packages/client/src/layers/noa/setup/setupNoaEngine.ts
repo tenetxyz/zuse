@@ -19,8 +19,8 @@ import {
 } from "./constants";
 
 export interface API {
-  getTerrainVoxelAtPosition: (coord: VoxelCoord) => Entity;
-  getEcsVoxelAtPosition: (coord: VoxelCoord) => Entity | undefined;
+  getTerrainVoxelTypeAtPosition: (coord: VoxelCoord) => Entity;
+  getEcsVoxelTypeAtPosition: (coord: VoxelCoord) => Entity | undefined;
 }
 
 export function setupNoaEngine(api: API) {
@@ -119,7 +119,7 @@ export function setupNoaEngine(api: API) {
       const texture = Array.isArray(voxel.material)
         ? voxel.material[0]
         : voxel.material;
-      if (texture === null) {
+      if (!texture) {
         throw new Error("Can't create a plant voxel without a material");
       }
       augmentedVoxel.voxelMesh = createVoxelMesh(
@@ -157,26 +157,26 @@ export function setupNoaEngine(api: API) {
       for (let i = 0; i < data.shape[0]; i++) {
         for (let j = 0; j < data.shape[1]; j++) {
           for (let k = 0; k < data.shape[2]; k++) {
-            const eccVoxelType =
+            const ecsVoxelTypeIndex =
               VoxelTypeIdToIndex[
-                api.getEcsVoxelAtPosition({
+                api.getEcsVoxelTypeAtPosition({
                   x: x + i,
                   y: y + j,
                   z: z + k,
                 }) as string
               ];
-            if (eccVoxelType !== undefined) {
-              data.set(i, j, k, eccVoxelType);
+            if (ecsVoxelTypeIndex !== undefined) {
+              data.set(i, j, k, ecsVoxelTypeIndex);
             } else {
-              const voxelType =
+              const voxelTypeIndex =
                 VoxelTypeIdToIndex[
-                  api.getTerrainVoxelAtPosition({
+                  api.getTerrainVoxelTypeAtPosition({
                     x: x + i,
                     y: y + j,
                     z: z + k,
                   }) as string
                 ];
-              data.set(i, j, k, voxelType);
+              data.set(i, j, k, voxelTypeIndex);
             }
           }
         }

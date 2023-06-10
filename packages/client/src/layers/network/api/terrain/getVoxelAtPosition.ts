@@ -33,7 +33,7 @@ export function getEntityAtPosition(
   );
 }
 
-export function getEcsVoxel(
+export function getEcsVoxelType(
   context: {
     Position: Component<{ x: Type.Number; y: Type.Number; z: Type.Number }>;
     VoxelType: Component<{ value: Type.String }>;
@@ -57,7 +57,7 @@ export function getVoxelAtPosition(
   coord: VoxelCoord
 ): Entity {
   return (
-    getEcsVoxel(context, coord) ??
+    getEcsVoxelType(context, coord) ??
     getTerrainVoxel(getTerrain(coord, perlin), coord, perlin)
   );
 }

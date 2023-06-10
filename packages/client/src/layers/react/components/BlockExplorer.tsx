@@ -10,7 +10,7 @@ import {
   SchemaOf,
 } from "@latticexyz/recs";
 import { filter, scan, merge, map } from "rxjs";
-import { VoxelTypeIdToKey } from "../../network/constants";
+import { VoxelTypeIdToKey, VoxelTypeKey } from "../../network/constants";
 import { registerUIComponent } from "../engine";
 import styled from "styled-components";
 import { getVoxelIconUrl } from "../../noa/constants";
@@ -18,7 +18,7 @@ import { filterNullish } from "@latticexyz/utils";
 
 type BlockEvent = {
   blockNumber: number;
-  VoxelTypeKey?: keyof typeof VoxelTypeIdToKey; // for some reason I cannot use VoxelTypeKey here
+  voxelTypeKey?: keyof typeof VoxelTypeIdToKey; // for some reason I cannot use VoxelTypeKey here
   action?: "add" | "remove";
 };
 
@@ -132,7 +132,7 @@ export function registerBlockExplorer() {
                   const voxelType = getComponentValue(VoxelType, entity)?.value;
                   // const { value: entityId } = value as ComponentValue<SchemaOf<typeof VoxelType>>;
                   const voxelTypeKey = VoxelTypeIdToKey[voxelType as Entity];
-                  return { blockNumber, VoxelTypeKey, action: "remove" };
+                  return { blockNumber, voxelTypeKey, action: "remove" };
                 }
 
                 // Position component updates correspond to a mined or placed ECS block
@@ -152,7 +152,7 @@ export function registerBlockExplorer() {
                   if (value) {
                     return {
                       blockNumber,
-                      VoxelTypeKey,
+                      voxelTypeKey,
                       action: "add",
                     };
                   }
@@ -160,7 +160,7 @@ export function registerBlockExplorer() {
                   else {
                     return {
                       blockNumber,
-                      VoxelTypeKey,
+                      voxelTypeKey,
                       action: "remove",
                     };
                   }
@@ -170,7 +170,7 @@ export function registerBlockExplorer() {
           )
           .pipe(filterNullish())
       )
-        .pipe(filter((update) => update.voxelType !== "Air"))
+        .pipe(filter((update) => update.voxelTypeKey !== "Air"))
         .pipe(
           scan<BlockEvent, BlockSummary>((summary, event) => {
             const block =
@@ -181,12 +181,12 @@ export function registerBlockExplorer() {
               ([blockNumber]) => event.blockNumber !== blockNumber
             ) as BlockSummary;
 
-            if (event.VoxelTypeKey && event.action) {
-              block[1][event.VoxelTypeKey] = block[1][event.VoxelTypeKey] || {
+            if (event.voxelTypeKey && event.action) {
+              block[1][event.voxelTypeKey] = block[1][event.voxelTypeKey] || {
                 [event.action]: 0,
               };
-              const current = block[1][event.VoxelTypeKey][event.action] || 0;
-              block[1][event.VoxelTypeKey][event.action] = current + 1;
+              const current = block[1][event.voxelTypeKey][event.action] || 0;
+              block[1][event.voxelTypeKey][event.action] = current + 1;
             }
 
             return [...otherBlocks, block].slice(-500);

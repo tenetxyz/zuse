@@ -21,7 +21,7 @@ export function createSoundSystem(network: NetworkLayer, context: NoaLayer) {
   const {
     components: { LoadingState },
     contractComponents: { VoxelType, Position },
-    api: { getTerrainVoxelAtPosition },
+    api: { getTerrainVoxelTypeAtPosition },
   } = network;
   const {
     audioEngine,
@@ -160,7 +160,7 @@ export function createSoundSystem(network: NetworkLayer, context: NoaLayer) {
         // const isOptimisticUpdate = world.entities[update.entity] == (update.entity as unknown);
         const isOptimisticUpdate = update.entity == (update.entity as unknown);
         if (!isOptimisticUpdate) return;
-        voxelTypeKey = VoxelTypeIdToKey[getTerrainVoxelAtPosition(position)];
+        voxelTypeKey = VoxelTypeIdToKey[getTerrainVoxelTypeAtPosition(position)];
         updateType = UpdateType.Exit;
       }
 

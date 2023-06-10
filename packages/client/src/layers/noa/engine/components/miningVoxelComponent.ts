@@ -194,7 +194,7 @@ export function registerMiningVoxelComponent(
 
 function createExplosion(
   noa: Engine,
-  voxel: VoxelCoord,
+  coord: VoxelCoord,
   particleModel: BABYLON.Mesh,
   particleMaterial: BABYLON.Material
 ) {
@@ -255,7 +255,7 @@ function createExplosion(
   noa.rendering.addMeshToScene(s, false);
   const local: number[] = [];
   const [x, y, z] = noa.globalToLocal(
-    [voxel.x, voxel.y + 0.5, voxel.z],
+    [coord.x, coord.y + 0.5, coord.z],
     [0, 0, 0],
     local
   );

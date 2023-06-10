@@ -76,7 +76,7 @@ export function setupHand(noa: Engine) {
   const voxelOffset = [0, 0];
   const voxelFaceUV = createFaceUV(voxelOffset, voxelSize, voxelTextureSize);
 
-  const voxel = BABYLON.MeshBuilder.CreateBox(
+  const voxelMesh = BABYLON.MeshBuilder.CreateBox(
     "voxel",
     {
       height: 8 * voxelScale,
@@ -87,18 +87,18 @@ export function setupHand(noa: Engine) {
     },
     scene
   );
-  voxel.renderingGroupId = 3;
-  voxel.rotation.x = -0.1;
-  voxel.rotation.y = -0.8;
-  voxel.rotation.z = 0.3;
+  voxelMesh.renderingGroupId = 3;
+  voxelMesh.rotation.x = -0.1;
+  voxelMesh.rotation.y = -0.8;
+  voxelMesh.rotation.z = 0.3;
 
   hand.animations.push(IDLE_ANIMATION_BOX_HAND);
-  voxel.animations.push(IDLE_ANIMATION_BOX_VOXEL);
+  voxelMesh.animations.push(IDLE_ANIMATION_BOX_VOXEL);
   scene.beginAnimation(hand, 0, 100, true);
-  scene.beginAnimation(voxel, 0, 100, true);
+  scene.beginAnimation(voxelMesh, 0, 100, true);
   noa.rendering.addMeshToScene(core);
   noa.rendering.addMeshToScene(hand);
-  noa.rendering.addMeshToScene(voxel);
+  noa.rendering.addMeshToScene(voxelMesh);
   const eyeOffset = 0.9 * noa.ents.getPositionData(noa.playerEntity)!.height;
   noa.entities.addComponentAgain(noa.playerEntity, "mesh", {
     mesh: core,
@@ -107,11 +107,11 @@ export function setupHand(noa: Engine) {
   const { mesh } = noa.entities.getMeshData(noa.playerEntity);
   hand.setParent(mesh);
   hand.position.set(X_HAND, Y_HAND, Z_HAND);
-  voxel.setParent(mesh);
-  voxel.position.set(X_VOXEL, Y_VOXEL, Z_VOXEL);
+  voxelMesh.setParent(mesh);
+  voxelMesh.position.set(X_VOXEL, Y_VOXEL, Z_VOXEL);
   noa.entities.addComponentAgain(noa.playerEntity, HAND_COMPONENT, {
     handMesh: hand,
-    voxelMesh: voxel,
+    voxelMesh,
     voxelMaterials,
   });
 }

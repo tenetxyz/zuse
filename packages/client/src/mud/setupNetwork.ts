@@ -34,7 +34,7 @@ import {
   VoxelTypeKeyToId,
 } from "../layers/network/constants";
 import {
-  getEcsVoxel,
+  getEcsVoxelType,
   getTerrain,
   getTerrainVoxel,
   getVoxelAtPosition as getVoxelAtPositionApi,
@@ -221,12 +221,12 @@ export async function setupNetwork() {
     world,
   };
 
-  function getTerrainVoxelAtPosition(position: VoxelCoord): Entity {
+  function getTerrainVoxelTypeAtPosition(position: VoxelCoord): Entity {
     return getTerrainVoxel(getTerrain(position, perlin), position, perlin);
   }
 
-  function getEcsVoxelAtPosition(position: VoxelCoord): Entity | undefined {
-    return getEcsVoxel(terrainContext, position);
+  function getEcsVoxelTypeAtPosition(position: VoxelCoord): Entity | undefined {
+    return getEcsVoxelType(terrainContext, position);
   }
   function getVoxelAtPosition(position: VoxelCoord): Entity {
     return getVoxelAtPositionApi(terrainContext, perlin, position);
@@ -311,7 +311,7 @@ export async function setupNetwork() {
 
   async function mine(coord: VoxelCoord) {
     const voxelType =
-      getEcsVoxelAtPosition(coord) ?? getTerrainVoxelAtPosition(coord);
+      getEcsVoxelTypeAtPosition(coord) ?? getTerrainVoxelTypeAtPosition(coord);
 
     if (voxelType == null) {
       throw new Error("entity has no VoxelType");
@@ -454,8 +454,8 @@ export async function setupNetwork() {
     worldContract,
     actions,
     api: {
-      getTerrainVoxelAtPosition: getTerrainVoxelAtPosition,
-      getEcsVoxelAtPosition,
+      getTerrainVoxelTypeAtPosition,
+      getEcsVoxelTypeAtPosition,
       getVoxelAtPosition,
       getEntityAtPosition,
       build,

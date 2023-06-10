@@ -21,6 +21,15 @@ export default mudConfig({
         z: "int32",
       },
     },
+    Extension: {
+      keySchema: {
+        "namespace": "bytes16",
+        "contractAddress": "bytes20",
+      },
+      schema: {
+        eventHandler: "bytes4",
+      }
+    },
     Recipe: "bytes32",
     Stake: "uint32",
     Claim: {
@@ -35,6 +44,11 @@ export default mudConfig({
       name: "UniqueEntityModule",
       root: true,
       args: [],
+    },
+    {
+      name: "KeysInTableModule",
+      root: true,
+      args: [resolveTableId("Extension")],
     },
     {
       name: "KeysWithValueModule",

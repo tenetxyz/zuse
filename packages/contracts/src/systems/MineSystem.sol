@@ -3,9 +3,10 @@ pragma solidity >=0.8.0;
 
 import { getKeysWithValue } from "@latticexyz/world/src/modules/keyswithvalue/getKeysWithValue.sol";
 import { getUniqueEntity } from "@latticexyz/world/src/modules/uniqueentity/getUniqueEntity.sol";
+import { getKeysInTable } from "@latticexyz/world/src/modules/keysintable/getKeysInTable.sol";
 import { System } from "@latticexyz/world/src/System.sol";
 import { VoxelCoord } from "../types.sol";
-import { OwnedBy, Position, PositionTableId, VoxelType } from "../codegen/Tables.sol";
+import { OwnedBy, Position, PositionTableId, VoxelType, Extension, ExtensionTableId } from "../codegen/Tables.sol";
 import { AirID, WaterID } from "../prototypes/Voxels.sol";
 import { addressToEntityKey } from "../utils.sol";
 import { IWorld } from "../codegen/world/IWorld.sol";
@@ -55,6 +56,22 @@ contract MineSystem is System {
     }
 
     OwnedBy.set(entity, addressToEntityKey(_msgSender()));
+
+    // go over all values in Extension and call them
+    // TODO: Should filter which ones to call based on key
+    // get all extensions
+    bytes32[][] memory extensions = getKeysInTable(ExtensionTableId);
+    // get all values corresponding to those keys
+    console.log("got extensions");
+    console.log(extensions.length);
+    for (uint256 i; i < extensions.length; i++) {
+      // call the extension
+        bytes16 extensionNamespace = bytes16(extensions[0][i]);
+        bytes20 extensionContractAddress = bytes20(extensions[1][i]);
+        bytes4 eventHandler = Extension.get(extensionNamespace, extensionContractAddress);
+        console.log("eventHandler");
+        console.logBytes4(eventHandler);
+    }
 
     return entity;
   }

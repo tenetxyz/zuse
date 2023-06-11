@@ -59,21 +59,18 @@ contract MineSystem is System {
 
     // go over all values in Extension and call them
     // TODO: Should filter which ones to call based on key
-    // get all extensions
+    // Get all extensions
     bytes32[][] memory extensions = getKeysInTable(ExtensionTableId);
-    // get all values corresponding to those keys
-    // console.log("got extensions");
-    // console.log(extensions.length);
+    // Get all values corresponding to those keys
     bytes32 centerEntityId = entity;
     bytes32[] memory neighbourEntityIds = new bytes32[](6);
 
     for (uint256 i; i < extensions.length; i++) {
-        // call the extension
+        // Call the extension
         bytes16 extensionNamespace = bytes16(extensions[i][0]);
         bytes4 eventHandler = Extension.get(extensionNamespace);
-        // console.log("eventHandler");
-        // console.logBytes4(eventHandler);
         (bool success, bytes memory returnData) = _world().call(abi.encodeWithSelector(eventHandler, centerEntityId, neighbourEntityIds));
+        // TODO: Add error handling
     }
 
     return entity;

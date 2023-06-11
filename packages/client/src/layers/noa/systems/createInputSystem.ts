@@ -150,7 +150,6 @@ export function createInputSystem(network: NetworkLayer, context: NoaLayer) {
     const {
       position: [x, y, z],
     } = targetedBlock;
-
     if (
       miningComponent.coord.x !== x ||
       miningComponent.coord.y !== y ||

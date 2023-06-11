@@ -57,7 +57,7 @@ contract MineSystem is System {
 
     OwnedBy.set(entity, addressToEntityKey(_msgSender()));
 
-    // go over all values in Extension and call them
+    // Go over all registered extensions and call them
     // TODO: Should filter which ones to call based on key
     // Get all extensions
     bytes32[][] memory extensions = getKeysInTable(ExtensionTableId);

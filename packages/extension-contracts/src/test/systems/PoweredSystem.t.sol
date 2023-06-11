@@ -6,9 +6,9 @@ import { MudV2Test } from "@latticexyz/std-contracts/src/test/MudV2Test.t.sol";
 import { getKeysWithValue } from "@latticexyz/world/src/modules/keyswithvalue/getKeysWithValue.sol";
 
 import { IWorld } from "../../codegen/world/IWorld.sol";
-import { Counter, CounterTableId } from "../../codegen/Tables.sol";
+import { Powered, PoweredTableId } from "../../codegen/Tables.sol";
 
-contract CounterTest is MudV2Test {
+contract PoweredSystemTest is MudV2Test {
   IWorld public world;
 
   function setUp() public override {
@@ -25,14 +25,12 @@ contract CounterTest is MudV2Test {
     assertTrue(codeSize > 0);
   }
 
-  function testCounter() public {
-    // Expect the counter to be 1 because it was incremented in the PostDeploy script.
-    uint32 counter = Counter.get(world);
-    assertEq(counter, 1);
+  function testEventHandler() public {
+    bytes32 centerEntityId = bytes32(uint256(1));
+    bytes32[] memory neighbourEntityIds = new bytes32[](6);
 
-    // Expect the counter to be 2 after calling increment.
-    world.dhvani_IncrementSystem_increment();
-    counter = Counter.get(world);
-    assertEq(counter, 2);
+    world.dhvani_PoweredSystem_eventHandler(centerEntityId, neighbourEntityIds);
+
+     // assertEq(counter, 2);
   }
 }

@@ -59,13 +59,13 @@ bytes32 constant BricksID = bytes32(keccak256("voxel.Bricks"));
 
 function defineVoxels(IWorld world) {
     VoxelPrototype.set(bytes32(GrassID), true);
-    Occurrence.set(GrassID, world.OGrass.selector);
+    Occurrence.set(GrassID, world.tenet_OccurrenceSystem_OGrass.selector);
 
     VoxelPrototype.set(bytes32(DirtID), true);
-    Occurrence.set(DirtID, world.ODirt.selector);
+    Occurrence.set(DirtID, world.tenet_OccurrenceSystem_ODirt.selector);
 
     VoxelPrototype.set(bytes32(BedrockID), true);
-    Occurrence.set(BedrockID, world.OBedrock.selector);
+    Occurrence.set(BedrockID, world.tenet_OccurrenceSystem_OBedrock.selector);
 
     VoxelPrototype.set(bytes32(LogID), true);
 

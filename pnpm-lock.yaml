@@ -260,6 +260,9 @@ importers:
       '@latticexyz/cli':
         specifier: 2.0.0-alpha.1.197+5e6cc0f5
         version: 2.0.0-alpha.1.197(@ethersproject/bytes@5.7.0)(google-protobuf@3.21.2)
+      '@latticexyz/config':
+        specifier: 2.0.0-alpha.1.197+5e6cc0f5
+        version: 2.0.0-alpha.1.197(typescript@5.0.4)
       '@latticexyz/schema-type':
         specifier: 2.0.0-alpha.1.197+5e6cc0f5
         version: 2.0.0-alpha.1.197(typescript@5.0.4)(zod@3.21.4)

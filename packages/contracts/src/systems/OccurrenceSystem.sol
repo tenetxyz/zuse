@@ -27,14 +27,14 @@ contract OccurrenceSystem is System {
 
   // Occurence functions
   function OGrass(VoxelCoord memory coord) public view returns (bytes32) {
-    return IWorld(_world()).Grass(coord);
+    return IWorld(_world()).tenet_LibTerrainSystem_Grass(coord);
   }
 
   function ODirt(VoxelCoord memory coord) public view returns (bytes32) {
-    return IWorld(_world()).Dirt(coord);
+    return IWorld(_world()).tenet_LibTerrainSystem_Dirt(coord);
   }
 
   function OBedrock(VoxelCoord memory coord) public view returns (bytes32) {
-    return IWorld(_world()).Bedrock(coord);
+    return IWorld(_world()).tenet_LibTerrainSystem_Bedrock(coord);
   }
 }

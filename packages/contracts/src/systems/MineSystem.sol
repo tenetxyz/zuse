@@ -68,8 +68,8 @@ contract MineSystem is System {
       // call the extension
         bytes16 extensionNamespace = bytes16(extensions[i][0]);
         bytes4 eventHandler = Extension.get(extensionNamespace);
-        console.log("eventHandler");
-        console.logBytes4(eventHandler);
+        // console.log("eventHandler");
+        // console.logBytes4(eventHandler);
     }
 
     return entity;

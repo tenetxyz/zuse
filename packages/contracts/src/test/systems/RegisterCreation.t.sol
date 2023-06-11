@@ -10,6 +10,7 @@ import { IWorld } from "../../codegen/world/IWorld.sol";
 import { IStore } from "@latticexyz/store/src/IStore.sol";
 import { CyanWoolID } from "../../prototypes/Voxels.sol";
 import { Utilities } from "@latticexyz/std-contracts/src/test/Utilities.sol";
+import { console } from "forge-std/console.sol";
 
 contract RegisterCreationTest is MudV2Test {
   IWorld private world;
@@ -17,8 +18,6 @@ contract RegisterCreationTest is MudV2Test {
   Utilities internal immutable utils = new Utilities();
 
   address payable internal alice;
-  bytes32 voxel1;
-  bytes32 voxel2;
 
   function setUp() public override {
     super.setUp();
@@ -26,29 +25,24 @@ contract RegisterCreationTest is MudV2Test {
     store = IStore(worldAddress);
 
     alice = utils.getNextUserAddress();
+
   }
 
   function testRegisterCreation() public {
     vm.startPrank(alice);
 
-
     // Give two voxels to alice
-    voxel1 = bytes32(uint256(1)); // For some reason, I can't use: voxel1 = getUniqueEntity();
-//    voxel1 = getUniqueEntity();
-//    require(false, "failed here2");
-    VoxelType.set(voxel1, CyanWoolID);
-    OwnedBy.set(voxel1, addressToEntityKey(alice));
 
-//    voxel2 = getUniqueEntity();
-    voxel2 = bytes32(uint256(2));
-    VoxelType.set(voxel2, CyanWoolID);
-    OwnedBy.set(voxel2, addressToEntityKey(alice));
+    // NOTE: I don't think you can call Component.set(store, value);, you can only call Component.get(store, key);
+    // This is why I am gifting the voxels to Alice.
+    // For some reason, you also can't use: voxel1 = getUniqueEntity();
+    bytes32 voxel1 = world.giftVoxel(CyanWoolID);
+    bytes32 voxel2 = world.giftVoxel(CyanWoolID);
 
     VoxelCoord memory coord1 = VoxelCoord(1, 2, 1);
     VoxelCoord memory coord2 = VoxelCoord(2, 1, 2);
     world.build(voxel1, coord1);
     world.build(voxel2, coord2);
-//    require(false, "failed here");
 
     world.registerCreation("test creation name", coord1, coord2);
     vm.stopPrank();

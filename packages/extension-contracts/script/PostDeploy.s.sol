@@ -16,8 +16,13 @@ contract PostDeploy is Script {
     // ------------------ EXAMPLES ------------------
 
     // Call increment on the world via the registered function selector
-    uint32 newValue = IWorld(worldAddress).dhvani_IncrementSystem_increment();
-    console.log("Increment via IWorld:", newValue);
+
+    // need to call registerExtension() in the world contract with PoweredSystem
+    bytes4 poweredEventHandler = IWorld(worldAddress).dhvani_PoweredSystem_eventHandler.selector;
+
+    (bool success, bytes memory result) = worldAddress.call(abi.encodeWithSignature("tenet_ExtensionSystem_registerExtension(bytes4)", poweredEventHandler));
+    console.log("Success registerExtension");
+    console.logBool(success);
 
     vm.stopBroadcast();
   }

@@ -3,9 +3,10 @@ pragma solidity >=0.8.0;
 
 import { getKeysWithValue } from "@latticexyz/world/src/modules/keyswithvalue/getKeysWithValue.sol";
 import { getUniqueEntity } from "@latticexyz/world/src/modules/uniqueentity/getUniqueEntity.sol";
+import { getKeysInTable } from "@latticexyz/world/src/modules/keysintable/getKeysInTable.sol";
 import { System } from "@latticexyz/world/src/System.sol";
 import { VoxelCoord } from "../types.sol";
-import { OwnedBy, Position, PositionTableId, VoxelType } from "../codegen/Tables.sol";
+import { OwnedBy, Position, PositionTableId, VoxelType, Extension, ExtensionTableId } from "../codegen/Tables.sol";
 import { AirID, WaterID } from "../prototypes/Voxels.sol";
 import { addressToEntityKey } from "../utils.sol";
 import { IWorld } from "../codegen/world/IWorld.sol";
@@ -55,6 +56,22 @@ contract MineSystem is System {
     }
 
     OwnedBy.set(entity, addressToEntityKey(_msgSender()));
+
+    // Go over all registered extensions and call them
+    // TODO: Should filter which ones to call based on key
+    // Get all extensions
+    bytes32[][] memory extensions = getKeysInTable(ExtensionTableId);
+    // Get all values corresponding to those keys
+    bytes32 centerEntityId = entity;
+    bytes32[] memory neighbourEntityIds = new bytes32[](6);
+
+    for (uint256 i; i < extensions.length; i++) {
+        // Call the extension
+        bytes16 extensionNamespace = bytes16(extensions[i][0]);
+        bytes4 eventHandler = Extension.get(extensionNamespace);
+        (bool success, bytes memory returnData) = _world().call(abi.encodeWithSelector(eventHandler, centerEntityId, neighbourEntityIds));
+        // TODO: Add error handling
+    }
 
     return entity;
   }

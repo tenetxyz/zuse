@@ -30,7 +30,7 @@ contract MineSystemTest is MudV2Test {
 
   function testMineTerrain() public {
     vm.startPrank(alice);
-    VoxelCoord memory coord = VoxelCoord({ x: -1598, y: 10, z: 4650 }); // Sand
+    VoxelCoord memory coord = VoxelCoord({ x: -1598, y: 10, z: 4650 }); // Grass
     console.log("testMineTerrain");
 
     bytes32 minedEntity = world.tenet_MineSystem_mine(coord, GrassID);

@@ -38,6 +38,7 @@ export default mudConfig({
         claimer: "bytes32",
       },
     },
+    Voxels: "bytes32[]", // used to store the voxels for a creation
   },
   modules: [
     {

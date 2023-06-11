@@ -3,6 +3,8 @@ pragma solidity >=0.8.0;
 
 import { CHUNK } from "./constants.sol";
 import { Coord, VoxelCoord } from "./types.sol";
+import { getKeysWithValue } from "@latticexyz/world/src/modules/keyswithvalue/getKeysWithValue.sol";
+import { Position, PositionTableId } from "./codegen/Tables.sol";
 
 function addressToEntityKey(address addr) pure returns (bytes32) {
   return bytes32(uint256(uint160(addr)));
@@ -25,4 +27,8 @@ function initializeArray(uint256 x, uint256 y) pure returns (uint256[][] memory)
     arr[i] = new uint256[](y);
   }
   return arr;
+}
+
+function getEntitiesAtCoord(VoxelCoord memory coord) view returns (bytes32[] memory) {
+    return getKeysWithValue(PositionTableId, Position.encode(coord.x, coord.y, coord.z));
 }

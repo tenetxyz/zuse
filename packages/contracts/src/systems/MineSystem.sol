@@ -1,14 +1,13 @@
 // SPDX-License-Identifier: MIT
 pragma solidity >=0.8.0;
 
-import { getKeysWithValue } from "@latticexyz/world/src/modules/keyswithvalue/getKeysWithValue.sol";
 import { getUniqueEntity } from "@latticexyz/world/src/modules/uniqueentity/getUniqueEntity.sol";
 import { getKeysInTable } from "@latticexyz/world/src/modules/keysintable/getKeysInTable.sol";
 import { System } from "@latticexyz/world/src/System.sol";
 import { VoxelCoord } from "../types.sol";
 import { OwnedBy, Position, PositionTableId, VoxelType, Extension, ExtensionTableId } from "../codegen/Tables.sol";
 import { AirID, WaterID } from "../prototypes/Voxels.sol";
-import { addressToEntityKey } from "../utils.sol";
+import { addressToEntityKey, getEntitiesAtCoord } from "../utils.sol";
 import { IWorld } from "../codegen/world/IWorld.sol";
 import { Occurrence } from "../codegen/Tables.sol";
 import { console } from "forge-std/console.sol";
@@ -22,8 +21,8 @@ contract MineSystem is System {
 
     // TODO: check claim in chunk
 
-    // Check ECS voxels at coord
-    bytes32[] memory entitiesAtPosition = getKeysWithValue(PositionTableId, Position.encode(coord.x, coord.y, coord.z));
+    // Check ECS blocks at coord
+    bytes32[] memory entitiesAtPosition = getEntitiesAtCoord(coord);
 
     bytes32 entity;
 

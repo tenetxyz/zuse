@@ -16,18 +16,13 @@ contract PostDeploy is Script {
     // ------------------ EXAMPLES ------------------
 
     // Call increment on the world via the registered function selector
-    // uint32 newValue = IWorld(worldAddress).dhvani_IncrementSystem_increment();
-    // console.log("Increment via IWorld:", newValue);
 
     // need to call registerExtension() in the world contract with PoweredSystem
-    // address worldAddress = 0x5FbDB2315678afecb367f032d93F642f64180aa3;
     bytes4 poweredEventHandler = IWorld(worldAddress).dhvani_PoweredSystem_eventHandler.selector;
     console.log("post deploy script");
     console.log(worldAddress);
     console.logBytes4(poweredEventHandler);
-    // get the namespace
 
-    // address deployToWorldAddress = 0x5FbDB2315678afecb367f032d93F642f64180aa3;
     // console.log(deployToWorldAddress);
     (bool success, bytes memory result) = worldAddress.call(abi.encodeWithSignature("tenet_ExtensionSystem_registerExtension(bytes4)", poweredEventHandler));
     console.log("success");
@@ -36,5 +31,3 @@ contract PostDeploy is Script {
     vm.stopBroadcast();
   }
 }
-
-// forge script PostDeploy --sig run(address) 0x5FbDB2315678afecb367f032d93F642f64180aa3 --broadcast --rpc-url http://127.0.0.1:8545 -vvv

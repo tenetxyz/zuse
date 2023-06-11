@@ -16,10 +16,10 @@ export default mudConfig({
     },
   },
   modules: [
-    {
-      name: "KeysInTableModule",
-      root: true,
-      args: [resolveTableId("Powered")],
-    },
+    // {
+    //   name: "KeysInTableModule",
+    //   root: false,
+    //   args: [resolveTableId("Powered")],
+    // },
   ],
 });

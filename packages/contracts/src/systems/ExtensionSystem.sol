@@ -28,7 +28,6 @@ contract ExtensionSystem is System {
     require(!hasKey(ExtensionTableId, keyTuple), "Extension already registered");
 
     // register extension
-
     Extension.set(namespace, eventHandler);
   }
 

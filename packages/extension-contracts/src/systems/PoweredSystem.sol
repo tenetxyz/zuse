@@ -23,19 +23,25 @@ contract PoweredSystem is System {
     keyTuple[0] = bytes32((callerNamespace));
     keyTuple[1] = bytes32((centerEntityId));
 
-    if(!hasKey(PoweredTableId, keyTuple)){
-      Powered.set(callerNamespace, centerEntityId, PoweredData({
+     Powered.set(callerNamespace, centerEntityId, PoweredData({
         isActive: false,
         direction: 0
       }));
-    } else {
-      PoweredData memory centerPowerData = Powered.get(callerNamespace, centerEntityId);
-      if(!centerPowerData.isActive){
-        // set to active
-        centerPowerData.isActive = true;
-        Powered.set(callerNamespace, centerEntityId, centerPowerData);
-      }
-    }
+
+    // TODO: Add back once non-root module is supported
+    // if(!hasKey(PoweredTableId, keyTuple)){
+    //   Powered.set(callerNamespace, centerEntityId, PoweredData({
+    //     isActive: false,
+    //     direction: 0
+    //   }));
+    // } else {
+    //   PoweredData memory centerPowerData = Powered.get(callerNamespace, centerEntityId);
+    //   if(!centerPowerData.isActive){
+    //     // set to active
+    //     centerPowerData.isActive = true;
+    //     Powered.set(callerNamespace, centerEntityId, centerPowerData);
+    //   }
+    // }
 
     return changedEntityIds;
   }

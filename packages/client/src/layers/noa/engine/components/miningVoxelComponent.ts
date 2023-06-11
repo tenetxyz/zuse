@@ -90,7 +90,7 @@ export function registerMiningVoxelComponent(
     state: {
       breakingVoxelMeshes: [],
       active: false,
-      voxel: { x: 0, y: 0, z: 0 },
+      coord: { x: 0, y: 0, z: 0 },
       startTimestamp: 0,
       duration: MINING_DURATION,
     },

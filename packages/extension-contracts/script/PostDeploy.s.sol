@@ -19,13 +19,9 @@ contract PostDeploy is Script {
 
     // need to call registerExtension() in the world contract with PoweredSystem
     bytes4 poweredEventHandler = IWorld(worldAddress).dhvani_PoweredSystem_eventHandler.selector;
-    console.log("post deploy script");
-    console.log(worldAddress);
-    console.logBytes4(poweredEventHandler);
 
-    // console.log(deployToWorldAddress);
     (bool success, bytes memory result) = worldAddress.call(abi.encodeWithSignature("tenet_ExtensionSystem_registerExtension(bytes4)", poweredEventHandler));
-    console.log("success");
+    console.log("Success registerExtension");
     console.logBool(success);
 
     vm.stopBroadcast();

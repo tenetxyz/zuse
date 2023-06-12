@@ -72,7 +72,6 @@ export function registerInventoryHud() {
             if (!voxelType) return { ...acc };
             acc[voxelType] = acc[voxelType] ?? 0;
             if (curr.type === UpdateType.Exit) {
-              acc[voxelType]--; // why do we decrement here? we don't increment before this line
               return { ...acc };
             }
 
@@ -178,8 +177,13 @@ export function registerInventoryHud() {
           InventoryIndex,
           holdingVoxelType
         )?.value;
-        if (!holdingVoxelTypeSlot) {
-          console.warn("holding voxel has no slot", holdingVoxelType);
+
+        // since holdingVoxelTypeSlot can be 0, we cannot use !holdingVoxelTypeSlot
+        if (holdingVoxelTypeSlot === undefined) {
+          console.warn(
+            "we are not holding a voxel of type",
+            VoxelTypeIdToKey[holdingVoxelType]
+          );
           return;
         }
         setComponent(InventoryIndex, holdingVoxelType, { value: slot });

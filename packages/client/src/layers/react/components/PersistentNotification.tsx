@@ -53,12 +53,7 @@ export function registerPersistentNotifications() {
       colEnd: 13,
     },
     (layers) => {
-      return concat(
-        of(1),
-        layers.noa.components.UI.update$.pipe(
-          map((e) => (e.value[0]?.showInventory ? null : true))
-        )
-      );
+      return of(layers);
     },
     (layers) => {
       const {

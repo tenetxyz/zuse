@@ -1,7 +1,7 @@
 // the name of this file is misleading
 // it also contains UI elements that are NOT related to the inventory, namely, the music control (bottom left corner)
 // and the opcraft logo (bottom right corner)
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { registerUIComponent } from "../engine";
 import { combineLatest, concat, map, of, scan } from "rxjs";
 import styled from "styled-components";
@@ -21,12 +21,12 @@ import {
 } from "@latticexyz/recs";
 import { getVoxelIconUrl } from "../../noa/constants";
 import { VoxelTypeIdToKey } from "../../network/constants";
-import { formatEntityID, to64CharAddress } from "../../../utils/entity";
+import { to64CharAddress } from "../../../utils/entity";
 import { Sounds } from "./Sounds";
 import { CreativeInventory } from "./CreativeInventory";
 import { Inventory } from "./Inventory";
 
-// This gives us 36 inventory slots. As of now there are 34 types of voxeltypes, so it should fit.
+// This gives us 36 inventory slots. As of now there are 34 types of VoxelTypes, so it should fit.
 export const INVENTORY_WIDTH = 9;
 export const INVENTORY_HEIGHT = 4;
 
@@ -203,7 +203,7 @@ export function registerInventoryHud() {
           ]),
         ];
 
-        // since we no longer have voxeltypes of this type, remove this from the InventoryIndex,
+        // since we no longer have VoxelTypes of this type, remove this from the InventoryIndex,
         // so new voxeltypes can be placed on that index
         removeComponent(InventoryIndex, voxelTypeIdAtSlot);
 

@@ -32,3 +32,34 @@ function initializeArray(uint256 x, uint256 y) pure returns (uint256[][] memory)
 function getEntitiesAtCoord(VoxelCoord memory coord) view returns (bytes32[] memory) {
     return getKeysWithValue(PositionTableId, Position.encode(coord.x, coord.y, coord.z));
 }
+
+// Thus function gets around solidity's horrible lack of dynamic arrays, sets, and data structure support
+// Note: this is O(n^2) and will be slow for large arrays
+function removeDuplicates(bytes32[] memory arr) pure returns (bytes32[] memory) {
+    bytes32[] memory uniqueArray = new bytes32[](arr.length);
+    uint uniqueCount = 0;
+
+    for (uint i = 0; i < arr.length; i++) {
+        bool isDuplicate = false;
+        for (uint j = 0; j < uniqueCount; j++) {
+            if (arr[i] == uniqueArray[j]) {
+                isDuplicate = true;
+                break;
+            }
+        }
+        if (!isDuplicate) {
+            uniqueArray[uniqueCount] = arr[i];
+            uniqueCount++;
+        }
+    }
+
+    bytes32[] memory result = new bytes32[](uniqueCount);
+    for (uint i = 0; i < uniqueCount; i++) {
+        result[i] = uniqueArray[i];
+    }
+
+    return result;
+}
+
+
+

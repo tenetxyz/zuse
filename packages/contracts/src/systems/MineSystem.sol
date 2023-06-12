@@ -55,6 +55,7 @@ contract MineSystem is System {
     }
 
     OwnedBy.set(entity, addressToEntityKey(_msgSender()));
+    require(IWorld(_world()).tenet_GiftVoxelSystem_numUniqueVoxelTypesIOwn() <= 36, "you can only own 36 voxel types at a time");
 
     // Go over all registered extensions and call them
     // TODO: Should filter which ones to call based on key

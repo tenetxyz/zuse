@@ -15,9 +15,9 @@ export const registerUIComponent = action(
     Render: React.FC<NonNullable<T>>
   ) => {
     EngineStore.UIComponents.set(id, {
+      gridConfig,
       requirement,
       Render: Render as React.FC,
-      gridConfig,
     });
   }
 );

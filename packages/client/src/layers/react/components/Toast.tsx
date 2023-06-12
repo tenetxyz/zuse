@@ -1,7 +1,7 @@
 import React from "react";
 import { registerUIComponent } from "../engine";
-import { concat, map, of } from "rxjs";
-import { ToastContainer, toast, Slide } from "react-toastify";
+import { of } from "rxjs";
+import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
 export function registerToast() {

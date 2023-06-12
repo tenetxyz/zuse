@@ -5,7 +5,7 @@ import { filterNullishValues } from "@latticexyz/utils";
 import { Cell } from "./Cell";
 import styled from "styled-components";
 import { GridConfiguration, UIComponent } from "../types";
-import { useStream } from "@latticexyz/std-client";
+import { useObservableValue } from "@latticexyz/react";
 import { Layers } from "../../../../types";
 
 const UIGrid = styled.div`
@@ -21,41 +21,44 @@ const UIGrid = styled.div`
   z-index: 100;
 `;
 
-const UIComponentContainer: React.FC<{ gridConfig: GridConfiguration }> =
-  React.memo(({ children, gridConfig }) => {
-    const { colStart, colEnd, rowStart, rowEnd } = gridConfig;
+const _UIComponentContainer: React.FC<{
+  children: React.ReactNode;
+  gridConfig: GridConfiguration;
+}> = ({ children, gridConfig }) => {
+  const { colStart, colEnd, rowStart, rowEnd } = gridConfig;
 
-    return (
-      <Cell
-        style={{
-          gridRowStart: rowStart,
-          gridRowEnd: rowEnd,
-          gridColumnStart: colStart,
-          gridColumnEnd: colEnd,
-        }}
-      >
-        {children}
-      </Cell>
-    );
-  });
+  return (
+    <Cell
+      style={{
+        gridRowStart: rowStart,
+        gridRowEnd: rowEnd,
+        gridColumnStart: colStart,
+        gridColumnEnd: colEnd,
+      }}
+    >
+      {children}
+    </Cell>
+  );
+};
 
-export const UIComponentRenderer: React.FC<{
+export const UIComponentContainer = React.memo(_UIComponentContainer);
+
+const _UIComponentRenderer: React.FC<{
   layers: Layers;
   id: string;
   uiComponent: UIComponent;
-}> = React.memo(
-  ({ layers, id, uiComponent: { requirement, Render, gridConfig } }) => {
-    const req = useMemo(() => requirement(layers), [requirement, layers]);
-    const state = useStream(req);
-    if (!state) return null;
+}> = ({ layers, id, uiComponent: { requirement, Render, gridConfig } }) => {
+  const req = useMemo(() => requirement(layers), [requirement, layers]);
+  const state = useObservableValue(req);
+  if (!state) return null;
 
-    return (
-      <UIComponentContainer key={`component-${id}`} gridConfig={gridConfig}>
-        {<Render {...state} />}
-      </UIComponentContainer>
-    );
-  }
-);
+  return (
+    <UIComponentContainer key={`component-${id}`} gridConfig={gridConfig}>
+      {<Render {...state} />}
+    </UIComponentContainer>
+  );
+};
+export const UIComponentRenderer = React.memo(_UIComponentRenderer);
 
 export const ComponentRenderer: React.FC = observer(() => {
   const { UIComponents } = useEngineStore();

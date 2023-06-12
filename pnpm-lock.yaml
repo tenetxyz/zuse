@@ -70,6 +70,9 @@ importers:
       '@latticexyz/schema-type':
         specifier: link:../../../mud/packages/schema-type
         version: link:../../../mud/packages/schema-type
+      '@latticexyz/services':
+        specifier: link:../../../mud/packages/services
+        version: link:../../../mud/packages/services
       '@latticexyz/solecs':
         specifier: link:../../../mud/packages/solecs
         version: link:../../../mud/packages/solecs

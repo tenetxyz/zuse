@@ -53,31 +53,35 @@ export function registerPersistentNotifications() {
       colEnd: 13,
     },
     (layers) => {
-      return of(layers);
-    },
-    (layers) => {
       const {
         network: {
           streams: { balanceGwei$ },
         },
       } = layers;
 
-      const claimer = "todo: remove claiming";
-      const canBuild = true;
+      return of({ balanceGwei$ });
+    },
+    (props) => {
+      const { balanceGwei$ } = props;
+      const [notificationElement, setNotificationElement] =
+        useState<React.ReactNode | null>(null);
 
-      const notification =
-        balanceGwei$ === 0 ? (
-          <>
-            <Red>X</Red> you need to request a drip before you can mine or build
-            (top right).
-          </>
-        ) : null;
+      balanceGwei$.subscribe((balanceGwei) => {
+        if (balanceGwei === 0) {
+          setNotificationElement(
+            <>
+              <Red>X</Red> you need to request a drip before you can mine or
+              build (top right).
+            </>
+          );
+        }
+      });
 
       return (
         <>
-          {notification && (
+          {notificationElement && (
             <NotificationWrapper>
-              <Container>{notification}</Container>
+              <Container>{notificationElement}</Container>
             </NotificationWrapper>
           )}
         </>

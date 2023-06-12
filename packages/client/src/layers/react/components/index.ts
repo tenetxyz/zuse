@@ -7,6 +7,7 @@ import { registerSidebar } from "./Sidebar";
 import { registerPlugins } from "./Plugins";
 import { registerToast } from "./Toast";
 import { registerAdminPanel } from "./AdminPanel";
+import { registerPersistentNotifications } from "./PersistentNotification";
 export * from "./common";
 
 export function registerUIComponents() {
@@ -18,6 +19,7 @@ export function registerUIComponents() {
   registerSidebar();
   registerToast();
   registerAdminPanel();
+  registerPersistentNotifications();
   // TODO: Need to make sure plugin structure works with MUD2 before renabling
   // registerPlugins();
 }

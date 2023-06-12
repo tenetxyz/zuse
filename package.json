@@ -26,10 +26,5 @@
   "engines": {
     "node": "18.x",
     "pnpm": "8.x"
-  },
-  "pnpm": {
-    "patchedDependencies": {
-      "@latticexyz/std-client@2.0.0-alpha.1.197": "patches/@latticexyz__std-client@2.0.0-alpha.1.197.patch"
-    }
   }
 }

@@ -7,9 +7,7 @@
 
 ### Linking MUD
 
-We've forked MUD so we can modify some of the packages. Currently the following packages are being used from the fork:
-
-- `recs`
+We've forked MUD so we can modify some of the packages. We are using our fork of each of mud's package
 
 Here are the steps to link the local MUD package.
 

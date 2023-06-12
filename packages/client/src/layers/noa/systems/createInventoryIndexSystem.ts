@@ -10,17 +10,19 @@ import {
   removeComponent,
   runQuery,
 } from "@latticexyz/recs";
-import { computedToStream } from "@latticexyz/utils";
+import { awaitStreamValue, computedToStream } from "@latticexyz/utils";
 import { switchMap } from "rxjs";
 import { NetworkLayer } from "../../network";
 import { NoaLayer } from "../types";
 import { to64CharAddress } from "../../../utils/entity";
+import { SyncState } from "@latticexyz/network";
 
 export function createInventoryIndexSystem(
   network: NetworkLayer,
   context: NoaLayer
 ) {
   const {
+    components: { LoadingState },
     contractComponents: { OwnedBy, VoxelType },
     network: { connectedAddress },
   } = network;
@@ -46,6 +48,28 @@ export function createInventoryIndexSystem(
         ).update$
     )
   );
+  const removeInventoryIndexesForItemsWeNoLongerOwn = () => {
+    const itemsIOwn = runQuery([
+      HasValue(OwnedBy, { value: to64CharAddress(connectedAddress.get()) }),
+      Has(VoxelType),
+    ]);
+    const itemTypesIOwn = new Set(
+      Array.from(itemsIOwn).map(
+        (item) => getComponentValue(VoxelType, item)?.value as Entity
+      )
+    );
+    for (const itemType of InventoryIndex.values.value.keys()) {
+      // since itemType is a symbol, we use itemType.description to get the bytes32 itemType id as a string type
+      if (!itemTypesIOwn.has(itemType.description as Entity)) {
+        removeComponent(InventoryIndex, itemType.description as Entity);
+      }
+    }
+  };
+
+  awaitStreamValue(
+    LoadingState.update$,
+    ({ value }) => value[0]?.state === SyncState.LIVE
+  ).then(removeInventoryIndexesForItemsWeNoLongerOwn);
 
   // this function assigns inventory indexes to voxeltypes we own
   // whenever we get/lose a voxeltype, this function is run

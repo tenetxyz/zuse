@@ -1,56 +1,17 @@
-import {
-  Absolute,
-  AbsoluteBorder,
-  Background,
-  Center,
-  Container,
-  Gold,
-  Red,
-  Slot,
-} from "./common";
+import { Container, Red } from "./common";
 import React, { useEffect, useState } from "react";
 import styled from "styled-components";
-import {
-  ComponentValue,
-  Entity,
-  getComponentValue,
-  getEntitiesWithValue,
-  HasValue,
-  removeComponent,
-  runQuery,
-  setComponent,
-  Type,
-} from "@latticexyz/recs";
 import { registerUIComponent } from "../engine";
-import { VoxelTypeIdToKey } from "../../network/constants";
-import { getVoxelIconUrl } from "../../noa/constants";
-import { to64CharAddress } from "../../../utils/entity";
-import { range } from "@latticexyz/utils";
-import { Sounds } from "./Sounds";
-import { Inventory } from "./Inventory";
-import { CreativeInventory } from "./CreativeInventory";
-import {
-  ActionBarWrapper,
-  INVENTORY_HEIGHT,
-  INVENTORY_WIDTH,
-} from "./InventoryHud";
-import { combineLatest, concat, map, of } from "rxjs";
-
-interface Props {
-  claim:
-    | ComponentValue<{ stake: Type.Number; claimer: Type.String }, undefined>
-    | undefined;
-  balance: number;
-}
+import { distinctUntilChanged, of } from "rxjs";
 
 export function registerPersistentNotifications() {
   registerUIComponent(
-    "Inventory",
+    "PersistentNotifications",
     {
-      rowStart: 1,
+      rowStart: 10,
       rowEnd: 13,
-      colStart: 1,
-      colEnd: 13,
+      colStart: 4,
+      colEnd: 10,
     },
     (layers) => {
       const {
@@ -58,24 +19,27 @@ export function registerPersistentNotifications() {
           streams: { balanceGwei$ },
         },
       } = layers;
+      const balance$ = balanceGwei$.pipe(distinctUntilChanged());
 
-      return of({ balanceGwei$ });
+      return of({ balance$ });
     },
     (props) => {
-      const { balanceGwei$ } = props;
+      const { balance$ } = props;
       const [notificationElement, setNotificationElement] =
         useState<React.ReactNode | null>(null);
 
-      balanceGwei$.subscribe((balanceGwei) => {
-        if (balanceGwei === 0) {
-          setNotificationElement(
-            <>
-              <Red>X</Red> you need to request a drip before you can mine or
-              build (top right).
-            </>
-          );
-        }
-      });
+      useEffect(() => {
+        balance$.subscribe((balance) => {
+          if (balance === 0) {
+            setNotificationElement(
+              <>
+                <Red>X</Red> you need to request a drip before you can mine or
+                build (top right).
+              </>
+            );
+          }
+        });
+      }, []);
 
       return (
         <>
@@ -92,7 +56,7 @@ export function registerPersistentNotifications() {
 
 const NotificationWrapper = styled.div`
   position: absolute;
-  top: -25px;
+  bottom: 100px;
   transform: translate(-50%, -100%);
   left: 50%;
   line-height: 100%;

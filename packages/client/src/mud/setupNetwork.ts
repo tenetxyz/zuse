@@ -305,7 +305,11 @@ export async function setupNetwork() {
   }
 
   async function mineSystem(coord: VoxelCoord, voxel: Entity) {
-    const tx = await worldSend("tenet_MineSystem_mine", [coord, voxel, { gasLimit: 5_000_000 }]);
+    const tx = await worldSend("tenet_MineSystem_mine", [
+      coord,
+      voxel,
+      { gasLimit: 5_000_000 },
+    ]);
     return tx;
   }
 
@@ -368,7 +372,7 @@ export async function setupNetwork() {
       execute: async () => {
         const tx = await worldSend("tenet_GiftVoxelSystem_giftVoxel", [
           voxelType,
-          { gasLimit: 1_000_000 },
+          { gasLimit: 5_000_000 },
         ]);
       },
       updates: () => [

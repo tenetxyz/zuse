@@ -17,14 +17,13 @@ contract GiftVoxelSystem is System {
         return entity;
     }
 
-    // this function is public just for testing
     function numUniqueVoxelTypesIOwn() public view returns (uint) {
         // first make sure the user has enough inventory room to receive the gift
         QueryFragment[] memory fragments = new QueryFragment[](2);
         fragments[0] = QueryFragment(QueryType.HasValue, OwnedByTableId, abi.encode(addressToEntityKey(_msgSender()))); // Specify OwnedBy first since it's a more restrictive filter (for performance reasons)
         fragments[1] = QueryFragment(QueryType.Has, VoxelTypeTableId, new bytes(0));
 
-        bytes32[][] memory voxelsIOwnTuples = query(fragments); // an array of 1-tuple keys are returned
+        bytes32[][] memory voxelsIOwnTuples = query(fragments); // an array of 1-tuple keys are returned e.g. [[key1], [key2], [key3]]
         if(voxelsIOwnTuples.length == 0){
             return 0;
         }

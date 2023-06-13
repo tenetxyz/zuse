@@ -13,7 +13,7 @@ import { VoxelCoord } from "../../types.sol";
 import { Utilities } from "@latticexyz/std-contracts/src/test/Utilities.sol";
 import { console } from "forge-std/console.sol";
 
-contract MineSystemTest is MudV2Test {
+contract MineTest is MudV2Test {
    IWorld private world;
    IStore private store;
    Utilities internal immutable utils = new Utilities();

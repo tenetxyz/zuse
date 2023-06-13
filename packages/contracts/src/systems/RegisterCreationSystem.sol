@@ -30,7 +30,7 @@ contract RegisterCreationSystem is System {
         bytes32 creationId = getCreationHash(creationVoxelIds, _msgSender());
 
         Name.set(creationId, creationName);
-        OwnedBy.set(creationId, addressToEntityKey(msg.sender));
+        OwnedBy.set(creationId, addressToEntityKey(_msgSender()));
 
         // now we can safely make this new creation
         VoxelCoord[] memory repositionedCoords = repositionBlocksSoLowerSouthwestCornerIsOnOrigin(

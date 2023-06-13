@@ -28,7 +28,7 @@ export default mudConfig({
       },
       schema: {
         eventHandler: "bytes4",
-      }
+      },
     },
     Recipe: "bytes32",
     Stake: "uint32",
@@ -63,6 +63,11 @@ export default mudConfig({
     },
     {
       name: "KeysWithValueModule",
+      root: true,
+      args: [resolveTableId("VoxelType")],
+    },
+    {
+      name: "KeysInTableModule",
       root: true,
       args: [resolveTableId("VoxelType")],
     },

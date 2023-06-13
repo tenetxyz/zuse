@@ -44,47 +44,50 @@ importers:
         specifier: ^5.7.2
         version: 5.7.2
       '@latticexyz/common':
-        specifier: 2.0.0-alpha.1.197+5e6cc0f5
-        version: 2.0.0-alpha.1.197(typescript@5.0.4)(zod@3.21.4)
+        specifier: link:../../../mud/packages/common
+        version: link:../../../mud/packages/common
       '@latticexyz/dev-tools':
-        specifier: 2.0.0-alpha.1.197+5e6cc0f5
-        version: 2.0.0-alpha.1.197(@latticexyz/network@2.0.0-alpha.1.197)(@latticexyz/std-client@2.0.0-alpha.1.197)(@latticexyz/utils@2.0.0-alpha.1.197)(@latticexyz/world@2.0.0-alpha.1.197)(typescript@5.0.4)(zod@3.21.4)
+        specifier: link:../../../mud/packages/dev-tools
+        version: link:../../../mud/packages/dev-tools
       '@latticexyz/ecs-browser':
-        specifier: 2.0.0-alpha.1.197+5e6cc0f5
-        version: 2.0.0-alpha.1.197(@ethersproject/bytes@5.7.0)(csstype@3.1.2)(google-protobuf@3.21.2)(react-dom@18.2.0)(typescript@5.0.4)(zod@3.21.4)
+        specifier: link:../../../mud/packages/ecs-browser
+        version: link:../../../mud/packages/ecs-browser
       '@latticexyz/network':
-        specifier: 2.0.0-alpha.1.197+5e6cc0f5
-        version: 2.0.0-alpha.1.197(google-protobuf@3.21.2)(typescript@5.0.4)(zod@3.21.4)
+        specifier: link:../../../mud/packages/network
+        version: link:../../../mud/packages/network
       '@latticexyz/noise':
-        specifier: 2.0.0-alpha.1.197+5e6cc0f5
-        version: 2.0.0-alpha.1.197
+        specifier: link:../../../mud/packages/noise
+        version: link:../../../mud/packages/noise
       '@latticexyz/phaserx':
-        specifier: 2.0.0-alpha.1.197+5e6cc0f5
-        version: 2.0.0-alpha.1.197
+        specifier: link:../../../mud/packages/phaserx
+        version: link:../../../mud/packages/phaserx
       '@latticexyz/react':
-        specifier: 2.0.0-alpha.1.197+5e6cc0f5
-        version: 2.0.0-alpha.1.197(typescript@5.0.4)(zod@3.21.4)
+        specifier: link:../../../mud/packages/react
+        version: link:../../../mud/packages/react
       '@latticexyz/recs':
         specifier: link:../../../mud/packages/recs
         version: link:../../../mud/packages/recs
       '@latticexyz/schema-type':
-        specifier: 2.0.0-alpha.1.197+5e6cc0f5
-        version: 2.0.0-alpha.1.197(typescript@5.0.4)(zod@3.21.4)
+        specifier: link:../../../mud/packages/schema-type
+        version: link:../../../mud/packages/schema-type
+      '@latticexyz/services':
+        specifier: link:../../../mud/packages/services
+        version: link:../../../mud/packages/services
       '@latticexyz/solecs':
-        specifier: 2.0.0-alpha.1.197+5e6cc0f5
-        version: 2.0.0-alpha.1.197
+        specifier: link:../../../mud/packages/solecs
+        version: link:../../../mud/packages/solecs
       '@latticexyz/std-client':
-        specifier: 2.0.0-alpha.1.197+5e6cc0f5
-        version: 2.0.0-alpha.1.197(patch_hash=ad7eibhiuryq6uguimkfjxdn3m)(@ethersproject/bytes@5.7.0)(google-protobuf@3.21.2)(typescript@5.0.4)(zod@3.21.4)
+        specifier: link:../../../mud/packages/std-client
+        version: link:../../../mud/packages/std-client
       '@latticexyz/std-contracts':
-        specifier: 2.0.0-alpha.1.197+5e6cc0f5
-        version: 2.0.0-alpha.1.197
+        specifier: link:../../../mud/packages/std-contracts
+        version: link:../../../mud/packages/std-contracts
       '@latticexyz/utils':
-        specifier: 2.0.0-alpha.1.197+5e6cc0f5
-        version: 2.0.0-alpha.1.197
+        specifier: link:../../../mud/packages/utils
+        version: link:../../../mud/packages/utils
       '@latticexyz/world':
-        specifier: 2.0.0-alpha.1.197+5e6cc0f5
-        version: 2.0.0-alpha.1.197(typescript@5.0.4)
+        specifier: link:../../../mud/packages/world
+        version: link:../../../mud/packages/world
       '@wagmi/chains':
         specifier: ^0.2.22
         version: 0.2.22(typescript@5.0.4)

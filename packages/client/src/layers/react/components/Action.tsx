@@ -107,7 +107,7 @@ export const Action = ({ state, icon, title, description, link }: Props) => (
     clickable={Boolean(link)}
   >
     {/* TODO: placeholder icon if none is set so we can fill the gap and keep text aligned */}
-    <div className="ActionIcon">{icon ? <img src={icon} /> : null}</div>
+    <div className="ActionIcon">{icon ? <img src={icon} alt="" /> : null}</div>
     <div className="ActionLabel">
       <div className="ActionTitle">{title}</div>
       {description ? (

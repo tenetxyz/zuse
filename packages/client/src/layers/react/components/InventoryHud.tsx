@@ -1,7 +1,7 @@
 // the name of this file is misleading
 // it also contains UI elements that are NOT related to the inventory, namely, the music control (bottom left corner)
 // and the opcraft logo (bottom right corner)
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { registerUIComponent } from "../engine";
 import { combineLatest, concat, map, of, scan } from "rxjs";
 import styled from "styled-components";
@@ -21,13 +21,12 @@ import {
 } from "@latticexyz/recs";
 import { getVoxelIconUrl } from "../../noa/constants";
 import { VoxelTypeIdToKey } from "../../network/constants";
-import { formatEntityID, to64CharAddress } from "../../../utils/entity";
+import { to64CharAddress } from "../../../utils/entity";
 import { Sounds } from "./Sounds";
 import { CreativeInventory } from "./CreativeInventory";
 import { Inventory } from "./Inventory";
-import { UrgentNotification } from "./UrgentNotification";
 
-// This gives us 36 inventory slots. As of now there are 34 types of voxeltypes, so it should fit.
+// This gives us 36 inventory slots. As of now there are 34 types of VoxelTypes, so it should fit.
 export const INVENTORY_WIDTH = 9;
 export const INVENTORY_HEIGHT = 4;
 
@@ -44,16 +43,15 @@ export function registerInventoryHud() {
       const {
         network: {
           contractComponents: { OwnedBy, VoxelType },
-          streams: { connectedClients$, balanceGwei$ },
+          streams: { connectedClients$ },
           network: { connectedAddress },
         },
         noa: {
           components: { UI, InventoryIndex, SelectedSlot, CraftingTable },
-          streams: { stakeAndClaim$ },
         },
       } = layers;
 
-      const numVoxelsIOwnOfTypeQuery = defineQuery(
+      const VoxelsIOwnQuery = defineQuery(
         [
           HasValue(OwnedBy, { value: to64CharAddress(connectedAddress.get()) }),
           Has(VoxelType),
@@ -66,7 +64,7 @@ export function registerInventoryHud() {
       // maps voxel type -> number of voxels I own of that type
       const numVoxelsIOwnOfType$ = concat<{ [key: string]: number }[]>(
         of({}),
-        numVoxelsIOwnOfTypeQuery.update$.pipe(
+        VoxelsIOwnQuery.update$.pipe(
           scan((acc, curr) => {
             const voxelType = getComponentValue(VoxelType, curr.entity)?.value;
             if (!voxelType) return { ...acc };
@@ -106,9 +104,7 @@ export function registerInventoryHud() {
         numVoxelsIOwnOfType$,
         showInventory$,
         selectedSlot$,
-        stakeAndClaim$,
         connectedClients$,
-        balanceGwei$,
         inventoryIndex$,
         craftingTable$,
       ]).pipe(map((props) => ({ props })));
@@ -118,9 +114,7 @@ export function registerInventoryHud() {
         numVoxelsIOwnOfType,
         { layers, show, craftingSideLength },
         selectedSlot,
-        stakeAndClaim,
         connectedClients,
-        balance,
       ] = props;
       const {
         network: {
@@ -139,8 +133,6 @@ export function registerInventoryHud() {
       >();
       const [isUsingPersonalInventory, setIsUsingPersonalInventory] =
         useState<boolean>(true);
-
-      const { claim } = stakeAndClaim;
 
       useEffect(() => {
         if (!show) setHoldingVoxelType(undefined);
@@ -211,7 +203,7 @@ export function registerInventoryHud() {
           ]),
         ];
 
-        // since we no longer have voxeltypes of this type, remove this from the InventoryIndex,
+        // since we no longer have VoxelTypes of this type, remove this from the InventoryIndex,
         // so new voxeltypes can be placed on that index
         removeComponent(InventoryIndex, voxelTypeIdAtSlot);
 
@@ -256,7 +248,6 @@ export function registerInventoryHud() {
           <LogoContainer>
             <PixelatedImage src="/img/opcraft-dark.png" width={150} />
           </LogoContainer>
-          <UrgentNotification claim={claim} balance={balance} />
         </BottomBar>
       );
       const SelectedInventory = isUsingPersonalInventory ? (

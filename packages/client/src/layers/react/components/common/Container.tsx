@@ -12,7 +12,9 @@ export const Container = styled.div`
 `;
 
 export const CloseableContainer: React.FC<
-  { onClose: () => void } & Partial<ThemedStyledFunction<"div", any, {}, never>>
+  { children: React.ReactNode; onClose: () => void } & Partial<
+    ThemedStyledFunction<"div", any, {}, never>
+  >
 > = ({ onClose, children, ...props }) => {
   return (
     <RelativeContainer {...props}>

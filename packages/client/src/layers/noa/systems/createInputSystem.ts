@@ -165,6 +165,7 @@ export function createInputSystem(network: NetworkLayer, context: NoaLayer) {
   noa.inputs.bind("alt-fire", "<mouse 3>", "R");
 
   noa.inputs.down.on("alt-fire", function () {
+    if (!canInteract()) return;
     if (!noa.container.hasPointerLock) return;
 
     if (noa.targetedBlock) {
@@ -184,7 +185,6 @@ export function createInputSystem(network: NetworkLayer, context: NoaLayer) {
       ) {
         return toggleInventory(true, true);
       }
-      if (!canInteract()) return;
       placeSelectedVoxelType({ x: pos[0], y: pos[1], z: pos[2] });
     }
   });
@@ -218,6 +218,7 @@ export function createInputSystem(network: NetworkLayer, context: NoaLayer) {
 
   noa.inputs.bind("inventory", "E");
   noa.inputs.down.on("inventory", () => {
+    if (!canInteract()) return;
     const showInventory = getComponentValue(UI, SingletonEntity)?.showInventory;
     if (!noa.container.hasPointerLock && !showInventory) {
       return;
@@ -278,6 +279,7 @@ export function createInputSystem(network: NetworkLayer, context: NoaLayer) {
 
   noa.inputs.bind("select-voxel", "V");
   noa.inputs.down.on("select-voxel", () => {
+    if (!canInteract()) return;
     // print the voxel you're looking at to the console
     if (!noa.targetedBlock) {
       return;

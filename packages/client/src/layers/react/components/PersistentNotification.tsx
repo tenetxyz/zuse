@@ -2,7 +2,12 @@ import { Container, Red } from "./common";
 import React, { useEffect, useState } from "react";
 import styled from "styled-components";
 import { registerUIComponent } from "../engine";
-import { distinctUntilChanged, of } from "rxjs";
+import { concat, distinctUntilChanged, map, of } from "rxjs";
+import {
+  IPersistentNotification,
+  NotificationIcon,
+} from "../../noa/components/persistentNotification";
+import { setComponent } from "@latticexyz/recs";
 
 export function registerPersistentNotifications() {
   registerUIComponent(
@@ -18,34 +23,82 @@ export function registerPersistentNotifications() {
         network: {
           streams: { balanceGwei$ },
         },
+        noa: {
+          components: { PersistentNotification },
+          SingletonEntity,
+        },
       } = layers;
       const balance$ = balanceGwei$.pipe(distinctUntilChanged());
+      const notification$ = concat(
+        of({ message: "", icon: NotificationIcon.NONE }),
+        PersistentNotification.update$.pipe(
+          map((notificationUpdate) => ({
+            message: notificationUpdate.value[0]?.message,
+            icon: notificationUpdate.value[0]?.icon,
+          }))
+        )
+      );
 
-      return of({ balance$ });
+      return of({
+        balance$,
+        notification$,
+        PersistentNotification,
+        SingletonEntity,
+      });
     },
     (props) => {
-      const { balance$ } = props;
-      const [notificationElement, setNotificationElement] =
-        useState<React.ReactNode | null>(null);
+      const {
+        balance$,
+        notification$,
+        PersistentNotification,
+        SingletonEntity,
+      } = props;
+      const [notification, setNotification] =
+        useState<IPersistentNotification | null>(null);
 
       useEffect(() => {
+        // this is the main piece of code that will listen for new notifications and update this component
+        notification$.subscribe((notification) => {
+          if (notification.message !== "") {
+            setNotification({
+              message: notification.message ?? "",
+              icon: notification.icon ?? NotificationIcon.NONE,
+            });
+          } else {
+            setNotification(null);
+          }
+        });
+
         balance$.subscribe((balance) => {
           if (balance === 0) {
-            setNotificationElement(
-              <>
-                <Red>X</Red> you need to request a drip before you can mine or
-                build (top right).
-              </>
-            );
+            setComponent(PersistentNotification, SingletonEntity, {
+              message:
+                " you need to request a drip before you can mine or build (top right).",
+              icon: NotificationIcon.CROSS,
+            });
           }
         });
       }, []);
 
+      const getNotificationIcon = (icon: NotificationIcon): React.ReactNode => {
+        switch (icon) {
+          case NotificationIcon.NONE:
+            return <></>;
+          case NotificationIcon.CROSS:
+            return <Red>X</Red>;
+        }
+      };
+
       return (
         <>
-          {notificationElement && (
+          {notification && (
             <NotificationWrapper>
-              <Container>{notificationElement}</Container>
+              <Container>
+                <div className="w-full text-center">
+                  {getNotificationIcon(notification.icon)}{" "}
+                  {notification.message}
+                </div>
+              </Container>
             </NotificationWrapper>
           )}
         </>
@@ -60,11 +113,4 @@ const NotificationWrapper = styled.div`
   transform: translate(-50%, -100%);
   left: 50%;
   line-height: 100%;
-`;
-
-const Notification = styled.p`
-  position: absolute;
-  top: -25px;
-  width: 100%;
-  text-align: center;
 `;

@@ -4,6 +4,7 @@ import {
   CreateBox,
   Mesh,
   MeshBuilder,
+  Nullable,
   StandardMaterial,
   Vector3,
 } from "@babylonjs/core";
@@ -26,7 +27,7 @@ export const renderChunkyWireframe = (
   coord1: VoxelCoord,
   coord2: VoxelCoord,
   noa: Engine
-) => {
+): Nullable<Mesh> => {
   const scene = noa.rendering.getScene();
 
   // we need to add one to the max values because each coord is on the lowerSouthWest corner of each voxel. Adding one will make the point the upperNorthEast corner of each voxel
@@ -57,11 +58,14 @@ export const renderChunkyWireframe = (
   );
 
   const disposeOriginalMeshesAfterCreatingCombinedMesh = true;
-  const chunkyWireframe = Mesh.MergeMeshes(
+  const chunkyWireframeMesh = Mesh.MergeMeshes(
     edgeMeshes,
     disposeOriginalMeshesAfterCreatingCombinedMesh
   );
-  noa.rendering.addMeshToScene(chunkyWireframe);
+  const isStatic = false; // if we set this to true, the mesh will not be rendered if the center of the cuboid is NOT in view.
+  // This is confusing when the corner of the cuboid is still visible, but the center is not, so the wireframe is not rendered
+  noa.rendering.addMeshToScene(chunkyWireframeMesh, isStatic);
+  return chunkyWireframeMesh;
 };
 
 const outlineThickness = 0.05;

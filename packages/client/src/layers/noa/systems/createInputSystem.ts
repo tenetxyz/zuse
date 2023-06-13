@@ -5,7 +5,7 @@ import {
   setComponent,
   updateComponent,
 } from "@latticexyz/recs";
-import { sleep } from "@latticexyz/utils";
+import { sleep, VoxelCoord } from "@latticexyz/utils";
 import { NetworkLayer, VoxelTypeKeyToId } from "../../network";
 import { FAST_MINING_DURATION, SPAWN_POINT } from "../constants";
 import {
@@ -22,8 +22,6 @@ import {
 } from "../engine/components/utils";
 import { NoaLayer } from "../types";
 import { toast } from "react-toastify";
-import { renderChunkyWireframe } from "./renderWireframes";
-import { IVoxelSelection } from "../components/VoxelSelection";
 
 export function createInputSystem(network: NetworkLayer, context: NoaLayer) {
   const {
@@ -329,7 +327,6 @@ export function createInputSystem(network: NetworkLayer, context: NoaLayer) {
     const coord = getTargetedBlockCoord();
     points.push(coord);
 
-    renderChunkyWireframe(points.at(-1)!, points.at(-1)!, noa);
     toast(`Selected voxel at ${coord.x}, ${coord.y}, ${coord.z}`);
     setComponent(VoxelSelection, SingletonEntity, {
       points: points as any,

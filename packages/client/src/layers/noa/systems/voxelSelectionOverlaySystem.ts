@@ -4,7 +4,7 @@ import { NetworkLayer } from "../../network";
 import { NoaLayer } from "../types";
 import { renderChunkyWireframe } from "./renderWireframes";
 import { IVoxelSelection } from "../components/VoxelSelection";
-import { Mesh, Nullable } from "@babylonjs/core";
+import { Color3, Mesh, Nullable } from "@babylonjs/core";
 
 export function createVoxelSelectionOverlaySystem(
   network: NetworkLayer,
@@ -18,7 +18,7 @@ export function createVoxelSelectionOverlaySystem(
   VoxelSelection.update$.subscribe((update) => {
     const voxelSelection = update.value[0] as IVoxelSelection;
     renderRangeSelection(voxelSelection);
-    renderPointSelection();
+    renderPointSelection(voxelSelection);
   });
 
   let renderedRangeSelectionMesh: Nullable<Mesh> = null;
@@ -27,13 +27,33 @@ export function createVoxelSelectionOverlaySystem(
       return;
     }
     if (renderedRangeSelectionMesh) {
+      // remove the previous mesh since the user can only have one range selection
       renderedRangeSelectionMesh.dispose();
     }
     renderedRangeSelectionMesh = renderChunkyWireframe(
       voxelSelection.corner1,
       voxelSelection.corner2,
-      noa
+      noa,
+      new Color3(1, 1, 1),
+      0.05
     );
   };
-  const renderPointSelection = () => {};
+
+  let renderedPointSelectionMeshes: Nullable<Mesh>[] = [];
+  const renderPointSelection = (voxelSelection: IVoxelSelection) => {
+    // remove the previous meshes since we're re-rendering all of them
+    // if this is a performance hit, we can cache the meshes and only render the new selections
+    renderedPointSelectionMeshes.forEach((mesh) => mesh?.dispose());
+
+    renderedPointSelectionMeshes =
+      voxelSelection.points?.map((point) => {
+        return renderChunkyWireframe(
+          point,
+          point,
+          noa,
+          new Color3(1, 0.1, 0.1),
+          0.04
+        );
+      }) ?? [];
+  };
 }

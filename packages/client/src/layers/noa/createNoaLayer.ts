@@ -76,6 +76,7 @@ import { definePlayerMeshComponent } from "./components/PlayerMesh";
 import { Engine } from "@babylonjs/core";
 import { to64CharAddress } from "../../utils/entity";
 import { definePersistentNotificationComponent } from "./components/persistentNotification";
+import { createVoxelSelectionOverlaySystem } from "./systems/voxelSelectionOverlaySystem";
 
 export function createNoaLayer(network: NetworkLayer) {
   const world = namespaceWorld(network.world, "noa");
@@ -474,6 +475,7 @@ export function createNoaLayer(network: NetworkLayer) {
   createSpawnPlayerSystem(network, context);
   createTutorialSystem(network, context);
   createSoundSystem(network, context);
+  createVoxelSelectionOverlaySystem(network, context);
 
   return context;
 }

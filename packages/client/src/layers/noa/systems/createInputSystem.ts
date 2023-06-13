@@ -22,7 +22,6 @@ import {
 } from "../engine/components/utils";
 import { NoaLayer } from "../types";
 import { toast } from "react-toastify";
-import { renderChunkyWireframe } from "./renderWireframes";
 
 export function createInputSystem(network: NetworkLayer, context: NoaLayer) {
   const {
@@ -102,6 +101,10 @@ export function createInputSystem(network: NetworkLayer, context: NoaLayer) {
   let firePressed = false;
   noa.inputs.down.on("fire", async function () {
     if (!noa.container.hasPointerLock) return;
+    if (isSelectingVoxel) {
+      selectCorner(true);
+      return;
+    }
 
     firePressed = true;
     const miningComponent = mineTargetedVoxel();
@@ -111,6 +114,24 @@ export function createInputSystem(network: NetworkLayer, context: NoaLayer) {
       if (firePressed) mineTargetedVoxel();
     }
   });
+
+  const selectCorner = (isCorner1: boolean) => {
+    if (!noa.targetedBlock) {
+      return;
+    }
+    hasSelectedCorner = true;
+
+    const coord = getTargetedBlockCoord();
+    const voxelSelection = getComponentValue(VoxelSelection, SingletonEntity);
+    const corner1 = isCorner1 ? coord : voxelSelection?.corner1;
+    const corner2 = !isCorner1 ? coord : voxelSelection?.corner2;
+
+    setComponent(VoxelSelection, SingletonEntity, {
+      points: voxelSelection?.points,
+      corner1: corner1,
+      corner2: corner2,
+    } as any);
+  };
 
   noa.inputs.up.on("fire", function () {
     if (!noa.container.hasPointerLock) return;
@@ -167,6 +188,10 @@ export function createInputSystem(network: NetworkLayer, context: NoaLayer) {
   noa.inputs.down.on("alt-fire", function () {
     if (!canInteract()) return;
     if (!noa.container.hasPointerLock) return;
+    if (isSelectingVoxel) {
+      selectCorner(false);
+      return;
+    }
 
     if (noa.targetedBlock) {
       const pos = noa.targetedBlock.adjacent;
@@ -277,25 +302,47 @@ export function createInputSystem(network: NetworkLayer, context: NoaLayer) {
     togglePlugins();
   });
 
+  let hasSelectedCorner = false;
+  let isSelectingVoxel = false;
   noa.inputs.bind("select-voxel", "V");
   noa.inputs.down.on("select-voxel", () => {
+    isSelectingVoxel = true;
+    hasSelectedCorner = false;
+  });
+  noa.inputs.up.on("select-voxel", () => {
+    isSelectingVoxel = false;
     if (!canInteract()) return;
-    // print the voxel you're looking at to the console
+    if (hasSelectedCorner) {
+      // the user selected a corner while they were pressing "v". This means that
+      // we should not select a voxel
+      hasSelectedCorner = false;
+      return;
+    }
+
     if (!noa.targetedBlock) {
       return;
     }
-    const points: VoxelCoord[] =
-      getComponentValue(VoxelSelection, SingletonEntity)?.points ?? [];
+    const voxelSelection = getComponentValue(VoxelSelection, SingletonEntity);
+    const points: VoxelCoord[] = voxelSelection?.points ?? [];
+    const coord = getTargetedBlockCoord();
+    points.push(coord);
+
+    toast(`Selected voxel at ${coord.x}, ${coord.y}, ${coord.z}`);
+    setComponent(VoxelSelection, SingletonEntity, {
+      points: points as any,
+      corner1: voxelSelection?.corner1,
+      corner2: voxelSelection?.corner2,
+    });
+  });
+
+  const getTargetedBlockCoord = () => {
     const x = noa.targetedBlock.position[0];
     const y = noa.targetedBlock.position[1];
     const z = noa.targetedBlock.position[2];
-    points.push({
+    return {
       x,
       y,
       z,
-    });
-    renderChunkyWireframe(points.at(-1)!, points.at(-1)!, noa);
-    toast(`Selected voxel at ${x}, ${y}, ${z}`);
-    setComponent(VoxelSelection, SingletonEntity, { points: points as any });
-  });
+    };
+  };
 }

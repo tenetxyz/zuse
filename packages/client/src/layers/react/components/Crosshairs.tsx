@@ -13,8 +13,11 @@ export function registerCrosshairs() {
       colEnd: 13,
     },
     (layers) =>
-      layers.noa.components.UI.update$.pipe(
-        map((e, _idx) => (e.value[0]?.showInventory ? null : true))
+      concat(
+        of(true), // emit true, so the crosshair is visible when the game starts
+        layers.noa.components.UI.update$.pipe(
+          map((e, _idx) => (e.value[0]?.showInventory ? null : true))
+        )
       ),
     () => {
       return <Cross>+</Cross>;

@@ -1,9 +1,10 @@
 import React, { useState, ChangeEvent, KeyboardEvent } from "react";
 import { Layers } from "../../../types";
-import { setComponent } from "../../../../../../../mud/packages/recs";
+import { Entity, setComponent } from "@latticexyz/recs";
 import { NotificationIcon } from "../../noa/components/persistentNotification";
 import { IVoxelSelection } from "../../noa/components/VoxelSelection";
 import { VoxelCoord } from "@latticexyz/utils";
+import { calculateMinMax } from "../../../utils/voxels";
 
 interface CreationFormData {
   name: string;
@@ -17,8 +18,6 @@ interface CreationCorners {
 
 interface Props {
   layers: Layers;
-}
-interface CreationCorners {
   corner1: VoxelCoord | undefined;
   corner2: VoxelCoord | undefined;
 }
@@ -28,21 +27,16 @@ const RegisterCreation: React.FC<Props> = ({ layers }) => {
     noa: {
       components: { VoxelSelection, PersistentNotification },
       SingletonEntity,
-      api: {
-        toggleInventory,
-      }
+      api: { toggleInventory },
     },
-
+    network: {
+      api: { getEntityAtPosition },
+    },
   } = layers;
   const [formData, setFormData] = useState<CreationFormData>({
     name: "",
     description: "",
   });
-
-  const [corners, setCorners] = useState<CreationCorners>({
-    corner1: undefined,
-    corner2: undefined,
-  } as CreationCorners);
 
   const handleSubmit = () => {
     getCreationEntities();
@@ -76,19 +70,37 @@ const RegisterCreation: React.FC<Props> = ({ layers }) => {
   };
 
   React.useEffect(() => {
-    VoxelSelection.update$.subscribe((update) => {
-      const voxelSelection = update.value[0] as IVoxelSelection;
-      setCorners({
-        corner1: voxelSelection.corner1,
-        corner2: voxelSelection.corner2,
-      } as CreationCorners);
-    });
-  }, []);
+    if (corners.corner1 && corners.corner2) {
+      getVoxelsWithinSelection();
+    }
+  }, [corners]);
+
+  //get all voxels within the selected corners
+  const getVoxelsWithinSelection = (): Entity[] => {
+    const { corner1, corner2 } = corners;
+    if (!corner1 || !corner2) return [];
+    const { minX, maxX, minY, maxY, minZ, maxZ } = calculateMinMax(
+      corner1,
+      corner2
+    );
+    const voxels: Entity[] = [];
+    for (let x = minX; x <= maxX; x++) {
+      for (let y = minY; y <= maxY; y++) {
+        for (let z = minZ; z <= maxZ; z++) {
+          const entity = getEntityAtPosition({ x, y, z });
+          if (entity) {
+            voxels.push(entity);
+          }
+        }
+      }
+    }
+    return voxels;
+  };
 
   const onSelectCreationCorners = () => {
     setComponent(PersistentNotification, SingletonEntity, {
       message:
-        "Select your creation's corners by 1) Holding 'V' and 2) Left/Right clicking on blocks",
+        "Select your creation's corners by 1) Holding 'V' and 2) Left/Right clicking on blocks. Press e when done.",
       icon: NotificationIcon.NONE,
     });
     toggleInventory();
@@ -100,8 +112,18 @@ const RegisterCreation: React.FC<Props> = ({ layers }) => {
     !corners.corner1 ||
     !corners.corner2;
 
+  const selectCreationCornerButtonLabel =
+    corners.corner1 && corners.corner2
+      ? "Change Creation Corners"
+      : corners.corner1 || corners.corner2
+      ? "Please select both corners"
+      : "Select Creation Corners";
+
   return (
-    <div className="max-w-md mx-auto p-4 text-slate-700" onKeyDown={trySubmitCreation}>
+    <div
+      className="max-w-md mx-auto p-4 text-slate-700"
+      onKeyDown={trySubmitCreation}
+    >
       <input
         className="border rounded px-2 py-1 mb-2 w-full"
         type="text"
@@ -118,10 +140,10 @@ const RegisterCreation: React.FC<Props> = ({ layers }) => {
         onChange={handleInputChange}
       />
       <button
-        className="border rounded px-2 py-1 mb-2 w-full"
+        className={`border rounded px-2 py-1 mb-2 w-full`}
         onClick={onSelectCreationCorners}
       >
-        "Select Creation Corners"
+        {selectCreationCornerButtonLabel}
       </button>
       <button
         className={`bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600 mb-2 ${

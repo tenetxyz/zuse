@@ -28,7 +28,11 @@ const RegisterCreation: React.FC<Props> = ({ layers }) => {
     noa: {
       components: { VoxelSelection, PersistentNotification },
       SingletonEntity,
+      api: {
+        toggleInventory,
+      }
     },
+
   } = layers;
   const [formData, setFormData] = useState<CreationFormData>({
     name: "",
@@ -87,6 +91,7 @@ const RegisterCreation: React.FC<Props> = ({ layers }) => {
         "Select your creation's corners by 1) Holding 'V' and 2) Left/Right clicking on blocks",
       icon: NotificationIcon.NONE,
     });
+    toggleInventory();
   };
 
   const isSubmitDisabled =
@@ -96,7 +101,7 @@ const RegisterCreation: React.FC<Props> = ({ layers }) => {
     !corners.corner2;
 
   return (
-    <div className="max-w-md mx-auto p-4" onKeyDown={trySubmitCreation}>
+    <div className="max-w-md mx-auto p-4 text-slate-700" onKeyDown={trySubmitCreation}>
       <input
         className="border rounded px-2 py-1 mb-2 w-full"
         type="text"
@@ -126,9 +131,6 @@ const RegisterCreation: React.FC<Props> = ({ layers }) => {
         disabled={isSubmitDisabled}
       >
         Submit
-      </button>
-      <button className="bg-gray-500 text-white py-2 px-4 rounded hover:bg-gray-600">
-        Select Creation
       </button>
     </div>
   );

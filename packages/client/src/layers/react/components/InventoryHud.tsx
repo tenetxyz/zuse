@@ -26,6 +26,8 @@ import { Sounds } from "./Sounds";
 import { CreativeInventory } from "./CreativeInventory";
 import { Inventory } from "./Inventory";
 import { InventoryTab, TabRadioSelector } from "./TabRadioSelector";
+import RegisterCreation from "./RegisterCreation";
+import { Layers } from "../../../types";
 
 // This gives us 36 inventory slots. As of now there are 34 types of VoxelTypes, so it should fit.
 export const INVENTORY_WIDTH = 9;
@@ -40,7 +42,7 @@ export function registerInventoryHud() {
       colStart: 1,
       colEnd: 13,
     },
-    (layers) => {
+    (layers: Layers) => {
       const {
         network: {
           contractComponents: { OwnedBy, VoxelType },
@@ -268,7 +270,7 @@ export function registerInventoryHud() {
           case InventoryTab.CREATIVE:
             return <CreativeInventory layers={layers} />;
           case InventoryTab.REGISTER_CREATION:
-            return <></>;
+            return <RegisterCreation layers={layers} />;
         }
       };
       const SelectedTab = getPageForSelectedTab();

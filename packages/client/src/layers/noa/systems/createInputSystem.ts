@@ -23,7 +23,7 @@ import {
 import { NoaLayer } from "../types";
 import { toast } from "react-toastify";
 
-export function createInputSystem(network: NetworkLayer, context: NoaLayer) {
+export function createInputSystem(network: NetworkLayer, noaLayer: NoaLayer) {
   const {
     noa,
     components: {
@@ -38,12 +38,11 @@ export function createInputSystem(network: NetworkLayer, context: NoaLayer) {
       toggleInventory,
       togglePlugins,
       placeSelectedVoxelType,
-      getCurrentChunk,
       getVoxelTypeInSelectedSlot,
       teleport,
     },
     streams: { stakeAndClaim$, playerPosition$ },
-  } = context;
+  } = noaLayer;
 
   const {
     contractComponents: { VoxelType, Position },

@@ -25,6 +25,9 @@ import { to64CharAddress } from "../../../utils/entity";
 import { Sounds } from "./Sounds";
 import { CreativeInventory } from "./CreativeInventory";
 import { Inventory } from "./Inventory";
+import { InventoryTab, TabRadioSelector } from "./TabRadioSelector";
+import RegisterCreation from "./RegisterCreation";
+import { Layers } from "../../../types";
 
 // This gives us 36 inventory slots. As of now there are 34 types of VoxelTypes, so it should fit.
 export const INVENTORY_WIDTH = 9;
@@ -39,7 +42,7 @@ export function registerInventoryHud() {
       colStart: 1,
       colEnd: 13,
     },
-    (layers) => {
+    (layers: Layers) => {
       const {
         network: {
           contractComponents: { OwnedBy, VoxelType },
@@ -131,8 +134,9 @@ export function registerInventoryHud() {
       const [holdingVoxelType, setHoldingVoxelType] = useState<
         Entity | undefined
       >();
-      const [isUsingPersonalInventory, setIsUsingPersonalInventory] =
-        useState<boolean>(true);
+      const [selectedTab, setSelectedTab] = React.useState<InventoryTab>(
+        InventoryTab.INVENTORY
+      );
 
       useEffect(() => {
         if (!show) setHoldingVoxelType(undefined);
@@ -250,17 +254,26 @@ export function registerInventoryHud() {
           </LogoContainer>
         </BottomBar>
       );
-      const SelectedInventory = isUsingPersonalInventory ? (
-        <Inventory
-          layers={layers}
-          craftingSideLength={craftingSideLength}
-          holdingVoxelType={holdingVoxelType}
-          setHoldingVoxelType={setHoldingVoxelType}
-          Slots={Slots}
-        />
-      ) : (
-        <CreativeInventory layers={layers} />
-      );
+
+      const getPageForSelectedTab = () => {
+        switch (selectedTab) {
+          case InventoryTab.INVENTORY:
+            return (
+              <Inventory
+                layers={layers}
+                craftingSideLength={craftingSideLength}
+                holdingVoxelType={holdingVoxelType}
+                setHoldingVoxelType={setHoldingVoxelType}
+                Slots={Slots}
+              />
+            );
+          case InventoryTab.CREATIVE:
+            return <CreativeInventory layers={layers} />;
+          case InventoryTab.REGISTER_CREATION:
+            return <RegisterCreation layers={layers} />;
+        }
+      };
+      const SelectedTab = getPageForSelectedTab();
 
       const InventoryWrapper = (
         <Absolute>
@@ -272,15 +285,11 @@ export function registerInventoryHud() {
             />
             <AbsoluteBorder borderColor={"#999999"} borderWidth={3}>
               <InventoryContainer>
-                <InventoryModeToggle
-                  // className="text-red text-2xl h-10 cursor-pointer border-2 border-white rounded-md flex justify-center items-center"
-                  onClick={() =>
-                    setIsUsingPersonalInventory(!isUsingPersonalInventory)
-                  }
-                >
-                  {isUsingPersonalInventory ? "to creative" : "to personal"}
-                </InventoryModeToggle>
-                {SelectedInventory}
+                <TabRadioSelector
+                  selectedTab={selectedTab}
+                  setSelectedTab={setSelectedTab}
+                />
+                {SelectedTab}
               </InventoryContainer>
             </AbsoluteBorder>
           </Center>
@@ -298,13 +307,6 @@ export function registerInventoryHud() {
     }
   );
 }
-
-const InventoryModeToggle = styled.div`
-  background-color: #888888;
-  padding: 20px;
-  border: 4px solid #999999;
-  cursor: pointer;
-`;
 
 const InventoryContainer = styled.div`
   width: 100%;

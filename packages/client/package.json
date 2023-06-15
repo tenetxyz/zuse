@@ -7,7 +7,7 @@
   "scripts": {
     "build": "vite build",
     "dev": "wait-port localhost:8545 && vite",
-    "initialize": "pnpm build",
+    "initialize": "yarn build",
     "preview": "vite preview",
     "test": "tsc --noEmit"
   },

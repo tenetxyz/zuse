@@ -10,5 +10,5 @@ base64/=./node_modules/base64-sol/
 gsn/=./node_modules/@opengsn/contracts/src/
 royalty-registry/=./node_modules/@manifoldxyz/royalty-registry-solidity/contracts/
 @openzeppelin/=./node_modules/@openzeppelin/
-memmove/=./node_modules/memmove.git/src/
+memmove/=./node_modules/memmove/src/
 abdk-libraries-solidity/=./node_modules/abdk-libraries-solidity/

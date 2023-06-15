@@ -6,7 +6,7 @@
   "type": "module",
   "scripts": {
     "build": "vite build",
-    "dev": "wait-port localhost:8545 && vite",
+    "dev": "yarn wait-port localhost:8545 && vite",
     "initialize": "yarn build",
     "preview": "vite preview",
     "test": "tsc --noEmit"

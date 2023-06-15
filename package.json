@@ -11,7 +11,7 @@
     "dev:contracts": "yarn workspace contracts run dev",
     "foundry:up": "curl -L https://foundry.paradigm.xyz | bash && bash $HOME/.foundry/bin/foundryup",
     "initialize": "yarn workspaces run initialize",
-    "mud:up": "yarn workspaces foreach -t run mud set-version -v canary && yarn install",
+    "mud:up": "yarn workspaces foreach -t run yarn mud set-version -v canary && yarn install",
     "prepare": "(forge --version || yarn foundry:up)",
     "test": "yarn workspaces run test"
   },
@@ -26,6 +26,6 @@
   },
   "engines": {
     "node": "18.x",
-    "yarn": "1.x"
+    "yarn": "1.22.19"
   }
 }

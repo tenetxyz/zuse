@@ -5,6 +5,7 @@ import { NotificationIcon } from "../../noa/components/persistentNotification";
 import { IVoxelSelection } from "../../noa/components/VoxelSelection";
 import { VoxelCoord } from "@latticexyz/utils";
 import { calculateMinMax } from "../../../utils/voxels";
+import { useComponentValue } from "@latticexyz/react";
 
 interface CreationFormData {
   name: string;
@@ -37,6 +38,7 @@ const RegisterCreation: React.FC<Props> = ({ layers }) => {
     name: "",
     description: "",
   });
+  const corners = useComponentValue(VoxelSelection, SingletonEntity);
 
   const handleSubmit = () => {
     getCreationEntities();

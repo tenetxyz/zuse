@@ -18,7 +18,6 @@
     "test": "yarn workspaces run test"
   },
   "devDependencies": {
-    "@latticexyz/cli": "2.0.0-alpha.1.197+5e6cc0f5",
     "@typescript-eslint/eslint-plugin": "5.46.1",
     "@typescript-eslint/parser": "5.46.1",
     "concurrently": "^8.0.1",

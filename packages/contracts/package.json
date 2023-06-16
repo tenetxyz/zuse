@@ -5,7 +5,7 @@
   "license": "MIT",
   "scripts": {
     "build": "forge clean && forge build",
-    "deploy": "yarn initialize && mud deploy",
+    "deploy": "yarn initialize && yarn mud deploy",
     "deploy:hackathon": "yarn initialize && mud deploy --profile=hackathon-testnet",
     "deploy:testnet": "yarn initialize && mud deploy --profile=lattice-testnet",
     "dev": "yarn mud dev-contracts --tsgenOutput ../client/src/mud",
@@ -47,5 +47,8 @@
     "solhint-config-mud": "2.0.0-alpha.1.197+5e6cc0f5",
     "solhint-plugin-mud": "2.0.0-alpha.1.197+5e6cc0f5",
     "typechain": "^8.1.1"
+  },
+  "dependencies": {
+    "mud": "file:.yalc/mud"
   }
 }

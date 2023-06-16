@@ -2275,10 +2275,10 @@ box-intersect@fenomas/box-intersect:
     "@typechain/ethers-v5": ^10.2.0
     "@types/node": ^18.15.11
     abdk-libraries-solidity: ^3.2.0
-    ds-test: "https://github.com/dapphub/ds-test.git#c9ce3f25bde29fc5eb9901842bf02850dfd2d084"
+    ds-test: "https://github.com/dapphub/ds-test.git"
     ethers: ^5.7.2
     forge-std: "https://github.com/foundry-rs/forge-std"
-    memmove: "https://github.com/dk1a/memmove.git#ffd71cd77b1708574ef46a667b23ca3a5cc9fa27"
+    memmove: "https://github.com/dk1a/memmove.git"
     prettier: ^2.6.2
     prettier-plugin-solidity: ^1.0.0-beta.19
     solhint: ^3.3.7
@@ -2449,6 +2449,13 @@ box-intersect@fenomas/box-intersect:
   dependencies:
     esutils: ^2.0.2
   checksum: fd7673ca77fe26cd5cba38d816bc72d641f500f1f9b25b83e8ce28827fe2da7ad583a8da26ab6af85f834138cf8dae9f69b0cd6ab925f52ddab1754db44d99ce
+  languageName: node
+  linkType: hard
+
+"ds-test@https://github.com/dapphub/ds-test.git":
+  version: 1.0.0
+  resolution: "ds-test@https://github.com/dapphub/ds-test.git#commit=e282159d5170298eb2455a6c05280ab5a73a4ef0"
+  checksum: 8f36e20dde868d062841c790fc43c9dd18b93d6180995f378bedaee1f24444950838843c0f2ffa5ac3b8a21b4c29fd97a60725e29e8ff71c9cf28f837614d96f
   languageName: node
   linkType: hard
 
@@ -4114,7 +4121,7 @@ box-intersect@fenomas/box-intersect:
   languageName: node
   linkType: hard
 
-"memmove@https://github.com/dk1a/memmove.git#ffd71cd77b1708574ef46a667b23ca3a5cc9fa27":
+"memmove@https://github.com/dk1a/memmove.git":
   version: 0.1.0
   resolution: "memmove@https://github.com/dk1a/memmove.git#commit=ffd71cd77b1708574ef46a667b23ca3a5cc9fa27"
   checksum: 14b885e97e156c0ec38744a40a7d2d6124a3fb3d8110bf3d529416cdecee4cd09aa4acdbf7f7d2f66845ee2c8a1c1474bda65ad0e64fc281f6b358d6ff02541c

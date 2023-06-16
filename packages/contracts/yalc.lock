@@ -1,9 +1,0 @@
-{
-  "version": "v1",
-  "packages": {
-    "mud": {
-      "signature": "b1538817fca59bfaef83615e2234192a",
-      "file": true
-    }
-  }
-}

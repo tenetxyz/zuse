@@ -11,6 +11,9 @@
     "preview": "vite preview",
     "test": "tsc --noEmit"
   },
+  "installConfig": {
+    "hoistingLimits": "workspaces"
+  },
   "dependencies": {
     "@babylonjs/core": "^5.30.0",
     "@ethersproject/providers": "^5.7.2",

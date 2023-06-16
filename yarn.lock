@@ -3107,6 +3107,13 @@ box-intersect@fenomas/box-intersect:
   languageName: node
   linkType: hard
 
+"forge-std@https://github.com/foundry-rs/forge-std":
+  version: 1.5.6
+  resolution: "forge-std@https://github.com/foundry-rs/forge-std.git#commit=66bf4e2c92cf507531599845e8d5a08cc2e3b5bb"
+  checksum: eca9c80e407f025cf8e068f853fab1f8eafa215339b3653095adb1a41e9d44b21c4b006511d951bcc703fa8c412ae973c21186e84678f64a7aaa5330f2def507
+  languageName: node
+  linkType: hard
+
 "forge-std@npm:^1.1.2":
   version: 1.1.2
   resolution: "forge-std@npm:1.1.2"
@@ -4553,7 +4560,7 @@ box-intersect@fenomas/box-intersect:
     "@typescript-eslint/parser": 5.46.1
     concurrently: ^8.0.1
     eslint: 8.29.0
-    forge-std: ^1.1.2
+    forge-std: "https://github.com/foundry-rs/forge-std"
     rimraf: ^3.0.2
     typescript: ^4.9.5
   languageName: unknown

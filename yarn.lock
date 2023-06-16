@@ -2272,7 +2272,6 @@ box-intersect@fenomas/box-intersect:
     "@latticexyz/store": "link:../../../mud/packages/store"
     "@latticexyz/world": "link:../../../mud/packages/world"
     "@openzeppelin/contracts": ^4.9.1
-    "@solidstate/contracts": ^0.0.57
     "@typechain/ethers-v5": ^10.2.0
     "@types/node": ^18.15.11
     abdk-libraries-solidity: ^3.2.0
@@ -4549,6 +4548,7 @@ box-intersect@fenomas/box-intersect:
   version: 0.0.0-use.local
   resolution: "opcraft-mud2@workspace:."
   dependencies:
+    "@solidstate/contracts": ^0.0.57
     "@typescript-eslint/eslint-plugin": 5.46.1
     "@typescript-eslint/parser": 5.46.1
     concurrently: ^8.0.1

@@ -3,9 +3,6 @@
   "version": "0.0.1",
   "private": true,
   "license": "MIT",
-  "installConfig": {
-    "hoistingLimits": "workspaces"
-  },
   "scripts": {
     "mud": "node ../../../mud/packages/cli/dist/mud.js",
     "build": "forge clean && forge build --force",

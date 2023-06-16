@@ -2269,7 +2269,7 @@ box-intersect@fenomas/box-intersect:
     abdk-libraries-solidity: ^3.2.0
     ds-test: "https://github.com/dapphub/ds-test.git#c9ce3f25bde29fc5eb9901842bf02850dfd2d084"
     ethers: ^5.7.2
-    forge-std: "https://github.com/foundry-rs/forge-std.git#b4f121555729b3afb3c5ffccb62ff4b6e2818fd3"
+    forge-std: ^1.1.2
     memmove: "https://github.com/dk1a/memmove.git#ffd71cd77b1708574ef46a667b23ca3a5cc9fa27"
     prettier: ^2.6.2
     prettier-plugin-solidity: ^1.0.0-beta.19
@@ -2958,7 +2958,7 @@ box-intersect@fenomas/box-intersect:
     "@types/node": ^18.15.11
     ds-test: "https://github.com/dapphub/ds-test.git#c9ce3f25bde29fc5eb9901842bf02850dfd2d084"
     ethers: ^5.7.2
-    forge-std: "https://github.com/foundry-rs/forge-std.git#b4f121555729b3afb3c5ffccb62ff4b6e2818fd3"
+    forge-std: ^1.1.2
     prettier: ^2.6.2
     prettier-plugin-solidity: ^1.0.0-beta.19
     solhint: ^3.3.7
@@ -3098,10 +3098,10 @@ box-intersect@fenomas/box-intersect:
   languageName: node
   linkType: hard
 
-"forge-std@https://github.com/foundry-rs/forge-std.git#b4f121555729b3afb3c5ffccb62ff4b6e2818fd3":
-  version: 1.2.0
-  resolution: "forge-std@https://github.com/foundry-rs/forge-std.git#commit=b4f121555729b3afb3c5ffccb62ff4b6e2818fd3"
-  checksum: 9517b07abffd6f3338635fa7d60f085ee4d55ac1c9e55e0d2dc92512596c4037ac0ea2430902781a1148083adb365f1682c26f2eea9bf6507e1af5d253b28264
+"forge-std@npm:^1.1.2":
+  version: 1.1.2
+  resolution: "forge-std@npm:1.1.2"
+  checksum: d5b36b909269a39dd30b619ac09a78e59b1a65e7887872ef99304298c4ffe2aa16f5dc5238c77e481a5e615582191b446401098a2ed567283d7df87e099a9d3c
   languageName: node
   linkType: hard
 
@@ -4307,13 +4307,6 @@ box-intersect@fenomas/box-intersect:
   languageName: node
   linkType: hard
 
-"mud@file:.yalc/mud::locator=opcraft-mud2%40workspace%3A.":
-  version: 0.0.0
-  resolution: "mud@file:.yalc/mud#.yalc/mud::hash=2a5ef3&locator=opcraft-mud2%40workspace%3A."
-  checksum: ee0e8a0af8498bf06c476fee0a2734499104d575b028263c41c66991a0b47c83933a2f164e30ac9a4047ba4c70180e2639267a67afac31c4a865d44b1d45bb98
-  languageName: node
-  linkType: hard
-
 "mz@npm:^2.7.0":
   version: 2.7.0
   resolution: "mz@npm:2.7.0"
@@ -4551,7 +4544,6 @@ box-intersect@fenomas/box-intersect:
     "@typescript-eslint/parser": 5.46.1
     concurrently: ^8.0.1
     eslint: 8.29.0
-    mud: "file:.yalc/mud"
     rimraf: ^3.0.2
     typescript: ^4.9.5
   languageName: unknown

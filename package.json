@@ -9,6 +9,7 @@
     ]
   },
   "scripts": {
+    "mud3": "node packages/cli/dist/mud.js",
     "mud": "node node_modules/@latticexyz/cli/dist/mud.js",
     "mud2": "node mud.js",
     "build": "yarn workspaces run build",

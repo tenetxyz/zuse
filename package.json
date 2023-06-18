@@ -18,7 +18,7 @@
     "dev:contracts": "yarn workspace contracts run dev",
     "foundry:up": "curl -L https://foundry.paradigm.xyz | bash && bash $HOME/.foundry/bin/foundryup",
     "initialize": "yarn workspaces run initialize",
-    "mud:up": "yarn workspaces foreach -t run mud set-version -v canary && yarn install",
+    "mud:up": "yarn workspaces foreach -t run yarn mud set-version -v canary && yarn install",
     "prepare": "(forge --version || yarn foundry:up)",
     "test": "yarn workspaces run test"
   },
@@ -26,6 +26,7 @@
     "@solidstate/contracts": "^0.0.57",
     "@typescript-eslint/eslint-plugin": "5.46.1",
     "@typescript-eslint/parser": "5.46.1",
+    "@latticexyz/cli": "link:../mud/packages/cli",
     "concurrently": "^8.0.1",
     "eslint": "8.29.0",
     "rimraf": "^3.0.2",

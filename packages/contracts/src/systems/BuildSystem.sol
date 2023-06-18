@@ -5,7 +5,7 @@ import { getKeysWithValue } from "@latticexyz/world/src/modules/keyswithvalue/ge
 import { System } from "@latticexyz/world/src/System.sol";
 import { VoxelCoord } from "../types.sol";
 import { OwnedBy, Position, PositionTableId, VoxelType } from "../codegen/Tables.sol";
-import { AirID } from "../prototypes/Voxels.sol";
+import { AirID } from "../prototypes/VoxelSystem.sol";
 import { addressToEntityKey } from "../utils.sol";
 import { getUniqueEntity } from "@latticexyz/world/src/modules/uniqueentity/getUniqueEntity.sol";
 

@@ -6,8 +6,13 @@ import { getKeysInTable } from "@latticexyz/world/src/modules/keysintable/getKey
 import { System } from "@latticexyz/world/src/System.sol";
 import { VoxelCoord } from "../types.sol";
 import { OwnedBy, Position, PositionTableId, VoxelType, Extension, ExtensionTableId } from "../codegen/Tables.sol";
+<<<<<<< Updated upstream
 import { AirID, WaterID } from "../prototypes/Voxels.sol";
 import { addressToEntityKey, getEntitiesAtCoord } from "../utils.sol";
+=======
+import { AirID, WaterID } from "../prototypes/VoxelSystem.sol";
+import { addressToEntityKey } from "../utils.sol";
+>>>>>>> Stashed changes
 import { IWorld } from "../codegen/world/IWorld.sol";
 import { Occurrence } from "../codegen/Tables.sol";
 import { console } from "forge-std/console.sol";

@@ -38,14 +38,16 @@ const RegisterCreation: React.FC<Props> = ({ layers }) => {
     name: "",
     description: "",
   });
-  const corners = useComponentValue(VoxelSelection, SingletonEntity);
+  const corners:IVoxelSelection | undefined = useComponentValue(VoxelSelection, SingletonEntity);
 
   const handleSubmit = () => {
     getCreationEntities();
     // TODO: call submit creation system
     resetForm();
   };
-  const getCreationEntities = () => {};
+  const getCreationEntities = () => {
+    return;
+  };
 
   const resetForm = () => {
     setFormData({ name: "", description: "" });
@@ -72,14 +74,15 @@ const RegisterCreation: React.FC<Props> = ({ layers }) => {
   };
 
   React.useEffect(() => {
-    if (corners.corner1 && corners.corner2) {
+    if (corners?.corner1 && corners?.corner2) {
       getVoxelsWithinSelection();
     }
   }, [corners]);
 
   //get all voxels within the selected corners
   const getVoxelsWithinSelection = (): Entity[] => {
-    const { corner1, corner2 } = corners;
+    const corner1 = corners?.corner1;
+    const corner2 = corners?.corner2;
     if (!corner1 || !corner2) return [];
     const { minX, maxX, minY, maxY, minZ, maxZ } = calculateMinMax(
       corner1,
@@ -111,15 +114,20 @@ const RegisterCreation: React.FC<Props> = ({ layers }) => {
   const isSubmitDisabled =
     !formData.name ||
     !formData.description ||
-    !corners.corner1 ||
-    !corners.corner2;
+    !corners?.corner1 ||
+    !corners?.corner2;
 
   const selectCreationCornerButtonLabel =
-    corners.corner1 && corners.corner2
-      ? "Change Creation Corners"
-      : corners.corner1 || corners.corner2
+    corners?.corner1 && corners?.corner2
+      ? (
+        <>
+          <p>Change Creation Corners</p>
+          <p className="mt-2">({corners.corner1.x}, {corners.corner1.y}, {corners.corner1.z}) ({corners.corner2.x}, {corners.corner2.y}, {corners.corner2.z})</p>
+        </>
+      )
+      : corners?.corner1 || corners?.corner2
       ? "Please select both corners"
-      : "Select Creation Corners";
+      : "Select Creation Corners"
 
   return (
     <div

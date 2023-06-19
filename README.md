@@ -1,20 +1,29 @@
-# Voxel AW
+# Everlon
+
+### Installation
+1. Run `brew install yarn` to install yarn
+2. Run `yarn set version stable` to generate `.yarnrc.yml` and use the latest stable version of yarn (3.6.0)
+   - We need to use at least yarn 3.6.0 because we need to link the yarn packages, which have pnpm-based package.jsons.
+     If we use an earlier version of yarn, we would not be able to link the dependencies of each mud package, because they use workspace:* syntax
+     when specifying dependencies: (e.g. `"@latticexyz/common": "workspace:*"`)
+   - yarn 3.6.0 can interpret these dependencies, earlier versions of yarn cannot
+3. Add `nodeLinker: node-modules` to `.yarnrc.yml` to tell yarn that we want our dependencies to be stored in node_modules files
+4. Run `yarn install` at the top directory to install dependencies
+   - Note: Since we are using a local fork of MUD, yarn will symlink each of mud's packages inside the node_modules file at the top directory.
+5. Clone our mud fork at https://github.com/tenetxyz/mud and place it in the same directory as this directory:
+```
+development/
+   everlon/
+   mud/
+```
+- Note: We've forked MUD so we can modify some of the packages. This repo depends on our fork of MUD.
+6. In our mud fork, run pnpm install (to install all dependencies)
+7. In our mud fork, run pnpm build (to build all packages)
+  - Everytime you change a file in the package, just remember to `pnpm build`.
+  - If you don't want to build all packages in mud, you can build each individual package by:
+    1. `cd`ing into the package (eg `cd packages/recs`)
+    2. run `pnpm build`
 
 ### Running locally
 
-1. Run `pnpm install` to install dependencies
-2. Run `pnpm run dev` in the top directory
-
-### Linking MUD
-
-We've forked MUD so we can modify some of the packages. We are using our fork of each of mud's package
-
-Here are the steps to link the local MUD package.
-
-1. git clone our fork of mud a directory above the root directory for this project
-2. For each package listed above
-   - cd into it (eg `cd packages/recs`)
-   - run `pnpm install`
-   - run `pnpm build`
-
-That's it! Everytime you change a file in the package, just remember to `pnpm build`.
+Run `yarn run dev` in the top directory

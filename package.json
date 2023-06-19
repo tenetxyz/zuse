@@ -3,19 +3,28 @@
   "version": "0.0.0",
   "description": "An infinite, unstoppable World",
   "private": true,
+  "workspaces": {
+    "packages": [
+      "packages/*"
+    ]
+  },
   "scripts": {
-    "build": "pnpm recursive run build",
-    "dev": "concurrently -n contracts,client -c cyan,magenta \"cd packages/contracts && pnpm run dev\" \"cd packages/client && pnpm run dev\"",
-    "dev:client": "pnpm --filter 'client' run dev",
-    "dev:contracts": "pnpm --filter 'contracts' dev",
+    "mud": "node node_modules/@latticexyz/cli/dist/mud.js",
+    "build": "yarn workspaces run build",
+    "dev": "concurrently -n contracts,client -c cyan,magenta \"cd packages/contracts && yarn run dev\" \"cd packages/client && yarn run dev\"",
+    "dev:client": "yarn workspace client run dev",
+    "dev:contracts": "yarn workspace contracts run dev",
     "foundry:up": "curl -L https://foundry.paradigm.xyz | bash && bash $HOME/.foundry/bin/foundryup",
-    "initialize": "pnpm recursive run initialize",
-    "mud:up": "pnpm recursive exec mud set-version -v canary && pnpm install",
-    "prepare": "(forge --version || pnpm foundry:up)",
-    "test": "pnpm recursive run test"
+    "initialize": "yarn workspaces run initialize",
+    "mud:up": "yarn workspaces foreach -t run yarn mud set-version -v canary && yarn install",
+    "prepare": "(forge --version || yarn foundry:up)",
+    "test": "yarn workspaces run test",
+    "clean": "yarn rm-node-modules",
+    "rm-node-modules": "find . -type d -name 'node_modules' -exec rm -rf {} +"
   },
   "devDependencies": {
-    "@latticexyz/cli": "2.0.0-alpha.1.197+5e6cc0f5",
+    "@latticexyz/cli": "link:../mud/packages/cli",
+    "@solidstate/contracts": "^0.0.57",
     "@typescript-eslint/eslint-plugin": "5.46.1",
     "@typescript-eslint/parser": "5.46.1",
     "concurrently": "^8.0.1",
@@ -25,6 +34,7 @@
   },
   "engines": {
     "node": "18.x",
-    "pnpm": "8.x"
-  }
+    "yarn": ">=3.6.0"
+  },
+  "packageManager": "yarn@3.6.0"
 }

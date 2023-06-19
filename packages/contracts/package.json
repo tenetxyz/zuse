@@ -4,9 +4,7 @@
   "private": true,
   "license": "MIT",
   "scripts": {
-    "mud3": "node ../cli/dist/mud.js",
     "mud": "node ../../node_modules/@latticexyz/cli/dist/mud.js",
-    "mud2": "node mud.js",
     "build": "forge clean && forge build",
     "deploy": "yarn initialize && yarn mud deploy",
     "deploy:hackathon": "yarn initialize && mud deploy --profile=hackathon-testnet",

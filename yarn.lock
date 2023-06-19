@@ -1017,6 +1017,12 @@ __metadata:
   languageName: node
   linkType: soft
 
+"@latticexyz/cli@link:../mud/packages/cli::locator=opcraft-mud2%40workspace%3A.":
+  version: 0.0.0-use.local
+  resolution: "@latticexyz/cli@link:../mud/packages/cli::locator=opcraft-mud2%40workspace%3A."
+  languageName: node
+  linkType: soft
+
 "@latticexyz/common@link:../../../mud/packages/common::locator=client%40workspace%3Apackages%2Fclient":
   version: 0.0.0-use.local
   resolution: "@latticexyz/common@link:../../../mud/packages/common::locator=client%40workspace%3Apackages%2Fclient"
@@ -4555,6 +4561,7 @@ box-intersect@fenomas/box-intersect:
   version: 0.0.0-use.local
   resolution: "opcraft-mud2@workspace:."
   dependencies:
+    "@latticexyz/cli": "link:../mud/packages/cli"
     "@solidstate/contracts": ^0.0.57
     "@typescript-eslint/eslint-plugin": 5.46.1
     "@typescript-eslint/parser": 5.46.1

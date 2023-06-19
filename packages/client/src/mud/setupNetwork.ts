@@ -140,7 +140,6 @@ export async function setupNetwork() {
     networkConfig.worldAddress,
     signerOrProvider
   );
-  debugger
   const uniqueWorldId = networkConfig.chainId + networkConfig.worldAddress;
 
   if (networkConfig.snapSync) {

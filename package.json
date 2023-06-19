@@ -9,9 +9,7 @@
     ]
   },
   "scripts": {
-    "mud3": "node packages/cli/dist/mud.js",
     "mud": "node node_modules/@latticexyz/cli/dist/mud.js",
-    "mud2": "node mud.js",
     "build": "yarn workspaces run build",
     "dev": "concurrently -n contracts,client -c cyan,magenta \"cd packages/contracts && yarn run dev\" \"cd packages/client && yarn run dev\"",
     "dev:client": "yarn workspace client run dev",
@@ -23,10 +21,10 @@
     "test": "yarn workspaces run test"
   },
   "devDependencies": {
+    "@latticexyz/cli": "link:../mud/packages/cli",
     "@solidstate/contracts": "^0.0.57",
     "@typescript-eslint/eslint-plugin": "5.46.1",
     "@typescript-eslint/parser": "5.46.1",
-    "@latticexyz/cli": "link:../mud/packages/cli",
     "concurrently": "^8.0.1",
     "eslint": "8.29.0",
     "rimraf": "^3.0.2",

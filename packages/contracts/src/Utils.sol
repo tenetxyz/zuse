@@ -60,6 +60,3 @@ function removeDuplicates(bytes32[] memory arr) pure returns (bytes32[] memory) 
 
     return result;
 }
-
-
-

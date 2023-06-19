@@ -44,7 +44,11 @@ contract RegisterCreationTest is MudV2Test {
     world.tenet_BuildSystem_build(voxel1, coord1);
     world.tenet_BuildSystem_build(voxel2, coord2);
 
-    world.tenet_RegisterCreation_registerCreation("test creation name", coord1, coord2);
+    bytes32[] memory voxels = new bytes32[](2);
+    voxels[0] = voxel1;
+    voxels[1] = voxel2;
+
+    world.tenet_RegisterCreation_registerCreation("test creation name", "test creation desc", voxels);
     vm.stopPrank();
   }
 }

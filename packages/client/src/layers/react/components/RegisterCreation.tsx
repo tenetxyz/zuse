@@ -31,22 +31,23 @@ const RegisterCreation: React.FC<Props> = ({ layers }) => {
       api: { toggleInventory },
     },
     network: {
-      api: { getEntityAtPosition },
+      api: { getEntityAtPosition, registerCreation },
     },
   } = layers;
   const [formData, setFormData] = useState<CreationFormData>({
     name: "",
     description: "",
   });
-  const corners:IVoxelSelection | undefined = useComponentValue(VoxelSelection, SingletonEntity);
+  const corners: IVoxelSelection | undefined = useComponentValue(VoxelSelection, SingletonEntity);
 
   const handleSubmit = () => {
-    getCreationEntities();
-    // TODO: call submit creation system
+    const voxels = getVoxelsWithinSelection();
+    registerCreation(
+       formData.name,
+       formData.description,
+      voxels,
+    );
     resetForm();
-  };
-  const getCreationEntities = () => {
-    return;
   };
 
   const resetForm = () => {
@@ -72,12 +73,6 @@ const RegisterCreation: React.FC<Props> = ({ layers }) => {
       handleSubmit();
     }
   };
-
-  React.useEffect(() => {
-    if (corners?.corner1 && corners?.corner2) {
-      getVoxelsWithinSelection();
-    }
-  }, [corners]);
 
   //get all voxels within the selected corners
   const getVoxelsWithinSelection = (): Entity[] => {

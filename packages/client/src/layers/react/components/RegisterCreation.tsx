@@ -38,15 +38,14 @@ const RegisterCreation: React.FC<Props> = ({ layers }) => {
     name: "",
     description: "",
   });
-  const corners: IVoxelSelection | undefined = useComponentValue(VoxelSelection, SingletonEntity);
+  const corners: IVoxelSelection | undefined = useComponentValue(
+    VoxelSelection,
+    SingletonEntity
+  );
 
   const handleSubmit = () => {
     const voxels = getVoxelsWithinSelection();
-    registerCreation(
-       formData.name,
-       formData.description,
-      voxels,
-    );
+    registerCreation(formData.name, formData.description, voxels);
     resetForm();
   };
 
@@ -88,7 +87,7 @@ const RegisterCreation: React.FC<Props> = ({ layers }) => {
       for (let y = minY; y <= maxY; y++) {
         for (let z = minZ; z <= maxZ; z++) {
           const entity = getEntityAtPosition({ x, y, z });
-          if (entity) {
+          if (entity !== undefined) {
             voxels.push(entity);
           }
         }
@@ -113,16 +112,19 @@ const RegisterCreation: React.FC<Props> = ({ layers }) => {
     !corners?.corner2;
 
   const selectCreationCornerButtonLabel =
-    corners?.corner1 && corners?.corner2
-      ? (
-        <>
-          <p>Change Creation Corners</p>
-          <p className="mt-2">({corners.corner1.x}, {corners.corner1.y}, {corners.corner1.z}) ({corners.corner2.x}, {corners.corner2.y}, {corners.corner2.z})</p>
-        </>
-      )
-      : corners?.corner1 || corners?.corner2
-      ? "Please select both corners"
-      : "Select Creation Corners"
+    corners?.corner1 && corners?.corner2 ? (
+      <>
+        <p>Change Creation Corners</p>
+        <p className="mt-2">
+          ({corners.corner1.x}, {corners.corner1.y}, {corners.corner1.z}) (
+          {corners.corner2.x}, {corners.corner2.y}, {corners.corner2.z})
+        </p>
+      </>
+    ) : corners?.corner1 || corners?.corner2 ? (
+      "Please select both corners"
+    ) : (
+      "Select Creation Corners"
+    );
 
   return (
     <div
@@ -145,7 +147,7 @@ const RegisterCreation: React.FC<Props> = ({ layers }) => {
         onChange={handleInputChange}
       />
       <button
-        className={`border rounded px-2 py-1 mb-2 w-full`}
+        className={`rounded px-2 py-1 mb-2 w-full bg-zinc-500 text-white hover:bg-zinc-400 p-5`}
         onClick={onSelectCreationCorners}
       >
         {selectCreationCornerButtonLabel}

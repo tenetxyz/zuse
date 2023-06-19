@@ -6,7 +6,7 @@ import { System } from "@latticexyz/world/src/System.sol";
 import { Strings } from "@openzeppelin/contracts/utils/Strings.sol";
 import { IWorld } from "../codegen/world/IWorld.sol";
 import { addressToEntityKey, getEntitiesAtCoord } from "../utils.sol";
-import { OwnedBy, Position, Name, VoxelType, Description, VoxelTypes, Metadata, Positions } from "../codegen/Tables.sol";
+import { OwnedBy, Position, Name, VoxelType, Description, VoxelTypes, VoxelMetadata, Positions } from "../codegen/Tables.sol";
 import {PositionData} from "../codegen/tables/Position.sol";
 import { VoxelCoord } from "../types.sol";
 import { AirID } from "../prototypes/Voxels.sol";
@@ -29,6 +29,8 @@ contract RegisterCreationSystem is System {
         OwnedBy.set(creationId, addressToEntityKey(_msgSender()));
         VoxelTypes.set(creationId, voxelTypes);
         Positions.set(creationId, repositionedX, repositionedY, repositionedZ);
+//        TODO: implement after lattice ppl respond on discord
+//        VoxelMetadata.set(creationId, );
 
         return creationId;
     }
@@ -77,7 +79,7 @@ contract RegisterCreationSystem is System {
         return (repositionedX, repositionedY, repositionedZ);
     }
 
-    function getVoxelTypes(bytes32[] memory voxels) private view returns ( bytes32[] memory) {
+    function getVoxelTypes(bytes32[] memory voxels) public view returns ( bytes32[] memory) {
         bytes32[] memory voxelTypes = new bytes32[](voxels.length);
         for (uint32 i = 0; i < voxels.length; i++) {
             voxelTypes[i] = VoxelType.get(voxels[i]);

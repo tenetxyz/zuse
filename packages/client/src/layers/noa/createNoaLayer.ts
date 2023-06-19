@@ -325,7 +325,7 @@ export function createNoaLayer(network: NetworkLayer) {
   };
   const isFocusedOnInputElement = () => {
     const activeElement = document.activeElement;
-    return activeElement && activeElement.tagName === "INPUT";
+    return activeElement && ["INPUT", "TEXTAREA"].includes(activeElement.tagName);
   };
 
   function getVoxelTypeInSelectedSlot(): Entity | undefined {

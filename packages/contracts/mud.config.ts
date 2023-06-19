@@ -50,7 +50,7 @@ export default mudConfig({
         z: "int32[]",
       },
     },
-    Metadata: "bytes" // stores the component values for each voxel in the creation
+    VoxelMetadata: "bytes" // stores the component values for each voxel in the creation
   },
   modules: [
     {

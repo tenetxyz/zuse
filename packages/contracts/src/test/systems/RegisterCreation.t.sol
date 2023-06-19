@@ -28,6 +28,18 @@ contract RegisterCreationTest is MudV2Test {
 
   }
 
+  function testGetVoxelTypes() public {
+    vm.startPrank(alice);
+
+    bytes32 voxel1 = world.tenet_GiftVoxelSystem_giftVoxel(CyanWoolID);
+    bytes32[] memory voxels = new bytes32[](1);
+    voxels[0] = voxel1;
+    bytes32[] memory voxelTypes = world.tenet_RegisterCreation_getVoxelTypes(voxels);
+    assertEq(voxelTypes[0], CyanWoolID);
+
+    vm.stopPrank();
+  }
+
   function testRegisterCreation() public {
     vm.startPrank(alice);
 

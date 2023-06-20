@@ -11,9 +11,10 @@ import {
 import { useComponentValue, useObservableValue } from "@latticexyz/react";
 import { ComponentUpdate } from "@latticexyz/recs/src/types";
 import { UpdateType } from "@latticexyz/recs/src/constants";
-import { VoxelCoord } from "@latticexyz/utils";
+import { to256BitString, VoxelCoord } from "@latticexyz/utils";
 import { NotificationIcon } from "../../noa/components/persistentNotification";
 import Fuse from "fuse.js";
+import { formatEntityID } from "../../../utils/entity";
 
 export interface CreationStoreFilters {
   search: string;
@@ -52,9 +53,11 @@ const CreationStore: React.FC<Props> = ({ layers, filters, setFilters }) => {
         RelativePositions,
         VoxelMetadata,
       },
+      network: { connectedAddress },
       api: { getEntityAtPosition, registerCreation },
     },
   } = layers;
+  const playerAddress = to256BitString(connectedAddress.get() ?? "");
 
   const [searchValue, setSearchValue] = React.useState<string>("");
   const [creations, setCreations] = React.useState<Creation[]>([]);
@@ -67,7 +70,7 @@ const CreationStore: React.FC<Props> = ({ layers, filters, setFilters }) => {
 
   // There might be a better way to listen to the updates than using this useEffect, but I'm not sure
   useEffect(() => {
-    const newCreations: Creation[] = [];
+    const allCreations: Creation[] = [];
     const creationIds = VoxelTypes.entities();
     for (const creationId of creationIds) {
       console.log(creationId);
@@ -84,7 +87,7 @@ const CreationStore: React.FC<Props> = ({ layers, filters, setFilters }) => {
         return { x, y: yPositions[i], z: zPositions[i] };
       });
 
-      newCreations.push({
+      allCreations.push({
         name: getComponentValue(Name, creationId)?.value ?? "",
         description: getComponentValue(Description, creationId)?.value ?? "",
         creationId,
@@ -94,6 +97,11 @@ const CreationStore: React.FC<Props> = ({ layers, filters, setFilters }) => {
         relativePositions,
       } as Creation);
     }
+
+    const newCreations = filters.isMyCreation
+      ? allCreations.filter((creation) => creation.creator === playerAddress)
+      : allCreations;
+
     setCreations(newCreations);
 
     const options = {
@@ -102,7 +110,7 @@ const CreationStore: React.FC<Props> = ({ layers, filters, setFilters }) => {
     };
 
     fuse.current = new Fuse(newCreations, options);
-  }, [creationsUpdate]);
+  }, [creationsUpdate, filters]);
 
   const spawnCreation = (creation: Creation) => {
     setComponent(PersistentNotification, SingletonEntity, {
@@ -122,12 +130,26 @@ const CreationStore: React.FC<Props> = ({ layers, filters, setFilters }) => {
   }, [searchValue, creations]);
 
   return (
-    <div className="max-w-md mx-auto p-4 text-white">
-      <input
-        className="bg-slate-700 p-1 ml-2 focus:outline-slate-700 border-1 border-solid mb-1 "
-        value={searchValue}
-        onChange={(e) => setSearchValue(e.target.value)}
-      />
+    <div className="max-w-md mx-auto p-4 text-white flex flex-col content-start float-top h-full">
+      <div className="flex flex-row">
+        <input
+          placeholder="Search"
+          className="bg-slate-700 p-1 ml-2 focus:outline-slate-700 border-1 border-solid mb-1 "
+          value={searchValue}
+          onChange={(e) => setSearchValue(e.target.value)}
+        />
+        <label className="flex items-center space-x-2 ml-2">
+          <span>My Creations</span>
+          <input
+            type="checkbox"
+            className="form-checkbox text-indigo-600 h-5 w-5"
+            checked={filters.isMyCreation}
+            onChange={() => {
+              setFilters({ ...filters, isMyCreation: !filters.isMyCreation });
+            }}
+          />
+        </label>
+      </div>
       <div className="m-2 p-2 flex flex-col">
         {creationsToDisplay.map((creation, idx) => {
           return (

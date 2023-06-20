@@ -11,7 +11,6 @@ import { addressToEntityKey, getEntitiesAtCoord } from "../utils.sol";
 import { IWorld } from "../codegen/world/IWorld.sol";
 import { Occurrence } from "../codegen/Tables.sol";
 import { console } from "forge-std/console.sol";
-import { BlockInteraction } from "../libraries/BlockInteraction.sol";
 
 contract MineSystem is System {
 
@@ -59,7 +58,7 @@ contract MineSystem is System {
     require(IWorld(_world()).tenet_GiftVoxelSystem_numUniqueVoxelTypesIOwn() <= 36, "you can only own 36 voxel types at a time");
 
     // Run block interaction logic
-    BlockInteraction.runInteractionSystems(_world(), entity);
+    IWorld(_world()).tenet_BlockInteraction_runInteractionSystems(entity);
 
     return entity;
   }

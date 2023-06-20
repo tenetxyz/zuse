@@ -53,6 +53,12 @@ export default mudConfig({
     },
     VoxelMetadata: "bytes", // stores the component values for each voxel in the creation
   },
+  systems: {
+    BlockInteractionSystem: {
+      name: "BlockInteraction",
+      openAccess: false, // it's a subsystem now, so only systems in this namespace can call it
+    }
+  },
   modules: [
     {
       name: "UniqueEntityModule",

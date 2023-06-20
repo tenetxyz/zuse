@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0
 pragma solidity >=0.8.0;
 
-import "solecs/System.sol";
+import { System } from "@latticexyz/world/src/System.sol";
 import { getAddressById, addressToEntity } from "solecs/utils.sol";
 import { getKeysInTable } from "@latticexyz/world/src/modules/keysintable/getKeysInTable.sol";
 import { VoxelCoord } from "../types.sol";
@@ -9,10 +9,10 @@ import { NUM_NEIGHBOURS, MAX_NEIGHBOUR_UPDATE_DEPTH } from "../Constants.sol";
 import {Position, PositionData, Extension, ExtensionTableId} from "../codegen/Tables.sol";
 import { getEntitiesAtCoord, hasEntity } from "../utils.sol";
 
-library BlockInteraction {
+contract BlockInteractionSystem is System {
 
   function calculateNeighbourEntities(bytes32 centerEntity)
-    public
+    public view
     returns (bytes32[] memory)
   {
     bytes32[] memory centerNeighbourEntities = new bytes32[](NUM_NEIGHBOURS);
@@ -64,9 +64,10 @@ library BlockInteraction {
   }
 
   function runInteractionSystems(
-    address world,
     bytes32 centerEntity
   ) public {
+    address world = _world();
+
     // get neighbour entities
     bytes32[] memory centerEntitiesToCheckStack = new bytes32[](MAX_NEIGHBOUR_UPDATE_DEPTH);
     uint256 centerEntitiesToCheckStackIdx = 0;

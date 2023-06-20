@@ -11,7 +11,7 @@ import { getEntitiesAtCoord, hasEntity } from "../utils.sol";
 
 contract VoxelInteractionSystem is System {
 
-  int8[18] private NEIGHBOR_COORD_OFFSETS = [
+  int8[18] private NEIGHBOUR_COORD_OFFSETS = [
     int8(0),
     int8(0),
     int8(1),
@@ -40,14 +40,14 @@ contract VoxelInteractionSystem is System {
     PositionData memory baseCoord = Position.get(centerEntity);
 
     for (uint8 i = 0; i < centerNeighbourEntities.length; i++) {
-      VoxelCoord memory neighboringCoord = VoxelCoord(
-        baseCoord.x + NEIGHBOR_COORD_OFFSETS[i * 3],
-        baseCoord.y + NEIGHBOR_COORD_OFFSETS[i * 3 + 1],
-        baseCoord.z + NEIGHBOR_COORD_OFFSETS[i * 3 + 2]
+      VoxelCoord memory neighbouringCoord = VoxelCoord(
+        baseCoord.x + NEIGHBOUR_COORD_OFFSETS[i * 3],
+        baseCoord.y + NEIGHBOUR_COORD_OFFSETS[i * 3 + 1],
+        baseCoord.z + NEIGHBOUR_COORD_OFFSETS[i * 3 + 2]
       );
 
       bytes32[] memory neighbourEntitiesAtPosition = getEntitiesAtCoord(
-          neighboringCoord
+          neighbouringCoord
       );
 
       require(

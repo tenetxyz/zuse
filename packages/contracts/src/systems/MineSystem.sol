@@ -25,6 +25,7 @@ contract MineSystem is System {
     bytes32[] memory entitiesAtPosition = getEntitiesAtCoord(coord);
 
     bytes32 entity;
+    bytes32 airEntity;
 
     if (entitiesAtPosition.length == 0) {
       // If there is no entity at this position, try mining the terrain voxel at this position
@@ -40,11 +41,6 @@ contract MineSystem is System {
       // Create an ECS voxel from this coord's terrain voxel
       entity = getUniqueEntity();
       VoxelType.set(entity, voxelType);
-
-      // Place an air voxel at this position
-      bytes32 airEntity = getUniqueEntity();
-      VoxelType.set(airEntity, AirID);
-      Position.set(airEntity, coord.x, coord.y, coord.z);
     } else {
       // Else, mine the non-air entity voxel at this position
       for (uint256 i; i < entitiesAtPosition.length; i++) {
@@ -54,11 +50,16 @@ contract MineSystem is System {
       Position.deleteRecord(entity);
     }
 
+    // Place an air voxel at this position
+    airEntity = getUniqueEntity();
+    VoxelType.set(airEntity, AirID);
+    Position.set(airEntity, coord.x, coord.y, coord.z);
+
     OwnedBy.set(entity, addressToEntityKey(_msgSender()));
     require(IWorld(_world()).tenet_GiftVoxelSystem_numUniqueVoxelTypesIOwn() <= 36, "you can only own 36 voxel types at a time");
 
     // Run block interaction logic
-    IWorld(_world()).tenet_BlockInteraction_runInteractionSystems(entity);
+    IWorld(_world()).tenet_BlockInteraction_runInteractionSystems(airEntity);
 
     return entity;
   }

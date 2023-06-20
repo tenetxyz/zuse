@@ -8,6 +8,7 @@ import { OwnedBy, Position, PositionTableId, VoxelType } from "../codegen/Tables
 import { AirID } from "../prototypes/Voxels.sol";
 import { addressToEntityKey } from "../utils.sol";
 import { getUniqueEntity } from "@latticexyz/world/src/modules/uniqueentity/getUniqueEntity.sol";
+import { IWorld } from "../codegen/world/IWorld.sol";
 
 contract BuildSystem is System {
 
@@ -28,6 +29,9 @@ contract BuildSystem is System {
     bytes32 newEntity = getUniqueEntity();
     VoxelType.set(newEntity, VoxelType.get(voxel));
     Position.set(newEntity, coord.x, coord.y, coord.z);
+
+    // Run block interaction logic
+    IWorld(_world()).tenet_BlockInteraction_runInteractionSystems(newEntity);
 
     return newEntity;
   }

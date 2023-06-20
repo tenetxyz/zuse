@@ -5,17 +5,17 @@ import { System } from "@latticexyz/world/src/System.sol";
 import { getAddressById, addressToEntity } from "solecs/utils.sol";
 import { getKeysInTable } from "@latticexyz/world/src/modules/keysintable/getKeysInTable.sol";
 import { VoxelCoord } from "../types.sol";
-import { NUM_NEIGHBOURS, MAX_NEIGHBOUR_UPDATE_DEPTH } from "../Constants.sol";
+import { NUM_VOXEL_NEIGHBOURS, MAX_VOXEL_NEIGHBOUR_UPDATE_DEPTH } from "../Constants.sol";
 import {Position, PositionData, Extension, ExtensionTableId} from "../codegen/Tables.sol";
 import { getEntitiesAtCoord, hasEntity } from "../utils.sol";
 
-contract BlockInteractionSystem is System {
+contract VoxelInteractionSystem is System {
 
   function calculateNeighbourEntities(bytes32 centerEntity)
     public view
     returns (bytes32[] memory)
   {
-    bytes32[] memory centerNeighbourEntities = new bytes32[](NUM_NEIGHBOURS);
+    bytes32[] memory centerNeighbourEntities = new bytes32[](NUM_VOXEL_NEIGHBOURS);
     PositionData memory baseCoord = Position.get(centerEntity);
 
     for (uint8 i = 0; i < centerNeighbourEntities.length; i++) {
@@ -48,7 +48,7 @@ contract BlockInteractionSystem is System {
 
       require(
         neighbourEntitiesAtPosition.length == 0 || neighbourEntitiesAtPosition.length == 1,
-        "can not built at non-empty coord (BlockInteraction)"
+        "can not built at non-empty coord (VoxelInteraction)"
       );
       if (neighbourEntitiesAtPosition.length == 1) {
         // entity exists so add it to the list
@@ -69,25 +69,24 @@ contract BlockInteractionSystem is System {
     address world = _world();
 
     // get neighbour entities
-    bytes32[] memory centerEntitiesToCheckStack = new bytes32[](MAX_NEIGHBOUR_UPDATE_DEPTH);
+    bytes32[] memory centerEntitiesToCheckStack = new bytes32[](MAX_VOXEL_NEIGHBOUR_UPDATE_DEPTH);
     uint256 centerEntitiesToCheckStackIdx = 0;
     uint256 useStackIdx = 0;
 
     // start with the center entity
     centerEntitiesToCheckStack[centerEntitiesToCheckStackIdx] = centerEntity;
     useStackIdx = centerEntitiesToCheckStackIdx;
-    centerEntitiesToCheckStackIdx++;
 
     // Keep looping until there is no neighbour to process or we reached max depth
-    while (useStackIdx < MAX_NEIGHBOUR_UPDATE_DEPTH) {
+    while (useStackIdx < MAX_VOXEL_NEIGHBOUR_UPDATE_DEPTH) {
       // NOTE:
       // we'll go through each one until there is no more changed entities
       // order in which these systems are called should not matter since they all change their own components
       bytes32 useCenterEntityId = centerEntitiesToCheckStack[useStackIdx];
       bytes32[] memory useNeighbourEntities = calculateNeighbourEntities(useCenterEntityId);
-      if (hasEntity(useNeighbourEntities)) {
+      if (hasEntity(useNeighbourEntities)) { // if no neighbours, then we don't run any voxel interactions because there would be none
         // Go over all registered extensions and call them
-        // TODO: Should filter which ones to call based on key
+        // TODO: Should filter which ones to call based on key/some config passed by user
         bytes32[][] memory extensions = getKeysInTable(ExtensionTableId);
         for (uint256 i; i < extensions.length; i++) {
             // Call the extension
@@ -98,25 +97,24 @@ contract BlockInteractionSystem is System {
             if(extensionSuccess){
               bytes32[] memory changedExtensionEntityIds = abi.decode(extensionReturnData, (bytes32[]));
 
-              // if there are changed entities, we want to keep looping for this system
+              // If there are changed entities, we want to run voxel interactions again but with this new neighbour as the center
               for (uint256 j; j < changedExtensionEntityIds.length; j++) {
                 if (uint256(changedExtensionEntityIds[i]) != 0) {
-                  centerEntitiesToCheckStack[centerEntitiesToCheckStackIdx] = changedExtensionEntityIds[i];
                   centerEntitiesToCheckStackIdx++;
-                  if (centerEntitiesToCheckStackIdx >= MAX_NEIGHBOUR_UPDATE_DEPTH) {
+                  centerEntitiesToCheckStack[centerEntitiesToCheckStackIdx] = changedExtensionEntityIds[i];
+                  if (centerEntitiesToCheckStackIdx >= MAX_VOXEL_NEIGHBOUR_UPDATE_DEPTH) {
                     // TODO: Should tell the user that we reached max depth
-                    break;
+                    return;
                   }
                 }
               }
             }
         }
-
       }
 
       // at this point, we've consumed the top of the stack, so we can pop it, in this case, we just increment the stack index
       // check if we added any more
-      if ((centerEntitiesToCheckStackIdx - 1) > useStackIdx) {
+      if (centerEntitiesToCheckStackIdx > useStackIdx) {
         useStackIdx++;
       } else {
         // this means we didnt any any updates, so we can break out of the loop

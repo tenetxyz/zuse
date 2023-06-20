@@ -30,8 +30,8 @@ contract BuildSystem is System {
     VoxelType.set(newEntity, VoxelType.get(voxel));
     Position.set(newEntity, coord.x, coord.y, coord.z);
 
-    // Run block interaction logic
-    IWorld(_world()).tenet_BlockInteraction_runInteractionSystems(newEntity);
+    // Run voxel interaction logic
+    IWorld(_world()).tenet_VoxelInteraction_runInteractionSystems(newEntity);
 
     return newEntity;
   }

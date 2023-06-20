@@ -58,8 +58,8 @@ contract MineSystem is System {
     OwnedBy.set(entity, addressToEntityKey(_msgSender()));
     require(IWorld(_world()).tenet_GiftVoxelSystem_numUniqueVoxelTypesIOwn() <= 36, "you can only own 36 voxel types at a time");
 
-    // Run block interaction logic
-    IWorld(_world()).tenet_BlockInteraction_runInteractionSystems(airEntity);
+    // Run voxel interaction logic
+    IWorld(_world()).tenet_VoxelInteraction_runInteractionSystems(airEntity);
 
     return entity;
   }

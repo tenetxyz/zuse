@@ -28,6 +28,7 @@ import { Inventory } from "./Inventory";
 import { InventoryTab, TabRadioSelector } from "./TabRadioSelector";
 import RegisterCreation, { RegisterCreationFormData } from "./RegisterCreation";
 import { Layers } from "../../../types";
+import CreationStore, { CreationStoreFilters } from "./CreationStore";
 
 // This gives us 36 inventory slots. As of now there are 34 types of VoxelTypes, so it should fit.
 export const INVENTORY_WIDTH = 9;
@@ -261,6 +262,11 @@ export function registerInventoryHud() {
           name: "",
           description: "",
         });
+      const [creationStoreFilters, setCreationStoreFilters] =
+        useState<CreationStoreFilters>({
+          search: "",
+          isMyCreation: false,
+        });
 
       const getPageForSelectedTab = () => {
         switch (selectedTab) {
@@ -282,6 +288,14 @@ export function registerInventoryHud() {
                 layers={layers}
                 formData={registerCreationFormData}
                 setFormData={setRegisterCreationFormData}
+              />
+            );
+          case InventoryTab.CREATION_STORE:
+            return (
+              <CreationStore
+                layers={layers}
+                filters={creationStoreFilters}
+                setFilters={setCreationStoreFilters}
               />
             );
         }

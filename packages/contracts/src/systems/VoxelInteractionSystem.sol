@@ -11,6 +11,27 @@ import { getEntitiesAtCoord, hasEntity } from "../utils.sol";
 
 contract VoxelInteractionSystem is System {
 
+  int8[18] private NEIGHBOR_COORD_OFFSETS = [
+    int8(0),
+    int8(0),
+    int8(1),
+    int8(0),
+    int8(0),
+    int8(-1),
+    int8(1),
+    int8(0),
+    int8(0),
+    int8(-1),
+    int8(0),
+    int8(0),
+    int8(0),
+    int8(1),
+    int8(0),
+    int8(0),
+    int8(-1),
+    int8(0)
+  ];
+
   function calculateNeighbourEntities(bytes32 centerEntity)
     public view
     returns (bytes32[] memory)
@@ -19,32 +40,15 @@ contract VoxelInteractionSystem is System {
     PositionData memory baseCoord = Position.get(centerEntity);
 
     for (uint8 i = 0; i < centerNeighbourEntities.length; i++) {
-      bytes32[] memory neighbourEntitiesAtPosition;
-      if (i == 0) {
-        neighbourEntitiesAtPosition = getEntitiesAtCoord(
-          VoxelCoord({ x: baseCoord.x + 1, y: baseCoord.y, z: baseCoord.z })
-        );
-      } else if (i == 1) {
-        neighbourEntitiesAtPosition = getEntitiesAtCoord(
-          VoxelCoord({ x: baseCoord.x - 1, y: baseCoord.y, z: baseCoord.z })
-        );
-      } else if (i == 2) {
-        neighbourEntitiesAtPosition = getEntitiesAtCoord(
-          VoxelCoord({ x: baseCoord.x, y: baseCoord.y + 1, z: baseCoord.z })
-        );
-      } else if (i == 3) {
-        neighbourEntitiesAtPosition = getEntitiesAtCoord(
-          VoxelCoord({ x: baseCoord.x, y: baseCoord.y - 1, z: baseCoord.z })
-        );
-      } else if (i == 4) {
-        neighbourEntitiesAtPosition = getEntitiesAtCoord(
-          VoxelCoord({ x: baseCoord.x, y: baseCoord.y, z: baseCoord.z + 1 })
-        );
-      } else if (i == 5) {
-        neighbourEntitiesAtPosition = getEntitiesAtCoord(
-          VoxelCoord({ x: baseCoord.x, y: baseCoord.y, z: baseCoord.z - 1 })
-        );
-      }
+      VoxelCoord memory neighboringCoord = VoxelCoord(
+        baseCoord.x + NEIGHBOR_COORD_OFFSETS[i * 3],
+        baseCoord.y + NEIGHBOR_COORD_OFFSETS[i * 3 + 1],
+        baseCoord.z + NEIGHBOR_COORD_OFFSETS[i * 3 + 2]
+      );
+
+      bytes32[] memory neighbourEntitiesAtPosition = getEntitiesAtCoord(
+          neighboringCoord
+      );
 
       require(
         neighbourEntitiesAtPosition.length == 0 || neighbourEntitiesAtPosition.length == 1,
@@ -84,36 +88,38 @@ contract VoxelInteractionSystem is System {
       // order in which these systems are called should not matter since they all change their own components
       bytes32 useCenterEntityId = centerEntitiesToCheckStack[useStackIdx];
       bytes32[] memory useNeighbourEntities = calculateNeighbourEntities(useCenterEntityId);
-      if (hasEntity(useNeighbourEntities)) { // if no neighbours, then we don't run any voxel interactions because there would be none
-        // Go over all registered extensions and call them
-        // TODO: Should filter which ones to call based on key/some config passed by user
-        bytes32[][] memory extensions = getKeysInTable(ExtensionTableId);
-        for (uint256 i; i < extensions.length; i++) {
-            // Call the extension
-            bytes16 extensionNamespace = bytes16(extensions[i][0]);
-            bytes4 eventHandler = Extension.get(extensionNamespace);
-            (bool extensionSuccess, bytes memory extensionReturnData) = world.call(abi.encodeWithSelector(eventHandler, useCenterEntityId, useNeighbourEntities));
-            // TODO: Add error handling
-            if(extensionSuccess){
-              bytes32[] memory changedExtensionEntityIds = abi.decode(extensionReturnData, (bytes32[]));
+      if (!hasEntity(useNeighbourEntities)) {
+        // if no neighbours, then we don't run any voxel interactions because there would be none
+        break;
+      }
 
-              // If there are changed entities, we want to run voxel interactions again but with this new neighbour as the center
-              for (uint256 j; j < changedExtensionEntityIds.length; j++) {
-                if (uint256(changedExtensionEntityIds[i]) != 0) {
-                  centerEntitiesToCheckStackIdx++;
-                  centerEntitiesToCheckStack[centerEntitiesToCheckStackIdx] = changedExtensionEntityIds[i];
-                  if (centerEntitiesToCheckStackIdx >= MAX_VOXEL_NEIGHBOUR_UPDATE_DEPTH) {
-                    // TODO: Should tell the user that we reached max depth
-                    return;
-                  }
+      // Go over all registered extensions and call them
+      // TODO: Should filter which ones to call based on key/some config passed by user
+      bytes32[][] memory extensions = getKeysInTable(ExtensionTableId);
+      for (uint256 i; i < extensions.length; i++) {
+          bytes16 extensionNamespace = bytes16(extensions[i][0]);
+          bytes4 eventHandler = Extension.get(extensionNamespace);
+          (bool extensionSuccess, bytes memory extensionReturnData) = world.call(abi.encodeWithSelector(eventHandler, useCenterEntityId, useNeighbourEntities));
+          // TODO: Add error handling
+          if(extensionSuccess){
+            bytes32[] memory changedExtensionEntityIds = abi.decode(extensionReturnData, (bytes32[]));
+
+            // If there are changed entities, we want to run voxel interactions again but with this new neighbour as the center
+            for (uint256 j; j < changedExtensionEntityIds.length; j++) {
+              if (uint256(changedExtensionEntityIds[i]) != 0) {
+                centerEntitiesToCheckStackIdx++;
+                centerEntitiesToCheckStack[centerEntitiesToCheckStackIdx] = changedExtensionEntityIds[i];
+                if (centerEntitiesToCheckStackIdx >= MAX_VOXEL_NEIGHBOUR_UPDATE_DEPTH) {
+                  // TODO: Should tell the user that we reached max depth
+                  return;
                 }
               }
             }
-        }
+          }
       }
 
-      // at this point, we've consumed the top of the stack, so we can pop it, in this case, we just increment the stack index
-      // check if we added any more
+      // at this point, we've consumed the top of the stack,
+      // so we can pop it, in this case, we just increment the stack index
       if (centerEntitiesToCheckStackIdx > useStackIdx) {
         useStackIdx++;
       } else {

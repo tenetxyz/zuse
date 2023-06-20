@@ -44,7 +44,7 @@ contract RegisterCreationSystem is System {
         (bool hasDuplicate, VoxelCoord memory duplicate1, VoxelCoord memory duplicate2) = hasDuplicateVoxelCoords(voxelCoords);
         require(
             !hasDuplicate,
-            string(abi.encodePacked("Two voxels in your creation has the same coordinates: ", voxelCoordToString(duplicate1)))
+            string(abi.encodePacked("Two voxels in your creation have the same coordinates: ", voxelCoordToString(duplicate1)))
         );
 
         // TODO: should we also limit the dimensions of the creation?

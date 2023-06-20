@@ -14,6 +14,16 @@ export default mudConfig({
         direction: "uint8",
       },
     },
+    Signal: {
+      keySchema: {
+        namespace: "bytes16",
+        entity: "bytes32",
+      },
+      schema: {
+        isActive: "bool",
+        direction: "uint8",
+      },
+    }
   },
   modules: [
     // {

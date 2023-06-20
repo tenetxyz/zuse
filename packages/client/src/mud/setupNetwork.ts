@@ -421,12 +421,16 @@ export async function setupNetwork() {
     });
   }
 
-  function registerCreation(creationName: string, creationDescription: string, voxels: Entity[]) {
+  function registerCreation(
+    creationName: string,
+    creationDescription: string,
+    voxels: Entity[]
+  ) {
     const voxelTypeKey = "Diamond";
 
     actions.add({
-      id: `RegisterCreation+${voxels.toString()}` as Entity,
-      metadata: { actionType: "giftVoxel", voxelTypeKey },
+      id: `RegisterCreation+${creationName}` as Entity,
+      metadata: { actionType: "registerCreation", voxelTypeKey },
       requirement: () => true,
       components: {
         OwnedBy: contractComponents.OwnedBy,

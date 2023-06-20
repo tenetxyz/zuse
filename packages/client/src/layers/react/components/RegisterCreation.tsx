@@ -11,11 +11,6 @@ export interface RegisterCreationFormData {
   description: string;
 }
 
-interface CreationCorners {
-  topLeft: string;
-  bottomRight: string;
-}
-
 interface Props {
   layers: Layers;
   formData: RegisterCreationFormData;
@@ -66,8 +61,14 @@ const RegisterCreation: React.FC<Props> = ({
     });
   };
 
+  const isSubmitDisabled =
+    !formData.name ||
+    !formData.description ||
+    !corners?.corner1 ||
+    !corners?.corner2;
+
   const trySubmitCreation = (e: KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === "Enter") {
+    if (e.key === "Enter" && !isSubmitDisabled) {
       handleSubmit();
     }
   };
@@ -103,12 +104,6 @@ const RegisterCreation: React.FC<Props> = ({
     });
     toggleInventory();
   };
-
-  const isSubmitDisabled =
-    !formData.name ||
-    !formData.description ||
-    !corners?.corner1 ||
-    !corners?.corner2;
 
   const selectCreationCornerButtonLabel =
     corners?.corner1 && corners?.corner2 ? (

@@ -73,8 +73,6 @@ const CreationStore: React.FC<Props> = ({ layers, filters, setFilters }) => {
     const allCreations: Creation[] = [];
     const creationIds = VoxelTypes.entities();
     for (const creationId of creationIds) {
-      console.log(creationId);
-
       const rawRelativePositions = getComponentValue(
         RelativePositions,
         creationId
@@ -105,7 +103,7 @@ const CreationStore: React.FC<Props> = ({ layers, filters, setFilters }) => {
     setCreations(newCreations);
 
     const options = {
-      includeScore: true,
+      includeScore: true, // PERF: make this false
       keys: ["name", "description", "creator", "voxelTypes"],
     };
 

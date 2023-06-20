@@ -45,7 +45,7 @@ export const CreativeInventory: React.FC<Props> = ({ layers }) => {
     );
 
     const options = {
-      includeScore: true,
+      includeScore: true, // PERF: make this false
       keys: ["name", "description"],
     };
 

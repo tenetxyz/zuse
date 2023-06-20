@@ -12,6 +12,6 @@ export function defineSpawnCreationComponent(world: World) {
     {
       creation: Type.OptionalT,
     },
-    { id: "VoxelSelectionComponent" }
+    { id: "SpawnCreationComponent" }
   );
 }

@@ -3,20 +3,7 @@
 import { NetworkLayer } from "../../network";
 import { NoaLayer } from "../types";
 import { renderChunkyWireframe } from "./renderWireframes";
-import { IVoxelSelection } from "../components/VoxelSelection";
 import { Color3, Mesh, Nullable } from "@babylonjs/core";
-import {
-  getNoaComponent,
-  getNoaComponentStrict,
-} from "../engine/components/utils";
-import {
-  MINING_VOXEL_COMPONENT,
-  MiningVoxelComponent,
-} from "../engine/components/miningVoxelComponent";
-import {
-  HAND_COMPONENT,
-  HandComponent,
-} from "../engine/components/handComponent";
 import { ISpawnCreation } from "../components/SpawnCreation";
 import { Creation } from "../../react/components/CreationStore";
 import { add } from "../../../utils/coord";
@@ -33,36 +20,39 @@ export function createSpawnCreationOverlaySystem(
 
   let creationToSpawn: Creation | undefined;
 
-  type TargetedBlock = { position: number[] };
+  type TargetedBlock = { adjacent: number[] };
+  let targetedBlock: TargetedBlock | undefined;
 
-  noa.on("targetBlockChanged", (targetedBlock: TargetedBlock) => {
-    if (!noa.container.hasPointerLock) return;
-    if (!targetedBlock) {
-      return;
+  let renderedCreationOutlineMesh: Nullable<Mesh> = null;
+  noa.on("targetBlockChanged", (newTargetedBlock: TargetedBlock) => {
+    targetedBlock = newTargetedBlock;
+    tryRenderOutline();
+  });
+
+  SpawnCreation.update$.subscribe((update) => {
+    creationToSpawn = (update.value[0] as ISpawnCreation)?.creation;
+    tryRenderOutline();
+  });
+
+  const tryRenderOutline = () => {
+    if (renderedCreationOutlineMesh) {
+      // remove the previous mesh since the user may have moved their targetedblock
+      renderedCreationOutlineMesh.dispose();
     }
-    if (!creationToSpawn) {
+
+    if (!noa.container.hasPointerLock || !targetedBlock || !creationToSpawn) {
       return;
     }
 
     renderCreationOutline(creationToSpawn, targetedBlock);
-  });
-
-  let renderedCreationOutlineMesh: Nullable<Mesh> = null;
-  SpawnCreation.update$.subscribe((update) => {
-    if (renderedCreationOutlineMesh) {
-      // remove the previous mesh since the user can only spawn one creation at a time
-      renderedCreationOutlineMesh.dispose();
-    }
-
-    creationToSpawn = (update.value[0] as ISpawnCreation)?.creation;
-  });
+  };
 
   const renderCreationOutline = (
     creation: Creation,
     targetedBlock: TargetedBlock
   ) => {
     const {
-      position: [x, y, z],
+      adjacent: [x, y, z],
     } = targetedBlock;
 
     const { minRelativeCoord, maxRelativeCoord } =
@@ -71,12 +61,11 @@ export function createSpawnCreationOverlaySystem(
     const targetVoxelCoord: VoxelCoord = { x, y, z };
     const corner1 = add(targetVoxelCoord, minRelativeCoord);
     const corner2 = add(targetVoxelCoord, maxRelativeCoord);
-    // debugger;
     renderedCreationOutlineMesh = renderChunkyWireframe(
       corner1,
       corner2,
       noa,
-      new Color3(1, 1, 1),
+      new Color3(0, 0, 1),
       0.05
     );
   };
@@ -85,8 +74,8 @@ export function createSpawnCreationOverlaySystem(
     creation: Creation
   ): { minRelativeCoord: VoxelCoord; maxRelativeCoord: VoxelCoord } => {
     // creations should have at least 2 voxels, so we can assume the first one is the min and max
-    const minCoord: VoxelCoord = creation.relativePositions[0];
-    const maxCoord: VoxelCoord = creation.relativePositions[0];
+    const minCoord: VoxelCoord = { ...creation.relativePositions[0] }; // clone the coord so we don't mutate the original
+    const maxCoord: VoxelCoord = { ...creation.relativePositions[0] };
 
     for (let i = 1; i < creation.relativePositions.length; i++) {
       const voxelCoord = creation.relativePositions[i];

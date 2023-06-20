@@ -37,6 +37,10 @@ contract RegisterCreationSystem is System {
 
     function validateCreation(VoxelCoord[] memory voxelCoords) private {
         require(
+            voxelCoords.length > 1,
+            string(abi.encodePacked("Your creation must be at least 2 blocks"))
+        );
+        require(
             voxelCoords.length <= MAX_BLOCKS_IN_CREATION,
             string(abi.encodePacked("Your creation cannot exceed ", Strings.toString(MAX_BLOCKS_IN_CREATION), " blocks"))
         );

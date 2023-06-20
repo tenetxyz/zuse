@@ -40,7 +40,8 @@ export function createSpawnCreationOverlaySystem(
       renderedCreationOutlineMesh.dispose();
     }
 
-    if (!noa.container.hasPointerLock || !targetedBlock || !creationToSpawn) {
+    // Note: we do NOT check for !noa.container.hasPointerLock since if the inventory did not close in time, we will not see the spawning outline right away
+    if (!targetedBlock || !creationToSpawn) {
       return;
     }
 

@@ -27,6 +27,7 @@ import {
   getCoordOfVoxelOnFaceYouTargeted,
   getTargetedVoxelCoord,
 } from "../../../utils/voxels";
+import { NotificationIcon } from "../components/persistentNotification";
 
 export function createInputSystem(network: NetworkLayer, noaLayer: NoaLayer) {
   const {
@@ -38,6 +39,7 @@ export function createInputSystem(network: NetworkLayer, noaLayer: NoaLayer) {
       PreTeleportPosition,
       VoxelSelection,
       SpawnCreation,
+      PersistentNotification,
     },
     SingletonEntity,
     api: {
@@ -359,5 +361,10 @@ export function createInputSystem(network: NetworkLayer, noaLayer: NoaLayer) {
     // clear the spawn creation component so the outline disappears
     // TODO: wait until the transaction succeeds, then clear the spawn creation component
     setComponent(SpawnCreation, SingletonEntity, { creation: undefined });
+    // clear the persistent notification
+    setComponent(PersistentNotification, SingletonEntity, {
+      message: "",
+      icon: NotificationIcon.NONE,
+    });
   });
 }

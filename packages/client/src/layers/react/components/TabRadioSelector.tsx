@@ -5,6 +5,7 @@ export enum InventoryTab {
   INVENTORY = "Inventory",
   CREATIVE = "All Voxels",
   REGISTER_CREATION = "Register Creation",
+  CREATION_STORE = "Creations",
 }
 
 interface Props {

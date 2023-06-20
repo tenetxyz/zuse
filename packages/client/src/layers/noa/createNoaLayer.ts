@@ -79,8 +79,9 @@ import {
   definePersistentNotificationComponent,
   NotificationIcon,
 } from "./components/persistentNotification";
-import { createVoxelSelectionOverlaySystem } from "./systems/voxelSelectionOverlaySystem";
+import { createVoxelSelectionOverlaySystem } from "./systems/createVoxelSelectionOverlaySystem";
 import { defineSpawnCreationComponent } from "./components/SpawnCreation";
+import { createSpawnCreationOverlaySystem } from "./systems/createSpawnCreationOverlaySystem";
 
 export function createNoaLayer(network: NetworkLayer) {
   const world = namespaceWorld(network.world, "noa");
@@ -300,6 +301,11 @@ export function createNoaLayer(network: NetworkLayer) {
         message: "",
         icon: NotificationIcon.NONE,
       });
+
+      // clear SpawnCreation when we open the inventory
+      setComponent(components.SpawnCreation, SingletonEntity, {
+        creation: undefined,
+      });
     }
 
     noa.container.setPointerLock(!open);
@@ -491,6 +497,7 @@ export function createNoaLayer(network: NetworkLayer) {
   createTutorialSystem(network, context);
   createSoundSystem(network, context);
   createVoxelSelectionOverlaySystem(network, context);
+  createSpawnCreationOverlaySystem(network, context);
 
   return context;
 }

@@ -343,7 +343,9 @@ export function createInputSystem(network: NetworkLayer, noaLayer: NoaLayer) {
 
   noa.inputs.bind("spawnCreation", "<enter>");
   noa.inputs.down.on("spawnCreation", () => {
-    if (!noa.container.hasPointerLock) return;
+    if (!noa.container.hasPointerLock) {
+      return;
+    }
     const creationToSpawn: Creation | undefined = getComponentValue(
       SpawnCreation,
       SingletonEntity

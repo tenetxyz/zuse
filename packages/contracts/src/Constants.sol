@@ -1,6 +1,9 @@
 // SPDX-License-Identifier: GPL-3.0
 pragma solidity >=0.8.0;
 
+int32 constant CHUNK_MAX_Y = 255;
+int32 constant CHUNK_MIN_Y = -63;
+
 // Terrain
 enum Biome {
   Mountains,

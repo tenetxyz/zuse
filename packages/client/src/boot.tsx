@@ -154,7 +154,7 @@ async function bootGame(network: NetworkLayer) {
       reloadingNoa = false;
     });
   }
-  console.log("[Global] OPCraft booted");
+  console.log("[Global] Everlon booted");
 
   return { layers, ecs };
 }

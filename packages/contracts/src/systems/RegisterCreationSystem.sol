@@ -6,7 +6,7 @@ import { System } from "@latticexyz/world/src/System.sol";
 import { Strings } from "@openzeppelin/contracts/utils/Strings.sol";
 import { IWorld } from "../codegen/world/IWorld.sol";
 import { addressToEntityKey, getEntitiesAtCoord } from "../utils.sol";
-import { OwnedBy, Position, Name, VoxelType, Description, VoxelTypes, VoxelMetadata, Positions } from "../codegen/Tables.sol";
+import { OwnedBy, Position, Name, VoxelType, Description, VoxelTypes, VoxelMetadata, RelativePositions } from "../codegen/Tables.sol";
 import {PositionData} from "../codegen/tables/Position.sol";
 import { VoxelCoord } from "../types.sol";
 import { AirID } from "../prototypes/Voxels.sol";
@@ -28,7 +28,7 @@ contract RegisterCreationSystem is System {
         Name.set(creationId, name);
         OwnedBy.set(creationId, addressToEntityKey(_msgSender()));
         VoxelTypes.set(creationId, voxelTypes);
-        Positions.set(creationId, repositionedX, repositionedY, repositionedZ);
+        RelativePositions.set(creationId, repositionedX, repositionedY, repositionedZ);
 //        TODO: implement after lattice ppl respond on discord
 //        VoxelMetadata.set(creationId, );
 

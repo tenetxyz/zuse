@@ -3,9 +3,10 @@ pragma solidity >=0.8.0;
 
 import "solecs/System.sol";
 import { getAddressById, addressToEntity } from "solecs/utils.sol";
+import { getKeysInTable } from "@latticexyz/world/src/modules/keysintable/getKeysInTable.sol";
 import { VoxelCoord } from "../types.sol";
 import { NUM_NEIGHBOURS, MAX_NEIGHBOUR_UPDATE_DEPTH } from "../Constants.sol";
-import {Position, PositionData} from "../codegen/Tables.sol";
+import {Position, PositionData, Extension, ExtensionTableId} from "../codegen/Tables.sol";
 import { getEntitiesAtCoord, hasEntity } from "../utils.sol";
 
 library BlockInteraction {
@@ -63,6 +64,7 @@ library BlockInteraction {
   }
 
   function runInteractionSystems(
+    address world,
     bytes32 centerEntity
   ) public {
     // get neighbour entities
@@ -80,98 +82,35 @@ library BlockInteraction {
       // NOTE:
       // we'll go through each one until there is no more changed entities
       // order in which these systems are called should not matter since they all change their own components
-
       bytes32 useCenterEntityId = centerEntitiesToCheckStack[useStackIdx];
       bytes32[] memory useNeighbourEntities = calculateNeighbourEntities(useCenterEntityId);
       if (hasEntity(useNeighbourEntities)) {
-        // call SignalSystem with centerEntity and neighbourEntities
-        uint256[] memory changedSignalSystemEntityIds = signalSystem.executeTyped(
-          useCenterEntityId,
-          useNeighbourEntities
-        );
+        // Go over all registered extensions and call them
+        // TODO: Should filter which ones to call based on key
+        bytes32[][] memory extensions = getKeysInTable(ExtensionTableId);
+        for (uint256 i; i < extensions.length; i++) {
+            // Call the extension
+            bytes16 extensionNamespace = bytes16(extensions[i][0]);
+            bytes4 eventHandler = Extension.get(extensionNamespace);
+            (bool extensionSuccess, bytes memory extensionReturnData) = world.call(abi.encodeWithSelector(eventHandler, useCenterEntityId, useNeighbourEntities));
+            // TODO: Add error handling
+            if(extensionSuccess){
+              bytes32[] memory changedExtensionEntityIds = abi.decode(extensionReturnData, (bytes32[]));
 
-        // if there are changed entities, we want to keep looping for this system
-        for (uint256 i = 0; i < changedSignalSystemEntityIds.length; i++) {
-          if (changedSignalSystemEntityIds[i] != 0) {
-            centerEntitiesToCheckStack[centerEntitiesToCheckStackIdx] = changedSignalSystemEntityIds[i];
-            centerEntitiesToCheckStackIdx++;
-            if (centerEntitiesToCheckStackIdx >= MAX_NEIGHBOUR_UPDATE_DEPTH) {
-              // TODO: Should tell the user that we reached max depth
-              break;
+              // if there are changed entities, we want to keep looping for this system
+              for (uint256 j; j < changedExtensionEntityIds.length; j++) {
+                if (uint256(changedExtensionEntityIds[i]) != 0) {
+                  centerEntitiesToCheckStack[centerEntitiesToCheckStackIdx] = changedExtensionEntityIds[i];
+                  centerEntitiesToCheckStackIdx++;
+                  if (centerEntitiesToCheckStackIdx >= MAX_NEIGHBOUR_UPDATE_DEPTH) {
+                    // TODO: Should tell the user that we reached max depth
+                    break;
+                  }
+                }
+              }
             }
-          }
         }
 
-        // call SignalSourceSystem with centerEntity and neighbourEntities
-        uint256[] memory changedSignalSourceSystemEntityIds = signalSourceSystem.executeTyped(
-          useCenterEntityId,
-          useNeighbourEntities
-        );
-
-        // if there are changed entities, we want to keep looping for this system
-        for (uint256 i = 0; i < changedSignalSourceSystemEntityIds.length; i++) {
-          if (changedSignalSourceSystemEntityIds[i] != 0) {
-            centerEntitiesToCheckStack[centerEntitiesToCheckStackIdx] = changedSignalSourceSystemEntityIds[i];
-            centerEntitiesToCheckStackIdx++;
-            if (centerEntitiesToCheckStackIdx >= MAX_NEIGHBOUR_UPDATE_DEPTH) {
-              // TODO: Should tell the user that we reached max depth
-              break;
-            }
-          }
-        }
-
-        // call SignalSourceSystem with centerEntity and neighbourEntities
-        uint256[] memory changedInvertedSignalSystemEntityIds = invertedSignalSystem.executeTyped(
-          useCenterEntityId,
-          useNeighbourEntities
-        );
-
-        // if there are changed entities, we want to keep looping for this system
-        for (uint256 i = 0; i < changedInvertedSignalSystemEntityIds.length; i++) {
-          if (changedInvertedSignalSystemEntityIds[i] != 0) {
-            centerEntitiesToCheckStack[centerEntitiesToCheckStackIdx] = changedInvertedSignalSystemEntityIds[i];
-            centerEntitiesToCheckStackIdx++;
-            if (centerEntitiesToCheckStackIdx >= MAX_NEIGHBOUR_UPDATE_DEPTH) {
-              // TODO: Should tell the user that we reached max depth
-              break;
-            }
-          }
-        }
-
-        // call SignalSourceSystem with centerEntity and neighbourEntities
-        uint256[] memory changedPoweredSystemEntityIds = poweredSystem.executeTyped(
-          useCenterEntityId,
-          useNeighbourEntities
-        );
-
-        // if there are changed entities, we want to keep looping for this system
-        for (uint256 i = 0; i < changedPoweredSystemEntityIds.length; i++) {
-          if (changedPoweredSystemEntityIds[i] != 0) {
-            centerEntitiesToCheckStack[centerEntitiesToCheckStackIdx] = changedPoweredSystemEntityIds[i];
-            centerEntitiesToCheckStackIdx++;
-            if (centerEntitiesToCheckStackIdx >= MAX_NEIGHBOUR_UPDATE_DEPTH) {
-              // TODO: Should tell the user that we reached max depth
-              break;
-            }
-          }
-        }
-
-        uint256[] memory changedPistonSystemEntityIds = pistonSystem.executeTyped(
-          useCenterEntityId,
-          useNeighbourEntities
-        );
-
-        // if there are changed entities, we want to keep looping for this system
-        for (uint256 i = 0; i < changedPistonSystemEntityIds.length; i++) {
-          if (changedPistonSystemEntityIds[i] != 0) {
-            centerEntitiesToCheckStack[centerEntitiesToCheckStackIdx] = changedPistonSystemEntityIds[i];
-            centerEntitiesToCheckStackIdx++;
-            if (centerEntitiesToCheckStackIdx >= MAX_NEIGHBOUR_UPDATE_DEPTH) {
-              // TODO: Should tell the user that we reached max depth
-              break;
-            }
-          }
-        }
       }
 
       // at this point, we've consumed the top of the stack, so we can pop it, in this case, we just increment the stack index

@@ -11,6 +11,7 @@ import { addressToEntityKey, getEntitiesAtCoord } from "../utils.sol";
 import { IWorld } from "../codegen/world/IWorld.sol";
 import { Occurrence } from "../codegen/Tables.sol";
 import { console } from "forge-std/console.sol";
+import { BlockInteraction } from "../libraries/BlockInteraction.sol";
 
 contract MineSystem is System {
 
@@ -57,21 +58,8 @@ contract MineSystem is System {
     OwnedBy.set(entity, addressToEntityKey(_msgSender()));
     require(IWorld(_world()).tenet_GiftVoxelSystem_numUniqueVoxelTypesIOwn() <= 36, "you can only own 36 voxel types at a time");
 
-    // Go over all registered extensions and call them
-    // TODO: Should filter which ones to call based on key
-    // Get all extensions
-    bytes32[][] memory extensions = getKeysInTable(ExtensionTableId);
-    // Get all values corresponding to those keys
-    bytes32 centerEntityId = entity;
-    bytes32[] memory neighbourEntityIds = new bytes32[](6);
-
-    for (uint256 i; i < extensions.length; i++) {
-        // Call the extension
-        bytes16 extensionNamespace = bytes16(extensions[i][0]);
-        bytes4 eventHandler = Extension.get(extensionNamespace);
-        (bool success, bytes memory returnData) = _world().call(abi.encodeWithSelector(eventHandler, centerEntityId, neighbourEntityIds));
-        // TODO: Add error handling
-    }
+    // Run block interaction logic
+    BlockInteraction.runInteractionSystems(_world(), entity);
 
     return entity;
   }

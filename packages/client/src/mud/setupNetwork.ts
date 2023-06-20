@@ -447,6 +447,25 @@ export async function setupNetwork() {
     });
   }
 
+  function spawnCreation(lowerSouthWestCorner: VoxelCoord, creationId: Entity) {
+    const voxelTypeKey = "Iron";
+
+    actions.add({
+      id: `SpawnCreation+${creationId}+at+${lowerSouthWestCorner}` as Entity,
+      metadata: { actionType: "spawnCreation", voxelTypeKey },
+      requirement: () => true,
+      components: {},
+      execute: async () => {
+        const tx = await worldSend("tenet_SpawnSystem_spawn", [
+          lowerSouthWestCorner,
+          creationId,
+          { gasLimit: 10_000_000 },
+        ]);
+      },
+      updates: () => [],
+    });
+  }
+
   function stake(chunkCoord: Coord) {
     return 0;
   }
@@ -493,6 +512,7 @@ export async function setupNetwork() {
       giftVoxel,
       removeVoxels,
       registerCreation,
+      spawnCreation,
       stake,
       claim,
       getName,

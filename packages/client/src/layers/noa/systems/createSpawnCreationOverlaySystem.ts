@@ -71,6 +71,7 @@ export function createSpawnCreationOverlaySystem(
     const targetVoxelCoord: VoxelCoord = { x, y, z };
     const corner1 = add(targetVoxelCoord, minRelativeCoord);
     const corner2 = add(targetVoxelCoord, maxRelativeCoord);
+    // debugger;
     renderedCreationOutlineMesh = renderChunkyWireframe(
       corner1,
       corner2,

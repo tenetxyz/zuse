@@ -27,7 +27,7 @@ interface Props {
   setFilters: React.Dispatch<React.SetStateAction<CreationStoreFilters>>;
 }
 
-interface Creation {
+export interface Creation {
   name: string;
   description: string;
   creationId: Entity;
@@ -40,7 +40,7 @@ interface Creation {
 const CreationStore: React.FC<Props> = ({ layers, filters, setFilters }) => {
   const {
     noa: {
-      components: { PersistentNotification },
+      components: { PersistentNotification, SpawnCreation },
       SingletonEntity,
       api: { toggleInventory },
     },
@@ -114,6 +114,9 @@ const CreationStore: React.FC<Props> = ({ layers, filters, setFilters }) => {
     setComponent(PersistentNotification, SingletonEntity, {
       message: "press 'Enter' to place creation, 'e' to cancel",
       icon: NotificationIcon.NONE,
+    });
+    setComponent(SpawnCreation, SingletonEntity, {
+      creation: creation,
     });
     toggleInventory();
   };

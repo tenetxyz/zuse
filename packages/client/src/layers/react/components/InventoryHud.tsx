@@ -26,7 +26,7 @@ import { Sounds } from "./Sounds";
 import { CreativeInventory } from "./CreativeInventory";
 import { Inventory } from "./Inventory";
 import { InventoryTab, TabRadioSelector } from "./TabRadioSelector";
-import RegisterCreation from "./RegisterCreation";
+import RegisterCreation, { RegisterCreationFormData } from "./RegisterCreation";
 import { Layers } from "../../../types";
 
 // This gives us 36 inventory slots. As of now there are 34 types of VoxelTypes, so it should fit.
@@ -255,6 +255,13 @@ export function registerInventoryHud() {
         </BottomBar>
       );
 
+      // This state is hoisted up to this component so that the state is not lost when leaving the inventory to select voxels
+      const [registerCreationFormData, setRegisterCreationFormData] =
+        useState<RegisterCreationFormData>({
+          name: "",
+          description: "",
+        });
+
       const getPageForSelectedTab = () => {
         switch (selectedTab) {
           case InventoryTab.INVENTORY:
@@ -270,7 +277,13 @@ export function registerInventoryHud() {
           case InventoryTab.CREATIVE:
             return <CreativeInventory layers={layers} />;
           case InventoryTab.REGISTER_CREATION:
-            return <RegisterCreation layers={layers} />;
+            return (
+              <RegisterCreation
+                layers={layers}
+                formData={registerCreationFormData}
+                setFormData={setRegisterCreationFormData}
+              />
+            );
         }
       };
       const SelectedTab = getPageForSelectedTab();

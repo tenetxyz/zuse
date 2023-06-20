@@ -1,13 +1,12 @@
-import React, { useState, ChangeEvent, KeyboardEvent } from "react";
+import React, { ChangeEvent, KeyboardEvent } from "react";
 import { Layers } from "../../../types";
 import { Entity, setComponent } from "@latticexyz/recs";
 import { NotificationIcon } from "../../noa/components/persistentNotification";
 import { IVoxelSelection } from "../../noa/components/VoxelSelection";
-import { VoxelCoord } from "@latticexyz/utils";
 import { calculateMinMax } from "../../../utils/voxels";
 import { useComponentValue } from "@latticexyz/react";
 
-interface CreationFormData {
+export interface RegisterCreationFormData {
   name: string;
   description: string;
 }
@@ -19,11 +18,15 @@ interface CreationCorners {
 
 interface Props {
   layers: Layers;
-  corner1: VoxelCoord | undefined;
-  corner2: VoxelCoord | undefined;
+  formData: RegisterCreationFormData;
+  setFormData: React.Dispatch<React.SetStateAction<RegisterCreationFormData>>;
 }
 
-const RegisterCreation: React.FC<Props> = ({ layers }) => {
+const RegisterCreation: React.FC<Props> = ({
+  layers,
+  formData,
+  setFormData,
+}) => {
   const {
     noa: {
       components: { VoxelSelection, PersistentNotification },
@@ -34,10 +37,6 @@ const RegisterCreation: React.FC<Props> = ({ layers }) => {
       api: { getEntityAtPosition, registerCreation },
     },
   } = layers;
-  const [formData, setFormData] = useState<CreationFormData>({
-    name: "",
-    description: "",
-  });
   const corners: IVoxelSelection | undefined = useComponentValue(
     VoxelSelection,
     SingletonEntity

@@ -69,3 +69,12 @@ function removeDuplicates(bytes32[] memory arr) pure returns (bytes32[] memory) 
 
     return result;
 }
+
+function hasEntity(bytes32[] memory entities) pure returns (bool) {
+  for (uint256 i; i < entities.length; i++) {
+    if (uint256(entities[i]) != 0) {
+      return true;
+    }
+  }
+  return false;
+}

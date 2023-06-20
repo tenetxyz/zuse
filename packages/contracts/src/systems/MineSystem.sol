@@ -25,6 +25,7 @@ contract MineSystem is System {
     bytes32[] memory entitiesAtPosition = getEntitiesAtCoord(coord);
 
     bytes32 entity;
+    bytes32 airEntity;
 
     if (entitiesAtPosition.length == 0) {
       // If there is no entity at this position, try mining the terrain voxel at this position
@@ -40,11 +41,6 @@ contract MineSystem is System {
       // Create an ECS voxel from this coord's terrain voxel
       entity = getUniqueEntity();
       VoxelType.set(entity, voxelType);
-
-      // Place an air voxel at this position
-      bytes32 airEntity = getUniqueEntity();
-      VoxelType.set(airEntity, AirID);
-      Position.set(airEntity, coord.x, coord.y, coord.z);
     } else {
       // Else, mine the non-air entity voxel at this position
       for (uint256 i; i < entitiesAtPosition.length; i++) {
@@ -54,24 +50,16 @@ contract MineSystem is System {
       Position.deleteRecord(entity);
     }
 
+    // Place an air voxel at this position
+    airEntity = getUniqueEntity();
+    VoxelType.set(airEntity, AirID);
+    Position.set(airEntity, coord.x, coord.y, coord.z);
+
     OwnedBy.set(entity, addressToEntityKey(_msgSender()));
     require(IWorld(_world()).tenet_GiftVoxelSystem_numUniqueVoxelTypesIOwn() <= 36, "you can only own 36 voxel types at a time");
 
-    // Go over all registered extensions and call them
-    // TODO: Should filter which ones to call based on key
-    // Get all extensions
-    bytes32[][] memory extensions = getKeysInTable(ExtensionTableId);
-    // Get all values corresponding to those keys
-    bytes32 centerEntityId = entity;
-    bytes32[] memory neighbourEntityIds = new bytes32[](6);
-
-    for (uint256 i; i < extensions.length; i++) {
-        // Call the extension
-        bytes16 extensionNamespace = bytes16(extensions[i][0]);
-        bytes4 eventHandler = Extension.get(extensionNamespace);
-        (bool success, bytes memory returnData) = _world().call(abi.encodeWithSelector(eventHandler, centerEntityId, neighbourEntityIds));
-        // TODO: Add error handling
-    }
+    // Run voxel interaction logic
+    IWorld(_world()).tenet_VoxelInteraction_runInteractionSystems(airEntity);
 
     return entity;
   }

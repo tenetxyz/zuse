@@ -421,6 +421,32 @@ export async function setupNetwork() {
     });
   }
 
+  function registerCreation(
+    creationName: string,
+    creationDescription: string,
+    voxels: Entity[]
+  ) {
+    const voxelTypeKey = "Diamond";
+
+    actions.add({
+      id: `RegisterCreation+${creationName}` as Entity,
+      metadata: { actionType: "registerCreation", voxelTypeKey },
+      requirement: () => true,
+      components: {
+        OwnedBy: contractComponents.OwnedBy,
+      },
+      execute: async () => {
+        const tx = await worldSend("tenet_RegisterCreation_registerCreation", [
+          creationName,
+          creationDescription,
+          voxels,
+          { gasLimit: 5_000_000 },
+        ]);
+      },
+      updates: () => [],
+    });
+  }
+
   function stake(chunkCoord: Coord) {
     return 0;
   }
@@ -466,6 +492,7 @@ export async function setupNetwork() {
       mine,
       giftVoxel,
       removeVoxels,
+      registerCreation,
       stake,
       claim,
       getName,

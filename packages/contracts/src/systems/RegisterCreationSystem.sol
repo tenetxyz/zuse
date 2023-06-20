@@ -6,7 +6,8 @@ import { System } from "@latticexyz/world/src/System.sol";
 import { Strings } from "@openzeppelin/contracts/utils/Strings.sol";
 import { IWorld } from "../codegen/world/IWorld.sol";
 import { addressToEntityKey, getEntitiesAtCoord } from "../utils.sol";
-import { OwnedBy, Position, Name, VoxelType, Voxels } from "../codegen/Tables.sol";
+import { OwnedBy, Position, Name, VoxelType, Description, VoxelTypes, VoxelMetadata, RelativePositions } from "../codegen/Tables.sol";
+import {PositionData} from "../codegen/tables/Position.sol";
 import { VoxelCoord } from "../types.sol";
 import { AirID } from "../prototypes/Voxels.sol";
 //import { CreateBlock } from "../libraries/CreateBlock.sol";
@@ -14,91 +15,46 @@ import { AirID } from "../prototypes/Voxels.sol";
 uint256 constant MAX_BLOCKS_IN_CREATION = 100;
 
 contract RegisterCreationSystem is System {
-    function registerCreation(string memory creationName, VoxelCoord memory corner1, VoxelCoord memory corner2) public returns (bytes32) { // returns the created creationId
-        // calculate the corners here (to avoid stack too deep error)
-        (VoxelCoord memory lowerSouthWestCorner, VoxelCoord memory upperNorthEastCorner) = getBoundingBox(corner1, corner2);
-        (uint256 numVoxels, bytes32[] memory creationVoxelIds, VoxelCoord[] memory creationVoxelCoords) = getCreationVoxels(
-            lowerSouthWestCorner,
-            upperNorthEastCorner
-        );
+    function registerCreation(string memory name, string memory description, bytes32[] memory voxels) public returns (bytes32) { // returns the created creationId
+        VoxelCoord[] memory voxelCoords = getVoxelCoords(voxels);
+        validateCreation(voxelCoords);
 
-        require(
-            numVoxels <= MAX_BLOCKS_IN_CREATION,
-            string(abi.encodePacked("Your creation cannot exceed ", Strings.toString(MAX_BLOCKS_IN_CREATION), " blocks"))
-        );
+        bytes32[] memory voxelTypes = getVoxelTypes(voxels);
+        (int32[] memory repositionedX, int32[] memory repositionedY, int32[] memory repositionedZ) = repositionBlocksSoLowerSouthwestCornerIsOnOrigin(voxelCoords);
 
-        bytes32 creationId = getCreationHash(creationVoxelIds, _msgSender());
+        bytes32 creationId = getCreationHash(voxels, _msgSender());
 
-        Name.set(creationId, creationName);
+        Description.set(creationId, description);
+        Name.set(creationId, name);
         OwnedBy.set(creationId, addressToEntityKey(_msgSender()));
-
-        // now we can safely make this new creation
-        VoxelCoord[] memory repositionedCoords = repositionBlocksSoLowerSouthwestCornerIsOnOrigin(
-            creationVoxelCoords,
-            numVoxels
-        );
-
-        // TODO: properly clone the voxels. we need to emit a clone event
-        for (uint32 i = 0; i < numVoxels; i++) {
-            bytes32 newVoxel = getUniqueEntity();
-
-            VoxelCoord memory repositionedCoord = repositionedCoords[i];
-            Position.set(newVoxel, repositionedCoord.x, repositionedCoord.y, repositionedCoord.z);
-            // TODO: this should be itemComponent
-            bytes32 voxelType = VoxelType.get(creationVoxelIds[i]);
-            VoxelType.set(newVoxel, voxelType);
-            // TODO: we should init the default components for this voxel type
-            // CreateBlock.addCustomComponents(components, blockType, newVoxel);
-
-            Voxels.push(creationId, newVoxel);
-        }
+        VoxelTypes.set(creationId, voxelTypes);
+        RelativePositions.set(creationId, repositionedX, repositionedY, repositionedZ);
+//        TODO: implement after lattice ppl respond on discord
+//        VoxelMetadata.set(creationId, );
 
         return creationId;
     }
 
-    function getCreationVoxels(
-        VoxelCoord memory lowerSouthWestCorner,
-        VoxelCoord memory upperNorthEastCorner
-    )
-    private view returns (
-        uint256,
-        bytes32[] memory,
-        VoxelCoord[] memory
-    )
-    {
-        uint32 numVoxelsInVolume = uint32(upperNorthEastCorner.x - lowerSouthWestCorner.x + 1) *
-        uint32(upperNorthEastCorner.y - lowerSouthWestCorner.y + 1) *
-        uint32(upperNorthEastCorner.z - lowerSouthWestCorner.z + 1);
-        bytes32[] memory creationVoxelIds = new bytes32[](numVoxelsInVolume);
-        VoxelCoord[] memory creationVoxelCoords = new VoxelCoord[](numVoxelsInVolume);
-        uint32 numVoxels = 0;
-        for (int32 x = lowerSouthWestCorner.x; x <= upperNorthEastCorner.x; x++) {
-            for (int32 y = lowerSouthWestCorner.y; y <= upperNorthEastCorner.y; y++) {
-                for (int32 z = lowerSouthWestCorner.z; z <= upperNorthEastCorner.z; z++) {
-                    VoxelCoord memory coord = VoxelCoord(x, y, z);
-                    bytes32[] memory entitiesAtCoord = getEntitiesAtCoord(coord);
-                    if (entitiesAtCoord.length == 1) {
-                        creationVoxelIds[numVoxels] = entitiesAtCoord[0];
-                        creationVoxelCoords[numVoxels] = coord;
-                        numVoxels++;
-                    }
-                }
-            }
-        }
-        return (numVoxels, creationVoxelIds, creationVoxelCoords);
+    function validateCreation(VoxelCoord[] memory voxelCoords) private {
+        require(
+            voxelCoords.length <= MAX_BLOCKS_IN_CREATION,
+            string(abi.encodePacked("Your creation cannot exceed ", Strings.toString(MAX_BLOCKS_IN_CREATION), " blocks"))
+        );
+        // TODO: specify which coords are duplicated
+        require(!hasDuplicateVoxelCoords(voxelCoords), "Two voxels in your creation has the same coordinates");
+
+        // TODO: should we also limit the dimensions of the creation?
     }
 
     // TODO: put this into a precompile for speed
-    function repositionBlocksSoLowerSouthwestCornerIsOnOrigin(VoxelCoord[] memory creationCoords, uint256 numVoxels)
-    private
-    pure
-    returns (VoxelCoord[] memory)
-    {
+    function repositionBlocksSoLowerSouthwestCornerIsOnOrigin(
+        VoxelCoord[] memory voxelCoords
+    ) private pure returns (int32[] memory, int32[] memory, int32[] memory) {
         int32 lowestX = 2147483647;
         int32 lowestY = 2147483647;
         int32 lowestZ = 2147483647;
-        for (uint32 i = 0; i < numVoxels; i++) {
-            VoxelCoord memory voxel = creationCoords[i];
+        for (uint32 i = 0; i < voxelCoords.length; i++) {
+            VoxelCoord memory voxel = voxelCoords[i];
             if (voxel.x < lowestX) {
                 lowestX = voxel.x;
             }
@@ -110,29 +66,47 @@ contract RegisterCreationSystem is System {
             }
         }
 
-        VoxelCoord[] memory repositionedCoords = new VoxelCoord[](numVoxels);
-        for (uint32 i = 0; i < numVoxels; i++) {
-            VoxelCoord memory voxel = creationCoords[i];
-            VoxelCoord memory newRelativeCoord = VoxelCoord(voxel.x - lowestX, voxel.y - lowestY, voxel.z - lowestZ);
-            repositionedCoords[i] = newRelativeCoord;
+        int32[] memory repositionedX = new int32[](voxelCoords.length);
+        int32[] memory repositionedY = new int32[](voxelCoords.length);
+        int32[] memory repositionedZ = new int32[](voxelCoords.length);
+
+        for (uint32 i = 0; i < voxelCoords.length; i++) {
+            VoxelCoord memory voxel = voxelCoords[i];
+            repositionedX[i] = voxel.x - lowestX;
+            repositionedY[i] = voxel.y - lowestY;
+            repositionedZ[i] = voxel.z - lowestZ;
         }
-        return repositionedCoords;
+        return (repositionedX, repositionedY, repositionedZ);
     }
 
-    function getBoundingBox(VoxelCoord memory corner1, VoxelCoord memory corner2)
-    private
-    pure
-    returns (VoxelCoord memory, VoxelCoord memory)
-    {
-        int32 lowerX = corner1.x < corner2.x ? corner1.x : corner2.x;
-        int32 lowerY = corner1.y < corner2.y ? corner1.y : corner2.y;
-        int32 lowerZ = corner1.z < corner2.z ? corner1.z : corner2.z;
+    function getVoxelTypes(bytes32[] memory voxels) public view returns ( bytes32[] memory) {
+        bytes32[] memory voxelTypes = new bytes32[](voxels.length);
+        for (uint32 i = 0; i < voxels.length; i++) {
+            voxelTypes[i] = VoxelType.get(voxels[i]);
+        }
+        return voxelTypes;
+    }
 
-        int32 upperX = corner1.x > corner2.x ? corner1.x : corner2.x;
-        int32 upperY = corner1.y > corner2.y ? corner1.y : corner2.y;
-        int32 upperZ = corner1.z > corner2.z ? corner1.z : corner2.z;
+    function getVoxelCoords(bytes32[] memory voxels) private view returns ( VoxelCoord[] memory ) {
+        VoxelCoord[] memory voxelCoords = new VoxelCoord[](voxels.length);
+        for (uint32 i = 0; i < voxels.length; i++) {
+            PositionData memory position = Position.get(voxels[i]);
+            voxelCoords[i] = VoxelCoord(position.x, position.y, position.z);
+        }
+        return voxelCoords;
+    }
 
-        return (VoxelCoord(lowerX, lowerY, lowerZ), VoxelCoord(upperX, upperY, upperZ));
+    function hasDuplicateVoxelCoords(
+        VoxelCoord[] memory coords
+    ) private view returns (bool) {
+        for (uint i = 0; i < coords.length; i++) {
+            for (uint j = i+1; j < coords.length; j++) {
+                if(coords[i].x == coords[j].x && coords[i].y == coords[j].y && coords[i].z == coords[j].z) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 
     // hashing the message sender means that two different players can register the same creation

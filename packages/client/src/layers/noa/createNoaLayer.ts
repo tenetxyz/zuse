@@ -75,7 +75,7 @@ import { createSpawnPlayerSystem } from "./systems/createSpawnPlayerSystem";
 import { definePlayerMeshComponent } from "./components/PlayerMesh";
 import { Engine } from "@babylonjs/core";
 import { to64CharAddress } from "../../utils/entity";
-import { definePersistentNotificationComponent } from "./components/persistentNotification";
+import {definePersistentNotificationComponent, NotificationIcon} from "./components/persistentNotification";
 import { createVoxelSelectionOverlaySystem } from "./systems/voxelSelectionOverlaySystem";
 
 export function createNoaLayer(network: NetworkLayer) {
@@ -289,6 +289,14 @@ export function createNoaLayer(network: NetworkLayer) {
     // if the inventory is open, we need to disable movement commands or voxel selection commands so the player isn't "interacting" with the world
     disableOrEnableInputs(open);
 
+    if(open){ // clear persistent notification when we open the inventory
+      setComponent(components.PersistentNotification, SingletonEntity, {
+        message:
+          "",
+        icon: NotificationIcon.NONE,
+      });
+    }
+
     noa.container.setPointerLock(!open);
     updateComponent(components.UI, SingletonEntity, {
       showPlugins: false,
@@ -317,7 +325,7 @@ export function createNoaLayer(network: NetworkLayer) {
   };
   const isFocusedOnInputElement = () => {
     const activeElement = document.activeElement;
-    return activeElement && activeElement.tagName === "INPUT";
+    return activeElement && ["INPUT", "TEXTAREA"].includes(activeElement.tagName);
   };
 
   function getVoxelTypeInSelectedSlot(): Entity | undefined {

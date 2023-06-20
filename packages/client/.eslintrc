@@ -6,6 +6,7 @@
   ],
   "plugins": ["react", "react-hooks"],
   "rules": {
-    "react/react-in-jsx-scope": "off"
+    "react/react-in-jsx-scope": "off",
+    "react/no-unescaped-entities": 0 // so eslint won't complain about the ' character in: "you're"
   }
 }

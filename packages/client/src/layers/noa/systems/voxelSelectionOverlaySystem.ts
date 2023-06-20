@@ -23,16 +23,18 @@ export function createVoxelSelectionOverlaySystem(
 
   let renderedRangeSelectionMesh: Nullable<Mesh> = null;
   const renderRangeSelection = (voxelSelection: IVoxelSelection) => {
-    if (!voxelSelection.corner1 || !voxelSelection.corner2) {
-      return;
-    }
     if (renderedRangeSelectionMesh) {
       // remove the previous mesh since the user can only have one range selection
       renderedRangeSelectionMesh.dispose();
     }
+
+    if (!voxelSelection.corner1 && !voxelSelection.corner2) {
+      // none of the corners are defined, so render nothing
+      return;
+    }
     renderedRangeSelectionMesh = renderChunkyWireframe(
-      voxelSelection.corner1,
-      voxelSelection.corner2,
+      voxelSelection.corner1 ?? voxelSelection.corner2!,
+      voxelSelection.corner2 ?? voxelSelection.corner1!,
       noa,
       new Color3(1, 1, 1),
       0.05

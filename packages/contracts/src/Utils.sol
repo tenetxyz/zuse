@@ -5,6 +5,7 @@ import { CHUNK } from "./constants.sol";
 import { Coord, VoxelCoord } from "./types.sol";
 import { getKeysWithValue } from "@latticexyz/world/src/modules/keyswithvalue/getKeysWithValue.sol";
 import { Position, PositionTableId } from "./codegen/Tables.sol";
+import { Strings } from "@openzeppelin/contracts/utils/Strings.sol";
 
 function addressToEntityKey(address addr) pure returns (bytes32) {
   return bytes32(uint256(uint160(addr)));
@@ -19,6 +20,14 @@ function div(int32 a, int32 b) pure returns (int32) {
 
 function getChunkCoord(VoxelCoord memory coord) pure returns (Coord memory) {
     return Coord(div(coord.x, CHUNK), div(coord.z, CHUNK));
+}
+
+function int32ToString(int32 num) pure returns (string memory){
+    return Strings.toString(uint256(uint32(num)));
+}
+
+function voxelCoordToString(VoxelCoord memory coord) pure returns (string memory) {
+    return string(abi.encodePacked("(", int32ToString(coord.x), ", ", int32ToString(coord.y), ", ", int32ToString(coord.z), ")"));
 }
 
 function initializeArray(uint256 x, uint256 y) pure returns (uint256[][] memory) {

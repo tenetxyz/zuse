@@ -48,13 +48,14 @@ contract RegisterCreationTest is MudV2Test {
     // NOTE: I don't think you can call Component.set(store, value);, you can only call Component.get(store, key);
     // This is why I am gifting the voxels to Alice.
     // For some reason, you also can't use: voxel1 = getUniqueEntity();
-    bytes32 voxel1 = world.tenet_GiftVoxelSystem_giftVoxel(CyanWoolID);
-    bytes32 voxel2 = world.tenet_GiftVoxelSystem_giftVoxel(CyanWoolID);
+    bytes32 giftedVoxel = world.tenet_GiftVoxelSystem_giftVoxel(CyanWoolID);
 
     VoxelCoord memory coord1 = VoxelCoord(1, 2, 1);
     VoxelCoord memory coord2 = VoxelCoord(2, 1, 2);
-    world.tenet_BuildSystem_build(voxel1, coord1);
-    world.tenet_BuildSystem_build(voxel2, coord2);
+    
+    // the build system spawns a new voxel before placing the newly spawned voxel in the world
+    bytes32 voxel1 = world.tenet_BuildSystem_build(giftedVoxel, coord1);
+    bytes32 voxel2 = world.tenet_BuildSystem_build(giftedVoxel, coord2);
 
     bytes32[] memory voxels = new bytes32[](2);
     voxels[0] = voxel1;

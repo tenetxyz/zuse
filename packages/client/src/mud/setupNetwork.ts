@@ -18,7 +18,7 @@ import { world } from "./world";
 import { createPerlin } from "@latticexyz/noise";
 import { BigNumber, Contract, Signer, utils } from "ethers";
 import { JsonRpcProvider } from "@ethersproject/providers";
-import { IWorld__factory } from "contracts/types/ethers-contracts/factories/IWorld__factory";
+import { IWorld__factory } from "@tenetxyz/contracts/types/ethers-contracts/factories/IWorld__factory";
 import {
   getTableIds,
   awaitPromise,
@@ -27,7 +27,7 @@ import {
   Coord,
 } from "@latticexyz/utils";
 import { map, timer, combineLatest, BehaviorSubject } from "rxjs";
-import storeConfig from "contracts/mud.config";
+import storeConfig from "@tenetxyz/contracts/mud.config";
 import {
   VoxelTypeIdToKey,
   VoxelTypeKey,

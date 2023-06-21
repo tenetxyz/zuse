@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: GPL-3.0
 pragma solidity >=0.8.0;
-import { PositionData } from "contracts/src/codegen/Tables.sol";
+import { PositionData } from "@tenetxyz/contracts/src/codegen/tables/Position.sol";
 
 import {BlockDirection} from "./codegen/Types.sol";
 

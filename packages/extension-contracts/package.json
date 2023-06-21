@@ -31,6 +31,7 @@
     "@latticexyz/std-contracts": "link:../../../mud/packages/std-contracts",
     "@latticexyz/store": "link:../../../mud/packages/store",
     "@latticexyz/world": "link:../../../mud/packages/world",
+    "@tenetxyz/contracts": "workspace:*",
     "ethers": "^5.7.2"
   },
   "devDependencies": {

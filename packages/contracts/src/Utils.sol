@@ -26,6 +26,9 @@ function int32ToString(int32 num) pure returns (string memory){
     return Strings.toString(uint256(uint32(num)));
 }
 
+function add(VoxelCoord memory a, VoxelCoord memory b) pure returns (VoxelCoord memory) {
+    return VoxelCoord(a.x + b.x, a.y + b.y, a.z + b.z);
+}
 function voxelCoordToString(VoxelCoord memory coord) pure returns (string memory) {
     return string(abi.encodePacked("(", int32ToString(coord.x), ", ", int32ToString(coord.y), ", ", int32ToString(coord.z), ")"));
 }

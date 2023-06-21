@@ -22,6 +22,12 @@ import {
 } from "../engine/components/utils";
 import { NoaLayer } from "../types";
 import { toast } from "react-toastify";
+import { Creation } from "../../react/components/CreationStore";
+import {
+  getCoordOfVoxelOnFaceYouTargeted,
+  getTargetedVoxelCoord,
+} from "../../../utils/voxels";
+import { NotificationIcon } from "../components/persistentNotification";
 
 export function createInputSystem(network: NetworkLayer, noaLayer: NoaLayer) {
   const {
@@ -32,6 +38,8 @@ export function createInputSystem(network: NetworkLayer, noaLayer: NoaLayer) {
       Tutorial,
       PreTeleportPosition,
       VoxelSelection,
+      SpawnCreation,
+      PersistentNotification,
     },
     SingletonEntity,
     api: {
@@ -49,6 +57,7 @@ export function createInputSystem(network: NetworkLayer, noaLayer: NoaLayer) {
     // api: { stake, claim },
     network: { connectedAddress },
     streams: { balanceGwei$ },
+    api: { spawnCreation },
   } = network;
 
   // mine targeted voxel on left click
@@ -120,7 +129,7 @@ export function createInputSystem(network: NetworkLayer, noaLayer: NoaLayer) {
     }
     hasSelectedCorner = true;
 
-    const coord = getTargetedBlockCoord();
+    const coord = getTargetedVoxelCoord(noa);
     const voxelSelection = getComponentValue(VoxelSelection, SingletonEntity);
     const corner1 = isCorner1 ? coord : voxelSelection?.corner1;
     const corner2 = !isCorner1 ? coord : voxelSelection?.corner2;
@@ -323,7 +332,7 @@ export function createInputSystem(network: NetworkLayer, noaLayer: NoaLayer) {
     }
     const voxelSelection = getComponentValue(VoxelSelection, SingletonEntity);
     const points: VoxelCoord[] = voxelSelection?.points ?? [];
-    const coord = getTargetedBlockCoord();
+    const coord = getTargetedVoxelCoord(noa);
     points.push(coord);
 
     toast(`Selected voxel at ${coord.x}, ${coord.y}, ${coord.z}`);
@@ -334,14 +343,28 @@ export function createInputSystem(network: NetworkLayer, noaLayer: NoaLayer) {
     });
   });
 
-  const getTargetedBlockCoord = () => {
-    const x = noa.targetedBlock.position[0];
-    const y = noa.targetedBlock.position[1];
-    const z = noa.targetedBlock.position[2];
-    return {
-      x,
-      y,
-      z,
-    };
-  };
+  noa.inputs.bind("spawnCreation", "<enter>");
+  noa.inputs.down.on("spawnCreation", () => {
+    if (!noa.container.hasPointerLock) {
+      return;
+    }
+    const creationToSpawn: Creation | undefined = getComponentValue(
+      SpawnCreation,
+      SingletonEntity
+    )?.creation;
+    if (!creationToSpawn) {
+      return;
+    }
+    const lowerSouthWestCorner = getCoordOfVoxelOnFaceYouTargeted(noa);
+    spawnCreation(lowerSouthWestCorner, creationToSpawn.creationId);
+
+    // clear the spawn creation component so the outline disappears
+    // TODO: wait until the transaction succeeds, then clear the spawn creation component
+    setComponent(SpawnCreation, SingletonEntity, { creation: undefined });
+    // clear the persistent notification
+    setComponent(PersistentNotification, SingletonEntity, {
+      message: "",
+      icon: NotificationIcon.NONE,
+    });
+  });
 }

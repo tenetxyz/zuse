@@ -11,13 +11,14 @@ import { addressToEntityKey, getEntitiesAtCoord } from "../utils.sol";
 import { IWorld } from "../codegen/world/IWorld.sol";
 import { Occurrence } from "../codegen/Tables.sol";
 import { console } from "forge-std/console.sol";
+import { CHUNK_MAX_Y, CHUNK_MIN_Y } from "../Constants.sol";
 
 contract MineSystem is System {
 
   function mine(VoxelCoord memory coord, bytes32 voxelType) public returns (bytes32) {
     require(voxelType != AirID, "can not mine air");
     require(voxelType != WaterID, "can not mine water");
-    require(coord.y < 256 && coord.y >= -63, "out of chunk bounds");
+    require(coord.y <= CHUNK_MAX_Y && coord.y >= CHUNK_MIN_Y, "out of chunk bounds");
 
     // TODO: check claim in chunk
 

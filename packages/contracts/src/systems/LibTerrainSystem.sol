@@ -10,6 +10,7 @@ import { VoxelCoord, Tuple } from "../Types.sol";
 import { div } from "../Utils.sol";
 import { System } from "@latticexyz/world/src/System.sol";
 import { IWorld } from "../codegen/world/IWorld.sol";
+import { CHUNK_MIN_Y } from "../Constants.sol";
 
 int128 constant _0 = 0; // 0 * 2**64
 int128 constant _0_3 = 5534023222112865484; // 0.3 * 2**64
@@ -337,7 +338,7 @@ contract LibTerrainSystem is System {
   }
 
   function Bedrock(int32 y) internal view returns (bytes32) {
-    if (y <= -63) return BedrockID;
+    if (y <= CHUNK_MIN_Y) return BedrockID;
   }
 
   function Grass(VoxelCoord memory coord) public view returns (bytes32) {
@@ -357,7 +358,7 @@ contract LibTerrainSystem is System {
   function Dirt(
     int32 y
   ) internal view returns (bytes32) {
-    if (y > -63 && y < 10) return DirtID;
+    if (y > CHUNK_MIN_Y && y < 10) return DirtID;
   }
 
 }

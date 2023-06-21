@@ -26,13 +26,13 @@ contract PostDeploy is Script {
     console.log("Success registerExtension PoweredSystem");
     console.logBool(success);
 
-    (success, result) = worldAddress.call(abi.encodeWithSignature("tenet_ExtensionSystem_registerExtension(bytes4)", signalSourceEventHandler));
-    console.log("Success registerExtension SignalSourceSystem");
-    console.logBool(success);
+    // (success, result) = worldAddress.call(abi.encodeWithSignature("tenet_ExtensionSystem_registerExtension(bytes4)", signalSourceEventHandler));
+    // console.log("Success registerExtension SignalSourceSystem");
+    // console.logBool(success);
 
-    (success, result) = worldAddress.call(abi.encodeWithSignature("tenet_ExtensionSystem_registerExtension(bytes4)", signalEventHandler));
-    console.log("Success registerExtension SignalSystem");
-    console.logBool(success);
+    // (success, result) = worldAddress.call(abi.encodeWithSignature("tenet_ExtensionSystem_registerExtension(bytes4)", signalEventHandler));
+    // console.log("Success registerExtension SignalSystem");
+    // console.logBool(success);
 
     vm.stopBroadcast();
   }

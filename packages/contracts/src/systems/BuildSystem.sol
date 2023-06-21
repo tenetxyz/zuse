@@ -31,7 +31,7 @@ contract BuildSystem is System {
     Position.set(newEntity, coord.x, coord.y, coord.z);
 
     // Run voxel interaction logic
-    IWorld(_world()).tenet_VoxelInteraction_runInteractionSystems(newEntity);
+    IWorld(_world()).tenet_VoxInteractSys_runInteractionSystems(newEntity);
 
     return newEntity;
   }

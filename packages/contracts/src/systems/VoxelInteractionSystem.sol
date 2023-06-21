@@ -6,7 +6,7 @@ import { getAddressById, addressToEntity } from "solecs/utils.sol";
 import { getKeysInTable } from "@latticexyz/world/src/modules/keysintable/getKeysInTable.sol";
 import { VoxelCoord } from "../types.sol";
 import { NUM_VOXEL_NEIGHBOURS, MAX_VOXEL_NEIGHBOUR_UPDATE_DEPTH } from "../Constants.sol";
-import {Position, PositionData, Extension, ExtensionTableId} from "../codegen/Tables.sol";
+import {Position, PositionData, VoxelInteractionExtension, VoxelInteractionExtensionTableId} from "../codegen/Tables.sol";
 import { getEntitiesAtCoord, hasEntity } from "../utils.sol";
 
 contract VoxelInteractionSystem is System {
@@ -94,12 +94,12 @@ contract VoxelInteractionSystem is System {
       }
 
       // Go over all registered extensions and call them
-      // TODO: Should filter which ones to call based on key/some config passed by user
-      bytes32[][] memory extensions = getKeysInTable(ExtensionTableId);
+      bytes32[][] memory extensions = getKeysInTable(VoxelInteractionExtensionTableId);
       for (uint256 i; i < extensions.length; i++) {
+          // TODO: Should filter which ones to call based on key/some config passed by user
           bytes16 extensionNamespace = bytes16(extensions[i][0]);
-          bytes4 eventHandler = Extension.get(extensionNamespace);
-          (bool extensionSuccess, bytes memory extensionReturnData) = world.call(abi.encodeWithSelector(eventHandler, useCenterEntityId, useNeighbourEntities));
+          bytes4 extensionEventHandler = bytes4(extensions[i][1]);
+          (bool extensionSuccess, bytes memory extensionReturnData) = world.call(abi.encodeWithSelector(extensionEventHandler, useCenterEntityId, useNeighbourEntities));
           // TODO: Add error handling
           if(extensionSuccess){
             bytes32[] memory changedExtensionEntityIds = abi.decode(extensionReturnData, (bytes32[]));

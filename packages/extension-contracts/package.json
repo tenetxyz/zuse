@@ -9,7 +9,6 @@
     "deploy": "yarn run initialize && yarn mud deploy --worldAddress 0x5FbDB2315678afecb367f032d93F642f64180aa3",
     "deploy:hackathon": "yarn run initialize && yarn mud deploy --profile=hackathon-testnet",
     "deploy:testnet": "yarn run initialize && yarn mud deploy --profile=lattice-testnet",
-    "dev": "yarn mud dev-contracts --tsgenOutput ./client",
     "initialize": "yarn run tablegen && yarn run worldgen && yarn run build && yarn run worldtypes && yarn run tsgen",
     "lint": "yarn run prettier && yarn run solhint",
     "prettier": "prettier --write 'src/**/*.sol'",

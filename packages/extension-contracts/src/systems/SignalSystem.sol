@@ -30,7 +30,7 @@ contract SignalSystem is System {
 
     Signal.set(callerNamespace, entity, SignalData({
       isActive: false,
-      direction: 0
+      direction: BlockDirection.None
     }));
   }
 

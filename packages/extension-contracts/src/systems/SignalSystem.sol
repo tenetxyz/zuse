@@ -80,6 +80,7 @@ contract SignalSystem is System {
     keyTuple[0] = bytes32((callerNamespace));
     keyTuple[1] = bytes32((centerEntityId));
 
+    // TODO: Need to read Position from caller namespace
     // require(positionComponent.has(centerEntityId), "centerEntityId must have a position"); // even if its air, it must have a position
     // VoxelCoord memory centerPosition = positionComponent.getValue(centerEntityId);
 

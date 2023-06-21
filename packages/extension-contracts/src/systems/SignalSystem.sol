@@ -8,6 +8,8 @@ import { hasKey } from "@latticexyz/world/src/modules/keysintable/hasKey.sol";
 import { SystemRegistry } from "@latticexyz/world/src/modules/core/tables/SystemRegistry.sol";
 import { ResourceSelector} from "@latticexyz/world/src/ResourceSelector.sol";
 import {BlockDirection} from "../codegen/Types.sol";
+import {Position, PositionData, PositionTableId} from "../../../contracts/src/codegen/Tables.sol";
+import {calculateBlockDirection} from "../Utils.sol";
 
 contract SignalSystem is System {
 
@@ -80,20 +82,30 @@ contract SignalSystem is System {
     keyTuple[0] = bytes32((callerNamespace));
     keyTuple[1] = bytes32((centerEntityId));
 
+    bytes32[] memory positionKeyTuple = new bytes32[](1);
+    positionKeyTuple[0] = bytes32((centerEntityId));
+
     // TODO: Need to read Position from caller namespace
-    // require(positionComponent.has(centerEntityId), "centerEntityId must have a position"); // even if its air, it must have a position
-    // VoxelCoord memory centerPosition = positionComponent.getValue(centerEntityId);
+    require(hasKey(PositionTableId, positionKeyTuple), "centerEntityId must have a position"); // even if its air, it must have a position
+    PositionData memory centerPosition = Position.get(centerEntityId);
 
     // case one: center is signal, check neighbours to see if things need to change
     bool centerIsSignal = hasKey(SignalTableId, keyTuple);
     if(centerIsSignal){
         for (uint8 i = 0; i < neighbourEntityIds.length; i++) {
           bytes32 neighbourEntityId = neighbourEntityIds[i];
-          // BlockDirection centerBlockDirection = calculateBlockDirection(
-          //   centerPosition,
-          //   positionComponent.getValue(neighbourEntityId)
-          // );
-          updateSignal(centerEntityId, neighbourEntityId, BlockDirection.North);
+          if (neighbourEntityId == 0) {
+            continue;
+          }
+
+          bytes32[] memory neighbourPositionKeyTuple = new bytes32[](1);
+          neighbourPositionKeyTuple[0] = bytes32((neighbourEntityId));
+          require(hasKey(PositionTableId, neighbourPositionKeyTuple), "neighbourEntityId must have a position");
+          BlockDirection centerBlockDirection = calculateBlockDirection(
+            centerPosition,
+            Position.get(neighbourEntityId)
+          );
+          updateSignal(centerEntityId, neighbourEntityId, centerBlockDirection);
         }
     }
 
@@ -111,12 +123,16 @@ contract SignalSystem is System {
           changedEntityIds[i] = 0;
           continue;
         }
-        // BlockDirection centerBlockDirection = calculateBlockDirection(
-        //   centerPosition,
-        //   positionComponent.getValue(neighbourEntityId)
-        // );
 
-        bool changedEntity = updateSignal(neighbourEntityId, centerEntityId, BlockDirection.North);
+        bytes32[] memory neighbourPositionKeyTuple = new bytes32[](1);
+        neighbourPositionKeyTuple[0] = bytes32((neighbourEntityId));
+        require(hasKey(PositionTableId, neighbourPositionKeyTuple), "neighbourEntityId must have a position");
+        BlockDirection centerBlockDirection = calculateBlockDirection(
+          centerPosition,
+          Position.get(neighbourEntityId)
+        );
+
+        bool changedEntity = updateSignal(neighbourEntityId, centerEntityId, centerBlockDirection);
 
         if(changedEntity){
           changedEntityIds[i] = neighbourEntityId;

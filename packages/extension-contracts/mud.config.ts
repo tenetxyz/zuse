@@ -51,5 +51,15 @@ export default mudConfig({
     //   root: false,
     //   args: [resolveTableId("Powered")],
     // },
+    {
+      name: "KeysInTableModule",
+      root: true,
+      args: [resolveTableId("Signal")],
+    },
+    {
+      name: "KeysInTableModule",
+      root: true,
+      args: [resolveTableId("SignalSource")],
+    },
   ],
 });

@@ -27,7 +27,7 @@ interface Props {
   setFilters: React.Dispatch<React.SetStateAction<CreationStoreFilters>>;
 }
 
-interface Creation {
+export interface Creation {
   name: string;
   description: string;
   creationId: Entity;
@@ -40,7 +40,7 @@ interface Creation {
 const CreationStore: React.FC<Props> = ({ layers, filters, setFilters }) => {
   const {
     noa: {
-      components: { PersistentNotification },
+      components: { PersistentNotification, SpawnCreation },
       SingletonEntity,
       api: { toggleInventory },
     },
@@ -115,6 +115,9 @@ const CreationStore: React.FC<Props> = ({ layers, filters, setFilters }) => {
       message: "press 'Enter' to place creation, 'e' to cancel",
       icon: NotificationIcon.NONE,
     });
+    setComponent(SpawnCreation, SingletonEntity, {
+      creation: creation,
+    });
     toggleInventory();
   };
 
@@ -128,7 +131,7 @@ const CreationStore: React.FC<Props> = ({ layers, filters, setFilters }) => {
   }, [searchValue, creations]);
 
   return (
-    <div className="max-w-md mx-auto p-4 text-white flex flex-col content-start float-top h-full">
+    <div className="max-w-md mx-auto p-4 text-white flex flex-col content-start float-top h-full min-w-[800px]">
       <div className="flex flex-row">
         <input
           placeholder="Search"
@@ -153,10 +156,11 @@ const CreationStore: React.FC<Props> = ({ layers, filters, setFilters }) => {
           return (
             <div
               key={idx}
-              className="border-1 border-solid border-slate-700 p-2 mb-2 flex flex-row whitespace-nowrap justify-around w-[300px] break-all justify-start"
+              className="border-1 border-solid border-slate-700 p-2 mb-2 flex flex-row whitespace-nowrap justify-around break-all justify-start space-x-5"
             >
               <p>{creation.name}</p>
               <p>{creation.description}</p>
+              <p className="">{creation.relativePositions.length} voxels</p>
               <p className="break-all break-words">
                 {creation.creator.substr(50)}
               </p>

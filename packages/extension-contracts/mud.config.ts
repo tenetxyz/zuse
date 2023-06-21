@@ -3,6 +3,17 @@ import { resolveTableId } from "@latticexyz/config";
 
 export default mudConfig({
   namespace: "dhvani",
+  enums: {
+    BlockDirection: [
+      "None",
+      "Up",
+      "Down",
+      "North",
+      "South",
+      "East",
+      "West"
+    ],
+  },
   tables: {
     Powered: {
       keySchema: {
@@ -21,7 +32,16 @@ export default mudConfig({
       },
       schema: {
         isActive: "bool",
-        direction: "uint8",
+        direction: "BlockDirection",
+      },
+    },
+    SignalSource: {
+      keySchema: {
+        namespace: "bytes16",
+        entity: "bytes32",
+      },
+      schema: {
+        isNatural: "bool",
       },
     }
   },

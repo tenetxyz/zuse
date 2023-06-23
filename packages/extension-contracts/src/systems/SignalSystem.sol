@@ -89,7 +89,7 @@ contract SignalSystem is System {
     if(entityIsSignal(centerEntityId, callerNamespace)){
         for (uint8 i = 0; i < neighbourEntityIds.length; i++) {
           bytes32 neighbourEntityId = neighbourEntityIds[i];
-          if (neighbourEntityId == 0) {
+          if (uint256(neighbourEntityId) == 0) {
             continue;
           }
 
@@ -105,7 +105,7 @@ contract SignalSystem is System {
     for (uint8 i = 0; i < neighbourEntityIds.length; i++) {
         bytes32 neighbourEntityId = neighbourEntityIds[i];
 
-        if (neighbourEntityId == 0 || !entityIsSignal(neighbourEntityId, callerNamespace)) {
+        if (uint256(neighbourEntityId) == 0 || !entityIsSignal(neighbourEntityId, callerNamespace)) {
           changedEntityIds[i] = 0;
           continue;
         }

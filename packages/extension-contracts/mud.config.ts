@@ -51,15 +51,17 @@ export default mudConfig({
     //   root: false,
     //   args: [resolveTableId("Powered")],
     // },
-    // {
-    //   name: "KeysInTableModule",
-    //   root: true,
-    //   args: [resolveTableId("Signal")],
-    // },
-    // {
-    //   name: "KeysInTableModule",
-    //   root: true,
-    //   args: [resolveTableId("SignalSource")],
-    // },
+    {
+      name: "KeysInTableModule",
+      address: "0xCf7Ed3AccA5a467e9e704C703E8D87F634fB0Fc9",
+      root: true,
+      args: [resolveTableId("Signal")],
+    },
+    {
+      name: "KeysInTableModule",
+      address: "0xCf7Ed3AccA5a467e9e704C703E8D87F634fB0Fc9",
+      root: true,
+      args: [resolveTableId("SignalSource")],
+    },
   ],
 });

@@ -63,6 +63,11 @@ export default mudConfig({
   },
   modules: [
     {
+      name: "KeysInTableModule",
+      root: true,
+      args: [resolveTableId("Position")],
+    },
+    {
       name: "UniqueEntityModule",
       root: true,
       args: [],

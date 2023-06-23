@@ -53,13 +53,26 @@ export default mudConfig({
       },
     },
     VoxelMetadata: "bytes", // stores the component values for each voxel in the creation
+
+    // tables for spawning
+    OfSpawn: "bytes32", // maps a voxel spawned in the world -> the entityId representing its spawn
+    Spawn: {
+      schema: {
+        creationId: "bytes32", // the creation that it's a spawn of
+        lowerSouthWestCornerX: "int32",
+        lowerSouthWestCornerY: "int32",
+        lowerSouthWestCornerZ: "int32",
+        voxels: "bytes32[]", // the voxels for that have been spawned
+        interfaceVoxels: "bytes32[]", // the voxels that are used for i/o interfaces (e.g. for an AND gate test)
+      },
+    },
   },
   systems: {
     VoxelInteractionSystem: {
       name: "VoxInteractSys", // Note: This has to be <= 16 characters and can't conflict with table names
       openAccess: false, // it's a subsystem now, so only systems in this namespace can call it
       accessList: ["MineSystem", "BuildSystem"],
-    }
+    },
   },
   modules: [
     {

@@ -11,7 +11,8 @@ contract GiftVoxelSystem is System {
     function giftVoxel(bytes32 voxelType ) public returns (bytes32) {
 
         // even if they request an entity of a type they already own, it's okay to disallow it since they would still have that entity type
-        require(numUniqueVoxelTypesIOwn() <= 36, "You can only own 36 unique voxel types at a time");
+        // Since numUniqueVoxelTypesIOwn is quadratic in gas (based on how many voxels you own), running this function could use up all your gas. So it's commented
+//        require(numUniqueVoxelTypesIOwn() <= 36, "You can only own 36 unique voxel types at a time");
         bytes32 entity = getUniqueEntity();
         VoxelType.set(entity, voxelType);
         OwnedBy.set(entity, addressToEntityKey(_msgSender()));
@@ -31,6 +32,8 @@ contract GiftVoxelSystem is System {
         // since mud doesn't have a JOIN operation, we have to manually loop through each entity to get their types
         bytes32[] memory voxelTypesIOwn = new bytes32[](voxelsIOwnTuples.length);
         for(uint i = 0; i < voxelsIOwnTuples.length; i++){
+//            console.log("voxelsIOwnTuples.length", voxelsIOwnTuples.length);
+//            console.log("voxelsIOwnTuples[0].length", voxelsIOwnTuples[i].length);
             bytes32 entityId = voxelsIOwnTuples[i][0];
             voxelTypesIOwn[i] = VoxelType.get(entityId);
         }

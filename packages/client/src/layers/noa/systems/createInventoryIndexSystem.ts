@@ -16,6 +16,23 @@ import { NetworkLayer } from "../../network";
 import { NoaLayer } from "../types";
 import { to64CharAddress } from "../../../utils/entity";
 import { SyncState } from "@latticexyz/network";
+import { IComputedValue } from "mobx";
+
+export const getItemTypesIOwn = (
+  OwnedBy: any,
+  VoxelType: any,
+  connectedAddress: IComputedValue<string | undefined>
+): Set<Entity> => {
+  const itemsIOwn = runQuery([
+    HasValue(OwnedBy, { value: to64CharAddress(connectedAddress.get()) }),
+    Has(VoxelType),
+  ]);
+  return new Set(
+    Array.from(itemsIOwn).map(
+      (item) => getComponentValue(VoxelType, item)?.value as Entity
+    )
+  );
+};
 
 export function createInventoryIndexSystem(
   network: NetworkLayer,
@@ -49,14 +66,10 @@ export function createInventoryIndexSystem(
     )
   );
   const removeInventoryIndexesForItemsWeNoLongerOwn = () => {
-    const itemsIOwn = runQuery([
-      HasValue(OwnedBy, { value: to64CharAddress(connectedAddress.get()) }),
-      Has(VoxelType),
-    ]);
-    const itemTypesIOwn = new Set(
-      Array.from(itemsIOwn).map(
-        (item) => getComponentValue(VoxelType, item)?.value as Entity
-      )
+    const itemTypesIOwn = getItemTypesIOwn(
+      OwnedBy,
+      VoxelType,
+      connectedAddress
     );
     for (const itemType of InventoryIndex.values.value.keys()) {
       // since itemType is a symbol, we use itemType.description to get the bytes32 itemType id as a string type

@@ -7,7 +7,7 @@ import { hasKey } from "@latticexyz/world/src/modules/keysintable/hasKey.sol";
 import { NamespaceOwner } from "@latticexyz/world/src/tables/NamespaceOwner.sol";
 import { FunctionSelectors } from "@latticexyz/world/src/modules/core/tables/FunctionSelectors.sol";
 import { System } from "@latticexyz/world/src/System.sol";
-import { Extension, ExtensionTableId } from "../codegen/Tables.sol";
+import { VoxelInteractionExtension, VoxelInteractionExtensionTableId } from "../codegen/Tables.sol";
 import { addressToEntityKey } from "../utils.sol";
 import { IWorld } from "../codegen/world/IWorld.sol";
 import { Occurrence } from "../codegen/Tables.sol";
@@ -23,12 +23,13 @@ contract ExtensionSystem is System {
     require(NamespaceOwner.get(namespace) == _msgSender(), "Caller is not namespace owner");
 
     // check if extension is already registered
-    bytes32[] memory keyTuple = new bytes32[](1);
+    bytes32[] memory keyTuple = new bytes32[](2);
     keyTuple[0] = bytes32((namespace));
-    require(!hasKey(ExtensionTableId, keyTuple), "Extension already registered");
+    keyTuple[1] = bytes32((eventHandler));
+    require(!hasKey(VoxelInteractionExtensionTableId, keyTuple), "Extension already registered");
 
     // register extension
-    Extension.set(namespace, eventHandler);
+    VoxelInteractionExtension.set(namespace, eventHandler, false);
   }
 
 }

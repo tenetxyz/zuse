@@ -29,7 +29,7 @@ contract PoweredSystemTest is MudV2Test {
     bytes32 centerEntityId = bytes32(uint256(1));
     bytes32[] memory neighbourEntityIds = new bytes32[](6);
 
-    world.dhvani_PoweredSystem_eventHandler(centerEntityId, neighbourEntityIds);
+    world.tenet_PoweredSystem_eventHandler(centerEntityId, neighbourEntityIds);
 
      // assertEq(counter, 2);
   }

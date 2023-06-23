@@ -5,7 +5,7 @@ import { getUniqueEntity } from "@latticexyz/world/src/modules/uniqueentity/getU
 import { getKeysInTable } from "@latticexyz/world/src/modules/keysintable/getKeysInTable.sol";
 import { System } from "@latticexyz/world/src/System.sol";
 import { VoxelCoord } from "../types.sol";
-import { OwnedBy, Position, PositionTableId, VoxelType, Extension, ExtensionTableId } from "../codegen/Tables.sol";
+import { OwnedBy, Position, PositionTableId, VoxelType } from "../codegen/Tables.sol";
 import { AirID, WaterID } from "../prototypes/Voxels.sol";
 import { addressToEntityKey, getEntitiesAtCoord } from "../utils.sol";
 import { IWorld } from "../codegen/world/IWorld.sol";
@@ -63,7 +63,7 @@ contract MineSystem is System {
 //    require(IWorld(_world()).tenet_GiftVoxelSystem_numUniqueVoxelTypesIOwn() <= 36, "you can only own 36 voxel types at a time");
 
     // Run voxel interaction logic
-    IWorld(_world()).tenet_VoxelInteraction_runInteractionSystems(airEntity);
+    IWorld(_world()).tenet_VoxInteractSys_runInteractionSystems(airEntity);
 
     return voxelToMine;
   }

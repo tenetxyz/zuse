@@ -18,7 +18,7 @@ import { world } from "./world";
 import { createPerlin } from "@latticexyz/noise";
 import { BigNumber, Contract, Signer, utils } from "ethers";
 import { JsonRpcProvider } from "@ethersproject/providers";
-import { IWorld__factory } from "contracts/types/ethers-contracts/factories/IWorld__factory";
+import { IWorld__factory } from "@tenetxyz/contracts/types/ethers-contracts/factories/IWorld__factory";
 import {
   getTableIds,
   awaitPromise,
@@ -27,7 +27,7 @@ import {
   Coord,
 } from "@latticexyz/utils";
 import { map, timer, combineLatest, BehaviorSubject } from "rxjs";
-import storeConfig from "contracts/mud.config";
+import storeConfig from "@tenetxyz/contracts/mud.config";
 import {
   VoxelTypeIdToKey,
   VoxelTypeKey,
@@ -243,7 +243,7 @@ export async function setupNetwork() {
     const tx = await worldSend("tenet_BuildSystem_build", [
       to64CharAddress(entity),
       coord,
-      { gasLimit: 5_000_000 },
+      { gasLimit: 10_000_000 },
     ]);
     return tx;
   }
@@ -308,7 +308,7 @@ export async function setupNetwork() {
     const tx = await worldSend("tenet_MineSystem_mine", [
       coord,
       voxel,
-      { gasLimit: 5_000_000 },
+      { gasLimit: 10_000_000 },
     ]);
     return tx;
   }

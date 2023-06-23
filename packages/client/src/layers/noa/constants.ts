@@ -13,7 +13,7 @@ export const Textures = {
   Grass: "./assets/voxels/4-Grass_block-top.png",
   GrassSide: "./assets/voxels/4-Grass_block-side.png",
   GrassBottom: "./assets/voxels/4-Grass_block-bottom.png",
-  Dirt: "./assets/voxels/3-Dirt.png",
+  Dirt: "https://bafkreibzraiuk6hgngtfczn57sivuqf3nv77twi6g3ftas2umjnbf6jefe.ipfs.nftstorage.link/",
   Log: "./assets/voxels/47-Log-1-sides.png",
   LogTop: "./assets/voxels/47-Log-0-top.png",
   Sand: "./assets/voxels/07-Sand.png",

@@ -401,7 +401,7 @@ export async function setupNetwork() {
 
     const voxelTypeKey = VoxelTypeIdToKey[voxelType];
     actions.add({
-      id: `RemoveVoxel+${voxelType.toString()}` as Entity,
+      id: `RemoveVoxels+VoxelType=${voxelType.toString()}` as Entity,
       metadata: {
         actionType: "removeVoxels",
         voxelTypeKey,
@@ -412,7 +412,7 @@ export async function setupNetwork() {
         VoxelType: contractComponents.VoxelType,
       },
       execute: async () => {
-        const tx = await worldSend("tenet_RemoveVoxelSystem_removeVoxels", [
+        const tx = await worldSend("tenet_RmVoxelSystem_removeVoxels", [
           voxels.map((voxelId) => to64CharAddress(voxelId)),
           { gasLimit: 1_000_000 },
         ]);

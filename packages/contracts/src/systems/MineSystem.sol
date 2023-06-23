@@ -25,7 +25,7 @@ contract MineSystem is System {
     // Check ECS blocks at coord
     bytes32[] memory entitiesAtPosition = getEntitiesAtCoord(coord);
 
-    bytes32 entity;
+    bytes32 voxelToMine;
     bytes32 airEntity;
 
     if (entitiesAtPosition.length == 0) {
@@ -40,15 +40,17 @@ contract MineSystem is System {
        );
 
       // Create an ECS voxel from this coord's terrain voxel
-      entity = getUniqueEntity();
-      VoxelType.set(entity, voxelType);
+      voxelToMine = getUniqueEntity();
+      VoxelType.set(voxelToMine, voxelType);
     } else {
       // Else, mine the non-air entity voxel at this position
       for (uint256 i; i < entitiesAtPosition.length; i++) {
-        if (VoxelType.get(entitiesAtPosition[i]) == voxelType) entity = entitiesAtPosition[i];
+        if (VoxelType.get(entitiesAtPosition[i]) == voxelType){
+          voxelToMine = entitiesAtPosition[i];
+        }
       }
-      require(entity != 0, "invalid voxel type");
-      Position.deleteRecord(entity);
+      require(voxelToMine != 0, "We found no voxels at that position that match the voxel type");
+      Position.deleteRecord(voxelToMine);
     }
 
     // Place an air voxel at this position
@@ -56,14 +58,14 @@ contract MineSystem is System {
     VoxelType.set(airEntity, AirID);
     Position.set(airEntity, coord.x, coord.y, coord.z);
 
-    OwnedBy.set(entity, addressToEntityKey(_msgSender()));
+    OwnedBy.set(voxelToMine, addressToEntityKey(_msgSender()));
     // Since numUniqueVoxelTypesIOwn is quadratic in gas (based on how many voxels you own), running this function could use up all your gas. So it's commented
 //    require(IWorld(_world()).tenet_GiftVoxelSystem_numUniqueVoxelTypesIOwn() <= 36, "you can only own 36 voxel types at a time");
 
     // Run voxel interaction logic
     IWorld(_world()).tenet_VoxelInteraction_runInteractionSystems(airEntity);
 
-    return entity;
+    return voxelToMine;
   }
 
   function staticcallFunctionSelector(bytes4 functionPointer, bytes memory args) private view returns (bool, bytes memory){

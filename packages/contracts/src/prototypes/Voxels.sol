@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0
 pragma solidity >=0.8.0;
 import { IWorld } from "../codegen/world/IWorld.sol";
-import {Occurrence, VoxelPrototype} from "../codegen/Tables.sol";
+import {Occurrence, VoxelPrototype, VoxelTypeData} from "../codegen/Tables.sol";
 
 bytes32 constant AirID = bytes32(keccak256("voxel.Air"));
 bytes32 constant GrassID = bytes32(keccak256("voxel.Grass"));
@@ -60,12 +60,18 @@ bytes32 constant BricksID = bytes32(keccak256("voxel.Bricks"));
 function defineVoxels(IWorld world) {
     VoxelPrototype.set(bytes32(GrassID), true);
     Occurrence.set(GrassID, world.tenet_OccurrenceSystem_OGrass.selector);
+    world.tenet_VoxelRegistrySys_registerVoxelType(GrassID, world.tenet_VoxelRegistrySys_dirtVariantSelector.selector);
 
     VoxelPrototype.set(bytes32(DirtID), true);
     Occurrence.set(DirtID, world.tenet_OccurrenceSystem_ODirt.selector);
+    world.tenet_VoxelRegistrySys_registerVoxelType(DirtID, world.tenet_VoxelRegistrySys_dirtVariantSelector.selector);
 
     VoxelPrototype.set(bytes32(BedrockID), true);
     Occurrence.set(BedrockID, world.tenet_OccurrenceSystem_OBedrock.selector);
+    world.tenet_VoxelRegistrySys_registerVoxelType(BedrockID, world.tenet_VoxelRegistrySys_dirtVariantSelector.selector);
+
+    VoxelPrototype.set(bytes32(AirID), true);
+    world.tenet_VoxelRegistrySys_registerVoxelType(AirID, world.tenet_VoxelRegistrySys_airVariantSelector.selector);
 
     VoxelPrototype.set(bytes32(LogID), true);
 
@@ -117,7 +123,6 @@ function defineVoxels(IWorld world) {
 
     VoxelPrototype.set(bytes32(KelpID), true);
 
-    VoxelPrototype.set(bytes32(AirID), true);
     VoxelPrototype.set(bytes32(GlassID), true);
     VoxelPrototype.set(bytes32(SpongeID), true);
     VoxelPrototype.set(bytes32(CobblestoneID), true);

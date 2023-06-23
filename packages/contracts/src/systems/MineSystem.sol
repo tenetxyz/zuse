@@ -4,8 +4,9 @@ pragma solidity >=0.8.0;
 import { getUniqueEntity } from "@latticexyz/world/src/modules/uniqueentity/getUniqueEntity.sol";
 import { getKeysInTable } from "@latticexyz/world/src/modules/keysintable/getKeysInTable.sol";
 import { System } from "@latticexyz/world/src/System.sol";
+import {systemNamespace} from "@latticexyz/world/src/Utils.sol";
 import { VoxelCoord } from "../types.sol";
-import { OwnedBy, Position, PositionTableId, VoxelType } from "../codegen/Tables.sol";
+import { OwnedBy, Position, PositionTableId, VoxelType, VoxelTypeData, VoxelTypeRegistry } from "../codegen/Tables.sol";
 import { AirID, WaterID } from "../prototypes/Voxels.sol";
 import { addressToEntityKey, getEntitiesAtCoord } from "../utils.sol";
 import { IWorld } from "../codegen/world/IWorld.sol";
@@ -40,22 +41,55 @@ contract MineSystem is System {
        );
 
       // Create an ECS voxel from this coord's terrain voxel
+      bytes16 namespace = systemNamespace(address(this));
+
+      // Create an ECS voxel from this coord's terrain voxel
       voxelToMine = getUniqueEntity();
-      VoxelType.set(voxelToMine, voxelType);
+      {
+        // get block selector from VoxelTypeRegistry
+        bytes4 blockSelector = VoxelTypeRegistry.get(namespace, voxelType);
+        // call blockSelector
+        (bool blockSuccess, bytes memory blockVoxelVariant) = staticcallFunctionSelector(
+          blockSelector,
+          abi.encode(voxelToMine)
+        );
+        require(blockSuccess, "failed to get block voxel type");
+        VoxelTypeData memory blockVoxelType = abi.decode(blockVoxelVariant, (VoxelTypeData));
+        blockVoxelType.namespace = namespace;
+        blockVoxelType.voxelType = voxelType;
+
+        VoxelType.set(voxelToMine, blockVoxelType);
+      }
     } else {
       // Else, mine the non-air entity voxel at this position
       for (uint256 i; i < entitiesAtPosition.length; i++) {
-        if (VoxelType.get(entitiesAtPosition[i]) == voxelType){
+        if (VoxelType.get(entitiesAtPosition[i]).voxelType == voxelType){
           voxelToMine = entitiesAtPosition[i];
         }
       }
       require(voxelToMine != 0, "We found no voxels at that position that match the voxel type");
       Position.deleteRecord(voxelToMine);
+
+      // TODO: should reset component values
     }
 
     // Place an air voxel at this position
     airEntity = getUniqueEntity();
-    VoxelType.set(airEntity, AirID);
+    {
+      // get Air selector from VoxelTypeRegistry
+      bytes4 airSelector = VoxelTypeRegistry.get(namespace, AirID);
+      // call airSelector
+      (bool airSuccess, bytes memory airVoxelVariant) = staticcallFunctionSelector(
+        airSelector,
+        abi.encode(airEntity)
+      );
+      require(airSuccess, "failed to get air voxel type");
+      VoxelTypeData memory airVoxelType = abi.decode(airVoxelVariant, (VoxelTypeData));
+      airVoxelType.namespace = namespace;
+      airVoxelType.voxelType = AirID;
+      VoxelType.set(airEntity, airVoxelType);
+    }
+
     Position.set(airEntity, coord.x, coord.y, coord.z);
 
     OwnedBy.set(voxelToMine, addressToEntityKey(_msgSender()));

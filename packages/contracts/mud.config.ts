@@ -3,8 +3,35 @@ import { resolveTableId } from "@latticexyz/config";
 
 export default mudConfig({
   namespace: "tenet",
+  enums: {
+    NoaBlockType: ["BLOCK", "MESH"],
+  },
   tables: {
-    VoxelType: "bytes32", // maps a voxel's entityId -> its type
+    VoxelType: { // TODO: Move this to a namespace?
+      schema: {
+        namespace: "bytes16",
+        voxelType: "bytes32",
+        // TODO: Move this to its own type
+        // voxelVariant: {}
+        frames: "uint32",
+        opaque: "bool",
+        // fluid: "bool", // TODO: Add back once we figure out stack to deep error
+        solid: "bool",
+        blockType: "NoaBlockType",
+        // Note: These 2 dynamic fields MUST come at the end of the schema
+        material: "string", // File ID Hash
+        uvWrap: "string", // File ID Hash
+      },
+    },
+    VoxelTypeRegistry: { // TODO: Move this to a namespace?
+      keySchema: {
+        namespace: "bytes16",
+        voxelType: "bytes32",
+      },
+      schema: {
+        voxelVariantSelector: "bytes4",
+      },
+    },
     VoxelPrototype: "bool",
     Name: "string", // This is a shortcut for { schema: "string" }
     Occurrence: {

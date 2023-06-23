@@ -21,8 +21,9 @@ contract BuildSystem is System {
     bytes32[] memory entitiesAtPosition = getKeysWithValue(PositionTableId, Position.encode(coord.x, coord.y, coord.z));
     require(entitiesAtPosition.length <= 1, "This position is already occupied by another voxel");
     if (entitiesAtPosition.length == 1) {
-      require(VoxelType.get(entitiesAtPosition[0]) == AirID, "This position is already occupied by another voxel");
-      VoxelType.deleteRecord(entitiesAtPosition[0]);
+      require(VoxelType.get(entitiesAtPosition[0]).voxelType == AirID, "This position is already occupied by another voxel");
+      // TODO: Fix
+      // VoxelType.deleteRecord(entitiesAtPosition[0]);
       Position.deleteRecord(entitiesAtPosition[0]);
     }
 

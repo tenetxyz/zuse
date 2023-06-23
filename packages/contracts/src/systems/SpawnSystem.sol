@@ -49,12 +49,14 @@ contract SpawnSystem is System {
 
                 bytes32 entity = entitiesAtPosition[j];
                 Position.deleteRecord(entity);
-                VoxelType.deleteRecord(entity);
+                // TODO: Fix
+                // VoxelType.deleteRecord(entity);
             }
 
             // create the voxel at this coord
             bytes32 newEntity = getUniqueEntity();
-            VoxelType.set(newEntity, creation.voxelTypes[i]);
+            // TODO: Fix
+            // VoxelType.set(newEntity, creation.voxelTypes[i]);
             Position.set(newEntity, spawnVoxelAtCoord.x, spawnVoxelAtCoord.y, spawnVoxelAtCoord.z);
 
             // update the spawn-related components

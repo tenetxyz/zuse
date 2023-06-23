@@ -13,7 +13,8 @@ contract RmVoxelSystem is System {
             // delete the voxel
             // TODO: delete all values in relevant components as well
             OwnedBy.deleteRecord(voxels[i]);
-            VoxelType.deleteRecord(voxels[i]);
+            // TODO: Fix
+            // VoxelType.deleteRecord(voxels[i]);
         }
     }
 }

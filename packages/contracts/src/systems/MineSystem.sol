@@ -4,11 +4,11 @@ pragma solidity >=0.8.0;
 import { getUniqueEntity } from "@latticexyz/world/src/modules/uniqueentity/getUniqueEntity.sol";
 import { getKeysInTable } from "@latticexyz/world/src/modules/keysintable/getKeysInTable.sol";
 import { System } from "@latticexyz/world/src/System.sol";
-import {systemNamespace} from "@latticexyz/world/src/Utils.sol";
 import { VoxelCoord } from "../types.sol";
 import { OwnedBy, Position, PositionTableId, VoxelType, VoxelTypeData, VoxelTypeRegistry } from "../codegen/Tables.sol";
 import { AirID, WaterID } from "../prototypes/Voxels.sol";
 import { addressToEntityKey, getEntitiesAtCoord } from "../utils.sol";
+import { Utils } from "@latticexyz/world/src/Utils.sol";
 import { IWorld } from "../codegen/world/IWorld.sol";
 import { Occurrence } from "../codegen/Tables.sol";
 import { console } from "forge-std/console.sol";
@@ -29,6 +29,9 @@ contract MineSystem is System {
     bytes32 voxelToMine;
     bytes32 airEntity;
 
+    // Create an ECS voxel from this coord's terrain voxel
+    bytes16 namespace = Utils.systemNamespace();
+
     if (entitiesAtPosition.length == 0) {
       // If there is no entity at this position, try mining the terrain voxel at this position
        (bool success, bytes memory occurrence) = staticcallFunctionSelector(
@@ -39,9 +42,6 @@ contract MineSystem is System {
          success && occurrence.length > 0 && abi.decode(occurrence, (bytes32)) == voxelType,
          "invalid terrain voxel type"
        );
-
-      // Create an ECS voxel from this coord's terrain voxel
-      bytes16 namespace = systemNamespace(address(this));
 
       // Create an ECS voxel from this coord's terrain voxel
       voxelToMine = getUniqueEntity();

@@ -2,7 +2,7 @@ import { mudConfig } from "@latticexyz/world/register";
 import { resolveTableId } from "@latticexyz/config";
 
 export default mudConfig({
-  namespace: "dhvani",
+  namespace: "tenet", // TODO: Make different namespace once we have non-root modules working
   enums: {
     BlockDirection: [
       "None",
@@ -51,15 +51,15 @@ export default mudConfig({
     //   root: false,
     //   args: [resolveTableId("Powered")],
     // },
-    {
-      name: "KeysInTableModule",
-      root: true,
-      args: [resolveTableId("Signal")],
-    },
-    {
-      name: "KeysInTableModule",
-      root: true,
-      args: [resolveTableId("SignalSource")],
-    },
+    // {
+    //   name: "KeysInTableModule",
+    //   root: true,
+    //   args: [resolveTableId("Signal")],
+    // },
+    // {
+    //   name: "KeysInTableModule",
+    //   root: true,
+    //   args: [resolveTableId("SignalSource")],
+    // },
   ],
 });

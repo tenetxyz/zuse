@@ -5,7 +5,7 @@ import { getKeysWithValue } from "@latticexyz/world/src/modules/keyswithvalue/ge
 import { System } from "@latticexyz/world/src/System.sol";
 import { VoxelCoord } from "../types.sol";
 import { OwnedBy, Position, PositionTableId, VoxelType } from "../codegen/Tables.sol";
-import { AirID } from "../prototypes/Voxels.sol";
+import { AirID, OrangeFlowerID, SandID } from "../prototypes/Voxels.sol";
 import { addressToEntityKey } from "../utils.sol";
 import { getUniqueEntity } from "@latticexyz/world/src/modules/uniqueentity/getUniqueEntity.sol";
 import { IWorld } from "../codegen/world/IWorld.sol";
@@ -27,8 +27,20 @@ contract BuildSystem is System {
     // TODO: check claim in chunk
     //    OwnedBy.deleteRecord(voxel);
     bytes32 newEntity = getUniqueEntity();
-    VoxelType.set(newEntity, VoxelType.get(voxel));
+    bytes32 entityVoxelType = VoxelType.get(voxel);
+    VoxelType.set(newEntity, entityVoxelType);
     Position.set(newEntity, coord.x, coord.y, coord.z);
+
+    // TODO: Remove this once we have a proper voxel variant selector system
+    if(entityVoxelType == SandID) {
+      // make it a signal source
+      (bool success, bytes memory result) = _world().call(abi.encodeWithSignature("tenet_SignalSourceSyst_createNew(bytes32)", newEntity));
+      require(success, "failed to create signal source");
+    } else if(entityVoxelType == OrangeFlowerID) {
+      // make it a signal
+      (bool success, bytes memory result) = _world().call(abi.encodeWithSignature("tenet_SignalSystem_createNew(bytes32)", newEntity));
+      require(success, "failed to create signal");
+    }
 
     // Run voxel interaction logic
     IWorld(_world()).tenet_VoxInteractSys_runInteractionSystems(newEntity);

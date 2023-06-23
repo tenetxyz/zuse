@@ -243,7 +243,7 @@ export async function setupNetwork() {
     const tx = await worldSend("tenet_BuildSystem_build", [
       to64CharAddress(entity),
       coord,
-      { gasLimit: 5_000_000 },
+      { gasLimit: 10_000_000 },
     ]);
     return tx;
   }
@@ -308,7 +308,7 @@ export async function setupNetwork() {
     const tx = await worldSend("tenet_MineSystem_mine", [
       coord,
       voxel,
-      { gasLimit: 5_000_000 },
+      { gasLimit: 10_000_000 },
     ]);
     return tx;
   }

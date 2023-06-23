@@ -107,9 +107,9 @@ contract VoxelInteractionSystem is System {
 
             // If there are changed entities, we want to run voxel interactions again but with this new neighbour as the center
             for (uint256 j; j < changedExtensionEntityIds.length; j++) {
-              if (uint256(changedExtensionEntityIds[i]) != 0) {
+              if (uint256(changedExtensionEntityIds[j]) != 0) {
                 centerEntitiesToCheckStackIdx++;
-                centerEntitiesToCheckStack[centerEntitiesToCheckStackIdx] = changedExtensionEntityIds[i];
+                centerEntitiesToCheckStack[centerEntitiesToCheckStackIdx] = changedExtensionEntityIds[j];
                 if (centerEntitiesToCheckStackIdx >= MAX_VOXEL_NEIGHBOUR_UPDATE_DEPTH) {
                   // TODO: Should tell the user that we reached max depth
                   return;

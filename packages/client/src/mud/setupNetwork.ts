@@ -414,7 +414,7 @@ export async function setupNetwork() {
       execute: async () => {
         const tx = await worldSend("tenet_RemoveVoxelSystem_removeVoxels", [
           voxels.map((voxelId) => to64CharAddress(voxelId)),
-          { gasLimit: 5_000_000 },
+          { gasLimit: 1_000_000 },
         ]);
       },
       updates: () => [],

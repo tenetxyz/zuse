@@ -4,7 +4,8 @@ import { OwnedBy, VoxelType } from "../codegen/Tables.sol";
 import { System } from "@latticexyz/world/src/System.sol";
 import { addressToEntityKey } from "../utils.sol";
 
-contract RemoveVoxelSystem is System {
+// If we call this RemoveVoxelSystem, the foundry codegen fails cause they set a limit on the number of chars for an interface
+contract RmVoxelSystem is System {
     function removeVoxels(bytes32[] memory voxels) public {
         // for each voxel, require it to be owned by the _msgSender
         for (uint i = 0; i < voxels.length; i++) {

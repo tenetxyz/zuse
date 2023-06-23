@@ -78,6 +78,8 @@ contract SignalSystem is System {
     return hasKey(SignalTableId, keyTuple);
   }
 
+  // TODO: The logic in this function will be the same for all eventHandlers, so we should somehow generalize this for all of them
+  // through a library or something
   function eventHandler(bytes32 centerEntityId, bytes32[] memory neighbourEntityIds) public returns (bytes32[] memory) {
     bytes32[] memory changedEntityIds = new bytes32[](neighbourEntityIds.length);
     bytes16 callerNamespace = getCallerNamespace(_msgSender());

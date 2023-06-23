@@ -25,8 +25,6 @@ contract SignalSourceSystem is System {
 
   function eventHandler(bytes32 centerEntityId, bytes32[] memory neighbourEntityIds) public returns (bytes32[] memory changedEntityIds) {
     bytes32[] memory changedEntityIds = new bytes32[](neighbourEntityIds.length);
-    // bytes16 callerNamespace = getCallerNamespace(_msgSender());
-    // TODO: require not root namespace
 
     return changedEntityIds;
   }

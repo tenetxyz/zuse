@@ -7,7 +7,7 @@ import { IStore } from "@latticexyz/store/src/IStore.sol";
 import { IWorld } from "../../codegen/world/IWorld.sol";
 import { VoxelType, OwnedBy } from "../../codegen/Tables.sol";
 
-import { GrassID, AirID } from "../../prototypes/Voxels.sol";
+import { GrassID, AirID, DirtID } from "../../prototypes/Voxels.sol";
 import { addressToEntityKey } from "../../utils.sol";
 import { VoxelCoord } from "../../types.sol";
 import { Utilities } from "@latticexyz/std-contracts/src/test/Utilities.sol";
@@ -37,6 +37,8 @@ contract GiftVoxelTest is MudV2Test {
         require(world.tenet_GiftVoxelSystem_numUniqueVoxelTypesIOwn() == 2, "Alice should own 2 unique voxel types");
         world.tenet_GiftVoxelSystem_giftVoxel(AirID);
         require(world.tenet_GiftVoxelSystem_numUniqueVoxelTypesIOwn() == 2, "Alice should own 2 unique voxel types, after gifting a duplicate voxel type");
+        world.tenet_GiftVoxelSystem_giftVoxel(DirtID);
+        require(world.tenet_GiftVoxelSystem_numUniqueVoxelTypesIOwn() == 3, "Alice should own 3 unique voxel types");
         vm.stopPrank();
     }
 

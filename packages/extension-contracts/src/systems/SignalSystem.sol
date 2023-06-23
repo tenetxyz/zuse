@@ -9,7 +9,7 @@ import { SystemRegistry } from "@latticexyz/world/src/modules/core/tables/System
 import { ResourceSelector} from "@latticexyz/world/src/ResourceSelector.sol";
 import {BlockDirection} from "../codegen/Types.sol";
 import {Position, PositionData, PositionTableId} from "@tenetxyz/contracts/src/codegen/tables/Position.sol";
-import { calculateBlockDirection, getCallerNamespace } from "../Utils.sol";
+import { calculateBlockDirection, getCallerNamespace, getOppositeDirection } from "../Utils.sol";
 
 contract SignalSystem is System {
 
@@ -37,7 +37,7 @@ contract SignalSystem is System {
     compareKeyTuple[1] = bytes32((compareEntity));
 
     bool compareIsSignalSource = hasKey(SignalSourceTableId, compareKeyTuple);
-    bool compareIsActiveSignal = hasKey(SignalTableId, compareKeyTuple) && Signal.get(callerNamespace, compareEntity).isActive;
+    bool compareIsActiveSignal = hasKey(SignalTableId, compareKeyTuple) && Signal.get(callerNamespace, compareEntity).isActive && Signal.get(callerNamespace, compareEntity).direction != getOppositeDirection(compareBlockDirection);
 
     if(signalData.isActive){
       // if we're active and the source direction is the same as the compare block direction
@@ -94,8 +94,8 @@ contract SignalSystem is System {
           }
 
           BlockDirection centerBlockDirection = calculateBlockDirection(
-            centerPosition,
-            getEntityPositionStrict(neighbourEntityId)
+            getEntityPositionStrict(neighbourEntityId),
+            centerPosition
           );
           updateSignal(callerNamespace, centerEntityId, neighbourEntityId, centerBlockDirection);
         }

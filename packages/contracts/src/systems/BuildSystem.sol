@@ -19,9 +19,11 @@ contract BuildSystem is System {
 
     // Require no other ECS voxels at this position except Air
     bytes32[] memory entitiesAtPosition = getKeysWithValue(PositionTableId, Position.encode(coord.x, coord.y, coord.z));
-    require(entitiesAtPosition.length == 0 || entitiesAtPosition.length == 1, "can not built at non-empty coord");
+    require(entitiesAtPosition.length <= 1, "This position is already occupied by another voxel");
     if (entitiesAtPosition.length == 1) {
-      require(VoxelType.get(entitiesAtPosition[0]) == AirID, "can not built at non-empty coord (2)");
+      require(VoxelType.get(entitiesAtPosition[0]) == AirID, "This position is already occupied by another voxel");
+      VoxelType.deleteRecord(entitiesAtPosition[0]);
+      Position.deleteRecord(entitiesAtPosition[0]);
     }
 
     // TODO: check claim in chunk

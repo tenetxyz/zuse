@@ -372,7 +372,7 @@ export async function setupNetwork() {
       execute: async () => {
         const tx = await worldSend("tenet_GiftVoxelSystem_giftVoxel", [
           voxelType,
-          { gasLimit: 5_000_000 },
+          { gasLimit: 1_000_000 },
         ]);
       },
       updates: () => [

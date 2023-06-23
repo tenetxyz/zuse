@@ -5,6 +5,9 @@ import { range } from "@latticexyz/utils";
 import styled from "styled-components";
 import React from "react";
 import Fuse from "fuse.js";
+import { getItemTypesIOwn } from "../../noa/systems/createInventoryIndexSystem";
+import { INVENTORY_HEIGHT, INVENTORY_WIDTH } from "./InventoryHud";
+import { toast } from "react-toastify";
 
 interface Props {
   layers: Layers;
@@ -21,7 +24,9 @@ interface VoxelDescription {
 export const CreativeInventory: React.FC<Props> = ({ layers }) => {
   const {
     components: { VoxelPrototype },
+    contractComponents: { OwnedBy, VoxelType },
     api: { giftVoxel },
+    network: { connectedAddress },
   } = layers.network;
 
   const [searchValue, setSearchValue] = React.useState<string>("");
@@ -76,12 +81,30 @@ export const CreativeInventory: React.FC<Props> = ({ layers }) => {
         key={"slot" + i}
         voxelType={voxelDescription.voxelType}
         quantity={undefined} // undefined so no number appears
-        onClick={() => giftVoxel(voxelDescription.voxelType)}
+        onClick={() => tryGiftVoxel(voxelDescription.voxelType)}
         disabled={false} // false, so if you pick up the voxeltype, it still shows up in the creative inventory
         selected={false} // you can never select an voxeltype in the creative inventory
       />
     );
   });
+
+  const tryGiftVoxel = (voxelType: Entity) => {
+    // It's better to do this validation off-chain since doing it on-chain is expensive.
+    // Also this is more of a UI limitation. Who knows, maybe in the future, we WILL enforce strict inventory limits
+    const itemTypesIOwn = getItemTypesIOwn(
+      OwnedBy,
+      VoxelType,
+      connectedAddress
+    );
+    if (
+      itemTypesIOwn.has(voxelType) ||
+      itemTypesIOwn.size < INVENTORY_WIDTH * INVENTORY_HEIGHT
+    ) {
+      giftVoxel(voxelType);
+    } else {
+      toast(`Your inventory is full! Right click on an item to delete it.`);
+    }
+  };
 
   return (
     <div>

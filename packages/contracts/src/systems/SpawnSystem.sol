@@ -5,7 +5,7 @@ import { getUniqueEntity } from "@latticexyz/world/src/modules/uniqueentity/getU
 import { getKeysInTable } from "@latticexyz/world/src/modules/keysintable/getKeysInTable.sol";
 import { System } from "@latticexyz/world/src/System.sol";
 import { VoxelCoord } from "../types.sol";
-import { OwnedBy, Position, PositionTableId, VoxelType, Extension, ExtensionTableId, RelativePositions, VoxelTypes } from "../codegen/Tables.sol";
+import { OwnedBy, Position, PositionTableId, VoxelType, RelativePositions, VoxelTypes } from "../codegen/Tables.sol";
 import { AirID, WaterID } from "../prototypes/Voxels.sol";
 import { addressToEntityKey, getEntitiesAtCoord, add, int32ToString } from "../utils.sol";
 import { IWorld } from "../codegen/world/IWorld.sol";

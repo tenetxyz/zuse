@@ -57,7 +57,8 @@ contract MineSystem is System {
     Position.set(airEntity, coord.x, coord.y, coord.z);
 
     OwnedBy.set(entity, addressToEntityKey(_msgSender()));
-    require(IWorld(_world()).tenet_GiftVoxelSystem_numUniqueVoxelTypesIOwn() <= 36, "you can only own 36 voxel types at a time");
+    // Since numUniqueVoxelTypesIOwn is quadratic in gas (based on how many voxels you own), running this function could use up all your gas. So it's commented
+//    require(IWorld(_world()).tenet_GiftVoxelSystem_numUniqueVoxelTypesIOwn() <= 36, "you can only own 36 voxel types at a time");
 
     // Run voxel interaction logic
     IWorld(_world()).tenet_VoxelInteraction_runInteractionSystems(airEntity);

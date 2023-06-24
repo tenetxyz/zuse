@@ -36,7 +36,7 @@ int128 constant _16 = 16 * 2**64;
 
 contract LibTerrainSystem is System {
 
-  function getTerrainVoxel(VoxelCoord memory coord) public view returns (bytes32) {
+  function getTerrainVoxel(VoxelCoord memory coord) public view returns (VoxelVariantsKey memory) {
     int128[4] memory biome = getBiome(coord.x, coord.z);
     int32 height = getHeight(coord.x, coord.z, biome);
     return getTerrainVoxel(coord.x, coord.y, coord.z, height, biome);
@@ -94,20 +94,20 @@ contract LibTerrainSystem is System {
     VoxelVariantsKey memory voxelTypeId;
 
     voxelTypeId = Bedrock(y);
-    if (voxelTypeId != 0) return voxelTypeId;
+    if (voxelTypeId.voxelVariantId != bytes32(0x0)) return voxelTypeId;
 
     voxelTypeId = Air(y);
-    if (voxelTypeId != 0) return voxelTypeId;
+    if (voxelTypeId.voxelVariantId != bytes32(0x0)) return voxelTypeId;
 
     uint8 biome = getMaxBiome(biomeValues);
 
     int32 distanceFromHeight = height - y;
 
     voxelTypeId = Grass(y);
-    if (voxelTypeId != 0) return voxelTypeId;
+    if (voxelTypeId.voxelVariantId != bytes32(0x0)) return voxelTypeId;
 
     voxelTypeId = Dirt(y);
-    if (voxelTypeId != 0) return voxelTypeId;
+    if (voxelTypeId.voxelVariantId != bytes32(0x0)) return voxelTypeId;
 
     return VoxelVariantsKey({
             namespace: bytes16("tenet"),
@@ -333,9 +333,16 @@ contract LibTerrainSystem is System {
   }
 
   function Air(int32 y) internal view returns (VoxelVariantsKey memory) {
-    if (y > 10) return VoxelVariantsKey({
+    if (y > 10) {
+      return VoxelVariantsKey({
             namespace: bytes16("tenet"),
             voxelVariantId: bytes32(keccak256("air"))
+      });
+    }
+
+    return VoxelVariantsKey({
+            namespace: bytes16(0x0),
+            voxelVariantId: bytes32(0x0)
     });
   }
 
@@ -344,9 +351,16 @@ contract LibTerrainSystem is System {
   }
 
   function Bedrock(int32 y) internal view returns (VoxelVariantsKey memory) {
-    if (y <= CHUNK_MIN_Y) return VoxelVariantsKey({
+    if (y <= CHUNK_MIN_Y) {
+      return VoxelVariantsKey({
             namespace: bytes16("tenet"),
             voxelVariantId: bytes32(keccak256("bedrock"))
+      });
+    }
+
+    return VoxelVariantsKey({
+            namespace: bytes16(0x0),
+            voxelVariantId: bytes32(0x0)
     });
   }
 
@@ -357,9 +371,16 @@ contract LibTerrainSystem is System {
   function Grass(
     int32 y
   ) internal view returns (VoxelVariantsKey memory) {
-    if (y == 10) return VoxelVariantsKey({
+    if (y == 10) {
+      return VoxelVariantsKey({
             namespace: bytes16("tenet"),
             voxelVariantId: bytes32(keccak256("grass"))
+      });
+    }
+
+    return VoxelVariantsKey({
+            namespace: bytes16(0x0),
+            voxelVariantId: bytes32(0x0)
     });
   }
 
@@ -370,10 +391,17 @@ contract LibTerrainSystem is System {
   function Dirt(
     int32 y
   ) internal view returns (VoxelVariantsKey memory) {
-    if (y > CHUNK_MIN_Y && y < 10) return VoxelVariantsKey({
+    if (y > CHUNK_MIN_Y && y < 10) {
+      return VoxelVariantsKey({
             namespace: bytes16("tenet"),
             voxelVariantId: bytes32(keccak256("dirt"))
-    });;
+      });
+    }
+
+  return VoxelVariantsKey({
+            namespace: bytes16(0x0),
+            voxelVariantId: bytes32(0x0)
+    });
   }
 
 }

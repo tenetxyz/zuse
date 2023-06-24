@@ -27,14 +27,26 @@ contract OccurrenceSystem is System {
 
   // Occurence functions
   function OGrass(VoxelCoord memory coord) public view returns (VoxelVariantsKey memory) {
-    return IWorld(_world()).tenet_LibTerrainSystem_Grass(coord);
+    // TODO: Figure out why cant just call it once and store it in memory
+    return VoxelVariantsKey({
+      namespace: IWorld(_world()).tenet_LibTerrainSystem_Grass(coord).namespace,
+      voxelVariantId: IWorld(_world()).tenet_LibTerrainSystem_Grass(coord).voxelVariantId
+    });
   }
 
   function ODirt(VoxelCoord memory coord) public view returns (VoxelVariantsKey memory) {
-    return IWorld(_world()).tenet_LibTerrainSystem_Dirt(coord);
+    // TODO: Figure out why cant just call it once and store it in memory
+    return VoxelVariantsKey({
+      namespace: IWorld(_world()).tenet_LibTerrainSystem_Dirt(coord).namespace,
+      voxelVariantId: IWorld(_world()).tenet_LibTerrainSystem_Dirt(coord).voxelVariantId
+    });
   }
 
   function OBedrock(VoxelCoord memory coord) public view returns (VoxelVariantsKey memory) {
-    return IWorld(_world()).tenet_LibTerrainSystem_Bedrock(coord);
+    // TODO: Figure out why cant just call it once and store it in memory
+    return VoxelVariantsKey({
+      namespace: IWorld(_world()).tenet_LibTerrainSystem_Bedrock(coord).namespace,
+      voxelVariantId: IWorld(_world()).tenet_LibTerrainSystem_Bedrock(coord).voxelVariantId
+    });
   }
 }

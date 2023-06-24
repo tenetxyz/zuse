@@ -70,7 +70,7 @@ contract MineSystem is System {
     airEntity = getUniqueEntity();
     {
       // get Air selector from VoxelTypeRegistry
-      bytes4 airSelector = VoxelTypeRegistry.get(namespace, AirID);
+      bytes4 airSelector = VoxelTypeRegistry.get(namespace, AirID).voxelVariantSelector;
       // call airSelector
       (bool airSuccess, bytes memory airVoxelVariant) = staticcallFunctionSelector(
         airSelector,

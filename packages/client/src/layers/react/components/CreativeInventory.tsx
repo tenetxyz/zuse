@@ -1,5 +1,5 @@
 import { Slot } from "./common";
-import { Entity, getEntitiesWithValue } from "@latticexyz/recs";
+import { Entity, getComponentValue, getEntitiesWithValue } from "@latticexyz/recs";
 import { Layers } from "../../../types";
 import { range } from "@latticexyz/utils";
 import styled from "styled-components";
@@ -23,7 +23,7 @@ interface VoxelDescription {
 
 export const CreativeInventory: React.FC<Props> = ({ layers }) => {
   const {
-    components: { VoxelPrototype },
+    components: { VoxelTypeRegistry },
     contractComponents: { OwnedBy, VoxelType },
     api: { giftVoxel },
     network: { connectedAddress },
@@ -38,7 +38,12 @@ export const CreativeInventory: React.FC<Props> = ({ layers }) => {
   const fuse = React.useRef<Fuse<VoxelDescription>>();
 
   React.useEffect(() => {
-    const voxelTypes = getEntitiesWithValue(VoxelPrototype, { value: true });
+    const allVoxelTypes = [...VoxelTypeRegistry.entities()];
+    const voxelTypes = [];
+    for (const voxelType of allVoxelTypes) {
+      const voxelTypeValue = getComponentValue(VoxelTypeRegistry, voxelType);
+      voxelTypes.push(voxelTypeValue);
+    }
     console.log("creative voxelTypes", voxelTypes);
     const unsortedVoxelDescriptions = Array.from(voxelTypes).map(
       (voxelType) => {
@@ -60,7 +65,7 @@ export const CreativeInventory: React.FC<Props> = ({ layers }) => {
     setVoxelDescriptions(
       unsortedVoxelDescriptions.sort((a, b) => a.name.localeCompare(b.name))
     );
-  }, [VoxelPrototype]);
+  }, [VoxelTypeRegistry]);
 
   React.useEffect(() => {
     if (!fuse.current || !voxelDescriptions) {

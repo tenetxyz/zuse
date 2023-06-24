@@ -27,7 +27,7 @@ contract VoxelRegistrySystem is System {
         });
     }
 
-    function registerVoxelType(bytes32 voxelType, bytes4 voxelVariantSelector) public {
+    function registerVoxelType(bytes32 voxelType, string memory previewVoxelImg, bytes4 voxelVariantSelector) public {
         (bytes16 namespace, , ) = FunctionSelectors.get(voxelVariantSelector);
         // TODO: Dhvani add back
         // require(NamespaceOwner.get(namespace) == _msgSender(), "Caller is not namespace owner");
@@ -44,7 +44,7 @@ contract VoxelRegistrySystem is System {
         // should return the type expected by VoxelType (ie VoxelTypeData struct)
 
         // register voxel type
-        VoxelTypeRegistry.set(namespace, voxelType, voxelVariantSelector);
+        VoxelTypeRegistry.set(namespace, voxelType, previewVoxelImg, voxelVariantSelector);
     }
 
     function registerVoxelVariant(bytes32 voxelVariantId, VoxelVariantsData memory voxelVariant) public {

@@ -99,18 +99,18 @@ function defineVoxels(IWorld world) {
 
     VoxelPrototype.set(bytes32(GrassID), true);
     Occurrence.set(GrassID, world.tenet_OccurrenceSystem_OGrass.selector);
-    world.tenet_VoxelRegistrySys_registerVoxelType(GrassID, world.tenet_VoxelRegistrySys_dirtVariantSelector.selector);
+    world.tenet_VoxelRegistrySys_registerVoxelType(GrassID, "bafkreibzraiuk6hgngtfczn57sivuqf3nv77twi6g3ftas2umjnbf6jefe", world.tenet_VoxelRegistrySys_dirtVariantSelector.selector);
 
     VoxelPrototype.set(bytes32(DirtID), true);
     Occurrence.set(DirtID, world.tenet_OccurrenceSystem_ODirt.selector);
-    world.tenet_VoxelRegistrySys_registerVoxelType(DirtID, world.tenet_VoxelRegistrySys_dirtVariantSelector.selector);
+    world.tenet_VoxelRegistrySys_registerVoxelType(DirtID, "bafkreibzraiuk6hgngtfczn57sivuqf3nv77twi6g3ftas2umjnbf6jefe", world.tenet_VoxelRegistrySys_dirtVariantSelector.selector);
 
     VoxelPrototype.set(bytes32(BedrockID), true);
     Occurrence.set(BedrockID, world.tenet_OccurrenceSystem_OBedrock.selector);
-    world.tenet_VoxelRegistrySys_registerVoxelType(BedrockID, world.tenet_VoxelRegistrySys_dirtVariantSelector.selector);
+    world.tenet_VoxelRegistrySys_registerVoxelType(BedrockID, "bafkreibzraiuk6hgngtfczn57sivuqf3nv77twi6g3ftas2umjnbf6jefe", world.tenet_VoxelRegistrySys_dirtVariantSelector.selector);
 
     VoxelPrototype.set(bytes32(AirID), true);
-    world.tenet_VoxelRegistrySys_registerVoxelType(AirID, world.tenet_VoxelRegistrySys_airVariantSelector.selector);
+    world.tenet_VoxelRegistrySys_registerVoxelType(AirID, "", world.tenet_VoxelRegistrySys_airVariantSelector.selector);
 
     VoxelPrototype.set(bytes32(LogID), true);
 

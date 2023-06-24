@@ -39,6 +39,7 @@ export default mudConfig({
         voxelType: "bytes32",
       },
       schema: {
+        preview: "string", // File ID Hash
         voxelVariantSelector: "bytes4",
       },
     },

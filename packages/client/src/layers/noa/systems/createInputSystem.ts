@@ -5,8 +5,8 @@ import {
   setComponent,
   updateComponent,
 } from "@latticexyz/recs";
-import { sleep, VoxelCoord } from "@latticexyz/utils";
-import { NetworkLayer, VoxelTypeKeyToId } from "../../network";
+import { sleep, VoxelCoord, keccak256 } from "@latticexyz/utils";
+import { NetworkLayer } from "../../network";
 import { FAST_MINING_DURATION, SPAWN_POINT } from "../constants";
 import {
   HandComponent,
@@ -99,7 +99,7 @@ export function createInputSystem(network: NetworkLayer, noaLayer: NoaLayer) {
 
       if (creativeMode) {
         miningComponent.duration = 10;
-      } else if (getVoxelTypeInSelectedSlot() === VoxelTypeKeyToId.Bedrock) {
+      } else if (getVoxelTypeInSelectedSlot()?.voxelTypeId === keccak256("bedrock")) {
         miningComponent.duration = FAST_MINING_DURATION;
       }
       return miningComponent;
@@ -206,18 +206,19 @@ export function createInputSystem(network: NetworkLayer, noaLayer: NoaLayer) {
       const targeted = noa.targetedBlock.position;
 
       // Open crafting UI if the targeted voxel is a crafting table
-      if (
-        runQuery([
-          HasValue(Position, {
-            x: targeted[0],
-            y: targeted[1],
-            z: targeted[2],
-          }),
-          HasValue(VoxelType, { value: VoxelTypeKeyToId.Crafting }),
-        ]).size > 0
-      ) {
-        return toggleInventory(true, true);
-      }
+      // TODO: Add back when we add crafting
+      // if (
+      //   runQuery([
+      //     HasValue(Position, {
+      //       x: targeted[0],
+      //       y: targeted[1],
+      //       z: targeted[2],
+      //     }),
+      //     HasValue(VoxelType, { value: VoxelTypeKeyToId.Crafting }),
+      //   ]).size > 0
+      // ) {
+      //   return toggleInventory(true, true);
+      // }
       placeSelectedVoxelType({ x: pos[0], y: pos[1], z: pos[2] });
     }
   });

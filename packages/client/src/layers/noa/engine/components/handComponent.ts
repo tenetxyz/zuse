@@ -8,12 +8,12 @@ import {
   MINING_ANIMATION_BOX_VOXEL,
   MINING_ANIMATION_BOX_HAND,
 } from "../hand";
+import { VoxelTypeDataKey, VoxelVariantDataKey } from "../../types";
 
 export interface HandComponent {
   isMining: boolean;
   handMesh: BABYLON.Mesh;
   voxelMesh: BABYLON.Mesh;
-  voxelMaterials: { [key in VoxelTypeKey]?: Material };
   __id: number;
 }
 
@@ -21,7 +21,8 @@ export const HAND_COMPONENT = "HAND_COMPONENT";
 
 export function registerHandComponent(
   noa: Engine,
-  getSelectedVoxelType: () => Entity | undefined
+  getSelectedVoxelType: () =>  VoxelTypeDataKey | undefined,
+  voxelMaterials: Map<VoxelVariantDataKey, BABYLON.Material | undefined>,
 ) {
   // eslint-disable-next-line @typescript-eslint/ban-ts-comment
   //@ts-ignore
@@ -35,16 +36,21 @@ export function registerHandComponent(
     },
     system: function (dt: number, states: HandComponent[]) {
       for (let i = 0; i < states.length; i++) {
-        const { handMesh, isMining, voxelMesh, voxelMaterials } = states[i];
+        const { handMesh, isMining, voxelMesh } = states[i];
         const id = states[i].__id;
         if (id === noa.playerEntity) {
           // NOTE: for now just animate / change the material of the player hand
           const selectedVoxelType = getSelectedVoxelType();
-          const voxelTypeKey =
-            selectedVoxelType && VoxelTypeIdToKey[selectedVoxelType];
-          if (voxelTypeKey && voxelMaterials[voxelTypeKey] !== undefined) {
+          let voxelVariantKey = undefined;
+          if(selectedVoxelType){
+            voxelVariantKey = {
+              voxelVariantNamespace: selectedVoxelType.voxelVariantNamespace,
+              voxelVariantId: selectedVoxelType.voxelVariantId
+            };
+          }
+          if (voxelVariantKey && voxelMaterials.get(voxelVariantKey) !== undefined) {
             // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-            voxelMesh.material = voxelMaterials[voxelTypeKey]!;
+            voxelMesh.material = voxelMaterials.get(voxelVariantKey)!;
             handMesh.visibility = 0;
             voxelMesh.visibility = 1;
           } else {

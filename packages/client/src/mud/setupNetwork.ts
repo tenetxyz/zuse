@@ -29,9 +29,6 @@ import {
 import { map, timer, combineLatest, BehaviorSubject } from "rxjs";
 import storeConfig from "@tenetxyz/contracts/mud.config";
 import {
-  VoxelTypeKey,
-} from "../layers/network/constants";
-import {
   getEcsVoxelType,
   getTerrain,
   getTerrainVoxel,

@@ -1,4 +1,4 @@
-import { VoxelTypeKey } from "./constants";
+// import { VoxelTypeKey } from "./constants";
 // import { createNetworkLayer } from "./createNetworkLayer";
 import { SetupNetworkResult } from "../../mud/setupNetwork";
 

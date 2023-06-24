@@ -9,7 +9,6 @@ import { NetworkLayer } from "../../network";
 import { Entity } from "@latticexyz/recs";
 import { NoaBlockType } from "../types";
 import { createVoxelMesh } from "./utils";
-import { VoxelTypeKey } from "../../network/constants";
 import { voxelVariantDataKeyToString, VoxelVariantDataKey } from "../types";
 import { setupScene } from "../engine/setupScene";
 import {

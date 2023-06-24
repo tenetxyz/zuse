@@ -1,5 +1,4 @@
 import { VoxelCoord } from "@latticexyz/utils";
-import { VoxelTypeKey } from "../network/constants";
 import { NoaVoxelDef, NoaBlockType } from "./types";
 
 export const CRAFTING_SIDE = 3;

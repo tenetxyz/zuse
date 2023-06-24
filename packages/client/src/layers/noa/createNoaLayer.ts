@@ -37,6 +37,8 @@ import {
   defineVoxelSelectionComponent,
 } from "./components";
 import { CRAFTING_SIDE, EMPTY_CRAFTING_TABLE } from "./constants";
+import * as BABYLON from "@babylonjs/core";
+import { Texture, Vector4 } from "@babylonjs/core";
 import { setupHand } from "./engine/hand";
 import { monkeyPatchMeshComponent } from "./engine/components/monkeyPatchMeshComponent";
 import {
@@ -84,7 +86,7 @@ import { defineSpawnCreationComponent } from "./components/SpawnCreation";
 import { createSpawnCreationOverlaySystem } from "./systems/createSpawnCreationOverlaySystem";
 import { createSpawnOverlaySystem } from "./systems/createSpawnOverlaySystem";
 import { entityToVoxelType } from "../../utils/voxels";
-import { VoxelType } from "./types";
+import { VoxelTypeDataKey, VoxelVariantDataKey, voxelVariantDataKeyToString } from "./types";
 
 export function createNoaLayer(network: NetworkLayer) {
   const world = namespaceWorld(network.world, "noa");
@@ -97,6 +99,7 @@ export function createNoaLayer(network: NetworkLayer) {
     components: { Recipe, Claim, Stake, LoadingState },
     contractComponents: { OwnedBy, VoxelType },
     api: { build },
+    voxelTypes: { VoxelVariantData }
   } = network;
   const uniqueWorldId = chainId + worldAddress;
 
@@ -344,7 +347,7 @@ export function createNoaLayer(network: NetworkLayer) {
     );
   };
 
-  function getVoxelTypeInSelectedSlot(): VoxelType | undefined {
+  function getVoxelTypeInSelectedSlot(): VoxelTypeDataKey | undefined {
     const selectedSlot = getComponentValue(
       components.SelectedSlot,
       SingletonEntity
@@ -402,17 +405,38 @@ export function createNoaLayer(network: NetworkLayer) {
     updateComponent(components.Sounds, SingletonEntity, { playingTheme });
   }
 
+  const scene = noa.rendering.getScene();
+
+  const voxelMaterials: Map<VoxelVariantDataKey, BABYLON.Material | undefined> = new Map();
+  for (const [voxelVariantKey, voxelVariantData] of VoxelVariantData.entries()) {
+    if(voxelVariantData.data?.uvWrap){
+      const voxelMaterial = noa.rendering.makeStandardMaterial(
+        "voxelMaterial-" + voxelVariantDataKeyToString(voxelVariantKey)
+      );
+      voxelMaterial.diffuseTexture = new Texture(
+        voxelVariantData.data.uvWrap,
+        scene,
+        true,
+        true,
+        Texture.NEAREST_SAMPLINGMODE
+      );
+      voxelMaterials.set(voxelVariantKey, voxelMaterial);
+    } else {
+      voxelMaterials.set(voxelVariantKey, undefined);
+    }
+  }
+
   // --- SETUP NOA COMPONENTS AND MODULES --------------------------------------------------------
   monkeyPatchMeshComponent(noa);
   registerModelComponent(noa);
   registerRotationComponent(noa);
   registerTargetedRotationComponent(noa);
   registerTargetedPositionComponent(noa);
-  registerHandComponent(noa, getVoxelTypeInSelectedSlot);
+  registerHandComponent(noa, getVoxelTypeInSelectedSlot, voxelMaterials);
   registerMiningVoxelComponent(noa, network);
   setupClouds(noa);
   setupSky(noa);
-  setupHand(noa);
+  setupHand(noa, network);
   // setupDayNightCycle(noa, glow); // Curtis removed this because he had to constantly change his monitor brightness
 
   // Pause noa until initial loading is done

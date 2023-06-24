@@ -11,10 +11,9 @@ import {
   updateComponent,
   UpdateType,
 } from "@latticexyz/recs";
-import { euclidean, isNotEmpty, pickRandom } from "@latticexyz/utils";
+import { euclidean, isNotEmpty, pickRandom, keccak256 } from "@latticexyz/utils";
 import { timer } from "rxjs";
-import { VoxelTypeKeyToId, NetworkLayer } from "../../network";
-import { VoxelTypeIdToKey } from "../../network/constants";
+import { NetworkLayer } from "../../network";
 import { NoaLayer } from "../types";
 
 export function createSoundSystem(network: NetworkLayer, context: NoaLayer) {
@@ -22,6 +21,7 @@ export function createSoundSystem(network: NetworkLayer, context: NoaLayer) {
     components: { LoadingState },
     contractComponents: { VoxelType, Position },
     api: { getTerrainVoxelTypeAtPosition },
+    voxelTypes: { VoxelVariantData }
   } = network;
   const {
     audioEngine,
@@ -131,7 +131,7 @@ export function createSoundSystem(network: NetworkLayer, context: NoaLayer) {
       const voxelType =
         update.type === UpdateType.Exit && isComponentUpdate(update, VoxelType)
           ? update.value[1]?.value
-          : getComponentValue(VoxelType, update.entity)?.value;
+          : getComponentValue(VoxelType, update.entity);
 
       const position =
         update.type === UpdateType.Exit && isComponentUpdate(update, Position)
@@ -148,19 +148,19 @@ export function createSoundSystem(network: NetworkLayer, context: NoaLayer) {
       const voxelPosVec = new Vector3(...voxelPosArr);
 
       // Find sound to play
-      let voxelTypeKey = VoxelTypeIdToKey[voxelType as Entity];
+      let voxelTypeKey = voxelType.voxelTypeId;
       let updateType = update.type;
 
       // When mining a terrain voxel, we get an ECS update for an entering air voxel instead
       // Hack: entity id is the same as entity index for optimistic updates
       if (
         update.type == UpdateType.Enter &&
-        voxelType === VoxelTypeKeyToId.Air
+        voxelTypeKey === keccak256("air")
       ) {
         // const isOptimisticUpdate = world.entities[update.entity] == (update.entity as unknown);
         const isOptimisticUpdate = update.entity == (update.entity as unknown);
         if (!isOptimisticUpdate) return;
-        voxelTypeKey = VoxelTypeIdToKey[getTerrainVoxelTypeAtPosition(position)];
+        voxelTypeKey = getTerrainVoxelTypeAtPosition(position).voxelTypeId;
         updateType = UpdateType.Exit;
       }
 

@@ -4,6 +4,8 @@ import styled from "styled-components";
 import { VoxelIcon } from "./VoxelIcon";
 import { AbsoluteBorder } from "./AbsoluteBorder";
 import { Border } from "./Border";
+import { entityToVoxelType } from "../../../../utils/voxels";
+import { VoxelVariantDataKey } from "../../../noa/types";
 
 export const Slot: React.FC<{
   voxelType?: Entity;
@@ -12,8 +14,14 @@ export const Slot: React.FC<{
   onRightClick?: () => void;
   selected?: boolean;
   disabled?: boolean;
-}> = ({ voxelType, quantity, onClick, onRightClick, selected, disabled }) => (
-  <AbsoluteBorder
+  getVoxelIconUrl: (voxelTypeKey: VoxelVariantDataKey) => string | undefined;
+}> = ({ voxelType, quantity, onClick, onRightClick, selected, disabled, getVoxelIconUrl }) => {
+  const voxelVariantData = voxelType? entityToVoxelType(voxelType) : undefined;
+  let bgUrl = "";
+  if (voxelVariantData) {
+    bgUrl = getVoxelIconUrl(voxelVariantData) || "";
+  }
+  return (<AbsoluteBorder
     borderColor={selected ? "#ffffff" : "transparent"}
     borderWidth={6}
   >
@@ -29,7 +37,7 @@ export const Slot: React.FC<{
             }}
           >
             {voxelType ? (
-              <VoxelIcon voxelType={voxelType} scale={4}>
+              <VoxelIcon bgUrl={bgUrl} scale={4}>
                 {quantity != null ? <Quantity>{quantity}</Quantity> : null}
               </VoxelIcon>
             ) : null}
@@ -38,7 +46,8 @@ export const Slot: React.FC<{
       </Border>
     </Border>
   </AbsoluteBorder>
-);
+  );
+};
 
 const Inner = styled.div<{ disabled?: boolean }>`
   width: 64px;

@@ -27,6 +27,7 @@ export const CreativeInventory: React.FC<Props> = ({ layers }) => {
     contractComponents: { OwnedBy, VoxelType },
     api: { giftVoxel },
     network: { connectedAddress },
+    getVoxelIconUrl,
   } = layers.network;
 
   const [searchValue, setSearchValue] = React.useState<string>("");
@@ -73,7 +74,7 @@ export const CreativeInventory: React.FC<Props> = ({ layers }) => {
 
   const Slots = [...range(NUM_ROWS * NUM_COLS)].map((i) => {
     if (!filteredVoxelDescriptions || i >= filteredVoxelDescriptions.length) {
-      return <Slot key={"voxel-search-slot" + i} disabled={true} />;
+      return <Slot key={"voxel-search-slot" + i} disabled={true} getVoxelIconUrl={getVoxelIconUrl} />;
     }
     const voxelDescription = filteredVoxelDescriptions[i];
     return (
@@ -84,6 +85,7 @@ export const CreativeInventory: React.FC<Props> = ({ layers }) => {
         onClick={() => tryGiftVoxel(voxelDescription.voxelType)}
         disabled={false} // false, so if you pick up the voxeltype, it still shows up in the creative inventory
         selected={false} // you can never select an voxeltype in the creative inventory
+        getVoxelIconUrl={getVoxelIconUrl}
       />
     );
   });

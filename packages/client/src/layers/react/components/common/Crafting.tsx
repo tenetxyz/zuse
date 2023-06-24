@@ -23,6 +23,7 @@ export const Crafting: React.FC<{
       contractComponents: { OwnedBy, VoxelType },
       network: { connectedAddress },
       api: { craft },
+      getVoxelIconUrl,
     },
     noa: {
       api: {
@@ -135,6 +136,7 @@ export const Crafting: React.FC<{
         key={"crafting-slot" + index}
         voxelType={voxelType}
         onClick={() => handleInput(index)}
+        getVoxelIconUrl={getVoxelIconUrl}
       />
     );
   });
@@ -149,6 +151,7 @@ export const Crafting: React.FC<{
           voxelType={getCraftingResult()}
           onClick={() => handleOutput()}
           selected={true}
+          getVoxelIconUrl={getVoxelIconUrl}
         />
       </CraftingOutput>
     </CraftingWrapper>

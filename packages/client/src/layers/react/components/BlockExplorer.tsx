@@ -10,22 +10,21 @@ import {
   SchemaOf,
 } from "@latticexyz/recs";
 import { filter, scan, merge, map } from "rxjs";
-import { VoxelTypeIdToKey, VoxelTypeKey } from "../../network/constants";
 import { registerUIComponent } from "../engine";
 import styled from "styled-components";
-import { getVoxelIconUrl } from "../../noa/constants";
 import { filterNullish } from "@latticexyz/utils";
+import { voxelTypeToEntity } from "../../../utils/voxels";
 
 type BlockEvent = {
   blockNumber: number;
-  voxelTypeKey?: keyof typeof VoxelTypeIdToKey; // for some reason I cannot use VoxelTypeKey here
+  voxelTypeKey?: string;
   action?: "add" | "remove";
 };
 
 type BlockSummaryElement = [
   number, // block number
   {
-    [voxelType in keyof typeof VoxelTypeIdToKey]: {
+    [voxelType: string]: {
       add?: number;
       remove?: number;
     };
@@ -107,6 +106,7 @@ export function registerBlockExplorer() {
           network: { blockNumber$ },
           world,
           config: { blockExplorer },
+          getVoxelIconUrl,
         },
       } = layers;
 
@@ -129,9 +129,9 @@ export function registerBlockExplorer() {
                 // VoxelType component updates correspond to a mined terrain block
                 if (componentKey === "VoxelType") {
                   // TODO: We added this because value was undefined, should figure out why the original line (below) doesn't work
-                  const voxelType = getComponentValue(VoxelType, entity)?.value;
+                  const voxelType = getComponentValue(VoxelType, entity);
                   // const { value: entityId } = value as ComponentValue<SchemaOf<typeof VoxelType>>;
-                  const voxelTypeKey = VoxelTypeIdToKey[voxelType as Entity];
+                  const voxelTypeKey = voxelType?.voxelTypeId;
                   return { blockNumber, voxelTypeKey, action: "remove" };
                 }
 
@@ -141,12 +141,12 @@ export function registerBlockExplorer() {
                   const entityIndex = entity;
                   const voxelType =
                     entityIndex != null
-                      ? getComponentValue(VoxelType, entityIndex)?.value
+                      ? getComponentValue(VoxelType, entityIndex)
                       : undefined;
                   if (!voxelType) {
                     return;
                   }
-                  const voxelTypeKey = VoxelTypeIdToKey[voxelType as Entity];
+                  const voxelTypeKey = voxelTypeToEntity(voxelType) as string;
 
                   // If the update includes a position, it corresponds to a placed block
                   if (value) {
@@ -214,7 +214,8 @@ export function registerBlockExplorer() {
                     {counts.add ? (
                       <div className="BlockExplorer-Action">
                         <img
-                          src={getVoxelIconUrl(voxelTypeKey as VoxelTypeKey)}
+                          // TODO: Add back
+                          // src={getVoxelIconUrl(voxelTypeKey)}
                         />
                         <div className="BlockExplorer-ActionIcon BlockExplorer-ActionIcon--add">
                           +{counts.add}
@@ -224,7 +225,8 @@ export function registerBlockExplorer() {
                     {counts.remove ? (
                       <div className="BlockExplorer-Action">
                         <img
-                          src={getVoxelIconUrl(voxelTypeKey as VoxelTypeKey)}
+                          // TODO: Add back
+                          // src={getVoxelIconUrl(voxelTypeKey)}
                         />
                         <div className="BlockExplorer-ActionIcon BlockExplorer-ActionIcon--remove">
                           -{counts.remove}

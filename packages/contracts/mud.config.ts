@@ -43,8 +43,6 @@ export default mudConfig({
     // tables for creations
     Creation: {
       schema: {
-        name: "string",
-        description: "string",
         creator: "bytes32",
         voxelTypes: "bytes32[]",
         // the relative position for each voxel in the creation
@@ -52,7 +50,9 @@ export default mudConfig({
         relativePositionsX: "int32[]",
         relativePositionsY: "int32[]",
         relativePositionsZ: "int32[]",
-        voxelMetadata: "bytes", // stores the component values for each voxel in the creation
+        name: "string",
+        description: "string",
+        // voxelMetadata: "bytes", // stores the component values for each voxel in the creation
       },
     },
 

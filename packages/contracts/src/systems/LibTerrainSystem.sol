@@ -6,7 +6,7 @@ pragma solidity >=0.8.0;
 import { ABDKMath64x64 as Math } from "../libraries/ABDKMath64x64.sol";
 import { Biome, STRUCTURE_CHUNK, STRUCTURE_CHUNK_CENTER } from "../constants.sol";
 import { AirID, GrassID, DirtID, LogID, StoneID, SandID, WaterID, CobblestoneID, CoalID, CraftingID, IronID, GoldID, DiamondID, LeavesID, PlanksID, RedFlowerID, GrassPlantID, OrangeFlowerID, MagentaFlowerID, LightBlueFlowerID, LimeFlowerID, PinkFlowerID, GrayFlowerID, LightGrayFlowerID, CyanFlowerID, PurpleFlowerID, BlueFlowerID, GreenFlowerID, BlackFlowerID, KelpID, WoolID, SnowID, ClayID, BedrockID } from "../prototypes/Voxels.sol";
-import { VoxelCoord, Tuple } from "../Types.sol";
+import { VoxelCoord, Tuple, VoxelVariantsKey } from "../Types.sol";
 import { div } from "../Utils.sol";
 import { System } from "@latticexyz/world/src/System.sol";
 import { IWorld } from "../codegen/world/IWorld.sol";
@@ -90,8 +90,8 @@ contract LibTerrainSystem is System {
     int32 z,
     int32 height,
     int128[4] memory biomeValues
-  ) internal view returns (bytes32) {
-    bytes32 voxelTypeId;
+  ) internal view returns (VoxelVariantsKey memory) {
+    VoxelVariantsKey memory voxelTypeId;
 
     voxelTypeId = Bedrock(y);
     if (voxelTypeId != 0) return voxelTypeId;
@@ -109,7 +109,10 @@ contract LibTerrainSystem is System {
     voxelTypeId = Dirt(y);
     if (voxelTypeId != 0) return voxelTypeId;
 
-    return AirID;
+    return VoxelVariantsKey({
+            namespace: bytes16("tenet"),
+            voxelVariantId: bytes32(keccak256("air"))
+    });
   }
 
   function getHeight(
@@ -325,40 +328,52 @@ contract LibTerrainSystem is System {
   // voxel occurrence functions
   //////////////////////////////////////////////////////////////////////////////////////
 
-  function Air(VoxelCoord memory coord) public view returns (bytes32) {
+  function Air(VoxelCoord memory coord) public view returns (VoxelVariantsKey memory) {
     return Air(coord.y);
   }
 
-  function Air(int32 y) internal view returns (bytes32) {
-    if (y > 10) return AirID;
+  function Air(int32 y) internal view returns (VoxelVariantsKey memory) {
+    if (y > 10) return VoxelVariantsKey({
+            namespace: bytes16("tenet"),
+            voxelVariantId: bytes32(keccak256("air"))
+    });
   }
 
-  function Bedrock(VoxelCoord memory coord) public view returns (bytes32) {
+  function Bedrock(VoxelCoord memory coord) public view returns (VoxelVariantsKey memory) {
     return Bedrock(coord.y);
   }
 
-  function Bedrock(int32 y) internal view returns (bytes32) {
-    if (y <= CHUNK_MIN_Y) return BedrockID;
+  function Bedrock(int32 y) internal view returns (VoxelVariantsKey memory) {
+    if (y <= CHUNK_MIN_Y) return VoxelVariantsKey({
+            namespace: bytes16("tenet"),
+            voxelVariantId: bytes32(keccak256("bedrock"))
+    });
   }
 
-  function Grass(VoxelCoord memory coord) public view returns (bytes32) {
+  function Grass(VoxelCoord memory coord) public view returns (VoxelVariantsKey memory) {
     return Grass(coord.y);
   }
 
   function Grass(
     int32 y
-  ) internal view returns (bytes32) {
-    if (y == 10) return GrassID;
+  ) internal view returns (VoxelVariantsKey memory) {
+    if (y == 10) return VoxelVariantsKey({
+            namespace: bytes16("tenet"),
+            voxelVariantId: bytes32(keccak256("grass"))
+    });
   }
 
-  function Dirt(VoxelCoord memory coord) public view returns (bytes32) {
+  function Dirt(VoxelCoord memory coord) public view returns (VoxelVariantsKey memory) {
     return Dirt(coord.y);
   }
 
   function Dirt(
     int32 y
-  ) internal view returns (bytes32) {
-    if (y > CHUNK_MIN_Y && y < 10) return DirtID;
+  ) internal view returns (VoxelVariantsKey memory) {
+    if (y > CHUNK_MIN_Y && y < 10) return VoxelVariantsKey({
+            namespace: bytes16("tenet"),
+            voxelVariantId: bytes32(keccak256("dirt"))
+    });;
   }
 
 }

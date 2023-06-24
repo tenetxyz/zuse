@@ -3,7 +3,7 @@ pragma solidity >=0.8.0;
 import { IWorld } from "../codegen/world/IWorld.sol";
 import { getAddressById, addressToEntity } from "solecs/utils.sol";
 import { AirID, GrassID, DirtID, LogID, StoneID, SandID, WaterID, CobblestoneID, CoalID, CraftingID, IronID, GoldID, DiamondID, LeavesID, PlanksID, RedFlowerID, GrassPlantID, OrangeFlowerID, MagentaFlowerID, LightBlueFlowerID, LimeFlowerID, PinkFlowerID, GrayFlowerID, LightGrayFlowerID, CyanFlowerID, PurpleFlowerID, BlueFlowerID, GreenFlowerID, BlackFlowerID, KelpID, WoolID, SnowID, ClayID, BedrockID } from "../prototypes/Voxels.sol";
-import { VoxelCoord } from "../types.sol";
+import { VoxelCoord, VoxelVariantsKey } from "../types.sol";
 import { System } from "@latticexyz/world/src/System.sol";
 
 // This system is used to check whether a given voxel occurs at a given location.
@@ -26,15 +26,15 @@ contract OccurrenceSystem is System {
   }
 
   // Occurence functions
-  function OGrass(VoxelCoord memory coord) public view returns (bytes32) {
+  function OGrass(VoxelCoord memory coord) public view returns (VoxelVariantsKey memory) {
     return IWorld(_world()).tenet_LibTerrainSystem_Grass(coord);
   }
 
-  function ODirt(VoxelCoord memory coord) public view returns (bytes32) {
+  function ODirt(VoxelCoord memory coord) public view returns (VoxelVariantsKey memory) {
     return IWorld(_world()).tenet_LibTerrainSystem_Dirt(coord);
   }
 
-  function OBedrock(VoxelCoord memory coord) public view returns (bytes32) {
+  function OBedrock(VoxelCoord memory coord) public view returns (VoxelVariantsKey memory) {
     return IWorld(_world()).tenet_LibTerrainSystem_Bedrock(coord);
   }
 }

@@ -22,8 +22,7 @@ contract BuildSystem is System {
     require(entitiesAtPosition.length <= 1, "This position is already occupied by another voxel");
     if (entitiesAtPosition.length == 1) {
       require(VoxelType.get(entitiesAtPosition[0]).voxelType == AirID, "This position is already occupied by another voxel");
-      // TODO: Fix
-      // VoxelType.deleteRecord(entitiesAtPosition[0]);
+      VoxelType.deleteRecord(entitiesAtPosition[0]);
       Position.deleteRecord(entitiesAtPosition[0]);
     }
 

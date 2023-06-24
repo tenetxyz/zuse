@@ -5,7 +5,7 @@ import { getUniqueEntity } from "@latticexyz/world/src/modules/uniqueentity/getU
 import { getKeysInTable } from "@latticexyz/world/src/modules/keysintable/getKeysInTable.sol";
 import { System } from "@latticexyz/world/src/System.sol";
 import { VoxelCoord } from "../types.sol";
-import { OwnedBy, Position, PositionTableId, VoxelType, RelativePositions, VoxelTypes, OfSpawn, Spawn, SpawnData } from "../codegen/Tables.sol";
+import { OwnedBy, Position, PositionTableId, VoxelType, RelativePositions, OfSpawn, Spawn, SpawnData, Creation } from "../codegen/Tables.sol";
 import { getEntitiesAtCoord, add, int32ToString } from "../utils.sol";
 import { IWorld } from "../codegen/world/IWorld.sol";
 import { console } from "forge-std/console.sol";
@@ -16,7 +16,7 @@ contract SpawnSystem is System {
 
     function spawn(VoxelCoord memory lowerSouthWestCorner, bytes32 creationId) public returns (bytes32) {
         // relPosX = all the relative position X coordinates
-        (bytes32[] memory voxelTypes) = VoxelTypes.get(creationId);
+        Creation memory creation = Creation.get(creationId);
         RelativePositionsData memory relativePositions = RelativePositions.get(creationId);
         int32[] memory relPosX = relativePositions.x;
         int32[] memory relPosY = relativePositions.y;

@@ -45,14 +45,7 @@ const CreationStore: React.FC<Props> = ({ layers, filters, setFilters }) => {
       api: { toggleInventory },
     },
     network: {
-      components: {
-        OwnedBy,
-        Description,
-        Name,
-        VoxelTypes,
-        RelativePositions,
-        VoxelMetadata,
-      },
+      components: { OwnedBy, Creation },
       network: { connectedAddress },
       api: { getEntityAtPosition, registerCreation },
     },
@@ -72,26 +65,21 @@ const CreationStore: React.FC<Props> = ({ layers, filters, setFilters }) => {
   useEffect(() => {
     const allCreations: Creation[] = [];
     const creationIds = VoxelTypes.entities();
-    for (const creationId of creationIds) {
-      const rawRelativePositions = getComponentValue(
-        RelativePositions,
-        creationId
-      );
-      const xPositions = rawRelativePositions?.x ?? [];
-      const yPositions = rawRelativePositions?.y ?? [];
-      const zPositions = rawRelativePositions?.z ?? [];
+    for (const [creationId, creation] of Creation) {
+      const xPositions = creation.relativePositionsX ?? [];
+      const yPositions = creation.relativePositionsY ?? [];
+      const zPositions = creation.relativePositionsZ ?? [];
 
       const relativePositions = xPositions.map((x, i) => {
         return { x, y: yPositions[i], z: zPositions[i] };
       });
 
       allCreations.push({
-        name: getComponentValue(Name, creationId)?.value ?? "",
-        description: getComponentValue(Description, creationId)?.value ?? "",
+        name: creation.name,
+        description: creation.description,
         creationId,
-        creator:
-          getComponentValue(OwnedBy, creationId)?.value ?? SingletonEntity,
-        voxelTypes: getComponentValue(VoxelTypes, creationId)?.value ?? [],
+        creator: creation.creator,
+        voxelTypes: creation.voxelTypes,
         relativePositions,
       } as Creation);
     }

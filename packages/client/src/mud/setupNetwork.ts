@@ -43,6 +43,7 @@ import { to64CharAddress } from "../utils/entity";
 import { SingletonID } from "@latticexyz/network";
 import {NoaVoxelDef, NoaBlockType, VoxelTypeData, VoxelTypeDataKey} from "../layers/noa/types";
 import {Textures, UVWraps} from "../layers/noa/constants";
+import { keccak256 } from "@latticexyz/utils";
 
 export type SetupNetworkResult = Awaited<ReturnType<typeof setupNetwork>>;
 
@@ -212,79 +213,45 @@ export async function setupNetwork() {
     contractComponents.VoxelType
   );
 
-  const VoxelTypeData: VoxelTypeData = {};
-  // add default voxel types
-  VoxelTypeData["tenet"] = {
-    "air": {
-      "0": {
-        index: 0,
-        data: undefined,
-      }
-    },
-    "dirt": {
-      "0": {
-        index: 1,
-        data: { type: NoaBlockType.BLOCK, material: Textures.Dirt, uvWrap: UVWraps.Dirt },
-      }
-    },
-    "grass": {
-      "0": {
-        index: 2,
-        data: {
-          type: NoaBlockType.BLOCK,
-          material: [Textures.Grass, Textures.Dirt, Textures.GrassSide],
-          uvWrap: UVWraps.Grass
-        }
-      }
-    },
-  };
-
-  const VoxelTypeKeyToIndex: Map<VoxelTypeDataKey, number> = new Map();
-  for (const namespace in VoxelTypeData) {
-    const namespaceData = VoxelTypeData[namespace];
-    for (const voxelType in namespaceData) {
-      const voxelTypeData = namespaceData[voxelType];
-      for (const variantId in voxelTypeData) {
-        const { index } = voxelTypeData[variantId];
-        const voxelTypeKey: VoxelTypeDataKey = {
-          namespace,
-          voxelType,
-          variantId,
-        };
-        VoxelTypeKeyToIndex.set(voxelTypeKey, index);
-      }
-    }
-  }
+  const VoxelTypeData: VoxelTypeData = new Map();
+  // TODO: Should load initial ones from chain, otherwise add them
+  // // add default voxel types
+  // VoxelTypeData["tenet"] = {
+  //   "air": {
+  //     "0": {
+  //       index: 0,
+  //       data: undefined,
+  //     }
+  //   },
+  //   "dirt": {
+  //     "0": {
+  //       index: 1,
+  //       data: { type: NoaBlockType.BLOCK, material: Textures.Dirt, uvWrap: UVWraps.Dirt },
+  //     }
+  //   },
+  //   "grass": {
+  //     "0": {
+  //       index: 2,
+  //       data: {
+  //         type: NoaBlockType.BLOCK,
+  //         material: [Textures.Grass, Textures.Dirt, Textures.GrassSide],
+  //         uvWrap: UVWraps.Grass
+  //       }
+  //     }
+  //   },
+  // };
 
   const VoxelTypeIndexToKey: Map<number, VoxelTypeDataKey> = new Map();
-  for (const namespace in VoxelTypeData) {
-    const namespaceData = VoxelTypeData[namespace];
-    for (const voxelType in namespaceData) {
-      const voxelTypeData = namespaceData[voxelType];
-      for (const variantId in voxelTypeData) {
-        const { index } = voxelTypeData[variantId];
-        const voxelTypeKey: VoxelTypeDataKey = {
-          namespace,
-          voxelType,
-          variantId,
-        };
-        VoxelTypeIndexToKey.set(index, voxelTypeKey);
-      }
-    }
+
+  for (const [voxelTypeKey, voxelTypeData] of VoxelTypeData.entries()) {
+    VoxelTypeIndexToKey.set(voxelTypeData.index, voxelTypeKey);
   }
-
-
 
   function getVoxelIconUrl(
     voxelTypeKey: VoxelTypeDataKey
   ): string | undefined {
-    let voxel: any = VoxelTypeData[voxelTypeKey.namespace];
-    if (!voxel) return;
-    voxel = voxel[voxelTypeKey.voxelType];
-    if (!voxel) return;
-    voxel = voxel[voxelTypeKey.variantId];
-    if (!voxel) return;
-    voxel = voxel.data;
+    const voxel = VoxelTypeData.get(voxelTypeKey)?.data;
+    if (!voxel) return undefined;
     return Array.isArray(voxel.material) ? voxel.material[0] : voxel.material;
   }
 
@@ -605,6 +572,6 @@ export async function setupNetwork() {
     worldAddress: networkConfig.worldAddress,
     uniqueWorldId,
     getVoxelIconUrl,
-    voxelTypes: { VoxelTypeData, VoxelTypeKeyToIndex, VoxelTypeIndexToKey },
+    voxelTypes: { VoxelTypeData, VoxelTypeIndexToKey },
   };
 }

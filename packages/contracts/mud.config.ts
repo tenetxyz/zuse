@@ -11,12 +11,21 @@ export default mudConfig({
       schema: {
         namespace: "bytes16",
         voxelType: "bytes32",
-        // TODO: Move this to its own type
-        // voxelVariant: {}
+        // TODO: Move this to its own type as keyof VoxelVariants
+        voxelVariantNamespace: "bytes16",
+        voxelVariantId: "bytes32",
+      },
+    },
+    VoxelVariants: {
+      keySchema: {
+        namespace: "bytes16",
+        voxelVariantId: "bytes32", // TODO: Should be a string?
+      },
+      schema: {
         variantId: "uint32",
         frames: "uint32",
         opaque: "bool",
-        // fluid: "bool", // TODO: Add back once we figure out stack to deep error
+        fluid: "bool",
         solid: "bool",
         blockType: "NoaBlockType",
         // Note: These 2 dynamic fields MUST come at the end of the schema

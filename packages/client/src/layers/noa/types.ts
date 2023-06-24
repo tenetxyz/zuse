@@ -35,31 +35,18 @@ export type NoaVoxelDef = {
   uvWrap?: string | undefined;
 };
 
-export type VoxelTypeData = {
-  [namespace: string]: {
-    [voxelType: string]: {
-      [variantId: number]: {
-        index: number;
-        data: NoaVoxelDef | undefined;
-      };
-    };
-  };
-};
-
 export type VoxelTypeDataKey = {
   namespace: string;
-  voxelType: string;
-  variantId: number;
+  voxelVariantId: string;
 }
+
+export type VoxelTypeDataValue = {
+  index: number;
+  data: NoaVoxelDef | undefined;
+}
+
+export type VoxelTypeData = Map<VoxelTypeDataKey, VoxelTypeDataValue>;
 
 export function voxelTypeDataKeyToString(key: VoxelTypeDataKey) {
-  return `${key.namespace}:${key.voxelType}:${key.variantId.toString()}`;
-}
-
-export function getVoxelTypeData(key: VoxelTypeDataKey, data: VoxelTypeData) {
-  const namespaceData = data[key.namespace];
-  if (!namespaceData) return undefined;
-  const voxelTypeData = namespaceData[key.voxelType];
-  if (!voxelTypeData) return undefined;
-  return voxelTypeData[key.variantId].data;
+  return `${key.namespace}:${key.voxelVariantId}`;
 }

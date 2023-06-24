@@ -3,11 +3,11 @@ import { Engine } from "noa-engine";
 // add a mesh to represent the player, and scale it, etc.
 import "@babylonjs/core/Meshes/Builders/boxBuilder";
 import * as BABYLON from "@babylonjs/core";
-import { VoxelCoord } from "@latticexyz/utils";
+import { VoxelCoord, keccak256 } from "@latticexyz/utils";
 import { Textures } from "../constants";
 import { NetworkLayer } from "../../network";
 import { Entity } from "@latticexyz/recs";
-import { NoaBlockType, getVoxelTypeData } from "../types";
+import { NoaBlockType } from "../types";
 import { createVoxelMesh } from "./utils";
 import { VoxelTypeKey } from "../../network/constants";
 import { voxelTypeDataKeyToString, VoxelTypeDataKey } from "../types";
@@ -44,7 +44,7 @@ export function setupNoaEngine(network: NetworkLayer) {
   };
   const {
     api: { getTerrainVoxelTypeAtPosition, getEcsVoxelTypeAtPosition },
-    voxelTypes: { VoxelTypeData, VoxelTypeKeyToIndex, VoxelTypeIndexToKey }
+    voxelTypes: { VoxelTypeData, VoxelTypeIndexToKey }
   } = network;
 
   // Hack Babylon in order to have a -1 rendering group for the sky (to be always drawn behind everything else)
@@ -67,19 +67,13 @@ export function setupNoaEngine(network: NetworkLayer) {
   // Register simple materials
   const textures = [];
 
-  for (const namespace in VoxelTypeData) {
-    const namespaceData = VoxelTypeData[namespace];
-    for (const voxelType in namespaceData) {
-      const voxelTypeData = namespaceData[voxelType];
-      for (const variantId in voxelTypeData) {
-        const { data } = voxelTypeData[variantId];
-        if(!data) continue;
-        const voxelMaterials = (
-          Array.isArray(data.material) ? data.material : [data.material]
-        ) as string[];
-        if (voxelMaterials) textures.push(...voxelMaterials);
-      }
-    }
+  for (const [voxelTypeKey, voxelTypeData] of VoxelTypeData.entries()) {
+    const data = voxelTypeData.data;
+    if(!data) continue;
+    const voxelMaterials = (
+      Array.isArray(data.material) ? data.material : [data.material]
+    ) as string[];
+    if (voxelMaterials) textures.push(...voxelMaterials);
   }
 
   for (const texture of textures) {
@@ -87,50 +81,41 @@ export function setupNoaEngine(network: NetworkLayer) {
   }
 
   // Register voxels
+  for (const [voxelTypeKey, voxelTypeData] of VoxelTypeData.entries()) {
+    const index = voxelTypeData.index;
+    const data = voxelTypeData.data;
+    const voxel = data;
+    const voxelTypeKeyStr = voxelTypeDataKeyToString({
+      voxelTypeKey
+    });
 
-  for (const namespace in VoxelTypeData) {
-    const namespaceData = VoxelTypeData[namespace];
-    for (const voxelType in namespaceData) {
-      const voxelTypeData = namespaceData[voxelType];
-      for (const variantId in voxelTypeData) {
-        const { index, data } = voxelTypeData[variantId];
-        const voxel = data;
-        const voxelTypeKeyStr = voxelTypeDataKeyToString({
-          namespace,
-          voxelType,
-          variantId,
-        });
+    const augmentedVoxel = { ...voxel };
+    if (!voxel) continue;
 
-        const augmentedVoxel = { ...voxel };
-        if (!voxel) continue;
-
-        // Register mesh for mesh voxels
-        if (voxel.type === NoaBlockType.MESH) {
-          const texture = Array.isArray(voxel.material)
-            ? voxel.material[0]
-            : voxel.material;
-          if (texture === null) {
-            throw new Error("Can't create a plant voxel without a material");
-          }
-          const mesh = createVoxelMesh(
-            noa,
-            scene,
-            texture,
-            voxelTypeKeyStr,
-            augmentedVoxel.frames
-          );
-          augmentedVoxel.blockMesh = mesh;
-          delete augmentedVoxel.material;
-        }
-
-        noa.registry.registerBlock(index, augmentedVoxel);
-
+    // Register mesh for mesh voxels
+    if (voxel.type === NoaBlockType.MESH) {
+      const texture = Array.isArray(voxel.material)
+        ? voxel.material[0]
+        : voxel.material;
+      if (texture === null) {
+        throw new Error("Can't create a plant voxel without a material");
       }
+      const mesh = createVoxelMesh(
+        noa,
+        scene,
+        texture,
+        voxelTypeKeyStr,
+        augmentedVoxel.frames
+      );
+      augmentedVoxel.blockMesh = mesh;
+      delete augmentedVoxel.material;
     }
+
+    noa.registry.registerBlock(index, augmentedVoxel);
   }
 
   function setVoxel(coord: VoxelCoord | number[], voxelDataKey: VoxelTypeDataKey) {
-    const index = VoxelTypeKeyToIndex.get(voxelDataKey);
+    const index = VoxelTypeData.get(voxelDataKey)?.index;
     if ("length" in coord) {
       noa.setBlock(index, coord[0], coord[1], coord[2]);
     } else {
@@ -158,19 +143,19 @@ export function setupNoaEngine(network: NetworkLayer) {
             });
             let ecsVoxelTypeIndex = undefined;
             if(ecsVoxelType !== undefined){
-              ecsVoxelTypeIndex = VoxelTypeKeyToIndex.get(ecsVoxelType);
+              ecsVoxelTypeIndex = VoxelTypeData.get(ecsVoxelType)?.index;
             }
             if (ecsVoxelTypeIndex !== undefined) {
               data.set(i, j, k, ecsVoxelTypeIndex);
             } else {
               const voxelTypeIndex =
-              VoxelTypeKeyToIndex.get(
+              VoxelTypeData.get(
                   getTerrainVoxelTypeAtPosition({
                     x: x + i,
                     y: y + j,
                     z: z + k,
                   })
-                );
+                )?.index;
               data.set(i, j, k, voxelTypeIndex);
             }
           }
@@ -185,7 +170,7 @@ export function setupNoaEngine(network: NetworkLayer) {
   // Change voxel targeting mechanism
   noa.blockTargetIdCheck = function (index: number) {
     const key = VoxelTypeIndexToKey.get(index);
-    return key != null && key.voxelType != "air" && !getVoxelTypeData(key, VoxelTypeData)?.fluid;
+    return key != null && key.voxelVariantId != keccak256("air") && !VoxelTypeData.get(key)?.data?.fluid;
   };
   return { noa, setVoxel, glow };
 }

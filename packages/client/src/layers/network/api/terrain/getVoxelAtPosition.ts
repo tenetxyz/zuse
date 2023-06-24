@@ -6,7 +6,7 @@ import {
   Type,
   World,
 } from "@latticexyz/recs";
-import { VoxelCoord } from "@latticexyz/utils";
+import { VoxelCoord, keccak256 } from "@latticexyz/utils";
 import { Perlin } from "@latticexyz/noise";
 import { Terrain, TerrainState } from "./types";
 import { getTerrain } from "./utils";
@@ -19,13 +19,8 @@ export function getEntityAtPosition(
     VoxelType: Component<{
       namespace: Type.String;
       voxelType: Type.String;
-      variantId: Type.Number;
-      frames: Type.Number;
-      opaque: Type.Boolean;
-      solid: Type.Boolean;
-      blockType: Type.Number;
-      material: Type.String;
-      uvWrap: Type.String;
+      voxelVariantNamespace: Type.String;
+      voxelVariantId: Type.String;
   }>;
     world: World;
   },
@@ -49,13 +44,8 @@ export function getEcsVoxelType(
     VoxelType: Component<{
       namespace: Type.String;
       voxelType: Type.String;
-      variantId: Type.Number;
-      frames: Type.Number;
-      opaque: Type.Boolean;
-      solid: Type.Boolean;
-      blockType: Type.Number;
-      material: Type.String;
-      uvWrap: Type.String;
+      voxelVariantNamespace: Type.String;
+      voxelVariantId: Type.String;
   }>;
     world: World;
   },
@@ -66,9 +56,8 @@ export function getEcsVoxelType(
   const voxelTypeData = getComponentValue(context.VoxelType, entityAtPosition);
   if (!voxelTypeData) return undefined;
   return {
-    namespace: voxelTypeData.namespace,
-    voxelType: voxelTypeData.voxelType,
-    variantId: voxelTypeData.variantId,
+    namespace: voxelTypeData.voxelVariantNamespace,
+    voxelVariantId: voxelTypeData.voxelVariantId,
   };
 }
 
@@ -78,13 +67,8 @@ export function getVoxelAtPosition(
     VoxelType: Component<{
       namespace: Type.String;
       voxelType: Type.String;
-      variantId: Type.Number;
-      frames: Type.Number;
-      opaque: Type.Boolean;
-      solid: Type.Boolean;
-      blockType: Type.Number;
-      material: Type.String;
-      uvWrap: Type.String;
+      voxelVariantNamespace: Type.String;
+      voxelVariantId: Type.String;
   }>;
     world: World;
   },
@@ -110,8 +94,7 @@ export function getTerrainVoxel(
     Dirt(state) ||
     {
       namespace: "tenet",
-      voxelType: "air",
-      variantId: 0,
+      voxelVariantId: keccak256("air")
     }
   );
 }

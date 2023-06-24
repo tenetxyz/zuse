@@ -1,7 +1,8 @@
 // SPDX-License-Identifier: GPL-3.0
 pragma solidity >=0.8.0;
 import { IWorld } from "../codegen/world/IWorld.sol";
-import {Occurrence, VoxelPrototype, VoxelTypeData} from "../codegen/Tables.sol";
+import {Occurrence, VoxelPrototype, VoxelTypeData, VoxelVariantsData} from "../codegen/Tables.sol";
+import { NoaBlockType } from "../codegen/Types.sol";
 
 bytes32 constant AirID = bytes32(keccak256("voxel.Air"));
 bytes32 constant GrassID = bytes32(keccak256("voxel.Grass"));
@@ -58,6 +59,30 @@ bytes32 constant BedrockID = bytes32(keccak256("voxel.Bedrock"));
 bytes32 constant BricksID = bytes32(keccak256("voxel.Bricks"));
 
 function defineVoxels(IWorld world) {
+    VoxelVariantsData memory airVariant = VoxelVariantsData({
+        variantId: 0,
+        material: "",
+        uvWrap: "",
+        blockType: NoaBlockType.BLOCK,
+        frames: 0,
+        opaque: false,
+        fluid: false,
+        solid: true
+    });
+    world.tenet_VoxelRegistrySys_registerVoxelVariant(bytes32(keccak256("air")), airVariant);
+
+    VoxelVariantsData memory dirtVariant = VoxelVariantsData({
+            variantId: 1,
+            material: "bafkreibzraiuk6hgngtfczn57sivuqf3nv77twi6g3ftas2umjnbf6jefe",
+            uvWrap: "",
+            blockType: NoaBlockType.BLOCK,
+            frames: 0,
+            opaque: true,
+            fluid: false,
+            solid: true
+    });
+    world.tenet_VoxelRegistrySys_registerVoxelVariant(bytes32(keccak256("dirt")), dirtVariant);
+
     VoxelPrototype.set(bytes32(GrassID), true);
     Occurrence.set(GrassID, world.tenet_OccurrenceSystem_OGrass.selector);
     world.tenet_VoxelRegistrySys_registerVoxelType(GrassID, world.tenet_VoxelRegistrySys_dirtVariantSelector.selector);

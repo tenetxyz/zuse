@@ -5,7 +5,7 @@ import { System } from "@latticexyz/world/src/System.sol";
 import { SignalSource, SignalSourceTableId } from "../codegen/Tables.sol";
 import { hasKey } from "@latticexyz/world/src/modules/keysintable/hasKey.sol";
 
-import { getCallerNamespace } from "../Utils.sol";
+import { getCallerNamespace } from "@tenetxyz/contracts/src/Utils.sol";
 
 contract SignalSourceSystem is System {
 

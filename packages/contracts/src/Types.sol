@@ -12,3 +12,7 @@ struct Tuple {
     int128 y;
 }
 
+struct VoxelVariantsKey {
+    bytes16 namespace;
+    bytes32 voxelVariantId;
+}

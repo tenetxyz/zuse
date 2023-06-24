@@ -1,7 +1,7 @@
 import { Entity } from "@latticexyz/recs";
 import { keccak256 } from "@latticexyz/utils";
 
-export const VoxelTypeKeyToId = {
+const VoxelTypeKeyToId = {
   Air: keccak256("voxel.Air") as Entity,
   Grass: keccak256("voxel.Grass") as Entity,
   Dirt: keccak256("voxel.Dirt") as Entity,

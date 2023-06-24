@@ -31,7 +31,6 @@ import storeConfig from "@tenetxyz/contracts/mud.config";
 import {
   VoxelTypeIdToKey,
   VoxelTypeKey,
-  VoxelTypeKeyToId,
 } from "../layers/network/constants";
 import {
   getEcsVoxelType,
@@ -41,8 +40,28 @@ import {
   getEntityAtPosition as getEntityAtPositionApi,
 } from "../layers/network/api";
 import { to64CharAddress } from "../utils/entity";
+import { SingletonID } from "@latticexyz/network";
+import {NoaVoxelDef, NoaBlockType} from "../layers/noa/types";
+import {Textures, UVWraps} from "../layers/noa/constants";
 
 export type SetupNetworkResult = Awaited<ReturnType<typeof setupNetwork>>;
+
+export type VoxelTypeData = {
+  [namespace: string]: {
+    [voxelType: string]: {
+      [variantNum: string]: {
+        index: number;
+        data: NoaVoxelDef | undefined;
+      };
+    };
+  };
+};
+
+export type VoxelTypeDataKey = {
+  namespace: string;
+  voxelType: string;
+  variantNum: string;
+}
 
 export async function setupNetwork() {
   const contractComponents = defineContractComponents(world);
@@ -209,6 +228,47 @@ export async function setupNetwork() {
   contractComponents.VoxelType = withOptimisticUpdates(
     contractComponents.VoxelType
   );
+
+  const allVoxelTypeData: VoxelTypeData = {};
+  // add default voxel types
+  allVoxelTypeData["tenet"] = {
+    "air": {
+      "0": {
+        index: 0,
+        data: undefined,
+      }
+    },
+    "dirt": {
+      "0": {
+        index: 1,
+        data: { type: NoaBlockType.BLOCK, material: Textures.Dirt, uvWrap: UVWraps.Dirt },
+      }
+    },
+    "grass": {
+      "0": {
+        index: 2,
+        data: {
+          type: NoaBlockType.BLOCK,
+          material: [Textures.Grass, Textures.Dirt, Textures.GrassSide],
+          uvWrap: UVWraps.Grass
+        }
+      }
+    },
+  };
+
+  function getVoxelIconUrl(
+    voxelTypeKey: VoxelTypeDataKey
+  ): string | undefined {
+    let voxel: any = allVoxelTypeData[voxelTypeKey.namespace];
+    if (!voxel) return;
+    voxel = voxel[voxelTypeKey.voxelType];
+    if (!voxel) return;
+    voxel = voxel[voxelTypeKey.variantNum];
+    if (!voxel) return;
+    voxel = voxel.data;
+    return Array.isArray(voxel.material) ? voxel.material[0] : voxel.material;
+  }
+
 
   // --- API ------------------------------------------------------------------------
 
@@ -525,6 +585,7 @@ export async function setupNetwork() {
     faucet,
     worldAddress: networkConfig.worldAddress,
     uniqueWorldId,
-    voxelTypes: { VoxelTypeIdToKey, VoxelTypeKeyToId },
+    getVoxelIconUrl,
+    voxelTypes: { allVoxelTypeData },
   };
 }

@@ -20,7 +20,7 @@ export async function createVoxelSystem(
   const {
     world,
     components: { LoadingState },
-    contractComponents: { VoxelType, Position },
+    contractComponents: { VoxelType, Position, VoxelTypeRegistry },
     actions: { withOptimisticUpdates },
     api: { getVoxelAtPosition },
   } = network;
@@ -31,6 +31,16 @@ export async function createVoxelSystem(
     LoadingState.update$,
     ({ value }) => value[0]?.state === SyncState.LIVE
   ).then(() => (live = true));
+
+  defineComponentSystem(world, VoxelTypeRegistry, (update) => {
+    console.log("voxel type registry updated");
+    console.log(update);
+  });
+
+  defineComponentSystem(world, VoxelType, (update) => {
+    console.log("voxel type updated");
+    console.log(update);
+  });
 
   // "Exit system"
   defineComponentSystem(world, Position, async ({ value }) => {

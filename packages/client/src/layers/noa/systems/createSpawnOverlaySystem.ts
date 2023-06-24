@@ -25,7 +25,7 @@ export function createSpawnOverlaySystem(
 ) {
   const { noa } = noaLayer;
   const {
-    contractComponents: { Spawn, RelativePositions },
+    contractComponents: { Spawn, Creation },
   } = networkLayer;
 
   Spawn.update$.subscribe((update) => {
@@ -60,25 +60,35 @@ export function createSpawnOverlaySystem(
     spawnOutlineMeshes = [];
 
     for (const spawn of spawns) {
-      const relativePositions = getComponentValue(
-        RelativePositions,
-        spawn.creationId
-      );
-      if (relativePositions === undefined) {
+      const creation = getComponentValue(Creation, spawn.creationId);
+      if (creation === undefined) {
         console.error(
-          `cannot render spawn outline without relativePositions. spawnId=${spawn.spawnId}`
+          `cannot render spawn outline without finding the corresponding creation. spawnId=${spawn.spawnId} creationId=${spawn.creationId}`
         );
         continue;
       }
-      const relativeCoords = relativePositions.x.map((x, i) => {
-        return {
-          x,
-          y: relativePositions.y[i],
-          z: relativePositions.z[i],
-        };
+
+      const xPositions = creation.relativePositionsX ?? [];
+      const yPositions = creation.relativePositionsY ?? [];
+      const zPositions = creation.relativePositionsZ ?? [];
+
+      if (
+        xPositions.length === 0 ||
+        yPositions.length === 0 ||
+        zPositions.length === 0
+      ) {
+        console.warn(
+          `No relativePositions found for creationId=${creationId.toString()}. xPositions=${xPositions} yPositions=${yPositions} zPositions=${zPositions}`
+        );
+        return;
+      }
+
+      const relativePositions = xPositions.map((x, i) => {
+        return { x, y: yPositions[i], z: zPositions[i] };
       });
+
       const { minRelativeCoord, maxRelativeCoord } =
-        calculateMinMaxRelativePositions(relativeCoords);
+        calculateMinMaxRelativePositions(relativePositions);
 
       const corner1 = add(spawn.lowerSouthWestCorner, minRelativeCoord);
       const corner2 = add(spawn.lowerSouthWestCorner, maxRelativeCoord);

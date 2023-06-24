@@ -448,7 +448,6 @@ export async function setupNetwork() {
 
   function spawnCreation(lowerSouthWestCorner: VoxelCoord, creationId: Entity) {
     const voxelTypeKey = "Iron";
-    debugger;
     actions.add({
       id: `SpawnCreation+${creationId.toString()}+at+${lowerSouthWestCorner}` as Entity,
       metadata: { actionType: "spawnCreation", voxelTypeKey },

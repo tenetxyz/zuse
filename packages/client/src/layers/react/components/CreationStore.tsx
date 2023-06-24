@@ -4,6 +4,7 @@ import {
   defineQuery,
   Entity,
   getComponentValue,
+  getEntityString,
   Has,
   setComponent,
   Type,
@@ -65,10 +66,8 @@ const CreationStore: React.FC<Props> = ({ layers, filters, setFilters }) => {
   useEffect(() => {
     const allCreations: Creation[] = [];
     const creationTable = Creation.values;
-    creationTable.name.forEach((name, rawCreationId) => {
-      const creationId = rawCreationId as any;
-
-      const description = creationTable.description.get(creationId) ?? "";
+    creationTable.name.forEach((name, creationId) => {
+      const description = ""; //creationTable.description.get(creationId) ?? "";
       const creator = creationTable.creator.get(creationId);
       if (!creator) {
         console.warn("No creator found for creation", creationId);
@@ -91,7 +90,7 @@ const CreationStore: React.FC<Props> = ({ layers, filters, setFilters }) => {
         zPositions.length === 0
       ) {
         console.warn(
-          `No relativePositions found for creationId=${creationId}. xPositions=${xPositions} yPositions=${yPositions} zPositions=${zPositions}`
+          `No relativePositions found for creationId=${creationId.toString()}. xPositions=${xPositions} yPositions=${yPositions} zPositions=${zPositions}`
         );
         return;
       }
@@ -102,7 +101,7 @@ const CreationStore: React.FC<Props> = ({ layers, filters, setFilters }) => {
       // TODO: add voxelMetadata
 
       allCreations.push({
-        creationId,
+        creationId: getEntityString(creationId),
         name: name,
         description: description,
         creator: creator,

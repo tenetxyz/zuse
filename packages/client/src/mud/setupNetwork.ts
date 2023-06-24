@@ -448,16 +448,16 @@ export async function setupNetwork() {
 
   function spawnCreation(lowerSouthWestCorner: VoxelCoord, creationId: Entity) {
     const voxelTypeKey = "Iron";
-
+    debugger;
     actions.add({
-      id: `SpawnCreation+${creationId}+at+${lowerSouthWestCorner}` as Entity,
+      id: `SpawnCreation+${creationId.toString()}+at+${lowerSouthWestCorner}` as Entity,
       metadata: { actionType: "spawnCreation", voxelTypeKey },
       requirement: () => true,
       components: {},
       execute: async () => {
         const tx = await worldSend("tenet_SpawnSystem_spawn", [
           lowerSouthWestCorner,
-          creationId,
+          creationId.toString(),
           { gasLimit: 10_000_000 },
         ]);
       },

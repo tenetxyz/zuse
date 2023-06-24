@@ -51,7 +51,7 @@ export default mudConfig({
         relativePositionsY: "uint32[]",
         relativePositionsZ: "uint32[]",
         name: "string",
-        description: "string",
+        // description: "string", // Not used cause rn we can only have at most 5 dynamic fields: https://github.com/tenetxyz/mud/blob/main/packages/store/src/Schema.sol#L20
         // voxelMetadata: "bytes", // stores the component values for each voxel in the creation
       },
     },

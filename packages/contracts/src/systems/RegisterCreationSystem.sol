@@ -29,13 +29,13 @@ contract RegisterCreationSystem is System {
         creation.relativePositionsY = repositionedY;
         creation.relativePositionsZ = repositionedZ;
         creation.name = name;
-        creation.description = description;
+//        creation.description = description;
 
 //        TODO: implement
 //        creation.voxelMetadata =
 
         bytes32 creationId = getCreationHash(voxelTypes, repositionedX, repositionedY, repositionedZ, _msgSender());
-//        Creation.set(creationId, creation);
+        Creation.set(creationId, creation);
         return creationId;
     }
 

@@ -83,6 +83,8 @@ import { createVoxelSelectionOverlaySystem } from "./systems/createVoxelSelectio
 import { defineSpawnCreationComponent } from "./components/SpawnCreation";
 import { createSpawnCreationOverlaySystem } from "./systems/createSpawnCreationOverlaySystem";
 import { createSpawnOverlaySystem } from "./systems/createSpawnOverlaySystem";
+import { entityToVoxelType } from "../../utils/voxels";
+import { VoxelType } from "./types";
 
 export function createNoaLayer(network: NetworkLayer) {
   const world = namespaceWorld(network.world, "noa");
@@ -342,7 +344,7 @@ export function createNoaLayer(network: NetworkLayer) {
     );
   };
 
-  function getVoxelTypeInSelectedSlot(): Entity | undefined {
+  function getVoxelTypeInSelectedSlot(): VoxelType | undefined {
     const selectedSlot = getComponentValue(
       components.SelectedSlot,
       SingletonEntity
@@ -353,7 +355,7 @@ export function createNoaLayer(network: NetworkLayer) {
         value: selectedSlot,
       }),
     ][0];
-    return voxelType;
+    return entityToVoxelType(voxelType);
   }
 
   function placeSelectedVoxelType(coord: VoxelCoord) {

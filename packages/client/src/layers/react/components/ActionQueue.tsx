@@ -6,8 +6,8 @@ import {
 } from "@latticexyz/recs";
 import { map } from "rxjs";
 import styled from "styled-components";
-import { getVoxelIconUrl } from "../../noa/constants";
 import { Action as ActionQueueItem } from "./Action";
+import { voxelVariantDataKeyToString } from "../../noa/types";
 
 const ActionQueueList = styled.div`
   width: 240px;
@@ -53,6 +53,7 @@ export function registerActionQueue() {
         network: {
           actions: { Action },
           config: { blockExplorer },
+          getVoxelIconUrl,
         },
       } = layers;
 
@@ -60,10 +61,11 @@ export function registerActionQueue() {
         map(() => ({
           Action,
           blockExplorer,
+          getVoxelIconUrl,
         }))
       );
     },
-    ({ Action, blockExplorer }) => {
+    ({ Action, blockExplorer, getVoxelIconUrl }) => {
       return (
         <ActionQueueList>
           {[...getComponentEntities(Action)].map((e) => {
@@ -71,15 +73,15 @@ export function registerActionQueue() {
               Action,
               e
             );
-            const { actionType, coord, voxelTypeKey } = metadata || {};
-            const icon = voxelTypeKey && getVoxelIconUrl(voxelTypeKey);
+            const { actionType, coord, voxelVariantKey } = metadata || {};
+            const icon = voxelVariantKey && getVoxelIconUrl(voxelVariantKey);
             return (
               <div key={e} className="ActionQueueItem">
                 <ActionQueueItem
                   state={state}
                   icon={icon}
                   title={`${actionType} tx`}
-                  description={voxelTypeKey}
+                  description={voxelVariantKey ? voxelVariantDataKeyToString(voxelVariantKey) : ""}
                   link={txHash && blockExplorer + "/tx/" + txHash}
                 />
                 {/* TODO: conditionally render this for debugging? */}

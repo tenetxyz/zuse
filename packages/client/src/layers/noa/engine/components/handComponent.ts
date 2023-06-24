@@ -2,7 +2,6 @@ import * as BABYLON from "@babylonjs/core";
 import { Engine } from "noa-engine";
 import { Entity } from "@latticexyz/recs";
 import { Material } from "@babylonjs/core";
-import { VoxelTypeIdToKey, VoxelTypeKey } from "../../../network/constants";
 import {
   IDLE_ANIMATION_BOX_VOXEL,
   IDLE_ANIMATION_BOX_HAND,

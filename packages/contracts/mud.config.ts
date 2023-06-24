@@ -9,8 +9,8 @@ export default mudConfig({
   tables: {
     VoxelType: { // TODO: Move this to a namespace?
       schema: {
-        namespace: "bytes16",
-        voxelType: "bytes32",
+        voxelTypeNamespace: "bytes16",
+        voxelTypeId: "bytes32",
         // TODO: Move this to its own type as keyof VoxelVariants
         voxelVariantNamespace: "bytes16",
         voxelVariantId: "bytes32",
@@ -18,7 +18,7 @@ export default mudConfig({
     },
     VoxelVariants: {
       keySchema: {
-        namespace: "bytes16",
+        voxelVariantNamespace: "bytes16",
         voxelVariantId: "bytes32", // TODO: Should be a string?
       },
       schema: {

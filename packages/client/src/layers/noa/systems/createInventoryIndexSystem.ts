@@ -17,6 +17,7 @@ import { NoaLayer } from "../types";
 import { to64CharAddress } from "../../../utils/entity";
 import { SyncState } from "@latticexyz/network";
 import { IComputedValue } from "mobx";
+import { voxelTypeToEntity } from "../../../utils/voxels";
 
 export const getItemTypesIOwn = (
   OwnedBy: any,
@@ -91,17 +92,17 @@ export function createInventoryIndexSystem(
       // the voxel just got removed, so don't assign an inventory index for it
       return;
     }
-    const voxelType = getComponentValue(VoxelType, update.entity)
-      ?.value as Entity;
+    const voxelType = getComponentValue(VoxelType, update.entity);
 
-    if (voxelType == null) return;
+    if (voxelType == undefined) return;
+    const voxelTypeKey = voxelTypeToEntity(voxelType);
 
     // Assign the first free inventory index
-    if (!hasComponent(InventoryIndex, voxelType)) {
+    if (!hasComponent(InventoryIndex, voxelTypeKey)) {
       const values = [...InventoryIndex.values.value.values()]; // lol
       let i = 0;
       while (values.includes(i)) i++;
-      setComponent(InventoryIndex, voxelType, { value: i });
+      setComponent(InventoryIndex, voxelTypeKey, { value: i });
     }
   });
 }

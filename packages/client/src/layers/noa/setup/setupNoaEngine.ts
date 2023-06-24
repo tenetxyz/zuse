@@ -10,7 +10,7 @@ import { Entity } from "@latticexyz/recs";
 import { NoaBlockType } from "../types";
 import { createVoxelMesh } from "./utils";
 import { VoxelTypeKey } from "../../network/constants";
-import { voxelTypeDataKeyToString, VoxelTypeDataKey } from "../types";
+import { voxelVariantDataKeyToString, VoxelVariantDataKey } from "../types";
 import { setupScene } from "../engine/setupScene";
 import {
   CHUNK_RENDER_DISTANCE,
@@ -44,7 +44,7 @@ export function setupNoaEngine(network: NetworkLayer) {
   };
   const {
     api: { getTerrainVoxelTypeAtPosition, getEcsVoxelTypeAtPosition },
-    voxelTypes: { VoxelTypeData, VoxelTypeIndexToKey }
+    voxelTypes: { VoxelVariantData, VoxelVariantIndexToKey }
   } = network;
 
   // Hack Babylon in order to have a -1 rendering group for the sky (to be always drawn behind everything else)
@@ -67,8 +67,8 @@ export function setupNoaEngine(network: NetworkLayer) {
   // Register simple materials
   const textures = [];
 
-  for (const [voxelTypeKey, voxelTypeData] of VoxelTypeData.entries()) {
-    const data = voxelTypeData.data;
+  for (const [voxelVariantKey, voxelVariantData] of VoxelVariantData.entries()) {
+    const data = voxelVariantData.data;
     if(!data) continue;
     const voxelMaterials = (
       Array.isArray(data.material) ? data.material : [data.material]
@@ -81,12 +81,12 @@ export function setupNoaEngine(network: NetworkLayer) {
   }
 
   // Register voxels
-  for (const [voxelTypeKey, voxelTypeData] of VoxelTypeData.entries()) {
-    const index = voxelTypeData.index;
-    const data = voxelTypeData.data;
+  for (const [voxelVariantKey, voxelVariantData] of VoxelVariantData.entries()) {
+    const index = voxelVariantData.index;
+    const data = voxelVariantData.data;
     const voxel = data;
-    const voxelTypeKeyStr = voxelTypeDataKeyToString({
-      voxelTypeKey
+    const voxelTypeKeyStr = voxelVariantDataKeyToString({
+      voxelVariantKey
     });
 
     const augmentedVoxel = { ...voxel };
@@ -114,8 +114,8 @@ export function setupNoaEngine(network: NetworkLayer) {
     noa.registry.registerBlock(index, augmentedVoxel);
   }
 
-  function setVoxel(coord: VoxelCoord | number[], voxelDataKey: VoxelTypeDataKey) {
-    const index = VoxelTypeData.get(voxelDataKey)?.index;
+  function setVoxel(coord: VoxelCoord | number[], voxelVariantDataKey: VoxelVariantDataKey) {
+    const index = VoxelVariantData.get(voxelVariantDataKey)?.index;
     if ("length" in coord) {
       noa.setBlock(index, coord[0], coord[1], coord[2]);
     } else {
@@ -143,18 +143,25 @@ export function setupNoaEngine(network: NetworkLayer) {
             });
             let ecsVoxelTypeIndex = undefined;
             if(ecsVoxelType !== undefined){
-              ecsVoxelTypeIndex = VoxelTypeData.get(ecsVoxelType)?.index;
+              ecsVoxelTypeIndex = VoxelVariantData.get({
+                voxelVariantNamespace: ecsVoxelType.voxelVariantNamespace,
+                voxelVariantId:ecsVoxelType.voxelVariantId,
+              })?.index;
             }
             if (ecsVoxelTypeIndex !== undefined) {
               data.set(i, j, k, ecsVoxelTypeIndex);
             } else {
+              const terrainVoxelType = getTerrainVoxelTypeAtPosition({
+                x: x + i,
+                y: y + j,
+                z: z + k,
+              });
               const voxelTypeIndex =
-              VoxelTypeData.get(
-                  getTerrainVoxelTypeAtPosition({
-                    x: x + i,
-                    y: y + j,
-                    z: z + k,
-                  })
+              VoxelVariantData.get(
+                {
+                  voxelVariantNamespace: terrainVoxelType.voxelVariantNamespace,
+                  voxelVariantId: terrainVoxelType.voxelVariantId,
+                }
                 )?.index;
               data.set(i, j, k, voxelTypeIndex);
             }
@@ -169,8 +176,8 @@ export function setupNoaEngine(network: NetworkLayer) {
 
   // Change voxel targeting mechanism
   noa.blockTargetIdCheck = function (index: number) {
-    const key = VoxelTypeIndexToKey.get(index);
-    return key != null && key.voxelVariantId != keccak256("air") && !VoxelTypeData.get(key)?.data?.fluid;
+    const key = VoxelVariantIndexToKey.get(index);
+    return key != null && key.voxelVariantId != keccak256("air") && !VoxelVariantData.get(key)?.data?.fluid;
   };
   return { noa, setVoxel, glow };
 }

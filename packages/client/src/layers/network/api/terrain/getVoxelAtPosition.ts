@@ -17,8 +17,8 @@ export function getEntityAtPosition(
   context: {
     Position: Component<{ x: Type.Number; y: Type.Number; z: Type.Number }>;
     VoxelType: Component<{
-      namespace: Type.String;
-      voxelType: Type.String;
+      voxelTypeNamespace: Type.String;
+      voxelTypeId: Type.String;
       voxelVariantNamespace: Type.String;
       voxelVariantId: Type.String;
   }>;
@@ -42,8 +42,8 @@ export function getEcsVoxelType(
   context: {
     Position: Component<{ x: Type.Number; y: Type.Number; z: Type.Number }>;
     VoxelType: Component<{
-      namespace: Type.String;
-      voxelType: Type.String;
+      voxelTypeNamespace: Type.String;
+      voxelTypeId: Type.String;
       voxelVariantNamespace: Type.String;
       voxelVariantId: Type.String;
   }>;
@@ -55,19 +55,15 @@ export function getEcsVoxelType(
   if (!entityAtPosition) return undefined;
   const voxelTypeData = getComponentValue(context.VoxelType, entityAtPosition);
   if (!voxelTypeData) return undefined;
-  return {
-    namespace: voxelTypeData.voxelVariantNamespace,
-    voxelType: voxelTypeData.voxelType,
-    voxelVariantId: voxelTypeData.voxelVariantId,
-  };
+  return voxelTypeData;
 }
 
 export function getVoxelAtPosition(
   context: {
     Position: Component<{ x: Type.Number; y: Type.Number; z: Type.Number }>;
     VoxelType: Component<{
-      namespace: Type.String;
-      voxelType: Type.String;
+      voxelTypeNamespace: Type.String;
+      voxelTypeId: Type.String;
       voxelVariantNamespace: Type.String;
       voxelVariantId: Type.String;
   }>;
@@ -94,8 +90,9 @@ export function getTerrainVoxel(
     Grass(state) ||
     Dirt(state) ||
     {
-      namespace: "tenet",
-      voxelType: keccak256("air"),
+      voxelTypeNamespace: "tenet",
+      voxelTypeId: keccak256("air"),
+      voxelVariantNamespace: "tenet",
       voxelVariantId: keccak256("air")
     }
   );

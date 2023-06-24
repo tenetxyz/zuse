@@ -1,5 +1,7 @@
+import { Entity, ComponentValue, Type } from "@latticexyz/recs";
 import { VoxelCoord } from "@latticexyz/utils";
 import { Engine } from "noa-engine";
+import { VoxelType } from "../layers/noa/types";
 
 export const calculateMinMax = (corner1: VoxelCoord, corner2: VoxelCoord) => {
   const minX = Math.min(corner1.x, corner2.y);
@@ -34,3 +36,19 @@ export const getCoordOfVoxelOnFaceYouTargeted = (noa: Engine): VoxelCoord => {
     z,
   };
 };
+
+export function voxelTypeToEntity(voxelType: ComponentValue<{
+    namespace: Type.String;
+    voxelType: Type.String;
+    voxelVariantNamespace: Type.String;
+    voxelVariantId: Type.String;
+}>) {
+  return (voxelType.namespace + "-" + voxelType.voxelType + "-" + voxelType.voxelVariantNamespace + "-" + voxelType.voxelVariantId) as Entity;
+}
+
+
+
+export function entityToVoxelType(entity: Entity): VoxelType {
+  const [namespace, voxelType, voxelVariantNamespace, voxelVariantId] = entity.split("-");
+  return { namespace, voxelType };
+}

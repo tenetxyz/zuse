@@ -12,16 +12,16 @@ import { IWorld } from "../codegen/world/IWorld.sol";
 
 contract BuildSystem is System {
 
-  function build(bytes32 voxel, VoxelCoord memory coord) public returns (bytes32) {
+  function build(bytes32 entity, VoxelCoord memory coord) public returns (bytes32) {
 
     // Require voxel to be owned by caller
-    require(OwnedBy.get(voxel) == addressToEntityKey(_msgSender()), "voxel is not owned by player");
+    require(OwnedBy.get(entity) == addressToEntityKey(_msgSender()), "voxel is not owned by player");
 
     // Require no other ECS voxels at this position except Air
     bytes32[] memory entitiesAtPosition = getKeysWithValue(PositionTableId, Position.encode(coord.x, coord.y, coord.z));
     require(entitiesAtPosition.length <= 1, "This position is already occupied by another voxel");
     if (entitiesAtPosition.length == 1) {
-      require(VoxelType.get(entitiesAtPosition[0]).voxelType == AirID, "This position is already occupied by another voxel");
+      require(VoxelType.get(entitiesAtPosition[0]).voxelTypeId == AirID, "This position is already occupied by another voxel");
       VoxelType.deleteRecord(entitiesAtPosition[0]);
       Position.deleteRecord(entitiesAtPosition[0]);
     }
@@ -29,16 +29,16 @@ contract BuildSystem is System {
     // TODO: check claim in chunk
     //    OwnedBy.deleteRecord(voxel);
     bytes32 newEntity = getUniqueEntity();
-    VoxelTypeData memory entityVoxelData = VoxelType.get(voxel);
+    VoxelTypeData memory entityVoxelData = VoxelType.get(entity);
     VoxelType.set(newEntity, entityVoxelData);
     Position.set(newEntity, coord.x, coord.y, coord.z);
 
     // TODO: Remove this once we have a proper voxel variant selector system
-    if(entityVoxelData.voxelType == SandID) {
+    if(entityVoxelData.voxelTypeId == SandID) {
       // make it a signal source
       (bool success, bytes memory result) = _world().call(abi.encodeWithSignature("tenet_SignalSourceSyst_createNew(bytes32)", newEntity));
       require(success, "failed to create signal source");
-    } else if(entityVoxelData.voxelType == OrangeFlowerID) {
+    } else if(entityVoxelData.voxelTypeId == OrangeFlowerID) {
       // make it a signal
       (bool success, bytes memory result) = _world().call(abi.encodeWithSignature("tenet_SignalSystem_createNew(bytes32)", newEntity));
       require(success, "failed to create signal");

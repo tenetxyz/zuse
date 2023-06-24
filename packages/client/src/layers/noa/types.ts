@@ -36,18 +36,24 @@ export type NoaVoxelDef = {
 };
 
 export type VoxelTypeDataKey = {
-  namespace: string;
-  voxelType: string;
+  voxelTypeNamespace: string;
+  voxelTypeId: string;
+  voxelVariantNamespace: string;
   voxelVariantId: string;
 }
 
-export type VoxelTypeDataValue = {
+export type VoxelVariantDataKey = {
+  voxelVariantNamespace: string;
+  voxelVariantId: string;
+}
+
+export type VoxelVariantDataValue = {
   index: number;
   data: NoaVoxelDef | undefined;
 }
 
-export type VoxelTypeData = Map<VoxelTypeDataKey, VoxelTypeDataValue>;
+export type VoxelVariantData = Map<VoxelVariantDataKey, VoxelVariantDataValue>;
 
-export function voxelTypeDataKeyToString(key: VoxelTypeDataKey) {
-  return `${key.namespace}:${key.voxelType}:${key.voxelVariantId}`;
+export function voxelVariantDataKeyToString(key: VoxelVariantDataKey) {
+  return `${key.voxelVariantNamespace}:${key.voxelVariantId}`;
 }

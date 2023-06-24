@@ -57,7 +57,7 @@ const VoxelTypeKeyToId = {
   Bricks: keccak256("voxel.Bricks") as Entity,
 };
 
-export type VoxelTypeKey = keyof typeof VoxelTypeKeyToId;
+type VoxelTypeKey = keyof typeof VoxelTypeKeyToId;
 
 const VoxelTypeIdToIndex = Object.values(VoxelTypeKeyToId).reduce<{
   [key: string]: number;

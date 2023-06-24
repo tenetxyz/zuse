@@ -60,6 +60,7 @@ export function createSpawnOverlaySystem(
     spawnOutlineMeshes = [];
 
     for (const spawn of spawns) {
+      // PERF: if users tend to spawn the same creation multiple times we should memoize the creation fetching process
       const creation = getComponentValue(Creation, spawn.creationId);
       if (creation === undefined) {
         console.error(
@@ -68,6 +69,7 @@ export function createSpawnOverlaySystem(
         continue;
       }
 
+      // calculate the min and max relative positions of the creation so we can render the wireframe around it
       const xPositions = creation.relativePositionsX ?? [];
       const yPositions = creation.relativePositionsY ?? [];
       const zPositions = creation.relativePositionsZ ?? [];

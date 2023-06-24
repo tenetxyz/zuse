@@ -198,6 +198,7 @@ export function registerInventoryHud() {
         if (!voxelTypeIdAtSlot) {
           return;
         }
+        numVoxelsIOwnOfType[voxelTypeIdAtSlot] = 0;
 
         const ownedEntitiesOfType = [
           ...runQuery([

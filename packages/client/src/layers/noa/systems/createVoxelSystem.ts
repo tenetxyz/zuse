@@ -5,9 +5,14 @@ import {
   getComponentValueStrict,
   Has,
 } from "@latticexyz/recs";
+import { toUtf8String } from "ethers/lib/utils.js";
 import { awaitStreamValue } from "@latticexyz/utils";
 import { NetworkLayer } from "../../network";
 import { NoaLayer } from "../types";
+
+function removeNullBytes(str){
+  return str.split("").filter(char => char.codePointAt(0)).join("")
+}
 
 export async function createVoxelSystem(
   network: NetworkLayer,
@@ -20,9 +25,10 @@ export async function createVoxelSystem(
   const {
     world,
     components: { LoadingState },
-    contractComponents: { VoxelType, Position, VoxelTypeRegistry },
+    contractComponents: { VoxelType, Position, VoxelVariants },
     actions: { withOptimisticUpdates },
     api: { getVoxelAtPosition },
+    voxelTypes: { VoxelVariantData },
   } = network;
 
   // Loading state flag
@@ -32,9 +38,36 @@ export async function createVoxelSystem(
     ({ value }) => value[0]?.state === SyncState.LIVE
   ).then(() => (live = true));
 
-  defineComponentSystem(world, VoxelTypeRegistry, (update) => {
+  defineComponentSystem(world, VoxelVariants, (update) => {
     console.log("voxel type registry updated");
     console.log(update);
+    // TODO: could use update.value?
+    const voxelVariantValue = getComponentValueStrict(VoxelVariants, update.entity);
+    const [voxelVariantNamespace, voxelVariantId] = update.entity.split(":");
+    const voxelVariantNamepaceStr = removeNullBytes(toUtf8String(voxelVariantNamespace));
+    const voxelVariantDataKey = {
+      voxelVariantNamespace: voxelVariantNamepaceStr,
+      voxelVariantId: voxelVariantId
+    }
+    console.log(voxelVariantDataKey);
+    if(!VoxelVariantData.has(voxelVariantDataKey)) {
+      console.log("Adding new variant");
+      const voxelVariantData = {
+        index: voxelVariantValue.variantId,
+        data: {
+          material: voxelVariantValue.material ? `https://${voxelVariantValue.material}.ipfs.nftstorage.link/`: "",
+          type: voxelVariantValue.blockType,
+          frames: voxelVariantValue.frames,
+          opaque: voxelVariantValue.opaque,
+          fluid: voxelVariantValue.fluid,
+          solid: voxelVariantValue.solid,
+          // TODO: add block mesh
+          uvWrap: voxelVariantValue.uvWrap ? `https://${voxelVariantValue.uvWrap}.ipfs.nftstorage.link/`: undefined,
+        }
+      }
+      console.log(voxelVariantData);
+      VoxelVariantData.set(voxelVariantDataKey, voxelVariantData);
+    }
   });
 
   defineComponentSystem(world, VoxelType, (update) => {

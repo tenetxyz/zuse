@@ -358,6 +358,7 @@ export function createNoaLayer(network: NetworkLayer) {
         value: selectedSlot,
       }),
     ][0];
+    if(voxelType == undefined) return;
     return entityToVoxelType(voxelType);
   }
 

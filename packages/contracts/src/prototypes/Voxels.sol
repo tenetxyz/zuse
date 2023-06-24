@@ -76,7 +76,7 @@ function defineVoxels(IWorld world) {
     VoxelVariantsData memory dirtVariant = VoxelVariantsData({
             variantId: 1,
             material: "bafkreibzraiuk6hgngtfczn57sivuqf3nv77twi6g3ftas2umjnbf6jefe",
-            uvWrap: "",
+            uvWrap: "bafkreifbshwckn4pgw5ew2obz3i74eujzpcomatus5gu2tk7mms373gqme",
             blockType: NoaBlockType.BLOCK,
             frames: 0,
             opaque: true,
@@ -84,6 +84,18 @@ function defineVoxels(IWorld world) {
             solid: true
     });
     world.tenet_VoxelRegistrySys_registerVoxelVariant(bytes32(keccak256("dirt")), dirtVariant);
+
+    VoxelVariantsData memory grassVariant = VoxelVariantsData({
+            variantId: 2,
+            material: "bafkreibzraiuk6hgngtfczn57sivuqf3nv77twi6g3ftas2umjnbf6jefe",
+            uvWrap: "bafkreifbshwckn4pgw5ew2obz3i74eujzpcomatus5gu2tk7mms373gqme",
+            blockType: NoaBlockType.BLOCK,
+            frames: 0,
+            opaque: true,
+            fluid: false,
+            solid: true
+    });
+    world.tenet_VoxelRegistrySys_registerVoxelVariant(bytes32(keccak256("grass")), grassVariant);
 
     VoxelPrototype.set(bytes32(GrassID), true);
     Occurrence.set(GrassID, world.tenet_OccurrenceSystem_OGrass.selector);

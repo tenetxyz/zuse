@@ -210,6 +210,7 @@ export async function setupNetwork() {
   );
 
   const VoxelVariantData: VoxelVariantData = new Map();
+  // console.log(contractComponents.VoxelVariants.values.size());
   // TODO: Should load initial ones from chain, otherwise add them
   // // add default voxel types
   // VoxelTypeData["tenet"] = {

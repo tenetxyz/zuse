@@ -59,28 +59,28 @@ const VoxelTypeKeyToId = {
 
 export type VoxelTypeKey = keyof typeof VoxelTypeKeyToId;
 
-export const VoxelTypeIdToIndex = Object.values(VoxelTypeKeyToId).reduce<{
+const VoxelTypeIdToIndex = Object.values(VoxelTypeKeyToId).reduce<{
   [key: string]: number;
 }>((acc, id, index) => {
   acc[id] = index;
   return acc;
 }, {});
 
-export const VoxelTypeIndexToId = Object.values(VoxelTypeKeyToId).reduce<{
+const VoxelTypeIndexToId = Object.values(VoxelTypeKeyToId).reduce<{
   [key: number]: string;
 }>((acc, id, index) => {
   acc[index] = id;
   return acc;
 }, {});
 
-export const VoxelTypeIndexToKey = Object.entries(VoxelTypeKeyToId).reduce<{
+const VoxelTypeIndexToKey = Object.entries(VoxelTypeKeyToId).reduce<{
   [key: number]: VoxelTypeKey;
 }>((acc, [key], index) => {
   acc[index] = key as VoxelTypeKey;
   return acc;
 }, {});
 
-export const VoxelTypeIdToKey = Object.entries(VoxelTypeKeyToId).reduce<{
+const VoxelTypeIdToKey = Object.entries(VoxelTypeKeyToId).reduce<{
   [key: Entity]: VoxelTypeKey;
 }>((acc, [key, id]) => {
   acc[id] = key as VoxelTypeKey;

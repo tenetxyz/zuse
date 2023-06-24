@@ -41,27 +41,10 @@ import {
 } from "../layers/network/api";
 import { to64CharAddress } from "../utils/entity";
 import { SingletonID } from "@latticexyz/network";
-import {NoaVoxelDef, NoaBlockType} from "../layers/noa/types";
+import {NoaVoxelDef, NoaBlockType, VoxelTypeData, VoxelTypeDataKey} from "../layers/noa/types";
 import {Textures, UVWraps} from "../layers/noa/constants";
 
 export type SetupNetworkResult = Awaited<ReturnType<typeof setupNetwork>>;
-
-export type VoxelTypeData = {
-  [namespace: string]: {
-    [voxelType: string]: {
-      [variantNum: string]: {
-        index: number;
-        data: NoaVoxelDef | undefined;
-      };
-    };
-  };
-};
-
-export type VoxelTypeDataKey = {
-  namespace: string;
-  voxelType: string;
-  variantNum: string;
-}
 
 export async function setupNetwork() {
   const contractComponents = defineContractComponents(world);
@@ -229,9 +212,9 @@ export async function setupNetwork() {
     contractComponents.VoxelType
   );
 
-  const allVoxelTypeData: VoxelTypeData = {};
+  const VoxelTypeData: VoxelTypeData = {};
   // add default voxel types
-  allVoxelTypeData["tenet"] = {
+  VoxelTypeData["tenet"] = {
     "air": {
       "0": {
         index: 0,
@@ -256,14 +239,50 @@ export async function setupNetwork() {
     },
   };
 
+  const VoxelTypeKeyToIndex: Map<VoxelTypeDataKey, number> = new Map();
+  for (const namespace in VoxelTypeData) {
+    const namespaceData = VoxelTypeData[namespace];
+    for (const voxelType in namespaceData) {
+      const voxelTypeData = namespaceData[voxelType];
+      for (const variantId in voxelTypeData) {
+        const { index } = voxelTypeData[variantId];
+        const voxelTypeKey: VoxelTypeDataKey = {
+          namespace,
+          voxelType,
+          variantId,
+        };
+        VoxelTypeKeyToIndex.set(voxelTypeKey, index);
+      }
+    }
+  }
+
+  const VoxelTypeIndexToKey: Map<number, VoxelTypeDataKey> = new Map();
+  for (const namespace in VoxelTypeData) {
+    const namespaceData = VoxelTypeData[namespace];
+    for (const voxelType in namespaceData) {
+      const voxelTypeData = namespaceData[voxelType];
+      for (const variantId in voxelTypeData) {
+        const { index } = voxelTypeData[variantId];
+        const voxelTypeKey: VoxelTypeDataKey = {
+          namespace,
+          voxelType,
+          variantId,
+        };
+        VoxelTypeIndexToKey.set(index, voxelTypeKey);
+      }
+    }
+  }
+
+
+
   function getVoxelIconUrl(
     voxelTypeKey: VoxelTypeDataKey
   ): string | undefined {
-    let voxel: any = allVoxelTypeData[voxelTypeKey.namespace];
+    let voxel: any = VoxelTypeData[voxelTypeKey.namespace];
     if (!voxel) return;
     voxel = voxel[voxelTypeKey.voxelType];
     if (!voxel) return;
-    voxel = voxel[voxelTypeKey.variantNum];
+    voxel = voxel[voxelTypeKey.variantId];
     if (!voxel) return;
     voxel = voxel.data;
     return Array.isArray(voxel.material) ? voxel.material[0] : voxel.material;
@@ -280,14 +299,14 @@ export async function setupNetwork() {
     world,
   };
 
-  function getTerrainVoxelTypeAtPosition(position: VoxelCoord): Entity {
+  function getTerrainVoxelTypeAtPosition(position: VoxelCoord): VoxelTypeDataKey {
     return getTerrainVoxel(getTerrain(position, perlin), position, perlin);
   }
 
-  function getEcsVoxelTypeAtPosition(position: VoxelCoord): Entity | undefined {
+  function getEcsVoxelTypeAtPosition(position: VoxelCoord): VoxelTypeDataKey | undefined {
     return getEcsVoxelType(terrainContext, position);
   }
-  function getVoxelAtPosition(position: VoxelCoord): Entity {
+  function getVoxelAtPosition(position: VoxelCoord): VoxelTypeDataKey {
     return getVoxelAtPositionApi(terrainContext, perlin, position);
   }
   function getEntityAtPosition(position: VoxelCoord): Entity | undefined {
@@ -586,6 +605,6 @@ export async function setupNetwork() {
     worldAddress: networkConfig.worldAddress,
     uniqueWorldId,
     getVoxelIconUrl,
-    voxelTypes: { allVoxelTypeData },
+    voxelTypes: { VoxelTypeData, VoxelTypeKeyToIndex, VoxelTypeIndexToKey },
   };
 }

@@ -13,6 +13,7 @@ export default mudConfig({
         voxelType: "bytes32",
         // TODO: Move this to its own type
         // voxelVariant: {}
+        variantId: "uint32",
         frames: "uint32",
         opaque: "bool",
         // fluid: "bool", // TODO: Add back once we figure out stack to deep error

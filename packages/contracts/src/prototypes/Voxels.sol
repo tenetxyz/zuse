@@ -4,9 +4,12 @@ import { IWorld } from "../codegen/world/IWorld.sol";
 import {Occurrence, VoxelPrototype, VoxelTypeData, VoxelVariantsData} from "../codegen/Tables.sol";
 import { NoaBlockType } from "../codegen/Types.sol";
 
-bytes32 constant AirID = bytes32(keccak256("voxel.Air"));
-bytes32 constant GrassID = bytes32(keccak256("voxel.Grass"));
-bytes32 constant DirtID = bytes32(keccak256("voxel.Dirt"));
+bytes32 constant AirID = bytes32(keccak256("air"));
+bytes32 constant GrassID = bytes32(keccak256("grass"));
+bytes32 constant DirtID = bytes32(keccak256("dirt"));
+bytes32 constant BedrockID = bytes32(keccak256("bedrock"));
+
+// TODO: remove
 bytes32 constant LogID = bytes32(keccak256("voxel.Log"));
 bytes32 constant StoneID = bytes32(keccak256("voxel.Stone"));
 bytes32 constant SandID = bytes32(keccak256("voxel.Sand"));
@@ -55,7 +58,6 @@ bytes32 constant BlackWoolID = bytes32(keccak256("voxel.BlackWool"));
 bytes32 constant SpongeID = bytes32(keccak256("voxel.Sponge"));
 bytes32 constant SnowID = bytes32(keccak256("voxel.Snow"));
 bytes32 constant ClayID = bytes32(keccak256("voxel.Clay"));
-bytes32 constant BedrockID = bytes32(keccak256("voxel.Bedrock"));
 bytes32 constant BricksID = bytes32(keccak256("voxel.Bricks"));
 
 function defineVoxels(IWorld world) {

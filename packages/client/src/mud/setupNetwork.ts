@@ -29,7 +29,6 @@ import {
 import { map, timer, combineLatest, BehaviorSubject } from "rxjs";
 import storeConfig from "@tenetxyz/contracts/mud.config";
 import {
-  VoxelTypeIdToKey,
   VoxelTypeKey,
 } from "../layers/network/constants";
 import {
@@ -194,7 +193,7 @@ export async function setupNetwork() {
   const actions = createActionSystem<{
     actionType: string;
     coord?: VoxelCoord;
-    voxelTypeKey?: VoxelTypeKey;
+    voxelTypeKey?: VoxelTypeDataKey;
   }>(world, result.txReduced$);
 
   // Add optimistic updates and indexers
@@ -349,23 +348,24 @@ export async function setupNetwork() {
     });
   }
 
-  async function mineSystem(coord: VoxelCoord, voxel: Entity) {
+  async function mineSystem(coord: VoxelCoord, voxelType: string, voxelVariantNamespace: string, voxelVariantId: string) {
     const tx = await worldSend("tenet_MineSystem_mine", [
       coord,
-      voxel,
+      voxelType,
+      voxelVariantNamespace,
+      voxelVariantId,
       { gasLimit: 10_000_000 },
     ]);
     return tx;
   }
 
   async function mine(coord: VoxelCoord) {
-    const voxelType =
+    const voxelTypeKey =
       getEcsVoxelTypeAtPosition(coord) ?? getTerrainVoxelTypeAtPosition(coord);
 
-    if (voxelType == null) {
+    if (voxelTypeKey == null) {
       throw new Error("entity has no VoxelType");
     }
-    const voxelTypeKey = VoxelTypeIdToKey[voxelType];
     const voxel = getEntityAtPosition(coord);
     const airEntity = world.registerEntity();
 
@@ -379,7 +379,7 @@ export async function setupNetwork() {
         VoxelType: contractComponents.VoxelType,
       },
       execute: () => {
-        return mineSystem(coord, voxelType);
+        return mineSystem(coord, voxelTypeKey.voxelType, voxelTypeKey.namespace, voxelTypeKey.voxelVariantId);
       },
       updates: () => [
         {
@@ -390,7 +390,7 @@ export async function setupNetwork() {
         {
           component: "VoxelType",
           entity: airEntity,
-          value: { value: VoxelTypeKeyToId.Air },
+          value: { namespace: "tenet", voxelType: keccak256("air"), voxelVariantNamespace: "tenet", voxelVariantId: keccak256("air") },
         },
         {
           component: "Position",

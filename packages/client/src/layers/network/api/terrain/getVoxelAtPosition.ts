@@ -57,6 +57,7 @@ export function getEcsVoxelType(
   if (!voxelTypeData) return undefined;
   return {
     namespace: voxelTypeData.voxelVariantNamespace,
+    voxelType: voxelTypeData.voxelType,
     voxelVariantId: voxelTypeData.voxelVariantId,
   };
 }
@@ -94,6 +95,7 @@ export function getTerrainVoxel(
     Dirt(state) ||
     {
       namespace: "tenet",
+      voxelType: keccak256("air"),
       voxelVariantId: keccak256("air")
     }
   );

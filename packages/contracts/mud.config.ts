@@ -47,9 +47,9 @@ export default mudConfig({
         voxelTypes: "bytes32[]",
         // the relative position for each voxel in the creation
         // VoxelCoord is removed in MUD2, so we need to manually specify x,y,z
-        relativePositionsX: "int32[]",
-        relativePositionsY: "int32[]",
-        relativePositionsZ: "int32[]",
+        relativePositionsX: "uint32[]",
+        relativePositionsY: "uint32[]",
+        relativePositionsZ: "uint32[]",
         name: "string",
         description: "string",
         // voxelMetadata: "bytes", // stores the component values for each voxel in the creation

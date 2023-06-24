@@ -20,7 +20,7 @@ contract RegisterCreationSystem is System {
         validateCreation(voxelCoords);
 
         bytes32[] memory voxelTypes = getVoxelTypes(voxels);
-        (int32[] memory repositionedX, int32[] memory repositionedY, int32[] memory repositionedZ) = repositionBlocksSoLowerSouthwestCornerIsOnOrigin(voxelCoords);
+        (uint32[] memory repositionedX, uint32[] memory repositionedY, uint32[] memory repositionedZ) = repositionBlocksSoLowerSouthwestCornerIsOnOrigin(voxelCoords);
 
         CreationData memory creation;
         creation.voxelTypes = voxelTypes;
@@ -61,7 +61,7 @@ contract RegisterCreationSystem is System {
     // TODO: put this into a precompile for speed
     function repositionBlocksSoLowerSouthwestCornerIsOnOrigin(
         VoxelCoord[] memory voxelCoords
-    ) private pure returns (int32[] memory, int32[] memory, int32[] memory) {
+    ) private pure returns (uint32[] memory, uint32[] memory, uint32[] memory) {
         int32 lowestX = 2147483647;
         int32 lowestY = 2147483647;
         int32 lowestZ = 2147483647;
@@ -78,15 +78,15 @@ contract RegisterCreationSystem is System {
             }
         }
 
-        int32[] memory repositionedX = new int32[](voxelCoords.length);
-        int32[] memory repositionedY = new int32[](voxelCoords.length);
-        int32[] memory repositionedZ = new int32[](voxelCoords.length);
+        uint32[] memory repositionedX = new uint32[](voxelCoords.length);
+        uint32[] memory repositionedY = new uint32[](voxelCoords.length);
+        uint32[] memory repositionedZ = new uint32[](voxelCoords.length);
 
         for (uint32 i = 0; i < voxelCoords.length; i++) {
             VoxelCoord memory voxel = voxelCoords[i];
-            repositionedX[i] = voxel.x - lowestX;
-            repositionedY[i] = voxel.y - lowestY;
-            repositionedZ[i] = voxel.z - lowestZ;
+            repositionedX[i] = uint32(voxel.x - lowestX);
+            repositionedY[i] = uint32(voxel.y - lowestY);
+            repositionedZ[i] = uint32(voxel.z - lowestZ);
         }
         return (repositionedX, repositionedY, repositionedZ);
     }
@@ -124,7 +124,7 @@ contract RegisterCreationSystem is System {
 
     // hashing the message sender means that two different players can register the same creation
     // I think it's fine, because two players can solve a level in the same way
-    function getCreationHash(bytes32[] memory voxelTypes, int32[] memory repositionedX, int32[] memory repositionedY, int32[] memory repositionedZ, address sender) public pure returns (bytes32) {
+    function getCreationHash(bytes32[] memory voxelTypes, uint32[] memory repositionedX, uint32[] memory repositionedY, uint32[] memory repositionedZ, address sender) public pure returns (bytes32) {
         return bytes32(keccak256(abi.encode(voxelTypes, repositionedX, repositionedY, repositionedZ, sender)));
     }
 }

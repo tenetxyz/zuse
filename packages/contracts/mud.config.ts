@@ -7,7 +7,6 @@ export default mudConfig({
     VoxelType: "bytes32", // maps a voxel's entityId -> its type
     VoxelPrototype: "bool",
     Name: "string", // This is a shortcut for { schema: "string" }
-    Description: "string",
     Occurrence: {
       // Each voxel generates at diff spots in the world, and each voxel has a function defining where it should appear. This table points to each voxel's respective generation function.
       schema: {
@@ -42,17 +41,20 @@ export default mudConfig({
     },
 
     // tables for creations
-    VoxelTypes: "bytes32[]", // stores the voxelTypes for a creation
-    // the relative position for each voxel in the creation
-    RelativePositions: {
+    Creation: {
       schema: {
+        creator: "bytes32",
+        voxelTypes: "bytes32[]",
+        // the relative position for each voxel in the creation
         // VoxelCoord is removed in MUD2, so we need to manually specify x,y,z
-        x: "int32[]",
-        y: "int32[]",
-        z: "int32[]",
+        relativePositionsX: "uint32[]",
+        relativePositionsY: "uint32[]",
+        relativePositionsZ: "uint32[]",
+        name: "string",
+        // description: "string", // Not used cause rn we can only have at most 5 dynamic fields: https://github.com/tenetxyz/mud/blob/main/packages/store/src/Schema.sol#L20
+        // voxelMetadata: "bytes", // stores the component values for each voxel in the creation
       },
     },
-    VoxelMetadata: "bytes", // stores the component values for each voxel in the creation
 
     // tables for spawning
     OfSpawn: "bytes32", // maps a voxel spawned in the world -> the entityId representing its spawn

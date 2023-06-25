@@ -4,6 +4,7 @@ import {
   defineQuery,
   Entity,
   getComponentValue,
+  getEntityString,
   Has,
   setComponent,
   Type,
@@ -45,14 +46,7 @@ const CreationStore: React.FC<Props> = ({ layers, filters, setFilters }) => {
       api: { toggleInventory },
     },
     network: {
-      components: {
-        OwnedBy,
-        Description,
-        Name,
-        VoxelTypes,
-        RelativePositions,
-        VoxelMetadata,
-      },
+      components: { OwnedBy, Creation },
       network: { connectedAddress },
       api: { getEntityAtPosition, registerCreation },
     },
@@ -66,35 +60,55 @@ const CreationStore: React.FC<Props> = ({ layers, filters, setFilters }) => {
   >([]);
   const fuse = React.useRef<Fuse<Creation>>();
 
-  const creationsUpdate = useComponentValue(VoxelTypes, undefined);
+  const creationsUpdate = useComponentValue(Creation, undefined);
 
   // There might be a better way to listen to the updates than using this useEffect, but I'm not sure
   useEffect(() => {
     const allCreations: Creation[] = [];
-    const creationIds = VoxelTypes.entities();
-    for (const creationId of creationIds) {
-      const rawRelativePositions = getComponentValue(
-        RelativePositions,
-        creationId
-      );
-      const xPositions = rawRelativePositions?.x ?? [];
-      const yPositions = rawRelativePositions?.y ?? [];
-      const zPositions = rawRelativePositions?.z ?? [];
+    const creationTable = Creation.values;
+    creationTable.name.forEach((name, creationId) => {
+      const description = ""; //creationTable.description.get(creationId) ?? "";
+      const creator = creationTable.creator.get(creationId);
+      if (!creator) {
+        console.warn("No creator found for creation", creationId);
+        return;
+      }
+
+      const voxelTypes = creationTable.voxelTypes.get(creationId) ?? [];
+      if (voxelTypes.length === 0) {
+        console.warn("No voxelTypes found for creation", creationId);
+        return;
+      }
+
+      const xPositions = creationTable.relativePositionsX.get(creationId) ?? [];
+      const yPositions = creationTable.relativePositionsY.get(creationId) ?? [];
+      const zPositions = creationTable.relativePositionsZ.get(creationId) ?? [];
+
+      if (
+        xPositions.length === 0 ||
+        yPositions.length === 0 ||
+        zPositions.length === 0
+      ) {
+        console.warn(
+          `No relativePositions found for creationId=${creationId.toString()}. xPositions=${xPositions} yPositions=${yPositions} zPositions=${zPositions}`
+        );
+        return;
+      }
 
       const relativePositions = xPositions.map((x, i) => {
         return { x, y: yPositions[i], z: zPositions[i] };
       });
+      // TODO: add voxelMetadata
 
       allCreations.push({
-        name: getComponentValue(Name, creationId)?.value ?? "",
-        description: getComponentValue(Description, creationId)?.value ?? "",
-        creationId,
-        creator:
-          getComponentValue(OwnedBy, creationId)?.value ?? SingletonEntity,
-        voxelTypes: getComponentValue(VoxelTypes, creationId)?.value ?? [],
+        creationId: getEntityString(creationId),
+        name: name,
+        description: description,
+        creator: creator,
+        voxelTypes: voxelTypes,
         relativePositions,
       } as Creation);
-    }
+    });
 
     const newCreations = filters.isMyCreation
       ? allCreations.filter((creation) => creation.creator === playerAddress)

@@ -5,33 +5,31 @@ import { getUniqueEntity } from "@latticexyz/world/src/modules/uniqueentity/getU
 import { getKeysInTable } from "@latticexyz/world/src/modules/keysintable/getKeysInTable.sol";
 import { System } from "@latticexyz/world/src/System.sol";
 import { VoxelCoord } from "../types.sol";
-import { OwnedBy, Position, PositionTableId, VoxelType, RelativePositions, VoxelTypes, OfSpawn, Spawn, SpawnData } from "../codegen/Tables.sol";
+import { OwnedBy, Position, PositionTableId, VoxelType, OfSpawn, Spawn, SpawnData, Creation, CreationData } from "../codegen/Tables.sol";
 import { getEntitiesAtCoord, add, int32ToString } from "../utils.sol";
 import { IWorld } from "../codegen/world/IWorld.sol";
 import { console } from "forge-std/console.sol";
-import {RelativePositionsData} from "../codegen/tables/RelativePositions.sol";
 import { CHUNK_MAX_Y, CHUNK_MIN_Y } from "../Constants.sol";
 
 contract SpawnSystem is System {
 
     function spawn(VoxelCoord memory lowerSouthWestCorner, bytes32 creationId) public returns (bytes32) {
         // relPosX = all the relative position X coordinates
-        (bytes32[] memory voxelTypes) = VoxelTypes.get(creationId);
-        RelativePositionsData memory relativePositions = RelativePositions.get(creationId);
-        int32[] memory relPosX = relativePositions.x;
-        int32[] memory relPosY = relativePositions.y;
-        int32[] memory relPosZ = relativePositions.z;
+        CreationData memory creation = Creation.get(creationId);
+        uint32[] memory relPosX = creation.relativePositionsX;
+        uint32[] memory relPosY = creation.relativePositionsY;
+        uint32[] memory relPosZ = creation.relativePositionsZ;
 
         SpawnData memory spawnData;
-        bytes32[] memory spawnVoxels = new bytes32[](voxelTypes.length);
+        bytes32[] memory spawnVoxels = new bytes32[](creation.voxelTypes.length);
         spawnData.creationId = creationId;
         spawnData.lowerSouthWestCornerX = lowerSouthWestCorner.x;
         spawnData.lowerSouthWestCornerY = lowerSouthWestCorner.y;
         spawnData.lowerSouthWestCornerZ = lowerSouthWestCorner.z;
 
         bytes32 spawnId = getUniqueEntity();
-        for(uint i = 0; i < voxelTypes.length; i++){
-            VoxelCoord memory relativeCoord = VoxelCoord(relPosX[i], relPosY[i], relPosZ[i]);
+        for(uint i = 0; i < creation.voxelTypes.length; i++){
+            VoxelCoord memory relativeCoord = VoxelCoord(int32(relPosX[i]), int32(relPosY[i]), int32(relPosZ[i])); // we shouldn't be concerned about casting errors since creation dimensions shouldn't be large
             VoxelCoord memory spawnVoxelAtCoord = add(lowerSouthWestCorner, relativeCoord);
 
             require(
@@ -56,7 +54,7 @@ contract SpawnSystem is System {
 
             // create the voxel at this coord
             bytes32 newEntity = getUniqueEntity();
-            VoxelType.set(newEntity, voxelTypes[i]);
+            VoxelType.set(newEntity, creation.voxelTypes[i]);
             Position.set(newEntity, spawnVoxelAtCoord.x, spawnVoxelAtCoord.y, spawnVoxelAtCoord.z);
 
             // update the spawn-related components

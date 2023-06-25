@@ -62,10 +62,7 @@ const RegisterCreation: React.FC<Props> = ({
   };
 
   const isSubmitDisabled =
-    !formData.name ||
-    !formData.description ||
-    !corners?.corner1 ||
-    !corners?.corner2;
+    !formData.name || !corners?.corner1 || !corners?.corner2;
 
   const trySubmitCreation = (e: KeyboardEvent<HTMLInputElement>) => {
     if (e.key === "Enter" && !isSubmitDisabled) {
@@ -135,7 +132,7 @@ const RegisterCreation: React.FC<Props> = ({
       />
       <textarea
         className="border rounded px-2 py-1 mb-2 w-full"
-        placeholder="Enter creation description"
+        placeholder="Description (optional)"
         name="description"
         value={formData.description}
         onChange={handleInputChange}

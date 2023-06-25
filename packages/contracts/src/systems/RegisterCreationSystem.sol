@@ -6,8 +6,8 @@ import { System } from "@latticexyz/world/src/System.sol";
 import { Strings } from "@openzeppelin/contracts/utils/Strings.sol";
 import { IWorld } from "../codegen/world/IWorld.sol";
 import { addressToEntityKey, getEntitiesAtCoord, voxelCoordToString } from "../utils.sol";
-import { OwnedBy, Position, Name, VoxelType, Description, VoxelTypes, VoxelMetadata, RelativePositions } from "../codegen/Tables.sol";
-import {PositionData} from "../codegen/tables/Position.sol";
+import { VoxelType, Position, Creation, CreationData } from "../codegen/Tables.sol";
+import { PositionData } from "../codegen/tables/Position.sol";
 import { VoxelCoord } from "../types.sol";
 import { AirID } from "../prototypes/Voxels.sol";
 //import { CreateBlock } from "../libraries/CreateBlock.sol";
@@ -20,18 +20,22 @@ contract RegisterCreationSystem is System {
         validateCreation(voxelCoords);
 
         bytes32[] memory voxelTypes = getVoxelTypes(voxels);
-        (int32[] memory repositionedX, int32[] memory repositionedY, int32[] memory repositionedZ) = repositionBlocksSoLowerSouthwestCornerIsOnOrigin(voxelCoords);
+        (uint32[] memory repositionedX, uint32[] memory repositionedY, uint32[] memory repositionedZ) = repositionBlocksSoLowerSouthwestCornerIsOnOrigin(voxelCoords);
 
-        bytes32 creationId = getCreationHash(voxels, _msgSender());
+        CreationData memory creation;
+        creation.voxelTypes = voxelTypes;
+        creation.creator = addressToEntityKey(_msgSender());
+        creation.relativePositionsX = repositionedX;
+        creation.relativePositionsY = repositionedY;
+        creation.relativePositionsZ = repositionedZ;
+        creation.name = name;
+//        creation.description = description;
 
-        Description.set(creationId, description);
-        Name.set(creationId, name);
-        OwnedBy.set(creationId, addressToEntityKey(_msgSender()));
-        VoxelTypes.set(creationId, voxelTypes);
-        RelativePositions.set(creationId, repositionedX, repositionedY, repositionedZ);
-//        TODO: implement after lattice ppl respond on discord
-//        VoxelMetadata.set(creationId, );
+//        TODO: implement
+//        creation.voxelMetadata =
 
+        bytes32 creationId = getCreationHash(voxelTypes, repositionedX, repositionedY, repositionedZ, _msgSender());
+        Creation.set(creationId, creation);
         return creationId;
     }
 
@@ -57,7 +61,7 @@ contract RegisterCreationSystem is System {
     // TODO: put this into a precompile for speed
     function repositionBlocksSoLowerSouthwestCornerIsOnOrigin(
         VoxelCoord[] memory voxelCoords
-    ) private pure returns (int32[] memory, int32[] memory, int32[] memory) {
+    ) private pure returns (uint32[] memory, uint32[] memory, uint32[] memory) {
         int32 lowestX = 2147483647;
         int32 lowestY = 2147483647;
         int32 lowestZ = 2147483647;
@@ -74,15 +78,15 @@ contract RegisterCreationSystem is System {
             }
         }
 
-        int32[] memory repositionedX = new int32[](voxelCoords.length);
-        int32[] memory repositionedY = new int32[](voxelCoords.length);
-        int32[] memory repositionedZ = new int32[](voxelCoords.length);
+        uint32[] memory repositionedX = new uint32[](voxelCoords.length);
+        uint32[] memory repositionedY = new uint32[](voxelCoords.length);
+        uint32[] memory repositionedZ = new uint32[](voxelCoords.length);
 
         for (uint32 i = 0; i < voxelCoords.length; i++) {
             VoxelCoord memory voxel = voxelCoords[i];
-            repositionedX[i] = voxel.x - lowestX;
-            repositionedY[i] = voxel.y - lowestY;
-            repositionedZ[i] = voxel.z - lowestZ;
+            repositionedX[i] = uint32(voxel.x - lowestX);
+            repositionedY[i] = uint32(voxel.y - lowestY);
+            repositionedZ[i] = uint32(voxel.z - lowestZ);
         }
         return (repositionedX, repositionedY, repositionedZ);
     }
@@ -120,9 +124,7 @@ contract RegisterCreationSystem is System {
 
     // hashing the message sender means that two different players can register the same creation
     // I think it's fine, because two players can solve a level in the same way
-    function getCreationHash(bytes32[] memory voxelIds, address sender) public pure returns (bytes32) {
-        // TODO: entitiyIds change. should we use voxelType + coord + poweredComponent
-        // TODO: have a global way for new systems and components to register a unique voxel name
-        return bytes32(keccak256(abi.encode(voxelIds, sender)));
+    function getCreationHash(bytes32[] memory voxelTypes, uint32[] memory repositionedX, uint32[] memory repositionedY, uint32[] memory repositionedZ, address sender) public pure returns (bytes32) {
+        return bytes32(keccak256(abi.encode(voxelTypes, repositionedX, repositionedY, repositionedZ, sender)));
     }
 }

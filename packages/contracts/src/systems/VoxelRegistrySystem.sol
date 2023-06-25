@@ -27,6 +27,20 @@ contract VoxelRegistrySystem is System {
         });
     }
 
+    function grassVariantSelector(bytes32 entity) public returns (VoxelVariantsKey memory) {
+         return VoxelVariantsKey({
+            namespace: bytes16("tenet"),
+            voxelVariantId: bytes32(keccak256("grass"))
+        });
+    }
+
+        function bedrockVariantSelector(bytes32 entity) public returns (VoxelVariantsKey memory) {
+         return VoxelVariantsKey({
+            namespace: bytes16("tenet"),
+            voxelVariantId: bytes32(keccak256("bedrock"))
+        });
+    }
+
     function registerVoxelType(bytes32 voxelType, string memory previewVoxelImg, bytes4 voxelVariantSelector) public {
         (bytes16 namespace, , ) = FunctionSelectors.get(voxelVariantSelector);
         // TODO: Dhvani add back

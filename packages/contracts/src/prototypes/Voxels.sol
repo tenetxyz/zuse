@@ -87,8 +87,9 @@ function defineVoxels(IWorld world) {
 
     VoxelVariantsData memory grassVariant = VoxelVariantsData({
             variantId: 2,
-            material: "bafkreibzraiuk6hgngtfczn57sivuqf3nv77twi6g3ftas2umjnbf6jefe",
-            uvWrap: "bafkreifbshwckn4pgw5ew2obz3i74eujzpcomatus5gu2tk7mms373gqme",
+            material: "bafkreifmvm3yxzbkzcb2r7m6gavjhe22n4p3o36lz2ypkgf5v6i6zzhv4a",
+            // TODO: make grass use an array of 3 materials, not a single one
+            uvWrap: "bafkreihaagdyqnbie3eyx6upmoul2zb4qakubxg6bcha6k5ebp4fbsd3am",
             blockType: NoaBlockType.BLOCK,
             frames: 0,
             opaque: true,
@@ -97,9 +98,21 @@ function defineVoxels(IWorld world) {
     });
     world.tenet_VoxelRegistrySys_registerVoxelVariant(bytes32(keccak256("grass")), grassVariant);
 
+    VoxelVariantsData memory bedrockVariant = VoxelVariantsData({
+            variantId: 3,
+            material: "bafkreidfo756faklwx7o4q2753rxjqx6egzpmqh2zhylxaehqalvws555a",
+            uvWrap: "bafkreihdit6glam7sreijo7itbs7uwc2ltfeuvcfaublxf6rjo24hf6t4y",
+            blockType: NoaBlockType.BLOCK,
+            frames: 0,
+            opaque: true,
+            fluid: false,
+            solid: true
+    });
+    world.tenet_VoxelRegistrySys_registerVoxelVariant(bytes32(keccak256("bedrock")), bedrockVariant);
+
     VoxelPrototype.set(bytes32(GrassID), true);
     Occurrence.set(GrassID, world.tenet_OccurrenceSystem_OGrass.selector);
-    world.tenet_VoxelRegistrySys_registerVoxelType(GrassID, "bafkreibzraiuk6hgngtfczn57sivuqf3nv77twi6g3ftas2umjnbf6jefe", world.tenet_VoxelRegistrySys_dirtVariantSelector.selector);
+    world.tenet_VoxelRegistrySys_registerVoxelType(GrassID, "bafkreifmvm3yxzbkzcb2r7m6gavjhe22n4p3o36lz2ypkgf5v6i6zzhv4a", world.tenet_VoxelRegistrySys_grassVariantSelector.selector);
 
     VoxelPrototype.set(bytes32(DirtID), true);
     Occurrence.set(DirtID, world.tenet_OccurrenceSystem_ODirt.selector);
@@ -107,7 +120,7 @@ function defineVoxels(IWorld world) {
 
     VoxelPrototype.set(bytes32(BedrockID), true);
     Occurrence.set(BedrockID, world.tenet_OccurrenceSystem_OBedrock.selector);
-    world.tenet_VoxelRegistrySys_registerVoxelType(BedrockID, "bafkreibzraiuk6hgngtfczn57sivuqf3nv77twi6g3ftas2umjnbf6jefe", world.tenet_VoxelRegistrySys_dirtVariantSelector.selector);
+    world.tenet_VoxelRegistrySys_registerVoxelType(BedrockID, "bafkreidfo756faklwx7o4q2753rxjqx6egzpmqh2zhylxaehqalvws555a", world.tenet_VoxelRegistrySys_bedrockVariantSelector.selector);
 
     VoxelPrototype.set(bytes32(AirID), true);
     world.tenet_VoxelRegistrySys_registerVoxelType(AirID, "", world.tenet_VoxelRegistrySys_airVariantSelector.selector);

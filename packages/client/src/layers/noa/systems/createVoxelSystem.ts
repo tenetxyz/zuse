@@ -9,10 +9,13 @@ import { toUtf8String } from "ethers/lib/utils.js";
 import { awaitStreamValue } from "@latticexyz/utils";
 import { NetworkLayer } from "../../network";
 import { NoaLayer, voxelVariantDataKeyToString } from "../types";
+import { NoaVoxelDef } from "../types";
 
-function removeNullBytes(str){
-  return str.split("").filter(char => char.codePointAt(0)).join("")
-}
+// function removeNullBytes(str){
+//   return str.split("").filter(char => char.codePointAt(0)).join("")
+// }
+
+const nftStorageLinkFormat = "https://${hash}.ipfs.nftstorage.link/";
 
 export async function createVoxelSystem(
   network: NetworkLayer,
@@ -44,7 +47,6 @@ export async function createVoxelSystem(
     // TODO: could use update.value?
     const voxelVariantValue = getComponentValueStrict(VoxelVariants, update.entity);
     const [voxelVariantNamespace, voxelVariantId] = update.entity.split(":");
-    // const voxelVariantNamepaceStr = removeNullBytes(toUtf8String(voxelVariantNamespace));
     const voxelVariantDataKey = {
       voxelVariantNamespace: voxelVariantNamespace.substring(0, 34), // TODO: turn this into helper
       voxelVariantId: voxelVariantId
@@ -52,10 +54,23 @@ export async function createVoxelSystem(
 
     if(!VoxelVariantData.has(voxelVariantDataKeyToString(voxelVariantDataKey))) {
       console.log("Adding new variant");
+      const materialArr = voxelVariantValue.materialArr.split("|");
+      // go through each hash in materialArr and format it to have the NFT storage link
+      const formattedMaterialArr: string[] = materialArr.map((hash: string) => {
+        const nftStorageLink = nftStorageLinkFormat.replace("${hash}", hash);
+        return nftStorageLink;
+      });
+      let material: string | string[] = "";
+      if(formattedMaterialArr.length == 1){
+        material = formattedMaterialArr[0];
+      } else {
+        material = formattedMaterialArr;
+      }
+
       const voxelVariantData = {
-        index: voxelVariantValue.variantId,
+        index: Number(voxelVariantValue.variantId),
         data: {
-            material: voxelVariantValue.material ? `https://${voxelVariantValue.material}.ipfs.nftstorage.link/`: "",
+            material: material,
             type: voxelVariantValue.blockType,
             frames: voxelVariantValue.frames,
             opaque: voxelVariantValue.opaque,

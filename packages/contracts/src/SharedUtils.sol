@@ -10,3 +10,14 @@ function getCallerNamespace(address caller) view returns (bytes16) {
   bytes16 callerNamespace = ResourceSelector.getNamespace(resourceSelector);
   return callerNamespace;
 }
+
+function materialsArrToString(string[] memory materials) pure returns (string memory) {
+  string memory materialsStr = "";
+  for (uint i = 0; i < materials.length; i++) {
+    materialsStr = string(abi.encodePacked(materialsStr, materials[i]));
+    if (i < materials.length - 1) {
+      materialsStr = string(abi.encodePacked(materialsStr, "|"));
+    }
+  }
+  return materialsStr;
+}

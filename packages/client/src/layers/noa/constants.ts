@@ -9,14 +9,16 @@ export const MINING_DURATION = 300;
 export const FAST_MINING_DURATION = 200;
 
 export const Textures = {
-  Grass: "./assets/voxels/4-Grass_block-top.png",
-  GrassSide: "./assets/voxels/4-Grass_block-side.png",
-  GrassBottom: "./assets/voxels/4-Grass_block-bottom.png",
+  Grass: "https://bafkreifmvm3yxzbkzcb2r7m6gavjhe22n4p3o36lz2ypkgf5v6i6zzhv4a.ipfs.nftstorage.link/",
+  GrassSide: "https://bafkreibp5wefex2cunqz5ffwt3ucw776qthwl6y6pswr2j2zuzldrv6bqa.ipfs.nftstorage.link/",
   Dirt: "https://bafkreibzraiuk6hgngtfczn57sivuqf3nv77twi6g3ftas2umjnbf6jefe.ipfs.nftstorage.link/",
+  Bedrock: "https://bafkreidfo756faklwx7o4q2753rxjqx6egzpmqh2zhylxaehqalvws555a.ipfs.nftstorage.link/",
 };
+
 
 export const UVWraps = {
   Air: undefined,
-  Grass: "./assets/uv-wraps/grass.png",
-  Dirt: "./assets/uv-wraps/dirt.png",
+  Grass: "https://bafkreihaagdyqnbie3eyx6upmoul2zb4qakubxg6bcha6k5ebp4fbsd3am.ipfs.nftstorage.link/",
+  Dirt: "https://bafkreifbshwckn4pgw5ew2obz3i74eujzpcomatus5gu2tk7mms373gqme.ipfs.nftstorage.link/",
+  Bedrock: "https://bafkreihdit6glam7sreijo7itbs7uwc2ltfeuvcfaublxf6rjo24hf6t4y.ipfs.nftstorage.link/",
 };

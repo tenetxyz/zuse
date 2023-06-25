@@ -6,7 +6,7 @@ import { getKeysInTable } from "@latticexyz/world/src/modules/keysintable/getKey
 import { System } from "@latticexyz/world/src/System.sol";
 import { VoxelCoord } from "../types.sol";
 import { OwnedBy, Position, PositionTableId, VoxelType, OfSpawn, Spawn, SpawnData, Creation, CreationData } from "../codegen/Tables.sol";
-import { getEntitiesAtCoord, add, int32ToString } from "../utils.sol";
+import { addressToEntityKey, getEntitiesAtCoord, add, int32ToString } from "../utils.sol";
 import { IWorld } from "../codegen/world/IWorld.sol";
 import { console } from "forge-std/console.sol";
 import { CHUNK_MAX_Y, CHUNK_MIN_Y } from "../Constants.sol";

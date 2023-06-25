@@ -5,12 +5,12 @@ pragma solidity >=0.8.0;
 //import { Perlin } from "./Perlin.sol";
 import { ABDKMath64x64 as Math } from "../libraries/ABDKMath64x64.sol";
 import { Biome, STRUCTURE_CHUNK, STRUCTURE_CHUNK_CENTER } from "../constants.sol";
-import { AirID, GrassID, DirtID, LogID, StoneID, SandID, WaterID, CobblestoneID, CoalID, CraftingID, IronID, GoldID, DiamondID, LeavesID, PlanksID, RedFlowerID, GrassPlantID, OrangeFlowerID, MagentaFlowerID, LightBlueFlowerID, LimeFlowerID, PinkFlowerID, GrayFlowerID, LightGrayFlowerID, CyanFlowerID, PurpleFlowerID, BlueFlowerID, GreenFlowerID, BlackFlowerID, KelpID, WoolID, SnowID, ClayID, BedrockID } from "../prototypes/Voxels.sol";
+import { AirID, GrassID, DirtID, BedrockID } from "../prototypes/Voxels.sol";
 import { VoxelCoord, Tuple, VoxelVariantsKey } from "../Types.sol";
 import { div } from "../Utils.sol";
 import { System } from "@latticexyz/world/src/System.sol";
 import { IWorld } from "../codegen/world/IWorld.sol";
-import { CHUNK_MIN_Y } from "../Constants.sol";
+import { CHUNK_MIN_Y, TENET_NAMESPACE } from "../Constants.sol";
 
 int128 constant _0 = 0; // 0 * 2**64
 int128 constant _0_3 = 5534023222112865484; // 0.3 * 2**64
@@ -42,48 +42,6 @@ contract LibTerrainSystem is System {
     return getTerrainVoxel(coord.x, coord.y, coord.z, height, biome);
   }
 
-  function _getTerrainVoxel(
-    int32,
-    int32 y,
-    int32,
-    int32 height,
-    int128[4] memory biome
-  ) internal view returns (bytes32) {
-    if (y > height + 1) {
-      if (y >= 0) return AirID;
-      return WaterID;
-    }
-
-    int128 maxBiome;
-    uint256 maxBiomeIndex;
-    for (uint256 i; i < biome.length; i++) {
-      if (biome[i] > maxBiome) {
-        maxBiome = biome[i];
-        maxBiomeIndex = i;
-      }
-    }
-
-    if (maxBiome == 0) return DirtID;
-    if (maxBiomeIndex == uint256(Biome.Desert)) {
-      if (y == height + 1) {
-        return KelpID;
-      }
-      return SandID;
-    }
-
-    if (maxBiomeIndex == uint256(Biome.Mountains)) return StoneID;
-
-    if (maxBiomeIndex == uint256(Biome.Savanna)) {
-      if (y == height + 1) {
-        return RedFlowerID;
-      }
-      return GrassID;
-    }
-
-    if (maxBiomeIndex == uint256(Biome.Forest)) return LogID;
-    return AirID;
-  }
-
   function getTerrainVoxel(
     int32 x,
     int32 y,
@@ -110,8 +68,8 @@ contract LibTerrainSystem is System {
     if (voxelTypeId.voxelVariantId != bytes32(0x0)) return voxelTypeId;
 
     return VoxelVariantsKey({
-            namespace: bytes16("tenet"),
-            voxelVariantId: bytes32(keccak256("air"))
+            namespace: TENET_NAMESPACE,
+            voxelVariantId: AirID
     });
   }
 
@@ -335,8 +293,8 @@ contract LibTerrainSystem is System {
   function Air(int32 y) internal view returns (VoxelVariantsKey memory) {
     if (y > 10) {
       return VoxelVariantsKey({
-            namespace: bytes16("tenet"),
-            voxelVariantId: bytes32(keccak256("air"))
+            namespace: TENET_NAMESPACE,
+            voxelVariantId: AirID
       });
     }
 
@@ -353,8 +311,8 @@ contract LibTerrainSystem is System {
   function Bedrock(int32 y) internal view returns (VoxelVariantsKey memory) {
     if (y <= CHUNK_MIN_Y) {
       return VoxelVariantsKey({
-            namespace: bytes16("tenet"),
-            voxelVariantId: bytes32(keccak256("bedrock"))
+            namespace: TENET_NAMESPACE,
+            voxelVariantId: BedrockID
       });
     }
 
@@ -373,8 +331,8 @@ contract LibTerrainSystem is System {
   ) internal view returns (VoxelVariantsKey memory) {
     if (y == 10) {
       return VoxelVariantsKey({
-            namespace: bytes16("tenet"),
-            voxelVariantId: bytes32(keccak256("grass"))
+            namespace: TENET_NAMESPACE,
+            voxelVariantId: GrassID
       });
     }
 
@@ -393,8 +351,8 @@ contract LibTerrainSystem is System {
   ) internal view returns (VoxelVariantsKey memory) {
     if (y > CHUNK_MIN_Y && y < 10) {
       return VoxelVariantsKey({
-            namespace: bytes16("tenet"),
-            voxelVariantId: bytes32(keccak256("dirt"))
+            namespace: TENET_NAMESPACE,
+            voxelVariantId: DirtID
       });
     }
 

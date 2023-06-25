@@ -12,6 +12,7 @@ import { addressToEntityKey } from "../../utils.sol";
 import { VoxelCoord } from "../../types.sol";
 import { Utilities } from "@latticexyz/std-contracts/src/test/Utilities.sol";
 import { console } from "forge-std/console.sol";
+import { TENET_NAMESPACE } from "../../constants.sol";
 
 contract GiftVoxelTest is MudV2Test {
     IWorld private world;
@@ -25,7 +26,7 @@ contract GiftVoxelTest is MudV2Test {
         super.setUp();
         world = IWorld(worldAddress);
         store = IStore(worldAddress);
-        namespace = bytes16("tenet");
+        namespace = TENET_NAMESPACE;
 
         alice = utils.getNextUserAddress();
     }

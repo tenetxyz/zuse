@@ -22,14 +22,14 @@ export default mudConfig({
         voxelVariantId: "bytes32", // TODO: Should be a string?
       },
       schema: {
-        variantId: "uint32",
+        variantId: "uint256",
         frames: "uint32",
         opaque: "bool",
         fluid: "bool",
         solid: "bool",
         blockType: "NoaBlockType",
         // Note: These 2 dynamic fields MUST come at the end of the schema
-        material: "string", // File ID Hash
+        materialArr: "string", // File ID Hash[], TODO: Use a more efficient data structure
         uvWrap: "string", // File ID Hash
       },
     },
@@ -43,7 +43,6 @@ export default mudConfig({
         preview: "string", // File ID Hash
       },
     },
-    VoxelPrototype: "bool",
     Name: "string", // This is a shortcut for { schema: "string" }
     Occurrence: {
       // Each voxel generates at diff spots in the world, and each voxel has a function defining where it should appear. This table points to each voxel's respective generation function.

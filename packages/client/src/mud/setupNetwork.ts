@@ -41,7 +41,7 @@ import {NoaVoxelDef, NoaBlockType, VoxelVariantData, VoxelTypeDataKey, VoxelVari
 import {Textures, UVWraps} from "../layers/noa/constants";
 import { keccak256 } from "@latticexyz/utils";
 import { TENET_NAMESPACE } from "../constants";
-import { AIR_ID, DIRT_ID, GRASS_ID } from "../layers/network/api/terrain/occurrence";
+import { AIR_ID, BEDROCK_ID, DIRT_ID, GRASS_ID } from "../layers/network/api/terrain/occurrence";
 
 export type SetupNetworkResult = Awaited<ReturnType<typeof setupNetwork>>;
 
@@ -236,8 +236,8 @@ export async function setupNetwork() {
       index: 1,
       data: {
         type: NoaBlockType.BLOCK,
-        material: "https://bafkreibzraiuk6hgngtfczn57sivuqf3nv77twi6g3ftas2umjnbf6jefe.ipfs.nftstorage.link/",
-        uvWrap: "https://bafkreifbshwckn4pgw5ew2obz3i74eujzpcomatus5gu2tk7mms373gqme.ipfs.nftstorage.link/",
+        material: Textures.Dirt,
+        uvWrap: UVWraps.Dirt,
       }
     }
   );
@@ -250,8 +250,22 @@ export async function setupNetwork() {
       index: 2,
       data: {
         type: NoaBlockType.BLOCK,
-        material: "https://bafkreifmvm3yxzbkzcb2r7m6gavjhe22n4p3o36lz2ypkgf5v6i6zzhv4a.ipfs.nftstorage.link/",
-        uvWrap: "https://bafkreihaagdyqnbie3eyx6upmoul2zb4qakubxg6bcha6k5ebp4fbsd3am.ipfs.nftstorage.link/",
+        material: [Textures.Grass, Textures.Dirt, Textures.GrassSide],
+        uvWrap: UVWraps.Grass,
+      }
+    }
+  );
+  VoxelVariantData.set(
+    voxelVariantDataKeyToString({
+      voxelVariantNamespace: TENET_NAMESPACE,
+      voxelVariantId: BEDROCK_ID
+    }),
+    {
+      index: 3,
+      data: {
+        type: NoaBlockType.BLOCK,
+        material: Textures.Bedrock,
+        uvWrap: UVWraps.Bedrock,
       }
     }
   );

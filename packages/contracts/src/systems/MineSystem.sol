@@ -6,7 +6,7 @@ import { getKeysInTable } from "@latticexyz/world/src/modules/keysintable/getKey
 import { System } from "@latticexyz/world/src/System.sol";
 import { VoxelCoord, VoxelVariantsKey } from "../types.sol";
 import { OwnedBy, Position, PositionTableId, VoxelType, VoxelTypeData, VoxelTypeRegistry } from "../codegen/Tables.sol";
-import { AirID, WaterID } from "../prototypes/Voxels.sol";
+import { AirID } from "../prototypes/Voxels.sol";
 import { addressToEntityKey, getEntitiesAtCoord, staticcallFunctionSelector } from "../utils.sol";
 import { Utils } from "@latticexyz/world/src/Utils.sol";
 import { IWorld } from "../codegen/world/IWorld.sol";
@@ -18,7 +18,6 @@ contract MineSystem is System {
 
   function mine(VoxelCoord memory coord, bytes16 voxelTypeNamespace, bytes32 voxelTypeId, bytes16 voxelVariantNamespace, bytes32 voxelVariantId) public returns (bytes32) {
     require(voxelTypeId != AirID, "can not mine air");
-    require(voxelTypeId != WaterID, "can not mine water");
     require(coord.y <= CHUNK_MAX_Y && coord.y >= CHUNK_MIN_Y, "out of chunk bounds");
 
     // Check ECS blocks at coord

@@ -5,21 +5,22 @@ import { TerrainState } from "./types";
 import { accessState } from "./utils";
 import { keccak256 } from "@latticexyz/utils";
 import { VoxelTypeDataKey } from "../../../noa/types";
+import { TENET_NAMESPACE } from "../../../../constants";
 
 export function Air({ coord: { y } }: TerrainState): VoxelTypeDataKey | undefined {
   if (y > 10) return {
-    voxelTypeNamespace: "tenet",
+    voxelTypeNamespace: TENET_NAMESPACE,
     voxelTypeId: keccak256("air"),
-    voxelVariantNamespace: "tenet",
+    voxelVariantNamespace: TENET_NAMESPACE,
     voxelVariantId: keccak256("air")
   };
 }
 
 export function Bedrock({ coord: { y } }: TerrainState): VoxelTypeDataKey | undefined {
   if (y <= -63) return {
-    voxelTypeNamespace: "tenet",
+    voxelTypeNamespace: TENET_NAMESPACE,
     voxelTypeId: keccak256("bedrock"),
-    voxelVariantNamespace: "tenet",
+    voxelVariantNamespace: TENET_NAMESPACE,
     voxelVariantId: keccak256("bedrock")
   };
 }
@@ -30,9 +31,9 @@ export function Grass(state: TerrainState): VoxelTypeDataKey | undefined {
   } = state;
 
   if (y == 10) return  {
-    voxelTypeNamespace: "tenet",
+    voxelTypeNamespace: TENET_NAMESPACE,
     voxelTypeId: keccak256("grass"),
-    voxelVariantNamespace: "tenet",
+    voxelVariantNamespace: TENET_NAMESPACE,
     voxelVariantId: keccak256("grass")
   };
 }
@@ -43,9 +44,9 @@ export function Dirt(state: TerrainState): VoxelTypeDataKey | undefined {
   } = state;
 
   if (y > -63 && y < 10) return {
-    voxelTypeNamespace: "tenet",
+    voxelTypeNamespace: TENET_NAMESPACE,
     voxelTypeId: keccak256("dirt"),
-    voxelVariantNamespace: "tenet",
+    voxelVariantNamespace: TENET_NAMESPACE,
     voxelVariantId: keccak256("dirt")
   };
 }

@@ -12,6 +12,7 @@ import { Terrain, TerrainState } from "./types";
 import { getTerrain } from "./utils";
 import { Air, Bedrock, Dirt, Grass } from "./occurrence";
 import { VoxelTypeDataKey } from "../../../noa/types";
+import { TENET_NAMESPACE } from "../../../../constants";
 
 export function getEntityAtPosition(
   context: {
@@ -90,9 +91,9 @@ export function getTerrainVoxel(
     Grass(state) ||
     Dirt(state) ||
     {
-      voxelTypeNamespace: "tenet",
+      voxelTypeNamespace: TENET_NAMESPACE,
       voxelTypeId: keccak256("air"),
-      voxelVariantNamespace: "tenet",
+      voxelVariantNamespace: TENET_NAMESPACE,
       voxelVariantId: keccak256("air")
     }
   );

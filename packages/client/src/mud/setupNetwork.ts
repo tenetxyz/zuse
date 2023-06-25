@@ -15,7 +15,6 @@ import {
 import { getNetworkConfig } from "./getNetworkConfig";
 import { defineContractComponents } from "./contractComponents";
 import { world } from "./world";
-import { toUtf8Bytes } from "ethers/lib/utils.js";
 import { createPerlin } from "@latticexyz/noise";
 import { BigNumber, Contract, Signer, utils } from "ethers";
 import { JsonRpcProvider } from "@ethersproject/providers";
@@ -41,6 +40,7 @@ import { SingletonID } from "@latticexyz/network";
 import {NoaVoxelDef, NoaBlockType, VoxelVariantData, VoxelTypeDataKey, VoxelVariantDataKey} from "../layers/noa/types";
 import {Textures, UVWraps} from "../layers/noa/constants";
 import { keccak256 } from "@latticexyz/utils";
+import { TENET_NAMESPACE } from "../constants";
 
 export type SetupNetworkResult = Awaited<ReturnType<typeof setupNetwork>>;
 
@@ -212,33 +212,45 @@ export async function setupNetwork() {
   );
 
   const VoxelVariantData: VoxelVariantData = new Map();
-  // console.log(contractComponents.VoxelVariants.values.size());
-  // TODO: Should load initial ones from chain, otherwise add them
-  // // add default voxel types
-  // VoxelTypeData["tenet"] = {
-  //   "air": {
-  //     "0": {
-  //       index: 0,
-  //       data: undefined,
-  //     }
-  //   },
-  //   "dirt": {
-  //     "0": {
-  //       index: 1,
-  //       data: { type: NoaBlockType.BLOCK, material: Textures.Dirt, uvWrap: UVWraps.Dirt },
-  //     }
-  //   },
-  //   "grass": {
-  //     "0": {
-  //       index: 2,
-  //       data: {
-  //         type: NoaBlockType.BLOCK,
-  //         material: [Textures.Grass, Textures.Dirt, Textures.GrassSide],
-  //         uvWrap: UVWraps.Grass
-  //       }
-  //     }
-  //   },
-  // };
+  // TODO: should load initial ones from chain too
+  VoxelVariantData.set(
+    JSON.stringify({
+      voxelVariantNamespace: TENET_NAMESPACE,
+      voxelVariantId: keccak256("air")
+    }),
+    {
+      index: 0,
+      data: undefined
+    }
+  );
+  VoxelVariantData.set(
+    JSON.stringify({
+      voxelVariantNamespace: TENET_NAMESPACE,
+      voxelVariantId: keccak256("dirt")
+    }),
+    {
+      index: 2,
+      data: {
+        type: NoaBlockType.BLOCK,
+        material: "https://bafkreibzraiuk6hgngtfczn57sivuqf3nv77twi6g3ftas2umjnbf6jefe.ipfs.nftstorage.link/",
+        uvWrap: "https://bafkreifbshwckn4pgw5ew2obz3i74eujzpcomatus5gu2tk7mms373gqme.ipfs.nftstorage.link/",
+      }
+    }
+  );
+  VoxelVariantData.set(
+    JSON.stringify({
+      voxelVariantNamespace: TENET_NAMESPACE,
+      voxelVariantId: keccak256("grass")
+    }),
+    {
+      index: 2,
+      data: {
+        type: NoaBlockType.BLOCK,
+        material: "https://bafkreifmvm3yxzbkzcb2r7m6gavjhe22n4p3o36lz2ypkgf5v6i6zzhv4a.ipfs.nftstorage.link/",
+        uvWrap: "https://bafkreihaagdyqnbie3eyx6upmoul2zb4qakubxg6bcha6k5ebp4fbsd3am.ipfs.nftstorage.link/",
+      }
+    }
+  );
 
   const VoxelVariantIndexToKey: Map<number, VoxelVariantDataKey> = new Map();
 
@@ -400,7 +412,7 @@ export async function setupNetwork() {
         {
           component: "VoxelType",
           entity: airEntity,
-          value: { voxelTypeNamespace: "tenet", voxelTypeId: keccak256("air"), voxelVariantNamespace: "tenet", voxelVariantId: keccak256("air") },
+          value: { voxelTypeNamespace: TENET_NAMESPACE, voxelTypeId: keccak256("air"), voxelVariantNamespace: TENET_NAMESPACE, voxelVariantId: keccak256("air") },
         },
         {
           component: "Position",

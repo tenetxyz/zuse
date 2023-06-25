@@ -10,44 +10,12 @@ import {VoxelTypeRegistry, VoxelTypeRegistryTableId, VoxelVariants, VoxelVariant
 import { IWorld } from "../codegen/world/IWorld.sol";
 import {NoaBlockType} from "../codegen/Types.sol";
 import { getCallerNamespace } from "../sharedutils.sol";
-import { VoxelVariantsKey } from "../types.sol";
-import { TENET_NAMESPACE } from "../constants.sol";
-import { AirID, DirtID, GrassID, BedrockID } from "../prototypes/Voxels.sol";
 
 contract VoxelRegistrySystem is System {
 
-    function airVariantSelector(bytes32 entity) public returns (VoxelVariantsKey memory) {
-        return VoxelVariantsKey({
-            namespace: TENET_NAMESPACE,
-            voxelVariantId: AirID
-        });
-    }
-
-    function dirtVariantSelector(bytes32 entity) public returns (VoxelVariantsKey memory) {
-         return VoxelVariantsKey({
-            namespace: TENET_NAMESPACE,
-            voxelVariantId: DirtID
-        });
-    }
-
-    function grassVariantSelector(bytes32 entity) public returns (VoxelVariantsKey memory) {
-         return VoxelVariantsKey({
-            namespace: TENET_NAMESPACE,
-            voxelVariantId: GrassID
-        });
-    }
-
-        function bedrockVariantSelector(bytes32 entity) public returns (VoxelVariantsKey memory) {
-         return VoxelVariantsKey({
-            namespace: TENET_NAMESPACE,
-            voxelVariantId: BedrockID
-        });
-    }
-
     function registerVoxelType(bytes32 voxelType, string memory previewVoxelImg, bytes4 voxelVariantSelector) public {
         (bytes16 namespace, , ) = FunctionSelectors.get(voxelVariantSelector);
-        // TODO: Dhvani add back
-        // require(NamespaceOwner.get(namespace) == _msgSender(), "Caller is not namespace owner");
+        require(NamespaceOwner.get(namespace) == _msgSender(), "Caller is not namespace owner");
 
         // check if voxel type is already registered
         bytes32[] memory keyTuple = new bytes32[](2);
@@ -57,8 +25,6 @@ contract VoxelRegistrySystem is System {
         require(!hasKey(VoxelTypeRegistryTableId, keyTuple), "Voxel type already registered for this namespace");
 
         // TODO: We should add some signature check for voxelVariantSelector to make sure it returns the right type
-        // that the client needs to render the voxel
-        // should return the type expected by VoxelType (ie VoxelTypeData struct)
 
         // register voxel type
         VoxelTypeRegistry.set(namespace, voxelType, voxelVariantSelector, previewVoxelImg);

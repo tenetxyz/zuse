@@ -30,7 +30,6 @@ contract ExtensionInitSystem is System {
     }
 
     function init() public {
-        // register graphics
         defineVoxels(_world());
     }
 }

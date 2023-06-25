@@ -17,6 +17,8 @@ export const Directions = {
 
 export const CHUNK = 16;
 
+// A namespace in MUD is stored as bytes16, so we need it to have 32 characters
+// 34 because this is a hexString so 2 for the 0x prefix
 export function formatNamespace(namespace: string) {
   if(namespace.length < 34)  {
     return namespace + "0".repeat(34 - namespace.length);

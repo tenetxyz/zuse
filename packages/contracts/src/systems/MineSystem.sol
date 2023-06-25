@@ -69,6 +69,8 @@ contract MineSystem is System {
     // Place an air voxel at this position
     airEntity = getUniqueEntity();
     {
+      // TODO: We don't need necessarily need to get the air voxel type from the registry, we could just use the AirID
+      // Maybe consider doing this for performance reasons
       // get Air selector from VoxelTypeRegistry
       bytes4 airSelector = VoxelTypeRegistry.get(namespace, AirID).voxelVariantSelector;
       // call airSelector

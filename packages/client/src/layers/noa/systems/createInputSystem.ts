@@ -28,6 +28,7 @@ import {
   getTargetedVoxelCoord,
 } from "../../../utils/voxels";
 import { NotificationIcon } from "../components/persistentNotification";
+import { BEDROCK_ID } from "../../network/api/terrain/occurrence";
 
 export function createInputSystem(network: NetworkLayer, noaLayer: NoaLayer) {
   const {
@@ -99,7 +100,7 @@ export function createInputSystem(network: NetworkLayer, noaLayer: NoaLayer) {
 
       if (creativeMode) {
         miningComponent.duration = 10;
-      } else if (getVoxelTypeInSelectedSlot()?.voxelTypeId === keccak256("bedrock")) {
+      } else if (getVoxelTypeInSelectedSlot()?.voxelTypeId === BEDROCK_ID) {
         miningComponent.duration = FAST_MINING_DURATION;
       }
       return miningComponent;

@@ -208,7 +208,7 @@ export function registerInventoryHud() {
             HasValue(OwnedBy, {
               value: to64CharAddress(connectedAddress.get()),
             }),
-            HasValue(VoxelType, { value: voxelTypeIdAtSlot }),
+            HasValue(VoxelType, entityToVoxelType(voxelTypeIdAtSlot)),
           ]),
         ];
 

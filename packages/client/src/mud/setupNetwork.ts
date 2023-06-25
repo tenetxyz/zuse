@@ -37,11 +37,12 @@ import {
 } from "../layers/network/api";
 import { to64CharAddress } from "../utils/entity";
 import { SingletonID } from "@latticexyz/network";
-import {voxelTypeDataKeyToVoxelVariantDataKey, NoaBlockType, VoxelVariantData, VoxelTypeDataKey, VoxelVariantDataKey, VoxelVariantDataValue, voxelVariantDataKeyToString, voxelVariantKeyStringToKey} from "../layers/noa/types";
+import {voxelTypeDataKeyToVoxelVariantDataKey, NoaBlockType, VoxelVariantData, VoxelTypeDataKey, VoxelVariantDataKey, VoxelVariantDataValue, voxelVariantDataKeyToString, voxelVariantKeyStringToKey, voxelTypeToEntity} from "../layers/noa/types";
 import {Textures, UVWraps} from "../layers/noa/constants";
 import { keccak256 } from "@latticexyz/utils";
 import { TENET_NAMESPACE } from "../constants";
 import { AIR_ID, BEDROCK_ID, DIRT_ID, GRASS_ID } from "../layers/network/api/terrain/occurrence";
+import { getNftStorageLink } from "../layers/noa/constants";
 
 export type SetupNetworkResult = Awaited<ReturnType<typeof setupNetwork>>;
 
@@ -449,6 +450,15 @@ export async function setupNetwork() {
     });
   }
 
+  async function giftVoxelSystem(voxelTypeNamespace: string, voxelTypeId: string) {
+    const tx = await worldSend("tenet_GiftVoxelSystem_giftVoxel", [
+      voxelTypeNamespace,
+      voxelTypeId,
+      { gasLimit: 1_000_000 },
+    ]);
+    return tx;
+  }
+
   // needed in creative mode, to give the user new voxels
   function giftVoxel(voxelTypeNamespace: string, voxelTypeId: string, preview: string) {
     const newVoxel = world.registerEntity();
@@ -462,11 +472,7 @@ export async function setupNetwork() {
         VoxelType: contractComponents.VoxelType,
       },
       execute: async () => {
-        const tx = await worldSend("tenet_GiftVoxelSystem_giftVoxel", [
-          voxelTypeNamespace,
-          voxelTypeId,
-          { gasLimit: 1_000_000 },
-        ]);
+        return giftVoxelSystem(voxelTypeNamespace, voxelTypeId);
       },
       updates: () => [
         // TODO: we can't do optimistic because we don't know what the variant will be. Maybe we can figure out somehow?
@@ -484,35 +490,50 @@ export async function setupNetwork() {
     });
   }
 
+  async function removeVoxelSystem(voxels: Entity[]) {
+    const tx = await worldSend("tenet_RmVoxelSystem_removeVoxels", [
+      voxels.map((voxelId) => to64CharAddress(voxelId)),
+      { gasLimit: 10_000_000 },
+    ]);
+    return tx;
+  }
+
   // needed in creative mode, to allow the user to remove voxels. Otherwise their inventory will fill up
   function removeVoxels(voxels: Entity[]) {
-    // if (voxels.length === 0) {
-    //   return console.warn("trying to remove 0 voxels");
-    // }
+    if (voxels.length === 0) {
+      return console.warn("trying to remove 0 voxels");
+    }
 
-    // const voxelType = getComponentValue(contractComponents.VoxelType, voxels[0])
-    //   ?.value as Entity;
+    const voxelType = getComponentValue(contractComponents.VoxelType, voxels[0]);
+    const voxelTypeKey = voxelType ? voxelTypeToEntity(voxelType) as string : "";
+    actions.add({
+      id: `RemoveVoxels+VoxelType=${voxelTypeKey}` as Entity,
+      metadata: {
+        actionType: "removeVoxels",
+      },
+      requirement: () => true,
+      components: {
+        OwnedBy: contractComponents.OwnedBy,
+        VoxelType: contractComponents.VoxelType,
+      },
+      execute: async () => {
+          return removeVoxelSystem(voxels);
+      },
+      updates: () => [],
+    });
+  }
 
-    // const voxelTypeKey = VoxelTypeIdToKey[voxelType];
-    // actions.add({
-    //   id: `RemoveVoxels+VoxelType=${voxelType.toString()}` as Entity,
-    //   metadata: {
-    //     actionType: "removeVoxels",
-    //     voxelTypeKey,
-    //   },
-    //   requirement: () => true,
-    //   components: {
-    //     OwnedBy: contractComponents.OwnedBy,
-    //     VoxelType: contractComponents.VoxelType,
-    //   },
-    //   execute: async () => {
-    //     const tx = await worldSend("tenet_RmVoxelSystem_removeVoxels", [
-    //       voxels.map((voxelId) => to64CharAddress(voxelId)),
-    //       { gasLimit: 1_000_000 },
-    //     ]);
-    //   },
-    //   updates: () => [],
-    // });
+  async function registerCreationSystem(
+    creationName: string,
+    creationDescription: string,
+    voxels: Entity[]) {
+    const tx = await worldSend("tenet_RegisterCreation_registerCreation", [
+      creationName,
+      creationDescription,
+      voxels,
+      { gasLimit: 5_000_000 },
+    ]);
+    return tx;
   }
 
   function registerCreation(
@@ -520,40 +541,43 @@ export async function setupNetwork() {
     creationDescription: string,
     voxels: Entity[]
   ) {
-    const voxelTypeKey = "Diamond";
+    // TODO: Relpace Diamond NFT with a creation symbol
+    const preview = getNftStorageLink("bafkreicro56v6rinwnltbkyjfzqdwva2agtrtypwaeowud447louxqgl5y");
 
     actions.add({
       id: `RegisterCreation+${creationName}` as Entity,
-      metadata: { actionType: "registerCreation", voxelTypeKey },
+      metadata: { actionType: "registerCreation", preview },
       requirement: () => true,
       components: {
         OwnedBy: contractComponents.OwnedBy,
       },
       execute: async () => {
-        const tx = await worldSend("tenet_RegisterCreation_registerCreation", [
-          creationName,
-          creationDescription,
-          voxels,
-          { gasLimit: 5_000_000 },
-        ]);
+        return registerCreationSystem(creationName, creationDescription, voxels);
       },
       updates: () => [],
     });
   }
 
+  async function spawnCreationSystem(lowerSouthWestCorner: VoxelCoord, creationId: Entity) {
+    const tx = await worldSend("tenet_SpawnSystem_spawn", [
+      lowerSouthWestCorner,
+      creationId,
+      { gasLimit: 10_000_000 },
+    ]);
+    return tx;
+  }
+
   function spawnCreation(lowerSouthWestCorner: VoxelCoord, creationId: Entity) {
-    const voxelTypeKey = "Iron";
+    // TODO: Relpace Iron NFT with a spawn symbol
+    const preview = getNftStorageLink("bafkreidkik2uccshptqcskpippfotmusg7algnfh5ozfsga72xyfdrvacm");
+
     actions.add({
       id: `SpawnCreation+${creationId}+at+${lowerSouthWestCorner}` as Entity,
-      metadata: { actionType: "spawnCreation", voxelTypeKey },
+      metadata: { actionType: "spawnCreation", preview },
       requirement: () => true,
       components: {},
       execute: async () => {
-        const tx = await worldSend("tenet_SpawnSystem_spawn", [
-          lowerSouthWestCorner,
-          creationId,
-          { gasLimit: 10_000_000 },
-        ]);
+        return spawnCreationSystem(lowerSouthWestCorner, creationId);
       },
       updates: () => [],
     });

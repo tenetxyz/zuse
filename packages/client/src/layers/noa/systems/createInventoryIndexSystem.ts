@@ -9,6 +9,8 @@ import {
   defineRxSystem,
   removeComponent,
   runQuery,
+  Component,
+  Type
 } from "@latticexyz/recs";
 import { awaitStreamValue, computedToStream } from "@latticexyz/utils";
 import { switchMap } from "rxjs";
@@ -20,8 +22,15 @@ import { IComputedValue } from "mobx";
 import { voxelTypeToEntity } from "../../../utils/voxels";
 
 export const getItemTypesIOwn = (
-  OwnedBy: any,
-  VoxelType: any,
+  OwnedBy: Component<{
+    value: Type.String;
+  }>,
+  VoxelType: Component<{
+    voxelTypeNamespace: Type.String;
+    voxelTypeId: Type.String;
+    voxelVariantNamespace: Type.String;
+    voxelVariantId: Type.String;
+  }>,
   connectedAddress: IComputedValue<string | undefined>
 ): Set<Entity> => {
   const itemsIOwn = runQuery([
@@ -30,7 +39,11 @@ export const getItemTypesIOwn = (
   ]);
   return new Set(
     Array.from(itemsIOwn).map(
-      (item) => getComponentValue(VoxelType, item)?.value as Entity
+      (item) => {
+        const voxelType = getComponentValue(VoxelType, item);
+        if (voxelType == undefined) return "" as Entity;
+        return voxelTypeToEntity(voxelType);
+      }
     )
   );
 };

@@ -19,8 +19,11 @@ export const Slot: React.FC<{
 }> = ({ voxelType, quantity, onClick, onRightClick, selected, disabled, getVoxelIconUrl, bgUrl }) => {
   let usebgUrl = bgUrl ? bgUrl : "";
   const voxelVariantData = voxelType ? entityToVoxelType(voxelType) : undefined;
-  if (!usebgUrl && voxelVariantData) {
-    usebgUrl = getVoxelIconUrl(voxelVariantData) || "";
+  if (usebgUrl == "" && voxelVariantData !== undefined) {
+    usebgUrl = getVoxelIconUrl({
+      voxelVariantNamespace: voxelVariantData.voxelVariantNamespace,
+      voxelVariantId: voxelVariantData.voxelVariantId,
+    }) || "";
   }
   return (<AbsoluteBorder
     borderColor={selected ? "#ffffff" : "transparent"}

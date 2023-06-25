@@ -44,13 +44,13 @@ export async function createVoxelSystem(
     // TODO: could use update.value?
     const voxelVariantValue = getComponentValueStrict(VoxelVariants, update.entity);
     const [voxelVariantNamespace, voxelVariantId] = update.entity.split(":");
-    const voxelVariantNamepaceStr = removeNullBytes(toUtf8String(voxelVariantNamespace));
+    // const voxelVariantNamepaceStr = removeNullBytes(toUtf8String(voxelVariantNamespace));
     const voxelVariantDataKey = {
-      voxelVariantNamespace: voxelVariantNamepaceStr,
+      voxelVariantNamespace: voxelVariantNamespace.substring(0, 34), // TODO: turn this into helper
       voxelVariantId: voxelVariantId
     }
-    console.log(voxelVariantDataKey);
-    if(!VoxelVariantData.has(voxelVariantDataKey)) {
+
+    if(!VoxelVariantData.has(JSON.stringify(voxelVariantDataKey))) {
       console.log("Adding new variant");
       const voxelVariantData = {
         index: voxelVariantValue.variantId,
@@ -65,14 +65,9 @@ export async function createVoxelSystem(
           uvWrap: voxelVariantValue.uvWrap ? `https://${voxelVariantValue.uvWrap}.ipfs.nftstorage.link/`: undefined,
         }
       }
-      console.log(voxelVariantData);
-      VoxelVariantData.set(voxelVariantDataKey, voxelVariantData);
-    }
-  });
 
-  defineComponentSystem(world, VoxelType, (update) => {
-    console.log("voxel type updated");
-    console.log(update);
+      VoxelVariantData.set(JSON.stringify(voxelVariantDataKey), voxelVariantData);
+    }
   });
 
   // "Exit system"

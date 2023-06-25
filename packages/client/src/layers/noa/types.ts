@@ -52,7 +52,7 @@ export type VoxelVariantDataValue = {
   data: NoaVoxelDef | undefined;
 }
 
-export type VoxelVariantData = Map<VoxelVariantDataKey, VoxelVariantDataValue>;
+export type VoxelVariantData = Map<string, VoxelVariantDataValue>;
 
 export function voxelVariantDataKeyToString(key: VoxelVariantDataKey) {
   return `${key.voxelVariantNamespace}:${key.voxelVariantId}`;

@@ -74,39 +74,39 @@ function defineVoxels(IWorld world) {
     world.tenet_VoxelRegistrySys_registerVoxelVariant(bytes32(keccak256("air")), airVariant);
 
     VoxelVariantsData memory dirtVariant = VoxelVariantsData({
-            variantId: 1,
-            material: "bafkreibzraiuk6hgngtfczn57sivuqf3nv77twi6g3ftas2umjnbf6jefe",
-            uvWrap: "bafkreifbshwckn4pgw5ew2obz3i74eujzpcomatus5gu2tk7mms373gqme",
-            blockType: NoaBlockType.BLOCK,
-            frames: 0,
-            opaque: true,
-            fluid: false,
-            solid: true
+        variantId: 1,
+        material: "bafkreibzraiuk6hgngtfczn57sivuqf3nv77twi6g3ftas2umjnbf6jefe",
+        uvWrap: "bafkreifbshwckn4pgw5ew2obz3i74eujzpcomatus5gu2tk7mms373gqme",
+        blockType: NoaBlockType.BLOCK,
+        frames: 0,
+        opaque: true,
+        fluid: false,
+        solid: true
     });
     world.tenet_VoxelRegistrySys_registerVoxelVariant(bytes32(keccak256("dirt")), dirtVariant);
 
     VoxelVariantsData memory grassVariant = VoxelVariantsData({
-            variantId: 2,
-            material: "bafkreifmvm3yxzbkzcb2r7m6gavjhe22n4p3o36lz2ypkgf5v6i6zzhv4a",
-            // TODO: make grass use an array of 3 materials, not a single one
-            uvWrap: "bafkreihaagdyqnbie3eyx6upmoul2zb4qakubxg6bcha6k5ebp4fbsd3am",
-            blockType: NoaBlockType.BLOCK,
-            frames: 0,
-            opaque: true,
-            fluid: false,
-            solid: true
+        variantId: 2,
+        material: "bafkreifmvm3yxzbkzcb2r7m6gavjhe22n4p3o36lz2ypkgf5v6i6zzhv4a",
+        // TODO: make grass use an array of 3 materials, not a single one
+        uvWrap: "bafkreihaagdyqnbie3eyx6upmoul2zb4qakubxg6bcha6k5ebp4fbsd3am",
+        blockType: NoaBlockType.BLOCK,
+        frames: 0,
+        opaque: true,
+        fluid: false,
+        solid: true
     });
     world.tenet_VoxelRegistrySys_registerVoxelVariant(bytes32(keccak256("grass")), grassVariant);
 
     VoxelVariantsData memory bedrockVariant = VoxelVariantsData({
-            variantId: 3,
-            material: "bafkreidfo756faklwx7o4q2753rxjqx6egzpmqh2zhylxaehqalvws555a",
-            uvWrap: "bafkreihdit6glam7sreijo7itbs7uwc2ltfeuvcfaublxf6rjo24hf6t4y",
-            blockType: NoaBlockType.BLOCK,
-            frames: 0,
-            opaque: true,
-            fluid: false,
-            solid: true
+        variantId: 3,
+        material: "bafkreidfo756faklwx7o4q2753rxjqx6egzpmqh2zhylxaehqalvws555a",
+        uvWrap: "bafkreihdit6glam7sreijo7itbs7uwc2ltfeuvcfaublxf6rjo24hf6t4y",
+        blockType: NoaBlockType.BLOCK,
+        frames: 0,
+        opaque: true,
+        fluid: false,
+        solid: true
     });
     world.tenet_VoxelRegistrySys_registerVoxelVariant(bytes32(keccak256("bedrock")), bedrockVariant);
 

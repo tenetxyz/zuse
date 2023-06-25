@@ -243,13 +243,13 @@ export async function setupNetwork() {
   const VoxelVariantIndexToKey: Map<number, VoxelVariantDataKey> = new Map();
 
   for (const [voxelVariantKey, voxelVariantData] of VoxelVariantData.entries()) {
-    VoxelVariantIndexToKey.set(voxelVariantData.index, voxelVariantKey);
+    VoxelVariantIndexToKey.set(voxelVariantData.index, JSON.parse(voxelVariantKey));
   }
 
   function getVoxelIconUrl(
     voxelTypeKey: VoxelVariantDataKey
   ): string | undefined {
-    const voxel = VoxelVariantData.get(voxelTypeKey)?.data;
+    const voxel = VoxelVariantData.get(JSON.stringify(voxelTypeKey))?.data;
     if (!voxel) return undefined;
     return Array.isArray(voxel.material) ? voxel.material[0] : voxel.material;
   }
@@ -437,11 +437,11 @@ export async function setupNetwork() {
         //   entity: newVoxel,
         //   value: { value: voxelType },
         // },
-        {
-          component: "OwnedBy",
-          entity: playerAddress as Entity,
-          value: newVoxel,
-        },
+        // {
+        //   component: "OwnedBy",
+        //   entity: playerAddress as Entity,
+        //   value: newVoxel,
+        // },
       ],
     });
   }

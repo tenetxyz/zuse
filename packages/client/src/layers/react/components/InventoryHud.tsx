@@ -27,7 +27,7 @@ import { InventoryTab, TabRadioSelector } from "./TabRadioSelector";
 import RegisterCreation, { RegisterCreationFormData } from "./RegisterCreation";
 import { Layers } from "../../../types";
 import CreationStore, { CreationStoreFilters } from "./CreationStore";
-import { entityToVoxelType } from "../../../utils/voxels";
+import { voxelTypeToEntity } from "../../../utils/voxels";
 
 // This gives us 36 inventory slots. As of now there are 34 types of VoxelTypes, so it should fit.
 export const INVENTORY_WIDTH = 9;
@@ -70,14 +70,15 @@ export function registerInventoryHud() {
         of({}),
         VoxelsIOwnQuery.update$.pipe(
           scan((acc, curr) => {
-            const voxelType = getComponentValue(VoxelType, curr.entity)?.value;
+            const voxelType = getComponentValue(VoxelType, curr.entity);
             if (!voxelType) return { ...acc };
-            acc[voxelType] = acc[voxelType] ?? 0;
+            const voxelTypeString = voxelTypeToEntity(voxelType);
+            acc[voxelTypeString] = acc[voxelTypeString] ?? 0;
             if (curr.type === UpdateType.Exit) {
               return { ...acc };
             }
 
-            acc[voxelType]++;
+            acc[voxelTypeString]++;
             return { ...acc };
           }, {} as { [key: string]: number })
         )
@@ -227,8 +228,6 @@ export function registerInventoryHud() {
         const voxelType = [
           ...getEntitiesWithValue(InventoryIndex, { value: i }),
         ][0];
-        // console.log("getting slots");
-        // console.log(InventoryIndex);
         const quantity = voxelType && numVoxelsIOwnOfType[voxelType];
         return (
           <Slot

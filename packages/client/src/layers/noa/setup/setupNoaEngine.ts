@@ -114,7 +114,7 @@ export function setupNoaEngine(network: NetworkLayer) {
   }
 
   function setVoxel(coord: VoxelCoord | number[], voxelVariantDataKey: VoxelVariantDataKey) {
-    const index = VoxelVariantData.get(voxelVariantDataKey)?.index;
+    const index = VoxelVariantData.get(JSON.stringify(voxelVariantDataKey))?.index;
     if ("length" in coord) {
       noa.setBlock(index, coord[0], coord[1], coord[2]);
     } else {
@@ -142,10 +142,10 @@ export function setupNoaEngine(network: NetworkLayer) {
             });
             let ecsVoxelTypeIndex = undefined;
             if(ecsVoxelType !== undefined){
-              ecsVoxelTypeIndex = VoxelVariantData.get({
+              ecsVoxelTypeIndex = VoxelVariantData.get(JSON.stringify({
                 voxelVariantNamespace: ecsVoxelType.voxelVariantNamespace,
                 voxelVariantId:ecsVoxelType.voxelVariantId,
-              })?.index;
+              }))?.index;
             }
             if (ecsVoxelTypeIndex !== undefined) {
               data.set(i, j, k, ecsVoxelTypeIndex);
@@ -157,10 +157,10 @@ export function setupNoaEngine(network: NetworkLayer) {
               });
               const voxelTypeIndex =
               VoxelVariantData.get(
-                {
+                JSON.stringify({
                   voxelVariantNamespace: terrainVoxelType.voxelVariantNamespace,
                   voxelVariantId: terrainVoxelType.voxelVariantId,
-                }
+                })
                 )?.index;
               data.set(i, j, k, voxelTypeIndex);
             }
@@ -176,7 +176,7 @@ export function setupNoaEngine(network: NetworkLayer) {
   // Change voxel targeting mechanism
   noa.blockTargetIdCheck = function (index: number) {
     const key = VoxelVariantIndexToKey.get(index);
-    return key != null && key.voxelVariantId != keccak256("air") && !VoxelVariantData.get(key)?.data?.fluid;
+    return key != null && key.voxelVariantId != keccak256("air") && !VoxelVariantData.get(JSON.stringify(key))?.data?.fluid;
   };
   return { noa, setVoxel, glow };
 }

@@ -8,6 +8,8 @@ import Fuse from "fuse.js";
 import { getItemTypesIOwn } from "../../noa/systems/createInventoryIndexSystem";
 import { INVENTORY_HEIGHT, INVENTORY_WIDTH } from "./InventoryHud";
 import { toast } from "react-toastify";
+import { formatNamespace } from "../../../constants";
+import { getNftStorageLink } from "../../noa/constants";
 
 interface Props {
   layers: Layers;
@@ -54,11 +56,11 @@ export const CreativeInventory: React.FC<Props> = ({ layers }) => {
         const [namespace, voxelTypeId] = entity.split(":");
         return {
           name: voxelTypeId as string, // TODO: update
-          namespace: namespace.substring(0, 34), // TODO: turn this into helper
+          namespace: formatNamespace(namespace),
           description: "tmp desc", // TODO: update
           voxelType: voxelTypeId as Entity,
           voxelTypeId: voxelTypeId,
-          preview: voxelType && voxelType.preview ? `https://${voxelType.preview}.ipfs.nftstorage.link/` : "",
+          preview: voxelType && voxelType.preview ? getNftStorageLink(voxelType.preview) : "",
         };
       }
     );

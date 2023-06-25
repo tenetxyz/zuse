@@ -8,17 +8,23 @@ export const EMPTY_CRAFTING_TABLE = [...new Array(CRAFTING_SIZE)].map(() => -1);
 export const MINING_DURATION = 300;
 export const FAST_MINING_DURATION = 200;
 
+const nftStorageLinkFormat = "https://${hash}.ipfs.nftstorage.link/";
+
+export function getNftStorageLink(hash: string){
+  return nftStorageLinkFormat.replace("${hash}", hash);
+}
+
 export const Textures = {
-  Grass: "https://bafkreifmvm3yxzbkzcb2r7m6gavjhe22n4p3o36lz2ypkgf5v6i6zzhv4a.ipfs.nftstorage.link/",
-  GrassSide: "https://bafkreibp5wefex2cunqz5ffwt3ucw776qthwl6y6pswr2j2zuzldrv6bqa.ipfs.nftstorage.link/",
-  Dirt: "https://bafkreibzraiuk6hgngtfczn57sivuqf3nv77twi6g3ftas2umjnbf6jefe.ipfs.nftstorage.link/",
-  Bedrock: "https://bafkreidfo756faklwx7o4q2753rxjqx6egzpmqh2zhylxaehqalvws555a.ipfs.nftstorage.link/",
+  Grass: getNftStorageLink("bafkreifmvm3yxzbkzcb2r7m6gavjhe22n4p3o36lz2ypkgf5v6i6zzhv4a"),
+  GrassSide: getNftStorageLink("bafkreibp5wefex2cunqz5ffwt3ucw776qthwl6y6pswr2j2zuzldrv6bqa"),
+  Dirt: getNftStorageLink("bafkreibzraiuk6hgngtfczn57sivuqf3nv77twi6g3ftas2umjnbf6jefe"),
+  Bedrock: getNftStorageLink("bafkreidfo756faklwx7o4q2753rxjqx6egzpmqh2zhylxaehqalvws555a")
 };
 
 
 export const UVWraps = {
   Air: undefined,
-  Grass: "https://bafkreihaagdyqnbie3eyx6upmoul2zb4qakubxg6bcha6k5ebp4fbsd3am.ipfs.nftstorage.link/",
-  Dirt: "https://bafkreifbshwckn4pgw5ew2obz3i74eujzpcomatus5gu2tk7mms373gqme.ipfs.nftstorage.link/",
-  Bedrock: "https://bafkreihdit6glam7sreijo7itbs7uwc2ltfeuvcfaublxf6rjo24hf6t4y.ipfs.nftstorage.link/",
+  Grass: getNftStorageLink("bafkreihaagdyqnbie3eyx6upmoul2zb4qakubxg6bcha6k5ebp4fbsd3am"),
+  Dirt: getNftStorageLink("bafkreifbshwckn4pgw5ew2obz3i74eujzpcomatus5gu2tk7mms373gqme"),
+  Bedrock: getNftStorageLink("bafkreihdit6glam7sreijo7itbs7uwc2ltfeuvcfaublxf6rjo24hf6t4y")
 };

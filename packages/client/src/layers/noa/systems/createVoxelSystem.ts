@@ -8,14 +8,10 @@ import {
 import { toUtf8String } from "ethers/lib/utils.js";
 import { awaitStreamValue } from "@latticexyz/utils";
 import { NetworkLayer } from "../../network";
-import { NoaLayer, voxelVariantDataKeyToString } from "../types";
+import { NoaLayer, voxelVariantDataKeyToString, VoxelVariantDataValue } from "../types";
 import { NoaVoxelDef } from "../types";
-
-// function removeNullBytes(str){
-//   return str.split("").filter(char => char.codePointAt(0)).join("")
-// }
-
-const nftStorageLinkFormat = "https://${hash}.ipfs.nftstorage.link/";
+import { formatNamespace } from "../../../constants";
+import { getNftStorageLink } from "../constants";
 
 export async function createVoxelSystem(
   network: NetworkLayer,
@@ -48,7 +44,7 @@ export async function createVoxelSystem(
     const voxelVariantValue = getComponentValueStrict(VoxelVariants, update.entity);
     const [voxelVariantNamespace, voxelVariantId] = update.entity.split(":");
     const voxelVariantDataKey = {
-      voxelVariantNamespace: voxelVariantNamespace.substring(0, 34), // TODO: turn this into helper
+      voxelVariantNamespace: formatNamespace(voxelVariantNamespace),
       voxelVariantId: voxelVariantId
     }
 
@@ -57,8 +53,7 @@ export async function createVoxelSystem(
       const materialArr = voxelVariantValue.materialArr.split("|");
       // go through each hash in materialArr and format it to have the NFT storage link
       const formattedMaterialArr: string[] = materialArr.map((hash: string) => {
-        const nftStorageLink = nftStorageLinkFormat.replace("${hash}", hash);
-        return nftStorageLink;
+        return getNftStorageLink(hash);
       });
       let material: string | string[] = "";
       if(formattedMaterialArr.length == 1){
@@ -67,17 +62,17 @@ export async function createVoxelSystem(
         material = formattedMaterialArr;
       }
 
-      const voxelVariantData = {
+      const voxelVariantData: VoxelVariantDataValue = {
         index: Number(voxelVariantValue.variantId),
         data: {
-            material: material,
+            material: material as any, // TODO: replace any with proper string[]
             type: voxelVariantValue.blockType,
             frames: voxelVariantValue.frames,
             opaque: voxelVariantValue.opaque,
             fluid: voxelVariantValue.fluid,
             solid: voxelVariantValue.solid,
             // TODO: add block mesh
-            uvWrap: voxelVariantValue.uvWrap ? `https://${voxelVariantValue.uvWrap}.ipfs.nftstorage.link/`: undefined,
+            uvWrap: voxelVariantValue.uvWrap ? getNftStorageLink(voxelVariantValue.uvWrap): undefined,
           }
         }
         VoxelVariantData.set(voxelVariantDataKeyToString(voxelVariantDataKey), voxelVariantData);

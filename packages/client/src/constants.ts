@@ -17,7 +17,7 @@ export const Directions = {
 
 export const CHUNK = 16;
 
-function formatNamespace(namespace: string) {
+export function formatNamespace(namespace: string) {
   if(namespace.length < 34)  {
     return namespace + "0".repeat(34 - namespace.length);
   } else {
@@ -26,5 +26,3 @@ function formatNamespace(namespace: string) {
 }
 
 export const TENET_NAMESPACE = formatNamespace(BigNumber.from((toUtf8Bytes("tenet"))).toHexString());
-
-// pad TENET_NAMESPACE with 0's so that its of length 32

@@ -6,6 +6,7 @@ export interface ISpawnCreation {
   creation?: Creation;
 }
 
+// This component tracks the creation that the player is trying to spawn
 export function defineSpawnCreationComponent(world: World) {
   return defineComponent(
     world,

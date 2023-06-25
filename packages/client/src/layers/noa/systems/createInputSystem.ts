@@ -343,6 +343,15 @@ export function createInputSystem(network: NetworkLayer, noaLayer: NoaLayer) {
     });
   });
 
+  noa.inputs.bind("clearSelectedPointVoxels", "<backspace>", "<delete>");
+  noa.inputs.down.on("clearSelectedPointVoxels", () => {
+    setComponent(VoxelSelection, SingletonEntity, {
+      points: [] as any,
+      corner1: undefined,
+      corner2: undefined,
+    });
+  });
+
   noa.inputs.bind("spawnCreation", "<enter>");
   noa.inputs.down.on("spawnCreation", () => {
     if (!noa.container.hasPointerLock) {
@@ -352,11 +361,14 @@ export function createInputSystem(network: NetworkLayer, noaLayer: NoaLayer) {
       SpawnCreation,
       SingletonEntity
     )?.creation;
-    if (!creationToSpawn) {
+    if (creationToSpawn === undefined) {
       return;
     }
     const lowerSouthWestCorner = getCoordOfVoxelOnFaceYouTargeted(noa);
-    spawnCreation(lowerSouthWestCorner, creationToSpawn.creationId);
+    spawnCreation(
+      lowerSouthWestCorner,
+      (creationToSpawn as Creation).creationId
+    );
 
     // clear the spawn creation component so the outline disappears
     // TODO: wait until the transaction succeeds, then clear the spawn creation component

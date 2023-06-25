@@ -82,6 +82,7 @@ import {
 import { createVoxelSelectionOverlaySystem } from "./systems/createVoxelSelectionOverlaySystem";
 import { defineSpawnCreationComponent } from "./components/SpawnCreation";
 import { createSpawnCreationOverlaySystem } from "./systems/createSpawnCreationOverlaySystem";
+import { createSpawnOverlaySystem } from "./systems/createSpawnOverlaySystem";
 
 export function createNoaLayer(network: NetworkLayer) {
   const world = namespaceWorld(network.world, "noa");
@@ -498,6 +499,7 @@ export function createNoaLayer(network: NetworkLayer) {
   createSoundSystem(network, context);
   createVoxelSelectionOverlaySystem(network, context);
   createSpawnCreationOverlaySystem(network, context);
+  createSpawnOverlaySystem(network, context);
 
   return context;
 }

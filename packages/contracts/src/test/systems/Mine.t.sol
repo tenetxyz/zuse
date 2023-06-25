@@ -12,6 +12,7 @@ import { addressToEntityKey } from "../../utils.sol";
 import { VoxelCoord } from "../../types.sol";
 import { Utilities } from "@latticexyz/std-contracts/src/test/Utilities.sol";
 import { console } from "forge-std/console.sol";
+import { TENET_NAMESPACE } from "../../constants.sol";
 
 contract MineTest is MudV2Test {
    IWorld private world;
@@ -33,9 +34,9 @@ contract MineTest is MudV2Test {
     VoxelCoord memory coord = VoxelCoord({ x: -1598, y: 10, z: 4650 }); // Grass
     console.log("testMineTerrain");
 
-    bytes32 minedEntity = world.tenet_MineSystem_mine(coord, GrassID);
+    bytes32 minedEntity = world.tenet_MineSystem_mine(coord, TENET_NAMESPACE, GrassID, TENET_NAMESPACE, GrassID);
 
-    assertEq(VoxelType.get(store, minedEntity), GrassID);
+    assertEq(VoxelType.get(store, minedEntity).voxelTypeId, GrassID);
     assertEq(OwnedBy.get(store, minedEntity), addressToEntityKey(alice));
     vm.stopPrank();
   }

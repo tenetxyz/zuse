@@ -1,9 +1,9 @@
 import * as BABYLON from "@babylonjs/core";
 import { Texture, Vector4 } from "@babylonjs/core";
 import { Engine } from "noa-engine";
-import { VoxelTypeKey } from "../../network/constants";
 import { UVWraps } from "../constants";
 import { HAND_COMPONENT } from "./components/handComponent";
+import { NetworkLayer } from "../../network";
 export const X_HAND = 0.4;
 export const X_VOXEL = 0.7;
 export const Y_HAND = -0.6;
@@ -17,7 +17,7 @@ export const IDLE_ANIMATION_BOX_VOXEL = createIdleAnimation(Y_VOXEL);
 export const MINING_ANIMATION_BOX_HAND = createMiningAnimation(Z_HAND);
 export const MINING_ANIMATION_BOX_VOXEL = createMiningAnimation(Z_VOXEL);
 
-export function setupHand(noa: Engine) {
+export function setupHand(noa: Engine, networkLayer: NetworkLayer) {
   const scene = noa.rendering.getScene();
   const core = BABYLON.MeshBuilder.CreateBox("core", { size: 1 }, scene);
   core.visibility = 0;
@@ -51,24 +51,8 @@ export function setupHand(noa: Engine) {
   hand.material = handMaterial;
   hand.rotation.x = -Math.PI / 2;
 
-  const voxelMaterials: { [key in VoxelTypeKey]?: BABYLON.Material } = {};
-  for (const key of Object.keys(UVWraps) as VoxelTypeKey[]) {
-    if (UVWraps[key] !== undefined) {
-      const voxelMaterial = noa.rendering.makeStandardMaterial(
-        "voxelMaterial-" + key
-      );
-      voxelMaterial.diffuseTexture = new Texture(
-        UVWraps[key]!,
-        scene,
-        true,
-        true,
-        Texture.NEAREST_SAMPLINGMODE
-      );
-      voxelMaterials[key as VoxelTypeKey] = voxelMaterial;
-    } else {
-      voxelMaterials[key as VoxelTypeKey] = undefined;
-    }
-  }
+  const voxelMaterials = {};
+
   const VOXEL_SIZE = 16;
   const voxelTextureSize = [VOXEL_SIZE * 4, VOXEL_SIZE * 2];
   const voxelSize = [VOXEL_SIZE, VOXEL_SIZE, VOXEL_SIZE];

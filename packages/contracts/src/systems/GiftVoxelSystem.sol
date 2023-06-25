@@ -1,21 +1,39 @@
 // SPDX-License-Identifier: GPL-3.0
 pragma solidity >=0.8.0;
+import { hasKey } from "@latticexyz/world/src/modules/keysintable/hasKey.sol";
 import { query, QueryFragment, QueryType } from "@latticexyz/world/src/modules/keysintable/query.sol";
-import { OwnedBy, VoxelType, OwnedByTableId, VoxelTypeTableId } from "../codegen/Tables.sol";
+import { OwnedBy, VoxelType, OwnedByTableId, VoxelTypeTableId, VoxelTypeRegistry, VoxelTypeRegistryTableId } from "../codegen/Tables.sol";
 import { System } from "@latticexyz/world/src/System.sol";
-import { addressToEntityKey, removeDuplicates } from "../utils.sol";
+import { addressToEntityKey, removeDuplicates, staticcallFunctionSelector } from "../utils.sol";
 import { getUniqueEntity } from "@latticexyz/world/src/modules/uniqueentity/getUniqueEntity.sol";
 import { console } from "forge-std/console.sol";
+import { VoxelVariantsKey } from "../Types.sol";
 
 contract GiftVoxelSystem is System {
-    function giftVoxel(bytes32 voxelType ) public returns (bytes32) {
+    function giftVoxel(bytes16 voxelTypeNamespace, bytes32 voxelTypeId) public returns (bytes32) {
+        //  assert this exists in the registry
+        bytes32[] memory keyTuple = new bytes32[](2);
+        keyTuple[0] = bytes32((voxelTypeNamespace));
+        keyTuple[1] = voxelTypeId;
+        require(hasKey(VoxelTypeRegistryTableId, keyTuple), "Voxel type does not exist in the registry");
 
         // even if they request an entity of a type they already own, it's okay to disallow it since they would still have that entity type
         // Since numUniqueVoxelTypesIOwn is quadratic in gas (based on how many voxels you own), running this function could use up all your gas. So it's commented
-//        require(numUniqueVoxelTypesIOwn() <= 36, "You can only own 36 unique voxel types at a time");
+        // require(numUniqueVoxelTypesIOwn() <= 36, "You can only own 36 unique voxel types at a time");
         bytes32 entity = getUniqueEntity();
-        VoxelType.set(entity, voxelType);
+
+        bytes4 voxelVariantSelector = VoxelTypeRegistry.get(voxelTypeNamespace, voxelTypeId).voxelVariantSelector;
+        (bool variantSelectorSuccess, bytes memory voxelVariantSelected) = staticcallFunctionSelector(
+        _world(),
+        voxelVariantSelector,
+        abi.encode(entity)
+        );
+        require(variantSelectorSuccess, "failed to get voxel variant");
+        VoxelVariantsKey memory voxelVariantData = abi.decode(voxelVariantSelected, (VoxelVariantsKey));
+        VoxelType.set(entity, voxelTypeNamespace, voxelTypeId, voxelVariantData.namespace, voxelVariantData.voxelVariantId);
+
         OwnedBy.set(entity, addressToEntityKey(_msgSender()));
+
         return entity;
     }
 
@@ -30,12 +48,12 @@ contract GiftVoxelSystem is System {
             return 0;
         }
         // since mud doesn't have a JOIN operation, we have to manually loop through each entity to get their types
-        bytes32[] memory voxelTypesIOwn = new bytes32[](voxelsIOwnTuples.length);
+        bytes[] memory voxelTypesIOwn = new bytes[](voxelsIOwnTuples.length);
         for(uint i = 0; i < voxelsIOwnTuples.length; i++){
 //            console.log("voxelsIOwnTuples.length", voxelsIOwnTuples.length);
 //            console.log("voxelsIOwnTuples[0].length", voxelsIOwnTuples[i].length);
             bytes32 entityId = voxelsIOwnTuples[i][0];
-            voxelTypesIOwn[i] = VoxelType.get(entityId);
+            voxelTypesIOwn[i] = abi.encode(VoxelType.get(entityId));
         }
 
         return removeDuplicates(voxelTypesIOwn).length;

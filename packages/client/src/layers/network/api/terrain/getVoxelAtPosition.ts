@@ -6,17 +6,23 @@ import {
   Type,
   World,
 } from "@latticexyz/recs";
-import { VoxelCoord } from "@latticexyz/utils";
+import { VoxelCoord, keccak256 } from "@latticexyz/utils";
 import { Perlin } from "@latticexyz/noise";
-import { VoxelTypeKeyToId } from "../../constants";
 import { Terrain, TerrainState } from "./types";
 import { getTerrain } from "./utils";
-import { Air, Bedrock, Dirt, Grass } from "./occurrence";
+import { Air, AIR_ID, Bedrock, Dirt, Grass } from "./occurrence";
+import { VoxelTypeDataKey } from "../../../noa/types";
+import { TENET_NAMESPACE } from "../../../../constants";
 
 export function getEntityAtPosition(
   context: {
     Position: Component<{ x: Type.Number; y: Type.Number; z: Type.Number }>;
-    VoxelType: Component<{ value: Type.String }>;
+    VoxelType: Component<{
+      voxelTypeNamespace: Type.String;
+      voxelTypeId: Type.String;
+      voxelVariantNamespace: Type.String;
+      voxelVariantId: Type.String;
+  }>;
     world: World;
   },
   coord: VoxelCoord
@@ -28,7 +34,7 @@ export function getEntityAtPosition(
   return (
     entitiesAtPosition?.find((b) => {
       const voxelType = getComponentValue(VoxelType, b);
-      return voxelType && voxelType.value !== VoxelTypeKeyToId.Air;
+      return voxelType && voxelType.voxelTypeId !== AIR_ID;
     }) ?? entitiesAtPosition[0]
   );
 }
@@ -36,26 +42,36 @@ export function getEntityAtPosition(
 export function getEcsVoxelType(
   context: {
     Position: Component<{ x: Type.Number; y: Type.Number; z: Type.Number }>;
-    VoxelType: Component<{ value: Type.String }>;
+    VoxelType: Component<{
+      voxelTypeNamespace: Type.String;
+      voxelTypeId: Type.String;
+      voxelVariantNamespace: Type.String;
+      voxelVariantId: Type.String;
+  }>;
     world: World;
   },
   coord: VoxelCoord
-): Entity | undefined {
+): VoxelTypeDataKey | undefined {
   const entityAtPosition = getEntityAtPosition(context, coord);
   if (!entityAtPosition) return undefined;
-  return getComponentValue(context.VoxelType, entityAtPosition)
-    ?.value as Entity;
+  const voxelTypeData = getComponentValue(context.VoxelType, entityAtPosition);
+  return voxelTypeData;
 }
 
 export function getVoxelAtPosition(
   context: {
     Position: Component<{ x: Type.Number; y: Type.Number; z: Type.Number }>;
-    VoxelType: Component<{ value: Type.String }>;
+    VoxelType: Component<{
+      voxelTypeNamespace: Type.String;
+      voxelTypeId: Type.String;
+      voxelVariantNamespace: Type.String;
+      voxelVariantId: Type.String;
+  }>;
     world: World;
   },
   perlin: Perlin,
   coord: VoxelCoord
-): Entity {
+): VoxelTypeDataKey {
   return (
     getEcsVoxelType(context, coord) ??
     getTerrainVoxel(getTerrain(coord, perlin), coord, perlin)
@@ -66,13 +82,18 @@ export function getTerrainVoxel(
   { biome: biomeVector, height }: Terrain,
   coord: VoxelCoord,
   perlin: Perlin
-): Entity {
+): VoxelTypeDataKey {
   const state: TerrainState = { biomeVector, height, coord, perlin };
   return (
     Bedrock(state) ||
     Air(state) ||
     Grass(state) ||
     Dirt(state) ||
-    VoxelTypeKeyToId.Air
+    {
+      voxelTypeNamespace: TENET_NAMESPACE,
+      voxelTypeId: AIR_ID,
+      voxelVariantNamespace: TENET_NAMESPACE,
+      voxelVariantId: AIR_ID,
+    }
   );
 }

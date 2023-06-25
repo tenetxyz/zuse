@@ -3,13 +3,13 @@ import { Engine } from "noa-engine";
 // add a mesh to represent the player, and scale it, etc.
 import "@babylonjs/core/Meshes/Builders/boxBuilder";
 import * as BABYLON from "@babylonjs/core";
-import { VoxelCoord } from "@latticexyz/utils";
-import { Textures, Voxels } from "../constants";
-import { VoxelTypeIdToIndex, VoxelTypeKeyToId } from "../../network";
+import { VoxelCoord, keccak256 } from "@latticexyz/utils";
+import { Textures } from "../constants";
+import { NetworkLayer } from "../../network";
 import { Entity } from "@latticexyz/recs";
-import { NoaBlockType } from "../types";
+import { NoaBlockType, VoxelVariantData, voxelTypeDataKeyToVoxelVariantDataKey, voxelVariantKeyStringToKey } from "../types";
 import { createVoxelMesh } from "./utils";
-import { VoxelTypeIndexToKey, VoxelTypeKey } from "../../network/constants";
+import { voxelVariantDataKeyToString, VoxelVariantDataKey } from "../types";
 import { setupScene } from "../engine/setupScene";
 import {
   CHUNK_RENDER_DISTANCE,
@@ -17,13 +17,10 @@ import {
   MIN_HEIGHT,
   SKY_COLOR,
 } from "./constants";
+import { VoxelVariantDataValue } from "../types";
+import { AIR_ID } from "../../network/api/terrain/occurrence";
 
-export interface API {
-  getTerrainVoxelTypeAtPosition: (coord: VoxelCoord) => Entity;
-  getEcsVoxelTypeAtPosition: (coord: VoxelCoord) => Entity | undefined;
-}
-
-export function setupNoaEngine(api: API) {
+export function setupNoaEngine(network: NetworkLayer) {
   const opts = {
     debug: false,
     // TODO: log this FPS data to a metrics service
@@ -46,6 +43,10 @@ export function setupNoaEngine(api: API) {
     reverseAOmultiplier: 1.0,
     preserveDrawingBuffer: true,
   };
+  const {
+    api: { getTerrainVoxelTypeAtPosition, getEcsVoxelTypeAtPosition },
+    voxelTypes: { VoxelVariantData, VoxelVariantIndexToKey, VoxelVariantDataSubscriptions }
+  } = network;
 
   // Hack Babylon in order to have a -1 rendering group for the sky (to be always drawn behind everything else)
   BABYLON.RenderingManager.MIN_RENDERINGGROUPS = -1;
@@ -64,55 +65,33 @@ export function setupNoaEngine(api: API) {
   // IT DOES NOT INCLUDE TIME SPENT BY THE CLIENT GENERATING THE CHUNKS
   noa.world.maxProcessingPerTick = 12;
   noa.world.maxProcessingPerRender = 8;
-  // Register simple materials
-  const textures = Object.values(Voxels).reduce<string[]>(
-    (materials, voxel) => {
-      if (!voxel || !voxel.material) return materials;
-      const voxelMaterials = (
-        Array.isArray(voxel.material) ? voxel.material : [voxel.material]
-      ) as string[];
-      if (voxelMaterials) materials.push(...voxelMaterials);
-      return materials;
-    },
-    []
-  );
 
-  for (const texture of textures) {
-    noa.registry.registerMaterial(texture, undefined, texture);
+  function voxelMaterialSubscription(
+    voxelVariantKey: VoxelVariantDataKey,
+    voxelVariantData: VoxelVariantDataValue,
+  ) {
+    const data = voxelVariantData.data;
+    if(!data) return;
+    const voxelMaterials = (
+      Array.isArray(data.material) ? data.material : [data.material]
+    ) as string[];
+    for (const texture of voxelMaterials) {
+      console.log("Registering material", texture);
+      noa.registry.registerMaterial(texture, undefined, texture);
+    }
   }
 
-  // override the two water materials
-  noa.registry.registerMaterial(
-    Textures.TransparentWater,
-    [146 / 255, 215 / 255, 233 / 255, 0.5],
-    undefined,
-    true
-  );
-  noa.registry.registerMaterial(
-    Textures.Water,
-    [1, 1, 1, 0.7],
-    Textures.Water,
-    true
-  );
-  noa.registry.registerMaterial(
-    Textures.Leaves,
-    undefined,
-    Textures.Leaves,
-    true
-  );
-  noa.registry.registerMaterial(
-    Textures.Glass,
-    undefined,
-    Textures.Glass,
-    true
-  );
+  function voxelBlockSubscription(
+    voxelVariantKey: VoxelVariantDataKey,
+    voxelVariantData: VoxelVariantDataValue,
+  ) {
+    const index = voxelVariantData.index;
+    const data = voxelVariantData.data;
+    const voxel = data;
+    const voxelTypeKeyStr = voxelVariantDataKeyToString(voxelVariantKey);
 
-  // Register voxels
-
-  for (const [key, voxel] of Object.entries(Voxels)) {
-    const index = VoxelTypeIdToIndex[VoxelTypeKeyToId[key as VoxelTypeKey]];
     const augmentedVoxel = { ...voxel };
-    if (!voxel) continue;
+    if (!voxel) return;
 
     // Register mesh for mesh voxels
     if (voxel.type === NoaBlockType.MESH) {
@@ -126,18 +105,31 @@ export function setupNoaEngine(api: API) {
         noa,
         scene,
         texture,
-        key,
+        voxelTypeKeyStr,
         augmentedVoxel.frames
       );
       augmentedVoxel.blockMesh = mesh;
       delete augmentedVoxel.material;
     }
 
+    console.log("Registering block", index, augmentedVoxel);
     noa.registry.registerBlock(index, augmentedVoxel);
   }
 
-  function setVoxel(coord: VoxelCoord | number[], voxel: Entity) {
-    const index = VoxelTypeIdToIndex[voxel];
+  VoxelVariantDataSubscriptions.push(voxelMaterialSubscription);
+  VoxelVariantDataSubscriptions.push(voxelBlockSubscription);
+
+  // initial run
+  for (const [voxelVariantKey, voxelVariantData] of VoxelVariantData.entries()) {
+    const voxelVariantDataKey = voxelVariantKeyStringToKey(voxelVariantKey);
+    voxelMaterialSubscription(voxelVariantDataKey, voxelVariantData);
+    voxelBlockSubscription(voxelVariantDataKey, voxelVariantData);
+  }
+
+  // Register voxels
+
+  function setVoxel(coord: VoxelCoord | number[], voxelVariantDataKey: VoxelVariantDataKey) {
+    const index = VoxelVariantData.get(voxelVariantDataKeyToString(voxelVariantDataKey))?.index;
     if ("length" in coord) {
       noa.setBlock(index, coord[0], coord[1], coord[2]);
     } else {
@@ -158,25 +150,30 @@ export function setupNoaEngine(api: API) {
       for (let i = 0; i < data.shape[0]; i++) {
         for (let j = 0; j < data.shape[1]; j++) {
           for (let k = 0; k < data.shape[2]; k++) {
-            const ecsVoxelTypeIndex =
-              VoxelTypeIdToIndex[
-                api.getEcsVoxelTypeAtPosition({
-                  x: x + i,
-                  y: y + j,
-                  z: z + k,
-                }) as string
-              ];
+            const ecsVoxelType = getEcsVoxelTypeAtPosition({
+              x: x + i,
+              y: y + j,
+              z: z + k,
+            });
+            let ecsVoxelTypeIndex = undefined;
+            if(ecsVoxelType !== undefined){
+              ecsVoxelTypeIndex = VoxelVariantData.get(voxelVariantDataKeyToString({
+                voxelVariantNamespace: ecsVoxelType.voxelVariantNamespace,
+                voxelVariantId:ecsVoxelType.voxelVariantId,
+              }))?.index;
+            }
             if (ecsVoxelTypeIndex !== undefined) {
               data.set(i, j, k, ecsVoxelTypeIndex);
             } else {
+              const terrainVoxelType = getTerrainVoxelTypeAtPosition({
+                x: x + i,
+                y: y + j,
+                z: z + k,
+              });
               const voxelTypeIndex =
-                VoxelTypeIdToIndex[
-                  api.getTerrainVoxelTypeAtPosition({
-                    x: x + i,
-                    y: y + j,
-                    z: z + k,
-                  }) as string
-                ];
+              VoxelVariantData.get(
+                voxelVariantDataKeyToString(voxelTypeDataKeyToVoxelVariantDataKey(terrainVoxelType))
+                )?.index;
               data.set(i, j, k, voxelTypeIndex);
             }
           }
@@ -190,8 +187,8 @@ export function setupNoaEngine(api: API) {
 
   // Change voxel targeting mechanism
   noa.blockTargetIdCheck = function (index: number) {
-    const key = VoxelTypeIndexToKey[index];
-    return key != null && key != "Air" && !Voxels[key]?.fluid;
+    const key = VoxelVariantIndexToKey.get(index);
+    return key != null && key.voxelVariantId != AIR_ID && !VoxelVariantData.get(voxelVariantDataKeyToString(key))?.data?.fluid;
   };
   return { noa, setVoxel, glow };
 }

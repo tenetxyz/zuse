@@ -6,8 +6,8 @@ import {
 } from "@latticexyz/recs";
 import { map } from "rxjs";
 import styled from "styled-components";
-import { getVoxelIconUrl } from "../../noa/constants";
 import { Action as ActionQueueItem } from "./Action";
+import { voxelVariantDataKeyToString } from "../../noa/types";
 
 const ActionQueueList = styled.div`
   width: 240px;
@@ -39,6 +39,15 @@ const ActionQueueList = styled.div`
   }
 `;
 
+const MAX_DESCRIPTION_LEN = 13;
+
+function enforceMaxLen(str: string) {
+  if (str.length > MAX_DESCRIPTION_LEN) {
+    return str.substring(0, MAX_DESCRIPTION_LEN) + "...";
+  }
+  return str;
+}
+
 export function registerActionQueue() {
   registerUIComponent(
     "ActionQueue",
@@ -53,6 +62,7 @@ export function registerActionQueue() {
         network: {
           actions: { Action },
           config: { blockExplorer },
+          getVoxelIconUrl,
         },
       } = layers;
 
@@ -60,10 +70,11 @@ export function registerActionQueue() {
         map(() => ({
           Action,
           blockExplorer,
+          getVoxelIconUrl,
         }))
       );
     },
-    ({ Action, blockExplorer }) => {
+    ({ Action, blockExplorer, getVoxelIconUrl }) => {
       return (
         <ActionQueueList>
           {[...getComponentEntities(Action)].map((e) => {
@@ -71,15 +82,18 @@ export function registerActionQueue() {
               Action,
               e
             );
-            const { actionType, coord, voxelTypeKey } = metadata || {};
-            const icon = voxelTypeKey && getVoxelIconUrl(voxelTypeKey);
+            const { actionType, coord, voxelVariantKey, preview } = metadata || {};
+            let icon = voxelVariantKey && getVoxelIconUrl(voxelVariantKey);
+            if (icon === undefined){
+              icon = preview;
+            }
             return (
               <div key={e} className="ActionQueueItem">
                 <ActionQueueItem
                   state={state}
                   icon={icon}
                   title={`${actionType} tx`}
-                  description={voxelTypeKey}
+                  description={voxelVariantKey ? enforceMaxLen(voxelVariantDataKeyToString(voxelVariantKey)) : ""}
                   link={txHash && blockExplorer + "/tx/" + txHash}
                 />
                 {/* TODO: conditionally render this for debugging? */}

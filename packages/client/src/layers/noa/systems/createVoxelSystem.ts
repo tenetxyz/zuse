@@ -5,9 +5,10 @@ import {
   getComponentValueStrict,
   Has,
 } from "@latticexyz/recs";
+import { toUtf8String } from "ethers/lib/utils.js";
 import { awaitStreamValue } from "@latticexyz/utils";
 import { NetworkLayer } from "../../network";
-import { NoaLayer } from "../types";
+import { NoaLayer, voxelTypeDataKeyToVoxelVariantDataKey } from "../types";
 
 export async function createVoxelSystem(
   network: NetworkLayer,
@@ -37,7 +38,7 @@ export async function createVoxelSystem(
     if (!live) return;
     if (!value[0] && value[1]) {
       const voxel = getVoxelAtPosition(value[1]);
-      setVoxel(value[1], voxel);
+      setVoxel(value[1], voxelTypeDataKeyToVoxelVariantDataKey(voxel));
     }
   });
 
@@ -46,6 +47,6 @@ export async function createVoxelSystem(
     if (!live) return;
     const position = getComponentValueStrict(Position, update.entity);
     const voxel = getVoxelAtPosition(position);
-    setVoxel(position, voxel);
+    setVoxel(position, voxelTypeDataKeyToVoxelVariantDataKey(voxel));
   });
 }

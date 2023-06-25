@@ -19,8 +19,6 @@ import {
   setComponent,
   UpdateType,
 } from "@latticexyz/recs";
-import { getVoxelIconUrl } from "../../noa/constants";
-import { VoxelTypeIdToKey } from "../../network/constants";
 import { to64CharAddress } from "../../../utils/entity";
 import { Sounds } from "./Sounds";
 import { CreativeInventory } from "./CreativeInventory";
@@ -29,6 +27,7 @@ import { InventoryTab, TabRadioSelector } from "./TabRadioSelector";
 import RegisterCreation, { RegisterCreationFormData } from "./RegisterCreation";
 import { Layers } from "../../../types";
 import CreationStore, { CreationStoreFilters } from "./CreationStore";
+import { entityToVoxelType, voxelTypeToEntity, voxelTypeDataKeyToVoxelVariantDataKey } from "../../noa/types";
 
 // This gives us 36 inventory slots. As of now there are 34 types of VoxelTypes, so it should fit.
 export const INVENTORY_WIDTH = 9;
@@ -49,6 +48,7 @@ export function registerInventoryHud() {
           contractComponents: { OwnedBy, VoxelType },
           streams: { connectedClients$ },
           network: { connectedAddress },
+          getVoxelIconUrl,
         },
         noa: {
           components: { UI, InventoryIndex, SelectedSlot, CraftingTable },
@@ -70,14 +70,15 @@ export function registerInventoryHud() {
         of({}),
         VoxelsIOwnQuery.update$.pipe(
           scan((acc, curr) => {
-            const voxelType = getComponentValue(VoxelType, curr.entity)?.value;
+            const voxelType = getComponentValue(VoxelType, curr.entity);
             if (!voxelType) return { ...acc };
-            acc[voxelType] = acc[voxelType] ?? 0;
+            const voxelTypeString = voxelTypeToEntity(voxelType);
+            acc[voxelTypeString] = acc[voxelTypeString] ?? 0;
             if (curr.type === UpdateType.Exit) {
               return { ...acc };
             }
 
-            acc[voxelType]++;
+            acc[voxelTypeString]++;
             return { ...acc };
           }, {} as { [key: string]: number })
         )
@@ -125,6 +126,7 @@ export function registerInventoryHud() {
           api: { removeVoxels },
           contractComponents: { OwnedBy, VoxelType },
           network: { connectedAddress },
+          getVoxelIconUrl,
         },
         noa: {
           api: { playRandomTheme, playNextTheme, toggleInventory },
@@ -148,8 +150,9 @@ export function registerInventoryHud() {
           document.body.style.cursor = "unset";
           return;
         }
-        const voxelTypeKey = VoxelTypeIdToKey[holdingVoxelType as Entity];
-        const icon = getVoxelIconUrl(voxelTypeKey);
+        const voxelType = entityToVoxelType(holdingVoxelType);
+        const voxelVariantTypeKey = voxelTypeDataKeyToVoxelVariantDataKey(voxelType);
+        const icon = getVoxelIconUrl(voxelVariantTypeKey);
         document.body.style.cursor = `url(${icon}) 12 12, auto`;
       }, [holdingVoxelType]);
 
@@ -179,7 +182,7 @@ export function registerInventoryHud() {
         if (holdingVoxelTypeSlot === undefined) {
           console.warn(
             "we are not holding a voxel of type",
-            VoxelTypeIdToKey[holdingVoxelType]
+            holdingVoxelType
           );
           return;
         }
@@ -205,7 +208,7 @@ export function registerInventoryHud() {
             HasValue(OwnedBy, {
               value: to64CharAddress(connectedAddress.get()),
             }),
-            HasValue(VoxelType, { value: voxelTypeIdAtSlot }),
+            HasValue(VoxelType, entityToVoxelType(voxelTypeIdAtSlot)),
           ]),
         ];
 
@@ -222,8 +225,6 @@ export function registerInventoryHud() {
         const voxelType = [
           ...getEntitiesWithValue(InventoryIndex, { value: i }),
         ][0];
-        // console.log("getting slots");
-        // console.log(InventoryIndex);
         const quantity = voxelType && numVoxelsIOwnOfType[voxelType];
         return (
           <Slot
@@ -234,6 +235,7 @@ export function registerInventoryHud() {
             onRightClick={() => removeVoxelType(i)}
             disabled={voxelType === holdingVoxelType}
             selected={i === selectedSlot}
+            getVoxelIconUrl={getVoxelIconUrl}
           />
         );
       });

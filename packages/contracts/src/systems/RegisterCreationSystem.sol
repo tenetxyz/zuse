@@ -6,7 +6,7 @@ import { System } from "@latticexyz/world/src/System.sol";
 import { Strings } from "@openzeppelin/contracts/utils/Strings.sol";
 import { IWorld } from "../codegen/world/IWorld.sol";
 import { addressToEntityKey, getEntitiesAtCoord, voxelCoordToString } from "../utils.sol";
-import { VoxelType, Position, Creation, CreationData } from "../codegen/Tables.sol";
+import { VoxelType, Position, Creation, CreationData, VoxelTypeData} from "../codegen/Tables.sol";
 import { PositionData } from "../codegen/tables/Position.sol";
 import { VoxelCoord } from "../types.sol";
 import { AirID } from "../prototypes/Voxels.sol";
@@ -19,7 +19,7 @@ contract RegisterCreationSystem is System {
         VoxelCoord[] memory voxelCoords = getVoxelCoords(voxels);
         validateCreation(voxelCoords);
 
-        bytes32[] memory voxelTypes = getVoxelTypes(voxels);
+        bytes memory voxelTypes = abi.encode(getVoxelTypes(voxels));
         (uint32[] memory repositionedX, uint32[] memory repositionedY, uint32[] memory repositionedZ) = repositionBlocksSoLowerSouthwestCornerIsOnOrigin(voxelCoords);
 
         CreationData memory creation;
@@ -91,12 +91,12 @@ contract RegisterCreationSystem is System {
         return (repositionedX, repositionedY, repositionedZ);
     }
 
-    function getVoxelTypes(bytes32[] memory voxels) public view returns ( bytes32[] memory) {
-        bytes32[] memory voxelTypes = new bytes32[](voxels.length);
+    function getVoxelTypes(bytes32[] memory voxels) public view returns (VoxelTypeData[] memory) {
+        VoxelTypeData[] memory voxelTypeData = new VoxelTypeData[](voxels.length);
         for (uint32 i = 0; i < voxels.length; i++) {
-            voxelTypes[i] = VoxelType.get(voxels[i]);
+            voxelTypeData[i] = VoxelType.get(voxels[i]);
         }
-        return voxelTypes;
+        return voxelTypeData;
     }
 
     function getVoxelCoords(bytes32[] memory voxels) private view returns ( VoxelCoord[] memory ) {
@@ -124,7 +124,7 @@ contract RegisterCreationSystem is System {
 
     // hashing the message sender means that two different players can register the same creation
     // I think it's fine, because two players can solve a level in the same way
-    function getCreationHash(bytes32[] memory voxelTypes, uint32[] memory repositionedX, uint32[] memory repositionedY, uint32[] memory repositionedZ, address sender) public pure returns (bytes32) {
+    function getCreationHash(bytes memory voxelTypes, uint32[] memory repositionedX, uint32[] memory repositionedY, uint32[] memory repositionedZ, address sender) public pure returns (bytes32) {
         return bytes32(keccak256(abi.encode(voxelTypes, repositionedX, repositionedY, repositionedZ, sender)));
     }
 }

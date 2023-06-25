@@ -37,6 +37,8 @@ import {
   defineVoxelSelectionComponent,
 } from "./components";
 import { CRAFTING_SIDE, EMPTY_CRAFTING_TABLE } from "./constants";
+import * as BABYLON from "@babylonjs/core";
+import { Texture, Vector4 } from "@babylonjs/core";
 import { setupHand } from "./engine/hand";
 import { monkeyPatchMeshComponent } from "./engine/components/monkeyPatchMeshComponent";
 import {
@@ -47,6 +49,7 @@ import { setupClouds, setupSky } from "./engine/sky";
 import { setupNoaEngine } from "./setup";
 import {
   createVoxelSystem,
+  createVoxelVariantSystem,
   createInputSystem,
   createInventoryIndexSystem,
   createPlayerPositionSystem,
@@ -83,6 +86,7 @@ import { createVoxelSelectionOverlaySystem } from "./systems/createVoxelSelectio
 import { defineSpawnCreationComponent } from "./components/SpawnCreation";
 import { createSpawnCreationOverlaySystem } from "./systems/createSpawnCreationOverlaySystem";
 import { createSpawnOverlaySystem } from "./systems/createSpawnOverlaySystem";
+import { entityToVoxelType, VoxelTypeDataKey, VoxelVariantDataKey, voxelVariantDataKeyToString, voxelVariantKeyStringToKey, VoxelVariantDataValue } from "./types";
 
 export function createNoaLayer(network: NetworkLayer) {
   const world = namespaceWorld(network.world, "noa");
@@ -95,6 +99,7 @@ export function createNoaLayer(network: NetworkLayer) {
     components: { Recipe, Claim, Stake, LoadingState },
     contractComponents: { OwnedBy, VoxelType },
     api: { build },
+    voxelTypes: { VoxelVariantData, VoxelVariantDataSubscriptions }
   } = network;
   const uniqueWorldId = chainId + worldAddress;
 
@@ -131,7 +136,7 @@ export function createNoaLayer(network: NetworkLayer) {
   };
 
   // --- SETUP ----------------------------------------------------------------------
-  const { noa, setVoxel, glow } = setupNoaEngine(network.api);
+  const { noa, setVoxel, glow } = setupNoaEngine(network);
 
   // Because NOA and RECS currently use different ECS libraries we need to maintain a mapping of RECS ID to Noa ID
   // A future version of OPCraft will remove the NOA ECS library and use pure RECS only
@@ -342,7 +347,7 @@ export function createNoaLayer(network: NetworkLayer) {
     );
   };
 
-  function getVoxelTypeInSelectedSlot(): Entity | undefined {
+  function getVoxelTypeInSelectedSlot(): VoxelTypeDataKey | undefined {
     const selectedSlot = getComponentValue(
       components.SelectedSlot,
       SingletonEntity
@@ -353,7 +358,8 @@ export function createNoaLayer(network: NetworkLayer) {
         value: selectedSlot,
       }),
     ][0];
-    return voxelType;
+    if(voxelType == undefined) return;
+    return entityToVoxelType(voxelType);
   }
 
   function placeSelectedVoxelType(coord: VoxelCoord) {
@@ -400,17 +406,50 @@ export function createNoaLayer(network: NetworkLayer) {
     updateComponent(components.Sounds, SingletonEntity, { playingTheme });
   }
 
+  const scene = noa.rendering.getScene();
+
+  const voxelMaterials: Map<string, BABYLON.Material | undefined> = new Map();
+  function voxelUVWrapSubscription(
+    voxelVariantKey: VoxelVariantDataKey,
+    voxelVariantData: VoxelVariantDataValue,
+  ) {
+    const voxelVariantKeyStr = voxelVariantDataKeyToString(voxelVariantKey);
+    if(voxelVariantData.data?.uvWrap){
+      console.log("Registering uvWrap", voxelVariantKeyStr);
+      const voxelMaterial = noa.rendering.makeStandardMaterial(
+        "voxelMaterial-" + voxelVariantKey
+      );
+      voxelMaterial.diffuseTexture = new Texture(
+        voxelVariantData.data.uvWrap,
+        scene,
+        true,
+        true,
+        Texture.NEAREST_SAMPLINGMODE
+      );
+      voxelMaterials.set(voxelVariantKeyStr, voxelMaterial);
+    } else {
+      voxelMaterials.set(voxelVariantKeyStr, undefined);
+    }
+  }
+
+  VoxelVariantDataSubscriptions.push(voxelUVWrapSubscription);
+
+  // initial run
+  for (const [voxelVariantKey, voxelVariantData] of VoxelVariantData.entries()) {
+    voxelUVWrapSubscription(voxelVariantKeyStringToKey(voxelVariantKey), voxelVariantData);
+  }
+
   // --- SETUP NOA COMPONENTS AND MODULES --------------------------------------------------------
   monkeyPatchMeshComponent(noa);
   registerModelComponent(noa);
   registerRotationComponent(noa);
   registerTargetedRotationComponent(noa);
   registerTargetedPositionComponent(noa);
-  registerHandComponent(noa, getVoxelTypeInSelectedSlot);
+  registerHandComponent(noa, getVoxelTypeInSelectedSlot, voxelMaterials);
   registerMiningVoxelComponent(noa, network);
   setupClouds(noa);
   setupSky(noa);
-  setupHand(noa);
+  setupHand(noa, network);
   // setupDayNightCycle(noa, glow); // Curtis removed this because he had to constantly change his monitor brightness
 
   // Pause noa until initial loading is done
@@ -488,6 +527,7 @@ export function createNoaLayer(network: NetworkLayer) {
 
   // --- SYSTEMS --------------------------------------------------------------------
   createInputSystem(network, context);
+  createVoxelVariantSystem(network, context);
   createVoxelSystem(network, context);
   createPlayerPositionSystem(network, context);
   createRelaySystem(network, context);

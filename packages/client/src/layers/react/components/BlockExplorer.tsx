@@ -10,22 +10,22 @@ import {
   SchemaOf,
 } from "@latticexyz/recs";
 import { filter, scan, merge, map } from "rxjs";
-import { VoxelTypeIdToKey, VoxelTypeKey } from "../../network/constants";
 import { registerUIComponent } from "../engine";
 import styled from "styled-components";
-import { getVoxelIconUrl } from "../../noa/constants";
 import { filterNullish } from "@latticexyz/utils";
+import { voxelTypeToEntity, voxelTypeDataKeyToVoxelVariantDataKey, entityToVoxelType } from "../../noa/types";
+import { AIR_ID } from "../../network/api/terrain/occurrence";
 
 type BlockEvent = {
   blockNumber: number;
-  voxelTypeKey?: keyof typeof VoxelTypeIdToKey; // for some reason I cannot use VoxelTypeKey here
+  voxelTypeKey?: string;
   action?: "add" | "remove";
 };
 
 type BlockSummaryElement = [
   number, // block number
   {
-    [voxelType in keyof typeof VoxelTypeIdToKey]: {
+    [voxelType: string]: {
       add?: number;
       remove?: number;
     };
@@ -107,6 +107,7 @@ export function registerBlockExplorer() {
           network: { blockNumber$ },
           world,
           config: { blockExplorer },
+          getVoxelIconUrl,
         },
       } = layers;
 
@@ -126,27 +127,35 @@ export function registerBlockExplorer() {
               ({ blockNumber, component, value, entity }) => {
                 const componentKey = mappings[component];
 
-                // VoxelType component updates correspond to a mined terrain block
-                if (componentKey === "VoxelType") {
-                  // TODO: We added this because value was undefined, should figure out why the original line (below) doesn't work
-                  const voxelType = getComponentValue(VoxelType, entity)?.value;
-                  // const { value: entityId } = value as ComponentValue<SchemaOf<typeof VoxelType>>;
-                  const voxelTypeKey = VoxelTypeIdToKey[voxelType as Entity];
-                  return { blockNumber, voxelTypeKey, action: "remove" };
-                }
-
-                // Position component updates correspond to a mined or placed ECS block
-                if (componentKey === "Position") {
-                  // const entityIndex = world.entityToIndex.get(entity);
-                  const entityIndex = entity;
+                // OwnedBy component updates correspond to a mined block
+                // TODO: This causes a remove event to show when a voxel is gifted. Should fix this
+                if (componentKey === "OwnedBy") {
                   const voxelType =
-                    entityIndex != null
-                      ? getComponentValue(VoxelType, entityIndex)?.value
+                    entity !== null
+                      ? getComponentValue(VoxelType, entity)
                       : undefined;
                   if (!voxelType) {
                     return;
                   }
-                  const voxelTypeKey = VoxelTypeIdToKey[voxelType as Entity];
+                  const voxelTypeKey = voxelTypeToEntity(voxelType);
+
+                  return {
+                    blockNumber,
+                    voxelTypeKey,
+                    action: "remove",
+                  };
+                }
+
+                // Position component updates correspond to a placed block
+                if (componentKey === "Position") {
+                  const voxelType =
+                    entity !== null
+                      ? getComponentValue(VoxelType, entity)
+                      : undefined;
+                  if (!voxelType) {
+                    return;
+                  }
+                  const voxelTypeKey = voxelTypeToEntity(voxelType);
 
                   // If the update includes a position, it corresponds to a placed block
                   if (value) {
@@ -156,21 +165,22 @@ export function registerBlockExplorer() {
                       action: "add",
                     };
                   }
+                  // Note: this is handled by OwnedBy component updates above
                   // otherwise it corresponds to a mined ecs block
-                  else {
-                    return {
-                      blockNumber,
-                      voxelTypeKey,
-                      action: "remove",
-                    };
-                  }
+                  // else {
+                  //   return {
+                  //     blockNumber,
+                  //     voxelTypeKey,
+                  //     action: "remove",
+                  //   };
+                  // }
                 }
               }
             )
           )
           .pipe(filterNullish())
       )
-        .pipe(filter((update) => update.voxelTypeKey !== "Air"))
+        .pipe(filter((update) => update.voxelTypeKey === undefined || entityToVoxelType(update.voxelTypeKey as Entity).voxelTypeId !== AIR_ID))
         .pipe(
           scan<BlockEvent, BlockSummary>((summary, event) => {
             const block =
@@ -191,10 +201,10 @@ export function registerBlockExplorer() {
 
             return [...otherBlocks, block].slice(-500);
           }, [] as BlockSummary),
-          map((summary) => ({ summary, blockExplorer }))
+          map((summary) => ({ summary, blockExplorer, getVoxelIconUrl }))
         );
     },
-    ({ summary, blockExplorer }) => {
+    ({ summary, blockExplorer, getVoxelIconUrl }) => {
       return (
         <BlockExplorerContainer>
           {summary.map(([blockNumber, block]) => (
@@ -214,7 +224,7 @@ export function registerBlockExplorer() {
                     {counts.add ? (
                       <div className="BlockExplorer-Action">
                         <img
-                          src={getVoxelIconUrl(voxelTypeKey as VoxelTypeKey)}
+                          src={getVoxelIconUrl(voxelTypeDataKeyToVoxelVariantDataKey(entityToVoxelType(voxelTypeKey as Entity)))}
                         />
                         <div className="BlockExplorer-ActionIcon BlockExplorer-ActionIcon--add">
                           +{counts.add}
@@ -224,7 +234,7 @@ export function registerBlockExplorer() {
                     {counts.remove ? (
                       <div className="BlockExplorer-Action">
                         <img
-                          src={getVoxelIconUrl(voxelTypeKey as VoxelTypeKey)}
+                          src={getVoxelIconUrl(voxelTypeDataKeyToVoxelVariantDataKey(entityToVoxelType(voxelTypeKey as Entity)))}
                         />
                         <div className="BlockExplorer-ActionIcon BlockExplorer-ActionIcon--remove">
                           -{counts.remove}

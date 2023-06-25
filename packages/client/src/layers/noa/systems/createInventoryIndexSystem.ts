@@ -9,18 +9,27 @@ import {
   defineRxSystem,
   removeComponent,
   runQuery,
+  Component,
+  Type
 } from "@latticexyz/recs";
 import { awaitStreamValue, computedToStream } from "@latticexyz/utils";
 import { switchMap } from "rxjs";
 import { NetworkLayer } from "../../network";
-import { NoaLayer } from "../types";
+import { NoaLayer, voxelTypeToEntity, voxelTypeDataKeyToVoxelVariantDataKey, voxelVariantDataKeyToString, entityToVoxelType } from "../types";
 import { to64CharAddress } from "../../../utils/entity";
 import { SyncState } from "@latticexyz/network";
 import { IComputedValue } from "mobx";
 
 export const getItemTypesIOwn = (
-  OwnedBy: any,
-  VoxelType: any,
+  OwnedBy: Component<{
+    value: Type.String;
+  }>,
+  VoxelType: Component<{
+    voxelTypeNamespace: Type.String;
+    voxelTypeId: Type.String;
+    voxelVariantNamespace: Type.String;
+    voxelVariantId: Type.String;
+  }>,
   connectedAddress: IComputedValue<string | undefined>
 ): Set<Entity> => {
   const itemsIOwn = runQuery([
@@ -29,7 +38,11 @@ export const getItemTypesIOwn = (
   ]);
   return new Set(
     Array.from(itemsIOwn).map(
-      (item) => getComponentValue(VoxelType, item)?.value as Entity
+      (item) => {
+        const voxelType = getComponentValue(VoxelType, item);
+        if (voxelType == undefined) return "" as Entity;
+        return voxelVariantDataKeyToString(voxelTypeDataKeyToVoxelVariantDataKey(voxelType)) as Entity;
+      }
     )
   );
 };
@@ -72,8 +85,8 @@ export function createInventoryIndexSystem(
       connectedAddress
     );
     for (const itemType of InventoryIndex.values.value.keys()) {
-      // since itemType is a symbol, we use itemType.description to get the bytes32 itemType id as a string type
-      if (!itemTypesIOwn.has(itemType.description as Entity)) {
+      const voxelVariantDataKey = voxelTypeDataKeyToVoxelVariantDataKey(entityToVoxelType(itemType.description as Entity));
+      if (!itemTypesIOwn.has(voxelVariantDataKeyToString(voxelVariantDataKey) as Entity)) {
         removeComponent(InventoryIndex, itemType.description as Entity);
       }
     }
@@ -91,17 +104,17 @@ export function createInventoryIndexSystem(
       // the voxel just got removed, so don't assign an inventory index for it
       return;
     }
-    const voxelType = getComponentValue(VoxelType, update.entity)
-      ?.value as Entity;
+    const voxelType = getComponentValue(VoxelType, update.entity);
 
-    if (voxelType == null) return;
+    if (voxelType == undefined) return;
+    const voxelTypeKey = voxelTypeToEntity(voxelType);
 
     // Assign the first free inventory index
-    if (!hasComponent(InventoryIndex, voxelType)) {
+    if (!hasComponent(InventoryIndex, voxelTypeKey)) {
       const values = [...InventoryIndex.values.value.values()]; // lol
       let i = 0;
       while (values.includes(i)) i++;
-      setComponent(InventoryIndex, voxelType, { value: i });
+      setComponent(InventoryIndex, voxelTypeKey, { value: i });
     }
   });
 }

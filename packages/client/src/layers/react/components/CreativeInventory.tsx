@@ -1,5 +1,5 @@
 import { Slot } from "./common";
-import { Entity, getEntitiesWithValue } from "@latticexyz/recs";
+import { Entity, getComponentValue, getEntitiesWithValue } from "@latticexyz/recs";
 import { Layers } from "../../../types";
 import { range } from "@latticexyz/utils";
 import styled from "styled-components";
@@ -8,6 +8,9 @@ import Fuse from "fuse.js";
 import { getItemTypesIOwn } from "../../noa/systems/createInventoryIndexSystem";
 import { INVENTORY_HEIGHT, INVENTORY_WIDTH } from "./InventoryHud";
 import { toast } from "react-toastify";
+import { formatNamespace } from "../../../constants";
+import { getNftStorageLink } from "../../noa/constants";
+import { voxelVariantDataKeyToString } from "../../noa/types";
 
 interface Props {
   layers: Layers;
@@ -17,16 +20,20 @@ const NUM_ROWS = 6;
 
 interface VoxelDescription {
   name: string;
+  namespace: string;
   description: string;
   voxelType: Entity;
+  voxelTypeId: string;
+  preview: string;
 }
 
 export const CreativeInventory: React.FC<Props> = ({ layers }) => {
   const {
-    components: { VoxelPrototype },
+    components: { VoxelTypeRegistry },
     contractComponents: { OwnedBy, VoxelType },
     api: { giftVoxel },
     network: { connectedAddress },
+    getVoxelIconUrl,
   } = layers.network;
 
   const [searchValue, setSearchValue] = React.useState<string>("");
@@ -37,14 +44,24 @@ export const CreativeInventory: React.FC<Props> = ({ layers }) => {
   const fuse = React.useRef<Fuse<VoxelDescription>>();
 
   React.useEffect(() => {
-    const voxelTypes = getEntitiesWithValue(VoxelPrototype, { value: true });
+    const allVoxelTypes = [...VoxelTypeRegistry.entities()];
+    const voxelTypes = [];
+    for (const voxelType of allVoxelTypes) {
+      const voxelTypeValue = getComponentValue(VoxelTypeRegistry, voxelType);
+      voxelTypes.push(voxelTypeValue);
+    }
     console.log("creative voxelTypes", voxelTypes);
     const unsortedVoxelDescriptions = Array.from(voxelTypes).map(
-      (voxelType) => {
+      (voxelType, index: number) => {
+        const entity = allVoxelTypes[index];
+        const [namespace, voxelTypeId] = entity.split(":");
         return {
-          name: voxelType as string, // TODO: update
+          name: voxelTypeId as string, // TODO: update
+          namespace: formatNamespace(namespace),
           description: "tmp desc", // TODO: update
-          voxelType,
+          voxelType: voxelTypeId as Entity,
+          voxelTypeId: voxelTypeId,
+          preview: voxelType && voxelType.preview ? getNftStorageLink(voxelType.preview) : "",
         };
       }
     );
@@ -59,7 +76,7 @@ export const CreativeInventory: React.FC<Props> = ({ layers }) => {
     setVoxelDescriptions(
       unsortedVoxelDescriptions.sort((a, b) => a.name.localeCompare(b.name))
     );
-  }, [VoxelPrototype]);
+  }, [VoxelTypeRegistry]);
 
   React.useEffect(() => {
     if (!fuse.current || !voxelDescriptions) {
@@ -73,22 +90,25 @@ export const CreativeInventory: React.FC<Props> = ({ layers }) => {
 
   const Slots = [...range(NUM_ROWS * NUM_COLS)].map((i) => {
     if (!filteredVoxelDescriptions || i >= filteredVoxelDescriptions.length) {
-      return <Slot key={"voxel-search-slot" + i} disabled={true} />;
+      return <Slot key={"voxel-search-slot" + i} disabled={true} getVoxelIconUrl={getVoxelIconUrl} />;
     }
     const voxelDescription = filteredVoxelDescriptions[i];
+
     return (
       <Slot
-        key={"slot" + i}
+        key={"creative-slot" + i}
         voxelType={voxelDescription.voxelType}
+        iconUrl={voxelDescription.preview}
         quantity={undefined} // undefined so no number appears
-        onClick={() => tryGiftVoxel(voxelDescription.voxelType)}
+        onClick={() => tryGiftVoxel(voxelDescription.namespace, voxelDescription.voxelTypeId, voxelDescription.preview)}
         disabled={false} // false, so if you pick up the voxeltype, it still shows up in the creative inventory
         selected={false} // you can never select an voxeltype in the creative inventory
+        getVoxelIconUrl={getVoxelIconUrl}
       />
     );
   });
 
-  const tryGiftVoxel = (voxelType: Entity) => {
+  const tryGiftVoxel = (voxelTypeNamespace: string, voxelTypeId: string, preview: string) => {
     // It's better to do this validation off-chain since doing it on-chain is expensive.
     // Also this is more of a UI limitation. Who knows, maybe in the future, we WILL enforce strict inventory limits
     const itemTypesIOwn = getItemTypesIOwn(
@@ -97,10 +117,13 @@ export const CreativeInventory: React.FC<Props> = ({ layers }) => {
       connectedAddress
     );
     if (
-      itemTypesIOwn.has(voxelType) ||
+      itemTypesIOwn.has(voxelVariantDataKeyToString({
+        voxelVariantNamespace: voxelTypeNamespace,
+        voxelVariantId: voxelTypeId,
+      }) as Entity) ||
       itemTypesIOwn.size < INVENTORY_WIDTH * INVENTORY_HEIGHT
     ) {
-      giftVoxel(voxelType);
+      giftVoxel(voxelTypeNamespace, voxelTypeId, preview);
     } else {
       toast(`Your inventory is full! Right click on an item to delete it.`);
     }

@@ -29,11 +29,6 @@ import {
 import { map, timer, combineLatest, BehaviorSubject } from "rxjs";
 import storeConfig from "@tenetxyz/contracts/mud.config";
 import {
-  VoxelTypeIdToKey,
-  VoxelTypeKey,
-  VoxelTypeKeyToId,
-} from "../layers/network/constants";
-import {
   getEcsVoxelType,
   getTerrain,
   getTerrainVoxel,
@@ -41,8 +36,17 @@ import {
   getEntityAtPosition as getEntityAtPositionApi,
 } from "../layers/network/api";
 import { to64CharAddress } from "../utils/entity";
+import { SingletonID } from "@latticexyz/network";
+import {voxelTypeDataKeyToVoxelVariantDataKey, NoaBlockType, VoxelVariantData, VoxelTypeDataKey, VoxelVariantDataKey, VoxelVariantDataValue, voxelVariantDataKeyToString, voxelVariantKeyStringToKey, voxelTypeToEntity} from "../layers/noa/types";
+import {Textures, UVWraps} from "../layers/noa/constants";
+import { keccak256 } from "@latticexyz/utils";
+import { TENET_NAMESPACE } from "../constants";
+import { AIR_ID, BEDROCK_ID, DIRT_ID, GRASS_ID } from "../layers/network/api/terrain/occurrence";
+import { getNftStorageLink } from "../layers/noa/constants";
 
 export type SetupNetworkResult = Awaited<ReturnType<typeof setupNetwork>>;
+
+export type VoxelVariantSubscription = (voxelVariantKey: VoxelVariantDataKey, voxelVariantData: VoxelVariantDataValue) => void;
 
 export async function setupNetwork() {
   const contractComponents = defineContractComponents(world);
@@ -191,7 +195,8 @@ export async function setupNetwork() {
   const actions = createActionSystem<{
     actionType: string;
     coord?: VoxelCoord;
-    voxelTypeKey?: VoxelTypeKey;
+    voxelVariantKey?: VoxelVariantDataKey;
+    preview?: string;
   }>(world, result.txReduced$);
 
   // Add optimistic updates and indexers
@@ -210,6 +215,88 @@ export async function setupNetwork() {
     contractComponents.VoxelType
   );
 
+  const VoxelVariantData: VoxelVariantData = new Map();
+  const VoxelVariantDataSubscriptions: VoxelVariantSubscription[] = [];
+  // TODO: should load initial ones from chain too
+  VoxelVariantData.set(
+    voxelVariantDataKeyToString({
+      voxelVariantNamespace: TENET_NAMESPACE,
+      voxelVariantId: AIR_ID
+    }),
+    {
+      index: 0,
+      data: undefined
+    }
+  );
+  VoxelVariantData.set(
+    voxelVariantDataKeyToString({
+      voxelVariantNamespace: TENET_NAMESPACE,
+      voxelVariantId: DIRT_ID
+    }),
+    {
+      index: 1,
+      data: {
+        type: NoaBlockType.BLOCK,
+        material: Textures.Dirt,
+        uvWrap: UVWraps.Dirt,
+      }
+    }
+  );
+  VoxelVariantData.set(
+    voxelVariantDataKeyToString({
+      voxelVariantNamespace: TENET_NAMESPACE,
+      voxelVariantId: GRASS_ID
+    }),
+    {
+      index: 2,
+      data: {
+        type: NoaBlockType.BLOCK,
+        material: [Textures.Grass, Textures.Dirt, Textures.GrassSide],
+        uvWrap: UVWraps.Grass,
+      }
+    }
+  );
+  VoxelVariantData.set(
+    voxelVariantDataKeyToString({
+      voxelVariantNamespace: TENET_NAMESPACE,
+      voxelVariantId: BEDROCK_ID
+    }),
+    {
+      index: 3,
+      data: {
+        type: NoaBlockType.BLOCK,
+        material: Textures.Bedrock,
+        uvWrap: UVWraps.Bedrock,
+      }
+    }
+  );
+
+  const VoxelVariantIndexToKey: Map<number, VoxelVariantDataKey> = new Map();
+
+  function voxelIndexSubscription(
+    voxelVariantKey: VoxelVariantDataKey,
+    voxelVariantData: VoxelVariantDataValue,
+  ) {
+    VoxelVariantIndexToKey.set(voxelVariantData.index, voxelVariantKey);
+  }
+
+  VoxelVariantDataSubscriptions.push(voxelIndexSubscription);
+
+  // initial run
+  for (const [voxelVariantKey, voxelVariantData] of VoxelVariantData.entries()) {
+    voxelIndexSubscription(voxelVariantKeyStringToKey(voxelVariantKey), voxelVariantData);
+  }
+
+
+  function getVoxelIconUrl(
+    voxelTypeKey: VoxelVariantDataKey
+  ): string | undefined {
+    const voxel = VoxelVariantData.get(voxelVariantDataKeyToString(voxelTypeKey))?.data;
+    if (!voxel) return undefined;
+    return Array.isArray(voxel.material) ? voxel.material[0] : voxel.material;
+  }
+
+
   // --- API ------------------------------------------------------------------------
 
   const perlin = await createPerlin();
@@ -220,14 +307,14 @@ export async function setupNetwork() {
     world,
   };
 
-  function getTerrainVoxelTypeAtPosition(position: VoxelCoord): Entity {
+  function getTerrainVoxelTypeAtPosition(position: VoxelCoord): VoxelTypeDataKey {
     return getTerrainVoxel(getTerrain(position, perlin), position, perlin);
   }
 
-  function getEcsVoxelTypeAtPosition(position: VoxelCoord): Entity | undefined {
+  function getEcsVoxelTypeAtPosition(position: VoxelCoord): VoxelTypeDataKey | undefined {
     return getEcsVoxelType(terrainContext, position);
   }
-  function getVoxelAtPosition(position: VoxelCoord): Entity {
+  function getVoxelAtPosition(position: VoxelCoord): VoxelTypeDataKey {
     return getVoxelAtPositionApi(terrainContext, perlin, position);
   }
   function getEntityAtPosition(position: VoxelCoord): Entity | undefined {
@@ -247,13 +334,13 @@ export async function setupNetwork() {
     return tx;
   }
 
-  function build(voxelType: Entity, coord: VoxelCoord) {
+  function build(voxelType: VoxelTypeDataKey, coord: VoxelCoord) {
     const voxelInstanceOfVoxelType = [
       ...runQuery([
         HasValue(contractComponents.OwnedBy, {
           value: to64CharAddress(playerAddress),
         }),
-        HasValue(contractComponents.VoxelType, { value: voxelType }),
+        HasValue(contractComponents.VoxelType, voxelType),
       ]),
     ][0];
     if (!voxelInstanceOfVoxelType) {
@@ -262,7 +349,8 @@ export async function setupNetwork() {
       );
     }
 
-    const voxelTypeKey = VoxelTypeIdToKey[voxelType as Entity];
+    const voxelVariantKey: VoxelVariantDataKey = voxelTypeDataKeyToVoxelVariantDataKey(voxelType);
+
     const newVoxelOfSameType = world.registerEntity();
 
     actions.add({
@@ -271,7 +359,7 @@ export async function setupNetwork() {
         // metadata determines how the transaction dialog box appears in the bottom left corner
         actionType: "build",
         coord,
-        voxelTypeKey, // Determines the Icon that appears in the dialogue box
+        voxelVariantKey, // Determines the Icon that appears in the dialogue box
       },
       requirement: () => true,
       components: {
@@ -297,35 +385,42 @@ export async function setupNetwork() {
         {
           component: "VoxelType",
           entity: newVoxelOfSameType,
-          value: { value: voxelType },
+          value: voxelType,
         },
       ],
     });
   }
 
-  async function mineSystem(coord: VoxelCoord, voxel: Entity) {
+  async function mineSystem(coord: VoxelCoord, voxelType: VoxelTypeDataKey) {
     const tx = await worldSend("tenet_MineSystem_mine", [
       coord,
-      voxel,
+      voxelType.voxelTypeNamespace,
+      voxelType.voxelTypeId,
+      voxelType.voxelVariantNamespace,
+      voxelType.voxelVariantId,
       { gasLimit: 10_000_000 },
     ]);
     return tx;
   }
 
   async function mine(coord: VoxelCoord) {
-    const voxelType =
+    const voxelTypeKey =
       getEcsVoxelTypeAtPosition(coord) ?? getTerrainVoxelTypeAtPosition(coord);
 
-    if (voxelType == null) {
+    if (voxelTypeKey == null) {
       throw new Error("entity has no VoxelType");
     }
-    const voxelTypeKey = VoxelTypeIdToKey[voxelType];
     const voxel = getEntityAtPosition(coord);
     const airEntity = world.registerEntity();
 
+    const voxelVariantKey: VoxelVariantDataKey = {
+      voxelVariantNamespace: voxelTypeKey.voxelVariantNamespace,
+      voxelVariantId: voxelTypeKey.voxelVariantId,
+    }
+
     actions.add({
       id: `mine+${coord.x}/${coord.y}/${coord.z}` as Entity,
-      metadata: { actionType: "mine", coord, voxelTypeKey },
+      metadata: { actionType: "mine", coord, voxelVariantKey },
       requirement: () => true,
       components: {
         Position: contractComponents.Position,
@@ -333,7 +428,7 @@ export async function setupNetwork() {
         VoxelType: contractComponents.VoxelType,
       },
       execute: () => {
-        return mineSystem(coord, voxelType);
+        return mineSystem(coord, voxelTypeKey);
       },
       updates: () => [
         {
@@ -344,7 +439,7 @@ export async function setupNetwork() {
         {
           component: "VoxelType",
           entity: airEntity,
-          value: { value: VoxelTypeKeyToId.Air },
+          value: { voxelTypeNamespace: TENET_NAMESPACE, voxelTypeId: AIR_ID, voxelVariantNamespace: TENET_NAMESPACE, voxelVariantId: AIR_ID },
         },
         {
           component: "Position",
@@ -355,38 +450,52 @@ export async function setupNetwork() {
     });
   }
 
+  async function giftVoxelSystem(voxelTypeNamespace: string, voxelTypeId: string) {
+    const tx = await worldSend("tenet_GiftVoxelSystem_giftVoxel", [
+      voxelTypeNamespace,
+      voxelTypeId,
+      { gasLimit: 1_000_000 },
+    ]);
+    return tx;
+  }
+
   // needed in creative mode, to give the user new voxels
-  function giftVoxel(voxelType: Entity) {
+  function giftVoxel(voxelTypeNamespace: string, voxelTypeId: string, preview: string) {
     const newVoxel = world.registerEntity();
-    const voxelTypeKey = VoxelTypeIdToKey[voxelType];
 
     actions.add({
-      id: `GiftVoxel+${voxelType}` as Entity,
-      metadata: { actionType: "giftVoxel", voxelTypeKey },
+      id: `GiftVoxel+${voxelTypeNamespace}+${voxelTypeId}` as Entity,
+      metadata: { actionType: "giftVoxel", preview },
       requirement: () => true,
       components: {
         OwnedBy: contractComponents.OwnedBy,
         VoxelType: contractComponents.VoxelType,
       },
       execute: async () => {
-        const tx = await worldSend("tenet_GiftVoxelSystem_giftVoxel", [
-          voxelType,
-          { gasLimit: 1_000_000 },
-        ]);
+        return giftVoxelSystem(voxelTypeNamespace, voxelTypeId);
       },
       updates: () => [
-        {
-          component: "VoxelType",
-          entity: newVoxel,
-          value: { value: voxelType },
-        },
-        {
-          component: "OwnedBy",
-          entity: playerAddress as Entity,
-          value: newVoxel,
-        },
+        // TODO: we can't do optimistic because we don't know what the variant will be. Maybe we can figure out somehow?
+        // {
+        //   component: "VoxelType",
+        //   entity: newVoxel,
+        //   value: { value: voxelType },
+        // },
+        // {
+        //   component: "OwnedBy",
+        //   entity: playerAddress as Entity,
+        //   value: newVoxel,
+        // },
       ],
     });
+  }
+
+  async function removeVoxelSystem(voxels: Entity[]) {
+    const tx = await worldSend("tenet_RmVoxelSystem_removeVoxels", [
+      voxels.map((voxelId) => to64CharAddress(voxelId)),
+      { gasLimit: 10_000_000 },
+    ]);
+    return tx;
   }
 
   // needed in creative mode, to allow the user to remove voxels. Otherwise their inventory will fill up
@@ -395,15 +504,12 @@ export async function setupNetwork() {
       return console.warn("trying to remove 0 voxels");
     }
 
-    const voxelType = getComponentValue(contractComponents.VoxelType, voxels[0])
-      ?.value as Entity;
-
-    const voxelTypeKey = VoxelTypeIdToKey[voxelType];
+    const voxelType = getComponentValue(contractComponents.VoxelType, voxels[0]);
+    const voxelTypeKey = voxelType ? voxelTypeToEntity(voxelType) as string : "";
     actions.add({
-      id: `RemoveVoxels+VoxelType=${voxelType.toString()}` as Entity,
+      id: `RemoveVoxels+VoxelType=${voxelTypeKey}` as Entity,
       metadata: {
         actionType: "removeVoxels",
-        voxelTypeKey,
       },
       requirement: () => true,
       components: {
@@ -411,13 +517,23 @@ export async function setupNetwork() {
         VoxelType: contractComponents.VoxelType,
       },
       execute: async () => {
-        const tx = await worldSend("tenet_RmVoxelSystem_removeVoxels", [
-          voxels.map((voxelId) => to64CharAddress(voxelId)),
-          { gasLimit: 1_000_000 },
-        ]);
+          return removeVoxelSystem(voxels);
       },
       updates: () => [],
     });
+  }
+
+  async function registerCreationSystem(
+    creationName: string,
+    creationDescription: string,
+    voxels: Entity[]) {
+    const tx = await worldSend("tenet_RegisterCreation_registerCreation", [
+      creationName,
+      creationDescription,
+      voxels,
+      { gasLimit: 5_000_000 },
+    ]);
+    return tx;
   }
 
   function registerCreation(
@@ -425,40 +541,43 @@ export async function setupNetwork() {
     creationDescription: string,
     voxels: Entity[]
   ) {
-    const voxelTypeKey = "Diamond";
+    // TODO: Relpace Diamond NFT with a creation symbol
+    const preview = getNftStorageLink("bafkreicro56v6rinwnltbkyjfzqdwva2agtrtypwaeowud447louxqgl5y");
 
     actions.add({
       id: `RegisterCreation+${creationName}` as Entity,
-      metadata: { actionType: "registerCreation", voxelTypeKey },
+      metadata: { actionType: "registerCreation", preview },
       requirement: () => true,
       components: {
         OwnedBy: contractComponents.OwnedBy,
       },
       execute: async () => {
-        const tx = await worldSend("tenet_RegisterCreation_registerCreation", [
-          creationName,
-          creationDescription,
-          voxels,
-          { gasLimit: 5_000_000 },
-        ]);
+        return registerCreationSystem(creationName, creationDescription, voxels);
       },
       updates: () => [],
     });
   }
 
+  async function spawnCreationSystem(lowerSouthWestCorner: VoxelCoord, creationId: Entity) {
+    const tx = await worldSend("tenet_SpawnSystem_spawn", [
+      lowerSouthWestCorner,
+      creationId,
+      { gasLimit: 10_000_000 },
+    ]);
+    return tx;
+  }
+
   function spawnCreation(lowerSouthWestCorner: VoxelCoord, creationId: Entity) {
-    const voxelTypeKey = "Iron";
+    // TODO: Relpace Iron NFT with a spawn symbol
+    const preview = getNftStorageLink("bafkreidkik2uccshptqcskpippfotmusg7algnfh5ozfsga72xyfdrvacm");
+
     actions.add({
       id: `SpawnCreation+${creationId}+at+${lowerSouthWestCorner}` as Entity,
-      metadata: { actionType: "spawnCreation", voxelTypeKey },
+      metadata: { actionType: "spawnCreation", preview },
       requirement: () => true,
       components: {},
       execute: async () => {
-        const tx = await worldSend("tenet_SpawnSystem_spawn", [
-          lowerSouthWestCorner,
-          creationId,
-          { gasLimit: 10_000_000 },
-        ]);
+        return spawnCreationSystem(lowerSouthWestCorner, creationId);
       },
       updates: () => [],
     });
@@ -525,6 +644,7 @@ export async function setupNetwork() {
     faucet,
     worldAddress: networkConfig.worldAddress,
     uniqueWorldId,
-    voxelTypes: { VoxelTypeIdToKey, VoxelTypeKeyToId },
+    getVoxelIconUrl,
+    voxelTypes: { VoxelVariantData, VoxelVariantIndexToKey, VoxelVariantDataSubscriptions },
   };
 }

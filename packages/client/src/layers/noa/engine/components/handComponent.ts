@@ -2,19 +2,18 @@ import * as BABYLON from "@babylonjs/core";
 import { Engine } from "noa-engine";
 import { Entity } from "@latticexyz/recs";
 import { Material } from "@babylonjs/core";
-import { VoxelTypeIdToKey, VoxelTypeKey } from "../../../network/constants";
 import {
   IDLE_ANIMATION_BOX_VOXEL,
   IDLE_ANIMATION_BOX_HAND,
   MINING_ANIMATION_BOX_VOXEL,
   MINING_ANIMATION_BOX_HAND,
 } from "../hand";
+import { VoxelTypeDataKey, VoxelVariantDataKey, voxelTypeDataKeyToVoxelVariantDataKey, voxelVariantDataKeyToString } from "../../types";
 
 export interface HandComponent {
   isMining: boolean;
   handMesh: BABYLON.Mesh;
   voxelMesh: BABYLON.Mesh;
-  voxelMaterials: { [key in VoxelTypeKey]?: Material };
   __id: number;
 }
 
@@ -22,7 +21,8 @@ export const HAND_COMPONENT = "HAND_COMPONENT";
 
 export function registerHandComponent(
   noa: Engine,
-  getSelectedVoxelType: () => Entity | undefined
+  getSelectedVoxelType: () =>  VoxelTypeDataKey | undefined,
+  voxelMaterials: Map<string, BABYLON.Material | undefined>,
 ) {
   // eslint-disable-next-line @typescript-eslint/ban-ts-comment
   //@ts-ignore
@@ -36,16 +36,18 @@ export function registerHandComponent(
     },
     system: function (dt: number, states: HandComponent[]) {
       for (let i = 0; i < states.length; i++) {
-        const { handMesh, isMining, voxelMesh, voxelMaterials } = states[i];
+        const { handMesh, isMining, voxelMesh } = states[i];
         const id = states[i].__id;
         if (id === noa.playerEntity) {
           // NOTE: for now just animate / change the material of the player hand
           const selectedVoxelType = getSelectedVoxelType();
-          const voxelTypeKey =
-            selectedVoxelType && VoxelTypeIdToKey[selectedVoxelType];
-          if (voxelTypeKey && voxelMaterials[voxelTypeKey] !== undefined) {
+          let voxelVariantKey = undefined;
+          if(selectedVoxelType){
+            voxelVariantKey = voxelTypeDataKeyToVoxelVariantDataKey(selectedVoxelType);
+          }
+          if (voxelVariantKey && voxelMaterials.get(voxelVariantDataKeyToString(voxelVariantKey)) !== undefined) {
             // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-            voxelMesh.material = voxelMaterials[voxelTypeKey]!;
+            voxelMesh.material = voxelMaterials.get(voxelVariantDataKeyToString(voxelVariantKey))!;
             handMesh.visibility = 0;
             voxelMesh.visibility = 1;
           } else {

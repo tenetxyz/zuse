@@ -5,12 +5,12 @@ pragma solidity >=0.8.0;
 //import { Perlin } from "./Perlin.sol";
 import { ABDKMath64x64 as Math } from "../libraries/ABDKMath64x64.sol";
 import { Biome, STRUCTURE_CHUNK, STRUCTURE_CHUNK_CENTER } from "../constants.sol";
-import { AirID, GrassID, DirtID, LogID, StoneID, SandID, WaterID, CobblestoneID, CoalID, CraftingID, IronID, GoldID, DiamondID, LeavesID, PlanksID, RedFlowerID, GrassPlantID, OrangeFlowerID, MagentaFlowerID, LightBlueFlowerID, LimeFlowerID, PinkFlowerID, GrayFlowerID, LightGrayFlowerID, CyanFlowerID, PurpleFlowerID, BlueFlowerID, GreenFlowerID, BlackFlowerID, KelpID, WoolID, SnowID, ClayID, BedrockID } from "../prototypes/Voxels.sol";
-import { VoxelCoord, Tuple } from "../Types.sol";
+import { AirID, GrassID, DirtID, BedrockID } from "../prototypes/Voxels.sol";
+import { VoxelCoord, Tuple, VoxelVariantsKey } from "../Types.sol";
 import { div } from "../Utils.sol";
 import { System } from "@latticexyz/world/src/System.sol";
 import { IWorld } from "../codegen/world/IWorld.sol";
-import { CHUNK_MIN_Y } from "../Constants.sol";
+import { CHUNK_MIN_Y, TENET_NAMESPACE } from "../Constants.sol";
 
 int128 constant _0 = 0; // 0 * 2**64
 int128 constant _0_3 = 5534023222112865484; // 0.3 * 2**64
@@ -36,52 +36,10 @@ int128 constant _16 = 16 * 2**64;
 
 contract LibTerrainSystem is System {
 
-  function getTerrainVoxel(VoxelCoord memory coord) public view returns (bytes32) {
+  function getTerrainVoxel(VoxelCoord memory coord) public view returns (VoxelVariantsKey memory) {
     int128[4] memory biome = getBiome(coord.x, coord.z);
     int32 height = getHeight(coord.x, coord.z, biome);
     return getTerrainVoxel(coord.x, coord.y, coord.z, height, biome);
-  }
-
-  function _getTerrainVoxel(
-    int32,
-    int32 y,
-    int32,
-    int32 height,
-    int128[4] memory biome
-  ) internal view returns (bytes32) {
-    if (y > height + 1) {
-      if (y >= 0) return AirID;
-      return WaterID;
-    }
-
-    int128 maxBiome;
-    uint256 maxBiomeIndex;
-    for (uint256 i; i < biome.length; i++) {
-      if (biome[i] > maxBiome) {
-        maxBiome = biome[i];
-        maxBiomeIndex = i;
-      }
-    }
-
-    if (maxBiome == 0) return DirtID;
-    if (maxBiomeIndex == uint256(Biome.Desert)) {
-      if (y == height + 1) {
-        return KelpID;
-      }
-      return SandID;
-    }
-
-    if (maxBiomeIndex == uint256(Biome.Mountains)) return StoneID;
-
-    if (maxBiomeIndex == uint256(Biome.Savanna)) {
-      if (y == height + 1) {
-        return RedFlowerID;
-      }
-      return GrassID;
-    }
-
-    if (maxBiomeIndex == uint256(Biome.Forest)) return LogID;
-    return AirID;
   }
 
   function getTerrainVoxel(
@@ -90,26 +48,29 @@ contract LibTerrainSystem is System {
     int32 z,
     int32 height,
     int128[4] memory biomeValues
-  ) internal view returns (bytes32) {
-    bytes32 voxelTypeId;
+  ) internal view returns (VoxelVariantsKey memory) {
+    VoxelVariantsKey memory voxelTypeId;
 
     voxelTypeId = Bedrock(y);
-    if (voxelTypeId != 0) return voxelTypeId;
+    if (voxelTypeId.voxelVariantId != bytes32(0x0)) return voxelTypeId;
 
     voxelTypeId = Air(y);
-    if (voxelTypeId != 0) return voxelTypeId;
+    if (voxelTypeId.voxelVariantId != bytes32(0x0)) return voxelTypeId;
 
     uint8 biome = getMaxBiome(biomeValues);
 
     int32 distanceFromHeight = height - y;
 
     voxelTypeId = Grass(y);
-    if (voxelTypeId != 0) return voxelTypeId;
+    if (voxelTypeId.voxelVariantId != bytes32(0x0)) return voxelTypeId;
 
     voxelTypeId = Dirt(y);
-    if (voxelTypeId != 0) return voxelTypeId;
+    if (voxelTypeId.voxelVariantId != bytes32(0x0)) return voxelTypeId;
 
-    return AirID;
+    return VoxelVariantsKey({
+            namespace: TENET_NAMESPACE,
+            voxelVariantId: AirID
+    });
   }
 
   function getHeight(
@@ -325,40 +286,80 @@ contract LibTerrainSystem is System {
   // voxel occurrence functions
   //////////////////////////////////////////////////////////////////////////////////////
 
-  function Air(VoxelCoord memory coord) public view returns (bytes32) {
+  function Air(VoxelCoord memory coord) public view returns (VoxelVariantsKey memory) {
     return Air(coord.y);
   }
 
-  function Air(int32 y) internal view returns (bytes32) {
-    if (y > 10) return AirID;
+  function Air(int32 y) internal view returns (VoxelVariantsKey memory) {
+    if (y > 10) {
+      return VoxelVariantsKey({
+            namespace: TENET_NAMESPACE,
+            voxelVariantId: AirID
+      });
+    }
+
+    return VoxelVariantsKey({
+            namespace: bytes16(0x0),
+            voxelVariantId: bytes32(0x0)
+    });
   }
 
-  function Bedrock(VoxelCoord memory coord) public view returns (bytes32) {
+  function Bedrock(VoxelCoord memory coord) public view returns (VoxelVariantsKey memory) {
     return Bedrock(coord.y);
   }
 
-  function Bedrock(int32 y) internal view returns (bytes32) {
-    if (y <= CHUNK_MIN_Y) return BedrockID;
+  function Bedrock(int32 y) internal view returns (VoxelVariantsKey memory) {
+    if (y <= CHUNK_MIN_Y) {
+      return VoxelVariantsKey({
+            namespace: TENET_NAMESPACE,
+            voxelVariantId: BedrockID
+      });
+    }
+
+    return VoxelVariantsKey({
+            namespace: bytes16(0x0),
+            voxelVariantId: bytes32(0x0)
+    });
   }
 
-  function Grass(VoxelCoord memory coord) public view returns (bytes32) {
+  function Grass(VoxelCoord memory coord) public view returns (VoxelVariantsKey memory) {
     return Grass(coord.y);
   }
 
   function Grass(
     int32 y
-  ) internal view returns (bytes32) {
-    if (y == 10) return GrassID;
+  ) internal view returns (VoxelVariantsKey memory) {
+    if (y == 10) {
+      return VoxelVariantsKey({
+            namespace: TENET_NAMESPACE,
+            voxelVariantId: GrassID
+      });
+    }
+
+    return VoxelVariantsKey({
+            namespace: bytes16(0x0),
+            voxelVariantId: bytes32(0x0)
+    });
   }
 
-  function Dirt(VoxelCoord memory coord) public view returns (bytes32) {
+  function Dirt(VoxelCoord memory coord) public view returns (VoxelVariantsKey memory) {
     return Dirt(coord.y);
   }
 
   function Dirt(
     int32 y
-  ) internal view returns (bytes32) {
-    if (y > CHUNK_MIN_Y && y < 10) return DirtID;
+  ) internal view returns (VoxelVariantsKey memory) {
+    if (y > CHUNK_MIN_Y && y < 10) {
+      return VoxelVariantsKey({
+            namespace: TENET_NAMESPACE,
+            voxelVariantId: DirtID
+      });
+    }
+
+  return VoxelVariantsKey({
+            namespace: bytes16(0x0),
+            voxelVariantId: bytes32(0x0)
+    });
   }
 
 }

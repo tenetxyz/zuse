@@ -2,8 +2,8 @@
 pragma solidity >=0.8.0;
 import { IWorld } from "../codegen/world/IWorld.sol";
 import { getAddressById, addressToEntity } from "solecs/utils.sol";
-import { AirID, GrassID, DirtID, LogID, StoneID, SandID, WaterID, CobblestoneID, CoalID, CraftingID, IronID, GoldID, DiamondID, LeavesID, PlanksID, RedFlowerID, GrassPlantID, OrangeFlowerID, MagentaFlowerID, LightBlueFlowerID, LimeFlowerID, PinkFlowerID, GrayFlowerID, LightGrayFlowerID, CyanFlowerID, PurpleFlowerID, BlueFlowerID, GreenFlowerID, BlackFlowerID, KelpID, WoolID, SnowID, ClayID, BedrockID } from "../prototypes/Voxels.sol";
-import { VoxelCoord } from "../types.sol";
+import { AirID, GrassID, DirtID, BedrockID } from "../prototypes/Voxels.sol";
+import { VoxelCoord, VoxelVariantsKey } from "../types.sol";
 import { System } from "@latticexyz/world/src/System.sol";
 
 // This system is used to check whether a given voxel occurs at a given location.
@@ -26,15 +26,27 @@ contract OccurrenceSystem is System {
   }
 
   // Occurence functions
-  function OGrass(VoxelCoord memory coord) public view returns (bytes32) {
-    return IWorld(_world()).tenet_LibTerrainSystem_Grass(coord);
+  function OGrass(VoxelCoord memory coord) public view returns (VoxelVariantsKey memory) {
+    // TODO: Figure out why cant just call it once and store it in memory
+    return VoxelVariantsKey({
+      namespace: IWorld(_world()).tenet_LibTerrainSystem_Grass(coord).namespace,
+      voxelVariantId: IWorld(_world()).tenet_LibTerrainSystem_Grass(coord).voxelVariantId
+    });
   }
 
-  function ODirt(VoxelCoord memory coord) public view returns (bytes32) {
-    return IWorld(_world()).tenet_LibTerrainSystem_Dirt(coord);
+  function ODirt(VoxelCoord memory coord) public view returns (VoxelVariantsKey memory) {
+    // TODO: Figure out why cant just call it once and store it in memory
+    return VoxelVariantsKey({
+      namespace: IWorld(_world()).tenet_LibTerrainSystem_Dirt(coord).namespace,
+      voxelVariantId: IWorld(_world()).tenet_LibTerrainSystem_Dirt(coord).voxelVariantId
+    });
   }
 
-  function OBedrock(VoxelCoord memory coord) public view returns (bytes32) {
-    return IWorld(_world()).tenet_LibTerrainSystem_Bedrock(coord);
+  function OBedrock(VoxelCoord memory coord) public view returns (VoxelVariantsKey memory) {
+    // TODO: Figure out why cant just call it once and store it in memory
+    return VoxelVariantsKey({
+      namespace: IWorld(_world()).tenet_LibTerrainSystem_Bedrock(coord).namespace,
+      voxelVariantId: IWorld(_world()).tenet_LibTerrainSystem_Bedrock(coord).voxelVariantId
+    });
   }
 }

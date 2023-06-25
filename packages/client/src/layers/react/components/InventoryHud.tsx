@@ -150,8 +150,8 @@ export function registerInventoryHud() {
           document.body.style.cursor = "unset";
           return;
         }
-        const voxelTypeKey = entityToVoxelType(holdingVoxelType);
-        const voxelVariantTypeKey = voxelTypeDataKeyToVoxelVariantDataKey(voxelTypeKey);
+        const voxelType = entityToVoxelType(holdingVoxelType);
+        const voxelVariantTypeKey = voxelTypeDataKeyToVoxelVariantDataKey(voxelType);
         const icon = getVoxelIconUrl(voxelVariantTypeKey);
         document.body.style.cursor = `url(${icon}) 12 12, auto`;
       }, [holdingVoxelType]);

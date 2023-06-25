@@ -19,6 +19,7 @@ interface VoxelDescription {
   name: string;
   description: string;
   voxelType: Entity;
+  preview: string;
 }
 
 export const CreativeInventory: React.FC<Props> = ({ layers }) => {
@@ -46,11 +47,16 @@ export const CreativeInventory: React.FC<Props> = ({ layers }) => {
     }
     console.log("creative voxelTypes", voxelTypes);
     const unsortedVoxelDescriptions = Array.from(voxelTypes).map(
-      (voxelType) => {
+      (voxelType, index: number) => {
+        const entity = allVoxelTypes[index];
+        const [namespace, voxelTypeId] = entity.split(":");
+        console.log("creative voxelType");
+        console.log(voxelTypeId);
         return {
-          name: voxelType as string, // TODO: update
+          name: voxelTypeId as string, // TODO: update
           description: "tmp desc", // TODO: update
-          voxelType,
+          voxelType: voxelTypeId,
+          preview: voxelType && voxelType.preview ? `https://${voxelType.preview}.ipfs.nftstorage.link/` : "",
         };
       }
     );
@@ -82,10 +88,16 @@ export const CreativeInventory: React.FC<Props> = ({ layers }) => {
       return <Slot key={"voxel-search-slot" + i} disabled={true} getVoxelIconUrl={getVoxelIconUrl} />;
     }
     const voxelDescription = filteredVoxelDescriptions[i];
+    console.log("slot");
+    console.log(i);
+    console.log(voxelDescription);
+
     return (
       <Slot
-        key={"slot" + i}
+        key={"creative-slot" + i}
         voxelType={voxelDescription.voxelType}
+        dhvani={"dhvani"}
+        bgUrl={voxelDescription.preview}
         quantity={undefined} // undefined so no number appears
         onClick={() => tryGiftVoxel(voxelDescription.voxelType)}
         disabled={false} // false, so if you pick up the voxeltype, it still shows up in the creative inventory

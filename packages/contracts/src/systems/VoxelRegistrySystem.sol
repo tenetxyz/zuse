@@ -44,7 +44,7 @@ contract VoxelRegistrySystem is System {
         // should return the type expected by VoxelType (ie VoxelTypeData struct)
 
         // register voxel type
-        VoxelTypeRegistry.set(namespace, voxelType, previewVoxelImg, voxelVariantSelector);
+        VoxelTypeRegistry.set(namespace, voxelType, voxelVariantSelector, previewVoxelImg);
     }
 
     function registerVoxelVariant(bytes32 voxelVariantId, VoxelVariantsData memory voxelVariant) public {

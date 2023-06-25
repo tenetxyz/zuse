@@ -13,7 +13,7 @@ interface Props {
   layers: Layers;
 }
 const NUM_COLS = 9;
-const NUM_ROWS = 8;
+const NUM_ROWS = 6;
 
 interface VoxelDescription {
   name: string;
@@ -115,7 +115,6 @@ export const CreativeInventory: React.FC<Props> = ({ layers }) => {
       />
       <ActionBarWrapper>
         {[...range(NUM_COLS * NUM_ROWS)]
-          .map((i) => i + NUM_COLS)
           .map((i) => Slots[i])}
       </ActionBarWrapper>
     </div>

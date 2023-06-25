@@ -4,7 +4,7 @@ import { Entity, getEntityString, setComponent } from "@latticexyz/recs";
 import { to256BitString, VoxelCoord } from "@latticexyz/utils";
 import { NotificationIcon } from "../../noa/components/persistentNotification";
 import Fuse from "fuse.js";
-import { onComponentChange } from "../../../utils/onComponentChange";
+import { useComponentChange } from "../../../utils/useComponentChange";
 
 export interface CreationStoreFilters {
   search: string;
@@ -49,7 +49,7 @@ const CreationStore: React.FC<Props> = ({ layers, filters, setFilters }) => {
   >([]);
   const fuse = React.useRef<Fuse<Creation>>();
 
-  onComponentChange(Creation, () => {
+  useComponentChange(Creation, () => {
     allCreations.current = [];
     const creationTable = Creation.values;
     creationTable.name.forEach((name: string, creationId) => {
@@ -99,7 +99,6 @@ const CreationStore: React.FC<Props> = ({ layers, filters, setFilters }) => {
     // After we have parsed all the creations, apply the creation
     // filters to narrow down the creations that will be displayed.
     applyCreationFilters();
-    debugger;
   });
 
   const applyCreationFilters = () => {
@@ -155,7 +154,7 @@ const CreationStore: React.FC<Props> = ({ layers, filters, setFilters }) => {
           value={searchValue}
           onChange={(e) => setSearchValue(e.target.value)}
           autoComplete={"on"}
-          name="creation search"
+          name="search"
         />
         <label className="flex items-center space-x-2 ml-2">
           <span>My Creations</span>

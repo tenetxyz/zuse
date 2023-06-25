@@ -99,6 +99,7 @@ const CreationStore: React.FC<Props> = ({ layers, filters, setFilters }) => {
     // After we have parsed all the creations, apply the creation
     // filters to narrow down the creations that will be displayed.
     applyCreationFilters();
+    debugger;
   });
 
   const applyCreationFilters = () => {
@@ -153,6 +154,8 @@ const CreationStore: React.FC<Props> = ({ layers, filters, setFilters }) => {
           className="bg-slate-700 p-1 ml-2 focus:outline-slate-700 border-1 border-solid mb-1 "
           value={searchValue}
           onChange={(e) => setSearchValue(e.target.value)}
+          autoComplete={"on"}
+          name="creation search"
         />
         <label className="flex items-center space-x-2 ml-2">
           <span>My Creations</span>
@@ -163,6 +166,7 @@ const CreationStore: React.FC<Props> = ({ layers, filters, setFilters }) => {
             onChange={() => {
               setFilters({ ...filters, isMyCreation: !filters.isMyCreation });
             }}
+            name="is my creation filter"
           />
         </label>
       </div>

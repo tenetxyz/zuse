@@ -39,6 +39,15 @@ const ActionQueueList = styled.div`
   }
 `;
 
+const MAX_DESCRIPTION_LEN = 13;
+
+function enforceMaxLen(str: string) {
+  if (str.length > MAX_DESCRIPTION_LEN) {
+    return str.substring(0, MAX_DESCRIPTION_LEN) + "...";
+  }
+  return str;
+}
+
 export function registerActionQueue() {
   registerUIComponent(
     "ActionQueue",
@@ -84,7 +93,7 @@ export function registerActionQueue() {
                   state={state}
                   icon={icon}
                   title={`${actionType} tx`}
-                  description={voxelVariantKey ? voxelVariantDataKeyToString(voxelVariantKey) : ""}
+                  description={voxelVariantKey ? enforceMaxLen(voxelVariantDataKeyToString(voxelVariantKey)) : ""}
                   link={txHash && blockExplorer + "/tx/" + txHash}
                 />
                 {/* TODO: conditionally render this for debugging? */}

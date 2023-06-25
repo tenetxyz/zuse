@@ -57,13 +57,6 @@ function defineVoxels(IWorld world) {
     world.tenet_VoxelRegistrySys_registerVoxelVariant(BedrockID, bedrockVariant);
 
     Occurrence.set(GrassID, world.tenet_OccurrenceSystem_OGrass.selector);
-    world.tenet_VoxelRegistrySys_registerVoxelType(GrassID, GrassTexture, world.tenet_InitSystem_grassVariantSelector.selector);
-
     Occurrence.set(DirtID, world.tenet_OccurrenceSystem_ODirt.selector);
-    world.tenet_VoxelRegistrySys_registerVoxelType(DirtID, DirtTexture, world.tenet_InitSystem_dirtVariantSelector.selector);
-
     Occurrence.set(BedrockID, world.tenet_OccurrenceSystem_OBedrock.selector);
-    world.tenet_VoxelRegistrySys_registerVoxelType(BedrockID, BedrockTexture, world.tenet_InitSystem_bedrockVariantSelector.selector);
-
-    world.tenet_VoxelRegistrySys_registerVoxelType(AirID, "", world.tenet_InitSystem_airVariantSelector.selector);
 }

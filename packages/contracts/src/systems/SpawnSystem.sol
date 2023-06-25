@@ -5,7 +5,7 @@ import { getUniqueEntity } from "@latticexyz/world/src/modules/uniqueentity/getU
 import { getKeysInTable } from "@latticexyz/world/src/modules/keysintable/getKeysInTable.sol";
 import { System } from "@latticexyz/world/src/System.sol";
 import { VoxelCoord } from "../types.sol";
-import { OwnedBy, Position, PositionTableId, VoxelType, OfSpawn, Spawn, SpawnData, Creation, CreationData } from "../codegen/Tables.sol";
+import { OwnedBy, Position, PositionTableId, VoxelType, VoxelTypeData, OfSpawn, Spawn, SpawnData, Creation, CreationData } from "../codegen/Tables.sol";
 import { addressToEntityKey, getEntitiesAtCoord, add, int32ToString } from "../utils.sol";
 import { IWorld } from "../codegen/world/IWorld.sol";
 import { console } from "forge-std/console.sol";
@@ -20,15 +20,17 @@ contract SpawnSystem is System {
         uint32[] memory relPosY = creation.relativePositionsY;
         uint32[] memory relPosZ = creation.relativePositionsZ;
 
+        VoxelTypeData[] memory voxelTypes = abi.decode(creation.voxelTypes, (VoxelTypeData[]));
+
         SpawnData memory spawnData;
-        bytes32[] memory spawnVoxels = new bytes32[](creation.voxelTypes.length);
+        bytes32[] memory spawnVoxels = new bytes32[](voxelTypes.length);
         spawnData.creationId = creationId;
         spawnData.lowerSouthWestCornerX = lowerSouthWestCorner.x;
         spawnData.lowerSouthWestCornerY = lowerSouthWestCorner.y;
         spawnData.lowerSouthWestCornerZ = lowerSouthWestCorner.z;
 
         bytes32 spawnId = getUniqueEntity();
-        for(uint i = 0; i < creation.voxelTypes.length; i++){
+        for(uint i = 0; i < voxelTypes.length; i++){
             VoxelCoord memory relativeCoord = VoxelCoord(int32(relPosX[i]), int32(relPosY[i]), int32(relPosZ[i])); // we shouldn't be concerned about casting errors since creation dimensions shouldn't be large
             VoxelCoord memory spawnVoxelAtCoord = add(lowerSouthWestCorner, relativeCoord);
 
@@ -49,14 +51,12 @@ contract SpawnSystem is System {
 
                 bytes32 entity = entitiesAtPosition[j];
                 Position.deleteRecord(entity);
-                // TODO: Fix
-                // VoxelType.deleteRecord(entity);
+                VoxelType.deleteRecord(entity);
             }
 
             // create the voxel at this coord
             bytes32 newEntity = getUniqueEntity();
-            // TODO: Fix
-            // VoxelType.set(newEntity, creation.voxelTypes[i]);
+            VoxelType.set(newEntity, voxelTypes[i]);
             Position.set(newEntity, spawnVoxelAtCoord.x, spawnVoxelAtCoord.y, spawnVoxelAtCoord.z);
 
             // update the spawn-related components

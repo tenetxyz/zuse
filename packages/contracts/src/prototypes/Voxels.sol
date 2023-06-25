@@ -3,7 +3,7 @@ pragma solidity >=0.8.0;
 import { IWorld } from "../codegen/world/IWorld.sol";
 import {Occurrence, VoxelTypeData, VoxelVariantsData} from "../codegen/Tables.sol";
 import { NoaBlockType } from "../codegen/Types.sol";
-import { materialsArrToString } from "../SharedUtils.sol";
+import { stringArrToString } from "../SharedUtils.sol";
 
 bytes32 constant AirID = bytes32(keccak256("air"));
 bytes32 constant GrassID = bytes32(keccak256("grass"));
@@ -42,7 +42,7 @@ function defineVoxels(IWorld world) {
     grassVariant.blockType = NoaBlockType.BLOCK;
     grassVariant.opaque = true;
     grassVariant.solid = true;
-    grassVariant.materialArr = materialsArrToString(grassMaterials);
+    grassVariant.materialArr = stringArrToString(grassMaterials);
     grassVariant.uvWrap = GrassUVWrap;
 
     world.tenet_VoxelRegistrySys_registerVoxelVariant(GrassID, grassVariant);

@@ -11,13 +11,15 @@ function getCallerNamespace(address caller) view returns (bytes16) {
   return callerNamespace;
 }
 
-function materialsArrToString(string[] memory materials) pure returns (string memory) {
-  string memory materialsStr = "";
-  for (uint i = 0; i < materials.length; i++) {
-    materialsStr = string(abi.encodePacked(materialsStr, materials[i]));
-    if (i < materials.length - 1) {
-      materialsStr = string(abi.encodePacked(materialsStr, "|"));
+string constant STRING_ARR_DELIMITER = "|";
+
+function stringArrToString(string[] memory stringArr) pure returns (string memory) {
+  string memory resultStr = "";
+  for (uint i = 0; i < stringArr.length; i++) {
+    resultStr = string(abi.encodePacked(resultStr, stringArr[i]));
+    if (i < stringArr.length - 1) {
+      resultStr = string(abi.encodePacked(resultStr, STRING_ARR_DELIMITER));
     }
   }
-  return materialsStr;
+  return resultStr;
 }

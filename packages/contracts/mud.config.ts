@@ -81,7 +81,7 @@ export default mudConfig({
     Creation: {
       schema: {
         creator: "bytes32",
-        voxelTypes: "bytes32[]",
+        voxelTypes: "bytes", // VoxelTypeData[]
         // the relative position for each voxel in the creation
         // VoxelCoord is removed in MUD2, so we need to manually specify x,y,z
         relativePositionsX: "uint32[]",

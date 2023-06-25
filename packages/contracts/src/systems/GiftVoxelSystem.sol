@@ -49,13 +49,12 @@ contract GiftVoxelSystem is System {
             return 0;
         }
         // since mud doesn't have a JOIN operation, we have to manually loop through each entity to get their types
-        bytes32[] memory voxelTypesIOwn = new bytes32[](voxelsIOwnTuples.length);
+        bytes[] memory voxelTypesIOwn = new bytes[](voxelsIOwnTuples.length);
         for(uint i = 0; i < voxelsIOwnTuples.length; i++){
 //            console.log("voxelsIOwnTuples.length", voxelsIOwnTuples.length);
 //            console.log("voxelsIOwnTuples[0].length", voxelsIOwnTuples[i].length);
             bytes32 entityId = voxelsIOwnTuples[i][0];
-            // TODO: Fix
-            // voxelTypesIOwn[i] = VoxelType.get(entityId);
+            voxelTypesIOwn[i] = abi.encode(VoxelType.get(entityId));
         }
 
         return removeDuplicates(voxelTypesIOwn).length;

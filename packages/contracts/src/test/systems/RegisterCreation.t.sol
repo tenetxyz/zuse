@@ -5,7 +5,7 @@ import { getUniqueEntity } from "@latticexyz/world/src/modules/uniqueentity/getU
 import { MudV2Test } from "@latticexyz/std-contracts/src/test/MudV2Test.t.sol";
 import { addressToEntityKey } from "../../utils.sol";
 import { VoxelCoord } from "../../types.sol";
-import { OwnedBy, VoxelType } from "../../codegen/Tables.sol";
+import { OwnedBy, VoxelType, VoxelTypeData } from "../../codegen/Tables.sol";
 import { IWorld } from "../../codegen/world/IWorld.sol";
 import { IStore } from "@latticexyz/store/src/IStore.sol";
 import { GrassID } from "../../prototypes/Voxels.sol";
@@ -37,8 +37,8 @@ contract RegisterCreationTest is MudV2Test {
     bytes32 voxel1 = world.tenet_GiftVoxelSystem_giftVoxel(namespace, GrassID);
     bytes32[] memory voxels = new bytes32[](1);
     voxels[0] = voxel1;
-    bytes32[] memory voxelTypes = world.tenet_RegisterCreation_getVoxelTypes(voxels);
-    assertEq(voxelTypes[0], GrassID);
+    VoxelTypeData[] memory voxelTypes = world.tenet_RegisterCreation_getVoxelTypes(voxels);
+    assertEq(voxelTypes[0].voxelTypeId, GrassID);
 
     vm.stopPrank();
   }

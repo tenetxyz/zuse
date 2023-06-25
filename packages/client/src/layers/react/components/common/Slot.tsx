@@ -13,13 +13,13 @@ export const Slot: React.FC<{
   onRightClick?: () => void;
   selected?: boolean;
   disabled?: boolean;
-  bgUrl?: string;
+  iconUrl?: string;
   getVoxelIconUrl: (voxelTypeKey: VoxelVariantDataKey) => string | undefined;
-}> = ({ voxelType, quantity, onClick, onRightClick, selected, disabled, getVoxelIconUrl, bgUrl }) => {
-  let usebgUrl = bgUrl ? bgUrl : "";
+}> = ({ voxelType, quantity, onClick, onRightClick, selected, disabled, getVoxelIconUrl, iconUrl }) => {
+  let useIconUrl = iconUrl ? iconUrl : "";
   const voxelVariantData = voxelType ? entityToVoxelType(voxelType) : undefined;
-  if (usebgUrl == "" && voxelVariantData !== undefined) {
-    usebgUrl = getVoxelIconUrl({
+  if (useIconUrl == "" && voxelVariantData !== undefined) {
+    useIconUrl = getVoxelIconUrl({
       voxelVariantNamespace: voxelVariantData.voxelVariantNamespace,
       voxelVariantId: voxelVariantData.voxelVariantId,
     }) || "";
@@ -40,7 +40,7 @@ export const Slot: React.FC<{
             }}
           >
             {voxelType ? (
-              <VoxelIcon bgUrl={usebgUrl} scale={4}>
+              <VoxelIcon iconUrl={useIconUrl} scale={4}>
                 {quantity != null ? <Quantity>{quantity}</Quantity> : null}
               </VoxelIcon>
             ) : null}

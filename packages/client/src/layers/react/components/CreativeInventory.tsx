@@ -98,7 +98,7 @@ export const CreativeInventory: React.FC<Props> = ({ layers }) => {
       <Slot
         key={"creative-slot" + i}
         voxelType={voxelDescription.voxelType}
-        bgUrl={voxelDescription.preview}
+        iconUrl={voxelDescription.preview}
         quantity={undefined} // undefined so no number appears
         onClick={() => tryGiftVoxel(voxelDescription.namespace, voxelDescription.voxelTypeId, voxelDescription.preview)}
         disabled={false} // false, so if you pick up the voxeltype, it still shows up in the creative inventory

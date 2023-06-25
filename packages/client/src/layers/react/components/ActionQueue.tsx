@@ -75,7 +75,7 @@ export function registerActionQueue() {
             );
             const { actionType, coord, voxelVariantKey, preview } = metadata || {};
             let icon = voxelVariantKey && getVoxelIconUrl(voxelVariantKey);
-            if (icon == undefined){
+            if (icon === undefined){
               icon = preview;
             }
             return (

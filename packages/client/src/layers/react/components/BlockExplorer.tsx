@@ -14,6 +14,7 @@ import { registerUIComponent } from "../engine";
 import styled from "styled-components";
 import { filterNullish } from "@latticexyz/utils";
 import { voxelTypeToEntity, voxelTypeDataKeyToVoxelVariantDataKey, entityToVoxelType } from "../../noa/types";
+import { AIR_ID } from "../../network/api/terrain/occurrence";
 
 type BlockEvent = {
   blockNumber: number;
@@ -126,22 +127,30 @@ export function registerBlockExplorer() {
               ({ blockNumber, component, value, entity }) => {
                 const componentKey = mappings[component];
 
-                // VoxelType component updates correspond to a mined terrain block
-                // if (componentKey === "VoxelType") {
-                //   // TODO: We added this because value was undefined, should figure out why the original line (below) doesn't work
-                //   const voxelType = getComponentValue(VoxelType, entity);
-                //   // const { value: entityId } = value as ComponentValue<SchemaOf<typeof VoxelType>>;
-                //   const voxelTypeKey = voxelType ? voxelTypeToEntity(voxelType) : "";
-                //   return { blockNumber, voxelTypeKey, action: "remove" };
-                // }
-
-                // Position component updates correspond to a mined or placed ECS block
-                if (componentKey === "Position") {
-                  // const entityIndex = world.entityToIndex.get(entity);
-                  const entityIndex = entity;
+                // OwnedBy component updates correspond to a mined block
+                // TODO: This causes a remove event to show when a voxel is gifted. Should fix this
+                if (componentKey === "OwnedBy") {
                   const voxelType =
-                    entityIndex != null
-                      ? getComponentValue(VoxelType, entityIndex)
+                    entity != null
+                      ? getComponentValue(VoxelType, entity)
+                      : undefined;
+                  if (!voxelType) {
+                    return;
+                  }
+                  const voxelTypeKey = voxelTypeToEntity(voxelType);
+
+                  return {
+                    blockNumber,
+                    voxelTypeKey,
+                    action: "remove",
+                  };
+                }
+
+                // Position component updates correspond to a placed block
+                if (componentKey === "Position") {
+                  const voxelType =
+                    entity != null
+                      ? getComponentValue(VoxelType, entity)
                       : undefined;
                   if (!voxelType) {
                     return;
@@ -156,21 +165,22 @@ export function registerBlockExplorer() {
                       action: "add",
                     };
                   }
+                  // Note: this is handled by OwnedBy component updates above
                   // otherwise it corresponds to a mined ecs block
-                  else {
-                    return {
-                      blockNumber,
-                      voxelTypeKey,
-                      action: "remove",
-                    };
-                  }
+                  // else {
+                  //   return {
+                  //     blockNumber,
+                  //     voxelTypeKey,
+                  //     action: "remove",
+                  //   };
+                  // }
                 }
               }
             )
           )
           .pipe(filterNullish())
       )
-        .pipe(filter((update) => update.voxelTypeKey !== "Air"))
+        .pipe(filter((update) => update.voxelTypeKey === undefined || entityToVoxelType(update.voxelTypeKey as Entity).voxelTypeId !== AIR_ID))
         .pipe(
           scan<BlockEvent, BlockSummary>((summary, event) => {
             const block =

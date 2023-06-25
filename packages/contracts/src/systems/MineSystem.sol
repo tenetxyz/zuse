@@ -57,10 +57,10 @@ contract MineSystem is System {
       voxelToMine = entitiesAtPosition[0];
       VoxelTypeData memory voxelTypeData = VoxelType.get(entitiesAtPosition[0]);
       require(voxelToMine != 0, "We found no voxels at that position");
-      require(voxelTypeData.voxelTypeNamespace != voxelTypeNamespace
-              && voxelTypeData.voxelTypeId != voxelTypeId
-              && voxelTypeData.voxelVariantNamespace != voxelVariantNamespace
-              && voxelTypeData.voxelVariantId != voxelVariantId,
+      require(voxelTypeData.voxelTypeNamespace == voxelTypeNamespace
+              && voxelTypeData.voxelTypeId == voxelTypeId
+              && voxelTypeData.voxelVariantNamespace == voxelVariantNamespace
+              && voxelTypeData.voxelVariantId == voxelVariantId,
               "The voxel at this position is not the same as the voxel you are trying to mine");
       Position.deleteRecord(voxelToMine);
 

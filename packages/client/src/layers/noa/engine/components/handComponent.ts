@@ -8,7 +8,7 @@ import {
   MINING_ANIMATION_BOX_VOXEL,
   MINING_ANIMATION_BOX_HAND,
 } from "../hand";
-import { VoxelTypeDataKey, VoxelVariantDataKey, voxelVariantDataKeyToString } from "../../types";
+import { VoxelTypeDataKey, VoxelVariantDataKey, voxelTypeDataKeyToVoxelVariantDataKey, voxelVariantDataKeyToString } from "../../types";
 
 export interface HandComponent {
   isMining: boolean;
@@ -43,10 +43,7 @@ export function registerHandComponent(
           const selectedVoxelType = getSelectedVoxelType();
           let voxelVariantKey = undefined;
           if(selectedVoxelType){
-            voxelVariantKey = {
-              voxelVariantNamespace: selectedVoxelType.voxelVariantNamespace,
-              voxelVariantId: selectedVoxelType.voxelVariantId
-            };
+            voxelVariantKey = voxelTypeDataKeyToVoxelVariantDataKey(selectedVoxelType);
           }
           if (voxelVariantKey && voxelMaterials.get(voxelVariantDataKeyToString(voxelVariantKey)) !== undefined) {
             // eslint-disable-next-line @typescript-eslint/no-non-null-assertion

@@ -13,7 +13,7 @@ import { filter, scan, merge, map } from "rxjs";
 import { registerUIComponent } from "../engine";
 import styled from "styled-components";
 import { filterNullish } from "@latticexyz/utils";
-import { voxelTypeToEntity } from "../../../utils/voxels";
+import { voxelTypeToEntity, voxelTypeDataKeyToVoxelVariantDataKey, entityToVoxelType } from "../../noa/types";
 
 type BlockEvent = {
   blockNumber: number;
@@ -127,13 +127,13 @@ export function registerBlockExplorer() {
                 const componentKey = mappings[component];
 
                 // VoxelType component updates correspond to a mined terrain block
-                if (componentKey === "VoxelType") {
-                  // TODO: We added this because value was undefined, should figure out why the original line (below) doesn't work
-                  const voxelType = getComponentValue(VoxelType, entity);
-                  // const { value: entityId } = value as ComponentValue<SchemaOf<typeof VoxelType>>;
-                  const voxelTypeKey = voxelType?.voxelTypeId;
-                  return { blockNumber, voxelTypeKey, action: "remove" };
-                }
+                // if (componentKey === "VoxelType") {
+                //   // TODO: We added this because value was undefined, should figure out why the original line (below) doesn't work
+                //   const voxelType = getComponentValue(VoxelType, entity);
+                //   // const { value: entityId } = value as ComponentValue<SchemaOf<typeof VoxelType>>;
+                //   const voxelTypeKey = voxelType ? voxelTypeToEntity(voxelType) : "";
+                //   return { blockNumber, voxelTypeKey, action: "remove" };
+                // }
 
                 // Position component updates correspond to a mined or placed ECS block
                 if (componentKey === "Position") {
@@ -146,7 +146,7 @@ export function registerBlockExplorer() {
                   if (!voxelType) {
                     return;
                   }
-                  const voxelTypeKey = voxelTypeToEntity(voxelType) as string;
+                  const voxelTypeKey = voxelTypeToEntity(voxelType);
 
                   // If the update includes a position, it corresponds to a placed block
                   if (value) {
@@ -191,10 +191,10 @@ export function registerBlockExplorer() {
 
             return [...otherBlocks, block].slice(-500);
           }, [] as BlockSummary),
-          map((summary) => ({ summary, blockExplorer }))
+          map((summary) => ({ summary, blockExplorer, getVoxelIconUrl }))
         );
     },
-    ({ summary, blockExplorer }) => {
+    ({ summary, blockExplorer, getVoxelIconUrl }) => {
       return (
         <BlockExplorerContainer>
           {summary.map(([blockNumber, block]) => (
@@ -214,8 +214,7 @@ export function registerBlockExplorer() {
                     {counts.add ? (
                       <div className="BlockExplorer-Action">
                         <img
-                          // TODO: Add back
-                          // src={getVoxelIconUrl(voxelTypeKey)}
+                          src={getVoxelIconUrl(voxelTypeDataKeyToVoxelVariantDataKey(entityToVoxelType(voxelTypeKey as Entity)))}
                         />
                         <div className="BlockExplorer-ActionIcon BlockExplorer-ActionIcon--add">
                           +{counts.add}
@@ -225,8 +224,7 @@ export function registerBlockExplorer() {
                     {counts.remove ? (
                       <div className="BlockExplorer-Action">
                         <img
-                          // TODO: Add back
-                          // src={getVoxelIconUrl(voxelTypeKey)}
+                          src={getVoxelIconUrl(voxelTypeDataKeyToVoxelVariantDataKey(entityToVoxelType(voxelTypeKey as Entity)))}
                         />
                         <div className="BlockExplorer-ActionIcon BlockExplorer-ActionIcon--remove">
                           -{counts.remove}

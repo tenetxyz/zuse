@@ -8,7 +8,7 @@ import {
 import { toUtf8String } from "ethers/lib/utils.js";
 import { awaitStreamValue } from "@latticexyz/utils";
 import { NetworkLayer } from "../../network";
-import { NoaLayer, voxelVariantDataKeyToString, VoxelVariantDataValue } from "../types";
+import { NoaLayer, voxelTypeDataKeyToVoxelVariantDataKey, voxelVariantDataKeyToString, VoxelVariantDataValue } from "../types";
 import { NoaVoxelDef } from "../types";
 import { formatNamespace } from "../../../constants";
 import { getNftStorageLink } from "../constants";
@@ -38,8 +38,6 @@ export async function createVoxelSystem(
   ).then(() => (live = true));
 
   defineComponentSystem(world, VoxelVariants, (update) => {
-    console.log("Voxel type registry updated");
-    console.log(update);
     // TODO: could use update.value?
     const voxelVariantValue = getComponentValueStrict(VoxelVariants, update.entity);
     const [voxelVariantNamespace, voxelVariantId] = update.entity.split(":");
@@ -90,10 +88,7 @@ export async function createVoxelSystem(
     if (!live) return;
     if (!value[0] && value[1]) {
       const voxel = getVoxelAtPosition(value[1]);
-      setVoxel(value[1], {
-        voxelVariantNamespace: voxel.voxelVariantNamespace,
-        voxelVariantId: voxel.voxelVariantId,
-      });
+      setVoxel(value[1], voxelTypeDataKeyToVoxelVariantDataKey(voxel));
     }
   });
 
@@ -102,9 +97,6 @@ export async function createVoxelSystem(
     if (!live) return;
     const position = getComponentValueStrict(Position, update.entity);
     const voxel = getVoxelAtPosition(position);
-    setVoxel(position, {
-      voxelVariantNamespace: voxel.voxelVariantNamespace,
-      voxelVariantId: voxel.voxelVariantId,
-    });
+    setVoxel(position, voxelTypeDataKeyToVoxelVariantDataKey(voxel));
   });
 }

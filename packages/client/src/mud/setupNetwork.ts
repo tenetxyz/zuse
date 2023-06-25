@@ -37,7 +37,7 @@ import {
 } from "../layers/network/api";
 import { to64CharAddress } from "../utils/entity";
 import { SingletonID } from "@latticexyz/network";
-import {NoaVoxelDef, NoaBlockType, VoxelVariantData, VoxelTypeDataKey, VoxelVariantDataKey, VoxelVariantDataValue, voxelVariantDataKeyToString, voxelVariantKeyStringToKey} from "../layers/noa/types";
+import {voxelTypeDataKeyToVoxelVariantDataKey, NoaBlockType, VoxelVariantData, VoxelTypeDataKey, VoxelVariantDataKey, VoxelVariantDataValue, voxelVariantDataKeyToString, voxelVariantKeyStringToKey} from "../layers/noa/types";
 import {Textures, UVWraps} from "../layers/noa/constants";
 import { keccak256 } from "@latticexyz/utils";
 import { TENET_NAMESPACE } from "../constants";
@@ -348,10 +348,7 @@ export async function setupNetwork() {
       );
     }
 
-    const voxelVariantKey: VoxelVariantDataKey = {
-      voxelVariantNamespace: voxelType.voxelVariantNamespace,
-      voxelVariantId: voxelType.voxelVariantId,
-    }
+    const voxelVariantKey: VoxelVariantDataKey = voxelTypeDataKeyToVoxelVariantDataKey(voxelType);
 
     const newVoxelOfSameType = world.registerEntity();
 

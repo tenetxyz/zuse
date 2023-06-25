@@ -85,8 +85,7 @@ import { createVoxelSelectionOverlaySystem } from "./systems/createVoxelSelectio
 import { defineSpawnCreationComponent } from "./components/SpawnCreation";
 import { createSpawnCreationOverlaySystem } from "./systems/createSpawnCreationOverlaySystem";
 import { createSpawnOverlaySystem } from "./systems/createSpawnOverlaySystem";
-import { entityToVoxelType } from "../../utils/voxels";
-import { VoxelTypeDataKey, VoxelVariantDataKey, voxelVariantDataKeyToString, voxelVariantKeyStringToKey, VoxelVariantDataValue } from "./types";
+import { entityToVoxelType, VoxelTypeDataKey, VoxelVariantDataKey, voxelVariantDataKeyToString, voxelVariantKeyStringToKey, VoxelVariantDataValue } from "./types";
 
 export function createNoaLayer(network: NetworkLayer) {
   const world = namespaceWorld(network.world, "noa");

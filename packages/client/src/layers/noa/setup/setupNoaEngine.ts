@@ -7,7 +7,7 @@ import { VoxelCoord, keccak256 } from "@latticexyz/utils";
 import { Textures } from "../constants";
 import { NetworkLayer } from "../../network";
 import { Entity } from "@latticexyz/recs";
-import { NoaBlockType, VoxelVariantData, voxelVariantKeyStringToKey } from "../types";
+import { NoaBlockType, VoxelVariantData, voxelTypeDataKeyToVoxelVariantDataKey, voxelVariantKeyStringToKey } from "../types";
 import { createVoxelMesh } from "./utils";
 import { voxelVariantDataKeyToString, VoxelVariantDataKey } from "../types";
 import { setupScene } from "../engine/setupScene";
@@ -174,10 +174,7 @@ export function setupNoaEngine(network: NetworkLayer) {
               });
               const voxelTypeIndex =
               VoxelVariantData.get(
-                voxelVariantDataKeyToString({
-                  voxelVariantNamespace: terrainVoxelType.voxelVariantNamespace,
-                  voxelVariantId: terrainVoxelType.voxelVariantId,
-                })
+                voxelVariantDataKeyToString(voxelTypeDataKeyToVoxelVariantDataKey(terrainVoxelType))
                 )?.index;
               data.set(i, j, k, voxelTypeIndex);
             }

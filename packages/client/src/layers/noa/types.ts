@@ -1,3 +1,4 @@
+import { Entity } from "@latticexyz/recs";
 import { createNoaLayer } from "./createNoaLayer";
 
 export type NoaLayer = Awaited<ReturnType<typeof createNoaLayer>>;
@@ -63,5 +64,21 @@ export function voxelVariantKeyStringToKey(key: string): VoxelVariantDataKey {
   return {
     voxelVariantNamespace,
     voxelVariantId,
+  };
+}
+
+export function voxelTypeToEntity(voxelType: VoxelTypeDataKey): Entity {
+  return (voxelType.voxelTypeNamespace + "-" + voxelType.voxelTypeId + "-" + voxelType.voxelVariantNamespace + "-" + voxelType.voxelVariantId) as Entity;
+}
+
+export function entityToVoxelType(entity: Entity): VoxelTypeDataKey {
+  const [voxelTypeNamespace, voxelTypeId, voxelVariantNamespace, voxelVariantId] = entity.split("-");
+  return { voxelTypeNamespace, voxelTypeId, voxelVariantNamespace, voxelVariantId };
+}
+
+export function voxelTypeDataKeyToVoxelVariantDataKey(key: VoxelTypeDataKey): VoxelVariantDataKey {
+  return {
+    voxelVariantNamespace: key.voxelVariantNamespace,
+    voxelVariantId: key.voxelVariantId,
   };
 }

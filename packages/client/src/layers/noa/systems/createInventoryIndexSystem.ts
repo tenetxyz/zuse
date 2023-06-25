@@ -15,11 +15,10 @@ import {
 import { awaitStreamValue, computedToStream } from "@latticexyz/utils";
 import { switchMap } from "rxjs";
 import { NetworkLayer } from "../../network";
-import { NoaLayer } from "../types";
+import { NoaLayer, voxelTypeToEntity } from "../types";
 import { to64CharAddress } from "../../../utils/entity";
 import { SyncState } from "@latticexyz/network";
 import { IComputedValue } from "mobx";
-import { voxelTypeToEntity } from "../../../utils/voxels";
 
 export const getItemTypesIOwn = (
   OwnedBy: Component<{

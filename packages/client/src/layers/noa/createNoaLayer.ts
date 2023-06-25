@@ -408,11 +408,11 @@ export function createNoaLayer(network: NetworkLayer) {
 
   const scene = noa.rendering.getScene();
 
-  const voxelMaterials: Map<VoxelVariantDataKey, BABYLON.Material | undefined> = new Map();
+  const voxelMaterials: Map<string, BABYLON.Material | undefined> = new Map();
   for (const [voxelVariantKey, voxelVariantData] of VoxelVariantData.entries()) {
     if(voxelVariantData.data?.uvWrap){
       const voxelMaterial = noa.rendering.makeStandardMaterial(
-        "voxelMaterial-" + voxelVariantDataKeyToString(voxelVariantKey)
+        "voxelMaterial-" + voxelVariantKey
       );
       voxelMaterial.diffuseTexture = new Texture(
         voxelVariantData.data.uvWrap,

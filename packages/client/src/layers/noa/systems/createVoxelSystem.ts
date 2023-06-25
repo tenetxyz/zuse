@@ -55,20 +55,22 @@ export async function createVoxelSystem(
       const voxelVariantData = {
         index: voxelVariantValue.variantId,
         data: {
-          material: voxelVariantValue.material ? `https://${voxelVariantValue.material}.ipfs.nftstorage.link/`: "",
-          type: voxelVariantValue.blockType,
-          frames: voxelVariantValue.frames,
-          opaque: voxelVariantValue.opaque,
-          fluid: voxelVariantValue.fluid,
-          solid: voxelVariantValue.solid,
-          // TODO: add block mesh
-          uvWrap: voxelVariantValue.uvWrap ? `https://${voxelVariantValue.uvWrap}.ipfs.nftstorage.link/`: undefined,
+            material: voxelVariantValue.material ? `https://${voxelVariantValue.material}.ipfs.nftstorage.link/`: "",
+            type: voxelVariantValue.blockType,
+            frames: voxelVariantValue.frames,
+            opaque: voxelVariantValue.opaque,
+            fluid: voxelVariantValue.fluid,
+            solid: voxelVariantValue.solid,
+            // TODO: add block mesh
+            uvWrap: voxelVariantValue.uvWrap ? `https://${voxelVariantValue.uvWrap}.ipfs.nftstorage.link/`: undefined,
+          }
         }
+        VoxelVariantData.set(JSON.stringify(voxelVariantDataKey), voxelVariantData);
+      } else {
+        console.log("Variant already exists");
       }
-
-      VoxelVariantData.set(JSON.stringify(voxelVariantDataKey), voxelVariantData);
     }
-  });
+  );
 
   // "Exit system"
   defineComponentSystem(world, Position, async ({ value }) => {

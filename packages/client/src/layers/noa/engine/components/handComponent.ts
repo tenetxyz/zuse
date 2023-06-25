@@ -22,7 +22,7 @@ export const HAND_COMPONENT = "HAND_COMPONENT";
 export function registerHandComponent(
   noa: Engine,
   getSelectedVoxelType: () =>  VoxelTypeDataKey | undefined,
-  voxelMaterials: Map<VoxelVariantDataKey, BABYLON.Material | undefined>,
+  voxelMaterials: Map<string, BABYLON.Material | undefined>,
 ) {
   // eslint-disable-next-line @typescript-eslint/ban-ts-comment
   //@ts-ignore
@@ -48,9 +48,9 @@ export function registerHandComponent(
               voxelVariantId: selectedVoxelType.voxelVariantId
             };
           }
-          if (voxelVariantKey && voxelMaterials.get(voxelVariantKey) !== undefined) {
+          if (voxelVariantKey && voxelMaterials.get(JSON.stringify(voxelVariantKey)) !== undefined) {
             // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-            voxelMesh.material = voxelMaterials.get(voxelVariantKey)!;
+            voxelMesh.material = voxelMaterials.get(JSON.stringify(voxelVariantKey))!;
             handMesh.visibility = 0;
             voxelMesh.visibility = 1;
           } else {

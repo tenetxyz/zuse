@@ -4,21 +4,11 @@ pragma solidity >=0.8.0;
 import { CHUNK } from "./constants.sol";
 import { Coord, VoxelCoord } from "./types.sol";
 import { getKeysWithValue } from "@latticexyz/world/src/modules/keyswithvalue/getKeysWithValue.sol";
-import { SystemRegistry } from "@latticexyz/world/src/modules/core/tables/SystemRegistry.sol";
-import { ResourceSelector} from "@latticexyz/world/src/ResourceSelector.sol";
 import { Position, PositionTableId } from "./codegen/Tables.sol";
 import { Strings } from "@openzeppelin/contracts/utils/Strings.sol";
 
-
 function staticcallFunctionSelector(address world, bytes4 functionPointer, bytes memory args) view returns (bool, bytes memory){
   return world.staticcall(bytes.concat(functionPointer, args));
-}
-
-function getCallerNamespace(address caller) view returns (bytes16) {
-  require(uint256(SystemRegistry.get(caller)) != 0, "Caller is not a system"); // cannot be called by an EOA
-  bytes32 resourceSelector = SystemRegistry.get(caller);
-  bytes16 callerNamespace = ResourceSelector.getNamespace(resourceSelector);
-  return callerNamespace;
 }
 
 function addressToEntityKey(address addr) pure returns (bytes32) {

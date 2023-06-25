@@ -9,7 +9,7 @@ import { SystemRegistry } from "@latticexyz/world/src/modules/core/tables/System
 import { ResourceSelector} from "@latticexyz/world/src/ResourceSelector.sol";
 import {BlockDirection} from "../codegen/Types.sol";
 import {Position, PositionData, PositionTableId} from "@tenetxyz/contracts/src/codegen/tables/Position.sol";
-import { getCallerNamespace } from "@tenetxyz/contracts/src/Utils.sol";
+import { getCallerNamespace } from "@tenetxyz/contracts/src/SharedUtils.sol";
 import { calculateBlockDirection, getOppositeDirection } from "../Utils.sol";
 
 contract SignalSystem is System {

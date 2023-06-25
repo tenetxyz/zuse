@@ -15,7 +15,9 @@ contract PostDeploy is Script {
 
     // ------------------ EXAMPLES ------------------
 
-    // Call increment on the world via the registered function selector
+    // Call world init function
+    IWorld world = IWorld(worldAddress);
+    world.tenet_ExtensionInitSys_init();
 
     // need to call registerExtension() in the world contract with PoweredSystem
     bytes4 poweredEventHandler = IWorld(worldAddress).tenet_PoweredSystem_eventHandler.selector;

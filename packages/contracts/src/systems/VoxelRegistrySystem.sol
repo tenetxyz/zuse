@@ -8,7 +8,7 @@ import { FunctionSelectors } from "@latticexyz/world/src/modules/core/tables/Fun
 import {VoxelTypeRegistry, VoxelTypeRegistryTableId, VoxelVariants, VoxelVariantsData, VoxelVariantsTableId} from "../codegen/Tables.sol";
 import { IWorld } from "../codegen/world/IWorld.sol";
 import {NoaBlockType} from "../codegen/Types.sol";
-import { getCallerNamespace } from "../utils.sol";
+import { getCallerNamespace } from "../sharedutils.sol";
 import { VoxelVariantsKey } from "../types.sol";
 
 contract VoxelRegistrySystem is System {

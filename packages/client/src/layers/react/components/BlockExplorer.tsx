@@ -131,7 +131,7 @@ export function registerBlockExplorer() {
                 // TODO: This causes a remove event to show when a voxel is gifted. Should fix this
                 if (componentKey === "OwnedBy") {
                   const voxelType =
-                    entity != null
+                    entity !== null
                       ? getComponentValue(VoxelType, entity)
                       : undefined;
                   if (!voxelType) {
@@ -149,7 +149,7 @@ export function registerBlockExplorer() {
                 // Position component updates correspond to a placed block
                 if (componentKey === "Position") {
                   const voxelType =
-                    entity != null
+                    entity !== null
                       ? getComponentValue(VoxelType, entity)
                       : undefined;
                   if (!voxelType) {

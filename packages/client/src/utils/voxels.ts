@@ -1,4 +1,3 @@
-import { Entity, ComponentValue, Type } from "@latticexyz/recs";
 import { VoxelCoord } from "@latticexyz/utils";
 import { Engine } from "noa-engine";
 

@@ -15,7 +15,7 @@ import {
 import { awaitStreamValue, computedToStream } from "@latticexyz/utils";
 import { switchMap } from "rxjs";
 import { NetworkLayer } from "../../network";
-import { NoaLayer, voxelTypeToEntity } from "../types";
+import { NoaLayer, voxelTypeToEntity, voxelTypeDataKeyToVoxelVariantDataKey, voxelVariantDataKeyToString, entityToVoxelType } from "../types";
 import { to64CharAddress } from "../../../utils/entity";
 import { SyncState } from "@latticexyz/network";
 import { IComputedValue } from "mobx";
@@ -41,7 +41,7 @@ export const getItemTypesIOwn = (
       (item) => {
         const voxelType = getComponentValue(VoxelType, item);
         if (voxelType == undefined) return "" as Entity;
-        return voxelTypeToEntity(voxelType);
+        return voxelVariantDataKeyToString(voxelTypeDataKeyToVoxelVariantDataKey(voxelType)) as Entity;
       }
     )
   );
@@ -85,8 +85,8 @@ export function createInventoryIndexSystem(
       connectedAddress
     );
     for (const itemType of InventoryIndex.values.value.keys()) {
-      // since itemType is a symbol, we use itemType.description to get the bytes32 itemType id as a string type
-      if (!itemTypesIOwn.has(itemType.description as Entity)) {
+      const voxelVariantDataKey = voxelTypeDataKeyToVoxelVariantDataKey(entityToVoxelType(itemType.description as Entity));
+      if (!itemTypesIOwn.has(voxelVariantDataKeyToString(voxelVariantDataKey) as Entity)) {
         removeComponent(InventoryIndex, itemType.description as Entity);
       }
     }

@@ -10,6 +10,7 @@ import { INVENTORY_HEIGHT, INVENTORY_WIDTH } from "./InventoryHud";
 import { toast } from "react-toastify";
 import { formatNamespace } from "../../../constants";
 import { getNftStorageLink } from "../../noa/constants";
+import { voxelVariantDataKeyToString } from "../../noa/types";
 
 interface Props {
   layers: Layers;
@@ -110,17 +111,17 @@ export const CreativeInventory: React.FC<Props> = ({ layers }) => {
   const tryGiftVoxel = (voxelTypeNamespace: string, voxelTypeId: string, preview: string) => {
     // It's better to do this validation off-chain since doing it on-chain is expensive.
     // Also this is more of a UI limitation. Who knows, maybe in the future, we WILL enforce strict inventory limits
-    // TODO: add back later
-    // const itemTypesIOwn = getItemTypesIOwn(
-    //   OwnedBy,
-    //   VoxelType,
-    //   connectedAddress
-    // );
+    const itemTypesIOwn = getItemTypesIOwn(
+      OwnedBy,
+      VoxelType,
+      connectedAddress
+    );
     if (
-      true
-      // TODO: add back later
-      // itemTypesIOwn.has(voxelType) ||
-      // itemTypesIOwn.size < INVENTORY_WIDTH * INVENTORY_HEIGHT
+      itemTypesIOwn.has(voxelVariantDataKeyToString({
+        voxelVariantNamespace: voxelTypeNamespace,
+        voxelVariantId: voxelTypeId,
+      }) as Entity) ||
+      itemTypesIOwn.size < INVENTORY_WIDTH * INVENTORY_HEIGHT
     ) {
       giftVoxel(voxelTypeNamespace, voxelTypeId, preview);
     } else {

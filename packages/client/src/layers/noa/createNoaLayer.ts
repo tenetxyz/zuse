@@ -49,6 +49,7 @@ import { setupClouds, setupSky } from "./engine/sky";
 import { setupNoaEngine } from "./setup";
 import {
   createVoxelSystem,
+  createVoxelVariantSystem,
   createInputSystem,
   createInventoryIndexSystem,
   createPlayerPositionSystem,
@@ -526,6 +527,7 @@ export function createNoaLayer(network: NetworkLayer) {
 
   // --- SYSTEMS --------------------------------------------------------------------
   createInputSystem(network, context);
+  createVoxelVariantSystem(network, context);
   createVoxelSystem(network, context);
   createPlayerPositionSystem(network, context);
   createRelaySystem(network, context);

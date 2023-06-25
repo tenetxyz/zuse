@@ -1,5 +1,6 @@
 export { createInputSystem } from "./createInputSystem";
 export { createVoxelSystem } from "./createVoxelSystem";
+export { createVoxelVariantSystem } from "./createVoxelVariantSystem";
 export { createPlayerPositionSystem } from "./createPlayerPositionSystem";
 export { createRelaySystem } from "./createRelaySystem";
 export { createInventoryIndexSystem } from "./createInventoryIndexSystem";

@@ -229,7 +229,7 @@ export async function setupNetwork() {
       voxelVariantId: keccak256("dirt")
     }),
     {
-      index: 2,
+      index: 1,
       data: {
         type: NoaBlockType.BLOCK,
         material: "https://bafkreibzraiuk6hgngtfczn57sivuqf3nv77twi6g3ftas2umjnbf6jefe.ipfs.nftstorage.link/",

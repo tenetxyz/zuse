@@ -1,21 +1,10 @@
 import React, { ChangeEvent, KeyboardEvent, useEffect } from "react";
 import { Layers } from "../../../types";
-import {
-  defineQuery,
-  Entity,
-  getComponentValue,
-  getEntityString,
-  Has,
-  setComponent,
-  Type,
-} from "@latticexyz/recs";
-import { useComponentValue, useObservableValue } from "@latticexyz/react";
-import { ComponentUpdate } from "@latticexyz/recs/src/types";
-import { UpdateType } from "@latticexyz/recs/src/constants";
+import { Entity, getEntityString, setComponent } from "@latticexyz/recs";
 import { to256BitString, VoxelCoord } from "@latticexyz/utils";
 import { NotificationIcon } from "../../noa/components/persistentNotification";
 import Fuse from "fuse.js";
-import { formatEntityID } from "../../../utils/entity";
+import { onComponentChange } from "../../../utils/onComponentChange";
 
 export interface CreationStoreFilters {
   search: string;
@@ -46,27 +35,24 @@ const CreationStore: React.FC<Props> = ({ layers, filters, setFilters }) => {
       api: { toggleInventory },
     },
     network: {
-      components: { OwnedBy, Creation },
+      contractComponents: { Creation },
       network: { connectedAddress },
-      api: { getEntityAtPosition, registerCreation },
     },
   } = layers;
   const playerAddress = to256BitString(connectedAddress.get() ?? "");
 
   const [searchValue, setSearchValue] = React.useState<string>("");
-  const [creations, setCreations] = React.useState<Creation[]>([]);
+  const allCreations = React.useRef<Creation[]>([]);
+  const filteredCreations = React.useRef<Creation[]>([]); // Filtered based on the specified filters. The user's search box query does NOT affect this.
   const [creationsToDisplay, setCreationsToDisplay] = React.useState<
     Creation[]
   >([]);
   const fuse = React.useRef<Fuse<Creation>>();
 
-  const creationsUpdate = useComponentValue(Creation, undefined);
-
-  // There might be a better way to listen to the updates than using this useEffect, but I'm not sure
-  useEffect(() => {
-    const allCreations: Creation[] = [];
+  onComponentChange(Creation, () => {
+    allCreations.current = [];
     const creationTable = Creation.values;
-    creationTable.name.forEach((name, creationId) => {
+    creationTable.name.forEach((name: string, creationId) => {
       const description = ""; //creationTable.description.get(creationId) ?? "";
       const creator = creationTable.creator.get(creationId);
       if (!creator) {
@@ -100,7 +86,7 @@ const CreationStore: React.FC<Props> = ({ layers, filters, setFilters }) => {
       });
       // TODO: add voxelMetadata
 
-      allCreations.push({
+      allCreations.current.push({
         creationId: getEntityString(creationId),
         name: name,
         description: description,
@@ -110,19 +96,43 @@ const CreationStore: React.FC<Props> = ({ layers, filters, setFilters }) => {
       } as Creation);
     });
 
-    const newCreations = filters.isMyCreation
-      ? allCreations.filter((creation) => creation.creator === playerAddress)
-      : allCreations;
+    // After we have parsed all the creations, apply the creation
+    // filters to narrow down the creations that will be displayed.
+    applyCreationFilters();
+  });
 
-    setCreations(newCreations);
+  const applyCreationFilters = () => {
+    filteredCreations.current = filters.isMyCreation
+      ? allCreations.current.filter(
+          (creation) => creation.creator === playerAddress
+        )
+      : allCreations.current;
 
+    // only the filtered creations can be queried
     const options = {
-      includeScore: true, // PERF: make this false
+      includeScore: false,
       keys: ["name", "description", "creator", "voxelTypes"],
     };
+    fuse.current = new Fuse(allCreations.current, options);
 
-    fuse.current = new Fuse(newCreations, options);
-  }, [creationsUpdate, filters]);
+    queryForCreationsToDisplay();
+  };
+  // recalculate which creations are in the display pool when the filters change
+  useEffect(applyCreationFilters, [filters]);
+
+  const queryForCreationsToDisplay = () => {
+    if (!fuse.current) {
+      return;
+    }
+    if (searchValue === "") {
+      setCreationsToDisplay(filteredCreations.current);
+      return;
+    }
+
+    const queryResult = fuse.current.search(searchValue).map((r) => r.item);
+    setCreationsToDisplay(queryResult);
+  };
+  React.useEffect(queryForCreationsToDisplay, [searchValue]);
 
   const spawnCreation = (creation: Creation) => {
     setComponent(PersistentNotification, SingletonEntity, {
@@ -134,15 +144,6 @@ const CreationStore: React.FC<Props> = ({ layers, filters, setFilters }) => {
     });
     toggleInventory();
   };
-
-  React.useEffect(() => {
-    if (!fuse.current || !creations) {
-      return;
-    }
-    const result = fuse.current.search(searchValue).map((r) => r.item);
-    const creationsToDisplay = result.length > 0 ? result : creations;
-    setCreationsToDisplay(creationsToDisplay);
-  }, [searchValue, creations]);
 
   return (
     <div className="max-w-md mx-auto p-4 text-white flex flex-col content-start float-top h-full min-w-[800px]">

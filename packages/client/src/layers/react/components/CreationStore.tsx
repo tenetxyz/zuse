@@ -5,6 +5,7 @@ import { to256BitString, VoxelCoord } from "@latticexyz/utils";
 import { NotificationIcon } from "../../noa/components/persistentNotification";
 import Fuse from "fuse.js";
 import { useComponentUpdate } from "../../../utils/useComponentUpdate";
+import { useCreationSearch } from "../../../utils/useCreationSearch";
 
 export interface CreationStoreFilters {
   search: string;
@@ -39,100 +40,11 @@ const CreationStore: React.FC<Props> = ({ layers, filters, setFilters }) => {
       network: { connectedAddress },
     },
   } = layers;
-  const playerAddress = to256BitString(connectedAddress.get() ?? "");
-
-  const [searchValue, setSearchValue] = React.useState<string>("");
-  const allCreations = React.useRef<Creation[]>([]);
-  const filteredCreations = React.useRef<Creation[]>([]); // Filtered based on the specified filters. The user's search box query does NOT affect this.
-  const [creationsToDisplay, setCreationsToDisplay] = React.useState<
-    Creation[]
-  >([]);
-  const fuse = React.useRef<Fuse<Creation>>();
-
-  useComponentUpdate(Creation, () => {
-    allCreations.current = [];
-    const creationTable = Creation.values;
-    creationTable.name.forEach((name: string, creationId) => {
-      const description = ""; //creationTable.description.get(creationId) ?? "";
-      const creator = creationTable.creator.get(creationId);
-      if (!creator) {
-        console.warn("No creator found for creation", creationId);
-        return;
-      }
-
-      const voxelTypes = creationTable.voxelTypes.get(creationId) ?? [];
-      if (voxelTypes.length === 0) {
-        console.warn("No voxelTypes found for creation", creationId);
-        return;
-      }
-
-      const xPositions = creationTable.relativePositionsX.get(creationId) ?? [];
-      const yPositions = creationTable.relativePositionsY.get(creationId) ?? [];
-      const zPositions = creationTable.relativePositionsZ.get(creationId) ?? [];
-
-      if (
-        xPositions.length === 0 ||
-        yPositions.length === 0 ||
-        zPositions.length === 0
-      ) {
-        console.warn(
-          `No relativePositions found for creationId=${creationId.toString()}. xPositions=${xPositions} yPositions=${yPositions} zPositions=${zPositions}`
-        );
-        return;
-      }
-
-      const relativePositions = xPositions.map((x, i) => {
-        return { x, y: yPositions[i], z: zPositions[i] };
-      });
-      // TODO: add voxelMetadata
-
-      allCreations.current.push({
-        creationId: getEntityString(creationId),
-        name: name,
-        description: description,
-        creator: creator,
-        voxelTypes: voxelTypes,
-        relativePositions,
-      } as Creation);
-    });
-
-    // After we have parsed all the creations, apply the creation
-    // filters to narrow down the creations that will be displayed.
-    applyCreationFilters();
-  });
-
-  const applyCreationFilters = () => {
-    filteredCreations.current = filters.isMyCreation
-      ? allCreations.current.filter(
-          (creation) => creation.creator === playerAddress
-        )
-      : allCreations.current;
-
-    // only the filtered creations can be queried
-    const options = {
-      includeScore: false,
-      keys: ["name", "description", "creator", "voxelTypes"],
-    };
-    fuse.current = new Fuse(allCreations.current, options);
-
-    queryForCreationsToDisplay();
-  };
-  // recalculate which creations are in the display pool when the filters change
-  useEffect(applyCreationFilters, [filters]);
-
-  const queryForCreationsToDisplay = () => {
-    if (!fuse.current) {
-      return;
-    }
-    if (searchValue === "") {
-      setCreationsToDisplay(filteredCreations.current);
-      return;
-    }
-
-    const queryResult = fuse.current.search(searchValue).map((r) => r.item);
-    setCreationsToDisplay(queryResult);
-  };
-  React.useEffect(queryForCreationsToDisplay, [searchValue]);
+  
+  const {
+    creationsToDisplay,
+  } = useCreationSearch({layers, filters, setFilters});
+  
 
   const spawnCreation = (creation: Creation) => {
     setComponent(PersistentNotification, SingletonEntity, {
@@ -151,8 +63,10 @@ const CreationStore: React.FC<Props> = ({ layers, filters, setFilters }) => {
         <input
           placeholder="Search"
           className="bg-slate-700 p-1 ml-2 focus:outline-slate-700 border-1 border-solid mb-1 "
-          value={searchValue}
-          onChange={(e) => setSearchValue(e.target.value)}
+          value={filters.search}
+          onChange={(e) => {
+            setFilters({ ...filters, search: e.target.value});
+          }}
           autoComplete={"on"}
           name="search"
         />

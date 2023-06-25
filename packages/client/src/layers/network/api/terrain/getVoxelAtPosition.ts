@@ -34,7 +34,7 @@ export function getEntityAtPosition(
   return (
     entitiesAtPosition?.find((b) => {
       const voxelType = getComponentValue(VoxelType, b);
-      return voxelType;
+      return voxelType && voxelType.voxelTypeId !== AIR_ID;
     }) ?? entitiesAtPosition[0]
   );
 }

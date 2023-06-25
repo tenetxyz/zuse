@@ -15,6 +15,7 @@ import { euclidean, isNotEmpty, pickRandom, keccak256 } from "@latticexyz/utils"
 import { timer } from "rxjs";
 import { NetworkLayer } from "../../network";
 import { NoaLayer } from "../types";
+import { AIR_ID } from "../../network/api/terrain/occurrence";
 
 export function createSoundSystem(network: NetworkLayer, context: NoaLayer) {
   const {
@@ -155,7 +156,7 @@ export function createSoundSystem(network: NetworkLayer, context: NoaLayer) {
       // Hack: entity id is the same as entity index for optimistic updates
       if (
         update.type == UpdateType.Enter &&
-        voxelTypeKey === keccak256("air")
+        voxelTypeKey === AIR_ID
       ) {
         // const isOptimisticUpdate = world.entities[update.entity] == (update.entity as unknown);
         const isOptimisticUpdate = update.entity == (update.entity as unknown);

@@ -28,7 +28,7 @@ export async function createVoxelSystem(
     contractComponents: { VoxelType, Position, VoxelVariants },
     actions: { withOptimisticUpdates },
     api: { getVoxelAtPosition },
-    voxelTypes: { VoxelVariantData },
+    voxelTypes: { VoxelVariantData, VoxelVariantDataSubscriptions },
   } = network;
 
   // Loading state flag
@@ -66,6 +66,9 @@ export async function createVoxelSystem(
           }
         }
         VoxelVariantData.set(voxelVariantDataKeyToString(voxelVariantDataKey), voxelVariantData);
+        VoxelVariantDataSubscriptions.forEach((subscription) => {
+          subscription(voxelVariantDataKey, voxelVariantData);
+        });
       } else {
         console.log("Variant already exists");
       }

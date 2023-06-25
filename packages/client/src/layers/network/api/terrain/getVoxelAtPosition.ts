@@ -10,7 +10,7 @@ import { VoxelCoord, keccak256 } from "@latticexyz/utils";
 import { Perlin } from "@latticexyz/noise";
 import { Terrain, TerrainState } from "./types";
 import { getTerrain } from "./utils";
-import { Air, Bedrock, Dirt, Grass } from "./occurrence";
+import { Air, AIR_ID, Bedrock, Dirt, Grass } from "./occurrence";
 import { VoxelTypeDataKey } from "../../../noa/types";
 import { TENET_NAMESPACE } from "../../../../constants";
 
@@ -92,9 +92,9 @@ export function getTerrainVoxel(
     Dirt(state) ||
     {
       voxelTypeNamespace: TENET_NAMESPACE,
-      voxelTypeId: keccak256("air"),
+      voxelTypeId: AIR_ID,
       voxelVariantNamespace: TENET_NAMESPACE,
-      voxelVariantId: keccak256("air")
+      voxelVariantId: AIR_ID,
     }
   );
 }

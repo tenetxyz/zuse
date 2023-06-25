@@ -37,12 +37,15 @@ import {
 } from "../layers/network/api";
 import { to64CharAddress } from "../utils/entity";
 import { SingletonID } from "@latticexyz/network";
-import {NoaVoxelDef, NoaBlockType, VoxelVariantData, VoxelTypeDataKey, VoxelVariantDataKey, voxelVariantDataKeyToString, voxelVariantKeyStringToKey} from "../layers/noa/types";
+import {NoaVoxelDef, NoaBlockType, VoxelVariantData, VoxelTypeDataKey, VoxelVariantDataKey, VoxelVariantDataValue, voxelVariantDataKeyToString, voxelVariantKeyStringToKey} from "../layers/noa/types";
 import {Textures, UVWraps} from "../layers/noa/constants";
 import { keccak256 } from "@latticexyz/utils";
 import { TENET_NAMESPACE } from "../constants";
+import { AIR_ID, DIRT_ID, GRASS_ID } from "../layers/network/api/terrain/occurrence";
 
 export type SetupNetworkResult = Awaited<ReturnType<typeof setupNetwork>>;
+
+export type VoxelVariantSubscription = (voxelVariantKey: VoxelVariantDataKey, voxelVariantData: VoxelVariantDataValue) => void;
 
 export async function setupNetwork() {
   const contractComponents = defineContractComponents(world);
@@ -212,11 +215,12 @@ export async function setupNetwork() {
   );
 
   const VoxelVariantData: VoxelVariantData = new Map();
+  const VoxelVariantDataSubscriptions: VoxelVariantSubscription[] = [];
   // TODO: should load initial ones from chain too
   VoxelVariantData.set(
     voxelVariantDataKeyToString({
       voxelVariantNamespace: TENET_NAMESPACE,
-      voxelVariantId: keccak256("air")
+      voxelVariantId: AIR_ID
     }),
     {
       index: 0,
@@ -226,7 +230,7 @@ export async function setupNetwork() {
   VoxelVariantData.set(
     voxelVariantDataKeyToString({
       voxelVariantNamespace: TENET_NAMESPACE,
-      voxelVariantId: keccak256("dirt")
+      voxelVariantId: DIRT_ID
     }),
     {
       index: 1,
@@ -240,7 +244,7 @@ export async function setupNetwork() {
   VoxelVariantData.set(
     voxelVariantDataKeyToString({
       voxelVariantNamespace: TENET_NAMESPACE,
-      voxelVariantId: keccak256("grass")
+      voxelVariantId: GRASS_ID
     }),
     {
       index: 2,
@@ -254,9 +258,20 @@ export async function setupNetwork() {
 
   const VoxelVariantIndexToKey: Map<number, VoxelVariantDataKey> = new Map();
 
-  for (const [voxelVariantKey, voxelVariantData] of VoxelVariantData.entries()) {
-    VoxelVariantIndexToKey.set(voxelVariantData.index, voxelVariantKeyStringToKey(voxelVariantKey));
+  function voxelIndexSubscription(
+    voxelVariantKey: VoxelVariantDataKey,
+    voxelVariantData: VoxelVariantDataValue,
+  ) {
+    VoxelVariantIndexToKey.set(voxelVariantData.index, voxelVariantKey);
   }
+
+  VoxelVariantDataSubscriptions.push(voxelIndexSubscription);
+
+  // initial run
+  for (const [voxelVariantKey, voxelVariantData] of VoxelVariantData.entries()) {
+    voxelIndexSubscription(voxelVariantKeyStringToKey(voxelVariantKey), voxelVariantData);
+  }
+
 
   function getVoxelIconUrl(
     voxelTypeKey: VoxelVariantDataKey
@@ -412,7 +427,7 @@ export async function setupNetwork() {
         {
           component: "VoxelType",
           entity: airEntity,
-          value: { voxelTypeNamespace: TENET_NAMESPACE, voxelTypeId: keccak256("air"), voxelVariantNamespace: TENET_NAMESPACE, voxelVariantId: keccak256("air") },
+          value: { voxelTypeNamespace: TENET_NAMESPACE, voxelTypeId: AIR_ID, voxelVariantNamespace: TENET_NAMESPACE, voxelVariantId: AIR_ID },
         },
         {
           component: "Position",
@@ -595,6 +610,6 @@ export async function setupNetwork() {
     worldAddress: networkConfig.worldAddress,
     uniqueWorldId,
     getVoxelIconUrl,
-    voxelTypes: { VoxelVariantData, VoxelVariantIndexToKey },
+    voxelTypes: { VoxelVariantData, VoxelVariantIndexToKey, VoxelVariantDataSubscriptions },
   };
 }

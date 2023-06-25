@@ -86,7 +86,7 @@ import { defineSpawnCreationComponent } from "./components/SpawnCreation";
 import { createSpawnCreationOverlaySystem } from "./systems/createSpawnCreationOverlaySystem";
 import { createSpawnOverlaySystem } from "./systems/createSpawnOverlaySystem";
 import { entityToVoxelType } from "../../utils/voxels";
-import { VoxelTypeDataKey, VoxelVariantDataKey, voxelVariantDataKeyToString } from "./types";
+import { VoxelTypeDataKey, VoxelVariantDataKey, voxelVariantDataKeyToString, voxelVariantKeyStringToKey, VoxelVariantDataValue } from "./types";
 
 export function createNoaLayer(network: NetworkLayer) {
   const world = namespaceWorld(network.world, "noa");
@@ -99,7 +99,7 @@ export function createNoaLayer(network: NetworkLayer) {
     components: { Recipe, Claim, Stake, LoadingState },
     contractComponents: { OwnedBy, VoxelType },
     api: { build },
-    voxelTypes: { VoxelVariantData }
+    voxelTypes: { VoxelVariantData, VoxelVariantDataSubscriptions }
   } = network;
   const uniqueWorldId = chainId + worldAddress;
 
@@ -409,8 +409,13 @@ export function createNoaLayer(network: NetworkLayer) {
   const scene = noa.rendering.getScene();
 
   const voxelMaterials: Map<string, BABYLON.Material | undefined> = new Map();
-  for (const [voxelVariantKey, voxelVariantData] of VoxelVariantData.entries()) {
+  function voxelUVWrapSubscription(
+    voxelVariantKey: VoxelVariantDataKey,
+    voxelVariantData: VoxelVariantDataValue,
+  ) {
+    const voxelVariantKeyStr = voxelVariantDataKeyToString(voxelVariantKey);
     if(voxelVariantData.data?.uvWrap){
+      console.log("Registering uvWrap", voxelVariantKeyStr);
       const voxelMaterial = noa.rendering.makeStandardMaterial(
         "voxelMaterial-" + voxelVariantKey
       );
@@ -421,10 +426,17 @@ export function createNoaLayer(network: NetworkLayer) {
         true,
         Texture.NEAREST_SAMPLINGMODE
       );
-      voxelMaterials.set(voxelVariantKey, voxelMaterial);
+      voxelMaterials.set(voxelVariantKeyStr, voxelMaterial);
     } else {
-      voxelMaterials.set(voxelVariantKey, undefined);
+      voxelMaterials.set(voxelVariantKeyStr, undefined);
     }
+  }
+
+  VoxelVariantDataSubscriptions.push(voxelUVWrapSubscription);
+
+  // initial run
+  for (const [voxelVariantKey, voxelVariantData] of VoxelVariantData.entries()) {
+    voxelUVWrapSubscription(voxelVariantKeyStringToKey(voxelVariantKey), voxelVariantData);
   }
 
   // --- SETUP NOA COMPONENTS AND MODULES --------------------------------------------------------

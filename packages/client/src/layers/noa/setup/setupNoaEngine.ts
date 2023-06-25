@@ -7,7 +7,7 @@ import { VoxelCoord, keccak256 } from "@latticexyz/utils";
 import { Textures } from "../constants";
 import { NetworkLayer } from "../../network";
 import { Entity } from "@latticexyz/recs";
-import { NoaBlockType } from "../types";
+import { NoaBlockType, VoxelVariantData, voxelVariantKeyStringToKey } from "../types";
 import { createVoxelMesh } from "./utils";
 import { voxelVariantDataKeyToString, VoxelVariantDataKey } from "../types";
 import { setupScene } from "../engine/setupScene";
@@ -17,6 +17,8 @@ import {
   MIN_HEIGHT,
   SKY_COLOR,
 } from "./constants";
+import { VoxelVariantDataValue } from "../types";
+import { AIR_ID } from "../../network/api/terrain/occurrence";
 
 export function setupNoaEngine(network: NetworkLayer) {
   const opts = {
@@ -43,7 +45,7 @@ export function setupNoaEngine(network: NetworkLayer) {
   };
   const {
     api: { getTerrainVoxelTypeAtPosition, getEcsVoxelTypeAtPosition },
-    voxelTypes: { VoxelVariantData, VoxelVariantIndexToKey }
+    voxelTypes: { VoxelVariantData, VoxelVariantIndexToKey, VoxelVariantDataSubscriptions }
   } = network;
 
   // Hack Babylon in order to have a -1 rendering group for the sky (to be always drawn behind everything else)
@@ -66,21 +68,25 @@ export function setupNoaEngine(network: NetworkLayer) {
   // Register simple materials
   const textures = [];
 
-  for (const [voxelVariantKey, voxelVariantData] of VoxelVariantData.entries()) {
+  function voxelMaterialSubscription(
+    voxelVariantKey: VoxelVariantDataKey,
+    voxelVariantData: VoxelVariantDataValue,
+  ) {
     const data = voxelVariantData.data;
-    if(!data) continue;
+    if(!data) return;
     const voxelMaterials = (
       Array.isArray(data.material) ? data.material : [data.material]
     ) as string[];
-    if (voxelMaterials) textures.push(...voxelMaterials);
+    for (const texture of voxelMaterials) {
+      console.log("Registering material", texture);
+      noa.registry.registerMaterial(texture, undefined, texture);
+    }
   }
 
-  for (const texture of textures) {
-    noa.registry.registerMaterial(texture, undefined, texture);
-  }
-
-  // Register voxels
-  for (const [voxelVariantKey, voxelVariantData] of VoxelVariantData.entries()) {
+  function voxelBlockSubscription(
+    voxelVariantKey: VoxelVariantDataKey,
+    voxelVariantData: VoxelVariantDataValue,
+  ) {
     const index = voxelVariantData.index;
     const data = voxelVariantData.data;
     const voxel = data;
@@ -89,7 +95,7 @@ export function setupNoaEngine(network: NetworkLayer) {
     });
 
     const augmentedVoxel = { ...voxel };
-    if (!voxel) continue;
+    if (!voxel) return;
 
     // Register mesh for mesh voxels
     if (voxel.type === NoaBlockType.MESH) {
@@ -110,8 +116,21 @@ export function setupNoaEngine(network: NetworkLayer) {
       delete augmentedVoxel.material;
     }
 
+    console.log("Registering block", index, augmentedVoxel);
     noa.registry.registerBlock(index, augmentedVoxel);
   }
+
+  VoxelVariantDataSubscriptions.push(voxelMaterialSubscription);
+  VoxelVariantDataSubscriptions.push(voxelBlockSubscription);
+
+  // initial run
+  for (const [voxelVariantKey, voxelVariantData] of VoxelVariantData.entries()) {
+    const voxelVariantDataKey = voxelVariantKeyStringToKey(voxelVariantKey);
+    voxelMaterialSubscription(voxelVariantDataKey, voxelVariantData);
+    voxelBlockSubscription(voxelVariantDataKey, voxelVariantData);
+  }
+
+  // Register voxels
 
   function setVoxel(coord: VoxelCoord | number[], voxelVariantDataKey: VoxelVariantDataKey) {
     const index = VoxelVariantData.get(voxelVariantDataKeyToString(voxelVariantDataKey))?.index;
@@ -176,7 +195,7 @@ export function setupNoaEngine(network: NetworkLayer) {
   // Change voxel targeting mechanism
   noa.blockTargetIdCheck = function (index: number) {
     const key = VoxelVariantIndexToKey.get(index);
-    return key != null && key.voxelVariantId != keccak256("air") && !VoxelVariantData.get(voxelVariantDataKeyToString(key))?.data?.fluid;
+    return key != null && key.voxelVariantId != AIR_ID && !VoxelVariantData.get(voxelVariantDataKeyToString(key))?.data?.fluid;
   };
   return { noa, setVoxel, glow };
 }

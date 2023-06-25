@@ -39,7 +39,7 @@ export async function createVoxelSystem(
   ).then(() => (live = true));
 
   defineComponentSystem(world, VoxelVariants, (update) => {
-    console.log("voxel type registry updated");
+    console.log("Voxel type registry updated");
     console.log(update);
     // TODO: could use update.value?
     const voxelVariantValue = getComponentValueStrict(VoxelVariants, update.entity);
@@ -77,7 +77,10 @@ export async function createVoxelSystem(
     if (!live) return;
     if (!value[0] && value[1]) {
       const voxel = getVoxelAtPosition(value[1]);
-      setVoxel(value[1], voxel);
+      setVoxel(value[1], {
+        voxelVariantNamespace: voxel.voxelVariantNamespace,
+        voxelVariantId: voxel.voxelVariantId,
+      });
     }
   });
 
@@ -86,6 +89,9 @@ export async function createVoxelSystem(
     if (!live) return;
     const position = getComponentValueStrict(Position, update.entity);
     const voxel = getVoxelAtPosition(position);
-    setVoxel(position, voxel);
+    setVoxel(position, {
+      voxelVariantNamespace: voxel.voxelVariantNamespace,
+      voxelVariantId: voxel.voxelVariantId,
+    });
   });
 }

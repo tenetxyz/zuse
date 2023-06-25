@@ -65,8 +65,6 @@ export function setupNoaEngine(network: NetworkLayer) {
   // IT DOES NOT INCLUDE TIME SPENT BY THE CLIENT GENERATING THE CHUNKS
   noa.world.maxProcessingPerTick = 12;
   noa.world.maxProcessingPerRender = 8;
-  // Register simple materials
-  const textures = [];
 
   function voxelMaterialSubscription(
     voxelVariantKey: VoxelVariantDataKey,

@@ -50,12 +50,10 @@ export const CreativeInventory: React.FC<Props> = ({ layers }) => {
       (voxelType, index: number) => {
         const entity = allVoxelTypes[index];
         const [namespace, voxelTypeId] = entity.split(":");
-        console.log("creative voxelType");
-        console.log(voxelTypeId);
         return {
           name: voxelTypeId as string, // TODO: update
           description: "tmp desc", // TODO: update
-          voxelType: voxelTypeId,
+          voxelType: voxelTypeId as Entity,
           preview: voxelType && voxelType.preview ? `https://${voxelType.preview}.ipfs.nftstorage.link/` : "",
         };
       }
@@ -88,15 +86,11 @@ export const CreativeInventory: React.FC<Props> = ({ layers }) => {
       return <Slot key={"voxel-search-slot" + i} disabled={true} getVoxelIconUrl={getVoxelIconUrl} />;
     }
     const voxelDescription = filteredVoxelDescriptions[i];
-    console.log("slot");
-    console.log(i);
-    console.log(voxelDescription);
 
     return (
       <Slot
         key={"creative-slot" + i}
         voxelType={voxelDescription.voxelType}
-        dhvani={"dhvani"}
         bgUrl={voxelDescription.preview}
         quantity={undefined} // undefined so no number appears
         onClick={() => tryGiftVoxel(voxelDescription.voxelType)}

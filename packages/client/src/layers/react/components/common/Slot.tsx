@@ -10,26 +10,17 @@ import { VoxelVariantDataKey } from "../../../noa/types";
 export const Slot: React.FC<{
   voxelType?: Entity;
   quantity?: number;
-  dhvani?: string;
   onClick?: () => void;
   onRightClick?: () => void;
   selected?: boolean;
   disabled?: boolean;
   bgUrl?: string;
   getVoxelIconUrl: (voxelTypeKey: VoxelVariantDataKey) => string | undefined;
-}> = ({ voxelType, dhvani, quantity, onClick, onRightClick, selected, disabled, getVoxelIconUrl, bgUrl }) => {
+}> = ({ voxelType, quantity, onClick, onRightClick, selected, disabled, getVoxelIconUrl, bgUrl }) => {
   let usebgUrl = bgUrl ? bgUrl : "";
-  // const voxelVariantData = voxelType? entityToVoxelType(voxelType) : undefined;
-  const voxelVariantData = undefined;
-  // if (!usebgUrl && voxelVariantData) {
-  //   usebgUrl = getVoxelIconUrl(voxelVariantData) || "";
-  // }
-  if(dhvani !== undefined && dhvani !== ""){
-    console.log("slot inside");
-    console.log(dhvani);
-    console.log(bgUrl);
-    // console.log(usebgUrl);
-    // console.log(voxelType);
+  const voxelVariantData = voxelType ? entityToVoxelType(voxelType) : undefined;
+  if (!usebgUrl && voxelVariantData) {
+    usebgUrl = getVoxelIconUrl(voxelVariantData) || "";
   }
   return (<AbsoluteBorder
     borderColor={selected ? "#ffffff" : "transparent"}

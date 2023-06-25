@@ -90,9 +90,7 @@ export function setupNoaEngine(network: NetworkLayer) {
     const index = voxelVariantData.index;
     const data = voxelVariantData.data;
     const voxel = data;
-    const voxelTypeKeyStr = voxelVariantDataKeyToString({
-      voxelVariantKey
-    });
+    const voxelTypeKeyStr = voxelVariantDataKeyToString(voxelVariantKey);
 
     const augmentedVoxel = { ...voxel };
     if (!voxel) return;

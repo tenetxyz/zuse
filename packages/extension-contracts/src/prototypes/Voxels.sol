@@ -78,6 +78,7 @@ function defineVoxels(address world) {
     orangeFlowerVariant.blockType = NoaBlockType.MESH;
     orangeFlowerVariant.opaque = false;
     orangeFlowerVariant.solid = false;
+    orangeFlowerVariant.frames = 1;
     orangeFlowerVariant.materialArr = OrangeFlowerTexture;
 
     (success, result) = world.call(

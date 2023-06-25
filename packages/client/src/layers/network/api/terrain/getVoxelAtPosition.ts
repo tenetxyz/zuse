@@ -55,7 +55,6 @@ export function getEcsVoxelType(
   const entityAtPosition = getEntityAtPosition(context, coord);
   if (!entityAtPosition) return undefined;
   const voxelTypeData = getComponentValue(context.VoxelType, entityAtPosition);
-  if (!voxelTypeData) return undefined;
   return voxelTypeData;
 }
 

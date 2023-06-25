@@ -57,3 +57,11 @@ export type VoxelVariantData = Map<string, VoxelVariantDataValue>;
 export function voxelVariantDataKeyToString(key: VoxelVariantDataKey) {
   return `${key.voxelVariantNamespace}:${key.voxelVariantId}`;
 }
+
+export function voxelVariantKeyStringToKey(key: string): VoxelVariantDataKey {
+  const [voxelVariantNamespace, voxelVariantId] = key.split(":");
+  return {
+    voxelVariantNamespace,
+    voxelVariantId,
+  };
+}

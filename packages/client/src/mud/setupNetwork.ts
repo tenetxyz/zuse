@@ -37,7 +37,7 @@ import {
 } from "../layers/network/api";
 import { to64CharAddress } from "../utils/entity";
 import { SingletonID } from "@latticexyz/network";
-import {NoaVoxelDef, NoaBlockType, VoxelVariantData, VoxelTypeDataKey, VoxelVariantDataKey} from "../layers/noa/types";
+import {NoaVoxelDef, NoaBlockType, VoxelVariantData, VoxelTypeDataKey, VoxelVariantDataKey, voxelVariantDataKeyToString, voxelVariantKeyStringToKey} from "../layers/noa/types";
 import {Textures, UVWraps} from "../layers/noa/constants";
 import { keccak256 } from "@latticexyz/utils";
 import { TENET_NAMESPACE } from "../constants";
@@ -214,7 +214,7 @@ export async function setupNetwork() {
   const VoxelVariantData: VoxelVariantData = new Map();
   // TODO: should load initial ones from chain too
   VoxelVariantData.set(
-    JSON.stringify({
+    voxelVariantDataKeyToString({
       voxelVariantNamespace: TENET_NAMESPACE,
       voxelVariantId: keccak256("air")
     }),
@@ -224,7 +224,7 @@ export async function setupNetwork() {
     }
   );
   VoxelVariantData.set(
-    JSON.stringify({
+    voxelVariantDataKeyToString({
       voxelVariantNamespace: TENET_NAMESPACE,
       voxelVariantId: keccak256("dirt")
     }),
@@ -238,7 +238,7 @@ export async function setupNetwork() {
     }
   );
   VoxelVariantData.set(
-    JSON.stringify({
+    voxelVariantDataKeyToString({
       voxelVariantNamespace: TENET_NAMESPACE,
       voxelVariantId: keccak256("grass")
     }),
@@ -255,13 +255,13 @@ export async function setupNetwork() {
   const VoxelVariantIndexToKey: Map<number, VoxelVariantDataKey> = new Map();
 
   for (const [voxelVariantKey, voxelVariantData] of VoxelVariantData.entries()) {
-    VoxelVariantIndexToKey.set(voxelVariantData.index, JSON.parse(voxelVariantKey));
+    VoxelVariantIndexToKey.set(voxelVariantData.index, voxelVariantKeyStringToKey(voxelVariantKey));
   }
 
   function getVoxelIconUrl(
     voxelTypeKey: VoxelVariantDataKey
   ): string | undefined {
-    const voxel = VoxelVariantData.get(JSON.stringify(voxelTypeKey))?.data;
+    const voxel = VoxelVariantData.get(voxelVariantDataKeyToString(voxelTypeKey))?.data;
     if (!voxel) return undefined;
     return Array.isArray(voxel.material) ? voxel.material[0] : voxel.material;
   }

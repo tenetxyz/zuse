@@ -8,7 +8,7 @@ import {
 import { toUtf8String } from "ethers/lib/utils.js";
 import { awaitStreamValue } from "@latticexyz/utils";
 import { NetworkLayer } from "../../network";
-import { NoaLayer } from "../types";
+import { NoaLayer, voxelVariantDataKeyToString } from "../types";
 
 function removeNullBytes(str){
   return str.split("").filter(char => char.codePointAt(0)).join("")
@@ -50,7 +50,7 @@ export async function createVoxelSystem(
       voxelVariantId: voxelVariantId
     }
 
-    if(!VoxelVariantData.has(JSON.stringify(voxelVariantDataKey))) {
+    if(!VoxelVariantData.has(voxelVariantDataKeyToString(voxelVariantDataKey))) {
       console.log("Adding new variant");
       const voxelVariantData = {
         index: voxelVariantValue.variantId,
@@ -65,7 +65,7 @@ export async function createVoxelSystem(
             uvWrap: voxelVariantValue.uvWrap ? `https://${voxelVariantValue.uvWrap}.ipfs.nftstorage.link/`: undefined,
           }
         }
-        VoxelVariantData.set(JSON.stringify(voxelVariantDataKey), voxelVariantData);
+        VoxelVariantData.set(voxelVariantDataKeyToString(voxelVariantDataKey), voxelVariantData);
       } else {
         console.log("Variant already exists");
       }

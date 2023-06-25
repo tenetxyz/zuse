@@ -94,8 +94,7 @@ contract RegisterCreationSystem is System {
     function getVoxelTypes(bytes32[] memory voxels) public view returns ( bytes32[] memory) {
         bytes32[] memory voxelTypes = new bytes32[](voxels.length);
         for (uint32 i = 0; i < voxels.length; i++) {
-            // TODO: Fix
-            // voxelTypes[i] = VoxelType.get(voxels[i]);
+            voxelTypes[i] = VoxelType.get(voxels[i]);
         }
         return voxelTypes;
     }

@@ -3,7 +3,7 @@ pragma solidity >=0.8.0;
 import { IWorld } from "../codegen/world/IWorld.sol";
 import { NoaBlockType } from "@tenetxyz/contracts/src/codegen/types.sol";
 import { stringArrToString } from "@tenetxyz/contracts/src/SharedUtils.sol";
-import { REGISTER_VOXEL_VARIANT_SIG, REGISTER_VOXEL_TYPE_SIG } from "@tenetxyz/contracts/src/constants.sol";
+import { REGISTER_VOXEL_VARIANT_SIG } from "@tenetxyz/contracts/src/constants.sol";
 
 // TODO: should not be duplicated from "@tenetxyz/contracts
 struct VoxelVariantsData {
@@ -43,13 +43,6 @@ function defineVoxels(address world) {
                                 sandVariant));
     require(success, "Failed to register sand variant");
 
-    (success, result) = world.call(
-        abi.encodeWithSignature(REGISTER_VOXEL_TYPE_SIG,
-        SandID,
-        SandTexture,
-        IWorld(world).tenet_ExtensionInitSys_sandVariantSelector.selector));
-    require(success, "Failed to register sand type");
-
     string[] memory logMaterials = new string[](2);
     logMaterials[0] = LogTopTexture;
     logMaterials[1] = LogTexture;
@@ -67,13 +60,6 @@ function defineVoxels(address world) {
                                 logVariant));
     require(success, "Failed to register log variant");
 
-    (success, result) = world.call(
-        abi.encodeWithSignature(REGISTER_VOXEL_TYPE_SIG,
-        LogID,
-        LogTexture,
-        IWorld(world).tenet_ExtensionInitSys_logVariantSelector.selector));
-    require(success, "Failed to register log type");
-
     VoxelVariantsData memory orangeFlowerVariant;
     orangeFlowerVariant.blockType = NoaBlockType.MESH;
     orangeFlowerVariant.opaque = false;
@@ -86,11 +72,4 @@ function defineVoxels(address world) {
                                 OrangeFlowerID,
                                 orangeFlowerVariant));
     require(success, "Failed to register orange flower variant");
-
-    (success, result) = world.call(
-        abi.encodeWithSignature(REGISTER_VOXEL_TYPE_SIG,
-        OrangeFlowerID,
-        OrangeFlowerTexture,
-        IWorld(world).tenet_ExtensionInitSys_orangeFlowerVariantSelector.selector));
-    require(success, "Failed to register orange flower type");
 }

@@ -1,18 +1,5 @@
 import { Creation } from "../layers/react/components/CreationStore";
 import { VoxelCoord } from "@latticexyz/utils";
-import {
-  Component,
-  ComponentValue,
-  defineQuery,
-  Entity,
-  getComponentValue,
-  Has,
-  isComponentUpdate,
-  Metadata,
-  Schema,
-} from "@latticexyz/recs";
-import React, { useEffect, useState } from "react";
-import { useComponentValue } from "@latticexyz/react";
 
 export const calculateMinMaxRelativeCoordsOfCreation = (
   creation: Creation
@@ -40,38 +27,3 @@ export const calculateMinMaxRelativePositions = (
     maxRelativeCoord: maxCoord,
   };
 };
-
-export interface Creation {
-  name: string;
-  description: string;
-  creationId: Entity;
-  creator: Entity;
-  voxelTypes: string[];
-  relativePositions: VoxelCoord[];
-  // voxelMetadata: string[];
-}
-
-export function useAllCreations<S extends Schema>(
-  Creation: Component<S, Metadata, undefined>
-) {
-  const creationsUpdate = useComponentValue(Creation, undefined);
-  const [creations, setCreations] = React.useState<Creation[]>([]);
-
-  // There might be a better way to listen to the updates than using this useEffect, but I'm not sure
-  useEffect(() => {
-    // component or entity changed, update state to latest value
-    setValue(entity != null ? getComponentValue(component, entity) : undefined);
-    if (entity == null) return;
-
-    const queryResult = defineQuery([Has(component)], { runOnInit: false });
-    const subscription = queryResult.update$.subscribe((update) => {
-      if (isComponentUpdate(update, component) && update.entity === entity) {
-        const [nextValue] = update.value;
-        setValue(nextValue);
-      }
-    });
-    return () => subscription.unsubscribe();
-  }, [creationsUpdate, entity]);
-
-  return value ?? defaultValue;
-}

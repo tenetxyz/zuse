@@ -4,7 +4,7 @@ import { Entity, getEntityString, setComponent } from "@latticexyz/recs";
 import { to256BitString, VoxelCoord } from "@latticexyz/utils";
 import { NotificationIcon } from "../../noa/components/persistentNotification";
 import Fuse from "fuse.js";
-import { useComponentChange } from "../../../utils/useComponentChange";
+import { useComponentUpdate } from "../../../utils/useComponentUpdate";
 
 export interface CreationStoreFilters {
   search: string;
@@ -49,7 +49,7 @@ const CreationStore: React.FC<Props> = ({ layers, filters, setFilters }) => {
   >([]);
   const fuse = React.useRef<Fuse<Creation>>();
 
-  useComponentChange(Creation, () => {
+  useComponentUpdate(Creation, () => {
     allCreations.current = [];
     const creationTable = Creation.values;
     creationTable.name.forEach((name: string, creationId) => {
@@ -165,7 +165,7 @@ const CreationStore: React.FC<Props> = ({ layers, filters, setFilters }) => {
             onChange={() => {
               setFilters({ ...filters, isMyCreation: !filters.isMyCreation });
             }}
-            name="is my creation filter"
+            name="isMyCreationFilter"
           />
         </label>
       </div>

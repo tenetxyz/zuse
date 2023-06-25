@@ -9,6 +9,11 @@ import { ResourceSelector} from "@latticexyz/world/src/ResourceSelector.sol";
 import { Position, PositionTableId } from "./codegen/Tables.sol";
 import { Strings } from "@openzeppelin/contracts/utils/Strings.sol";
 
+
+function staticcallFunctionSelector(address world, bytes4 functionPointer, bytes memory args) view returns (bool, bytes memory){
+  return world.staticcall(bytes.concat(functionPointer, args));
+}
+
 function getCallerNamespace(address caller) view returns (bytes16) {
   require(uint256(SystemRegistry.get(caller)) != 0, "Caller is not a system"); // cannot be called by an EOA
   bytes32 resourceSelector = SystemRegistry.get(caller);

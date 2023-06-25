@@ -17,8 +17,10 @@ const NUM_ROWS = 6;
 
 interface VoxelDescription {
   name: string;
+  namespace: string;
   description: string;
   voxelType: Entity;
+  voxelTypeId: string;
   preview: string;
 }
 
@@ -52,8 +54,10 @@ export const CreativeInventory: React.FC<Props> = ({ layers }) => {
         const [namespace, voxelTypeId] = entity.split(":");
         return {
           name: voxelTypeId as string, // TODO: update
+          namespace: namespace.substring(0, 34), // TODO: turn this into helper
           description: "tmp desc", // TODO: update
           voxelType: voxelTypeId as Entity,
+          voxelTypeId: voxelTypeId,
           preview: voxelType && voxelType.preview ? `https://${voxelType.preview}.ipfs.nftstorage.link/` : "",
         };
       }
@@ -93,7 +97,7 @@ export const CreativeInventory: React.FC<Props> = ({ layers }) => {
         voxelType={voxelDescription.voxelType}
         bgUrl={voxelDescription.preview}
         quantity={undefined} // undefined so no number appears
-        onClick={() => tryGiftVoxel(voxelDescription.voxelType)}
+        onClick={() => tryGiftVoxel(voxelDescription.namespace, voxelDescription.voxelTypeId, voxelDescription.preview)}
         disabled={false} // false, so if you pick up the voxeltype, it still shows up in the creative inventory
         selected={false} // you can never select an voxeltype in the creative inventory
         getVoxelIconUrl={getVoxelIconUrl}
@@ -101,19 +105,22 @@ export const CreativeInventory: React.FC<Props> = ({ layers }) => {
     );
   });
 
-  const tryGiftVoxel = (voxelType: Entity) => {
+  const tryGiftVoxel = (voxelTypeNamespace: string, voxelTypeId: string, preview: string) => {
     // It's better to do this validation off-chain since doing it on-chain is expensive.
     // Also this is more of a UI limitation. Who knows, maybe in the future, we WILL enforce strict inventory limits
-    const itemTypesIOwn = getItemTypesIOwn(
-      OwnedBy,
-      VoxelType,
-      connectedAddress
-    );
+    // TODO: add back later
+    // const itemTypesIOwn = getItemTypesIOwn(
+    //   OwnedBy,
+    //   VoxelType,
+    //   connectedAddress
+    // );
     if (
-      itemTypesIOwn.has(voxelType) ||
-      itemTypesIOwn.size < INVENTORY_WIDTH * INVENTORY_HEIGHT
+      true
+      // TODO: add back later
+      // itemTypesIOwn.has(voxelType) ||
+      // itemTypesIOwn.size < INVENTORY_WIDTH * INVENTORY_HEIGHT
     ) {
-      giftVoxel(voxelType);
+      giftVoxel(voxelTypeNamespace, voxelTypeId, preview);
     } else {
       toast(`Your inventory is full! Right click on an item to delete it.`);
     }

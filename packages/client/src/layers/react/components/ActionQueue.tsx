@@ -73,8 +73,11 @@ export function registerActionQueue() {
               Action,
               e
             );
-            const { actionType, coord, voxelVariantKey } = metadata || {};
-            const icon = voxelVariantKey && getVoxelIconUrl(voxelVariantKey);
+            const { actionType, coord, voxelVariantKey, preview } = metadata || {};
+            let icon = voxelVariantKey && getVoxelIconUrl(voxelVariantKey);
+            if (icon == undefined){
+              icon = preview;
+            }
             return (
               <div key={e} className="ActionQueueItem">
                 <ActionQueueItem

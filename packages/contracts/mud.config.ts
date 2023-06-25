@@ -153,6 +153,11 @@ export default mudConfig({
     {
       name: "KeysInTableModule",
       root: true,
+      args: [resolveTableId("VoxelTypeRegistry")],
+    },
+    {
+      name: "KeysInTableModule",
+      root: true,
       args: [resolveTableId("VoxelVariants")],
     },
   ],

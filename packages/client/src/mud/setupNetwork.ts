@@ -15,6 +15,7 @@ import {
 import { getNetworkConfig } from "./getNetworkConfig";
 import { defineContractComponents } from "./contractComponents";
 import { world } from "./world";
+import { toUtf8Bytes } from "ethers/lib/utils.js";
 import { createPerlin } from "@latticexyz/noise";
 import { BigNumber, Contract, Signer, utils } from "ethers";
 import { JsonRpcProvider } from "@ethersproject/providers";
@@ -191,6 +192,7 @@ export async function setupNetwork() {
     actionType: string;
     coord?: VoxelCoord;
     voxelVariantKey?: VoxelVariantDataKey;
+    preview?: string;
   }>(world, result.txReduced$);
 
   // Add optimistic updates and indexers
@@ -410,37 +412,38 @@ export async function setupNetwork() {
   }
 
   // needed in creative mode, to give the user new voxels
-  function giftVoxel(voxelType: Entity) {
-    // const newVoxel = world.registerEntity();
-    // const voxelTypeKey = VoxelTypeIdToKey[voxelType];
+  function giftVoxel(voxelTypeNamespace: string, voxelTypeId: string, preview: string) {
+    const newVoxel = world.registerEntity();
 
-    // actions.add({
-    //   id: `GiftVoxel+${voxelType}` as Entity,
-    //   metadata: { actionType: "giftVoxel", voxelTypeKey },
-    //   requirement: () => true,
-    //   components: {
-    //     OwnedBy: contractComponents.OwnedBy,
-    //     VoxelType: contractComponents.VoxelType,
-    //   },
-    //   execute: async () => {
-    //     const tx = await worldSend("tenet_GiftVoxelSystem_giftVoxel", [
-    //       voxelType,
-    //       { gasLimit: 1_000_000 },
-    //     ]);
-    //   },
-    //   updates: () => [
-    //     {
-    //       component: "VoxelType",
-    //       entity: newVoxel,
-    //       value: { value: voxelType },
-    //     },
-    //     {
-    //       component: "OwnedBy",
-    //       entity: playerAddress as Entity,
-    //       value: newVoxel,
-    //     },
-    //   ],
-    // });
+    actions.add({
+      id: `GiftVoxel+${voxelTypeNamespace}+${voxelTypeId}` as Entity,
+      metadata: { actionType: "giftVoxel", preview },
+      requirement: () => true,
+      components: {
+        OwnedBy: contractComponents.OwnedBy,
+        VoxelType: contractComponents.VoxelType,
+      },
+      execute: async () => {
+        const tx = await worldSend("tenet_GiftVoxelSystem_giftVoxel", [
+          voxelTypeNamespace,
+          voxelTypeId,
+          { gasLimit: 1_000_000 },
+        ]);
+      },
+      updates: () => [
+        // TODO: we can't do optimistic because we don't know what the variant will be. Maybe we can figure out somehow?
+        // {
+        //   component: "VoxelType",
+        //   entity: newVoxel,
+        //   value: { value: voxelType },
+        // },
+        {
+          component: "OwnedBy",
+          entity: playerAddress as Entity,
+          value: newVoxel,
+        },
+      ],
+    });
   }
 
   // needed in creative mode, to allow the user to remove voxels. Otherwise their inventory will fill up

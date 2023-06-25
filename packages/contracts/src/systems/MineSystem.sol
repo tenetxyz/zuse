@@ -7,7 +7,7 @@ import { System } from "@latticexyz/world/src/System.sol";
 import { VoxelCoord, VoxelVariantsKey } from "../types.sol";
 import { OwnedBy, Position, PositionTableId, VoxelType, VoxelTypeData, VoxelTypeRegistry } from "../codegen/Tables.sol";
 import { AirID, WaterID } from "../prototypes/Voxels.sol";
-import { addressToEntityKey, getEntitiesAtCoord } from "../utils.sol";
+import { addressToEntityKey, getEntitiesAtCoord, staticcallFunctionSelector } from "../utils.sol";
 import { Utils } from "@latticexyz/world/src/Utils.sol";
 import { IWorld } from "../codegen/world/IWorld.sol";
 import { Occurrence } from "../codegen/Tables.sol";
@@ -33,6 +33,7 @@ contract MineSystem is System {
     if (entitiesAtPosition.length == 0) {
         // If there is no entity at this position, try mining the terrain voxel at this position
        (bool success, bytes memory occurrence) = staticcallFunctionSelector(
+          _world(),
          Occurrence.get(voxelTypeId),
          abi.encode(coord)
        );
@@ -73,6 +74,7 @@ contract MineSystem is System {
       bytes4 airSelector = VoxelTypeRegistry.get(namespace, AirID).voxelVariantSelector;
       // call airSelector
       (bool airSuccess, bytes memory airVoxelVariant) = staticcallFunctionSelector(
+        _world(),
         airSelector,
         abi.encode(airEntity)
       );
@@ -93,7 +95,4 @@ contract MineSystem is System {
     return voxelToMine;
   }
 
-  function staticcallFunctionSelector(bytes4 functionPointer, bytes memory args) private view returns (bool, bytes memory){
-    return _world().staticcall(bytes.concat(functionPointer, args));
-  }
 }

@@ -26,7 +26,7 @@ bytes32 constant SignalOnID = bytes32(keccak256("signal.on"));
 bytes32 constant SignalSourceID = bytes32(keccak256("signalsource"));
 bytes32 constant InvertedSignalID = bytes32(keccak256("invertedsignal"));
 
-string constant SandTexture = "";
+string constant SandTexture = "bafkreia4afumfatsrlbmq5azbehfwzoqmgu7bjkiutb6njsuormtsqwwbi";
 string constant LogTexture = "bafkreihllk5lrr2l2fgvmgzzyyxw5kostinfee2gi55kln2mzihfp2mumy";
 string constant LogTopTexture = "bafkreiekx2odo544mawzn7np6p4uhkm2bt53nl4n2dhzj3ubbd5hi4jnf4";
 string constant OrangeFlowerTexture = "bafkreicins36cmwliwf7ryrlcs32khvi6kleof6buiirlvgv2w6cejpg54";

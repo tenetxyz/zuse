@@ -6,16 +6,13 @@ import { SignalSource, SignalSourceTableId } from "../codegen/Tables.sol";
 import { hasKey } from "@latticexyz/world/src/modules/keysintable/hasKey.sol";
 
 import { getCallerNamespace } from "@tenetxyz/contracts/src/SharedUtils.sol";
+import { entityIsSignalSource } from "../utils.sol";
 
 contract SignalSourceSystem is System {
   function getOrCreateSignalSource(bytes32 entity) public returns (bool) {
     bytes16 callerNamespace = getCallerNamespace(_msgSender());
 
-    bytes32[] memory keyTuple = new bytes32[](2);
-    keyTuple[0] = bytes32((callerNamespace));
-    keyTuple[1] = bytes32((entity));
-
-    if (!hasKey(SignalSourceTableId, keyTuple)) {
+    if (!entityIsSignalSource(entity, callerNamespace)) {
       bool isNatural = true;
       SignalSource.set(callerNamespace, entity, isNatural);
     }

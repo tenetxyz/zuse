@@ -3,24 +3,19 @@ pragma solidity >=0.8.0;
 
 import { System } from "@latticexyz/world/src/System.sol";
 import { Signal, SignalData, SignalTableId, SignalSource, SignalSourceTableId } from "../codegen/Tables.sol";
-import { hasKey } from "@latticexyz/world/src/modules/keysintable/hasKey.sol";
 
 import { SystemRegistry } from "@latticexyz/world/src/modules/core/tables/SystemRegistry.sol";
 import { ResourceSelector } from "@latticexyz/world/src/ResourceSelector.sol";
 import { BlockDirection } from "../codegen/Types.sol";
-import { Position, PositionData, PositionTableId } from "@tenetxyz/contracts/src/codegen/tables/Position.sol";
+import { PositionData } from "@tenetxyz/contracts/src/codegen/tables/Position.sol";
 import { getCallerNamespace } from "@tenetxyz/contracts/src/SharedUtils.sol";
-import { calculateBlockDirection, getOppositeDirection } from "../Utils.sol";
+import { calculateBlockDirection, getOppositeDirection, getEntityPositionStrict, entityIsSignal, entityIsSignalSource } from "../Utils.sol";
 
 contract SignalSystem is System {
   function getOrCreateSignal(bytes32 entity) public returns (SignalData memory) {
     bytes16 callerNamespace = getCallerNamespace(_msgSender());
 
-    bytes32[] memory keyTuple = new bytes32[](2);
-    keyTuple[0] = bytes32((callerNamespace));
-    keyTuple[1] = bytes32((entity));
-
-    if (!hasKey(SignalTableId, keyTuple)) {
+    if (!entityIsSignal(entity, callerNamespace)) {
       Signal.set(callerNamespace, entity, SignalData({ isActive: false, direction: BlockDirection.None }));
     }
 
@@ -32,18 +27,18 @@ contract SignalSystem is System {
     bytes32 signalEntity,
     bytes32 compareEntity,
     BlockDirection compareBlockDirection
-  ) private returns (bool) {
+  ) private returns (bool changedEntity) {
     SignalData memory signalData = Signal.get(callerNamespace, signalEntity);
-    bool changedSignalEntity = false;
+    changedEntity = false;
 
-    bytes32[] memory compareKeyTuple = new bytes32[](2);
-    compareKeyTuple[0] = bytes32((callerNamespace));
-    compareKeyTuple[1] = bytes32((compareEntity));
-
-    bool compareIsSignalSource = hasKey(SignalSourceTableId, compareKeyTuple);
-    bool compareIsActiveSignal = hasKey(SignalTableId, compareKeyTuple) &&
-      Signal.get(callerNamespace, compareEntity).isActive &&
-      Signal.get(callerNamespace, compareEntity).direction != getOppositeDirection(compareBlockDirection);
+    bool compareIsSignalSource = entityIsSignalSource(compareEntity, callerNamespace);
+    bool compareIsActiveSignal = entityIsSignal(compareEntity, callerNamespace);
+    if (compareIsActiveSignal) {
+      SignalData memory compareSignalData = Signal.get(callerNamespace, compareEntity);
+      compareIsActiveSignal =
+        compareSignalData.isActive &&
+        compareSignalData.direction != getOppositeDirection(compareBlockDirection);
+    }
 
     if (signalData.isActive) {
       // if we're active and the source direction is the same as the compare block direction
@@ -53,7 +48,7 @@ contract SignalSystem is System {
           signalData.isActive = false;
           signalData.direction = BlockDirection.None;
           Signal.set(callerNamespace, signalEntity, signalData);
-          changedSignalEntity = true;
+          changedEntity = true;
         }
       }
     } else {
@@ -63,25 +58,11 @@ contract SignalSystem is System {
         signalData.isActive = true;
         signalData.direction = compareBlockDirection;
         Signal.set(callerNamespace, signalEntity, signalData);
-        changedSignalEntity = true;
+        changedEntity = true;
       }
     }
 
-    return changedSignalEntity;
-  }
-
-  function getEntityPositionStrict(bytes32 entity) private view returns (PositionData memory) {
-    bytes32[] memory positionKeyTuple = new bytes32[](1);
-    positionKeyTuple[0] = bytes32((entity));
-    require(hasKey(PositionTableId, positionKeyTuple), "Entity must have a position"); // even if its air, it must have a position
-    return Position.get(entity);
-  }
-
-  function entityIsSignal(bytes32 entity, bytes16 callerNamespace) private view returns (bool) {
-    bytes32[] memory keyTuple = new bytes32[](2);
-    keyTuple[0] = bytes32((callerNamespace));
-    keyTuple[1] = bytes32((entity));
-    return hasKey(SignalTableId, keyTuple);
+    return changedEntity;
   }
 
   // TODO: The logic in this function will be the same for all eventHandlers, so we should somehow generalize this for all of them

@@ -1,8 +1,37 @@
 // SPDX-License-Identifier: GPL-3.0
 pragma solidity >=0.8.0;
-import { PositionData } from "@tenetxyz/contracts/src/codegen/tables/Position.sol";
-
+import { Position, PositionData, PositionTableId } from "@tenetxyz/contracts/src/codegen/tables/Position.sol";
+import { hasKey } from "@latticexyz/world/src/modules/keysintable/hasKey.sol";
+import { SignalTableId, SignalSourceTableId, PoweredTableId } from "./codegen/Tables.sol";
 import { BlockDirection } from "./codegen/Types.sol";
+
+function entityIsSignal(bytes32 entity, bytes16 callerNamespace) view returns (bool) {
+  bytes32[] memory keyTuple = new bytes32[](2);
+  keyTuple[0] = bytes32((callerNamespace));
+  keyTuple[1] = bytes32((entity));
+  return hasKey(SignalTableId, keyTuple);
+}
+
+function entityIsSignalSource(bytes32 entity, bytes16 callerNamespace) view returns (bool) {
+  bytes32[] memory keyTuple = new bytes32[](2);
+  keyTuple[0] = bytes32((callerNamespace));
+  keyTuple[1] = bytes32((entity));
+  return hasKey(SignalSourceTableId, keyTuple);
+}
+
+function entityIsPowered(bytes32 entity, bytes16 callerNamespace) view returns (bool) {
+  bytes32[] memory keyTuple = new bytes32[](2);
+  keyTuple[0] = bytes32((callerNamespace));
+  keyTuple[1] = bytes32((entity));
+  return hasKey(PoweredTableId, keyTuple);
+}
+
+function getEntityPositionStrict(bytes32 entity) view returns (PositionData memory) {
+  bytes32[] memory positionKeyTuple = new bytes32[](1);
+  positionKeyTuple[0] = bytes32((entity));
+  require(hasKey(PositionTableId, positionKeyTuple), "Entity must have a position"); // even if its air, it must have a position
+  return Position.get(entity);
+}
 
 function calculateBlockDirection(
   PositionData memory centerCoord,

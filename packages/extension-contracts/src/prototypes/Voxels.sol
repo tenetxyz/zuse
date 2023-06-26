@@ -30,46 +30,40 @@ string constant SandUVWrap = "bafkreiewghdyhnlq4yiqe4umxaytoy67jw3k65lwll2rbomfz
 string constant LogUVWrap = "bafkreiddsx5ke3e664ain2gnzd7jxicko34clxnlqzp2paqomvf7a7gb7m";
 
 function defineVoxels(address world) {
+  VoxelVariantsData memory sandVariant;
+  sandVariant.blockType = NoaBlockType.BLOCK;
+  sandVariant.opaque = true;
+  sandVariant.solid = true;
+  sandVariant.materialArr = SandTexture;
+  sandVariant.uvWrap = SandUVWrap;
+  (bool success, bytes memory result) = world.call(
+    abi.encodeWithSignature(REGISTER_VOXEL_VARIANT_SIG, SandID, sandVariant)
+  );
+  require(success, "Failed to register sand variant");
 
-    VoxelVariantsData memory sandVariant;
-    sandVariant.blockType = NoaBlockType.BLOCK;
-    sandVariant.opaque = true;
-    sandVariant.solid = true;
-    sandVariant.materialArr = SandTexture;
-    sandVariant.uvWrap = SandUVWrap;
-    (bool success, bytes memory result) = world.call(
-        abi.encodeWithSignature(REGISTER_VOXEL_VARIANT_SIG,
-                                SandID,
-                                sandVariant));
-    require(success, "Failed to register sand variant");
+  string[] memory logMaterials = new string[](2);
+  logMaterials[0] = LogTopTexture;
+  logMaterials[1] = LogTexture;
 
-    string[] memory logMaterials = new string[](2);
-    logMaterials[0] = LogTopTexture;
-    logMaterials[1] = LogTexture;
+  VoxelVariantsData memory logVariant;
+  logVariant.blockType = NoaBlockType.BLOCK;
+  logVariant.opaque = true;
+  logVariant.solid = true;
+  logVariant.materialArr = stringArrToString(logMaterials);
+  logVariant.uvWrap = LogUVWrap;
 
-    VoxelVariantsData memory logVariant;
-    logVariant.blockType = NoaBlockType.BLOCK;
-    logVariant.opaque = true;
-    logVariant.solid = true;
-    logVariant.materialArr = stringArrToString(logMaterials);
-    logVariant.uvWrap = LogUVWrap;
+  (success, result) = world.call(abi.encodeWithSignature(REGISTER_VOXEL_VARIANT_SIG, LogID, logVariant));
+  require(success, "Failed to register log variant");
 
-    (success, result) = world.call(
-        abi.encodeWithSignature(REGISTER_VOXEL_VARIANT_SIG,
-                                LogID,
-                                logVariant));
-    require(success, "Failed to register log variant");
+  VoxelVariantsData memory orangeFlowerVariant;
+  orangeFlowerVariant.blockType = NoaBlockType.MESH;
+  orangeFlowerVariant.opaque = false;
+  orangeFlowerVariant.solid = false;
+  orangeFlowerVariant.frames = 1;
+  orangeFlowerVariant.materialArr = OrangeFlowerTexture;
 
-    VoxelVariantsData memory orangeFlowerVariant;
-    orangeFlowerVariant.blockType = NoaBlockType.MESH;
-    orangeFlowerVariant.opaque = false;
-    orangeFlowerVariant.solid = false;
-    orangeFlowerVariant.frames = 1;
-    orangeFlowerVariant.materialArr = OrangeFlowerTexture;
-
-    (success, result) = world.call(
-        abi.encodeWithSignature(REGISTER_VOXEL_VARIANT_SIG,
-                                OrangeFlowerID,
-                                orangeFlowerVariant));
-    require(success, "Failed to register orange flower variant");
+  (success, result) = world.call(
+    abi.encodeWithSignature(REGISTER_VOXEL_VARIANT_SIG, OrangeFlowerID, orangeFlowerVariant)
+  );
+  require(success, "Failed to register orange flower variant");
 }

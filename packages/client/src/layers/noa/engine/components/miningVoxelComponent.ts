@@ -44,19 +44,10 @@ const BREAKING = [
   "./assets/textures/destroy-7.png",
 ];
 
-export function registerMiningVoxelComponent(
-  noa: Engine,
-  networkLayer: NetworkLayer
-) {
+export function registerMiningVoxelComponent(noa: Engine, networkLayer: NetworkLayer) {
   const scene = noa.rendering.getScene();
   const TEXTURES = BREAKING.map((textureUrl) => {
-    const texture = new BABYLON.Texture(
-      textureUrl,
-      scene,
-      true,
-      true,
-      BABYLON.Texture.NEAREST_SAMPLINGMODE
-    );
+    const texture = new BABYLON.Texture(textureUrl, scene, true, true, BABYLON.Texture.NEAREST_SAMPLINGMODE);
     texture.hasAlpha = true;
     return texture;
   });
@@ -100,11 +91,7 @@ export function registerMiningVoxelComponent(
       material.unfreeze();
       material.diffuseTexture = TEXTURES[0];
       for (const _ of [0, 1, 2, 3, 4, 5]) {
-        const mesh = BABYLON.MeshBuilder.CreatePlane(
-          "crack",
-          { size: 1.0 },
-          noa.rendering._scene
-        );
+        const mesh = BABYLON.MeshBuilder.CreatePlane("crack", { size: 1.0 }, noa.rendering._scene);
         mesh.material = material;
         noa.rendering.addMeshToScene(mesh);
         mesh.setEnabled(false);
@@ -118,14 +105,7 @@ export function registerMiningVoxelComponent(
     },
     system: function (dt: number, states: MiningVoxelComponent[]) {
       for (let i = 0; i < states.length; i++) {
-        const {
-          breakingVoxelMeshes,
-          breakingVoxelMaterial,
-          coord,
-          active,
-          startTimestamp,
-          duration,
-        } = states[i];
+        const { breakingVoxelMeshes, breakingVoxelMaterial, coord, active, startTimestamp, duration } = states[i];
         if (!breakingVoxelMeshes.length) {
           return;
         }
@@ -139,10 +119,7 @@ export function registerMiningVoxelComponent(
             const normalVector = [...NORMALS[i]];
             const voxelPosition = [...localPosition];
             // offset to avoid z-fighting, bigger when camera is far away
-            const dist = glvec3.dist(
-              noa.camera._localGetPosition(),
-              voxelPosition
-            );
+            const dist = glvec3.dist(noa.camera._localGetPosition(), voxelPosition);
             const slop = 0.001 + 0.001 * dist;
             for (let i = 0; i < 3; i++) {
               if (normalVector[i] === 0) {
@@ -151,28 +128,18 @@ export function registerMiningVoxelComponent(
                 voxelPosition[i] += normalVector[i] > 0 ? 1 + slop : -slop;
               }
             }
-            breakingVoxelMesh.position.copyFromFloats(
-              voxelPosition[0],
-              voxelPosition[1],
-              voxelPosition[2]
-            );
+            breakingVoxelMesh.position.copyFromFloats(voxelPosition[0], voxelPosition[1], voxelPosition[2]);
             breakingVoxelMesh.rotation.x = normalVector[1] ? Math.PI / 2 : 0;
             breakingVoxelMesh.rotation.y = normalVector[0] ? Math.PI / 2 : 0;
             breakingVoxelMesh.setEnabled(true);
           }
         } else if (active) {
-          const progress =
-            Math.min(Date.now() - startTimestamp, duration) / duration;
+          const progress = Math.min(Date.now() - startTimestamp, duration) / duration;
           states[i].progress = progress;
           // eslint-disable-next-line @typescript-eslint/ban-ts-comment
           //@ts-ignore
           breakingVoxelMaterial.diffuseTexture =
-            TEXTURES[
-              Math.min(
-                Math.floor(progress * (TEXTURES.length + 1)),
-                TEXTURES.length - 1
-              )
-            ];
+            TEXTURES[Math.min(Math.floor(progress * (TEXTURES.length + 1)), TEXTURES.length - 1)];
           if (progress > 0.99) {
             states[i].active = false;
             networkLayer.api.mine(coord);
@@ -254,10 +221,6 @@ function createExplosion(
 
   noa.rendering.addMeshToScene(s, false);
   const local: number[] = [];
-  const [x, y, z] = noa.globalToLocal(
-    [coord.x, coord.y + 0.5, coord.z],
-    [0, 0, 0],
-    local
-  );
+  const [x, y, z] = noa.globalToLocal([coord.x, coord.y + 0.5, coord.z], [0, 0, 0], local);
   s.position.copyFromFloats(x + 0.5, y, z + 0.5);
 }

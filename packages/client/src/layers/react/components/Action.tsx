@@ -110,9 +110,7 @@ export const Action = ({ state, icon, title, description, link }: Props) => (
     <div className="ActionIcon">{icon ? <img src={icon} alt="" /> : null}</div>
     <div className="ActionLabel">
       <div className="ActionTitle">{title}</div>
-      {description ? (
-        <div className="ActionDescription">{description}</div>
-      ) : null}
+      {description ? <div className="ActionDescription">{description}</div> : null}
     </div>
     <div className="ActionStatus">
       <ActionStatusIcon state={state} />

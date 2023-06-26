@@ -26,16 +26,15 @@ int128 constant _0_6 = 11068046444225730969; // 0.6 * 2**64
 int128 constant _0_75 = 13835058055282163712; // 0.75 * 2**64
 int128 constant _0_8 = 14757395258967641292; // 0.8 * 2**64
 int128 constant _0_9 = 16602069666338596454; // 0.9 * 2**64
-int128 constant _1 = 2**64;
-int128 constant _2 = 2 * 2**64;
-int128 constant _3 = 3 * 2**64;
-int128 constant _4 = 4 * 2**64;
-int128 constant _5 = 5 * 2**64;
-int128 constant _10 = 10 * 2**64;
-int128 constant _16 = 16 * 2**64;
+int128 constant _1 = 2 ** 64;
+int128 constant _2 = 2 * 2 ** 64;
+int128 constant _3 = 3 * 2 ** 64;
+int128 constant _4 = 4 * 2 ** 64;
+int128 constant _5 = 5 * 2 ** 64;
+int128 constant _10 = 10 * 2 ** 64;
+int128 constant _16 = 16 * 2 ** 64;
 
 contract LibTerrainSystem is System {
-
   function getTerrainVoxel(VoxelCoord memory coord) public view returns (VoxelVariantsKey memory) {
     int128[4] memory biome = getBiome(coord.x, coord.z);
     int32 height = getHeight(coord.x, coord.z, biome);
@@ -67,17 +66,10 @@ contract LibTerrainSystem is System {
     voxelTypeId = Dirt(y);
     if (voxelTypeId.voxelVariantId != bytes32(0x0)) return voxelTypeId;
 
-    return VoxelVariantsKey({
-            namespace: TENET_NAMESPACE,
-            voxelVariantId: AirID
-    });
+    return VoxelVariantsKey({ namespace: TENET_NAMESPACE, voxelVariantId: AirID });
   }
 
-  function getHeight(
-    int32 x,
-    int32 z,
-    int128[4] memory biome
-  ) internal view returns (int32) {
+  function getHeight(int32 x, int32 z, int128[4] memory biome) internal view returns (int32) {
     // Compute perlin height
     int128 perlin999 = IWorld(_world()).tenet_PerlinSystem_noise2d(x - 550, z + 550, 999, 64);
     int128 continentalHeight = continentalness(perlin999);
@@ -97,7 +89,9 @@ contract LibTerrainSystem is System {
     height = Math.add(continentalHeight, Math.div(height, _2));
 
     // Create valleys
-    int128 valley = valleys(Math.div(Math.add(Math.mul(IWorld(_world()).tenet_PerlinSystem_noise2d(x, z, 333, 64), _2), perlin49), _3));
+    int128 valley = valleys(
+      Math.div(Math.add(Math.mul(IWorld(_world()).tenet_PerlinSystem_noise2d(x, z, 333, 64), _2), perlin49), _3)
+    );
     height = Math.mul(height, valley);
 
     // Scale height
@@ -170,11 +164,7 @@ contract LibTerrainSystem is System {
     offset = VoxelCoord(x - chunkX * STRUCTURE_CHUNK, y - height, z - chunkZ * STRUCTURE_CHUNK);
   }
 
-  function getBiomeHash(
-    int32 x,
-    int32 y,
-    uint8 biome
-  ) internal view returns (uint16) {
+  function getBiomeHash(int32 x, int32 y, uint8 biome) internal view returns (uint16) {
     return getCoordHash(div(x, 300) + div(y, 300), int32(uint32(biome)));
   }
 
@@ -191,12 +181,7 @@ contract LibTerrainSystem is System {
     return euclidean(Tuple(a[0], a[1]), Tuple(b[0], b[1]));
   }
 
-  function euclideanRaw(
-    int128 a0,
-    int128 a1,
-    int128 b0,
-    int128 b1
-  ) internal view returns (int128) {
+  function euclideanRaw(int128 a0, int128 a1, int128 b0, int128 b1) internal view returns (int128) {
     return euclidean(Tuple(a0, a1), Tuple(b0, b1));
   }
 
@@ -292,16 +277,10 @@ contract LibTerrainSystem is System {
 
   function Air(int32 y) internal view returns (VoxelVariantsKey memory) {
     if (y > 10) {
-      return VoxelVariantsKey({
-            namespace: TENET_NAMESPACE,
-            voxelVariantId: AirID
-      });
+      return VoxelVariantsKey({ namespace: TENET_NAMESPACE, voxelVariantId: AirID });
     }
 
-    return VoxelVariantsKey({
-            namespace: bytes16(0x0),
-            voxelVariantId: bytes32(0x0)
-    });
+    return VoxelVariantsKey({ namespace: bytes16(0x0), voxelVariantId: bytes32(0x0) });
   }
 
   function Bedrock(VoxelCoord memory coord) public view returns (VoxelVariantsKey memory) {
@@ -310,56 +289,33 @@ contract LibTerrainSystem is System {
 
   function Bedrock(int32 y) internal view returns (VoxelVariantsKey memory) {
     if (y <= CHUNK_MIN_Y) {
-      return VoxelVariantsKey({
-            namespace: TENET_NAMESPACE,
-            voxelVariantId: BedrockID
-      });
+      return VoxelVariantsKey({ namespace: TENET_NAMESPACE, voxelVariantId: BedrockID });
     }
 
-    return VoxelVariantsKey({
-            namespace: bytes16(0x0),
-            voxelVariantId: bytes32(0x0)
-    });
+    return VoxelVariantsKey({ namespace: bytes16(0x0), voxelVariantId: bytes32(0x0) });
   }
 
   function Grass(VoxelCoord memory coord) public view returns (VoxelVariantsKey memory) {
     return Grass(coord.y);
   }
 
-  function Grass(
-    int32 y
-  ) internal view returns (VoxelVariantsKey memory) {
+  function Grass(int32 y) internal view returns (VoxelVariantsKey memory) {
     if (y == 10) {
-      return VoxelVariantsKey({
-            namespace: TENET_NAMESPACE,
-            voxelVariantId: GrassID
-      });
+      return VoxelVariantsKey({ namespace: TENET_NAMESPACE, voxelVariantId: GrassID });
     }
 
-    return VoxelVariantsKey({
-            namespace: bytes16(0x0),
-            voxelVariantId: bytes32(0x0)
-    });
+    return VoxelVariantsKey({ namespace: bytes16(0x0), voxelVariantId: bytes32(0x0) });
   }
 
   function Dirt(VoxelCoord memory coord) public view returns (VoxelVariantsKey memory) {
     return Dirt(coord.y);
   }
 
-  function Dirt(
-    int32 y
-  ) internal view returns (VoxelVariantsKey memory) {
+  function Dirt(int32 y) internal view returns (VoxelVariantsKey memory) {
     if (y > CHUNK_MIN_Y && y < 10) {
-      return VoxelVariantsKey({
-            namespace: TENET_NAMESPACE,
-            voxelVariantId: DirtID
-      });
+      return VoxelVariantsKey({ namespace: TENET_NAMESPACE, voxelVariantId: DirtID });
     }
 
-  return VoxelVariantsKey({
-            namespace: bytes16(0x0),
-            voxelVariantId: bytes32(0x0)
-    });
+    return VoxelVariantsKey({ namespace: bytes16(0x0), voxelVariantId: bytes32(0x0) });
   }
-
 }

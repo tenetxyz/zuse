@@ -43,11 +43,7 @@ export const valleys = createSplines([
   [1, 1],
 ]);
 
-export function getHeight(
-  { x, z }: VoxelCoord,
-  biome: [number, number, number, number],
-  perlin: Perlin
-): number {
+export function getHeight({ x, z }: VoxelCoord, biome: [number, number, number, number], perlin: Perlin): number {
   // Check cache
   const flatCoord = { x, y: z };
   const cacheHeight = heightMap.get(flatCoord);

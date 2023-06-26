@@ -2,12 +2,12 @@
 pragma solidity >=0.8.0;
 import { PositionData } from "@tenetxyz/contracts/src/codegen/tables/Position.sol";
 
-import {BlockDirection} from "./codegen/Types.sol";
+import { BlockDirection } from "./codegen/Types.sol";
 
-function calculateBlockDirection(PositionData memory centerCoord, PositionData memory neighborCoord)
-  pure
-  returns (BlockDirection)
-{
+function calculateBlockDirection(
+  PositionData memory centerCoord,
+  PositionData memory neighborCoord
+) pure returns (BlockDirection) {
   if (neighborCoord.x == centerCoord.x && neighborCoord.y == centerCoord.y && neighborCoord.z == centerCoord.z) {
     return BlockDirection.None;
   } else if (neighborCoord.y > centerCoord.y) {

@@ -1,13 +1,5 @@
 import { TxQueue } from "@latticexyz/network";
-import {
-  Component,
-  ComponentValue,
-  defineComponent,
-  Entity,
-  Schema,
-  Type,
-  World,
-} from "@latticexyz/recs";
+import { Component, ComponentValue, defineComponent, Entity, Schema, Type, World } from "@latticexyz/recs";
 import { keccak256 } from "@latticexyz/utils";
 import { BigNumber } from "ethers";
 import { createBrowserDevComponents } from "@latticexyz/ecs-browser/src/createBrowserDevComponents";
@@ -31,17 +23,14 @@ export function setupDevSystems(world: World) {
       );
     // const encoders = await encodersPromise;
     // const data = encoders[keccak256(component.metadata.contractId)](newValue);
-    console.log(
-      `Sent transaction to edit networked Component ${component.id} for Entity ${entity}`
-    );
+    console.log(`Sent transaction to edit networked Component ${component.id} for Entity ${entity}`);
     await systems["ember.system.componentDev"].executeTyped(
       keccak256(component.metadata.contractId),
       BigNumber.from(entity),
       data
     );
   }
-  const { devHighlightComponent, hoverHighlightComponent } =
-    createBrowserDevComponents(world);
+  const { devHighlightComponent, hoverHighlightComponent } = createBrowserDevComponents(world);
 
   return {
     setContractComponentValue,

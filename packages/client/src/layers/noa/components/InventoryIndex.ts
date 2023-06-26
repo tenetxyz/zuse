@@ -2,9 +2,5 @@ import { defineComponent, Type, World } from "@latticexyz/recs";
 
 // maps voxelTypeId -> the inventory index it's in
 export function defineInventoryIndexComponent(world: World) {
-  return defineComponent(
-    world,
-    { value: Type.Number },
-    { id: "InventoryIndex" }
-  );
+  return defineComponent(world, { value: Type.Number }, { id: "InventoryIndex" });
 }

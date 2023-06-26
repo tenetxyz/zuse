@@ -16,9 +16,7 @@ export const ChunkExplorer: React.FC<{
 }> = ({ chunk, claim, stake, api }) => {
   const stakeValue = stake?.value ?? 0;
   const claimValue = claim?.stake ?? 0;
-  const claimer =
-    (claim?.claimer && api.getName(claim.claimer as Entity)) ||
-    claim?.claimer.substring(0, 6) + "...";
+  const claimer = (claim?.claimer && api.getName(claim.claimer as Entity)) || claim?.claimer.substring(0, 6) + "...";
 
   return (
     <ChunkContainer>

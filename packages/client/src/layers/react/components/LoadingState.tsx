@@ -33,10 +33,7 @@ export function registerLoadingState() {
       // const GodEntityIndex = world.entityToIndex.get(SingletonID);
       const GodEntityIndex = SingletonID;
 
-      const loadingState =
-        GodEntityIndex == null
-          ? null
-          : getComponentValue(LoadingState, GodEntityIndex);
+      const loadingState = GodEntityIndex == null ? null : getComponentValue(LoadingState, GodEntityIndex);
       if (loadingState == null) {
         return <BootScreen initialOpacity={1}>Connecting</BootScreen>;
       }

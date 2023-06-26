@@ -56,10 +56,7 @@ export function registerInventoryHud() {
       } = layers;
 
       const VoxelsIOwnQuery = defineQuery(
-        [
-          HasValue(OwnedBy, { value: to64CharAddress(connectedAddress.get()) }),
-          Has(VoxelType),
-        ],
+        [HasValue(OwnedBy, { value: to64CharAddress(connectedAddress.get()) }), Has(VoxelType)],
         {
           runOnInit: true,
         }
@@ -95,14 +92,8 @@ export function registerInventoryHud() {
         )
       );
 
-      const inventoryIndex$ = concat(
-        of(0),
-        InventoryIndex.update$.pipe(map((e) => e.entity))
-      );
-      const selectedSlot$ = concat(
-        of(0),
-        SelectedSlot.update$.pipe(map((e) => e.value[0]?.value))
-      );
+      const inventoryIndex$ = concat(of(0), InventoryIndex.update$.pipe(map((e) => e.entity)));
+      const selectedSlot$ = concat(of(0), SelectedSlot.update$.pipe(map((e) => e.value[0]?.value)));
       const craftingTable$ = concat(of(0), CraftingTable.update$);
 
       return combineLatest([
@@ -115,12 +106,7 @@ export function registerInventoryHud() {
       ]).pipe(map((props) => ({ props })));
     },
     ({ props }) => {
-      const [
-        numVoxelsIOwnOfType,
-        { layers, show, craftingSideLength },
-        selectedSlot,
-        connectedClients,
-      ] = props;
+      const [numVoxelsIOwnOfType, { layers, show, craftingSideLength }, selectedSlot, connectedClients] = props;
       const {
         network: {
           api: { removeVoxels },
@@ -134,12 +120,8 @@ export function registerInventoryHud() {
         },
       } = layers;
 
-      const [holdingVoxelType, setHoldingVoxelType] = useState<
-        Entity | undefined
-      >();
-      const [selectedTab, setSelectedTab] = React.useState<InventoryTab>(
-        InventoryTab.INVENTORY
-      );
+      const [holdingVoxelType, setHoldingVoxelType] = useState<Entity | undefined>();
+      const [selectedTab, setSelectedTab] = React.useState<InventoryTab>(InventoryTab.INVENTORY);
 
       useEffect(() => {
         if (!show) setHoldingVoxelType(undefined);
@@ -158,14 +140,11 @@ export function registerInventoryHud() {
 
       function moveVoxelType(slot: number) {
         console.log("moveVoxelType", slot);
-        const voxelTypeAtSlot = [
-          ...getEntitiesWithValue(InventoryIndex, { value: slot }),
-        ][0];
+        const voxelTypeAtSlot = [...getEntitiesWithValue(InventoryIndex, { value: slot })][0];
 
         // If not currently holding a voxel, grab the voxel at this slot
         if (!holdingVoxelType) {
-          const numVoxelsOfTypeIOwn =
-            voxelTypeAtSlot && numVoxelsIOwnOfType[voxelTypeAtSlot];
+          const numVoxelsOfTypeIOwn = voxelTypeAtSlot && numVoxelsIOwnOfType[voxelTypeAtSlot];
           if (numVoxelsOfTypeIOwn > 0) {
             setHoldingVoxelType(voxelTypeAtSlot);
           }
@@ -173,17 +152,11 @@ export function registerInventoryHud() {
         }
 
         // Else (if currently holding a voxel), swap the holding voxel with the voxel at this position
-        const holdingVoxelTypeSlot = getComponentValue(
-          InventoryIndex,
-          holdingVoxelType
-        )?.value;
+        const holdingVoxelTypeSlot = getComponentValue(InventoryIndex, holdingVoxelType)?.value;
 
         // since holdingVoxelTypeSlot can be 0, we cannot use !holdingVoxelTypeSlot
         if (holdingVoxelTypeSlot === undefined) {
-          console.warn(
-            "we are not holding a voxel of type",
-            holdingVoxelType
-          );
+          console.warn("we are not holding a voxel of type", holdingVoxelType);
           return;
         }
         setComponent(InventoryIndex, holdingVoxelType, { value: slot });
@@ -195,9 +168,7 @@ export function registerInventoryHud() {
       }
 
       function removeVoxelType(slot: number) {
-        const voxelTypeIdAtSlot = [
-          ...getEntitiesWithValue(InventoryIndex, { value: slot }),
-        ][0];
+        const voxelTypeIdAtSlot = [...getEntitiesWithValue(InventoryIndex, { value: slot })][0];
         if (!voxelTypeIdAtSlot) {
           return;
         }
@@ -222,9 +193,7 @@ export function registerInventoryHud() {
 
       // Map each inventory slot to the corresponding voxel type at this slot index
       const Slots = [...range(INVENTORY_HEIGHT * INVENTORY_WIDTH)].map((i) => {
-        const voxelType = [
-          ...getEntitiesWithValue(InventoryIndex, { value: i }),
-        ][0];
+        const voxelType = [...getEntitiesWithValue(InventoryIndex, { value: i })][0];
         const quantity = voxelType && numVoxelsIOwnOfType[voxelType];
         return (
           <Slot
@@ -245,14 +214,9 @@ export function registerInventoryHud() {
           <ConnectedPlayersContainer>
             <PlayerCount>{connectedClients}</PlayerCount>
             <PixelatedImage src="/img/mud-player.png" width={35} />
-            <Sounds
-              playRandomTheme={playRandomTheme}
-              playNextTheme={playNextTheme}
-            />
+            <Sounds playRandomTheme={playRandomTheme} playNextTheme={playNextTheme} />
           </ConnectedPlayersContainer>
-          <ActionBarWrapper>
-            {[...range(INVENTORY_WIDTH)].map((i) => Slots[i])}
-          </ActionBarWrapper>
+          <ActionBarWrapper>{[...range(INVENTORY_WIDTH)].map((i) => Slots[i])}</ActionBarWrapper>
           <LogoContainer>
             <PixelatedImage src="/img/opcraft-dark.png" width={150} />
           </LogoContainer>
@@ -260,16 +224,14 @@ export function registerInventoryHud() {
       );
 
       // This state is hoisted up to this component so that the state is not lost when leaving the inventory to select voxels
-      const [registerCreationFormData, setRegisterCreationFormData] =
-        useState<RegisterCreationFormData>({
-          name: "",
-          description: "",
-        });
-      const [creationStoreFilters, setCreationStoreFilters] =
-        useState<CreationStoreFilters>({
-          search: "",
-          isMyCreation: false,
-        });
+      const [registerCreationFormData, setRegisterCreationFormData] = useState<RegisterCreationFormData>({
+        name: "",
+        description: "",
+      });
+      const [creationStoreFilters, setCreationStoreFilters] = useState<CreationStoreFilters>({
+        search: "",
+        isMyCreation: false,
+      });
 
       const getPageForSelectedTab = () => {
         switch (selectedTab) {
@@ -295,11 +257,7 @@ export function registerInventoryHud() {
             );
           case InventoryTab.CREATION_STORE:
             return (
-              <CreationStore
-                layers={layers}
-                filters={creationStoreFilters}
-                setFilters={setCreationStoreFilters}
-              />
+              <CreationStore layers={layers} filters={creationStoreFilters} setFilters={setCreationStoreFilters} />
             );
         }
       };
@@ -315,10 +273,7 @@ export function registerInventoryHud() {
             />
             <AbsoluteBorder borderColor={"#999999"} borderWidth={3}>
               <InventoryContainer>
-                <TabRadioSelector
-                  selectedTab={selectedTab}
-                  setSelectedTab={setSelectedTab}
-                />
+                <TabRadioSelector selectedTab={selectedTab} setSelectedTab={setSelectedTab} />
                 {SelectedTab}
               </InventoryContainer>
             </AbsoluteBorder>

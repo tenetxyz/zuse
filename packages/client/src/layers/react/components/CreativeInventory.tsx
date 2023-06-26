@@ -37,10 +37,8 @@ export const CreativeInventory: React.FC<Props> = ({ layers }) => {
   } = layers.network;
 
   const [searchValue, setSearchValue] = React.useState<string>("");
-  const [voxelDescriptions, setVoxelDescriptions] =
-    React.useState<VoxelDescription[]>();
-  const [filteredVoxelDescriptions, setFilteredVoxelDescriptions] =
-    React.useState<VoxelDescription[]>([]);
+  const [voxelDescriptions, setVoxelDescriptions] = React.useState<VoxelDescription[]>();
+  const [filteredVoxelDescriptions, setFilteredVoxelDescriptions] = React.useState<VoxelDescription[]>([]);
   const fuse = React.useRef<Fuse<VoxelDescription>>();
 
   React.useEffect(() => {
@@ -51,20 +49,18 @@ export const CreativeInventory: React.FC<Props> = ({ layers }) => {
       voxelTypes.push(voxelTypeValue);
     }
     console.log("creative voxelTypes", voxelTypes);
-    const unsortedVoxelDescriptions = Array.from(voxelTypes).map(
-      (voxelType, index: number) => {
-        const entity = allVoxelTypes[index];
-        const [namespace, voxelTypeId] = entity.split(":");
-        return {
-          name: voxelTypeId as string, // TODO: update
-          namespace: formatNamespace(namespace),
-          description: "tmp desc", // TODO: update
-          voxelType: voxelTypeId as Entity,
-          voxelTypeId: voxelTypeId,
-          preview: voxelType && voxelType.preview ? getNftStorageLink(voxelType.preview) : "",
-        };
-      }
-    );
+    const unsortedVoxelDescriptions = Array.from(voxelTypes).map((voxelType, index: number) => {
+      const entity = allVoxelTypes[index];
+      const [namespace, voxelTypeId] = entity.split(":");
+      return {
+        name: voxelTypeId as string, // TODO: update
+        namespace: formatNamespace(namespace),
+        description: "tmp desc", // TODO: update
+        voxelType: voxelTypeId as Entity,
+        voxelTypeId: voxelTypeId,
+        preview: voxelType && voxelType.preview ? getNftStorageLink(voxelType.preview) : "",
+      };
+    });
 
     const options = {
       includeScore: true, // PERF: make this false
@@ -73,9 +69,7 @@ export const CreativeInventory: React.FC<Props> = ({ layers }) => {
 
     fuse.current = new Fuse(unsortedVoxelDescriptions, options);
 
-    setVoxelDescriptions(
-      unsortedVoxelDescriptions.sort((a, b) => a.name.localeCompare(b.name))
-    );
+    setVoxelDescriptions(unsortedVoxelDescriptions.sort((a, b) => a.name.localeCompare(b.name)));
   }, [VoxelTypeRegistry]);
 
   React.useEffect(() => {
@@ -83,8 +77,7 @@ export const CreativeInventory: React.FC<Props> = ({ layers }) => {
       return;
     }
     const result = fuse.current.search(searchValue).map((r) => r.item);
-    const descriptionsToDisplay =
-      result.length > 0 ? result : voxelDescriptions;
+    const descriptionsToDisplay = result.length > 0 ? result : voxelDescriptions;
     setFilteredVoxelDescriptions(descriptionsToDisplay);
   }, [searchValue, voxelDescriptions]);
 
@@ -111,16 +104,14 @@ export const CreativeInventory: React.FC<Props> = ({ layers }) => {
   const tryGiftVoxel = (voxelTypeNamespace: string, voxelTypeId: string, preview: string) => {
     // It's better to do this validation off-chain since doing it on-chain is expensive.
     // Also this is more of a UI limitation. Who knows, maybe in the future, we WILL enforce strict inventory limits
-    const itemTypesIOwn = getItemTypesIOwn(
-      OwnedBy,
-      VoxelType,
-      connectedAddress
-    );
+    const itemTypesIOwn = getItemTypesIOwn(OwnedBy, VoxelType, connectedAddress);
     if (
-      itemTypesIOwn.has(voxelVariantDataKeyToString({
-        voxelVariantNamespace: voxelTypeNamespace,
-        voxelVariantId: voxelTypeId,
-      }) as Entity) ||
+      itemTypesIOwn.has(
+        voxelVariantDataKeyToString({
+          voxelVariantNamespace: voxelTypeNamespace,
+          voxelVariantId: voxelTypeId,
+        }) as Entity
+      ) ||
       itemTypesIOwn.size < INVENTORY_WIDTH * INVENTORY_HEIGHT
     ) {
       giftVoxel(voxelTypeNamespace, voxelTypeId, preview);
@@ -136,10 +127,7 @@ export const CreativeInventory: React.FC<Props> = ({ layers }) => {
         value={searchValue}
         onChange={(e) => setSearchValue(e.target.value)}
       />
-      <ActionBarWrapper>
-        {[...range(NUM_COLS * NUM_ROWS)]
-          .map((i) => Slots[i])}
-      </ActionBarWrapper>
+      <ActionBarWrapper>{[...range(NUM_COLS * NUM_ROWS)].map((i) => Slots[i])}</ActionBarWrapper>
     </div>
   );
 };

@@ -28,7 +28,6 @@ contract RegisterCreationTest is MudV2Test {
     namespace = TENET_NAMESPACE;
 
     alice = utils.getNextUserAddress();
-
   }
 
   function testGetVoxelTypes() public {

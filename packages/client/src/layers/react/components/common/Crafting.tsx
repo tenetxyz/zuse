@@ -1,11 +1,6 @@
 import React, { useEffect } from "react";
 import { SingletonID } from "@latticexyz/network";
-import {
-  Entity,
-  getComponentValue,
-  runQuery,
-  HasValue,
-} from "@latticexyz/recs";
+import { Entity, getComponentValue, runQuery, HasValue } from "@latticexyz/recs";
 import { range } from "@latticexyz/utils";
 import styled from "styled-components";
 import { Layers } from "../../../../types";
@@ -26,13 +21,7 @@ export const Crafting: React.FC<{
       getVoxelIconUrl,
     },
     noa: {
-      api: {
-        getCraftingTable,
-        setCraftingTableIndex,
-        clearCraftingTable,
-        getCraftingResult,
-        getTrimmedCraftingTable,
-      },
+      api: { getCraftingTable, setCraftingTableIndex, clearCraftingTable, getCraftingResult, getTrimmedCraftingTable },
       world,
     },
   } = layers;
@@ -66,8 +55,7 @@ export const Crafting: React.FC<{
     const y = getY(i);
 
     const voxelAtIndex = craftingTable[x][y];
-    const voxelTypeAtIndex = getComponentValue(VoxelType, voxelAtIndex)
-      ?.value as Entity | undefined;
+    const voxelTypeAtIndex = getComponentValue(VoxelType, voxelAtIndex)?.value as Entity | undefined;
 
     // If we are not holding a voxel but there is a voxel at this position, grab the voxel
     if (!holdingVoxelType) {
@@ -128,9 +116,7 @@ export const Crafting: React.FC<{
     const x = getX(index);
     const y = getY(index);
     const voxelIndex = craftingTable[x][y];
-    const voxelType = getComponentValue(VoxelType, voxelIndex)?.value as
-      | Entity
-      | undefined;
+    const voxelType = getComponentValue(VoxelType, voxelIndex)?.value as Entity | undefined;
     return (
       <Slot
         key={"crafting-slot" + index}
@@ -143,9 +129,7 @@ export const Crafting: React.FC<{
 
   return (
     <CraftingWrapper>
-      <CraftingInput sideLength={sideLength}>
-        {[...range(sideLength * sideLength)].map((i) => Slots[i])}
-      </CraftingInput>
+      <CraftingInput sideLength={sideLength}>{[...range(sideLength * sideLength)].map((i) => Slots[i])}</CraftingInput>
       <CraftingOutput>
         <Slot
           voxelType={getCraftingResult()}

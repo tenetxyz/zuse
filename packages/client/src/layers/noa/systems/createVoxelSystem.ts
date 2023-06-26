@@ -1,19 +1,11 @@
 import { SyncState } from "@latticexyz/network";
-import {
-  defineComponentSystem,
-  defineEnterSystem,
-  getComponentValueStrict,
-  Has,
-} from "@latticexyz/recs";
+import { defineComponentSystem, defineEnterSystem, getComponentValueStrict, Has } from "@latticexyz/recs";
 import { toUtf8String } from "ethers/lib/utils.js";
 import { awaitStreamValue } from "@latticexyz/utils";
 import { NetworkLayer } from "../../network";
 import { NoaLayer, voxelTypeDataKeyToVoxelVariantDataKey } from "../types";
 
-export async function createVoxelSystem(
-  network: NetworkLayer,
-  context: NoaLayer
-) {
+export async function createVoxelSystem(network: NetworkLayer, context: NoaLayer) {
   const {
     api: { setVoxel },
   } = context;
@@ -28,10 +20,7 @@ export async function createVoxelSystem(
 
   // Loading state flag
   let live = false;
-  awaitStreamValue(
-    LoadingState.update$,
-    ({ value }) => value[0]?.state === SyncState.LIVE
-  ).then(() => (live = true));
+  awaitStreamValue(LoadingState.update$, ({ value }) => value[0]?.state === SyncState.LIVE).then(() => (live = true));
 
   // "Exit system"
   defineComponentSystem(world, Position, async ({ value }) => {

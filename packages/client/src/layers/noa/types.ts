@@ -21,11 +21,7 @@ export enum NoaBlockType {
  * array of 6 names: [-x, +x, -y, +y, -z, +z]
  */
 export type NoaVoxelDef = {
-  material:
-    | string
-    | [string, string]
-    | [string, string, string]
-    | [string, string, string, string, string, string];
+  material: string | [string, string] | [string, string, string] | [string, string, string, string, string, string];
   type: NoaBlockType;
   frames?: number;
   opaque?: boolean;
@@ -41,17 +37,17 @@ export type VoxelTypeDataKey = {
   voxelTypeId: string;
   voxelVariantNamespace: string;
   voxelVariantId: string;
-}
+};
 
 export type VoxelVariantDataKey = {
   voxelVariantNamespace: string;
   voxelVariantId: string;
-}
+};
 
 export type VoxelVariantDataValue = {
   index: number;
   data: NoaVoxelDef | undefined;
-}
+};
 
 export type VoxelVariantData = Map<string, VoxelVariantDataValue>;
 
@@ -68,7 +64,13 @@ export function voxelVariantKeyStringToKey(key: string): VoxelVariantDataKey {
 }
 
 export function voxelTypeToEntity(voxelType: VoxelTypeDataKey): Entity {
-  return (voxelType.voxelTypeNamespace + "-" + voxelType.voxelTypeId + "-" + voxelType.voxelVariantNamespace + "-" + voxelType.voxelVariantId) as Entity;
+  return (voxelType.voxelTypeNamespace +
+    "-" +
+    voxelType.voxelTypeId +
+    "-" +
+    voxelType.voxelVariantNamespace +
+    "-" +
+    voxelType.voxelVariantId) as Entity;
 }
 
 export function entityToVoxelType(entity: Entity): VoxelTypeDataKey {

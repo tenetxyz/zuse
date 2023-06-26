@@ -19,10 +19,7 @@ interface Spawn {
 
 // All creations that are spawned will have an overlay around them
 // This is so when people modify a spawned creation, they know they are modifying that spawn instance
-export function createSpawnOverlaySystem(
-  networkLayer: NetworkLayer,
-  noaLayer: NoaLayer
-) {
+export function createSpawnOverlaySystem(networkLayer: NetworkLayer, noaLayer: NoaLayer) {
   const { noa } = noaLayer;
   const {
     contractComponents: { Spawn, Creation },
@@ -74,11 +71,7 @@ export function createSpawnOverlaySystem(
       const yPositions = creation.relativePositionsY ?? [];
       const zPositions = creation.relativePositionsZ ?? [];
 
-      if (
-        xPositions.length === 0 ||
-        yPositions.length === 0 ||
-        zPositions.length === 0
-      ) {
+      if (xPositions.length === 0 || yPositions.length === 0 || zPositions.length === 0) {
         console.warn(
           `No relativePositions found for creationId=${creationId.toString()}. xPositions=${xPositions} yPositions=${yPositions} zPositions=${zPositions}`
         );
@@ -89,8 +82,7 @@ export function createSpawnOverlaySystem(
         return { x, y: yPositions[i], z: zPositions[i] };
       });
 
-      const { minRelativeCoord, maxRelativeCoord } =
-        calculateMinMaxRelativePositions(relativePositions);
+      const { minRelativeCoord, maxRelativeCoord } = calculateMinMaxRelativePositions(relativePositions);
 
       const corner1 = add(spawn.lowerSouthWestCorner, minRelativeCoord);
       const corner2 = add(spawn.lowerSouthWestCorner, maxRelativeCoord);

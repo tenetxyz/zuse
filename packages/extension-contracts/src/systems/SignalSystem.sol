@@ -6,14 +6,13 @@ import { Signal, SignalData, SignalTableId, SignalSource, SignalSourceTableId } 
 import { hasKey } from "@latticexyz/world/src/modules/keysintable/hasKey.sol";
 
 import { SystemRegistry } from "@latticexyz/world/src/modules/core/tables/SystemRegistry.sol";
-import { ResourceSelector} from "@latticexyz/world/src/ResourceSelector.sol";
-import {BlockDirection} from "../codegen/Types.sol";
-import {Position, PositionData, PositionTableId} from "@tenetxyz/contracts/src/codegen/tables/Position.sol";
+import { ResourceSelector } from "@latticexyz/world/src/ResourceSelector.sol";
+import { BlockDirection } from "../codegen/Types.sol";
+import { Position, PositionData, PositionTableId } from "@tenetxyz/contracts/src/codegen/tables/Position.sol";
 import { getCallerNamespace } from "@tenetxyz/contracts/src/SharedUtils.sol";
 import { calculateBlockDirection, getOppositeDirection } from "../Utils.sol";
 
 contract SignalSystem is System {
-
   function createNew(bytes32 entity) public {
     bytes16 callerNamespace = getCallerNamespace(_msgSender());
 
@@ -23,13 +22,15 @@ contract SignalSystem is System {
 
     require(!hasKey(SignalTableId, keyTuple), "Entity already exists");
 
-    Signal.set(callerNamespace, entity, SignalData({
-      isActive: false,
-      direction: BlockDirection.None
-    }));
+    Signal.set(callerNamespace, entity, SignalData({ isActive: false, direction: BlockDirection.None }));
   }
 
-  function updateSignal(bytes16 callerNamespace, bytes32 signalEntity, bytes32 compareEntity, BlockDirection compareBlockDirection) private returns (bool) {
+  function updateSignal(
+    bytes16 callerNamespace,
+    bytes32 signalEntity,
+    bytes32 compareEntity,
+    BlockDirection compareBlockDirection
+  ) private returns (bool) {
     SignalData memory signalData = Signal.get(callerNamespace, signalEntity);
     bool changedSignalEntity = false;
 
@@ -38,13 +39,15 @@ contract SignalSystem is System {
     compareKeyTuple[1] = bytes32((compareEntity));
 
     bool compareIsSignalSource = hasKey(SignalSourceTableId, compareKeyTuple);
-    bool compareIsActiveSignal = hasKey(SignalTableId, compareKeyTuple) && Signal.get(callerNamespace, compareEntity).isActive && Signal.get(callerNamespace, compareEntity).direction != getOppositeDirection(compareBlockDirection);
+    bool compareIsActiveSignal = hasKey(SignalTableId, compareKeyTuple) &&
+      Signal.get(callerNamespace, compareEntity).isActive &&
+      Signal.get(callerNamespace, compareEntity).direction != getOppositeDirection(compareBlockDirection);
 
-    if(signalData.isActive){
+    if (signalData.isActive) {
       // if we're active and the source direction is the same as the compare block direction
       // and if the compare entity is not active, we should become inactive
-      if(signalData.direction == compareBlockDirection){
-        if(!compareIsSignalSource && !compareIsActiveSignal){
+      if (signalData.direction == compareBlockDirection) {
+        if (!compareIsSignalSource && !compareIsActiveSignal) {
           signalData.isActive = false;
           signalData.direction = BlockDirection.None;
           Signal.set(callerNamespace, signalEntity, signalData);
@@ -54,7 +57,7 @@ contract SignalSystem is System {
     } else {
       // if we're not active, and the compare entity is active, we should become active
       // compare entity could be a signal source, or it could be an active signal
-      if(compareIsSignalSource || compareIsActiveSignal){
+      if (compareIsSignalSource || compareIsActiveSignal) {
         signalData.isActive = true;
         signalData.direction = compareBlockDirection;
         Signal.set(callerNamespace, signalEntity, signalData);
@@ -89,45 +92,44 @@ contract SignalSystem is System {
     PositionData memory centerPosition = getEntityPositionStrict(centerEntityId);
 
     // case one: center is signal, check neighbours to see if things need to change
-    if(entityIsSignal(centerEntityId, callerNamespace)){
-        for (uint8 i = 0; i < neighbourEntityIds.length; i++) {
-          bytes32 neighbourEntityId = neighbourEntityIds[i];
-          if (uint256(neighbourEntityId) == 0) {
-            continue;
-          }
-
-          BlockDirection centerBlockDirection = calculateBlockDirection(
-            getEntityPositionStrict(neighbourEntityId),
-            centerPosition
-          );
-          updateSignal(callerNamespace, centerEntityId, neighbourEntityId, centerBlockDirection);
-        }
-    }
-
-    // case two: neighbour is signal, check center to see if things need to change
-    for (uint8 i = 0; i < neighbourEntityIds.length; i++) {
+    if (entityIsSignal(centerEntityId, callerNamespace)) {
+      for (uint8 i = 0; i < neighbourEntityIds.length; i++) {
         bytes32 neighbourEntityId = neighbourEntityIds[i];
-
-        if (uint256(neighbourEntityId) == 0 || !entityIsSignal(neighbourEntityId, callerNamespace)) {
-          changedEntityIds[i] = 0;
+        if (uint256(neighbourEntityId) == 0) {
           continue;
         }
 
         BlockDirection centerBlockDirection = calculateBlockDirection(
-          centerPosition,
-          getEntityPositionStrict(neighbourEntityId)
+          getEntityPositionStrict(neighbourEntityId),
+          centerPosition
         );
+        updateSignal(callerNamespace, centerEntityId, neighbourEntityId, centerBlockDirection);
+      }
+    }
 
-        bool changedEntity = updateSignal(callerNamespace, neighbourEntityId, centerEntityId, centerBlockDirection);
+    // case two: neighbour is signal, check center to see if things need to change
+    for (uint8 i = 0; i < neighbourEntityIds.length; i++) {
+      bytes32 neighbourEntityId = neighbourEntityIds[i];
 
-        if(changedEntity){
-          changedEntityIds[i] = neighbourEntityId;
-        } else {
-          changedEntityIds[i] = 0;
-        }
+      if (uint256(neighbourEntityId) == 0 || !entityIsSignal(neighbourEntityId, callerNamespace)) {
+        changedEntityIds[i] = 0;
+        continue;
+      }
+
+      BlockDirection centerBlockDirection = calculateBlockDirection(
+        centerPosition,
+        getEntityPositionStrict(neighbourEntityId)
+      );
+
+      bool changedEntity = updateSignal(callerNamespace, neighbourEntityId, centerEntityId, centerBlockDirection);
+
+      if (changedEntity) {
+        changedEntityIds[i] = neighbourEntityId;
+      } else {
+        changedEntityIds[i] = 0;
+      }
     }
 
     return changedEntityIds;
   }
-
 }

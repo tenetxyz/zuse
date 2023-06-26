@@ -7,7 +7,8 @@ export default mudConfig({
     NoaBlockType: ["BLOCK", "MESH"],
   },
   tables: {
-    VoxelType: { // TODO: Move this to a namespace?
+    VoxelType: {
+      // TODO: Move this to a namespace?
       schema: {
         voxelTypeNamespace: "bytes16",
         voxelTypeId: "bytes32",
@@ -33,7 +34,8 @@ export default mudConfig({
         uvWrap: "string", // File ID Hash
       },
     },
-    VoxelTypeRegistry: { // TODO: Move this to a namespace?
+    VoxelTypeRegistry: {
+      // TODO: Move this to a namespace?
       keySchema: {
         namespace: "bytes16",
         voxelType: "bytes32",

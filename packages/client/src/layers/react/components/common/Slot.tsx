@@ -19,36 +19,35 @@ export const Slot: React.FC<{
   let useIconUrl = iconUrl ? iconUrl : "";
   const voxelVariantData = voxelType ? entityToVoxelType(voxelType) : undefined;
   if (useIconUrl == "" && voxelVariantData !== undefined) {
-    useIconUrl = getVoxelIconUrl({
-      voxelVariantNamespace: voxelVariantData.voxelVariantNamespace,
-      voxelVariantId: voxelVariantData.voxelVariantId,
-    }) || "";
+    useIconUrl =
+      getVoxelIconUrl({
+        voxelVariantNamespace: voxelVariantData.voxelVariantNamespace,
+        voxelVariantId: voxelVariantData.voxelVariantId,
+      }) || "";
   }
-  return (<AbsoluteBorder
-    borderColor={selected ? "#ffffff" : "transparent"}
-    borderWidth={6}
-  >
-    <Border borderColor={"#b1b1b1"}>
-      <Border borderColor={"#797979"}>
-        <Border borderColor={"rgb(0 0 0 / 10%)"}>
-          <Inner
-            onClick={onClick}
-            disabled={disabled}
-            onContextMenu={(event: React.MouseEvent<HTMLDivElement>) => {
-              event.preventDefault(); // Prevent the default browser context menu from showing up
-              onRightClick && onRightClick();
-            }}
-          >
-            {voxelType ? (
-              <VoxelIcon iconUrl={useIconUrl} scale={4}>
-                {quantity != null ? <Quantity>{quantity}</Quantity> : null}
-              </VoxelIcon>
-            ) : null}
-          </Inner>
+  return (
+    <AbsoluteBorder borderColor={selected ? "#ffffff" : "transparent"} borderWidth={6}>
+      <Border borderColor={"#b1b1b1"}>
+        <Border borderColor={"#797979"}>
+          <Border borderColor={"rgb(0 0 0 / 10%)"}>
+            <Inner
+              onClick={onClick}
+              disabled={disabled}
+              onContextMenu={(event: React.MouseEvent<HTMLDivElement>) => {
+                event.preventDefault(); // Prevent the default browser context menu from showing up
+                onRightClick && onRightClick();
+              }}
+            >
+              {voxelType ? (
+                <VoxelIcon iconUrl={useIconUrl} scale={4}>
+                  {quantity != null ? <Quantity>{quantity}</Quantity> : null}
+                </VoxelIcon>
+              ) : null}
+            </Inner>
+          </Border>
         </Border>
       </Border>
-    </Border>
-  </AbsoluteBorder>
+    </AbsoluteBorder>
   );
 };
 

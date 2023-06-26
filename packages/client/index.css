@@ -3,34 +3,34 @@
 @tailwind utilities;
 
 @font-face {
-    font-family: "Lattice Pixel";
-    /* this relative url gets resolved by parcel to the correct absolute url */
-    src: url("./public/assets/fonts/LatticePixelFont.woff2");
-    font-weight: normal;
-    font-style: normal;
+  font-family: "Lattice Pixel";
+  /* this relative url gets resolved by parcel to the correct absolute url */
+  src: url("./public/assets/fonts/LatticePixelFont.woff2");
+  font-weight: normal;
+  font-style: normal;
 }
 * {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
 }
 body {
-    font-family: "Lattice Pixel";
-    font-size: 16px;
-    line-height: 0.625;
-    color: #fff;
-    text-shadow: 1.5px 1.5px 0 #000;
+  font-family: "Lattice Pixel";
+  font-size: 16px;
+  line-height: 0.625;
+  color: #fff;
+  text-shadow: 1.5px 1.5px 0 #000;
 }
 #noa-canvas {
-    outline: none;
+  outline: none;
 }
 
 .babylonUnmuteIcon {
-    width: 30px !important;
-    height: 26px !important;
-    border: 2px solid #fff !important;
-    border-radius: 7px !important;
-    left: 80px !important;
-    bottom: 26px !important;
-    top: unset !important;
+  width: 30px !important;
+  height: 26px !important;
+  border: 2px solid #fff !important;
+  border-radius: 7px !important;
+  left: 80px !important;
+  bottom: 26px !important;
+  top: unset !important;
 }

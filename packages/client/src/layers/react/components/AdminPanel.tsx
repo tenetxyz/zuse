@@ -14,10 +14,7 @@ export function registerAdminPanel() {
       colStart: 1,
       colEnd: 4,
     },
-    (layers) =>
-      layers.noa.components.UI.update$.pipe(
-        map((e) => ({ layers, show: e.value[0]?.showAdminPanel }))
-      ),
+    (layers) => layers.noa.components.UI.update$.pipe(map((e) => ({ layers, show: e.value[0]?.showAdminPanel }))),
     ({ layers, show }) => {
       const {
         components: { VoxelTypeRegistry },
@@ -55,9 +52,7 @@ export function registerAdminPanel() {
 
         link.download = filename;
         link.href = window.URL.createObjectURL(blob);
-        link.dataset.downloadurl = ["text/json", link.download, link.href].join(
-          ":"
-        );
+        link.dataset.downloadurl = ["text/json", link.download, link.href].join(":");
 
         const evt = new MouseEvent("click", {
           view: window,
@@ -71,21 +66,12 @@ export function registerAdminPanel() {
 
       return show ? (
         // "pointerEvents: all" is needed so when we click on the admin panel, we don't gain focus on the noa canvas
-        <div
-          className="relative z-50 w-full h-full bg-slate-100 p-10 text-white"
-          style={{ pointerEvents: "all" }}
-        >
+        <div className="relative z-50 w-full h-full bg-slate-100 p-10 text-white" style={{ pointerEvents: "all" }}>
           <p className="text-2xl">Admin Panel</p>
-          <button
-            className="p-5 bg-slate-700 w-full cursor-pointer"
-            onClick={downloadVoxels}
-          >
+          <button className="p-5 bg-slate-700 w-full cursor-pointer" onClick={downloadVoxels}>
             Download Voxels
           </button>
-          <FileUpload
-            buttonText={"Upload Voxels"}
-            onFileUpload={onImportVoxel}
-          />
+          <FileUpload buttonText={"Upload Voxels"} onFileUpload={onImportVoxel} />
         </div>
       ) : null;
     }

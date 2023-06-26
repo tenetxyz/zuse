@@ -32,12 +32,7 @@ const FileUpload: React.FC<Props> = ({ buttonText, onFileUpload }) => {
       >
         {buttonText}
       </div>
-      <input
-        ref={fileInputRef}
-        className="hidden"
-        type="file"
-        onChange={handleFileChange}
-      />
+      <input ref={fileInputRef} className="hidden" type="file" onChange={handleFileChange} />
     </div>
   );
 };

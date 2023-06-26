@@ -13,10 +13,7 @@ interface Props {
   setSelectedTab: React.Dispatch<React.SetStateAction<InventoryTab>>;
 }
 
-export const TabRadioSelector: React.FC<Props> = ({
-  selectedTab,
-  setSelectedTab,
-}) => {
+export const TabRadioSelector: React.FC<Props> = ({ selectedTab, setSelectedTab }) => {
   return (
     <div className="bg-[#888888] p-2 cursor-pointer border-4 border-solid border-gray-400 text-xl">
       {Object.values(InventoryTab).map((tabName, idx) => {

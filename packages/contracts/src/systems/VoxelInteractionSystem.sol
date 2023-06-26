@@ -6,11 +6,10 @@ import { getAddressById, addressToEntity } from "solecs/utils.sol";
 import { getKeysInTable } from "@latticexyz/world/src/modules/keysintable/getKeysInTable.sol";
 import { VoxelCoord } from "../types.sol";
 import { NUM_VOXEL_NEIGHBOURS, MAX_VOXEL_NEIGHBOUR_UPDATE_DEPTH } from "../Constants.sol";
-import {Position, PositionData, VoxelInteractionExtension, VoxelInteractionExtensionTableId} from "../codegen/Tables.sol";
+import { Position, PositionData, VoxelInteractionExtension, VoxelInteractionExtensionTableId } from "../codegen/Tables.sol";
 import { getEntitiesAtCoord, hasEntity } from "../utils.sol";
 
 contract VoxelInteractionSystem is System {
-
   int8[18] private NEIGHBOUR_COORD_OFFSETS = [
     int8(0),
     int8(0),
@@ -32,10 +31,7 @@ contract VoxelInteractionSystem is System {
     int8(0)
   ];
 
-  function calculateNeighbourEntities(bytes32 centerEntity)
-    public view
-    returns (bytes32[] memory)
-  {
+  function calculateNeighbourEntities(bytes32 centerEntity) public view returns (bytes32[] memory) {
     bytes32[] memory centerNeighbourEntities = new bytes32[](NUM_VOXEL_NEIGHBOURS);
     PositionData memory baseCoord = Position.get(centerEntity);
 
@@ -46,9 +42,7 @@ contract VoxelInteractionSystem is System {
         baseCoord.z + NEIGHBOUR_COORD_OFFSETS[i * 3 + 2]
       );
 
-      bytes32[] memory neighbourEntitiesAtPosition = getEntitiesAtCoord(
-          neighbouringCoord
-      );
+      bytes32[] memory neighbourEntitiesAtPosition = getEntitiesAtCoord(neighbouringCoord);
 
       require(
         neighbourEntitiesAtPosition.length == 0 || neighbourEntitiesAtPosition.length == 1,
@@ -67,9 +61,7 @@ contract VoxelInteractionSystem is System {
     return centerNeighbourEntities;
   }
 
-  function runInteractionSystems(
-    bytes32 centerEntity
-  ) public {
+  function runInteractionSystems(bytes32 centerEntity) public {
     address world = _world();
 
     // get neighbour entities
@@ -96,27 +88,29 @@ contract VoxelInteractionSystem is System {
       // Go over all registered extensions and call them
       bytes32[][] memory extensions = getKeysInTable(VoxelInteractionExtensionTableId);
       for (uint256 i; i < extensions.length; i++) {
-          // TODO: Should filter which ones to call based on key/some config passed by user
-          bytes16 extensionNamespace = bytes16(extensions[i][0]);
-          bytes4 extensionEventHandler = bytes4(extensions[i][1]);
-          (bool extensionSuccess, bytes memory extensionReturnData) = world.call(abi.encodeWithSelector(extensionEventHandler, useCenterEntityId, useNeighbourEntities));
-          // TODO: Add error handling
-          require(extensionSuccess, "VoxelInteractionSystem: Extension call failed");
-          if(extensionSuccess){
-            bytes32[] memory changedExtensionEntityIds = abi.decode(extensionReturnData, (bytes32[]));
+        // TODO: Should filter which ones to call based on key/some config passed by user
+        bytes16 extensionNamespace = bytes16(extensions[i][0]);
+        bytes4 extensionEventHandler = bytes4(extensions[i][1]);
+        (bool extensionSuccess, bytes memory extensionReturnData) = world.call(
+          abi.encodeWithSelector(extensionEventHandler, useCenterEntityId, useNeighbourEntities)
+        );
+        // TODO: Add error handling
+        require(extensionSuccess, "VoxelInteractionSystem: Extension call failed");
+        if (extensionSuccess) {
+          bytes32[] memory changedExtensionEntityIds = abi.decode(extensionReturnData, (bytes32[]));
 
-            // If there are changed entities, we want to run voxel interactions again but with this new neighbour as the center
-            for (uint256 j; j < changedExtensionEntityIds.length; j++) {
-              if (uint256(changedExtensionEntityIds[j]) != 0) {
-                centerEntitiesToCheckStackIdx++;
-                centerEntitiesToCheckStack[centerEntitiesToCheckStackIdx] = changedExtensionEntityIds[j];
-                if (centerEntitiesToCheckStackIdx >= MAX_VOXEL_NEIGHBOUR_UPDATE_DEPTH) {
-                  // TODO: Should tell the user that we reached max depth
-                  return;
-                }
+          // If there are changed entities, we want to run voxel interactions again but with this new neighbour as the center
+          for (uint256 j; j < changedExtensionEntityIds.length; j++) {
+            if (uint256(changedExtensionEntityIds[j]) != 0) {
+              centerEntitiesToCheckStackIdx++;
+              centerEntitiesToCheckStack[centerEntitiesToCheckStackIdx] = changedExtensionEntityIds[j];
+              if (centerEntitiesToCheckStackIdx >= MAX_VOXEL_NEIGHBOUR_UPDATE_DEPTH) {
+                // TODO: Should tell the user that we reached max depth
+                return;
               }
             }
           }
+        }
       }
 
       // at this point, we've consumed the top of the stack,

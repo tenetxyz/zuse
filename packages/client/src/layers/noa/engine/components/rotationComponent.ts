@@ -34,11 +34,7 @@ function getPoint(targetedRotations: Vector4[], currentTick: number): Vector3 {
   const secondV = targetedRotations[1];
   const a = Quaternion.FromArray([firstV.x, firstV.y, firstV.z, firstV.w]);
   const b = Quaternion.FromArray([secondV.x, secondV.y, secondV.z, secondV.w]);
-  const out = Quaternion.Slerp(
-    a,
-    b,
-    currentTick / (NUMBER_OF_TICKS_IN_CURVE - 1)
-  );
+  const out = Quaternion.Slerp(a, b, currentTick / (NUMBER_OF_TICKS_IN_CURVE - 1));
   return out.toEulerAngles();
 }
 

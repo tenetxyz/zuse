@@ -24,24 +24,33 @@ contract PostDeploy is Script {
     // Note: These have to be here instead of ExtensionInitSystem as they have be called from the deployer account
     // otherwise the msgSender is not the namespace owner
     (bool success, bytes memory result) = worldAddress.call(
-        abi.encodeWithSignature(REGISTER_VOXEL_TYPE_SIG,
+      abi.encodeWithSignature(
+        REGISTER_VOXEL_TYPE_SIG,
         SandID,
         SandTexture,
-        world.tenet_ExtensionInitSys_sandVariantSelector.selector));
+        world.tenet_ExtensionInitSys_sandVariantSelector.selector
+      )
+    );
     require(success, "Failed to register sand type");
 
     (success, result) = worldAddress.call(
-        abi.encodeWithSignature(REGISTER_VOXEL_TYPE_SIG,
+      abi.encodeWithSignature(
+        REGISTER_VOXEL_TYPE_SIG,
         LogID,
         LogTexture,
-        IWorld(world).tenet_ExtensionInitSys_logVariantSelector.selector));
+        IWorld(world).tenet_ExtensionInitSys_logVariantSelector.selector
+      )
+    );
     require(success, "Failed to register log type");
 
     (success, result) = worldAddress.call(
-        abi.encodeWithSignature(REGISTER_VOXEL_TYPE_SIG,
+      abi.encodeWithSignature(
+        REGISTER_VOXEL_TYPE_SIG,
         OrangeFlowerID,
         OrangeFlowerTexture,
-        IWorld(world).tenet_ExtensionInitSys_orangeFlowerVariantSelector.selector));
+        IWorld(world).tenet_ExtensionInitSys_orangeFlowerVariantSelector.selector
+      )
+    );
     require(success, "Failed to register orange flower type");
 
     // need to call registerExtension() in the world contract with PoweredSystem
@@ -49,13 +58,19 @@ contract PostDeploy is Script {
     bytes4 signalSourceEventHandler = IWorld(worldAddress).tenet_SignalSourceSyst_eventHandler.selector;
     bytes4 signalEventHandler = IWorld(worldAddress).tenet_SignalSystem_eventHandler.selector;
 
-    (success, result) = worldAddress.call(abi.encodeWithSignature("tenet_ExtensionSystem_registerExtension(bytes4)", poweredEventHandler));
+    (success, result) = worldAddress.call(
+      abi.encodeWithSignature("tenet_ExtensionSystem_registerExtension(bytes4)", poweredEventHandler)
+    );
     require(success, "Failed to registerExtension PoweredSystem");
 
-    (success, result) = worldAddress.call(abi.encodeWithSignature("tenet_ExtensionSystem_registerExtension(bytes4)", signalSourceEventHandler));
+    (success, result) = worldAddress.call(
+      abi.encodeWithSignature("tenet_ExtensionSystem_registerExtension(bytes4)", signalSourceEventHandler)
+    );
     require(success, "Failed to registerExtension SignalSourceSystem");
 
-    (success, result) = worldAddress.call(abi.encodeWithSignature("tenet_ExtensionSystem_registerExtension(bytes4)", signalEventHandler));
+    (success, result) = worldAddress.call(
+      abi.encodeWithSignature("tenet_ExtensionSystem_registerExtension(bytes4)", signalEventHandler)
+    );
     require(success, "Failed to registerExtension SignalSystem");
 
     vm.stopBroadcast();

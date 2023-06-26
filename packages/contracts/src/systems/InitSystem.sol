@@ -2,40 +2,28 @@
 pragma solidity >=0.8.0;
 import { System } from "@latticexyz/world/src/System.sol";
 import { IWorld } from "../codegen/world/IWorld.sol";
-import { defineVoxels,  AirID, DirtID, GrassID, BedrockID } from "../prototypes/Voxels.sol";
+import { defineVoxels, AirID, DirtID, GrassID, BedrockID } from "../prototypes/Voxels.sol";
 import { VoxelVariantsKey } from "../types.sol";
 import { TENET_NAMESPACE } from "../constants.sol";
 
 contract InitSystem is System {
-    function airVariantSelector(bytes32 entity) public returns (VoxelVariantsKey memory) {
-        return VoxelVariantsKey({
-            namespace: TENET_NAMESPACE,
-            voxelVariantId: AirID
-        });
-    }
+  function airVariantSelector(bytes32 entity) public returns (VoxelVariantsKey memory) {
+    return VoxelVariantsKey({ namespace: TENET_NAMESPACE, voxelVariantId: AirID });
+  }
 
-    function dirtVariantSelector(bytes32 entity) public returns (VoxelVariantsKey memory) {
-         return VoxelVariantsKey({
-            namespace: TENET_NAMESPACE,
-            voxelVariantId: DirtID
-        });
-    }
+  function dirtVariantSelector(bytes32 entity) public returns (VoxelVariantsKey memory) {
+    return VoxelVariantsKey({ namespace: TENET_NAMESPACE, voxelVariantId: DirtID });
+  }
 
-    function grassVariantSelector(bytes32 entity) public returns (VoxelVariantsKey memory) {
-         return VoxelVariantsKey({
-            namespace: TENET_NAMESPACE,
-            voxelVariantId: GrassID
-        });
-    }
+  function grassVariantSelector(bytes32 entity) public returns (VoxelVariantsKey memory) {
+    return VoxelVariantsKey({ namespace: TENET_NAMESPACE, voxelVariantId: GrassID });
+  }
 
-    function bedrockVariantSelector(bytes32 entity) public returns (VoxelVariantsKey memory) {
-         return VoxelVariantsKey({
-            namespace: TENET_NAMESPACE,
-            voxelVariantId: BedrockID
-        });
-    }
+  function bedrockVariantSelector(bytes32 entity) public returns (VoxelVariantsKey memory) {
+    return VoxelVariantsKey({ namespace: TENET_NAMESPACE, voxelVariantId: BedrockID });
+  }
 
-    function init() public {
-        defineVoxels(IWorld(_world()));
-    }
+  function init() public {
+    defineVoxels(IWorld(_world()));
+  }
 }

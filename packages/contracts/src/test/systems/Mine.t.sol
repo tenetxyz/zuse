@@ -15,19 +15,19 @@ import { console } from "forge-std/console.sol";
 import { TENET_NAMESPACE } from "../../constants.sol";
 
 contract MineTest is MudV2Test {
-   IWorld private world;
-   IStore private store;
-   Utilities internal immutable utils = new Utilities();
+  IWorld private world;
+  IStore private store;
+  Utilities internal immutable utils = new Utilities();
 
-   address payable internal alice;
+  address payable internal alice;
 
-    function setUp() public override {
-        super.setUp();
-        world = IWorld(worldAddress);
-        store = IStore(worldAddress);
+  function setUp() public override {
+    super.setUp();
+    world = IWorld(worldAddress);
+    store = IStore(worldAddress);
 
-        alice = utils.getNextUserAddress();
-    }
+    alice = utils.getNextUserAddress();
+  }
 
   function testMineTerrain() public {
     vm.startPrank(alice);
@@ -40,5 +40,4 @@ contract MineTest is MudV2Test {
     assertEq(OwnedBy.get(store, minedEntity), addressToEntityKey(alice));
     vm.stopPrank();
   }
-
 }

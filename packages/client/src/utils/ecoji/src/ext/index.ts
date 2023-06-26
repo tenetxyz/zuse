@@ -33,9 +33,7 @@ String.prototype.has_emoji = function (): boolean {
 };
 
 String.prototype.encode = function (): string {
-  return this.has_emoji()
-    ? encodeURIComponent(this.toString())
-    : this.toString();
+  return this.has_emoji() ? encodeURIComponent(this.toString()) : this.toString();
 };
 
 String.prototype.decode = function (): string {

@@ -20,11 +20,7 @@ import {
   Uint8ArrayToInt32Array,
   VoxelCoord,
 } from "@latticexyz/utils";
-import {
-  createChunks,
-  getChunksInArea,
-  pixelToChunkCoord as toChunkCoord,
-} from "@latticexyz/phaserx";
+import { createChunks, getChunksInArea, pixelToChunkCoord as toChunkCoord } from "@latticexyz/phaserx";
 import { NetworkLayer } from "../../network/types";
 import { NoaLayer } from "../types";
 
@@ -63,18 +59,10 @@ function decodeMessage(data: Uint8Array): {
   };
 }
 
-export async function createRelaySystem(
-  network: NetworkLayer,
-  context: NoaLayer
-) {
+export async function createRelaySystem(network: NetworkLayer, context: NoaLayer) {
   const {
     world,
-    components: {
-      PlayerPosition,
-      PlayerRelayerChunkPosition,
-      PlayerDirection,
-      PlayerLastMessage,
-    },
+    components: { PlayerPosition, PlayerRelayerChunkPosition, PlayerDirection, PlayerLastMessage },
     streams: { playerPosition$ },
     noa,
   } = context;
@@ -86,9 +74,7 @@ export async function createRelaySystem(
   } = network;
 
   if (!relay) {
-    console.warn(
-      "ECS message relayer not available. Not syncronizing player positions."
-    );
+    console.warn("ECS message relayer not available. Not syncronizing player positions.");
     return;
   }
 
@@ -110,11 +96,7 @@ export async function createRelaySystem(
     }))
   );
 
-  const { addedChunks$, removedChunks$, visibleChunks } = createChunks(
-    currentArea$,
-    RELAY_CHUNK_SIZE,
-    0
-  );
+  const { addedChunks$, removedChunks$, visibleChunks } = createChunks(currentArea$, RELAY_CHUNK_SIZE, 0);
 
   // Initial subscription
   const initialArea = await awaitStreamValue(currentArea$);
@@ -152,53 +134,32 @@ export async function createRelaySystem(
     const q = Quaternion.FromEulerAngles(pitch, yaw, 0);
     const quaternion: number[] = [];
     q.toArray(quaternion);
-    const currentChunk = toChunkCoord(
-      { x: position.x, y: position.z },
-      RELAY_CHUNK_SIZE
-    );
-    relay?.push(
-      createChunkTopicMessage(currentChunk),
-      encodeMessage([position.x, position.y, position.z], quaternion)
-    );
+    const currentChunk = toChunkCoord({ x: position.x, y: position.z }, RELAY_CHUNK_SIZE);
+    relay?.push(createChunkTopicMessage(currentChunk), encodeMessage([position.x, position.y, position.z], quaternion));
   });
 
-  defineRxSystem(
-    world,
-    relay.event$,
-    ({ message, address: checkSummedAddress }) => {
-      const address: string = checkSummedAddress.toLowerCase();
-      const {
-        position: [x, y, z],
-        direction: [qx, qy, qz, qw],
-      } = decodeMessage(message.data);
-      // TODO: do we need to use toQueryAddress? This is broken rn, so we didn't test it
-      if (address === connectedAddress.get()) return;
-      const playerChunk = toChunkCoord({ x, y: z }, RELAY_CHUNK_SIZE);
-      if (
-        !visibleChunks.current.has(playerChunk) ||
-        !visibleChunks.current.get(playerChunk)
-      )
-        return;
-      const entity = world.registerEntity({ id: address as Entity });
-      setComponent(PlayerPosition, entity, { x, y, z });
-      setComponent(PlayerDirection, entity, { qx, qy, qz, qw });
-      setComponent(PlayerLastMessage, entity, { value: Date.now() });
-    }
-  );
+  defineRxSystem(world, relay.event$, ({ message, address: checkSummedAddress }) => {
+    const address: string = checkSummedAddress.toLowerCase();
+    const {
+      position: [x, y, z],
+      direction: [qx, qy, qz, qw],
+    } = decodeMessage(message.data);
+    // TODO: do we need to use toQueryAddress? This is broken rn, so we didn't test it
+    if (address === connectedAddress.get()) return;
+    const playerChunk = toChunkCoord({ x, y: z }, RELAY_CHUNK_SIZE);
+    if (!visibleChunks.current.has(playerChunk) || !visibleChunks.current.get(playerChunk)) return;
+    const entity = world.registerEntity({ id: address as Entity });
+    setComponent(PlayerPosition, entity, { x, y, z });
+    setComponent(PlayerDirection, entity, { qx, qy, qz, qw });
+    setComponent(PlayerLastMessage, entity, { value: Date.now() });
+  });
 
-  defineRxSystem(
-    world,
-    timer(UNRESPONSIVE_PLAYER_CLEANUP, UNRESPONSIVE_PLAYER_CLEANUP),
-    () => {
-      const allPlayers = runQuery([Has(PlayerLastMessage)]);
-      const timeOut = Date.now() - TIMEOUT;
-      for (const player of allPlayers) {
-        const { value: lastMessage } = getComponentValueStrict(
-          PlayerLastMessage,
-          player
-        );
-        if (lastMessage < timeOut) removePlayerComponent(player);
-      }
+  defineRxSystem(world, timer(UNRESPONSIVE_PLAYER_CLEANUP, UNRESPONSIVE_PLAYER_CLEANUP), () => {
+    const allPlayers = runQuery([Has(PlayerLastMessage)]);
+    const timeOut = Date.now() - TIMEOUT;
+    for (const player of allPlayers) {
+      const { value: lastMessage } = getComponentValueStrict(PlayerLastMessage, player);
+      if (lastMessage < timeOut) removePlayerComponent(player);
     }
-  );
+  });
 }

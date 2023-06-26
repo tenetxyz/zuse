@@ -22,11 +22,7 @@ export function monkeyPatchMeshComponent(noa: Engine) {
       if (id === noa.playerEntity) {
         state.mesh.rotation.copyFromFloats(pitch, yaw, 0);
       } else if (hasNoaComponent(noa, id, ROTATION_COMPONENT)) {
-        const rotationComponent: RotationComponent = getNoaComponentStrict(
-          noa,
-          id,
-          ROTATION_COMPONENT
-        );
+        const rotationComponent: RotationComponent = getNoaComponentStrict(noa, id, ROTATION_COMPONENT);
         const { rotation } = rotationComponent;
         const childMeshes = state.mesh.getChildMeshes(true);
         const head = childMeshes[0];

@@ -1,10 +1,4 @@
-import {
-  Color3,
-  MeshBuilder,
-  Scene,
-  StandardMaterial,
-  Texture,
-} from "@babylonjs/core";
+import { Color3, MeshBuilder, Scene, StandardMaterial, Texture } from "@babylonjs/core";
 import * as BABYLON from "@babylonjs/core";
 import type { Engine } from "noa-engine";
 import { SKY_COLOR } from "../setup/constants";
@@ -84,11 +78,7 @@ export function setupClouds(noa: Engine) {
     }
   }
 
-  const pl = new BABYLON.DirectionalLight(
-    "pl",
-    new BABYLON.Vector3(0, 1, 0),
-    scene
-  );
+  const pl = new BABYLON.DirectionalLight("pl", new BABYLON.Vector3(0, 1, 0), scene);
   pl.intensity = 0.5;
   pl.diffuse = new BABYLON.Color3(1, 1, 1);
   pl.specular = BABYLON.Color3.Black();
@@ -103,29 +93,21 @@ export function setupClouds(noa: Engine) {
   noa.rendering.addMeshToScene(s, false);
 
   // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-  const [playerX, , playerZ] = noa.ents.getPositionData(noa.playerEntity)!
-    .position!;
+  const [playerX, , playerZ] = noa.ents.getPositionData(noa.playerEntity)!.position!;
   const cloudCenter = [playerX, playerZ];
   let currentRadian = 0;
 
   const update = () => {
     const local: number[] = [];
-    const wrappedRadian =
-      currentRadian - Math.floor(currentRadian / (Math.PI * 2)) * (Math.PI * 2);
+    const wrappedRadian = currentRadian - Math.floor(currentRadian / (Math.PI * 2)) * (Math.PI * 2);
     const cloudPosition = [
       cloudCenter[0] + Math.sin(wrappedRadian) * 100,
       cloudCenter[1] + Math.cos(wrappedRadian) * 100,
     ];
     currentRadian += 0.0001;
-    const [x, y, z] = noa.globalToLocal(
-      [cloudPosition[0], CLOUD_HEIGHT, cloudPosition[1]],
-      [0, 0, 0],
-      local
-    );
+    const [x, y, z] = noa.globalToLocal([cloudPosition[0], CLOUD_HEIGHT, cloudPosition[1]], [0, 0, 0], local);
     // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-    const [currentPlayerX, , currentPlayerZ] = noa.ents.getPositionData(
-      noa.playerEntity
-    )!.position!;
+    const [currentPlayerX, , currentPlayerZ] = noa.ents.getPositionData(noa.playerEntity)!.position!;
     s.position.copyFromFloats(x, y, z);
     // move clouds towards player
     const diffX = currentPlayerX - cloudCenter[0];
@@ -194,14 +176,8 @@ export function setupSky(noa: Engine) {
   const update = () => {
     const local: number[] = [];
     // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-    const [playerX, playerY, playerZ] = noa.ents.getPositionData(
-      noa.playerEntity
-    )!.position!;
-    const [x, y, z] = noa.globalToLocal(
-      [playerX, playerY, playerZ],
-      [0, 0, 0],
-      local
-    );
+    const [playerX, playerY, playerZ] = noa.ents.getPositionData(noa.playerEntity)!.position!;
+    const [x, y, z] = noa.globalToLocal([playerX, playerY, playerZ], [0, 0, 0], local);
     skyMesh.position.copyFromFloats(x, y + SKY_HEIGHT, z);
     skyBox.position.copyFromFloats(x, y + SKY_HEIGHT, z);
   };

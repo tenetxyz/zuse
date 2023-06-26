@@ -17,11 +17,7 @@ interface Props {
   setFormData: React.Dispatch<React.SetStateAction<RegisterCreationFormData>>;
 }
 
-const RegisterCreation: React.FC<Props> = ({
-  layers,
-  formData,
-  setFormData,
-}) => {
+const RegisterCreation: React.FC<Props> = ({ layers, formData, setFormData }) => {
   const {
     noa: {
       components: { VoxelSelection, PersistentNotification },
@@ -32,10 +28,7 @@ const RegisterCreation: React.FC<Props> = ({
       api: { getEntityAtPosition, registerCreation },
     },
   } = layers;
-  const corners: IVoxelSelection | undefined = useComponentValue(
-    VoxelSelection,
-    SingletonEntity
-  );
+  const corners: IVoxelSelection | undefined = useComponentValue(VoxelSelection, SingletonEntity);
 
   const handleSubmit = () => {
     const voxels = getVoxelsWithinSelection();
@@ -52,17 +45,14 @@ const RegisterCreation: React.FC<Props> = ({
     } as any);
   };
 
-  const handleInputChange = (
-    e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
-  ) => {
+  const handleInputChange = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     setFormData({
       ...formData,
       [e.target.name]: e.target.value,
     });
   };
 
-  const isSubmitDisabled =
-    !formData.name || !corners?.corner1 || !corners?.corner2;
+  const isSubmitDisabled = !formData.name || !corners?.corner1 || !corners?.corner2;
 
   const trySubmitCreation = (e: KeyboardEvent<HTMLInputElement>) => {
     if (e.key === "Enter" && !isSubmitDisabled) {
@@ -75,10 +65,7 @@ const RegisterCreation: React.FC<Props> = ({
     const corner1 = corners?.corner1;
     const corner2 = corners?.corner2;
     if (!corner1 || !corner2) return [];
-    const { minX, maxX, minY, maxY, minZ, maxZ } = calculateMinMax(
-      corner1,
-      corner2
-    );
+    const { minX, maxX, minY, maxY, minZ, maxZ } = calculateMinMax(corner1, corner2);
     const voxels: Entity[] = [];
     for (let x = minX; x <= maxX; x++) {
       for (let y = minY; y <= maxY; y++) {
@@ -107,8 +94,8 @@ const RegisterCreation: React.FC<Props> = ({
       <>
         <p>Change Creation Corners</p>
         <p className="mt-2">
-          ({corners.corner1.x}, {corners.corner1.y}, {corners.corner1.z}) (
-          {corners.corner2.x}, {corners.corner2.y}, {corners.corner2.z})
+          ({corners.corner1.x}, {corners.corner1.y}, {corners.corner1.z}) ({corners.corner2.x}, {corners.corner2.y},{" "}
+          {corners.corner2.z})
         </p>
       </>
     ) : corners?.corner1 || corners?.corner2 ? (
@@ -118,10 +105,7 @@ const RegisterCreation: React.FC<Props> = ({
     );
 
   return (
-    <div
-      className="max-w-md mx-auto p-4 text-slate-700"
-      onKeyDown={trySubmitCreation}
-    >
+    <div className="max-w-md mx-auto p-4 text-slate-700" onKeyDown={trySubmitCreation}>
       <input
         className="border rounded px-2 py-1 mb-2 w-full"
         type="text"

@@ -8,7 +8,12 @@ import {
   MINING_ANIMATION_BOX_VOXEL,
   MINING_ANIMATION_BOX_HAND,
 } from "../hand";
-import { VoxelTypeDataKey, VoxelVariantDataKey, voxelTypeDataKeyToVoxelVariantDataKey, voxelVariantDataKeyToString } from "../../types";
+import {
+  VoxelTypeDataKey,
+  VoxelVariantDataKey,
+  voxelTypeDataKeyToVoxelVariantDataKey,
+  voxelVariantDataKeyToString,
+} from "../../types";
 
 export interface HandComponent {
   isMining: boolean;
@@ -21,8 +26,8 @@ export const HAND_COMPONENT = "HAND_COMPONENT";
 
 export function registerHandComponent(
   noa: Engine,
-  getSelectedVoxelType: () =>  VoxelTypeDataKey | undefined,
-  voxelMaterials: Map<string, BABYLON.Material | undefined>,
+  getSelectedVoxelType: () => VoxelTypeDataKey | undefined,
+  voxelMaterials: Map<string, BABYLON.Material | undefined>
 ) {
   // eslint-disable-next-line @typescript-eslint/ban-ts-comment
   //@ts-ignore
@@ -42,7 +47,7 @@ export function registerHandComponent(
           // NOTE: for now just animate / change the material of the player hand
           const selectedVoxelType = getSelectedVoxelType();
           let voxelVariantKey = undefined;
-          if(selectedVoxelType){
+          if (selectedVoxelType) {
             voxelVariantKey = voxelTypeDataKeyToVoxelVariantDataKey(selectedVoxelType);
           }
           if (voxelVariantKey && voxelMaterials.get(voxelVariantDataKeyToString(voxelVariantKey)) !== undefined) {
@@ -64,10 +69,7 @@ export function registerHandComponent(
             scene.stopAnimation(voxelMesh);
             scene.beginAnimation(handMesh, 0, 100, true);
             scene.beginAnimation(voxelMesh, 0, 100, true);
-          } else if (
-            !isMining &&
-            handMesh.animations[0].name.includes("mining")
-          ) {
+          } else if (!isMining && handMesh.animations[0].name.includes("mining")) {
             handMesh.animations.pop();
             handMesh.animations.push(IDLE_ANIMATION_BOX_HAND);
             voxelMesh.animations.pop();

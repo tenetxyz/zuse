@@ -9,9 +9,7 @@ export const AbsoluteBorder: React.FC<{
   return (
     <Wrapper>
       <>
-        {borderColor !== "transparent" ? (
-          <Border borderColor={borderColor} borderWidth={borderWidth} />
-        ) : null}
+        {borderColor !== "transparent" ? <Border borderColor={borderColor} borderWidth={borderWidth} /> : null}
         {children}
       </>
     </Wrapper>

@@ -1,32 +1,14 @@
-import {
-  getComponentValue,
-  HasValue,
-  runQuery,
-  setComponent,
-  updateComponent,
-} from "@latticexyz/recs";
+import { getComponentValue, HasValue, runQuery, setComponent, updateComponent } from "@latticexyz/recs";
 import { sleep, VoxelCoord, keccak256 } from "@latticexyz/utils";
 import { NetworkLayer } from "../../network";
 import { FAST_MINING_DURATION, SPAWN_POINT } from "../constants";
-import {
-  HandComponent,
-  HAND_COMPONENT,
-} from "../engine/components/handComponent";
-import {
-  MiningVoxelComponent,
-  MINING_VOXEL_COMPONENT,
-} from "../engine/components/miningVoxelComponent";
-import {
-  getNoaComponent,
-  getNoaComponentStrict,
-} from "../engine/components/utils";
+import { HandComponent, HAND_COMPONENT } from "../engine/components/handComponent";
+import { MiningVoxelComponent, MINING_VOXEL_COMPONENT } from "../engine/components/miningVoxelComponent";
+import { getNoaComponent, getNoaComponentStrict } from "../engine/components/utils";
 import { NoaLayer } from "../types";
 import { toast } from "react-toastify";
 import { Creation } from "../../react/components/CreationStore";
-import {
-  getCoordOfVoxelOnFaceYouTargeted,
-  getTargetedVoxelCoord,
-} from "../../../utils/voxels";
+import { getCoordOfVoxelOnFaceYouTargeted, getTargetedVoxelCoord } from "../../../utils/voxels";
 import { NotificationIcon } from "../components/persistentNotification";
 import { BEDROCK_ID } from "../../network/api/terrain/occurrence";
 
@@ -43,13 +25,7 @@ export function createInputSystem(network: NetworkLayer, noaLayer: NoaLayer) {
       PersistentNotification,
     },
     SingletonEntity,
-    api: {
-      toggleInventory,
-      togglePlugins,
-      placeSelectedVoxelType,
-      getVoxelTypeInSelectedSlot,
-      teleport,
-    },
+    api: { toggleInventory, togglePlugins, placeSelectedVoxelType, getVoxelTypeInSelectedSlot, teleport },
     streams: { stakeAndClaim$, playerPosition$ },
   } = noaLayer;
 
@@ -86,11 +62,7 @@ export function createInputSystem(network: NetworkLayer, noaLayer: NoaLayer) {
       );
       // const creativeMode = getComponentValue(GameConfig, SingletonEntity)?.creativeMode;
       const creativeMode = false;
-      const handComponent = getNoaComponentStrict<HandComponent>(
-        noa,
-        noa.playerEntity,
-        HAND_COMPONENT
-      );
+      const handComponent = getNoaComponentStrict<HandComponent>(noa, noa.playerEntity, HAND_COMPONENT);
       if (miningComponent.active) {
         return;
       }
@@ -146,16 +118,8 @@ export function createInputSystem(network: NetworkLayer, noaLayer: NoaLayer) {
     if (!noa.container.hasPointerLock) return;
 
     firePressed = false;
-    const miningComponent = getNoaComponentStrict<MiningVoxelComponent>(
-      noa,
-      noa.playerEntity,
-      MINING_VOXEL_COMPONENT
-    );
-    const handComponent = getNoaComponentStrict<HandComponent>(
-      noa,
-      noa.playerEntity,
-      HAND_COMPONENT
-    );
+    const miningComponent = getNoaComponentStrict<MiningVoxelComponent>(noa, noa.playerEntity, MINING_VOXEL_COMPONENT);
+    const handComponent = getNoaComponentStrict<HandComponent>(noa, noa.playerEntity, HAND_COMPONENT);
     miningComponent.active = false;
     handComponent.isMining = false;
   });
@@ -163,28 +127,16 @@ export function createInputSystem(network: NetworkLayer, noaLayer: NoaLayer) {
   noa.on("targetBlockChanged", (targetedBlock: { position: number[] }) => {
     if (!noa.container.hasPointerLock) return;
 
-    const miningComponent = getNoaComponent<MiningVoxelComponent>(
-      noa,
-      noa.playerEntity,
-      MINING_VOXEL_COMPONENT
-    );
+    const miningComponent = getNoaComponent<MiningVoxelComponent>(noa, noa.playerEntity, MINING_VOXEL_COMPONENT);
     if (!miningComponent) return;
-    const handComponent = getNoaComponentStrict<HandComponent>(
-      noa,
-      noa.playerEntity,
-      HAND_COMPONENT
-    );
+    const handComponent = getNoaComponentStrict<HandComponent>(noa, noa.playerEntity, HAND_COMPONENT);
     if (!targetedBlock) {
       return;
     }
     const {
       position: [x, y, z],
     } = targetedBlock;
-    if (
-      miningComponent.coord.x !== x ||
-      miningComponent.coord.y !== y ||
-      miningComponent.coord.z !== z
-    ) {
+    if (miningComponent.coord.x !== x || miningComponent.coord.y !== y || miningComponent.coord.z !== z) {
       miningComponent.active = false;
       handComponent.isMining = false;
     }
@@ -242,10 +194,7 @@ export function createInputSystem(network: NetworkLayer, noaLayer: NoaLayer) {
 
   noa.inputs.bind("admin-panel", "-");
   noa.inputs.down.on("admin-panel", () => {
-    const showAdminPanel = getComponentValue(
-      UI,
-      SingletonEntity
-    )?.showAdminPanel;
+    const showAdminPanel = getComponentValue(UI, SingletonEntity)?.showAdminPanel;
     updateComponent(UI, SingletonEntity, {
       showAdminPanel: !showAdminPanel,
     });
@@ -286,11 +235,7 @@ export function createInputSystem(network: NetworkLayer, noaLayer: NoaLayer) {
   noa.inputs.bind("spawn", "O");
   noa.inputs.down.on("spawn", () => {
     if (!noa.container.hasPointerLock) return;
-    setComponent(
-      PreTeleportPosition,
-      SingletonEntity,
-      playerPosition$.getValue()
-    );
+    setComponent(PreTeleportPosition, SingletonEntity, playerPosition$.getValue());
     teleport(SPAWN_POINT);
     updateComponent(Tutorial, SingletonEntity, { teleport: false });
   });
@@ -298,10 +243,7 @@ export function createInputSystem(network: NetworkLayer, noaLayer: NoaLayer) {
   noa.inputs.bind("preteleport", "P");
   noa.inputs.down.on("preteleport", () => {
     if (!noa.container.hasPointerLock) return;
-    const preTeleportPosition = getComponentValue(
-      PreTeleportPosition,
-      SingletonEntity
-    );
+    const preTeleportPosition = getComponentValue(PreTeleportPosition, SingletonEntity);
     if (!preTeleportPosition) return;
     teleport(preTeleportPosition);
     updateComponent(Tutorial, SingletonEntity, { teleport: false });
@@ -359,18 +301,12 @@ export function createInputSystem(network: NetworkLayer, noaLayer: NoaLayer) {
     if (!noa.container.hasPointerLock) {
       return;
     }
-    const creationToSpawn: Creation | undefined = getComponentValue(
-      SpawnCreation,
-      SingletonEntity
-    )?.creation;
+    const creationToSpawn: Creation | undefined = getComponentValue(SpawnCreation, SingletonEntity)?.creation;
     if (creationToSpawn === undefined) {
       return;
     }
     const lowerSouthWestCorner = getCoordOfVoxelOnFaceYouTargeted(noa);
-    spawnCreation(
-      lowerSouthWestCorner,
-      (creationToSpawn as Creation).creationId
-    );
+    spawnCreation(lowerSouthWestCorner, (creationToSpawn as Creation).creationId);
 
     // clear the spawn creation component so the outline disappears
     // TODO: wait until the transaction succeeds, then clear the spawn creation component

@@ -7,20 +7,11 @@ import { Balance } from "./Balance";
 import { ChunkExplorer } from "./ChunkExplorer";
 import { JoinSocial } from "./JoinSocial";
 import { filterNullish } from "@latticexyz/utils";
-import {
-  ComponentValue,
-  getComponentValue,
-  SchemaOf,
-  updateComponent,
-} from "@latticexyz/recs";
+import { ComponentValue, getComponentValue, SchemaOf, updateComponent } from "@latticexyz/recs";
 import { Hint } from "./Hint";
 import { Gold } from "./common";
 
-type ObservableType<S extends Observable<unknown>> = S extends Observable<
-  infer T
->
-  ? T
-  : never;
+type ObservableType<S extends Observable<unknown>> = S extends Observable<infer T> ? T : never;
 
 export function registerSidebar() {
   registerUIComponent(
@@ -74,14 +65,8 @@ export function registerSidebar() {
       );
 
       return combineLatest<
-        [
-          ObservableType<typeof chunk$>,
-          ObservableType<typeof balance$>,
-          ObservableType<typeof tutorial$>
-        ]
-      >([chunk$, balance$, tutorial$]).pipe(
-        map((props) => ({ props, layers }))
-      );
+        [ObservableType<typeof chunk$>, ObservableType<typeof balance$>, ObservableType<typeof tutorial$>]
+      >([chunk$, balance$, tutorial$]).pipe(map((props) => ({ props, layers })));
     },
     ({ props, layers }) => {
       const [chunk, balance, tutorial] = props;
@@ -90,9 +75,7 @@ export function registerSidebar() {
         SingletonEntity,
       } = layers.noa;
 
-      function updateTutorial(
-        update: Partial<ComponentValue<SchemaOf<typeof Tutorial>>>
-      ) {
+      function updateTutorial(update: Partial<ComponentValue<SchemaOf<typeof Tutorial>>>) {
         updateComponent(Tutorial, SingletonEntity, update);
       }
 
@@ -137,15 +120,12 @@ export function registerSidebar() {
           {/*    UI (top of inventory) to craft dyed wool*/}
           {/*  </Hint>*/}
           {/*)}*/}
-          {!tutorial?.inventory &&
-            !tutorial?.mine &&
-            !tutorial?.build &&
-            tutorial?.teleport && (
-              <Hint onClose={() => updateTutorial({ teleport: false })}>
-                <Gold>Hint</Gold>: press <Gold>O</Gold> to teleport to the spawn
-                point, and <Gold>P</Gold> to back where you were before
-              </Hint>
-            )}
+          {!tutorial?.inventory && !tutorial?.mine && !tutorial?.build && tutorial?.teleport && (
+            <Hint onClose={() => updateTutorial({ teleport: false })}>
+              <Gold>Hint</Gold>: press <Gold>O</Gold> to teleport to the spawn point, and <Gold>P</Gold> to back where
+              you were before
+            </Hint>
+          )}
         </Wrapper>
       );
     }

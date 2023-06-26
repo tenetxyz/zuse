@@ -6,19 +6,19 @@ import { Layers } from "../types";
 import { getEntityString } from "@latticexyz/recs";
 import { to256BitString } from "@latticexyz/utils";
 
-export interface Props{
+export interface Props {
   layers: Layers;
   filters: CreationStoreFilters;
   setFilters: React.Dispatch<React.SetStateAction<CreationStoreFilters>>;
 }
 
-export interface CreationSearch{
-    searchValue: string;
-    setSearchValue: React.Dispatch<React.SetStateAction<string>>;
-    creationsToDisplay: Creation[];
+export interface CreationSearch {
+  searchValue: string;
+  setSearchValue: React.Dispatch<React.SetStateAction<string>>;
+  creationsToDisplay: Creation[];
 }
 
-export const useCreationSearch = ({layers, filters}: Props) => {
+export const useCreationSearch = ({ layers, filters }: Props) => {
   const {
     noa: {
       components: { PersistentNotification, SpawnCreation },
@@ -31,9 +31,7 @@ export const useCreationSearch = ({layers, filters}: Props) => {
 
   const allCreations = React.useRef<Creation[]>([]);
   const filteredCreations = React.useRef<Creation[]>([]); // Filtered based on the specified filters. The user's search box query does NOT affect this.
-  const [creationsToDisplay, setCreationsToDisplay] = React.useState<
-    Creation[]
-  >([]);
+  const [creationsToDisplay, setCreationsToDisplay] = React.useState<Creation[]>([]);
   const fuse = React.useRef<Fuse<Creation>>();
 
   useComponentUpdate(Creation, () => {
@@ -57,11 +55,7 @@ export const useCreationSearch = ({layers, filters}: Props) => {
       const yPositions = creationTable.relativePositionsY.get(creationId) ?? [];
       const zPositions = creationTable.relativePositionsZ.get(creationId) ?? [];
 
-      if (
-        xPositions.length === 0 ||
-        yPositions.length === 0 ||
-        zPositions.length === 0
-      ) {
+      if (xPositions.length === 0 || yPositions.length === 0 || zPositions.length === 0) {
         console.warn(
           `No relativePositions found for creationId=${creationId.toString()}. xPositions=${xPositions} yPositions=${yPositions} zPositions=${zPositions}`
         );
@@ -91,9 +85,7 @@ export const useCreationSearch = ({layers, filters}: Props) => {
   const applyCreationFilters = () => {
     const playerAddress = to256BitString(connectedAddress.get() ?? "");
     filteredCreations.current = filters.isMyCreation
-      ? allCreations.current.filter(
-          (creation) => creation.creator === playerAddress
-        )
+      ? allCreations.current.filter((creation) => creation.creator === playerAddress)
       : allCreations.current;
 
     // only the filtered creations can be queried
@@ -124,6 +116,6 @@ export const useCreationSearch = ({layers, filters}: Props) => {
   React.useEffect(queryForCreationsToDisplay, [filters.search]);
 
   return {
-    creationsToDisplay
-  }
+    creationsToDisplay,
+  };
 };

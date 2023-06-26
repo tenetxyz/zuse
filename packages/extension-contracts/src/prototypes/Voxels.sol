@@ -80,9 +80,7 @@ function defineVoxels(address world) {
   signalOffVariant.solid = true;
   signalOffVariant.materialArr = SignalOffTexture;
   signalOffVariant.uvWrap = SignalOffUVWrap;
-  (bool success, bytes memory result) = world.call(
-    abi.encodeWithSignature(REGISTER_VOXEL_VARIANT_SIG, SignalOffID, signalOffVariant)
-  );
+  (success, result) = world.call(abi.encodeWithSignature(REGISTER_VOXEL_VARIANT_SIG, SignalOffID, signalOffVariant));
   require(success, "Failed to register signal off variant");
 
   VoxelVariantsData memory signalOnVariant;
@@ -91,8 +89,6 @@ function defineVoxels(address world) {
   signalOnVariant.solid = true;
   signalOnVariant.materialArr = SignalOnTexture;
   signalOnVariant.uvWrap = SignalOnUVWrap;
-  (bool success, bytes memory result) = world.call(
-    abi.encodeWithSignature(REGISTER_VOXEL_VARIANT_SIG, SignalOnID, signalOnVariant)
-  );
+  (success, result) = world.call(abi.encodeWithSignature(REGISTER_VOXEL_VARIANT_SIG, SignalOnID, signalOnVariant));
   require(success, "Failed to register signal on variant");
 }

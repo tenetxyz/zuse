@@ -9,6 +9,7 @@ import { Strings } from "@openzeppelin/contracts/utils/Strings.sol";
 import { VoxelVariantsKey } from "./types.sol";
 
 function getVoxelVariant(
+  address world,
   bytes16 voxelTypeNamespace,
   bytes32 voxelTypeId,
   bytes32 entity
@@ -24,6 +25,7 @@ function getVoxelVariant(
 function updateVoxelVariant(address world, bytes32 entity) {
   VoxelTypeData memory entityVoxelType = VoxelType.get(entity);
   VoxelVariantsKey memory voxelVariantData = getVoxelVariant(
+    world,
     entityVoxelType.voxelTypeNamespace,
     entityVoxelType.voxelTypeId,
     entity

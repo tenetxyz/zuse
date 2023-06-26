@@ -73,13 +73,10 @@ contract MineSystem is System {
 
     // Place an air voxel at this position
     airEntity = getUniqueEntity();
-    {
-      // TODO: We don't need necessarily need to get the air voxel type from the registry, we could just use the AirID
-      // Maybe consider doing this for performance reasons
-      VoxelVariantsKey memory airVariantData = getVoxelVariant(namespace, AirID, airEntity);
-      VoxelType.set(airEntity, namespace, AirID, airVariantData.voxelVariantNamespace, airVariantData.voxelVariantId);
-    }
-
+    // TODO: We don't need necessarily need to get the air voxel type from the registry, we could just use the AirID
+    // Maybe consider doing this for performance reasons
+    VoxelVariantsKey memory airVariantData = getVoxelVariant(_world(), namespace, AirID, airEntity);
+    VoxelType.set(airEntity, namespace, AirID, airVariantData.voxelVariantNamespace, airVariantData.voxelVariantId);
     Position.set(airEntity, coord.x, coord.y, coord.z);
 
     OwnedBy.set(voxelToMine, addressToEntityKey(_msgSender()));

@@ -77,7 +77,6 @@ const RegisterCreation: React.FC<Props> = ({ layers, formData, setFormData }) =>
         }
       }
     }
-    console.log("corners", corner1, corner2, voxels.length);
     return voxels;
   };
 

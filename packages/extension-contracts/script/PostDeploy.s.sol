@@ -4,7 +4,7 @@ pragma solidity >=0.8.0;
 import { Script } from "forge-std/Script.sol";
 import { console } from "forge-std/console.sol";
 import { IWorld } from "../src/codegen/world/IWorld.sol";
-import { SandID, LogID, OrangeFlowerID, SandTexture, LogTexture, OrangeFlowerTexture } from "../src/prototypes/Voxels.sol";
+import { SandID, LogID, OrangeFlowerID, SandTexture, LogTexture, OrangeFlowerTexture, SignalID, SignalOffTexture } from "../src/prototypes/Voxels.sol";
 import { REGISTER_VOXEL_TYPE_SIG } from "@tenetxyz/contracts/src/constants.sol";
 
 contract PostDeploy is Script {
@@ -28,7 +28,7 @@ contract PostDeploy is Script {
         REGISTER_VOXEL_TYPE_SIG,
         SandID,
         SandTexture,
-        world.tenet_ExtensionInitSys_signalSourceVariantSelector.selector
+        world.tenet_ExtensionInitSys_signalSourceVariantSelector.selector // TODO: Change back to sandVariantSelector
       )
     );
     require(success, "Failed to register sand type");
@@ -43,15 +43,25 @@ contract PostDeploy is Script {
     );
     require(success, "Failed to register log type");
 
-    // (success, result) = worldAddress.call(
-    //   abi.encodeWithSignature(
-    //     REGISTER_VOXEL_TYPE_SIG,
-    //     OrangeFlowerID,
-    //     OrangeFlowerTexture,
-    //     IWorld(world).tenet_ExtensionInitSys_orangeFlowerVariantSelector.selector
-    //   )
-    // );
-    // require(success, "Failed to register orange flower type");
+    (success, result) = worldAddress.call(
+      abi.encodeWithSignature(
+        REGISTER_VOXEL_TYPE_SIG,
+        OrangeFlowerID,
+        OrangeFlowerTexture,
+        IWorld(world).tenet_ExtensionInitSys_orangeFlowerVariantSelector.selector
+      )
+    );
+    require(success, "Failed to register orange flower type");
+
+    (success, result) = worldAddress.call(
+      abi.encodeWithSignature(
+        REGISTER_VOXEL_TYPE_SIG,
+        SignalID,
+        SignalOffTexture,
+        IWorld(world).tenet_ExtensionInitSys_signalVariantSelector.selector
+      )
+    );
+    require(success, "Failed to register signal type");
 
     // (success, result) = worldAddress.call(
     //   abi.encodeWithSignature(
@@ -61,17 +71,7 @@ contract PostDeploy is Script {
     //     IWorld(world).tenet_ExtensionInitSys_signalVariantSelector.selector
     //   )
     // );
-    // require(success, "Failed to register signal type");
-
-    (success, result) = worldAddress.call(
-      abi.encodeWithSignature(
-        REGISTER_VOXEL_TYPE_SIG,
-        OrangeFlowerID,
-        OrangeFlowerTexture,
-        IWorld(world).tenet_ExtensionInitSys_signalVariantSelector.selector
-      )
-    );
-    require(success, "Failed to register signal source type");
+    // require(success, "Failed to register signal source type");
 
     // need to call registerExtension() in the world contract with PoweredSystem
     bytes4 poweredEventHandler = IWorld(worldAddress).tenet_PoweredSystem_eventHandler.selector;

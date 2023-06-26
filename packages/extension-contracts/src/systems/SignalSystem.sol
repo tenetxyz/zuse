@@ -49,7 +49,7 @@ contract SignalSystem is System {
       // if we're active and the source direction is the same as the compare block direction
       // and if the compare entity is not active, we should become inactive
       if (signalData.direction == compareBlockDirection) {
-        if (!compareIsSignalSource && !compareIsActiveSignal) {
+        if (!compareIsSignalSource && !compareIsActiveSignal && !compareIsActiveInvertedSignal) {
           signalData.isActive = false;
           signalData.direction = BlockDirection.None;
           Signal.set(callerNamespace, signalEntity, signalData);
@@ -59,7 +59,7 @@ contract SignalSystem is System {
     } else {
       // if we're not active, and the compare entity is active, we should become active
       // compare entity could be a signal source, or it could be an active signal
-      if (compareIsSignalSource || compareIsActiveSignal) {
+      if (compareIsSignalSource || compareIsActiveSignal || compareIsActiveInvertedSignal) {
         signalData.isActive = true;
         signalData.direction = compareBlockDirection;
         Signal.set(callerNamespace, signalEntity, signalData);

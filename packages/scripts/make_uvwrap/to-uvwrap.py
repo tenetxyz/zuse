@@ -11,8 +11,8 @@ Usage:
 import os
 from PIL import Image
 
-# Create new empty image with dimensions 128x64
-uv_map = Image.new('RGBA', (128, 64), color=(0,0,0,0))  # Image with transparency
+input_dir = 'in'
+output_dir = 'out'
 
 # Define the layout
 layout = [
@@ -28,6 +28,9 @@ images = [file for file in files if file.endswith('.png')]
 
 # Loop through all the images
 for image_file in images:
+    # Create new empty image with dimensions 128x64
+    uv_map = Image.new('RGBA', (128, 64), color=(0,0,0,0))  # Image with transparency
+
     # Load the image
     voxel_texture = Image.open(os.path.join(input_dir, image_file))
 

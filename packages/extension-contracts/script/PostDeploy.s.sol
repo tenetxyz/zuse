@@ -4,7 +4,7 @@ pragma solidity >=0.8.0;
 import { Script } from "forge-std/Script.sol";
 import { console } from "forge-std/console.sol";
 import { IWorld } from "../src/codegen/world/IWorld.sol";
-import { SandID, LogID, OrangeFlowerID, SandTexture, LogTexture, OrangeFlowerTexture, SignalID, SignalOffTexture, SignalSourceID, SignalSourceTexture } from "../src/prototypes/Voxels.sol";
+import { SandID, LogID, OrangeFlowerID, SandTexture, LogTexture, OrangeFlowerTexture, SignalID, SignalOffTexture, SignalOnTexture, SignalSourceID, InvertedSignalID, SignalSourceTexture } from "../src/prototypes/Voxels.sol";
 import { REGISTER_VOXEL_TYPE_SIG } from "@tenetxyz/contracts/src/constants.sol";
 
 contract PostDeploy is Script {
@@ -72,6 +72,16 @@ contract PostDeploy is Script {
       )
     );
     require(success, "Failed to register signal source type");
+
+    (success, result) = worldAddress.call(
+      abi.encodeWithSignature(
+        REGISTER_VOXEL_TYPE_SIG,
+        InvertedSignalID,
+        SignalOnTexture,
+        IWorld(world).tenet_ExtensionInitSys_invertedSignalVariantSelector.selector
+      )
+    );
+    require(success, "Failed to register signal type");
 
     // need to call registerExtension() in the world contract with PoweredSystem
     bytes4 signalSourceEventHandler = IWorld(worldAddress).tenet_SignalSourceSyst_eventHandler.selector;

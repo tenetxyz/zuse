@@ -2,8 +2,7 @@
 pragma solidity >=0.8.0;
 
 import { System } from "@latticexyz/world/src/System.sol";
-import { Signal, InvertedSignal, SignalData, InvertedSignalData, SignalTableId, InvertedSignalTableId, SignalSource, SignalSourceTableId } from "../codegen/Tables.sol";
-
+import { Signal, InvertedSignal, SignalData, InvertedSignalData, SignalTableId, InvertedSignalTableId, SignalSource, SignalSourceTableId, PoweredData, Powered } from "../codegen/Tables.sol";
 import { SystemRegistry } from "@latticexyz/world/src/modules/core/tables/SystemRegistry.sol";
 import { ResourceSelector } from "@latticexyz/world/src/ResourceSelector.sol";
 import { BlockDirection } from "../codegen/Types.sol";
@@ -48,8 +47,8 @@ contract InvertedSignalSystem is System {
       // then we are now adjacent to a powered block, so we should become inactive
       if (
         compareIsPowered &&
-        compareIsPowered.isActive &&
-        compareIsPowered.direction != getOppositeDirection(compareBlockDirection)
+        comparePoweredData.isActive &&
+        comparePoweredData.direction != getOppositeDirection(compareBlockDirection)
       ) {
         invertedSignalData.isActive = false;
         invertedSignalData.direction = compareBlockDirection; // blocked direction
@@ -60,8 +59,8 @@ contract InvertedSignalSystem is System {
       // check to see if we should be active?
       // were we previously blocked by an active powered block
       if (
-        invertedSignalData.direction == compareBlockDirection &&
-        (!compareIsPowered || (compareIsPowered && !compareIsPowered.isActive))
+        invertedSignalData.direction == compareBlockDirection && // TODO: is this the right direction? or comparePoweredData.direction
+        (!compareIsPowered || (compareIsPowered && !comparePoweredData.isActive))
       ) {
         invertedSignalData.isActive = true;
         invertedSignalData.direction = BlockDirection.None;

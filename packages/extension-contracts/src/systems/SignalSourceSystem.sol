@@ -2,14 +2,14 @@
 pragma solidity >=0.8.0;
 
 import { System } from "@latticexyz/world/src/System.sol";
-import { Signal, SignalData, SignalTableId, SignalSource, SignalSourceTableId } from "../codegen/Tables.sol";
+import { Signal, SignalData, SignalTableId, SignalSource, SignalSourceTableId, InvertedSignal, InvertedSignalData } from "../codegen/Tables.sol";
 
 import { SystemRegistry } from "@latticexyz/world/src/modules/core/tables/SystemRegistry.sol";
 import { ResourceSelector } from "@latticexyz/world/src/ResourceSelector.sol";
 import { BlockDirection } from "../codegen/Types.sol";
 import { PositionData } from "@tenetxyz/contracts/src/codegen/tables/Position.sol";
 import { getCallerNamespace } from "@tenetxyz/contracts/src/SharedUtils.sol";
-import { calculateBlockDirection, getOppositeDirection, getEntityPositionStrict, entityIsSignal, entityIsSignalSource } from "../Utils.sol";
+import { calculateBlockDirection, getOppositeDirection, getEntityPositionStrict, entityIsSignal, entityIsSignalSource, entityIsInvertedSignal } from "../Utils.sol";
 
 contract SignalSourceSystem is System {
   function getOrCreateSignalSource(bytes32 entity) public returns (bool) {
@@ -32,6 +32,9 @@ contract SignalSourceSystem is System {
     changedEntity = false;
 
     bool isSignalSource = entityIsSignalSource(signalSourceEntity, callerNamespace);
+    bool isSignal = entityIsSignal(compareEntity, callerNamespace);
+    bool isInvertedSignal = entityIsInvertedSignal(compareEntity, callerNamespace);
+    if (isSignal || isInvertedSignal) return changedEntity; // these two cannot be a signal source
     bool isNaturalSignalSource = SignalSource.get(callerNamespace, signalSourceEntity);
 
     bool compareIsActiveInvertedSignal = entityIsInvertedSignal(compareEntity, callerNamespace);
@@ -98,13 +101,7 @@ contract SignalSourceSystem is System {
         getEntityPositionStrict(neighbourEntityId)
       );
 
-      bool changedEntity = updateSignalSource(
-        callerNamespace,
-        signalSourceEntity,
-        compareEntity,
-        compareBlockDirection
-      );
-      (callerNamespace, neighbourEntityId, centerEntityId, centerBlockDirection);
+      bool changedEntity = updateSignalSource(callerNamespace, neighbourEntityId, centerEntityId, centerBlockDirection);
 
       if (changedEntity) {
         changedEntityIds[i] = neighbourEntityId;

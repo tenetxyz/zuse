@@ -8,16 +8,26 @@ import { Position, PositionTableId, VoxelType, VoxelTypeRegistry, VoxelTypeData 
 import { Strings } from "@openzeppelin/contracts/utils/Strings.sol";
 import { VoxelVariantsKey } from "./types.sol";
 
-function runVariantSelector(address world, bytes32 entity) {
-  VoxelTypeData memory entityVoxelType = VoxelType.get(entity);
-  bytes4 voxelVariantSelector = VoxelTypeRegistry
-    .get(entityVoxelType.voxelTypeNamespace, entityVoxelType.voxelTypeId)
-    .voxelVariantSelector;
+function getVoxelVariant(
+  bytes16 voxelTypeNamespace,
+  bytes32 voxelTypeId,
+  bytes32 entity
+) returns (VoxelVariantsKey memory) {
+  bytes4 voxelVariantSelector = VoxelTypeRegistry.get(voxelTypeNamespace, voxelTypeId).voxelVariantSelector;
   (bool variantSelectorSuccess, bytes memory voxelVariantSelected) = world.call(
     abi.encodeWithSelector(voxelVariantSelector, entity)
   );
   require(variantSelectorSuccess, "failed to get voxel variant");
-  VoxelVariantsKey memory voxelVariantData = abi.decode(voxelVariantSelected, (VoxelVariantsKey));
+  return abi.decode(voxelVariantSelected, (VoxelVariantsKey));
+}
+
+function updateVoxelVariant(address world, bytes32 entity) {
+  VoxelTypeData memory entityVoxelType = VoxelType.get(entity);
+  VoxelVariantsKey memory voxelVariantData = getVoxelVariant(
+    entityVoxelType.voxelTypeNamespace,
+    entityVoxelType.voxelTypeId,
+    entity
+  );
   if (
     voxelVariantData.voxelVariantNamespace != entityVoxelType.voxelVariantNamespace ||
     voxelVariantData.voxelVariantId != entityVoxelType.voxelVariantId

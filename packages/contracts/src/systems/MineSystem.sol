@@ -7,7 +7,7 @@ import { System } from "@latticexyz/world/src/System.sol";
 import { VoxelCoord, VoxelVariantsKey } from "../types.sol";
 import { OwnedBy, Position, PositionTableId, VoxelType, VoxelTypeData, VoxelTypeRegistry } from "../codegen/Tables.sol";
 import { AirID } from "../prototypes/Voxels.sol";
-import { addressToEntityKey, getEntitiesAtCoord, staticcallFunctionSelector } from "../utils.sol";
+import { addressToEntityKey, getEntitiesAtCoord, staticcallFunctionSelector, getVoxelVariant } from "../utils.sol";
 import { Utils } from "@latticexyz/world/src/Utils.sol";
 import { IWorld } from "../codegen/world/IWorld.sol";
 import { Occurrence } from "../codegen/Tables.sol";
@@ -76,12 +76,7 @@ contract MineSystem is System {
     {
       // TODO: We don't need necessarily need to get the air voxel type from the registry, we could just use the AirID
       // Maybe consider doing this for performance reasons
-      // get Air selector from VoxelTypeRegistry
-      bytes4 airSelector = VoxelTypeRegistry.get(namespace, AirID).voxelVariantSelector;
-      // call airSelector
-      (bool airSuccess, bytes memory airVoxelVariant) = _world().call(abi.encodeWithSelector(airSelector, airEntity));
-      require(airSuccess, "failed to get air voxel type");
-      VoxelVariantsKey memory airVariantData = abi.decode(airVoxelVariant, (VoxelVariantsKey));
+      VoxelVariantsKey memory airVariantData = getVoxelVariant(namespace, AirID, airEntity);
       VoxelType.set(airEntity, namespace, AirID, airVariantData.voxelVariantNamespace, airVariantData.voxelVariantId);
     }
 

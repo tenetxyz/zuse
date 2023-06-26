@@ -78,11 +78,7 @@ contract MineSystem is System {
       // get Air selector from VoxelTypeRegistry
       bytes4 airSelector = VoxelTypeRegistry.get(namespace, AirID).voxelVariantSelector;
       // call airSelector
-      (bool airSuccess, bytes memory airVoxelVariant) = staticcallFunctionSelector(
-        _world(),
-        airSelector,
-        abi.encode(airEntity)
-      );
+      (bool airSuccess, bytes memory airVoxelVariant) = _world().call(abi.encodeWithSelector(airSelector, airEntity));
       require(airSuccess, "failed to get air voxel type");
       VoxelVariantsKey memory airVariantData = abi.decode(airVoxelVariant, (VoxelVariantsKey));
       VoxelType.set(airEntity, namespace, AirID, airVariantData.namespace, airVariantData.voxelVariantId);

@@ -4,8 +4,40 @@ pragma solidity >=0.8.0;
 import { CHUNK } from "./constants.sol";
 import { Coord, VoxelCoord } from "./types.sol";
 import { getKeysWithValue } from "@latticexyz/world/src/modules/keyswithvalue/getKeysWithValue.sol";
-import { Position, PositionTableId, VoxelTypeData } from "./codegen/Tables.sol";
+import { Position, PositionTableId, VoxelType, VoxelTypeRegistry, VoxelTypeData } from "./codegen/Tables.sol";
 import { Strings } from "@openzeppelin/contracts/utils/Strings.sol";
+import { VoxelVariantsKey } from "./types.sol";
+
+function runVariantSelector(address world, bytes32 entity) {
+  VoxelTypeData memory entityVoxelType = VoxelType.get(entity);
+  bytes4 voxelVariantSelector = VoxelTypeRegistry
+    .get(entityVoxelType.voxelTypeNamespace, entityVoxelType.voxelTypeId)
+    .voxelVariantSelector;
+  (bool variantSelectorSuccess, bytes memory voxelVariantSelected) = world.call(
+    abi.encodeWithSelector(voxelVariantSelector, entity)
+  );
+  require(variantSelectorSuccess, "failed to get voxel variant");
+  VoxelVariantsKey memory voxelVariantData = abi.decode(voxelVariantSelected, (VoxelVariantsKey));
+  VoxelType.set(
+    entity,
+    entityVoxelType.voxelTypeNamespace,
+    entityVoxelType.voxelTypeId,
+    voxelVariantData.namespace,
+    voxelVariantData.voxelVariantId
+  );
+  // if (
+  //   voxelVariantData.namespace != entityVoxelType.voxelVariantNamespace ||
+  //   voxelVariantData.voxelVariantId != entityVoxelType.voxelVariantId
+  // ) {
+  //   VoxelType.set(
+  //     entity,
+  //     entityVoxelType.voxelTypeNamespace,
+  //     entityVoxelType.voxelTypeId,
+  //     voxelVariantData.namespace,
+  //     voxelVariantData.voxelVariantId
+  //   );
+  // }
+}
 
 function staticcallFunctionSelector(
   address world,

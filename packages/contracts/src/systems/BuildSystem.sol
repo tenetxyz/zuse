@@ -6,7 +6,7 @@ import { System } from "@latticexyz/world/src/System.sol";
 import { VoxelCoord } from "../types.sol";
 import { OwnedBy, Position, PositionTableId, VoxelType, VoxelTypeData } from "../codegen/Tables.sol";
 import { AirID } from "../prototypes/Voxels.sol";
-import { addressToEntityKey } from "../utils.sol";
+import { addressToEntityKey, runVariantSelector } from "../utils.sol";
 import { getUniqueEntity } from "@latticexyz/world/src/modules/uniqueentity/getUniqueEntity.sol";
 import { IWorld } from "../codegen/world/IWorld.sol";
 
@@ -33,6 +33,9 @@ contract BuildSystem is System {
     VoxelTypeData memory entityVoxelData = VoxelType.get(entity);
     VoxelType.set(newEntity, entityVoxelData);
     Position.set(newEntity, coord.x, coord.y, coord.z);
+
+    // Note: Need to run this because we are in creative mode and this is a new entity
+    runVariantSelector(_world(), newEntity);
 
     // TODO: Remove this once we have a proper voxel variant selector system
     // if(entityVoxelData.voxelTypeId == SandID) {

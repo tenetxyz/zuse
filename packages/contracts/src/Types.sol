@@ -12,6 +12,7 @@ struct Tuple {
   int128 y;
 }
 
+// TODO: rename
 struct VoxelVariantsKey {
   bytes16 namespace;
   bytes32 voxelVariantId;

@@ -1,3 +1,13 @@
+"""
+This script reads all PNG images from a specified input directory, processes each image to create a UV map,
+and saves the generated UV map to a specified output directory.
+
+Usage:
+- Place your 32x32 PNG images in the input directory.
+- Run the script: python to-uvwrap.py
+- Your UV maps will be created in the output directory.
+"""
+
 import os
 from PIL import Image
 

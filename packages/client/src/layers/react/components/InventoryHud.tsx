@@ -217,9 +217,6 @@ export function registerInventoryHud() {
             <Sounds playRandomTheme={playRandomTheme} playNextTheme={playNextTheme} />
           </ConnectedPlayersContainer>
           <ActionBarWrapper>{[...range(INVENTORY_WIDTH)].map((i) => Slots[i])}</ActionBarWrapper>
-          <LogoContainer>
-            <PixelatedImage src="/img/opcraft-dark.png" width={150} />
-          </LogoContainer>
         </BottomBar>
       );
 

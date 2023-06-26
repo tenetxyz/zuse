@@ -5,8 +5,8 @@
 1. Run `brew install yarn` to install yarn
 2. Run `yarn set version stable` to generate `.yarnrc.yml` and use the latest stable version of yarn (3.6.0)
    - We need to use at least yarn 3.6.0 because we need to link the yarn packages, which have pnpm-based package.jsons.
-     If we use an earlier version of yarn, we would not be able to link the dependencies of each mud package, because they use workspace:_ syntax
-     when specifying dependencies: (e.g. `"@latticexyz/common": "workspace:_"`)
+     If we use an earlier version of yarn, we would not be able to link the dependencies of each mud package, because they use workspace:\* syntax
+     when specifying dependencies: (e.g. `"@latticexyz/common": "workspace:\*"`)
    - yarn 3.6.0 can interpret these dependencies, earlier versions of yarn cannot
 3. Add `nodeLinker: node-modules` to `.yarnrc.yml` to tell yarn that we want our dependencies to be stored in node_modules files
 4. Run `yarn install` at the top directory to install dependencies

@@ -128,7 +128,6 @@ contract VoxelInteractionSystem is System {
       bytes32 centerEntityId = centerEntitiesToCheckStack[i];
       // TODO: do we know for sure voxel type exists?
       runVariantSelector(_world(), centerEntityId);
-      // get Voxel Type
     }
   }
 }

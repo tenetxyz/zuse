@@ -18,25 +18,18 @@ function runVariantSelector(address world, bytes32 entity) {
   );
   require(variantSelectorSuccess, "failed to get voxel variant");
   VoxelVariantsKey memory voxelVariantData = abi.decode(voxelVariantSelected, (VoxelVariantsKey));
-  VoxelType.set(
-    entity,
-    entityVoxelType.voxelTypeNamespace,
-    entityVoxelType.voxelTypeId,
-    voxelVariantData.namespace,
-    voxelVariantData.voxelVariantId
-  );
-  // if (
-  //   voxelVariantData.namespace != entityVoxelType.voxelVariantNamespace ||
-  //   voxelVariantData.voxelVariantId != entityVoxelType.voxelVariantId
-  // ) {
-  //   VoxelType.set(
-  //     entity,
-  //     entityVoxelType.voxelTypeNamespace,
-  //     entityVoxelType.voxelTypeId,
-  //     voxelVariantData.namespace,
-  //     voxelVariantData.voxelVariantId
-  //   );
-  // }
+  if (
+    voxelVariantData.namespace != entityVoxelType.voxelVariantNamespace ||
+    voxelVariantData.voxelVariantId != entityVoxelType.voxelVariantId
+  ) {
+    VoxelType.set(
+      entity,
+      entityVoxelType.voxelTypeNamespace,
+      entityVoxelType.voxelTypeId,
+      voxelVariantData.namespace,
+      voxelVariantData.voxelVariantId
+    );
+  }
 }
 
 function staticcallFunctionSelector(

@@ -1,0 +1,129 @@
+import React, { useEffect } from "react";
+import { Creation, CreationStoreFilters } from "../layers/react/components/CreationStore";
+import Fuse from "fuse.js";
+import { useComponentUpdate } from "./useComponentUpdate";
+import { Layers } from "../types";
+import { getEntityString } from "@latticexyz/recs";
+import { to256BitString } from "@latticexyz/utils";
+
+export interface Props{
+  layers: Layers;
+  filters: CreationStoreFilters;
+  setFilters: React.Dispatch<React.SetStateAction<CreationStoreFilters>>;
+}
+
+export interface CreationSearch{
+    searchValue: string;
+    setSearchValue: React.Dispatch<React.SetStateAction<string>>;
+    creationsToDisplay: Creation[];
+}
+
+export const useCreationSearch = ({layers, filters}: Props) => {
+  const {
+    noa: {
+      components: { PersistentNotification, SpawnCreation },
+    },
+    network: {
+      contractComponents: { Creation },
+      network: { connectedAddress },
+    },
+  } = layers;
+
+  const allCreations = React.useRef<Creation[]>([]);
+  const filteredCreations = React.useRef<Creation[]>([]); // Filtered based on the specified filters. The user's search box query does NOT affect this.
+  const [creationsToDisplay, setCreationsToDisplay] = React.useState<
+    Creation[]
+  >([]);
+  const fuse = React.useRef<Fuse<Creation>>();
+
+  useComponentUpdate(Creation, () => {
+    allCreations.current = [];
+    const creationTable = Creation.values;
+    creationTable.name.forEach((name: string, creationId) => {
+      const description = ""; //creationTable.description.get(creationId) ?? "";
+      const creator = creationTable.creator.get(creationId);
+      if (!creator) {
+        console.warn("No creator found for creation", creationId);
+        return;
+      }
+
+      const voxelTypes = creationTable.voxelTypes.get(creationId) ?? [];
+      if (voxelTypes.length === 0) {
+        console.warn("No voxelTypes found for creation", creationId);
+        return;
+      }
+
+      const xPositions = creationTable.relativePositionsX.get(creationId) ?? [];
+      const yPositions = creationTable.relativePositionsY.get(creationId) ?? [];
+      const zPositions = creationTable.relativePositionsZ.get(creationId) ?? [];
+
+      if (
+        xPositions.length === 0 ||
+        yPositions.length === 0 ||
+        zPositions.length === 0
+      ) {
+        console.warn(
+          `No relativePositions found for creationId=${creationId.toString()}. xPositions=${xPositions} yPositions=${yPositions} zPositions=${zPositions}`
+        );
+        return;
+      }
+
+      const relativePositions = xPositions.map((x, i) => {
+        return { x, y: yPositions[i], z: zPositions[i] };
+      });
+      // TODO: add voxelMetadata
+
+      allCreations.current.push({
+        creationId: getEntityString(creationId),
+        name: name,
+        description: description,
+        creator: creator,
+        voxelTypes: voxelTypes,
+        relativePositions,
+      } as Creation);
+    });
+
+    // After we have parsed all the creations, apply the creation
+    // filters to narrow down the creations that will be displayed.
+    applyCreationFilters();
+  });
+
+  const applyCreationFilters = () => {
+    const playerAddress = to256BitString(connectedAddress.get() ?? "");
+    filteredCreations.current = filters.isMyCreation
+      ? allCreations.current.filter(
+          (creation) => creation.creator === playerAddress
+        )
+      : allCreations.current;
+
+    // only the filtered creations can be queried
+    const options = {
+      includeScore: false,
+      // TODO: the creator is just an address. we need to replace it with a readable name
+      keys: ["name", "description", "creator", "voxelTypes"],
+    };
+    fuse.current = new Fuse(allCreations.current, options);
+
+    queryForCreationsToDisplay();
+  };
+  // recalculate which creations are in the display pool when the filters change
+  useEffect(applyCreationFilters, [filters]);
+
+  const queryForCreationsToDisplay = () => {
+    if (!fuse.current) {
+      return;
+    }
+    if (filters.search === "") {
+      setCreationsToDisplay(filteredCreations.current);
+      return;
+    }
+
+    const queryResult = fuse.current.search(filters.search).map((r) => r.item);
+    setCreationsToDisplay(queryResult);
+  };
+  React.useEffect(queryForCreationsToDisplay, [filters.search]);
+
+  return {
+    creationsToDisplay
+  }
+};

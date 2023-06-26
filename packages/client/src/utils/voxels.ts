@@ -2,8 +2,8 @@ import { VoxelCoord } from "@latticexyz/utils";
 import { Engine } from "noa-engine";
 
 export const calculateMinMax = (corner1: VoxelCoord, corner2: VoxelCoord) => {
-  const minX = Math.min(corner1.x, corner2.y);
-  const maxX = Math.max(corner1.x, corner2.y);
+  const minX = Math.min(corner1.x, corner2.x);
+  const maxX = Math.max(corner1.x, corner2.x);
   const minY = Math.min(corner1.y, corner2.y);
   const maxY = Math.max(corner1.y, corner2.y);
   const minZ = Math.min(corner1.z, corner2.z);

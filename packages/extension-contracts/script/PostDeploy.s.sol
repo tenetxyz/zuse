@@ -87,6 +87,7 @@ contract PostDeploy is Script {
     bytes4 signalSourceEventHandler = IWorld(worldAddress).tenet_SignalSourceSyst_eventHandler.selector;
     bytes4 signalEventHandler = IWorld(worldAddress).tenet_SignalSystem_eventHandler.selector;
     bytes4 poweredEventHandler = IWorld(worldAddress).tenet_PoweredSystem_eventHandler.selector;
+    bytes4 invertedSignalEventHandler = IWorld(worldAddress).tenet_InvertedSignalSy_eventHandler.selector;
 
     (success, result) = worldAddress.call(
       abi.encodeWithSignature("tenet_ExtensionSystem_registerExtension(bytes4)", signalSourceEventHandler)
@@ -102,6 +103,11 @@ contract PostDeploy is Script {
       abi.encodeWithSignature("tenet_ExtensionSystem_registerExtension(bytes4)", poweredEventHandler)
     );
     require(success, "Failed to registerExtension PoweredSystem");
+
+    (success, result) = worldAddress.call(
+      abi.encodeWithSignature("tenet_ExtensionSystem_registerExtension(bytes4)", invertedSignalEventHandler)
+    );
+    require(success, "Failed to registerExtension InvertedSignalSystem");
 
     vm.stopBroadcast();
   }

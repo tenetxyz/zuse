@@ -3,5 +3,6 @@
 *.vscode
 .yarn
 .yarnrc.yml
+*.swp
 
 node_modules

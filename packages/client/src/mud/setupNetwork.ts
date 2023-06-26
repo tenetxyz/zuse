@@ -492,7 +492,7 @@ export async function setupNetwork() {
       creationName,
       creationDescription,
       voxels,
-      { gasLimit: 5_000_000 },
+      { gasLimit: 30_000_000 },
     ]);
     return tx;
   }
@@ -516,7 +516,7 @@ export async function setupNetwork() {
   }
 
   async function spawnCreationSystem(lowerSouthWestCorner: VoxelCoord, creationId: Entity) {
-    const tx = await worldSend("tenet_SpawnSystem_spawn", [lowerSouthWestCorner, creationId, { gasLimit: 10_000_000 }]);
+    const tx = await worldSend("tenet_SpawnSystem_spawn", [lowerSouthWestCorner, creationId, { gasLimit: 30_000_000 }]);
     return tx;
   }
 

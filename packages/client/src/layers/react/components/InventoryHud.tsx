@@ -212,9 +212,9 @@ export function registerInventoryHud() {
       const Bottom = (
         <BottomBar>
           <ConnectedPlayersContainer>
-            <PlayerCount>{connectedClients}</PlayerCount>
+            {/* <PlayerCount>{connectedClients}</PlayerCount>
             <PixelatedImage src="/img/mud-player.png" width={35} />
-            <Sounds playRandomTheme={playRandomTheme} playNextTheme={playNextTheme} />
+            <Sounds playRandomTheme={playRandomTheme} playNextTheme={playNextTheme} /> */}
           </ConnectedPlayersContainer>
           <ActionBarWrapper>{[...range(INVENTORY_WIDTH)].map((i) => Slots[i])}</ActionBarWrapper>
         </BottomBar>

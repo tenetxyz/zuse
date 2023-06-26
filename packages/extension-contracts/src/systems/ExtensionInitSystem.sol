@@ -4,7 +4,7 @@ import { System } from "@latticexyz/world/src/System.sol";
 import { IWorld } from "../codegen/world/IWorld.sol";
 import { SignalData } from "../codegen/Tables.sol";
 import { VoxelVariantsKey } from "../types.sol";
-import { defineVoxels, SandID, LogID, OrangeFlowerID, SignalOffID, SignalOnID } from "../prototypes/Voxels.sol";
+import { defineVoxels, SandID, LogID, OrangeFlowerID, SignalOffID, SignalOnID, SignalSourceID } from "../prototypes/Voxels.sol";
 import { TENET_NAMESPACE } from "@tenetxyz/contracts/src/constants.sol";
 
 contract ExtensionInitSystem is System {
@@ -31,7 +31,7 @@ contract ExtensionInitSystem is System {
 
   function signalSourceVariantSelector(bytes32 entity) public returns (VoxelVariantsKey memory) {
     IWorld(_world()).tenet_SignalSourceSyst_getOrCreateSignalSource(entity);
-    return VoxelVariantsKey({ namespace: TENET_NAMESPACE, voxelVariantId: SandID });
+    return VoxelVariantsKey({ namespace: TENET_NAMESPACE, voxelVariantId: SignalSourceID });
   }
 
   function init() public {

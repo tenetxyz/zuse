@@ -2,14 +2,14 @@
 pragma solidity >=0.8.0;
 
 import { System } from "@latticexyz/world/src/System.sol";
-import { Signal, SignalData, SignalTableId, SignalSource, SignalSourceTableId } from "../codegen/Tables.sol";
+import { Signal, SignalData, InvertedSignalData, InvertedSignal, SignalTableId, SignalSource, SignalSourceTableId } from "../codegen/Tables.sol";
 
 import { SystemRegistry } from "@latticexyz/world/src/modules/core/tables/SystemRegistry.sol";
 import { ResourceSelector } from "@latticexyz/world/src/ResourceSelector.sol";
 import { BlockDirection } from "../codegen/Types.sol";
 import { PositionData } from "@tenetxyz/contracts/src/codegen/tables/Position.sol";
 import { getCallerNamespace } from "@tenetxyz/contracts/src/SharedUtils.sol";
-import { calculateBlockDirection, getOppositeDirection, getEntityPositionStrict, entityIsSignal, entityIsSignalSource } from "../Utils.sol";
+import { calculateBlockDirection, getOppositeDirection, getEntityPositionStrict, entityIsSignal, entityIsSignalSource, entityIsInvertedSignal } from "../Utils.sol";
 
 contract SignalSystem is System {
   function getOrCreateSignal(bytes32 entity) public returns (SignalData memory) {
@@ -38,6 +38,11 @@ contract SignalSystem is System {
       compareIsActiveSignal =
         compareSignalData.isActive &&
         compareSignalData.direction != getOppositeDirection(compareBlockDirection);
+    }
+    bool compareIsActiveInvertedSignal = entityIsInvertedSignal(compareEntity, callerNamespace);
+    if (compareIsActiveInvertedSignal) {
+      InvertedSignalData memory compareInvertedSignalData = InvertedSignal.get(callerNamespace, compareEntity);
+      compareIsActiveInvertedSignal = compareInvertedSignalData.isActive;
     }
 
     if (signalData.isActive) {

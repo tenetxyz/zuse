@@ -59,7 +59,7 @@ contract InvertedSignalSystem is System {
       // check to see if we should be active?
       // were we previously blocked by an active powered block
       if (
-        invertedSignalData.direction == compareBlockDirection && // TODO: is this the right direction? or comparePoweredData.direction
+        invertedSignalData.direction == compareBlockDirection &&
         (!compareIsPowered || (compareIsPowered && !comparePoweredData.isActive))
       ) {
         invertedSignalData.isActive = true;

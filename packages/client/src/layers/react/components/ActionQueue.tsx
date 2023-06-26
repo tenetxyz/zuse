@@ -1,9 +1,6 @@
 import React from "react";
 import { registerUIComponent } from "../engine";
-import {
-  getComponentEntities,
-  getComponentValueStrict,
-} from "@latticexyz/recs";
+import { getComponentEntities, getComponentValueStrict } from "@latticexyz/recs";
 import { map } from "rxjs";
 import styled from "styled-components";
 import { Action as ActionQueueItem } from "./Action";
@@ -78,13 +75,10 @@ export function registerActionQueue() {
       return (
         <ActionQueueList>
           {[...getComponentEntities(Action)].map((e) => {
-            const { state, metadata, txHash } = getComponentValueStrict(
-              Action,
-              e
-            );
+            const { state, metadata, txHash } = getComponentValueStrict(Action, e);
             const { actionType, coord, voxelVariantKey, preview } = metadata || {};
             let icon = voxelVariantKey && getVoxelIconUrl(voxelVariantKey);
-            if (icon === undefined){
+            if (icon === undefined) {
               icon = preview;
             }
             return (

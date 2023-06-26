@@ -5,22 +5,8 @@ type Props = {
 };
 
 export const PendingIcon = (props: Props) => (
-  <svg
-    xmlns="http://www.w3.org/2000/svg"
-    fill="none"
-    viewBox="0 0 24 24"
-    width="1em"
-    height="1em"
-    {...props}
-  >
-    <circle
-      cx="12"
-      cy="12"
-      r="10"
-      stroke="currentColor"
-      strokeOpacity="40%"
-      strokeWidth="4"
-    ></circle>
+  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" width="1em" height="1em" {...props}>
+    <circle cx="12" cy="12" r="10" stroke="currentColor" strokeOpacity="40%" strokeWidth="4"></circle>
     <path
       fill="currentColor"
       fillOpacity="100%"

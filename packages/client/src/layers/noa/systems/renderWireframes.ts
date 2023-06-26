@@ -1,13 +1,4 @@
-import {
-  Color3,
-  Color4,
-  CreateBox,
-  Mesh,
-  MeshBuilder,
-  Nullable,
-  StandardMaterial,
-  Vector3,
-} from "@babylonjs/core";
+import { Color3, Color4, CreateBox, Mesh, MeshBuilder, Nullable, StandardMaterial, Vector3 } from "@babylonjs/core";
 import { VoxelCoord } from "@latticexyz/utils";
 import { Engine } from "noa-engine";
 import { Scene } from "@babylonjs/core/scene";
@@ -60,10 +51,7 @@ export const renderChunkyWireframe = (
   );
 
   const disposeOriginalMeshesAfterCreatingCombinedMesh = true;
-  const chunkyWireframeMesh = Mesh.MergeMeshes(
-    edgeMeshes,
-    disposeOriginalMeshesAfterCreatingCombinedMesh
-  );
+  const chunkyWireframeMesh = Mesh.MergeMeshes(edgeMeshes, disposeOriginalMeshesAfterCreatingCombinedMesh);
   const isStatic = false; // if we set this to true, the mesh will not be rendered if the center of the cuboid is NOT in view.
   // This is confusing when the corner of the cuboid is still visible, but the center is not, so the wireframe is not rendered
   noa.rendering.addMeshToScene(chunkyWireframeMesh, isStatic);
@@ -87,17 +75,9 @@ const getEdgeMesh = (
   width = width + wireframeThickness;
   height = height + wireframeThickness;
   depth = depth + wireframeThickness;
-  const prism = MeshBuilder.CreateBox(
-    "prism",
-    { width: width, height: height, depth: depth },
-    scene
-  );
+  const prism = MeshBuilder.CreateBox("prism", { width: width, height: height, depth: depth }, scene);
   // Position the prism between the two points
-  prism.position.set(
-    (coord1.x + coord2.x) / 2,
-    (coord1.y + coord2.y) / 2,
-    (coord1.z + coord2.z) / 2
-  );
+  prism.position.set((coord1.x + coord2.x) / 2, (coord1.y + coord2.y) / 2, (coord1.z + coord2.z) / 2);
 
   const material = new StandardMaterial("material", scene);
   material.emissiveColor = emissiveColor;

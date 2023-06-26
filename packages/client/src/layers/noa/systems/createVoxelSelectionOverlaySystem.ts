@@ -6,10 +6,7 @@ import { renderChunkyWireframe } from "./renderWireframes";
 import { IVoxelSelection } from "../components/VoxelSelection";
 import { Color3, Mesh, Nullable } from "@babylonjs/core";
 
-export function createVoxelSelectionOverlaySystem(
-  network: NetworkLayer,
-  noaLayer: NoaLayer
-) {
+export function createVoxelSelectionOverlaySystem(network: NetworkLayer, noaLayer: NoaLayer) {
   const {
     components: { VoxelSelection },
     noa,
@@ -49,13 +46,7 @@ export function createVoxelSelectionOverlaySystem(
 
     renderedPointSelectionMeshes =
       voxelSelection.points?.map((point) => {
-        return renderChunkyWireframe(
-          point,
-          point,
-          noa,
-          new Color3(1, 0.1, 0.1),
-          0.04
-        );
+        return renderChunkyWireframe(point, point, noa, new Color3(1, 0.1, 0.1), 0.04);
       }) ?? [];
   };
 }

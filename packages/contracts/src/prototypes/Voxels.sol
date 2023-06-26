@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0
 pragma solidity >=0.8.0;
 import { IWorld } from "../codegen/world/IWorld.sol";
-import {Occurrence, VoxelTypeData, VoxelVariantsData} from "../codegen/Tables.sol";
+import { Occurrence, VoxelTypeData, VoxelVariantsData } from "../codegen/Tables.sol";
 import { NoaBlockType } from "../codegen/Types.sol";
 import { stringArrToString } from "../SharedUtils.sol";
 
@@ -20,43 +20,42 @@ string constant GrassUVWrap = "bafkreihaagdyqnbie3eyx6upmoul2zb4qakubxg6bcha6k5e
 string constant BedrockUVWrap = "bafkreihdit6glam7sreijo7itbs7uwc2ltfeuvcfaublxf6rjo24hf6t4y";
 
 function defineVoxels(IWorld world) {
+  VoxelVariantsData memory airVariant;
+  airVariant.blockType = NoaBlockType.BLOCK;
+  world.tenet_VoxelRegistrySys_registerVoxelVariant(AirID, airVariant);
 
-    VoxelVariantsData memory airVariant;
-    airVariant.blockType = NoaBlockType.BLOCK;
-    world.tenet_VoxelRegistrySys_registerVoxelVariant(AirID, airVariant);
+  VoxelVariantsData memory dirtVariant;
+  dirtVariant.blockType = NoaBlockType.BLOCK;
+  dirtVariant.opaque = true;
+  dirtVariant.solid = true;
+  dirtVariant.materialArr = DirtTexture;
+  dirtVariant.uvWrap = DirtUVWrap;
+  world.tenet_VoxelRegistrySys_registerVoxelVariant(DirtID, dirtVariant);
 
-    VoxelVariantsData memory dirtVariant;
-    dirtVariant.blockType = NoaBlockType.BLOCK;
-    dirtVariant.opaque = true;
-    dirtVariant.solid = true;
-    dirtVariant.materialArr = DirtTexture;
-    dirtVariant.uvWrap = DirtUVWrap;
-    world.tenet_VoxelRegistrySys_registerVoxelVariant(DirtID, dirtVariant);
+  string[] memory grassMaterials = new string[](3);
+  grassMaterials[0] = GrassTexture;
+  grassMaterials[1] = DirtTexture;
+  grassMaterials[2] = GrassSideTexture;
 
-    string[] memory grassMaterials = new string[](3);
-    grassMaterials[0] = GrassTexture;
-    grassMaterials[1] = DirtTexture;
-    grassMaterials[2] = GrassSideTexture;
+  VoxelVariantsData memory grassVariant;
+  grassVariant.blockType = NoaBlockType.BLOCK;
+  grassVariant.opaque = true;
+  grassVariant.solid = true;
+  grassVariant.materialArr = stringArrToString(grassMaterials);
+  grassVariant.uvWrap = GrassUVWrap;
 
-    VoxelVariantsData memory grassVariant;
-    grassVariant.blockType = NoaBlockType.BLOCK;
-    grassVariant.opaque = true;
-    grassVariant.solid = true;
-    grassVariant.materialArr = stringArrToString(grassMaterials);
-    grassVariant.uvWrap = GrassUVWrap;
+  world.tenet_VoxelRegistrySys_registerVoxelVariant(GrassID, grassVariant);
 
-    world.tenet_VoxelRegistrySys_registerVoxelVariant(GrassID, grassVariant);
+  VoxelVariantsData memory bedrockVariant;
+  bedrockVariant.blockType = NoaBlockType.BLOCK;
+  bedrockVariant.opaque = true;
+  bedrockVariant.solid = true;
+  bedrockVariant.materialArr = BedrockTexture;
+  bedrockVariant.uvWrap = BedrockUVWrap;
 
-    VoxelVariantsData memory bedrockVariant;
-    bedrockVariant.blockType = NoaBlockType.BLOCK;
-    bedrockVariant.opaque = true;
-    bedrockVariant.solid = true;
-    bedrockVariant.materialArr = BedrockTexture;
-    bedrockVariant.uvWrap = BedrockUVWrap;
+  world.tenet_VoxelRegistrySys_registerVoxelVariant(BedrockID, bedrockVariant);
 
-    world.tenet_VoxelRegistrySys_registerVoxelVariant(BedrockID, bedrockVariant);
-
-    Occurrence.set(GrassID, world.tenet_OccurrenceSystem_OGrass.selector);
-    Occurrence.set(DirtID, world.tenet_OccurrenceSystem_ODirt.selector);
-    Occurrence.set(BedrockID, world.tenet_OccurrenceSystem_OBedrock.selector);
+  Occurrence.set(GrassID, world.tenet_OccurrenceSystem_OGrass.selector);
+  Occurrence.set(DirtID, world.tenet_OccurrenceSystem_ODirt.selector);
+  Occurrence.set(BedrockID, world.tenet_OccurrenceSystem_OBedrock.selector);
 }

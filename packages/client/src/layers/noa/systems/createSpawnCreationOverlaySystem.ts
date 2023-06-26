@@ -9,10 +9,7 @@ import { Creation } from "../../react/components/CreationStore";
 import { add } from "../../../utils/coord";
 import { VoxelCoord } from "@latticexyz/utils";
 
-export function createSpawnCreationOverlaySystem(
-  network: NetworkLayer,
-  noaLayer: NoaLayer
-) {
+export function createSpawnCreationOverlaySystem(network: NetworkLayer, noaLayer: NoaLayer) {
   const {
     components: { SpawnCreation },
     noa,
@@ -48,27 +45,17 @@ export function createSpawnCreationOverlaySystem(
     renderCreationOutline(creationToSpawn, targetedBlock);
   };
 
-  const renderCreationOutline = (
-    creation: Creation,
-    targetedBlock: TargetedBlock
-  ) => {
+  const renderCreationOutline = (creation: Creation, targetedBlock: TargetedBlock) => {
     const {
       adjacent: [x, y, z],
     } = targetedBlock;
 
-    const { minRelativeCoord, maxRelativeCoord } =
-      calculateMinMaxRelativeCoordsOfCreation(creation);
+    const { minRelativeCoord, maxRelativeCoord } = calculateMinMaxRelativeCoordsOfCreation(creation);
 
     const targetVoxelCoord: VoxelCoord = { x, y, z };
     const corner1 = add(targetVoxelCoord, minRelativeCoord);
     const corner2 = add(targetVoxelCoord, maxRelativeCoord);
-    renderedCreationOutlineMesh = renderChunkyWireframe(
-      corner1,
-      corner2,
-      noa,
-      new Color3(0, 0, 1),
-      0.05
-    );
+    renderedCreationOutlineMesh = renderChunkyWireframe(corner1, corner2, noa, new Color3(0, 0, 1), 0.05);
   };
 
   const calculateMinMaxRelativeCoordsOfCreation = (

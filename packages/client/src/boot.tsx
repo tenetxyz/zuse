@@ -192,13 +192,10 @@ function bootReact() {
 
   if (import.meta.hot) {
     // HMR React components
-    import.meta.hot.accept(
-      "./layers/react/components/index.ts",
-      async (module) => {
-        registerUIComponents = module?.registerUIComponents;
-        registerUIComponents();
-      }
-    );
+    import.meta.hot.accept("./layers/react/components/index.ts", async (module) => {
+      registerUIComponents = module?.registerUIComponents;
+      registerUIComponents();
+    });
   }
 }
 

@@ -13,14 +13,7 @@ import {
   getEntityString,
   getEntitySymbol,
 } from "@latticexyz/recs";
-import {
-  awaitStreamValue,
-  Coord,
-  isNotEmpty,
-  pickRandom,
-  random,
-  VoxelCoord,
-} from "@latticexyz/utils";
+import { awaitStreamValue, Coord, isNotEmpty, pickRandom, random, VoxelCoord } from "@latticexyz/utils";
 import { NetworkLayer } from "../network";
 import {
   definePlayerDirectionComponent,
@@ -41,10 +34,7 @@ import * as BABYLON from "@babylonjs/core";
 import { Texture, Vector4 } from "@babylonjs/core";
 import { setupHand } from "./engine/hand";
 import { monkeyPatchMeshComponent } from "./engine/components/monkeyPatchMeshComponent";
-import {
-  registerRotationComponent,
-  registerTargetedRotationComponent,
-} from "./engine/components/rotationComponent";
+import { registerRotationComponent, registerTargetedRotationComponent } from "./engine/components/rotationComponent";
 import { setupClouds, setupSky } from "./engine/sky";
 import { setupNoaEngine } from "./setup";
 import {
@@ -63,10 +53,7 @@ import { registerModelComponent } from "./engine/components/modelComponent";
 import { registerMiningVoxelComponent } from "./engine/components/miningVoxelComponent";
 import { defineInventoryIndexComponent } from "./components/InventoryIndex";
 import { setupDayNightCycle } from "./engine/dayNightCycle";
-import {
-  getNoaPositionStrict,
-  setNoaPosition,
-} from "./engine/components/utils";
+import { getNoaPositionStrict, setNoaPosition } from "./engine/components/utils";
 import { registerTargetedPositionComponent } from "./engine/components/targetedPositionComponent";
 import { defaultAbiCoder as abi, keccak256 } from "ethers/lib/utils";
 import { SingletonID, SyncState } from "@latticexyz/network";
@@ -78,15 +65,19 @@ import { createSpawnPlayerSystem } from "./systems/createSpawnPlayerSystem";
 import { definePlayerMeshComponent } from "./components/PlayerMesh";
 import { Engine } from "@babylonjs/core";
 import { to64CharAddress } from "../../utils/entity";
-import {
-  definePersistentNotificationComponent,
-  NotificationIcon,
-} from "./components/persistentNotification";
+import { definePersistentNotificationComponent, NotificationIcon } from "./components/persistentNotification";
 import { createVoxelSelectionOverlaySystem } from "./systems/createVoxelSelectionOverlaySystem";
 import { defineSpawnCreationComponent } from "./components/SpawnCreation";
 import { createSpawnCreationOverlaySystem } from "./systems/createSpawnCreationOverlaySystem";
 import { createSpawnOverlaySystem } from "./systems/createSpawnOverlaySystem";
-import { entityToVoxelType, VoxelTypeDataKey, VoxelVariantDataKey, voxelVariantDataKeyToString, voxelVariantKeyStringToKey, VoxelVariantDataValue } from "./types";
+import {
+  entityToVoxelType,
+  VoxelTypeDataKey,
+  VoxelVariantDataKey,
+  voxelVariantDataKeyToString,
+  voxelVariantKeyStringToKey,
+  VoxelVariantDataValue,
+} from "./types";
 
 export function createNoaLayer(network: NetworkLayer) {
   const world = namespaceWorld(network.world, "noa");
@@ -99,7 +90,7 @@ export function createNoaLayer(network: NetworkLayer) {
     components: { Recipe, Claim, Stake, LoadingState },
     contractComponents: { OwnedBy, VoxelType },
     api: { build },
-    voxelTypes: { VoxelVariantData, VoxelVariantDataSubscriptions }
+    voxelTypes: { VoxelVariantData, VoxelVariantDataSubscriptions },
   } = network;
   const uniqueWorldId = chainId + worldAddress;
 
@@ -110,21 +101,13 @@ export function createNoaLayer(network: NetworkLayer) {
     SelectedSlot: defineSelectedSlotComponent(world),
     CraftingTable: defineCraftingTableComponent(world),
     PlayerPosition: definePlayerPositionComponent(world),
-    LocalPlayerPosition: createLocalCache(
-      defineLocalPlayerPositionComponent(world),
-      uniqueWorldId
-    ),
-    PlayerRelayerChunkPosition: createIndexer(
-      definePlayerRelayerChunkPositionComponent(world)
-    ),
+    LocalPlayerPosition: createLocalCache(defineLocalPlayerPositionComponent(world), uniqueWorldId),
+    PlayerRelayerChunkPosition: createIndexer(definePlayerRelayerChunkPositionComponent(world)),
     PlayerDirection: definePlayerDirectionComponent(world),
     PlayerLastMessage: definePlayerLastMessage(world),
     PlayerMesh: definePlayerMeshComponent(world),
     UI: defineUIComponent(world),
-    InventoryIndex: createLocalCache(
-      createIndexer(defineInventoryIndexComponent(world)),
-      uniqueWorldId
-    ),
+    InventoryIndex: createLocalCache(createIndexer(defineInventoryIndexComponent(world)), uniqueWorldId),
     // Tutorial: createLocalCache(defineTutorialComponent(world), uniqueWorldId),
     // removed cache from tutorial because it triggers on voxel mine, and because of this error: component with id Tutorial was locally cached 260 times since 11:35:35 PM - the local cache is in an alpha state and should not be used with components that update frequently yet
     Tutorial: defineTutorialComponent(world),
@@ -175,10 +158,9 @@ export function createNoaLayer(network: NetworkLayer) {
   // Get a 2d representation of the current crafting table
   // -1 corresponds to empty slots
   function getCraftingTable(): Entity[][] {
-    const flatCraftingTable = (getComponentValue(
-      components.CraftingTable,
-      SingletonEntity
-    )?.value || [...EMPTY_CRAFTING_TABLE]) as Entity[];
+    const flatCraftingTable = (getComponentValue(components.CraftingTable, SingletonEntity)?.value || [
+      ...EMPTY_CRAFTING_TABLE,
+    ]) as Entity[];
 
     const craftingTable: Entity[][] = [];
     for (let i = 0; i < CRAFTING_SIDE; i++) {
@@ -192,10 +174,7 @@ export function createNoaLayer(network: NetworkLayer) {
   }
 
   // Set 2d representation of crafting table
-  function setCraftingTableIndex(
-    index: [number, number],
-    entity: Entity | undefined
-  ) {
+  function setCraftingTableIndex(index: [number, number], entity: Entity | undefined) {
     const craftingTable = getCraftingTable();
     craftingTable[index[0]][index[1]] = entity ?? ("-1" as Entity);
     setCraftingTable(craftingTable);
@@ -225,8 +204,7 @@ export function createNoaLayer(network: NetworkLayer) {
       }
     }
 
-    if ([minX, minY, maxX, maxY].includes(-1))
-      return { voxels: [] as Entity[][], voxelTypes: [] as Entity[][] };
+    if ([minX, minY, maxX, maxY].includes(-1)) return { voxels: [] as Entity[][], voxelTypes: [] as Entity[][] };
 
     const trimmedCraftingTableVoxels: Entity[][] = [];
     const trimmedCraftingTableVoxelTypes: Entity[][] = [];
@@ -235,11 +213,8 @@ export function createNoaLayer(network: NetworkLayer) {
       trimmedCraftingTableVoxelTypes.push([]);
       for (let y = 0; y <= maxY - minY; y++) {
         const rawVoxelId = craftingTable[x + minX][y + minY];
-        const voxel = ((getEntityString(getEntitySymbol(rawVoxelId)) !== "-1" &&
-          rawVoxelId) ||
-          "0x00") as Entity;
-        const voxelType = ((getEntityString(getEntitySymbol(rawVoxelId)) !==
-          "-1" &&
+        const voxel = ((getEntityString(getEntitySymbol(rawVoxelId)) !== "-1" && rawVoxelId) || "0x00") as Entity;
+        const voxelType = ((getEntityString(getEntitySymbol(rawVoxelId)) !== "-1" &&
           getComponentValue(VoxelType, rawVoxelId)?.value) ||
           "0x00") as Entity;
         trimmedCraftingTableVoxels[x].push(voxel);
@@ -280,8 +255,7 @@ export function createNoaLayer(network: NetworkLayer) {
   }
 
   function togglePlugins(open?: boolean) {
-    open =
-      open ?? !getComponentValue(components.UI, SingletonEntity)?.showPlugins;
+    open = open ?? !getComponentValue(components.UI, SingletonEntity)?.showPlugins;
     noa.container.setPointerLock(!open);
     updateComponent(components.UI, SingletonEntity, {
       showInventory: false,
@@ -296,8 +270,7 @@ export function createNoaLayer(network: NetworkLayer) {
       return;
     }
 
-    open =
-      open ?? !getComponentValue(components.UI, SingletonEntity)?.showInventory;
+    open = open ?? !getComponentValue(components.UI, SingletonEntity)?.showInventory;
     // if the inventory is open, we need to disable movement commands or voxel selection commands so the player isn't "interacting" with the world
     disableOrEnableInputs(open);
 
@@ -325,40 +298,29 @@ export function createNoaLayer(network: NetworkLayer) {
     if (open) {
       // disable movement when inventory is open
       // https://github.com/fenomas/noa/issues/61
-      noa.entities.removeComponent(
-        noa.playerEntity,
-        noa.ents.names.receivesInputs
-      );
+      noa.entities.removeComponent(noa.playerEntity, noa.ents.names.receivesInputs);
       noa.inputs.unbind("select-voxel");
       noa.inputs.unbind("admin-panel");
     } else {
-      noa.entities.addComponent(
-        noa.playerEntity,
-        noa.ents.names.receivesInputs
-      );
+      noa.entities.addComponent(noa.playerEntity, noa.ents.names.receivesInputs);
       noa.inputs.bind("select-voxel", "V");
       noa.inputs.bind("admin-panel", "-");
     }
   };
   const isFocusedOnInputElement = () => {
     const activeElement = document.activeElement;
-    return (
-      activeElement && ["INPUT", "TEXTAREA"].includes(activeElement.tagName)
-    );
+    return activeElement && ["INPUT", "TEXTAREA"].includes(activeElement.tagName);
   };
 
   function getVoxelTypeInSelectedSlot(): VoxelTypeDataKey | undefined {
-    const selectedSlot = getComponentValue(
-      components.SelectedSlot,
-      SingletonEntity
-    )?.value;
+    const selectedSlot = getComponentValue(components.SelectedSlot, SingletonEntity)?.value;
     if (selectedSlot == null) return;
     const voxelType = [
       ...getEntitiesWithValue(components.InventoryIndex, {
         value: selectedSlot,
       }),
     ][0];
-    if(voxelType == undefined) return;
+    if (voxelType == undefined) return;
     return entityToVoxelType(voxelType);
   }
 
@@ -391,9 +353,7 @@ export function createNoaLayer(network: NetworkLayer) {
   function playNextTheme() {
     const sounds = getComponentValue(components.Sounds, SingletonEntity);
     if (!sounds?.themes || !isNotEmpty(sounds.themes)) return;
-    const prevThemeIndex = sounds.playingTheme
-      ? sounds.themes.findIndex((e) => e === sounds.playingTheme)
-      : -1;
+    const prevThemeIndex = sounds.playingTheme ? sounds.themes.findIndex((e) => e === sounds.playingTheme) : -1;
     const nextThemeIndex = (prevThemeIndex + 1) % sounds.themes.length;
     const playingTheme = sounds.themes[nextThemeIndex];
     updateComponent(components.Sounds, SingletonEntity, { playingTheme });
@@ -409,16 +369,11 @@ export function createNoaLayer(network: NetworkLayer) {
   const scene = noa.rendering.getScene();
 
   const voxelMaterials: Map<string, BABYLON.Material | undefined> = new Map();
-  function voxelUVWrapSubscription(
-    voxelVariantKey: VoxelVariantDataKey,
-    voxelVariantData: VoxelVariantDataValue,
-  ) {
+  function voxelUVWrapSubscription(voxelVariantKey: VoxelVariantDataKey, voxelVariantData: VoxelVariantDataValue) {
     const voxelVariantKeyStr = voxelVariantDataKeyToString(voxelVariantKey);
-    if(voxelVariantData.data?.uvWrap){
+    if (voxelVariantData.data?.uvWrap) {
       console.log("Registering uvWrap", voxelVariantKeyStr);
-      const voxelMaterial = noa.rendering.makeStandardMaterial(
-        "voxelMaterial-" + voxelVariantKey
-      );
+      const voxelMaterial = noa.rendering.makeStandardMaterial("voxelMaterial-" + voxelVariantKey);
       voxelMaterial.diffuseTexture = new Texture(
         voxelVariantData.data.uvWrap,
         scene,
@@ -454,40 +409,25 @@ export function createNoaLayer(network: NetworkLayer) {
 
   // Pause noa until initial loading is done
   setTimeout(() => {
-    if (
-      getComponentValue(LoadingState, SingletonEntity)?.state !== SyncState.LIVE
-    )
-      noa.setPaused(true);
+    if (getComponentValue(LoadingState, SingletonEntity)?.state !== SyncState.LIVE) noa.setPaused(true);
   }, 1000);
-  awaitStreamValue(
-    LoadingState.update$,
-    ({ value }) => value[0]?.state === SyncState.LIVE
-  ).then(() => noa.setPaused(false));
+  awaitStreamValue(LoadingState.update$, ({ value }) => value[0]?.state === SyncState.LIVE).then(() =>
+    noa.setPaused(false)
+  );
 
   // --- SETUP STREAMS --------------------------------------------------------------
   // (Create streams as BehaviorSubject to allow for multiple observers and getting the current value)
   const playerPosition$ = new BehaviorSubject(getCurrentPlayerPosition());
-  world.registerDisposer(
-    timer(0, 200).pipe(map(getCurrentPlayerPosition)).subscribe(playerPosition$)
-      ?.unsubscribe
-  );
+  world.registerDisposer(timer(0, 200).pipe(map(getCurrentPlayerPosition)).subscribe(playerPosition$)?.unsubscribe);
 
   const slowPlayerPosition$ = playerPosition$.pipe(throttleTime(10000));
 
   const playerChunk$ = new BehaviorSubject(getCurrentChunk());
-  world.registerDisposer(
-    playerPosition$
-      .pipe(map((pos) => getChunkCoord(pos)))
-      .subscribe(playerChunk$)?.unsubscribe
-  );
+  world.registerDisposer(playerPosition$.pipe(map((pos) => getChunkCoord(pos))).subscribe(playerChunk$)?.unsubscribe);
 
-  const stakeAndClaim$ = new BehaviorSubject(
-    getStakeAndClaim(getCurrentChunk())
-  );
+  const stakeAndClaim$ = new BehaviorSubject(getStakeAndClaim(getCurrentChunk()));
   world.registerDisposer(
-    playerChunk$
-      .pipe(map((coord) => getStakeAndClaim(coord)))
-      .subscribe(stakeAndClaim$)?.unsubscribe
+    playerChunk$.pipe(map((coord) => getStakeAndClaim(coord))).subscribe(stakeAndClaim$)?.unsubscribe
   );
 
   const context = {

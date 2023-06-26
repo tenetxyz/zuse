@@ -1,9 +1,4 @@
-import {
-  createEntity,
-  defineComponentSystem,
-  getEntitiesWithValue,
-  withValue,
-} from "@latticexyz/recs";
+import { createEntity, defineComponentSystem, getEntitiesWithValue, withValue } from "@latticexyz/recs";
 import { NetworkLayer, PluginRegistrySpec } from "../types";
 
 export function createPluginSystem(context: NetworkLayer) {

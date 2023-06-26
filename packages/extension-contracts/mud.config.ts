@@ -4,15 +4,7 @@ import { resolveTableId } from "@latticexyz/config";
 export default mudConfig({
   namespace: "tenet", // TODO: Make different namespace once we have non-root modules working
   enums: {
-    BlockDirection: [
-      "None",
-      "Up",
-      "Down",
-      "North",
-      "South",
-      "East",
-      "West"
-    ],
+    BlockDirection: ["None", "Up", "Down", "North", "South", "East", "West"],
   },
   tables: {
     Powered: {
@@ -43,7 +35,7 @@ export default mudConfig({
       schema: {
         isNatural: "bool",
       },
-    }
+    },
   },
   modules: [
     {

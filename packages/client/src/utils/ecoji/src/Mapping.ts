@@ -26,14 +26,12 @@ export default class Mapping implements IMapping {
 
   constructor(emojis: string[]) {
     this.emojis = emojis.reduce(
-      (Map, hexUnicode, i) =>
-        Map.set(String.fromCodePoint(Number(hexUnicode)), i),
+      (Map, hexUnicode, i) => Map.set(String.fromCodePoint(Number(hexUnicode)), i),
       new Map()
     );
     this.emojis.set(this.padding, -1);
     this.revEmojis = emojis.reduce(
-      (Map, hexUnicode, i) =>
-        Map.set(i, String.fromCodePoint(Number(hexUnicode))),
+      (Map, hexUnicode, i) => Map.set(i, String.fromCodePoint(Number(hexUnicode))),
       new Map()
     );
     this.revEmojis.set(-1, this.padding);

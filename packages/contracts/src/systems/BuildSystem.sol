@@ -11,9 +11,7 @@ import { getUniqueEntity } from "@latticexyz/world/src/modules/uniqueentity/getU
 import { IWorld } from "../codegen/world/IWorld.sol";
 
 contract BuildSystem is System {
-
   function build(bytes32 entity, VoxelCoord memory coord) public returns (bytes32) {
-
     // Require voxel to be owned by caller
     require(OwnedBy.get(entity) == addressToEntityKey(_msgSender()), "voxel is not owned by player");
 
@@ -21,7 +19,10 @@ contract BuildSystem is System {
     bytes32[] memory entitiesAtPosition = getKeysWithValue(PositionTableId, Position.encode(coord.x, coord.y, coord.z));
     require(entitiesAtPosition.length <= 1, "This position is already occupied by another voxel");
     if (entitiesAtPosition.length == 1) {
-      require(VoxelType.get(entitiesAtPosition[0]).voxelTypeId == AirID, "This position is already occupied by another voxel");
+      require(
+        VoxelType.get(entitiesAtPosition[0]).voxelTypeId == AirID,
+        "This position is already occupied by another voxel"
+      );
       VoxelType.deleteRecord(entitiesAtPosition[0]);
       Position.deleteRecord(entitiesAtPosition[0]);
     }
@@ -49,5 +50,4 @@ contract BuildSystem is System {
 
     return newEntity;
   }
-
 }

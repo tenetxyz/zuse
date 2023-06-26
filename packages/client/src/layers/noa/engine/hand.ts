@@ -100,11 +100,7 @@ export function setupHand(noa: Engine, networkLayer: NetworkLayer) {
   });
 }
 
-function createFaceUV(
-  offset: number[],
-  size: number[],
-  textureSize: number[]
-): Vector4[] {
+function createFaceUV(offset: number[], size: number[], textureSize: number[]): Vector4[] {
   const faceUV = new Array(6);
   faceUV[0] = new Vector4(
     (offset[0] + size[2]) / textureSize[0],

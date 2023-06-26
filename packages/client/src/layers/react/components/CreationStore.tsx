@@ -40,11 +40,8 @@ const CreationStore: React.FC<Props> = ({ layers, filters, setFilters }) => {
       network: { connectedAddress },
     },
   } = layers;
-  
-  const {
-    creationsToDisplay,
-  } = useCreationSearch({layers, filters, setFilters});
-  
+
+  const { creationsToDisplay } = useCreationSearch({ layers, filters, setFilters });
 
   const spawnCreation = (creation: Creation) => {
     setComponent(PersistentNotification, SingletonEntity, {
@@ -65,7 +62,7 @@ const CreationStore: React.FC<Props> = ({ layers, filters, setFilters }) => {
           className="bg-slate-700 p-1 ml-2 focus:outline-slate-700 border-1 border-solid mb-1 "
           value={filters.search}
           onChange={(e) => {
-            setFilters({ ...filters, search: e.target.value});
+            setFilters({ ...filters, search: e.target.value });
           }}
           autoComplete={"on"}
           name="search"
@@ -93,9 +90,7 @@ const CreationStore: React.FC<Props> = ({ layers, filters, setFilters }) => {
               <p>{creation.name}</p>
               <p>{creation.description}</p>
               <p className="">{creation.relativePositions.length} voxels</p>
-              <p className="break-all break-words">
-                {creation.creator.substr(50)}
-              </p>
+              <p className="break-all break-words">{creation.creator.substr(50)}</p>
               <button
                 className="bg-slate-700 p-1 ml-2 focus:outline-slate-700 border-1 border-solid"
                 onClick={() => {

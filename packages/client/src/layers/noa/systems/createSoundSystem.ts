@@ -22,7 +22,7 @@ export function createSoundSystem(network: NetworkLayer, context: NoaLayer) {
     components: { LoadingState },
     contractComponents: { VoxelType, Position },
     api: { getTerrainVoxelTypeAtPosition },
-    voxelTypes: { VoxelVariantData }
+    voxelTypes: { VoxelVariantData },
   } = network;
   const {
     audioEngine,
@@ -55,8 +55,7 @@ export function createSoundSystem(network: NetworkLayer, context: NoaLayer) {
     const sound: Sound = new Sound("theme" + index, url, null, null, {
       volume: 0.5,
     });
-    sound.onended = () =>
-      updateComponent(Sounds, SingletonEntity, { playingTheme: undefined });
+    sound.onended = () => updateComponent(Sounds, SingletonEntity, { playingTheme: undefined });
     return sound.name;
   });
   updateComponent(Sounds, SingletonEntity, { themes });
@@ -94,12 +93,8 @@ export function createSoundSystem(network: NetworkLayer, context: NoaLayer) {
     const prevPlayingTheme = update.value[1]?.playingTheme;
     const playingTheme = update.value[0]?.playingTheme;
 
-    const prevSound = prevPlayingTheme
-      ? scene.getSoundByName(prevPlayingTheme)
-      : undefined;
-    const newSound = playingTheme
-      ? scene.getSoundByName(playingTheme)
-      : undefined;
+    const prevSound = prevPlayingTheme ? scene.getSoundByName(prevPlayingTheme) : undefined;
+    const newSound = playingTheme ? scene.getSoundByName(playingTheme) : undefined;
 
     prevSound?.stop();
     newSound?.play();
@@ -120,11 +115,7 @@ export function createSoundSystem(network: NetworkLayer, context: NoaLayer) {
     [Has(Position), Has(VoxelType)],
     (update) => {
       // Don't play sounds during initial loading
-      if (
-        getComponentValue(LoadingState, SingletonEntity)?.state !==
-        SyncState.LIVE
-      )
-        return;
+      if (getComponentValue(LoadingState, SingletonEntity)?.state !== SyncState.LIVE) return;
 
       // Get data
       const { x, y, z } = playerPosition$.getValue();
@@ -154,10 +145,7 @@ export function createSoundSystem(network: NetworkLayer, context: NoaLayer) {
 
       // When mining a terrain voxel, we get an ECS update for an entering air voxel instead
       // Hack: entity id is the same as entity index for optimistic updates
-      if (
-        update.type == UpdateType.Enter &&
-        voxelTypeId === AIR_ID
-      ) {
+      if (update.type == UpdateType.Enter && voxelTypeId === AIR_ID) {
         // const isOptimisticUpdate = world.entities[update.entity] == (update.entity as unknown);
         const isOptimisticUpdate = update.entity == (update.entity as unknown);
         if (!isOptimisticUpdate) return;
@@ -168,33 +156,17 @@ export function createSoundSystem(network: NetworkLayer, context: NoaLayer) {
       const sound: Sound | undefined = (() => {
         if (updateType === UpdateType.Exit) {
           if (voxelTypeId.includes("Wool")) return effect["break"].Wool;
-          if (["Log", "Planks"].includes(voxelTypeId))
-            return effect["break"].Wood;
-          if (["Diamond", "Coal"].includes(voxelTypeId))
-            return effect["break"].Metal;
-          if (
-            ["Stone", "Cobblestone", "MossyCobblestone"].includes(voxelTypeId)
-          )
-            return effect["break"].Stone;
-          return (
-            effect["break"][voxelTypeId as keyof typeof effect["break"]] ||
-            effect["break"].Dirt
-          );
+          if (["Log", "Planks"].includes(voxelTypeId)) return effect["break"].Wood;
+          if (["Diamond", "Coal"].includes(voxelTypeId)) return effect["break"].Metal;
+          if (["Stone", "Cobblestone", "MossyCobblestone"].includes(voxelTypeId)) return effect["break"].Stone;
+          return effect["break"][voxelTypeId as keyof (typeof effect)["break"]] || effect["break"].Dirt;
         }
 
         if (updateType === UpdateType.Enter) {
-          if (["Log", "Planks"].includes(voxelTypeId))
-            return effect["place"].Wood;
-          if (["Diamond", "Coal"].includes(voxelTypeId))
-            return effect["place"].Metal;
-          if (
-            ["Stone", "Cobblestone", "MossyCobblestone"].includes(voxelTypeId)
-          )
-            return effect["place"].Stone;
-          return (
-            effect["place"][voxelTypeId as keyof typeof effect["place"]] ||
-            effect["place"].Dirt
-          );
+          if (["Log", "Planks"].includes(voxelTypeId)) return effect["place"].Wood;
+          if (["Diamond", "Coal"].includes(voxelTypeId)) return effect["place"].Metal;
+          if (["Stone", "Cobblestone", "MossyCobblestone"].includes(voxelTypeId)) return effect["place"].Stone;
+          return effect["place"][voxelTypeId as keyof (typeof effect)["place"]] || effect["place"].Dirt;
         }
       })();
 

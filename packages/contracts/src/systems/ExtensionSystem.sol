@@ -14,10 +14,9 @@ import { Occurrence } from "../codegen/Tables.sol";
 import { console } from "forge-std/console.sol";
 
 import { SystemRegistry } from "@latticexyz/world/src/modules/core/tables/SystemRegistry.sol";
-import { ResourceSelector} from "@latticexyz/world/src/ResourceSelector.sol";
+import { ResourceSelector } from "@latticexyz/world/src/ResourceSelector.sol";
 
 contract ExtensionSystem is System {
-
   function registerExtension(bytes4 eventHandler) public {
     (bytes16 namespace, , ) = FunctionSelectors.get(eventHandler);
     require(NamespaceOwner.get(namespace) == _msgSender(), "Caller is not namespace owner");
@@ -31,5 +30,4 @@ contract ExtensionSystem is System {
     // register extension
     VoxelInteractionExtension.set(namespace, eventHandler, false);
   }
-
 }

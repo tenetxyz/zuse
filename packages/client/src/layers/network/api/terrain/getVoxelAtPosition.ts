@@ -1,11 +1,4 @@
-import {
-  Component,
-  Entity,
-  getComponentValue,
-  getEntitiesWithValue,
-  Type,
-  World,
-} from "@latticexyz/recs";
+import { Component, Entity, getComponentValue, getEntitiesWithValue, Type, World } from "@latticexyz/recs";
 import { VoxelCoord, keccak256 } from "@latticexyz/utils";
 import { Perlin } from "@latticexyz/noise";
 import { Terrain, TerrainState } from "./types";
@@ -22,7 +15,7 @@ export function getEntityAtPosition(
       voxelTypeId: Type.String;
       voxelVariantNamespace: Type.String;
       voxelVariantId: Type.String;
-  }>;
+    }>;
     world: World;
   },
   coord: VoxelCoord
@@ -47,7 +40,7 @@ export function getEcsVoxelType(
       voxelTypeId: Type.String;
       voxelVariantNamespace: Type.String;
       voxelVariantId: Type.String;
-  }>;
+    }>;
     world: World;
   },
   coord: VoxelCoord
@@ -66,16 +59,13 @@ export function getVoxelAtPosition(
       voxelTypeId: Type.String;
       voxelVariantNamespace: Type.String;
       voxelVariantId: Type.String;
-  }>;
+    }>;
     world: World;
   },
   perlin: Perlin,
   coord: VoxelCoord
 ): VoxelTypeDataKey {
-  return (
-    getEcsVoxelType(context, coord) ??
-    getTerrainVoxel(getTerrain(coord, perlin), coord, perlin)
-  );
+  return getEcsVoxelType(context, coord) ?? getTerrainVoxel(getTerrain(coord, perlin), coord, perlin);
 }
 
 export function getTerrainVoxel(
@@ -88,8 +78,7 @@ export function getTerrainVoxel(
     Bedrock(state) ||
     Air(state) ||
     Grass(state) ||
-    Dirt(state) ||
-    {
+    Dirt(state) || {
       voxelTypeNamespace: TENET_NAMESPACE,
       voxelTypeId: AIR_ID,
       voxelVariantNamespace: TENET_NAMESPACE,

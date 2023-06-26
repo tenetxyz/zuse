@@ -13,21 +13,23 @@ export const GRASS_ID = keccak256("grass");
 export const DIRT_ID = keccak256("dirt");
 
 export function Air({ coord: { y } }: TerrainState): VoxelTypeDataKey | undefined {
-  if (y > 10) return {
-    voxelTypeNamespace: TENET_NAMESPACE,
-    voxelTypeId: AIR_ID,
-    voxelVariantNamespace: TENET_NAMESPACE,
-    voxelVariantId: AIR_ID,
-  };
+  if (y > 10)
+    return {
+      voxelTypeNamespace: TENET_NAMESPACE,
+      voxelTypeId: AIR_ID,
+      voxelVariantNamespace: TENET_NAMESPACE,
+      voxelVariantId: AIR_ID,
+    };
 }
 
 export function Bedrock({ coord: { y } }: TerrainState): VoxelTypeDataKey | undefined {
-  if (y <= -63) return {
-    voxelTypeNamespace: TENET_NAMESPACE,
-    voxelTypeId: BEDROCK_ID,
-    voxelVariantNamespace: TENET_NAMESPACE,
-    voxelVariantId: BEDROCK_ID,
-  };
+  if (y <= -63)
+    return {
+      voxelTypeNamespace: TENET_NAMESPACE,
+      voxelTypeId: BEDROCK_ID,
+      voxelVariantNamespace: TENET_NAMESPACE,
+      voxelVariantId: BEDROCK_ID,
+    };
 }
 
 export function Grass(state: TerrainState): VoxelTypeDataKey | undefined {
@@ -35,12 +37,13 @@ export function Grass(state: TerrainState): VoxelTypeDataKey | undefined {
     coord: { y },
   } = state;
 
-  if (y == 10) return  {
-    voxelTypeNamespace: TENET_NAMESPACE,
-    voxelTypeId: GRASS_ID,
-    voxelVariantNamespace: TENET_NAMESPACE,
-    voxelVariantId: GRASS_ID,
-  };
+  if (y == 10)
+    return {
+      voxelTypeNamespace: TENET_NAMESPACE,
+      voxelTypeId: GRASS_ID,
+      voxelVariantNamespace: TENET_NAMESPACE,
+      voxelVariantId: GRASS_ID,
+    };
 }
 
 export function Dirt(state: TerrainState): VoxelTypeDataKey | undefined {
@@ -48,10 +51,11 @@ export function Dirt(state: TerrainState): VoxelTypeDataKey | undefined {
     coord: { y },
   } = state;
 
-  if (y > -63 && y < 10) return {
-    voxelTypeNamespace: TENET_NAMESPACE,
-    voxelTypeId: DIRT_ID,
-    voxelVariantNamespace: TENET_NAMESPACE,
-    voxelVariantId: DIRT_ID,
-  };
+  if (y > -63 && y < 10)
+    return {
+      voxelTypeNamespace: TENET_NAMESPACE,
+      voxelTypeId: DIRT_ID,
+      voxelVariantNamespace: TENET_NAMESPACE,
+      voxelVariantId: DIRT_ID,
+    };
 }

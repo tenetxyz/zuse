@@ -11,9 +11,5 @@ export interface IPersistentNotification {
 }
 
 export function definePersistentNotificationComponent(world: World) {
-  return defineComponent(
-    world,
-    { message: Type.String, icon: Type.Number },
-    { id: "PersistentNotification" }
-  );
+  return defineComponent(world, { message: Type.String, icon: Type.Number }, { id: "PersistentNotification" });
 }

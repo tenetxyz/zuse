@@ -7,29 +7,19 @@ import { defineVoxels, SandID, LogID, OrangeFlowerID } from "../prototypes/Voxel
 import { TENET_NAMESPACE } from "@tenetxyz/contracts/src/constants.sol";
 
 contract ExtensionInitSystem is System {
+  function sandVariantSelector(bytes32 entity) public returns (VoxelVariantsKey memory) {
+    return VoxelVariantsKey({ namespace: TENET_NAMESPACE, voxelVariantId: SandID });
+  }
 
-    function sandVariantSelector(bytes32 entity) public returns (VoxelVariantsKey memory) {
-        return VoxelVariantsKey({
-            namespace: TENET_NAMESPACE,
-            voxelVariantId: SandID
-        });
-    }
+  function logVariantSelector(bytes32 entity) public returns (VoxelVariantsKey memory) {
+    return VoxelVariantsKey({ namespace: TENET_NAMESPACE, voxelVariantId: LogID });
+  }
 
-    function logVariantSelector(bytes32 entity) public returns (VoxelVariantsKey memory) {
-        return VoxelVariantsKey({
-            namespace: TENET_NAMESPACE,
-            voxelVariantId: LogID
-        });
-    }
+  function orangeFlowerVariantSelector(bytes32 entity) public returns (VoxelVariantsKey memory) {
+    return VoxelVariantsKey({ namespace: TENET_NAMESPACE, voxelVariantId: OrangeFlowerID });
+  }
 
-    function orangeFlowerVariantSelector(bytes32 entity) public returns (VoxelVariantsKey memory) {
-        return VoxelVariantsKey({
-            namespace: TENET_NAMESPACE,
-            voxelVariantId: OrangeFlowerID
-        });
-    }
-
-    function init() public {
-        defineVoxels(_world());
-    }
+  function init() public {
+    defineVoxels(_world());
+  }
 }

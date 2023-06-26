@@ -2,9 +2,7 @@ import { SetupContractConfig, getBurnerWallet } from "@latticexyz/std-client";
 import worldsJson from "@tenetxyz/contracts/worlds.json";
 import { supportedChains } from "./supportedChains";
 
-const worlds = worldsJson as Partial<
-  Record<string, { address: string; blockNumber?: number }>
->;
+const worlds = worldsJson as Partial<Record<string, { address: string; blockNumber?: number }>>;
 
 type NetworkConfig = SetupContractConfig & {
   privateKey: string;
@@ -16,9 +14,7 @@ type NetworkConfig = SetupContractConfig & {
 export async function getNetworkConfig(): Promise<NetworkConfig> {
   const params = new URLSearchParams(window.location.search);
 
-  const chainId = Number(
-    params.get("chainId") || import.meta.env.VITE_CHAIN_ID || 31337
-  );
+  const chainId = Number(params.get("chainId") || import.meta.env.VITE_CHAIN_ID || 31337);
   const chainIndex = supportedChains.findIndex((c) => c.id === chainId);
   const chain = supportedChains[chainIndex];
   if (!chain) {
@@ -28,9 +24,7 @@ export async function getNetworkConfig(): Promise<NetworkConfig> {
   const world = worlds[chain.id.toString()];
   const worldAddress = params.get("worldAddress") || world?.address;
   if (!worldAddress) {
-    throw new Error(
-      `No world address found for chain ${chainId}. Did you run \`mud deploy\`?`
-    );
+    throw new Error(`No world address found for chain ${chainId}. Did you run \`mud deploy\`?`);
   }
 
   const initialBlockNumber = params.has("initialBlockNumber")

@@ -3,10 +3,7 @@ import React, { useEffect, useState } from "react";
 import styled from "styled-components";
 import { registerUIComponent } from "../engine";
 import { concat, distinctUntilChanged, map, of } from "rxjs";
-import {
-  IPersistentNotification,
-  NotificationIcon,
-} from "../../noa/components/persistentNotification";
+import { IPersistentNotification, NotificationIcon } from "../../noa/components/persistentNotification";
 import { setComponent } from "@latticexyz/recs";
 
 export function registerPersistentNotifications() {
@@ -47,14 +44,8 @@ export function registerPersistentNotifications() {
       });
     },
     (props) => {
-      const {
-        balance$,
-        notification$,
-        PersistentNotification,
-        SingletonEntity,
-      } = props;
-      const [notification, setNotification] =
-        useState<IPersistentNotification | null>(null);
+      const { balance$, notification$, PersistentNotification, SingletonEntity } = props;
+      const [notification, setNotification] = useState<IPersistentNotification | null>(null);
 
       useEffect(() => {
         // this is the main piece of code that will listen for new notifications and update this component
@@ -72,8 +63,7 @@ export function registerPersistentNotifications() {
         balance$.subscribe((balance) => {
           if (balance === 0) {
             setComponent(PersistentNotification, SingletonEntity, {
-              message:
-                " you need to request a drip before you can mine or build (top right).",
+              message: " you need to request a drip before you can mine or build (top right).",
               icon: NotificationIcon.CROSS,
             });
           }
@@ -95,8 +85,7 @@ export function registerPersistentNotifications() {
             <NotificationWrapper>
               <Container>
                 <div className="w-full text-center">
-                  {getNotificationIcon(notification.icon)}{" "}
-                  {notification.message}
+                  {getNotificationIcon(notification.icon)} {notification.message}
                 </div>
               </Container>
             </NotificationWrapper>

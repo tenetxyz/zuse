@@ -31,6 +31,6 @@ contract PoweredSystemTest is MudV2Test {
 
     world.tenet_PoweredSystem_eventHandler(centerEntityId, neighbourEntityIds);
 
-     // assertEq(counter, 2);
+    // assertEq(counter, 2);
   }
 }

@@ -21,13 +21,7 @@ const templateModels: { [i: string]: Mesh } = {};
  * Setups and applies model to entity
  */
 
-export async function applyModel(
-  noa: Engine,
-  eid: number,
-  model: string,
-  texture: string,
-  name: string
-) {
+export async function applyModel(noa: Engine, eid: number, model: string, texture: string, name: string) {
   if (models[model] == undefined) {
     fetch(model)
       .then((response) => response.json())
@@ -40,22 +34,10 @@ export async function applyModel(
   }
 }
 
-async function applyModelTo(
-  noa: Engine,
-  model: string,
-  data: object,
-  texture: string,
-  name: string,
-  eid: number
-) {
+async function applyModelTo(noa: Engine, model: string, data: object, texture: string, name: string, eid: number) {
   const builded: any = await buildModel(noa, model, data, texture);
 
-  builded.nametag = addNametag(
-    noa,
-    builded.main,
-    name,
-    noa.ents.getPositionData(eid)!.height
-  );
+  builded.nametag = addNametag(noa, builded.main, name, noa.ents.getPositionData(eid)!.height);
 
   noa.ents.addComponentAgain(eid, "model", builded);
 
@@ -71,12 +53,7 @@ async function applyModelTo(
  * Builds model
  */
 
-async function buildModel(
-  noa: Engine,
-  name: string,
-  model: object,
-  texture: string
-) {
+async function buildModel(noa: Engine, name: string, model: object, texture: string) {
   const scene = noa.rendering.getScene();
   const meshlist: { main: any; models: { [key: string]: any } } = {
     main: null,
@@ -94,13 +71,7 @@ async function buildModel(
 
     const mat = noa.rendering.makeStandardMaterial("modelmaterial-" + partName);
     cmesh.material = mat;
-    mat.diffuseTexture = new Texture(
-      texture,
-      scene,
-      true,
-      true,
-      Texture.NEAREST_SAMPLINGMODE
-    );
+    mat.diffuseTexture = new Texture(texture, scene, true, true, Texture.NEAREST_SAMPLINGMODE);
     mat.diffuseTexture.hasAlpha = true;
     noa.rendering.addMeshToScene(cmesh);
     meshlist.models[partName] = cmesh;
@@ -192,22 +163,14 @@ function createTemplateModel(noa: Engine, name: string, model: any) {
         (pos[2] + (size[2] - add / 2) / 2) * scale
       );
 
-      const mat = noa.rendering.makeStandardMaterial(
-        "modelmaterial-" + mdata.name + "-" + y
-      );
+      const mat = noa.rendering.makeStandardMaterial("modelmaterial-" + mdata.name + "-" + y);
       part[y].material = mat;
 
       part[y].opaque = false;
     }
     const mesh = Mesh.MergeMeshes(part, true, true, undefined, true, true);
     mesh!.setParent(main);
-    mesh!.setPivotMatrix(
-      Matrix.Translation(
-        -pivot[0] * scale,
-        -pivot[1] * scale,
-        -pivot[2] * scale
-      )
-    );
+    mesh!.setPivotMatrix(Matrix.Translation(-pivot[0] * scale, -pivot[1] * scale, -pivot[2] * scale));
   }
 
   templateModels[name] = main;
@@ -215,12 +178,7 @@ function createTemplateModel(noa: Engine, name: string, model: any) {
   return main;
 }
 
-export function addNametag(
-  noa: Engine,
-  mainMesh: Mesh,
-  name: string,
-  height: number
-) {
+export function addNametag(noa: Engine, mainMesh: Mesh, name: string, height: number) {
   const scene = noa.rendering.getScene();
 
   const font_size = 96;
@@ -245,12 +203,7 @@ export function addNametag(
   const planeWidth = DTWidth * ratio;
 
   //Create dynamic texture and write the text
-  const dynamicTexture = new DynamicTexture(
-    "DynamicTexture",
-    { width: DTWidth, height: DTHeight },
-    scene,
-    false
-  );
+  const dynamicTexture = new DynamicTexture("DynamicTexture", { width: DTWidth, height: DTHeight }, scene, false);
   const mat = noa.rendering.makeStandardMaterial("nametag");
   mat.diffuseTexture = dynamicTexture;
   mat.emissiveTexture = mat.diffuseTexture;
@@ -259,11 +212,7 @@ export function addNametag(
   dynamicTexture.drawText(name, null, null, font, "#eeeeee", "#00000066", true);
 
   //Create plane and set dynamic texture as material
-  const plane = MeshBuilder.CreatePlane(
-    "plane",
-    { width: planeWidth, height: planeHeight },
-    scene
-  );
+  const plane = MeshBuilder.CreatePlane("plane", { width: planeWidth, height: planeHeight }, scene);
   plane.material = mat;
 
   // eslint-disable-next-line @typescript-eslint/ban-ts-comment
@@ -297,12 +246,7 @@ export function redrawNametag(noa: Engine, mainMesh: Mesh, name: string) {
   const DTWidth = tmpctx.measureText(name).width + 32;
 
   //Create dynamic texture and write the text
-  const dynamicTexture = new DynamicTexture(
-    "DynamicTexture",
-    { width: DTWidth, height: DTHeight },
-    scene,
-    false
-  );
+  const dynamicTexture = new DynamicTexture("DynamicTexture", { width: DTWidth, height: DTHeight }, scene, false);
   const mat = noa.rendering.makeStandardMaterial("nametag");
   mat.diffuseTexture = dynamicTexture;
   mat.emissiveTexture = mat.diffuseTexture;

@@ -72,12 +72,7 @@ export const ComponentRenderer: React.FC = observer(() => {
         // and return those whose requirements are fulfilled
         [...UIComponents.entries()].map(([id, uiComponent]) => {
           return (
-            <UIComponentRenderer
-              layers={layers}
-              id={id}
-              key={`componentRenderer-${id}`}
-              uiComponent={uiComponent}
-            />
+            <UIComponentRenderer layers={layers} id={id} key={`componentRenderer-${id}`} uiComponent={uiComponent} />
           );
         })
       )}

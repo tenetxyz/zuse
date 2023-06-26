@@ -15,8 +15,13 @@ import { console } from "forge-std/console.sol";
 import { CHUNK_MAX_Y, CHUNK_MIN_Y } from "../Constants.sol";
 
 contract MineSystem is System {
-
-  function mine(VoxelCoord memory coord, bytes16 voxelTypeNamespace, bytes32 voxelTypeId, bytes16 voxelVariantNamespace, bytes32 voxelVariantId) public returns (bytes32) {
+  function mine(
+    VoxelCoord memory coord,
+    bytes16 voxelTypeNamespace,
+    bytes32 voxelTypeId,
+    bytes16 voxelVariantNamespace,
+    bytes32 voxelVariantId
+  ) public returns (bytes32) {
     require(voxelTypeId != AirID, "can not mine air");
     require(coord.y <= CHUNK_MAX_Y && coord.y >= CHUNK_MIN_Y, "out of chunk bounds");
 
@@ -30,17 +35,14 @@ contract MineSystem is System {
     bytes16 namespace = Utils.systemNamespace();
 
     if (entitiesAtPosition.length == 0) {
-        // If there is no entity at this position, try mining the terrain voxel at this position
-       (bool success, bytes memory occurrence) = staticcallFunctionSelector(
-          _world(),
-         Occurrence.get(voxelTypeId),
-         abi.encode(coord)
-       );
-       require(
-         success && occurrence.length > 0,
-         "invalid terrain voxel type"
-       );
-       VoxelVariantsKey memory occurenceVoxelKey = abi.decode(occurrence, (VoxelVariantsKey));
+      // If there is no entity at this position, try mining the terrain voxel at this position
+      (bool success, bytes memory occurrence) = staticcallFunctionSelector(
+        _world(),
+        Occurrence.get(voxelTypeId),
+        abi.encode(coord)
+      );
+      require(success && occurrence.length > 0, "invalid terrain voxel type");
+      VoxelVariantsKey memory occurenceVoxelKey = abi.decode(occurrence, (VoxelVariantsKey));
       require(
         occurenceVoxelKey.namespace == voxelVariantNamespace && occurenceVoxelKey.voxelVariantId == voxelVariantId,
         "invalid terrain voxel variant"
@@ -56,11 +58,13 @@ contract MineSystem is System {
       voxelToMine = entitiesAtPosition[0];
       VoxelTypeData memory voxelTypeData = VoxelType.get(entitiesAtPosition[0]);
       require(voxelToMine != 0, "We found no voxels at that position");
-      require(voxelTypeData.voxelTypeNamespace == voxelTypeNamespace
-              && voxelTypeData.voxelTypeId == voxelTypeId
-              && voxelTypeData.voxelVariantNamespace == voxelVariantNamespace
-              && voxelTypeData.voxelVariantId == voxelVariantId,
-              "The voxel at this position is not the same as the voxel you are trying to mine");
+      require(
+        voxelTypeData.voxelTypeNamespace == voxelTypeNamespace &&
+          voxelTypeData.voxelTypeId == voxelTypeId &&
+          voxelTypeData.voxelVariantNamespace == voxelVariantNamespace &&
+          voxelTypeData.voxelVariantId == voxelVariantId,
+        "The voxel at this position is not the same as the voxel you are trying to mine"
+      );
       Position.deleteRecord(voxelToMine);
 
       // TODO: should reset component values
@@ -88,12 +92,11 @@ contract MineSystem is System {
 
     OwnedBy.set(voxelToMine, addressToEntityKey(_msgSender()));
     // Since numUniqueVoxelTypesIOwn is quadratic in gas (based on how many voxels you own), running this function could use up all your gas. So it's commented
-//    require(IWorld(_world()).tenet_GiftVoxelSystem_numUniqueVoxelTypesIOwn() <= 36, "you can only own 36 voxel types at a time");
+    //    require(IWorld(_world()).tenet_GiftVoxelSystem_numUniqueVoxelTypesIOwn() <= 36, "you can only own 36 voxel types at a time");
 
     // Run voxel interaction logic
     IWorld(_world()).tenet_VoxInteractSys_runInteractionSystems(airEntity);
 
     return voxelToMine;
   }
-
 }

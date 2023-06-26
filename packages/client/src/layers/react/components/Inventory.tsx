@@ -1,28 +1,11 @@
 import React from "react";
-import {
-  defineQuery,
-  Entity,
-  getComponentValue,
-  Has,
-  HasValue,
-  UpdateType,
-} from "@latticexyz/recs";
+import { defineQuery, Entity, getComponentValue, Has, HasValue, UpdateType } from "@latticexyz/recs";
 import { to64CharAddress } from "../../../utils/entity";
 import { concat, map, of, scan } from "rxjs";
-import {
-  Absolute,
-  AbsoluteBorder,
-  Background,
-  Center,
-  Crafting,
-} from "./common";
+import { Absolute, AbsoluteBorder, Background, Center, Crafting } from "./common";
 import { range } from "@latticexyz/utils";
 import { CreativeInventory } from "./CreativeInventory";
-import {
-  ActionBarWrapper,
-  INVENTORY_HEIGHT,
-  INVENTORY_WIDTH,
-} from "./InventoryHud";
+import { ActionBarWrapper, INVENTORY_HEIGHT, INVENTORY_WIDTH } from "./InventoryHud";
 import { Layers } from "../../../types";
 
 interface Props {
@@ -49,9 +32,7 @@ export const Inventory: React.FC<Props> = ({
           setHoldingVoxelType={setHoldingVoxelType}
         />
         <ActionBarWrapper>
-          {[...range(INVENTORY_WIDTH * (INVENTORY_HEIGHT - 1))]
-            .map((i) => i + INVENTORY_WIDTH)
-            .map((i) => Slots[i])}
+          {[...range(INVENTORY_WIDTH * (INVENTORY_HEIGHT - 1))].map((i) => i + INVENTORY_WIDTH).map((i) => Slots[i])}
         </ActionBarWrapper>
       </div>
     </>

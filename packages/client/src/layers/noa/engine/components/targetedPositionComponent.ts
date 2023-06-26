@@ -14,11 +14,7 @@ const NUMBER_OF_TICKS_IN_CURVE = 5;
 const MOVEMENT_TICKS = 60;
 
 function getPoint(targetedPositions: Vector3[], currentTick: number) {
-  const CatmullRomSpline = Curve3.CreateCatmullRomSpline(
-    targetedPositions,
-    NUMBER_OF_TICKS_IN_CURVE,
-    false
-  );
+  const CatmullRomSpline = Curve3.CreateCatmullRomSpline(targetedPositions, NUMBER_OF_TICKS_IN_CURVE, false);
   const points = CatmullRomSpline.getPoints();
   return points[NUMBER_OF_TICKS_IN_CURVE + currentTick];
 }
@@ -45,10 +41,7 @@ export function registerTargetedPositionComponent(noa: Engine) {
           noY1.y = 0;
           const noY2 = points[1].clone();
           noY2.y = 0;
-          const speed = Math.min(
-            2.5,
-            Math.sqrt(noY1.subtract(noY2).lengthSquared())
-          );
+          const speed = Math.min(2.5, Math.sqrt(noY1.subtract(noY2).lengthSquared()));
           noa.entities.setPosition(id, [point.x, point.y, point.z]);
           animateFrameOfMesh(noa, id, speed, currentAnimationTick);
         }
@@ -63,18 +56,9 @@ export function registerTargetedPositionComponent(noa: Engine) {
   });
 }
 
-function animateFrameOfMesh(
-  noa: Engine,
-  entity: number,
-  speed: number,
-  currentTick: number
-) {
+function animateFrameOfMesh(noa: Engine, entity: number, speed: number, currentTick: number) {
   if (!hasNoaComponent(noa, entity, MESH_COMPONENT)) return;
-  const { mesh } = getNoaComponentStrict<MeshComponent>(
-    noa,
-    entity,
-    MESH_COMPONENT
-  );
+  const { mesh } = getNoaComponentStrict<MeshComponent>(noa, entity, MESH_COMPONENT);
   if (!mesh) return;
   const progress = Math.PI * 2 * (currentTick / (MOVEMENT_TICKS - 1)) * speed;
   const sin = (Math.sin(progress) / 2) * speed;

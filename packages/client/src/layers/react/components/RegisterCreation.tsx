@@ -129,6 +129,7 @@ const RegisterCreation: React.FC<Props> = ({
         name="name"
         value={formData.name}
         onChange={handleInputChange}
+        autoComplete={"on"}
       />
       <textarea
         className="border rounded px-2 py-1 mb-2 w-full"

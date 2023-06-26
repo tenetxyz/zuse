@@ -11,14 +11,6 @@ Usage:
 import os
 from PIL import Image
 
-# Define the input and output directories
-input_dir = 'in'
-output_dir = 'out'
-
-# Check if input and output directories exist, if not, create them
-os.makedirs(input_dir, exist_ok=True)
-os.makedirs(output_dir, exist_ok=True)
-
 # Create new empty image with dimensions 128x64
 uv_map = Image.new('RGBA', (128, 64), color=(0,0,0,0))  # Image with transparency
 

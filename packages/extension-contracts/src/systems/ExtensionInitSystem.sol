@@ -9,29 +9,29 @@ import { TENET_NAMESPACE } from "@tenetxyz/contracts/src/constants.sol";
 
 contract ExtensionInitSystem is System {
   function sandVariantSelector(bytes32 entity) public returns (VoxelVariantsKey memory) {
-    return VoxelVariantsKey({ namespace: TENET_NAMESPACE, voxelVariantId: SandID });
+    return VoxelVariantsKey({ voxelVariantNamespace: TENET_NAMESPACE, voxelVariantId: SandID });
   }
 
   function logVariantSelector(bytes32 entity) public returns (VoxelVariantsKey memory) {
-    return VoxelVariantsKey({ namespace: TENET_NAMESPACE, voxelVariantId: LogID });
+    return VoxelVariantsKey({ voxelVariantNamespace: TENET_NAMESPACE, voxelVariantId: LogID });
   }
 
   function orangeFlowerVariantSelector(bytes32 entity) public returns (VoxelVariantsKey memory) {
-    return VoxelVariantsKey({ namespace: TENET_NAMESPACE, voxelVariantId: OrangeFlowerID });
+    return VoxelVariantsKey({ voxelVariantNamespace: TENET_NAMESPACE, voxelVariantId: OrangeFlowerID });
   }
 
   function signalVariantSelector(bytes32 entity) public returns (VoxelVariantsKey memory) {
     SignalData memory signalData = IWorld(_world()).tenet_SignalSystem_getOrCreateSignal(entity);
     if (signalData.isActive) {
-      return VoxelVariantsKey({ namespace: TENET_NAMESPACE, voxelVariantId: SignalOnID });
+      return VoxelVariantsKey({ voxelVariantNamespace: TENET_NAMESPACE, voxelVariantId: SignalOnID });
     } else {
-      return VoxelVariantsKey({ namespace: TENET_NAMESPACE, voxelVariantId: SignalOffID });
+      return VoxelVariantsKey({ voxelVariantNamespace: TENET_NAMESPACE, voxelVariantId: SignalOffID });
     }
   }
 
   function signalSourceVariantSelector(bytes32 entity) public returns (VoxelVariantsKey memory) {
     IWorld(_world()).tenet_SignalSourceSyst_getOrCreateSignalSource(entity);
-    return VoxelVariantsKey({ namespace: TENET_NAMESPACE, voxelVariantId: SignalSourceID });
+    return VoxelVariantsKey({ voxelVariantNamespace: TENET_NAMESPACE, voxelVariantId: SignalSourceID });
   }
 
   function init() public {

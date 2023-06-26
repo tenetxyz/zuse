@@ -34,6 +34,9 @@ int128 constant _5 = 5 * 2 ** 64;
 int128 constant _10 = 10 * 2 ** 64;
 int128 constant _16 = 16 * 2 ** 64;
 
+bytes16 constant EMPTY_NAMESPACE = bytes16(0x0);
+bytes32 constant EMPTY_ID = bytes32(0x0);
+
 contract LibTerrainSystem is System {
   function getTerrainVoxel(VoxelCoord memory coord) public view returns (VoxelVariantsKey memory) {
     int128[4] memory biome = getBiome(coord.x, coord.z);
@@ -51,22 +54,22 @@ contract LibTerrainSystem is System {
     VoxelVariantsKey memory voxelTypeId;
 
     voxelTypeId = Bedrock(y);
-    if (voxelTypeId.voxelVariantId != bytes32(0x0)) return voxelTypeId;
+    if (voxelTypeId.voxelVariantId != EMPTY_ID) return voxelTypeId;
 
     voxelTypeId = Air(y);
-    if (voxelTypeId.voxelVariantId != bytes32(0x0)) return voxelTypeId;
+    if (voxelTypeId.voxelVariantId != EMPTY_ID) return voxelTypeId;
 
     uint8 biome = getMaxBiome(biomeValues);
 
     int32 distanceFromHeight = height - y;
 
     voxelTypeId = Grass(y);
-    if (voxelTypeId.voxelVariantId != bytes32(0x0)) return voxelTypeId;
+    if (voxelTypeId.voxelVariantId != EMPTY_ID) return voxelTypeId;
 
     voxelTypeId = Dirt(y);
-    if (voxelTypeId.voxelVariantId != bytes32(0x0)) return voxelTypeId;
+    if (voxelTypeId.voxelVariantId != EMPTY_ID) return voxelTypeId;
 
-    return VoxelVariantsKey({ namespace: TENET_NAMESPACE, voxelVariantId: AirID });
+    return VoxelVariantsKey({ voxelVariantNamespace: TENET_NAMESPACE, voxelVariantId: AirID });
   }
 
   function getHeight(int32 x, int32 z, int128[4] memory biome) internal view returns (int32) {
@@ -277,10 +280,10 @@ contract LibTerrainSystem is System {
 
   function Air(int32 y) internal view returns (VoxelVariantsKey memory) {
     if (y > 10) {
-      return VoxelVariantsKey({ namespace: TENET_NAMESPACE, voxelVariantId: AirID });
+      return VoxelVariantsKey({ voxelVariantNamespace: TENET_NAMESPACE, voxelVariantId: AirID });
     }
 
-    return VoxelVariantsKey({ namespace: bytes16(0x0), voxelVariantId: bytes32(0x0) });
+    return VoxelVariantsKey({ voxelVariantNamespace: EMPTY_NAMESPACE, voxelVariantId: EMPTY_ID });
   }
 
   function Bedrock(VoxelCoord memory coord) public view returns (VoxelVariantsKey memory) {
@@ -289,10 +292,10 @@ contract LibTerrainSystem is System {
 
   function Bedrock(int32 y) internal view returns (VoxelVariantsKey memory) {
     if (y <= CHUNK_MIN_Y) {
-      return VoxelVariantsKey({ namespace: TENET_NAMESPACE, voxelVariantId: BedrockID });
+      return VoxelVariantsKey({ voxelVariantNamespace: TENET_NAMESPACE, voxelVariantId: BedrockID });
     }
 
-    return VoxelVariantsKey({ namespace: bytes16(0x0), voxelVariantId: bytes32(0x0) });
+    return VoxelVariantsKey({ voxelVariantNamespace: EMPTY_NAMESPACE, voxelVariantId: EMPTY_ID });
   }
 
   function Grass(VoxelCoord memory coord) public view returns (VoxelVariantsKey memory) {
@@ -301,10 +304,10 @@ contract LibTerrainSystem is System {
 
   function Grass(int32 y) internal view returns (VoxelVariantsKey memory) {
     if (y == 10) {
-      return VoxelVariantsKey({ namespace: TENET_NAMESPACE, voxelVariantId: GrassID });
+      return VoxelVariantsKey({ voxelVariantNamespace: TENET_NAMESPACE, voxelVariantId: GrassID });
     }
 
-    return VoxelVariantsKey({ namespace: bytes16(0x0), voxelVariantId: bytes32(0x0) });
+    return VoxelVariantsKey({ voxelVariantNamespace: EMPTY_NAMESPACE, voxelVariantId: EMPTY_ID });
   }
 
   function Dirt(VoxelCoord memory coord) public view returns (VoxelVariantsKey memory) {
@@ -313,9 +316,9 @@ contract LibTerrainSystem is System {
 
   function Dirt(int32 y) internal view returns (VoxelVariantsKey memory) {
     if (y > CHUNK_MIN_Y && y < 10) {
-      return VoxelVariantsKey({ namespace: TENET_NAMESPACE, voxelVariantId: DirtID });
+      return VoxelVariantsKey({ voxelVariantNamespace: TENET_NAMESPACE, voxelVariantId: DirtID });
     }
 
-    return VoxelVariantsKey({ namespace: bytes16(0x0), voxelVariantId: bytes32(0x0) });
+    return VoxelVariantsKey({ voxelVariantNamespace: EMPTY_NAMESPACE, voxelVariantId: EMPTY_ID });
   }
 }

@@ -44,7 +44,8 @@ contract MineSystem is System {
       require(success && occurrence.length > 0, "invalid terrain voxel type");
       VoxelVariantsKey memory occurenceVoxelKey = abi.decode(occurrence, (VoxelVariantsKey));
       require(
-        occurenceVoxelKey.namespace == voxelVariantNamespace && occurenceVoxelKey.voxelVariantId == voxelVariantId,
+        occurenceVoxelKey.voxelVariantNamespace == voxelVariantNamespace &&
+          occurenceVoxelKey.voxelVariantId == voxelVariantId,
         "invalid terrain voxel variant"
       );
 
@@ -81,7 +82,7 @@ contract MineSystem is System {
       (bool airSuccess, bytes memory airVoxelVariant) = _world().call(abi.encodeWithSelector(airSelector, airEntity));
       require(airSuccess, "failed to get air voxel type");
       VoxelVariantsKey memory airVariantData = abi.decode(airVoxelVariant, (VoxelVariantsKey));
-      VoxelType.set(airEntity, namespace, AirID, airVariantData.namespace, airVariantData.voxelVariantId);
+      VoxelType.set(airEntity, namespace, AirID, airVariantData.voxelVariantNamespace, airVariantData.voxelVariantId);
     }
 
     Position.set(airEntity, coord.x, coord.y, coord.z);

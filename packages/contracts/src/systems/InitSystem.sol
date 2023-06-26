@@ -8,19 +8,19 @@ import { TENET_NAMESPACE } from "../constants.sol";
 
 contract InitSystem is System {
   function airVariantSelector(bytes32 entity) public returns (VoxelVariantsKey memory) {
-    return VoxelVariantsKey({ namespace: TENET_NAMESPACE, voxelVariantId: AirID });
+    return VoxelVariantsKey({ voxelVariantNamespace: TENET_NAMESPACE, voxelVariantId: AirID });
   }
 
   function dirtVariantSelector(bytes32 entity) public returns (VoxelVariantsKey memory) {
-    return VoxelVariantsKey({ namespace: TENET_NAMESPACE, voxelVariantId: DirtID });
+    return VoxelVariantsKey({ voxelVariantNamespace: TENET_NAMESPACE, voxelVariantId: DirtID });
   }
 
   function grassVariantSelector(bytes32 entity) public returns (VoxelVariantsKey memory) {
-    return VoxelVariantsKey({ namespace: TENET_NAMESPACE, voxelVariantId: GrassID });
+    return VoxelVariantsKey({ voxelVariantNamespace: TENET_NAMESPACE, voxelVariantId: GrassID });
   }
 
   function bedrockVariantSelector(bytes32 entity) public returns (VoxelVariantsKey memory) {
-    return VoxelVariantsKey({ namespace: TENET_NAMESPACE, voxelVariantId: BedrockID });
+    return VoxelVariantsKey({ voxelVariantNamespace: TENET_NAMESPACE, voxelVariantId: BedrockID });
   }
 
   function init() public {

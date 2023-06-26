@@ -24,8 +24,9 @@ export async function createVoxelSystem(network: NetworkLayer, context: NoaLayer
 
   defineComponentSystem(world, VoxelType, async (update) => {
     if (!live) return;
-    console.log("VoxelType system");
-    console.log(update);
+    if (!update.value[0] || !update.value[1]) return;
+    const position = getComponentValueStrict(Position, update.entity);
+    setVoxel(position, voxelTypeDataKeyToVoxelVariantDataKey(update.value[0]));
   });
 
   // "Exit system"

@@ -124,7 +124,7 @@ contract VoxelInteractionSystem is System {
     }
 
     // Go through all the center entities that had an event run, and run its variant selector
-    for (uint256 i; i < centerEntitiesToCheckStackIdx; i++) {
+    for (uint256 i = 0; i <= centerEntitiesToCheckStackIdx; i++) {
       bytes32 centerEntityId = centerEntitiesToCheckStack[i];
       // TODO: do we know for sure voxel type exists?
       runVariantSelector(_world(), centerEntityId);

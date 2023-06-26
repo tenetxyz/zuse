@@ -7,7 +7,7 @@ import { System } from "@latticexyz/world/src/System.sol";
 import { VoxelCoord, VoxelVariantsKey } from "../types.sol";
 import { OwnedBy, Position, PositionTableId, VoxelType, VoxelTypeData, VoxelTypeRegistry } from "../codegen/Tables.sol";
 import { AirID } from "../prototypes/Voxels.sol";
-import { addressToEntityKey, getEntitiesAtCoord, staticcallFunctionSelector } from "../utils.sol";
+import { addressToEntityKey, getEntitiesAtCoord, staticcallFunctionSelector, getVoxelVariant } from "../utils.sol";
 import { Utils } from "@latticexyz/world/src/Utils.sol";
 import { IWorld } from "../codegen/world/IWorld.sol";
 import { Occurrence } from "../codegen/Tables.sol";
@@ -44,7 +44,8 @@ contract MineSystem is System {
       require(success && occurrence.length > 0, "invalid terrain voxel type");
       VoxelVariantsKey memory occurenceVoxelKey = abi.decode(occurrence, (VoxelVariantsKey));
       require(
-        occurenceVoxelKey.namespace == voxelVariantNamespace && occurenceVoxelKey.voxelVariantId == voxelVariantId,
+        occurenceVoxelKey.voxelVariantNamespace == voxelVariantNamespace &&
+          occurenceVoxelKey.voxelVariantId == voxelVariantId,
         "invalid terrain voxel variant"
       );
 
@@ -72,22 +73,10 @@ contract MineSystem is System {
 
     // Place an air voxel at this position
     airEntity = getUniqueEntity();
-    {
-      // TODO: We don't need necessarily need to get the air voxel type from the registry, we could just use the AirID
-      // Maybe consider doing this for performance reasons
-      // get Air selector from VoxelTypeRegistry
-      bytes4 airSelector = VoxelTypeRegistry.get(namespace, AirID).voxelVariantSelector;
-      // call airSelector
-      (bool airSuccess, bytes memory airVoxelVariant) = staticcallFunctionSelector(
-        _world(),
-        airSelector,
-        abi.encode(airEntity)
-      );
-      require(airSuccess, "failed to get air voxel type");
-      VoxelVariantsKey memory airVariantData = abi.decode(airVoxelVariant, (VoxelVariantsKey));
-      VoxelType.set(airEntity, namespace, AirID, airVariantData.namespace, airVariantData.voxelVariantId);
-    }
-
+    // TODO: We don't need necessarily need to get the air voxel type from the registry, we could just use the AirID
+    // Maybe consider doing this for performance reasons
+    VoxelVariantsKey memory airVariantData = getVoxelVariant(_world(), namespace, AirID, airEntity);
+    VoxelType.set(airEntity, namespace, AirID, airVariantData.voxelVariantNamespace, airVariantData.voxelVariantId);
     Position.set(airEntity, coord.x, coord.y, coord.z);
 
     OwnedBy.set(voxelToMine, addressToEntityKey(_msgSender()));

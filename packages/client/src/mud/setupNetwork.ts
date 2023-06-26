@@ -418,7 +418,7 @@ export async function setupNetwork() {
     const tx = await worldSend("tenet_GiftVoxelSystem_giftVoxel", [
       voxelTypeNamespace,
       voxelTypeId,
-      { gasLimit: 1_000_000 },
+      { gasLimit: 10_000_000 },
     ]);
     return tx;
   }

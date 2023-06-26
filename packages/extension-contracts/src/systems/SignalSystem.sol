@@ -13,16 +13,18 @@ import { getCallerNamespace } from "@tenetxyz/contracts/src/SharedUtils.sol";
 import { calculateBlockDirection, getOppositeDirection } from "../Utils.sol";
 
 contract SignalSystem is System {
-  function createNew(bytes32 entity) public {
+  function getOrCreateSignal(bytes32 entity) public returns (SignalData memory) {
     bytes16 callerNamespace = getCallerNamespace(_msgSender());
 
     bytes32[] memory keyTuple = new bytes32[](2);
     keyTuple[0] = bytes32((callerNamespace));
     keyTuple[1] = bytes32((entity));
 
-    require(!hasKey(SignalTableId, keyTuple), "Entity already exists");
+    if (!hasKey(SignalTableId, keyTuple)) {
+      Signal.set(callerNamespace, entity, SignalData({ isActive: false, direction: BlockDirection.None }));
+    }
 
-    Signal.set(callerNamespace, entity, SignalData({ isActive: false, direction: BlockDirection.None }));
+    return Signal.get(callerNamespace, entity);
   }
 
   function updateSignal(

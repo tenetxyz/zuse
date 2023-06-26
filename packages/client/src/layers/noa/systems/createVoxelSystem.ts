@@ -22,6 +22,13 @@ export async function createVoxelSystem(network: NetworkLayer, context: NoaLayer
   let live = false;
   awaitStreamValue(LoadingState.update$, ({ value }) => value[0]?.state === SyncState.LIVE).then(() => (live = true));
 
+  defineComponentSystem(world, VoxelType, async (update) => {
+    if (!live) return;
+    if (!update.value[0] || !update.value[1]) return;
+    const position = getComponentValueStrict(Position, update.entity);
+    setVoxel(position, voxelTypeDataKeyToVoxelVariantDataKey(update.value[0]));
+  });
+
   // "Exit system"
   defineComponentSystem(world, Position, async ({ value }) => {
     if (!live) return;

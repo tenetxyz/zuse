@@ -29,7 +29,7 @@ contract OccurrenceSystem is System {
     // TODO: Figure out why cant just call it once and store it in memory
     return
       VoxelVariantsKey({
-        namespace: IWorld(_world()).tenet_LibTerrainSystem_Grass(coord).namespace,
+        voxelVariantNamespace: IWorld(_world()).tenet_LibTerrainSystem_Grass(coord).voxelVariantNamespace,
         voxelVariantId: IWorld(_world()).tenet_LibTerrainSystem_Grass(coord).voxelVariantId
       });
   }
@@ -38,7 +38,7 @@ contract OccurrenceSystem is System {
     // TODO: Figure out why cant just call it once and store it in memory
     return
       VoxelVariantsKey({
-        namespace: IWorld(_world()).tenet_LibTerrainSystem_Dirt(coord).namespace,
+        voxelVariantNamespace: IWorld(_world()).tenet_LibTerrainSystem_Dirt(coord).voxelVariantNamespace,
         voxelVariantId: IWorld(_world()).tenet_LibTerrainSystem_Dirt(coord).voxelVariantId
       });
   }
@@ -47,7 +47,7 @@ contract OccurrenceSystem is System {
     // TODO: Figure out why cant just call it once and store it in memory
     return
       VoxelVariantsKey({
-        namespace: IWorld(_world()).tenet_LibTerrainSystem_Bedrock(coord).namespace,
+        voxelVariantNamespace: IWorld(_world()).tenet_LibTerrainSystem_Bedrock(coord).voxelVariantNamespace,
         voxelVariantId: IWorld(_world()).tenet_LibTerrainSystem_Bedrock(coord).voxelVariantId
       });
   }

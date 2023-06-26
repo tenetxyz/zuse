@@ -23,14 +23,18 @@ contract GiftVoxelSystem is System {
     bytes32 entity = getUniqueEntity();
 
     bytes4 voxelVariantSelector = VoxelTypeRegistry.get(voxelTypeNamespace, voxelTypeId).voxelVariantSelector;
-    (bool variantSelectorSuccess, bytes memory voxelVariantSelected) = staticcallFunctionSelector(
-      _world(),
-      voxelVariantSelector,
-      abi.encode(entity)
+    (bool variantSelectorSuccess, bytes memory voxelVariantSelected) = _world().call(
+      abi.encodeWithSelector(voxelVariantSelector, entity)
     );
     require(variantSelectorSuccess, "failed to get voxel variant");
     VoxelVariantsKey memory voxelVariantData = abi.decode(voxelVariantSelected, (VoxelVariantsKey));
-    VoxelType.set(entity, voxelTypeNamespace, voxelTypeId, voxelVariantData.namespace, voxelVariantData.voxelVariantId);
+    VoxelType.set(
+      entity,
+      voxelTypeNamespace,
+      voxelTypeId,
+      voxelVariantData.voxelVariantNamespace,
+      voxelVariantData.voxelVariantId
+    );
 
     OwnedBy.set(entity, addressToEntityKey(_msgSender()));
 

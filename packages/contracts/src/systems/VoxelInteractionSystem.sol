@@ -6,8 +6,8 @@ import { getAddressById, addressToEntity } from "solecs/utils.sol";
 import { getKeysInTable } from "@latticexyz/world/src/modules/keysintable/getKeysInTable.sol";
 import { VoxelCoord } from "../types.sol";
 import { NUM_VOXEL_NEIGHBOURS, MAX_VOXEL_NEIGHBOUR_UPDATE_DEPTH } from "../Constants.sol";
-import { Position, PositionData, VoxelInteractionExtension, VoxelInteractionExtensionTableId } from "../codegen/Tables.sol";
-import { getEntitiesAtCoord, hasEntity } from "../utils.sol";
+import { Position, PositionData, VoxelType, VoxelTypeData, VoxelTypeRegistry, VoxelInteractionExtension, VoxelInteractionExtensionTableId } from "../codegen/Tables.sol";
+import { getEntitiesAtCoord, hasEntity, staticcallFunctionSelector, updateVoxelVariant } from "../utils.sol";
 
 contract VoxelInteractionSystem is System {
   int8[18] private NEIGHBOUR_COORD_OFFSETS = [
@@ -104,10 +104,10 @@ contract VoxelInteractionSystem is System {
             if (uint256(changedExtensionEntityIds[j]) != 0) {
               centerEntitiesToCheckStackIdx++;
               centerEntitiesToCheckStack[centerEntitiesToCheckStackIdx] = changedExtensionEntityIds[j];
-              if (centerEntitiesToCheckStackIdx >= MAX_VOXEL_NEIGHBOUR_UPDATE_DEPTH) {
-                // TODO: Should tell the user that we reached max depth
-                return;
-              }
+              require(
+                centerEntitiesToCheckStackIdx < MAX_VOXEL_NEIGHBOUR_UPDATE_DEPTH,
+                "VoxelInteractionSystem: Reached max depth"
+              );
             }
           }
         }
@@ -121,6 +121,13 @@ contract VoxelInteractionSystem is System {
         // this means we didnt any any updates, so we can break out of the loop
         break;
       }
+    }
+
+    // Go through all the center entities that had an event run, and run its variant selector
+    for (uint256 i = 0; i <= centerEntitiesToCheckStackIdx; i++) {
+      bytes32 centerEntityId = centerEntitiesToCheckStack[i];
+      // TODO: do we know for sure voxel type exists?
+      updateVoxelVariant(_world(), centerEntityId);
     }
   }
 }

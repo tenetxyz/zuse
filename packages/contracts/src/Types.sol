@@ -13,6 +13,6 @@ struct Tuple {
 }
 
 struct VoxelVariantsKey {
-  bytes16 namespace;
+  bytes16 voxelVariantNamespace;
   bytes32 voxelVariantId;
 }

@@ -8,18 +8,19 @@ import { hasKey } from "@latticexyz/world/src/modules/keysintable/hasKey.sol";
 import { getCallerNamespace } from "@tenetxyz/contracts/src/SharedUtils.sol";
 
 contract SignalSourceSystem is System {
-  function createNew(bytes32 entity) public {
+  function getOrCreateSignalSource(bytes32 entity) public returns (bool) {
     bytes16 callerNamespace = getCallerNamespace(_msgSender());
 
     bytes32[] memory keyTuple = new bytes32[](2);
     keyTuple[0] = bytes32((callerNamespace));
     keyTuple[1] = bytes32((entity));
 
-    require(!hasKey(SignalSourceTableId, keyTuple), "Entity already exists");
+    if (!hasKey(SignalSourceTableId, keyTuple)) {
+      bool isNatural = true;
+      SignalSource.set(callerNamespace, entity, isNatural);
+    }
 
-    bool isNatural = true;
-
-    SignalSource.set(callerNamespace, entity, isNatural);
+    return SignalSource.get(callerNamespace, entity);
   }
 
   function eventHandler(

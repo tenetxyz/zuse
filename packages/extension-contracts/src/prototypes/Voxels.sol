@@ -24,19 +24,20 @@ bytes32 constant SignalID = bytes32(keccak256("signal"));
 bytes32 constant SignalOffID = bytes32(keccak256("signal.off"));
 bytes32 constant SignalOnID = bytes32(keccak256("signal.on"));
 bytes32 constant SignalSourceID = bytes32(keccak256("signalsource"));
+bytes32 constant InvertedSignalID = bytes32(keccak256("invertedsignal"));
 
-string constant SandTexture = "bafkreia4afumfatsrlbmq5azbehfwzoqmgu7bjkiutb6njsuormtsqwwbi";
+string constant SandTexture = "";
 string constant LogTexture = "bafkreihllk5lrr2l2fgvmgzzyyxw5kostinfee2gi55kln2mzihfp2mumy";
 string constant LogTopTexture = "bafkreiekx2odo544mawzn7np6p4uhkm2bt53nl4n2dhzj3ubbd5hi4jnf4";
 string constant OrangeFlowerTexture = "bafkreicins36cmwliwf7ryrlcs32khvi6kleof6buiirlvgv2w6cejpg54";
-string constant SignalOffTexture = "bafkreidu6upeyhrpwjjdzjurgyy7emzsb6wkufulm7xff7ceeeivdaxnsu";
-string constant SignalOnTexture = "bafkreic3d2hcqzzk2qj575zag2dr6jbqbkh6gkbvjleadjijqqdgaf2ekm";
+string constant SignalOffTexture = "bafkreihofjdel3lyz2vbqq6txdujbjvg2mqsaeczxeb7gszj2ltmhpinui";
+string constant SignalOnTexture = "bafkreihitx2k2hpnqnxmdpc5qgsuexeqkvshlezzfwzdh7u3av6x3ar7qy";
 string constant SignalSourceTexture = "bafkreifciafvv63x3nnnsdvsccp45ggcx5xczfhoaz3xy3y5k666ma2m4y";
 
 string constant SandUVWrap = "bafkreiewghdyhnlq4yiqe4umxaytoy67jw3k65lwll2rbomfzr6oivhvpy";
 string constant LogUVWrap = "bafkreiddsx5ke3e664ain2gnzd7jxicko34clxnlqzp2paqomvf7a7gb7m";
-string constant SignalOffUVWrap = "bafkreid27etg4t7gm2ea3e6ivo43vlpear72karqtpmot6v4ct5xymhg5y";
-string constant SignalOnUVWrap = "bafkreib5otfb7p2foonchtjm5mhrqpsqwfnzwbxvpxmm3m6xzakmxfqtcu";
+string constant SignalOffUVWrap = "bafkreifdtu65gok35bevprpupxucirs2tan2k77444sl67stdhdgzwffra";
+string constant SignalOnUVWrap = "bafkreib3vwppyquoziyisfjz3eodmtg6nneenkp2ejy7e3itycdfamm2ye";
 string constant SignalSourceUVWrap = "bafkreibyxohq35sq2fqujxffs5nfjdtfx5cmnqhnyliar2xbkqxgcd7d5u";
 
 function defineVoxels(address world) {

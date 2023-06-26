@@ -2,7 +2,7 @@
 pragma solidity >=0.8.0;
 import { Position, PositionData, PositionTableId } from "@tenetxyz/contracts/src/codegen/tables/Position.sol";
 import { hasKey } from "@latticexyz/world/src/modules/keysintable/hasKey.sol";
-import { SignalTableId, SignalSourceTableId, PoweredTableId } from "./codegen/Tables.sol";
+import { SignalTableId, SignalSourceTableId, PoweredTableId, InvertedSignalTableId } from "./codegen/Tables.sol";
 import { BlockDirection } from "./codegen/Types.sol";
 
 function entityIsSignal(bytes32 entity, bytes16 callerNamespace) view returns (bool) {
@@ -24,6 +24,13 @@ function entityIsPowered(bytes32 entity, bytes16 callerNamespace) view returns (
   keyTuple[0] = bytes32((callerNamespace));
   keyTuple[1] = bytes32((entity));
   return hasKey(PoweredTableId, keyTuple);
+}
+
+function entityIsInvertedSignal(bytes32 entity, bytes16 callerNamespace) view returns (bool) {
+  bytes32[] memory keyTuple = new bytes32[](2);
+  keyTuple[0] = bytes32((callerNamespace));
+  keyTuple[1] = bytes32((entity));
+  return hasKey(InvertedSignalTableId, keyTuple);
 }
 
 function getEntityPositionStrict(bytes32 entity) view returns (PositionData memory) {

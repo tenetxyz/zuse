@@ -1,10 +1,8 @@
-import React, { ChangeEvent, KeyboardEvent, useEffect } from "react";
+import React from "react";
 import { Layers } from "../../../types";
-import { Entity, getEntityString, setComponent } from "@latticexyz/recs";
-import { to256BitString, VoxelCoord } from "@latticexyz/utils";
+import { Entity, setComponent } from "@latticexyz/recs";
+import { VoxelCoord } from "@latticexyz/utils";
 import { NotificationIcon } from "../../noa/components/persistentNotification";
-import Fuse from "fuse.js";
-import { useComponentUpdate } from "../../../utils/useComponentUpdate";
 import { useCreationSearch } from "../../../utils/useCreationSearch";
 
 export interface CreationStoreFilters {
@@ -22,7 +20,7 @@ export interface Creation {
   name: string;
   description: string;
   creationId: Entity;
-  creator: Entity;
+  creator: string;
   voxelTypes: string[];
   relativePositions: VoxelCoord[];
   // voxelMetadata: string[];
@@ -35,13 +33,9 @@ const CreationStore: React.FC<Props> = ({ layers, filters, setFilters }) => {
       SingletonEntity,
       api: { toggleInventory },
     },
-    network: {
-      contractComponents: { Creation },
-      network: { connectedAddress },
-    },
   } = layers;
 
-  const { creationsToDisplay } = useCreationSearch({ layers, filters, setFilters });
+  const { creationsToDisplay } = useCreationSearch({ layers, filters });
 
   const spawnCreation = (creation: Creation) => {
     setComponent(PersistentNotification, SingletonEntity, {

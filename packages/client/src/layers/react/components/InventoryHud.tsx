@@ -28,6 +28,7 @@ import RegisterCreation, { RegisterCreationFormData } from "./RegisterCreation";
 import { Layers } from "../../../types";
 import CreationStore, { CreationStoreFilters } from "./CreationStore";
 import { entityToVoxelType, voxelTypeToEntity, voxelTypeDataKeyToVoxelVariantDataKey } from "../../noa/types";
+import ClassifierStore, { ClassifierStoreFilters } from "./ClassifierStore";
 
 // This gives us 36 inventory slots. As of now there are 34 types of VoxelTypes, so it should fit.
 export const INVENTORY_WIDTH = 9;
@@ -226,8 +227,15 @@ export function registerInventoryHud() {
         description: "",
       });
       const [creationStoreFilters, setCreationStoreFilters] = useState<CreationStoreFilters>({
-        search: "",
+        search: "", // TODO: rename to query
         isMyCreation: false,
+      });
+      const [classifierStoreFilters, setClassifierStoreFilters] = useState<ClassifierStoreFilters>({
+        classifierQuery: "",
+        creationFilter: {
+          search: "",
+          isMyCreation: true,
+        },
       });
 
       const getPageForSelectedTab = () => {
@@ -255,6 +263,14 @@ export function registerInventoryHud() {
           case InventoryTab.CREATION_STORE:
             return (
               <CreationStore layers={layers} filters={creationStoreFilters} setFilters={setCreationStoreFilters} />
+            );
+          case InventoryTab.CLASSIFIER_STORE:
+            return (
+              <ClassifierStore
+                layers={layers}
+                filters={classifierStoreFilters}
+                setFilters={setClassifierStoreFilters}
+              />
             );
         }
       };

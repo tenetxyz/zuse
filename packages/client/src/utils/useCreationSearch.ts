@@ -9,20 +9,14 @@ import { to256BitString } from "@latticexyz/utils";
 export interface Props {
   layers: Layers;
   filters: CreationStoreFilters;
-  setFilters: React.Dispatch<React.SetStateAction<CreationStoreFilters>>;
 }
 
 export interface CreationSearch {
-  searchValue: string;
-  setSearchValue: React.Dispatch<React.SetStateAction<string>>;
   creationsToDisplay: Creation[];
 }
 
 export const useCreationSearch = ({ layers, filters }: Props) => {
   const {
-    noa: {
-      components: { PersistentNotification, SpawnCreation },
-    },
     network: {
       contractComponents: { Creation },
       network: { connectedAddress },
@@ -46,6 +40,7 @@ export const useCreationSearch = ({ layers, filters }: Props) => {
       }
 
       const voxelTypes = creationTable.voxelTypes.get(creationId) ?? [];
+      // debugger;
       if (voxelTypes.length === 0) {
         console.warn("No voxelTypes found for creation", creationId);
         return;
@@ -72,7 +67,7 @@ export const useCreationSearch = ({ layers, filters }: Props) => {
         name: name,
         description: description,
         creator: creator,
-        voxelTypes: voxelTypes,
+        voxelTypes: voxelTypes as string[],
         relativePositions,
       } as Creation);
     });

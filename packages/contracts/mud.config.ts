@@ -107,12 +107,25 @@ export default mudConfig({
         interfaceVoxels: "bytes32[]", // the voxels that are used for i/o interfaces (e.g. for an AND gate test)
       },
     },
+    Classifier: {
+      // the id is just the classifierId
+      schema: {
+        creator: "address",
+        classifySelector: "bytes4", // the function that will be called when the user submits to the classifier
+        name: "string",
+        description: "string",
+      },
+    },
   },
   systems: {
     VoxelInteractionSystem: {
       name: "VoxInteractSys", // Note: This has to be <= 16 characters and can't conflict with table names
       openAccess: false, // it's a subsystem now, so only systems in this namespace can call it
       accessList: ["MineSystem", "BuildSystem"],
+    },
+    RegisterClassifierSystem: {
+      name: "RegClassifierSys", // Note: This has to be <= 16 characters and can't conflict with table names
+      openAccess: true,
     },
   },
   modules: [

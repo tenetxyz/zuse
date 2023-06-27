@@ -44,7 +44,7 @@ export default mudConfig({
         voxelVariantSelector: "bytes4",
         creator: "address",
         numSpawns: "uint256",
-        name: "string", // NOTE: you don't want the VoxelTypeId to be based on the name, cause then you can't change the name
+        name: "string", // NOTE: you don't want the VoxelTypeId to be based on the name, cause changing the name would change the ID
         preview: "string", // File ID Hash
       },
     },

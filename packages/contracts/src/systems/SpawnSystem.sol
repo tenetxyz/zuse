@@ -57,7 +57,7 @@ contract SpawnSystem is System {
       VoxelType.set(newEntity, voxelTypes[i]);
       Position.set(newEntity, spawnVoxelAtCoord.x, spawnVoxelAtCoord.y, spawnVoxelAtCoord.z);
 
-      // Gives the voxel the default component
+      // Gives the voxel its default component values
       updateVoxelVariant(_world(), newEntity);
 
       // update the spawn-related components

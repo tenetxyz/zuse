@@ -42,7 +42,7 @@ contract RegisterCreationSystem is System {
     return creationId;
   }
 
-  function validateCreation(VoxelCoord[] memory voxelCoords) private {
+  function validateCreation(VoxelCoord[] memory voxelCoords) private view {
     require(voxelCoords.length > 1, string(abi.encodePacked("Your creation must be at least 2 blocks")));
     require(
       voxelCoords.length <= MAX_BLOCKS_IN_CREATION,
@@ -55,7 +55,12 @@ contract RegisterCreationSystem is System {
     require(
       !hasDuplicate,
       string(
-        abi.encodePacked("Two voxels in your creation have the same coordinates: ", voxelCoordToString(duplicate1))
+        abi.encodePacked(
+          "Two voxels in your creation have the same coordinates: ",
+          voxelCoordToString(duplicate1),
+          " and ",
+          voxelCoordToString(duplicate2)
+        )
       )
     );
 
@@ -109,7 +114,7 @@ contract RegisterCreationSystem is System {
 
   function hasDuplicateVoxelCoords(
     VoxelCoord[] memory coords
-  ) private view returns (bool, VoxelCoord memory, VoxelCoord memory) {
+  ) private pure returns (bool, VoxelCoord memory, VoxelCoord memory) {
     for (uint i = 0; i < coords.length; i++) {
       for (uint j = i + 1; j < coords.length; j++) {
         if (coords[i].x == coords[j].x && coords[i].y == coords[j].y && coords[i].z == coords[j].z) {

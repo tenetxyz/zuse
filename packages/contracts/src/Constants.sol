@@ -5,6 +5,8 @@ bytes16 constant TENET_NAMESPACE = bytes16("tenet");
 
 string constant REGISTER_VOXEL_VARIANT_SIG = "tenet_VoxelRegistrySys_registerVoxelVariant(bytes32,(uint256,uint32,bool,bool,bool,uint8,bytes,string))";
 string constant REGISTER_VOXEL_TYPE_SIG = "tenet_VoxelRegistrySys_registerVoxelType(string,bytes32,string,bytes4)";
+string constant CLEAR_SIG = "tenet_MineSystem_clear((int32,int32,int32))";
+string constant BUILD_SIG = "tenet_BuildSystem_build(bytes32,(int32,int32,int32))";
 
 int32 constant CHUNK_MAX_Y = 255;
 int32 constant CHUNK_MIN_Y = -63;

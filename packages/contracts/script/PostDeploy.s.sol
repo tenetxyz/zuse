@@ -1,10 +1,12 @@
 // SPDX-License-Identifier: MIT
 pragma solidity >=0.8.0;
 
+import { getUniqueEntity } from "@latticexyz/world/src/modules/uniqueentity/getUniqueEntity.sol";
 import { Script } from "forge-std/Script.sol";
 import { console } from "forge-std/console.sol";
 import { IWorld } from "../src/codegen/world/IWorld.sol";
 import { AirID, GrassID, DirtID, BedrockID, GrassTexture, DirtTexture, BedrockTexture } from "../src/prototypes/Voxels.sol";
+import { IBaseWorld } from "@latticexyz/world/src/interfaces/IBaseWorld.sol";
 
 contract PostDeploy is Script {
   function run(address worldAddress) external {

@@ -6,13 +6,18 @@ import { getKeysInTable } from "@latticexyz/world/src/modules/keysintable/getKey
 import { System } from "@latticexyz/world/src/System.sol";
 import { NamespaceOwner } from "@latticexyz/world/src/tables/NamespaceOwner.sol";
 import { FunctionSelectors } from "@latticexyz/world/src/modules/core/tables/FunctionSelectors.sol";
-import { VoxelTypeRegistry, VoxelTypeRegistryTableId, VoxelVariants, VoxelVariantsData, VoxelVariantsTableId } from "../codegen/Tables.sol";
+import { VoxelTypeRegistry, VoxelTypeRegistryData, VoxelTypeRegistryTableId, VoxelVariants, VoxelVariantsData, VoxelVariantsTableId } from "../codegen/Tables.sol";
 import { IWorld } from "../codegen/world/IWorld.sol";
 import { NoaBlockType } from "../codegen/Types.sol";
 import { getCallerNamespace } from "../sharedutils.sol";
 
 contract VoxelRegistrySystem is System {
-  function registerVoxelType(bytes32 voxelType, string memory previewVoxelImg, bytes4 voxelVariantSelector) public {
+  function registerVoxelType(
+    string memory name,
+    bytes32 voxelType,
+    string memory previewVoxelImg,
+    bytes4 voxelVariantSelector
+  ) public {
     (bytes16 namespace, , ) = FunctionSelectors.get(voxelVariantSelector);
     require(NamespaceOwner.get(namespace) == _msgSender(), "Caller is not namespace owner");
 
@@ -26,7 +31,17 @@ contract VoxelRegistrySystem is System {
     // TODO: We should add some signature check for voxelVariantSelector to make sure it returns the right type
 
     // register voxel type
-    VoxelTypeRegistry.set(namespace, voxelType, voxelVariantSelector, previewVoxelImg);
+    VoxelTypeRegistry.set(
+      namespace,
+      voxelType,
+      VoxelTypeRegistryData({
+        voxelVariantSelector: voxelVariantSelector,
+        creator: _msgSender(),
+        numSpawns: 0,
+        name: name,
+        preview: previewVoxelImg
+      })
+    );
   }
 
   function registerVoxelVariant(bytes32 voxelVariantId, VoxelVariantsData memory voxelVariant) public {

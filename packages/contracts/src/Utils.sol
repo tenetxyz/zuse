@@ -4,7 +4,7 @@ pragma solidity >=0.8.0;
 import { CHUNK } from "./constants.sol";
 import { Coord, VoxelCoord } from "./types.sol";
 import { getKeysWithValue } from "@latticexyz/world/src/modules/keyswithvalue/getKeysWithValue.sol";
-import { Position, PositionTableId, VoxelType, VoxelTypeRegistry, VoxelTypeData } from "./codegen/Tables.sol";
+import { Position, PositionTableId, VoxelType, VoxelTypeRegistry, VoxelTypeRegistryData, VoxelTypeData } from "./codegen/Tables.sol";
 import { Strings } from "@openzeppelin/contracts/utils/Strings.sol";
 import { VoxelVariantsKey } from "./types.sol";
 
@@ -92,6 +92,12 @@ function initializeArray(uint256 x, uint256 y) pure returns (uint256[][] memory)
 
 function getEntitiesAtCoord(VoxelCoord memory coord) view returns (bytes32[] memory) {
   return getKeysWithValue(PositionTableId, Position.encode(coord.x, coord.y, coord.z));
+}
+
+function increaseSpawnCount(bytes16 voxelTypeNamespace, bytes32 voxelTypeId) {
+  VoxelTypeRegistryData memory voxelTypeRegistryData = VoxelTypeRegistry.get(voxelTypeNamespace, voxelTypeId);
+  voxelTypeRegistryData.numSpawns += 1;
+  VoxelTypeRegistry.set(voxelTypeNamespace, voxelTypeId, voxelTypeRegistryData);
 }
 
 // Thus function gets around solidity's horrible lack of dynamic arrays, sets, and data structure support

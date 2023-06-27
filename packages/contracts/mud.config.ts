@@ -42,6 +42,9 @@ export default mudConfig({
       },
       schema: {
         voxelVariantSelector: "bytes4",
+        creator: "address",
+        numSpawns: "uint256",
+        name: "string", // NOTE: you don't want the VoxelTypeId to be based on the name, cause then you can't change the name
         preview: "string", // File ID Hash
       },
     },

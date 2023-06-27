@@ -14,8 +14,9 @@ export const Slot: React.FC<{
   selected?: boolean;
   disabled?: boolean;
   iconUrl?: string;
+  tooltipText?: React.ReactNode;
   getVoxelIconUrl: (voxelTypeKey: VoxelVariantDataKey) => string | undefined;
-}> = ({ voxelType, quantity, onClick, onRightClick, selected, disabled, getVoxelIconUrl, iconUrl }) => {
+}> = ({ voxelType, quantity, onClick, onRightClick, selected, disabled, getVoxelIconUrl, iconUrl, tooltipText }) => {
   let useIconUrl = iconUrl ? iconUrl : "";
   const voxelVariantData = voxelType ? entityToVoxelType(voxelType) : undefined;
   if (useIconUrl == "" && voxelVariantData !== undefined) {
@@ -27,26 +28,29 @@ export const Slot: React.FC<{
   }
   return (
     <AbsoluteBorder borderColor={selected ? "#ffffff" : "transparent"} borderWidth={6}>
-      <Border borderColor={"#b1b1b1"}>
-        <Border borderColor={"#797979"}>
-          <Border borderColor={"rgb(0 0 0 / 10%)"}>
-            <Inner
-              onClick={onClick}
-              disabled={disabled}
-              onContextMenu={(event: React.MouseEvent<HTMLDivElement>) => {
-                event.preventDefault(); // Prevent the default browser context menu from showing up
-                onRightClick && onRightClick();
-              }}
-            >
-              {voxelType ? (
-                <VoxelIcon iconUrl={useIconUrl} scale={4}>
-                  {quantity != null ? <Quantity>{quantity}</Quantity> : null}
-                </VoxelIcon>
-              ) : null}
-            </Inner>
+      <TooltipContainer>
+        <Border borderColor={"#b1b1b1"}>
+          <Border borderColor={"#797979"}>
+            <Border borderColor={"rgb(0 0 0 / 10%)"}>
+              <Inner
+                onClick={onClick}
+                disabled={disabled}
+                onContextMenu={(event: React.MouseEvent<HTMLDivElement>) => {
+                  event.preventDefault(); // Prevent the default browser context menu from showing up
+                  onRightClick && onRightClick();
+                }}
+              >
+                {voxelType ? (
+                  <VoxelIcon iconUrl={useIconUrl} scale={4}>
+                    {quantity != null ? <Quantity>{quantity}</Quantity> : null}
+                  </VoxelIcon>
+                ) : null}
+              </Inner>
+            </Border>
           </Border>
         </Border>
-      </Border>
+        {tooltipText !== undefined && <TooltipText>{tooltipText}</TooltipText>}
+      </TooltipContainer>
     </AbsoluteBorder>
   );
 };
@@ -68,4 +72,47 @@ const Quantity = styled.div`
   justify-content: end;
   align-content: end;
   padding: 7px 3px;
+`;
+
+const TooltipText = styled.div`
+  visibility: hidden;
+  width: 120px;
+  background-color: #555;
+  color: #fff;
+  text-align: center;
+  padding: 5px 0;
+  border-radius: 6px;
+
+  /* Position the tooltip text */
+  position: absolute;
+  z-index: 1;
+  bottom: 100%;
+  left: 50%;
+  margin-left: -60px;
+
+  /* Fade in tooltip */
+  opacity: 0;
+  transition: opacity 0.1s;
+
+  &::after {
+    content: "";
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    margin-left: -5px;
+    border-width: 5px;
+    border-style: solid;
+    border-color: #555 transparent transparent transparent;
+  }
+`;
+
+const TooltipContainer = styled.div`
+  position: relative;
+  display: inline-block;
+  border-bottom: 1px dotted black;
+
+  &:hover ${TooltipText} {
+    visibility: visible;
+    opacity: 1;
+  }
 `;

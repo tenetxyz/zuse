@@ -21,10 +21,10 @@ const NUM_ROWS = 6;
 interface VoxelDescription {
   name: string;
   namespace: string;
-  description: string;
   voxelType: Entity;
   voxelTypeId: string;
   preview: string;
+  numSpawns: BigInt;
 }
 
 export const CreativeInventory: React.FC<Props> = ({ layers }) => {
@@ -49,22 +49,24 @@ export const CreativeInventory: React.FC<Props> = ({ layers }) => {
       voxelTypes.push(voxelTypeValue);
     }
     console.log("creative voxelTypes", voxelTypes);
-    const unsortedVoxelDescriptions = Array.from(voxelTypes).map((voxelType, index: number) => {
-      const entity = allVoxelTypes[index];
-      const [namespace, voxelTypeId] = entity.split(":");
-      return {
-        name: voxelTypeId as string, // TODO: update
-        namespace: formatNamespace(namespace),
-        description: "tmp desc", // TODO: update
-        voxelType: voxelTypeId as Entity,
-        voxelTypeId: voxelTypeId,
-        preview: voxelType && voxelType.preview ? getNftStorageLink(voxelType.preview) : "",
-      };
-    });
+    const unsortedVoxelDescriptions = Array.from(voxelTypes)
+      .filter((voxelType) => voxelType !== undefined && voxelType.name !== "Air") // we don't want unknown voxelTypes or Air to appear in the inventory
+      .map((voxelType, index: number) => {
+        const entity = allVoxelTypes[index];
+        const [namespace, voxelTypeId] = entity.split(":");
+        return {
+          name: voxelType!.name,
+          namespace: formatNamespace(namespace),
+          voxelType: voxelTypeId as Entity,
+          voxelTypeId: voxelTypeId,
+          preview: voxelType!.preview ? getNftStorageLink(voxelType!.preview) : "",
+          numSpawns: voxelType!.numSpawns,
+        };
+      });
 
     const options = {
-      includeScore: true, // PERF: make this false
-      keys: ["name", "description"],
+      includeScore: false,
+      keys: ["name"],
     };
 
     fuse.current = new Fuse(unsortedVoxelDescriptions, options);
@@ -97,6 +99,12 @@ export const CreativeInventory: React.FC<Props> = ({ layers }) => {
         disabled={false} // false, so if you pick up the voxeltype, it still shows up in the creative inventory
         selected={false} // you can never select an voxeltype in the creative inventory
         getVoxelIconUrl={getVoxelIconUrl}
+        tooltipText={
+          <>
+            <p>{voxelDescription.name}</p>
+            <p className="mt-1">{voxelDescription.numSpawns.toString()} Spawns</p>
+          </>
+        }
       />
     );
   });

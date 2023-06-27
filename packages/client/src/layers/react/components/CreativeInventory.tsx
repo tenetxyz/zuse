@@ -25,6 +25,7 @@ interface VoxelDescription {
   voxelTypeId: string;
   preview: string;
   numSpawns: BigInt;
+  creator: string;
 }
 
 export const CreativeInventory: React.FC<Props> = ({ layers }) => {
@@ -61,9 +62,11 @@ export const CreativeInventory: React.FC<Props> = ({ layers }) => {
           voxelTypeId: voxelTypeId,
           preview: voxelType!.preview ? getNftStorageLink(voxelType!.preview) : "",
           numSpawns: voxelType!.numSpawns,
+          creator: voxelType!.creator,
         };
       });
 
+    // TODO: add a sort function to sort by numSpawns
     const options = {
       includeScore: false,
       keys: ["name"],
@@ -102,6 +105,7 @@ export const CreativeInventory: React.FC<Props> = ({ layers }) => {
         tooltipText={
           <>
             <p>{voxelDescription.name}</p>
+            {/* <p className="mt-1">By {voxelDescription.creator.substring(0, 5)}...</p> */}
             <p className="mt-1">{voxelDescription.numSpawns.toString()} Spawns</p>
           </>
         }

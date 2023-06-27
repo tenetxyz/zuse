@@ -15,7 +15,7 @@ export interface CreationSearch {
   creationsToDisplay: Creation[];
 }
 
-export const useCreationSearch = ({ layers, filters }: Props) => {
+export const useCreativeInventorySearch = ({ layers, filters }: Props) => {
   const {
     network: {
       contractComponents: { Creation },
@@ -23,13 +23,13 @@ export const useCreationSearch = ({ layers, filters }: Props) => {
     },
   } = layers;
 
-  const allCreations = React.useRef<Creation[]>([]);
+  const allVoxels = React.useRef<Creation[]>([]);
   const filteredCreations = React.useRef<Creation[]>([]); // Filtered based on the specified filters. The user's search box query does NOT affect this.
   const [creationsToDisplay, setCreationsToDisplay] = React.useState<Creation[]>([]);
   const fuse = React.useRef<Fuse<Creation>>();
 
   useComponentUpdate(Creation, () => {
-    allCreations.current = [];
+    allVoxels.current = [];
     const creationTable = Creation.values;
     creationTable.name.forEach((name: string, creationId) => {
       const description = ""; //creationTable.description.get(creationId) ?? "";

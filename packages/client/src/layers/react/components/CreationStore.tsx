@@ -1,10 +1,8 @@
-import React, { ChangeEvent, KeyboardEvent, useEffect } from "react";
+import React from "react";
 import { Layers } from "../../../types";
-import { Entity, getEntityString, setComponent } from "@latticexyz/recs";
-import { to256BitString, VoxelCoord } from "@latticexyz/utils";
+import { Entity, setComponent } from "@latticexyz/recs";
+import { VoxelCoord } from "@latticexyz/utils";
 import { NotificationIcon } from "../../noa/components/persistentNotification";
-import Fuse from "fuse.js";
-import { useComponentUpdate } from "../../../utils/useComponentUpdate";
 import { useCreationSearch } from "../../../utils/useCreationSearch";
 
 export interface CreationStoreFilters {
@@ -22,9 +20,10 @@ export interface Creation {
   name: string;
   description: string;
   creationId: Entity;
-  creator: Entity;
+  creator: string;
   voxelTypes: string[];
   relativePositions: VoxelCoord[];
+  numSpawns: BigInt;
   // voxelMetadata: string[];
 }
 
@@ -35,13 +34,9 @@ const CreationStore: React.FC<Props> = ({ layers, filters, setFilters }) => {
       SingletonEntity,
       api: { toggleInventory },
     },
-    network: {
-      contractComponents: { Creation },
-      network: { connectedAddress },
-    },
   } = layers;
 
-  const { creationsToDisplay } = useCreationSearch({ layers, filters, setFilters });
+  const { creationsToDisplay } = useCreationSearch({ layers, filters });
 
   const spawnCreation = (creation: Creation) => {
     setComponent(PersistentNotification, SingletonEntity, {
@@ -89,7 +84,10 @@ const CreationStore: React.FC<Props> = ({ layers, filters, setFilters }) => {
             >
               <p>{creation.name}</p>
               <p>{creation.description}</p>
-              <p className="">{creation.relativePositions.length} voxels</p>
+              <p>{creation.relativePositions.length} voxels</p>
+              <p>
+                {creation.numSpawns.toString()} Spawn{creation.numSpawns.toString() !== "1" && "s"}
+              </p>
               <p className="break-all break-words">{creation.creator.substr(50)}</p>
               <button
                 className="bg-slate-700 p-1 ml-2 focus:outline-slate-700 border-1 border-solid"

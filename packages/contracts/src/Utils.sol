@@ -94,7 +94,7 @@ function getEntitiesAtCoord(VoxelCoord memory coord) view returns (bytes32[] mem
   return getKeysWithValue(PositionTableId, Position.encode(coord.x, coord.y, coord.z));
 }
 
-function increaseSpawnCount(bytes16 voxelTypeNamespace, bytes32 voxelTypeId) {
+function increaseVoxelTypeSpawnCount(bytes16 voxelTypeNamespace, bytes32 voxelTypeId) {
   VoxelTypeRegistryData memory voxelTypeRegistryData = VoxelTypeRegistry.get(voxelTypeNamespace, voxelTypeId);
   voxelTypeRegistryData.numSpawns += 1;
   VoxelTypeRegistry.set(voxelTypeNamespace, voxelTypeId, voxelTypeRegistryData);

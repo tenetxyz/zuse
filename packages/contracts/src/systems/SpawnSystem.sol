@@ -2,11 +2,10 @@
 pragma solidity >=0.8.0;
 
 import { getUniqueEntity } from "@latticexyz/world/src/modules/uniqueentity/getUniqueEntity.sol";
-import { getKeysInTable } from "@latticexyz/world/src/modules/keysintable/getKeysInTable.sol";
 import { System } from "@latticexyz/world/src/System.sol";
 import { VoxelCoord } from "../types.sol";
 import { OwnedBy, Position, PositionTableId, VoxelType, VoxelTypeData, OfSpawn, Spawn, SpawnData, Creation, CreationData } from "../codegen/Tables.sol";
-import { addressToEntityKey, getEntitiesAtCoord, add, int32ToString, increaseSpawnCount, updateVoxelVariant } from "../utils.sol";
+import { getEntitiesAtCoord, add, int32ToString, increaseVoxelTypeSpawnCount, updateVoxelVariant } from "../utils.sol";
 import { IWorld } from "../codegen/world/IWorld.sol";
 import { console } from "forge-std/console.sol";
 import { CHUNK_MAX_Y, CHUNK_MIN_Y } from "../Constants.sol";
@@ -64,14 +63,22 @@ contract SpawnSystem is System {
       OfSpawn.set(newEntity, spawnId);
       spawnVoxels[i] = newEntity;
 
-      increaseSpawnCount(voxelTypes[i].voxelTypeNamespace, voxelTypes[i].voxelTypeId);
+      increaseVoxelTypeSpawnCount(voxelTypes[i].voxelTypeNamespace, voxelTypes[i].voxelTypeId);
     }
 
     spawnData.voxels = spawnVoxels;
     Spawn.set(spawnId, spawnData);
 
+    increaseCreationSpawnCount(creationId);
+
     // should we run this?
     //        IWorld(_world()).tenet_VoxelInteraction_runInteractionSystems(airEntity);
     return spawnId;
+  }
+
+  function increaseCreationSpawnCount(bytes32 creationId) private {
+    CreationData memory creationData = Creation.get(creationId);
+    creationData.numSpawns += 1;
+    Creation.set(creationId, creationData);
   }
 }

@@ -12,13 +12,17 @@ import { formatNamespace } from "../../../constants";
 import { getNftStorageLink } from "../../noa/constants";
 import { voxelVariantDataKeyToString } from "../../noa/types";
 
+interface CreativeInventoryFilters {
+  query: string;
+}
 interface Props {
   layers: Layers;
+  filters: CreativeInventoryFilters;
 }
 const NUM_COLS = 9;
 const NUM_ROWS = 6;
 
-interface VoxelDescription {
+interface VoxelTypeDesc {
   name: string;
   namespace: string;
   voxelType: Entity;
@@ -28,7 +32,7 @@ interface VoxelDescription {
   creator: string;
 }
 
-export const CreativeInventory: React.FC<Props> = ({ layers }) => {
+export const CreativeInventory: React.FC<Props> = ({ layers, filters }) => {
   const {
     components: { VoxelTypeRegistry },
     contractComponents: { OwnedBy, VoxelType },
@@ -37,10 +41,9 @@ export const CreativeInventory: React.FC<Props> = ({ layers }) => {
     getVoxelIconUrl,
   } = layers.network;
 
-  const [searchValue, setSearchValue] = React.useState<string>("");
-  const [voxelDescriptions, setVoxelDescriptions] = React.useState<VoxelDescription[]>();
-  const [filteredVoxelDescriptions, setFilteredVoxelDescriptions] = React.useState<VoxelDescription[]>([]);
-  const fuse = React.useRef<Fuse<VoxelDescription>>();
+  const [voxelDescriptions, setVoxelDescriptions] = React.useState<VoxelTypeDesc[]>();
+  const [filteredVoxelDescriptions, setFilteredVoxelDescriptions] = React.useState<VoxelTypeDesc[]>([]);
+  const fuse = React.useRef<Fuse<VoxelTypeDesc>>();
 
   React.useEffect(() => {
     const allVoxelTypes = [...VoxelTypeRegistry.entities()];
@@ -49,7 +52,6 @@ export const CreativeInventory: React.FC<Props> = ({ layers }) => {
       const voxelTypeValue = getComponentValue(VoxelTypeRegistry, voxelType);
       voxelTypes.push(voxelTypeValue);
     }
-    console.log("creative voxelTypes", voxelTypes);
     const unsortedVoxelDescriptions = Array.from(voxelTypes)
       .filter((voxelType) => voxelType !== undefined && voxelType.name !== "Air") // we don't want unknown voxelTypes or Air to appear in the inventory
       .map((voxelType, index: number) => {
@@ -81,10 +83,10 @@ export const CreativeInventory: React.FC<Props> = ({ layers }) => {
     if (!fuse.current || !voxelDescriptions) {
       return;
     }
-    const result = fuse.current.search(searchValue).map((r) => r.item);
+    const result = fuse.current.search(filters.query).map((r) => r.item);
     const descriptionsToDisplay = result.length > 0 ? result : voxelDescriptions;
     setFilteredVoxelDescriptions(descriptionsToDisplay);
-  }, [searchValue, voxelDescriptions]);
+  }, [filters.query, voxelDescriptions]);
 
   const Slots = [...range(NUM_ROWS * NUM_COLS)].map((i) => {
     if (!filteredVoxelDescriptions || i >= filteredVoxelDescriptions.length) {

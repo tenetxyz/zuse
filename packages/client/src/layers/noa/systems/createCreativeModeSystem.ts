@@ -1,6 +1,7 @@
 import { defineComponentSystem } from "@latticexyz/recs";
 import { NetworkLayer } from "../../network";
 import { NoaLayer } from "../types";
+import { MOVEMENT_COMPONENT_NAME } from "../components/MovementComponent";
 
 export function createCreativeModeSystem(network: NetworkLayer, context: NoaLayer) {
   const { noa, SingletonEntity } = context;
@@ -14,10 +15,11 @@ export function createCreativeModeSystem(network: NetworkLayer, context: NoaLaye
     const entity = update.entity;
     if (entity !== SingletonEntity) return;
     const currentValue = update.value[0];
+    const movementComponent = noa.ents.getStateAccessor(MOVEMENT_COMPONENT_NAME)(noa.playerEntity);
     if (currentValue?.creativeMode) {
-      noa.ents.getMovement(1).airJumps = 999;
+      movementComponent.airJumps = 999;
     } else {
-      noa.ents.getMovement(1).airJumps = 1;
+      movementComponent.airJumps = 1;
     }
   });
 }

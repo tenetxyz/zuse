@@ -1,6 +1,6 @@
 import vec3 from "gl-vec3";
 
-interface IMovementState {
+export interface IMovementState {
   heading: number; // radians
   running: boolean;
   jumping: boolean;
@@ -18,6 +18,9 @@ interface IMovementState {
   jumpForce: number;
   jumpTime: number; // ms
   airJumps: number;
+
+  canFly: boolean;
+  flying: boolean;
 
   // internal state
   _jumpCount: number;
@@ -44,6 +47,9 @@ export function MovementState(): IMovementState {
     jumpForce: 12,
     jumpTime: 500, // ms
     airJumps: 1,
+
+    canFly: true,
+    flying: false,
 
     // internal state
     _jumpCount: 0,
@@ -77,7 +83,7 @@ interface IMovement {
   system(dt: number, states: IMovementState[]): void;
 }
 
-export const MOVEMENT_COMPONENT_NAME = "tenet-movement";
+export const MOVEMENT_COMPONENT_NAME = "movement";
 
 export default function (noa: any): IMovement {
   return {
@@ -105,9 +111,12 @@ function applyMovementPhysics(dt: number, state: IMovementState, body: IPhysicsB
   // move implementation originally written as external module
   // see https://github.com/fenomas/voxel-fps-controller
   // for original code
+  if (body.hasOwnProperty("body")) {
+    body = body.body;
+  }
 
   // jumping
-  let onGround = body.atRestY() < 0;
+  let onGround = body.velocity[1] === 0;
   let canjump = onGround || state._jumpCount < state.airJumps;
   if (onGround) {
     state._isJumping = false;

@@ -324,4 +324,7 @@ export function createInputSystem(network: NetworkLayer, noaLayer: NoaLayer) {
 
     spawnCreation({ x: minX, y: minY, z: minZ }, (creation as Creation).creationId);
   });
+
+  noa.inputs.bind("crouch", "<shift>");
+  noa.inputs.down.on("crouch", () => {});
 }

@@ -9,7 +9,7 @@ enum BodyState {
 export interface IMovementState {
   heading: number; // radians
   running: boolean;
-  onJump: boolean;
+  isJumpHeld: boolean;
 
   // options
   maxSpeed: number;
@@ -24,6 +24,7 @@ export interface IMovementState {
   jumpForce: number;
   jumpTime: number; // ms
   airJumps: number;
+  isJumpPressed: boolean;
 
   canFly: boolean;
   isFlying: boolean;
@@ -41,7 +42,7 @@ export function MovementState(): IMovementState {
   return {
     heading: 0,
     running: false,
-    onJump: false,
+    isJumpHeld: false,
 
     // options
     maxSpeed: 10,
@@ -56,6 +57,7 @@ export function MovementState(): IMovementState {
     jumpForce: 12,
     jumpTime: 500, // ms
     airJumps: 1,
+    isJumpPressed: false,
 
     canFly: true,
     isFlying: false,
@@ -117,7 +119,6 @@ function applyMovementPhysics(dt: number, state: IMovementState, body: RigidBody
   // if vecloicy is 0 and isresting is ttrue, then we know it's on ground
   // if velocity is nonzero it's not on ground
   let isOnGround = body.atRestY() < 0;
-  // console.log(isOnGround);
   if (isOnGround) {
     state._jumpCount = 0;
   }
@@ -169,7 +170,10 @@ function applyMovementPhysics(dt: number, state: IMovementState, body: RigidBody
 const exportMovementForcesToBody = (state: IMovementState, body: RigidBody, dt: number, bodyState: BodyState) => {
   let canjump = bodyState === BodyState.onGround || state._jumpCount < state.airJumps;
 
-  if (state.onJump) {
+  if (state.isJumpPressed) {
+    console.log("pressed jump");
+  }
+  if (state.isJumpHeld) {
     if (state._isJumping) {
       // continue previous jump
       if (state._currjumptime > 0) {
@@ -178,6 +182,16 @@ const exportMovementForcesToBody = (state: IMovementState, body: RigidBody, dt: 
         body.applyForce([0, jf, 0]);
         state._currjumptime -= dt;
       }
+      return;
+      // }
+      // if (state.canFly) {
+      //   if (body.gravityMultiplier === 0) {
+      //     // you are flying and have jumped. you are now falling
+      //     body.gravityMultiplier = 2;
+      //   } else {
+      //     // you have jumped while you are in the air. you are now flying
+      //     body.gravityMultiplier = 0;
+      //   }
     } else if (canjump) {
       // start new jump
       state._isJumping = true;
@@ -191,7 +205,7 @@ const exportMovementForcesToBody = (state: IMovementState, body: RigidBody, dt: 
     state._isJumping = false;
   }
 
-  // if (state.onJump) {
+  // if (state.isJumpHeld) {
   //   if (state.canFly) {
   //     state.isFlying = true;
   //     body.applyForce([0, state.jumpForce, 0]);

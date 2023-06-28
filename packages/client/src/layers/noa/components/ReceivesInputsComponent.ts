@@ -51,7 +51,13 @@ export default function (noa: any): System {
  */
 
 function setMovementState(state: IMovementState, inputs: InputState, camHeading: number): void {
-  state.onJump = !!inputs.jump;
+  // if the player is currently jumping and the previous state it wasn't jumping
+  if (!!inputs.jump && state.isJumpHeld === false) {
+    state.isJumpPressed = true;
+  } else {
+    state.isJumpPressed = false;
+  }
+  state.isJumpHeld = !!inputs.jump;
   state.isCrouching = !!inputs.crouch;
 
   const fb = inputs.forward ? (inputs.backward ? 0 : 1) : inputs.backward ? -1 : 0;

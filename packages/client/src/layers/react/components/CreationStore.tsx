@@ -23,6 +23,7 @@ export interface Creation {
   creator: string;
   voxelTypes: string[];
   relativePositions: VoxelCoord[];
+  numSpawns: BigInt;
   // voxelMetadata: string[];
 }
 
@@ -83,7 +84,10 @@ const CreationStore: React.FC<Props> = ({ layers, filters, setFilters }) => {
             >
               <p>{creation.name}</p>
               <p>{creation.description}</p>
-              <p className="">{creation.relativePositions.length} voxels</p>
+              <p>{creation.relativePositions.length} voxels</p>
+              <p>
+                {creation.numSpawns.toString()} Spawn{creation.numSpawns.toString() !== "1" && "s"}
+              </p>
               <p className="break-all break-words">{creation.creator.substr(50)}</p>
               <button
                 className="bg-slate-700 p-1 ml-2 focus:outline-slate-700 border-1 border-solid"

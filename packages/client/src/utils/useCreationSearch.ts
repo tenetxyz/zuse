@@ -69,6 +69,7 @@ export const useCreationSearch = ({ layers, filters }: Props) => {
         creator: creator,
         voxelTypes: voxelTypes as string[],
         relativePositions,
+        numSpawns: creationTable.numSpawns.get(creationId) ?? 0,
       } as Creation);
     });
 

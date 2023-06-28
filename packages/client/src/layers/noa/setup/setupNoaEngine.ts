@@ -19,6 +19,7 @@ import { setupScene } from "../engine/setupScene";
 import { CHUNK_RENDER_DISTANCE, CHUNK_SIZE, MIN_HEIGHT, SKY_COLOR } from "./constants";
 import { VoxelVariantDataValue } from "../types";
 import { AIR_ID } from "../../network/api/terrain/occurrence";
+import MovementComponent, { MOVEMENT_COMPONENT_NAME } from "../components/MovementComponent";
 
 export const DEFAULT_BLOCK_TEST_DISTANCE = 7;
 
@@ -183,11 +184,16 @@ export function setupNoaEngine(network: NetworkLayer) {
 
 function customizePlayerMovement(noa: Engine) {
   // Note: if you want to write very specific movement overrides, read this: https://github.com/fenomas/noa/issues/147
-  // noa.entities.removeComponent(noa.playerEntity, noa.entities.names.movement)
-  // noa.entities.addComponent(noa.playerEntity, newMovementComponent)
+  noa.entities.removeComponent(noa.playerEntity, noa.entities.names.movement);
+
+  noa.entities.names[MOVEMENT_COMPONENT_NAME] = noa.entities.createComponent(MovementComponent(noa));
+  noa.entities.addComponent(noa.playerEntity, MOVEMENT_COMPONENT_NAME, {
+    airJumps: 1,
+  });
 
   // Make it so that players can still control their movement while in the air
   // why? because it feels weird when players lose control of their character: https://www.reddit.com/r/gamedev/comments/j3iigd/why_moving_in_the_air_after_jumping_in_games/
-  noa.ents.getMovement(1).airMoveMult = 0.3; // Note: if you sent this value too high, then players will have a hard time making short jumps (it's more important than long jumps, cause it gives them better control)
-  noa.ents.getMovement(1).standingFriction = 100;
+  const movementComponent = noa.ents.getStateAccessor(MOVEMENT_COMPONENT_NAME)(noa.playerEntity);
+  movementComponent.airMoveMult = 0.3; // Note: if you sent this value too high, then players will have a hard time making short jumps (it's more important than long jumps, cause it gives them better control)
+  movementComponent.standingFriction = 100;
 }

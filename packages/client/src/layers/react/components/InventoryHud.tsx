@@ -21,13 +21,14 @@ import {
 } from "@latticexyz/recs";
 import { to64CharAddress } from "../../../utils/entity";
 import { Sounds } from "./Sounds";
-import { CreativeInventory } from "./CreativeInventory";
+import { CreativeInventory, CreativeInventoryFilters } from "./CreativeInventory";
 import { Inventory } from "./Inventory";
 import { InventoryTab, TabRadioSelector } from "./TabRadioSelector";
 import RegisterCreation, { RegisterCreationFormData } from "./RegisterCreation";
 import { Layers } from "../../../types";
 import CreationStore, { CreationStoreFilters } from "./CreationStore";
 import { entityToVoxelType, voxelTypeToEntity, voxelTypeDataKeyToVoxelVariantDataKey } from "../../noa/types";
+import { CreativeInventorySearch } from "../../../utils/useCreativeInventorySearch";
 
 // This gives us 36 inventory slots. As of now there are 34 types of VoxelTypes, so it should fit.
 export const INVENTORY_WIDTH = 9;
@@ -221,6 +222,9 @@ export function registerInventoryHud() {
       );
 
       // This state is hoisted up to this component so that the state is not lost when leaving the inventory to select voxels
+      const [creativeInventoryFilters, setCreativeInventoryFilters] = useState<CreativeInventoryFilters>({
+        query: "",
+      });
       const [registerCreationFormData, setRegisterCreationFormData] = useState<RegisterCreationFormData>({
         name: "",
         description: "",
@@ -243,7 +247,13 @@ export function registerInventoryHud() {
               />
             );
           case InventoryTab.CREATIVE:
-            return <CreativeInventory layers={layers} />;
+            return (
+              <CreativeInventory
+                layers={layers}
+                filters={creativeInventoryFilters}
+                setFilters={setCreativeInventoryFilters}
+              />
+            );
           case InventoryTab.REGISTER_CREATION:
             return (
               <RegisterCreation

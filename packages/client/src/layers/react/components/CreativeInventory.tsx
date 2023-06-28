@@ -4,25 +4,24 @@ import { Layers } from "../../../types";
 import { range } from "@latticexyz/utils";
 import styled from "styled-components";
 import React from "react";
-import Fuse from "fuse.js";
 import { getItemTypesIOwn } from "../../noa/systems/createInventoryIndexSystem";
 import { INVENTORY_HEIGHT, INVENTORY_WIDTH } from "./InventoryHud";
 import { toast } from "react-toastify";
-import { formatNamespace } from "../../../constants";
-import { getNftStorageLink } from "../../noa/constants";
 import { voxelVariantDataKeyToString } from "../../noa/types";
+import { useCreativeInventorySearch } from "../../../utils/useCreativeInventorySearch";
 
-interface CreativeInventoryFilters {
+export interface CreativeInventoryFilters {
   query: string;
 }
 interface Props {
   layers: Layers;
   filters: CreativeInventoryFilters;
+  setFilters: React.Dispatch<React.SetStateAction<CreativeInventoryFilters>>;
 }
 const NUM_COLS = 9;
 const NUM_ROWS = 6;
 
-interface VoxelTypeDesc {
+export interface VoxelTypeDesc {
   name: string;
   namespace: string;
   voxelType: Entity;
@@ -32,7 +31,7 @@ interface VoxelTypeDesc {
   creator: string;
 }
 
-export const CreativeInventory: React.FC<Props> = ({ layers, filters }) => {
+export const CreativeInventory: React.FC<Props> = ({ layers, filters, setFilters }) => {
   const {
     components: { VoxelTypeRegistry },
     contractComponents: { OwnedBy, VoxelType },
@@ -41,58 +40,13 @@ export const CreativeInventory: React.FC<Props> = ({ layers, filters }) => {
     getVoxelIconUrl,
   } = layers.network;
 
-  const [voxelDescriptions, setVoxelDescriptions] = React.useState<VoxelTypeDesc[]>();
-  const [filteredVoxelDescriptions, setFilteredVoxelDescriptions] = React.useState<VoxelTypeDesc[]>([]);
-  const fuse = React.useRef<Fuse<VoxelTypeDesc>>();
-
-  React.useEffect(() => {
-    const allVoxelTypes = [...VoxelTypeRegistry.entities()];
-    const voxelTypes = [];
-    for (const voxelType of allVoxelTypes) {
-      const voxelTypeValue = getComponentValue(VoxelTypeRegistry, voxelType);
-      voxelTypes.push(voxelTypeValue);
-    }
-    const unsortedVoxelDescriptions = Array.from(voxelTypes)
-      .filter((voxelType) => voxelType !== undefined && voxelType.name !== "Air") // we don't want unknown voxelTypes or Air to appear in the inventory
-      .map((voxelType, index: number) => {
-        const entity = allVoxelTypes[index];
-        const [namespace, voxelTypeId] = entity.split(":");
-        return {
-          name: voxelType!.name,
-          namespace: formatNamespace(namespace),
-          voxelType: voxelTypeId as Entity,
-          voxelTypeId: voxelTypeId,
-          preview: voxelType!.preview ? getNftStorageLink(voxelType!.preview) : "",
-          numSpawns: voxelType!.numSpawns,
-          creator: voxelType!.creator,
-        };
-      });
-
-    // TODO: add a sort function to sort by numSpawns
-    const options = {
-      includeScore: false,
-      keys: ["name"],
-    };
-
-    fuse.current = new Fuse(unsortedVoxelDescriptions, options);
-
-    setVoxelDescriptions(unsortedVoxelDescriptions.sort((a, b) => a.name.localeCompare(b.name)));
-  }, [VoxelTypeRegistry]);
-
-  React.useEffect(() => {
-    if (!fuse.current || !voxelDescriptions) {
-      return;
-    }
-    const result = fuse.current.search(filters.query).map((r) => r.item);
-    const descriptionsToDisplay = result.length > 0 ? result : voxelDescriptions;
-    setFilteredVoxelDescriptions(descriptionsToDisplay);
-  }, [filters.query, voxelDescriptions]);
+  const { voxelTypesToDisplay } = useCreativeInventorySearch({ layers, filters });
 
   const Slots = [...range(NUM_ROWS * NUM_COLS)].map((i) => {
-    if (!filteredVoxelDescriptions || i >= filteredVoxelDescriptions.length) {
+    if (!voxelTypesToDisplay || i >= voxelTypesToDisplay.length) {
       return <Slot key={"voxel-search-slot" + i} disabled={true} getVoxelIconUrl={getVoxelIconUrl} />;
     }
-    const voxelDescription = filteredVoxelDescriptions[i];
+    const voxelDescription = voxelTypesToDisplay[i];
 
     return (
       <Slot
@@ -138,8 +92,8 @@ export const CreativeInventory: React.FC<Props> = ({ layers, filters }) => {
     <div>
       <input
         className="bg-slate-700 p-1 ml-2 focus:outline-slate-700 border-1 border-solid mb-1 "
-        value={searchValue}
-        onChange={(e) => setSearchValue(e.target.value)}
+        value={filters.query}
+        onChange={(e) => setFilters({ ...filters, query: e.target.value })}
       />
       <ActionBarWrapper>{[...range(NUM_COLS * NUM_ROWS)].map((i) => Slots[i])}</ActionBarWrapper>
     </div>

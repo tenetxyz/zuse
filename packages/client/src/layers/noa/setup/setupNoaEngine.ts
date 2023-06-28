@@ -4,7 +4,7 @@ import { Engine } from "noa-engine";
 import "@babylonjs/core/Meshes/Builders/boxBuilder";
 import * as BABYLON from "@babylonjs/core";
 import { VoxelCoord, keccak256 } from "@latticexyz/utils";
-import { Textures } from "../constants";
+import { PLAYER_MAX_SPEED, Textures } from "../constants";
 import { NetworkLayer } from "../../network";
 import { Entity } from "@latticexyz/recs";
 import {
@@ -188,6 +188,7 @@ function customizePlayerMovement(noa: Engine) {
 
   // Make it so that players can still control their movement while in the air
   // why? because it feels weird when players lose control of their character: https://www.reddit.com/r/gamedev/comments/j3iigd/why_moving_in_the_air_after_jumping_in_games/
-  noa.ents.getMovement(1).airMoveMult = 0.3; // Note: if you sent this value too high, then players will have a hard time making short jumps (it's more important than long jumps, cause it gives them better control)
-  noa.ents.getMovement(1).standingFriction = 100;
+  noa.ents.getMovement(noa.playerEntity).airMoveMult = 0.3; // Note: if you sent this value too high, then players will have a hard time making short jumps (it's more important than long jumps, cause it gives them better control)
+  noa.ents.getMovement(noa.playerEntity).standingFriction = 100;
+  noa.ents.getMovement(noa.playerEntity).maxSpeed = PLAYER_MAX_SPEED;
 }

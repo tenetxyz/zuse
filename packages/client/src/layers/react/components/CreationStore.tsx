@@ -34,6 +34,7 @@ const CreationStore: React.FC<Props> = ({ layers, filters, setFilters }) => {
       components: { PersistentNotification, SpawnCreation },
       SingletonEntity,
       api: { toggleInventory },
+      noa,
     },
     network: {
       contractComponents: { Creation },
@@ -51,6 +52,7 @@ const CreationStore: React.FC<Props> = ({ layers, filters, setFilters }) => {
     setComponent(SpawnCreation, SingletonEntity, {
       creation: creation,
     });
+    noa.blockTestDistance = 30; // increase the distance so placing creations is easier for players
     toggleInventory();
   };
 

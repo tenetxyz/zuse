@@ -20,6 +20,8 @@ import { CHUNK_RENDER_DISTANCE, CHUNK_SIZE, MIN_HEIGHT, SKY_COLOR } from "./cons
 import { VoxelVariantDataValue } from "../types";
 import { AIR_ID } from "../../network/api/terrain/occurrence";
 
+export const DEFAULT_BLOCK_TEST_DISTANCE = 7;
+
 export function setupNoaEngine(network: NetworkLayer) {
   const opts = {
     debug: false,
@@ -33,7 +35,7 @@ export function setupNoaEngine(network: NetworkLayer) {
     chunkSize: CHUNK_SIZE,
     gravity: [0, -20, 0],
     playerStart: [-20000, 100, 20000],
-    blockTestDistance: 7,
+    blockTestDistance: DEFAULT_BLOCK_TEST_DISTANCE,
     playerHeight: 1.85,
     playerWidth: 0.6,
     playerAutoStep: 1,

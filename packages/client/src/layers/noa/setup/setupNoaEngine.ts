@@ -3,16 +3,9 @@ import { Engine } from "noa-engine";
 // add a mesh to represent the player, and scale it, etc.
 import "@babylonjs/core/Meshes/Builders/boxBuilder";
 import * as BABYLON from "@babylonjs/core";
-import { VoxelCoord, keccak256 } from "@latticexyz/utils";
-import { Textures } from "../constants";
+import { VoxelCoord } from "@latticexyz/utils";
 import { NetworkLayer } from "../../network";
-import { Entity } from "@latticexyz/recs";
-import {
-  NoaBlockType,
-  VoxelVariantData,
-  voxelTypeDataKeyToVoxelVariantDataKey,
-  voxelVariantKeyStringToKey,
-} from "../types";
+import { NoaBlockType, voxelTypeDataKeyToVoxelVariantDataKey, voxelVariantKeyStringToKey } from "../types";
 import { createVoxelMesh } from "./utils";
 import { voxelVariantDataKeyToString, VoxelVariantDataKey } from "../types";
 import { setupScene } from "../engine/setupScene";
@@ -196,10 +189,10 @@ function customizePlayerMovement(noa: Engine) {
   });
 
   // remove the default receivesInputs component before adding our modified version
+  // we needed to add our own receivesInputs component to support flying
   noa.entities.removeComponent(noa.playerEntity, noa.entities.names.receivesInputs);
   noa.entities.deleteComponent(RECEIVES_INPUTS_COMPONENT_NAME); // remove the default movement component before adding our modified version
   noa.entities.names[RECEIVES_INPUTS_COMPONENT_NAME] = noa.entities.createComponent(ReceiveInputsComponent(noa));
-  noa.entities.getMovement = noa.ents.getStateAccessor(RECEIVES_INPUTS_COMPONENT_NAME); // we need to update this getter because noa's internal functions use this getter
   noa.entities.addComponent(noa.playerEntity, RECEIVES_INPUTS_COMPONENT_NAME, {});
 
   // Make it so that players can still control their movement while in the air

@@ -52,6 +52,7 @@ export default function (noa: any): System {
 
 function setMovementState(state: IMovementState, inputs: InputState, camHeading: number): void {
   state.jumping = !!inputs.jump;
+  state.isCrouching = !!inputs.crouch;
 
   const fb = inputs.forward ? (inputs.backward ? 0 : 1) : inputs.backward ? -1 : 0;
   const rl = inputs.right ? (inputs.left ? 0 : 1) : inputs.left ? -1 : 0;

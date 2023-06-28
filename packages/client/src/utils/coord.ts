@@ -19,3 +19,7 @@ export function add(a: VoxelCoord, b: VoxelCoord): VoxelCoord {
 export function sub(a: VoxelCoord, b: VoxelCoord): VoxelCoord {
   return { x: a.x - b.x, y: a.y - b.y, z: a.z - b.z };
 }
+
+export function voxelCoordToString(coord: VoxelCoord): string {
+  return `(${coord.x}, ${coord.y}, ${coord.z})`;
+}

@@ -36,6 +36,7 @@ import { keccak256 } from "@latticexyz/utils";
 import { TENET_NAMESPACE } from "../constants";
 import { AIR_ID, BEDROCK_ID, DIRT_ID, GRASS_ID } from "../layers/network/api/terrain/occurrence";
 import { getNftStorageLink } from "../layers/noa/constants";
+import { voxelCoordToString } from "../utils/coord";
 
 export type SetupNetworkResult = Awaited<ReturnType<typeof setupNetwork>>;
 
@@ -525,7 +526,7 @@ export async function setupNetwork() {
     const preview = getNftStorageLink("bafkreidkik2uccshptqcskpippfotmusg7algnfh5ozfsga72xyfdrvacm");
 
     actions.add({
-      id: `SpawnCreation+${creationId}+at+${lowerSouthWestCorner}` as Entity,
+      id: `SpawnCreation+${creationId}+at+${voxelCoordToString(lowerSouthWestCorner)}` as Entity,
       metadata: { actionType: "spawnCreation", preview },
       requirement: () => true,
       components: {},

@@ -288,8 +288,19 @@ export function createInputSystem(network: NetworkLayer, noaLayer: NoaLayer) {
     });
   });
 
-  noa.inputs.bind("clearSelectedPointVoxels", "<backspace>", "<delete>");
-  noa.inputs.down.on("clearSelectedPointVoxels", () => {
+  noa.inputs.bind("cancelAction", "<backspace>", "<delete>");
+  noa.inputs.down.on("cancelAction", () => {
+    // clear the spawn creation component so the outline disappears
+    setComponent(SpawnCreation, SingletonEntity, { creation: undefined });
+    noa.blockTestDistance = DEFAULT_BLOCK_TEST_DISTANCE;
+
+    // clear the persistent notification
+    setComponent(PersistentNotification, SingletonEntity, {
+      message: "",
+      icon: NotificationIcon.NONE,
+    });
+
+    // clear your selected voxels
     setComponent(VoxelSelection, SingletonEntity, {
       points: [] as any,
       corner1: undefined,
@@ -308,15 +319,5 @@ export function createInputSystem(network: NetworkLayer, noaLayer: NoaLayer) {
     }
     const lowerSouthWestCorner = getCoordOfVoxelOnFaceYouTargeted(noa);
     spawnCreation(lowerSouthWestCorner, (creationToSpawn as Creation).creationId);
-
-    // clear the spawn creation component so the outline disappears
-    // TODO: wait until the transaction succeeds, then clear the spawn creation component
-    setComponent(SpawnCreation, SingletonEntity, { creation: undefined });
-    noa.blockTestDistance = DEFAULT_BLOCK_TEST_DISTANCE;
-    // clear the persistent notification
-    setComponent(PersistentNotification, SingletonEntity, {
-      message: "",
-      icon: NotificationIcon.NONE,
-    });
   });
 }

@@ -21,21 +21,29 @@ contract PostDeploy is Script {
     // Note: These have to be here instead of InitSystem as they have be called from the deployer account
     // otherwise the msgSender is not the namespace owner
     world.tenet_VoxelRegistrySys_registerVoxelType(
+      "Grass",
       GrassID,
       GrassTexture,
       world.tenet_InitSystem_grassVariantSelector.selector
     );
     world.tenet_VoxelRegistrySys_registerVoxelType(
+      "Dirt",
       DirtID,
       DirtTexture,
       world.tenet_InitSystem_dirtVariantSelector.selector
     );
     world.tenet_VoxelRegistrySys_registerVoxelType(
+      "Bedrock",
       BedrockID,
       BedrockTexture,
       world.tenet_InitSystem_bedrockVariantSelector.selector
     );
-    world.tenet_VoxelRegistrySys_registerVoxelType(AirID, "", world.tenet_InitSystem_airVariantSelector.selector);
+    world.tenet_VoxelRegistrySys_registerVoxelType(
+      "Air",
+      AirID,
+      "",
+      world.tenet_InitSystem_airVariantSelector.selector
+    );
 
     vm.stopBroadcast();
   }

@@ -26,6 +26,7 @@ contract PostDeploy is Script {
     (bool success, bytes memory result) = worldAddress.call(
       abi.encodeWithSignature(
         REGISTER_VOXEL_TYPE_SIG,
+        "Sand",
         SandID,
         SandTexture,
         world.tenet_ExtensionInitSys_sandVariantSelector.selector
@@ -36,6 +37,7 @@ contract PostDeploy is Script {
     (success, result) = worldAddress.call(
       abi.encodeWithSignature(
         REGISTER_VOXEL_TYPE_SIG,
+        "Log",
         LogID,
         LogTexture,
         IWorld(world).tenet_ExtensionInitSys_logVariantSelector.selector
@@ -46,6 +48,7 @@ contract PostDeploy is Script {
     (success, result) = worldAddress.call(
       abi.encodeWithSignature(
         REGISTER_VOXEL_TYPE_SIG,
+        "Orange Flower",
         OrangeFlowerID,
         OrangeFlowerTexture,
         IWorld(world).tenet_ExtensionInitSys_orangeFlowerVariantSelector.selector
@@ -56,6 +59,7 @@ contract PostDeploy is Script {
     (success, result) = worldAddress.call(
       abi.encodeWithSignature(
         REGISTER_VOXEL_TYPE_SIG,
+        "Signal",
         SignalID,
         SignalOffTexture,
         IWorld(world).tenet_ExtensionInitSys_signalVariantSelector.selector
@@ -66,6 +70,7 @@ contract PostDeploy is Script {
     (success, result) = worldAddress.call(
       abi.encodeWithSignature(
         REGISTER_VOXEL_TYPE_SIG,
+        "Signal Source",
         SignalSourceID,
         SignalSourceTexture,
         IWorld(world).tenet_ExtensionInitSys_signalSourceVariantSelector.selector
@@ -76,6 +81,7 @@ contract PostDeploy is Script {
     (success, result) = worldAddress.call(
       abi.encodeWithSignature(
         REGISTER_VOXEL_TYPE_SIG,
+        "Inverted Signal",
         InvertedSignalID,
         SignalOnTexture,
         IWorld(world).tenet_ExtensionInitSys_invertedSignalVariantSelector.selector

@@ -41,7 +41,7 @@ const CreationStore: React.FC<Props> = ({ layers, filters, setFilters }) => {
 
   const spawnCreation = (creation: Creation) => {
     setComponent(PersistentNotification, SingletonEntity, {
-      message: "press 'Enter' to place creation, 'e' to cancel",
+      message: "press 'Enter' to place creation, 'backspace' to cancel",
       icon: NotificationIcon.NONE,
     });
     setComponent(SpawnCreation, SingletonEntity, {

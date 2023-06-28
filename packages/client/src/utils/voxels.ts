@@ -22,15 +22,3 @@ export const getTargetedVoxelCoord = (noa: Engine): VoxelCoord => {
     z,
   };
 };
-
-export const getCoordOfVoxelOnFaceYouTargeted = (noa: Engine): VoxelCoord => {
-  // adjacent just means the coord on the side of the block face you targeted
-  const x = noa.targetedBlock.adjacent[0];
-  const y = noa.targetedBlock.adjacent[1];
-  const z = noa.targetedBlock.adjacent[2];
-  return {
-    x,
-    y,
-    z,
-  };
-};

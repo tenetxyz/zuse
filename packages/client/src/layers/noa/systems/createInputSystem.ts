@@ -8,10 +8,11 @@ import { getNoaComponent, getNoaComponentStrict } from "../engine/components/uti
 import { NoaLayer } from "../types";
 import { toast } from "react-toastify";
 import { Creation } from "../../react/components/CreationStore";
-import { getCoordOfVoxelOnFaceYouTargeted, getTargetedVoxelCoord } from "../../../utils/voxels";
+import { calculateMinMax, getCoordOfVoxelOnFaceYouTargeted, getTargetedVoxelCoord } from "../../../utils/voxels";
 import { NotificationIcon } from "../components/persistentNotification";
 import { BEDROCK_ID } from "../../network/api/terrain/occurrence";
 import { DEFAULT_BLOCK_TEST_DISTANCE } from "../setup/setupNoaEngine";
+import { calculateCornersFromTargetedBlock, TargetedBlock } from "./createSpawnCreationOverlaySystem";
 
 export function createInputSystem(network: NetworkLayer, noaLayer: NoaLayer) {
   const {
@@ -313,11 +314,14 @@ export function createInputSystem(network: NetworkLayer, noaLayer: NoaLayer) {
     if (!noa.container.hasPointerLock) {
       return;
     }
-    const creationToSpawn: Creation | undefined = getComponentValue(SpawnCreation, SingletonEntity)?.creation;
-    if (creationToSpawn === undefined) {
+    const creation: Creation | undefined = getComponentValue(SpawnCreation, SingletonEntity)?.creation;
+    if (creation === undefined) {
       return;
     }
-    const lowerSouthWestCorner = getCoordOfVoxelOnFaceYouTargeted(noa);
-    spawnCreation(lowerSouthWestCorner, (creationToSpawn as Creation).creationId);
+    // @ts-nocheck
+    const { corner1, corner2 } = calculateCornersFromTargetedBlock(creation, noa.targetedBlock);
+    const { minX, minY, minZ } = calculateMinMax(corner1, corner2);
+
+    spawnCreation({ x: minX, y: minY, z: minZ }, (creation as Creation).creationId);
   });
 }

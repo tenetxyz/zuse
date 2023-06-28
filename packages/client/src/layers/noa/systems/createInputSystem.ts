@@ -11,6 +11,7 @@ import { Creation } from "../../react/components/CreationStore";
 import { getCoordOfVoxelOnFaceYouTargeted, getTargetedVoxelCoord } from "../../../utils/voxels";
 import { NotificationIcon } from "../components/persistentNotification";
 import { BEDROCK_ID } from "../../network/api/terrain/occurrence";
+import { DEFAULT_BLOCK_TEST_DISTANCE } from "../setup/setupNoaEngine";
 
 export function createInputSystem(network: NetworkLayer, noaLayer: NoaLayer) {
   const {
@@ -311,6 +312,7 @@ export function createInputSystem(network: NetworkLayer, noaLayer: NoaLayer) {
     // clear the spawn creation component so the outline disappears
     // TODO: wait until the transaction succeeds, then clear the spawn creation component
     setComponent(SpawnCreation, SingletonEntity, { creation: undefined });
+    noa.blockTestDistance = DEFAULT_BLOCK_TEST_DISTANCE;
     // clear the persistent notification
     setComponent(PersistentNotification, SingletonEntity, {
       message: "",

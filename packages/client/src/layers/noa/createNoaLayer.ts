@@ -78,6 +78,7 @@ import {
   voxelVariantKeyStringToKey,
   VoxelVariantDataValue,
 } from "./types";
+import { DEFAULT_BLOCK_TEST_DISTANCE } from "./setup/setupNoaEngine";
 
 export function createNoaLayer(network: NetworkLayer) {
   const world = namespaceWorld(network.world, "noa");
@@ -285,6 +286,7 @@ export function createNoaLayer(network: NetworkLayer) {
       setComponent(components.SpawnCreation, SingletonEntity, {
         creation: undefined,
       });
+      noa.blockTestDistance = DEFAULT_BLOCK_TEST_DISTANCE; // reset block test distance
     }
 
     noa.container.setPointerLock(!open);

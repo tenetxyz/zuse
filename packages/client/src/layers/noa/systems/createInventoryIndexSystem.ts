@@ -100,10 +100,15 @@ export function createInventoryIndexSystem(network: NetworkLayer, context: NoaLa
 
     // Assign the first free inventory index
     if (!hasComponent(InventoryIndex, voxelTypeKey)) {
-      const values = [...InventoryIndex.values.value.values()]; // lol
-      let i = 0;
-      while (values.includes(i)) i++;
-      setComponent(InventoryIndex, voxelTypeKey, { value: i });
+      const freeInventoryIndex = firstFreeInventoryIndex(InventoryIndex, 0);
+      setComponent(InventoryIndex, voxelTypeKey, { value: freeInventoryIndex });
     }
   });
 }
+
+export const firstFreeInventoryIndex = (InventoryIndex: any, startingIndex: number): number => {
+  let i = startingIndex;
+  const values = [...InventoryIndex.values.value.values()]; // lol
+  while (values.includes(i)) i++;
+  return i;
+};

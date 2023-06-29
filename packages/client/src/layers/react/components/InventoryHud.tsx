@@ -29,6 +29,7 @@ import { Layers } from "../../../types";
 import CreationStore, { CreationStoreFilters } from "./CreationStore";
 import { entityToVoxelType, voxelTypeToEntity, voxelTypeDataKeyToVoxelVariantDataKey } from "../../noa/types";
 import { CreativeInventorySearch } from "../../../utils/useCreativeInventorySearch";
+import { firstFreeInventoryIndex } from "../../noa/systems/createInventoryIndexSystem";
 
 // This gives us 36 inventory slots. As of now there are 34 types of VoxelTypes, so it should fit.
 export const INVENTORY_WIDTH = 9;
@@ -139,8 +140,43 @@ export function registerInventoryHud() {
         document.body.style.cursor = `url(${icon}) 12 12, auto`;
       }, [holdingVoxelType]);
 
-      function moveVoxelType(slot: number) {
-        console.log("moveVoxelType", slot);
+      const onSlotClick = (slotIdx: number, event: React.MouseEvent<HTMLDivElement>) => {
+        if (selectedTab === InventoryTab.INVENTORY && event.shiftKey) {
+          transferItemToHotbarOrInventory(slotIdx);
+        } else {
+          moveVoxelType(slotIdx);
+        }
+      };
+
+      const INVALID_SLOT_IDX = -1;
+      const getNewItemIndex = (slotIdx: number): number => {
+        if (slotIdx < 9) {
+          // transfer it to the first slot in your inventory
+          const freeInventoryIndex = firstFreeInventoryIndex(InventoryIndex, 9);
+          if (freeInventoryIndex > INVENTORY_WIDTH * INVENTORY_HEIGHT) {
+            return INVALID_SLOT_IDX;
+          }
+          return freeInventoryIndex;
+        } else {
+          // transfer it to the first slot in your hotbar
+          const freeInventoryIndex = firstFreeInventoryIndex(InventoryIndex, 0);
+          if (freeInventoryIndex >= 9) {
+            return INVALID_SLOT_IDX;
+          }
+          return freeInventoryIndex;
+        }
+      };
+
+      const transferItemToHotbarOrInventory = (slotIdx: number) => {
+        let newItemIndex = getNewItemIndex(slotIdx);
+        if (newItemIndex === INVALID_SLOT_IDX) {
+          return; // do nothing. They don't have any more slots
+        }
+        const voxelTypeAtSlot = [...getEntitiesWithValue(InventoryIndex, { value: slotIdx })][0];
+        setComponent(InventoryIndex, voxelTypeAtSlot, { value: newItemIndex });
+      };
+
+      const moveVoxelType = (slot: number) => {
         const voxelTypeAtSlot = [...getEntitiesWithValue(InventoryIndex, { value: slot })][0];
 
         // If not currently holding a voxel, grab the voxel at this slot
@@ -166,7 +202,7 @@ export function registerInventoryHud() {
             value: holdingVoxelTypeSlot,
           });
         setHoldingVoxelType(undefined);
-      }
+      };
 
       function removeVoxelType(slot: number) {
         const voxelTypeIdAtSlot = [...getEntitiesWithValue(InventoryIndex, { value: slot })][0];
@@ -201,7 +237,7 @@ export function registerInventoryHud() {
             key={"slot" + i}
             voxelType={quantity ? voxelType : undefined}
             quantity={quantity || undefined}
-            onClick={() => moveVoxelType(i)}
+            onClick={(event: any) => onSlotClick(i, event)}
             onRightClick={() => removeVoxelType(i)}
             disabled={voxelType === holdingVoxelType}
             selected={i === selectedSlot}

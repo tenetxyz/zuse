@@ -9,7 +9,7 @@ import { VoxelVariantDataKey, entityToVoxelType } from "../../../noa/types";
 export const Slot: React.FC<{
   voxelType?: Entity;
   quantity?: number;
-  onClick?: () => void;
+  onClick?: (event: React.MouseEvent<HTMLDivElement>) => void;
   onRightClick?: () => void;
   selected?: boolean;
   disabled?: boolean;
@@ -72,6 +72,7 @@ const Quantity = styled.div`
   justify-content: end;
   align-content: end;
   padding: 7px 3px;
+  user-select: none;
 `;
 
 const TooltipText = styled.div`

@@ -12,7 +12,8 @@ export interface IMovementState {
   isJumpHeld: boolean;
 
   // options
-  maxSpeed: number;
+  runningSpeed: number;
+  flyingSpeed: number;
   moveForce: number;
   responsiveness: number;
   runningFriction: number;
@@ -44,7 +45,8 @@ export function MovementState(): IMovementState {
     isJumpHeld: false,
 
     // options
-    maxSpeed: 10,
+    runningSpeed: 10,
+    flyingSpeed: 100,
     moveForce: 30,
     responsiveness: 15,
     runningFriction: 0,
@@ -127,10 +129,15 @@ function applyMovementPhysics(dt: number, state: IMovementState, body: RigidBody
   let m: any = tempvec;
   let push: any = tempvec2;
   if (state.isRunning) {
-    let speed: number = state.maxSpeed;
     // todo: add crouch/sprint modifiers if needed
     // if (state.sprint) speed *= state.sprintMoveMult
     // if (state.crouch) speed *= state.crouchMoveMult
+    let speed;
+    if (isFlying(body)) {
+      speed = state.flyingSpeed;
+    } else {
+      speed = state.runningSpeed;
+    }
     vec3.set(m, 0, 0, speed);
 
     // rotate move vector to entity's heading
@@ -147,7 +154,11 @@ function applyMovementPhysics(dt: number, state: IMovementState, body: RigidBody
     if (pushLen > 0) {
       // pushing force vector
       let canPush: number = state.moveForce;
-      if (!isOnGround) canPush *= state.airMoveMult;
+
+      // scale the pushing force vector based on state
+      if (!isOnGround) {
+        canPush *= state.airMoveMult;
+      }
 
       // apply final force
       let pushAmt: number = state.responsiveness * pushLen;
@@ -174,8 +185,19 @@ const isFlying = (body: RigidBody) => {
   return body.gravityMultiplier === 0;
 };
 
-const isStillJumping = (state: IMovementState) => {
-  return state._currentJumpTime > 0;
+const toggleFlying = (body: RigidBody) => {
+  if (isFlying(body)) {
+    // they are falling now
+    body.gravityMultiplier = 2;
+    body.airDrag = 0.1;
+    return; // we are now falling, so no need to jump
+  } else {
+    // they are flying now
+    body.gravityMultiplier = 0;
+    body.velocity[1] = 10; // reset their velocity so they stop falling
+    body.airDrag = 0;
+    return; // return. It's okay if we don't start going up until the next frame
+  }
 };
 
 const exportMovementForcesToBody = (state: IMovementState, body: RigidBody, dt: number, bodyState: BodyState) => {
@@ -203,17 +225,7 @@ const exportMovementForcesToBody = (state: IMovementState, body: RigidBody, dt: 
 
   // 1) toggle flying if they can fly
   if (doublePressedJump(state) && state.canFly) {
-    // toggle flying
-    if (isFlying(body)) {
-      body.gravityMultiplier = 2;
-      body.airDrag = 0.1;
-      return; // we are now falling, so no need to jump
-    } else {
-      body.gravityMultiplier = 0;
-      body.velocity[1] = 10; // reset their velicity so they stop falling
-      body.airDrag = 0;
-      return; // return. It's okay if we don't start going up until the next frame
-    }
+    toggleFlying(body);
   }
 
   // 2) if they just pressed jump, start a jump

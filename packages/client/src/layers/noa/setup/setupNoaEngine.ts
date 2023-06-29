@@ -3,7 +3,8 @@ import { Engine } from "noa-engine";
 // add a mesh to represent the player, and scale it, etc.
 import "@babylonjs/core/Meshes/Builders/boxBuilder";
 import * as BABYLON from "@babylonjs/core";
-import { VoxelCoord } from "@latticexyz/utils";
+import { VoxelCoord, keccak256 } from "@latticexyz/utils";
+import { PLAYER_MAX_SPEED, Textures } from "../constants";
 import { NetworkLayer } from "../../network";
 import { NoaBlockType, voxelTypeDataKeyToVoxelVariantDataKey, voxelVariantKeyStringToKey } from "../types";
 import { createVoxelMesh } from "./utils";

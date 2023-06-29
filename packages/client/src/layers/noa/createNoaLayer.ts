@@ -29,7 +29,7 @@ import {
   defineSoundComponent,
   defineVoxelSelectionComponent,
 } from "./components";
-import { CRAFTING_SIDE, EMPTY_CRAFTING_TABLE } from "./constants";
+import { CRAFTING_SIDE, EMPTY_CRAFTING_TABLE, PLAYER_MAX_SPEED } from "./constants";
 import * as BABYLON from "@babylonjs/core";
 import { Texture, Vector4 } from "@babylonjs/core";
 import { setupHand } from "./engine/hand";
@@ -79,6 +79,7 @@ import {
   VoxelVariantDataValue,
 } from "./types";
 import { DEFAULT_BLOCK_TEST_DISTANCE } from "./setup/setupNoaEngine";
+import { MAX_ENTITIES } from "@latticexyz/ecs-browser/src/constants";
 
 export function createNoaLayer(network: NetworkLayer) {
   const world = namespaceWorld(network.world, "noa");
@@ -303,10 +304,12 @@ export function createNoaLayer(network: NetworkLayer) {
       noa.entities.removeComponent(noa.playerEntity, noa.ents.names.receivesInputs);
       noa.inputs.unbind("select-voxel");
       noa.inputs.unbind("admin-panel");
+      noa.entities.getMovement(noa.playerEntity).maxSpeed = 0; // stops the player's input from moving the player
     } else {
       noa.entities.addComponent(noa.playerEntity, noa.ents.names.receivesInputs);
       noa.inputs.bind("select-voxel", "V");
       noa.inputs.bind("admin-panel", "-");
+      noa.entities.getMovement(noa.playerEntity).maxSpeed = PLAYER_MAX_SPEED;
     }
   };
   const isFocusedOnInputElement = () => {

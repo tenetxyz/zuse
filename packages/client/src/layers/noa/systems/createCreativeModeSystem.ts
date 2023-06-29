@@ -15,7 +15,7 @@ export function createCreativeModeSystem(network: NetworkLayer, context: NoaLaye
     const entity = update.entity;
     if (entity !== SingletonEntity) return;
     const currentValue = update.value[0];
-    const movementComponent = noa.ents.getStateAccessor(MOVEMENT_COMPONENT_NAME)(noa.playerEntity);
+    const movementComponent = noa.ents.getMovement(noa.playerEntity);
     if (currentValue?.creativeMode) {
       movementComponent.airJumps = 999;
     } else {

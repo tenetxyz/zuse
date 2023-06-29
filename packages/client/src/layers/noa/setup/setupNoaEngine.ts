@@ -178,29 +178,11 @@ export function setupNoaEngine(network: NetworkLayer) {
 }
 
 function customizePlayerMovement(noa: Engine) {
-  // Note: if you want to write very specific movement overrides, read this: https://github.com/fenomas/noa/issues/147
-
-  // remove the default movement component before adding our modified version
-  noa.entities.removeComponent(noa.playerEntity, noa.entities.names[MOVEMENT_COMPONENT_NAME]);
-  noa.entities.deleteComponent(MOVEMENT_COMPONENT_NAME);
-  noa.entities.names[MOVEMENT_COMPONENT_NAME] = noa.entities.createComponent(MovementComponent(noa));
+  // use our own custom components to support flying
+  useCustomComponents(noa, MovementComponent, MOVEMENT_COMPONENT_NAME, { airJumps: 1 });
   noa.entities.getMovement = noa.ents.getStateAccessor(MOVEMENT_COMPONENT_NAME); // we need to update this getter because noa's internal functions use this getter
-  noa.entities.addComponent(noa.playerEntity, MOVEMENT_COMPONENT_NAME, {
-    airJumps: 1,
-  });
-
-  // remove the default receivesInputs component before adding our modified version
-  // we needed to add our own receivesInputs component to support flying
-  noa.entities.removeComponent(noa.playerEntity, noa.entities.names[RECEIVES_INPUTS_COMPONENT_NAME]);
-  noa.entities.deleteComponent(RECEIVES_INPUTS_COMPONENT_NAME); // remove the default movement component before adding our modified version
-  noa.entities.names[RECEIVES_INPUTS_COMPONENT_NAME] = noa.entities.createComponent(ReceiveInputsComponent(noa));
-  noa.entities.addComponent(noa.playerEntity, RECEIVES_INPUTS_COMPONENT_NAME, {});
-
-  // use our own collideTerrainComponent to support flying
-  noa.entities.removeComponent(noa.playerEntity, noa.entities.names[COLLIDE_TERRAIN_COMPONENT_NAME]);
-  noa.entities.deleteComponent(COLLIDE_TERRAIN_COMPONENT_NAME);
-  noa.entities.names[COLLIDE_TERRAIN_COMPONENT_NAME] = noa.entities.createComponent(CollideTerrainComponent(noa));
-  noa.entities.addComponent(noa.playerEntity, COLLIDE_TERRAIN_COMPONENT_NAME, {});
+  useCustomComponents(noa, ReceiveInputsComponent, RECEIVES_INPUTS_COMPONENT_NAME, {});
+  useCustomComponents(noa, CollideTerrainComponent, COLLIDE_TERRAIN_COMPONENT_NAME, {});
 
   // Make it so that players can still control their movement while in the air
   // why? because it feels weird when players lose control of their character: https://www.reddit.com/r/gamedev/comments/j3iigd/why_moving_in_the_air_after_jumping_in_games/
@@ -208,3 +190,15 @@ function customizePlayerMovement(noa: Engine) {
   movementComponent.airMoveMult = 0.3; // Note: if you sent this value too high, then players will have a hard time making short jumps (it's more important than long jumps, cause it gives them better control)
   movementComponent.standingFriction = 100;
 }
+
+// I learned how to add custom components to noa via this thread: https://github.com/fenomas/noa/issues/147
+// NOTE: componentName MUST be the same as the name of the default component (so the correct component is removed)
+const useCustomComponents = (noa: Engine, Component: any, componentName: string, args: any) => {
+  // remove the default component before adding our modified version
+  noa.entities.removeComponent(noa.playerEntity, noa.entities.names[componentName]);
+  noa.entities.deleteComponent(componentName);
+
+  // add our modified version
+  noa.entities.names[componentName] = noa.entities.createComponent(Component(noa));
+  noa.entities.addComponent(noa.playerEntity, componentName, args);
+};

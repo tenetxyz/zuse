@@ -326,5 +326,7 @@ export function createInputSystem(network: NetworkLayer, noaLayer: NoaLayer) {
   });
 
   noa.inputs.bind("crouch", "<shift>");
-  noa.inputs.down.on("crouch", () => {});
+  // We are not doing anything when crouching in this file because noa's movement
+  // component reads the crouch event and uses it to descend when flying
+  // noa.inputs.down.on("crouch", () => {});
 }

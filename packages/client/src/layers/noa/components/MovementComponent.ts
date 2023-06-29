@@ -11,15 +11,14 @@ export interface IMovementState {
   runningSpeed: number;
   flyingSpeed: number;
   jumpingInAirSpeed: number;
-  moveForce: number;
   runningFriction: number;
   standingFriction: number;
 
   // jumps
   jumpImpulse: number;
   jumpForce: number;
-  jumpTime: number; // ms
-  airJumps: number;
+  jumpTimeMs: number; // ms
+  maxAirJumps: number;
   isJumpPressed: boolean;
 
   canFly: boolean;
@@ -27,10 +26,8 @@ export interface IMovementState {
 
   // internal state
   _jumpCount: number;
-  _currentJumpTime: number;
-  _lastJumpPressTime: number;
-
-  resting?: [number, number, number];
+  _currentjumpTimeMs: number;
+  _lastJumpPressTimeMs: number;
 }
 
 export function MovementState(): IMovementState {
@@ -41,17 +38,16 @@ export function MovementState(): IMovementState {
 
     // options
     runningSpeed: 10,
-    flyingSpeed: 20,
+    flyingSpeed: 17,
     jumpingInAirSpeed: 15,
-    moveForce: 10,
     runningFriction: 0,
     standingFriction: 2,
 
     // jumps
-    jumpImpulse: 10,
+    jumpImpulse: 10, // in physics, impulse is force * delta t
     jumpForce: 12,
-    jumpTime: 500, // ms
-    airJumps: 1,
+    jumpTimeMs: 500, // This determines how long the jump force should be applied
+    maxAirJumps: 1,
     isJumpPressed: false,
 
     canFly: true,
@@ -59,8 +55,8 @@ export function MovementState(): IMovementState {
 
     // internal state
     _jumpCount: 0,
-    _currentJumpTime: 0,
-    _lastJumpPressTime: 0,
+    _currentjumpTimeMs: 0,
+    _lastJumpPressTimeMs: 0,
   };
 }
 
@@ -110,8 +106,6 @@ function applyMovementPhysics(dt: number, state: IMovementState, body: RigidBody
   // see https://github.com/fenomas/voxel-fps-controller
   // for original code
 
-  // if vecloicy is 0 and isresting is ttrue, then we know it's on ground
-  // if velocity is nonzero it's not on ground
   let isOnGround = body.atRestY() < 0;
   if (isOnGround) {
     state._jumpCount = 0;
@@ -174,10 +168,10 @@ const accelerateBodyToVelocityAtSpeed = (normalVec: number[], body: RigidBody, s
 
 const doublePressedJump = (state: IMovementState) => {
   const currentTimeMs = new Date().getTime();
-  return state.isJumpPressed && state._lastJumpPressTime + 400 > currentTimeMs; // checks that the last time we pressed jump was recent enough
+  return state.isJumpPressed && state._lastJumpPressTimeMs + 400 > currentTimeMs; // checks that the last time we pressed jump was recent enough
 };
 
-const isFlying = (body: RigidBody) => {
+export const isFlying = (body: RigidBody) => {
   return body.gravityMultiplier === 0;
 };
 
@@ -196,13 +190,17 @@ const toggleFlying = (body: RigidBody) => {
   }
 };
 
+// This function accelerates the user to the desired speed.
+// It applies a larger acceleration if the player is at a slower speed.
+// Why not just set the player's velocity to the desired velocity?
+// because it was very jarring and not pleasant
 const accelerateToSpeed2 = (targetSpeed: number, body: RigidBody, earlyAccelerationMultiplier = 2) => {
   const diff = targetSpeed - vec3.len(body.velocity);
   return targetSpeed + (targetSpeed - vec3.len(body.velocity) * earlyAccelerationMultiplier);
 };
 
 const exportMovementForcesToBody = (state: IMovementState, body: RigidBody, dt: number, isOnGround: boolean) => {
-  const canJump = isOnGround || state._jumpCount < state.airJumps;
+  const canJump = isOnGround || state._jumpCount < state.maxAirJumps;
 
   if (isFlying(body)) {
     if (state.isCrouching) {
@@ -229,14 +227,14 @@ const exportMovementForcesToBody = (state: IMovementState, body: RigidBody, dt: 
   // 1) toggle flying if they can fly
   if (doublePressedJump(state) && state.canFly) {
     toggleFlying(body);
-    state._lastJumpPressTime = 0; // reset the last jump press time so we don't double jump when we press jump again
+    state._lastJumpPressTimeMs = 0; // reset the last jump press time so we don't double jump when we press jump again
     return;
   }
 
   // 2) if they just pressed jump, start a jump
   // Note: isJumpPressed is only true on the frame the jump key is pressed
   if (state.isJumpPressed) {
-    state._lastJumpPressTime = new Date().getTime();
+    state._lastJumpPressTimeMs = new Date().getTime();
     if (isFlying(body)) {
       // just give them upwards velocity. do NOT give them a massive impulse like below
       // body.velocity[1] = 10;
@@ -245,23 +243,23 @@ const exportMovementForcesToBody = (state: IMovementState, body: RigidBody, dt: 
     } else if (canJump) {
       // start new jump
       state._jumpCount++;
-      state._currentJumpTime = state.jumpTime;
+      state._currentjumpTimeMs = state.jumpTimeMs;
       body.applyImpulse([0, state.jumpImpulse, 0]);
       return;
     }
   }
 
   // 3) if they are still jumping, apply jump force
-  if (state.isJumpHeld && state._currentJumpTime > 0) {
+  if (state.isJumpHeld && state._currentjumpTimeMs > 0) {
     // apply jump force
     let jf = state.jumpForce;
-    if (state._currentJumpTime < dt) {
-      jf *= state._currentJumpTime / dt;
+    if (state._currentjumpTimeMs < dt) {
+      jf *= state._currentjumpTimeMs / dt;
     }
     body.applyForce([0, jf, 0]);
-    state._currentJumpTime -= dt;
+    state._currentjumpTimeMs -= dt;
   } else {
     // the user let go of the jump key, so stop jumping
-    state._currentJumpTime = 0;
+    state._currentjumpTimeMs = 0;
   }
 };

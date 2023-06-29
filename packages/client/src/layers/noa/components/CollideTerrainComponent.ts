@@ -1,4 +1,8 @@
+// This file is mostly copied from the noa engine
+// https://github.com/fenomas/noa/blob/master/src/components/collideTerrain.js
+// However, we needed to change it, to incorporate flying
 import { GRAVITY_MULTIPLIER } from "../constants";
+import { isFlying } from "./MovementComponent";
 
 interface State {
   callback: ((impulse: any, eid: number) => void) | null;
@@ -27,11 +31,12 @@ export default function (noa: any) {
       if (ents.hasPhysics(entityId)) {
         const body = ents.getPhysics(entityId).body;
         body.onCollide = function bodyOnCollide(impulse: any) {
+          // We added this this code to turn off flying mode when the player collide with the floor
           if (entityId === noa.playerEntity) {
-            const playerImpulse = impulse as Float64Array;
+            const playerImpulse = impulse as Float32Array;
             const playerBody = ents.getPhysicsBody(entityId);
-            const isFlying = playerBody.gravityMultiplier === 0;
-            if (playerImpulse[1] > 0 && isFlying) {
+            const playerCollidesWithBlockBelow = playerImpulse[1] > 0;
+            if (playerCollidesWithBlockBelow && isFlying(playerBody)) {
               // the player was flying then crouched and hit the floor. Stop flying.
               playerBody.gravityMultiplier = GRAVITY_MULTIPLIER;
             }

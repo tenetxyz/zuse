@@ -1,3 +1,5 @@
+// This file was copied over from noa: https://github.com/fenomas/noa/blob/master/src/components/receivesInputs.js
+// The reason why was we needed to modify it to support flying.
 import { IMovementState } from "./MovementComponent";
 
 export const RECEIVES_INPUTS_COMPONENT_NAME = "receivesInputs";
@@ -51,14 +53,12 @@ export default function (noa: any): System {
  */
 
 function setMovementState(state: IMovementState, inputs: InputState, camHeading: number): void {
-  // if the player is currently jumping and the previous state it wasn't jumping
-  if (!!inputs.jump && state.isJumpHeld === false) {
-    state.isJumpPressed = true;
-  } else {
-    state.isJumpPressed = false;
-  }
-  state.isJumpHeld = !!inputs.jump;
-  state.isCrouching = !!inputs.crouch;
+  // this means: if the player is currently jumping and the previous frame it wasn't jumping
+  // then the user pressed the jump button on this frame
+  state.isJumpPressed = inputs.jump && !state.isJumpHeld;
+
+  state.isJumpHeld = inputs.jump;
+  state.isCrouching = inputs.crouch;
 
   const fb = inputs.forward ? (inputs.backward ? 0 : 1) : inputs.backward ? -1 : 0;
   const rl = inputs.right ? (inputs.left ? 0 : 1) : inputs.left ? -1 : 0;

@@ -158,8 +158,8 @@ function applyMovementPhysics(dt: number, state: IMovementState, body: RigidBody
 }
 
 const accelerateBodyToVelocityAtSpeed = (normalVec: number[], body: RigidBody, speed: number) => {
-  // const diff = Math.abs(speed - normalVec.length);
-  const diff = speed - normalVec.length;
+  const diff = Math.abs(speed - normalVec.length);
+  // const diff = speed - normalVec.length;
   // the math equation basically says:
   // the further you are from the flying speed (the diff variable), the larger our push should be
   vec3.scale(normalVec, normalVec, speed * (1 + (diff / speed) * 1.5));
@@ -194,9 +194,15 @@ const toggleFlying = (body: RigidBody) => {
 // It applies a larger acceleration if the player is at a slower speed.
 // Why not just set the player's velocity to the desired velocity?
 // because it was very jarring and not pleasant
-const accelerateToSpeed2 = (targetSpeed: number, body: RigidBody, earlyAccelerationMultiplier = 2) => {
-  const diff = targetSpeed - vec3.len(body.velocity);
-  return targetSpeed + (targetSpeed - vec3.len(body.velocity) * earlyAccelerationMultiplier);
+const accelerateToSpeed2 = (targetSpeed: number, body: RigidBody) => {
+  // if the body isn't travelling in the right direction, then we want to accelerate it more
+  if (body.velocity[1] * targetSpeed < 0) {
+    return targetSpeed * 6;
+  }
+  if (Math.abs(body.velocity[1]) < 0.5 * Math.abs(targetSpeed)) {
+    return targetSpeed * 2; // give it more acceleration if it's going slow
+  }
+  return targetSpeed;
 };
 
 const exportMovementForcesToBody = (state: IMovementState, body: RigidBody, dt: number, isOnGround: boolean) => {
@@ -206,10 +212,10 @@ const exportMovementForcesToBody = (state: IMovementState, body: RigidBody, dt: 
     if (state.isCrouching) {
       // body.velocity[1] = -10;
       // accelerateBodyToVelocityAtSpeed([0, -1, 0], body, 5, 30);
-      body.applyForce([0, -1 * accelerateToSpeed2(15, body), 0]);
+      body.applyForce([0, accelerateToSpeed2(-15, body), 0]);
       return;
     } else if (state.isJumpHeld) {
-      body.applyForce([0, 1 * accelerateToSpeed2(15, body), 0]);
+      body.applyForce([0, accelerateToSpeed2(15, body), 0]);
       // fly up
       // body.velocity[1] = 10;
       // accelerateBodyToVelocityAtSpeed([0, 1, 0], body, 5, 30);

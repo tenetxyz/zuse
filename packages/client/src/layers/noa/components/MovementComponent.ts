@@ -167,7 +167,8 @@ function applyMovementPhysics(dt: number, state: IMovementState, body: RigidBody
 }
 
 const accelerateBodyToVelocityAtSpeed = (normalVec: number[], body: RigidBody, speed: number) => {
-  const diff = Math.abs(normalVec.length - speed);
+  // const diff = Math.abs(speed - normalVec.length);
+  const diff = speed - normalVec.length;
   // the math equation basically says:
   // the further you are from the flying speed (the diff variable), the larger our push should be
   vec3.scale(normalVec, normalVec, speed * (1 + (diff / speed) * 1.5));
@@ -198,16 +199,25 @@ const toggleFlying = (body: RigidBody) => {
   }
 };
 
+const accelerateToSpeed2 = (targetSpeed: number, body: RigidBody, earlyAccelerationMultiplier = 2) => {
+  const diff = targetSpeed - vec3.len(body.velocity);
+  return targetSpeed + (targetSpeed - vec3.len(body.velocity) * earlyAccelerationMultiplier);
+};
+
 const exportMovementForcesToBody = (state: IMovementState, body: RigidBody, dt: number, isOnGround: boolean) => {
   const canJump = isOnGround || state._jumpCount < state.airJumps;
 
   if (isFlying(body)) {
     if (state.isCrouching) {
-      body.velocity[1] = -10;
+      // body.velocity[1] = -10;
+      // accelerateBodyToVelocityAtSpeed([0, -1, 0], body, 5, 30);
+      body.applyForce([0, -1 * accelerateToSpeed2(15, body), 0]);
       return;
     } else if (state.isJumpHeld) {
+      body.applyForce([0, 1 * accelerateToSpeed2(15, body), 0]);
       // fly up
-      body.velocity[1] = 10;
+      // body.velocity[1] = 10;
+      // accelerateBodyToVelocityAtSpeed([0, 1, 0], body, 5, 30);
     } else {
       body.velocity[1] *= 0.5; // multiply velocity by 0.5 to gradually slow down
       if (!state.isRunning) {
@@ -227,12 +237,19 @@ const exportMovementForcesToBody = (state: IMovementState, body: RigidBody, dt: 
 
   // 2) if they just pressed jump, start a jump
   // Note: isJumpPressed is only true on the frame the jump key is pressed
-  if (state.isJumpPressed && (canJump || isFlying(body))) {
-    // start new jump
-    state._jumpCount++;
-    state._currentJumpTime = state.jumpTime;
-    body.applyImpulse([0, state.jumpImpulse, 0]);
-    return;
+  if (state.isJumpPressed) {
+    if (isFlying(body)) {
+      // just give them upwards velocity. do NOT give them a massive impulse like below
+      // body.velocity[1] = 10;
+      body.applyForce([0, 10, 0]);
+      return;
+    } else if (canJump) {
+      // start new jump
+      state._jumpCount++;
+      state._currentJumpTime = state.jumpTime;
+      body.applyImpulse([0, state.jumpImpulse, 0]);
+      return;
+    }
   }
 
   // 3) if they are still jumping, apply jump force

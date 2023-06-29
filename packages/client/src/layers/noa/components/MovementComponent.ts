@@ -42,9 +42,9 @@ export function MovementState(): IMovementState {
 
     // options
     runningSpeed: 10,
-    flyingSpeed: 30,
-    moveForce: 30,
-    responsiveness: 15,
+    flyingSpeed: 20,
+    moveForce: 10,
+    responsiveness: 30,
     runningFriction: 0,
     standingFriction: 2,
 
@@ -143,18 +143,26 @@ function applyMovementPhysics(dt: number, state: IMovementState, body: RigidBody
     // following code to adjust 2D velocity to desired amount is patterned on Quake:
     // https://github.com/id-Software/Quake-III-Arena/blob/master/code/game/bg_pmove.c#L275
     vec3.sub(push, m, body.velocity);
-    push[1] = 0;
-    let pushLen: number = vec3.len(push);
-    vec3.normalize(push, push);
+    push[1] = 0; // the user's WASD movement shouldn't affect their Y velocity
+    vec3.normalize(push, push); // IMPORTANT! we normalize the push vector before applying it
+
+    // the len is the modulus of the vector I think. I think this is just an optimization
+    const pushLen = vec3.len(push);
+    if (isFlying(body)) {
+      const diff = Math.abs(pushLen - state.flyingSpeed);
+      // the math equation basically says:
+      // the further you are from the flying speed (the diff variable), the larger our push should be
+      vec3.scale(push, push, state.flyingSpeed * (1 + (diff / state.flyingSpeed) * 1.5));
+      body.applyForce(push);
+      return;
+    }
 
     if (pushLen > 0) {
       // pushing force vector
       let canPush: number = state.moveForce;
 
       // scale the pushing force vector based on state
-      if (!isOnGround) {
-        canPush *= state.airMoveMult;
-      }
+      if (!isOnGround) canPush *= state.airMoveMult;
 
       // apply final force
       let pushAmt: number = state.responsiveness * pushLen;
@@ -174,7 +182,7 @@ function applyMovementPhysics(dt: number, state: IMovementState, body: RigidBody
 
 const doublePressedJump = (state: IMovementState) => {
   const currentTimeMs = new Date().getTime();
-  return state.isJumpPressed && state._lastJumpPressTime + 750 > currentTimeMs; // checks that the last time we pressed jump was recent enough
+  return state.isJumpPressed && state._lastJumpPressTime + 500 > currentTimeMs; // checks that the last time we pressed jump was recent enough
 };
 
 const isFlying = (body: RigidBody) => {

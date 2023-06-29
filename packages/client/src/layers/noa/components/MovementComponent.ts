@@ -8,7 +8,7 @@ enum BodyState {
 
 export interface IMovementState {
   heading: number; // radians
-  running: boolean;
+  isRunning: boolean;
   isJumpHeld: boolean;
 
   // options
@@ -40,7 +40,7 @@ export interface IMovementState {
 export function MovementState(): IMovementState {
   return {
     heading: 0,
-    running: false,
+    isRunning: false,
     isJumpHeld: false,
 
     // options
@@ -126,7 +126,7 @@ function applyMovementPhysics(dt: number, state: IMovementState, body: RigidBody
   // apply movement forces if entity is moving, otherwise just friction
   let m: any = tempvec;
   let push: any = tempvec2;
-  if (state.running) {
+  if (state.isRunning) {
     let speed: number = state.maxSpeed;
     // todo: add crouch/sprint modifiers if needed
     // if (state.sprint) speed *= state.sprintMoveMult
@@ -181,16 +181,38 @@ const isStillJumping = (state: IMovementState) => {
 const exportMovementForcesToBody = (state: IMovementState, body: RigidBody, dt: number, bodyState: BodyState) => {
   const canJump = bodyState === BodyState.onGround || state._jumpCount < state.airJumps;
 
+  if (isFlying(body)) {
+    if (state.isCrouching) {
+      // fly down
+      // body.applyForce([0, -40, 0]);
+      body.velocity[1] = -10;
+      return;
+    } else if (state.isJumpHeld) {
+      // fly up
+      body.velocity[1] = 10;
+      return;
+    } else {
+      body.velocity[1] = 0;
+      if (!state.isRunning) {
+        // we are flying and not pressing wasd. So stop moving
+        body.velocity[0] = 0;
+        body.velocity[2] = 0;
+      }
+    }
+  }
+
   // 1) toggle flying if they can fly
   if (doublePressedJump(state) && state.canFly) {
     // toggle flying
     if (isFlying(body)) {
       body.gravityMultiplier = 2;
+      body.airDrag = 0.1;
       return; // we are now falling, so no need to jump
     } else {
       body.gravityMultiplier = 0;
-      body.velocity[1] = 0; // reset their velicity so they stop falling
-      // return; // return. It's okay if we don't start going up until the next frame
+      body.velocity[1] = 10; // reset their velicity so they stop falling
+      body.airDrag = 0;
+      return; // return. It's okay if we don't start going up until the next frame
     }
   }
 
@@ -200,8 +222,8 @@ const exportMovementForcesToBody = (state: IMovementState, body: RigidBody, dt: 
     // start new jump
     state._jumpCount++;
     state._currentJumpTime = state.jumpTime;
-    state._lastJumpPressTime = new Date().getTime();
     body.applyImpulse([0, state.jumpImpulse, 0]);
+    state._lastJumpPressTime = new Date().getTime();
     return;
   }
 
@@ -217,10 +239,5 @@ const exportMovementForcesToBody = (state: IMovementState, body: RigidBody, dt: 
   } else {
     // the user let go of the jump key, so stop jumping
     state._currentJumpTime = 0;
-  }
-
-  // 4) update state variables
-  if (state.isJumpPressed) {
-    state._lastJumpPressTime = new Date().getTime();
   }
 };

@@ -64,9 +64,9 @@ function setMovementState(state: IMovementState, inputs: InputState, camHeading:
   const rl = inputs.right ? (inputs.left ? 0 : 1) : inputs.left ? -1 : 0;
 
   if ((fb | rl) === 0) {
-    state.running = false;
+    state.isRunning = false;
   } else {
-    state.running = true;
+    state.isRunning = true;
     if (fb) {
       if (fb == -1) camHeading += Math.PI;
       if (rl) {

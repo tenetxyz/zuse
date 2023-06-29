@@ -174,55 +174,52 @@ const isFlying = (body: RigidBody) => {
   return body.gravityMultiplier === 0;
 };
 
-const exportMovementForcesToBody = (state: IMovementState, body: RigidBody, dt: number, bodyState: BodyState) => {
-  let canJump = bodyState === BodyState.onGround || state._jumpCount < state.airJumps;
+const isStillJumping = (state: IMovementState) => {
+  return state._currentJumpTime > 0;
+};
 
+const exportMovementForcesToBody = (state: IMovementState, body: RigidBody, dt: number, bodyState: BodyState) => {
+  const canJump = bodyState === BodyState.onGround || state._jumpCount < state.airJumps;
+
+  // 1) toggle flying if they can fly
   if (doublePressedJump(state) && state.canFly) {
     // toggle flying
     if (isFlying(body)) {
       body.gravityMultiplier = 2;
+      return; // we are now falling, so no need to jump
     } else {
       body.gravityMultiplier = 0;
       body.velocity[1] = 0; // reset their velicity so they stop falling
+      // return; // return. It's okay if we don't start going up until the next frame
     }
-    return; // return. it's okay if we don't start going up until the next frame
   }
 
-  // if the user is flying, or is still jumping, apply jump force
-  if (state.isJumpHeld) {
-    if (isFlying(body) || canJump) {
-      var jf = state.jumpForce;
-      if (state._currentJumpTime < dt) jf *= state._currentJumpTime / dt;
-      body.applyForce([0, jf, 0]);
-      state._currentJumpTime -= dt;
+  // 2) if they just pressed jump, start a jump
+  // Note: isJumpPressed is only true on the frame the jump key is pressed
+  if (state.isJumpPressed && (canJump || isFlying(body))) {
+    // start new jump
+    state._jumpCount++;
+    state._currentJumpTime = state.jumpTime;
+    state._lastJumpPressTime = new Date().getTime();
+    body.applyImpulse([0, state.jumpImpulse, 0]);
+    return;
+  }
+
+  // 3) if they are still jumping, apply jump force
+  if (state.isJumpHeld && state._currentJumpTime > 0) {
+    // apply jump force
+    let jf = state.jumpForce;
+    if (state._currentJumpTime < dt) {
+      jf *= state._currentJumpTime / dt;
     }
+    body.applyForce([0, jf, 0]);
+    state._currentJumpTime -= dt;
   } else {
     // the user let go of the jump key, so stop jumping
     state._currentJumpTime = 0;
   }
 
-  // if (state.isJumpHeld) {
-  //   // continue previous jump
-  //   return;
-  //   // }
-  //   // if (state.canFly) {
-  //   //   if (body.gravityMultiplier === 0) {
-  //   //     // you are flying and have jumped. you are now falling
-  //   //     body.gravityMultiplier = 2;
-  //   //   } else {
-  //   //     // you have jumped while you are in the air. you are now flying
-  //   //     body.gravityMultiplier = 0;
-  //   //   }
-  //   if (canjump) {
-  //     // start new jump
-  //     if (bodyState === BodyState.inAir) state._jumpCount++;
-  //     state._currentJumpTime = state.jumpTime;
-  //     body.applyImpulse([0, state.jumpImpulse, 0]);
-  //     // clear downward velocity on airjump
-  //     if (bodyState === BodyState.inAir && body.velocity[1] < 0) body.velocity[1] = 0;
-  //   }
-  // }
-
+  // 4) update state variables
   if (state.isJumpPressed) {
     state._lastJumpPressTime = new Date().getTime();
   }

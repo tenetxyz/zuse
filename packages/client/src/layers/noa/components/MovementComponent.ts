@@ -2,11 +2,6 @@ import vec3 from "gl-vec3";
 import { RigidBody } from "noa-engine/dist/src/components/physics";
 import { GRAVITY_MULTIPLIER } from "../constants";
 
-enum BodyState {
-  onGround,
-  inAir,
-}
-
 export interface IMovementState {
   heading: number; // radians
   isRunning: boolean;
@@ -124,7 +119,7 @@ function applyMovementPhysics(dt: number, state: IMovementState, body: RigidBody
     state._jumpCount = 0;
   }
 
-  exportMovementForcesToBody(state, body, dt, isOnGround ? BodyState.onGround : BodyState.inAir);
+  exportMovementForcesToBody(state, body, dt, isOnGround);
 
   // apply movement forces if entity is moving, otherwise just friction
   let m: any = tempvec;
@@ -179,7 +174,7 @@ function applyMovementPhysics(dt: number, state: IMovementState, body: RigidBody
 
 const doublePressedJump = (state: IMovementState) => {
   const currentTimeMs = new Date().getTime();
-  return state.isJumpPressed && state._lastJumpPressTime + 1000 > currentTimeMs; // checks that the last time we pressed jump was recent enough
+  return state.isJumpPressed && state._lastJumpPressTime + 750 > currentTimeMs; // checks that the last time we pressed jump was recent enough
 };
 
 const isFlying = (body: RigidBody) => {
@@ -201,8 +196,8 @@ const toggleFlying = (body: RigidBody) => {
   }
 };
 
-const exportMovementForcesToBody = (state: IMovementState, body: RigidBody, dt: number, bodyState: BodyState) => {
-  const canJump = bodyState === BodyState.onGround || state._jumpCount < state.airJumps;
+const exportMovementForcesToBody = (state: IMovementState, body: RigidBody, dt: number, isOnGround: boolean) => {
+  const canJump = isOnGround || state._jumpCount < state.airJumps;
 
   if (isFlying(body)) {
     if (state.isCrouching) {

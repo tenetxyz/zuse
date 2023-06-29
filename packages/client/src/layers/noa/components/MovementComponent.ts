@@ -10,6 +10,7 @@ export interface IMovementState {
   // options
   runningSpeed: number;
   flyingSpeed: number;
+  ascendAndDescendSpeed: number;
   jumpingInAirSpeed: number;
   runningFriction: number;
   standingFriction: number;
@@ -28,6 +29,8 @@ export interface IMovementState {
   _jumpCount: number;
   _currentjumpTimeMs: number;
   _lastJumpPressTimeMs: number;
+
+  __id?: string;
 }
 
 export function MovementState(): IMovementState {
@@ -39,6 +42,7 @@ export function MovementState(): IMovementState {
     // options
     runningSpeed: 10,
     flyingSpeed: 17,
+    ascendAndDescendSpeed: 15,
     jumpingInAirSpeed: 15,
     runningFriction: 0,
     standingFriction: 2,
@@ -60,14 +64,6 @@ export function MovementState(): IMovementState {
   };
 }
 
-interface IEntity {
-  getPhysics(id: string): RigidBody | undefined;
-}
-
-interface IEngine {
-  entities: IEntity;
-}
-
 interface IMovement {
   name: string;
   order: number;
@@ -75,6 +71,15 @@ interface IMovement {
   onAdd: null;
   onRemove: null;
   system(dt: number, states: IMovementState[]): void;
+}
+
+// Note: I am guessing this interface. It helps because it calms typescript down.
+// I'm not sure why the RigidBody in noa doesn't have these types (but they are on the actual RigidBody object)
+interface ExtendedRigidBody extends RigidBody {
+  atRestY: () => number;
+  applyForce: (force: number[]) => void; // the param is a vec3
+  applyImpulse: (impulse: number[]) => void; // the param is a vec3
+  _physBody: any;
 }
 
 export const MOVEMENT_COMPONENT_NAME = "movement";
@@ -101,7 +106,7 @@ const tempvec = vec3.create();
 const tempvec2 = vec3.create();
 const zeroVec = vec3.create();
 
-function applyMovementPhysics(dt: number, state: IMovementState, body: RigidBody) {
+function applyMovementPhysics(dt: number, state: IMovementState, body: ExtendedRigidBody) {
   // move implementation originally written as external module
   // see https://github.com/fenomas/voxel-fps-controller
   // for original code
@@ -157,7 +162,7 @@ function applyMovementPhysics(dt: number, state: IMovementState, body: RigidBody
   }
 }
 
-const accelerateBodyToVelocityAtSpeed = (normalVec: number[], body: RigidBody, speed: number) => {
+const accelerateBodyToVelocityAtSpeed = (normalVec: number[], body: ExtendedRigidBody, speed: number) => {
   const diff = Math.abs(speed - normalVec.length);
   // const diff = speed - normalVec.length;
   // the math equation basically says:
@@ -205,20 +210,22 @@ const accelerateToSpeed2 = (targetSpeed: number, body: RigidBody) => {
   return targetSpeed;
 };
 
-const exportMovementForcesToBody = (state: IMovementState, body: RigidBody, dt: number, isOnGround: boolean) => {
+const exportMovementForcesToBody = (
+  state: IMovementState,
+  body: ExtendedRigidBody,
+  dt: number,
+  isOnGround: boolean
+) => {
   const canJump = isOnGround || state._jumpCount < state.maxAirJumps;
 
   if (isFlying(body)) {
     if (state.isCrouching) {
-      // body.velocity[1] = -10;
-      // accelerateBodyToVelocityAtSpeed([0, -1, 0], body, 5, 30);
-      body.applyForce([0, accelerateToSpeed2(-15, body), 0]);
+      // fly down
+      body.applyForce([0, accelerateToSpeed2(-state.ascendAndDescendSpeed, body), 0]);
       return;
     } else if (state.isJumpHeld) {
-      body.applyForce([0, accelerateToSpeed2(15, body), 0]);
       // fly up
-      // body.velocity[1] = 10;
-      // accelerateBodyToVelocityAtSpeed([0, 1, 0], body, 5, 30);
+      body.applyForce([0, accelerateToSpeed2(state.ascendAndDescendSpeed, body), 0]);
     } else {
       body.velocity[1] *= 0.5; // multiply velocity by 0.5 to gradually slow down
       if (!state.isRunning) {

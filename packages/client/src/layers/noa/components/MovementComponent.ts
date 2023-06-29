@@ -10,6 +10,7 @@ export interface IMovementState {
   // options
   runningSpeed: number;
   flyingSpeed: number;
+  jumpingInAirSpeed: number;
   moveForce: number;
   responsiveness: number;
   runningFriction: number;
@@ -43,6 +44,7 @@ export function MovementState(): IMovementState {
     // options
     runningSpeed: 10,
     flyingSpeed: 20,
+    jumpingInAirSpeed: 15,
     moveForce: 10,
     responsiveness: 30,
     runningFriction: 0,
@@ -121,6 +123,14 @@ function applyMovementPhysics(dt: number, state: IMovementState, body: RigidBody
 
   exportMovementForcesToBody(state, body, dt, isOnGround);
 
+  const accelerateBodyToVelocityAtSpeed = (normalVec: number[], body: RigidBody, speed: number) => {
+    const diff = Math.abs(normalVec.length - state.flyingSpeed);
+    // the math equation basically says:
+    // the further you are from the flying speed (the diff variable), the larger our push should be
+    vec3.scale(normalVec, normalVec, state.flyingSpeed * (1 + (diff / speed) * 1.5));
+    body.applyForce(normalVec);
+  };
+
   // apply movement forces if entity is moving, otherwise just friction
   let m: any = tempvec;
   let push: any = tempvec2;
@@ -149,28 +159,28 @@ function applyMovementPhysics(dt: number, state: IMovementState, body: RigidBody
     // the len is the modulus of the vector I think. I think this is just an optimization
     const pushLen = vec3.len(push);
     if (isFlying(body)) {
-      const diff = Math.abs(pushLen - state.flyingSpeed);
-      // the math equation basically says:
-      // the further you are from the flying speed (the diff variable), the larger our push should be
-      vec3.scale(push, push, state.flyingSpeed * (1 + (diff / state.flyingSpeed) * 1.5));
-      body.applyForce(push);
+      accelerateBodyToVelocityAtSpeed(push, body, state.flyingSpeed);
       return;
+    } else if (isOnGround) {
+      accelerateBodyToVelocityAtSpeed(push, body, state.jumpingInAirSpeed);
+    } else {
+      accelerateBodyToVelocityAtSpeed(push, body, state.runningSpeed);
     }
 
-    if (pushLen > 0) {
-      // pushing force vector
-      let canPush: number = state.moveForce;
+    // if (pushLen > 0) {
+    //   // pushing force vector
+    //   let canPush: number = state.moveForce;
 
-      // scale the pushing force vector based on state
-      if (!isOnGround) canPush *= state.airMoveMult;
+    //   // scale the pushing force vector based on state
+    //   if (!isOnGround) canPush *= state.airMoveMult;
 
-      // apply final force
-      let pushAmt: number = state.responsiveness * pushLen;
-      if (canPush > pushAmt) canPush = pushAmt;
+    //   // apply final force
+    //   let pushAmt: number = state.responsiveness * pushLen;
+    //   if (canPush > pushAmt) canPush = pushAmt;
 
-      vec3.scale(push, push, canPush);
-      body.applyForce(push);
-    }
+    //   vec3.scale(push, push, canPush);
+    //   body.applyForce(push);
+    // }
 
     // different friction when not moving
     // idea from Sonic: http://info.sonicretro.org/SPG:Running

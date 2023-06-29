@@ -104,6 +104,14 @@ export async function setupNetwork() {
     // Request a drip every 20 seconds
     setInterval(requestDrip, 20000);
   }
+  //     const faucet = config.faucetServiceUrl ? createFaucetService(config.faucetServiceUrl) : undefined;
+
+  //     const playerIsBroke = (await network.signer.get()?.getBalance())?.lte(utils.parseEther("0.005"));
+  //     if (playerIsBroke) {
+  //       console.info("[Dev Faucet] Dripping funds to player");
+  //       const address = network.connectedAddress.get();
+  //       address && (await faucet?.dripDev({ address }));
+  //     }
 
   // TODO: Uncomment once we support plugins
   // // Set initial component values

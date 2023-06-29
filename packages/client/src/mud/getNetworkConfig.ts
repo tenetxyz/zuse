@@ -20,6 +20,10 @@ export async function getNetworkConfig(): Promise<NetworkConfig> {
   if (!chain) {
     throw new Error(`Chain ${chainId} not found`);
   }
+  const configVars = import.meta.env;
+  if (!chain.faucetUrl) {
+    chain.faucetUrl = import.meta.env.VITE_FAUCET_URL;
+  }
 
   const world = worlds[chain.id.toString()];
   const worldAddress = params.get("worldAddress") || world?.address;

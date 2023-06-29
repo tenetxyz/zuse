@@ -81,7 +81,7 @@ export function registerSidebar() {
 
       return (
         <Wrapper>
-          {/* <Balance {...balance} /> */}
+          <Balance {...balance} />
           {/*<ChunkExplorer {...chunk} />*/}
           {/*{tutorial?.community && (*/}
           {/*  <JoinSocial onClose={() => updateTutorial({ community: false })} />*/}

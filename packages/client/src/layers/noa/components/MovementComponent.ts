@@ -9,8 +9,8 @@ export interface IMovementState {
 
   // options
   runningSpeed: number;
-  flyingSpeed: number;
-  ascendAndDescendSpeed: number;
+  flyingSpeed: number; // horizontal flying speed
+  ascendAndDescendSpeed: number; // vertical flying speed
   jumpingInAirSpeed: number;
   runningFriction: number;
   standingFriction: number;
@@ -40,10 +40,10 @@ export function MovementState(): IMovementState {
     isJumpHeld: false,
 
     // options
-    runningSpeed: 10,
-    flyingSpeed: 17,
+    runningSpeed: 9,
+    flyingSpeed: 12,
     ascendAndDescendSpeed: 15,
-    jumpingInAirSpeed: 15,
+    jumpingInAirSpeed: 14,
     runningFriction: 0,
     standingFriction: 2,
 
@@ -141,17 +141,18 @@ function applyMovementPhysics(dt: number, state: IMovementState, body: ExtendedR
     // https://github.com/id-Software/Quake-III-Arena/blob/master/code/game/bg_pmove.c#L275
     vec3.sub(push, m, body.velocity);
     push[1] = 0; // the user's WASD movement shouldn't affect their Y velocity
-    vec3.normalize(push, push); // IMPORTANT! we normalize the push vector before applying it
+    // vec3.normalize(push, push); // IMPORTANT! we normalize the push vector before applying it
 
     // the len is the modulus of the vector I think. I think this is just an optimization
     const pushLen = vec3.len(push);
     if (isFlying(body)) {
-      accelerateBodyToVelocityAtSpeed(push, body, state.flyingSpeed);
+      accelerateBodyToVelocityAtSpeed(push, body, state.flyingSpeed, isOnGround);
       return;
     } else if (isOnGround) {
-      accelerateBodyToVelocityAtSpeed(push, body, state.jumpingInAirSpeed);
+      accelerateBodyToVelocityAtSpeed(push, body, state.runningSpeed, isOnGround);
     } else {
-      accelerateBodyToVelocityAtSpeed(push, body, state.runningSpeed);
+      // they are in the air but not flying (in a jump)
+      accelerateBodyToVelocityAtSpeed(push, body, state.jumpingInAirSpeed, isOnGround);
     }
 
     // different friction when not moving
@@ -162,13 +163,30 @@ function applyMovementPhysics(dt: number, state: IMovementState, body: ExtendedR
   }
 }
 
-const accelerateBodyToVelocityAtSpeed = (normalVec: number[], body: ExtendedRigidBody, speed: number) => {
-  const diff = Math.abs(speed - normalVec.length);
-  // const diff = speed - normalVec.length;
-  // the math equation basically says:
-  // the further you are from the flying speed (the diff variable), the larger our push should be
-  vec3.scale(normalVec, normalVec, speed * (1 + (diff / speed) * 1.5));
-  body.applyForce(normalVec);
+const accelerateBodyToVelocityAtSpeed = (
+  targetVec: number[],
+  body: ExtendedRigidBody,
+  speed: number,
+  isOnGround: boolean
+) => {
+  const bodyDir = body.velocity;
+  const pushVec = vec3.dot(targetVec, bodyDir);
+  // const isOnGroundMultiplier = isOnGround ? 2 : 1; // if you are on the ground, you get more acceleration
+  // if we need to pus hin the opposite direction adn the push force is larger than our body's velocity
+  if (pushVec < 0 && vec3.len(targetVec) > vec3.len(body.velocity) && isOnGround) {
+    // console.log("wow");
+    // they are travelling in opposite directions
+    vec3.scale(targetVec, targetVec, speed * 1.5);
+    body.applyForce(targetVec);
+    return;
+  }
+  // if (vec3.len(body.velocity) < 0.2 * speed) {
+  //   vec3.scale(normalVec, normalVec, speed * 2 * isOnGroundMultiplier);
+  //   body.applyForce(normalVec);
+  //   return;
+  // }
+  vec3.scale(targetVec, targetVec, speed);
+  body.applyForce(targetVec);
 };
 
 const doublePressedJump = (state: IMovementState) => {

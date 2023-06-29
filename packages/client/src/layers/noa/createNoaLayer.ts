@@ -64,7 +64,6 @@ import { createCreativeModeSystem } from "./systems/createCreativeModeSystem";
 import { createSpawnPlayerSystem } from "./systems/createSpawnPlayerSystem";
 import { definePlayerMeshComponent } from "./components/PlayerMesh";
 import { Engine } from "@babylonjs/core";
-import { to64CharAddress } from "../../utils/entity";
 import { definePersistentNotificationComponent, NotificationIcon } from "./components/persistentNotification";
 import { createVoxelSelectionOverlaySystem } from "./systems/createVoxelSelectionOverlaySystem";
 import { defineSpawnCreationComponent } from "./components/SpawnCreation";
@@ -79,7 +78,6 @@ import {
   VoxelVariantDataValue,
 } from "./types";
 import { DEFAULT_BLOCK_TEST_DISTANCE } from "./setup/setupNoaEngine";
-import { MAX_ENTITIES } from "@latticexyz/ecs-browser/src/constants";
 
 export function createNoaLayer(network: NetworkLayer) {
   const world = namespaceWorld(network.world, "noa");
@@ -304,12 +302,13 @@ export function createNoaLayer(network: NetworkLayer) {
       noa.entities.removeComponent(noa.playerEntity, noa.ents.names.receivesInputs);
       noa.inputs.unbind("select-voxel");
       noa.inputs.unbind("admin-panel");
-      noa.entities.getMovement(noa.playerEntity).maxSpeed = 0; // stops the player's input from moving the player
+      const a = noa.entities.getMovement(noa.playerEntity);
+      noa.entities.getMovement(noa.playerEntity).isPlayerSlowedToAStop = true; // stops the player's input from moving the player
     } else {
       noa.entities.addComponent(noa.playerEntity, noa.ents.names.receivesInputs);
       noa.inputs.bind("select-voxel", "V");
       noa.inputs.bind("admin-panel", "-");
-      noa.entities.getMovement(noa.playerEntity).maxSpeed = PLAYER_MAX_SPEED;
+      noa.entities.getMovement(noa.playerEntity).isPlayerSlowedToAStop = false;
     }
   };
   const isFocusedOnInputElement = () => {

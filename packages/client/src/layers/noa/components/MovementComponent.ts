@@ -6,6 +6,7 @@ export interface IMovementState {
   heading: number; // radians
   isRunning: boolean;
   isJumpHeld: boolean;
+  isPlayerSlowedToAStop: boolean;
 
   // options
   runningSpeed: number;
@@ -39,6 +40,7 @@ export function MovementState(): IMovementState {
     heading: 0,
     isRunning: false,
     isJumpHeld: false,
+    isPlayerSlowedToAStop: false,
 
     // options
     runningSpeed: 7,
@@ -118,6 +120,10 @@ function applyMovementPhysics(dt: number, state: IMovementState, body: ExtendedR
   if (isOnGround) {
     state._jumpCount = 0;
   }
+  if (state.isPlayerSlowedToAStop) {
+    slowToAStop(body);
+    return;
+  }
 
   applyVerticalForces(state, body, dt, isOnGround);
 
@@ -128,14 +134,18 @@ function applyMovementPhysics(dt: number, state: IMovementState, body: ExtendedR
     // different friction when not moving. idea from Sonic: http://info.sonicretro.org/SPG:Running
     body.friction = state.runningFriction;
   } else {
-    if (isFlying(body)) {
-      // try to slow to a stop
-      body.velocity[0] *= 0.5;
-      body.velocity[2] *= 0.5;
-    }
     body.friction = state.standingFriction;
+    if (isFlying(body)) {
+      slowToAStop(body);
+    }
   }
 }
+
+const slowToAStop = (body: ExtendedRigidBody) => {
+  // only slow the horizontal velocity since it'd be weird if the player was in the air and can't fall
+  body.velocity[0] *= 0.5;
+  body.velocity[2] *= 0.5;
+};
 
 const applyHorizontalForces = (state: IMovementState, body: ExtendedRigidBody, isOnGround: boolean) => {
   let speed = getDesiredPlayerSpeed(state, body, isOnGround);

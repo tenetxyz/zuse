@@ -18,16 +18,17 @@ export interface IMovementState {
   // jumps
   jumpImpulse: number;
   jumpForce: number;
-  jumpTimeMs: number; // ms
-  maxAirJumps: number;
+  jumpTimeMs: number;
+  maxJumps: number;
   isJumpPressed: boolean;
+  doublePressJumpTimeWindowMs: number; // if the user presses jump twice within this time window, then they will start flying/stop flying
 
   canFly: boolean;
   isCrouching: boolean;
 
   // internal state
   _jumpCount: number;
-  _currentjumpTimeMs: number;
+  _timeRemainingInJumpMs: number;
   _lastJumpPressTimeMs: number;
 
   __id?: string;
@@ -51,15 +52,16 @@ export function MovementState(): IMovementState {
     jumpImpulse: 10, // in physics, impulse is force * delta t
     jumpForce: 12,
     jumpTimeMs: 500, // This determines how long the jump force should be applied
-    maxAirJumps: 1,
+    maxJumps: 2,
     isJumpPressed: false,
+    doublePressJumpTimeWindowMs: 400,
 
     canFly: true,
     isCrouching: false,
 
     // internal state
     _jumpCount: 0,
-    _currentjumpTimeMs: 0,
+    _timeRemainingInJumpMs: 0,
     _lastJumpPressTimeMs: 0,
   };
 }
@@ -117,32 +119,57 @@ function applyMovementPhysics(dt: number, state: IMovementState, body: ExtendedR
     state._jumpCount = 0;
   }
 
-  exportMovementForcesToBody(state, body, dt, isOnGround);
+  applyVerticalForces(state, body, dt, isOnGround);
 
   // apply movement forces if entity is moving, otherwise just friction
-  let moveVec: any = tempvec;
-  let push: any = tempvec2;
   if (state.isRunning) {
-    const speed = getSpeed(state, body, isOnGround);
-    vec3.set(moveVec, 0, 0, speed);
-    vec3.rotateY(moveVec, moveVec, zeroVec, state.heading); // rotate move vector to entity's heading
-
-    // push vector to achieve desired speed & dir
-    // following code to adjust 2D velocity to desired amount is patterned on Quake:
-    // https://github.com/id-Software/Quake-III-Arena/blob/master/code/game/bg_pmove.c#L275
-    vec3.sub(push, moveVec, body.velocity);
-    push[1] = 0; // the user's WASD movement shouldn't affect their Y velocity
-
-    accelerateBodyToHorizontalVelocity(push, body, speed, isOnGround);
+    applyHorizontalForces(state, body, isOnGround);
 
     // different friction when not moving. idea from Sonic: http://info.sonicretro.org/SPG:Running
     body.friction = state.runningFriction;
   } else {
+    if (isFlying(body)) {
+      // try to slow to a stop
+      body.velocity[0] *= 0.5;
+      body.velocity[2] *= 0.5;
+    }
     body.friction = state.standingFriction;
   }
 }
 
-const getSpeed = (state: IMovementState, body: ExtendedRigidBody, isOnGround: boolean): number => {
+const applyHorizontalForces = (state: IMovementState, body: ExtendedRigidBody, isOnGround: boolean) => {
+  let speed = getDesiredPlayerSpeed(state, body, isOnGround);
+  let moveVec: any = tempvec;
+  let pushVector: any = tempvec2; // this vector is what will push the body to the desired velocity
+  vec3.set(moveVec, 0, 0, speed);
+  vec3.rotateY(moveVec, moveVec, zeroVec, state.heading); // rotate move vector to entity's heading
+
+  // push vector to achieve desired speed & dir
+  // following code to adjust 2D velocity to desired amount is patterned on Quake:
+  // https://github.com/id-Software/Quake-III-Arena/blob/master/code/game/bg_pmove.c#L275
+  vec3.sub(pushVector, moveVec, body.velocity);
+  pushVector[1] = 0; // the user's WASD movement shouldn't affect their Y velocity
+
+  const bodyDir = body.velocity;
+  const directionVec = vec3.dot(pushVector, bodyDir);
+
+  const userWantsToMoveInOppositeDir = directionVec < 0 && vec3.len(pushVector) > vec3.len(body.velocity);
+  if (userWantsToMoveInOppositeDir && isOnGround) {
+    // to make the player feel more responsive on the ground, we'll apply a larger force if they are switching directions
+    vec3.scale(pushVector, pushVector, speed * 1.5);
+    body.applyForce(pushVector);
+    return;
+  }
+
+  if (!isOnGround) {
+    speed *= 0.1; // don't let them swap directions easily in the air
+  }
+
+  vec3.scale(pushVector, pushVector, speed);
+  body.applyForce(pushVector);
+};
+
+const getDesiredPlayerSpeed = (state: IMovementState, body: ExtendedRigidBody, isOnGround: boolean): number => {
   if (isFlying(body)) {
     return state.flyingSpeed;
   } else if (isOnGround) {
@@ -152,41 +179,9 @@ const getSpeed = (state: IMovementState, body: ExtendedRigidBody, isOnGround: bo
   }
 };
 
-const accelerateBodyToHorizontalVelocity = (
-  targetVec: number[],
-  body: ExtendedRigidBody,
-  speed: number,
-  isOnGround: boolean
-) => {
-  const bodyDir = body.velocity;
-  const directionVec = vec3.dot(targetVec, bodyDir);
-
-  const userWantsToMoveInOppositeDir = directionVec < 0 && vec3.len(targetVec) > vec3.len(body.velocity);
-  // if we need to pus hin the opposite direction adn the push force is larger than our body's velocity
-  if (isOnGround && userWantsToMoveInOppositeDir) {
-    vec3.scale(targetVec, targetVec, speed * 1.5);
-    body.applyForce(targetVec);
-    return;
-  }
-
-  // the user jumped and is trying to move
-  if (!isOnGround) {
-    vec3.scale(targetVec, targetVec, speed * 0.1); // don't let them swap directions easily in the air
-    body.applyForce(targetVec);
-    return;
-  }
-  // if (vec3.len(body.velocity) < 0.2 * speed) {
-  //   vec3.scale(normalVec, normalVec, speed * 2 * isOnGroundMultiplier);
-  //   body.applyForce(normalVec);
-  //   return;
-  // }
-  vec3.scale(targetVec, targetVec, speed);
-  body.applyForce(targetVec);
-};
-
 const doublePressedJump = (state: IMovementState) => {
   const currentTimeMs = new Date().getTime();
-  return state.isJumpPressed && state._lastJumpPressTimeMs + 400 > currentTimeMs; // checks that the last time we pressed jump was recent enough
+  return state.isJumpPressed && state._lastJumpPressTimeMs + state.doublePressJumpTimeWindowMs > currentTimeMs; // checks that the last time we pressed jump was recent enough
 };
 
 export const isFlying = (body: RigidBody) => {
@@ -223,69 +218,69 @@ const accelerateVerticalSpeed = (targetSpeed: number, body: RigidBody) => {
   return targetSpeed;
 };
 
-const exportMovementForcesToBody = (
-  state: IMovementState,
-  body: ExtendedRigidBody,
-  dt: number,
-  isOnGround: boolean
-) => {
-  const canJump = isOnGround || state._jumpCount < state.maxAirJumps;
+const applyVerticalForces = (state: IMovementState, body: ExtendedRigidBody, dt: number, isOnGround: boolean) => {
+  const canJump = isOnGround || state._jumpCount < state.maxJumps;
 
+  // 1) apply forces to someone that's flying
   if (isFlying(body)) {
-    if (state.isCrouching) {
-      // fly down
-      body.applyForce([0, accelerateVerticalSpeed(-state.ascendAndDescendSpeed, body), 0]);
-      return;
-    } else if (state.isJumpHeld) {
-      // fly up
-      body.applyForce([0, accelerateVerticalSpeed(state.ascendAndDescendSpeed, body), 0]);
-    } else {
-      body.velocity[1] *= 0.5; // multiply velocity by 0.5 to gradually slow down
-      if (!state.isRunning) {
-        // we are flying and not pressing wasd. So stop moving
-        // TODO: reduce velocity over time to 0
-        body.velocity[0] *= 0.5;
-        body.velocity[2] *= 0.5;
-      }
-    }
+    handleVerticleForces(state, body);
   }
 
-  // 1) toggle flying if they can fly
+  // 2) toggle flying if they can fly
   if (doublePressedJump(state) && state.canFly) {
     toggleFlying(body);
     state._lastJumpPressTimeMs = 0; // reset the last jump press time so we don't double jump when we press jump again
     return;
   }
 
-  // 2) if they just pressed jump, start a jump
+  // 3) if they just pressed jump, start a jump
   // Note: isJumpPressed is only true on the frame the jump key is pressed
   if (state.isJumpPressed) {
-    state._lastJumpPressTimeMs = new Date().getTime();
-    if (isFlying(body)) {
-      // just give them upwards velocity. do NOT give them a massive impulse like below
-      // body.velocity[1] = 10;
-      body.applyForce([0, 10, 0]);
-      return;
-    } else if (canJump) {
-      // start new jump
-      state._jumpCount++;
-      state._currentjumpTimeMs = state.jumpTimeMs;
-      body.applyImpulse([0, state.jumpImpulse, 0]);
-      return;
-    }
+    initiateJump(state, body, canJump);
+    return;
   }
 
-  // 3) if they are still jumping, apply jump force
-  if (state.isJumpHeld && state._currentjumpTimeMs > 0) {
-    // apply jump force
-    let jf = state.jumpForce;
-    if (state._currentjumpTimeMs < dt) {
-      jf *= state._currentjumpTimeMs / dt;
-    }
-    body.applyForce([0, jf, 0]);
-    state._currentjumpTimeMs -= dt;
+  // 4) if they are still jumping, apply jump force
+  const isStillJumping = state.isJumpHeld && state._timeRemainingInJumpMs > 0;
+  if (isStillJumping) {
+    applyJumpForce(state, body, dt);
   } else {
     // the user let go of the jump key, so stop jumping
-    state._currentjumpTimeMs = 0;
+    state._timeRemainingInJumpMs = 0;
   }
+};
+
+const handleVerticleForces = (state: IMovementState, body: ExtendedRigidBody) => {
+  if (state.isCrouching) {
+    // fly down
+    body.applyForce([0, accelerateVerticalSpeed(-state.ascendAndDescendSpeed, body), 0]);
+    return;
+  } else if (state.isJumpHeld) {
+    // fly up
+    body.applyForce([0, accelerateVerticalSpeed(state.ascendAndDescendSpeed, body), 0]);
+  } else {
+    // the user isn't going up or down, so try to slow it down
+    body.velocity[1] *= 0.5; // multiply velocity by 0.5 to gradually slow down
+  }
+};
+
+const initiateJump = (state: IMovementState, body: ExtendedRigidBody, canJump: boolean) => {
+  state._lastJumpPressTimeMs = new Date().getTime();
+  if (isFlying(body)) {
+    body.applyForce([0, 10, 0]);
+  } else if (canJump) {
+    // start new jump
+    state._jumpCount++;
+    state._timeRemainingInJumpMs = state.jumpTimeMs;
+    body.applyImpulse([0, state.jumpImpulse, 0]);
+  }
+};
+
+const applyJumpForce = (state: IMovementState, body: ExtendedRigidBody, dt: number) => {
+  let jf = state.jumpForce;
+  if (state._timeRemainingInJumpMs < dt) {
+    jf *= state._timeRemainingInJumpMs / dt;
+  }
+  body.applyForce([0, jf, 0]);
+  state._timeRemainingInJumpMs -= dt;
 };

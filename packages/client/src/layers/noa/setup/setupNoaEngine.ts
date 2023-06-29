@@ -179,7 +179,7 @@ export function setupNoaEngine(network: NetworkLayer) {
 
 function customizePlayerMovement(noa: Engine) {
   // use our own custom components to support flying
-  useCustomComponents(noa, MovementComponent, MOVEMENT_COMPONENT_NAME, { airJumps: 1 });
+  useCustomComponents(noa, MovementComponent, MOVEMENT_COMPONENT_NAME, { maxJumps: 2 });
   noa.entities.getMovement = noa.ents.getStateAccessor(MOVEMENT_COMPONENT_NAME); // we need to update this getter because noa's internal functions use this getter
   useCustomComponents(noa, ReceiveInputsComponent, RECEIVES_INPUTS_COMPONENT_NAME, {});
   useCustomComponents(noa, CollideTerrainComponent, COLLIDE_TERRAIN_COMPONENT_NAME, {});

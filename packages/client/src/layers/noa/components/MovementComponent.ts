@@ -118,9 +118,6 @@ function applyMovementPhysics(dt: number, state: IMovementState, body: RigidBody
   }
 
   exportMovementForcesToBody(state, body, dt, isOnGround);
-  if (state.isJumpPressed) {
-    state._lastJumpPressTime = new Date().getTime();
-  }
 
   // apply movement forces if entity is moving, otherwise just friction
   let m: any = tempvec;
@@ -177,7 +174,7 @@ const accelerateBodyToVelocityAtSpeed = (normalVec: number[], body: RigidBody, s
 
 const doublePressedJump = (state: IMovementState) => {
   const currentTimeMs = new Date().getTime();
-  return state.isJumpPressed && state._lastJumpPressTime + 600 > currentTimeMs; // checks that the last time we pressed jump was recent enough
+  return state.isJumpPressed && state._lastJumpPressTime + 400 > currentTimeMs; // checks that the last time we pressed jump was recent enough
 };
 
 const isFlying = (body: RigidBody) => {
@@ -232,12 +229,14 @@ const exportMovementForcesToBody = (state: IMovementState, body: RigidBody, dt: 
   // 1) toggle flying if they can fly
   if (doublePressedJump(state) && state.canFly) {
     toggleFlying(body);
+    state._lastJumpPressTime = 0; // reset the last jump press time so we don't double jump when we press jump again
     return;
   }
 
   // 2) if they just pressed jump, start a jump
   // Note: isJumpPressed is only true on the frame the jump key is pressed
   if (state.isJumpPressed) {
+    state._lastJumpPressTime = new Date().getTime();
     if (isFlying(body)) {
       // just give them upwards velocity. do NOT give them a massive impulse like below
       // body.velocity[1] = 10;

@@ -40,10 +40,10 @@ export function MovementState(): IMovementState {
     isJumpHeld: false,
 
     // options
-    runningSpeed: 9,
+    runningSpeed: 7,
     flyingSpeed: 12,
     ascendAndDescendSpeed: 15,
-    jumpingInAirSpeed: 14,
+    jumpingInAirSpeed: 10,
     runningFriction: 0,
     standingFriction: 2,
 
@@ -102,6 +102,7 @@ export default function (noa: any): IMovement {
   };
 }
 
+// create the vectors here so we don't need to create them on each frame
 const tempvec = vec3.create();
 const tempvec2 = vec3.create();
 const zeroVec = vec3.create();
@@ -146,13 +147,13 @@ function applyMovementPhysics(dt: number, state: IMovementState, body: ExtendedR
     // the len is the modulus of the vector I think. I think this is just an optimization
     const pushLen = vec3.len(push);
     if (isFlying(body)) {
-      accelerateBodyToVelocityAtSpeed(push, body, state.flyingSpeed, isOnGround);
+      accelerateBodyToHorizontalVelocity(push, body, state.flyingSpeed, isOnGround);
       return;
     } else if (isOnGround) {
-      accelerateBodyToVelocityAtSpeed(push, body, state.runningSpeed, isOnGround);
+      accelerateBodyToHorizontalVelocity(push, body, state.runningSpeed, isOnGround);
     } else {
       // they are in the air but not flying (in a jump)
-      accelerateBodyToVelocityAtSpeed(push, body, state.jumpingInAirSpeed, isOnGround);
+      accelerateBodyToHorizontalVelocity(push, body, state.jumpingInAirSpeed, isOnGround);
     }
 
     // different friction when not moving
@@ -163,20 +164,26 @@ function applyMovementPhysics(dt: number, state: IMovementState, body: ExtendedR
   }
 }
 
-const accelerateBodyToVelocityAtSpeed = (
+const accelerateBodyToHorizontalVelocity = (
   targetVec: number[],
   body: ExtendedRigidBody,
   speed: number,
   isOnGround: boolean
 ) => {
   const bodyDir = body.velocity;
-  const pushVec = vec3.dot(targetVec, bodyDir);
-  // const isOnGroundMultiplier = isOnGround ? 2 : 1; // if you are on the ground, you get more acceleration
+  const directionVec = vec3.dot(targetVec, bodyDir);
+
+  const userWantsToMoveInOppositeDir = directionVec < 0 && vec3.len(targetVec) > vec3.len(body.velocity);
   // if we need to pus hin the opposite direction adn the push force is larger than our body's velocity
-  if (pushVec < 0 && vec3.len(targetVec) > vec3.len(body.velocity) && isOnGround) {
-    // console.log("wow");
-    // they are travelling in opposite directions
+  if (isOnGround && userWantsToMoveInOppositeDir) {
     vec3.scale(targetVec, targetVec, speed * 1.5);
+    body.applyForce(targetVec);
+    return;
+  }
+
+  // the user jumped and is trying to move
+  if (!isOnGround) {
+    vec3.scale(targetVec, targetVec, speed * 0.1); // don't let them swap directions easily in the air
     body.applyForce(targetVec);
     return;
   }
@@ -217,7 +224,7 @@ const toggleFlying = (body: RigidBody) => {
 // It applies a larger acceleration if the player is at a slower speed.
 // Why not just set the player's velocity to the desired velocity?
 // because it was very jarring and not pleasant
-const accelerateToSpeed2 = (targetSpeed: number, body: RigidBody) => {
+const accelerateVerticalSpeed = (targetSpeed: number, body: RigidBody) => {
   // if the body isn't travelling in the right direction, then we want to accelerate it more
   if (body.velocity[1] * targetSpeed < 0) {
     return targetSpeed * 6;
@@ -239,11 +246,11 @@ const exportMovementForcesToBody = (
   if (isFlying(body)) {
     if (state.isCrouching) {
       // fly down
-      body.applyForce([0, accelerateToSpeed2(-state.ascendAndDescendSpeed, body), 0]);
+      body.applyForce([0, accelerateVerticalSpeed(-state.ascendAndDescendSpeed, body), 0]);
       return;
     } else if (state.isJumpHeld) {
       // fly up
-      body.applyForce([0, accelerateToSpeed2(state.ascendAndDescendSpeed, body), 0]);
+      body.applyForce([0, accelerateVerticalSpeed(state.ascendAndDescendSpeed, body), 0]);
     } else {
       body.velocity[1] *= 0.5; // multiply velocity by 0.5 to gradually slow down
       if (!state.isRunning) {

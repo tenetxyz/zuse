@@ -120,49 +120,37 @@ function applyMovementPhysics(dt: number, state: IMovementState, body: ExtendedR
   exportMovementForcesToBody(state, body, dt, isOnGround);
 
   // apply movement forces if entity is moving, otherwise just friction
-  let m: any = tempvec;
+  let moveVec: any = tempvec;
   let push: any = tempvec2;
   if (state.isRunning) {
-    // todo: add crouch/sprint modifiers if needed
-    // if (state.sprint) speed *= state.sprintMoveMult
-    // if (state.crouch) speed *= state.crouchMoveMult
-    let speed;
-    if (isFlying(body)) {
-      speed = state.flyingSpeed;
-    } else {
-      speed = state.runningSpeed;
-    }
-    vec3.set(m, 0, 0, speed);
-
-    // rotate move vector to entity's heading
-    vec3.rotateY(m, m, zeroVec, state.heading);
+    const speed = getSpeed(state, body, isOnGround);
+    vec3.set(moveVec, 0, 0, speed);
+    vec3.rotateY(moveVec, moveVec, zeroVec, state.heading); // rotate move vector to entity's heading
 
     // push vector to achieve desired speed & dir
     // following code to adjust 2D velocity to desired amount is patterned on Quake:
     // https://github.com/id-Software/Quake-III-Arena/blob/master/code/game/bg_pmove.c#L275
-    vec3.sub(push, m, body.velocity);
+    vec3.sub(push, moveVec, body.velocity);
     push[1] = 0; // the user's WASD movement shouldn't affect their Y velocity
-    // vec3.normalize(push, push); // IMPORTANT! we normalize the push vector before applying it
 
-    // the len is the modulus of the vector I think. I think this is just an optimization
-    const pushLen = vec3.len(push);
-    if (isFlying(body)) {
-      accelerateBodyToHorizontalVelocity(push, body, state.flyingSpeed, isOnGround);
-      return;
-    } else if (isOnGround) {
-      accelerateBodyToHorizontalVelocity(push, body, state.runningSpeed, isOnGround);
-    } else {
-      // they are in the air but not flying (in a jump)
-      accelerateBodyToHorizontalVelocity(push, body, state.jumpingInAirSpeed, isOnGround);
-    }
+    accelerateBodyToHorizontalVelocity(push, body, speed, isOnGround);
 
-    // different friction when not moving
-    // idea from Sonic: http://info.sonicretro.org/SPG:Running
+    // different friction when not moving. idea from Sonic: http://info.sonicretro.org/SPG:Running
     body.friction = state.runningFriction;
   } else {
     body.friction = state.standingFriction;
   }
 }
+
+const getSpeed = (state: IMovementState, body: ExtendedRigidBody, isOnGround: boolean): number => {
+  if (isFlying(body)) {
+    return state.flyingSpeed;
+  } else if (isOnGround) {
+    return state.runningSpeed;
+  } else {
+    return state.jumpingInAirSpeed;
+  }
+};
 
 const accelerateBodyToHorizontalVelocity = (
   targetVec: number[],

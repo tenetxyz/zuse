@@ -118,6 +118,9 @@ function applyMovementPhysics(dt: number, state: IMovementState, body: RigidBody
   }
 
   exportMovementForcesToBody(state, body, dt, isOnGround);
+  if (state.isJumpPressed) {
+    state._lastJumpPressTime = new Date().getTime();
+  }
 
   // apply movement forces if entity is moving, otherwise just friction
   let m: any = tempvec;
@@ -173,7 +176,7 @@ const accelerateBodyToVelocityAtSpeed = (normalVec: number[], body: RigidBody, s
 
 const doublePressedJump = (state: IMovementState) => {
   const currentTimeMs = new Date().getTime();
-  return state.isJumpPressed && state._lastJumpPressTime + 500 > currentTimeMs; // checks that the last time we pressed jump was recent enough
+  return state.isJumpPressed && state._lastJumpPressTime + 600 > currentTimeMs; // checks that the last time we pressed jump was recent enough
 };
 
 const isFlying = (body: RigidBody) => {
@@ -189,7 +192,7 @@ const toggleFlying = (body: RigidBody) => {
   } else {
     // they are flying now
     body.gravityMultiplier = 0;
-    body.velocity[1] = 10; // reset their velocity so they stop falling
+    body.velocity[1] = 0; // reset their velocity so they stop falling
     body.airDrag = 0;
     return; // return. It's okay if we don't start going up until the next frame
   }
@@ -229,7 +232,6 @@ const exportMovementForcesToBody = (state: IMovementState, body: RigidBody, dt: 
     state._jumpCount++;
     state._currentJumpTime = state.jumpTime;
     body.applyImpulse([0, state.jumpImpulse, 0]);
-    state._lastJumpPressTime = new Date().getTime();
     return;
   }
 

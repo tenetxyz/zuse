@@ -27,13 +27,12 @@ export interface IMovementState {
   isJumpPressed: boolean;
 
   canFly: boolean;
-  isFlying: boolean;
   isCrouching: boolean;
 
   // internal state
   _jumpCount: number;
-  _isJumping: boolean;
-  _currjumptime: number;
+  _currentJumpTime: number;
+  _lastJumpPressTime: number;
 
   resting?: [number, number, number];
 }
@@ -60,13 +59,12 @@ export function MovementState(): IMovementState {
     isJumpPressed: false,
 
     canFly: true,
-    isFlying: false,
     isCrouching: false,
 
     // internal state
     _jumpCount: 0,
-    _currjumptime: 0,
-    _isJumping: false,
+    _currentJumpTime: 0,
+    _lastJumpPressTime: 0,
   };
 }
 
@@ -167,56 +165,65 @@ function applyMovementPhysics(dt: number, state: IMovementState, body: RigidBody
   }
 }
 
-const exportMovementForcesToBody = (state: IMovementState, body: RigidBody, dt: number, bodyState: BodyState) => {
-  let canjump = bodyState === BodyState.onGround || state._jumpCount < state.airJumps;
+const doublePressedJump = (state: IMovementState) => {
+  const currentTimeMs = new Date().getTime();
+  return state.isJumpPressed && state._lastJumpPressTime + 500 > currentTimeMs; // checks that the last time we pressed jump was recent enough
+};
 
-  if (state.isJumpPressed) {
-    console.log("pressed jump");
+const isFlying = (body: RigidBody) => {
+  return body.gravityMultiplier === 0;
+};
+
+const exportMovementForcesToBody = (state: IMovementState, body: RigidBody, dt: number, bodyState: BodyState) => {
+  let canJump = bodyState === BodyState.onGround || state._jumpCount < state.airJumps;
+
+  if (doublePressedJump(state) && state.canFly) {
+    // toggle flying
+    if (isFlying(body)) {
+      body.gravityMultiplier = 2;
+    } else {
+      body.gravityMultiplier = 0;
+      body.velocity[1] = 0; // reset their velicity so they stop falling
+    }
+    return; // return. it's okay if we don't start going up until the next frame
   }
+
+  // if the user is flying, or is still jumping, apply jump force
   if (state.isJumpHeld) {
-    if (state._isJumping) {
-      // continue previous jump
-      if (state._currjumptime > 0) {
-        var jf = state.jumpForce;
-        if (state._currjumptime < dt) jf *= state._currjumptime / dt;
-        body.applyForce([0, jf, 0]);
-        state._currjumptime -= dt;
-      }
-      return;
-      // }
-      // if (state.canFly) {
-      //   if (body.gravityMultiplier === 0) {
-      //     // you are flying and have jumped. you are now falling
-      //     body.gravityMultiplier = 2;
-      //   } else {
-      //     // you have jumped while you are in the air. you are now flying
-      //     body.gravityMultiplier = 0;
-      //   }
-    } else if (canjump) {
-      // start new jump
-      state._isJumping = true;
-      if (bodyState === BodyState.inAir) state._jumpCount++;
-      state._currjumptime = state.jumpTime;
-      body.applyImpulse([0, state.jumpImpulse, 0]);
-      // clear downward velocity on airjump
-      if (bodyState === BodyState.inAir && body.velocity[1] < 0) body.velocity[1] = 0;
+    if (isFlying(body) || canJump) {
+      var jf = state.jumpForce;
+      if (state._currentJumpTime < dt) jf *= state._currentJumpTime / dt;
+      body.applyForce([0, jf, 0]);
+      state._currentJumpTime -= dt;
     }
   } else {
-    state._isJumping = false;
+    // the user let go of the jump key, so stop jumping
+    state._currentJumpTime = 0;
   }
 
   // if (state.isJumpHeld) {
-  //   if (state.canFly) {
-  //     state.isFlying = true;
-  //     body.applyForce([0, state.jumpForce, 0]);
-  //     body.velocity[1] = 0;
-  //   } else {
-  //     // the user is trying to do an air jump
-  //     if (state._jumpCount < state.airJumps) {
-  //       state._jumpCount++;
-  //       state._currjumptime = state.jumpTime;
-  //       body.applyImpulse([0, state.jumpImpulse, 0]);
-  //     }
+  //   // continue previous jump
+  //   return;
+  //   // }
+  //   // if (state.canFly) {
+  //   //   if (body.gravityMultiplier === 0) {
+  //   //     // you are flying and have jumped. you are now falling
+  //   //     body.gravityMultiplier = 2;
+  //   //   } else {
+  //   //     // you have jumped while you are in the air. you are now flying
+  //   //     body.gravityMultiplier = 0;
+  //   //   }
+  //   if (canjump) {
+  //     // start new jump
+  //     if (bodyState === BodyState.inAir) state._jumpCount++;
+  //     state._currentJumpTime = state.jumpTime;
+  //     body.applyImpulse([0, state.jumpImpulse, 0]);
+  //     // clear downward velocity on airjump
+  //     if (bodyState === BodyState.inAir && body.velocity[1] < 0) body.velocity[1] = 0;
   //   }
   // }
+
+  if (state.isJumpPressed) {
+    state._lastJumpPressTime = new Date().getTime();
+  }
 };

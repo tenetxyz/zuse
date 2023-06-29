@@ -12,12 +12,10 @@ export interface IMovementState {
   flyingSpeed: number;
   jumpingInAirSpeed: number;
   moveForce: number;
-  responsiveness: number;
   runningFriction: number;
   standingFriction: number;
 
   // jumps
-  airMoveMult: number;
   jumpImpulse: number;
   jumpForce: number;
   jumpTime: number; // ms
@@ -46,12 +44,10 @@ export function MovementState(): IMovementState {
     flyingSpeed: 20,
     jumpingInAirSpeed: 15,
     moveForce: 10,
-    responsiveness: 30,
     runningFriction: 0,
     standingFriction: 2,
 
     // jumps
-    airMoveMult: 0.5,
     jumpImpulse: 10,
     jumpForce: 12,
     jumpTime: 500, // ms
@@ -123,14 +119,6 @@ function applyMovementPhysics(dt: number, state: IMovementState, body: RigidBody
 
   exportMovementForcesToBody(state, body, dt, isOnGround);
 
-  const accelerateBodyToVelocityAtSpeed = (normalVec: number[], body: RigidBody, speed: number) => {
-    const diff = Math.abs(normalVec.length - state.flyingSpeed);
-    // the math equation basically says:
-    // the further you are from the flying speed (the diff variable), the larger our push should be
-    vec3.scale(normalVec, normalVec, state.flyingSpeed * (1 + (diff / speed) * 1.5));
-    body.applyForce(normalVec);
-  };
-
   // apply movement forces if entity is moving, otherwise just friction
   let m: any = tempvec;
   let push: any = tempvec2;
@@ -167,21 +155,6 @@ function applyMovementPhysics(dt: number, state: IMovementState, body: RigidBody
       accelerateBodyToVelocityAtSpeed(push, body, state.runningSpeed);
     }
 
-    // if (pushLen > 0) {
-    //   // pushing force vector
-    //   let canPush: number = state.moveForce;
-
-    //   // scale the pushing force vector based on state
-    //   if (!isOnGround) canPush *= state.airMoveMult;
-
-    //   // apply final force
-    //   let pushAmt: number = state.responsiveness * pushLen;
-    //   if (canPush > pushAmt) canPush = pushAmt;
-
-    //   vec3.scale(push, push, canPush);
-    //   body.applyForce(push);
-    // }
-
     // different friction when not moving
     // idea from Sonic: http://info.sonicretro.org/SPG:Running
     body.friction = state.runningFriction;
@@ -189,6 +162,14 @@ function applyMovementPhysics(dt: number, state: IMovementState, body: RigidBody
     body.friction = state.standingFriction;
   }
 }
+
+const accelerateBodyToVelocityAtSpeed = (normalVec: number[], body: RigidBody, speed: number) => {
+  const diff = Math.abs(normalVec.length - speed);
+  // the math equation basically says:
+  // the further you are from the flying speed (the diff variable), the larger our push should be
+  vec3.scale(normalVec, normalVec, speed * (1 + (diff / speed) * 1.5));
+  body.applyForce(normalVec);
+};
 
 const doublePressedJump = (state: IMovementState) => {
   const currentTimeMs = new Date().getTime();

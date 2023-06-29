@@ -1,5 +1,6 @@
 import vec3 from "gl-vec3";
 import { RigidBody } from "noa-engine/dist/src/components/physics";
+import { GRAVITY_MULTIPLIER } from "../constants";
 
 enum BodyState {
   onGround,
@@ -46,7 +47,7 @@ export function MovementState(): IMovementState {
 
     // options
     runningSpeed: 10,
-    flyingSpeed: 100,
+    flyingSpeed: 30,
     moveForce: 30,
     responsiveness: 15,
     runningFriction: 0,
@@ -178,7 +179,7 @@ function applyMovementPhysics(dt: number, state: IMovementState, body: RigidBody
 
 const doublePressedJump = (state: IMovementState) => {
   const currentTimeMs = new Date().getTime();
-  return state.isJumpPressed && state._lastJumpPressTime + 500 > currentTimeMs; // checks that the last time we pressed jump was recent enough
+  return state.isJumpPressed && state._lastJumpPressTime + 1000 > currentTimeMs; // checks that the last time we pressed jump was recent enough
 };
 
 const isFlying = (body: RigidBody) => {
@@ -188,7 +189,7 @@ const isFlying = (body: RigidBody) => {
 const toggleFlying = (body: RigidBody) => {
   if (isFlying(body)) {
     // they are falling now
-    body.gravityMultiplier = 2;
+    body.gravityMultiplier = GRAVITY_MULTIPLIER;
     body.airDrag = 0.1;
     return; // we are now falling, so no need to jump
   } else {
@@ -205,20 +206,18 @@ const exportMovementForcesToBody = (state: IMovementState, body: RigidBody, dt: 
 
   if (isFlying(body)) {
     if (state.isCrouching) {
-      // fly down
-      // body.applyForce([0, -40, 0]);
       body.velocity[1] = -10;
       return;
     } else if (state.isJumpHeld) {
       // fly up
       body.velocity[1] = 10;
-      return;
     } else {
-      body.velocity[1] = 0;
+      body.velocity[1] *= 0.5; // multiply velocity by 0.5 to gradually slow down
       if (!state.isRunning) {
         // we are flying and not pressing wasd. So stop moving
-        body.velocity[0] = 0;
-        body.velocity[2] = 0;
+        // TODO: reduce velocity over time to 0
+        body.velocity[0] *= 0.5;
+        body.velocity[2] *= 0.5;
       }
     }
   }
@@ -226,6 +225,7 @@ const exportMovementForcesToBody = (state: IMovementState, body: RigidBody, dt: 
   // 1) toggle flying if they can fly
   if (doublePressedJump(state) && state.canFly) {
     toggleFlying(body);
+    return;
   }
 
   // 2) if they just pressed jump, start a jump

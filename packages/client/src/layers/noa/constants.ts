@@ -7,6 +7,7 @@ export const CRAFTING_SIZE = CRAFTING_SIDE * CRAFTING_SIDE;
 export const EMPTY_CRAFTING_TABLE = [...new Array(CRAFTING_SIZE)].map(() => -1);
 export const MINING_DURATION = 300;
 export const FAST_MINING_DURATION = 200;
+export const GRAVITY_MULTIPLIER = 2;
 
 const nftStorageLinkFormat = "https://${hash}.ipfs.nftstorage.link/";
 

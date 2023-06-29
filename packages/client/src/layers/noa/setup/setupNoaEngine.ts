@@ -14,6 +14,7 @@ import { VoxelVariantDataValue } from "../types";
 import { AIR_ID } from "../../network/api/terrain/occurrence";
 import MovementComponent, { MOVEMENT_COMPONENT_NAME } from "../components/MovementComponent";
 import ReceiveInputsComponent, { RECEIVES_INPUTS_COMPONENT_NAME } from "../components/ReceivesInputsComponent";
+import CollideTerrainComponent, { COLLIDE_TERRAIN_COMPONENT_NAME } from "../components/CollideTerrainComponent";
 
 export const DEFAULT_BLOCK_TEST_DISTANCE = 7;
 
@@ -180,7 +181,7 @@ function customizePlayerMovement(noa: Engine) {
   // Note: if you want to write very specific movement overrides, read this: https://github.com/fenomas/noa/issues/147
 
   // remove the default movement component before adding our modified version
-  noa.entities.removeComponent(noa.playerEntity, noa.entities.names.movement);
+  noa.entities.removeComponent(noa.playerEntity, noa.entities.names[MOVEMENT_COMPONENT_NAME]);
   noa.entities.deleteComponent(MOVEMENT_COMPONENT_NAME);
   noa.entities.names[MOVEMENT_COMPONENT_NAME] = noa.entities.createComponent(MovementComponent(noa));
   noa.entities.getMovement = noa.ents.getStateAccessor(MOVEMENT_COMPONENT_NAME); // we need to update this getter because noa's internal functions use this getter
@@ -190,10 +191,16 @@ function customizePlayerMovement(noa: Engine) {
 
   // remove the default receivesInputs component before adding our modified version
   // we needed to add our own receivesInputs component to support flying
-  noa.entities.removeComponent(noa.playerEntity, noa.entities.names.receivesInputs);
+  noa.entities.removeComponent(noa.playerEntity, noa.entities.names[RECEIVES_INPUTS_COMPONENT_NAME]);
   noa.entities.deleteComponent(RECEIVES_INPUTS_COMPONENT_NAME); // remove the default movement component before adding our modified version
   noa.entities.names[RECEIVES_INPUTS_COMPONENT_NAME] = noa.entities.createComponent(ReceiveInputsComponent(noa));
   noa.entities.addComponent(noa.playerEntity, RECEIVES_INPUTS_COMPONENT_NAME, {});
+
+  // use our own collideTerrainComponent to support flying
+  noa.entities.removeComponent(noa.playerEntity, noa.entities.names[COLLIDE_TERRAIN_COMPONENT_NAME]);
+  noa.entities.deleteComponent(COLLIDE_TERRAIN_COMPONENT_NAME);
+  noa.entities.names[COLLIDE_TERRAIN_COMPONENT_NAME] = noa.entities.createComponent(CollideTerrainComponent(noa));
+  noa.entities.addComponent(noa.playerEntity, COLLIDE_TERRAIN_COMPONENT_NAME, {});
 
   // Make it so that players can still control their movement while in the air
   // why? because it feels weird when players lose control of their character: https://www.reddit.com/r/gamedev/comments/j3iigd/why_moving_in_the_air_after_jumping_in_games/

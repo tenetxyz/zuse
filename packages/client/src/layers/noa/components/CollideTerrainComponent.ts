@@ -21,24 +21,23 @@ export default function (noa: any) {
       callback: null,
     } as State,
 
-    onAdd(eid: number, state: State) {
+    onAdd(entityId: number, state: State) {
       // add collide handler for physics engine to call
       const ents = noa.entities;
-      if (ents.hasPhysics(eid)) {
-        const body = ents.getPhysics(eid).body;
+      if (ents.hasPhysics(entityId)) {
+        const body = ents.getPhysics(entityId).body;
         body.onCollide = function bodyOnCollide(impulse: any) {
-          if (eid === noa.playerEntity) {
-            // console.log(noa.ents.getCollideTerrain(eid));
+          if (entityId === noa.playerEntity) {
             const playerImpulse = impulse as Float64Array;
-            const playerBody = ents.getPhysicsBody(eid);
+            const playerBody = ents.getPhysicsBody(entityId);
             const isFlying = playerBody.gravityMultiplier === 0;
             if (playerImpulse[1] > 0 && isFlying) {
               // the player was flying then crouched and hit the floor. Stop flying.
               playerBody.gravityMultiplier = GRAVITY_MULTIPLIER;
             }
           }
-          const cb = noa.ents.getCollideTerrain(eid)?.callback;
-          if (cb) cb(impulse, eid);
+          const cb = noa.ents.getCollideTerrain(entityId)?.callback;
+          if (cb) cb(impulse, entityId);
         };
       }
     },

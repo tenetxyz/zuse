@@ -38,8 +38,8 @@ export default mudConfig({
     VoxelTypeRegistry: {
       // TODO: Move this to a namespace?
       keySchema: {
-        namespace: "bytes16",
-        voxelType: "bytes32",
+        voxelTypeNamespace: "bytes16",
+        voxelTypeId: "bytes32",
       },
       schema: {
         voxelVariantSelector: "bytes4",
@@ -81,14 +81,11 @@ export default mudConfig({
         creator: "bytes32",
         numSpawns: "uint256",
         voxelTypes: "bytes", // VoxelTypeData[]
-        // the relative position for each voxel in the creation
-        // VoxelCoord is removed in MUD2, so we need to manually specify x,y,z
-        relativePositionsX: "uint32[]",
-        relativePositionsY: "uint32[]",
-        relativePositionsZ: "uint32[]",
+        relativePositions: "bytes", // VoxelCoord[], the relative position for each voxel in the creation
         name: "string",
-        // description: "string", // Not used cause rn we can only have at most 5 dynamic fields: https://github.com/tenetxyz/mud/blob/main/packages/store/src/Schema.sol#L20
+        description: "string",
         // voxelMetadata: "bytes", // stores the component values for each voxel in the creation
+        // Note: can't add more dynamic fields cause rn we can only have at most 5 dynamic fields: https://github.com/tenetxyz/mud/blob/main/packages/store/src/Schema.sol#L20
       },
     },
 

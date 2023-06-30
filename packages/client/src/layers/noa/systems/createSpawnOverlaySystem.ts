@@ -8,6 +8,7 @@ import { add } from "../../../utils/coord";
 import { calculateMinMaxRelativePositions } from "../../../utils/creation";
 import { Entity, EntitySymbol, getComponentValue } from "@latticexyz/recs";
 import { to256BitString, VoxelCoord } from "@latticexyz/utils";
+import { defaultAbiCoder as abi } from "ethers/lib/utils";
 
 interface Spawn {
   spawnId: Entity;
@@ -67,20 +68,33 @@ export function createSpawnOverlaySystem(networkLayer: NetworkLayer, noaLayer: N
       }
 
       // calculate the min and max relative positions of the creation so we can render the wireframe around it
-      const xPositions = creation.relativePositionsX ?? [];
-      const yPositions = creation.relativePositionsY ?? [];
-      const zPositions = creation.relativePositionsZ ?? [];
-
-      if (xPositions.length === 0 || yPositions.length === 0 || zPositions.length === 0) {
+      const relativePositions: VoxelCoord[] = [];
+      if (creation.relativePositions.length > 0) {
+        // try decoding positions then
+        try {
+          const decodedRelativePositions = abi.decode(
+            ["tuple(int32 x,int32 y,int32 z)[]"],
+            creation.relativePositions
+          )[0];
+          decodedRelativePositions.forEach((relativePosition: VoxelCoord) => {
+            // We need to do it this way because relativePosition has named keys, 0, 1, 2 in addition to x, y, z
+            relativePositions.push({
+              x: relativePosition.x,
+              y: relativePosition.y,
+              z: relativePosition.z,
+            });
+          });
+        } catch (e) {
+          console.error("Error decoding materials");
+          console.error(e);
+        }
+      }
+      if (relativePositions.length === 0) {
         console.warn(
-          `No relativePositions found for creationId=${creationId.toString()}. xPositions=${xPositions} yPositions=${yPositions} zPositions=${zPositions}`
+          `No relativePositions found for creationId=${spawn.creationId.toString()}. relativePositions=${relativePositions}`
         );
         return;
       }
-
-      const relativePositions = xPositions.map((x, i) => {
-        return { x, y: yPositions[i], z: zPositions[i] };
-      });
 
       const { minRelativeCoord, maxRelativeCoord } = calculateMinMaxRelativePositions(relativePositions);
 

@@ -5,6 +5,8 @@ import { useComponentUpdate } from "./useComponentUpdate";
 import { Layers } from "../types";
 import { getEntityString } from "@latticexyz/recs";
 import { to256BitString } from "@latticexyz/utils";
+import { defaultAbiCoder as abi } from "ethers/lib/utils";
+import { VoxelCoord } from "@latticexyz/utils";
 
 export interface Props {
   layers: Layers;
@@ -46,20 +48,36 @@ export const useCreationSearch = ({ layers, filters }: Props) => {
         return;
       }
 
-      const xPositions = creationTable.relativePositionsX.get(creationId) ?? [];
-      const yPositions = creationTable.relativePositionsY.get(creationId) ?? [];
-      const zPositions = creationTable.relativePositionsZ.get(creationId) ?? [];
+      const relativePositions: VoxelCoord[] = [];
+      const encodedRelativePositions = creationTable.relativePositions.get(creationId) ?? "";
+      if (encodedRelativePositions.length > 0) {
+        // try decoding positions then
+        try {
+          const decodedRelativePositions = abi.decode(
+            ["tuple(int32 x,int32 y,int32 z)[]"],
+            encodedRelativePositions
+          )[0];
+          decodedRelativePositions.forEach((relativePosition: VoxelCoord) => {
+            // We need to do it this way because relativePosition has named keys, 0, 1, 2 in addition to x, y, z
+            relativePositions.push({
+              x: relativePosition.x,
+              y: relativePosition.y,
+              z: relativePosition.z,
+            });
+          });
+        } catch (e) {
+          console.error("Error decoding materials");
+          console.error(e);
+        }
+      }
 
-      if (xPositions.length === 0 || yPositions.length === 0 || zPositions.length === 0) {
+      if (relativePositions.length === 0) {
         console.warn(
-          `No relativePositions found for creationId=${creationId.toString()}. xPositions=${xPositions} yPositions=${yPositions} zPositions=${zPositions}`
+          `No relativePositions found for creationId=${creationId.toString()}. relativePositions=${relativePositions}`
         );
         return;
       }
 
-      const relativePositions = xPositions.map((x, i) => {
-        return { x, y: yPositions[i], z: zPositions[i] };
-      });
       // TODO: add voxelMetadata
 
       allCreations.current.push({

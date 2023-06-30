@@ -8,7 +8,7 @@ import { add } from "../../../utils/coord";
 import { calculateMinMaxRelativePositions } from "../../../utils/creation";
 import { Entity, EntitySymbol, getComponentValue } from "@latticexyz/recs";
 import { to256BitString, VoxelCoord } from "@latticexyz/utils";
-import { defaultAbiCoder as abi } from "ethers/lib/utils";
+import { abiDecode } from "../../../utils/abi";
 
 interface Spawn {
   spawnId: Entity;
@@ -35,13 +35,9 @@ export function createSpawnOverlaySystem(networkLayer: NetworkLayer, noaLayer: N
     spawnTable.creationId.forEach((creationId, rawSpawnId) => {
       const spawnId = rawSpawnId as any;
       const encodedLowerSouthWestCorner = spawnTable.lowerSouthWestCorner.get(spawnId)!;
-      try {
-        const decodedLowerSouthWestCorner = abi.decode(
-          ["tuple(int32 x,int32 y,int32 z)"],
-          encodedLowerSouthWestCorner
-        )[0] as VoxelCoord;
-        const lowerSouthWestCorner = cleanVoxelCoord(decodedLowerSouthWestCorner);
-
+      const decodedLowerSouthWestCorner = abiDecode("tuple(int32 x,int32 y,int32 z)", encodedLowerSouthWestCorner);
+      if (decodedLowerSouthWestCorner) {
+        const lowerSouthWestCorner = cleanVoxelCoord(decodedLowerSouthWestCorner as VoxelCoord);
         spawns.push({
           spawnId: spawnId,
           creationId: creationId as Entity,
@@ -49,9 +45,6 @@ export function createSpawnOverlaySystem(networkLayer: NetworkLayer, noaLayer: N
           voxels: spawnTable.voxels.get(spawnId) as Entity[],
           interfaceVoxels: spawnTable.interfaceVoxels.get(spawnId) as Entity[],
         });
-      } catch (e) {
-        console.error("Error decoding lowerSouthWestCorner");
-        console.error(e);
       }
     });
     renderSpawnOutlines(spawns);
@@ -77,26 +70,13 @@ export function createSpawnOverlaySystem(networkLayer: NetworkLayer, noaLayer: N
 
       // calculate the min and max relative positions of the creation so we can render the wireframe around it
       const relativePositions: VoxelCoord[] = [];
-      if (creation.relativePositions.length > 0) {
-        // try decoding positions then
-        try {
-          const decodedRelativePositions = abi.decode(
-            ["tuple(int32 x,int32 y,int32 z)[]"],
-            creation.relativePositions
-          )[0];
-          decodedRelativePositions.forEach((relativePosition: VoxelCoord) => {
-            // We need to do it this way because relativePosition has named keys, 0, 1, 2 in addition to x, y, z
-            relativePositions.push({
-              x: relativePosition.x,
-              y: relativePosition.y,
-              z: relativePosition.z,
-            });
-          });
-        } catch (e) {
-          console.error("Error decoding materials");
-          console.error(e);
-        }
+      const decodedRelativePositions = abiDecode("tuple(int32 x,int32 y,int32 z)[]", creation.relativePositions);
+      if (decodedRelativePositions) {
+        decodedRelativePositions.forEach((relativePosition: VoxelCoord) => {
+          relativePositions.push(cleanVoxelCoord(relativePosition));
+        });
       }
+
       if (relativePositions.length === 0) {
         console.warn(
           `No relativePositions found for creationId=${spawn.creationId.toString()}. relativePositions=${relativePositions}`

@@ -3,7 +3,6 @@ import { defineComponentSystem, defineEnterSystem, getComponentValueStrict, Has 
 import { toUtf8String } from "ethers/lib/utils.js";
 import { awaitStreamValue } from "@latticexyz/utils";
 import { NetworkLayer } from "../../network";
-import { defaultAbiCoder as abi } from "ethers/lib/utils";
 import {
   NoaLayer,
   voxelTypeDataKeyToVoxelVariantDataKey,
@@ -13,6 +12,7 @@ import {
 import { NoaVoxelDef } from "../types";
 import { formatNamespace } from "../../../constants";
 import { getNftStorageLink } from "../constants";
+import { abiDecode } from "../../../utils/abi";
 
 export async function createVoxelVariantSystem(network: NetworkLayer, context: NoaLayer) {
   const {
@@ -42,15 +42,7 @@ export async function createVoxelVariantSystem(network: NetworkLayer, context: N
 
     if (!VoxelVariantData.has(voxelVariantDataKeyToString(voxelVariantDataKey))) {
       console.log("Adding new variant");
-      let materialArr: string[] = [];
-      if (voxelVariantValue.materials.length > 0 && voxelVariantValue.materials !== "0x") {
-        try {
-          materialArr = abi.decode(["string[]"], voxelVariantValue.materials)[0] as string[];
-        } catch (e) {
-          console.log("Error decoding materials");
-          console.log(e);
-        }
-      }
+      const materialArr: string[] = (abiDecode("string[]", voxelVariantValue.materials) as string[]) ?? [];
       // go through each hash in materialArr and format it to have the NFT storage link
       const formattedMaterialArr: string[] = materialArr.map((hash: string) => {
         return getNftStorageLink(hash);

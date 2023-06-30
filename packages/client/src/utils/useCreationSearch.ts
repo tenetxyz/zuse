@@ -5,9 +5,9 @@ import { useComponentUpdate } from "./useComponentUpdate";
 import { Layers } from "../types";
 import { getEntityString } from "@latticexyz/recs";
 import { to256BitString } from "@latticexyz/utils";
-import { defaultAbiCoder as abi } from "ethers/lib/utils";
 import { VoxelCoord } from "@latticexyz/utils";
 import { cleanVoxelCoord } from "../layers/noa/types";
+import { abiDecode } from "./abi";
 
 export interface Props {
   layers: Layers;
@@ -51,20 +51,11 @@ export const useCreationSearch = ({ layers, filters }: Props) => {
 
       const relativePositions: VoxelCoord[] = [];
       const encodedRelativePositions = creationTable.relativePositions.get(creationId) ?? "";
-      if (encodedRelativePositions.length > 0) {
-        // try decoding positions then
-        try {
-          const decodedRelativePositions = abi.decode(
-            ["tuple(int32 x,int32 y,int32 z)[]"],
-            encodedRelativePositions
-          )[0];
-          decodedRelativePositions.forEach((relativePosition: VoxelCoord) => {
-            relativePositions.push(cleanVoxelCoord(relativePosition));
-          });
-        } catch (e) {
-          console.error("Error decoding materials");
-          console.error(e);
-        }
+      const decodedRelativePositions = abiDecode("tuple(int32 x,int32 y,int32 z)[]", encodedRelativePositions);
+      if (decodedRelativePositions) {
+        decodedRelativePositions.forEach((relativePosition: VoxelCoord) => {
+          relativePositions.push(cleanVoxelCoord(relativePosition));
+        });
       }
 
       if (relativePositions.length === 0) {

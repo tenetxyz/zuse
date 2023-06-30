@@ -21,11 +21,14 @@ import {
   voxelTypeDataKeyToVoxelVariantDataKey,
   voxelVariantDataKeyToString,
   entityToVoxelType,
+  VoxelTypeBaseDataKey,
+  voxelTypeToVoxelTypeBaseDataKey,
 } from "../types";
 import { to64CharAddress } from "../../../utils/entity";
 import { SyncState } from "@latticexyz/network";
 import { IComputedValue } from "mobx";
 
+// returns a set of entityKeys: namespace:voxelType
 export const getItemTypesIOwn = (
   OwnedBy: Component<{
     value: Type.String;
@@ -37,13 +40,13 @@ export const getItemTypesIOwn = (
     voxelVariantId: Type.String;
   }>,
   connectedAddress: IComputedValue<string | undefined>
-): Set<Entity> => {
+): Set<VoxelTypeBaseDataKey> => {
   const itemsIOwn = runQuery([HasValue(OwnedBy, { value: to64CharAddress(connectedAddress.get()) }), Has(VoxelType)]);
   return new Set(
     Array.from(itemsIOwn).map((item) => {
       const voxelType = getComponentValue(VoxelType, item);
-      if (voxelType == undefined) return "" as Entity;
-      return voxelVariantDataKeyToString(voxelTypeDataKeyToVoxelVariantDataKey(voxelType)) as Entity;
+      if (voxelType === undefined) return "";
+      return voxelTypeToVoxelTypeBaseDataKey(voxelType);
     })
   );
 };

@@ -39,6 +39,11 @@ export type VoxelTypeDataKey = {
   voxelVariantId: string;
 };
 
+export type VoxelTypeBaseDataKey = {
+  voxelTypeNamespace: string;
+  voxelTypeId: string;
+};
+
 export type VoxelVariantDataKey = {
   voxelVariantNamespace: string;
   voxelVariantId: string;
@@ -71,6 +76,13 @@ export function voxelTypeToEntity(voxelType: VoxelTypeDataKey): Entity {
     voxelType.voxelVariantNamespace +
     "-" +
     voxelType.voxelVariantId) as Entity;
+}
+
+export function voxelTypeToVoxelTypeBaseDataKey(voxelType: VoxelTypeDataKey): VoxelTypeBaseDataKey {
+  return {
+    voxelTypeNamespace: voxelType.voxelTypeNamespace,
+    voxelTypeId: voxelType.voxelTypeId,
+  };
 }
 
 export function entityToVoxelType(entity: Entity): VoxelTypeDataKey {

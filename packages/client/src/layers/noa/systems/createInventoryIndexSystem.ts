@@ -21,11 +21,17 @@ import {
   voxelTypeDataKeyToVoxelVariantDataKey,
   voxelVariantDataKeyToString,
   entityToVoxelType,
+  VoxelTypeBaseKey,
+  voxelTypeToVoxelTypeBaseDataKey,
+  voxelTypeDataKeyToString,
+  voxelTypeBaseKeyToString,
+  voxelTypeToVoxelTypeBaseKeyString as voxelTypeToVoxelTypeBaseKeyStr,
 } from "../types";
 import { to64CharAddress } from "../../../utils/entity";
 import { SyncState } from "@latticexyz/network";
 import { IComputedValue } from "mobx";
 
+// returns a set of entityKeys: namespace:voxelType
 export const getItemTypesIOwn = (
   OwnedBy: Component<{
     value: Type.String;
@@ -37,14 +43,19 @@ export const getItemTypesIOwn = (
     voxelVariantId: Type.String;
   }>,
   connectedAddress: IComputedValue<string | undefined>
-): Set<Entity> => {
+): Set<string> => {
   const itemsIOwn = runQuery([HasValue(OwnedBy, { value: to64CharAddress(connectedAddress.get()) }), Has(VoxelType)]);
   return new Set(
-    Array.from(itemsIOwn).map((item) => {
-      const voxelType = getComponentValue(VoxelType, item);
-      if (voxelType == undefined) return "" as Entity;
-      return voxelVariantDataKeyToString(voxelTypeDataKeyToVoxelVariantDataKey(voxelType)) as Entity;
-    })
+    Array.from(itemsIOwn)
+      .map((item) => {
+        const voxelType = getComponentValue(VoxelType, item);
+        if (voxelType === undefined) {
+          console.warn(`voxelType of item you own is undefined item=${item.toString()}`);
+          return "";
+        }
+        return voxelTypeToVoxelTypeBaseKeyStr(voxelType);
+      })
+      .filter((item) => item !== "")
   );
 };
 
@@ -73,10 +84,8 @@ export function createInventoryIndexSystem(network: NetworkLayer, context: NoaLa
   const removeInventoryIndexesForItemsWeNoLongerOwn = () => {
     const itemTypesIOwn = getItemTypesIOwn(OwnedBy, VoxelType, connectedAddress);
     for (const itemType of InventoryIndex.values.value.keys()) {
-      const voxelVariantDataKey = voxelTypeDataKeyToVoxelVariantDataKey(
-        entityToVoxelType(itemType.description as Entity)
-      );
-      if (!itemTypesIOwn.has(voxelVariantDataKeyToString(voxelVariantDataKey) as Entity)) {
+      const voxelTypeBaseKeyStr = voxelTypeToVoxelTypeBaseKeyStr(entityToVoxelType(itemType.description as Entity));
+      if (!itemTypesIOwn.has(voxelTypeBaseKeyStr)) {
         removeComponent(InventoryIndex, itemType.description as Entity);
       }
     }

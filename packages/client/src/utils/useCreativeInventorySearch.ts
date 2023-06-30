@@ -1,8 +1,10 @@
+// This react hook returns a list of voxelTypes that meet the user's filter criteria
+// when searching through the creative inventory
 import React, { useEffect } from "react";
 import Fuse from "fuse.js";
 import { useComponentUpdate } from "./useComponentUpdate";
 import { Layers } from "../types";
-import { getComponentValue, Entity } from "@latticexyz/recs";
+import { getComponentValue, Entity, Type, ComponentValue, SchemaOf } from "@latticexyz/recs";
 import { formatNamespace } from "../constants";
 import { getNftStorageLink } from "../layers/noa/constants";
 import { CreativeInventoryFilters, VoxelTypeDesc } from "../layers/react/components/CreativeInventory";
@@ -30,26 +32,30 @@ export const useCreativeInventorySearch = ({ layers, filters }: Props) => {
 
   useComponentUpdate(VoxelTypeRegistry, () => {
     const allVoxelTypesInRegistry = [...VoxelTypeRegistry.entities()];
-    const voxelTypes = [];
+    const voxelTypes = new Map<Entity, ComponentValue<SchemaOf<typeof VoxelTypeRegistry>>>();
     for (const voxelType of allVoxelTypesInRegistry) {
-      const voxelTypeValue = getComponentValue(VoxelTypeRegistry, voxelType);
-      voxelTypes.push(voxelTypeValue);
+      const voxelTypeRecord = getComponentValue(VoxelTypeRegistry, voxelType);
+      if (!voxelTypeRecord) {
+        console.warn(`cannot find voxelTypeRecord for ${voxelType}`);
+        continue;
+      }
+      voxelTypes.set(voxelType, voxelTypeRecord);
     }
-    allVoxelTypes.current = Array.from(voxelTypes)
-      .filter((voxelType) => voxelType !== undefined && voxelType.name !== "Air") // we don't want unknown voxelTypes or Air to appear in the inventory
-      .map((voxelType, index: number) => {
-        const entity = allVoxelTypesInRegistry[index];
-        const [namespace, voxelTypeId] = entity.split(":");
+    allVoxelTypes.current = Array.from(voxelTypes.entries())
+      .filter(([_, voxelTypeRecord]) => voxelTypeRecord !== undefined && voxelTypeRecord.name !== "Air")
+      .map(([voxelType, voxelTypeRecord]) => {
+        const [namespace, voxelTypeId] = voxelType.split(":");
         return {
-          name: voxelType!.name,
+          name: voxelTypeRecord!.name,
           namespace: formatNamespace(namespace),
           voxelType: voxelTypeId as Entity,
-          voxelTypeId: voxelTypeId,
-          preview: voxelType!.preview ? getNftStorageLink(voxelType!.preview) : "",
-          numSpawns: voxelType!.numSpawns,
-          creator: voxelType!.creator,
-        };
+          preview: voxelTypeRecord!.preview ? getNftStorageLink(voxelTypeRecord!.preview) : "",
+          numSpawns: voxelTypeRecord!.numSpawns,
+          creator: voxelTypeRecord!.creator,
+        } as VoxelTypeDesc;
       });
+
+    allVoxelTypes.current = allVoxelTypes.current.sort((a, b) => a.name.localeCompare(b.name));
 
     // After we have parsed all the voxeltypes, apply the voxeltype
     // filters to narrow down the voxeltypes that will be displayed.

@@ -25,7 +25,6 @@ export interface VoxelTypeDesc {
   name: string;
   namespace: string;
   voxelType: Entity;
-  voxelTypeId: string;
   preview: string;
   numSpawns: BigInt;
   creator: string;
@@ -50,11 +49,11 @@ export const CreativeInventory: React.FC<Props> = ({ layers, filters, setFilters
 
     return (
       <Slot
-        key={"creative-slot" + i}
+        key={`creative-slot-${voxelDescription.name}`}
         voxelType={voxelDescription.voxelType}
         iconUrl={voxelDescription.preview}
         quantity={undefined} // undefined so no number appears
-        onClick={() => tryGiftVoxel(voxelDescription.namespace, voxelDescription.voxelTypeId, voxelDescription.preview)}
+        onClick={() => tryGiftVoxel(voxelDescription.namespace, voxelDescription.voxelType, voxelDescription.preview)}
         disabled={false} // false, so if you pick up the voxeltype, it still shows up in the creative inventory
         selected={false} // you can never select an voxeltype in the creative inventory
         getVoxelIconUrl={getVoxelIconUrl}

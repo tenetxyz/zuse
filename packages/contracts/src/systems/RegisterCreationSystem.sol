@@ -25,25 +25,19 @@ contract RegisterCreationSystem is System {
     validateCreation(voxelCoords);
 
     bytes memory voxelTypes = abi.encode(getVoxelTypes(voxels));
-    (
-      uint32[] memory repositionedX,
-      uint32[] memory repositionedY,
-      uint32[] memory repositionedZ
-    ) = repositionBlocksSoLowerSouthwestCornerIsOnOrigin(voxelCoords);
+    bytes memory relativePositions = abi.encode(repositionBlocksSoLowerSouthwestCornerIsOnOrigin(voxelCoords));
 
     CreationData memory creation;
     creation.voxelTypes = voxelTypes;
     creation.creator = addressToEntityKey(_msgSender());
-    creation.relativePositionsX = repositionedX;
-    creation.relativePositionsY = repositionedY;
-    creation.relativePositionsZ = repositionedZ;
+    creation.relativePositions = relativePositions;
     creation.name = name;
-    //        creation.description = description;
+    creation.description = description;
 
     //        TODO: implement
     //        creation.voxelMetadata =
 
-    bytes32 creationId = getCreationHash(voxelTypes, repositionedX, repositionedY, repositionedZ, _msgSender());
+    bytes32 creationId = getCreationHash(voxelTypes, relativePositions, _msgSender());
     Creation.set(creationId, creation);
     return creationId;
   }
@@ -71,7 +65,7 @@ contract RegisterCreationSystem is System {
   // TODO: put this into a precompile for speed
   function repositionBlocksSoLowerSouthwestCornerIsOnOrigin(
     VoxelCoord[] memory voxelCoords
-  ) private pure returns (uint32[] memory, uint32[] memory, uint32[] memory) {
+  ) private pure returns (VoxelCoord[] memory) {
     int32 lowestX = 2147483647;
     int32 lowestY = 2147483647;
     int32 lowestZ = 2147483647;
@@ -88,17 +82,12 @@ contract RegisterCreationSystem is System {
       }
     }
 
-    uint32[] memory repositionedX = new uint32[](voxelCoords.length);
-    uint32[] memory repositionedY = new uint32[](voxelCoords.length);
-    uint32[] memory repositionedZ = new uint32[](voxelCoords.length);
-
+    VoxelCoord[] memory repositionedVoxelCoords = new VoxelCoord[](voxelCoords.length);
     for (uint32 i = 0; i < voxelCoords.length; i++) {
       VoxelCoord memory voxel = voxelCoords[i];
-      repositionedX[i] = uint32(voxel.x - lowestX);
-      repositionedY[i] = uint32(voxel.y - lowestY);
-      repositionedZ[i] = uint32(voxel.z - lowestZ);
+      repositionedVoxelCoords[i] = VoxelCoord({ x: voxel.x - lowestX, y: voxel.y - lowestY, z: voxel.z - lowestZ });
     }
-    return (repositionedX, repositionedY, repositionedZ);
+    return repositionedVoxelCoords;
   }
 
   function getVoxelTypes(bytes32[] memory voxels) public view returns (VoxelTypeData[] memory) {
@@ -136,11 +125,9 @@ contract RegisterCreationSystem is System {
   // I think it's fine, because two players can solve a level in the same way
   function getCreationHash(
     bytes memory voxelTypes,
-    uint32[] memory repositionedX,
-    uint32[] memory repositionedY,
-    uint32[] memory repositionedZ,
+    bytes memory relativePositions,
     address sender
   ) public pure returns (bytes32) {
-    return bytes32(keccak256(abi.encode(voxelTypes, repositionedX, repositionedY, repositionedZ, sender)));
+    return bytes32(keccak256(abi.encode(voxelTypes, relativePositions, sender)));
   }
 }

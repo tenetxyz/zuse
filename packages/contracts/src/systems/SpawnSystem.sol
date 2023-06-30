@@ -14,22 +14,18 @@ contract SpawnSystem is System {
   function spawn(VoxelCoord memory lowerSouthWestCorner, bytes32 creationId) public returns (bytes32) {
     // relPosX = all the relative position X coordinates
     CreationData memory creation = Creation.get(creationId);
-    uint32[] memory relPosX = creation.relativePositionsX;
-    uint32[] memory relPosY = creation.relativePositionsY;
-    uint32[] memory relPosZ = creation.relativePositionsZ;
 
     VoxelTypeData[] memory voxelTypes = abi.decode(creation.voxelTypes, (VoxelTypeData[]));
+    VoxelCoord[] memory relativeVoxelCoords = abi.decode(creation.relativePositions, (VoxelCoord[]));
 
     SpawnData memory spawnData;
     bytes32[] memory spawnVoxels = new bytes32[](voxelTypes.length);
     spawnData.creationId = creationId;
-    spawnData.lowerSouthWestCornerX = lowerSouthWestCorner.x;
-    spawnData.lowerSouthWestCornerY = lowerSouthWestCorner.y;
-    spawnData.lowerSouthWestCornerZ = lowerSouthWestCorner.z;
+    spawnData.lowerSouthWestCorner = abi.encode(lowerSouthWestCorner);
 
     bytes32 spawnId = getUniqueEntity();
     for (uint i = 0; i < voxelTypes.length; i++) {
-      VoxelCoord memory relativeCoord = VoxelCoord(int32(relPosX[i]), int32(relPosY[i]), int32(relPosZ[i])); // we shouldn't be concerned about casting errors since creation dimensions shouldn't be large
+      VoxelCoord memory relativeCoord = relativeVoxelCoords[i];
       VoxelCoord memory spawnVoxelAtCoord = add(lowerSouthWestCorner, relativeCoord);
 
       require(

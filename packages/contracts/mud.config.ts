@@ -31,15 +31,15 @@ export default mudConfig({
         solid: "bool",
         blockType: "NoaBlockType",
         // Note: These 2 dynamic fields MUST come at the end of the schema
-        materialArr: "string", // File ID Hash[], TODO: Use a more efficient data structure
+        materials: "bytes", // string[]
         uvWrap: "string", // File ID Hash
       },
     },
     VoxelTypeRegistry: {
       // TODO: Move this to a namespace?
       keySchema: {
-        namespace: "bytes16",
-        voxelType: "bytes32",
+        voxelTypeNamespace: "bytes16",
+        voxelTypeId: "bytes32",
       },
       schema: {
         voxelVariantSelector: "bytes4",
@@ -81,14 +81,11 @@ export default mudConfig({
         creator: "bytes32",
         numSpawns: "uint256",
         voxelTypes: "bytes", // VoxelTypeData[]
-        // the relative position for each voxel in the creation
-        // VoxelCoord is removed in MUD2, so we need to manually specify x,y,z
-        relativePositionsX: "uint32[]",
-        relativePositionsY: "uint32[]",
-        relativePositionsZ: "uint32[]",
+        relativePositions: "bytes", // VoxelCoord[], the relative position for each voxel in the creation
         name: "string",
-        // description: "string", // Not used cause rn we can only have at most 5 dynamic fields: https://github.com/tenetxyz/mud/blob/main/packages/store/src/Schema.sol#L20
+        description: "string",
         // voxelMetadata: "bytes", // stores the component values for each voxel in the creation
+        // Note: can't add more dynamic fields cause rn we can only have at most 5 dynamic fields: https://github.com/tenetxyz/mud/blob/main/packages/store/src/Schema.sol#L20
       },
     },
 
@@ -97,9 +94,7 @@ export default mudConfig({
     Spawn: {
       schema: {
         creationId: "bytes32", // the creation that it's a spawn of
-        lowerSouthWestCornerX: "int32",
-        lowerSouthWestCornerY: "int32",
-        lowerSouthWestCornerZ: "int32",
+        lowerSouthWestCorner: "bytes", // "VoxelCoord
         voxels: "bytes32[]", // the voxelIds that have been spawned
         interfaceVoxels: "bytes32[]", // the voxels that are used for i/o interfaces (e.g. for an AND gate test)
       },

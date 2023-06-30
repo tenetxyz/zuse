@@ -14,7 +14,7 @@ import { getCallerNamespace } from "../sharedutils.sol";
 contract VoxelRegistrySystem is System {
   function registerVoxelType(
     string memory name,
-    bytes32 voxelType,
+    bytes32 voxelTypeId,
     string memory previewVoxelImg,
     bytes4 voxelVariantSelector
   ) public {
@@ -24,7 +24,7 @@ contract VoxelRegistrySystem is System {
     // check if voxel type is already registered
     bytes32[] memory keyTuple = new bytes32[](2);
     keyTuple[0] = bytes32((namespace));
-    keyTuple[1] = voxelType;
+    keyTuple[1] = voxelTypeId;
 
     require(!hasKey(VoxelTypeRegistryTableId, keyTuple), "Voxel type already registered for this namespace");
 
@@ -33,7 +33,7 @@ contract VoxelRegistrySystem is System {
     // register voxel type
     VoxelTypeRegistry.set(
       namespace,
-      voxelType,
+      voxelTypeId,
       VoxelTypeRegistryData({
         voxelVariantSelector: voxelVariantSelector,
         creator: _msgSender(),

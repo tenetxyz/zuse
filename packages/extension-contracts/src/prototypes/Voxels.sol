@@ -2,7 +2,6 @@
 pragma solidity >=0.8.0;
 import { IWorld } from "../codegen/world/IWorld.sol";
 import { NoaBlockType } from "@tenetxyz/contracts/src/codegen/types.sol";
-import { stringArrToString } from "@tenetxyz/contracts/src/SharedUtils.sol";
 import { REGISTER_VOXEL_VARIANT_SIG } from "@tenetxyz/contracts/src/constants.sol";
 
 // TODO: should not be duplicated from "@tenetxyz/contracts
@@ -13,7 +12,7 @@ struct VoxelVariantsData {
   bool fluid;
   bool solid;
   NoaBlockType blockType;
-  string materialArr;
+  bytes materials;
   string uvWrap;
 }
 
@@ -45,22 +44,23 @@ function defineVoxels(address world) {
   sandVariant.blockType = NoaBlockType.BLOCK;
   sandVariant.opaque = true;
   sandVariant.solid = true;
-  sandVariant.materialArr = SandTexture;
+  string[] memory sandMaterials = new string[](1);
+  sandMaterials[0] = SandTexture;
+  sandVariant.materials = abi.encode(sandMaterials);
   sandVariant.uvWrap = SandUVWrap;
   (bool success, bytes memory result) = world.call(
     abi.encodeWithSignature(REGISTER_VOXEL_VARIANT_SIG, SandID, sandVariant)
   );
   require(success, "Failed to register sand variant");
 
-  string[] memory logMaterials = new string[](2);
-  logMaterials[0] = LogTopTexture;
-  logMaterials[1] = LogTexture;
-
   VoxelVariantsData memory logVariant;
   logVariant.blockType = NoaBlockType.BLOCK;
   logVariant.opaque = true;
   logVariant.solid = true;
-  logVariant.materialArr = stringArrToString(logMaterials);
+  string[] memory logMaterials = new string[](2);
+  logMaterials[0] = LogTopTexture;
+  logMaterials[1] = LogTexture;
+  logVariant.materials = abi.encode(logMaterials);
   logVariant.uvWrap = LogUVWrap;
 
   (success, result) = world.call(abi.encodeWithSignature(REGISTER_VOXEL_VARIANT_SIG, LogID, logVariant));
@@ -71,7 +71,9 @@ function defineVoxels(address world) {
   orangeFlowerVariant.opaque = false;
   orangeFlowerVariant.solid = false;
   orangeFlowerVariant.frames = 1;
-  orangeFlowerVariant.materialArr = OrangeFlowerTexture;
+  string[] memory orangeFlowerMaterials = new string[](1);
+  orangeFlowerMaterials[0] = OrangeFlowerTexture;
+  orangeFlowerVariant.materials = abi.encode(orangeFlowerMaterials);
 
   (success, result) = world.call(
     abi.encodeWithSignature(REGISTER_VOXEL_VARIANT_SIG, OrangeFlowerID, orangeFlowerVariant)
@@ -82,7 +84,9 @@ function defineVoxels(address world) {
   signalOffVariant.blockType = NoaBlockType.BLOCK;
   signalOffVariant.opaque = true;
   signalOffVariant.solid = true;
-  signalOffVariant.materialArr = SignalOffTexture;
+  string[] memory signalOffMaterials = new string[](1);
+  signalOffMaterials[0] = SignalOffTexture;
+  signalOffVariant.materials = abi.encode(signalOffMaterials);
   signalOffVariant.uvWrap = SignalOffUVWrap;
   (success, result) = world.call(abi.encodeWithSignature(REGISTER_VOXEL_VARIANT_SIG, SignalOffID, signalOffVariant));
   require(success, "Failed to register signal off variant");
@@ -91,7 +95,9 @@ function defineVoxels(address world) {
   signalOnVariant.blockType = NoaBlockType.BLOCK;
   signalOnVariant.opaque = true;
   signalOnVariant.solid = true;
-  signalOnVariant.materialArr = SignalOnTexture;
+  string[] memory signalOnMaterials = new string[](1);
+  signalOnMaterials[0] = SignalOnTexture;
+  signalOnVariant.materials = abi.encode(signalOnMaterials);
   signalOnVariant.uvWrap = SignalOnUVWrap;
   (success, result) = world.call(abi.encodeWithSignature(REGISTER_VOXEL_VARIANT_SIG, SignalOnID, signalOnVariant));
   require(success, "Failed to register signal on variant");
@@ -100,7 +106,9 @@ function defineVoxels(address world) {
   signalSourceVariant.blockType = NoaBlockType.BLOCK;
   signalSourceVariant.opaque = true;
   signalSourceVariant.solid = true;
-  signalSourceVariant.materialArr = SignalSourceTexture;
+  string[] memory signalSourceMaterials = new string[](1);
+  signalSourceMaterials[0] = SignalSourceTexture;
+  signalSourceVariant.materials = abi.encode(signalSourceMaterials);
   signalSourceVariant.uvWrap = SignalSourceUVWrap;
   (success, result) = world.call(
     abi.encodeWithSignature(REGISTER_VOXEL_VARIANT_SIG, SignalSourceID, signalSourceVariant)

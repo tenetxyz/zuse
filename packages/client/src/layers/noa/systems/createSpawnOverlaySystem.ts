@@ -1,13 +1,14 @@
 // the purpose of this system is to render a wireframe around voxels/creations the user selects
 
 import { NetworkLayer } from "../../network";
-import { NoaLayer } from "../types";
+import { NoaLayer, cleanVoxelCoord } from "../types";
 import { renderChunkyWireframe } from "./renderWireframes";
 import { Color3, Mesh } from "@babylonjs/core";
 import { add } from "../../../utils/coord";
 import { calculateMinMaxRelativePositions } from "../../../utils/creation";
 import { Entity, EntitySymbol, getComponentValue } from "@latticexyz/recs";
 import { to256BitString, VoxelCoord } from "@latticexyz/utils";
+import { abiDecode } from "../../../utils/abi";
 
 interface Spawn {
   spawnId: Entity;
@@ -33,17 +34,18 @@ export function createSpawnOverlaySystem(networkLayer: NetworkLayer, noaLayer: N
     const spawns: Spawn[] = [];
     spawnTable.creationId.forEach((creationId, rawSpawnId) => {
       const spawnId = rawSpawnId as any;
-      spawns.push({
-        spawnId: spawnId,
-        creationId: creationId as Entity,
-        lowerSouthWestCorner: {
-          x: spawnTable.lowerSouthWestCornerX.get(spawnId)!,
-          y: spawnTable.lowerSouthWestCornerY.get(spawnId)!,
-          z: spawnTable.lowerSouthWestCornerZ.get(spawnId)!,
-        },
-        voxels: spawnTable.voxels.get(spawnId) as Entity[],
-        interfaceVoxels: spawnTable.interfaceVoxels.get(spawnId) as Entity[],
-      });
+      const encodedLowerSouthWestCorner = spawnTable.lowerSouthWestCorner.get(spawnId)!;
+      const decodedLowerSouthWestCorner = abiDecode("tuple(int32 x,int32 y,int32 z)", encodedLowerSouthWestCorner);
+      if (decodedLowerSouthWestCorner) {
+        const lowerSouthWestCorner = cleanVoxelCoord(decodedLowerSouthWestCorner as VoxelCoord);
+        spawns.push({
+          spawnId: spawnId,
+          creationId: creationId as Entity,
+          lowerSouthWestCorner: lowerSouthWestCorner,
+          voxels: spawnTable.voxels.get(spawnId) as Entity[],
+          interfaceVoxels: spawnTable.interfaceVoxels.get(spawnId) as Entity[],
+        });
+      }
     });
     renderSpawnOutlines(spawns);
   });
@@ -67,20 +69,20 @@ export function createSpawnOverlaySystem(networkLayer: NetworkLayer, noaLayer: N
       }
 
       // calculate the min and max relative positions of the creation so we can render the wireframe around it
-      const xPositions = creation.relativePositionsX ?? [];
-      const yPositions = creation.relativePositionsY ?? [];
-      const zPositions = creation.relativePositionsZ ?? [];
+      const relativePositions: VoxelCoord[] = [];
+      const decodedRelativePositions = abiDecode("tuple(int32 x,int32 y,int32 z)[]", creation.relativePositions);
+      if (decodedRelativePositions) {
+        decodedRelativePositions.forEach((relativePosition: VoxelCoord) => {
+          relativePositions.push(cleanVoxelCoord(relativePosition));
+        });
+      }
 
-      if (xPositions.length === 0 || yPositions.length === 0 || zPositions.length === 0) {
+      if (relativePositions.length === 0) {
         console.warn(
-          `No relativePositions found for creationId=${creationId.toString()}. xPositions=${xPositions} yPositions=${yPositions} zPositions=${zPositions}`
+          `No relativePositions found for creationId=${spawn.creationId.toString()}. relativePositions=${relativePositions}`
         );
         return;
       }
-
-      const relativePositions = xPositions.map((x, i) => {
-        return { x, y: yPositions[i], z: zPositions[i] };
-      });
 
       const { minRelativeCoord, maxRelativeCoord } = calculateMinMaxRelativePositions(relativePositions);
 

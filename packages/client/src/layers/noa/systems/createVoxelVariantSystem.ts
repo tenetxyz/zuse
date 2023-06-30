@@ -12,6 +12,7 @@ import {
 import { NoaVoxelDef } from "../types";
 import { formatNamespace } from "../../../constants";
 import { getNftStorageLink } from "../constants";
+import { abiDecode } from "../../../utils/abi";
 
 export async function createVoxelVariantSystem(network: NetworkLayer, context: NoaLayer) {
   const {
@@ -41,15 +42,15 @@ export async function createVoxelVariantSystem(network: NetworkLayer, context: N
 
     if (!VoxelVariantData.has(voxelVariantDataKeyToString(voxelVariantDataKey))) {
       console.log("Adding new variant");
-      const materialArr = voxelVariantValue.materialArr.split("|");
+      const materialArr: string[] = (abiDecode("string[]", voxelVariantValue.materials) as string[]) ?? [];
       // go through each hash in materialArr and format it to have the NFT storage link
       const formattedMaterialArr: string[] = materialArr.map((hash: string) => {
         return getNftStorageLink(hash);
       });
       let material: string | string[] = "";
-      if (formattedMaterialArr.length == 1) {
+      if (formattedMaterialArr.length === 1) {
         material = formattedMaterialArr[0];
-      } else {
+      } else if (formattedMaterialArr.length > 1) {
         material = formattedMaterialArr;
       }
 

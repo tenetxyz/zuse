@@ -49,7 +49,10 @@ export const getItemTypesIOwn = (
     Array.from(itemsIOwn)
       .map((item) => {
         const voxelType = getComponentValue(VoxelType, item);
-        if (voxelType === undefined) return "";
+        if (voxelType === undefined) {
+          console.warn(`voxelType of item you own is undefined item=${item.toString()}`);
+          return "";
+        }
         return voxelTypeToVoxelTypeBaseKeyStr(voxelType);
       })
       .filter((item) => item !== "")

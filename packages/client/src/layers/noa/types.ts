@@ -102,13 +102,6 @@ export function entityToVoxelType(entity: Entity): VoxelTypeDataKey {
   return { voxelTypeNamespace, voxelTypeId, voxelVariantNamespace, voxelVariantId };
 }
 
-export function voxelTypeDataKeyToVoxelVariantDataKey(key: VoxelTypeDataKey): VoxelVariantDataKey {
-  return {
-    voxelVariantNamespace: key.voxelVariantNamespace,
-    voxelVariantId: key.voxelVariantId,
-  };
-}
-
 // We need to do it this sometimes because decoded coords have named keys, 0, 1, 2 in addition to x, y, z
 export function cleanVoxelCoord(coord: VoxelCoord) {
   return {

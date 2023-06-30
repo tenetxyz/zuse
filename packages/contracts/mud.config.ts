@@ -48,7 +48,6 @@ export default mudConfig({
         preview: "string", // File ID Hash
       },
     },
-    Name: "string", // This is a shortcut for { schema: "string" }
     Occurrence: {
       // Each voxel generates at diff spots in the world, and each voxel has a function defining where it should appear. This table points to each voxel's respective generation function.
       schema: {
@@ -73,15 +72,6 @@ export default mudConfig({
         placeholder: "bool",
       },
     },
-    Recipe: "bytes32",
-    Stake: "uint32",
-    Claim: {
-      schema: {
-        stake: "uint32",
-        claimer: "bytes32",
-      },
-    },
-
     // tables for creations
     Creation: {
       schema: {

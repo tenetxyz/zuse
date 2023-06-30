@@ -34,7 +34,7 @@ export const useCreationSearch = ({ layers, filters }: Props) => {
     allCreations.current = [];
     const creationTable = Creation.values;
     creationTable.name.forEach((name: string, creationId) => {
-      const description = ""; //creationTable.description.get(creationId) ?? "";
+      const description = creationTable.description.get(creationId) ?? "";
       const creator = creationTable.creator.get(creationId);
       if (!creator) {
         console.warn("No creator found for creation", creationId);

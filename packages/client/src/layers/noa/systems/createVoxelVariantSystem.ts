@@ -43,7 +43,7 @@ export async function createVoxelVariantSystem(network: NetworkLayer, context: N
     if (!VoxelVariantData.has(voxelVariantDataKeyToString(voxelVariantDataKey))) {
       console.log("Adding new variant");
       let materialArr: string[] = [];
-      if (voxelVariantValue.materials && voxelVariantValue.materials !== "0x") {
+      if (voxelVariantValue.materials.length > 0 && voxelVariantValue.materials !== "0x") {
         try {
           materialArr = abi.decode(["string[]"], voxelVariantValue.materials)[0] as string[];
         } catch (e) {

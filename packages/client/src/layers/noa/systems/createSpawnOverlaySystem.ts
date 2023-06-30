@@ -34,17 +34,30 @@ export function createSpawnOverlaySystem(networkLayer: NetworkLayer, noaLayer: N
     const spawns: Spawn[] = [];
     spawnTable.creationId.forEach((creationId, rawSpawnId) => {
       const spawnId = rawSpawnId as any;
-      spawns.push({
-        spawnId: spawnId,
-        creationId: creationId as Entity,
-        lowerSouthWestCorner: {
-          x: spawnTable.lowerSouthWestCornerX.get(spawnId)!,
-          y: spawnTable.lowerSouthWestCornerY.get(spawnId)!,
-          z: spawnTable.lowerSouthWestCornerZ.get(spawnId)!,
-        },
-        voxels: spawnTable.voxels.get(spawnId) as Entity[],
-        interfaceVoxels: spawnTable.interfaceVoxels.get(spawnId) as Entity[],
-      });
+      const encodedLowerSouthWestCorner = spawnTable.lowerSouthWestCorner.get(spawnId)!;
+      try {
+        const decodedLowerSouthWestCorner = abi.decode(
+          ["tuple(int32 x,int32 y,int32 z)"],
+          encodedLowerSouthWestCorner
+        )[0] as VoxelCoord;
+        // We need to do it this way because relativePosition has named keys, 0, 1, 2 in addition to x, y, z
+        const lowerSouthWestCorner = {
+          x: decodedLowerSouthWestCorner.x,
+          y: decodedLowerSouthWestCorner.y,
+          z: decodedLowerSouthWestCorner.z,
+        };
+
+        spawns.push({
+          spawnId: spawnId,
+          creationId: creationId as Entity,
+          lowerSouthWestCorner: lowerSouthWestCorner,
+          voxels: spawnTable.voxels.get(spawnId) as Entity[],
+          interfaceVoxels: spawnTable.interfaceVoxels.get(spawnId) as Entity[],
+        });
+      } catch (e) {
+        console.error("Error decoding lowerSouthWestCorner");
+        console.error(e);
+      }
     });
     renderSpawnOutlines(spawns);
   });

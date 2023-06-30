@@ -21,9 +21,7 @@ contract SpawnSystem is System {
     SpawnData memory spawnData;
     bytes32[] memory spawnVoxels = new bytes32[](voxelTypes.length);
     spawnData.creationId = creationId;
-    spawnData.lowerSouthWestCornerX = lowerSouthWestCorner.x;
-    spawnData.lowerSouthWestCornerY = lowerSouthWestCorner.y;
-    spawnData.lowerSouthWestCornerZ = lowerSouthWestCorner.z;
+    spawnData.lowerSouthWestCorner = abi.encode(lowerSouthWestCorner);
 
     bytes32 spawnId = getUniqueEntity();
     for (uint i = 0; i < voxelTypes.length; i++) {

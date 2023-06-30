@@ -94,9 +94,7 @@ export default mudConfig({
     Spawn: {
       schema: {
         creationId: "bytes32", // the creation that it's a spawn of
-        lowerSouthWestCornerX: "int32",
-        lowerSouthWestCornerY: "int32",
-        lowerSouthWestCornerZ: "int32",
+        lowerSouthWestCorner: "bytes", // "VoxelCoord
         voxels: "bytes32[]", // the voxelIds that have been spawned
         interfaceVoxels: "bytes32[]", // the voxels that are used for i/o interfaces (e.g. for an AND gate test)
       },

@@ -32,7 +32,7 @@ contract RegisterCreationSystem is System {
     creation.creator = addressToEntityKey(_msgSender());
     creation.relativePositions = relativePositions;
     creation.name = name;
-    //        creation.description = description;
+    creation.description = description;
 
     //        TODO: implement
     //        creation.voxelMetadata =

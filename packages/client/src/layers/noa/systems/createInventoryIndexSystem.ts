@@ -21,8 +21,11 @@ import {
   voxelTypeDataKeyToVoxelVariantDataKey,
   voxelVariantDataKeyToString,
   entityToVoxelType,
-  VoxelTypeBaseDataKey,
+  VoxelTypeBaseKey,
   voxelTypeToVoxelTypeBaseDataKey,
+  voxelTypeDataKeyToString,
+  voxelTypeBaseKeyToString,
+  voxelTypeToVoxelTypeBaseKeyString as voxelTypeToVoxelTypeBaseKeyStr,
 } from "../types";
 import { to64CharAddress } from "../../../utils/entity";
 import { SyncState } from "@latticexyz/network";
@@ -40,14 +43,16 @@ export const getItemTypesIOwn = (
     voxelVariantId: Type.String;
   }>,
   connectedAddress: IComputedValue<string | undefined>
-): Set<VoxelTypeBaseDataKey> => {
+): Set<string> => {
   const itemsIOwn = runQuery([HasValue(OwnedBy, { value: to64CharAddress(connectedAddress.get()) }), Has(VoxelType)]);
   return new Set(
-    Array.from(itemsIOwn).map((item) => {
-      const voxelType = getComponentValue(VoxelType, item);
-      if (voxelType === undefined) return "";
-      return voxelTypeToVoxelTypeBaseDataKey(voxelType);
-    })
+    Array.from(itemsIOwn)
+      .map((item) => {
+        const voxelType = getComponentValue(VoxelType, item);
+        if (voxelType === undefined) return "";
+        return voxelTypeToVoxelTypeBaseKeyStr(voxelType);
+      })
+      .filter((item) => item !== "")
   );
 };
 
@@ -76,10 +81,8 @@ export function createInventoryIndexSystem(network: NetworkLayer, context: NoaLa
   const removeInventoryIndexesForItemsWeNoLongerOwn = () => {
     const itemTypesIOwn = getItemTypesIOwn(OwnedBy, VoxelType, connectedAddress);
     for (const itemType of InventoryIndex.values.value.keys()) {
-      const voxelVariantDataKey = voxelTypeDataKeyToVoxelVariantDataKey(
-        entityToVoxelType(itemType.description as Entity)
-      );
-      if (!itemTypesIOwn.has(voxelVariantDataKeyToString(voxelVariantDataKey) as Entity)) {
+      const voxelTypeBaseKeyStr = voxelTypeToVoxelTypeBaseKeyStr(entityToVoxelType(itemType.description as Entity));
+      if (!itemTypesIOwn.has(voxelTypeBaseKeyStr)) {
         removeComponent(InventoryIndex, itemType.description as Entity);
       }
     }

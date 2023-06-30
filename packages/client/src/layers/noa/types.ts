@@ -39,7 +39,7 @@ export type VoxelTypeDataKey = {
   voxelVariantId: string;
 };
 
-export type VoxelTypeBaseDataKey = {
+export type VoxelTypeBaseKey = {
   voxelTypeNamespace: string;
   voxelTypeId: string;
 };
@@ -56,7 +56,14 @@ export type VoxelVariantDataValue = {
 
 export type VoxelVariantData = Map<string, VoxelVariantDataValue>;
 
-export function voxelVariantDataKeyToString(key: VoxelVariantDataKey) {
+export function voxelTypeDataKeyToVoxelVariantDataKey(key: VoxelTypeDataKey): VoxelVariantDataKey {
+  return {
+    voxelVariantNamespace: key.voxelVariantNamespace,
+    voxelVariantId: key.voxelVariantId,
+  };
+}
+
+export function voxelVariantDataKeyToString(key: VoxelVariantDataKey): string {
   return `${key.voxelVariantNamespace}:${key.voxelVariantId}`;
 }
 
@@ -66,6 +73,17 @@ export function voxelVariantKeyStringToKey(key: string): VoxelVariantDataKey {
     voxelVariantNamespace,
     voxelVariantId,
   };
+}
+
+export function voxelTypeToVoxelTypeBaseDataKey(voxelType: VoxelTypeDataKey): VoxelTypeBaseKey {
+  return {
+    voxelTypeNamespace: voxelType.voxelTypeNamespace,
+    voxelTypeId: voxelType.voxelTypeId,
+  };
+}
+
+export function voxelTypeToVoxelTypeBaseKeyString(voxelType: VoxelTypeDataKey): string {
+  return `${voxelType.voxelTypeNamespace}:${voxelType.voxelTypeId}`;
 }
 
 export function voxelTypeToEntity(voxelType: VoxelTypeDataKey): Entity {
@@ -78,21 +96,7 @@ export function voxelTypeToEntity(voxelType: VoxelTypeDataKey): Entity {
     voxelType.voxelVariantId) as Entity;
 }
 
-export function voxelTypeToVoxelTypeBaseDataKey(voxelType: VoxelTypeDataKey): VoxelTypeBaseDataKey {
-  return {
-    voxelTypeNamespace: voxelType.voxelTypeNamespace,
-    voxelTypeId: voxelType.voxelTypeId,
-  };
-}
-
 export function entityToVoxelType(entity: Entity): VoxelTypeDataKey {
   const [voxelTypeNamespace, voxelTypeId, voxelVariantNamespace, voxelVariantId] = entity.split("-");
   return { voxelTypeNamespace, voxelTypeId, voxelVariantNamespace, voxelVariantId };
-}
-
-export function voxelTypeDataKeyToVoxelVariantDataKey(key: VoxelTypeDataKey): VoxelVariantDataKey {
-  return {
-    voxelVariantNamespace: key.voxelVariantNamespace,
-    voxelVariantId: key.voxelVariantId,
-  };
 }

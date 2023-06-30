@@ -28,7 +28,7 @@ export function createInputSystem(network: NetworkLayer, noaLayer: NoaLayer) {
     },
     SingletonEntity,
     api: { toggleInventory, togglePlugins, placeSelectedVoxelType, getVoxelTypeInSelectedSlot, teleport },
-    streams: { stakeAndClaim$, playerPosition$ },
+    streams: { playerPosition$ },
   } = noaLayer;
 
   const {
@@ -44,7 +44,8 @@ export function createInputSystem(network: NetworkLayer, noaLayer: NoaLayer) {
 
   function canInteract() {
     if (balanceGwei$.getValue() === 0) return false;
-    const { claim } = stakeAndClaim$.getValue() || {};
+    // const { claim } = stakeAndClaim$.getValue() || {};
+    const claim = undefined;
     const playerAddress = connectedAddress.get();
     if (!playerAddress) return false;
     if (!claim) return true;

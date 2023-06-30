@@ -7,6 +7,7 @@ export default mudConfig({
     NoaBlockType: ["BLOCK", "MESH"],
   },
   tables: {
+    Name: "string", // Used to name players
     VoxelType: {
       // TODO: Move this to a namespace?
       schema: {
@@ -20,7 +21,7 @@ export default mudConfig({
     VoxelVariants: {
       keySchema: {
         voxelVariantNamespace: "bytes16",
-        voxelVariantId: "bytes32", // TODO: Should be a string?
+        voxelVariantId: "bytes32",
       },
       schema: {
         variantId: "uint256",
@@ -48,9 +49,9 @@ export default mudConfig({
         preview: "string", // File ID Hash
       },
     },
-    Name: "string", // This is a shortcut for { schema: "string" }
     Occurrence: {
-      // Each voxel generates at diff spots in the world, and each voxel has a function defining where it should appear. This table points to each voxel's respective generation function.
+      // Each voxel generates at diff spots in the world, and each voxel has a function defining where it should appear.
+      // This table points to each voxel's respective generation function.
       schema: {
         functionPointer: "bytes4",
       },
@@ -74,14 +75,6 @@ export default mudConfig({
       },
     },
     Recipe: "bytes32",
-    Stake: "uint32",
-    Claim: {
-      schema: {
-        stake: "uint32",
-        claimer: "bytes32",
-      },
-    },
-
     // tables for creations
     Creation: {
       schema: {

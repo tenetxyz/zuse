@@ -32,23 +32,24 @@ export function registerSidebar() {
         },
         noa: {
           streams: { playerChunk$ },
-          api: { getStakeAndClaim },
+          // api: { getStakeAndClaim },
           components: { Tutorial },
           SingletonEntity,
         },
       } = layers;
 
-      const chunk$ = playerChunk$.pipe(
-        map((chunk) => {
-          const { stake, claim } = getStakeAndClaim(chunk);
-          return {
-            chunk,
-            claim,
-            stake,
-            api: { stake: api.stake, claim: api.claim, getName: api.getName },
-          };
-        })
-      );
+      const chunk$ = playerChunk$;
+      // const chunk$ = playerChunk$.pipe(
+      //   map((chunk) => {
+      //     const { stake, claim } = getStakeAndClaim(chunk);
+      //     return {
+      //       chunk,
+      //       claim,
+      //       stake,
+      //       api: { stake: api.stake, claim: api.claim, getName: api.getName },
+      //     };
+      //   })
+      // );
 
       const balance$ = of(0).pipe(
         map(() => ({

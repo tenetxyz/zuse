@@ -41,14 +41,13 @@ export const useCreativeInventorySearch = ({ layers, filters }: Props) => {
       }
       voxelTypes.set(voxelType, voxelTypeRecord);
     }
-    allVoxelTypes.current = Array.from(voxelTypes)
-      .filter((voxelType) => voxelType !== undefined && voxelType.name !== "Air") // we don't want unknown voxelTypes or Air to appear in the inventory
-      .map((voxelType, index: number) => {
-        const entity = allVoxelTypesInRegistry[index];
-        const [voxelTypeNamespace, voxelTypeId] = entity.split(":");
+    allVoxelTypes.current = Array.from(voxelTypes.entries())
+      .filter(([_, voxelTypeRecord]) => voxelTypeRecord !== undefined && voxelTypeRecord.name !== "Air")
+      .map(([voxelType, voxelTypeRecord]) => {
+        const [namespace, voxelTypeId] = voxelType.split(":");
         return {
-          name: voxelType!.name,
-          namespace: formatNamespace(voxelTypeNamespace),
+          name: voxelTypeRecord!.name,
+          namespace: formatNamespace(namespace),
           voxelType: voxelTypeId as Entity,
           preview: voxelTypeRecord!.preview ? getNftStorageLink(voxelTypeRecord!.preview) : "",
           numSpawns: voxelTypeRecord!.numSpawns,

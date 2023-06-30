@@ -3,7 +3,6 @@ pragma solidity >=0.8.0;
 import { IWorld } from "../codegen/world/IWorld.sol";
 import { Occurrence, VoxelTypeData, VoxelVariantsData } from "../codegen/Tables.sol";
 import { NoaBlockType } from "../codegen/Types.sol";
-import { stringArrToString } from "../SharedUtils.sol";
 
 bytes32 constant AirID = bytes32(keccak256("air"));
 bytes32 constant GrassID = bytes32(keccak256("grass"));
@@ -28,20 +27,21 @@ function defineVoxels(IWorld world) {
   dirtVariant.blockType = NoaBlockType.BLOCK;
   dirtVariant.opaque = true;
   dirtVariant.solid = true;
-  dirtVariant.materialArr = DirtTexture;
+  string[] memory dirtMaterials = new string[](1);
+  dirtMaterials[0] = DirtTexture;
+  dirtVariant.materials = abi.encode(dirtMaterials);
   dirtVariant.uvWrap = DirtUVWrap;
   world.tenet_VoxelRegistrySys_registerVoxelVariant(DirtID, dirtVariant);
-
-  string[] memory grassMaterials = new string[](3);
-  grassMaterials[0] = GrassTexture;
-  grassMaterials[1] = DirtTexture;
-  grassMaterials[2] = GrassSideTexture;
 
   VoxelVariantsData memory grassVariant;
   grassVariant.blockType = NoaBlockType.BLOCK;
   grassVariant.opaque = true;
   grassVariant.solid = true;
-  grassVariant.materialArr = stringArrToString(grassMaterials);
+  string[] memory grassMaterials = new string[](3);
+  grassMaterials[0] = GrassTexture;
+  grassMaterials[1] = DirtTexture;
+  grassMaterials[2] = GrassSideTexture;
+  grassVariant.materials = abi.encode(grassMaterials);
   grassVariant.uvWrap = GrassUVWrap;
 
   world.tenet_VoxelRegistrySys_registerVoxelVariant(GrassID, grassVariant);
@@ -50,7 +50,9 @@ function defineVoxels(IWorld world) {
   bedrockVariant.blockType = NoaBlockType.BLOCK;
   bedrockVariant.opaque = true;
   bedrockVariant.solid = true;
-  bedrockVariant.materialArr = BedrockTexture;
+  string[] memory bedrockMaterials = new string[](1);
+  bedrockMaterials[0] = BedrockTexture;
+  bedrockVariant.materials = abi.encode(bedrockMaterials);
   bedrockVariant.uvWrap = BedrockUVWrap;
 
   world.tenet_VoxelRegistrySys_registerVoxelVariant(BedrockID, bedrockVariant);

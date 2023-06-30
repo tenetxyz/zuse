@@ -10,16 +10,3 @@ function getCallerNamespace(address caller) view returns (bytes16) {
   bytes16 callerNamespace = ResourceSelector.getNamespace(resourceSelector);
   return callerNamespace;
 }
-
-string constant STRING_ARR_DELIMITER = "|";
-
-function stringArrToString(string[] memory stringArr) pure returns (string memory) {
-  string memory resultStr = "";
-  for (uint i = 0; i < stringArr.length; i++) {
-    resultStr = string(abi.encodePacked(resultStr, stringArr[i]));
-    if (i < stringArr.length - 1) {
-      resultStr = string(abi.encodePacked(resultStr, STRING_ARR_DELIMITER));
-    }
-  }
-  return resultStr;
-}

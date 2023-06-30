@@ -3,7 +3,7 @@ pragma solidity >=0.8.0;
 
 bytes16 constant TENET_NAMESPACE = bytes16("tenet");
 
-string constant REGISTER_VOXEL_VARIANT_SIG = "tenet_VoxelRegistrySys_registerVoxelVariant(bytes32,(uint256,uint32,bool,bool,bool,uint8,string,string))";
+string constant REGISTER_VOXEL_VARIANT_SIG = "tenet_VoxelRegistrySys_registerVoxelVariant(bytes32,(uint256,uint32,bool,bool,bool,uint8,bytes,string))";
 string constant REGISTER_VOXEL_TYPE_SIG = "tenet_VoxelRegistrySys_registerVoxelType(string,bytes32,string,bytes4)";
 
 int32 constant CHUNK_MAX_Y = 255;

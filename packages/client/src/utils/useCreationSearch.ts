@@ -72,6 +72,7 @@ export const useCreationSearch = ({ layers, filters }: Props) => {
         numSpawns: creationTable.numSpawns.get(creationId) ?? 0,
       } as Creation);
     });
+    allCreations.current = allCreations.current.sort((a, b) => a.name.localeCompare(b.name));
 
     // After we have parsed all the creations, apply the creation
     // filters to narrow down the creations that will be displayed.

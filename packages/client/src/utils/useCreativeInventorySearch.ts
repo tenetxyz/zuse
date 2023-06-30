@@ -36,7 +36,7 @@ export const useCreativeInventorySearch = ({ layers, filters }: Props) => {
       voxelTypes.push(voxelTypeValue);
     }
     allVoxelTypes.current = Array.from(voxelTypes)
-      .filter((voxelType) => voxelType !== undefined && voxelType.name !== "Air") // we don't want unknown voxelTypes or Air to appear in the inventory
+      .filter((voxelType) => voxelType !== undefined)
       .map((voxelType, index: number) => {
         const entity = allVoxelTypesInRegistry[index];
         const [namespace, voxelTypeId] = entity.split(":");
@@ -50,6 +50,8 @@ export const useCreativeInventorySearch = ({ layers, filters }: Props) => {
           creator: voxelType!.creator,
         };
       });
+
+    allVoxelTypes.current = allVoxelTypes.current.sort((a, b) => a.name.localeCompare(b.name));
 
     // After we have parsed all the voxeltypes, apply the voxeltype
     // filters to narrow down the voxeltypes that will be displayed.

@@ -36,7 +36,7 @@ export const useCreativeInventorySearch = ({ layers, filters }: Props) => {
     for (const voxelType of allVoxelTypesInRegistry) {
       const voxelTypeRecord = getComponentValue(VoxelTypeRegistry, voxelType);
       if (!voxelTypeRecord) {
-        console.error(`cannot find voxelTypeRecord for ${voxelType}`);
+        console.warn(`cannot find voxelTypeRecord for ${voxelType}`);
         continue;
       }
       voxelTypes.set(voxelType, voxelTypeRecord);

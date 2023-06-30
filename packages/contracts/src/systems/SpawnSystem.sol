@@ -16,7 +16,7 @@ contract SpawnSystem is System {
     CreationData memory creation = Creation.get(creationId);
 
     VoxelTypeData[] memory voxelTypes = abi.decode(creation.voxelTypes, (VoxelTypeData[]));
-    VoxelCoord[] memory voxelCoords = abi.decode(creation.relativePositions, (VoxelCoord[]));
+    VoxelCoord[] memory relativeVoxelCoords = abi.decode(creation.relativePositions, (VoxelCoord[]));
 
     SpawnData memory spawnData;
     bytes32[] memory spawnVoxels = new bytes32[](voxelTypes.length);
@@ -25,7 +25,7 @@ contract SpawnSystem is System {
 
     bytes32 spawnId = getUniqueEntity();
     for (uint i = 0; i < voxelTypes.length; i++) {
-      VoxelCoord memory relativeCoord = voxelCoords[i];
+      VoxelCoord memory relativeCoord = relativeVoxelCoords[i];
       VoxelCoord memory spawnVoxelAtCoord = add(lowerSouthWestCorner, relativeCoord);
 
       require(

@@ -1,5 +1,6 @@
 import { Entity } from "@latticexyz/recs";
 import { createNoaLayer } from "./createNoaLayer";
+import { VoxelCoord } from "@latticexyz/utils";
 
 export type NoaLayer = Awaited<ReturnType<typeof createNoaLayer>>;
 
@@ -99,4 +100,20 @@ export function voxelTypeToEntity(voxelType: VoxelTypeDataKey): Entity {
 export function entityToVoxelType(entity: Entity): VoxelTypeDataKey {
   const [voxelTypeNamespace, voxelTypeId, voxelVariantNamespace, voxelVariantId] = entity.split("-");
   return { voxelTypeNamespace, voxelTypeId, voxelVariantNamespace, voxelVariantId };
+}
+
+export function voxelTypeDataKeyToVoxelVariantDataKey(key: VoxelTypeDataKey): VoxelVariantDataKey {
+  return {
+    voxelVariantNamespace: key.voxelVariantNamespace,
+    voxelVariantId: key.voxelVariantId,
+  };
+}
+
+// We need to do it this sometimes because decoded coords have named keys, 0, 1, 2 in addition to x, y, z
+export function cleanVoxelCoord(coord: VoxelCoord) {
+  return {
+    x: coord.x,
+    y: coord.y,
+    z: coord.z,
+  };
 }

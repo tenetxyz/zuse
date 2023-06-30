@@ -1,7 +1,7 @@
 // the purpose of this system is to render a wireframe around voxels/creations the user selects
 
 import { NetworkLayer } from "../../network";
-import { NoaLayer } from "../types";
+import { NoaLayer, cleanVoxelCoord } from "../types";
 import { renderChunkyWireframe } from "./renderWireframes";
 import { Color3, Mesh } from "@babylonjs/core";
 import { add } from "../../../utils/coord";
@@ -40,12 +40,7 @@ export function createSpawnOverlaySystem(networkLayer: NetworkLayer, noaLayer: N
           ["tuple(int32 x,int32 y,int32 z)"],
           encodedLowerSouthWestCorner
         )[0] as VoxelCoord;
-        // We need to do it this way because relativePosition has named keys, 0, 1, 2 in addition to x, y, z
-        const lowerSouthWestCorner = {
-          x: decodedLowerSouthWestCorner.x,
-          y: decodedLowerSouthWestCorner.y,
-          z: decodedLowerSouthWestCorner.z,
-        };
+        const lowerSouthWestCorner = cleanVoxelCoord(decodedLowerSouthWestCorner);
 
         spawns.push({
           spawnId: spawnId,

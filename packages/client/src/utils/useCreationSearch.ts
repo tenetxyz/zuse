@@ -7,6 +7,7 @@ import { getEntityString } from "@latticexyz/recs";
 import { to256BitString } from "@latticexyz/utils";
 import { defaultAbiCoder as abi } from "ethers/lib/utils";
 import { VoxelCoord } from "@latticexyz/utils";
+import { cleanVoxelCoord } from "../layers/noa/types";
 
 export interface Props {
   layers: Layers;
@@ -58,12 +59,7 @@ export const useCreationSearch = ({ layers, filters }: Props) => {
             encodedRelativePositions
           )[0];
           decodedRelativePositions.forEach((relativePosition: VoxelCoord) => {
-            // We need to do it this way because relativePosition has named keys, 0, 1, 2 in addition to x, y, z
-            relativePositions.push({
-              x: relativePosition.x,
-              y: relativePosition.y,
-              z: relativePosition.z,
-            });
+            relativePositions.push(cleanVoxelCoord(relativePosition));
           });
         } catch (e) {
           console.error("Error decoding materials");

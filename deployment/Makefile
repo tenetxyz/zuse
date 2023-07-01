@@ -12,3 +12,5 @@ create-instance:
 
 build-services:
 	sh build-services.sh
+install:
+	sh install.sh

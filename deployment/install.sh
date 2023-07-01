@@ -11,6 +11,8 @@ nvm install --lts
 wget -qO- https://get.pnpm.io/install.sh | ENV="$HOME/.bashrc" SHELL="$(which bash)" bash -
 source /home/ec2-user/.bashrc
 
+yum install gcc-c++ # needed for node-gyp
+
 # install our mud fork
 cd ~
 git clone https://github.com/tenetxyz/mud

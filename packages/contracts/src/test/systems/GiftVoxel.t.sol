@@ -8,11 +8,11 @@ import { IWorld } from "../../codegen/world/IWorld.sol";
 import { VoxelType, OwnedBy } from "../../codegen/Tables.sol";
 
 import { GrassID, AirID, DirtID } from "../../prototypes/Voxels.sol";
-import { addressToEntityKey } from "../../utils.sol";
+import { addressToEntityKey } from "../../Utils.sol";
 import { VoxelCoord } from "../../types.sol";
 import { Utilities } from "@latticexyz/std-contracts/src/test/Utilities.sol";
 import { console } from "forge-std/console.sol";
-import { TENET_NAMESPACE } from "../../constants.sol";
+import { TENET_NAMESPACE } from "../../Constants.sol";
 
 contract GiftVoxelTest is MudV2Test {
   IWorld private world;

@@ -7,7 +7,7 @@ import { System } from "@latticexyz/world/src/System.sol";
 import { VoxelCoord, VoxelVariantsKey } from "../types.sol";
 import { OwnedBy, Position, PositionTableId, VoxelType, VoxelTypeData, VoxelTypeRegistry } from "../codegen/Tables.sol";
 import { AirID } from "../prototypes/Voxels.sol";
-import { addressToEntityKey, getEntitiesAtCoord, staticcallFunctionSelector, getVoxelVariant } from "../utils.sol";
+import { addressToEntityKey, getEntitiesAtCoord, staticcallFunctionSelector, getVoxelVariant } from "../Utils.sol";
 import { Utils } from "@latticexyz/world/src/Utils.sol";
 import { IWorld } from "../codegen/world/IWorld.sol";
 import { Occurrence } from "../codegen/Tables.sol";

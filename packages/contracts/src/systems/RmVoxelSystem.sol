@@ -2,7 +2,7 @@
 pragma solidity >=0.8.0;
 import { OwnedBy, VoxelType } from "../codegen/Tables.sol";
 import { System } from "@latticexyz/world/src/System.sol";
-import { addressToEntityKey } from "../utils.sol";
+import { addressToEntityKey } from "../Utils.sol";
 
 // If we call this RemoveVoxelSystem, the foundry codegen fails cause they set a limit on the number of chars for an interface
 contract RmVoxelSystem is System {

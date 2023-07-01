@@ -4,10 +4,10 @@ import { hasKey } from "@latticexyz/world/src/modules/keysintable/hasKey.sol";
 import { query, QueryFragment, QueryType } from "@latticexyz/world/src/modules/keysintable/query.sol";
 import { OwnedBy, VoxelType, OwnedByTableId, VoxelTypeTableId, VoxelTypeRegistry, VoxelTypeRegistryTableId } from "../codegen/Tables.sol";
 import { System } from "@latticexyz/world/src/System.sol";
-import { addressToEntityKey, removeDuplicates, staticcallFunctionSelector } from "../utils.sol";
+import { addressToEntityKey, removeDuplicates, staticcallFunctionSelector } from "../Utils.sol";
 import { getUniqueEntity } from "@latticexyz/world/src/modules/uniqueentity/getUniqueEntity.sol";
 import { console } from "forge-std/console.sol";
-import { VoxelVariantsKey } from "../Types.sol";
+import { VoxelVariantsKey } from "../types.sol";
 
 contract GiftVoxelSystem is System {
   function giftVoxel(bytes16 voxelTypeNamespace, bytes32 voxelTypeId) public returns (bytes32) {

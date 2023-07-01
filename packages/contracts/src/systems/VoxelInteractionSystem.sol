@@ -7,7 +7,7 @@ import { getKeysInTable } from "@latticexyz/world/src/modules/keysintable/getKey
 import { VoxelCoord } from "../types.sol";
 import { NUM_VOXEL_NEIGHBOURS, MAX_VOXEL_NEIGHBOUR_UPDATE_DEPTH } from "../Constants.sol";
 import { Position, PositionData, VoxelType, VoxelTypeData, VoxelTypeRegistry, VoxelInteractionExtension, VoxelInteractionExtensionTableId } from "../codegen/Tables.sol";
-import { getEntitiesAtCoord, hasEntity, staticcallFunctionSelector, updateVoxelVariant } from "../utils.sol";
+import { getEntitiesAtCoord, hasEntity, staticcallFunctionSelector, updateVoxelVariant } from "../Utils.sol";
 
 contract VoxelInteractionSystem is System {
   int8[18] private NEIGHBOUR_COORD_OFFSETS = [

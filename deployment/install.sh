@@ -36,9 +36,16 @@ curl --silent --location https://dl.yarnpkg.com/rpm/yarn.repo | sudo tee /etc/yu
 sudo rpm --import https://dl.yarnpkg.com/rpm/pubkey.gpg
 sudo yum install yarn -y
 
-
 # install packages for our project
 cd ~/voxel-aw
+
+# set yarn to 3.0.6+
 yarn set version stable
-echo "nodeLinker: node-modules" >> .yarnrc.yml
+file_path=".yarnrc.yml"
+string_to_append="nodeLinker: node-modules"
+if ! grep -qF "$string_to_append" "$file_path"; then
+  echo "$string_to_append" >> "$file_path"
+fi
+
+# finally we can install the dependencies in our repo
 yarn install

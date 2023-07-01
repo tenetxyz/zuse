@@ -1,10 +1,14 @@
 create-instance:
 # ami-02238ac43d6385ab3 is the amazon linux 2 ami for intel
+# ami-0aaa3bceac094d05d  is the amazon linux 2 ami for arm
 # ami-05502a22127df2492 is the amazon linux 2023 ami (not using cause missing core packages)
 	aws ec2 run-instances \
-	--image-id ami-02238ac43d6385ab3 \
+	--image-id ami-0aaa3bceac094d05d \
 	--count 1 \
-	--instance-type m5.xlarge
-	--key-name Transistor \
+	--instance-type c7g.large \
+	--key-name Tenet \
 	--block-device-mappings '[{"DeviceName":"/dev/xvda","Ebs":{"VolumeSize":32}}]' `# configure the server with 32 Gb of storage` \
-	--enclave-options 'Enabled=true'
+	--enclave-options 'Enabled=false'
+
+build-services:
+	sh build-services.sh

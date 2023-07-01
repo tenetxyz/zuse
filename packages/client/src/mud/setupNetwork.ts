@@ -550,11 +550,17 @@ export async function setupNetwork() {
   world.registerDisposer(
     combineLatest([timer(0, 5000), computedToStream(result.network.signer)])
       .pipe(
-        map<[number, Signer | undefined], Promise<number>>(async ([, signer]) =>
-          signer
-            ? signer.getBalance().then((v) => v.div(BigNumber.from(10).pow(9)).toNumber())
-            : new Promise((res) => res(0))
-        ),
+        map<[number, Signer | undefined], Promise<number>>(async ([, signer]) => {
+          if (signer) {
+            const balance = await signer.getBalance();
+            return balance.div(BigNumber.from(10).pow(9)).toNumber();
+          } else {
+            return new Promise((res) => res(0));
+          }
+          // return signer
+          //   ? signer.getBalance().then((v) => v.div(BigNumber.from(10).pow(9)).toNumber())
+          //   : new Promise((res) => res(0));
+        }),
         awaitPromise()
       )
       .subscribe(balanceGwei$)?.unsubscribe

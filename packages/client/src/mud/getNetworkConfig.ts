@@ -14,14 +14,15 @@ type NetworkConfig = SetupContractConfig & {
 export async function getNetworkConfig(): Promise<NetworkConfig> {
   const params = new URLSearchParams(window.location.search);
 
-  const chainId = Number(params.get("chainId") || import.meta.env.VITE_CHAIN_ID || 31337);
-  const chainIndex = supportedChains.findIndex((c) => c.id === chainId);
-  const chain = supportedChains[chainIndex];
-  if (!chain) {
-    throw new Error(`Chain ${chainId} not found`);
-  }
+  // const chainId = Number(params.get("chainId") || import.meta.env.VITE_CHAIN_ID || 31337);
+  // const chainIndex = supportedChains.findIndex((c) => c.id === chainId);
+  // const chain = supportedChains[chainIndex];
+  // if (!chain) {
+  //   throw new Error(`Chain ${chainId} not found`);
+  // }
+  const chainId = parseInt(import.meta.env.VITE_CHAIN_ID);
 
-  const world = worlds[chain.id.toString()];
+  const world = worlds[chainId.toString()];
   const worldAddress = params.get("worldAddress") || world?.address;
   if (!worldAddress) {
     throw new Error(`No world address found for chain ${chainId}. Did you run \`mud deploy\`?`);
@@ -39,13 +40,13 @@ export async function getNetworkConfig(): Promise<NetworkConfig> {
     },
     provider: {
       chainId,
-      jsonRpcUrl: params.get("rpc") ?? chain.rpcUrls.default.http[0],
-      wsRpcUrl: params.get("wsRpc") ?? chain.rpcUrls.default.webSocket?.[0],
+      jsonRpcUrl: params.get("rpc") ?? import.meta.env.VITE_JSON_RPC_URL,
+      wsRpcUrl: params.get("wsRpc") ?? import.meta.env.VITE_WS_RPC_URL,
     },
     privateKey: getBurnerWallet().value,
     chainId,
-    modeUrl: params.get("mode") ?? chain.modeUrl,
-    faucetServiceUrl: params.get("faucet") ?? chain.faucetUrl,
+    modeUrl: params.get("mode") ?? import.meta.env.VITE_MODE_URL,
+    faucetServiceUrl: params.get("faucet") ?? import.meta.env.VITE_FAUCET_URL,
     worldAddress,
     initialBlockNumber,
     snapSync: params.get("snapSync") === "true",

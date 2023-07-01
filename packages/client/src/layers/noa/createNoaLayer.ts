@@ -29,7 +29,7 @@ import {
   defineSoundComponent,
   defineVoxelSelectionComponent,
 } from "./components";
-import { CRAFTING_SIDE, EMPTY_CRAFTING_TABLE, PLAYER_MAX_SPEED } from "./constants";
+import { CRAFTING_SIDE, EMPTY_CRAFTING_TABLE } from "./constants";
 import * as BABYLON from "@babylonjs/core";
 import { Texture, Vector4 } from "@babylonjs/core";
 import { setupHand } from "./engine/hand";
@@ -87,7 +87,7 @@ export function createNoaLayer(network: NetworkLayer) {
       config: { chainId },
       connectedAddress,
     },
-    components: { Recipe, Claim, Stake, LoadingState },
+    components: { Recipe, LoadingState },
     contractComponents: { OwnedBy, VoxelType },
     api: { build },
     voxelTypes: { VoxelVariantData, VoxelVariantDataSubscriptions },

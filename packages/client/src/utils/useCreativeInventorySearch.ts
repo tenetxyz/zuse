@@ -3,8 +3,8 @@
 import React, { useEffect } from "react";
 import Fuse from "fuse.js";
 import { useComponentUpdate } from "./useComponentUpdate";
-import { Layers } from "../types";
-import { getComponentValue, Entity, Type, ComponentValue, SchemaOf } from "@latticexyz/recs";
+import { ComponentRecord, Layers } from "../types";
+import { getComponentValue, Entity } from "@latticexyz/recs";
 import { formatNamespace } from "../constants";
 import { getNftStorageLink } from "../layers/noa/constants";
 import { CreativeInventoryFilters, VoxelTypeDesc } from "../layers/react/components/CreativeInventory";
@@ -32,7 +32,7 @@ export const useCreativeInventorySearch = ({ layers, filters }: Props) => {
 
   useComponentUpdate(VoxelTypeRegistry, () => {
     const allVoxelTypesInRegistry = [...VoxelTypeRegistry.entities()];
-    const voxelTypes = new Map<Entity, ComponentValue<SchemaOf<typeof VoxelTypeRegistry>>>();
+    const voxelTypes = new Map<Entity, ComponentRecord<typeof VoxelTypeRegistry>>();
     for (const voxelType of allVoxelTypesInRegistry) {
       const voxelTypeRecord = getComponentValue(VoxelTypeRegistry, voxelType);
       if (!voxelTypeRecord) {

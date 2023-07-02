@@ -41,13 +41,19 @@ export const renderFloatingTextAboveCoord = (coord1: VoxelCoord, noa: Engine, te
 
   // Draw text on the dynamic texture
   const textureContext = dynamicTexture.getContext();
-  textureContext.font = "bold 100px monospace";
-  //   const textWidth = width * 100;
+  const fontSize = 100;
+  const backgroundPadding = 30;
+  textureContext.font = `bold ${100}px monospace`;
   const textWidth = textureContext.measureText(text).width;
-  const textHeight = height * 130;
+  const textHeight = height * fontSize;
 
   textureContext.fillStyle = "grey";
-  textureContext.fillRect(-10, 0, textWidth + 10, textHeight + 10);
+  textureContext.fillRect(
+    0,
+    -backgroundPadding - 10, // since fonts tend to sink lower than higher, this makes the text feel more vertically centered
+    textWidth + backgroundPadding,
+    textHeight + fontSize / 2 + backgroundPadding
+  );
 
   textureContext.fillStyle = "white";
   textureContext.fillText(text, 0, textHeight);
@@ -63,7 +69,7 @@ export const renderFloatingTextAboveCoord = (coord1: VoxelCoord, noa: Engine, te
 
   // Rotate plane to face camera
   plane.billboardMode = Mesh.BILLBOARDMODE_ALL;
-  plane.position.set(coord1.x + 1.5 - textWidth / 1024, coord1.y + 1, coord1.z + 1.5 - textWidth / 1024);
+  plane.position.set(coord1.x + 1.5 - textWidth / 1024, coord1.y + 1.5, coord1.z + 1.5 - textWidth / 1024);
   const isStatic = false; // false so it will turn to the player
   noa.rendering.addMeshToScene(plane, isStatic);
 };

@@ -1,8 +1,8 @@
 #!/bin/sh
 
-echo "this script is used to install all dependencies on a fresh linux host. It works, but isn't the recommended way to deploy. But this script could be useful for later. "
-echo "closing this script now since you probably shouldn't use it"
-exit 0
+#echo "this script is used to install all dependencies on a fresh linux host. It works, but isn't the recommended way to deploy. But this script could be useful for later. "
+#echo "closing this script now since you probably shouldn't use it"
+#exit 0
 
 # downloads and installs our entire repo on the prod server.
 

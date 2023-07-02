@@ -315,7 +315,7 @@ export async function setupNetwork() {
     const newVoxelOfSameType = world.registerEntity();
 
     actions.add({
-      id: `build+${coord.x}/${coord.y}/${coord.z}` as Entity, // used so we don't send the same transaction twice
+      id: `build+${voxelCoordToString(coord)}` as Entity, // used so we don't send the same transaction twice
       metadata: {
         // metadata determines how the transaction dialog box appears in the bottom left corner
         actionType: "build",

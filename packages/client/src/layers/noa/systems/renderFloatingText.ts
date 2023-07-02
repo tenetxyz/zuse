@@ -20,17 +20,21 @@ const newVC = (x: number, y: number, z: number): VoxelCoord => ({
 });
 
 // Create the dynamic texture
-const dynamicTexture = new DynamicTexture("dynamic texture", 512, scene, true);
-dynamicTexture.hasAlpha = true;
-
-// Draw text on the dynamic texture
-const textureContext = dynamicTexture.getContext();
-textureContext.font = "bold 44px monospace";
-textureContext.fillStyle = "white";
-
-export const renderFloatingText = (coord1: VoxelCoord, noa: Engine, text: string) => {
+export const renderFloatingTextAboveCoord = (coord1: VoxelCoord, noa: Engine, text: string) => {
   const scene = noa.rendering.getScene();
-  textureContext.fillText("Hello World", 256, 256);
+  const dynamicTexture = new DynamicTexture("dynamic texture", 512, scene, true);
+  dynamicTexture.hasAlpha = true;
+
+  // Draw text on the dynamic texture
+  const textureContext = dynamicTexture.getContext();
+  textureContext.font = "bold 44px monospace";
+
+  textureContext.fillStyle = "grey";
+  textureContext.fillRect(0, 0, 256, 256);
+
+  textureContext.fillStyle = "white";
+  textureContext.fillText(text, 256, 256);
+  textureContext.textAlign = center;
 
   // Update the dynamic texture
   dynamicTexture.update();
@@ -43,6 +47,7 @@ export const renderFloatingText = (coord1: VoxelCoord, noa: Engine, text: string
 
   // Rotate plane to face camera
   plane.billboardMode = Mesh.BILLBOARDMODE_ALL;
-  const isStatic = true;
+  plane.position.set(coord1.x + 0.5, coord1.y + 1.5, coord1.z + 0.5);
+  const isStatic = false; // false so it will turn to the player
   noa.rendering.addMeshToScene(plane, isStatic);
 };

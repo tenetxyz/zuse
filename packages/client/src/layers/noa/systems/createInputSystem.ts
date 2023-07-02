@@ -13,6 +13,8 @@ import { NotificationIcon } from "../components/persistentNotification";
 import { BEDROCK_ID } from "../../network/api/terrain/occurrence";
 import { DEFAULT_BLOCK_TEST_DISTANCE } from "../setup/setupNoaEngine";
 import { calculateCornersFromTargetedBlock, TargetedBlock } from "./createSpawnCreationOverlaySystem";
+import { renderFloatingText } from "./renderFloatingText";
+import { voxelCoordToString } from "../../../utils/coord";
 
 export function createInputSystem(network: NetworkLayer, noaLayer: NoaLayer) {
   const {
@@ -281,6 +283,7 @@ export function createInputSystem(network: NetworkLayer, noaLayer: NoaLayer) {
     const points: VoxelCoord[] = voxelSelection?.points ?? [];
     const coord = getTargetedVoxelCoord(noa);
     points.push(coord);
+    renderFloatingText(coord, noa, voxelCoordToString(coord));
 
     toast(`Selected voxel at ${coord.x}, ${coord.y}, ${coord.z}`);
     setComponent(VoxelSelection, SingletonEntity, {

@@ -10,6 +10,7 @@ Everything is setup. We now need to change some configs so when we spin up the n
 
 - Then go into our mud fork and change:
   - The "--chain-id", to 905 in packages/cli/src/commands/dev-contracts.ts
+    - Note: 905 is a chainId that I chose to use for our chain
   - Then go to tenetTestnet.ts and change the nodeUrl to the server's url **Without the https://**
 - Then go to voxel-aw and change the chainId in packages/client/.env to 905
 - Finally, run `yarn run dev` in the top directory of voxel-aw to spin up our node and client
@@ -18,3 +19,16 @@ Everything is setup. We now need to change some configs so when we spin up the n
 
 - We still need to spin up the faucet and snapshot service
   you probably want to use `make build-services` to send the faucet and snapshot service binaries to the server
+
+### Setting up our own standaline anvil node
+
+- just run `make setup-node` to spin up an anvil node on our machine
+
+### Deploying to an existing anvil node
+
+All you need to do is:
+
+- go to package.json in contracts/ add the `--rpc` param in: yarn mud deploy --rpc=http://18.191.133.57:8545"
+- go to the mud fork and MAKE SURE THE chainId in the configs exported by `packages/common/src/chains/index.ts` is the same chainId as the anvil node. Otherwise, the client will not be able to connect to it
+  - ofc, after changing the chainId, do `pnpm build`
+- run `yarn run deploy` in contracts to deploy to our chain

@@ -4,7 +4,7 @@ pragma solidity >=0.8.0;
 import { System } from "@latticexyz/world/src/System.sol";
 import { getAddressById, addressToEntity } from "solecs/utils.sol";
 import { getKeysInTable } from "@latticexyz/world/src/modules/keysintable/getKeysInTable.sol";
-import { VoxelCoord } from "../types.sol";
+import { VoxelCoord } from "../Types.sol";
 import { NUM_VOXEL_NEIGHBOURS, MAX_VOXEL_NEIGHBOUR_UPDATE_DEPTH } from "../Constants.sol";
 import { Position, PositionData, VoxelType, VoxelTypeData, VoxelTypeRegistry, VoxelInteractionExtension, VoxelInteractionExtensionTableId } from "../codegen/Tables.sol";
 import { getEntitiesAtCoord, hasEntity, staticcallFunctionSelector, updateVoxelVariant } from "../Utils.sol";

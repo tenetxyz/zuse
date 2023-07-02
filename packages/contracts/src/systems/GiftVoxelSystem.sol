@@ -7,7 +7,7 @@ import { System } from "@latticexyz/world/src/System.sol";
 import { addressToEntityKey, removeDuplicates, staticcallFunctionSelector } from "../Utils.sol";
 import { getUniqueEntity } from "@latticexyz/world/src/modules/uniqueentity/getUniqueEntity.sol";
 import { console } from "forge-std/console.sol";
-import { VoxelVariantsKey } from "../types.sol";
+import { VoxelVariantsKey } from "../Types.sol";
 
 contract GiftVoxelSystem is System {
   function giftVoxel(bytes16 voxelTypeNamespace, bytes32 voxelTypeId) public returns (bytes32) {

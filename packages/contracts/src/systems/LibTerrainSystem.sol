@@ -6,7 +6,7 @@ pragma solidity >=0.8.0;
 import { ABDKMath64x64 as Math } from "../libraries/ABDKMath64x64.sol";
 import { Biome, STRUCTURE_CHUNK, STRUCTURE_CHUNK_CENTER } from "../Constants.sol";
 import { AirID, GrassID, DirtID, BedrockID } from "../prototypes/Voxels.sol";
-import { VoxelCoord, Tuple, VoxelVariantsKey } from "../types.sol";
+import { VoxelCoord, Tuple, VoxelVariantsKey } from "../Types.sol";
 import { div } from "../Utils.sol";
 import { System } from "@latticexyz/world/src/System.sol";
 import { IWorld } from "../codegen/world/IWorld.sol";

@@ -9,7 +9,7 @@ import { VoxelType, OwnedBy } from "../../codegen/Tables.sol";
 
 import { GrassID, AirID, DirtID } from "../../prototypes/Voxels.sol";
 import { addressToEntityKey } from "../../Utils.sol";
-import { VoxelCoord } from "../../types.sol";
+import { VoxelCoord } from "../../Types.sol";
 import { Utilities } from "@latticexyz/std-contracts/src/test/Utilities.sol";
 import { console } from "forge-std/console.sol";
 import { TENET_NAMESPACE } from "../../Constants.sol";

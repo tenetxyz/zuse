@@ -4,7 +4,7 @@ pragma solidity >=0.8.0;
 import { getUniqueEntity } from "@latticexyz/world/src/modules/uniqueentity/getUniqueEntity.sol";
 import { getKeysInTable } from "@latticexyz/world/src/modules/keysintable/getKeysInTable.sol";
 import { System } from "@latticexyz/world/src/System.sol";
-import { VoxelCoord, VoxelVariantsKey } from "../types.sol";
+import { VoxelCoord, VoxelVariantsKey } from "../Types.sol";
 import { OwnedBy, Position, PositionTableId, VoxelType, VoxelTypeData, VoxelTypeRegistry } from "../codegen/Tables.sol";
 import { AirID } from "../prototypes/Voxels.sol";
 import { addressToEntityKey, getEntitiesAtCoord, staticcallFunctionSelector, getVoxelVariant } from "../Utils.sol";

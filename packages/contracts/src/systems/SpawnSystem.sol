@@ -3,7 +3,7 @@ pragma solidity >=0.8.0;
 
 import { getUniqueEntity } from "@latticexyz/world/src/modules/uniqueentity/getUniqueEntity.sol";
 import { System } from "@latticexyz/world/src/System.sol";
-import { VoxelCoord } from "../types.sol";
+import { VoxelCoord } from "../Types.sol";
 import { OwnedBy, Position, PositionTableId, VoxelType, VoxelTypeData, OfSpawn, Spawn, SpawnData, Creation, CreationData } from "../codegen/Tables.sol";
 import { getEntitiesAtCoord, add, int32ToString, increaseVoxelTypeSpawnCount, updateVoxelVariant } from "../Utils.sol";
 import { IWorld } from "../codegen/world/IWorld.sol";

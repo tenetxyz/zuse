@@ -3,7 +3,7 @@ pragma solidity >=0.8.0;
 
 import { getKeysWithValue } from "@latticexyz/world/src/modules/keyswithvalue/getKeysWithValue.sol";
 import { System } from "@latticexyz/world/src/System.sol";
-import { VoxelCoord } from "../types.sol";
+import { VoxelCoord } from "../Types.sol";
 import { OwnedBy, Position, PositionTableId, VoxelType, VoxelTypeData, VoxelTypeRegistry } from "../codegen/Tables.sol";
 import { AirID } from "../prototypes/Voxels.sol";
 import { addressToEntityKey, updateVoxelVariant, increaseVoxelTypeSpawnCount } from "../Utils.sol";

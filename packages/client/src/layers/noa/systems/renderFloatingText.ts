@@ -19,22 +19,38 @@ const newVC = (x: number, y: number, z: number): VoxelCoord => ({
   z,
 });
 
+export const determineTextSize = (text: string) => {
+  const lines = text.split("\n");
+  const longestLine = lines.reduce((longestLine, line) => {
+    if (line.length > longestLine.length) {
+      return line;
+    }
+    return longestLine;
+  });
+  return { width: longestLine.length, height: lines.length };
+};
+
 // Create the dynamic texture
 export const renderFloatingTextAboveCoord = (coord1: VoxelCoord, noa: Engine, text: string) => {
+  const { width, height } = determineTextSize(text);
+
   const scene = noa.rendering.getScene();
-  const dynamicTexture = new DynamicTexture("dynamic texture", 512, scene, true);
+  // 512 is the side length of the texture
+  const dynamicTexture = new DynamicTexture("dynamic texture", { width: 1024, height: 1024 }, scene, true);
   dynamicTexture.hasAlpha = true;
 
   // Draw text on the dynamic texture
   const textureContext = dynamicTexture.getContext();
-  textureContext.font = "bold 44px monospace";
+  textureContext.font = "bold 100px monospace";
+  //   const textWidth = width * 100;
+  const textWidth = textureContext.measureText(text).width;
+  const textHeight = height * 130;
 
   textureContext.fillStyle = "grey";
-  textureContext.fillRect(0, 0, 256, 256);
+  textureContext.fillRect(-10, 0, textWidth + 10, textHeight + 10);
 
   textureContext.fillStyle = "white";
-  textureContext.fillText(text, 256, 256);
-  textureContext.textAlign = center;
+  textureContext.fillText(text, 0, textHeight);
 
   // Update the dynamic texture
   dynamicTexture.update();
@@ -47,7 +63,7 @@ export const renderFloatingTextAboveCoord = (coord1: VoxelCoord, noa: Engine, te
 
   // Rotate plane to face camera
   plane.billboardMode = Mesh.BILLBOARDMODE_ALL;
-  plane.position.set(coord1.x + 0.5, coord1.y + 1.5, coord1.z + 0.5);
+  plane.position.set(coord1.x + 1.5 - textWidth / 1024, coord1.y + 1, coord1.z + 1.5 - textWidth / 1024);
   const isStatic = false; // false so it will turn to the player
   noa.rendering.addMeshToScene(plane, isStatic);
 };

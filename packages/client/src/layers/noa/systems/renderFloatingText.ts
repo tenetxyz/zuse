@@ -27,36 +27,46 @@ export const determineTextSize = (text: string) => {
     }
     return longestLine;
   });
-  return { width: longestLine.length, height: lines.length };
+  return { longestLine, numLines: lines.length };
 };
+
+const textureLength = 1024;
+const fontSize = 100;
+const fontHeight = fontSize;
+const fontWidth = 70;
+const backgroundPadding = 30;
 
 // Create the dynamic texture
 export const renderFloatingTextAboveCoord = (coord1: VoxelCoord, noa: Engine, text: string) => {
-  const { width, height } = determineTextSize(text);
+  const { longestLine, numLines } = determineTextSize(text);
+  const lines = text.split("\n");
 
   const scene = noa.rendering.getScene();
-  // 512 is the side length of the texture
-  const dynamicTexture = new DynamicTexture("dynamic texture", { width: 1024, height: 1024 }, scene, true);
+  const dynamicTexture = new DynamicTexture(
+    "dynamic texture",
+    { width: textureLength, height: textureLength },
+    scene,
+    true
+  );
   dynamicTexture.hasAlpha = true;
 
   // Draw text on the dynamic texture
   const textureContext = dynamicTexture.getContext();
-  const fontSize = 100;
-  const backgroundPadding = 30;
-  textureContext.font = `bold ${100}px monospace`;
-  const textWidth = textureContext.measureText(text).width;
-  const textHeight = height * fontSize;
+  textureContext.font = `bold ${fontSize}px monospace`;
+  const longestLineWidth = textureContext.measureText(longestLine).width;
+  const backgroundHeight = numLines * fontHeight;
 
-  textureContext.fillStyle = "grey";
-  textureContext.fillRect(
-    0,
-    -backgroundPadding - 10, // since fonts tend to sink lower than higher, this makes the text feel more vertically centered
-    textWidth + backgroundPadding,
-    textHeight + fontSize / 2 + backgroundPadding
-  );
+  const backgroundWidth = longestLineWidth + backgroundPadding * 2;
+  textureContext.fillStyle = "#414141";
+  textureContext.fillRect(0, 0, backgroundWidth, backgroundHeight + backgroundPadding * 2);
 
+  // Draw text
   textureContext.fillStyle = "white";
-  textureContext.fillText(text, 0, textHeight);
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i];
+    const textWidth = textureContext.measureText(line).width;
+    textureContext.fillText(line, backgroundWidth / 2 - textWidth / 2, fontHeight * (i + 1) + backgroundPadding / 2);
+  }
 
   // Update the dynamic texture
   dynamicTexture.update();
@@ -69,7 +79,13 @@ export const renderFloatingTextAboveCoord = (coord1: VoxelCoord, noa: Engine, te
 
   // Rotate plane to face camera
   plane.billboardMode = Mesh.BILLBOARDMODE_ALL;
-  plane.position.set(coord1.x + 1.5 - textWidth / 1024, coord1.y + 1.5, coord1.z + 1.5 - textWidth / 1024);
+  plane.position.set(
+    // coord1.x + 1 - backgroundWidth / (2 * textureLength),
+    coord1.x + 0.5,
+    coord1.y + 1.5,
+    // coord1.z + 1 - backgroundWidth / (2 * textureLength)
+    coord1.z + 0.5
+  );
   const isStatic = false; // false so it will turn to the player
   noa.rendering.addMeshToScene(plane, isStatic);
 };

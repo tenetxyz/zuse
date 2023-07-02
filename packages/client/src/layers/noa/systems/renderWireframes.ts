@@ -52,7 +52,7 @@ export const renderChunkyWireframe = (
 
   const disposeOriginalMeshesAfterCreatingCombinedMesh = true;
   const chunkyWireframeMesh = Mesh.MergeMeshes(edgeMeshes, disposeOriginalMeshesAfterCreatingCombinedMesh);
-  const isStatic = false; // if we set this to true, the mesh will not be rendered if the center of the cuboid is NOT in view. // PERF: turn set this to true
+  const isStatic = false; // if we set this to true, the mesh will not be rendered if the center of the cuboid is NOT in view. // PERF: add this to a setting so users can choose to stomach this performance hit or not
   // This is confusing when the corner of the cuboid is still visible, but the center is not, so the wireframe is not rendered
   noa.rendering.addMeshToScene(chunkyWireframeMesh, isStatic);
   return chunkyWireframeMesh;

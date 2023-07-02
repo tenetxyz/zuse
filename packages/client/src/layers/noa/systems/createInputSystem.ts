@@ -14,7 +14,6 @@ import { BEDROCK_ID } from "../../network/api/terrain/occurrence";
 import { DEFAULT_BLOCK_TEST_DISTANCE } from "../setup/setupNoaEngine";
 import { calculateCornersFromTargetedBlock, TargetedBlock } from "./createSpawnCreationOverlaySystem";
 import { renderFloatingTextAboveCoord } from "./renderFloatingText";
-import { voxelCoordToString } from "../../../utils/coord";
 
 export function createInputSystem(network: NetworkLayer, noaLayer: NoaLayer) {
   const {

@@ -5,10 +5,10 @@ import { getUniqueEntity } from "@latticexyz/world/src/modules/uniqueentity/getU
 import { System } from "@latticexyz/world/src/System.sol";
 import { Strings } from "@openzeppelin/contracts/utils/Strings.sol";
 import { IWorld } from "../codegen/world/IWorld.sol";
-import { addressToEntityKey, getEntitiesAtCoord, voxelCoordToString } from "../utils.sol";
+import { addressToEntityKey, getEntitiesAtCoord, voxelCoordToString } from "../Utils.sol";
 import { VoxelType, Position, Creation, CreationData, VoxelTypeData } from "../codegen/Tables.sol";
 import { PositionData } from "../codegen/tables/Position.sol";
-import { VoxelCoord } from "../types.sol";
+import { VoxelCoord } from "../Types.sol";
 import { AirID } from "../prototypes/Voxels.sol";
 //import { CreateBlock } from "../libraries/CreateBlock.sol";
 

@@ -1276,6 +1276,7 @@ __metadata:
     memmove: "https://github.com/dk1a/memmove.git"
     prettier: ^2.6.2
     prettier-plugin-solidity: ^1.0.0-beta.19
+    rimraf: ^5.0.1
     solhint: ^3.3.7
     solhint-config-mud: 2.0.0-alpha.1.197+5e6cc0f5
     solhint-plugin-mud: 2.0.0-alpha.1.197+5e6cc0f5

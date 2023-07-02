@@ -17,7 +17,7 @@ export interface IPositionState {
   _renderPosition: null | number[];
 
   /** [lo,lo,lo, hi,hi,hi] in LOCAL COORDS **/
-  _extents: null | number[];
+  _extents: null | Float32Array;
 }
 
 export function PositionState(): IPositionState {
@@ -46,6 +46,9 @@ export default function (noa: any): IPosition {
     order: 60,
     state: PositionState(),
     onAdd: function (eid, state) {
+      console.log("on add");
+      console.log(eid);
+      console.log(state);
       // copy position into a plain array
       const pos = [0, 0, 0];
       if (state.position) vec3.copy(pos, state.position);
@@ -63,6 +66,8 @@ export default function (noa: any): IPosition {
     onRemove: null,
     system: function positionProcessor(dt: number, states: IPositionState[]) {
       const off = noa.worldOriginOffset;
+      console.log("system");
+      console.log(states);
       for (let i = 0; i < states.length; i++) {
         const state = states[i];
         vec3.add(state.position, state._localPosition, off);

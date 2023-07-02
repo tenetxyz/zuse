@@ -15,7 +15,7 @@ import { AIR_ID } from "../../network/api/terrain/occurrence";
 import MovementComponent, { MOVEMENT_COMPONENT_NAME } from "../components/MovementComponent";
 import ReceiveInputsComponent, { RECEIVES_INPUTS_COMPONENT_NAME } from "../components/ReceivesInputsComponent";
 import CollideTerrainComponent, { COLLIDE_TERRAIN_COMPONENT_NAME } from "../components/CollideTerrainComponent";
-import PositionComponent from "../components/PositionComponent";
+import PositionComponent, { POSITION_COMPONENT_NAME } from "../components/PositionComponent";
 
 export const DEFAULT_BLOCK_TEST_DISTANCE = 7;
 
@@ -181,6 +181,9 @@ export function setupNoaEngine(network: NetworkLayer) {
 function customizePlayerMovement(noa: Engine) {
   // use our own custom components to support flying
   useCustomComponents(noa, PositionComponent, POSITION_COMPONENT_NAME, {});
+  noa.entities.getPositionData = noa.ents.getStateAccessor(POSITION_COMPONENT_NAME); // we need to update this getter because noa's internal functions use this getter
+  noa.entities.hasPosition = noa.ents.getComponentAccessor(POSITION_COMPONENT_NAME); // we need to update this getter because noa's internal functions use this getter
+
   useCustomComponents(noa, MovementComponent, MOVEMENT_COMPONENT_NAME, { maxJumps: 2 });
   noa.entities.getMovement = noa.ents.getStateAccessor(MOVEMENT_COMPONENT_NAME); // we need to update this getter because noa's internal functions use this getter
   useCustomComponents(noa, ReceiveInputsComponent, RECEIVES_INPUTS_COMPONENT_NAME, {});
@@ -196,11 +199,20 @@ function customizePlayerMovement(noa: Engine) {
 // I learned how to add custom components to noa via this thread: https://github.com/fenomas/noa/issues/147
 // NOTE: componentName MUST be the same as the name of the default component (so the correct component is removed)
 const useCustomComponents = (noa: Engine, Component: any, componentName: string, args: any) => {
+  let existingComponentValues = noa.ents.getStatesList(componentName);
+  // clone this object array
+  existingComponentValues = existingComponentValues.map((componentValue) => {
+    return { ...componentValue };
+  });
+
   // remove the default component before adding our modified version
   noa.entities.removeComponent(noa.playerEntity, noa.entities.names[componentName]);
   noa.entities.deleteComponent(componentName);
 
   // add our modified version
   noa.entities.names[componentName] = noa.entities.createComponent(Component(noa));
-  noa.entities.addComponent(noa.playerEntity, componentName, args);
+  // need to copy over the existing components
+  existingComponentValues.forEach((componentValue) => {
+    noa.entities.addComponent(componentValue.__id, componentName, componentValue);
+  });
 };

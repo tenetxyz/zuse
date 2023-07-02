@@ -15,6 +15,7 @@ import { AIR_ID } from "../../network/api/terrain/occurrence";
 import MovementComponent, { MOVEMENT_COMPONENT_NAME } from "../components/MovementComponent";
 import ReceiveInputsComponent, { RECEIVES_INPUTS_COMPONENT_NAME } from "../components/ReceivesInputsComponent";
 import CollideTerrainComponent, { COLLIDE_TERRAIN_COMPONENT_NAME } from "../components/CollideTerrainComponent";
+import PositionComponent from "../components/PositionComponent";
 
 export const DEFAULT_BLOCK_TEST_DISTANCE = 7;
 
@@ -179,6 +180,7 @@ export function setupNoaEngine(network: NetworkLayer) {
 
 function customizePlayerMovement(noa: Engine) {
   // use our own custom components to support flying
+  useCustomComponents(noa, PositionComponent, POSITION_COMPONENT_NAME, {});
   useCustomComponents(noa, MovementComponent, MOVEMENT_COMPONENT_NAME, { maxJumps: 2 });
   noa.entities.getMovement = noa.ents.getStateAccessor(MOVEMENT_COMPONENT_NAME); // we need to update this getter because noa's internal functions use this getter
   useCustomComponents(noa, ReceiveInputsComponent, RECEIVES_INPUTS_COMPONENT_NAME, {});

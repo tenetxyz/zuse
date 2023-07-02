@@ -10,6 +10,7 @@ import {
   getComponentValue,
   removeComponent,
   setComponent,
+  defineRxSystem,
 } from "@latticexyz/recs";
 import { NetworkLayer } from "../../network";
 import {
@@ -41,13 +42,18 @@ export function createPlayerPositionSystem(network: NetworkLayer, context: NoaLa
   const {
     noa,
     mudToNoaId,
-    components: { PlayerPosition, PlayerRelayerChunkPosition, PlayerDirection, PlayerMesh },
+    components: { PlayerRelayerChunkPosition, PlayerDirection, PlayerMesh },
+    streams: { playerPosition$ },
   } = context;
 
   const {
     world,
-    contractComponents: { Name },
+    contractComponents: { Name, PlayerPosition },
   } = network;
+
+  defineRxSystem(world, playerPosition$, (pos) => {
+    // console.log("playerPosition", pos);
+  });
 
   async function spawnPlayer(entity: Entity) {
     // const address = world.entities[entity];
@@ -110,6 +116,7 @@ export function createPlayerPositionSystem(network: NetworkLayer, context: NoaLa
     [Has(PlayerPosition), Has(PlayerDirection)],
     () => PlayerRelayerChunkPosition,
     (entity) => {
+      console.log("here 2");
       const position = getComponentValueStrict(PlayerPosition, entity);
       const chunkCoord = pixelToChunkCoord({ x: position.x, y: position.z }, RELAY_CHUNK_SIZE);
       return chunkCoord;
@@ -122,6 +129,7 @@ export function createPlayerPositionSystem(network: NetworkLayer, context: NoaLa
   });
 
   defineSystem(world, [Has(PlayerPosition), Has(PlayerDirection)], (update) => {
+    console.log("here", update);
     if (update.type === UpdateType.Enter) {
       spawnPlayer(update.entity);
     }
@@ -132,7 +140,10 @@ export function createPlayerPositionSystem(network: NetworkLayer, context: NoaLa
     const noaEntity = mudToNoaId.get(update.entity);
     if (noaEntity == null) return console.error("Need to spawn entity first", update.entity);
     if (isComponentUpdate(update, PlayerPosition) && update.value[0]) {
+      console.log("position updated");
+      console.log(PlayerPosition);
       const position = getNoaPositionStrict(noa, noaEntity);
+      console.log(position);
       if (eq(ZERO_VECTOR, position)) {
         setNoaPosition(noa, noaEntity, update.value[0]);
       }

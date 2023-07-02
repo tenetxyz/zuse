@@ -100,7 +100,7 @@ export function createNoaLayer(network: NetworkLayer) {
   const components = {
     SelectedSlot: defineSelectedSlotComponent(world),
     CraftingTable: defineCraftingTableComponent(world),
-    PlayerPosition: definePlayerPositionComponent(world),
+    // PlayerPosition: definePlayerPositionComponent(world),
     LocalPlayerPosition: createLocalCache(defineLocalPlayerPositionComponent(world), uniqueWorldId),
     PlayerRelayerChunkPosition: createIndexer(definePlayerRelayerChunkPositionComponent(world)),
     PlayerDirection: definePlayerDirectionComponent(world),

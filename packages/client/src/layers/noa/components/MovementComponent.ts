@@ -99,8 +99,6 @@ export default function (noa: any): IMovement {
       const ents = noa.entities;
       for (let i = 0; i < states.length; i++) {
         const state = states[i];
-        const positionData = ents.getPositionData(state.__id);
-        console.log(positionData.position);
         const phys = ents.getPhysics(state.__id);
         if (phys) applyMovementPhysics(dt, state, phys.body);
       }

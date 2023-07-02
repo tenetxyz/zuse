@@ -57,7 +57,17 @@ export default mudConfig({
       },
     },
     OwnedBy: "bytes32",
+    PlayerPosition: {
+      // used to store both entity positions and voxel positions
+      schema: {
+        // VoxelCoord is removed in MUD2, so we need to manually specify x,y,z
+        x: "int32",
+        y: "int32",
+        z: "int32",
+      },
+    },
     Position: {
+      // used to store both entity positions and voxel positions
       schema: {
         // VoxelCoord is removed in MUD2, so we need to manually specify x,y,z
         x: "int32",
@@ -152,6 +162,11 @@ export default mudConfig({
       name: "KeysInTableModule",
       root: true,
       args: [resolveTableId("VoxelVariants")],
+    },
+    {
+      name: "KeysInTableModule",
+      root: true,
+      args: [resolveTableId("PlayerPosition")],
     },
   ],
 });

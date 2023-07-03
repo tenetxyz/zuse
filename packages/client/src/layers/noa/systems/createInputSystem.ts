@@ -134,6 +134,11 @@ export function createInputSystem(network: NetworkLayer, noaLayer: NoaLayer) {
     handComponent.isMining = false;
   });
 
+  noa.on("playerMoved", (eventData) => {
+    console.log("playerMoved");
+    console.log(eventData);
+  });
+
   noa.on("targetBlockChanged", (targetedBlock: { position: number[] }) => {
     if (!noa.container.hasPointerLock) return;
 
@@ -194,14 +199,6 @@ export function createInputSystem(network: NetworkLayer, noaLayer: NoaLayer) {
   noa.inputs.down.on("moving", (e) => {
     // if (!noa.container.hasPointerLock) return;
     updateComponent(Tutorial, SingletonEntity, { moving: false });
-    console.log("moving");
-    console.log(e);
-    console.log(getCurrentPlayerPosition());
-  });
-
-  noa.inputs.up.on("moving", (e) => {
-    console.log("not moving");
-    console.log(e);
   });
 
   noa.inputs.down.on("slot", (e) => {

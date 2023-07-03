@@ -1,5 +1,6 @@
 // This file was copied over from noa: https://github.com/fenomas/noa/blob/master/src/components/receivesInputs.js
 // The reason why was we needed to modify it to support flying.
+import { Quaternion } from "@babylonjs/core";
 import { IMovementState } from "./MovementComponent";
 
 export const RECEIVES_INPUTS_COMPONENT_NAME = "receivesInputs";
@@ -36,6 +37,14 @@ export default function (noa: any): System {
       const ents = noa.entities;
       const inputState = noa.inputs.state;
       let camHeading = noa.camera.heading;
+      console.log("inputProcessor");
+      console.log(camHeading);
+      const pitch = noa.camera.pitch;
+      const yaw = noa.camera.heading;
+      const q = Quaternion.FromEulerAngles(pitch, yaw, 0);
+      const quaternion: number[] = [];
+      q.toArray(quaternion);
+      console.log(quaternion);
 
       for (let i = 0; i < states.length; i++) {
         const state = states[i];

@@ -59,6 +59,7 @@ export function createPlayerPositionSystem(network: NetworkLayer, context: NoaLa
     const currentPlayerPosition = getComponentValueStrict(PlayerPosition, update.entity);
     // set noa position
     if (update.entity !== paddedPlayerAddress) {
+      // TODO: this if statement is a hack so the local player doesn't see themselves
       spawnPlayer(update.entity);
       const noaEntity: number = mudToNoaId.get(update.entity)!;
       setNoaPosition(noa, noaEntity, currentPlayerPosition);

@@ -11,6 +11,7 @@ import {
   removeComponent,
   setComponent,
   defineRxSystem,
+  defineComponentSystem,
 } from "@latticexyz/recs";
 import { NetworkLayer } from "../../network";
 import {
@@ -49,10 +50,19 @@ export function createPlayerPositionSystem(network: NetworkLayer, context: NoaLa
   const {
     world,
     contractComponents: { Name, PlayerPosition },
+    playerAddress,
   } = network;
 
-  defineRxSystem(world, playerPosition$, (pos) => {
-    // console.log("playerPosition", pos);
+  defineComponentSystem(world, PlayerPosition, (update) => {
+    console.log("PlayerPosition update", update);
+    // TODO: could use update.value?
+    const currentPlayerPosition = getComponentValueStrict(PlayerPosition, update.entity);
+    console.log(currentPlayerPosition);
+    console.log(update.entity);
+    // set noa position
+    console.log(noa.playerEntity);
+    console.log(playerAddress);
+    // setNoaPosition(noa, noa.playerEntity, currentPlayerPosition);
   });
 
   async function spawnPlayer(entity: Entity) {

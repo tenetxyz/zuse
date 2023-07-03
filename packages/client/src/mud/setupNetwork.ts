@@ -186,6 +186,7 @@ export async function setupNetwork() {
   // contractComponents.OwnedBy = createIndexer(
   //   withOptimisticUpdates(contractComponents.OwnedBy)
   // );
+  contractComponents.PlayerPosition = withOptimisticUpdates(contractComponents.PlayerPosition);
   contractComponents.OwnedBy = withOptimisticUpdates(contractComponents.OwnedBy);
   contractComponents.VoxelType = withOptimisticUpdates(contractComponents.VoxelType);
 
@@ -363,11 +364,19 @@ export async function setupNetwork() {
       id: `move+${coord.x}/${coord.y}/${coord.z}` as Entity,
       metadata: { actionType: "move", coord },
       requirement: () => true,
-      components: {},
+      components: {
+        PlayerPosition: contractComponents.PlayerPosition,
+      },
       execute: () => {
         return moveSystem(coord);
       },
-      updates: () => [],
+      updates: () => [
+        {
+          component: "PlayerPosition",
+          entity: playerAddress,
+          value: coord,
+        },
+      ],
     });
   }
 
@@ -614,6 +623,7 @@ export async function setupNetwork() {
     config: networkConfig,
     relay,
     faucet,
+    playerAddress,
     worldAddress: networkConfig.worldAddress,
     uniqueWorldId,
     getVoxelIconUrl,

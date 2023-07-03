@@ -66,6 +66,15 @@ export default mudConfig({
         z: "int32",
       },
     },
+    PlayerDirection: {
+      // used to store both entity positions and voxel positions
+      schema: {
+        qx: "string",
+        qy: "string",
+        qz: "string",
+        qw: "string",
+      },
+    },
     Position: {
       // used to store both entity positions and voxel positions
       schema: {

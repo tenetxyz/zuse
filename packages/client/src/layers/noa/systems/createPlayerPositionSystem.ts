@@ -43,13 +43,13 @@ export function createPlayerPositionSystem(network: NetworkLayer, context: NoaLa
   const {
     noa,
     mudToNoaId,
-    components: { PlayerRelayerChunkPosition, PlayerDirection, PlayerMesh },
+    components: { PlayerRelayerChunkPosition, PlayerMesh },
     streams: { playerPosition$ },
   } = context;
 
   const {
     world,
-    contractComponents: { Name, PlayerPosition },
+    contractComponents: { Name, PlayerPosition, PlayerDirection },
     paddedPlayerAddress,
   } = network;
 
@@ -60,9 +60,21 @@ export function createPlayerPositionSystem(network: NetworkLayer, context: NoaLa
     // set noa position
     if (update.entity !== paddedPlayerAddress) {
       // TODO: this if statement is a hack so the local player doesn't see themselves
-      spawnPlayer(update.entity);
-      const noaEntity: number = mudToNoaId.get(update.entity)!;
-      setNoaPosition(noa, noaEntity, currentPlayerPosition);
+      // spawnPlayer(update.entity);
+      // const noaEntity: number = mudToNoaId.get(update.entity)!;
+      // setNoaPosition(noa, noaEntity, currentPlayerPosition);
+      // const pitch = noa.camera.pitch;
+      // const yaw = noa.camera.heading;
+      // const q = Quaternion.FromEulerAngles(pitch, yaw, 0);
+      // console.log(q.toEulerAngles());
+      // setNoaComponent<RotationComponent>(noa, noaEntity, ROTATION_COMPONENT, {
+      //   rotation: q.toEulerAngles(),
+      // });
+      // var meshData = noa.entities.getMeshData(noaEntity);
+      // console.log(meshData.mesh.rotation);
+      // const randomRotation = Math.random() * 20 * Math.PI;
+      // console.log(randomRotation);
+      // meshData.mesh.rotation.set(randomRotation, randomRotation, randomRotation);
     }
   });
 
@@ -148,11 +160,14 @@ export function createPlayerPositionSystem(network: NetworkLayer, context: NoaLa
       despawnPlayer(update.entity);
     }
 
+    if (update.entity === paddedPlayerAddress) {
+      return;
+    }
+
     const noaEntity = mudToNoaId.get(update.entity);
     if (noaEntity == null) return console.error("Need to spawn entity first", update.entity);
     if (isComponentUpdate(update, PlayerPosition) && update.value[0]) {
       console.log("position updated");
-      console.log(PlayerPosition);
       const position = getNoaPositionStrict(noa, noaEntity);
       console.log(position);
       if (eq(ZERO_VECTOR, position)) {
@@ -174,7 +189,9 @@ export function createPlayerPositionSystem(network: NetworkLayer, context: NoaLa
       });
     }
     if (isComponentUpdate(update, PlayerDirection) && update.value[0]) {
+      console.log("direction updated");
       const { rotation } = getNoaComponentStrict<RotationComponent>(noa, noaEntity, ROTATION_COMPONENT);
+      console.log(rotation);
       const { qx, qy, qz, qw } = update.value[0];
       const quaternion = Quaternion.FromArray([qx, qy, qz, qw]);
       if (eq(ZERO_VECTOR, rotation)) {

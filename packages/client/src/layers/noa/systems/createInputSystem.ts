@@ -43,7 +43,7 @@ export function createInputSystem(network: NetworkLayer, noaLayer: NoaLayer) {
     // api: { stake, claim },
     network: { connectedAddress },
     streams: { balanceGwei$ },
-    api: { spawnCreation, move },
+    api: { spawnCreation, move, rotate },
   } = network;
 
   // mine targeted voxel on left click
@@ -141,6 +141,17 @@ export function createInputSystem(network: NetworkLayer, noaLayer: NoaLayer) {
       x: eventData[0],
       y: eventData[1],
       z: eventData[2],
+    });
+  });
+
+  noa.on("playerOrientationChanged", (eventData) => {
+    console.log("playerOrientationChanged");
+    console.log(eventData);
+    rotate({
+      qx: eventData[0],
+      qy: eventData[1],
+      qz: eventData[2],
+      qw: eventData[3],
     });
   });
 

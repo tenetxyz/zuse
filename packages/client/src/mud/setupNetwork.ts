@@ -38,6 +38,13 @@ import { AIR_ID, BEDROCK_ID, DIRT_ID, GRASS_ID } from "../layers/network/api/ter
 import { getNftStorageLink } from "../layers/noa/constants";
 import { voxelCoordToString } from "../utils/coord";
 
+export type Quaternion = {
+  qx: number;
+  qy: number;
+  qz: number;
+  qw: number;
+};
+
 export type SetupNetworkResult = Awaited<ReturnType<typeof setupNetwork>>;
 
 export type VoxelVariantSubscription = (
@@ -381,6 +388,33 @@ export async function setupNetwork() {
     });
   }
 
+  async function rotateSystem(quaternion: Quaternion) {
+    const tx = await worldSend("tenet_MoveSystem_rotate", [quaternion, { gasLimit: 30_000_000 }]);
+    return tx;
+  }
+
+  async function rotate(quaternion: Quaternion) {
+    console.log("rotate", quaternion);
+    actions.add({
+      id: `rotate+${quaternion.qx}/${quaternion.qy}/${quaternion.qz}/${quaternion.qw}` as Entity,
+      metadata: { actionType: "rotate", quaternion },
+      requirement: () => true,
+      components: {
+        PlayerDirection: contractComponents.PlayerDirection,
+      },
+      execute: () => {
+        return rotateSystem(quaternion);
+      },
+      updates: () => [
+        {
+          component: "PlayerDirection",
+          entity: paddedPlayerAddress,
+          value: quaternion,
+        },
+      ],
+    });
+  }
+
   async function mineSystem(coord: VoxelCoord, voxelType: VoxelTypeDataKey) {
     const tx = await worldSend("tenet_MineSystem_mine", [
       coord,
@@ -608,6 +642,7 @@ export async function setupNetwork() {
       build,
       mine,
       move,
+      rotate,
       giftVoxel,
       removeVoxels,
       registerCreation,

@@ -103,7 +103,7 @@ export function createNoaLayer(network: NetworkLayer) {
     // PlayerPosition: definePlayerPositionComponent(world),
     LocalPlayerPosition: createLocalCache(defineLocalPlayerPositionComponent(world), uniqueWorldId),
     PlayerRelayerChunkPosition: createIndexer(definePlayerRelayerChunkPositionComponent(world)),
-    PlayerDirection: definePlayerDirectionComponent(world),
+    // PlayerDirection: definePlayerDirectionComponent(world),
     PlayerLastMessage: definePlayerLastMessage(world),
     PlayerMesh: definePlayerMeshComponent(world),
     UI: defineUIComponent(world),

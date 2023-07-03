@@ -7,6 +7,13 @@ struct Coord {
   int32 y;
 }
 
+struct Quaternion {
+  string qx;
+  string qy;
+  string qz;
+  string qw;
+}
+
 struct Tuple {
   int128 x;
   int128 y;

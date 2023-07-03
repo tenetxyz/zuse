@@ -20,7 +20,10 @@ interface SystemState {
 interface System {
   name: string;
   order: number;
-  state: {};
+  state: {
+    quaternion: number[];
+    previousQuaternion: number[];
+  };
   onAdd: null | (() => void);
   onRemove: null | (() => void);
   system: (dt: number, states: SystemState[]) => void;
@@ -30,26 +33,45 @@ export default function (noa: any): System {
   return {
     name: RECEIVES_INPUTS_COMPONENT_NAME,
     order: 20,
-    state: {},
+    state: {
+      quaternion: [0, 0, 0, 0],
+      previousQuaternion: [0, 0, 0, 0],
+    },
     onAdd: null,
     onRemove: null,
     system: function inputProcessor(dt: number, states: SystemState[]) {
       const ents = noa.entities;
       const inputState = noa.inputs.state;
       let camHeading = noa.camera.heading;
-      console.log("inputProcessor");
-      console.log(camHeading);
-      const pitch = noa.camera.pitch;
-      const yaw = noa.camera.heading;
-      const q = Quaternion.FromEulerAngles(pitch, yaw, 0);
-      const quaternion: number[] = [];
-      q.toArray(quaternion);
-      console.log(quaternion);
 
       for (let i = 0; i < states.length; i++) {
         const state = states[i];
         const moveState = ents.getMovement(state.__id);
         setMovementState(moveState, inputState, camHeading);
+
+        // console.log("inputProcessor");
+        // console.log(camHeading);
+        const pitch = noa.camera.pitch;
+        const yaw = noa.camera.heading;
+        const q = Quaternion.FromEulerAngles(pitch, yaw, 0);
+        const quaternion: number[] = [];
+        q.toArray(quaternion);
+        state.quaternion = quaternion;
+        // convert new position which is an array of floats to an array of strings with 2 decimal places
+        const quaternionStr = state.quaternion.map((num) => num.toFixed(2));
+        // get previous quaternion as a string
+        const previousQuaternionStr = state.previousQuaternion.map((num) => num.toFixed(2));
+        // if the new quaternion is different from the previous quaternion, then emit event
+        if (
+          quaternionStr[0] !== previousQuaternionStr[0] ||
+          quaternionStr[1] !== previousQuaternionStr[1] ||
+          quaternionStr[2] !== previousQuaternionStr[2] ||
+          quaternionStr[3] !== previousQuaternionStr[3]
+        ) {
+          noa.emit("playerOrientationChanged", quaternionStr);
+        }
+
+        state.previousQuaternion = quaternion;
       }
     },
   };

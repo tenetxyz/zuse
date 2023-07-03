@@ -2,6 +2,35 @@
 import React, { useEffect, useState } from "react";
 import styled from "styled-components";
 
+interface Props {
+  percentage: number;
+  color: string;
+  text: string;
+  barFloatLeft: boolean;
+}
+
+const Bar: React.FC<Props> = ({ percentage, color, text, barFloatLeft }) => {
+  const [slideWidth, setSlideWidth] = useState(0);
+
+  useEffect(() => {
+    setSlideWidth(percentage);
+  }, [percentage]);
+
+  return (
+    <SlidingBarContainer color={color}>
+      <SlidingBar width={slideWidth} color={color} barFloatLeft={barFloatLeft}>
+        <BarText barFloatLeft={barFloatLeft}>
+          {text}
+          {/* I think in the future we'll have either a percentage or "x/maxHealth" string*/}
+          {/* {percentage.toFixed(1)}% */}
+        </BarText>
+      </SlidingBar>
+    </SlidingBarContainer>
+  );
+};
+
+export default Bar;
+
 interface SlidingBarContainerProps {
   color: string;
 }
@@ -38,31 +67,3 @@ const BarText = styled.span<{ barFloatLeft: boolean }>`
   color: #ffffff;
   font-weight: bold;
 `;
-
-interface Props {
-  percentage: number;
-  color: string;
-  text: string;
-  barFloatLeft: boolean;
-}
-
-const Bar: React.FC<Props> = ({ percentage, color, text, barFloatLeft }) => {
-  const [slideWidth, setSlideWidth] = useState(0);
-
-  useEffect(() => {
-    setSlideWidth(percentage);
-  }, [percentage]);
-
-  return (
-    <SlidingBarContainer color={color}>
-      <SlidingBar width={slideWidth} color={color} barFloatLeft={barFloatLeft}>
-        <BarText barFloatLeft={barFloatLeft}>
-          {text}
-          {/* {percentage.toFixed(1)}% */}
-        </BarText>
-      </SlidingBar>
-    </SlidingBarContainer>
-  );
-};
-
-export default Bar;

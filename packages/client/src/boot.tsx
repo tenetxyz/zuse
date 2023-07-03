@@ -147,10 +147,8 @@ async function bootGame(network: NetworkLayer) {
       reloadingNoa = true;
       createNoaLayer = module?.createNoaLayer;
       dispose("noa");
-      // document.getElementById("noa_fps")?.remove();
-      // document.getElementById("noa-container")?.remove();
-      const documentElement = document.documentElement;
-      documentElement.style.backgroundColor = "";
+      document.getElementById("noa_fps")?.remove();
+      document.getElementById("noa-container")?.remove();
       await rebootGame(network);
       console.log("HMR Noa");
       reloadingNoa = false;

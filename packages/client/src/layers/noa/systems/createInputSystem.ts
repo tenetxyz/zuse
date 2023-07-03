@@ -14,6 +14,7 @@ import { BEDROCK_ID } from "../../network/api/terrain/occurrence";
 import { DEFAULT_BLOCK_TEST_DISTANCE } from "../setup/setupNoaEngine";
 import { calculateCornersFromTargetedBlock, TargetedBlock } from "./createSpawnCreationOverlaySystem";
 import { renderFloatingTextAboveCoord } from "./renderFloatingText";
+import { renderEnt } from "./renderEnt";
 
 export function createInputSystem(network: NetworkLayer, noaLayer: NoaLayer) {
   const {
@@ -283,6 +284,7 @@ export function createInputSystem(network: NetworkLayer, noaLayer: NoaLayer) {
     const coord = getTargetedVoxelCoord(noa);
     points.push(coord);
     renderFloatingTextAboveCoord(coord, noa, "This is a super\nlong\nline that takes\nup many lines");
+    renderEnt(noaLayer, coord);
 
     toast(`Selected voxel at ${coord.x}, ${coord.y}, ${coord.z}`);
     setComponent(VoxelSelection, SingletonEntity, {

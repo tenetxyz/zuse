@@ -26,7 +26,7 @@ export const renderFloatingTextAboveCoord = (coord: VoxelCoord, noa: Engine, tex
 
   // 2) calculate the size of the background
   const textureContext = dynamicTexture.getContext();
-  textureContext.font = `bold ${fontSize}px monospace`;
+  textureContext.font = `bold ${fontSize}px Lattice Pixel`;
   const longestLineWidth = textureContext.measureText(longestLine).width;
   const totalLineHeight = numLines * charHeight;
 

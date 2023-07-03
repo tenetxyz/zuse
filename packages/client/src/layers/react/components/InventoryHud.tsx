@@ -30,6 +30,7 @@ import CreationStore, { CreationStoreFilters } from "./CreationStore";
 import { entityToVoxelType, voxelTypeToEntity, voxelTypeDataKeyToVoxelVariantDataKey } from "../../noa/types";
 import { CreativeInventorySearch } from "../../../utils/useCreativeInventorySearch";
 import { firstFreeInventoryIndex } from "../../noa/systems/createInventoryIndexSystem";
+import { StatusHud } from "./StatusHud";
 
 // This gives us 36 inventory slots. As of now there are 34 types of VoxelTypes, so it should fit.
 export const INVENTORY_WIDTH = 9;
@@ -253,7 +254,10 @@ export function registerInventoryHud() {
             <PixelatedImage src="/img/mud-player.png" width={35} />
             <Sounds playRandomTheme={playRandomTheme} playNextTheme={playNextTheme} /> */}
           </ConnectedPlayersContainer>
-          <ActionBarWrapper>{[...range(INVENTORY_WIDTH)].map((i) => Slots[i])}</ActionBarWrapper>
+          <div className="flex flex-col">
+            <StatusHud layers={layers} />
+            <ActionBarWrapper>{[...range(INVENTORY_WIDTH)].map((i) => Slots[i])}</ActionBarWrapper>
+          </div>
         </BottomBar>
       );
 

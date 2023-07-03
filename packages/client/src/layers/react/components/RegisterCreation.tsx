@@ -1,8 +1,7 @@
 import React, { ChangeEvent, KeyboardEvent } from "react";
-import { Layers } from "../../../types";
+import { ComponentRecord, Layers } from "../../../types";
 import { Entity, setComponent } from "@latticexyz/recs";
 import { NotificationIcon } from "../../noa/components/persistentNotification";
-import { IVoxelSelection } from "../../noa/components/VoxelSelection";
 import { calculateMinMax } from "../../../utils/voxels";
 import { useComponentValue } from "@latticexyz/react";
 
@@ -28,6 +27,8 @@ const RegisterCreation: React.FC<Props> = ({ layers, formData, setFormData }) =>
       api: { getEntityAtPosition, registerCreation },
     },
   } = layers;
+
+  type IVoxelSelection = ComponentRecord<typeof VoxelSelection>
   const corners: IVoxelSelection | undefined = useComponentValue(VoxelSelection, SingletonEntity);
 
   const handleSubmit = () => {

@@ -3,15 +3,15 @@
 import { NetworkLayer } from "../../network";
 import { NoaLayer } from "../types";
 import { renderChunkyWireframe } from "./renderWireframes";
-import { IVoxelSelection } from "../components/VoxelSelection";
 import { Color3, Mesh, Nullable } from "@babylonjs/core";
+import { ComponentRecord } from "../../../types";
 
 export function createVoxelSelectionOverlaySystem(network: NetworkLayer, noaLayer: NoaLayer) {
   const {
     components: { VoxelSelection },
     noa,
   } = noaLayer;
-
+  type IVoxelSelection = ComponentRecord<typeof VoxelSelection>
   VoxelSelection.update$.subscribe((update) => {
     const voxelSelection = update.value[0] as IVoxelSelection;
     renderRangeSelection(voxelSelection);
@@ -44,9 +44,9 @@ export function createVoxelSelectionOverlaySystem(network: NetworkLayer, noaLaye
     // if this is a performance hit, we can cache the meshes and only render the new selections
     renderedPointSelectionMeshes.forEach((mesh) => mesh?.dispose());
 
-    renderedPointSelectionMeshes =
-      voxelSelection.points?.map((point) => {
+    renderedPointSelectionMeshes = (voxelSelection.points ?? [])
+      .map((point) => {
         return renderChunkyWireframe(point, point, noa, new Color3(1, 0.1, 0.1), 0.04);
-      }) ?? [];
+      })
   };
 }

@@ -360,6 +360,7 @@ export async function setupNetwork() {
 
   async function move(coord: VoxelCoord) {
     console.log("move", coord);
+    const paddedPlayerAddress = to64CharAddress(playerAddress);
     actions.add({
       id: `move+${coord.x}/${coord.y}/${coord.z}` as Entity,
       metadata: { actionType: "move", coord },
@@ -373,7 +374,7 @@ export async function setupNetwork() {
       updates: () => [
         {
           component: "PlayerPosition",
-          entity: playerAddress,
+          entity: paddedPlayerAddress,
           value: coord,
         },
       ],

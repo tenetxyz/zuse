@@ -62,7 +62,9 @@ export function createPlayerPositionSystem(network: NetworkLayer, context: NoaLa
     // set noa position
     console.log(noa.playerEntity);
     console.log(playerAddress);
-    // setNoaPosition(noa, noa.playerEntity, currentPlayerPosition);
+    spawnPlayer(update.entity);
+    const noaEntity: number = mudToNoaId.get(update.entity)!;
+    setNoaPosition(noa, noaEntity, currentPlayerPosition);
   });
 
   async function spawnPlayer(entity: Entity) {

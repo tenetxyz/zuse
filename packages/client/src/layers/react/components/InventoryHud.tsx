@@ -253,11 +253,11 @@ export function registerInventoryHud() {
             {/* <PlayerCount>{connectedClients}</PlayerCount>
             <PixelatedImage src="/img/mud-player.png" width={35} />
             <Sounds playRandomTheme={playRandomTheme} playNextTheme={playNextTheme} /> */}
-            <StatusHud layers={layers} />
           </ConnectedPlayersContainer>
-          {/* <div>
-          </div> */}
-          <ActionBarWrapper>{[...range(INVENTORY_WIDTH)].map((i) => Slots[i])}</ActionBarWrapper>
+          <div className="flex flex-col">
+            <StatusHud layers={layers} />
+            <ActionBarWrapper>{[...range(INVENTORY_WIDTH)].map((i) => Slots[i])}</ActionBarWrapper>
+          </div>
         </BottomBar>
       );
 

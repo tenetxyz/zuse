@@ -9,8 +9,10 @@ interface SlidingBarContainerProps {
 const SlidingBarContainer = styled.div<SlidingBarContainerProps>`
   width: 100%;
   height: 20px;
-  background-color: #e0e0e0;
+  background-color: #dbdbdb;
   overflow: hidden;
+  border-radius: 10px;
+  border: 2px solid #363636;
 `;
 
 interface SlidingBarProps {
@@ -31,8 +33,8 @@ const SlidingBar = styled.div<SlidingBarProps>`
 const BarText = styled.span<{ barFloatLeft: boolean }>`
   position: absolute;
   top: 50%;
-  ${(props) => (props.barFloatLeft ? "left: 10%;" : "right: 10%;")}
-  transform: translate(0, -55%);
+  ${(props) => (props.barFloatLeft ? "left: 20px;" : "right: 20px;")}
+  transform: translate(0, -60%);
   color: #ffffff;
   font-weight: bold;
 `;
@@ -54,7 +56,10 @@ const Bar: React.FC<Props> = ({ percentage, color, text, barFloatLeft }) => {
   return (
     <SlidingBarContainer color={color}>
       <SlidingBar width={slideWidth} color={color} barFloatLeft={barFloatLeft}>
-        <BarText barFloatLeft={barFloatLeft}>{text}</BarText>
+        <BarText barFloatLeft={barFloatLeft}>
+          {text}
+          {/* {percentage.toFixed(1)}% */}
+        </BarText>
       </SlidingBar>
     </SlidingBarContainer>
   );

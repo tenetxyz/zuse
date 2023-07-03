@@ -1,8 +1,8 @@
 // This hud sows information about yourself (e.g. health, stamina)
 
 import React, { useEffect, useState } from "react";
-import { Layers } from "../layers";
 import Bar from "../../noa/components/Bar";
+import { Layers } from "../../../types";
 
 interface Props {
   layers: Layers;
@@ -14,13 +14,9 @@ export const StatusHud: React.FC<Props> = ({ layers }) => {
   const [health, setHealth] = useState(80);
   const [stamina, setStamina] = useState(70);
   return (
-    <div className="flex flex-col">
-      <div className="flex w-32">
-        <Bar percentage={(health * 100) / maxHealth} color={"#ff3838"} text={"Health"} barFloatLeft={true} />
-      </div>
-      <div className="flex justify-end">
-        <Bar percentage={(stamina * 100) / maxStamina} color={"#2de0c2"} text={"Stamina"} barFloatLeft={false} />
-      </div>
+    <div className="flex flex-row space-x-32 mb-3">
+      <Bar percentage={(health * 100) / maxHealth} color={"#ff3838"} text={"Health"} barFloatLeft={true} />
+      <Bar percentage={(stamina * 100) / maxStamina} color={"#5671e8"} text={"Stamina"} barFloatLeft={false} />
     </div>
   );
 };

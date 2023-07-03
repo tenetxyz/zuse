@@ -65,6 +65,7 @@ export async function setupNetwork() {
 
   const signer = result.network.signer.get();
   const playerAddress = result.network.connectedAddress.get();
+  const paddedPlayerAddress = to64CharAddress(playerAddress);
 
   // Relayer setup
   let relay: Awaited<ReturnType<typeof createRelayStream>> | undefined;
@@ -360,7 +361,6 @@ export async function setupNetwork() {
 
   async function move(coord: VoxelCoord) {
     console.log("move", coord);
-    const paddedPlayerAddress = to64CharAddress(playerAddress);
     actions.add({
       id: `move+${coord.x}/${coord.y}/${coord.z}` as Entity,
       metadata: { actionType: "move", coord },
@@ -625,6 +625,7 @@ export async function setupNetwork() {
     relay,
     faucet,
     playerAddress,
+    paddedPlayerAddress,
     worldAddress: networkConfig.worldAddress,
     uniqueWorldId,
     getVoxelIconUrl,

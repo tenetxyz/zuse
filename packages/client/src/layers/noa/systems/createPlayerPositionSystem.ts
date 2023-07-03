@@ -50,21 +50,19 @@ export function createPlayerPositionSystem(network: NetworkLayer, context: NoaLa
   const {
     world,
     contractComponents: { Name, PlayerPosition },
-    playerAddress,
+    paddedPlayerAddress,
   } = network;
 
   defineComponentSystem(world, PlayerPosition, (update) => {
     console.log("PlayerPosition update", update);
     // TODO: could use update.value?
     const currentPlayerPosition = getComponentValueStrict(PlayerPosition, update.entity);
-    console.log(currentPlayerPosition);
-    console.log(update.entity);
     // set noa position
-    console.log(noa.playerEntity);
-    console.log(playerAddress);
-    spawnPlayer(update.entity);
-    const noaEntity: number = mudToNoaId.get(update.entity)!;
-    setNoaPosition(noa, noaEntity, currentPlayerPosition);
+    if (update.entity !== paddedPlayerAddress) {
+      spawnPlayer(update.entity);
+      const noaEntity: number = mudToNoaId.get(update.entity)!;
+      setNoaPosition(noa, noaEntity, currentPlayerPosition);
+    }
   });
 
   async function spawnPlayer(entity: Entity) {

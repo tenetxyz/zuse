@@ -3,7 +3,7 @@ pragma solidity >=0.8.0;
 import { Position, PositionData, PositionTableId } from "@tenetxyz/contracts/src/codegen/tables/Position.sol";
 import { hasKey } from "@latticexyz/world/src/modules/keysintable/hasKey.sol";
 import { SignalTableId, SignalSourceTableId, PoweredTableId, InvertedSignalTableId } from "./codegen/Tables.sol";
-import { BlockDirection } from "./codegen/types.sol";
+import { BlockDirection } from "./codegen/Types.sol";
 
 function entityIsSignal(bytes32 entity, bytes16 callerNamespace) view returns (bool) {
   bytes32[] memory keyTuple = new bytes32[](2);

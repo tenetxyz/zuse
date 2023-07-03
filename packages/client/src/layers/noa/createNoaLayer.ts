@@ -145,9 +145,6 @@ export function createNoaLayer(network: NetworkLayer) {
       teleport: true,
     });
 
-  // TODO: reenable when we add selecting voxels
-  // setComponent(components.VoxelSelection, SingletonEntity, { points: [] });
-
   // --- API ------------------------------------------------------------------------
   function setCraftingTable(entities: Entity[][]) {
     setComponent(components.CraftingTable, SingletonEntity, {

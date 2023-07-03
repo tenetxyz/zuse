@@ -1,10 +1,10 @@
 import React, { ChangeEvent, KeyboardEvent } from "react";
-import { Layers } from "../../../types";
+import { ComponentRecord, Layers } from "../../../types";
 import { Entity, setComponent } from "@latticexyz/recs";
 import { NotificationIcon } from "../../noa/components/persistentNotification";
-import { IVoxelSelection } from "../../noa/components/VoxelSelection";
 import { calculateMinMax } from "../../../utils/voxels";
 import { useComponentValue } from "@latticexyz/react";
+import { voxelCoordToString } from "../../../utils/coord";
 
 export interface RegisterCreationFormData {
   name: string;
@@ -28,6 +28,8 @@ const RegisterCreation: React.FC<Props> = ({ layers, formData, setFormData }) =>
       api: { getEntityAtPosition, registerCreation },
     },
   } = layers;
+
+  type IVoxelSelection = ComponentRecord<typeof VoxelSelection>
   const corners: IVoxelSelection | undefined = useComponentValue(VoxelSelection, SingletonEntity);
 
   const handleSubmit = () => {
@@ -94,8 +96,7 @@ const RegisterCreation: React.FC<Props> = ({ layers, formData, setFormData }) =>
       <>
         <p>Change Creation Corners</p>
         <p className="mt-2">
-          ({corners.corner1.x}, {corners.corner1.y}, {corners.corner1.z}) ({corners.corner2.x}, {corners.corner2.y},{" "}
-          {corners.corner2.z})
+          {voxelCoordToString(corners.corner1)} {voxelCoordToString(corners.corner2)}
         </p>
       </>
     ) : corners?.corner1 || corners?.corner2 ? (

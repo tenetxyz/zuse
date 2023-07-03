@@ -13,7 +13,6 @@ export interface IPositionState {
 
   /** Precise position in local coords **/
   _localPosition: null | number[];
-  _previousLocalPosition: null | number[];
 
   /** [x,y,z] in LOCAL COORDS **/
   _renderPosition: null | number[];
@@ -59,13 +58,11 @@ export default function (noa: any): IPosition {
       state._extents = new Float32Array(6);
 
       state.previousPosition = vec3.create();
-      state._previousLocalPosition = vec3.create();
 
       // on init only, set local from global
       noa.globalToLocal(state.position, null, state._localPosition);
       vec3.copy(state._renderPosition, state._localPosition);
       vec3.copy(state.previousPosition, state.position);
-      vec3.copy(state._previousLocalPosition, state._localPosition);
       updatePositionExtents(state);
     },
     onRemove: null,
@@ -89,7 +86,6 @@ export default function (noa: any): IPosition {
           }
         }
         vec3.copy(state.previousPosition, state.position);
-        vec3.copy(state._previousLocalPosition, state._localPosition);
         updatePositionExtents(state);
       }
     },

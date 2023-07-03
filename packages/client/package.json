@@ -12,7 +12,7 @@
     "test": "tsc --noEmit"
   },
   "dependencies": {
-    "@babylonjs/core": "^5.30.0",
+    "@babylonjs/core": "^6.10.0",
     "@babylonjs/loaders": "^6.10.0",
     "@ethersproject/providers": "^5.7.2",
     "@latticexyz/common": "link:../../../mud/packages/common",

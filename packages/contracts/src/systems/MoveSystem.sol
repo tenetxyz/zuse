@@ -13,9 +13,9 @@ contract MoveSystem is System {
   function move(VoxelCoord memory newCoord) public {
     bytes32 playerEntity = addressToEntityKey(_msgSender());
     // check if player has position
-    bytes32[] memory keyTuple = new bytes32[](1);
-    keyTuple[0] = bytes32((playerEntity));
-    require(hasKey(PlayerPositionTableId, keyTuple), "Player does not have position");
+    // bytes32[] memory keyTuple = new bytes32[](1);
+    // keyTuple[0] = bytes32((playerEntity));
+    // require(hasKey(PlayerPositionTableId, keyTuple), "Player does not have position");
 
     // Get current position of entity
     PlayerPositionData memory currentPosition = PlayerPosition.get(playerEntity);

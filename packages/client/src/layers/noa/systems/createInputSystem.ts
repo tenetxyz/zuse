@@ -43,7 +43,7 @@ export function createInputSystem(network: NetworkLayer, noaLayer: NoaLayer) {
     // api: { stake, claim },
     network: { connectedAddress },
     streams: { balanceGwei$ },
-    api: { spawnCreation },
+    api: { spawnCreation, move },
   } = network;
 
   // mine targeted voxel on left click
@@ -137,6 +137,11 @@ export function createInputSystem(network: NetworkLayer, noaLayer: NoaLayer) {
   noa.on("playerMoved", (eventData) => {
     console.log("playerMoved");
     console.log(eventData);
+    move({
+      x: eventData[0],
+      y: eventData[1],
+      z: eventData[2],
+    });
   });
 
   noa.on("targetBlockChanged", (targetedBlock: { position: number[] }) => {

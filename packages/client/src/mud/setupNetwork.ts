@@ -352,6 +352,25 @@ export async function setupNetwork() {
     });
   }
 
+  async function moveSystem(coord: VoxelCoord) {
+    const tx = await worldSend("tenet_MoveSystem_move", [coord, { gasLimit: 30_000_000 }]);
+    return tx;
+  }
+
+  async function move(coord: VoxelCoord) {
+    console.log("move", coord);
+    actions.add({
+      id: `move+${coord.x}/${coord.y}/${coord.z}` as Entity,
+      metadata: { actionType: "move", coord },
+      requirement: () => true,
+      components: {},
+      execute: () => {
+        return moveSystem(coord);
+      },
+      updates: () => [],
+    });
+  }
+
   async function mineSystem(coord: VoxelCoord, voxelType: VoxelTypeDataKey) {
     const tx = await worldSend("tenet_MineSystem_mine", [
       coord,
@@ -578,6 +597,7 @@ export async function setupNetwork() {
       getEntityAtPosition,
       build,
       mine,
+      move,
       giftVoxel,
       removeVoxels,
       registerCreation,

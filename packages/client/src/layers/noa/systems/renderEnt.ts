@@ -38,18 +38,20 @@ export const renderEnt = (noaLayer: NoaLayer, voxelCoord: VoxelCoord) => {
       console.log("on success");
       // example of rendering a mesh (marble): https://playground.babylonjs.com/#0108NG#232
       // another example (skull): https://www.babylonjs-playground.com/#1BUQD5#2
+      for (const newMesh of newMeshes) {
+        noa.rendering.addMeshToScene(newMesh);
+      }
 
       // on success
-      const mesh = newMeshes.find((mesh) => mesh.id === "__root__")! as Mesh; //newMeshes[0] as Mesh; // the root mesh
+      const mesh = newMeshes[0];
       // mesh.computeWorldMatrix(true);
       mesh.normalizeToUnitCube();
       mesh.scaling = new Vector3(25, 25, 25);
       mesh.position.set(voxelCoord.x, voxelCoord.y + 2, voxelCoord.z);
       const camera = scene.cameras[0];
-      camera.update();
       console.log(camera.isInFrustum(mesh));
-      console.log(mesh);
-      // noa.rendering.addMeshToScene(mesh, false);
+      console.log(newMeshes);
+      console.log(newMeshes.map((mesh) => mesh.id));
     },
     (onProgress) => {
       console.log("progress", onProgress);

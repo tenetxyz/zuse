@@ -1889,13 +1889,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"babylonjs@npm:^6.10.0":
-  version: 6.10.0
-  resolution: "babylonjs@npm:6.10.0"
-  checksum: 75f12a26f5203121d5ccc2023719a9669a9053051223009b3312d78c3b5a97897c99e9b67bd9ab6c20a59d166e23b4704f031f07087546538e71b380f0fe2159
-  languageName: node
-  linkType: hard
-
 "balanced-match@npm:^1.0.0":
   version: 1.0.2
   resolution: "balanced-match@npm:1.0.2"
@@ -2153,7 +2146,6 @@ box-intersect@fenomas/box-intersect:
     "@vitejs/plugin-react": ^3.1.0
     "@wagmi/chains": ^0.2.22
     autoprefixer: ^10.4.14
-    babylonjs: ^6.10.0
     buffer-lite: ^1.0.0
     eslint-plugin-react: 7.31.11
     eslint-plugin-react-hooks: 4.6.0

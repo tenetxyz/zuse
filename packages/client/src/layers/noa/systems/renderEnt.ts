@@ -18,40 +18,33 @@ export const renderEnt = (noaLayer: NoaLayer, voxelCoord: VoxelCoord) => {
     [name: string]: AbstractMesh;
   }
 
-  // This thread says to use setAbsolutePosition?
-  // https://forum.babylonjs.com/t/set-global-position-of-a-mesh/2476/2
-  const models: Models = {};
-  // (async () => {
-  //   const res = await SceneLoader.ImportMeshAsync(null, "/assets/models/", "table.gltf", scene);
-  //   const mesh = res.meshes[0];
-  //   mesh.normalizeToUnitCube();
-  //   mesh.position.set(voxelCoord.x, voxelCoord.y + 1, voxelCoord.z);
-  //   const camera = scene.cameras[0];
-  //   console.log(camera.isInFrustum(mesh));
-  // })();
+  // example of rendering a mesh (marble): https://playground.babylonjs.com/#0108NG#232
+  // another example (skull): https://www.babylonjs-playground.com/#1BUQD5#2
   SceneLoader.ImportMesh(
     "",
-    "https://models.babylonjs.com/Marble/marble/",
-    "marble.gltf",
+    // "https://models.babylonjs.com/Marble/marble/",
+    // "marble.gltf",
+    "/assets/models/",
+    "table.gltf",
     scene,
     (newMeshes) => {
       console.log("on success");
-      // example of rendering a mesh (marble): https://playground.babylonjs.com/#0108NG#232
-      // another example (skull): https://www.babylonjs-playground.com/#1BUQD5#2
-      for (const newMesh of newMeshes) {
-        noa.rendering.addMeshToScene(newMesh);
-      }
-
       // on success
       const mesh = newMeshes[0];
       // mesh.computeWorldMatrix(true);
-      mesh.normalizeToUnitCube();
-      mesh.scaling = new Vector3(25, 25, 25);
-      mesh.position.set(voxelCoord.x, voxelCoord.y + 2, voxelCoord.z);
-      const camera = scene.cameras[0];
-      console.log(camera.isInFrustum(mesh));
-      console.log(newMeshes);
-      console.log(newMeshes.map((mesh) => mesh.id));
+      mesh.scaling = new Vector3(1, 1, 1);
+
+      // .position is where the mesh is relative to the world
+      // I think absolutePosition is where the mesh is relative to... the mesh's root node? Really not sure
+      mesh.position.set(voxelCoord.x, voxelCoord.y, voxelCoord.z);
+      // add all the meshes to the noa scene
+      for (const newMesh of newMeshes) {
+        // important! you have to include the first mesh as well! (the mesh at index 0)
+        // Even though newMeshes[0] is added to the babylonjs scene, we still need to ask noa to render it
+        // since noa does extra operations (like adding it to the oct tree): https://github.com/fenomas/noa/issues/100
+        noa.rendering.addMeshToScene(newMesh);
+        newMesh.normalizeToUnitCube();
+      }
     },
     (onProgress) => {
       console.log("progress", onProgress);

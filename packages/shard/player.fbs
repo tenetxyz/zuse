@@ -1,0 +1,33 @@
+namespace Shard;
+
+struct Coord3 {
+  x: float;
+  y: float;
+  z: float;
+}
+
+struct Quaternion {
+  x: float;
+  y: float;
+  z: float;
+  w: float;
+}
+
+table Player {
+  id: string;
+  position: Coord3;
+  direction: Quaternion;
+  health: uint;
+  attack_cooldown_ticks_left: uint;
+}
+
+table Attack {
+  attackerId: string;
+  victimId: string;
+  damage: uint;
+}
+
+rpc_service PlayerService {
+  UpdatePlayer(Player): Player;
+  AttackPlayer(Attack): Player;
+}

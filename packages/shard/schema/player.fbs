@@ -1,0 +1,10 @@
+namespace Shard;
+
+table PlayerHealth {
+  id: string;
+  health: int;
+}
+
+rpc_service PlayerService {
+  UpdateHealth(PlayerHealth): PlayerHealth;
+}

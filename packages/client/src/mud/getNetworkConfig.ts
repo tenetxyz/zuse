@@ -50,6 +50,6 @@ export async function getNetworkConfig(): Promise<NetworkConfig> {
     initialBlockNumber,
     snapSync: params.get("snapSync") === "true",
     disableCache: params.get("cache") === "false",
-    relayServiceUrl: params.get("relay") ?? undefined, // TODO: Figure out how use a default relay
+    relayServiceUrl: params.get("relay") ?? "http://0.0.0.0:50072",
   };
 }

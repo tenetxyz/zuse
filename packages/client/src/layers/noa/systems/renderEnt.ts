@@ -2,11 +2,12 @@ import { AbstractMesh, Mesh, MeshBuilder, SceneLoader, SimplificationType, Vecto
 import "@babylonjs/loaders/glTF"; // load the glTF loader plugin
 import { NoaLayer } from "..";
 import { VoxelCoord } from "@latticexyz/utils";
+import { Scene } from "@babylonjs/core";
 
 export const renderEnt = (noaLayer: NoaLayer, voxelCoord: VoxelCoord) => {
   const { noa } = noaLayer;
   const newEntity = noa.entities.add();
-  const scene = noa.rendering.getScene();
+  const scene: Scene = noa.rendering.getScene();
 
   // Note: it's imprtant to check that we have imported the glTF loader plugin before trying to use it
   // If we are going to support other formats, please do a check like this when developing!
@@ -25,6 +26,14 @@ export const renderEnt = (noaLayer: NoaLayer, voxelCoord: VoxelCoord) => {
 
   // SceneLoader.ImportMesh("", "/assets/models/", "table.gltf", scene, (newMeshes) => {
   SceneLoader.ImportMesh("", "https://models.babylonjs.com/Marble/marble/", "marble.gltf", scene, (newMeshes) => {
+    for (const mesh of newMeshes) {
+      // const mesh = newMeshes[0];
+      // const mesh = newMeshes[0].clone("new mesh", scene.rootNodes()[0]);
+      mesh.normalizeToUnitCube();
+      mesh.position.set(voxelCoord.x, voxelCoord.y + 1, voxelCoord.z);
+      // noa.rendering.addMeshToScene(mesh, false);
+      console.log(mesh);
+    }
     // example of rendering a mesh (marble): https://playground.babylonjs.com/#0108NG#232
     // another example (skull): https://www.babylonjs-playground.com/#1BUQD5#2
     // console.log("newMeshes", newMeshes);
@@ -44,33 +53,5 @@ export const renderEnt = (noaLayer: NoaLayer, voxelCoord: VoxelCoord) => {
     // }
     // console.log("second");
     // console.log(scene.meshes);
-
-    newMeshes[0].normalizeToUnitCube();
-    var i;
-    var len;
-    //for(i=0 , len=newMeshes.length; i<len ; i++){
-    var m = newMeshes[1] as Mesh;
-    m.optimizeIndices(function () {
-      m.simplify(
-        [
-          { distance: 5, quality: 0.5 },
-          // { distance: 7, quality: 0.4 },
-          // { distance: 6, quality: 0.6 },
-          // { distance: 5, quality: 0.8 },
-          // { distance: 3, quality: 1}
-        ],
-        false,
-        SimplificationType.QUADRATIC,
-        function () {
-          // console.log("YES !!!!");
-          // var simplified = m.getLODLevelAtDistance(5)
-          // console.log(simplified);
-          // doDownload("test4",simplified);
-          // //Before
-          // //console.log(scene.meshes[7]);
-          // //doDownload("test4",scene.meshes[7]);
-        }
-      );
-    });
   });
 };

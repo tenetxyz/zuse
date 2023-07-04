@@ -19,7 +19,6 @@ import {
   getEntityAtPosition as getEntityAtPositionApi,
 } from "../layers/network/api";
 import { to64CharAddress } from "../utils/entity";
-import { SingletonID } from "@latticexyz/network";
 import {
   voxelTypeDataKeyToVoxelVariantDataKey,
   NoaBlockType,
@@ -32,7 +31,6 @@ import {
   voxelTypeToEntity,
 } from "../layers/noa/types";
 import { Textures, UVWraps } from "../layers/noa/constants";
-import { keccak256 } from "@latticexyz/utils";
 import { TENET_NAMESPACE } from "../constants";
 import { AIR_ID, BEDROCK_ID, DIRT_ID, GRASS_ID } from "../layers/network/api/terrain/occurrence";
 import { getNftStorageLink } from "../layers/noa/constants";

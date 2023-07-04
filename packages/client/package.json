@@ -32,7 +32,6 @@
     "@latticexyz/world": "link:../../../mud/packages/world",
     "@tenetxyz/contracts": "workspace:*",
     "@wagmi/chains": "^0.2.22",
-    "babylonjs": "^6.10.0",
     "buffer-lite": "^1.0.0",
     "ethers": "^5.7.2",
     "fuse.js": "^6.6.2",

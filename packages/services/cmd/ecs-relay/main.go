@@ -43,7 +43,6 @@ package main
 import (
 	"flag"
 
-	"latticexyz/mud/packages/services/pkg/eth"
 	"latticexyz/mud/packages/services/pkg/grpc"
 	"latticexyz/mud/packages/services/pkg/logger"
 	"latticexyz/mud/packages/services/pkg/relay"
@@ -86,9 +85,6 @@ func main() {
 		MessageRateLimit:       *messageRateLimit,
 	}
 
-	// Get an instance of ethereum client.
-	ethClient := eth.GetEthereumClient(*wsUrl, logger)
-
 	// Start gRPC server and the relayer.
-	grpc.StartRelayServer(*port, *metricsPort, ethClient, config, logger)
+	grpc.StartRelayServer(*port, *metricsPort, config, logger)
 }

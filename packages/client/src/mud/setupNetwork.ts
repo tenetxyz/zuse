@@ -66,7 +66,6 @@ export async function setupNetwork() {
 
   // Relayer setup
   let relay: Awaited<ReturnType<typeof createRelayStream>> | undefined;
-  debugger;
   try {
     relay =
       networkConfig.relayServiceUrl && playerAddress && signer

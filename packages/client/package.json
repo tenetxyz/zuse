@@ -14,6 +14,7 @@
   "dependencies": {
     "@babylonjs/core": "^5.30.0",
     "@ethersproject/providers": "^5.7.2",
+    "@grpc/grpc-js": "^1.8.17",
     "@latticexyz/common": "link:../../../mud/packages/common",
     "@latticexyz/dev-tools": "link:../../../mud/packages/dev-tools",
     "@latticexyz/ecs-browser": "link:../../../mud/packages/ecs-browser",
@@ -29,6 +30,8 @@
     "@latticexyz/std-contracts": "link:../../../mud/packages/std-contracts",
     "@latticexyz/utils": "link:../../../mud/packages/utils",
     "@latticexyz/world": "link:../../../mud/packages/world",
+    "@protobuf-ts/grpc-transport": "^2.9.0",
+    "@protobuf-ts/grpcweb-transport": "^2.9.0",
     "@tenetxyz/contracts": "workspace:*",
     "@wagmi/chains": "^0.2.22",
     "buffer-lite": "^1.0.0",

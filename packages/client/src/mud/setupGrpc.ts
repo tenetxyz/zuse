@@ -5,21 +5,6 @@ import { flatbuffers } from "flatbuffers";
 
 const client = new PlayerService("http://localhost:50051", null, null);
 
-// export function updatePlayer(player: Player) {
-//   return new Promise<Player>((resolve, reject) => {
-//     const req = new UpdatePlayerRequest();
-//     req.setPlayer(player);
-
-//     client.updatePlayer(req, {}, (err, response) => {
-//       if (err) {
-//         reject(err);
-//       } else {
-//         resolve(response.getPlayer());
-//       }
-//     });
-//   });
-// }
-
 export function attackPlayer(attackerId: string, victimId: string, damage: number) {
   return new Promise<Player>((resolve, reject) => {
     const builder = new flatbuffers.Builder();

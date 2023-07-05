@@ -26,6 +26,9 @@ type server struct {
 	players map[string]*Player
 }
 
+const damage = uint(1)
+const attackCooldown = uint(10)
+
 func (s *server) AttackPlayer(ctx context.Context, req *Shard.Attack) (*flatbuffers.Builder, error) {
 	log.Printf("AttackPlayer: %s -> %s", req.AttackerId(), req.VictimId())
 	s.Lock()
@@ -42,25 +45,24 @@ func (s *server) AttackPlayer(ctx context.Context, req *Shard.Attack) (*flatbuff
 	}
 
 	// Decrease victim's health
-	victimHealth := victim.Health() - req.Damage()
-	if victim.Health() < req.Damage() {
-		victimHealth = 0
+	victim.Health = victim.Health - damage
+	if victim.Health < damage {
+		victim.Health = 0
 	}
-	victim.MutateHealth(victimHealth)
 
 	// Increase the attacker's attack cooldown
-	attacker.MutateAttackCooldownTicksLeft(attacker.AttackCooldownTicksLeft() + 1)
+	attacker.AttackCooldownTicksLeft = attackCooldown
 
 	// Build the updated victim player to return
-	builder := flatbuffers.NewBuilder(0)
-	pos := Shard.CreateCoord3(builder, victim.Position(nil).X(), victim.Position(nil).Y(), victim.Position(nil).Z())
-	dir := Shard.CreateQuaternion(builder, victim.Direction(nil).X(), victim.Direction(nil).Y(), victim.Direction(nil).Z(), victim.Direction(nil).W())
-	id := builder.CreateString(string(victim.Id()))
+	builder := flatbuffers.NewBuilder(4)
+	// pos := Shard.CreateCoord3(builder, victim.Position.X(), victim.Position.Y(), victim.Position.Z())
+	// dir := Shard.CreateQuaternion(builder, victim.Direction(nil).X(), victim.Direction(nil).Y(), victim.Direction(nil).Z(), victim.Direction(nil).W())
+	// id := builder.CreateString(string(victim.Id()))
 	Shard.PlayerStart(builder)
-	Shard.PlayerAddId(builder, id)
-	Shard.PlayerAddPosition(builder, pos)
-	Shard.PlayerAddDirection(builder, dir)
-	Shard.PlayerAddHealth(builder, victimHealth)
+	Shard.PlayerAddId(builder, builder.CreateByteVector(victim.Id)) // TODO: use bytes
+	Shard.PlayerAddPosition(builder, victim.Position.Table().Pos)
+	Shard.PlayerAddDirection(builder, victim.Direction.Table().Pos)
+	Shard.PlayerAddHealth(builder, uint32(builder.CreateByteVector(victim.Health)))
 	Shard.PlayerAddAttackCooldownTicksLeft(builder, victim.AttackCooldownTicksLeft())
 	player := Shard.PlayerEnd(builder)
 	builder.Finish(player)

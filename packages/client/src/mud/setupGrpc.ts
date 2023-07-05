@@ -1,31 +1,25 @@
-import { grpc } from "grpc-web";
-import { Player, Attack } from "../codegen/shard";
-import { PlayerService } from "../codegen/player_grpc";
-import { flatbuffers } from "flatbuffers";
+import { Player, Attack } from "../codegen/proto/player_pb";
+import { grpc } from "@improbable-eng/grpc-web";
+import { createChannel, createClient } from "nice-grpc-web";
 
-const client = new PlayerService("http://localhost:50051", null, null);
+import { PlayerServiceClient } from "../codegen/proto/PlayerServiceClientPb";
+
+const url = "http://0.0.0.0:50051";
+// const wsClient = createClient(ECSRelayServiceDefinition, createChannel(url, grpc.WebsocketTransport()));
+const client = new PlayerServiceClient(url, {}, { transport: grpc.WebsocketTransport() });
 
 export function attackPlayer(attackerId: string, victimId: string, damage: number) {
   return new Promise<Player>((resolve, reject) => {
-    const builder = new flatbuffers.Builder();
-    Attack.startAttack(builder);
+    const req = new Attack();
+    req.setAttackerId(attackerId);
+    req.setVictimId(victimId);
+    req.setDamage(damage);
 
-    const attackerIdOffset = builder.createString(attackerId);
-    Attack.addAttackerId(builder, attackerIdOffset);
-
-    const victimIdOffset = builder.createString(victimId);
-    Attack.addVictimId(builder, victimIdOffset);
-
-    Attack.addDamage(builder, 50);
-    const attackOffset = Attack.endAttack(builder);
-    builder.finish(attackOffset);
-    const bytes = builder.asUint8Array();
-
-    client.attackPlayer(bytes, {}, (err: any, response: any) => {
+    client.attackPlayer(req, {}, (err, response) => {
       if (err) {
         reject(err);
       } else {
-        resolve(response.getPlayer());
+        resolve(response);
       }
     });
   });

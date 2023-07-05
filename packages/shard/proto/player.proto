@@ -1,0 +1,37 @@
+syntax = "proto3";
+
+package Shard;
+
+option go_package = "./Shard";
+
+message Coord3 {
+  float x = 1;
+  float y = 2;
+  float z = 3;
+}
+
+message Quaternion {
+  float x = 1;
+  float y = 2;
+  float z = 3;
+  float w = 4;
+}
+
+message Player {
+  string id = 1;
+  Coord3 position = 2;
+  Quaternion direction = 3;
+  uint32 health = 4;
+  uint32 attack_cooldown_ticks_left = 5;
+}
+
+message Attack {
+  string attacker_id = 1;
+  string victim_id = 2;
+  uint32 damage = 3;
+}
+
+service PlayerService {
+  rpc UpdatePlayer(Player) returns (Player) {}
+  rpc AttackPlayer(Attack) returns (Player) {}
+}

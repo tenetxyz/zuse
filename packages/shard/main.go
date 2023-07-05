@@ -5,43 +5,50 @@ import (
 	"fmt"
 	"log"
 	"net"
-	"shard/codegen/Shard"
+	pb "shard/codegen/Shard"
 	"sync"
 
-	flatbuffers "github.com/google/flatbuffers/go"
 	"google.golang.org/grpc"
 )
 
 type Player struct {
 	Id                      []byte
-	Position                *Shard.Coord3
-	Direction               *Shard.Quaternion
+	Position                *pb.Coord3
+	Direction               *pb.Quaternion
 	Health                  uint
 	AttackCooldownTicksLeft uint
 }
 
 type server struct {
-	Shard.UnimplementedPlayerServiceServer
+	pb.UnimplementedPlayerServiceServer
 	sync.RWMutex
-	players map[string]*Player
+	players map[string]*pb.Player
 }
 
-const damage = uint(1)
-const attackCooldown = uint(10)
+const damage = uint32(1)
+const attackCooldown = uint32(10)
 
-func (s *server) AttackPlayer(ctx context.Context, req *Shard.Attack) (*flatbuffers.Builder, error) {
-	log.Printf("AttackPlayer: %s -> %s", req.AttackerId(), req.VictimId())
+func (s *server) UpdatePlayer(ctx context.Context, player *pb.Player) (*pb.Player, error) {
 	s.Lock()
 	defer s.Unlock()
 
-	attacker, ok := s.players[string(req.AttackerId())]
+	s.players[player.Id] = player
+	return player, nil
+}
+
+func (s *server) AttackPlayer(ctx context.Context, attack *pb.Attack) (*pb.Player, error) {
+	log.Printf("AttackPlayer: %v", attack.AttackerId)
+	s.Lock()
+	defer s.Unlock()
+
+	attacker, ok := s.players[attack.AttackerId]
 	if !ok {
-		return nil, fmt.Errorf("attacker with id %s not found", req.AttackerId())
+		return nil, fmt.Errorf("attacker with id %s not found", attack.AttackerId)
 	}
 
-	victim, ok := s.players[string(req.VictimId())]
+	victim, ok := s.players[attack.VictimId]
 	if !ok {
-		return nil, fmt.Errorf("victim with id %s not found", req.VictimId())
+		return nil, fmt.Errorf("victim with id %s not found", attack.VictimId)
 	}
 
 	// Decrease victim's health
@@ -53,26 +60,12 @@ func (s *server) AttackPlayer(ctx context.Context, req *Shard.Attack) (*flatbuff
 	// Increase the attacker's attack cooldown
 	attacker.AttackCooldownTicksLeft = attackCooldown
 
-	// Build the updated victim player to return
-	builder := flatbuffers.NewBuilder(4)
-	// pos := Shard.CreateCoord3(builder, victim.Position.X(), victim.Position.Y(), victim.Position.Z())
-	// dir := Shard.CreateQuaternion(builder, victim.Direction(nil).X(), victim.Direction(nil).Y(), victim.Direction(nil).Z(), victim.Direction(nil).W())
-	// id := builder.CreateString(string(victim.Id()))
-	Shard.PlayerStart(builder)
-	Shard.PlayerAddId(builder, builder.CreateByteVector(victim.Id)) // TODO: use bytes
-	Shard.PlayerAddPosition(builder, victim.Position.Table().Pos)
-	Shard.PlayerAddDirection(builder, victim.Direction.Table().Pos)
-	Shard.PlayerAddHealth(builder, uint32(builder.CreateByteVector(victim.Health)))
-	Shard.PlayerAddAttackCooldownTicksLeft(builder, victim.AttackCooldownTicksLeft())
-	player := Shard.PlayerEnd(builder)
-	builder.Finish(player)
-
-	return builder, nil
+	return victim, nil
 }
 
 func newServer() *server {
 	return &server{
-		players: make(map[string]*Player),
+		players: make(map[string]*pb.Player),
 	}
 }
 
@@ -83,7 +76,7 @@ func main() {
 	}
 
 	s := grpc.NewServer()
-	Shard.RegisterPlayerServiceServer(s, newServer())
+	pb.RegisterPlayerServiceServer(s, newServer())
 
 	if err := s.Serve(lis); err != nil {
 		log.Fatalf("failed to serve: %v", err)

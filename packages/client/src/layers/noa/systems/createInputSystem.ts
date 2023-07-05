@@ -8,7 +8,7 @@ import { getNoaComponent, getNoaComponentStrict } from "../engine/components/uti
 import { NoaLayer } from "../types";
 import { toast } from "react-toastify";
 import { Creation } from "../../react/components/CreationStore";
-import { calculateMinMax, getCoordOfVoxelOnFaceYouTargeted, getTargetedVoxelCoord } from "../../../utils/voxels";
+import { calculateMinMax, getTargetedVoxelCoord } from "../../../utils/voxels";
 import { NotificationIcon } from "../components/persistentNotification";
 import { BEDROCK_ID } from "../../network/api/terrain/occurrence";
 import { DEFAULT_BLOCK_TEST_DISTANCE } from "../setup/setupNoaEngine";

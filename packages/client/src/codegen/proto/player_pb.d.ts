@@ -1,4 +1,4 @@
-// package: Shard
+// package: 
 // file: proto/player.proto
 
 import * as jspb from "google-protobuf";

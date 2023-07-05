@@ -36,5 +36,12 @@
     "node": "18.x",
     "yarn": ">=3.6.0"
   },
-  "packageManager": "yarn@3.6.1"
+  "packageManager": "yarn@3.6.1",
+  "dependencies": {
+    "@protobuf-ts/plugin": "^2.9.0",
+    "@protobuf-ts/runtime": "^2.9.0",
+    "protoc-gen-grpc-web": "^1.4.2",
+    "protoc-gen-js": "^3.21.2",
+    "ts-protoc-gen": "^0.15.0"
+  }
 }

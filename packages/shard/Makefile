@@ -1,8 +1,10 @@
 gen4:
 	mkdir -p ../client/src/codegen
 	npx protoc \
-		--plugin protoc-gen-grpc-web=../../node_modules/.bin/protoc-gen-grpc-web \
-		--plugin protoc-gen-js=../../node_modules/.bin/protoc-gen-js \
 		--ts_out ../client/src/codegen \
-		--grpc-web_out=import_style=commonjs,mode=grpcwebtext:../client/src/codegen \
-		--proto_path proto ./proto/player.proto
+		--ts_opt long_type_string \
+		./proto/player.proto
+# --plugin protoc-gen-grpc-web=../../node_modules/.bin/protoc-gen-grpc-web \
+# --grpc-web_out=import_style=typescript,mode=grpcwebtext:../client/src/codegen \
+# --plugin protoc-gen-js=../../node_modules/.bin/protoc-gen-js \
+# --js_out=import_style=commonjs:../client/src/codegen \

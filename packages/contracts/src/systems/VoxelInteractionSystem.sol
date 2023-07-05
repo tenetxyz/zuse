@@ -45,10 +45,6 @@ contract VoxelInteractionSystem is System {
 
       bytes32[] memory neighbourEntitiesAtPosition = getEntitiesAtCoord(neighbouringCoord);
 
-      require(
-        neighbourEntitiesAtPosition.length == 0 || neighbourEntitiesAtPosition.length == 1,
-        "can not built at non-empty coord (VoxelInteraction)"
-      );
       if (neighbourEntitiesAtPosition.length == 1) {
         // entity exists so add it to the list
         centerNeighbourEntities[i] = neighbourEntitiesAtPosition[0];

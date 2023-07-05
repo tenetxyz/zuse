@@ -11,6 +11,29 @@ import { getUniqueEntity } from "@latticexyz/world/src/modules/uniqueentity/getU
 import { IWorld } from "@tenet-contracts/src/codegen/world/IWorld.sol";
 
 contract BuildSystem is System {
+  // function checkIfShouldFall(VoxelVariantsData memory voxelTop, VoxelVariantsData voxelBottom) public returns (bool) {
+  //   // check if the mass of the voxel is greater than the mass of the voxel below it
+  //   return voxelTop.mass > voxelBottom.mass;
+  // }
+
+  function runGravityLogic(bytes32 entity) public {
+    // entity was just placed
+    // we need to go through it and all voxels below it and apply gravity
+    // PositionData memory coord = Position.get(entity);
+    // // get the entity below this
+    // bytes32[] memory neighbourEntitiesAtPosition = getEntitiesAtCoord(VoxelCoord(coord.x, coord.y - 1, coord.z));
+    // // if the entity doesn't exist, then this means its part of the terrain, so need to get the terrain entity
+    // bytes32 compareEntity;
+    // if (neighbourEntitiesAtPosition.length == 0) {} else {
+    //   compareEntity = neighbourEntitiesAtPosition[0];
+    // }
+    // bool shouldFall = checkIfShouldFall(entity, compareEntity);
+    // if (shouldFall) {
+    //   // break the block and move it down
+    //   // this should really be a call to mine, then a recursive call to build
+    // }
+  }
+
   function build(bytes32 entity, VoxelCoord memory coord) public returns (bytes32) {
     // Require voxel to be owned by caller
     require(OwnedBy.get(entity) == addressToEntityKey(_msgSender()), "voxel is not owned by player");
@@ -39,6 +62,8 @@ contract BuildSystem is System {
     updateVoxelVariant(_world(), newEntity);
 
     increaseVoxelTypeSpawnCount(entityVoxelData.voxelTypeNamespace, entityVoxelData.voxelTypeId);
+    // Run gravity logic
+    runGravityLogic(newEntity);
 
     // Run voxel interaction logic
     IWorld(_world()).tenet_VoxInteractSys_runInteractionSystems(newEntity);

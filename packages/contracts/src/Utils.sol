@@ -172,7 +172,9 @@ function initializeArray(uint256 x, uint256 y) pure returns (uint256[][] memory)
 }
 
 function getEntitiesAtCoord(VoxelCoord memory coord) view returns (bytes32[] memory) {
-  return getKeysWithValue(PositionTableId, Position.encode(coord.x, coord.y, coord.z));
+  bytes32[] memory entities = getKeysWithValue(PositionTableId, Position.encode(coord.x, coord.y, coord.z));
+  require(entities.length == 0 || entities.length == 1, "more than one entity at coord");
+  return entities;
 }
 
 function increaseVoxelTypeSpawnCount(bytes16 voxelTypeNamespace, bytes32 voxelTypeId) {

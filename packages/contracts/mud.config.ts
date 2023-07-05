@@ -30,6 +30,7 @@ export default mudConfig({
         fluid: "bool",
         solid: "bool",
         blockType: "NoaBlockType",
+        mass: "uint32",
         // Note: These 2 dynamic fields MUST come at the end of the schema
         materials: "bytes", // string[]
         uvWrap: "string", // File ID Hash

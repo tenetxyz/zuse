@@ -1,22 +1,34 @@
-import "../codegen/proto/player_pb.js";
-import { grpc } from "@improbable-eng/grpc-web";
-// import { createChannel, createClient } from "nice-grpc-web";
-import { PlayerServiceClient } from "../codegen/proto/PlayerServiceClientPb";
+// import { createChannel, createClient, Client } from "nice-grpc-web";
+// import { PlayerServiceClient } from "../codegen/player.client";
+// import { PlayerServiceClient } from "../codegen/player_grpc_web_pb.js";
+// import { Attack } from "../codegen/player.js";
 
-const url = "http://0.0.0.0:50051";
+// const url = "http://0.0.0.0:50051";
+// const channel = createChannel(url);
+
 // const wsClient = createClient(ECSRelayServiceDefinition, createChannel(url, grpc.WebsocketTransport()));
-const client = new PlayerServiceClient(url, {}, { transport: grpc.WebsocketTransport() });
+// const client = new PlayerServiceClient(url);
 
 export function attackPlayer(attackerId: string, victimId: string, damage: number) {
-  return new Promise<Shard.Player>((resolve, reject) => {
-    // Create a new Attack object
-    const attack = new Shard.Attack().setAttackerId(attackerId).setVictimId(victimId).setDamage(damage);
-    client.attackPlayer(attack, {}, (err, response) => {
-      if (err) {
-        reject(err);
-      } else {
-        resolve(response);
-      }
-    });
-  });
+  // Create a new Attack object
+  // const attack = {
+  //   attackerId,
+  //   victimId,
+  //   damage,
+  // } as Attack;
+  // const attack = new Attack();
+  // attack.setDamage(damage);
+  // attack.setAttackerId(attackerId);
+  // attack.setVictimId(victimId);
+  // client.attackPlayer(attack);
+  // , {}, (err: any, res: any) => {
+  //   console.log(res);
+  //   console.log(err);
+  // });
+  // .then((res) => {
+  //   console.log(res);
+  // })
+  // .catch((err) => {
+  //   console.warn(err);
+  // });
 }

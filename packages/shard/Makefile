@@ -14,12 +14,40 @@ generate:
 		-I ./proto \
 		player.proto
 
-	# # Generate TypeScript code (d.ts)
-	# npx grpc_tools_node_protoc \
-	# 	--plugin=protoc-gen-ts=../../node_modules/.bin/protoc-gen-ts \
-	# 	--ts_out=grpc_js:${PROTO_DIR} \
-	# 	proto/*.proto
+	# Generate TypeScript code
+	mkdir -p ../client/src/codegen
+	../../node_modules/.bin/grpc_tools_node_protoc \
+		--plugin=protoc-gen-ts_proto=../../node_modules/.bin/protoc-gen-ts_proto \
+		--ts_proto_out=../client/src/codegen \
+		--ts_proto_opt=env=browser,outputServices=nice-grpc,outputServices=generic-definitions,outputJsonMethods=false,useExactTypes=false \
+		--proto_path=./proto \
+		./proto/player.proto
 
+# .PHONY generate
+
+generate2:
+	--plugin=protoc-gen-ts=../../node_modules/.bin/protoc-gen-ts \
+	--js_out=import_style=commonjs,binary:../client/src/codegen \
+	--ts_out=service=grpc-web:../client/src/codegen \
+	--proto_path=./proto \
+	./proto/player.proto
+gen3:
+	mkdir -p ../client/src/codegen
+	protoc \
+ 	--plugin protoc-gen-js=../../node_modules/.bin/protoc-gen-js \
+ 	--plugin protoc-gen-ts=../../node_modules/.bin/protoc-gen-ts \
+ 	--js_out=import_style=commonjs:../client/src/codegen \
+	--ts_out ../client/src/codegen --proto_path "./proto" ./proto/player.proto
+gen4:
+	mkdir -p ../client/src/codegen
+	npx protoc \
+		--plugin protoc-gen-grpc-web=../../node_modules/.bin/protoc-gen-grpc-web \
+		--plugin protoc-gen-js=../../node_modules/.bin/protoc-gen-js \
+		--ts_out ../client/src/codegen \
+		--grpc-web_out=import_style=commonjs,mode=grpcwebtext:../client/src/codegen \
+		--proto_path proto ./proto/player.proto
+
+# --js_out=import_style=commonjs:$OUT_DIR \
 # # Generate gRPC-Web code
 # protoc \
 # 	--plugin protoc-gen-grpc-web=../../node_modules/.bin/protoc-gen-grpc-web \

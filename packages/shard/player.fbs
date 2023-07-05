@@ -22,8 +22,8 @@ table Player {
 }
 
 table Attack {
-  attackerId: string;
-  victimId: string;
+  attacker_id: string;
+  victim_id: string;
   damage: uint;
 }
 

@@ -14,6 +14,7 @@ import { BEDROCK_ID } from "../../network/api/terrain/occurrence";
 import { DEFAULT_BLOCK_TEST_DISTANCE } from "../setup/setupNoaEngine";
 import { calculateCornersFromTargetedBlock, TargetedBlock } from "./createSpawnCreationOverlaySystem";
 import { renderFloatingTextAboveCoord } from "./renderFloatingText";
+import { attackPlayer } from "../../../mud/setupGrpc";
 
 export function createInputSystem(network: NetworkLayer, noaLayer: NoaLayer) {
   const {
@@ -88,6 +89,11 @@ export function createInputSystem(network: NetworkLayer, noaLayer: NoaLayer) {
     if (!noa.container.hasPointerLock) return;
     if (isSelectingVoxel) {
       selectCorner(true);
+      return;
+    }
+    if (!noa.targetedBlock) {
+      // try to attack a player
+      attackPlayer("p1", "p2", 5);
       return;
     }
 

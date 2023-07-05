@@ -1,49 +1,47 @@
 import { grpc } from "grpc-web";
-import { Player, PlayerService } from "../codegen/player";
+import { Player, Attack } from "../codegen/shard";
+import { PlayerService } from "../codegen/player_grpc";
+import { flatbuffers } from "flatbuffers";
 
-const client = new PlayerServiceClient("http://localhost:50051", null, null);
+const client = new PlayerService("http://localhost:50051", null, null);
 
-export function updatePlayer(player: Player) {
+// export function updatePlayer(player: Player) {
+//   return new Promise<Player>((resolve, reject) => {
+//     const req = new UpdatePlayerRequest();
+//     req.setPlayer(player);
+
+//     client.updatePlayer(req, {}, (err, response) => {
+//       if (err) {
+//         reject(err);
+//       } else {
+//         resolve(response.getPlayer());
+//       }
+//     });
+//   });
+// }
+
+export function attackPlayer(attackerId: string, victimId: string, damage: number) {
   return new Promise<Player>((resolve, reject) => {
-    const req = new UpdatePlayerRequest();
-    req.setPlayer(player);
+    const builder = new flatbuffers.Builder();
+    Attack.startAttack(builder);
 
-    client.updatePlayer(req, {}, (err, response) => {
+    const attackerIdOffset = builder.createString(attackerId);
+    Attack.addAttackerId(builder, attackerIdOffset);
+
+    const victimIdOffset = builder.createString(victimId);
+    Attack.addVictimId(builder, victimIdOffset);
+
+    Attack.addDamage(builder, 50);
+    const attackOffset = Attack.endAttack(builder);
+    builder.finish(attackOffset);
+    const bytes = builder.asUint8Array();
+
+    client.attackPlayer(bytes, {}, (err: any, response: any) => {
       if (err) {
         reject(err);
       } else {
         resolve(response.getPlayer());
       }
     });
-  });
-}
-
-export function attackPlayer(playerId: string, damage: number) {
-  return new Promise<Player>((resolve, reject) => {
-    // Retrieve the attacker's player data
-    const attacker = getPlayerData();
-
-    if (attacker) {
-      const req = new UpdatePlayerRequest();
-      // Assume that there's a method to get other players data
-      const victim = getOtherPlayerData(playerId);
-
-      if (victim) {
-        // Decrease victim's health
-        victim.setHealth(victim.getHealth() - damage);
-
-        // Increase the attacker's attack cooldown
-        attacker.setAttackCooldownTicksLeft(attacker.getAttackCooldownTicksLeft() + 1);
-        req.setPlayer(victim);
-
-        client.updatePlayer(req, {}, (err, response) => {
-          if (err) {
-            reject(err);
-          } else {
-            resolve(response.getPlayer());
-          }
-        });
-      }
-    }
   });
 }

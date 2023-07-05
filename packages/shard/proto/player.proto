@@ -2,6 +2,8 @@ syntax = "proto3";
 
 package Shard;
 
+option go_package = "./Shard";
+
 message Coord3 {
   float x = 1;
   float y = 2;

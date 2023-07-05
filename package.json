@@ -29,6 +29,8 @@
     "@typescript-eslint/parser": "5.46.1",
     "concurrently": "^8.0.1",
     "eslint": "8.29.0",
+    "google-protobuf": "^3.21.2",
+    "protoc-gen-grpc-web": "^1.4.2",
     "protoc-gen-ts": "^0.8.6",
     "rimraf": "^3.0.2",
     "typescript": "^4.9.5"
@@ -37,8 +39,5 @@
     "node": "18.x",
     "yarn": ">=3.6.0"
   },
-  "packageManager": "yarn@3.6.1",
-  "dependencies": {
-    "google-protobuf": "^3.21.2"
-  }
+  "packageManager": "yarn@3.6.1"
 }

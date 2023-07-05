@@ -1,7 +1,7 @@
 gen4:
 	mkdir -p ../client/src/codegen
 	npx protoc \
-		--ts_out .\
+		--ts_out ../client/src/codegen \
 		--ts_opt long_type_string \
 		--proto_path proto \
 		./proto/player.proto

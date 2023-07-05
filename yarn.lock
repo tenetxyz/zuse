@@ -1235,6 +1235,57 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@protobuf-ts/plugin-framework@npm:^2.9.0":
+  version: 2.9.0
+  resolution: "@protobuf-ts/plugin-framework@npm:2.9.0"
+  dependencies:
+    "@protobuf-ts/runtime": ^2.9.0
+    typescript: ^3.9
+  checksum: 1483bb1a49b6568d0fb5bfa2bac79cf1b18965b5b62e3169ca093a934b59668a00d664839ee3d156425fad363ffa0965f07d3a3933d9c84a9a5f73856853d8e0
+  languageName: node
+  linkType: hard
+
+"@protobuf-ts/plugin@npm:^2.9.0":
+  version: 2.9.0
+  resolution: "@protobuf-ts/plugin@npm:2.9.0"
+  dependencies:
+    "@protobuf-ts/plugin-framework": ^2.9.0
+    "@protobuf-ts/protoc": ^2.9.0
+    "@protobuf-ts/runtime": ^2.9.0
+    "@protobuf-ts/runtime-rpc": ^2.9.0
+    typescript: ^3.9
+  bin:
+    protoc-gen-dump: bin/protoc-gen-dump
+    protoc-gen-ts: bin/protoc-gen-ts
+  checksum: 8871ea4a30f1ffc10702d41de729492a987e9b2ba6e0d78abfc1857271e6ffcdff1a2dc38c177715a3d1cf7d528d7a0799a8bcb79a0ea22f1391e357638245d7
+  languageName: node
+  linkType: hard
+
+"@protobuf-ts/protoc@npm:^2.9.0":
+  version: 2.9.0
+  resolution: "@protobuf-ts/protoc@npm:2.9.0"
+  bin:
+    protoc: protoc.js
+  checksum: 66a67d3b6b1910c6651e5b5fa596477bb7f17a845d48f7e57b397ff3e6000c3e5cdb36b0ffb27a07c3764c091374234dc62d6cec19820031210f2f47f75b1da4
+  languageName: node
+  linkType: hard
+
+"@protobuf-ts/runtime-rpc@npm:^2.9.0":
+  version: 2.9.0
+  resolution: "@protobuf-ts/runtime-rpc@npm:2.9.0"
+  dependencies:
+    "@protobuf-ts/runtime": ^2.9.0
+  checksum: dfcd538a8b7b6d97714214dae169b5a878b744285aeeceb90429727bf6b263e6233b928f1f64957d69a8878da5d04fb50e1461767052342d62dbc158a940e407
+  languageName: node
+  linkType: hard
+
+"@protobuf-ts/runtime@npm:^2.9.0":
+  version: 2.9.0
+  resolution: "@protobuf-ts/runtime@npm:2.9.0"
+  checksum: 62b2eafd0c8941734336f552f89898d224745550ad5eb8166e4bf28db75a1acc2b2e6f9c0b4d0db66bd6efab22fa987fa49c9435d0502cf8aa49f1dce5b35bd9
+  languageName: node
+  linkType: hard
+
 "@solidity-parser/parser@npm:^0.16.0":
   version: 0.16.0
   resolution: "@solidity-parser/parser@npm:0.16.0"
@@ -2961,13 +3012,14 @@ box-intersect@fenomas/box-intersect:
   resolution: "everlon@workspace:."
   dependencies:
     "@latticexyz/cli": "link:../mud/packages/cli"
+    "@protobuf-ts/plugin": ^2.9.0
+    "@protobuf-ts/runtime": ^2.9.0
     "@solidstate/contracts": ^0.0.57
     "@typescript-eslint/eslint-plugin": 5.46.1
     "@typescript-eslint/parser": 5.46.1
     concurrently: ^8.0.1
     eslint: 8.29.0
     google-protobuf: ^3.21.2
-    protoc-gen-ts: ^0.8.6
     rimraf: ^3.0.2
     typescript: ^4.9.5
   languageName: unknown
@@ -4872,18 +4924,6 @@ box-intersect@fenomas/box-intersect:
   languageName: node
   linkType: hard
 
-"protoc-gen-ts@npm:^0.8.6":
-  version: 0.8.6
-  resolution: "protoc-gen-ts@npm:0.8.6"
-  peerDependencies:
-    google-protobuf: ^3.13.0
-    typescript: 4.x.x
-  bin:
-    protoc-gen-ts: bin/protoc-gen-ts.js
-  checksum: 0affb91d1824303a715f77275fd4feeca6691906f7dc8257ac5347c6dae7ba2d3d031327bacd289af5c1ef4db4bdd725eac8b9785195e16a5eb6e60e51ae8fb6
-  languageName: node
-  linkType: hard
-
 "proxy-deep@npm:^3.1.1":
   version: 3.1.1
   resolution: "proxy-deep@npm:3.1.1"
@@ -5830,6 +5870,16 @@ box-intersect@fenomas/box-intersect:
   languageName: node
   linkType: hard
 
+"typescript@npm:^3.9":
+  version: 3.9.10
+  resolution: "typescript@npm:3.9.10"
+  bin:
+    tsc: bin/tsc
+    tsserver: bin/tsserver
+  checksum: 46c842e2cd4797b88b66ef06c9c41dd21da48b95787072ccf39d5f2aa3124361bc4c966aa1c7f709fae0509614d76751455b5231b12dbb72eb97a31369e1ff92
+  languageName: node
+  linkType: hard
+
 "typescript@npm:^4.9.5":
   version: 4.9.5
   resolution: "typescript@npm:4.9.5"
@@ -5837,6 +5887,16 @@ box-intersect@fenomas/box-intersect:
     tsc: bin/tsc
     tsserver: bin/tsserver
   checksum: ee000bc26848147ad423b581bd250075662a354d84f0e06eb76d3b892328d8d4440b7487b5a83e851b12b255f55d71835b008a66cbf8f255a11e4400159237db
+  languageName: node
+  linkType: hard
+
+"typescript@patch:typescript@^3.9#~builtin<compat/typescript>":
+  version: 3.9.10
+  resolution: "typescript@patch:typescript@npm%3A3.9.10#~builtin<compat/typescript>::version=3.9.10&hash=3bd3d3"
+  bin:
+    tsc: bin/tsc
+    tsserver: bin/tsserver
+  checksum: dc7141ab555b23a8650a6787f98845fc11692063d02b75ff49433091b3af2fe3d773650dea18389d7c21f47d620fb3b110ea363dab4ab039417a6ccbbaf96fc2
   languageName: node
   linkType: hard
 

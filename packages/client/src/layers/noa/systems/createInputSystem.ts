@@ -284,7 +284,7 @@ export function createInputSystem(network: NetworkLayer, noaLayer: NoaLayer) {
     const coord = getTargetedVoxelCoord(noa);
     points.push(coord);
     // renderFloatingTextAboveCoord(coord, noa, "This is a super\nlong\nline that takes\nup many lines");
-    renderEnt(noaLayer, coord);
+    // renderEnt(noaLayer, coord);
 
     toast(`Selected voxel at ${coord.x}, ${coord.y}, ${coord.z}`);
     setComponent(VoxelSelection, SingletonEntity, {

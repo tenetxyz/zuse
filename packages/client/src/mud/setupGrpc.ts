@@ -1,6 +1,6 @@
 import { Player, Attack } from "../codegen/proto/player_pb";
 import { grpc } from "@improbable-eng/grpc-web";
-import { createChannel, createClient } from "nice-grpc-web";
+// import { createChannel, createClient } from "nice-grpc-web";
 
 import { PlayerServiceClient } from "../codegen/proto/PlayerServiceClientPb";
 
@@ -10,10 +10,11 @@ const client = new PlayerServiceClient(url, {}, { transport: grpc.WebsocketTrans
 
 export function attackPlayer(attackerId: string, victimId: string, damage: number) {
   return new Promise<Player>((resolve, reject) => {
-    const req = new Attack();
-    req.setAttackerId(attackerId);
-    req.setVictimId(victimId);
-    req.setDamage(damage);
+    const req: Attack = {
+      attackerId: "",
+      victimId: "",
+      damage: 0,
+    };
 
     client.attackPlayer(req, {}, (err, response) => {
       if (err) {

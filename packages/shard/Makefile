@@ -7,9 +7,10 @@ generate:
 	mkdir -p ../client/src/codegen
 	protoc \
 		--plugin protoc-gen-ts_proto=../../node_modules/.bin/protoc-gen-ts_proto \
-		--ts_proto_out=import_style=es6,binary:../client/src/codegen \
+		--ts_proto_out=../client/src/codegen \
 		--ts_proto_opt=env=browser,outputServices=nice-grpc,outputServices=generic-definitions,outputJsonMethods=false,useExactTypes=false,eslint_disable,esModuleInterop=true,importSuffix=.js \
 		./proto/player.proto
+	mv ../client/src/codegen/proto/player.ts  ../client/src/codegen/proto/player_pb.ts
 
 	# Generate gRPC-Web code
 	protoc \

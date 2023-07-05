@@ -18,6 +18,7 @@ export const renderEnt = (noaLayer: NoaLayer, voxelCoord: VoxelCoord) => {
     [name: string]: AbstractMesh;
   }
 
+  // TODO: I couldn't get it to render from the nftstorage link. Maybe the headers don't say it's glTF?
   // example of rendering a mesh (marble): https://playground.babylonjs.com/#0108NG#232
   // another example (skull): https://www.babylonjs-playground.com/#1BUQD5#2
   SceneLoader.ImportMesh(
@@ -36,7 +37,7 @@ export const renderEnt = (noaLayer: NoaLayer, voxelCoord: VoxelCoord) => {
 
       // .position is where the mesh is relative to the world
       // I think absolutePosition is where the mesh is relative to... the mesh's root node? Really not sure
-      mesh.position.set(voxelCoord.x, voxelCoord.y, voxelCoord.z);
+      mesh.position.set(voxelCoord.x + 0.5, voxelCoord.y + 1.5, voxelCoord.z + 0.5);
       // add all the meshes to the noa scene
       for (const newMesh of newMeshes) {
         // important! you have to include the first mesh as well! (the mesh at index 0)
@@ -44,6 +45,11 @@ export const renderEnt = (noaLayer: NoaLayer, voxelCoord: VoxelCoord) => {
         // since noa does extra operations (like adding it to the oct tree): https://github.com/fenomas/noa/issues/100
         noa.rendering.addMeshToScene(newMesh);
         newMesh.normalizeToUnitCube();
+      }
+      // TODO: we need to find a way to center the mesh around its local origin so all meshes appear at the specified voxelCoord
+      for (const newMesh of newMeshes.slice(1)) {
+        // console.log(newMesh.getAbsolutePosition());
+        newMesh.locallyTranslate(new Vector3(30, 30, 30));
       }
     },
     (onProgress) => {

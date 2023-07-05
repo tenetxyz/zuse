@@ -126,6 +126,10 @@ export default mudConfig({
     RegisterClassifierSystem: {
       name: "RegClassifierSys", // Note: This has to be <= 16 characters and can't conflict with table names
       openAccess: true,
+    GravitySystem: {
+      name: "GravitySystem",
+      openAccess: false, // it's a subsystem now, so only systems in this namespace can call it
+      accessList: ["MineSystem", "BuildSystem"],
     },
   },
   modules: [

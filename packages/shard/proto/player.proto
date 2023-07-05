@@ -2,7 +2,7 @@ syntax = "proto3";
 
 package Shard;
 
-option go_package = "./Shard";
+option go_package = "tenetxyz/shard";
 
 message Coord3 {
   float x = 1;

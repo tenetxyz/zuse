@@ -32,3 +32,6 @@ int32 constant CHUNK = 16;
 // A block has six neighbours
 uint256 constant NUM_VOXEL_NEIGHBOURS = 6;
 uint256 constant MAX_VOXEL_NEIGHBOUR_UPDATE_DEPTH = 100;
+
+bytes16 constant EMPTY_NAMESPACE = bytes16(0x0);
+bytes32 constant EMPTY_ID = bytes32(0x0);

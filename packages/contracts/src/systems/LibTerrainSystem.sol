@@ -14,7 +14,7 @@ import { VoxelCoord, Tuple, VoxelVariantsKey } from "../Types.sol";
 import { div } from "../Utils.sol";
 import { System } from "@latticexyz/world/src/System.sol";
 import { IWorld } from "@tenet-contracts/src/codegen/world/IWorld.sol";
-import { CHUNK_MIN_Y, TENET_NAMESPACE } from "../Constants.sol";
+import { CHUNK_MIN_Y, TENET_NAMESPACE, EMPTY_NAMESPACE, EMPTY_ID } from "../Constants.sol";
 
 int128 constant _0 = 0; // 0 * 2**64
 int128 constant _0_3 = 5534023222112865484; // 0.3 * 2**64
@@ -38,23 +38,26 @@ int128 constant _5 = 5 * 2 ** 64;
 int128 constant _10 = 10 * 2 ** 64;
 int128 constant _16 = 16 * 2 ** 64;
 
-bytes16 constant EMPTY_NAMESPACE = bytes16(0x0);
-bytes32 constant EMPTY_ID = bytes32(0x0);
-
 contract LibTerrainSystem is System {
   function getTerrainVoxel(VoxelCoord memory coord) public view returns (VoxelVariantsKey memory) {
-    int128[4] memory biome = getBiome(coord.x, coord.z);
-    int32 height = getHeight(coord.x, coord.z, biome);
-    return getTerrainVoxel(coord.x, coord.y, coord.z, height, biome);
+    // int128[4] memory biome = getBiome(coord.x, coord.z);
+    // int32 height = getHeight(coord.x, coord.z, biome);
+    return getTerrainVoxel(coord.x, coord.y, coord.z);
   }
 
   function getTerrainVoxel(
     int32 x,
     int32 y,
-    int32 z,
-    int32 height,
-    int128[4] memory biomeValues
-  ) internal pure returns (VoxelVariantsKey memory) {
+    int32 z
+  )
+    internal
+    view
+    returns (
+      // int32 height,
+      // int128[4] memory biomeValues
+      VoxelVariantsKey memory
+    )
+  {
     VoxelVariantsKey memory voxelTypeId;
 
     voxelTypeId = Bedrock(y);
@@ -63,17 +66,13 @@ contract LibTerrainSystem is System {
     voxelTypeId = Air(y);
     if (voxelTypeId.voxelVariantId != EMPTY_ID) return voxelTypeId;
 
-    uint8 biome = getMaxBiome(biomeValues);
-
-    int32 distanceFromHeight = height - y;
-
     voxelTypeId = Grass(y);
     if (voxelTypeId.voxelVariantId != EMPTY_ID) return voxelTypeId;
 
     voxelTypeId = Dirt(y);
     if (voxelTypeId.voxelVariantId != EMPTY_ID) return voxelTypeId;
 
-    return VoxelVariantsKey({ voxelVariantNamespace: TENET_NAMESPACE, voxelVariantId: AirID });
+    return VoxelVariantsKey({ voxelVariantNamespace: EMPTY_NAMESPACE, voxelVariantId: EMPTY_ID });
   }
 
   function getHeight(int32 x, int32 z, int128[4] memory biome) internal view returns (int32) {

@@ -1,22 +1,42 @@
+
 generate:
 	mkdir -p ../client/src/codegen/proto
 	# Generate Go code
 	protoc --go_out=./codegen --go-grpc_out=codegen ./proto/player.proto
 
-	# Generate TypeScript code
-	mkdir -p ../client/src/codegen
-	protoc \
-		--plugin protoc-gen-ts_proto=../../node_modules/.bin/protoc-gen-ts_proto \
-		--ts_proto_out=../client/src/codegen \
-		--ts_proto_opt=env=browser,outputServices=nice-grpc,outputServices=generic-definitions,outputJsonMethods=false,useExactTypes=false,eslint_disable,esModuleInterop=true,importSuffix=.js \
-		./proto/player.proto
-	mv ../client/src/codegen/proto/player.ts  ../client/src/codegen/proto/player_pb.ts
+	PROTO_DIR=../client/src/codegen
 
-	# Generate gRPC-Web code
-	protoc \
-		--plugin protoc-gen-grpc-web=../../node_modules/.bin/protoc-gen-grpc-web \
-		--grpc-web_out=import_style=typescript,mode=grpcwebtext:../client/src/codegen \
-		./proto/player.proto
+	# Generate JavaScript code
+	npx grpc_tools_node_protoc \
+		--js_out=import_style=commonjs,binary:${PROTO_DIR} \
+		--grpc_out=grpc_js:${PROTO_DIR} \
+		--plugin=protoc-gen-grpc=../../node_modules/.bin/grpc_tools_node_protoc_plugin \
+		-I ./proto \
+		player.proto
+
+	# # Generate TypeScript code (d.ts)
+	# npx grpc_tools_node_protoc \
+	# 	--plugin=protoc-gen-ts=../../node_modules/.bin/protoc-gen-ts \
+	# 	--ts_out=grpc_js:${PROTO_DIR} \
+	# 	proto/*.proto
+
+# # Generate gRPC-Web code
+# protoc \
+# 	--plugin protoc-gen-grpc-web=../../node_modules/.bin/protoc-gen-grpc-web \
+# 	--plugin protoc-gen-js=../../node_modules/.bin/protoc-gen-js \
+# 	--js_out=import_style=commonjs:../client/src/codegen \
+# 	--grpc-web_out=import_style=typescript,mode=grpcwebtext:../client/src/codegen \
+# 	./proto/player.proto
+
+# Generate TypeScript code
+# mkdir -p ../client/src/codegen
+# protoc \
+# 	--plugin protoc-gen-ts_proto=../../node_modules/.bin/protoc-gen-ts_proto \
+# 	--ts_proto_out=../client/src/codegen \
+# 	--ts_proto_opt=env=browser,outputServices=nice-grpc,outputServices=generic-definitions,outputJsonMethods=false,useExactTypes=false,eslint_disable,esModuleInterop=true,importSuffix=.js \
+# 	--grpc-gateway-ts_out=../client/src/codegen \
+# 	./proto/player.proto
+# mv ../client/src/codegen/proto/player.ts  ../client/src/codegen/proto/player_pb.ts
 
 
 # protoc \

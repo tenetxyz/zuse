@@ -6,14 +6,14 @@ import { System } from "@latticexyz/world/src/System.sol";
 import { VoxelCoord, VoxelVariantsKey } from "../Types.sol";
 import { OwnedBy, Position, PositionData, PositionTableId, VoxelType, VoxelTypeData, VoxelVariants, VoxelVariantsData, VoxelTypeRegistry } from "../codegen/Tables.sol";
 import { AirID } from "../prototypes/Voxels.sol";
-import { addressToEntityKey, updateVoxelVariant, increaseVoxelTypeSpawnCount, getEntitiesAtCoord } from "../Utils.sol";
+import { addressToEntityKey, updateVoxelVariant, increaseVoxelTypeSpawnCount, getEntitiesAtCoord, positionDatatoVoxelCoord } from "../Utils.sol";
 import { getUniqueEntity } from "@latticexyz/world/src/modules/uniqueentity/getUniqueEntity.sol";
 import { IWorld } from "../codegen/world/IWorld.sol";
 import { EMPTY_NAMESPACE, EMPTY_ID, TENET_NAMESPACE } from "../Constants.sol";
 
 contract GravitySystem is System {
   function runGravity(bytes32 entity) public {
-    PositionData memory currentPosition = Position.get(entity);
+    VoxelCoord memory currentPosition = positionDatatoVoxelCoord(Position.get(entity));
     VoxelTypeData memory currentVoxelTypeData = VoxelType.get(entity);
     VoxelVariantsData memory currentVoxelData = VoxelVariants.get(
       currentVoxelTypeData.voxelVariantNamespace,
@@ -83,7 +83,7 @@ contract GravitySystem is System {
         terrainVoxel.voxelVariantNamespace != EMPTY_NAMESPACE && terrainVoxel.voxelVariantId != EMPTY_ID,
         "Terrain voxel does not exist"
       );
-      aboveVoxelData = VoxelTypeData({
+      aboveVoxelTypeData = VoxelTypeData({
         voxelTypeNamespace: TENET_NAMESPACE,
         voxelTypeId: terrainVoxel.voxelVariantId,
         voxelVariantNamespace: terrainVoxel.voxelVariantNamespace,

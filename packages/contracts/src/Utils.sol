@@ -68,6 +68,10 @@ function getOppositeDirection(BlockDirection direction) pure returns (BlockDirec
   }
 }
 
+function positionDatatoVoxelCoord(PositionData memory positionData) pure returns (VoxelCoord memory) {
+  return VoxelCoord(positionData.x, positionData.y, positionData.z);
+}
+
 function getVoxelVariant(
   address world,
   bytes16 voxelTypeNamespace,

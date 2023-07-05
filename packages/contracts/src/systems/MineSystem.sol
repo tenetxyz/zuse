@@ -88,6 +88,9 @@ contract MineSystem is System {
     // Run voxel interaction logic
     IWorld(_world()).tenet_VoxInteractSys_runInteractionSystems(airEntity);
 
+    // Run gravity logic
+    IWorld(_world()).tenet_GravitySystem_runGravity(airEntity);
+
     return voxelToMine;
   }
 

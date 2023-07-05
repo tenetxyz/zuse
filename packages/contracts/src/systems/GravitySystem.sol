@@ -12,11 +12,6 @@ import { IWorld } from "../codegen/world/IWorld.sol";
 import { EMPTY_NAMESPACE, EMPTY_ID, TENET_NAMESPACE } from "../Constants.sol";
 
 contract GravitySystem is System {
-  // function checkIfShouldFall(VoxelVariantsData memory voxelTop, VoxelVariantsData voxelBottom) public returns (bool) {
-  //   // check if the mass of the voxel is greater than the mass of the voxel below it
-  //   return voxelTop.mass > voxelBottom.mass;
-  // }
-
   function runGravity(bytes32 entity) public {
     PositionData memory currentPosition = Position.get(entity);
     VoxelTypeData memory currentVoxelTypeData = VoxelType.get(entity);

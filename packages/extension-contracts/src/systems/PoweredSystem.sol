@@ -16,7 +16,11 @@ contract PoweredSystem is System {
     bytes16 callerNamespace = getCallerNamespace(_msgSender());
 
     if (!entityIsPowered(entity, callerNamespace)) {
-      Powered.set(callerNamespace, entity, PoweredData({ isActive: false, direction: BlockDirection.None }));
+      Powered.set(
+        callerNamespace,
+        entity,
+        PoweredData({ isActive: false, direction: BlockDirection.None, hasValue: true })
+      );
     }
 
     return Powered.get(callerNamespace, entity);
@@ -29,7 +33,11 @@ contract PoweredSystem is System {
       !entityIsSignal(entity, callerNamespace) &&
       !entityIsSignalSource(entity, callerNamespace)
     ) {
-      Powered.set(callerNamespace, entity, PoweredData({ isActive: false, direction: BlockDirection.None }));
+      Powered.set(
+        callerNamespace,
+        entity,
+        PoweredData({ isActive: false, direction: BlockDirection.None, hasValue: true })
+      );
     }
   }
 

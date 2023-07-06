@@ -4,7 +4,7 @@ import { resolveTableId } from "@latticexyz/config";
 const KeysInTableModule_ADDRESS = "0xCf7Ed3AccA5a467e9e704C703E8D87F634fB0Fc9";
 
 export default mudConfig({
-  namespace: "tenet", // TODO: Make different namespace once we have non-root modules working
+  namespace: "extension",
   enums: {
     BlockDirection: ["None", "Up", "Down", "North", "South", "East", "West"],
   },
@@ -17,6 +17,7 @@ export default mudConfig({
       schema: {
         isActive: "bool",
         direction: "BlockDirection",
+        hasValue: "bool", // TODO: Remove this once we can install non-root modules
       },
     },
     SignalSource: {
@@ -26,6 +27,7 @@ export default mudConfig({
       },
       schema: {
         isNatural: "bool",
+        hasValue: "bool", // TODO: Remove this once we can install non-root modules
       },
     },
     Powered: {
@@ -36,6 +38,7 @@ export default mudConfig({
       schema: {
         isActive: "bool",
         direction: "BlockDirection",
+        hasValue: "bool", // TODO: Remove this once we can install non-root modules
       },
     },
     InvertedSignal: {
@@ -46,33 +49,35 @@ export default mudConfig({
       schema: {
         isActive: "bool",
         direction: "BlockDirection",
+        hasValue: "bool", // TODO: Remove this once we can install non-root modules
       },
     },
   },
   modules: [
-    {
-      name: "KeysInTableModule",
-      address: KeysInTableModule_ADDRESS,
-      root: true,
-      args: [resolveTableId("Signal")],
-    },
-    {
-      name: "KeysInTableModule",
-      address: KeysInTableModule_ADDRESS,
-      root: true,
-      args: [resolveTableId("SignalSource")],
-    },
-    {
-      name: "KeysInTableModule",
-      address: KeysInTableModule_ADDRESS,
-      root: true,
-      args: [resolveTableId("Powered")],
-    },
-    {
-      name: "KeysInTableModule",
-      address: KeysInTableModule_ADDRESS,
-      root: true,
-      args: [resolveTableId("InvertedSignal")],
-    },
+    // TODO: Re-enable when we have a way to install non-root modules
+    // {
+    //   name: "KeysInTableModule",
+    //   address: KeysInTableModule_ADDRESS,
+    //   root: true,
+    //   args: [resolveTableId("Signal")],
+    // },
+    // {
+    //   name: "KeysInTableModule",
+    //   address: KeysInTableModule_ADDRESS,
+    //   root: true,
+    //   args: [resolveTableId("SignalSource")],
+    // },
+    // {
+    //   name: "KeysInTableModule",
+    //   address: KeysInTableModule_ADDRESS,
+    //   root: true,
+    //   args: [resolveTableId("Powered")],
+    // },
+    // {
+    //   name: "KeysInTableModule",
+    //   address: KeysInTableModule_ADDRESS,
+    //   root: true,
+    //   args: [resolveTableId("InvertedSignal")],
+    // },
   ],
 });

@@ -20,18 +20,11 @@ import {
   UpdateType,
 } from "@latticexyz/recs";
 import { to64CharAddress } from "../../../utils/entity";
-import { Sounds } from "./Sounds";
-import { VoxelTypeStore, VoxelTypeStoreFilters } from "./VoxelTypeStore";
 import { Inventory } from "./Inventory";
-import { InventoryTab, TabRadioSelector } from "./TabRadioSelector";
-import RegisterCreation, { RegisterCreationFormData } from "./RegisterCreation";
 import { Layers } from "../../../types";
-import CreationStore, { CreationStoreFilters } from "./CreationStore";
 import { entityToVoxelType, voxelTypeToEntity, voxelTypeDataKeyToVoxelVariantDataKey } from "../../noa/types";
-import { CreativeInventorySearch } from "../../../utils/useVoxelTypeSearch";
 import { firstFreeInventoryIndex } from "../../noa/systems/createInventoryIndexSystem";
 import { StatusHud } from "./StatusHud";
-import ClassifierStore, { ClassifierStoreFilters } from "./ClassifierStore";
 
 // This gives us 36 inventory slots. As of now there are 34 types of VoxelTypes, so it should fit.
 export const INVENTORY_WIDTH = 9;
@@ -125,7 +118,6 @@ export function registerInventoryHud() {
       } = layers;
 
       const [holdingVoxelType, setHoldingVoxelType] = useState<Entity | undefined>();
-      const [selectedTab, setSelectedTab] = React.useState<InventoryTab>(InventoryTab.INVENTORY);
 
       useEffect(() => {
         if (!show) setHoldingVoxelType(undefined);
@@ -143,7 +135,7 @@ export function registerInventoryHud() {
       }, [holdingVoxelType]);
 
       const onSlotClick = (slotIdx: number, event: React.MouseEvent<HTMLDivElement>) => {
-        if (selectedTab === InventoryTab.INVENTORY && event.shiftKey) {
+        if (event.shiftKey) {
           transferItemToHotbarOrInventory(slotIdx);
         } else {
           moveVoxelType(slotIdx);
@@ -262,70 +254,6 @@ export function registerInventoryHud() {
         </BottomBar>
       );
 
-      // This state is hoisted up to this component so that the state is not lost when leaving the inventory to select voxels
-      const [creativeInventoryFilters, setCreativeInventoryFilters] = useState<VoxelTypeStoreFilters>({
-        query: "",
-      });
-      const [registerCreationFormData, setRegisterCreationFormData] = useState<RegisterCreationFormData>({
-        name: "",
-        description: "",
-      });
-      const [creationStoreFilters, setCreationStoreFilters] = useState<CreationStoreFilters>({
-        search: "", // TODO: rename to query
-        isMyCreation: false,
-      });
-      const [classifierStoreFilters, setClassifierStoreFilters] = useState<ClassifierStoreFilters>({
-        classifierQuery: "",
-        creationFilter: {
-          search: "",
-          isMyCreation: true,
-        },
-      });
-
-      const getPageForSelectedTab = () => {
-        switch (selectedTab) {
-          case InventoryTab.INVENTORY:
-            return (
-              <Inventory
-                layers={layers}
-                craftingSideLength={craftingSideLength}
-                holdingVoxelType={holdingVoxelType}
-                setHoldingVoxelType={setHoldingVoxelType}
-                Slots={Slots}
-              />
-            );
-          case InventoryTab.CREATIVE:
-            return (
-              <VoxelTypeStore
-                layers={layers}
-                filters={creativeInventoryFilters}
-                setFilters={setCreativeInventoryFilters}
-              />
-            );
-          case InventoryTab.REGISTER_CREATION:
-            return (
-              <RegisterCreation
-                layers={layers}
-                formData={registerCreationFormData}
-                setFormData={setRegisterCreationFormData}
-              />
-            );
-          case InventoryTab.CREATION_STORE:
-            return (
-              <CreationStore layers={layers} filters={creationStoreFilters} setFilters={setCreationStoreFilters} />
-            );
-          case InventoryTab.CLASSIFIER_STORE:
-            return (
-              <ClassifierStore
-                layers={layers}
-                filters={classifierStoreFilters}
-                setFilters={setClassifierStoreFilters}
-              />
-            );
-        }
-      };
-      const SelectedTab = getPageForSelectedTab();
-
       const InventoryWrapper = (
         <Absolute>
           <Center>
@@ -336,8 +264,13 @@ export function registerInventoryHud() {
             />
             <AbsoluteBorder borderColor={"#999999"} borderWidth={3}>
               <InventoryContainer>
-                <TabRadioSelector selectedTab={selectedTab} setSelectedTab={setSelectedTab} />
-                {SelectedTab}
+                <Inventory
+                  layers={layers}
+                  craftingSideLength={craftingSideLength}
+                  holdingVoxelType={holdingVoxelType}
+                  setHoldingVoxelType={setHoldingVoxelType}
+                  Slots={Slots}
+                />
               </InventoryContainer>
             </AbsoluteBorder>
           </Center>

@@ -32,7 +32,6 @@ export interface VoxelTypeDesc {
 
 export const VoxelTypeStore: React.FC<Props> = ({ layers, filters, setFilters }) => {
   const {
-    components: { VoxelTypeRegistry },
     contractComponents: { OwnedBy, VoxelType },
     api: { giftVoxel },
     network: { connectedAddress },

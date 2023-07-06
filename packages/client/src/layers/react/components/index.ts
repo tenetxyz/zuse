@@ -9,6 +9,7 @@ import { registerToast } from "./Toast";
 import { registerAdminPanel } from "./AdminPanel";
 import { registerPersistentNotifications } from "./PersistentNotification";
 import { clearTenetComponentRenderer } from "../engine/components/TenetComponentRenderer";
+import { registerTenetSidebar } from "../TenetSidebar";
 export * from "./common";
 
 export function registerUIComponents() {
@@ -25,4 +26,5 @@ export function registerUIComponents() {
 
   clearTenetComponentRenderer();
   registerAdminPanel();
+  registerTenetSidebar();
 }

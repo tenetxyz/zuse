@@ -93,9 +93,15 @@ contract MineSystem is System {
     bytes32[] memory entitiesAtPosition = getEntitiesAtCoord(coord);
     for (uint256 i = 0; i < entitiesAtPosition.length; i++) {
       bytes32 entity = entitiesAtPosition[i];
-      Position.deleteRecord(entity);
-      VoxelType.deleteRecord(entity);
-      // TODO: we need to clear all the other components
+
+      VoxelTypeData memory voxelTypeData = VoxelType.get(entity);
+      mine(
+        coord,
+        voxelTypeData.voxelTypeNamespace,
+        voxelTypeData.voxelTypeId,
+        voxelTypeData.voxelVariantNamespace,
+        voxelTypeData.voxelVariantId
+      );
     }
   }
 }

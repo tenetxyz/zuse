@@ -1,4 +1,14 @@
-import { Color3, Color4, CreateBox, Mesh, MeshBuilder, Nullable, StandardMaterial, Vector3 } from "@babylonjs/core";
+import {
+  Color3,
+  Color4,
+  CreateBox,
+  Mesh,
+  MeshBuilder,
+  Nullable,
+  SceneLoader,
+  StandardMaterial,
+  Vector3,
+} from "@babylonjs/core";
 import { VoxelCoord } from "@latticexyz/utils";
 import { Engine } from "noa-engine";
 import { Scene } from "@babylonjs/core/scene";

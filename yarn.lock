@@ -296,10 +296,20 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@babylonjs/core@npm:^5.30.0":
-  version: 5.57.1
-  resolution: "@babylonjs/core@npm:5.57.1"
-  checksum: 72b05ae5b04a26efa9f33a67ec873e8fd69b0c54c075418c38705c36680ac5bae1aeba2b61417e8a599e751be06ef52400f4cefff079fc916bdcc1aa23863127
+"@babylonjs/core@npm:^6.10.0":
+  version: 6.10.0
+  resolution: "@babylonjs/core@npm:6.10.0"
+  checksum: f627b5c2c12aad9c7c38adc996050c0d1e54e033aac678586e3186cda3da417444ac7d8e5430698ffb53e32f0dcde155fa678aade8c5fc81a4f735e6e4a72361
+  languageName: node
+  linkType: hard
+
+"@babylonjs/loaders@npm:^6.10.0":
+  version: 6.10.0
+  resolution: "@babylonjs/loaders@npm:6.10.0"
+  peerDependencies:
+    "@babylonjs/core": ^6.0.0
+    babylonjs-gltf2interface: ^6.0.0
+  checksum: 3813f61335ee7846520e669c8fc5fb580321a5c3acf513259d10ea62192c4eaf8726f7771672753dc61891122f4125b2a169c1dacd12b3d7f9751e09a12675c4
   languageName: node
   linkType: hard
 
@@ -2110,7 +2120,8 @@ box-intersect@fenomas/box-intersect:
   version: 0.0.0-use.local
   resolution: "client@workspace:packages/client"
   dependencies:
-    "@babylonjs/core": ^5.30.0
+    "@babylonjs/core": ^6.10.0
+    "@babylonjs/loaders": ^6.10.0
     "@ethersproject/providers": ^5.7.2
     "@latticexyz/common": "link:../../../mud/packages/common"
     "@latticexyz/dev-tools": "link:../../../mud/packages/dev-tools"

@@ -2,15 +2,14 @@ import { DynamicTexture, Mesh, MeshBuilder, StandardMaterial } from "@babylonjs/
 import { VoxelCoord } from "@latticexyz/utils";
 import { Engine } from "noa-engine";
 
-const textureLength = 1024; // this means: that one block is subdivided into 1024 subpixels
+const textureLength = 1024 * 4; // this means: that one block is subdivided into 1024 subpixels
 
 // These constants are for us to predict the size of the background
 // It's important for us to use a monospace font so we can simply multiply the width of a character by the number of characters
-const fontSize = 100;
+const fontSize = 100 * 3;
 const charHeight = fontSize;
-const charWidth = 70; // I guessed this number. It seems to work well
 
-const backgroundPadding = 30;
+const backgroundPadding = 30 * 4;
 
 // Create the dynamic texture
 export const renderFloatingTextAboveCoord = (coord: VoxelCoord, noa: Engine, text: string) => {
@@ -26,7 +25,7 @@ export const renderFloatingTextAboveCoord = (coord: VoxelCoord, noa: Engine, tex
 
   // 2) calculate the size of the background
   const textureContext = dynamicTexture.getContext();
-  textureContext.font = `bold ${fontSize}px monospace`;
+  textureContext.font = `bold ${fontSize}px Lattice Pixel`;
   const longestLineWidth = textureContext.measureText(longestLine).width;
   const totalLineHeight = numLines * charHeight;
 
@@ -53,11 +52,12 @@ export const renderFloatingTextAboveCoord = (coord: VoxelCoord, noa: Engine, tex
       charHeight * (i + 1) + backgroundPadding / 2
     );
   }
+  // dynamicTexture.scale(1.5);
   dynamicTexture.update();
 
   // 5) Write the texture to the plane
   // Create a plane and apply the dynamic texture using MeshBuilder
-  const plane = MeshBuilder.CreatePlane("plane", { width: 1, height: 1 }, scene);
+  const plane = MeshBuilder.CreatePlane("plane", { width: 1.5, height: 1.5 }, scene);
   const material = new StandardMaterial("Mat", scene);
   material.diffuseTexture = dynamicTexture;
   plane.material = material;

@@ -292,8 +292,8 @@ export function createNoaLayer(network: NetworkLayer) {
       showCrafting: Boolean(open && crafting),
     });
   }
-  const disableOrEnableInputs = (open: boolean | undefined) => {
-    if (open) {
+  function disableOrEnableInputs(isUiOpen: boolean | undefined) {
+    if (isUiOpen) {
       // disable movement when inventory is open
       // https://github.com/fenomas/noa/issues/61
       noa.entities.removeComponent(noa.playerEntity, noa.ents.names.receivesInputs);
@@ -307,7 +307,7 @@ export function createNoaLayer(network: NetworkLayer) {
       noa.inputs.bind("admin-panel", "-");
       noa.entities.getMovement(noa.playerEntity).isPlayerSlowedToAStop = false;
     }
-  };
+  }
   const isFocusedOnInputElement = () => {
     const activeElement = document.activeElement;
     return activeElement && ["INPUT", "TEXTAREA"].includes(activeElement.tagName);
@@ -449,6 +449,7 @@ export function createNoaLayer(network: NetworkLayer) {
       teleport,
       teleportRandom,
       toggleInventory,
+      disableOrEnableInputs,
       togglePlugins,
       placeSelectedVoxelType,
       getCurrentChunk,

@@ -9,17 +9,19 @@ import { Absolute, AbsoluteBorder, Background, Center } from "./components";
 import styled from "styled-components";
 import ClassifierStore from "./components/ClassifierStore";
 
+export const SIDEBAR_BACKGROUND_COLOR = "#353535";
 export function registerTenetSidebar() {
   registerTenetComponent({
-    rowStart: 2,
-    rowEnd: 11,
+    rowStart: 1,
+    rowEnd: 12,
     columnStart: 1,
-    columnEnd: 8,
+    columnEnd: 12,
     Component: ({ layers }) => {
       const {
         noa: {
           components: { UI },
           SingletonEntity,
+          noa,
         },
         network: {
           contractComponents: { VoxelTypeRegistry },
@@ -86,19 +88,18 @@ export function registerTenetSidebar() {
 
       return (
         // "pointerEvents: all" is needed so when we click on the admin panel, we don't gain focus on the noa canvas
-        <div className="float-left relative z-50 w-full h-full cursor-normal bg-black" style={{ pointerEvents: "all" }}>
-          {/* {selectedTab !== InventoryTab.NONE && (
+        <div className="h-full select-none" style={{ pointerEvents: "all" }}>
+          {selectedTab !== InventoryTab.NONE && (
             <Background
               onClick={() => {
                 setSelectedTab(InventoryTab.NONE);
+                noa.container.setPointerLock(true);
               }}
             />
-          )} */}
-          <div className="flex flex-row w-full h-full">
-            <TabRadioSelector selectedTab={selectedTab} setSelectedTab={setSelectedTab} />
-            {/* <div className="w-full bg-lightgray grid grid-cols-2 justify-center items-center gap-10 p-20 z-11"> */}
-            {SelectedTab}
-            {/* </div> */}
+          )}
+          <div className="flex flex-row float-left relative z-50 h-[80%] mt-[5%]">
+            <TabRadioSelector layers={layers} selectedTab={selectedTab} setSelectedTab={setSelectedTab} />
+            <div className={`bg-[${SIDEBAR_BACKGROUND_COLOR}]`}>{SelectedTab}</div>
           </div>
         </div>
       );

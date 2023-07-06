@@ -7,6 +7,7 @@ import styled from "styled-components";
 import { GridConfiguration, UIComponent } from "../types";
 import { useObservableValue } from "@latticexyz/react";
 import { Layers } from "../../../../types";
+import { TenetComponentRenderer } from "./TenetComponentRenderer";
 
 const UIGrid = styled.div`
   display: grid;
@@ -76,6 +77,7 @@ export const ComponentRenderer: React.FC = observer(() => {
           );
         })
       )}
+      {<TenetComponentRenderer layers={layers} />}
     </UIGrid>
   );
 });

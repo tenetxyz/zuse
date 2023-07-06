@@ -1,24 +1,23 @@
-import React, { useEffect } from "react";
-import { registerUIComponent } from "../engine";
-import { combineLatest, concat, map, of } from "rxjs";
-import styled from "styled-components";
-import { CloseableContainer } from "./common";
 import FileUpload from "../../../utils/components/FileUpload";
+import { registerTenetComponent } from "../engine/components/TenetComponentRenderer";
+import { useComponentValue } from "@latticexyz/react";
 
 export function registerAdminPanel() {
-  registerUIComponent(
-    "AdminPanel",
-    {
-      rowStart: 2,
-      rowEnd: 11,
-      colStart: 1,
-      colEnd: 4,
-    },
-    (layers) => layers.noa.components.UI.update$.pipe(map((e) => ({ layers, show: e.value[0]?.showAdminPanel }))),
-    ({ layers, show }) => {
+  registerTenetComponent({
+    rowStart: 2,
+    rowEnd: 11,
+    columnStart: 1,
+    columnEnd: 4,
+    Component: ({ layers }) => {
       const {
-        components: { VoxelTypeRegistry },
-      } = layers.network;
+        noa: {
+          components: { UI },
+          SingletonEntity,
+        },
+        network: {
+          contractComponents: { VoxelTypeRegistry },
+        },
+      } = layers;
 
       const downloadVoxels = () => {
         const voxelPrototype = componentToJson(VoxelTypeRegistry);
@@ -64,7 +63,8 @@ export function registerAdminPanel() {
         link.remove();
       };
 
-      return show ? (
+      const isShown = useComponentValue(UI, SingletonEntity)?.showAdminPanel;
+      return isShown ? (
         // "pointerEvents: all" is needed so when we click on the admin panel, we don't gain focus on the noa canvas
         <div className="relative z-50 w-full h-full bg-slate-100 p-10 text-white" style={{ pointerEvents: "all" }}>
           <p className="text-2xl">Admin Panel</p>
@@ -74,6 +74,6 @@ export function registerAdminPanel() {
           <FileUpload buttonText={"Upload Voxels"} onFileUpload={onImportVoxel} />
         </div>
       ) : null;
-    }
-  );
+    },
+  });
 }

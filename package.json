@@ -39,8 +39,6 @@
   },
   "packageManager": "yarn@3.6.1",
   "dependencies": {
-    "@grpc/grpc-js": "^1.8.17",
-    "@protobuf-ts/runtime": "^2.9.0",
-    "google-protobuf": "^3.21.2"
+    "@protobuf-ts/runtime": "^2.9.0"
   }
 }

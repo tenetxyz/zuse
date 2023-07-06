@@ -2,7 +2,10 @@
 pragma solidity >=0.8.0;
 import { IWorld } from "../codegen/world/IWorld.sol";
 import { getAddressById, addressToEntity } from "solecs/utils.sol";
-import { AirID, GrassID, DirtID, BedrockID } from "../prototypes/Voxels.sol";
+import { AirID } from "./voxels/AirSystem.sol";
+import { GrassID } from "./voxels/GrassSystem.sol";
+import { DirtID } from "./voxels/DirtSystem.sol";
+import { BedrockID } from "./voxels/BedrockSystem.sol";
 import { VoxelCoord, VoxelVariantsKey } from "../Types.sol";
 import { System } from "@latticexyz/world/src/System.sol";
 

@@ -2,18 +2,37 @@
 pragma solidity >=0.8.0;
 
 import { System } from "@latticexyz/world/src/System.sol";
-import { Signal, InvertedSignal, SignalData, InvertedSignalData, SignalTableId, InvertedSignalTableId, SignalSource, SignalSourceTableId, PoweredData, Powered } from "../codegen/Tables.sol";
+
+import { IWorld } from "../../../src/codegen/world/IWorld.sol";
+
+import { Signal, InvertedSignal, SignalData, InvertedSignalData, SignalTableId, InvertedSignalTableId, SignalSource, SignalSourceTableId, PoweredData, Powered } from "../../codegen/Tables.sol";
 import { SystemRegistry } from "@latticexyz/world/src/modules/core/tables/SystemRegistry.sol";
 import { ResourceSelector } from "@latticexyz/world/src/ResourceSelector.sol";
-import { BlockDirection } from "../codegen/Types.sol";
+import { BlockDirection } from "../../codegen/Types.sol";
 import { PositionData } from "@tenetxyz/contracts/src/codegen/tables/Position.sol";
 import { getCallerNamespace } from "@tenetxyz/contracts/src/SharedUtils.sol";
-import { calculateBlockDirection, getOppositeDirection, getEntityPositionStrict, entityIsSignal, entityIsInvertedSignal, entityIsPowered, entityIsSignalSource } from "../Utils.sol";
-import { SignalOffID, SignalOnID } from "../prototypes/Voxels.sol";
-import { VoxelVariantsKey } from "../types.sol";
-import { EXTENSION_NAMESPACE } from "../Constants.sol";
+import { registerExtension, registerVoxelType, calculateBlockDirection, getOppositeDirection, getEntityPositionStrict, entityIsSignal, entityIsInvertedSignal, entityIsPowered, entityIsSignalSource } from "../../Utils.sol";
+import { SignalOffID, SignalOnID, SignalOnTexture } from "./SignalSystem.sol";
+import { VoxelVariantsKey } from "../../Types.sol";
+import { EXTENSION_NAMESPACE } from "../../Constants.sol";
+
+bytes32 constant InvertedSignalID = bytes32(keccak256("invertedsignal"));
 
 contract InvertedSignalSystem is System {
+  function registerInvertedSignalVoxel() public {
+    address world = _world();
+
+    registerVoxelType(
+      world,
+      "Inverted Signal",
+      InvertedSignalID,
+      SignalOnTexture,
+      IWorld(world).extension_InvertedSignalSy_invertedSignalVariantSelector.selector
+    );
+
+    registerExtension(world, "InvertedSignalSystem", IWorld(world).extension_InvertedSignalSy_eventHandler.selector);
+  }
+
   function invertedSignalVariantSelector(bytes32 entity) public returns (VoxelVariantsKey memory) {
     InvertedSignalData memory invertedSignalData = getOrCreateInvertedSignal(entity);
     if (invertedSignalData.isActive) {

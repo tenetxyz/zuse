@@ -5,7 +5,11 @@ pragma solidity >=0.8.0;
 //import { Perlin } from "./Perlin.sol";
 import { ABDKMath64x64 as Math } from "../libraries/ABDKMath64x64.sol";
 import { Biome, STRUCTURE_CHUNK, STRUCTURE_CHUNK_CENTER } from "../Constants.sol";
-import { AirID, GrassID, DirtID, BedrockID } from "../prototypes/Voxels.sol";
+import { AirID } from "./voxels/AirSystem.sol";
+import { GrassID } from "./voxels/GrassSystem.sol";
+import { DirtID } from "./voxels/DirtSystem.sol";
+import { BedrockID } from "./voxels/BedrockSystem.sol";
+
 import { VoxelCoord, Tuple, VoxelVariantsKey } from "../Types.sol";
 import { div } from "../Utils.sol";
 import { System } from "@latticexyz/world/src/System.sol";

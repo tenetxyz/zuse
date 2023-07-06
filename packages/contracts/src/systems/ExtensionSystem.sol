@@ -15,16 +15,16 @@ import { console } from "forge-std/console.sol";
 
 import { SystemRegistry } from "@latticexyz/world/src/modules/core/tables/SystemRegistry.sol";
 import { ResourceSelector } from "@latticexyz/world/src/ResourceSelector.sol";
+import { getCallerNamespace } from "../SharedUtils.sol";
 
 contract ExtensionSystem is System {
   function registerExtension(bytes4 eventHandler, string memory extensionName) public {
-    (bytes16 namespace, , ) = FunctionSelectors.get(eventHandler);
-    require(NamespaceOwner.get(namespace) == _msgSender(), "Caller is not namespace owner");
+    bytes16 callerNamespace = getCallerNamespace(_msgSender());
 
     // check if extension is already registered
     // TODO: should we also store the name of the extension in the table?
     bytes32[] memory keyTuple = new bytes32[](2);
-    keyTuple[0] = bytes32((namespace));
+    keyTuple[0] = bytes32((callerNamespace));
     keyTuple[1] = bytes32((eventHandler));
     require(
       !hasKey(VoxelInteractionExtensionTableId, keyTuple),
@@ -32,6 +32,6 @@ contract ExtensionSystem is System {
     );
 
     // register extension
-    VoxelInteractionExtension.set(namespace, eventHandler, false);
+    VoxelInteractionExtension.set(callerNamespace, eventHandler, false);
   }
 }

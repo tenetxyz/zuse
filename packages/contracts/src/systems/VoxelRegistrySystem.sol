@@ -18,12 +18,11 @@ contract VoxelRegistrySystem is System {
     string memory previewVoxelImg,
     bytes4 voxelVariantSelector
   ) public {
-    (bytes16 namespace, , ) = FunctionSelectors.get(voxelVariantSelector);
-    require(NamespaceOwner.get(namespace) == _msgSender(), "Caller is not namespace owner");
+    bytes16 callerNamespace = getCallerNamespace(_msgSender());
 
     // check if voxel type is already registered
     bytes32[] memory keyTuple = new bytes32[](2);
-    keyTuple[0] = bytes32((namespace));
+    keyTuple[0] = bytes32((callerNamespace));
     keyTuple[1] = voxelTypeId;
 
     require(!hasKey(VoxelTypeRegistryTableId, keyTuple), "Voxel type already registered for this namespace");
@@ -32,7 +31,7 @@ contract VoxelRegistrySystem is System {
 
     // register voxel type
     VoxelTypeRegistry.set(
-      namespace,
+      callerNamespace,
       voxelTypeId,
       VoxelTypeRegistryData({
         voxelVariantSelector: voxelVariantSelector,

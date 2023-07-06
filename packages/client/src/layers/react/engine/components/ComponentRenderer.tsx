@@ -76,6 +76,9 @@ export const ComponentRenderer: React.FC = observer(() => {
           );
         })
       )}
+      {
+        <PerformantComponents>
+      }
     </UIGrid>
   );
 });

@@ -19,6 +19,7 @@ export function registerAdminPanel() {
       const {
         components: { VoxelTypeRegistry },
       } = layers.network;
+      console.log("admin panel rerender");
 
       const downloadVoxels = () => {
         const voxelPrototype = componentToJson(VoxelTypeRegistry);

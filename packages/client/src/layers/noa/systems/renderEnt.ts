@@ -37,9 +37,9 @@ export const renderEnt = (noaLayer: NoaLayer, voxelCoord: VoxelCoord) => {
 
       // TODO: we need to find a way to center the mesh around its local origin so all meshes appear at the specified voxelCoord
       // changing the absolutePosition of each mesh DOESN't work
-      // OKOKOKOKOKOK I have decided to just ask people to give an offset to the mesh so when it's spawned, it's spawned with that offset
+      // For now, we should just ask people to give an offset to the mesh so when it's spawned, it's spawned with that offset
       // This is because some players may want their mesh to be NOT be centered (e.g. a mirror may be closer to the wall)
-      // The downside is they have to spend more mental energy into figuring out this offset, but I couldn't figure it out :(
+      // The downside is they have to spend more time into figuring out this offset (since an offset of 0.5 isn't the same for each mesh rn - because meshes aren't centered)
       // console.log(mesh.position);
       // console.log(mesh.getAbsolutePivotPoint());
       // console.log(mesh.getPivotPoint());

@@ -1262,16 +1262,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@protobuf-ts/grpcweb-transport@npm:^2.9.0":
-  version: 2.9.0
-  resolution: "@protobuf-ts/grpcweb-transport@npm:2.9.0"
-  dependencies:
-    "@protobuf-ts/runtime": ^2.9.0
-    "@protobuf-ts/runtime-rpc": ^2.9.0
-  checksum: e9a8efee515f01a21f838f9894b7cd55cdfcd05ee13c526af2aeb5f4d9abfec7a3f275292a84e9277b91721d21c85bcbf97368d3cb7e8728d4ca5755c8e11438
-  languageName: node
-  linkType: hard
-
 "@protobuf-ts/plugin-framework@npm:^2.9.0":
   version: 2.9.0
   resolution: "@protobuf-ts/plugin-framework@npm:2.9.0"
@@ -2341,7 +2331,6 @@ box-intersect@fenomas/box-intersect:
     "@latticexyz/std-contracts": "link:../../../mud/packages/std-contracts"
     "@latticexyz/utils": "link:../../../mud/packages/utils"
     "@latticexyz/world": "link:../../../mud/packages/world"
-    "@protobuf-ts/grpcweb-transport": ^2.9.0
     "@tenetxyz/contracts": "workspace:*"
     "@types/gl-vec3": ^1.1.1
     "@types/react": ^18.2.6
@@ -3979,13 +3968,6 @@ box-intersect@fenomas/box-intersect:
   version: 1.0.4
   resolution: "grapheme-splitter@npm:1.0.4"
   checksum: 0c22ec54dee1b05cd480f78cf14f732cb5b108edc073572c4ec205df4cd63f30f8db8025afc5debc8835a8ddeacf648a1c7992fe3dcd6ad38f9a476d84906620
-  languageName: node
-  linkType: hard
-
-"grpc-web@npm:^1.4.2":
-  version: 1.4.2
-  resolution: "grpc-web@npm:1.4.2"
-  checksum: 624bb14bb3a5bcd5354cce6b4873b90b574a32227abdc29f241b2dbc81363492f49dcbd257a47963bdd8e61a49b69303bd03087f42d939d48148b4764bf2a2e6
   languageName: node
   linkType: hard
 
@@ -6084,9 +6066,7 @@ box-intersect@fenomas/box-intersect:
   version: 0.0.0-use.local
   resolution: "shard@workspace:packages/shard"
   dependencies:
-    "@protobuf-ts/grpcweb-transport": ^2.9.0
     "@protobuf-ts/plugin": ^2.9.0
-    grpc-web: ^1.4.2
     protoc-gen-grpc-web: ^1.4.2
   languageName: unknown
   linkType: soft

@@ -3,7 +3,7 @@
 // import { PlayerServiceClient } from "../codegen/player_grpc_web_pb.js";
 // import Shard from "../codegen/player_pb";
 // import GrpcWebFetchTransport from "@protobuf-ts/grpcweb-transport";
-import { GrpcWebFetchTransport } from "@protobuf-ts/grpcweb-transport";
+// import { GrpcWebFetchTransport } from "@protobuf-ts/grpcweb-transport";
 
 const url = "http://0.0.0.0:50051";
 // const channel = createChannel(url);
@@ -12,9 +12,9 @@ const url = "http://0.0.0.0:50051";
 // const client = new PlayerServiceClient(url);
 
 export function attackPlayer(attackerId: string, victimId: string, damage: number) {
-  let transport = new GrpcWebFetchTransport({
-    baseUrl: "http://localhost:3000",
-  });
+  // let transport = new GrpcWebFetchTransport({
+  //   baseUrl: "http://localhost:3000",
+  // });
   // // Create a new Attack object
   // const attack = {
   //   attackerId,

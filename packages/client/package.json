@@ -29,7 +29,6 @@
     "@latticexyz/std-contracts": "link:../../../mud/packages/std-contracts",
     "@latticexyz/utils": "link:../../../mud/packages/utils",
     "@latticexyz/world": "link:../../../mud/packages/world",
-    "@protobuf-ts/grpcweb-transport": "^2.9.0",
     "@tenetxyz/contracts": "workspace:*",
     "@wagmi/chains": "^0.2.22",
     "buffer-lite": "^1.0.0",

@@ -21,100 +21,106 @@ contract PostDeploy is Script {
     world.tenet_ExtensionInitSys_init();
     // Note: These have to be here instead of ExtensionInitSystem as they have be called from the deployer account
     // otherwise the msgSender is not the namespace owner
+    registerVoxelType(
+      "Sand",
+      SandID,
+      SandTexture,
+      world.tenet_ExtensionInitSys_sandVariantSelector.selector,
+      worldAddress
+    );
+    registerVoxelType(
+      "Log",
+      LogID,
+      LogTexture,
+      IWorld(world).tenet_ExtensionInitSys_logVariantSelector.selector,
+      worldAddress
+    );
+    registerVoxelType(
+      "Orange Flower",
+      OrangeFlowerID,
+      OrangeFlowerTexture,
+      IWorld(world).tenet_ExtensionInitSys_orangeFlowerVariantSelector.selector,
+      worldAddress
+    );
+    registerVoxelType(
+      "Signal",
+      SignalID,
+      SignalOffTexture,
+      IWorld(world).tenet_ExtensionInitSys_signalVariantSelector.selector,
+      worldAddress
+    );
+    registerVoxelType(
+      "Signal Source",
+      SignalSourceID,
+      SignalSourceTexture,
+      IWorld(world).tenet_ExtensionInitSys_signalSourceVariantSelector.selector,
+      worldAddress
+    );
+    registerVoxelType(
+      "Inverted Signal",
+      InvertedSignalID,
+      SignalOnTexture,
+      IWorld(world).tenet_ExtensionInitSys_invertedSignalVariantSelector.selector,
+      worldAddress
+    );
+
+    registerExtension(
+      "SignalSourceSystem",
+      IWorld(worldAddress).tenet_SignalSourceSyst_eventHandler.selector,
+      worldAddress
+    );
+    registerExtension("SignalSystem", IWorld(worldAddress).tenet_SignalSystem_eventHandler.selector, worldAddress);
+    // need to call registerExtension() in the world contract with PoweredSystem
+    registerExtension("PoweredSystem", IWorld(worldAddress).tenet_PoweredSystem_eventHandler.selector, worldAddress);
+    registerExtension(
+      "Inverted Signal System",
+      IWorld(worldAddress).tenet_InvertedSignalSy_eventHandler.selector,
+      worldAddress
+    );
+
+    registerClassifier(
+      "AND Gate",
+      "Classifies if this creation is an AND Gate",
+      IWorld(worldAddress).tenet_AndGateSystem_classify.selector,
+      worldAddress
+    );
+    vm.stopBroadcast();
+  }
+
+  function registerVoxelType(
+    string memory voxelTypeName,
+    bytes32 voxelTypeId,
+    string memory defaultTextureHash,
+    bytes4 variantSelector,
+    address worldAddress
+  ) private {
+    (bool success, bytes memory result) = worldAddress.call(
+      abi.encodeWithSignature(REGISTER_VOXEL_TYPE_SIG, voxelTypeName, voxelTypeId, defaultTextureHash, variantSelector)
+    );
+    require(success, string(abi.encodePacked("Failed to register voxelType: ", voxelTypeName)));
+  }
+
+  function registerExtension(string memory extensionName, bytes4 eventHandlerSelector, address worldAddress) private {
+    (bool success, bytes memory result) = worldAddress.call(
+      abi.encodeWithSignature("tenet_ExtensionSystem_registerExtension(bytes4)", eventHandlerSelector)
+    );
+    require(success, string(abi.encodePacked("Failed to register extension: ", extensionName)));
+  }
+
+  function registerClassifier(
+    string memory classifierName,
+    string memory classifierDescription,
+    bytes4 classifySelector,
+    address worldAddress
+  ) private {
     (bool success, bytes memory result) = worldAddress.call(
       abi.encodeWithSignature(
-        REGISTER_VOXEL_TYPE_SIG,
-        "Sand",
-        SandID,
-        SandTexture,
-        world.tenet_ExtensionInitSys_sandVariantSelector.selector
-      )
-    );
-    require(success, "Failed to register sand type");
-    (success, result) = worldAddress.call(
-      abi.encodeWithSignature(
-        REGISTER_VOXEL_TYPE_SIG,
-        "Log",
-        LogID,
-        LogTexture,
-        IWorld(world).tenet_ExtensionInitSys_logVariantSelector.selector
-      )
-    );
-    require(success, "Failed to register log type");
-    (success, result) = worldAddress.call(
-      abi.encodeWithSignature(
-        REGISTER_VOXEL_TYPE_SIG,
-        "Orange Flower",
-        OrangeFlowerID,
-        OrangeFlowerTexture,
-        IWorld(world).tenet_ExtensionInitSys_orangeFlowerVariantSelector.selector
-      )
-    );
-    require(success, "Failed to register orange flower type");
-    (success, result) = worldAddress.call(
-      abi.encodeWithSignature(
-        REGISTER_VOXEL_TYPE_SIG,
-        "Signal",
-        SignalID,
-        SignalOffTexture,
-        IWorld(world).tenet_ExtensionInitSys_signalVariantSelector.selector
-      )
-    );
-    require(success, "Failed to register signal type");
-    (success, result) = worldAddress.call(
-      abi.encodeWithSignature(
-        REGISTER_VOXEL_TYPE_SIG,
-        "Signal Source",
-        SignalSourceID,
-        SignalSourceTexture,
-        IWorld(world).tenet_ExtensionInitSys_signalSourceVariantSelector.selector
-      )
-    );
-    require(success, "Failed to register signal source type");
-    (success, result) = worldAddress.call(
-      abi.encodeWithSignature(
-        REGISTER_VOXEL_TYPE_SIG,
-        "Inverted Signal",
-        InvertedSignalID,
-        SignalOnTexture,
-        IWorld(world).tenet_ExtensionInitSys_invertedSignalVariantSelector.selector
-      )
-    );
-    require(success, "Failed to register signal type");
-    // need to call registerExtension() in the world contract with PoweredSystem
-    bytes4 signalSourceEventHandler = IWorld(worldAddress).tenet_SignalSourceSyst_eventHandler.selector;
-    bytes4 signalEventHandler = IWorld(worldAddress).tenet_SignalSystem_eventHandler.selector;
-    bytes4 poweredEventHandler = IWorld(worldAddress).tenet_PoweredSystem_eventHandler.selector;
-    bytes4 invertedSignalEventHandler = IWorld(worldAddress).tenet_InvertedSignalSy_eventHandler.selector;
-    // TODO: we should write a script to simplify this process (for devs writing for our platform) if this is long-term
-    (success, result) = worldAddress.call(
-      abi.encodeWithSignature("tenet_ExtensionSystem_registerExtension(bytes4)", signalSourceEventHandler)
-    );
-    require(success, "Failed to registerExtension SignalSourceSystem");
-    (success, result) = worldAddress.call(
-      abi.encodeWithSignature("tenet_ExtensionSystem_registerExtension(bytes4)", signalEventHandler)
-    );
-    require(success, "Failed to registerExtension SignalSystem");
-    (success, result) = worldAddress.call(
-      abi.encodeWithSignature("tenet_ExtensionSystem_registerExtension(bytes4)", poweredEventHandler)
-    );
-    require(success, "Failed to registerExtension PoweredSystem");
-    (success, result) = worldAddress.call(
-      abi.encodeWithSignature("tenet_ExtensionSystem_registerExtension(bytes4)", invertedSignalEventHandler)
-    );
-    require(success, "Failed to registerExtension InvertedSignalSystem");
-    bytes4 andGateClassifier = IWorld(worldAddress).tenet_AndGateSystem_classify.selector;
-    string memory andGateName = "AND Gate";
-    string memory andGateDescription = "Classifies if this creation is an AND Gate";
-    (success, result) = worldAddress.call(
-      abi.encodeWithSignature(
         "tenet_RegClassifierSys_registerClassifier(bytes4,string,string)",
-        andGateClassifier,
-        andGateName,
-        andGateDescription
+        classifySelector,
+        classifierName,
+        classifierDescription
       )
     );
-    require(success, "Failed to registerClassifier AndGateClassifierSystem");
-    vm.stopBroadcast();
+    require(success, string(abi.encodePacked("Failed to register classifier: ", classifierName)));
   }
 }

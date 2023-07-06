@@ -16,70 +16,74 @@ contract PostDeploy is Script {
     // ------------------ EXAMPLES ------------------
     // Call world init function
     IWorld world = IWorld(worldAddress);
-    world.tenet_ExtensionInitSys_init();
+    world.extension_ExtensionInitSys_init();
     // Note: These have to be here instead of ExtensionInitSystem as they have be called from the deployer account
     // otherwise the msgSender is not the namespace owner
     registerVoxelType(
       "Sand",
       SandID,
       SandTexture,
-      world.tenet_ExtensionInitSys_sandVariantSelector.selector,
+      world.extension_ExtensionInitSys_sandVariantSelector.selector,
       worldAddress
     );
     registerVoxelType(
       "Log",
       LogID,
       LogTexture,
-      IWorld(world).tenet_ExtensionInitSys_logVariantSelector.selector,
+      IWorld(world).extension_ExtensionInitSys_logVariantSelector.selector,
       worldAddress
     );
     registerVoxelType(
       "Orange Flower",
       OrangeFlowerID,
       OrangeFlowerTexture,
-      IWorld(world).tenet_ExtensionInitSys_orangeFlowerVariantSelector.selector,
+      IWorld(world).extension_ExtensionInitSys_orangeFlowerVariantSelector.selector,
       worldAddress
     );
     registerVoxelType(
       "Signal",
       SignalID,
       SignalOffTexture,
-      IWorld(world).tenet_ExtensionInitSys_signalVariantSelector.selector,
+      IWorld(world).extension_SignalSystem_signalVariantSelector.selector,
       worldAddress
     );
     registerVoxelType(
       "Signal Source",
       SignalSourceID,
       SignalSourceTexture,
-      IWorld(world).tenet_ExtensionInitSys_signalSourceVariantSelector.selector,
+      IWorld(world).extension_SignalSourceSyst_signalSourceVariantSelector.selector,
       worldAddress
     );
     registerVoxelType(
       "Inverted Signal",
       InvertedSignalID,
       SignalOnTexture,
-      IWorld(world).tenet_ExtensionInitSys_invertedSignalVariantSelector.selector,
+      IWorld(world).extension_InvertedSignalSy_invertedSignalVariantSelector.selector,
       worldAddress
     );
 
     registerExtension(
       "SignalSourceSystem",
-      IWorld(worldAddress).tenet_SignalSourceSyst_eventHandler.selector,
+      IWorld(worldAddress).extension_SignalSourceSyst_eventHandler.selector,
       worldAddress
     );
-    registerExtension("SignalSystem", IWorld(worldAddress).tenet_SignalSystem_eventHandler.selector, worldAddress);
+    registerExtension("SignalSystem", IWorld(worldAddress).extension_SignalSystem_eventHandler.selector, worldAddress);
     // need to call registerExtension() in the world contract with PoweredSystem
-    registerExtension("PoweredSystem", IWorld(worldAddress).tenet_PoweredSystem_eventHandler.selector, worldAddress);
+    registerExtension(
+      "PoweredSystem",
+      IWorld(worldAddress).extension_PoweredSystem_eventHandler.selector,
+      worldAddress
+    );
     registerExtension(
       "Inverted Signal System",
-      IWorld(worldAddress).tenet_InvertedSignalSy_eventHandler.selector,
+      IWorld(worldAddress).extension_InvertedSignalSy_eventHandler.selector,
       worldAddress
     );
 
     registerClassifier(
       "AND Gate",
       "Classifies if this creation is an AND Gate",
-      IWorld(worldAddress).tenet_AndGateSystem_classify.selector,
+      IWorld(worldAddress).extension_AndGateSystem_classify.selector,
       worldAddress
     );
     vm.stopBroadcast();

@@ -10,17 +10,26 @@ import { BlockDirection } from "../codegen/Types.sol";
 import { PositionData } from "@tenetxyz/contracts/src/codegen/tables/Position.sol";
 import { getCallerNamespace } from "@tenetxyz/contracts/src/SharedUtils.sol";
 import { calculateBlockDirection, getOppositeDirection, getEntityPositionStrict, entityIsSignal, entityIsSignalSource, entityIsInvertedSignal } from "../Utils.sol";
+import { SignalSourceID } from "../prototypes/Voxels.sol";
+import { VoxelVariantsKey } from "../types.sol";
+import { EXTENSION_NAMESPACE } from "../Constants.sol";
 
 contract SignalSourceSystem is System {
+  function signalSourceVariantSelector(bytes32 entity) public returns (VoxelVariantsKey memory) {
+    getOrCreateSignalSource(entity);
+    return VoxelVariantsKey({ voxelVariantNamespace: EXTENSION_NAMESPACE, voxelVariantId: SignalSourceID });
+  }
+
   function getOrCreateSignalSource(bytes32 entity) public returns (bool) {
     bytes16 callerNamespace = getCallerNamespace(_msgSender());
 
     if (!entityIsSignalSource(entity, callerNamespace)) {
       bool isNatural = true;
-      SignalSource.set(callerNamespace, entity, isNatural);
+      bool hasValue = true;
+      SignalSource.set(callerNamespace, entity, isNatural, hasValue);
     }
 
-    return SignalSource.get(callerNamespace, entity);
+    return SignalSource.get(callerNamespace, entity).isNatural;
   }
 
   function updateSignalSource(
@@ -35,7 +44,7 @@ contract SignalSourceSystem is System {
     bool isSignal = entityIsSignal(compareEntity, callerNamespace);
     bool isInvertedSignal = entityIsInvertedSignal(compareEntity, callerNamespace);
     if (isSignal || isInvertedSignal) return changedEntity; // these two cannot be a signal source
-    bool isNaturalSignalSource = SignalSource.get(callerNamespace, signalSourceEntity);
+    bool isNaturalSignalSource = SignalSource.get(callerNamespace, signalSourceEntity).isNatural;
 
     bool compareIsActiveInvertedSignal = entityIsInvertedSignal(compareEntity, callerNamespace);
     if (compareIsActiveInvertedSignal) {
@@ -56,7 +65,8 @@ contract SignalSourceSystem is System {
       // then it should be a signal source
       if (compareIsActiveInvertedSignal) {
         bool isNatural = false;
-        SignalSource.set(callerNamespace, signalSourceEntity, isNatural);
+        bool hasValue = true;
+        SignalSource.set(callerNamespace, signalSourceEntity, isNatural, hasValue);
         changedEntity = true;
       }
     }

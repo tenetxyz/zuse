@@ -9,8 +9,20 @@ import { BlockDirection } from "../codegen/Types.sol";
 import { PositionData } from "@tenetxyz/contracts/src/codegen/tables/Position.sol";
 import { getCallerNamespace } from "@tenetxyz/contracts/src/SharedUtils.sol";
 import { calculateBlockDirection, getOppositeDirection, getEntityPositionStrict, entityIsSignal, entityIsInvertedSignal, entityIsPowered, entityIsSignalSource } from "../Utils.sol";
+import { SignalOffID, SignalOnID } from "../prototypes/Voxels.sol";
+import { VoxelVariantsKey } from "../types.sol";
+import { EXTENSION_NAMESPACE } from "../Constants.sol";
 
 contract InvertedSignalSystem is System {
+  function invertedSignalVariantSelector(bytes32 entity) public returns (VoxelVariantsKey memory) {
+    InvertedSignalData memory invertedSignalData = getOrCreateInvertedSignal(entity);
+    if (invertedSignalData.isActive) {
+      return VoxelVariantsKey({ voxelVariantNamespace: EXTENSION_NAMESPACE, voxelVariantId: SignalOnID });
+    } else {
+      return VoxelVariantsKey({ voxelVariantNamespace: EXTENSION_NAMESPACE, voxelVariantId: SignalOffID });
+    }
+  }
+
   function getOrCreateInvertedSignal(bytes32 entity) public returns (InvertedSignalData memory) {
     bytes16 callerNamespace = getCallerNamespace(_msgSender());
 
@@ -18,7 +30,7 @@ contract InvertedSignalSystem is System {
       InvertedSignal.set(
         callerNamespace,
         entity,
-        InvertedSignalData({ isActive: true, direction: BlockDirection.None })
+        InvertedSignalData({ isActive: true, direction: BlockDirection.None, hasValue: true })
       );
     }
 

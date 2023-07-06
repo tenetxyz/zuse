@@ -13,7 +13,7 @@ const UIGrid = styled.div`
   display: grid;
   grid-template-columns: repeat(12, 8.33%);
   grid-template-rows: repeat(12, 8.33%);
-  position: absolute;
+  position: relative;
   left: 0;
   top: 0;
   height: 100vh;

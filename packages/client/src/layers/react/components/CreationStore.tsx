@@ -56,7 +56,7 @@ const CreationStore: React.FC<Props> = ({ layers, filters, setFilters }) => {
       <div className="flex flex-row">
         <input
           placeholder="Search"
-          className="bg-slate-700 p-1 ml-2 focus:outline-slate-700 border-1 border-solid mb-1 "
+          className="bg-white p-1 mb-5 focus:outline-slate-700 border-1 border-solid text-slate-800 rounded-md"
           value={filters.search}
           onChange={(e) => {
             setFilters({ ...filters, search: e.target.value });

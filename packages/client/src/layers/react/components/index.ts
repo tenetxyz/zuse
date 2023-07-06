@@ -25,6 +25,6 @@ export function registerUIComponents() {
   // registerPlugins();
 
   clearTenetComponentRenderer();
-  registerAdminPanel();
   registerTenetSidebar();
+  registerAdminPanel();
 }

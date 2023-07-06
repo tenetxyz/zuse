@@ -25,15 +25,10 @@ export const TabRadioSelector: React.FC<Props> = ({ layers, selectedTab, setSele
   } = layers;
   React.useEffect(() => {
     disableOrEnableInputs(selectedTab !== InventoryTab.NONE);
-  }, []);
+  }, [selectedTab]);
 
   return (
-    <div
-      className="p-2 text-xl"
-      style={{
-        backgroundColor: selectedTab === InventoryTab.NONE ? "transparent" : `${SIDEBAR_BACKGROUND_COLOR}`,
-      }}
-    >
+    <div className="p-2 text-xl">
       {Object.values(InventoryTab)
         .filter((tabName) => tabName !== InventoryTab.NONE)
         .map((tabName, idx) => {

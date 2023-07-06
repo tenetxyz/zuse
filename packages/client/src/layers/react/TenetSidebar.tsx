@@ -89,15 +89,21 @@ export function registerTenetSidebar() {
       return (
         // "pointerEvents: all" is needed so when we click on the admin panel, we don't gain focus on the noa canvas
         <div className="h-full select-none" style={{ pointerEvents: "all" }}>
-          {selectedTab !== InventoryTab.NONE && (
-            <Background
-              onClick={() => {
-                setSelectedTab(InventoryTab.NONE);
-                noa.container.setPointerLock(true);
-              }}
-            />
-          )}
-          <div className="flex flex-row float-left relative z-50 h-[80%] mt-[5%]">
+          <Background
+            onClick={() => {
+              setSelectedTab(InventoryTab.NONE);
+              noa.container.setPointerLock(true);
+            }}
+            style={{
+              backgroundColor: selectedTab === InventoryTab.NONE ? "transparent" : "rgba(0,0,0,0.2)",
+            }}
+          />
+          <div
+            className="flex flex-row float-left relative z-50 h-[80%] mt-[5%] pr-7 pt-7"
+            style={{
+              backgroundColor: selectedTab === InventoryTab.NONE ? "transparent" : `${SIDEBAR_BACKGROUND_COLOR}`,
+            }}
+          >
             <TabRadioSelector layers={layers} selectedTab={selectedTab} setSelectedTab={setSelectedTab} />
             <div className={`bg-[${SIDEBAR_BACKGROUND_COLOR}]`}>{SelectedTab}</div>
           </div>

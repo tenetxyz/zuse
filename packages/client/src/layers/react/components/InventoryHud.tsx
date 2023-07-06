@@ -35,7 +35,7 @@ export function registerInventoryHud() {
     "Inventory",
     {
       rowStart: 1,
-      rowEnd: 13, // NOTE: although the number of the rows in the grid is actually 12, here it needs to be 13 so it's centered on the screen
+      rowEnd: 13,
       colStart: 1,
       colEnd: 13,
     },

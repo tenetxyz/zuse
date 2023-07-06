@@ -89,9 +89,10 @@ export const VoxelTypeStore: React.FC<Props> = ({ layers, filters, setFilters })
   return (
     <div>
       <input
-        className="bg-slate-700 p-1 ml-2 focus:outline-slate-700 border-1 border-solid mb-1 "
+        className="bg-white p-1 mb-5 focus:outline-slate-700 border-1 border-solid text-slate-800 rounded-md"
         value={filters.query}
         onChange={(e) => setFilters({ ...filters, query: e.target.value })}
+        placeholder="Search"
       />
       <ActionBarWrapper>{[...range(NUM_COLS * NUM_ROWS)].map((i) => Slots[i])}</ActionBarWrapper>
     </div>

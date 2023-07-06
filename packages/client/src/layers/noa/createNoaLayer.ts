@@ -302,7 +302,7 @@ export function createNoaLayer(network: NetworkLayer) {
       const a = noa.entities.getMovement(noa.playerEntity);
       noa.entities.getMovement(noa.playerEntity).isPlayerSlowedToAStop = true; // stops the player's input from moving the player
     } else {
-      noa.entities.addComponent(noa.playerEntity, noa.ents.names.receivesInputs);
+      noa.entities.addComponentAgain(noa.playerEntity, "receivesInputs", noa.ents.names.receivesInputs);
       noa.inputs.bind("select-voxel", "V");
       noa.inputs.bind("admin-panel", "-");
       noa.entities.getMovement(noa.playerEntity).isPlayerSlowedToAStop = false;

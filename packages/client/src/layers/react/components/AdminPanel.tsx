@@ -4,21 +4,25 @@ import { combineLatest, concat, map, of } from "rxjs";
 import styled from "styled-components";
 import { CloseableContainer } from "./common";
 import FileUpload from "../../../utils/components/FileUpload";
+import { registerTenetComponent } from "../engine/components/TenetComponentRenderer";
+import { useComponentValue } from "@latticexyz/react";
+import { SingletonID } from "@latticexyz/network";
 
+// (layers) => layers.noa.components.UI.update$.pipe(map((e) => ({ layers, show: e.value[0]?.showAdminPanel }))),
 export function registerAdminPanel() {
-  registerUIComponent(
-    "AdminPanel",
-    {
-      rowStart: 2,
-      rowEnd: 11,
-      colStart: 1,
-      colEnd: 4,
-    },
-    (layers) => layers.noa.components.UI.update$.pipe(map((e) => ({ layers, show: e.value[0]?.showAdminPanel }))),
-    ({ layers, show }) => {
+  registerTenetComponent({
+    name: "AdminPanel",
+    gridRowStart: 2,
+    gridRowEnd: 11,
+    gridColumnStart: 1,
+    gridColumnEnd: 4,
+    Component: (layers) => {
       const {
-        components: { VoxelTypeRegistry },
-      } = layers.network;
+        components: { UI, VoxelTypeRegistry },
+        SingletonEntity,
+      } = layers.noa;
+
+      const show = useComponentValue(UI, SingletonEntity)?.showAdminPanel;
       console.log("admin panel rerender");
 
       const downloadVoxels = () => {
@@ -75,6 +79,6 @@ export function registerAdminPanel() {
           <FileUpload buttonText={"Upload Voxels"} onFileUpload={onImportVoxel} />
         </div>
       ) : null;
-    }
-  );
+    },
+  });
 }

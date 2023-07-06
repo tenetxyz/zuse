@@ -8,6 +8,7 @@ import { registerPlugins } from "./Plugins";
 import { registerToast } from "./Toast";
 import { registerAdminPanel } from "./AdminPanel";
 import { registerPersistentNotifications } from "./PersistentNotification";
+import { clearTenetComponentRenderer } from "../engine/components/TenetComponentRenderer";
 export * from "./common";
 
 export function registerUIComponents() {
@@ -18,8 +19,10 @@ export function registerUIComponents() {
   registerInventoryHud();
   registerSidebar();
   registerToast();
-  registerAdminPanel();
   registerPersistentNotifications();
   // TODO: Need to make sure plugin structure works with MUD2 before renabling
   // registerPlugins();
+
+  clearTenetComponentRenderer();
+  registerAdminPanel();
 }

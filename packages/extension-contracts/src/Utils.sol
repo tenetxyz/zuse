@@ -5,7 +5,7 @@ import { VoxelCoord } from "@tenetxyz/contracts/src/Types.sol";
 import { hasKey } from "@latticexyz/world/src/modules/keysintable/hasKey.sol";
 import { SignalTableId, SignalSourceTableId, PoweredTableId, InvertedSignalTableId } from "./codegen/Tables.sol";
 import { BlockDirection } from "./codegen/Types.sol";
-import { CLEAR_SIG, BUILD_SIG } from "@tenetxyz/contracts/src/constants.sol";
+import { CLEAR_COORD_SIG, BUILD_SIG } from "@tenetxyz/contracts/src/constants.sol";
 import { getUniqueEntity } from "@latticexyz/world/src/modules/uniqueentity/getUniqueEntity.sol";
 
 function entityIsSignal(bytes32 entity, bytes16 callerNamespace) view returns (bool) {
@@ -92,11 +92,11 @@ function getOppositeDirection(BlockDirection direction) pure returns (BlockDirec
 }
 
 function clearCoord(address worldAddress, VoxelCoord memory coord) {
-  (bool success, ) = worldAddress.call(abi.encodeWithSignature(CLEAR_SIG, coord));
+  (bool success, ) = worldAddress.call(abi.encodeWithSignature(CLEAR_COORD_SIG, coord));
   require(success, "Failed to clear voxel");
 }
 
 function build(address worldAddress, VoxelCoord memory coord, bytes32 entity) {
-  (bool success, ) = worldAddress.call(abi.encodeWithSignature(BUILD_SIG, coord, entity));
+  (bool success, ) = worldAddress.call(abi.encodeWithSignature(BUILD_SIG, entity, coord));
   require(success, "Failed to build voxel");
 }

@@ -21,13 +21,6 @@ contract AndGateSystem is System {
     (bytes32 in1, bytes32 in2, bytes32 out) = abi.decode(input, (bytes32, bytes32, bytes32));
     VoxelCoord memory in1Coord = getVoxelCoordStrict(in1);
     VoxelCoord memory in2Coord = getVoxelCoordStrict(in2);
-    // mine the coord so we can place power sources at it
-    clearCoord(worldAddress, in1Coord);
-    clearCoord(worldAddress, in2Coord);
-    // IWorld(_world()).tenet_MineSystem_mine(SignalSourceID, in1Coord);
-    // IWorld(_world()).tenet_MineSystem_mine(SignalSourceID, in2Coord);
-    IWorld(_world()).tenet_SignalSourceSyst_getOrCreateSignalSource(inEntity1);
-    IWorld(_world()).tenet_SignalSourceSyst_getOrCreateSignalSource(inEntity2);
     simulateLogic(worldAddress, in1Coord, in2Coord, out, 0, 0, 0);
     simulateLogic(worldAddress, in1Coord, in2Coord, out, 1, 0, 0);
     simulateLogic(worldAddress, in1Coord, in2Coord, out, 0, 1, 0);
@@ -44,12 +37,20 @@ contract AndGateSystem is System {
     uint8 in2State,
     uint8 outState
   ) private {
+    // mine the coord so we can place power sources at it
+    clearCoord(worldAddress, in1Coord);
+    clearCoord(worldAddress, in2Coord);
+
     if (in1State == 1) {
       build(worldAddress, in1Coord, inEntity1);
     }
     if (in2State == 1) {
       build(worldAddress, in2Coord, inEntity2);
     }
+
+    // TODO: test to see if I need these lines
+    // IWorld(_world()).tenet_SignalSourceSyst_getOrCreateSignalSource(inEntity1);
+    // IWorld(_world()).tenet_SignalSourceSyst_getOrCreateSignalSource(inEntity2);
 
     // No need to run the simulation logic since the build function automatically runs the simulation logic
     bytes16 callerNamespace = getCallerNamespace(_msgSender());

@@ -7,8 +7,6 @@ import { IWorld } from "../src/codegen/world/IWorld.sol";
 import { SandID, LogID, OrangeFlowerID, SandTexture, LogTexture, OrangeFlowerTexture, SignalID, SignalOffTexture, SignalOnTexture, SignalSourceID, InvertedSignalID, SignalSourceTexture } from "../src/prototypes/Voxels.sol";
 import { REGISTER_VOXEL_TYPE_SIG } from "@tenetxyz/contracts/src/constants.sol";
 
-// import { bytes4ToString } from "../../contracts/src/Utils.sol";
-
 contract PostDeploy is Script {
   function run(address worldAddress) external {
     // Load the private key from the `PRIVATE_KEY` environment variable (in .env)
@@ -102,7 +100,11 @@ contract PostDeploy is Script {
 
   function registerExtension(string memory extensionName, bytes4 eventHandlerSelector, address worldAddress) private {
     (bool success, bytes memory result) = worldAddress.call(
-      abi.encodeWithSignature("tenet_ExtensionSystem_registerExtension(bytes4)", eventHandlerSelector)
+      abi.encodeWithSignature(
+        "tenet_ExtensionSystem_registerExtension(bytes4,string)",
+        eventHandlerSelector,
+        extensionName
+      )
     );
     require(success, string(abi.encodePacked("Failed to register extension: ", extensionName)));
   }

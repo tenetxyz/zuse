@@ -68,7 +68,7 @@ export function registerAdminPanel() {
       const isShown = useComponentValue(UI, SingletonEntity)?.showAdminPanel;
       return isShown ? (
         // "pointerEvents: all" is needed so when we click on the admin panel, we don't gain focus on the noa canvas
-        <div className="relative z-51 w-full h-full bg-slate-800 p-10 " style={{ pointerEvents: "all" }}>
+        <div className="relative z-50 w-full h-full bg-slate-800 p-10 " style={{ pointerEvents: "all" }}>
           <p className="text-2xl">Admin Panel</p>
           <button className="p-5 bg-slate-700 w-full cursor-pointer" onClick={downloadVoxels}>
             Download Voxels

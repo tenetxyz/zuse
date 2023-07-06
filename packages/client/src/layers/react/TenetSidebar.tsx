@@ -112,16 +112,3 @@ export function registerTenetSidebar() {
     },
   });
 }
-
-const InventoryContainer = styled.div`
-  width: 100%;
-  background-color: lightgray;
-  display: grid;
-  grid-template-columns: repeat(2, auto);
-  justify-content: center;
-  align-items: center;
-  grid-gap: 10px;
-  padding: 20px;
-  z-index: 11;
-  pointer-events: all;
-`;

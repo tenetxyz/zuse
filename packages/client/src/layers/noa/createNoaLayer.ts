@@ -302,6 +302,7 @@ export function createNoaLayer(network: NetworkLayer) {
       const a = noa.entities.getMovement(noa.playerEntity);
       noa.entities.getMovement(noa.playerEntity).isPlayerSlowedToAStop = true; // stops the player's input from moving the player
     } else {
+      // since a react component calls this function times, we need to use addComponentAgain (rather than addComponent)
       noa.entities.addComponentAgain(noa.playerEntity, "receivesInputs", noa.ents.names.receivesInputs);
       noa.inputs.bind("select-voxel", "V");
       noa.inputs.bind("admin-panel", "-");

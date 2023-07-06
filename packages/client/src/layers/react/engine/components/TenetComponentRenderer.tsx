@@ -2,7 +2,6 @@ import { Layers } from "../../../../types";
 import { Cell } from "./Cell";
 
 interface Props {
-  name: string;
   rowStart: number;
   rowEnd: number;
   columnStart: number;
@@ -10,25 +9,24 @@ interface Props {
   Component: React.ElementType<ComponentRendererProps>;
 }
 
-const tenetComponents = new Map<string, Props>();
+let tenetComponents: Props[] = [];
 export const clearTenetComponentRenderer = () => {
-  tenetComponents.clear();
+  tenetComponents = [];
 };
 export const registerTenetComponent = (props: Props) => {
-  tenetComponents.set(props.name, props);
+  tenetComponents.push(props);
 };
 
 interface ComponentRendererProps {
   layers: Layers;
 }
-export const NewComponentRenderer = ({ layers }: ComponentRendererProps) => {
-  console.log("new compoennt renderer rerender");
+export const TenetComponentRenderer = ({ layers }: ComponentRendererProps) => {
   return (
     <>
-      {Array.from(tenetComponents.values()).map((props: Props, idx: number) => {
+      {tenetComponents.map((props: Props, idx: number) => {
         return (
           <Cell
-            key={`componentRenderer-idx-${idx}`}
+            key={`tenetComponentRenderer-idx-${idx}`}
             style={{
               gridRowStart: props.rowStart,
               gridRowEnd: props.rowEnd,

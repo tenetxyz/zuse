@@ -4,7 +4,6 @@ import { useComponentValue } from "@latticexyz/react";
 
 export function registerAdminPanel() {
   registerTenetComponent({
-    name: "AdminPanel",
     rowStart: 2,
     rowEnd: 11,
     columnStart: 1,
@@ -19,9 +18,6 @@ export function registerAdminPanel() {
           contractComponents: { VoxelTypeRegistry },
         },
       } = layers;
-
-      const show = useComponentValue(UI, SingletonEntity)?.showAdminPanel;
-      console.log("admin panel rerender");
 
       const downloadVoxels = () => {
         const voxelPrototype = componentToJson(VoxelTypeRegistry);
@@ -67,7 +63,8 @@ export function registerAdminPanel() {
         link.remove();
       };
 
-      return show ? (
+      const isShown = useComponentValue(UI, SingletonEntity)?.showAdminPanel;
+      return isShown ? (
         // "pointerEvents: all" is needed so when we click on the admin panel, we don't gain focus on the noa canvas
         <div className="relative z-50 w-full h-full bg-slate-100 p-10 text-white" style={{ pointerEvents: "all" }}>
           <p className="text-2xl">Admin Panel</p>

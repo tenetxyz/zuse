@@ -21,14 +21,14 @@ import {
 } from "@latticexyz/recs";
 import { to64CharAddress } from "../../../utils/entity";
 import { Sounds } from "./Sounds";
-import { CreativeInventory, CreativeInventoryFilters } from "./CreativeInventory";
+import { VoxelTypeStore, VoxelTypeStoreFilters } from "./VoxelTypeStore";
 import { Inventory } from "./Inventory";
 import { InventoryTab, TabRadioSelector } from "./TabRadioSelector";
 import RegisterCreation, { RegisterCreationFormData } from "./RegisterCreation";
 import { Layers } from "../../../types";
 import CreationStore, { CreationStoreFilters } from "./CreationStore";
 import { entityToVoxelType, voxelTypeToEntity, voxelTypeDataKeyToVoxelVariantDataKey } from "../../noa/types";
-import { CreativeInventorySearch } from "../../../utils/useCreativeInventorySearch";
+import { CreativeInventorySearch } from "../../../utils/useVoxelTypeSearch";
 import { firstFreeInventoryIndex } from "../../noa/systems/createInventoryIndexSystem";
 import { StatusHud } from "./StatusHud";
 import ClassifierStore, { ClassifierStoreFilters } from "./ClassifierStore";
@@ -263,7 +263,7 @@ export function registerInventoryHud() {
       );
 
       // This state is hoisted up to this component so that the state is not lost when leaving the inventory to select voxels
-      const [creativeInventoryFilters, setCreativeInventoryFilters] = useState<CreativeInventoryFilters>({
+      const [creativeInventoryFilters, setCreativeInventoryFilters] = useState<VoxelTypeStoreFilters>({
         query: "",
       });
       const [registerCreationFormData, setRegisterCreationFormData] = useState<RegisterCreationFormData>({
@@ -296,7 +296,7 @@ export function registerInventoryHud() {
             );
           case InventoryTab.CREATIVE:
             return (
-              <CreativeInventory
+              <VoxelTypeStore
                 layers={layers}
                 filters={creativeInventoryFilters}
                 setFilters={setCreativeInventoryFilters}

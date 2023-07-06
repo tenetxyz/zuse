@@ -4,7 +4,7 @@ import { to64CharAddress } from "../../../utils/entity";
 import { concat, map, of, scan } from "rxjs";
 import { Absolute, AbsoluteBorder, Background, Center, Crafting } from "./common";
 import { range } from "@latticexyz/utils";
-import { CreativeInventory } from "./CreativeInventory";
+import { VoxelTypeStore } from "./VoxelTypeStore";
 import { ActionBarWrapper, INVENTORY_HEIGHT, INVENTORY_WIDTH } from "./InventoryHud";
 import { Layers } from "../../../types";
 

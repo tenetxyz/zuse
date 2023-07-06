@@ -8,15 +8,15 @@ import { getItemTypesIOwn } from "../../noa/systems/createInventoryIndexSystem";
 import { INVENTORY_HEIGHT, INVENTORY_WIDTH } from "./InventoryHud";
 import { toast } from "react-toastify";
 import { voxelVariantDataKeyToString } from "../../noa/types";
-import { useCreativeInventorySearch } from "../../../utils/useCreativeInventorySearch";
+import { useVoxelTypeSearch } from "../../../utils/useVoxelTypeSearch";
 
-export interface CreativeInventoryFilters {
+export interface VoxelTypeStoreFilters {
   query: string;
 }
 interface Props {
   layers: Layers;
-  filters: CreativeInventoryFilters;
-  setFilters: React.Dispatch<React.SetStateAction<CreativeInventoryFilters>>;
+  filters: VoxelTypeStoreFilters;
+  setFilters: React.Dispatch<React.SetStateAction<VoxelTypeStoreFilters>>;
 }
 const NUM_COLS = 9;
 const NUM_ROWS = 6;
@@ -30,7 +30,7 @@ export interface VoxelTypeDesc {
   creator: string;
 }
 
-export const CreativeInventory: React.FC<Props> = ({ layers, filters, setFilters }) => {
+export const VoxelTypeStore: React.FC<Props> = ({ layers, filters, setFilters }) => {
   const {
     components: { VoxelTypeRegistry },
     contractComponents: { OwnedBy, VoxelType },
@@ -39,7 +39,7 @@ export const CreativeInventory: React.FC<Props> = ({ layers, filters, setFilters
     getVoxelIconUrl,
   } = layers.network;
 
-  const { voxelTypesToDisplay } = useCreativeInventorySearch({ layers, filters });
+  const { voxelTypesToDisplay } = useVoxelTypeSearch({ layers, filters });
 
   const Slots = [...range(NUM_ROWS * NUM_COLS)].map((i) => {
     if (!voxelTypesToDisplay || i >= voxelTypesToDisplay.length) {

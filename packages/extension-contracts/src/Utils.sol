@@ -1,9 +1,12 @@
 // SPDX-License-Identifier: GPL-3.0
 pragma solidity >=0.8.0;
 import { Position, PositionData, PositionTableId } from "@tenetxyz/contracts/src/codegen/tables/Position.sol";
+import { VoxelCoord } from "@tenetxyz/contracts/src/Types.sol";
 import { hasKey } from "@latticexyz/world/src/modules/keysintable/hasKey.sol";
 import { SignalTableId, SignalSourceTableId, PoweredTableId, InvertedSignalTableId } from "./codegen/Tables.sol";
 import { BlockDirection } from "./codegen/Types.sol";
+import { CLEAR_COORD_SIG, BUILD_SIG } from "@tenetxyz/contracts/src/constants.sol";
+import { getUniqueEntity } from "@latticexyz/world/src/modules/uniqueentity/getUniqueEntity.sol";
 
 function entityIsSignal(bytes32 entity, bytes16 callerNamespace) view returns (bool) {
   bytes32[] memory keyTuple = new bytes32[](2);
@@ -38,6 +41,11 @@ function getEntityPositionStrict(bytes32 entity) view returns (PositionData memo
   positionKeyTuple[0] = bytes32((entity));
   require(hasKey(PositionTableId, positionKeyTuple), "Entity must have a position"); // even if its air, it must have a position
   return Position.get(entity);
+}
+
+function getVoxelCoordStrict(bytes32 entity) view returns (VoxelCoord memory) {
+  PositionData memory position = getEntityPositionStrict(entity);
+  return VoxelCoord(position.x, position.y, position.z);
 }
 
 function calculateBlockDirection(
@@ -81,4 +89,14 @@ function getOppositeDirection(BlockDirection direction) pure returns (BlockDirec
   } else {
     return BlockDirection.None;
   }
+}
+
+function clearCoord(address worldAddress, VoxelCoord memory coord) {
+  (bool success, ) = worldAddress.call(abi.encodeWithSignature(CLEAR_COORD_SIG, coord));
+  require(success, "Failed to clear voxel");
+}
+
+function build(address worldAddress, VoxelCoord memory coord, bytes32 entity) {
+  (bool success, ) = worldAddress.call(abi.encodeWithSignature(BUILD_SIG, entity, coord));
+  require(success, "Failed to build voxel");
 }

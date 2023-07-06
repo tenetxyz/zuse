@@ -68,6 +68,10 @@ function getChunkCoord(VoxelCoord memory coord) pure returns (Coord memory) {
 }
 
 function int32ToString(int32 num) pure returns (string memory) {
+  return Strings.toString(int256(num));
+}
+
+function bytes4ToString(bytes4 num) pure returns (string memory) {
   return Strings.toString(uint256(uint32(num)));
 }
 
@@ -124,7 +128,6 @@ function removeDuplicates(bytes[] memory arr) pure returns (bytes[] memory) {
   for (uint i = 0; i < uniqueCount; i++) {
     result[i] = uniqueArray[i];
   }
-
   return result;
 }
 

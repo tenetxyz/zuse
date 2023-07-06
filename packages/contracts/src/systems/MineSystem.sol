@@ -88,4 +88,20 @@ contract MineSystem is System {
 
     return voxelToMine;
   }
+
+  function clearCoord(VoxelCoord memory coord) public {
+    bytes32[] memory entitiesAtPosition = getEntitiesAtCoord(coord);
+    for (uint256 i = 0; i < entitiesAtPosition.length; i++) {
+      bytes32 entity = entitiesAtPosition[i];
+
+      VoxelTypeData memory voxelTypeData = VoxelType.get(entity);
+      mine(
+        coord,
+        voxelTypeData.voxelTypeNamespace,
+        voxelTypeData.voxelTypeId,
+        voxelTypeData.voxelVariantNamespace,
+        voxelTypeData.voxelVariantId
+      );
+    }
+  }
 }

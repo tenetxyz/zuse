@@ -96,7 +96,7 @@ export const useCreationSearch = ({ layers, filters }: Props) => {
       // TODO: the creator is just an address. we need to replace it with a readable name
       keys: ["name", "description", "creator", "voxelTypes"],
     };
-    fuse.current = new Fuse(allCreations.current, options);
+    fuse.current = new Fuse(filteredCreations.current, options);
 
     queryForCreationsToDisplay();
   };

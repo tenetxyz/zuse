@@ -17,15 +17,19 @@ import { SystemRegistry } from "@latticexyz/world/src/modules/core/tables/System
 import { ResourceSelector } from "@latticexyz/world/src/ResourceSelector.sol";
 
 contract ExtensionSystem is System {
-  function registerExtension(bytes4 eventHandler) public {
+  function registerExtension(bytes4 eventHandler, string memory extensionName) public {
     (bytes16 namespace, , ) = FunctionSelectors.get(eventHandler);
     require(NamespaceOwner.get(namespace) == _msgSender(), "Caller is not namespace owner");
 
     // check if extension is already registered
+    // TODO: should we also store the name of the extension in the table?
     bytes32[] memory keyTuple = new bytes32[](2);
     keyTuple[0] = bytes32((namespace));
     keyTuple[1] = bytes32((eventHandler));
-    require(!hasKey(VoxelInteractionExtensionTableId, keyTuple), "Extension already registered");
+    require(
+      !hasKey(VoxelInteractionExtensionTableId, keyTuple),
+      string(abi.encodePacked(extensionName, " already registered"))
+    );
 
     // register extension
     VoxelInteractionExtension.set(namespace, eventHandler, false);

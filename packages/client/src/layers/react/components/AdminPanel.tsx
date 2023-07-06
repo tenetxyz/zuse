@@ -1,26 +1,24 @@
-import React, { useEffect } from "react";
-import { registerUIComponent } from "../engine";
-import { combineLatest, concat, map, of } from "rxjs";
-import styled from "styled-components";
-import { CloseableContainer } from "./common";
 import FileUpload from "../../../utils/components/FileUpload";
 import { registerTenetComponent } from "../engine/components/TenetComponentRenderer";
 import { useComponentValue } from "@latticexyz/react";
-import { SingletonID } from "@latticexyz/network";
 
-// (layers) => layers.noa.components.UI.update$.pipe(map((e) => ({ layers, show: e.value[0]?.showAdminPanel }))),
 export function registerAdminPanel() {
   registerTenetComponent({
     name: "AdminPanel",
-    gridRowStart: 2,
-    gridRowEnd: 11,
-    gridColumnStart: 1,
-    gridColumnEnd: 4,
-    Component: (layers) => {
+    rowStart: 2,
+    rowEnd: 11,
+    columnStart: 1,
+    columnEnd: 4,
+    Component: ({ layers }) => {
       const {
-        components: { UI, VoxelTypeRegistry },
-        SingletonEntity,
-      } = layers.noa;
+        noa: {
+          components: { UI },
+          SingletonEntity,
+        },
+        network: {
+          contractComponents: { VoxelTypeRegistry },
+        },
+      } = layers;
 
       const show = useComponentValue(UI, SingletonEntity)?.showAdminPanel;
       console.log("admin panel rerender");

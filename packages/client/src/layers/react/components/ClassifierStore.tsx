@@ -87,7 +87,7 @@ const ClassifierStore: React.FC<Props> = ({ layers, filters, setFilters }: Props
       <div className="flex flex-col">
         <label className="flex items-center space-x-2 ml-2">Classifiers</label>
         <input
-          placeholder="Search my classifiers"
+          placeholder="Search classifiers"
           className="bg-slate-700 p-1 ml-2 focus:outline-slate-700 border-1 border-solid mb-1 "
           value={filters.classifierQuery}
           onChange={(e) => {

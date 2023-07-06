@@ -104,12 +104,14 @@ contract PostDeploy is Script {
     );
     require(success, "Failed to registerExtension InvertedSignalSystem");
     bytes4 andGateClassifier = IWorld(worldAddress).tenet_AndGateSystem_classify.selector;
+    string memory andGateName = "AND Gate";
+    string memory andGateDescription = "Classifies if this creation is an AND Gate";
     (success, result) = worldAddress.call(
       abi.encodeWithSignature(
         "tenet_RegClassifierSys_registerClassifier(bytes4,string,string)",
         andGateClassifier,
-        "AND Gate",
-        "Classifies if this creation is an AND Gate"
+        andGateName,
+        andGateDescription
       )
     );
     require(success, "Failed to registerClassifier AndGateClassifierSystem");

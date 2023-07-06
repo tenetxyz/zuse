@@ -30,7 +30,7 @@ export const useClassifierSearch = ({ layers, filters }: Props) => {
     allClassifiers.current = [];
     const classifierTable = Classifier.values;
     classifierTable.name.forEach((name: string, classifierId) => {
-      const description = ""; //classifierTable.description.get(classifierId) ?? "";
+      const description = classifierTable.description.get(classifierId);
       const creator = classifierTable.creator.get(classifierId);
       if (!creator) {
         console.warn("No creator found for classifier", classifierId);
@@ -53,6 +53,7 @@ export const useClassifierSearch = ({ layers, filters }: Props) => {
   const applyClassifierFilters = () => {
     // TODO: add classifier filters
     // maybe people will filter classifiers based on their name, description, creator, or voxelTypes
+    filteredClassifiers.current = allClassifiers.current;
 
     // only the filtered classifiers can be queried
     const options = {
@@ -60,7 +61,7 @@ export const useClassifierSearch = ({ layers, filters }: Props) => {
       // TODO: the creator is just an address. we need to replace it with a readable name
       keys: ["name", "description", "creator"],
     };
-    fuse.current = new Fuse(allClassifiers.current, options);
+    fuse.current = new Fuse(filteredClassifiers.current, options);
 
     queryForClassifiersToDisplay();
   };

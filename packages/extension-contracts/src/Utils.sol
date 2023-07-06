@@ -7,6 +7,35 @@ import { Signal, SignalSource, Powered, InvertedSignal } from "./codegen/Tables.
 import { BlockDirection } from "./codegen/Types.sol";
 import { CLEAR_COORD_SIG, BUILD_SIG } from "@tenetxyz/contracts/src/constants.sol";
 import { getUniqueEntity } from "@latticexyz/world/src/modules/uniqueentity/getUniqueEntity.sol";
+import { REGISTER_EXTENSION_SIG, REGISTER_VOXEL_TYPE_SIG, REGISTER_VOXEL_VARIANT_SIG } from "@tenetxyz/contracts/src/constants.sol";
+import { VoxelVariantsData } from "./Types.sol";
+
+function registerExtension(address world, string memory extensionName, bytes4 eventHandlerSelector) {
+  (bool success, bytes memory result) = world.call(
+    abi.encodeWithSignature(REGISTER_EXTENSION_SIG, eventHandlerSelector, extensionName)
+  );
+  require(success, string(abi.encodePacked("Failed to register extension: ", extensionName)));
+}
+
+function registerVoxelType(
+  address world,
+  string memory voxelTypeName,
+  bytes32 voxelTypeId,
+  string memory defaultTextureHash,
+  bytes4 variantSelector
+) {
+  (bool success, bytes memory result) = world.call(
+    abi.encodeWithSignature(REGISTER_VOXEL_TYPE_SIG, voxelTypeName, voxelTypeId, defaultTextureHash, variantSelector)
+  );
+  require(success, string(abi.encodePacked("Failed to register voxelType: ", voxelTypeName)));
+}
+
+function registerVoxelVariant(address world, bytes32 voxelVariantId, VoxelVariantsData memory voxelVariantData) {
+  (bool success, bytes memory result) = world.call(
+    abi.encodeWithSignature(REGISTER_VOXEL_VARIANT_SIG, voxelVariantId, voxelVariantData)
+  );
+  require(success, "Failed to register voxel variant");
+}
 
 function entityIsSignal(bytes32 entity, bytes16 callerNamespace) view returns (bool) {
   return Signal.get(callerNamespace, entity).hasValue;

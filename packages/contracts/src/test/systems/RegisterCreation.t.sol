@@ -8,7 +8,7 @@ import { VoxelCoord } from "../../Types.sol";
 import { OwnedBy, VoxelType, VoxelTypeData } from "../../codegen/Tables.sol";
 import { IWorld } from "../../codegen/world/IWorld.sol";
 import { IStore } from "@latticexyz/store/src/IStore.sol";
-import { GrassID } from "../../prototypes/Voxels.sol";
+import { GrassID } from "../../systems/voxels/GrassSystem.sol";
 import { Utilities } from "@latticexyz/std-contracts/src/test/Utilities.sol";
 import { console } from "forge-std/console.sol";
 import { TENET_NAMESPACE } from "../../Constants.sol";

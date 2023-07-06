@@ -9,7 +9,6 @@ import { addressToEntityKey, getEntitiesAtCoord, voxelCoordToString } from "../U
 import { VoxelType, Position, Creation, CreationData, VoxelTypeData } from "../codegen/Tables.sol";
 import { PositionData } from "../codegen/tables/Position.sol";
 import { VoxelCoord } from "../Types.sol";
-import { AirID } from "../prototypes/Voxels.sol";
 //import { CreateBlock } from "../libraries/CreateBlock.sol";
 
 uint256 constant MAX_BLOCKS_IN_CREATION = 100;

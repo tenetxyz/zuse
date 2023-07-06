@@ -7,7 +7,6 @@ import { getVoxelCoordStrict } from "../../Utils.sol";
 import { console } from "forge-std/console.sol";
 import { IWorld } from "../../codegen/world/IWorld.sol";
 import { Strings } from "@openzeppelin/contracts/utils/Strings.sol";
-import { SignalSourceID } from "../../prototypes/Voxels.sol";
 import { VoxelCoord } from "@tenetxyz/contracts/src/Types.sol";
 import { entityIsPowered, clearCoord, build } from "../../Utils.sol";
 import { getCallerNamespace } from "@tenetxyz/contracts/src/SharedUtils.sol";

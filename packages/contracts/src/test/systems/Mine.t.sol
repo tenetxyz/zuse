@@ -7,7 +7,7 @@ import { IStore } from "@latticexyz/store/src/IStore.sol";
 import { IWorld } from "../../codegen/world/IWorld.sol";
 import { VoxelType, OwnedBy } from "../../codegen/Tables.sol";
 
-import { GrassID } from "../../prototypes/Voxels.sol";
+import { GrassID } from "../../systems/voxels/GrassSystem.sol";
 import { addressToEntityKey } from "../../Utils.sol";
 import { VoxelCoord } from "../../Types.sol";
 import { Utilities } from "@latticexyz/std-contracts/src/test/Utilities.sol";

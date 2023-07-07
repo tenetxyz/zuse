@@ -67,7 +67,7 @@ contract SignalVoxelSystem is VoxelType {
   }
 
   function removeProperties(bytes32 entity, bytes16 callerNamespace) public override {
-    if (!entityIsSignal(entity, callerNamespace)) {
+    if (entityIsSignal(entity, callerNamespace)) {
       Signal.deleteRecord(callerNamespace, entity);
     }
   }

@@ -37,6 +37,9 @@ export async function createVoxelVariantSystem(network: NetworkLayer, context: N
     const voxelTypeRegistryValue = getComponentValueStrict(VoxelTypeRegistry, update.entity);
     const voxelTypeRegistryKey = entityToVoxelTypeBaseKey(update.entity);
     VoxelTypeRegistryDataSubscriptions.forEach((subscription) => {
+      voxelTypeRegistryValue.previewUVWrap = voxelTypeRegistryValue.previewUVWrap
+        ? getNftStorageLink(voxelTypeRegistryValue.previewUVWrap)
+        : "";
       subscription(voxelTypeRegistryKey, voxelTypeRegistryValue);
     });
   });

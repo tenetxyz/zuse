@@ -38,7 +38,7 @@ contract InvertedSignalVoxelSystem is VoxelType {
   }
 
   function removeProperties(bytes32 entity, bytes16 callerNamespace) public override {
-    if (!entityIsInvertedSignal(entity, callerNamespace)) {
+    if (entityIsInvertedSignal(entity, callerNamespace)) {
       InvertedSignal.deleteRecord(callerNamespace, entity);
     }
   }

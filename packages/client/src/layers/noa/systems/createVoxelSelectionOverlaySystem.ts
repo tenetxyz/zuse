@@ -11,7 +11,7 @@ export function createVoxelSelectionOverlaySystem(network: NetworkLayer, noaLaye
     components: { VoxelSelection },
     noa,
   } = noaLayer;
-  type IVoxelSelection = ComponentRecord<typeof VoxelSelection>
+  type IVoxelSelection = ComponentRecord<typeof VoxelSelection>;
   VoxelSelection.update$.subscribe((update) => {
     const voxelSelection = update.value[0] as IVoxelSelection;
     renderRangeSelection(voxelSelection);
@@ -36,17 +36,5 @@ export function createVoxelSelectionOverlaySystem(network: NetworkLayer, noaLaye
       new Color3(1, 1, 1),
       0.05
     );
-  };
-
-  let renderedPointSelectionMeshes: Nullable<Mesh>[] = [];
-  const renderPointSelection = (voxelSelection: IVoxelSelection) => {
-    // remove the previous meshes since we're re-rendering all of them
-    // if this is a performance hit, we can cache the meshes and only render the new selections
-    renderedPointSelectionMeshes.forEach((mesh) => mesh?.dispose());
-
-    renderedPointSelectionMeshes = (voxelSelection.points ?? [])
-      .map((point) => {
-        return renderChunkyWireframe(point, point, noa, new Color3(1, 0.1, 0.1), 0.04);
-      })
   };
 }

@@ -8,41 +8,50 @@ import { getNoaComponent, getNoaComponentStrict } from "../engine/components/uti
 import { NoaLayer } from "../types";
 import { toast } from "react-toastify";
 import { Creation } from "../../react/components/CreationStore";
-import { calculateMinMax, getCoordOfVoxelOnFaceYouTargeted, getTargetedVoxelCoord } from "../../../utils/voxels";
+import { calculateMinMax, getTargetedSpawnId, getTargetedVoxelCoord, TargetedBlock } from "../../../utils/voxels";
 import { NotificationIcon } from "../components/persistentNotification";
 import { BEDROCK_ID } from "../../network/api/terrain/occurrence";
 import { DEFAULT_BLOCK_TEST_DISTANCE } from "../setup/setupNoaEngine";
-import { calculateCornersFromTargetedBlock, TargetedBlock } from "./createSpawnCreationOverlaySystem";
+import { calculateCornersFromTargetedBlock } from "./createSpawnCreationOverlaySystem";
 import { renderFloatingTextAboveCoord } from "./renderFloatingText";
 import { renderEnt } from "./renderEnt";
 import { FocusedUiType } from "../components/FocusedUi";
-import { useComponentValue } from "@latticexyz/react";
+import { Layers } from "../../../types";
+import { stringToEntity } from "../../../utils/entity";
 
-export function createInputSystem(network: NetworkLayer, noaLayer: NoaLayer) {
+export function createInputSystem(layers: Layers) {
   const {
-    noa,
-    components: {
-      SelectedSlot,
-      UI,
-      FocusedUi,
-      Tutorial,
-      PreTeleportPosition,
-      VoxelSelection,
-      SpawnCreation,
-      PersistentNotification,
+    noa: {
+      noa,
+      components: {
+        SelectedSlot,
+        UI,
+        FocusedUi,
+        Tutorial,
+        PreTeleportPosition,
+        VoxelSelection,
+        SpawnCreation,
+        PersistentNotification,
+      },
+      SingletonEntity,
+      api: {
+        closeInventory,
+        openInventory,
+        togglePlugins,
+        placeSelectedVoxelType,
+        getVoxelTypeInSelectedSlot,
+        teleport,
+      },
+      streams: { playerPosition$ },
     },
-    SingletonEntity,
-    api: { closeInventory, openInventory, togglePlugins, placeSelectedVoxelType, getVoxelTypeInSelectedSlot, teleport },
-    streams: { playerPosition$ },
-  } = noaLayer;
-
-  const {
-    contractComponents: { VoxelType, Position },
-    // api: { stake, claim },
-    network: { connectedAddress },
-    streams: { balanceGwei$ },
-    api: { spawnCreation },
-  } = network;
+    network: {
+      contractComponents: { VoxelType, Position, Spawn },
+      // api: { stake, claim },
+      network: { connectedAddress },
+      streams: { balanceGwei$ },
+      api: { spawnCreation },
+    },
+  } = layers;
 
   function disableInputs(focusedUi: FocusedUiType) {
     // disable movement when inventory is open
@@ -152,7 +161,6 @@ export function createInputSystem(network: NetworkLayer, noaLayer: NoaLayer) {
     const corner2 = !isCorner1 ? coord : voxelSelection?.corner2;
 
     setComponent(VoxelSelection, SingletonEntity, {
-      points: voxelSelection?.points,
       corner1: corner1,
       corner2: corner2,
     } as any);
@@ -318,19 +326,21 @@ export function createInputSystem(network: NetworkLayer, noaLayer: NoaLayer) {
     if (!noa.targetedBlock) {
       return;
     }
-    const voxelSelection = getComponentValue(VoxelSelection, SingletonEntity);
-    const points: VoxelCoord[] = voxelSelection?.points ?? [];
-    const coord = getTargetedVoxelCoord(noa);
-    points.push(coord);
-    // renderFloatingTextAboveCoord(coord, noa, "This is a super\nlong\nline that takes\nup many lines");
-    // renderEnt(noaLayer, coord);
-
-    toast(`Selected voxel at ${coord.x}, ${coord.y}, ${coord.z}`);
-    setComponent(VoxelSelection, SingletonEntity, {
-      points: points as any,
-      corner1: voxelSelection?.corner1,
-      corner2: voxelSelection?.corner2,
-    });
+    const spawnId = getTargetedSpawnId(layers, noa.targetedBlock as any);
+    const isVoxelPartOfSpawn = spawnId !== undefined;
+    if (isVoxelPartOfSpawn) {
+      const spawnEntityId = stringToEntity(spawnId);
+      const spawn = getComponentValue(Spawn, spawnEntityId);
+      if (!spawn) {
+        console.warn("cannot find spawn for spawnId=", spawnId);
+        return;
+      }
+      spawn.interfaceVoxels.push(noa.targetedBlock);
+      setComponent(Spawn, spawnEntityId, spawn);
+      // renderFloatingTextAboveCoord(coord, noa, "This is a super\nlong\nline that takes\nup many lines");
+      // renderEnt(noaLayer, coord);
+      // toast(`Selected voxel at ${coord.x}, ${coord.y}, ${coord.z}`);
+    }
   });
 
   noa.inputs.bind("cancelAction", "<backspace>", "<delete>");
@@ -347,7 +357,6 @@ export function createInputSystem(network: NetworkLayer, noaLayer: NoaLayer) {
 
     // clear your selected voxels
     setComponent(VoxelSelection, SingletonEntity, {
-      points: [] as any,
       corner1: undefined,
       corner2: undefined,
     });

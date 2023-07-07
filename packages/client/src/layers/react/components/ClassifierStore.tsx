@@ -6,7 +6,6 @@ import { useClassifierSearch } from "./useClassifierSearch";
 import { CreationStoreFilters } from "./CreationStore";
 import { useComponentValue } from "@latticexyz/react";
 import { SetState } from "../../../utils/types";
-import { stringToEntity } from "../../../utils/entity";
 import { entityToVoxelType, voxelTypeDataKeyToVoxelVariantDataKey, voxelTypeToEntity } from "../../noa/types";
 
 export interface ClassifierStoreFilters {
@@ -65,11 +64,6 @@ const ClassifierStore: React.FC<Props> = ({
       return <p>Please look at a spawn of a creation and press the button to classify it</p>;
     }
 
-    const selectedVoxelPoints = getComponentValue(VoxelSelection, SingletonEntity)?.points ?? [];
-    const selectedVoxels = selectedVoxelPoints.map((coord) => {
-      return getEntityAtPosition(coord);
-    });
-
     return (
       <div className="flex flex-col space-y-2">
         <div className="flex flex-row">
@@ -84,7 +78,7 @@ const ClassifierStore: React.FC<Props> = ({
         </div>
         <p>Interfaces</p>
         <div className="flex flex-row space-x-2">
-          {selectedVoxels.map((voxel, idx) => {
+          {spawnToUse.spawn.interfaceVoxels.map((voxel, idx) => {
             if (!voxel) {
               console.warn("Voxel not found at coord", voxel);
               return <div key={idx}>:(</div>;

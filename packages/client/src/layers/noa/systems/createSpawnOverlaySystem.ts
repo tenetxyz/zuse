@@ -3,7 +3,7 @@
 import { NetworkLayer } from "../../network";
 import { NoaLayer, cleanVoxelCoord } from "../types";
 import { renderChunkyWireframe } from "./renderWireframes";
-import { Color3, Mesh } from "@babylonjs/core";
+import { Color3, Mesh, Nullable } from "@babylonjs/core";
 import { add } from "../../../utils/coord";
 import { calculateMinMaxRelativePositions } from "../../../utils/creation";
 import { Entity, EntitySymbol, getComponentValue } from "@latticexyz/recs";
@@ -23,7 +23,7 @@ interface Spawn {
 export function createSpawnOverlaySystem(networkLayer: NetworkLayer, noaLayer: NoaLayer) {
   const { noa } = noaLayer;
   const {
-    contractComponents: { Spawn, Creation },
+    contractComponents: { Spawn, Creation, Position },
   } = networkLayer;
 
   Spawn.update$.subscribe((update) => {
@@ -48,6 +48,7 @@ export function createSpawnOverlaySystem(networkLayer: NetworkLayer, noaLayer: N
       }
     });
     renderSpawnOutlines(spawns);
+    renderSpawnInterfaces(spawns);
   });
 
   let spawnOutlineMeshes: Mesh[] = [];
@@ -99,6 +100,20 @@ export function createSpawnOverlaySystem(networkLayer: NetworkLayer, noaLayer: N
       if (mesh !== null) {
         spawnOutlineMeshes.push(mesh);
       }
+    }
+  };
+
+  let renderedSpawnInterfacesMeshes: Nullable<Mesh>[] = [];
+  const renderSpawnInterfaces = (spawns: Spawn[]) => {
+    // remove the previous meshes since we're re-rendering all of them
+    // if this is a performance hit, we can cache the meshes and only render the new selections
+    renderedSpawnInterfacesMeshes.forEach((mesh) => mesh?.dispose());
+
+    for (const spawn of spawns) {
+      renderedSpawnInterfacesMeshes = (spawn.interfaceVoxels ?? []).map((voxelId) => {
+        const voxelCoord = getComponentValue(Position, voxelId) as VoxelCoord;
+        return renderChunkyWireframe(voxelCoord, voxelCoord, noa, new Color3(1, 0.1, 0.1), 0.04);
+      });
     }
   };
 }

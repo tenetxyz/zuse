@@ -6,6 +6,7 @@ import { stringToEntity } from "../../../utils/entity";
 import { abiDecode } from "../../../utils/abi";
 import { ISpawn } from "../../noa/components/SpawnInFocus";
 import { FocusedUiType } from "../../noa/components/FocusedUi";
+import { TargetedBlock, getTargetedSpawnId } from "../../../utils/voxels";
 
 interface Props {
   layers: Layers;
@@ -19,32 +20,13 @@ export const ElectiveBar = ({ layers }: Props) => {
       SingletonEntity,
     },
     network: {
-      contractComponents: { OfSpawn, Spawn, Creation },
-      api: { getEntityAtPosition },
+      contractComponents: { Spawn, Creation },
     },
   } = layers;
 
-  // Note: this is only a subset of the actual targetedBlock interface
-  interface TargetedBlock {
-    position: number[];
-  }
-
-  const getTargetedSpawnId = (targetedBlock: TargetedBlock): String | undefined => {
-    if (!targetedBlock) {
-      return undefined;
-    }
-    const position = targetedBlock.position;
-    // if this block is a spawn, then get the spawnId
-    const entityAtPosition = getEntityAtPosition({ x: position[0], y: position[1], z: position[2] });
-    if (!entityAtPosition) {
-      return undefined;
-    }
-    return getComponentValue(OfSpawn, entityAtPosition)?.value;
-  };
-
   useEffect(() => {
     noa.on("targetBlockChanged", (targetedBlock: TargetedBlock) => {
-      const spawnId = getTargetedSpawnId(targetedBlock);
+      const spawnId = getTargetedSpawnId(layers, targetedBlock);
       if (spawnId) {
         const rawSpawn = getComponentValue(Spawn, stringToEntity(spawnId));
         if (!rawSpawn) {

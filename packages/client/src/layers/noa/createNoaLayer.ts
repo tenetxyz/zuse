@@ -450,7 +450,11 @@ export function createNoaLayer(network: NetworkLayer) {
   };
 
   // --- SYSTEMS --------------------------------------------------------------------
-  createInputSystem(network, context);
+  const layers = {
+    network,
+    noa: context,
+  };
+  createInputSystem(layers);
   createVoxelVariantSystem(network, context);
   createVoxelSystem(network, context);
   createPlayerPositionSystem(network, context);

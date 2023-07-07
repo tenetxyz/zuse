@@ -8,13 +8,7 @@ import { ISpawnCreation } from "../components/SpawnCreation";
 import { Creation } from "../../react/components/CreationStore";
 import { add } from "../../../utils/coord";
 import { VoxelCoord } from "@latticexyz/utils";
-
-// Note: this type is only a subset of the actual value we get back from Noa. I only extracted the useful fields into this type
-export type TargetedBlock = {
-  adjacent: [number, number, number]; // the coord of the adjacent block we're looking at
-  normal: [number, number, number]; // tells us which blockface we're looking at
-  // all indexes are 0, except for the side we're looking at. I think a 1 means we're looking at side facing the positive end of that axis
-};
+import { TargetedBlock } from "../../../utils/voxels";
 
 export function createSpawnCreationOverlaySystem(network: NetworkLayer, noaLayer: NoaLayer) {
   const {

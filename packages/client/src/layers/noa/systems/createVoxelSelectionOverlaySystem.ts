@@ -15,7 +15,6 @@ export function createVoxelSelectionOverlaySystem(network: NetworkLayer, noaLaye
   VoxelSelection.update$.subscribe((update) => {
     const voxelSelection = update.value[0] as IVoxelSelection;
     renderRangeSelection(voxelSelection);
-    renderPointSelection(voxelSelection);
   });
 
   let renderedRangeSelectionMesh: Nullable<Mesh> = null;

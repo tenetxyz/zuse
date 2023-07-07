@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity >=0.8.0;
 
-import { System } from "@latticexyz/world/src/System.sol";
+import { VoxelType } from "../../prototypes/VoxelType.sol";
 import { IWorld } from "../../../src/codegen/world/IWorld.sol";
 import { Occurrence, VoxelTypeData, VoxelVariantsData } from "../../codegen/Tables.sol";
 import { NoaBlockType } from "../../codegen/Types.sol";
@@ -14,8 +14,8 @@ string constant DirtTexture = "bafkreibzraiuk6hgngtfczn57sivuqf3nv77twi6g3ftas2u
 
 string constant DirtUVWrap = "bafkreifbshwckn4pgw5ew2obz3i74eujzpcomatus5gu2tk7mms373gqme";
 
-contract DirtSystem is System {
-  function registerDirtVoxel() public {
+contract DirtVoxelSystem is VoxelType {
+  function registerVoxel() public override {
     IWorld world = IWorld(_world());
 
     VoxelVariantsData memory dirtVariant;
@@ -32,7 +32,7 @@ contract DirtSystem is System {
       "Dirt",
       DirtID,
       DirtTexture,
-      world.tenet_DirtSystem_dirtVariantSelector.selector
+      world.tenet_DirtVoxelSystem_dirtVariantSelector.selector
     );
 
     Occurrence.set(DirtID, world.tenet_OccurrenceSystem_ODirt.selector);

@@ -2,11 +2,12 @@ import styled from "styled-components";
 import { registerTenetComponent } from "../engine/components/TenetComponentRenderer";
 import { useComponentValue } from "@latticexyz/react";
 import { setComponent } from "@latticexyz/recs";
-import { UiComponentType } from "../../noa/createNoaLayer";
 import { FocusedUiType } from "../../noa/components/FocusedUi";
 import { useEffect } from "react";
-import { ComponentRecord } from "../../../types";
 
+// This ui element is responsible for the dark backgroudn that appears when the user is in a UI
+// If the user clicks on the background, the user will be taken back to the world
+// TODO: find a better home for the logic in this component that enables/disables inputs
 export function registerBackgroundFade() {
   registerTenetComponent({
     rowStart: 1,
@@ -22,40 +23,7 @@ export function registerBackgroundFade() {
         },
       } = layers;
 
-      function disableInputs(focusedUi: FocusedUiType) {
-        // disable movement when inventory is open
-        // https://github.com/fenomas/noa/issues/61
-        noa.entities.removeComponent(noa.playerEntity, noa.ents.names.receivesInputs);
-        noa.inputs.unbind("select-voxel");
-        noa.inputs.unbind("admin-panel");
-        if (focusedUi !== FocusedUiType.INVENTORY) {
-          noa.inputs.unbind("toggle-inventory");
-        }
-        const a = noa.entities.getMovement(noa.playerEntity);
-        noa.entities.getMovement(noa.playerEntity).isPlayerSlowedToAStop = true; // stops the player's input from moving the player
-      }
-
-      function enableInputs() {
-        // since a react component calls this function times, we need to use addComponentAgain (rather than addComponent)
-        noa.entities.addComponentAgain(noa.playerEntity, "receivesInputs", noa.ents.names.receivesInputs);
-        noa.inputs.bind("select-voxel", "V");
-        noa.inputs.bind("admin-panel", "-");
-        noa.inputs.bind("toggle-inventory", "E");
-        noa.entities.getMovement(noa.playerEntity).isPlayerSlowedToAStop = false;
-      }
-
       const focusedUiType = useComponentValue(FocusedUi, SingletonEntity)?.value;
-      useEffect(() => {
-        if (focusedUiType === FocusedUiType.WORLD) {
-          enableInputs();
-          noa.container.setPointerLock(true);
-        } else {
-          noa.container.setPointerLock(false);
-          disableInputs(focusedUiType as FocusedUiType);
-        }
-        console.log(focusedUiType);
-      }, [focusedUiType]);
-
       return focusedUiType !== FocusedUiType.WORLD ? (
         <Background
           onClick={() => {

@@ -4,6 +4,7 @@ import { Entity, getComponentValue, getEntityString, setComponent } from "@latti
 import { useComponentValue } from "@latticexyz/react";
 import { stringToEntity } from "../../../utils/entity";
 import { abiDecode } from "../../../utils/abi";
+import { ISpawn } from "../../noa/components/SpawnInFocus";
 
 interface Props {
   layers: Layers;
@@ -17,7 +18,7 @@ export const ElectiveBar = ({ layers }: Props) => {
       SingletonEntity,
     },
     network: {
-      contractComponents: { OfSpawn, Spawn },
+      contractComponents: { OfSpawn, Spawn, Creation },
       api: { getEntityAtPosition },
     },
   } = layers;
@@ -49,18 +50,31 @@ export const ElectiveBar = ({ layers }: Props) => {
           console.error("cannot find spawn object with spawnId=", spawnId);
           return;
         }
-        // const spawn = {
-        //   creationId: stringToEntity(rawSpawn.creationId),
-        //   lowerSouthWestCorner: rawSpawn.lowerSouthWestCorner,
-        //   voxels: abiDecode("string[]", rawSpawn.voxels) as string[],
-        //   interfaceVoxels: rawSpawn.interfaceVoxels,
-        // } as Spawn;
-        // setComponent(SpawnInFocus, SingletonEntity, { value: spawn });
+        const spawn = {
+          creationId: stringToEntity(rawSpawn.creationId),
+          lowerSouthWestCorner: abiDecode("tuple(int32 x,int32 y,int32 z)", rawSpawn.lowerSouthWestCorner),
+          voxels: rawSpawn.voxels as Entity[],
+          interfaceVoxels: rawSpawn.interfaceVoxels,
+        } as ISpawn;
+        const creation = getComponentValue(Creation, spawn.creationId);
+        setComponent(SpawnInFocus, SingletonEntity, {
+          spawn: spawn,
+          creation: creation,
+        });
       } else {
-        setComponent(SpawnInFocus, SingletonEntity, { value: undefined });
+        setComponent(SpawnInFocus, SingletonEntity, { spawn: undefined, creation: undefined });
       }
     });
   }, []);
   const spawnInFocus = useComponentValue(SpawnInFocus, SingletonEntity);
-  return <div>{spawnInFocus?.value}</div>;
+  if (!spawnInFocus || spawnInFocus.spawn === undefined) {
+    return <></>;
+  } else {
+    return (
+      <div>
+        <p>Would you like to classify this spawn of {spawnInFocus?.creation?.name}?</p>
+        <button onClick={() => {}}>Classify</button>
+      </div>
+    );
+  }
 };

@@ -1,7 +1,7 @@
 import { Entity, Type, World, defineComponent } from "@latticexyz/recs";
 import { VoxelCoord } from "@latticexyz/utils";
 
-export interface Spawn {
+export interface ISpawn {
   creationId: Entity;
   lowerSouthWestCorner: VoxelCoord;
   voxels: Entity[]; // the voxelIds that have been spawned
@@ -13,7 +13,8 @@ export function defineSpawnInFocusComponent(world: World) {
   return defineComponent(
     world,
     {
-      value: Type.OptionalT,
+      spawn: Type.OptionalT,
+      creation: Type.OptionalT,
     },
     { id: "SpawnInFocus" }
   );

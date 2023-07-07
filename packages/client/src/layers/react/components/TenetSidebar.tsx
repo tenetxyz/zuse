@@ -11,6 +11,7 @@ import ClassifierStore from "./ClassifierStore";
 import { ElectiveBar } from "./ElectiveBar";
 import { getComponentValue, setComponent } from "@latticexyz/recs";
 import { onStreamUpdate } from "../../../utils/stream";
+import { UiComponentType } from "../../noa/createNoaLayer";
 
 export const SIDEBAR_BACKGROUND_COLOR = "#353535";
 export function registerTenetSidebar() {
@@ -26,7 +27,7 @@ export function registerTenetSidebar() {
           SingletonEntity,
           noa,
           api: { disableOrEnableInputs, toggleInventory },
-          streams: { returnUserToWorld$ },
+          streams: { focusedUiComponent$ },
         },
         network: {
           contractComponents: { VoxelTypeRegistry },
@@ -105,8 +106,10 @@ export function registerTenetSidebar() {
         }
       }, [selectedTab]);
 
-      onStreamUpdate(returnUserToWorld$, (event) => {
-        setSelectedTab(InventoryTab.NONE);
+      onStreamUpdate(focusedUiComponent$, (uiComponentType) => {
+        if (uiComponentType !== UiComponentType.SIDEBAR) {
+          setSelectedTab(InventoryTab.NONE);
+        }
       });
 
       return (

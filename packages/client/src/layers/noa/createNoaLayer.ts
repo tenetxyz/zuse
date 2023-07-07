@@ -81,6 +81,12 @@ import {
 } from "./types";
 import { DEFAULT_BLOCK_TEST_DISTANCE } from "./setup/setupNoaEngine";
 
+export enum UiComponentType {
+  INVENTORY = "Inventory",
+  SIDEBAR = "Sidebar",
+  WORLD = "World",
+}
+
 export function createNoaLayer(network: NetworkLayer) {
   const world = namespaceWorld(network.world, "noa");
   const {
@@ -439,7 +445,7 @@ export function createNoaLayer(network: NetworkLayer) {
   //   playerChunk$.pipe(map((coord) => getStakeAndClaim(coord))).subscribe(stakeAndClaim$)?.unsubscribe
   // );
 
-  const returnUserToWorld$ = new BehaviorSubject(false);
+  const focusedUiComponent$ = new BehaviorSubject(UiComponentType.WORLD);
 
   const context = {
     world,
@@ -472,7 +478,7 @@ export function createNoaLayer(network: NetworkLayer) {
       slowPlayerPosition$,
       playerChunk$,
       // stakeAndClaim$,
-      returnUserToWorld$,
+      focusedUiComponent$,
     },
     SingletonEntity,
     audioEngine: Engine.audioEngine,

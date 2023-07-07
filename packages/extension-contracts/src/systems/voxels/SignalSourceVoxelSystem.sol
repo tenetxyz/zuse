@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity >=0.8.0;
 
-import { System } from "@latticexyz/world/src/System.sol";
+import { VoxelType } from "@tenetxyz/contracts/src/prototypes/VoxelType.sol";
 import { IWorld } from "../../../src/codegen/world/IWorld.sol";
 import { Signal, SignalData, SignalTableId, SignalSource, SignalSourceTableId, InvertedSignal, InvertedSignalData } from "../../codegen/Tables.sol";
 
@@ -21,8 +21,8 @@ string constant SignalSourceTexture = "bafkreifciafvv63x3nnnsdvsccp45ggcx5xczfho
 
 string constant SignalSourceUVWrap = "bafkreibyxohq35sq2fqujxffs5nfjdtfx5cmnqhnyliar2xbkqxgcd7d5u";
 
-contract SignalSourceVoxelSystem is System {
-  function registerSignalSourceVoxel() public {
+contract SignalSourceVoxelSystem is VoxelType {
+  function registerVoxel() public override {
     address world = _world();
 
     VoxelVariantsData memory signalSourceVariant;

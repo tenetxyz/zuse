@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity >=0.8.0;
 
-import { System } from "@latticexyz/world/src/System.sol";
+import { VoxelType } from "@tenetxyz/contracts/src/prototypes/VoxelType.sol";
 
 import { IWorld } from "../../../src/codegen/world/IWorld.sol";
 
@@ -18,8 +18,8 @@ import { EXTENSION_NAMESPACE } from "../../Constants.sol";
 
 bytes32 constant InvertedSignalID = bytes32(keccak256("invertedsignal"));
 
-contract InvertedSignalVoxelSystem is System {
-  function registerInvertedSignalVoxel() public {
+contract InvertedSignalVoxelSystem is VoxelType {
+  function registerVoxel() public override {
     address world = _world();
 
     registerVoxelType(

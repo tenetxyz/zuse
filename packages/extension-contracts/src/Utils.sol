@@ -65,6 +65,29 @@ function getVoxelCoordStrict(bytes32 entity) view returns (VoxelCoord memory) {
   return VoxelCoord(position.x, position.y, position.z);
 }
 
+function calculateBlockDirection(
+  PositionData memory centerCoord,
+  PositionData memory neighborCoord
+) pure returns (BlockDirection) {
+  if (neighborCoord.x == centerCoord.x && neighborCoord.y == centerCoord.y && neighborCoord.z == centerCoord.z) {
+    return BlockDirection.None;
+  } else if (neighborCoord.y > centerCoord.y) {
+    return BlockDirection.Up;
+  } else if (neighborCoord.y < centerCoord.y) {
+    return BlockDirection.Down;
+  } else if (neighborCoord.z > centerCoord.z) {
+    return BlockDirection.North;
+  } else if (neighborCoord.z < centerCoord.z) {
+    return BlockDirection.South;
+  } else if (neighborCoord.x > centerCoord.x) {
+    return BlockDirection.East;
+  } else if (neighborCoord.x < centerCoord.x) {
+    return BlockDirection.West;
+  } else {
+    return BlockDirection.None;
+  }
+}
+
 function getOppositeDirection(BlockDirection direction) pure returns (BlockDirection) {
   if (direction == BlockDirection.None) {
     return BlockDirection.None;

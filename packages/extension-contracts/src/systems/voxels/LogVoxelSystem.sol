@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity >=0.8.0;
 
-import { System } from "@latticexyz/world/src/System.sol";
+import { VoxelType } from "@tenetxyz/contracts/src/prototypes/VoxelType.sol";
 
 import { IWorld } from "../../../src/codegen/world/IWorld.sol";
 
@@ -17,8 +17,8 @@ string constant LogTopTexture = "bafkreiekx2odo544mawzn7np6p4uhkm2bt53nl4n2dhzj3
 
 string constant LogUVWrap = "bafkreiddsx5ke3e664ain2gnzd7jxicko34clxnlqzp2paqomvf7a7gb7m";
 
-contract LogVoxelSystem is System {
-  function registerLogVoxel() public {
+contract LogVoxelSystem is VoxelType {
+  function registerVoxel() public override {
     address world = _world();
 
     VoxelVariantsData memory logVariant;

@@ -16,17 +16,17 @@ contract PostDeploy is Script {
     IWorld world = IWorld(worldAddress);
 
     // Register all the voxels
-    world.extension_SandVoxelSystem_registerSandVoxel();
-    world.extension_LogVoxelSystem_registerLogVoxel();
-    world.extension_FlowerVoxelSyste_registerFlowerVoxels();
-    world.extension_SignalVoxelSyste_registerSignalVoxel();
-    world.extension_InvertedSignalVo_registerInvertedSignalVoxel();
-    world.extension_SignalSourceVoxe_registerSignalSourceVoxel();
+    world.extension_SandVoxelSystem_registerVoxel();
+    world.extension_LogVoxelSystem_registerVoxel();
+    world.extension_FlowerVoxelSyste_registerVoxel();
+    world.extension_SignalVoxelSyste_registerVoxel();
+    world.extension_InvertedSignalVo_registerVoxel();
+    world.extension_SignalSourceVoxe_registerVoxel();
 
     // Register all the voxel interactions
-    world.extension_SignalSystem_registerVoxelInteraction();
-    world.extension_InvertedSignalSy_registerVoxelInteraction();
-    world.extension_PoweredSystem_registerVoxelInteraction();
+    world.extension_SignalSystem_registerInteraction();
+    world.extension_InvertedSignalSy_registerInteraction();
+    world.extension_PoweredSystem_registerInteraction();
 
     // Note: These have to be here instead of ExtensionInitSystem as they have be called from the deployer account
     // otherwise the msgSender is not the namespace owner

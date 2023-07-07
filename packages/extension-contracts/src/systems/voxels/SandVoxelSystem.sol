@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity >=0.8.0;
 
-import { System } from "@latticexyz/world/src/System.sol";
+import { VoxelType } from "@tenetxyz/contracts/src/prototypes/VoxelType.sol";
 
 import { IWorld } from "../../../src/codegen/world/IWorld.sol";
 import { Powered, PoweredData } from "../../codegen/Tables.sol";
@@ -18,8 +18,8 @@ string constant SandTexture = "bafkreia4afumfatsrlbmq5azbehfwzoqmgu7bjkiutb6njsu
 
 string constant SandUVWrap = "bafkreiewghdyhnlq4yiqe4umxaytoy67jw3k65lwll2rbomfzr6oivhvpy";
 
-contract SandVoxelSystem is System {
-  function registerSandVoxel() public {
+contract SandVoxelSystem is VoxelType {
+  function registerVoxel() public override {
     address world = _world();
 
     VoxelVariantsData memory sandVariant;

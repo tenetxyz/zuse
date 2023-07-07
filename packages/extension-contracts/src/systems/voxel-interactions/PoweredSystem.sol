@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity >=0.8.0;
 
-import { VoxelInteraction } from "@tenetxyz/contracts/src/prototypes/VoxelInteraction.sol";
+import { VoxelInteraction } from "../../prototypes/VoxelInteraction.sol";
 
 import { IWorld } from "../../../src/codegen/world/IWorld.sol";
 
@@ -15,7 +15,7 @@ import { getCallerNamespace } from "@tenetxyz/contracts/src/SharedUtils.sol";
 import { registerExtension, getOppositeDirection, entityIsPowered, entityIsSignal, entityIsSignalSource } from "../../Utils.sol";
 
 contract PoweredSystem is VoxelInteraction {
-  function registerVoxelInteraction() public override {
+  function registerInteraction() public override {
     address world = _world();
     registerExtension(world, "PoweredSystem", IWorld(world).extension_PoweredSystem_eventHandler.selector);
   }

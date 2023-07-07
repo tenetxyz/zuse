@@ -7,9 +7,9 @@ import { IStore } from "@latticexyz/store/src/IStore.sol";
 import { IWorld } from "../../codegen/world/IWorld.sol";
 import { VoxelType, OwnedBy } from "../../codegen/Tables.sol";
 
-import { AirID } from "../../systems/voxels/AirSystem.sol";
-import { GrassID } from "../../systems/voxels/GrassSystem.sol";
-import { DirtID } from "../../systems/voxels/DirtSystem.sol";
+import { AirID } from "../../systems/voxels/AirVoxelSystem.sol";
+import { GrassID } from "../../systems/voxels/GrassVoxelSystem.sol";
+import { DirtID } from "../../systems/voxels/DirtVoxelSystem.sol";
 
 import { addressToEntityKey } from "../../Utils.sol";
 import { VoxelCoord } from "../../Types.sol";

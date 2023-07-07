@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity >=0.8.0;
 
-import { System } from "@latticexyz/world/src/System.sol";
+import { VoxelType } from "@tenetxyz/contracts/src/prototypes/VoxelType.sol";
 
 import { IWorld } from "../../../src/codegen/world/IWorld.sol";
 
@@ -14,8 +14,8 @@ bytes32 constant OrangeFlowerID = bytes32(keccak256("orangeflower"));
 
 string constant OrangeFlowerTexture = "bafkreicins36cmwliwf7ryrlcs32khvi6kleof6buiirlvgv2w6cejpg54";
 
-contract FlowerVoxelSystem is System {
-  function registerFlowerVoxels() public {
+contract FlowerVoxelSystem is VoxelType {
+  function registerVoxel() public override {
     address world = _world();
 
     VoxelVariantsData memory orangeFlowerVariant;

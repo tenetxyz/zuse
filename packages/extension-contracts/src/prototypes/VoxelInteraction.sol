@@ -3,13 +3,13 @@ pragma solidity >=0.8.0;
 
 import { System } from "@latticexyz/world/src/System.sol";
 
-import { PositionData } from "../codegen/tables/Position.sol";
-import { getCallerNamespace } from "../SharedUtils.sol";
-import { BlockDirection } from "../Types.sol";
+import { PositionData } from "@tenetxyz/contracts/src/codegen/tables/Position.sol";
+import { getCallerNamespace } from "@tenetxyz/contracts/src/SharedUtils.sol";
+import { BlockDirection } from "../codegen/Types.sol";
 import { calculateBlockDirection, getEntityPositionStrict } from "../Utils.sol";
 
 abstract contract VoxelInteraction is System {
-  function registerVoxelInteraction() public virtual;
+  function registerInteraction() public virtual;
 
   function runInteraction(
     bytes16 callerNamespace,

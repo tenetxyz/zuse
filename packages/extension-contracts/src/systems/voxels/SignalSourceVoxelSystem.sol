@@ -55,7 +55,7 @@ contract SignalSourceVoxelSystem is VoxelType {
   }
 
   function signalSourceVariantSelector(bytes32 entity) public returns (VoxelVariantsKey memory) {
-    super.setupVoxel(entity);
+    super.updateProperties(entity);
     return VoxelVariantsKey({ voxelVariantNamespace: EXTENSION_NAMESPACE, voxelVariantId: SignalSourceID });
   }
 }

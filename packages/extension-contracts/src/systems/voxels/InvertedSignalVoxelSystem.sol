@@ -44,7 +44,7 @@ contract InvertedSignalVoxelSystem is VoxelType {
   }
 
   function invertedSignalVariantSelector(bytes32 entity) public returns (VoxelVariantsKey memory) {
-    (, bytes16 callerNamespace) = super.setupVoxel(entity);
+    (, bytes16 callerNamespace) = super.updateProperties(entity);
     InvertedSignalData memory invertedSignalData = InvertedSignal.get(callerNamespace, entity);
     if (invertedSignalData.isActive) {
       return VoxelVariantsKey({ voxelVariantNamespace: EXTENSION_NAMESPACE, voxelVariantId: SignalOnID });

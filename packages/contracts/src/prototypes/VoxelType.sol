@@ -14,18 +14,18 @@ abstract contract VoxelType is System {
 
   function removeProperties(bytes32 entity, bytes16 callerNamespace) public virtual {}
 
-  function setupVoxel(bytes32 entity) public returns (bool voxelExists, bytes16 callerNamespace) {
+  function updateProperties(bytes32 entity) public returns (bool isInWorld, bytes16 callerNamespace) {
     callerNamespace = getCallerNamespace(_msgSender());
 
     bytes32[] memory positionKeyTuple = new bytes32[](1);
     positionKeyTuple[0] = bytes32((entity));
-    voxelExists = hasKey(PositionTableId, positionKeyTuple);
-    if (voxelExists) {
+    isInWorld = hasKey(PositionTableId, positionKeyTuple);
+    if (isInWorld) {
       addProperties(entity, callerNamespace);
     } else {
       removeProperties(entity, callerNamespace);
     }
 
-    return (voxelExists, callerNamespace);
+    return (isInWorld, callerNamespace);
   }
 }

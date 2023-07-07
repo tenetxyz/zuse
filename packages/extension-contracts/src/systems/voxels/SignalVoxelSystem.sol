@@ -73,7 +73,7 @@ contract SignalVoxelSystem is VoxelType {
   }
 
   function signalVariantSelector(bytes32 entity) public returns (VoxelVariantsKey memory) {
-    (, bytes16 callerNamespace) = super.setupVoxel(entity);
+    (, bytes16 callerNamespace) = super.updateProperties(entity);
     SignalData memory signalData = Signal.get(callerNamespace, entity);
     if (signalData.isActive) {
       return VoxelVariantsKey({ voxelVariantNamespace: EXTENSION_NAMESPACE, voxelVariantId: SignalOnID });

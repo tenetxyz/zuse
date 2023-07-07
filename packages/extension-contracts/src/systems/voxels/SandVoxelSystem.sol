@@ -58,7 +58,7 @@ contract SandVoxelSystem is VoxelType {
   }
 
   function sandVariantSelector(bytes32 entity) public returns (VoxelVariantsKey memory) {
-    super.setupVoxel(entity);
+    super.updateProperties(entity);
     return VoxelVariantsKey({ voxelVariantNamespace: EXTENSION_NAMESPACE, voxelVariantId: SandID });
   }
 }

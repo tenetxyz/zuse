@@ -21,6 +21,7 @@ contract GiftVoxelSystem is System {
     // Since numUniqueVoxelTypesIOwn is quadratic in gas (based on how many voxels you own), running this function could use up all your gas. So it's commented
     // require(numUniqueVoxelTypesIOwn() <= 36, "You can only own 36 unique voxel types at a time");
     bytes32 entity = getUniqueEntity();
+    // When a voxel is in your inventory, it's not in the world so it should have no voxel variant
     VoxelType.set(entity, voxelTypeNamespace, voxelTypeId, "", "");
 
     OwnedBy.set(entity, addressToEntityKey(_msgSender()));

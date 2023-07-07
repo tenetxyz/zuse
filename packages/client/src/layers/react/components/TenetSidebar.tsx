@@ -13,10 +13,10 @@ import { useComponentUpdate } from "../../../utils/useComponentUpdate";
 export const SIDEBAR_BACKGROUND_COLOR = "#353535";
 export function registerTenetSidebar() {
   registerTenetComponent({
-    rowStart: 1,
-    rowEnd: 12,
+    rowStart: 2,
+    rowEnd: 11,
     columnStart: 1,
-    columnEnd: 12,
+    columnEnd: 10,
     Component: ({ layers }) => {
       const {
         noa: {
@@ -102,9 +102,9 @@ export function registerTenetSidebar() {
 
       return (
         // "pointerEvents: all" is needed so when we click on the admin panel, we don't gain focus on the noa canvas
-        <div className="h-full select-none" style={{ pointerEvents: "all" }}>
+        <div className="select-none h-full inline-grid" style={{ pointerEvents: "all" }}>
           <div
-            className="flex flex-row float-left relative z-50 h-[80%] mt-[5%] pr-7 pt-7"
+            className="flex flex-row float-left relative z-50 mt-[5%] pr-7 pt-7"
             style={{
               backgroundColor: selectedTab === InventoryTab.NONE ? "transparent" : `${SIDEBAR_BACKGROUND_COLOR}`,
             }}

@@ -15,6 +15,8 @@ import { DEFAULT_BLOCK_TEST_DISTANCE } from "../setup/setupNoaEngine";
 import { calculateCornersFromTargetedBlock, TargetedBlock } from "./createSpawnCreationOverlaySystem";
 import { renderFloatingTextAboveCoord } from "./renderFloatingText";
 import { renderEnt } from "./renderEnt";
+import { FocusedUiType } from "../components/FocusedUi";
+import { useComponentValue } from "@latticexyz/react";
 
 export function createInputSystem(network: NetworkLayer, noaLayer: NoaLayer) {
   const {
@@ -22,6 +24,7 @@ export function createInputSystem(network: NetworkLayer, noaLayer: NoaLayer) {
     components: {
       SelectedSlot,
       UI,
+      FocusedUi,
       Tutorial,
       PreTeleportPosition,
       VoxelSelection,
@@ -29,7 +32,7 @@ export function createInputSystem(network: NetworkLayer, noaLayer: NoaLayer) {
       PersistentNotification,
     },
     SingletonEntity,
-    api: { toggleInventory, togglePlugins, placeSelectedVoxelType, getVoxelTypeInSelectedSlot, teleport },
+    api: { closeInventory, openInventory, togglePlugins, placeSelectedVoxelType, getVoxelTypeInSelectedSlot, teleport },
     streams: { playerPosition$ },
   } = noaLayer;
 
@@ -205,15 +208,15 @@ export function createInputSystem(network: NetworkLayer, noaLayer: NoaLayer) {
     });
   });
 
-  noa.inputs.bind("inventory", "E");
-  noa.inputs.down.on("inventory", () => {
+  noa.inputs.bind("toggle-inventory", "E");
+  noa.inputs.down.on("toggle-inventory", () => {
     if (!canInteract()) return;
-    const showInventory = getComponentValue(UI, SingletonEntity)?.showInventory;
-    if (!noa.container.hasPointerLock && !showInventory) {
-      return;
+    const isInventoryOpen = getComponentValue(FocusedUi, SingletonEntity)?.value === FocusedUiType.INVENTORY;
+    if (isInventoryOpen) {
+      closeInventory();
+    } else {
+      openInventory();
     }
-
-    toggleInventory();
     updateComponent(Tutorial, SingletonEntity, { inventory: false });
   });
 

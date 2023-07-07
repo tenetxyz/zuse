@@ -139,7 +139,6 @@ export function createNoaLayer(network: NetworkLayer) {
   // Set initial values
   setComponent(components.UI, SingletonEntity, {
     showAdminPanel: false,
-    showInventory: false,
     showCrafting: false,
     showPlugins: false,
   });
@@ -266,58 +265,30 @@ export function createNoaLayer(network: NetworkLayer) {
     open = open ?? !getComponentValue(components.UI, SingletonEntity)?.showPlugins;
     noa.container.setPointerLock(!open);
     updateComponent(components.UI, SingletonEntity, {
-      showInventory: false,
       showCrafting: false,
       showPlugins: open,
     });
   }
 
-  function closeInventory() {}
-
-  function openInventory() {}
-
-  function toggleInventory(open?: boolean, crafting?: boolean, togglePointerLock = true) {
-    // we need to check if the input is not focused, cause when we're searching for a voxeltype in the creative move inventory, we may press "e" which will close the inventory
-    if (isFocusedOnInputElement()) {
-      return;
-    }
-
-    open = open ?? !getComponentValue(components.UI, SingletonEntity)?.showInventory;
-
-    if (open) {
-      // clear persistent notification when we open the inventory
-      setComponent(components.PersistentNotification, SingletonEntity, {
-        message: "",
-        icon: NotificationIcon.NONE,
-      });
-
-      // clear SpawnCreation when we open the inventory
-      setComponent(components.SpawnCreation, SingletonEntity, {
-        creation: undefined,
-      });
-      noa.blockTestDistance = DEFAULT_BLOCK_TEST_DISTANCE; // reset block test distance
-
-      // set focused ui to inventory
-      setComponent(components.FocusedUi, SingletonEntity, { value: FocusedUiType.INVENTORY });
-    } else {
-      // we closed the inventory, bring the user back to the world
-      setComponent(components.FocusedUi, SingletonEntity, { value: FocusedUiType.WORLD });
-    }
-
-    if (togglePointerLock) {
-      noa.container.setPointerLock(!open);
-    }
-    updateComponent(components.UI, SingletonEntity, {
-      showPlugins: false,
-      showInventory: open,
-      showCrafting: Boolean(open && crafting),
-    });
+  function closeInventory() {
+    setComponent(components.FocusedUi, SingletonEntity, { value: FocusedUiType.WORLD });
   }
 
-  const isFocusedOnInputElement = () => {
-    const activeElement = document.activeElement;
-    return activeElement && ["INPUT", "TEXTAREA"].includes(activeElement.tagName);
-  };
+  function openInventory() {
+    // clear persistent notification when we open the inventory
+    setComponent(components.PersistentNotification, SingletonEntity, {
+      message: "",
+      icon: NotificationIcon.NONE,
+    });
+
+    // clear SpawnCreation when we open the inventory
+    setComponent(components.SpawnCreation, SingletonEntity, {
+      creation: undefined,
+    });
+    noa.blockTestDistance = DEFAULT_BLOCK_TEST_DISTANCE; // reset block test distance
+
+    setComponent(components.FocusedUi, SingletonEntity, { value: FocusedUiType.INVENTORY });
+  }
 
   function getVoxelTypeInSelectedSlot(): VoxelTypeDataKey | undefined {
     const selectedSlot = getComponentValue(components.SelectedSlot, SingletonEntity)?.value;
@@ -456,7 +427,8 @@ export function createNoaLayer(network: NetworkLayer) {
       getCraftingResult,
       teleport,
       teleportRandom,
-      toggleInventory,
+      closeInventory,
+      openInventory,
       togglePlugins,
       placeSelectedVoxelType,
       getCurrentChunk,

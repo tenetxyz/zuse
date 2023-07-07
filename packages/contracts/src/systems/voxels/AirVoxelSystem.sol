@@ -21,7 +21,8 @@ contract AirVoxelSystem is VoxelType {
     world.tenet_VoxelRegistrySys_registerVoxelType(
       "Air",
       AirID,
-      "",
+      TENET_NAMESPACE,
+      AirID,
       world.tenet_AirVoxelSystem_airVariantSelector.selector
     );
   }

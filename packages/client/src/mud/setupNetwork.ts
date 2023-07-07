@@ -20,7 +20,6 @@ import {
 } from "../layers/network/api";
 import { to64CharAddress } from "../utils/entity";
 import {
-  voxelTypeDataKeyToVoxelVariantDataKey,
   NoaBlockType,
   VoxelVariantData,
   VoxelTypeDataKey,
@@ -29,6 +28,8 @@ import {
   voxelVariantDataKeyToString,
   voxelVariantKeyStringToKey,
   voxelTypeToEntity,
+  VoxelTypeBaseKey,
+  voxelTypeBaseKeyStrToVoxelTypeRegistryKeyStr,
 } from "../layers/noa/types";
 import { Textures, UVWraps } from "../layers/noa/constants";
 import { keccak256 } from "@latticexyz/utils";
@@ -263,6 +264,22 @@ export async function setupNetwork() {
     return Array.isArray(voxel.material) ? voxel.material[0] : voxel.material;
   }
 
+  function getVoxelPreviewVariant(voxelTypeBaseKey: VoxelTypeBaseKey): VoxelVariantDataKey | undefined {
+    const voxelTypeRegistryKey = voxelTypeBaseKeyStrToVoxelTypeRegistryKeyStr(voxelTypeBaseKey) as Entity;
+    const voxelTypeRecord = getComponentValue(contractComponents.VoxelTypeRegistry, voxelTypeRegistryKey);
+    return (
+      voxelTypeRecord && {
+        voxelVariantNamespace: voxelTypeRecord.previewVoxelVariantNamespace,
+        voxelVariantId: voxelTypeRecord.previewVoxelVariantId,
+      }
+    );
+  }
+
+  function getVoxelTypePreviewUrl(voxelTypeBaseKey: VoxelTypeBaseKey): string | undefined {
+    const previewVoxelVariant = getVoxelPreviewVariant(voxelTypeBaseKey);
+    return previewVoxelVariant && getVoxelIconUrl(previewVoxelVariant);
+  }
+
   // --- API ------------------------------------------------------------------------
 
   const perlin = await createPerlin();
@@ -296,7 +313,7 @@ export async function setupNetwork() {
     return tx;
   }
 
-  function build(voxelType: VoxelTypeDataKey, coord: VoxelCoord) {
+  function build(voxelType: VoxelTypeBaseKey, coord: VoxelCoord) {
     const voxelInstanceOfVoxelType = [
       ...runQuery([
         HasValue(contractComponents.OwnedBy, {
@@ -309,7 +326,8 @@ export async function setupNetwork() {
       return console.warn(`cannot find a voxel (that you own) for voxelType=${voxelType}`);
     }
 
-    const voxelVariantKey: VoxelVariantDataKey = voxelTypeDataKeyToVoxelVariantDataKey(voxelType);
+    const preview: string = getVoxelTypePreviewUrl(voxelType) || "";
+    const previewVoxelVariant = getVoxelPreviewVariant(voxelType);
 
     const newVoxelOfSameType = world.registerEntity();
 
@@ -319,7 +337,7 @@ export async function setupNetwork() {
         // metadata determines how the transaction dialog box appears in the bottom left corner
         actionType: "build",
         coord,
-        voxelVariantKey, // Determines the Icon that appears in the dialogue box
+        preview,
       },
       requirement: () => true,
       components: {
@@ -345,7 +363,12 @@ export async function setupNetwork() {
         {
           component: "VoxelType",
           entity: newVoxelOfSameType,
-          value: voxelType,
+          value: {
+            voxelTypeNamespace: voxelType.voxelTypeNamespace,
+            voxelTypeId: voxelType.voxelTypeId,
+            voxelVariantNamespace: previewVoxelVariant?.voxelVariantNamespace,
+            voxelVariantId: previewVoxelVariant?.voxelVariantId,
+          },
         },
       ],
     });
@@ -439,16 +462,20 @@ export async function setupNetwork() {
         return giftVoxelSystem(voxelTypeNamespace, voxelTypeId);
       },
       updates: () => [
-        // TODO: we can't do optimistic because we don't know what the variant will be. Maybe we can figure out somehow?
         // {
         //   component: "VoxelType",
         //   entity: newVoxel,
-        //   value: { value: voxelType },
+        //   value: {
+        //     voxelTypeNamespace: voxelTypeNamespace,
+        //     voxelTypeId: voxelTypeId,
+        //     voxelVariantNamespace: "",
+        //     voxelVariantId: "",
+        //   },
         // },
         // {
         //   component: "OwnedBy",
-        //   entity: playerAddress as Entity,
-        //   value: newVoxel,
+        //   entity: newVoxel,
+        //   value: { value: to64CharAddress(playerAddress) },
         // },
       ],
     });
@@ -596,6 +623,12 @@ export async function setupNetwork() {
     worldAddress: networkConfig.worldAddress,
     uniqueWorldId,
     getVoxelIconUrl,
-    voxelTypes: { VoxelVariantData, VoxelVariantIndexToKey, VoxelVariantDataSubscriptions },
+    getVoxelTypePreviewUrl,
+    getVoxelPreviewVariant,
+    voxelTypes: {
+      VoxelVariantData,
+      VoxelVariantIndexToKey,
+      VoxelVariantDataSubscriptions,
+    },
   };
 }

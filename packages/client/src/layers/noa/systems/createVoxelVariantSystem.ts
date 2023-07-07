@@ -3,12 +3,7 @@ import { defineComponentSystem, defineEnterSystem, getComponentValueStrict, Has 
 import { toUtf8String } from "ethers/lib/utils.js";
 import { awaitStreamValue } from "@latticexyz/utils";
 import { NetworkLayer } from "../../network";
-import {
-  NoaLayer,
-  voxelTypeDataKeyToVoxelVariantDataKey,
-  voxelVariantDataKeyToString,
-  VoxelVariantDataValue,
-} from "../types";
+import { NoaLayer, voxelVariantDataKeyToString, VoxelVariantDataValue } from "../types";
 import { NoaVoxelDef } from "../types";
 import { formatNamespace } from "../../../constants";
 import { getNftStorageLink } from "../constants";

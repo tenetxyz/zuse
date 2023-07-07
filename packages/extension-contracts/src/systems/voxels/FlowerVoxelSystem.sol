@@ -31,7 +31,8 @@ contract FlowerVoxelSystem is VoxelType {
       world,
       "Orange Flower",
       OrangeFlowerID,
-      OrangeFlowerTexture,
+      EXTENSION_NAMESPACE,
+      OrangeFlowerID,
       IWorld(world).extension_FlowerVoxelSyste_orangeFlowerVariantSelector.selector
     );
   }

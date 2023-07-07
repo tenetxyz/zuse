@@ -57,7 +57,7 @@ contract MineSystem is System {
       // Else, mine the non-air entity voxel at this position
       require(entitiesAtPosition.length == 1, "there should only be one entity at this position");
       voxelToMine = entitiesAtPosition[0];
-      VoxelTypeData memory voxelTypeData = VoxelType.get(entitiesAtPosition[0]);
+      VoxelTypeData memory voxelTypeData = VoxelType.get(voxelToMine);
       require(voxelToMine != 0, "We found no voxels at that position");
       require(
         voxelTypeData.voxelTypeNamespace == voxelTypeNamespace &&
@@ -67,8 +67,8 @@ contract MineSystem is System {
         "The voxel at this position is not the same as the voxel you are trying to mine"
       );
       Position.deleteRecord(voxelToMine);
-
-      // TODO: should reset component values
+      getVoxelVariant(_world(), voxelTypeData.voxelTypeNamespace, voxelTypeData.voxelTypeId, voxelToMine);
+      VoxelType.set(voxelToMine, voxelTypeData.voxelTypeNamespace, voxelTypeData.voxelTypeId, "", "");
     }
 
     // Place an air voxel at this position

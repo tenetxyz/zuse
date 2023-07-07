@@ -15,17 +15,7 @@ export const Slot: React.FC<{
   disabled?: boolean;
   iconUrl?: string;
   tooltipText?: React.ReactNode;
-  getVoxelIconUrl: (voxelTypeKey: VoxelVariantDataKey) => string | undefined;
-}> = ({ voxelType, quantity, onClick, onRightClick, selected, disabled, getVoxelIconUrl, iconUrl, tooltipText }) => {
-  let useIconUrl = iconUrl ? iconUrl : "";
-  const voxelVariantData = voxelType ? entityToVoxelType(voxelType) : undefined;
-  if (useIconUrl == "" && voxelVariantData !== undefined) {
-    useIconUrl =
-      getVoxelIconUrl({
-        voxelVariantNamespace: voxelVariantData.voxelVariantNamespace,
-        voxelVariantId: voxelVariantData.voxelVariantId,
-      }) || "";
-  }
+}> = ({ voxelType, quantity, onClick, onRightClick, selected, disabled, iconUrl, tooltipText }) => {
   return (
     <AbsoluteBorder borderColor={selected ? "#ffffff" : "transparent"} borderWidth={6}>
       <TooltipContainer>
@@ -41,8 +31,8 @@ export const Slot: React.FC<{
                 }}
               >
                 {voxelType ? (
-                  <VoxelIcon iconUrl={useIconUrl} scale={4}>
-                    {quantity != null ? <Quantity>{quantity}</Quantity> : null}
+                  <VoxelIcon iconUrl={iconUrl ? iconUrl : ""} scale={4}>
+                    {quantity !== null ? <Quantity>{quantity}</Quantity> : null}
                   </VoxelIcon>
                 ) : null}
               </Inner>

@@ -34,25 +34,28 @@ contract SignalSourceVoxelSystem is VoxelType {
       world,
       "Signal Source",
       SignalSourceID,
-      SignalSourceTexture,
+      EXTENSION_NAMESPACE,
+      SignalSourceID,
       IWorld(world).extension_SignalSourceVoxe_signalSourceVariantSelector.selector
     );
   }
 
-  function signalSourceVariantSelector(bytes32 entity) public returns (VoxelVariantsKey memory) {
-    getOrCreateSignalSource(entity);
-    return VoxelVariantsKey({ voxelVariantNamespace: EXTENSION_NAMESPACE, voxelVariantId: SignalSourceID });
-  }
-
-  function getOrCreateSignalSource(bytes32 entity) public returns (bool) {
-    bytes16 callerNamespace = getCallerNamespace(_msgSender());
-
+  function addProperties(bytes32 entity, bytes16 callerNamespace) public override {
     if (!entityIsSignalSource(entity, callerNamespace)) {
       bool isNaturalSignalSource = true;
       bool hasValue = true;
       SignalSource.set(callerNamespace, entity, isNaturalSignalSource, hasValue);
     }
+  }
 
-    return SignalSource.get(callerNamespace, entity).isNatural;
+  function removeProperties(bytes32 entity, bytes16 callerNamespace) public override {
+    if (entityIsSignalSource(entity, callerNamespace)) {
+      SignalSource.deleteRecord(callerNamespace, entity);
+    }
+  }
+
+  function signalSourceVariantSelector(bytes32 entity) public returns (VoxelVariantsKey memory) {
+    super.updateProperties(entity);
+    return VoxelVariantsKey({ voxelVariantNamespace: EXTENSION_NAMESPACE, voxelVariantId: SignalSourceID });
   }
 }

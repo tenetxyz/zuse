@@ -35,14 +35,13 @@ contract SandVoxelSystem is VoxelType {
       world,
       "Powered Sand",
       SandID,
-      SandTexture,
+      EXTENSION_NAMESPACE,
+      SandID,
       IWorld(world).extension_SandVoxelSystem_sandVariantSelector.selector
     );
   }
 
-  function getOrCreatePowered(bytes32 entity) public returns (PoweredData memory) {
-    bytes16 callerNamespace = getCallerNamespace(_msgSender());
-
+  function addProperties(bytes32 entity, bytes16 callerNamespace) public override {
     if (!entityIsPowered(entity, callerNamespace)) {
       Powered.set(
         callerNamespace,
@@ -50,12 +49,16 @@ contract SandVoxelSystem is VoxelType {
         PoweredData({ isActive: false, direction: BlockDirection.None, hasValue: true })
       );
     }
+  }
 
-    return Powered.get(callerNamespace, entity);
+  function removeProperties(bytes32 entity, bytes16 callerNamespace) public override {
+    if (entityIsPowered(entity, callerNamespace)) {
+      Powered.deleteRecord(callerNamespace, entity);
+    }
   }
 
   function sandVariantSelector(bytes32 entity) public returns (VoxelVariantsKey memory) {
-    getOrCreatePowered(entity);
+    super.updateProperties(entity);
     return VoxelVariantsKey({ voxelVariantNamespace: EXTENSION_NAMESPACE, voxelVariantId: SandID });
   }
 }

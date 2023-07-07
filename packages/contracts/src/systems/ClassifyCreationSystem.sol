@@ -15,11 +15,12 @@ import { CHUNK_MAX_Y, CHUNK_MIN_Y } from "../Constants.sol";
 
 contract ClassifyCreationSystem is System {
   function classify(bytes32 classifierId, bytes32 spawnId, bytes memory input) public {
-    // check if voxel type is already registered
+    // check if classifier is already registered
     bytes32[] memory classifierKeyTuple = new bytes32[](1);
     classifierKeyTuple[0] = classifierId;
     require(hasKey(ClassifierTableId, classifierKeyTuple), "Classifier doesn't exist");
 
+    // check if spawn is already registered
     bytes32[] memory spawnKeyTuple = new bytes32[](1);
     spawnKeyTuple[0] = spawnId;
     require(hasKey(SpawnTableId, spawnKeyTuple), "Spawn doesn't exist");

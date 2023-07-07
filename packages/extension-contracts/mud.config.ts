@@ -52,6 +52,17 @@ export default mudConfig({
         hasValue: "bool", // TODO: Remove this once we can install non-root modules
       },
     },
+    Temperature: {
+      keySchema: {
+        namespace: "bytes16",
+        entity: "bytes32",
+      },
+      schema: {
+        temperature: "uint256",
+        lastUpdateBlock: "uint256",
+        hasValue: "bool", // TODO: Remove this once we can install non-root modules
+      },
+    },
   },
   modules: [
     // TODO: Re-enable when we have a way to install non-root modules

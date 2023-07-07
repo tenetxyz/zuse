@@ -9,7 +9,6 @@ import { ElectiveBar } from "./ElectiveBar";
 import { setComponent } from "@latticexyz/recs";
 import { FocusedUiType } from "../../noa/components/FocusedUi";
 import { useComponentUpdate } from "../../../utils/useComponentUpdate";
-import { ComponentRecord } from "../../../types";
 
 export const SIDEBAR_BACKGROUND_COLOR = "#353535";
 export function registerTenetSidebar() {

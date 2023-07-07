@@ -7,7 +7,6 @@ export function defineUIComponent(world: World) {
     world,
     {
       showAdminPanel: Type.Boolean,
-      showInventory: Type.Boolean,
       showCrafting: Type.Boolean,
       showPlugins: Type.Boolean,
     },

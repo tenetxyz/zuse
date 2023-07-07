@@ -272,6 +272,10 @@ export function createNoaLayer(network: NetworkLayer) {
     });
   }
 
+  function closeInventory() {}
+
+  function openInventory() {}
+
   function toggleInventory(open?: boolean, crafting?: boolean, togglePointerLock = true) {
     // we need to check if the input is not focused, cause when we're searching for a voxeltype in the creative move inventory, we may press "e" which will close the inventory
     if (isFocusedOnInputElement()) {
@@ -292,6 +296,12 @@ export function createNoaLayer(network: NetworkLayer) {
         creation: undefined,
       });
       noa.blockTestDistance = DEFAULT_BLOCK_TEST_DISTANCE; // reset block test distance
+
+      // set focused ui to inventory
+      setComponent(components.FocusedUi, SingletonEntity, { value: FocusedUiType.INVENTORY });
+    } else {
+      // we closed the inventory, bring the user back to the world
+      setComponent(components.FocusedUi, SingletonEntity, { value: FocusedUiType.WORLD });
     }
 
     if (togglePointerLock) {
@@ -303,6 +313,7 @@ export function createNoaLayer(network: NetworkLayer) {
       showCrafting: Boolean(open && crafting),
     });
   }
+
   const isFocusedOnInputElement = () => {
     const activeElement = document.activeElement;
     return activeElement && ["INPUT", "TEXTAREA"].includes(activeElement.tagName);

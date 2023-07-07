@@ -22,36 +22,39 @@ export function registerBackgroundFade() {
         },
       } = layers;
 
-      function disableOrEnableInputs(isUiOpen: boolean | undefined) {
-        if (isUiOpen) {
-          // disable movement when inventory is open
-          // https://github.com/fenomas/noa/issues/61
-          noa.entities.removeComponent(noa.playerEntity, noa.ents.names.receivesInputs);
-          noa.inputs.unbind("select-voxel");
-          noa.inputs.unbind("admin-panel");
-          const a = noa.entities.getMovement(noa.playerEntity);
-          noa.entities.getMovement(noa.playerEntity).isPlayerSlowedToAStop = true; // stops the player's input from moving the player
-        } else {
-          // since a react component calls this function times, we need to use addComponentAgain (rather than addComponent)
-          noa.entities.addComponentAgain(noa.playerEntity, "receivesInputs", noa.ents.names.receivesInputs);
-          noa.inputs.bind("select-voxel", "V");
-          noa.inputs.bind("admin-panel", "-");
-          noa.entities.getMovement(noa.playerEntity).isPlayerSlowedToAStop = false;
-        }
+      function disableInputs() {
+        // disable movement when inventory is open
+        // https://github.com/fenomas/noa/issues/61
+        noa.entities.removeComponent(noa.playerEntity, noa.ents.names.receivesInputs);
+        noa.inputs.unbind("select-voxel");
+        noa.inputs.unbind("admin-panel");
+        const a = noa.entities.getMovement(noa.playerEntity);
+        noa.entities.getMovement(noa.playerEntity).isPlayerSlowedToAStop = true; // stops the player's input from moving the player
+      }
+
+      function enableInputs() {
+        // since a react component calls this function times, we need to use addComponentAgain (rather than addComponent)
+        noa.entities.addComponentAgain(noa.playerEntity, "receivesInputs", noa.ents.names.receivesInputs);
+        noa.inputs.bind("select-voxel", "V");
+        noa.inputs.bind("admin-panel", "-");
+        noa.entities.getMovement(noa.playerEntity).isPlayerSlowedToAStop = false;
       }
 
       const focusedUi = useComponentValue(FocusedUi, SingletonEntity)?.value;
       useEffect(() => {
-        disableOrEnableInputs(focusedUi !== FocusedUiType.WORLD);
         if (focusedUi === FocusedUiType.WORLD) {
+          enableInputs();
           noa.container.setPointerLock(true);
+        } else {
+          disableInputs();
         }
+        console.log(focusedUi);
       }, [focusedUi]);
 
       return focusedUi !== FocusedUiType.WORLD ? (
         <Background
           onClick={() => {
-            setComponent(FocusedUi, SingletonEntity, { value: false });
+            setComponent(FocusedUi, SingletonEntity, { value: FocusedUiType.WORLD });
             noa.container.setPointerLock(true); // make the user be able to move again
           }}
         />

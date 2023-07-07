@@ -4,6 +4,9 @@ import { VoxelCoord } from "@tenet-contracts/src/Types.sol";
 import { hasKey } from "@latticexyz/world/src/modules/keysintable/hasKey.sol";
 import { Signal, SignalData, SignalSource, Powered, InvertedSignal } from "@tenet-extension-contracts/src/codegen/Tables.sol";
 import { CLEAR_COORD_SIG, BUILD_SIG, GIFT_VOXEL_SIG } from "@tenet-contracts/src/constants.sol";
+import { Signal, SignalSource, Powered, InvertedSignal, Temperature } from "./codegen/Tables.sol";
+import { BlockDirection } from "./codegen/Types.sol";
+import { CLEAR_COORD_SIG, BUILD_SIG } from "@tenetxyz/contracts/src/constants.sol";
 import { getUniqueEntity } from "@latticexyz/world/src/modules/uniqueentity/getUniqueEntity.sol";
 import { REGISTER_EXTENSION_SIG, REGISTER_VOXEL_TYPE_SIG, REGISTER_VOXEL_VARIANT_SIG, RM_ALL_OWNED_VOXELS_SIG } from "@tenet-contracts/src/constants.sol";
 import { VoxelVariantsData } from "@tenet-contracts/src/codegen/tables/VoxelVariants.sol";
@@ -95,6 +98,32 @@ function giftVoxel(address world, bytes16 voxelTypeNamespace, bytes32 voxelTypeI
     "giftVoxel"
   );
   return abi.decode(returnData, (bytes32));
+
+function entityHasTemperature(bytes32 entity, bytes16 callerNamespace) view returns (bool) {
+  return Temperature.get(callerNamespace, entity).hasValue;
+}
+
+function calculateBlockDirection(
+  PositionData memory centerCoord,
+  PositionData memory neighborCoord
+) pure returns (BlockDirection) {
+  if (neighborCoord.x == centerCoord.x && neighborCoord.y == centerCoord.y && neighborCoord.z == centerCoord.z) {
+    return BlockDirection.None;
+  } else if (neighborCoord.y > centerCoord.y) {
+    return BlockDirection.Up;
+  } else if (neighborCoord.y < centerCoord.y) {
+    return BlockDirection.Down;
+  } else if (neighborCoord.z > centerCoord.z) {
+    return BlockDirection.North;
+  } else if (neighborCoord.z < centerCoord.z) {
+    return BlockDirection.South;
+  } else if (neighborCoord.x > centerCoord.x) {
+    return BlockDirection.East;
+  } else if (neighborCoord.x < centerCoord.x) {
+    return BlockDirection.West;
+  } else {
+    return BlockDirection.None;
+  }
 }
 
 function removeAllOwnedVoxels(address world) {

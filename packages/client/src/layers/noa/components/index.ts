@@ -10,3 +10,6 @@ export { defineTutorialComponent } from "./Tutorial";
 export { definePreTeleportPositionComponent } from "./PreTeleportPosition";
 export { defineSoundComponent } from "./Sound";
 export { defineVoxelSelectionComponent } from "./VoxelSelection";
+export { defineSpawnCreationComponent } from "./SpawnCreation";
+export { defineSpawnInFocusComponent } from "./SpawnInFocus";
+export { defineFocusedUiComponent } from "./FocusedUi";

@@ -28,6 +28,9 @@ import {
   definePreTeleportPositionComponent,
   defineSoundComponent,
   defineVoxelSelectionComponent,
+  defineSpawnCreationComponent,
+  defineSpawnInFocusComponent,
+  defineFocusedUiComponent,
 } from "./components";
 import { CRAFTING_SIDE, EMPTY_CRAFTING_TABLE } from "./constants";
 import * as BABYLON from "@babylonjs/core";
@@ -66,7 +69,6 @@ import { definePlayerMeshComponent } from "./components/PlayerMesh";
 import { Engine } from "@babylonjs/core";
 import { definePersistentNotificationComponent, NotificationIcon } from "./components/persistentNotification";
 import { createVoxelSelectionOverlaySystem } from "./systems/createVoxelSelectionOverlaySystem";
-import { defineSpawnCreationComponent } from "./components/SpawnCreation";
 import { createSpawnCreationOverlaySystem } from "./systems/createSpawnCreationOverlaySystem";
 import { createSpawnOverlaySystem } from "./systems/createSpawnOverlaySystem";
 import {
@@ -78,6 +80,13 @@ import {
   VoxelVariantDataValue,
 } from "./types";
 import { DEFAULT_BLOCK_TEST_DISTANCE } from "./setup/setupNoaEngine";
+import { FocusedUiType } from "./components/FocusedUi";
+
+export enum UiComponentType {
+  INVENTORY = "Inventory",
+  SIDEBAR = "Sidebar",
+  WORLD = "World",
+}
 
 export function createNoaLayer(network: NetworkLayer) {
   const world = namespaceWorld(network.world, "noa");
@@ -107,6 +116,7 @@ export function createNoaLayer(network: NetworkLayer) {
     PlayerLastMessage: definePlayerLastMessage(world),
     PlayerMesh: definePlayerMeshComponent(world),
     UI: defineUIComponent(world),
+    FocusedUi: defineFocusedUiComponent(world),
     InventoryIndex: createLocalCache(createIndexer(defineInventoryIndexComponent(world)), uniqueWorldId),
     // Tutorial: createLocalCache(defineTutorialComponent(world), uniqueWorldId),
     // removed cache from tutorial because it triggers on voxel mine, and because of this error: component with id Tutorial was locally cached 260 times since 11:35:35 PM - the local cache is in an alpha state and should not be used with components that update frequently yet
@@ -116,6 +126,7 @@ export function createNoaLayer(network: NetworkLayer) {
     VoxelSelection: defineVoxelSelectionComponent(world),
     PersistentNotification: definePersistentNotificationComponent(world),
     SpawnCreation: defineSpawnCreationComponent(world),
+    SpawnInFocus: defineSpawnInFocusComponent(world),
   };
 
   // --- SETUP ----------------------------------------------------------------------
@@ -128,7 +139,6 @@ export function createNoaLayer(network: NetworkLayer) {
   // Set initial values
   setComponent(components.UI, SingletonEntity, {
     showAdminPanel: false,
-    showInventory: false,
     showCrafting: false,
     showPlugins: false,
   });
@@ -255,64 +265,30 @@ export function createNoaLayer(network: NetworkLayer) {
     open = open ?? !getComponentValue(components.UI, SingletonEntity)?.showPlugins;
     noa.container.setPointerLock(!open);
     updateComponent(components.UI, SingletonEntity, {
-      showInventory: false,
       showCrafting: false,
       showPlugins: open,
     });
   }
 
-  function toggleInventory(open?: boolean, crafting?: boolean) {
-    // we need to check if the input is not focused, cause when we're searching for a voxeltype in the creative move inventory, we may press "e" which will close the inventory
-    if (isFocusedOnInputElement()) {
-      return;
-    }
+  function closeInventory() {
+    setComponent(components.FocusedUi, SingletonEntity, { value: FocusedUiType.WORLD });
+  }
 
-    open = open ?? !getComponentValue(components.UI, SingletonEntity)?.showInventory;
-    // if the inventory is open, we need to disable movement commands or voxel selection commands so the player isn't "interacting" with the world
-    disableOrEnableInputs(open);
-
-    if (open) {
-      // clear persistent notification when we open the inventory
-      setComponent(components.PersistentNotification, SingletonEntity, {
-        message: "",
-        icon: NotificationIcon.NONE,
-      });
-
-      // clear SpawnCreation when we open the inventory
-      setComponent(components.SpawnCreation, SingletonEntity, {
-        creation: undefined,
-      });
-      noa.blockTestDistance = DEFAULT_BLOCK_TEST_DISTANCE; // reset block test distance
-    }
-
-    noa.container.setPointerLock(!open);
-    updateComponent(components.UI, SingletonEntity, {
-      showPlugins: false,
-      showInventory: open,
-      showCrafting: Boolean(open && crafting),
+  function openInventory() {
+    // clear persistent notification when we open the inventory
+    setComponent(components.PersistentNotification, SingletonEntity, {
+      message: "",
+      icon: NotificationIcon.NONE,
     });
+
+    // clear SpawnCreation when we open the inventory
+    setComponent(components.SpawnCreation, SingletonEntity, {
+      creation: undefined,
+    });
+    noa.blockTestDistance = DEFAULT_BLOCK_TEST_DISTANCE; // reset block test distance
+
+    setComponent(components.FocusedUi, SingletonEntity, { value: FocusedUiType.INVENTORY });
   }
-  function disableOrEnableInputs(isUiOpen: boolean | undefined) {
-    if (isUiOpen) {
-      // disable movement when inventory is open
-      // https://github.com/fenomas/noa/issues/61
-      noa.entities.removeComponent(noa.playerEntity, noa.ents.names.receivesInputs);
-      noa.inputs.unbind("select-voxel");
-      noa.inputs.unbind("admin-panel");
-      const a = noa.entities.getMovement(noa.playerEntity);
-      noa.entities.getMovement(noa.playerEntity).isPlayerSlowedToAStop = true; // stops the player's input from moving the player
-    } else {
-      // since a react component calls this function times, we need to use addComponentAgain (rather than addComponent)
-      noa.entities.addComponentAgain(noa.playerEntity, "receivesInputs", noa.ents.names.receivesInputs);
-      noa.inputs.bind("select-voxel", "V");
-      noa.inputs.bind("admin-panel", "-");
-      noa.entities.getMovement(noa.playerEntity).isPlayerSlowedToAStop = false;
-    }
-  }
-  const isFocusedOnInputElement = () => {
-    const activeElement = document.activeElement;
-    return activeElement && ["INPUT", "TEXTAREA"].includes(activeElement.tagName);
-  };
 
   function getVoxelTypeInSelectedSlot(): VoxelTypeDataKey | undefined {
     const selectedSlot = getComponentValue(components.SelectedSlot, SingletonEntity)?.value;
@@ -397,6 +373,8 @@ export function createNoaLayer(network: NetworkLayer) {
     voxelUVWrapSubscription(voxelVariantKeyStringToKey(voxelVariantKey), voxelVariantData);
   }
 
+  setComponent(components.FocusedUi, SingletonEntity, { value: FocusedUiType.WORLD });
+
   // --- SETUP NOA COMPONENTS AND MODULES --------------------------------------------------------
   monkeyPatchMeshComponent(noa);
   registerModelComponent(noa);
@@ -449,8 +427,8 @@ export function createNoaLayer(network: NetworkLayer) {
       getCraftingResult,
       teleport,
       teleportRandom,
-      toggleInventory,
-      disableOrEnableInputs,
+      closeInventory,
+      openInventory,
       togglePlugins,
       placeSelectedVoxelType,
       getCurrentChunk,

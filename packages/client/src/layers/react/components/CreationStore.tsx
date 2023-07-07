@@ -4,6 +4,7 @@ import { Entity, setComponent } from "@latticexyz/recs";
 import { VoxelCoord } from "@latticexyz/utils";
 import { NotificationIcon } from "../../noa/components/persistentNotification";
 import { useCreationSearch } from "../../../utils/useCreationSearch";
+import { FocusedUiType } from "../../noa/components/FocusedUi";
 
 export interface CreationStoreFilters {
   search: string;
@@ -30,9 +31,8 @@ export interface Creation {
 const CreationStore: React.FC<Props> = ({ layers, filters, setFilters }) => {
   const {
     noa: {
-      components: { PersistentNotification, SpawnCreation },
+      components: { PersistentNotification, SpawnCreation, FocusedUi },
       SingletonEntity,
-      api: { toggleInventory },
       noa,
     },
   } = layers;
@@ -48,7 +48,7 @@ const CreationStore: React.FC<Props> = ({ layers, filters, setFilters }) => {
       creation: creation,
     });
     noa.blockTestDistance = 30; // increase the distance so placing creations is easier for players
-    toggleInventory();
+    setComponent(FocusedUi, SingletonEntity, { value: FocusedUiType.WORLD });
   };
 
   return (

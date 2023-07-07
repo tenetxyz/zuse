@@ -15,6 +15,8 @@ import { DEFAULT_BLOCK_TEST_DISTANCE } from "../setup/setupNoaEngine";
 import { calculateCornersFromTargetedBlock, TargetedBlock } from "./createSpawnCreationOverlaySystem";
 import { renderFloatingTextAboveCoord } from "./renderFloatingText";
 import { renderEnt } from "./renderEnt";
+import { FocusedUiType } from "../components/FocusedUi";
+import { useComponentValue } from "@latticexyz/react";
 
 export function createInputSystem(network: NetworkLayer, noaLayer: NoaLayer) {
   const {
@@ -22,6 +24,7 @@ export function createInputSystem(network: NetworkLayer, noaLayer: NoaLayer) {
     components: {
       SelectedSlot,
       UI,
+      FocusedUi,
       Tutorial,
       PreTeleportPosition,
       VoxelSelection,
@@ -29,7 +32,7 @@ export function createInputSystem(network: NetworkLayer, noaLayer: NoaLayer) {
       PersistentNotification,
     },
     SingletonEntity,
-    api: { toggleInventory, togglePlugins, placeSelectedVoxelType, getVoxelTypeInSelectedSlot, teleport },
+    api: { closeInventory, openInventory, togglePlugins, placeSelectedVoxelType, getVoxelTypeInSelectedSlot, teleport },
     streams: { playerPosition$ },
   } = noaLayer;
 
@@ -40,6 +43,42 @@ export function createInputSystem(network: NetworkLayer, noaLayer: NoaLayer) {
     streams: { balanceGwei$ },
     api: { spawnCreation },
   } = network;
+
+  function disableInputs(focusedUi: FocusedUiType) {
+    // disable movement when inventory is open
+    // https://github.com/fenomas/noa/issues/61
+    noa.entities.removeComponent(noa.playerEntity, noa.ents.names.receivesInputs);
+    noa.inputs.unbind("select-voxel");
+    noa.inputs.unbind("admin-panel");
+    if (focusedUi !== FocusedUiType.INVENTORY) {
+      // do NOT unbind toggle-inventory if the user is in the inventory (so they can close it)
+      noa.inputs.unbind("toggle-inventory");
+    }
+    const a = noa.entities.getMovement(noa.playerEntity);
+    noa.entities.getMovement(noa.playerEntity).isPlayerSlowedToAStop = true; // stops the player's input from moving the player
+  }
+
+  function enableInputs() {
+    // since a react component calls this function times, we need to use addComponentAgain (rather than addComponent)
+    noa.entities.addComponentAgain(noa.playerEntity, "receivesInputs", noa.ents.names.receivesInputs);
+    noa.inputs.bind("select-voxel", "V");
+    noa.inputs.bind("admin-panel", "-");
+    noa.inputs.bind("toggle-inventory", "E");
+    noa.entities.getMovement(noa.playerEntity).isPlayerSlowedToAStop = false;
+  }
+
+  // If the user is in a UI (e.g. inventory), disable inputs that could conflict with typing into the UI
+  // otherwise, enable the inputs
+  FocusedUi.update$.subscribe((update) => {
+    const focusedUiType = update.value[0].value;
+    if (focusedUiType === FocusedUiType.WORLD) {
+      enableInputs();
+      noa.container.setPointerLock(true);
+    } else {
+      noa.container.setPointerLock(false);
+      disableInputs(focusedUiType as FocusedUiType);
+    }
+  });
 
   // mine targeted voxel on left click
   noa.inputs.bind("fire", "F");
@@ -205,15 +244,15 @@ export function createInputSystem(network: NetworkLayer, noaLayer: NoaLayer) {
     });
   });
 
-  noa.inputs.bind("inventory", "E");
-  noa.inputs.down.on("inventory", () => {
+  noa.inputs.bind("toggle-inventory", "E");
+  noa.inputs.down.on("toggle-inventory", () => {
     if (!canInteract()) return;
-    const showInventory = getComponentValue(UI, SingletonEntity)?.showInventory;
-    if (!noa.container.hasPointerLock && !showInventory) {
-      return;
+    const isInventoryOpen = getComponentValue(FocusedUi, SingletonEntity)?.value === FocusedUiType.INVENTORY;
+    if (isInventoryOpen) {
+      closeInventory();
+    } else {
+      openInventory();
     }
-
-    toggleInventory();
     updateComponent(Tutorial, SingletonEntity, { inventory: false });
   });
 

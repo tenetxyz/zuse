@@ -1,30 +1,27 @@
-import { useState } from "react";
-import { registerTenetComponent } from "./engine/components/TenetComponentRenderer";
-import { useComponentValue } from "@latticexyz/react";
-import { VoxelTypeStore, VoxelTypeStoreFilters } from "./components/VoxelTypeStore";
-import RegisterCreation, { RegisterCreationFormData } from "./components/RegisterCreation";
-import { InventoryTab, TabRadioSelector } from "./components/TabRadioSelector";
-import CreationStore, { CreationStoreFilters } from "./components/CreationStore";
-import { Absolute, AbsoluteBorder, Background, Center } from "./components";
-import styled from "styled-components";
-import ClassifierStore from "./components/ClassifierStore";
+import { useEffect, useState } from "react";
+import { registerTenetComponent } from "../engine/components/TenetComponentRenderer";
+import { VoxelTypeStore, VoxelTypeStoreFilters } from "./VoxelTypeStore";
+import RegisterCreation, { RegisterCreationFormData } from "./RegisterCreation";
+import { InventoryTab, TabRadioSelector } from "./TabRadioSelector";
+import CreationStore, { CreationStoreFilters } from "./CreationStore";
+import ClassifierStore, { ClassifierStoreFilters } from "./ClassifierStore";
+import { ElectiveBar } from "./ElectiveBar";
+import { setComponent } from "@latticexyz/recs";
+import { FocusedUiType } from "../../noa/components/FocusedUi";
+import { useComponentUpdate } from "../../../utils/useComponentUpdate";
 
 export const SIDEBAR_BACKGROUND_COLOR = "#353535";
 export function registerTenetSidebar() {
   registerTenetComponent({
-    rowStart: 1,
-    rowEnd: 12,
+    rowStart: 2,
+    rowEnd: 11,
     columnStart: 1,
-    columnEnd: 12,
+    columnEnd: 10,
     Component: ({ layers }) => {
       const {
         noa: {
-          components: { UI },
+          components: { FocusedUi },
           SingletonEntity,
-          noa,
-        },
-        network: {
-          contractComponents: { VoxelTypeRegistry },
         },
       } = layers;
 
@@ -86,25 +83,36 @@ export function registerTenetSidebar() {
       };
       const SelectedTab = getPageForSelectedTab();
 
+      useEffect(() => {
+        if (selectedTab !== InventoryTab.NONE) {
+          // the user clicked on the sidebar, so set the ui focus to the sidebar
+          setComponent(FocusedUi, SingletonEntity, { value: FocusedUiType.SIDEBAR });
+        }
+      }, [selectedTab]);
+
+      // type IFocusedUi = ComponentRecord<typeof FocusedUi>;
+      useComponentUpdate(FocusedUi, (focusedUi) => {
+        if (!focusedUi) {
+          return;
+        }
+        if (focusedUi.value[0]?.value !== FocusedUiType.SIDEBAR) {
+          setSelectedTab(InventoryTab.NONE);
+        }
+      });
+
       return (
         // "pointerEvents: all" is needed so when we click on the admin panel, we don't gain focus on the noa canvas
-        <div className="h-full select-none" style={{ pointerEvents: "all" }}>
-          <Background
-            onClick={() => {
-              setSelectedTab(InventoryTab.NONE);
-              noa.container.setPointerLock(true);
-            }}
-            style={{
-              backgroundColor: selectedTab === InventoryTab.NONE ? "transparent" : "rgba(0,0,0,0.2)",
-            }}
-          />
+        <div className="select-none h-full inline-grid" style={{ pointerEvents: "all" }}>
           <div
-            className="flex flex-row float-left relative z-50 h-[80%] mt-[5%] pr-7 pt-7"
+            className="flex flex-row float-left relative z-50 mt-[5%] pr-7 pt-7"
             style={{
               backgroundColor: selectedTab === InventoryTab.NONE ? "transparent" : `${SIDEBAR_BACKGROUND_COLOR}`,
             }}
           >
-            <TabRadioSelector layers={layers} selectedTab={selectedTab} setSelectedTab={setSelectedTab} />
+            <div className="flex flex-col">
+              <TabRadioSelector selectedTab={selectedTab} setSelectedTab={setSelectedTab} />
+              <ElectiveBar layers={layers} />
+            </div>
             <div className={`bg-[${SIDEBAR_BACKGROUND_COLOR}]`}>{SelectedTab}</div>
           </div>
         </div>

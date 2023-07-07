@@ -25,19 +25,6 @@ export interface Classifier {
 }
 
 const ClassifierStore: React.FC<Props> = ({ layers, filters, setFilters }: Props) => {
-  const {
-    noa: {
-      components: { PersistentNotification, SpawnCreation },
-      SingletonEntity,
-      api: { toggleInventory },
-    },
-    network: {
-      contractComponents: { Classifier },
-      network: { connectedAddress },
-      api: { getEntityAtPosition, registerCreation },
-    },
-  } = layers;
-
   const { creationsToDisplay } = useCreationSearch({
     layers,
     filters: filters.creationFilter,

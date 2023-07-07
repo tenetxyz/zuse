@@ -19,7 +19,6 @@ import {
   getEntityAtPosition as getEntityAtPositionApi,
 } from "../layers/network/api";
 import { to64CharAddress } from "../utils/entity";
-import { SingletonID } from "@latticexyz/network";
 import {
   voxelTypeDataKeyToVoxelVariantDataKey,
   NoaBlockType,

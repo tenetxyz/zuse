@@ -5,6 +5,7 @@ import { NotificationIcon } from "../../noa/components/persistentNotification";
 import { calculateMinMax } from "../../../utils/voxels";
 import { useComponentValue } from "@latticexyz/react";
 import { voxelCoordToString } from "../../../utils/coord";
+import { FocusedUiType } from "../../noa/components/FocusedUi";
 
 export interface RegisterCreationFormData {
   name: string;
@@ -20,16 +21,15 @@ interface Props {
 const RegisterCreation: React.FC<Props> = ({ layers, formData, setFormData }) => {
   const {
     noa: {
-      components: { VoxelSelection, PersistentNotification },
+      components: { VoxelSelection, PersistentNotification, FocusedUi },
       SingletonEntity,
-      api: { toggleInventory },
     },
     network: {
       api: { getEntityAtPosition, registerCreation },
     },
   } = layers;
 
-  type IVoxelSelection = ComponentRecord<typeof VoxelSelection>
+  type IVoxelSelection = ComponentRecord<typeof VoxelSelection>;
   const corners: IVoxelSelection | undefined = useComponentValue(VoxelSelection, SingletonEntity);
 
   const handleSubmit = () => {
@@ -88,7 +88,7 @@ const RegisterCreation: React.FC<Props> = ({ layers, formData, setFormData }) =>
         "Select your creation's corners by 1) Holding 'V' and 2) Left/Right clicking on blocks. Press e when done.",
       icon: NotificationIcon.NONE,
     });
-    toggleInventory();
+    setComponent(FocusedUi, SingletonEntity, { value: FocusedUiType.WORLD });
   };
 
   const selectCreationCornerButtonLabel =

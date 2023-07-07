@@ -5,7 +5,7 @@ import React, { useEffect, useState } from "react";
 import { registerUIComponent } from "../engine";
 import { combineLatest, concat, map, of, scan } from "rxjs";
 import styled from "styled-components";
-import { Absolute, AbsoluteBorder, Background, Center, Slot } from "./common";
+import { Absolute, AbsoluteBorder, Center, Slot } from "./common";
 import { range } from "@latticexyz/utils";
 import {
   defineQuery,
@@ -25,6 +25,9 @@ import { Layers } from "../../../types";
 import { entityToVoxelType, voxelTypeToEntity, voxelTypeDataKeyToVoxelVariantDataKey } from "../../noa/types";
 import { firstFreeInventoryIndex } from "../../noa/systems/createInventoryIndexSystem";
 import { StatusHud } from "./StatusHud";
+import { FocusedUiType } from "../../noa/components/FocusedUi";
+import { useComponentUpdate } from "../../../utils/useComponentUpdate";
+import { useComponentValue } from "@latticexyz/react";
 
 // This gives us 36 inventory slots. As of now there are 34 types of VoxelTypes, so it should fit.
 export const INVENTORY_WIDTH = 9;
@@ -45,7 +48,6 @@ export function registerInventoryHud() {
           contractComponents: { OwnedBy, VoxelType },
           streams: { connectedClients$ },
           network: { connectedAddress },
-          getVoxelIconUrl,
         },
         noa: {
           components: { UI, InventoryIndex, SelectedSlot, CraftingTable },
@@ -83,7 +85,6 @@ export function registerInventoryHud() {
         UI.update$.pipe(
           map((e) => ({
             layers,
-            show: e.value[0]?.showInventory,
             craftingSideLength: e.value[0]?.showCrafting ? 3 : 2, // Increase crafting side length if crafting flag is set
           }))
         )
@@ -103,7 +104,7 @@ export function registerInventoryHud() {
       ]).pipe(map((props) => ({ props })));
     },
     ({ props }) => {
-      const [numVoxelsIOwnOfType, { layers, show, craftingSideLength }, selectedSlot, connectedClients] = props;
+      const [numVoxelsIOwnOfType, { layers, craftingSideLength }, selectedSlot, connectedClients] = props;
       const {
         network: {
           api: { removeVoxels },
@@ -112,16 +113,12 @@ export function registerInventoryHud() {
           getVoxelIconUrl,
         },
         noa: {
-          api: { playRandomTheme, playNextTheme, toggleInventory },
-          components: { InventoryIndex },
+          components: { InventoryIndex, FocusedUi },
+          SingletonEntity,
         },
       } = layers;
 
       const [holdingVoxelType, setHoldingVoxelType] = useState<Entity | undefined>();
-
-      useEffect(() => {
-        if (!show) setHoldingVoxelType(undefined);
-      }, [show]);
 
       useEffect(() => {
         if (!holdingVoxelType) {
@@ -222,6 +219,14 @@ export function registerInventoryHud() {
         removeVoxels(ownedEntitiesOfType);
       }
 
+      const focusedUiType = useComponentValue(FocusedUi, SingletonEntity);
+      const isInventoryFocused = focusedUiType?.value === FocusedUiType.INVENTORY;
+      useEffect(() => {
+        if (!isInventoryFocused) {
+          setHoldingVoxelType(undefined);
+        }
+      }, [isInventoryFocused]);
+
       // Map each inventory slot to the corresponding voxel type at this slot index
       const Slots = [...range(INVENTORY_HEIGHT * INVENTORY_WIDTH)].map((i) => {
         const voxelType = [...getEntitiesWithValue(InventoryIndex, { value: i })][0];
@@ -257,11 +262,6 @@ export function registerInventoryHud() {
       const InventoryWrapper = (
         <Absolute>
           <Center>
-            <Background
-              onClick={() => {
-                toggleInventory(false);
-              }}
-            />
             <AbsoluteBorder borderColor={"#999999"} borderWidth={3}>
               <InventoryContainer>
                 <Inventory
@@ -280,7 +280,7 @@ export function registerInventoryHud() {
       return (
         <Wrapper>
           <>
-            {show ? InventoryWrapper : null}
+            {isInventoryFocused ? InventoryWrapper : null}
             {Bottom}
           </>
         </Wrapper>

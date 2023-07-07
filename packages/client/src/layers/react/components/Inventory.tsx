@@ -25,12 +25,12 @@ export const Inventory: React.FC<Props> = ({
   return (
     <>
       <div>
-        <Crafting
+        {/* <Crafting
           layers={layers}
           holdingVoxelType={holdingVoxelType}
           sideLength={craftingSideLength}
           setHoldingVoxelType={setHoldingVoxelType}
-        />
+        /> */}
         <ActionBarWrapper>
           {[...range(INVENTORY_WIDTH * (INVENTORY_HEIGHT - 1))].map((i) => i + INVENTORY_WIDTH).map((i) => Slots[i])}
         </ActionBarWrapper>

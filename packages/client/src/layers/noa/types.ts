@@ -1,3 +1,4 @@
+import { ComponentValue, Type } from "@latticexyz/recs";
 import { Entity } from "@latticexyz/recs";
 import { createNoaLayer } from "./createNoaLayer";
 import { VoxelCoord } from "@latticexyz/utils";
@@ -32,6 +33,15 @@ export type NoaVoxelDef = {
   blockMesh?: any; // this MUST be called blockMesh (not voxelMesh) since it's used by noa
   uvWrap?: string | undefined;
 };
+
+export type VoxelTypeRegistryData = ComponentValue<{
+  voxelVariantSelector: Type.String;
+  creator: Type.String;
+  numSpawns: Type.BigInt;
+  name: Type.String;
+  preview: Type.String;
+  previewUVWrap: Type.String;
+}>;
 
 export type VoxelTypeDataKey = {
   voxelTypeNamespace: string;
@@ -87,19 +97,31 @@ export function voxelTypeToVoxelTypeBaseKeyString(voxelType: VoxelTypeDataKey): 
   return `${voxelType.voxelTypeNamespace}:${voxelType.voxelTypeId}`;
 }
 
+export function voxelTypeBaseKeyToEntity(voxelTypeBaseKey: VoxelTypeBaseKey): Entity {
+  return `${voxelTypeBaseKey.voxelTypeNamespace}:${voxelTypeBaseKey.voxelTypeId}` as Entity;
+}
+
+export function voxelTypeBaseKeyToTruncStr(voxelTypeBaseKey: VoxelTypeBaseKey): string {
+  return `${voxelTypeBaseKey.voxelTypeNamespace.substring(0, 34)}:${voxelTypeBaseKey.voxelTypeId}`;
+}
+
 export function voxelTypeToEntity(voxelType: VoxelTypeDataKey): Entity {
-  return (voxelType.voxelTypeNamespace +
-    "-" +
-    voxelType.voxelTypeId +
-    "-" +
-    voxelType.voxelVariantNamespace +
-    "-" +
-    voxelType.voxelVariantId) as Entity;
+  return `${voxelType.voxelTypeNamespace}:${voxelType.voxelTypeId}:${voxelType.voxelVariantNamespace}:${voxelType.voxelVariantId}` as Entity;
 }
 
 export function entityToVoxelType(entity: Entity): VoxelTypeDataKey {
-  const [voxelTypeNamespace, voxelTypeId, voxelVariantNamespace, voxelVariantId] = entity.split("-");
+  const [voxelTypeNamespace, voxelTypeId, voxelVariantNamespace, voxelVariantId] = entity.split(":");
   return { voxelTypeNamespace, voxelTypeId, voxelVariantNamespace, voxelVariantId };
+}
+
+export function entityToVoxelTypeBaseKey(entity: Entity): VoxelTypeBaseKey {
+  const [voxelTypeNamespace, voxelTypeId] = entity.split(":");
+  return { voxelTypeNamespace, voxelTypeId };
+}
+
+export function voxelTypeBaseKeyStrToVoxelTypeRegistryKeyStr(key: string): string {
+  const [voxelTypeNamespace, voxelTypeId] = key.split(":");
+  return `${voxelTypeNamespace.padEnd(66, "0")}:${voxelTypeId}`;
 }
 
 // We need to do it this sometimes because decoded coords have named keys, 0, 1, 2 in addition to x, y, z

@@ -42,7 +42,7 @@ export const VoxelTypeStore: React.FC<Props> = ({ layers, filters, setFilters })
 
   const Slots = [...range(NUM_ROWS * NUM_COLS)].map((i) => {
     if (!voxelTypesToDisplay || i >= voxelTypesToDisplay.length) {
-      return <Slot key={"voxel-search-slot" + i} disabled={true} getVoxelIconUrl={getVoxelIconUrl} />;
+      return <Slot key={"voxel-search-slot" + i} disabled={true} />;
     }
     const voxelDescription = voxelTypesToDisplay[i];
 
@@ -55,7 +55,6 @@ export const VoxelTypeStore: React.FC<Props> = ({ layers, filters, setFilters })
         onClick={() => tryGiftVoxel(voxelDescription.namespace, voxelDescription.voxelType, voxelDescription.preview)}
         disabled={false} // false, so if you pick up the voxeltype, it still shows up in the creative inventory
         selected={false} // you can never select an voxeltype in the creative inventory
-        getVoxelIconUrl={getVoxelIconUrl}
         tooltipText={
           <>
             <p>{voxelDescription.name}</p>

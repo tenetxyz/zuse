@@ -9,9 +9,9 @@ import {
   MINING_ANIMATION_BOX_HAND,
 } from "../hand";
 import {
-  VoxelTypeDataKey,
+  VoxelTypeBaseKey,
   VoxelVariantDataKey,
-  voxelTypeDataKeyToVoxelVariantDataKey,
+  voxelTypeBaseKeyToTruncStr,
   voxelVariantDataKeyToString,
 } from "../../types";
 
@@ -26,7 +26,7 @@ export const HAND_COMPONENT = "HAND_COMPONENT";
 
 export function registerHandComponent(
   noa: Engine,
-  getSelectedVoxelType: () => VoxelTypeDataKey | undefined,
+  getSelectedVoxelType: () => VoxelTypeBaseKey | undefined,
   voxelMaterials: Map<string, BABYLON.Material | undefined>
 ) {
   // eslint-disable-next-line @typescript-eslint/ban-ts-comment
@@ -46,13 +46,13 @@ export function registerHandComponent(
         if (id === noa.playerEntity) {
           // NOTE: for now just animate / change the material of the player hand
           const selectedVoxelType = getSelectedVoxelType();
-          let voxelVariantKey = undefined;
+          let voxelMaterialKey = undefined;
           if (selectedVoxelType) {
-            voxelVariantKey = voxelTypeDataKeyToVoxelVariantDataKey(selectedVoxelType);
+            voxelMaterialKey = voxelTypeBaseKeyToTruncStr(selectedVoxelType);
           }
-          if (voxelVariantKey && voxelMaterials.get(voxelVariantDataKeyToString(voxelVariantKey)) !== undefined) {
+          if (voxelMaterialKey && voxelMaterials.get(voxelMaterialKey) !== undefined) {
             // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-            voxelMesh.material = voxelMaterials.get(voxelVariantDataKeyToString(voxelVariantKey))!;
+            voxelMesh.material = voxelMaterials.get(voxelMaterialKey)!;
             handMesh.visibility = 0;
             voxelMesh.visibility = 1;
           } else {

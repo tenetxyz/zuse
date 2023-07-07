@@ -35,6 +35,7 @@ contract LogVoxelSystem is VoxelType {
       "Log",
       LogID,
       LogTexture,
+      LogUVWrap,
       IWorld(world).extension_LogVoxelSystem_logVariantSelector.selector
     );
   }

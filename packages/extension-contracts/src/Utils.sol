@@ -22,10 +22,18 @@ function registerVoxelType(
   string memory voxelTypeName,
   bytes32 voxelTypeId,
   string memory defaultTextureHash,
+  string memory defaultUVWrapHash,
   bytes4 variantSelector
 ) {
   (bool success, bytes memory result) = world.call(
-    abi.encodeWithSignature(REGISTER_VOXEL_TYPE_SIG, voxelTypeName, voxelTypeId, defaultTextureHash, variantSelector)
+    abi.encodeWithSignature(
+      REGISTER_VOXEL_TYPE_SIG,
+      voxelTypeName,
+      voxelTypeId,
+      defaultTextureHash,
+      defaultUVWrapHash,
+      variantSelector
+    )
   );
   require(success, string(abi.encodePacked("Failed to register voxelType: ", voxelTypeName)));
 }

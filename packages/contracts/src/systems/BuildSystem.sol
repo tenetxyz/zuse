@@ -32,11 +32,12 @@ contract BuildSystem is System {
     bytes32 newEntity = getUniqueEntity();
     VoxelTypeData memory entityVoxelData = VoxelType.get(entity);
     VoxelType.set(newEntity, entityVoxelData);
-    increaseVoxelTypeSpawnCount(entityVoxelData.voxelTypeNamespace, entityVoxelData.voxelTypeId);
-    Position.set(newEntity, coord.x, coord.y, coord.z);
-
     // Note: Need to run this because we are in creative mode and this is a new entity
     updateVoxelVariant(_world(), newEntity);
+
+    increaseVoxelTypeSpawnCount(entityVoxelData.voxelTypeNamespace, entityVoxelData.voxelTypeId);
+
+    Position.set(newEntity, coord.x, coord.y, coord.z);
 
     // Run voxel interaction logic
     IWorld(_world()).tenet_VoxInteractSys_runInteractionSystems(newEntity);

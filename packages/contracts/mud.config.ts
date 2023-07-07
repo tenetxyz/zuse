@@ -47,6 +47,7 @@ export default mudConfig({
         numSpawns: "uint256",
         name: "string", // NOTE: you don't want the VoxelTypeId to be based on the name, cause changing the name would change the ID
         preview: "string", // File ID Hash
+        previewUVWrap: "string", // File ID Hash
       },
     },
     Occurrence: {

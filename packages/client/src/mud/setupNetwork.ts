@@ -29,6 +29,10 @@ import {
   voxelVariantDataKeyToString,
   voxelVariantKeyStringToKey,
   voxelTypeToEntity,
+  VoxelTypeBaseKey,
+  VoxelTypeRegistryData,
+  voxelTypeBaseKeyStrToVoxelTypeRegistryKeyStr,
+  voxelTypeBaseKeyToEntity,
 } from "../layers/noa/types";
 import { Textures, UVWraps } from "../layers/noa/constants";
 import { keccak256 } from "@latticexyz/utils";
@@ -42,6 +46,11 @@ export type SetupNetworkResult = Awaited<ReturnType<typeof setupNetwork>>;
 export type VoxelVariantSubscription = (
   voxelVariantKey: VoxelVariantDataKey,
   voxelVariantData: VoxelVariantDataValue
+) => void;
+
+export type VoxelTypeRegistryDataSubscription = (
+  voxelTypeRegistryKey: VoxelTypeBaseKey,
+  voxelTypeRegistryData: VoxelTypeRegistryData
 ) => void;
 
 export async function setupNetwork() {
@@ -190,6 +199,7 @@ export async function setupNetwork() {
 
   const VoxelVariantData: VoxelVariantData = new Map();
   const VoxelVariantDataSubscriptions: VoxelVariantSubscription[] = [];
+  const VoxelTypeRegistryDataSubscriptions: VoxelTypeRegistryDataSubscription[] = [];
   // TODO: should load initial ones from chain too
   VoxelVariantData.set(
     voxelVariantDataKeyToString({
@@ -263,6 +273,12 @@ export async function setupNetwork() {
     return Array.isArray(voxel.material) ? voxel.material[0] : voxel.material;
   }
 
+  function getVoxelTypePreviewUrl(voxelTypeBaseKeyStr: string): string | undefined {
+    const voxelTypeRegistryKey = voxelTypeBaseKeyStrToVoxelTypeRegistryKeyStr(voxelTypeBaseKeyStr) as Entity;
+    const voxelTypeRecord = getComponentValue(contractComponents.VoxelTypeRegistry, voxelTypeRegistryKey);
+    return voxelTypeRecord && voxelTypeRecord.preview ? getNftStorageLink(voxelTypeRecord.preview) : "";
+  }
+
   // --- API ------------------------------------------------------------------------
 
   const perlin = await createPerlin();
@@ -296,7 +312,7 @@ export async function setupNetwork() {
     return tx;
   }
 
-  function build(voxelType: VoxelTypeDataKey, coord: VoxelCoord) {
+  function build(voxelType: VoxelTypeBaseKey, coord: VoxelCoord) {
     const voxelInstanceOfVoxelType = [
       ...runQuery([
         HasValue(contractComponents.OwnedBy, {
@@ -309,7 +325,7 @@ export async function setupNetwork() {
       return console.warn(`cannot find a voxel (that you own) for voxelType=${voxelType}`);
     }
 
-    const voxelVariantKey: VoxelVariantDataKey = voxelTypeDataKeyToVoxelVariantDataKey(voxelType);
+    const preview: string = getVoxelTypePreviewUrl(voxelTypeBaseKeyToEntity(voxelType)) || "";
 
     const newVoxelOfSameType = world.registerEntity();
 
@@ -319,7 +335,7 @@ export async function setupNetwork() {
         // metadata determines how the transaction dialog box appears in the bottom left corner
         actionType: "build",
         coord,
-        voxelVariantKey, // Determines the Icon that appears in the dialogue box
+        preview,
       },
       requirement: () => true,
       components: {
@@ -596,6 +612,12 @@ export async function setupNetwork() {
     worldAddress: networkConfig.worldAddress,
     uniqueWorldId,
     getVoxelIconUrl,
-    voxelTypes: { VoxelVariantData, VoxelVariantIndexToKey, VoxelVariantDataSubscriptions },
+    getVoxelTypePreviewUrl,
+    voxelTypes: {
+      VoxelVariantData,
+      VoxelVariantIndexToKey,
+      VoxelVariantDataSubscriptions,
+      VoxelTypeRegistryDataSubscriptions,
+    },
   };
 }

@@ -4,7 +4,7 @@ pragma solidity >=0.8.0;
 bytes16 constant TENET_NAMESPACE = bytes16("tenet");
 
 string constant REGISTER_VOXEL_VARIANT_SIG = "tenet_VoxelRegistrySys_registerVoxelVariant(bytes32,(uint256,uint32,bool,bool,bool,uint8,bytes,string))";
-string constant REGISTER_VOXEL_TYPE_SIG = "tenet_VoxelRegistrySys_registerVoxelType(string,bytes32,string,bytes4)";
+string constant REGISTER_VOXEL_TYPE_SIG = "tenet_VoxelRegistrySys_registerVoxelType(string,bytes32,string,string,bytes4)";
 string constant REGISTER_EXTENSION_SIG = "tenet_ExtensionSystem_registerExtension(bytes4,string)";
 string constant CLEAR_COORD_SIG = "tenet_MineSystem_clearCoord((int32,int32,int32))";
 string constant BUILD_SIG = "tenet_BuildSystem_build(bytes32,(int32,int32,int32))";

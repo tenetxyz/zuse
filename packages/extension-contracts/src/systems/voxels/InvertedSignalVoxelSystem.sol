@@ -7,7 +7,7 @@ import { InvertedSignal, InvertedSignalData } from "../../codegen/Tables.sol";
 import { BlockDirection } from "../../codegen/Types.sol";
 import { getCallerNamespace } from "@tenetxyz/contracts/src/SharedUtils.sol";
 import { registerVoxelType, entityIsInvertedSignal } from "../../Utils.sol";
-import { SignalOffID, SignalOnID, SignalOnTexture } from "./SignalVoxelSystem.sol";
+import { SignalOffID, SignalOnID, SignalOnTexture, SignalOnUVWrap } from "./SignalVoxelSystem.sol";
 import { VoxelVariantsKey } from "../../Types.sol";
 import { EXTENSION_NAMESPACE } from "../../Constants.sol";
 
@@ -22,22 +22,12 @@ contract InvertedSignalVoxelSystem is VoxelType {
       "Inverted Signal",
       InvertedSignalID,
       SignalOnTexture,
+      SignalOnUVWrap,
       IWorld(world).extension_InvertedSignalVo_invertedSignalVariantSelector.selector
     );
   }
 
-  function invertedSignalVariantSelector(bytes32 entity) public returns (VoxelVariantsKey memory) {
-    InvertedSignalData memory invertedSignalData = getOrCreateInvertedSignal(entity);
-    if (invertedSignalData.isActive) {
-      return VoxelVariantsKey({ voxelVariantNamespace: EXTENSION_NAMESPACE, voxelVariantId: SignalOnID });
-    } else {
-      return VoxelVariantsKey({ voxelVariantNamespace: EXTENSION_NAMESPACE, voxelVariantId: SignalOffID });
-    }
-  }
-
-  function getOrCreateInvertedSignal(bytes32 entity) public returns (InvertedSignalData memory) {
-    bytes16 callerNamespace = getCallerNamespace(_msgSender());
-
+  function addProperties(bytes32 entity, bytes16 callerNamespace) public override {
     if (!entityIsInvertedSignal(entity, callerNamespace)) {
       InvertedSignal.set(
         callerNamespace,
@@ -45,7 +35,21 @@ contract InvertedSignalVoxelSystem is VoxelType {
         InvertedSignalData({ isActive: true, direction: BlockDirection.None, hasValue: true })
       );
     }
+  }
 
-    return InvertedSignal.get(callerNamespace, entity);
+  function removeProperties(bytes32 entity, bytes16 callerNamespace) public override {
+    if (!entityIsInvertedSignal(entity, callerNamespace)) {
+      InvertedSignal.deleteRecord(callerNamespace, entity);
+    }
+  }
+
+  function invertedSignalVariantSelector(bytes32 entity) public returns (VoxelVariantsKey memory) {
+    (, bytes16 callerNamespace) = super.setupVoxel(entity);
+    InvertedSignalData memory invertedSignalData = InvertedSignal.get(callerNamespace, entity);
+    if (invertedSignalData.isActive) {
+      return VoxelVariantsKey({ voxelVariantNamespace: EXTENSION_NAMESPACE, voxelVariantId: SignalOnID });
+    } else {
+      return VoxelVariantsKey({ voxelVariantNamespace: EXTENSION_NAMESPACE, voxelVariantId: SignalOffID });
+    }
   }
 }

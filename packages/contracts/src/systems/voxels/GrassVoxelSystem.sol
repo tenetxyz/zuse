@@ -37,6 +37,7 @@ contract GrassVoxelSystem is VoxelType {
       "Grass",
       GrassID,
       GrassTexture,
+      GrassUVWrap,
       world.tenet_GrassVoxelSystem_grassVariantSelector.selector
     );
 

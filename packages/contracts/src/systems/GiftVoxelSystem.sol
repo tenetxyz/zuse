@@ -21,20 +21,7 @@ contract GiftVoxelSystem is System {
     // Since numUniqueVoxelTypesIOwn is quadratic in gas (based on how many voxels you own), running this function could use up all your gas. So it's commented
     // require(numUniqueVoxelTypesIOwn() <= 36, "You can only own 36 unique voxel types at a time");
     bytes32 entity = getUniqueEntity();
-
-    bytes4 voxelVariantSelector = VoxelTypeRegistry.get(voxelTypeNamespace, voxelTypeId).voxelVariantSelector;
-    (bool variantSelectorSuccess, bytes memory voxelVariantSelected) = _world().call(
-      abi.encodeWithSelector(voxelVariantSelector, entity)
-    );
-    require(variantSelectorSuccess, "failed to get voxel variant");
-    VoxelVariantsKey memory voxelVariantData = abi.decode(voxelVariantSelected, (VoxelVariantsKey));
-    VoxelType.set(
-      entity,
-      voxelTypeNamespace,
-      voxelTypeId,
-      voxelVariantData.voxelVariantNamespace,
-      voxelVariantData.voxelVariantId
-    );
+    VoxelType.set(entity, voxelTypeNamespace, voxelTypeId, "", "");
 
     OwnedBy.set(entity, addressToEntityKey(_msgSender()));
 

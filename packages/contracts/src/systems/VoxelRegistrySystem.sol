@@ -16,6 +16,7 @@ contract VoxelRegistrySystem is System {
     string memory name,
     bytes32 voxelTypeId,
     string memory previewVoxelImg,
+    string memory previewUVWrapImg,
     bytes4 voxelVariantSelector
   ) public {
     bytes16 callerNamespace = getCallerNamespace(_msgSender());
@@ -38,7 +39,8 @@ contract VoxelRegistrySystem is System {
         creator: tx.origin,
         numSpawns: 0,
         name: name,
-        preview: previewVoxelImg
+        preview: previewVoxelImg,
+        previewUVWrap: previewUVWrapImg
       })
     );
   }

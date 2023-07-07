@@ -48,9 +48,9 @@ contract SignalSourceVoxelSystem is VoxelType {
     bytes16 callerNamespace = getCallerNamespace(_msgSender());
 
     if (!entityIsSignalSource(entity, callerNamespace)) {
-      bool isNatural = true;
+      bool isNaturalSignalSource = true;
       bool hasValue = true;
-      SignalSource.set(callerNamespace, entity, isNatural, hasValue);
+      SignalSource.set(callerNamespace, entity, isNaturalSignalSource, hasValue);
     }
 
     return SignalSource.get(callerNamespace, entity).isNatural;

@@ -1,11 +1,12 @@
 import React from "react";
 import { Layers } from "../../../types";
-import { Entity, setComponent } from "@latticexyz/recs";
+import { Entity, getComponentValue, setComponent } from "@latticexyz/recs";
 import { useCreationSearch } from "../../../utils/useCreationSearch";
 import { useClassifierSearch } from "./useClassifierSearch";
 import { CreationStoreFilters } from "./CreationStore";
 import { useComponentValue } from "@latticexyz/react";
 import { SetState } from "../../../utils/types";
+import { stringToEntity } from "../../../utils/entity";
 
 export interface ClassifierStoreFilters {
   classifierQuery: string;
@@ -37,8 +38,11 @@ const ClassifierStore: React.FC<Props> = ({
 }: Props) => {
   const {
     noa: {
-      components: { SpawnToClassify },
+      components: { SpawnToClassify, VoxelSelection },
       SingletonEntity,
+    },
+    network: {
+      components: { VoxelType, VoxelTypeRegistry },
     },
   } = layers;
   const { creationsToDisplay } = useCreationSearch({
@@ -52,6 +56,45 @@ const ClassifierStore: React.FC<Props> = ({
   });
 
   const spawnToUse = useComponentValue(SpawnToClassify, SingletonEntity);
+
+  const creationDetails = () => {
+    if (!spawnToUse?.creation || spawnToUse?.spawn) {
+      return <p>Please look at a spawn of a creation and press the button to classify it</p>;
+    }
+
+    const selectedVoxels = getComponentValue(VoxelSelection, SingletonEntity)?.points ?? [];
+
+    return (
+      <div className="flex flex-col">
+        <div className="flex flex-row">
+          <p>Submit {spawnToUse.creation.name} </p>
+          <button
+            onClick={() => {
+              setComponent(SpawnToClassify, SingletonEntity, { spawn: undefined, creation: undefined });
+            }}
+          >
+            (X)
+          </button>
+        </div>
+        <div>
+          <p>Interfaces</p>
+          {selectedVoxels.map((voxel, idx) => {
+            const voxelTypeId = getComponentValue(VoxelType, voxel)?.voxelTypeId;
+            if (!voxelTypeId) {
+              console.warn("Voxel type not found for voxel", voxel);
+              return <div key={idx}>:(</div>;
+            }
+            const voxelTypeRecord = getComponentValue(VoxelTypeRegistry, stringToEntity(voxelTypeId));
+            return (
+              <div key={idx}>
+                <p>{voxelTypeRecord!.name}</p>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+    );
+  };
 
   return (
     <div className="mx-auto p-4 text-white flex flex-row content-start float-top h-full min-w-[800px]">
@@ -127,22 +170,7 @@ const ClassifierStore: React.FC<Props> = ({
                 <p>{selectedClassifier.description}</p>
                 <p className="break-all break-words">{selectedClassifier.creator.substring(10)}</p>
               </div>
-              <div className="flex flex-row">
-                {spawnToUse?.creation ? (
-                  <>
-                    <p>Submit {spawnToUse.creation.name} </p>
-                    <button
-                      onClick={() => {
-                        setComponent(SpawnToClassify, SingletonEntity, { spawn: undefined, creation: undefined });
-                      }}
-                    >
-                      Cancel{" "}
-                    </button>
-                  </>
-                ) : (
-                  <p>Please look at a spawn of a creation and press the button to classify it</p>
-                )}
-              </div>
+              <div className="flex flex-col"></div>
             </div>
           </div>
         )}

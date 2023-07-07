@@ -1,7 +1,9 @@
 import { useEffect } from "react";
 import { ComponentRecord, Layers } from "../../../types";
-import { Entity, getComponentValue, setComponent } from "@latticexyz/recs";
+import { Entity, getComponentValue, getEntityString, setComponent } from "@latticexyz/recs";
 import { useComponentValue } from "@latticexyz/react";
+import { stringToEntity } from "../../../utils/entity";
+import { abiDecode } from "../../../utils/abi";
 
 interface Props {
   layers: Layers;
@@ -15,7 +17,7 @@ export const ElectiveBar = ({ layers }: Props) => {
       SingletonEntity,
     },
     network: {
-      contractComponents: { OfSpawn },
+      contractComponents: { OfSpawn, Spawn },
       api: { getEntityAtPosition },
     },
   } = layers;
@@ -41,10 +43,21 @@ export const ElectiveBar = ({ layers }: Props) => {
   useEffect(() => {
     noa.on("targetBlockChanged", (targetedBlock: TargetedBlock) => {
       const spawnId = getTargetedSpawnId(targetedBlock);
-      // TODO: get the Spawn corerdpongint o this id
-      // also change the component to be the value of htis spawn, not thespawnID
       if (spawnId) {
-        setComponent(SpawnInFocus, SingletonEntity, { value: spawnId });
+        const rawSpawn = getComponentValue(Spawn, stringToEntity(spawnId));
+        if (!rawSpawn) {
+          console.error("cannot find spawn object with spawnId=", spawnId);
+          return;
+        }
+        // const spawn = {
+        //   creationId: stringToEntity(rawSpawn.creationId),
+        //   lowerSouthWestCorner: rawSpawn.lowerSouthWestCorner,
+        //   voxels: abiDecode("string[]", rawSpawn.voxels) as string[],
+        //   interfaceVoxels: rawSpawn.interfaceVoxels,
+        // } as Spawn;
+        // setComponent(SpawnInFocus, SingletonEntity, { value: spawn });
+      } else {
+        setComponent(SpawnInFocus, SingletonEntity, { value: undefined });
       }
     });
   }, []);

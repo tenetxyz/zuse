@@ -1,29 +1,17 @@
 import { SyncState } from "@latticexyz/network";
 import { defineComponentSystem, defineEnterSystem, getComponentValueStrict, Has } from "@latticexyz/recs";
-import { toUtf8String } from "ethers/lib/utils.js";
 import { awaitStreamValue } from "@latticexyz/utils";
 import { NetworkLayer } from "../../network";
-import {
-  NoaLayer,
-  voxelTypeDataKeyToVoxelVariantDataKey,
-  voxelVariantDataKeyToString,
-  VoxelVariantDataValue,
-} from "../types";
-import { NoaVoxelDef } from "../types";
+import { NoaLayer, voxelVariantDataKeyToString, VoxelVariantDataValue } from "../types";
 import { formatNamespace } from "../../../constants";
 import { getNftStorageLink } from "../constants";
 import { abiDecode } from "../../../utils/abi";
 
 export async function createVoxelVariantSystem(network: NetworkLayer, context: NoaLayer) {
   const {
-    api: { setVoxel },
-  } = context;
-
-  const {
     world,
     components: { LoadingState },
     contractComponents: { VoxelVariants },
-    actions: { withOptimisticUpdates },
     voxelTypes: { VoxelVariantData, VoxelVariantDataSubscriptions },
   } = network;
 
@@ -71,8 +59,6 @@ export async function createVoxelVariantSystem(network: NetworkLayer, context: N
       VoxelVariantDataSubscriptions.forEach((subscription) => {
         subscription(voxelVariantDataKey, voxelVariantData);
       });
-    } else {
-      console.log("Variant already exists");
     }
   });
 }

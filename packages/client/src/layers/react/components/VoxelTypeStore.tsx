@@ -8,15 +8,15 @@ import { getItemTypesIOwn } from "../../noa/systems/createInventoryIndexSystem";
 import { INVENTORY_HEIGHT, INVENTORY_WIDTH } from "./InventoryHud";
 import { toast } from "react-toastify";
 import { voxelVariantDataKeyToString } from "../../noa/types";
-import { useCreativeInventorySearch } from "../../../utils/useCreativeInventorySearch";
+import { useVoxelTypeSearch } from "../../../utils/useVoxelTypeSearch";
 
-export interface CreativeInventoryFilters {
+export interface VoxelTypeStoreFilters {
   query: string;
 }
 interface Props {
   layers: Layers;
-  filters: CreativeInventoryFilters;
-  setFilters: React.Dispatch<React.SetStateAction<CreativeInventoryFilters>>;
+  filters: VoxelTypeStoreFilters;
+  setFilters: React.Dispatch<React.SetStateAction<VoxelTypeStoreFilters>>;
 }
 const NUM_COLS = 9;
 const NUM_ROWS = 6;
@@ -30,16 +30,15 @@ export interface VoxelTypeDesc {
   creator: string;
 }
 
-export const CreativeInventory: React.FC<Props> = ({ layers, filters, setFilters }) => {
+export const VoxelTypeStore: React.FC<Props> = ({ layers, filters, setFilters }) => {
   const {
-    components: { VoxelTypeRegistry },
     contractComponents: { OwnedBy, VoxelType },
     api: { giftVoxel },
     network: { connectedAddress },
     getVoxelIconUrl,
   } = layers.network;
 
-  const { voxelTypesToDisplay } = useCreativeInventorySearch({ layers, filters });
+  const { voxelTypesToDisplay } = useVoxelTypeSearch({ layers, filters });
 
   const Slots = [...range(NUM_ROWS * NUM_COLS)].map((i) => {
     if (!voxelTypesToDisplay || i >= voxelTypesToDisplay.length) {
@@ -90,9 +89,10 @@ export const CreativeInventory: React.FC<Props> = ({ layers, filters, setFilters
   return (
     <div>
       <input
-        className="bg-slate-700 p-1 ml-2 focus:outline-slate-700 border-1 border-solid mb-1 "
+        className="bg-white p-1 mb-5 focus:outline-slate-700 border-1 border-solid text-slate-800 rounded-md"
         value={filters.query}
         onChange={(e) => setFilters({ ...filters, query: e.target.value })}
+        placeholder="Search"
       />
       <ActionBarWrapper>{[...range(NUM_COLS * NUM_ROWS)].map((i) => Slots[i])}</ActionBarWrapper>
     </div>

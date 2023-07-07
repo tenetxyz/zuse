@@ -292,8 +292,8 @@ export function createNoaLayer(network: NetworkLayer) {
       showCrafting: Boolean(open && crafting),
     });
   }
-  const disableOrEnableInputs = (open: boolean | undefined) => {
-    if (open) {
+  function disableOrEnableInputs(isUiOpen: boolean | undefined) {
+    if (isUiOpen) {
       // disable movement when inventory is open
       // https://github.com/fenomas/noa/issues/61
       noa.entities.removeComponent(noa.playerEntity, noa.ents.names.receivesInputs);
@@ -302,12 +302,13 @@ export function createNoaLayer(network: NetworkLayer) {
       const a = noa.entities.getMovement(noa.playerEntity);
       noa.entities.getMovement(noa.playerEntity).isPlayerSlowedToAStop = true; // stops the player's input from moving the player
     } else {
-      noa.entities.addComponent(noa.playerEntity, noa.ents.names.receivesInputs);
+      // since a react component calls this function times, we need to use addComponentAgain (rather than addComponent)
+      noa.entities.addComponentAgain(noa.playerEntity, "receivesInputs", noa.ents.names.receivesInputs);
       noa.inputs.bind("select-voxel", "V");
       noa.inputs.bind("admin-panel", "-");
       noa.entities.getMovement(noa.playerEntity).isPlayerSlowedToAStop = false;
     }
-  };
+  }
   const isFocusedOnInputElement = () => {
     const activeElement = document.activeElement;
     return activeElement && ["INPUT", "TEXTAREA"].includes(activeElement.tagName);
@@ -449,6 +450,7 @@ export function createNoaLayer(network: NetworkLayer) {
       teleport,
       teleportRandom,
       toggleInventory,
+      disableOrEnableInputs,
       togglePlugins,
       placeSelectedVoxelType,
       getCurrentChunk,

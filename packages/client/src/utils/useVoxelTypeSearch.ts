@@ -7,18 +7,18 @@ import { ComponentRecord, Layers } from "../types";
 import { getComponentValue, Entity } from "@latticexyz/recs";
 import { formatNamespace } from "../constants";
 import { getNftStorageLink } from "../layers/noa/constants";
-import { CreativeInventoryFilters, VoxelTypeDesc } from "../layers/react/components/CreativeInventory";
+import { VoxelTypeStoreFilters, VoxelTypeDesc } from "../layers/react/components/VoxelTypeStore";
 
 export interface Props {
   layers: Layers;
-  filters: CreativeInventoryFilters;
+  filters: VoxelTypeStoreFilters;
 }
 
 export interface CreativeInventorySearch {
   voxelTypesToDisplay: VoxelTypeDesc[];
 }
 
-export const useCreativeInventorySearch = ({ layers, filters }: Props) => {
+export const useVoxelTypeSearch = ({ layers, filters }: Props) => {
   const {
     network: {
       contractComponents: { VoxelTypeRegistry },

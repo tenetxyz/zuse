@@ -2,12 +2,14 @@ import FileUpload from "../../../utils/components/FileUpload";
 import { registerTenetComponent } from "../engine/components/TenetComponentRenderer";
 import { useComponentValue } from "@latticexyz/react";
 
+// Why not put the admin panel inside the TenetSidebar? It's because we can have the panel open WHILE we are moving around in the world
+
 export function registerAdminPanel() {
   registerTenetComponent({
     rowStart: 2,
     rowEnd: 11,
-    columnStart: 1,
-    columnEnd: 4,
+    columnStart: 10,
+    columnEnd: 13,
     Component: ({ layers }) => {
       const {
         noa: {
@@ -66,7 +68,7 @@ export function registerAdminPanel() {
       const isShown = useComponentValue(UI, SingletonEntity)?.showAdminPanel;
       return isShown ? (
         // "pointerEvents: all" is needed so when we click on the admin panel, we don't gain focus on the noa canvas
-        <div className="relative z-50 w-full h-full bg-slate-100 p-10 text-white" style={{ pointerEvents: "all" }}>
+        <div className="relative z-50 w-full h-full bg-slate-800 p-10 " style={{ pointerEvents: "all" }}>
           <p className="text-2xl">Admin Panel</p>
           <button className="p-5 bg-slate-700 w-full cursor-pointer" onClick={downloadVoxels}>
             Download Voxels

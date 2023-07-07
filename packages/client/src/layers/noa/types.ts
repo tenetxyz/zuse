@@ -34,15 +34,6 @@ export type NoaVoxelDef = {
   uvWrap?: string | undefined;
 };
 
-export type VoxelTypeRegistryData = ComponentValue<{
-  voxelVariantSelector: Type.String;
-  creator: Type.String;
-  numSpawns: Type.BigInt;
-  name: Type.String;
-  previewVoxelVariantNamespace: Type.String;
-  previewVoxelVariantId: Type.String;
-}>;
-
 export type VoxelTypeDataKey = {
   voxelTypeNamespace: string;
   voxelTypeId: string;
@@ -99,6 +90,15 @@ export function voxelTypeToVoxelTypeBaseKeyString(voxelType: VoxelTypeDataKey): 
 
 export function voxelTypeBaseKeyToEntity(voxelTypeBaseKey: VoxelTypeBaseKey): Entity {
   return `${voxelTypeBaseKey.voxelTypeNamespace}:${voxelTypeBaseKey.voxelTypeId}` as Entity;
+}
+
+export function voxelTypeBaseKeyToVoxelTypeDataKey(voxelTypeBaseKey: VoxelTypeBaseKey): VoxelTypeDataKey {
+  return {
+    voxelTypeNamespace: voxelTypeBaseKey.voxelTypeNamespace,
+    voxelTypeId: voxelTypeBaseKey.voxelTypeId,
+    voxelVariantNamespace: "0x00000000000000000000000000000000",
+    voxelVariantId: "0x0000000000000000000000000000000000000000000000000000000000000000",
+  };
 }
 
 export function voxelTypeBaseKeyToTruncStr(voxelTypeBaseKey: VoxelTypeBaseKey): string {

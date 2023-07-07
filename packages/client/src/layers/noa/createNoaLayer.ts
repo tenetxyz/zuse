@@ -72,16 +72,12 @@ import { createVoxelSelectionOverlaySystem } from "./systems/createVoxelSelectio
 import { createSpawnCreationOverlaySystem } from "./systems/createSpawnCreationOverlaySystem";
 import { createSpawnOverlaySystem } from "./systems/createSpawnOverlaySystem";
 import {
-  entityToVoxelType,
-  VoxelTypeRegistryData,
   VoxelVariantDataKey,
   voxelVariantDataKeyToString,
   voxelVariantKeyStringToKey,
   VoxelVariantDataValue,
   VoxelTypeBaseKey,
   entityToVoxelTypeBaseKey,
-  voxelTypeBaseKeyToEntity,
-  voxelTypeBaseKeyToTruncStr,
 } from "./types";
 import { DEFAULT_BLOCK_TEST_DISTANCE } from "./setup/setupNoaEngine";
 import { FocusedUiType } from "./components/FocusedUi";

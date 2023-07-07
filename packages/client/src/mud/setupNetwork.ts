@@ -20,7 +20,6 @@ import {
 } from "../layers/network/api";
 import { to64CharAddress } from "../utils/entity";
 import {
-  voxelTypeDataKeyToVoxelVariantDataKey,
   NoaBlockType,
   VoxelVariantData,
   VoxelTypeDataKey,
@@ -30,9 +29,7 @@ import {
   voxelVariantKeyStringToKey,
   voxelTypeToEntity,
   VoxelTypeBaseKey,
-  VoxelTypeRegistryData,
   voxelTypeBaseKeyStrToVoxelTypeRegistryKeyStr,
-  voxelTypeBaseKeyToEntity,
 } from "../layers/noa/types";
 import { Textures, UVWraps } from "../layers/noa/constants";
 import { keccak256 } from "@latticexyz/utils";
@@ -46,11 +43,6 @@ export type SetupNetworkResult = Awaited<ReturnType<typeof setupNetwork>>;
 export type VoxelVariantSubscription = (
   voxelVariantKey: VoxelVariantDataKey,
   voxelVariantData: VoxelVariantDataValue
-) => void;
-
-export type VoxelTypeRegistryDataSubscription = (
-  voxelTypeRegistryKey: VoxelTypeBaseKey,
-  voxelTypeRegistryData: VoxelTypeRegistryData
 ) => void;
 
 export async function setupNetwork() {

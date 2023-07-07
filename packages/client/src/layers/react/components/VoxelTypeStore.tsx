@@ -7,7 +7,7 @@ import React from "react";
 import { getItemTypesIOwn } from "../../noa/systems/createInventoryIndexSystem";
 import { INVENTORY_HEIGHT, INVENTORY_WIDTH } from "./InventoryHud";
 import { toast } from "react-toastify";
-import { voxelVariantDataKeyToString } from "../../noa/types";
+import { voxelTypeBaseKeyToEntity } from "../../noa/types";
 import { useVoxelTypeSearch } from "../../../utils/useVoxelTypeSearch";
 
 export interface VoxelTypeStoreFilters {
@@ -25,7 +25,8 @@ export interface VoxelTypeDesc {
   name: string;
   namespace: string;
   voxelType: Entity;
-  preview: string;
+  previewVoxelVariantId: string;
+  previewVoxelVariantNamespace: string;
   numSpawns: BigInt;
   creator: string;
 }
@@ -46,13 +47,19 @@ export const VoxelTypeStore: React.FC<Props> = ({ layers, filters, setFilters })
     }
     const voxelDescription = voxelTypesToDisplay[i];
 
+    const previewIconUrl =
+      getVoxelIconUrl({
+        voxelVariantNamespace: voxelDescription.previewVoxelVariantNamespace,
+        voxelVariantId: voxelDescription.previewVoxelVariantId,
+      }) || "";
+
     return (
       <Slot
         key={`creative-slot-${voxelDescription.name}`}
         voxelType={voxelDescription.voxelType}
-        iconUrl={voxelDescription.preview}
+        iconUrl={previewIconUrl}
         quantity={undefined} // undefined so no number appears
-        onClick={() => tryGiftVoxel(voxelDescription.namespace, voxelDescription.voxelType, voxelDescription.preview)}
+        onClick={() => tryGiftVoxel(voxelDescription, previewIconUrl)}
         disabled={false} // false, so if you pick up the voxeltype, it still shows up in the creative inventory
         selected={false} // you can never select an voxeltype in the creative inventory
         tooltipText={
@@ -66,20 +73,20 @@ export const VoxelTypeStore: React.FC<Props> = ({ layers, filters, setFilters })
     );
   });
 
-  const tryGiftVoxel = (voxelTypeNamespace: string, voxelTypeId: string, preview: string) => {
+  const tryGiftVoxel = (voxelType: VoxelTypeDesc, previewIconUrl: string) => {
     // It's better to do this validation off-chain since doing it on-chain is expensive.
     // Also this is more of a UI limitation. Who knows, maybe in the future, we WILL enforce strict inventory limits
     const itemTypesIOwn = getItemTypesIOwn(OwnedBy, VoxelType, connectedAddress);
     if (
       itemTypesIOwn.has(
-        voxelVariantDataKeyToString({
-          voxelVariantNamespace: voxelTypeNamespace,
-          voxelVariantId: voxelTypeId,
-        }) as Entity
+        voxelTypeBaseKeyToEntity({
+          voxelTypeNamespace: voxelType.namespace,
+          voxelTypeId: voxelType.voxelType,
+        })
       ) ||
       itemTypesIOwn.size < INVENTORY_WIDTH * INVENTORY_HEIGHT
     ) {
-      giftVoxel(voxelTypeNamespace, voxelTypeId, preview);
+      giftVoxel(voxelType.namespace, voxelType.voxelType, previewIconUrl);
     } else {
       toast(`Your inventory is full! Right click on an item to delete it.`);
     }

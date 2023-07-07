@@ -21,8 +21,8 @@ function registerVoxelType(
   address world,
   string memory voxelTypeName,
   bytes32 voxelTypeId,
-  string memory defaultTextureHash,
-  string memory defaultUVWrapHash,
+  bytes16 previewVoxelVariantNamespace,
+  bytes32 previewVoxelVariantId,
   bytes4 variantSelector
 ) {
   (bool success, bytes memory result) = world.call(
@@ -30,8 +30,8 @@ function registerVoxelType(
       REGISTER_VOXEL_TYPE_SIG,
       voxelTypeName,
       voxelTypeId,
-      defaultTextureHash,
-      defaultUVWrapHash,
+      previewVoxelVariantNamespace,
+      previewVoxelVariantId,
       variantSelector
     )
   );

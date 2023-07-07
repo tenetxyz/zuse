@@ -35,8 +35,8 @@ contract SandVoxelSystem is VoxelType {
       world,
       "Powered Sand",
       SandID,
-      SandTexture,
-      SandUVWrap,
+      EXTENSION_NAMESPACE,
+      SandID,
       IWorld(world).extension_SandVoxelSystem_sandVariantSelector.selector
     );
   }

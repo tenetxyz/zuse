@@ -34,8 +34,8 @@ contract SignalSourceVoxelSystem is VoxelType {
       world,
       "Signal Source",
       SignalSourceID,
-      SignalSourceTexture,
-      SignalSourceUVWrap,
+      EXTENSION_NAMESPACE,
+      SignalSourceID,
       IWorld(world).extension_SignalSourceVoxe_signalSourceVariantSelector.selector
     );
   }

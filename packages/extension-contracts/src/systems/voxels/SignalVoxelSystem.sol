@@ -50,8 +50,8 @@ contract SignalVoxelSystem is VoxelType {
       world,
       "Signal",
       SignalID,
-      SignalOffTexture,
-      SignalOffUVWrap,
+      EXTENSION_NAMESPACE,
+      SignalOffID,
       IWorld(world).extension_SignalVoxelSyste_signalVariantSelector.selector
     );
   }

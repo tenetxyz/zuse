@@ -32,8 +32,8 @@ contract BedrockVoxelSystem is VoxelType {
     world.tenet_VoxelRegistrySys_registerVoxelType(
       "Bedrock",
       BedrockID,
-      BedrockTexture,
-      BedrockUVWrap,
+      TENET_NAMESPACE,
+      BedrockID,
       world.tenet_BedrockVoxelSyst_bedrockVariantSelector.selector
     );
 

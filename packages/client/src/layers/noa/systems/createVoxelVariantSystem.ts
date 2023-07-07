@@ -25,24 +25,12 @@ export async function createVoxelVariantSystem(network: NetworkLayer, context: N
     components: { LoadingState },
     contractComponents: { VoxelVariants, VoxelTypeRegistry },
     actions: { withOptimisticUpdates },
-    voxelTypes: { VoxelVariantData, VoxelVariantDataSubscriptions, VoxelTypeRegistryDataSubscriptions },
+    voxelTypes: { VoxelVariantData, VoxelVariantDataSubscriptions },
   } = network;
 
   // Loading state flag
   let live = false;
   awaitStreamValue(LoadingState.update$, ({ value }) => value[0]?.state === SyncState.LIVE).then(() => (live = true));
-
-  defineComponentSystem(world, VoxelTypeRegistry, (update) => {
-    // TODO: could use update.value?
-    const voxelTypeRegistryValue = getComponentValueStrict(VoxelTypeRegistry, update.entity);
-    const voxelTypeRegistryKey = entityToVoxelTypeBaseKey(update.entity);
-    VoxelTypeRegistryDataSubscriptions.forEach((subscription) => {
-      voxelTypeRegistryValue.previewUVWrap = voxelTypeRegistryValue.previewUVWrap
-        ? getNftStorageLink(voxelTypeRegistryValue.previewUVWrap)
-        : "";
-      subscription(voxelTypeRegistryKey, voxelTypeRegistryValue);
-    });
-  });
 
   defineComponentSystem(world, VoxelVariants, (update) => {
     // TODO: could use update.value?

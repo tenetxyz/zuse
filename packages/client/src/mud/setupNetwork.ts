@@ -199,7 +199,6 @@ export async function setupNetwork() {
 
   const VoxelVariantData: VoxelVariantData = new Map();
   const VoxelVariantDataSubscriptions: VoxelVariantSubscription[] = [];
-  const VoxelTypeRegistryDataSubscriptions: VoxelTypeRegistryDataSubscription[] = [];
   // TODO: should load initial ones from chain too
   VoxelVariantData.set(
     voxelVariantDataKeyToString({
@@ -273,10 +272,20 @@ export async function setupNetwork() {
     return Array.isArray(voxel.material) ? voxel.material[0] : voxel.material;
   }
 
-  function getVoxelTypePreviewUrl(voxelTypeBaseKeyStr: string): string | undefined {
-    const voxelTypeRegistryKey = voxelTypeBaseKeyStrToVoxelTypeRegistryKeyStr(voxelTypeBaseKeyStr) as Entity;
+  function getVoxelPreviewVariant(voxelTypeBaseKey: VoxelTypeBaseKey): VoxelVariantDataKey | undefined {
+    const voxelTypeRegistryKey = voxelTypeBaseKeyStrToVoxelTypeRegistryKeyStr(voxelTypeBaseKey) as Entity;
     const voxelTypeRecord = getComponentValue(contractComponents.VoxelTypeRegistry, voxelTypeRegistryKey);
-    return voxelTypeRecord && voxelTypeRecord.preview ? getNftStorageLink(voxelTypeRecord.preview) : "";
+    return (
+      voxelTypeRecord && {
+        voxelVariantNamespace: voxelTypeRecord.previewVoxelVariantNamespace,
+        voxelVariantId: voxelTypeRecord.previewVoxelVariantId,
+      }
+    );
+  }
+
+  function getVoxelTypePreviewUrl(voxelTypeBaseKey: VoxelTypeBaseKey): string | undefined {
+    const previewVoxelVariant = getVoxelPreviewVariant(voxelTypeBaseKey);
+    return previewVoxelVariant && getVoxelIconUrl(previewVoxelVariant);
   }
 
   // --- API ------------------------------------------------------------------------
@@ -325,7 +334,7 @@ export async function setupNetwork() {
       return console.warn(`cannot find a voxel (that you own) for voxelType=${voxelType}`);
     }
 
-    const preview: string = getVoxelTypePreviewUrl(voxelTypeBaseKeyToEntity(voxelType)) || "";
+    const preview: string = getVoxelTypePreviewUrl(voxelType) || "";
 
     const newVoxelOfSameType = world.registerEntity();
 
@@ -456,16 +465,20 @@ export async function setupNetwork() {
         return giftVoxelSystem(voxelTypeNamespace, voxelTypeId);
       },
       updates: () => [
-        // TODO: we can't do optimistic because we don't know what the preview will be. Maybe we can figure out somehow?
         // {
         //   component: "VoxelType",
         //   entity: newVoxel,
-        //   value: { value: voxelType },
+        //   value: {
+        //     voxelTypeNamespace: voxelTypeNamespace,
+        //     voxelTypeId: voxelTypeId,
+        //     voxelVariantNamespace: "",
+        //     voxelVariantId: "",
+        //   },
         // },
         // {
         //   component: "OwnedBy",
-        //   entity: playerAddress as Entity,
-        //   value: newVoxel,
+        //   entity: newVoxel,
+        //   value: { value: to64CharAddress(playerAddress) },
         // },
       ],
     });
@@ -618,7 +631,6 @@ export async function setupNetwork() {
       VoxelVariantData,
       VoxelVariantIndexToKey,
       VoxelVariantDataSubscriptions,
-      VoxelTypeRegistryDataSubscriptions,
     },
   };
 }

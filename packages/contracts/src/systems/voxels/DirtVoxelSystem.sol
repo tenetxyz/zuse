@@ -31,8 +31,8 @@ contract DirtVoxelSystem is VoxelType {
     world.tenet_VoxelRegistrySys_registerVoxelType(
       "Dirt",
       DirtID,
-      DirtTexture,
-      DirtUVWrap,
+      TENET_NAMESPACE,
+      DirtID,
       world.tenet_DirtVoxelSystem_dirtVariantSelector.selector
     );
 

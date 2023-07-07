@@ -103,7 +103,7 @@ export function createNoaLayer(network: NetworkLayer) {
     components: { Recipe, LoadingState },
     contractComponents: { OwnedBy, VoxelType },
     api: { build },
-    voxelTypes: { VoxelVariantData, VoxelVariantDataSubscriptions, VoxelTypeRegistryDataSubscriptions },
+    voxelTypes: { VoxelVariantData, VoxelVariantDataSubscriptions },
   } = network;
   const uniqueWorldId = chainId + worldAddress;
 
@@ -370,27 +370,7 @@ export function createNoaLayer(network: NetworkLayer) {
     }
   }
 
-  function voxelPreviewUVWrapSubscription(
-    voxelTypeRegistryKey: VoxelTypeBaseKey,
-    voxelTypeRegistryData: VoxelTypeRegistryData
-  ) {
-    const voxelMaterialsKey = voxelTypeBaseKeyToTruncStr(voxelTypeRegistryKey) as string;
-    if (!voxelMaterials.has(voxelMaterialsKey) && voxelTypeRegistryData.previewUVWrap) {
-      console.log("Registering preview uvWrap", voxelTypeRegistryData.previewUVWrap);
-      const voxelMaterial = noa.rendering.makeStandardMaterial("voxelMaterial-" + voxelMaterialsKey);
-      voxelMaterial.diffuseTexture = new Texture(
-        voxelTypeRegistryData.previewUVWrap,
-        scene,
-        true,
-        true,
-        Texture.NEAREST_SAMPLINGMODE
-      );
-      voxelMaterials.set(voxelMaterialsKey, voxelMaterial);
-    }
-  }
-
   VoxelVariantDataSubscriptions.push(voxelUVWrapSubscription);
-  VoxelTypeRegistryDataSubscriptions.push(voxelPreviewUVWrapSubscription);
 
   // initial run
   for (const [voxelVariantKey, voxelVariantData] of VoxelVariantData.entries()) {

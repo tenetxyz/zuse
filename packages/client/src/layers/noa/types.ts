@@ -39,8 +39,8 @@ export type VoxelTypeRegistryData = ComponentValue<{
   creator: Type.String;
   numSpawns: Type.BigInt;
   name: Type.String;
-  preview: Type.String;
-  previewUVWrap: Type.String;
+  previewVoxelVariantNamespace: Type.String;
+  previewVoxelVariantId: Type.String;
 }>;
 
 export type VoxelTypeDataKey = {
@@ -119,9 +119,8 @@ export function entityToVoxelTypeBaseKey(entity: Entity): VoxelTypeBaseKey {
   return { voxelTypeNamespace, voxelTypeId };
 }
 
-export function voxelTypeBaseKeyStrToVoxelTypeRegistryKeyStr(key: string): string {
-  const [voxelTypeNamespace, voxelTypeId] = key.split(":");
-  return `${voxelTypeNamespace.padEnd(66, "0")}:${voxelTypeId}`;
+export function voxelTypeBaseKeyStrToVoxelTypeRegistryKeyStr(voxelTypeBaseKey: VoxelTypeBaseKey): string {
+  return `${voxelTypeBaseKey.voxelTypeNamespace.padEnd(66, "0")}:${voxelTypeBaseKey.voxelTypeId}`;
 }
 
 // We need to do it this sometimes because decoded coords have named keys, 0, 1, 2 in addition to x, y, z

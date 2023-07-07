@@ -4,7 +4,7 @@ import { VoxelTypeStore, VoxelTypeStoreFilters } from "./VoxelTypeStore";
 import RegisterCreation, { RegisterCreationFormData } from "./RegisterCreation";
 import { TabRadioSelector } from "./TabRadioSelector";
 import CreationStore, { CreationStoreFilters } from "./CreationStore";
-import ClassifierStore, { ClassifierStoreFilters } from "./ClassifierStore";
+import ClassifierStore, { Classifier, ClassifierStoreFilters } from "./ClassifierStore";
 import { ElectiveBar } from "./ElectiveBar";
 import { setComponent } from "@latticexyz/recs";
 import { FocusedUiType } from "../../noa/components/FocusedUi";
@@ -17,7 +17,7 @@ export function registerTenetSidebar() {
     rowStart: 2,
     rowEnd: 11,
     columnStart: 1,
-    columnEnd: 10,
+    columnEnd: 12,
     Component: ({ layers }) => {
       const {
         noa: {
@@ -46,6 +46,7 @@ export function registerTenetSidebar() {
           isMyCreation: true,
         },
       });
+      const [selectedClassifier, setSelectedClassifier] = useState<Classifier | null>(null);
 
       const getPageForSelectedTab = () => {
         if (!focusedUi || !focusedUi.value) {
@@ -78,6 +79,8 @@ export function registerTenetSidebar() {
                 layers={layers}
                 filters={classifierStoreFilters}
                 setFilters={setClassifierStoreFilters}
+                selectedClassifier={selectedClassifier}
+                setSelectedClassifier={setSelectedClassifier}
               />
             );
           default:

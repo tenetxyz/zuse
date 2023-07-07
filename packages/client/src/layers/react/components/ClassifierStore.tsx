@@ -1,9 +1,11 @@
 import React from "react";
 import { Layers } from "../../../types";
-import { Entity } from "@latticexyz/recs";
+import { Entity, setComponent } from "@latticexyz/recs";
 import { useCreationSearch } from "../../../utils/useCreationSearch";
 import { useClassifierSearch } from "./useClassifierSearch";
 import { CreationStoreFilters } from "./CreationStore";
+import { useComponentValue } from "@latticexyz/react";
+import { SetState } from "../../../utils/types";
 
 export interface ClassifierStoreFilters {
   classifierQuery: string;
@@ -13,7 +15,9 @@ export interface ClassifierStoreFilters {
 interface Props {
   layers: Layers;
   filters: ClassifierStoreFilters;
-  setFilters: React.Dispatch<React.SetStateAction<ClassifierStoreFilters>>;
+  setFilters: SetState<ClassifierStoreFilters>;
+  selectedClassifier: Classifier | null;
+  setSelectedClassifier: SetState<Classifier | null>;
 }
 
 export interface Classifier {
@@ -24,7 +28,19 @@ export interface Classifier {
   functionSelector: string;
 }
 
-const ClassifierStore: React.FC<Props> = ({ layers, filters, setFilters }: Props) => {
+const ClassifierStore: React.FC<Props> = ({
+  layers,
+  filters,
+  setFilters,
+  selectedClassifier,
+  setSelectedClassifier,
+}: Props) => {
+  const {
+    noa: {
+      components: { SpawnToClassify },
+      SingletonEntity,
+    },
+  } = layers;
   const { creationsToDisplay } = useCreationSearch({
     layers,
     filters: filters.creationFilter,
@@ -35,9 +51,11 @@ const ClassifierStore: React.FC<Props> = ({ layers, filters, setFilters }: Props
     filters,
   });
 
+  const spawnToUse = useComponentValue(SpawnToClassify, SingletonEntity);
+
   return (
-    <div className="max-w-md mx-auto p-4 text-white flex flex-row content-start float-top h-full min-w-[800px]">
-      <div className="flex flex-col">
+    <div className="mx-auto p-4 text-white flex flex-row content-start float-top h-full min-w-[800px]">
+      {/* <div className="flex flex-col">
         <label className="flex items-center space-x-2 ml-2">My Creations</label>
         <div className="flex flex-row">
           <input
@@ -60,7 +78,7 @@ const ClassifierStore: React.FC<Props> = ({ layers, filters, setFilters }: Props
             return (
               <div
                 key={idx}
-                className="border-1 border-solid border-slate-700 p-2 mb-2 flex flex-row whitespace-nowrap justify-around break-all justify-start space-x-5"
+                className="border-1 border-solid border-slate-700 p-2 mb-2 flex flex-row whitespace-nowrap justify-around break-all space-x-5"
               >
                 <p>{creation.name}</p>
                 <p>{creation.description}</p>
@@ -70,7 +88,7 @@ const ClassifierStore: React.FC<Props> = ({ layers, filters, setFilters }: Props
             );
           })}
         </div>
-      </div>
+      </div> */}
       <div className="flex flex-col">
         <label className="flex items-center space-x-2 ml-2">Classifiers</label>
         <input
@@ -86,7 +104,10 @@ const ClassifierStore: React.FC<Props> = ({ layers, filters, setFilters }: Props
             return (
               <div
                 key={idx}
-                className="border-1 border-solid border-slate-700 p-2 mb-2 flex flex-row whitespace-nowrap justify-around break-all justify-start space-x-5"
+                className="border-1 border-solid border-slate-700 p-2 mb-2 flex flex-row whitespace-nowrap break-all justify-around space-x-5"
+                onClick={() => {
+                  setSelectedClassifier(classifier);
+                }}
               >
                 <p>{classifier.name}</p>
                 <p>{classifier.description}</p>
@@ -95,6 +116,36 @@ const ClassifierStore: React.FC<Props> = ({ layers, filters, setFilters }: Props
             );
           })}
         </div>
+      </div>
+      <div>
+        {selectedClassifier && (
+          <div className="flex flex-col">
+            <label className="flex items-center space-x-2 ml-2">Selected Classifier</label>
+            <div className="m-2 p-2 flex flex-col">
+              <div className="border-1 border-solid border-slate-700 p-2 mb-2 flex flex-row whitespace-nowrap break-all justify-around space-x-5">
+                <p>{selectedClassifier.name}</p>
+                <p>{selectedClassifier.description}</p>
+                <p className="break-all break-words">{selectedClassifier.creator.substring(10)}</p>
+              </div>
+              <div className="flex flex-row">
+                {spawnToUse?.creation ? (
+                  <>
+                    <p>Submit {spawnToUse.creation.name} </p>
+                    <button
+                      onClick={() => {
+                        setComponent(SpawnToClassify, SingletonEntity, { spawn: undefined, creation: undefined });
+                      }}
+                    >
+                      Cancel{" "}
+                    </button>
+                  </>
+                ) : (
+                  <p>Please look at a spawn of a creation and press the button to classify it</p>
+                )}
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

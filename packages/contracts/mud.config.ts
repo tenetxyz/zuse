@@ -104,6 +104,7 @@ export default mudConfig({
       schema: {
         creator: "address",
         classifySelector: "bytes4", // the function that will be called when the user submits to the classifier
+        interfaceVoxels: "bytes", // tuple of voxelName and the entityId
         name: "string",
         description: "string",
       },

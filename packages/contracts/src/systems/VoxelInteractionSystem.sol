@@ -94,8 +94,9 @@ contract VoxelInteractionSystem is System {
         (bool extensionSuccess, bytes memory extensionReturnData) = world.call(
           abi.encodeWithSelector(extensionEventHandler, useCenterEntityId, useNeighbourEntities)
         );
-        // TODO: Add error handling
-        // require(extensionSuccess, "VoxelInteractionSystem: Extension call failed");
+        // TODO: Add error handling        
+        // TODO: Remove before release
+        require(extensionSuccess, "VoxelInteractionSystem: Extension call failed");
         if (extensionSuccess) {
           (bytes32 changedCenterEntityId, bytes32[] memory changedNeighbourEntityIds) = abi.decode(
             extensionReturnData,

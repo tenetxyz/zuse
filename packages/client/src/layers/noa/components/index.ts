@@ -12,4 +12,5 @@ export { defineSoundComponent } from "./Sound";
 export { defineVoxelSelectionComponent } from "./VoxelSelection";
 export { defineSpawnCreationComponent } from "./SpawnCreation";
 export { defineSpawnInFocusComponent } from "./SpawnInFocus";
+export { defineSpawnToClassifyComponent } from "./SpawnToClassify";
 export { defineFocusedUiComponent } from "./FocusedUi";

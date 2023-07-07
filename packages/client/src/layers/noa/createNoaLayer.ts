@@ -31,6 +31,7 @@ import {
   defineSpawnCreationComponent,
   defineSpawnInFocusComponent,
   defineFocusedUiComponent,
+  defineSpawnToClassifyComponent,
 } from "./components";
 import { CRAFTING_SIDE, EMPTY_CRAFTING_TABLE } from "./constants";
 import * as BABYLON from "@babylonjs/core";
@@ -127,6 +128,7 @@ export function createNoaLayer(network: NetworkLayer) {
     PersistentNotification: definePersistentNotificationComponent(world),
     SpawnCreation: defineSpawnCreationComponent(world),
     SpawnInFocus: defineSpawnInFocusComponent(world),
+    SpawnToClassify: defineSpawnToClassifyComponent(world),
   };
 
   // --- SETUP ----------------------------------------------------------------------

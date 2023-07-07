@@ -5,6 +5,7 @@ import { useComponentValue } from "@latticexyz/react";
 import { stringToEntity } from "../../../utils/entity";
 import { abiDecode } from "../../../utils/abi";
 import { ISpawn } from "../../noa/components/SpawnInFocus";
+import { FocusedUiType } from "../../noa/components/FocusedUi";
 
 interface Props {
   layers: Layers;
@@ -14,7 +15,7 @@ export const ElectiveBar = ({ layers }: Props) => {
   const {
     noa: {
       noa,
-      components: { SpawnInFocus },
+      components: { SpawnInFocus, SpawnToClassify, FocusedUi },
       SingletonEntity,
     },
     network: {
@@ -73,7 +74,17 @@ export const ElectiveBar = ({ layers }: Props) => {
     return (
       <div>
         <p>Would you like to classify this spawn of {spawnInFocus?.creation?.name}?</p>
-        <button onClick={() => {}}>Classify</button>
+        <button
+          onClick={() => {
+            setComponent(SpawnToClassify, SingletonEntity, {
+              spawn: spawnInFocus.spawn,
+              creation: spawnInFocus.creation,
+            });
+            setComponent(FocusedUi, SingletonEntity, { value: FocusedUiType.SIDEBAR });
+          }}
+        >
+          Classify
+        </button>
       </div>
     );
   }

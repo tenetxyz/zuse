@@ -2,13 +2,14 @@ import { useEffect, useState } from "react";
 import { registerTenetComponent } from "../engine/components/TenetComponentRenderer";
 import { VoxelTypeStore, VoxelTypeStoreFilters } from "./VoxelTypeStore";
 import RegisterCreation, { RegisterCreationFormData } from "./RegisterCreation";
-import { InventoryTab, TabRadioSelector } from "./TabRadioSelector";
+import { TabRadioSelector } from "./TabRadioSelector";
 import CreationStore, { CreationStoreFilters } from "./CreationStore";
 import ClassifierStore, { ClassifierStoreFilters } from "./ClassifierStore";
 import { ElectiveBar } from "./ElectiveBar";
 import { setComponent } from "@latticexyz/recs";
 import { FocusedUiType } from "../../noa/components/FocusedUi";
 import { useComponentUpdate } from "../../../utils/useComponentUpdate";
+import { useComponentValue } from "@latticexyz/react";
 
 export const SIDEBAR_BACKGROUND_COLOR = "#353535";
 export function registerTenetSidebar() {
@@ -24,8 +25,7 @@ export function registerTenetSidebar() {
           SingletonEntity,
         },
       } = layers;
-
-      const [selectedTab, setSelectedTab] = useState<InventoryTab>(InventoryTab.NONE);
+      const focusedUi = useComponentValue(FocusedUi, SingletonEntity);
 
       // This state is hoisted up to this component so that the state is not lost when leaving the inventory to select voxels
       const [creativeInventoryFilters, setCreativeInventoryFilters] = useState<VoxelTypeStoreFilters>({
@@ -48,8 +48,11 @@ export function registerTenetSidebar() {
       });
 
       const getPageForSelectedTab = () => {
-        switch (selectedTab) {
-          case InventoryTab.VOXEL_TYPE_STORE:
+        if (!focusedUi || !focusedUi.value) {
+          return null;
+        }
+        switch (focusedUi.value) {
+          case FocusedUiType.SIDEBAR_VOXEL_TYPE_STORE:
             return (
               <VoxelTypeStore
                 layers={layers}
@@ -57,7 +60,7 @@ export function registerTenetSidebar() {
                 setFilters={setCreativeInventoryFilters}
               />
             );
-          case InventoryTab.REGISTER_CREATION:
+          case FocusedUiType.SIDEBAR_REGISTER_CREATION:
             return (
               <RegisterCreation
                 layers={layers}
@@ -65,11 +68,11 @@ export function registerTenetSidebar() {
                 setFormData={setRegisterCreationFormData}
               />
             );
-          case InventoryTab.CREATION_STORE:
+          case FocusedUiType.SIDEBAR_CREATION_STORE:
             return (
               <CreationStore layers={layers} filters={creationStoreFilters} setFilters={setCreationStoreFilters} />
             );
-          case InventoryTab.CLASSIFIER_STORE:
+          case FocusedUiType.SIDEBAR_CLASSIFY_STORE:
             return (
               <ClassifierStore
                 layers={layers}
@@ -77,28 +80,21 @@ export function registerTenetSidebar() {
                 setFilters={setClassifierStoreFilters}
               />
             );
-          case InventoryTab.NONE:
+          default:
             return null;
         }
       };
       const SelectedTab = getPageForSelectedTab();
 
-      useEffect(() => {
-        if (selectedTab !== InventoryTab.NONE) {
-          // the user clicked on the sidebar, so set the ui focus to the sidebar
-          setComponent(FocusedUi, SingletonEntity, { value: FocusedUiType.SIDEBAR });
-        }
-      }, [selectedTab]);
-
-      // type IFocusedUi = ComponentRecord<typeof FocusedUi>;
-      useComponentUpdate(FocusedUi, (focusedUi) => {
-        if (!focusedUi) {
-          return;
-        }
-        if (focusedUi.value[0]?.value !== FocusedUiType.SIDEBAR) {
-          setSelectedTab(InventoryTab.NONE);
-        }
-      });
+      const isFocusedUiASelectedTab =
+        focusedUi &&
+        focusedUi.value &&
+        [
+          FocusedUiType.SIDEBAR_VOXEL_TYPE_STORE,
+          FocusedUiType.SIDEBAR_CREATION_STORE,
+          FocusedUiType.SIDEBAR_CLASSIFY_STORE,
+          FocusedUiType.SIDEBAR_REGISTER_CREATION,
+        ].includes(focusedUi.value);
 
       return (
         // "pointerEvents: all" is needed so when we click on the admin panel, we don't gain focus on the noa canvas
@@ -106,11 +102,11 @@ export function registerTenetSidebar() {
           <div
             className="flex flex-row float-left relative z-50 mt-[5%] pr-7 pt-7"
             style={{
-              backgroundColor: selectedTab === InventoryTab.NONE ? "transparent" : `${SIDEBAR_BACKGROUND_COLOR}`,
+              backgroundColor: isFocusedUiASelectedTab ? `${SIDEBAR_BACKGROUND_COLOR}` : "transparent",
             }}
           >
             <div className="flex flex-col">
-              <TabRadioSelector selectedTab={selectedTab} setSelectedTab={setSelectedTab} />
+              <TabRadioSelector layers={layers} />
               <ElectiveBar layers={layers} />
             </div>
             <div className={`bg-[${SIDEBAR_BACKGROUND_COLOR}]`}>{SelectedTab}</div>

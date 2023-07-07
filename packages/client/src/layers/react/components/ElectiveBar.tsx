@@ -80,7 +80,7 @@ export const ElectiveBar = ({ layers }: Props) => {
               spawn: spawnInFocus.spawn,
               creation: spawnInFocus.creation,
             });
-            setComponent(FocusedUi, SingletonEntity, { value: FocusedUiType.SIDEBAR });
+            setComponent(FocusedUi, SingletonEntity, { value: FocusedUiType.SIDEBAR_CLASSIFY_STORE });
           }}
         >
           Classify

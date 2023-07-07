@@ -2,12 +2,11 @@
 pragma solidity >=0.8.0;
 
 import { CHUNK } from "./Constants.sol";
-import { hasKey } from "@latticexyz/world/src/modules/keysintable/hasKey.sol";
 import { Coord, VoxelCoord } from "./Types.sol";
 import { getKeysWithValue } from "@latticexyz/world/src/modules/keyswithvalue/getKeysWithValue.sol";
-import { Position, PositionData, PositionTableId, VoxelType, VoxelTypeRegistry, VoxelTypeRegistryData, VoxelTypeData } from "./codegen/Tables.sol";
+import { Position, PositionTableId, VoxelType, VoxelTypeRegistry, VoxelTypeRegistryData, VoxelTypeData } from "./codegen/Tables.sol";
 import { Strings } from "@openzeppelin/contracts/utils/Strings.sol";
-import { VoxelVariantsKey, BlockDirection } from "./Types.sol";
+import { VoxelVariantsKey } from "./Types.sol";
 
 function getVoxelVariant(
   address world,

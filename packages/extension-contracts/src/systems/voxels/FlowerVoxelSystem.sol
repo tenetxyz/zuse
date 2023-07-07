@@ -2,9 +2,7 @@
 pragma solidity >=0.8.0;
 
 import { VoxelType } from "@tenetxyz/contracts/src/prototypes/VoxelType.sol";
-
 import { IWorld } from "../../../src/codegen/world/IWorld.sol";
-
 import { registerVoxelType, registerVoxelVariant } from "../../Utils.sol";
 import { VoxelVariantsData, VoxelVariantsKey } from "../../Types.sol";
 import { EXTENSION_NAMESPACE } from "../../Constants.sol";

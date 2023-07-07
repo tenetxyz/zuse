@@ -2,7 +2,6 @@
 pragma solidity >=0.8.0;
 
 import { VoxelInteraction } from "../../prototypes/VoxelInteraction.sol";
-
 import { IWorld } from "../../../src/codegen/world/IWorld.sol";
 import { Signal, InvertedSignal, SignalData, InvertedSignalData, SignalTableId, SignalSource, PoweredData, Powered } from "../../codegen/Tables.sol";
 import { BlockDirection } from "../../codegen/Types.sol";

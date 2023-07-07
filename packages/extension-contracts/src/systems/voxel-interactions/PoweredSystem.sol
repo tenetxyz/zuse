@@ -2,17 +2,11 @@
 pragma solidity >=0.8.0;
 
 import { VoxelInteraction } from "../../prototypes/VoxelInteraction.sol";
-
 import { IWorld } from "../../../src/codegen/world/IWorld.sol";
-
 import { Signal, SignalData, Powered, PoweredData, PoweredTableId, SignalSource, SignalSourceTableId } from "../../codegen/Tables.sol";
-
-import { SystemRegistry } from "@latticexyz/world/src/modules/core/tables/SystemRegistry.sol";
-import { ResourceSelector } from "@latticexyz/world/src/ResourceSelector.sol";
 import { BlockDirection } from "../../codegen/Types.sol";
-import { PositionData } from "@tenetxyz/contracts/src/codegen/tables/Position.sol";
 import { getCallerNamespace } from "@tenetxyz/contracts/src/SharedUtils.sol";
-import { registerExtension, getOppositeDirection, entityIsPowered, entityIsSignal, entityIsSignalSource } from "../../Utils.sol";
+import { registerExtension, entityIsPowered, entityIsSignal, entityIsSignalSource } from "../../Utils.sol";
 
 contract PoweredSystem is VoxelInteraction {
   function registerInteraction() public override {

@@ -3,14 +3,9 @@ pragma solidity >=0.8.0;
 
 import { VoxelType } from "@tenetxyz/contracts/src/prototypes/VoxelType.sol";
 import { IWorld } from "../../../src/codegen/world/IWorld.sol";
-import { Signal, SignalData, SignalTableId, SignalSource, SignalSourceTableId, InvertedSignal, InvertedSignalData } from "../../codegen/Tables.sol";
-
-import { SystemRegistry } from "@latticexyz/world/src/modules/core/tables/SystemRegistry.sol";
-import { ResourceSelector } from "@latticexyz/world/src/ResourceSelector.sol";
-import { BlockDirection } from "../../codegen/Types.sol";
-import { PositionData } from "@tenetxyz/contracts/src/codegen/tables/Position.sol";
+import { SignalSource } from "../../codegen/Tables.sol";
 import { getCallerNamespace } from "@tenetxyz/contracts/src/SharedUtils.sol";
-import { registerExtension, registerVoxelType, registerVoxelVariant, getOppositeDirection, entityIsSignal, entityIsSignalSource, entityIsInvertedSignal } from "../../Utils.sol";
+import { registerVoxelType, registerVoxelVariant, entityIsSignalSource } from "../../Utils.sol";
 import { VoxelVariantsData, VoxelVariantsKey } from "../../Types.sol";
 import { EXTENSION_NAMESPACE } from "../../Constants.sol";
 import { NoaBlockType } from "@tenetxyz/contracts/src/codegen/types.sol";

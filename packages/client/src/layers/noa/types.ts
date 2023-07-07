@@ -88,19 +88,6 @@ export function voxelTypeToVoxelTypeBaseKeyString(voxelType: VoxelTypeDataKey): 
   return `${voxelType.voxelTypeNamespace}:${voxelType.voxelTypeId}`;
 }
 
-export function voxelTypeBaseKeyToEntity(voxelTypeBaseKey: VoxelTypeBaseKey): Entity {
-  return `${voxelTypeBaseKey.voxelTypeNamespace}:${voxelTypeBaseKey.voxelTypeId}` as Entity;
-}
-
-export function voxelTypeBaseKeyToVoxelTypeDataKey(voxelTypeBaseKey: VoxelTypeBaseKey): VoxelTypeDataKey {
-  return {
-    voxelTypeNamespace: voxelTypeBaseKey.voxelTypeNamespace,
-    voxelTypeId: voxelTypeBaseKey.voxelTypeId,
-    voxelVariantNamespace: "0x00000000000000000000000000000000",
-    voxelVariantId: "0x0000000000000000000000000000000000000000000000000000000000000000",
-  };
-}
-
 export function voxelTypeToEntity(voxelType: VoxelTypeDataKey): Entity {
   return `${voxelType.voxelTypeNamespace}:${voxelType.voxelTypeId}:${voxelType.voxelVariantNamespace}:${voxelType.voxelVariantId}` as Entity;
 }
@@ -117,6 +104,19 @@ export function entityToVoxelTypeBaseKey(entity: Entity): VoxelTypeBaseKey {
 
 export function voxelTypeBaseKeyStrToVoxelTypeRegistryKeyStr(voxelTypeBaseKey: VoxelTypeBaseKey): string {
   return `${voxelTypeBaseKey.voxelTypeNamespace.padEnd(66, "0")}:${voxelTypeBaseKey.voxelTypeId}`;
+}
+
+export function voxelTypeBaseKeyToEntity(voxelTypeBaseKey: VoxelTypeBaseKey): Entity {
+  return `${voxelTypeBaseKey.voxelTypeNamespace}:${voxelTypeBaseKey.voxelTypeId}` as Entity;
+}
+
+export function voxelTypeBaseKeyToVoxelTypeDataKey(voxelTypeBaseKey: VoxelTypeBaseKey): VoxelTypeDataKey {
+  return {
+    voxelTypeNamespace: voxelTypeBaseKey.voxelTypeNamespace,
+    voxelTypeId: voxelTypeBaseKey.voxelTypeId,
+    voxelVariantNamespace: "0x00000000000000000000000000000000",
+    voxelVariantId: "0x0000000000000000000000000000000000000000000000000000000000000000",
+  };
 }
 
 // We need to do it this sometimes because decoded coords have named keys, 0, 1, 2 in addition to x, y, z

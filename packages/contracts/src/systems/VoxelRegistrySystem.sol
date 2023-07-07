@@ -35,7 +35,7 @@ contract VoxelRegistrySystem is System {
       voxelTypeId,
       VoxelTypeRegistryData({
         voxelVariantSelector: voxelVariantSelector,
-        creator: _msgSender(),
+        creator: tx.origin,
         numSpawns: 0,
         name: name,
         preview: previewVoxelImg

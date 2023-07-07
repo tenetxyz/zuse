@@ -221,9 +221,11 @@ export function registerInventoryHud() {
 
       const focusedUi = useComponentValue(FocusedUi, SingletonEntity);
       const isInventoryFocused = focusedUi?.value === FocusedUiType.INVENTORY;
-      if (!isInventoryFocused) {
-        setHoldingVoxelType(undefined);
-      }
+      useEffect(() => {
+        if (!isInventoryFocused) {
+          setHoldingVoxelType(undefined);
+        }
+      }, [isInventoryFocused]);
 
       // Map each inventory slot to the corresponding voxel type at this slot index
       const Slots = [...range(INVENTORY_HEIGHT * INVENTORY_WIDTH)].map((i) => {

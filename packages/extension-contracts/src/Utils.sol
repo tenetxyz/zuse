@@ -6,6 +6,7 @@ import { Signal, SignalData, SignalSource, Powered, InvertedSignal } from "@tene
 import { CLEAR_COORD_SIG, BUILD_SIG, GIFT_VOXEL_SIG } from "@tenet-contracts/src/constants.sol";
 import { Signal, SignalSource, Powered, InvertedSignal, Temperature } from "./codegen/Tables.sol";
 import { Signal, SignalSource, Powered, InvertedSignal, Temperature, Generator } from "./codegen/Tables.sol";
+import { Signal, SignalSource, Powered, InvertedSignal, Temperature } from "./codegen/Tables.sol";
 import { BlockDirection } from "./codegen/Types.sol";
 import { CLEAR_COORD_SIG, BUILD_SIG } from "@tenetxyz/contracts/src/constants.sol";
 import { getUniqueEntity } from "@latticexyz/world/src/modules/uniqueentity/getUniqueEntity.sol";
@@ -106,6 +107,11 @@ function entityHasTemperature(bytes32 entity, bytes16 callerNamespace) view retu
 
 function entityIsGenerator(bytes32 entity, bytes16 callerNamespace) view returns (bool) {
   return Generator.get(callerNamespace, entity).hasValue;
+}
+
+
+function entityHasTemperature(bytes32 entity, bytes16 callerNamespace) view returns (bool) {
+  return Temperature.get(callerNamespace, entity).hasValue;
 }
 
 function calculateBlockDirection(

@@ -10,6 +10,7 @@ import { NoaBlockType } from "@tenetxyz/contracts/src/codegen/types.sol";
 import { registerVoxelVariant, registerVoxelType, entityHasTemperature } from "../../Utils.sol";
 import { VoxelVariantsKey } from "@tenetxyz/contracts/src/Types.sol";
 import { VoxelVariantsData } from "../../Types.sol";
+import { VoxelVariantsData, VoxelVariantsKey } from "../../Types.sol";
 
 
 bytes32 constant IceID = bytes32(keccak256("ice"));

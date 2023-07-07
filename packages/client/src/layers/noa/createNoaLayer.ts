@@ -80,6 +80,7 @@ import {
   VoxelVariantDataValue,
 } from "./types";
 import { DEFAULT_BLOCK_TEST_DISTANCE } from "./setup/setupNoaEngine";
+import { FocusedUiType } from "./components/FocusedUi";
 
 export enum UiComponentType {
   INVENTORY = "Inventory",
@@ -278,8 +279,6 @@ export function createNoaLayer(network: NetworkLayer) {
     }
 
     open = open ?? !getComponentValue(components.UI, SingletonEntity)?.showInventory;
-    // if the inventory is open, we need to disable movement commands or voxel selection commands so the player isn't "interacting" with the world
-    disableOrEnableInputs(open);
 
     if (open) {
       // clear persistent notification when we open the inventory
@@ -303,23 +302,6 @@ export function createNoaLayer(network: NetworkLayer) {
       showInventory: open,
       showCrafting: Boolean(open && crafting),
     });
-  }
-  function disableOrEnableInputs(isUiOpen: boolean | undefined) {
-    if (isUiOpen) {
-      // disable movement when inventory is open
-      // https://github.com/fenomas/noa/issues/61
-      noa.entities.removeComponent(noa.playerEntity, noa.ents.names.receivesInputs);
-      noa.inputs.unbind("select-voxel");
-      noa.inputs.unbind("admin-panel");
-      const a = noa.entities.getMovement(noa.playerEntity);
-      noa.entities.getMovement(noa.playerEntity).isPlayerSlowedToAStop = true; // stops the player's input from moving the player
-    } else {
-      // since a react component calls this function times, we need to use addComponentAgain (rather than addComponent)
-      noa.entities.addComponentAgain(noa.playerEntity, "receivesInputs", noa.ents.names.receivesInputs);
-      noa.inputs.bind("select-voxel", "V");
-      noa.inputs.bind("admin-panel", "-");
-      noa.entities.getMovement(noa.playerEntity).isPlayerSlowedToAStop = false;
-    }
   }
   const isFocusedOnInputElement = () => {
     const activeElement = document.activeElement;
@@ -409,6 +391,8 @@ export function createNoaLayer(network: NetworkLayer) {
     voxelUVWrapSubscription(voxelVariantKeyStringToKey(voxelVariantKey), voxelVariantData);
   }
 
+  setComponent(components.FocusedUi, SingletonEntity, { value: FocusedUiType.WORLD });
+
   // --- SETUP NOA COMPONENTS AND MODULES --------------------------------------------------------
   monkeyPatchMeshComponent(noa);
   registerModelComponent(noa);
@@ -462,7 +446,6 @@ export function createNoaLayer(network: NetworkLayer) {
       teleport,
       teleportRandom,
       toggleInventory,
-      disableOrEnableInputs,
       togglePlugins,
       placeSelectedVoxelType,
       getCurrentChunk,

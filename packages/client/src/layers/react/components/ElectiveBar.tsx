@@ -22,6 +22,9 @@ export const ElectiveBar = ({ layers }: Props) => {
 
   useEffect(() => {
     noa.on("targetBlockChanged", (targetedBlock: { position: number[] }) => {
+      if (!targetedBlock) {
+        return;
+      }
       const position = targetedBlock.position;
       // if this block is a spawn, then get the spawnId
       const entityAtPosition = getEntityAtPosition({ x: position[0], y: position[1], z: position[3] });

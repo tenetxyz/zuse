@@ -1,4 +1,4 @@
-import FileUpload from "../../../utils/components/FileUpload";
+import FileUpload from "../../../utils/elements/FileUpload";
 import { registerTenetComponent } from "../engine/components/TenetComponentRenderer";
 import { useComponentValue } from "@latticexyz/react";
 

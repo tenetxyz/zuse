@@ -1,18 +1,15 @@
 import { useEffect, useState } from "react";
 import { registerTenetComponent } from "../engine/components/TenetComponentRenderer";
-import { useComponentValue } from "@latticexyz/react";
 import { VoxelTypeStore, VoxelTypeStoreFilters } from "./VoxelTypeStore";
 import RegisterCreation, { RegisterCreationFormData } from "./RegisterCreation";
 import { InventoryTab, TabRadioSelector } from "./TabRadioSelector";
 import CreationStore, { CreationStoreFilters } from "./CreationStore";
-import { Absolute, AbsoluteBorder, Background, Center } from ".";
-import styled from "styled-components";
-import ClassifierStore from "./ClassifierStore";
+import ClassifierStore, { ClassifierStoreFilters } from "./ClassifierStore";
 import { ElectiveBar } from "./ElectiveBar";
-import { getComponentValue, setComponent } from "@latticexyz/recs";
-import { onStreamUpdate } from "../../../utils/stream";
-import { UiComponentType } from "../../noa/createNoaLayer";
+import { setComponent } from "@latticexyz/recs";
 import { FocusedUiType } from "../../noa/components/FocusedUi";
+import { useComponentUpdate } from "../../../utils/useComponentUpdate";
+import { ComponentRecord } from "../../../types";
 
 export const SIDEBAR_BACKGROUND_COLOR = "#353535";
 export function registerTenetSidebar() {
@@ -24,13 +21,8 @@ export function registerTenetSidebar() {
     Component: ({ layers }) => {
       const {
         noa: {
-          components: { UI, FocusedUi },
+          components: { FocusedUi },
           SingletonEntity,
-          noa,
-          api: { disableOrEnableInputs, toggleInventory },
-        },
-        network: {
-          contractComponents: { VoxelTypeRegistry },
         },
       } = layers;
 
@@ -93,32 +85,25 @@ export function registerTenetSidebar() {
       const SelectedTab = getPageForSelectedTab();
 
       useEffect(() => {
-        const isInventoryOpen = getComponentValue(UI, SingletonEntity)?.showInventory;
-        const isUiOpen = selectedTab !== InventoryTab.NONE || isInventoryOpen;
-
-        disableOrEnableInputs(isUiOpen);
-
         if (selectedTab !== InventoryTab.NONE) {
+          // the user clicked on the sidebar, so set the ui focus to the sidebar
           setComponent(FocusedUi, SingletonEntity, { value: FocusedUiType.SIDEBAR });
-
-          // TODO: if we have multiple focused UI components, we should considerhaving a component that tracks
-          // the currently focused ui component. Then,when a new ui component is focused, we close the other ones
-          toggleInventory(false, undefined, false);
         }
       }, [selectedTab]);
+
+      // type IFocusedUi = ComponentRecord<typeof FocusedUi>;
+      useComponentUpdate(FocusedUi, (focusedUi) => {
+        if (!focusedUi) {
+          return;
+        }
+        if (focusedUi.value[0]?.value !== FocusedUiType.SIDEBAR) {
+          setSelectedTab(InventoryTab.NONE);
+        }
+      });
 
       return (
         // "pointerEvents: all" is needed so when we click on the admin panel, we don't gain focus on the noa canvas
         <div className="h-full select-none" style={{ pointerEvents: "all" }}>
-          <Background
-            onClick={() => {
-              setSelectedTab(InventoryTab.NONE);
-              noa.container.setPointerLock(true);
-            }}
-            style={{
-              backgroundColor: selectedTab === InventoryTab.NONE ? "transparent" : "rgba(0,0,0,0.2)",
-            }}
-          />
           <div
             className="flex flex-row float-left relative z-50 h-[80%] mt-[5%] pr-7 pt-7"
             style={{

@@ -536,6 +536,28 @@ export async function setupNetwork() {
     });
   }
 
+  function setSpawnInterface(spawnId: Entity, voxelId: Entity, setAsInterface: boolean) {
+    // TODO: Replace Iron NFT with a setSpawnInterface symbol
+    const preview = getNftStorageLink("bafkreidkik2uccshptqcskpippfotmusg7algnfh5ozfsga72xyfdrvacm");
+
+    actions.add({
+      id: `setSpawnInterface+${spawnId}+forVoxel+${voxelId}+to${setAsInterface}` as Entity,
+      metadata: { actionType: "setSpawnInterface", preview },
+      requirement: () => true,
+      components: {},
+      execute: async () => {
+        const tx = await worldSend("tenet_SetSpawnInterfac_setSpawnInterface", [
+          spawnId,
+          voxelId,
+          setAsInterface,
+          { gasLimit: 1_000_000 },
+        ]);
+        return tx;
+      },
+      updates: () => [],
+    });
+  }
+
   function stake(chunkCoord: Coord) {
     return 0;
   }
@@ -581,6 +603,7 @@ export async function setupNetwork() {
       removeVoxels,
       registerCreation,
       spawnCreation,
+      setSpawnInterface,
       stake,
       claim,
       getName,

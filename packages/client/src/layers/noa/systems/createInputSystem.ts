@@ -8,7 +8,7 @@ import { getNoaComponent, getNoaComponentStrict } from "../engine/components/uti
 import { NoaLayer } from "../types";
 import { toast } from "react-toastify";
 import { Creation } from "../../react/components/CreationStore";
-import { calculateMinMax, getTargetedSpawnId, getTargetedVoxelCoord, TargetedBlock } from "../../../utils/voxels";
+import { calculateMinMax, getTargetedSpawnIdInfo, getTargetedVoxelCoord, TargetedBlock } from "../../../utils/voxels";
 import { NotificationIcon } from "../components/persistentNotification";
 import { BEDROCK_ID } from "../../network/api/terrain/occurrence";
 import { DEFAULT_BLOCK_TEST_DISTANCE } from "../setup/setupNoaEngine";
@@ -46,7 +46,7 @@ export function createInputSystem(layers: Layers) {
     },
     network: {
       contractComponents: { VoxelType, Position, Spawn },
-      // api: { stake, claim },
+      api: { setSpawnInterface },
       network: { connectedAddress },
       streams: { balanceGwei$ },
       api: { spawnCreation },
@@ -326,17 +326,20 @@ export function createInputSystem(layers: Layers) {
     if (!noa.targetedBlock) {
       return;
     }
-    const spawnId = getTargetedSpawnId(layers, noa.targetedBlock as any);
-    const isVoxelPartOfSpawn = spawnId !== undefined;
+    const spawnIdInfo = getTargetedSpawnIdInfo(layers, noa.targetedBlock as any);
+    const isVoxelPartOfSpawn = spawnIdInfo !== undefined;
     if (isVoxelPartOfSpawn) {
-      const spawnEntityId = stringToEntity(spawnId);
+      const spawnEntityId = stringToEntity(spawnIdInfo.spawnId);
       const spawn = getComponentValue(Spawn, spawnEntityId);
       if (!spawn) {
-        console.warn("cannot find spawn for spawnId=", spawnId);
+        console.warn("cannot find spawn for spawnId=", spawnIdInfo.spawnId);
         return;
       }
-      spawn.interfaceVoxels.push(noa.targetedBlock);
       setComponent(Spawn, spawnEntityId, spawn);
+
+      const isEntityHighlighted = spawn.interfaceVoxels.includes(spawnIdInfo.spawnId);
+      setSpawnInterface(spawnEntityId, spawnIdInfo.entityAtPosition, isEntityHighlighted);
+
       // renderFloatingTextAboveCoord(coord, noa, "This is a super\nlong\nline that takes\nup many lines");
       // renderEnt(noaLayer, coord);
       // toast(`Selected voxel at ${coord.x}, ${coord.y}, ${coord.z}`);

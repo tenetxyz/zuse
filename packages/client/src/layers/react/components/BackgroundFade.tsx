@@ -44,19 +44,19 @@ export function registerBackgroundFade() {
         noa.entities.getMovement(noa.playerEntity).isPlayerSlowedToAStop = false;
       }
 
-      const focusedUi = useComponentValue(FocusedUi, SingletonEntity)?.value;
+      const focusedUiType = useComponentValue(FocusedUi, SingletonEntity)?.value;
       useEffect(() => {
-        if (focusedUi === FocusedUiType.WORLD) {
+        if (focusedUiType === FocusedUiType.WORLD) {
           enableInputs();
           noa.container.setPointerLock(true);
         } else {
           noa.container.setPointerLock(false);
-          disableInputs();
+          disableInputs(focusedUiType as FocusedUiType);
         }
-        console.log(focusedUi);
-      }, [focusedUi]);
+        console.log(focusedUiType);
+      }, [focusedUiType]);
 
-      return focusedUi !== FocusedUiType.WORLD ? (
+      return focusedUiType !== FocusedUiType.WORLD ? (
         <Background
           onClick={() => {
             setComponent(FocusedUi, SingletonEntity, { value: FocusedUiType.WORLD });

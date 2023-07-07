@@ -219,8 +219,8 @@ export function registerInventoryHud() {
         removeVoxels(ownedEntitiesOfType);
       }
 
-      const focusedUi = useComponentValue(FocusedUi, SingletonEntity);
-      const isInventoryFocused = focusedUi?.value === FocusedUiType.INVENTORY;
+      const focusedUiType = useComponentValue(FocusedUi, SingletonEntity);
+      const isInventoryFocused = focusedUiType?.value === FocusedUiType.INVENTORY;
       useEffect(() => {
         if (!isInventoryFocused) {
           setHoldingVoxelType(undefined);

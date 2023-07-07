@@ -9,7 +9,8 @@ import { Absolute, AbsoluteBorder, Background, Center } from ".";
 import styled from "styled-components";
 import ClassifierStore from "./ClassifierStore";
 import { ElectiveBar } from "./ElectiveBar";
-import { getComponentValue } from "@latticexyz/recs";
+import { getComponentValue, setComponent } from "@latticexyz/recs";
+import { onStreamUpdate } from "../../../utils/stream";
 
 export const SIDEBAR_BACKGROUND_COLOR = "#353535";
 export function registerTenetSidebar() {
@@ -21,10 +22,11 @@ export function registerTenetSidebar() {
     Component: ({ layers }) => {
       const {
         noa: {
-          components: { UI },
+          components: { UI, IsUiFocused },
           SingletonEntity,
           noa,
           api: { disableOrEnableInputs, toggleInventory },
+          streams: { returnUserToWorld$ },
         },
         network: {
           contractComponents: { VoxelTypeRegistry },
@@ -96,9 +98,16 @@ export function registerTenetSidebar() {
         disableOrEnableInputs(isUiOpen);
 
         if (selectedTab !== InventoryTab.NONE) {
+          setComponent(IsUiFocused, SingletonEntity, { value: true });
+          // TODO: if we have multiple focused UI components, we should considerhaving a component that tracks
+          // the currently focused ui component. Then,when a new ui component is focused, we close the other ones
           toggleInventory(false, undefined, false);
         }
       }, [selectedTab]);
+
+      onStreamUpdate(returnUserToWorld$, (event) => {
+        setSelectedTab(InventoryTab.NONE);
+      });
 
       return (
         // "pointerEvents: all" is needed so when we click on the admin panel, we don't gain focus on the noa canvas

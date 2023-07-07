@@ -1,4 +1,4 @@
-import { Component, defineQuery, getComponentValue, Has, isComponentUpdate, Metadata, Schema } from "@latticexyz/recs";
+import { Component, defineQuery, Has, isComponentUpdate, Metadata, Schema } from "@latticexyz/recs";
 import { useEffect } from "react";
 
 // Runs a function whenever a component/table receives update

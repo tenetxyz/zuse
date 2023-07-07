@@ -1,6 +1,7 @@
 import styled from "styled-components";
 import { registerTenetComponent } from "../engine/components/TenetComponentRenderer";
 import { useComponentValue } from "@latticexyz/react";
+import { setComponent } from "@latticexyz/recs";
 
 export function registerBackgroundFade() {
   registerTenetComponent({
@@ -14,7 +15,7 @@ export function registerBackgroundFade() {
           components: { IsUiFocused },
           SingletonEntity,
           noa,
-          api: { toggleInventory },
+          streams: { returnUserToWorld$ },
         },
       } = layers;
 
@@ -22,7 +23,8 @@ export function registerBackgroundFade() {
       return isShown ? (
         <Background
           onClick={() => {
-            toggleInventory(false, undefined, false);
+            setComponent(IsUiFocused, SingletonEntity, { value: false });
+            returnUserToWorld$.next(true);
             noa.container.setPointerLock(true); // make the user be able to move again
           }}
         />

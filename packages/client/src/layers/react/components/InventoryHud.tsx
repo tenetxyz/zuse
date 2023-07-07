@@ -25,6 +25,8 @@ import { Layers } from "../../../types";
 import { entityToVoxelType, voxelTypeToEntity, voxelTypeDataKeyToVoxelVariantDataKey } from "../../noa/types";
 import { firstFreeInventoryIndex } from "../../noa/systems/createInventoryIndexSystem";
 import { StatusHud } from "./StatusHud";
+import { onStreamUpdate } from "../../../utils/stream";
+import { SingletonID } from "@latticexyz/network";
 
 // This gives us 36 inventory slots. As of now there are 34 types of VoxelTypes, so it should fit.
 export const INVENTORY_WIDTH = 9;
@@ -45,7 +47,6 @@ export function registerInventoryHud() {
           contractComponents: { OwnedBy, VoxelType },
           streams: { connectedClients$ },
           network: { connectedAddress },
-          getVoxelIconUrl,
         },
         noa: {
           components: { UI, InventoryIndex, SelectedSlot, CraftingTable },
@@ -113,14 +114,20 @@ export function registerInventoryHud() {
         },
         noa: {
           api: { playRandomTheme, playNextTheme, toggleInventory },
-          components: { InventoryIndex },
+          components: { InventoryIndex, IsUiFocused },
+          streams: { returnUserToWorld$ },
+          SingletonEntity,
         },
       } = layers;
 
       const [holdingVoxelType, setHoldingVoxelType] = useState<Entity | undefined>();
 
       useEffect(() => {
-        if (!show) setHoldingVoxelType(undefined);
+        if (show) {
+          setComponent(IsUiFocused, SingletonEntity, { value: true });
+        } else {
+          setHoldingVoxelType(undefined);
+        }
       }, [show]);
 
       useEffect(() => {
@@ -254,14 +261,13 @@ export function registerInventoryHud() {
         </BottomBar>
       );
 
+      onStreamUpdate(returnUserToWorld$, (event) => {
+        toggleInventory(false);
+      });
+
       const InventoryWrapper = (
         <Absolute>
           <Center>
-            <Background
-              onClick={() => {
-                toggleInventory(false);
-              }}
-            />
             <AbsoluteBorder borderColor={"#999999"} borderWidth={3}>
               <InventoryContainer>
                 <Inventory

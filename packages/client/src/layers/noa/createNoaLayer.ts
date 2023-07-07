@@ -439,6 +439,8 @@ export function createNoaLayer(network: NetworkLayer) {
   //   playerChunk$.pipe(map((coord) => getStakeAndClaim(coord))).subscribe(stakeAndClaim$)?.unsubscribe
   // );
 
+  const returnUserToWorld$ = new BehaviorSubject(false);
+
   const context = {
     world,
     components,
@@ -470,6 +472,7 @@ export function createNoaLayer(network: NetworkLayer) {
       slowPlayerPosition$,
       playerChunk$,
       // stakeAndClaim$,
+      returnUserToWorld$,
     },
     SingletonEntity,
     audioEngine: Engine.audioEngine,

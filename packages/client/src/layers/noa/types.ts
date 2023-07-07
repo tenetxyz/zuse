@@ -101,10 +101,6 @@ export function voxelTypeBaseKeyToVoxelTypeDataKey(voxelTypeBaseKey: VoxelTypeBa
   };
 }
 
-export function voxelTypeBaseKeyToTruncStr(voxelTypeBaseKey: VoxelTypeBaseKey): string {
-  return `${voxelTypeBaseKey.voxelTypeNamespace.substring(0, 34)}:${voxelTypeBaseKey.voxelTypeId}`;
-}
-
 export function voxelTypeToEntity(voxelType: VoxelTypeDataKey): Entity {
   return `${voxelType.voxelTypeNamespace}:${voxelType.voxelTypeId}:${voxelType.voxelVariantNamespace}:${voxelType.voxelVariantId}` as Entity;
 }

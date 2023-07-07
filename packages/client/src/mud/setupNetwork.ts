@@ -624,6 +624,7 @@ export async function setupNetwork() {
     uniqueWorldId,
     getVoxelIconUrl,
     getVoxelTypePreviewUrl,
+    getVoxelPreviewVariant,
     voxelTypes: {
       VoxelVariantData,
       VoxelVariantIndexToKey,

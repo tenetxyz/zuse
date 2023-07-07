@@ -210,9 +210,6 @@ export function registerInventoryHud() {
         }
         numVoxelsIOwnOfType[voxelTypeIdAtSlot] = 0;
 
-        console.log(voxelTypeBaseKeyToVoxelTypeDataKey(entityToVoxelTypeBaseKey(voxelTypeIdAtSlot)));
-        console.log(VoxelType);
-
         const ownedEntitiesOfType = [
           ...runQuery([
             HasValue(OwnedBy, {
@@ -221,7 +218,6 @@ export function registerInventoryHud() {
             HasValue(VoxelType, voxelTypeBaseKeyToVoxelTypeDataKey(entityToVoxelTypeBaseKey(voxelTypeIdAtSlot))),
           ]),
         ];
-        console.log(ownedEntitiesOfType);
 
         // since we no longer have VoxelTypes of this type, remove this from the InventoryIndex,
         // so new voxeltypes can be placed on that index

@@ -100,6 +100,7 @@ export function createNoaLayer(network: NetworkLayer) {
     contractComponents: { OwnedBy, VoxelType },
     api: { build },
     voxelTypes: { VoxelVariantData, VoxelVariantDataSubscriptions },
+    getVoxelPreviewVariant,
   } = network;
   const uniqueWorldId = chainId + worldAddress;
 
@@ -381,7 +382,7 @@ export function createNoaLayer(network: NetworkLayer) {
   registerRotationComponent(noa);
   registerTargetedRotationComponent(noa);
   registerTargetedPositionComponent(noa);
-  registerHandComponent(noa, getVoxelTypeInSelectedSlot, voxelMaterials);
+  registerHandComponent(noa, getVoxelTypeInSelectedSlot, getVoxelPreviewVariant, voxelMaterials);
   registerMiningVoxelComponent(noa, network);
   setupClouds(noa);
   setupSky(noa);

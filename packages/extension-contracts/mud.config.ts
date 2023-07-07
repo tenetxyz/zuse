@@ -79,7 +79,7 @@ export default mudConfig({
         lastUpdateBlock: "uint256",
         hasValue: "bool", // TODO: Remove this once we can install non-root modules
       },
-    }
+    },
   },
   modules: [
     // TODO: Re-enable when we have a way to install non-root modules

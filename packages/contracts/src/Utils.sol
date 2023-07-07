@@ -2,11 +2,42 @@
 pragma solidity >=0.8.0;
 
 import { CHUNK } from "./Constants.sol";
+import { hasKey } from "@latticexyz/world/src/modules/keysintable/hasKey.sol";
 import { Coord, VoxelCoord } from "./Types.sol";
 import { getKeysWithValue } from "@latticexyz/world/src/modules/keyswithvalue/getKeysWithValue.sol";
-import { Position, PositionTableId, VoxelType, VoxelTypeRegistry, VoxelTypeRegistryData, VoxelTypeData } from "./codegen/Tables.sol";
+import { Position, PositionData, PositionTableId, VoxelType, VoxelTypeRegistry, VoxelTypeRegistryData, VoxelTypeData } from "./codegen/Tables.sol";
 import { Strings } from "@openzeppelin/contracts/utils/Strings.sol";
-import { VoxelVariantsKey } from "./Types.sol";
+import { VoxelVariantsKey, BlockDirection } from "./Types.sol";
+
+function getEntityPositionStrict(bytes32 entity) view returns (PositionData memory) {
+  bytes32[] memory positionKeyTuple = new bytes32[](1);
+  positionKeyTuple[0] = bytes32((entity));
+  require(hasKey(PositionTableId, positionKeyTuple), "Entity must have a position"); // even if its air, it must have a position
+  return Position.get(entity);
+}
+
+function calculateBlockDirection(
+  PositionData memory centerCoord,
+  PositionData memory neighborCoord
+) pure returns (BlockDirection) {
+  if (neighborCoord.x == centerCoord.x && neighborCoord.y == centerCoord.y && neighborCoord.z == centerCoord.z) {
+    return BlockDirection.None;
+  } else if (neighborCoord.y > centerCoord.y) {
+    return BlockDirection.Up;
+  } else if (neighborCoord.y < centerCoord.y) {
+    return BlockDirection.Down;
+  } else if (neighborCoord.z > centerCoord.z) {
+    return BlockDirection.North;
+  } else if (neighborCoord.z < centerCoord.z) {
+    return BlockDirection.South;
+  } else if (neighborCoord.x > centerCoord.x) {
+    return BlockDirection.East;
+  } else if (neighborCoord.x < centerCoord.x) {
+    return BlockDirection.West;
+  } else {
+    return BlockDirection.None;
+  }
+}
 
 function getVoxelVariant(
   address world,

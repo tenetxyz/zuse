@@ -17,7 +17,7 @@ string constant LogTopTexture = "bafkreiekx2odo544mawzn7np6p4uhkm2bt53nl4n2dhzj3
 
 string constant LogUVWrap = "bafkreiddsx5ke3e664ain2gnzd7jxicko34clxnlqzp2paqomvf7a7gb7m";
 
-contract LogSystem is System {
+contract LogVoxelSystem is System {
   function registerLogVoxel() public {
     address world = _world();
 
@@ -32,7 +32,13 @@ contract LogSystem is System {
     logVariant.uvWrap = LogUVWrap;
     registerVoxelVariant(world, LogID, logVariant);
 
-    registerVoxelType(world, "Log", LogID, LogTexture, IWorld(world).extension_LogSystem_logVariantSelector.selector);
+    registerVoxelType(
+      world,
+      "Log",
+      LogID,
+      LogTexture,
+      IWorld(world).extension_LogVoxelSystem_logVariantSelector.selector
+    );
   }
 
   function logVariantSelector(bytes32 entity) public returns (VoxelVariantsKey memory) {

@@ -14,7 +14,7 @@ bytes32 constant OrangeFlowerID = bytes32(keccak256("orangeflower"));
 
 string constant OrangeFlowerTexture = "bafkreicins36cmwliwf7ryrlcs32khvi6kleof6buiirlvgv2w6cejpg54";
 
-contract FlowerSystem is System {
+contract FlowerVoxelSystem is System {
   function registerFlowerVoxels() public {
     address world = _world();
 
@@ -34,7 +34,7 @@ contract FlowerSystem is System {
       "Orange Flower",
       OrangeFlowerID,
       OrangeFlowerTexture,
-      IWorld(world).extension_FlowerSystem_orangeFlowerVariantSelector.selector
+      IWorld(world).extension_FlowerVoxelSyste_orangeFlowerVariantSelector.selector
     );
   }
 

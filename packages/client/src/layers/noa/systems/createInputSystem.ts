@@ -51,6 +51,7 @@ export function createInputSystem(network: NetworkLayer, noaLayer: NoaLayer) {
     noa.inputs.unbind("select-voxel");
     noa.inputs.unbind("admin-panel");
     if (focusedUi !== FocusedUiType.INVENTORY) {
+      // do NOT unbind toggle-inventory if the user is in the inventory (so they can close it)
       noa.inputs.unbind("toggle-inventory");
     }
     const a = noa.entities.getMovement(noa.playerEntity);
@@ -65,6 +66,9 @@ export function createInputSystem(network: NetworkLayer, noaLayer: NoaLayer) {
     noa.inputs.bind("toggle-inventory", "E");
     noa.entities.getMovement(noa.playerEntity).isPlayerSlowedToAStop = false;
   }
+
+  // If the user is in a UI (e.g. inventory), disable inputs that could conflict with typing into the UI
+  // otherwise, enable the inputs
   FocusedUi.update$.subscribe((update) => {
     const focusedUiType = update.value[0].value;
     if (focusedUiType === FocusedUiType.WORLD) {

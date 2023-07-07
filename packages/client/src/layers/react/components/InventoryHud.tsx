@@ -238,11 +238,7 @@ export function registerInventoryHud() {
       const Slots = [...range(INVENTORY_HEIGHT * INVENTORY_WIDTH)].map((i) => {
         const voxelType = [...getEntitiesWithValue(InventoryIndex, { value: i })][0];
         const quantity = voxelType && numVoxelsIOwnOfType[voxelType];
-        // get preview from
-        let voxelTypePreview = "";
-        if (voxelType) {
-          voxelTypePreview = getVoxelTypePreviewUrl(voxelType);
-        }
+        const voxelTypePreview = (voxelType && getVoxelTypePreviewUrl(voxelType)) || "";
         return (
           <Slot
             key={"slot" + i}

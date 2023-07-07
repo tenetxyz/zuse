@@ -376,10 +376,7 @@ export function createNoaLayer(network: NetworkLayer) {
   ) {
     const voxelMaterialsKey = voxelTypeBaseKeyToTruncStr(voxelTypeRegistryKey) as string;
     if (!voxelMaterials.has(voxelMaterialsKey) && voxelTypeRegistryData.previewUVWrap) {
-      console.log("Registering preview uvWrap");
-      console.log("voxelPreviewUVWrapSubscription");
-      console.log(voxelTypeRegistryKey);
-      console.log(voxelTypeRegistryData);
+      console.log("Registering preview uvWrap", voxelTypeRegistryData.previewUVWrap);
       const voxelMaterial = noa.rendering.makeStandardMaterial("voxelMaterial-" + voxelMaterialsKey);
       voxelMaterial.diffuseTexture = new Texture(
         voxelTypeRegistryData.previewUVWrap,

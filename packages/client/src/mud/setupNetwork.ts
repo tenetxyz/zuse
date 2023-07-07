@@ -353,16 +353,17 @@ export async function setupNetwork() {
         //   entity: entity,
         //   value: { value: SingletonID },
         // },
-        {
-          component: "Position",
-          entity: newVoxelOfSameType,
-          value: coord,
-        },
-        {
-          component: "VoxelType",
-          entity: newVoxelOfSameType,
-          value: voxelType,
-        },
+        // TODO: we can't do optimistic because we don't know what the variant will be. Maybe we can figure out somehow?
+        // {
+        //   component: "Position",
+        //   entity: newVoxelOfSameType,
+        //   value: coord,
+        // },
+        // {
+        //   component: "VoxelType",
+        //   entity: newVoxelOfSameType,
+        //   value: voxelType,
+        // },
       ],
     });
   }
@@ -455,7 +456,7 @@ export async function setupNetwork() {
         return giftVoxelSystem(voxelTypeNamespace, voxelTypeId);
       },
       updates: () => [
-        // TODO: we can't do optimistic because we don't know what the variant will be. Maybe we can figure out somehow?
+        // TODO: we can't do optimistic because we don't know what the preview will be. Maybe we can figure out somehow?
         // {
         //   component: "VoxelType",
         //   entity: newVoxel,

@@ -97,13 +97,25 @@ contract VoxelInteractionSystem is System {
         // TODO: Add error handling
         require(extensionSuccess, "VoxelInteractionSystem: Extension call failed");
         if (extensionSuccess) {
-          bytes32[] memory changedExtensionEntityIds = abi.decode(extensionReturnData, (bytes32[]));
+          (bytes32 changedCenterEntityId, bytes32[] memory changedNeighbourEntityIds) = abi.decode(
+            extensionReturnData,
+            (bytes32, bytes32[])
+          );
+
+          if (uint256(changedCenterEntityId) != 0) {
+            centerEntitiesToCheckStackIdx++;
+            centerEntitiesToCheckStack[centerEntitiesToCheckStackIdx] = changedCenterEntityId;
+            require(
+              centerEntitiesToCheckStackIdx < MAX_VOXEL_NEIGHBOUR_UPDATE_DEPTH,
+              "VoxelInteractionSystem: Reached max depth"
+            );
+          }
 
           // If there are changed entities, we want to run voxel interactions again but with this new neighbour as the center
-          for (uint256 j; j < changedExtensionEntityIds.length; j++) {
-            if (uint256(changedExtensionEntityIds[j]) != 0) {
+          for (uint256 j; j < changedNeighbourEntityIds.length; j++) {
+            if (uint256(changedNeighbourEntityIds[j]) != 0) {
               centerEntitiesToCheckStackIdx++;
-              centerEntitiesToCheckStack[centerEntitiesToCheckStackIdx] = changedExtensionEntityIds[j];
+              centerEntitiesToCheckStack[centerEntitiesToCheckStackIdx] = changedNeighbourEntityIds[j];
               require(
                 centerEntitiesToCheckStackIdx < MAX_VOXEL_NEIGHBOUR_UPDATE_DEPTH,
                 "VoxelInteractionSystem: Reached max depth"

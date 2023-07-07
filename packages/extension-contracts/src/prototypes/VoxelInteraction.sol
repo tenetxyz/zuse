@@ -8,6 +8,7 @@ import { getCallerNamespace } from "@tenetxyz/contracts/src/SharedUtils.sol";
 import { BlockDirection } from "../codegen/Types.sol";
 import { calculateBlockDirection, getEntityPositionStrict } from "../Utils.sol";
 
+// TODO: This should be in @tenetxyz/contracts but it won't work because of some import issue
 abstract contract VoxelInteraction is System {
   function registerInteraction() public virtual;
 
@@ -23,7 +24,8 @@ abstract contract VoxelInteraction is System {
   function eventHandler(
     bytes32 centerEntityId,
     bytes32[] memory neighbourEntityIds
-  ) public virtual returns (bytes32[] memory) {
+  ) public virtual returns (bytes32, bytes32[] memory) {
+    bytes32 changedCenterEntityId = 0;
     bytes32[] memory changedEntityIds = new bytes32[](neighbourEntityIds.length);
     bytes16 callerNamespace = getCallerNamespace(_msgSender());
     // TODO: require not root namespace
@@ -42,7 +44,10 @@ abstract contract VoxelInteraction is System {
           getEntityPositionStrict(neighbourEntityId),
           centerPosition
         );
-        runInteraction(callerNamespace, centerEntityId, neighbourEntityId, centerBlockDirection);
+        bool changedEntity = runInteraction(callerNamespace, centerEntityId, neighbourEntityId, centerBlockDirection);
+        if (changedEntity) {
+          changedCenterEntityId = centerEntityId;
+        }
       }
     }
 
@@ -69,6 +74,6 @@ abstract contract VoxelInteraction is System {
       }
     }
 
-    return changedEntityIds;
+    return (changedCenterEntityId, changedEntityIds);
   }
 }

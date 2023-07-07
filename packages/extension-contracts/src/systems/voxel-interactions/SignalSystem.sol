@@ -68,7 +68,7 @@ contract SignalSystem is VoxelInteraction {
   function eventHandler(
     bytes32 centerEntityId,
     bytes32[] memory neighbourEntityIds
-  ) public override returns (bytes32[] memory) {
+  ) public override returns (bytes32, bytes32[] memory) {
     return super.eventHandler(centerEntityId, neighbourEntityIds);
   }
 }

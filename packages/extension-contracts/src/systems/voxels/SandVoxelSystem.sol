@@ -33,7 +33,7 @@ contract SandVoxelSystem is VoxelType {
 
     registerVoxelType(
       world,
-      "Sand",
+      "Powered Sand",
       SandID,
       SandTexture,
       IWorld(world).extension_SandVoxelSystem_sandVariantSelector.selector

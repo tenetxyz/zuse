@@ -7,6 +7,7 @@ import { CreationStoreFilters } from "./CreationStore";
 import { useComponentValue } from "@latticexyz/react";
 import { SetState } from "../../../utils/types";
 import { stringToEntity } from "../../../utils/entity";
+import { entityToVoxelType, voxelTypeDataKeyToVoxelVariantDataKey, voxelTypeToEntity } from "../../noa/types";
 
 export interface ClassifierStoreFilters {
   classifierQuery: string;
@@ -43,6 +44,8 @@ const ClassifierStore: React.FC<Props> = ({
     },
     network: {
       components: { VoxelType, VoxelTypeRegistry },
+      api: { getEntityAtPosition },
+      getVoxelIconUrl,
     },
   } = layers;
   const { creationsToDisplay } = useCreationSearch({
@@ -58,14 +61,17 @@ const ClassifierStore: React.FC<Props> = ({
   const spawnToUse = useComponentValue(SpawnToClassify, SingletonEntity);
 
   const creationDetails = () => {
-    if (!spawnToUse?.creation || spawnToUse?.spawn) {
+    if (!spawnToUse?.creation || !spawnToUse?.spawn) {
       return <p>Please look at a spawn of a creation and press the button to classify it</p>;
     }
 
-    const selectedVoxels = getComponentValue(VoxelSelection, SingletonEntity)?.points ?? [];
+    const selectedVoxelPoints = getComponentValue(VoxelSelection, SingletonEntity)?.points ?? [];
+    const selectedVoxels = selectedVoxelPoints.map((coord) => {
+      return getEntityAtPosition(coord);
+    });
 
     return (
-      <div className="flex flex-col">
+      <div className="flex flex-col space-y-2">
         <div className="flex flex-row">
           <p>Submit {spawnToUse.creation.name} </p>
           <button
@@ -76,22 +82,35 @@ const ClassifierStore: React.FC<Props> = ({
             (X)
           </button>
         </div>
-        <div>
-          <p>Interfaces</p>
+        <p>Interfaces</p>
+        <div className="flex flex-row space-x-2">
           {selectedVoxels.map((voxel, idx) => {
-            const voxelTypeId = getComponentValue(VoxelType, voxel)?.voxelTypeId;
-            if (!voxelTypeId) {
+            if (!voxel) {
+              console.warn("Voxel not found at coord", voxel);
+              return <div key={idx}>:(</div>;
+            }
+            const voxelType = getComponentValue(VoxelType, voxel);
+            if (!voxelType) {
               console.warn("Voxel type not found for voxel", voxel);
               return <div key={idx}>:(</div>;
             }
-            const voxelTypeRecord = getComponentValue(VoxelTypeRegistry, stringToEntity(voxelTypeId));
+
+            const iconKey = voxelTypeDataKeyToVoxelVariantDataKey(voxelType);
+            const iconUrl = getVoxelIconUrl(iconKey);
             return (
-              <div key={idx}>
-                <p>{voxelTypeRecord!.name}</p>
+              <div key={idx} className="bg-slate-100 p-1">
+                <img src={iconUrl} />
               </div>
             );
           })}
         </div>
+        <button
+          onClick={() => {
+            alert("todo: submit creation to classifier");
+          }}
+        >
+          Submit
+        </button>
       </div>
     );
   };
@@ -164,14 +183,12 @@ const ClassifierStore: React.FC<Props> = ({
         {selectedClassifier && (
           <div className="flex flex-col">
             <label className="flex items-center space-x-2 ml-2">Selected Classifier</label>
-            <div className="m-2 p-2 flex flex-col">
-              <div className="border-1 border-solid border-slate-700 p-2 mb-2 flex flex-row whitespace-nowrap break-all justify-around space-x-5">
-                <p>{selectedClassifier.name}</p>
-                <p>{selectedClassifier.description}</p>
-                <p className="break-all break-words">{selectedClassifier.creator.substring(10)}</p>
-              </div>
-              <div className="flex flex-col"></div>
+            <div className="border-1 border-solid border-slate-700 p-2 mb-2 flex flex-row whitespace-nowrap break-all justify-around space-x-5">
+              <p>{selectedClassifier.name}</p>
+              <p>{selectedClassifier.description}</p>
+              <p className="break-all break-words">{selectedClassifier.creator.substring(10)}</p>
             </div>
+            {creationDetails()}
           </div>
         )}
       </div>

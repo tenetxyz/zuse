@@ -1,6 +1,6 @@
 // this component is used by the inventoryHud to help users select which inventory pane they're looking at
 import React from "react";
-import { SIDEBAR_BACKGROUND_COLOR } from "../TenetSidebar";
+import { SIDEBAR_BACKGROUND_COLOR } from "./TenetSidebar";
 import { Layers } from "../../../types";
 
 export enum InventoryTab {
@@ -12,21 +12,11 @@ export enum InventoryTab {
 }
 
 interface Props {
-  layers: Layers;
   selectedTab: InventoryTab;
   setSelectedTab: React.Dispatch<React.SetStateAction<InventoryTab>>;
 }
 
-export const TabRadioSelector: React.FC<Props> = ({ layers, selectedTab, setSelectedTab }) => {
-  const {
-    noa: {
-      api: { disableOrEnableInputs },
-    },
-  } = layers;
-  React.useEffect(() => {
-    disableOrEnableInputs(selectedTab !== InventoryTab.NONE);
-  }, [selectedTab]);
-
+export const TabRadioSelector: React.FC<Props> = ({ selectedTab, setSelectedTab }) => {
   return (
     <div className="p-2 text-xl">
       {Object.values(InventoryTab)

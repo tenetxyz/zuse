@@ -28,6 +28,9 @@ import {
   definePreTeleportPositionComponent,
   defineSoundComponent,
   defineVoxelSelectionComponent,
+  defineSpawnCreationComponent,
+  defineSpawnInFocusComponent,
+  defineIsUiFocusedComponent,
 } from "./components";
 import { CRAFTING_SIDE, EMPTY_CRAFTING_TABLE } from "./constants";
 import * as BABYLON from "@babylonjs/core";
@@ -66,7 +69,6 @@ import { definePlayerMeshComponent } from "./components/PlayerMesh";
 import { Engine } from "@babylonjs/core";
 import { definePersistentNotificationComponent, NotificationIcon } from "./components/persistentNotification";
 import { createVoxelSelectionOverlaySystem } from "./systems/createVoxelSelectionOverlaySystem";
-import { defineSpawnCreationComponent } from "./components/SpawnCreation";
 import { createSpawnCreationOverlaySystem } from "./systems/createSpawnCreationOverlaySystem";
 import { createSpawnOverlaySystem } from "./systems/createSpawnOverlaySystem";
 import {
@@ -107,6 +109,7 @@ export function createNoaLayer(network: NetworkLayer) {
     PlayerLastMessage: definePlayerLastMessage(world),
     PlayerMesh: definePlayerMeshComponent(world),
     UI: defineUIComponent(world),
+    IsUiFocused: defineIsUiFocusedComponent(world),
     InventoryIndex: createLocalCache(createIndexer(defineInventoryIndexComponent(world)), uniqueWorldId),
     // Tutorial: createLocalCache(defineTutorialComponent(world), uniqueWorldId),
     // removed cache from tutorial because it triggers on voxel mine, and because of this error: component with id Tutorial was locally cached 260 times since 11:35:35 PM - the local cache is in an alpha state and should not be used with components that update frequently yet
@@ -116,6 +119,7 @@ export function createNoaLayer(network: NetworkLayer) {
     VoxelSelection: defineVoxelSelectionComponent(world),
     PersistentNotification: definePersistentNotificationComponent(world),
     SpawnCreation: defineSpawnCreationComponent(world),
+    SpawnInFocus: defineSpawnInFocusComponent(world),
   };
 
   // --- SETUP ----------------------------------------------------------------------
@@ -261,7 +265,7 @@ export function createNoaLayer(network: NetworkLayer) {
     });
   }
 
-  function toggleInventory(open?: boolean, crafting?: boolean) {
+  function toggleInventory(open?: boolean, crafting?: boolean, togglePointerLock = true) {
     // we need to check if the input is not focused, cause when we're searching for a voxeltype in the creative move inventory, we may press "e" which will close the inventory
     if (isFocusedOnInputElement()) {
       return;
@@ -285,7 +289,9 @@ export function createNoaLayer(network: NetworkLayer) {
       noa.blockTestDistance = DEFAULT_BLOCK_TEST_DISTANCE; // reset block test distance
     }
 
-    noa.container.setPointerLock(!open);
+    if (togglePointerLock) {
+      noa.container.setPointerLock(!open);
+    }
     updateComponent(components.UI, SingletonEntity, {
       showPlugins: false,
       showInventory: open,

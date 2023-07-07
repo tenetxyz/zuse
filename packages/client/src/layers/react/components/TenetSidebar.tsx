@@ -1,13 +1,15 @@
-import { useState } from "react";
-import { registerTenetComponent } from "./engine/components/TenetComponentRenderer";
+import { useEffect, useState } from "react";
+import { registerTenetComponent } from "../engine/components/TenetComponentRenderer";
 import { useComponentValue } from "@latticexyz/react";
-import { VoxelTypeStore, VoxelTypeStoreFilters } from "./components/VoxelTypeStore";
-import RegisterCreation, { RegisterCreationFormData } from "./components/RegisterCreation";
-import { InventoryTab, TabRadioSelector } from "./components/TabRadioSelector";
-import CreationStore, { CreationStoreFilters } from "./components/CreationStore";
-import { Absolute, AbsoluteBorder, Background, Center } from "./components";
+import { VoxelTypeStore, VoxelTypeStoreFilters } from "./VoxelTypeStore";
+import RegisterCreation, { RegisterCreationFormData } from "./RegisterCreation";
+import { InventoryTab, TabRadioSelector } from "./TabRadioSelector";
+import CreationStore, { CreationStoreFilters } from "./CreationStore";
+import { Absolute, AbsoluteBorder, Background, Center } from ".";
 import styled from "styled-components";
-import ClassifierStore from "./components/ClassifierStore";
+import ClassifierStore from "./ClassifierStore";
+import { ElectiveBar } from "./ElectiveBar";
+import { getComponentValue } from "@latticexyz/recs";
 
 export const SIDEBAR_BACKGROUND_COLOR = "#353535";
 export function registerTenetSidebar() {
@@ -22,6 +24,7 @@ export function registerTenetSidebar() {
           components: { UI },
           SingletonEntity,
           noa,
+          api: { disableOrEnableInputs, toggleInventory },
         },
         network: {
           contractComponents: { VoxelTypeRegistry },
@@ -86,6 +89,17 @@ export function registerTenetSidebar() {
       };
       const SelectedTab = getPageForSelectedTab();
 
+      useEffect(() => {
+        const isInventoryOpen = getComponentValue(UI, SingletonEntity)?.showInventory;
+        const isUiOpen = selectedTab !== InventoryTab.NONE || isInventoryOpen;
+
+        disableOrEnableInputs(isUiOpen);
+
+        if (selectedTab !== InventoryTab.NONE) {
+          toggleInventory(false, undefined, false);
+        }
+      }, [selectedTab]);
+
       return (
         // "pointerEvents: all" is needed so when we click on the admin panel, we don't gain focus on the noa canvas
         <div className="h-full select-none" style={{ pointerEvents: "all" }}>
@@ -104,7 +118,10 @@ export function registerTenetSidebar() {
               backgroundColor: selectedTab === InventoryTab.NONE ? "transparent" : `${SIDEBAR_BACKGROUND_COLOR}`,
             }}
           >
-            <TabRadioSelector layers={layers} selectedTab={selectedTab} setSelectedTab={setSelectedTab} />
+            <div className="flex flex-col">
+              <TabRadioSelector selectedTab={selectedTab} setSelectedTab={setSelectedTab} />
+              <ElectiveBar layers={layers} />
+            </div>
             <div className={`bg-[${SIDEBAR_BACKGROUND_COLOR}]`}>{SelectedTab}</div>
           </div>
         </div>

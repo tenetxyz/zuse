@@ -59,11 +59,3 @@ export const Absolute = styled.div`
 export const Relative = styled.div`
   position: relative;
 `;
-
-export const Background = styled.div`
-  background-color: rgba(0, 0, 0, 0.2);
-  position: absolute;
-  height: 100%;
-  width: 100%;
-  pointer-events: all;
-`;

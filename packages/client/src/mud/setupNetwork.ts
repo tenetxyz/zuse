@@ -335,6 +335,7 @@ export async function setupNetwork() {
     }
 
     const preview: string = getVoxelTypePreviewUrl(voxelType) || "";
+    const previewVoxelVariant = getVoxelPreviewVariant(voxelType);
 
     const newVoxelOfSameType = world.registerEntity();
 
@@ -362,17 +363,21 @@ export async function setupNetwork() {
         //   entity: entity,
         //   value: { value: SingletonID },
         // },
-        // TODO: we can't do optimistic because we don't know what the variant will be. Maybe we can figure out somehow?
-        // {
-        //   component: "Position",
-        //   entity: newVoxelOfSameType,
-        //   value: coord,
-        // },
-        // {
-        //   component: "VoxelType",
-        //   entity: newVoxelOfSameType,
-        //   value: voxelType,
-        // },
+        {
+          component: "Position",
+          entity: newVoxelOfSameType,
+          value: coord,
+        },
+        {
+          component: "VoxelType",
+          entity: newVoxelOfSameType,
+          value: {
+            voxelTypeNamespace: voxelType.voxelTypeNamespace,
+            voxelTypeId: voxelType.voxelTypeId,
+            voxelVariantNamespace: previewVoxelVariant?.voxelVariantNamespace,
+            voxelVariantId: previewVoxelVariant?.voxelVariantId,
+          },
+        },
       ],
     });
   }

@@ -3,6 +3,7 @@ import { registerTenetComponent } from "../engine/components/TenetComponentRende
 import { useComponentValue } from "@latticexyz/react";
 import { setComponent } from "@latticexyz/recs";
 import { UiComponentType } from "../../noa/createNoaLayer";
+import { FocusedUiType } from "../../noa/components/FocusedUi";
 
 export function registerBackgroundFade() {
   registerTenetComponent({
@@ -13,19 +14,17 @@ export function registerBackgroundFade() {
     Component: ({ layers }) => {
       const {
         noa: {
-          components: { IsUiFocused },
+          components: { FocusedUi },
           SingletonEntity,
           noa,
-          streams: { focusedUiComponent$ },
         },
       } = layers;
 
-      const isShown = useComponentValue(IsUiFocused, SingletonEntity)?.value;
-      return isShown ? (
+      const focusedUi = useComponentValue(FocusedUi, SingletonEntity)?.value;
+      return focusedUi !== FocusedUiType.WORLD ? (
         <Background
           onClick={() => {
-            setComponent(IsUiFocused, SingletonEntity, { value: false });
-            focusedUiComponent$.next(UiComponentType.WORLD);
+            setComponent(FocusedUi, SingletonEntity, { value: false });
             noa.container.setPointerLock(true); // make the user be able to move again
           }}
         />

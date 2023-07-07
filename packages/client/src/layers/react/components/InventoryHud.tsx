@@ -28,6 +28,7 @@ import { StatusHud } from "./StatusHud";
 import { onStreamUpdate } from "../../../utils/stream";
 import { SingletonID } from "@latticexyz/network";
 import { UiComponentType } from "../../noa/createNoaLayer";
+import { FocusedUiType } from "../../noa/components/FocusedUi";
 
 // This gives us 36 inventory slots. As of now there are 34 types of VoxelTypes, so it should fit.
 export const INVENTORY_WIDTH = 9;
@@ -114,9 +115,8 @@ export function registerInventoryHud() {
           getVoxelIconUrl,
         },
         noa: {
-          api: { playRandomTheme, playNextTheme, toggleInventory },
-          components: { InventoryIndex, IsUiFocused },
-          streams: { focusedUiComponent$ },
+          api: { playRandomTheme, playNextTheme },
+          components: { InventoryIndex, FocusedUi },
           SingletonEntity,
         },
       } = layers;
@@ -125,7 +125,7 @@ export function registerInventoryHud() {
 
       useEffect(() => {
         if (show) {
-          setComponent(IsUiFocused, SingletonEntity, { value: true });
+          setComponent(FocusedUi, SingletonEntity, { value: FocusedUiType.INVENTORY });
         } else {
           setHoldingVoxelType(undefined);
         }
@@ -261,12 +261,6 @@ export function registerInventoryHud() {
           </div>
         </BottomBar>
       );
-
-      onStreamUpdate(focusedUiComponent$, (uiComponentType) => {
-        if (uiComponentType !== UiComponentType.INVENTORY) {
-          toggleInventory(false);
-        }
-      });
 
       const InventoryWrapper = (
         <Absolute>

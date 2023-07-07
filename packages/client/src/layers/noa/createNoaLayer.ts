@@ -30,7 +30,7 @@ import {
   defineVoxelSelectionComponent,
   defineSpawnCreationComponent,
   defineSpawnInFocusComponent,
-  defineIsUiFocusedComponent,
+  defineFocusedUiComponent,
 } from "./components";
 import { CRAFTING_SIDE, EMPTY_CRAFTING_TABLE } from "./constants";
 import * as BABYLON from "@babylonjs/core";
@@ -115,7 +115,7 @@ export function createNoaLayer(network: NetworkLayer) {
     PlayerLastMessage: definePlayerLastMessage(world),
     PlayerMesh: definePlayerMeshComponent(world),
     UI: defineUIComponent(world),
-    IsUiFocused: defineIsUiFocusedComponent(world),
+    FocusedUi: defineFocusedUiComponent(world),
     InventoryIndex: createLocalCache(createIndexer(defineInventoryIndexComponent(world)), uniqueWorldId),
     // Tutorial: createLocalCache(defineTutorialComponent(world), uniqueWorldId),
     // removed cache from tutorial because it triggers on voxel mine, and because of this error: component with id Tutorial was locally cached 260 times since 11:35:35 PM - the local cache is in an alpha state and should not be used with components that update frequently yet
@@ -445,8 +445,6 @@ export function createNoaLayer(network: NetworkLayer) {
   //   playerChunk$.pipe(map((coord) => getStakeAndClaim(coord))).subscribe(stakeAndClaim$)?.unsubscribe
   // );
 
-  const focusedUiComponent$ = new BehaviorSubject(UiComponentType.WORLD);
-
   const context = {
     world,
     components,
@@ -478,7 +476,6 @@ export function createNoaLayer(network: NetworkLayer) {
       slowPlayerPosition$,
       playerChunk$,
       // stakeAndClaim$,
-      focusedUiComponent$,
     },
     SingletonEntity,
     audioEngine: Engine.audioEngine,

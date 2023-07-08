@@ -23,3 +23,11 @@ export function sub(a: VoxelCoord, b: VoxelCoord): VoxelCoord {
 export function voxelCoordToString(coord: VoxelCoord): string {
   return `(${coord.x}, ${coord.y}, ${coord.z})`;
 }
+export function stringToVoxelCoord(coordString: string): VoxelCoord {
+  const [xStr, yStr, zStr] = coordString.substring(1, coordString.length - 1).split(",");
+  return {
+    x: parseInt(xStr),
+    y: parseInt(yStr),
+    z: parseInt(zStr),
+  };
+}

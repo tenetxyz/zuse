@@ -5,17 +5,17 @@ import { NoaLayer } from "../types";
 import { renderChunkyWireframe } from "./renderWireframes";
 import { Color3, Mesh, Nullable } from "@babylonjs/core";
 import { ComponentRecord } from "../../../types";
+import { stringToVoxelCoord } from "../../../utils/coord";
 
 export function createVoxelSelectionOverlaySystem(network: NetworkLayer, noaLayer: NoaLayer) {
   const {
-    components: { VoxelSelection },
+    components: { VoxelSelection, VoxelInterfaceSelection },
     noa,
   } = noaLayer;
-  type IVoxelSelection = ComponentRecord<typeof VoxelSelection>
+  type IVoxelSelection = ComponentRecord<typeof VoxelSelection>;
   VoxelSelection.update$.subscribe((update) => {
     const voxelSelection = update.value[0] as IVoxelSelection;
     renderRangeSelection(voxelSelection);
-    renderPointSelection(voxelSelection);
   });
 
   let renderedRangeSelectionMesh: Nullable<Mesh> = null;
@@ -38,15 +38,24 @@ export function createVoxelSelectionOverlaySystem(network: NetworkLayer, noaLaye
     );
   };
 
-  let renderedPointSelectionMeshes: Nullable<Mesh>[] = [];
-  const renderPointSelection = (voxelSelection: IVoxelSelection) => {
-    // remove the previous meshes since we're re-rendering all of them
-    // if this is a performance hit, we can cache the meshes and only render the new selections
-    renderedPointSelectionMeshes.forEach((mesh) => mesh?.dispose());
+  type IVoxelInterfaceSelection = ComponentRecord<typeof VoxelInterfaceSelection>;
+  VoxelInterfaceSelection.update$.subscribe((update) => {
+    const voxelInterfaceSelection = update.value[0] as IVoxelInterfaceSelection;
+    renderVoxelInterfaceSelection(voxelInterfaceSelection);
+  });
 
-    renderedPointSelectionMeshes = (voxelSelection.points ?? [])
-      .map((point) => {
-        return renderChunkyWireframe(point, point, noa, new Color3(1, 0.1, 0.1), 0.04);
-      })
+  let renderedVoxelInterfaceSelectionMeshs: Nullable<Mesh>[] = [];
+  const renderVoxelInterfaceSelection = (voxelInterfaceSelection: IVoxelInterfaceSelection) => {
+    if (renderedVoxelInterfaceSelectionMeshs) {
+      // remove the previous mesh since the user can only have one range selection
+      renderedVoxelInterfaceSelectionMeshs.forEach((mesh) => mesh?.dispose());
+    }
+
+    renderedVoxelInterfaceSelectionMeshs = Array.from(voxelInterfaceSelection.value as Set<string>).map(
+      (voxelCoordString) => {
+        const voxelCoord = stringToVoxelCoord(voxelCoordString);
+        return renderChunkyWireframe(voxelCoord, voxelCoord, noa, new Color3(1, 0.1, 0.1), 0.04);
+      }
+    );
   };
 }

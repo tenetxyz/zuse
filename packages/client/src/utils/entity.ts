@@ -1,3 +1,4 @@
+import { Entity } from "@latticexyz/recs";
 import { BigNumber } from "ethers";
 // this function was originally from import { formatEntityID } from "@latticexyz/network";
 // I derived it by looking at the definition in the opcraft repo (it was there in mud1)
@@ -18,4 +19,11 @@ export const to64CharAddress = (hexAddress: string | undefined) => {
   }
   const addressWithout0x = hexAddress.substring(2);
   return "0x" + addressWithout0x.padStart(64, "0");
+};
+
+// this is mainly for documentation so ppl know the internal representation
+// also so people will look this up and see the other definitions in this file
+// Notice how we're using the wrapper object String not string
+export const stringToEntity = (str: String): Entity => {
+  return str as Entity;
 };

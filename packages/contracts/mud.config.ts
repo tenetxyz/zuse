@@ -99,7 +99,6 @@ export default mudConfig({
         creationId: "bytes32", // the creation that it's a spawn of
         lowerSouthWestCorner: "bytes", // "VoxelCoord
         voxels: "bytes32[]", // the voxelIds that have been spawned
-        interfaceVoxels: "bytes32[]", // the voxels that are used for i/o interfaces (e.g. for an AND gate test)
       },
     },
     Classifier: {

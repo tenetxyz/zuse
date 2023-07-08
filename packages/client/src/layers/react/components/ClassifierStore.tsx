@@ -61,7 +61,7 @@ const ClassifierStore: React.FC<Props> = ({
 
   const spawnToUse = useComponentValue(SpawnToClassify, SingletonEntity);
 
-  const creationDetails = () => {
+  const detailsForSpawnToClassify = () => {
     if (!spawnToUse?.creation || !spawnToUse?.spawn) {
       return <p>Please look at a spawn of a creation and press the button to classify it</p>;
     }
@@ -76,8 +76,7 @@ const ClassifierStore: React.FC<Props> = ({
           return false;
         }
         const interfaceSpawnId = getComponentValue(OfSpawn, entityId)?.value;
-        // the only interface voxels we care about are those that are on this spawn
-        console.log(interfaceSpawnId, spawnToUse.spawn.spawnId);
+        // we only want the interface selections on the voxels that are part of this spawn
         return interfaceSpawnId === spawnToUse.spawn.spawnId;
       });
 
@@ -94,27 +93,7 @@ const ClassifierStore: React.FC<Props> = ({
           </button>
         </div>
         <p>Interfaces</p>
-        <div className="flex flex-row space-x-2">
-          {interfaceVoxels.map((voxel, idx) => {
-            if (!voxel) {
-              console.warn("Voxel not found at coord", voxel);
-              return <div key={idx}>:(</div>;
-            }
-            const voxelType = getComponentValue(VoxelType, voxel);
-            if (!voxelType) {
-              console.warn("Voxel type not found for voxel", voxel);
-              return <div key={idx}>:(</div>;
-            }
-
-            const iconKey = voxelTypeDataKeyToVoxelVariantDataKey(voxelType);
-            const iconUrl = getVoxelIconUrl(iconKey);
-            return (
-              <div key={idx} className="bg-slate-100 p-1">
-                <img src={iconUrl} />
-              </div>
-            );
-          })}
-        </div>
+        {renderInterfaceVoxelImages(interfaceVoxels as Entity[])}
         <button
           onClick={() => {
             // the interface voxels are defined above
@@ -123,6 +102,32 @@ const ClassifierStore: React.FC<Props> = ({
         >
           Submit
         </button>
+      </div>
+    );
+  };
+
+  const renderInterfaceVoxelImages = (interfaceVoxels: Entity[]) => {
+    return (
+      <div className="flex flex-row space-x-2">
+        {interfaceVoxels.map((voxel, idx) => {
+          if (!voxel) {
+            console.warn("Voxel not found at coord", voxel);
+            return <div key={idx}>:(</div>;
+          }
+          const voxelType = getComponentValue(VoxelType, voxel);
+          if (!voxelType) {
+            console.warn("Voxel type not found for voxel", voxel);
+            return <div key={idx}>:(</div>;
+          }
+
+          const iconKey = voxelTypeDataKeyToVoxelVariantDataKey(voxelType);
+          const iconUrl = getVoxelIconUrl(iconKey);
+          return (
+            <div key={idx} className="bg-slate-100 p-1">
+              <img src={iconUrl} />
+            </div>
+          );
+        })}
       </div>
     );
   };
@@ -200,7 +205,7 @@ const ClassifierStore: React.FC<Props> = ({
               <p>{selectedClassifier.description}</p>
               <p className="break-all break-words">{selectedClassifier.creator.substring(10)}</p>
             </div>
-            {creationDetails()}
+            {detailsForSpawnToClassify()}
           </div>
         )}
       </div>

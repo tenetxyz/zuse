@@ -47,8 +47,6 @@ export function createInputSystem(layers: Layers) {
       streams: { playerPosition$ },
     },
     network: {
-      contractComponents: { VoxelType, Position, Spawn },
-      api: { setSpawnInterface },
       network: { connectedAddress },
       streams: { balanceGwei$ },
       api: { spawnCreation },

@@ -25,31 +25,37 @@ export const ElectiveBar = ({ layers }: Props) => {
   } = layers;
 
   useEffect(() => {
-    noa.on("targetBlockChanged", (targetedBlock: TargetedBlock) => {
-      const spawnId = getTargetedSpawnId(layers, targetedBlock);
-      if (spawnId) {
-        const rawSpawn = getComponentValue(Spawn, stringToEntity(spawnId));
-        if (!rawSpawn) {
-          console.error("cannot find spawn object with spawnId=", spawnId);
-          return;
-        }
-        const spawn = {
-          spawnId: stringToEntity(spawnId),
-          creationId: stringToEntity(rawSpawn.creationId),
-          lowerSouthWestCorner: abiDecode("tuple(int32 x,int32 y,int32 z)", rawSpawn.lowerSouthWestCorner),
-          voxels: rawSpawn.voxels as Entity[],
-          interfaceVoxels: rawSpawn.interfaceVoxels,
-        } as ISpawn;
-        const creation = getComponentValue(Creation, spawn.creationId);
-        setComponent(SpawnInFocus, SingletonEntity, {
-          spawn: spawn,
-          creation: creation,
-        });
-      } else {
-        setComponent(SpawnInFocus, SingletonEntity, { spawn: undefined, creation: undefined });
-      }
-    });
+    noa.on("targetBlockChanged", getSpawnUserIsLookingAt);
   }, []);
+
+  const getSpawnUserIsLookingAt = (targetedBlock: TargetedBlock) => {
+    const spawnId = getTargetedSpawnId(layers, targetedBlock);
+    if (!spawnId) {
+      // The user is not looking at any spawn. so clear the spawn in focus
+      setComponent(SpawnInFocus, SingletonEntity, { spawn: undefined, creation: undefined });
+      return;
+    }
+
+    const rawSpawn = getComponentValue(Spawn, stringToEntity(spawnId));
+    if (!rawSpawn) {
+      console.error("cannot find spawn object with spawnId=", spawnId);
+      return;
+    }
+
+    const spawn = {
+      spawnId: stringToEntity(spawnId),
+      creationId: stringToEntity(rawSpawn.creationId),
+      lowerSouthWestCorner: abiDecode("tuple(int32 x,int32 y,int32 z)", rawSpawn.lowerSouthWestCorner),
+      voxels: rawSpawn.voxels as Entity[],
+      interfaceVoxels: rawSpawn.interfaceVoxels,
+    } as ISpawn;
+    const creation = getComponentValue(Creation, spawn.creationId);
+    setComponent(SpawnInFocus, SingletonEntity, {
+      spawn: spawn,
+      creation: creation,
+    });
+  };
+
   const spawnInFocus = useComponentValue(SpawnInFocus, SingletonEntity);
   if (!spawnInFocus || spawnInFocus.spawn === undefined) {
     return <></>;

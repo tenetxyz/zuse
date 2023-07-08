@@ -14,7 +14,7 @@ export function defineSpawnInFocusComponent(world: World) {
     world,
     {
       spawn: Type.OptionalT,
-      creation: Type.OptionalT,
+      creation: Type.OptionalT, // the creation that the spawn is an instance of
     },
     { id: "SpawnInFocus" }
   );

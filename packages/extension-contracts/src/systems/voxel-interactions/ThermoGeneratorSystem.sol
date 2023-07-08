@@ -1,14 +1,14 @@
 // SPDX-License-Identifier: MIT
 pragma solidity >=0.8.0;
 
-import { SingleVoxelInteraction } from "../../prototypes/SingleVoxelInteraction.sol";
+import { VoxelInteraction } from "../../prototypes/VoxelInteraction.sol";
 import { IWorld } from "../../../src/codegen/world/IWorld.sol";
 import { Signal, SignalData, Powered, PoweredData, PoweredTableId, SignalSource, SignalSourceTableId } from "../../codegen/Tables.sol";
 import { BlockDirection } from "../../codegen/Types.sol";
 import { getCallerNamespace } from "@tenetxyz/contracts/src/SharedUtils.sol";
 import { registerExtension, entityIsPowered, entityIsSignal, entityIsSignalSource } from "../../Utils.sol";
 
-contract ThermoGeneratorSystem is SingleVoxelInteraction {
+contract ThermoGeneratorSystem is VoxelInteraction {
   function registerInteraction() public override {
     address world = _world();
     registerExtension(world, "ThermoGeneratorSystem", IWorld(world).extension_ThermoGeneratorSystem_eventHandler.selector);
@@ -20,8 +20,10 @@ contract ThermoGeneratorSystem is SingleVoxelInteraction {
     bytes32 neighbourEntityId,
     BlockDirection neighbourBlockDirection
   ) internal override returns (bool changedEntity) {
-    changedEntity = runSingleInteraction(callerNamespace, interactEntity, neighbourEntityId, neighbourBlockDirection);
-    return changedEntity;
+
+    //checks
+
+    return true;
   }
 
   function entityShouldInteract(bytes32 entityId, bytes16 callerNamespace) internal view override returns (bool) {
@@ -31,7 +33,7 @@ contract ThermoGeneratorSystem is SingleVoxelInteraction {
 
 
 
-  function runSingleInteraction(
+  function runInteraction(
     bytes16 callerNamespace,
     bytes32 poweredEntity,
     bytes32 compareEntity,

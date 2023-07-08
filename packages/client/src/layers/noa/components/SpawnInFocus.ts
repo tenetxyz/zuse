@@ -1,7 +1,21 @@
-import { Type, World } from "@latticexyz/recs";
-import { defineStringComponent } from "@latticexyz/std-client";
+import { Entity, Type, World, defineComponent } from "@latticexyz/recs";
+import { VoxelCoord } from "@latticexyz/utils";
 
-// This is the spawnId the user is looking at
+export interface ISpawn {
+  spawnId: Entity;
+  creationId: Entity;
+  lowerSouthWestCorner: VoxelCoord;
+  voxels: Entity[]; // the voxelIds that have been spawned
+}
+
+// This is the spawn the user is looking at
 export function defineSpawnInFocusComponent(world: World) {
-  return defineStringComponent(world, { id: "SpawnInFocus" });
+  return defineComponent(
+    world,
+    {
+      spawn: Type.OptionalT,
+      creation: Type.OptionalT, // the creation that the spawn is an instance of
+    },
+    { id: "SpawnInFocus" }
+  );
 }

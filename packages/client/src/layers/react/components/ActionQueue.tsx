@@ -60,6 +60,7 @@ export function registerActionQueue() {
           actions: { Action },
           config: { blockExplorer },
           getVoxelIconUrl,
+          getVoxelTypePreviewUrl,
         },
       } = layers;
 

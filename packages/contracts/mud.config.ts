@@ -42,11 +42,14 @@ export default mudConfig({
         voxelTypeId: "bytes32",
       },
       schema: {
+        previewVoxelVariantNamespace: "bytes16",
+        previewVoxelVariantId: "bytes32",
+        enterWorldSelector: "bytes4",
+        exitWorldSelector: "bytes4",
         voxelVariantSelector: "bytes4",
         creator: "address",
         numSpawns: "uint256",
         name: "string", // NOTE: you don't want the VoxelTypeId to be based on the name, cause changing the name would change the ID
-        preview: "string", // File ID Hash
       },
     },
     Occurrence: {
@@ -96,7 +99,6 @@ export default mudConfig({
         creationId: "bytes32", // the creation that it's a spawn of
         lowerSouthWestCorner: "bytes", // "VoxelCoord
         voxels: "bytes32[]", // the voxelIds that have been spawned
-        interfaceVoxels: "bytes32[]", // the voxels that are used for i/o interfaces (e.g. for an AND gate test)
       },
     },
     Classifier: {

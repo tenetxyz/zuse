@@ -49,7 +49,8 @@ export const useVoxelTypeSearch = ({ layers, filters }: Props) => {
           name: voxelTypeRecord!.name,
           namespace: formatNamespace(namespace),
           voxelType: voxelTypeId as Entity,
-          preview: voxelTypeRecord!.preview ? getNftStorageLink(voxelTypeRecord!.preview) : "",
+          previewVoxelVariantNamespace: voxelTypeRecord!.previewVoxelVariantNamespace,
+          previewVoxelVariantId: voxelTypeRecord!.previewVoxelVariantId,
           numSpawns: voxelTypeRecord!.numSpawns,
           creator: voxelTypeRecord!.creator,
         } as VoxelTypeDesc;

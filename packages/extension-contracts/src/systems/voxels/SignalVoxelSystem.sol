@@ -7,7 +7,8 @@ import { Signal, SignalData } from "../../codegen/Tables.sol";
 import { BlockDirection } from "../../codegen/Types.sol";
 import { getCallerNamespace } from "@tenetxyz/contracts/src/SharedUtils.sol";
 import { registerVoxelVariant, registerVoxelType, entityIsSignal } from "../../Utils.sol";
-import { VoxelVariantsData, VoxelVariantsKey } from "../../Types.sol";
+import { VoxelVariantsKey } from "@tenetxyz/contracts/src/Types.sol";
+import { VoxelVariantsData } from "../../Types.sol";
 import { EXTENSION_NAMESPACE } from "../../Constants.sol";
 import { NoaBlockType } from "@tenetxyz/contracts/src/codegen/types.sol";
 
@@ -50,31 +51,35 @@ contract SignalVoxelSystem is VoxelType {
       world,
       "Signal",
       SignalID,
-      SignalOffTexture,
-      IWorld(world).extension_SignalVoxelSyste_signalVariantSelector.selector
+      EXTENSION_NAMESPACE,
+      SignalOffID,
+      IWorld(world).extension_SignalVoxelSyste_variantSelector.selector,
+      IWorld(world).extension_SignalVoxelSyste_enterWorld.selector,
+      IWorld(world).extension_SignalVoxelSyste_exitWorld.selector
     );
   }
 
-  function signalVariantSelector(bytes32 entity) public returns (VoxelVariantsKey memory) {
-    SignalData memory signalData = getOrCreateSignal(entity);
+  function enterWorld(bytes32 entity) public override {
+    bytes16 callerNamespace = getCallerNamespace(_msgSender());
+    Signal.set(
+      callerNamespace,
+      entity,
+      SignalData({ isActive: false, direction: BlockDirection.None, hasValue: true })
+    );
+  }
+
+  function exitWorld(bytes32 entity) public override {
+    bytes16 callerNamespace = getCallerNamespace(_msgSender());
+    Signal.deleteRecord(callerNamespace, entity);
+  }
+
+  function variantSelector(bytes32 entity) public view override returns (VoxelVariantsKey memory) {
+    bytes16 callerNamespace = getCallerNamespace(_msgSender());
+    SignalData memory signalData = Signal.get(callerNamespace, entity);
     if (signalData.isActive) {
       return VoxelVariantsKey({ voxelVariantNamespace: EXTENSION_NAMESPACE, voxelVariantId: SignalOnID });
     } else {
       return VoxelVariantsKey({ voxelVariantNamespace: EXTENSION_NAMESPACE, voxelVariantId: SignalOffID });
     }
-  }
-
-  function getOrCreateSignal(bytes32 entity) public returns (SignalData memory) {
-    bytes16 callerNamespace = getCallerNamespace(_msgSender());
-
-    if (!entityIsSignal(entity, callerNamespace)) {
-      Signal.set(
-        callerNamespace,
-        entity,
-        SignalData({ isActive: false, direction: BlockDirection.None, hasValue: true })
-      );
-    }
-
-    return Signal.get(callerNamespace, entity);
   }
 }

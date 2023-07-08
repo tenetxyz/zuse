@@ -7,7 +7,7 @@ import { System } from "@latticexyz/world/src/System.sol";
 import { VoxelCoord, VoxelVariantsKey } from "../Types.sol";
 import { OwnedBy, Position, PositionTableId, VoxelType, VoxelTypeData, VoxelTypeRegistry } from "../codegen/Tables.sol";
 import { AirID } from "./voxels/AirVoxelSystem.sol";
-import { addressToEntityKey, getEntitiesAtCoord, staticcallFunctionSelector, getVoxelVariant } from "../Utils.sol";
+import { enterVoxelIntoWorld, exitVoxelFromWorld, updateVoxelVariant, addressToEntityKey, getEntitiesAtCoord, staticcallFunctionSelector, getVoxelVariant } from "../Utils.sol";
 import { Utils } from "@latticexyz/world/src/Utils.sol";
 import { IWorld } from "../codegen/world/IWorld.sol";
 import { Occurrence } from "../codegen/Tables.sol";
@@ -57,7 +57,7 @@ contract MineSystem is System {
       // Else, mine the non-air entity voxel at this position
       require(entitiesAtPosition.length == 1, "there should only be one entity at this position");
       voxelToMine = entitiesAtPosition[0];
-      VoxelTypeData memory voxelTypeData = VoxelType.get(entitiesAtPosition[0]);
+      VoxelTypeData memory voxelTypeData = VoxelType.get(voxelToMine);
       require(voxelToMine != 0, "We found no voxels at that position");
       require(
         voxelTypeData.voxelTypeNamespace == voxelTypeNamespace &&
@@ -67,17 +67,18 @@ contract MineSystem is System {
         "The voxel at this position is not the same as the voxel you are trying to mine"
       );
       Position.deleteRecord(voxelToMine);
-
-      // TODO: should reset component values
+      exitVoxelFromWorld(_world(), voxelToMine);
+      VoxelType.set(voxelToMine, voxelTypeData.voxelTypeNamespace, voxelTypeData.voxelTypeId, "", "");
     }
 
     // Place an air voxel at this position
     airEntity = getUniqueEntity();
     // TODO: We don't need necessarily need to get the air voxel type from the registry, we could just use the AirID
     // Maybe consider doing this for performance reasons
-    VoxelVariantsKey memory airVariantData = getVoxelVariant(_world(), namespace, AirID, airEntity);
-    VoxelType.set(airEntity, namespace, AirID, airVariantData.voxelVariantNamespace, airVariantData.voxelVariantId);
+    VoxelType.set(airEntity, namespace, AirID, "", "");
     Position.set(airEntity, coord.x, coord.y, coord.z);
+    enterVoxelIntoWorld(_world(), airEntity);
+    updateVoxelVariant(_world(), airEntity);
 
     OwnedBy.set(voxelToMine, addressToEntityKey(_msgSender()));
     // Since numUniqueVoxelTypesIOwn is quadratic in gas (based on how many voxels you own), running this function could use up all your gas. So it's commented

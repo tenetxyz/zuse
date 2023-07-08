@@ -21,12 +21,19 @@ contract AirVoxelSystem is VoxelType {
     world.tenet_VoxelRegistrySys_registerVoxelType(
       "Air",
       AirID,
-      "",
-      world.tenet_AirVoxelSystem_airVariantSelector.selector
+      TENET_NAMESPACE,
+      AirID,
+      world.tenet_AirVoxelSystem_variantSelector.selector,
+      world.tenet_AirVoxelSystem_enterWorld.selector,
+      world.tenet_AirVoxelSystem_exitWorld.selector
     );
   }
 
-  function airVariantSelector(bytes32 entity) public returns (VoxelVariantsKey memory) {
+  function enterWorld(bytes32 entity) public override {}
+
+  function exitWorld(bytes32 entity) public override {}
+
+  function variantSelector(bytes32 entity) public view override returns (VoxelVariantsKey memory) {
     return VoxelVariantsKey({ voxelVariantNamespace: TENET_NAMESPACE, voxelVariantId: AirID });
   }
 }

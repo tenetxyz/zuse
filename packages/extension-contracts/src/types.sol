@@ -14,9 +14,3 @@ struct VoxelVariantsData {
   bytes materials;
   string uvWrap;
 }
-
-// TODO: should not be duplicated from "@tenetxyz/contracts
-struct VoxelVariantsKey {
-  bytes16 voxelVariantNamespace;
-  bytes32 voxelVariantId;
-}

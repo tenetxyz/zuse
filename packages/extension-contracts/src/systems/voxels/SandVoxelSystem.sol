@@ -6,7 +6,8 @@ import { IWorld } from "../../../src/codegen/world/IWorld.sol";
 import { Powered, PoweredData } from "../../codegen/Tables.sol";
 import { getCallerNamespace } from "@tenetxyz/contracts/src/SharedUtils.sol";
 import { registerVoxelType, registerVoxelVariant, entityIsPowered } from "../../Utils.sol";
-import { VoxelVariantsData, VoxelVariantsKey } from "../../Types.sol";
+import { VoxelVariantsKey } from "@tenetxyz/contracts/src/Types.sol";
+import { VoxelVariantsData } from "../../Types.sol";
 import { BlockDirection } from "../../codegen/Types.sol";
 import { EXTENSION_NAMESPACE } from "../../Constants.sol";
 import { NoaBlockType } from "@tenetxyz/contracts/src/codegen/types.sol";
@@ -35,27 +36,29 @@ contract SandVoxelSystem is VoxelType {
       world,
       "Powered Sand",
       SandID,
-      SandTexture,
-      IWorld(world).extension_SandVoxelSystem_sandVariantSelector.selector
+      EXTENSION_NAMESPACE,
+      SandID,
+      IWorld(world).extension_SandVoxelSystem_variantSelector.selector,
+      IWorld(world).extension_SandVoxelSystem_enterWorld.selector,
+      IWorld(world).extension_SandVoxelSystem_exitWorld.selector
     );
   }
 
-  function getOrCreatePowered(bytes32 entity) public returns (PoweredData memory) {
+  function enterWorld(bytes32 entity) public override {
     bytes16 callerNamespace = getCallerNamespace(_msgSender());
-
-    if (!entityIsPowered(entity, callerNamespace)) {
-      Powered.set(
-        callerNamespace,
-        entity,
-        PoweredData({ isActive: false, direction: BlockDirection.None, hasValue: true })
-      );
-    }
-
-    return Powered.get(callerNamespace, entity);
+    Powered.set(
+      callerNamespace,
+      entity,
+      PoweredData({ isActive: false, direction: BlockDirection.None, hasValue: true })
+    );
   }
 
-  function sandVariantSelector(bytes32 entity) public returns (VoxelVariantsKey memory) {
-    getOrCreatePowered(entity);
+  function exitWorld(bytes32 entity) public override {
+    bytes16 callerNamespace = getCallerNamespace(_msgSender());
+    Powered.deleteRecord(callerNamespace, entity);
+  }
+
+  function variantSelector(bytes32 entity) public view override returns (VoxelVariantsKey memory) {
     return VoxelVariantsKey({ voxelVariantNamespace: EXTENSION_NAMESPACE, voxelVariantId: SandID });
   }
 }

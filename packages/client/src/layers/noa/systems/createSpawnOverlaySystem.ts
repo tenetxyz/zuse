@@ -3,27 +3,20 @@
 import { NetworkLayer } from "../../network";
 import { NoaLayer, cleanVoxelCoord } from "../types";
 import { renderChunkyWireframe } from "./renderWireframes";
-import { Color3, Mesh } from "@babylonjs/core";
+import { Color3, Mesh, Nullable } from "@babylonjs/core";
 import { add } from "../../../utils/coord";
 import { calculateMinMaxRelativePositions } from "../../../utils/creation";
 import { Entity, EntitySymbol, getComponentValue } from "@latticexyz/recs";
 import { to256BitString, VoxelCoord } from "@latticexyz/utils";
 import { abiDecode } from "../../../utils/abi";
-
-interface Spawn {
-  spawnId: Entity;
-  creationId: Entity;
-  lowerSouthWestCorner: VoxelCoord;
-  voxels: Entity[];
-  interfaceVoxels: Entity[];
-}
+import { ISpawn } from "../components/SpawnInFocus";
 
 // All creations that are spawned will have an overlay around them
 // This is so when people modify a spawned creation, they know they are modifying that spawn instance
 export function createSpawnOverlaySystem(networkLayer: NetworkLayer, noaLayer: NoaLayer) {
   const { noa } = noaLayer;
   const {
-    contractComponents: { Spawn, Creation },
+    contractComponents: { Spawn, Creation, Position },
   } = networkLayer;
 
   Spawn.update$.subscribe((update) => {
@@ -31,7 +24,7 @@ export function createSpawnOverlaySystem(networkLayer: NetworkLayer, noaLayer: N
     if (spawnTable === undefined) {
       return;
     }
-    const spawns: Spawn[] = [];
+    const spawns: ISpawn[] = [];
     spawnTable.creationId.forEach((creationId, rawSpawnId) => {
       const spawnId = rawSpawnId as any;
       const encodedLowerSouthWestCorner = spawnTable.lowerSouthWestCorner.get(spawnId)!;
@@ -43,7 +36,6 @@ export function createSpawnOverlaySystem(networkLayer: NetworkLayer, noaLayer: N
           creationId: creationId as Entity,
           lowerSouthWestCorner: lowerSouthWestCorner,
           voxels: spawnTable.voxels.get(spawnId) as Entity[],
-          interfaceVoxels: spawnTable.interfaceVoxels.get(spawnId) as Entity[],
         });
       }
     });
@@ -51,7 +43,7 @@ export function createSpawnOverlaySystem(networkLayer: NetworkLayer, noaLayer: N
   });
 
   let spawnOutlineMeshes: Mesh[] = [];
-  const renderSpawnOutlines = (spawns: Spawn[]) => {
+  const renderSpawnOutlines = (spawns: ISpawn[]) => {
     // PERF: only dispose of the meshes that changed
     for (let i = 0; i < spawnOutlineMeshes.length; i++) {
       spawnOutlineMeshes[i].dispose();

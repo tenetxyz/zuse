@@ -2,7 +2,6 @@
 pragma solidity >=0.8.0;
 
 import { System } from "@latticexyz/world/src/System.sol";
-
 import { PositionData } from "@tenetxyz/contracts/src/codegen/tables/Position.sol";
 import { getCallerNamespace } from "@tenetxyz/contracts/src/SharedUtils.sol";
 import { BlockDirection } from "../codegen/Types.sol";
@@ -12,11 +11,18 @@ import { calculateBlockDirection, getEntityPositionStrict } from "../Utils.sol";
 abstract contract VoxelInteraction is System {
   function registerInteraction() public virtual;
 
+  function onNewNeighbour(
+    bytes16 callerNamespace,
+    bytes32 interactEntity,
+    bytes32 neighbourEntityId,
+    BlockDirection neighbourBlockDirection
+  ) internal virtual returns (bool changedEntity);
+
   function runInteraction(
     bytes16 callerNamespace,
     bytes32 interactEntity,
-    bytes32 compareEntity,
-    BlockDirection compareBlockDirection
+    bytes32[] memory neighbourEntityIds,
+    BlockDirection[] memory neighbourEntityDirections
   ) internal virtual returns (bool changedEntity);
 
   function entityShouldInteract(bytes32 entityId, bytes16 callerNamespace) internal view virtual returns (bool);
@@ -34,9 +40,11 @@ abstract contract VoxelInteraction is System {
 
     // case one: center is the entity we care about, check neighbours to see if things need to change
     if (entityShouldInteract(centerEntityId, callerNamespace)) {
+      BlockDirection[] memory neighbourEntityDirections = new BlockDirection[](neighbourEntityIds.length);
       for (uint8 i = 0; i < neighbourEntityIds.length; i++) {
         bytes32 neighbourEntityId = neighbourEntityIds[i];
         if (uint256(neighbourEntityId) == 0) {
+          neighbourEntityDirections[i] = BlockDirection.None;
           continue;
         }
 
@@ -44,10 +52,16 @@ abstract contract VoxelInteraction is System {
           getEntityPositionStrict(neighbourEntityId),
           centerPosition
         );
-        bool changedEntity = runInteraction(callerNamespace, centerEntityId, neighbourEntityId, centerBlockDirection);
-        if (changedEntity) {
-          changedCenterEntityId = centerEntityId;
-        }
+        neighbourEntityDirections[i] = centerBlockDirection;
+      }
+      bool changedEntity = runInteraction(
+        callerNamespace,
+        centerEntityId,
+        neighbourEntityIds,
+        neighbourEntityDirections
+      );
+      if (changedEntity) {
+        changedCenterEntityId = centerEntityId;
       }
     }
 
@@ -65,7 +79,7 @@ abstract contract VoxelInteraction is System {
         getEntityPositionStrict(neighbourEntityId)
       );
 
-      bool changedEntity = runInteraction(callerNamespace, neighbourEntityId, centerEntityId, centerBlockDirection);
+      bool changedEntity = onNewNeighbour(callerNamespace, neighbourEntityId, centerEntityId, centerBlockDirection);
 
       if (changedEntity) {
         changedEntityIds[i] = neighbourEntityId;

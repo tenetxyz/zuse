@@ -31,6 +31,8 @@ import {
   defineSpawnCreationComponent,
   defineSpawnInFocusComponent,
   defineFocusedUiComponent,
+  defineSpawnToClassifyComponent,
+  defineVoxelInterfaceSelectionComponent,
 } from "./components";
 import { CRAFTING_SIDE, EMPTY_CRAFTING_TABLE } from "./constants";
 import * as BABYLON from "@babylonjs/core";
@@ -72,12 +74,12 @@ import { createVoxelSelectionOverlaySystem } from "./systems/createVoxelSelectio
 import { createSpawnCreationOverlaySystem } from "./systems/createSpawnCreationOverlaySystem";
 import { createSpawnOverlaySystem } from "./systems/createSpawnOverlaySystem";
 import {
-  entityToVoxelType,
-  VoxelTypeDataKey,
   VoxelVariantDataKey,
   voxelVariantDataKeyToString,
   voxelVariantKeyStringToKey,
   VoxelVariantDataValue,
+  VoxelTypeBaseKey,
+  entityToVoxelTypeBaseKey,
 } from "./types";
 import { DEFAULT_BLOCK_TEST_DISTANCE } from "./setup/setupNoaEngine";
 import { FocusedUiType } from "./components/FocusedUi";
@@ -100,6 +102,7 @@ export function createNoaLayer(network: NetworkLayer) {
     contractComponents: { OwnedBy, VoxelType },
     api: { build },
     voxelTypes: { VoxelVariantData, VoxelVariantDataSubscriptions },
+    getVoxelPreviewVariant,
   } = network;
   const uniqueWorldId = chainId + worldAddress;
 
@@ -124,9 +127,11 @@ export function createNoaLayer(network: NetworkLayer) {
     PreTeleportPosition: definePreTeleportPositionComponent(world),
     Sounds: defineSoundComponent(world),
     VoxelSelection: defineVoxelSelectionComponent(world),
+    VoxelInterfaceSelection: defineVoxelInterfaceSelectionComponent(world),
     PersistentNotification: definePersistentNotificationComponent(world),
     SpawnCreation: defineSpawnCreationComponent(world),
     SpawnInFocus: defineSpawnInFocusComponent(world),
+    SpawnToClassify: defineSpawnToClassifyComponent(world),
   };
 
   // --- SETUP ----------------------------------------------------------------------
@@ -270,16 +275,16 @@ export function createNoaLayer(network: NetworkLayer) {
     });
   }
 
-  function getVoxelTypeInSelectedSlot(): VoxelTypeDataKey | undefined {
+  function getVoxelTypeInSelectedSlot(): VoxelTypeBaseKey | undefined {
     const selectedSlot = getComponentValue(components.SelectedSlot, SingletonEntity)?.value;
-    if (selectedSlot == null) return;
+    if (selectedSlot === null) return;
     const voxelType = [
       ...getEntitiesWithValue(components.InventoryIndex, {
         value: selectedSlot,
       }),
     ][0];
-    if (voxelType == undefined) return;
-    return entityToVoxelType(voxelType);
+    if (voxelType === undefined) return;
+    return entityToVoxelTypeBaseKey(voxelType);
   }
 
   function placeSelectedVoxelType(coord: VoxelCoord) {
@@ -361,7 +366,7 @@ export function createNoaLayer(network: NetworkLayer) {
   registerRotationComponent(noa);
   registerTargetedRotationComponent(noa);
   registerTargetedPositionComponent(noa);
-  registerHandComponent(noa, getVoxelTypeInSelectedSlot, voxelMaterials);
+  registerHandComponent(noa, getVoxelTypeInSelectedSlot, getVoxelPreviewVariant, voxelMaterials);
   registerMiningVoxelComponent(noa, network);
   setupClouds(noa);
   setupSky(noa);
@@ -426,7 +431,11 @@ export function createNoaLayer(network: NetworkLayer) {
   };
 
   // --- SYSTEMS --------------------------------------------------------------------
-  createInputSystem(network, context);
+  const layers = {
+    network,
+    noa: context,
+  };
+  createInputSystem(layers);
   createVoxelVariantSystem(network, context);
   createVoxelSystem(network, context);
   createPlayerPositionSystem(network, context);

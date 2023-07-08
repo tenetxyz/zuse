@@ -15,11 +15,29 @@ function getVoxelVariant(
   bytes32 entity
 ) returns (VoxelVariantsKey memory) {
   bytes4 voxelVariantSelector = VoxelTypeRegistry.get(voxelTypeNamespace, voxelTypeId).voxelVariantSelector;
-  (bool variantSelectorSuccess, bytes memory voxelVariantSelected) = world.call(
+  (bool variantSelectorSuccess, bytes memory voxelVariantSelected) = world.staticcall(
     abi.encodeWithSelector(voxelVariantSelector, entity)
   );
   require(variantSelectorSuccess, "failed to get voxel variant");
   return abi.decode(voxelVariantSelected, (VoxelVariantsKey));
+}
+
+function enterVoxelIntoWorld(address world, bytes32 entity) {
+  VoxelTypeData memory entityVoxelType = VoxelType.get(entity);
+  bytes4 enterWorldSelector = VoxelTypeRegistry
+    .get(entityVoxelType.voxelTypeNamespace, entityVoxelType.voxelTypeId)
+    .enterWorldSelector;
+  (bool enterWorldSelectorSuccess, ) = world.call(abi.encodeWithSelector(enterWorldSelector, entity));
+  require(enterWorldSelectorSuccess, "failed to call voxel enter world function");
+}
+
+function exitVoxelFromWorld(address world, bytes32 entity) {
+  VoxelTypeData memory entityVoxelType = VoxelType.get(entity);
+  bytes4 exitWorldSelector = VoxelTypeRegistry
+    .get(entityVoxelType.voxelTypeNamespace, entityVoxelType.voxelTypeId)
+    .exitWorldSelector;
+  (bool exitWorldSelectorSuccess, ) = world.call(abi.encodeWithSelector(exitWorldSelector, entity));
+  require(exitWorldSelectorSuccess, "failed to call voxel exit world function");
 }
 
 function updateVoxelVariant(address world, bytes32 entity) {

@@ -41,7 +41,6 @@ const RegisterCreation: React.FC<Props> = ({ layers, formData, setFormData }) =>
   const resetForm = () => {
     setFormData({ name: "", description: "" });
     setComponent(VoxelSelection, SingletonEntity, {
-      points: undefined,
       corner1: undefined,
       corner2: undefined,
     } as any);

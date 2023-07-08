@@ -6,7 +6,7 @@ import { System } from "@latticexyz/world/src/System.sol";
 import { Strings } from "@openzeppelin/contracts/utils/Strings.sol";
 import { IWorld } from "../codegen/world/IWorld.sol";
 import { addressToEntityKey, getEntitiesAtCoord, voxelCoordToString } from "../Utils.sol";
-import { VoxelType, Position, Creation, CreationData, VoxelTypeData } from "../codegen/Tables.sol";
+import { VoxelType, Position, Creation, CreationData, VoxelTypeData, Spawn, SpawnData, OfSpawn } from "../codegen/Tables.sol";
 import { PositionData } from "../codegen/tables/Position.sol";
 import { VoxelCoord } from "../Types.sol";
 //import { CreateBlock } from "../libraries/CreateBlock.sol";
@@ -24,7 +24,10 @@ contract RegisterCreationSystem is System {
     validateCreation(voxelCoords);
 
     bytes memory voxelTypes = abi.encode(getVoxelTypes(voxels));
-    bytes memory relativePositions = abi.encode(repositionBlocksSoLowerSouthwestCornerIsOnOrigin(voxelCoords));
+    (
+      bytes memory relativePositions,
+      VoxelCoord memory lowerSouthWestCorner
+    ) = repositionBlocksSoLowerSouthwestCornerIsOnOrigin(voxelCoords);
 
     CreationData memory creation;
     creation.voxelTypes = voxelTypes;
@@ -38,7 +41,20 @@ contract RegisterCreationSystem is System {
 
     bytes32 creationId = getCreationHash(voxelTypes, relativePositions, _msgSender());
     Creation.set(creationId, creation);
+    registerVoxelsAsSpawn(creationId, lowerSouthWestCorner, voxels);
     return creationId;
+  }
+
+  function registerVoxelsAsSpawn(
+    bytes32 creationId,
+    VoxelCoord memory lowerSouthWestCorner,
+    bytes32[] memory voxels
+  ) private {
+    bytes32 spawnId = getUniqueEntity();
+    for (uint i = 0; i < voxels.length; i++) {
+      OfSpawn.set(voxels[i], spawnId);
+    }
+    Spawn.set(spawnId, creationId, abi.encode(lowerSouthWestCorner), voxels);
   }
 
   function validateCreation(VoxelCoord[] memory voxelCoords) private view {
@@ -69,7 +85,7 @@ contract RegisterCreationSystem is System {
   // TODO: put this into a precompile for speed
   function repositionBlocksSoLowerSouthwestCornerIsOnOrigin(
     VoxelCoord[] memory voxelCoords
-  ) private pure returns (VoxelCoord[] memory) {
+  ) private pure returns (bytes memory, VoxelCoord memory) {
     int32 lowestX = 2147483647;
     int32 lowestY = 2147483647;
     int32 lowestZ = 2147483647;
@@ -91,7 +107,8 @@ contract RegisterCreationSystem is System {
       VoxelCoord memory voxel = voxelCoords[i];
       repositionedVoxelCoords[i] = VoxelCoord({ x: voxel.x - lowestX, y: voxel.y - lowestY, z: voxel.z - lowestZ });
     }
-    return repositionedVoxelCoords;
+    VoxelCoord memory lowerSouthWestCorner = VoxelCoord({ x: lowestX, y: lowestY, z: lowestZ });
+    return (abi.encode(repositionedVoxelCoords), lowerSouthWestCorner);
   }
 
   function getVoxelTypes(bytes32[] memory voxels) public view returns (VoxelTypeData[] memory) {

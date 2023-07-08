@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity >=0.8.0;
 
-import { VoxelInteraction } from "../../prototypes/VoxelInteraction.sol";
+import { SingleVoxelInteraction } from "../../prototypes/SingleVoxelInteraction.sol";
 import { IWorld } from "../../../src/codegen/world/IWorld.sol";
 import { Temperature, TemperatureData } from "../../codegen/Tables.sol";
 import { BlockDirection } from "../../codegen/Types.sol";
@@ -17,7 +17,7 @@ contract TemperatureSystem is VoxelInteraction {
     return entityHasTemperature(entityId, callerNamespace);
   }
 
-  function runInteraction(
+  function runSingleInteraction(
     bytes16 callerNamespace,
     bytes32 signalEntity,
     bytes32 compareEntity,

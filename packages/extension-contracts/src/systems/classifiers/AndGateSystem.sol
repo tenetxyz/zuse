@@ -17,7 +17,7 @@ contract AndGateSystem is System {
   bytes32 inEntity1 = keccak256("inEntity1");
   bytes32 inEntity2 = keccak256("inEntity2");
 
-  function classify(bytes memory input, address worldAddress, bytes memory voxelInterfaces) public {
+  function classify(bytes memory input, address worldAddress, bytes memory voxelInterfaces, bytes32 creationId) public {
     (bytes32 in1, bytes32 in2, bytes32 out) = abi.decode(input, (bytes32, bytes32, bytes32));
     VoxelCoord memory in1Coord = getVoxelCoordStrict(in1);
     VoxelCoord memory in2Coord = getVoxelCoordStrict(in2);
@@ -26,7 +26,7 @@ contract AndGateSystem is System {
     simulateLogic(worldAddress, in1Coord, in2Coord, out, 0, 1, 0);
     simulateLogic(worldAddress, in1Coord, in2Coord, out, 1, 1, 1); // this is the only case where the output is on since both inputs are on
 
-    AndGateCR.set(block.number, voxelInterfaces);
+    AndGateCR.set(creationId, block.number, voxelInterfaces);
   }
 
   // the reason why the in/out states are uints is cause 1s and 0s are more readable than true/false

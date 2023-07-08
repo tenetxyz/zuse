@@ -37,6 +37,13 @@ contract PostDeploy is Script {
       "AndGateCR",
       worldAddress
     );
+    registerClassifier(
+      "Two Dirt",
+      "Make a creation that is two dirt voxels",
+      IWorld(worldAddress).extension_TwoDirtSystem_classify.selector,
+      "TwoDirtCR",
+      worldAddress
+    );
     vm.stopBroadcast();
   }
 

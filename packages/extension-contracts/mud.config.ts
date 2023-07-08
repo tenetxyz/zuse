@@ -52,6 +52,17 @@ export default mudConfig({
         hasValue: "bool", // TODO: Remove this once we can install non-root modules
       },
     },
+    AndGateCR: {
+      // AndGate classify result
+      keySchema: {
+        namespace: "bytes16",
+        entity: "bytes32", // this is the creationId that passed the AndGate
+      },
+      schema: {
+        blockHeight: "uint256", // the blockHeight when the creation passed the classifier
+        voxelInterfaces: "bytes",
+      },
+    },
   },
   modules: [
     // TODO: Re-enable when we have a way to install non-root modules

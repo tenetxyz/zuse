@@ -2,7 +2,7 @@ import React, { useEffect } from "react";
 import Fuse from "fuse.js";
 import { useComponentUpdate } from "../../../utils/useComponentUpdate";
 import { Layers } from "../../../types";
-import { getEntityString } from "@latticexyz/recs";
+import { Entity, getComponentValue, getEntityString } from "@latticexyz/recs";
 import { Classifier, ClassifierStoreFilters } from "./ClassifierStore";
 
 export interface Props {
@@ -17,7 +17,9 @@ export interface ClassifierSearch {
 export const useClassifierSearch = ({ layers, filters }: Props) => {
   const {
     network: {
+      components: { FunctionSelector },
       contractComponents: { Classifier },
+      worldContract,
     },
   } = layers;
 
@@ -37,11 +39,18 @@ export const useClassifierSearch = ({ layers, filters }: Props) => {
         return;
       }
 
+      const classifySelector = classifierTable.classifySelector.get(classifierId);
+      debugger;
+      const classifierNamespace =
+        getComponentValue(FunctionSelector, classifySelector as Entity)?.value ?? "unknown namespace";
+
       allClassifiers.current.push({
         creator: creator,
         name: name,
         description: description,
         classifierId: getEntityString(classifierId),
+        classificationResultTableName: classifierTable.classificationResultTableName.get(classifierId),
+        namespace: classifierNamespace,
       } as Classifier);
     });
 

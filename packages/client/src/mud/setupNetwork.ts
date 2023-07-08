@@ -590,6 +590,7 @@ export async function setupNetwork() {
     map(async () => relay?.countConnected() || 0),
     awaitPromise()
   );
+  const worldComponents = result.components.FunctionSelectors;
 
   return {
     ...result,

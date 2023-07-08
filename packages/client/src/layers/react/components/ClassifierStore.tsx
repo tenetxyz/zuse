@@ -6,9 +6,9 @@ import { useClassifierSearch } from "./useClassifierSearch";
 import { CreationStoreFilters } from "./CreationStore";
 import { useComponentValue } from "@latticexyz/react";
 import { SetState } from "../../../utils/types";
-import { entityToVoxelType, voxelTypeDataKeyToVoxelVariantDataKey, voxelTypeToEntity } from "../../noa/types";
+import { voxelTypeDataKeyToVoxelVariantDataKey } from "../../noa/types";
 import { stringToVoxelCoord } from "../../../utils/coord";
-import { getSpawnAtPosition } from "../../../utils/voxels";
+import { cacheStore$ } from "@latticexyz/network/dev";
 
 export interface ClassifierStoreFilters {
   classifierQuery: string;
@@ -29,6 +29,8 @@ export interface Classifier {
   classifierId: Entity;
   creator: Entity;
   functionSelector: string;
+  classificationResultTableName: string;
+  namespace: string;
 }
 
 const ClassifierStore: React.FC<Props> = ({
@@ -61,6 +63,11 @@ const ClassifierStore: React.FC<Props> = ({
 
   const spawnToUse = useComponentValue(SpawnToClassify, SingletonEntity);
 
+  cacheStore$.subscribe((storeEvent) => {
+    console.log("store event", storeEvent);
+    // TODO: narrow down to the chain/world we care about?
+  });
+
   const detailsForSpawnToClassify = () => {
     if (!spawnToUse?.creation || !spawnToUse?.spawn) {
       return <p>Please look at a spawn of a creation and press the button to classify it</p>;
@@ -79,6 +86,12 @@ const ClassifierStore: React.FC<Props> = ({
         // we only want the interface selections on the voxels that are part of this spawn
         return interfaceSpawnId === spawnToUse.spawn.spawnId;
       });
+
+    //   const cacheStoreKeys = Array.from(cacheStore.state.keys()).filter((key) => {
+    //     const [component] = unpackTuple(key);
+    //     return component === componentIndex;
+    //   });
+    // }
 
     return (
       <div className="flex flex-col space-y-2">

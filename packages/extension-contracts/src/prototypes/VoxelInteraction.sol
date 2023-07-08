@@ -11,6 +11,13 @@ import { calculateBlockDirection, getEntityPositionStrict } from "../Utils.sol";
 abstract contract VoxelInteraction is System {
   function registerInteraction() public virtual;
 
+  function onNewNeighbour(
+    bytes16 callerNamespace,
+    bytes32 interactEntity,
+    bytes32 neighbourEntityId,
+    BlockDirection neighbourBlockDirection
+  ) internal virtual returns (bool changedEntity);
+
   function runInteraction(
     bytes16 callerNamespace,
     bytes32 interactEntity,
@@ -67,35 +74,12 @@ abstract contract VoxelInteraction is System {
         continue;
       }
 
-      PositionData memory neighbourPosition = getEntityPositionStrict(neighbourEntityId);
-
-      bytes32[] memory modNeighbourEntityIds = new bytes32[](neighbourEntityIds.length);
-      BlockDirection[] memory modNeighbourEntityDirections = new BlockDirection[](neighbourEntityIds.length);
-      for (uint8 j = 0; j < neighbourEntityIds.length; j++) {
-        bytes32 modNeighbourEntityId = neighbourEntityIds[j];
-        if (modNeighbourEntityId != neighbourEntityId) {
-          modNeighbourEntityIds[j] = modNeighbourEntityId;
-          if (uint256(modNeighbourEntityId) != 0) {
-            BlockDirection modNeighbourBlockDirection = calculateBlockDirection(
-              getEntityPositionStrict(modNeighbourEntityId),
-              neighbourPosition
-            );
-            modNeighbourEntityDirections[j] = modNeighbourBlockDirection;
-          } else {
-            modNeighbourEntityDirections[j] = BlockDirection.None;
-          }
-        }
-      }
-      modNeighbourEntityIds[i] = centerEntityId;
-      BlockDirection centerBlockDirection = calculateBlockDirection(centerPosition, neighbourPosition);
-      modNeighbourEntityDirections[i] = centerBlockDirection;
-
-      bool changedEntity = runInteraction(
-        callerNamespace,
-        neighbourEntityId,
-        modNeighbourEntityIds,
-        modNeighbourEntityDirections
+      BlockDirection centerBlockDirection = calculateBlockDirection(
+        centerPosition,
+        getEntityPositionStrict(neighbourEntityId)
       );
+
+      bool changedEntity = onNewNeighbour(callerNamespace, neighbourEntityId, centerEntityId, centerBlockDirection);
 
       if (changedEntity) {
         changedEntityIds[i] = neighbourEntityId;

@@ -10,11 +10,21 @@ import { calculateBlockDirection, getEntityPositionStrict } from "../Utils.sol";
 
 // TODO: This should be in @tenetxyz/contracts but it won't work because of some import issue
 abstract contract SingleVoxelInteraction is VoxelInteraction {
+  function onNewNeighbour(
+    bytes16 callerNamespace,
+    bytes32 interactEntity,
+    bytes32 neighbourEntityId,
+    BlockDirection neighbourBlockDirection
+  ) internal override returns (bool changedEntity) {
+    changedEntity = runSingleInteraction(callerNamespace, interactEntity, neighbourEntityId, neighbourBlockDirection);
+    return changedEntity;
+  }
+
   function runSingleInteraction(
     bytes16 callerNamespace,
     bytes32 interactEntity,
-    bytes32 compareEntity,
-    BlockDirection compareBlockDirection
+    bytes32 neighbourEntityId,
+    BlockDirection neighbourEntityDirection
   ) internal virtual returns (bool changedEntity);
 
   function runInteraction(

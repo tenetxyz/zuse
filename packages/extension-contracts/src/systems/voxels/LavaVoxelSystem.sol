@@ -51,12 +51,33 @@ contract LavaVoxelSystem is VoxelType {
       "Lava",
       LavaID,
       LavaHotTexture,
-      IWorld(world).extension_LavaVoxelSystem_signalVariantSelector.selector
+      IWorld(world).extension_LavaVoxelSystem_variantSelector.selector,
+      IWorld(world).extension_LavaVoxelSystem_enterWorld.selector,
+      IWorld(world).extension_LavaVoxelSystem_exitWorld.selector
     );
   }
 
-  function signalVariantSelector(bytes32 entity) public returns (VoxelVariantsKey memory) {
-    TemperatureData memory temperatureData = getOrCreateTemperature(entity);
+  function enterWorld(bytes32 entity) public override {
+    bytes16 callerNamespace = getCallerNamespace(_msgSender());
+    Signal.set(
+      callerNamespace,
+      entity,
+      SignalData({ isActive: false, direction: BlockDirection.None, hasValue: true })
+    );
+  }
+
+  function exitWorld(bytes32 entity) public override {
+    bytes16 callerNamespace = getCallerNamespace(_msgSender());
+     Temperature.set(
+        callerNamespace,
+        entity,
+        TemperatureData({ temperature: 92000, lastUpdateBlock: block.number, hasValue: true })
+      );
+  }
+
+  function variantSelector(bytes32 entity) public override returns (VoxelVariantsKey memory) {
+    bytes16 callerNamespace = getCallerNamespace(_msgSender());
+    TemperatureData memory temperatureData = Temperature.get(callerNamespace, entity);
     if (temperatureData.temperature > 30000) {
       return VoxelVariantsKey({ voxelVariantNamespace: EXTENSION_NAMESPACE, voxelVariantId: LavaHotID });
     } else {
@@ -64,17 +85,4 @@ contract LavaVoxelSystem is VoxelType {
     }
   }
 
-  function getOrCreateTemperature(bytes32 entity) public returns (TemperatureData memory) {
-    bytes16 callerNamespace = getCallerNamespace(_msgSender());
-
-    if (!entityHasTemperature(entity, callerNamespace)) {
-      Temperature.set(
-        callerNamespace,
-        entity,
-        TemperatureData({ temperature: 92000, lastUpdateBlock: block.number, hasValue: true })
-      );
-    }
-
-    return Temperature.get(callerNamespace, entity);
-  }
 }

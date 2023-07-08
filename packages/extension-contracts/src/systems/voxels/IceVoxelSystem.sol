@@ -54,6 +54,7 @@ contract IceVoxelSystem is VoxelType {
       IceID,
       EXTENSION_NAMESPACE,
       IceColdID,
+      IceColdTexture,
       IWorld(world).extension_IceVoxelSystem_variantSelector.selector,
       IWorld(world).extension_IceVoxelSystem_enterWorld.selector,
       IWorld(world).extension_IceVoxelSystem_exitWorld.selector
@@ -66,6 +67,10 @@ contract IceVoxelSystem is VoxelType {
       callerNamespace,
       entity,
       TemperatureData({ temperature: 0, lastUpdateBlock: block.number, hasValue: true })
+    Signal.set(
+      callerNamespace,
+      entity,
+      SignalData({ isActive: false, direction: BlockDirection.None, hasValue: true })
     );
   }
 

@@ -44,6 +44,8 @@ export default mudConfig({
       schema: {
         previewVoxelVariantNamespace: "bytes16",
         previewVoxelVariantId: "bytes32",
+        enterWorldSelector: "bytes4",
+        exitWorldSelector: "bytes4",
         voxelVariantSelector: "bytes4",
         creator: "address",
         numSpawns: "uint256",

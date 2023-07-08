@@ -34,13 +34,19 @@ contract BedrockVoxelSystem is VoxelType {
       BedrockID,
       TENET_NAMESPACE,
       BedrockID,
-      world.tenet_BedrockVoxelSyst_bedrockVariantSelector.selector
+      world.tenet_BedrockVoxelSyst_variantSelector.selector,
+      world.tenet_BedrockVoxelSyst_enterWorld.selector,
+      world.tenet_BedrockVoxelSyst_exitWorld.selector
     );
 
     Occurrence.set(BedrockID, world.tenet_OccurrenceSystem_OBedrock.selector);
   }
 
-  function bedrockVariantSelector(bytes32 entity) public returns (VoxelVariantsKey memory) {
+  function enterWorld(bytes32 entity) public override {}
+
+  function exitWorld(bytes32 entity) public override {}
+
+  function variantSelector(bytes32 entity) public view override returns (VoxelVariantsKey memory) {
     return VoxelVariantsKey({ voxelVariantNamespace: TENET_NAMESPACE, voxelVariantId: BedrockID });
   }
 }

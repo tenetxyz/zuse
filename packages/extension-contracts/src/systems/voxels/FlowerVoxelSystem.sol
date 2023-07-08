@@ -2,9 +2,10 @@
 pragma solidity >=0.8.0;
 
 import { VoxelType } from "@tenetxyz/contracts/src/prototypes/VoxelType.sol";
+import { VoxelVariantsKey } from "@tenetxyz/contracts/src/Types.sol";
 import { IWorld } from "../../../src/codegen/world/IWorld.sol";
 import { registerVoxelType, registerVoxelVariant } from "../../Utils.sol";
-import { VoxelVariantsData, VoxelVariantsKey } from "../../Types.sol";
+import { VoxelVariantsData } from "../../Types.sol";
 import { EXTENSION_NAMESPACE } from "../../Constants.sol";
 import { NoaBlockType } from "@tenetxyz/contracts/src/codegen/types.sol";
 
@@ -33,11 +34,17 @@ contract FlowerVoxelSystem is VoxelType {
       OrangeFlowerID,
       EXTENSION_NAMESPACE,
       OrangeFlowerID,
-      IWorld(world).extension_FlowerVoxelSyste_orangeFlowerVariantSelector.selector
+      IWorld(world).extension_FlowerVoxelSyste_variantSelector.selector,
+      IWorld(world).extension_FlowerVoxelSyste_enterWorld.selector,
+      IWorld(world).extension_FlowerVoxelSyste_exitWorld.selector
     );
   }
 
-  function orangeFlowerVariantSelector(bytes32 entity) public returns (VoxelVariantsKey memory) {
+  function enterWorld(bytes32 entity) public override {}
+
+  function exitWorld(bytes32 entity) public override {}
+
+  function variantSelector(bytes32 entity) public view override returns (VoxelVariantsKey memory) {
     return VoxelVariantsKey({ voxelVariantNamespace: EXTENSION_NAMESPACE, voxelVariantId: OrangeFlowerID });
   }
 }

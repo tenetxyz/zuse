@@ -38,13 +38,19 @@ contract GrassVoxelSystem is VoxelType {
       GrassID,
       TENET_NAMESPACE,
       GrassID,
-      world.tenet_GrassVoxelSystem_grassVariantSelector.selector
+      world.tenet_GrassVoxelSystem_variantSelector.selector,
+      world.tenet_GrassVoxelSystem_enterWorld.selector,
+      world.tenet_GrassVoxelSystem_exitWorld.selector
     );
 
     Occurrence.set(GrassID, world.tenet_OccurrenceSystem_OGrass.selector);
   }
 
-  function grassVariantSelector(bytes32 entity) public returns (VoxelVariantsKey memory) {
+  function enterWorld(bytes32 entity) public override {}
+
+  function exitWorld(bytes32 entity) public override {}
+
+  function variantSelector(bytes32 entity) public view override returns (VoxelVariantsKey memory) {
     return VoxelVariantsKey({ voxelVariantNamespace: TENET_NAMESPACE, voxelVariantId: GrassID });
   }
 }

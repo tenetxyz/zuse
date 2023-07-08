@@ -4,7 +4,8 @@ pragma solidity >=0.8.0;
 import { VoxelType } from "@tenetxyz/contracts/src/prototypes/VoxelType.sol";
 import { IWorld } from "../../../src/codegen/world/IWorld.sol";
 import { registerVoxelVariant, registerVoxelType } from "../../Utils.sol";
-import { VoxelVariantsData, VoxelVariantsKey } from "../../Types.sol";
+import { VoxelVariantsKey } from "@tenetxyz/contracts/src/Types.sol";
+import { VoxelVariantsData } from "../../Types.sol";
 import { EXTENSION_NAMESPACE } from "../../Constants.sol";
 import { NoaBlockType } from "@tenetxyz/contracts/src/codegen/types.sol";
 
@@ -36,11 +37,17 @@ contract LogVoxelSystem is VoxelType {
       LogID,
       EXTENSION_NAMESPACE,
       LogID,
-      IWorld(world).extension_LogVoxelSystem_logVariantSelector.selector
+      IWorld(world).extension_LogVoxelSystem_variantSelector.selector,
+      IWorld(world).extension_LogVoxelSystem_enterWorld.selector,
+      IWorld(world).extension_LogVoxelSystem_exitWorld.selector
     );
   }
 
-  function logVariantSelector(bytes32 entity) public returns (VoxelVariantsKey memory) {
+  function enterWorld(bytes32 entity) public override {}
+
+  function exitWorld(bytes32 entity) public override {}
+
+  function variantSelector(bytes32 entity) public view override returns (VoxelVariantsKey memory) {
     return VoxelVariantsKey({ voxelVariantNamespace: EXTENSION_NAMESPACE, voxelVariantId: LogID });
   }
 }

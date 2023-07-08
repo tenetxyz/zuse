@@ -33,13 +33,19 @@ contract DirtVoxelSystem is VoxelType {
       DirtID,
       TENET_NAMESPACE,
       DirtID,
-      world.tenet_DirtVoxelSystem_dirtVariantSelector.selector
+      world.tenet_DirtVoxelSystem_variantSelector.selector,
+      world.tenet_DirtVoxelSystem_enterWorld.selector,
+      world.tenet_DirtVoxelSystem_exitWorld.selector
     );
 
     Occurrence.set(DirtID, world.tenet_OccurrenceSystem_ODirt.selector);
   }
 
-  function dirtVariantSelector(bytes32 entity) public returns (VoxelVariantsKey memory) {
+  function enterWorld(bytes32 entity) public override {}
+
+  function exitWorld(bytes32 entity) public override {}
+
+  function variantSelector(bytes32 entity) public view override returns (VoxelVariantsKey memory) {
     return VoxelVariantsKey({ voxelVariantNamespace: TENET_NAMESPACE, voxelVariantId: DirtID });
   }
 }

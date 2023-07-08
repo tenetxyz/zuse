@@ -1,13 +1,13 @@
 // SPDX-License-Identifier: MIT
 pragma solidity >=0.8.0;
 
-import { VoxelInteraction } from "../../prototypes/VoxelInteraction.sol";
+import { SingleVoxelInteraction } from "../../prototypes/SingleVoxelInteraction.sol";
 import { IWorld } from "../../../src/codegen/world/IWorld.sol";
 import { Signal, SignalData, InvertedSignalData, InvertedSignal, SignalSource } from "../../codegen/Tables.sol";
 import { BlockDirection } from "../../codegen/Types.sol";
 import { registerExtension, getOppositeDirection, entityIsSignal, entityIsSignalSource, entityIsInvertedSignal } from "../../Utils.sol";
 
-contract SignalSystem is VoxelInteraction {
+contract SignalSystem is SingleVoxelInteraction {
   function registerInteraction() public override {
     address world = _world();
     registerExtension(world, "SignalSystem", IWorld(world).extension_SignalSystem_eventHandler.selector);
@@ -17,7 +17,7 @@ contract SignalSystem is VoxelInteraction {
     return entityIsSignal(entityId, callerNamespace);
   }
 
-  function runInteraction(
+  function runSingleInteraction(
     bytes16 callerNamespace,
     bytes32 signalEntity,
     bytes32 compareEntity,

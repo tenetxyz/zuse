@@ -6,7 +6,8 @@ import { IWorld } from "../../../src/codegen/world/IWorld.sol";
 import { Powered, PoweredData } from "../../codegen/Tables.sol";
 import { getCallerNamespace } from "@tenetxyz/contracts/src/SharedUtils.sol";
 import { registerVoxelType, registerVoxelVariant, entityIsPowered } from "../../Utils.sol";
-import { VoxelVariantsData, VoxelVariantsKey } from "../../Types.sol";
+import { VoxelVariantsKey } from "@tenetxyz/contracts/src/Types.sol";
+import { VoxelVariantsData } from "../../Types.sol";
 import { BlockDirection } from "../../codegen/Types.sol";
 import { EXTENSION_NAMESPACE } from "../../Constants.sol";
 import { NoaBlockType } from "@tenetxyz/contracts/src/codegen/types.sol";
@@ -37,28 +38,27 @@ contract SandVoxelSystem is VoxelType {
       SandID,
       EXTENSION_NAMESPACE,
       SandID,
-      IWorld(world).extension_SandVoxelSystem_sandVariantSelector.selector
+      IWorld(world).extension_SandVoxelSystem_variantSelector.selector,
+      IWorld(world).extension_SandVoxelSystem_enterWorld.selector,
+      IWorld(world).extension_SandVoxelSystem_exitWorld.selector
     );
   }
 
-  function addProperties(bytes32 entity, bytes16 callerNamespace) public override {
-    if (!entityIsPowered(entity, callerNamespace)) {
-      Powered.set(
-        callerNamespace,
-        entity,
-        PoweredData({ isActive: false, direction: BlockDirection.None, hasValue: true })
-      );
-    }
+  function enterWorld(bytes32 entity) public override {
+    bytes16 callerNamespace = getCallerNamespace(_msgSender());
+    Powered.set(
+      callerNamespace,
+      entity,
+      PoweredData({ isActive: false, direction: BlockDirection.None, hasValue: true })
+    );
   }
 
-  function removeProperties(bytes32 entity, bytes16 callerNamespace) public override {
-    if (entityIsPowered(entity, callerNamespace)) {
-      Powered.deleteRecord(callerNamespace, entity);
-    }
+  function exitWorld(bytes32 entity) public override {
+    bytes16 callerNamespace = getCallerNamespace(_msgSender());
+    Powered.deleteRecord(callerNamespace, entity);
   }
 
-  function sandVariantSelector(bytes32 entity) public returns (VoxelVariantsKey memory) {
-    super.updateProperties(entity);
+  function variantSelector(bytes32 entity) public view override returns (VoxelVariantsKey memory) {
     return VoxelVariantsKey({ voxelVariantNamespace: EXTENSION_NAMESPACE, voxelVariantId: SandID });
   }
 }

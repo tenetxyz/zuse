@@ -7,7 +7,8 @@ import { Signal, SignalData } from "../../codegen/Tables.sol";
 import { BlockDirection } from "../../codegen/Types.sol";
 import { getCallerNamespace } from "@tenetxyz/contracts/src/SharedUtils.sol";
 import { registerVoxelVariant, registerVoxelType, entityIsSignal } from "../../Utils.sol";
-import { VoxelVariantsData, VoxelVariantsKey } from "../../Types.sol";
+import { VoxelVariantsKey } from "@tenetxyz/contracts/src/Types.sol";
+import { VoxelVariantsData } from "../../Types.sol";
 import { EXTENSION_NAMESPACE } from "../../Constants.sol";
 import { NoaBlockType } from "@tenetxyz/contracts/src/codegen/types.sol";
 
@@ -52,28 +53,28 @@ contract SignalVoxelSystem is VoxelType {
       SignalID,
       EXTENSION_NAMESPACE,
       SignalOffID,
-      IWorld(world).extension_SignalVoxelSyste_signalVariantSelector.selector
+      IWorld(world).extension_SignalVoxelSyste_variantSelector.selector,
+      IWorld(world).extension_SignalVoxelSyste_enterWorld.selector,
+      IWorld(world).extension_SignalVoxelSyste_exitWorld.selector
     );
   }
 
-  function addProperties(bytes32 entity, bytes16 callerNamespace) public override {
-    if (!entityIsSignal(entity, callerNamespace)) {
-      Signal.set(
-        callerNamespace,
-        entity,
-        SignalData({ isActive: false, direction: BlockDirection.None, hasValue: true })
-      );
-    }
+  function enterWorld(bytes32 entity) public override {
+    bytes16 callerNamespace = getCallerNamespace(_msgSender());
+    Signal.set(
+      callerNamespace,
+      entity,
+      SignalData({ isActive: false, direction: BlockDirection.None, hasValue: true })
+    );
   }
 
-  function removeProperties(bytes32 entity, bytes16 callerNamespace) public override {
-    if (entityIsSignal(entity, callerNamespace)) {
-      Signal.deleteRecord(callerNamespace, entity);
-    }
+  function exitWorld(bytes32 entity) public override {
+    bytes16 callerNamespace = getCallerNamespace(_msgSender());
+    Signal.deleteRecord(callerNamespace, entity);
   }
 
-  function signalVariantSelector(bytes32 entity) public returns (VoxelVariantsKey memory) {
-    (, bytes16 callerNamespace) = super.updateProperties(entity);
+  function variantSelector(bytes32 entity) public view override returns (VoxelVariantsKey memory) {
+    bytes16 callerNamespace = getCallerNamespace(_msgSender());
     SignalData memory signalData = Signal.get(callerNamespace, entity);
     if (signalData.isActive) {
       return VoxelVariantsKey({ voxelVariantNamespace: EXTENSION_NAMESPACE, voxelVariantId: SignalOnID });

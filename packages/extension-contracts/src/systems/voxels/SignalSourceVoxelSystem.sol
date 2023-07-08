@@ -6,7 +6,8 @@ import { IWorld } from "../../../src/codegen/world/IWorld.sol";
 import { SignalSource } from "../../codegen/Tables.sol";
 import { getCallerNamespace } from "@tenetxyz/contracts/src/SharedUtils.sol";
 import { registerVoxelType, registerVoxelVariant, entityIsSignalSource } from "../../Utils.sol";
-import { VoxelVariantsData, VoxelVariantsKey } from "../../Types.sol";
+import { VoxelVariantsKey } from "@tenetxyz/contracts/src/Types.sol";
+import { VoxelVariantsData } from "../../Types.sol";
 import { EXTENSION_NAMESPACE } from "../../Constants.sol";
 import { NoaBlockType } from "@tenetxyz/contracts/src/codegen/types.sol";
 
@@ -36,26 +37,25 @@ contract SignalSourceVoxelSystem is VoxelType {
       SignalSourceID,
       EXTENSION_NAMESPACE,
       SignalSourceID,
-      IWorld(world).extension_SignalSourceVoxe_signalSourceVariantSelector.selector
+      IWorld(world).extension_SignalSourceVoxe_variantSelector.selector,
+      IWorld(world).extension_SignalSourceVoxe_enterWorld.selector,
+      IWorld(world).extension_SignalSourceVoxe_exitWorld.selector
     );
   }
 
-  function addProperties(bytes32 entity, bytes16 callerNamespace) public override {
-    if (!entityIsSignalSource(entity, callerNamespace)) {
-      bool isNaturalSignalSource = true;
-      bool hasValue = true;
-      SignalSource.set(callerNamespace, entity, isNaturalSignalSource, hasValue);
-    }
+  function enterWorld(bytes32 entity) public override {
+    bytes16 callerNamespace = getCallerNamespace(_msgSender());
+    bool isNaturalSignalSource = true;
+    bool hasValue = true;
+    SignalSource.set(callerNamespace, entity, isNaturalSignalSource, hasValue);
   }
 
-  function removeProperties(bytes32 entity, bytes16 callerNamespace) public override {
-    if (entityIsSignalSource(entity, callerNamespace)) {
-      SignalSource.deleteRecord(callerNamespace, entity);
-    }
+  function exitWorld(bytes32 entity) public override {
+    bytes16 callerNamespace = getCallerNamespace(_msgSender());
+    SignalSource.deleteRecord(callerNamespace, entity);
   }
 
-  function signalSourceVariantSelector(bytes32 entity) public returns (VoxelVariantsKey memory) {
-    super.updateProperties(entity);
+  function variantSelector(bytes32 entity) public view override returns (VoxelVariantsKey memory) {
     return VoxelVariantsKey({ voxelVariantNamespace: EXTENSION_NAMESPACE, voxelVariantId: SignalSourceID });
   }
 }

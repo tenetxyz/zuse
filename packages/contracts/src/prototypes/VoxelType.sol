@@ -3,29 +3,19 @@ pragma solidity >=0.8.0;
 
 import { System } from "@latticexyz/world/src/System.sol";
 import { hasKey } from "@latticexyz/world/src/modules/keysintable/hasKey.sol";
-import { getCallerNamespace } from "../SharedUtils.sol";
-import { PositionTableId } from "../codegen/tables/Position.sol";
 import { VoxelVariantsKey } from "../Types.sol";
 
+// Represents a voxel (or Minecraft block)
 abstract contract VoxelType is System {
+  // Called once to register the voxel into the world
   function registerVoxel() public virtual;
 
-  function addProperties(bytes32 entity, bytes16 callerNamespace) public virtual {}
+  // Called by the world every time the voxel is placed in the world
+  function enterWorld(bytes32 entity) public virtual;
 
-  function removeProperties(bytes32 entity, bytes16 callerNamespace) public virtual {}
+  // Called by the world every time the voxel is removed from the world
+  function exitWorld(bytes32 entity) public virtual;
 
-  function updateProperties(bytes32 entity) public returns (bool isInWorld, bytes16 callerNamespace) {
-    callerNamespace = getCallerNamespace(_msgSender());
-
-    bytes32[] memory positionKeyTuple = new bytes32[](1);
-    positionKeyTuple[0] = bytes32((entity));
-    isInWorld = hasKey(PositionTableId, positionKeyTuple);
-    if (isInWorld) {
-      addProperties(entity, callerNamespace);
-    } else {
-      removeProperties(entity, callerNamespace);
-    }
-
-    return (isInWorld, callerNamespace);
-  }
+  // Called by the world to determine which variant (or graphic) of the voxel to use
+  function variantSelector(bytes32 entity) public view virtual returns (VoxelVariantsKey memory);
 }

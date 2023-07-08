@@ -6,7 +6,7 @@ import { System } from "@latticexyz/world/src/System.sol";
 import { VoxelCoord } from "../Types.sol";
 import { OwnedBy, Position, PositionTableId, VoxelType, VoxelTypeData, VoxelTypeRegistry } from "../codegen/Tables.sol";
 import { AirID } from "./voxels/AirVoxelSystem.sol";
-import { addressToEntityKey, updateVoxelVariant, increaseVoxelTypeSpawnCount } from "../Utils.sol";
+import { addressToEntityKey, enterVoxelIntoWorld, updateVoxelVariant, increaseVoxelTypeSpawnCount } from "../Utils.sol";
 import { getUniqueEntity } from "@latticexyz/world/src/modules/uniqueentity/getUniqueEntity.sol";
 import { IWorld } from "../codegen/world/IWorld.sol";
 
@@ -35,6 +35,7 @@ contract BuildSystem is System {
     VoxelTypeData memory entityVoxelData = VoxelType.get(entity);
     VoxelType.set(newEntity, entityVoxelData);
     // Note: Need to run this because we are in creative mode and this is a new entity
+    enterVoxelIntoWorld(_world(), newEntity);
     updateVoxelVariant(_world(), newEntity);
 
     increaseVoxelTypeSpawnCount(entityVoxelData.voxelTypeNamespace, entityVoxelData.voxelTypeId);

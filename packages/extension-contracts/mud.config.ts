@@ -53,13 +53,9 @@ export default mudConfig({
       },
     },
     AndGateCR: {
-      // AndGate classify result
-      keySchema: {
-        namespace: "bytes16",
-        entity: "bytes32", // this is the creationId that passed the AndGate
-      },
+      // AndGate classify result - The key is the creationId
       schema: {
-        blockHeight: "uint256", // the blockHeight when the creation passed the classifier
+        blockNumber: "uint256", // the blockNumber when the creation passed the classifier
         voxelInterfaces: "bytes",
       },
     },

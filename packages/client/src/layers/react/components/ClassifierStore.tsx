@@ -8,7 +8,6 @@ import { useComponentValue } from "@latticexyz/react";
 import { SetState } from "../../../utils/types";
 import { voxelTypeDataKeyToVoxelVariantDataKey } from "../../noa/types";
 import { stringToVoxelCoord } from "../../../utils/coord";
-import { cacheStore$ } from "@latticexyz/network/dev";
 import { ClassifierResults } from "./ClassifierResults";
 
 export interface ClassifierStoreFilters {

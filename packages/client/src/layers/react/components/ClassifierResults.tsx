@@ -1,6 +1,6 @@
 import { cacheStore$ } from "@latticexyz/network/dev";
 import { Classifier } from "./ClassifierStore";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useObservableValue } from "@latticexyz/react";
 import { unpackTuple } from "@latticexyz/utils";
 
@@ -10,13 +10,14 @@ export interface Props {
 
 export const ClassifierResults = ({ classifier }: Props) => {
   //   useObservableValue(cacheStore$);
+  const [results, setResults] = useState("");
   useEffect(() => {
-    const classifierTableKey = `TableId<${classifier.namespace}:${classifier.classificationResultTableName}>`;
+    const classifierResultTableKey = `TableId<${classifier.namespace}:${classifier.classificationResultTableName}>`;
     const subscription = cacheStore$.subscribe((storeEvent) => {
       if (!storeEvent) {
         return;
       }
-      const componentIndex = storeEvent.components.indexOf(classifierTableKey);
+      const componentIndex = storeEvent.components.indexOf(classifierResultTableKey);
       // TODO: this is so inefficient since the client needs to loop through all entities in the world just to find the ones that have the classifier
       const cacheStoreKeys = Array.from(storeEvent.state.keys()).filter((key) => {
         const [component] = unpackTuple(key);

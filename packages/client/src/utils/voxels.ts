@@ -34,7 +34,7 @@ export type TargetedBlock = {
   blockId: number; // the noa blockId
 };
 
-export const getTargetedSpawnIdInfo = (layers: Layers, targetedBlock: TargetedBlock) => {
+export const getTargetedSpawnId = (layers: Layers, targetedBlock: TargetedBlock) => {
   const {
     network: {
       contractComponents: { OfSpawn },
@@ -50,9 +50,5 @@ export const getTargetedSpawnIdInfo = (layers: Layers, targetedBlock: TargetedBl
   if (!entityAtPosition) {
     return undefined;
   }
-  const spawnId = getComponentValue(OfSpawn, entityAtPosition)?.value;
-  if (!spawnId) {
-    return undefined;
-  }
-  return { spawnId, entityAtPosition };
+  return getComponentValue(OfSpawn, entityAtPosition)?.value;
 };

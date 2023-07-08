@@ -6,7 +6,7 @@ import { stringToEntity } from "../../../utils/entity";
 import { abiDecode } from "../../../utils/abi";
 import { ISpawn } from "../../noa/components/SpawnInFocus";
 import { FocusedUiType } from "../../noa/components/FocusedUi";
-import { TargetedBlock, getTargetedSpawnIdInfo as getTargetedSpawnIdInfo } from "../../../utils/voxels";
+import { TargetedBlock, getTargetedSpawnId } from "../../../utils/voxels";
 
 interface Props {
   layers: Layers;
@@ -26,14 +26,15 @@ export const ElectiveBar = ({ layers }: Props) => {
 
   useEffect(() => {
     noa.on("targetBlockChanged", (targetedBlock: TargetedBlock) => {
-      const spawnIdInfo = getTargetedSpawnIdInfo(layers, targetedBlock);
-      if (spawnIdInfo) {
-        const rawSpawn = getComponentValue(Spawn, stringToEntity(spawnIdInfo.spawnId));
+      const spawnId = getTargetedSpawnId(layers, targetedBlock);
+      if (spawnId) {
+        const rawSpawn = getComponentValue(Spawn, stringToEntity(spawnId));
         if (!rawSpawn) {
-          console.error("cannot find spawn object with spawnId=", spawnIdInfo.spawnId);
+          console.error("cannot find spawn object with spawnId=", spawnId);
           return;
         }
         const spawn = {
+          spawnId: stringToEntity(spawnId),
           creationId: stringToEntity(rawSpawn.creationId),
           lowerSouthWestCorner: abiDecode("tuple(int32 x,int32 y,int32 z)", rawSpawn.lowerSouthWestCorner),
           voxels: rawSpawn.voxels as Entity[],

@@ -7,6 +7,8 @@ import { CreationStoreFilters } from "./CreationStore";
 import { useComponentValue } from "@latticexyz/react";
 import { SetState } from "../../../utils/types";
 import { entityToVoxelType, voxelTypeDataKeyToVoxelVariantDataKey, voxelTypeToEntity } from "../../noa/types";
+import { stringToVoxelCoord } from "../../../utils/coord";
+import { getSpawnAtPosition } from "../../../utils/voxels";
 
 export interface ClassifierStoreFilters {
   classifierQuery: string;
@@ -38,11 +40,11 @@ const ClassifierStore: React.FC<Props> = ({
 }: Props) => {
   const {
     noa: {
-      components: { SpawnToClassify, VoxelSelection },
+      components: { SpawnToClassify, VoxelInterfaceSelection },
       SingletonEntity,
     },
     network: {
-      components: { VoxelType, VoxelTypeRegistry },
+      components: { VoxelType, OfSpawn },
       api: { getEntityAtPosition },
       getVoxelIconUrl,
     },
@@ -64,6 +66,21 @@ const ClassifierStore: React.FC<Props> = ({
       return <p>Please look at a spawn of a creation and press the button to classify it</p>;
     }
 
+    const interfaceVoxels = Array.from(
+      getComponentValue(VoxelInterfaceSelection, SingletonEntity)?.value ?? new Set<string>()
+    )
+      .map((voxelCoordString) => stringToVoxelCoord(voxelCoordString))
+      .map((voxelCoord) => getEntityAtPosition(voxelCoord))
+      .filter((entityId) => {
+        if (!entityId) {
+          return false;
+        }
+        const interfaceSpawnId = getComponentValue(OfSpawn, entityId)?.value;
+        // the only interface voxels we care about are those that are on this spawn
+        console.log(interfaceSpawnId, spawnToUse.spawn.spawnId);
+        return interfaceSpawnId === spawnToUse.spawn.spawnId;
+      });
+
     return (
       <div className="flex flex-col space-y-2">
         <div className="flex flex-row">
@@ -78,7 +95,7 @@ const ClassifierStore: React.FC<Props> = ({
         </div>
         <p>Interfaces</p>
         <div className="flex flex-row space-x-2">
-          {spawnToUse.spawn.interfaceVoxels.map((voxel, idx) => {
+          {interfaceVoxels.map((voxel, idx) => {
             if (!voxel) {
               console.warn("Voxel not found at coord", voxel);
               return <div key={idx}>:(</div>;
@@ -100,6 +117,7 @@ const ClassifierStore: React.FC<Props> = ({
         </div>
         <button
           onClick={() => {
+            // the interface voxels are defined above
             alert("todo: submit creation to classifier");
           }}
         >

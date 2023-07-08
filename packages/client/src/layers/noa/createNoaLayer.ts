@@ -32,6 +32,7 @@ import {
   defineSpawnInFocusComponent,
   defineFocusedUiComponent,
   defineSpawnToClassifyComponent,
+  defineVoxelInterfaceSelectionComponent,
 } from "./components";
 import { CRAFTING_SIDE, EMPTY_CRAFTING_TABLE } from "./constants";
 import * as BABYLON from "@babylonjs/core";
@@ -125,6 +126,7 @@ export function createNoaLayer(network: NetworkLayer) {
     PreTeleportPosition: definePreTeleportPositionComponent(world),
     Sounds: defineSoundComponent(world),
     VoxelSelection: defineVoxelSelectionComponent(world),
+    VoxelInterfaceSelection: defineVoxelInterfaceSelectionComponent(world),
     PersistentNotification: definePersistentNotificationComponent(world),
     SpawnCreation: defineSpawnCreationComponent(world),
     SpawnInFocus: defineSpawnInFocusComponent(world),

@@ -8,7 +8,7 @@ import { getNoaComponent, getNoaComponentStrict } from "../engine/components/uti
 import { NoaLayer } from "../types";
 import { toast } from "react-toastify";
 import { Creation } from "../../react/components/CreationStore";
-import { calculateMinMax, getTargetedSpawnIdInfo, getTargetedVoxelCoord, TargetedBlock } from "../../../utils/voxels";
+import { calculateMinMax, getTargetedSpawnId, getTargetedVoxelCoord, TargetedBlock } from "../../../utils/voxels";
 import { NotificationIcon } from "../components/persistentNotification";
 import { BEDROCK_ID } from "../../network/api/terrain/occurrence";
 import { DEFAULT_BLOCK_TEST_DISTANCE } from "../setup/setupNoaEngine";
@@ -18,6 +18,7 @@ import { renderEnt } from "./renderEnt";
 import { FocusedUiType } from "../components/FocusedUi";
 import { Layers } from "../../../types";
 import { stringToEntity } from "../../../utils/entity";
+import { voxelCoordToString } from "../../../utils/coord";
 
 export function createInputSystem(layers: Layers) {
   const {
@@ -32,6 +33,7 @@ export function createInputSystem(layers: Layers) {
         VoxelSelection,
         SpawnCreation,
         PersistentNotification,
+        VoxelInterfaceSelection,
       },
       SingletonEntity,
       api: {
@@ -326,23 +328,29 @@ export function createInputSystem(layers: Layers) {
     if (!noa.targetedBlock) {
       return;
     }
-    const spawnIdInfo = getTargetedSpawnIdInfo(layers, noa.targetedBlock as any);
-    const isVoxelPartOfSpawn = spawnIdInfo !== undefined;
+    const spawnId = getTargetedSpawnId(layers, noa.targetedBlock as any);
+    const isVoxelPartOfSpawn = spawnId !== undefined;
     if (isVoxelPartOfSpawn) {
-      const spawnEntityId = stringToEntity(spawnIdInfo.spawnId);
-      const spawn = getComponentValue(Spawn, spawnEntityId);
-      if (!spawn) {
-        console.warn("cannot find spawn for spawnId=", spawnIdInfo.spawnId);
-        return;
+      const voxelSelection = getComponentValue(VoxelInterfaceSelection, SingletonEntity);
+      const points: Set<string> = voxelSelection?.value ?? new Set<string>();
+      const coord = getTargetedVoxelCoord(noa);
+      const coordString = voxelCoordToString(coord);
+
+      // toggle the selection
+      if (points.has(coordString)) {
+        points.delete(coordString);
+      } else {
+        points.add(coordString);
       }
-      setComponent(Spawn, spawnEntityId, spawn);
 
-      const isEntityHighlighted = spawn.interfaceVoxels.includes(spawnIdInfo.spawnId);
-      setSpawnInterface(spawnEntityId, spawnIdInfo.entityAtPosition, isEntityHighlighted);
+      setComponent(VoxelInterfaceSelection, SingletonEntity, { value: points });
 
+      // toast(`Selected voxel at ${coord.x}, ${coord.y}, ${coord.z}`);
       // renderFloatingTextAboveCoord(coord, noa, "This is a super\nlong\nline that takes\nup many lines");
       // renderEnt(noaLayer, coord);
       // toast(`Selected voxel at ${coord.x}, ${coord.y}, ${coord.z}`);
+    } else {
+      toast(`You can only select a voxel that is part of a spawn.`);
     }
   });
 

@@ -9,14 +9,7 @@ import { calculateMinMaxRelativePositions } from "../../../utils/creation";
 import { Entity, EntitySymbol, getComponentValue } from "@latticexyz/recs";
 import { to256BitString, VoxelCoord } from "@latticexyz/utils";
 import { abiDecode } from "../../../utils/abi";
-
-interface Spawn {
-  spawnId: Entity;
-  creationId: Entity;
-  lowerSouthWestCorner: VoxelCoord;
-  voxels: Entity[];
-  interfaceVoxels: Entity[];
-}
+import { ISpawn } from "../components/SpawnInFocus";
 
 // All creations that are spawned will have an overlay around them
 // This is so when people modify a spawned creation, they know they are modifying that spawn instance
@@ -31,7 +24,7 @@ export function createSpawnOverlaySystem(networkLayer: NetworkLayer, noaLayer: N
     if (spawnTable === undefined) {
       return;
     }
-    const spawns: Spawn[] = [];
+    const spawns: ISpawn[] = [];
     spawnTable.creationId.forEach((creationId, rawSpawnId) => {
       const spawnId = rawSpawnId as any;
       const encodedLowerSouthWestCorner = spawnTable.lowerSouthWestCorner.get(spawnId)!;
@@ -43,16 +36,14 @@ export function createSpawnOverlaySystem(networkLayer: NetworkLayer, noaLayer: N
           creationId: creationId as Entity,
           lowerSouthWestCorner: lowerSouthWestCorner,
           voxels: spawnTable.voxels.get(spawnId) as Entity[],
-          interfaceVoxels: spawnTable.interfaceVoxels.get(spawnId) as Entity[],
         });
       }
     });
     renderSpawnOutlines(spawns);
-    renderSpawnInterfaces(spawns);
   });
 
   let spawnOutlineMeshes: Mesh[] = [];
-  const renderSpawnOutlines = (spawns: Spawn[]) => {
+  const renderSpawnOutlines = (spawns: ISpawn[]) => {
     // PERF: only dispose of the meshes that changed
     for (let i = 0; i < spawnOutlineMeshes.length; i++) {
       spawnOutlineMeshes[i].dispose();
@@ -100,20 +91,6 @@ export function createSpawnOverlaySystem(networkLayer: NetworkLayer, noaLayer: N
       if (mesh !== null) {
         spawnOutlineMeshes.push(mesh);
       }
-    }
-  };
-
-  let renderedSpawnInterfacesMeshes: Nullable<Mesh>[] = [];
-  const renderSpawnInterfaces = (spawns: Spawn[]) => {
-    // remove the previous meshes since we're re-rendering all of them
-    // if this is a performance hit, we can cache the meshes and only render the new selections
-    renderedSpawnInterfacesMeshes.forEach((mesh) => mesh?.dispose());
-
-    for (const spawn of spawns) {
-      renderedSpawnInterfacesMeshes = (spawn.interfaceVoxels ?? []).map((voxelId) => {
-        const voxelCoord = getComponentValue(Position, voxelId) as VoxelCoord;
-        return renderChunkyWireframe(voxelCoord, voxelCoord, noa, new Color3(1, 0.1, 0.1), 0.04);
-      });
     }
   };
 }

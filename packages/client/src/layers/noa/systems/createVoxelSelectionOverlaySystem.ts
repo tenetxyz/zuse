@@ -5,10 +5,11 @@ import { NoaLayer } from "../types";
 import { renderChunkyWireframe } from "./renderWireframes";
 import { Color3, Mesh, Nullable } from "@babylonjs/core";
 import { ComponentRecord } from "../../../types";
+import { stringToVoxelCoord } from "../../../utils/coord";
 
 export function createVoxelSelectionOverlaySystem(network: NetworkLayer, noaLayer: NoaLayer) {
   const {
-    components: { VoxelSelection },
+    components: { VoxelSelection, VoxelInterfaceSelection },
     noa,
   } = noaLayer;
   type IVoxelSelection = ComponentRecord<typeof VoxelSelection>;
@@ -35,5 +36,24 @@ export function createVoxelSelectionOverlaySystem(network: NetworkLayer, noaLaye
       new Color3(1, 1, 1),
       0.05
     );
+  };
+
+  type IVoxelInterfaceSelection = ComponentRecord<typeof VoxelInterfaceSelection>;
+  VoxelInterfaceSelection.update$.subscribe((update) => {
+    const voxelInterfaceSelection = update.value[0] as IVoxelInterfaceSelection;
+    renderVoxelInterfaceSelection(voxelInterfaceSelection);
+  });
+
+  let renderedVoxelInterfaceSelectionMesh: Nullable<Mesh> = null;
+  const renderVoxelInterfaceSelection = (voxelInterfaceSelection: IVoxelInterfaceSelection) => {
+    if (renderedRangeSelectionMesh) {
+      // remove the previous mesh since the user can only have one range selection
+      renderedRangeSelectionMesh.dispose();
+    }
+
+    (voxelInterfaceSelection.value as Set<string>).forEach((voxelCoordString) => {
+      const voxelCoord = stringToVoxelCoord(voxelCoordString);
+      renderedRangeSelectionMesh = renderChunkyWireframe(voxelCoord, voxelCoord, noa, new Color3(1, 0.1, 0.1), 0.04);
+    });
   };
 }

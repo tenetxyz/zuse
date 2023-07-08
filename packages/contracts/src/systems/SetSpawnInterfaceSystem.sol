@@ -21,6 +21,9 @@ contract SetSpawnInterfaceSystem is System {
       // we need to add the entity to the interface array
       Spawn.pushInterfaceVoxels(spawnId, entity);
     } else {
+      if (interfaceVoxels.length == 0) {
+        return; // the array is already empty. so no need to remove it
+      }
       // check to see if this entitiy is already an interface. If it is, remove it from the array
       bytes32[] memory newInterfaceVoxels = new bytes32[](interfaceVoxels.length - 1);
 

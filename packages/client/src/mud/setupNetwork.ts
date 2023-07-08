@@ -550,7 +550,7 @@ export async function setupNetwork() {
           spawnId,
           voxelId,
           setAsInterface,
-          { gasLimit: 1_000_000 },
+          { gasLimit: 30_000_000 },
         ]);
         return tx;
       },

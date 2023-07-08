@@ -309,7 +309,7 @@ export async function setupNetwork() {
   }
 
   async function buildSystem(entity: Entity, coord: VoxelCoord) {
-    const tx = await worldSend("tenet_BuildSystem_build", [to64CharAddress(entity), coord, { gasLimit: 30_000_000 }]);
+    const tx = await worldSend("tenet_BuildSystem_build", [to64CharAddress(entity), coord, { gasLimit: 100_000_000 }]);
     return tx;
   }
 
@@ -381,7 +381,7 @@ export async function setupNetwork() {
       voxelType.voxelTypeId,
       voxelType.voxelVariantNamespace,
       voxelType.voxelVariantId,
-      { gasLimit: 30_000_000 },
+      { gasLimit: 100_000_000 },
     ]);
     return tx;
   }
@@ -543,7 +543,11 @@ export async function setupNetwork() {
   }
 
   async function spawnCreationSystem(lowerSouthWestCorner: VoxelCoord, creationId: Entity) {
-    const tx = await worldSend("tenet_SpawnSystem_spawn", [lowerSouthWestCorner, creationId, { gasLimit: 30_000_000 }]);
+    const tx = await worldSend("tenet_SpawnSystem_spawn", [
+      lowerSouthWestCorner,
+      creationId,
+      { gasLimit: 100_000_000 },
+    ]);
     return tx;
   }
 

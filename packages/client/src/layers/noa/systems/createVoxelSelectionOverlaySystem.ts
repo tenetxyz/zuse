@@ -44,16 +44,18 @@ export function createVoxelSelectionOverlaySystem(network: NetworkLayer, noaLaye
     renderVoxelInterfaceSelection(voxelInterfaceSelection);
   });
 
-  let renderedVoxelInterfaceSelectionMesh: Nullable<Mesh> = null;
+  let renderedVoxelInterfaceSelectionMeshs: Nullable<Mesh>[] = [];
   const renderVoxelInterfaceSelection = (voxelInterfaceSelection: IVoxelInterfaceSelection) => {
-    if (renderedRangeSelectionMesh) {
+    if (renderedVoxelInterfaceSelectionMeshs) {
       // remove the previous mesh since the user can only have one range selection
-      renderedRangeSelectionMesh.dispose();
+      renderedVoxelInterfaceSelectionMeshs.forEach((mesh) => mesh?.dispose());
     }
 
-    (voxelInterfaceSelection.value as Set<string>).forEach((voxelCoordString) => {
-      const voxelCoord = stringToVoxelCoord(voxelCoordString);
-      renderedRangeSelectionMesh = renderChunkyWireframe(voxelCoord, voxelCoord, noa, new Color3(1, 0.1, 0.1), 0.04);
-    });
+    renderedVoxelInterfaceSelectionMeshs = Array.from(voxelInterfaceSelection.value as Set<string>).map(
+      (voxelCoordString) => {
+        const voxelCoord = stringToVoxelCoord(voxelCoordString);
+        return renderChunkyWireframe(voxelCoord, voxelCoord, noa, new Color3(1, 0.1, 0.1), 0.04);
+      }
+    );
   };
 }

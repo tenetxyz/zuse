@@ -1,12 +1,13 @@
 // SPDX-License-Identifier: MIT
 pragma solidity >=0.8.0;
 
-import { System } from "@latticexyz/world/src/System.sol";
-
+import { VoxelType } from "@tenetxyz/contracts/src/prototypes/VoxelType.sol";
 import { IWorld } from "../../../src/codegen/world/IWorld.sol";
-
-import { registerVoxelType, registerVoxelVariant } from "../../Utils.sol";
+import { Powered, PoweredData } from "../../codegen/Tables.sol";
+import { getCallerNamespace } from "@tenetxyz/contracts/src/SharedUtils.sol";
+import { registerVoxelType, registerVoxelVariant, entityIsPowered } from "../../Utils.sol";
 import { VoxelVariantsData, VoxelVariantsKey } from "../../Types.sol";
+import { BlockDirection } from "../../codegen/Types.sol";
 import { EXTENSION_NAMESPACE } from "../../Constants.sol";
 import { NoaBlockType } from "@tenetxyz/contracts/src/codegen/types.sol";
 
@@ -16,8 +17,8 @@ string constant SandTexture = "bafkreia4afumfatsrlbmq5azbehfwzoqmgu7bjkiutb6njsu
 
 string constant SandUVWrap = "bafkreiewghdyhnlq4yiqe4umxaytoy67jw3k65lwll2rbomfzr6oivhvpy";
 
-contract SandSystem is System {
-  function registerSandVoxel() public {
+contract SandVoxelSystem is VoxelType {
+  function registerVoxel() public override {
     address world = _world();
 
     VoxelVariantsData memory sandVariant;
@@ -32,14 +33,32 @@ contract SandSystem is System {
 
     registerVoxelType(
       world,
-      "Sand",
+      "Powered Sand",
       SandID,
-      SandTexture,
-      IWorld(world).extension_SandSystem_sandVariantSelector.selector
+      EXTENSION_NAMESPACE,
+      SandID,
+      IWorld(world).extension_SandVoxelSystem_sandVariantSelector.selector
     );
   }
 
+  function addProperties(bytes32 entity, bytes16 callerNamespace) public override {
+    if (!entityIsPowered(entity, callerNamespace)) {
+      Powered.set(
+        callerNamespace,
+        entity,
+        PoweredData({ isActive: false, direction: BlockDirection.None, hasValue: true })
+      );
+    }
+  }
+
+  function removeProperties(bytes32 entity, bytes16 callerNamespace) public override {
+    if (entityIsPowered(entity, callerNamespace)) {
+      Powered.deleteRecord(callerNamespace, entity);
+    }
+  }
+
   function sandVariantSelector(bytes32 entity) public returns (VoxelVariantsKey memory) {
+    super.updateProperties(entity);
     return VoxelVariantsKey({ voxelVariantNamespace: EXTENSION_NAMESPACE, voxelVariantId: SandID });
   }
 }

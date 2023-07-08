@@ -42,11 +42,12 @@ export default mudConfig({
         voxelTypeId: "bytes32",
       },
       schema: {
+        previewVoxelVariantNamespace: "bytes16",
+        previewVoxelVariantId: "bytes32",
         voxelVariantSelector: "bytes4",
         creator: "address",
         numSpawns: "uint256",
         name: "string", // NOTE: you don't want the VoxelTypeId to be based on the name, cause changing the name would change the ID
-        preview: "string", // File ID Hash
       },
     },
     Occurrence: {
@@ -164,6 +165,16 @@ export default mudConfig({
       name: "KeysInTableModule",
       root: true,
       args: [resolveTableId("VoxelVariants")],
+    },
+    {
+      name: "KeysInTableModule",
+      root: true,
+      args: [resolveTableId("Classifier")],
+    },
+    {
+      name: "KeysInTableModule",
+      root: true,
+      args: [resolveTableId("Spawn")],
     },
   ],
 });

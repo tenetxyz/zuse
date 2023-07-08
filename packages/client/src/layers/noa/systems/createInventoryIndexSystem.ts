@@ -17,14 +17,8 @@ import { switchMap } from "rxjs";
 import { NetworkLayer } from "../../network";
 import {
   NoaLayer,
-  voxelTypeToEntity,
-  voxelTypeDataKeyToVoxelVariantDataKey,
-  voxelVariantDataKeyToString,
-  entityToVoxelType,
-  VoxelTypeBaseKey,
-  voxelTypeToVoxelTypeBaseDataKey,
-  voxelTypeDataKeyToString,
-  voxelTypeBaseKeyToString,
+  entityToVoxelTypeBaseKey,
+  voxelTypeBaseKeyToEntity,
   voxelTypeToVoxelTypeBaseKeyString as voxelTypeToVoxelTypeBaseKeyStr,
 } from "../types";
 import { to64CharAddress } from "../../../utils/entity";
@@ -84,7 +78,7 @@ export function createInventoryIndexSystem(network: NetworkLayer, context: NoaLa
   const removeInventoryIndexesForItemsWeNoLongerOwn = () => {
     const itemTypesIOwn = getItemTypesIOwn(OwnedBy, VoxelType, connectedAddress);
     for (const itemType of InventoryIndex.values.value.keys()) {
-      const voxelTypeBaseKeyStr = voxelTypeToVoxelTypeBaseKeyStr(entityToVoxelType(itemType.description as Entity));
+      const voxelTypeBaseKeyStr = itemType.description as string;
       if (!itemTypesIOwn.has(voxelTypeBaseKeyStr)) {
         removeComponent(InventoryIndex, itemType.description as Entity);
       }
@@ -104,13 +98,13 @@ export function createInventoryIndexSystem(network: NetworkLayer, context: NoaLa
     }
     const voxelType = getComponentValue(VoxelType, update.entity);
 
-    if (voxelType == undefined) return;
-    const voxelTypeKey = voxelTypeToEntity(voxelType);
+    if (voxelType === undefined) return;
+    const voxelTypeBaseKey = voxelTypeToVoxelTypeBaseKeyStr(voxelType) as Entity;
 
     // Assign the first free inventory index
-    if (!hasComponent(InventoryIndex, voxelTypeKey)) {
+    if (!hasComponent(InventoryIndex, voxelTypeBaseKey)) {
       const freeInventoryIndex = firstFreeInventoryIndex(InventoryIndex, 0);
-      setComponent(InventoryIndex, voxelTypeKey, { value: freeInventoryIndex });
+      setComponent(InventoryIndex, voxelTypeBaseKey, { value: freeInventoryIndex });
     }
   });
 }

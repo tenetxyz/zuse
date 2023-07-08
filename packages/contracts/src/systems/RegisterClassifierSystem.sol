@@ -16,12 +16,7 @@ contract RegisterClassifierSystem is System {
     bytes32 uniqueEntity = getUniqueEntity();
     Classifier.set(
       uniqueEntity,
-      ClassifierData({
-        creator: _msgSender(),
-        classifySelector: classifySelector,
-        name: name,
-        description: description
-      })
+      ClassifierData({ creator: tx.origin, classifySelector: classifySelector, name: name, description: description })
     );
   }
 }

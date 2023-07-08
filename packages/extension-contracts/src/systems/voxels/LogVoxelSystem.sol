@@ -1,10 +1,8 @@
 // SPDX-License-Identifier: MIT
 pragma solidity >=0.8.0;
 
-import { System } from "@latticexyz/world/src/System.sol";
-
+import { VoxelType } from "@tenetxyz/contracts/src/prototypes/VoxelType.sol";
 import { IWorld } from "../../../src/codegen/world/IWorld.sol";
-
 import { registerVoxelVariant, registerVoxelType } from "../../Utils.sol";
 import { VoxelVariantsData, VoxelVariantsKey } from "../../Types.sol";
 import { EXTENSION_NAMESPACE } from "../../Constants.sol";
@@ -17,8 +15,8 @@ string constant LogTopTexture = "bafkreiekx2odo544mawzn7np6p4uhkm2bt53nl4n2dhzj3
 
 string constant LogUVWrap = "bafkreiddsx5ke3e664ain2gnzd7jxicko34clxnlqzp2paqomvf7a7gb7m";
 
-contract LogSystem is System {
-  function registerLogVoxel() public {
+contract LogVoxelSystem is VoxelType {
+  function registerVoxel() public override {
     address world = _world();
 
     VoxelVariantsData memory logVariant;
@@ -32,7 +30,14 @@ contract LogSystem is System {
     logVariant.uvWrap = LogUVWrap;
     registerVoxelVariant(world, LogID, logVariant);
 
-    registerVoxelType(world, "Log", LogID, LogTexture, IWorld(world).extension_LogSystem_logVariantSelector.selector);
+    registerVoxelType(
+      world,
+      "Log",
+      LogID,
+      EXTENSION_NAMESPACE,
+      LogID,
+      IWorld(world).extension_LogVoxelSystem_logVariantSelector.selector
+    );
   }
 
   function logVariantSelector(bytes32 entity) public returns (VoxelVariantsKey memory) {

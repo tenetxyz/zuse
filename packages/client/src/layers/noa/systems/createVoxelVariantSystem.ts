@@ -3,6 +3,7 @@ import { defineComponentSystem, defineEnterSystem, getComponentValueStrict, Has 
 import { awaitStreamValue } from "@latticexyz/utils";
 import { NetworkLayer } from "../../network";
 import { NoaLayer, voxelVariantDataKeyToString, VoxelVariantDataValue } from "../types";
+import { NoaVoxelDef } from "../types";
 import { formatNamespace } from "../../../constants";
 import { getNftStorageLink } from "../constants";
 import { abiDecode } from "../../../utils/abi";

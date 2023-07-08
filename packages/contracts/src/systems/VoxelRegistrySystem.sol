@@ -15,7 +15,8 @@ contract VoxelRegistrySystem is System {
   function registerVoxelType(
     string memory name,
     bytes32 voxelTypeId,
-    string memory previewVoxelImg,
+    bytes16 previewVoxelVariantNamespace,
+    bytes32 previewVoxelVariantId,
     bytes4 voxelVariantSelector
   ) public {
     bytes16 callerNamespace = getCallerNamespace(_msgSender());
@@ -35,10 +36,11 @@ contract VoxelRegistrySystem is System {
       voxelTypeId,
       VoxelTypeRegistryData({
         voxelVariantSelector: voxelVariantSelector,
-        creator: _msgSender(),
+        previewVoxelVariantNamespace: previewVoxelVariantNamespace,
+        previewVoxelVariantId: previewVoxelVariantId,
+        creator: tx.origin,
         numSpawns: 0,
-        name: name,
-        preview: previewVoxelImg
+        name: name
       })
     );
   }

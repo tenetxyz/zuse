@@ -1,13 +1,13 @@
 // SPDX-License-Identifier: MIT
 pragma solidity >=0.8.0;
 
-import { System } from "@latticexyz/world/src/System.sol";
+import { VoxelType } from "../../prototypes/VoxelType.sol";
 import { IWorld } from "../../../src/codegen/world/IWorld.sol";
 import { Occurrence, VoxelTypeData, VoxelVariantsData } from "../../codegen/Tables.sol";
 import { NoaBlockType } from "../../codegen/Types.sol";
 import { VoxelVariantsKey } from "../../Types.sol";
 import { TENET_NAMESPACE } from "../../Constants.sol";
-import { DirtTexture } from "./DirtSystem.sol";
+import { DirtTexture } from "./DirtVoxelSystem.sol";
 
 bytes32 constant GrassID = bytes32(keccak256("grass"));
 
@@ -16,8 +16,8 @@ string constant GrassSideTexture = "bafkreibp5wefex2cunqz5ffwt3ucw776qthwl6y6psw
 
 string constant GrassUVWrap = "bafkreihaagdyqnbie3eyx6upmoul2zb4qakubxg6bcha6k5ebp4fbsd3am";
 
-contract GrassSystem is System {
-  function registerGrassVoxel() public {
+contract GrassVoxelSystem is VoxelType {
+  function registerVoxel() public override {
     IWorld world = IWorld(_world());
 
     VoxelVariantsData memory grassVariant;
@@ -36,8 +36,9 @@ contract GrassSystem is System {
     world.tenet_VoxelRegistrySys_registerVoxelType(
       "Grass",
       GrassID,
-      GrassTexture,
-      world.tenet_GrassSystem_grassVariantSelector.selector
+      TENET_NAMESPACE,
+      GrassID,
+      world.tenet_GrassVoxelSystem_grassVariantSelector.selector
     );
 
     Occurrence.set(GrassID, world.tenet_OccurrenceSystem_OGrass.selector);

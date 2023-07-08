@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity >=0.8.0;
 
-import { System } from "@latticexyz/world/src/System.sol";
+import { VoxelType } from "../../prototypes/VoxelType.sol";
 import { IWorld } from "../../../src/codegen/world/IWorld.sol";
 import { Occurrence, VoxelTypeData, VoxelVariantsData } from "../../codegen/Tables.sol";
 import { NoaBlockType } from "../../codegen/Types.sol";
@@ -14,8 +14,8 @@ string constant BedrockTexture = "bafkreidfo756faklwx7o4q2753rxjqx6egzpmqh2zhylx
 
 string constant BedrockUVWrap = "bafkreihdit6glam7sreijo7itbs7uwc2ltfeuvcfaublxf6rjo24hf6t4y";
 
-contract BedrockSystem is System {
-  function registerBedrockVoxel() public {
+contract BedrockVoxelSystem is VoxelType {
+  function registerVoxel() public override {
     IWorld world = IWorld(_world());
 
     VoxelVariantsData memory bedrockVariant;
@@ -32,8 +32,9 @@ contract BedrockSystem is System {
     world.tenet_VoxelRegistrySys_registerVoxelType(
       "Bedrock",
       BedrockID,
-      BedrockTexture,
-      world.tenet_BedrockSystem_bedrockVariantSelector.selector
+      TENET_NAMESPACE,
+      BedrockID,
+      world.tenet_BedrockVoxelSyst_bedrockVariantSelector.selector
     );
 
     Occurrence.set(BedrockID, world.tenet_OccurrenceSystem_OBedrock.selector);

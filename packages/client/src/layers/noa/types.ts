@@ -1,3 +1,4 @@
+import { ComponentValue, Type } from "@latticexyz/recs";
 import { Entity } from "@latticexyz/recs";
 import { createNoaLayer } from "./createNoaLayer";
 import { VoxelCoord } from "@latticexyz/utils";
@@ -88,18 +89,34 @@ export function voxelTypeToVoxelTypeBaseKeyString(voxelType: VoxelTypeDataKey): 
 }
 
 export function voxelTypeToEntity(voxelType: VoxelTypeDataKey): Entity {
-  return (voxelType.voxelTypeNamespace +
-    "-" +
-    voxelType.voxelTypeId +
-    "-" +
-    voxelType.voxelVariantNamespace +
-    "-" +
-    voxelType.voxelVariantId) as Entity;
+  return `${voxelType.voxelTypeNamespace}:${voxelType.voxelTypeId}:${voxelType.voxelVariantNamespace}:${voxelType.voxelVariantId}` as Entity;
 }
 
 export function entityToVoxelType(entity: Entity): VoxelTypeDataKey {
-  const [voxelTypeNamespace, voxelTypeId, voxelVariantNamespace, voxelVariantId] = entity.split("-");
+  const [voxelTypeNamespace, voxelTypeId, voxelVariantNamespace, voxelVariantId] = entity.split(":");
   return { voxelTypeNamespace, voxelTypeId, voxelVariantNamespace, voxelVariantId };
+}
+
+export function entityToVoxelTypeBaseKey(entity: Entity): VoxelTypeBaseKey {
+  const [voxelTypeNamespace, voxelTypeId] = entity.split(":");
+  return { voxelTypeNamespace, voxelTypeId };
+}
+
+export function voxelTypeBaseKeyStrToVoxelTypeRegistryKeyStr(voxelTypeBaseKey: VoxelTypeBaseKey): string {
+  return `${voxelTypeBaseKey.voxelTypeNamespace.padEnd(66, "0")}:${voxelTypeBaseKey.voxelTypeId}`;
+}
+
+export function voxelTypeBaseKeyToEntity(voxelTypeBaseKey: VoxelTypeBaseKey): Entity {
+  return `${voxelTypeBaseKey.voxelTypeNamespace}:${voxelTypeBaseKey.voxelTypeId}` as Entity;
+}
+
+export function voxelTypeBaseKeyToVoxelTypeDataKey(voxelTypeBaseKey: VoxelTypeBaseKey): VoxelTypeDataKey {
+  return {
+    voxelTypeNamespace: voxelTypeBaseKey.voxelTypeNamespace,
+    voxelTypeId: voxelTypeBaseKey.voxelTypeId,
+    voxelVariantNamespace: "0x00000000000000000000000000000000",
+    voxelVariantId: "0x0000000000000000000000000000000000000000000000000000000000000000",
+  };
 }
 
 // We need to do it this sometimes because decoded coords have named keys, 0, 1, 2 in addition to x, y, z

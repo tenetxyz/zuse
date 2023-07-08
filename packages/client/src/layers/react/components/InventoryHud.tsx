@@ -22,7 +22,13 @@ import {
 import { to64CharAddress } from "../../../utils/entity";
 import { Inventory } from "./Inventory";
 import { Layers } from "../../../types";
-import { entityToVoxelType, voxelTypeToEntity, voxelTypeDataKeyToVoxelVariantDataKey } from "../../noa/types";
+import {
+  entityToVoxelType,
+  voxelTypeToVoxelTypeBaseKeyString,
+  voxelTypeDataKeyToVoxelVariantDataKey,
+  entityToVoxelTypeBaseKey,
+  voxelTypeBaseKeyToVoxelTypeDataKey,
+} from "../../noa/types";
 import { firstFreeInventoryIndex } from "../../noa/systems/createInventoryIndexSystem";
 import { StatusHud } from "./StatusHud";
 import { FocusedUiType } from "../../noa/components/FocusedUi";
@@ -68,7 +74,7 @@ export function registerInventoryHud() {
           scan((acc, curr) => {
             const voxelType = getComponentValue(VoxelType, curr.entity);
             if (!voxelType) return { ...acc };
-            const voxelTypeString = voxelTypeToEntity(voxelType);
+            const voxelTypeString = voxelTypeToVoxelTypeBaseKeyString(voxelType);
             acc[voxelTypeString] = acc[voxelTypeString] ?? 0;
             if (curr.type === UpdateType.Exit) {
               return { ...acc };
@@ -108,9 +114,10 @@ export function registerInventoryHud() {
       const {
         network: {
           api: { removeVoxels },
-          contractComponents: { OwnedBy, VoxelType },
+          contractComponents: { OwnedBy, VoxelType, VoxelTypeRegistry },
           network: { connectedAddress },
           getVoxelIconUrl,
+          getVoxelTypePreviewUrl,
         },
         noa: {
           components: { InventoryIndex, FocusedUi },
@@ -207,7 +214,7 @@ export function registerInventoryHud() {
             HasValue(OwnedBy, {
               value: to64CharAddress(connectedAddress.get()),
             }),
-            HasValue(VoxelType, entityToVoxelType(voxelTypeIdAtSlot)),
+            HasValue(VoxelType, voxelTypeBaseKeyToVoxelTypeDataKey(entityToVoxelTypeBaseKey(voxelTypeIdAtSlot))),
           ]),
         ];
 
@@ -231,16 +238,17 @@ export function registerInventoryHud() {
       const Slots = [...range(INVENTORY_HEIGHT * INVENTORY_WIDTH)].map((i) => {
         const voxelType = [...getEntitiesWithValue(InventoryIndex, { value: i })][0];
         const quantity = voxelType && numVoxelsIOwnOfType[voxelType];
+        const voxelTypePreview = (voxelType && getVoxelTypePreviewUrl(entityToVoxelTypeBaseKey(voxelType))) || "";
         return (
           <Slot
             key={"slot" + i}
             voxelType={quantity ? voxelType : undefined}
             quantity={quantity || undefined}
+            iconUrl={voxelTypePreview}
             onClick={(event: any) => onSlotClick(i, event)}
             onRightClick={() => removeVoxelType(i)}
             disabled={voxelType === holdingVoxelType}
             selected={i === selectedSlot}
-            getVoxelIconUrl={getVoxelIconUrl}
           />
         );
       });
@@ -253,7 +261,7 @@ export function registerInventoryHud() {
             <Sounds playRandomTheme={playRandomTheme} playNextTheme={playNextTheme} /> */}
           </ConnectedPlayersContainer>
           <div className="flex flex-col">
-            <StatusHud layers={layers} />
+            {/* <StatusHud layers={layers} /> */}
             <ActionBarWrapper>{[...range(INVENTORY_WIDTH)].map((i) => Slots[i])}</ActionBarWrapper>
           </div>
         </BottomBar>

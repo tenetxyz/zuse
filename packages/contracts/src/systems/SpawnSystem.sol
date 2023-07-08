@@ -5,7 +5,7 @@ import { getUniqueEntity } from "@latticexyz/world/src/modules/uniqueentity/getU
 import { System } from "@latticexyz/world/src/System.sol";
 import { VoxelCoord } from "../Types.sol";
 import { OwnedBy, Position, PositionTableId, VoxelType, VoxelTypeData, OfSpawn, Spawn, SpawnData, Creation, CreationData } from "../codegen/Tables.sol";
-import { getEntitiesAtCoord, add, int32ToString, increaseVoxelTypeSpawnCount, updateVoxelVariant } from "../Utils.sol";
+import { enterVoxelIntoWorld, getEntitiesAtCoord, add, int32ToString, increaseVoxelTypeSpawnCount, updateVoxelVariant } from "../Utils.sol";
 import { IWorld } from "../codegen/world/IWorld.sol";
 import { console } from "forge-std/console.sol";
 import { CHUNK_MAX_Y, CHUNK_MIN_Y } from "../Constants.sol";
@@ -52,14 +52,14 @@ contract SpawnSystem is System {
       VoxelType.set(newEntity, voxelTypes[i]);
       Position.set(newEntity, spawnVoxelAtCoord.x, spawnVoxelAtCoord.y, spawnVoxelAtCoord.z);
 
-      // Gives the voxel its default component values
+      enterVoxelIntoWorld(_world(), newEntity);
       updateVoxelVariant(_world(), newEntity);
+      increaseVoxelTypeSpawnCount(voxelTypes[i].voxelTypeNamespace, voxelTypes[i].voxelTypeId);
+      IWorld(_world()).tenet_VoxInteractSys_runInteractionSystems(newEntity);
 
       // update the spawn-related components
       OfSpawn.set(newEntity, spawnId);
       spawnVoxels[i] = newEntity;
-
-      increaseVoxelTypeSpawnCount(voxelTypes[i].voxelTypeNamespace, voxelTypes[i].voxelTypeId);
     }
 
     spawnData.voxels = spawnVoxels;
@@ -67,8 +67,6 @@ contract SpawnSystem is System {
 
     increaseCreationSpawnCount(creationId);
 
-    // should we run this?
-    //        IWorld(_world()).tenet_VoxelInteraction_runInteractionSystems(airEntity);
     return spawnId;
   }
 

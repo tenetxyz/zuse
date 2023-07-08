@@ -4,6 +4,7 @@ import { useComponentUpdate } from "../../../utils/useComponentUpdate";
 import { Layers } from "../../../types";
 import { Entity, getComponentValue, getEntityString } from "@latticexyz/recs";
 import { Classifier, ClassifierStoreFilters } from "./ClassifierStore";
+import { to64CharAddress } from "../../../utils/entity";
 
 export interface Props {
   layers: Layers;
@@ -17,7 +18,7 @@ export interface ClassifierSearch {
 export const useClassifierSearch = ({ layers, filters }: Props) => {
   const {
     network: {
-      components: { FunctionSelector },
+      components: { FunctionSelectors }, // Note that we are using an internal MUD component here!
       contractComponents: { Classifier },
       worldContract,
     },
@@ -40,9 +41,12 @@ export const useClassifierSearch = ({ layers, filters }: Props) => {
       }
 
       const classifySelector = classifierTable.classifySelector.get(classifierId);
-      debugger;
+      if (!classifySelector) {
+        console.warn("No classify selector found for classifier", classifierId);
+        return;
+      }
       const classifierNamespace =
-        getComponentValue(FunctionSelector, classifySelector as Entity)?.value ?? "unknown namespace";
+        getComponentValue(FunctionSelectors, classifySelector.padEnd(66, "0") as Entity) ?? "unknown namespace";
 
       allClassifiers.current.push({
         creator: creator,

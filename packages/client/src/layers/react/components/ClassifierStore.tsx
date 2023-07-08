@@ -9,6 +9,7 @@ import { SetState } from "../../../utils/types";
 import { voxelTypeDataKeyToVoxelVariantDataKey } from "../../noa/types";
 import { stringToVoxelCoord } from "../../../utils/coord";
 import { cacheStore$ } from "@latticexyz/network/dev";
+import { ClassifierResults } from "./ClassifierResults";
 
 export interface ClassifierStoreFilters {
   classifierQuery: string;
@@ -62,11 +63,6 @@ const ClassifierStore: React.FC<Props> = ({
   });
 
   const spawnToUse = useComponentValue(SpawnToClassify, SingletonEntity);
-
-  cacheStore$.subscribe((storeEvent) => {
-    console.log("store event", storeEvent);
-    // TODO: narrow down to the chain/world we care about?
-  });
 
   const detailsForSpawnToClassify = () => {
     if (!spawnToUse?.creation || !spawnToUse?.spawn) {
@@ -219,6 +215,7 @@ const ClassifierStore: React.FC<Props> = ({
               <p className="break-all break-words">{selectedClassifier.creator.substring(10)}</p>
             </div>
             {detailsForSpawnToClassify()}
+            <ClassifierResults classifier={selectedClassifier} />
           </div>
         )}
       </div>

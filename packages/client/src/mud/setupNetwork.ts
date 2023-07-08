@@ -590,7 +590,9 @@ export async function setupNetwork() {
     map(async () => relay?.countConnected() || 0),
     awaitPromise()
   );
-  const worldComponents = result.components.FunctionSelectors;
+
+  // please don't remove. This is for documentation purposes
+  const internalMudWorldAndStoreComponents = result.components;
 
   return {
     ...result,

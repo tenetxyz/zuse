@@ -36,14 +36,7 @@ export function createInputSystem(layers: Layers) {
         VoxelInterfaceSelection,
       },
       SingletonEntity,
-      api: {
-        closeInventory,
-        openInventory,
-        togglePlugins,
-        placeSelectedVoxelType,
-        getVoxelTypeInSelectedSlot,
-        teleport,
-      },
+      api: { togglePlugins, placeSelectedVoxelType, getVoxelTypeInSelectedSlot, teleport },
       streams: { playerPosition$ },
     },
     network: {

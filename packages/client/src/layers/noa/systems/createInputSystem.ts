@@ -32,7 +32,7 @@ export function createInputSystem(network: NetworkLayer, noaLayer: NoaLayer) {
       PersistentNotification,
     },
     SingletonEntity,
-    api: { closeInventory, openInventory, togglePlugins, placeSelectedVoxelType, getVoxelTypeInSelectedSlot, teleport },
+    api: { togglePlugins, placeSelectedVoxelType, getVoxelTypeInSelectedSlot, teleport },
     streams: { playerPosition$ },
   } = noaLayer;
 
@@ -255,6 +255,26 @@ export function createInputSystem(network: NetworkLayer, noaLayer: NoaLayer) {
     }
     updateComponent(Tutorial, SingletonEntity, { inventory: false });
   });
+
+  function closeInventory() {
+    setComponent(FocusedUi, SingletonEntity, { value: FocusedUiType.WORLD });
+  }
+
+  function openInventory() {
+    // clear persistent notification when we open the inventory
+    setComponent(PersistentNotification, SingletonEntity, {
+      message: "",
+      icon: NotificationIcon.NONE,
+    });
+
+    // clear SpawnCreation when we open the inventory
+    setComponent(SpawnCreation, SingletonEntity, {
+      creation: undefined,
+    });
+    noa.blockTestDistance = DEFAULT_BLOCK_TEST_DISTANCE; // reset block test distance
+
+    setComponent(FocusedUi, SingletonEntity, { value: FocusedUiType.INVENTORY });
+  }
 
   // noa.inputs.bind("stake", "X");
   // noa.inputs.down.on("stake", () => {

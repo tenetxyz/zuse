@@ -270,26 +270,6 @@ export function createNoaLayer(network: NetworkLayer) {
     });
   }
 
-  function closeInventory() {
-    setComponent(components.FocusedUi, SingletonEntity, { value: FocusedUiType.WORLD });
-  }
-
-  function openInventory() {
-    // clear persistent notification when we open the inventory
-    setComponent(components.PersistentNotification, SingletonEntity, {
-      message: "",
-      icon: NotificationIcon.NONE,
-    });
-
-    // clear SpawnCreation when we open the inventory
-    setComponent(components.SpawnCreation, SingletonEntity, {
-      creation: undefined,
-    });
-    noa.blockTestDistance = DEFAULT_BLOCK_TEST_DISTANCE; // reset block test distance
-
-    setComponent(components.FocusedUi, SingletonEntity, { value: FocusedUiType.INVENTORY });
-  }
-
   function getVoxelTypeInSelectedSlot(): VoxelTypeDataKey | undefined {
     const selectedSlot = getComponentValue(components.SelectedSlot, SingletonEntity)?.value;
     if (selectedSlot == null) return;
@@ -427,8 +407,6 @@ export function createNoaLayer(network: NetworkLayer) {
       getCraftingResult,
       teleport,
       teleportRandom,
-      closeInventory,
-      openInventory,
       togglePlugins,
       placeSelectedVoxelType,
       getCurrentChunk,

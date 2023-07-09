@@ -17,7 +17,8 @@ contract AndGateSystem is System {
   bytes32 inEntity1 = keccak256("inEntity1");
   bytes32 inEntity2 = keccak256("inEntity2");
 
-  function classify(address worldAddress, bytes32 spawnId, bytes32[] memory input) public {
+  function classify(address worldAddress, SpawnData memory spawn, bytes32 spawnId, bytes32[] memory input) public {
+    require(!AndGateCR.get(spawn.creationId).hasValue, "this creation has already been classified"); // TODO: put this into classify creation system
     bytes32 in1 = input[0];
     bytes32 in2 = input[1];
     bytes32 out = input[2];
@@ -29,10 +30,9 @@ contract AndGateSystem is System {
     simulateLogic(worldAddress, in1Coord, in2Coord, out, 0, 1, 0);
     simulateLogic(worldAddress, in1Coord, in2Coord, out, 1, 1, 1); // this is the only case where the output is on since both inputs are on
 
-    bytes32 creationId = Spawn.getCreationId(spawnId);
     VoxelCoord memory lowerSouthWestCorner = abi.decode(Spawn.getLowerSouthWestCorner(spawnId), (VoxelCoord));
     VoxelCoord[] memory interfaceCoords = entitiesToRelativeVoxelCoords(input, lowerSouthWestCorner);
-    AndGateCR.set(creationId, block.number, abi.encode(interfaceCoords));
+    AndGateCR.set(spawn.creationId, true, block.number, abi.encode(interfaceCoords));
   }
 
   // the reason why the in/out states are uints is cause 1s and 0s are more readable than true/false

@@ -12,14 +12,14 @@ import { VoxelType } from "@tenet-contracts/src/codegen/tables/voxelType.sol";
 bytes32 constant DirtID = keccak256("dirt");
 
 contract TwoDirtSystem is System {
-  function classify(address worldAddress, bytes32 spawnId, bytes32[] memory input) public {
-    SpawnData memory spawn = Spawn.get(spawnId);
+  function classify(address worldAddress, SpawnData memory spawn, bytes32 spawnId, bytes32[] memory input) public {
+    require(!TwoDirtCR.get(spawn.creationId).hasValue, "this creation has already been classified"); // TODO: put this into classify creation system
     require(spawn.voxels.length == 2, "the spawn must have exactly 2 voxels");
     for (uint8 i = 0; i < spawn.voxels.length; i++) {
       bytes32 voxel = spawn.voxels[i];
       bytes32 voxelTypeId = VoxelType.getVoxelTypeId(voxel);
       require(voxelTypeId == DirtID, "voxels must be dirt");
     }
-    TwoDirtCR.set(spawn.creationId, block.number);
+    TwoDirtCR.set(spawn.creationId, true, block.number);
   }
 }

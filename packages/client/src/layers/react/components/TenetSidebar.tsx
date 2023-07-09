@@ -13,7 +13,7 @@ import { useComponentValue } from "@latticexyz/react";
 import { twMerge } from "tailwind-merge";
 
 enum SidebarTab {
-  VOXELS = "Voxels",
+  VOXELS = "Voxel Types",
   VOXEL_CREATIONS = "Voxel Creations",
 }
 
@@ -72,6 +72,16 @@ export function registerTenetSidebar() {
                 layers={layers}
                 filters={creativeInventoryFilters}
                 setFilters={setCreativeInventoryFilters}
+              />
+            );
+          case SidebarTab.VOXEL_CREATIONS:
+            return (
+              <ClassifierStore
+                layers={layers}
+                filters={classifierStoreFilters}
+                setFilters={setClassifierStoreFilters}
+                selectedClassifier={selectedClassifier}
+                setSelectedClassifier={setSelectedClassifier}
               />
             );
           default:

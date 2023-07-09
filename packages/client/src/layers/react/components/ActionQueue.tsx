@@ -15,6 +15,7 @@ const ActionQueueList = styled.div`
   justify-content: flex-end;
   gap: 6px;
   padding: 20px;
+  margin-left: 70px;
 
   .ActionQueueItem {
     position: relative;
@@ -51,8 +52,8 @@ export function registerActionQueue() {
     {
       rowStart: 6,
       rowEnd: 12,
-      colStart: 1,
-      colEnd: 3,
+      colStart: 10,
+      colEnd: 13,
     },
     (layers) => {
       const {

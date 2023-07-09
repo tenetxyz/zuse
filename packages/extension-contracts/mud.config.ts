@@ -80,16 +80,11 @@ export default mudConfig({
         entity: "bytes32",
       },
       schema: {
-        sources: "bytes32[]",
         genRate: "uint256",
         hasValue: "bool", // TODO: Remove this once we can install non-root modules
+        sources: "bytes32[]",
       },
     },
-
-
-
-
-
   },
   modules: [
     // TODO: Re-enable when we have a way to install non-root modules

@@ -11,6 +11,8 @@ import { stringToVoxelCoord } from "../../../utils/coord";
 import { ClassifierResults } from "./ClassifierResults";
 import { getSpawnAtPosition } from "../../../utils/voxels";
 import { SearchBar } from "./common/SearchBar";
+import ClassifierDetails from "./ClassifierDetails";
+import { twMerge } from "tailwind-merge";
 
 export interface ClassifierStoreFilters {
   classifierQuery: string;
@@ -114,7 +116,14 @@ const ClassifierStore: React.FC<Props> = ({
   };
 
   const getCurrentViewName = () => {
+    if (selectedClassifier) {
+      return selectedClassifier.name;
+    }
     return "";
+  };
+
+  const classifiersNavClicked = () => {
+    setSelectedClassifier(null);
   };
 
   const renderInterfaceVoxelImages = (interfaceVoxels: Entity[]) => {
@@ -150,29 +159,33 @@ const ClassifierStore: React.FC<Props> = ({
         height: "calc(100% - 3rem)",
       }}
     >
-      <div className="flex w-full">
-        <SearchBar
-          value={filters.classifierQuery}
-          onChange={(e) => {
-            setFilters({ ...filters, classifierQuery: e.target.value });
-          }}
-        />
-      </div>
-      <div className="flex w-full mt-5 flex-col items-center">
-        <div
-          onClick={() => setShowAllCreations(true)}
-          className="w-full cursor-pointer block p-6 bg-white border border-gray-200 rounded-lg shadow hover:bg-gray-100"
-        >
-          <h5 className="mb-2 text-2xl font-bold tracking-tight text-gray-900">All Creations</h5>
-        </div>
-      </div>
-      <nav className="flex mt-5" aria-label="Breadcrumb">
+      {!selectedClassifier && (
+        <>
+          <div className="flex w-full">
+            <SearchBar
+              value={filters.classifierQuery}
+              onChange={(e) => {
+                setFilters({ ...filters, classifierQuery: e.target.value });
+              }}
+            />
+          </div>
+          <div className="flex w-full mt-5 flex-col items-center">
+            <div
+              onClick={() => setShowAllCreations(true)}
+              className="w-full cursor-pointer block p-6 bg-white border border-gray-200 rounded-lg shadow hover:bg-gray-100"
+            >
+              <h5 className="mb-2 text-2xl font-bold tracking-tight text-gray-900">All Creations</h5>
+            </div>
+          </div>
+        </>
+      )}
+      <nav className={twMerge("flex", selectedClassifier ? "" : "mt-5")} aria-label="Breadcrumb">
         <ol className="inline-flex items-center space-x-1 md:space-x-3">
           <li>
             <div className="flex items-center">
               <a
-                // onClick={creationsNavClicked}
-                className="cursor-pointer text-sm font-medium text-gray-700 hover:text-blue-600 md:ml-2"
+                onClick={classifiersNavClicked}
+                className="cursor-pointer text-sm font-medium text-gray-700 hover:text-blue-600"
               >
                 Classifiers
               </a>
@@ -195,29 +208,39 @@ const ClassifierStore: React.FC<Props> = ({
                   d="m1 9 4-4-4-4"
                 />
               </svg>
-              <span className="ml-1 text-sm font-medium text-gray-500 md:ml-2">{getCurrentViewName()}</span>
+              <span className="ml-1 text-sm font-medium text-gray-500">{getCurrentViewName()}</span>
             </div>
           </li>
         </ol>
       </nav>
-      <div className="flex w-full h-full mt-5 flex-col gap-5 items-center overflow-scroll">
-        {classifiersToDisplay.map((classifier, idx) => {
-          return (
-            <div key={"classifier-" + idx} className="w-full p-6 bg-white border border-gray-200 rounded-lg shadow">
-              <h5 className="mb-2 text-2xl font-bold tracking-tight text-gray-900">{classifier.name}</h5>
-              <p className="font-normal text-gray-700 leading-4">{classifier.description}</p>
-              <div className="flex mt-5 gap-2">
-                <button
-                  type="button"
-                  className="text-gray-900 hover:text-white border border-gray-800 hover:bg-gray-900 focus:ring-4 focus:outline-none focus:ring-gray-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center mr-2 mb-2"
-                >
-                  View Details
-                </button>
+      {selectedClassifier ? (
+        <ClassifierDetails
+          layers={layers}
+          selectedClassifier={selectedClassifier}
+          setSelectedClassifier={setSelectedClassifier}
+          setShowAllCreations={setShowAllCreations}
+        />
+      ) : (
+        <div className="flex w-full h-full mt-5 flex-col gap-5 items-center overflow-scroll">
+          {classifiersToDisplay.map((classifier, idx) => {
+            return (
+              <div key={"classifier-" + idx} className="w-full p-6 bg-white border border-gray-200 rounded-lg shadow">
+                <h5 className="mb-2 text-2xl font-bold tracking-tight text-gray-900">{classifier.name}</h5>
+                <p className="font-normal text-gray-700 leading-4">{classifier.description}</p>
+                <div className="flex mt-5 gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setSelectedClassifier(classifier)}
+                    className="text-gray-900 hover:text-white border border-gray-800 hover:bg-gray-900 focus:ring-4 focus:outline-none focus:ring-gray-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center mr-2 mb-2"
+                  >
+                    View Details
+                  </button>
+                </div>
               </div>
-            </div>
-          );
-        })}
-      </div>
+            );
+          })}
+        </div>
+      )}
     </div>
   );
 };

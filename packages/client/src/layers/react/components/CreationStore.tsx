@@ -172,7 +172,7 @@ const CreationStore: React.FC<Props> = ({ layers, filters, setFilters, setShowAl
             <div className="flex items-center">
               <a
                 onClick={creationsNavClicked}
-                className="cursor-pointer text-sm font-medium text-gray-700 hover:text-blue-600 md:ml-2"
+                className="cursor-pointer text-sm font-medium text-gray-700 hover:text-blue-600"
               >
                 Creations
               </a>
@@ -195,7 +195,7 @@ const CreationStore: React.FC<Props> = ({ layers, filters, setFilters, setShowAl
                   d="m1 9 4-4-4-4"
                 />
               </svg>
-              <span className="ml-1 text-sm font-medium text-gray-500 md:ml-2">{getCurrentViewName()}</span>
+              <span className="ml-1 text-sm font-medium text-gray-500">{getCurrentViewName()}</span>
             </div>
           </li>
         </ol>

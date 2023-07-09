@@ -79,7 +79,12 @@ export function registerTenetSidebar() {
           case SidebarTab.VOXEL_CREATIONS:
             if (showAllCreations) {
               return (
-                <CreationStore layers={layers} filters={creationStoreFilters} setFilters={setCreationStoreFilters} />
+                <CreationStore
+                  layers={layers}
+                  filters={creationStoreFilters}
+                  setFilters={setCreationStoreFilters}
+                  setShowAllCreations={setShowAllCreations}
+                />
               );
             }
 

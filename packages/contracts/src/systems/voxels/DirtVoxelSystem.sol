@@ -45,7 +45,7 @@ contract DirtVoxelSystem is VoxelType {
 
   function exitWorld(bytes32 entity) public override {}
 
-  function variantSelector(bytes32 entity) public view override returns (VoxelVariantsKey memory) {
+  function variantSelector(bytes32 entity) public pure override returns (VoxelVariantsKey memory) {
     return VoxelVariantsKey({ voxelVariantNamespace: TENET_NAMESPACE, voxelVariantId: DirtID });
   }
 }

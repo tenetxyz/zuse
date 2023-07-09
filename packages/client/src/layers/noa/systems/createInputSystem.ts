@@ -58,6 +58,7 @@ export function createInputSystem(layers: Layers) {
     }
     const a = noa.entities.getMovement(noa.playerEntity);
     noa.entities.getMovement(noa.playerEntity).isPlayerSlowedToAStop = true; // stops the player's input from moving the player
+    noa.inputs.unbind("cancelAction");
   }
 
   function enableInputs() {
@@ -67,6 +68,7 @@ export function createInputSystem(layers: Layers) {
     noa.inputs.bind("admin-panel", "-");
     noa.inputs.bind("toggle-inventory", "E");
     noa.entities.getMovement(noa.playerEntity).isPlayerSlowedToAStop = false;
+    noa.inputs.bind("cancelAction", "<backspace>", "<delete>");
   }
 
   // If the user is in a UI (e.g. inventory), disable inputs that could conflict with typing into the UI

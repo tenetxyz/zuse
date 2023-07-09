@@ -5,6 +5,7 @@ import { hasKey } from "@latticexyz/world/src/modules/keysintable/hasKey.sol";
 import { Signal, SignalData, SignalSource, Powered, InvertedSignal } from "@tenet-extension-contracts/src/codegen/Tables.sol";
 import { CLEAR_COORD_SIG, BUILD_SIG, GIFT_VOXEL_SIG } from "@tenet-contracts/src/constants.sol";
 import { Signal, SignalSource, Powered, InvertedSignal, Temperature } from "./codegen/Tables.sol";
+import { Signal, SignalSource, Powered, InvertedSignal, Temperature, Generator } from "./codegen/Tables.sol";
 import { BlockDirection } from "./codegen/Types.sol";
 import { CLEAR_COORD_SIG, BUILD_SIG } from "@tenetxyz/contracts/src/constants.sol";
 import { getUniqueEntity } from "@latticexyz/world/src/modules/uniqueentity/getUniqueEntity.sol";
@@ -101,6 +102,10 @@ function giftVoxel(address world, bytes16 voxelTypeNamespace, bytes32 voxelTypeI
 
 function entityHasTemperature(bytes32 entity, bytes16 callerNamespace) view returns (bool) {
   return Temperature.get(callerNamespace, entity).hasValue;
+}
+
+function entityIsGenerator(bytes32 entity, bytes16 callerNamespace) view returns (bool) {
+  return Generator.get(callerNamespace, entity).hasValue;
 }
 
 function calculateBlockDirection(

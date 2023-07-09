@@ -8,8 +8,8 @@ import { IWorld } from "../../../src/codegen/world/IWorld.sol";
 import { EXTENSION_NAMESPACE } from "../../Constants.sol";
 import { NoaBlockType } from "@tenetxyz/contracts/src/codegen/types.sol";
 import { registerVoxelVariant, registerVoxelType, entityHasTemperature } from "../../Utils.sol";
-import { VoxelVariantsData, VoxelVariantsKey } from "../../Types.sol";
-
+import { VoxelVariantsKey } from "@tenetxyz/contracts/src/Types.sol";
+import { VoxelVariantsData } from "../../Types.sol";
 
 bytes32 constant LavaID = bytes32(keccak256("lava"));
 
@@ -50,7 +50,8 @@ contract LavaVoxelSystem is VoxelType {
       world,
       "Lava",
       LavaID,
-      LavaHotTexture,
+      EXTENSION_NAMESPACE,
+      LavaHotID,
       IWorld(world).extension_LavaVoxelSystem_variantSelector.selector,
       IWorld(world).extension_LavaVoxelSystem_enterWorld.selector,
       IWorld(world).extension_LavaVoxelSystem_exitWorld.selector
@@ -59,10 +60,10 @@ contract LavaVoxelSystem is VoxelType {
 
   function enterWorld(bytes32 entity) public override {
     bytes16 callerNamespace = getCallerNamespace(_msgSender());
-    Signal.set(
+    Temperature.set(
       callerNamespace,
       entity,
-      SignalData({ isActive: false, direction: BlockDirection.None, hasValue: true })
+      TemperatureData({ temperature: 92000, lastUpdateBlock: block.number, hasValue: true })
     );
   }
 
@@ -75,7 +76,7 @@ contract LavaVoxelSystem is VoxelType {
       );
   }
 
-  function variantSelector(bytes32 entity) public override returns (VoxelVariantsKey memory) {
+  function variantSelector(bytes32 entity) public view override returns (VoxelVariantsKey memory) {
     bytes16 callerNamespace = getCallerNamespace(_msgSender());
     TemperatureData memory temperatureData = Temperature.get(callerNamespace, entity);
     if (temperatureData.temperature > 30000) {

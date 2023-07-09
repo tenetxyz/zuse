@@ -8,7 +8,8 @@ import { IWorld } from "../../../src/codegen/world/IWorld.sol";
 import { EXTENSION_NAMESPACE } from "../../Constants.sol";
 import { NoaBlockType } from "@tenetxyz/contracts/src/codegen/types.sol";
 import { registerVoxelVariant, registerVoxelType, entityHasTemperature } from "../../Utils.sol";
-import { VoxelVariantsData, VoxelVariantsKey } from "../../Types.sol";
+import { VoxelVariantsKey } from "@tenetxyz/contracts/src/Types.sol";
+import { VoxelVariantsData } from "../../Types.sol";
 
 
 bytes32 constant IceID = bytes32(keccak256("ice"));
@@ -50,7 +51,8 @@ contract IceVoxelSystem is VoxelType {
       world,
       "Ice",
       IceID,
-      IceColdTexture,
+      EXTENSION_NAMESPACE,
+      IceColdID,
       IWorld(world).extension_IceVoxelSystem_variantSelector.selector,
       IWorld(world).extension_IceVoxelSystem_enterWorld.selector,
       IWorld(world).extension_IceVoxelSystem_exitWorld.selector
@@ -59,10 +61,10 @@ contract IceVoxelSystem is VoxelType {
 
   function enterWorld(bytes32 entity) public override {
     bytes16 callerNamespace = getCallerNamespace(_msgSender());
-    Signal.set(
+    Temperature.set(
       callerNamespace,
       entity,
-      SignalData({ isActive: false, direction: BlockDirection.None, hasValue: true })
+      TemperatureData({ temperature: 0, lastUpdateBlock: block.number, hasValue: true })
     );
   }
 
@@ -75,7 +77,7 @@ contract IceVoxelSystem is VoxelType {
       );
   }
 
-  function variantSelector(bytes32 entity) public override returns (VoxelVariantsKey memory) {
+  function variantSelector(bytes32 entity) public view override returns (VoxelVariantsKey memory) {
     bytes16 callerNamespace = getCallerNamespace(_msgSender());
     TemperatureData memory temperatureData = Temperature.get(callerNamespace, entity);
     if (temperatureData.temperature > 15000) {

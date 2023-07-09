@@ -21,7 +21,7 @@ export interface ClassifierSearch {
 export const useClassifierSearch = ({ layers, filters }: Props) => {
   const {
     network: {
-      components: { FunctionSelectors }, // Note that we are using an internal MUD component here!
+      components: { FunctionSelectors },
       contractComponents: { Classifier },
       worldContract,
     },
@@ -58,7 +58,7 @@ export const useClassifierSearch = ({ layers, filters }: Props) => {
         description: description,
         classifierId: getEntityString(classifierId),
         classificationResultTableName: classifierTable.classificationResultTableName.get(classifierId),
-        namespace: removeTrailingNulls(hexToAscii(classifierNamespace.substring(2))),
+        namespace: removeTrailingNulls(hexToAscii(classifierNamespace.substring(2))), // We need to remove trailing nulls since I think the namespace is padded to 16 chars in mud
       } as Classifier);
     });
 

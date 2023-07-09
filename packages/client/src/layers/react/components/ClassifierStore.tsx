@@ -84,12 +84,6 @@ const ClassifierStore: React.FC<Props> = ({
         return interfaceSpawnId === spawnId;
       });
 
-    //   const cacheStoreKeys = Array.from(cacheStore.state.keys()).filter((key) => {
-    //     const [component] = unpackTuple(key);
-    //     return component === componentIndex;
-    //   });
-    // }
-
     return (
       <div className="flex flex-col space-y-2">
         <div className="flex flex-row">

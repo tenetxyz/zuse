@@ -570,7 +570,7 @@ export async function setupNetwork() {
       spawnId,
       // defaultAbiCoder.encode(["bytes32[]"], interfaceVoxels),
       interfaceVoxels,
-      { gasLimit: 30_000_000 },
+      { gasLimit: 100_000_000 },
     ]);
     return tx;
   }

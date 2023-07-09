@@ -109,7 +109,7 @@ export default mudConfig({
         // namespace: "bytes16", // the namespace of the classifier (and its classification result table)
         name: "string",
         description: "string",
-        classificationResultTableName: "string",
+        classificationResultTableName: "string", // needed so the client can know which table to query for the classification result
       },
     },
   },

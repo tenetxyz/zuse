@@ -43,7 +43,7 @@ contract ClassifyCreationSystem is System {
           revert(add(32, returnData), returnDataSize)
         }
       } else {
-        revert("Call reverted");
+        revert("Call reverted. Maybe the params to classify() aren't right?");
       }
     }
   }

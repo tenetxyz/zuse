@@ -1,13 +1,12 @@
 import { cacheStore$ } from "@latticexyz/network/dev";
 import { Classifier } from "./ClassifierStore";
 import { useEffect, useRef, useState } from "react";
-import { useObservableValue } from "@latticexyz/react";
 import { to256BitString, unpackTuple } from "@latticexyz/utils";
-import { jsonStringifyWithBigInt } from "../../../utils/encodeOrDecode";
 import { Creation } from "./CreationStore";
-import { getComponentValue, getComponentValueStrict } from "@latticexyz/recs";
-import { stringToEntity, to64CharAddress } from "../../../utils/entity";
+import { getComponentValue } from "@latticexyz/recs";
+import { stringToEntity } from "../../../utils/entity";
 import { Layers } from "../../../types";
+import { serializeWithoutIndexedValues } from "../../../utils/encodeOrDecode";
 
 export interface Props {
   layers: Layers;
@@ -36,6 +35,8 @@ export const ClassifierResults = ({ layers, classifier }: Props) => {
     return () => subscription.unsubscribe();
   }, [cacheStore$]);
 
+  // This method to use the cacheStore to get the values from deployed tables (after the initial deploy) is taken from the mud dev tools:
+  // https://github.com/latticexyz/mud/blob/73e200cc8bc2e28aa927637a0cbd55b71c1608a1/packages/dev-tools/src/tables/Table.tsx#L29
   useEffect(() => {
     const classifierResultTableKey = `TableId<${classifier.namespace}:${classifier.classificationResultTableName}>`;
     if (!storeEvent.current) {
@@ -44,7 +45,7 @@ export const ClassifierResults = ({ layers, classifier }: Props) => {
     const componentIndex = storeEvent.current.componentToIndex.get(classifierResultTableKey);
     if (!componentIndex) {
       // console.warn(`cannot find component index for classifier result table=${classifierResultTableKey}`);
-      // this case may happen if NOBODY has submitted to the classifier yet (cause by default, the table only seen by the client if it has records in it)
+      // this case may happen if NOBODY has submitted to the classifier yet (cause by default, the table is only seen by the client when there are records in it)
       setResults([]);
       return;
     }
@@ -54,11 +55,10 @@ export const ClassifierResults = ({ layers, classifier }: Props) => {
       return component === componentIndex;
     });
 
-    // TODO: should we remove all numeric keys in the json object? We should test more. If they are just duplicates of the keys (that are strings), then we should remove them
     const records = cacheStoreKeys
       .map((cacheStoreKey) => [
         cacheStoreKey,
-        jsonStringifyWithBigInt(storeEvent.current.state.get(cacheStoreKey) ?? ""),
+        serializeWithoutIndexedValues(storeEvent.current.state.get(cacheStoreKey) ?? ""),
       ])
       .filter(([_, record]) => record !== "")
       .map(([cacheStoreKey, record]) => {

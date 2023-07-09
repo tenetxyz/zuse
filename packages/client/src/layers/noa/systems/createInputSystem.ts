@@ -1,11 +1,9 @@
 import { getComponentValue, HasValue, runQuery, setComponent, updateComponent } from "@latticexyz/recs";
 import { sleep, VoxelCoord, keccak256 } from "@latticexyz/utils";
-import { NetworkLayer } from "../../network";
 import { FAST_MINING_DURATION, SPAWN_POINT } from "../constants";
 import { HandComponent, HAND_COMPONENT } from "../engine/components/handComponent";
 import { MiningVoxelComponent, MINING_VOXEL_COMPONENT } from "../engine/components/miningVoxelComponent";
 import { getNoaComponent, getNoaComponentStrict } from "../engine/components/utils";
-import { NoaLayer } from "../types";
 import { toast } from "react-toastify";
 import { Creation } from "../../react/components/CreationStore";
 import { calculateMinMax, getTargetedSpawnId, getTargetedVoxelCoord, TargetedBlock } from "../../../utils/voxels";
@@ -13,11 +11,8 @@ import { NotificationIcon } from "../components/persistentNotification";
 import { BEDROCK_ID } from "../../network/api/terrain/occurrence";
 import { DEFAULT_BLOCK_TEST_DISTANCE } from "../setup/setupNoaEngine";
 import { calculateCornersFromTargetedBlock } from "./createSpawnCreationOverlaySystem";
-import { renderFloatingTextAboveCoord } from "./renderFloatingText";
-import { renderEnt } from "./renderEnt";
 import { FocusedUiType } from "../components/FocusedUi";
 import { Layers } from "../../../types";
-import { stringToEntity } from "../../../utils/entity";
 import { voxelCoordToString } from "../../../utils/coord";
 
 export function createInputSystem(layers: Layers) {
@@ -46,29 +41,63 @@ export function createInputSystem(layers: Layers) {
     },
   } = layers;
 
+  const InputEvent = {
+    "cancel-action": ["<backspace>", "<delete>"],
+    "toggle-inventory": "E",
+    "admin-panel": "-",
+    "select-voxel": "V",
+    fire: "F",
+    "alt-fire": ["<mouse 3>", "R"], // Note: if you ever change the name of this event, you might break some logic since in the code below, we first unbind alt-fire to remove the original binding of "E"
+    moving: ["W", "A", "S", "D", "<up>", "<left>", "<down>", "<right>"],
+    "voxel-explorer": "B",
+    slot: ["1", "2", "3", "4", "5", "6", "7", "8", "9"],
+    plugins: ";",
+    spawn: "O",
+    preteleport: "P",
+    spawnCreation: "<enter>",
+    crouch: "<shift>",
+  };
+
+  type InputEventKey = keyof typeof InputEvent;
+
+  const bindInputEvent = (key: InputEventKey) => {
+    noa.inputs.bind(key, ...InputEvent[key]);
+  };
+
+  const unbindInputEvent = (key: InputEventKey) => {
+    noa.inputs.unbind(key);
+  };
+
+  const onDownInputEvent = (key: InputEventKey, handler: () => void) => {
+    noa.inputs.down.on(key, handler);
+  };
+
+  const onUpInputEvent = (key: InputEventKey, handler: () => void) => {
+    noa.inputs.up.on(key, handler);
+  };
+
   function disableInputs(focusedUi: FocusedUiType) {
     // disable movement when inventory is open
     // https://github.com/fenomas/noa/issues/61
     noa.entities.removeComponent(noa.playerEntity, noa.ents.names.receivesInputs);
-    noa.inputs.unbind("select-voxel");
-    noa.inputs.unbind("admin-panel");
+    unbindInputEvent("select-voxel");
+    unbindInputEvent("admin-panel");
     if (focusedUi !== FocusedUiType.INVENTORY) {
       // do NOT unbind toggle-inventory if the user is in the inventory (so they can close it)
-      noa.inputs.unbind("toggle-inventory");
+      unbindInputEvent("toggle-inventory");
     }
-    const a = noa.entities.getMovement(noa.playerEntity);
     noa.entities.getMovement(noa.playerEntity).isPlayerSlowedToAStop = true; // stops the player's input from moving the player
-    noa.inputs.unbind("cancelAction");
+    unbindInputEvent("cancel-action");
   }
 
   function enableInputs() {
     // since a react component calls this function times, we need to use addComponentAgain (rather than addComponent)
     noa.entities.addComponentAgain(noa.playerEntity, "receivesInputs", noa.ents.names.receivesInputs);
-    noa.inputs.bind("select-voxel", "V");
-    noa.inputs.bind("admin-panel", "-");
-    noa.inputs.bind("toggle-inventory", "E");
+    bindInputEvent("select-voxel");
+    bindInputEvent("admin-panel");
+    bindInputEvent("toggle-inventory");
     noa.entities.getMovement(noa.playerEntity).isPlayerSlowedToAStop = false;
-    noa.inputs.bind("cancelAction", "<backspace>", "<delete>");
+    bindInputEvent("cancel-action");
   }
 
   // If the user is in a UI (e.g. inventory), disable inputs that could conflict with typing into the UI
@@ -85,7 +114,7 @@ export function createInputSystem(layers: Layers) {
   });
 
   // mine targeted voxel on left click
-  noa.inputs.bind("fire", "F");
+  bindInputEvent("fire");
 
   function canInteract() {
     if (balanceGwei$.getValue() === 0) return false;
@@ -128,7 +157,7 @@ export function createInputSystem(layers: Layers) {
   }
 
   let firePressed = false;
-  noa.inputs.down.on("fire", async function () {
+  onDownInputEvent("fire", async () => {
     if (!noa.container.hasPointerLock) return;
     if (isSelectingVoxel) {
       selectCorner(true);
@@ -161,7 +190,7 @@ export function createInputSystem(layers: Layers) {
     } as any);
   };
 
-  noa.inputs.up.on("fire", function () {
+  onUpInputEvent("fire", () => {
     if (!noa.container.hasPointerLock) return;
 
     firePressed = false;
@@ -190,10 +219,10 @@ export function createInputSystem(layers: Layers) {
   });
 
   // place a voxel on right click
-  noa.inputs.unbind("alt-fire"); // Unbind to remove the default binding of "E"
-  noa.inputs.bind("alt-fire", "<mouse 3>", "R");
+  unbindInputEvent("alt-fire"); // Unbind to remove the default binding of "E"
+  bindInputEvent("alt-fire");
 
-  noa.inputs.down.on("alt-fire", function () {
+  onDownInputEvent("alt-fire", () => {
     if (!canInteract()) return;
     if (!noa.container.hasPointerLock) return;
     if (isSelectingVoxel) {
@@ -224,31 +253,31 @@ export function createInputSystem(layers: Layers) {
   });
 
   // Control selected slot with keys 1-9
-  noa.inputs.bind("slot", "1", "2", "3", "4", "5", "6", "7", "8", "9");
+  bindInputEvent("slot");
 
   // Reset moving tutorial with W, A, S, D
-  noa.inputs.bind("moving", "W", "A", "S", "D");
-  noa.inputs.down.on("moving", () => {
+  bindInputEvent("moving");
+  onDownInputEvent("moving", () => {
     if (!noa.container.hasPointerLock) return;
     updateComponent(Tutorial, SingletonEntity, { moving: false });
   });
 
-  noa.inputs.down.on("slot", (e) => {
+  onDownInputEvent("slot", (e) => {
     if (!noa.container.hasPointerLock) return;
     const key = Number(e.key) - 1;
     setComponent(SelectedSlot, SingletonEntity, { value: key });
   });
 
-  noa.inputs.bind("admin-panel", "-");
-  noa.inputs.down.on("admin-panel", () => {
+  bindInputEvent("admin-panel");
+  onDownInputEvent("admin-panel", () => {
     const showAdminPanel = getComponentValue(UI, SingletonEntity)?.showAdminPanel;
     updateComponent(UI, SingletonEntity, {
       showAdminPanel: !showAdminPanel,
     });
   });
 
-  noa.inputs.bind("toggle-inventory", "E");
-  noa.inputs.down.on("toggle-inventory", () => {
+  bindInputEvent("toggle-inventory");
+  onDownInputEvent("toggle-inventory", () => {
     if (!canInteract()) return;
     const isInventoryOpen = getComponentValue(FocusedUi, SingletonEntity)?.value === FocusedUiType.INVENTORY;
     if (isInventoryOpen) {
@@ -279,36 +308,36 @@ export function createInputSystem(layers: Layers) {
     setComponent(FocusedUi, SingletonEntity, { value: FocusedUiType.INVENTORY });
   }
 
-  // noa.inputs.bind("stake", "X");
-  // noa.inputs.down.on("stake", () => {
+  // bindInputEvent("stake", "X");
+  // onDownInputEvent("stake", () => {
   //   if (!noa.container.hasPointerLock) return;
   //   const chunk = getCurrentChunk();
   //   chunk && stake(chunk);
   // });
 
-  // noa.inputs.bind("claim", "C");
-  // noa.inputs.down.on("claim", () => {
+  // bindInputEvent("claim", "C");
+  // onDownInputEvent("claim", () => {
   //   if (!noa.container.hasPointerLock) return;
   //   const chunk = getCurrentChunk();
   //   chunk && claim(chunk);
   // });
 
-  noa.inputs.bind("voxelexplorer", "B");
-  noa.inputs.down.on("voxelexplorer", () => {
+  bindInputEvent("voxel-explorer");
+  onDownInputEvent("voxel-explorer", () => {
     if (!noa.container.hasPointerLock) return;
     window.open(network.network.config.blockExplorer);
   });
 
-  noa.inputs.bind("spawn", "O");
-  noa.inputs.down.on("spawn", () => {
+  bindInputEvent("spawn");
+  onDownInputEvent("spawn", () => {
     if (!noa.container.hasPointerLock) return;
     setComponent(PreTeleportPosition, SingletonEntity, playerPosition$.getValue());
     teleport(SPAWN_POINT);
     updateComponent(Tutorial, SingletonEntity, { teleport: false });
   });
 
-  noa.inputs.bind("preteleport", "P");
-  noa.inputs.down.on("preteleport", () => {
+  bindInputEvent("preteleport");
+  onDownInputEvent("preteleport", () => {
     if (!noa.container.hasPointerLock) return;
     const preTeleportPosition = getComponentValue(PreTeleportPosition, SingletonEntity);
     if (!preTeleportPosition) return;
@@ -316,19 +345,19 @@ export function createInputSystem(layers: Layers) {
     updateComponent(Tutorial, SingletonEntity, { teleport: false });
   });
 
-  noa.inputs.bind("plugins", ";");
-  noa.inputs.down.on("plugins", () => {
+  bindInputEvent("plugins");
+  onDownInputEvent("plugins", () => {
     togglePlugins();
   });
 
   let hasSelectedCorner = false;
   let isSelectingVoxel = false;
-  noa.inputs.bind("select-voxel", "V");
-  noa.inputs.down.on("select-voxel", () => {
+  bindInputEvent("select-voxel");
+  onDownInputEvent("select-voxel", () => {
     isSelectingVoxel = true;
     hasSelectedCorner = false;
   });
-  noa.inputs.up.on("select-voxel", () => {
+  onUpInputEvent("select-voxel", () => {
     isSelectingVoxel = false;
     if (!canInteract()) return;
     if (hasSelectedCorner) {
@@ -367,8 +396,8 @@ export function createInputSystem(layers: Layers) {
     }
   });
 
-  noa.inputs.bind("cancelAction", "<backspace>", "<delete>");
-  noa.inputs.down.on("cancelAction", () => {
+  bindInputEvent("cancel-action");
+  onDownInputEvent("cancel-action", () => {
     // clear the spawn creation component so the outline disappears
     setComponent(SpawnCreation, SingletonEntity, { creation: undefined });
     noa.blockTestDistance = DEFAULT_BLOCK_TEST_DISTANCE;
@@ -386,8 +415,8 @@ export function createInputSystem(layers: Layers) {
     });
   });
 
-  noa.inputs.bind("spawnCreation", "<enter>");
-  noa.inputs.down.on("spawnCreation", () => {
+  bindInputEvent("spawnCreation");
+  onDownInputEvent("spawnCreation", () => {
     if (!noa.container.hasPointerLock) {
       return;
     }
@@ -402,8 +431,10 @@ export function createInputSystem(layers: Layers) {
     spawnCreation({ x: minX, y: minY, z: minZ }, (creation as Creation).creationId);
   });
 
-  noa.inputs.bind("crouch", "<shift>");
+  noa.inputs.bind("crouch", InputEvent["crouch"]); // I'm not sure why, but for crouch, it NEEDS to be registered this way
+  // bindInputEvent("crouch");
+
   // We are not doing anything when crouching in this file because noa's movement
   // component reads the crouch event and uses it to descend when flying
-  // noa.inputs.down.on("crouch", () => {});
+  // onDownInputEvent("crouch", () => {});
 }

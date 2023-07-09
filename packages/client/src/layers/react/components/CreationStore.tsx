@@ -146,12 +146,7 @@ const CreationStore: React.FC<Props> = ({ layers, filters, setFilters, setShowAl
     }
 
     return (
-      <div
-        className="flex w-full"
-        style={{
-          height: "140px",
-        }}
-      >
+      <div className="flex w-full mb-3">
         <div className="flex w-full h-fit">
           <button
             type="button"
@@ -166,7 +161,12 @@ const CreationStore: React.FC<Props> = ({ layers, filters, setFilters, setShowAl
   };
 
   return (
-    <div className="flex flex-col h-full p-4">
+    <div
+      className="flex flex-col p-4"
+      style={{
+        height: "calc(100% - 2rem)",
+      }}
+    >
       <nav className="flex" aria-label="Breadcrumb">
         <ol className="inline-flex items-center space-x-1 md:space-x-3">
           <li>

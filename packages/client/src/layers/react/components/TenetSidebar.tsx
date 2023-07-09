@@ -44,10 +44,6 @@ export function registerTenetSidebar() {
       const [creativeInventoryFilters, setCreativeInventoryFilters] = useState<VoxelTypeStoreFilters>({
         query: "",
       });
-      const [registerCreationFormData, setRegisterCreationFormData] = useState<RegisterCreationFormData>({
-        name: "",
-        description: "",
-      });
       const [creationStoreFilters, setCreationStoreFilters] = useState<CreationStoreFilters>({
         search: "",
         isMyCreation: false,
@@ -114,7 +110,7 @@ export function registerTenetSidebar() {
           )}
           style={{ pointerEvents: "all" }}
         >
-          <div className="flex flex-col">
+          <div className="flex flex-col h-full">
             <div className="flex justify-center items-center w-full text-sm font-medium text-center text-gray-500 border-b border-gray-200">
               <ul className="flex flex-wrap -mb-px">
                 {sidebarTabsArray.map((tab) => (
@@ -134,7 +130,7 @@ export function registerTenetSidebar() {
                 ))}
               </ul>
             </div>
-            <div>{SelectedTabPage}</div>
+            {SelectedTabPage}
           </div>
         </div>
       );

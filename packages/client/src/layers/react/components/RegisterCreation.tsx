@@ -6,6 +6,7 @@ import { calculateMinMax } from "../../../utils/voxels";
 import { useComponentValue } from "@latticexyz/react";
 import { voxelCoordToString } from "../../../utils/coord";
 import { FocusedUiType } from "../../noa/components/FocusedUi";
+import { twMerge } from "tailwind-merge";
 
 export interface RegisterCreationFormData {
   name: string;
@@ -105,35 +106,38 @@ const RegisterCreation: React.FC<Props> = ({ layers, formData, setFormData }) =>
     );
 
   return (
-    <div className="max-w-md mx-auto p-4 text-slate-700" onKeyDown={trySubmitCreation}>
-      <input
-        className="border rounded px-2 py-1 mb-2 w-full"
-        type="text"
-        placeholder="Enter creation name"
-        name="name"
-        value={formData.name}
-        onChange={handleInputChange}
-        autoComplete={"on"}
-      />
-      <textarea
-        className="border rounded px-2 py-1 mb-2 w-full"
-        placeholder="Description (optional)"
-        name="description"
-        value={formData.description}
-        onChange={handleInputChange}
-      />
+    <div className="flex flex-col gap-y-4 mt-5">
+      <h4 className="text-2xl font-bold text-black">Register New Creation</h4>
+      <div>
+        <label className="block mb-2 text-sm font-medium text-gray-900">Creation Name</label>
+        <input
+          type="text"
+          placeholder="ABC"
+          value={formData.name}
+          onChange={handleInputChange}
+          autoComplete={"on"}
+          name="name"
+          className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
+        />
+      </div>
+      <div>
+        <label className="block mb-2 text-sm font-medium text-gray-900">Description (optional)</label>
+        <input
+          type="text"
+          placeholder=""
+          value={formData.description}
+          onChange={handleInputChange}
+          name="description"
+          className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
+        />
+      </div>
       <button
-        className={`rounded px-2 py-1 mb-2 w-full bg-zinc-500 text-white hover:bg-zinc-400 p-5`}
-        onClick={onSelectCreationCorners}
-      >
-        {selectCreationCornerButtonLabel}
-      </button>
-      <button
-        className={`bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600 mb-2 ${
-          isSubmitDisabled ? "opacity-50 cursor-not-allowed" : ""
-        }`}
         onClick={handleSubmit}
         disabled={isSubmitDisabled}
+        className={twMerge(
+          "text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-full sm:w-auto px-5 py-2.5 text-center",
+          isSubmitDisabled ? "opacity-50 cursor-not-allowed" : ""
+        )}
       >
         Submit
       </button>

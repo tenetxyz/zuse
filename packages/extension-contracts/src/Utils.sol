@@ -119,9 +119,12 @@ function entityHasTemperature(bytes32 entity, bytes16 callerNamespace) view retu
   return Temperature.get(callerNamespace, entity).hasValue;
 }
 
-
 function entityHasTemperature(bytes32 entity, bytes16 callerNamespace) view returns (bool) {
   return Temperature.get(callerNamespace, entity).hasValue;
+}
+
+function entityIsGenerator(bytes32 entity, bytes16 callerNamespace) view returns (bool) {
+  return Generator.get(callerNamespace, entity).hasValue;
 }
 
 function calculateBlockDirection(

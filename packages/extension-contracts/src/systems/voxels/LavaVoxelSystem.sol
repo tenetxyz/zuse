@@ -50,12 +50,8 @@ contract LavaVoxelSystem is VoxelType {
       world,
       "Lava",
       LavaID,
-<<<<<<< HEAD
       EXTENSION_NAMESPACE,
       LavaHotID,
-=======
-      LavaHotTexture,
->>>>>>> ca6c12e (updated voxels)
       IWorld(world).extension_LavaVoxelSystem_variantSelector.selector,
       IWorld(world).extension_LavaVoxelSystem_enterWorld.selector,
       IWorld(world).extension_LavaVoxelSystem_exitWorld.selector
@@ -64,34 +60,19 @@ contract LavaVoxelSystem is VoxelType {
 
   function enterWorld(bytes32 entity) public override {
     bytes16 callerNamespace = getCallerNamespace(_msgSender());
-<<<<<<< HEAD
     Temperature.set(
       callerNamespace,
       entity,
       TemperatureData({ temperature: 92000, lastUpdateBlock: block.number, hasValue: true })
-=======
-    Signal.set(
-      callerNamespace,
-      entity,
-      SignalData({ isActive: false, direction: BlockDirection.None, hasValue: true })
->>>>>>> ca6c12e (updated voxels)
     );
   }
 
   function exitWorld(bytes32 entity) public override {
     bytes16 callerNamespace = getCallerNamespace(_msgSender());
-     Temperature.set(
-        callerNamespace,
-        entity,
-        TemperatureData({ temperature: 92000, lastUpdateBlock: block.number, hasValue: true })
-      );
+    Temperature.deleteRecord(callerNamespace, entity);
   }
 
-<<<<<<< HEAD
   function variantSelector(bytes32 entity) public view override returns (VoxelVariantsKey memory) {
-=======
-  function variantSelector(bytes32 entity) public override returns (VoxelVariantsKey memory) {
->>>>>>> ca6c12e (updated voxels)
     bytes16 callerNamespace = getCallerNamespace(_msgSender());
     TemperatureData memory temperatureData = Temperature.get(callerNamespace, entity);
     if (temperatureData.temperature > 30000) {

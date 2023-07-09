@@ -50,12 +50,6 @@ const RegisterCreation: React.FC<Props> = ({ layers, formData, setFormData, rese
 
   const isSubmitDisabled = !formData.name || !corners?.corner1 || !corners?.corner2;
 
-  const trySubmitCreation = (e: KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === "Enter" && !isSubmitDisabled) {
-      handleSubmit();
-    }
-  };
-
   //get all voxels within the selected corners
   const getVoxelsWithinSelection = (): Entity[] => {
     const corner1 = corners?.corner1;

@@ -100,7 +100,19 @@ const CreationStore: React.FC<Props> = ({ layers, filters, setFilters, setShowAl
               }}
             />
           </div>
-          <div className="flex w-full mt-5 justify-center items-center"></div>
+          <div className="flex flex-col gap-5 w-full mt-5 justify-center items-center">
+            {creationsToDisplay.map((creation, idx) => {
+              return (
+                <div
+                  key={"creation-" + idx}
+                  className="w-full cursor-pointer p-6 bg-white border border-gray-200 rounded-lg shadow hover:bg-gray-100"
+                >
+                  <h5 className="mb-2 text-2xl font-bold tracking-tight text-gray-900">{creation.name}</h5>
+                  <p className="font-normal text-gray-700 leading-4">{creation.description}</p>
+                </div>
+              );
+            })}
+          </div>
         </>
       );
     }

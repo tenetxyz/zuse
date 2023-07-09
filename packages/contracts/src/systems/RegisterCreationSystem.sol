@@ -4,10 +4,10 @@ pragma solidity >=0.8.0;
 import { getUniqueEntity } from "@latticexyz/world/src/modules/uniqueentity/getUniqueEntity.sol";
 import { System } from "@latticexyz/world/src/System.sol";
 import { Strings } from "@openzeppelin/contracts/utils/Strings.sol";
-import { IWorld } from "../codegen/world/IWorld.sol";
+import { IWorld } from "@tenetxyz/contracts/src/codegen/world/IWorld.sol";
 import { addressToEntityKey, getEntitiesAtCoord, voxelCoordToString } from "../Utils.sol";
-import { VoxelType, Position, Creation, CreationData, VoxelTypeData, Spawn, SpawnData, OfSpawn } from "../codegen/Tables.sol";
-import { PositionData } from "../codegen/tables/Position.sol";
+import { VoxelType, Position, Creation, CreationData, VoxelTypeData, Spawn, SpawnData, OfSpawn } from "@tenetxyz/contracts/src/codegen/Tables.sol";
+import { PositionData } from "@tenetxyz/contracts/src/codegen/tables/Position.sol";
 import { VoxelCoord } from "../Types.sol";
 //import { CreateBlock } from "../libraries/CreateBlock.sol";
 

@@ -6,9 +6,9 @@ import { getKeysInTable } from "@latticexyz/world/src/modules/keysintable/getKey
 import { System } from "@latticexyz/world/src/System.sol";
 import { NamespaceOwner } from "@latticexyz/world/src/tables/NamespaceOwner.sol";
 import { FunctionSelectors } from "@latticexyz/world/src/modules/core/tables/FunctionSelectors.sol";
-import { VoxelTypeRegistry, VoxelTypeRegistryData, VoxelTypeRegistryTableId, VoxelVariants, VoxelVariantsData, VoxelVariantsTableId } from "../codegen/Tables.sol";
-import { IWorld } from "../codegen/world/IWorld.sol";
-import { NoaBlockType } from "../codegen/Types.sol";
+import { VoxelTypeRegistry, VoxelTypeRegistryData, VoxelTypeRegistryTableId, VoxelVariants, VoxelVariantsData, VoxelVariantsTableId } from "@tenetxyz/contracts/src/codegen/Tables.sol";
+import { IWorld } from "@tenetxyz/contracts/src/codegen/world/IWorld.sol";
+import { NoaBlockType } from "@tenetxyz/contracts/src/codegen/Types.sol";
 import { getCallerNamespace } from "../SharedUtils.sol";
 
 contract VoxelRegistrySystem is System {

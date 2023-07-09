@@ -3,8 +3,8 @@ pragma solidity >=0.8.0;
 
 import { SingleVoxelInteraction } from "../../prototypes/SingleVoxelInteraction.sol";
 import { IWorld } from "../../../src/codegen/world/IWorld.sol";
-import { Signal, SignalData, InvertedSignalData, InvertedSignal, SignalSource } from "../../codegen/Tables.sol";
-import { BlockDirection } from "../../codegen/Types.sol";
+import { Signal, SignalData, InvertedSignalData, InvertedSignal, SignalSource } from "@tenetxyz/contracts/src/codegen/Tables.sol";
+import { BlockDirection } from "@tenetxyz/contracts/src/codegen/Types.sol";
 import { registerExtension, getOppositeDirection, entityIsSignal, entityIsSignalSource, entityIsInvertedSignal } from "../../Utils.sol";
 
 contract SignalSystem is SingleVoxelInteraction {

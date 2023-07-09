@@ -3,8 +3,8 @@ pragma solidity >=0.8.0;
 
 import { VoxelType } from "@tenetxyz/contracts/src/prototypes/VoxelType.sol";
 import { IWorld } from "../../../src/codegen/world/IWorld.sol";
-import { InvertedSignal, InvertedSignalData } from "../../codegen/Tables.sol";
-import { BlockDirection } from "../../codegen/Types.sol";
+import { InvertedSignal, InvertedSignalData } from "@tenetxyz/contracts/src/codegen/Tables.sol";
+import { BlockDirection } from "@tenetxyz/contracts/src/codegen/Types.sol";
 import { getCallerNamespace } from "@tenetxyz/contracts/src/SharedUtils.sol";
 import { registerVoxelType, entityIsInvertedSignal } from "../../Utils.sol";
 import { SignalOffID, SignalOnID, SignalOnTexture, SignalOnUVWrap } from "./SignalVoxelSystem.sol";

@@ -1,6 +1,8 @@
 ds-test/=../../node_modules/ds-test/src/
 forge-std/=../../node_modules/forge-std/src/
 @latticexyz/=../../node_modules/@latticexyz/
-@tenetxyz/=../../node_modules/@tenetxyz/
+@tenetxyz/=../../node_modules/@tenetxyz
 solecs/=../../node_modules/@latticexyz/solecs/src/
 memmove/=../../node_modules/memmove/src/
+@solidstate/=../../node_modules/@solidstate/
+@openzeppelin/=../../node_modules/@openzeppelin/

@@ -7,10 +7,10 @@ import { hasKey } from "@latticexyz/world/src/modules/keysintable/hasKey.sol";
 import { NamespaceOwner } from "@latticexyz/world/src/tables/NamespaceOwner.sol";
 import { FunctionSelectors } from "@latticexyz/world/src/modules/core/tables/FunctionSelectors.sol";
 import { System } from "@latticexyz/world/src/System.sol";
-import { VoxelInteractionExtension, VoxelInteractionExtensionTableId } from "../codegen/Tables.sol";
+import { VoxelInteractionExtension, VoxelInteractionExtensionTableId } from "@tenetxyz/contracts/src/codegen/Tables.sol";
 import { addressToEntityKey } from "../Utils.sol";
-import { IWorld } from "../codegen/world/IWorld.sol";
-import { Occurrence } from "../codegen/Tables.sol";
+import { IWorld } from "@tenetxyz/contracts/src/codegen/world/IWorld.sol";
+import { Occurrence } from "@tenetxyz/contracts/src/codegen/Tables.sol";
 import { console } from "forge-std/console.sol";
 
 import { SystemRegistry } from "@latticexyz/world/src/modules/core/tables/SystemRegistry.sol";

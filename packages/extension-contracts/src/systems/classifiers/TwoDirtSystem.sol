@@ -3,7 +3,7 @@ pragma solidity >=0.8.0;
 
 import { System } from "@latticexyz/world/src/System.sol";
 import { Strings } from "@openzeppelin/contracts/utils/Strings.sol";
-import { TwoDirtCR } from "../../codegen/tables.sol";
+import { TwoDirtCR } from "@tenetxyz/contracts/src/codegen/tables.sol";
 import { Spawn, SpawnData } from "@tenetxyz/contracts/src/codegen/tables/spawn.sol";
 import { VoxelType } from "@tenetxyz/contracts/src/codegen/tables/voxelType.sol";
 

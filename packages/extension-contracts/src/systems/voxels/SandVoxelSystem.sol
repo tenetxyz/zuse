@@ -3,12 +3,12 @@ pragma solidity >=0.8.0;
 
 import { VoxelType } from "@tenetxyz/contracts/src/prototypes/VoxelType.sol";
 import { IWorld } from "../../../src/codegen/world/IWorld.sol";
-import { Powered, PoweredData } from "../../codegen/Tables.sol";
+import { Powered, PoweredData } from "@tenetxyz/contracts/src/codegen/Tables.sol";
 import { getCallerNamespace } from "@tenetxyz/contracts/src/SharedUtils.sol";
 import { registerVoxelType, registerVoxelVariant, entityIsPowered } from "../../Utils.sol";
 import { VoxelVariantsKey } from "@tenetxyz/contracts/src/Types.sol";
 import { VoxelVariantsData } from "../../Types.sol";
-import { BlockDirection } from "../../codegen/Types.sol";
+import { BlockDirection } from "@tenetxyz/contracts/src/codegen/Types.sol";
 import { EXTENSION_NAMESPACE } from "../../Constants.sol";
 import { NoaBlockType } from "@tenetxyz/contracts/src/codegen/types.sol";
 

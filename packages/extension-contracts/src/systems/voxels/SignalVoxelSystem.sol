@@ -3,8 +3,8 @@ pragma solidity >=0.8.0;
 
 import { VoxelType } from "@tenetxyz/contracts/src/prototypes/VoxelType.sol";
 import { IWorld } from "../../../src/codegen/world/IWorld.sol";
-import { Signal, SignalData } from "../../codegen/Tables.sol";
-import { BlockDirection } from "../../codegen/Types.sol";
+import { Signal, SignalData } from "@tenetxyz/contracts/src/codegen/Tables.sol";
+import { BlockDirection } from "@tenetxyz/contracts/src/codegen/Types.sol";
 import { getCallerNamespace } from "@tenetxyz/contracts/src/SharedUtils.sol";
 import { registerVoxelVariant, registerVoxelType, entityIsSignal } from "../../Utils.sol";
 import { VoxelVariantsKey } from "@tenetxyz/contracts/src/Types.sol";

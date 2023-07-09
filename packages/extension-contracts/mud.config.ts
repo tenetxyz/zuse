@@ -52,6 +52,19 @@ export default mudConfig({
         hasValue: "bool", // TODO: Remove this once we can install non-root modules
       },
     },
+    TwoDirtCR: {
+      // TwoDirt classify result - The key is the creationId
+      schema: {
+        blockNumber: "uint256", // the blockNumber when the creation passed the classifier
+      },
+    },
+    AndGateCR: {
+      // AndGate classify result - The key is the creationId
+      schema: {
+        blockNumber: "uint256", // the blockNumber when the creation passed the classifier
+        voxelInterfaces: "bytes",
+      },
+    },
   },
   modules: [
     // TODO: Re-enable when we have a way to install non-root modules

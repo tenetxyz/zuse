@@ -106,8 +106,10 @@ export default mudConfig({
       schema: {
         creator: "address",
         classifySelector: "bytes4", // the function that will be called when the user submits to the classifier
+        // namespace: "bytes16", // the namespace of the classifier (and its classification result table)
         name: "string",
         description: "string",
+        classificationResultTableName: "string", // needed so the client can know which table to query for the classification result
       },
     },
   },

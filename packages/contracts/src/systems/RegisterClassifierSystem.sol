@@ -10,13 +10,24 @@ import { FunctionSelectors } from "@latticexyz/world/src/modules/core/tables/Fun
 import { NamespaceOwner } from "@latticexyz/world/src/tables/NamespaceOwner.sol";
 
 contract RegisterClassifierSystem is System {
-  function registerClassifier(bytes4 classifySelector, string memory name, string memory description) public {
+  function registerClassifier(
+    bytes4 classifySelector,
+    string memory name,
+    string memory description,
+    string memory classificationResultTableName
+  ) public {
     (bytes16 namespace, , ) = FunctionSelectors.get(classifySelector);
     require(NamespaceOwner.get(namespace) == _msgSender(), "Caller is not namespace owner");
     bytes32 uniqueEntity = getUniqueEntity();
     Classifier.set(
       uniqueEntity,
-      ClassifierData({ creator: tx.origin, classifySelector: classifySelector, name: name, description: description })
+      ClassifierData({
+        creator: tx.origin,
+        classifySelector: classifySelector,
+        name: name,
+        description: description,
+        classificationResultTableName: classificationResultTableName
+      })
     );
   }
 }

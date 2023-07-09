@@ -2,8 +2,12 @@ import React, { useEffect } from "react";
 import Fuse from "fuse.js";
 import { useComponentUpdate } from "../../../utils/useComponentUpdate";
 import { Layers } from "../../../types";
-import { getEntityString } from "@latticexyz/recs";
+import { Entity, getComponentValue, getEntityString } from "@latticexyz/recs";
 import { Classifier, ClassifierStoreFilters } from "./ClassifierStore";
+import { to64CharAddress } from "../../../utils/entity";
+import { ethers } from "ethers";
+import { abiDecode } from "../../../utils/abi";
+import { hexToAscii, removeTrailingNulls } from "../../../utils/encodeOrDecode";
 
 export interface Props {
   layers: Layers;
@@ -17,7 +21,9 @@ export interface ClassifierSearch {
 export const useClassifierSearch = ({ layers, filters }: Props) => {
   const {
     network: {
+      components: { FunctionSelectors },
       contractComponents: { Classifier },
+      worldContract,
     },
   } = layers;
 
@@ -37,11 +43,22 @@ export const useClassifierSearch = ({ layers, filters }: Props) => {
         return;
       }
 
+      const classifySelector = classifierTable.classifySelector.get(classifierId);
+      if (!classifySelector) {
+        console.warn("No classify selector found for classifier", classifierId);
+        return;
+      }
+      const classifierNamespace =
+        getComponentValue(FunctionSelectors, classifySelector.padEnd(66, "0") as Entity)?.namespace ??
+        "unknown namespace";
+
       allClassifiers.current.push({
         creator: creator,
         name: name,
         description: description,
         classifierId: getEntityString(classifierId),
+        classificationResultTableName: classifierTable.classificationResultTableName.get(classifierId),
+        namespace: removeTrailingNulls(hexToAscii(classifierNamespace.substring(2))), // We need to remove trailing nulls since I think the namespace is padded to 16 chars in mud
       } as Classifier);
     });
 

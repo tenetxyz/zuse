@@ -37,6 +37,7 @@ import { TENET_NAMESPACE } from "../constants";
 import { AIR_ID, BEDROCK_ID, DIRT_ID, GRASS_ID } from "../layers/network/api/terrain/occurrence";
 import { getNftStorageLink } from "../layers/noa/constants";
 import { voxelCoordToString } from "../utils/coord";
+import { defaultAbiCoder } from "ethers/lib/utils";
 
 export type SetupNetworkResult = Awaited<ReturnType<typeof setupNetwork>>;
 
@@ -567,6 +568,33 @@ export async function setupNetwork() {
     });
   }
 
+  async function classifyCreationSystem(classifierId: Entity, spawnId: Entity, interfaceVoxels: Entity[]) {
+    const tx = await worldSend("tenet_ClassifyCreation_classify", [
+      classifierId,
+      spawnId,
+      // defaultAbiCoder.encode(["bytes32[]"], interfaceVoxels),
+      interfaceVoxels,
+      { gasLimit: 100_000_000 },
+    ]);
+    return tx;
+  }
+
+  function classifyCreation(classifierId: Entity, spawnId: Entity, interfaceVoxels: Entity[]) {
+    // TODO: Relpace Iron NFT with a spawn symbol
+    const preview = getNftStorageLink("bafkreidkik2uccshptqcskpippfotmusg7algnfh5ozfsga72xyfdrvacm");
+
+    actions.add({
+      id: `classifyCreation+classifier=${classifierId}+spawnId=${spawnId}+interfaceVoxels=${interfaceVoxels.toString()}` as Entity,
+      metadata: { actionType: "classifyCreation", preview },
+      requirement: () => true,
+      components: {},
+      execute: async () => {
+        return classifyCreationSystem(classifierId, spawnId, interfaceVoxels);
+      },
+      updates: () => [],
+    });
+  }
+
   function stake(chunkCoord: Coord) {
     return 0;
   }
@@ -595,6 +623,9 @@ export async function setupNetwork() {
     awaitPromise()
   );
 
+  // please don't remove. This is for documentation purposes
+  const internalMudWorldAndStoreComponents = result.components;
+
   return {
     ...result,
     contractComponents,
@@ -612,6 +643,7 @@ export async function setupNetwork() {
       removeVoxels,
       registerCreation,
       spawnCreation,
+      classifyCreation,
       stake,
       claim,
       getName,

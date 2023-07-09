@@ -129,3 +129,28 @@ function build(address worldAddress, VoxelCoord memory coord, bytes32 entity) {
   (bool success, ) = worldAddress.call(abi.encodeWithSignature(BUILD_SIG, entity, coord));
   require(success, "Failed to build voxel");
 }
+
+function entitiesToVoxelCoords(bytes32[] memory entities) returns (VoxelCoord[] memory) {
+  VoxelCoord[] memory coords = new VoxelCoord[](entities.length);
+  for (uint256 i; i < entities.length; i++) {
+    PositionData memory position = Position.get(entities[i]);
+    coords[i] = VoxelCoord(position.x, position.y, position.z);
+  }
+  return coords;
+}
+
+function entitiesToRelativeVoxelCoords(
+  bytes32[] memory entities,
+  VoxelCoord memory lowerSouthWestCorner
+) returns (VoxelCoord[] memory) {
+  VoxelCoord[] memory coords = entitiesToVoxelCoords(entities);
+  VoxelCoord[] memory relativeCoords = new VoxelCoord[](coords.length);
+  for (uint256 i; i < coords.length; i++) {
+    relativeCoords[i] = VoxelCoord(
+      coords[i].x - lowerSouthWestCorner.x,
+      coords[i].y - lowerSouthWestCorner.y,
+      coords[i].z - lowerSouthWestCorner.z
+    );
+  }
+  return relativeCoords;
+}

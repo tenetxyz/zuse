@@ -34,6 +34,14 @@ contract PostDeploy is Script {
       "AND Gate",
       "Classifies if this creation is an AND Gate",
       IWorld(worldAddress).extension_AndGateSystem_classify.selector,
+      "AndGateCR",
+      worldAddress
+    );
+    registerClassifier(
+      "Two Dirt",
+      "Make a creation that is two dirt voxels",
+      IWorld(worldAddress).extension_TwoDirtSystem_classify.selector,
+      "TwoDirtCR",
       worldAddress
     );
     vm.stopBroadcast();
@@ -43,14 +51,16 @@ contract PostDeploy is Script {
     string memory classifierName,
     string memory classifierDescription,
     bytes4 classifySelector,
+    string memory classificationResultTableName,
     address worldAddress
   ) private {
     (bool success, bytes memory result) = worldAddress.call(
       abi.encodeWithSignature(
-        "tenet_RegClassifierSys_registerClassifier(bytes4,string,string)",
+        "tenet_RegClassifierSys_registerClassifier(bytes4,string,string,string)",
         classifySelector,
         classifierName,
-        classifierDescription
+        classifierDescription,
+        classificationResultTableName
       )
     );
     require(success, string(abi.encodePacked("Failed to register classifier: ", classifierName)));

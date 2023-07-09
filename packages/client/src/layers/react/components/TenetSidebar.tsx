@@ -14,10 +14,11 @@ import { useComponentValue } from "@latticexyz/react";
 export const SIDEBAR_BACKGROUND_COLOR = "#353535";
 export function registerTenetSidebar() {
   registerTenetComponent({
-    rowStart: 2,
-    rowEnd: 11,
+    rowStart: 1,
+    rowEnd: 13,
     columnStart: 1,
-    columnEnd: 12,
+    columnEnd: 5,
+    zIndex: 100,
     Component: ({ layers }) => {
       const {
         noa: {
@@ -100,9 +101,23 @@ export function registerTenetSidebar() {
         ].includes(focusedUi.value);
 
       return (
-        // "pointerEvents: all" is needed so when we click on the admin panel, we don't gain focus on the noa canvas
-        <div className="select-none h-full inline-grid" style={{ pointerEvents: "all" }}>
-          <div
+        <div
+          style={{
+            backgroundColor: "white",
+            width: "100%",
+            height: "100%",
+            zIndex: "100",
+          }}
+        ></div>
+      );
+    },
+  });
+}
+
+// "pointerEvents: all" is needed so when we click on the admin panel, we don't gain focus on the noa canvas
+// <div className="select-none h-full inline-grid" style={{ pointerEvents: "all" }}>
+
+/* <div
             className="flex flex-row float-left relative z-50 mt-[5%] pr-7 pt-7"
             style={{
               backgroundColor: isFocusedUiASelectedTab ? `${SIDEBAR_BACKGROUND_COLOR}` : "transparent",
@@ -113,9 +128,6 @@ export function registerTenetSidebar() {
               <ElectiveBar layers={layers} />
             </div>
             <div className={`bg-[${SIDEBAR_BACKGROUND_COLOR}]`}>{SelectedTab}</div>
-          </div>
-        </div>
-      );
-    },
-  });
-}
+          </div> */
+
+// </div>

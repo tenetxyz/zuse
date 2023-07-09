@@ -19,7 +19,7 @@ export function registerUIComponents() {
   registerCrosshairs();
   // registerBlockExplorer();
   registerInventoryHud();
-  registerSidebar();
+  // registerSidebar();
   registerToast();
   registerPersistentNotifications();
   // TODO: Need to make sure plugin structure works with MUD2 before renabling

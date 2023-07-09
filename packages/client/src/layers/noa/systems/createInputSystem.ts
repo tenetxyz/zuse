@@ -415,7 +415,7 @@ export function createInputSystem(layers: Layers) {
     });
   });
 
-  bindInputEvent("spawn-creation");
+  noa.inputs.bind("spawn-creation", InputEvent["spawn-creation"]);
   onDownInputEvent("spawn-creation", () => {
     if (!noa.container.hasPointerLock) {
       return;

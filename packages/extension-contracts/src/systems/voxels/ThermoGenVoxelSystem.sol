@@ -46,6 +46,8 @@ contract ThermoGenVoxelSystem is VoxelType {
   function enterWorld(bytes32 entity) public override {
     bytes16 callerNamespace = getCallerNamespace(_msgSender());
     bytes32[] memory sources = new bytes32[](2);
+    sources[0] = bytes32(0);
+    sources[1] = bytes32(0);
     uint256 genRate = 0;
     bool hasValue = true;
     Generator.set(callerNamespace, entity, genRate, hasValue, sources);

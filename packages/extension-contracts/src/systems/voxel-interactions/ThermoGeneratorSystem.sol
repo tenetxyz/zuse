@@ -46,20 +46,29 @@ contract ThermoGeneratorSystem is VoxelInteraction {
     GeneratorData memory generatorData = Generator.get(callerNamespace, interactEntity);
     changedEntity = false;
     
-    TemperatureEntity[] memory tempDataEntities = new TemperatureEntity[](2);
+    TemperatureEntity[] memory tempDataEntities;
     uint256 count = 0;
 
     for (uint256 i = 0; i < neighbourEntityIds.length && count < 2; i++) {
-      if (entityHasTemperature(neighbourEntityIds[i], callerNamespace)) {
-        tempDataEntities[count].entity = neighbourEntityIds[i];
-        tempDataEntities[count].data = Temperature.get(callerNamespace, neighbourEntityIds[i]);
-        count++;
-      }
+        if (entityHasTemperature(neighbourEntityIds[i], callerNamespace)) {
+            // Create a new TemperatureEntity
+            TemperatureEntity memory tempEntity;
+            tempEntity.entity = neighbourEntityIds[i];
+            tempEntity.data = Temperature.get(callerNamespace, neighbourEntityIds[i]);
+
+            // Add it to the memory array
+            tempDataEntities[count] = tempEntity;
+            count++;
+        }
     }
 
-    changedEntity = handleTempDataEntities(callerNamespace, interactEntity, generatorData, tempDataEntities);
+    if (tempDataEntities.length == 2) {
+     changedEntity = handleTempDataEntities(callerNamespace, interactEntity, generatorData, tempDataEntities);
+    } else {
+      changedEntity = true;
+    }
+
     return changedEntity;
-  
   }
 
   function handleTempDataEntities(
@@ -96,7 +105,6 @@ contract ThermoGeneratorSystem is VoxelInteraction {
           absoluteDifferenceAtTime = Temp2AtTimeData.temperature - Temp1AtTimeData.temperature;
       }
 
-
       TemperatureData memory temp1Data = Temperature.get(callerNamespace, tempDataEntities[0].entity);
       TemperatureData memory temp2Data = Temperature.get(callerNamespace, tempDataEntities[1].entity);
 
@@ -107,16 +115,18 @@ contract ThermoGeneratorSystem is VoxelInteraction {
           absoluteDifferenceNow = temp2Data.temperature - temp1Data.temperature;
       }
 
-      generatorData.sources = new bytes32[](2);
-      generatorData.sources[0] = tempDataEntities[0].entity;
-      generatorData.sources[1] = tempDataEntities[1].entity;
+      bytes32[] memory sources = new bytes32[](2);
+      sources[0] = tempDataEntities[0].entity;
+      sources[1] = tempDataEntities[1].entity;
+      generatorData.sources = sources;
 
       generatorData.genRate = (absoluteDifferenceAtTime + absoluteDifferenceNow) / 2;
+     
       Generator.set(callerNamespace, interactEntity, generatorData);
 
       changedEntity = true;
     }
-  
+
     return changedEntity;
 
   }

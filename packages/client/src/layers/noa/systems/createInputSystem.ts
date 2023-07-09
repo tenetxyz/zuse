@@ -54,7 +54,7 @@ export function createInputSystem(layers: Layers) {
     plugins: ";",
     spawn: "O",
     preteleport: "P",
-    spawnCreation: "<enter>",
+    "spawn-creation": "<enter>",
     crouch: "<shift>",
   };
 
@@ -415,8 +415,8 @@ export function createInputSystem(layers: Layers) {
     });
   });
 
-  bindInputEvent("spawnCreation");
-  onDownInputEvent("spawnCreation", () => {
+  bindInputEvent("spawn-creation");
+  onDownInputEvent("spawn-creation", () => {
     if (!noa.container.hasPointerLock) {
       return;
     }

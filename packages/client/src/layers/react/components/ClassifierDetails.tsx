@@ -11,6 +11,7 @@ import { stringToVoxelCoord } from "../../../utils/coord";
 import { getSpawnAtPosition } from "../../../utils/voxels";
 import { SearchBar } from "./common/SearchBar";
 import { Classifier } from "./ClassifierStore";
+import { twMerge } from "tailwind-merge";
 
 export interface ClassifierStoreFilters {
   classifierQuery: string;
@@ -118,10 +119,25 @@ const ClassifierDetails: React.FC<Props> = ({
     return null;
   }
 
+  const isSubmitDisabled = true;
+
   return (
     <div className="flex flex-col h-full mt-5 gap-5">
       <h4 className="text-2xl font-bold text-black">{selectedClassifier.name}</h4>
       <p className="font-normal text-gray-700 leading-4">{selectedClassifier.description}</p>
+      <p className="font-normal text-gray-700 leading-4">
+        <b>Creator:</b> {selectedClassifier.creator}
+      </p>
+      <button
+        // onClick={handleSubmit}
+        disabled={isSubmitDisabled}
+        className={twMerge(
+          "text-white bg-green-700 hover:bg-green-800 focus:ring-4 focus:outline-none focus:ring-green-300 font-medium rounded-lg text-sm w-full sm:w-auto px-5 py-2.5 text-center",
+          isSubmitDisabled ? "opacity-50 cursor-not-allowed" : ""
+        )}
+      >
+        Submit Creation
+      </button>
     </div>
   );
 };

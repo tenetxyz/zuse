@@ -22,10 +22,11 @@ export function registerTenetSidebar() {
     Component: ({ layers }) => {
       const {
         noa: {
-          components: { FocusedUi },
+          components: { FocusedUi, UI },
           SingletonEntity,
         },
       } = layers;
+
       const focusedUi = useComponentValue(FocusedUi, SingletonEntity);
 
       // This state is hoisted up to this component so that the state is not lost when leaving the inventory to select voxels
@@ -99,6 +100,12 @@ export function registerTenetSidebar() {
           FocusedUiType.SIDEBAR_CLASSIFY_STORE,
           FocusedUiType.SIDEBAR_REGISTER_CREATION,
         ].includes(focusedUi.value);
+
+      const showSidebar = useComponentValue(UI, SingletonEntity)?.showSidebar;
+
+      if (!showSidebar) {
+        return null;
+      }
 
       return (
         <div

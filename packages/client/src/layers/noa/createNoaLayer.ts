@@ -146,6 +146,7 @@ export function createNoaLayer(network: NetworkLayer) {
     showAdminPanel: false,
     showCrafting: false,
     showPlugins: false,
+    showSidebar: false,
   });
   setComponent(components.SelectedSlot, SingletonEntity, { value: 0 });
   !getComponentValue(components.Tutorial, SingletonEntity) &&

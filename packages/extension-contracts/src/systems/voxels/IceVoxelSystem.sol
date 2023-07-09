@@ -70,11 +70,7 @@ contract IceVoxelSystem is VoxelType {
 
   function exitWorld(bytes32 entity) public override {
     bytes16 callerNamespace = getCallerNamespace(_msgSender());
-     Temperature.set(
-        callerNamespace,
-        entity,
-        TemperatureData({ temperature: 0, lastUpdateBlock: block.number, hasValue: true })
-      );
+    Temperature.deleteRecord(callerNamespace, entity);
   }
 
   function variantSelector(bytes32 entity) public view override returns (VoxelVariantsKey memory) {

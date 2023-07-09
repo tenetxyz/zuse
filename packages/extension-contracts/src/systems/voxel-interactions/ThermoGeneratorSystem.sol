@@ -46,7 +46,7 @@ contract ThermoGeneratorSystem is VoxelInteraction {
     GeneratorData memory generatorData = Generator.get(callerNamespace, interactEntity);
     changedEntity = false;
     
-    TemperatureEntity[] memory tempDataEntities;
+    TemperatureEntity[] memory tempDataEntities = new TemperatureEntity[](2);
     uint256 count = 0;
 
     for (uint256 i = 0; i < neighbourEntityIds.length && count < 2; i++) {
@@ -62,9 +62,13 @@ contract ThermoGeneratorSystem is VoxelInteraction {
         }
     }
 
-    if (tempDataEntities.length == 2) {
+    if (count == 2) {
      changedEntity = handleTempDataEntities(callerNamespace, interactEntity, generatorData, tempDataEntities);
     } else {
+      generatorData.genRate = 0;
+      generatorData.sources = new bytes32[](0);
+      Generator.set(callerNamespace, interactEntity, generatorData);
+      //if
       changedEntity = true;
     }
 
@@ -90,13 +94,11 @@ contract ThermoGeneratorSystem is VoxelInteraction {
       TemperatureAtTime.set(callerNamespace, tempDataEntities[0].entity, Temp1AtTime);
       TemperatureAtTime.set(callerNamespace, tempDataEntities[1].entity, Temp2AtTime);
 
-      changedEntity = true;
+      changedEntity = false;
     } else {
       
       TemperatureAtTimeData memory Temp1AtTimeData = TemperatureAtTime.get(callerNamespace, tempDataEntities[0].entity);
       TemperatureAtTimeData memory Temp2AtTimeData = TemperatureAtTime.get(callerNamespace, tempDataEntities[1].entity);
-
-      require(Temp1AtTimeData.lastUpdateBlock == Temp2AtTimeData.lastUpdateBlock);
 
       uint256 absoluteDifferenceAtTime;
       if(Temp1AtTimeData.temperature >= Temp2AtTimeData.temperature) {
@@ -118,17 +120,19 @@ contract ThermoGeneratorSystem is VoxelInteraction {
       bytes32[] memory sources = new bytes32[](2);
       sources[0] = tempDataEntities[0].entity;
       sources[1] = tempDataEntities[1].entity;
-      generatorData.sources = sources;
+      
 
-      generatorData.genRate = (absoluteDifferenceAtTime + absoluteDifferenceNow) / 2;
-     
-      Generator.set(callerNamespace, interactEntity, generatorData);
+      uint256 newGenRate = (absoluteDifferenceAtTime + absoluteDifferenceNow) / 2;
 
-      changedEntity = true;
+      if (generatorData.genRate != newGenRate) {
+        generatorData.genRate = newGenRate;
+        generatorData.sources = sources;
+        Generator.set(callerNamespace, interactEntity, generatorData);
+        changedEntity = true;
+      }
     }
 
     return changedEntity;
-
   }
 
   function eventHandler(

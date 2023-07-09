@@ -14,6 +14,7 @@ import { calculateCornersFromTargetedBlock } from "./createSpawnCreationOverlayS
 import { FocusedUiType } from "../components/FocusedUi";
 import { Layers } from "../../../types";
 import { voxelCoordToString } from "../../../utils/coord";
+import { renderFloatingTextAboveCoord } from "./renderFloatingText";
 
 export function createInputSystem(layers: Layers) {
   const {
@@ -387,8 +388,8 @@ export function createInputSystem(layers: Layers) {
 
       setComponent(VoxelInterfaceSelection, SingletonEntity, { value: points });
 
-      // toast(`Selected voxel at ${coord.x}, ${coord.y}, ${coord.z}`);
-      // renderFloatingTextAboveCoord(coord, noa, "This is a super\nlong\nline that takes\nup many lines");
+      toast(`Selected voxel at ${coord.x}, ${coord.y}, ${coord.z}`);
+      renderFloatingTextAboveCoord(coord, noa, "This is a super\nlong\nline that takes\nup many lines");
       // renderEnt(noaLayer, coord);
       // toast(`Selected voxel at ${coord.x}, ${coord.y}, ${coord.z}`);
     } else {

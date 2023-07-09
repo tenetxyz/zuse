@@ -23,7 +23,7 @@ export function registerTenetSidebar() {
     Component: ({ layers }) => {
       const {
         noa: {
-          components: { FocusedUi, UI },
+          components: { FocusedUi },
           SingletonEntity,
         },
       } = layers;
@@ -51,58 +51,58 @@ export function registerTenetSidebar() {
       });
       const [selectedClassifier, setSelectedClassifier] = useState<Classifier | null>(null);
 
-      const getPageForSelectedTab = () => {
-        if (!focusedUi || !focusedUi.value) {
-          return null;
-        }
-        switch (focusedUi.value) {
-          case FocusedUiType.SIDEBAR_VOXEL_TYPE_STORE:
-            return (
-              <VoxelTypeStore
-                layers={layers}
-                filters={creativeInventoryFilters}
-                setFilters={setCreativeInventoryFilters}
-              />
-            );
-          case FocusedUiType.SIDEBAR_REGISTER_CREATION:
-            return (
-              <RegisterCreation
-                layers={layers}
-                formData={registerCreationFormData}
-                setFormData={setRegisterCreationFormData}
-              />
-            );
-          case FocusedUiType.SIDEBAR_CREATION_STORE:
-            return (
-              <CreationStore layers={layers} filters={creationStoreFilters} setFilters={setCreationStoreFilters} />
-            );
-          case FocusedUiType.SIDEBAR_CLASSIFY_STORE:
-            return (
-              <ClassifierStore
-                layers={layers}
-                filters={classifierStoreFilters}
-                setFilters={setClassifierStoreFilters}
-                selectedClassifier={selectedClassifier}
-                setSelectedClassifier={setSelectedClassifier}
-              />
-            );
-          default:
-            return null;
-        }
-      };
-      const SelectedTab = getPageForSelectedTab();
+      // const getPageForSelectedTab = () => {
+      //   if (!focusedUi || !focusedUi.value) {
+      //     return null;
+      //   }
+      //   switch (focusedUi.value) {
+      //     case FocusedUiType.SIDEBAR_VOXEL_TYPE_STORE:
+      //       return (
+      //         <VoxelTypeStore
+      //           layers={layers}
+      //           filters={creativeInventoryFilters}
+      //           setFilters={setCreativeInventoryFilters}
+      //         />
+      //       );
+      //     case FocusedUiType.SIDEBAR_REGISTER_CREATION:
+      //       return (
+      //         <RegisterCreation
+      //           layers={layers}
+      //           formData={registerCreationFormData}
+      //           setFormData={setRegisterCreationFormData}
+      //         />
+      //       );
+      //     case FocusedUiType.SIDEBAR_CREATION_STORE:
+      //       return (
+      //         <CreationStore layers={layers} filters={creationStoreFilters} setFilters={setCreationStoreFilters} />
+      //       );
+      //     case FocusedUiType.SIDEBAR_CLASSIFY_STORE:
+      //       return (
+      //         <ClassifierStore
+      //           layers={layers}
+      //           filters={classifierStoreFilters}
+      //           setFilters={setClassifierStoreFilters}
+      //           selectedClassifier={selectedClassifier}
+      //           setSelectedClassifier={setSelectedClassifier}
+      //         />
+      //       );
+      //     default:
+      //       return null;
+      //   }
+      // };
+      // const SelectedTab = getPageForSelectedTab();
 
-      const isFocusedUiASelectedTab =
-        focusedUi &&
-        focusedUi.value &&
-        [
-          FocusedUiType.SIDEBAR_VOXEL_TYPE_STORE,
-          FocusedUiType.SIDEBAR_CREATION_STORE,
-          FocusedUiType.SIDEBAR_CLASSIFY_STORE,
-          FocusedUiType.SIDEBAR_REGISTER_CREATION,
-        ].includes(focusedUi.value);
+      // const isFocusedUiASelectedTab =
+      //   focusedUi &&
+      //   focusedUi.value &&
+      //   [
+      //     FocusedUiType.SIDEBAR_VOXEL_TYPE_STORE,
+      //     FocusedUiType.SIDEBAR_CREATION_STORE,
+      //     FocusedUiType.SIDEBAR_CLASSIFY_STORE,
+      //     FocusedUiType.SIDEBAR_REGISTER_CREATION,
+      //   ].includes(focusedUi.value);
 
-      const showSidebar = useComponentValue(UI, SingletonEntity)?.showSidebar;
+      const showSidebar = focusedUi && focusedUi.value === FocusedUiType.TENET_SIDEBAR;
 
       return (
         <div
@@ -131,35 +131,11 @@ export function registerTenetSidebar() {
               </ul>
             </div>
             <div>
-              <div className="flex w-full p-4">
-                <label className="mb-2 text-sm font-medium text-gray-900 sr-only">Search</label>
-                <div className="relative w-full">
-                  <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
-                    <svg
-                      className="w-4 h-4 text-gray-500"
-                      aria-hidden="true"
-                      xmlns="http://www.w3.org/2000/svg"
-                      fill="none"
-                      viewBox="0 0 20 20"
-                    >
-                      <path
-                        stroke="currentColor"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth="2"
-                        d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z"
-                      />
-                    </svg>
-                  </div>
-                  <input
-                    type="search"
-                    id="search"
-                    className="block w-full p-4 pl-10 text-sm text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-blue-500 focus:border-blue-500"
-                    placeholder="Search"
-                    required
-                  />
-                </div>
-              </div>
+              <VoxelTypeStore
+                layers={layers}
+                filters={creativeInventoryFilters}
+                setFilters={setCreativeInventoryFilters}
+              />
             </div>
           </div>
         </div>

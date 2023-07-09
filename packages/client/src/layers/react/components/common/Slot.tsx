@@ -15,7 +15,8 @@ export const Slot: React.FC<{
   disabled?: boolean;
   iconUrl?: string;
   tooltipText?: React.ReactNode;
-}> = ({ voxelType, quantity, onClick, onRightClick, selected, disabled, iconUrl, tooltipText }) => {
+  slotSize?: string;
+}> = ({ voxelType, quantity, onClick, onRightClick, selected, disabled, iconUrl, tooltipText, slotSize }) => {
   return (
     <AbsoluteBorder borderColor={selected ? "#ffffff" : "transparent"} borderWidth={6}>
       <TooltipContainer>
@@ -29,6 +30,7 @@ export const Slot: React.FC<{
                   event.preventDefault(); // Prevent the default browser context menu from showing up
                   onRightClick && onRightClick();
                 }}
+                slotSize={slotSize || "64px"}
               >
                 {voxelType ? (
                   <VoxelIcon iconUrl={iconUrl ? iconUrl : ""} scale={4}>
@@ -45,9 +47,9 @@ export const Slot: React.FC<{
   );
 };
 
-const Inner = styled.div<{ disabled?: boolean }>`
-  width: 64px;
-  height: 64px;
+const Inner = styled.div<{ disabled?: boolean; slotSize: string }>`
+  width: ${(p) => p.slotSize};
+  height: ${(p) => p.slotSize};
   display: grid;
   justify-items: center;
   align-items: center;

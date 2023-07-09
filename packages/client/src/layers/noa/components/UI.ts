@@ -9,7 +9,6 @@ export function defineUIComponent(world: World) {
       showAdminPanel: Type.Boolean,
       showCrafting: Type.Boolean,
       showPlugins: Type.Boolean,
-      showSidebar: Type.Boolean,
     },
     { id: "UI" }
   );

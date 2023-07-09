@@ -82,7 +82,9 @@ export function createInputSystem(layers: Layers) {
     // https://github.com/fenomas/noa/issues/61
     noa.entities.removeComponent(noa.playerEntity, noa.ents.names.receivesInputs);
     unbindInputEvent("select-voxel");
-    unbindInputEvent("sidebar");
+    if (focusedUi !== FocusedUiType.TENET_SIDEBAR) {
+      unbindInputEvent("sidebar");
+    }
     if (focusedUi !== FocusedUiType.INVENTORY) {
       // do NOT unbind toggle-inventory if the user is in the inventory (so they can close it)
       unbindInputEvent("toggle-inventory");

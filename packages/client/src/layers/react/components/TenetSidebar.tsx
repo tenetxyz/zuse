@@ -137,21 +137,3 @@ export function registerTenetSidebar() {
     },
   });
 }
-
-// "pointerEvents: all" is needed so when we click on the admin panel, we don't gain focus on the noa canvas
-// <div className="select-none h-full inline-grid" style={{ pointerEvents: "all" }}>
-
-/* <div
-            className="flex flex-row float-left relative z-50 mt-[5%] pr-7 pt-7"
-            style={{
-              backgroundColor: isFocusedUiASelectedTab ? `${SIDEBAR_BACKGROUND_COLOR}` : "transparent",
-            }}
-          >
-            <div className="flex flex-col">
-              <TabRadioSelector layers={layers} />
-              <ElectiveBar layers={layers} />
-            </div>
-            <div className={`bg-[${SIDEBAR_BACKGROUND_COLOR}]`}>{SelectedTab}</div>
-          </div> */
-
-// </div>

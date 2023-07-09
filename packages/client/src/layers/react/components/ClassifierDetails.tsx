@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { Layers } from "../../../types";
 import { Entity, getComponentValue, setComponent } from "@latticexyz/recs";
 import { useCreationSearch } from "../../../utils/useCreationSearch";
@@ -12,6 +12,10 @@ import { getSpawnAtPosition } from "../../../utils/voxels";
 import { SearchBar } from "./common/SearchBar";
 import { Classifier } from "./ClassifierStore";
 import { twMerge } from "tailwind-merge";
+import { TargetedBlock, getTargetedSpawnId } from "../../../utils/voxels";
+import { stringToEntity } from "../../../utils/entity";
+import { abiDecode } from "../../../utils/abi";
+import { ISpawn } from "../../noa/components/SpawnInFocus";
 
 export interface ClassifierStoreFilters {
   classifierQuery: string;
@@ -33,16 +37,49 @@ const ClassifierDetails: React.FC<Props> = ({
 }: Props) => {
   const {
     noa: {
-      components: { SpawnToClassify, VoxelInterfaceSelection },
+      noa,
+      components: { SpawnToClassify, VoxelSelection, SpawnInFocus, VoxelInterfaceSelection },
       SingletonEntity,
     },
     network: {
-      components: { VoxelType, OfSpawn },
+      components: { VoxelType, OfSpawn, Spawn, Creation },
       api: { getEntityAtPosition },
       getVoxelIconUrl,
     },
   } = layers;
   const spawnToUse = useComponentValue(SpawnToClassify, SingletonEntity);
+  const spawnInFocus = useComponentValue(SpawnInFocus, SingletonEntity);
+
+  useEffect(() => {
+    noa.on("targetBlockChanged", getSpawnUserIsLookingAt);
+  }, []);
+
+  const getSpawnUserIsLookingAt = (targetedBlock: TargetedBlock) => {
+    const spawnId = getTargetedSpawnId(layers, targetedBlock);
+    if (!spawnId) {
+      // The user is not looking at any spawn. so clear the spawn in focus
+      setComponent(SpawnInFocus, SingletonEntity, { spawn: undefined, creation: undefined });
+      return;
+    }
+
+    const rawSpawn = getComponentValue(Spawn, stringToEntity(spawnId));
+    if (!rawSpawn) {
+      console.error("cannot find spawn object with spawnId=", spawnId);
+      return;
+    }
+
+    const spawn = {
+      spawnId: stringToEntity(spawnId),
+      creationId: stringToEntity(rawSpawn.creationId),
+      lowerSouthWestCorner: abiDecode("tuple(int32 x,int32 y,int32 z)", rawSpawn.lowerSouthWestCorner),
+      voxels: rawSpawn.voxels as Entity[],
+    } as ISpawn;
+    const creation = getComponentValue(Creation, spawn.creationId);
+    setComponent(SpawnInFocus, SingletonEntity, {
+      spawn: spawn,
+      creation: creation,
+    });
+  };
 
   const detailsForSpawnToClassify = () => {
     if (!spawnToUse?.creation || !spawnToUse?.spawn) {
@@ -119,7 +156,16 @@ const ClassifierDetails: React.FC<Props> = ({
     return null;
   }
 
-  const isSubmitDisabled = true;
+  const selectSpawnButtonLabel = spawnInFocus ? (
+    <>
+      <p>Select Spawn</p>
+      <p className="mt-2">{spawnInFocus?.creation?.name}</p>
+    </>
+  ) : (
+    "Look at a creation and press this button to select it"
+  );
+
+  const isSubmitDisabled = spawnInFocus === undefined;
 
   return (
     <div className="flex flex-col h-full mt-5 gap-5">
@@ -129,7 +175,21 @@ const ClassifierDetails: React.FC<Props> = ({
         <b>Creator:</b> {selectedClassifier.creator}
       </p>
       <button
-        // onClick={handleSubmit}
+        type="button"
+        // onClick={onSelectCreationCorners}
+        className="py-2.5 px-5 mr-2 mb-2 text-sm font-medium text-gray-900 focus:outline-none bg-white rounded-lg border border-gray-200 hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-4 focus:ring-gray-200"
+      >
+        {selectSpawnButtonLabel}
+      </button>
+      <button
+        onClick={() => {
+          if (spawnInFocus) {
+            setComponent(SpawnToClassify, SingletonEntity, {
+              spawn: spawnInFocus.spawn,
+              creation: spawnInFocus.creation,
+            });
+          }
+        }}
         disabled={isSubmitDisabled}
         className={twMerge(
           "text-white bg-green-700 hover:bg-green-800 focus:ring-4 focus:outline-none focus:ring-green-300 font-medium rounded-lg text-sm w-full sm:w-auto px-5 py-2.5 text-center",

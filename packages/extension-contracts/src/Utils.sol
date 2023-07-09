@@ -4,7 +4,7 @@ import { Position, PositionData, PositionTableId } from "@tenetxyz/contracts/src
 import { VoxelCoord } from "@tenetxyz/contracts/src/Types.sol";
 import { hasKey } from "@latticexyz/world/src/modules/keysintable/hasKey.sol";
 import { Signal, SignalSource, Powered, InvertedSignal } from "@tenetxyz/contracts/src/codegen/Tables.sol";
-import { BlockDirection } from "@tenetxyz/contracts/src/codegen/Types.sol";
+import { BlockDirection } from "@tenetxyz/extension-contracts/src/codegen/Types.sol";
 import { CLEAR_COORD_SIG, BUILD_SIG } from "@tenetxyz/contracts/src/constants.sol";
 import { getUniqueEntity } from "@latticexyz/world/src/modules/uniqueentity/getUniqueEntity.sol";
 import { REGISTER_EXTENSION_SIG, REGISTER_VOXEL_TYPE_SIG, REGISTER_VOXEL_VARIANT_SIG } from "@tenetxyz/contracts/src/constants.sol";

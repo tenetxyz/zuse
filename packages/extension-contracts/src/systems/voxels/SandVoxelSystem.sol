@@ -8,7 +8,7 @@ import { getCallerNamespace } from "@tenetxyz/contracts/src/SharedUtils.sol";
 import { registerVoxelType, registerVoxelVariant, entityIsPowered } from "../../Utils.sol";
 import { VoxelVariantsKey } from "@tenetxyz/contracts/src/Types.sol";
 import { VoxelVariantsData } from "../../Types.sol";
-import { BlockDirection } from "@tenetxyz/contracts/src/codegen/Types.sol";
+import { BlockDirection } from "@tenetxyz/extension-contracts/src/codegen/Types.sol";
 import { EXTENSION_NAMESPACE } from "../../Constants.sol";
 import { NoaBlockType } from "@tenetxyz/contracts/src/codegen/types.sol";
 

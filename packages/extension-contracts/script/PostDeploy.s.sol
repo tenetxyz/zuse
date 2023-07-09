@@ -4,6 +4,7 @@ pragma solidity >=0.8.0;
 import { Script } from "forge-std/Script.sol";
 import { console } from "forge-std/console.sol";
 import { IWorld } from "../src/codegen/world/IWorld.sol";
+import { safeCall } from "../src/Utils.sol";
 
 contract PostDeploy is Script {
   function run(address worldAddress) external {
@@ -54,15 +55,16 @@ contract PostDeploy is Script {
     string memory classificationResultTableName,
     address worldAddress
   ) private {
-    (bool success, bytes memory result) = worldAddress.call(
+    safeCall(
+      worldAddress,
       abi.encodeWithSignature(
         "tenet_RegClassifierSys_registerClassifier(bytes4,string,string,string)",
         classifySelector,
         classifierName,
         classifierDescription,
         classificationResultTableName
-      )
+      ),
+      string(abi.encode("register classifier: ", classifierName))
     );
-    require(success, string(abi.encodePacked("Failed to register classifier: ", classifierName)));
   }
 }

@@ -5,8 +5,8 @@ import { CHUNK } from "./Constants.sol";
 import { Coord, VoxelCoord } from "./Types.sol";
 import { getKeysWithValue } from "@latticexyz/world/src/modules/keyswithvalue/getKeysWithValue.sol";
 import { Position, PositionTableId, VoxelType, VoxelTypeRegistry, VoxelTypeRegistryData, VoxelTypeData } from "./codegen/Tables.sol";
-import { Strings } from "@openzeppelin/contracts/utils/Strings.sol";
 import { VoxelVariantsKey } from "./Types.sol";
+import { Strings } from "@openzeppelin/contracts/utils/Strings.sol";
 
 function getVoxelVariant(
   address world,
@@ -15,10 +15,11 @@ function getVoxelVariant(
   bytes32 entity
 ) returns (VoxelVariantsKey memory) {
   bytes4 voxelVariantSelector = VoxelTypeRegistry.get(voxelTypeNamespace, voxelTypeId).voxelVariantSelector;
-  (bool variantSelectorSuccess, bytes memory voxelVariantSelected) = world.staticcall(
-    abi.encodeWithSelector(voxelVariantSelector, entity)
+  bytes memory voxelVariantSelected = safeStaticCall(
+    world,
+    abi.encodeWithSelector(voxelVariantSelector, entity),
+    "get voxel variant"
   );
-  require(variantSelectorSuccess, "failed to get voxel variant");
   return abi.decode(voxelVariantSelected, (VoxelVariantsKey));
 }
 
@@ -27,8 +28,7 @@ function enterVoxelIntoWorld(address world, bytes32 entity) {
   bytes4 enterWorldSelector = VoxelTypeRegistry
     .get(entityVoxelType.voxelTypeNamespace, entityVoxelType.voxelTypeId)
     .enterWorldSelector;
-  (bool enterWorldSelectorSuccess, ) = world.call(abi.encodeWithSelector(enterWorldSelector, entity));
-  require(enterWorldSelectorSuccess, "failed to call voxel enter world function");
+  safeCall(world, abi.encodeWithSelector(enterWorldSelector, entity), "voxel enter world");
 }
 
 function exitVoxelFromWorld(address world, bytes32 entity) {
@@ -36,8 +36,7 @@ function exitVoxelFromWorld(address world, bytes32 entity) {
   bytes4 exitWorldSelector = VoxelTypeRegistry
     .get(entityVoxelType.voxelTypeNamespace, entityVoxelType.voxelTypeId)
     .exitWorldSelector;
-  (bool exitWorldSelectorSuccess, ) = world.call(abi.encodeWithSelector(exitWorldSelector, entity));
-  require(exitWorldSelectorSuccess, "failed to call voxel exit world function");
+  safeCall(world, abi.encodeWithSelector(exitWorldSelector, entity), "voxel exit world");
 }
 
 function updateVoxelVariant(address world, bytes32 entity) {
@@ -62,12 +61,12 @@ function updateVoxelVariant(address world, bytes32 entity) {
   }
 }
 
-function staticcallFunctionSelector(
+function safeStaticCallFunctionSelector(
   address world,
   bytes4 functionPointer,
   bytes memory args
-) view returns (bool, bytes memory) {
-  return world.staticcall(bytes.concat(functionPointer, args));
+) returns (bytes memory) {
+  return safeStaticCall(world, bytes.concat(functionPointer, args), "staticcall function selector");
 }
 
 function addressToEntityKey(address addr) pure returns (bytes32) {
@@ -156,4 +155,59 @@ function hasEntity(bytes32[] memory entities) pure returns (bool) {
     }
   }
   return false;
+}
+
+enum CallType {
+  Call,
+  StaticCall,
+  DelegateCall
+}
+
+// bubbles up a revert reason string if the call fails
+function safeGenericCall(
+  CallType callType,
+  address target,
+  bytes memory callData,
+  string memory functionName
+) returns (bytes memory) {
+  bool success;
+  bytes memory returnData;
+
+  if (callType == CallType.Call) {
+    (success, returnData) = target.call(callData);
+  } else if (callType == CallType.StaticCall) {
+    (success, returnData) = target.staticcall(callData);
+  } else if (callType == CallType.DelegateCall) {
+    (success, returnData) = target.delegatecall(callData);
+  }
+
+  if (!success) {
+    // if there is a return reason string
+    if (returnData.length > 0) {
+      // bubble up any reason for revert
+      assembly {
+        let returnDataSize := mload(returnData)
+        revert(add(32, returnData), returnDataSize)
+      }
+    } else {
+      string memory revertMsg = string(
+        abi.encodePacked(functionName, " call reverted. Maybe the params aren't right?")
+      );
+      revert(revertMsg);
+    }
+  }
+
+  return returnData;
+}
+
+function safeCall(address target, bytes memory callData, string memory functionName) returns (bytes memory) {
+  return safeGenericCall(CallType.Call, target, callData, functionName);
+}
+
+function safeStaticCall(address target, bytes memory callData, string memory functionName) returns (bytes memory) {
+  return safeGenericCall(CallType.StaticCall, target, callData, functionName);
+}
+
+function safeDelegateCall(address target, bytes memory callData, string memory functionName) returns (bytes memory) {
+  return safeGenericCall(CallType.DelegateCall, target, callData, functionName);
 }

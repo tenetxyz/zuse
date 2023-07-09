@@ -57,7 +57,7 @@ contract RegisterCreationSystem is System {
     Spawn.set(spawnId, creationId, abi.encode(lowerSouthWestCorner), voxels);
   }
 
-  function validateCreation(VoxelCoord[] memory voxelCoords) private view {
+  function validateCreation(VoxelCoord[] memory voxelCoords) private pure {
     require(voxelCoords.length > 1, string(abi.encodePacked("Your creation must be at least 2 blocks")));
     require(
       voxelCoords.length <= MAX_BLOCKS_IN_CREATION,

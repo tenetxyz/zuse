@@ -12,6 +12,7 @@ import { IWorld } from "../codegen/world/IWorld.sol";
 import { Occurrence } from "../codegen/Tables.sol";
 import { console } from "forge-std/console.sol";
 import { CHUNK_MAX_Y, CHUNK_MIN_Y } from "../Constants.sol";
+import { safeCall } from "../Utils.sol";
 
 contract ClassifyCreationSystem is System {
   function classify(bytes32 classifierId, bytes32 spawnId, bytes32[] memory input) public {
@@ -30,21 +31,6 @@ contract ClassifyCreationSystem is System {
     ClassifierData memory classifier = Classifier.get(classifierId);
 
     // call classifySelector with input
-    (bool success, bytes memory returnData) = _world().call(
-      abi.encodeWithSelector(classifier.classifySelector, _world(), spawnId, input)
-    );
-
-    if (!success) {
-      // if there is a return reason string
-      if (returnData.length > 0) {
-        // bubble up any reason for revert
-        assembly {
-          let returnDataSize := mload(returnData)
-          revert(add(32, returnData), returnDataSize)
-        }
-      } else {
-        revert("Call reverted. Maybe the params to classify() aren't right?");
-      }
-    }
+    safeCall(_world(), abi.encodeWithSelector(classifier.classifySelector, _world(), spawnId, input), "classify");
   }
 }

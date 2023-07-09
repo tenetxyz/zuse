@@ -20,6 +20,6 @@ contract TwoDirtSystem is System {
       bytes32 voxelTypeId = VoxelType.getVoxelTypeId(voxel);
       require(voxelTypeId == DirtID, "voxels must be dirt");
     }
-    TwoDirtCR.set(spawn.creationId, block.number); // just pass anything that is submitted
+    TwoDirtCR.set(spawn.creationId, block.number);
   }
 }

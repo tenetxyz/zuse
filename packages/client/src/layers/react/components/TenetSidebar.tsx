@@ -10,6 +10,9 @@ import { setComponent } from "@latticexyz/recs";
 import { FocusedUiType } from "../../noa/components/FocusedUi";
 import { useComponentUpdate } from "../../../utils/useComponentUpdate";
 import { useComponentValue } from "@latticexyz/react";
+import { twMerge } from "tailwind-merge";
+
+import "../styles/TenetSidebar.css";
 
 export const SIDEBAR_BACKGROUND_COLOR = "#353535";
 export function registerTenetSidebar() {
@@ -103,18 +106,12 @@ export function registerTenetSidebar() {
 
       const showSidebar = useComponentValue(UI, SingletonEntity)?.showSidebar;
 
-      if (!showSidebar) {
-        return null;
-      }
-
       return (
         <div
-          style={{
-            backgroundColor: "white",
-            width: "100%",
-            height: "100%",
-            zIndex: "100",
-          }}
+          className={twMerge(
+            `bg-white w-full h-full transition duration-500`,
+            showSidebar ? "translate-x-0 opacity-100" : "-translate-x-full opacity-0"
+          )}
         ></div>
       );
     },

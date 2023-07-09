@@ -389,7 +389,7 @@ export function createInputSystem(layers: Layers) {
       setComponent(VoxelInterfaceSelection, SingletonEntity, { value: points });
 
       toast(`Selected voxel at ${coord.x}, ${coord.y}, ${coord.z}`);
-      renderFloatingTextAboveCoord(coord, noa, "This is a super\nlong\nline that takes\nup many lines");
+      // renderFloatingTextAboveCoord(coord, noa, "This is a super\nlong\nline that takes\nup many lines");
       // renderEnt(noaLayer, coord);
       // toast(`Selected voxel at ${coord.x}, ${coord.y}, ${coord.z}`);
     } else {

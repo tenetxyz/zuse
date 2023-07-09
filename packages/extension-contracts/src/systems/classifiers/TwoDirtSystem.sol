@@ -19,12 +19,7 @@ import { VoxelType } from "@tenetxyz/contracts/src/codegen/tables/voxelType.sol"
 // import { DirtID } from "@tenetxyz/contracts/src/systems/voxels/DirtVoxelSystem.sol";
 
 contract TwoDirtSystem is System {
-  function classify(
-    bytes32[] memory input,
-    address worldAddress,
-    bytes32[] memory voxelInterfaces,
-    bytes32 spawnId
-  ) public {
+  function classify(address worldAddress, bytes32 spawnId, bytes32[] memory input) public {
     SpawnData memory spawn = Spawn.get(spawnId);
     require(spawn.voxels.length == 2, "the spawn must have exactly 2 voxels");
     for (uint8 i = 0; i < spawn.voxels.length; i++) {

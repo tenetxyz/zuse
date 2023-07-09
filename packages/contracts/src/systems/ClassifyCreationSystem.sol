@@ -31,8 +31,9 @@ contract ClassifyCreationSystem is System {
 
     // call classifySelector with input
     (bool success, bytes memory returnData) = _world().call(
-      abi.encodeWithSelector(classifier.classifySelector, _world(), input, spawnId)
+      abi.encodeWithSelector(classifier.classifySelector, _world(), spawnId, input)
     );
+
     if (!success) {
       // if there is a return reason string
       if (returnData.length > 0) {

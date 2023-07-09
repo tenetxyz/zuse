@@ -18,15 +18,10 @@ contract AndGateSystem is System {
   bytes32 inEntity1 = keccak256("inEntity1");
   bytes32 inEntity2 = keccak256("inEntity2");
 
-  function classify(
-    bytes32[] memory input,
-    address worldAddress,
-    bytes32[] memory voxelInterfaces,
-    bytes32 spawnId
-  ) public {
-    bytes32 in1 = voxelInterfaces[0];
-    bytes32 in2 = voxelInterfaces[1];
-    bytes32 out = voxelInterfaces[2];
+  function classify(address worldAddress, bytes32 spawnId, bytes32[] memory input) public {
+    bytes32 in1 = input[0];
+    bytes32 in2 = input[1];
+    bytes32 out = input[2];
 
     VoxelCoord memory in1Coord = getVoxelCoordStrict(in1);
     VoxelCoord memory in2Coord = getVoxelCoordStrict(in2);
@@ -37,7 +32,7 @@ contract AndGateSystem is System {
 
     bytes32 creationId = Spawn.getCreationId(spawnId);
     VoxelCoord memory lowerSouthWestCorner = abi.decode(Spawn.getLowerSouthWestCorner(spawnId), (VoxelCoord));
-    VoxelCoord[] memory interfaceCoords = entitiesToRelativeVoxelCoords(voxelInterfaces, lowerSouthWestCorner);
+    VoxelCoord[] memory interfaceCoords = entitiesToRelativeVoxelCoords(input, lowerSouthWestCorner);
     AndGateCR.set(creationId, block.number, abi.encode(interfaceCoords));
   }
 

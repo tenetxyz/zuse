@@ -14,7 +14,7 @@ import { console } from "forge-std/console.sol";
 import { CHUNK_MAX_Y, CHUNK_MIN_Y } from "../Constants.sol";
 
 contract ClassifyCreationSystem is System {
-  function classify(bytes32 classifierId, bytes32 spawnId, bytes memory input) public {
+  function classify(bytes32 classifierId, bytes32 spawnId, bytes32[] memory input) public {
     // check if classifier is already registered
     bytes32[] memory classifierKeyTuple = new bytes32[](1);
     classifierKeyTuple[0] = classifierId;
@@ -25,10 +25,25 @@ contract ClassifyCreationSystem is System {
     spawnKeyTuple[0] = spawnId;
     require(hasKey(SpawnTableId, spawnKeyTuple), "Spawn doesn't exist");
 
+    // TODO: verify that all blocks in the voxelInterface exist in the spawn
+
     ClassifierData memory classifier = Classifier.get(classifierId);
 
     // call classifySelector with input
-    (bool success, bytes memory data) = _world().call(abi.encodeWithSelector(classifier.classifySelector, input));
-    require(success, "Classifier test failed");
+    (bool success, bytes memory returnData) = _world().call(
+      abi.encodeWithSelector(classifier.classifySelector, _world(), input, spawnId)
+    );
+    if (!success) {
+      // if there is a return reason string
+      if (returnData.length > 0) {
+        // bubble up any reason for revert
+        assembly {
+          let returnDataSize := mload(returnData)
+          revert(add(32, returnData), returnDataSize)
+        }
+      } else {
+        revert("Call reverted");
+      }
+    }
   }
 }

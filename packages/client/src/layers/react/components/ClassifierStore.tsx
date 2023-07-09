@@ -47,7 +47,7 @@ const ClassifierStore: React.FC<Props> = ({
     },
     network: {
       components: { VoxelType, OfSpawn },
-      api: { getEntityAtPosition },
+      api: { getEntityAtPosition, classifyCreation },
       getVoxelIconUrl,
     },
   } = layers;
@@ -63,10 +63,12 @@ const ClassifierStore: React.FC<Props> = ({
 
   const spawnToUse = useComponentValue(SpawnToClassify, SingletonEntity);
 
-  const detailsForSpawnToClassify = () => {
+  const detailsForSpawnToClassify = (classifierId: Entity) => {
     if (!spawnToUse?.creation || !spawnToUse?.spawn) {
       return <p>Please look at a spawn of a creation and press the button to classify it</p>;
     }
+
+    const spawnId: Entity = spawnToUse.spawn.spawnId;
 
     const interfaceVoxels = Array.from(
       getComponentValue(VoxelInterfaceSelection, SingletonEntity)?.value ?? new Set<string>()
@@ -79,7 +81,7 @@ const ClassifierStore: React.FC<Props> = ({
         }
         const interfaceSpawnId = getComponentValue(OfSpawn, entityId)?.value;
         // we only want the interface selections on the voxels that are part of this spawn
-        return interfaceSpawnId === spawnToUse.spawn.spawnId;
+        return interfaceSpawnId === spawnId;
       });
 
     //   const cacheStoreKeys = Array.from(cacheStore.state.keys()).filter((key) => {
@@ -104,8 +106,7 @@ const ClassifierStore: React.FC<Props> = ({
         {renderInterfaceVoxelImages(interfaceVoxels as Entity[])}
         <button
           onClick={() => {
-            // the interface voxels are defined above
-            alert("todo: submit creation to classifier");
+            classifyCreation(classifierId, spawnId, interfaceVoxels);
           }}
         >
           Submit
@@ -213,7 +214,7 @@ const ClassifierStore: React.FC<Props> = ({
               <p>{selectedClassifier.description}</p>
               <p className="break-all break-words">{selectedClassifier.creator.substring(10)}</p>
             </div>
-            {detailsForSpawnToClassify()}
+            {detailsForSpawnToClassify(selectedClassifier.classifierId)}
             <ClassifierResults classifier={selectedClassifier} />
           </div>
         )}

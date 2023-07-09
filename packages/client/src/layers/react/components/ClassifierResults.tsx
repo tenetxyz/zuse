@@ -34,8 +34,7 @@ export const ClassifierResults = ({ classifier }: Props) => {
   return (
     <div>
       <div className="flex flex-col">
-        <label className="flex items-center space-x-2 ml-2">Classifiers</label>
-        <input />
+        <label className="flex items-center space-x-2 ml-2">Results</label>
       </div>
     </div>
   );

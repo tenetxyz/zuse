@@ -20,11 +20,10 @@ import { VoxelType } from "@tenetxyz/contracts/src/codegen/tables/voxelType.sol"
 
 contract TwoDirtSystem is System {
   function classify(
-    bytes memory input,
+    bytes32[] memory input,
     address worldAddress,
-    bytes memory voxelInterfaces,
-    bytes32 spawnId,
-    bytes32 creationId
+    bytes32[] memory voxelInterfaces,
+    bytes32 spawnId
   ) public {
     SpawnData memory spawn = Spawn.get(spawnId);
     require(spawn.voxels.length == 2, "the spawn must have exactly 2 voxels");
@@ -33,6 +32,6 @@ contract TwoDirtSystem is System {
       bytes32 voxelTypeId = VoxelType.getVoxelTypeId(voxel);
       require(voxelTypeId == bytes32(keccak256("dirt")), "voxels must be dirt");
     }
-    TwoDirtCR.set(creationId, block.number); // just pass anything that is submitted
+    TwoDirtCR.set(spawn.creationId, block.number); // just pass anything that is submitted
   }
 }

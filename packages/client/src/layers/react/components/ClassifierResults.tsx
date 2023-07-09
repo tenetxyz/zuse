@@ -2,17 +2,34 @@ import { cacheStore$ } from "@latticexyz/network/dev";
 import { Classifier } from "./ClassifierStore";
 import { useEffect, useState } from "react";
 import { useObservableValue } from "@latticexyz/react";
-import { unpackTuple } from "@latticexyz/utils";
+import { to256BitString, unpackTuple } from "@latticexyz/utils";
+import { jsonStringifyWithBigInt } from "../../../utils/encodeOrDecode";
+import { Creation } from "./CreationStore";
+import { getComponentValue, getComponentValueStrict } from "@latticexyz/recs";
+import { stringToEntity, to64CharAddress } from "../../../utils/entity";
+import { Layers } from "../../../types";
 
 export interface Props {
+  layers: Layers;
   classifier: Classifier;
 }
 
-export const ClassifierResults = ({ classifier }: Props) => {
+interface ClassifierResult {
+  creation: Creation | undefined;
+  record: string;
+}
+
+export const ClassifierResults = ({ layers, classifier }: Props) => {
+  const {
+    network: {
+      contractComponents: { Creation },
+    },
+  } = layers;
   //   useObservableValue(cacheStore$);
-  const [results, setResults] = useState("");
+  const [results, setResults] = useState<ClassifierResult[]>([]);
   useEffect(() => {
     const classifierResultTableKey = `TableId<${classifier.namespace}:${classifier.classificationResultTableName}>`;
+    console.log(classifierResultTableKey);
     const subscription = cacheStore$.subscribe((storeEvent) => {
       if (!storeEvent) {
         return;
@@ -23,10 +40,24 @@ export const ClassifierResults = ({ classifier }: Props) => {
         const [component] = unpackTuple(key);
         return component === componentIndex;
       });
-      // look at the
-      debugger;
-      //   console.log("store event", storeEvent);
-      // TODO: narrow down to the chain/world we care about?
+
+      // TODO: should we remove all numeric keys in the json object? We should test more. If they are just duplicates of the keys (that are strings), then we should remove them
+      const records = cacheStoreKeys
+        .map((cacheStoreKey) => [cacheStoreKey, jsonStringifyWithBigInt(storeEvent.state.get(cacheStoreKey) ?? "")])
+        .filter(([_, record]) => record !== "")
+        .map(([cacheStoreKey, record]) => {
+          const [_componentIndex, entityIndex] = unpackTuple(cacheStoreKey);
+          const creationId = storeEvent.entities[entityIndex];
+          const creation = getComponentValue(Creation, stringToEntity(to256BitString(creationId.toString())));
+          return {
+            creation,
+            record,
+          };
+        });
+
+      if (records.length > 0) {
+        setResults(records as ClassifierResult[]);
+      }
     });
     return () => subscription.unsubscribe();
   }, [cacheStore$]);
@@ -35,6 +66,12 @@ export const ClassifierResults = ({ classifier }: Props) => {
     <div>
       <div className="flex flex-col">
         <label className="flex items-center space-x-2 ml-2">Results</label>
+        {results.map((result, index) => (
+          <div key={index} className="flex items-center space-x-2 ml-2">
+            <p>{result.creation?.name ?? ""}</p>
+            <p>{result.record}</p>
+          </div>
+        ))}
       </div>
     </div>
   );

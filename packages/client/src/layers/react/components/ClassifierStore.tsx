@@ -215,7 +215,7 @@ const ClassifierStore: React.FC<Props> = ({
               <p className="break-all break-words">{selectedClassifier.creator.substring(10)}</p>
             </div>
             {detailsForSpawnToClassify(selectedClassifier.classifierId)}
-            <ClassifierResults classifier={selectedClassifier} />
+            <ClassifierResults layers={layers} classifier={selectedClassifier} />
           </div>
         )}
       </div>

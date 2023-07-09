@@ -5,6 +5,9 @@ import { Layers } from "../../../types";
 import { Entity, getComponentValue, getEntityString } from "@latticexyz/recs";
 import { Classifier, ClassifierStoreFilters } from "./ClassifierStore";
 import { to64CharAddress } from "../../../utils/entity";
+import { ethers } from "ethers";
+import { abiDecode } from "../../../utils/abi";
+import { hexToAscii, removeTrailingNulls } from "../../../utils/encodeOrDecode";
 
 export interface Props {
   layers: Layers;
@@ -46,7 +49,8 @@ export const useClassifierSearch = ({ layers, filters }: Props) => {
         return;
       }
       const classifierNamespace =
-        getComponentValue(FunctionSelectors, classifySelector.padEnd(66, "0") as Entity) ?? "unknown namespace";
+        getComponentValue(FunctionSelectors, classifySelector.padEnd(66, "0") as Entity)?.namespace ??
+        "unknown namespace";
 
       allClassifiers.current.push({
         creator: creator,
@@ -54,7 +58,7 @@ export const useClassifierSearch = ({ layers, filters }: Props) => {
         description: description,
         classifierId: getEntityString(classifierId),
         classificationResultTableName: classifierTable.classificationResultTableName.get(classifierId),
-        namespace: classifierNamespace,
+        namespace: removeTrailingNulls(hexToAscii(classifierNamespace.substring(2))),
       } as Classifier);
     });
 

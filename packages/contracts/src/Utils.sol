@@ -1,11 +1,11 @@
 // SPDX-License-Identifier: GPL-3.0
 pragma solidity >=0.8.0;
 
-import { CHUNK } from "@tenetxyz/contracts/src/Constants.sol";
-import { Coord, VoxelCoord } from "@tenetxyz/contracts/src/Types.sol";
+import { CHUNK } from "@tenet-contracts/src/Constants.sol";
+import { Coord, VoxelCoord } from "@tenet-contracts/src/Types.sol";
 import { getKeysWithValue } from "@latticexyz/world/src/modules/keyswithvalue/getKeysWithValue.sol";
-import { Position, PositionTableId, VoxelType, VoxelTypeRegistry, VoxelTypeRegistryData, VoxelTypeData } from "@tenetxyz/contracts/src/codegen/Tables.sol";
-import { VoxelVariantsKey } from "@tenetxyz/contracts/src/Types.sol";
+import { Position, PositionTableId, VoxelType, VoxelTypeRegistry, VoxelTypeRegistryData, VoxelTypeData } from "@tenet-contracts/src/codegen/Tables.sol";
+import { VoxelVariantsKey } from "@tenet-contracts/src/Types.sol";
 import { Strings } from "@openzeppelin/contracts/utils/Strings.sol";
 
 function getVoxelVariant(

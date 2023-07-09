@@ -13,7 +13,7 @@ import { BedrockID } from "./voxels/BedrockVoxelSystem.sol";
 import { VoxelCoord, Tuple, VoxelVariantsKey } from "../Types.sol";
 import { div } from "../Utils.sol";
 import { System } from "@latticexyz/world/src/System.sol";
-import { IWorld } from "@tenetxyz/contracts/src/codegen/world/IWorld.sol";
+import { IWorld } from "@tenet-contracts/src/codegen/world/IWorld.sol";
 import { CHUNK_MIN_Y, TENET_NAMESPACE } from "../Constants.sol";
 
 int128 constant _0 = 0; // 0 * 2**64

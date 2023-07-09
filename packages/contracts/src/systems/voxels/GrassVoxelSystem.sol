@@ -3,9 +3,9 @@ pragma solidity >=0.8.0;
 
 import { VoxelType } from "../../prototypes/VoxelType.sol";
 import { IWorld } from "../../../src/codegen/world/IWorld.sol";
-import { Occurrence, VoxelTypeData, VoxelVariantsData } from "@tenetxyz/contracts/src/codegen/Tables.sol";
-import { NoaBlockType } from "@tenetxyz/contracts/src/codegen/Types.sol";
-import { VoxelVariantsKey } from "@tenetxyz/contracts/src/Types.sol";
+import { Occurrence, VoxelTypeData, VoxelVariantsData } from "@tenet-contracts/src/codegen/Tables.sol";
+import { NoaBlockType } from "@tenet-contracts/src/codegen/Types.sol";
+import { VoxelVariantsKey } from "@tenet-contracts/src/Types.sol";
 import { TENET_NAMESPACE } from "../../Constants.sol";
 import { DirtTexture } from "./DirtVoxelSystem.sol";
 

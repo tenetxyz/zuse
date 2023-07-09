@@ -1,15 +1,15 @@
 // SPDX-License-Identifier: MIT
 pragma solidity >=0.8.0;
 
-import { VoxelType } from "@tenetxyz/contracts/src/prototypes/VoxelType.sol";
+import { VoxelType } from "@tenet-contracts/src/prototypes/VoxelType.sol";
 import { IWorld } from "../../../src/codegen/world/IWorld.sol";
-import { SignalSource } from "@tenetxyz/contracts/src/codegen/Tables.sol";
-import { getCallerNamespace } from "@tenetxyz/contracts/src/SharedUtils.sol";
+import { SignalSource } from "@tenet-extension-contracts/src/codegen/Tables.sol";
+import { getCallerNamespace } from "@tenet-contracts/src/SharedUtils.sol";
 import { registerVoxelType, registerVoxelVariant, entityIsSignalSource } from "../../Utils.sol";
-import { VoxelVariantsKey } from "@tenetxyz/contracts/src/Types.sol";
+import { VoxelVariantsKey } from "@tenet-contracts/src/Types.sol";
 import { VoxelVariantsData } from "../../Types.sol";
 import { EXTENSION_NAMESPACE } from "../../Constants.sol";
-import { NoaBlockType } from "@tenetxyz/contracts/src/codegen/types.sol";
+import { NoaBlockType } from "@tenet-contracts/src/codegen/types.sol";
 
 bytes32 constant SignalSourceID = bytes32(keccak256("signalsource"));
 

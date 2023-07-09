@@ -13,4 +13,4 @@ royalty-registry/=../../node_modules/@manifoldxyz/royalty-registry-solidity/cont
 memmove/=../../node_modules/memmove/src/
 abdk-libraries-solidity/=../../node_modules/abdk-libraries-solidity/
 @solidstate/=../../node_modules/@solidstate/
-@tenetxyz/=../
+@tenet-contracts/=./

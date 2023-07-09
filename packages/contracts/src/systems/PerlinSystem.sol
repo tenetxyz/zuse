@@ -5,7 +5,7 @@ pragma solidity ^0.8.0;
 
 import { ABDKMath64x64 as Math } from "../libraries/ABDKMath64x64.sol";
 import { System } from "@latticexyz/world/src/System.sol";
-import "@tenetxyz/contracts/src/codegen/world/IOccurrenceSystem.sol";
+import "@tenet-contracts/src/codegen/world/IOccurrenceSystem.sol";
 
 // Commonly used numbers as 64.64 fixed point
 int128 constant _1 = 2 ** 64;

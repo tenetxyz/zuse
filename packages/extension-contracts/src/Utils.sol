@@ -1,16 +1,16 @@
 // SPDX-License-Identifier: GPL-3.0
 pragma solidity >=0.8.0;
-import { Position, PositionData, PositionTableId } from "@tenetxyz/contracts/src/codegen/tables/Position.sol";
-import { VoxelCoord } from "@tenetxyz/contracts/src/Types.sol";
+import { Position, PositionData, PositionTableId } from "@tenet-contracts/src/codegen/tables/Position.sol";
+import { VoxelCoord } from "@tenet-contracts/src/Types.sol";
 import { hasKey } from "@latticexyz/world/src/modules/keysintable/hasKey.sol";
-import { Signal, SignalSource, Powered, InvertedSignal } from "@tenetxyz/contracts/src/codegen/Tables.sol";
-import { BlockDirection } from "@tenetxyz/extension-contracts/src/codegen/Types.sol";
-import { CLEAR_COORD_SIG, BUILD_SIG } from "@tenetxyz/contracts/src/constants.sol";
+import { Signal, SignalSource, Powered, InvertedSignal } from "@tenet-extension-contracts/src/codegen/Tables.sol";
+import { BlockDirection } from "@tenet-extension-contracts/src/codegen/Types.sol";
+import { CLEAR_COORD_SIG, BUILD_SIG } from "@tenet-contracts/src/constants.sol";
 import { getUniqueEntity } from "@latticexyz/world/src/modules/uniqueentity/getUniqueEntity.sol";
-import { REGISTER_EXTENSION_SIG, REGISTER_VOXEL_TYPE_SIG, REGISTER_VOXEL_VARIANT_SIG } from "@tenetxyz/contracts/src/constants.sol";
+import { REGISTER_EXTENSION_SIG, REGISTER_VOXEL_TYPE_SIG, REGISTER_VOXEL_VARIANT_SIG } from "@tenet-contracts/src/constants.sol";
 import { VoxelVariantsData } from "./Types.sol";
 import { Strings } from "@openzeppelin/contracts/utils/Strings.sol";
-import { safeCall } from "@tenetxyz/contracts/src/Utils.sol";
+import { safeCall } from "@tenet-contracts/src/Utils.sol";
 
 function registerExtension(address world, string memory extensionName, bytes4 eventHandlerSelector) {
   safeCall(

@@ -5,7 +5,7 @@ import { VoxelType } from "../../prototypes/VoxelType.sol";
 import { IWorld } from "../../../src/codegen/world/IWorld.sol";
 import { Occurrence, VoxelTypeData, VoxelVariantsData } from "../../codegen/Tables.sol";
 import { NoaBlockType } from "../../codegen/Types.sol";
-import { VoxelVariantsKey } from "../../Types.sol";
+import { VoxelVariantsKey } from "@tenetxyz/contracts/src/Types.sol";
 import { TENET_NAMESPACE } from "../../Constants.sol";
 
 bytes32 constant AirID = bytes32(keccak256("air"));

@@ -7,7 +7,8 @@ import { getKeysInTable } from "@latticexyz/world/src/modules/keysintable/getKey
 import { VoxelCoord } from "../Types.sol";
 import { NUM_VOXEL_NEIGHBOURS, MAX_VOXEL_NEIGHBOUR_UPDATE_DEPTH } from "../Constants.sol";
 import { Position, PositionData, VoxelType, VoxelTypeData, VoxelTypeRegistry, VoxelInteractionExtension, VoxelInteractionExtensionTableId } from "../codegen/Tables.sol";
-import { getEntitiesAtCoord, hasEntity, staticcallFunctionSelector, updateVoxelVariant } from "../Utils.sol";
+import { getEntitiesAtCoord, hasEntity, updateVoxelVariant } from "../Utils.sol";
+import { safeCall } from "../Utils.sol";
 
 contract VoxelInteractionSystem is System {
   int8[18] private NEIGHBOUR_COORD_OFFSETS = [
@@ -91,12 +92,15 @@ contract VoxelInteractionSystem is System {
         // TODO: Should filter which ones to call based on key/some config passed by user
         bytes16 extensionNamespace = bytes16(extensions[i][0]);
         bytes4 extensionEventHandler = bytes4(extensions[i][1]);
-        (bool extensionSuccess, bytes memory extensionReturnData) = world.call(
-          abi.encodeWithSelector(extensionEventHandler, useCenterEntityId, useNeighbourEntities)
-        );
+
         // TODO: Add error handling
-        // TODO: Remove require on release
-        require(extensionSuccess, "VoxelInteractionSystem: Extension call failed");
+        // TODO: Remove require on release (there is an implicit require in safeCall)
+        bytes memory extensionReturnData = safeCall(
+          world,
+          abi.encodeWithSelector(extensionEventHandler, useCenterEntityId, useNeighbourEntities),
+          "ExtensionEventHandler"
+        );
+        bool extensionSuccess = true; // TODO: clean this up on release
         if (extensionSuccess) {
           (bytes32 changedCenterEntityId, bytes32[] memory changedNeighbourEntityIds) = abi.decode(
             extensionReturnData,

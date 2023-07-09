@@ -7,7 +7,7 @@ import { System } from "@latticexyz/world/src/System.sol";
 import { VoxelCoord, VoxelVariantsKey } from "../Types.sol";
 import { OwnedBy, Position, PositionTableId, VoxelType, VoxelTypeData, VoxelTypeRegistry } from "../codegen/Tables.sol";
 import { AirID } from "./voxels/AirVoxelSystem.sol";
-import { enterVoxelIntoWorld, exitVoxelFromWorld, updateVoxelVariant, addressToEntityKey, getEntitiesAtCoord, staticcallFunctionSelector, getVoxelVariant } from "../Utils.sol";
+import { enterVoxelIntoWorld, exitVoxelFromWorld, updateVoxelVariant, addressToEntityKey, getEntitiesAtCoord, safeStaticCallFunctionSelector, getVoxelVariant } from "../Utils.sol";
 import { Utils } from "@latticexyz/world/src/Utils.sol";
 import { IWorld } from "../codegen/world/IWorld.sol";
 import { Occurrence } from "../codegen/Tables.sol";
@@ -36,12 +36,12 @@ contract MineSystem is System {
 
     if (entitiesAtPosition.length == 0) {
       // If there is no entity at this position, try mining the terrain voxel at this position
-      (bool success, bytes memory occurrence) = staticcallFunctionSelector(
+      bytes memory occurrence = safeStaticCallFunctionSelector(
         _world(),
         Occurrence.get(voxelTypeId),
         abi.encode(coord)
       );
-      require(success && occurrence.length > 0, "invalid terrain voxel type");
+      require(occurrence.length > 0, "invalid terrain voxel type");
       VoxelVariantsKey memory occurenceVoxelKey = abi.decode(occurrence, (VoxelVariantsKey));
       require(
         occurenceVoxelKey.voxelVariantNamespace == voxelVariantNamespace &&

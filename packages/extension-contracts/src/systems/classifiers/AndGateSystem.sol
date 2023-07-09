@@ -5,19 +5,25 @@ import { System } from "@latticexyz/world/src/System.sol";
 
 import { getVoxelCoordStrict, entitiesToRelativeVoxelCoords, getCallerNamespace } from "@tenet-contracts/src/Utils.sol";
 import { console } from "forge-std/console.sol";
-import { IWorld } from "@tenet-contracts/src/codegen/world/IWorld.sol";
+import { IWorld } from "@tenet-extension-contracts/src/codegen/world/IWorld.sol";
 import { Strings } from "@openzeppelin/contracts/utils/Strings.sol";
 import { VoxelCoord } from "@tenet-contracts/src/Types.sol";
 import { entityIsPowered, clearCoord, build } from "../../Utils.sol";
 import { getUniqueEntity } from "@latticexyz/world/src/modules/uniqueentity/getUniqueEntity.sol";
 import { AndGateCR } from "@tenet-extension-contracts/src/codegen/tables.sol";
-import { Spawn, SpawnData } from "@tenet-contracts/src/codegen/tables/spawn.sol";
+import { Spawn, SpawnData } from "@tenet-contracts/src/codegen/Tables.sol";
+import { Classifier } from "@tenet-contracts/src/prototypes/Classifier.sol";
 
-contract AndGateSystem is System {
+contract AndGateSystem is Classifier {
   bytes32 inEntity1 = keccak256("inEntity1");
   bytes32 inEntity2 = keccak256("inEntity2");
 
-  function classify(address worldAddress, SpawnData memory spawn, bytes32 spawnId, bytes32[] memory input) public {
+  function classify(
+    address worldAddress,
+    SpawnData memory spawn,
+    bytes32 spawnId,
+    bytes32[] memory input
+  ) public override {
     require(!AndGateCR.get(spawn.creationId).hasValue, "this creation has already been classified"); // TODO: put this into classify creation system
     bytes32 in1 = input[0];
     bytes32 in2 = input[1];

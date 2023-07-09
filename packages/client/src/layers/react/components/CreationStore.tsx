@@ -35,7 +35,7 @@ export interface Creation {
 const CreationStore: React.FC<Props> = ({ layers, filters, setFilters, setShowAllCreations }) => {
   const {
     noa: {
-      components: { PersistentNotification, SpawnCreation, FocusedUi },
+      components: { VoxelSelection, PersistentNotification, SpawnCreation, FocusedUi },
       SingletonEntity,
       noa,
     },
@@ -49,6 +49,15 @@ const CreationStore: React.FC<Props> = ({ layers, filters, setFilters, setShowAl
     name: "",
     description: "",
   });
+
+  const resetRegisterCreationForm = () => {
+    setRegisterCreationFormData({ name: "", description: "" });
+    setComponent(VoxelSelection, SingletonEntity, {
+      corner1: undefined,
+      corner2: undefined,
+    } as any);
+    setRegisterNewCreation(false);
+  };
 
   const spawnCreation = (creation: Creation) => {
     setComponent(PersistentNotification, SingletonEntity, {
@@ -77,6 +86,7 @@ const CreationStore: React.FC<Props> = ({ layers, filters, setFilters, setShowAl
           layers={layers}
           formData={registerCreationFormData}
           setFormData={setRegisterCreationFormData}
+          resetRegisterCreationForm={resetRegisterCreationForm}
         />
       );
     } else {
@@ -93,6 +103,14 @@ const CreationStore: React.FC<Props> = ({ layers, filters, setFilters, setShowAl
           <div className="flex w-full mt-5 justify-center items-center"></div>
         </>
       );
+    }
+  };
+
+  const creationsNavClicked = () => {
+    if (registerNewCreation) {
+      resetRegisterCreationForm();
+    } else {
+      setShowAllCreations(false);
     }
   };
 
@@ -125,8 +143,8 @@ const CreationStore: React.FC<Props> = ({ layers, filters, setFilters, setShowAl
             <li>
               <div className="flex items-center">
                 <a
-                  onClick={() => setShowAllCreations(false)}
-                  className="cursor-pointer ml-1 text-sm font-medium text-gray-700 hover:text-blue-600 md:ml-2"
+                  onClick={creationsNavClicked}
+                  className="cursor-pointer text-sm font-medium text-gray-700 hover:text-blue-600 md:ml-2"
                 >
                   Creations
                 </a>

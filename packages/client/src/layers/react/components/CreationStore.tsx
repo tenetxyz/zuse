@@ -106,6 +106,7 @@ const CreationStore: React.FC<Props> = ({ layers, filters, setFilters, setShowAl
                 <div key={"creation-" + idx} className="w-full p-6 bg-white border border-gray-200 rounded-lg shadow">
                   <h5 className="mb-2 text-2xl font-bold tracking-tight text-gray-900">{creation.name}</h5>
                   <p className="font-normal text-gray-700 leading-4">{creation.description}</p>
+                  <p className="font-normal text-gray-700 leading-4 mt-4"># Spawns: {creation.numSpawns.toString()}</p>
                   <div className="flex mt-5 gap-2">
                     <button
                       type="button"
@@ -146,16 +147,14 @@ const CreationStore: React.FC<Props> = ({ layers, filters, setFilters, setShowAl
     }
 
     return (
-      <div className="flex w-full mb-3">
-        <div className="flex w-full h-fit">
-          <button
-            type="button"
-            onClick={() => setRegisterNewCreation(true)}
-            className="py-2.5 px-5 mr-2 mb-2 text-sm font-medium text-gray-900 focus:outline-none bg-white rounded-lg border border-gray-200 hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-4 focus:ring-gray-200"
-          >
-            Register New Creation
-          </button>
-        </div>
+      <div className="flex w-full">
+        <button
+          type="button"
+          onClick={() => setRegisterNewCreation(true)}
+          className="py-2.5 px-5 mr-2 text-sm font-medium text-gray-900 focus:outline-none bg-white rounded-lg border border-gray-200 hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-4 focus:ring-gray-200"
+        >
+          Register New Creation
+        </button>
       </div>
     );
   };
@@ -164,7 +163,7 @@ const CreationStore: React.FC<Props> = ({ layers, filters, setFilters, setShowAl
     <div
       className="flex flex-col p-4"
       style={{
-        height: "calc(100% - 2rem)",
+        height: "calc(100% - 3rem)",
       }}
     >
       <nav className="flex" aria-label="Breadcrumb">

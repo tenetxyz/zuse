@@ -12,8 +12,6 @@ import { useComponentUpdate } from "../../../utils/useComponentUpdate";
 import { useComponentValue } from "@latticexyz/react";
 import { twMerge } from "tailwind-merge";
 
-import "../styles/TenetSidebar.css";
-
 export const SIDEBAR_BACKGROUND_COLOR = "#353535";
 export function registerTenetSidebar() {
   registerTenetComponent({
@@ -112,7 +110,31 @@ export function registerTenetSidebar() {
             `bg-white w-full h-full transition duration-500`,
             showSidebar ? "translate-x-0 opacity-100" : "-translate-x-full opacity-0"
           )}
-        ></div>
+          style={{ pointerEvents: "all" }}
+        >
+          <div className="flex flex-col">
+            <div className="flex justify-center items-center w-full text-sm font-medium text-center text-gray-500 border-b border-gray-200">
+              <ul className="flex flex-wrap -mb-px">
+                <li className="mr-2">
+                  <a href="#" className="inline-block p-4 text-blue-600 border-b-2 border-blue-600 rounded-t-lg active">
+                    Voxels
+                  </a>
+                </li>
+                <li className="mr-2">
+                  <a
+                    href="#"
+                    className="inline-block p-4 border-b-2 border-transparent rounded-t-lg hover:text-gray-600 hover:border-gray-300"
+                  >
+                    Voxel Creations
+                  </a>
+                </li>
+              </ul>
+            </div>
+            <div>
+              <p>Hi</p>
+            </div>
+          </div>
+        </div>
       );
     },
   });

@@ -9,6 +9,8 @@ import { SetState } from "../../../utils/types";
 import { voxelTypeDataKeyToVoxelVariantDataKey } from "../../noa/types";
 import { stringToVoxelCoord } from "../../../utils/coord";
 import { ClassifierResults } from "./ClassifierResults";
+import { getSpawnAtPosition } from "../../../utils/voxels";
+import { SearchBar } from "./common/SearchBar";
 
 export interface ClassifierStoreFilters {
   classifierQuery: string;
@@ -21,6 +23,7 @@ interface Props {
   setFilters: SetState<ClassifierStoreFilters>;
   selectedClassifier: Classifier | null;
   setSelectedClassifier: SetState<Classifier | null>;
+  setShowAllCreations: SetState<boolean>;
 }
 
 export interface Classifier {
@@ -39,6 +42,7 @@ const ClassifierStore: React.FC<Props> = ({
   setFilters,
   selectedClassifier,
   setSelectedClassifier,
+  setShowAllCreations,
 }: Props) => {
   const {
     noa: {
@@ -138,40 +142,18 @@ const ClassifierStore: React.FC<Props> = ({
   return (
     <div className="flex flex-col p-4">
       <div className="flex w-full">
-        <label className="mb-2 text-sm font-medium text-gray-900 sr-only">Search</label>
-        <div className="relative w-full">
-          <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
-            <svg
-              className="w-4 h-4 text-gray-500"
-              aria-hidden="true"
-              xmlns="http://www.w3.org/2000/svg"
-              fill="none"
-              viewBox="0 0 20 20"
-            >
-              <path
-                stroke="currentColor"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth="2"
-                d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z"
-              />
-            </svg>
-          </div>
-          <input
-            type="search"
-            id="search"
-            className="block w-full p-4 pl-10 text-sm text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-blue-500 focus:border-blue-500"
-            placeholder="Search"
-            value={filters.classifierQuery}
-            onChange={(e) => {
-              setFilters({ ...filters, classifierQuery: e.target.value });
-            }}
-            required
-          />
-        </div>
+        <SearchBar
+          value={filters.classifierQuery}
+          onChange={(e) => {
+            setFilters({ ...filters, classifierQuery: e.target.value });
+          }}
+        />
       </div>
       <div className="flex w-full mt-5 justify-center items-center">
-        <div className="w-full cursor-pointer block p-6 bg-white border border-gray-200 rounded-lg shadow hover:bg-gray-100">
+        <div
+          onClick={() => setShowAllCreations(true)}
+          className="w-full cursor-pointer block p-6 bg-white border border-gray-200 rounded-lg shadow hover:bg-gray-100"
+        >
           <h5 className="mb-2 text-2xl font-bold tracking-tight text-gray-900">All Creations</h5>
         </div>
       </div>

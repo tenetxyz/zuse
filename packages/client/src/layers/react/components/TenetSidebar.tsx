@@ -59,7 +59,9 @@ export function registerTenetSidebar() {
           isMyCreation: true,
         },
       });
+
       const [selectedClassifier, setSelectedClassifier] = useState<Classifier | null>(null);
+      const [showAllCreations, setShowAllCreations] = useState<boolean>(false);
 
       const getPageForSelectedTab = () => {
         if (!focusedUi || !focusedUi.value) {
@@ -75,6 +77,12 @@ export function registerTenetSidebar() {
               />
             );
           case SidebarTab.VOXEL_CREATIONS:
+            if (showAllCreations) {
+              return (
+                <CreationStore layers={layers} filters={creationStoreFilters} setFilters={setCreationStoreFilters} />
+              );
+            }
+
             return (
               <ClassifierStore
                 layers={layers}
@@ -82,6 +90,7 @@ export function registerTenetSidebar() {
                 setFilters={setClassifierStoreFilters}
                 selectedClassifier={selectedClassifier}
                 setSelectedClassifier={setSelectedClassifier}
+                setShowAllCreations={setShowAllCreations}
               />
             );
           default:

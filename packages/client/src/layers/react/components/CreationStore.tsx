@@ -5,6 +5,7 @@ import { VoxelCoord } from "@latticexyz/utils";
 import { NotificationIcon } from "../../noa/components/persistentNotification";
 import { useCreationSearch } from "../../../utils/useCreationSearch";
 import { FocusedUiType } from "../../noa/components/FocusedUi";
+import { SearchBar } from "./common/SearchBar";
 
 export interface CreationStoreFilters {
   search: string;
@@ -52,57 +53,16 @@ const CreationStore: React.FC<Props> = ({ layers, filters, setFilters }) => {
   };
 
   return (
-    <div className="max-w-md mx-auto p-4 text-white flex flex-col content-start float-top h-full min-w-[800px]">
-      <div className="flex flex-row">
-        <input
-          placeholder="Search"
-          className="bg-white p-1 mb-5 focus:outline-slate-700 border-1 border-solid text-slate-800 rounded-md"
+    <div className="flex flex-col p-4">
+      <div className="flex w-full">
+        <SearchBar
           value={filters.search}
           onChange={(e) => {
             setFilters({ ...filters, search: e.target.value });
           }}
-          autoComplete={"on"}
-          name="search"
         />
-        <label className="flex items-center space-x-2 ml-2">
-          <span>My Creations</span>
-          <input
-            type="checkbox"
-            className="form-checkbox text-indigo-600 h-5 w-5"
-            checked={filters.isMyCreation}
-            onChange={() => {
-              setFilters({ ...filters, isMyCreation: !filters.isMyCreation });
-            }}
-            name="isMyCreationFilter"
-          />
-        </label>
       </div>
-      <div className="m-2 p-2 flex flex-col">
-        {creationsToDisplay.map((creation, idx) => {
-          return (
-            <div
-              key={idx}
-              className="border-1 border-solid border-slate-700 p-2 mb-2 flex flex-row whitespace-nowrap justify-around break-all justify-start space-x-5"
-            >
-              <p>{creation.name}</p>
-              <p>{creation.description}</p>
-              <p>{creation.relativePositions.length} voxels</p>
-              <p>
-                {creation.numSpawns.toString()} Spawn{creation.numSpawns.toString() !== "1" && "s"}
-              </p>
-              <p className="break-all break-words">{creation.creator.substr(50)}</p>
-              <button
-                className="bg-slate-700 p-1 ml-2 focus:outline-slate-700 border-1 border-solid"
-                onClick={() => {
-                  spawnCreation(creation);
-                }}
-              >
-                Spawn
-              </button>
-            </div>
-          );
-        })}
-      </div>
+      <div className="flex w-full mt-5 justify-center items-center"></div>
     </div>
   );
 };

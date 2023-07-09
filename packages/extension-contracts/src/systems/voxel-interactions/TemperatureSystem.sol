@@ -7,7 +7,7 @@ import { Temperature, TemperatureData } from "../../codegen/Tables.sol";
 import { BlockDirection } from "../../codegen/Types.sol";
 import { registerExtension, entityHasTemperature } from "../../Utils.sol";
 
-contract TemperatureSystem is VoxelInteraction {
+contract TemperatureSystem is SingleVoxelInteraction {
   function registerInteraction() public override {
     address world = _world();
     registerExtension(world, "TemperatureSystem", IWorld(world).extension_TemperatureSyste_eventHandler.selector);

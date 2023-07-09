@@ -3,7 +3,7 @@ pragma solidity >=0.8.0;
 import { Position, PositionData, PositionTableId } from "@tenetxyz/contracts/src/codegen/tables/Position.sol";
 import { VoxelCoord } from "@tenetxyz/contracts/src/Types.sol";
 import { hasKey } from "@latticexyz/world/src/modules/keysintable/hasKey.sol";
-import { Signal, SignalSource, Powered, InvertedSignal, Temperature } from "./codegen/Tables.sol";
+import { Signal, SignalSource, Powered, InvertedSignal, Temperature, Generator } from "./codegen/Tables.sol";
 import { BlockDirection } from "./codegen/Types.sol";
 import { CLEAR_COORD_SIG, BUILD_SIG } from "@tenetxyz/contracts/src/constants.sol";
 import { getUniqueEntity } from "@latticexyz/world/src/modules/uniqueentity/getUniqueEntity.sol";
@@ -81,9 +81,12 @@ function getVoxelCoordStrict(bytes32 entity) view returns (VoxelCoord memory) {
   return VoxelCoord(position.x, position.y, position.z);
 }
 
-
 function entityHasTemperature(bytes32 entity, bytes16 callerNamespace) view returns (bool) {
   return Temperature.get(callerNamespace, entity).hasValue;
+}
+
+function entityIsGenerator(bytes32 entity, bytes16 callerNamespace) view returns (bool) {
+  return Generator.get(callerNamespace, entity).hasValue;
 }
 
 function calculateBlockDirection(

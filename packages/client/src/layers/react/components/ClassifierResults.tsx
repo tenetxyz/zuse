@@ -29,7 +29,6 @@ export const ClassifierResults = ({ layers, classifier }: Props) => {
   const [results, setResults] = useState<ClassifierResult[]>([]);
   useEffect(() => {
     const classifierResultTableKey = `TableId<${classifier.namespace}:${classifier.classificationResultTableName}>`;
-    console.log(classifierResultTableKey);
     const subscription = cacheStore$.subscribe((storeEvent) => {
       if (!storeEvent) {
         return;
@@ -55,12 +54,10 @@ export const ClassifierResults = ({ layers, classifier }: Props) => {
           };
         });
 
-      if (records.length > 0) {
-        setResults(records as ClassifierResult[]);
-      }
+      setResults(records as ClassifierResult[]);
     });
     return () => subscription.unsubscribe();
-  }, [cacheStore$]);
+  }, [cacheStore$, classifier]);
 
   return (
     <div>

@@ -12,6 +12,14 @@ import { useComponentUpdate } from "../../../utils/useComponentUpdate";
 import { useComponentValue } from "@latticexyz/react";
 import { twMerge } from "tailwind-merge";
 
+enum SidebarTab {
+  VOXELS = "Voxels",
+  VOXEL_CREATIONS = "Voxel Creations",
+}
+
+// Convert enum values to an array
+const sidebarTabsArray = Object.values(SidebarTab);
+
 export const SIDEBAR_BACKGROUND_COLOR = "#353535";
 export function registerTenetSidebar() {
   registerTenetComponent({
@@ -27,6 +35,8 @@ export function registerTenetSidebar() {
           SingletonEntity,
         },
       } = layers;
+
+      const [selectedTab, setSelectedTab] = useState<SidebarTab>(SidebarTab.VOXELS);
 
       const focusedUi = useComponentValue(FocusedUi, SingletonEntity);
 
@@ -51,56 +61,24 @@ export function registerTenetSidebar() {
       });
       const [selectedClassifier, setSelectedClassifier] = useState<Classifier | null>(null);
 
-      // const getPageForSelectedTab = () => {
-      //   if (!focusedUi || !focusedUi.value) {
-      //     return null;
-      //   }
-      //   switch (focusedUi.value) {
-      //     case FocusedUiType.SIDEBAR_VOXEL_TYPE_STORE:
-      //       return (
-      //         <VoxelTypeStore
-      //           layers={layers}
-      //           filters={creativeInventoryFilters}
-      //           setFilters={setCreativeInventoryFilters}
-      //         />
-      //       );
-      //     case FocusedUiType.SIDEBAR_REGISTER_CREATION:
-      //       return (
-      //         <RegisterCreation
-      //           layers={layers}
-      //           formData={registerCreationFormData}
-      //           setFormData={setRegisterCreationFormData}
-      //         />
-      //       );
-      //     case FocusedUiType.SIDEBAR_CREATION_STORE:
-      //       return (
-      //         <CreationStore layers={layers} filters={creationStoreFilters} setFilters={setCreationStoreFilters} />
-      //       );
-      //     case FocusedUiType.SIDEBAR_CLASSIFY_STORE:
-      //       return (
-      //         <ClassifierStore
-      //           layers={layers}
-      //           filters={classifierStoreFilters}
-      //           setFilters={setClassifierStoreFilters}
-      //           selectedClassifier={selectedClassifier}
-      //           setSelectedClassifier={setSelectedClassifier}
-      //         />
-      //       );
-      //     default:
-      //       return null;
-      //   }
-      // };
-      // const SelectedTab = getPageForSelectedTab();
-
-      // const isFocusedUiASelectedTab =
-      //   focusedUi &&
-      //   focusedUi.value &&
-      //   [
-      //     FocusedUiType.SIDEBAR_VOXEL_TYPE_STORE,
-      //     FocusedUiType.SIDEBAR_CREATION_STORE,
-      //     FocusedUiType.SIDEBAR_CLASSIFY_STORE,
-      //     FocusedUiType.SIDEBAR_REGISTER_CREATION,
-      //   ].includes(focusedUi.value);
+      const getPageForSelectedTab = () => {
+        if (!focusedUi || !focusedUi.value) {
+          return null;
+        }
+        switch (selectedTab) {
+          case SidebarTab.VOXELS:
+            return (
+              <VoxelTypeStore
+                layers={layers}
+                filters={creativeInventoryFilters}
+                setFilters={setCreativeInventoryFilters}
+              />
+            );
+          default:
+            return null;
+        }
+      };
+      const SelectedTabPage = getPageForSelectedTab();
 
       const showSidebar = focusedUi && focusedUi.value === FocusedUiType.TENET_SIDEBAR;
 
@@ -115,28 +93,24 @@ export function registerTenetSidebar() {
           <div className="flex flex-col">
             <div className="flex justify-center items-center w-full text-sm font-medium text-center text-gray-500 border-b border-gray-200">
               <ul className="flex flex-wrap -mb-px">
-                <li className="mr-2">
-                  <a href="#" className="inline-block p-4 text-blue-600 border-b-2 border-blue-600 rounded-t-lg active">
-                    Voxels
-                  </a>
-                </li>
-                <li className="mr-2">
-                  <a
-                    href="#"
-                    className="inline-block p-4 border-b-2 border-transparent rounded-t-lg hover:text-gray-600 hover:border-gray-300"
-                  >
-                    Voxel Creations
-                  </a>
-                </li>
+                {sidebarTabsArray.map((tab) => (
+                  <li className="mr-2" key={"tenet-sidebar-tab-" + tab}>
+                    <a
+                      onClick={() => setSelectedTab(tab)}
+                      className={twMerge(
+                        "inline-block p-4 border-b-2 rounded-t-lg cursor-pointer",
+                        selectedTab === tab
+                          ? "text-blue-600 border-blue-600 active"
+                          : "border-transparent hover:text-gray-600 hover:border-gray-300"
+                      )}
+                    >
+                      {tab}
+                    </a>
+                  </li>
+                ))}
               </ul>
             </div>
-            <div>
-              <VoxelTypeStore
-                layers={layers}
-                filters={creativeInventoryFilters}
-                setFilters={setCreativeInventoryFilters}
-              />
-            </div>
+            <div>{SelectedTabPage}</div>
           </div>
         </div>
       );

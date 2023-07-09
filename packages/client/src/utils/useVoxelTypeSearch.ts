@@ -56,7 +56,15 @@ export const useVoxelTypeSearch = ({ layers, filters }: Props) => {
         } as VoxelTypeDesc;
       });
 
-    allVoxelTypes.current = allVoxelTypes.current.sort((a, b) => a.name.localeCompare(b.name));
+    allVoxelTypes.current = allVoxelTypes.current.sort((a, b) => {
+      if (a.numSpawns > b.numSpawns) {
+        return -1;
+      } else if (a.numSpawns < b.numSpawns) {
+        return 1;
+      } else {
+        return 0;
+      }
+    });
 
     // After we have parsed all the voxeltypes, apply the voxeltype
     // filters to narrow down the voxeltypes that will be displayed.
@@ -68,8 +76,11 @@ export const useVoxelTypeSearch = ({ layers, filters }: Props) => {
     filteredVoxelTypes.current = allVoxelTypes.current;
     // TODO: add a sort function to sort by namespace
     const options = {
+      isCaseSensitive: false,
       includeScore: false,
+      shouldSort: true,
       keys: ["name"],
+      threshold: 0.3,
     };
 
     fuse.current = new Fuse(filteredVoxelTypes.current, options);

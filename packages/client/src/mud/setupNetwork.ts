@@ -169,8 +169,7 @@ export async function setupNetwork() {
       }
 
       try {
-        const { hash, tx } = await fastTxExecutor.fastTxExecute(contract, ...args);
-        return await tx;
+        return fastTxExecutor.fastTxExecute(contract, ...args);
       } catch (err) {
         // These errors typically happen BEFORE the transaction is executed (mainly gas errors)
         console.error(`Transaction call failed: ${err}`);
@@ -185,17 +184,19 @@ export async function setupNetwork() {
     };
   }
 
-  const worldSend = bindFastTxExecute(worldContract);
-  // const callSystem = async <C extends Contract, F extends keyof C>(
-  //   func: F,
-  //   args: Parameters<C[F]>,
-  //   options?: {
-  //     retryCount?: number;
-  //   }
-  // ): Promis<ReturnType<C[F]>> => {
-  //   const tx = await worldSend(func, args, options);
-  //   return tx;
-  // };
+  async function callSystem<C extends Contract, F extends keyof C>(
+    func: F,
+    args: Parameters<C[F]>,
+    options?: {
+      retryCount?: number;
+    },
+    onSuccessCallback?: (res: string) => void // This callback will be called with the result of the transaction
+  ) {
+    const worldSend: BoundFastTxExecuteFn<C> = bindFastTxExecute(worldContract);
+    const { hash, tx } = await worldSend(func, args, options);
+    console.log(hash);
+    return tx;
+  }
 
   // --- ACTION SYSTEM --------------------------------------------------------------
   const actions = createActionSystem<{
@@ -334,16 +335,8 @@ export async function setupNetwork() {
     return getComponentValue(contractComponents.Name, entity)?.value;
   }
 
-  const addAction = <C extends Components, T, M = undefined>(
-    actionRequest: ActionRequest<C, T, M>,
-    onSuccessCallback?: (res: string) => void // This callback will be called with the result of the transaction
-  ) => {
-    actions.add(actionRequest as any); // not sure why the type doesn't match. maybe because C, T, and M are not the ones declared on the add function?
-    // const hash = tx.hash
-  };
-
   async function buildSystem(entity: Entity, coord: VoxelCoord) {
-    const tx = await worldSend("tenet_BuildSystem_build", [to64CharAddress(entity), coord, { gasLimit: 100_000_000 }]);
+    const tx = await callSystem("tenet_BuildSystem_build", [to64CharAddress(entity), coord, { gasLimit: 100_000_000 }]);
     return tx;
   }
 
@@ -365,7 +358,7 @@ export async function setupNetwork() {
 
     const newVoxelOfSameType = world.registerEntity();
 
-    addAction({
+    actions.add({
       id: `build+${voxelCoordToString(coord)}` as Entity, // used so we don't send the same transaction twice
       metadata: {
         // metadata determines how the transaction dialog box appears in the bottom left corner
@@ -409,7 +402,7 @@ export async function setupNetwork() {
   }
 
   async function mineSystem(coord: VoxelCoord, voxelType: VoxelTypeDataKey) {
-    const tx = await worldSend("tenet_MineSystem_mine", [
+    const tx = await callSystem("tenet_MineSystem_mine", [
       coord,
       voxelType.voxelTypeNamespace,
       voxelType.voxelTypeId,
@@ -434,7 +427,7 @@ export async function setupNetwork() {
       voxelVariantId: voxelTypeKey.voxelVariantId,
     };
 
-    addAction({
+    actions.add({
       id: `mine+${coord.x}/${coord.y}/${coord.z}` as Entity,
       metadata: { actionType: "mine", coord, voxelVariantKey },
       requirement: () => true,
@@ -472,7 +465,7 @@ export async function setupNetwork() {
   }
 
   async function giftVoxelSystem(voxelTypeNamespace: string, voxelTypeId: string) {
-    const tx = await worldSend("tenet_GiftVoxelSystem_giftVoxel", [
+    const tx = await callSystem("tenet_GiftVoxelSystem_giftVoxel", [
       voxelTypeNamespace,
       voxelTypeId,
       { gasLimit: 10_000_000 },
@@ -484,7 +477,7 @@ export async function setupNetwork() {
   function giftVoxel(voxelTypeNamespace: string, voxelTypeId: string, preview: string) {
     const newVoxel = world.registerEntity();
 
-    addAction({
+    actions.add({
       id: `GiftVoxel+${voxelTypeNamespace}+${voxelTypeId}` as Entity,
       metadata: { actionType: "giftVoxel", preview },
       requirement: () => true,
@@ -516,7 +509,7 @@ export async function setupNetwork() {
   }
 
   async function removeVoxelSystem(voxels: Entity[]) {
-    const tx = await worldSend("tenet_RmVoxelSystem_removeVoxels", [
+    const tx = await callSystem("tenet_RmVoxelSystem_removeVoxels", [
       voxels.map((voxelId) => to64CharAddress(voxelId)),
       { gasLimit: 10_000_000 },
     ]);
@@ -531,7 +524,7 @@ export async function setupNetwork() {
 
     const voxelType = getComponentValue(contractComponents.VoxelType, voxels[0]);
     const voxelTypeKey = voxelType ? (voxelTypeToEntity(voxelType) as string) : "";
-    addAction({
+    actions.add({
       id: `RemoveVoxels+VoxelType=${voxelTypeKey}` as Entity,
       metadata: {
         actionType: "removeVoxels",
@@ -549,7 +542,7 @@ export async function setupNetwork() {
   }
 
   async function registerCreationSystem(creationName: string, creationDescription: string, voxels: Entity[]) {
-    const tx = await worldSend("tenet_RegisterCreation_registerCreation", [
+    const tx = await callSystem("tenet_RegisterCreation_registerCreation", [
       creationName,
       creationDescription,
       voxels,
@@ -562,7 +555,7 @@ export async function setupNetwork() {
     // TODO: Relpace Diamond NFT with a creation symbol
     const preview = getNftStorageLink("bafkreicro56v6rinwnltbkyjfzqdwva2agtrtypwaeowud447louxqgl5y");
 
-    addAction({
+    actions.add({
       id: `RegisterCreation+${creationName}` as Entity,
       metadata: { actionType: "registerCreation", preview },
       requirement: () => true,
@@ -577,7 +570,7 @@ export async function setupNetwork() {
   }
 
   async function spawnCreationSystem(lowerSouthWestCorner: VoxelCoord, creationId: Entity) {
-    const tx = await worldSend("tenet_SpawnSystem_spawn", [
+    const tx = await callSystem("tenet_SpawnSystem_spawn", [
       lowerSouthWestCorner,
       creationId,
       { gasLimit: 100_000_000 },
@@ -589,7 +582,7 @@ export async function setupNetwork() {
     // TODO: Relpace Iron NFT with a spawn symbol
     const preview = getNftStorageLink("bafkreidkik2uccshptqcskpippfotmusg7algnfh5ozfsga72xyfdrvacm");
 
-    addAction({
+    actions.add({
       id: `SpawnCreation+${creationId}+at+${voxelCoordToString(lowerSouthWestCorner)}` as Entity,
       metadata: { actionType: "spawnCreation", preview },
       requirement: () => true,
@@ -602,7 +595,7 @@ export async function setupNetwork() {
   }
 
   async function classifyCreationSystem(classifierId: Entity, spawnId: Entity, interfaceVoxels: Entity[]) {
-    const tx = await worldSend("tenet_ClassifyCreation_classify", [
+    const tx = await callSystem("tenet_ClassifyCreation_classify", [
       classifierId,
       spawnId,
       // defaultAbiCoder.encode(["bytes32[]"], interfaceVoxels),
@@ -616,7 +609,7 @@ export async function setupNetwork() {
     // TODO: Relpace Iron NFT with a spawn symbol
     const preview = getNftStorageLink("bafkreidkik2uccshptqcskpippfotmusg7algnfh5ozfsga72xyfdrvacm");
 
-    addAction({
+    actions.add({
       id: `classifyCreation+classifier=${classifierId}+spawnId=${spawnId}+interfaceVoxels=${interfaceVoxels.toString()}` as Entity,
       metadata: { actionType: "classifyCreation", preview },
       requirement: () => true,
@@ -681,7 +674,7 @@ export async function setupNetwork() {
       claim,
       getName,
     },
-    worldSend: worldSend,
+    callSystem: callSystem,
     fastTxExecutor,
     // dev: setupDevSystems(world, encoders as Promise<any>, systems),
     // dev: setupDevSystems(world),

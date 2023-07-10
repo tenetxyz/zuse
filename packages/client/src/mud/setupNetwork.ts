@@ -335,11 +335,6 @@ export async function setupNetwork() {
     return getComponentValue(contractComponents.Name, entity)?.value;
   }
 
-  async function buildSystem(entity: Entity, coord: VoxelCoord) {
-    const tx = await callSystem("tenet_BuildSystem_build", [to64CharAddress(entity), coord, { gasLimit: 100_000_000 }]);
-    return tx;
-  }
-
   function build(voxelType: VoxelTypeBaseKey, coord: VoxelCoord) {
     const voxelInstanceOfVoxelType = [
       ...runQuery([
@@ -373,7 +368,11 @@ export async function setupNetwork() {
         OwnedBy: contractComponents.OwnedBy, // I think it's needed cause we check to see if the owner owns the voxel we're placing
       },
       execute: () => {
-        return buildSystem(voxelInstanceOfVoxelType, coord);
+        return callSystem("tenet_BuildSystem_build", [
+          to64CharAddress(voxelInstanceOfVoxelType),
+          coord,
+          { gasLimit: 100_000_000 },
+        ]);
       },
       updates: () => [
         // commented cause we're in creative mode
@@ -401,18 +400,6 @@ export async function setupNetwork() {
     });
   }
 
-  async function mineSystem(coord: VoxelCoord, voxelType: VoxelTypeDataKey) {
-    const tx = await callSystem("tenet_MineSystem_mine", [
-      coord,
-      voxelType.voxelTypeNamespace,
-      voxelType.voxelTypeId,
-      voxelType.voxelVariantNamespace,
-      voxelType.voxelVariantId,
-      { gasLimit: 100_000_000 },
-    ]);
-    return tx;
-  }
-
   async function mine(coord: VoxelCoord) {
     const voxelTypeKey = getEcsVoxelTypeAtPosition(coord) ?? getTerrainVoxelTypeAtPosition(coord);
 
@@ -437,7 +424,14 @@ export async function setupNetwork() {
         VoxelType: contractComponents.VoxelType,
       },
       execute: () => {
-        return mineSystem(coord, voxelTypeKey);
+        return callSystem("tenet_MineSystem_mine", [
+          coord,
+          voxelTypeKey.voxelTypeNamespace,
+          voxelTypeKey.voxelTypeId,
+          voxelTypeKey.voxelVariantNamespace,
+          voxelTypeKey.voxelVariantId,
+          { gasLimit: 100_000_000 },
+        ]);
       },
       updates: () => [
         {
@@ -464,15 +458,6 @@ export async function setupNetwork() {
     });
   }
 
-  async function giftVoxelSystem(voxelTypeNamespace: string, voxelTypeId: string) {
-    const tx = await callSystem("tenet_GiftVoxelSystem_giftVoxel", [
-      voxelTypeNamespace,
-      voxelTypeId,
-      { gasLimit: 10_000_000 },
-    ]);
-    return tx;
-  }
-
   // needed in creative mode, to give the user new voxels
   function giftVoxel(voxelTypeNamespace: string, voxelTypeId: string, preview: string) {
     const newVoxel = world.registerEntity();
@@ -486,7 +471,11 @@ export async function setupNetwork() {
         VoxelType: contractComponents.VoxelType,
       },
       execute: async () => {
-        return giftVoxelSystem(voxelTypeNamespace, voxelTypeId);
+        return callSystem("tenet_GiftVoxelSystem_giftVoxel", [
+          voxelTypeNamespace,
+          voxelTypeId,
+          { gasLimit: 10_000_000 },
+        ]);
       },
       updates: () => [
         // {
@@ -508,14 +497,6 @@ export async function setupNetwork() {
     });
   }
 
-  async function removeVoxelSystem(voxels: Entity[]) {
-    const tx = await callSystem("tenet_RmVoxelSystem_removeVoxels", [
-      voxels.map((voxelId) => to64CharAddress(voxelId)),
-      { gasLimit: 10_000_000 },
-    ]);
-    return tx;
-  }
-
   // needed in creative mode, to allow the user to remove voxels. Otherwise their inventory will fill up
   function removeVoxels(voxels: Entity[]) {
     if (voxels.length === 0) {
@@ -535,20 +516,13 @@ export async function setupNetwork() {
         VoxelType: contractComponents.VoxelType,
       },
       execute: async () => {
-        return removeVoxelSystem(voxels);
+        return callSystem("tenet_RmVoxelSystem_removeVoxels", [
+          voxels.map((voxelId) => to64CharAddress(voxelId)),
+          { gasLimit: 10_000_000 },
+        ]);
       },
       updates: () => [],
     });
-  }
-
-  async function registerCreationSystem(creationName: string, creationDescription: string, voxels: Entity[]) {
-    const tx = await callSystem("tenet_RegisterCreation_registerCreation", [
-      creationName,
-      creationDescription,
-      voxels,
-      { gasLimit: 30_000_000 },
-    ]);
-    return tx;
   }
 
   function registerCreation(creationName: string, creationDescription: string, voxels: Entity[]) {
@@ -563,19 +537,15 @@ export async function setupNetwork() {
         OwnedBy: contractComponents.OwnedBy,
       },
       execute: async () => {
-        return registerCreationSystem(creationName, creationDescription, voxels);
+        return callSystem("tenet_RegisterCreation_registerCreation", [
+          creationName,
+          creationDescription,
+          voxels,
+          { gasLimit: 30_000_000 },
+        ]);
       },
       updates: () => [],
     });
-  }
-
-  async function spawnCreationSystem(lowerSouthWestCorner: VoxelCoord, creationId: Entity) {
-    const tx = await callSystem("tenet_SpawnSystem_spawn", [
-      lowerSouthWestCorner,
-      creationId,
-      { gasLimit: 100_000_000 },
-    ]);
-    return tx;
   }
 
   function spawnCreation(lowerSouthWestCorner: VoxelCoord, creationId: Entity) {
@@ -588,21 +558,10 @@ export async function setupNetwork() {
       requirement: () => true,
       components: {},
       execute: async () => {
-        return spawnCreationSystem(lowerSouthWestCorner, creationId);
+        return callSystem("tenet_SpawnSystem_spawn", [lowerSouthWestCorner, creationId, { gasLimit: 100_000_000 }]);
       },
       updates: () => [],
     });
-  }
-
-  async function classifyCreationSystem(classifierId: Entity, spawnId: Entity, interfaceVoxels: Entity[]) {
-    const tx = await callSystem("tenet_ClassifyCreation_classify", [
-      classifierId,
-      spawnId,
-      // defaultAbiCoder.encode(["bytes32[]"], interfaceVoxels),
-      interfaceVoxels,
-      { gasLimit: 100_000_000 },
-    ]);
-    return tx;
   }
 
   function classifyCreation(classifierId: Entity, spawnId: Entity, interfaceVoxels: Entity[]) {
@@ -615,7 +574,13 @@ export async function setupNetwork() {
       requirement: () => true,
       components: {},
       execute: async () => {
-        return classifyCreationSystem(classifierId, spawnId, interfaceVoxels);
+        return callSystem("tenet_ClassifyCreation_classify", [
+          classifierId,
+          spawnId,
+          // defaultAbiCoder.encode(["bytes32[]"], interfaceVoxels),
+          interfaceVoxels,
+          { gasLimit: 100_000_000 },
+        ]);
       },
       updates: () => [],
     });

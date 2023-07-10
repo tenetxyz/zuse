@@ -45,7 +45,7 @@ export function createInputSystem(layers: Layers) {
   const InputEvent = {
     "cancel-action": ["<backspace>", "<delete>"],
     "toggle-inventory": "E",
-    "admin-panel": "-",
+    sidebar: "-",
     "select-voxel": "V",
     fire: "F",
     "alt-fire": ["<mouse 3>", "R"], // Note: if you ever change the name of this event, you might break some logic since in the code below, we first unbind alt-fire to remove the original binding of "E"
@@ -82,7 +82,9 @@ export function createInputSystem(layers: Layers) {
     // https://github.com/fenomas/noa/issues/61
     noa.entities.removeComponent(noa.playerEntity, noa.ents.names.receivesInputs);
     unbindInputEvent("select-voxel");
-    unbindInputEvent("admin-panel");
+    if (focusedUi !== FocusedUiType.TENET_SIDEBAR) {
+      unbindInputEvent("sidebar");
+    }
     if (focusedUi !== FocusedUiType.INVENTORY) {
       // do NOT unbind toggle-inventory if the user is in the inventory (so they can close it)
       unbindInputEvent("toggle-inventory");
@@ -95,7 +97,7 @@ export function createInputSystem(layers: Layers) {
     // since a react component calls this function times, we need to use addComponentAgain (rather than addComponent)
     noa.entities.addComponentAgain(noa.playerEntity, "receivesInputs", noa.ents.names.receivesInputs);
     bindInputEvent("select-voxel");
-    bindInputEvent("admin-panel");
+    bindInputEvent("sidebar");
     bindInputEvent("toggle-inventory");
     noa.entities.getMovement(noa.playerEntity).isPlayerSlowedToAStop = false;
     bindInputEvent("cancel-action");
@@ -269,13 +271,35 @@ export function createInputSystem(layers: Layers) {
     setComponent(SelectedSlot, SingletonEntity, { value: key });
   });
 
-  bindInputEvent("admin-panel");
-  onDownInputEvent("admin-panel", () => {
-    const showAdminPanel = getComponentValue(UI, SingletonEntity)?.showAdminPanel;
-    updateComponent(UI, SingletonEntity, {
-      showAdminPanel: !showAdminPanel,
-    });
+  bindInputEvent("sidebar");
+  onDownInputEvent("sidebar", () => {
+    const isSidebarOpen = getComponentValue(FocusedUi, SingletonEntity)?.value === FocusedUiType.TENET_SIDEBAR;
+    if (isSidebarOpen) {
+      closeSidebar();
+    } else {
+      openSidebar();
+    }
   });
+
+  function closeSidebar() {
+    setComponent(FocusedUi, SingletonEntity, { value: FocusedUiType.WORLD });
+  }
+
+  function openSidebar() {
+    // clear persistent notification when we open the inventory
+    setComponent(PersistentNotification, SingletonEntity, {
+      message: "",
+      icon: NotificationIcon.NONE,
+    });
+
+    // clear SpawnCreation when we open the inventory
+    setComponent(SpawnCreation, SingletonEntity, {
+      creation: undefined,
+    });
+    noa.blockTestDistance = DEFAULT_BLOCK_TEST_DISTANCE; // reset block test distance
+
+    setComponent(FocusedUi, SingletonEntity, { value: FocusedUiType.TENET_SIDEBAR });
+  }
 
   bindInputEvent("toggle-inventory");
   onDownInputEvent("toggle-inventory", () => {

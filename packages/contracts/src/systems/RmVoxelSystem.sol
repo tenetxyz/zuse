@@ -1,8 +1,9 @@
 // SPDX-License-Identifier: GPL-3.0
 pragma solidity >=0.8.0;
-import { OwnedBy, VoxelType } from "@tenet-contracts/src/codegen/Tables.sol";
+import { OwnedBy, OwnedByTableId, VoxelType } from "@tenet-contracts/src/codegen/Tables.sol";
 import { System } from "@latticexyz/world/src/System.sol";
 import { addressToEntityKey } from "../Utils.sol";
+import { getKeysWithValue } from "@latticexyz/world/src/modules/keyswithvalue/getKeysWithValue.sol";
 
 // If we call this RemoveVoxelSystem, the foundry codegen fails cause they set a limit on the number of chars for an interface
 contract RmVoxelSystem is System {
@@ -14,6 +15,17 @@ contract RmVoxelSystem is System {
       // TODO: delete all values in relevant components as well
       OwnedBy.deleteRecord(voxels[i]);
       VoxelType.deleteRecord(voxels[i]);
+    }
+  }
+
+  function removeAllOwnedVoxels() public {
+    bytes32[] memory entitiesOwnedBySender = getKeysWithValue(
+      OwnedByTableId,
+      OwnedBy.encode(addressToEntityKey(_msgSender()))
+    );
+    for (uint256 i = 0; i < entitiesOwnedBySender.length; i++) {
+      OwnedBy.deleteRecord(entitiesOwnedBySender[i]);
+      VoxelType.deleteRecord(entitiesOwnedBySender[i]);
     }
   }
 }

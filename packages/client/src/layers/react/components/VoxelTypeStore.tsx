@@ -9,6 +9,7 @@ import { INVENTORY_HEIGHT, INVENTORY_WIDTH } from "./InventoryHud";
 import { toast } from "react-toastify";
 import { voxelTypeBaseKeyToEntity } from "../../noa/types";
 import { useVoxelTypeSearch } from "../../../utils/useVoxelTypeSearch";
+import { SearchBar } from "./common/SearchBar";
 
 export interface VoxelTypeStoreFilters {
   query: string;
@@ -18,8 +19,8 @@ interface Props {
   filters: VoxelTypeStoreFilters;
   setFilters: React.Dispatch<React.SetStateAction<VoxelTypeStoreFilters>>;
 }
-const NUM_COLS = 9;
-const NUM_ROWS = 6;
+const NUM_COLS = 5;
+const NUM_ROWS = 7;
 
 export interface VoxelTypeDesc {
   name: string;
@@ -43,7 +44,7 @@ export const VoxelTypeStore: React.FC<Props> = ({ layers, filters, setFilters })
 
   const Slots = [...range(NUM_ROWS * NUM_COLS)].map((i) => {
     if (!voxelTypesToDisplay || i >= voxelTypesToDisplay.length) {
-      return <Slot key={"voxel-search-slot" + i} disabled={true} />;
+      return <Slot key={"voxel-search-slot" + i} disabled={true} slotSize={"69px"} />;
     }
     const voxelDescription = voxelTypesToDisplay[i];
 
@@ -56,6 +57,7 @@ export const VoxelTypeStore: React.FC<Props> = ({ layers, filters, setFilters })
     return (
       <Slot
         key={`creative-slot-${voxelDescription.name}`}
+        slotSize={"69px"}
         voxelType={voxelDescription.voxelType}
         iconUrl={previewIconUrl}
         quantity={undefined} // undefined so no number appears
@@ -93,14 +95,13 @@ export const VoxelTypeStore: React.FC<Props> = ({ layers, filters, setFilters })
   };
 
   return (
-    <div>
-      <input
-        className="bg-white p-1 mb-5 focus:outline-slate-700 border-1 border-solid text-slate-800 rounded-md"
-        value={filters.query}
-        onChange={(e) => setFilters({ ...filters, query: e.target.value })}
-        placeholder="Search"
-      />
-      <ActionBarWrapper>{[...range(NUM_COLS * NUM_ROWS)].map((i) => Slots[i])}</ActionBarWrapper>
+    <div className="flex flex-col p-4">
+      <div className="flex w-full">
+        <SearchBar value={filters.query} onChange={(e) => setFilters({ ...filters, query: e.target.value })} />
+      </div>
+      <div className="flex w-full mt-5 justify-center items-center">
+        <ActionBarWrapper>{[...range(NUM_COLS * NUM_ROWS)].map((i) => Slots[i])}</ActionBarWrapper>
+      </div>
     </div>
   );
 };
@@ -108,7 +109,7 @@ export const VoxelTypeStore: React.FC<Props> = ({ layers, filters, setFilters })
 const ActionBarWrapper = styled.div`
   background-color: rgb(0 0 0 / 40%);
   display: grid;
-  grid-template-columns: repeat(9, 1fr);
+  grid-template-columns: repeat(5, 1fr);
   align-items: center;
   pointer-events: all;
   border: 5px lightgray solid;

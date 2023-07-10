@@ -90,13 +90,18 @@ contract MineSystem is System {
     return voxelToMine;
   }
 
-  function clearCoord(VoxelCoord memory coord) public {
+  function clearCoord(VoxelCoord memory coord) public returns (bytes32) {
     bytes32[] memory entitiesAtPosition = getEntitiesAtCoord(coord);
+    bytes32 minedEntity = 0;
     for (uint256 i = 0; i < entitiesAtPosition.length; i++) {
       bytes32 entity = entitiesAtPosition[i];
 
       VoxelTypeData memory voxelTypeData = VoxelType.get(entity);
-      mine(
+      if (voxelTypeData.voxelTypeId == AirID) {
+        // if it's air, then it's already clear
+        continue;
+      }
+      minedEntity = mine(
         coord,
         voxelTypeData.voxelTypeNamespace,
         voxelTypeData.voxelTypeId,
@@ -104,5 +109,6 @@ contract MineSystem is System {
         voxelTypeData.voxelVariantId
       );
     }
+    return minedEntity;
   }
 }

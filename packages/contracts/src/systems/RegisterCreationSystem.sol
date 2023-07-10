@@ -31,7 +31,7 @@ contract RegisterCreationSystem is System {
 
     CreationData memory creation;
     creation.voxelTypes = voxelTypes;
-    creation.creator = addressToEntityKey(_msgSender());
+    creation.creator = tx.origin;
     creation.relativePositions = relativePositions;
     creation.name = name;
     creation.description = description;

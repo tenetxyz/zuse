@@ -6,6 +6,7 @@ interface Props {
   rowEnd: number;
   columnStart: number;
   columnEnd: number;
+  zIndex?: number;
   Component: React.ElementType<ComponentRendererProps>;
 }
 
@@ -32,6 +33,7 @@ export const TenetComponentRenderer = ({ layers }: ComponentRendererProps) => {
               gridRowEnd: props.rowEnd,
               gridColumnStart: props.columnStart,
               gridColumnEnd: props.columnEnd,
+              zIndex: props.zIndex,
             }}
           >
             <props.Component layers={layers} />

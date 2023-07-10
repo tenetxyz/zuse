@@ -57,6 +57,7 @@ export default mudConfig({
       schema: {
         hasValue: "bool", // TODO: Remove this once we can install non-root modules
         blockNumber: "uint256", // the blockNumber when the creation passed the classifier
+        displayText: "string",
       },
     },
     AndGateCR: {
@@ -64,6 +65,7 @@ export default mudConfig({
       schema: {
         hasValue: "bool", // TODO: Remove this once we can install non-root modules
         blockNumber: "uint256", // the blockNumber when the creation passed the classifier
+        displayText: "string",
         voxelInterfaces: "bytes",
       },
     },

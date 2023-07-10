@@ -9,6 +9,10 @@ import { SetState } from "../../../utils/types";
 import { voxelTypeDataKeyToVoxelVariantDataKey } from "../../noa/types";
 import { stringToVoxelCoord } from "../../../utils/coord";
 import { ClassifierResults } from "./ClassifierResults";
+import { getSpawnAtPosition } from "../../../utils/voxels";
+import { SearchBar } from "./common/SearchBar";
+import ClassifierDetails from "./ClassifierDetails";
+import { twMerge } from "tailwind-merge";
 
 export interface ClassifierStoreFilters {
   classifierQuery: string;
@@ -21,6 +25,7 @@ interface Props {
   setFilters: SetState<ClassifierStoreFilters>;
   selectedClassifier: Classifier | null;
   setSelectedClassifier: SetState<Classifier | null>;
+  setShowAllCreations: SetState<boolean>;
 }
 
 export interface Classifier {
@@ -39,6 +44,7 @@ const ClassifierStore: React.FC<Props> = ({
   setFilters,
   selectedClassifier,
   setSelectedClassifier,
+  setShowAllCreations,
 }: Props) => {
   const {
     noa: {
@@ -109,6 +115,17 @@ const ClassifierStore: React.FC<Props> = ({
     );
   };
 
+  const getCurrentViewName = () => {
+    if (selectedClassifier) {
+      return selectedClassifier.name;
+    }
+    return "";
+  };
+
+  const classifiersNavClicked = () => {
+    setSelectedClassifier(null);
+  };
+
   const renderInterfaceVoxelImages = (interfaceVoxels: Entity[]) => {
     return (
       <div className="flex flex-row space-x-2">
@@ -136,83 +153,94 @@ const ClassifierStore: React.FC<Props> = ({
   };
 
   return (
-    <div className="mx-auto p-4 text-white flex flex-row content-start float-top h-full min-w-[800px]">
-      {/* <div className="flex flex-col">
-        <label className="flex items-center space-x-2 ml-2">My Creations</label>
-        <div className="flex flex-row">
-          <input
-            placeholder="Search My Creations"
-            className="bg-slate-700 p-1 ml-2 focus:outline-slate-700 border-1 border-solid mb-1 "
-            value={filters.creationFilter.search}
-            onChange={(e) => {
-              setFilters({
-                ...filters,
-                creationFilter: {
-                  ...filters.creationFilter,
-                  search: e.target.value,
-                },
-              });
-            }}
-          />
-        </div>
-        <div className="m-2 p-2 flex flex-col">
-          {creationsToDisplay.map((creation, idx) => {
-            return (
-              <div
-                key={idx}
-                className="border-1 border-solid border-slate-700 p-2 mb-2 flex flex-row whitespace-nowrap justify-around break-all space-x-5"
+    <div
+      className="flex flex-col h-full p-4"
+      style={{
+        height: "calc(100% - 3rem)",
+      }}
+    >
+      {!selectedClassifier && (
+        <>
+          <div className="flex w-full">
+            <SearchBar
+              value={filters.classifierQuery}
+              onChange={(e) => {
+                setFilters({ ...filters, classifierQuery: e.target.value });
+              }}
+            />
+          </div>
+          <div className="flex w-full mt-5 flex-col items-center">
+            <div
+              onClick={() => setShowAllCreations(true)}
+              className="w-full cursor-pointer block p-6 bg-white border border-gray-200 rounded-lg shadow hover:bg-gray-100"
+            >
+              <h5 className="mb-2 text-2xl font-bold tracking-tight text-gray-900">All Creations</h5>
+            </div>
+          </div>
+        </>
+      )}
+      <nav className={twMerge("flex", selectedClassifier ? "" : "mt-5")} aria-label="Breadcrumb">
+        <ol className="inline-flex items-center space-x-1 md:space-x-3">
+          <li>
+            <div className="flex items-center">
+              <a
+                onClick={classifiersNavClicked}
+                className="cursor-pointer text-sm font-medium text-gray-700 hover:text-blue-600"
               >
-                <p>{creation.name}</p>
-                <p>{creation.description}</p>
-                <p className="">{creation.relativePositions.length} voxels</p>
-                <p className="break-all break-words">{creation.creator.substr(50)}</p>
-              </div>
-            );
-          })}
-        </div>
-      </div> */}
-      <div className="flex flex-col">
-        <label className="flex items-center space-x-2 ml-2">Classifiers</label>
-        <input
-          placeholder="Search classifiers"
-          className="bg-slate-700 p-1 ml-2 focus:outline-slate-700 border-1 border-solid mb-1 "
-          value={filters.classifierQuery}
-          onChange={(e) => {
-            setFilters({ ...filters, classifierQuery: e.target.value });
-          }}
+                Classifiers
+              </a>
+            </div>
+          </li>
+          <li aria-current="page">
+            <div className="flex items-center">
+              <svg
+                className="w-3 h-3 text-gray-400 mx-1"
+                aria-hidden="true"
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 6 10"
+              >
+                <path
+                  stroke="currentColor"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth="2"
+                  d="m1 9 4-4-4-4"
+                />
+              </svg>
+              <span className="ml-1 text-sm font-medium text-gray-500">{getCurrentViewName()}</span>
+            </div>
+          </li>
+        </ol>
+      </nav>
+      {selectedClassifier ? (
+        <ClassifierDetails
+          layers={layers}
+          selectedClassifier={selectedClassifier}
+          setSelectedClassifier={setSelectedClassifier}
+          setShowAllCreations={setShowAllCreations}
         />
-        <div className="m-2 p-2 flex flex-col">
+      ) : (
+        <div className="flex w-full h-full mt-5 flex-col gap-5 items-center overflow-scroll">
           {classifiersToDisplay.map((classifier, idx) => {
             return (
-              <div
-                key={idx}
-                className="border-1 border-solid border-slate-700 p-2 mb-2 flex flex-row whitespace-nowrap break-all justify-around space-x-5"
-                onClick={() => {
-                  setSelectedClassifier(classifier);
-                }}
-              >
-                <p>{classifier.name}</p>
-                <p>{classifier.description}</p>
-                <p className="break-all break-words">{classifier.creator.substring(10)}</p>
+              <div key={"classifier-" + idx} className="w-full p-6 bg-white border border-gray-200 rounded-lg shadow">
+                <h5 className="mb-2 text-2xl font-bold tracking-tight text-gray-900">{classifier.name}</h5>
+                <p className="font-normal text-gray-700 leading-4">{classifier.description}</p>
+                <div className="flex mt-5 gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setSelectedClassifier(classifier)}
+                    className="text-gray-900 hover:text-white border border-gray-800 hover:bg-gray-900 focus:ring-4 focus:outline-none focus:ring-gray-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center mr-2 mb-2"
+                  >
+                    View Details
+                  </button>
+                </div>
               </div>
             );
           })}
         </div>
-      </div>
-      <div>
-        {selectedClassifier && (
-          <div className="flex flex-col">
-            <label className="flex items-center space-x-2 ml-2">Selected Classifier</label>
-            <div className="border-1 border-solid border-slate-700 p-2 mb-2 flex flex-row whitespace-nowrap break-all justify-around space-x-5">
-              <p>{selectedClassifier.name}</p>
-              <p>{selectedClassifier.description}</p>
-              <p className="break-all break-words">{selectedClassifier.creator.substring(10)}</p>
-            </div>
-            {detailsForSpawnToClassify(selectedClassifier.classifierId)}
-            <ClassifierResults layers={layers} classifier={selectedClassifier} />
-          </div>
-        )}
-      </div>
+      )}
     </div>
   );
 };

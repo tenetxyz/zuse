@@ -6,7 +6,7 @@ import { Layers } from "../types";
 import { getEntityString } from "@latticexyz/recs";
 import { to256BitString } from "@latticexyz/utils";
 import { VoxelCoord } from "@latticexyz/utils";
-import { cleanVoxelCoord } from "../layers/noa/types";
+import { VoxelTypeDataKey, cleanVoxelCoord } from "../layers/noa/types";
 import { abiDecode } from "./abi";
 
 export interface Props {
@@ -42,12 +42,17 @@ export const useCreationSearch = ({ layers, filters }: Props) => {
         return;
       }
 
-      const voxelTypes = creationTable.voxelTypes.get(creationId) ?? [];
+      const rawVoxelTypes = creationTable.voxelTypes.get(creationId) ?? "";
       // debugger;
-      if (voxelTypes.length === 0) {
+      if (rawVoxelTypes.length === 0) {
         console.warn("No voxelTypes found for creation", creationId);
         return;
       }
+
+      const voxelTypes: VoxelTypeDataKey[] = abiDecode(
+        "tuple(bytes16 voxelTypeNamespace,bytes32 voxelTypeId,bytes16 voxelVariantNamespace,bytes32 voxelVariantId)[]",
+        rawVoxelTypes
+      ) as VoxelTypeDataKey[];
 
       const relativePositions: VoxelCoord[] = [];
       const encodedRelativePositions = creationTable.relativePositions.get(creationId) ?? "";
@@ -72,12 +77,21 @@ export const useCreationSearch = ({ layers, filters }: Props) => {
         name: name,
         description: description,
         creator: creator,
-        voxelTypes: voxelTypes as string[],
+        voxelTypes: voxelTypes,
         relativePositions,
         numSpawns: creationTable.numSpawns.get(creationId) ?? 0,
       } as Creation);
     });
-    allCreations.current = allCreations.current.sort((a, b) => a.name.localeCompare(b.name));
+
+    allCreations.current = allCreations.current.sort((a, b) => {
+      if (a.numSpawns > b.numSpawns) {
+        return -1;
+      } else if (a.numSpawns < b.numSpawns) {
+        return 1;
+      } else {
+        return 0;
+      }
+    });
 
     // After we have parsed all the creations, apply the creation
     // filters to narrow down the creations that will be displayed.

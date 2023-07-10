@@ -101,14 +101,3 @@ export const ClassifierResults = ({ layers, classifier }: Props) => {
     </div>
   );
 };
-
-{
-  /* <div className="flex flex-col">
-{results.map((result, index) => (
-  <div key={index} className="flex items-center space-x-2 ml-2">
-    <p className="font-normal text-gray-700 leading-4">{result.creation?.name ?? ""}</p>
-    <p className="font-normal text-gray-700 leading-4">{result.record}</p>
-  </div>
-))}
-</div> */
-}

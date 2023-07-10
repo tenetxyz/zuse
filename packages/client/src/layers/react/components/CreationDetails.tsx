@@ -51,8 +51,6 @@ const CreationDetails: React.FC<Props> = ({
       return null;
     }
 
-    console.log(selectedCreation.voxelTypes);
-
     return (
       <div className="flex flex-col">
         <h2 className="text-l font-bold text-black mb-5">Constructed With</h2>

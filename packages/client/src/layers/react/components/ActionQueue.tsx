@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { registerUIComponent } from "../engine";
 import { getComponentEntities, getComponentValueStrict } from "@latticexyz/recs";
 import { map } from "rxjs";
@@ -7,6 +7,9 @@ import { Action as ActionQueueItem } from "./Action";
 import { voxelVariantDataKeyToString } from "../../noa/types";
 import { publicClient$, transactionHash$ } from "@latticexyz/network/dev";
 import type { PublicClient } from "viem";
+import { registerTenetComponent } from "../engine/components/TenetComponentRenderer";
+import { useComponentUpdate } from "../../../utils/useComponentUpdate";
+import { useComponentValue } from "@latticexyz/react";
 
 const ActionQueueList = styled.div`
   width: 240px;
@@ -49,38 +52,28 @@ function enforceMaxLen(str: string) {
 }
 
 export function registerActionQueue() {
-  registerUIComponent(
-    "ActionQueue",
-    {
-      rowStart: 6,
-      rowEnd: 12,
-      colStart: 10,
-      colEnd: 13,
-    },
-    (layers) => {
+  registerTenetComponent({
+    rowStart: 6,
+    rowEnd: 12,
+    columnStart: 10,
+    columnEnd: 13,
+    Component: ({ layers }) => {
       const {
         network: {
           actions: { Action },
           config: { blockExplorer },
           getVoxelIconUrl,
-          getVoxelTypePreviewUrl,
         },
       } = layers;
 
-      return Action.update$.pipe(
-        map(() => ({
-          Action,
-          blockExplorer,
-          getVoxelIconUrl,
-        }))
-      );
-    },
-    ({ Action, blockExplorer, getVoxelIconUrl }) => {
+      const [update, setUpdate] = useState<any>();
+      useComponentUpdate(Action as any, setUpdate);
+
       const txRef = useRef<string>();
       const publicClient = useRef<PublicClient>();
       useEffect(() => {
         publicClient$.subscribe((client) => {
-          debugger;
+          // debugger;
         });
       }, []);
       useEffect(() => {
@@ -88,6 +81,7 @@ export function registerActionQueue() {
           txRef.current = txHash;
         });
       }, []);
+
       return (
         <ActionQueueList>
           {[...getComponentEntities(Action)].map((e) => {
@@ -119,6 +113,6 @@ export function registerActionQueue() {
           })}
         </ActionQueueList>
       );
-    }
-  );
+    },
+  });
 }

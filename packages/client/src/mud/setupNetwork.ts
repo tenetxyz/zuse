@@ -184,6 +184,10 @@ export async function setupNetwork() {
     };
   }
 
+  // TODO: if some transactions never finish, we may not evict them from this map.
+  // I don't know the code enough to know if that's the case. we need to monitor this in the meantime
+  const transactionCallbacks = new Map<string, (res: string) => void>();
+
   async function callSystem<C extends Contract, F extends keyof C>(
     func: F,
     args: Parameters<C[F]>,
@@ -194,7 +198,10 @@ export async function setupNetwork() {
   ) {
     const worldSend: BoundFastTxExecuteFn<C> = bindFastTxExecute(worldContract);
     const { hash, tx } = await worldSend(func, args, options);
-    console.log(hash);
+    if (onSuccessCallback) {
+      transactionCallbacks.set(hash, onSuccessCallback);
+    }
+
     return tx;
   }
 
@@ -368,11 +375,14 @@ export async function setupNetwork() {
         OwnedBy: contractComponents.OwnedBy, // I think it's needed cause we check to see if the owner owns the voxel we're placing
       },
       execute: () => {
-        return callSystem("tenet_BuildSystem_build", [
-          to64CharAddress(voxelInstanceOfVoxelType),
-          coord,
-          { gasLimit: 100_000_000 },
-        ]);
+        return callSystem(
+          "tenet_BuildSystem_build",
+          [to64CharAddress(voxelInstanceOfVoxelType), coord, { gasLimit: 100_000_000 }],
+          {},
+          (res) => {
+            console.log(res);
+          }
+        );
       },
       updates: () => [
         // commented cause we're in creative mode
@@ -657,5 +667,6 @@ export async function setupNetwork() {
       VoxelVariantIndexToKey,
       VoxelVariantDataSubscriptions,
     },
+    objectStore: { transactionCallbacks }, // stores global objects. These aren't components since they don't really fit in with the rxjs event-based system
   };
 }

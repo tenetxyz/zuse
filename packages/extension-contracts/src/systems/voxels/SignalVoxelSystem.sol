@@ -5,12 +5,12 @@ import { VoxelType } from "@tenet-contracts/src/prototypes/VoxelType.sol";
 import { IWorld } from "../../../src/codegen/world/IWorld.sol";
 import { Signal, SignalData } from "@tenet-extension-contracts/src/codegen/Tables.sol";
 import { BlockDirection } from "@tenet-extension-contracts/src/codegen/Types.sol";
-import { getCallerNamespace } from "@tenet-contracts/src/SharedUtils.sol";
+import { getCallerNamespace } from "@tenet-contracts/src/Utils.sol";
 import { registerVoxelVariant, registerVoxelType, entityIsSignal } from "../../Utils.sol";
 import { VoxelVariantsKey } from "@tenet-contracts/src/Types.sol";
-import { VoxelVariantsData } from "../../Types.sol";
+import { VoxelVariantsData } from "@tenet-contracts/src/codegen/tables/VoxelVariants.sol";
 import { EXTENSION_NAMESPACE } from "../../Constants.sol";
-import { NoaBlockType } from "@tenet-contracts/src/codegen/types.sol";
+import { NoaBlockType } from "@tenet-contracts/src/codegen/Types.sol";
 
 bytes32 constant SignalID = bytes32(keccak256("signal"));
 

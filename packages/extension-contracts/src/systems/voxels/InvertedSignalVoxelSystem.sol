@@ -5,7 +5,7 @@ import { VoxelType } from "@tenet-contracts/src/prototypes/VoxelType.sol";
 import { IWorld } from "../../../src/codegen/world/IWorld.sol";
 import { InvertedSignal, InvertedSignalData } from "@tenet-extension-contracts/src/codegen/Tables.sol";
 import { BlockDirection } from "@tenet-extension-contracts/src/codegen/Types.sol";
-import { getCallerNamespace } from "@tenet-contracts/src/SharedUtils.sol";
+import { getCallerNamespace } from "@tenet-contracts/src/Utils.sol";
 import { registerVoxelType, entityIsInvertedSignal } from "../../Utils.sol";
 import { SignalOffID, SignalOnID, SignalOnTexture, SignalOnUVWrap } from "./SignalVoxelSystem.sol";
 import { VoxelVariantsKey } from "@tenet-contracts/src/Types.sol";

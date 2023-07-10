@@ -8,8 +8,5 @@
     "func-visibility": ["warn", { "ignoreConstructors": true }],
     "no-empty-blocks": "off",
     "no-complex-fallback": "off"
-  },
-  "settings": {
-    "import/resolver": "eslint-import-resolver-solidity"
   }
 }

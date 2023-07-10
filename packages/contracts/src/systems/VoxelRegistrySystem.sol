@@ -9,7 +9,7 @@ import { FunctionSelectors } from "@latticexyz/world/src/modules/core/tables/Fun
 import { VoxelTypeRegistry, VoxelTypeRegistryData, VoxelTypeRegistryTableId, VoxelVariants, VoxelVariantsData, VoxelVariantsTableId } from "@tenet-contracts/src/codegen/Tables.sol";
 import { IWorld } from "@tenet-contracts/src/codegen/world/IWorld.sol";
 import { NoaBlockType } from "@tenet-contracts/src/codegen/Types.sol";
-import { getCallerNamespace } from "../SharedUtils.sol";
+import { getCallerNamespace } from "../Utils.sol";
 
 contract VoxelRegistrySystem is System {
   function registerVoxelType(

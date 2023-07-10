@@ -5,9 +5,9 @@ import { VoxelType } from "@tenet-contracts/src/prototypes/VoxelType.sol";
 import { VoxelVariantsKey } from "@tenet-contracts/src/Types.sol";
 import { IWorld } from "../../../src/codegen/world/IWorld.sol";
 import { registerVoxelType, registerVoxelVariant } from "../../Utils.sol";
-import { VoxelVariantsData } from "../../Types.sol";
+import { VoxelVariantsData } from "@tenet-contracts/src/codegen/tables/VoxelVariants.sol";
 import { EXTENSION_NAMESPACE } from "../../Constants.sol";
-import { NoaBlockType } from "@tenet-contracts/src/codegen/types.sol";
+import { NoaBlockType } from "@tenet-contracts/src/codegen/Types.sol";
 
 bytes32 constant OrangeFlowerID = bytes32(keccak256("orangeflower"));
 

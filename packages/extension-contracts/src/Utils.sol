@@ -1,14 +1,12 @@
 // SPDX-License-Identifier: GPL-3.0
 pragma solidity >=0.8.0;
-import { Position, PositionData, PositionTableId } from "@tenet-contracts/src/codegen/tables/Position.sol";
 import { VoxelCoord } from "@tenet-contracts/src/Types.sol";
 import { hasKey } from "@latticexyz/world/src/modules/keysintable/hasKey.sol";
 import { Signal, SignalSource, Powered, InvertedSignal } from "@tenet-extension-contracts/src/codegen/Tables.sol";
-import { BlockDirection } from "@tenet-extension-contracts/src/codegen/Types.sol";
 import { CLEAR_COORD_SIG, BUILD_SIG } from "@tenet-contracts/src/constants.sol";
 import { getUniqueEntity } from "@latticexyz/world/src/modules/uniqueentity/getUniqueEntity.sol";
 import { REGISTER_EXTENSION_SIG, REGISTER_VOXEL_TYPE_SIG, REGISTER_VOXEL_VARIANT_SIG } from "@tenet-contracts/src/constants.sol";
-import { VoxelVariantsData } from "./Types.sol";
+import { VoxelVariantsData } from "@tenet-contracts/src/codegen/tables/VoxelVariants.sol";
 import { Strings } from "@openzeppelin/contracts/utils/Strings.sol";
 import { safeCall } from "@tenet-contracts/src/Utils.sol";
 
@@ -70,90 +68,10 @@ function entityIsInvertedSignal(bytes32 entity, bytes16 callerNamespace) view re
   return InvertedSignal.get(callerNamespace, entity).hasValue;
 }
 
-function getEntityPositionStrict(bytes32 entity) view returns (PositionData memory) {
-  bytes32[] memory positionKeyTuple = new bytes32[](1);
-  positionKeyTuple[0] = bytes32((entity));
-  require(hasKey(PositionTableId, positionKeyTuple), "Entity must have a position"); // even if its air, it must have a position
-  return Position.get(entity);
-}
-
-function getVoxelCoordStrict(bytes32 entity) view returns (VoxelCoord memory) {
-  PositionData memory position = getEntityPositionStrict(entity);
-  return VoxelCoord(position.x, position.y, position.z);
-}
-
-function calculateBlockDirection(
-  PositionData memory centerCoord,
-  PositionData memory neighborCoord
-) pure returns (BlockDirection) {
-  if (neighborCoord.x == centerCoord.x && neighborCoord.y == centerCoord.y && neighborCoord.z == centerCoord.z) {
-    return BlockDirection.None;
-  } else if (neighborCoord.y > centerCoord.y) {
-    return BlockDirection.Up;
-  } else if (neighborCoord.y < centerCoord.y) {
-    return BlockDirection.Down;
-  } else if (neighborCoord.z > centerCoord.z) {
-    return BlockDirection.North;
-  } else if (neighborCoord.z < centerCoord.z) {
-    return BlockDirection.South;
-  } else if (neighborCoord.x > centerCoord.x) {
-    return BlockDirection.East;
-  } else if (neighborCoord.x < centerCoord.x) {
-    return BlockDirection.West;
-  } else {
-    return BlockDirection.None;
-  }
-}
-
-function getOppositeDirection(BlockDirection direction) pure returns (BlockDirection) {
-  if (direction == BlockDirection.None) {
-    return BlockDirection.None;
-  } else if (direction == BlockDirection.Up) {
-    return BlockDirection.Down;
-  } else if (direction == BlockDirection.Down) {
-    return BlockDirection.Up;
-  } else if (direction == BlockDirection.North) {
-    return BlockDirection.South;
-  } else if (direction == BlockDirection.South) {
-    return BlockDirection.North;
-  } else if (direction == BlockDirection.East) {
-    return BlockDirection.West;
-  } else if (direction == BlockDirection.West) {
-    return BlockDirection.East;
-  } else {
-    return BlockDirection.None;
-  }
-}
-
 function clearCoord(address worldAddress, VoxelCoord memory coord) {
   safeCall(worldAddress, abi.encodeWithSignature(CLEAR_COORD_SIG, coord), "clearCoord");
 }
 
 function build(address worldAddress, VoxelCoord memory coord, bytes32 entity) {
   safeCall(worldAddress, abi.encodeWithSignature(BUILD_SIG, entity, coord), "build");
-}
-
-function entitiesToVoxelCoords(bytes32[] memory entities) returns (VoxelCoord[] memory) {
-  VoxelCoord[] memory coords = new VoxelCoord[](entities.length);
-  for (uint256 i; i < entities.length; i++) {
-    PositionData memory position = Position.get(entities[i]);
-    coords[i] = VoxelCoord(position.x, position.y, position.z);
-  }
-  return coords;
-}
-
-function entitiesToRelativeVoxelCoords(
-  bytes32[] memory entities,
-  VoxelCoord memory lowerSouthWestCorner
-) returns (VoxelCoord[] memory) {
-  VoxelCoord[] memory coords = entitiesToVoxelCoords(entities);
-  VoxelCoord[] memory relativeCoords = new VoxelCoord[](coords.length);
-  for (uint256 i; i < coords.length; i++) {
-    relativeCoords[i] = VoxelCoord(
-      coords[i].x - lowerSouthWestCorner.x,
-      coords[i].y - lowerSouthWestCorner.y,
-      coords[i].z - lowerSouthWestCorner.z
-    );
-  }
-  return relativeCoords;
 }

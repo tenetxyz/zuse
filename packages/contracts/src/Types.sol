@@ -16,3 +16,13 @@ struct VoxelVariantsKey {
   bytes16 voxelVariantNamespace;
   bytes32 voxelVariantId;
 }
+
+enum BlockDirection {
+  None,
+  Up,
+  Down,
+  North,
+  South,
+  East,
+  West
+}

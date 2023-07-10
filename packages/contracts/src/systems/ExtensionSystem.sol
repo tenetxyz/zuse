@@ -8,14 +8,13 @@ import { NamespaceOwner } from "@latticexyz/world/src/tables/NamespaceOwner.sol"
 import { FunctionSelectors } from "@latticexyz/world/src/modules/core/tables/FunctionSelectors.sol";
 import { System } from "@latticexyz/world/src/System.sol";
 import { VoxelInteractionExtension, VoxelInteractionExtensionTableId } from "@tenet-contracts/src/codegen/Tables.sol";
-import { addressToEntityKey } from "../Utils.sol";
+import { addressToEntityKey, getCallerNamespace } from "../Utils.sol";
 import { IWorld } from "@tenet-contracts/src/codegen/world/IWorld.sol";
 import { Occurrence } from "@tenet-contracts/src/codegen/Tables.sol";
 import { console } from "forge-std/console.sol";
 
 import { SystemRegistry } from "@latticexyz/world/src/modules/core/tables/SystemRegistry.sol";
 import { ResourceSelector } from "@latticexyz/world/src/ResourceSelector.sol";
-import { getCallerNamespace } from "../SharedUtils.sol";
 
 contract ExtensionSystem is System {
   function registerExtension(bytes4 eventHandler, string memory extensionName) public {

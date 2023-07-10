@@ -1,11 +1,11 @@
 // SPDX-License-Identifier: MIT
 pragma solidity >=0.8.0;
 
-import { SingleVoxelInteraction } from "../../prototypes/SingleVoxelInteraction.sol";
+import { SingleVoxelInteraction } from "@tenet-contracts/src/prototypes/SingleVoxelInteraction.sol";
 import { IWorld } from "../../../src/codegen/world/IWorld.sol";
 import { Signal, SignalData, Powered, PoweredData, PoweredTableId, SignalSource, SignalSourceTableId } from "@tenet-extension-contracts/src/codegen/Tables.sol";
-import { BlockDirection } from "@tenet-extension-contracts/src/codegen/Types.sol";
-import { getCallerNamespace } from "@tenet-contracts/src/SharedUtils.sol";
+import { BlockDirection } from "@tenet-contracts/src/Types.sol";
+import { getCallerNamespace } from "@tenet-contracts/src/Utils.sol";
 import { registerExtension, entityIsPowered, entityIsSignal, entityIsSignalSource } from "../../Utils.sol";
 
 contract PoweredSystem is SingleVoxelInteraction {

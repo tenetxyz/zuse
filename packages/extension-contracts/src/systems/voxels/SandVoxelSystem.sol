@@ -4,13 +4,13 @@ pragma solidity >=0.8.0;
 import { VoxelType } from "@tenet-contracts/src/prototypes/VoxelType.sol";
 import { IWorld } from "../../../src/codegen/world/IWorld.sol";
 import { Powered, PoweredData } from "@tenet-extension-contracts/src/codegen/Tables.sol";
-import { getCallerNamespace } from "@tenet-contracts/src/SharedUtils.sol";
+import { getCallerNamespace } from "@tenet-contracts/src/Utils.sol";
 import { registerVoxelType, registerVoxelVariant, entityIsPowered } from "../../Utils.sol";
 import { VoxelVariantsKey } from "@tenet-contracts/src/Types.sol";
-import { VoxelVariantsData } from "../../Types.sol";
+import { VoxelVariantsData } from "@tenet-contracts/src/codegen/tables/VoxelVariants.sol";
 import { BlockDirection } from "@tenet-extension-contracts/src/codegen/Types.sol";
 import { EXTENSION_NAMESPACE } from "../../Constants.sol";
-import { NoaBlockType } from "@tenet-contracts/src/codegen/types.sol";
+import { NoaBlockType } from "@tenet-contracts/src/codegen/Types.sol";
 
 bytes32 constant SandID = bytes32(keccak256("sand"));
 

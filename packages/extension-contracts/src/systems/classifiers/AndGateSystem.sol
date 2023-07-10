@@ -3,13 +3,12 @@ pragma solidity >=0.8.0;
 import { query, QueryFragment, QueryType } from "@latticexyz/world/src/modules/keysintable/query.sol";
 import { System } from "@latticexyz/world/src/System.sol";
 
-import { getVoxelCoordStrict } from "../../Utils.sol";
+import { getVoxelCoordStrict, entitiesToRelativeVoxelCoords, getCallerNamespace } from "@tenet-contracts/src/Utils.sol";
 import { console } from "forge-std/console.sol";
 import { IWorld } from "@tenet-contracts/src/codegen/world/IWorld.sol";
 import { Strings } from "@openzeppelin/contracts/utils/Strings.sol";
 import { VoxelCoord } from "@tenet-contracts/src/Types.sol";
-import { entityIsPowered, clearCoord, build, entitiesToRelativeVoxelCoords } from "../../Utils.sol";
-import { getCallerNamespace } from "@tenet-contracts/src/SharedUtils.sol";
+import { entityIsPowered, clearCoord, build } from "../../Utils.sol";
 import { getUniqueEntity } from "@latticexyz/world/src/modules/uniqueentity/getUniqueEntity.sol";
 import { AndGateCR } from "@tenet-extension-contracts/src/codegen/tables.sol";
 import { Spawn, SpawnData } from "@tenet-contracts/src/codegen/tables/spawn.sol";

@@ -1,11 +1,12 @@
 // SPDX-License-Identifier: MIT
 pragma solidity >=0.8.0;
 
-import { SingleVoxelInteraction } from "../../prototypes/SingleVoxelInteraction.sol";
+import { SingleVoxelInteraction } from "@tenet-contracts/src/prototypes/SingleVoxelInteraction.sol";
 import { IWorld } from "../../../src/codegen/world/IWorld.sol";
 import { Signal, SignalData, InvertedSignalData, InvertedSignal, SignalSource } from "@tenet-extension-contracts/src/codegen/Tables.sol";
-import { BlockDirection } from "@tenet-extension-contracts/src/codegen/Types.sol";
-import { registerExtension, getOppositeDirection, entityIsSignal, entityIsSignalSource, entityIsInvertedSignal } from "../../Utils.sol";
+import { BlockDirection } from "@tenet-contracts/src/Types.sol";
+import { getOppositeDirection } from "@tenet-contracts/src/Utils.sol";
+import { registerExtension, entityIsSignal, entityIsSignalSource, entityIsInvertedSignal } from "../../Utils.sol";
 
 contract SignalSystem is SingleVoxelInteraction {
   function registerInteraction() public override {

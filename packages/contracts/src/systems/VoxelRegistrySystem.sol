@@ -19,7 +19,8 @@ contract VoxelRegistrySystem is System {
     bytes32 previewVoxelVariantId,
     bytes4 voxelVariantSelector,
     bytes4 enterWorldSelector,
-    bytes4 exitWorldSelector
+    bytes4 exitWorldSelector,
+    bytes4 activateSelector
   ) public {
     bytes16 callerNamespace = getCallerNamespace(_msgSender());
 
@@ -40,6 +41,7 @@ contract VoxelRegistrySystem is System {
         voxelVariantSelector: voxelVariantSelector,
         enterWorldSelector: enterWorldSelector,
         exitWorldSelector: exitWorldSelector,
+        activateSelector: activateSelector,
         previewVoxelVariantNamespace: previewVoxelVariantNamespace,
         previewVoxelVariantId: previewVoxelVariantId,
         creator: tx.origin,

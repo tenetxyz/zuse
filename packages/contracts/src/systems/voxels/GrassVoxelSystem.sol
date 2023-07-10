@@ -40,7 +40,8 @@ contract GrassVoxelSystem is VoxelType {
       GrassID,
       world.tenet_GrassVoxelSystem_variantSelector.selector,
       world.tenet_GrassVoxelSystem_enterWorld.selector,
-      world.tenet_GrassVoxelSystem_exitWorld.selector
+      world.tenet_GrassVoxelSystem_exitWorld.selector,
+      world.tenet_GrassVoxelSystem_activate.selector
     );
 
     Occurrence.set(GrassID, world.tenet_OccurrenceSystem_OGrass.selector);

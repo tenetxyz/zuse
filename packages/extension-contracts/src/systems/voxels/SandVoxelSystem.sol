@@ -40,7 +40,8 @@ contract SandVoxelSystem is VoxelType {
       SandID,
       IWorld(world).extension_SandVoxelSystem_variantSelector.selector,
       IWorld(world).extension_SandVoxelSystem_enterWorld.selector,
-      IWorld(world).extension_SandVoxelSystem_exitWorld.selector
+      IWorld(world).extension_SandVoxelSystem_exitWorld.selector,
+      IWorld(world).extension_SandVoxelSystem_activate.selector
     );
   }
 

@@ -55,7 +55,8 @@ contract SignalVoxelSystem is VoxelType {
       SignalOffID,
       IWorld(world).extension_SignalVoxelSyste_variantSelector.selector,
       IWorld(world).extension_SignalVoxelSyste_enterWorld.selector,
-      IWorld(world).extension_SignalVoxelSyste_exitWorld.selector
+      IWorld(world).extension_SignalVoxelSyste_exitWorld.selector,
+      IWorld(world).extension_SignalVoxelSyste_activate.selector
     );
   }
 

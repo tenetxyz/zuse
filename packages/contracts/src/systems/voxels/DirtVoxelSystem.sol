@@ -35,7 +35,8 @@ contract DirtVoxelSystem is VoxelType {
       DirtID,
       world.tenet_DirtVoxelSystem_variantSelector.selector,
       world.tenet_DirtVoxelSystem_enterWorld.selector,
-      world.tenet_DirtVoxelSystem_exitWorld.selector
+      world.tenet_DirtVoxelSystem_exitWorld.selector,
+      world.tenet_DirtVoxelSystem_activate.selector
     );
 
     Occurrence.set(DirtID, world.tenet_OccurrenceSystem_ODirt.selector);

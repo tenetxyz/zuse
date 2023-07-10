@@ -25,7 +25,8 @@ contract InvertedSignalVoxelSystem is VoxelType {
       SignalOnID,
       IWorld(world).extension_InvertedSignalVo_variantSelector.selector,
       IWorld(world).extension_InvertedSignalVo_enterWorld.selector,
-      IWorld(world).extension_InvertedSignalVo_exitWorld.selector
+      IWorld(world).extension_InvertedSignalVo_exitWorld.selector,
+      IWorld(world).extension_InvertedSignalVo_activate.selector
     );
   }
 

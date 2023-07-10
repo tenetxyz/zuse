@@ -25,7 +25,8 @@ contract AirVoxelSystem is VoxelType {
       AirID,
       world.tenet_AirVoxelSystem_variantSelector.selector,
       world.tenet_AirVoxelSystem_enterWorld.selector,
-      world.tenet_AirVoxelSystem_exitWorld.selector
+      world.tenet_AirVoxelSystem_exitWorld.selector,
+      world.tenet_AirVoxelSystem_activate.selector
     );
   }
 

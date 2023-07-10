@@ -36,7 +36,8 @@ contract FlowerVoxelSystem is VoxelType {
       OrangeFlowerID,
       IWorld(world).extension_FlowerVoxelSyste_variantSelector.selector,
       IWorld(world).extension_FlowerVoxelSyste_enterWorld.selector,
-      IWorld(world).extension_FlowerVoxelSyste_exitWorld.selector
+      IWorld(world).extension_FlowerVoxelSyste_exitWorld.selector,
+      IWorld(world).extension_FlowerVoxelSyste_activate.selector
     );
   }
 

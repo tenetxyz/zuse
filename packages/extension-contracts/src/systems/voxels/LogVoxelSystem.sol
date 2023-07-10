@@ -39,7 +39,8 @@ contract LogVoxelSystem is VoxelType {
       LogID,
       IWorld(world).extension_LogVoxelSystem_variantSelector.selector,
       IWorld(world).extension_LogVoxelSystem_enterWorld.selector,
-      IWorld(world).extension_LogVoxelSystem_exitWorld.selector
+      IWorld(world).extension_LogVoxelSystem_exitWorld.selector,
+      IWorld(world).extension_LogVoxelSystem_activate.selector,
     );
   }
 

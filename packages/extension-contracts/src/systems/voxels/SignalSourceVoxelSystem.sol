@@ -39,7 +39,8 @@ contract SignalSourceVoxelSystem is VoxelType {
       SignalSourceID,
       IWorld(world).extension_SignalSourceVoxe_variantSelector.selector,
       IWorld(world).extension_SignalSourceVoxe_enterWorld.selector,
-      IWorld(world).extension_SignalSourceVoxe_exitWorld.selector
+      IWorld(world).extension_SignalSourceVoxe_exitWorld.selector,
+      IWorld(world).extension_SignalSourceVoxe_activate.selector
     );
   }
 

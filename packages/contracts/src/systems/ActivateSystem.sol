@@ -1,22 +1,35 @@
 // SPDX-License-Identifier: MIT
 pragma solidity >=0.8.0;
 
-import { getUniqueEntity } from "@latticexyz/world/src/modules/uniqueentity/getUniqueEntity.sol";
-import { getKeysInTable } from "@latticexyz/world/src/modules/keysintable/getKeysInTable.sol";
 import { System } from "@latticexyz/world/src/System.sol";
-import { VoxelCoord, VoxelVariantsKey } from "../Types.sol";
-import { OwnedBy, Position, PositionTableId, VoxelType, VoxelTypeData, VoxelTypeRegistry } from "../codegen/Tables.sol";
-import { AirID } from "./voxels/AirVoxelSystem.sol";
-import { enterVoxelIntoWorld, exitVoxelFromWorld, updateVoxelVariant, addressToEntityKey, getEntitiesAtCoord, safeStaticCallFunctionSelector, getVoxelVariant } from "../Utils.sol";
-import { Utils } from "@latticexyz/world/src/Utils.sol";
-import { IWorld } from "../codegen/world/IWorld.sol";
-import { Occurrence } from "../codegen/Tables.sol";
-import { console } from "forge-std/console.sol";
-import { CHUNK_MAX_Y, CHUNK_MIN_Y } from "../Constants.sol";
+import { Position, VoxelType, VoxelTypeData } from "@tenet-contracts/src/codegen/Tables.sol";
+import { safeCall } from "@tenet-contracts/src/Utils.sol";
 
 contract ActivateSystem is System {
   function activate(bytes32 entity) public returns (bytes32) {
-    // Actually, I don't think we need this restriction
-    // require(Position.has(entity), "The entity must be placed in the world");
+    require(Position.has(entity), "The entity must be placed in the world");
+
+    //     struct VoxelTypeData {
+    //   bytes16 voxelTypeNamespace;
+    //   bytes32 voxelTypeId;
+    //   bytes16 voxelVariantNamespace;
+    //   bytes32 voxelVariantId;
+    // }
+    VoxelTypeData memory voxelType = VoxelType.get(entity);
+    VoxelRegistry.get();
+    // get the corresponding voxel type
+    // get the activate selector
+
+    safeCall(
+      worldAddress,
+      abi.encodeWithSignature(
+        "tenet_RegClassifierSys_registerClassifier(bytes4,string,string,string)",
+        classifySelector,
+        classifierName,
+        classifierDescription,
+        classificationResultTableName
+      ),
+      string(abi.encode("register classifier: ", classifierName))
+    );
   }
 }

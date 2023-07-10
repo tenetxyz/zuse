@@ -36,7 +36,8 @@ contract BedrockVoxelSystem is VoxelType {
       BedrockID,
       world.tenet_BedrockVoxelSyst_variantSelector.selector,
       world.tenet_BedrockVoxelSyst_enterWorld.selector,
-      world.tenet_BedrockVoxelSyst_exitWorld.selector
+      world.tenet_BedrockVoxelSyst_exitWorld.selector,
+      world.tenet_BedrockVoxelSyst_activate.selector
     );
 
     Occurrence.set(BedrockID, world.tenet_OccurrenceSystem_OBedrock.selector);

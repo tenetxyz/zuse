@@ -39,7 +39,6 @@ import { getNftStorageLink } from "../layers/noa/constants";
 import { voxelCoordToString } from "../utils/coord";
 import { defaultAbiCoder } from "ethers/lib/utils";
 import { toast } from "react-toastify";
-import { ActionRequest } from "@latticexyz/std-client/src/systems/ActionSystem/types";
 
 export type SetupNetworkResult = Awaited<ReturnType<typeof setupNetwork>>;
 
@@ -167,20 +166,7 @@ export async function setupNetwork() {
       if (!fastTxExecutor) {
         throw new Error("no signer");
       }
-
-      try {
-        return fastTxExecutor.fastTxExecute(contract, ...args);
-      } catch (err) {
-        // These errors typically happen BEFORE the transaction is executed (mainly gas errors)
-        console.error(`Transaction call failed: ${err}`);
-        // TODO: should we parse this message with big numbers in mind?
-        const errorBody = JSON.parse(err.body);
-        let error = errorBody?.error?.message;
-        if (!error) {
-          error = "couldn't parse error. See console for more info";
-        }
-        toast(`Transaction call failed: ${error}`);
-      }
+      return fastTxExecutor.fastTxExecute(contract, ...args);
     };
   }
 
@@ -197,12 +183,26 @@ export async function setupNetwork() {
     onSuccessCallback?: (res: string) => void // This callback will be called with the result of the transaction
   ) {
     const worldSend: BoundFastTxExecuteFn<C> = bindFastTxExecute(worldContract);
-    const { hash, tx } = await worldSend(func, args, options);
-    if (onSuccessCallback) {
-      transactionCallbacks.set(hash, onSuccessCallback);
-    }
+    try {
+      const { hash, tx } = await worldSend(func, args, options);
+      if (onSuccessCallback) {
+        transactionCallbacks.set(hash, onSuccessCallback);
+      }
+      return tx;
+    } catch (err) {
+      // These errors typically happen BEFORE the transaction is executed (mainly gas errors)
+      console.error(`Transaction call failed: ${err}`);
 
-    return tx;
+      // TODO: should we parse this message with big numbers in mind?
+      const errorBody = JSON.parse(err.body);
+
+      let error = errorBody?.error?.message;
+      if (!error) {
+        error = "couldn't parse error. See console for more info";
+      }
+
+      toast(`Transaction call failed: ${error}`);
+    }
   }
 
   // --- ACTION SYSTEM --------------------------------------------------------------
@@ -375,14 +375,11 @@ export async function setupNetwork() {
         OwnedBy: contractComponents.OwnedBy, // I think it's needed cause we check to see if the owner owns the voxel we're placing
       },
       execute: () => {
-        return callSystem(
-          "tenet_BuildSystem_build",
-          [to64CharAddress(voxelInstanceOfVoxelType), coord, { gasLimit: 100_000_000 }],
-          {},
-          (res) => {
-            console.log(res);
-          }
-        );
+        return callSystem("tenet_BuildSystem_build", [
+          to64CharAddress(voxelInstanceOfVoxelType),
+          coord,
+          { gasLimit: 100_000_000 },
+        ]);
       },
       updates: () => [
         // commented cause we're in creative mode
@@ -649,7 +646,6 @@ export async function setupNetwork() {
       claim,
       getName,
     },
-    callSystem: callSystem,
     fastTxExecutor,
     // dev: setupDevSystems(world, encoders as Promise<any>, systems),
     // dev: setupDevSystems(world),

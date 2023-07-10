@@ -1,10 +1,12 @@
-import React from "react";
+import React, { useEffect, useRef } from "react";
 import { registerUIComponent } from "../engine";
 import { getComponentEntities, getComponentValueStrict } from "@latticexyz/recs";
 import { map } from "rxjs";
 import styled from "styled-components";
 import { Action as ActionQueueItem } from "./Action";
 import { voxelVariantDataKeyToString } from "../../noa/types";
+import { publicClient$, transactionHash$ } from "@latticexyz/network/dev";
+import type { PublicClient } from "viem";
 
 const ActionQueueList = styled.div`
   width: 240px;
@@ -74,6 +76,18 @@ export function registerActionQueue() {
       );
     },
     ({ Action, blockExplorer, getVoxelIconUrl }) => {
+      const txRef = useRef<string>();
+      const publicClient = useRef<PublicClient>();
+      useEffect(() => {
+        publicClient$.subscribe((client) => {
+          debugger;
+        });
+      }, []);
+      useEffect(() => {
+        transactionHash$.subscribe((txHash) => {
+          txRef.current = txHash;
+        });
+      }, []);
       return (
         <ActionQueueList>
           {[...getComponentEntities(Action)].map((e) => {

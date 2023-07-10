@@ -13,9 +13,9 @@ import { NoaBlockType } from "@tenetxyz/contracts/src/codegen/types.sol";
 
 bytes32 constant ThermoGenID = bytes32(keccak256("thermogen"));
 
-string constant SignalSourceTexture = "bafkreifciafvv63x3nnnsdvsccp45ggcx5xczfhoaz3xy3y5k666ma2m4y";
+string constant SignalSourceTexture = "bafkreidohfeb5yddppqv6swfjs6s3g7qe44u75ogwaqkky4nolgh7bbafu";
 
-string constant SignalSourceUVWrap = "bafkreibyxohq35sq2fqujxffs5nfjdtfx5cmnqhnyliar2xbkqxgcd7d5u";
+string constant SignalSourceUVWrap = "bafkreigx5gstl4b2fcz62dwex55mstoo7egdcsrmsox6trmiieplcuyalm";
 
 contract ThermoGenVoxelSystem is VoxelType {
   function registerVoxel() public override {

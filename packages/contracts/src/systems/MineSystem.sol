@@ -5,12 +5,12 @@ import { getUniqueEntity } from "@latticexyz/world/src/modules/uniqueentity/getU
 import { getKeysInTable } from "@latticexyz/world/src/modules/keysintable/getKeysInTable.sol";
 import { System } from "@latticexyz/world/src/System.sol";
 import { VoxelCoord, VoxelVariantsKey } from "../Types.sol";
-import { OwnedBy, Position, PositionTableId, VoxelType, VoxelTypeData, VoxelTypeRegistry } from "../codegen/Tables.sol";
+import { OwnedBy, Position, PositionTableId, VoxelType, VoxelTypeData, VoxelTypeRegistry } from "@tenet-contracts/src/codegen/Tables.sol";
 import { AirID } from "./voxels/AirVoxelSystem.sol";
 import { enterVoxelIntoWorld, exitVoxelFromWorld, updateVoxelVariant, addressToEntityKey, getEntitiesAtCoord, safeStaticCallFunctionSelector, getVoxelVariant } from "../Utils.sol";
 import { Utils } from "@latticexyz/world/src/Utils.sol";
-import { IWorld } from "../codegen/world/IWorld.sol";
-import { Occurrence } from "../codegen/Tables.sol";
+import { IWorld } from "@tenet-contracts/src/codegen/world/IWorld.sol";
+import { Occurrence } from "@tenet-contracts/src/codegen/Tables.sol";
 import { console } from "forge-std/console.sol";
 import { CHUNK_MAX_Y, CHUNK_MIN_Y } from "../Constants.sol";
 

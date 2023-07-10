@@ -5,8 +5,8 @@ import "forge-std/Test.sol";
 import { MudV2Test } from "@latticexyz/std-contracts/src/test/MudV2Test.t.sol";
 import { getKeysWithValue } from "@latticexyz/world/src/modules/keyswithvalue/getKeysWithValue.sol";
 
-import { IWorld } from "../../codegen/world/IWorld.sol";
-import { Powered, PoweredTableId } from "../../codegen/Tables.sol";
+import { IWorld } from "@tenet-extension-contracts/src/codegen/world/IWorld.sol";
+import { Powered, PoweredTableId } from "@tenet-extension-contracts/src/codegen/Tables.sol";
 
 contract PoweredSystemTest is MudV2Test {
   IWorld public world;

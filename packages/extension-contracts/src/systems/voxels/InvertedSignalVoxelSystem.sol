@@ -1,14 +1,14 @@
 // SPDX-License-Identifier: MIT
 pragma solidity >=0.8.0;
 
-import { VoxelType } from "@tenetxyz/contracts/src/prototypes/VoxelType.sol";
+import { VoxelType } from "@tenet-contracts/src/prototypes/VoxelType.sol";
 import { IWorld } from "../../../src/codegen/world/IWorld.sol";
-import { InvertedSignal, InvertedSignalData } from "../../codegen/Tables.sol";
-import { BlockDirection } from "../../codegen/Types.sol";
-import { getCallerNamespace } from "@tenetxyz/contracts/src/SharedUtils.sol";
+import { InvertedSignal, InvertedSignalData } from "@tenet-extension-contracts/src/codegen/Tables.sol";
+import { BlockDirection } from "@tenet-extension-contracts/src/codegen/Types.sol";
+import { getCallerNamespace } from "@tenet-contracts/src/Utils.sol";
 import { registerVoxelType, entityIsInvertedSignal } from "../../Utils.sol";
 import { SignalOffID, SignalOnID, SignalOnTexture, SignalOnUVWrap } from "./SignalVoxelSystem.sol";
-import { VoxelVariantsKey } from "@tenetxyz/contracts/src/Types.sol";
+import { VoxelVariantsKey } from "@tenet-contracts/src/Types.sol";
 import { EXTENSION_NAMESPACE } from "../../Constants.sol";
 
 bytes32 constant InvertedSignalID = bytes32(keccak256("invertedsignal"));

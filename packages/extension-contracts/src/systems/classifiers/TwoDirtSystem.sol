@@ -3,12 +3,12 @@ pragma solidity >=0.8.0;
 
 import { System } from "@latticexyz/world/src/System.sol";
 import { Strings } from "@openzeppelin/contracts/utils/Strings.sol";
-import { TwoDirtCR } from "../../codegen/tables.sol";
-import { Spawn, SpawnData } from "@tenetxyz/contracts/src/codegen/tables/spawn.sol";
-import { VoxelType } from "@tenetxyz/contracts/src/codegen/tables/voxelType.sol";
+import { TwoDirtCR } from "@tenet-extension-contracts/src/codegen/tables.sol";
+import { Spawn, SpawnData } from "@tenet-contracts/src/codegen/tables/spawn.sol";
+import { VoxelType } from "@tenet-contracts/src/codegen/tables/voxelType.sol";
 
 // This doesn't work since we can't import the dependencies (cause it uses relative paths)
-// import { DirtID } from "@tenetxyz/contracts/src/systems/voxels/DirtVoxelSystem.sol";
+// import { DirtID } from "@tenet-contracts/src/systems/voxels/DirtVoxelSystem.sol";
 bytes32 constant DirtID = keccak256("dirt");
 
 contract TwoDirtSystem is System {

@@ -3,7 +3,7 @@ pragma solidity >=0.8.0;
 
 import { System } from "@latticexyz/world/src/System.sol";
 import { hasKey } from "@latticexyz/world/src/modules/keysintable/hasKey.sol";
-import { VoxelVariantsKey } from "../Types.sol";
+import { VoxelVariantsKey } from "@tenet-contracts/src/Types.sol";
 
 // Represents a voxel (or Minecraft block)
 abstract contract VoxelType is System {

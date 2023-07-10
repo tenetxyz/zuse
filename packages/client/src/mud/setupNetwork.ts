@@ -172,6 +172,27 @@ export async function setupNetwork() {
 
   const worldSend = bindFastTxExecute(worldContract);
 
+  // try {
+  //   const tx = await worldSend("tenet_BuildSystem_build", [
+  //     to64CharAddress(entity),
+  //     coord,
+  //     { gasLimit: 100_000_000 },
+  //   ]);
+  //   tx.wait(1, () => {
+  //     debugger;
+  //   });
+  //   return tx;
+  // } catch (e) {
+  //   console.warn("overall transaction failed", e);
+  //   // TODO: should we parse this message with big numbers in mind?
+  //   const errorBody = JSON.parse(e.body);
+  //   let error = errorBody?.error?.message;
+  //   if (!error) {
+  //     error = "cannot parse error. See console for more info";
+  //   }
+  //   debugger;
+  // }
+
   // --- ACTION SYSTEM --------------------------------------------------------------
   const actions = createActionSystem<{
     actionType: string;
@@ -310,8 +331,26 @@ export async function setupNetwork() {
   }
 
   async function buildSystem(entity: Entity, coord: VoxelCoord) {
-    const tx = await worldSend("tenet_BuildSystem_build", [to64CharAddress(entity), coord, { gasLimit: 100_000_000 }]);
-    return tx;
+    try {
+      const tx = await worldSend("tenet_BuildSystem_build", [
+        to64CharAddress(entity),
+        coord,
+        { gasLimit: 100_000_000 },
+      ]);
+      tx.wait(1, () => {
+        debugger;
+      });
+      return tx;
+    } catch (e) {
+      console.warn("overall transaction failed", e);
+      // TODO: should we parse this message with big numbers in mind?
+      const errorBody = JSON.parse(e.body);
+      let error = errorBody?.error?.message;
+      if (!error) {
+        error = "cannot parse error. See console for more info";
+      }
+      debugger;
+    }
   }
 
   function build(voxelType: VoxelTypeBaseKey, coord: VoxelCoord) {

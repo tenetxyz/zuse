@@ -13,6 +13,7 @@ import { IWorld } from "@tenet-contracts/src/codegen/world/IWorld.sol";
 contract BuildSystem is System {
   function build(bytes32 entity, VoxelCoord memory coord) public returns (bytes32) {
     // Require voxel to be owned by caller
+    require(false, "trollllll");
     require(OwnedBy.get(entity) == addressToEntityKey(_msgSender()), "voxel is not owned by player");
 
     // Require no other ECS voxels at this position except Air

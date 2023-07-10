@@ -53,4 +53,6 @@ contract GrassVoxelSystem is VoxelType {
   function variantSelector(bytes32 entity) public pure override returns (VoxelVariantsKey memory) {
     return VoxelVariantsKey({ voxelVariantNamespace: TENET_NAMESPACE, voxelVariantId: GrassID });
   }
+
+  function activate(bytes32 entity) public override returns (bytes memory) {}
 }

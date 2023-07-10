@@ -52,4 +52,6 @@ contract InvertedSignalVoxelSystem is VoxelType {
       return VoxelVariantsKey({ voxelVariantNamespace: EXTENSION_NAMESPACE, voxelVariantId: SignalOffID });
     }
   }
+
+  function activate(bytes32 entity) public override returns (bytes memory) {}
 }

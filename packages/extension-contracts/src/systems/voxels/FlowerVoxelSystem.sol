@@ -47,4 +47,6 @@ contract FlowerVoxelSystem is VoxelType {
   function variantSelector(bytes32 entity) public pure override returns (VoxelVariantsKey memory) {
     return VoxelVariantsKey({ voxelVariantNamespace: EXTENSION_NAMESPACE, voxelVariantId: OrangeFlowerID });
   }
+
+  function activate(bytes32 entity) public override returns (bytes memory) {}
 }

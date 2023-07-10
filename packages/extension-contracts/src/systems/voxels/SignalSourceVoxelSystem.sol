@@ -58,4 +58,6 @@ contract SignalSourceVoxelSystem is VoxelType {
   function variantSelector(bytes32 entity) public view override returns (VoxelVariantsKey memory) {
     return VoxelVariantsKey({ voxelVariantNamespace: EXTENSION_NAMESPACE, voxelVariantId: SignalSourceID });
   }
+
+  function activate(bytes32 entity) public override returns (bytes memory) {}
 }

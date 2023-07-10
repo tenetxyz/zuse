@@ -16,6 +16,7 @@ import { TargetedBlock, getTargetedSpawnId } from "../../../utils/voxels";
 import { stringToEntity } from "../../../utils/entity";
 import { abiDecode } from "../../../utils/abi";
 import { ISpawn } from "../../noa/components/SpawnInFocus";
+import { ClassifierResults } from "./ClassifierResults";
 
 export interface ClassifierStoreFilters {
   classifierQuery: string;
@@ -180,6 +181,9 @@ const ClassifierDetails: React.FC<Props> = ({
       >
         Submit Creation
       </button>
+      <hr className="h-0.5 bg-gray-300 mt-4 mb-4 border-0" />
+      <h3 className="text-xl font-bold text-black">Submissions</h3>
+      <ClassifierResults layers={layers} classifier={selectedClassifier} />
     </div>
   );
 };

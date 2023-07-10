@@ -44,7 +44,8 @@ contract AndGateSystem is Classifier {
 
     VoxelCoord memory lowerSouthWestCorner = abi.decode(Spawn.getLowerSouthWestCorner(spawnId), (VoxelCoord));
     VoxelCoord[] memory interfaceCoords = entitiesToRelativeVoxelCoords(input, lowerSouthWestCorner);
-    AndGateCR.set(spawn.creationId, true, block.number, abi.encode(interfaceCoords));
+    string memory resultStr = string(abi.encodePacked(Strings.toString(spawn.voxels.length), " blocks"));
+    AndGateCR.set(spawn.creationId, true, block.number, resultStr, abi.encode(interfaceCoords));
 
     // Reset the world
     // TODO: This can be moved to the abstract contract

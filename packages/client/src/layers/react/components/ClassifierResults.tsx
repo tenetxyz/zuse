@@ -15,7 +15,7 @@ export interface Props {
 
 interface ClassifierResult {
   creation: Creation | undefined;
-  record: string;
+  record: any;
 }
 
 export const ClassifierResults = ({ layers, classifier }: Props) => {
@@ -67,7 +67,7 @@ export const ClassifierResults = ({ layers, classifier }: Props) => {
         const creation = getComponentValue(Creation, stringToEntity(to256BitString(creationId.toString())));
         return {
           creation,
-          record,
+          record: JSON.parse(record as string),
         };
       });
 
@@ -75,16 +75,40 @@ export const ClassifierResults = ({ layers, classifier }: Props) => {
   }, [classifier]);
 
   return (
-    <div>
-      <div className="flex flex-col">
-        <label className="flex items-center space-x-2 ml-2">Results</label>
-        {results.map((result, index) => (
-          <div key={index} className="flex items-center space-x-2 ml-2">
-            <p>{result.creation?.name ?? ""}</p>
-            <p>{result.record}</p>
-          </div>
-        ))}
-      </div>
+    <div className="relative overflow-x-auto">
+      <table className="w-full text-sm text-left text-gray-500">
+        <thead className="text-xs text-gray-700 uppercase bg-gray-50">
+          <tr>
+            <th scope="col" className="px-6 py-3">
+              Creation Result
+            </th>
+            <th scope="col" className="px-6 py-3">
+              Creation Name
+            </th>
+          </tr>
+        </thead>
+        <tbody>
+          {results.map((result, index) => (
+            <tr key={"creation-" + index} className="bg-white border-b">
+              <th scope="row" className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap">
+                {result.creation?.name ?? ""}
+              </th>
+              <td className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap">{result.record["displayText"]}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
     </div>
   );
 };
+
+{
+  /* <div className="flex flex-col">
+{results.map((result, index) => (
+  <div key={index} className="flex items-center space-x-2 ml-2">
+    <p className="font-normal text-gray-700 leading-4">{result.creation?.name ?? ""}</p>
+    <p className="font-normal text-gray-700 leading-4">{result.record}</p>
+  </div>
+))}
+</div> */
+}

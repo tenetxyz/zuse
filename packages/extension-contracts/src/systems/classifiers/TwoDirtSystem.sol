@@ -21,6 +21,6 @@ contract TwoDirtSystem is Classifier {
       bytes32 voxelTypeId = VoxelType.getVoxelTypeId(voxel);
       require(voxelTypeId == DirtID, "voxels must be dirt");
     }
-    TwoDirtCR.set(spawn.creationId, true, block.number);
+    TwoDirtCR.set(spawn.creationId, true, block.number, "Passed");
   }
 }

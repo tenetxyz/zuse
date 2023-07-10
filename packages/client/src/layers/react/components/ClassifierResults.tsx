@@ -67,7 +67,7 @@ export const ClassifierResults = ({ layers, classifier }: Props) => {
         const creation = getComponentValue(Creation, stringToEntity(to256BitString(creationId.toString())));
         return {
           creation,
-          record: JSON.parse(record as string),
+          record: JSON.parse(record as string), // TODO: Need to test this with a table having a BigInt, eg. a hash
         };
       });
 

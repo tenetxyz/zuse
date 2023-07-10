@@ -29,4 +29,5 @@ export function registerUIComponents() {
   registerTenetSidebar();
   registerAdminPanel();
   registerBackgroundFade();
+  registerTxReponseListener();
 }

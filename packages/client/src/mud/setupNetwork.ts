@@ -38,6 +38,7 @@ import { AIR_ID, BEDROCK_ID, DIRT_ID, GRASS_ID } from "../layers/network/api/ter
 import { getNftStorageLink } from "../layers/noa/constants";
 import { voxelCoordToString } from "../utils/coord";
 import { defaultAbiCoder } from "ethers/lib/utils";
+import { toast } from "react-toastify";
 
 export type SetupNetworkResult = Awaited<ReturnType<typeof setupNetwork>>;
 
@@ -165,33 +166,24 @@ export async function setupNetwork() {
       if (!fastTxExecutor) {
         throw new Error("no signer");
       }
-      const { tx } = await fastTxExecutor.fastTxExecute(contract, ...args);
-      return await tx;
+
+      try {
+        const { tx } = await fastTxExecutor.fastTxExecute(contract, ...args);
+        return await tx;
+      } catch (err) {
+        console.warn(`Transaction call failed: ${err}`);
+        // TODO: should we parse this message with big numbers in mind?
+        const errorBody = JSON.parse(err.body);
+        let error = errorBody?.error?.message;
+        if (!error) {
+          error = "couldn't parse error. See console for more info";
+        }
+        toast(`Transaction call failed: ${error}`);
+      }
     };
   }
 
   const worldSend = bindFastTxExecute(worldContract);
-
-  // try {
-  //   const tx = await worldSend("tenet_BuildSystem_build", [
-  //     to64CharAddress(entity),
-  //     coord,
-  //     { gasLimit: 100_000_000 },
-  //   ]);
-  //   tx.wait(1, () => {
-  //     debugger;
-  //   });
-  //   return tx;
-  // } catch (e) {
-  //   console.warn("overall transaction failed", e);
-  //   // TODO: should we parse this message with big numbers in mind?
-  //   const errorBody = JSON.parse(e.body);
-  //   let error = errorBody?.error?.message;
-  //   if (!error) {
-  //     error = "cannot parse error. See console for more info";
-  //   }
-  //   debugger;
-  // }
 
   // --- ACTION SYSTEM --------------------------------------------------------------
   const actions = createActionSystem<{
@@ -331,26 +323,8 @@ export async function setupNetwork() {
   }
 
   async function buildSystem(entity: Entity, coord: VoxelCoord) {
-    try {
-      const tx = await worldSend("tenet_BuildSystem_build", [
-        to64CharAddress(entity),
-        coord,
-        { gasLimit: 100_000_000 },
-      ]);
-      tx.wait(1, () => {
-        debugger;
-      });
-      return tx;
-    } catch (e) {
-      console.warn("overall transaction failed", e);
-      // TODO: should we parse this message with big numbers in mind?
-      const errorBody = JSON.parse(e.body);
-      let error = errorBody?.error?.message;
-      if (!error) {
-        error = "cannot parse error. See console for more info";
-      }
-      debugger;
-    }
+    const tx = await worldSend("tenet_BuildSystem_build", [to64CharAddress(entity), coord, { gasLimit: 100_000_000 }]);
+    return tx;
   }
 
   function build(voxelType: VoxelTypeBaseKey, coord: VoxelCoord) {

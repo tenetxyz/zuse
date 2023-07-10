@@ -1,5 +1,5 @@
 import { setupMUDV2Network, createActionSystem } from "@latticexyz/std-client";
-import { Entity, getComponentValue, createIndexer, runQuery, HasValue } from "@latticexyz/recs";
+import { Entity, getComponentValue, createIndexer, runQuery, HasValue, Components } from "@latticexyz/recs";
 import { createFastTxExecutor, createFaucetService, getSnapSyncRecords, createRelayStream } from "@latticexyz/network";
 import { getNetworkConfig } from "./getNetworkConfig";
 import { defineContractComponents } from "./contractComponents";
@@ -39,6 +39,7 @@ import { getNftStorageLink } from "../layers/noa/constants";
 import { voxelCoordToString } from "../utils/coord";
 import { defaultAbiCoder } from "ethers/lib/utils";
 import { toast } from "react-toastify";
+import { ActionRequest } from "@latticexyz/std-client/src/systems/ActionSystem/types";
 
 export type SetupNetworkResult = Awaited<ReturnType<typeof setupNetwork>>;
 
@@ -168,7 +169,7 @@ export async function setupNetwork() {
       }
 
       try {
-        const { tx } = await fastTxExecutor.fastTxExecute(contract, ...args);
+        const { hash, tx } = await fastTxExecutor.fastTxExecute(contract, ...args);
         return await tx;
       } catch (err) {
         // These errors typically happen BEFORE the transaction is executed (mainly gas errors)
@@ -185,6 +186,16 @@ export async function setupNetwork() {
   }
 
   const worldSend = bindFastTxExecute(worldContract);
+  // const callSystem = async <C extends Contract, F extends keyof C>(
+  //   func: F,
+  //   args: Parameters<C[F]>,
+  //   options?: {
+  //     retryCount?: number;
+  //   }
+  // ): Promis<ReturnType<C[F]>> => {
+  //   const tx = await worldSend(func, args, options);
+  //   return tx;
+  // };
 
   // --- ACTION SYSTEM --------------------------------------------------------------
   const actions = createActionSystem<{
@@ -323,13 +334,16 @@ export async function setupNetwork() {
     return getComponentValue(contractComponents.Name, entity)?.value;
   }
 
-  const addAction = (params ) ={
-    const hi = 5;
-  }
+  const addAction = <C extends Components, T, M = undefined>(
+    actionRequest: ActionRequest<C, T, M>,
+    onSuccessCallback?: (res: string) => void // This callback will be called with the result of the transaction
+  ) => {
+    actions.add(actionRequest as any); // not sure why the type doesn't match. maybe because C, T, and M are not the ones declared on the add function?
+    // const hash = tx.hash
+  };
 
   async function buildSystem(entity: Entity, coord: VoxelCoord) {
     const tx = await worldSend("tenet_BuildSystem_build", [to64CharAddress(entity), coord, { gasLimit: 100_000_000 }]);
-    debugger;
     return tx;
   }
 
@@ -351,7 +365,7 @@ export async function setupNetwork() {
 
     const newVoxelOfSameType = world.registerEntity();
 
-    actions.add({
+    addAction({
       id: `build+${voxelCoordToString(coord)}` as Entity, // used so we don't send the same transaction twice
       metadata: {
         // metadata determines how the transaction dialog box appears in the bottom left corner
@@ -420,7 +434,7 @@ export async function setupNetwork() {
       voxelVariantId: voxelTypeKey.voxelVariantId,
     };
 
-    actions.add({
+    addAction({
       id: `mine+${coord.x}/${coord.y}/${coord.z}` as Entity,
       metadata: { actionType: "mine", coord, voxelVariantKey },
       requirement: () => true,
@@ -470,7 +484,7 @@ export async function setupNetwork() {
   function giftVoxel(voxelTypeNamespace: string, voxelTypeId: string, preview: string) {
     const newVoxel = world.registerEntity();
 
-    actions.add({
+    addAction({
       id: `GiftVoxel+${voxelTypeNamespace}+${voxelTypeId}` as Entity,
       metadata: { actionType: "giftVoxel", preview },
       requirement: () => true,
@@ -517,7 +531,7 @@ export async function setupNetwork() {
 
     const voxelType = getComponentValue(contractComponents.VoxelType, voxels[0]);
     const voxelTypeKey = voxelType ? (voxelTypeToEntity(voxelType) as string) : "";
-    actions.add({
+    addAction({
       id: `RemoveVoxels+VoxelType=${voxelTypeKey}` as Entity,
       metadata: {
         actionType: "removeVoxels",
@@ -548,7 +562,7 @@ export async function setupNetwork() {
     // TODO: Relpace Diamond NFT with a creation symbol
     const preview = getNftStorageLink("bafkreicro56v6rinwnltbkyjfzqdwva2agtrtypwaeowud447louxqgl5y");
 
-    actions.add({
+    addAction({
       id: `RegisterCreation+${creationName}` as Entity,
       metadata: { actionType: "registerCreation", preview },
       requirement: () => true,
@@ -575,7 +589,7 @@ export async function setupNetwork() {
     // TODO: Relpace Iron NFT with a spawn symbol
     const preview = getNftStorageLink("bafkreidkik2uccshptqcskpippfotmusg7algnfh5ozfsga72xyfdrvacm");
 
-    actions.add({
+    addAction({
       id: `SpawnCreation+${creationId}+at+${voxelCoordToString(lowerSouthWestCorner)}` as Entity,
       metadata: { actionType: "spawnCreation", preview },
       requirement: () => true,
@@ -602,7 +616,7 @@ export async function setupNetwork() {
     // TODO: Relpace Iron NFT with a spawn symbol
     const preview = getNftStorageLink("bafkreidkik2uccshptqcskpippfotmusg7algnfh5ozfsga72xyfdrvacm");
 
-    actions.add({
+    addAction({
       id: `classifyCreation+classifier=${classifierId}+spawnId=${spawnId}+interfaceVoxels=${interfaceVoxels.toString()}` as Entity,
       metadata: { actionType: "classifyCreation", preview },
       requirement: () => true,

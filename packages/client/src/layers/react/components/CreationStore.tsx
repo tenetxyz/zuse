@@ -23,6 +23,8 @@ interface Props {
   setShowAllCreations: SetState<boolean>;
   selectedCreation: Creation | null;
   setSelectedCreation: SetState<Creation | null>;
+  registerCreationFormData: RegisterCreationFormData;
+  setRegisterCreationFormData: SetState<RegisterCreationFormData>;
 }
 
 export interface Creation {
@@ -43,6 +45,8 @@ const CreationStore: React.FC<Props> = ({
   setShowAllCreations,
   selectedCreation,
   setSelectedCreation,
+  registerCreationFormData,
+  setRegisterCreationFormData,
 }) => {
   const {
     noa: {
@@ -55,11 +59,6 @@ const CreationStore: React.FC<Props> = ({
   const { creationsToDisplay } = useCreationSearch({ layers, filters });
 
   const [registerNewCreation, setRegisterNewCreation] = useState<boolean>(false);
-
-  const [registerCreationFormData, setRegisterCreationFormData] = useState<RegisterCreationFormData>({
-    name: "",
-    description: "",
-  });
 
   const resetRegisterCreationForm = () => {
     setRegisterCreationFormData({ name: "", description: "" });

@@ -42,16 +42,16 @@ export const useCreationSearch = ({ layers, filters }: Props) => {
         return;
       }
 
-      const voxelTypes = creationTable.voxelTypes.get(creationId) ?? "";
+      const rawVoxelTypes = creationTable.voxelTypes.get(creationId) ?? "";
       // debugger;
-      if (voxelTypes.length === 0) {
+      if (rawVoxelTypes.length === 0) {
         console.warn("No voxelTypes found for creation", creationId);
         return;
       }
 
-      const decodedVoxelTypes: VoxelTypeDataKey[] = abiDecode(
+      const voxelTypes: VoxelTypeDataKey[] = abiDecode(
         "tuple(bytes16 voxelTypeNamespace,bytes32 voxelTypeId,bytes16 voxelVariantNamespace,bytes32 voxelVariantId)[]",
-        voxelTypes
+        rawVoxelTypes
       ) as VoxelTypeDataKey[];
 
       const relativePositions: VoxelCoord[] = [];
@@ -77,7 +77,7 @@ export const useCreationSearch = ({ layers, filters }: Props) => {
         name: name,
         description: description,
         creator: creator,
-        voxelTypes: decodedVoxelTypes,
+        voxelTypes: voxelTypes,
         relativePositions,
         numSpawns: creationTable.numSpawns.get(creationId) ?? 0,
       } as Creation);

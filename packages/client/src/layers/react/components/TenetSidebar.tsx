@@ -40,6 +40,11 @@ export function registerTenetSidebar() {
 
       const focusedUi = useComponentValue(FocusedUi, SingletonEntity);
 
+      const [registerCreationFormData, setRegisterCreationFormData] = useState<RegisterCreationFormData>({
+        name: "",
+        description: "",
+      });
+
       // This state is hoisted up to this component so that the state is not lost when leaving the inventory to select voxels
       const [creativeInventoryFilters, setCreativeInventoryFilters] = useState<VoxelTypeStoreFilters>({
         query: "",
@@ -83,6 +88,8 @@ export function registerTenetSidebar() {
                   setShowAllCreations={setShowAllCreations}
                   selectedCreation={selectedCreation}
                   setSelectedCreation={setSelectedCreation}
+                  registerCreationFormData={registerCreationFormData}
+                  setRegisterCreationFormData={setRegisterCreationFormData}
                 />
               );
             }
@@ -111,6 +118,7 @@ export function registerTenetSidebar() {
             `bg-white w-full h-full transition duration-500`,
             showSidebar ? "translate-x-0 opacity-100" : "-translate-x-full opacity-0"
           )}
+          // "pointerEvents: all" is needed so when we click on the admin panel, we don't gain focus on the noa canvasvoxelTypes = creationTable.voxelTypes.get(creationId)
           style={{ pointerEvents: "all" }}
         >
           <div className="flex flex-col h-full">

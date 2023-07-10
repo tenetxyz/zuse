@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
-import React. {useEffect} from "react";
+import React from "react";
 import { registerUIComponent } from "../engine";
 import { combineLatest, concat, map, Observable, of } from "rxjs";
 import styled from "styled-components";

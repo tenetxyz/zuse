@@ -9,8 +9,7 @@ import { VoxelCoord } from "../types.sol";
 import { OwnedBy, Position, PositionTableId, VoxelType, Spawn, SpawnTableId, Classifier, ClassifierData, ClassifierTableId } from "@tenet-contracts/src/codegen/Tables.sol";
 import { addressToEntityKey, getEntitiesAtCoord } from "../utils.sol";
 import { IWorld } from "@tenet-contracts/src/codegen/world/IWorld.sol";
-import { Occurrence } from "@tenet-contracts/src/codegen/Tables.sol";
-import { console } from "forge-std/console.sol";
+import { Occurrence, SpawnData, OfSpawn } from "@tenet-contracts/src/codegen/Tables.sol";
 import { CHUNK_MAX_Y, CHUNK_MIN_Y } from "../Constants.sol";
 import { safeCall } from "../Utils.sol";
 
@@ -26,11 +25,26 @@ contract ClassifyCreationSystem is System {
     spawnKeyTuple[0] = spawnId;
     require(hasKey(SpawnTableId, spawnKeyTuple), "Spawn doesn't exist");
 
-    // TODO: verify that all blocks in the voxelInterface exist in the spawn
+    verifyThatAllInterfaceVoxelsExistInSpawn(spawnId, input);
 
     ClassifierData memory classifier = Classifier.get(classifierId);
 
+    // verifyCreationHasntBeenSubmittedBefore(classifier, spawnId); // commented for now since it's unused
+
+    SpawnData memory spawn = Spawn.get(spawnId);
+
     // call classifySelector with input
-    safeCall(_world(), abi.encodeWithSelector(classifier.classifySelector, _world(), spawnId, input), "classify");
+    safeCall(_world(), abi.encodeWithSelector(classifier.classifySelector, spawn, spawnId, input), "classify");
+  }
+
+  function verifyThatAllInterfaceVoxelsExistInSpawn(bytes32 spawnId, bytes32[] memory input) private {
+    for (uint32 i = 0; i < input.length; i++) {
+      bytes32 voxel = input[i];
+      require(OfSpawn.get(voxel) == spawnId, "All voxels in the interface must be in the spawn");
+    }
+  }
+
+  function verifyCreationHasntBeenSubmittedBefore(ClassifierData memory classifier, bytes32 spawnId) private {
+    // TODO: implement
   }
 }

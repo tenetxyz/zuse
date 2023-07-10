@@ -171,7 +171,8 @@ export async function setupNetwork() {
         const { tx } = await fastTxExecutor.fastTxExecute(contract, ...args);
         return await tx;
       } catch (err) {
-        console.warn(`Transaction call failed: ${err}`);
+        // These errors typically happen BEFORE the transaction is executed (mainly gas errors)
+        console.error(`Transaction call failed: ${err}`);
         // TODO: should we parse this message with big numbers in mind?
         const errorBody = JSON.parse(err.body);
         let error = errorBody?.error?.message;

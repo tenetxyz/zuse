@@ -68,32 +68,32 @@ export function registerActionQueue() {
       } = layers;
 
       const [_update, setUpdate] = useState<any>(); // by calling setUpdate, it allows us to update the queue
-      useComponentUpdate(Action as any, setUpdate); // there's probably a better way to update this, since we get all the compoennt entities below.
+      useComponentUpdate(Action as any, setUpdate); // there's probably a better way to update this, since we get all the component entities below when we call getComponentEntities(Action).
 
       const txRef = useRef<string>();
       const publicClient = useRef<MudPublicClient>();
       useEffect(() => {
         publicClient$.subscribe((client) => {
-          if (!client) {
-            return;
-          }
           publicClient.current = client as MudPublicClient;
         });
       }, []);
+
+      // listen to the results of the transactions and surface errors as toasts for the user
       useEffect(() => {
         transactionHash$.subscribe((txHash) => {
           txRef.current = txHash;
           if (!publicClient.current) {
             return;
           }
-          // I think our viem version is different, so the PublicClient object is out of date, causing the type error below
+          // I think our viem version is different, so MUD's PublicClient object is out of date, causing the type error below
           const transactionResultPromise = getTransactionResult(publicClient.current, txHash);
           transactionResultPromise.catch((err) => {
             if (err.name === "TransactionReceiptNotFoundError") {
+              // this error isn't urgent. it may occur when the transaction hasn't been processed on a block yet.
               console.warn("Transaction receipt not found error: ", err.shortMessage);
               return;
             }
-            console.warn("Error getting transaction result", err);
+            console.error("Error getting transaction result", err);
             // Note: we can also use the fields in err.cause to get specific parts of the error message
             toast(err.shortMessage);
           });

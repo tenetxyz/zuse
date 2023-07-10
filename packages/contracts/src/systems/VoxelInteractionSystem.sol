@@ -109,22 +109,22 @@ contract VoxelInteractionSystem is System {
 
           if (uint256(changedCenterEntityId) != 0) {
             centerEntitiesToCheckStackIdx++;
-            centerEntitiesToCheckStack[centerEntitiesToCheckStackIdx] = changedCenterEntityId;
             require(
               centerEntitiesToCheckStackIdx < MAX_VOXEL_NEIGHBOUR_UPDATE_DEPTH,
               "VoxelInteractionSystem: Reached max depth"
             );
+            centerEntitiesToCheckStack[centerEntitiesToCheckStackIdx] = changedCenterEntityId;
           }
 
           // If there are changed entities, we want to run voxel interactions again but with this new neighbour as the center
           for (uint256 j; j < changedNeighbourEntityIds.length; j++) {
             if (uint256(changedNeighbourEntityIds[j]) != 0) {
               centerEntitiesToCheckStackIdx++;
-              centerEntitiesToCheckStack[centerEntitiesToCheckStackIdx] = changedNeighbourEntityIds[j];
               require(
                 centerEntitiesToCheckStackIdx < MAX_VOXEL_NEIGHBOUR_UPDATE_DEPTH,
                 "VoxelInteractionSystem: Reached max depth"
               );
+              centerEntitiesToCheckStack[centerEntitiesToCheckStackIdx] = changedNeighbourEntityIds[j];
             }
           }
         }

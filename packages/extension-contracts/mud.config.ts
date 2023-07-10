@@ -98,6 +98,19 @@ export default mudConfig({
         sources: "bytes32[]",
       },
     },
+    PowerWire: {
+      keySchema: {
+        namespace: "bytes16",
+        entity: "bytes32",
+      },
+      schema: {
+        source: "bytes32",
+        destination: "bytes32",
+        genRate: "uint256",
+        direction: "BlockDirection",
+        hasValue: "bool", // TODO: Remove this once we can install non-root modules
+      },
+    },
   },
   modules: [
     // TODO: Re-enable when we have a way to install non-root modules

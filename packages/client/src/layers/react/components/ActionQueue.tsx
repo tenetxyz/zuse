@@ -6,10 +6,11 @@ import styled from "styled-components";
 import { Action as ActionQueueItem } from "./Action";
 import { voxelVariantDataKeyToString } from "../../noa/types";
 import { publicClient$, transactionHash$ } from "@latticexyz/network/dev";
-import type { PublicClient } from "viem";
+import type { PublicClient, Chain } from "viem";
 import { registerTenetComponent } from "../engine/components/TenetComponentRenderer";
 import { useComponentUpdate } from "../../../utils/useComponentUpdate";
-import { useComponentValue } from "@latticexyz/react";
+import { getTransactionResult } from "@latticexyz/dev-tools";
+import { toast } from "react-toastify";
 
 const ActionQueueList = styled.div`
   width: 240px;
@@ -50,7 +51,7 @@ function enforceMaxLen(str: string) {
   }
   return str;
 }
-
+type MudPublicClient = PublicClient & { chain: Chain };
 export function registerActionQueue() {
   registerTenetComponent({
     rowStart: 6,
@@ -66,19 +67,32 @@ export function registerActionQueue() {
         },
       } = layers;
 
-      const [update, setUpdate] = useState<any>();
-      useComponentUpdate(Action as any, setUpdate);
+      const [_update, setUpdate] = useState<any>(); // by calling setUpdate, it allows us to update the queue
+      useComponentUpdate(Action as any, setUpdate); // there's probably a better way to update this, since we get all the compoennt entities below.
 
       const txRef = useRef<string>();
-      const publicClient = useRef<PublicClient>();
+      const publicClient = useRef<MudPublicClient>();
       useEffect(() => {
         publicClient$.subscribe((client) => {
-          // debugger;
+          if (!client) {
+            return;
+          }
+          publicClient.current = client as MudPublicClient;
         });
       }, []);
       useEffect(() => {
         transactionHash$.subscribe((txHash) => {
           txRef.current = txHash;
+          if (!publicClient.current) {
+            return;
+          }
+          // I think our viem version is different, so the PublicClient object is out of date, causing the type error below
+          const transactionResultPromise = getTransactionResult(publicClient.current, txHash);
+          transactionResultPromise.catch((err) => {
+            console.warn("Error getting transaction result", err);
+            // Note: we can use the data in err.cause to get specific parts of the error message
+            toast(err.shortMessage);
+          });
         });
       }, []);
 

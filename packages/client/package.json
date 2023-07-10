@@ -15,6 +15,7 @@
     "@babylonjs/core": "^6.10.0",
     "@babylonjs/loaders": "^6.10.0",
     "@ethersproject/providers": "^5.7.2",
+    "@fontsource/fira-sans": "^5.0.5",
     "@latticexyz/common": "link:../../../mud/packages/common",
     "@latticexyz/dev-tools": "link:../../../mud/packages/dev-tools",
     "@latticexyz/ecs-browser": "link:../../../mud/packages/ecs-browser",

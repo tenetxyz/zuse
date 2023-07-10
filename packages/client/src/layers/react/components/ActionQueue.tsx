@@ -89,8 +89,12 @@ export function registerActionQueue() {
           // I think our viem version is different, so the PublicClient object is out of date, causing the type error below
           const transactionResultPromise = getTransactionResult(publicClient.current, txHash);
           transactionResultPromise.catch((err) => {
+            if (err.name === "TransactionReceiptNotFoundError") {
+              console.warn("Transaction receipt not found error: ", err.shortMessage);
+              return;
+            }
             console.warn("Error getting transaction result", err);
-            // Note: we can use the data in err.cause to get specific parts of the error message
+            // Note: we can also use the fields in err.cause to get specific parts of the error message
             toast(err.shortMessage);
           });
         });

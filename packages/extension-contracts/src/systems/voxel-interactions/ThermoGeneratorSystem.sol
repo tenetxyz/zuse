@@ -20,11 +20,18 @@ contract ThermoGeneratorSystem is VoxelInteraction {
     bytes32 neighbourEntityId,
     BlockDirection neighbourBlockDirection
   ) internal override returns (bool changedEntity) {
-    // if the neighbour has temperature, we should become active
-    if (entityHasTemperature(neighbourEntityId, callerNamespace)) {
-      return true;
-    }
-    return false;
+      GeneratorData memory generatorData = Generator.get(callerNamespace, interactEntity);
+      
+      if (generatorData.sources.length == 2) {
+          // Call entityHasTemperature(source[i], callerNamespace) on both and return true if one is false
+          return !(entityHasTemperature(generatorData.sources[0], callerNamespace) && entityHasTemperature(generatorData.sources[1], callerNamespace));
+      }      
+      else if (entityHasTemperature(neighbourEntityId, callerNamespace)) {
+          return true;
+      }
+      else {
+          return false;
+      }
   }
 
   function entityShouldInteract(bytes32 entityId, bytes16 callerNamespace) internal view override returns (bool) {
@@ -65,11 +72,11 @@ contract ThermoGeneratorSystem is VoxelInteraction {
     if (count == 2) {
      changedEntity = handleTempDataEntities(callerNamespace, interactEntity, generatorData, tempDataEntities);
     } else {
-      generatorData.genRate = 0;
-      generatorData.sources = new bytes32[](0);
-      Generator.set(callerNamespace, interactEntity, generatorData);
-      //if
-      changedEntity = true;
+      if (generatorData.genRate != 0 && generatorData.sources.length != 0) {
+            generatorData.genRate = 0;
+            generatorData.sources = new bytes32[](0);
+            Generator.set(callerNamespace, interactEntity, generatorData);
+      }
     }
 
     return changedEntity;
@@ -120,7 +127,6 @@ contract ThermoGeneratorSystem is VoxelInteraction {
       bytes32[] memory sources = new bytes32[](2);
       sources[0] = tempDataEntities[0].entity;
       sources[1] = tempDataEntities[1].entity;
-      
 
       uint256 newGenRate = (absoluteDifferenceAtTime + absoluteDifferenceNow) / 2;
 

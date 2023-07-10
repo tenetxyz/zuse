@@ -323,8 +323,13 @@ export async function setupNetwork() {
     return getComponentValue(contractComponents.Name, entity)?.value;
   }
 
+  const addAction = (params ) ={
+    const hi = 5;
+  }
+
   async function buildSystem(entity: Entity, coord: VoxelCoord) {
     const tx = await worldSend("tenet_BuildSystem_build", [to64CharAddress(entity), coord, { gasLimit: 100_000_000 }]);
+    debugger;
     return tx;
   }
 

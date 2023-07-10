@@ -87,16 +87,20 @@ export function registerActionQueue() {
           }
           // I think our viem version is different, so MUD's PublicClient object is out of date, causing the type error below
           const transactionResultPromise = getTransactionResult(publicClient.current, txHash);
-          transactionResultPromise.catch((err) => {
-            if (err.name === "TransactionReceiptNotFoundError") {
-              // this error isn't urgent. it may occur when the transaction hasn't been processed on a block yet.
-              console.warn("Transaction receipt not found error: ", err.shortMessage);
-              return;
-            }
-            console.error("Error getting transaction result", err);
-            // Note: we can also use the fields in err.cause to get specific parts of the error message
-            toast(err.shortMessage);
-          });
+          transactionResultPromise
+            .then((res) => {
+              console.log("Transaction result: ", res.result, txHash);
+            })
+            .catch((err) => {
+              if (err.name === "TransactionReceiptNotFoundError") {
+                // this error isn't urgent. it may occur when the transaction hasn't been processed on a block yet.
+                console.warn("Transaction receipt not found error: ", err.shortMessage);
+                return;
+              }
+              console.error("Error getting transaction result", err);
+              // Note: we can also use the fields in err.cause to get specific parts of the error message
+              toast(err.shortMessage);
+            });
         });
       }, []);
 

@@ -3,14 +3,14 @@ pragma solidity >=0.8.0;
 
 import { SingleVoxelInteraction } from "../../prototypes/SingleVoxelInteraction.sol";
 import { IWorld } from "../../../src/codegen/world/IWorld.sol";
-import { tabel, data } from "../../codegen/Tables.sol";
+import { PowerWire, PowerWireData } from "../../codegen/Tables.sol";
 import { BlockDirection } from "../../codegen/Types.sol";
-import { registerExtension, getOppositeDirection,  } from "../../Utils.sol";
+import { registerExtension, getOppositeDirection } from "../../Utils.sol";
 
 contract PowerWireSystem is SingleVoxelInteraction {
   function registerInteraction() public override {
     address world = _world();
-    registerExtension(world, "PowerWireSystem", IWorld(world).extension_SignalSystem_eventHandler.selector);
+    registerExtension(world, "PowerWireSystem", IWorld(world).extension_PowerWireSystem_eventHandler.selector);
   }
 
   function entityShouldInteract(bytes32 entityId, bytes16 callerNamespace) internal view override returns (bool) {

@@ -2,11 +2,7 @@
 pragma solidity >=0.8.0;
 import { VoxelCoord } from "@tenet-contracts/src/Types.sol";
 import { hasKey } from "@latticexyz/world/src/modules/keysintable/hasKey.sol";
-import { Signal, SignalData, SignalSource, Powered, InvertedSignal } from "@tenet-extension-contracts/src/codegen/Tables.sol";
-import { CLEAR_COORD_SIG, BUILD_SIG, GIFT_VOXEL_SIG } from "@tenet-contracts/src/constants.sol";
-import { Signal, SignalSource, Powered, InvertedSignal, Temperature } from "./codegen/Tables.sol";
-import { Signal, SignalSource, Powered, InvertedSignal, Temperature, Generator } from "./codegen/Tables.sol";
-import { Signal, SignalSource, Powered, InvertedSignal, Temperature } from "./codegen/Tables.sol";
+import { Signal, SignalSource, Powered, InvertedSignal, Temperature, Generator, PowerWire } from "./codegen/Tables.sol";
 import { BlockDirection } from "./codegen/Types.sol";
 import { CLEAR_COORD_SIG, BUILD_SIG } from "@tenetxyz/contracts/src/constants.sol";
 import { getUniqueEntity } from "@latticexyz/world/src/modules/uniqueentity/getUniqueEntity.sol";
@@ -125,6 +121,10 @@ function entityHasTemperature(bytes32 entity, bytes16 callerNamespace) view retu
 
 function entityIsGenerator(bytes32 entity, bytes16 callerNamespace) view returns (bool) {
   return Generator.get(callerNamespace, entity).hasValue;
+}
+
+function entityIsPowerWire(bytes32 entity, bytes16 callerNamespace) view returns (bool) {
+  return PowerWire.get(callerNamespace, entity).hasValue;
 }
 
 function calculateBlockDirection(

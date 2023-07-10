@@ -33,6 +33,7 @@ contract PostDeploy is Script {
     world.extension_PoweredSystem_registerInteraction();
     world.extension_TemperatureSyste_registerInteraction();
     world.extension_ThermoGeneratorS_registerInteraction();
+    world.extension_PowerWireSystem_eventHandler();
 
     // Note: These have to be here instead of ExtensionInitSystem as they have be called from the deployer account
     // otherwise the msgSender is not the namespace owner

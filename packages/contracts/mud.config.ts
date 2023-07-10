@@ -81,7 +81,7 @@ export default mudConfig({
     // tables for creations
     Creation: {
       schema: {
-        creator: "bytes32",
+        creator: "address",
         numSpawns: "uint256",
         voxelTypes: "bytes", // VoxelTypeData[]
         relativePositions: "bytes", // VoxelCoord[], the relative position for each voxel in the creation

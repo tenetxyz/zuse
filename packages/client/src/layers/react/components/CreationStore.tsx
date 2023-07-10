@@ -8,6 +8,8 @@ import { FocusedUiType } from "../../noa/components/FocusedUi";
 import { SearchBar } from "./common/SearchBar";
 import { SetState } from "../../../utils/types";
 import RegisterCreation, { RegisterCreationFormData } from "./RegisterCreation";
+import CreationDetails from "./CreationDetails";
+import { VoxelTypeDataKey } from "../../noa/types";
 
 export interface CreationStoreFilters {
   search: string;
@@ -19,6 +21,8 @@ interface Props {
   filters: CreationStoreFilters;
   setFilters: React.Dispatch<React.SetStateAction<CreationStoreFilters>>;
   setShowAllCreations: SetState<boolean>;
+  selectedCreation: Creation | null;
+  setSelectedCreation: SetState<Creation | null>;
 }
 
 export interface Creation {
@@ -26,13 +30,20 @@ export interface Creation {
   description: string;
   creationId: Entity;
   creator: string;
-  voxelTypes: string[];
+  voxelTypes: VoxelTypeDataKey[];
   relativePositions: VoxelCoord[];
   numSpawns: BigInt;
   // voxelMetadata: string[];
 }
 
-const CreationStore: React.FC<Props> = ({ layers, filters, setFilters, setShowAllCreations }) => {
+const CreationStore: React.FC<Props> = ({
+  layers,
+  filters,
+  setFilters,
+  setShowAllCreations,
+  selectedCreation,
+  setSelectedCreation,
+}) => {
   const {
     noa: {
       components: { VoxelSelection, PersistentNotification, SpawnCreation, FocusedUi },
@@ -74,6 +85,8 @@ const CreationStore: React.FC<Props> = ({ layers, filters, setFilters, setShowAl
   const getCurrentViewName = () => {
     if (registerNewCreation) {
       return "New Creation";
+    } else if (selectedCreation !== null) {
+      return selectedCreation.name;
     } else {
       return "All Creations";
     }
@@ -87,6 +100,15 @@ const CreationStore: React.FC<Props> = ({ layers, filters, setFilters, setShowAl
           formData={registerCreationFormData}
           setFormData={setRegisterCreationFormData}
           resetRegisterCreationForm={resetRegisterCreationForm}
+        />
+      );
+    } else if (selectedCreation !== null) {
+      return (
+        <CreationDetails
+          layers={layers}
+          selectedCreation={selectedCreation}
+          setSelectedCreation={setSelectedCreation}
+          setShowAllCreations={setShowAllCreations}
         />
       );
     } else {
@@ -119,6 +141,7 @@ const CreationStore: React.FC<Props> = ({ layers, filters, setFilters, setShowAl
                     </button>
                     <button
                       type="button"
+                      onClick={() => setSelectedCreation(creation)}
                       className="text-gray-900 hover:text-white border border-gray-800 hover:bg-gray-900 focus:ring-4 focus:outline-none focus:ring-gray-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center mr-2 mb-2"
                     >
                       View Details
@@ -136,13 +159,15 @@ const CreationStore: React.FC<Props> = ({ layers, filters, setFilters, setShowAl
   const creationsNavClicked = () => {
     if (registerNewCreation) {
       resetRegisterCreationForm();
+    } else if (selectedCreation != null) {
+      setSelectedCreation(null);
     } else {
       setShowAllCreations(false);
     }
   };
 
   const renderFooter = () => {
-    if (registerNewCreation) {
+    if (registerNewCreation || selectedCreation !== null) {
       return null;
     }
 

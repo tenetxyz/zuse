@@ -3,7 +3,7 @@ import { registerTenetComponent } from "../engine/components/TenetComponentRende
 import { VoxelTypeStore, VoxelTypeStoreFilters } from "./VoxelTypeStore";
 import RegisterCreation, { RegisterCreationFormData } from "./RegisterCreation";
 import { TabRadioSelector } from "./TabRadioSelector";
-import CreationStore, { CreationStoreFilters } from "./CreationStore";
+import CreationStore, { Creation, CreationStoreFilters } from "./CreationStore";
 import ClassifierStore, { Classifier, ClassifierStoreFilters } from "./ClassifierStore";
 import { ElectiveBar } from "./ElectiveBar";
 import { setComponent } from "@latticexyz/recs";
@@ -57,6 +57,7 @@ export function registerTenetSidebar() {
       });
 
       const [selectedClassifier, setSelectedClassifier] = useState<Classifier | null>(null);
+      const [selectedCreation, setSelectedCreation] = useState<Creation | null>(null);
       const [showAllCreations, setShowAllCreations] = useState<boolean>(false);
 
       const getPageForSelectedTab = () => {
@@ -80,6 +81,8 @@ export function registerTenetSidebar() {
                   filters={creationStoreFilters}
                   setFilters={setCreationStoreFilters}
                   setShowAllCreations={setShowAllCreations}
+                  selectedCreation={selectedCreation}
+                  setSelectedCreation={setSelectedCreation}
                 />
               );
             }

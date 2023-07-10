@@ -1,10 +1,16 @@
-import React from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { registerUIComponent } from "../engine";
 import { getComponentEntities, getComponentValueStrict } from "@latticexyz/recs";
 import { map } from "rxjs";
 import styled from "styled-components";
 import { Action as ActionQueueItem } from "./Action";
 import { voxelVariantDataKeyToString } from "../../noa/types";
+import { publicClient$, transactionHash$ } from "@latticexyz/network/dev";
+import type { PublicClient, Chain } from "viem";
+import { registerTenetComponent } from "../engine/components/TenetComponentRenderer";
+import { useComponentUpdate } from "../../../utils/useComponentUpdate";
+import { getTransactionResult } from "@latticexyz/dev-tools";
+import { toast } from "react-toastify";
 
 const ActionQueueList = styled.div`
   width: 240px;
@@ -45,35 +51,55 @@ function enforceMaxLen(str: string) {
   }
   return str;
 }
-
+type MudPublicClient = PublicClient & { chain: Chain };
 export function registerActionQueue() {
-  registerUIComponent(
-    "ActionQueue",
-    {
-      rowStart: 6,
-      rowEnd: 12,
-      colStart: 10,
-      colEnd: 13,
-    },
-    (layers) => {
+  registerTenetComponent({
+    rowStart: 6,
+    rowEnd: 12,
+    columnStart: 10,
+    columnEnd: 13,
+    Component: ({ layers }) => {
       const {
         network: {
           actions: { Action },
           config: { blockExplorer },
           getVoxelIconUrl,
-          getVoxelTypePreviewUrl,
         },
       } = layers;
 
-      return Action.update$.pipe(
-        map(() => ({
-          Action,
-          blockExplorer,
-          getVoxelIconUrl,
-        }))
-      );
-    },
-    ({ Action, blockExplorer, getVoxelIconUrl }) => {
+      const [_update, setUpdate] = useState<any>(); // by calling setUpdate, it allows us to update the queue
+      useComponentUpdate(Action as any, setUpdate); // there's probably a better way to update this, since we get all the component entities below when we call getComponentEntities(Action).
+
+      const txRef = useRef<string>();
+      const publicClient = useRef<MudPublicClient>();
+      useEffect(() => {
+        publicClient$.subscribe((client) => {
+          publicClient.current = client as MudPublicClient;
+        });
+      }, []);
+
+      // listen to the results of the transactions and surface errors as toasts for the user
+      useEffect(() => {
+        transactionHash$.subscribe((txHash) => {
+          txRef.current = txHash;
+          if (!publicClient.current) {
+            return;
+          }
+          // I think our viem version is different, so MUD's PublicClient object is out of date, causing the type error below
+          const transactionResultPromise = getTransactionResult(publicClient.current, txHash);
+          transactionResultPromise.catch((err) => {
+            if (err.name === "TransactionReceiptNotFoundError") {
+              // this error isn't urgent. it may occur when the transaction hasn't been processed on a block yet.
+              console.warn("Transaction receipt not found error: ", err.shortMessage);
+              return;
+            }
+            console.error("Error getting transaction result", err);
+            // Note: we can also use the fields in err.cause to get specific parts of the error message
+            toast(err.shortMessage);
+          });
+        });
+      }, []);
+
       return (
         <ActionQueueList>
           {[...getComponentEntities(Action)].map((e) => {
@@ -105,6 +131,6 @@ export function registerActionQueue() {
           })}
         </ActionQueueList>
       );
-    }
-  );
+    },
+  });
 }

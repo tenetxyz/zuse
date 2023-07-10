@@ -15,7 +15,6 @@ export * from "./common";
 
 export function registerUIComponents() {
   registerLoadingState();
-  registerActionQueue();
   registerCrosshairs();
   // registerBlockExplorer();
   registerInventoryHud();
@@ -26,6 +25,7 @@ export function registerUIComponents() {
   // registerPlugins();
 
   clearTenetComponentRenderer();
+  registerActionQueue();
   registerTenetSidebar();
   registerAdminPanel();
   registerBackgroundFade();

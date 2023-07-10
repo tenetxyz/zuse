@@ -38,6 +38,7 @@ import { AIR_ID, BEDROCK_ID, DIRT_ID, GRASS_ID } from "../layers/network/api/ter
 import { getNftStorageLink } from "../layers/noa/constants";
 import { voxelCoordToString } from "../utils/coord";
 import { defaultAbiCoder } from "ethers/lib/utils";
+import { toast } from "react-toastify";
 
 export type SetupNetworkResult = Awaited<ReturnType<typeof setupNetwork>>;
 
@@ -165,8 +166,21 @@ export async function setupNetwork() {
       if (!fastTxExecutor) {
         throw new Error("no signer");
       }
-      const { tx } = await fastTxExecutor.fastTxExecute(contract, ...args);
-      return await tx;
+
+      try {
+        const { tx } = await fastTxExecutor.fastTxExecute(contract, ...args);
+        return await tx;
+      } catch (err) {
+        // These errors typically happen BEFORE the transaction is executed (mainly gas errors)
+        console.error(`Transaction call failed: ${err}`);
+        // TODO: should we parse this message with big numbers in mind?
+        const errorBody = JSON.parse(err.body);
+        let error = errorBody?.error?.message;
+        if (!error) {
+          error = "couldn't parse error. See console for more info";
+        }
+        toast(`Transaction call failed: ${error}`);
+      }
     };
   }
 

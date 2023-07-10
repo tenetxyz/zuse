@@ -18,12 +18,7 @@ contract AndGateSystem is Classifier {
   bytes32 inEntity1 = keccak256("inEntity1");
   bytes32 inEntity2 = keccak256("inEntity2");
 
-  function classify(
-    address worldAddress,
-    SpawnData memory spawn,
-    bytes32 spawnId,
-    bytes32[] memory input
-  ) public override {
+  function classify(SpawnData memory spawn, bytes32 spawnId, bytes32[] memory input) public override {
     require(!AndGateCR.get(spawn.creationId).hasValue, "this creation has already been classified"); // TODO: put this into classify creation system
     bytes32 in1 = input[0];
     bytes32 in2 = input[1];
@@ -31,10 +26,10 @@ contract AndGateSystem is Classifier {
 
     VoxelCoord memory in1Coord = getVoxelCoordStrict(in1);
     VoxelCoord memory in2Coord = getVoxelCoordStrict(in2);
-    simulateLogic(worldAddress, in1Coord, in2Coord, out, 0, 0, 0);
-    simulateLogic(worldAddress, in1Coord, in2Coord, out, 1, 0, 0);
-    simulateLogic(worldAddress, in1Coord, in2Coord, out, 0, 1, 0);
-    simulateLogic(worldAddress, in1Coord, in2Coord, out, 1, 1, 1); // this is the only case where the output is on since both inputs are on
+    simulateLogic(in1Coord, in2Coord, out, 0, 0, 0);
+    simulateLogic(in1Coord, in2Coord, out, 1, 0, 0);
+    simulateLogic(in1Coord, in2Coord, out, 0, 1, 0);
+    simulateLogic(in1Coord, in2Coord, out, 1, 1, 1); // this is the only case where the output is on since both inputs are on
 
     VoxelCoord memory lowerSouthWestCorner = abi.decode(Spawn.getLowerSouthWestCorner(spawnId), (VoxelCoord));
     VoxelCoord[] memory interfaceCoords = entitiesToRelativeVoxelCoords(input, lowerSouthWestCorner);
@@ -43,7 +38,6 @@ contract AndGateSystem is Classifier {
 
   // the reason why the in/out states are uints is cause 1s and 0s are more readable than true/false
   function simulateLogic(
-    address worldAddress,
     VoxelCoord memory in1Coord,
     VoxelCoord memory in2Coord,
     bytes32 out,
@@ -52,14 +46,14 @@ contract AndGateSystem is Classifier {
     uint8 outState
   ) private {
     // mine the coord so we can place power sources at it
-    clearCoord(worldAddress, in1Coord);
-    clearCoord(worldAddress, in2Coord);
+    clearCoord(_world(), in1Coord);
+    clearCoord(_world(), in2Coord);
 
     if (in1State == 1) {
-      build(worldAddress, in1Coord, inEntity1);
+      build(_world(), in1Coord, inEntity1);
     }
     if (in2State == 1) {
-      build(worldAddress, in2Coord, inEntity2);
+      build(_world(), in2Coord, inEntity2);
     }
 
     // TODO: test to see if I need these lines

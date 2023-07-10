@@ -68,10 +68,10 @@ function entityIsInvertedSignal(bytes32 entity, bytes16 callerNamespace) view re
   return InvertedSignal.get(callerNamespace, entity).hasValue;
 }
 
-function clearCoord(address worldAddress, VoxelCoord memory coord) {
-  safeCall(worldAddress, abi.encodeWithSignature(CLEAR_COORD_SIG, coord), "clearCoord");
+function clearCoord(address world, VoxelCoord memory coord) {
+  safeCall(world, abi.encodeWithSignature(CLEAR_COORD_SIG, coord), "clearCoord");
 }
 
-function build(address worldAddress, VoxelCoord memory coord, bytes32 entity) {
-  safeCall(worldAddress, abi.encodeWithSignature(BUILD_SIG, entity, coord), "build");
+function build(address world, VoxelCoord memory coord, bytes32 entity) {
+  safeCall(world, abi.encodeWithSignature(BUILD_SIG, entity, coord), "build");
 }

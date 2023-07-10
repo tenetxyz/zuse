@@ -13,12 +13,7 @@ import { Classifier } from "@tenet-contracts/src/prototypes/Classifier.sol";
 bytes32 constant DirtID = keccak256("dirt");
 
 contract TwoDirtSystem is Classifier {
-  function classify(
-    address worldAddress,
-    SpawnData memory spawn,
-    bytes32 spawnId,
-    bytes32[] memory input
-  ) public override {
+  function classify(SpawnData memory spawn, bytes32 spawnId, bytes32[] memory input) public override {
     require(!TwoDirtCR.get(spawn.creationId).hasValue, "this creation has already been classified"); // TODO: put this into classify creation system
     require(spawn.voxels.length == 2, "the spawn must have exactly 2 voxels");
     for (uint8 i = 0; i < spawn.voxels.length; i++) {

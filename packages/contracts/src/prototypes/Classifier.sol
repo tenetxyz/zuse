@@ -8,7 +8,6 @@ import { SpawnData } from "@tenet-contracts/src/codegen/Tables.sol";
 abstract contract Classifier is System {
   // Called by the world to classify a spawn
   function classify(
-    address worldAddress,
     SpawnData memory spawn,
     bytes32 spawnId,
     bytes32[] memory input

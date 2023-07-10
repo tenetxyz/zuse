@@ -34,11 +34,7 @@ contract ClassifyCreationSystem is System {
     SpawnData memory spawn = Spawn.get(spawnId);
 
     // call classifySelector with input
-    safeCall(
-      _world(),
-      abi.encodeWithSelector(classifier.classifySelector, _world(), spawn, spawnId, input),
-      "classify"
-    );
+    safeCall(_world(), abi.encodeWithSelector(classifier.classifySelector, spawn, spawnId, input), "classify");
   }
 
   function verifyThatAllInterfaceVoxelsExistInSpawn(bytes32 spawnId, bytes32[] memory input) private {

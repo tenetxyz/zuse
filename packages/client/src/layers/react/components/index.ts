@@ -11,6 +11,7 @@ import { registerPersistentNotifications } from "./PersistentNotification";
 import { clearTenetComponentRenderer } from "../engine/components/TenetComponentRenderer";
 import { registerTenetSidebar } from "./TenetSidebar";
 import { registerBackgroundFade } from "./BackgroundFade";
+import { registerSplashCard } from "./SplashCard";
 export * from "./common";
 
 export function registerUIComponents() {
@@ -29,4 +30,5 @@ export function registerUIComponents() {
   registerTenetSidebar();
   registerAdminPanel();
   registerBackgroundFade();
+  registerSplashCard();
 }

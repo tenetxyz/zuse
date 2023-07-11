@@ -38,18 +38,26 @@ contract PostDeploy is Script {
 
     // Note: These have to be here instead of ExtensionInitSystem as they have be called from the deployer account
     // otherwise the msgSender is not the namespace owner
+    string[] memory andGateInterface = new string[](3);
+    andGateInterface[0] = "Signal Source 1";
+    andGateInterface[1] = "Signal Source 2";
+    andGateInterface[2] = "Output Signal";
     registerClassifier(
       "AND Gate",
       "Classifies if this creation is an AND Gate",
       IWorld(worldAddress).extension_AndGateSystem_classify.selector,
       "AndGateCR",
+      andGateInterface,
       worldAddress
     );
+
+    string[] memory dirtInterface = new string[](0);
     registerClassifier(
       "Two Dirt",
       "Make a creation that is two dirt voxels",
       IWorld(worldAddress).extension_TwoDirtSystem_classify.selector,
       "TwoDirtCR",
+      dirtInterface,
       worldAddress
     );
     vm.stopBroadcast();
@@ -60,16 +68,18 @@ contract PostDeploy is Script {
     string memory classifierDescription,
     bytes4 classifySelector,
     string memory classificationResultTableName,
+    string[] memory selectorInterface,
     address worldAddress
   ) private {
     safeCall(
       worldAddress,
       abi.encodeWithSignature(
-        "tenet_RegClassifierSys_registerClassifier(bytes4,string,string,string)",
+        "tenet_RegClassifierSys_registerClassifier(bytes4,string,string,string,bytes)",
         classifySelector,
         classifierName,
         classifierDescription,
-        classificationResultTableName
+        classificationResultTableName,
+        abi.encode(selectorInterface)
       ),
       string(abi.encode("register classifier: ", classifierName))
     );

@@ -35,6 +35,7 @@ export interface Classifier {
   creator: Entity;
   functionSelector: string;
   classificationResultTableName: string;
+  selectorInterface: string[];
   namespace: string;
 }
 

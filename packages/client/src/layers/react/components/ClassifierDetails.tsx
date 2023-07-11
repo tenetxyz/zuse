@@ -7,7 +7,7 @@ import { CreationStoreFilters } from "./CreationStore";
 import { useComponentValue } from "@latticexyz/react";
 import { SetState } from "../../../utils/types";
 import { entityToVoxelType, voxelTypeDataKeyToVoxelVariantDataKey, voxelTypeToEntity } from "../../noa/types";
-import { stringToVoxelCoord } from "../../../utils/coord";
+import { stringToVoxelCoord, voxelCoordToString } from "../../../utils/coord";
 import { getSpawnAtPosition } from "../../../utils/voxels";
 import { SearchBar } from "./common/SearchBar";
 import { Classifier } from "./ClassifierStore";
@@ -17,6 +17,8 @@ import { stringToEntity } from "../../../utils/entity";
 import { abiDecode } from "../../../utils/abi";
 import { ISpawn } from "../../noa/components/SpawnInFocus";
 import { ClassifierResults } from "./ClassifierResults";
+import { NotificationIcon } from "../../noa/components/persistentNotification";
+import { FocusedUiType } from "../../noa/components/FocusedUi";
 
 export interface ClassifierStoreFilters {
   classifierQuery: string;
@@ -39,11 +41,18 @@ const ClassifierDetails: React.FC<Props> = ({
   const {
     noa: {
       noa,
-      components: { SpawnToClassify, VoxelSelection, SpawnInFocus, VoxelInterfaceSelection },
+      components: {
+        FocusedUi,
+        PersistentNotification,
+        SpawnToClassify,
+        VoxelSelection,
+        SpawnInFocus,
+        VoxelInterfaceSelection,
+      },
       SingletonEntity,
     },
     network: {
-      components: { VoxelType, OfSpawn, Spawn, Creation },
+      components: { Position, VoxelType, OfSpawn, Spawn, Creation },
       api: { getEntityAtPosition, classifyCreation },
       getVoxelIconUrl,
     },
@@ -96,44 +105,85 @@ const ClassifierDetails: React.FC<Props> = ({
       return interfaceSpawnId === spawnToUse.spawn.spawnId;
     });
 
+  const selectInterfaceVoxel = (selectedVoxel: Entity | undefined) => {
+    if (selectedVoxel) {
+      const voxelSelection = getComponentValue(VoxelInterfaceSelection, SingletonEntity);
+      const points: Set<string> = voxelSelection?.value ?? new Set<string>();
+      const coord = getComponentValue(Position, selectedVoxel);
+      const coordString = voxelCoordToString(coord);
+      // toggle the selection
+      if (points.has(coordString)) {
+        points.delete(coordString);
+      }
+      setComponent(VoxelInterfaceSelection, SingletonEntity, { value: points });
+      setComponent(FocusedUi, SingletonEntity, { value: FocusedUiType.TENET_SIDEBAR });
+    } else {
+      setComponent(PersistentNotification, SingletonEntity, {
+        message: "Press 'V' on a voxel to select it. Press - when done.",
+        icon: NotificationIcon.NONE,
+      });
+      setComponent(FocusedUi, SingletonEntity, { value: FocusedUiType.WORLD });
+    }
+  };
+
   const renderInterfaces = () => {
     if (!spawnToUse?.creation || !spawnToUse?.spawn) {
       return null;
     }
 
+    if (!selectedClassifier) {
+      return null;
+    }
+
+    console.log("rerender");
+
     return (
       <div className="flex flex-col">
-        <h2 className="text-l font-bold text-black">Interfaces</h2>
-        {interfaceVoxels.length === 0 && (
-          <p className="font-normal text-gray-700 leading-4 mt-5">Press 'V' on a voxel to select it as an interface</p>
+        <h2 className="text-l font-bold text-black mb-5">Interfaces</h2>
+        {selectedClassifier.selectorInterface.length === 0 && (
+          <p className="font-normal text-gray-700 leading-4">This classifier requires no interfaces.</p>
         )}
-        {renderInterfaceVoxelImages(interfaceVoxels as Entity[])}
+        {selectedClassifier.selectorInterface.map((interfaceVoxel, idx) => {
+          let selectedVoxel: Entity | undefined = undefined;
+          if (interfaceVoxels.length >= idx) {
+            selectedVoxel = interfaceVoxels[idx];
+          }
+          return (
+            <div className="flex flex-col" key={"interface-" + idx}>
+              <label className="mb-2 text-sm font-medium text-gray-900">{interfaceVoxel}</label>
+              <div className="flex">
+                <button
+                  type="button"
+                  onClick={() => selectInterfaceVoxel(selectedVoxel)}
+                  className="text-gray-900 hover:text-white border border-gray-800 hover:bg-gray-900 focus:ring-4 focus:outline-none focus:ring-gray-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center mr-2 mb-2"
+                >
+                  {selectedVoxel ? "Cancel Selection" : "Select Voxel"}
+                </button>
+                {selectedVoxel && renderInterfaceVoxelImage(selectedVoxel)}
+              </div>
+            </div>
+          );
+        })}
       </div>
     );
   };
 
-  const renderInterfaceVoxelImages = (interfaceVoxels: Entity[]) => {
-    return (
-      <div className="flex flex-row mt-4 space-x-2">
-        {interfaceVoxels.map((voxel, idx) => {
-          if (!voxel) {
-            console.warn("Voxel not found at coord", voxel);
-            return <div key={idx}>:(</div>;
-          }
-          const voxelType = getComponentValue(VoxelType, voxel);
-          if (!voxelType) {
-            console.warn("Voxel type not found for voxel", voxel);
-            return <div key={idx}>:(</div>;
-          }
+  const renderInterfaceVoxelImage = (interfaceVoxel: Entity) => {
+    if (!interfaceVoxel) {
+      console.warn("Voxel not found at coord", interfaceVoxel);
+      return null;
+    }
+    const voxelType = getComponentValue(VoxelType, interfaceVoxel);
+    if (!voxelType) {
+      console.warn("Voxel type not found for voxel", interfaceVoxel);
+      return null;
+    }
 
-          const iconKey = voxelTypeDataKeyToVoxelVariantDataKey(voxelType);
-          const iconUrl = getVoxelIconUrl(iconKey);
-          return (
-            <div key={idx} className="bg-slate-100 p-1">
-              <img src={iconUrl} />
-            </div>
-          );
-        })}
+    const iconKey = voxelTypeDataKeyToVoxelVariantDataKey(voxelType);
+    const iconUrl = getVoxelIconUrl(iconKey);
+    return (
+      <div className="bg-slate-100 h-fit p-1">
+        <img src={iconUrl} />
       </div>
     );
   };

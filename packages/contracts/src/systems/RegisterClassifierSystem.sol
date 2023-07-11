@@ -14,7 +14,8 @@ contract RegisterClassifierSystem is System {
     bytes4 classifySelector,
     string memory name,
     string memory description,
-    string memory classificationResultTableName
+    string memory classificationResultTableName,
+    bytes memory selectorInterface
   ) public {
     (bytes16 namespace, , ) = FunctionSelectors.get(classifySelector);
     require(NamespaceOwner.get(namespace) == _msgSender(), "Caller is not namespace owner");
@@ -26,7 +27,8 @@ contract RegisterClassifierSystem is System {
         classifySelector: classifySelector,
         name: name,
         description: description,
-        classificationResultTableName: classificationResultTableName
+        classificationResultTableName: classificationResultTableName,
+        selectorInterface: selectorInterface
       })
     );
   }

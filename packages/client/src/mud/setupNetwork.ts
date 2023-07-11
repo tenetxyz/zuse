@@ -30,6 +30,7 @@ import {
   voxelTypeToEntity,
   VoxelTypeBaseKey,
   voxelTypeBaseKeyStrToVoxelTypeRegistryKeyStr,
+  voxelTypeToVoxelTypeBaseKey,
 } from "../layers/noa/types";
 import { Textures, UVWraps } from "../layers/noa/constants";
 import { keccak256 } from "@latticexyz/utils";
@@ -39,6 +40,7 @@ import { getNftStorageLink } from "../layers/noa/constants";
 import { voxelCoordToString } from "../utils/coord";
 import { defaultAbiCoder } from "ethers/lib/utils";
 import { toast } from "react-toastify";
+import { abiDecode } from "../utils/abi";
 
 export type SetupNetworkResult = Awaited<ReturnType<typeof setupNetwork>>;
 
@@ -174,15 +176,18 @@ export async function setupNetwork() {
   // I don't know the code enough to know if that's the case. we need to monitor this in the meantime
   const transactionCallbacks = new Map<string, (res: string) => void>();
 
-  async function callSystem<C extends Contract, F extends keyof C>(
+  type WorldContract = typeof worldContract;
+  // please use callSystem instead because it handles errors better, haldes awaiting for the tx to finish, and handles callbacks for the system when it finishes
+  const worldSend: BoundFastTxExecuteFn<WorldContract> = bindFastTxExecute(worldContract);
+
+  async function callSystem<F extends keyof WorldContract>(
     func: F,
-    args: Parameters<C[F]>,
+    args: Parameters<WorldContract[F]>,
     options?: {
       retryCount?: number;
     },
     onSuccessCallback?: (res: string) => void // This callback will be called with the result of the transaction
   ) {
-    const worldSend: BoundFastTxExecuteFn<C> = bindFastTxExecute(worldContract);
     try {
       const { hash, tx } = await worldSend(func, args, options);
       if (onSuccessCallback) {
@@ -193,12 +198,17 @@ export async function setupNetwork() {
       // These errors typically happen BEFORE the transaction is executed (mainly gas errors)
       console.error(`Transaction call failed: ${err}`);
 
-      // TODO: should we parse this message with big numbers in mind?
-      const errorBody = JSON.parse(err.body);
-
-      let error = errorBody?.error?.message;
-      if (!error) {
+      let error;
+      if (!err) {
         error = "couldn't parse error. See console for more info";
+      } else {
+        // TODO: should we parse this message with big numbers in mind?
+        const errorBody = JSON.parse(err.body);
+
+        error = errorBody?.error?.message;
+        if (!error) {
+          error = "couldn't parse error. See console for more info";
+        }
       }
 
       toast(`Transaction call failed: ${error}`);
@@ -477,7 +487,7 @@ export async function setupNetwork() {
         OwnedBy: contractComponents.OwnedBy,
         VoxelType: contractComponents.VoxelType,
       },
-      execute: async () => {
+      execute: () => {
         return callSystem("tenet_GiftVoxelSystem_giftVoxel", [
           voxelTypeNamespace,
           voxelTypeId,
@@ -522,7 +532,7 @@ export async function setupNetwork() {
         OwnedBy: contractComponents.OwnedBy,
         VoxelType: contractComponents.VoxelType,
       },
-      execute: async () => {
+      execute: () => {
         return callSystem("tenet_RmVoxelSystem_removeVoxels", [
           voxels.map((voxelId) => to64CharAddress(voxelId)),
           { gasLimit: 10_000_000 },
@@ -543,7 +553,7 @@ export async function setupNetwork() {
       components: {
         OwnedBy: contractComponents.OwnedBy,
       },
-      execute: async () => {
+      execute: () => {
         return callSystem("tenet_RegisterCreation_registerCreation", [
           creationName,
           creationDescription,
@@ -564,7 +574,7 @@ export async function setupNetwork() {
       metadata: { actionType: "spawnCreation", preview },
       requirement: () => true,
       components: {},
-      execute: async () => {
+      execute: () => {
         return callSystem("tenet_SpawnSystem_spawn", [lowerSouthWestCorner, creationId, { gasLimit: 100_000_000 }]);
       },
       updates: () => [],
@@ -580,7 +590,7 @@ export async function setupNetwork() {
       metadata: { actionType: "classifyCreation", preview },
       requirement: () => true,
       components: {},
-      execute: async () => {
+      execute: () => {
         return callSystem("tenet_ClassifyCreation_classify", [
           classifierId,
           spawnId,
@@ -590,6 +600,33 @@ export async function setupNetwork() {
         ]);
       },
       updates: () => [],
+    });
+  }
+
+  function activate(entity: Entity) {
+    const voxelTypeObj = getComponentValue(contractComponents.VoxelType, entity);
+    const preview = getVoxelTypePreviewUrl(voxelTypeObj as VoxelTypeBaseKey);
+
+    actions.add({
+      id: `activateVoxel+entity=${entity}` as Entity,
+      metadata: { actionType: "activateVoxel", preview },
+      requirement: () => true,
+      components: {},
+      execute: () => {
+        return callSystem(
+          "tenet_ActivateVoxelSys_activateVoxel",
+          [entity, { gasLimit: 100_000_000 }],
+          undefined,
+          (rawResponse) => {
+            const response = abiDecode("string", rawResponse);
+            if (response !== "") {
+              toast(response);
+            }
+          }
+        );
+      },
+      updates: () => [],
+      txMayNotWriteToTable: true,
     });
   }
 
@@ -645,6 +682,7 @@ export async function setupNetwork() {
       stake,
       claim,
       getName,
+      activate,
     },
     fastTxExecutor,
     // dev: setupDevSystems(world, encoders as Promise<any>, systems),

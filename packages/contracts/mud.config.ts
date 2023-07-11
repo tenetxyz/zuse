@@ -47,6 +47,7 @@ export default mudConfig({
         enterWorldSelector: "bytes4",
         exitWorldSelector: "bytes4",
         voxelVariantSelector: "bytes4",
+        activateSelector: "bytes4",
         creator: "address",
         numSpawns: "uint256",
         name: "string", // NOTE: you don't want the VoxelTypeId to be based on the name, cause changing the name would change the ID

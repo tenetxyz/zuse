@@ -37,7 +37,7 @@ contract ClassifyCreationSystem is System {
     safeCall(_world(), abi.encodeWithSelector(classifier.classifySelector, spawn, spawnId, input), "classify");
   }
 
-  function verifyThatAllInterfaceVoxelsExistInSpawn(bytes32 spawnId, bytes32[] memory input) private {
+  function verifyThatAllInterfaceVoxelsExistInSpawn(bytes32 spawnId, bytes32[] memory input) private view {
     for (uint32 i = 0; i < input.length; i++) {
       bytes32 voxel = input[i];
       require(OfSpawn.get(voxel) == spawnId, "All voxels in the interface must be in the spawn");

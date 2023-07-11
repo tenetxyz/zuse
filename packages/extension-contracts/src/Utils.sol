@@ -26,7 +26,8 @@ function registerVoxelType(
   bytes32 previewVoxelVariantId,
   bytes4 variantSelector,
   bytes4 enterWorldSelector,
-  bytes4 exitWorldSelector
+  bytes4 exitWorldSelector,
+  bytes4 activateSelector
 ) {
   safeCall(
     world,
@@ -38,7 +39,8 @@ function registerVoxelType(
       previewVoxelVariantId,
       variantSelector,
       enterWorldSelector,
-      exitWorldSelector
+      exitWorldSelector,
+      activateSelector
     ),
     string(abi.encodePacked("registerVoxelType ", voxelTypeName))
   );

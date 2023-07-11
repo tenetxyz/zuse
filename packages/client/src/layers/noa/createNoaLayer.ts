@@ -79,7 +79,7 @@ import {
   voxelVariantKeyStringToKey,
   VoxelVariantDataValue,
   VoxelTypeBaseKey,
-  entityToVoxelTypeBaseKey,
+  voxelTypeToVoxelTypeBaseKey,
 } from "./types";
 import { DEFAULT_BLOCK_TEST_DISTANCE } from "./setup/setupNoaEngine";
 import { FocusedUiType } from "./components/FocusedUi";
@@ -284,13 +284,7 @@ export function createNoaLayer(network: NetworkLayer) {
       }),
     ][0];
     if (voxelType === undefined) return;
-    return entityToVoxelTypeBaseKey(voxelType);
-  }
-
-  function placeSelectedVoxelType(coord: VoxelCoord) {
-    const voxelType = getVoxelTypeInSelectedSlot();
-    if (!voxelType) return console.warn("No voxels found at selected slot");
-    network.api.build(voxelType, coord);
+    return voxelTypeToVoxelTypeBaseKey(voxelType);
   }
 
   function getCurrentPlayerPosition() {
@@ -413,7 +407,6 @@ export function createNoaLayer(network: NetworkLayer) {
       teleport,
       teleportRandom,
       togglePlugins,
-      placeSelectedVoxelType,
       getCurrentChunk,
       getCurrentPlayerPosition,
       getStakeAndClaim,

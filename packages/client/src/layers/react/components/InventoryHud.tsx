@@ -26,7 +26,7 @@ import {
   entityToVoxelType,
   voxelTypeToVoxelTypeBaseKeyString,
   voxelTypeDataKeyToVoxelVariantDataKey,
-  entityToVoxelTypeBaseKey,
+  voxelTypeToVoxelTypeBaseKey,
   voxelTypeBaseKeyToVoxelTypeDataKey,
 } from "../../noa/types";
 import { firstFreeInventoryIndex } from "../../noa/systems/createInventoryIndexSystem";
@@ -214,7 +214,7 @@ export function registerInventoryHud() {
             HasValue(OwnedBy, {
               value: to64CharAddress(connectedAddress.get()),
             }),
-            HasValue(VoxelType, voxelTypeBaseKeyToVoxelTypeDataKey(entityToVoxelTypeBaseKey(voxelTypeIdAtSlot))),
+            HasValue(VoxelType, voxelTypeBaseKeyToVoxelTypeDataKey(voxelTypeToVoxelTypeBaseKey(voxelTypeIdAtSlot))),
           ]),
         ];
 
@@ -238,7 +238,7 @@ export function registerInventoryHud() {
       const Slots = [...range(INVENTORY_HEIGHT * INVENTORY_WIDTH)].map((i) => {
         const voxelType = [...getEntitiesWithValue(InventoryIndex, { value: i })][0];
         const quantity = voxelType && numVoxelsIOwnOfType[voxelType];
-        const voxelTypePreview = (voxelType && getVoxelTypePreviewUrl(entityToVoxelTypeBaseKey(voxelType))) || "";
+        const voxelTypePreview = (voxelType && getVoxelTypePreviewUrl(voxelTypeToVoxelTypeBaseKey(voxelType))) || "";
         return (
           <Slot
             key={"slot" + i}

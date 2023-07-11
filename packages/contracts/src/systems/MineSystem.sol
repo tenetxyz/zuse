@@ -7,7 +7,7 @@ import { System } from "@latticexyz/world/src/System.sol";
 import { VoxelCoord, VoxelVariantsKey } from "../Types.sol";
 import { OwnedBy, Position, PositionTableId, VoxelType, VoxelTypeData, VoxelTypeRegistry } from "@tenet-contracts/src/codegen/Tables.sol";
 import { AirID } from "./voxels/AirVoxelSystem.sol";
-import { enterVoxelIntoWorld, exitVoxelFromWorld, updateVoxelVariant, addressToEntityKey, getEntitiesAtCoord, safeStaticCallFunctionSelector, getVoxelVariant } from "../Utils.sol";
+import { enterVoxelIntoWorld, exitVoxelFromWorld, updateVoxelVariant, addressToEntityKey, getEntitiesAtCoord, safeStaticCallFunctionSelector, getVoxelVariant } from "@tenet-contracts/src/Utils.sol";
 import { Utils } from "@latticexyz/world/src/Utils.sol";
 import { IWorld } from "@tenet-contracts/src/codegen/world/IWorld.sol";
 import { Occurrence } from "@tenet-contracts/src/codegen/Tables.sol";

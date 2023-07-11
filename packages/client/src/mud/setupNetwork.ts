@@ -605,10 +605,15 @@ export async function setupNetwork() {
       metadata: { actionType: "activate", preview },
       requirement: () => true,
       components: {},
-      execute: async () => {
-        return callSystem("tenet_ActivateSystem_activate", [entity, { gasLimit: 100_000_000 }], {}, (response) => {
-          toast(abiDecode("string", response));
-        });
+      execute: () => {
+        return callSystem(
+          "tenet_ActivateSystem_activate",
+          [entity, { gasLimit: 100_000_000 }],
+          undefined,
+          (response) => {
+            toast(abiDecode("string", response));
+          }
+        );
       },
       updates: () => [],
     });

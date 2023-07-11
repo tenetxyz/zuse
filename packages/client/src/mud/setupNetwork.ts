@@ -608,12 +608,12 @@ export async function setupNetwork() {
 
     actions.add({
       id: `activateVoxel+entity=${entity}` as Entity,
-      metadata: { actionType: "activate", preview },
+      metadata: { actionType: "activateVoxel", preview },
       requirement: () => true,
       components: {},
       execute: () => {
         return callSystem(
-          "tenet_ActivateSystem_activateVoxel",
+          "tenet_ActivateVoxelSys_activateVoxel",
           [entity, { gasLimit: 100_000_000 }],
           undefined,
           (rawResponse) => {

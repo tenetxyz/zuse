@@ -24,8 +24,10 @@ contract ThermoGeneratorSystem is VoxelInteraction {
       
       if (generatorData.sources.length == 2) {
           // Call entityHasTemperature(source[i], callerNamespace) on both and return true if one is false
-          return !(entityHasTemperature(generatorData.sources[0], callerNamespace) && entityHasTemperature(generatorData.sources[1], callerNamespace));
-      }      
+          if(entityHasTemperature(generatorData.sources[0], callerNamespace) == false || entityHasTemperature(generatorData.sources[1], callerNamespace) == false) {
+              return true;
+          }
+          }      
       else if (entityHasTemperature(neighbourEntityId, callerNamespace)) {
           return true;
       }

@@ -14,7 +14,7 @@ contract PowerPlugSystem is SingleVoxelInteraction {
   }
 
   function entityShouldInteract(bytes32 entityId, bytes16 callerNamespace) internal view override returns (bool) {
-    return entityIsPowerPlug(entity, callerNamespace);
+    return entityIsPowerPlug(entityId, callerNamespace);
   }
 
   function runSingleInteraction(
@@ -47,8 +47,9 @@ contract PowerPlugSystem is SingleVoxelInteraction {
     } else if (compareIsWireSource) {
       PowerWireData memory compareWireData = PowerWire.get(callerNamespace, compareEntity);
       powerPlugData.destination = compareWireData.destination;
+      changedEntity = true;
     }
-    
+
     return changedEntity;
   }
 

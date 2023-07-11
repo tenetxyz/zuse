@@ -203,9 +203,13 @@ export async function setupNetwork() {
         error = "couldn't parse error. See console for more info";
       } else {
         // TODO: should we parse this message with big numbers in mind?
-        const errorBody = JSON.parse(err.body);
+        try {
+          const errorBody = JSON.parse(err.body);
+          error = errorBody?.error?.message;
+        } catch (err) {
+          error = "couldn't parse error. See console for more info";
+        }
 
-        error = errorBody?.error?.message;
         if (!error) {
           error = "couldn't parse error. See console for more info";
         }

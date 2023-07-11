@@ -3276,8 +3276,8 @@ box-intersect@fenomas/box-intersect:
 
 "forge-std@https://github.com/foundry-rs/forge-std":
   version: 1.5.6
-  resolution: "forge-std@https://github.com/foundry-rs/forge-std.git#commit=adec12de5e4575a23df075ee4917cb058c2c617d"
-  checksum: 8a11131d45faae72618865af3d2e7a099805ea53de8053d868cea6366fc02503a8c4933e424aa2ecf6d7c3382cfeec279ec11e497162cd61584c7a4f30d160f6
+  resolution: "forge-std@https://github.com/foundry-rs/forge-std.git#commit=1c8d4b4896dffb9a7fbe3a98df5350400c467a32"
+  checksum: 5bec1d96051b250ad3835b7731f97cbbe2ed0a244cb5147d39e236b809475255e3c1a15ac52d8bdb48f36e01395af615e46f2cb3fd562aeaa62ee7ba40207f1f
   languageName: node
   linkType: hard
 
@@ -4562,7 +4562,7 @@ box-intersect@fenomas/box-intersect:
     voxel-physics-engine: ^0.11.1
   peerDependencies:
     "@babylonjs/core": ^5.0.0-alpha.48
-  checksum: 5fb046d74cc17807546bee27cbe011b5696276770f3226081d383c379cd5d622a9c7605af29a47f10929d2a6c6ce197fc3bc2a0b238130154606919585b9c92b
+  checksum: e73e9d530ca108518ff2ea98ee6ba5086e30fc31f8e8f665c3d163affe4c1e13f44b053e087b63163d54f250660bf95a9e8abc3f2cf268294ca024a9ef867e23
   languageName: node
   linkType: hard
 
@@ -6051,8 +6051,8 @@ box-intersect@fenomas/box-intersect:
   linkType: hard
 
 "viem@npm:^1.2.12":
-  version: 1.2.12
-  resolution: "viem@npm:1.2.12"
+  version: 1.2.13
+  resolution: "viem@npm:1.2.13"
   dependencies:
     "@adraffy/ens-normalize": 1.9.0
     "@noble/curves": 1.0.0
@@ -6068,7 +6068,7 @@ box-intersect@fenomas/box-intersect:
   peerDependenciesMeta:
     typescript:
       optional: true
-  checksum: 88b3f5360dcc48c70aaa7c390c183a504f79d305631d067d4a55cb3ba796944db7392bab8605def964558ae41ef84ec7cc277ecf35f578bbdb1176881aa04b7e
+  checksum: 8c6c47ee2fb2894e7caac6319a77e1d7b821961dc46d0f28add4522c718fcf83d2d85521bb36a6b51ed081514fe503c73d3c5803b8abee89dd5604e667ff863b
   languageName: node
   linkType: hard
 

@@ -55,5 +55,7 @@ contract GrassVoxelSystem is VoxelType {
     return VoxelVariantsKey({ voxelVariantNamespace: TENET_NAMESPACE, voxelVariantId: GrassID });
   }
 
-  function activate(bytes32 entity) public override returns (bytes memory) {}
+  function activate(bytes32 entity) public override returns (bytes memory) {
+    return abi.encodePacked("Grass activated");
+  }
 }

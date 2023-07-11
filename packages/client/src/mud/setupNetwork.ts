@@ -30,6 +30,7 @@ import {
   voxelTypeToEntity,
   VoxelTypeBaseKey,
   voxelTypeBaseKeyStrToVoxelTypeRegistryKeyStr,
+  voxelTypeToVoxelTypeBaseKey,
 } from "../layers/noa/types";
 import { Textures, UVWraps } from "../layers/noa/constants";
 import { keccak256 } from "@latticexyz/utils";
@@ -597,8 +598,8 @@ export async function setupNetwork() {
   }
 
   function activate(entity: Entity) {
-    // TODO: Replace Iron NFT with a spawn symbol
-    const preview = getNftStorageLink("bafkreidkik2uccshptqcskpippfotmusg7algnfh5ozfsga72xyfdrvacm");
+    const voxelTypeObj = getComponentValue(contractComponents.VoxelType, entity);
+    const preview = getVoxelTypePreviewUrl(voxelTypeObj as VoxelTypeBaseKey);
 
     actions.add({
       id: `activate+entity=${entity}` as Entity,
@@ -610,8 +611,11 @@ export async function setupNetwork() {
           "tenet_ActivateSystem_activate",
           [entity, { gasLimit: 100_000_000 }],
           undefined,
-          (response) => {
-            toast(abiDecode("string", response));
+          (rawResponse) => {
+            const response = abiDecode("string", rawResponse);
+            if (response !== "") {
+              toast(response);
+            }
           }
         );
       },

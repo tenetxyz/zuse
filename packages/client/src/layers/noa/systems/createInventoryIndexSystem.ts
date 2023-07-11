@@ -17,7 +17,7 @@ import { switchMap } from "rxjs";
 import { NetworkLayer } from "../../network";
 import {
   NoaLayer,
-  entityToVoxelTypeBaseKey,
+  voxelTypeToVoxelTypeBaseKey,
   voxelTypeBaseKeyToEntity,
   voxelTypeToVoxelTypeBaseKeyString as voxelTypeToVoxelTypeBaseKeyStr,
 } from "../types";

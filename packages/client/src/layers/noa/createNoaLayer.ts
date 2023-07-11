@@ -79,7 +79,7 @@ import {
   voxelVariantKeyStringToKey,
   VoxelVariantDataValue,
   VoxelTypeBaseKey,
-  entityToVoxelTypeBaseKey,
+  voxelTypeToVoxelTypeBaseKey,
 } from "./types";
 import { DEFAULT_BLOCK_TEST_DISTANCE } from "./setup/setupNoaEngine";
 import { FocusedUiType } from "./components/FocusedUi";
@@ -284,7 +284,7 @@ export function createNoaLayer(network: NetworkLayer) {
       }),
     ][0];
     if (voxelType === undefined) return;
-    return entityToVoxelTypeBaseKey(voxelType);
+    return voxelTypeToVoxelTypeBaseKey(voxelType);
   }
 
   function getCurrentPlayerPosition() {

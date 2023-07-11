@@ -6,6 +6,7 @@ import { PositionTableId, VoxelType, VoxelTypeData, VoxelTypeRegistry } from "@t
 import { safeCall } from "@tenet-contracts/src/Utils.sol";
 import { Strings } from "@openzeppelin/contracts/utils/Strings.sol";
 import { hasKey } from "@latticexyz/world/src/modules/keysintable/hasKey.sol";
+import { IWorld } from "@tenet-contracts/src/codegen/world/IWorld.sol";
 
 contract ActivateVoxelSystem is System {
   function activateVoxel(bytes32 entity) public returns (bytes memory) {
@@ -19,11 +20,15 @@ contract ActivateVoxelSystem is System {
       voxelType.voxelTypeId
     );
 
-    return
-      safeCall(
+    bytes memory activateReturnData = safeCall(
         _world(),
         abi.encodeWithSelector(activateSelector, entity),
         string(abi.encode("activate entity: ", Strings.toString(uint256(entity))))
-      );
+    );
+
+    // Run voxel interaction logic
+    IWorld(_world()).tenet_VoxInteractSys_runInteractionSystems(entity);
+
+    return activateReturnData;
   }
 }

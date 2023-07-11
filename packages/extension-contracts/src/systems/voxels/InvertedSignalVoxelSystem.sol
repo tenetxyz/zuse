@@ -25,7 +25,8 @@ contract InvertedSignalVoxelSystem is VoxelType {
       SignalOnID,
       IWorld(world).extension_InvertedSignalVo_variantSelector.selector,
       IWorld(world).extension_InvertedSignalVo_enterWorld.selector,
-      IWorld(world).extension_InvertedSignalVo_exitWorld.selector
+      IWorld(world).extension_InvertedSignalVo_exitWorld.selector,
+      IWorld(world).extension_InvertedSignalVo_activate.selector
     );
   }
 
@@ -52,4 +53,6 @@ contract InvertedSignalVoxelSystem is VoxelType {
       return VoxelVariantsKey({ voxelVariantNamespace: EXTENSION_NAMESPACE, voxelVariantId: SignalOffID });
     }
   }
+
+  function activate(bytes32 entity) public override returns (bytes memory) {}
 }

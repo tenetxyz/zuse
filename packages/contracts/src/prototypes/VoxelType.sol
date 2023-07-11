@@ -18,4 +18,7 @@ abstract contract VoxelType is System {
 
   // Called by the world to determine which variant (or graphic) of the voxel to use
   function variantSelector(bytes32 entity) public view virtual returns (VoxelVariantsKey memory);
+
+  // Called by the world when a user activates an entity
+  function activate(bytes32 entity) public virtual returns (bytes memory);
 }

@@ -97,7 +97,7 @@ export function entityToVoxelType(entity: Entity): VoxelTypeDataKey {
   return { voxelTypeNamespace, voxelTypeId, voxelVariantNamespace, voxelVariantId };
 }
 
-export function entityToVoxelTypeBaseKey(entity: Entity): VoxelTypeBaseKey {
+export function voxelTypeToVoxelTypeBaseKey(entity: Entity): VoxelTypeBaseKey {
   const [voxelTypeNamespace, voxelTypeId] = entity.split(":");
   return { voxelTypeNamespace, voxelTypeId };
 }

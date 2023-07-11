@@ -25,7 +25,8 @@ contract AirVoxelSystem is VoxelType {
       AirID,
       world.tenet_AirVoxelSystem_variantSelector.selector,
       world.tenet_AirVoxelSystem_enterWorld.selector,
-      world.tenet_AirVoxelSystem_exitWorld.selector
+      world.tenet_AirVoxelSystem_exitWorld.selector,
+      world.tenet_AirVoxelSystem_activate.selector
     );
   }
 
@@ -36,4 +37,6 @@ contract AirVoxelSystem is VoxelType {
   function variantSelector(bytes32 entity) public pure override returns (VoxelVariantsKey memory) {
     return VoxelVariantsKey({ voxelVariantNamespace: TENET_NAMESPACE, voxelVariantId: AirID });
   }
+
+  function activate(bytes32 entity) public override returns (bytes memory) {}
 }

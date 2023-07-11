@@ -39,7 +39,8 @@ contract SignalSourceVoxelSystem is VoxelType {
       SignalSourceID,
       IWorld(world).extension_SignalSourceVoxe_variantSelector.selector,
       IWorld(world).extension_SignalSourceVoxe_enterWorld.selector,
-      IWorld(world).extension_SignalSourceVoxe_exitWorld.selector
+      IWorld(world).extension_SignalSourceVoxe_exitWorld.selector,
+      IWorld(world).extension_SignalSourceVoxe_activate.selector
     );
   }
 
@@ -58,4 +59,6 @@ contract SignalSourceVoxelSystem is VoxelType {
   function variantSelector(bytes32 entity) public view override returns (VoxelVariantsKey memory) {
     return VoxelVariantsKey({ voxelVariantNamespace: EXTENSION_NAMESPACE, voxelVariantId: SignalSourceID });
   }
+
+  function activate(bytes32 entity) public override returns (bytes memory) {}
 }

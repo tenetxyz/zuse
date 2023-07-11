@@ -55,7 +55,8 @@ contract SignalVoxelSystem is VoxelType {
       SignalOffID,
       IWorld(world).extension_SignalVoxelSyste_variantSelector.selector,
       IWorld(world).extension_SignalVoxelSyste_enterWorld.selector,
-      IWorld(world).extension_SignalVoxelSyste_exitWorld.selector
+      IWorld(world).extension_SignalVoxelSyste_exitWorld.selector,
+      IWorld(world).extension_SignalVoxelSyste_activate.selector
     );
   }
 
@@ -82,4 +83,6 @@ contract SignalVoxelSystem is VoxelType {
       return VoxelVariantsKey({ voxelVariantNamespace: EXTENSION_NAMESPACE, voxelVariantId: SignalOffID });
     }
   }
+
+  function activate(bytes32 entity) public override returns (bytes memory) {}
 }

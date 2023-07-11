@@ -1,5 +1,5 @@
 import { setupMUDV2Network, createActionSystem } from "@latticexyz/std-client";
-import { Entity, getComponentValue, createIndexer, runQuery, HasValue } from "@latticexyz/recs";
+import { Entity, getComponentValue, createIndexer, runQuery, HasValue, Components } from "@latticexyz/recs";
 import { createFastTxExecutor, createFaucetService, getSnapSyncRecords, createRelayStream } from "@latticexyz/network";
 import { getNetworkConfig } from "./getNetworkConfig";
 import { defineContractComponents } from "./contractComponents";
@@ -30,6 +30,7 @@ import {
   voxelTypeToEntity,
   VoxelTypeBaseKey,
   voxelTypeBaseKeyStrToVoxelTypeRegistryKeyStr,
+  voxelTypeToVoxelTypeBaseKey,
 } from "../layers/noa/types";
 import { Textures, UVWraps } from "../layers/noa/constants";
 import { keccak256 } from "@latticexyz/utils";
@@ -39,6 +40,7 @@ import { getNftStorageLink } from "../layers/noa/constants";
 import { voxelCoordToString } from "../utils/coord";
 import { defaultAbiCoder } from "ethers/lib/utils";
 import { toast } from "react-toastify";
+import { abiDecode } from "../utils/abi";
 
 export type SetupNetworkResult = Awaited<ReturnType<typeof setupNetwork>>;
 
@@ -166,25 +168,52 @@ export async function setupNetwork() {
       if (!fastTxExecutor) {
         throw new Error("no signer");
       }
-
-      try {
-        const { tx } = await fastTxExecutor.fastTxExecute(contract, ...args);
-        return await tx;
-      } catch (err) {
-        // These errors typically happen BEFORE the transaction is executed (mainly gas errors)
-        console.error(`Transaction call failed: ${err}`);
-        // TODO: should we parse this message with big numbers in mind?
-        const errorBody = JSON.parse(err.body);
-        let error = errorBody?.error?.message;
-        if (!error) {
-          error = "couldn't parse error. See console for more info";
-        }
-        toast(`Transaction call failed: ${error}`);
-      }
+      return fastTxExecutor.fastTxExecute(contract, ...args);
     };
   }
 
-  const worldSend = bindFastTxExecute(worldContract);
+  // TODO: if some transactions never finish, we may not evict them from this map.
+  // I don't know the code enough to know if that's the case. we need to monitor this in the meantime
+  const transactionCallbacks = new Map<string, (res: string) => void>();
+
+  type WorldContract = typeof worldContract;
+  // please use callSystem instead because it handles errors better, haldes awaiting for the tx to finish, and handles callbacks for the system when it finishes
+  const worldSend: BoundFastTxExecuteFn<WorldContract> = bindFastTxExecute(worldContract);
+
+  async function callSystem<F extends keyof WorldContract>(
+    func: F,
+    args: Parameters<WorldContract[F]>,
+    options?: {
+      retryCount?: number;
+    },
+    onSuccessCallback?: (res: string) => void // This callback will be called with the result of the transaction
+  ) {
+    try {
+      const { hash, tx } = await worldSend(func, args, options);
+      if (onSuccessCallback) {
+        transactionCallbacks.set(hash, onSuccessCallback);
+      }
+      return tx;
+    } catch (err) {
+      // These errors typically happen BEFORE the transaction is executed (mainly gas errors)
+      console.error(`Transaction call failed: ${err}`);
+
+      let error;
+      if (!err) {
+        error = "couldn't parse error. See console for more info";
+      } else {
+        // TODO: should we parse this message with big numbers in mind?
+        const errorBody = JSON.parse(err.body);
+
+        error = errorBody?.error?.message;
+        if (!error) {
+          error = "couldn't parse error. See console for more info";
+        }
+      }
+
+      toast(`Transaction call failed: ${error}`);
+    }
+  }
 
   // --- ACTION SYSTEM --------------------------------------------------------------
   const actions = createActionSystem<{
@@ -323,11 +352,6 @@ export async function setupNetwork() {
     return getComponentValue(contractComponents.Name, entity)?.value;
   }
 
-  async function buildSystem(entity: Entity, coord: VoxelCoord) {
-    const tx = await worldSend("tenet_BuildSystem_build", [to64CharAddress(entity), coord, { gasLimit: 100_000_000 }]);
-    return tx;
-  }
-
   function build(voxelType: VoxelTypeBaseKey, coord: VoxelCoord) {
     const voxelInstanceOfVoxelType = [
       ...runQuery([
@@ -361,7 +385,11 @@ export async function setupNetwork() {
         OwnedBy: contractComponents.OwnedBy, // I think it's needed cause we check to see if the owner owns the voxel we're placing
       },
       execute: () => {
-        return buildSystem(voxelInstanceOfVoxelType, coord);
+        return callSystem("tenet_BuildSystem_build", [
+          to64CharAddress(voxelInstanceOfVoxelType),
+          coord,
+          { gasLimit: 100_000_000 },
+        ]);
       },
       updates: () => [
         // commented cause we're in creative mode
@@ -389,18 +417,6 @@ export async function setupNetwork() {
     });
   }
 
-  async function mineSystem(coord: VoxelCoord, voxelType: VoxelTypeDataKey) {
-    const tx = await worldSend("tenet_MineSystem_mine", [
-      coord,
-      voxelType.voxelTypeNamespace,
-      voxelType.voxelTypeId,
-      voxelType.voxelVariantNamespace,
-      voxelType.voxelVariantId,
-      { gasLimit: 100_000_000 },
-    ]);
-    return tx;
-  }
-
   async function mine(coord: VoxelCoord) {
     const voxelTypeKey = getEcsVoxelTypeAtPosition(coord) ?? getTerrainVoxelTypeAtPosition(coord);
 
@@ -425,7 +441,14 @@ export async function setupNetwork() {
         VoxelType: contractComponents.VoxelType,
       },
       execute: () => {
-        return mineSystem(coord, voxelTypeKey);
+        return callSystem("tenet_MineSystem_mine", [
+          coord,
+          voxelTypeKey.voxelTypeNamespace,
+          voxelTypeKey.voxelTypeId,
+          voxelTypeKey.voxelVariantNamespace,
+          voxelTypeKey.voxelVariantId,
+          { gasLimit: 100_000_000 },
+        ]);
       },
       updates: () => [
         {
@@ -452,15 +475,6 @@ export async function setupNetwork() {
     });
   }
 
-  async function giftVoxelSystem(voxelTypeNamespace: string, voxelTypeId: string) {
-    const tx = await worldSend("tenet_GiftVoxelSystem_giftVoxel", [
-      voxelTypeNamespace,
-      voxelTypeId,
-      { gasLimit: 10_000_000 },
-    ]);
-    return tx;
-  }
-
   // needed in creative mode, to give the user new voxels
   function giftVoxel(voxelTypeNamespace: string, voxelTypeId: string, preview: string) {
     const newVoxel = world.registerEntity();
@@ -473,8 +487,12 @@ export async function setupNetwork() {
         OwnedBy: contractComponents.OwnedBy,
         VoxelType: contractComponents.VoxelType,
       },
-      execute: async () => {
-        return giftVoxelSystem(voxelTypeNamespace, voxelTypeId);
+      execute: () => {
+        return callSystem("tenet_GiftVoxelSystem_giftVoxel", [
+          voxelTypeNamespace,
+          voxelTypeId,
+          { gasLimit: 10_000_000 },
+        ]);
       },
       updates: () => [
         // {
@@ -496,14 +514,6 @@ export async function setupNetwork() {
     });
   }
 
-  async function removeVoxelSystem(voxels: Entity[]) {
-    const tx = await worldSend("tenet_RmVoxelSystem_removeVoxels", [
-      voxels.map((voxelId) => to64CharAddress(voxelId)),
-      { gasLimit: 10_000_000 },
-    ]);
-    return tx;
-  }
-
   // needed in creative mode, to allow the user to remove voxels. Otherwise their inventory will fill up
   function removeVoxels(voxels: Entity[]) {
     if (voxels.length === 0) {
@@ -522,21 +532,14 @@ export async function setupNetwork() {
         OwnedBy: contractComponents.OwnedBy,
         VoxelType: contractComponents.VoxelType,
       },
-      execute: async () => {
-        return removeVoxelSystem(voxels);
+      execute: () => {
+        return callSystem("tenet_RmVoxelSystem_removeVoxels", [
+          voxels.map((voxelId) => to64CharAddress(voxelId)),
+          { gasLimit: 10_000_000 },
+        ]);
       },
       updates: () => [],
     });
-  }
-
-  async function registerCreationSystem(creationName: string, creationDescription: string, voxels: Entity[]) {
-    const tx = await worldSend("tenet_RegisterCreation_registerCreation", [
-      creationName,
-      creationDescription,
-      voxels,
-      { gasLimit: 30_000_000 },
-    ]);
-    return tx;
   }
 
   function registerCreation(creationName: string, creationDescription: string, voxels: Entity[]) {
@@ -550,20 +553,16 @@ export async function setupNetwork() {
       components: {
         OwnedBy: contractComponents.OwnedBy,
       },
-      execute: async () => {
-        return registerCreationSystem(creationName, creationDescription, voxels);
+      execute: () => {
+        return callSystem("tenet_RegisterCreation_registerCreation", [
+          creationName,
+          creationDescription,
+          voxels,
+          { gasLimit: 30_000_000 },
+        ]);
       },
       updates: () => [],
     });
-  }
-
-  async function spawnCreationSystem(lowerSouthWestCorner: VoxelCoord, creationId: Entity) {
-    const tx = await worldSend("tenet_SpawnSystem_spawn", [
-      lowerSouthWestCorner,
-      creationId,
-      { gasLimit: 100_000_000 },
-    ]);
-    return tx;
   }
 
   function spawnCreation(lowerSouthWestCorner: VoxelCoord, creationId: Entity) {
@@ -575,22 +574,11 @@ export async function setupNetwork() {
       metadata: { actionType: "spawnCreation", preview },
       requirement: () => true,
       components: {},
-      execute: async () => {
-        return spawnCreationSystem(lowerSouthWestCorner, creationId);
+      execute: () => {
+        return callSystem("tenet_SpawnSystem_spawn", [lowerSouthWestCorner, creationId, { gasLimit: 100_000_000 }]);
       },
       updates: () => [],
     });
-  }
-
-  async function classifyCreationSystem(classifierId: Entity, spawnId: Entity, interfaceVoxels: Entity[]) {
-    const tx = await worldSend("tenet_ClassifyCreation_classify", [
-      classifierId,
-      spawnId,
-      // defaultAbiCoder.encode(["bytes32[]"], interfaceVoxels),
-      interfaceVoxels,
-      { gasLimit: 100_000_000 },
-    ]);
-    return tx;
   }
 
   function classifyCreation(classifierId: Entity, spawnId: Entity, interfaceVoxels: Entity[]) {
@@ -602,10 +590,43 @@ export async function setupNetwork() {
       metadata: { actionType: "classifyCreation", preview },
       requirement: () => true,
       components: {},
-      execute: async () => {
-        return classifyCreationSystem(classifierId, spawnId, interfaceVoxels);
+      execute: () => {
+        return callSystem("tenet_ClassifyCreation_classify", [
+          classifierId,
+          spawnId,
+          // defaultAbiCoder.encode(["bytes32[]"], interfaceVoxels),
+          interfaceVoxels,
+          { gasLimit: 100_000_000 },
+        ]);
       },
       updates: () => [],
+    });
+  }
+
+  function activate(entity: Entity) {
+    const voxelTypeObj = getComponentValue(contractComponents.VoxelType, entity);
+    const preview = getVoxelTypePreviewUrl(voxelTypeObj as VoxelTypeBaseKey);
+
+    actions.add({
+      id: `activateVoxel+entity=${entity}` as Entity,
+      metadata: { actionType: "activateVoxel", preview },
+      requirement: () => true,
+      components: {},
+      execute: () => {
+        return callSystem(
+          "tenet_ActivateVoxelSys_activateVoxel",
+          [entity, { gasLimit: 100_000_000 }],
+          undefined,
+          (rawResponse) => {
+            const response = abiDecode("string", rawResponse);
+            if (response !== "") {
+              toast(response);
+            }
+          }
+        );
+      },
+      updates: () => [],
+      txMayNotWriteToTable: true,
     });
   }
 
@@ -661,8 +682,8 @@ export async function setupNetwork() {
       stake,
       claim,
       getName,
+      activate,
     },
-    worldSend: worldSend,
     fastTxExecutor,
     // dev: setupDevSystems(world, encoders as Promise<any>, systems),
     // dev: setupDevSystems(world),
@@ -680,5 +701,6 @@ export async function setupNetwork() {
       VoxelVariantIndexToKey,
       VoxelVariantDataSubscriptions,
     },
+    objectStore: { transactionCallbacks }, // stores global objects. These aren't components since they don't really fit in with the rxjs event-based system
   };
 }

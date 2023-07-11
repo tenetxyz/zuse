@@ -1,5 +1,4 @@
 import { createClientComponents } from "./createClientComponents";
-import { createSystemCalls } from "./createSystemCalls";
 import { setupNetwork } from "./setupNetwork";
 import { boot } from "../boot";
 
@@ -15,15 +14,12 @@ export async function setup() {
     component.id = name;
   });
   console.log("Finished setup components");
-  const systemCalls = createSystemCalls(network, components);
-  console.log("Finished setup system calls");
   const game = await boot(network);
   console.log("Finished setup");
 
   return {
     network,
     components,
-    systemCalls,
     game,
   };
 }

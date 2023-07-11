@@ -64,6 +64,7 @@ export function registerActionQueue() {
           actions: { Action },
           config: { blockExplorer },
           getVoxelIconUrl,
+          objectStore: { transactionCallbacks },
         },
       } = layers;
 
@@ -87,16 +88,28 @@ export function registerActionQueue() {
           }
           // I think our viem version is different, so MUD's PublicClient object is out of date, causing the type error below
           const transactionResultPromise = getTransactionResult(publicClient.current, txHash);
-          transactionResultPromise.catch((err) => {
-            if (err.name === "TransactionReceiptNotFoundError") {
-              // this error isn't urgent. it may occur when the transaction hasn't been processed on a block yet.
-              console.warn("Transaction receipt not found error: ", err.shortMessage);
-              return;
-            }
-            console.error("Error getting transaction result", err);
-            // Note: we can also use the fields in err.cause to get specific parts of the error message
-            toast(err.shortMessage);
-          });
+          transactionResultPromise
+            .then((res) => {
+              transactionCallbacks.get(txHash)?.(res.result);
+            })
+            .catch((err) => {
+              if (err.name === "TransactionReceiptNotFoundError") {
+                // this error isn't urgent. it may occur when the transaction hasn't been processed on a block yet.
+                console.warn("Transaction receipt not found error: ", err.shortMessage);
+                return;
+              }
+              console.error("Error getting transaction result", err);
+              // Note: we can also use the fields in err.cause to get specific parts of the error message
+              toast(err.shortMessage);
+            })
+            .finally(() => {
+              transactionCallbacks.delete(txHash);
+              if (transactionCallbacks.size > 15) {
+                console.warn(
+                  `${transactionCallbacks.size} stale transaction callbacks are NOT cleared. This means that we are not cleaning up after every transaction that occurs. We need to find locate WHEN these missing transactions finish`
+                );
+              }
+            });
         });
       }, []);
 

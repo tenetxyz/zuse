@@ -39,7 +39,8 @@ contract LogVoxelSystem is VoxelType {
       LogID,
       IWorld(world).extension_LogVoxelSystem_variantSelector.selector,
       IWorld(world).extension_LogVoxelSystem_enterWorld.selector,
-      IWorld(world).extension_LogVoxelSystem_exitWorld.selector
+      IWorld(world).extension_LogVoxelSystem_exitWorld.selector,
+      IWorld(world).extension_LogVoxelSystem_activate.selector
     );
   }
 
@@ -50,4 +51,6 @@ contract LogVoxelSystem is VoxelType {
   function variantSelector(bytes32 entity) public pure override returns (VoxelVariantsKey memory) {
     return VoxelVariantsKey({ voxelVariantNamespace: EXTENSION_NAMESPACE, voxelVariantId: LogID });
   }
+
+  function activate(bytes32 entity) public override returns (bytes memory) {}
 }

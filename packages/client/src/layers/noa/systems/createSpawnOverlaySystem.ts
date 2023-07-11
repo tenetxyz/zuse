@@ -16,7 +16,7 @@ import { ISpawn } from "../components/SpawnInFocus";
 export function createSpawnOverlaySystem(networkLayer: NetworkLayer, noaLayer: NoaLayer) {
   const { noa } = noaLayer;
   const {
-    contractComponents: { Spawn, Creation, Position },
+    contractComponents: { Spawn, Creation },
   } = networkLayer;
 
   Spawn.update$.subscribe((update) => {
@@ -86,7 +86,7 @@ export function createSpawnOverlaySystem(networkLayer: NetworkLayer, noaLayer: N
         corner2,
         noa,
         new Color3(1, 1, 0), // yellow
-        0.05
+        0.045
       );
       if (mesh !== null) {
         spawnOutlineMeshes.push(mesh);

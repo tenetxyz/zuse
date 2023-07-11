@@ -8,7 +8,7 @@ import { Strings } from "@openzeppelin/contracts/utils/Strings.sol";
 import { hasKey } from "@latticexyz/world/src/modules/keysintable/hasKey.sol";
 
 contract ActivateSystem is System {
-  function activate(bytes32 entity) public returns (bytes memory) {
+  function activateVoxel(bytes32 entity) public returns (bytes memory) {
     bytes32[] memory keyTuple = new bytes32[](1);
     keyTuple[0] = entity;
     require(hasKey(PositionTableId, keyTuple), "The entity must be placed in the world");

@@ -188,9 +188,7 @@ export async function setupNetwork() {
   ) {
     const worldSend: BoundFastTxExecuteFn<WorldContract> = bindFastTxExecute(worldContract);
     try {
-      const res = await worldSend(func, args, options);
-      const { hash, tx } = res;
-      debugger;
+      const { hash, tx } = await worldSend(func, args, options);
       if (onSuccessCallback) {
         transactionCallbacks.set(hash, onSuccessCallback);
       }
@@ -199,12 +197,17 @@ export async function setupNetwork() {
       // These errors typically happen BEFORE the transaction is executed (mainly gas errors)
       console.error(`Transaction call failed: ${err}`);
 
-      // TODO: should we parse this message with big numbers in mind?
-      const errorBody = JSON.parse(err.body);
-
-      let error = errorBody?.error?.message;
-      if (!error) {
+      let error;
+      if (!err) {
         error = "couldn't parse error. See console for more info";
+      } else {
+        // TODO: should we parse this message with big numbers in mind?
+        const errorBody = JSON.parse(err.body);
+
+        error = errorBody?.error?.message;
+        if (!error) {
+          error = "couldn't parse error. See console for more info";
+        }
       }
 
       toast(`Transaction call failed: ${error}`);
@@ -604,13 +607,13 @@ export async function setupNetwork() {
     const preview = getVoxelTypePreviewUrl(voxelTypeObj as VoxelTypeBaseKey);
 
     actions.add({
-      id: `activate+entity=${entity}` as Entity,
+      id: `activateVoxel+entity=${entity}` as Entity,
       metadata: { actionType: "activate", preview },
       requirement: () => true,
       components: {},
       execute: () => {
         return callSystem(
-          "tenet_ActivateSystem_activate",
+          "tenet_ActivateSystem_activateVoxel",
           [entity, { gasLimit: 100_000_000 }],
           undefined,
           (rawResponse) => {

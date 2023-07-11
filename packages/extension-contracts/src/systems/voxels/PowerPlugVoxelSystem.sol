@@ -14,9 +14,9 @@ import { NoaBlockType } from "@tenet-contracts/src/codegen/Types.sol";
 
 bytes32 constant PowerPlugID = bytes32(keccak256("powerplug"));
 
-string constant PowerPlugTexture = "bafkreidohfeb5yddppqv6swfjs6s3g7qe44u75ogwaqkky4nolgh7bbafu";
+string constant PowerPlugTexture = "bafkreidq36bqpc6fno5vtoafgn7zhyrin2v5wkjfybhqfnrgec4pmlf5we";
 
-string constant PowerPlugUVWrap = "bafkreigx5gstl4b2fcz62dwex55mstoo7egdcsrmsox6trmiieplcuyalm";
+string constant PowerPlugUVWrap = "bafkreifdtu65gok35bevprpupxucirs2tan2k77444sl67stdhdgzwffra";
 
 contract PowerPlugVoxelSystem is VoxelType {
   function registerVoxel() public override {
@@ -47,10 +47,14 @@ contract PowerPlugVoxelSystem is VoxelType {
 
   function enterWorld(bytes32 entity) public override {
     bytes16 callerNamespace = getCallerNamespace(_msgSender());
+    
+    bytes32 _source = bytes32(0);
+    bytes32 _destination = bytes32(0);
+
     PowerPlug.set(
       callerNamespace,
       entity,
-      PowerPlugData({ source: 0, destination: 0, genRate: 0, direction: BlockDirection.None, hasValue: true })
+      PowerPlugData({ source: _source, destination: _destination, genRate: 0, direction: BlockDirection.None, hasValue: true })
     );
   }
 

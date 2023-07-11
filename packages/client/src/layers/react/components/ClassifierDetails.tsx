@@ -88,16 +88,16 @@ const ClassifierDetails: React.FC<Props> = ({
     .map((voxelCoordString) => stringToVoxelCoord(voxelCoordString))
     .map((voxelCoord) => getEntityAtPosition(voxelCoord))
     .filter((entityId) => {
-      if (!entityId || spawnInFocus === undefined || !spawnInFocus.spawn) {
+      if (!entityId || spawnToUse === undefined || !spawnToUse.spawn) {
         return false;
       }
       const interfaceSpawnId = getComponentValue(OfSpawn, entityId)?.value;
       // we only want the interface selections on the voxels that are part of this spawn
-      return interfaceSpawnId === spawnInFocus.spawn.spawnId;
+      return interfaceSpawnId === spawnToUse.spawn.spawnId;
     });
 
   const renderInterfaces = () => {
-    if (!spawnInFocus?.creation || !spawnInFocus?.spawn) {
+    if (!spawnToUse?.creation || !spawnToUse?.spawn) {
       return null;
     }
 
@@ -142,17 +142,35 @@ const ClassifierDetails: React.FC<Props> = ({
     return null;
   }
 
-  const selectSpawnButtonLabel =
-    spawnInFocus && spawnInFocus.creation ? (
-      <>
-        <p>Selected Creation</p>
-        <p className="mt-2">{spawnInFocus?.creation?.name}</p>
-      </>
-    ) : (
-      "Look at a creation in the world to select it"
-    );
+  const onSelectSpawn = () => {
+    if (spawnToUse && spawnToUse.creation) {
+      setComponent(SpawnToClassify, SingletonEntity, { spawn: undefined, creation: undefined });
+    } else if (spawnInFocus && spawnInFocus.creation) {
+      setComponent(SpawnToClassify, SingletonEntity, { spawn: spawnInFocus.spawn, creation: spawnInFocus.creation });
+    }
+  };
 
-  const isSubmitDisabled = spawnInFocus === undefined || !spawnInFocus.creation;
+  const getSelectSpawnButtonLabel = () => {
+    if (spawnToUse && spawnToUse.creation) {
+      return (
+        <>
+          <p>Selected Creation: {spawnToUse?.creation?.name}</p>
+          <p className="mt-2">Click here to cancel selection</p>
+        </>
+      );
+    } else if (spawnInFocus && spawnInFocus.creation) {
+      return (
+        <>
+          <p>Click to Confirm Selected Creation:</p>
+          <p className="mt-2">{spawnInFocus?.creation?.name}</p>
+        </>
+      );
+    } else {
+      return "Look at a creation in the world to select it";
+    }
+  };
+
+  const isSubmitDisabled = spawnToUse === undefined || !spawnToUse.creation;
 
   return (
     <div className="flex flex-col h-full mt-5 gap-5">
@@ -163,15 +181,15 @@ const ClassifierDetails: React.FC<Props> = ({
       </p>
       <button
         type="button"
-        // onClick={onSelectCreationCorners}
+        onClick={onSelectSpawn}
         className="py-2.5 px-5 mr-2 mb-2 text-sm font-medium text-gray-900 focus:outline-none bg-white rounded-lg border border-gray-200 hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-4 focus:ring-gray-200"
       >
-        {selectSpawnButtonLabel}
+        {getSelectSpawnButtonLabel()}
       </button>
       {renderInterfaces()}
       <button
         onClick={() => {
-          classifyCreation(selectedClassifier.classifierId, spawnInFocus.spawn.spawnId, interfaceVoxels);
+          classifyCreation(selectedClassifier.classifierId, spawnToUse.spawn.spawnId, interfaceVoxels);
         }}
         disabled={isSubmitDisabled}
         className={twMerge(

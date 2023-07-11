@@ -55,7 +55,8 @@ contract IceVoxelSystem is VoxelType {
       IceColdID,
       IWorld(world).extension_IceVoxelSystem_variantSelector.selector,
       IWorld(world).extension_IceVoxelSystem_enterWorld.selector,
-      IWorld(world).extension_IceVoxelSystem_exitWorld.selector
+      IWorld(world).extension_IceVoxelSystem_exitWorld.selector,
+      IWorld(world).extension_IceVoxelSystem_activate.selector
     );
   }
 
@@ -82,4 +83,6 @@ contract IceVoxelSystem is VoxelType {
       return VoxelVariantsKey({ voxelVariantNamespace: EXTENSION_NAMESPACE, voxelVariantId: IceColdID });
     }
   }
+
+  function activate(bytes32 entity) public override returns (bytes memory) {}
 }

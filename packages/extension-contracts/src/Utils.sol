@@ -26,7 +26,8 @@ function registerVoxelType(
   bytes32 previewVoxelVariantId,
   bytes4 variantSelector,
   bytes4 enterWorldSelector,
-  bytes4 exitWorldSelector
+  bytes4 exitWorldSelector,
+  bytes4 activateSelector
 ) {
   safeCall(
     world,
@@ -38,7 +39,8 @@ function registerVoxelType(
       previewVoxelVariantId,
       variantSelector,
       enterWorldSelector,
-      exitWorldSelector
+      exitWorldSelector,
+      activateSelector
     ),
     string(abi.encodePacked("registerVoxelType ", voxelTypeName))
   );
@@ -86,20 +88,8 @@ function entityIsGenerator(bytes32 entity, bytes16 callerNamespace) view returns
   return Generator.get(callerNamespace, entity).hasValue;
 }
 
-function entityHasTemperature(bytes32 entity, bytes16 callerNamespace) view returns (bool) {
-  return Temperature.get(callerNamespace, entity).hasValue;
-}
-
-function entityIsGenerator(bytes32 entity, bytes16 callerNamespace) view returns (bool) {
-  return Generator.get(callerNamespace, entity).hasValue;
-}
-
 function entityIsPowerWire(bytes32 entity, bytes16 callerNamespace) view returns (bool) {
   return PowerWire.get(callerNamespace, entity).hasValue;
-}
-
-function entityIsPowerPlug(bytes32 entity, bytes16 callerNamespace) view returns (bool) {
-  return PowerPlug.get(callerNamespace, entity).hasValue;
 }
 
 function entityIsPowerPlug(bytes32 entity, bytes16 callerNamespace) view returns (bool) {

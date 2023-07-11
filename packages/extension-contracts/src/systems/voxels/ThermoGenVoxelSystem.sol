@@ -39,7 +39,8 @@ contract ThermoGenVoxelSystem is VoxelType {
       ThermoGenID,
       IWorld(world).extension_ThermoGenVoxelSy_variantSelector.selector,
       IWorld(world).extension_ThermoGenVoxelSy_enterWorld.selector,
-      IWorld(world).extension_ThermoGenVoxelSy_exitWorld.selector
+      IWorld(world).extension_ThermoGenVoxelSy_exitWorld.selector,
+      IWorld(world).extension_ThermoGenVoxelSy_activate.selector
     );
   }
 
@@ -59,4 +60,6 @@ contract ThermoGenVoxelSystem is VoxelType {
   function variantSelector(bytes32 entity) public view override returns (VoxelVariantsKey memory) {
     return VoxelVariantsKey({ voxelVariantNamespace: EXTENSION_NAMESPACE, voxelVariantId: ThermoGenID });
   }
+
+  function activate(bytes32 entity) public override returns (bytes memory) {}
 }

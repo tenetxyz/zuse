@@ -40,7 +40,8 @@ contract PowerPlugVoxelSystem is VoxelType {
       PowerPlugID,
       IWorld(world).extension_PowerPlugVoxelSy_variantSelector.selector,
       IWorld(world).extension_PowerPlugVoxelSy_enterWorld.selector,
-      IWorld(world).extension_PowerPlugVoxelSy_exitWorld.selector
+      IWorld(world).extension_PowerPlugVoxelSy_exitWorld.selector,
+      IWorld(world).extension_PowerPlugVoxelSy_activate.selector
     );
   }
 
@@ -61,4 +62,6 @@ contract PowerPlugVoxelSystem is VoxelType {
   function variantSelector(bytes32 entity) public view override returns (VoxelVariantsKey memory) {
     return VoxelVariantsKey({ voxelVariantNamespace: EXTENSION_NAMESPACE, voxelVariantId: PowerPlugID });
   }
+
+  function activate(bytes32 entity) public override returns (bytes memory) {}
 }

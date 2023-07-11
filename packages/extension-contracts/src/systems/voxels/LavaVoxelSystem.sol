@@ -54,7 +54,8 @@ contract LavaVoxelSystem is VoxelType {
       LavaHotID,
       IWorld(world).extension_LavaVoxelSystem_variantSelector.selector,
       IWorld(world).extension_LavaVoxelSystem_enterWorld.selector,
-      IWorld(world).extension_LavaVoxelSystem_exitWorld.selector
+      IWorld(world).extension_LavaVoxelSystem_exitWorld.selector,
+      IWorld(world).extension_LavaVoxelSystem_activate.selector
     );
   }
 
@@ -82,4 +83,5 @@ contract LavaVoxelSystem is VoxelType {
     }
   }
 
+  function activate(bytes32 entity) public override returns (bytes memory) {}
 }

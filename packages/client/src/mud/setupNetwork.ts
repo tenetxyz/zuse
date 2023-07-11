@@ -185,7 +185,7 @@ export async function setupNetwork() {
     },
     onSuccessCallback?: (res: string) => void // This callback will be called with the result of the transaction
   ) {
-    const worldSend: BoundFastTxExecuteFn<Contract> = bindFastTxExecute(worldContract);
+    const worldSend: BoundFastTxExecuteFn<WorldContract> = bindFastTxExecute(worldContract);
     try {
       const { hash, tx } = await worldSend(func, args, options);
       if (onSuccessCallback) {
@@ -480,7 +480,7 @@ export async function setupNetwork() {
         OwnedBy: contractComponents.OwnedBy,
         VoxelType: contractComponents.VoxelType,
       },
-      execute: async () => {
+      execute: () => {
         return callSystem("tenet_GiftVoxelSystem_giftVoxel", [
           voxelTypeNamespace,
           voxelTypeId,
@@ -525,7 +525,7 @@ export async function setupNetwork() {
         OwnedBy: contractComponents.OwnedBy,
         VoxelType: contractComponents.VoxelType,
       },
-      execute: async () => {
+      execute: () => {
         return callSystem("tenet_RmVoxelSystem_removeVoxels", [
           voxels.map((voxelId) => to64CharAddress(voxelId)),
           { gasLimit: 10_000_000 },
@@ -546,7 +546,7 @@ export async function setupNetwork() {
       components: {
         OwnedBy: contractComponents.OwnedBy,
       },
-      execute: async () => {
+      execute: () => {
         return callSystem("tenet_RegisterCreation_registerCreation", [
           creationName,
           creationDescription,
@@ -567,7 +567,7 @@ export async function setupNetwork() {
       metadata: { actionType: "spawnCreation", preview },
       requirement: () => true,
       components: {},
-      execute: async () => {
+      execute: () => {
         return callSystem("tenet_SpawnSystem_spawn", [lowerSouthWestCorner, creationId, { gasLimit: 100_000_000 }]);
       },
       updates: () => [],
@@ -583,7 +583,7 @@ export async function setupNetwork() {
       metadata: { actionType: "classifyCreation", preview },
       requirement: () => true,
       components: {},
-      execute: async () => {
+      execute: () => {
         return callSystem("tenet_ClassifyCreation_classify", [
           classifierId,
           spawnId,

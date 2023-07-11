@@ -116,7 +116,7 @@ const ClassifierDetails: React.FC<Props> = ({
         points.delete(coordString);
       }
       setComponent(VoxelInterfaceSelection, SingletonEntity, { value: points });
-      setComponent(FocusedUi, SingletonEntity, { value: FocusedUiType.TENET_SIDEBAR });
+      setComponent(FocusedUi, SingletonEntity, { value: FocusedUiType.TENET_SIDEBAR }); // This is so the sidebar, re-renders
     } else {
       setComponent(PersistentNotification, SingletonEntity, {
         message: "Press 'V' on a voxel to select it. Press - when done.",
@@ -134,8 +134,6 @@ const ClassifierDetails: React.FC<Props> = ({
     if (!selectedClassifier) {
       return null;
     }
-
-    console.log("rerender");
 
     return (
       <div className="flex flex-col">

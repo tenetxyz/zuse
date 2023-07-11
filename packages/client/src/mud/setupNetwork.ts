@@ -188,7 +188,9 @@ export async function setupNetwork() {
   ) {
     const worldSend: BoundFastTxExecuteFn<WorldContract> = bindFastTxExecute(worldContract);
     try {
-      const { hash, tx } = await worldSend(func, args, options);
+      const res = await worldSend(func, args, options);
+      const { hash, tx } = res;
+      debugger;
       if (onSuccessCallback) {
         transactionCallbacks.set(hash, onSuccessCallback);
       }

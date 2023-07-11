@@ -1,11 +1,11 @@
 // SPDX-License-Identifier: MIT
 pragma solidity >=0.8.0;
 
-import { VoxelInteraction } from "../../prototypes/VoxelInteraction.sol";
+import { VoxelInteraction } from "@tenet-contracts/src/prototypes/VoxelInteraction.sol";
 import { IWorld } from "../../../src/codegen/world/IWorld.sol";
 import { Generator, TemperatureAtTime, GeneratorData, Temperature, TemperatureData, TemperatureAtTimeData } from "../../codegen/Tables.sol";
 import { BlockDirection } from "../../codegen/Types.sol";
-import { getCallerNamespace } from "@tenetxyz/contracts/src/SharedUtils.sol";
+import { getCallerNamespace } from "@tenet-contracts/src/Utils.sol";
 import { registerExtension, entityIsGenerator, entityHasTemperature } from "../../Utils.sol";
 
 contract ThermoGeneratorSystem is VoxelInteraction {
@@ -21,19 +21,18 @@ contract ThermoGeneratorSystem is VoxelInteraction {
     BlockDirection neighbourBlockDirection
   ) internal override returns (bool changedEntity) {
       GeneratorData memory generatorData = Generator.get(callerNamespace, interactEntity);
+      return true;
       
-      if (generatorData.sources.length == 2) {
-          // Call entityHasTemperature(source[i], callerNamespace) on both and return true if one is false
-          if(entityHasTemperature(generatorData.sources[0], callerNamespace) == false || entityHasTemperature(generatorData.sources[1], callerNamespace) == false) {
-              return true;
-          }
-          }      
-      else if (entityHasTemperature(neighbourEntityId, callerNamespace)) {
-          return true;
-      }
-      else {
-          return false;
-      }
+      // if (generatorData.sources.length == 2) {
+      //     // Call entityHasTemperature(source[i], callerNamespace) on both and return true if one is false
+      //     return !(entityHasTemperature(generatorData.sources[0], callerNamespace) && entityHasTemperature(generatorData.sources[1], callerNamespace));
+      // }      
+      // else if (entityHasTemperature(neighbourEntityId, callerNamespace)) {
+      //     return true;
+      // }
+      // else {
+      //     return false;
+      // }
   }
 
   function entityShouldInteract(bytes32 entityId, bytes16 callerNamespace) internal view override returns (bool) {

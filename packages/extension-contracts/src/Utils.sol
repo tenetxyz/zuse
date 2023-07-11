@@ -2,9 +2,8 @@
 pragma solidity >=0.8.0;
 import { VoxelCoord } from "@tenet-contracts/src/Types.sol";
 import { hasKey } from "@latticexyz/world/src/modules/keysintable/hasKey.sol";
-import { Signal, SignalSource, Powered, InvertedSignal, Temperature, Generator, PowerWire, PowerPlug } from "./codegen/Tables.sol";
-import { BlockDirection } from "./codegen/Types.sol";
-import { CLEAR_COORD_SIG, BUILD_SIG } from "@tenetxyz/contracts/src/constants.sol";
+import { Signal, SignalData, SignalSource, Powered, InvertedSignal,  Temperature, Generator, PowerWire, PowerPlug } from "@tenet-extension-contracts/src/codegen/Tables.sol";
+import { CLEAR_COORD_SIG, BUILD_SIG, GIFT_VOXEL_SIG } from "@tenet-contracts/src/constants.sol";
 import { getUniqueEntity } from "@latticexyz/world/src/modules/uniqueentity/getUniqueEntity.sol";
 import { REGISTER_EXTENSION_SIG, REGISTER_VOXEL_TYPE_SIG, REGISTER_VOXEL_VARIANT_SIG, RM_ALL_OWNED_VOXELS_SIG } from "@tenet-contracts/src/constants.sol";
 import { VoxelVariantsData } from "@tenet-contracts/src/codegen/tables/VoxelVariants.sol";
@@ -27,7 +26,7 @@ function registerVoxelType(
   bytes32 previewVoxelVariantId,
   bytes4 variantSelector,
   bytes4 enterWorldSelector,
-  bytes4 exitWorldSelector
+  bytes4 exitWorldSelector  
 ) {
   safeCall(
     world,
@@ -39,7 +38,7 @@ function registerVoxelType(
       previewVoxelVariantId,
       variantSelector,
       enterWorldSelector,
-      exitWorldSelector
+      exitWorldSelector 
     ),
     string(abi.encodePacked("registerVoxelType ", voxelTypeName))
   );
@@ -79,6 +78,22 @@ function entityIsInvertedSignal(bytes32 entity, bytes16 callerNamespace) view re
   return InvertedSignal.get(callerNamespace, entity).hasValue;
 }
 
+function entityHasTemperature(bytes32 entity, bytes16 callerNamespace) view returns (bool) {
+  return Temperature.get(callerNamespace, entity).hasValue;
+}
+
+function entityIsGenerator(bytes32 entity, bytes16 callerNamespace) view returns (bool) {
+  return Generator.get(callerNamespace, entity).hasValue;
+}
+
+function entityIsPowerWire(bytes32 entity, bytes16 callerNamespace) view returns (bool) {
+  return PowerWire.get(callerNamespace, entity).hasValue;
+}
+
+function entityIsPowerPlug(bytes32 entity, bytes16 callerNamespace) view returns (bool) {
+  return PowerPlug.get(callerNamespace, entity).hasValue;
+}
+
 function clearCoord(address world, VoxelCoord memory coord) returns (bytes32) {
   bytes memory returnData = safeCall(world, abi.encodeWithSignature(CLEAR_COORD_SIG, coord), "clearCoord");
   return abi.decode(returnData, (bytes32));
@@ -96,62 +111,6 @@ function giftVoxel(address world, bytes16 voxelTypeNamespace, bytes32 voxelTypeI
     "giftVoxel"
   );
   return abi.decode(returnData, (bytes32));
-
-function entityHasTemperature(bytes32 entity, bytes16 callerNamespace) view returns (bool) {
-  return Temperature.get(callerNamespace, entity).hasValue;
-}
-
-function entityIsGenerator(bytes32 entity, bytes16 callerNamespace) view returns (bool) {
-  return Generator.get(callerNamespace, entity).hasValue;
-}
-
-
-function entityHasTemperature(bytes32 entity, bytes16 callerNamespace) view returns (bool) {
-  return Temperature.get(callerNamespace, entity).hasValue;
-}
-
-
-function entityHasTemperature(bytes32 entity, bytes16 callerNamespace) view returns (bool) {
-  return Temperature.get(callerNamespace, entity).hasValue;
-}
-
-function entityHasTemperature(bytes32 entity, bytes16 callerNamespace) view returns (bool) {
-  return Temperature.get(callerNamespace, entity).hasValue;
-}
-
-function entityIsGenerator(bytes32 entity, bytes16 callerNamespace) view returns (bool) {
-  return Generator.get(callerNamespace, entity).hasValue;
-}
-
-function entityIsPowerWire(bytes32 entity, bytes16 callerNamespace) view returns (bool) {
-  return PowerWire.get(callerNamespace, entity).hasValue;
-}
-
-function entityIsPowerPlug(bytes32 entity, bytes16 callerNamespace) view returns (bool) {
-  return PowerPlug.get(callerNamespace, entity).hasValue;
-}
-
-function calculateBlockDirection(
-  PositionData memory centerCoord,
-  PositionData memory neighborCoord
-) pure returns (BlockDirection) {
-  if (neighborCoord.x == centerCoord.x && neighborCoord.y == centerCoord.y && neighborCoord.z == centerCoord.z) {
-    return BlockDirection.None;
-  } else if (neighborCoord.y > centerCoord.y) {
-    return BlockDirection.Up;
-  } else if (neighborCoord.y < centerCoord.y) {
-    return BlockDirection.Down;
-  } else if (neighborCoord.z > centerCoord.z) {
-    return BlockDirection.North;
-  } else if (neighborCoord.z < centerCoord.z) {
-    return BlockDirection.South;
-  } else if (neighborCoord.x > centerCoord.x) {
-    return BlockDirection.East;
-  } else if (neighborCoord.x < centerCoord.x) {
-    return BlockDirection.West;
-  } else {
-    return BlockDirection.None;
-  }
 }
 
 function removeAllOwnedVoxels(address world) {

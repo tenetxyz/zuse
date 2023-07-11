@@ -1,11 +1,12 @@
 // SPDX-License-Identifier: MIT
 pragma solidity >=0.8.0;
 
-import { SingleVoxelInteraction } from "../../prototypes/SingleVoxelInteraction.sol";
+import { SingleVoxelInteraction } from "@tenet-contracts/src/prototypes/SingleVoxelInteraction.sol";
 import { IWorld } from "../../../src/codegen/world/IWorld.sol";
 import { PowerPlug, PowerPlugData, PowerWire, PowerWireData, Generator, GeneratorData } from "../../codegen/Tables.sol";
 import { BlockDirection } from "../../codegen/Types.sol";
-import { registerExtension, getOppositeDirection, entityIsPowerWire, entityIsGenerator, entityIsPowerPlug } from "../../Utils.sol";
+import { registerExtension, entityIsPowerWire, entityIsGenerator, entityIsPowerPlug } from "../../Utils.sol";
+import { getOppositeDirection } from "@tenet-contracts/src/Utils.sol";
 
 contract PowerPlugSystem is SingleVoxelInteraction {
   function registerInteraction() public override {

@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity >=0.8.0;
 
-import { SingleVoxelInteraction } from "../../prototypes/SingleVoxelInteraction.sol";
+import { SingleVoxelInteraction } from "@tenet-contracts/src/prototypes/SingleVoxelInteraction.sol";
 import { IWorld } from "../../../src/codegen/world/IWorld.sol";
 import { Temperature, TemperatureData } from "../../codegen/Tables.sol";
 import { BlockDirection } from "../../codegen/Types.sol";

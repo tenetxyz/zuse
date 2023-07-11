@@ -2,14 +2,14 @@
 pragma solidity >=0.8.0;
 
 import { Temperature, TemperatureData } from "../../codegen/Tables.sol";
-import { getCallerNamespace } from "@tenetxyz/contracts/src/SharedUtils.sol";
-import { VoxelType } from "@tenetxyz/contracts/src/prototypes/VoxelType.sol";
+import { getCallerNamespace } from "@tenet-contracts/src/Utils.sol";
+import { VoxelType } from "@tenet-contracts/src/prototypes/VoxelType.sol";
 import { IWorld } from "../../../src/codegen/world/IWorld.sol";
 import { EXTENSION_NAMESPACE } from "../../Constants.sol";
-import { NoaBlockType } from "@tenetxyz/contracts/src/codegen/types.sol";
+import { NoaBlockType } from "@tenet-contracts/src/codegen/Types.sol";
 import { registerVoxelVariant, registerVoxelType, entityHasTemperature } from "../../Utils.sol";
-import { VoxelVariantsKey } from "@tenetxyz/contracts/src/Types.sol";
-import { VoxelVariantsData } from "../../Types.sol";
+import { VoxelVariantsKey } from "@tenet-contracts/src/Types.sol";
+import { VoxelVariantsData } from "@tenet-contracts/src/codegen/tables/VoxelVariants.sol";
 
 bytes32 constant LavaID = bytes32(keccak256("lava"));
 

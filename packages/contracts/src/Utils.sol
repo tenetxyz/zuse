@@ -208,6 +208,21 @@ function removeDuplicates(bytes[] memory arr) pure returns (bytes[] memory) {
   return result;
 }
 
+function removeEntityFromArray(bytes32[] memory entities, bytes32 entity) pure returns (bytes32[] memory) {
+  bytes32[] memory updatedArray = new bytes32[](entities.length - 1);
+  uint index = 0;
+
+  // Copy elements from the original array to the updated array, excluding the entity
+  for (uint i = 0; i < entities.length; i++) {
+    if (entities[i] != entity) {
+      updatedArray[index] = entities[i];
+      index++;
+    }
+  }
+
+  return updatedArray;
+}
+
 function hasEntity(bytes32[] memory entities) pure returns (bool) {
   for (uint256 i; i < entities.length; i++) {
     if (uint256(entities[i]) != 0) {

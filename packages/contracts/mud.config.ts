@@ -99,6 +99,7 @@ export default mudConfig({
       schema: {
         creationId: "bytes32", // the creation that it's a spawn of
         lowerSouthWestCorner: "bytes", // "VoxelCoord
+        isModified: "bool", // modified spawns can't be submitted to classifiers
         voxels: "bytes32[]", // the voxelIds that have been spawned
       },
     },

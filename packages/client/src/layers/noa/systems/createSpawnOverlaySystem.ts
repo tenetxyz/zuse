@@ -16,7 +16,7 @@ import { ISpawn } from "../components/SpawnInFocus";
 export function createSpawnOverlaySystem(networkLayer: NetworkLayer, noaLayer: NoaLayer) {
   const { noa } = noaLayer;
   const {
-    contractComponents: { Spawn, Creation, Position },
+    contractComponents: { Spawn, Creation },
   } = networkLayer;
 
   Spawn.update$.subscribe((update) => {

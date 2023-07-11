@@ -93,18 +93,23 @@ contract MineSystem is System {
 
   function tryRemoveVoxelFromSpawn(bytes32 voxel) internal {
     bytes32 spawnId = OfSpawn.get(voxel);
-    if (spawnId != 0) {
-      OfSpawn.deleteRecord(voxel);
-      SpawnData memory spawn = Spawn.get(spawnId);
-      bytes32[] memory newVoxels = removeEntityFromArray(spawn.voxels, voxel);
+    if (spawnId == 0) {
+      return;
+    }
 
-      if (newVoxels.length == 0) {
-        // no more voxels of this spawn are in the world, so delete it
-        Spawn.deleteRecord(spawnId);
-      } else {
-        Spawn.setVoxels(spawnId, newVoxels);
-        Spawn.setIsModified(spawnId, true);
-      }
+    OfSpawn.deleteRecord(voxel);
+    SpawnData memory spawn = Spawn.get(spawnId);
+    // should we check to see if the entity is in the array before trying to remove it?
+    // I think it's ok to assume it's there, since this is the only way to remove a voxel from a spawn
+    bytes32[] memory newVoxels = removeEntityFromArray(spawn.voxels, voxel);
+
+    if (newVoxels.length == 0) {
+      // no more voxels of this spawn are in the world, so delete it
+      Spawn.deleteRecord(spawnId);
+    } else {
+      // This spawn is still in the world, but it has been modified (since a voxel was removed)
+      Spawn.setVoxels(spawnId, newVoxels);
+      Spawn.setIsModified(spawnId, true);
     }
   }
 

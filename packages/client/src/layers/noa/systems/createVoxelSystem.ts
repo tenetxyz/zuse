@@ -1,5 +1,11 @@
 import { SyncState } from "@latticexyz/network";
-import { defineComponentSystem, defineEnterSystem, getComponentValueStrict, Has } from "@latticexyz/recs";
+import {
+  defineComponentSystem,
+  defineEnterSystem,
+  getComponentValue,
+  getComponentValueStrict,
+  Has,
+} from "@latticexyz/recs";
 import { toUtf8String } from "ethers/lib/utils.js";
 import { awaitStreamValue } from "@latticexyz/utils";
 import { NetworkLayer } from "../../network";
@@ -25,7 +31,8 @@ export async function createVoxelSystem(network: NetworkLayer, context: NoaLayer
   defineComponentSystem(world, VoxelType, async (update) => {
     if (!live) return;
     if (!update.value[0] || !update.value[1]) return;
-    const position = getComponentValueStrict(Position, update.entity);
+    const position = getComponentValue(Position, update.entity);
+    if (!position) return; // if there's no position, the voxel is not in the world. so no need to display it
     setVoxel(position, voxelTypeDataKeyToVoxelVariantDataKey(update.value[0]));
   });
 

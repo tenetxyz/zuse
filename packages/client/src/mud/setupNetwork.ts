@@ -177,6 +177,8 @@ export async function setupNetwork() {
   const transactionCallbacks = new Map<string, (res: string) => void>();
 
   type WorldContract = typeof worldContract;
+  // please use callSystem instead because it handles errors better, haldes awaiting for the tx to finish, and handles callbacks for the system when it finishes
+  const worldSend: BoundFastTxExecuteFn<WorldContract> = bindFastTxExecute(worldContract);
 
   async function callSystem<F extends keyof WorldContract>(
     func: F,
@@ -186,7 +188,6 @@ export async function setupNetwork() {
     },
     onSuccessCallback?: (res: string) => void // This callback will be called with the result of the transaction
   ) {
-    const worldSend: BoundFastTxExecuteFn<WorldContract> = bindFastTxExecute(worldContract);
     try {
       const { hash, tx } = await worldSend(func, args, options);
       if (onSuccessCallback) {
@@ -625,6 +626,7 @@ export async function setupNetwork() {
         );
       },
       updates: () => [],
+      txMayNotWriteToTable: true,
     });
   }
 

@@ -47,10 +47,14 @@ contract PowerPlugVoxelSystem is VoxelType {
 
   function enterWorld(bytes32 entity) public override {
     bytes16 callerNamespace = getCallerNamespace(_msgSender());
+    
+    bytes32 _source = bytes32(0);
+    bytes32 _destination = bytes32(0);
+
     PowerPlug.set(
       callerNamespace,
       entity,
-      PowerPlugData({ source: 0, destination: 0, genRate: 0, direction: BlockDirection.None, hasValue: true })
+      PowerPlugData({ source: _source, destination: _destination, genRate: 0, direction: BlockDirection.None, hasValue: true })
     );
   }
 

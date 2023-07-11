@@ -11,7 +11,7 @@ import { getOppositeDirection } from "@tenet-contracts/src/Utils.sol";
 contract PowerPlugSystem is SingleVoxelInteraction {
   function registerInteraction() public override {
     address world = _world();
-    registerExtension(world, "PowerWireSystem", IWorld(world).extension_PowerPlugSystem_eventHandler.selector);
+    registerExtension(world, "PowerPlugSystem", IWorld(world).extension_PowerPlugSystem_eventHandler.selector);
   }
 
   function entityShouldInteract(bytes32 entityId, bytes16 callerNamespace) internal view override returns (bool) {
@@ -27,28 +27,27 @@ contract PowerPlugSystem is SingleVoxelInteraction {
     PowerPlugData memory powerPlugData = PowerPlug.get(callerNamespace, signalEntity);
     changedEntity = false;
 
-    bool compareIsGenSource = entityIsGenerator(compareEntity, callerNamespace);
-    bool compareIsWireSource = entityIsPowerWire(compareEntity, callerNamespace);
-
-    if (compareIsGenSource) {
+    if (entityIsGenerator(compareEntity, callerNamespace)) {
       GeneratorData memory compareGeneratorData = Generator.get(callerNamespace, compareEntity);
-      compareIsGenSource = compareGeneratorData.genRate > 0;
-    } else if (compareIsWireSource) {
-      PowerWireData memory compareWireData = PowerWire.get(callerNamespace, compareEntity);
-      compareIsWireSource = compareWireData.genRate > 0 && compareWireData.direction != getOppositeDirection(compareBlockDirection);
-    }
+      if (powerPlugData.source != compareEntity  || powerPlugData.direction != compareBlockDirection
+          || powerPlugData.genRate != (compareGeneratorData.genRate * 14) / 15)
+      {
+        powerPlugData.source = compareEntity;
+        powerPlugData.genRate = (compareGeneratorData.genRate * 14) / 15;
+        powerPlugData.direction = compareBlockDirection;
+        PowerPlug.set(callerNamespace, signalEntity, powerPlugData);
+        changedEntity = true;
+      }
+    } 
 
-    if (compareIsGenSource) {
-      GeneratorData memory compareGeneratorData = Generator.get(callerNamespace, compareEntity);
-      powerPlugData.source = compareEntity;
-      powerPlugData.genRate = compareGeneratorData.genRate;
-      powerPlugData.direction = compareBlockDirection;
-      PowerPlug.set(callerNamespace, signalEntity, powerPlugData);
-      changedEntity = true;
-    } else if (compareIsWireSource) {
+    else if (entityIsPowerWire(compareEntity, callerNamespace)) {
       PowerWireData memory compareWireData = PowerWire.get(callerNamespace, compareEntity);
-      powerPlugData.destination = compareWireData.destination;
-      changedEntity = true;
+      if (powerPlugData.destination != compareWireData.destination ||
+          compareWireData.direction != getOppositeDirection(compareBlockDirection)) {
+        powerPlugData.destination = compareWireData.destination;
+        PowerPlug.set(callerNamespace, signalEntity, powerPlugData);
+        changedEntity = true;
+      }
     }
 
     return changedEntity;

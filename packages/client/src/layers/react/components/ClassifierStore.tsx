@@ -67,54 +67,6 @@ const ClassifierStore: React.FC<Props> = ({
     filters,
   });
 
-  const spawnToUse = useComponentValue(SpawnToClassify, SingletonEntity);
-
-  const detailsForSpawnToClassify = (classifierId: Entity) => {
-    if (!spawnToUse?.creation || !spawnToUse?.spawn) {
-      return <p>Please look at a spawn of a creation and press the button to classify it</p>;
-    }
-
-    const spawnId: Entity = spawnToUse.spawn.spawnId;
-
-    const interfaceVoxels = Array.from(
-      getComponentValue(VoxelInterfaceSelection, SingletonEntity)?.value ?? new Set<string>()
-    )
-      .map((voxelCoordString) => stringToVoxelCoord(voxelCoordString))
-      .map((voxelCoord) => getEntityAtPosition(voxelCoord))
-      .filter((entityId) => {
-        if (!entityId) {
-          return false;
-        }
-        const interfaceSpawnId = getComponentValue(OfSpawn, entityId)?.value;
-        // we only want the interface selections on the voxels that are part of this spawn
-        return interfaceSpawnId === spawnId;
-      });
-
-    return (
-      <div className="flex flex-col space-y-2">
-        <div className="flex flex-row">
-          <p>Submit {spawnToUse.creation.name} </p>
-          <button
-            onClick={() => {
-              setComponent(SpawnToClassify, SingletonEntity, { spawn: undefined, creation: undefined });
-            }}
-          >
-            (X)
-          </button>
-        </div>
-        <p>Interfaces</p>
-        {renderInterfaceVoxelImages(interfaceVoxels as Entity[])}
-        <button
-          onClick={() => {
-            classifyCreation(classifierId, spawnId, interfaceVoxels);
-          }}
-        >
-          Submit
-        </button>
-      </div>
-    );
-  };
-
   const getCurrentViewName = () => {
     if (selectedClassifier) {
       return selectedClassifier.name;
@@ -124,32 +76,6 @@ const ClassifierStore: React.FC<Props> = ({
 
   const classifiersNavClicked = () => {
     setSelectedClassifier(null);
-  };
-
-  const renderInterfaceVoxelImages = (interfaceVoxels: Entity[]) => {
-    return (
-      <div className="flex flex-row space-x-2">
-        {interfaceVoxels.map((voxel, idx) => {
-          if (!voxel) {
-            console.warn("Voxel not found at coord", voxel);
-            return <div key={idx}>:(</div>;
-          }
-          const voxelType = getComponentValue(VoxelType, voxel);
-          if (!voxelType) {
-            console.warn("Voxel type not found for voxel", voxel);
-            return <div key={idx}>:(</div>;
-          }
-
-          const iconKey = voxelTypeDataKeyToVoxelVariantDataKey(voxelType);
-          const iconUrl = getVoxelIconUrl(iconKey);
-          return (
-            <div key={idx} className="bg-slate-100 p-1">
-              <img src={iconUrl} />
-            </div>
-          );
-        })}
-      </div>
-    );
   };
 
   return (

@@ -30,6 +30,7 @@ export function createInputSystem(layers: Layers) {
         SpawnCreation,
         PersistentNotification,
         VoxelInterfaceSelection,
+        SpawnToClassify,
       },
       SingletonEntity,
       api: { togglePlugins, placeSelectedVoxelType, getVoxelTypeInSelectedSlot, teleport },
@@ -395,6 +396,11 @@ export function createInputSystem(layers: Layers) {
     if (!noa.targetedBlock) {
       return;
     }
+    const spawnToClassify = getComponentValue(SpawnToClassify, SingletonEntity);
+    if (!spawnToClassify || !spawnToClassify.spawn) {
+      return;
+    }
+
     const spawnId = getTargetedSpawnId(layers, noa.targetedBlock as any);
     const isVoxelPartOfSpawn = spawnId !== undefined;
     if (isVoxelPartOfSpawn) {
@@ -403,16 +409,20 @@ export function createInputSystem(layers: Layers) {
       const coord = getTargetedVoxelCoord(noa);
       const coordString = voxelCoordToString(coord);
 
+      let toastMessage = "";
+
       // toggle the selection
       if (points.has(coordString)) {
         points.delete(coordString);
+        toastMessage = `Deselected voxel at ${voxelCoordToString(coord)}`;
       } else {
         points.add(coordString);
+        toastMessage = `Selected voxel at ${voxelCoordToString(coord)}`;
       }
 
       setComponent(VoxelInterfaceSelection, SingletonEntity, { value: points });
 
-      toast(`Selected voxel at ${coord.x}, ${coord.y}, ${coord.z}`);
+      toast(toastMessage);
       // renderFloatingTextAboveCoord(coord, noa, "This is a super\nlong\nline that takes\nup many lines");
       // renderEnt(noaLayer, coord);
       // toast(`Selected voxel at ${coord.x}, ${coord.y}, ${coord.z}`);

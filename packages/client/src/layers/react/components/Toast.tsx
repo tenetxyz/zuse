@@ -17,12 +17,12 @@ export function registerToast() {
     () => {
       return (
         <ToastContainer
-          position="top-left"
-          toastStyle={{ marginTop: 2, marginLeft: 20 }}
+          position="top-right"
+          toastStyle={{ marginTop: 2, marginLeft: 20, lineHeight: 1.3, color: "black" }}
           newestOnTop={true}
           autoClose={3500}
           hideProgressBar={true}
-          theme="dark"
+          theme="light"
         />
       );
     }

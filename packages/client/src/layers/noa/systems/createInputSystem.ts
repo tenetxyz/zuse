@@ -414,10 +414,10 @@ export function createInputSystem(layers: Layers) {
       // toggle the selection
       if (points.has(coordString)) {
         points.delete(coordString);
-        toastMessage = `Deselected voxel at ${coord.x}, ${coord.y}, ${coord.z}`;
+        toastMessage = `Deselected voxel at ${voxelCoordToString(coord)}`;
       } else {
         points.add(coordString);
-        toastMessage = `Selected voxel at ${coord.x}, ${coord.y}, ${coord.z}`;
+        toastMessage = `Selected voxel at ${voxelCoordToString(coord)}`;
       }
 
       setComponent(VoxelInterfaceSelection, SingletonEntity, { value: points });

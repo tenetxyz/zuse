@@ -86,7 +86,7 @@ export function createSpawnOverlaySystem(networkLayer: NetworkLayer, noaLayer: N
         corner2,
         noa,
         new Color3(1, 1, 0), // yellow
-        0.05
+        0.045
       );
       if (mesh !== null) {
         spawnOutlineMeshes.push(mesh);

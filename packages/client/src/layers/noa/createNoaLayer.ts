@@ -287,12 +287,6 @@ export function createNoaLayer(network: NetworkLayer) {
     return entityToVoxelTypeBaseKey(voxelType);
   }
 
-  function placeSelectedVoxelType(coord: VoxelCoord) {
-    const voxelType = getVoxelTypeInSelectedSlot();
-    if (!voxelType) return console.warn("No voxels found at selected slot");
-    network.api.build(voxelType, coord);
-  }
-
   function getCurrentPlayerPosition() {
     return getNoaPositionStrict(noa, noa.playerEntity);
   }
@@ -413,7 +407,6 @@ export function createNoaLayer(network: NetworkLayer) {
       teleport,
       teleportRandom,
       togglePlugins,
-      placeSelectedVoxelType,
       getCurrentChunk,
       getCurrentPlayerPosition,
       getStakeAndClaim,

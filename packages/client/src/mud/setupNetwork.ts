@@ -39,6 +39,7 @@ import { getNftStorageLink } from "../layers/noa/constants";
 import { voxelCoordToString } from "../utils/coord";
 import { defaultAbiCoder } from "ethers/lib/utils";
 import { toast } from "react-toastify";
+import { abiDecode } from "../utils/abi";
 
 export type SetupNetworkResult = Awaited<ReturnType<typeof setupNetwork>>;
 
@@ -174,15 +175,17 @@ export async function setupNetwork() {
   // I don't know the code enough to know if that's the case. we need to monitor this in the meantime
   const transactionCallbacks = new Map<string, (res: string) => void>();
 
-  async function callSystem<C extends Contract, F extends keyof C>(
+  type WorldContract = typeof worldContract;
+
+  async function callSystem<F extends keyof WorldContract>(
     func: F,
-    args: Parameters<C[F]>,
+    args: Parameters<WorldContract[F]>,
     options?: {
       retryCount?: number;
     },
     onSuccessCallback?: (res: string) => void // This callback will be called with the result of the transaction
   ) {
-    const worldSend: BoundFastTxExecuteFn<C> = bindFastTxExecute(worldContract);
+    const worldSend: BoundFastTxExecuteFn<Contract> = bindFastTxExecute(worldContract);
     try {
       const { hash, tx } = await worldSend(func, args, options);
       if (onSuccessCallback) {
@@ -593,6 +596,24 @@ export async function setupNetwork() {
     });
   }
 
+  function activate(entity: Entity) {
+    // TODO: Replace Iron NFT with a spawn symbol
+    const preview = getNftStorageLink("bafkreidkik2uccshptqcskpippfotmusg7algnfh5ozfsga72xyfdrvacm");
+
+    actions.add({
+      id: `activate+entity=${entity}` as Entity,
+      metadata: { actionType: "activate", preview },
+      requirement: () => true,
+      components: {},
+      execute: async () => {
+        return callSystem("tenet_ActivateSystem_activate", [entity, { gasLimit: 100_000_000 }], {}, (response) => {
+          toast(abiDecode("string", response));
+        });
+      },
+      updates: () => [],
+    });
+  }
+
   function stake(chunkCoord: Coord) {
     return 0;
   }
@@ -645,6 +666,7 @@ export async function setupNetwork() {
       stake,
       claim,
       getName,
+      activate,
     },
     fastTxExecutor,
     // dev: setupDevSystems(world, encoders as Promise<any>, systems),

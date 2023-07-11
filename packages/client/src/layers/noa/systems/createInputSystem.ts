@@ -33,13 +33,13 @@ export function createInputSystem(layers: Layers) {
         SpawnToClassify,
       },
       SingletonEntity,
-      api: { togglePlugins, placeSelectedVoxelType, getVoxelTypeInSelectedSlot, teleport },
+      api: { togglePlugins, getVoxelTypeInSelectedSlot, teleport },
       streams: { playerPosition$ },
     },
     network: {
       network: { connectedAddress },
       streams: { balanceGwei$ },
-      api: { spawnCreation },
+      api: { spawnCreation, build, activate, getEntityAtPosition },
     },
   } = layers;
 
@@ -234,26 +234,39 @@ export function createInputSystem(layers: Layers) {
       return;
     }
 
-    if (noa.targetedBlock) {
-      const pos = noa.targetedBlock.adjacent;
-      const targeted = noa.targetedBlock.position;
-
-      // Open crafting UI if the targeted voxel is a crafting table
-      // TODO: Add back when we add crafting
-      // if (
-      //   runQuery([
-      //     HasValue(Position, {
-      //       x: targeted[0],
-      //       y: targeted[1],
-      //       z: targeted[2],
-      //     }),
-      //     HasValue(VoxelType, { value: VoxelTypeKeyToId.Crafting }),
-      //   ]).size > 0
-      // ) {
-      //   return toggleInventory(true, true);
-      // }
-      placeSelectedVoxelType({ x: pos[0], y: pos[1], z: pos[2] });
+    if (!noa.targetedBlock) {
+      // there are no blocks in sight. so do nothing!
+      return;
     }
+
+    const voxelTypeBaseKey = getVoxelTypeInSelectedSlot();
+    if (voxelTypeBaseKey) {
+      // you are holding a block and are looking at a block. so place the block at the adjacent coord
+      const pos = noa.targetedBlock.adjacent;
+      const coord = { x: pos[0], y: pos[1], z: pos[2] };
+      build(voxelTypeBaseKey, coord);
+    } else {
+      // you are holding nothing and are looking at a block. So activate the block
+      const entity = getEntityAtPosition(getTargetedVoxelCoord(noa));
+      if (entity) {
+        activate(entity);
+      }
+    }
+
+    // Open crafting UI if the targeted voxel is a crafting table
+    // TODO: Add back when we add crafting
+    // if (
+    //   runQuery([
+    //     HasValue(Position, {
+    //       x: targeted[0],
+    //       y: targeted[1],
+    //       z: targeted[2],
+    //     }),
+    //     HasValue(VoxelType, { value: VoxelTypeKeyToId.Crafting }),
+    //   ]).size > 0
+    // ) {
+    //   return toggleInventory(true, true);
+    // }
   });
 
   // Control selected slot with keys 1-9

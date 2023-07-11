@@ -54,7 +54,7 @@ contract RegisterCreationSystem is System {
     for (uint i = 0; i < voxels.length; i++) {
       OfSpawn.set(voxels[i], spawnId);
     }
-    Spawn.set(spawnId, creationId, abi.encode(lowerSouthWestCorner), false, voxels);
+    Spawn.set(spawnId, creationId, false, abi.encode(lowerSouthWestCorner), voxels);
   }
 
   function validateCreation(VoxelCoord[] memory voxelCoords) private pure {

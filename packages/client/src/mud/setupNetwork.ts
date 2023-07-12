@@ -30,12 +30,8 @@ import {
   voxelTypeToEntity,
   VoxelTypeBaseKey,
   voxelTypeBaseKeyStrToVoxelTypeRegistryKeyStr,
-<<<<<<< HEAD
   voxelTypeToVoxelTypeBaseKey,
   InterfaceVoxel,
-=======
-  InterfaceVoxel,
->>>>>>> d40bcbe (make it work)
 } from "../layers/noa/types";
 import { Textures, UVWraps } from "../layers/noa/constants";
 import { keccak256 } from "@latticexyz/utils";
@@ -588,9 +584,16 @@ export async function setupNetwork() {
     });
   }
 
-  function classifyCreation(classifierId: Entity, spawnId: Entity, interfaceVoxels: InterfaceVoxel[]) {
+  function classifyCreation(
+    classifierId: Entity,
+    spawnId: Entity,
+    interfaceVoxels: InterfaceVoxel[],
+    onSuccessCallback: (res: string) => void
+  ) {
     // TODO: Relpace Iron NFT with a spawn symbol
     const preview = getNftStorageLink("bafkreidkik2uccshptqcskpippfotmusg7algnfh5ozfsga72xyfdrvacm");
+
+    console.log(interfaceVoxels);
 
     actions.add({
       id: `classifyCreation+classifier=${classifierId}+spawnId=${spawnId}+interfaceVoxels=${interfaceVoxels.toString()}` as Entity,
@@ -598,13 +601,12 @@ export async function setupNetwork() {
       requirement: () => true,
       components: {},
       execute: () => {
-        return callSystem("tenet_ClassifyCreation_classify", [
-          classifierId,
-          spawnId,
-          // defaultAbiCoder.encode(["bytes32[]"], interfaceVoxels),
-          interfaceVoxels,
-          { gasLimit: 100_000_000 },
-        ]);
+        return callSystem(
+          "tenet_ClassifyCreation_classify",
+          [classifierId, spawnId, interfaceVoxels, { gasLimit: 100_000_000 }],
+          undefined,
+          onSuccessCallback
+        );
       },
       updates: () => [],
     });

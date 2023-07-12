@@ -266,7 +266,15 @@ const ClassifierDetails: React.FC<Props> = ({
       <button
         onClick={() => {
           const voxelSelection = getComponentValue(VoxelInterfaceSelection, SingletonEntity);
-          classifyCreation(selectedClassifier.classifierId, spawnToUse.spawn.spawnId, voxelSelection?.interfaceVoxels);
+          classifyCreation(
+            selectedClassifier.classifierId,
+            spawnToUse.spawn.spawnId,
+            voxelSelection?.interfaceVoxels,
+            (txHash: string) => {
+              // classify succeeded
+              setComponent(SpawnToClassify, SingletonEntity, { spawn: undefined, creation: undefined });
+            }
+          );
         }}
         disabled={isSubmitDisabled()}
         className={twMerge(

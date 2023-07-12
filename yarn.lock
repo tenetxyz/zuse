@@ -1048,6 +1048,16 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@jridgewell/source-map@npm:^0.3.3":
+  version: 0.3.5
+  resolution: "@jridgewell/source-map@npm:0.3.5"
+  dependencies:
+    "@jridgewell/gen-mapping": ^0.3.0
+    "@jridgewell/trace-mapping": ^0.3.9
+  checksum: 1ad4dec0bdafbade57920a50acec6634f88a0eb735851e0dda906fa9894e7f0549c492678aad1a10f8e144bfe87f238307bf2a914a1bc85b7781d345417e9f6f
+  languageName: node
+  linkType: hard
+
 "@jridgewell/sourcemap-codec@npm:1.4.14":
   version: 1.4.14
   resolution: "@jridgewell/sourcemap-codec@npm:1.4.14"
@@ -1710,7 +1720,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"acorn@npm:^8.9.0":
+"acorn@npm:^8.8.2, acorn@npm:^8.9.0":
   version: 8.10.0
   resolution: "acorn@npm:8.10.0"
   bin:
@@ -2278,6 +2288,7 @@ __metadata:
     styled-components: ^5.3.11
     tailwind-merge: ^1.13.2
     tailwindcss: ^3.3.2
+    terser: ^5.19.0
     viem: ^1.2.12
     vite: ^4.2.1
     wait-port: ^1.0.4
@@ -2371,6 +2382,13 @@ __metadata:
   version: 10.0.1
   resolution: "commander@npm:10.0.1"
   checksum: 436901d64a818295803c1996cd856621a74f30b9f9e28a588e726b2b1670665bccd7c1a77007ebf328729f0139838a88a19265858a0fa7a8728c4656796db948
+  languageName: node
+  linkType: hard
+
+"commander@npm:^2.20.0":
+  version: 2.20.3
+  resolution: "commander@npm:2.20.3"
+  checksum: ab8c07884e42c3a8dbc5dd9592c606176c7eb5c1ca5ff274bcf907039b2c41de3626f684ea75ccf4d361ba004bbaff1f577d5384c155f3871e456bdf27becf9e
   languageName: node
   linkType: hard
 
@@ -3077,6 +3095,7 @@ __metadata:
     eslint: 8.29.0
     rimraf: ^3.0.2
     typescript: ^4.9.5
+    vite-plugin-optimize-css-modules: ^1.0.4
   languageName: unknown
   linkType: soft
 
@@ -5399,7 +5418,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"source-map-support@npm:^0.5.16":
+"source-map-support@npm:^0.5.16, source-map-support@npm:~0.5.20":
   version: 0.5.21
   resolution: "source-map-support@npm:0.5.21"
   dependencies:
@@ -5698,6 +5717,20 @@ __metadata:
   languageName: node
   linkType: hard
 
+"terser@npm:^5.19.0":
+  version: 5.19.0
+  resolution: "terser@npm:5.19.0"
+  dependencies:
+    "@jridgewell/source-map": ^0.3.3
+    acorn: ^8.8.2
+    commander: ^2.20.0
+    source-map-support: ~0.5.20
+  bin:
+    terser: bin/terser
+  checksum: 31c937f1a30c03b68825df7803a3584b13616647438be6cbc0914b688f064a3f4f938d8182e476342ddd1675e84798393b076caeb549393f4df768aec9abd6bd
+  languageName: node
+  linkType: hard
+
 "text-table@npm:^0.2.0":
   version: 0.2.0
   resolution: "text-table@npm:0.2.0"
@@ -5972,6 +6005,15 @@ __metadata:
     typescript:
       optional: true
   checksum: 8c6c47ee2fb2894e7caac6319a77e1d7b821961dc46d0f28add4522c718fcf83d2d85521bb36a6b51ed081514fe503c73d3c5803b8abee89dd5604e667ff863b
+  languageName: node
+  linkType: hard
+
+"vite-plugin-optimize-css-modules@npm:^1.0.4":
+  version: 1.0.4
+  resolution: "vite-plugin-optimize-css-modules@npm:1.0.4"
+  peerDependencies:
+    vite: ^4.0.0 || ^3.0.0 || ^2.0.0
+  checksum: 5daae791ed46e0e99a415dc401ba228ddb950918c9384fa2305659fa7d398ebff8d183d140955c5b0743df6dae6bcd85cd9b7de239519992bdce176e9e500cad
   languageName: node
   linkType: hard
 

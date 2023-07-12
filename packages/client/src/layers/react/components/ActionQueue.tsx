@@ -96,6 +96,9 @@ export function registerActionQueue() {
               if (err.name === "TransactionReceiptNotFoundError") {
                 // this error isn't urgent. it may occur when the transaction hasn't been processed on a block yet.
                 console.warn("Transaction receipt not found error: ", err.shortMessage);
+                // Note: when we call classifiers, the transaction always finishes, but the transaction receipt is not always found. We aren't sure what to listen to learn when it's actually finished. In the meantime, we assume that when we
+                // get this error, the classifier has finished. This is why we are calling the callback here (as a hack)
+                transactionCallbacks.get(txHash)?.(res.result);
                 return;
               }
               console.error("Error getting transaction result", err);

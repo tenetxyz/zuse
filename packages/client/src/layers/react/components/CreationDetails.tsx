@@ -36,7 +36,7 @@ const CreationDetails: React.FC<Props> = ({
   const {
     noa: {
       noa,
-      components: { VoxelSelection, VoxelInterfaceSelection },
+      components: { VoxelSelection },
       SingletonEntity,
     },
     network: {

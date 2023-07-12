@@ -31,7 +31,7 @@ export async function createVoxelVariantSystem(network: NetworkLayer, context: N
 
     if (!VoxelVariantData.has(voxelVariantDataKeyToString(voxelVariantDataKey))) {
       console.log("Adding new variant");
-      const materialArr: string[] = (abiDecode("string[]", voxelVariantValue.materials) as string[]) ?? [];
+      const materialArr: string[] = (abiDecode("string[]", voxelVariantValue.materials, false) as string[]) ?? [];
       // go through each hash in materialArr and format it to have the NFT storage link
       const formattedMaterialArr: string[] = materialArr.map((hash: string) => {
         return getNftStorageLink(hash);

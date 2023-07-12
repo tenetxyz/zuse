@@ -1,22 +1,29 @@
 import React, { useEffect } from "react";
 import { Layers } from "../../../types";
-import { Entity, getComponentValue, setComponent } from "@latticexyz/recs";
+import { Entity, getComponentValue, removeComponent, setComponent } from "@latticexyz/recs";
 import { useCreationSearch } from "../../../utils/useCreationSearch";
 import { useClassifierSearch } from "./useClassifierSearch";
 import { CreationStoreFilters } from "./CreationStore";
 import { useComponentValue } from "@latticexyz/react";
 import { SetState } from "../../../utils/types";
-import { entityToVoxelType, voxelTypeDataKeyToVoxelVariantDataKey, voxelTypeToEntity } from "../../noa/types";
-import { stringToVoxelCoord } from "../../../utils/coord";
+import {
+  EMPTY_BYTES_32,
+  InterfaceVoxel,
+  entityToVoxelType,
+  voxelTypeDataKeyToVoxelVariantDataKey,
+  voxelTypeToEntity,
+} from "../../noa/types";
+import { stringToVoxelCoord, voxelCoordToString } from "../../../utils/coord";
 import { getSpawnAtPosition } from "../../../utils/voxels";
 import { SearchBar } from "./common/SearchBar";
 import { Classifier } from "./ClassifierStore";
 import { twMerge } from "tailwind-merge";
-import { TargetedBlock, getTargetedSpawnId } from "../../../utils/voxels";
 import { stringToEntity } from "../../../utils/entity";
 import { abiDecode } from "../../../utils/abi";
 import { ISpawn } from "../../noa/components/SpawnInFocus";
 import { ClassifierResults } from "./ClassifierResults";
+import { NotificationIcon } from "../../noa/components/persistentNotification";
+import { FocusedUiType } from "../../noa/components/FocusedUi";
 
 export interface ClassifierStoreFilters {
   classifierQuery: string;
@@ -39,11 +46,18 @@ const ClassifierDetails: React.FC<Props> = ({
   const {
     noa: {
       noa,
-      components: { SpawnToClassify, VoxelSelection, SpawnInFocus, VoxelInterfaceSelection },
+      components: {
+        FocusedUi,
+        PersistentNotification,
+        SpawnToClassify,
+        VoxelSelection,
+        SpawnInFocus,
+        VoxelInterfaceSelection,
+      },
       SingletonEntity,
     },
     network: {
-      components: { VoxelType, OfSpawn, Spawn, Creation },
+      components: { Position, VoxelType, OfSpawn, Spawn, Creation },
       api: { getEntityAtPosition, classifyCreation },
       getVoxelIconUrl,
     },
@@ -51,89 +65,109 @@ const ClassifierDetails: React.FC<Props> = ({
   const spawnToUse = useComponentValue(SpawnToClassify, SingletonEntity);
   const spawnInFocus = useComponentValue(SpawnInFocus, SingletonEntity);
 
-  useEffect(() => {
-    noa.on("targetBlockChanged", getSpawnUserIsLookingAt);
-  }, []);
-
-  const getSpawnUserIsLookingAt = (targetedBlock: TargetedBlock) => {
-    const spawnId = getTargetedSpawnId(layers, targetedBlock);
-    if (!spawnId) {
-      // The user is not looking at any spawn. so clear the spawn in focus
-      setComponent(SpawnInFocus, SingletonEntity, { spawn: undefined, creation: undefined });
-      return;
-    }
-
-    const rawSpawn = getComponentValue(Spawn, stringToEntity(spawnId));
-    if (!rawSpawn) {
-      console.error("cannot find spawn object with spawnId=", spawnId);
-      return;
-    }
-
-    const spawn = {
-      spawnId: stringToEntity(spawnId),
-      creationId: stringToEntity(rawSpawn.creationId),
-      lowerSouthWestCorner: abiDecode("tuple(int32 x,int32 y,int32 z)", rawSpawn.lowerSouthWestCorner),
-      voxels: rawSpawn.voxels as Entity[],
-    } as ISpawn;
-    const creation = getComponentValue(Creation, spawn.creationId);
-    setComponent(SpawnInFocus, SingletonEntity, {
-      spawn: spawn,
-      creation: creation,
+  const selectInterfaceVoxel = (selectedVoxel: InterfaceVoxel) => {
+    const voxelSelection = getComponentValue(VoxelInterfaceSelection, SingletonEntity);
+    const allInterfaceVoxels =
+      voxelSelection?.interfaceVoxels || (selectedClassifier && selectedClassifier.selectorInterface);
+    setComponent(VoxelInterfaceSelection, SingletonEntity, {
+      interfaceVoxels: allInterfaceVoxels,
+      selectingVoxelIdx: selectedVoxel.index,
     });
+    setComponent(PersistentNotification, SingletonEntity, {
+      message: "Press 'V' on a voxel to select it. Press - when done.",
+      icon: NotificationIcon.NONE,
+    });
+    setComponent(FocusedUi, SingletonEntity, { value: FocusedUiType.WORLD });
   };
 
-  const interfaceVoxels = Array.from(
-    getComponentValue(VoxelInterfaceSelection, SingletonEntity)?.value ?? new Set<string>()
-  )
-    .map((voxelCoordString) => stringToVoxelCoord(voxelCoordString))
-    .map((voxelCoord) => getEntityAtPosition(voxelCoord))
-    .filter((entityId) => {
-      if (!entityId || spawnToUse === undefined || !spawnToUse.spawn) {
-        return false;
-      }
-      const interfaceSpawnId = getComponentValue(OfSpawn, entityId)?.value;
-      // we only want the interface selections on the voxels that are part of this spawn
-      return interfaceSpawnId === spawnToUse.spawn.spawnId;
+  const cancelInterfaceSelection = (selectedVoxel: InterfaceVoxel) => {
+    const voxelSelection = getComponentValue(VoxelInterfaceSelection, SingletonEntity);
+    if (!voxelSelection || !voxelSelection.interfaceVoxels) {
+      return;
+    }
+    const allInterfaceVoxels = voxelSelection.interfaceVoxels;
+    allInterfaceVoxels[selectedVoxel.index] = {
+      ...selectedVoxel,
+      entity: EMPTY_BYTES_32,
+    };
+    setComponent(VoxelInterfaceSelection, SingletonEntity, {
+      interfaceVoxels: allInterfaceVoxels,
+      selectingVoxelIdx: selectedVoxel.index,
     });
+    setComponent(FocusedUi, SingletonEntity, { value: FocusedUiType.TENET_SIDEBAR });
+  };
 
   const renderInterfaces = () => {
     if (!spawnToUse?.creation || !spawnToUse?.spawn) {
       return null;
     }
 
+    if (!selectedClassifier) {
+      return null;
+    }
+
+    const voxelSelection = getComponentValue(VoxelInterfaceSelection, SingletonEntity);
+
     return (
       <div className="flex flex-col">
-        <h2 className="text-l font-bold text-black">Interfaces</h2>
-        {interfaceVoxels.length === 0 && (
-          <p className="font-normal text-gray-700 leading-4 mt-5">Press 'V' on a voxel to select it as an interface</p>
+        <h2 className="text-l font-bold text-black mb-5">Interfaces</h2>
+        {selectedClassifier.selectorInterface.length === 0 && (
+          <p className="font-normal text-gray-700 leading-4">This classifier requires no interfaces.</p>
         )}
-        {renderInterfaceVoxelImages(interfaceVoxels as Entity[])}
+        <div className="flex flex-col gap-5">
+          {selectedClassifier.selectorInterface.map((interfaceVoxel, idx) => {
+            let selectedVoxel: Entity | undefined = undefined;
+            if (voxelSelection && voxelSelection.interfaceVoxels) {
+              selectedVoxel = voxelSelection.interfaceVoxels[interfaceVoxel.index].entity;
+              if (selectedVoxel === EMPTY_BYTES_32) {
+                selectedVoxel = undefined;
+              }
+            }
+
+            return (
+              <div className="flex flex-col" key={"interface-" + idx}>
+                <label className="mb-1 text-sm font-normal text-gray-900">{interfaceVoxel.name}</label>
+                <label className="mb-2 text-sm font-normal text-gray-700">{interfaceVoxel.desc}</label>
+                <div className="flex">
+                  <button
+                    type="button"
+                    onClick={() =>
+                      selectedVoxel ? cancelInterfaceSelection(interfaceVoxel) : selectInterfaceVoxel(interfaceVoxel)
+                    }
+                    className="text-gray-900 hover:text-white border border-gray-800 hover:bg-gray-900 focus:ring-4 focus:outline-none focus:ring-gray-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center mr-2 mb-2"
+                  >
+                    {selectedVoxel ? "Cancel Selection" : "Select Voxel"}
+                  </button>
+                  {selectedVoxel && renderInterfaceVoxelImage(selectedVoxel)}
+                </div>
+              </div>
+            );
+          })}
+        </div>
       </div>
     );
   };
 
-  const renderInterfaceVoxelImages = (interfaceVoxels: Entity[]) => {
-    return (
-      <div className="flex flex-row mt-4 space-x-2">
-        {interfaceVoxels.map((voxel, idx) => {
-          if (!voxel) {
-            console.warn("Voxel not found at coord", voxel);
-            return <div key={idx}>:(</div>;
-          }
-          const voxelType = getComponentValue(VoxelType, voxel);
-          if (!voxelType) {
-            console.warn("Voxel type not found for voxel", voxel);
-            return <div key={idx}>:(</div>;
-          }
+  const renderInterfaceVoxelImage = (interfaceVoxel: Entity) => {
+    if (!interfaceVoxel) {
+      console.warn("Voxel not found at coord", interfaceVoxel);
+      return null;
+    }
+    const voxelType = getComponentValue(VoxelType, interfaceVoxel);
+    if (!voxelType) {
+      console.warn("Voxel type not found for voxel", interfaceVoxel);
+      return null;
+    }
 
-          const iconKey = voxelTypeDataKeyToVoxelVariantDataKey(voxelType);
-          const iconUrl = getVoxelIconUrl(iconKey);
-          return (
-            <div key={idx} className="bg-slate-100 p-1">
-              <img src={iconUrl} />
-            </div>
-          );
-        })}
+    const iconKey = voxelTypeDataKeyToVoxelVariantDataKey(voxelType);
+    const iconUrl = getVoxelIconUrl(iconKey);
+    const voxelCoord = getComponentValue(Position, interfaceVoxel);
+    return (
+      <div className="flex gap-2 items-center">
+        <div className="bg-slate-100 h-fit p-1">
+          <img src={iconUrl} />
+        </div>
+        <span className="text-black">at {voxelCoord && voxelCoordToString(voxelCoord)}</span>
       </div>
     );
   };
@@ -147,6 +181,8 @@ const ClassifierDetails: React.FC<Props> = ({
       setComponent(SpawnToClassify, SingletonEntity, { spawn: undefined, creation: undefined });
     } else if (spawnInFocus && spawnInFocus.creation) {
       setComponent(SpawnToClassify, SingletonEntity, { spawn: spawnInFocus.spawn, creation: spawnInFocus.creation });
+    } else {
+      setComponent(FocusedUi, SingletonEntity, { value: FocusedUiType.WORLD });
     }
   };
 
@@ -154,8 +190,8 @@ const ClassifierDetails: React.FC<Props> = ({
     if (spawnToUse && spawnToUse.creation) {
       return (
         <>
-          <p>Selected Creation: {spawnToUse?.creation?.name}</p>
-          <p className="mt-2">Click here to cancel selection</p>
+          <p className="font-medium">Selected Creation: {spawnToUse?.creation?.name}</p>
+          <p className="mt-2 text-gray-500">Click here to cancel selection</p>
         </>
       );
     } else if (spawnInFocus && spawnInFocus.creation) {
@@ -170,7 +206,27 @@ const ClassifierDetails: React.FC<Props> = ({
     }
   };
 
-  const isSubmitDisabled = spawnToUse === undefined || !spawnToUse.creation;
+  const isSubmitDisabled = () => {
+    if (spawnToUse === undefined || !spawnToUse.creation) {
+      return true;
+    }
+
+    if (selectedClassifier.selectorInterface.length > 0) {
+      const voxelSelection = getComponentValue(VoxelInterfaceSelection, SingletonEntity);
+      if (!voxelSelection || !voxelSelection.interfaceVoxels) {
+        return true;
+      }
+
+      for (let i = 0; i < voxelSelection.interfaceVoxels.length; i++) {
+        const interfaceVoxel = voxelSelection.interfaceVoxels[i];
+        if (interfaceVoxel.entity === EMPTY_BYTES_32) {
+          return true;
+        }
+      }
+    }
+
+    return false;
+  };
 
   return (
     <div className="flex flex-col h-full mt-5 gap-5">
@@ -189,12 +245,21 @@ const ClassifierDetails: React.FC<Props> = ({
       {renderInterfaces()}
       <button
         onClick={() => {
-          classifyCreation(selectedClassifier.classifierId, spawnToUse.spawn.spawnId, interfaceVoxels);
+          const voxelSelection = getComponentValue(VoxelInterfaceSelection, SingletonEntity);
+          classifyCreation(
+            selectedClassifier.classifierId,
+            spawnToUse.spawn.spawnId,
+            voxelSelection?.interfaceVoxels || [],
+            (txHash: string) => {
+              removeComponent(VoxelInterfaceSelection, SingletonEntity);
+              removeComponent(SpawnToClassify, SingletonEntity);
+            }
+          );
         }}
-        disabled={isSubmitDisabled}
+        disabled={isSubmitDisabled()}
         className={twMerge(
           "text-white bg-green-700 hover:bg-green-800 focus:ring-4 focus:outline-none focus:ring-green-300 font-medium rounded-lg text-sm w-full sm:w-auto px-5 py-2.5 text-center",
-          isSubmitDisabled ? "opacity-50 cursor-not-allowed" : ""
+          isSubmitDisabled() ? "opacity-50 cursor-not-allowed" : ""
         )}
       >
         Submit Creation

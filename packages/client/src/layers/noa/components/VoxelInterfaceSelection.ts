@@ -3,7 +3,8 @@ export function defineVoxelInterfaceSelectionComponent(world: World) {
   return defineComponent(
     world,
     {
-      value: Type.OptionalT, // a set<string> of voxelCoords (it needs to be a string so the set can hash them)
+      interfaceVoxels: Type.OptionalT, // InterfaceVoxel[]
+      selectingVoxelIdx: Type.Number, // index of the current InterfaceVoxel being selected
     },
     { id: "VoxelInterfaceSelectionComponent" }
   );

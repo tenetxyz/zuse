@@ -15,15 +15,16 @@ import { Spawn, SpawnData } from "@tenet-contracts/src/codegen/Tables.sol";
 import { Classifier } from "@tenet-contracts/src/prototypes/Classifier.sol";
 import { EXTENSION_NAMESPACE } from "@tenet-extension-contracts/src/constants.sol";
 import { SignalSourceID } from "../voxels/SignalSourceVoxelSystem.sol";
+import { InterfaceVoxel } from "@tenet-contracts/src/Types.sol";
 
 contract AndGateSystem is Classifier {
-  function classify(SpawnData memory spawn, bytes32 spawnId, bytes32[] memory input) public override {
+  function classify(SpawnData memory spawn, bytes32 spawnId, InterfaceVoxel[] memory input) public override {
     require(!AndGateCR.get(spawn.creationId).hasValue, "this creation has already been classified"); // TODO: put this into classify creation system
     // TODO: This can be moved to the abstract contract
-    // require(input.length == 3, "AndGateSystem: input length must be 3");
-    bytes32 in1 = input[0];
-    bytes32 in2 = input[1];
-    bytes32 out = input[2];
+    require(input.length == 3, "AndGateSystem: input length must be 3");
+    bytes32 in1 = input[0].entity;
+    bytes32 in2 = input[1].entity;
+    bytes32 out = input[2].entity;
 
     VoxelCoord memory in1Coord = getVoxelCoordStrict(in1);
     VoxelCoord memory in2Coord = getVoxelCoordStrict(in2);
@@ -33,8 +34,8 @@ contract AndGateSystem is Classifier {
     bytes32 inEntity2 = giftVoxel(_world(), EXTENSION_NAMESPACE, SignalSourceID);
 
     // TODO: This can be moved to the abstract contract
-    bytes32 originalEntity1 = clearCoord(_world(), in1Coord);
-    bytes32 originalEntity2 = clearCoord(_world(), in2Coord);
+    // bytes32 originalEntity1 = clearCoord(_world(), in1Coord);
+    // bytes32 originalEntity2 = clearCoord(_world(), in2Coord);
 
     // Run tests
     simulateLogic(inEntity1, inEntity2, in1Coord, in2Coord, out, 0, 0, 0);
@@ -42,21 +43,20 @@ contract AndGateSystem is Classifier {
     simulateLogic(inEntity1, inEntity2, in1Coord, in2Coord, out, 0, 1, 0);
     simulateLogic(inEntity1, inEntity2, in1Coord, in2Coord, out, 1, 1, 1); // this is the only case where the output is on since both inputs are on
 
-    VoxelCoord memory lowerSouthWestCorner = abi.decode(Spawn.getLowerSouthWestCorner(spawnId), (VoxelCoord));
-    VoxelCoord[] memory interfaceCoords = entitiesToRelativeVoxelCoords(input, lowerSouthWestCorner);
+    // VoxelCoord memory lowerSouthWestCorner = abi.decode(Spawn.getLowerSouthWestCorner(spawnId), (VoxelCoord));
     string memory resultStr = string(abi.encodePacked(Strings.toString(spawn.voxels.length), " blocks"));
-    AndGateCR.set(spawn.creationId, true, block.number, resultStr, abi.encode(interfaceCoords));
+    AndGateCR.set(spawn.creationId, true, block.number, resultStr, abi.encode(input));
 
     // Reset the world
     // TODO: This can be moved to the abstract contract
     clearCoord(_world(), in1Coord);
     clearCoord(_world(), in2Coord);
-    if (uint256(originalEntity1) != 0) {
-      build(_world(), in1Coord, originalEntity1);
-    }
-    if (uint256(originalEntity2) != 0) {
-      build(_world(), in2Coord, originalEntity2);
-    }
+    // if (uint256(originalEntity1) != 0) {
+    //   build(_world(), in1Coord, originalEntity1);
+    // }
+    // if (uint256(originalEntity2) != 0) {
+    //   build(_world(), in2Coord, originalEntity2);
+    // }
     removeAllOwnedVoxels(_world());
   }
 

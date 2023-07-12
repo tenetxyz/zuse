@@ -6,8 +6,9 @@ import { Entity, getComponentValue, getEntityString } from "@latticexyz/recs";
 import { Classifier, ClassifierStoreFilters } from "./ClassifierStore";
 import { to64CharAddress } from "../../../utils/entity";
 import { ethers } from "ethers";
-import { abiDecode } from "../../../utils/abi";
+import { abiDecode, cleanObjArray } from "../../../utils/abi";
 import { hexToAscii, removeTrailingNulls } from "../../../utils/encodeOrDecode";
+import { InterfaceVoxel } from "../../noa/types";
 
 export interface Props {
   layers: Layers;
@@ -52,6 +53,18 @@ export const useClassifierSearch = ({ layers, filters }: Props) => {
         getComponentValue(FunctionSelectors, classifySelector.padEnd(66, "0") as Entity)?.namespace ??
         "unknown namespace";
 
+      const rawSelectorInterface = classifierTable.selectorInterface.get(classifierId);
+      const selectorInterface =
+        (rawSelectorInterface &&
+          (abiDecode(
+            "(uint256 index,bytes32 entity,string name,string desc)[]",
+            rawSelectorInterface
+          ) as InterfaceVoxel[])) ||
+        [];
+      selectorInterface.forEach((voxel) => {
+        voxel.index = parseInt(voxel.index.toString()); // We want a number here, not a BigInt
+      });
+
       allClassifiers.current.push({
         creator: creator,
         name: name,
@@ -59,6 +72,7 @@ export const useClassifierSearch = ({ layers, filters }: Props) => {
         classifierId: getEntityString(classifierId),
         classificationResultTableName: classifierTable.classificationResultTableName.get(classifierId),
         namespace: removeTrailingNulls(hexToAscii(classifierNamespace.substring(2))), // We need to remove trailing nulls since I think the namespace is padded to 16 chars in mud
+        selectorInterface: selectorInterface,
       } as Classifier);
     });
 

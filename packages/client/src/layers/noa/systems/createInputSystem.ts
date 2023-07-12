@@ -15,6 +15,7 @@ import { FocusedUiType } from "../components/FocusedUi";
 import { Layers } from "../../../types";
 import { voxelCoordToString } from "../../../utils/coord";
 import { renderFloatingTextAboveCoord } from "./renderFloatingText";
+import { InterfaceVoxel } from "../types";
 
 export function createInputSystem(layers: Layers) {
   const {
@@ -409,7 +410,8 @@ export function createInputSystem(layers: Layers) {
       return;
     }
     const spawnToClassify = getComponentValue(SpawnToClassify, SingletonEntity);
-    if (!spawnToClassify || !spawnToClassify.spawn) {
+    const voxelSelection = getComponentValue(VoxelInterfaceSelection, SingletonEntity);
+    if (!spawnToClassify || !spawnToClassify.spawn || !voxelSelection) {
       return;
     }
 
@@ -417,27 +419,23 @@ export function createInputSystem(layers: Layers) {
     const isVoxelPartOfSpawn = spawnId !== undefined;
     if (isVoxelPartOfSpawn) {
       const voxelSelection = getComponentValue(VoxelInterfaceSelection, SingletonEntity);
-      const points: Set<string> = voxelSelection?.value ?? new Set<string>();
+      if (!voxelSelection || !voxelSelection.interfaceVoxels) return;
       const coord = getTargetedVoxelCoord(noa);
-      const coordString = voxelCoordToString(coord);
+      const entityAtCoord = getEntityAtPosition(coord);
 
-      let toastMessage = "";
-
-      // toggle the selection
-      if (points.has(coordString)) {
-        points.delete(coordString);
-        toastMessage = `Deselected voxel at ${voxelCoordToString(coord)}`;
-      } else {
-        points.add(coordString);
-        toastMessage = `Selected voxel at ${voxelCoordToString(coord)}`;
+      if (!entityAtCoord) {
+        return;
       }
 
-      setComponent(VoxelInterfaceSelection, SingletonEntity, { value: points });
-
-      toast(toastMessage);
-      // renderFloatingTextAboveCoord(coord, noa, "This is a super\nlong\nline that takes\nup many lines");
-      // renderEnt(noaLayer, coord);
-      // toast(`Selected voxel at ${coord.x}, ${coord.y}, ${coord.z}`);
+      // Note: We need to clone here because it won't let me modify the entity directly
+      const newInterfaceVoxels = structuredClone(voxelSelection.interfaceVoxels);
+      const newInterfaceVoxel: InterfaceVoxel = newInterfaceVoxels[voxelSelection.selectingVoxelIdx];
+      newInterfaceVoxel.entity = entityAtCoord as string;
+      setComponent(VoxelInterfaceSelection, SingletonEntity, {
+        interfaceVoxels: newInterfaceVoxels,
+        selectingVoxelIdx: voxelSelection.selectingVoxelIdx,
+      });
+      toast(`Selected voxel at ${voxelCoordToString(coord)}`);
     } else {
       toast(`You can only select a voxel that is part of a spawn.`);
     }

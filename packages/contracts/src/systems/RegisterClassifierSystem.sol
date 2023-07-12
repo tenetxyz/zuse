@@ -8,7 +8,7 @@ import { IWorld } from "@tenet-contracts/src/codegen/world/IWorld.sol";
 import { console } from "forge-std/console.sol";
 import { FunctionSelectors } from "@latticexyz/world/src/modules/core/tables/FunctionSelectors.sol";
 import { NamespaceOwner } from "@latticexyz/world/src/tables/NamespaceOwner.sol";
-import { InterfaceVoxels } from "@tenet-contracts/src/Types.sol";
+import { InterfaceVoxel } from "@tenet-contracts/src/Types.sol";
 
 contract RegisterClassifierSystem is System {
   function registerClassifier(
@@ -16,11 +16,12 @@ contract RegisterClassifierSystem is System {
     string memory name,
     string memory description,
     string memory classificationResultTableName,
-    InterfaceVoxels[] memory selectorInterface
+    InterfaceVoxel[] memory selectorInterface
   ) public {
     (bytes16 namespace, , ) = FunctionSelectors.get(classifySelector);
     require(NamespaceOwner.get(namespace) == _msgSender(), "Caller is not namespace owner");
     bytes32 uniqueEntity = getUniqueEntity();
+    validateInterfaceVoxels(selectorInterface);
     Classifier.set(
       uniqueEntity,
       ClassifierData({
@@ -32,5 +33,12 @@ contract RegisterClassifierSystem is System {
         selectorInterface: abi.encode(selectorInterface)
       })
     );
+  }
+
+  function validateInterfaceVoxels(InterfaceVoxel[] memory selectorInterface) public {
+    for (uint256 i = 0; i < selectorInterface.length; i++) {
+      InterfaceVoxel memory interfaceVoxel = selectorInterface[i];
+      require(bytes(interfaceVoxel.name).length > 0, "Interface voxel name cannot be empty");
+    }
   }
 }

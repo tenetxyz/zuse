@@ -27,7 +27,7 @@ enum BlockDirection {
   West
 }
 
-struct InterfaceVoxels {
+struct InterfaceVoxel {
   uint256 index;
   bytes32 entity;
   string name;

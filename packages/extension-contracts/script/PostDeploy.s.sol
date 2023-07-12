@@ -5,7 +5,7 @@ import { Script } from "forge-std/Script.sol";
 import { console } from "forge-std/console.sol";
 import { IWorld } from "../src/codegen/world/IWorld.sol";
 import { safeCall } from "../src/Utils.sol";
-import { InterfaceVoxels } from "@tenet-contracts/src/Types.sol";
+import { InterfaceVoxel } from "@tenet-contracts/src/Types.sol";
 
 contract PostDeploy is Script {
   function run(address worldAddress) external {
@@ -39,20 +39,20 @@ contract PostDeploy is Script {
 
     // Note: These have to be here instead of ExtensionInitSystem as they have be called from the deployer account
     // otherwise the msgSender is not the namespace owner
-    InterfaceVoxels[] memory andGateInterface = new InterfaceVoxels[](3);
-    andGateInterface[0] = InterfaceVoxels({
+    InterfaceVoxel[] memory andGateInterface = new InterfaceVoxel[](3);
+    andGateInterface[0] = InterfaceVoxel({
       index: 0,
       name: "Signal Source 1",
       desc: "The first signal source",
       entity: 0
     });
-    andGateInterface[1] = InterfaceVoxels({
+    andGateInterface[1] = InterfaceVoxel({
       index: 1,
       name: "Signal Source 2",
       desc: "The second signal source",
       entity: 0
     });
-    andGateInterface[2] = InterfaceVoxels({
+    andGateInterface[2] = InterfaceVoxel({
       index: 2,
       name: "Output Signal",
       desc: "The signal with the output",
@@ -67,7 +67,7 @@ contract PostDeploy is Script {
       worldAddress
     );
 
-    InterfaceVoxels[] memory dirtInterface = new InterfaceVoxels[](0);
+    InterfaceVoxel[] memory dirtInterface = new InterfaceVoxel[](0);
     registerClassifier(
       "Two Dirt",
       "Make a creation that is two dirt voxels",
@@ -84,7 +84,7 @@ contract PostDeploy is Script {
     string memory classifierDescription,
     bytes4 classifySelector,
     string memory classificationResultTableName,
-    InterfaceVoxels[] memory selectorInterface,
+    InterfaceVoxel[] memory selectorInterface,
     address worldAddress
   ) private {
     safeCall(

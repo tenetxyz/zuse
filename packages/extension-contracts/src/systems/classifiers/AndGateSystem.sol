@@ -15,10 +15,10 @@ import { Spawn, SpawnData } from "@tenet-contracts/src/codegen/Tables.sol";
 import { Classifier } from "@tenet-contracts/src/prototypes/Classifier.sol";
 import { EXTENSION_NAMESPACE } from "@tenet-extension-contracts/src/constants.sol";
 import { SignalSourceID } from "../voxels/SignalSourceVoxelSystem.sol";
-import { InterfaceVoxels } from "@tenet-contracts/src/Types.sol";
+import { InterfaceVoxel } from "@tenet-contracts/src/Types.sol";
 
 contract AndGateSystem is Classifier {
-  function classify(SpawnData memory spawn, bytes32 spawnId, InterfaceVoxels[] memory input) public override {
+  function classify(SpawnData memory spawn, bytes32 spawnId, InterfaceVoxel[] memory input) public override {
     require(!AndGateCR.get(spawn.creationId).hasValue, "this creation has already been classified"); // TODO: put this into classify creation system
     // TODO: This can be moved to the abstract contract
     require(input.length == 3, "AndGateSystem: input length must be 3");

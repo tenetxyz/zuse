@@ -9,13 +9,13 @@ import { VoxelCoord } from "../types.sol";
 import { OwnedBy, Position, PositionTableId, VoxelType, Spawn, SpawnTableId, Classifier, ClassifierData, ClassifierTableId } from "@tenet-contracts/src/codegen/Tables.sol";
 import { addressToEntityKey, getEntitiesAtCoord } from "../utils.sol";
 import { IWorld } from "@tenet-contracts/src/codegen/world/IWorld.sol";
-import { InterfaceVoxels } from "@tenet-contracts/src/Types.sol";
+import { InterfaceVoxel } from "@tenet-contracts/src/Types.sol";
 import { Occurrence, SpawnData, OfSpawn } from "@tenet-contracts/src/codegen/Tables.sol";
 import { CHUNK_MAX_Y, CHUNK_MIN_Y } from "../Constants.sol";
 import { safeCall } from "../Utils.sol";
 
 contract ClassifyCreationSystem is System {
-  function classify(bytes32 classifierId, bytes32 spawnId, InterfaceVoxels[] memory input) public {
+  function classify(bytes32 classifierId, bytes32 spawnId, InterfaceVoxel[] memory input) public {
     // check if classifier is already registered
     bytes32[] memory classifierKeyTuple = new bytes32[](1);
     classifierKeyTuple[0] = classifierId;
@@ -41,7 +41,7 @@ contract ClassifyCreationSystem is System {
     safeCall(_world(), abi.encodeWithSelector(classifier.classifySelector, spawn, spawnId, input), "classify");
   }
 
-  function verifyThatAllInterfaceVoxelsExistInSpawn(bytes32 spawnId, InterfaceVoxels[] memory input) private {
+  function verifyThatAllInterfaceVoxelsExistInSpawn(bytes32 spawnId, InterfaceVoxel[] memory input) private {
     for (uint32 i = 0; i < input.length; i++) {
       bytes32 voxel = input[i].entity;
       require(uint256(voxel) != 0, "Interface voxel cannot be 0");

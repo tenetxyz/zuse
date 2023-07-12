@@ -5,7 +5,8 @@
   "license": "MIT",
   "type": "module",
   "scripts": {
-    "build": "vite build",
+    "build": "NODE_OPTIONS=--max-old-space-size=16384 vite build && yarn postbuild",
+    "postbuild": "rm dist.zip; zip dist.zip -r dist",
     "dev": "yarn wait-port localhost:8545 && vite",
     "initialize": "yarn build",
     "preview": "vite preview",

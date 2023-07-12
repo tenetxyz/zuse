@@ -4,23 +4,23 @@ import { minify } from "terser";
 import { optimizeCssModules } from "vite-plugin-optimize-css-modules";
 
 // https://github.com/vitejs/vite/issues/6555
-function minifyBundles() {
-  return {
-    name: "minifyBundles",
-    async generateBundle(options, bundle) {
-      for (let key in bundle) {
-        if (bundle[key].type == "chunk" && key.endsWith(".js")) {
-          const minifyCode = await minify(bundle[key].code, { sourceMap: false });
-          bundle[key].code = minifyCode.code;
-        }
-      }
-      return bundle;
-    },
-  };
-}
+// function minifyBundles() {
+//   return {
+//     name: "minifyBundles",
+//     async generateBundle(options, bundle) {
+//       for (let key in bundle) {
+//         if (bundle[key].type == "chunk" && key.endsWith(".js")) {
+//           const minifyCode = await minify(bundle[key].code, { sourceMap: false });
+//           bundle[key].code = minifyCode.code;
+//         }
+//       }
+//       return bundle;
+//     },
+//   };
+// }
 
 export default defineConfig({
-  plugins: [react(), minifyBundles(), optimizeCssModules()],
+  plugins: [react(), optimizeCssModules()],
   server: {
     host: "0.0.0.0",
     port: 3000,

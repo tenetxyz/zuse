@@ -2290,7 +2290,7 @@ __metadata:
     tailwindcss: ^3.3.2
     terser: ^5.19.0
     viem: ^1.2.12
-    vite: ^4.2.1
+    vite: ^4.4.3
     wait-port: ^1.0.4
   languageName: unknown
   linkType: soft
@@ -6017,7 +6017,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"vite@npm:^4.2.1":
+"vite@npm:^4.4.3":
   version: 4.4.3
   resolution: "vite@npm:4.4.3"
   dependencies:

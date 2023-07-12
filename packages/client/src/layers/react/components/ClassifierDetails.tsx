@@ -120,8 +120,6 @@ const ClassifierDetails: React.FC<Props> = ({
     }
 
     const voxelSelection = getComponentValue(VoxelInterfaceSelection, SingletonEntity);
-    console.log("rendering");
-    console.log(voxelSelection);
 
     return (
       <div className="flex flex-col">
@@ -133,8 +131,6 @@ const ClassifierDetails: React.FC<Props> = ({
           {selectedClassifier.selectorInterface.map((interfaceVoxel, idx) => {
             let selectedVoxel: Entity | undefined = undefined;
             if (voxelSelection && voxelSelection.interfaceVoxels) {
-              console.log("inside map");
-              console.log(interfaceVoxel);
               selectedVoxel = voxelSelection.interfaceVoxels[interfaceVoxel.index].entity;
               if (selectedVoxel === "0x0000000000000000000000000000000000000000000000000000000000000000") {
                 selectedVoxel = undefined;
@@ -271,7 +267,7 @@ const ClassifierDetails: React.FC<Props> = ({
             spawnToUse.spawn.spawnId,
             voxelSelection?.interfaceVoxels,
             (txHash: string) => {
-              // classify succeeded
+              setComponent(VoxelInterfaceSelection, SingletonEntity, undefined);
               setComponent(SpawnToClassify, SingletonEntity, { spawn: undefined, creation: undefined });
             }
           );

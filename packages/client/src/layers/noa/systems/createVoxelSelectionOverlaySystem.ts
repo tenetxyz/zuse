@@ -50,9 +50,6 @@ export function createVoxelSelectionOverlaySystem(network: NetworkLayer, noaLaye
 
   let renderedVoxelInterfaceSelectionMeshs: Nullable<Mesh>[] = [];
   const renderVoxelInterfaceSelection = (voxelInterfaceSelection: IVoxelInterfaceSelection) => {
-    // console.log("mesh");
-    // console.log(voxelInterfaceSelection);
-
     if (renderedVoxelInterfaceSelectionMeshs) {
       // remove the previous mesh since the user can only have one range selection
       renderedVoxelInterfaceSelectionMeshs.forEach((mesh) => mesh?.dispose());

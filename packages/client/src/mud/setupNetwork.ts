@@ -607,6 +607,7 @@ export async function setupNetwork() {
         );
       },
       updates: () => [],
+      awaitConfirmation: true,
     });
   }
 

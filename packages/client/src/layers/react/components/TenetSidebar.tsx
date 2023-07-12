@@ -82,7 +82,7 @@ export function registerTenetSidebar() {
         if (!spawnId) {
           // The user is not looking at any spawn. so clear the spawn in focus
           const currentSpawnInFocus = getComponentValue(SpawnInFocus, SingletonEntity);
-          if (!currentSpawnInFocus) {
+          if (currentSpawnInFocus) {
             setComponent(SpawnInFocus, SingletonEntity, { spawn: undefined, creation: undefined });
           }
           return;

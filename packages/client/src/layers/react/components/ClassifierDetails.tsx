@@ -249,10 +249,10 @@ const ClassifierDetails: React.FC<Props> = ({
           classifyCreation(
             selectedClassifier.classifierId,
             spawnToUse.spawn.spawnId,
-            voxelSelection?.interfaceVoxels,
+            voxelSelection?.interfaceVoxels || [],
             (txHash: string) => {
               removeComponent(VoxelInterfaceSelection, SingletonEntity);
-              setComponent(SpawnToClassify, SingletonEntity, { spawn: undefined, creation: undefined });
+              removeComponent(SpawnToClassify, SingletonEntity);
             }
           );
         }}

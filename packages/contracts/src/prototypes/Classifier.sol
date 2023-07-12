@@ -3,6 +3,7 @@ pragma solidity >=0.8.0;
 
 import { System } from "@latticexyz/world/src/System.sol";
 import { SpawnData } from "@tenet-contracts/src/codegen/Tables.sol";
+import { InterfaceVoxels } from "@tenet-contracts/src/Types.sol";
 
 // The classifier system that is called when a player submits a spawn for classifiaction
 abstract contract Classifier is System {
@@ -10,6 +11,6 @@ abstract contract Classifier is System {
   function classify(
     SpawnData memory spawn,
     bytes32 spawnId,
-    bytes32[] memory input
+    InterfaceVoxels[] memory input
   ) public virtual;
 }

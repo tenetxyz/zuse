@@ -8,6 +8,7 @@ import { IWorld } from "@tenet-contracts/src/codegen/world/IWorld.sol";
 import { console } from "forge-std/console.sol";
 import { FunctionSelectors } from "@latticexyz/world/src/modules/core/tables/FunctionSelectors.sol";
 import { NamespaceOwner } from "@latticexyz/world/src/tables/NamespaceOwner.sol";
+import { InterfaceVoxels } from "@tenet-contracts/src/Types.sol";
 
 contract RegisterClassifierSystem is System {
   function registerClassifier(
@@ -15,7 +16,7 @@ contract RegisterClassifierSystem is System {
     string memory name,
     string memory description,
     string memory classificationResultTableName,
-    bytes memory selectorInterface
+    InterfaceVoxels[] memory selectorInterface
   ) public {
     (bytes16 namespace, , ) = FunctionSelectors.get(classifySelector);
     require(NamespaceOwner.get(namespace) == _msgSender(), "Caller is not namespace owner");
@@ -28,7 +29,7 @@ contract RegisterClassifierSystem is System {
         name: name,
         description: description,
         classificationResultTableName: classificationResultTableName,
-        selectorInterface: selectorInterface
+        selectorInterface: abi.encode(selectorInterface)
       })
     );
   }

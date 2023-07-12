@@ -6,7 +6,7 @@ import { useClassifierSearch } from "./useClassifierSearch";
 import { CreationStoreFilters } from "./CreationStore";
 import { useComponentValue } from "@latticexyz/react";
 import { SetState } from "../../../utils/types";
-import { voxelTypeDataKeyToVoxelVariantDataKey } from "../../noa/types";
+import { InterfaceVoxel, voxelTypeDataKeyToVoxelVariantDataKey } from "../../noa/types";
 import { stringToVoxelCoord } from "../../../utils/coord";
 import { ClassifierResults } from "./ClassifierResults";
 import { getSpawnAtPosition } from "../../../utils/voxels";
@@ -35,7 +35,7 @@ export interface Classifier {
   creator: Entity;
   functionSelector: string;
   classificationResultTableName: string;
-  selectorInterface: string[];
+  selectorInterface: InterfaceVoxel[];
   namespace: string;
 }
 
@@ -49,7 +49,7 @@ const ClassifierStore: React.FC<Props> = ({
 }: Props) => {
   const {
     noa: {
-      components: { SpawnToClassify, VoxelInterfaceSelection },
+      components: { SpawnToClassify },
       SingletonEntity,
     },
     network: {

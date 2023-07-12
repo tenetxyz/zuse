@@ -30,7 +30,12 @@ import {
   voxelTypeToEntity,
   VoxelTypeBaseKey,
   voxelTypeBaseKeyStrToVoxelTypeRegistryKeyStr,
+<<<<<<< HEAD
   voxelTypeToVoxelTypeBaseKey,
+  InterfaceVoxel,
+=======
+  InterfaceVoxel,
+>>>>>>> d40bcbe (make it work)
 } from "../layers/noa/types";
 import { Textures, UVWraps } from "../layers/noa/constants";
 import { keccak256 } from "@latticexyz/utils";
@@ -583,7 +588,7 @@ export async function setupNetwork() {
     });
   }
 
-  function classifyCreation(classifierId: Entity, spawnId: Entity, interfaceVoxels: Entity[]) {
+  function classifyCreation(classifierId: Entity, spawnId: Entity, interfaceVoxels: InterfaceVoxel[]) {
     // TODO: Relpace Iron NFT with a spawn symbol
     const preview = getNftStorageLink("bafkreidkik2uccshptqcskpippfotmusg7algnfh5ozfsga72xyfdrvacm");
 

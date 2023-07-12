@@ -1,17 +1,21 @@
 // the purpose of this system is to render a wireframe around voxels/creations the user selects
 
 import { NetworkLayer } from "../../network";
-import { NoaLayer } from "../types";
+import { InterfaceVoxel, NoaLayer } from "../types";
 import { renderChunkyWireframe } from "./renderWireframes";
 import { Color3, Mesh, Nullable } from "@babylonjs/core";
 import { ComponentRecord } from "../../../types";
 import { stringToVoxelCoord } from "../../../utils/coord";
+import { getComponentValue } from "@latticexyz/recs";
 
 export function createVoxelSelectionOverlaySystem(network: NetworkLayer, noaLayer: NoaLayer) {
   const {
     components: { VoxelSelection, VoxelInterfaceSelection },
     noa,
   } = noaLayer;
+  const {
+    components: { Position },
+  } = network;
   type IVoxelSelection = ComponentRecord<typeof VoxelSelection>;
   VoxelSelection.update$.subscribe((update) => {
     const voxelSelection = update.value[0] as IVoxelSelection;
@@ -46,16 +50,30 @@ export function createVoxelSelectionOverlaySystem(network: NetworkLayer, noaLaye
 
   let renderedVoxelInterfaceSelectionMeshs: Nullable<Mesh>[] = [];
   const renderVoxelInterfaceSelection = (voxelInterfaceSelection: IVoxelInterfaceSelection) => {
+    // console.log("mesh");
+    // console.log(voxelInterfaceSelection);
+
     if (renderedVoxelInterfaceSelectionMeshs) {
       // remove the previous mesh since the user can only have one range selection
       renderedVoxelInterfaceSelectionMeshs.forEach((mesh) => mesh?.dispose());
     }
 
-    renderedVoxelInterfaceSelectionMeshs = Array.from(voxelInterfaceSelection.value as Set<string>).map(
-      (voxelCoordString) => {
-        const voxelCoord = stringToVoxelCoord(voxelCoordString);
+    renderedVoxelInterfaceSelectionMeshs = voxelInterfaceSelection.interfaceVoxels.map(
+      (interfaceVoxel: InterfaceVoxel) => {
+        const voxelCoord = getComponentValue(Position, interfaceVoxel.entity as Entity);
+        if (!voxelCoord) {
+          return;
+        }
+        // console.log("rendering");
         return renderChunkyWireframe(voxelCoord, voxelCoord, noa, new Color3(1, 0.1, 0.1), 0.04);
       }
     );
+
+    // renderedVoxelInterfaceSelectionMeshs = Array.from(voxelInterfaceSelection.value as Set<string>).map(
+    //   (voxelCoordString) => {
+    //     const voxelCoord = stringToVoxelCoord(voxelCoordString);
+    //     return renderChunkyWireframe(voxelCoord, voxelCoord, noa, new Color3(1, 0.1, 0.1), 0.04);
+    //   }
+    // );
   };
 }

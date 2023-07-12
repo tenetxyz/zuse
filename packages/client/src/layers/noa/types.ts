@@ -10,6 +10,13 @@ export type Material = {
   textureUrl?: string;
 };
 
+export type InterfaceVoxel = {
+  index: number;
+  entity: string;
+  name: string;
+  desc: string;
+};
+
 export enum NoaBlockType {
   BLOCK,
   MESH,

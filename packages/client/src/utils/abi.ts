@@ -13,3 +13,18 @@ export function abiDecode(encodedType: string, encodedBytes: string) {
   }
   return undefined;
 }
+
+export function cleanObjArray(objArray: any[]): any[] {
+  const cleanedArray: any[] = [];
+  for (const obj of objArray) {
+    const cleanedObj: any = {};
+    for (const [key, val] of Object.entries(obj)) {
+      // check if key string is an integer
+      if (isNaN(parseInt(key))) {
+        cleanedObj[key] = val;
+      }
+    }
+    cleanedArray.push(cleanedObj);
+  }
+  return cleanedArray;
+}

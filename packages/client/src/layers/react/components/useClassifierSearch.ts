@@ -6,8 +6,9 @@ import { Entity, getComponentValue, getEntityString } from "@latticexyz/recs";
 import { Classifier, ClassifierStoreFilters } from "./ClassifierStore";
 import { to64CharAddress } from "../../../utils/entity";
 import { ethers } from "ethers";
-import { abiDecode } from "../../../utils/abi";
+import { abiDecode, cleanObjArray } from "../../../utils/abi";
 import { hexToAscii, removeTrailingNulls } from "../../../utils/encodeOrDecode";
+import { InterfaceVoxel } from "../../noa/types";
 
 export interface Props {
   layers: Layers;
@@ -54,7 +55,16 @@ export const useClassifierSearch = ({ layers, filters }: Props) => {
 
       const rawSelectorInterface = classifierTable.selectorInterface.get(classifierId);
       const selectorInterface =
-        (rawSelectorInterface && (abiDecode("string[]", rawSelectorInterface) as string[])) || [];
+        (rawSelectorInterface &&
+          cleanObjArray(
+            abiDecode(
+              "(uint256 index,bytes32 entity,string name,string desc)[]",
+              rawSelectorInterface
+            ) as InterfaceVoxel[]
+          )) ||
+        [];
+      console.log("loading classifier");
+      console.log(selectorInterface);
 
       allClassifiers.current.push({
         creator: creator,

@@ -5,6 +5,7 @@ import { Script } from "forge-std/Script.sol";
 import { console } from "forge-std/console.sol";
 import { IWorld } from "../src/codegen/world/IWorld.sol";
 import { safeCall } from "../src/Utils.sol";
+import { InterfaceVoxels } from "@tenet-contracts/src/Types.sol";
 
 contract PostDeploy is Script {
   function run(address worldAddress) external {
@@ -38,10 +39,25 @@ contract PostDeploy is Script {
 
     // Note: These have to be here instead of ExtensionInitSystem as they have be called from the deployer account
     // otherwise the msgSender is not the namespace owner
-    string[] memory andGateInterface = new string[](3);
-    andGateInterface[0] = "Signal Source 1";
-    andGateInterface[1] = "Signal Source 2";
-    andGateInterface[2] = "Output Signal";
+    InterfaceVoxels[] memory andGateInterface = new InterfaceVoxels[](3);
+    andGateInterface[0] = InterfaceVoxels({
+      index: 0,
+      name: "Signal Source 1",
+      desc: "The first signal source",
+      entity: 0
+    });
+    andGateInterface[1] = InterfaceVoxels({
+      index: 1,
+      name: "Signal Source 2",
+      desc: "The second signal source",
+      entity: 0
+    });
+    andGateInterface[2] = InterfaceVoxels({
+      index: 2,
+      name: "Output Signal",
+      desc: "The signal with the output",
+      entity: 0
+    });
     registerClassifier(
       "AND Gate",
       "Classifies if this creation is an AND Gate",
@@ -51,7 +67,7 @@ contract PostDeploy is Script {
       worldAddress
     );
 
-    string[] memory dirtInterface = new string[](0);
+    InterfaceVoxels[] memory dirtInterface = new InterfaceVoxels[](0);
     registerClassifier(
       "Two Dirt",
       "Make a creation that is two dirt voxels",
@@ -68,18 +84,18 @@ contract PostDeploy is Script {
     string memory classifierDescription,
     bytes4 classifySelector,
     string memory classificationResultTableName,
-    string[] memory selectorInterface,
+    InterfaceVoxels[] memory selectorInterface,
     address worldAddress
   ) private {
     safeCall(
       worldAddress,
       abi.encodeWithSignature(
-        "tenet_RegClassifierSys_registerClassifier(bytes4,string,string,string,bytes)",
+        "tenet_RegClassifierSys_registerClassifier(bytes4,string,string,string,(uint256,bytes32,string,string)[])",
         classifySelector,
         classifierName,
         classifierDescription,
         classificationResultTableName,
-        abi.encode(selectorInterface)
+        selectorInterface
       ),
       string(abi.encode("register classifier: ", classifierName))
     );

@@ -26,3 +26,10 @@ enum BlockDirection {
   East,
   West
 }
+
+struct InterfaceVoxels {
+  uint256 index;
+  bytes32 entity;
+  string name;
+  string desc;
+}

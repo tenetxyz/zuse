@@ -27,6 +27,7 @@ contract PowerPlugSystem is SingleVoxelInteraction {
     PowerPlugData memory powerPlugData = PowerPlug.get(callerNamespace, signalEntity);
     changedEntity = false;
 
+
     if (entityIsGenerator(compareEntity, callerNamespace)) {
       GeneratorData memory compareGeneratorData = Generator.get(callerNamespace, compareEntity);
       if (powerPlugData.source != compareEntity  || powerPlugData.direction != compareBlockDirection
@@ -38,9 +39,19 @@ contract PowerPlugSystem is SingleVoxelInteraction {
         PowerPlug.set(callerNamespace, signalEntity, powerPlugData);
         changedEntity = true;
       }
-    } 
+    } else if (powerPlugData.source != compareEntity) {
+      if (powerPlugData.source != bytes32(0)  || powerPlugData.direction != BlockDirection.None
+          || powerPlugData.genRate != 0)
+      {
+        powerPlugData.source = bytes32(0);
+        powerPlugData.genRate = 0;
+        powerPlugData.direction = BlockDirection.None;
+        PowerPlug.set(callerNamespace, signalEntity, powerPlugData);
+        changedEntity = true;
+      }
+    }
 
-    else if (entityIsPowerWire(compareEntity, callerNamespace)) {
+    if (entityIsPowerWire(compareEntity, callerNamespace)) {
       PowerWireData memory compareWireData = PowerWire.get(callerNamespace, compareEntity);
       if (powerPlugData.destination != compareWireData.destination ||
           compareWireData.direction != getOppositeDirection(compareBlockDirection)) {

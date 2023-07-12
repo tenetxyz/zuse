@@ -7,14 +7,14 @@ import requireTransform from "vite-plugin-require-transform";
 export default defineConfig({
   plugins: [
     react(),
-    nodePolyfills({
-      // Whether to polyfill `node:` protocol imports.
-      protocolImports: true,
-    }),
-    requireTransform({
-      fileRegex: /.ts$|.tsx$/,
-      importPrefix: "_vite_plugin_require_transform_",
-    }),
+    // nodePolyfills({
+    //   // Whether to polyfill `node:` protocol imports.
+    //   protocolImports: true,
+    // }),
+    // requireTransform({
+    //   fileRegex: /.ts$|.tsx$/,
+    //   importPrefix: "_vite_plugin_require_transform_",
+    // }),
   ],
   server: {
     host: "0.0.0.0",
@@ -41,6 +41,6 @@ export default defineConfig({
     esbuildOptions: {
       target: "es2022",
     },
-    exclude: ["@latticexyz/noise", "buffer", "noa-engine"],
+    exclude: ["@latticexyz/noise", "buffer"],
   },
 });

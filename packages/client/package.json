@@ -5,8 +5,9 @@
   "license": "MIT",
   "type": "module",
   "scripts": {
-    "build": "vite build",
+    "build": "NODE_OPTIONS=--max-old-space-size=16384 vite build",
     "dev": "yarn wait-port localhost:8545 && vite",
+    "deploy": "yarn run build && yarn wait-port localhost:8545",
     "initialize": "yarn build",
     "preview": "vite preview",
     "test": "tsc --noEmit"

@@ -12,8 +12,7 @@ Everything is setup. We now need to change some configs so when we spin up the n
   - The "--chain-id", to 905 in packages/cli/src/commands/dev-contracts.ts
     - Note: 905 is a chainId that I chose to use for our chain
   - Then go to tenetTestnet.ts and change the nodeUrl to the server's url **Without the https://**
-- Then go to voxel-aw and change the chainId in packages/client/.env to 905
-- Finally, run `yarn run dev` in the top directory of voxel-aw to spin up our node and client
+- Finally, run `yarn run deploy` in the top directory of voxel-aw to spin up our node and client
 
 ### Faucet service and Snapshot Service
 

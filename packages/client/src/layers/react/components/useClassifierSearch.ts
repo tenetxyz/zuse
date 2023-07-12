@@ -65,6 +65,9 @@ export const useClassifierSearch = ({ layers, filters }: Props) => {
         [];
       console.log("loading classifier");
       console.log(selectorInterface);
+      selectorInterface.forEach((voxel) => {
+        voxel.index = parseInt(voxel.index.toString());
+      });
 
       allClassifiers.current.push({
         creator: creator,

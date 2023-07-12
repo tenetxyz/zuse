@@ -593,7 +593,7 @@ export async function setupNetwork() {
     // TODO: Relpace Iron NFT with a spawn symbol
     const preview = getNftStorageLink("bafkreidkik2uccshptqcskpippfotmusg7algnfh5ozfsga72xyfdrvacm");
 
-    console.log(interfaceVoxels);
+    console.log("classifyCreation");
 
     actions.add({
       id: `classifyCreation+classifier=${classifierId}+spawnId=${spawnId}+interfaceVoxels=${interfaceVoxels.toString()}` as Entity,

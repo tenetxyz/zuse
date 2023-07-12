@@ -34,8 +34,8 @@ contract AndGateSystem is Classifier {
     bytes32 inEntity2 = giftVoxel(_world(), EXTENSION_NAMESPACE, SignalSourceID);
 
     // TODO: This can be moved to the abstract contract
-    bytes32 originalEntity1 = clearCoord(_world(), in1Coord);
-    bytes32 originalEntity2 = clearCoord(_world(), in2Coord);
+    // bytes32 originalEntity1 = clearCoord(_world(), in1Coord);
+    // bytes32 originalEntity2 = clearCoord(_world(), in2Coord);
 
     // Run tests
     simulateLogic(inEntity1, inEntity2, in1Coord, in2Coord, out, 0, 0, 0);
@@ -51,12 +51,12 @@ contract AndGateSystem is Classifier {
     // TODO: This can be moved to the abstract contract
     clearCoord(_world(), in1Coord);
     clearCoord(_world(), in2Coord);
-    if (uint256(originalEntity1) != 0) {
-      build(_world(), in1Coord, originalEntity1);
-    }
-    if (uint256(originalEntity2) != 0) {
-      build(_world(), in2Coord, originalEntity2);
-    }
+    // if (uint256(originalEntity1) != 0) {
+    //   build(_world(), in1Coord, originalEntity1);
+    // }
+    // if (uint256(originalEntity2) != 0) {
+    //   build(_world(), in2Coord, originalEntity2);
+    // }
     removeAllOwnedVoxels(_world());
   }
 

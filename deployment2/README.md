@@ -1,0 +1,5 @@
+- build the client locally
+- make deploy
+- ssh into the server and run:
+- unzip dist.zip
+-

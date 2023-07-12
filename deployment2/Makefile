@@ -10,5 +10,5 @@ create-instance:
 	--key-name Tenet \
 	--block-device-mappings '[{"DeviceName":"/dev/xvda","Ebs":{"VolumeSize":32}}]' `# configure the server with 32 Gb of storage` \
 	--enclave-options 'Enabled=false'
-install:
-	sh install.sh
+deploy:
+	sh deploy.sh

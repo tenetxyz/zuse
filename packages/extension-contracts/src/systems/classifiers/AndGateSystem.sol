@@ -57,7 +57,7 @@ contract AndGateSystem is Classifier {
     // if (uint256(originalEntity2) != 0) {
     //   build(_world(), in2Coord, originalEntity2);
     // }
-    removeAllOwnedVoxels(_world());
+    // removeAllOwnedVoxels(_world());
   }
 
   // the reason why the in/out states are uints is cause 1s and 0s are more readable than true/false

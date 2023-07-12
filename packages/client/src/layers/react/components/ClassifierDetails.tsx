@@ -1,6 +1,6 @@
 import React, { useEffect } from "react";
 import { Layers } from "../../../types";
-import { Entity, getComponentValue, setComponent } from "@latticexyz/recs";
+import { Entity, getComponentValue, removeComponent, setComponent } from "@latticexyz/recs";
 import { useCreationSearch } from "../../../utils/useCreationSearch";
 import { useClassifierSearch } from "./useClassifierSearch";
 import { CreationStoreFilters } from "./CreationStore";
@@ -149,7 +149,6 @@ const ClassifierDetails: React.FC<Props> = ({
   };
 
   const renderInterfaceVoxelImage = (interfaceVoxel: Entity) => {
-    console.log("renderInterfaceVoxelImage", interfaceVoxel);
     if (!interfaceVoxel) {
       console.warn("Voxel not found at coord", interfaceVoxel);
       return null;
@@ -182,6 +181,8 @@ const ClassifierDetails: React.FC<Props> = ({
       setComponent(SpawnToClassify, SingletonEntity, { spawn: undefined, creation: undefined });
     } else if (spawnInFocus && spawnInFocus.creation) {
       setComponent(SpawnToClassify, SingletonEntity, { spawn: spawnInFocus.spawn, creation: spawnInFocus.creation });
+    } else {
+      setComponent(FocusedUi, SingletonEntity, { value: FocusedUiType.WORLD });
     }
   };
 
@@ -250,7 +251,7 @@ const ClassifierDetails: React.FC<Props> = ({
             spawnToUse.spawn.spawnId,
             voxelSelection?.interfaceVoxels,
             (txHash: string) => {
-              setComponent(VoxelInterfaceSelection, SingletonEntity, undefined);
+              removeComponent(VoxelInterfaceSelection, SingletonEntity);
               setComponent(SpawnToClassify, SingletonEntity, { spawn: undefined, creation: undefined });
             }
           );

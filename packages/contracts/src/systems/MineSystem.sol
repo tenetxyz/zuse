@@ -4,15 +4,15 @@ pragma solidity >=0.8.0;
 import { getUniqueEntity } from "@latticexyz/world/src/modules/uniqueentity/getUniqueEntity.sol";
 import { getKeysInTable } from "@latticexyz/world/src/modules/keysintable/getKeysInTable.sol";
 import { System } from "@latticexyz/world/src/System.sol";
-import { VoxelCoord, VoxelVariantsKey } from "../Types.sol";
-import { OwnedBy, Position, PositionTableId, VoxelType, VoxelTypeData, VoxelTypeRegistry } from "@tenet-contracts/src/codegen/Tables.sol";
+import { VoxelCoord, VoxelVariantsKey } from "@tenet-contracts/src/Types.sol";
+import { OwnedBy, Position, PositionTableId, VoxelType, VoxelTypeData, VoxelTypeRegistry, OfSpawn, Spawn, SpawnData } from "@tenet-contracts/src/codegen/Tables.sol";
 import { AirID } from "./voxels/AirVoxelSystem.sol";
-import { enterVoxelIntoWorld, exitVoxelFromWorld, updateVoxelVariant, addressToEntityKey, getEntitiesAtCoord, safeStaticCallFunctionSelector, getVoxelVariant } from "@tenet-contracts/src/Utils.sol";
+import { enterVoxelIntoWorld, exitVoxelFromWorld, updateVoxelVariant, addressToEntityKey, getEntitiesAtCoord, safeStaticCallFunctionSelector, getVoxelVariant, removeEntityFromArray } from "@tenet-contracts/src/Utils.sol";
 import { Utils } from "@latticexyz/world/src/Utils.sol";
 import { IWorld } from "@tenet-contracts/src/codegen/world/IWorld.sol";
 import { Occurrence } from "@tenet-contracts/src/codegen/Tables.sol";
 import { console } from "forge-std/console.sol";
-import { CHUNK_MAX_Y, CHUNK_MIN_Y } from "../Constants.sol";
+import { CHUNK_MAX_Y, CHUNK_MIN_Y } from "@tenet-contracts/src/Constants.sol";
 
 contract MineSystem is System {
   function mine(
@@ -66,6 +66,7 @@ contract MineSystem is System {
           voxelTypeData.voxelVariantId == voxelVariantId,
         "The voxel at this position is not the same as the voxel you are trying to mine"
       );
+      tryRemoveVoxelFromSpawn(voxelToMine);
       Position.deleteRecord(voxelToMine);
       exitVoxelFromWorld(_world(), voxelToMine);
       VoxelType.set(voxelToMine, voxelTypeData.voxelTypeNamespace, voxelTypeData.voxelTypeId, "", "");
@@ -88,6 +89,28 @@ contract MineSystem is System {
     IWorld(_world()).tenet_VoxInteractSys_runInteractionSystems(airEntity);
 
     return voxelToMine;
+  }
+
+  function tryRemoveVoxelFromSpawn(bytes32 voxel) internal {
+    bytes32 spawnId = OfSpawn.get(voxel);
+    if (spawnId == 0) {
+      return;
+    }
+
+    OfSpawn.deleteRecord(voxel);
+    SpawnData memory spawn = Spawn.get(spawnId);
+    // should we check to see if the entity is in the array before trying to remove it?
+    // I think it's ok to assume it's there, since this is the only way to remove a voxel from a spawn
+    bytes32[] memory newVoxels = removeEntityFromArray(spawn.voxels, voxel);
+
+    if (newVoxels.length == 0) {
+      // no more voxels of this spawn are in the world, so delete it
+      Spawn.deleteRecord(spawnId);
+    } else {
+      // This spawn is still in the world, but it has been modified (since a voxel was removed)
+      Spawn.setVoxels(spawnId, newVoxels);
+      Spawn.setIsModified(spawnId, true);
+    }
   }
 
   function clearCoord(VoxelCoord memory coord) public returns (bytes32) {

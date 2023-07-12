@@ -15,15 +15,18 @@ import { safeCall } from "../Utils.sol";
 
 contract ClassifyCreationSystem is System {
   function classify(bytes32 classifierId, bytes32 spawnId, bytes32[] memory input) public {
-    // check if classifier is already registered
+    // check if classifier exists
     bytes32[] memory classifierKeyTuple = new bytes32[](1);
     classifierKeyTuple[0] = classifierId;
     require(hasKey(ClassifierTableId, classifierKeyTuple), "Classifier doesn't exist");
 
-    // check if spawn is already registered
+    // check if spawn exists
     bytes32[] memory spawnKeyTuple = new bytes32[](1);
     spawnKeyTuple[0] = spawnId;
     require(hasKey(SpawnTableId, spawnKeyTuple), "Spawn doesn't exist");
+
+    // check that the spawn hasn't been modified
+    require(!Spawn.get(spawnId).isModified, "You can only submit Spawns that haven't been modified");
 
     verifyThatAllInterfaceVoxelsExistInSpawn(spawnId, input);
 

@@ -8,7 +8,7 @@ import { console } from "forge-std/console.sol";
 import { IWorld } from "@tenet-extension-contracts/src/codegen/world/IWorld.sol";
 import { Strings } from "@openzeppelin/contracts/utils/Strings.sol";
 import { VoxelCoord } from "@tenet-contracts/src/Types.sol";
-import { removeAllOwnedVoxels, entityIsActiveSignal, entityIsInactiveSignal, clearCoord, build, giftVoxel } from "../../Utils.sol";
+import { removeAllOwnedVoxels, entityIsActiveSignal, entityIsInactiveSignal, clearCoord, build, giftVoxel } from "@tenet-extension-contracts/src/Utils.sol";
 import { getUniqueEntity } from "@latticexyz/world/src/modules/uniqueentity/getUniqueEntity.sol";
 import { AndGateCR } from "@tenet-extension-contracts/src/codegen/tables.sol";
 import { Spawn, SpawnData } from "@tenet-contracts/src/codegen/Tables.sol";

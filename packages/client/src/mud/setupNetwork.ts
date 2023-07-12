@@ -198,22 +198,24 @@ export async function setupNetwork() {
       // These errors typically happen BEFORE the transaction is executed (mainly gas errors)
       console.error(`Transaction call failed: ${err}`);
 
-      let error;
-      if (!err) {
-        error = "couldn't parse error. See console for more info";
-      } else {
-        // TODO: should we parse this message with big numbers in mind?
-        const errorBody = JSON.parse(err.body);
-
-        error = errorBody?.error?.message;
-        if (!error) {
-          error = "couldn't parse error. See console for more info";
-        }
-      }
-
-      toast(`Transaction call failed: ${error}`);
+      toast(`Transaction call failed: ${parseTxError(err)}`);
     }
   }
+
+  const parseTxError = (err: any): string => {
+    const defaultError = "couldn't parse error. See console for more info";
+
+    if (!err) return defaultError;
+
+    try {
+      const errorBody = JSON.parse(err.body);
+      const parsedError = errorBody?.error?.message;
+      return parsedError || defaultError;
+    } catch (err) {
+      console.log("couldn't parse error body parseError=", err);
+      return defaultError;
+    }
+  };
 
   // --- ACTION SYSTEM --------------------------------------------------------------
   const actions = createActionSystem<{

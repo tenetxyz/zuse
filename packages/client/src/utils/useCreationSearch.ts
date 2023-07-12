@@ -6,7 +6,7 @@ import { Layers } from "../types";
 import { getEntityString } from "@latticexyz/recs";
 import { to256BitString } from "@latticexyz/utils";
 import { VoxelCoord } from "@latticexyz/utils";
-import { VoxelTypeDataKey, cleanVoxelCoord } from "../layers/noa/types";
+import { VoxelTypeDataKey } from "../layers/noa/types";
 import { abiDecode } from "./abi";
 
 export interface Props {
@@ -54,14 +54,9 @@ export const useCreationSearch = ({ layers, filters }: Props) => {
         rawVoxelTypes
       ) as VoxelTypeDataKey[];
 
-      const relativePositions: VoxelCoord[] = [];
       const encodedRelativePositions = creationTable.relativePositions.get(creationId) ?? "";
-      const decodedRelativePositions = abiDecode("tuple(int32 x,int32 y,int32 z)[]", encodedRelativePositions);
-      if (decodedRelativePositions) {
-        decodedRelativePositions.forEach((relativePosition: VoxelCoord) => {
-          relativePositions.push(cleanVoxelCoord(relativePosition));
-        });
-      }
+      const relativePositions =
+        (abiDecode("tuple(int32 x,int32 y,int32 z)[]", encodedRelativePositions) as VoxelCoord[]) || [];
 
       if (relativePositions.length === 0) {
         console.warn(

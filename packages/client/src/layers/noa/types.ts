@@ -122,15 +122,8 @@ export function voxelTypeBaseKeyToVoxelTypeDataKey(voxelTypeBaseKey: VoxelTypeBa
     voxelTypeNamespace: voxelTypeBaseKey.voxelTypeNamespace,
     voxelTypeId: voxelTypeBaseKey.voxelTypeId,
     voxelVariantNamespace: "0x00000000000000000000000000000000",
-    voxelVariantId: "0x0000000000000000000000000000000000000000000000000000000000000000",
+    voxelVariantId: EMPTY_BYTES_32,
   };
 }
 
-// We need to do it this sometimes because decoded coords have named keys, 0, 1, 2 in addition to x, y, z
-export function cleanVoxelCoord(coord: VoxelCoord) {
-  return {
-    x: coord.x,
-    y: coord.y,
-    z: coord.z,
-  };
-}
+export const EMPTY_BYTES_32 = "0x0000000000000000000000000000000000000000000000000000000000000000";

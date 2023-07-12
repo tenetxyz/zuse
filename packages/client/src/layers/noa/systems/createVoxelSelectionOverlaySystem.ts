@@ -61,16 +61,9 @@ export function createVoxelSelectionOverlaySystem(network: NetworkLayer, noaLaye
         if (!voxelCoord) {
           return;
         }
-        // console.log("rendering");
+
         return renderChunkyWireframe(voxelCoord, voxelCoord, noa, new Color3(1, 0.1, 0.1), 0.04);
       }
     );
-
-    // renderedVoxelInterfaceSelectionMeshs = Array.from(voxelInterfaceSelection.value as Set<string>).map(
-    //   (voxelCoordString) => {
-    //     const voxelCoord = stringToVoxelCoord(voxelCoordString);
-    //     return renderChunkyWireframe(voxelCoord, voxelCoord, noa, new Color3(1, 0.1, 0.1), 0.04);
-    //   }
-    // );
   };
 }

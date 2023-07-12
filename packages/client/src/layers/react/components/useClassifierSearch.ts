@@ -56,17 +56,13 @@ export const useClassifierSearch = ({ layers, filters }: Props) => {
       const rawSelectorInterface = classifierTable.selectorInterface.get(classifierId);
       const selectorInterface =
         (rawSelectorInterface &&
-          cleanObjArray(
-            abiDecode(
-              "(uint256 index,bytes32 entity,string name,string desc)[]",
-              rawSelectorInterface
-            ) as InterfaceVoxel[]
-          )) ||
+          (abiDecode(
+            "(uint256 index,bytes32 entity,string name,string desc)[]",
+            rawSelectorInterface
+          ) as InterfaceVoxel[])) ||
         [];
-      console.log("loading classifier");
-      console.log(selectorInterface);
       selectorInterface.forEach((voxel) => {
-        voxel.index = parseInt(voxel.index.toString());
+        voxel.index = parseInt(voxel.index.toString()); // We want a number here, not a BigInt
       });
 
       allClassifiers.current.push({

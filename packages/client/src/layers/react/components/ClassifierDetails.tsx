@@ -7,6 +7,7 @@ import { CreationStoreFilters } from "./CreationStore";
 import { useComponentValue } from "@latticexyz/react";
 import { SetState } from "../../../utils/types";
 import {
+  EMPTY_BYTES_32,
   InterfaceVoxel,
   entityToVoxelType,
   voxelTypeDataKeyToVoxelVariantDataKey,
@@ -64,24 +65,10 @@ const ClassifierDetails: React.FC<Props> = ({
   const spawnToUse = useComponentValue(SpawnToClassify, SingletonEntity);
   const spawnInFocus = useComponentValue(SpawnInFocus, SingletonEntity);
 
-  // const interfaceVoxels = Array.from(getComponentValue(VoxelInterfaceSelection, SingletonEntity)?.value ?? [])
-  //   .map((voxelCoordString) => stringToVoxelCoord(voxelCoordString))
-  //   .map((voxelCoord) => getEntityAtPosition(voxelCoord))
-  //   .filter((entityId) => {
-  //     if (!entityId || spawnToUse === undefined || !spawnToUse.spawn) {
-  //       return false;
-  //     }
-  //     const interfaceSpawnId = getComponentValue(OfSpawn, entityId)?.value;
-  //     // we only want the interface selections on the voxels that are part of this spawn
-  //     return interfaceSpawnId === spawnToUse.spawn.spawnId;
-  //   });
-
   const selectInterfaceVoxel = (selectedVoxel: InterfaceVoxel) => {
     const voxelSelection = getComponentValue(VoxelInterfaceSelection, SingletonEntity);
     const allInterfaceVoxels =
       voxelSelection?.interfaceVoxels || (selectedClassifier && selectedClassifier.selectorInterface);
-    console.log("selectInterfaceVoxel");
-    console.log(allInterfaceVoxels);
     setComponent(VoxelInterfaceSelection, SingletonEntity, {
       interfaceVoxels: allInterfaceVoxels,
       selectingVoxelIdx: selectedVoxel.index,
@@ -101,7 +88,7 @@ const ClassifierDetails: React.FC<Props> = ({
     const allInterfaceVoxels = voxelSelection.interfaceVoxels;
     allInterfaceVoxels[selectedVoxel.index] = {
       ...selectedVoxel,
-      entity: "0x0000000000000000000000000000000000000000000000000000000000000000",
+      entity: EMPTY_BYTES_32,
     };
     setComponent(VoxelInterfaceSelection, SingletonEntity, {
       interfaceVoxels: allInterfaceVoxels,
@@ -132,13 +119,11 @@ const ClassifierDetails: React.FC<Props> = ({
             let selectedVoxel: Entity | undefined = undefined;
             if (voxelSelection && voxelSelection.interfaceVoxels) {
               selectedVoxel = voxelSelection.interfaceVoxels[interfaceVoxel.index].entity;
-              if (selectedVoxel === "0x0000000000000000000000000000000000000000000000000000000000000000") {
+              if (selectedVoxel === EMPTY_BYTES_32) {
                 selectedVoxel = undefined;
               }
             }
-            // if (interfaceVoxels.length >= idx) {
-            //   selectedVoxel = interfaceVoxels[idx];
-            // }
+
             return (
               <div className="flex flex-col" key={"interface-" + idx}>
                 <label className="mb-1 text-sm font-normal text-gray-900">{interfaceVoxel.name}</label>
@@ -174,12 +159,10 @@ const ClassifierDetails: React.FC<Props> = ({
       console.warn("Voxel type not found for voxel", interfaceVoxel);
       return null;
     }
-    console.log(voxelType);
 
     const iconKey = voxelTypeDataKeyToVoxelVariantDataKey(voxelType);
     const iconUrl = getVoxelIconUrl(iconKey);
     const voxelCoord = getComponentValue(Position, interfaceVoxel);
-    console.log(voxelCoord);
     return (
       <div className="flex gap-2 items-center">
         <div className="bg-slate-100 h-fit p-1">
@@ -232,10 +215,10 @@ const ClassifierDetails: React.FC<Props> = ({
       if (!voxelSelection || !voxelSelection.interfaceVoxels) {
         return true;
       }
-      console.log(voxelSelection.interfaceVoxels);
+
       for (let i = 0; i < voxelSelection.interfaceVoxels.length; i++) {
         const interfaceVoxel = voxelSelection.interfaceVoxels[i];
-        if (interfaceVoxel.entity === "0x0000000000000000000000000000000000000000000000000000000000000000") {
+        if (interfaceVoxel.entity === EMPTY_BYTES_32) {
           return true;
         }
       }

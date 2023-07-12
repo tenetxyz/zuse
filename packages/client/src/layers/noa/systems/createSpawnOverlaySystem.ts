@@ -1,7 +1,7 @@
 // the purpose of this system is to render a wireframe around voxels/creations the user selects
 
 import { NetworkLayer } from "../../network";
-import { NoaLayer, cleanVoxelCoord } from "../types";
+import { NoaLayer } from "../types";
 import { renderChunkyWireframe } from "./renderWireframes";
 import { Color3, Mesh, Nullable } from "@babylonjs/core";
 import { add } from "../../../utils/coord";
@@ -28,9 +28,11 @@ export function createSpawnOverlaySystem(networkLayer: NetworkLayer, noaLayer: N
     spawnTable.creationId.forEach((creationId, rawSpawnId) => {
       const spawnId = rawSpawnId as any;
       const encodedLowerSouthWestCorner = spawnTable.lowerSouthWestCorner.get(spawnId)!;
-      const decodedLowerSouthWestCorner = abiDecode("tuple(int32 x,int32 y,int32 z)", encodedLowerSouthWestCorner);
-      if (decodedLowerSouthWestCorner) {
-        const lowerSouthWestCorner = cleanVoxelCoord(decodedLowerSouthWestCorner as VoxelCoord);
+      const lowerSouthWestCorner = abiDecode(
+        "tuple(int32 x,int32 y,int32 z)",
+        encodedLowerSouthWestCorner
+      ) as VoxelCoord;
+      if (lowerSouthWestCorner) {
         spawns.push({
           spawnId: spawnId,
           creationId: creationId as Entity,
@@ -61,13 +63,8 @@ export function createSpawnOverlaySystem(networkLayer: NetworkLayer, noaLayer: N
       }
 
       // calculate the min and max relative positions of the creation so we can render the wireframe around it
-      const relativePositions: VoxelCoord[] = [];
-      const decodedRelativePositions = abiDecode("tuple(int32 x,int32 y,int32 z)[]", creation.relativePositions);
-      if (decodedRelativePositions) {
-        decodedRelativePositions.forEach((relativePosition: VoxelCoord) => {
-          relativePositions.push(cleanVoxelCoord(relativePosition));
-        });
-      }
+      const relativePositions =
+        (abiDecode("tuple(int32 x,int32 y,int32 z)[]", creation.relativePositions) as VoxelCoord[]) || [];
 
       if (relativePositions.length === 0) {
         console.warn(

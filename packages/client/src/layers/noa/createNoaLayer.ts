@@ -135,7 +135,7 @@ export function createNoaLayer(network: NetworkLayer) {
   };
 
   // --- SETUP ----------------------------------------------------------------------
-  const { noa, setVoxel, glow } = setupNoaEngine(network);
+  const { noa, setVoxel } = setupNoaEngine(network);
 
   // Because NOA and RECS currently use different ECS libraries we need to maintain a mapping of RECS ID to Noa ID
   // A future version of OPCraft will remove the NOA ECS library and use pure RECS only

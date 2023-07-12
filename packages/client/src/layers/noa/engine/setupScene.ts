@@ -5,7 +5,7 @@ import { CHUNK_RENDER_DISTANCE, CHUNK_SIZE, SKY_COLOR } from "../setup/constants
 export function setupScene(noa: Engine) {
   // eslint-disable-next-line @typescript-eslint/ban-ts-comment
   //@ts-ignore
-  const camera = noa.rendering._camera;
+  const camera = noa.rendering.camera;
   const scene = noa.rendering.getScene();
   scene.fogMode = BABYLON.Scene.FOGMODE_LINEAR;
   scene.fogStart = CHUNK_RENDER_DISTANCE * CHUNK_SIZE;

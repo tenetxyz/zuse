@@ -28,7 +28,7 @@ contract RegisterCreationSystem is System {
     (
       bytes memory relativePositions,
       VoxelCoord memory lowerSouthWestCorner
-    ) = repositionBlocksSoLowerSouthwestCornerIsOnOrigin(voxelCoords);
+    ) = repositionBlocksSoLowerSouthwestCornerIsOnOrigin(voxelCoords, baseCreations);
 
     CreationData memory creation;
     creation.voxelTypes = voxelTypes;
@@ -36,6 +36,7 @@ contract RegisterCreationSystem is System {
     creation.relativePositions = relativePositions;
     creation.name = name;
     creation.description = description;
+    creation.baseCreations = baseCreations;
 
     // TODO: implement
     // creation.voxelMetadata =
@@ -85,7 +86,8 @@ contract RegisterCreationSystem is System {
 
   // PERF: put this into a precompile for speed
   function repositionBlocksSoLowerSouthwestCornerIsOnOrigin(
-    VoxelCoord[] memory voxelCoords
+    VoxelCoord[] memory voxelCoords,
+    bytes memory baseCreations
   ) private pure returns (bytes memory, VoxelCoord memory) {
     int32 lowestX = 2147483647;
     int32 lowestY = 2147483647;

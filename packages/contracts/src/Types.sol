@@ -33,3 +33,9 @@ struct InterfaceVoxel {
   string name;
   string desc;
 }
+
+struct BaseCreation {
+  bytes32 creationId;
+  VoxelCoord lowerSouthWestCorner;
+  bytes32[] deletedVoxels;
+}

@@ -9,3 +9,7 @@ deploy:
 deploy-world:
 	sh deploy-world.sh
 .PHONY: deploy-world
+
+deploy-extensions:
+	sh deploy-extensions.sh
+.PHONY: deploy-extensions

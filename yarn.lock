@@ -2315,7 +2315,7 @@ box-intersect@fenomas/box-intersect:
     gl-vec3: ^1.1.3
     mobx: ^6.9.0
     mobx-react-lite: ^3.4.3
-    noa-engine: "git+https://github.com/latticexyz/noa.git"
+    noa-engine: "git+https://github.com/tenetxyz/noa.git#tenet-main"
     postcss: ^8.4.24
     proxy-deep: ^3.1.1
     react: ^18.2.0
@@ -4596,9 +4596,9 @@ box-intersect@fenomas/box-intersect:
   languageName: node
   linkType: hard
 
-"noa-engine@git+https://github.com/latticexyz/noa.git":
+"noa-engine@git+https://github.com/tenetxyz/noa.git#tenet-main":
   version: 0.32.0
-  resolution: "noa-engine@https://github.com/latticexyz/noa.git#commit=a8e20fe4d94bbcce16f0933ba4733518288a44af"
+  resolution: "noa-engine@https://github.com/tenetxyz/noa.git#commit=96e770aab80469210b48710a6947fb105c430562"
   dependencies:
     aabb-3d: fenomas/aabb-3d
     box-intersect: fenomas/box-intersect
@@ -4610,10 +4610,10 @@ box-intersect@fenomas/box-intersect:
     micro-game-shell: ^0.3.0
     ndarray: ^1.0.19
     voxel-aabb-sweep: ^0.5.0
-    voxel-physics-engine: ^0.11.1
+    voxel-physics-engine: ^0.13.0
   peerDependencies:
     "@babylonjs/core": ^5.0.0-alpha.48
-  checksum: e73e9d530ca108518ff2ea98ee6ba5086e30fc31f8e8f665c3d163affe4c1e13f44b053e087b63163d54f250660bf95a9e8abc3f2cf268294ca024a9ef867e23
+  checksum: c76a0febf8e0050a5d3fc7508184dbca6ce42615fff6ee508a08e605009ab7840ed5d698a7fcccb35aa66d1b217484811e1328a87ae2a855934ee7b86f489c08
   languageName: node
   linkType: hard
 
@@ -6200,14 +6200,14 @@ box-intersect@fenomas/box-intersect:
   languageName: node
   linkType: hard
 
-"voxel-physics-engine@npm:^0.11.1":
-  version: 0.11.1
-  resolution: "voxel-physics-engine@npm:0.11.1"
+"voxel-physics-engine@npm:^0.13.0":
+  version: 0.13.0
+  resolution: "voxel-physics-engine@npm:0.13.0"
   dependencies:
     aabb-3d: "github:fenomas/aabb-3d"
     gl-vec3: ^1.1.3
     voxel-aabb-sweep: ^0.5.0
-  checksum: 3ff22e56e24759c315bc47a31d78a3053cfc88d48ea062369ac757050353ee074dd7d5695413691d759318fb18a7835d8ebd463c01f382012176d2af61753a4c
+  checksum: dad053a0b16b0e4c2ef87ca41db45f49ff61ddf990373c2bbd57f3c6feeb0b7d195f8d6dea155326ebb722aa03145df2f5b1af3e444e373181ce695d33a2af9a
   languageName: node
   linkType: hard
 

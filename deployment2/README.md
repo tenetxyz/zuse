@@ -1,5 +1,3 @@
 - build the client locally
 - make deploy
-- ssh into the server and run:
-- unzip dist.zip
--
+- ssh into the server, paste setup.sh onto it, and run it

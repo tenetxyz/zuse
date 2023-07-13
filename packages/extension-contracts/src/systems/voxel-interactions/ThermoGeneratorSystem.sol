@@ -20,19 +20,7 @@ contract ThermoGeneratorSystem is VoxelInteraction {
     bytes32 neighbourEntityId,
     BlockDirection neighbourBlockDirection
   ) internal override returns (bool changedEntity) {
-      GeneratorData memory generatorData = Generator.get(callerNamespace, interactEntity);
-      return true;
-      
-      // if (generatorData.sources.length == 2) {
-      //     // Call entityHasTemperature(source[i], callerNamespace) on both and return true if one is false
-      //     return !(entityHasTemperature(generatorData.sources[0], callerNamespace) && entityHasTemperature(generatorData.sources[1], callerNamespace));
-      // }      
-      // else if (entityHasTemperature(neighbourEntityId, callerNamespace)) {
-      //     return true;
-      // }
-      // else {
-      //     return false;
-      // }
+    return true;
   }
 
   function entityShouldInteract(bytes32 entityId, bytes16 callerNamespace) internal view override returns (bool) {

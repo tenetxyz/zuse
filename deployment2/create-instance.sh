@@ -16,9 +16,14 @@ INSTANCE_ID=$(aws ec2 run-instances \
     --enclave-options 'Enabled=false' \
     --query 'Instances[0].InstanceId' --output text) \
 && sleep 5 && PUBLIC_IP=$(aws ec2 describe-instances --instance-ids $INSTANCE_ID --query 'Reservations[].Instances[].PublicIpAddress' --output text) \
-&& host "$PUBLIC_IP" | awk '{print "export SERVER_URL=" substr($5, 1, length($5)-1)}' | tee server_url.rc
+&& host "$PUBLIC_IP" | awk '{print "export SERVER_HOST=" substr($5, 1, length($5)-1)}' | tee server_url.rc
 
 source server_url.rc
 
+# write the prod host to the client prod env file so when we build the client, it will point to the server
+sed -i '' '/VITE_PROD_HOST/d' ../packages/client/.env.production
+echo "VITE_PROD_HOST=$SERVER_HOST" >> ../packages/client/.env.production
+
+
 # echo the command for us to ssh into the server
-echo ssh -i "~/.ssh/Tenet.pem" "ec2-user@$SERVER_URL"
+echo ssh -i "~/.ssh/Tenet.pem" "ec2-user@$SERVER_HOST"

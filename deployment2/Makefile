@@ -7,4 +7,5 @@ deploy:
 .PHONY: deploy
 
 deploy-world:
+	sh deploy-world.sh
 .PHONY: deploy-world

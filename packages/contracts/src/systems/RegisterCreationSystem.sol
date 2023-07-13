@@ -8,7 +8,7 @@ import { IWorld } from "@tenet-contracts/src/codegen/world/IWorld.sol";
 import { addressToEntityKey, getEntitiesAtCoord, voxelCoordToString } from "../Utils.sol";
 import { VoxelType, Position, Creation, CreationData, VoxelTypeData, Spawn, SpawnData, OfSpawn } from "@tenet-contracts/src/codegen/Tables.sol";
 import { PositionData } from "@tenet-contracts/src/codegen/tables/Position.sol";
-import { VoxelCoord } from "../Types.sol";
+import { VoxelCoord, BaseCreation } from "../Types.sol";
 //import { CreateBlock } from "../libraries/CreateBlock.sol";
 
 uint256 constant MAX_BLOCKS_IN_CREATION = 100;
@@ -89,21 +89,13 @@ contract RegisterCreationSystem is System {
     VoxelCoord[] memory voxelCoords,
     bytes memory baseCreations
   ) private pure returns (bytes memory, VoxelCoord memory) {
-    int32 lowestX = 2147483647;
+    int32 lowestX = 2147483647; // TODO: use type(int32).max;
     int32 lowestY = 2147483647;
     int32 lowestZ = 2147483647;
-    for (uint32 i = 0; i < voxelCoords.length; i++) {
-      VoxelCoord memory voxel = voxelCoords[i];
-      if (voxel.x < lowestX) {
-        lowestX = voxel.x;
-      }
-      if (voxel.y < lowestY) {
-        lowestY = voxel.y;
-      }
-      if (voxel.z < lowestZ) {
-        lowestZ = voxel.z;
-      }
-    }
+    (lowestX, lowestY, lowestZ) = getLowestCoord(voxelCoords, lowestX, lowestY, lowestZ);
+
+    VoxelCoord[] memory baseCreationVoxelCoords = getVoxelCoordsFromBaseCreations(baseCreations);
+    (lowestX, lowestY, lowestZ) = getLowestCoord(baseCreationVoxelCoords, lowestX, lowestY, lowestZ);
 
     VoxelCoord[] memory repositionedVoxelCoords = new VoxelCoord[](voxelCoords.length);
     for (uint32 i = 0; i < voxelCoords.length; i++) {
@@ -112,6 +104,63 @@ contract RegisterCreationSystem is System {
     }
     VoxelCoord memory lowerSouthWestCorner = VoxelCoord({ x: lowestX, y: lowestY, z: lowestZ });
     return (abi.encode(repositionedVoxelCoords), lowerSouthWestCorner);
+  }
+
+  function getLowestCoord(
+    VoxelCoord[] memory voxelCoords,
+    int32 lowestX,
+    int32 lowestY,
+    int32 lowestZ
+  ) private pure returns (int32, int32, int32) {
+    for (uint32 i = 0; i < voxelCoords.length; i++) {
+      VoxelCoord memory voxelCoord = voxelCoords[i];
+      if (voxelCoord.x < lowestX) {
+        lowestX = voxelCoord.x;
+      }
+      if (voxelCoord.y < lowestY) {
+        lowestY = voxelCoord.y;
+      }
+      if (voxelCoord.z < lowestZ) {
+        lowestZ = voxelCoord.z;
+      }
+    }
+    return (lowestX, lowestY, lowestZ);
+  }
+
+  function getVoxelCoordsFromBaseCreations(
+    BaseCreation[] memory baseCreations
+  ) private pure returns (VoxelCoord[] memory) {
+    uint32 totalVoxels = 0;
+    for (uint32 i = 0; i < baseCreations.length; i++) {
+      totalVoxels += baseCreations[i].voxels.length - baseCreations[i].deletedCoords.length;
+    }
+
+    uint voxelIdx = 0;
+    VoxelCoord[] memory voxelCoords = new VoxelCoord[](totalVoxels);
+    for (uint32 i = 0; i < baseCreations.length; i++) {
+      BaseCreation memory baseCreation = baseCreations[i];
+      CreationData memory creation = Creation.get(baseCreation.creationId);
+
+      VoxelCoord[] memory creationRelativepositions = abi.decode(creation.relativePositions, (VoxelCoord[]));
+      VoxelCoord[] memory deletedCoords = baseCreation.deletedCoords;
+
+      for (uint32 j = 0; j < creationRelativePositions.length; j++) {
+        VoxelCoord memory relativeCoord = creationRelativePositions[j];
+        // TODO: we need to figure out a way to have in-memory sets in solidity.
+        bool isDeleted = false;
+        for (uint32 k = 0; k < deletedCoords.length; k++) {
+          if (deletedCoords[k] == relativeCoord) {
+            isDeleted = true;
+            break;
+          }
+        }
+        if (!isDeleted) {
+          voxelCoords[voxelIdx] = relativeCoord;
+          voxelIdx++;
+        }
+      }
+    }
+    return voxelCoords;
   }
 
   function getVoxelTypes(bytes32[] memory voxels) public view returns (VoxelTypeData[] memory) {

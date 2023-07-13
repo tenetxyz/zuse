@@ -12,4 +12,5 @@ sudo yum install tmux -y
 sudo yum install git -y
 sudo yum install htop -y
 
-ehco "source /home/ec2-user/.bashrc"
+echo "Run the following command:"
+echo "source /home/ec2-user/.bashrc"

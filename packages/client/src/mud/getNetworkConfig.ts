@@ -1,6 +1,7 @@
 import { SetupContractConfig, getBurnerWallet } from "@latticexyz/std-client";
 import worldsJson from "@tenetxyz/contracts/worlds.json";
 import { supportedChains } from "./supportedChains";
+import { tenetTestnet } from "./tenetTestnet";
 
 const worlds = worldsJson as Partial<Record<string, { address: string; blockNumber?: number }>>;
 
@@ -14,11 +15,12 @@ type NetworkConfig = SetupContractConfig & {
 export async function getNetworkConfig(): Promise<NetworkConfig> {
   const params = new URLSearchParams(window.location.search);
 
-  const chainId = Number(params.get("chainId") || import.meta.env.VITE_CHAIN_ID || 31337);
-  const chainIndex = supportedChains.findIndex((c) => c.id === chainId);
-  const chain = supportedChains[chainIndex];
+  const chainConfig = tenetTestnet;
+
+  const chainId = chainConfig["id"];
+  const chain = chainConfig;
   if (!chain) {
-    throw new Error(`Chain ${chainId} not found`);
+    throw new Error(`Chain not found`);
   }
 
   const world = worlds[chain.id.toString()];
@@ -44,6 +46,7 @@ export async function getNetworkConfig(): Promise<NetworkConfig> {
     },
     privateKey: getBurnerWallet().value,
     chainId,
+    chainConfig,
     modeUrl: params.get("mode") ?? chain.modeUrl,
     faucetServiceUrl: params.get("faucet") ?? chain.faucetUrl,
     worldAddress,

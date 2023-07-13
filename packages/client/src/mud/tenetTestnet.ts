@@ -8,7 +8,7 @@ const nodeHost = import.meta.env.VITE_PROD_HOST;
 export const tenetTestnet = {
   name: "Tenet Testnet",
   id: 905,
-  network: "innocent-gold-porpoise",
+  network: "tenet-testnet",
   nativeCurrency: { decimals: 18, name: "Ether", symbol: "ETH" },
   rpcUrls: {
     default: {

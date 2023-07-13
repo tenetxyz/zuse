@@ -5,9 +5,9 @@
   "license": "MIT",
   "type": "module",
   "scripts": {
-    "build": "vite build",
+    "build": "NODE_OPTIONS=--max-old-space-size=16384 vite build && yarn postbuild",
+    "postbuild": "rm dist.zip; zip dist.zip -r dist",
     "dev": "yarn wait-port localhost:8545 && vite",
-    "initialize": "yarn build",
     "preview": "vite preview",
     "test": "tsc --noEmit"
   },
@@ -40,7 +40,7 @@
     "gl-vec3": "^1.1.3",
     "mobx": "^6.9.0",
     "mobx-react-lite": "^3.4.3",
-    "noa-engine": "git+https://github.com/latticexyz/noa.git",
+    "noa-engine": "git+https://github.com/tenetxyz/noa.git#tenet-main",
     "proxy-deep": "^3.1.1",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
@@ -61,7 +61,10 @@
     "eslint-plugin-react-hooks": "4.6.0",
     "postcss": "^8.4.24",
     "tailwindcss": "^3.3.2",
+    "terser": "^5.19.0",
     "vite": "^4.2.1",
-    "wait-port": "^1.0.4"
+    "vite-plugin-optimize-css-modules": "^1.0.4",
+    "wait-port": "^1.0.4",
+    "yarn": "^1.22.19"
   }
 }

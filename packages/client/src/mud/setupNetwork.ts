@@ -7,7 +7,7 @@ import { world } from "./world";
 import { createPerlin } from "@latticexyz/noise";
 import { BigNumber, Contract, Signer, utils } from "ethers";
 import { JsonRpcProvider } from "@ethersproject/providers";
-import { IWorld__factory } from "@tenetxyz/contracts/types/ethers-contracts/factories/IWorld__factory";
+import { IWorld__factory } from "@tenetxyz/contracts/types/ethers-contracts/factories/IWorld__factory.ts";
 import { getTableIds, awaitPromise, computedToStream, VoxelCoord, Coord } from "@latticexyz/utils";
 import { map, timer, combineLatest, BehaviorSubject } from "rxjs";
 import storeConfig from "@tenetxyz/contracts/mud.config";
@@ -58,7 +58,9 @@ export async function setupNetwork() {
     component.id = name;
   });
 
+  console.log("Getting network config...");
   const networkConfig = await getNetworkConfig();
+  console.log("Got network config", networkConfig);
   const result = await setupMUDV2Network<typeof contractComponents, typeof storeConfig>({
     networkConfig,
     world,
@@ -67,6 +69,7 @@ export async function setupNetwork() {
     storeConfig,
     worldAbi: IWorld__factory.abi,
   });
+  console.log("Setup MUD V2 network", result);
 
   const signer = result.network.signer.get();
   const playerAddress = result.network.connectedAddress.get();
@@ -150,10 +153,11 @@ export async function setupNetwork() {
   }
 
   // Create a fast tx executor
-  const fastTxExecutor =
-    signer?.provider instanceof JsonRpcProvider
-      ? await createFastTxExecutor(signer as Signer & { provider: JsonRpcProvider })
-      : null;
+  // Note: The check for signer?.provider instanceof JsonRpcProvider was removed because Vite build changes the name
+  // of the instance. And they don't have a solution yet. Tracked here: https://github.com/vitejs/vite/issues/9528
+  const fastTxExecutor = signer?.provider
+    ? await createFastTxExecutor(signer as Signer & { provider: JsonRpcProvider })
+    : null;
 
   // TODO: infer this from fastTxExecute signature?
   type BoundFastTxExecuteFn<C extends Contract> = <F extends keyof C>(

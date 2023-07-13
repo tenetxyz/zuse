@@ -11,6 +11,7 @@
   "scripts": {
     "mud": "node node_modules/@latticexyz/cli/dist/mud.js",
     "build": "yarn workspaces run build",
+    "deploy": "concurrently -n contracts,client -c cyan,magenta \"cd packages/contracts && yarn run dev\" \"cd packages/client && yarn run deploy\"",
     "dev": "concurrently -n contracts,client -c cyan,magenta \"cd packages/contracts && yarn run dev\" \"cd packages/client && yarn run dev\"",
     "dev:client": "yarn workspace client run dev",
     "dev:contracts": "yarn workspace contracts run dev",

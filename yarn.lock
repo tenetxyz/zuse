@@ -45,45 +45,45 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@babel/compat-data@npm:^7.22.6":
-  version: 7.22.6
-  resolution: "@babel/compat-data@npm:7.22.6"
-  checksum: b88631143a2ebdb75e5bac47984e950983294f1739c2133f32569c6f2fcee85f83634bb6cf4378afb44fa8eb7877d11e48811d1e6a52afa161f82276ffdc3fb4
+"@babel/compat-data@npm:^7.22.9":
+  version: 7.22.9
+  resolution: "@babel/compat-data@npm:7.22.9"
+  checksum: bed77d9044ce948b4327b30dd0de0779fa9f3a7ed1f2d31638714ed00229fa71fc4d1617ae0eb1fad419338d3658d0e9a5a083297451e09e73e078d0347ff808
   languageName: node
   linkType: hard
 
 "@babel/core@npm:^7.20.12":
-  version: 7.22.8
-  resolution: "@babel/core@npm:7.22.8"
+  version: 7.22.9
+  resolution: "@babel/core@npm:7.22.9"
   dependencies:
     "@ampproject/remapping": ^2.2.0
     "@babel/code-frame": ^7.22.5
-    "@babel/generator": ^7.22.7
-    "@babel/helper-compilation-targets": ^7.22.6
-    "@babel/helper-module-transforms": ^7.22.5
+    "@babel/generator": ^7.22.9
+    "@babel/helper-compilation-targets": ^7.22.9
+    "@babel/helper-module-transforms": ^7.22.9
     "@babel/helpers": ^7.22.6
     "@babel/parser": ^7.22.7
     "@babel/template": ^7.22.5
     "@babel/traverse": ^7.22.8
     "@babel/types": ^7.22.5
-    "@nicolo-ribaudo/semver-v6": ^6.3.3
     convert-source-map: ^1.7.0
     debug: ^4.1.0
     gensync: ^1.0.0-beta.2
     json5: ^2.2.2
-  checksum: 75ed701c14ad17070382ae1dd166f7534b31f2c71e00995a5f261ee2398ee96335b0736573b8ff24ab6e3e6f5814ee2a48fa11ab90fabcd3dfc70ea87c5f30a6
+    semver: ^6.3.1
+  checksum: 7bf069aeceb417902c4efdaefab1f7b94adb7dea694a9aed1bda2edf4135348a080820529b1a300c6f8605740a00ca00c19b2d5e74b5dd489d99d8c11d5e56d1
   languageName: node
   linkType: hard
 
-"@babel/generator@npm:^7.22.7":
-  version: 7.22.7
-  resolution: "@babel/generator@npm:7.22.7"
+"@babel/generator@npm:^7.22.7, @babel/generator@npm:^7.22.9":
+  version: 7.22.9
+  resolution: "@babel/generator@npm:7.22.9"
   dependencies:
     "@babel/types": ^7.22.5
     "@jridgewell/gen-mapping": ^0.3.2
     "@jridgewell/trace-mapping": ^0.3.17
     jsesc: ^2.5.1
-  checksum: cee15558888bdf5564e19cfaf95101b2910fa425f30cc1a25ac9b8621bd62b63544eb1b36ad89c80b5e41915699219f78712cab128d1f7e3da6a21fbf4143927
+  checksum: 7c9d2c58b8d5ac5e047421a6ab03ec2ff5d9a5ff2c2212130a0055e063ac349e0b19d435537d6886c999771aef394832e4f54cd9fc810100a7f23d982f6af06b
   languageName: node
   linkType: hard
 
@@ -96,18 +96,18 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@babel/helper-compilation-targets@npm:^7.22.6":
-  version: 7.22.6
-  resolution: "@babel/helper-compilation-targets@npm:7.22.6"
+"@babel/helper-compilation-targets@npm:^7.22.9":
+  version: 7.22.9
+  resolution: "@babel/helper-compilation-targets@npm:7.22.9"
   dependencies:
-    "@babel/compat-data": ^7.22.6
+    "@babel/compat-data": ^7.22.9
     "@babel/helper-validator-option": ^7.22.5
-    "@nicolo-ribaudo/semver-v6": ^6.3.3
     browserslist: ^4.21.9
     lru-cache: ^5.1.1
+    semver: ^6.3.1
   peerDependencies:
     "@babel/core": ^7.0.0
-  checksum: c7788c48099c4f0edf2adeb367a941a930d39ed7453140ceb10d7114c4091922adf56d3cdd832050fd4501f25e872886390629042ddd365d3bce2ecad69ed394
+  checksum: ea0006c6a93759025f4a35a25228ae260538c9f15023e8aac2a6d45ca68aef4cf86cfc429b19af9a402cbdd54d5de74ad3fbcf6baa7e48184dc079f1a791e178
   languageName: node
   linkType: hard
 
@@ -146,19 +146,18 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@babel/helper-module-transforms@npm:^7.22.5":
-  version: 7.22.5
-  resolution: "@babel/helper-module-transforms@npm:7.22.5"
+"@babel/helper-module-transforms@npm:^7.22.9":
+  version: 7.22.9
+  resolution: "@babel/helper-module-transforms@npm:7.22.9"
   dependencies:
     "@babel/helper-environment-visitor": ^7.22.5
     "@babel/helper-module-imports": ^7.22.5
     "@babel/helper-simple-access": ^7.22.5
-    "@babel/helper-split-export-declaration": ^7.22.5
+    "@babel/helper-split-export-declaration": ^7.22.6
     "@babel/helper-validator-identifier": ^7.22.5
-    "@babel/template": ^7.22.5
-    "@babel/traverse": ^7.22.5
-    "@babel/types": ^7.22.5
-  checksum: 8985dc0d971fd17c467e8b84fe0f50f3dd8610e33b6c86e5b3ca8e8859f9448bcc5c84e08a2a14285ef388351c0484797081c8f05a03770bf44fc27bf4900e68
+  peerDependencies:
+    "@babel/core": ^7.0.0
+  checksum: 2751f77660518cf4ff027514d6f4794f04598c6393be7b04b8e46c6e21606e11c19f3f57ab6129a9c21bacdf8b3ffe3af87bb401d972f34af2d0ffde02ac3001
   languageName: node
   linkType: hard
 
@@ -178,7 +177,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@babel/helper-split-export-declaration@npm:^7.22.5, @babel/helper-split-export-declaration@npm:^7.22.6":
+"@babel/helper-split-export-declaration@npm:^7.22.6":
   version: 7.22.6
   resolution: "@babel/helper-split-export-declaration@npm:7.22.6"
   dependencies:
@@ -292,7 +291,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@babel/traverse@npm:^7.22.5, @babel/traverse@npm:^7.22.6, @babel/traverse@npm:^7.22.8, @babel/traverse@npm:^7.4.5":
+"@babel/traverse@npm:^7.22.6, @babel/traverse@npm:^7.22.8, @babel/traverse@npm:^7.4.5":
   version: 7.22.8
   resolution: "@babel/traverse@npm:7.22.8"
   dependencies:
@@ -1060,6 +1059,16 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@jridgewell/source-map@npm:^0.3.3":
+  version: 0.3.5
+  resolution: "@jridgewell/source-map@npm:0.3.5"
+  dependencies:
+    "@jridgewell/gen-mapping": ^0.3.0
+    "@jridgewell/trace-mapping": ^0.3.9
+  checksum: 1ad4dec0bdafbade57920a50acec6634f88a0eb735851e0dda906fa9894e7f0549c492678aad1a10f8e144bfe87f238307bf2a914a1bc85b7781d345417e9f6f
+  languageName: node
+  linkType: hard
+
 "@jridgewell/sourcemap-codec@npm:1.4.14":
   version: 1.4.14
   resolution: "@jridgewell/sourcemap-codec@npm:1.4.14"
@@ -1264,15 +1273,6 @@ __metadata:
   languageName: node
   linkType: soft
 
-"@nicolo-ribaudo/semver-v6@npm:^6.3.3":
-  version: 6.3.3
-  resolution: "@nicolo-ribaudo/semver-v6@npm:6.3.3"
-  bin:
-    semver: bin/semver.js
-  checksum: 8290855b1591477d2298364541fda64fafd4acc110b387067a71c9b05f4105c0a4ac079857ae9cd107c42ee884e8724a406b5116f069575e02d7ab87a35a5272
-  languageName: node
-  linkType: hard
-
 "@noble/curves@npm:1.0.0, @noble/curves@npm:~1.0.0":
   version: 1.0.0
   resolution: "@noble/curves@npm:1.0.0"
@@ -1375,11 +1375,11 @@ __metadata:
   linkType: hard
 
 "@solidity-parser/parser@npm:^0.16.0":
-  version: 0.16.0
-  resolution: "@solidity-parser/parser@npm:0.16.0"
+  version: 0.16.1
+  resolution: "@solidity-parser/parser@npm:0.16.1"
   dependencies:
     antlr4ts: ^0.5.0-alpha.4
-  checksum: 6ccbdab334331a58fde2a739cff76d5a99d836186b7899e8e027266f2af2a4bddc77c9c2abd01307cea6c470345d48edc470049e9672143b73f4aff3c8976183
+  checksum: d9e2f7042434fb850a97a2c3679f5fbf4997c7845278d0a436b3de30169e6758fe3818191694ece36dc39a40f55ae0384c4ae0ae912790b5b0806728a50466c2
   languageName: node
   linkType: hard
 
@@ -1740,7 +1740,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"acorn@npm:^8.9.0":
+"acorn@npm:^8.8.2, acorn@npm:^8.9.0":
   version: 8.10.0
   resolution: "acorn@npm:8.10.0"
   bin:
@@ -2315,7 +2315,7 @@ box-intersect@fenomas/box-intersect:
     gl-vec3: ^1.1.3
     mobx: ^6.9.0
     mobx-react-lite: ^3.4.3
-    noa-engine: "git+https://github.com/latticexyz/noa.git"
+    noa-engine: "git+https://github.com/tenetxyz/noa.git#tenet-main"
     postcss: ^8.4.24
     proxy-deep: ^3.1.1
     react: ^18.2.0
@@ -2325,9 +2325,12 @@ box-intersect@fenomas/box-intersect:
     styled-components: ^5.3.11
     tailwind-merge: ^1.13.2
     tailwindcss: ^3.3.2
+    terser: ^5.19.0
     viem: ^1.2.12
     vite: ^4.2.1
+    vite-plugin-optimize-css-modules: ^1.0.4
     wait-port: ^1.0.4
+    yarn: ^1.22.19
   languageName: unknown
   linkType: soft
 
@@ -2418,6 +2421,13 @@ box-intersect@fenomas/box-intersect:
   version: 10.0.1
   resolution: "commander@npm:10.0.1"
   checksum: 436901d64a818295803c1996cd856621a74f30b9f9e28a588e726b2b1670665bccd7c1a77007ebf328729f0139838a88a19265858a0fa7a8728c4656796db948
+  languageName: node
+  linkType: hard
+
+"commander@npm:^2.20.0":
+  version: 2.20.3
+  resolution: "commander@npm:2.20.3"
+  checksum: ab8c07884e42c3a8dbc5dd9592c606176c7eb5c1ca5ff274bcf907039b2c41de3626f684ea75ccf4d361ba004bbaff1f577d5384c155f3871e456bdf27becf9e
   languageName: node
   linkType: hard
 
@@ -2662,9 +2672,9 @@ box-intersect@fenomas/box-intersect:
   linkType: hard
 
 "electron-to-chromium@npm:^1.4.431":
-  version: 1.4.455
-  resolution: "electron-to-chromium@npm:1.4.455"
-  checksum: 404901e75cd98dd9adf1ad30d25b17a529d8c26b0f3a30d523632546f98bc0fa58367ae75c7f7f1b0b94c1f6e1e43de6659ec026db861d55534e947897558ae4
+  version: 1.4.457
+  resolution: "electron-to-chromium@npm:1.4.457"
+  checksum: 5840a25776e77f3769cfdb2e5250e5f5a27d350c373efd323e38ff4763a0375e512447da4477dd887d56df7b12e360d91484af592ac3e61c969ee52d9aaf7249
   languageName: node
   linkType: hard
 
@@ -3316,9 +3326,9 @@ box-intersect@fenomas/box-intersect:
   linkType: hard
 
 "forge-std@https://github.com/foundry-rs/forge-std":
-  version: 1.5.6
-  resolution: "forge-std@https://github.com/foundry-rs/forge-std.git#commit=1c8d4b4896dffb9a7fbe3a98df5350400c467a32"
-  checksum: 5bec1d96051b250ad3835b7731f97cbbe2ed0a244cb5147d39e236b809475255e3c1a15ac52d8bdb48f36e01395af615e46f2cb3fd562aeaa62ee7ba40207f1f
+  version: 1.6.0
+  resolution: "forge-std@https://github.com/foundry-rs/forge-std.git#commit=74cfb77e308dd188d2f58864aaf44963ae6b88b1"
+  checksum: 2f6b1b66165c3a006fdea4d8e34aebb924ef1c95436a4ad5b5ba43174e84f1fceb0bc858231402d53dac5dbad8bea06ba99c506e09dcf6cbcbe1091cf0e05cb6
   languageName: node
   linkType: hard
 
@@ -4586,9 +4596,9 @@ box-intersect@fenomas/box-intersect:
   languageName: node
   linkType: hard
 
-"noa-engine@git+https://github.com/latticexyz/noa.git":
+"noa-engine@git+https://github.com/tenetxyz/noa.git#tenet-main":
   version: 0.32.0
-  resolution: "noa-engine@https://github.com/latticexyz/noa.git#commit=a8e20fe4d94bbcce16f0933ba4733518288a44af"
+  resolution: "noa-engine@https://github.com/tenetxyz/noa.git#commit=96e770aab80469210b48710a6947fb105c430562"
   dependencies:
     aabb-3d: fenomas/aabb-3d
     box-intersect: fenomas/box-intersect
@@ -4600,10 +4610,10 @@ box-intersect@fenomas/box-intersect:
     micro-game-shell: ^0.3.0
     ndarray: ^1.0.19
     voxel-aabb-sweep: ^0.5.0
-    voxel-physics-engine: ^0.11.1
+    voxel-physics-engine: ^0.13.0
   peerDependencies:
     "@babylonjs/core": ^5.0.0-alpha.48
-  checksum: e73e9d530ca108518ff2ea98ee6ba5086e30fc31f8e8f665c3d163affe4c1e13f44b053e087b63163d54f250660bf95a9e8abc3f2cf268294ca024a9ef867e23
+  checksum: c76a0febf8e0050a5d3fc7508184dbca6ce42615fff6ee508a08e605009ab7840ed5d698a7fcccb35aa66d1b217484811e1328a87ae2a855934ee7b86f489c08
   languageName: node
   linkType: hard
 
@@ -5348,7 +5358,7 @@ box-intersect@fenomas/box-intersect:
   languageName: node
   linkType: hard
 
-"semver@npm:^6.3.0":
+"semver@npm:^6.3.0, semver@npm:^6.3.1":
   version: 6.3.1
   resolution: "semver@npm:6.3.1"
   bin:
@@ -5537,7 +5547,7 @@ box-intersect@fenomas/box-intersect:
   languageName: node
   linkType: hard
 
-"source-map-support@npm:^0.5.16":
+"source-map-support@npm:^0.5.16, source-map-support@npm:~0.5.20":
   version: 0.5.21
   resolution: "source-map-support@npm:0.5.21"
   dependencies:
@@ -5836,6 +5846,20 @@ box-intersect@fenomas/box-intersect:
   languageName: node
   linkType: hard
 
+"terser@npm:^5.19.0":
+  version: 5.19.0
+  resolution: "terser@npm:5.19.0"
+  dependencies:
+    "@jridgewell/source-map": ^0.3.3
+    acorn: ^8.8.2
+    commander: ^2.20.0
+    source-map-support: ~0.5.20
+  bin:
+    terser: bin/terser
+  checksum: 31c937f1a30c03b68825df7803a3584b13616647438be6cbc0914b688f064a3f4f938d8182e476342ddd1675e84798393b076caeb549393f4df768aec9abd6bd
+  languageName: node
+  linkType: hard
+
 "text-table@npm:^0.2.0":
   version: 0.2.0
   resolution: "text-table@npm:0.2.0"
@@ -6113,6 +6137,15 @@ box-intersect@fenomas/box-intersect:
   languageName: node
   linkType: hard
 
+"vite-plugin-optimize-css-modules@npm:^1.0.4":
+  version: 1.0.4
+  resolution: "vite-plugin-optimize-css-modules@npm:1.0.4"
+  peerDependencies:
+    vite: ^4.0.0 || ^3.0.0 || ^2.0.0
+  checksum: 5daae791ed46e0e99a415dc401ba228ddb950918c9384fa2305659fa7d398ebff8d183d140955c5b0743df6dae6bcd85cd9b7de239519992bdce176e9e500cad
+  languageName: node
+  linkType: hard
+
 "vite@npm:^4.2.1":
   version: 4.4.3
   resolution: "vite@npm:4.4.3"
@@ -6167,14 +6200,14 @@ box-intersect@fenomas/box-intersect:
   languageName: node
   linkType: hard
 
-"voxel-physics-engine@npm:^0.11.1":
-  version: 0.11.1
-  resolution: "voxel-physics-engine@npm:0.11.1"
+"voxel-physics-engine@npm:^0.13.0":
+  version: 0.13.0
+  resolution: "voxel-physics-engine@npm:0.13.0"
   dependencies:
     aabb-3d: "github:fenomas/aabb-3d"
     gl-vec3: ^1.1.3
     voxel-aabb-sweep: ^0.5.0
-  checksum: 3ff22e56e24759c315bc47a31d78a3053cfc88d48ea062369ac757050353ee074dd7d5695413691d759318fb18a7835d8ebd463c01f382012176d2af61753a4c
+  checksum: dad053a0b16b0e4c2ef87ca41db45f49ff61ddf990373c2bbd57f3c6feeb0b7d195f8d6dea155326ebb722aa03145df2f5b1af3e444e373181ce695d33a2af9a
   languageName: node
   linkType: hard
 
@@ -6354,6 +6387,16 @@ box-intersect@fenomas/box-intersect:
     y18n: ^5.0.5
     yargs-parser: ^21.1.1
   checksum: 73b572e863aa4a8cbef323dd911d79d193b772defd5a51aab0aca2d446655216f5002c42c5306033968193bdbf892a7a4c110b0d77954a7fdf563e653967b56a
+  languageName: node
+  linkType: hard
+
+"yarn@npm:^1.22.19":
+  version: 1.22.19
+  resolution: "yarn@npm:1.22.19"
+  bin:
+    yarn: bin/yarn.js
+    yarnpkg: bin/yarn.js
+  checksum: b43d2cc5fee7e933beb12a8aee7dfceca9e9ef2dd17c5d04d15a12ab7bec5f5744ea34a07b86e013da7f291a18c4e1ad8f70e150f5ed2f4666e6723c7f0a8452
   languageName: node
   linkType: hard
 

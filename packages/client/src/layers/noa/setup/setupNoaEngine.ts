@@ -69,7 +69,7 @@ export function setupNoaEngine(network: NetworkLayer) {
     if (!data) return;
     const voxelMaterials = (Array.isArray(data.material) ? data.material : [data.material]) as string[];
     for (const texture of voxelMaterials) {
-      console.log("Registering material", texture);
+      // console.log("Registering material", texture);
       noa.registry.registerMaterial(texture, undefined, texture);
     }
   }
@@ -94,7 +94,7 @@ export function setupNoaEngine(network: NetworkLayer) {
       delete augmentedVoxel.material;
     }
 
-    console.log("Registering block", index, augmentedVoxel);
+    // console.log("Registering block", index, augmentedVoxel);
     noa.registry.registerBlock(index, augmentedVoxel);
   }
 

@@ -1,21 +1,10 @@
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
-import { nodePolyfills } from "vite-plugin-node-polyfills";
-import requireTransform from "vite-plugin-require-transform";
+import { optimizeCssModules } from "vite-plugin-optimize-css-modules";
 
 // https://www.npmjs.com/package/vite-plugin-require-transform
 export default defineConfig({
-  plugins: [
-    react(),
-    // nodePolyfills({
-    //   // Whether to polyfill `node:` protocol imports.
-    //   protocolImports: true,
-    // }),
-    // requireTransform({
-    //   fileRegex: /.ts$|.tsx$/,
-    //   importPrefix: "_vite_plugin_require_transform_",
-    // }),
-  ],
+  plugins: [react(), optimizeCssModules()],
   server: {
     host: "0.0.0.0",
     port: 3000,
@@ -24,7 +13,14 @@ export default defineConfig({
     },
   },
   build: {
-    minify: true,
+    minify: "terser",
+    terserOptions: {
+      compress: true,
+      keep_classnames: false,
+      keep_fnames: false,
+      toplevel: true,
+      mangle: true,
+    },
     outDir: "dist",
     emptyOutDir: true,
     sourcemap: false,

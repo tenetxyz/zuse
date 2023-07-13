@@ -82,7 +82,7 @@ contract RegisterCreationSystem is System {
     // TODO: should we also limit the dimensions of the creation?
   }
 
-  // TODO: put this into a precompile for speed
+  // PERF: put this into a precompile for speed
   function repositionBlocksSoLowerSouthwestCornerIsOnOrigin(
     VoxelCoord[] memory voxelCoords
   ) private pure returns (bytes memory, VoxelCoord memory) {

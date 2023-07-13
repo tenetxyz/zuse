@@ -7,3 +7,9 @@ unzip dist.zip
 curl -L https://foundry.paradigm.xyz | bash
 source /home/ec2-user/.bashrc
 foundryup
+
+sudo yum install tmux -y
+sudo yum install git -y
+sudo yum install htop -y
+
+ehco "source /home/ec2-user/.bashrc"

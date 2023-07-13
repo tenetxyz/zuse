@@ -3,6 +3,7 @@ import { Engine } from "noa-engine";
 import { CHUNK_RENDER_DISTANCE, CHUNK_SIZE, SKY_COLOR } from "../setup/constants";
 
 export function setupScene(noa: Engine) {
+  console.log(noa);
   // eslint-disable-next-line @typescript-eslint/ban-ts-comment
   //@ts-ignore
   const camera = noa.rendering.camera;

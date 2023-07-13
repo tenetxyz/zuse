@@ -57,7 +57,9 @@ export async function setupNetwork() {
     component.id = name;
   });
 
+  console.log("Getting network config...");
   const networkConfig = await getNetworkConfig();
+  console.log("Got network config", networkConfig);
   const result = await setupMUDV2Network<typeof contractComponents, typeof storeConfig>({
     networkConfig,
     world,
@@ -66,6 +68,7 @@ export async function setupNetwork() {
     storeConfig,
     worldAbi: IWorld__factory.abi,
   });
+  console.log("Setup MUD V2 network", result);
 
   const signer = result.network.signer.get();
   const playerAddress = result.network.connectedAddress.get();

@@ -31,11 +31,11 @@ export default defineConfig({
   build: {
     minify: "terser",
     terserOptions: {
+      compress: true,
+      keep_classnames: false,
       keep_fnames: false,
-      mangle: {
-        toplevel: true,
-        module: true,
-      },
+      toplevel: true,
+      mangle: true,
     },
     outDir: "dist",
     emptyOutDir: true,

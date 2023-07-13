@@ -1,6 +1,7 @@
 #!/bin/sh
 
 cd ~
+rm -rf dist.zip
 unzip dist.zip
 
 # install foundry

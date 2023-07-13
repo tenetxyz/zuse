@@ -1,3 +1,3 @@
 #!/bin/bash
 
-./relay
+./relay --metrics-port 6063

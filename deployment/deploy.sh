@@ -15,7 +15,7 @@ echo "sending built client to the server"
 scp -o StrictHostKeyChecking=no -i ~/.ssh/Tenet.pem packages/client/dist.zip "ec2-user@$SERVER_HOST:/home/ec2-user/dist.zip"
 
 echo "sending server scripts"
-scp -i ~/.ssh/Tenet.pem -r deployment2/server-scripts/* "ec2-user@$SERVER_HOST:/home/ec2-user/"
+scp -i ~/.ssh/Tenet.pem -r deployment/server-scripts/* "ec2-user@$SERVER_HOST:/home/ec2-user/"
 
 
 # Note: when we build the services below, the go commands are compiling them for linux

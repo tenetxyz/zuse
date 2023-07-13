@@ -330,7 +330,7 @@ export function createNoaLayer(network: NetworkLayer) {
   function voxelUVWrapSubscription(voxelVariantKey: VoxelVariantDataKey, voxelVariantData: VoxelVariantDataValue) {
     const voxelVariantKeyStr = voxelVariantDataKeyToString(voxelVariantKey);
     if (voxelVariantData.data?.uvWrap) {
-      console.log("Registering uvWrap", voxelVariantKeyStr);
+      // console.log("Registering uvWrap", voxelVariantKeyStr);
       const voxelMaterial = noa.rendering.makeStandardMaterial("voxelMaterial-" + voxelVariantKey);
       voxelMaterial.diffuseTexture = new Texture(
         voxelVariantData.data.uvWrap,

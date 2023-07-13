@@ -1,3 +1,3 @@
 #!/bin/bash
 
-./ecs-snapshot
+./ecs-snapshot --metrics-port 6061

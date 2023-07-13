@@ -1023,6 +1023,17 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@jpweeks/typedarray-pool@npm:^2.0.0":
+  version: 2.0.0
+  resolution: "@jpweeks/typedarray-pool@npm:2.0.0"
+  dependencies:
+    bit-twiddle: ^1.0.0
+    dup: ^1.0.0
+    is-buffer: ^2.0.3
+  checksum: d97fd9f2c7b3a7b5485d6d83f50941e6e06aff3ec2b23b3c20a37f1ec6c1b5955930eefebffad446095020125dc8bc510a86dacd85463c073c1b860f95bb518d
+  languageName: node
+  linkType: hard
+
 "@jridgewell/gen-mapping@npm:^0.3.0, @jridgewell/gen-mapping@npm:^0.3.2":
   version: 0.3.3
   resolution: "@jridgewell/gen-mapping@npm:0.3.3"
@@ -1684,6 +1695,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"aabb-3d@fenomas/aabb-3d, aabb-3d@github:fenomas/aabb-3d":
+  version: 0.2.1
+  resolution: "aabb-3d@https://github.com/fenomas/aabb-3d.git#commit=c5698961161884397c711e8fb533611642a8a487"
+  dependencies:
+    gl-vec3: ^1.0.3
+  checksum: ceb2d05b6a8e29433049d392beac648958d1de7a12e2b89a24a370b7a13e5e552e9af8bba244effb95811f61823f27c218cc3ac4bf514b7b2360e96b69a91ee1
+  languageName: node
+  linkType: hard
+
 "abbrev@npm:^1.0.0":
   version: 1.1.1
   resolution: "abbrev@npm:1.1.1"
@@ -2049,6 +2069,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"bit-twiddle@npm:^1.0.0, bit-twiddle@npm:^1.0.2":
+  version: 1.0.2
+  resolution: "bit-twiddle@npm:1.0.2"
+  checksum: 2f97b47d755efac7bae5f49c2eb0929867dad2921a853a4507466b4fa5c5b97803fdf8b729ca56da35934888f50730888b8137614e9974b783f1023da908a1ea
+  languageName: node
+  linkType: hard
+
 "bn.js@npm:^4.11.9":
   version: 4.12.0
   resolution: "bn.js@npm:4.12.0"
@@ -2060,6 +2087,16 @@ __metadata:
   version: 5.2.1
   resolution: "bn.js@npm:5.2.1"
   checksum: 3dd8c8d38055fedfa95c1d5fc3c99f8dd547b36287b37768db0abab3c239711f88ff58d18d155dd8ad902b0b0cee973747b7ae20ea12a09473272b0201c9edd3
+  languageName: node
+  linkType: hard
+
+box-intersect@fenomas/box-intersect:
+  version: 1.0.3
+  resolution: "box-intersect@https://github.com/fenomas/box-intersect.git#commit=383cb9bef2cf7140ca6ca9b705669fb108d1357f"
+  dependencies:
+    "@jpweeks/typedarray-pool": ^2.0.0
+    bit-twiddle: ^1.0.2
+  checksum: 9ceb77ea10da79d1fbac0ada0d5d74c1142e19b48a241511d2ef2313cc1ad3170c86534457af1bead0aff45289e4997a725378bf1c8cd48c40452e585f25ef0e
   languageName: node
   linkType: hard
 
@@ -2278,7 +2315,7 @@ __metadata:
     gl-vec3: ^1.1.3
     mobx: ^6.9.0
     mobx-react-lite: ^3.4.3
-    noa-engine: "link:../../../noa"
+    noa-engine: "git+https://github.com/tenetxyz/noa.git"
     postcss: ^8.4.24
     proxy-deep: ^3.1.1
     react: ^18.2.0
@@ -2619,6 +2656,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"dup@npm:^1.0.0":
+  version: 1.0.0
+  resolution: "dup@npm:1.0.0"
+  checksum: 1abda5b5b0b85f7ed1fef0fbe68e426c0951b0b9c0daea264d0e2fd844d6cc644e838faefc4e7db5385896a244e1284bfe3d3f6b4e673f37aac5f58f61970e36
+  languageName: node
+  linkType: hard
+
 "eastasianwidth@npm:^0.2.0":
   version: 0.2.0
   resolution: "eastasianwidth@npm:0.2.0"
@@ -2668,6 +2712,13 @@ __metadata:
   dependencies:
     iconv-lite: ^0.6.2
   checksum: bb98632f8ffa823996e508ce6a58ffcf5856330fde839ae42c9e1f436cc3b5cc651d4aeae72222916545428e54fd0f6aa8862fd8d25bdbcc4589f1e3f3715e7f
+  languageName: node
+  linkType: hard
+
+"ent-comp@npm:^0.10.1":
+  version: 0.10.1
+  resolution: "ent-comp@npm:0.10.1"
+  checksum: 3e9b1d20d25d0c217c0acf449890aa6dd3360a49f96852eccc58c16e41677f08da19d9e33a0274fc4cd5eac20de2d826d61bbe8381119daa319cb34f821cc87e
   languageName: node
   linkType: hard
 
@@ -3081,6 +3132,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"events@npm:^3.3.0":
+  version: 3.3.0
+  resolution: "events@npm:3.3.0"
+  checksum: f6f487ad2198aa41d878fa31452f1a3c00958f46e9019286ff4787c84aac329332ab45c9cdc8c445928fc6d7ded294b9e005a7fce9426488518017831b272780
+  languageName: node
+  linkType: hard
+
 "everlon@workspace:.":
   version: 0.0.0-use.local
   resolution: "everlon@workspace:."
@@ -3175,6 +3233,13 @@ __metadata:
   version: 2.0.6
   resolution: "fast-levenshtein@npm:2.0.6"
   checksum: 92cfec0a8dfafd9c7a15fba8f2cc29cd0b62b85f056d99ce448bbcd9f708e18ab2764bda4dd5158364f4145a7c72788538994f0d1787b956ef0d1062b0f7c24c
+  languageName: node
+  linkType: hard
+
+"fast-voxel-raycast@npm:^0.1.1":
+  version: 0.1.1
+  resolution: "fast-voxel-raycast@npm:0.1.1"
+  checksum: 3e608673ae76d6793cff799770cba8673152f572287be8f1c3c83056987c2c0b00d206fe950d49191841f177e65a802ddb03b09ef73271ded48fc7f028f37012
   languageName: node
   linkType: hard
 
@@ -3362,6 +3427,16 @@ __metadata:
   languageName: node
   linkType: hard
 
+"game-inputs@npm:^0.5.0":
+  version: 0.5.0
+  resolution: "game-inputs@npm:0.5.0"
+  dependencies:
+    events: ^3.3.0
+    vkey: ^1.0.1
+  checksum: 40e1d02023e8e1028a5e635962b88f19afe7d8222998047b45605040e7bdaa4c80bb87e5f700eef46d5effbd8ada81749f3d63130a3d5b3f97bf384a1b6a8618
+  languageName: node
+  linkType: hard
+
 "gauge@npm:^4.0.3":
   version: 4.0.4
   resolution: "gauge@npm:4.0.4"
@@ -3414,7 +3489,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"gl-vec3@npm:^1.1.3":
+"gl-vec3@npm:^1.0.3, gl-vec3@npm:^1.1.3":
   version: 1.1.3
   resolution: "gl-vec3@npm:1.1.3"
   checksum: 987ef77eec955a2a5d4304aad7833bc2e49830e3e415e4422eb4ac3a45975a2a6a29a241d9e6e8de5682659cfffdb0b97ef7a3ef80c8b69ea11954166347734c
@@ -3775,6 +3850,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"iota-array@npm:^1.0.0":
+  version: 1.0.0
+  resolution: "iota-array@npm:1.0.0"
+  checksum: e537c236d95e835f73dc59d725bd3eee9a722a2e7b596ff1cc2a91dd9781f82318040321d5839f1e1d4ace1411134200d443bb22dc2ab0ee4da7e03a4f74b73d
+  languageName: node
+  linkType: hard
+
 "ip@npm:^2.0.0":
   version: 2.0.0
   resolution: "ip@npm:2.0.0"
@@ -3825,6 +3907,20 @@ __metadata:
     call-bind: ^1.0.2
     has-tostringtag: ^1.0.0
   checksum: c03b23dbaacadc18940defb12c1c0e3aaece7553ef58b162a0f6bba0c2a7e1551b59f365b91e00d2dbac0522392d576ef322628cb1d036a0fe51eb466db67222
+  languageName: node
+  linkType: hard
+
+"is-buffer@npm:^1.0.2":
+  version: 1.1.6
+  resolution: "is-buffer@npm:1.1.6"
+  checksum: 4a186d995d8bbf9153b4bd9ff9fd04ae75068fe695d29025d25e592d9488911eeece84eefbd8fa41b8ddcc0711058a71d4c466dcf6f1f6e1d83830052d8ca707
+  languageName: node
+  linkType: hard
+
+"is-buffer@npm:^2.0.3":
+  version: 2.0.5
+  resolution: "is-buffer@npm:2.0.5"
+  checksum: 764c9ad8b523a9f5a32af29bdf772b08eb48c04d2ad0a7240916ac2688c983bf5f8504bf25b35e66240edeb9d9085461f9b5dae1f3d2861c6b06a65fe983de42
   languageName: node
   linkType: hard
 
@@ -4262,6 +4358,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"micro-game-shell@npm:^0.3.0":
+  version: 0.3.0
+  resolution: "micro-game-shell@npm:0.3.0"
+  checksum: bcdb3f8944c7f3fac4d60dba047ebac428e191a4bfdde3bec105e45ff69db278bd8206dc5c6a2f937f51030fe52d9a03327a585e08e8d2d19f0a701ade0e63c1
+  languageName: node
+  linkType: hard
+
 "micromatch@npm:^4.0.4, micromatch@npm:^4.0.5":
   version: 4.0.5
   resolution: "micromatch@npm:4.0.5"
@@ -4476,6 +4579,16 @@ __metadata:
   languageName: node
   linkType: hard
 
+"ndarray@npm:^1.0.19":
+  version: 1.0.19
+  resolution: "ndarray@npm:1.0.19"
+  dependencies:
+    iota-array: ^1.0.0
+    is-buffer: ^1.0.2
+  checksum: 2f8ac89f0bcfc4b831677909d1326971e35419162811a74ddb5dfab2cb6204b8625a11cd5dcff60b0fa10071809af7dc367e6191703507f8cdf23856ccce5b0c
+  languageName: node
+  linkType: hard
+
 "negotiator@npm:^0.6.3":
   version: 0.6.3
   resolution: "negotiator@npm:0.6.3"
@@ -4483,11 +4596,26 @@ __metadata:
   languageName: node
   linkType: hard
 
-"noa-engine@link:../../../noa::locator=client%40workspace%3Apackages%2Fclient":
-  version: 0.0.0-use.local
-  resolution: "noa-engine@link:../../../noa::locator=client%40workspace%3Apackages%2Fclient"
+"noa-engine@git+https://github.com/tenetxyz/noa.git":
+  version: 0.31.0
+  resolution: "noa-engine@https://github.com/tenetxyz/noa.git#commit=ff19481f55507e0d92adafa2f52ca35c0145dee8"
+  dependencies:
+    aabb-3d: fenomas/aabb-3d
+    box-intersect: fenomas/box-intersect
+    ent-comp: ^0.10.1
+    events: ^3.3.0
+    fast-voxel-raycast: ^0.1.1
+    game-inputs: ^0.5.0
+    gl-vec3: ^1.1.3
+    micro-game-shell: ^0.3.0
+    ndarray: ^1.0.19
+    voxel-aabb-sweep: ^0.5.0
+    voxel-physics-engine: ^0.13.0
+  peerDependencies:
+    "@babylonjs/core": 5.0.0-alpha.48
+  checksum: 02c0ba16c66432fe6bd70dbdb9c4bb945f19f27ef1b71031be85a1a573ccad75e6161ba80b7564fb10cb88e8777eb2d593adf837065ce47267f6fb7977a8b68e
   languageName: node
-  linkType: soft
+  linkType: hard
 
 "node-gyp@npm:latest":
   version: 9.4.0
@@ -6064,6 +6192,31 @@ __metadata:
   bin:
     vite: bin/vite.js
   checksum: 2f7c90de35c840ed7f33000d65006053885c0342aa7c19cee7369d7b3d92473a9bae790f910eb3e9900bdb7ca89559a772ee4782f35636ec4e6bd10717e7f5ff
+  languageName: node
+  linkType: hard
+
+"vkey@npm:^1.0.1":
+  version: 1.0.1
+  resolution: "vkey@npm:1.0.1"
+  checksum: d53ef7dfc11532f2bd029f20cd16d1bc3ae7ad7ff68a3578d50f1eea8e2fff0c7fb2503ac775192a27058f0aa673f000b31e1cef8c32fa5920f2e20080e942ef
+  languageName: node
+  linkType: hard
+
+"voxel-aabb-sweep@npm:^0.5.0":
+  version: 0.5.0
+  resolution: "voxel-aabb-sweep@npm:0.5.0"
+  checksum: f7c0ff0cd3d5d92edc4553c0080105325e51ce08c135406f93f0f39d90845e17543cf3dfa1666e133027bc5bbec703696071f22a6a42ede5527abeb9c29a998c
+  languageName: node
+  linkType: hard
+
+"voxel-physics-engine@npm:^0.13.0":
+  version: 0.13.0
+  resolution: "voxel-physics-engine@npm:0.13.0"
+  dependencies:
+    aabb-3d: "github:fenomas/aabb-3d"
+    gl-vec3: ^1.1.3
+    voxel-aabb-sweep: ^0.5.0
+  checksum: dad053a0b16b0e4c2ef87ca41db45f49ff61ddf990373c2bbd57f3c6feeb0b7d195f8d6dea155326ebb722aa03145df2f5b1af3e444e373181ce695d33a2af9a
   languageName: node
   linkType: hard
 

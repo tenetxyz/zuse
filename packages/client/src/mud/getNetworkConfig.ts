@@ -1,7 +1,7 @@
 import { SetupContractConfig, getBurnerWallet } from "@latticexyz/std-client";
 import worldsJson from "@tenetxyz/contracts/worlds.json";
 import { supportedChains } from "./supportedChains";
-import { tenetTestnet } from "./tenetTestnet";
+import { tenetTestnet, tenetRelayServiceUrl } from "./tenetTestnet";
 
 const worlds = worldsJson as Partial<Record<string, { address: string; blockNumber?: number }>>;
 
@@ -16,7 +16,6 @@ export async function getNetworkConfig(): Promise<NetworkConfig> {
   const params = new URLSearchParams(window.location.search);
 
   const chainConfig = tenetTestnet;
-
   const chainId = chainConfig["id"];
   const chain = chainConfig;
   if (!chain) {
@@ -53,6 +52,6 @@ export async function getNetworkConfig(): Promise<NetworkConfig> {
     initialBlockNumber,
     snapSync: params.get("snapSync") === "true",
     disableCache: params.get("cache") === "false",
-    relayServiceUrl: params.get("relay") ?? undefined, // TODO: Figure out how use a default relay
+    relayServiceUrl: params.get("relay") ?? tenetRelayServiceUrl,
   };
 }

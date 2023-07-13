@@ -5,6 +5,8 @@ import { MUDChain } from "@latticexyz/common/chains";
 // we can't use "localhost" because when the user goes on our website, localhost is THEIR computer, not our AWS instance running the node
 const nodeHost = import.meta.env.VITE_PROD_HOST;
 
+export const tenetRelayServiceUrl = `http://${nodeHost}:50072`;
+
 export const tenetTestnet = {
   name: "Tenet Testnet",
   id: 905,
@@ -31,5 +33,5 @@ export const tenetTestnet = {
     },
   },
   modeUrl: `http://${nodeHost}:1111`, // TODO: fix
-  faucetUrl: `http://${nodeHost}:2222`, // TODO: fix
+  faucetUrl: `http://${nodeHost}:50082`,
 } as const satisfies MUDChain;

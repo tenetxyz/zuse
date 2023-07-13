@@ -5,7 +5,7 @@ import { getUniqueEntity } from "@latticexyz/world/src/modules/uniqueentity/getU
 import { System } from "@latticexyz/world/src/System.sol";
 import { Strings } from "@openzeppelin/contracts/utils/Strings.sol";
 import { IWorld } from "@tenet-contracts/src/codegen/world/IWorld.sol";
-import { addressToEntityKey, getEntitiesAtCoord, voxelCoordToString } from "../Utils.sol";
+import { addressToEntityKey, getEntitiesAtCoord, voxelCoordToString, voxelCoordsAreEqual } from "../Utils.sol";
 import { VoxelType, Position, Creation, CreationData, VoxelTypeData, Spawn, SpawnData, OfSpawn } from "@tenet-contracts/src/codegen/Tables.sol";
 import { PositionData } from "@tenet-contracts/src/codegen/tables/Position.sol";
 import { VoxelCoord, BaseCreation } from "../Types.sol";
@@ -88,7 +88,7 @@ contract RegisterCreationSystem is System {
   function repositionBlocksSoLowerSouthwestCornerIsOnOrigin(
     VoxelCoord[] memory voxelCoords,
     bytes memory baseCreations
-  ) private pure returns (bytes memory, VoxelCoord memory) {
+  ) private view returns (bytes memory, VoxelCoord memory) {
     int32 lowestX = 2147483647; // TODO: use type(int32).max;
     int32 lowestY = 2147483647;
     int32 lowestZ = 2147483647;
@@ -128,9 +128,10 @@ contract RegisterCreationSystem is System {
   }
 
   function getVoxelCoordsFromBaseCreations(
-    BaseCreation[] memory baseCreations
-  ) private pure returns (VoxelCoord[] memory) {
-    uint32 totalVoxels = calculateTotalVoxelsInComposedCreation(baseCreations);
+    bytes memory encodedBaseCreations
+  ) private view returns (VoxelCoord[] memory) {
+    BaseCreation[] memory baseCreations = abi.decode(encodedBaseCreations, (BaseCreation[]));
+    uint256 totalVoxels = calculateTotalVoxelsInComposedCreation(baseCreations);
     uint voxelIdx = 0;
 
     VoxelCoord[] memory voxelCoords = new VoxelCoord[](totalVoxels);
@@ -138,7 +139,7 @@ contract RegisterCreationSystem is System {
       BaseCreation memory baseCreation = baseCreations[i];
 
       VoxelCoord[] memory creationRelativeCoords = abi.decode(
-        Creation.getVoxelCoords(baseCreation.creationId),
+        Creation.getRelativePositions(baseCreation.creationId),
         (VoxelCoord[])
       );
       VoxelCoord[] memory deletedRelativeCoords = baseCreation.deletedRelativeCoords;
@@ -147,8 +148,8 @@ contract RegisterCreationSystem is System {
         VoxelCoord memory relativeCoord = creationRelativeCoords[j];
         // TODO: we need to figure out a way to have in-memory sets in solidity.
         bool isDeleted = false;
-        for (uint32 k = 0; k < deletedCoords.length; k++) {
-          if (deletedCoords[k] == relativeCoord) {
+        for (uint32 k = 0; k < baseCreation.deletedRelativeCoords.length; k++) {
+          if (voxelCoordsAreEqual(baseCreation.deletedRelativeCoords[k], relativeCoord)) {
             isDeleted = true;
             break;
           }
@@ -162,17 +163,17 @@ contract RegisterCreationSystem is System {
     return voxelCoords;
   }
 
-  function calculateTotalVoxelsInComposedCreation(BaseCreation[] memory baseCreations) private returns (uint32) {
-    uint32 totalVoxels = 0;
+  function calculateTotalVoxelsInComposedCreation(BaseCreation[] memory baseCreations) private view returns (uint256) {
+    uint256 totalVoxels = 0;
     for (uint32 i = 0; i < baseCreations.length; i++) {
       VoxelCoord[] memory creationRelativeCoords = abi.decode(
-        Creation.getVoxelCoords(baseCreation.creationId),
+        Creation.getRelativePositions(baseCreations[i].creationId),
         (VoxelCoord[])
       );
-      VoxelCoord[] memory deletedCoords = baseCreations[i].deletedCoords;
-      verifyDeletedCoordsAreInBaseCreation(creationRelativeCoords, deletedCoords);
+      VoxelCoord[] memory deletedRelativeCoords = baseCreations[i].deletedRelativeCoords;
+      verifyDeletedCoordsAreInBaseCreation(creationRelativeCoords, deletedRelativeCoords);
 
-      totalVoxels += creationRelativeCoords.length - deletedCoords.length;
+      totalVoxels += creationRelativeCoords.length - deletedRelativeCoords.length;
     }
     return totalVoxels;
   }
@@ -184,7 +185,7 @@ contract RegisterCreationSystem is System {
     for (uint32 i = 0; i < deletedRelativeCoords.length; i++) {
       bool deletedCoordExistsInCreation = false;
       for (uint32 j = 0; j < creationRelativeCoords.length; j++) {
-        if (deletedRelativeCoords[i] == creationRelativeCoords[j]) {
+        if (voxelCoordsAreEqual(deletedRelativeCoords[i], creationRelativeCoords[j])) {
           deletedCoordExistsInCreation = true;
           break;
         }

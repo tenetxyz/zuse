@@ -42,6 +42,7 @@ import { voxelCoordToString } from "../utils/coord";
 import { defaultAbiCoder } from "ethers/lib/utils";
 import { toast } from "react-toastify";
 import { abiDecode } from "../utils/abi";
+import { BaseCreation } from "../layers/react/components/RegisterCreation";
 
 export type SetupNetworkResult = Awaited<ReturnType<typeof setupNetwork>>;
 
@@ -549,7 +550,12 @@ export async function setupNetwork() {
     });
   }
 
-  function registerCreation(creationName: string, creationDescription: string, voxels: Entity[]) {
+  function registerCreation(
+    creationName: string,
+    creationDescription: string,
+    voxels: Entity[],
+    baseCreations: BaseCreation[]
+  ) {
     // TODO: Relpace Diamond NFT with a creation symbol
     const preview = getNftStorageLink("bafkreicro56v6rinwnltbkyjfzqdwva2agtrtypwaeowud447louxqgl5y");
 
@@ -565,6 +571,10 @@ export async function setupNetwork() {
           creationName,
           creationDescription,
           voxels,
+          abi.encode(
+            ["(bytes32, bytes, (int32, int32, int32)[])[]"], // encode as base creations array
+            baseCreations
+          ),
           { gasLimit: 30_000_000 },
         ]);
       },

@@ -1,6 +1,6 @@
 import React, { ChangeEvent, KeyboardEvent } from "react";
 import { ComponentRecord, Layers } from "../../../types";
-import { Entity, setComponent } from "@latticexyz/recs";
+import { Entity, getComponentValue, getComponentValueStrict, setComponent } from "@latticexyz/recs";
 import { NotificationIcon } from "../../noa/components/persistentNotification";
 import { calculateMinMax } from "../../../utils/voxels";
 import { useComponentValue } from "@latticexyz/react";
@@ -8,10 +8,18 @@ import { voxelCoordToString } from "../../../utils/coord";
 import { FocusedUiType } from "../../noa/components/FocusedUi";
 import { twMerge } from "tailwind-merge";
 import { SetState } from "../../../utils/types";
+import { stringToEntity } from "../../../utils/entity";
+import { defineSpawnInFocusComponent } from "../../noa/components";
 
 export interface RegisterCreationFormData {
   name: string;
   description: string;
+}
+
+export interface BaseCreation {
+  creationId: string;
+  lowerSouthWestCornerOfSpawn: string;
+  deletedVoxels: string[];
 }
 
 interface Props {
@@ -28,6 +36,7 @@ const RegisterCreation: React.FC<Props> = ({ layers, formData, setFormData, rese
       SingletonEntity,
     },
     network: {
+      contractComponents: { OfSpawn, Spawn },
       api: { getEntityAtPosition, registerCreation },
     },
   } = layers;
@@ -36,9 +45,52 @@ const RegisterCreation: React.FC<Props> = ({ layers, formData, setFormData, rese
   const corners: IVoxelSelection | undefined = useComponentValue(VoxelSelection, SingletonEntity);
 
   const handleSubmit = () => {
-    const voxels = getVoxelsWithinSelection();
-    registerCreation(formData.name, formData.description, voxels);
+    const allVoxels = getVoxelsWithinSelection();
+    const { voxelsNotInSpawn, voxelsInSpawn, spawnDefs } = separateVoxelsFromSpawns(allVoxels);
+    const baseCreations = calculateBaseCreations(voxelsInSpawn, spawnDefs);
+    registerCreation(formData.name, formData.description, voxelsNotInSpawn, baseCreations);
     resetRegisterCreationForm();
+  };
+  const separateVoxelsFromSpawns = (voxels: Entity[]) => {
+    const spawnDefs = new Set<string>(); // spawnId, and lowerleft corner
+    const voxelsNotInSpawn = [];
+    const voxelsInSpawn = new Set<string>();
+    for (const voxel of voxels) {
+      const spawnId = getComponentValue(OfSpawn, voxel)?.value;
+      if (spawnId) {
+        const lowerSouthWestCornerOfSpawn = getComponentValueStrict(
+          Spawn,
+          stringToEntity(spawnId)
+        ).lowerSouthWestCorner;
+        spawnDefs.add(`${spawnId}:${lowerSouthWestCornerOfSpawn}`);
+        voxelsInSpawn.add(voxel);
+      } else {
+        voxelsNotInSpawn.push(voxel);
+      }
+    }
+    return { voxelsNotInSpawn, voxelsInSpawn: voxelsInSpawn, spawnDefs };
+  };
+  const calculateBaseCreations = (voxelsInSpawn: Set<string>, spawnDefs: Set<string>): BaseCreation[] => {
+    const baseCreations: BaseCreation[] = [];
+    for (const spawnDef of spawnDefs) {
+      const [spawnId, lowerSouthWestCornerOfSpawn] = spawnDef.split(":");
+
+      const spawn = getComponentValueStrict(Spawn, stringToEntity(spawnId));
+
+      const deletedVoxels = [];
+      for (const voxel of spawn.voxels) {
+        // if this voxelId doesn't exist in the creation, it must have been deleted
+        if (!voxelsInSpawn.has(voxel)) {
+          deletedVoxels.push(voxel);
+        }
+      }
+      baseCreations.push({
+        creationId: spawn.creationId,
+        lowerSouthWestCornerOfSpawn,
+        deletedVoxels,
+      });
+    }
+    return baseCreations;
   };
 
   const handleInputChange = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {

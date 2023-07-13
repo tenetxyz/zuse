@@ -17,7 +17,8 @@ contract RegisterCreationSystem is System {
   function registerCreation(
     string memory name,
     string memory description,
-    bytes32[] memory voxels
+    bytes32[] memory voxels,
+    bytes memory baseCreations
   ) public returns (bytes32) {
     // returns the created creationId
     VoxelCoord[] memory voxelCoords = getVoxelCoords(voxels);
@@ -36,8 +37,8 @@ contract RegisterCreationSystem is System {
     creation.name = name;
     creation.description = description;
 
-    //        TODO: implement
-    //        creation.voxelMetadata =
+    // TODO: implement
+    // creation.voxelMetadata =
 
     bytes32 creationId = getCreationHash(voxelTypes, relativePositions, _msgSender());
     Creation.set(creationId, creation);

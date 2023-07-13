@@ -4,12 +4,13 @@ import { Entity, getComponentValue, getComponentValueStrict, setComponent } from
 import { NotificationIcon } from "../../noa/components/persistentNotification";
 import { calculateMinMax } from "../../../utils/voxels";
 import { useComponentValue } from "@latticexyz/react";
-import { voxelCoordToString } from "../../../utils/coord";
+import { decodeCoord, sub, voxelCoordToString } from "../../../utils/coord";
 import { FocusedUiType } from "../../noa/components/FocusedUi";
 import { twMerge } from "tailwind-merge";
 import { SetState } from "../../../utils/types";
 import { stringToEntity } from "../../../utils/entity";
 import { defineSpawnInFocusComponent } from "../../noa/components";
+import { VoxelCoord } from "@latticexyz/utils";
 
 export interface RegisterCreationFormData {
   name: string;
@@ -18,8 +19,8 @@ export interface RegisterCreationFormData {
 
 export interface BaseCreation {
   creationId: string;
-  lowerSouthWestCornerOfSpawn: string;
-  deletedVoxels: string[];
+  lowerSouthWestCornerOfSpawn: VoxelCoord;
+  deletedRelativeCoords: VoxelCoord[];
 }
 
 interface Props {
@@ -36,7 +37,7 @@ const RegisterCreation: React.FC<Props> = ({ layers, formData, setFormData, rese
       SingletonEntity,
     },
     network: {
-      contractComponents: { OfSpawn, Spawn },
+      contractComponents: { OfSpawn, Spawn, Position },
       api: { getEntityAtPosition, registerCreation },
     },
   } = layers;
@@ -58,11 +59,11 @@ const RegisterCreation: React.FC<Props> = ({ layers, formData, setFormData, rese
     for (const voxel of voxels) {
       const spawnId = getComponentValue(OfSpawn, voxel)?.value;
       if (spawnId) {
-        const lowerSouthWestCornerOfSpawn = getComponentValueStrict(
+        const encodedLowerSouthWestCorner = getComponentValueStrict(
           Spawn,
           stringToEntity(spawnId)
         ).lowerSouthWestCorner;
-        spawnDefs.add(`${spawnId}:${lowerSouthWestCornerOfSpawn}`);
+        spawnDefs.add(`${spawnId}:${encodedLowerSouthWestCorner}`);
         voxelsInSpawn.add(voxel);
       } else {
         voxelsNotInSpawn.push(voxel);
@@ -73,21 +74,24 @@ const RegisterCreation: React.FC<Props> = ({ layers, formData, setFormData, rese
   const calculateBaseCreations = (voxelsInSpawn: Set<string>, spawnDefs: Set<string>): BaseCreation[] => {
     const baseCreations: BaseCreation[] = [];
     for (const spawnDef of spawnDefs) {
-      const [spawnId, lowerSouthWestCornerOfSpawn] = spawnDef.split(":");
+      const [spawnId, encodedLowerSouthWestCorner] = spawnDef.split(":");
+      const lowerSouthWestCornerOfSpawn = decodeCoord(encodedLowerSouthWestCorner);
 
       const spawn = getComponentValueStrict(Spawn, stringToEntity(spawnId));
 
-      const deletedVoxels = [];
+      const deletedRelativeCoords = [];
       for (const voxel of spawn.voxels) {
         // if this voxelId doesn't exist in the creation, it must have been deleted
         if (!voxelsInSpawn.has(voxel)) {
-          deletedVoxels.push(voxel);
+          const voxelCoord = getComponentValueStrict(Position, stringToEntity(voxel));
+          const relativeCoord = sub(voxelCoord, lowerSouthWestCornerOfSpawn);
+          deletedRelativeCoords.push(relativeCoord);
         }
       }
       baseCreations.push({
         creationId: spawn.creationId,
         lowerSouthWestCornerOfSpawn,
-        deletedVoxels,
+        deletedRelativeCoords,
       });
     }
     return baseCreations;

@@ -4,8 +4,7 @@ import { NetworkLayer } from "../../network";
 import { NoaLayer } from "../types";
 import { renderChunkyWireframe } from "./renderWireframes";
 import { Color3, Mesh, Nullable } from "@babylonjs/core";
-import { add } from "../../../utils/coord";
-import { calculateMinMaxRelativePositions } from "../../../utils/creation";
+import { add, calculateMinMaxCoords, decodeCoord } from "../../../utils/coord";
 import { Entity, EntitySymbol, getComponentValue } from "@latticexyz/recs";
 import { to256BitString, VoxelCoord } from "@latticexyz/utils";
 import { abiDecode } from "../../../utils/abi";
@@ -28,10 +27,7 @@ export function createSpawnOverlaySystem(networkLayer: NetworkLayer, noaLayer: N
     spawnTable.creationId.forEach((creationId, rawSpawnId) => {
       const spawnId = rawSpawnId as any;
       const encodedLowerSouthWestCorner = spawnTable.lowerSouthWestCorner.get(spawnId)!;
-      const lowerSouthWestCorner = abiDecode(
-        "tuple(int32 x,int32 y,int32 z)",
-        encodedLowerSouthWestCorner
-      ) as VoxelCoord;
+      const lowerSouthWestCorner = decodeCoord(encodedLowerSouthWestCorner);
       if (lowerSouthWestCorner) {
         spawns.push({
           spawnId: spawnId,
@@ -73,10 +69,10 @@ export function createSpawnOverlaySystem(networkLayer: NetworkLayer, noaLayer: N
         return;
       }
 
-      const { minRelativeCoord, maxRelativeCoord } = calculateMinMaxRelativePositions(relativePositions);
+      const { minCoord, maxCoord } = calculateMinMaxCoords(relativePositions);
 
-      const corner1 = add(spawn.lowerSouthWestCorner, minRelativeCoord);
-      const corner2 = add(spawn.lowerSouthWestCorner, maxRelativeCoord);
+      const corner1 = add(spawn.lowerSouthWestCorner, minCoord);
+      const corner2 = add(spawn.lowerSouthWestCorner, maxCoord);
 
       const mesh = renderChunkyWireframe(
         corner1,

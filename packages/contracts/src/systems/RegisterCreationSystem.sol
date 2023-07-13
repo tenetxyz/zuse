@@ -130,22 +130,21 @@ contract RegisterCreationSystem is System {
   function getVoxelCoordsFromBaseCreations(
     BaseCreation[] memory baseCreations
   ) private pure returns (VoxelCoord[] memory) {
-    uint32 totalVoxels = 0;
-    for (uint32 i = 0; i < baseCreations.length; i++) {
-      totalVoxels += baseCreations[i].voxels.length - baseCreations[i].deletedCoords.length;
-    }
-
+    uint32 totalVoxels = calculateTotalVoxelsInComposedCreation(baseCreations);
     uint voxelIdx = 0;
+
     VoxelCoord[] memory voxelCoords = new VoxelCoord[](totalVoxels);
     for (uint32 i = 0; i < baseCreations.length; i++) {
       BaseCreation memory baseCreation = baseCreations[i];
-      CreationData memory creation = Creation.get(baseCreation.creationId);
 
-      VoxelCoord[] memory creationRelativepositions = abi.decode(creation.relativePositions, (VoxelCoord[]));
-      VoxelCoord[] memory deletedCoords = baseCreation.deletedCoords;
+      VoxelCoord[] memory creationRelativeCoords = abi.decode(
+        Creation.getVoxelCoords(baseCreation.creationId),
+        (VoxelCoord[])
+      );
+      VoxelCoord[] memory deletedRelativeCoords = baseCreation.deletedRelativeCoords;
 
-      for (uint32 j = 0; j < creationRelativePositions.length; j++) {
-        VoxelCoord memory relativeCoord = creationRelativePositions[j];
+      for (uint32 j = 0; j < creationRelativeCoords.length; j++) {
+        VoxelCoord memory relativeCoord = creationRelativeCoords[j];
         // TODO: we need to figure out a way to have in-memory sets in solidity.
         bool isDeleted = false;
         for (uint32 k = 0; k < deletedCoords.length; k++) {
@@ -161,6 +160,45 @@ contract RegisterCreationSystem is System {
       }
     }
     return voxelCoords;
+  }
+
+  function calculateTotalVoxelsInComposedCreation(BaseCreation[] memory baseCreations) private returns (uint32) {
+    uint32 totalVoxels = 0;
+    for (uint32 i = 0; i < baseCreations.length; i++) {
+      VoxelCoord[] memory creationRelativeCoords = abi.decode(
+        Creation.getVoxelCoords(baseCreation.creationId),
+        (VoxelCoord[])
+      );
+      VoxelCoord[] memory deletedCoords = baseCreations[i].deletedCoords;
+      verifyDeletedCoordsAreInBaseCreation(creationRelativeCoords, deletedCoords);
+
+      totalVoxels += creationRelativeCoords.length - deletedCoords.length;
+    }
+    return totalVoxels;
+  }
+
+  function verifyDeletedCoordsAreInBaseCreation(
+    VoxelCoord[] memory creationRelativeCoords,
+    VoxelCoord[] memory deletedRelativeCoords
+  ) private pure {
+    for (uint32 i = 0; i < deletedRelativeCoords.length; i++) {
+      bool deletedCoordExistsInCreation = false;
+      for (uint32 j = 0; j < creationRelativeCoords.length; j++) {
+        if (deletedRelativeCoords[i] == creationRelativeCoords[j]) {
+          deletedCoordExistsInCreation = true;
+          break;
+        }
+      }
+      require(
+        deletedCoordExistsInCreation,
+        string(
+          abi.encode(
+            "This deleted coord does not exist in its base creation: ",
+            voxelCoordToString(deletedRelativeCoords[i])
+          )
+        )
+      );
+    }
   }
 
   function getVoxelTypes(bytes32[] memory voxels) public view returns (VoxelTypeData[] memory) {

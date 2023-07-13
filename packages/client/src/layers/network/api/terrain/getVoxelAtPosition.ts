@@ -1,5 +1,5 @@
 import { Component, Entity, getComponentValue, getEntitiesWithValue, Type, World } from "@latticexyz/recs";
-import { VoxelCoord, keccak256 } from "@latticexyz/utils";
+import { VoxelCoord } from "@latticexyz/utils";
 import { Perlin } from "@latticexyz/noise";
 import { Terrain, TerrainState } from "./types";
 import { getTerrain } from "./utils";

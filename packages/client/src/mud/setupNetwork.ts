@@ -571,9 +571,9 @@ export async function setupNetwork() {
           creationName,
           creationDescription,
           voxels,
-          abi.encode(
+          defaultAbiCoder.encode(
             ["(bytes32,(int32,int32,int32),(int32,int32,int32)[])[]"], // encode as base creations array
-            baseCreations
+            [baseCreations]
           ),
           { gasLimit: 30_000_000 },
         ]);

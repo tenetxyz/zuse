@@ -73,7 +73,15 @@ contract PowerWireSystem is SingleVoxelInteraction {
           changedEntity = true;
         }
       } else {
-        revert("PowerWireSystem: PowerWire has a source and is trying to connect to a different source");
+        if (isGenerator) {
+          revert("PowerWireSystem: PowerWire has a source and is trying to connect to a different source");
+        } else if (isPowerWire) {
+          PowerWireData memory neighPowerWireData = PowerWire.get(callerNamespace, compareEntity);
+          if (neighPowerWireData.source != signalEntity) {
+            // if we are not the source of this active wire
+            revert("PowerWireSystem: PowerWire has a source and is trying to connect to a different source");
+          }
+        }
       }
     }
 

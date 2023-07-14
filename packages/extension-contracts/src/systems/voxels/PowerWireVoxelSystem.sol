@@ -55,7 +55,7 @@ contract PowerWireVoxelSystem is VoxelType {
     PowerWire.set(
       callerNamespace,
       entity,
-      PowerWireData({ source: _source, destination: _destination, genRate: 0, direction: BlockDirection.None, hasValue: true })
+      PowerWireData({ source: _source, destination: _destination, transferRate: 0, maxTransferRate: 30000, direction: BlockDirection.None, hasValue: true })
     );
   }
 

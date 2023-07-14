@@ -110,7 +110,8 @@ export default mudConfig({
       schema: {
         source: "bytes32",
         destination: "bytes32",
-        genRate: "uint256",
+        transferRate: "uint256",
+        maxTransferRate: "uint256",
         direction: "BlockDirection",
         hasValue: "bool", // TODO: Remove this once we can install non-root modules
       },

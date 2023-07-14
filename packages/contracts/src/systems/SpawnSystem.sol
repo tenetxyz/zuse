@@ -12,16 +12,12 @@ import { CHUNK_MAX_Y, CHUNK_MIN_Y } from "../Constants.sol";
 
 contract SpawnSystem is System {
   function spawn(VoxelCoord memory lowerSouthWestCorner, bytes32 creationId) public returns (bytes32) {
-    // relPosX = all the relative position X coordinates
     (VoxelCoord[] memory relativeVoxelCoords, VoxelTypeData[] memory voxelTypes) = getVoxels(creationId);
-    SpawnData memory spawnData;
-    bytes32[] memory spawnVoxels = new bytes32[](voxelTypes.length);
-    spawnData.creationId = creationId;
-    spawnData.lowerSouthWestCorner = abi.encode(lowerSouthWestCorner);
-    spawnData.isModified = false;
-    bytes32 spawnId = getUniqueEntity();
 
-    for (uint i = 0; i < voxelTypes.length; i++) {
+    bytes32 spawnId = getUniqueEntity();
+    bytes32[] memory spawnVoxels = new bytes32[](relativeVoxelCoords.length);
+
+    for (uint i = 0; i < relativeVoxelCoords.length; i++) {
       VoxelCoord memory relativeCoord = relativeVoxelCoords[i];
       VoxelCoord memory spawnVoxelAtCoord = add(lowerSouthWestCorner, relativeCoord);
       require(
@@ -30,7 +26,7 @@ contract SpawnSystem is System {
           abi.encodePacked("Cannot spawn voxel outside of chunk boundaries at y=", int32ToString(spawnVoxelAtCoord.y))
         )
       );
-      bytes32[] memory entitiesAtPosition = getEntitiesAtCoord(spawnVoxelAtCoord);
+
       // delete the voxels at this coord
       IWorld(_world()).tenet_MineSystem_clearCoord(spawnVoxelAtCoord);
       bytes32 newEntity = IWorld(_world()).tenet_BuildSystem_buildVoxelType(voxelTypes[i], spawnVoxelAtCoord);
@@ -39,8 +35,14 @@ contract SpawnSystem is System {
       OfSpawn.set(newEntity, spawnId);
       spawnVoxels[i] = newEntity;
     }
+
+    SpawnData memory spawnData;
+    spawnData.creationId = creationId;
+    spawnData.lowerSouthWestCorner = abi.encode(lowerSouthWestCorner);
+    spawnData.isModified = false;
     spawnData.voxels = spawnVoxels;
     Spawn.set(spawnId, spawnData);
+
     increaseCreationSpawnCount(creationId);
     return spawnId;
   }

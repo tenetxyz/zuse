@@ -179,15 +179,15 @@ contract RegisterCreationSystem is System {
     for (uint32 i = 0; i < baseCreations.length; i++) {
       BaseCreation memory baseCreation = baseCreations[i];
       CreationData memory childCreation = Creation.get(baseCreation.creationId);
-      BaseCreation[] memory childBaseCreations = abi.decode(childCreation.baseCreations, (BaseCreation[]));
 
       (VoxelCoord[] memory childVoxelCoords, VoxelTypeData[] memory childVoxelTypes) = getVoxelsInBaseCreations(
         abi.decode(childCreation.relativePositions, (VoxelCoord[])),
         abi.decode(childCreation.voxelTypes, (VoxelTypeData[])),
-        childBaseCreations,
+        abi.decode(childCreation.baseCreations, (BaseCreation[])),
         uint32(childCreation.numVoxels - baseCreation.deletedRelativeCoords.length)
       );
 
+      uint32 numDeleted = 0;
       for (uint32 j = 0; j < childVoxelCoords.length; j++) {
         VoxelCoord memory childVoxelCoord = childVoxelCoords[j];
         bool isDeleted = false;
@@ -196,6 +196,7 @@ contract RegisterCreationSystem is System {
           if (voxelCoordsAreEqual(childVoxelCoord, deletedRelativeCoord)) {
             // this voxel is deleted, so don't add it
             isDeleted = true;
+            numDeleted++;
             break;
           }
         }
@@ -205,6 +206,10 @@ contract RegisterCreationSystem is System {
           voxelIdx++;
         }
       }
+      require(
+        numDeleted == baseCreation.deletedRelativeCoords.length,
+        string(abi.encode("you deleted voxels in ", childCreation.name, " that don't exist in the creation"))
+      );
     }
     return (voxelCoords, voxelTypes);
   }

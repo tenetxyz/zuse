@@ -91,6 +91,7 @@ export default mudConfig({
       schema: {
         creator: "address",
         numSpawns: "uint256",
+        numVoxels: "uint32", // Store the number of voxels between the creation and its base creations because it is not free to calculate how many voxels are in the base creations (a few table accesses)
         voxelTypes: "bytes", // VoxelTypeData[]
         relativePositions: "bytes", // VoxelCoord[], the relative position for each voxel in the creation
         name: "string",

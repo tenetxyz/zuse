@@ -25,42 +25,27 @@ contract RegisterCreationSystem is System {
     validateCreation(voxelCoords);
 
     BaseCreation[] memory baseCreations = abi.decode(encodedBaseCreations, (BaseCreation[]));
+    VoxelCoord[] memory baseCreationVoxelCoords = getVoxelCoordsFromBaseCreations(baseCreations);
 
     bytes memory voxelTypes = abi.encode(getVoxelTypes(voxels));
     (
       bytes memory relativePositions,
       VoxelCoord memory lowerSouthWestCorner
-    ) = repositionBlocksSoLowerSouthwestCornerIsOnOrigin(voxelCoords, baseCreations);
+    ) = repositionBlocksSoLowerSouthwestCornerIsOnOrigin(voxelCoords, baseCreationVoxelCoords);
 
     CreationData memory creation;
     creation.voxelTypes = voxelTypes;
     creation.creator = tx.origin;
+    creation.numVoxels = voxelCoords.length + baseCreationVoxelCoords.length;
     creation.relativePositions = relativePositions;
     creation.name = name;
     creation.description = description;
     creation.baseCreations = baseCreations;
 
-    // TODO: implement
-    // creation.voxelMetadata =
-
     bytes32 creationId = getCreationHash(voxelTypes, relativePositions, _msgSender());
     Creation.set(creationId, creation);
-    registerVoxelsAsSpawn(creationId, lowerSouthWestCorner, voxels, baseCreations);
+    IWorld(_world()).tenet_SpawnSystem_spawn(lowerSouthWestCorner, creationId); // make this creation a spawn
     return creationId;
-  }
-
-  function registerVoxelsAsSpawn(
-    bytes32 creationId,
-    VoxelCoord memory lowerSouthWestCorner,
-    bytes32[] memory voxels,
-    BaseCreation[] memory baseCreations
-  ) private {
-    // bytes32 spawnId = getUniqueEntity();
-    // for (uint i = 0; i < voxels.length; i++) {
-    //   OfSpawn.set(voxels[i], spawnId);
-    // }
-    // Spawn.set(spawnId, creationId, false, abi.encode(lowerSouthWestCorner), voxels);
-    // we should remove all the voxels and then call the spawnsystem.
   }
 
   function validateCreation(VoxelCoord[] memory voxelCoords) private pure {
@@ -91,14 +76,12 @@ contract RegisterCreationSystem is System {
   // PERF: put this into a precompile for speed
   function repositionBlocksSoLowerSouthwestCornerIsOnOrigin(
     VoxelCoord[] memory voxelCoords,
-    BaseCreation[] memory baseCreations
+    VoxelCoord[] memory baseCreationVoxelCoords
   ) private view returns (bytes memory, VoxelCoord memory) {
     int32 lowestX = 2147483647; // TODO: use type(int32).max;
     int32 lowestY = 2147483647;
     int32 lowestZ = 2147483647;
     (lowestX, lowestY, lowestZ) = getLowestCoord(voxelCoords, lowestX, lowestY, lowestZ);
-
-    VoxelCoord[] memory baseCreationVoxelCoords = getVoxelCoordsFromBaseCreations(baseCreations);
     (lowestX, lowestY, lowestZ) = getLowestCoord(baseCreationVoxelCoords, lowestX, lowestY, lowestZ);
 
     VoxelCoord[] memory repositionedVoxelCoords = new VoxelCoord[](voxelCoords.length);

@@ -49,7 +49,7 @@ contract RegisterCreationSystem is System {
 
     bytes32 creationId = getCreationHash(abi.encode(allVoxelTypes), relativePositions, _msgSender());
     Creation.set(creationId, creation);
-    // IWorld(_world()).tenet_SpawnSystem_spawn(lowerSouthWestCorner, creationId); // make this creation a spawn
+    IWorld(_world()).tenet_SpawnSystem_spawn(lowerSouthWestCorner, creationId); // make this creation a spawn
     return creationId;
   }
 

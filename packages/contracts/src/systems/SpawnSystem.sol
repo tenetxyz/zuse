@@ -20,6 +20,7 @@ contract SpawnSystem is System {
     spawnData.lowerSouthWestCorner = abi.encode(lowerSouthWestCorner);
     spawnData.isModified = false;
     bytes32 spawnId = getUniqueEntity();
+
     for (uint i = 0; i < voxelTypes.length; i++) {
       VoxelCoord memory relativeCoord = relativeVoxelCoords[i];
       VoxelCoord memory spawnVoxelAtCoord = add(lowerSouthWestCorner, relativeCoord);
@@ -32,14 +33,8 @@ contract SpawnSystem is System {
       bytes32[] memory entitiesAtPosition = getEntitiesAtCoord(spawnVoxelAtCoord);
       // delete the voxels at this coord
       IWorld(_world()).tenet_MineSystem_clearCoord(spawnVoxelAtCoord);
-      // create the voxel at this coord
-      bytes32 newEntity = getUniqueEntity();
-      VoxelType.set(newEntity, voxelTypes[i]);
-      Position.set(newEntity, spawnVoxelAtCoord.x, spawnVoxelAtCoord.y, spawnVoxelAtCoord.z);
-      enterVoxelIntoWorld(_world(), newEntity);
-      updateVoxelVariant(_world(), newEntity);
-      increaseVoxelTypeSpawnCount(voxelTypes[i].voxelTypeNamespace, voxelTypes[i].voxelTypeId);
-      IWorld(_world()).tenet_VoxInteractSys_runInteractionSystems(newEntity);
+      bytes32 newEntity = IWorld(_world()).tenet_BuildSystem_buildVoxelType(voxelTypes[i], spawnVoxelAtCoord);
+
       // update the spawn-related components
       OfSpawn.set(newEntity, spawnId);
       spawnVoxels[i] = newEntity;

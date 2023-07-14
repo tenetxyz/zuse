@@ -5,7 +5,7 @@ import { getUniqueEntity } from "@latticexyz/world/src/modules/uniqueentity/getU
 import { System } from "@latticexyz/world/src/System.sol";
 import { Strings } from "@openzeppelin/contracts/utils/Strings.sol";
 import { IWorld } from "@tenet-contracts/src/codegen/world/IWorld.sol";
-import { addressToEntityKey, getEntitiesAtCoord, voxelCoordToString, voxelCoordsAreEqual } from "../Utils.sol";
+import { addressToEntityKey, getEntitiesAtCoord, voxelCoordToString, voxelCoordsAreEqual, add } from "../Utils.sol";
 import { VoxelType, Position, Creation, CreationData, VoxelTypeData, Spawn, SpawnData, OfSpawn } from "@tenet-contracts/src/codegen/Tables.sol";
 import { PositionData } from "@tenet-contracts/src/codegen/tables/Position.sol";
 import { VoxelCoord, BaseCreation } from "@tenet-contracts/src/Types.sol";
@@ -24,31 +24,37 @@ contract RegisterCreationSystem is System {
     VoxelCoord[] memory voxelCoords = getVoxelCoords(voxels);
     VoxelTypeData[] memory voxelTypes = getVoxelTypes(voxels);
 
+    (
+      VoxelCoord[] memory repositionedCoordsForInputVoxels,
+      VoxelCoord memory _lowerSouthWestCorner
+    ) = repositionBlocksSoLowerSouthwestCornerIsOnOrigin(voxelCoords);
+
     BaseCreation[] memory baseCreations = abi.decode(encodedBaseCreations, (BaseCreation[]));
     (VoxelCoord[] memory allVoxelCoords, VoxelTypeData[] memory allVoxelTypes) = getVoxels(
-      voxelCoords,
+      repositionedCoordsForInputVoxels,
       voxelTypes,
       baseCreations
     );
     validateCreation(allVoxelCoords);
 
     (
-      bytes memory relativePositions,
+      VoxelCoord[] memory relativePositions,
       VoxelCoord memory lowerSouthWestCorner
     ) = repositionBlocksSoLowerSouthwestCornerIsOnOrigin(allVoxelCoords);
 
     CreationData memory creation;
-    creation.voxelTypes = abi.encode(voxelTypes);
     creation.creator = tx.origin;
     creation.numVoxels = uint32(allVoxelCoords.length);
-    creation.relativePositions = relativePositions;
+    creation.voxelTypes = abi.encode(voxelTypes);
+    creation.relativePositions = abi.encode(relativePositions);
     creation.name = name;
     creation.description = description;
     creation.baseCreations = abi.encode(baseCreations);
 
-    bytes32 creationId = getCreationHash(abi.encode(allVoxelTypes), relativePositions, _msgSender());
+    bytes32 creationId = getCreationHash(allVoxelTypes, relativePositions, _msgSender());
+    // TODO: verify that this creationId doesn't already exist
     Creation.set(creationId, creation);
-    IWorld(_world()).tenet_SpawnSystem_spawn(lowerSouthWestCorner, creationId); // make this creation a spawn
+    // IWorld(_world()).tenet_SpawnSystem_spawn(lowerSouthWestCorner, creationId); // make this creation a spawn
     return creationId;
   }
 
@@ -80,7 +86,7 @@ contract RegisterCreationSystem is System {
   // PERF: put this into a precompile for speed
   function repositionBlocksSoLowerSouthwestCornerIsOnOrigin(
     VoxelCoord[] memory voxelCoords
-  ) private pure returns (bytes memory, VoxelCoord memory) {
+  ) private pure returns (VoxelCoord[] memory, VoxelCoord memory) {
     int32 lowestX = 2147483647; // TODO: use type(int32).max;
     int32 lowestY = 2147483647;
     int32 lowestZ = 2147483647;
@@ -92,7 +98,7 @@ contract RegisterCreationSystem is System {
       repositionedVoxelCoords[i] = VoxelCoord({ x: voxel.x - lowestX, y: voxel.y - lowestY, z: voxel.z - lowestZ });
     }
     VoxelCoord memory lowerSouthWestCorner = VoxelCoord({ x: lowestX, y: lowestY, z: lowestZ });
-    return (abi.encode(repositionedVoxelCoords), lowerSouthWestCorner);
+    return (repositionedVoxelCoords, lowerSouthWestCorner);
   }
 
   function getLowestCoord(
@@ -162,15 +168,14 @@ contract RegisterCreationSystem is System {
     VoxelCoord[] memory rootVoxelCoords,
     VoxelTypeData[] memory rootVoxelTypes,
     BaseCreation[] memory baseCreations,
-    uint32 numTotalVoxels
-  ) private view returns (VoxelCoord[] memory, VoxelTypeData[] memory) {
-    // These arrays will store all the voxels in the creation (minus the deleted voxels)
-    VoxelCoord[] memory voxelCoords = new VoxelCoord[](numTotalVoxels);
+    uint32 numTotalVoxels // num voxels in the creation minus the deleted voxels
+  ) public view returns (VoxelCoord[] memory, VoxelTypeData[] memory) {
+    VoxelCoord[] memory relativeCoords = new VoxelCoord[](numTotalVoxels);
     VoxelTypeData[] memory voxelTypes = new VoxelTypeData[](numTotalVoxels);
 
     // 1) add all the (non-base) voxels in this creation to the arrays
     for (uint32 i = 0; i < rootVoxelCoords.length; i++) {
-      voxelCoords[i] = rootVoxelCoords[i];
+      relativeCoords[i] = rootVoxelCoords[i];
       voxelTypes[i] = rootVoxelTypes[i];
     }
     uint32 voxelIdx = uint32(rootVoxelCoords.length);
@@ -201,8 +206,8 @@ contract RegisterCreationSystem is System {
           }
         }
         if (!isDeleted) {
-          voxelCoords[voxelIdx] = childVoxelCoords[voxelIdx];
-          voxelTypes[voxelIdx] = childVoxelTypes[voxelIdx];
+          relativeCoords[voxelIdx] = add(baseCreation.lowerSouthWestCornerOfSpawn, childVoxelCoords[j]);
+          voxelTypes[voxelIdx] = childVoxelTypes[j];
           voxelIdx++;
         }
       }
@@ -211,7 +216,7 @@ contract RegisterCreationSystem is System {
         string(abi.encode("you deleted voxels in ", childCreation.name, " that don't exist in the creation"))
       );
     }
-    return (voxelCoords, voxelTypes);
+    return (relativeCoords, voxelTypes);
   }
 
   // function getNumDeletedVoxels(BaseCreation[] memory baseCreations) private pure returns (uint32) {
@@ -227,9 +232,10 @@ contract RegisterCreationSystem is System {
     VoxelCoord[] memory deletedRelativeCoords
   ) private pure {
     for (uint32 i = 0; i < deletedRelativeCoords.length; i++) {
+      VoxelCoord memory deletedRelativeCoord = deletedRelativeCoords[i];
       bool deletedCoordExistsInCreation = false;
       for (uint32 j = 0; j < creationRelativeCoords.length; j++) {
-        if (voxelCoordsAreEqual(deletedRelativeCoords[i], creationRelativeCoords[j])) {
+        if (voxelCoordsAreEqual(deletedRelativeCoord, creationRelativeCoords[j])) {
           deletedCoordExistsInCreation = true;
           break;
         }
@@ -280,8 +286,8 @@ contract RegisterCreationSystem is System {
   // hashing the message sender means that two different players can register the same creation
   // I think it's fine, because two players can solve a level in the same way
   function getCreationHash(
-    bytes memory voxelTypes,
-    bytes memory relativePositions,
+    VoxelTypeData[] memory voxelTypes,
+    VoxelCoord[] memory relativePositions,
     address sender
   ) public pure returns (bytes32) {
     return bytes32(keccak256(abi.encode(voxelTypes, relativePositions, sender)));

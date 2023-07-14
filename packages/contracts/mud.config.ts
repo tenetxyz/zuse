@@ -101,7 +101,7 @@ export default mudConfig({
         baseCreations: "bytes", // called base creation - cause of "base class" in c++. represented as:
         // {
         //   creationId: "bytes32",
-        //   lowerSouthWestCorner: "bytes", // VoxelCoord (where this base creation is placed relative to this creation)
+        //   lowerSouthWestCornerOfSpawn: "bytes", // VoxelCoord (where this base creation is placed relative to this creation)
         //   deletedCoords: "VoxelCoord[]", // Why store deleted coords? cause in the future, this could be a "diffs" array.
         //                                     Also cause it's more space-efficient to store the deleted coords than all the voxels in the creation
         // }[]

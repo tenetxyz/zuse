@@ -9,11 +9,13 @@ import { enterVoxelIntoWorld, getEntitiesAtCoord, add, int32ToString, increaseVo
 import { IWorld } from "@tenet-contracts/src/codegen/world/IWorld.sol";
 import { console } from "forge-std/console.sol";
 import { CHUNK_MAX_Y, CHUNK_MIN_Y } from "../Constants.sol";
+import { Strings } from "@openzeppelin/contracts/utils/Strings.sol";
 
 contract SpawnSystem is System {
   function spawn(VoxelCoord memory lowerSouthWestCorner, bytes32 creationId) public returns (bytes32) {
     (VoxelCoord[] memory relativeVoxelCoords, VoxelTypeData[] memory voxelTypes) = IWorld(_world())
       .tenet_RegisterCreation_getVoxelsInCreation(creationId);
+    require(false, string(abi.encode(Strings.toString(uint256(voxelTypes.length)))));
 
     bytes32 spawnId = getUniqueEntity();
     bytes32[] memory spawnVoxels = new bytes32[](relativeVoxelCoords.length);

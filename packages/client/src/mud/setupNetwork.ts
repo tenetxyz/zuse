@@ -42,7 +42,7 @@ import { voxelCoordToString } from "../utils/coord";
 import { defaultAbiCoder } from "ethers/lib/utils";
 import { toast } from "react-toastify";
 import { abiDecode } from "../utils/abi";
-import { BaseCreation } from "../layers/react/components/RegisterCreation";
+import { BaseCreationInWorld } from "../layers/react/components/RegisterCreation";
 
 export type SetupNetworkResult = Awaited<ReturnType<typeof setupNetwork>>;
 
@@ -554,7 +554,7 @@ export async function setupNetwork() {
     creationName: string,
     creationDescription: string,
     voxels: Entity[],
-    baseCreations: BaseCreation[]
+    baseCreations: BaseCreationInWorld[]
   ) {
     // TODO: Replace Diamond NFT with a creation symbol
     const preview = getNftStorageLink("bafkreicro56v6rinwnltbkyjfzqdwva2agtrtypwaeowud447louxqgl5y");

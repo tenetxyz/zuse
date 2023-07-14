@@ -122,12 +122,15 @@ contract RegisterCreationSystem is System {
     VoxelTypeData[] memory rootVoxelTypes,
     BaseCreation[] memory baseCreations
   ) public view returns (VoxelCoord[] memory, VoxelTypeData[] memory) {
-    uint32 numVoxels = calculateNumVoxelsInComposedCreation(baseCreations);
+    uint32 numVoxels = calculateNumVoxelsInComposedCreation(baseCreations, rootVoxelTypes.length);
     return getVoxelsInBaseCreations(rootVoxelCoords, rootVoxelTypes, baseCreations, numVoxels);
   }
 
-  function calculateNumVoxelsInComposedCreation(BaseCreation[] memory baseCreations) internal view returns (uint32) {
-    uint32 numVoxels = 0;
+  function calculateNumVoxelsInComposedCreation(
+    BaseCreation[] memory baseCreations,
+    uint256 rootVoxelTypesLength
+  ) internal view returns (uint32) {
+    uint32 numVoxels = uint32(rootVoxelTypesLength);
     for (uint32 i = 0; i < baseCreations.length; i++) {
       BaseCreation memory baseCreation = baseCreations[i];
       uint256 numVoxelsInBaseCreation = Creation.getNumVoxels(baseCreation.creationId);

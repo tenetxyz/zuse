@@ -4,11 +4,17 @@ import { NetworkLayer } from "../../network";
 import { NoaLayer } from "../types";
 import { renderChunkyWireframe } from "./renderWireframes";
 import { Color3, Mesh, Nullable } from "@babylonjs/core";
-import { add, calculateMinMaxCoords, decodeCoord } from "../../../utils/coord";
-import { Entity, EntitySymbol, getComponentValue } from "@latticexyz/recs";
+import { add, calculateMinMaxCoords, decodeCoord, stringToVoxelCoord, voxelCoordToString } from "../../../utils/coord";
+import { Entity, EntitySymbol, getComponentValue, getComponentValueStrict } from "@latticexyz/recs";
 import { to256BitString, VoxelCoord } from "@latticexyz/utils";
 import { abiDecode } from "../../../utils/abi";
 import { ISpawn } from "../components/SpawnInFocus";
+
+export type BaseCreation = {
+  creationId: Entity;
+  coordOffset: VoxelCoord; // the offset of the base creation relative to the creation this base creation is in
+  deletedRelativeCoords: VoxelCoord[]; // the coord relative to this BASE creation, not to the creation this base creation is in
+};
 
 // All creations that are spawned will have an overlay around them
 // This is so when people modify a spawned creation, they know they are modifying that spawn instance
@@ -49,27 +55,8 @@ export function createSpawnOverlaySystem(networkLayer: NetworkLayer, noaLayer: N
     spawnOutlineMeshes = [];
 
     for (const spawn of spawns) {
-      // PERF: if users tend to spawn the same creation multiple times we should memoize the creation fetching process
-      const creation = getComponentValue(Creation, spawn.creationId);
-      if (creation === undefined) {
-        console.error(
-          `cannot render spawn outline without finding the corresponding creation. spawnId=${spawn.spawnId} creationId=${spawn.creationId}`
-        );
-        continue;
-      }
-
-      // calculate the min and max relative positions of the creation so we can render the wireframe around it
-      const relativePositions =
-        (abiDecode("tuple(int32 x,int32 y,int32 z)[]", creation.relativePositions) as VoxelCoord[]) || [];
-
-      if (relativePositions.length === 0) {
-        console.warn(
-          `No relativePositions found for creationId=${spawn.creationId.toString()}. relativePositions=${relativePositions}`
-        );
-        return;
-      }
-
-      const { minCoord, maxCoord } = calculateMinMaxCoords(relativePositions);
+      const relativeVoxelCoords = getVoxelCoordsOfCreation(spawn.creationId);
+      const { minCoord, maxCoord } = calculateMinMaxCoords(relativeVoxelCoords);
 
       const corner1 = add(spawn.lowerSouthWestCorner, minCoord);
       const corner2 = add(spawn.lowerSouthWestCorner, maxCoord);
@@ -85,5 +72,26 @@ export function createSpawnOverlaySystem(networkLayer: NetworkLayer, noaLayer: N
         spawnOutlineMeshes.push(mesh);
       }
     }
+  };
+
+  const getVoxelCoordsOfCreation = (creationId: Entity): VoxelCoord[] => {
+    // PERF: if users tend to spawn the same creation multiple times we should memoize the creation fetching process
+    const creation = getComponentValueStrict(Creation, creationId);
+    const voxelCoords =
+      (abiDecode("tuple(uint32 x,uint32 y,uint32 z)[]", creation.relativePositions) as VoxelCoord[]) || [];
+    const baseCreations = abiDecode(
+      "tuple(bytes32 creationId,tuple(int32 x,int32 y,int32 z) coordOffset,tuple(int32 x,int32 y,int32 z)[] deletedRelativeCoords)[]",
+      creation.baseCreations
+    ) as BaseCreation[];
+
+    for (const baseCreation of baseCreations) {
+      const baseCreationVoxelCoords = getVoxelCoordsOfCreation(baseCreation.creationId);
+      const uniqueCoords = new Set<string>(baseCreationVoxelCoords.map(voxelCoordToString));
+      for (const deletedRelativeCoord of baseCreation.deletedRelativeCoords) {
+        uniqueCoords.delete(voxelCoordToString(deletedRelativeCoord));
+      }
+      voxelCoords.push(...Array.from(uniqueCoords).map(stringToVoxelCoord));
+    }
+    return voxelCoords;
   };
 }

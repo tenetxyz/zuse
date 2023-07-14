@@ -573,7 +573,7 @@ export async function setupNetwork() {
           voxels,
           defaultAbiCoder.encode(
             [
-              "tuple(bytes32 creationId,tuple(int32 x,int32 y,int32 z) lowerSouthWestCornerOfSpawn,tuple(int32 x,int32 y,int32 z)[] deletedRelativeCoords)[]",
+              "tuple(bytes32 creationId,tuple(int32 x,int32 y,int32 z) lowerSouthWestCornerInWorld,tuple(int32 x,int32 y,int32 z)[] deletedRelativeCoords)[]",
             ],
             [baseCreations]
           ),

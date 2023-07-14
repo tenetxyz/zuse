@@ -32,6 +32,5 @@ export const tenetTestnet = {
       url: "",
     },
   },
-  modeUrl: `http://${nodeHost}:1111`, // TODO: fix
   faucetUrl: `http://${nodeHost}:50082`,
 } as const satisfies MUDChain;

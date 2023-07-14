@@ -114,40 +114,77 @@ contract RegisterCreationSystem is System {
     return (lowestX, lowestY, lowestZ);
   }
 
-  function getVoxelsInBaseCreation(
-    BaseCreation memory baseCreation
-  ) returns (VoxelCoord[] memory, VoxelTypeData[] memory) {
+  function getVoxels(
+    VoxelCoord[] memory rootVoxelCoords,
+    VoxelTypeData[] memory rootVoxelTypes,
+    BaseCreation[] memory baseCreations
+  ) view returns (VoxelCoord[] memory, VoxelTypeData[] memory) {
     CreationData memory baseCreation = Creation.get(baseCreations.creationId);
     VoxelCoord[] memory deletedRelativeCoords = baseCreation.deletedRelativeCoords;
-    uint32 numVoxelsInBaseCreation = baseCreation.numVoxels;
-    uint32 numDeletedVoxels = deletedRelativeCoords.length;
-    require(
-      numVoxelsInBaseCreation > numDeletedVoxels,
-      string(
-        abi.encode(
-          "You cannot delete ",
-          Strings.toString(uint256(numDeletedVoxels)),
-          " voxels, when the base creation has ",
-          Strings.toString(uint256(numVoxelsInBaseCreation)),
-          " voxels"
-        )
-      )
-    );
-    uint32 numVoxels = numVoxelsInBaseCreation - numDeletedVoxels; // the actual voxels for using this base creation
+    uint256 numVoxels = calculateNumVoxelsInComposedCreation(baseCreations);
+    return getVoxelsInBaseCreations(rootVoxelCoords, rootVoxelTypes, baseCreations, numVoxels);
+  }
 
-    VoxelCoord[] memory voxelCoords = new VoxelCoord[](numVoxels);
-    VoxelTypeData[] memory voxelTypes = new VoxelTypeData[](numVoxels);
+  function calculateNumVoxelsInComposedCreation(BaseCreation[] memory baseCreations) private view returns (uint256) {
+    uint256 numVoxels = 0;
+    for (uint32 i = 0; i < baseCreations.length; i++) {
+      uint256 numVoxelsInBaseCreation = Creation.getNumVoxels(baseCreations.creationId);
+      uint256 numDeleteVoxels = baseCreations.deletedRelativeCoords.length;
+      require(
+        numVoxelsInBaseCreation > numDeleteVoxels,
+        string(
+          abi.encode(
+            "You cannot delete ",
+            Strings.toString(uint256(numDeleteVoxels)),
+            " voxels, when the base creation has ",
+            Strings.toString(uint256(numVoxelsInBaseCreation)),
+            " voxels"
+          )
+        )
+      );
+
+      numVoxels += numVoxelsInBaseCreation - numDeleteVoxels;
+    }
+    return numVoxels;
+  }
+
+  // we need to find out which voxels are not deleted
+  // so we just need to compile a list of all the voxels in the base creations
+  // then we need to remove the voxels that are deleted
+
+  // why pass all these in when we could've just gotten them from the creationId?
+  // it's to help us do recurson easier (cuase for the current creation, we do NOT have a creationId. only the baseCreations have an ID)
+  function getVoxelsInBaseCreations(
+    VoxelCoord[] memory rootVoxelCoords,
+    VoxelTypeData[] memory rootVoxelTypes,
+    BaseCreation[] memory baseCreations,
+    VoxelCoord[] memory deletedRelativeCoords,
+    bytes32 numVoxels
+  ) view returns (VoxelCoord[] memory, VoxelTypeData[] memory) {
+    uint32 numDeletedVoxels = deletedRelativeCoords.length;
+    uint32 numTotalVoxels = numVoxels - numDeletedVoxels; // the actual voxels for using this base creation
+
+    // first add all the (non-base) voxels in this creation to the arrays
+    VoxelCoord[] memory voxelCoords = new VoxelCoord[](numTotalVoxels);
+    VoxelTypeData[] memory voxelTypes = new VoxelTypeData[](numTotalVoxels);
     for (uint32 i = 0; i < creation.voxels; i++) {
-      voxelCoords[i] = creation.voxelCoords[i];
-      voxelTypes[i] = creation.voxelTypes[i];
+      voxelCoords[i] = rootVoxelTypes[i];
+      voxelTypes[i] = rootVoxelTypes[i];
     }
     uint32 voxelIdx = creation.voxels.length;
 
-    BaseCreation[] memory baseCreationChildren = abi.decode(baseCreation, (BaseCreation[]));
+    for (uint32 i = 0; i < baseCreationChildren.length; i++) {
+      BaseCreation memory childBaseCreation = baseCreationChildren[i];
 
-    for (uint32 i = 0; i < baseCreationChildren; i++) {
-      BaseCreation memory child = baseCreationChildren[i];
-      (VoxelCoord[] memory childVoxelCoords, VoxelTypeData[] memory childVoxelTypes) = getVoxelsInBaseCreation(child);
+      CreationData memory childCreation = Creation.get(childBaseCreation.creationId);
+      BaseCreation[] memory childBaseCreations = abi.decode(baseCreation, (BaseCreation[]));
+
+      (VoxelCoord[] memory childVoxelCoords, VoxelTypeData[] memory childVoxelTypes) = getVoxelsInBaseCreations(
+        childBaseCreations,
+        childBaseCreation.deletedRelativeCoords,
+        childCreation.numVoxels
+      );
+
       for (uint32 j = 0; j < childVoxelCoords.length; j++) {
         VoxelCoord memory childVoxelCoord = childVoxelCoords[j];
         bool isDeleted = false;
@@ -167,59 +204,6 @@ contract RegisterCreationSystem is System {
       }
     }
     return (voxelCoords, voxelTypes);
-  }
-
-  function getVoxelCoordsFromBaseCreations(
-    BaseCreation[] memory baseCreations
-  ) private view returns (VoxelCoord[] memory) {
-    uint256 totalVoxels = calculateTotalVoxelsInComposedCreation(baseCreations); // Note: also validates that all deleted voxels are from the base creation
-    uint voxelIdx = 0;
-
-    VoxelCoord[] memory voxelCoords = new VoxelCoord[](totalVoxels);
-    for (uint32 i = 0; i < baseCreations.length; i++) {
-      BaseCreation memory baseCreation = baseCreations[i];
-
-      // get all the coords from the base creation, and all the coords of the voxels that are deleted
-      VoxelCoord[] memory creationRelativeCoords = abi.decode(
-        Creation.getRelativePositions(baseCreation.creationId),
-        (VoxelCoord[])
-      );
-      VoxelCoord[] memory deletedRelativeCoords = baseCreation.deletedRelativeCoords;
-
-      // for each coord in the base creation, check if it's deleted. If it's not, add it to the list of voxels
-      for (uint32 j = 0; j < creationRelativeCoords.length; j++) {
-        VoxelCoord memory relativeCoord = creationRelativeCoords[j];
-        // TODO: we need to figure out a way to have in-memory sets in solidity.
-        bool isDeleted = false;
-        for (uint32 k = 0; k < baseCreation.deletedRelativeCoords.length; k++) {
-          if (voxelCoordsAreEqual(baseCreation.deletedRelativeCoords[k], relativeCoord)) {
-            isDeleted = true;
-            break;
-          }
-        }
-        if (!isDeleted) {
-          voxelCoords[voxelIdx] = relativeCoord;
-          voxelIdx++;
-        }
-      }
-    }
-    return voxelCoords;
-  }
-
-  // TODO: make this recursive
-  function calculateTotalVoxelsInComposedCreation(BaseCreation[] memory baseCreations) private view returns (uint256) {
-    uint256 totalVoxels = 0;
-    for (uint32 i = 0; i < baseCreations.length; i++) {
-      VoxelCoord[] memory creationRelativeCoords = abi.decode(
-        Creation.getRelativePositions(baseCreations[i].creationId),
-        (VoxelCoord[])
-      );
-      VoxelCoord[] memory deletedRelativeCoords = baseCreations[i].deletedRelativeCoords;
-      verifyDeletedCoordsAreInBaseCreation(creationRelativeCoords, deletedRelativeCoords);
-
-      totalVoxels += creationRelativeCoords.length - deletedRelativeCoords.length;
-    }
-    return totalVoxels;
   }
 
   function verifyDeletedCoordsAreInBaseCreation(

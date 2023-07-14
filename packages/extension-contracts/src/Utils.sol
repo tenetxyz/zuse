@@ -92,6 +92,10 @@ function entityIsPowerWire(bytes32 entity, bytes16 callerNamespace) view returns
   return PowerWire.get(callerNamespace, entity).hasValue;
 }
 
+function entityIsStorage(bytes32 entity, bytes16 callerNamespace) view returns (bool) {
+  return Storage.get(callerNamespace, entity).hasValue;
+}
+
 function clearCoord(address world, VoxelCoord memory coord) returns (bytes32) {
   bytes memory returnData = safeCall(world, abi.encodeWithSignature(CLEAR_COORD_SIG, coord), "clearCoord");
   return abi.decode(returnData, (bytes32));

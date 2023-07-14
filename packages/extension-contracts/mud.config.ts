@@ -115,6 +115,20 @@ export default mudConfig({
         direction: "BlockDirection",
         hasValue: "bool", // TODO: Remove this once we can install non-root modules
       },
+    },
+    Storage: {
+      keySchema: {
+        namespace: "bytes16",
+        entity: "bytes32",
+      },
+      schema: {
+        maxStorage: "uint256",
+        energyStored: "uint256",
+        lastInRate: "uint256",
+        lastOutRate: "uint256",
+        lastUpdateBlock: "uint256",
+        hasValue: "bool", // TODO: Remove this once we can install non-root modules
+      },
     }
   },
   modules: [

@@ -574,7 +574,7 @@ export async function setupNetwork() {
           defaultAbiCoder.encode(
             [
               "tuple(bytes32 creationId,tuple(int32 x,int32 y,int32 z) lowerSouthWestCornerOfSpawn,tuple(int32 x,int32 y,int32 z)[] deletedRelativeCoords)[]",
-            ], // encode as base creations array
+            ],
             [baseCreations]
           ),
           { gasLimit: 30_000_000 },

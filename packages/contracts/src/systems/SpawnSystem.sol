@@ -39,14 +39,7 @@ contract SpawnSystem is System {
       bytes32[] memory entitiesAtPosition = getEntitiesAtCoord(spawnVoxelAtCoord);
 
       // delete the voxels at this coord
-      for (uint j = 0; j < entitiesAtPosition.length; j++) {
-        // this is kinda sus rn, cause we aren't clearing all the extra components
-        // we'll do this later once voxel spawning is finished
-
-        bytes32 entity = entitiesAtPosition[j];
-        Position.deleteRecord(entity);
-        VoxelType.deleteRecord(entity);
-      }
+      IWorld(_world()).clearCoord(spawnVoxelAtCoord);
 
       // create the voxel at this coord
       bytes32 newEntity = getUniqueEntity();
@@ -69,6 +62,33 @@ contract SpawnSystem is System {
     increaseCreationSpawnCount(creationId);
 
     return spawnId;
+  }
+
+  function getBaseCreationVoxels(
+    BaseCreation memory baseCreation
+  ) private view returns (VoxelType[] memory, VoxelCoord[] memory) {
+    CreationData memory creation = Creation.get(baseCreation.creationId);
+    VoxelCoord[] memory relativeVoxelCoords = abi.decode(creation.relativePositions, (VoxelCoord[]));
+    VoxelTypeData[] memory voxelTypes = abi.decode(creation.voxelTypes, (VoxelTypeData[]));
+
+    uint256 numVoxels = voxelTypes.length - baseCreation.deletedRelativeCoords.length;
+    VoxelType[] memory voxels = new VoxelType[](numVoxels);
+
+    uint32 voxelIdx = 0;
+    for (uint32 i = 0; i < numVoxels; i++) {
+      VoxelCoord[] memory coord = relativeVoxelCoords[i];
+      for (uint32 j = 0; j < baseCreation.deletedRelativeCoords.length; j++) {
+        if (voxelCoordsAreEqual(coord, baseCreation.deletedRelativeCoords[j])) {
+          break;
+          continue;
+        }
+      }
+      if (voxelCoordsAreEqual(coord, baseCreation.deletedRelativeCoords[voxelIdx])) {
+        voxelIdx++;
+      }
+    }
+
+    return voxels;
   }
 
   function increaseCreationSpawnCount(bytes32 creationId) private {

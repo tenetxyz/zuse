@@ -18,11 +18,13 @@ contract RegisterCreationSystem is System {
     string memory name,
     string memory description,
     bytes32[] memory voxels,
-    bytes memory baseCreations
+    bytes memory encodedBaseCreations
   ) public returns (bytes32) {
     // returns the created creationId
     VoxelCoord[] memory voxelCoords = getVoxelCoords(voxels);
     validateCreation(voxelCoords);
+
+    BaseCreation[] memory baseCreations = abi.decode(encodedBaseCreations, (BaseCreation[]));
 
     bytes memory voxelTypes = abi.encode(getVoxelTypes(voxels));
     (
@@ -43,20 +45,22 @@ contract RegisterCreationSystem is System {
 
     bytes32 creationId = getCreationHash(voxelTypes, relativePositions, _msgSender());
     Creation.set(creationId, creation);
-    registerVoxelsAsSpawn(creationId, lowerSouthWestCorner, voxels);
+    registerVoxelsAsSpawn(creationId, lowerSouthWestCorner, voxels, baseCreations);
     return creationId;
   }
 
   function registerVoxelsAsSpawn(
     bytes32 creationId,
     VoxelCoord memory lowerSouthWestCorner,
-    bytes32[] memory voxels
+    bytes32[] memory voxels,
+    BaseCreation[] memory baseCreations
   ) private {
-    bytes32 spawnId = getUniqueEntity();
-    for (uint i = 0; i < voxels.length; i++) {
-      OfSpawn.set(voxels[i], spawnId);
-    }
-    Spawn.set(spawnId, creationId, false, abi.encode(lowerSouthWestCorner), voxels);
+    // bytes32 spawnId = getUniqueEntity();
+    // for (uint i = 0; i < voxels.length; i++) {
+    //   OfSpawn.set(voxels[i], spawnId);
+    // }
+    // Spawn.set(spawnId, creationId, false, abi.encode(lowerSouthWestCorner), voxels);
+    // we should remove all the voxels and then call the spawnsystem.
   }
 
   function validateCreation(VoxelCoord[] memory voxelCoords) private pure {
@@ -87,7 +91,7 @@ contract RegisterCreationSystem is System {
   // PERF: put this into a precompile for speed
   function repositionBlocksSoLowerSouthwestCornerIsOnOrigin(
     VoxelCoord[] memory voxelCoords,
-    bytes memory baseCreations
+    BaseCreation[] memory baseCreations
   ) private view returns (bytes memory, VoxelCoord memory) {
     int32 lowestX = 2147483647; // TODO: use type(int32).max;
     int32 lowestY = 2147483647;
@@ -128,22 +132,23 @@ contract RegisterCreationSystem is System {
   }
 
   function getVoxelCoordsFromBaseCreations(
-    bytes memory encodedBaseCreations
+    BaseCreation[] memory baseCreations
   ) private view returns (VoxelCoord[] memory) {
-    BaseCreation[] memory baseCreations = abi.decode(encodedBaseCreations, (BaseCreation[]));
-    uint256 totalVoxels = calculateTotalVoxelsInComposedCreation(baseCreations);
+    uint256 totalVoxels = calculateTotalVoxelsInComposedCreation(baseCreations); // Note: also validates that all deleted voxels are from the base creation
     uint voxelIdx = 0;
 
     VoxelCoord[] memory voxelCoords = new VoxelCoord[](totalVoxels);
     for (uint32 i = 0; i < baseCreations.length; i++) {
       BaseCreation memory baseCreation = baseCreations[i];
 
+      // get all the coords from the base creation, and all the coords of the voxels that are deleted
       VoxelCoord[] memory creationRelativeCoords = abi.decode(
         Creation.getRelativePositions(baseCreation.creationId),
         (VoxelCoord[])
       );
       VoxelCoord[] memory deletedRelativeCoords = baseCreation.deletedRelativeCoords;
 
+      // for each coord in the base creation, check if it's deleted. If it's not, add it to the list of voxels
       for (uint32 j = 0; j < creationRelativeCoords.length; j++) {
         VoxelCoord memory relativeCoord = creationRelativeCoords[j];
         // TODO: we need to figure out a way to have in-memory sets in solidity.

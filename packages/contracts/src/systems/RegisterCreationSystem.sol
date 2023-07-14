@@ -25,16 +25,19 @@ contract RegisterCreationSystem is System {
     string memory name,
     string memory description,
     bytes32[] memory voxels,
-    bytes memory encodedBaseCreations
+    bytes memory encodedBaseCreationsInWorld
   ) public returns (bytes32) {
     VoxelCoord[] memory voxelCoords = getVoxelCoords(voxels);
     VoxelTypeData[] memory voxelTypes = getVoxelTypes(voxels);
 
-    BaseCreation[] memory baseCreations = abi.decode(encodedBaseCreations, (BaseCreation[]));
+    BaseCreationInWorld[] memory baseCreationsInWorld = abi.decode(
+      encodedBaseCreationsInWorld,
+      (BaseCreationInWorld[])
+    );
     (VoxelCoord[] memory allVoxelCoords, VoxelTypeData[] memory allVoxelTypes) = getVoxels(
       voxelCoords, // NOTE: we do not know the relative position of these voxelCoords yet (since we don't know the coords of the voxels in the base creations). So we will reposition them later
       voxelTypes,
-      baseCreations
+      baseCreationsInWorld
     );
     // NOTE: all the coords are relative to the WORLD right now, not to the lower left corner of the creation
     validateCreation(allVoxelCoords);
@@ -122,7 +125,7 @@ contract RegisterCreationSystem is System {
   function getVoxels(
     VoxelCoord[] memory rootVoxelCoords,
     VoxelTypeData[] memory rootVoxelTypes,
-    BaseCreation[] memory baseCreations
+    BaseCreationInWorld[] memory baseCreationsInWorld
   ) public view returns (VoxelCoord[] memory, VoxelTypeData[] memory) {
     uint32 numVoxels = calculateNumVoxelsInComposedCreation(baseCreations, rootVoxelTypes.length);
     return getVoxelsInBaseCreations(rootVoxelCoords, rootVoxelTypes, baseCreations, numVoxels);

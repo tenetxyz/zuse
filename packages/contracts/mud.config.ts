@@ -6,6 +6,7 @@ export default mudConfig({
   enums: {
     NoaBlockType: ["BLOCK", "MESH"],
   },
+  snapSync: true,
   tables: {
     Name: "string", // Used to name players
     VoxelType: {

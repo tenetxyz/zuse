@@ -15,7 +15,7 @@ contract SpawnSystem is System {
   function spawn(VoxelCoord memory lowerSouthWestCorner, bytes32 creationId) public returns (bytes32) {
     (VoxelCoord[] memory relativeVoxelCoords, VoxelTypeData[] memory voxelTypes) = IWorld(_world())
       .tenet_RegisterCreation_getVoxelsInCreation(creationId);
-    require(false, string(abi.encode(Strings.toString(uint256(voxelTypes.length)))));
+    // require(false, string(abi.encode(Strings.toString(uint256(voxelTypes.length)))));
 
     bytes32 spawnId = getUniqueEntity();
     bytes32[] memory spawnVoxels = new bytes32[](relativeVoxelCoords.length);

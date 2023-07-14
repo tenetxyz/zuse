@@ -59,7 +59,7 @@ contract RegisterCreationSystem is System {
     bytes32 creationId = getCreationHash(allVoxelTypes, relativePositions, _msgSender());
     // TODO: verify that this creationId doesn't already exist
     Creation.set(creationId, creation);
-    // IWorld(_world()).tenet_SpawnSystem_spawn(lowerSouthwestCorner, creationId); // make this creation a spawn
+    IWorld(_world()).tenet_SpawnSystem_spawn(lowerSouthwestCorner, creationId); // make this creation a spawn
     return creationId;
   }
 
@@ -235,7 +235,7 @@ contract RegisterCreationSystem is System {
     // 2) for each child base creation, add all of its voxels (and its coords) to our voxels array (minus the deleted voxels)
     BaseCreation[] memory baseCreations = abi.decode(creation.baseCreations, (BaseCreation[]));
 
-    for (uint32 i = 0; i < creation.baseCreations.length; i++) {
+    for (uint32 i = 0; i < baseCreations.length; i++) {
       BaseCreation memory baseCreation = baseCreations[i];
 
       (VoxelCoord[] memory childVoxelCoords, VoxelTypeData[] memory childVoxelTypes) = getVoxelsInCreation(

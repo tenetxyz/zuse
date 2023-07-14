@@ -17,6 +17,7 @@
     "@ethersproject/providers": "^5.7.2",
     "@fontsource/fira-sans": "^5.0.5",
     "@fortawesome/free-brands-svg-icons": "^6.4.0",
+    "@fortawesome/free-solid-svg-icons": "^6.4.0",
     "@latticexyz/common": "link:../../../mud/packages/common",
     "@latticexyz/dev-tools": "link:../../../mud/packages/dev-tools",
     "@latticexyz/ecs-browser": "link:../../../mud/packages/ecs-browser",

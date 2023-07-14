@@ -972,6 +972,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@fortawesome/free-solid-svg-icons@npm:^6.4.0":
+  version: 6.4.0
+  resolution: "@fortawesome/free-solid-svg-icons@npm:6.4.0"
+  dependencies:
+    "@fortawesome/fontawesome-common-types": 6.4.0
+  checksum: efdd1688620be3d52aacaeac36c955571962e174ae981fc697b6e92fb0996b00166d02e7729a59ea93713a514e2c8d564ab1aa79c9653b4cfed0263e4874d070
+  languageName: node
+  linkType: hard
+
 "@fortawesome/react-fontawesome@npm:^0.2.0":
   version: 0.2.0
   resolution: "@fortawesome/react-fontawesome@npm:0.2.0"
@@ -2284,6 +2293,7 @@ box-intersect@fenomas/box-intersect:
     "@ethersproject/providers": ^5.7.2
     "@fontsource/fira-sans": ^5.0.5
     "@fortawesome/free-brands-svg-icons": ^6.4.0
+    "@fortawesome/free-solid-svg-icons": ^6.4.0
     "@latticexyz/common": "link:../../../mud/packages/common"
     "@latticexyz/dev-tools": "link:../../../mud/packages/dev-tools"
     "@latticexyz/ecs-browser": "link:../../../mud/packages/ecs-browser"

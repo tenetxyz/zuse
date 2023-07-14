@@ -80,7 +80,10 @@ contract PowerWireSystem is SingleVoxelInteraction {
           revert("PowerWireSystem: PowerWire has a source and is trying to connect to a different source");
         } else if (isPowerWire) {
           PowerWireData memory neighPowerWireData = PowerWire.get(callerNamespace, compareEntity);
-          if (neighPowerWireData.genRate > 0) {
+          if (
+            neighPowerWireData.genRate > 0 &&
+            neighPowerWireData.direction != getOppositeDirection(compareBlockDirection)
+          ) {
             // if we are not the source of this active wire
             revert("PowerWireSystem: PowerWire has a source and is trying to connect to a different source");
           }

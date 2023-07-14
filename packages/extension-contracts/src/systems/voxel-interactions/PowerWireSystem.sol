@@ -5,7 +5,7 @@ import { SingleVoxelInteraction } from "@tenet-contracts/src/prototypes/SingleVo
 import { IWorld } from "../../../src/codegen/world/IWorld.sol";
 import { PowerWire, PowerWireData, Generator, GeneratorData } from "../../codegen/Tables.sol";
 import { BlockDirection } from "../../codegen/Types.sol";
-import { registerExtension, entityIsPowerWire, entityIsGenerator, entityIsPowerPlug, entityIsPowerPoint } from "../../Utils.sol";
+import { registerExtension, entityIsPowerWire, entityIsGenerator } from "../../Utils.sol";
 import { getOppositeDirection } from "@tenet-contracts/src/Utils.sol";
 
 contract PowerWireSystem is SingleVoxelInteraction {
@@ -35,7 +35,7 @@ contract PowerWireSystem is SingleVoxelInteraction {
     if (!doesHaveSource) {
       if (isPowerWire) {
         PowerWireData memory neighPowerWireData = PowerWire.get(callerNamespace, compareEntity);
-        uint256 validTransferRate = neighPowerWireData.transferRate <= powerWireData.MaxTransferRate ? neighPowerWireData.transferRate : powerWireData.MaxTransferRate;
+        uint256 validTransferRate = neighPowerWireData.transferRate <= powerWireData.maxTransferRate ? neighPowerWireData.transferRate : powerWireData.maxTransferRate;
 
         powerWireData.source = compareEntity;
         powerWireData.transferRate = validTransferRate;
@@ -44,7 +44,7 @@ contract PowerWireSystem is SingleVoxelInteraction {
         changedEntity = true;
       } else if (isGenerator) {
         GeneratorData memory generatorData = Generator.get(callerNamespace, compareEntity);
-        uint256 validTransferRate = generatorData.genRate <= powerWireData.MaxTransferRate ? generatorData.genRate : powerWireData.MaxTransferRate;
+        uint256 validTransferRate = generatorData.genRate <= powerWireData.maxTransferRate ? generatorData.genRate : powerWireData.maxTransferRate;
 
         powerWireData.source = compareEntity;
         powerWireData.transferRate = validTransferRate;
@@ -56,7 +56,7 @@ contract PowerWireSystem is SingleVoxelInteraction {
       if (compareBlockDirection == powerWireData.direction) {
         if (entityIsGenerator(powerWireData.source, callerNamespace)) {
           GeneratorData memory generatorData = Generator.get(callerNamespace, compareEntity);
-          uint256 validTransferRate = generatorData.genRate <= powerWireData.MaxTransferRate ? generatorData.genRate : powerWireData.MaxTransferRate;
+          uint256 validTransferRate = generatorData.genRate <= powerWireData.maxTransferRate ? generatorData.genRate : powerWireData.maxTransferRate;
 
           if (powerWireData.transferRate != validTransferRate) {
             powerWireData.transferRate = validTransferRate;
@@ -68,7 +68,7 @@ contract PowerWireSystem is SingleVoxelInteraction {
           PowerWire.get(callerNamespace, powerWireData.source).transferRate > 0
         ) {
           PowerWireData memory neighPowerWireData = PowerWire.get(callerNamespace, compareEntity);
-          uint256 validTransferRate = neighPowerWireData.transferRate <= powerWireData.MaxTransferRate ? neighPowerWireData.transferRate : powerWireData.MaxTransferRate;
+          uint256 validTransferRate = neighPowerWireData.transferRate <= powerWireData.maxTransferRate ? neighPowerWireData.transferRate : powerWireData.maxTransferRate;
 
           if (powerWireData.transferRate != validTransferRate) {
             powerWireData.transferRate = validTransferRate;

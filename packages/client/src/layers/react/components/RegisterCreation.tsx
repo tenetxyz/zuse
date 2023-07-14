@@ -69,7 +69,7 @@ const RegisterCreation: React.FC<Props> = ({ layers, formData, setFormData, rese
         voxelsNotInSpawn.push(voxel);
       }
     }
-    return { voxelsNotInSpawn, voxelsInSpawn: voxelsInSpawn, spawnDefs };
+    return { voxelsNotInSpawn, voxelsInSpawn, spawnDefs };
   };
   const calculateBaseCreations = (voxelsInSpawn: Set<string>, spawnDefs: Set<string>): BaseCreation[] => {
     const baseCreations: BaseCreation[] = [];

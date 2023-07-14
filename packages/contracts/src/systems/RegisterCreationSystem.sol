@@ -13,6 +13,12 @@ import { VoxelCoord, BaseCreation } from "@tenet-contracts/src/Types.sol";
 
 uint256 constant MAX_BLOCKS_IN_CREATION = 100;
 
+struct BaseCreationInWorld {
+  bytes32 creationId;
+  VoxelCoord lowerSouthWestCornerInWorld;
+  VoxelCoord[] deletedRelativeCoords; // the coord relative to the BASE creation, not to the creation this base creation is in
+}
+
 contract RegisterCreationSystem is System {
   // returns the created creationId
   function registerCreation(
@@ -24,23 +30,20 @@ contract RegisterCreationSystem is System {
     VoxelCoord[] memory voxelCoords = getVoxelCoords(voxels);
     VoxelTypeData[] memory voxelTypes = getVoxelTypes(voxels);
 
-    (
-      VoxelCoord[] memory repositionedCoordsForInputVoxels,
-      VoxelCoord memory _lowerSouthWestCorner
-    ) = repositionBlocksSoLowerSouthwestCornerIsOnOrigin(voxelCoords);
-
     BaseCreation[] memory baseCreations = abi.decode(encodedBaseCreations, (BaseCreation[]));
     (VoxelCoord[] memory allVoxelCoords, VoxelTypeData[] memory allVoxelTypes) = getVoxels(
-      repositionedCoordsForInputVoxels,
+      voxelCoords, // NOTE: we do not know the relative position of these voxelCoords yet (since we don't know the coords of the voxels in the base creations). So we will reposition them later
       voxelTypes,
       baseCreations
     );
+    // NOTE: all the coords are relative to the WORLD right now, not to the lower left corner of the creation
     validateCreation(allVoxelCoords);
 
-    (
-      VoxelCoord[] memory relativePositions,
-      VoxelCoord memory lowerSouthWestCorner
-    ) = repositionBlocksSoLowerSouthwestCornerIsOnOrigin(allVoxelCoords);
+    VoxelCoord memory lowerSouthwestCorner = getLowerSouthwestCorner(allVoxelCoords);
+    VoxelCoord memory relativePositions = repositionBlocksSoLowerSouthwestCornerIsOnOrigin(
+      voxelCoords, // Now that we know the coords of all the voxels, we can FINALLY reposition them
+      lowerSouthwestCorner
+    );
 
     CreationData memory creation;
     creation.creator = tx.origin;
@@ -83,30 +86,10 @@ contract RegisterCreationSystem is System {
     // TODO: should we also limit the dimensions of the creation?
   }
 
-  // PERF: put this into a precompile for speed
-  function repositionBlocksSoLowerSouthwestCornerIsOnOrigin(
-    VoxelCoord[] memory voxelCoords
-  ) private pure returns (VoxelCoord[] memory, VoxelCoord memory) {
+  function getLowerSouthwestCorner(VoxelCoord[] memory voxelCoords) private pure returns (VoxelCoord memory) {
     int32 lowestX = 2147483647; // TODO: use type(int32).max;
     int32 lowestY = 2147483647;
     int32 lowestZ = 2147483647;
-    (lowestX, lowestY, lowestZ) = getLowestCoord(voxelCoords, lowestX, lowestY, lowestZ);
-
-    VoxelCoord[] memory repositionedVoxelCoords = new VoxelCoord[](voxelCoords.length);
-    for (uint32 i = 0; i < voxelCoords.length; i++) {
-      VoxelCoord memory voxel = voxelCoords[i];
-      repositionedVoxelCoords[i] = VoxelCoord({ x: voxel.x - lowestX, y: voxel.y - lowestY, z: voxel.z - lowestZ });
-    }
-    VoxelCoord memory lowerSouthWestCorner = VoxelCoord({ x: lowestX, y: lowestY, z: lowestZ });
-    return (repositionedVoxelCoords, lowerSouthWestCorner);
-  }
-
-  function getLowestCoord(
-    VoxelCoord[] memory voxelCoords,
-    int32 lowestX,
-    int32 lowestY,
-    int32 lowestZ
-  ) private pure returns (int32, int32, int32) {
     for (uint32 i = 0; i < voxelCoords.length; i++) {
       VoxelCoord memory voxelCoord = voxelCoords[i];
       if (voxelCoord.x < lowestX) {
@@ -119,7 +102,21 @@ contract RegisterCreationSystem is System {
         lowestZ = voxelCoord.z;
       }
     }
-    return (lowestX, lowestY, lowestZ);
+    return VoxelCoord({ x: lowestX, y: lowestY, z: lowestZ });
+  }
+
+  // PERF: put this into a precompile for speed
+  function repositionBlocksSoLowerSouthwestCornerIsOnOrigin(
+    VoxelCoord[] memory voxelCoords,
+    VoxelCoord memory lowerSouthWestCorner
+  ) private pure returns (VoxelCoord[] memory, VoxelCoord memory) {
+    VoxelCoord[] memory repositionedVoxelCoords = new VoxelCoord[](voxelCoords.length);
+    for (uint32 i = 0; i < voxelCoords.length; i++) {
+      VoxelCoord memory voxel = voxelCoords[i];
+      repositionedVoxelCoords[i] = VoxelCoord({ x: voxel.x - lowestX, y: voxel.y - lowestY, z: voxel.z - lowestZ });
+    }
+    VoxelCoord memory lowerSouthWestCorner = VoxelCoord({ x: lowestX, y: lowestY, z: lowestZ });
+    return (repositionedVoxelCoords, lowerSouthWestCorner);
   }
 
   function getVoxels(
@@ -193,6 +190,7 @@ contract RegisterCreationSystem is System {
       );
 
       uint32 numDeleted = 0;
+      // add each child voxel into our array (if it's not deleted)
       for (uint32 j = 0; j < childVoxelCoords.length; j++) {
         VoxelCoord memory childVoxelCoord = childVoxelCoords[j];
         bool isDeleted = false;

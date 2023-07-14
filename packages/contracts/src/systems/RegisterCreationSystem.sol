@@ -24,7 +24,7 @@ contract RegisterCreationSystem is System {
     VoxelCoord[] memory voxelCoords = getVoxelCoords(voxels);
     validateCreation(voxelCoords);
 
-    VoxelTypeData memory voxelTypes = getVoxelTypes(voxels);
+    VoxelTypeData[] memory voxelTypes = getVoxelTypes(voxels);
 
     BaseCreation[] memory baseCreations = abi.decode(encodedBaseCreations, (BaseCreation[]));
     (VoxelCoord[] memory baseCreationsVoxelCoords, VoxelTypeData[] memory _baseCreationsVoxelTypes) = getVoxels(
@@ -84,7 +84,7 @@ contract RegisterCreationSystem is System {
   function repositionBlocksSoLowerSouthwestCornerIsOnOrigin(
     VoxelCoord[] memory voxelCoords,
     VoxelCoord[] memory baseCreationVoxelCoords
-  ) private view returns (bytes memory, VoxelCoord memory) {
+  ) private pure returns (bytes memory, VoxelCoord memory) {
     int32 lowestX = 2147483647; // TODO: use type(int32).max;
     int32 lowestY = 2147483647;
     int32 lowestZ = 2147483647;
@@ -126,12 +126,12 @@ contract RegisterCreationSystem is System {
     VoxelTypeData[] memory rootVoxelTypes,
     BaseCreation[] memory baseCreations
   ) public view returns (VoxelCoord[] memory, VoxelTypeData[] memory) {
-    uint256 numVoxels = calculateNumVoxelsInComposedCreation(baseCreations);
+    uint32 numVoxels = calculateNumVoxelsInComposedCreation(baseCreations);
     return getVoxelsInBaseCreations(rootVoxelCoords, rootVoxelTypes, baseCreations, numVoxels);
   }
 
-  function calculateNumVoxelsInComposedCreation(BaseCreation[] memory baseCreations) internal view returns (uint256) {
-    uint256 numVoxels = 0;
+  function calculateNumVoxelsInComposedCreation(BaseCreation[] memory baseCreations) internal view returns (uint32) {
+    uint32 numVoxels = 0;
     for (uint32 i = 0; i < baseCreations.length; i++) {
       BaseCreation memory baseCreation = baseCreations[i];
       uint256 numVoxelsInBaseCreation = Creation.getNumVoxels(baseCreation.creationId);
@@ -149,7 +149,7 @@ contract RegisterCreationSystem is System {
         )
       );
 
-      numVoxels += numVoxelsInBaseCreation - numDeleteVoxels;
+      numVoxels += uint32(numVoxelsInBaseCreation - numDeleteVoxels);
     }
     return numVoxels;
   }
@@ -190,7 +190,6 @@ contract RegisterCreationSystem is System {
         abi.decode(childCreation.relativePositions, (VoxelCoord[])),
         abi.decode(childCreation.voxelTypes, (VoxelTypeData[])),
         childBaseCreations,
-        baseCreation.deletedRelativeCoords,
         childCreation.numVoxels
       );
 
@@ -218,7 +217,7 @@ contract RegisterCreationSystem is System {
   function getNumDeletedVoxels(BaseCreation[] memory baseCreations) private pure returns (uint32) {
     uint32 numDeletedVoxels = 0;
     for (uint32 i = 0; i < baseCreations.length; i++) {
-      numDeletedVoxels += baseCreations[i].deletedRelativeCoords.length;
+      numDeletedVoxels += uint32(baseCreations[i].deletedRelativeCoords.length);
     }
     return numDeletedVoxels;
   }

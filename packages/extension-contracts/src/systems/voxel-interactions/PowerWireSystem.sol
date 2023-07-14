@@ -50,15 +50,18 @@ contract PowerWireSystem is SingleVoxelInteraction {
         changedEntity = true;
       }
     } else {
-      if (powerWireData.source == compareEntity) {
-        if (isGenerator) {
+      if (compareBlockDirection == powerWireData.direction) {
+        if (entityIsGenerator(powerWireData.source, callerNamespace)) {
           GeneratorData memory generatorData = Generator.get(callerNamespace, compareEntity);
           if (powerWireData.genRate != generatorData.genRate) {
             powerWireData.genRate = generatorData.genRate;
             PowerWire.set(callerNamespace, signalEntity, powerWireData);
             changedEntity = true;
           }
-        } else if (isPowerWire) {
+        } else if (
+          entityIsPowerWire(powerWireData.source, callerNamespace) &&
+          PowerWire.get(callerNamespace, powerWireData.source).genRate > 0
+        ) {
           PowerWireData memory neighPowerWireData = PowerWire.get(callerNamespace, compareEntity);
           if (powerWireData.genRate != neighPowerWireData.genRate) {
             powerWireData.genRate = neighPowerWireData.genRate;

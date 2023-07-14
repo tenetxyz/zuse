@@ -27,7 +27,7 @@ contract RegisterCreationSystem is System {
     VoxelTypeData[] memory voxelTypes = getVoxelTypes(voxels);
 
     BaseCreation[] memory baseCreations = abi.decode(encodedBaseCreations, (BaseCreation[]));
-    (VoxelCoord[] memory baseCreationsVoxelCoords, VoxelTypeData[] memory _baseCreationsVoxelTypes) = getVoxels(
+    (VoxelCoord[] memory allVoxelCoords, VoxelTypeData[] memory allVoxelTypes) = getVoxels(
       voxelCoords,
       voxelTypes,
       baseCreations
@@ -36,20 +36,18 @@ contract RegisterCreationSystem is System {
     (
       bytes memory relativePositions,
       VoxelCoord memory lowerSouthWestCorner
-    ) = repositionBlocksSoLowerSouthwestCornerIsOnOrigin(voxelCoords, baseCreationsVoxelCoords);
-
-    bytes memory encodedVoxelTypes = abi.encode(voxelTypes);
+    ) = repositionBlocksSoLowerSouthwestCornerIsOnOrigin(allVoxelCoords);
 
     CreationData memory creation;
-    creation.voxelTypes = encodedVoxelTypes;
+    creation.voxelTypes = abi.encode(voxelTypes);
     creation.creator = tx.origin;
-    creation.numVoxels = uint32(voxelCoords.length + baseCreationsVoxelCoords.length);
+    creation.numVoxels = uint32(allVoxelCoords.length);
     creation.relativePositions = relativePositions;
     creation.name = name;
     creation.description = description;
     creation.baseCreations = abi.encode(baseCreations);
 
-    bytes32 creationId = getCreationHash(encodedVoxelTypes, relativePositions, _msgSender());
+    bytes32 creationId = getCreationHash(abi.encode(allVoxelTypes), relativePositions, _msgSender());
     Creation.set(creationId, creation);
     IWorld(_world()).tenet_SpawnSystem_spawn(lowerSouthWestCorner, creationId); // make this creation a spawn
     return creationId;
@@ -82,14 +80,12 @@ contract RegisterCreationSystem is System {
 
   // PERF: put this into a precompile for speed
   function repositionBlocksSoLowerSouthwestCornerIsOnOrigin(
-    VoxelCoord[] memory voxelCoords,
-    VoxelCoord[] memory baseCreationVoxelCoords
+    VoxelCoord[] memory voxelCoords
   ) private pure returns (bytes memory, VoxelCoord memory) {
     int32 lowestX = 2147483647; // TODO: use type(int32).max;
     int32 lowestY = 2147483647;
     int32 lowestZ = 2147483647;
     (lowestX, lowestY, lowestZ) = getLowestCoord(voxelCoords, lowestX, lowestY, lowestZ);
-    (lowestX, lowestY, lowestZ) = getLowestCoord(baseCreationVoxelCoords, lowestX, lowestY, lowestZ);
 
     VoxelCoord[] memory repositionedVoxelCoords = new VoxelCoord[](voxelCoords.length);
     for (uint32 i = 0; i < voxelCoords.length; i++) {

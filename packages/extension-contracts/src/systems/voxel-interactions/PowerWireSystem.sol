@@ -28,23 +28,26 @@ contract PowerWireSystem is SingleVoxelInteraction {
     changedEntity = false;
 
     bool isPowerWire = entityIsPowerWire(compareEntity, callerNamespace) &&
-      PowerWire.get(callerNamespace, compareEntity).genRate > 0;
+          PowerWire.get(callerNamespace, compareEntity).transferRate > 0;
     bool isGenerator = entityIsGenerator(compareEntity, callerNamespace);
 
     bool doesHaveSource = powerWireData.source != bytes32(0);
-
     if (!doesHaveSource) {
       if (isPowerWire) {
         PowerWireData memory neighPowerWireData = PowerWire.get(callerNamespace, compareEntity);
+        uint256 validTransferRate = neighPowerWireData.transferRate <= powerWireData.MaxTransferRate ? neighPowerWireData.transferRate : powerWireData.MaxTransferRate;
+
         powerWireData.source = compareEntity;
-        powerWireData.genRate = neighPowerWireData.genRate;
+        powerWireData.transferRate = validTransferRate;
         powerWireData.direction = neighPowerWireData.direction;
         PowerWire.set(callerNamespace, signalEntity, powerWireData);
         changedEntity = true;
       } else if (isGenerator) {
         GeneratorData memory generatorData = Generator.get(callerNamespace, compareEntity);
+        uint256 validTransferRate = generatorData.genRate <= powerWireData.MaxTransferRate ? generatorData.genRate : powerWireData.MaxTransferRate;
+
         powerWireData.source = compareEntity;
-        powerWireData.genRate = generatorData.genRate;
+        powerWireData.transferRate = validTransferRate;
         powerWireData.direction = compareBlockDirection;
         PowerWire.set(callerNamespace, signalEntity, powerWireData);
         changedEntity = true;
@@ -53,24 +56,28 @@ contract PowerWireSystem is SingleVoxelInteraction {
       if (compareBlockDirection == powerWireData.direction) {
         if (entityIsGenerator(powerWireData.source, callerNamespace)) {
           GeneratorData memory generatorData = Generator.get(callerNamespace, compareEntity);
-          if (powerWireData.genRate != generatorData.genRate) {
-            powerWireData.genRate = generatorData.genRate;
+          uint256 validTransferRate = generatorData.genRate <= powerWireData.MaxTransferRate ? generatorData.genRate : powerWireData.MaxTransferRate;
+
+          if (powerWireData.transferRate != validTransferRate) {
+            powerWireData.transferRate = validTransferRate;
             PowerWire.set(callerNamespace, signalEntity, powerWireData);
             changedEntity = true;
           }
         } else if (
           entityIsPowerWire(powerWireData.source, callerNamespace) &&
-          PowerWire.get(callerNamespace, powerWireData.source).genRate > 0
+          PowerWire.get(callerNamespace, powerWireData.source).transferRate > 0
         ) {
           PowerWireData memory neighPowerWireData = PowerWire.get(callerNamespace, compareEntity);
-          if (powerWireData.genRate != neighPowerWireData.genRate) {
-            powerWireData.genRate = neighPowerWireData.genRate;
+          uint256 validTransferRate = neighPowerWireData.transferRate <= powerWireData.MaxTransferRate ? neighPowerWireData.transferRate : powerWireData.MaxTransferRate;
+
+          if (powerWireData.transferRate != validTransferRate) {
+            powerWireData.transferRate = validTransferRate;
             PowerWire.set(callerNamespace, signalEntity, powerWireData);
             changedEntity = true;
           }
         } else {
           powerWireData.source = bytes32(0);
-          powerWireData.genRate = 0;
+          powerWireData.transferRate = 0;
           powerWireData.direction = BlockDirection.None;
           PowerWire.set(callerNamespace, signalEntity, powerWireData);
           changedEntity = true;
@@ -81,7 +88,7 @@ contract PowerWireSystem is SingleVoxelInteraction {
         } else if (isPowerWire) {
           PowerWireData memory neighPowerWireData = PowerWire.get(callerNamespace, compareEntity);
           if (
-            neighPowerWireData.genRate > 0 &&
+            neighPowerWireData.transferRate > 0 &&
             neighPowerWireData.direction != getOppositeDirection(compareBlockDirection)
           ) {
             // if we are not the source of this active wire

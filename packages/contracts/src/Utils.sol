@@ -156,6 +156,10 @@ function add(VoxelCoord memory a, VoxelCoord memory b) pure returns (VoxelCoord 
   return VoxelCoord(a.x + b.x, a.y + b.y, a.z + b.z);
 }
 
+function sub(VoxelCoord memory a, VoxelCoord memory b) pure returns (VoxelCoord memory) {
+  return VoxelCoord(a.x - b.x, a.y - b.y, a.z - b.z);
+}
+
 function voxelCoordToString(VoxelCoord memory coord) pure returns (string memory) {
   return
     string(

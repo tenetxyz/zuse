@@ -12,7 +12,8 @@ import { CHUNK_MAX_Y, CHUNK_MIN_Y } from "../Constants.sol";
 
 contract SpawnSystem is System {
   function spawn(VoxelCoord memory lowerSouthWestCorner, bytes32 creationId) public returns (bytes32) {
-    (VoxelCoord[] memory relativeVoxelCoords, VoxelTypeData[] memory voxelTypes) = getVoxels(creationId);
+    (VoxelCoord[] memory relativeVoxelCoords, VoxelTypeData[] memory voxelTypes) = IWorld(_world())
+      .tenet_RegisterCreation_getVoxelsInCreation(creationId);
 
     bytes32 spawnId = getUniqueEntity();
     bytes32[] memory spawnVoxels = new bytes32[](relativeVoxelCoords.length);
@@ -45,18 +46,6 @@ contract SpawnSystem is System {
 
     increaseCreationSpawnCount(creationId);
     return spawnId;
-  }
-
-  function getVoxels(bytes32 creationId) private returns (VoxelCoord[] memory, VoxelTypeData[] memory) {
-    CreationData memory creation = Creation.get(creationId);
-
-    return
-      IWorld(_world()).tenet_RegisterCreation_getVoxelsInBaseCreations(
-        abi.decode(creation.relativePositions, (VoxelCoord[])),
-        abi.decode(creation.voxelTypes, (VoxelTypeData[])),
-        abi.decode(creation.baseCreations, (BaseCreation[])),
-        creation.numVoxels
-      );
   }
 
   function increaseCreationSpawnCount(bytes32 creationId) private {

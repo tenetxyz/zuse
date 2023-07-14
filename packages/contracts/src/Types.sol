@@ -34,6 +34,12 @@ struct InterfaceVoxel {
   string desc;
 }
 
+struct BaseCreationInWorld {
+  bytes32 creationId;
+  VoxelCoord lowerSouthWestCornerInWorld;
+  VoxelCoord[] deletedRelativeCoords; // the coord relative to the BASE creation, not to the creation this base creation is in
+}
+
 struct BaseCreation {
   bytes32 creationId;
   VoxelCoord coordOffset; // the offset of the base creation relative to the creation this base creation is in

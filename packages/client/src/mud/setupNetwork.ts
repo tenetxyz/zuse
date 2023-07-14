@@ -556,7 +556,7 @@ export async function setupNetwork() {
     voxels: Entity[],
     baseCreations: BaseCreation[]
   ) {
-    // TODO: Relpace Diamond NFT with a creation symbol
+    // TODO: Replace Diamond NFT with a creation symbol
     const preview = getNftStorageLink("bafkreicro56v6rinwnltbkyjfzqdwva2agtrtypwaeowud447louxqgl5y");
 
     actions.add({
@@ -572,7 +572,9 @@ export async function setupNetwork() {
           creationDescription,
           voxels,
           defaultAbiCoder.encode(
-            ["(bytes32,(int32,int32,int32),(int32,int32,int32)[])[]"], // encode as base creations array
+            [
+              "tuple(bytes32 creationId,tuple(int32 x,int32 y,int32 z) lowerSouthWestCornerOfSpawn,tuple(int32 x,int32 y,int32 z)[] deletedRelativeCoords)[]",
+            ], // encode as base creations array
             [baseCreations]
           ),
           { gasLimit: 30_000_000 },

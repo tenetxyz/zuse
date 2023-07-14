@@ -114,6 +114,61 @@ contract RegisterCreationSystem is System {
     return (lowestX, lowestY, lowestZ);
   }
 
+  function getVoxelsInBaseCreation(
+    BaseCreation memory baseCreation
+  ) returns (VoxelCoord[] memory, VoxelTypeData[] memory) {
+    CreationData memory baseCreation = Creation.get(baseCreations.creationId);
+    VoxelCoord[] memory deletedRelativeCoords = baseCreation.deletedRelativeCoords;
+    uint32 numVoxelsInBaseCreation = baseCreation.numVoxels;
+    uint32 numDeletedVoxels = deletedRelativeCoords.length;
+    require(
+      numVoxelsInBaseCreation > numDeletedVoxels,
+      string(
+        abi.encode(
+          "You cannot delete ",
+          Strings.toString(uint256(numDeletedVoxels)),
+          " voxels, when the base creation has ",
+          Strings.toString(uint256(numVoxelsInBaseCreation)),
+          " voxels"
+        )
+      )
+    );
+    uint32 numVoxels = numVoxelsInBaseCreation - numDeletedVoxels; // the actual voxels for using this base creation
+
+    VoxelCoord[] memory voxelCoords = new VoxelCoord[](numVoxels);
+    VoxelTypeData[] memory voxelTypes = new VoxelTypeData[](numVoxels);
+    for (uint32 i = 0; i < creation.voxels; i++) {
+      voxelCoords[i] = creation.voxelCoords[i];
+      voxelTypes[i] = creation.voxelTypes[i];
+    }
+    uint32 voxelIdx = creation.voxels.length;
+
+    BaseCreation[] memory baseCreationChildren = abi.decode(baseCreation, (BaseCreation[]));
+
+    for (uint32 i = 0; i < baseCreationChildren; i++) {
+      BaseCreation memory child = baseCreationChildren[i];
+      (VoxelCoord[] memory childVoxelCoords, VoxelTypeData[] memory childVoxelTypes) = getVoxelsInBaseCreation(child);
+      for (uint32 j = 0; j < childVoxelCoords.length; j++) {
+        VoxelCoord memory childVoxelCoord = childVoxelCoords[j];
+        bool isDeleted = false;
+        for (uint32 k = 0; k < deletedRelativeCoords.length; k++) {
+          VoxelCoord memory deletedRelativeCoord = deletedRelativeCoords[k];
+          if (voxelCoordsAreEqual(childVoxelCoord, deletedRelativeCoord)) {
+            // this voxel is deleted, so don't add it
+            isDeleted = true;
+            break;
+          }
+        }
+        if (!isDeleted) {
+          voxelCoords[voxelIdx] = childVoxelCoords[voxelIdx];
+          voxelTypes[voxelIdx] = childVoxelTypes[voxelIdx];
+          voxelIdx++;
+        }
+      }
+    }
+    return (voxelCoords, voxelTypes);
+  }
+
   function getVoxelCoordsFromBaseCreations(
     BaseCreation[] memory baseCreations
   ) private view returns (VoxelCoord[] memory) {
@@ -151,6 +206,7 @@ contract RegisterCreationSystem is System {
     return voxelCoords;
   }
 
+  // TODO: make this recursive
   function calculateTotalVoxelsInComposedCreation(BaseCreation[] memory baseCreations) private view returns (uint256) {
     uint256 totalVoxels = 0;
     for (uint32 i = 0; i < baseCreations.length; i++) {

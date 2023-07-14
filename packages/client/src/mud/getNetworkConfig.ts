@@ -28,6 +28,8 @@ export async function getNetworkConfig(): Promise<NetworkConfig> {
     throw new Error(`No world address found for chain ${chainId}. Did you run \`mud deploy\`?`);
   }
 
+  const defaultRelay = tenetRelayServiceUrl.includes("undefined") ? undefined : tenetRelayServiceUrl;
+
   const initialBlockNumber = params.has("initialBlockNumber")
     ? Number(params.get("initialBlockNumber"))
     : world?.blockNumber ?? -1; // -1 will attempt to find the block number from RPC
@@ -50,8 +52,8 @@ export async function getNetworkConfig(): Promise<NetworkConfig> {
     faucetServiceUrl: params.get("faucet") ?? chain.faucetUrl,
     worldAddress,
     initialBlockNumber,
-    snapSync: params.get("snapSync") === "true",
+    snapSync: params.get("snapSync") === "false" ? false : true,
     disableCache: params.get("cache") === "false",
-    relayServiceUrl: params.get("relay") ?? tenetRelayServiceUrl,
+    relayServiceUrl: params.get("relay") ?? defaultRelay,
   };
 }

@@ -3,7 +3,7 @@ pragma solidity >=0.8.0;
 
 import { SingleVoxelInteraction } from "@tenet-contracts/src/prototypes/SingleVoxelInteraction.sol";
 import { IWorld } from "../../../src/codegen/world/IWorld.sol";
-import { PowerPlug, PowerPlugData, PowerWire, PowerWireData, Generator, GeneratorData, PowerPoint, PowerPointData } from "../../codegen/Tables.sol";
+import { PowerWire, PowerWireData, Generator, GeneratorData } from "../../codegen/Tables.sol";
 import { BlockDirection } from "../../codegen/Types.sol";
 import { registerExtension, entityIsPowerWire, entityIsGenerator, entityIsPowerPlug, entityIsPowerPoint } from "../../Utils.sol";
 import { getOppositeDirection } from "@tenet-contracts/src/Utils.sol";
@@ -11,7 +11,7 @@ import { getOppositeDirection } from "@tenet-contracts/src/Utils.sol";
 contract PowerWireSystem is SingleVoxelInteraction {
   function registerInteraction() public override {
     address world = _world();
-    registerExtension(world, "PowerPlugSystem", IWorld(world).extension_PowerPlugSystem_eventHandler.selector);
+    registerExtension(world, "PowerWireSystem", IWorld(world).extension_PowerWireSystem_eventHandler.selector);
   }
 
   function entityShouldInteract(bytes32 entityId, bytes16 callerNamespace) internal view override returns (bool) {
@@ -27,48 +27,70 @@ contract PowerWireSystem is SingleVoxelInteraction {
     PowerWireData memory powerWireData = PowerWire.get(callerNamespace, signalEntity);
     changedEntity = false;
 
-    if (entityIsPowerPlug(compareEntity, callerNamespace)) {
-      PowerPlugData memory powerPlugData = PowerPlug.get(callerNamespace, compareEntity);
-      if (powerWireData.source != powerPlugData.source  || powerWireData.direction != compareBlockDirection
-          || powerWireData.genRate != (powerPlugData.genRate * 14) / 15) {
-        powerWireData.source = powerPlugData.source;
+    bool isPowerWire = entityIsPowerWire(compareEntity, callerNamespace) &&
+      PowerWire.get(callerNamespace, compareEntity).genRate > 0;
+    bool isGenerator = entityIsGenerator(compareEntity, callerNamespace);
+
+    bool doesHaveSource = powerWireData.source != bytes32(0);
+
+    if (!doesHaveSource) {
+      if (isPowerWire) {
+        PowerWireData memory neighPowerWireData = PowerWire.get(callerNamespace, compareEntity);
+        powerWireData.source = compareEntity;
+        powerWireData.genRate = neighPowerWireData.genRate;
+        powerWireData.direction = neighPowerWireData.direction;
+        PowerWire.set(callerNamespace, signalEntity, powerWireData);
+        changedEntity = true;
+      } else if (isGenerator) {
+        GeneratorData memory generatorData = Generator.get(callerNamespace, compareEntity);
+        powerWireData.source = compareEntity;
+        powerWireData.genRate = generatorData.genRate;
         powerWireData.direction = compareBlockDirection;
-        powerWireData.genRate = (powerPlugData.genRate * 14) / 15;
         PowerWire.set(callerNamespace, signalEntity, powerWireData);
         changedEntity = true;
       }
-    }
-
-    if (entityIsPowerPoint(compareEntity, callerNamespace)) {
-      PowerPointData memory powerPointData = PowerPoint.get(callerNamespace, compareEntity);
-      if (powerWireData.destination != powerPointData.destination) {
-        powerWireData.destination = powerPointData.destination;
-        PowerWire.set(callerNamespace, signalEntity, powerWireData);
-        changedEntity = true;
-      }
-    }
-
-    if (entityIsPowerWire(compareEntity, callerNamespace)) {
-      PowerWireData memory comparePowerWireData = PowerWire.get(callerNamespace, compareEntity);
-      if (comparePowerWireData.destination != bytes32(0)) {
-        if (powerWireData.destination != comparePowerWireData.destination) {
-          powerWireData.destination = comparePowerWireData.destination;
+    } else {
+      if (compareBlockDirection == powerWireData.direction) {
+        if (entityIsGenerator(powerWireData.source, callerNamespace)) {
+          GeneratorData memory generatorData = Generator.get(callerNamespace, compareEntity);
+          if (powerWireData.genRate != generatorData.genRate) {
+            powerWireData.genRate = generatorData.genRate;
+            PowerWire.set(callerNamespace, signalEntity, powerWireData);
+            changedEntity = true;
+          }
+        } else if (
+          entityIsPowerWire(powerWireData.source, callerNamespace) &&
+          PowerWire.get(callerNamespace, powerWireData.source).genRate > 0
+        ) {
+          PowerWireData memory neighPowerWireData = PowerWire.get(callerNamespace, compareEntity);
+          if (powerWireData.genRate != neighPowerWireData.genRate) {
+            powerWireData.genRate = neighPowerWireData.genRate;
+            PowerWire.set(callerNamespace, signalEntity, powerWireData);
+            changedEntity = true;
+          }
+        } else {
+          powerWireData.source = bytes32(0);
+          powerWireData.genRate = 0;
+          powerWireData.direction = BlockDirection.None;
           PowerWire.set(callerNamespace, signalEntity, powerWireData);
           changedEntity = true;
         }
-      }
-      if (comparePowerWireData.source != bytes32(0)) {
-        if (powerWireData.source != comparePowerWireData.source  || powerWireData.direction != compareBlockDirection
-            || powerWireData.genRate != (comparePowerWireData.genRate * 14) / 15) {
-          powerWireData.source = comparePowerWireData.source;
-          powerWireData.direction = compareBlockDirection;
-          powerWireData.genRate = (comparePowerWireData.genRate * 14) / 15;
-          PowerWire.set(callerNamespace, signalEntity, powerWireData);
-          changedEntity = true;
+      } else {
+        if (isGenerator) {
+          revert("PowerWireSystem: PowerWire has a source and is trying to connect to a different source");
+        } else if (isPowerWire) {
+          PowerWireData memory neighPowerWireData = PowerWire.get(callerNamespace, compareEntity);
+          if (
+            neighPowerWireData.genRate > 0 &&
+            neighPowerWireData.direction != getOppositeDirection(compareBlockDirection)
+          ) {
+            // if we are not the source of this active wire
+            revert("PowerWireSystem: PowerWire has a source and is trying to connect to a different source");
+          }
         }
       }
     }
-    
+
     return changedEntity;
   }
 

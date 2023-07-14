@@ -8,7 +8,7 @@ import { IWorld } from "@tenet-contracts/src/codegen/world/IWorld.sol";
 import { addressToEntityKey, getEntitiesAtCoord, voxelCoordToString, voxelCoordsAreEqual } from "../Utils.sol";
 import { VoxelType, Position, Creation, CreationData, VoxelTypeData, Spawn, SpawnData, OfSpawn } from "@tenet-contracts/src/codegen/Tables.sol";
 import { PositionData } from "@tenet-contracts/src/codegen/tables/Position.sol";
-import { VoxelCoord, BaseCreation } from "../Types.sol";
+import { VoxelCoord, BaseCreation } from "@tenet-contracts/src/Types.sol";
 //import { CreateBlock } from "../libraries/CreateBlock.sol";
 
 uint256 constant MAX_BLOCKS_IN_CREATION = 100;
@@ -49,7 +49,7 @@ contract RegisterCreationSystem is System {
 
     bytes32 creationId = getCreationHash(abi.encode(allVoxelTypes), relativePositions, _msgSender());
     Creation.set(creationId, creation);
-    IWorld(_world()).tenet_SpawnSystem_spawn(lowerSouthWestCorner, creationId); // make this creation a spawn
+    // IWorld(_world()).tenet_SpawnSystem_spawn(lowerSouthWestCorner, creationId); // make this creation a spawn
     return creationId;
   }
 

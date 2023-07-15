@@ -56,7 +56,6 @@ const RegisterCreation: React.FC<Props> = ({ layers, formData, setFormData, rese
     const allVoxels = getVoxelsWithinSelection();
     const { voxelsNotInSpawn, voxelsInSpawn, spawnDefs } = separateVoxelsFromSpawns(allVoxels);
     const baseCreations = calculateBaseCreations(voxelsInSpawn, spawnDefs);
-    debugger;
     registerCreation(formData.name, formData.description, voxelsNotInSpawn, baseCreations);
     resetRegisterCreationForm();
   };

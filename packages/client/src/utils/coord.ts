@@ -37,6 +37,7 @@ export function stringToVoxelCoord(coordString: string): VoxelCoord {
 
 export const calculateMinMaxRelativeCoordsOfCreation = (Creation: any, creationId: Entity) => {
   const relativeVoxelCoords = getVoxelCoordsOfCreation(Creation, creationId);
+  // debugger;
   return calculateMinMaxCoords(relativeVoxelCoords);
 };
 
@@ -57,7 +58,11 @@ export const getVoxelCoordsOfCreation = (Creation: any, creationId: Entity): Vox
     for (const deletedRelativeCoord of baseCreation.deletedRelativeCoords) {
       uniqueCoords.delete(voxelCoordToString(deletedRelativeCoord));
     }
-    voxelCoords.push(...Array.from(uniqueCoords).map(stringToVoxelCoord));
+    voxelCoords.push(
+      ...Array.from(uniqueCoords)
+        .map(stringToVoxelCoord)
+        .map((voxelCoord) => add(voxelCoord, baseCreation.coordOffset))
+    );
   }
   return voxelCoords;
 };

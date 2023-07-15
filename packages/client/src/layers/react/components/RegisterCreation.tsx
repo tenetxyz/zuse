@@ -4,7 +4,14 @@ import { Entity, getComponentValue, getComponentValueStrict, setComponent } from
 import { NotificationIcon } from "../../noa/components/persistentNotification";
 import { calculateMinMax } from "../../../utils/voxels";
 import { useComponentValue } from "@latticexyz/react";
-import { decodeCoord, sub, voxelCoordToString } from "../../../utils/coord";
+import {
+  add,
+  decodeCoord,
+  getVoxelCoordsOfCreation,
+  stringToVoxelCoord,
+  sub,
+  voxelCoordToString,
+} from "../../../utils/coord";
 import { FocusedUiType } from "../../noa/components/FocusedUi";
 import { twMerge } from "tailwind-merge";
 import { SetState } from "../../../utils/types";
@@ -37,7 +44,7 @@ const RegisterCreation: React.FC<Props> = ({ layers, formData, setFormData, rese
       SingletonEntity,
     },
     network: {
-      contractComponents: { OfSpawn, Spawn, Position },
+      contractComponents: { OfSpawn, Spawn, Position, Creation },
       api: { getEntityAtPosition, registerCreation },
     },
   } = layers;
@@ -49,13 +56,14 @@ const RegisterCreation: React.FC<Props> = ({ layers, formData, setFormData, rese
     const allVoxels = getVoxelsWithinSelection();
     const { voxelsNotInSpawn, voxelsInSpawn, spawnDefs } = separateVoxelsFromSpawns(allVoxels);
     const baseCreations = calculateBaseCreations(voxelsInSpawn, spawnDefs);
+    debugger;
     registerCreation(formData.name, formData.description, voxelsNotInSpawn, baseCreations);
     resetRegisterCreationForm();
   };
   const separateVoxelsFromSpawns = (voxels: Entity[]) => {
     const spawnDefs = new Set<string>(); // spawnId, and lowerleft corner
     const voxelsNotInSpawn = [];
-    const voxelsInSpawn = new Set<string>();
+    const voxelsInSpawn = new Set<string>(); // the set of all voxels that are in a spawn. This is a set because it makes it O(1) for us to check if a voxel is in a spawn
     for (const voxel of voxels) {
       const spawnId = getComponentValue(OfSpawn, voxel)?.value;
       if (spawnId) {
@@ -71,23 +79,19 @@ const RegisterCreation: React.FC<Props> = ({ layers, formData, setFormData, rese
     }
     return { voxelsNotInSpawn, voxelsInSpawn, spawnDefs };
   };
+
   const calculateBaseCreations = (voxelsInSpawn: Set<string>, spawnDefs: Set<string>): BaseCreationInWorld[] => {
     const baseCreations: BaseCreationInWorld[] = [];
+
+    // for each spawn, check to see if all of its voxels are in its defined cooordinate in the base creation.
+    // if it is not, then it must be deleted
     for (const spawnDef of spawnDefs) {
       const [spawnId, encodedLowerSouthWestCorner] = spawnDef.split(":");
       const lowerSouthWestCornerInWorld = decodeCoord(encodedLowerSouthWestCorner);
 
       const spawn = getComponentValueStrict(Spawn, stringToEntity(spawnId));
+      const deletedRelativeCoords = findDeletedVoxelCoords(spawn, lowerSouthWestCornerInWorld);
 
-      const deletedRelativeCoords = [];
-      for (const voxel of spawn.voxels) {
-        // if this voxelId doesn't exist in the creation, it must have been deleted
-        if (!voxelsInSpawn.has(voxel)) {
-          const voxelCoord = getComponentValueStrict(Position, stringToEntity(voxel));
-          const relativeCoord = sub(voxelCoord, lowerSouthWestCornerInWorld);
-          deletedRelativeCoords.push(relativeCoord);
-        }
-      }
       baseCreations.push({
         creationId: spawn.creationId,
         lowerSouthWestCornerInWorld,
@@ -95,6 +99,26 @@ const RegisterCreation: React.FC<Props> = ({ layers, formData, setFormData, rese
       });
     }
     return baseCreations;
+  };
+
+  // the deleted voxel coords are the ones that are in the creation, but not in the spawn
+  // what if you place a spawn, and another spawn overlaps and deletes one block, will this code still work?
+  // yes, since that block was deleted by the second spawn, it will not show up as a voxel of that spawn, so it will still be flagged as deleted
+  const findDeletedVoxelCoords = (spawn: any, lowerSouthWestCornerInWorld: VoxelCoord) => {
+    const creationVoxelCoords = getVoxelCoordsOfCreation(Creation, stringToEntity(spawn.creationId));
+
+    const creationVoxelCoordsInWorld = new Set<string>(
+      creationVoxelCoords.map((voxelCoord) => add(lowerSouthWestCornerInWorld, voxelCoord)).map(voxelCoordToString)
+    ); // convert to string so we can use a set to remove coords that are in the world
+
+    for (const voxel of spawn.voxels) {
+      const voxelCoordInSpawn = voxelCoordToString(getComponentValueStrict(Position, stringToEntity(voxel)));
+      creationVoxelCoordsInWorld.delete(voxelCoordInSpawn);
+    }
+
+    return Array.from(creationVoxelCoordsInWorld)
+      .map(stringToVoxelCoord)
+      .map((voxelCoord) => sub(voxelCoord, lowerSouthWestCornerInWorld));
   };
 
   const handleInputChange = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {

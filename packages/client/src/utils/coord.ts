@@ -41,7 +41,7 @@ export const calculateMinMaxRelativeCoordsOfCreation = (Creation: any, creationI
 };
 
 // TODO: fix the type of this. Note: I didn't want to pass in "layers" since this function is called a lot, and we'd be derefernecing layers a lot to get Creation
-const getVoxelCoordsOfCreation = (Creation: any, creationId: Entity): VoxelCoord[] => {
+export const getVoxelCoordsOfCreation = (Creation: any, creationId: Entity): VoxelCoord[] => {
   // PERF: if users tend to spawn the same creation multiple times we should memoize the creation fetching process
   const creation = getComponentValueStrict(Creation, creationId);
   const voxelCoords =

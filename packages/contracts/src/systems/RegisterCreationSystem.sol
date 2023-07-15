@@ -28,25 +28,34 @@ contract RegisterCreationSystem is System {
       encodedBaseCreationsInWorld,
       (BaseCreationInWorld[])
     );
+
+    // 1) get all of the voxelCoords of all voxels in the creation
     (VoxelCoord[] memory allVoxelCoordsInWorld, VoxelTypeData[] memory allVoxelTypes) = getVoxels(
       voxelCoords,
       voxelTypes,
       baseCreationsInWorld
     );
 
+    // 2) validate the creation
     validateCreation(allVoxelCoordsInWorld);
 
+    // 3) find the lowestSouthWestCorner so we can center the voxels about the origin (lowerSouthwestCorner)
     VoxelCoord memory lowerSouthwestCorner = getLowerSouthwestCorner(allVoxelCoordsInWorld);
+
+    // 4) reposition the voxels so the lowerSouthwestCorner is on the origin
+    // Note: we do NOT need to reposition the voxels within base creations because they are already positioned relative to the base creation
     VoxelCoord[] memory relativePositions = repositionBlocksSoLowerSouthwestCornerIsOnOrigin(
       voxelCoords,
       lowerSouthwestCorner
     );
 
+    // 5) Reposition the base creations about the origin
     BaseCreation[] memory baseCreations = convertBaseCreationsInWorldToBaseCreation(
       baseCreationsInWorld,
       lowerSouthwestCorner
     );
 
+    // 6) write all the fields of the creation to the table
     CreationData memory creation;
     creation.creator = tx.origin;
     creation.numVoxels = uint32(allVoxelCoordsInWorld.length);
@@ -59,6 +68,8 @@ contract RegisterCreationSystem is System {
     bytes32 creationId = getCreationHash(allVoxelTypes, relativePositions, _msgSender());
     // TODO: verify that this creationId doesn't already exist
     Creation.set(creationId, creation);
+
+    // 7) replace the voxels in the registration with a spawn!
     IWorld(_world()).tenet_SpawnSystem_spawn(lowerSouthwestCorner, creationId); // make this creation a spawn
     return creationId;
   }
@@ -178,7 +189,7 @@ contract RegisterCreationSystem is System {
           abi.encode(
             "you deleted voxels in baseCreationInWorld.creationId: ",
             baseCreationInWorld.creationId,
-            " that don't exist in the creation"
+            " that don't exist in the creation. Make sure that all baseCreationInWorld.deletedRelativeCoords are actually from the base creation"
           )
         )
       );
@@ -262,31 +273,6 @@ contract RegisterCreationSystem is System {
       }
     }
     return (allRelativeCoords, allVoxelTypes);
-  }
-
-  function requireDeletedCoordsAreInBaseCreation(
-    VoxelCoord[] memory creationRelativeCoords,
-    VoxelCoord[] memory deletedRelativeCoords
-  ) private pure {
-    for (uint32 i = 0; i < deletedRelativeCoords.length; i++) {
-      VoxelCoord memory deletedRelativeCoord = deletedRelativeCoords[i];
-      bool deletedCoordExistsInCreation = false;
-      for (uint32 j = 0; j < creationRelativeCoords.length; j++) {
-        if (voxelCoordsAreEqual(deletedRelativeCoord, creationRelativeCoords[j])) {
-          deletedCoordExistsInCreation = true;
-          break;
-        }
-      }
-      require(
-        deletedCoordExistsInCreation,
-        string(
-          abi.encode(
-            "This deleted coord does not exist in its base creation: ",
-            voxelCoordToString(deletedRelativeCoords[i])
-          )
-        )
-      );
-    }
   }
 
   function convertBaseCreationsInWorldToBaseCreation(

@@ -27,7 +27,7 @@ export interface RegisterCreationFormData {
 export interface BaseCreationInWorld {
   creationId: string;
   lowerSouthWestCornerInWorld: VoxelCoord;
-  deletedRelativeCoords: VoxelCoord[];
+  deletedRelativeCoords: VoxelCoord[]; // these coords are relative to the BASE creation's lowerSouthWestCorner. NOT the new creation we are using this in
 }
 
 interface Props {
@@ -54,15 +54,14 @@ const RegisterCreation: React.FC<Props> = ({ layers, formData, setFormData, rese
 
   const handleSubmit = () => {
     const allVoxels = getVoxelsWithinSelection();
-    const { voxelsNotInSpawn, voxelsInSpawn, spawnDefs } = separateVoxelsFromSpawns(allVoxels);
-    const baseCreations = calculateBaseCreations(voxelsInSpawn, spawnDefs);
-    registerCreation(formData.name, formData.description, voxelsNotInSpawn, baseCreations);
+    const { voxelsNotInSpawn, spawnDefs } = separateVoxelsFromSpawns(allVoxels);
+    const baseCreationsInWorld = calculateBaseCreationsInWorld(spawnDefs);
+    registerCreation(formData.name, formData.description, voxelsNotInSpawn, baseCreationsInWorld);
     resetRegisterCreationForm();
   };
   const separateVoxelsFromSpawns = (voxels: Entity[]) => {
     const spawnDefs = new Set<string>(); // spawnId, and lowerleft corner
     const voxelsNotInSpawn = [];
-    const voxelsInSpawn = new Set<string>(); // the set of all voxels that are in a spawn. This is a set because it makes it O(1) for us to check if a voxel is in a spawn
     for (const voxel of voxels) {
       const spawnId = getComponentValue(OfSpawn, voxel)?.value;
       if (spawnId) {
@@ -71,15 +70,14 @@ const RegisterCreation: React.FC<Props> = ({ layers, formData, setFormData, rese
           stringToEntity(spawnId)
         ).lowerSouthWestCorner;
         spawnDefs.add(`${spawnId}:${encodedLowerSouthWestCorner}`);
-        voxelsInSpawn.add(voxel);
       } else {
         voxelsNotInSpawn.push(voxel);
       }
     }
-    return { voxelsNotInSpawn, voxelsInSpawn, spawnDefs };
+    return { voxelsNotInSpawn, spawnDefs };
   };
 
-  const calculateBaseCreations = (voxelsInSpawn: Set<string>, spawnDefs: Set<string>): BaseCreationInWorld[] => {
+  const calculateBaseCreationsInWorld = (spawnDefs: Set<string>): BaseCreationInWorld[] => {
     const baseCreations: BaseCreationInWorld[] = [];
 
     // for each spawn, check to see if all of its voxels are in its defined cooordinate in the base creation.
@@ -100,9 +98,9 @@ const RegisterCreation: React.FC<Props> = ({ layers, formData, setFormData, rese
     return baseCreations;
   };
 
-  // the deleted voxel coords are the ones that are in the creation, but not in the spawn
-  // what if you place a spawn, and another spawn overlaps and deletes one block, will this code still work?
-  // yes, since that block was deleted by the second spawn, it will not show up as a voxel of that spawn, so it will still be flagged as deleted
+  // The deleted voxel coords are the ones that are in the creation, but not in the spawn
+  // What if you place a spawn, and another spawn overlaps and deletes one block, will this code still work?
+  // Yes. Since that block was deleted by the second spawn, it will not show up as a voxel of that spawn, so it will still be flagged as deleted
   const findDeletedVoxelCoords = (spawn: any, lowerSouthWestCornerInWorld: VoxelCoord) => {
     const creationVoxelCoords = getVoxelCoordsOfCreation(Creation, stringToEntity(spawn.creationId));
 
@@ -117,7 +115,7 @@ const RegisterCreation: React.FC<Props> = ({ layers, formData, setFormData, rese
 
     return Array.from(creationVoxelCoordsInWorld)
       .map(stringToVoxelCoord)
-      .map((voxelCoord) => sub(voxelCoord, lowerSouthWestCornerInWorld));
+      .map((voxelCoord) => sub(voxelCoord, lowerSouthWestCornerInWorld)); // make these voxel coords relative to the lowerSouthWestCornerInWorld (this is what the registerCreationSystem expects)
   };
 
   const handleInputChange = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {

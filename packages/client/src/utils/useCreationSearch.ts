@@ -43,7 +43,6 @@ export const useCreationSearch = ({ layers, filters }: Props) => {
       }
 
       const rawVoxelTypes = creationTable.voxelTypes.get(creationId) ?? "";
-      // debugger;
       if (rawVoxelTypes.length === 0) {
         console.warn("No voxelTypes found for creation", creationId);
         return;

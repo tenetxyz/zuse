@@ -63,7 +63,7 @@ contract RegisterCreationTest is MudV2Test {
     voxels[0] = voxel1;
     voxels[1] = voxel2;
 
-    BaseCreation[] memory baseCreations = new BaseCreation[](2);
+    BaseCreation[] memory baseCreations = new BaseCreation[](0);
     world.tenet_RegisterCreation_registerCreation(
       "test creation name",
       "test creation desc",

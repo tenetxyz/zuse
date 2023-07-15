@@ -13,13 +13,14 @@ import { Strings } from "@openzeppelin/contracts/utils/Strings.sol";
 
 contract SpawnSystem is System {
   function spawn(VoxelCoord memory lowerSouthWestCorner, bytes32 creationId) public returns (bytes32) {
+    // 1) get all the voxels in the creation
     (VoxelCoord[] memory relativeVoxelCoords, VoxelTypeData[] memory voxelTypes) = IWorld(_world())
       .tenet_RegisterCreation_getVoxelsInCreation(creationId);
-    // require(false, string(abi.encode(Strings.toString(uint256(voxelTypes.length)))));
 
     bytes32 spawnId = getUniqueEntity();
     bytes32[] memory spawnVoxels = new bytes32[](relativeVoxelCoords.length);
 
+    // 2) create an instance of each voxel in the creation, put it into the world, and add it to the spawnVoxels array
     for (uint i = 0; i < relativeVoxelCoords.length; i++) {
       VoxelCoord memory relativeCoord = relativeVoxelCoords[i];
       VoxelCoord memory spawnVoxelAtCoord = add(lowerSouthWestCorner, relativeCoord);
@@ -39,6 +40,7 @@ contract SpawnSystem is System {
       spawnVoxels[i] = newEntity;
     }
 
+    // 3) Write the spawnData to the Spawn table
     SpawnData memory spawnData;
     spawnData.creationId = creationId;
     spawnData.lowerSouthWestCorner = abi.encode(lowerSouthWestCorner);
@@ -46,6 +48,7 @@ contract SpawnSystem is System {
     spawnData.voxels = spawnVoxels;
     Spawn.set(spawnId, spawnData);
 
+    // 4) update spawn creation metrics
     increaseCreationSpawnCount(creationId);
     return spawnId;
   }

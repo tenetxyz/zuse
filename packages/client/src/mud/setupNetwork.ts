@@ -554,7 +554,7 @@ export async function setupNetwork() {
     creationName: string,
     creationDescription: string,
     voxels: Entity[],
-    baseCreations: BaseCreationInWorld[]
+    baseCreationsInWorld: BaseCreationInWorld[]
   ) {
     // TODO: Replace Diamond NFT with a creation symbol
     const preview = getNftStorageLink("bafkreicro56v6rinwnltbkyjfzqdwva2agtrtypwaeowud447louxqgl5y");
@@ -575,7 +575,7 @@ export async function setupNetwork() {
             [
               "tuple(bytes32 creationId,tuple(int32 x,int32 y,int32 z) lowerSouthWestCornerInWorld,tuple(int32 x,int32 y,int32 z)[] deletedRelativeCoords)[]",
             ],
-            [baseCreations]
+            [baseCreationsInWorld]
           ),
           { gasLimit: 30_000_000 },
         ]);

@@ -37,14 +37,15 @@ export function stringToVoxelCoord(coordString: string): VoxelCoord {
 
 export const calculateMinMaxRelativeCoordsOfCreation = (Creation: any, creationId: Entity) => {
   const relativeVoxelCoords = getVoxelCoordsOfCreation(Creation, creationId);
-  // debugger;
   return calculateMinMaxCoords(relativeVoxelCoords);
 };
 
-// TODO: fix the type of this. Note: I didn't want to pass in "layers" since this function is called a lot, and we'd be derefernecing layers a lot to get Creation
+// TODO: fix the type of Creation:any. Note: I didn't want to pass in "layers" since this function is called a lot, and we'd be dereferencing layers a lot to get Creation
 export const getVoxelCoordsOfCreation = (Creation: any, creationId: Entity): VoxelCoord[] => {
   // PERF: if users tend to spawn the same creation multiple times we should memoize the creation fetching process
   const creation = getComponentValueStrict(Creation, creationId);
+
+  // 1) Add the voxel coords from the creation itself
   const voxelCoords =
     (abiDecode("tuple(uint32 x,uint32 y,uint32 z)[]", creation.relativePositions) as VoxelCoord[]) || [];
   const baseCreations = abiDecode(
@@ -52,6 +53,7 @@ export const getVoxelCoordsOfCreation = (Creation: any, creationId: Entity): Vox
     creation.baseCreations
   ) as BaseCreation[];
 
+  // 2) add the voxel coords from the base creations
   for (const baseCreation of baseCreations) {
     const baseCreationVoxelCoords = getVoxelCoordsOfCreation(Creation, baseCreation.creationId);
     const uniqueCoords = new Set<string>(baseCreationVoxelCoords.map(voxelCoordToString));

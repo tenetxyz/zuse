@@ -91,20 +91,14 @@ export default mudConfig({
       schema: {
         creator: "address",
         numSpawns: "uint256",
-        numVoxels: "uint32", // Store the number of voxels between the creation and its base creations because it is not free to calculate how many voxels are in the base creations (a few table accesses)
+        numVoxels: "uint32", // The total number of voxels in this creation (including the voxels in the base creations). This value is really important to prevent extra computation when determining the voxels in base creations
         voxelTypes: "bytes", // VoxelTypeData[]
         relativePositions: "bytes", // VoxelCoord[], the relative position for each voxel in the creation
         name: "string",
         description: "string",
         // voxelMetadata: "bytes", // stores the component values for each voxel in the creation
         // Note: can't add more dynamic fields cause rn we can only have at most 5 dynamic fields: https://github.com/tenetxyz/mud/blob/main/packages/store/src/Schema.sol#L20
-        baseCreations: "bytes", // called base creation - cause of "base class" in c++. represented as:
-        // {
-        //   creationId: "bytes32",
-        //   lowerSouthWestCornerOfSpawn: "bytes", // VoxelCoord (where this base creation is placed relative to this creation)
-        //   deletedCoords: "VoxelCoord[]", // Why store deleted coords? cause in the future, this could be a "diffs" array.
-        //                                     Also cause it's more space-efficient to store the deleted coords than all the voxels in the creation
-        // }[]
+        baseCreations: "bytes", // it is called "base" creation - cause of "base class" in c++. To make composable creations work, root creations are comprised of these base creations.
       },
     },
 

@@ -19,7 +19,7 @@ contract BuildSystem is System {
     return buildVoxelType(voxelType, coord);
   }
 
-  // TODO: when we have a survival mode, prevent ppl from alling this funciton directly (since they don't need to own the voxel to call it)
+  // TODO: when we have a survival mode, prevent ppl from alling this function directly (since they don't need to own the voxel to call it)
   function buildVoxelType(VoxelTypeData memory voxelType, VoxelCoord memory coord) public returns (bytes32) {
     // Require no other ECS voxels at this position except Air
     bytes32[] memory entitiesAtPosition = getKeysWithValue(PositionTableId, Position.encode(coord.x, coord.y, coord.z));

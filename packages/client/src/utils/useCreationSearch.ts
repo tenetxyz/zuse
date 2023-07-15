@@ -58,9 +58,12 @@ export const useCreationSearch = ({ layers, filters }: Props) => {
       const relativePositions =
         (abiDecode("tuple(int32 x,int32 y,int32 z)[]", encodedRelativePositions) as VoxelCoord[]) || [];
 
-      if (relativePositions.length === 0) {
+      const rawBaseCreations = creationTable.baseCreations.get(creationId);
+      const baseCreations = rawBaseCreations ? decodeBaseCreations(rawBaseCreations) : [];
+
+      if (relativePositions.length === 0 && baseCreations.length === 0) {
         console.warn(
-          `No relativePositions found for creationId=${creationId.toString()}. relativePositions=${relativePositions}`
+          `No relativePositions and no base creations found for creationId=${creationId.toString()} (name=${name} creator=${creator}). This means that this creation has no voxels`
         );
         return;
       }

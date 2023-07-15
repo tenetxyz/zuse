@@ -19,15 +19,10 @@ contract RegisterCreationSystem is System {
     string memory name,
     string memory description,
     bytes32[] memory voxels,
-    bytes memory encodedBaseCreationsInWorld
+    BaseCreationInWorld[] memory baseCreationsInWorld
   ) public returns (bytes32) {
     VoxelCoord[] memory voxelCoords = getVoxelCoords(voxels); // NOTE: we do not know the relative position of these voxelCoords yet (since we don't know the coords of the voxels in the base creations). So we will reposition them later
     VoxelTypeData[] memory voxelTypes = getVoxelTypes(voxels);
-
-    BaseCreationInWorld[] memory baseCreationsInWorld = abi.decode(
-      encodedBaseCreationsInWorld,
-      (BaseCreationInWorld[])
-    );
 
     // 1) get all of the voxelCoords of all voxels in the creation
     (VoxelCoord[] memory allVoxelCoordsInWorld, VoxelTypeData[] memory allVoxelTypes) = getVoxels(

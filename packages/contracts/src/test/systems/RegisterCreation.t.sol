@@ -4,7 +4,7 @@ pragma solidity >=0.8.0;
 import { getUniqueEntity } from "@latticexyz/world/src/modules/uniqueentity/getUniqueEntity.sol";
 import { MudV2Test } from "@latticexyz/std-contracts/src/test/MudV2Test.t.sol";
 import { addressToEntityKey } from "../../Utils.sol";
-import { VoxelCoord, BaseCreation } from "../../Types.sol";
+import { VoxelCoord, BaseCreationInWorld } from "@tenet-contracts/src/Types.sol";
 import { OwnedBy, VoxelType, VoxelTypeData } from "@tenet-contracts/src/codegen/Tables.sol";
 import { IWorld } from "@tenet-contracts/src/codegen/world/IWorld.sol";
 import { IStore } from "@latticexyz/store/src/IStore.sol";
@@ -63,12 +63,12 @@ contract RegisterCreationTest is MudV2Test {
     voxels[0] = voxel1;
     voxels[1] = voxel2;
 
-    BaseCreation[] memory baseCreations = new BaseCreation[](0);
+    BaseCreationInWorld[] memory baseCreationsInWorld = new BaseCreationInWorld[](0);
     world.tenet_RegisterCreation_registerCreation(
       "test creation name",
       "test creation desc",
       voxels,
-      abi.encode(baseCreations)
+      baseCreationsInWorld
     );
     vm.stopPrank();
   }

@@ -68,9 +68,6 @@ export const useCreationSearch = ({ layers, filters }: Props) => {
         return;
       }
 
-      const rawBaseCreations = creationTable.baseCreations.get(creationId);
-      const baseCreations = rawBaseCreations ? decodeBaseCreations(rawBaseCreations) : [];
-
       // TODO: add voxelMetadata
 
       allCreations.current.push({

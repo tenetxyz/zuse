@@ -571,12 +571,7 @@ export async function setupNetwork() {
           creationName,
           creationDescription,
           voxels,
-          defaultAbiCoder.encode(
-            [
-              "tuple(bytes32 creationId,tuple(int32 x,int32 y,int32 z) lowerSouthWestCornerInWorld,tuple(int32 x,int32 y,int32 z)[] deletedRelativeCoords)[]",
-            ],
-            [baseCreationsInWorld]
-          ),
+          baseCreationsInWorld,
           { gasLimit: 30_000_000 },
         ]);
       },

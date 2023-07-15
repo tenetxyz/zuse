@@ -47,7 +47,7 @@ contract VoxelInteractionSystem is System {
 
       require(
         neighbourEntitiesAtPosition.length == 0 || neighbourEntitiesAtPosition.length == 1,
-        "can not built at non-empty coord (VoxelInteraction)"
+        "found more than one voxel in the same position. The VoxelInteractions cannot be calculated"
       );
       if (neighbourEntitiesAtPosition.length == 1) {
         // entity exists so add it to the list

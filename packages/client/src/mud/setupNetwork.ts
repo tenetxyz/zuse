@@ -42,6 +42,7 @@ import { voxelCoordToString } from "../utils/coord";
 import { defaultAbiCoder } from "ethers/lib/utils";
 import { toast } from "react-toastify";
 import { abiDecode } from "../utils/abi";
+import { BaseCreationInWorld } from "../layers/react/components/RegisterCreation";
 
 export type SetupNetworkResult = Awaited<ReturnType<typeof setupNetwork>>;
 
@@ -549,8 +550,13 @@ export async function setupNetwork() {
     });
   }
 
-  function registerCreation(creationName: string, creationDescription: string, voxels: Entity[]) {
-    // TODO: Relpace Diamond NFT with a creation symbol
+  function registerCreation(
+    creationName: string,
+    creationDescription: string,
+    voxels: Entity[],
+    baseCreationsInWorld: BaseCreationInWorld[]
+  ) {
+    // TODO: Replace Diamond NFT with a creation symbol
     const preview = getNftStorageLink("bafkreicro56v6rinwnltbkyjfzqdwva2agtrtypwaeowud447louxqgl5y");
 
     actions.add({
@@ -565,6 +571,12 @@ export async function setupNetwork() {
           creationName,
           creationDescription,
           voxels,
+          defaultAbiCoder.encode(
+            [
+              "tuple(bytes32 creationId,tuple(int32 x,int32 y,int32 z) lowerSouthWestCornerInWorld,tuple(int32 x,int32 y,int32 z)[] deletedRelativeCoords)[]",
+            ],
+            [baseCreationsInWorld]
+          ),
           { gasLimit: 30_000_000 },
         ]);
       },

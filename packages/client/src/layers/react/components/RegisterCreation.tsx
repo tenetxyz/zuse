@@ -1,17 +1,33 @@
 import React, { ChangeEvent, KeyboardEvent } from "react";
 import { ComponentRecord, Layers } from "../../../types";
-import { Entity, setComponent } from "@latticexyz/recs";
+import { Entity, getComponentValue, getComponentValueStrict, setComponent } from "@latticexyz/recs";
 import { NotificationIcon } from "../../noa/components/persistentNotification";
 import { calculateMinMax } from "../../../utils/voxels";
 import { useComponentValue } from "@latticexyz/react";
-import { voxelCoordToString } from "../../../utils/coord";
+import {
+  add,
+  decodeCoord,
+  getVoxelCoordsOfCreation,
+  stringToVoxelCoord,
+  sub,
+  voxelCoordToString,
+} from "../../../utils/coord";
 import { FocusedUiType } from "../../noa/components/FocusedUi";
 import { twMerge } from "tailwind-merge";
 import { SetState } from "../../../utils/types";
+import { stringToEntity } from "../../../utils/entity";
+import { defineSpawnInFocusComponent } from "../../noa/components";
+import { VoxelCoord } from "@latticexyz/utils";
 
 export interface RegisterCreationFormData {
   name: string;
   description: string;
+}
+
+export interface BaseCreationInWorld {
+  creationId: string;
+  lowerSouthWestCornerInWorld: VoxelCoord;
+  deletedRelativeCoords: VoxelCoord[]; // these coords are relative to the BASE creation's lowerSouthWestCorner. NOT the new creation we are using this in
 }
 
 interface Props {
@@ -28,6 +44,7 @@ const RegisterCreation: React.FC<Props> = ({ layers, formData, setFormData, rese
       SingletonEntity,
     },
     network: {
+      contractComponents: { OfSpawn, Spawn, Position, Creation },
       api: { getEntityAtPosition, registerCreation },
     },
   } = layers;
@@ -36,9 +53,69 @@ const RegisterCreation: React.FC<Props> = ({ layers, formData, setFormData, rese
   const corners: IVoxelSelection | undefined = useComponentValue(VoxelSelection, SingletonEntity);
 
   const handleSubmit = () => {
-    const voxels = getVoxelsWithinSelection();
-    registerCreation(formData.name, formData.description, voxels);
+    const allVoxels = getVoxelsWithinSelection();
+    const { voxelsNotInSpawn, spawnDefs } = separateVoxelsFromSpawns(allVoxels);
+    const baseCreationsInWorld = calculateBaseCreationsInWorld(spawnDefs);
+    registerCreation(formData.name, formData.description, voxelsNotInSpawn, baseCreationsInWorld);
     resetRegisterCreationForm();
+  };
+  const separateVoxelsFromSpawns = (voxels: Entity[]) => {
+    const spawnDefs = new Set<string>(); // spawnId, and lowerleft corner
+    const voxelsNotInSpawn = [];
+    for (const voxel of voxels) {
+      const spawnId = getComponentValue(OfSpawn, voxel)?.value;
+      if (spawnId) {
+        const encodedLowerSouthWestCorner = getComponentValueStrict(
+          Spawn,
+          stringToEntity(spawnId)
+        ).lowerSouthWestCorner;
+        spawnDefs.add(`${spawnId}:${encodedLowerSouthWestCorner}`);
+      } else {
+        voxelsNotInSpawn.push(voxel);
+      }
+    }
+    return { voxelsNotInSpawn, spawnDefs };
+  };
+
+  const calculateBaseCreationsInWorld = (spawnDefs: Set<string>): BaseCreationInWorld[] => {
+    const baseCreations: BaseCreationInWorld[] = [];
+
+    // for each spawn, check to see if all of its voxels are in its defined cooordinate in the base creation.
+    // if it is not, then it must be deleted
+    for (const spawnDef of spawnDefs) {
+      const [spawnId, encodedLowerSouthWestCorner] = spawnDef.split(":");
+      const lowerSouthWestCornerInWorld = decodeCoord(encodedLowerSouthWestCorner);
+
+      const spawn = getComponentValueStrict(Spawn, stringToEntity(spawnId));
+      const deletedRelativeCoords = findDeletedVoxelCoords(spawn, lowerSouthWestCornerInWorld);
+
+      baseCreations.push({
+        creationId: spawn.creationId,
+        lowerSouthWestCornerInWorld,
+        deletedRelativeCoords,
+      });
+    }
+    return baseCreations;
+  };
+
+  // The deleted voxel coords are the ones that are in the creation, but not in the spawn
+  // What if you place a spawn, and another spawn overlaps and deletes one block, will this code still work?
+  // Yes. Since that block was deleted by the second spawn, it will not show up as a voxel of that spawn, so it will still be flagged as deleted
+  const findDeletedVoxelCoords = (spawn: any, lowerSouthWestCornerInWorld: VoxelCoord) => {
+    const creationVoxelCoords = getVoxelCoordsOfCreation(Creation, stringToEntity(spawn.creationId));
+
+    const creationVoxelCoordsInWorld = new Set<string>(
+      creationVoxelCoords.map((voxelCoord) => add(lowerSouthWestCornerInWorld, voxelCoord)).map(voxelCoordToString)
+    ); // convert to string so we can use a set to remove coords that are in the world
+
+    for (const voxel of spawn.voxels) {
+      const voxelCoordInSpawn = voxelCoordToString(getComponentValueStrict(Position, stringToEntity(voxel)));
+      creationVoxelCoordsInWorld.delete(voxelCoordInSpawn);
+    }
+
+    return Array.from(creationVoxelCoordsInWorld)
+      .map(stringToVoxelCoord)
+      .map((voxelCoord) => sub(voxelCoord, lowerSouthWestCornerInWorld)); // make these voxel coords relative to the lowerSouthWestCornerInWorld (this is what the registerCreationSystem expects)
   };
 
   const handleInputChange = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {

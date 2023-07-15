@@ -37,6 +37,7 @@ export function createInputSystem(layers: Layers) {
       streams: { playerPosition$ },
     },
     network: {
+      contractComponents: { Creation },
       network: { connectedAddress },
       streams: { balanceGwei$ },
       api: { spawnCreation, build, activate, getEntityAtPosition },
@@ -470,7 +471,7 @@ export function createInputSystem(layers: Layers) {
       return;
     }
     // @ts-nocheck
-    const { corner1, corner2 } = calculateCornersFromTargetedBlock(creation, noa.targetedBlock);
+    const { corner1, corner2 } = calculateCornersFromTargetedBlock(Creation, creation, noa.targetedBlock);
     const { minX, minY, minZ } = calculateMinMax(corner1, corner2);
 
     spawnCreation({ x: minX, y: minY, z: minZ }, (creation as Creation).creationId);

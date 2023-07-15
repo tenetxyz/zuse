@@ -15,6 +15,12 @@ contract BuildSystem is System {
     // Require voxel to be owned by caller
     require(OwnedBy.get(entity) == addressToEntityKey(_msgSender()), "voxel is not owned by player");
 
+    VoxelTypeData memory voxelType = VoxelType.get(entity);
+    return buildVoxelType(voxelType, coord);
+  }
+
+  // TODO: when we have a survival mode, prevent ppl from alling this function directly (since they don't need to own the voxel to call it)
+  function buildVoxelType(VoxelTypeData memory voxelType, VoxelCoord memory coord) public returns (bytes32) {
     // Require no other ECS voxels at this position except Air
     bytes32[] memory entitiesAtPosition = getKeysWithValue(PositionTableId, Position.encode(coord.x, coord.y, coord.z));
     require(entitiesAtPosition.length <= 1, "This position is already occupied by another voxel");
@@ -32,13 +38,12 @@ contract BuildSystem is System {
     bytes32 newEntity = getUniqueEntity();
     Position.set(newEntity, coord.x, coord.y, coord.z);
 
-    VoxelTypeData memory entityVoxelData = VoxelType.get(entity);
-    VoxelType.set(newEntity, entityVoxelData);
+    VoxelType.set(newEntity, voxelType);
     // Note: Need to run this because we are in creative mode and this is a new entity
     enterVoxelIntoWorld(_world(), newEntity);
     updateVoxelVariant(_world(), newEntity);
 
-    increaseVoxelTypeSpawnCount(entityVoxelData.voxelTypeNamespace, entityVoxelData.voxelTypeId);
+    increaseVoxelTypeSpawnCount(voxelType.voxelTypeNamespace, voxelType.voxelTypeId);
 
     // Run voxel interaction logic
     IWorld(_world()).tenet_VoxInteractSys_runInteractionSystems(newEntity);

@@ -4,7 +4,7 @@ import { NetworkLayer } from "../../network";
 import { NoaLayer } from "../types";
 import { renderChunkyWireframe } from "./renderWireframes";
 import { Color3, Mesh } from "@babylonjs/core";
-import { add, calculateMinMaxCoords, calculateMinMaxRelativeCoordsOfCreation, decodeCoord } from "../../../utils/coord";
+import { add, calculateMinMaxRelativeCoordsOfCreation, decodeCoord } from "../../../utils/coord";
 import { Entity } from "@latticexyz/recs";
 import { VoxelCoord } from "@latticexyz/utils";
 import { ISpawn } from "../components/SpawnInFocus";

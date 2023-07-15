@@ -8,6 +8,7 @@ import { to256BitString } from "@latticexyz/utils";
 import { VoxelCoord } from "@latticexyz/utils";
 import { VoxelTypeDataKey } from "../layers/noa/types";
 import { abiDecode } from "./abi";
+import { decodeBaseCreations } from "./encodeOrDecode";
 
 export interface Props {
   layers: Layers;
@@ -64,6 +65,9 @@ export const useCreationSearch = ({ layers, filters }: Props) => {
         return;
       }
 
+      const rawBaseCreations = creationTable.baseCreations.get(creationId);
+      const baseCreations = rawBaseCreations ? decodeBaseCreations(rawBaseCreations) : [];
+
       // TODO: add voxelMetadata
 
       allCreations.current.push({
@@ -74,6 +78,8 @@ export const useCreationSearch = ({ layers, filters }: Props) => {
         voxelTypes: voxelTypes,
         relativePositions,
         numSpawns: creationTable.numSpawns.get(creationId) ?? 0,
+        numVoxels: creationTable.numVoxels.get(creationId) ?? 0,
+        baseCreations,
       } as Creation);
     });
 

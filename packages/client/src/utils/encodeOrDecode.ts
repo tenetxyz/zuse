@@ -1,3 +1,7 @@
+import { BaseCreation } from "../layers/noa/systems/createSpawnOverlaySystem";
+import { Creation } from "../layers/react/components/CreationStore";
+import { abiDecode } from "./abi";
+
 export const hexToAscii = (hexString: string): string => {
   let asciiString = "";
   for (let i = 0; i < hexString.length; i += 2) {
@@ -25,3 +29,10 @@ export function serializeWithoutIndexedValues(obj: any) {
     return value;
   });
 }
+
+export const decodeBaseCreations = (baseCreations: string): BaseCreation[] => {
+  return abiDecode(
+    "tuple(bytes32 creationId,tuple(int32 x,int32 y,int32 z) coordOffset,tuple(int32 x,int32 y,int32 z)[] deletedRelativeCoords)[]",
+    baseCreations
+  ) as BaseCreation[];
+};

@@ -10,6 +10,7 @@ import { SetState } from "../../../utils/types";
 import RegisterCreation, { RegisterCreationFormData } from "./RegisterCreation";
 import CreationDetails from "./CreationDetails";
 import { VoxelTypeDataKey } from "../../noa/types";
+import { BaseCreation } from "../../noa/systems/createSpawnOverlaySystem";
 
 export interface CreationStoreFilters {
   search: string;
@@ -35,7 +36,9 @@ export interface Creation {
   voxelTypes: VoxelTypeDataKey[];
   relativePositions: VoxelCoord[];
   numSpawns: BigInt;
+  numVoxels: number;
   // voxelMetadata: string[];
+  baseCreations: BaseCreation[];
 }
 
 const CreationStore: React.FC<Props> = ({
@@ -102,14 +105,7 @@ const CreationStore: React.FC<Props> = ({
         />
       );
     } else if (selectedCreation !== null) {
-      return (
-        <CreationDetails
-          layers={layers}
-          selectedCreation={selectedCreation}
-          setSelectedCreation={setSelectedCreation}
-          setShowAllCreations={setShowAllCreations}
-        />
-      );
+      return <CreationDetails layers={layers} selectedCreation={selectedCreation} />;
     } else {
       return (
         <>

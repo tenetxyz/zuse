@@ -2,6 +2,7 @@ import { VoxelCoord } from "@latticexyz/utils";
 import { Creation } from "../layers/react/components/CreationStore";
 import { abiDecode } from "./abi";
 import { Entity, getComponentValueStrict } from "@latticexyz/recs";
+import { decodeBaseCreations } from "./encodeOrDecode";
 
 export const ZERO_VECTOR: VoxelCoord = { x: 0, y: 0, z: 0 };
 
@@ -48,10 +49,7 @@ export const getVoxelCoordsOfCreation = (Creation: any, creationId: Entity): Vox
   // 1) Add the voxel coords from the creation itself
   const voxelCoords =
     (abiDecode("tuple(uint32 x,uint32 y,uint32 z)[]", creation.relativePositions) as VoxelCoord[]) || [];
-  const baseCreations = abiDecode(
-    "tuple(bytes32 creationId,tuple(int32 x,int32 y,int32 z) coordOffset,tuple(int32 x,int32 y,int32 z)[] deletedRelativeCoords)[]",
-    creation.baseCreations
-  ) as BaseCreation[];
+  const baseCreations = decodeBaseCreations(creation.baseCreations);
 
   // 2) add the voxel coords from the base creations
   for (const baseCreation of baseCreations) {

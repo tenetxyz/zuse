@@ -3,11 +3,10 @@
 import { NetworkLayer } from "../../network";
 import { NoaLayer } from "../types";
 import { renderChunkyWireframe } from "./renderWireframes";
-import { Color3, Mesh, Nullable } from "@babylonjs/core";
-import { add, calculateMinMaxCoords, decodeCoord, stringToVoxelCoord, voxelCoordToString } from "../../../utils/coord";
-import { Entity, EntitySymbol, getComponentValue, getComponentValueStrict } from "@latticexyz/recs";
-import { to256BitString, VoxelCoord } from "@latticexyz/utils";
-import { abiDecode } from "../../../utils/abi";
+import { Color3, Mesh } from "@babylonjs/core";
+import { add, calculateMinMaxCoords, calculateMinMaxRelativeCoordsOfCreation, decodeCoord } from "../../../utils/coord";
+import { Entity } from "@latticexyz/recs";
+import { VoxelCoord } from "@latticexyz/utils";
 import { ISpawn } from "../components/SpawnInFocus";
 
 export type BaseCreation = {
@@ -55,8 +54,7 @@ export function createSpawnOverlaySystem(networkLayer: NetworkLayer, noaLayer: N
     spawnOutlineMeshes = [];
 
     for (const spawn of spawns) {
-      const relativeVoxelCoords = getVoxelCoordsOfCreation(spawn.creationId);
-      const { minCoord, maxCoord } = calculateMinMaxCoords(relativeVoxelCoords);
+      const { minCoord, maxCoord } = calculateMinMaxRelativeCoordsOfCreation(Creation, spawn.creationId);
 
       const corner1 = add(spawn.lowerSouthWestCorner, minCoord);
       const corner2 = add(spawn.lowerSouthWestCorner, maxCoord);
@@ -72,26 +70,5 @@ export function createSpawnOverlaySystem(networkLayer: NetworkLayer, noaLayer: N
         spawnOutlineMeshes.push(mesh);
       }
     }
-  };
-
-  const getVoxelCoordsOfCreation = (creationId: Entity): VoxelCoord[] => {
-    // PERF: if users tend to spawn the same creation multiple times we should memoize the creation fetching process
-    const creation = getComponentValueStrict(Creation, creationId);
-    const voxelCoords =
-      (abiDecode("tuple(uint32 x,uint32 y,uint32 z)[]", creation.relativePositions) as VoxelCoord[]) || [];
-    const baseCreations = abiDecode(
-      "tuple(bytes32 creationId,tuple(int32 x,int32 y,int32 z) coordOffset,tuple(int32 x,int32 y,int32 z)[] deletedRelativeCoords)[]",
-      creation.baseCreations
-    ) as BaseCreation[];
-
-    for (const baseCreation of baseCreations) {
-      const baseCreationVoxelCoords = getVoxelCoordsOfCreation(baseCreation.creationId);
-      const uniqueCoords = new Set<string>(baseCreationVoxelCoords.map(voxelCoordToString));
-      for (const deletedRelativeCoord of baseCreation.deletedRelativeCoords) {
-        uniqueCoords.delete(voxelCoordToString(deletedRelativeCoord));
-      }
-      voxelCoords.push(...Array.from(uniqueCoords).map(stringToVoxelCoord));
-    }
-    return voxelCoords;
   };
 }

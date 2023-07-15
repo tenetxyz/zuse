@@ -1,6 +1,7 @@
 import { VoxelCoord } from "@latticexyz/utils";
 import { Creation } from "../layers/react/components/CreationStore";
 import { abiDecode } from "./abi";
+import { Entity, getComponentValueStrict } from "@latticexyz/recs";
 
 export const ZERO_VECTOR: VoxelCoord = { x: 0, y: 0, z: 0 };
 
@@ -34,13 +35,34 @@ export function stringToVoxelCoord(coordString: string): VoxelCoord {
   };
 }
 
-export const calculateMinMaxRelativeCoordsOfCreation = (
-  creation: Creation
-): { minRelativeCoord: VoxelCoord; maxRelativeCoord: VoxelCoord } => {
-  return calculateMinMaxCoords(creation.relativePositions);
+export const calculateMinMaxRelativeCoordsOfCreation = (Creation: any, creationId: Entity) => {
+  const relativeVoxelCoords = getVoxelCoordsOfCreation(Creation, creationId);
+  return calculateMinMaxCoords(relativeVoxelCoords);
 };
 
-export const calculateMinMaxCoords = (coords: VoxelCoord[]): { minCoord: VoxelCoord; maxCoord: VoxelCoord } => {
+// TODO: fix the type of this. Note: I didn't want to pass in "layers" since this function is called a lot, and we'd be derefernecing layers a lot to get Creation
+const getVoxelCoordsOfCreation = (Creation: any, creationId: Entity): VoxelCoord[] => {
+  // PERF: if users tend to spawn the same creation multiple times we should memoize the creation fetching process
+  const creation = getComponentValueStrict(Creation, creationId);
+  const voxelCoords =
+    (abiDecode("tuple(uint32 x,uint32 y,uint32 z)[]", creation.relativePositions) as VoxelCoord[]) || [];
+  const baseCreations = abiDecode(
+    "tuple(bytes32 creationId,tuple(int32 x,int32 y,int32 z) coordOffset,tuple(int32 x,int32 y,int32 z)[] deletedRelativeCoords)[]",
+    creation.baseCreations
+  ) as BaseCreation[];
+
+  for (const baseCreation of baseCreations) {
+    const baseCreationVoxelCoords = getVoxelCoordsOfCreation(Creation, baseCreation.creationId);
+    const uniqueCoords = new Set<string>(baseCreationVoxelCoords.map(voxelCoordToString));
+    for (const deletedRelativeCoord of baseCreation.deletedRelativeCoords) {
+      uniqueCoords.delete(voxelCoordToString(deletedRelativeCoord));
+    }
+    voxelCoords.push(...Array.from(uniqueCoords).map(stringToVoxelCoord));
+  }
+  return voxelCoords;
+};
+
+const calculateMinMaxCoords = (coords: VoxelCoord[]): { minCoord: VoxelCoord; maxCoord: VoxelCoord } => {
   // creations should have at least 2 voxels, so we can assume the first one is the min and max
   const minCoord: VoxelCoord = { ...coords[0] }; // clone the coord so we don't mutate the original
   const maxCoord: VoxelCoord = { ...coords[0] };

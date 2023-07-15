@@ -6,7 +6,7 @@ import { renderChunkyWireframe } from "./renderWireframes";
 import { Color3, Mesh, Nullable } from "@babylonjs/core";
 import { ISpawnCreation } from "../components/SpawnCreation";
 import { Creation } from "../../react/components/CreationStore";
-import { add } from "../../../utils/coord";
+import { add, calculateMinMaxRelativeCoordsOfCreation } from "../../../utils/coord";
 import { VoxelCoord } from "@latticexyz/utils";
 import { TargetedBlock } from "../../../utils/voxels";
 
@@ -15,6 +15,9 @@ export function createSpawnCreationOverlaySystem(network: NetworkLayer, noaLayer
     components: { SpawnCreation },
     noa,
   } = noaLayer;
+  const {
+    contractComponents: { Creation },
+  } = network;
 
   let creationToSpawn: Creation | undefined;
   let targetedBlock: TargetedBlock | undefined;
@@ -45,59 +48,37 @@ export function createSpawnCreationOverlaySystem(network: NetworkLayer, noaLayer
   };
 
   const renderCreationOutline = (creation: Creation, targetedBlock: TargetedBlock) => {
-    const { corner1, corner2 } = calculateCornersFromTargetedBlock(creation, targetedBlock);
+    const { corner1, corner2 } = calculateCornersFromTargetedBlock(Creation, creation, targetedBlock);
     renderedCreationOutlineMesh = renderChunkyWireframe(corner1, corner2, noa, new Color3(0, 0, 1), 0.05);
   };
   // TODO: once we have rendered the right outline mesh, we need to also use this coord for the spawning location
 }
 
-export const calculateCornersFromTargetedBlock = (creation: Creation, targetedBlock: TargetedBlock) => {
+export const calculateCornersFromTargetedBlock = (Creation: any, creation: Creation, targetedBlock: TargetedBlock) => {
   const {
     adjacent: [x, y, z],
     normal: [normalX, normalY, normalZ],
   } = targetedBlock;
 
-  let { minRelativeCoord, maxRelativeCoord } = calculateMinMaxRelativeCoordsOfCreation(creation);
-  const height = maxRelativeCoord.y - minRelativeCoord.y;
-  const width = maxRelativeCoord.x - minRelativeCoord.x;
-  const depth = maxRelativeCoord.z - minRelativeCoord.z;
+  const { minCoord, maxCoord } = calculateMinMaxRelativeCoordsOfCreation(Creation, creation.creationId);
+  const height = maxCoord.y - minCoord.y;
+  const width = maxCoord.x - minCoord.x;
+  const depth = maxCoord.z - minCoord.z;
 
   // shift the coordinates so we are always placing the creation on the side we're facing
   if (normalY === -1) {
-    minRelativeCoord.y -= height;
-    maxRelativeCoord.y -= height;
+    minCoord.y -= height;
+    maxCoord.y -= height;
   } else if (normalX === -1) {
-    minRelativeCoord.x -= width;
-    maxRelativeCoord.x -= width;
+    minCoord.x -= width;
+    maxCoord.x -= width;
   } else if (normalZ === -1) {
-    minRelativeCoord.z -= depth;
-    maxRelativeCoord.z -= depth;
+    minCoord.z -= depth;
+    maxCoord.z -= depth;
   }
 
   const targetVoxelCoord: VoxelCoord = { x, y, z };
-  const corner1 = add(targetVoxelCoord, minRelativeCoord);
-  const corner2 = add(targetVoxelCoord, maxRelativeCoord);
+  const corner1 = add(targetVoxelCoord, minCoord);
+  const corner2 = add(targetVoxelCoord, maxCoord);
   return { corner1, corner2 };
-};
-
-const calculateMinMaxRelativeCoordsOfCreation = (
-  creation: Creation
-): { minRelativeCoord: VoxelCoord; maxRelativeCoord: VoxelCoord } => {
-  // creations should have at least 2 voxels, so we can assume the first one is the min and max
-  const minCoord: VoxelCoord = { ...creation.relativePositions[0] }; // clone the coord so we don't mutate the original
-  const maxCoord: VoxelCoord = { ...creation.relativePositions[0] };
-
-  for (let i = 1; i < creation.relativePositions.length; i++) {
-    const voxelCoord = creation.relativePositions[i];
-    minCoord.x = Math.min(minCoord.x, voxelCoord.x);
-    minCoord.y = Math.min(minCoord.y, voxelCoord.y);
-    minCoord.z = Math.min(minCoord.z, voxelCoord.z);
-    maxCoord.x = Math.max(maxCoord.x, voxelCoord.x);
-    maxCoord.y = Math.max(maxCoord.y, voxelCoord.y);
-    maxCoord.z = Math.max(maxCoord.z, voxelCoord.z);
-  }
-  return {
-    minRelativeCoord: minCoord,
-    maxRelativeCoord: maxCoord,
-  };
 };

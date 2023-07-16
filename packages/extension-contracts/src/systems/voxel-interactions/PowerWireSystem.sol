@@ -110,7 +110,9 @@ contract PowerWireSystem is SingleVoxelInteraction {
             ? neighPowerWireData.transferRate
             : powerWireData.maxTransferRate;
 
-          if (powerWireData.transferRate != validTransferRate) {
+          if (powerWireData.transferRate != validTransferRate || powerWireData.destination != neighPowerWireData.destination) {
+            powerWireData.destination = neighPowerWireData.destination;
+            powerWireData.destinationDirection = compareBlockDirection;
             powerWireData.transferRate = validTransferRate;
             PowerWire.set(callerNamespace, signalEntity, powerWireData);
             changedEntity = true;
@@ -136,13 +138,22 @@ contract PowerWireSystem is SingleVoxelInteraction {
           PowerWire.set(callerNamespace, signalEntity, powerWireData);
           changedEntity = true;
         }
+      } else if (compareBlockDirection == powerWireData.destinationDirection) { // ie we have a destination
+          // check if it still is a storage with source or a wire with destination
       } else {
         if (isGenerator) {
           revert("PowerWireSystem: PowerWire has a source and is trying to connect to a different source");
         } else if (isStorage) {
-          // this is our destination
-
-
+          StorageData memory storageData = Storage.get(callerNamespace, compareEntity);
+          if(storageData.source == bytes(0) || storageData.source == signalEntity){
+             // this is our destination
+            powerWireData.destination = compareEntity;
+            powerWireData.destinationDirection = compareBlockDirection;
+            PowerWire.set(callerNamespace, signalEntity, powerWireData);
+            changedEntity = true;
+          } else {
+            revert("PowerWireSystem: PowerWire is trying to make a storage with a source a destination");
+          }
         } else if (isPowerWire) {
           PowerWireData memory neighPowerWireData = PowerWire.get(callerNamespace, compareEntity);
           if (

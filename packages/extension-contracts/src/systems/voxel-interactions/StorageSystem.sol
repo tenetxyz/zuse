@@ -18,6 +18,86 @@ contract StorageSystem is SingleVoxelInteraction {
     return entityIsStorage(entityId, callerNamespace);
   }
 
+  function usePowerWireAsSource(
+    bytes16 callerNamespace,
+    bytes32 powerWireEntity,
+    BlockDirection powerWireDirection,
+    bytes32 storageEntity,
+    StorageData memory storageData
+  ) returns (bool changedEntity) {
+    PowerWireData memory sourceWireData = PowerWire.get(callerNamespace, powerWireEntity);
+    if (sourceWireData.source == bytes(0)) {
+      return false;
+    }
+
+    bool storageHasSource = storageData.source != bytes32(0);
+    if (storageHasSource) {
+      require(
+        powerWireEntity == storageData.source && powerWireDirection == storageData.sourceDirection,
+        "StorageSystem: source entity mismatch"
+      );
+    } else {
+      storageData.source = powerWireEntity;
+      storageData.sourceDirection = powerWireDirection;
+    }
+
+    if (!storageHasSource || powerWireData.lastUpdateBlock != block.number) {
+      uint256 newEnergyToStore = ((sourceWireData.transferRate + storageData.lastInRate) / 2) *
+        (block.number - storageData.lastUpdateBlock);
+      uint256 proposedEnergyStored = newEnergyToStore + storageData.energyStored;
+
+      storageData.energyStored = (proposedEnergyStored > storageData.maxStorage)
+        ? storageData.maxStorage
+        : proposedEnergyStored;
+      storageData.lastInRate = sourceWireData.transferRate;
+      storageData.lastUpdateBlock = block.number;
+      Storage.set(callerNamespace, storageEntity, storageData);
+      changedEntity = true;
+    }
+  }
+
+  function usePowerWireAsDestination(
+    bytes16 callerNamespace,
+    bytes32 powerWireEntity,
+    BlockDirection powerWireDirection,
+    bytes32 storageEntity,
+    StorageData memory storageData
+  ) returns (bool changedEntity) {
+    PowerWireData memory destinationWireData = PowerWire.get(callerNamespace, compareEntity);
+    if (destinationWireData.source != bytes(0) && destinationWireData.source != storageEntity) {
+      revert("StorageSystem: Storage is trying to use a wire as a destination that already has a different source");
+    }
+
+    bool storageHasDestination = storageData.destination != bytes32(0);
+
+    if (storageHasDestination) {
+      revert(
+        powerWireEntity == storageData.destination && powerWireDirection == storageData.destinationDirection,
+        "StorageSystem: Storage has a destination and is trying to connect to a different destination"
+      );
+    } else {
+      storageData.destination = powerWireEntity;
+      storageData.destinationDirection = powerWireDirection;
+    }
+
+    if (!storageHasDestination || storageData.lastUpdateBlock != block.number) {
+      uint256 validTransferRate = 2 *
+        (storageData.energyStored / (block.number - storageData.lastUpdateBlock)) -
+        storageData.lastOutRate;
+      if (validTransferRate > destWireData.maxTransferRate) {
+        validTransferRate = destWireData.maxTransferRate;
+      }
+      uint256 energyToLeave = ((storageData.lastOutRate + validTransferRate) / 2) *
+        (block.number - storageData.lastUpdateBlock);
+
+      storageData.energyStored = storageData.energyStored - energyToLeave;
+      storageData.lastOutRate = validTransferRate;
+      storageData.lastUpdateBlock = block.number;
+      Storage.set(callerNamespace, storageEntity, storageData);
+      changedEntity = true;
+    }
+  }
+
   function runSingleInteraction(
     bytes16 callerNamespace,
     bytes32 signalEntity,
@@ -29,86 +109,63 @@ contract StorageSystem is SingleVoxelInteraction {
 
     bool isPowerWire = entityIsPowerWire(compareEntity, callerNamespace);
 
-    bool isSourceWire = isPowerWire &&
-      PowerWire.get(callerNamespace, compareEntity).transferRate > 0 &&
-      PowerWire.get(callerNamespace, compareEntity).source != bytes32(0);
-
-    bool isWithoutSourceWire = isPowerWire &&
-      PowerWire.get(callerNamespace, compareEntity).transferRate == 0 &&
-      PowerWire.get(callerNamespace, compareEntity).source == bytes32(0);
-
-    bool doesHaveSource = storageData.lastInRate != 0;
-    bool doesHaveDestination = storageData.lastOutRate != 0;
+    bool doesHaveSource = storageData.source != bytes(0);
 
     if (!doesHaveSource) {
-      if (isSourceWire) {
-        PowerWireData memory sourceWireData = PowerWire.get(callerNamespace, compareEntity);
-        uint256 newEnergyToStore = ((sourceWireData.transferRate + storageData.lastInRate) / 2) *
-          (block.number - storageData.lastUpdateBlock);
-        uint256 proposedEnergyStored = newEnergyToStore + storageData.energyStored;
-
-        storageData.energyStored = (proposedEnergyStored > storageData.maxStorage)
-          ? storageData.maxStorage
-          : proposedEnergyStored;
-        storageData.lastInRate = sourceWireData.transferRate;
-        storageData.lastUpdateBlock = block.number;
-        storageData.source = compareEntity;
-        storageData.sourceDirection = compareBlockDirection;
-        Storage.set(callerNamespace, signalEntity, storageData);
-
-        changedEntity = true;
+      if (isPowerWire) {
+        changedEntity = usePowerWireAsSource(
+          callerNamespace,
+          compareEntity,
+          compareBlockDirection,
+          signalEntity,
+          storageData
+        );
       }
     } else {
       if (compareBlockDirection == storageData.sourceDirection) {
-        if (!isSourceWire) {
-          if (storageData.lastUpdateBlock != block.number) {
-            storageData.lastInRate = 0;
-            storageData.lastUpdateBlock = block.number;
-            storageData.source = bytes32(0);
-            storageData.sourceDirection = BlockDirection.None;
-            Storage.set(callerNamespace, signalEntity, storageData);
-          }
+        if (isPowerWire) {
+          changedEntity = usePowerWireAsSource(
+            callerNamespace,
+            compareEntity,
+            compareBlockDirection,
+            signalEntity,
+            storageData
+          );
+        } else {
+          storageData.lastInRate = 0;
+          storageData.lastUpdateBlock = block.number;
+          storageData.source = bytes32(0);
+          storageData.sourceDirection = BlockDirection.None;
+          Storage.set(callerNamespace, signalEntity, storageData);
+          changedEntity = true;
         }
       }
       if (compareBlockDirection == storageData.destinationDirection) {
-        if (!isPowerWire) {
-          if (storageData.lastUpdateBlock != block.number) {
-            storageData.lastOutRate = 0;
-            storageData.lastUpdateBlock = block.number;
-            storageData.destination = bytes32(0);
-            storageData.destinationDirection = BlockDirection.None;
-            Storage.set(callerNamespace, signalEntity, storageData);
-          }
+        if (isPowerWire) {
+          changed = usePowerWireAsDestination(
+            callerNamespace,
+            compareEntity,
+            compareBlockDirection,
+            signalEntity,
+            storageData
+          );
+        } else {
+          storageData.lastOutRate = 0;
+          storageData.lastUpdateBlock = block.number;
+          storageData.destination = bytes32(0);
+          storageData.destinationDirection = BlockDirection.None;
+          Storage.set(callerNamespace, signalEntity, storageData);
+          changedEntity = true;
         }
       } else {
         if (isPowerWire) {
-          if (isSourceWire) {
-            revert("StorageSystem: Storage has a source and is trying to connect to a different source");
-          } else if (isWithoutSourceWire) {
-            if (storageData.destination == bytes(0)) {
-              // this will be our destination!
-              PowerWireData memory destWireData = PowerWire.get(callerNamespace, compareEntity);
-              uint256 validTransferRate = 2 *
-                (storageData.energyStored / (block.number - storageData.lastUpdateBlock)) -
-                storageData.lastOutRate;
-              if (validTransferRate > destWireData.maxTransferRate) {
-                validTransferRate = destWireData.maxTransferRate;
-              }
-              uint256 energyToLeave = ((storageData.lastOutRate + validTransferRate) / 2) *
-                (block.number - storageData.lastUpdateBlock);
-
-              storageData.energyStored = storageData.energyStored - energyToLeave;
-              storageData.lastOutRate = validTransferRate;
-              storageData.lastUpdateBlock = block.number;
-              storageData.destination = compareEntity;
-              storageData.destinationDirection = compareBlockDirection;
-              Storage.set(callerNamespace, signalEntity, storageData);
-
-              changedEntity = true;
-            } else {
-              revert("StorageSystem: Storage has a destination and is trying to connect to a different destination");
-            }
-          }
+          changed = usePowerWireAsDestination(
+            callerNamespace,
+            compareEntity,
+            compareBlockDirection,
+            signalEntity,
+            storageData
+          );
         }
       }
     }

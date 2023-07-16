@@ -117,7 +117,7 @@ contract PowerWireSystem is SingleVoxelInteraction {
       } else {
         powerWireData.destinationDirection = BlockDirection.None;
       }
-      PowerWire.set(callerNamespace, signalEntity, powerWireData);
+      PowerWire.set(callerNamespace, powerWireEntity, powerWireData);
       changedEntity = true;
     }
   }

@@ -72,21 +72,23 @@ contract PowerWireSystem is SingleVoxelInteraction {
         powerWireData.sourceDirection = compareBlockDirection;
         PowerWire.set(callerNamespace, signalEntity, powerWireData);
         changedEntity = true;
-      } else if (isStorage && isCompareStorageWithSourceAndWithoutDest) {
+      } else if (isStorage) {
         // become the destination of the storage
         StorageData memory storageData = Storage.get(callerNamespace, compareEntity);
-        uint256 validTransferRate = 2 *
-          (storageData.energyStored / (block.number - storageData.lastUpdateBlock)) -
-          storageData.lastOutRate;
-        if (validTransferRate > powerWireData.maxTransferRate) {
-          validTransferRate = powerWireData.maxTransferRate;
-        }
+        if(storageData.destination == bytes(0) || storageData.destination == signalEntity){
+          uint256 validTransferRate = 2 *
+            (storageData.energyStored / (block.number - storageData.lastUpdateBlock)) -
+            storageData.lastOutRate;
+          if (validTransferRate > powerWireData.maxTransferRate) {
+            validTransferRate = powerWireData.maxTransferRate;
+          }
 
-        powerWireData.source = compareEntity;
-        powerWireData.sourceDirection = compareBlockDirection;
-        powerWireData.transferRate = validTransferRate;
-        PowerWire.set(callerNamespace, signalEntity, powerWireData);
-        changedEntity = true;
+          powerWireData.source = compareEntity;
+          powerWireData.sourceDirection = compareBlockDirection;
+          powerWireData.transferRate = validTransferRate;
+          PowerWire.set(callerNamespace, signalEntity, powerWireData);
+          changedEntity = true;
+        }
       }
     } else {
       if (compareBlockDirection == powerWireData.sourceDirection) {

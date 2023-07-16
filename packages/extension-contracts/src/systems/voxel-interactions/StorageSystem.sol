@@ -139,8 +139,7 @@ contract StorageSystem is SingleVoxelInteraction {
           Storage.set(callerNamespace, signalEntity, storageData);
           changedEntity = true;
         }
-      }
-      if (compareBlockDirection == storageData.destinationDirection) {
+      } else if (compareBlockDirection == storageData.destinationDirection) {
         if (entityIsPowerWire(storageData.destination, callerNamespace)) {
           changedEntity = usePowerWireAsDestination(
             callerNamespace,

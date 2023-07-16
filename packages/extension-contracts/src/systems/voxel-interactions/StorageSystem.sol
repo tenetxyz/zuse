@@ -106,17 +106,6 @@ contract StorageSystem is SingleVoxelInteraction {
       revert("StorageSystem: Storage has a destination and is trying to connect to a different destination");
     }
   }
-
-if (doesHaveSource) {
-
-}
-
-
-
-
-
-
-  }
     return changedEntity;
   }
 

@@ -93,7 +93,16 @@ contract StorageSystem is SingleVoxelInteraction {
       changedEntity = true;
     } 
   } else if (doesHaveDestination) {
-    if (isDestinationWire && storageData.lastUpdateBlock != block.number) {
+    if (!isDestinationWire && compareBlockDirection == storageData.destinationDirection) {
+      if (storageData.lastUpdateBlock != block.number) {
+        storageData.lastOutRate = 0;
+        storageData.lastUpdateBlock = block.number;
+        storageData.destination = bytes32(0);
+        storageData.destinationDirection = BlockDirection.None;
+        Storage.set(callerNamespace, signalEntity, storageData);
+      }
+    }
+    if (isDestinationWire) {
       revert("StorageSystem: Storage has a destination and is trying to connect to a different destination");
     }
   }

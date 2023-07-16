@@ -162,16 +162,16 @@ contract PowerWireSystem is SingleVoxelInteraction {
         powerWireData.destination == storageEntity && powerWireData.destinationDirection == storageBlockDirection,
         "PowerWireSystem: PowerWire has a destination and is trying to connect to a different storage destination"
       );
-    }
-
-    StorageData memory storageData = Storage.get(callerNamespace, storageEntity);
-    if (storageData.source == bytes32(0) || storageData.source == powerWireEntity) {
-      powerWireData.destination = storageEntity;
-      powerWireData.destinationDirection = storageBlockDirection;
-      PowerWire.set(callerNamespace, powerWireEntity, powerWireData);
-      changedEntity = true;
     } else {
-      revert("PowerWireSystem: PowerWire is trying to make a storage with an existing source a destination");
+      StorageData memory storageData = Storage.get(callerNamespace, storageEntity);
+      if (storageData.source == bytes32(0) || storageData.source == powerWireEntity) {
+        powerWireData.destination = storageEntity;
+        powerWireData.destinationDirection = storageBlockDirection;
+        PowerWire.set(callerNamespace, powerWireEntity, powerWireData);
+        changedEntity = true;
+      } else {
+        revert("PowerWireSystem: PowerWire is trying to make a storage with an existing source a destination");
+      }
     }
   }
 

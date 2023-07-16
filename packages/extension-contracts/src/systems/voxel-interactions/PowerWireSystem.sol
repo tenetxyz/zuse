@@ -140,6 +140,22 @@ contract PowerWireSystem is SingleVoxelInteraction {
         }
       } else if (compareBlockDirection == powerWireData.destinationDirection) { // ie we have a destination
           // check if it still is a storage with source or a wire with destination
+          if (entityIsStorage(powerWireData.destination, callerNamespace)) {
+            // do nothing
+          } else if(entityIsPowerWire(powerWireData.destination, callerNamespace)){
+            PowerWireData memory neighPowerWireData = PowerWire.get(powerWireData.destination, compareEntity);
+             if(powerWireData.destination != neighPowerWireData.destination) {
+                powerWireData.destination = neighPowerWireData.destination;
+                powerWireData.destinationDirection = compareBlockDirection;
+                PowerWire.set(callerNamespace, signalEntity, powerWireData);
+                changedEntity = true;
+              }
+          } else {
+            powerWireData.destination = bytes32(0);
+            powerWireData.destinationDirection = BlockDirection.None;
+            PowerWire.set(callerNamespace, signalEntity, powerWireData);
+            changedEntity = true;
+          }
       } else {
         if (isGenerator) {
           revert("PowerWireSystem: PowerWire has a source and is trying to connect to a different source");
@@ -157,11 +173,20 @@ contract PowerWireSystem is SingleVoxelInteraction {
         } else if (isPowerWire) {
           PowerWireData memory neighPowerWireData = PowerWire.get(callerNamespace, compareEntity);
           if (
-            neighPowerWireData.transferRate > 0 &&
-            neighPowerWireData.sourceDirection != getOppositeDirection(compareBlockDirection)
+            neighPowerWireData.transferRate > 0 // TODO: do we need this check?
           ) {
-            // if we are not the source of this active wire
-            revert("PowerWireSystem: PowerWire has a source and is trying to connect to a different source");
+            if(neighPowerWireData.sourceDirection != getOppositeDirection(compareBlockDirection)){
+              // if we are not the source of this active wire
+              revert("PowerWireSystem: PowerWire has a source and is trying to connect to a different source");
+            } else {
+              // check if this source got a destination, if so take it as ours
+              if(powerWireData.destination != neighPowerWireData.destination) {
+                powerWireData.destination = neighPowerWireData.destination;
+                powerWireData.destinationDirection = compareBlockDirection;
+                PowerWire.set(callerNamespace, signalEntity, powerWireData);
+                changedEntity = true;
+              }
+            }
           }
         }
       }

@@ -48,18 +48,22 @@ contract StorageVoxelSystem is VoxelType {
   function enterWorld(bytes32 entity) public override {
     bytes16 callerNamespace = getCallerNamespace(_msgSender());
 
-    Storage.set(callerNamespace, 
-                entity,
-                StorageData({ maxStorage: 5000000,
-                              energyStored: 0,
-                              lastInRate: 0,
-                              lastOutRate: 0,
-                              lastUpdateBlock: block.number,
-                              source: bytes32(0),
-                              destination: bytes32(0),
-                              sourceDirection: BlockDirection.None,
-                              destinationDirection: BlockDirection.None,
-                              hasValue: true }));
+    Storage.set(
+      callerNamespace,
+      entity,
+      StorageData({
+        maxStorage: 5000000,
+        energyStored: 0,
+        lastInRate: 0,
+        lastOutRate: 0,
+        lastUpdateBlock: block.number,
+        source: bytes32(0),
+        destination: bytes32(0),
+        sourceDirection: BlockDirection.None,
+        destinationDirection: BlockDirection.None,
+        hasValue: true
+      })
+    );
   }
 
   function exitWorld(bytes32 entity) public override {

@@ -32,24 +32,24 @@ contract TemperatureSystem is SingleVoxelInteraction {
 
     uint256 blocksPassed = block.number - lastUpdateBlock;
 
-    if(currentTemperature > roomTemperature) {
-        currentTemperature -= blocksPassed;
-        if(currentTemperature < roomTemperature) {
-            currentTemperature = roomTemperature;
-        }
-    } else if(currentTemperature < roomTemperature) {
-        currentTemperature += blocksPassed;
-        if(currentTemperature > roomTemperature) {
-            currentTemperature = roomTemperature;
-        }
+    if (currentTemperature > roomTemperature) {
+      currentTemperature -= blocksPassed;
+      if (currentTemperature < roomTemperature) {
+        currentTemperature = roomTemperature;
+      }
+    } else if (currentTemperature < roomTemperature) {
+      currentTemperature += blocksPassed;
+      if (currentTemperature > roomTemperature) {
+        currentTemperature = roomTemperature;
+      }
     }
     lastUpdateBlock = block.number;
 
-    if(temperatureData.lastUpdateBlock != lastUpdateBlock) {
-        temperatureData.temperature = currentTemperature;
-        temperatureData.lastUpdateBlock = lastUpdateBlock;
-        Temperature.set(callerNamespace, signalEntity, temperatureData);
-        changedEntity = true;
+    if (temperatureData.lastUpdateBlock != lastUpdateBlock) {
+      temperatureData.temperature = currentTemperature;
+      temperatureData.lastUpdateBlock = lastUpdateBlock;
+      Temperature.set(callerNamespace, signalEntity, temperatureData);
+      changedEntity = true;
     }
 
     return changedEntity;

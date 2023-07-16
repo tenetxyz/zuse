@@ -48,14 +48,21 @@ contract PowerWireVoxelSystem is VoxelType {
 
   function enterWorld(bytes32 entity) public override {
     bytes16 callerNamespace = getCallerNamespace(_msgSender());
-    
+
     bytes32 _source = bytes32(0);
     bytes32 _destination = bytes32(0);
 
     PowerWire.set(
       callerNamespace,
       entity,
-      PowerWireData({ source: _source, destination: _destination, transferRate: 0, maxTransferRate: 30000, direction: BlockDirection.None, hasValue: true })
+      PowerWireData({
+        source: _source,
+        destination: _destination,
+        transferRate: 0,
+        maxTransferRate: 30000,
+        direction: BlockDirection.None,
+        hasValue: true
+      })
     );
   }
 

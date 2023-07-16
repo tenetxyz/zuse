@@ -5,7 +5,7 @@ import { SingleVoxelInteraction } from "@tenet-contracts/src/prototypes/SingleVo
 import { IWorld } from "../../../src/codegen/world/IWorld.sol";
 import { PowerWire, PowerWireData, Generator, GeneratorData } from "../../codegen/Tables.sol";
 import { BlockDirection } from "../../codegen/Types.sol";
-import { registerExtension, entityIsPowerWire, entityIsGenerator } from "../../Utils.sol";
+import { registerExtension, entityIsPowerWire, entityIsGenerator, entityIsStorage } from "../../Utils.sol";
 import { getOppositeDirection } from "@tenet-contracts/src/Utils.sol";
 
 contract PowerWireSystem is SingleVoxelInteraction {
@@ -18,6 +18,16 @@ contract PowerWireSystem is SingleVoxelInteraction {
     return entityIsPowerWire(entityId, callerNamespace);
   }
 
+  bool isStorageWithSourceAndWithoutDest(bytes32 entityId, bytes16 callerNamespace) {
+    StorageData memory storageData = Storage.get(callerNamespace, entityId);
+    return storageData.source != bytes32(0) && storageData.destination == bytes32(0);
+  }
+
+    bool isStorageWithSourceWithDest(bytes32 entityId, bytes16 callerNamespace, bytes32 destination) {
+    StorageData memory storageData = Storage.get(callerNamespace, entityId);
+    return storageData.source != bytes32(0) && storageData.destination == destination;
+  }
+
   function runSingleInteraction(
     bytes16 callerNamespace,
     bytes32 signalEntity,
@@ -28,35 +38,63 @@ contract PowerWireSystem is SingleVoxelInteraction {
     changedEntity = false;
 
     bool isPowerWire = entityIsPowerWire(compareEntity, callerNamespace) &&
-          PowerWire.get(callerNamespace, compareEntity).transferRate > 0;
+      PowerWire.get(callerNamespace, compareEntity).transferRate > 0;
     bool isGenerator = entityIsGenerator(compareEntity, callerNamespace);
+    bool isStorage = entityIsStorage(compareEntity, callerNamespace);
+    bool isCompareStorageWithSourceAndWithoutDest = false;
+    if (isStorage) {
+      isCompareStorageWithSourceAndWithoutDest = isStorageWithSourceAndWithoutDest(compareEntity, callerNamespace);
+    }
 
     bool doesHaveSource = powerWireData.source != bytes32(0);
+    bool doesHaveDestination = powerWireData.destination != bytes32(0);
+
     if (!doesHaveSource) {
       if (isPowerWire) {
         PowerWireData memory neighPowerWireData = PowerWire.get(callerNamespace, compareEntity);
-        uint256 validTransferRate = neighPowerWireData.transferRate <= powerWireData.maxTransferRate ? neighPowerWireData.transferRate : powerWireData.maxTransferRate;
+        uint256 validTransferRate = neighPowerWireData.transferRate <= powerWireData.maxTransferRate
+          ? neighPowerWireData.transferRate
+          : powerWireData.maxTransferRate;
 
         powerWireData.source = compareEntity;
         powerWireData.transferRate = validTransferRate;
-        powerWireData.direction = neighPowerWireData.direction;
+        powerWireData.sourceDirection = neighPowerWireData.direction;
         PowerWire.set(callerNamespace, signalEntity, powerWireData);
         changedEntity = true;
       } else if (isGenerator) {
         GeneratorData memory generatorData = Generator.get(callerNamespace, compareEntity);
-        uint256 validTransferRate = generatorData.genRate <= powerWireData.maxTransferRate ? generatorData.genRate : powerWireData.maxTransferRate;
+        uint256 validTransferRate = generatorData.genRate <= powerWireData.maxTransferRate
+          ? generatorData.genRate
+          : powerWireData.maxTransferRate;
 
         powerWireData.source = compareEntity;
         powerWireData.transferRate = validTransferRate;
-        powerWireData.direction = compareBlockDirection;
+        powerWireData.sourceDirection = compareBlockDirection;
+        PowerWire.set(callerNamespace, signalEntity, powerWireData);
+        changedEntity = true;
+      } else if (isStorage && isCompareStorageWithSourceAndWithoutDest) {
+        // become the destination of the storage
+        StorageData memory storageData = Storage.get(callerNamespace, compareEntity);
+        uint256 validTransferRate = 2 *
+          (storageData.energyStored / (block.number - storageData.lastUpdateBlock)) -
+          storageData.lastOutRate;
+        if (validTransferRate > powerWireData.maxTransferRate) {
+          validTransferRate = powerWireData.maxTransferRate;
+        }
+
+        powerWireData.source = compareEntity;
+        powerWireData.sourceDirection = compareBlockDirection;
+        powerWireData.transferRate = validTransferRate;
         PowerWire.set(callerNamespace, signalEntity, powerWireData);
         changedEntity = true;
       }
     } else {
-      if (compareBlockDirection == powerWireData.direction) {
+      if (compareBlockDirection == powerWireData.sourceDirection) {
         if (entityIsGenerator(powerWireData.source, callerNamespace)) {
           GeneratorData memory generatorData = Generator.get(callerNamespace, compareEntity);
-          uint256 validTransferRate = generatorData.genRate <= powerWireData.maxTransferRate ? generatorData.genRate : powerWireData.maxTransferRate;
+          uint256 validTransferRate = generatorData.genRate <= powerWireData.maxTransferRate
+            ? generatorData.genRate
+            : powerWireData.maxTransferRate;
 
           if (powerWireData.transferRate != validTransferRate) {
             powerWireData.transferRate = validTransferRate;
@@ -68,9 +106,25 @@ contract PowerWireSystem is SingleVoxelInteraction {
           PowerWire.get(callerNamespace, powerWireData.source).transferRate > 0
         ) {
           PowerWireData memory neighPowerWireData = PowerWire.get(callerNamespace, compareEntity);
-          uint256 validTransferRate = neighPowerWireData.transferRate <= powerWireData.maxTransferRate ? neighPowerWireData.transferRate : powerWireData.maxTransferRate;
+          uint256 validTransferRate = neighPowerWireData.transferRate <= powerWireData.maxTransferRate
+            ? neighPowerWireData.transferRate
+            : powerWireData.maxTransferRate;
 
           if (powerWireData.transferRate != validTransferRate) {
+            powerWireData.transferRate = validTransferRate;
+            PowerWire.set(callerNamespace, signalEntity, powerWireData);
+            changedEntity = true;
+          }
+        } else if (entityIsStorage(powerWireData.source, callerNamespace) && isStorageWithSourceWithDest(compareEntity, callerNamespace, signalEntity)) {
+          StorageData memory storageData = Storage.get(callerNamespace, powerWireData.source);
+          uint256 validTransferRate = 2 *
+            (storageData.energyStored / (block.number - storageData.lastUpdateBlock)) -
+            storageData.lastOutRate;
+          if (validTransferRate > powerWireData.maxTransferRate) {
+            validTransferRate = powerWireData.maxTransferRate;
+          }
+
+          if(powerWireData.transferRate != validTransferRate){
             powerWireData.transferRate = validTransferRate;
             PowerWire.set(callerNamespace, signalEntity, powerWireData);
             changedEntity = true;
@@ -78,18 +132,22 @@ contract PowerWireSystem is SingleVoxelInteraction {
         } else {
           powerWireData.source = bytes32(0);
           powerWireData.transferRate = 0;
-          powerWireData.direction = BlockDirection.None;
+          powerWireData.sourceDirection = BlockDirection.None;
           PowerWire.set(callerNamespace, signalEntity, powerWireData);
           changedEntity = true;
         }
       } else {
         if (isGenerator) {
           revert("PowerWireSystem: PowerWire has a source and is trying to connect to a different source");
+        } else if (isStorage) {
+          // this is our destination
+
+
         } else if (isPowerWire) {
           PowerWireData memory neighPowerWireData = PowerWire.get(callerNamespace, compareEntity);
           if (
             neighPowerWireData.transferRate > 0 &&
-            neighPowerWireData.direction != getOppositeDirection(compareBlockDirection)
+            neighPowerWireData.sourceDirection != getOppositeDirection(compareBlockDirection)
           ) {
             // if we are not the source of this active wire
             revert("PowerWireSystem: PowerWire has a source and is trying to connect to a different source");

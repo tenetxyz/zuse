@@ -112,7 +112,8 @@ export default mudConfig({
         destination: "bytes32",
         transferRate: "uint256",
         maxTransferRate: "uint256",
-        direction: "BlockDirection",
+        sourceDirection: "BlockDirection",
+        destinationDirection: "BlockDirection",
         hasValue: "bool", // TODO: Remove this once we can install non-root modules
       },
     },
@@ -133,7 +134,7 @@ export default mudConfig({
         destinationDirection: "BlockDirection",
         hasValue: "bool", // TODO: Remove this once we can install non-root modules
       },
-    }
+    },
   },
   modules: [
     // TODO: Re-enable when we have a way to install non-root modules

@@ -75,18 +75,8 @@ contract PowerWireSystem is SingleVoxelInteraction {
       powerWireData.sourceDirection = comparePowerWireDirection;
     }
 
-    if (
-      !powerWireHasSource ||
-      powerWireData.transferRate != validTransferRate ||
-      powerWireData.destination != powerWireWithSourceData.destination
-    ) {
+    if (!powerWireHasSource || powerWireData.transferRate != validTransferRate) {
       powerWireData.transferRate = validTransferRate;
-      powerWireData.destination = powerWireWithSourceData.destination;
-      if (powerWireWithSourceData.destination != bytes32(0)) {
-        powerWireData.destinationDirection = comparePowerWireDirection;
-      } else {
-        powerWireData.destinationDirection = BlockDirection.None;
-      }
       PowerWire.set(callerNamespace, powerWireEntity, powerWireData);
       changedEntity = true;
     }
@@ -199,7 +189,6 @@ contract PowerWireSystem is SingleVoxelInteraction {
     bool isStorage = entityIsStorage(compareEntity, callerNamespace);
 
     bool doesHaveSource = powerWireData.source != bytes32(0);
-    bool doesHaveDestination = powerWireData.destination != bytes32(0);
 
     if (!doesHaveSource) {
       if (isPowerWire) {

@@ -18,14 +18,171 @@ contract PowerWireSystem is SingleVoxelInteraction {
     return entityIsPowerWire(entityId, callerNamespace);
   }
 
-  bool isStorageWithSourceAndWithoutDest(bytes32 entityId, bytes16 callerNamespace) {
-    StorageData memory storageData = Storage.get(callerNamespace, entityId);
-    return storageData.source != bytes32(0) && storageData.destination == bytes32(0);
+  function useGenerateAsSource(
+    bytes16 callerNamespace,
+    bytes32 generatorEntity,
+    BlockDirection generatorBlockDirection,
+    bytes32 powerWireEntity,
+    PowerWireData memory powerWireData
+  ) returns (bool changedEntity) {
+    GeneratorData memory generatorData = Generator.get(callerNamespace, generatorEntity);
+    uint256 validTransferRate = generatorData.genRate <= powerWireData.maxTransferRate
+      ? generatorData.genRate
+      : powerWireData.maxTransferRate;
+
+    bool powerWireHasSource = powerWireData.source != bytes32(0);
+    if (powerWireHasSource) {
+      require(
+        generatorEntity == powerWireData.source && generatorBlockDirection == powerWireData.sourceDirection,
+        "PowerWireSystem: source entity mismatch"
+      );
+    } else {
+      powerWireData.source = generatorEntity;
+      powerWireData.sourceDirection = generatorBlockDirection;
+    }
+
+    if (!powerWireHasSource || powerWireData.transferRate != validTransferRate) {
+      powerWireData.transferRate = validTransferRate;
+      PowerWire.set(callerNamespace, powerWireEntity, powerWireData);
+      changedEntity = true;
+    }
   }
 
-    bool isStorageWithSourceWithDest(bytes32 entityId, bytes16 callerNamespace, bytes32 destination) {
-    StorageData memory storageData = Storage.get(callerNamespace, entityId);
-    return storageData.source != bytes32(0) && storageData.destination == destination;
+  function usePowerWireAsSource(
+    bytes16 callerNamespace,
+    bytes32 comparePowerWireEntity,
+    BlockDirection comparePowerWireDirection,
+    bytes32 powerWireEntity,
+    PowerWireData memory powerWireData
+  ) returns (bool changedEntity) {
+    PowerWireData memory powerWireWithSourceData = PowerWire.get(callerNamespace, comparePowerWireEntity);
+    if (powerWireWithSourceData.source == bytes32(0)) {
+      // can't have a source if there is no source
+      return false;
+    }
+    uint256 validTransferRate = powerWireWithSourceData.transferRate <= powerWireData.maxTransferRate
+      ? powerWireWithSourceData.transferRate
+      : powerWireData.maxTransferRate;
+
+    bool powerWireHasSource = powerWireData.source != bytes32(0);
+    if (powerWireHasSource) {
+      require(
+        comparePowerWireEntity == powerWireData.source && comparePowerWireDirection == powerWireData.sourceDirection,
+        "PowerWireSystem: source entity mismatch"
+      );
+    } else {
+      powerWireData.source = comparePowerWireEntity;
+      powerWireData.sourceDirection = comparePowerWireDirection;
+    }
+
+    if (
+      !powerWireHasSource ||
+      powerWireData.transferRate != validTransferRate ||
+      powerWireData.destination != powerWireWithSourceData.destination
+    ) {
+      powerWireData.transferRate = validTransferRate;
+      powerWireData.destination = powerWireWithSourceData.destination;
+      if (powerWireWithSourceData.destination != bytes32(0)) {
+        powerWireData.destinationDirection = comparePowerWireDirection;
+      } else {
+        powerWireData.destinationDirection = BlockDirection.None;
+      }
+      PowerWire.set(callerNamespace, powerWireEntity, powerWireData);
+      changedEntity = true;
+    }
+  }
+
+  function usePowerWireAsDestination(
+    bytes16 callerNamespace,
+    bytes32 comparePowerWireEntity,
+    BlockDirection comparePowerWireDirection,
+    bytes32 powerWireEntity,
+    PowerWireData memory powerWireData
+  ) returns (bool changedEntity) {
+    PowerWireData memory powerWireWithDestinationData = PowerWire.get(callerNamespace, comparePowerWireEntity);
+    if (powerWireWithDestinationData.source == bytes32(0)) {
+      // can't have a destination if there is no source
+      return false;
+    }
+
+    if (powerWireWithDestinationData.sourceDirection != getOppositeDirection(comparePowerWireDirection)) {
+      revert("PowerWireSystem: This power wire has a different source direction");
+    }
+
+    // check if this source got a destination, if so take it as ours
+    if (powerWireData.destination != powerWireWithDestinationData.destination) {
+      powerWireData.destination = powerWireWithDestinationData.destination;
+      if (powerWireDapowerWireWithDestinationDatata.destination != bytes32(0)) {
+        powerWireData.destinationDirection = comparePowerWireDirection;
+      } else {
+        powerWireData.destinationDirection = BlockDirection.None;
+      }
+      PowerWire.set(callerNamespace, signalEntity, powerWireData);
+      changedEntity = true;
+    }
+  }
+
+  function useStorageAsSource(
+    bytes16 callerNamespace,
+    bytes32 storageEntity,
+    BlockDirection storageBlockDirection,
+    bytes32 powerWireEntity,
+    PowerWireData memory powerWireData
+  ) returns (bool changedEntity) {
+    StorageData memory storageData = Storage.get(callerNamespace, storageEntity);
+    if (storageData.destination != bytes(0) && storageData.destination != powerWireEntity) {
+      // if the storage is already connected to a destination, then it can't be your source
+      return false;
+    }
+
+    uint256 validTransferRate = 2 *
+      (storageData.energyStored / (block.number - storageData.lastUpdateBlock)) -
+      storageData.lastOutRate;
+    if (validTransferRate > powerWireData.maxTransferRate) {
+      validTransferRate = powerWireData.maxTransferRate;
+    }
+
+    bool powerWireHasSource = powerWireData.source != bytes32(0);
+    if (powerWireHasSource) {
+      require(
+        storageEntity == powerWireData.source && storageBlockDirection == powerWireData.sourceDirection,
+        "PowerWireSystem: source entity mismatch"
+      );
+    } else {
+      powerWireData.source = storageEntity;
+      powerWireData.sourceDirection = storageBlockDirection;
+    }
+
+    if (!powerWireHasSource || powerWireData.transferRate != validTransferRate) {
+      powerWireData.transferRate = validTransferRate;
+      PowerWire.set(callerNamespace, powerWireEntity, powerWireData);
+      changedEntity = true;
+    }
+  }
+
+  function useStorageAsDestination(
+    bytes16 callerNamespace,
+    bytes32 storageEntity,
+    BlockDirection storageBlockDirection,
+    bytes32 powerWireEntity,
+    PowerWireData memory powerWireData
+  ) returns (bool changedEntity) {
+    if (powerWireData.destination != bytes(0)) {
+      revert(
+        powerWireData.destination == storageEntity && powerWireData.destinationDirection == storageBlockDirection,
+        "PowerWireSystem: PowerWire has a destination and is trying to connect to a different storage destination"
+      );
+    }
+
+    StorageData memory storageData = Storage.get(callerNamespace, storageEntity);
+    if (storageData.source == bytes(0) || storageData.source == powerWireEntity) {
+      powerWireData.destination = storageEntity;
+      powerWireData.destinationDirection = storageBlockDirection;
+      PowerWire.set(callerNamespace, powerWireEntity, powerWireData);
+      changedEntity = true;
+    } else {
+      revert("PowerWireSystem: PowerWire is trying to make a storage with an existing source a destination");
+    }
   }
 
   function runSingleInteraction(
@@ -37,159 +194,125 @@ contract PowerWireSystem is SingleVoxelInteraction {
     PowerWireData memory powerWireData = PowerWire.get(callerNamespace, signalEntity);
     changedEntity = false;
 
-    bool isPowerWire = entityIsPowerWire(compareEntity, callerNamespace) &&
-      PowerWire.get(callerNamespace, compareEntity).transferRate > 0;
+    bool isPowerWireWithSource = entityIsPowerWire(compareEntity, callerNamespace) &&
+      PowerWire.get(callerNamespace, compareEntity).source != bytes32(0);
     bool isGenerator = entityIsGenerator(compareEntity, callerNamespace);
     bool isStorage = entityIsStorage(compareEntity, callerNamespace);
-    bool isCompareStorageWithSourceAndWithoutDest = false;
-    if (isStorage) {
-      isCompareStorageWithSourceAndWithoutDest = isStorageWithSourceAndWithoutDest(compareEntity, callerNamespace);
-    }
 
     bool doesHaveSource = powerWireData.source != bytes32(0);
     bool doesHaveDestination = powerWireData.destination != bytes32(0);
 
     if (!doesHaveSource) {
-      if (isPowerWire) {
-        PowerWireData memory neighPowerWireData = PowerWire.get(callerNamespace, compareEntity);
-        uint256 validTransferRate = neighPowerWireData.transferRate <= powerWireData.maxTransferRate
-          ? neighPowerWireData.transferRate
-          : powerWireData.maxTransferRate;
-
-        powerWireData.source = compareEntity;
-        powerWireData.transferRate = validTransferRate;
-        powerWireData.sourceDirection = neighPowerWireData.direction;
-        PowerWire.set(callerNamespace, signalEntity, powerWireData);
-        changedEntity = true;
+      if (isPowerWireWithSource) {
+        changedEntity = usePowerWireAsSource(
+          callerNamespace,
+          compareEntity,
+          compareBlockDirection,
+          signalEntity,
+          powerWireData
+        );
       } else if (isGenerator) {
-        GeneratorData memory generatorData = Generator.get(callerNamespace, compareEntity);
-        uint256 validTransferRate = generatorData.genRate <= powerWireData.maxTransferRate
-          ? generatorData.genRate
-          : powerWireData.maxTransferRate;
-
-        powerWireData.source = compareEntity;
-        powerWireData.transferRate = validTransferRate;
-        powerWireData.sourceDirection = compareBlockDirection;
-        PowerWire.set(callerNamespace, signalEntity, powerWireData);
-        changedEntity = true;
+        changedEntity = useGenerateAsSource(
+          callerNamespace,
+          compareEntity,
+          compareBlockDirection,
+          signalEntity,
+          powerWireData
+        );
       } else if (isStorage) {
-        // become the destination of the storage
-        StorageData memory storageData = Storage.get(callerNamespace, compareEntity);
-        if(storageData.destination == bytes(0) || storageData.destination == signalEntity){
-          uint256 validTransferRate = 2 *
-            (storageData.energyStored / (block.number - storageData.lastUpdateBlock)) -
-            storageData.lastOutRate;
-          if (validTransferRate > powerWireData.maxTransferRate) {
-            validTransferRate = powerWireData.maxTransferRate;
-          }
-
-          powerWireData.source = compareEntity;
-          powerWireData.sourceDirection = compareBlockDirection;
-          powerWireData.transferRate = validTransferRate;
-          PowerWire.set(callerNamespace, signalEntity, powerWireData);
-          changedEntity = true;
-        }
+        changedEntity = useStorageAsSource(
+          callerNamespace,
+          compareEntity,
+          compareBlockDirection,
+          signalEntity,
+          powerWireData
+        );
       }
     } else {
       if (compareBlockDirection == powerWireData.sourceDirection) {
         if (entityIsGenerator(powerWireData.source, callerNamespace)) {
-          GeneratorData memory generatorData = Generator.get(callerNamespace, compareEntity);
-          uint256 validTransferRate = generatorData.genRate <= powerWireData.maxTransferRate
-            ? generatorData.genRate
-            : powerWireData.maxTransferRate;
-
-          if (powerWireData.transferRate != validTransferRate) {
-            powerWireData.transferRate = validTransferRate;
-            PowerWire.set(callerNamespace, signalEntity, powerWireData);
-            changedEntity = true;
-          }
+          changedEntity = useGenerateAsSource(
+            callerNamespace,
+            compareEntity,
+            compareBlockDirection,
+            signalEntity,
+            powerWireData
+          );
         } else if (
           entityIsPowerWire(powerWireData.source, callerNamespace) &&
-          PowerWire.get(callerNamespace, powerWireData.source).transferRate > 0
+          PowerWire.get(callerNamespace, powerWireData.source).source != bytes32(0)
         ) {
-          PowerWireData memory neighPowerWireData = PowerWire.get(callerNamespace, compareEntity);
-          uint256 validTransferRate = neighPowerWireData.transferRate <= powerWireData.maxTransferRate
-            ? neighPowerWireData.transferRate
-            : powerWireData.maxTransferRate;
-
-          if (powerWireData.transferRate != validTransferRate || powerWireData.destination != neighPowerWireData.destination) {
-            powerWireData.destination = neighPowerWireData.destination;
-            powerWireData.destinationDirection = compareBlockDirection;
-            powerWireData.transferRate = validTransferRate;
-            PowerWire.set(callerNamespace, signalEntity, powerWireData);
-            changedEntity = true;
-          }
-        } else if (entityIsStorage(powerWireData.source, callerNamespace) && isStorageWithSourceWithDest(compareEntity, callerNamespace, signalEntity)) {
-          StorageData memory storageData = Storage.get(callerNamespace, powerWireData.source);
-          uint256 validTransferRate = 2 *
-            (storageData.energyStored / (block.number - storageData.lastUpdateBlock)) -
-            storageData.lastOutRate;
-          if (validTransferRate > powerWireData.maxTransferRate) {
-            validTransferRate = powerWireData.maxTransferRate;
-          }
-
-          if(powerWireData.transferRate != validTransferRate){
-            powerWireData.transferRate = validTransferRate;
-            PowerWire.set(callerNamespace, signalEntity, powerWireData);
-            changedEntity = true;
-          }
+          changedEntity = usePowerWireAsSource(
+            callerNamespace,
+            compareEntity,
+            compareBlockDirection,
+            signalEntity,
+            powerWireData
+          );
+        } else if (
+          entityIsStorage(powerWireData.source, callerNamespace) &&
+          Storage.get(powerWireData.source, entityId).destination == signalEntity
+        ) {
+          changedEntity = useStorageAsSource(
+            callerNamespace,
+            compareEntity,
+            compareBlockDirection,
+            signalEntity,
+            powerWireData
+          );
         } else {
           powerWireData.source = bytes32(0);
           powerWireData.transferRate = 0;
           powerWireData.sourceDirection = BlockDirection.None;
+          powerWireData.destination = bytes32(0);
+          powerWireData.destinationDirection = BlockDirection.None;
           PowerWire.set(callerNamespace, signalEntity, powerWireData);
           changedEntity = true;
         }
-      } else if (compareBlockDirection == powerWireData.destinationDirection) { // ie we have a destination
-          // check if it still is a storage with source or a wire with destination
-          if (entityIsStorage(powerWireData.destination, callerNamespace)) {
-            // do nothing
-          } else if(entityIsPowerWire(powerWireData.destination, callerNamespace)){
-            PowerWireData memory neighPowerWireData = PowerWire.get(powerWireData.destination, compareEntity);
-             if(powerWireData.destination != neighPowerWireData.destination) {
-                powerWireData.destination = neighPowerWireData.destination;
-                powerWireData.destinationDirection = compareBlockDirection;
-                PowerWire.set(callerNamespace, signalEntity, powerWireData);
-                changedEntity = true;
-              }
-          } else {
-            powerWireData.destination = bytes32(0);
-            powerWireData.destinationDirection = BlockDirection.None;
-            PowerWire.set(callerNamespace, signalEntity, powerWireData);
-            changedEntity = true;
-          }
+      } else if (compareBlockDirection == powerWireData.destinationDirection) {
+        // ie we have a destination
+        // check if it still is a storage with source or a wire with destination
+        if (entityIsStorage(powerWireData.destination, callerNamespace)) {
+          changedEntity = useStorageAsDestination(
+            callerNamespace,
+            compareEntity,
+            compareBlockDirection,
+            signalEntity,
+            powerWireData
+          );
+        } else if (entityIsPowerWire(powerWireData.destination, callerNamespace)) {
+          changedEntity = usePowerWireAsDestination(
+            callerNamespace,
+            compareEntity,
+            compareBlockDirection,
+            signalEntity,
+            powerWireData
+          );
+        } else {
+          powerWireData.destination = bytes32(0);
+          powerWireData.destinationDirection = BlockDirection.None;
+          PowerWire.set(callerNamespace, signalEntity, powerWireData);
+          changedEntity = true;
+        }
       } else {
         if (isGenerator) {
           revert("PowerWireSystem: PowerWire has a source and is trying to connect to a different source");
         } else if (isStorage) {
-          StorageData memory storageData = Storage.get(callerNamespace, compareEntity);
-          if(storageData.source == bytes(0) || storageData.source == signalEntity){
-             // this is our destination
-            powerWireData.destination = compareEntity;
-            powerWireData.destinationDirection = compareBlockDirection;
-            PowerWire.set(callerNamespace, signalEntity, powerWireData);
-            changedEntity = true;
-          } else {
-            revert("PowerWireSystem: PowerWire is trying to make a storage with a source a destination");
-          }
+          changedEntity = useStorageAsDestination(
+            callerNamespace,
+            compareEntity,
+            compareBlockDirection,
+            signalEntity,
+            powerWireData
+          );
         } else if (isPowerWire) {
-          PowerWireData memory neighPowerWireData = PowerWire.get(callerNamespace, compareEntity);
-          if (
-            neighPowerWireData.transferRate > 0 // TODO: do we need this check?
-          ) {
-            if(neighPowerWireData.sourceDirection != getOppositeDirection(compareBlockDirection)){
-              // if we are not the source of this active wire
-              revert("PowerWireSystem: PowerWire has a source and is trying to connect to a different source");
-            } else {
-              // check if this source got a destination, if so take it as ours
-              if(powerWireData.destination != neighPowerWireData.destination) {
-                powerWireData.destination = neighPowerWireData.destination;
-                powerWireData.destinationDirection = compareBlockDirection;
-                PowerWire.set(callerNamespace, signalEntity, powerWireData);
-                changedEntity = true;
-              }
-            }
-          }
+          changedEntity = usePowerWireAsDestination(
+            callerNamespace,
+            compareEntity,
+            compareBlockDirection,
+            signalEntity,
+            powerWireData
+          );
         }
       }
     }

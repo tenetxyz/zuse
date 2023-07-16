@@ -36,6 +36,11 @@ contract StorageSystem is SingleVoxelInteraction {
           PowerWire.get(callerNamespace, compareEntity).transferRate = 0 &&
           PowerWire.get(callerNamespace, compareEntity).destination != bytes32(0);
 
+
+    bool doesHaveSource = storageData.lastInRate != 0;
+    bool doesHaveDestination = storageData.lastOutRate != 0;
+
+  if (!doesHaveSource) {
     if (isSourceWire && storageData.lastUpdateBlock != block.number) {
       PowerWireData memory sourceWireData = PowerWire.get(callerNamespace, compareEntity);
       uint256 newEnergyToStore = (sourceWireData.transferRate + storageData.lastInRate) / 2 * (block.number - storageData.lastUpdateBlock);
@@ -51,7 +56,13 @@ contract StorageSystem is SingleVoxelInteraction {
       
       changedEntity = true;
     }
+  } else if (doesHaveSource) {
+    if (isSourceWire && storageData.lastUpdateBlock != block.number) {
+      revert("StorageSystem: Storage has a source and is trying to connect to a different source");
+    }
+  }
 
+  if (!doesHaveDestination) {
     if (isDestinationWire && storageData.lastUpdateBlock != block.number) {
       PowerWireData memory destWireData = PowerWire.get(callerNamespace, compareEntity);
       uint256 validTransferRate = 2 * (storageData.energyStored / ( block.number - storageData.lastUpdateBlock ) ) - storageData.lastOutRate;
@@ -68,9 +79,23 @@ contract StorageSystem is SingleVoxelInteraction {
       PowerWire.set(callerNamespace, compareEntity, destWireData);
 
       changedEntity = true;
+    } 
+  } else if (doesHaveDestination) {
+    if (isDestinationWire && storageData.lastUpdateBlock != block.number) {
+      revert("StorageSystem: Storage has a destination and is trying to connect to a different destination");
     }
-    
-    }
+  }
+
+if (doesHaveSource) {
+
+}
+
+
+
+
+
+
+  }
     return changedEntity;
   }
 

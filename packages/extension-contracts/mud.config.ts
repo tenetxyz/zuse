@@ -127,6 +127,10 @@ export default mudConfig({
         lastInRate: "uint256",
         lastOutRate: "uint256",
         lastUpdateBlock: "uint256",
+        source: "bytes32",
+        destination: "bytes32",
+        sourceDirection: "BlockDirection",
+        destinationDirection: "BlockDirection",
         hasValue: "bool", // TODO: Remove this once we can install non-root modules
       },
     }

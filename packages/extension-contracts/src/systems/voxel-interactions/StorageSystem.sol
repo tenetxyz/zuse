@@ -49,6 +49,8 @@ contract StorageSystem is SingleVoxelInteraction {
       storageData.energyStored = (proposedEnergyStored > storageData.maxStorage) ? storageData.maxStorage : proposedEnergyStored;
       storageData.lastInRate = sourceWireData.transferRate;
       storageData.lastUpdateBlock = block.number;
+      storageData.source = compareEntity;
+      storageData.sourceDirection = compareBlockDirection;
       Storage.set(callerNamespace, signalEntity, storageData);
       
       sourceWireData.destination = signalEntity;
@@ -72,6 +74,8 @@ contract StorageSystem is SingleVoxelInteraction {
       storageData.energyStored = storageData.energyStored - energyToLeave;
       storageData.lastOutRate = validTransferRate;
       storageData.lastUpdateBlock = block.number;
+      storageData.destination = compareEntity;
+      storageData.destinationDirection = compareBlockDirection;
       Storage.set(callerNamespace, signalEntity, storageData);
 
       destWireData.source = signalEntity;

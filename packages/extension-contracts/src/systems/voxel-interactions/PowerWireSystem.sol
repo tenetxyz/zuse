@@ -3,7 +3,7 @@ pragma solidity >=0.8.0;
 
 import { SingleVoxelInteraction } from "@tenet-contracts/src/prototypes/SingleVoxelInteraction.sol";
 import { IWorld } from "../../../src/codegen/world/IWorld.sol";
-import { PowerWire, PowerWireData, Generator, GeneratorData } from "../../codegen/Tables.sol";
+import { PowerWire, PowerWireData, Generator, GeneratorData, StorageData, Storage } from "../../codegen/Tables.sol";
 import { BlockDirection } from "../../codegen/Types.sol";
 import { registerExtension, entityIsPowerWire, entityIsGenerator, entityIsStorage } from "../../Utils.sol";
 import { getOppositeDirection } from "@tenet-contracts/src/Utils.sol";
@@ -24,7 +24,7 @@ contract PowerWireSystem is SingleVoxelInteraction {
     BlockDirection generatorBlockDirection,
     bytes32 powerWireEntity,
     PowerWireData memory powerWireData
-  ) returns (bool changedEntity) {
+  ) internal returns (bool changedEntity) {
     GeneratorData memory generatorData = Generator.get(callerNamespace, generatorEntity);
     uint256 validTransferRate = generatorData.genRate <= powerWireData.maxTransferRate
       ? generatorData.genRate
@@ -54,7 +54,7 @@ contract PowerWireSystem is SingleVoxelInteraction {
     BlockDirection comparePowerWireDirection,
     bytes32 powerWireEntity,
     PowerWireData memory powerWireData
-  ) returns (bool changedEntity) {
+  ) internal returns (bool changedEntity) {
     PowerWireData memory powerWireWithSourceData = PowerWire.get(callerNamespace, comparePowerWireEntity);
     if (powerWireWithSourceData.source == bytes32(0)) {
       // can't have a source if there is no source
@@ -98,7 +98,7 @@ contract PowerWireSystem is SingleVoxelInteraction {
     BlockDirection comparePowerWireDirection,
     bytes32 powerWireEntity,
     PowerWireData memory powerWireData
-  ) returns (bool changedEntity) {
+  ) internal returns (bool changedEntity) {
     PowerWireData memory powerWireWithDestinationData = PowerWire.get(callerNamespace, comparePowerWireEntity);
     if (powerWireWithDestinationData.source == bytes32(0)) {
       // can't have a destination if there is no source
@@ -112,7 +112,7 @@ contract PowerWireSystem is SingleVoxelInteraction {
     // check if this source got a destination, if so take it as ours
     if (powerWireData.destination != powerWireWithDestinationData.destination) {
       powerWireData.destination = powerWireWithDestinationData.destination;
-      if (powerWireDapowerWireWithDestinationDatata.destination != bytes32(0)) {
+      if (powerWireWithDestinationData.destination != bytes32(0)) {
         powerWireData.destinationDirection = comparePowerWireDirection;
       } else {
         powerWireData.destinationDirection = BlockDirection.None;
@@ -128,9 +128,9 @@ contract PowerWireSystem is SingleVoxelInteraction {
     BlockDirection storageBlockDirection,
     bytes32 powerWireEntity,
     PowerWireData memory powerWireData
-  ) returns (bool changedEntity) {
+  ) internal returns (bool changedEntity) {
     StorageData memory storageData = Storage.get(callerNamespace, storageEntity);
-    if (storageData.destination != bytes(0) && storageData.destination != powerWireEntity) {
+    if (storageData.destination != bytes32(0) && storageData.destination != powerWireEntity) {
       // if the storage is already connected to a destination, then it can't be your source
       return false;
     }
@@ -166,16 +166,16 @@ contract PowerWireSystem is SingleVoxelInteraction {
     BlockDirection storageBlockDirection,
     bytes32 powerWireEntity,
     PowerWireData memory powerWireData
-  ) returns (bool changedEntity) {
-    if (powerWireData.destination != bytes(0)) {
-      revert(
+  ) internal returns (bool changedEntity) {
+    if (powerWireData.destination != bytes32(0)) {
+      require(
         powerWireData.destination == storageEntity && powerWireData.destinationDirection == storageBlockDirection,
         "PowerWireSystem: PowerWire has a destination and is trying to connect to a different storage destination"
       );
     }
 
     StorageData memory storageData = Storage.get(callerNamespace, storageEntity);
-    if (storageData.source == bytes(0) || storageData.source == powerWireEntity) {
+    if (storageData.source == bytes32(0) || storageData.source == powerWireEntity) {
       powerWireData.destination = storageEntity;
       powerWireData.destinationDirection = storageBlockDirection;
       PowerWire.set(callerNamespace, powerWireEntity, powerWireData);
@@ -194,8 +194,7 @@ contract PowerWireSystem is SingleVoxelInteraction {
     PowerWireData memory powerWireData = PowerWire.get(callerNamespace, signalEntity);
     changedEntity = false;
 
-    bool isPowerWireWithSource = entityIsPowerWire(compareEntity, callerNamespace) &&
-      PowerWire.get(callerNamespace, compareEntity).source != bytes32(0);
+    bool isPowerWire = entityIsPowerWire(compareEntity, callerNamespace);
     bool isGenerator = entityIsGenerator(compareEntity, callerNamespace);
     bool isStorage = entityIsStorage(compareEntity, callerNamespace);
 
@@ -203,7 +202,7 @@ contract PowerWireSystem is SingleVoxelInteraction {
     bool doesHaveDestination = powerWireData.destination != bytes32(0);
 
     if (!doesHaveSource) {
-      if (isPowerWireWithSource) {
+      if (isPowerWire) {
         changedEntity = usePowerWireAsSource(
           callerNamespace,
           compareEntity,
@@ -251,7 +250,7 @@ contract PowerWireSystem is SingleVoxelInteraction {
           );
         } else if (
           entityIsStorage(powerWireData.source, callerNamespace) &&
-          Storage.get(powerWireData.source, entityId).destination == signalEntity
+          Storage.get(callerNamespace, powerWireData.source).destination == signalEntity
         ) {
           changedEntity = useStorageAsSource(
             callerNamespace,

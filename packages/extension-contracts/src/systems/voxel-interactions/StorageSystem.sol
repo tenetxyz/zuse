@@ -36,7 +36,6 @@ contract StorageSystem is SingleVoxelInteraction {
           PowerWire.get(callerNamespace, compareEntity).transferRate = 0 &&
           PowerWire.get(callerNamespace, compareEntity).destination != bytes32(0);
 
-
     bool doesHaveSource = storageData.lastInRate != 0;
     bool doesHaveDestination = storageData.lastOutRate != 0;
 
@@ -59,7 +58,16 @@ contract StorageSystem is SingleVoxelInteraction {
       changedEntity = true;
     }
   } else if (doesHaveSource) {
-    if (isSourceWire && storageData.lastUpdateBlock != block.number) {
+    if (!isSourceWire && compareBlockDirection == storageData.sourceDirection) {
+      if (storageData.lastUpdateBlock != block.number) {
+        storageData.lastInRate = 0;
+        storageData.lastUpdateBlock = block.number;
+        storageData.source = bytes32(0);
+        storageData.sourceDirection = BlockDirection.None;
+        Storage.set(callerNamespace, signalEntity, storageData);
+      }
+    }
+    if (isSourceWire) {
       revert("StorageSystem: Storage has a source and is trying to connect to a different source");
     }
   }

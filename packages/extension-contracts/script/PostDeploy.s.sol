@@ -28,7 +28,7 @@ contract PostDeploy is Script {
     world.extension_IceVoxelSystem_registerVoxel();
     world.extension_ThermoGenVoxelSy_registerVoxel();
     world.extension_PowerWireVoxelSy_registerVoxel();
-    world.extension_StorageVoxelSyste_registerVoxel();
+    world.extension_StorageVoxelSyst_registerVoxel();
 
 
     // Register all the voxel interactions

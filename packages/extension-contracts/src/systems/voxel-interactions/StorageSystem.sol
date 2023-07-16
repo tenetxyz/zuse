@@ -5,7 +5,7 @@ import { SingleVoxelInteraction } from "@tenet-contracts/src/prototypes/SingleVo
 import { IWorld } from "../../../src/codegen/world/IWorld.sol";
 import { PowerWire, PowerWireData, Storage, StorageData } from "../../codegen/Tables.sol";
 import { BlockDirection } from "../../codegen/Types.sol";
-import { registerExtension, entityIsStorage } from "../../Utils.sol";
+import { registerExtension, entityIsStorage, entityIsPowerWire } from "../../Utils.sol";
 import { getOppositeDirection } from "@tenet-contracts/src/Utils.sol";
 
 contract StorageSystem is SingleVoxelInteraction {
@@ -25,7 +25,7 @@ contract StorageSystem is SingleVoxelInteraction {
     BlockDirection compareBlockDirection
   ) internal override returns (bool changedEntity) {
 
-    StorageData memory storageData = StorageData.get(callerNamespace, signalEntity);
+    StorageData memory storageData = Storage.get(callerNamespace, signalEntity);
     changedEntity = false;
 
     bool isSourceWire = entityIsPowerWire(compareEntity, callerNamespace) &&
@@ -33,7 +33,7 @@ contract StorageSystem is SingleVoxelInteraction {
           PowerWire.get(callerNamespace, compareEntity).source != bytes32(0);
     
     bool isDestinationWire = entityIsPowerWire(compareEntity, callerNamespace) &&
-          PowerWire.get(callerNamespace, compareEntity).transferRate = 0 &&
+          PowerWire.get(callerNamespace, compareEntity).transferRate == 0 &&
           PowerWire.get(callerNamespace, compareEntity).destination != bytes32(0);
 
     bool doesHaveSource = storageData.lastInRate != 0;

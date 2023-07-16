@@ -3,6 +3,7 @@ pragma solidity >=0.8.0;
 
 import { VoxelType } from "@tenet-contracts/src/prototypes/VoxelType.sol";
 import { IWorld } from "../../../src/codegen/world/IWorld.sol";
+import { BlockDirection } from "../../codegen/Types.sol";
 import { Storage, StorageData } from "@tenet-extension-contracts/src/codegen/Tables.sol";
 import { getCallerNamespace } from "@tenet-contracts/src/Utils.sol";
 import { registerVoxelType, registerVoxelVariant, entityIsStorage } from "../../Utils.sol";
@@ -17,7 +18,7 @@ string constant StorageTexture = "bafkreidq36bqpc6fno5vtoafgn7zhyrin2v5wkjfybhqf
 
 string constant StorageUVWrap = "bafkreifdtu65gok35bevprpupxucirs2tan2k77444sl67stdhdgzwffra";
 
-contract SignalSourceVoxelSystem is VoxelType {
+contract StorageVoxelSystem is VoxelType {
   function registerVoxel() public override {
     address world = _world();
 
@@ -26,10 +27,10 @@ contract SignalSourceVoxelSystem is VoxelType {
     signalSourceVariant.opaque = true;
     signalSourceVariant.solid = true;
     string[] memory signalSourceMaterials = new string[](1);
-    signalSourceMaterials[0] = SignalSourceTexture;
+    signalSourceMaterials[0] = StorageTexture;
     signalSourceVariant.materials = abi.encode(signalSourceMaterials);
     signalSourceVariant.uvWrap = StorageUVWrap;
-    registerVoxelVariant(world, SignalSourceID, signalSourceVariant);
+    registerVoxelVariant(world, StorageID, signalSourceVariant);
 
     registerVoxelType(
       world,
@@ -37,25 +38,29 @@ contract SignalSourceVoxelSystem is VoxelType {
       StorageID,
       EXTENSION_NAMESPACE,
       StorageID,
-      IWorld(world).extension_StorageVoxel_variantSelector.selector,
-      IWorld(world).extension_StorageVoxel_enterWorld.selector,
-      IWorld(world).extension_StorageVoxel_exitWorld.selector,
-      IWorld(world).extension_StorageVoxel_activate.selector
+      IWorld(world).extension_StorageVoxelSyst_variantSelector.selector,
+      IWorld(world).extension_StorageVoxelSyst_enterWorld.selector,
+      IWorld(world).extension_StorageVoxelSyst_exitWorld.selector,
+      IWorld(world).extension_StorageVoxelSyst_activate.selector
     );
   }
 
   function enterWorld(bytes32 entity) public override {
     bytes16 callerNamespace = getCallerNamespace(_msgSender());
-    StorageData({ maxStorage: 5000000,
-                  energyStored: 0,
-                  lastInRate: 0,
-                  lastOutRate: 0,
-                  lastUpdateBlock: block.number,
-                  source: bytes32(0),
-                  destination: bytes32(0),
-                  sourceDirection: BlockDirection.NONE,
-                  destinationDirection: BlockDirection.NONE,
-                  hasValue: true })}
+
+    Storage.set(callerNamespace, 
+                entity,
+                StorageData({ maxStorage: 5000000,
+                              energyStored: 0,
+                              lastInRate: 0,
+                              lastOutRate: 0,
+                              lastUpdateBlock: block.number,
+                              source: bytes32(0),
+                              destination: bytes32(0),
+                              sourceDirection: BlockDirection.None,
+                              destinationDirection: BlockDirection.None,
+                              hasValue: true }));
+  }
 
   function exitWorld(bytes32 entity) public override {
     bytes16 callerNamespace = getCallerNamespace(_msgSender());

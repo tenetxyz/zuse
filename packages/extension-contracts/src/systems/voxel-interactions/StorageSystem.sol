@@ -66,7 +66,7 @@ contract StorageSystem is SingleVoxelInteraction {
     StorageData memory storageData
   ) internal returns (bool changedEntity) {
     PowerWireData memory destinationWireData = PowerWire.get(callerNamespace, powerWireEntity);
-    if (storageData.source == powerWireEntity || destinationWireData.source == storageEntity) {
+    if (storageData.source == powerWireEntity) {
       // the source cant be the destination
       return false;
     }

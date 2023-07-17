@@ -60,6 +60,7 @@ contract PowerWireVoxelSystem is VoxelType {
         destination: _destination,
         transferRate: 0,
         maxTransferRate: 30000,
+        lastUpdateBlock: block.number,
         sourceDirection: BlockDirection.None,
         destinationDirection: BlockDirection.None,
         hasValue: true

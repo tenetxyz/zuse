@@ -114,6 +114,7 @@ export default mudConfig({
         maxTransferRate: "uint256",
         sourceDirection: "BlockDirection",
         destinationDirection: "BlockDirection",
+        lastUpdateBlock: "uint256",
         hasValue: "bool", // TODO: Remove this once we can install non-root modules
       },
     },
@@ -127,7 +128,8 @@ export default mudConfig({
         energyStored: "uint256",
         lastInRate: "uint256",
         lastOutRate: "uint256",
-        lastUpdateBlock: "uint256",
+        lastInUpdateBlock: "uint256",
+        lastOutUpdateBlock: "uint256",
         source: "bytes32",
         destination: "bytes32",
         sourceDirection: "BlockDirection",

@@ -26,7 +26,7 @@ contract StorageSystem is SingleVoxelInteraction {
     StorageData memory storageData
   ) internal returns (bool changedEntity) {
     PowerWireData memory sourceWireData = PowerWire.get(callerNamespace, powerWireEntity);
-    if (sourceWireData.source == bytes32(0)) {
+    if (sourceWireData.source == bytes32(0) || PowerWireData.source == storageEntity) {
       return false;
     }
 
@@ -41,16 +41,22 @@ contract StorageSystem is SingleVoxelInteraction {
       storageData.sourceDirection = powerWireDirection;
     }
 
-    if (!storageHasSource || storageData.lastUpdateBlock != block.number) {
-      uint256 newEnergyToStore = ((sourceWireData.transferRate + storageData.lastInRate) / 2) *
-        (block.number - storageData.lastUpdateBlock);
-      uint256 proposedEnergyStored = newEnergyToStore + storageData.energyStored;
+    uint256 newEnergyToStore = ((sourceWireData.transferRate + storageData.lastInRate) / 2) *
+      (block.number - storageData.lastInUpdateBlock);
+    uint256 proposedEnergyStored = newEnergyToStore + storageData.energyStored;
+    uint256 newEnergyStored = (proposedEnergyStored > storageData.maxStorage)
+      ? storageData.maxStorage
+      : proposedEnergyStored;
 
-      storageData.energyStored = (proposedEnergyStored > storageData.maxStorage)
-        ? storageData.maxStorage
-        : proposedEnergyStored;
+    if (
+      !storageHasSource ||
+      storageData.energyStored != newEnergyStored ||
+      storageData.lastInRate != sourceWireData.transferRate ||
+      storageData.lastInUpdateBlock != block.number
+    ) {
+      storageData.energyStored = newEnergyStored;
       storageData.lastInRate = sourceWireData.transferRate;
-      storageData.lastUpdateBlock = block.number;
+      storageData.lastInUpdateBlock = block.number;
       Storage.set(callerNamespace, storageEntity, storageData);
       changedEntity = true;
     }
@@ -80,22 +86,25 @@ contract StorageSystem is SingleVoxelInteraction {
       storageData.destinationDirection = powerWireDirection;
     }
 
-    if (!storageHasDestination || storageData.lastUpdateBlock != block.number) {
-      if (block.number != storageData.lastUpdateBlock) {
-        uint256 validTransferRate = 2 *
-          (storageData.energyStored / (block.number - storageData.lastUpdateBlock)) -
-          storageData.lastOutRate;
-        if (validTransferRate > destinationWireData.maxTransferRate) {
-          validTransferRate = destinationWireData.maxTransferRate;
-        }
-        uint256 energyToLeave = ((storageData.lastOutRate + validTransferRate) / 2) *
-          (block.number - storageData.lastUpdateBlock);
-
-        storageData.energyStored = storageData.energyStored - energyToLeave;
-        storageData.lastOutRate = validTransferRate;
-        storageData.lastUpdateBlock = block.number;
+    uint256 newEnergyStored = storageData.energyStored;
+    uint256 validTransferRate = storageData.lastOutRate;
+    if (block.number != storageData.lastOutUpdateBlock) {
+      validTransferRate =
+        2 *
+        (storageData.energyStored / (block.number - storageData.lastOutUpdateBlock)) -
+        storageData.lastOutRate;
+      if (validTransferRate > destinationWireData.maxTransferRate) {
+        validTransferRate = destinationWireData.maxTransferRate;
       }
+      uint256 energyToLeave = ((storageData.lastOutRate + validTransferRate) / 2) *
+        (block.number - storageData.lastOutUpdateBlock);
+      newEnergyStored = storageData.energyStored - energyToLeave;
+    }
 
+    if (!storageHasDestination || storageData.lastOutUpdateBlock != block.number) {
+      storageData.energyStored = newEnergyStored;
+      storageData.lastOutRate = validTransferRate;
+      storageData.lastOutUpdateBlock = block.number;
       Storage.set(callerNamespace, storageEntity, storageData);
       changedEntity = true;
     }
@@ -139,9 +148,13 @@ contract StorageSystem is SingleVoxelInteraction {
           );
         } else {
           storageData.lastInRate = 0;
-          storageData.lastUpdateBlock = block.number;
+          storageData.lastInUpdateBlock = block.number;
           storageData.source = bytes32(0);
           storageData.sourceDirection = BlockDirection.None;
+          storageData.lastOutRate = 0;
+          storageData.lastOutUpdateBlock = block.number;
+          storageData.destination = bytes32(0);
+          storageData.destinationDirection = BlockDirection.None;
           Storage.set(callerNamespace, storageEntity, storageData);
           changedEntity = true;
         }
@@ -156,7 +169,7 @@ contract StorageSystem is SingleVoxelInteraction {
           );
         } else {
           storageData.lastOutRate = 0;
-          storageData.lastUpdateBlock = block.number;
+          storageData.lastOutUpdateBlock = block.number;
           storageData.destination = bytes32(0);
           storageData.destinationDirection = BlockDirection.None;
           Storage.set(callerNamespace, storageEntity, storageData);

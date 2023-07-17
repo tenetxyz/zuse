@@ -41,8 +41,13 @@ contract PowerWireSystem is SingleVoxelInteraction {
       powerWireData.sourceDirection = generatorBlockDirection;
     }
 
-    if (!powerWireHasSource || powerWireData.transferRate != validTransferRate) {
+    if (
+      !powerWireHasSource ||
+      powerWireData.transferRate != validTransferRate ||
+      powerWireData.lastUpdateBlock != block.number
+    ) {
       powerWireData.transferRate = validTransferRate;
+      powerWireData.lastUpdateBlock = block.number;
       PowerWire.set(callerNamespace, powerWireEntity, powerWireData);
       changedEntity = true;
     }
@@ -75,8 +80,13 @@ contract PowerWireSystem is SingleVoxelInteraction {
       powerWireData.sourceDirection = comparePowerWireDirection;
     }
 
-    if (!powerWireHasSource || powerWireData.transferRate != validTransferRate) {
+    if (
+      !powerWireHasSource ||
+      powerWireData.transferRate != validTransferRate ||
+      powerWireData.lastUpdateBlock != block.number
+    ) {
       powerWireData.transferRate = validTransferRate;
+      powerWireData.lastUpdateBlock = block.number;
       PowerWire.set(callerNamespace, powerWireEntity, powerWireData);
       changedEntity = true;
     }
@@ -107,6 +117,7 @@ contract PowerWireSystem is SingleVoxelInteraction {
     } else {
       powerWireData.destination = comparePowerWireEntity;
       powerWireData.destinationDirection = comparePowerWireDirection;
+      powerWireData.lastUpdateBlock = block.number;
       PowerWire.set(callerNamespace, powerWireEntity, powerWireData);
       changedEntity = true;
     }
@@ -125,13 +136,13 @@ contract PowerWireSystem is SingleVoxelInteraction {
       return false;
     }
 
-    if (block.number == storageData.lastUpdateBlock) {
+    if (block.number == storageData.lastOutUpdateBlock) {
       // if the storage was updated this block, no need to do anything
       return false;
     }
 
     uint256 validTransferRate = 2 *
-      (storageData.energyStored / (block.number - storageData.lastUpdateBlock)) -
+      (storageData.energyStored / (block.number - storageData.lastOutUpdateBlock)) -
       storageData.lastOutRate;
     if (validTransferRate > powerWireData.maxTransferRate) {
       validTransferRate = powerWireData.maxTransferRate;
@@ -148,8 +159,13 @@ contract PowerWireSystem is SingleVoxelInteraction {
       powerWireData.sourceDirection = storageBlockDirection;
     }
 
-    if (!powerWireHasSource || powerWireData.transferRate != validTransferRate) {
+    if (
+      !powerWireHasSource ||
+      powerWireData.transferRate != validTransferRate ||
+      powerWireData.lastUpdateBlock != block.number
+    ) {
       powerWireData.transferRate = validTransferRate;
+      powerWireData.lastUpdateBlock = block.number;
       PowerWire.set(callerNamespace, powerWireEntity, powerWireData);
       changedEntity = true;
     }
@@ -172,6 +188,7 @@ contract PowerWireSystem is SingleVoxelInteraction {
       if (storageData.source == bytes32(0) || storageData.source == powerWireEntity) {
         powerWireData.destination = storageEntity;
         powerWireData.destinationDirection = storageBlockDirection;
+        powerWireData.lastUpdateBlock = block.number;
         PowerWire.set(callerNamespace, powerWireEntity, powerWireData);
         changedEntity = true;
       } else {
@@ -259,6 +276,7 @@ contract PowerWireSystem is SingleVoxelInteraction {
           powerWireData.sourceDirection = BlockDirection.None;
           powerWireData.destination = bytes32(0);
           powerWireData.destinationDirection = BlockDirection.None;
+          powerWireData.lastUpdateBlock = block.number;
           PowerWire.set(callerNamespace, powerWireEntity, powerWireData);
           changedEntity = true;
         }
@@ -290,6 +308,7 @@ contract PowerWireSystem is SingleVoxelInteraction {
         } else {
           powerWireData.destination = bytes32(0);
           powerWireData.destinationDirection = BlockDirection.None;
+          powerWireData.lastUpdateBlock = block.number;
           PowerWire.set(callerNamespace, powerWireEntity, powerWireData);
           changedEntity = true;
         }

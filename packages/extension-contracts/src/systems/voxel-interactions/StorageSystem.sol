@@ -26,7 +26,7 @@ contract StorageSystem is SingleVoxelInteraction {
     StorageData memory storageData
   ) internal returns (bool changedEntity) {
     PowerWireData memory sourceWireData = PowerWire.get(callerNamespace, powerWireEntity);
-    if (sourceWireData.source == bytes32(0) || PowerWireData.source == storageEntity) {
+    if (sourceWireData.source == bytes32(0) || sourceWireData.source == storageEntity) {
       return false;
     }
 
@@ -151,10 +151,6 @@ contract StorageSystem is SingleVoxelInteraction {
           storageData.lastInUpdateBlock = block.number;
           storageData.source = bytes32(0);
           storageData.sourceDirection = BlockDirection.None;
-          storageData.lastOutRate = 0;
-          storageData.lastOutUpdateBlock = block.number;
-          storageData.destination = bytes32(0);
-          storageData.destinationDirection = BlockDirection.None;
           Storage.set(callerNamespace, storageEntity, storageData);
           changedEntity = true;
         }

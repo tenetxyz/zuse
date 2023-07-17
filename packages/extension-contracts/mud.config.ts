@@ -112,10 +112,31 @@ export default mudConfig({
         destination: "bytes32",
         transferRate: "uint256",
         maxTransferRate: "uint256",
-        direction: "BlockDirection",
+        sourceDirection: "BlockDirection",
+        destinationDirection: "BlockDirection",
+        lastUpdateBlock: "uint256",
         hasValue: "bool", // TODO: Remove this once we can install non-root modules
       },
-    }
+    },
+    Storage: {
+      keySchema: {
+        namespace: "bytes16",
+        entity: "bytes32",
+      },
+      schema: {
+        maxStorage: "uint256",
+        energyStored: "uint256",
+        lastInRate: "uint256",
+        lastOutRate: "uint256",
+        lastInUpdateBlock: "uint256",
+        lastOutUpdateBlock: "uint256",
+        source: "bytes32",
+        destination: "bytes32",
+        sourceDirection: "BlockDirection",
+        destinationDirection: "BlockDirection",
+        hasValue: "bool", // TODO: Remove this once we can install non-root modules
+      },
+    },
   },
   modules: [
     // TODO: Re-enable when we have a way to install non-root modules

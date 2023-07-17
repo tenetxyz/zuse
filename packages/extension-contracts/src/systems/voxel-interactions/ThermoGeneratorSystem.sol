@@ -38,33 +38,32 @@ contract ThermoGeneratorSystem is VoxelInteraction {
     bytes32[] memory neighbourEntityIds,
     BlockDirection[] memory neighbourEntityDirections
   ) internal override returns (bool changedEntity) {
-
     GeneratorData memory generatorData = Generator.get(callerNamespace, interactEntity);
     changedEntity = false;
-    
+
     TemperatureEntity[] memory tempDataEntities = new TemperatureEntity[](2);
     uint256 count = 0;
 
     for (uint256 i = 0; i < neighbourEntityIds.length && count < 2; i++) {
-        if (entityHasTemperature(neighbourEntityIds[i], callerNamespace)) {
-            // Create a new TemperatureEntity
-            TemperatureEntity memory tempEntity;
-            tempEntity.entity = neighbourEntityIds[i];
-            tempEntity.data = Temperature.get(callerNamespace, neighbourEntityIds[i]);
+      if (entityHasTemperature(neighbourEntityIds[i], callerNamespace)) {
+        // Create a new TemperatureEntity
+        TemperatureEntity memory tempEntity;
+        tempEntity.entity = neighbourEntityIds[i];
+        tempEntity.data = Temperature.get(callerNamespace, neighbourEntityIds[i]);
 
-            // Add it to the memory array
-            tempDataEntities[count] = tempEntity;
-            count++;
-        }
+        // Add it to the memory array
+        tempDataEntities[count] = tempEntity;
+        count++;
+      }
     }
 
     if (count == 2) {
-     changedEntity = handleTempDataEntities(callerNamespace, interactEntity, generatorData, tempDataEntities);
+      changedEntity = handleTempDataEntities(callerNamespace, interactEntity, generatorData, tempDataEntities);
     } else {
       if (generatorData.genRate != 0 && generatorData.sources.length != 0) {
-            generatorData.genRate = 0;
-            generatorData.sources = new bytes32[](0);
-            Generator.set(callerNamespace, interactEntity, generatorData);
+        generatorData.genRate = 0;
+        generatorData.sources = new bytes32[](0);
+        Generator.set(callerNamespace, interactEntity, generatorData);
       }
     }
 
@@ -77,8 +76,10 @@ contract ThermoGeneratorSystem is VoxelInteraction {
     GeneratorData memory generatorData,
     TemperatureEntity[] memory tempDataEntities
   ) internal returns (bool changedEntity) {
-
-    if (block.number != tempDataEntities[0].data.lastUpdateBlock || block.number != tempDataEntities[1].data.lastUpdateBlock) {
+    if (
+      block.number != tempDataEntities[0].data.lastUpdateBlock ||
+      block.number != tempDataEntities[1].data.lastUpdateBlock
+    ) {
       TemperatureAtTimeData memory Temp1AtTime;
       Temp1AtTime.temperature = tempDataEntities[0].data.temperature;
       Temp1AtTime.lastUpdateBlock = tempDataEntities[0].data.lastUpdateBlock;
@@ -92,25 +93,24 @@ contract ThermoGeneratorSystem is VoxelInteraction {
 
       changedEntity = false;
     } else {
-      
       TemperatureAtTimeData memory Temp1AtTimeData = TemperatureAtTime.get(callerNamespace, tempDataEntities[0].entity);
       TemperatureAtTimeData memory Temp2AtTimeData = TemperatureAtTime.get(callerNamespace, tempDataEntities[1].entity);
 
       uint256 absoluteDifferenceAtTime;
-      if(Temp1AtTimeData.temperature >= Temp2AtTimeData.temperature) {
-          absoluteDifferenceAtTime = Temp1AtTimeData.temperature - Temp2AtTimeData.temperature;
+      if (Temp1AtTimeData.temperature >= Temp2AtTimeData.temperature) {
+        absoluteDifferenceAtTime = Temp1AtTimeData.temperature - Temp2AtTimeData.temperature;
       } else {
-          absoluteDifferenceAtTime = Temp2AtTimeData.temperature - Temp1AtTimeData.temperature;
+        absoluteDifferenceAtTime = Temp2AtTimeData.temperature - Temp1AtTimeData.temperature;
       }
 
       TemperatureData memory temp1Data = Temperature.get(callerNamespace, tempDataEntities[0].entity);
       TemperatureData memory temp2Data = Temperature.get(callerNamespace, tempDataEntities[1].entity);
 
       uint256 absoluteDifferenceNow;
-      if(temp1Data.temperature >= temp2Data.temperature) {
-          absoluteDifferenceNow = temp1Data.temperature - temp2Data.temperature;
+      if (temp1Data.temperature >= temp2Data.temperature) {
+        absoluteDifferenceNow = temp1Data.temperature - temp2Data.temperature;
       } else {
-          absoluteDifferenceNow = temp2Data.temperature - temp1Data.temperature;
+        absoluteDifferenceNow = temp2Data.temperature - temp1Data.temperature;
       }
 
       bytes32[] memory sources = new bytes32[](2);

@@ -19,11 +19,11 @@ contract TemperatureSystem is SingleVoxelInteraction {
 
   function runSingleInteraction(
     bytes16 callerNamespace,
-    bytes32 signalEntity,
+    bytes32 temperatureEntity,
     bytes32 compareEntity,
     BlockDirection compareBlockDirection
   ) internal override returns (bool changedEntity) {
-    TemperatureData memory temperatureData = Temperature.get(callerNamespace, signalEntity);
+    TemperatureData memory temperatureData = Temperature.get(callerNamespace, temperatureEntity);
     changedEntity = false;
 
     uint256 roomTemperature = 20000;
@@ -32,24 +32,24 @@ contract TemperatureSystem is SingleVoxelInteraction {
 
     uint256 blocksPassed = block.number - lastUpdateBlock;
 
-    if(currentTemperature > roomTemperature) {
-        currentTemperature -= blocksPassed;
-        if(currentTemperature < roomTemperature) {
-            currentTemperature = roomTemperature;
-        }
-    } else if(currentTemperature < roomTemperature) {
-        currentTemperature += blocksPassed;
-        if(currentTemperature > roomTemperature) {
-            currentTemperature = roomTemperature;
-        }
+    if (currentTemperature > roomTemperature) {
+      currentTemperature -= blocksPassed;
+      if (currentTemperature < roomTemperature) {
+        currentTemperature = roomTemperature;
+      }
+    } else if (currentTemperature < roomTemperature) {
+      currentTemperature += blocksPassed;
+      if (currentTemperature > roomTemperature) {
+        currentTemperature = roomTemperature;
+      }
     }
     lastUpdateBlock = block.number;
 
-    if(temperatureData.lastUpdateBlock != lastUpdateBlock) {
-        temperatureData.temperature = currentTemperature;
-        temperatureData.lastUpdateBlock = lastUpdateBlock;
-        Temperature.set(callerNamespace, signalEntity, temperatureData);
-        changedEntity = true;
+    if (temperatureData.lastUpdateBlock != lastUpdateBlock) {
+      temperatureData.temperature = currentTemperature;
+      temperatureData.lastUpdateBlock = lastUpdateBlock;
+      Temperature.set(callerNamespace, temperatureEntity, temperatureData);
+      changedEntity = true;
     }
 
     return changedEntity;

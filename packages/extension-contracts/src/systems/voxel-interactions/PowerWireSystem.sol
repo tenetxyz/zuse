@@ -7,6 +7,11 @@ import { PowerWire, PowerWireData, Generator, GeneratorData, StorageData, Storag
 import { BlockDirection } from "../../codegen/Types.sol";
 import { registerExtension, entityIsPowerWire, entityIsGenerator, entityIsStorage } from "../../Utils.sol";
 import { getOppositeDirection } from "@tenet-contracts/src/Utils.sol";
+import { Strings } from "@openzeppelin/contracts/utils/Strings.sol";
+
+function combineStringWithBytes32(string memory a, bytes32 b) pure returns (string memory) {
+  return string(abi.encodePacked(a, Strings.toHexString(uint256(b), 32)));
+}
 
 contract PowerWireSystem is SingleVoxelInteraction {
   function registerInteraction() public override {
@@ -90,8 +95,7 @@ contract PowerWireSystem is SingleVoxelInteraction {
     PowerWireData memory powerWireData
   ) internal returns (bool changedEntity) {
     PowerWireData memory powerWireWithDestinationData = PowerWire.get(callerNamespace, comparePowerWireEntity);
-    if (powerWireWithDestinationData.source == bytes32(0)) {
-      // can't have a destination if there is no source
+    if (powerWireWithDestinationData.source == bytes32(0) || powerWireWithDestinationData.destination == bytes32(0)) {
       return false;
     }
 
@@ -99,14 +103,15 @@ contract PowerWireSystem is SingleVoxelInteraction {
       revert("PowerWireSystem: This power wire has a different source direction");
     }
 
-    // check if this source got a destination, if so take it as ours
-    if (powerWireData.destination != powerWireWithDestinationData.destination) {
-      powerWireData.destination = powerWireWithDestinationData.destination;
-      if (powerWireWithDestinationData.destination != bytes32(0)) {
-        powerWireData.destinationDirection = comparePowerWireDirection;
-      } else {
-        powerWireData.destinationDirection = BlockDirection.None;
-      }
+    if (powerWireData.destination != bytes32(0)) {
+      require(
+        powerWireData.destination == comparePowerWireEntity &&
+          powerWireData.destinationDirection == comparePowerWireDirection,
+        "PowerWireSystem: PowerWire has a destination and is trying to connect to a different power wire destination"
+      );
+    } else {
+      powerWireData.destination = comparePowerWireEntity;
+      powerWireData.destinationDirection = comparePowerWireDirection;
       PowerWire.set(callerNamespace, powerWireEntity, powerWireData);
       changedEntity = true;
     }
@@ -260,7 +265,10 @@ contract PowerWireSystem is SingleVoxelInteraction {
       } else if (compareBlockDirection == powerWireData.destinationDirection) {
         // ie we have a destination
         // check if it still is a storage with source or a wire with destination
-        if (entityIsStorage(powerWireData.destination, callerNamespace)) {
+        if (
+          entityIsStorage(powerWireData.destination, callerNamespace) &&
+          Storage.get(callerNamespace, powerWireData.destination).source == signalEntity
+        ) {
           changedEntity = useStorageAsDestination(
             callerNamespace,
             compareEntity,
@@ -268,7 +276,10 @@ contract PowerWireSystem is SingleVoxelInteraction {
             signalEntity,
             powerWireData
           );
-        } else if (entityIsPowerWire(powerWireData.destination, callerNamespace)) {
+        } else if (
+          entityIsPowerWire(powerWireData.destination, callerNamespace) &&
+          PowerWire.get(callerNamespace, powerWireData.destination).destination != bytes32(0)
+        ) {
           changedEntity = usePowerWireAsDestination(
             callerNamespace,
             compareEntity,

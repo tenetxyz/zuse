@@ -123,7 +123,10 @@ contract StorageSystem is SingleVoxelInteraction {
       }
     } else {
       if (compareBlockDirection == storageData.sourceDirection) {
-        if (entityIsPowerWire(storageData.source, callerNamespace)) {
+        if (
+          entityIsPowerWire(storageData.source, callerNamespace) &&
+          PowerWire.get(callerNamespace, storageData.source).source != bytes32(0)
+        ) {
           changedEntity = usePowerWireAsSource(
             callerNamespace,
             compareEntity,

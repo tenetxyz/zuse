@@ -44,7 +44,11 @@ contract StorageSystem is SingleVoxelInteraction {
 
     BlockHeightUpdate memory inBlockHeightUpdate = abi.decode(storageData.inBlockHeightUpdate, (BlockHeightUpdate));
 
-    if (!storageHasSource || storageData.inRate != sourceWireData.transferRate) {
+    if (
+      !storageHasSource ||
+      storageData.inRate != sourceWireData.transferRate ||
+      inBlockHeightUpdate.lastUpdateBlock != block.number
+    ) {
       uint256 newEnergyToStore = ((sourceWireData.transferRate + storageData.inRate) / 2) *
         inBlockHeightUpdate.blockHeightDelta;
       uint256 proposedEnergyStored = newEnergyToStore + storageData.energyStored;
@@ -95,7 +99,10 @@ contract StorageSystem is SingleVoxelInteraction {
     // so we don't divide by zero
     if (outBlockHeightUpdate.blockHeightDelta != 0) {
       validTransferRate = 2 * (storageData.energyStored / outBlockHeightUpdate.blockHeightDelta);
-      if (validTransferRate < storageData.outRate) {
+    }
+
+    if (!storageHasDestination || storageData.outRate != validTransferRate) {
+      if (validTransferRate <= storageData.outRate) {
         validTransferRate = 0;
       } else {
         validTransferRate -= storageData.outRate;
@@ -103,12 +110,10 @@ contract StorageSystem is SingleVoxelInteraction {
       if (validTransferRate > destinationWireData.maxTransferRate) {
         validTransferRate = destinationWireData.maxTransferRate;
       }
-    }
 
-    if (!storageHasDestination || storageData.outRate != validTransferRate) {
       uint256 energyToLeave = ((storageData.outRate + validTransferRate) / 2) * (outBlockHeightUpdate.blockHeightDelta);
       uint256 newEnergyStored = storageData.energyStored;
-      if (newEnergyStored < energyToLeave) {
+      if (newEnergyStored <= energyToLeave) {
         newEnergyStored = 0;
       } else {
         newEnergyStored -= energyToLeave;

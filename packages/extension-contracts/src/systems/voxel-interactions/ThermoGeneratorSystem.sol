@@ -6,7 +6,7 @@ import { IWorld } from "../../../src/codegen/world/IWorld.sol";
 import { Generator, TemperatureAtTime, GeneratorData, Temperature, TemperatureData, TemperatureAtTimeData } from "../../codegen/Tables.sol";
 import { BlockDirection } from "../../codegen/Types.sol";
 import { getCallerNamespace } from "@tenet-contracts/src/Utils.sol";
-import { registerExtension, entityIsGenerator, entityHasTemperature } from "../../Utils.sol";
+import { registerExtension, entityIsGenerator, entityHasTemperature, entityIsPowerWire } from "../../Utils.sol";
 
 contract ThermoGeneratorSystem is VoxelInteraction {
   function registerInteraction() public override {
@@ -20,7 +20,8 @@ contract ThermoGeneratorSystem is VoxelInteraction {
     bytes32 neighbourEntityId,
     BlockDirection neighbourBlockDirection
   ) internal override returns (bool changedEntity) {
-    return true;
+    return
+      entityHasTemperature(neighbourEntityId, callerNamespace) || entityIsPowerWire(neighbourEntityId, callerNamespace);
   }
 
   function entityShouldInteract(bytes32 entityId, bytes16 callerNamespace) internal view override returns (bool) {
@@ -43,17 +44,32 @@ contract ThermoGeneratorSystem is VoxelInteraction {
 
     TemperatureEntity[] memory tempDataEntities = new TemperatureEntity[](2);
     uint256 count = 0;
+    bytes32 source1 = bytes32(0);
+    bytes32 source2 = bytes32(0);
+    if (generatorData.sources.length == 2) {
+      // already have sources
+      TemperatureEntity memory source1Entity;
+      source1Entity.entity = generatorData.sources[0];
+      source1Entity.data = Temperature.get(callerNamespace, generatorData.sources[0]);
+      tempDataEntities[0] = source1Entity;
 
-    for (uint256 i = 0; i < neighbourEntityIds.length && count < 2; i++) {
-      if (entityHasTemperature(neighbourEntityIds[i], callerNamespace)) {
-        // Create a new TemperatureEntity
-        TemperatureEntity memory tempEntity;
-        tempEntity.entity = neighbourEntityIds[i];
-        tempEntity.data = Temperature.get(callerNamespace, neighbourEntityIds[i]);
+      TemperatureEntity memory source2Entity;
+      source2Entity.entity = generatorData.sources[1];
+      source2Entity.data = Temperature.get(callerNamespace, generatorData.sources[1]);
+      tempDataEntities[1] = source2Entity;
+      count = 2;
+    } else {
+      for (uint256 i = 0; i < neighbourEntityIds.length && count < 2; i++) {
+        if (entityHasTemperature(neighbourEntityIds[i], callerNamespace)) {
+          // Create a new TemperatureEntity
+          TemperatureEntity memory tempEntity;
+          tempEntity.entity = neighbourEntityIds[i];
+          tempEntity.data = Temperature.get(callerNamespace, neighbourEntityIds[i]);
 
-        // Add it to the memory array
-        tempDataEntities[count] = tempEntity;
-        count++;
+          // Add it to the memory array
+          tempDataEntities[count] = tempEntity;
+          count++;
+        }
       }
     }
 

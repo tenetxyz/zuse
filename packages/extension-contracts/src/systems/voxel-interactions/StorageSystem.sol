@@ -130,7 +130,6 @@ contract StorageSystem is SingleVoxelInteraction {
     bool isPowerWire = entityIsPowerWire(compareEntity, callerNamespace);
 
     bool isEnergyStored = storageData.energyStored > 0;
-
     bool doesHaveSource = storageData.source != bytes32(0);
     bool doesHaveDest = storageData.destination != bytes32(0);
 
@@ -167,7 +166,6 @@ contract StorageSystem is SingleVoxelInteraction {
     }
 
     if ((isEnergyStored || doesHaveSource) && !doesHaveDest) {
-      // only if you have energy add a destination
       if (isPowerWire) {
         changedEntity = usePowerWireAsDestination(
           callerNamespace,

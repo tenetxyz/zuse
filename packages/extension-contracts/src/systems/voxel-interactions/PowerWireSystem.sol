@@ -187,11 +187,11 @@ contract PowerWireSystem is SingleVoxelInteraction {
 
   function runSingleInteraction(
     bytes16 callerNamespace,
-    bytes32 signalEntity,
+    bytes32 powerWireEntity,
     bytes32 compareEntity,
     BlockDirection compareBlockDirection
   ) internal override returns (bool changedEntity) {
-    PowerWireData memory powerWireData = PowerWire.get(callerNamespace, signalEntity);
+    PowerWireData memory powerWireData = PowerWire.get(callerNamespace, powerWireEntity);
     changedEntity = false;
 
     bool isPowerWire = entityIsPowerWire(compareEntity, callerNamespace);
@@ -206,7 +206,7 @@ contract PowerWireSystem is SingleVoxelInteraction {
           callerNamespace,
           compareEntity,
           compareBlockDirection,
-          signalEntity,
+          powerWireEntity,
           powerWireData
         );
       } else if (isGenerator) {
@@ -214,7 +214,7 @@ contract PowerWireSystem is SingleVoxelInteraction {
           callerNamespace,
           compareEntity,
           compareBlockDirection,
-          signalEntity,
+          powerWireEntity,
           powerWireData
         );
       } else if (isStorage) {
@@ -222,7 +222,7 @@ contract PowerWireSystem is SingleVoxelInteraction {
           callerNamespace,
           compareEntity,
           compareBlockDirection,
-          signalEntity,
+          powerWireEntity,
           powerWireData
         );
       }
@@ -233,7 +233,7 @@ contract PowerWireSystem is SingleVoxelInteraction {
             callerNamespace,
             compareEntity,
             compareBlockDirection,
-            signalEntity,
+            powerWireEntity,
             powerWireData
           );
         } else if (
@@ -244,18 +244,18 @@ contract PowerWireSystem is SingleVoxelInteraction {
             callerNamespace,
             compareEntity,
             compareBlockDirection,
-            signalEntity,
+            powerWireEntity,
             powerWireData
           );
         } else if (
           entityIsStorage(powerWireData.source, callerNamespace) &&
-          Storage.get(callerNamespace, powerWireData.source).destination == signalEntity
+          Storage.get(callerNamespace, powerWireData.source).destination == powerWireEntity
         ) {
           changedEntity = useStorageAsSource(
             callerNamespace,
             compareEntity,
             compareBlockDirection,
-            signalEntity,
+            powerWireEntity,
             powerWireData
           );
         } else {
@@ -264,7 +264,7 @@ contract PowerWireSystem is SingleVoxelInteraction {
           powerWireData.sourceDirection = BlockDirection.None;
           powerWireData.destination = bytes32(0);
           powerWireData.destinationDirection = BlockDirection.None;
-          PowerWire.set(callerNamespace, signalEntity, powerWireData);
+          PowerWire.set(callerNamespace, powerWireEntity, powerWireData);
           changedEntity = true;
         }
       } else if (compareBlockDirection == powerWireData.destinationDirection) {
@@ -272,13 +272,13 @@ contract PowerWireSystem is SingleVoxelInteraction {
         // check if it still is a storage with source or a wire with destination
         if (
           entityIsStorage(powerWireData.destination, callerNamespace) &&
-          Storage.get(callerNamespace, powerWireData.destination).source == signalEntity
+          Storage.get(callerNamespace, powerWireData.destination).source == powerWireEntity
         ) {
           changedEntity = useStorageAsDestination(
             callerNamespace,
             compareEntity,
             compareBlockDirection,
-            signalEntity,
+            powerWireEntity,
             powerWireData
           );
         } else if (
@@ -289,13 +289,13 @@ contract PowerWireSystem is SingleVoxelInteraction {
             callerNamespace,
             compareEntity,
             compareBlockDirection,
-            signalEntity,
+            powerWireEntity,
             powerWireData
           );
         } else {
           powerWireData.destination = bytes32(0);
           powerWireData.destinationDirection = BlockDirection.None;
-          PowerWire.set(callerNamespace, signalEntity, powerWireData);
+          PowerWire.set(callerNamespace, powerWireEntity, powerWireData);
           changedEntity = true;
         }
       } else {
@@ -306,7 +306,7 @@ contract PowerWireSystem is SingleVoxelInteraction {
             callerNamespace,
             compareEntity,
             compareBlockDirection,
-            signalEntity,
+            powerWireEntity,
             powerWireData
           );
         } else if (isPowerWire) {
@@ -314,7 +314,7 @@ contract PowerWireSystem is SingleVoxelInteraction {
             callerNamespace,
             compareEntity,
             compareBlockDirection,
-            signalEntity,
+            powerWireEntity,
             powerWireData
           );
         }

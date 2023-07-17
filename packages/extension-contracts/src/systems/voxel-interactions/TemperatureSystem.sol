@@ -19,11 +19,11 @@ contract TemperatureSystem is SingleVoxelInteraction {
 
   function runSingleInteraction(
     bytes16 callerNamespace,
-    bytes32 signalEntity,
+    bytes32 temperatureEntity,
     bytes32 compareEntity,
     BlockDirection compareBlockDirection
   ) internal override returns (bool changedEntity) {
-    TemperatureData memory temperatureData = Temperature.get(callerNamespace, signalEntity);
+    TemperatureData memory temperatureData = Temperature.get(callerNamespace, temperatureEntity);
     changedEntity = false;
 
     uint256 roomTemperature = 20000;
@@ -48,7 +48,7 @@ contract TemperatureSystem is SingleVoxelInteraction {
     if (temperatureData.lastUpdateBlock != lastUpdateBlock) {
       temperatureData.temperature = currentTemperature;
       temperatureData.lastUpdateBlock = lastUpdateBlock;
-      Temperature.set(callerNamespace, signalEntity, temperatureData);
+      Temperature.set(callerNamespace, temperatureEntity, temperatureData);
       changedEntity = true;
     }
 

@@ -103,11 +103,11 @@ contract StorageSystem is SingleVoxelInteraction {
 
   function runSingleInteraction(
     bytes16 callerNamespace,
-    bytes32 signalEntity,
+    bytes32 storageEntity,
     bytes32 compareEntity,
     BlockDirection compareBlockDirection
   ) internal override returns (bool changedEntity) {
-    StorageData memory storageData = Storage.get(callerNamespace, signalEntity);
+    StorageData memory storageData = Storage.get(callerNamespace, storageEntity);
     changedEntity = false;
 
     bool isPowerWire = entityIsPowerWire(compareEntity, callerNamespace);
@@ -120,7 +120,7 @@ contract StorageSystem is SingleVoxelInteraction {
           callerNamespace,
           compareEntity,
           compareBlockDirection,
-          signalEntity,
+          storageEntity,
           storageData
         );
       }
@@ -134,7 +134,7 @@ contract StorageSystem is SingleVoxelInteraction {
             callerNamespace,
             compareEntity,
             compareBlockDirection,
-            signalEntity,
+            storageEntity,
             storageData
           );
         } else {
@@ -142,7 +142,7 @@ contract StorageSystem is SingleVoxelInteraction {
           storageData.lastUpdateBlock = block.number;
           storageData.source = bytes32(0);
           storageData.sourceDirection = BlockDirection.None;
-          Storage.set(callerNamespace, signalEntity, storageData);
+          Storage.set(callerNamespace, storageEntity, storageData);
           changedEntity = true;
         }
       } else if (compareBlockDirection == storageData.destinationDirection) {
@@ -151,7 +151,7 @@ contract StorageSystem is SingleVoxelInteraction {
             callerNamespace,
             compareEntity,
             compareBlockDirection,
-            signalEntity,
+            storageEntity,
             storageData
           );
         } else {
@@ -159,7 +159,7 @@ contract StorageSystem is SingleVoxelInteraction {
           storageData.lastUpdateBlock = block.number;
           storageData.destination = bytes32(0);
           storageData.destinationDirection = BlockDirection.None;
-          Storage.set(callerNamespace, signalEntity, storageData);
+          Storage.set(callerNamespace, storageEntity, storageData);
           changedEntity = true;
         }
       } else {
@@ -168,7 +168,7 @@ contract StorageSystem is SingleVoxelInteraction {
             callerNamespace,
             compareEntity,
             compareBlockDirection,
-            signalEntity,
+            storageEntity,
             storageData
           );
         }

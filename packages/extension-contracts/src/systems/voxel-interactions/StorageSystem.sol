@@ -41,19 +41,15 @@ contract StorageSystem is SingleVoxelInteraction {
       storageData.sourceDirection = powerWireDirection;
     }
 
-    uint256 newEnergyToStore = ((sourceWireData.transferRate + storageData.lastInRate) / 2) *
-      (block.number - storageData.lastInUpdateBlock);
-    uint256 proposedEnergyStored = newEnergyToStore + storageData.energyStored;
-    uint256 newEnergyStored = (proposedEnergyStored > storageData.maxStorage)
-      ? storageData.maxStorage
-      : proposedEnergyStored;
+    uint256 newEnergyStored = storageData.energyStored;
+    if (block.number != storageData.lastInUpdateBlock) {
+      uint256 newEnergyToStore = ((sourceWireData.transferRate + storageData.lastInRate) / 2) *
+        (block.number - storageData.lastInUpdateBlock);
+      uint256 proposedEnergyStored = newEnergyToStore + storageData.energyStored;
+      newEnergyStored = (proposedEnergyStored > storageData.maxStorage) ? storageData.maxStorage : proposedEnergyStored;
+    }
 
-    if (
-      !storageHasSource ||
-      storageData.energyStored != newEnergyStored ||
-      storageData.lastInRate != sourceWireData.transferRate ||
-      storageData.lastInUpdateBlock != block.number
-    ) {
+    if (!storageHasSource || storageData.lastInUpdateBlock != block.number) {
       storageData.energyStored = newEnergyStored;
       storageData.lastInRate = sourceWireData.transferRate;
       storageData.lastInUpdateBlock = block.number;
@@ -70,6 +66,11 @@ contract StorageSystem is SingleVoxelInteraction {
     StorageData memory storageData
   ) internal returns (bool changedEntity) {
     PowerWireData memory destinationWireData = PowerWire.get(callerNamespace, powerWireEntity);
+    if (storageData.source == powerWireEntity || destinationWireData.source == storageEntity) {
+      // the source cant be the destination
+      return false;
+    }
+
     if (destinationWireData.source != bytes32(0) && destinationWireData.source != storageEntity) {
       revert("StorageSystem: Storage is trying to use a wire as a destination that already has a different source");
     }
@@ -89,16 +90,23 @@ contract StorageSystem is SingleVoxelInteraction {
     uint256 newEnergyStored = storageData.energyStored;
     uint256 validTransferRate = storageData.lastOutRate;
     if (block.number != storageData.lastOutUpdateBlock) {
-      validTransferRate =
-        2 *
-        (storageData.energyStored / (block.number - storageData.lastOutUpdateBlock)) -
-        storageData.lastOutRate;
+      validTransferRate = 2 * (storageData.energyStored / (block.number - storageData.lastOutUpdateBlock));
+      if (validTransferRate < storageData.lastOutRate) {
+        validTransferRate = 0;
+      } else {
+        validTransferRate -= storageData.lastOutRate;
+      }
       if (validTransferRate > destinationWireData.maxTransferRate) {
         validTransferRate = destinationWireData.maxTransferRate;
       }
       uint256 energyToLeave = ((storageData.lastOutRate + validTransferRate) / 2) *
         (block.number - storageData.lastOutUpdateBlock);
-      newEnergyStored = storageData.energyStored - energyToLeave;
+      newEnergyStored = storageData.energyStored;
+      if (newEnergyStored < energyToLeave) {
+        newEnergyStored = 0;
+      } else {
+        newEnergyStored -= energyToLeave;
+      }
     }
 
     if (!storageHasDestination || storageData.lastOutUpdateBlock != block.number) {
@@ -121,7 +129,7 @@ contract StorageSystem is SingleVoxelInteraction {
 
     bool isPowerWire = entityIsPowerWire(compareEntity, callerNamespace);
 
-    isEnergyStored = storageData.energyStored > 0;
+    bool isEnergyStored = storageData.energyStored > 0;
 
     bool doesHaveSource = storageData.source != bytes32(0);
     bool doesHaveDest = storageData.destination != bytes32(0);
@@ -136,22 +144,7 @@ contract StorageSystem is SingleVoxelInteraction {
           storageData
         );
       }
-    }
-
-    if (isEnergyStored && !doesHaveDest) {
-      // only if you have energy add a destination
-      if (isPowerWire) {
-        changedEntity = usePowerWireAsDestination(
-          callerNamespace,
-          compareEntity,
-          compareBlockDirection,
-          storageEntity,
-          storageData
-        );
-      }
-    }
-
-    if (compareBlockDirection == storageData.sourceDirection) {
+    } else if (compareBlockDirection == storageData.sourceDirection) {
       if (
         entityIsPowerWire(storageData.source, callerNamespace) &&
         PowerWire.get(callerNamespace, storageData.source).source != bytes32(0)
@@ -170,6 +163,19 @@ contract StorageSystem is SingleVoxelInteraction {
         storageData.sourceDirection = BlockDirection.None;
         Storage.set(callerNamespace, storageEntity, storageData);
         changedEntity = true;
+      }
+    }
+
+    if ((isEnergyStored || doesHaveSource) && !doesHaveDest) {
+      // only if you have energy add a destination
+      if (isPowerWire) {
+        changedEntity = usePowerWireAsDestination(
+          callerNamespace,
+          compareEntity,
+          compareBlockDirection,
+          storageEntity,
+          storageData
+        );
       }
     } else if (compareBlockDirection == storageData.destinationDirection) {
       if (entityIsPowerWire(storageData.destination, callerNamespace) && isEnergyStored) {

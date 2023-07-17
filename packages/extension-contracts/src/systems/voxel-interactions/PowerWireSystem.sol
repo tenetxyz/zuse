@@ -130,6 +130,11 @@ contract PowerWireSystem is SingleVoxelInteraction {
       return false;
     }
 
+    if (block.number == storageData.lastUpdateBlock) {
+      // if the storage was updated this block, no need to do anything
+      return false;
+    }
+
     uint256 validTransferRate = 2 *
       (storageData.energyStored / (block.number - storageData.lastUpdateBlock)) -
       storageData.lastOutRate;

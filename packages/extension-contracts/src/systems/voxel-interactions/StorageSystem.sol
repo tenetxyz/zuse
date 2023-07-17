@@ -81,18 +81,21 @@ contract StorageSystem is SingleVoxelInteraction {
     }
 
     if (!storageHasDestination || storageData.lastUpdateBlock != block.number) {
-      uint256 validTransferRate = 2 *
-        (storageData.energyStored / (block.number - storageData.lastUpdateBlock)) -
-        storageData.lastOutRate;
-      if (validTransferRate > destinationWireData.maxTransferRate) {
-        validTransferRate = destinationWireData.maxTransferRate;
-      }
-      uint256 energyToLeave = ((storageData.lastOutRate + validTransferRate) / 2) *
-        (block.number - storageData.lastUpdateBlock);
+      if (block.number != storageData.lastUpdateBlock) {
+        uint256 validTransferRate = 2 *
+          (storageData.energyStored / (block.number - storageData.lastUpdateBlock)) -
+          storageData.lastOutRate;
+        if (validTransferRate > destinationWireData.maxTransferRate) {
+          validTransferRate = destinationWireData.maxTransferRate;
+        }
+        uint256 energyToLeave = ((storageData.lastOutRate + validTransferRate) / 2) *
+          (block.number - storageData.lastUpdateBlock);
 
-      storageData.energyStored = storageData.energyStored - energyToLeave;
-      storageData.lastOutRate = validTransferRate;
-      storageData.lastUpdateBlock = block.number;
+        storageData.energyStored = storageData.energyStored - energyToLeave;
+        storageData.lastOutRate = validTransferRate;
+        storageData.lastUpdateBlock = block.number;
+      }
+
       Storage.set(callerNamespace, storageEntity, storageData);
       changedEntity = true;
     }

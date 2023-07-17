@@ -61,7 +61,7 @@ contract PowerWireSystem is SingleVoxelInteraction {
     PowerWireData memory powerWireData
   ) internal returns (bool changedEntity) {
     PowerWireData memory powerWireWithSourceData = PowerWire.get(callerNamespace, comparePowerWireEntity);
-    if (powerWireWithSourceData.source == bytes32(0)) {
+    if (powerWireWithSourceData.source == bytes32(0) || powerWireData.source == powerWireEntity) {
       // can't have a source if there is no source
       return false;
     }

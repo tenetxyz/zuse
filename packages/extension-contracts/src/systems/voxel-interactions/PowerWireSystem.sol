@@ -7,11 +7,6 @@ import { PowerWire, PowerWireData, Generator, GeneratorData, StorageData, Storag
 import { BlockDirection } from "../../codegen/Types.sol";
 import { registerExtension, entityIsPowerWire, entityIsGenerator, entityIsStorage } from "../../Utils.sol";
 import { getOppositeDirection } from "@tenet-contracts/src/Utils.sol";
-import { Strings } from "@openzeppelin/contracts/utils/Strings.sol";
-
-function combineStringWithBytes32(string memory a, bytes32 b) pure returns (string memory) {
-  return string(abi.encodePacked(a, Strings.toHexString(uint256(b), 32)));
-}
 
 contract PowerWireSystem is SingleVoxelInteraction {
   function registerInteraction() public override {

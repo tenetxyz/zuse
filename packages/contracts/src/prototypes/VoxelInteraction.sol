@@ -7,7 +7,6 @@ import { getCallerNamespace } from "@tenet-contracts/src/Utils.sol";
 import { BlockDirection } from "@tenet-contracts/src/Types.sol";
 import { calculateBlockDirection, getEntityPositionStrict } from "../Utils.sol";
 
-// TODO: This should be in @tenet-contracts but it won't work because of some import issue
 abstract contract VoxelInteraction is System {
   function registerInteraction() public virtual;
 

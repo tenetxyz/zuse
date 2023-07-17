@@ -121,7 +121,10 @@ contract StorageSystem is SingleVoxelInteraction {
 
     bool isPowerWire = entityIsPowerWire(compareEntity, callerNamespace);
 
+    isEnergyStored = storageData.energyStored > 0;
+
     bool doesHaveSource = storageData.source != bytes32(0);
+    bool doesHaveDest = storageData.destination != bytes32(0);
 
     if (!doesHaveSource) {
       if (isPowerWire) {
@@ -133,56 +136,60 @@ contract StorageSystem is SingleVoxelInteraction {
           storageData
         );
       }
-    } else {
-      if (compareBlockDirection == storageData.sourceDirection) {
-        if (
-          entityIsPowerWire(storageData.source, callerNamespace) &&
-          PowerWire.get(callerNamespace, storageData.source).source != bytes32(0)
-        ) {
-          changedEntity = usePowerWireAsSource(
-            callerNamespace,
-            compareEntity,
-            compareBlockDirection,
-            storageEntity,
-            storageData
-          );
-        } else {
-          storageData.lastInRate = 0;
-          storageData.lastInUpdateBlock = block.number;
-          storageData.source = bytes32(0);
-          storageData.sourceDirection = BlockDirection.None;
-          Storage.set(callerNamespace, storageEntity, storageData);
-          changedEntity = true;
-        }
-      } else if (compareBlockDirection == storageData.destinationDirection) {
-        if (entityIsPowerWire(storageData.destination, callerNamespace)) {
-          changedEntity = usePowerWireAsDestination(
-            callerNamespace,
-            compareEntity,
-            compareBlockDirection,
-            storageEntity,
-            storageData
-          );
-        } else {
-          storageData.lastOutRate = 0;
-          storageData.lastOutUpdateBlock = block.number;
-          storageData.destination = bytes32(0);
-          storageData.destinationDirection = BlockDirection.None;
-          Storage.set(callerNamespace, storageEntity, storageData);
-          changedEntity = true;
-        }
-      } else {
-        if (isPowerWire) {
-          changedEntity = usePowerWireAsDestination(
-            callerNamespace,
-            compareEntity,
-            compareBlockDirection,
-            storageEntity,
-            storageData
-          );
-        }
+    }
+
+    if (isEnergyStored && !doesHaveDest) {
+      // only if you have energy add a destination
+      if (isPowerWire) {
+        changedEntity = usePowerWireAsDestination(
+          callerNamespace,
+          compareEntity,
+          compareBlockDirection,
+          storageEntity,
+          storageData
+        );
       }
     }
+
+    if (compareBlockDirection == storageData.sourceDirection) {
+      if (
+        entityIsPowerWire(storageData.source, callerNamespace) &&
+        PowerWire.get(callerNamespace, storageData.source).source != bytes32(0)
+      ) {
+        changedEntity = usePowerWireAsSource(
+          callerNamespace,
+          compareEntity,
+          compareBlockDirection,
+          storageEntity,
+          storageData
+        );
+      } else {
+        storageData.lastInRate = 0;
+        storageData.lastInUpdateBlock = block.number;
+        storageData.source = bytes32(0);
+        storageData.sourceDirection = BlockDirection.None;
+        Storage.set(callerNamespace, storageEntity, storageData);
+        changedEntity = true;
+      }
+    } else if (compareBlockDirection == storageData.destinationDirection) {
+      if (entityIsPowerWire(storageData.destination, callerNamespace) && isEnergyStored) {
+        changedEntity = usePowerWireAsDestination(
+          callerNamespace,
+          compareEntity,
+          compareBlockDirection,
+          storageEntity,
+          storageData
+        );
+      } else {
+        storageData.lastOutRate = 0;
+        storageData.lastOutUpdateBlock = block.number;
+        storageData.destination = bytes32(0);
+        storageData.destinationDirection = BlockDirection.None;
+        Storage.set(callerNamespace, storageEntity, storageData);
+        changedEntity = true;
+      }
+    }
+
     return changedEntity;
   }
 

@@ -7,6 +7,7 @@ import { PowerWire, PowerWireData, Storage, StorageData } from "../../codegen/Ta
 import { BlockDirection } from "../../codegen/Types.sol";
 import { registerExtension, entityIsStorage, entityIsPowerWire } from "../../Utils.sol";
 import { getOppositeDirection } from "@tenet-contracts/src/Utils.sol";
+import { BlockHeightUpdate } from "@tenet-contracts/src/Types.sol";
 
 contract StorageSystem is SingleVoxelInteraction {
   function registerInteraction() public override {
@@ -41,18 +42,20 @@ contract StorageSystem is SingleVoxelInteraction {
       storageData.sourceDirection = powerWireDirection;
     }
 
-    uint256 newEnergyStored = storageData.energyStored;
-    if (block.number != storageData.lastInUpdateBlock) {
-      uint256 newEnergyToStore = ((sourceWireData.transferRate + storageData.lastInRate) / 2) *
-        (block.number - storageData.lastInUpdateBlock);
-      uint256 proposedEnergyStored = newEnergyToStore + storageData.energyStored;
-      newEnergyStored = (proposedEnergyStored > storageData.maxStorage) ? storageData.maxStorage : proposedEnergyStored;
-    }
+    BlockHeightUpdate memory inBlockHeightUpdate = abi.decode(storageData.inBlockHeightUpdate, (BlockHeightUpdate));
 
-    if (!storageHasSource || storageData.lastInUpdateBlock != block.number) {
+    if (!storageHasSource || storageData.inRate != sourceWireData.transferRate) {
+      uint256 newEnergyToStore = ((sourceWireData.transferRate + storageData.inRate) / 2) *
+        inBlockHeightUpdate.blockHeightDelta;
+      uint256 proposedEnergyStored = newEnergyToStore + storageData.energyStored;
+      uint256 newEnergyStored = (proposedEnergyStored > storageData.maxStorage)
+        ? storageData.maxStorage
+        : proposedEnergyStored;
+
       storageData.energyStored = newEnergyStored;
-      storageData.lastInRate = sourceWireData.transferRate;
-      storageData.lastInUpdateBlock = block.number;
+      storageData.inRate = sourceWireData.transferRate;
+      inBlockHeightUpdate.lastUpdateBlock = block.number;
+      storageData.inBlockHeightUpdate = abi.encode(inBlockHeightUpdate);
       Storage.set(callerNamespace, storageEntity, storageData);
       changedEntity = true;
     }
@@ -87,32 +90,34 @@ contract StorageSystem is SingleVoxelInteraction {
       storageData.destinationDirection = powerWireDirection;
     }
 
-    uint256 newEnergyStored = storageData.energyStored;
-    uint256 validTransferRate = storageData.lastOutRate;
-    if (block.number != storageData.lastOutUpdateBlock) {
-      validTransferRate = 2 * (storageData.energyStored / (block.number - storageData.lastOutUpdateBlock));
-      if (validTransferRate < storageData.lastOutRate) {
+    uint256 validTransferRate = storageData.outRate;
+    BlockHeightUpdate memory outBlockHeightUpdate = abi.decode(storageData.outBlockHeightUpdate, (BlockHeightUpdate));
+    // so we don't divide by zero
+    if (outBlockHeightUpdate.blockHeightDelta != 0) {
+      validTransferRate = 2 * (storageData.energyStored / outBlockHeightUpdate.blockHeightDelta);
+      if (validTransferRate < storageData.outRate) {
         validTransferRate = 0;
       } else {
-        validTransferRate -= storageData.lastOutRate;
+        validTransferRate -= storageData.outRate;
       }
       if (validTransferRate > destinationWireData.maxTransferRate) {
         validTransferRate = destinationWireData.maxTransferRate;
       }
-      uint256 energyToLeave = ((storageData.lastOutRate + validTransferRate) / 2) *
-        (block.number - storageData.lastOutUpdateBlock);
-      newEnergyStored = storageData.energyStored;
+    }
+
+    if (!storageHasDestination || storageData.outRate != validTransferRate) {
+      uint256 energyToLeave = ((storageData.outRate + validTransferRate) / 2) * (outBlockHeightUpdate.blockHeightDelta);
+      uint256 newEnergyStored = storageData.energyStored;
       if (newEnergyStored < energyToLeave) {
         newEnergyStored = 0;
       } else {
         newEnergyStored -= energyToLeave;
       }
-    }
 
-    if (!storageHasDestination || storageData.lastOutUpdateBlock != block.number) {
       storageData.energyStored = newEnergyStored;
-      storageData.lastOutRate = validTransferRate;
-      storageData.lastOutUpdateBlock = block.number;
+      storageData.outRate = validTransferRate;
+      outBlockHeightUpdate.lastUpdateBlock = block.number;
+      storageData.outBlockHeightUpdate = abi.encode(outBlockHeightUpdate);
       Storage.set(callerNamespace, storageEntity, storageData);
       changedEntity = true;
     }
@@ -132,6 +137,22 @@ contract StorageSystem is SingleVoxelInteraction {
     bool isEnergyStored = storageData.energyStored > 0;
     bool doesHaveSource = storageData.source != bytes32(0);
     bool doesHaveDest = storageData.destination != bytes32(0);
+
+    BlockHeightUpdate memory inBlockHeightUpdate = abi.decode(storageData.inBlockHeightUpdate, (BlockHeightUpdate));
+    if (inBlockHeightUpdate.blockNumber != block.number) {
+      inBlockHeightUpdate.blockNumber = block.number;
+      inBlockHeightUpdate.blockHeightDelta = block.number - inBlockHeightUpdate.lastUpdateBlock;
+      storageData.inBlockHeightUpdate = abi.encode(inBlockHeightUpdate);
+      Storage.set(callerNamespace, storageEntity, storageData);
+    }
+
+    BlockHeightUpdate memory outBlockHeightUpdate = abi.decode(storageData.outBlockHeightUpdate, (BlockHeightUpdate));
+    if (outBlockHeightUpdate.blockNumber != block.number) {
+      outBlockHeightUpdate.blockNumber = block.number;
+      outBlockHeightUpdate.blockHeightDelta = block.number - outBlockHeightUpdate.lastUpdateBlock;
+      storageData.outBlockHeightUpdate = abi.encode(outBlockHeightUpdate);
+      Storage.set(callerNamespace, storageEntity, storageData);
+    }
 
     if (!doesHaveSource) {
       if (isPowerWire) {
@@ -156,8 +177,9 @@ contract StorageSystem is SingleVoxelInteraction {
           storageData
         );
       } else {
-        storageData.lastInRate = 0;
-        storageData.lastInUpdateBlock = block.number;
+        storageData.inRate = 0;
+        inBlockHeightUpdate.lastUpdateBlock = block.number;
+        storageData.inBlockHeightUpdate = abi.encode(inBlockHeightUpdate);
         storageData.source = bytes32(0);
         storageData.sourceDirection = BlockDirection.None;
         Storage.set(callerNamespace, storageEntity, storageData);
@@ -185,8 +207,9 @@ contract StorageSystem is SingleVoxelInteraction {
           storageData
         );
       } else {
-        storageData.lastOutRate = 0;
-        storageData.lastOutUpdateBlock = block.number;
+        storageData.outRate = 0;
+        outBlockHeightUpdate.lastUpdateBlock = block.number;
+        storageData.outBlockHeightUpdate = abi.encode(outBlockHeightUpdate);
         storageData.destination = bytes32(0);
         storageData.destinationDirection = BlockDirection.None;
         Storage.set(callerNamespace, storageEntity, storageData);

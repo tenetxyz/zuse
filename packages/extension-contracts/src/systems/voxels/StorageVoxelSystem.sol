@@ -7,7 +7,7 @@ import { BlockDirection } from "../../codegen/Types.sol";
 import { Storage, StorageData } from "@tenet-extension-contracts/src/codegen/Tables.sol";
 import { getCallerNamespace } from "@tenet-contracts/src/Utils.sol";
 import { registerVoxelType, registerVoxelVariant, entityIsStorage } from "../../Utils.sol";
-import { VoxelVariantsKey } from "@tenet-contracts/src/Types.sol";
+import { VoxelVariantsKey, BlockHeightUpdate } from "@tenet-contracts/src/Types.sol";
 import { VoxelVariantsData } from "@tenet-contracts/src/codegen/tables/VoxelVariants.sol";
 import { EXTENSION_NAMESPACE } from "../../Constants.sol";
 import { NoaBlockType } from "@tenet-contracts/src/codegen/Types.sol";
@@ -54,10 +54,14 @@ contract StorageVoxelSystem is VoxelType {
       StorageData({
         maxStorage: 5000000,
         energyStored: 0,
-        lastInRate: 0,
-        lastOutRate: 0,
-        lastInUpdateBlock: block.number,
-        lastOutUpdateBlock: block.number,
+        inRate: 0,
+        outRate: 0,
+        inBlockHeightUpdate: abi.encode(
+          BlockHeightUpdate({ blockNumber: block.number, lastUpdateBlock: block.number, blockHeightDelta: 0 })
+        ),
+        outBlockHeightUpdate: abi.encode(
+          BlockHeightUpdate({ blockNumber: block.number, lastUpdateBlock: block.number, blockHeightDelta: 0 })
+        ),
         source: bytes32(0),
         destination: bytes32(0),
         sourceDirection: BlockDirection.None,

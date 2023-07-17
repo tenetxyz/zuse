@@ -126,15 +126,15 @@ export default mudConfig({
       schema: {
         maxStorage: "uint256",
         energyStored: "uint256",
-        lastInRate: "uint256",
-        lastOutRate: "uint256",
-        lastInUpdateBlock: "uint256",
-        lastOutUpdateBlock: "uint256",
+        inRate: "uint256",
+        outRate: "uint256",
         source: "bytes32",
         destination: "bytes32",
         sourceDirection: "BlockDirection",
         destinationDirection: "BlockDirection",
         hasValue: "bool", // TODO: Remove this once we can install non-root modules
+        inBlockHeightUpdate: "bytes", // BlockHeightUpdate
+        outBlockHeightUpdate: "bytes", // BlockHeightUpdate
       },
     },
   },

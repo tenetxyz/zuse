@@ -156,18 +156,9 @@ contract PowerWireSystem is SingleVoxelInteraction {
       powerWireData.sourceDirection = storageBlockDirection;
     }
 
-    uint256 validTransferRate = powerWireData.transferRate;
-    if (block.number != storageData.lastOutUpdateBlock) {
-      validTransferRate = 2 * (storageData.energyStored / (block.number - storageData.lastOutUpdateBlock));
-      if (validTransferRate < storageData.lastOutRate) {
-        validTransferRate = 0;
-      } else {
-        validTransferRate -= storageData.lastOutRate;
-      }
-      if (validTransferRate > powerWireData.maxTransferRate) {
-        validTransferRate = powerWireData.maxTransferRate;
-      }
-    }
+    uint256 validTransferRate = storageData.outRate <= powerWireData.maxTransferRate
+      ? storageData.outRate
+      : powerWireData.maxTransferRate;
 
     if (
       !powerWireHasSource ||

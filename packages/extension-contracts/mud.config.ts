@@ -152,6 +152,17 @@ export default mudConfig({
         hasValue: "bool", // TODO: Remove this once we can install non-root modules
       },
     },
+    PowerSignal: {
+      keySchema: {
+        namespace: "bytes16",
+        entity: "bytes32",
+      },
+      schema: {
+        isActive: "bool",
+        direction: "BlockDirection",
+        hasValue: "bool", // TODO: Remove this once we can install non-root modules
+      },
+    },
   },
   modules: [
     // TODO: Re-enable when we have a way to install non-root modules

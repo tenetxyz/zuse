@@ -39,7 +39,7 @@ contract PowerWireSystem is SingleVoxelInteraction {
     }
 
     uint256 validTransferRate = powerWireData.transferRate;
-    uint256 isBroken = powerWireData.isBroken;;
+    bool isBroken = powerWireData.isBroken;
     if (generatorData.genRate <= powerWireData.maxTransferRate) {
       validTransferRate = generatorData.genRate;
       isBroken = false;
@@ -87,7 +87,7 @@ contract PowerWireSystem is SingleVoxelInteraction {
     }
 
     uint256 validTransferRate = powerWireData.transferRate;
-    uint256 isBroken = powerWireData.isBroken;
+    bool isBroken = powerWireData.isBroken;
     if (powerWireWithSourceData.transferRate <= powerWireData.maxTransferRate) {
       validTransferRate = powerWireWithSourceData.transferRate;
       isBroken = false;
@@ -173,7 +173,7 @@ contract PowerWireSystem is SingleVoxelInteraction {
     }
 
     uint256 validTransferRate = powerWireData.transferRate;
-    uint256 isBroken = powerWireData.isBroken;
+    bool isBroken = powerWireData.isBroken;
     if (storageData.outRate <= powerWireData.maxTransferRate) {
       validTransferRate = storageData.outRate;
       isBroken = false;

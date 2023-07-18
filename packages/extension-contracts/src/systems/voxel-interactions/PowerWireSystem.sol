@@ -18,7 +18,7 @@ contract PowerWireSystem is SingleVoxelInteraction {
     return entityIsPowerWire(entityId, callerNamespace);
   }
 
-  function useGenerateAsSource(
+  function useGeneratorAsSource(
     bytes16 callerNamespace,
     bytes32 generatorEntity,
     BlockDirection generatorBlockDirection,
@@ -223,7 +223,7 @@ contract PowerWireSystem is SingleVoxelInteraction {
           powerWireData
         );
       } else if (isGenerator) {
-        changedEntity = useGenerateAsSource(
+        changedEntity = useGeneratorAsSource(
           callerNamespace,
           compareEntity,
           compareBlockDirection,
@@ -242,7 +242,7 @@ contract PowerWireSystem is SingleVoxelInteraction {
     } else {
       if (compareBlockDirection == powerWireData.sourceDirection) {
         if (entityIsGenerator(powerWireData.source, callerNamespace)) {
-          changedEntity = useGenerateAsSource(
+          changedEntity = useGeneratorAsSource(
             callerNamespace,
             compareEntity,
             compareBlockDirection,

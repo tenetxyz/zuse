@@ -34,9 +34,11 @@ contract ThermoGeneratorSystem is VoxelInteraction {
         sourceDirections[0] == neighbourBlockDirection ||
         sourceDirections[1] == neighbourBlockDirection;
     }
-    bool isTemperature = entityHasTemperature(neighbourEntityId, callerNamespace) ||
-      entityIsPowerWire(neighbourEntityId, callerNamespace);
-    return isTemperature || isSourceDirection;
+
+    return
+      entityHasTemperature(neighbourEntityId, callerNamespace) ||
+      entityIsPowerWire(neighbourEntityId, callerNamespace) ||
+      isSourceDirection;
   }
 
   function entityShouldInteract(bytes32 entityId, bytes16 callerNamespace) internal view override returns (bool) {

@@ -137,6 +137,19 @@ export default mudConfig({
         outBlockHeightUpdate: "bytes", // BlockHeightUpdate
       },
     },
+    Consumer: {
+      keySchema: {
+        namespace: "bytes16",
+        entity: "bytes32",
+      },
+      schema: {
+        source: "bytes32",
+        sourceDirection: "BlockDirection",
+        inRate: "uint256",
+        lastUpdateBlock: "uint256",
+        hasValue: "bool", // TODO: Remove this once we can install non-root modules
+      },
+    },
   },
   modules: [
     // TODO: Re-enable when we have a way to install non-root modules
@@ -145,24 +158,6 @@ export default mudConfig({
     //   address: KeysInTableModule_ADDRESS,
     //   root: true,
     //   args: [resolveTableId("Signal")],
-    // },
-    // {
-    //   name: "KeysInTableModule",
-    //   address: KeysInTableModule_ADDRESS,
-    //   root: true,
-    //   args: [resolveTableId("SignalSource")],
-    // },
-    // {
-    //   name: "KeysInTableModule",
-    //   address: KeysInTableModule_ADDRESS,
-    //   root: true,
-    //   args: [resolveTableId("Powered")],
-    // },
-    // {
-    //   name: "KeysInTableModule",
-    //   address: KeysInTableModule_ADDRESS,
-    //   root: true,
-    //   args: [resolveTableId("InvertedSignal")],
     // },
   ],
 });

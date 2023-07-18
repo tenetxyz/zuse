@@ -29,7 +29,7 @@ contract PostDeploy is Script {
     world.extension_ThermoGenVoxelSy_registerVoxel();
     world.extension_PowerWireVoxelSy_registerVoxel();
     world.extension_StorageVoxelSyst_registerVoxel();
-
+    world.extension_LightBulbVoxelSy_registerVoxel();
 
     // Register all the voxel interactions
     world.extension_SignalSystem_registerInteraction();
@@ -39,6 +39,7 @@ contract PostDeploy is Script {
     world.extension_ThermoGeneratorS_registerInteraction();
     world.extension_PowerWireSystem_registerInteraction();
     world.extension_StorageSystem_registerInteraction();
+    world.extension_ConsumerSystem_registerInteraction();
 
     // Note: These have to be here instead of ExtensionInitSystem as they have be called from the deployer account
     // otherwise the msgSender is not the namespace owner

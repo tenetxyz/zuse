@@ -68,6 +68,30 @@ function getOppositeDirection(BlockDirection direction) pure returns (BlockDirec
   }
 }
 
+function getPositionAtDirection(VoxelCoord centerCoord, BlockDirection direction) pure returns (VoxelCoord) {
+  int32 newX = centerCoord.x;
+  int32 newY = centerCoord.y;
+  int32 newZ = centerCoord.z;
+  if (direction == BlockDirection.None) {
+    return centerCoord;
+  } else if (direction == BlockDirection.Up) {
+    newY += 1;
+  } else if (direction == BlockDirection.Down) {
+    newY -= 1;
+  } else if (direction == BlockDirection.North) {
+    newZ += 1;
+  } else if (direction == BlockDirection.South) {
+    newZ -= 1;
+  } else if (direction == BlockDirection.East) {
+    newX += 1;
+  } else if (direction == BlockDirection.West) {
+    newX -= 1;
+  } else {
+    return centerCoord;
+  }
+  return VoxelCoord(newX, newY, newZ);
+}
+
 function getVoxelVariant(
   address world,
   bytes16 voxelTypeNamespace,

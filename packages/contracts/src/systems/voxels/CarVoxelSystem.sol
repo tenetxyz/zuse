@@ -12,7 +12,7 @@ bytes32 constant CarID = bytes32(keccak256("car"));
 
 string constant CarTexture = "bafkreieq2ss2t4u32hye2mrkfdb3rgzlp64b4nqhhpseb5w7ntx2w6vhnq";
 
-contract CarVoxelSystem is VoxelType {
+contract CarVoxelSystem is VoxelInteraction {
   function registerVoxel() public override {
     IWorld world = IWorld(_world());
 
@@ -48,4 +48,29 @@ contract CarVoxelSystem is VoxelType {
   }
 
   function activate(bytes32 entity) public override returns (bytes memory) {}
+
+  function onNewNeighbour(
+    bytes16 callerNamespace,
+    bytes32 interactEntity,
+    bytes32 neighbourEntityId,
+    BlockDirection neighbourBlockDirection
+  ) internal override returns (bool changedEntity) {}
+
+  function entityShouldInteract(bytes32 entityId, bytes16 callerNamespace) internal view override returns (bool) {
+    return Car.get(entity).hasValue;
+  }
+
+  function runInteraction(
+    bytes16 callerNamespace,
+    bytes32 interactEntity,
+    bytes32[] memory neighbourEntityIds,
+    BlockDirection[] memory neighbourEntityDirections
+  ) internal override returns (bool changedEntity) {}
+
+  function eventHandler(
+    bytes32 centerEntityId,
+    bytes32[] memory neighbourEntityIds
+  ) public override returns (bytes32, bytes32[] memory) {
+    return super.eventHandler(centerEntityId, neighbourEntityIds);
+  }
 }

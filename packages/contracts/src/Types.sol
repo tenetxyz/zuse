@@ -17,6 +17,7 @@ struct VoxelVariantsKey {
   bytes32 voxelVariantId;
 }
 
+// TODO: rename to just direction?
 enum BlockDirection {
   None,
   Up,

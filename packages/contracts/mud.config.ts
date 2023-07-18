@@ -124,6 +124,17 @@ export default mudConfig({
         classificationResultTableName: "string", // needed so the client can know which table to query for the classification result
       },
     },
+    Car: {
+      keySchema: {
+        entity: "bytes32",
+      },
+      schema: {
+        velocity: "uint16",
+        acceleration: "uint16",
+        direction: "uint8",
+        hasValue: "bool",
+      },
+    },
   },
   systems: {
     VoxelInteractionSystem: {

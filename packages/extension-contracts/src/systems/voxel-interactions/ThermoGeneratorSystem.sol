@@ -58,7 +58,11 @@ contract ThermoGeneratorSystem is VoxelInteraction {
     uint256 count = 0;
     bytes32 source1 = bytes32(0);
     bytes32 source2 = bytes32(0);
-    if (generatorData.sources.length == 2) {
+    if (
+      generatorData.sources.length == 2 &&
+      entityHasTemperature(generatorData.sources[0], callerNamespace) &&
+      entityHasTemperature(generatorData.sources[1], callerNamespace)
+    ) {
       // already have sources
       TemperatureEntity memory source1Entity;
       source1Entity.entity = generatorData.sources[0];
@@ -92,7 +96,7 @@ contract ThermoGeneratorSystem is VoxelInteraction {
     if (count == 2) {
       changedEntity = handleTempDataEntities(callerNamespace, interactEntity, generatorData, tempDataEntities);
     } else {
-      if (generatorData.genRate != 0 && generatorData.sources.length != 0) {
+      if (generatorData.sources.length != 0) {
         generatorData.genRate = 0;
         generatorData.sources = new bytes32[](0);
         generatorData.sourceDirections = abi.encode(new BlockDirection[](0));

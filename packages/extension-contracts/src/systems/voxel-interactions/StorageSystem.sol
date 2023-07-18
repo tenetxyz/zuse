@@ -60,6 +60,14 @@ contract StorageSystem is SingleVoxelInteraction {
       storageData.inRate = sourceWireData.transferRate;
       inBlockHeightUpdate.lastUpdateBlock = block.number;
       storageData.inBlockHeightUpdate = abi.encode(inBlockHeightUpdate);
+
+      BlockHeightUpdate memory outBlockHeightUpdate = abi.decode(storageData.outBlockHeightUpdate, (BlockHeightUpdate));
+      if (outBlockHeightUpdate.lastUpdateBlock == block.number) {
+        // we want to signal the outBlockHeightUpdate to update
+        outBlockHeightUpdate.lastUpdateBlock -= 1;
+        storageData.outBlockHeightUpdate = abi.encode(outBlockHeightUpdate);
+      }
+
       Storage.set(callerNamespace, storageEntity, storageData);
       changedEntity = true;
     }
@@ -94,14 +102,14 @@ contract StorageSystem is SingleVoxelInteraction {
       storageData.destinationDirection = powerWireDirection;
     }
 
-    uint256 validTransferRate = storageData.outRate;
     BlockHeightUpdate memory outBlockHeightUpdate = abi.decode(storageData.outBlockHeightUpdate, (BlockHeightUpdate));
-    // so we don't divide by zero
-    if (outBlockHeightUpdate.blockHeightDelta != 0) {
-      validTransferRate = 2 * (storageData.energyStored / outBlockHeightUpdate.blockHeightDelta);
-    }
 
-    if (!storageHasDestination || storageData.outRate != validTransferRate) {
+    if (!storageHasDestination || outBlockHeightUpdate.lastUpdateBlock != block.number) {
+      uint256 validTransferRate = storageData.outRate;
+      // so we don't divide by zero
+      if (outBlockHeightUpdate.blockHeightDelta != 0) {
+        validTransferRate = 2 * (storageData.energyStored / outBlockHeightUpdate.blockHeightDelta);
+      }
       if (validTransferRate <= storageData.outRate) {
         validTransferRate = 0;
       } else {

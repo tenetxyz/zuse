@@ -211,7 +211,7 @@ contract StorageSystem is SingleVoxelInteraction {
         );
       }
     } else if (compareBlockDirection == storageData.destinationDirection) {
-      if (entityIsPowerWire(storageData.destination, callerNamespace) && isEnergyStored) {
+      if (entityIsPowerWire(storageData.destination, callerNamespace) && (isEnergyStored || doesHaveSource)) {
         changedEntity = usePowerWireAsDestination(
           callerNamespace,
           compareEntity,

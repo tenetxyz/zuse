@@ -19,6 +19,41 @@ contract ConsumerSystem is SingleVoxelInteraction {
     return entityIsConsumer(entityId, callerNamespace);
   }
 
+  function usePowerWireAsSource(
+    bytes16 callerNamespace,
+    bytes32 powerWireEntity,
+    BlockDirection powerWireDirection,
+    bytes32 consumerEntity,
+    ConsumerData memory consumerData
+  ) internal returns (bool changedEntity) {
+    PowerWireData memory sourceWireData = PowerWire.get(callerNamespace, powerWireEntity);
+    if (sourceWireData.source == bytes32(0)) {
+      return false;
+    }
+
+    bool consumerHasSource = consumerData.source != bytes32(0);
+    if (consumerHasSource) {
+      require(
+        powerWireEntity == consumerData.source && powerWireDirection == consumerData.sourceDirection,
+        "ConsumerSystem: source entity mismatch"
+      );
+    } else {
+      consumerData.source = powerWireEntity;
+      consumerData.sourceDirection = powerWireDirection;
+    }
+
+    if (
+      !consumerHasSource ||
+      consumerData.inRate != sourceWireData.transferRate ||
+      consumerData.lastUpdateBlock != block.number
+    ) {
+      consumerData.inRate = sourceWireData.transferRate;
+      consumerData.lastUpdateBlock = block.number;
+      Consumer.set(callerNamespace, consumerEntity, consumerData);
+      changedEntity = true;
+    }
+  }
+
   function runSingleInteraction(
     bytes16 callerNamespace,
     bytes32 consumerEntity,
@@ -27,6 +62,42 @@ contract ConsumerSystem is SingleVoxelInteraction {
   ) internal override returns (bool changedEntity) {
     ConsumerData memory consumerData = Consumer.get(callerNamespace, consumerEntity);
     changedEntity = false;
+
+    bool isPowerWire = entityIsPowerWire(compareEntity, callerNamespace);
+
+    bool doesHaveSource = consumerData.source != bytes32(0);
+
+    if (!doesHaveSource) {
+      if (isPowerWire) {
+        changedEntity = usePowerWireAsSource(
+          callerNamespace,
+          compareEntity,
+          compareBlockDirection,
+          consumerEntity,
+          consumerData
+        );
+      }
+    } else if (compareBlockDirection == consumerData.sourceDirection) {
+      if (
+        entityIsPowerWire(consumerData.source, callerNamespace) &&
+        PowerWire.get(callerNamespace, consumerData.source).source != bytes32(0)
+      ) {
+        changedEntity = usePowerWireAsSource(
+          callerNamespace,
+          compareEntity,
+          compareBlockDirection,
+          consumerEntity,
+          consumerData
+        );
+      } else {
+        consumerData.source = bytes32(0);
+        consumerData.sourceDirection = BlockDirection.None;
+        consumerData.inRate = 0;
+        consumerData.lastUpdateBlock = block.number;
+        ConsumerData.set(callerNamespace, consumerEntity, consumerData);
+        changedEntity = true;
+      }
+    }
 
     return changedEntity;
   }

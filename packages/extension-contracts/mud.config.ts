@@ -116,6 +116,7 @@ export default mudConfig({
         sourceDirection: "BlockDirection",
         destinationDirection: "BlockDirection",
         lastUpdateBlock: "uint256",
+        isBroken: "bool",
         hasValue: "bool", // TODO: Remove this once we can install non-root modules
       },
     },

@@ -14,31 +14,54 @@ import { NoaBlockType } from "@tenet-contracts/src/codegen/Types.sol";
 
 bytes32 constant PowerWireID = bytes32(keccak256("powerwire"));
 
-string constant PowerWireTexture = "bafkreidq36bqpc6fno5vtoafgn7zhyrin2v5wkjfybhqfnrgec4pmlf5we";
+bytes32 constant PowerWireOffID = bytes32(keccak256("powerwire.off"));
+bytes32 constant PowerWireOnID = bytes32(keccak256("powerwire.on"));
+bytes32 constant PowerWireBrokenID = bytes32(keccak256("powerwire.broken"));
 
-string constant PowerWireUVWrap = "bafkreifdtu65gok35bevprpupxucirs2tan2k77444sl67stdhdgzwffra";
+string constant PowerWireOnTexture = "bafkreibmk2qi52v4atyfka3x5ygj44vfig7ks4jz6xzxqfdzduux3fqifa";
+string constant PowerWireOffTexture = "bafkreia5773gxqcwqxaumba55oqhtpxc2rkfe7ztq32kcjimbmat36lsau";
+string constant PowerWireBrokenTexture = "bafkreif52wl2kr4tjvzr2nou3vxwhswjrkknqdc3g7c4pyquiuhlcplw5a";
 
 contract PowerWireVoxelSystem is VoxelType {
   function registerVoxel() public override {
     address world = _world();
 
-    VoxelVariantsData memory signalSourceVariant;
-    signalSourceVariant.blockType = NoaBlockType.MESH;
-    signalSourceVariant.opaque = false;
-    signalSourceVariant.solid = false;
-    signalSourceVariant.frames = 1;
-    string[] memory signalSourceMaterials = new string[](1);
-    signalSourceMaterials[0] = PowerWireTexture;
-    signalSourceVariant.materials = abi.encode(signalSourceMaterials);
-    signalSourceVariant.uvWrap = PowerWireUVWrap;
-    registerVoxelVariant(world, PowerWireID, signalSourceVariant);
+    VoxelVariantsData memory powerWireOffVariant;
+    powerWireOffVariant.blockType = NoaBlockType.MESH;
+    powerWireOffVariant.opaque = false;
+    powerWireOffVariant.solid = false;
+    powerWireOffVariant.frames = 1;
+    string[] memory powerWireOffMaterials = new string[](1);
+    powerWireOffMaterials[0] = PowerWireOffTexture;
+    powerWireOffVariant.materials = abi.encode(powerWireOffMaterials);
+    registerVoxelVariant(world, PowerWireOffID, powerWireOffVariant);
+
+    VoxelVariantsData memory powerWireOnVariant;
+    powerWireOnVariant.blockType = NoaBlockType.MESH;
+    powerWireOnVariant.opaque = false;
+    powerWireOnVariant.solid = false;
+    powerWireOnVariant.frames = 1;
+    string[] memory powerWireOnMaterials = new string[](1);
+    powerWireOnMaterials[0] = PowerWireOnTexture;
+    powerWireOnVariant.materials = abi.encode(powerWireOnMaterials);
+    registerVoxelVariant(world, PowerWireOnID, powerWireOnVariant);
+
+    VoxelVariantsData memory powerWireBrokenVariant;
+    powerWireBrokenVariant.blockType = NoaBlockType.MESH;
+    powerWireBrokenVariant.opaque = false;
+    powerWireBrokenVariant.solid = false;
+    powerWireBrokenVariant.frames = 1;
+    string[] memory powerWireBrokenMaterials = new string[](1);
+    powerWireBrokenMaterials[0] = PowerWireBrokenTexture;
+    powerWireBrokenVariant.materials = abi.encode(powerWireBrokenMaterials);
+    registerVoxelVariant(world, PowerWireBrokenID, powerWireBrokenVariant);
 
     registerVoxelType(
       world,
       "Power Wire",
       PowerWireID,
       EXTENSION_NAMESPACE,
-      PowerWireID,
+      PowerWireOffID,
       IWorld(world).extension_PowerWireVoxelSy_variantSelector.selector,
       IWorld(world).extension_PowerWireVoxelSy_enterWorld.selector,
       IWorld(world).extension_PowerWireVoxelSy_exitWorld.selector,
@@ -63,6 +86,7 @@ contract PowerWireVoxelSystem is VoxelType {
         lastUpdateBlock: block.number,
         sourceDirection: BlockDirection.None,
         destinationDirection: BlockDirection.None,
+        isBroken: false,
         hasValue: true
       })
     );
@@ -74,7 +98,17 @@ contract PowerWireVoxelSystem is VoxelType {
   }
 
   function variantSelector(bytes32 entity) public view override returns (VoxelVariantsKey memory) {
-    return VoxelVariantsKey({ voxelVariantNamespace: EXTENSION_NAMESPACE, voxelVariantId: PowerWireID });
+    bytes16 callerNamespace = getCallerNamespace(_msgSender());
+    PowerWireData memory powerWireData = PowerWire.get(callerNamespace, entity);
+    if (powerWireData.isBroken) {
+      return VoxelVariantsKey({ voxelVariantNamespace: EXTENSION_NAMESPACE, voxelVariantId: PowerWireBrokenID });
+    } else {
+      if (powerWireData.transferRate > 0) {
+        return VoxelVariantsKey({ voxelVariantNamespace: EXTENSION_NAMESPACE, voxelVariantId: PowerWireOnID });
+      } else {
+        return VoxelVariantsKey({ voxelVariantNamespace: EXTENSION_NAMESPACE, voxelVariantId: PowerWireOffID });
+      }
+    }
   }
 
   function activate(bytes32 entity) public override returns (bytes memory) {}

@@ -5,7 +5,7 @@ import { VoxelInteraction } from "@tenet-contracts/src/prototypes/VoxelInteracti
 import { IWorld } from "../../../src/codegen/world/IWorld.sol";
 import { Generator, TemperatureAtTime, GeneratorData, Temperature, TemperatureData, TemperatureAtTimeData } from "../../codegen/Tables.sol";
 import { BlockDirection } from "../../codegen/Types.sol";
-import { getCallerNamespace, getEntityPositionStrict } from "@tenet-contracts/src/Utils.sol";
+import { getCallerNamespace } from "@tenet-contracts/src/Utils.sol";
 import { registerExtension, entityIsGenerator, entityHasTemperature, entityIsPowerWire } from "../../Utils.sol";
 
 struct TemperatureEntity {

@@ -116,6 +116,7 @@ export default mudConfig({
         sourceDirection: "BlockDirection",
         destinationDirection: "BlockDirection",
         lastUpdateBlock: "uint256",
+        isBroken: "bool",
         hasValue: "bool", // TODO: Remove this once we can install non-root modules
       },
     },
@@ -148,6 +149,17 @@ export default mudConfig({
         sourceDirection: "BlockDirection",
         inRate: "uint256",
         lastUpdateBlock: "uint256",
+        hasValue: "bool", // TODO: Remove this once we can install non-root modules
+      },
+    },
+    PowerSignal: {
+      keySchema: {
+        namespace: "bytes16",
+        entity: "bytes32",
+      },
+      schema: {
+        isActive: "bool",
+        direction: "BlockDirection",
         hasValue: "bool", // TODO: Remove this once we can install non-root modules
       },
     },

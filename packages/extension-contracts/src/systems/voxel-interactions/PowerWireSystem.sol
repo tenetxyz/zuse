@@ -38,16 +38,24 @@ contract PowerWireSystem is SingleVoxelInteraction {
       powerWireData.sourceDirection = generatorBlockDirection;
     }
 
-    uint256 validTransferRate = generatorData.genRate <= powerWireData.maxTransferRate
-      ? generatorData.genRate
-      : powerWireData.maxTransferRate;
+    uint256 validTransferRate = powerWireData.transferRate;
+    bool isBroken = powerWireData.isBroken;
+    if (generatorData.genRate <= powerWireData.maxTransferRate) {
+      validTransferRate = generatorData.genRate;
+      isBroken = false;
+    } else {
+      validTransferRate = 0;
+      isBroken = true;
+    }
 
     if (
       !powerWireHasSource ||
       powerWireData.transferRate != validTransferRate ||
+      powerWireData.isBroken != isBroken ||
       powerWireData.lastUpdateBlock != block.number
     ) {
       powerWireData.transferRate = validTransferRate;
+      powerWireData.isBroken = isBroken;
       powerWireData.lastUpdateBlock = block.number;
       PowerWire.set(callerNamespace, powerWireEntity, powerWireData);
       changedEntity = true;
@@ -78,16 +86,24 @@ contract PowerWireSystem is SingleVoxelInteraction {
       powerWireData.sourceDirection = comparePowerWireDirection;
     }
 
-    uint256 validTransferRate = powerWireWithSourceData.transferRate <= powerWireData.maxTransferRate
-      ? powerWireWithSourceData.transferRate
-      : powerWireData.maxTransferRate;
+    uint256 validTransferRate = powerWireData.transferRate;
+    bool isBroken = powerWireData.isBroken;
+    if (powerWireWithSourceData.transferRate <= powerWireData.maxTransferRate) {
+      validTransferRate = powerWireWithSourceData.transferRate;
+      isBroken = false;
+    } else {
+      validTransferRate = 0;
+      isBroken = true;
+    }
 
     if (
       !powerWireHasSource ||
       powerWireData.transferRate != validTransferRate ||
+      powerWireData.isBroken != isBroken ||
       powerWireData.lastUpdateBlock != block.number
     ) {
       powerWireData.transferRate = validTransferRate;
+      powerWireData.isBroken = isBroken;
       powerWireData.lastUpdateBlock = block.number;
       PowerWire.set(callerNamespace, powerWireEntity, powerWireData);
       changedEntity = true;
@@ -156,16 +172,24 @@ contract PowerWireSystem is SingleVoxelInteraction {
       powerWireData.sourceDirection = storageBlockDirection;
     }
 
-    uint256 validTransferRate = storageData.outRate <= powerWireData.maxTransferRate
-      ? storageData.outRate
-      : powerWireData.maxTransferRate;
+    uint256 validTransferRate = powerWireData.transferRate;
+    bool isBroken = powerWireData.isBroken;
+    if (storageData.outRate <= powerWireData.maxTransferRate) {
+      validTransferRate = storageData.outRate;
+      isBroken = false;
+    } else {
+      validTransferRate = 0;
+      isBroken = true;
+    }
 
     if (
       !powerWireHasSource ||
       powerWireData.transferRate != validTransferRate ||
+      powerWireData.isBroken != isBroken ||
       powerWireData.lastUpdateBlock != block.number
     ) {
       powerWireData.transferRate = validTransferRate;
+      powerWireData.isBroken = isBroken;
       powerWireData.lastUpdateBlock = block.number;
       PowerWire.set(callerNamespace, powerWireEntity, powerWireData);
       changedEntity = true;

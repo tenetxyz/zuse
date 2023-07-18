@@ -34,6 +34,12 @@ struct InterfaceVoxel {
   string desc;
 }
 
+struct BlockHeightUpdate {
+  uint256 blockNumber;
+  uint256 blockHeightDelta;
+  uint256 lastUpdateBlock;
+}
+
 struct BaseCreationInWorld {
   bytes32 creationId;
   VoxelCoord lowerSouthWestCornerInWorld;

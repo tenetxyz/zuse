@@ -100,6 +100,7 @@ export default mudConfig({
         genRate: "uint256",
         hasValue: "bool", // TODO: Remove this once we can install non-root modules
         sources: "bytes32[]",
+        sourceDirections: "bytes", // BlockDirection[]
       },
     },
     PowerWire: {

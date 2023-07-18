@@ -3,10 +3,10 @@ pragma solidity >=0.8.0;
 
 import { VoxelType } from "@tenet-contracts/src/prototypes/VoxelType.sol";
 import { IWorld } from "../../../src/codegen/world/IWorld.sol";
-import { Generator } from "../../codegen/Tables.sol";
+import { Generator, GeneratorData } from "../../codegen/Tables.sol";
 import { getCallerNamespace } from "@tenet-contracts/src/Utils.sol";
 import { registerVoxelType, registerVoxelVariant, entityIsGenerator } from "../../Utils.sol";
-import { VoxelVariantsKey } from "@tenet-contracts/src/Types.sol";
+import { VoxelVariantsKey, BlockDirection } from "@tenet-contracts/src/Types.sol";
 import { VoxelVariantsData } from "@tenet-contracts/src/codegen/tables/VoxelVariants.sol";
 import { EXTENSION_NAMESPACE } from "../../Constants.sol";
 import { NoaBlockType } from "@tenet-contracts/src/codegen/Types.sol";
@@ -47,9 +47,19 @@ contract ThermoGenVoxelSystem is VoxelType {
   function enterWorld(bytes32 entity) public override {
     bytes16 callerNamespace = getCallerNamespace(_msgSender());
     bytes32[] memory sources = new bytes32[](0);
+    BlockDirection[] memory sourceDirections = new BlockDirection[](0);
     uint256 genRate = 0;
     bool hasValue = true;
-    Generator.set(callerNamespace, entity, genRate, hasValue, sources);
+    Generator.set(
+      callerNamespace,
+      entity,
+      GeneratorData({
+        genRate: genRate,
+        sources: sources,
+        sourceDirections: abi.encode(sourceDirections),
+        hasValue: true
+      })
+    );
   }
 
   function exitWorld(bytes32 entity) public override {

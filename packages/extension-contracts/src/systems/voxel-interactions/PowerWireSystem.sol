@@ -3,9 +3,9 @@ pragma solidity >=0.8.0;
 
 import { SingleVoxelInteraction } from "@tenet-contracts/src/prototypes/SingleVoxelInteraction.sol";
 import { IWorld } from "../../../src/codegen/world/IWorld.sol";
-import { PowerWire, PowerWireData, Generator, GeneratorData, StorageData, Storage } from "../../codegen/Tables.sol";
+import { PowerWire, PowerWireData, Generator, GeneratorData, StorageData, Storage, Consumer, ConsumerData } from "../../codegen/Tables.sol";
 import { BlockDirection } from "../../codegen/Types.sol";
-import { registerExtension, entityIsPowerWire, entityIsGenerator, entityIsStorage } from "../../Utils.sol";
+import { registerExtension, entityIsPowerWire, entityIsGenerator, entityIsStorage, entityIsConsumer } from "../../Utils.sol";
 import { getOppositeDirection } from "@tenet-contracts/src/Utils.sol";
 
 contract PowerWireSystem is SingleVoxelInteraction {
@@ -198,6 +198,32 @@ contract PowerWireSystem is SingleVoxelInteraction {
     }
   }
 
+  function useConsumerAsDestination(
+    bytes16 callerNamespace,
+    bytes32 consumerEntity,
+    BlockDirection consumerBlockDirection,
+    bytes32 powerWireEntity,
+    PowerWireData memory powerWireData
+  ) internal returns (bool changedEntity) {
+    if (powerWireData.destination != bytes32(0)) {
+      require(
+        powerWireData.destination == consumerEntity && powerWireData.destinationDirection == consumerBlockDirection,
+        "PowerWireSystem: PowerWire has a destination and is trying to connect to a different consumer destination"
+      );
+    } else {
+      ConsumerData memory consumerData = Consumer.get(callerNamespace, consumerEntity);
+      if (consumerData.source == bytes32(0) || consumerData.source == powerWireEntity) {
+        powerWireData.destination = consumerEntity;
+        powerWireData.destinationDirection = consumerBlockDirection;
+        powerWireData.lastUpdateBlock = block.number;
+        PowerWire.set(callerNamespace, powerWireEntity, powerWireData);
+        changedEntity = true;
+      } else {
+        revert("PowerWireSystem: PowerWire is trying to become the source of a consumer with an existing source");
+      }
+    }
+  }
+
   function runSingleInteraction(
     bytes16 callerNamespace,
     bytes32 powerWireEntity,
@@ -210,6 +236,7 @@ contract PowerWireSystem is SingleVoxelInteraction {
     bool isPowerWire = entityIsPowerWire(compareEntity, callerNamespace);
     bool isGenerator = entityIsGenerator(compareEntity, callerNamespace);
     bool isStorage = entityIsStorage(compareEntity, callerNamespace);
+    bool isConsumer = entityIsConsumer(compareEntity, callerNamespace);
 
     bool doesHaveSource = powerWireData.source != bytes32(0);
 
@@ -306,6 +333,17 @@ contract PowerWireSystem is SingleVoxelInteraction {
             powerWireEntity,
             powerWireData
           );
+        } else if (
+          entityIsConsumer(powerWireData.destination, callerNamespace) &&
+          Consumer.get(callerNamespace, powerWireData.destination).source == powerWireEntity
+        ) {
+          changedEntity = useConsumerAsDestination(
+            callerNamespace,
+            compareEntity,
+            compareBlockDirection,
+            powerWireEntity,
+            powerWireData
+          );
         } else {
           powerWireData.destination = bytes32(0);
           powerWireData.destinationDirection = BlockDirection.None;
@@ -326,6 +364,14 @@ contract PowerWireSystem is SingleVoxelInteraction {
           );
         } else if (isPowerWire) {
           changedEntity = usePowerWireAsDestination(
+            callerNamespace,
+            compareEntity,
+            compareBlockDirection,
+            powerWireEntity,
+            powerWireData
+          );
+        } else if (isConsumer) {
+          changedEntity = useConsumerAsDestination(
             callerNamespace,
             compareEntity,
             compareBlockDirection,

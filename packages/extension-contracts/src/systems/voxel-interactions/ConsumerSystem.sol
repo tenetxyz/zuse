@@ -94,7 +94,7 @@ contract ConsumerSystem is SingleVoxelInteraction {
         consumerData.sourceDirection = BlockDirection.None;
         consumerData.inRate = 0;
         consumerData.lastUpdateBlock = block.number;
-        ConsumerData.set(callerNamespace, consumerEntity, consumerData);
+        Consumer.set(callerNamespace, consumerEntity, consumerData);
         changedEntity = true;
       }
     }

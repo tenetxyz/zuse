@@ -8,19 +8,14 @@ import { VoxelVariantsKey, BlockDirection, VoxelCoord } from "@tenet-contracts/s
 import { TENET_NAMESPACE } from "../../Constants.sol";
 import { getPositionAtDirection, calculateBlockDirection } from "@tenet-contracts/src/Utils.sol";
 import { getKeysWithValue } from "@latticexyz/world/src/modules/keyswithvalue/getKeysWithValue.sol";
-import { VoxelInteraction } from "@tenet-contracts/src/prototypes/VoxelInteraction.sol";
 import { RoadID } from "./RoadVoxelSystem.sol";
+import { VoxelType as VoxelTypeContract } from "@tenet-contracts/src/prototypes/VoxelType.sol";
 
 bytes32 constant CarID = bytes32(keccak256("car"));
 
 string constant CarTexture = "bafkreieq2ss2t4u32hye2mrkfdb3rgzlp64b4nqhhpseb5w7ntx2w6vhnq";
 
-contract CarVoxelSystem is VoxelInteraction {
-  function registerInteraction() public override {
-    address world = _world();
-    // registerExtension(world, "CarSystem", IWorld(world).tenet_CarVoxelSystem_eventHandler.selector);
-  }
-
+contract CarVoxelSystem is VoxelTypeContract {
   function registerVoxel() public override {
     IWorld world = IWorld(_world());
 
@@ -60,7 +55,7 @@ contract CarVoxelSystem is VoxelInteraction {
     travelDist(entity, velocity);
   }
 
-  function travelDist(bytes32 entity, uint16 dist) public view returns (uint256) {
+  function travelDist(bytes32 entity, uint16 dist) public returns (uint256) {
     PositionData memory position = Position.get(entity);
     VoxelCoord memory coord = VoxelCoord(position.x, position.y, position.z);
     BlockDirection prevDirection = BlockDirection(Car.getPrevDirection(entity));
@@ -99,30 +94,5 @@ contract CarVoxelSystem is VoxelInteraction {
     if (dist > 0) {
       travelDist(entity, dist - 1);
     }
-  }
-
-  function onNewNeighbour(
-    bytes16 callerNamespace,
-    bytes32 interactEntity,
-    bytes32 neighbourEntityId,
-    BlockDirection neighbourBlockDirection
-  ) internal override returns (bool changedEntity) {}
-
-  function entityShouldInteract(bytes32 entityId, bytes16 callerNamespace) internal view override returns (bool) {
-    return Car.get(entityId).hasValue;
-  }
-
-  function runInteraction(
-    // bytes16 callerNamespace,
-    bytes32 interactEntity,
-    bytes32[] memory neighbourEntityIds,
-    BlockDirection[] memory neighbourEntityDirections
-  ) internal override returns (bool changedEntity) {}
-
-  function eventHandler(
-    bytes32 centerEntityId,
-    bytes32[] memory neighbourEntityIds
-  ) public override returns (bytes32, bytes32[] memory) {
-    return super.eventHandler(centerEntityId, neighbourEntityIds);
   }
 }

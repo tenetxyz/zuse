@@ -10,6 +10,7 @@ import { toUtf8String } from "ethers/lib/utils.js";
 import { awaitStreamValue } from "@latticexyz/utils";
 import { NetworkLayer } from "../../network";
 import { NoaLayer, voxelTypeDataKeyToVoxelVariantDataKey } from "../types";
+import { cleanObj } from "../../../utils/abi";
 
 export async function createVoxelSystem(network: NetworkLayer, context: NoaLayer) {
   const {
@@ -36,12 +37,23 @@ export async function createVoxelSystem(network: NetworkLayer, context: NoaLayer
     setVoxel(position, voxelTypeDataKeyToVoxelVariantDataKey(update.value[0]));
   });
 
-  // "Exit system"
   defineComponentSystem(world, Position, async ({ value }) => {
+    // debugger;
     if (!live) return;
-    if (!value[0] && value[1]) {
-      const voxel = getVoxelAtPosition(value[1]);
-      setVoxel(value[1], voxelTypeDataKeyToVoxelVariantDataKey(voxel));
+
+    const voxelExited = !value[0] && value[1];
+    const voxelMoved = value[0] && value[1];
+    if (voxelExited) {
+      const cleanedValue = cleanObj(value[1]);
+      const voxel = getVoxelAtPosition(cleanedValue);
+      setVoxel(cleanedValue, voxelTypeDataKeyToVoxelVariantDataKey(voxel));
+    } else if (voxelMoved) {
+      const cleanedNewCoord = cleanObj(value[0]);
+      const cleanedOldCoord = cleanObj(value[1]);
+      const oldVoxel = getVoxelAtPosition(cleanedOldCoord);
+      const newVoxel = getVoxelAtPosition(cleanedNewCoord);
+      setVoxel(cleanedNewCoord, voxelTypeDataKeyToVoxelVariantDataKey(newVoxel));
+      setVoxel(cleanedOldCoord, voxelTypeDataKeyToVoxelVariantDataKey(oldVoxel));
     }
   });
 

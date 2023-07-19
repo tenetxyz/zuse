@@ -6,7 +6,6 @@ import {
   getComponentValueStrict,
   Has,
 } from "@latticexyz/recs";
-import { toUtf8String } from "ethers/lib/utils.js";
 import { awaitStreamValue } from "@latticexyz/utils";
 import { NetworkLayer } from "../../network";
 import { NoaLayer, voxelTypeDataKeyToVoxelVariantDataKey } from "../types";

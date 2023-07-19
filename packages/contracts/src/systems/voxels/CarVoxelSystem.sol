@@ -11,8 +11,10 @@ import { getKeysWithValue } from "@latticexyz/world/src/modules/keyswithvalue/ge
 import { RoadID } from "./RoadVoxelSystem.sol";
 import { VoxelType as VoxelTypeContract } from "@tenet-contracts/src/prototypes/VoxelType.sol";
 import { Strings } from "@openzeppelin/contracts/utils/Strings.sol";
+import { Math } from "@openzeppelin/contracts/utils/math/Math.sol";
 
 bytes32 constant CarID = bytes32(keccak256("car"));
+uint256 constant MAX_TRAVEL_DIST = 30;
 
 string constant CarTexture = "bafkreieq2ss2t4u32hye2mrkfdb3rgzlp64b4nqhhpseb5w7ntx2w6vhnq";
 
@@ -46,7 +48,13 @@ contract CarVoxelSystem is VoxelTypeContract {
   function enterWorld(bytes32 entity) public override {
     Car.set(
       entity,
-      CarData({ velocity: 1, acceleration: 0, prevDirection: uint8(BlockDirection.None), hasValue: true })
+      CarData({
+        velocity: 1,
+        acceleration: 0,
+        blockNumber: block.number,
+        prevDirection: uint8(BlockDirection.None),
+        hasValue: true
+      })
     );
   }
 
@@ -57,18 +65,23 @@ contract CarVoxelSystem is VoxelTypeContract {
   }
 
   function activate(bytes32 entity) public override returns (bytes memory) {
-    uint16 velocity = Car.getVelocity(entity);
-    if (velocity > 0) {
-      travelDist(entity, velocity - 1);
+    CarData memory car = Car.get(entity);
+    uint256 dist = Math.min(car.velocity * (block.number - car.blockNumber), MAX_TRAVEL_DIST);
+    if (dist > 0) {
+      uint256 distTraveled = travelDist(entity, dist - 1);
+      Car.setBlockNumber(entity, block.number);
+      return abi.encodePacked("moved ", Strings.toString(distTraveled), " steps");
+    } else {
+      return abi.encodePacked("car couldn't move :(");
     }
-    return abi.encodePacked("trying to move ", Strings.toString(velocity), " steps");
   }
 
-  function travelDist(bytes32 entity, uint16 dist) public returns (uint256) {
+  // returns number of blocks travelled
+  function travelDist(bytes32 entity, uint256 dist) public returns (uint256) {
     PositionData memory position = Position.get(entity);
     VoxelCoord memory coord = VoxelCoord(position.x, position.y, position.z);
     BlockDirection prevDirection = BlockDirection(Car.getPrevDirection(entity));
-    for (uint direction = 0; direction < 6; direction++) {
+    for (uint direction = 0; direction < 7; direction++) {
       BlockDirection blockDirection = BlockDirection(direction);
       if (
         blockDirection == BlockDirection.Up ||
@@ -84,10 +97,10 @@ contract CarVoxelSystem is VoxelTypeContract {
       }
       // if the block underneath is a road, we can move there
       VoxelCoord memory neighbourCoord = getPositionAtDirection(coord, blockDirection);
-      VoxelCoord memory underneathCoord = getPositionAtDirection(neighbourCoord, BlockDirection.Down);
+      VoxelCoord memory coordUnderNeighbor = getPositionAtDirection(neighbourCoord, BlockDirection.Down);
       bytes32[] memory entitiesAtPosition = getKeysWithValue(
         PositionTableId,
-        Position.encode(underneathCoord.x, underneathCoord.y, underneathCoord.z)
+        Position.encode(coordUnderNeighbor.x, coordUnderNeighbor.y, coordUnderNeighbor.z)
       );
 
       if (entitiesAtPosition.length != 1) {
@@ -98,11 +111,12 @@ contract CarVoxelSystem is VoxelTypeContract {
         // move the car to the new position
         IWorld(_world()).tenet_MoveSystem_tryMove(entity, blockDirection);
         Car.setPrevDirection(entity, uint8(calculateBlockDirection(neighbourCoord, coord)));
-        break;
+        if (dist > 0) {
+          return 1 + travelDist(entity, dist - 1);
+        }
+        return 1;
       }
     }
-    if (dist > 0) {
-      travelDist(entity, dist - 1);
-    }
+    return 0;
   }
 }

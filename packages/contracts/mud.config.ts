@@ -129,7 +129,8 @@ export default mudConfig({
         entity: "bytes32",
       },
       schema: {
-        velocity: "uint16",
+        blockNumber: "uint256",
+        velocity: "uint256",
         acceleration: "uint16",
         prevDirection: "uint8", // store its previous coord, NOT where it's going to go since the road could turn
         hasValue: "bool",

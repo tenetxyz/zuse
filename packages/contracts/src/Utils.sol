@@ -26,6 +26,17 @@ function getEntityPositionStrict(bytes32 entity) view returns (PositionData memo
 }
 
 function calculateBlockDirection(
+  VoxelCoord memory centerCoord,
+  VoxelCoord memory neighborCoord
+) pure returns (BlockDirection) {
+  return
+    calculateBlockDirection(
+      PositionData(centerCoord.x, centerCoord.y, centerCoord.z),
+      PositionData(neighborCoord.x, neighborCoord.y, neighborCoord.z)
+    );
+}
+
+function calculateBlockDirection(
   PositionData memory centerCoord,
   PositionData memory neighborCoord
 ) pure returns (BlockDirection) {
@@ -68,7 +79,10 @@ function getOppositeDirection(BlockDirection direction) pure returns (BlockDirec
   }
 }
 
-function getPositionAtDirection(VoxelCoord centerCoord, BlockDirection direction) pure returns (VoxelCoord) {
+function getPositionAtDirection(
+  VoxelCoord memory centerCoord,
+  BlockDirection direction
+) pure returns (VoxelCoord memory) {
   int32 newX = centerCoord.x;
   int32 newY = centerCoord.y;
   int32 newZ = centerCoord.z;

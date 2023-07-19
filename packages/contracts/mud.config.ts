@@ -131,7 +131,7 @@ export default mudConfig({
       schema: {
         velocity: "uint16",
         acceleration: "uint16",
-        direction: "uint8",
+        prevDirection: "uint8", // store its previous coord, NOT where it's going to go since the road could turn
         hasValue: "bool",
       },
     },

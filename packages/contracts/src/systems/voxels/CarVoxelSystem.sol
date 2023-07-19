@@ -2,7 +2,7 @@
 pragma solidity >=0.8.0;
 
 import { IWorld } from "../../../src/codegen/world/IWorld.sol";
-import { VoxelTypeData, VoxelVariantsData, Car, Position, PositionData, PositionTableId, VoxelType } from "@tenet-contracts/src/codegen/Tables.sol";
+import { VoxelTypeData, VoxelVariantsData, Car, CarData, Position, PositionData, PositionTableId, VoxelType } from "@tenet-contracts/src/codegen/Tables.sol";
 import { NoaBlockType } from "@tenet-contracts/src/codegen/Types.sol";
 import { VoxelVariantsKey, BlockDirection, VoxelCoord } from "@tenet-contracts/src/Types.sol";
 import { TENET_NAMESPACE } from "../../Constants.sol";
@@ -10,6 +10,7 @@ import { getPositionAtDirection, calculateBlockDirection } from "@tenet-contract
 import { getKeysWithValue } from "@latticexyz/world/src/modules/keyswithvalue/getKeysWithValue.sol";
 import { RoadID } from "./RoadVoxelSystem.sol";
 import { VoxelType as VoxelTypeContract } from "@tenet-contracts/src/prototypes/VoxelType.sol";
+import { Strings } from "@openzeppelin/contracts/utils/Strings.sol";
 
 bytes32 constant CarID = bytes32(keccak256("car"));
 
@@ -42,7 +43,12 @@ contract CarVoxelSystem is VoxelTypeContract {
     );
   }
 
-  function enterWorld(bytes32 entity) public override {}
+  function enterWorld(bytes32 entity) public override {
+    Car.set(
+      entity,
+      CarData({ velocity: 1, acceleration: 0, prevDirection: uint8(BlockDirection.None), hasValue: true })
+    );
+  }
 
   function exitWorld(bytes32 entity) public override {}
 
@@ -52,7 +58,10 @@ contract CarVoxelSystem is VoxelTypeContract {
 
   function activate(bytes32 entity) public override returns (bytes memory) {
     uint16 velocity = Car.getVelocity(entity);
-    travelDist(entity, velocity);
+    if (velocity > 0) {
+      travelDist(entity, velocity - 1);
+    }
+    return abi.encodePacked("trying to move ", Strings.toString(velocity), " steps");
   }
 
   function travelDist(bytes32 entity, uint16 dist) public returns (uint256) {
@@ -88,7 +97,8 @@ contract CarVoxelSystem is VoxelTypeContract {
       if (VoxelType.get(entitiesAtPosition[0]).voxelTypeId == RoadID) {
         // move the car to the new position
         IWorld(_world()).tenet_MoveSystem_tryMove(entity, blockDirection);
-        Car.setPrevDirection(entity, uint8(calculateBlockDirection(coord, neighbourCoord)));
+        Car.setPrevDirection(entity, uint8(calculateBlockDirection(neighbourCoord, coord)));
+        break;
       }
     }
     if (dist > 0) {

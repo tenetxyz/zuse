@@ -67,13 +67,12 @@ contract CarVoxelSystem is VoxelTypeContract {
   function activate(bytes32 entity) public override returns (bytes memory) {
     CarData memory car = Car.get(entity);
     uint256 dist = Math.min(car.velocity * (block.number - car.blockNumber), MAX_TRAVEL_DIST);
-    if (dist > 0) {
-      uint256 distTraveled = travelDist(entity, dist - 1);
-      Car.setBlockNumber(entity, block.number);
-      return abi.encodePacked("moved ", Strings.toString(distTraveled), " steps");
-    } else {
-      return abi.encodePacked("car couldn't move :(");
+    if (dist == 0) {
+      return abi.encodePacked("car can't move :(");
     }
+    uint256 distTraveled = travelDist(entity, dist - 1);
+    Car.setBlockNumber(entity, block.number);
+    return abi.encodePacked("moved ", Strings.toString(distTraveled), " steps");
   }
 
   // returns number of blocks travelled

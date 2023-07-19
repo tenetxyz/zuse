@@ -37,7 +37,6 @@ export async function createVoxelSystem(network: NetworkLayer, context: NoaLayer
   });
 
   defineComponentSystem(world, Position, async ({ value }) => {
-    // debugger;
     if (!live) return;
 
     const voxelExited = !value[0] && value[1];

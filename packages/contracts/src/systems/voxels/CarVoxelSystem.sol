@@ -76,7 +76,7 @@ contract CarVoxelSystem is VoxelTypeContract {
   }
 
   // returns number of blocks travelled
-  function travelDist(bytes32 entity, uint256 dist) public returns (uint256) {
+  function travelDist(bytes32 entity, uint256 distLeft) public returns (uint256) {
     PositionData memory position = Position.get(entity);
     VoxelCoord memory coord = VoxelCoord(position.x, position.y, position.z);
     BlockDirection prevDirection = BlockDirection(Car.getPrevDirection(entity));
@@ -107,13 +107,18 @@ contract CarVoxelSystem is VoxelTypeContract {
         continue;
       }
       if (VoxelType.get(entitiesAtPosition[0]).voxelTypeId == RoadID) {
-        // move the car to the new position
-        IWorld(_world()).tenet_MoveSystem_tryMove(entity, blockDirection);
-        Car.setPrevDirection(entity, uint8(calculateBlockDirection(neighbourCoord, coord)));
-        if (dist > 0) {
-          return 1 + travelDist(entity, dist - 1);
+        // try to move the car to the new position
+        bool success = IWorld(_world()).tenet_MoveSystem_tryMove(entity, blockDirection);
+        if (!success) {
+          return 0;
         }
-        return 1;
+
+        Car.setPrevDirection(entity, uint8(calculateBlockDirection(neighbourCoord, coord)));
+        if (distLeft == 0) {
+          return 1;
+        } else {
+          return 1 + travelDist(entity, distLeft - 1);
+        }
       }
     }
     return 0;

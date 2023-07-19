@@ -13,6 +13,8 @@ import { BlockDirection } from "@tenet-contracts/src/Types.sol";
 import { getKeysWithValue } from "@latticexyz/world/src/modules/keyswithvalue/getKeysWithValue.sol";
 
 contract MoveSystem is System {
+  // tries to move the voxel in a direction as long as that direction is air
+  // returns true if the move was successful
   function tryMove(bytes32 entity, BlockDirection blockDirection) public returns (bool) {
     PositionData memory position = Position.get(entity);
     VoxelCoord memory coord = VoxelCoord(position.x, position.y, position.z);

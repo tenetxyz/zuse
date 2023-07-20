@@ -2,13 +2,14 @@
 pragma solidity >=0.8.0;
 
 import { IWorld } from "../../../src/codegen/world/IWorld.sol";
-import { VoxelTypeData, VoxelVariantsData, Car, CarData, Position, PositionData, PositionTableId, VoxelType } from "@tenet-contracts/src/codegen/Tables.sol";
+import { VoxelTypeData, VoxelVariantsData, Car, CarData, Position, PositionData, PositionTableId, VoxelType, CurvedRoad } from "@tenet-contracts/src/codegen/Tables.sol";
 import { NoaBlockType } from "@tenet-contracts/src/codegen/Types.sol";
 import { VoxelVariantsKey, BlockDirection, VoxelCoord } from "@tenet-contracts/src/Types.sol";
 import { TENET_NAMESPACE } from "../../Constants.sol";
-import { getPositionAtDirection, calculateBlockDirection } from "@tenet-contracts/src/Utils.sol";
+import { getPositionAtDirection, calculateBlockDirection, getCurvedRoadDirection } from "@tenet-contracts/src/Utils.sol";
 import { getKeysWithValue } from "@latticexyz/world/src/modules/keyswithvalue/getKeysWithValue.sol";
 import { RoadID } from "./RoadVoxelSystem.sol";
+import { CurvedRoadID } from "./CurvedRoadVoxelSystem.sol";
 import { VoxelType as VoxelTypeContract } from "@tenet-contracts/src/prototypes/VoxelType.sol";
 import { Strings } from "@openzeppelin/contracts/utils/Strings.sol";
 import { Math } from "@openzeppelin/contracts/utils/math/Math.sol";
@@ -82,6 +83,9 @@ contract CarVoxelSystem is VoxelTypeContract {
     PositionData memory position = Position.get(entity);
     VoxelCoord memory coord = VoxelCoord(position.x, position.y, position.z);
     BlockDirection prevDirection = BlockDirection(Car.getPrevDirection(entity));
+
+    (BlockDirection[] memory allowedDirections, bool hasAllowedDirections) = getAllowedDirections(coord);
+
     for (uint direction = 0; direction < 7; direction++) {
       BlockDirection blockDirection = BlockDirection(direction);
       if (
@@ -108,21 +112,72 @@ contract CarVoxelSystem is VoxelTypeContract {
         // there is no way this voxel is a road, so don't do anything
         continue;
       }
-      if (VoxelType.get(entitiesAtPosition[0]).voxelTypeId == RoadID) {
-        // try to move the car to the new position
+      {
+        VoxelTypeData memory nextVoxelType = VoxelType.get(entitiesAtPosition[0]);
+        if (nextVoxelType.voxelTypeId != RoadID && nextVoxelType.voxelTypeId != CurvedRoadID) {
+          continue;
+        }
+      }
+
+      // If the cur is on a curved road, then make sure it only goes to the allowed directions
+      if (hasAllowedDirections) {
+        bool directionIsAllowed = false;
+        for (uint i = 0; i < allowedDirections.length; i++) {
+          if (allowedDirections[i] == blockDirection) {
+            directionIsAllowed = true;
+            break;
+          }
+        }
+        if (!directionIsAllowed) {
+          continue;
+        }
+      }
+
+      // try to move the car to the new position
+      {
         bool success = IWorld(_world()).tenet_MoveSystem_tryMove(entity, blockDirection);
         if (!success) {
           return 0;
         }
+      }
 
-        Car.setPrevDirection(entity, uint8(calculateBlockDirection(neighbourCoord, coord)));
-        if (distLeft == 0) {
-          return 1;
-        } else {
-          return 1 + travelDist(entity, distLeft - 1);
-        }
+      Car.setPrevDirection(entity, uint8(calculateBlockDirection(neighbourCoord, coord)));
+      if (distLeft == 0) {
+        return 1;
+      } else {
+        return 1 + travelDist(entity, distLeft - 1);
       }
     }
     return 0;
+  }
+
+  function getAllowedDirections(VoxelCoord memory currentCoord) private view returns (BlockDirection[] memory, bool) {
+    VoxelCoord memory blockBeneath = getPositionAtDirection(currentCoord, BlockDirection.Down);
+    BlockDirection[] memory allowedDirections = new BlockDirection[](2);
+    bytes32[] memory entitiesAtPosition = getKeysWithValue(
+      PositionTableId,
+      Position.encode(blockBeneath.x, blockBeneath.y, blockBeneath.z)
+    );
+    require(entitiesAtPosition.length == 1, "there should be exactly one entity at the position");
+    bytes32 voxelBelow = entitiesAtPosition[0];
+    if (VoxelType.get(voxelBelow).voxelTypeId != CurvedRoadID) {
+      return (allowedDirections, false);
+    }
+
+    (BlockDirection direction, bool _isActive) = getCurvedRoadDirection(voxelBelow);
+    if (direction == BlockDirection.East) {
+      allowedDirections[0] = BlockDirection.East;
+      allowedDirections[1] = BlockDirection.South;
+    } else if (direction == BlockDirection.South) {
+      allowedDirections[0] = BlockDirection.South;
+      allowedDirections[1] = BlockDirection.West;
+    } else if (direction == BlockDirection.West) {
+      allowedDirections[0] = BlockDirection.West;
+      allowedDirections[1] = BlockDirection.North;
+    } else if (direction == BlockDirection.North) {
+      allowedDirections[0] = BlockDirection.North;
+      allowedDirections[1] = BlockDirection.East;
+    }
+    return (allowedDirections, true);
   }
 }

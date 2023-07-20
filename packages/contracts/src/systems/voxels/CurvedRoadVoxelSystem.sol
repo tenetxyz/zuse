@@ -6,7 +6,7 @@ import { IWorld } from "../../../src/codegen/world/IWorld.sol";
 import { Occurrence, VoxelTypeData, VoxelVariantsData, CurvedRoad, CurvedRoadData } from "@tenet-contracts/src/codegen/Tables.sol";
 import { NoaBlockType } from "@tenet-contracts/src/codegen/Types.sol";
 import { VoxelVariantsKey, BlockDirection } from "@tenet-contracts/src/Types.sol";
-import { getBlockDirectionStr } from "@tenet-contracts/src/Utils.sol";
+import { getBlockDirectionStr, getCurvedRoadDirection } from "@tenet-contracts/src/Utils.sol";
 import { TENET_NAMESPACE } from "../../Constants.sol";
 
 bytes32 constant CurvedRoadID = bytes32(keccak256("curvedroad"));
@@ -99,7 +99,7 @@ contract CurvedRoadVoxelSystem is VoxelType {
   }
 
   function variantSelector(bytes32 entity) public view override returns (VoxelVariantsKey memory) {
-    (BlockDirection direction, bool isActive) = getDirection(entity);
+    (BlockDirection direction, bool isActive) = getCurvedRoadDirection(entity);
     BlockDirection newDirection;
 
     if (direction == BlockDirection.East) {
@@ -114,7 +114,7 @@ contract CurvedRoadVoxelSystem is VoxelType {
   }
 
   function activate(bytes32 entity) public override returns (bytes memory) {
-    (BlockDirection direction, bool isActive) = getDirection(entity);
+    (BlockDirection direction, bool isActive) = getCurvedRoadDirection(entity);
     BlockDirection newDirection;
 
     if (direction == BlockDirection.East) {
@@ -132,18 +132,5 @@ contract CurvedRoadVoxelSystem is VoxelType {
       CurvedRoad.setOffDirection(entity, uint8(newDirection));
     }
     return abi.encodePacked("Now facing: ", getBlockDirectionStr(newDirection));
-  }
-
-  function getDirection(bytes32 entity) private view returns (BlockDirection, bool) {
-    uint8 direction;
-    CurvedRoadData memory curvedRoad = CurvedRoad.get(entity);
-    // bool isActive = Signal.getActive(entity);
-    bool isActive = true;
-    if (isActive) {
-      direction = curvedRoad.onDirection;
-    } else {
-      direction = curvedRoad.offDirection;
-    }
-    return (BlockDirection(direction), isActive);
   }
 }

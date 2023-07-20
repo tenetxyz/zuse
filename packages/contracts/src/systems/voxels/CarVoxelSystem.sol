@@ -58,7 +58,9 @@ contract CarVoxelSystem is VoxelTypeContract {
     );
   }
 
-  function exitWorld(bytes32 entity) public override {}
+  function exitWorld(bytes32 entity) public override {
+    Car.remove(entity);
+  }
 
   function variantSelector(bytes32 entity) public pure override returns (VoxelVariantsKey memory) {
     return VoxelVariantsKey({ voxelVariantNamespace: TENET_NAMESPACE, voxelVariantId: CarID });

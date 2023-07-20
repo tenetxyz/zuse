@@ -136,6 +136,16 @@ export default mudConfig({
         hasValue: "bool",
       },
     },
+    CurvedRoad: {
+      keySchema: {
+        entity: "bytes32",
+      },
+      schema: {
+        onDirection: "uint8", // store what direction the image is when it has the on signal
+        offDirection: "uint8",
+        hasValue: "bool",
+      },
+    },
   },
   systems: {
     VoxelInteractionSystem: {

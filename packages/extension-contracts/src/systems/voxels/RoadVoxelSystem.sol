@@ -1,12 +1,13 @@
 // SPDX-License-Identifier: MIT
 pragma solidity >=0.8.0;
 
-import { VoxelType } from "../../prototypes/VoxelType.sol";
+import { VoxelType } from "@tenet-contracts/src/prototypes/VoxelType.sol";
 import { IWorld } from "../../../src/codegen/world/IWorld.sol";
 import { Occurrence, VoxelTypeData, VoxelVariantsData } from "@tenet-contracts/src/codegen/Tables.sol";
 import { NoaBlockType } from "@tenet-contracts/src/codegen/Types.sol";
 import { VoxelVariantsKey } from "@tenet-contracts/src/Types.sol";
-import { TENET_NAMESPACE } from "../../Constants.sol";
+import { EXTENSION_NAMESPACE } from "@tenet-extension-contracts/src/constants.sol";
+import { registerVoxelVariant, registerVoxelType } from "@tenet-extension-contracts/src/Utils.sol";
 
 bytes32 constant RoadID = bytes32(keccak256("road"));
 
@@ -26,17 +27,18 @@ contract RoadVoxelSystem is VoxelType {
     RoadMaterials[0] = RoadTexture;
     RoadVariant.materials = abi.encode(RoadMaterials);
     RoadVariant.uvWrap = RoadUVWrap;
-    world.tenet_VoxelRegistrySys_registerVoxelVariant(RoadID, RoadVariant);
+    registerVoxelVariant(_world(), RoadID, RoadVariant);
 
-    world.tenet_VoxelRegistrySys_registerVoxelType(
+    registerVoxelType(
+      _world(),
       "Road",
       RoadID,
-      TENET_NAMESPACE,
+      EXTENSION_NAMESPACE,
       RoadID,
-      world.tenet_RoadVoxelSystem_variantSelector.selector,
-      world.tenet_RoadVoxelSystem_enterWorld.selector,
-      world.tenet_RoadVoxelSystem_exitWorld.selector,
-      world.tenet_RoadVoxelSystem_activate.selector
+      world.extension_RoadVoxelSystem_variantSelector.selector,
+      world.extension_RoadVoxelSystem_enterWorld.selector,
+      world.extension_RoadVoxelSystem_exitWorld.selector,
+      world.extension_RoadVoxelSystem_activate.selector
     );
   }
 
@@ -45,7 +47,7 @@ contract RoadVoxelSystem is VoxelType {
   function exitWorld(bytes32 entity) public override {}
 
   function variantSelector(bytes32 entity) public pure override returns (VoxelVariantsKey memory) {
-    return VoxelVariantsKey({ voxelVariantNamespace: TENET_NAMESPACE, voxelVariantId: RoadID });
+    return VoxelVariantsKey({ voxelVariantNamespace: EXTENSION_NAMESPACE, voxelVariantId: RoadID });
   }
 
   function activate(bytes32 entity) public override returns (bytes memory) {}

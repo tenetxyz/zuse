@@ -7,7 +7,7 @@ import { CHUNK } from "@tenet-contracts/src/Constants.sol";
 import { hasKey } from "@latticexyz/world/src/modules/keysintable/hasKey.sol";
 import { Coord, VoxelCoord } from "@tenet-contracts/src/Types.sol";
 import { getKeysWithValue } from "@latticexyz/world/src/modules/keyswithvalue/getKeysWithValue.sol";
-import { Position, PositionData, PositionTableId, VoxelType, VoxelTypeRegistry, VoxelTypeRegistryData, VoxelTypeData, CurvedRoadData, CurvedRoad } from "@tenet-contracts/src/codegen/Tables.sol";
+import { Position, PositionData, PositionTableId, VoxelType, VoxelTypeRegistry, VoxelTypeRegistryData, VoxelTypeData } from "@tenet-contracts/src/codegen/Tables.sol";
 import { VoxelVariantsKey, BlockDirection } from "@tenet-contracts/src/Types.sol";
 import { Strings } from "@openzeppelin/contracts/utils/Strings.sol";
 
@@ -380,17 +380,4 @@ function entitiesToRelativeVoxelCoords(
 
 function voxelCoordsAreEqual(VoxelCoord memory c1, VoxelCoord memory c2) pure returns (bool) {
   return c1.x == c2.x && c1.y == c2.y && c1.z == c2.z;
-}
-
-function getCurvedRoadDirection(bytes32 entity) view returns (BlockDirection, bool) {
-  uint8 direction;
-  CurvedRoadData memory curvedRoad = CurvedRoad.get(entity);
-  // bool isActive = Signal.getActive(entity);
-  bool isActive = true;
-  if (isActive) {
-    direction = curvedRoad.onDirection;
-  } else {
-    direction = curvedRoad.offDirection;
-  }
-  return (BlockDirection(direction), isActive);
 }

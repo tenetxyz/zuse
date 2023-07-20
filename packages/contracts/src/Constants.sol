@@ -10,6 +10,7 @@ string constant CLEAR_COORD_SIG = "tenet_MineSystem_clearCoord((int32,int32,int3
 string constant BUILD_SIG = "tenet_BuildSystem_build(bytes32,(int32,int32,int32))";
 string constant GIFT_VOXEL_SIG = "tenet_GiftVoxelSystem_giftVoxel(bytes16,bytes32)";
 string constant RM_ALL_OWNED_VOXELS_SIG = "tenet_RmVoxelSystem_removeAllOwnedVoxels()";
+string constant TRY_MOVE_SIG = "tenet_MoveSystem_tryMove(bytes32,uint8)";
 
 int32 constant CHUNK_MAX_Y = 255;
 int32 constant CHUNK_MIN_Y = -63;

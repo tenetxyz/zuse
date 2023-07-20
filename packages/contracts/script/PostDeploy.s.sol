@@ -21,9 +21,6 @@ contract PostDeploy is Script {
     world.tenet_DirtVoxelSystem_registerVoxel();
     world.tenet_GrassVoxelSystem_registerVoxel();
     world.tenet_BedrockVoxelSyst_registerVoxel();
-    world.tenet_RoadVoxelSystem_registerVoxel();
-    world.tenet_CarVoxelSystem_registerVoxel();
-    world.tenet_CurvedRoadVoxelS_registerVoxel();
 
     // Note: These have to be here instead of InitSystem as they have be called from the deployer account
     // otherwise the msgSender is not the namespace owner

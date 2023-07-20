@@ -150,6 +150,30 @@ export default mudConfig({
         hasValue: "bool", // TODO: Remove this once we can install non-root modules
       },
     },
+    Car: {
+      keySchema: {
+        namespace: "bytes16",
+        entity: "bytes32",
+      },
+      schema: {
+        blockNumber: "uint256",
+        velocity: "uint256",
+        acceleration: "uint16",
+        prevDirection: "uint8", // store its previous coord, NOT where it's going to go since the road could turn
+        hasValue: "bool",
+      },
+    },
+    CurvedRoad: {
+      keySchema: {
+        namespace: "bytes16",
+        entity: "bytes32",
+      },
+      schema: {
+        onDirection: "uint8", // store what direction the image is when it has the on signal
+        offDirection: "uint8",
+        hasValue: "bool",
+      },
+    },
   },
   modules: [
     // TODO: Re-enable when we have a way to install non-root modules

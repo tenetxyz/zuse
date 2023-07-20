@@ -1,13 +1,15 @@
 // SPDX-License-Identifier: MIT
 pragma solidity >=0.8.0;
 
-import { VoxelType } from "../../prototypes/VoxelType.sol";
+import { VoxelType } from "@tenet-contracts/src/prototypes/VoxelType.sol";
 import { IWorld } from "../../../src/codegen/world/IWorld.sol";
-import { Occurrence, VoxelTypeData, VoxelVariantsData, CurvedRoad, CurvedRoadData } from "@tenet-contracts/src/codegen/Tables.sol";
+import { Occurrence, VoxelTypeData, VoxelVariantsData } from "@tenet-contracts/src/codegen/Tables.sol";
+import { CurvedRoad, CurvedRoadData, Signal, SignalData } from "@tenet-extension-contracts/src/codegen/Tables.sol";
 import { NoaBlockType } from "@tenet-contracts/src/codegen/Types.sol";
 import { VoxelVariantsKey, BlockDirection } from "@tenet-contracts/src/Types.sol";
-import { getBlockDirectionStr, getCurvedRoadDirection } from "@tenet-contracts/src/Utils.sol";
-import { TENET_NAMESPACE } from "../../Constants.sol";
+import { getCurvedRoadDirection, registerVoxelVariant, registerVoxelType } from "@tenet-extension-contracts/src/Utils.sol";
+import { getBlockDirectionStr, getCallerNamespace } from "@tenet-contracts/src/Utils.sol";
+import { EXTENSION_NAMESPACE } from "@tenet-extension-contracts/src/constants.sol";
 
 bytes32 constant CurvedRoadID = bytes32(keccak256("curvedroad"));
 
@@ -39,7 +41,7 @@ contract CurvedRoadVoxelSystem is VoxelType {
     curvedRoadEastMaterials[0] = CurvedRoadEastTexture;
     curvedRoadEastVariant.materials = abi.encode(curvedRoadEastMaterials);
     curvedRoadEastVariant.uvWrap = CurvedRoadEastUVWrap;
-    world.tenet_VoxelRegistrySys_registerVoxelVariant(CurvedRoadEastID, curvedRoadEastVariant);
+    registerVoxelVariant(_world(), CurvedRoadEastID, curvedRoadEastVariant);
 
     VoxelVariantsData memory curvedRoadSouthVariant;
     curvedRoadSouthVariant.blockType = NoaBlockType.BLOCK;
@@ -49,7 +51,7 @@ contract CurvedRoadVoxelSystem is VoxelType {
     curvedRoadSouthMaterials[0] = CurvedRoadSouthTexture;
     curvedRoadSouthVariant.materials = abi.encode(curvedRoadSouthMaterials);
     curvedRoadSouthVariant.uvWrap = CurvedRoadSouthUVWrap;
-    world.tenet_VoxelRegistrySys_registerVoxelVariant(CurvedRoadSouthID, curvedRoadSouthVariant);
+    registerVoxelVariant(_world(), CurvedRoadSouthID, curvedRoadSouthVariant);
 
     VoxelVariantsData memory curvedRoadWestVariant;
     curvedRoadWestVariant.blockType = NoaBlockType.BLOCK;
@@ -59,7 +61,7 @@ contract CurvedRoadVoxelSystem is VoxelType {
     curvedRoadWestMaterials[0] = CurvedRoadWestTexture;
     curvedRoadWestVariant.materials = abi.encode(curvedRoadWestMaterials);
     curvedRoadWestVariant.uvWrap = CurvedRoadWestUVWrap;
-    world.tenet_VoxelRegistrySys_registerVoxelVariant(CurvedRoadWestID, curvedRoadWestVariant);
+    registerVoxelVariant(_world(), CurvedRoadWestID, curvedRoadWestVariant);
 
     VoxelVariantsData memory curvedRoadNorthVariant;
     curvedRoadNorthVariant.blockType = NoaBlockType.BLOCK;
@@ -69,22 +71,25 @@ contract CurvedRoadVoxelSystem is VoxelType {
     curvedRoadNorthMaterials[0] = CurvedRoadNorthTexture;
     curvedRoadNorthVariant.materials = abi.encode(curvedRoadNorthMaterials);
     curvedRoadNorthVariant.uvWrap = CurvedRoadNorthUVWrap;
-    world.tenet_VoxelRegistrySys_registerVoxelVariant(CurvedRoadNorthID, curvedRoadNorthVariant);
+    registerVoxelVariant(_world(), CurvedRoadNorthID, curvedRoadNorthVariant);
 
-    world.tenet_VoxelRegistrySys_registerVoxelType(
+    registerVoxelType(
+      _world(),
       "CurvedRoad",
       CurvedRoadID,
-      TENET_NAMESPACE,
+      EXTENSION_NAMESPACE,
       CurvedRoadEastID,
-      world.tenet_CurvedRoadVoxelS_variantSelector.selector,
-      world.tenet_CurvedRoadVoxelS_enterWorld.selector,
-      world.tenet_CurvedRoadVoxelS_exitWorld.selector,
-      world.tenet_CurvedRoadVoxelS_activate.selector
+      world.extension_CurvedRoadVoxelS_variantSelector.selector,
+      world.extension_CurvedRoadVoxelS_enterWorld.selector,
+      world.extension_CurvedRoadVoxelS_exitWorld.selector,
+      world.extension_CurvedRoadVoxelS_activate.selector
     );
   }
 
   function enterWorld(bytes32 entity) public override {
+    bytes16 callerNamespace = getCallerNamespace(_msgSender());
     CurvedRoad.set(
+      callerNamespace,
       entity,
       CurvedRoadData({
         onDirection: uint8(BlockDirection.East),
@@ -92,29 +97,38 @@ contract CurvedRoadVoxelSystem is VoxelType {
         hasValue: true
       })
     );
+    Signal.set(
+      callerNamespace,
+      entity,
+      SignalData({ isActive: false, direction: BlockDirection.None, hasValue: true })
+    );
   }
 
   function exitWorld(bytes32 entity) public override {
-    CurvedRoad.deleteRecord(entity);
+    bytes16 callerNamespace = getCallerNamespace(_msgSender());
+    CurvedRoad.deleteRecord(callerNamespace, entity);
+    Signal.deleteRecord(callerNamespace, entity);
   }
 
   function variantSelector(bytes32 entity) public view override returns (VoxelVariantsKey memory) {
-    (BlockDirection direction, bool isActive) = getCurvedRoadDirection(entity);
+    bytes16 callerNamespace = getCallerNamespace(_msgSender());
+    (BlockDirection direction, bool isActive) = getCurvedRoadDirection(callerNamespace, entity);
     BlockDirection newDirection;
 
     if (direction == BlockDirection.East) {
-      return VoxelVariantsKey({ voxelVariantNamespace: TENET_NAMESPACE, voxelVariantId: CurvedRoadEastID });
+      return VoxelVariantsKey({ voxelVariantNamespace: EXTENSION_NAMESPACE, voxelVariantId: CurvedRoadEastID });
     } else if (direction == BlockDirection.South) {
-      return VoxelVariantsKey({ voxelVariantNamespace: TENET_NAMESPACE, voxelVariantId: CurvedRoadSouthID });
+      return VoxelVariantsKey({ voxelVariantNamespace: EXTENSION_NAMESPACE, voxelVariantId: CurvedRoadSouthID });
     } else if (direction == BlockDirection.West) {
-      return VoxelVariantsKey({ voxelVariantNamespace: TENET_NAMESPACE, voxelVariantId: CurvedRoadWestID });
+      return VoxelVariantsKey({ voxelVariantNamespace: EXTENSION_NAMESPACE, voxelVariantId: CurvedRoadWestID });
     } else if (direction == BlockDirection.North) {
-      return VoxelVariantsKey({ voxelVariantNamespace: TENET_NAMESPACE, voxelVariantId: CurvedRoadNorthID });
+      return VoxelVariantsKey({ voxelVariantNamespace: EXTENSION_NAMESPACE, voxelVariantId: CurvedRoadNorthID });
     }
   }
 
   function activate(bytes32 entity) public override returns (bytes memory) {
-    (BlockDirection direction, bool isActive) = getCurvedRoadDirection(entity);
+    bytes16 callerNamespace = getCallerNamespace(_msgSender());
+    (BlockDirection direction, bool isActive) = getCurvedRoadDirection(callerNamespace, entity);
     BlockDirection newDirection;
 
     if (direction == BlockDirection.East) {
@@ -127,9 +141,9 @@ contract CurvedRoadVoxelSystem is VoxelType {
       newDirection = BlockDirection.East;
     }
     if (isActive) {
-      CurvedRoad.setOnDirection(entity, uint8(newDirection));
+      CurvedRoad.setOnDirection(callerNamespace, entity, uint8(newDirection));
     } else {
-      CurvedRoad.setOffDirection(entity, uint8(newDirection));
+      CurvedRoad.setOffDirection(callerNamespace, entity, uint8(newDirection));
     }
     return abi.encodePacked("Now facing: ", getBlockDirectionStr(newDirection));
   }

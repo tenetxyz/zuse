@@ -124,28 +124,6 @@ export default mudConfig({
         classificationResultTableName: "string", // needed so the client can know which table to query for the classification result
       },
     },
-    Car: {
-      keySchema: {
-        entity: "bytes32",
-      },
-      schema: {
-        blockNumber: "uint256",
-        velocity: "uint256",
-        acceleration: "uint16",
-        prevDirection: "uint8", // store its previous coord, NOT where it's going to go since the road could turn
-        hasValue: "bool",
-      },
-    },
-    CurvedRoad: {
-      keySchema: {
-        entity: "bytes32",
-      },
-      schema: {
-        onDirection: "uint8", // store what direction the image is when it has the on signal
-        offDirection: "uint8",
-        hasValue: "bool",
-      },
-    },
   },
   systems: {
     VoxelInteractionSystem: {

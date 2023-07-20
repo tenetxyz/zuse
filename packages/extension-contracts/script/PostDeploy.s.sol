@@ -30,6 +30,9 @@ contract PostDeploy is Script {
     world.extension_PowerWireVoxelSy_registerVoxel();
     world.extension_StorageVoxelSyst_registerVoxel();
     world.extension_LightBulbVoxelSy_registerVoxel();
+    world.extension_RoadVoxelSystem_registerVoxel();
+    world.extension_CarVoxelSystem_registerVoxel();
+    world.extension_CurvedRoadVoxelS_registerVoxel();
 
     // Register all the voxel interactions
     world.extension_SignalSystem_registerInteraction();

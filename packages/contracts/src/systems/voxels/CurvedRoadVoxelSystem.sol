@@ -5,7 +5,7 @@ import { VoxelType } from "../../prototypes/VoxelType.sol";
 import { IWorld } from "../../../src/codegen/world/IWorld.sol";
 import { Occurrence, VoxelTypeData, VoxelVariantsData, CurvedRoad, CurvedRoadData } from "@tenet-contracts/src/codegen/Tables.sol";
 import { NoaBlockType } from "@tenet-contracts/src/codegen/Types.sol";
-import { VoxelVariantsKey } from "@tenet-contracts/src/Types.sol";
+import { VoxelVariantsKey, BlockDirection } from "@tenet-contracts/src/Types.sol";
 import { TENET_NAMESPACE } from "../../Constants.sol";
 
 bytes32 constant CurvedRoadID = bytes32(keccak256("curvedroad"));
@@ -38,7 +38,7 @@ contract CurvedRoadVoxelSystem is VoxelType {
     curvedRoadEastMaterials[0] = CurvedRoadEastTexture;
     curvedRoadEastVariant.materials = abi.encode(curvedRoadEastMaterials);
     curvedRoadEastVariant.uvWrap = CurvedRoadEastUVWrap;
-    registerVoxelVariant(world, SignalOnID, curvedRoadEastVariant);
+    world.tenet_VoxelRegistrySys_registerVoxelVariant(CurvedRoadEastID, curvedRoadEastVariant);
 
     VoxelVariantsData memory curvedRoadSouthVariant;
     curvedRoadSouthVariant.blockType = NoaBlockType.BLOCK;
@@ -48,7 +48,7 @@ contract CurvedRoadVoxelSystem is VoxelType {
     curvedRoadSouthMaterials[0] = CurvedRoadSouthTexture;
     curvedRoadSouthVariant.materials = abi.encode(curvedRoadSouthMaterials);
     curvedRoadSouthVariant.uvWrap = CurvedRoadSouthUVWrap;
-    registerVoxelVariant(world, SignalOnID, curvedRoadSouthVariant);
+    world.tenet_VoxelRegistrySys_registerVoxelVariant(CurvedRoadSouthID, curvedRoadSouthVariant);
 
     VoxelVariantsData memory curvedRoadWestVariant;
     curvedRoadWestVariant.blockType = NoaBlockType.BLOCK;
@@ -58,7 +58,7 @@ contract CurvedRoadVoxelSystem is VoxelType {
     curvedRoadWestMaterials[0] = CurvedRoadWestTexture;
     curvedRoadWestVariant.materials = abi.encode(curvedRoadWestMaterials);
     curvedRoadWestVariant.uvWrap = CurvedRoadWestUVWrap;
-    registerVoxelVariant(world, SignalOnID, curvedRoadWestVariant);
+    world.tenet_VoxelRegistrySys_registerVoxelVariant(CurvedRoadWestID, curvedRoadWestVariant);
 
     VoxelVariantsData memory curvedRoadNorthVariant;
     curvedRoadNorthVariant.blockType = NoaBlockType.BLOCK;
@@ -68,40 +68,47 @@ contract CurvedRoadVoxelSystem is VoxelType {
     curvedRoadNorthMaterials[0] = CurvedRoadNorthTexture;
     curvedRoadNorthVariant.materials = abi.encode(curvedRoadNorthMaterials);
     curvedRoadNorthVariant.uvWrap = CurvedRoadNorthUVWrap;
-    registerVoxelVariant(world, SignalOnID, curvedRoadNorthVariant);
+    world.tenet_VoxelRegistrySys_registerVoxelVariant(CurvedRoadNorthID, curvedRoadNorthVariant);
 
     world.tenet_VoxelRegistrySys_registerVoxelType(
       "CurvedRoad",
       CurvedRoadID,
       TENET_NAMESPACE,
       CurvedRoadEastID,
-      world.tenet_CurvedRoadVoxelSystem_variantSelector.selector,
-      world.tenet_CurvedRoadVoxelSystem_enterWorld.selector,
-      world.tenet_CurvedRoadVoxelSystem_exitWorld.selector,
-      world.tenet_CurvedRoadVoxelSystem_activate.selector
+      world.tenet_CurvedRoadVoxelS_variantSelector.selector,
+      world.tenet_CurvedRoadVoxelS_enterWorld.selector,
+      world.tenet_CurvedRoadVoxelS_exitWorld.selector,
+      world.tenet_CurvedRoadVoxelS_activate.selector
     );
   }
 
   function enterWorld(bytes32 entity) public override {
-    CurvedRoad.set(entity, CurvedRoadData({ onDirection: BlockDirection.EAST, onDirection: BlockDirection.EAST }));
+    CurvedRoad.set(
+      entity,
+      CurvedRoadData({
+        onDirection: uint8(BlockDirection.East),
+        offDirection: uint8(BlockDirection.East),
+        hasValue: true
+      })
+    );
   }
 
   function exitWorld(bytes32 entity) public override {
-    CurvedRoad.remove(entity);
+    CurvedRoad.deleteRecord(entity);
   }
 
-  function variantSelector(bytes32 entity) public pure override returns (VoxelVariantsKey memory) {
+  function variantSelector(bytes32 entity) public view override returns (VoxelVariantsKey memory) {
     (BlockDirection direction, bool isActive) = getDirection(entity);
     BlockDirection newDirection;
 
-    if (direction == BlockDirection.EAST) {
-      return VoxelVariantsKey({ voxelVariantNamespace: EXTENSION_NAMESPACE, voxelVariantId: CurvedRoadEastID });
-    } else if (direction == BlockDirection.SOUTH) {
-      return VoxelVariantsKey({ voxelVariantNamespace: EXTENSION_NAMESPACE, voxelVariantId: CurvedRoadSouthID });
-    } else if (direction == BlockDirection.WEST) {
-      return VoxelVariantsKey({ voxelVariantNamespace: EXTENSION_NAMESPACE, voxelVariantId: CurvedRoadWestID });
-    } else if (direction == BlockDirection.NORTH) {
-      return VoxelVariantsKey({ voxelVariantNamespace: EXTENSION_NAMESPACE, voxelVariantId: CurvedRoadNorthID });
+    if (direction == BlockDirection.East) {
+      return VoxelVariantsKey({ voxelVariantNamespace: TENET_NAMESPACE, voxelVariantId: CurvedRoadEastID });
+    } else if (direction == BlockDirection.South) {
+      return VoxelVariantsKey({ voxelVariantNamespace: TENET_NAMESPACE, voxelVariantId: CurvedRoadSouthID });
+    } else if (direction == BlockDirection.West) {
+      return VoxelVariantsKey({ voxelVariantNamespace: TENET_NAMESPACE, voxelVariantId: CurvedRoadWestID });
+    } else if (direction == BlockDirection.North) {
+      return VoxelVariantsKey({ voxelVariantNamespace: TENET_NAMESPACE, voxelVariantId: CurvedRoadNorthID });
     }
   }
 
@@ -109,31 +116,33 @@ contract CurvedRoadVoxelSystem is VoxelType {
     (BlockDirection direction, bool isActive) = getDirection(entity);
     BlockDirection newDirection;
 
-    if (direction == BlockDirection.EAST) {
-      newDirection = BlockDirection.SOUTH;
-    } else if (direction == BlockDirection.SOUTH) {
-      newDirection = BlockDirection.WEST;
-    } else if (direction == BlockDirection.WEST) {
-      newDirection = BlockDirection.NORTH;
-    } else if (direction == BlockDirection.NORTH) {
-      newDirection = BlockDirection.EAST;
+    if (direction == BlockDirection.East) {
+      newDirection = BlockDirection.South;
+    } else if (direction == BlockDirection.South) {
+      newDirection = BlockDirection.West;
+    } else if (direction == BlockDirection.West) {
+      newDirection = BlockDirection.North;
+    } else if (direction == BlockDirection.North) {
+      newDirection = BlockDirection.East;
     }
     if (isActive) {
-      CurvedRoad.setOnDirection(entity, newDirection);
+      CurvedRoad.setOnDirection(entity, uint8(newDirection));
     } else {
-      CurvedRoad.setOffDirection(entity, newDirection);
+      CurvedRoad.setOffDirection(entity, uint8(newDirection));
     }
+    return string(abi.encodePacked("CurvedRoad: ", getBlockDirectionStr(newDirection)));
   }
 
   function getDirection(bytes32 entity) private view returns (BlockDirection, bool) {
-    BlockDirection direction;
-    CurvedRoadData curvedRoad = CurvedRoad.get(entity);
-    bool isActive = Signal.getActive(entity);
+    uint8 direction;
+    CurvedRoadData memory curvedRoad = CurvedRoad.get(entity);
+    // bool isActive = Signal.getActive(entity);
+    bool isActive = true;
     if (isActive) {
       direction = curvedRoad.onDirection;
     } else {
       direction = curvedRoad.offDirection;
     }
-    return (direction, isActive);
+    return (BlockDirection(direction), isActive);
   }
 }

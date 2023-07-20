@@ -59,7 +59,7 @@ contract CarVoxelSystem is VoxelTypeContract {
   }
 
   function exitWorld(bytes32 entity) public override {
-    Car.remove(entity);
+    Car.deleteRecord(entity);
   }
 
   function variantSelector(bytes32 entity) public pure override returns (VoxelVariantsKey memory) {

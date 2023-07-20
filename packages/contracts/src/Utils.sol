@@ -106,25 +106,23 @@ function getPositionAtDirection(
   return VoxelCoord(newX, newY, newZ);
 }
 
-function getBlockDirectionStr(
-  BlockDirection direction
-) pure returns (String memory) {
-  if(direction == BlockDirection.None){
+function getBlockDirectionStr(BlockDirection direction) pure returns (string memory) {
+  if (direction == BlockDirection.None) {
     return "None";
-  }else if(direction == BlockDirection.Up){
+  } else if (direction == BlockDirection.Up) {
     return "Up";
-  }else if(direction == BlockDirection.Down){
+  } else if (direction == BlockDirection.Down) {
     return "Down";
-  }else if(direction == BlockDirection.North){
-    return "North"
-  }else if(direction == BlockDirection.South){
+  } else if (direction == BlockDirection.North) {
+    return "North";
+  } else if (direction == BlockDirection.South) {
     return "South";
-  }else if(direction == BlockDirection.East){
+  } else if (direction == BlockDirection.East) {
     return "East";
-  }else if(direction == BlockDirection.West){
+  } else if (direction == BlockDirection.West) {
     return "West";
   }
-  return "Unknown direction name"
+  return "Unknown direction name";
 }
 
 function getVoxelVariant(

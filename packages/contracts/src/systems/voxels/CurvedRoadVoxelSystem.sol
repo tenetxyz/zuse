@@ -6,6 +6,7 @@ import { IWorld } from "../../../src/codegen/world/IWorld.sol";
 import { Occurrence, VoxelTypeData, VoxelVariantsData, CurvedRoad, CurvedRoadData } from "@tenet-contracts/src/codegen/Tables.sol";
 import { NoaBlockType } from "@tenet-contracts/src/codegen/Types.sol";
 import { VoxelVariantsKey, BlockDirection } from "@tenet-contracts/src/Types.sol";
+import { getBlockDirectionStr } from "@tenet-contracts/src/Utils.sol";
 import { TENET_NAMESPACE } from "../../Constants.sol";
 
 bytes32 constant CurvedRoadID = bytes32(keccak256("curvedroad"));
@@ -130,7 +131,7 @@ contract CurvedRoadVoxelSystem is VoxelType {
     } else {
       CurvedRoad.setOffDirection(entity, uint8(newDirection));
     }
-    return string(abi.encodePacked("CurvedRoad: ", getBlockDirectionStr(newDirection)));
+    return abi.encodePacked("Now facing: ", getBlockDirectionStr(newDirection));
   }
 
   function getDirection(bytes32 entity) private view returns (BlockDirection, bool) {

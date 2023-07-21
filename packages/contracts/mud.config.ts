@@ -14,6 +14,68 @@ export default mudConfig({
   },
   snapSync: true,
   tables: {
+    // Base CA Tables
+    // --------------------
+    BasePosition: {
+      keySchema: {
+        callerAddress: "address",
+        entity: "bytes32",
+      },
+      schema: {
+        // VoxelCoord is removed in MUD2, so we need to manually specify x,y,z
+        x: "int32",
+        y: "int32",
+        z: "int32",
+      },
+    },
+    BaseType: {
+      keySchema: {
+        callerAddress: "address",
+        entity: "bytes32",
+      },
+      schema: {
+        voxelTypeNamespace: "bytes16",
+        voxelTypeId: "bytes32",
+        voxelVariantNamespace: "bytes16",
+        voxelVariantId: "bytes32",
+      },
+    },
+    // --------------------
+    // Composed CA Tables
+    // --------------------
+    ComposedType: {
+      keySchema: {
+        callerAddress: "address",
+        entity: "bytes32",
+      },
+      schema: {
+        voxelTypeNamespace: "bytes16",
+        voxelTypeId: "bytes32",
+        voxelVariantNamespace: "bytes16",
+        voxelVariantId: "bytes32",
+      },
+    },
+    ChildTypes: {
+      keySchema: {
+        voxelTypeNamespace: "bytes16",
+        voxelTypeId: "bytes32",
+      },
+      schema: {
+        voxelTypes: "bytes", // {voxelTypeNamespace, voxelTypeId} []
+        relativePositions: "bytes",
+      },
+    },
+    ChildEntities: {
+      keySchema: {
+        callerAddress: "address",
+        entity: "bytes32",
+      },
+      schema: {
+        entities: "bytes32[]",
+      },
+    },
+    // --------------------
+
     Name: "string", // Used to name players
     VoxelType: {
       // TODO: Move this to a namespace?

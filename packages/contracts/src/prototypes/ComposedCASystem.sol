@@ -13,6 +13,8 @@ contract ComposedCASystem is System {
     VoxelTypeData[] memory roadVoxels = new VoxelTypeData[](4);
     VoxelCoord[] memory roadVoxelCoords = new VoxelCoord[](4);
     CATypes.set(LaneID, roadVoxels, roadVoxelCoords);
+
+    // require statement on the number of child voxels
   }
 
   function enterWorld(VoxelTypeData memory voxelType, bytes32 entity, bytes32[] memory childEntities) public {
@@ -32,22 +34,27 @@ contract ComposedCASystem is System {
   }
 
   // called by world
-  function runInteraction(bytes32 interactEntity, bytes32[] memory neighbourEntityIds) public {
+  function runInteraction(
+    bytes32 interactEntity,
+    bytes32[] memory neighbourEntityIds,
+    bytes32[] memory childEntityIds,
+    bytes32[] memory parentEntityIds
+  ) public {
     // update ComposedType
     address callerAddress = msg.sender;
     VoxelType entityType = ComposedType.get(calledAddress, interactEntity);
-    if(entityType == Lane){
-         // aggregate roads
-          bytes32 roadEntities = ChildEntities.get(callerAddress, interactEntity)
-          for(roadEntity in roadEntities) {
-                VoxelType roadType = BaseType.get(callerAddress, roadEntity);
+    if(entityType == Gold){
+        bytes32 particleEntities = ChildEntities.get(callerAddress, interactEntity);
+        for(particleEntity in particleEntities) {
+            VoxelType particleType = callerAddress.readVoxelType(particleEntity);
+            // do logic, update state
+            // ComposedType.set()
 
+        }
 
-          }
-
-          // read neighborus
-
-          Position.set()
+        // define valid movements
+        // request world to move child entities
+        callerAddress.changeType(interactEntity, direction);
     }
 
   }

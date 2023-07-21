@@ -8,7 +8,7 @@ import { VoxelVariantsKey } from "@tenet-contracts/src/Types.sol";
 import { BlockDirection } from "@tenet-contracts/src/Types.sol";
 
 contract BaseCASystem is System {
-  function enterWorld(VoxelTypeData memory voxelType, bytes32 entity, bytes32 parentEntity) public {
+  function enterWorld(VoxelTypeData memory voxelType, VoxelCoord memory coord, bytes32 entity) public {
     address callerAddress = msg.sender;
 
     // entity has been placed in the world
@@ -29,10 +29,23 @@ contract BaseCASystem is System {
   }
 
   // called by world
-  function runInteraction(bytes32 interactEntity, bytes32[] memory neighbourEntityIds) public {
+  function runInteraction(
+    bytes32 interactEntity,
+    bytes32[] memory neighbourEntityIds,
+    bytes32[] memory childEntityIds,
+    bytes32[] memory parentEntityIds
+  ) public {
     // loop over all neighbours and run interaction logic
     // the interaction's used will can be in different namespaces
     // just hard coded, or registered
     runInteractionSystems(entity);
+
+    // can change type at position
+    // define valid movements
+  }
+
+  function moveEntities(bytes32[] entity) public {
+    // use callerNamespace
+    // define valid movements
   }
 }

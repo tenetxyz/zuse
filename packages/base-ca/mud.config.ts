@@ -30,12 +30,12 @@ export default mudConfig({
     {
       name: "KeysWithValueModule",
       root: true,
-      args: [resolveTableId("Position")],
+      args: [resolveTableId("CAPosition")],
     },
     {
       name: "KeysInTableModule",
       root: true,
-      args: [resolveTableId("Position")],
+      args: [resolveTableId("CAPosition")],
     },
   ],
 });

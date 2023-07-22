@@ -139,7 +139,7 @@ export function setupNoaEngine(network: NetworkLayer) {
           if (ecsVoxelType !== undefined) {
             ecsVoxelTypeIndex = VoxelVariantData.get(
               voxelVariantDataKeyToString({
-                voxelVariantNamespace: ecsVoxelType.voxelVariantNamespace,
+                voxelVariantNamespace: "0x74656e65740000000000000000000000",
                 voxelVariantId: ecsVoxelType.voxelVariantId,
               })
             )?.index;

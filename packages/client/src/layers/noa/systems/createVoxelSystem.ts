@@ -50,6 +50,8 @@ export async function createVoxelSystem(network: NetworkLayer, context: NoaLayer
     if (!live) return;
     const position = getComponentValueStrict(Position, update.entity);
     const voxel = getVoxelAtPosition(position);
+    console.log("new voxel");
+    console.log(voxel);
     setVoxel(position, voxelTypeDataKeyToVoxelVariantDataKey(voxel));
   });
 }

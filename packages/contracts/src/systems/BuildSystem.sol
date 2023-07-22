@@ -14,7 +14,7 @@ import { safeCall } from "@tenet-contracts/src/Utils.sol";
 import { CAVoxelType, CAVoxelTypeData } from "@tenet-base-ca/src/codegen/tables/CAVoxelType.sol";
 
 IStore constant REGISTRY_WORLD_STORE = IStore(0x5FbDB2315678afecb367f032d93F642f64180aa3);
-address constant BASE_CA_ADDRESS = 0x5FbDB2315678afecb367f032d93F642f64180aa3;
+address constant BASE_CA_ADDRESS = 0x9A9f2CCfdE556A7E9Ff0848998Aa4a0CFD8863AE;
 
 contract BuildSystem is System {
   function build(bytes32 entity, VoxelCoord memory coord) public returns (bytes32) {
@@ -55,6 +55,10 @@ contract BuildSystem is System {
 
     // Set Position
     Position.set(scaleId, newEntity, coord.x, coord.y, coord.z);
+    // Set initial voxel type
+    // TODO: Need to use _world() instead of address(this) here
+    CAVoxelTypeData memory entityCAVoxelType = CAVoxelType.get(IStore(caAddress), address(this), newEntity);
+    VoxelType.set(scaleId, newEntity, entityCAVoxelType.voxelTypeId, entityCAVoxelType.voxelVariantId);
 
     // Run interaction logic
     bytes32[] memory neighbourEntityIds = IWorld(_world()).tenet_VoxInteractSys_calculateNeighbourEntities(
@@ -81,7 +85,7 @@ contract BuildSystem is System {
     // Update VoxelType and Position at this level to match the CA
     for (uint256 i = 0; i < changedEntities.length; i++) {
       bytes32 changedEntity = changedEntities[i];
-      CAVoxelTypeData memory changedEntityVoxelType = CAVoxelType.get(IStore(caAddress), _world(), changedEntity);
+      CAVoxelTypeData memory changedEntityVoxelType = CAVoxelType.get(IStore(caAddress), address(this), changedEntity);
       // Update VoxelType
       VoxelType.set(
         scaleId,

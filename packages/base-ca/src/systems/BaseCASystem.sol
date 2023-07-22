@@ -6,15 +6,7 @@ import { getKeysWithValue } from "@latticexyz/world/src/modules/keyswithvalue/ge
 import { hasKey } from "@latticexyz/world/src/modules/keysintable/hasKey.sol";
 import { CAVoxelType, CAPosition, CAPositionData, CAPositionTableId } from "@base-ca/src/codegen/Tables.sol";
 import { VoxelCoord } from "@tenet-registry/src/Types.sol";
-
-bytes32 constant AirVoxelID = bytes32(keccak256("air"));
-bytes32 constant AirVoxelVariantID = bytes32(keccak256("air"));
-
-bytes32 constant DirtVoxelID = bytes32(keccak256("dirt"));
-bytes32 constant DirtVoxelVariantID = bytes32(keccak256("dirt"));
-
-bytes32 constant GrassVoxelID = bytes32(keccak256("grass"));
-bytes32 constant GrassVoxelVariantID = bytes32(keccak256("grass"));
+import { AirVoxelID, AirVoxelVariantID, DirtVoxelID, DirtVoxelVariantID, GrassVoxelID, GrassVoxelVariantID } from "@base-ca/src/Constants.sol";
 
 contract BaseCASystem is System {
   function isVoxelTypeAllowed(bytes32 voxelTypeId) public returns (bool) {

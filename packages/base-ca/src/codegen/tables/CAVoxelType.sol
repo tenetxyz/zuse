@@ -17,15 +17,15 @@ import { EncodeArray } from "@latticexyz/store/src/tightcoder/EncodeArray.sol";
 import { Schema, SchemaLib } from "@latticexyz/store/src/Schema.sol";
 import { PackedCounter, PackedCounterLib } from "@latticexyz/store/src/PackedCounter.sol";
 
-bytes32 constant _tableId = bytes32(abi.encodePacked(bytes16(""), bytes16("VoxelType")));
-bytes32 constant VoxelTypeTableId = _tableId;
+bytes32 constant _tableId = bytes32(abi.encodePacked(bytes16(""), bytes16("CAVoxelType")));
+bytes32 constant CAVoxelTypeTableId = _tableId;
 
-struct VoxelTypeData {
+struct CAVoxelTypeData {
   bytes32 voxelTypeId;
   bytes32 voxelVariantId;
 }
 
-library VoxelType {
+library CAVoxelType {
   /** Get the table's schema */
   function getSchema() internal pure returns (Schema) {
     SchemaType[] memory _schema = new SchemaType[](2);
@@ -48,7 +48,7 @@ library VoxelType {
     string[] memory _fieldNames = new string[](2);
     _fieldNames[0] = "voxelTypeId";
     _fieldNames[1] = "voxelVariantId";
-    return ("VoxelType", _fieldNames);
+    return ("CAVoxelType", _fieldNames);
   }
 
   /** Register the table's schema */
@@ -158,7 +158,7 @@ library VoxelType {
   }
 
   /** Get the full data */
-  function get(address callerAddress, bytes32 entity) internal view returns (VoxelTypeData memory _table) {
+  function get(address callerAddress, bytes32 entity) internal view returns (CAVoxelTypeData memory _table) {
     bytes32[] memory _keyTuple = new bytes32[](2);
     _keyTuple[0] = bytes32(uint256(uint160(callerAddress)));
     _keyTuple[1] = entity;
@@ -172,7 +172,7 @@ library VoxelType {
     IStore _store,
     address callerAddress,
     bytes32 entity
-  ) internal view returns (VoxelTypeData memory _table) {
+  ) internal view returns (CAVoxelTypeData memory _table) {
     bytes32[] memory _keyTuple = new bytes32[](2);
     _keyTuple[0] = bytes32(uint256(uint160(callerAddress)));
     _keyTuple[1] = entity;
@@ -210,17 +210,17 @@ library VoxelType {
   }
 
   /** Set the full data using the data struct */
-  function set(address callerAddress, bytes32 entity, VoxelTypeData memory _table) internal {
+  function set(address callerAddress, bytes32 entity, CAVoxelTypeData memory _table) internal {
     set(callerAddress, entity, _table.voxelTypeId, _table.voxelVariantId);
   }
 
   /** Set the full data using the data struct (using the specified store) */
-  function set(IStore _store, address callerAddress, bytes32 entity, VoxelTypeData memory _table) internal {
+  function set(IStore _store, address callerAddress, bytes32 entity, CAVoxelTypeData memory _table) internal {
     set(_store, callerAddress, entity, _table.voxelTypeId, _table.voxelVariantId);
   }
 
   /** Decode the tightly packed blob using this table's schema */
-  function decode(bytes memory _blob) internal pure returns (VoxelTypeData memory _table) {
+  function decode(bytes memory _blob) internal pure returns (CAVoxelTypeData memory _table) {
     _table.voxelTypeId = (Bytes.slice32(_blob, 0));
 
     _table.voxelVariantId = (Bytes.slice32(_blob, 32));

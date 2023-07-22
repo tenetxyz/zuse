@@ -4,7 +4,7 @@ pragma solidity >=0.8.0;
 import { System } from "@latticexyz/world/src/System.sol";
 import { getKeysWithValue } from "@latticexyz/world/src/modules/keyswithvalue/getKeysWithValue.sol";
 import { hasKey } from "@latticexyz/world/src/modules/keysintable/hasKey.sol";
-import { VoxelType, Position, PositionData, PositionTableId } from "@base-ca/src/codegen/Tables.sol";
+import { CAVoxelType, CAPosition, CAPositionData, CAPositionTableId } from "@base-ca/src/codegen/Tables.sol";
 import { VoxelCoord } from "@tenet-registry/src/Types.sol";
 
 bytes32 constant AirVoxelID = bytes32(keccak256("air"));
@@ -30,20 +30,23 @@ contract BaseCASystem is System {
     require(isVoxelTypeAllowed(voxelTypeId), "This voxel type is not allowed in this CA");
 
     // Check if we can set the voxel type at this position
-    bytes32[] memory entitiesAtPosition = getKeysWithValue(PositionTableId, Position.encode(coord.x, coord.y, coord.z));
+    bytes32[] memory entitiesAtPosition = getKeysWithValue(
+      CAPositionTableId,
+      CAPosition.encode(coord.x, coord.y, coord.z)
+    );
     require(entitiesAtPosition.length <= 1, "This position is already occupied by another voxel");
     if (entitiesAtPosition.length == 1) {
       require(
         entitiesAtPosition[0] == entity &&
-          VoxelType.get(callerAddress, entitiesAtPosition[0]).voxelTypeId == AirVoxelID,
+          CAVoxelType.get(callerAddress, entitiesAtPosition[0]).voxelTypeId == AirVoxelID,
         "This position is already occupied by another voxel"
       );
     } else {
-      Position.set(callerAddress, entity, PositionData({ x: coord.x, y: coord.y, z: coord.z }));
+      CAPosition.set(callerAddress, entity, CAPositionData({ x: coord.x, y: coord.y, z: coord.z }));
     }
 
     bytes32 voxelVariantId = updateVoxelVariant(voxelTypeId, entity);
-    VoxelType.set(callerAddress, entity, voxelTypeId, voxelVariantId);
+    CAVoxelType.set(callerAddress, entity, voxelTypeId, voxelVariantId);
   }
 
   function updateVoxelVariant(bytes32 voxelTypeId, bytes32 entity) public returns (bytes32 voxelVariantId) {
@@ -60,10 +63,13 @@ contract BaseCASystem is System {
 
   function exitWorld(bytes32 entity) public {
     address callerAddress = msg.sender;
-    require(hasKey(PositionTableId, Position.encodeKeyTuple(callerAddress, entity)), "This entity is not in the world");
+    require(
+      hasKey(CAPositionTableId, CAPosition.encodeKeyTuple(callerAddress, entity)),
+      "This entity is not in the world"
+    );
     // set to Air
     bytes32 airVoxelVariantId = updateVoxelVariant(AirVoxelID, entity);
-    VoxelType.set(callerAddress, entity, AirVoxelID, airVoxelVariantId);
+    CAVoxelType.set(callerAddress, entity, AirVoxelID, airVoxelVariantId);
   }
 
   function runInteraction(
@@ -71,7 +77,7 @@ contract BaseCASystem is System {
     bytes32[] memory neighbourEntityIds,
     bytes32[] memory childEntityIds,
     bytes32[] memory parentEntityIds
-  ) public {
+  ) public returns (bytes32[] memory changedEntities) {
     // loop over all neighbours and run interaction logic
     // the interaction's used will can be in different namespaces
     // can change type at position

@@ -32,9 +32,9 @@ contract VoxelInteractionSystem is System {
     int8(0)
   ];
 
-  function calculateNeighbourEntities(bytes32 centerEntity) public view returns (bytes32[] memory) {
+  function calculateNeighbourEntities(uint256 scaleId, bytes32 centerEntity) public view returns (bytes32[] memory) {
     bytes32[] memory centerNeighbourEntities = new bytes32[](NUM_VOXEL_NEIGHBOURS);
-    PositionData memory baseCoord = Position.get(centerEntity);
+    PositionData memory baseCoord = Position.get(scaleId, centerEntity);
 
     for (uint8 i = 0; i < centerNeighbourEntities.length; i++) {
       VoxelCoord memory neighbouringCoord = VoxelCoord(

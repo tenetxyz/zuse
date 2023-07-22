@@ -3,7 +3,7 @@ import { resolveTableId } from "@latticexyz/config";
 
 export default mudConfig({
   tables: {
-    Position: {
+    CAPosition: {
       keySchema: {
         callerAddress: "address",
         entity: "bytes32",
@@ -15,7 +15,7 @@ export default mudConfig({
         z: "int32",
       },
     },
-    VoxelType: {
+    CAVoxelType: {
       keySchema: {
         callerAddress: "address",
         entity: "bytes32",

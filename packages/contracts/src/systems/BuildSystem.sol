@@ -10,6 +10,8 @@ import { OwnedBy, Position, PositionTableId, VoxelType, VoxelTypeData } from "@t
 import { addressToEntityKey, enterVoxelIntoWorld, updateVoxelVariant, increaseVoxelTypeSpawnCount } from "../Utils.sol";
 import { getUniqueEntity } from "@latticexyz/world/src/modules/uniqueentity/getUniqueEntity.sol";
 import { IWorld } from "@tenet-contracts/src/codegen/world/IWorld.sol";
+import { safeCall } from "@tenet-contracts/src/Utils.sol";
+import { CAVoxelType, CAVoxelTypeData } from "@tenet-base-ca/src/codegen/tables/CAVoxelType.sol";
 
 IStore constant REGISTRY_WORLD_STORE = IStore(0x5FbDB2315678afecb367f032d93F642f64180aa3);
 address constant BASE_CA_ADDRESS = 0x5FbDB2315678afecb367f032d93F642f64180aa3;
@@ -32,32 +34,71 @@ contract BuildSystem is System {
     address caAddress = VoxelTypeRegistry.get(REGISTRY_WORLD_STORE, voxelType);
     require(isCAAllowed(caAddress), "Invalid CA address");
 
-    // // Require no other ECS voxels at this position except Air
-    // bytes32[] memory entitiesAtPosition = getKeysWithValue(PositionTableId, Position.encode(coord.x, coord.y, coord.z));
-    // require(entitiesAtPosition.length <= 1, "This position is already occupied by another voxel");
-    // if (entitiesAtPosition.length == 1) {
-    //   require(
-    //     VoxelType.get(entitiesAtPosition[0]).voxelTypeId == AirID,
-    //     "This position is already occupied by another voxel"
-    //   );
-    //   VoxelType.deleteRecord(entitiesAtPosition[0]);
-    //   Position.deleteRecord(entitiesAtPosition[0]);
-    // }
+    address workingCaAddress = caAddress;
+    uint256 scaleId = 0; // TODO: make this a parameter
+    while (workingCaAddress != BASE_CA_ADDRESS) {
+      depth += 1;
+      // Read the ChildTypes in this CA address
+      // Figure out their CA address
+      // And keep looping until we get to the base CA address
+      // build(childVoxelType, coord)
+    }
+    // After we've built all the child types, we can build the parent type
+    bytes32 newEntity = getUniqueEntity();
 
-    // // TODO: check claim in chunk
-    // //    OwnedBy.deleteRecord(voxel);
-    // bytes32 newEntity = getUniqueEntity();
-    // Position.set(newEntity, coord.x, coord.y, coord.z);
+    // Enter World
+    safeCall(
+      caAddress,
+      abi.encodeWithSignature("enterWorld(bytes32,(int32,int32,int32),bytes32)", voxelType, coord, newEntity),
+      string(abi.encodePacked("enterWorld ", voxelType, " ", coord, " ", newEntity))
+    );
 
-    // VoxelType.set(newEntity, voxelType);
-    // // Note: Need to run this because we are in creative mode and this is a new entity
-    // enterVoxelIntoWorld(_world(), newEntity);
-    // updateVoxelVariant(_world(), newEntity);
+    // Set Position
+    Position.set(scaleId, newEntity, coord.x, coord.y, coord.z);
 
-    // increaseVoxelTypeSpawnCount(voxelType.voxelTypeNamespace, voxelType.voxelTypeId);
+    // Run interaction logic
+    bytes32[] memory neighbourEntityIds = IWorld(_world()).tenet_VoxInteractSys_calculateNeighbourEntities(newEntity);
+    bytes32[] memory childEntityIds;
+    bytes32[] memory parentEntityIds;
+    bytes memory returnData = safeCall(
+      caAddress,
+      abi.encodeWithSignature(
+        "runInteraction(bytes32,bytes32[],bytes32[],bytes32[])",
+        newEntity,
+        neighbourEntityIds,
+        childEntityIds,
+        parentEntityIds
+      ),
+      string(
+        abi.encodePacked(
+          "runInteraction ",
+          newEntity,
+          " ",
+          neighbourEntityIds,
+          " ",
+          childEntityIds,
+          " ",
+          parentEntityIds
+        )
+      )
+    );
+    bytes32[] memory changedEntities = abi.decode(returnData, (bytes32[]));
 
-    // // Run voxel interaction logic
-    // IWorld(_world()).tenet_VoxInteractSys_runInteractionSystems(newEntity);
+    // Update VoxelType and Position at this level to match the CA
+    for (uint256 i = 0; i < changedEntities.length; i++) {
+      bytes32 changedEntity = changedEntities[i];
+      CAVoxelTypeData changedEntityVoxelType = CAVoxelType.get(IStore(caAddress), _world(), changedEntity);
+      // Update VoxelType
+      VoxelType.set(
+        scaleId,
+        changedEntities[i],
+        changedEntityVoxelType.voxelTypeId,
+        changedEntityVoxelType.voxelVariantId
+      );
+      // TODO: Do we need this?
+      // Position should not change of the entity
+      // Position.set(scaleId, changedEntities[i], coord.x, coord.y, coord.z);
+    }
 
     return newEntity;
   }

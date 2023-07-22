@@ -17,16 +17,16 @@ import { EncodeArray } from "@latticexyz/store/src/tightcoder/EncodeArray.sol";
 import { Schema, SchemaLib } from "@latticexyz/store/src/Schema.sol";
 import { PackedCounter, PackedCounterLib } from "@latticexyz/store/src/PackedCounter.sol";
 
-bytes32 constant _tableId = bytes32(abi.encodePacked(bytes16(""), bytes16("Position")));
-bytes32 constant PositionTableId = _tableId;
+bytes32 constant _tableId = bytes32(abi.encodePacked(bytes16(""), bytes16("CAPosition")));
+bytes32 constant CAPositionTableId = _tableId;
 
-struct PositionData {
+struct CAPositionData {
   int32 x;
   int32 y;
   int32 z;
 }
 
-library Position {
+library CAPosition {
   /** Get the table's schema */
   function getSchema() internal pure returns (Schema) {
     SchemaType[] memory _schema = new SchemaType[](3);
@@ -51,7 +51,7 @@ library Position {
     _fieldNames[0] = "x";
     _fieldNames[1] = "y";
     _fieldNames[2] = "z";
-    return ("Position", _fieldNames);
+    return ("CAPosition", _fieldNames);
   }
 
   /** Register the table's schema */
@@ -191,7 +191,7 @@ library Position {
   }
 
   /** Get the full data */
-  function get(address callerAddress, bytes32 entity) internal view returns (PositionData memory _table) {
+  function get(address callerAddress, bytes32 entity) internal view returns (CAPositionData memory _table) {
     bytes32[] memory _keyTuple = new bytes32[](2);
     _keyTuple[0] = bytes32(uint256(uint160(callerAddress)));
     _keyTuple[1] = entity;
@@ -205,7 +205,7 @@ library Position {
     IStore _store,
     address callerAddress,
     bytes32 entity
-  ) internal view returns (PositionData memory _table) {
+  ) internal view returns (CAPositionData memory _table) {
     bytes32[] memory _keyTuple = new bytes32[](2);
     _keyTuple[0] = bytes32(uint256(uint160(callerAddress)));
     _keyTuple[1] = entity;
@@ -237,17 +237,17 @@ library Position {
   }
 
   /** Set the full data using the data struct */
-  function set(address callerAddress, bytes32 entity, PositionData memory _table) internal {
+  function set(address callerAddress, bytes32 entity, CAPositionData memory _table) internal {
     set(callerAddress, entity, _table.x, _table.y, _table.z);
   }
 
   /** Set the full data using the data struct (using the specified store) */
-  function set(IStore _store, address callerAddress, bytes32 entity, PositionData memory _table) internal {
+  function set(IStore _store, address callerAddress, bytes32 entity, CAPositionData memory _table) internal {
     set(_store, callerAddress, entity, _table.x, _table.y, _table.z);
   }
 
   /** Decode the tightly packed blob using this table's schema */
-  function decode(bytes memory _blob) internal pure returns (PositionData memory _table) {
+  function decode(bytes memory _blob) internal pure returns (CAPositionData memory _table) {
     _table.x = (int32(uint32(Bytes.slice4(_blob, 0))));
 
     _table.y = (int32(uint32(Bytes.slice4(_blob, 4))));

@@ -2,7 +2,7 @@
 pragma solidity >=0.8.0;
 
 import { getUniqueEntity } from "@latticexyz/world/src/modules/uniqueentity/getUniqueEntity.sol";
-import { MudV2Test } from "@latticexyz/std-contracts/src/test/MudV2Test.t.sol";
+import { MudTest } from "@latticexyz/store/src/MudTest.sol";
 import { addressToEntityKey } from "../../Utils.sol";
 import { VoxelCoord, BaseCreationInWorld } from "@tenet-contracts/src/Types.sol";
 import { OwnedBy, VoxelType, VoxelTypeData } from "@tenet-contracts/src/codegen/Tables.sol";
@@ -13,7 +13,7 @@ import { Utilities } from "@latticexyz/std-contracts/src/test/Utilities.sol";
 import { console } from "forge-std/console.sol";
 import { TENET_NAMESPACE } from "../../Constants.sol";
 
-contract RegisterCreationTest is MudV2Test {
+contract RegisterCreationTest is MudTest {
   IWorld private world;
   IStore private store;
   Utilities internal immutable utils = new Utilities();

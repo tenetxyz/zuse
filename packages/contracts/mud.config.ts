@@ -14,17 +14,30 @@ export default mudConfig({
   },
   snapSync: true,
   tables: {
-    Name: "string", // Used to name players
-    VoxelType: {
-      // TODO: Move this to a namespace?
+    Position: {
+      keySchema: {
+        scaleId: "uint256",
+        entity: "bytes32",
+      },
       schema: {
-        voxelTypeNamespace: "bytes16",
+        // VoxelCoord is removed in MUD2, so we need to manually specify x,y,z
+        x: "int32",
+        y: "int32",
+        z: "int32",
+      },
+    },
+    VoxelType: {
+      keySchema: {
+        scaleId: "uint256",
+        entity: "bytes32",
+      },
+      schema: {
         voxelTypeId: "bytes32",
-        // TODO: Move this to its own type as keyof VoxelVariants
-        voxelVariantNamespace: "bytes16",
         voxelVariantId: "bytes32",
       },
     },
+    // Other tables
+    Name: "string", // Used to name players
     VoxelVariants: {
       keySchema: {
         voxelVariantNamespace: "bytes16",
@@ -68,14 +81,6 @@ export default mudConfig({
       },
     },
     OwnedBy: "bytes32",
-    Position: {
-      schema: {
-        // VoxelCoord is removed in MUD2, so we need to manually specify x,y,z
-        x: "int32",
-        y: "int32",
-        z: "int32",
-      },
-    },
     VoxelInteractionExtension: {
       keySchema: {
         namespace: "bytes16",
@@ -101,7 +106,6 @@ export default mudConfig({
         baseCreations: "bytes", // it is called "base" creation - cause of "base class" in c++. To make composable creations work, root creations are comprised of these base creations.
       },
     },
-
     // tables for spawning
     OfSpawn: "bytes32", // maps a voxel spawned in the world -> the entityId representing its spawn
     Spawn: {

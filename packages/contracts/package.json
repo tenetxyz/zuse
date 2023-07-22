@@ -23,6 +23,10 @@
     "worldgen": "yarn mud worldgen",
     "worldtypes": "rimraf types && typechain --target=ethers-v5 out/world/IWorld.sol/IWorld.json"
   },
+  "dependencies": {
+    "@tenetxyz/base-ca": "workspace:*",
+    "@tenetxyz/registry": "workspace:*"
+  },
   "devDependencies": {
     "@ethersproject/abi": "^5.7.0",
     "@ethersproject/bytes": "^5.7.0",

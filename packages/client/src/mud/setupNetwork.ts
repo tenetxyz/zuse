@@ -366,9 +366,9 @@ export async function setupNetwork() {
         HasValue(contractComponents.OwnedBy, {
           value: to64CharAddress(playerAddress),
         }),
-        HasValue(contractComponents.VoxelType, voxelType),
       ]),
     ][0];
+    console.log(voxelInstanceOfVoxelType);
     if (!voxelInstanceOfVoxelType) {
       return console.warn(`cannot find a voxel (that you own) for voxelType=${voxelType}`);
     }

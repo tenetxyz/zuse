@@ -241,6 +241,8 @@ export function createInputSystem(layers: Layers) {
     }
 
     const voxelTypeBaseKey = getVoxelTypeInSelectedSlot();
+    console.log("clicked right");
+    console.log(voxelTypeBaseKey);
     if (voxelTypeBaseKey) {
       // you are holding a block and are looking at a block. so place the block at the adjacent coord
       const pos = noa.targetedBlock.adjacent;

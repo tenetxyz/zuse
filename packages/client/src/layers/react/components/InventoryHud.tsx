@@ -60,19 +60,22 @@ export function registerInventoryHud() {
         },
       } = layers;
 
-      const VoxelsIOwnQuery = defineQuery(
-        [HasValue(OwnedBy, { value: to64CharAddress(connectedAddress.get()) }), Has(VoxelType)],
-        {
-          runOnInit: true,
-        }
-      );
+      const VoxelsIOwnQuery = defineQuery([HasValue(OwnedBy, { value: to64CharAddress(connectedAddress.get()) })], {
+        runOnInit: true,
+      });
 
       // maps voxel type -> number of voxels I own of that type
       const numVoxelsIOwnOfType$ = concat<{ [key: string]: number }[]>(
         of({}),
         VoxelsIOwnQuery.update$.pipe(
           scan((acc, curr) => {
-            const voxelType = getComponentValue(VoxelType, curr.entity);
+            console.log("getting bro");
+            console.log(curr.entity);
+            const voxelType = getComponentValue(
+              VoxelType,
+              ("0x0000000000000000000000000000000000000000000000000000000000000000:" + curr.entity) as Entity
+            );
+            console.log(voxelType);
             if (!voxelType) return { ...acc };
             const voxelTypeString = voxelTypeToVoxelTypeBaseKeyString(voxelType);
             acc[voxelTypeString] = acc[voxelTypeString] ?? 0;

@@ -38,11 +38,14 @@ export const getItemTypesIOwn = (
   }>,
   connectedAddress: IComputedValue<string | undefined>
 ): Set<string> => {
-  const itemsIOwn = runQuery([HasValue(OwnedBy, { value: to64CharAddress(connectedAddress.get()) }), Has(VoxelType)]);
+  const itemsIOwn = runQuery([HasValue(OwnedBy, { value: to64CharAddress(connectedAddress.get()) })]);
   return new Set(
     Array.from(itemsIOwn)
       .map((item) => {
-        const voxelType = getComponentValue(VoxelType, item);
+        const voxelType = getComponentValue(
+          VoxelType,
+          ("0x0000000000000000000000000000000000000000000000000000000000000000:" + item) as Entity
+        );
         if (voxelType === undefined) {
           console.warn(`voxelType of item you own is undefined item=${item.toString()}`);
           return "";
@@ -70,7 +73,7 @@ export function createInventoryIndexSystem(network: NetworkLayer, context: NoaLa
   const update$ = connectedAddress$.pipe(
     switchMap(
       (address) =>
-        defineQuery([HasValue(OwnedBy, { value: to64CharAddress(address) }), Has(VoxelType)], {
+        defineQuery([HasValue(OwnedBy, { value: to64CharAddress(address) })], {
           runOnInit: true,
         }).update$
     )
@@ -96,7 +99,12 @@ export function createInventoryIndexSystem(network: NetworkLayer, context: NoaLa
       // the voxel just got removed, so don't assign an inventory index for it
       return;
     }
-    const voxelType = getComponentValue(VoxelType, update.entity);
+    const voxelType = getComponentValue(
+      VoxelType,
+      ("0x0000000000000000000000000000000000000000000000000000000000000000:" + update.entity) as Entity
+    );
+    console.log("over here");
+    console.log(voxelType);
 
     if (voxelType === undefined) return;
     const voxelTypeBaseKey = voxelTypeToVoxelTypeBaseKeyStr(voxelType) as Entity;

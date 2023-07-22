@@ -24,12 +24,15 @@ export function getEntityAtPosition(
   const entitiesAtPosition = [...getEntitiesWithValue(Position, coord)];
 
   // Prefer non-air voxels at this position
-  return (
+  let entity =
     entitiesAtPosition?.find((b) => {
       const voxelType = getComponentValue(VoxelType, b);
       return voxelType && voxelType.voxelTypeId !== AIR_ID;
-    }) ?? entitiesAtPosition[0]
-  );
+    }) ?? entitiesAtPosition[0];
+  if (entity !== undefined) {
+    entity = entity.split(":")[1] as Entity;
+  }
+  return entity;
 }
 
 export function getEcsVoxelType(

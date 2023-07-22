@@ -14,8 +14,87 @@ export default mudConfig({
   },
   snapSync: true,
   tables: {
-    Name: "string", // Used to name players
+    // Base CA Tables
+    // --------------------
+    BasePosition: {
+      keySchema: {
+        callerAddress: "address",
+        entity: "bytes32",
+      },
+      schema: {
+        // VoxelCoord is removed in MUD2, so we need to manually specify x,y,z
+        x: "int32",
+        y: "int32",
+        z: "int32",
+      },
+    },
+    BaseType: {
+      keySchema: {
+        callerAddress: "address",
+        entity: "bytes32",
+      },
+      schema: {
+        voxelTypeNamespace: "bytes16",
+        voxelTypeId: "bytes32",
+        voxelVariantNamespace: "bytes16",
+        voxelVariantId: "bytes32",
+      },
+    },
+    // --------------------
+    // Composed CA Tables
+    // --------------------
+    ComposedType: {
+      keySchema: {
+        callerAddress: "address",
+        entity: "bytes32",
+      },
+      schema: {
+        voxelTypeNamespace: "bytes16",
+        voxelTypeId: "bytes32",
+        voxelVariantNamespace: "bytes16",
+        voxelVariantId: "bytes32",
+      },
+    },
+    ChildTypes: {
+      keySchema: {
+        voxelTypeNamespace: "bytes16",
+        voxelTypeId: "bytes32",
+      },
+      schema: {
+        voxelTypes: "bytes", // {voxelTypeNamespace, voxelTypeId} []
+        relativePositions: "bytes",
+      },
+    },
+    // Don't need this table
+    ChildEntities: {
+      keySchema: {
+        callerAddress: "address",
+        entity: "bytes32",
+      },
+      schema: {
+        entities: "bytes32[]",
+      },
+    },
+    // --------------------
+    // World Tables
+    // --------------------
+    Position: {
+      keySchema: {
+        scaleId: "uint256",
+        entity: "bytes32",
+      },
+      schema: {
+        // VoxelCoord is removed in MUD2, so we need to manually specify x,y,z
+        x: "int32",
+        y: "int32",
+        z: "int32",
+      },
+    },
     VoxelType: {
+      keySchema: {
+        scaleId: "uint256",
+        entity: "bytes32",
+      },
       // TODO: Move this to a namespace?
       schema: {
         voxelTypeNamespace: "bytes16",
@@ -23,6 +102,28 @@ export default mudConfig({
         // TODO: Move this to its own type as keyof VoxelVariants
         voxelVariantNamespace: "bytes16",
         voxelVariantId: "bytes32",
+      },
+    },
+    // --------------------
+    // Shared World Table
+    // --------------------
+    VoxelTypeRegistry: {
+      // TODO: Move this to a namespace?
+      keySchema: {
+        voxelTypeId: "bytes32",
+      },
+      schema: {
+        caAddress: "address",
+        // ----
+        previewVoxelVariantNamespace: "bytes16",
+        previewVoxelVariantId: "bytes32",
+        enterWorldSelector: "bytes4",
+        exitWorldSelector: "bytes4",
+        voxelVariantSelector: "bytes4",
+        activateSelector: "bytes4",
+        creator: "address",
+        numSpawns: "uint256",
+        name: "string", // NOTE: you don't want the VoxelTypeId to be based on the name, cause changing the name would change the ID
       },
     },
     VoxelVariants: {
@@ -42,24 +143,8 @@ export default mudConfig({
         uvWrap: "string", // File ID Hash
       },
     },
-    VoxelTypeRegistry: {
-      // TODO: Move this to a namespace?
-      keySchema: {
-        voxelTypeNamespace: "bytes16",
-        voxelTypeId: "bytes32",
-      },
-      schema: {
-        previewVoxelVariantNamespace: "bytes16",
-        previewVoxelVariantId: "bytes32",
-        enterWorldSelector: "bytes4",
-        exitWorldSelector: "bytes4",
-        voxelVariantSelector: "bytes4",
-        activateSelector: "bytes4",
-        creator: "address",
-        numSpawns: "uint256",
-        name: "string", // NOTE: you don't want the VoxelTypeId to be based on the name, cause changing the name would change the ID
-      },
-    },
+
+    Name: "string", // Used to name players
     Occurrence: {
       // Each voxel generates at diff spots in the world, and each voxel has a function defining where it should appear.
       // This table points to each voxel's respective generation function.
@@ -68,14 +153,6 @@ export default mudConfig({
       },
     },
     OwnedBy: "bytes32",
-    Position: {
-      schema: {
-        // VoxelCoord is removed in MUD2, so we need to manually specify x,y,z
-        x: "int32",
-        y: "int32",
-        z: "int32",
-      },
-    },
     VoxelInteractionExtension: {
       keySchema: {
         namespace: "bytes16",
@@ -101,7 +178,6 @@ export default mudConfig({
         baseCreations: "bytes", // it is called "base" creation - cause of "base class" in c++. To make composable creations work, root creations are comprised of these base creations.
       },
     },
-
     // tables for spawning
     OfSpawn: "bytes32", // maps a voxel spawned in the world -> the entityId representing its spawn
     Spawn: {

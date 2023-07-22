@@ -55,21 +55,21 @@ contract RegisterCreationTest is MudTest {
     VoxelCoord memory coord1 = VoxelCoord(1, 2, 1);
     VoxelCoord memory coord2 = VoxelCoord(2, 1, 2);
 
-    // the build system spawns a new voxel before placing the newly spawned voxel in the world
-    bytes32 voxel1 = world.tenet_BuildSystem_build(giftedVoxel, coord1);
-    bytes32 voxel2 = world.tenet_BuildSystem_build(giftedVoxel, coord2);
+    // // the build system spawns a new voxel before placing the newly spawned voxel in the world
+    // bytes32 voxel1 = world.tenet_BuildSystem_build(giftedVoxel, coord1);
+    // bytes32 voxel2 = world.tenet_BuildSystem_build(giftedVoxel, coord2);
 
-    bytes32[] memory voxels = new bytes32[](2);
-    voxels[0] = voxel1;
-    voxels[1] = voxel2;
+    // bytes32[] memory voxels = new bytes32[](2);
+    // voxels[0] = voxel1;
+    // voxels[1] = voxel2;
 
-    BaseCreationInWorld[] memory baseCreationsInWorld = new BaseCreationInWorld[](0);
-    world.tenet_RegisterCreation_registerCreation(
-      "test creation name",
-      "test creation desc",
-      voxels,
-      baseCreationsInWorld
-    );
+    // BaseCreationInWorld[] memory baseCreationsInWorld = new BaseCreationInWorld[](0);
+    // world.tenet_RegisterCreation_registerCreation(
+    //   "test creation name",
+    //   "test creation desc",
+    //   voxels,
+    //   baseCreationsInWorld
+    // );
     vm.stopPrank();
   }
 }

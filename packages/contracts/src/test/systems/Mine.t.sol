@@ -36,7 +36,7 @@ contract MineTest is MudTest {
 
     bytes32 minedEntity = world.tenet_MineSystem_mine(coord, TENET_NAMESPACE, GrassID, TENET_NAMESPACE, GrassID);
 
-    assertEq(VoxelType.get(store, minedEntity).voxelTypeId, GrassID);
+    assertEq(VoxelType.get(store, 0, minedEntity).voxelTypeId, GrassID);
     assertEq(OwnedBy.get(store, minedEntity), addressToEntityKey(alice));
     vm.stopPrank();
   }

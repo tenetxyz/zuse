@@ -80,7 +80,7 @@ contract VoxelInteractionSystem is System {
       // we'll go through each one until there is no more changed entities
       // order in which these systems are called should not matter since they all change their own components
       bytes32 useCenterEntityId = centerEntitiesToCheckStack[useStackIdx];
-      bytes32[] memory useNeighbourEntities = calculateNeighbourEntities(useCenterEntityId);
+      bytes32[] memory useNeighbourEntities = calculateNeighbourEntities(0, useCenterEntityId);
       if (!hasEntity(useNeighbourEntities)) {
         // if no neighbours, then we don't run any voxel interactions because there would be none
         break;

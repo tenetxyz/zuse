@@ -14,16 +14,13 @@ contract ActivateVoxelSystem is System {
     keyTuple[0] = entity;
     require(hasKey(PositionTableId, keyTuple), "The entity must be placed in the world");
 
-    VoxelTypeData memory voxelType = VoxelType.get(entity);
-    bytes4 activateSelector = VoxelTypeRegistry.getActivateSelector(
-      voxelType.voxelTypeNamespace,
-      voxelType.voxelTypeId
-    );
+    VoxelTypeData memory voxelType = VoxelType.get(0, entity);
+    bytes4 activateSelector = VoxelTypeRegistry.getActivateSelector(bytes16(0), voxelType.voxelTypeId);
 
     bytes memory activateReturnData = safeCall(
-        _world(),
-        abi.encodeWithSelector(activateSelector, entity),
-        string(abi.encode("activate entity: ", Strings.toString(uint256(entity))))
+      _world(),
+      abi.encodeWithSelector(activateSelector, entity),
+      string(abi.encode("activate entity: ", Strings.toString(uint256(entity))))
     );
 
     // Run voxel interaction logic

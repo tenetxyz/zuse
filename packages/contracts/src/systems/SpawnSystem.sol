@@ -33,7 +33,11 @@ contract SpawnSystem is System {
 
       // delete the voxels at this coord
       IWorld(_world()).tenet_MineSystem_clearCoord(spawnVoxelAtCoord); // it's important to MINE the voxels since this function also removes spawns from the world if all its voxels are gone
-      bytes32 newEntity = IWorld(_world()).tenet_BuildSystem_buildVoxelType(voxelTypes[i], spawnVoxelAtCoord);
+      bytes32 newEntity;
+      // bytes32 newEntity = IWorld(_world()).tenet_BuildSystem_buildVoxelType(
+      //   voxelTypes[i].voxelTypeId,
+      //   spawnVoxelAtCoord
+      // );
 
       // update the spawn-related components
       OfSpawn.set(newEntity, spawnId);

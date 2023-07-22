@@ -17,13 +17,13 @@ IStore constant REGISTRY_WORLD_STORE = IStore(0x5FbDB2315678afecb367f032d93F642f
 address constant BASE_CA_ADDRESS = 0x5FbDB2315678afecb367f032d93F642f64180aa3;
 
 contract BuildSystem is System {
-  // function build(bytes32 entity, VoxelCoord memory coord) public returns (bytes32) {
-  //   // Require voxel to be owned by caller
-  //   require(OwnedBy.get(entity) == addressToEntityKey(_msgSender()), "voxel is not owned by player");
+  function build(bytes32 entity, VoxelCoord memory coord) public returns (bytes32) {
+    // Require voxel to be owned by caller
+    require(OwnedBy.get(entity) == addressToEntityKey(_msgSender()), "voxel is not owned by player");
 
-  //   VoxelTypeData memory voxelType = VoxelType.get(entity);
-  //   return buildVoxelType(voxelType, coord);
-  // }
+    VoxelTypeData memory voxelType = VoxelType.get(0, entity);
+    return buildVoxelType(voxelType.voxelTypeId, coord);
+  }
 
   function isCAAllowed(address caAddress) public view returns (bool) {
     return caAddress == BASE_CA_ADDRESS;
@@ -31,13 +31,13 @@ contract BuildSystem is System {
 
   // TODO: when we have a survival mode, prevent ppl from alling this function directly (since they don't need to own the voxel to call it)
   function buildVoxelType(bytes32 voxelTypeId, VoxelCoord memory coord) public returns (bytes32) {
-    address caAddress = VoxelTypeRegistry.get(REGISTRY_WORLD_STORE, voxelType);
+    address caAddress = VoxelTypeRegistry.get(REGISTRY_WORLD_STORE, voxelTypeId).caAddress;
     require(isCAAllowed(caAddress), "Invalid CA address");
 
     address workingCaAddress = caAddress;
     uint256 scaleId = 0; // TODO: make this a parameter
     while (workingCaAddress != BASE_CA_ADDRESS) {
-      depth += 1;
+      scaleId += 1;
       // Read the ChildTypes in this CA address
       // Figure out their CA address
       // And keep looping until we get to the base CA address
@@ -49,17 +49,20 @@ contract BuildSystem is System {
     // Enter World
     safeCall(
       caAddress,
-      abi.encodeWithSignature("enterWorld(bytes32,(int32,int32,int32),bytes32)", voxelType, coord, newEntity),
-      string(abi.encodePacked("enterWorld ", voxelType, " ", coord, " ", newEntity))
+      abi.encodeWithSignature("enterWorld(bytes32,(int32,int32,int32),bytes32)", voxelTypeId, coord, newEntity),
+      string(abi.encode("enterWorld ", voxelTypeId, " ", coord, " ", newEntity))
     );
 
     // Set Position
     Position.set(scaleId, newEntity, coord.x, coord.y, coord.z);
 
     // Run interaction logic
-    bytes32[] memory neighbourEntityIds = IWorld(_world()).tenet_VoxInteractSys_calculateNeighbourEntities(newEntity);
-    bytes32[] memory childEntityIds;
-    bytes32[] memory parentEntityIds;
+    bytes32[] memory neighbourEntityIds = IWorld(_world()).tenet_VoxInteractSys_calculateNeighbourEntities(
+      scaleId,
+      newEntity
+    );
+    bytes32[] memory childEntityIds; // TODO: get child entities
+    bytes32[] memory parentEntityIds; // TODO: get parent entities
     bytes memory returnData = safeCall(
       caAddress,
       abi.encodeWithSignature(
@@ -70,16 +73,7 @@ contract BuildSystem is System {
         parentEntityIds
       ),
       string(
-        abi.encodePacked(
-          "runInteraction ",
-          newEntity,
-          " ",
-          neighbourEntityIds,
-          " ",
-          childEntityIds,
-          " ",
-          parentEntityIds
-        )
+        abi.encode("runInteraction ", newEntity, " ", neighbourEntityIds, " ", childEntityIds, " ", parentEntityIds)
       )
     );
     bytes32[] memory changedEntities = abi.decode(returnData, (bytes32[]));
@@ -87,7 +81,7 @@ contract BuildSystem is System {
     // Update VoxelType and Position at this level to match the CA
     for (uint256 i = 0; i < changedEntities.length; i++) {
       bytes32 changedEntity = changedEntities[i];
-      CAVoxelTypeData changedEntityVoxelType = CAVoxelType.get(IStore(caAddress), _world(), changedEntity);
+      CAVoxelTypeData memory changedEntityVoxelType = CAVoxelType.get(IStore(caAddress), _world(), changedEntity);
       // Update VoxelType
       VoxelType.set(
         scaleId,

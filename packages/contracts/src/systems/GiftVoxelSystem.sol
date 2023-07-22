@@ -22,7 +22,7 @@ contract GiftVoxelSystem is System {
     // require(numUniqueVoxelTypesIOwn() <= 36, "You can only own 36 unique voxel types at a time");
     bytes32 entity = getUniqueEntity();
     // When a voxel is in your inventory, it's not in the world so it should have no voxel variant
-    VoxelType.set(entity, voxelTypeNamespace, voxelTypeId, "", "");
+    VoxelType.set(0, entity, voxelTypeId, "");
 
     OwnedBy.set(entity, addressToEntityKey(_msgSender()));
 
@@ -45,7 +45,7 @@ contract GiftVoxelSystem is System {
       //            console.log("voxelsIOwnTuples.length", voxelsIOwnTuples.length);
       //            console.log("voxelsIOwnTuples[0].length", voxelsIOwnTuples[i].length);
       bytes32 entityId = voxelsIOwnTuples[i][0];
-      voxelTypesIOwn[i] = abi.encode(VoxelType.get(entityId));
+      voxelTypesIOwn[i] = abi.encode(VoxelType.get(0, entityId));
     }
 
     return removeDuplicates(voxelTypesIOwn).length;

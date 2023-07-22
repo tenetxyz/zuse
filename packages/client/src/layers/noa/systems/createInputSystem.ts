@@ -17,7 +17,7 @@ import { voxelCoordToString } from "../../../utils/coord";
 import { renderFloatingTextAboveCoord } from "./renderFloatingText";
 import { InterfaceVoxel } from "../types";
 import { World } from "noa-engine/dist/src/lib/world";
-import { decreaseScale } from "./createScaleManager";
+import { decreaseScale, setScale } from "./createScaleManager";
 
 export function createInputSystem(layers: Layers) {
   const {
@@ -73,7 +73,12 @@ export function createInputSystem(layers: Layers) {
   type InputEventKey = keyof typeof InputEvent;
 
   const bindInputEvent = (key: InputEventKey) => {
-    noa.inputs.bind(key, ...InputEvent[key]);
+    const inputKeys = InputEvent[key];
+    if (Array.isArray(inputKeys)) {
+      noa.inputs.bind(key, ...inputKeys);
+    } else {
+      noa.inputs.bind(key, inputKeys);
+    }
   };
 
   const unbindInputEvent = (key: InputEventKey) => {
@@ -470,7 +475,7 @@ export function createInputSystem(layers: Layers) {
     });
   });
 
-  noa.inputs.bind("spawn-creation", InputEvent["spawn-creation"]);
+  bindInputEvent("spawn-creation");
   onDownInputEvent("spawn-creation", () => {
     if (!noa.container.hasPointerLock) {
       return;
@@ -486,20 +491,18 @@ export function createInputSystem(layers: Layers) {
     spawnCreation({ x: minX, y: minY, z: minZ }, (creation as Creation).creationId);
   });
 
-  noa.inputs.bind("crouch", InputEvent["crouch"]); // I'm not sure why, but for crouch, it NEEDS to be registered this way
-  // bindInputEvent("crouch");
+  bindInputEvent("crouch");
 
   // We are not doing anything when crouching in this file because noa's movement
   // component reads the crouch event and uses it to descend when flying
   // onDownInputEvent("crouch", () => {});
 
-  noa.inputs.bind("zoomout", InputEvent["zoomout"]); // I'm not sure why, but for crouch, it NEEDS to be registered this way
+  bindInputEvent("zoomout");
   onDownInputEvent("zoomout", () => {
-    console.log("zoom out");
+    setScale(layers, -1);
   });
-  noa.inputs.bind("zoomin", InputEvent["zoomin"]); // I'm not sure why, but for crouch, it NEEDS to be registered this way
+  bindInputEvent("zoomin");
   onDownInputEvent("zoomin", () => {
-    decreaseScale(layers);
-    console.log("zoom in");
+    setScale(layers, +1);
   });
 }

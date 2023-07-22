@@ -4,15 +4,10 @@ pragma solidity >=0.8.0;
 import { System } from "@latticexyz/world/src/System.sol";
 import { hasKey } from "@latticexyz/world/src/modules/keysintable/hasKey.sol";
 import { VoxelType, Position, PositionData } from "@base-ca/src/codegen/Tables.sol";
-
-// struct VoxelCoord {
-//   int32 x;
-//   int32 y;
-//   int32 z;
-// }
+import { VoxelCoord } from "@tenet-registry/src/Types.sol";
 
 contract BaseCASystem is System {
-  function enterWorld(bytes32 voxelTypeId, PositionData memory coord, bytes32 entity) public {
+  function enterWorld(bytes32 voxelTypeId, VoxelCoord memory coord, bytes32 entity) public {
     address callerAddress = msg.sender;
 
     Position.set(callerAddress, entity, PositionData({ x: coord.x, y: coord.y, z: coord.z }));

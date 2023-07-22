@@ -1108,6 +1108,12 @@ __metadata:
   languageName: node
   linkType: soft
 
+"@latticexyz/cli@link:../../../mud/packages/cli::locator=%40tenetxyz%2Fregistry%40workspace%3Apackages%2Fregistry":
+  version: 0.0.0-use.local
+  resolution: "@latticexyz/cli@link:../../../mud/packages/cli::locator=%40tenetxyz%2Fregistry%40workspace%3Apackages%2Fregistry"
+  languageName: node
+  linkType: soft
+
 "@latticexyz/cli@link:../../../mud/packages/cli::locator=base-ca%40workspace%3Apackages%2Fbase-ca":
   version: 0.0.0-use.local
   resolution: "@latticexyz/cli@link:../../../mud/packages/cli::locator=base-ca%40workspace%3Apackages%2Fbase-ca"
@@ -1117,12 +1123,6 @@ __metadata:
 "@latticexyz/cli@link:../../../mud/packages/cli::locator=extension-contracts%40workspace%3Apackages%2Fextension-contracts":
   version: 0.0.0-use.local
   resolution: "@latticexyz/cli@link:../../../mud/packages/cli::locator=extension-contracts%40workspace%3Apackages%2Fextension-contracts"
-  languageName: node
-  linkType: soft
-
-"@latticexyz/cli@link:../../../mud/packages/cli::locator=registry%40workspace%3Apackages%2Fregistry":
-  version: 0.0.0-use.local
-  resolution: "@latticexyz/cli@link:../../../mud/packages/cli::locator=registry%40workspace%3Apackages%2Fregistry"
   languageName: node
   linkType: soft
 
@@ -1144,6 +1144,12 @@ __metadata:
   languageName: node
   linkType: soft
 
+"@latticexyz/config@link:../../../mud/packages/config::locator=%40tenetxyz%2Fregistry%40workspace%3Apackages%2Fregistry":
+  version: 0.0.0-use.local
+  resolution: "@latticexyz/config@link:../../../mud/packages/config::locator=%40tenetxyz%2Fregistry%40workspace%3Apackages%2Fregistry"
+  languageName: node
+  linkType: soft
+
 "@latticexyz/config@link:../../../mud/packages/config::locator=base-ca%40workspace%3Apackages%2Fbase-ca":
   version: 0.0.0-use.local
   resolution: "@latticexyz/config@link:../../../mud/packages/config::locator=base-ca%40workspace%3Apackages%2Fbase-ca"
@@ -1153,12 +1159,6 @@ __metadata:
 "@latticexyz/config@link:../../../mud/packages/config::locator=extension-contracts%40workspace%3Apackages%2Fextension-contracts":
   version: 0.0.0-use.local
   resolution: "@latticexyz/config@link:../../../mud/packages/config::locator=extension-contracts%40workspace%3Apackages%2Fextension-contracts"
-  languageName: node
-  linkType: soft
-
-"@latticexyz/config@link:../../../mud/packages/config::locator=registry%40workspace%3Apackages%2Fregistry":
-  version: 0.0.0-use.local
-  resolution: "@latticexyz/config@link:../../../mud/packages/config::locator=registry%40workspace%3Apackages%2Fregistry"
   languageName: node
   linkType: soft
 
@@ -1216,6 +1216,12 @@ __metadata:
   languageName: node
   linkType: soft
 
+"@latticexyz/schema-type@link:../../../mud/packages/schema-type::locator=%40tenetxyz%2Fregistry%40workspace%3Apackages%2Fregistry":
+  version: 0.0.0-use.local
+  resolution: "@latticexyz/schema-type@link:../../../mud/packages/schema-type::locator=%40tenetxyz%2Fregistry%40workspace%3Apackages%2Fregistry"
+  languageName: node
+  linkType: soft
+
 "@latticexyz/schema-type@link:../../../mud/packages/schema-type::locator=base-ca%40workspace%3Apackages%2Fbase-ca":
   version: 0.0.0-use.local
   resolution: "@latticexyz/schema-type@link:../../../mud/packages/schema-type::locator=base-ca%40workspace%3Apackages%2Fbase-ca"
@@ -1231,12 +1237,6 @@ __metadata:
 "@latticexyz/schema-type@link:../../../mud/packages/schema-type::locator=extension-contracts%40workspace%3Apackages%2Fextension-contracts":
   version: 0.0.0-use.local
   resolution: "@latticexyz/schema-type@link:../../../mud/packages/schema-type::locator=extension-contracts%40workspace%3Apackages%2Fextension-contracts"
-  languageName: node
-  linkType: soft
-
-"@latticexyz/schema-type@link:../../../mud/packages/schema-type::locator=registry%40workspace%3Apackages%2Fregistry":
-  version: 0.0.0-use.local
-  resolution: "@latticexyz/schema-type@link:../../../mud/packages/schema-type::locator=registry%40workspace%3Apackages%2Fregistry"
   languageName: node
   linkType: soft
 
@@ -1270,6 +1270,12 @@ __metadata:
   languageName: node
   linkType: soft
 
+"@latticexyz/std-contracts@link:../../../mud/packages/std-contracts::locator=%40tenetxyz%2Fregistry%40workspace%3Apackages%2Fregistry":
+  version: 0.0.0-use.local
+  resolution: "@latticexyz/std-contracts@link:../../../mud/packages/std-contracts::locator=%40tenetxyz%2Fregistry%40workspace%3Apackages%2Fregistry"
+  languageName: node
+  linkType: soft
+
 "@latticexyz/std-contracts@link:../../../mud/packages/std-contracts::locator=base-ca%40workspace%3Apackages%2Fbase-ca":
   version: 0.0.0-use.local
   resolution: "@latticexyz/std-contracts@link:../../../mud/packages/std-contracts::locator=base-ca%40workspace%3Apackages%2Fbase-ca"
@@ -1288,15 +1294,15 @@ __metadata:
   languageName: node
   linkType: soft
 
-"@latticexyz/std-contracts@link:../../../mud/packages/std-contracts::locator=registry%40workspace%3Apackages%2Fregistry":
-  version: 0.0.0-use.local
-  resolution: "@latticexyz/std-contracts@link:../../../mud/packages/std-contracts::locator=registry%40workspace%3Apackages%2Fregistry"
-  languageName: node
-  linkType: soft
-
 "@latticexyz/store@link:../../../mud/packages/store::locator=%40tenetxyz%2Fcontracts%40workspace%3Apackages%2Fcontracts":
   version: 0.0.0-use.local
   resolution: "@latticexyz/store@link:../../../mud/packages/store::locator=%40tenetxyz%2Fcontracts%40workspace%3Apackages%2Fcontracts"
+  languageName: node
+  linkType: soft
+
+"@latticexyz/store@link:../../../mud/packages/store::locator=%40tenetxyz%2Fregistry%40workspace%3Apackages%2Fregistry":
+  version: 0.0.0-use.local
+  resolution: "@latticexyz/store@link:../../../mud/packages/store::locator=%40tenetxyz%2Fregistry%40workspace%3Apackages%2Fregistry"
   languageName: node
   linkType: soft
 
@@ -1312,12 +1318,6 @@ __metadata:
   languageName: node
   linkType: soft
 
-"@latticexyz/store@link:../../../mud/packages/store::locator=registry%40workspace%3Apackages%2Fregistry":
-  version: 0.0.0-use.local
-  resolution: "@latticexyz/store@link:../../../mud/packages/store::locator=registry%40workspace%3Apackages%2Fregistry"
-  languageName: node
-  linkType: soft
-
 "@latticexyz/utils@link:../../../mud/packages/utils::locator=client%40workspace%3Apackages%2Fclient":
   version: 0.0.0-use.local
   resolution: "@latticexyz/utils@link:../../../mud/packages/utils::locator=client%40workspace%3Apackages%2Fclient"
@@ -1327,6 +1327,12 @@ __metadata:
 "@latticexyz/world@link:../../../mud/packages/world::locator=%40tenetxyz%2Fcontracts%40workspace%3Apackages%2Fcontracts":
   version: 0.0.0-use.local
   resolution: "@latticexyz/world@link:../../../mud/packages/world::locator=%40tenetxyz%2Fcontracts%40workspace%3Apackages%2Fcontracts"
+  languageName: node
+  linkType: soft
+
+"@latticexyz/world@link:../../../mud/packages/world::locator=%40tenetxyz%2Fregistry%40workspace%3Apackages%2Fregistry":
+  version: 0.0.0-use.local
+  resolution: "@latticexyz/world@link:../../../mud/packages/world::locator=%40tenetxyz%2Fregistry%40workspace%3Apackages%2Fregistry"
   languageName: node
   linkType: soft
 
@@ -1345,12 +1351,6 @@ __metadata:
 "@latticexyz/world@link:../../../mud/packages/world::locator=extension-contracts%40workspace%3Apackages%2Fextension-contracts":
   version: 0.0.0-use.local
   resolution: "@latticexyz/world@link:../../../mud/packages/world::locator=extension-contracts%40workspace%3Apackages%2Fextension-contracts"
-  languageName: node
-  linkType: soft
-
-"@latticexyz/world@link:../../../mud/packages/world::locator=registry%40workspace%3Apackages%2Fregistry":
-  version: 0.0.0-use.local
-  resolution: "@latticexyz/world@link:../../../mud/packages/world::locator=registry%40workspace%3Apackages%2Fregistry"
   languageName: node
   linkType: soft
 
@@ -1494,6 +1494,34 @@ __metadata:
     ethers: ^5.7.2
     forge-std: "https://github.com/foundry-rs/forge-std"
     memmove: "https://github.com/dk1a/memmove.git"
+    prettier: ^2.6.2
+    prettier-plugin-solidity: ^1.0.0-beta.19
+    rimraf: ^5.0.1
+    solhint: ^3.3.7
+    solhint-config-mud: 2.0.0-alpha.1.197+5e6cc0f5
+    solhint-plugin-mud: 2.0.0-alpha.1.197+5e6cc0f5
+    typechain: ^8.1.1
+  languageName: unknown
+  linkType: soft
+
+"@tenetxyz/registry@workspace:*, @tenetxyz/registry@workspace:packages/registry":
+  version: 0.0.0-use.local
+  resolution: "@tenetxyz/registry@workspace:packages/registry"
+  dependencies:
+    "@ethersproject/abi": ^5.7.0
+    "@ethersproject/bytes": ^5.7.0
+    "@ethersproject/providers": ^5.7.2
+    "@latticexyz/cli": "link:../../../mud/packages/cli"
+    "@latticexyz/config": "link:../../../mud/packages/config"
+    "@latticexyz/schema-type": "link:../../../mud/packages/schema-type"
+    "@latticexyz/std-contracts": "link:../../../mud/packages/std-contracts"
+    "@latticexyz/store": "link:../../../mud/packages/store"
+    "@latticexyz/world": "link:../../../mud/packages/world"
+    "@typechain/ethers-v5": ^10.2.0
+    "@types/node": ^18.15.11
+    ds-test: "https://github.com/dapphub/ds-test.git#c9ce3f25bde29fc5eb9901842bf02850dfd2d084"
+    ethers: ^5.7.2
+    forge-std: "https://github.com/foundry-rs/forge-std"
     prettier: ^2.6.2
     prettier-plugin-solidity: ^1.0.0-beta.19
     rimraf: ^5.0.1
@@ -2165,6 +2193,7 @@ __metadata:
     "@latticexyz/std-contracts": "link:../../../mud/packages/std-contracts"
     "@latticexyz/store": "link:../../../mud/packages/store"
     "@latticexyz/world": "link:../../../mud/packages/world"
+    "@tenetxyz/registry": "workspace:*"
     "@typechain/ethers-v5": ^10.2.0
     "@types/node": ^18.15.11
     ds-test: "https://github.com/dapphub/ds-test.git#c9ce3f25bde29fc5eb9901842bf02850dfd2d084"
@@ -5309,34 +5338,6 @@ box-intersect@fenomas/box-intersect:
   checksum: a78dc5c7158ad9ddcfe01aa9144f46e192ddbfa7b263895a70a5c6c73edd9ce85faf7c0430e59ac38839e1734e275b9c3de5c57ee3ab6edc0e0b1bdebefccef8
   languageName: node
   linkType: hard
-
-"registry@workspace:packages/registry":
-  version: 0.0.0-use.local
-  resolution: "registry@workspace:packages/registry"
-  dependencies:
-    "@ethersproject/abi": ^5.7.0
-    "@ethersproject/bytes": ^5.7.0
-    "@ethersproject/providers": ^5.7.2
-    "@latticexyz/cli": "link:../../../mud/packages/cli"
-    "@latticexyz/config": "link:../../../mud/packages/config"
-    "@latticexyz/schema-type": "link:../../../mud/packages/schema-type"
-    "@latticexyz/std-contracts": "link:../../../mud/packages/std-contracts"
-    "@latticexyz/store": "link:../../../mud/packages/store"
-    "@latticexyz/world": "link:../../../mud/packages/world"
-    "@typechain/ethers-v5": ^10.2.0
-    "@types/node": ^18.15.11
-    ds-test: "https://github.com/dapphub/ds-test.git#c9ce3f25bde29fc5eb9901842bf02850dfd2d084"
-    ethers: ^5.7.2
-    forge-std: "https://github.com/foundry-rs/forge-std"
-    prettier: ^2.6.2
-    prettier-plugin-solidity: ^1.0.0-beta.19
-    rimraf: ^5.0.1
-    solhint: ^3.3.7
-    solhint-config-mud: 2.0.0-alpha.1.197+5e6cc0f5
-    solhint-plugin-mud: 2.0.0-alpha.1.197+5e6cc0f5
-    typechain: ^8.1.1
-  languageName: unknown
-  linkType: soft
 
 "require-directory@npm:^2.1.1":
   version: 2.1.1

@@ -5,7 +5,8 @@
   "license": "MIT",
   "scripts": {
     "mud": "node ../../node_modules/@latticexyz/cli/dist/mud.js",
-    "build": "forge clean && forge build",
+    "build": "yarn clean && forge build",
+    "clean": "forge clean",
     "deploy": "yarn initialize && yarn mud deploy",
     "deploy:hackathon": "yarn initialize && yarn mud deploy --profile=hackathon-testnet",
     "deploy:testnet": "yarn initialize && yarn mud deploy --profile=lattice-testnet",

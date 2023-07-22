@@ -2138,8 +2138,8 @@ __metadata:
     prettier-plugin-solidity: ^1.0.0-beta.19
     rimraf: ^5.0.1
     solhint: ^3.3.7
-    solhint-config-mud: 2.0.0-alpha.1.268+15e65311
-    solhint-plugin-mud: 2.0.0-alpha.1.268+15e65311
+    solhint-config-mud: 2.0.0-alpha.1.197+5e6cc0f5
+    solhint-plugin-mud: 2.0.0-alpha.1.197+5e6cc0f5
     typechain: ^8.1.1
   languageName: unknown
   linkType: soft
@@ -5603,28 +5603,12 @@ box-intersect@fenomas/box-intersect:
   languageName: node
   linkType: hard
 
-"solhint-config-mud@npm:2.0.0-alpha.1.268+15e65311":
-  version: 2.0.0-alpha.1.268
-  resolution: "solhint-config-mud@npm:2.0.0-alpha.1.268"
-  checksum: 31fd2db790eeb6823bcc20f23cea7c34fa88472fdf3aa33019e4658084b114ff4a39aa8ab2bbd6ec966c377bcc9ad765bd3b1ec9d736d28b5ae803dd7dd6a544
-  languageName: node
-  linkType: hard
-
 "solhint-plugin-mud@npm:2.0.0-alpha.1.197+5e6cc0f5":
   version: 2.0.0-alpha.1.197
   resolution: "solhint-plugin-mud@npm:2.0.0-alpha.1.197"
   dependencies:
     "@solidity-parser/parser": ^0.16.0
   checksum: 6156549a03dced0143084f1e2d1c9022bc806bb5c2b42a5ad8c6205b93124a6b244b8ac43bce2f9fc15c27c1d176060fc055a5555d0a0b5fc7bf55b9ad0d8b52
-  languageName: node
-  linkType: hard
-
-"solhint-plugin-mud@npm:2.0.0-alpha.1.268+15e65311":
-  version: 2.0.0-alpha.1.268
-  resolution: "solhint-plugin-mud@npm:2.0.0-alpha.1.268"
-  dependencies:
-    "@solidity-parser/parser": ^0.16.0
-  checksum: 63778b6a4c066bf864996a8e1d59aeb2a3157e9c7043c7c5d67ae4d52c70b64a0096f2095f22805b8caa111b1a9a285a485b302e02f9a8ac3acfca42445078c4
   languageName: node
   linkType: hard
 

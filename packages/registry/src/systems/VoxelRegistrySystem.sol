@@ -15,13 +15,12 @@ contract VoxelRegistrySystem is System {
   ) public {
     require(caAddress != address(0), "CA address cannot be empty");
     // TODO: Add some more checks on caAddress
-    bytes32[] memory voxelTypeKeyTuple = new bytes32[](1);
-    voxelTypeKeyTuple[0] = voxelTypeId;
-    require(!hasKey(VoxelTypeRegistryTableId, voxelTypeKeyTuple), "Voxel type ID has already been registered");
-    bytes32[] memory voxelVariantKeyTuple = new bytes32[](1);
-    voxelVariantKeyTuple[0] = previewVoxelVariantId;
     require(
-      hasKey(VoxelVariantsRegistryTableId, voxelVariantKeyTuple),
+      !hasKey(VoxelTypeRegistryTableId, VoxelTypeRegistry.encodeKeyTuple(voxelTypeId)),
+      "Voxel type ID has already been registered"
+    );
+    require(
+      hasKey(VoxelVariantsRegistryTableId, VoxelVariantsRegistry.encodeKeyTuple(previewVoxelVariantId)),
       "Preview voxel variant ID has not been registered"
     );
     require(bytes(voxelTypeName).length > 0, "Name cannot be empty");
@@ -39,10 +38,8 @@ contract VoxelRegistrySystem is System {
   }
 
   function registerVoxelVariant(bytes32 voxelVariantId, VoxelVariantsRegistryData memory voxelVariant) public {
-    bytes32[] memory voxelVariantKeyTuple = new bytes32[](1);
-    voxelVariantKeyTuple[0] = voxelVariantId;
     require(
-      !hasKey(VoxelVariantsRegistryTableId, voxelVariantKeyTuple),
+      !hasKey(VoxelVariantsRegistryTableId, VoxelVariantsRegistry.encodeKeyTuple(voxelVariantId)),
       "Voxel variant ID has already been registered"
     );
 

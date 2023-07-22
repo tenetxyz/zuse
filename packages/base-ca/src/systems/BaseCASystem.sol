@@ -18,7 +18,7 @@ bytes32 constant GrassVoxelVariantID = bytes32(keccak256("grass"));
 
 contract BaseCASystem is System {
   function isVoxelTypeAllowed(bytes32 voxelTypeId) public returns (bool) {
-    if (voxelTypeId == AirID || voxelTypeId == DirtID || voxelTypeId == GrassID) {
+    if (voxelTypeId == AirVoxelID || voxelTypeId == DirtVoxelID || voxelTypeId == GrassVoxelID) {
       return true;
     }
     return false;
@@ -34,11 +34,10 @@ contract BaseCASystem is System {
     require(entitiesAtPosition.length <= 1, "This position is already occupied by another voxel");
     if (entitiesAtPosition.length == 1) {
       require(
-        entitiesAtPosition[0] == entity,
-        VoxelType.get(callerAddress, entitiesAtPosition[0]).voxelTypeId == AirID,
+        entitiesAtPosition[0] == entity &&
+          VoxelType.get(callerAddress, entitiesAtPosition[0]).voxelTypeId == AirVoxelID,
         "This position is already occupied by another voxel"
       );
-      VoxelType.deleteRecord(entitiesAtPosition[0]);
     } else {
       Position.set(callerAddress, entity, PositionData({ x: coord.x, y: coord.y, z: coord.z }));
     }
@@ -48,11 +47,11 @@ contract BaseCASystem is System {
   }
 
   function updateVoxelVariant(bytes32 voxelTypeId, bytes32 entity) public returns (bytes32 voxelVariantId) {
-    if (voxelTypeId == AirID) {
+    if (voxelTypeId == AirVoxelID) {
       return AirVoxelVariantID;
-    } else if (voxelTypeId == DirtID) {
+    } else if (voxelTypeId == DirtVoxelID) {
       return DirtVoxelVariantID;
-    } else if (voxelTypeId == GrassID) {
+    } else if (voxelTypeId == GrassVoxelID) {
       return GrassVoxelVariantID;
     } else {
       revert("This voxel type is not allowed in this CA");
@@ -61,28 +60,21 @@ contract BaseCASystem is System {
 
   function exitWorld(bytes32 entity) public {
     address callerAddress = msg.sender;
-    bytes32[] memory positionKeyTuple = new bytes32[](0);
-    positionKeyTuple[0] = callerAddress;
-    positionKeyTuple[1] = entity;
-    require(hasKey(PositionTableId, positionKeyTuple), "This entity is not in the world");
+    require(hasKey(PositionTableId, Position.encodeKeyTuple(callerAddress, entity)), "This entity is not in the world");
     // set to Air
-    bytes32 airVoxelVariantId = updateVoxelVariant(AirID, entity);
-    VoxelType.set(callerAddress, entity, AirID, airVoxelVariantId);
+    bytes32 airVoxelVariantId = updateVoxelVariant(AirVoxelID, entity);
+    VoxelType.set(callerAddress, entity, AirVoxelID, airVoxelVariantId);
   }
 
-  // // called by world
-  // function runInteraction(
-  //   bytes32 interactEntity,
-  //   bytes32[] memory neighbourEntityIds,
-  //   bytes32[] memory childEntityIds,
-  //   bytes32[] memory parentEntityIds
-  // ) public {
-  //   // loop over all neighbours and run interaction logic
-  //   // the interaction's used will can be in different namespaces
-  //   // just hard coded, or registered
-  //   runInteractionSystems(entity);
-
-  //   // can change type at position
-  //   // define valid movements
-  // }
+  function runInteraction(
+    bytes32 interactEntity,
+    bytes32[] memory neighbourEntityIds,
+    bytes32[] memory childEntityIds,
+    bytes32[] memory parentEntityIds
+  ) public {
+    // loop over all neighbours and run interaction logic
+    // the interaction's used will can be in different namespaces
+    // can change type at position
+    // keep looping until no more type and position changes
+  }
 }

@@ -9,6 +9,7 @@ import { AirID } from "./voxels/AirVoxelSystem.sol";
 import { GrassID } from "./voxels/GrassVoxelSystem.sol";
 import { DirtID } from "./voxels/DirtVoxelSystem.sol";
 import { BedrockID } from "./voxels/BedrockVoxelSystem.sol";
+import { TileID } from "./voxels/TileVoxelSystem.sol";
 
 import { VoxelCoord, Tuple, VoxelVariantsKey } from "../Types.sol";
 import { div } from "../Utils.sol";
@@ -63,14 +64,7 @@ contract LibTerrainSystem is System {
     voxelTypeId = Air(y);
     if (voxelTypeId.voxelVariantId != EMPTY_ID) return voxelTypeId;
 
-    uint8 biome = getMaxBiome(biomeValues);
-
-    int32 distanceFromHeight = height - y;
-
-    voxelTypeId = Grass(y);
-    if (voxelTypeId.voxelVariantId != EMPTY_ID) return voxelTypeId;
-
-    voxelTypeId = Dirt(y);
+    voxelTypeId = Tile(y);
     if (voxelTypeId.voxelVariantId != EMPTY_ID) return voxelTypeId;
 
     return VoxelVariantsKey({ voxelVariantNamespace: TENET_NAMESPACE, voxelVariantId: AirID });
@@ -283,10 +277,6 @@ contract LibTerrainSystem is System {
   }
 
   function Air(int32 y) internal pure returns (VoxelVariantsKey memory) {
-    if (y > 10) {
-      return VoxelVariantsKey({ voxelVariantNamespace: TENET_NAMESPACE, voxelVariantId: AirID });
-    }
-
     return VoxelVariantsKey({ voxelVariantNamespace: EMPTY_NAMESPACE, voxelVariantId: EMPTY_ID });
   }
 
@@ -307,10 +297,6 @@ contract LibTerrainSystem is System {
   }
 
   function Grass(int32 y) internal pure returns (VoxelVariantsKey memory) {
-    if (y == 10) {
-      return VoxelVariantsKey({ voxelVariantNamespace: TENET_NAMESPACE, voxelVariantId: GrassID });
-    }
-
     return VoxelVariantsKey({ voxelVariantNamespace: EMPTY_NAMESPACE, voxelVariantId: EMPTY_ID });
   }
 
@@ -319,8 +305,16 @@ contract LibTerrainSystem is System {
   }
 
   function Dirt(int32 y) internal pure returns (VoxelVariantsKey memory) {
-    if (y > CHUNK_MIN_Y && y < 10) {
-      return VoxelVariantsKey({ voxelVariantNamespace: TENET_NAMESPACE, voxelVariantId: DirtID });
+    return VoxelVariantsKey({ voxelVariantNamespace: EMPTY_NAMESPACE, voxelVariantId: EMPTY_ID });
+  }
+
+  function Tile(VoxelCoord memory coord) public pure returns (VoxelVariantsKey memory) {
+    return Tile(coord.y);
+  }
+
+  function Tile(int32 y) internal pure returns (VoxelVariantsKey memory) {
+    if (y > CHUNK_MIN_Y && y <= 10) {
+      return VoxelVariantsKey({ voxelVariantNamespace: TENET_NAMESPACE, voxelVariantId: TileID });
     }
 
     return VoxelVariantsKey({ voxelVariantNamespace: EMPTY_NAMESPACE, voxelVariantId: EMPTY_ID });

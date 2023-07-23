@@ -9,8 +9,6 @@ import { TENET_NAMESPACE } from "../../../../constants";
 
 export const AIR_ID = keccak256("air");
 export const BEDROCK_ID = keccak256("bedrock");
-export const GRASS_ID = keccak256("grass");
-export const DIRT_ID = keccak256("dirt");
 
 export function Air({ coord: { y } }: TerrainState): VoxelTypeDataKey | undefined {
   if (y > 10)
@@ -32,26 +30,12 @@ export function Bedrock({ coord: { y } }: TerrainState): VoxelTypeDataKey | unde
     };
 }
 
-export function Grass(state: TerrainState): VoxelTypeDataKey | undefined {
+export function Tile(state: TerrainState): VoxelTypeDataKey | undefined {
   const {
     coord: { y },
   } = state;
 
-  if (y == 10)
-    return {
-      voxelTypeNamespace: TENET_NAMESPACE,
-      voxelTypeId: GRASS_ID,
-      voxelVariantNamespace: TENET_NAMESPACE,
-      voxelVariantId: GRASS_ID,
-    };
-}
-
-export function Dirt(state: TerrainState): VoxelTypeDataKey | undefined {
-  const {
-    coord: { y },
-  } = state;
-
-  if (y > -63 && y < 10)
+  if (y > -63 && y <= 10)
     return {
       voxelTypeNamespace: TENET_NAMESPACE,
       voxelTypeId: DIRT_ID,

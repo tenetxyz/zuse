@@ -15,7 +15,8 @@ import { Utils } from "@latticexyz/world/src/Utils.sol";
 import { IWorld } from "@tenet-contracts/src/codegen/world/IWorld.sol";
 import { Occurrence } from "@tenet-contracts/src/codegen/Tables.sol";
 import { console } from "forge-std/console.sol";
-import { CAVoxelType, CAVoxelTypeData, CAVoxelTypeDefs } from "@tenet-base-ca/src/codegen/tables/CAVoxelType.sol";
+import { CAVoxelType, CAVoxelTypeData } from "@tenet-base-ca/src/codegen/tables/CAVoxelType.sol";
+import { CAVoxelTypeDefs } from "@tenet-base-ca/src/codegen/tables/CAVoxelTypeDefs.sol";
 import { CHUNK_MAX_Y, CHUNK_MIN_Y, REGISTRY_WORLD_STORE, BASE_CA_ADDRESS } from "@tenet-contracts/src/Constants.sol";
 import { getEntitiesAtCoord } from "./VoxelInteractionSystem.sol";
 import { add } from "./VoxelInteractionSystem.sol";
@@ -51,7 +52,7 @@ contract MineSystem is System {
       if (workingCaAddress != BASE_CA_ADDRESS) {
         scaleId += 1;
         // Read the ChildTypes in this CA address
-        bytes32[] childVoxelTypeIds = CAVoxelTypeDefs.get(IStore(caAddress), voxelTypeId);
+        bytes32[] memory childVoxelTypeIds = CAVoxelTypeDefs.get(IStore(caAddress), voxelTypeId);
         require(childVoxelTypeIds.length == 8, "Invalid length of child voxel type ids");
 
         // TODO: move this to a library
@@ -66,8 +67,7 @@ contract MineSystem is System {
         eightBlockVoxelCoords[7] = VoxelCoord({ x: 1, y: 1, z: 1 });
 
         for (uint8 i = 0; i < 8; i++) {
-          VoxelCoord useCoord = buildVoxelType(childVoxelTypeIds[i], add(coord, eightBlockVoxelCoords[i]));
-          mine(useCoord, childVoxelTypeIds[i]);
+          mine(add(coord, eightBlockVoxelCoords[i]), childVoxelTypeIds[i]);
         }
       }
 

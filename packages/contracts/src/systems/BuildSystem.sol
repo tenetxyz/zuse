@@ -11,7 +11,8 @@ import { addressToEntityKey, enterVoxelIntoWorld, updateVoxelVariant, increaseVo
 import { getUniqueEntity } from "@latticexyz/world/src/modules/uniqueentity/getUniqueEntity.sol";
 import { IWorld } from "@tenet-contracts/src/codegen/world/IWorld.sol";
 import { safeCall, isCAAllowed } from "@tenet-contracts/src/Utils.sol";
-import { CAVoxelType, CAVoxelTypeData, CAVoxelTypeDefs } from "@tenet-base-ca/src/codegen/tables/CAVoxelType.sol";
+import { CAVoxelType, CAVoxelTypeData } from "@tenet-base-ca/src/codegen/tables/CAVoxelType.sol";
+import { CAVoxelTypeDefs } from "@tenet-base-ca/src/codegen/tables/CAVoxelTypeDefs.sol";
 import { REGISTRY_WORLD_STORE, BASE_CA_ADDRESS } from "@tenet-contracts/src/Constants.sol";
 import { add } from "./VoxelInteractionSystem.sol";
 
@@ -35,7 +36,7 @@ contract BuildSystem is System {
       scaleId += 1;
 
       // Read the ChildTypes in this CA address
-      bytes32[] childVoxelTypeIds = CAVoxelTypeDefs.get(IStore(caAddress), voxelTypeId);
+      bytes32[] memory childVoxelTypeIds = CAVoxelTypeDefs.get(IStore(caAddress), voxelTypeId);
       require(childVoxelTypeIds.length == 8, "Invalid length of child voxel type ids");
 
       // TODO: move this to a library
@@ -50,8 +51,7 @@ contract BuildSystem is System {
       eightBlockVoxelCoords[7] = VoxelCoord({ x: 1, y: 1, z: 1 });
 
       for (uint8 i = 0; i < 8; i++) {
-        VoxelCoord useCoord = buildVoxelType(childVoxelTypeIds[i], add(coord, eightBlockVoxelCoords[i]));
-        build(childVoxelTypeIds[i], useCoord);
+        buildVoxelType(childVoxelTypeIds[i], add(coord, eightBlockVoxelCoords[i]));
       }
 
       // And keep looping until we get to the base CA address

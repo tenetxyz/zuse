@@ -20,6 +20,6 @@ interface IBaseCASystem {
     bytes32 interactEntity,
     bytes32[] memory neighbourEntityIds,
     bytes32[] memory childEntityIds,
-    bytes32[] memory parentEntityIds
+    bytes32 parentEntity
   ) external returns (bytes32[] memory changedEntities);
 }

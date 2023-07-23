@@ -14,6 +14,10 @@ export default mudConfig({
   },
   snapSync: true,
   tables: {
+    VoxelTypesAllowed: {
+      keySchema: {},
+      schema: "bytes32[]",
+    },
     Position: {
       keySchema: {
         scale: "uint32",

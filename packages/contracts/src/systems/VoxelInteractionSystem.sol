@@ -8,10 +8,11 @@ import { getKeysInTable } from "@latticexyz/world/src/modules/keysintable/getKey
 import { VoxelCoord } from "@tenet-registry/src/Types.sol";
 import { NUM_VOXEL_NEIGHBOURS, MAX_VOXEL_NEIGHBOUR_UPDATE_DEPTH } from "../Constants.sol";
 import { getKeysWithValue } from "@latticexyz/world/src/modules/keyswithvalue/getKeysWithValue.sol";
-import { Position, PositionData, PositionTableId, VoxelType, VoxelTypeData, VoxelTypeRegistry, VoxelInteractionExtension, VoxelInteractionExtensionTableId } from "@tenet-contracts/src/codegen/Tables.sol";
+import { VoxelTypesAllowed, Position, PositionData, PositionTableId, VoxelType, VoxelTypeData, VoxelTypeRegistry, VoxelInteractionExtension, VoxelInteractionExtensionTableId } from "@tenet-contracts/src/codegen/Tables.sol";
 import { hasEntity, updateVoxelVariant } from "../Utils.sol";
 import { safeCall } from "../Utils.sol";
 import { CAVoxelType, CAVoxelTypeData } from "@tenet-base-ca/src/codegen/tables/CAVoxelType.sol";
+import { AirVoxelID, DirtVoxelID } from "@tenet-base-ca/src/Constants.sol";
 
 function getEntitiesAtCoord(VoxelCoord memory coord) view returns (bytes32[][] memory) {
   return getKeysWithValue(PositionTableId, Position.encode(coord.x, coord.y, coord.z));
@@ -76,6 +77,13 @@ contract VoxelInteractionSystem is System {
     int8(-1),
     int8(0)
   ];
+
+  function initWorldVoxelTypes() public {
+    bytes32[] memory allowedVoxelTypes = new bytes32[](2);
+    allowedVoxelTypes[0] = AirVoxelID;
+    allowedVoxelTypes[1] = DirtVoxelID;
+    VoxelTypesAllowed.set(allowedVoxelTypes);
+  }
 
   function calculateNeighbourEntities(uint32 scale, bytes32 centerEntity) public view returns (bytes32[] memory) {
     bytes32[] memory centerNeighbourEntities = new bytes32[](NUM_VOXEL_NEIGHBOURS);

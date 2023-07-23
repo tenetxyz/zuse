@@ -8,7 +8,6 @@ import ClassifierStore, { Classifier, ClassifierStoreFilters } from "./Classifie
 import { ElectiveBar } from "./ElectiveBar";
 import { Entity, getComponentValue, setComponent } from "@latticexyz/recs";
 import { FocusedUiType } from "../../noa/components/FocusedUi";
-import { useComponentUpdate } from "../../../utils/useComponentUpdate";
 import { useComponentValue } from "@latticexyz/react";
 import { twMerge } from "tailwind-merge";
 import { TargetedBlock, getTargetedSpawnId } from "../../../utils/voxels";

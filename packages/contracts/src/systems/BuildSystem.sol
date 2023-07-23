@@ -10,11 +10,9 @@ import { OwnedBy, Position, PositionTableId, VoxelType, VoxelTypeData } from "@t
 import { addressToEntityKey, enterVoxelIntoWorld, updateVoxelVariant, increaseVoxelTypeSpawnCount } from "../Utils.sol";
 import { getUniqueEntity } from "@latticexyz/world/src/modules/uniqueentity/getUniqueEntity.sol";
 import { IWorld } from "@tenet-contracts/src/codegen/world/IWorld.sol";
-import { safeCall } from "@tenet-contracts/src/Utils.sol";
+import { safeCall, isCAAllowed } from "@tenet-contracts/src/Utils.sol";
 import { CAVoxelType, CAVoxelTypeData } from "@tenet-base-ca/src/codegen/tables/CAVoxelType.sol";
-
-IStore constant REGISTRY_WORLD_STORE = IStore(0x5FbDB2315678afecb367f032d93F642f64180aa3);
-address constant BASE_CA_ADDRESS = 0x9A9f2CCfdE556A7E9Ff0848998Aa4a0CFD8863AE;
+import { REGISTRY_WORLD_STORE, BASE_CA_ADDRESS } from "@tenet-contracts/src/Constants.sol";
 
 contract BuildSystem is System {
   function build(bytes32 entity, VoxelCoord memory coord) public returns (bytes32) {
@@ -23,10 +21,6 @@ contract BuildSystem is System {
 
     VoxelTypeData memory voxelType = VoxelType.get(0, entity);
     return buildVoxelType(voxelType.voxelTypeId, coord);
-  }
-
-  function isCAAllowed(address caAddress) public view returns (bool) {
-    return caAddress == BASE_CA_ADDRESS;
   }
 
   // TODO: when we have a survival mode, prevent ppl from alling this function directly (since they don't need to own the voxel to call it)
@@ -60,43 +54,7 @@ contract BuildSystem is System {
     CAVoxelTypeData memory entityCAVoxelType = CAVoxelType.get(IStore(caAddress), address(this), newEntity);
     VoxelType.set(scaleId, newEntity, entityCAVoxelType.voxelTypeId, entityCAVoxelType.voxelVariantId);
 
-    // Run interaction logic
-    bytes32[] memory neighbourEntityIds = IWorld(_world()).tenet_VoxInteractSys_calculateNeighbourEntities(
-      scaleId,
-      newEntity
-    );
-    bytes32[] memory childEntityIds; // TODO: get child entities
-    bytes32[] memory parentEntityIds; // TODO: get parent entities
-    bytes memory returnData = safeCall(
-      caAddress,
-      abi.encodeWithSignature(
-        "runInteraction(bytes32,bytes32[],bytes32[],bytes32[])",
-        newEntity,
-        neighbourEntityIds,
-        childEntityIds,
-        parentEntityIds
-      ),
-      string(
-        abi.encode("runInteraction ", newEntity, " ", neighbourEntityIds, " ", childEntityIds, " ", parentEntityIds)
-      )
-    );
-    bytes32[] memory changedEntities = abi.decode(returnData, (bytes32[]));
-
-    // Update VoxelType and Position at this level to match the CA
-    for (uint256 i = 0; i < changedEntities.length; i++) {
-      bytes32 changedEntity = changedEntities[i];
-      CAVoxelTypeData memory changedEntityVoxelType = CAVoxelType.get(IStore(caAddress), address(this), changedEntity);
-      // Update VoxelType
-      VoxelType.set(
-        scaleId,
-        changedEntities[i],
-        changedEntityVoxelType.voxelTypeId,
-        changedEntityVoxelType.voxelVariantId
-      );
-      // TODO: Do we need this?
-      // Position should not change of the entity
-      // Position.set(scaleId, changedEntities[i], coord.x, coord.y, coord.z);
-    }
+    IWorld(_world()).tenet_VoxelInteract_Sys_runCA(caAddress, scaleId, newEntity);
 
     return newEntity;
   }

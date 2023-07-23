@@ -7,12 +7,13 @@ import { System } from "@latticexyz/world/src/System.sol";
 import { VoxelCoord, VoxelVariantsKey } from "@tenet-contracts/src/Types.sol";
 import { OwnedBy, Position, PositionTableId, VoxelType, VoxelTypeData, VoxelTypeRegistry, OfSpawn, Spawn, SpawnData } from "@tenet-contracts/src/codegen/Tables.sol";
 import { AirID } from "./voxels/AirVoxelSystem.sol";
-import { enterVoxelIntoWorld, exitVoxelFromWorld, updateVoxelVariant, addressToEntityKey, getEntitiesAtCoord, safeStaticCallFunctionSelector, getVoxelVariant, removeEntityFromArray } from "@tenet-contracts/src/Utils.sol";
+import { safeCall, isCAAllowed, enterVoxelIntoWorld, exitVoxelFromWorld, updateVoxelVariant, addressToEntityKey, getEntitiesAtCoord, safeStaticCallFunctionSelector, getVoxelVariant, removeEntityFromArray } from "@tenet-contracts/src/Utils.sol";
 import { Utils } from "@latticexyz/world/src/Utils.sol";
 import { IWorld } from "@tenet-contracts/src/codegen/world/IWorld.sol";
 import { Occurrence } from "@tenet-contracts/src/codegen/Tables.sol";
 import { console } from "forge-std/console.sol";
-import { CHUNK_MAX_Y, CHUNK_MIN_Y } from "@tenet-contracts/src/Constants.sol";
+import { CAVoxelType, CAVoxelTypeData } from "@tenet-base-ca/src/codegen/tables/CAVoxelType.sol";
+import { CHUNK_MAX_Y, CHUNK_MIN_Y, REGISTRY_WORLD_STORE, BASE_CA_ADDRESS } from "@tenet-contracts/src/Constants.sol";
 
 contract MineSystem is System {
   function mine(VoxelCoord memory coord, bytes32 voxelTypeId) public returns (bytes32) {
@@ -20,7 +21,9 @@ contract MineSystem is System {
 
     // Check ECS blocks at coord
     bytes32[][] memory entitiesAtPosition = getEntitiesAtCoord(coord);
-    if (entitiesAtPosition.length == 0) {} else {
+    if (entitiesAtPosition.length == 0) {
+      revert("Not supported yet");
+    } else {
       bytes32 voxelToMine;
       for (uint256 i = 0; i < entitiesAtPosition.length; i++) {
         uint256 entityScaleId = entitiesAtPosition[i][0];
@@ -35,6 +38,32 @@ contract MineSystem is System {
         voxelTypeData.voxelTypeId == voxelTypeId,
         "The voxel at this position is not the same as the voxel you are trying to mine"
       );
+
+      address caAddress = VoxelTypeRegistry.get(REGISTRY_WORLD_STORE, voxelTypeId).caAddress;
+      require(isCAAllowed(caAddress), "Invalid CA address");
+
+      address workingCaAddress = caAddress;
+      while (workingCaAddress != BASE_CA_ADDRESS) {
+        scaleId -= 1;
+        // Read the ChildTypes in this CA address
+        // Figure out their CA address
+        // And keep looping until we get to the base CA address
+        // mine(...)
+      }
+
+      // Exit World
+      safeCall(
+        caAddress,
+        abi.encodeWithSignature("exitWorld(bytes32)", voxelToMine),
+        string(abi.encode("exitWorld ", voxelToMine))
+      );
+
+      // Set initial voxel type
+      // TODO: Need to use _world() instead of address(this) here
+      CAVoxelTypeData memory entityCAVoxelType = CAVoxelType.get(IStore(caAddress), address(this), voxelToMine);
+      VoxelType.set(scaleId, voxelToMine, entityCAVoxelType.voxelTypeId, entityCAVoxelType.voxelVariantId);
+
+      IWorld(_world()).tenet_VoxelInteract_Sys_runCA(caAddress, scaleId, newEntity);
     }
 
     // Need to figure out which CA to call

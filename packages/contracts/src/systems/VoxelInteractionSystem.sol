@@ -9,6 +9,7 @@ import { NUM_VOXEL_NEIGHBOURS, MAX_VOXEL_NEIGHBOUR_UPDATE_DEPTH } from "../Const
 import { Position, PositionData, VoxelType, VoxelTypeData, VoxelTypeRegistry, VoxelInteractionExtension, VoxelInteractionExtensionTableId } from "@tenet-contracts/src/codegen/Tables.sol";
 import { getEntitiesAtCoord, hasEntity, updateVoxelVariant } from "../Utils.sol";
 import { safeCall } from "../Utils.sol";
+import { CAVoxelType, CAVoxelTypeData } from "@tenet-base-ca/src/codegen/tables/CAVoxelType.sol";
 
 contract VoxelInteractionSystem is System {
   int8[18] private NEIGHBOUR_COORD_OFFSETS = [
@@ -60,6 +61,41 @@ contract VoxelInteractionSystem is System {
     }
 
     return centerNeighbourEntities;
+  }
+
+  function runCA(address caAddress, uint256 scaleId, bytes32 entity) public {
+    // Run interaction logic
+    bytes32[] memory neighbourEntityIds = calculateNeighbourEntities(scaleId, entity);
+    bytes32[] memory childEntityIds; // TODO: get child entities
+    bytes32[] memory parentEntityIds; // TODO: get parent entities
+    bytes memory returnData = safeCall(
+      caAddress,
+      abi.encodeWithSignature(
+        "runInteraction(bytes32,bytes32[],bytes32[],bytes32[])",
+        entity,
+        neighbourEntityIds,
+        childEntityIds,
+        parentEntityIds
+      ),
+      string(abi.encode("runInteraction ", entity, " ", neighbourEntityIds, " ", childEntityIds, " ", parentEntityIds))
+    );
+    bytes32[] memory changedEntities = abi.decode(returnData, (bytes32[]));
+
+    // Update VoxelType and Position at this level to match the CA
+    for (uint256 i = 0; i < changedEntities.length; i++) {
+      bytes32 changedEntity = changedEntities[i];
+      CAVoxelTypeData memory changedEntityVoxelType = CAVoxelType.get(IStore(caAddress), address(this), changedEntity);
+      // Update VoxelType
+      VoxelType.set(
+        scaleId,
+        changedEntities[i],
+        changedEntityVoxelType.voxelTypeId,
+        changedEntityVoxelType.voxelVariantId
+      );
+      // TODO: Do we need this?
+      // Position should not change of the entity
+      // Position.set(scaleId, changedEntities[i], coord.x, coord.y, coord.z);
+    }
   }
 
   function runInteractionSystems(bytes32 centerEntity) public {

@@ -15,78 +15,81 @@ import { console } from "forge-std/console.sol";
 import { CHUNK_MAX_Y, CHUNK_MIN_Y } from "@tenet-contracts/src/Constants.sol";
 
 contract MineSystem is System {
-  function mine(
-    VoxelCoord memory coord,
-    bytes16 voxelTypeNamespace,
-    bytes32 voxelTypeId,
-    bytes16 voxelVariantNamespace,
-    bytes32 voxelVariantId
-  ) public returns (bytes32) {
-    require(voxelTypeId != AirID, "can not mine air");
-    require(coord.y <= CHUNK_MAX_Y && coord.y >= CHUNK_MIN_Y, "out of chunk bounds");
+  function mine(VoxelCoord memory coord, bytes32 voxelTypeId) public returns (bytes32) {
+    uint256 scaleId = 0;
 
     // Check ECS blocks at coord
     bytes32[][] memory entitiesAtPosition = getEntitiesAtCoord(coord);
+    require(entitiesAtPosition.length <= 1, "There should only be max one entity at this position");
+    // if (entitiesAtPosition.length == 0) {} else {
+    //   bytes32 voxelToMine = entitiesAtPosition[0];
+    //   VoxelTypeData memory voxelTypeData = VoxelType.get(scaleId, voxelToMine);
+    // }
 
-    bytes32 voxelToMine;
-    bytes32 airEntity;
+    // Need to figure out which CA to call
 
-    // Create an ECS voxel from this coord's terrain voxel
-    bytes16 namespace = Utils.systemNamespace();
+    // require(voxelTypeId != AirID, "can not mine air");
+    // require(coord.y <= CHUNK_MAX_Y && coord.y >= CHUNK_MIN_Y, "out of chunk bounds");
 
-    if (entitiesAtPosition.length == 0) {
-      // If there is no entity at this position, try mining the terrain voxel at this position
-      bytes memory occurrence = safeStaticCallFunctionSelector(
-        _world(),
-        Occurrence.get(voxelTypeId),
-        abi.encode(coord)
-      );
-      require(occurrence.length > 0, "invalid terrain voxel type");
-      VoxelVariantsKey memory occurenceVoxelKey = abi.decode(occurrence, (VoxelVariantsKey));
-      require(
-        occurenceVoxelKey.voxelVariantNamespace == voxelVariantNamespace &&
-          occurenceVoxelKey.voxelVariantId == voxelVariantId,
-        "invalid terrain voxel variant"
-      );
+    // bytes32 voxelToMine;
+    // bytes32 airEntity;
 
-      // Create an ECS voxel from this coord's terrain voxel
-      voxelToMine = getUniqueEntity();
-      // in terrain gen, we know its our system namespace and we validated it above using the Occurrence table
-      VoxelType.set(0, voxelToMine, voxelTypeId, voxelVariantId);
-    } else {
-      // Else, mine the non-air entity voxel at this position
-      require(entitiesAtPosition.length == 1, "there should only be one entity at this position");
-      voxelToMine = entitiesAtPosition[0][0];
-      VoxelTypeData memory voxelTypeData = VoxelType.get(0, voxelToMine);
-      require(voxelToMine != 0, "We found no voxels at that position");
-      require(
-        bytes16(0) == voxelTypeNamespace &&
-          voxelTypeData.voxelTypeId == voxelTypeId &&
-          // voxelTypeData.voxelVariantNamespace == voxelVariantNamespace &&
-          voxelTypeData.voxelVariantId == voxelVariantId,
-        "The voxel at this position is not the same as the voxel you are trying to mine"
-      );
-      tryRemoveVoxelFromSpawn(voxelToMine);
-      Position.deleteRecord(0, voxelToMine);
-      exitVoxelFromWorld(_world(), voxelToMine);
-      VoxelType.set(0, voxelToMine, voxelTypeData.voxelTypeId, "");
-    }
+    // // Create an ECS voxel from this coord's terrain voxel
+    // bytes16 namespace = Utils.systemNamespace();
 
-    // Place an air voxel at this position
-    airEntity = getUniqueEntity();
-    // TODO: We don't need necessarily need to get the air voxel type from the registry, we could just use the AirID
-    // Maybe consider doing this for performance reasons
-    VoxelType.set(0, airEntity, AirID, "");
-    Position.set(0, airEntity, coord.x, coord.y, coord.z);
-    enterVoxelIntoWorld(_world(), airEntity);
-    updateVoxelVariant(_world(), airEntity);
+    // if (entitiesAtPosition.length == 0) {
+    //   // If there is no entity at this position, try mining the terrain voxel at this position
+    //   bytes memory occurrence = safeStaticCallFunctionSelector(
+    //     _world(),
+    //     Occurrence.get(voxelTypeId),
+    //     abi.encode(coord)
+    //   );
+    //   require(occurrence.length > 0, "invalid terrain voxel type");
+    //   VoxelVariantsKey memory occurenceVoxelKey = abi.decode(occurrence, (VoxelVariantsKey));
+    //   require(
+    //     occurenceVoxelKey.voxelVariantNamespace == voxelVariantNamespace &&
+    //       occurenceVoxelKey.voxelVariantId == voxelVariantId,
+    //     "invalid terrain voxel variant"
+    //   );
 
-    OwnedBy.set(voxelToMine, addressToEntityKey(_msgSender()));
-    // Since numUniqueVoxelTypesIOwn is quadratic in gas (based on how many voxels you own), running this function could use up all your gas. So it's commented
-    //    require(IWorld(_world()).tenet_GiftVoxelSystem_numUniqueVoxelTypesIOwn() <= 36, "you can only own 36 voxel types at a time");
+    //   // Create an ECS voxel from this coord's terrain voxel
+    //   voxelToMine = getUniqueEntity();
+    //   // in terrain gen, we know its our system namespace and we validated it above using the Occurrence table
+    //   VoxelType.set(0, voxelToMine, voxelTypeId, voxelVariantId);
+    // } else {
+    //   // Else, mine the non-air entity voxel at this position
+    //   require(entitiesAtPosition.length == 1, "there should only be one entity at this position");
+    //   voxelToMine = entitiesAtPosition[0];
+    //   VoxelTypeData memory voxelTypeData = VoxelType.get(0, voxelToMine);
+    //   require(voxelToMine != 0, "We found no voxels at that position");
+    //   require(
+    //     bytes16(0) == voxelTypeNamespace &&
+    //       voxelTypeData.voxelTypeId == voxelTypeId &&
+    //       // voxelTypeData.voxelVariantNamespace == voxelVariantNamespace &&
+    //       voxelTypeData.voxelVariantId == voxelVariantId,
+    //     "The voxel at this position is not the same as the voxel you are trying to mine"
+    //   );
+    //   tryRemoveVoxelFromSpawn(voxelToMine);
+    //   Position.deleteRecord(0, voxelToMine);
+    //   exitVoxelFromWorld(_world(), voxelToMine);
+    //   VoxelType.set(0, voxelToMine, voxelTypeData.voxelTypeId, "");
+    // }
 
-    // Run voxel interaction logic
-    IWorld(_world()).tenet_VoxInteractSys_runInteractionSystems(airEntity);
+    // // Place an air voxel at this position
+    // airEntity = getUniqueEntity();
+    // // TODO: We don't need necessarily need to get the air voxel type from the registry, we could just use the AirID
+    // // Maybe consider doing this for performance reasons
+    // VoxelType.set(0, airEntity, AirID, "");
+    // Position.set(0, airEntity, coord.x, coord.y, coord.z);
+    // enterVoxelIntoWorld(_world(), airEntity);
+    // updateVoxelVariant(_world(), airEntity);
+
+    // OwnedBy.set(voxelToMine, addressToEntityKey(_msgSender()));
+    // // Since numUniqueVoxelTypesIOwn is quadratic in gas (based on how many voxels you own), running this function could use up all your gas. So it's commented
+    // //    require(IWorld(_world()).tenet_GiftVoxelSystem_numUniqueVoxelTypesIOwn() <= 36, "you can only own 36 voxel types at a time");
+
+    // // Run voxel interaction logic
+    // IWorld(_world()).tenet_VoxInteractSys_runInteractionSystems(airEntity);
 
     return voxelToMine;
   }

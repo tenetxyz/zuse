@@ -410,7 +410,7 @@ library VoxelTypeRegistry {
   }
 
   /** Decode the tightly packed blob using this table's schema */
-  function decode(bytes memory _blob) internal view returns (VoxelTypeRegistryData memory _table) {
+  function decode(bytes memory _blob) internal pure returns (VoxelTypeRegistryData memory _table) {
     // 104 is the total byte length of static data
     PackedCounter _encodedLengths = PackedCounter.wrap(Bytes.slice32(_blob, 104));
 
@@ -441,7 +441,7 @@ library VoxelTypeRegistry {
     address creator,
     uint256 numSpawns,
     string memory name
-  ) internal view returns (bytes memory) {
+  ) internal pure returns (bytes memory) {
     uint40[] memory _counters = new uint40[](1);
     _counters[0] = uint40(bytes(name).length);
     PackedCounter _encodedLengths = PackedCounterLib.pack(_counters);

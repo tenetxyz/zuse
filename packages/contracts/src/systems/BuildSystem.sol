@@ -41,19 +41,19 @@ contract BuildSystem is System {
     bytes32 newEntity = getUniqueEntity();
 
     // Enter World
-    IWorld(_world()).tenet_VoxelInteract_Sys_enterCA(caAddress, voxelTypeId, coord, newEntity);
+    IWorld(_world()).tenet_VoxInteractSys_enterCA(caAddress, voxelTypeId, coord, newEntity);
 
     // Set Position
     Position.set(scaleId, newEntity, coord.x, coord.y, coord.z);
     // Set initial voxel type
     // TODO: Need to use _world() instead of address(this) here
-    CAVoxelTypeData memory entityCAVoxelType = IWorld(_world()).tenet_VoxelInteract_Sys_readCAVoxelTypes(
+    CAVoxelTypeData memory entityCAVoxelType = IWorld(_world()).tenet_VoxInteractSys_readCAVoxelTypes(
       caAddress,
       newEntity
     );
     VoxelType.set(scaleId, newEntity, entityCAVoxelType.voxelTypeId, entityCAVoxelType.voxelVariantId);
 
-    IWorld(_world()).tenet_VoxelInteract_Sys_runCA(caAddress, scaleId, newEntity);
+    IWorld(_world()).tenet_VoxInteractSys_runCA(caAddress, scaleId, newEntity);
 
     return newEntity;
   }

@@ -4,16 +4,19 @@ pragma solidity >=0.8.0;
 import { getUniqueEntity } from "@latticexyz/world/src/modules/uniqueentity/getUniqueEntity.sol";
 import { getKeysInTable } from "@latticexyz/world/src/modules/keysintable/getKeysInTable.sol";
 import { System } from "@latticexyz/world/src/System.sol";
-import { VoxelCoord, VoxelVariantsKey } from "@tenet-contracts/src/Types.sol";
-import { OwnedBy, Position, PositionTableId, VoxelType, VoxelTypeData, VoxelTypeRegistry, OfSpawn, Spawn, SpawnData } from "@tenet-contracts/src/codegen/Tables.sol";
+import { VoxelVariantsKey } from "@tenet-contracts/src/Types.sol";
+import { VoxelTypeRegistry } from "@tenet-registry/src/codegen/tables/VoxelTypeRegistry.sol";
+import { VoxelCoord } from "@tenet-registry/src/Types.sol";
+import { OwnedBy, Position, PositionTableId, VoxelType, VoxelTypeData, OfSpawn, Spawn, SpawnData } from "@tenet-contracts/src/codegen/Tables.sol";
 import { AirID } from "./voxels/AirVoxelSystem.sol";
-import { safeCall, isCAAllowed, enterVoxelIntoWorld, exitVoxelFromWorld, updateVoxelVariant, addressToEntityKey, getEntitiesAtCoord, safeStaticCallFunctionSelector, getVoxelVariant, removeEntityFromArray } from "@tenet-contracts/src/Utils.sol";
+import { safeCall, isCAAllowed, enterVoxelIntoWorld, exitVoxelFromWorld, updateVoxelVariant, addressToEntityKey, safeStaticCallFunctionSelector, getVoxelVariant, removeEntityFromArray } from "@tenet-contracts/src/Utils.sol";
 import { Utils } from "@latticexyz/world/src/Utils.sol";
 import { IWorld } from "@tenet-contracts/src/codegen/world/IWorld.sol";
 import { Occurrence } from "@tenet-contracts/src/codegen/Tables.sol";
 import { console } from "forge-std/console.sol";
 import { CAVoxelType, CAVoxelTypeData } from "@tenet-base-ca/src/codegen/tables/CAVoxelType.sol";
 import { CHUNK_MAX_Y, CHUNK_MIN_Y, REGISTRY_WORLD_STORE, BASE_CA_ADDRESS } from "@tenet-contracts/src/Constants.sol";
+import { getEntitiesAtCoord } from "./VoxelInteractionSystem.sol";
 
 contract MineSystem is System {
   function mine(VoxelCoord memory coord, bytes32 voxelTypeId) public returns (bytes32) {
@@ -21,12 +24,12 @@ contract MineSystem is System {
 
     // Check ECS blocks at coord
     bytes32[][] memory entitiesAtPosition = getEntitiesAtCoord(coord);
+    bytes32 voxelToMine;
     if (entitiesAtPosition.length == 0) {
       revert("Not supported yet");
     } else {
-      bytes32 voxelToMine;
       for (uint256 i = 0; i < entitiesAtPosition.length; i++) {
-        uint256 entityScaleId = entitiesAtPosition[i][0];
+        uint256 entityScaleId = uint256(entitiesAtPosition[i][0]);
         if (entityScaleId == scaleId) {
           voxelToMine = entitiesAtPosition[i][1];
           break;
@@ -52,17 +55,17 @@ contract MineSystem is System {
       }
 
       // Exit World
-      IWorld(_world()).tenet_VoxelInteract_Sys_exitCA(caAddress, voxelToMine);
+      IWorld(_world()).tenet_VoxInteractSys_exitCA(caAddress, voxelToMine);
 
       // Set initial voxel type
       // TODO: Need to use _world() instead of address(this) here
-      CAVoxelTypeData memory entityCAVoxelType = IWorld(_world()).tenet_VoxelInteract_Sys_readCAVoxelTypes(
+      CAVoxelTypeData memory entityCAVoxelType = IWorld(_world()).tenet_VoxInteractSys_readCAVoxelTypes(
         caAddress,
         voxelToMine
       );
       VoxelType.set(scaleId, voxelToMine, entityCAVoxelType.voxelTypeId, entityCAVoxelType.voxelVariantId);
 
-      IWorld(_world()).tenet_VoxelInteract_Sys_runCA(caAddress, scaleId, newEntity);
+      IWorld(_world()).tenet_VoxInteractSys_runCA(caAddress, scaleId, voxelToMine);
     }
 
     // Need to figure out which CA to call
@@ -166,7 +169,7 @@ contract MineSystem is System {
         // if it's air, then it's already clear
         continue;
       }
-      minedEntity = mine(coord, bytes16(0), voxelTypeData.voxelTypeId, bytes16(0), voxelTypeData.voxelVariantId);
+      minedEntity = mine(coord, voxelTypeData.voxelTypeId);
     }
     return minedEntity;
   }

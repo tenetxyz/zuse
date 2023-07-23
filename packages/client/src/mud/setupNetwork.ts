@@ -449,14 +449,7 @@ export async function setupNetwork() {
         VoxelType: contractComponents.VoxelType,
       },
       execute: () => {
-        return callSystem("tenet_MineSystem_mine", [
-          coord,
-          voxelTypeKey.voxelTypeNamespace,
-          voxelTypeKey.voxelTypeId,
-          voxelTypeKey.voxelVariantNamespace,
-          voxelTypeKey.voxelVariantId,
-          { gasLimit: 100_000_000 },
-        ]);
+        return callSystem("tenet_MineSystem_mine", [coord, voxelTypeKey.voxelTypeId, { gasLimit: 100_000_000 }]);
       },
       updates: () => [
         {

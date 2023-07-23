@@ -7,7 +7,7 @@ import { getKeysInTable } from "@latticexyz/world/src/modules/keysintable/getKey
 import { System } from "@latticexyz/world/src/System.sol";
 import { VoxelCoord } from "../types.sol";
 import { OwnedBy, Position, PositionTableId, VoxelType, Spawn, SpawnTableId, Classifier, ClassifierData, ClassifierTableId } from "@tenet-contracts/src/codegen/Tables.sol";
-import { addressToEntityKey, getEntitiesAtCoord } from "../utils.sol";
+import { addressToEntityKey } from "../utils.sol";
 import { IWorld } from "@tenet-contracts/src/codegen/world/IWorld.sol";
 import { InterfaceVoxel } from "@tenet-contracts/src/Types.sol";
 import { Occurrence, SpawnData, OfSpawn } from "@tenet-contracts/src/codegen/Tables.sol";

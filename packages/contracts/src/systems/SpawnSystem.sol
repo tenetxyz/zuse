@@ -5,7 +5,7 @@ import { getUniqueEntity } from "@latticexyz/world/src/modules/uniqueentity/getU
 import { System } from "@latticexyz/world/src/System.sol";
 import { VoxelCoord, BaseCreation } from "@tenet-contracts/src/Types.sol";
 import { OwnedBy, Position, PositionTableId, VoxelType, VoxelTypeData, OfSpawn, Spawn, SpawnData, Creation, CreationData } from "@tenet-contracts/src/codegen/Tables.sol";
-import { enterVoxelIntoWorld, getEntitiesAtCoord, add, int32ToString, increaseVoxelTypeSpawnCount, updateVoxelVariant, voxelCoordsAreEqual } from "../Utils.sol";
+import { enterVoxelIntoWorld, add, int32ToString, increaseVoxelTypeSpawnCount, updateVoxelVariant, voxelCoordsAreEqual } from "../Utils.sol";
 import { IWorld } from "@tenet-contracts/src/codegen/world/IWorld.sol";
 import { console } from "forge-std/console.sol";
 import { CHUNK_MAX_Y, CHUNK_MIN_Y } from "../Constants.sol";
@@ -32,7 +32,7 @@ contract SpawnSystem is System {
       );
 
       // delete the voxels at this coord
-      IWorld(_world()).tenet_MineSystem_clearCoord(spawnVoxelAtCoord); // it's important to MINE the voxels since this function also removes spawns from the world if all its voxels are gone
+      // IWorld(_world()).tenet_MineSystem_clearCoord(spawnVoxelAtCoord); // it's important to MINE the voxels since this function also removes spawns from the world if all its voxels are gone
       bytes32 newEntity;
       // bytes32 newEntity = IWorld(_world()).tenet_BuildSystem_buildVoxelType(
       //   voxelTypes[i].voxelTypeId,

@@ -628,7 +628,7 @@ library VoxelVariantsRegistry {
   }
 
   /** Decode the tightly packed blob using this table's schema */
-  function decode(bytes memory _blob) internal view returns (VoxelVariantsRegistryData memory _table) {
+  function decode(bytes memory _blob) internal pure returns (VoxelVariantsRegistryData memory _table) {
     // 40 is the total byte length of static data
     PackedCounter _encodedLengths = PackedCounter.wrap(Bytes.slice32(_blob, 40));
 
@@ -670,7 +670,7 @@ library VoxelVariantsRegistry {
     NoaBlockType blockType,
     bytes memory materials,
     string memory uvWrap
-  ) internal view returns (bytes memory) {
+  ) internal pure returns (bytes memory) {
     uint40[] memory _counters = new uint40[](2);
     _counters[0] = uint40(bytes(materials).length);
     _counters[1] = uint40(bytes(uvWrap).length);

@@ -88,7 +88,7 @@ contract ComposedCASystem is System {
     bytes32 interactEntity,
     bytes32[] memory neighbourEntityIds,
     bytes32[] memory childEntityIds,
-    bytes32[] memory parentEntityIds
+    bytes32 parentEntity
   ) public returns (bytes32[] memory changedEntities) {
     // loop over all neighbours and run interaction logic
     // the interaction's used will can be in different namespaces

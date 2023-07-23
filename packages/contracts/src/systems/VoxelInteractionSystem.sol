@@ -21,6 +21,40 @@ function add(VoxelCoord memory a, VoxelCoord memory b) pure returns (VoxelCoord 
   return VoxelCoord(a.x + b.x, a.y + b.y, a.z + b.z);
 }
 
+function calculateChildCoords(uint32 scale, VoxelCoord memory parentCoord) pure returns (VoxelCoord[] memory) {
+  VoxelCoord[] memory childCoords = new VoxelCoord[](uint256(scale * scale * scale));
+  uint256 index = 0;
+  for (uint32 dz = 0; dz < scale; dz++) {
+    for (uint32 dy = 0; dy < scale; dy++) {
+      for (uint32 dx = 0; dx < scale; dx++) {
+        childCoords[index] = VoxelCoord(
+          parentCoord.x * int32(scale) + int32(dx),
+          parentCoord.y * int32(scale) + int32(dy),
+          parentCoord.z * int32(scale) + int32(dz)
+        );
+        index++;
+      }
+    }
+  }
+  return childCoords;
+}
+
+function calculateParentCoord(VoxelCoord memory childCoord, uint32 scale) pure returns (VoxelCoord memory) {
+  int32 newX = childCoord.x / int32(scale);
+  if (childCoord.x < 0) {
+    newX -= 1; // We need to do this because Solidity rounds towards 0
+  }
+  int32 newY = childCoord.y / int32(scale);
+  if (childCoord.y < 0) {
+    newY -= 1; // We need to do this because Solidity rounds towards 0
+  }
+  int32 newZ = childCoord.z / int32(scale);
+  if (childCoord.z < 0) {
+    newZ -= 1; // We need to do this because Solidity rounds towards 0
+  }
+  return VoxelCoord(newX, newY, newZ);
+}
+
 contract VoxelInteractionSystem is System {
   int8[18] private NEIGHBOUR_COORD_OFFSETS = [
     int8(0),
@@ -43,7 +77,7 @@ contract VoxelInteractionSystem is System {
     int8(0)
   ];
 
-  function calculateNeighbourEntities(uint256 scaleId, bytes32 centerEntity) public view returns (bytes32[] memory) {
+  function calculateNeighbourEntities(uint32 scaleId, bytes32 centerEntity) public view returns (bytes32[] memory) {
     bytes32[] memory centerNeighbourEntities = new bytes32[](NUM_VOXEL_NEIGHBOURS);
     PositionData memory baseCoord = Position.get(scaleId, centerEntity);
 
@@ -73,6 +107,63 @@ contract VoxelInteractionSystem is System {
     return centerNeighbourEntities;
   }
 
+  function calculateChildEntities(uint32 scaleId, bytes32 entity) public view returns (bytes32[] memory) {
+    if (scaleId == 1) {
+      bytes32[] memory childEntities = new bytes32[](8);
+      PositionData memory baseCoord = Position.get(scaleId, entity);
+      VoxelCoord memory baseVoxelCoord = VoxelCoord({ x: baseCoord.x, y: baseCoord.y, z: baseCoord.z });
+      VoxelCoord[] memory eightBlockVoxelCoords = calculateChildCoords(scaleId, baseVoxelCoord);
+
+      for (uint8 i = 0; i < 8; i++) {
+        bytes32[][] memory allEntitiesAtPosition = getEntitiesAtCoord(eightBlockVoxelCoords[i]);
+        // filter for the ones with scale-1
+        bytes32 childEntityAtPosition;
+        for (uint256 j = 0; j < allEntitiesAtPosition.length; j++) {
+          if (uint256(allEntitiesAtPosition[j][0]) == scaleId - 1) {
+            if (childEntityAtPosition != 0) {
+              revert("found more than one voxel in the same position when calculating child entities");
+            }
+            childEntityAtPosition = allEntitiesAtPosition[j][1];
+          }
+        }
+        if (childEntityAtPosition == 0) {
+          revert("found no child entity");
+        }
+
+        childEntities[i] = childEntityAtPosition;
+      }
+
+      return childEntities;
+    }
+
+    return new bytes32[](0);
+  }
+
+  function calculateParentEntity(uint32 scaleId, bytes32 entity) public view returns (bytes32) {
+    bytes32 parentEntity;
+    if (scaleId == 0) {
+      PositionData memory baseCoord = Position.get(scaleId, entity);
+      VoxelCoord memory baseVoxelCoord = VoxelCoord({ x: baseCoord.x, y: baseCoord.y, z: baseCoord.z });
+      VoxelCoord memory parentVoxelCoord = calculateParentCoord(baseVoxelCoord, scaleId);
+      bytes32[][] memory allEntitiesAtPosition = getEntitiesAtCoord(parentVoxelCoord);
+      // filter for the ones with scale + 1
+      for (uint256 j = 0; j < allEntitiesAtPosition.length; j++) {
+        if (uint256(allEntitiesAtPosition[j][0]) == scaleId + 1) {
+          if (parentEntity != 0) {
+            revert("found more than one voxel in the same position when calculating parent entities");
+          }
+          parentEntity = allEntitiesAtPosition[j][1];
+        }
+      }
+      if (parentEntity == 0) {
+        // TODO: it's not always there
+        // revert("found no parent entity");
+      }
+    }
+
+    return parentEntity;
+  }
+
   function enterCA(
     address caAddress,
     bytes32 voxelTypeId,
@@ -100,11 +191,11 @@ contract VoxelInteractionSystem is System {
     return CAVoxelType.get(IStore(caAddress), address(this), entity);
   }
 
-  function runCA(address caAddress, uint256 scaleId, bytes32 entity) public {
+  function runCA(address caAddress, uint32 scaleId, bytes32 entity) public {
     // Run interaction logic
     bytes32[] memory neighbourEntityIds = calculateNeighbourEntities(scaleId, entity);
-    bytes32[] memory childEntityIds; // TODO: get child entities
-    bytes32[] memory parentEntityIds; // TODO: get parent entities
+    bytes32[] memory childEntityIds = calculateChildEntities(scaleId, entity);
+    bytes32 parentEntity = calculateParentEntity(scaleId, entity);
     bytes memory returnData = safeCall(
       caAddress,
       abi.encodeWithSignature(
@@ -112,9 +203,9 @@ contract VoxelInteractionSystem is System {
         entity,
         neighbourEntityIds,
         childEntityIds,
-        parentEntityIds
+        parentEntity
       ),
-      string(abi.encode("runInteraction ", entity, " ", neighbourEntityIds, " ", childEntityIds, " ", parentEntityIds))
+      string(abi.encode("runInteraction ", entity, " ", neighbourEntityIds, " ", childEntityIds, " ", parentEntity))
     );
     bytes32[] memory changedEntities = abi.decode(returnData, (bytes32[]));
 

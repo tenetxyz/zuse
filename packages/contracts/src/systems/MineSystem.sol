@@ -19,11 +19,11 @@ import { CAVoxelType, CAVoxelTypeData } from "@tenet-base-ca/src/codegen/tables/
 import { CAVoxelTypeDefs } from "@tenet-base-ca/src/codegen/tables/CAVoxelTypeDefs.sol";
 import { CHUNK_MAX_Y, CHUNK_MIN_Y, REGISTRY_WORLD_STORE, BASE_CA_ADDRESS } from "@tenet-contracts/src/Constants.sol";
 import { getEntitiesAtCoord } from "./VoxelInteractionSystem.sol";
-import { add } from "./VoxelInteractionSystem.sol";
+import { calculateChildCoords } from "./VoxelInteractionSystem.sol";
 
 contract MineSystem is System {
   function mine(VoxelCoord memory coord, bytes32 voxelTypeId) public returns (bytes32) {
-    uint256 scaleId = 0;
+    uint32 scaleId = 1;
 
     // Check ECS blocks at coord
     bytes32[][] memory entitiesAtPosition = getEntitiesAtCoord(coord);
@@ -56,18 +56,10 @@ contract MineSystem is System {
         require(childVoxelTypeIds.length == 8, "Invalid length of child voxel type ids");
 
         // TODO: move this to a library
-        VoxelCoord[] memory eightBlockVoxelCoords = new VoxelCoord[](8);
-        eightBlockVoxelCoords[0] = VoxelCoord({ x: 0, y: 0, z: 0 });
-        eightBlockVoxelCoords[1] = VoxelCoord({ x: 1, y: 0, z: 0 });
-        eightBlockVoxelCoords[2] = VoxelCoord({ x: 0, y: 1, z: 0 });
-        eightBlockVoxelCoords[3] = VoxelCoord({ x: 1, y: 1, z: 0 });
-        eightBlockVoxelCoords[4] = VoxelCoord({ x: 0, y: 0, z: 1 });
-        eightBlockVoxelCoords[5] = VoxelCoord({ x: 1, y: 0, z: 1 });
-        eightBlockVoxelCoords[6] = VoxelCoord({ x: 0, y: 1, z: 1 });
-        eightBlockVoxelCoords[7] = VoxelCoord({ x: 1, y: 1, z: 1 });
+        VoxelCoord[] memory eightBlockVoxelCoords = calculateChildCoords(scaleId, coord);
 
         for (uint8 i = 0; i < 8; i++) {
-          mine(add(coord, eightBlockVoxelCoords[i]), childVoxelTypeIds[i]);
+          mine(eightBlockVoxelCoords[i], childVoxelTypeIds[i]);
         }
       }
 

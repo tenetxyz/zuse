@@ -47,7 +47,7 @@ export function createInputSystem(layers: Layers) {
   const InputEvent = {
     "cancel-action": ["<backspace>", "<delete>"],
     "toggle-inventory": "E",
-    sidebar: ["-", "F1", "F2", "F3"],
+    sidebar: ["-", "Q"],
     "select-voxel": "V",
     fire: "F",
     "alt-fire": ["<mouse 3>", "R"], // Note: if you ever change the name of this event, you might break some logic since in the code below, we first unbind alt-fire to remove the original binding of "E"

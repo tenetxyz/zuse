@@ -8,17 +8,18 @@ import ClassifierStore, { Classifier, ClassifierStoreFilters } from "./Classifie
 import { ElectiveBar } from "./ElectiveBar";
 import { Entity, getComponentValue, setComponent } from "@latticexyz/recs";
 import { FocusedUiType } from "../../noa/components/FocusedUi";
-import { useComponentUpdate } from "../../../utils/useComponentUpdate";
 import { useComponentValue } from "@latticexyz/react";
 import { twMerge } from "tailwind-merge";
 import { TargetedBlock, getTargetedSpawnId } from "../../../utils/voxels";
 import { stringToEntity } from "../../../utils/entity";
 import { abiDecode } from "../../../utils/abi";
 import { ISpawn } from "../../noa/components/SpawnInFocus";
+import { WorldRegistry, WorldRegistryFilters } from "./WorldsRegistry";
 
 enum SidebarTab {
   VOXELS = "Voxel Types",
   VOXEL_CREATIONS = "Voxel Creations",
+  WORLDS = "Worlds",
 }
 
 // Convert enum values to an array
@@ -67,6 +68,9 @@ export function registerTenetSidebar() {
           search: "",
           isMyCreation: true,
         },
+      });
+      const [worldRegistryFilters, setWorldRegistryFilters] = useState<WorldRegistryFilters>({
+        query: "",
       });
 
       const [selectedClassifier, setSelectedClassifier] = useState<Classifier | null>(null);
@@ -145,6 +149,10 @@ export function registerTenetSidebar() {
                 setSelectedClassifier={setSelectedClassifier}
                 setShowAllCreations={setShowAllCreations}
               />
+            );
+          case SidebarTab.WORLDS:
+            return (
+              <WorldRegistry layers={layers} filters={worldRegistryFilters} setFilters={setWorldRegistryFilters} />
             );
           default:
             return null;

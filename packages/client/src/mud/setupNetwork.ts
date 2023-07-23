@@ -1,9 +1,8 @@
 import { setupMUDV2Network, createActionSystem } from "@latticexyz/std-client";
-import { Entity, getComponentValue, createIndexer, runQuery, HasValue, Components } from "@latticexyz/recs";
+import { Entity, getComponentValue, createIndexer, runQuery, HasValue, World, createWorld } from "@latticexyz/recs";
 import { createFastTxExecutor, createFaucetService, getSnapSyncRecords, createRelayStream } from "@latticexyz/network";
 import { getNetworkConfig } from "./getNetworkConfig";
 import { defineContractComponents } from "./contractComponents";
-import { world } from "./world";
 import { createPerlin } from "@latticexyz/noise";
 import { BigNumber, Contract, Signer, utils } from "ethers";
 import { JsonRpcProvider } from "@ethersproject/providers";
@@ -30,16 +29,13 @@ import {
   voxelTypeToEntity,
   VoxelTypeBaseKey,
   voxelTypeBaseKeyStrToVoxelTypeRegistryKeyStr,
-  voxelTypeToVoxelTypeBaseKey,
   InterfaceVoxel,
 } from "../layers/noa/types";
 import { Textures, UVWraps } from "../layers/noa/constants";
-import { keccak256 } from "@latticexyz/utils";
 import { TENET_NAMESPACE } from "../constants";
 import { AIR_ID, BEDROCK_ID, DIRT_ID, GRASS_ID } from "../layers/network/api/terrain/occurrence";
 import { getNftStorageLink } from "../layers/noa/constants";
 import { voxelCoordToString } from "../utils/coord";
-import { defaultAbiCoder } from "ethers/lib/utils";
 import { toast } from "react-toastify";
 import { abiDecode } from "../utils/abi";
 import { BaseCreationInWorld } from "../layers/react/components/RegisterCreation";
@@ -51,13 +47,43 @@ export type VoxelVariantSubscription = (
   voxelVariantData: VoxelVariantDataValue
 ) => void;
 
-export async function setupNetwork() {
-  const contractComponents = defineContractComponents(world);
-
-  // Give components a Human-readable ID
+const giveComponentsAHumanReadableId = (contractComponents: any) => {
   Object.entries(contractComponents).forEach(([name, component]) => {
     component.id = name;
   });
+};
+
+const setupWorldRegistryNetwork = async () => {
+  const params = new URLSearchParams(window.location.search);
+  const registryAddress = params.get("registryAddress");
+  if (!registryAddress) {
+    console.warn("Cannot find world registry. You will not be able to see or join other worlds");
+    return;
+  }
+  const registryWorld = createWorld();
+  const contractComponents = defineContractComponents(registryWorld); // TODO: replace the defineContractComponents function with the one that is generate by the world registry
+  giveComponentsAHumanReadableId(contractComponents);
+
+  const networkConfig = await getNetworkConfig();
+  networkConfig.worldAddress = registryAddress; // overwrite the world address with the registry address, so when we sync, we are syncing with the registry!
+
+  const result = await setupMUDV2Network<typeof contractComponents, typeof storeConfig>({
+    networkConfig,
+    world: registryWorld,
+    contractComponents,
+    syncThread: "main", // PERF: sync using workers
+    storeConfig, // TODO: replace this storeConfig with the one from the registry world
+    worldAbi: IWorld__factory.abi, // TODO: replace this with the one from the registry world
+  });
+  result.startSync();
+  // Give components a Human-readable ID
+  return contractComponents;
+};
+
+export async function setupNetwork() {
+  const world = createWorld();
+  const contractComponents = defineContractComponents(world);
+  giveComponentsAHumanReadableId(contractComponents);
 
   console.log("Getting network config...");
   const networkConfig = await getNetworkConfig();
@@ -66,7 +92,7 @@ export async function setupNetwork() {
     networkConfig,
     world,
     contractComponents,
-    syncThread: "main",
+    syncThread: "main", // PERF: sync using workers
     storeConfig,
     worldAbi: IWorld__factory.abi,
   });
@@ -113,6 +139,8 @@ export async function setupNetwork() {
     // Request a drip every 20 seconds
     setInterval(requestDrip, 20000);
   }
+
+  const registryContracts = await setupWorldRegistryNetwork();
 
   // TODO: Uncomment once we support plugins
   // // Set initial component values
@@ -683,6 +711,7 @@ export async function setupNetwork() {
   return {
     ...result,
     contractComponents,
+    registryContracts,
     world,
     worldContract,
     actions,

@@ -11,6 +11,7 @@
     "deploy:hackathon": "yarn initialize && yarn mud deploy --profile=hackathon-testnet",
     "deploy:testnet": "yarn initialize && yarn mud deploy --profile=lattice-testnet",
     "dev": "yarn mud dev-contracts --tsgenOutput ../client/src/mud",
+    "hotreload": "sh hotreload-sol-files.sh",
     "initialize": "yarn tablegen && yarn worldgen && yarn build && yarn worldtypes && yarn tsgen",
     "lint": "yarn prettier && yarn solhint",
     "prettier": "prettier --write 'src/**/*.sol'",

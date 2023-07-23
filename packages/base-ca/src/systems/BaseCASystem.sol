@@ -29,7 +29,7 @@ contract BaseCASystem is System {
     require(entitiesAtPosition.length <= 1, "This position is already occupied by another voxel");
     if (entitiesAtPosition.length == 1) {
       require(
-        entitiesAtPosition[0][0] == callerAddress &&
+        entitiesAtPosition[0][0] == bytes32(uint256(uint160(callerAddress))) &&
           entitiesAtPosition[0][1] == entity &&
           CAVoxelType.get(callerAddress, entitiesAtPosition[0][1]).voxelTypeId == AirVoxelID,
         "This position is already occupied by another voxel"

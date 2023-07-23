@@ -22,15 +22,16 @@ contract BaseCASystem is System {
     require(isVoxelTypeAllowed(voxelTypeId), "This voxel type is not allowed in this CA");
 
     // Check if we can set the voxel type at this position
-    bytes32[] memory entitiesAtPosition = getKeysWithValue(
+    bytes32[][] memory entitiesAtPosition = getKeysWithValue(
       CAPositionTableId,
       CAPosition.encode(coord.x, coord.y, coord.z)
     );
     require(entitiesAtPosition.length <= 1, "This position is already occupied by another voxel");
     if (entitiesAtPosition.length == 1) {
       require(
-        entitiesAtPosition[0] == entity &&
-          CAVoxelType.get(callerAddress, entitiesAtPosition[0]).voxelTypeId == AirVoxelID,
+        entitiesAtPosition[0][0] == callerAddress &&
+          entitiesAtPosition[0][1] == entity &&
+          CAVoxelType.get(callerAddress, entitiesAtPosition[0][1]).voxelTypeId == AirVoxelID,
         "This position is already occupied by another voxel"
       );
     } else {

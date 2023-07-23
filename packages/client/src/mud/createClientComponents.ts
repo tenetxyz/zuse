@@ -1,6 +1,4 @@
 import { SetupNetworkResult } from "./setupNetwork";
-import { defineComponent, Type as RecsType } from "@latticexyz/recs";
-import { world } from "./world";
 
 export type ClientComponents = ReturnType<typeof createClientComponents>;
 

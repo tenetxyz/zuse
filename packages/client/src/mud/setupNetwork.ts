@@ -1,9 +1,8 @@
 import { setupMUDV2Network, createActionSystem } from "@latticexyz/std-client";
-import { Entity, getComponentValue, createIndexer, runQuery, HasValue, Components, World } from "@latticexyz/recs";
+import { Entity, getComponentValue, createIndexer, runQuery, HasValue, World, createWorld } from "@latticexyz/recs";
 import { createFastTxExecutor, createFaucetService, getSnapSyncRecords, createRelayStream } from "@latticexyz/network";
 import { getNetworkConfig } from "./getNetworkConfig";
 import { defineContractComponents } from "./contractComponents";
-import { world } from "./world";
 import { createPerlin } from "@latticexyz/noise";
 import { BigNumber, Contract, Signer, utils } from "ethers";
 import { JsonRpcProvider } from "@ethersproject/providers";
@@ -48,13 +47,10 @@ export type VoxelVariantSubscription = (
   voxelVariantData: VoxelVariantDataValue
 ) => void;
 
-const initContractComponents = (world: World) => {
-  const contractComponents = defineContractComponents(world);
-  // Give components a Human-readable ID
+const giveComponentsAHumanReadableId = (contractComponents: any) => {
   Object.entries(contractComponents).forEach(([name, component]) => {
     component.id = name;
   });
-  return contractComponents;
 };
 
 const setupWorldRegistryNetwork = async () => {
@@ -63,18 +59,20 @@ const setupWorldRegistryNetwork = async () => {
   if (!registryAddress) {
     return;
   }
+  const registryWorld = createWorld();
+  const contractComponents = defineContractComponents(registryWorld); // TODO: replace the defineContractComponents function with the one that is generate by the world registry
+  giveComponentsAHumanReadableId(contractComponents);
 
-  // TODO: replace this world param with the one from the registry world
-  const contractComponents = initContractComponents(world);
   const networkConfig = await getNetworkConfig();
-  networkConfig.worldAddress = registryAddress;
+  networkConfig.worldAddress = registryAddress; // overwrite the world address with the registry address, so when we sync, we are syncing with the registry!
+
   const result = await setupMUDV2Network<typeof contractComponents, typeof storeConfig>({
     networkConfig,
-    world,
+    world: registryWorld,
     contractComponents,
-    syncThread: "main",
-    storeConfig,
-    worldAbi: IWorld__factory.abi,
+    syncThread: "main", // PERF: sync using workers
+    storeConfig, // TODO: replace this storeConfig with the one from the registry world
+    worldAbi: IWorld__factory.abi, // TODO: replace this with the one from the registry world
   });
   result.startSync();
   // Give components a Human-readable ID
@@ -82,7 +80,9 @@ const setupWorldRegistryNetwork = async () => {
 };
 
 export async function setupNetwork() {
-  const contractComponents = initContractComponents(world);
+  const world = createWorld();
+  const contractComponents = defineContractComponents(world);
+  giveComponentsAHumanReadableId(contractComponents);
 
   console.log("Getting network config...");
   const networkConfig = await getNetworkConfig();
@@ -91,7 +91,7 @@ export async function setupNetwork() {
     networkConfig,
     world,
     contractComponents,
-    syncThread: "main",
+    syncThread: "main", // PERF: sync using workers
     storeConfig,
     worldAbi: IWorld__factory.abi,
   });

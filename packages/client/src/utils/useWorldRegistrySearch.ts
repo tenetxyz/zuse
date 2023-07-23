@@ -32,40 +32,31 @@ export const useWorldRegistrySearch = ({ layers, filters }: Props) => {
 
   useComponentUpdate(Name, () => {
     // const allWorldsInRegistry = [...WorldRegistry.entities()];
-    const allWorldsInRegistry = [];
-    const worlds = new Map<Entity, ComponentRecord<typeof WorldRegistry>>();
-    for (const world of allWorldsInRegistry) {
-      const worldRecord = getComponentValue(WorldRegistry, world);
-      if (!worldRecord) {
-        console.warn(`cannot find worldRecord for ${world}`);
-        continue;
-      }
-      worlds.set(world, worldRecord);
-    }
-    allWorlds.current = Array.from(worlds.entries())
-      .filter(([_, worldRecord]) => worldRecord !== undefined && worldRecord.name !== "Air")
-      .map(([world, worldRecord]) => {
-        const [namespace, worldId] = world.split(":");
-        return {
-          name: worldRecord!.name,
-          namespace: formatNamespace(namespace),
-          world: worldId as Entity,
-          previewVoxelVariantNamespace: worldRecord!.previewVoxelVariantNamespace,
-          previewVoxelVariantId: worldRecord!.previewVoxelVariantId,
-          numSpawns: worldRecord!.numSpawns,
-          creator: worldRecord!.creator,
-        } as WorldDesc;
-      });
+    // const worlds = new Map<Entity, ComponentRecord<typeof WorldRegistry>>();
+    // for (const world of allWorldsInRegistry) {
+    //   const worldRecord = getComponentValue(WorldRegistry, world);
+    //   if (!worldRecord) {
+    //     console.warn(`cannot find worldRecord for ${world}`);
+    //     continue;
+    //   }
+    //   worlds.set(world, worldRecord);
+    // }
+    // allWorlds.current = Array.from(worlds.entries())
+    //   .filter(([_, worldRecord]) => worldRecord !== undefined && worldRecord.name !== "Air")
+    //   .map(([world, worldRecord]) => {
+    //     const [namespace, worldId] = world.split(":");
+    //     return {
+    //       name: worldRecord!.name,
+    //       namespace: formatNamespace(namespace),
+    //       world: worldId as Entity,
+    //       previewVoxelVariantNamespace: worldRecord!.previewVoxelVariantNamespace,
+    //       previewVoxelVariantId: worldRecord!.previewVoxelVariantId,
+    //       numSpawns: worldRecord!.numSpawns,
+    //       creator: worldRecord!.creator,
+    //     } as WorldDesc;
+    //   });
 
-    allWorlds.current = allWorlds.current.sort((a, b) => {
-      if (a.numSpawns > b.numSpawns) {
-        return -1;
-      } else if (a.numSpawns < b.numSpawns) {
-        return 1;
-      } else {
-        return 0;
-      }
-    });
+    // // TODO: sort allWorlds.current;
 
     // After we have parsed all the worlds, apply the world
     // filters to narrow down the worlds that will be displayed.

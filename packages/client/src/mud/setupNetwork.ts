@@ -33,7 +33,7 @@ import {
 } from "../layers/noa/types";
 import { Textures, UVWraps } from "../layers/noa/constants";
 import { TENET_NAMESPACE } from "../constants";
-import { AIR_ID, BEDROCK_ID, DIRT_ID, GRASS_ID } from "../layers/network/api/terrain/occurrence";
+import { AIR_ID, BEDROCK_ID, DIRT_ID, GRASS_ID, TILE_ID } from "../layers/network/api/terrain/occurrence";
 import { getNftStorageLink } from "../layers/noa/constants";
 import { voxelCoordToString } from "../utils/coord";
 import { toast } from "react-toastify";
@@ -321,6 +321,20 @@ export async function setupNetwork() {
         type: NoaBlockType.BLOCK,
         material: Textures.Bedrock,
         uvWrap: UVWraps.Bedrock,
+      },
+    }
+  );
+  VoxelVariantData.set(
+    voxelVariantDataKeyToString({
+      voxelVariantNamespace: TENET_NAMESPACE,
+      voxelVariantId: TILE_ID,
+    }),
+    {
+      index: 3,
+      data: {
+        type: NoaBlockType.BLOCK,
+        material: Textures.Tile,
+        uvWrap: UVWraps.Tile,
       },
     }
   );

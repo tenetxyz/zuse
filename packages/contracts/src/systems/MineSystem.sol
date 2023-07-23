@@ -52,15 +52,14 @@ contract MineSystem is System {
       }
 
       // Exit World
-      safeCall(
-        caAddress,
-        abi.encodeWithSignature("exitWorld(bytes32)", voxelToMine),
-        string(abi.encode("exitWorld ", voxelToMine))
-      );
+      IWorld(_world()).tenet_VoxelInteract_Sys_exitCA(caAddress, voxelToMine);
 
       // Set initial voxel type
       // TODO: Need to use _world() instead of address(this) here
-      CAVoxelTypeData memory entityCAVoxelType = CAVoxelType.get(IStore(caAddress), address(this), voxelToMine);
+      CAVoxelTypeData memory entityCAVoxelType = IWorld(_world()).tenet_VoxelInteract_Sys_readCAVoxelTypes(
+        caAddress,
+        voxelToMine
+      );
       VoxelType.set(scaleId, voxelToMine, entityCAVoxelType.voxelTypeId, entityCAVoxelType.voxelVariantId);
 
       IWorld(_world()).tenet_VoxelInteract_Sys_runCA(caAddress, scaleId, newEntity);

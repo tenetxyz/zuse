@@ -63,6 +63,33 @@ contract VoxelInteractionSystem is System {
     return centerNeighbourEntities;
   }
 
+  function enterCA(
+    address caAddress,
+    bytes32 voxelTypeId,
+    VoxelCoord memory coord,
+    bytes32 entity
+  ) public returns (bytes memory) {
+    return
+      safeCall(
+        caAddress,
+        abi.encodeWithSignature("enterWorld(bytes32,(int32,int32,int32),bytes32)", voxelTypeId, coord, entity),
+        string(abi.encode("enterWorld ", voxelTypeId, " ", coord, " ", entity))
+      );
+  }
+
+  function exitCA(address caAddress, bytes32 entity) public returns (bytes memory) {
+    return
+      safeCall(
+        caAddress,
+        abi.encodeWithSignature("exitWorld(bytes32)", entity),
+        string(abi.encode("exitWorld ", entity))
+      );
+  }
+
+  function readCAVoxelTypes(address caAddress, bytes32 entity) public returns (CAVoxelTypeData memory) {
+    return CAVoxelType.get(IStore(caAddress), address(this), entity);
+  }
+
   function runCA(address caAddress, uint256 scaleId, bytes32 entity) public {
     // Run interaction logic
     bytes32[] memory neighbourEntityIds = calculateNeighbourEntities(scaleId, entity);

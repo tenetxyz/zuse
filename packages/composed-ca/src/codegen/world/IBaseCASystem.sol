@@ -6,8 +6,6 @@ pragma solidity >=0.8.0;
 import { VoxelCoord } from "@tenet-registry/src/Types.sol";
 
 interface IBaseCASystem {
-  function defineVoxelTypeDefs() external;
-
   function isVoxelTypeAllowed(bytes32 voxelTypeId) external returns (bool);
 
   function enterWorld(bytes32 voxelTypeId, VoxelCoord memory coord, bytes32 entity) external;

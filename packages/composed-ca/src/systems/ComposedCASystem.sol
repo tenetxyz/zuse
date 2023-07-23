@@ -4,37 +4,13 @@ pragma solidity >=0.8.0;
 import { System } from "@latticexyz/world/src/System.sol";
 import { getKeysWithValue } from "@latticexyz/world/src/modules/keyswithvalue/getKeysWithValue.sol";
 import { hasKey } from "@latticexyz/world/src/modules/keysintable/hasKey.sol";
-import { CAVoxelTypeDefs, CAVoxelTypeDefsTableId, CAVoxelType, CAPosition, CAPositionData, CAPositionTableId } from "@base-ca/src/codegen/Tables.sol";
+import { CAVoxelType, CAPosition, CAPositionData, CAPositionTableId } from "@composed-ca/src/codegen/Tables.sol";
 import { VoxelCoord } from "@tenet-registry/src/Types.sol";
-import { AirVoxelID, AirVoxelVariantID, DirtVoxelID, DirtVoxelVariantID, GrassVoxelID, GrassVoxelVariantID } from "@base-ca/src/Constants.sol";
+import { RoadVoxelID, RoadVoxelVariantID } from "@composed-ca/src/Constants.sol";
 
-contract BaseCASystem is System {
-  function defineVoxelTypeDefs() public {
-    require(
-      !hasKey(CAVoxelTypeDefsTableId, CAVoxelTypeDefs.encodeKeyTuple(AirVoxelID)) &&
-        !hasKey(CAVoxelTypeDefsTableId, CAVoxelTypeDefs.encodeKeyTuple(DirtVoxelID)) &&
-        !hasKey(CAVoxelTypeDefsTableId, CAVoxelTypeDefs.encodeKeyTuple(GrassVoxelID)),
-      "The voxel type's has already been defined for this CA"
-    );
-
-    VoxelCoord[] memory oneBlockVoxelCoord = new VoxelCoord[](1);
-    oneBlockVoxelCoord[0] = VoxelCoord({ x: 0, y: 0, z: 0 });
-
-    bytes32[] memory airChildVoxelTypes = new bytes32[](1);
-    airChildVoxelTypes[0] = AirVoxelID;
-    CAVoxelTypeDefs.set(AirVoxelID, airChildVoxelTypes, abi.encode(oneBlockVoxelCoord));
-
-    bytes32[] memory dirtChildVoxelTypes = new bytes32[](1);
-    dirtChildVoxelTypes[0] = DirtVoxelID;
-    CAVoxelTypeDefs.set(DirtVoxelID, dirtChildVoxelTypes, abi.encode(oneBlockVoxelCoord));
-
-    bytes32[] memory grassChildVoxelTypes = new bytes32[](1);
-    grassChildVoxelTypes[0] = GrassVoxelID;
-    CAVoxelTypeDefs.set(GrassVoxelID, grassChildVoxelTypes, abi.encode(oneBlockVoxelCoord));
-  }
-
+contract ComposedCASystem is System {
   function isVoxelTypeAllowed(bytes32 voxelTypeId) public returns (bool) {
-    if (voxelTypeId == AirVoxelID || voxelTypeId == DirtVoxelID || voxelTypeId == GrassVoxelID) {
+    if (voxelTypeId == RoadVoxelID) {
       return true;
     }
     return false;
@@ -67,12 +43,8 @@ contract BaseCASystem is System {
   }
 
   function updateVoxelVariant(bytes32 voxelTypeId, bytes32 entity) public returns (bytes32 voxelVariantId) {
-    if (voxelTypeId == AirVoxelID) {
-      return AirVoxelVariantID;
-    } else if (voxelTypeId == DirtVoxelID) {
-      return DirtVoxelVariantID;
-    } else if (voxelTypeId == GrassVoxelID) {
-      return GrassVoxelVariantID;
+    if (voxelTypeId == RoadVoxelID) {
+      return RoadVoxelVariantID;
     } else {
       revert("This voxel type is not allowed in this CA");
     }

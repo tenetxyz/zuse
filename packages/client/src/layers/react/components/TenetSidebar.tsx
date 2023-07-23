@@ -15,7 +15,7 @@ import { TargetedBlock, getTargetedSpawnId } from "../../../utils/voxels";
 import { stringToEntity } from "../../../utils/entity";
 import { abiDecode } from "../../../utils/abi";
 import { ISpawn } from "../../noa/components/SpawnInFocus";
-import { WorldRegistry } from "./WorldsRegistry";
+import { WorldRegistry, WorldRegistryFilters } from "./WorldsRegistry";
 
 enum SidebarTab {
   VOXELS = "Voxel Types",
@@ -69,6 +69,9 @@ export function registerTenetSidebar() {
           search: "",
           isMyCreation: true,
         },
+      });
+      const [worldRegistryFilters, setWorldRegistryFilters] = useState<WorldRegistryFilters>({
+        query: "",
       });
 
       const [selectedClassifier, setSelectedClassifier] = useState<Classifier | null>(null);
@@ -149,7 +152,9 @@ export function registerTenetSidebar() {
               />
             );
           case SidebarTab.WORLDS:
-            return <WorldRegistry />;
+            return (
+              <WorldRegistry layers={layers} filters={worldRegistryFilters} setFilters={setWorldRegistryFilters} />
+            );
           default:
             return null;
         }

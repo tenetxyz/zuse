@@ -19,6 +19,7 @@ import { ISpawn } from "../../noa/components/SpawnInFocus";
 enum SidebarTab {
   VOXELS = "Voxel Types",
   VOXEL_CREATIONS = "Voxel Creations",
+  WORLDS = "Worlds",
 }
 
 // Convert enum values to an array
@@ -146,6 +147,8 @@ export function registerTenetSidebar() {
                 setShowAllCreations={setShowAllCreations}
               />
             );
+          case SidebarTab.WORLDS:
+            return <WorldsRgistry />;
           default:
             return null;
         }

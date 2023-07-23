@@ -207,7 +207,7 @@ contract VoxelInteractionSystem is System {
     bytes memory returnData = safeCall(
       caAddress,
       abi.encodeWithSignature(
-        "runInteraction(bytes32,bytes32[],bytes32[],bytes32[])",
+        "runInteraction(bytes32,bytes32[],bytes32[],bytes32)",
         entity,
         neighbourEntityIds,
         childEntityIds,

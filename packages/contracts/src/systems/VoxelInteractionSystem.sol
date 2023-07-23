@@ -116,7 +116,7 @@ contract VoxelInteractionSystem is System {
   }
 
   function calculateChildEntities(uint32 scale, bytes32 entity) public view returns (bytes32[] memory) {
-    if (scale == 1) {
+    if (scale == 2) {
       bytes32[] memory childEntities = new bytes32[](8);
       PositionData memory baseCoord = Position.get(scale, entity);
       VoxelCoord memory baseVoxelCoord = VoxelCoord({ x: baseCoord.x, y: baseCoord.y, z: baseCoord.z });
@@ -149,7 +149,7 @@ contract VoxelInteractionSystem is System {
 
   function calculateParentEntity(uint32 scale, bytes32 entity) public view returns (bytes32) {
     bytes32 parentEntity;
-    if (scale == 0) {
+    if (scale == 1) {
       PositionData memory baseCoord = Position.get(scale, entity);
       VoxelCoord memory baseVoxelCoord = VoxelCoord({ x: baseCoord.x, y: baseCoord.y, z: baseCoord.z });
       VoxelCoord memory parentVoxelCoord = calculateParentCoord(baseVoxelCoord, scale);
@@ -252,7 +252,7 @@ contract VoxelInteractionSystem is System {
       // we'll go through each one until there is no more changed entities
       // order in which these systems are called should not matter since they all change their own components
       bytes32 useCenterEntityId = centerEntitiesToCheckStack[useStackIdx];
-      bytes32[] memory useNeighbourEntities = calculateNeighbourEntities(0, useCenterEntityId);
+      bytes32[] memory useNeighbourEntities = calculateNeighbourEntities(1, useCenterEntityId);
       if (!hasEntity(useNeighbourEntities)) {
         // if no neighbours, then we don't run any voxel interactions because there would be none
         break;

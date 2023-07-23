@@ -121,7 +121,7 @@ contract MineSystem is System {
     //     "The voxel at this position is not the same as the voxel you are trying to mine"
     //   );
     //   tryRemoveVoxelFromSpawn(voxelToMine);
-    //   Position.deleteRecord(0, voxelToMine);
+    //   Position.deleteRecord(1, voxelToMine);
     //   exitVoxelFromWorld(_world(), voxelToMine);
     //   VoxelType.set(1, voxelToMine, voxelTypeData.voxelTypeId, "");
     // }

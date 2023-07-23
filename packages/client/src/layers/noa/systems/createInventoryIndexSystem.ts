@@ -44,7 +44,7 @@ export const getItemTypesIOwn = (
       .map((item) => {
         const voxelType = getComponentValue(
           VoxelType,
-          ("0x0000000000000000000000000000000000000000000000000000000000000000:" + item) as Entity
+          ("0x0000000000000000000000000000000000000000000000000000000000000001:" + item) as Entity
         );
         if (voxelType === undefined) {
           console.warn(`voxelType of item you own is undefined item=${item.toString()}`);
@@ -101,7 +101,7 @@ export function createInventoryIndexSystem(network: NetworkLayer, context: NoaLa
     }
     const voxelType = getComponentValue(
       VoxelType,
-      ("0x0000000000000000000000000000000000000000000000000000000000000000:" + update.entity) as Entity
+      ("0x0000000000000000000000000000000000000000000000000000000000000001:" + update.entity) as Entity
     );
     console.log("over here");
     console.log(voxelType);

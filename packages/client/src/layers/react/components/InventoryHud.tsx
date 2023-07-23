@@ -73,7 +73,7 @@ export function registerInventoryHud() {
             console.log(curr.entity);
             const voxelType = getComponentValue(
               VoxelType,
-              ("0x0000000000000000000000000000000000000000000000000000000000000000:" + curr.entity) as Entity
+              ("0x0000000000000000000000000000000000000000000000000000000000000001:" + curr.entity) as Entity
             );
             console.log(voxelType);
             if (!voxelType) return { ...acc };

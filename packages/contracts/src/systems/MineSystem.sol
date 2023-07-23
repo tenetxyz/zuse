@@ -106,7 +106,7 @@ contract MineSystem is System {
     //   // Create an ECS voxel from this coord's terrain voxel
     //   voxelToMine = getUniqueEntity();
     //   // in terrain gen, we know its our system namespace and we validated it above using the Occurrence table
-    //   VoxelType.set(0, voxelToMine, voxelTypeId, voxelVariantId);
+    //   VoxelType.set(1, voxelToMine, voxelTypeId, voxelVariantId);
     // } else {
     //   // Else, mine the non-air entity voxel at this position
     //   require(entitiesAtPosition.length == 1, "there should only be one entity at this position");
@@ -123,15 +123,15 @@ contract MineSystem is System {
     //   tryRemoveVoxelFromSpawn(voxelToMine);
     //   Position.deleteRecord(0, voxelToMine);
     //   exitVoxelFromWorld(_world(), voxelToMine);
-    //   VoxelType.set(0, voxelToMine, voxelTypeData.voxelTypeId, "");
+    //   VoxelType.set(1, voxelToMine, voxelTypeData.voxelTypeId, "");
     // }
 
     // // Place an air voxel at this position
     // airEntity = getUniqueEntity();
     // // TODO: We don't need necessarily need to get the air voxel type from the registry, we could just use the AirID
     // // Maybe consider doing this for performance reasons
-    // VoxelType.set(0, airEntity, AirID, "");
-    // Position.set(0, airEntity, coord.x, coord.y, coord.z);
+    // VoxelType.set(1, airEntity, AirID, "");
+    // Position.set(1, airEntity, coord.x, coord.y, coord.z);
     // enterVoxelIntoWorld(_world(), airEntity);
     // updateVoxelVariant(_world(), airEntity);
 

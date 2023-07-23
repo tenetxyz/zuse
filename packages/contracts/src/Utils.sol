@@ -106,7 +106,7 @@ function updateVoxelVariant(address world, bytes32 entity) {
     // voxelVariantData.voxelVariantNamespace != entityVoxelType.voxelVariantNamespace ||
     voxelVariantData.voxelVariantId != entityVoxelType.voxelVariantId
   ) {
-    VoxelType.set(0, entity, entityVoxelType.voxelTypeId, voxelVariantData.voxelVariantId);
+    VoxelType.set(1, entity, entityVoxelType.voxelTypeId, voxelVariantData.voxelVariantId);
   }
 }
 

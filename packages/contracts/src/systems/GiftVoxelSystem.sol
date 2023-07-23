@@ -22,7 +22,7 @@ contract GiftVoxelSystem is System {
     // require(numUniqueVoxelTypesIOwn() <= 36, "You can only own 36 unique voxel types at a time");
     bytes32 entity = getUniqueEntity();
     // When a voxel is in your inventory, it's not in the world so it should have no voxel variant
-    VoxelType.set(0, entity, voxelTypeId, "");
+    VoxelType.set(1, entity, voxelTypeId, "");
 
     OwnedBy.set(entity, addressToEntityKey(_msgSender()));
 

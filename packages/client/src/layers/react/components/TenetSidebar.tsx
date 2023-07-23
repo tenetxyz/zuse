@@ -15,6 +15,7 @@ import { TargetedBlock, getTargetedSpawnId } from "../../../utils/voxels";
 import { stringToEntity } from "../../../utils/entity";
 import { abiDecode } from "../../../utils/abi";
 import { ISpawn } from "../../noa/components/SpawnInFocus";
+import { WorldRegistry } from "./WorldsRegistry";
 
 enum SidebarTab {
   VOXELS = "Voxel Types",
@@ -148,7 +149,7 @@ export function registerTenetSidebar() {
               />
             );
           case SidebarTab.WORLDS:
-            return <WorldsRgistry />;
+            return <WorldRegistry />;
           default:
             return null;
         }

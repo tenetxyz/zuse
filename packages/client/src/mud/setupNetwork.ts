@@ -1,5 +1,5 @@
 import { setupMUDV2Network, createActionSystem } from "@latticexyz/std-client";
-import { Entity, getComponentValue, createIndexer, runQuery, HasValue, Components } from "@latticexyz/recs";
+import { Entity, getComponentValue, createIndexer, runQuery, HasValue, Components, World } from "@latticexyz/recs";
 import { createFastTxExecutor, createFaucetService, getSnapSyncRecords, createRelayStream } from "@latticexyz/network";
 import { getNetworkConfig } from "./getNetworkConfig";
 import { defineContractComponents } from "./contractComponents";
@@ -30,16 +30,13 @@ import {
   voxelTypeToEntity,
   VoxelTypeBaseKey,
   voxelTypeBaseKeyStrToVoxelTypeRegistryKeyStr,
-  voxelTypeToVoxelTypeBaseKey,
   InterfaceVoxel,
 } from "../layers/noa/types";
 import { Textures, UVWraps } from "../layers/noa/constants";
-import { keccak256 } from "@latticexyz/utils";
 import { TENET_NAMESPACE } from "../constants";
 import { AIR_ID, BEDROCK_ID, DIRT_ID, GRASS_ID } from "../layers/network/api/terrain/occurrence";
 import { getNftStorageLink } from "../layers/noa/constants";
 import { voxelCoordToString } from "../utils/coord";
-import { defaultAbiCoder } from "ethers/lib/utils";
 import { toast } from "react-toastify";
 import { abiDecode } from "../utils/abi";
 import { BaseCreationInWorld } from "../layers/react/components/RegisterCreation";
@@ -51,13 +48,41 @@ export type VoxelVariantSubscription = (
   voxelVariantData: VoxelVariantDataValue
 ) => void;
 
-export async function setupNetwork() {
+const initContractComponents = (world: World) => {
   const contractComponents = defineContractComponents(world);
-
   // Give components a Human-readable ID
   Object.entries(contractComponents).forEach(([name, component]) => {
     component.id = name;
   });
+  return contractComponents;
+};
+
+const setupWorldRegistryNetwork = async () => {
+  const params = new URLSearchParams(window.location.search);
+  const registryAddress = params.get("registryAddress");
+  if (!registryAddress) {
+    return;
+  }
+
+  // TODO: replace this world param with the one from the registry world
+  const contractComponents = initContractComponents(world);
+  const networkConfig = await getNetworkConfig();
+  networkConfig.worldAddress = registryAddress;
+  const result = await setupMUDV2Network<typeof contractComponents, typeof storeConfig>({
+    networkConfig,
+    world,
+    contractComponents,
+    syncThread: "main",
+    storeConfig,
+    worldAbi: IWorld__factory.abi,
+  });
+  result.startSync();
+  // Give components a Human-readable ID
+  return contractComponents;
+};
+
+export async function setupNetwork() {
+  const contractComponents = initContractComponents(world);
 
   console.log("Getting network config...");
   const networkConfig = await getNetworkConfig();
@@ -113,6 +138,8 @@ export async function setupNetwork() {
     // Request a drip every 20 seconds
     setInterval(requestDrip, 20000);
   }
+
+  const registryContracts = await setupWorldRegistryNetwork();
 
   // TODO: Uncomment once we support plugins
   // // Set initial component values
@@ -683,6 +710,7 @@ export async function setupNetwork() {
   return {
     ...result,
     contractComponents,
+    registryContracts,
     world,
     worldContract,
     actions,

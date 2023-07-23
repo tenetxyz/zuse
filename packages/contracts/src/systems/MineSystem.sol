@@ -26,7 +26,7 @@ contract MineSystem is System {
     require(coord.y <= CHUNK_MAX_Y && coord.y >= CHUNK_MIN_Y, "out of chunk bounds");
 
     // Check ECS blocks at coord
-    bytes32[] memory entitiesAtPosition = getEntitiesAtCoord(coord);
+    bytes32[][] memory entitiesAtPosition = getEntitiesAtCoord(coord);
 
     bytes32 voxelToMine;
     bytes32 airEntity;
@@ -56,7 +56,7 @@ contract MineSystem is System {
     } else {
       // Else, mine the non-air entity voxel at this position
       require(entitiesAtPosition.length == 1, "there should only be one entity at this position");
-      voxelToMine = entitiesAtPosition[0];
+      voxelToMine = entitiesAtPosition[0][0];
       VoxelTypeData memory voxelTypeData = VoxelType.get(voxelToMine);
       require(voxelToMine != 0, "We found no voxels at that position");
       require(
@@ -114,10 +114,10 @@ contract MineSystem is System {
   }
 
   function clearCoord(VoxelCoord memory coord) public returns (bytes32) {
-    bytes32[] memory entitiesAtPosition = getEntitiesAtCoord(coord);
+    bytes32[][] memory entitiesAtPosition = getEntitiesAtCoord(coord);
     bytes32 minedEntity = 0;
     for (uint256 i = 0; i < entitiesAtPosition.length; i++) {
-      bytes32 entity = entitiesAtPosition[i];
+      bytes32 entity = entitiesAtPosition[0][i];
 
       VoxelTypeData memory voxelTypeData = VoxelType.get(entity);
       if (voxelTypeData.voxelTypeId == AirID) {

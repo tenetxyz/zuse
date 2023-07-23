@@ -43,7 +43,7 @@ contract VoxelInteractionSystem is System {
         baseCoord.z + NEIGHBOUR_COORD_OFFSETS[i * 3 + 2]
       );
 
-      bytes32[] memory neighbourEntitiesAtPosition = getEntitiesAtCoord(neighbouringCoord);
+      bytes32[][] memory neighbourEntitiesAtPosition = getEntitiesAtCoord(neighbouringCoord);
 
       require(
         neighbourEntitiesAtPosition.length == 0 || neighbourEntitiesAtPosition.length == 1,
@@ -51,7 +51,7 @@ contract VoxelInteractionSystem is System {
       );
       if (neighbourEntitiesAtPosition.length == 1) {
         // entity exists so add it to the list
-        centerNeighbourEntities[i] = neighbourEntitiesAtPosition[0];
+        centerNeighbourEntities[i] = neighbourEntitiesAtPosition[0][0];
       } else {
         // no entity exists so add air
         // TODO: How do we deal with entities not created yet, but still in the world due to terrain generation

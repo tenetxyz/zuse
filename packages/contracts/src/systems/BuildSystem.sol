@@ -22,15 +22,18 @@ contract BuildSystem is System {
   // TODO: when we have a survival mode, prevent ppl from alling this function directly (since they don't need to own the voxel to call it)
   function buildVoxelType(VoxelTypeData memory voxelType, VoxelCoord memory coord) public returns (bytes32) {
     // Require no other ECS voxels at this position except Air
-    bytes32[] memory entitiesAtPosition = getKeysWithValue(PositionTableId, Position.encode(coord.x, coord.y, coord.z));
+    bytes32[][] memory entitiesAtPosition = getKeysWithValue(
+      PositionTableId,
+      Position.encode(coord.x, coord.y, coord.z)
+    );
     require(entitiesAtPosition.length <= 1, "This position is already occupied by another voxel");
     if (entitiesAtPosition.length == 1) {
       require(
-        VoxelType.get(entitiesAtPosition[0]).voxelTypeId == AirID,
+        VoxelType.get(entitiesAtPosition[0][0]).voxelTypeId == AirID,
         "This position is already occupied by another voxel"
       );
-      VoxelType.deleteRecord(entitiesAtPosition[0]);
-      Position.deleteRecord(entitiesAtPosition[0]);
+      VoxelType.deleteRecord(entitiesAtPosition[0][0]);
+      Position.deleteRecord(entitiesAtPosition[0][0]);
     }
 
     // TODO: check claim in chunk

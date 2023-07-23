@@ -175,7 +175,7 @@ function initializeArray(uint256 x, uint256 y) pure returns (uint256[][] memory)
   return arr;
 }
 
-function getEntitiesAtCoord(VoxelCoord memory coord) view returns (bytes32[] memory) {
+function getEntitiesAtCoord(VoxelCoord memory coord) view returns (bytes32[][] memory) {
   return getKeysWithValue(PositionTableId, Position.encode(coord.x, coord.y, coord.z));
 }
 

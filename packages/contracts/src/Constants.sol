@@ -5,6 +5,7 @@ import { IStore } from "@latticexyz/store/src/IStore.sol";
 
 IStore constant REGISTRY_WORLD_STORE = IStore(0x5FbDB2315678afecb367f032d93F642f64180aa3);
 address constant BASE_CA_ADDRESS = 0x9A9f2CCfdE556A7E9Ff0848998Aa4a0CFD8863AE;
+address constant COMPOSED_CA_ADDRESS = 0x4826533B4897376654Bb4d4AD88B7faFD0C98528;
 
 bytes16 constant TENET_NAMESPACE = bytes16("tenet");
 

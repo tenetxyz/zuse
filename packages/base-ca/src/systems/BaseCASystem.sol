@@ -17,20 +17,17 @@ contract BaseCASystem is System {
       "The voxel type's has already been defined for this CA"
     );
 
-    VoxelCoord[] memory oneBlockVoxelCoord = new VoxelCoord[](1);
-    oneBlockVoxelCoord[0] = VoxelCoord({ x: 0, y: 0, z: 0 });
-
     bytes32[] memory airChildVoxelTypes = new bytes32[](1);
     airChildVoxelTypes[0] = AirVoxelID;
-    CAVoxelTypeDefs.set(AirVoxelID, airChildVoxelTypes, abi.encode(oneBlockVoxelCoord));
+    CAVoxelTypeDefs.set(AirVoxelID, airChildVoxelTypes);
 
     bytes32[] memory dirtChildVoxelTypes = new bytes32[](1);
     dirtChildVoxelTypes[0] = DirtVoxelID;
-    CAVoxelTypeDefs.set(DirtVoxelID, dirtChildVoxelTypes, abi.encode(oneBlockVoxelCoord));
+    CAVoxelTypeDefs.set(DirtVoxelID, dirtChildVoxelTypes);
 
     bytes32[] memory grassChildVoxelTypes = new bytes32[](1);
     grassChildVoxelTypes[0] = GrassVoxelID;
-    CAVoxelTypeDefs.set(GrassVoxelID, grassChildVoxelTypes, abi.encode(oneBlockVoxelCoord));
+    CAVoxelTypeDefs.set(GrassVoxelID, grassChildVoxelTypes);
   }
 
   function isVoxelTypeAllowed(bytes32 voxelTypeId) public returns (bool) {

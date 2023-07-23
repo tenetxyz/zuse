@@ -17,27 +17,17 @@ contract ComposedCASystem is System {
       "The voxel type's has already been defined for this CA"
     );
 
-    VoxelCoord[] memory eightBlockVoxelCoords = new VoxelCoord[](8);
-    eightBlockVoxelCoords[0] = VoxelCoord({ x: 0, y: 0, z: 0 });
-    eightBlockVoxelCoords[1] = VoxelCoord({ x: 1, y: 0, z: 0 });
-    eightBlockVoxelCoords[2] = VoxelCoord({ x: 0, y: 1, z: 0 });
-    eightBlockVoxelCoords[3] = VoxelCoord({ x: 1, y: 1, z: 0 });
-    eightBlockVoxelCoords[4] = VoxelCoord({ x: 0, y: 0, z: 1 });
-    eightBlockVoxelCoords[5] = VoxelCoord({ x: 1, y: 0, z: 1 });
-    eightBlockVoxelCoords[6] = VoxelCoord({ x: 0, y: 1, z: 1 });
-    eightBlockVoxelCoords[7] = VoxelCoord({ x: 1, y: 1, z: 1 });
-
     bytes32[] memory airChildVoxelTypes = new bytes32[](8);
     for (uint i = 0; i < 8; i++) {
       airChildVoxelTypes[i] = AirVoxelID;
     }
-    CAVoxelTypeDefs.set(AirVoxelID, airChildVoxelTypes, abi.encode(eightBlockVoxelCoords));
+    CAVoxelTypeDefs.set(AirVoxelID, airChildVoxelTypes);
 
     bytes32[] memory roadChildVoxelTypes = new bytes32[](8);
     for (uint i = 0; i < 8; i++) {
       roadChildVoxelTypes[i] = DirtVoxelID;
     }
-    CAVoxelTypeDefs.set(RoadVoxelID, roadChildVoxelTypes, abi.encode(eightBlockVoxelCoords));
+    CAVoxelTypeDefs.set(RoadVoxelID, roadChildVoxelTypes);
   }
 
   function isVoxelTypeAllowed(bytes32 voxelTypeId) public returns (bool) {

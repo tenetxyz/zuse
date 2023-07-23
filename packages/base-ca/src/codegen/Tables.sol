@@ -5,4 +5,4 @@ pragma solidity >=0.8.0;
 
 import { CAPosition, CAPositionData, CAPositionTableId } from "./tables/CAPosition.sol";
 import { CAVoxelType, CAVoxelTypeData, CAVoxelTypeTableId } from "./tables/CAVoxelType.sol";
-import { CAVoxelTypeDefs, CAVoxelTypeDefsData, CAVoxelTypeDefsTableId } from "./tables/CAVoxelTypeDefs.sol";
+import { CAVoxelTypeDefs, CAVoxelTypeDefsTableId } from "./tables/CAVoxelTypeDefs.sol";

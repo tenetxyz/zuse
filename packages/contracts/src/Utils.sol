@@ -3,7 +3,7 @@ pragma solidity >=0.8.0;
 
 import { SystemRegistry } from "@latticexyz/world/src/modules/core/tables/SystemRegistry.sol";
 import { ResourceSelector } from "@latticexyz/world/src/ResourceSelector.sol";
-import { CHUNK, BASE_CA_ADDRESS } from "@tenet-contracts/src/Constants.sol";
+import { CHUNK, BASE_CA_ADDRESS, COMPOSED_CA_ADDRESS } from "@tenet-contracts/src/Constants.sol";
 import { hasKey } from "@latticexyz/world/src/modules/keysintable/hasKey.sol";
 import { Coord, VoxelCoord } from "@tenet-contracts/src/Types.sol";
 import { getKeysWithValue } from "@latticexyz/world/src/modules/keyswithvalue/getKeysWithValue.sol";
@@ -12,7 +12,7 @@ import { VoxelVariantsKey, BlockDirection } from "@tenet-contracts/src/Types.sol
 import { Strings } from "@openzeppelin/contracts/utils/Strings.sol";
 
 function isCAAllowed(address caAddress) view returns (bool) {
-  return caAddress == BASE_CA_ADDRESS;
+  return caAddress == BASE_CA_ADDRESS || caAddress == COMPOSED_CA_ADDRESS;
 }
 
 function getCallerNamespace(address caller) view returns (bytes16) {

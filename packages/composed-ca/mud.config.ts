@@ -31,7 +31,6 @@ export default mudConfig({
       },
       schema: {
         voxelTypeIds: "bytes32[]",
-        voxelRelativePositions: "bytes", // VoxelCoord[]
       },
     },
   },

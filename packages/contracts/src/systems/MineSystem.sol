@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity >=0.8.0;
 
+import { IStore } from "@latticexyz/store/src/IStore.sol";
 import { getUniqueEntity } from "@latticexyz/world/src/modules/uniqueentity/getUniqueEntity.sol";
 import { getKeysInTable } from "@latticexyz/world/src/modules/keysintable/getKeysInTable.sol";
 import { System } from "@latticexyz/world/src/System.sol";
@@ -14,9 +15,10 @@ import { Utils } from "@latticexyz/world/src/Utils.sol";
 import { IWorld } from "@tenet-contracts/src/codegen/world/IWorld.sol";
 import { Occurrence } from "@tenet-contracts/src/codegen/Tables.sol";
 import { console } from "forge-std/console.sol";
-import { CAVoxelType, CAVoxelTypeData } from "@tenet-base-ca/src/codegen/tables/CAVoxelType.sol";
+import { CAVoxelType, CAVoxelTypeData, CAVoxelTypeDefs } from "@tenet-base-ca/src/codegen/tables/CAVoxelType.sol";
 import { CHUNK_MAX_Y, CHUNK_MIN_Y, REGISTRY_WORLD_STORE, BASE_CA_ADDRESS } from "@tenet-contracts/src/Constants.sol";
 import { getEntitiesAtCoord } from "./VoxelInteractionSystem.sol";
+import { add } from "./VoxelInteractionSystem.sol";
 
 contract MineSystem is System {
   function mine(VoxelCoord memory coord, bytes32 voxelTypeId) public returns (bytes32) {
@@ -46,12 +48,27 @@ contract MineSystem is System {
       require(isCAAllowed(caAddress), "Invalid CA address");
 
       address workingCaAddress = caAddress;
-      while (workingCaAddress != BASE_CA_ADDRESS) {
-        scaleId -= 1;
+      if (workingCaAddress != BASE_CA_ADDRESS) {
+        scaleId += 1;
         // Read the ChildTypes in this CA address
-        // Figure out their CA address
-        // And keep looping until we get to the base CA address
-        // mine(...)
+        bytes32[] childVoxelTypeIds = CAVoxelTypeDefs.get(IStore(caAddress), voxelTypeId);
+        require(childVoxelTypeIds.length == 8, "Invalid length of child voxel type ids");
+
+        // TODO: move this to a library
+        VoxelCoord[] memory eightBlockVoxelCoords = new VoxelCoord[](8);
+        eightBlockVoxelCoords[0] = VoxelCoord({ x: 0, y: 0, z: 0 });
+        eightBlockVoxelCoords[1] = VoxelCoord({ x: 1, y: 0, z: 0 });
+        eightBlockVoxelCoords[2] = VoxelCoord({ x: 0, y: 1, z: 0 });
+        eightBlockVoxelCoords[3] = VoxelCoord({ x: 1, y: 1, z: 0 });
+        eightBlockVoxelCoords[4] = VoxelCoord({ x: 0, y: 0, z: 1 });
+        eightBlockVoxelCoords[5] = VoxelCoord({ x: 1, y: 0, z: 1 });
+        eightBlockVoxelCoords[6] = VoxelCoord({ x: 0, y: 1, z: 1 });
+        eightBlockVoxelCoords[7] = VoxelCoord({ x: 1, y: 1, z: 1 });
+
+        for (uint8 i = 0; i < 8; i++) {
+          VoxelCoord useCoord = buildVoxelType(childVoxelTypeIds[i], add(coord, eightBlockVoxelCoords[i]));
+          mine(useCoord, childVoxelTypeIds[i]);
+        }
       }
 
       // Exit World

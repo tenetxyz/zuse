@@ -17,6 +17,10 @@ function getEntitiesAtCoord(VoxelCoord memory coord) view returns (bytes32[][] m
   return getKeysWithValue(PositionTableId, Position.encode(coord.x, coord.y, coord.z));
 }
 
+function add(VoxelCoord memory a, VoxelCoord memory b) pure returns (VoxelCoord memory) {
+  return VoxelCoord(a.x + b.x, a.y + b.y, a.z + b.z);
+}
+
 contract VoxelInteractionSystem is System {
   int8[18] private NEIGHBOUR_COORD_OFFSETS = [
     int8(0),

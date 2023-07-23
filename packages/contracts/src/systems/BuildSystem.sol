@@ -21,7 +21,7 @@ contract BuildSystem is System {
     // Require voxel to be owned by caller
     require(OwnedBy.get(entity) == addressToEntityKey(_msgSender()), "voxel is not owned by player");
 
-    VoxelTypeData memory voxelType = VoxelType.get(0, entity);
+    VoxelTypeData memory voxelType = VoxelType.get(1, entity);
     return buildVoxelType(voxelType.voxelTypeId, coord);
   }
 
@@ -31,16 +31,16 @@ contract BuildSystem is System {
     require(isCAAllowed(caAddress), "Invalid CA address");
 
     address workingCaAddress = caAddress;
-    uint32 scaleId = 1; // TODO: make this a parameter
+    uint32 scale = 1; // TODO: make this a parameter
     if (workingCaAddress != BASE_CA_ADDRESS) {
-      scaleId += 1;
+      scale += 1;
 
       // Read the ChildTypes in this CA address
       bytes32[] memory childVoxelTypeIds = CAVoxelTypeDefs.get(IStore(caAddress), voxelTypeId);
       require(childVoxelTypeIds.length == 8, "Invalid length of child voxel type ids");
 
       // TODO: move this to a library
-      VoxelCoord[] memory eightBlockVoxelCoords = calculateChildCoords(scaleId, coord);
+      VoxelCoord[] memory eightBlockVoxelCoords = calculateChildCoords(scale, coord);
 
       for (uint8 i = 0; i < 8; i++) {
         buildVoxelType(childVoxelTypeIds[i], eightBlockVoxelCoords[i]);
@@ -56,16 +56,16 @@ contract BuildSystem is System {
     IWorld(_world()).tenet_VoxInteractSys_enterCA(caAddress, voxelTypeId, coord, newEntity);
 
     // Set Position
-    Position.set(scaleId, newEntity, coord.x, coord.y, coord.z);
+    Position.set(scale, newEntity, coord.x, coord.y, coord.z);
     // Set initial voxel type
     // TODO: Need to use _world() instead of address(this) here
     CAVoxelTypeData memory entityCAVoxelType = IWorld(_world()).tenet_VoxInteractSys_readCAVoxelTypes(
       caAddress,
       newEntity
     );
-    VoxelType.set(scaleId, newEntity, entityCAVoxelType.voxelTypeId, entityCAVoxelType.voxelVariantId);
+    VoxelType.set(scale, newEntity, entityCAVoxelType.voxelTypeId, entityCAVoxelType.voxelVariantId);
 
-    IWorld(_world()).tenet_VoxInteractSys_runCA(caAddress, scaleId, newEntity);
+    IWorld(_world()).tenet_VoxInteractSys_runCA(caAddress, scale, newEntity);
 
     return newEntity;
   }

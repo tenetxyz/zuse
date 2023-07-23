@@ -77,9 +77,9 @@ contract VoxelInteractionSystem is System {
     int8(0)
   ];
 
-  function calculateNeighbourEntities(uint32 scaleId, bytes32 centerEntity) public view returns (bytes32[] memory) {
+  function calculateNeighbourEntities(uint32 scale, bytes32 centerEntity) public view returns (bytes32[] memory) {
     bytes32[] memory centerNeighbourEntities = new bytes32[](NUM_VOXEL_NEIGHBOURS);
-    PositionData memory baseCoord = Position.get(scaleId, centerEntity);
+    PositionData memory baseCoord = Position.get(scale, centerEntity);
 
     for (uint8 i = 0; i < centerNeighbourEntities.length; i++) {
       VoxelCoord memory neighbouringCoord = VoxelCoord(
@@ -107,19 +107,19 @@ contract VoxelInteractionSystem is System {
     return centerNeighbourEntities;
   }
 
-  function calculateChildEntities(uint32 scaleId, bytes32 entity) public view returns (bytes32[] memory) {
-    if (scaleId == 1) {
+  function calculateChildEntities(uint32 scale, bytes32 entity) public view returns (bytes32[] memory) {
+    if (scale == 1) {
       bytes32[] memory childEntities = new bytes32[](8);
-      PositionData memory baseCoord = Position.get(scaleId, entity);
+      PositionData memory baseCoord = Position.get(scale, entity);
       VoxelCoord memory baseVoxelCoord = VoxelCoord({ x: baseCoord.x, y: baseCoord.y, z: baseCoord.z });
-      VoxelCoord[] memory eightBlockVoxelCoords = calculateChildCoords(scaleId, baseVoxelCoord);
+      VoxelCoord[] memory eightBlockVoxelCoords = calculateChildCoords(scale, baseVoxelCoord);
 
       for (uint8 i = 0; i < 8; i++) {
         bytes32[][] memory allEntitiesAtPosition = getEntitiesAtCoord(eightBlockVoxelCoords[i]);
         // filter for the ones with scale-1
         bytes32 childEntityAtPosition;
         for (uint256 j = 0; j < allEntitiesAtPosition.length; j++) {
-          if (uint256(allEntitiesAtPosition[j][0]) == scaleId - 1) {
+          if (uint256(allEntitiesAtPosition[j][0]) == scale - 1) {
             if (childEntityAtPosition != 0) {
               revert("found more than one voxel in the same position when calculating child entities");
             }
@@ -139,16 +139,16 @@ contract VoxelInteractionSystem is System {
     return new bytes32[](0);
   }
 
-  function calculateParentEntity(uint32 scaleId, bytes32 entity) public view returns (bytes32) {
+  function calculateParentEntity(uint32 scale, bytes32 entity) public view returns (bytes32) {
     bytes32 parentEntity;
-    if (scaleId == 0) {
-      PositionData memory baseCoord = Position.get(scaleId, entity);
+    if (scale == 0) {
+      PositionData memory baseCoord = Position.get(scale, entity);
       VoxelCoord memory baseVoxelCoord = VoxelCoord({ x: baseCoord.x, y: baseCoord.y, z: baseCoord.z });
-      VoxelCoord memory parentVoxelCoord = calculateParentCoord(baseVoxelCoord, scaleId);
+      VoxelCoord memory parentVoxelCoord = calculateParentCoord(baseVoxelCoord, scale);
       bytes32[][] memory allEntitiesAtPosition = getEntitiesAtCoord(parentVoxelCoord);
       // filter for the ones with scale + 1
       for (uint256 j = 0; j < allEntitiesAtPosition.length; j++) {
-        if (uint256(allEntitiesAtPosition[j][0]) == scaleId + 1) {
+        if (uint256(allEntitiesAtPosition[j][0]) == scale + 1) {
           if (parentEntity != 0) {
             revert("found more than one voxel in the same position when calculating parent entities");
           }
@@ -191,11 +191,11 @@ contract VoxelInteractionSystem is System {
     return CAVoxelType.get(IStore(caAddress), address(this), entity);
   }
 
-  function runCA(address caAddress, uint32 scaleId, bytes32 entity) public {
+  function runCA(address caAddress, uint32 scale, bytes32 entity) public {
     // Run interaction logic
-    bytes32[] memory neighbourEntityIds = calculateNeighbourEntities(scaleId, entity);
-    bytes32[] memory childEntityIds = calculateChildEntities(scaleId, entity);
-    bytes32 parentEntity = calculateParentEntity(scaleId, entity);
+    bytes32[] memory neighbourEntityIds = calculateNeighbourEntities(scale, entity);
+    bytes32[] memory childEntityIds = calculateChildEntities(scale, entity);
+    bytes32 parentEntity = calculateParentEntity(scale, entity);
     bytes memory returnData = safeCall(
       caAddress,
       abi.encodeWithSignature(
@@ -215,14 +215,14 @@ contract VoxelInteractionSystem is System {
       CAVoxelTypeData memory changedEntityVoxelType = CAVoxelType.get(IStore(caAddress), address(this), changedEntity);
       // Update VoxelType
       VoxelType.set(
-        scaleId,
+        scale,
         changedEntities[i],
         changedEntityVoxelType.voxelTypeId,
         changedEntityVoxelType.voxelVariantId
       );
       // TODO: Do we need this?
       // Position should not change of the entity
-      // Position.set(scaleId, changedEntities[i], coord.x, coord.y, coord.z);
+      // Position.set(scale, changedEntities[i], coord.x, coord.y, coord.z);
     }
   }
 

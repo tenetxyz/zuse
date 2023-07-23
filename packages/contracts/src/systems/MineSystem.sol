@@ -23,7 +23,7 @@ import { calculateChildCoords } from "./VoxelInteractionSystem.sol";
 
 contract MineSystem is System {
   function mine(VoxelCoord memory coord, bytes32 voxelTypeId) public returns (bytes32) {
-    uint32 scaleId = 1;
+    uint32 scale = 1;
 
     // Check ECS blocks at coord
     bytes32[][] memory entitiesAtPosition = getEntitiesAtCoord(coord);
@@ -32,14 +32,14 @@ contract MineSystem is System {
       revert("Not supported yet");
     } else {
       for (uint256 i = 0; i < entitiesAtPosition.length; i++) {
-        uint256 entityScaleId = uint256(entitiesAtPosition[i][0]);
-        if (entityScaleId == scaleId) {
+        uint256 entityScale = uint256(entitiesAtPosition[i][0]);
+        if (entityScale == scale) {
           voxelToMine = entitiesAtPosition[i][1];
           break;
         }
       }
       require(voxelToMine != 0, "No voxels found at that position and scale");
-      VoxelTypeData memory voxelTypeData = VoxelType.get(scaleId, voxelToMine);
+      VoxelTypeData memory voxelTypeData = VoxelType.get(scale, voxelToMine);
       require(
         voxelTypeData.voxelTypeId == voxelTypeId,
         "The voxel at this position is not the same as the voxel you are trying to mine"
@@ -50,13 +50,13 @@ contract MineSystem is System {
 
       address workingCaAddress = caAddress;
       if (workingCaAddress != BASE_CA_ADDRESS) {
-        scaleId += 1;
+        scale += 1;
         // Read the ChildTypes in this CA address
         bytes32[] memory childVoxelTypeIds = CAVoxelTypeDefs.get(IStore(caAddress), voxelTypeId);
         require(childVoxelTypeIds.length == 8, "Invalid length of child voxel type ids");
 
         // TODO: move this to a library
-        VoxelCoord[] memory eightBlockVoxelCoords = calculateChildCoords(scaleId, coord);
+        VoxelCoord[] memory eightBlockVoxelCoords = calculateChildCoords(scale, coord);
 
         for (uint8 i = 0; i < 8; i++) {
           mine(eightBlockVoxelCoords[i], childVoxelTypeIds[i]);
@@ -72,9 +72,9 @@ contract MineSystem is System {
         caAddress,
         voxelToMine
       );
-      VoxelType.set(scaleId, voxelToMine, entityCAVoxelType.voxelTypeId, entityCAVoxelType.voxelVariantId);
+      VoxelType.set(scale, voxelToMine, entityCAVoxelType.voxelTypeId, entityCAVoxelType.voxelVariantId);
 
-      IWorld(_world()).tenet_VoxInteractSys_runCA(caAddress, scaleId, voxelToMine);
+      IWorld(_world()).tenet_VoxInteractSys_runCA(caAddress, scale, voxelToMine);
     }
 
     // Need to figure out which CA to call
@@ -111,7 +111,7 @@ contract MineSystem is System {
     //   // Else, mine the non-air entity voxel at this position
     //   require(entitiesAtPosition.length == 1, "there should only be one entity at this position");
     //   voxelToMine = entitiesAtPosition[0];
-    //   VoxelTypeData memory voxelTypeData = VoxelType.get(0, voxelToMine);
+    //   VoxelTypeData memory voxelTypeData = VoxelType.get(1, voxelToMine);
     //   require(voxelToMine != 0, "We found no voxels at that position");
     //   require(
     //     bytes16(0) == voxelTypeNamespace &&
@@ -173,7 +173,7 @@ contract MineSystem is System {
     for (uint256 i = 0; i < entitiesAtPosition.length; i++) {
       bytes32 entity = entitiesAtPosition[0][i];
 
-      VoxelTypeData memory voxelTypeData = VoxelType.get(0, entity);
+      VoxelTypeData memory voxelTypeData = VoxelType.get(1, entity);
       if (voxelTypeData.voxelTypeId == AirID) {
         // if it's air, then it's already clear
         continue;

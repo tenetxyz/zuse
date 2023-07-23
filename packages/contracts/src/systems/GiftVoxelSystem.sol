@@ -45,7 +45,7 @@ contract GiftVoxelSystem is System {
       //            console.log("voxelsIOwnTuples.length", voxelsIOwnTuples.length);
       //            console.log("voxelsIOwnTuples[0].length", voxelsIOwnTuples[i].length);
       bytes32 entityId = voxelsIOwnTuples[i][0];
-      voxelTypesIOwn[i] = abi.encode(VoxelType.get(0, entityId));
+      voxelTypesIOwn[i] = abi.encode(VoxelType.get(1, entityId));
     }
 
     return removeDuplicates(voxelTypesIOwn).length;

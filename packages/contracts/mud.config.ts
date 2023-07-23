@@ -16,7 +16,7 @@ export default mudConfig({
   tables: {
     Position: {
       keySchema: {
-        scaleId: "uint32",
+        scale: "uint32",
         entity: "bytes32",
       },
       schema: {
@@ -28,7 +28,7 @@ export default mudConfig({
     },
     VoxelType: {
       keySchema: {
-        scaleId: "uint32",
+        scale: "uint32",
         entity: "bytes32",
       },
       schema: {

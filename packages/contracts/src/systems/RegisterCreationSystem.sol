@@ -288,7 +288,7 @@ contract RegisterCreationSystem is System {
   function getVoxelTypes(bytes32[] memory voxels) public view returns (VoxelTypeData[] memory) {
     VoxelTypeData[] memory voxelTypeData = new VoxelTypeData[](voxels.length);
     for (uint32 i = 0; i < voxels.length; i++) {
-      voxelTypeData[i] = VoxelType.get(0, voxels[i]);
+      voxelTypeData[i] = VoxelType.get(1, voxels[i]);
     }
     return voxelTypeData;
   }
@@ -296,7 +296,7 @@ contract RegisterCreationSystem is System {
   function getVoxelCoords(bytes32[] memory voxels) private view returns (VoxelCoord[] memory) {
     VoxelCoord[] memory voxelCoords = new VoxelCoord[](voxels.length);
     for (uint32 i = 0; i < voxels.length; i++) {
-      PositionData memory position = Position.get(0, voxels[i]); // TODO: fix
+      PositionData memory position = Position.get(1, voxels[i]); // TODO: fix
       voxelCoords[i] = VoxelCoord(position.x, position.y, position.z);
     }
     return voxelCoords;

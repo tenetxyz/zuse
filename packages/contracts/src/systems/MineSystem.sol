@@ -20,11 +20,22 @@ contract MineSystem is System {
 
     // Check ECS blocks at coord
     bytes32[][] memory entitiesAtPosition = getEntitiesAtCoord(coord);
-    require(entitiesAtPosition.length <= 1, "There should only be max one entity at this position");
-    // if (entitiesAtPosition.length == 0) {} else {
-    //   bytes32 voxelToMine = entitiesAtPosition[0];
-    //   VoxelTypeData memory voxelTypeData = VoxelType.get(scaleId, voxelToMine);
-    // }
+    if (entitiesAtPosition.length == 0) {} else {
+      bytes32 voxelToMine;
+      for (uint256 i = 0; i < entitiesAtPosition.length; i++) {
+        uint256 entityScaleId = entitiesAtPosition[i][0];
+        if (entityScaleId == scaleId) {
+          voxelToMine = entitiesAtPosition[i][1];
+          break;
+        }
+      }
+      require(voxelToMine != 0, "No voxels found at that position and scale");
+      VoxelTypeData memory voxelTypeData = VoxelType.get(scaleId, voxelToMine);
+      require(
+        voxelTypeData.voxelTypeId == voxelTypeId,
+        "The voxel at this position is not the same as the voxel you are trying to mine"
+      );
+    }
 
     // Need to figure out which CA to call
 

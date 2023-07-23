@@ -19,13 +19,13 @@ contract RmVoxelSystem is System {
   }
 
   function removeAllOwnedVoxels() public {
-    bytes32[] memory entitiesOwnedBySender = getKeysWithValue(
+    bytes32[][] memory entitiesOwnedBySender = getKeysWithValue(
       OwnedByTableId,
       OwnedBy.encode(addressToEntityKey(_msgSender()))
     );
     for (uint256 i = 0; i < entitiesOwnedBySender.length; i++) {
-      OwnedBy.deleteRecord(entitiesOwnedBySender[i]);
-      VoxelType.deleteRecord(entitiesOwnedBySender[i]);
+      OwnedBy.deleteRecord(entitiesOwnedBySender[0][i]);
+      VoxelType.deleteRecord(entitiesOwnedBySender[0][i]);
     }
   }
 }

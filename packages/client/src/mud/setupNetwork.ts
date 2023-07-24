@@ -7,8 +7,8 @@ import { defineContractComponents as defineRegistryContractComponents } from "@t
 import { createPerlin } from "@latticexyz/noise";
 import { BigNumber, Contract, Signer, utils } from "ethers";
 import { JsonRpcProvider } from "@ethersproject/providers";
-import { IWorld__factory } from "@tenetxyz/contracts/types/ethers-contracts/factories/IWorld__factory.ts";
-import { IWorld__factory as RegistryIWorld__factory } from "@tenetxyz/registry/types/ethers-contracts/factories/IWorld__factory.ts";
+import { IWorld__factory } from "@tenetxyz/contracts/types/ethers-contracts/factories/IWorld__factory";
+import { IWorld__factory as RegistryIWorld__factory } from "@tenetxyz/registry/types/ethers-contracts/factories/IWorld__factory";
 import { getTableIds, awaitPromise, computedToStream, VoxelCoord, Coord } from "@latticexyz/utils";
 import { map, timer, combineLatest, BehaviorSubject } from "rxjs";
 import storeConfig from "@tenetxyz/contracts/mud.config";
@@ -244,7 +244,7 @@ export async function setupNetwork() {
       const parsedError = errorBody?.error?.message;
       return parsedError || defaultError;
     } catch (err) {
-      console.log("couldn't parse error body parseError=", err);
+      console.warn("couldn't parse error body parseError=", err);
       return defaultError;
     }
   };

@@ -98,7 +98,7 @@ export function registerActionQueue() {
                 transactionCallbacks.get(txHash)?.(res.result);
                 return;
               }
-              console.error("Error getting transaction result", err);
+              console.error("[ActionQueue] Error getting transaction result", err);
               // Note: we can also use the fields in err.cause to get specific parts of the error message
               toast(err.shortMessage);
             })

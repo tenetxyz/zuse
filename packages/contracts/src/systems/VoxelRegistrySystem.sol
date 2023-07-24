@@ -17,11 +17,11 @@ import { BedrockID } from "./voxels/BedrockVoxelSystem.sol";
 
 contract VoxelRegistrySystem is System {
   function initWorldVoxelTypes() public {
-    bytes32[] memory allowedVoxelTypes = new bytes32[](2);
+    bytes32[] memory allowedVoxelTypes = new bytes32[](4);
     allowedVoxelTypes[0] = AirID;
     allowedVoxelTypes[1] = GrassID;
-    allowedVoxelTypes[1] = DirtID;
-    allowedVoxelTypes[1] = BedrockID;
+    allowedVoxelTypes[2] = DirtID;
+    allowedVoxelTypes[3] = BedrockID;
     VoxelTypesAllowed.set(allowedVoxelTypes);
   }
 

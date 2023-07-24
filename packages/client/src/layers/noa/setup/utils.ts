@@ -2,8 +2,14 @@ import { Mesh, Nullable, Scene } from "@babylonjs/core";
 import { Engine } from "noa-engine";
 import * as BABYLON from "@babylonjs/core";
 
-export function createVoxelMesh(noa: Engine, scene: Scene, texture: string, name: string, frames = 1): Nullable<Mesh> {
-  const matname = name || "mat";
+export function createVoxelMesh(
+  noa: Engine,
+  scene: Scene,
+  texture: string,
+  voxelVariantTypeId: string,
+  frames = 1
+): Nullable<Mesh> {
+  const matname = voxelVariantTypeId || "mat";
   const tex = new BABYLON.Texture(texture, scene, true, true, BABYLON.Texture.NEAREST_SAMPLINGMODE);
   tex.hasAlpha = true;
   const mesh = BABYLON.Mesh.CreatePlane("sprite-" + matname, 1, scene);

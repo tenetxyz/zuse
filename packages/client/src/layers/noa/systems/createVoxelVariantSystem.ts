@@ -2,7 +2,7 @@ import { SyncState } from "@latticexyz/network";
 import { defineComponentSystem, defineEnterSystem, getComponentValueStrict, Has } from "@latticexyz/recs";
 import { awaitStreamValue } from "@latticexyz/utils";
 import { NetworkLayer } from "../../network";
-import { NoaLayer, voxelVariantDataKeyToString, VoxelVariantDataValue } from "../types";
+import { NoaLayer, VoxelVariantDataValue } from "../types";
 import { NoaVoxelDef } from "../types";
 import { formatNamespace } from "../../../constants";
 import { getNftStorageLink } from "../constants";
@@ -23,13 +23,9 @@ export async function createVoxelVariantSystem(network: NetworkLayer, context: N
   defineComponentSystem(world, VoxelVariantsRegistry, (update) => {
     // TODO: could use update.value?
     const voxelVariantValue = getComponentValueStrict(VoxelVariantsRegistry, update.entity);
-    const [voxelVariantNamespace, voxelVariantId] = update.entity.split(":");
-    const voxelVariantDataKey = {
-      voxelVariantNamespace: formatNamespace(voxelVariantNamespace),
-      voxelVariantId: voxelVariantId,
-    };
+    const voxelVariantId = update.entity;
 
-    if (!VoxelVariantData.has(voxelVariantDataKeyToString(voxelVariantDataKey))) {
+    if (!VoxelVariantData.has(voxelVariantId)) {
       console.log("Adding new variant");
       const materialArr: string[] = (abiDecode("string[]", voxelVariantValue.materials, false) as string[]) ?? [];
       // go through each hash in materialArr and format it to have the NFT storage link
@@ -56,9 +52,9 @@ export async function createVoxelVariantSystem(network: NetworkLayer, context: N
           uvWrap: voxelVariantValue.uvWrap ? getNftStorageLink(voxelVariantValue.uvWrap) : undefined,
         },
       };
-      VoxelVariantData.set(voxelVariantDataKeyToString(voxelVariantDataKey), voxelVariantData);
+      VoxelVariantData.set(voxelVariantId, voxelVariantData);
       VoxelVariantDataSubscriptions.forEach((subscription) => {
-        subscription(voxelVariantDataKey, voxelVariantData);
+        subscription(voxelVariantId, voxelVariantData);
       });
     }
   });

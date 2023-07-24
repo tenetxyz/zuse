@@ -22,13 +22,7 @@ import {
 import { to64CharAddress } from "../../../utils/entity";
 import { Inventory } from "./Inventory";
 import { Layers } from "../../../types";
-import {
-  entityToVoxelType,
-  voxelTypeToVoxelBaseTypeIdString,
-  voxelTypeDataKeyToVoxelVariantDataKey,
-  voxelTypeToVoxelBaseTypeId,
-  VoxelBaseTypeIdToVoxelTypeDataKey,
-} from "../../noa/types";
+import { entityToVoxelType } from "../../noa/types";
 import { firstFreeInventoryIndex } from "../../noa/systems/createInventoryIndexSystem";
 import { StatusHud } from "./StatusHud";
 import { FocusedUiType } from "../../noa/components/FocusedUi";
@@ -74,13 +68,13 @@ export function registerInventoryHud() {
           scan((acc, curr) => {
             const voxelType = getComponentValue(VoxelType, curr.entity);
             if (!voxelType) return { ...acc };
-            const voxelTypeString = voxelTypeToVoxelBaseTypeIdString(voxelType);
-            acc[voxelTypeString] = acc[voxelTypeString] ?? 0;
+            const voxelBaseTypeId = voxelType.voxelTypeId;
+            acc[voxelBaseTypeId] = acc[voxelBaseTypeId] ?? 0;
             if (curr.type === UpdateType.Exit) {
               return { ...acc };
             }
 
-            acc[voxelTypeString]++;
+            acc[voxelBaseTypeId]++;
             return { ...acc };
           }, {} as { [key: string]: number })
         )
@@ -132,9 +126,8 @@ export function registerInventoryHud() {
           document.body.style.cursor = "unset";
           return;
         }
-        const voxelType = entityToVoxelType(holdingVoxelType);
-        const voxelVariantTypeKey = voxelTypeDataKeyToVoxelVariantDataKey(voxelType);
-        const icon = getVoxelIconUrl(voxelVariantTypeKey);
+        const voxelTypeKey = entityToVoxelType(holdingVoxelType);
+        const icon = getVoxelIconUrl(voxelTypeKey.voxelVariantTypeId);
         document.body.style.cursor = `url(${icon}) 12 12, auto`;
       }, [holdingVoxelType]);
 
@@ -175,13 +168,13 @@ export function registerInventoryHud() {
       };
 
       const moveVoxelType = (slot: number) => {
-        const voxelTypeAtSlot = [...getEntitiesWithValue(InventoryIndex, { value: slot })][0];
+        const voxelBaseTypeAtSlot = [...getEntitiesWithValue(InventoryIndex, { value: slot })][0];
 
         // If not currently holding a voxel, grab the voxel at this slot
         if (!holdingVoxelType) {
-          const numVoxelsOfTypeIOwn = voxelTypeAtSlot && numVoxelsIOwnOfType[voxelTypeAtSlot];
+          const numVoxelsOfTypeIOwn = voxelBaseTypeAtSlot && numVoxelsIOwnOfType[voxelBaseTypeAtSlot];
           if (numVoxelsOfTypeIOwn > 0) {
-            setHoldingVoxelType(voxelTypeAtSlot);
+            setHoldingVoxelType(voxelBaseTypeAtSlot);
           }
           return;
         }
@@ -195,32 +188,32 @@ export function registerInventoryHud() {
           return;
         }
         setComponent(InventoryIndex, holdingVoxelType, { value: slot });
-        voxelTypeAtSlot &&
-          setComponent(InventoryIndex, voxelTypeAtSlot, {
+        voxelBaseTypeAtSlot &&
+          setComponent(InventoryIndex, voxelBaseTypeAtSlot, {
             value: holdingVoxelTypeSlot,
           });
         setHoldingVoxelType(undefined);
       };
 
       function removeVoxelType(slot: number) {
-        const voxelTypeIdAtSlot = [...getEntitiesWithValue(InventoryIndex, { value: slot })][0];
-        if (!voxelTypeIdAtSlot) {
+        const voxelBaseTypeIdAtSlot = [...getEntitiesWithValue(InventoryIndex, { value: slot })][0];
+        if (!voxelBaseTypeIdAtSlot) {
           return;
         }
-        numVoxelsIOwnOfType[voxelTypeIdAtSlot] = 0;
+        numVoxelsIOwnOfType[voxelBaseTypeIdAtSlot] = 0;
 
         const ownedEntitiesOfType = [
           ...runQuery([
             HasValue(OwnedBy, {
               value: to64CharAddress(connectedAddress.get()),
             }),
-            HasValue(VoxelType, VoxelBaseTypeIdToVoxelTypeDataKey(voxelTypeToVoxelBaseTypeId(voxelTypeIdAtSlot))),
+            HasValue(VoxelType, voxelBaseTypeIdAtSlot),
           ]),
         ];
 
         // since we no longer have VoxelTypes of this type, remove this from the InventoryIndex,
         // so new voxeltypes can be placed on that index
-        removeComponent(InventoryIndex, voxelTypeIdAtSlot);
+        removeComponent(InventoryIndex, voxelBaseTypeIdAtSlot);
 
         // remove the voxels at this slot
         removeVoxels(ownedEntitiesOfType);
@@ -236,18 +229,18 @@ export function registerInventoryHud() {
 
       // Map each inventory slot to the corresponding voxel type at this slot index
       const Slots = [...range(INVENTORY_HEIGHT * INVENTORY_WIDTH)].map((i) => {
-        const voxelType = [...getEntitiesWithValue(InventoryIndex, { value: i })][0];
-        const quantity = voxelType && numVoxelsIOwnOfType[voxelType];
-        const voxelTypePreview = (voxelType && getVoxelTypePreviewUrl(voxelTypeToVoxelBaseTypeId(voxelType))) || "";
+        const voxelBaseTypeId = [...getEntitiesWithValue(InventoryIndex, { value: i })][0];
+        const quantity = voxelBaseTypeId && numVoxelsIOwnOfType[voxelBaseTypeId];
+        const voxelTypePreview = (voxelBaseTypeId && getVoxelTypePreviewUrl(voxelBaseTypeId)) || "";
         return (
           <Slot
             key={"slot" + i}
-            voxelType={quantity ? voxelType : undefined}
+            voxelType={quantity ? voxelBaseTypeId : undefined}
             quantity={quantity || undefined}
             iconUrl={voxelTypePreview}
             onClick={(event: any) => onSlotClick(i, event)}
             onRightClick={() => removeVoxelType(i)}
-            disabled={voxelType === holdingVoxelType}
+            disabled={voxelBaseTypeId === holdingVoxelType}
             selected={i === selectedSlot}
           />
         );

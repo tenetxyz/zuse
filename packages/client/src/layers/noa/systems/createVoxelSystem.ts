@@ -6,10 +6,9 @@ import {
   getComponentValueStrict,
   Has,
 } from "@latticexyz/recs";
-import { toUtf8String } from "ethers/lib/utils.js";
 import { awaitStreamValue } from "@latticexyz/utils";
 import { NetworkLayer } from "../../network";
-import { NoaLayer, voxelTypeDataKeyToVoxelVariantDataKey } from "../types";
+import { NoaLayer } from "../types";
 
 export async function createVoxelSystem(network: NetworkLayer, context: NoaLayer) {
   const {
@@ -33,7 +32,7 @@ export async function createVoxelSystem(network: NetworkLayer, context: NoaLayer
     if (!update.value[0] || !update.value[1]) return;
     const position = getComponentValue(Position, update.entity);
     if (!position) return; // if there's no position, the voxel is not in the world. so no need to display it
-    setVoxel(position, voxelTypeDataKeyToVoxelVariantDataKey(update.value[0]));
+    setVoxel(position, update.value[0].voxelVariantId);
   });
 
   // "Exit system"
@@ -41,7 +40,7 @@ export async function createVoxelSystem(network: NetworkLayer, context: NoaLayer
     if (!live) return;
     if (!value[0] && value[1]) {
       const voxel = getVoxelAtPosition(value[1]);
-      setVoxel(value[1], voxelTypeDataKeyToVoxelVariantDataKey(voxel));
+      setVoxel(value[1], voxel);
     }
   });
 
@@ -50,6 +49,6 @@ export async function createVoxelSystem(network: NetworkLayer, context: NoaLayer
     if (!live) return;
     const position = getComponentValueStrict(Position, update.entity);
     const voxel = getVoxelAtPosition(position);
-    setVoxel(position, voxelTypeDataKeyToVoxelVariantDataKey(voxel));
+    setVoxel(position, voxelTypeKeyToVoxelVariantDataKey(voxel));
   });
 }

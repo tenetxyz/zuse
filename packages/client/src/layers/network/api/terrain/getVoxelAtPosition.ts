@@ -4,14 +4,14 @@ import { Perlin } from "@latticexyz/noise";
 import { Terrain, TerrainState } from "./types";
 import { getTerrain } from "./utils";
 import { Air, AIR_ID, Bedrock, Dirt, Grass } from "./occurrence";
-import { VoxelTypeDataKey } from "../../../noa/types";
+import { VoxelTypeKey } from "../../../noa/types";
 
 export function getEntityAtPosition(
   context: {
     Position: Component<{ x: Type.Number; y: Type.Number; z: Type.Number }>;
     VoxelType: Component<{
-      voxelBaseTypeId: Type.String;
-      voxelVariantTypeId: Type.String;
+      voxelTypeId: Type.String;
+      voxelVariantId: Type.String;
     }>;
     world: World;
   },
@@ -24,7 +24,7 @@ export function getEntityAtPosition(
   return (
     entitiesAtPosition?.find((b) => {
       const voxelType = getComponentValue(VoxelType, b);
-      return voxelType && voxelType.voxelBaseTypeId !== AIR_ID;
+      return voxelType && voxelType.voxelTypeId !== AIR_ID;
     }) ?? entitiesAtPosition[0]
   );
 }
@@ -33,13 +33,13 @@ export function getEcsVoxelType(
   context: {
     Position: Component<{ x: Type.Number; y: Type.Number; z: Type.Number }>;
     VoxelType: Component<{
-      voxelBaseTypeId: Type.String;
-      voxelVariantTypeId: Type.String;
+      voxelTypeId: Type.String;
+      voxelVariantId: Type.String;
     }>;
     world: World;
   },
   coord: VoxelCoord
-): VoxelTypeDataKey | undefined {
+): VoxelTypeKey | undefined {
   const entityAtPosition = getEntityAtPosition(context, coord);
   if (!entityAtPosition) return undefined;
   const voxelTypeData = getComponentValue(context.VoxelType, entityAtPosition);
@@ -50,14 +50,14 @@ export function getVoxelAtPosition(
   context: {
     Position: Component<{ x: Type.Number; y: Type.Number; z: Type.Number }>;
     VoxelType: Component<{
-      voxelBaseTypeId: Type.String;
-      voxelVariantTypeId: Type.String;
+      voxelTypeId: Type.String;
+      voxelVariantId: Type.String;
     }>;
     world: World;
   },
   perlin: Perlin,
   coord: VoxelCoord
-): VoxelTypeDataKey {
+): VoxelTypeKey {
   return getEcsVoxelType(context, coord) ?? getTerrainVoxel(getTerrain(coord, perlin), coord, perlin);
 }
 
@@ -65,7 +65,7 @@ export function getTerrainVoxel(
   { biome: biomeVector, height }: Terrain,
   coord: VoxelCoord,
   perlin: Perlin
-): VoxelTypeDataKey {
+): VoxelTypeKey {
   const state: TerrainState = { biomeVector, height, coord, perlin };
   return (
     Bedrock(state) ||

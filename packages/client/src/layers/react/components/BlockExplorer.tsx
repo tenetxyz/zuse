@@ -5,7 +5,7 @@ import { filter, scan, merge, map } from "rxjs";
 import { registerUIComponent } from "../engine";
 import styled from "styled-components";
 import { filterNullish } from "@latticexyz/utils";
-import { voxelTypeToEntity, voxelTypeDataKeyToVoxelVariantDataKey, entityToVoxelType } from "../../noa/types";
+import { voxelTypeToEntity, voxelTypeKeyToVoxelVariantDataKey, entityToVoxelType } from "../../noa/types";
 import { AIR_ID } from "../../network/api/terrain/occurrence";
 
 type BlockEvent = {
@@ -204,7 +204,7 @@ export function registerBlockExplorer() {
                       <div className="BlockExplorer-Action">
                         <img
                           src={getVoxelIconUrl(
-                            voxelTypeDataKeyToVoxelVariantDataKey(entityToVoxelType(voxelTypeKey as Entity))
+                            voxelTypeKeyToVoxelVariantDataKey(entityToVoxelType(voxelTypeKey as Entity))
                           )}
                         />
                         <div className="BlockExplorer-ActionIcon BlockExplorer-ActionIcon--add">+{counts.add}</div>
@@ -214,7 +214,7 @@ export function registerBlockExplorer() {
                       <div className="BlockExplorer-Action">
                         <img
                           src={getVoxelIconUrl(
-                            voxelTypeDataKeyToVoxelVariantDataKey(entityToVoxelType(voxelTypeKey as Entity))
+                            voxelTypeKeyToVoxelVariantDataKey(entityToVoxelType(voxelTypeKey as Entity))
                           )}
                         />
                         <div className="BlockExplorer-ActionIcon BlockExplorer-ActionIcon--remove">

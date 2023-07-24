@@ -6,7 +6,7 @@ import { useClassifierSearch } from "./useClassifierSearch";
 import { CreationStoreFilters } from "./CreationStore";
 import { useComponentValue } from "@latticexyz/react";
 import { SetState } from "../../../utils/types";
-import { InterfaceVoxel, voxelTypeDataKeyToVoxelVariantDataKey } from "../../noa/types";
+import { InterfaceVoxel, voxelTypeKeyToVoxelVariantDataKey } from "../../noa/types";
 import { stringToVoxelCoord } from "../../../utils/coord";
 import { ClassifierResults } from "./ClassifierResults";
 import { getSpawnAtPosition } from "../../../utils/voxels";

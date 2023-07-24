@@ -1,13 +1,13 @@
 import { TerrainState } from "./types";
 import { keccak256 } from "@latticexyz/utils";
-import { VoxelTypeDataKey } from "../../../noa/types";
+import { VoxelTypeKey } from "../../../noa/types";
 
 export const AIR_ID = keccak256("air");
 export const BEDROCK_ID = keccak256("bedrock");
 export const GRASS_ID = keccak256("grass");
 export const DIRT_ID = keccak256("dirt");
 
-export function Air({ coord: { y } }: TerrainState): VoxelTypeDataKey | undefined {
+export function Air({ coord: { y } }: TerrainState): VoxelTypeKey | undefined {
   if (y > 10)
     return {
       voxelBaseTypeId: AIR_ID,
@@ -15,7 +15,7 @@ export function Air({ coord: { y } }: TerrainState): VoxelTypeDataKey | undefine
     };
 }
 
-export function Bedrock({ coord: { y } }: TerrainState): VoxelTypeDataKey | undefined {
+export function Bedrock({ coord: { y } }: TerrainState): VoxelTypeKey | undefined {
   if (y <= -63)
     return {
       voxelBaseTypeId: BEDROCK_ID,
@@ -23,7 +23,7 @@ export function Bedrock({ coord: { y } }: TerrainState): VoxelTypeDataKey | unde
     };
 }
 
-export function Grass(state: TerrainState): VoxelTypeDataKey | undefined {
+export function Grass(state: TerrainState): VoxelTypeKey | undefined {
   const {
     coord: { y },
   } = state;
@@ -35,7 +35,7 @@ export function Grass(state: TerrainState): VoxelTypeDataKey | undefined {
     };
 }
 
-export function Dirt(state: TerrainState): VoxelTypeDataKey | undefined {
+export function Dirt(state: TerrainState): VoxelTypeKey | undefined {
   const {
     coord: { y },
   } = state;

@@ -15,29 +15,21 @@ import {
 import { awaitStreamValue, computedToStream } from "@latticexyz/utils";
 import { switchMap } from "rxjs";
 import { NetworkLayer } from "../../network";
-import {
-  NoaLayer,
-  voxelTypeToVoxelBaseTypeId,
-  VoxelBaseTypeIdToEntity,
-  voxelTypeToVoxelBaseTypeIdString as voxelTypeToVoxelBaseTypeIdStr,
-} from "../types";
+import { NoaLayer, VoxelBaseTypeId } from "../types";
 import { to64CharAddress } from "../../../utils/entity";
 import { SyncState } from "@latticexyz/network";
 import { IComputedValue } from "mobx";
 
-// returns a set of entityKeys: namespace:voxelType
 export const getItemTypesIOwn = (
   OwnedBy: Component<{
     value: Type.String;
   }>,
   VoxelType: Component<{
-    voxelTypeNamespace: Type.String;
     voxelTypeId: Type.String;
-    voxelVariantNamespace: Type.String;
     voxelVariantId: Type.String;
   }>,
   connectedAddress: IComputedValue<string | undefined>
-): Set<string> => {
+): Set<VoxelBaseTypeId> => {
   const itemsIOwn = runQuery([HasValue(OwnedBy, { value: to64CharAddress(connectedAddress.get()) }), Has(VoxelType)]);
   return new Set(
     Array.from(itemsIOwn)
@@ -47,7 +39,7 @@ export const getItemTypesIOwn = (
           console.warn(`voxelType of item you own is undefined item=${item.toString()}`);
           return "";
         }
-        return voxelTypeToVoxelBaseTypeIdStr(voxelType);
+        return voxelType.voxelTypeId;
       })
       .filter((item) => item !== "")
   );
@@ -99,7 +91,7 @@ export function createInventoryIndexSystem(network: NetworkLayer, context: NoaLa
     const voxelType = getComponentValue(VoxelType, update.entity);
 
     if (voxelType === undefined) return;
-    const VoxelBaseTypeId = voxelTypeToVoxelBaseTypeIdStr(voxelType) as Entity;
+    const VoxelBaseTypeId = voxelType.voxelTypeId as Entity;
 
     // Assign the first free inventory index
     if (!hasComponent(InventoryIndex, VoxelBaseTypeId)) {

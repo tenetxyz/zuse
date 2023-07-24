@@ -43,7 +43,7 @@ export type NoaVoxelDef = {
 export type VoxelBaseTypeId = string;
 export type VoxelVariantTypeId = string;
 
-export type VoxelTypeDataKey = {
+export type VoxelTypeKey = {
   voxelBaseTypeId: VoxelBaseTypeId;
   voxelVariantTypeId: VoxelVariantTypeId;
 };
@@ -55,16 +55,16 @@ export type VoxelVariantDataValue = {
 
 export type VoxelVariantData = Map<VoxelVariantTypeId, VoxelVariantDataValue>;
 
-export function voxelTypeToEntity(voxelType: VoxelTypeDataKey): Entity {
+export function voxelTypeToEntity(voxelType: VoxelTypeKey): Entity {
   return `${voxelType.voxelBaseTypeId}:${voxelType.voxelVariantTypeId}` as Entity;
 }
 
-export function entityToVoxelType(entity: Entity): VoxelTypeDataKey {
+export function entityToVoxelType(entity: Entity): VoxelTypeKey {
   const [voxelBaseTypeId, voxelVariantTypeId] = entity.split(":");
   return { voxelBaseTypeId, voxelVariantTypeId };
 }
 
-export function voxelBaseTypeIdToVoxelTypeDataKey(voxelBaseTypeId: VoxelBaseTypeId): VoxelTypeDataKey {
+export function voxelBaseTypeIdToVoxelTypeKey(voxelBaseTypeId: VoxelBaseTypeId): VoxelTypeKey {
   return {
     voxelBaseTypeId: voxelBaseTypeId,
     voxelVariantTypeId: EMPTY_BYTES_32,

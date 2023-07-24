@@ -24,7 +24,7 @@ import { to64CharAddress } from "../utils/entity";
 import {
   NoaBlockType,
   VoxelVariantData,
-  VoxelTypeDataKey,
+  VoxelTypeKey,
   VoxelVariantDataValue,
   voxelTypeToEntity,
   VoxelBaseTypeId,
@@ -342,14 +342,14 @@ export async function setupNetwork() {
     world,
   };
 
-  function getTerrainVoxelTypeAtPosition(position: VoxelCoord): VoxelTypeDataKey {
+  function getTerrainVoxelTypeAtPosition(position: VoxelCoord): VoxelTypeKey {
     return getTerrainVoxel(getTerrain(position, perlin), position, perlin);
   }
 
-  function getEcsVoxelTypeAtPosition(position: VoxelCoord): VoxelTypeDataKey | undefined {
+  function getEcsVoxelTypeAtPosition(position: VoxelCoord): VoxelTypeKey | undefined {
     return getEcsVoxelType(terrainContext, position);
   }
-  function getVoxelAtPosition(position: VoxelCoord): VoxelTypeDataKey {
+  function getVoxelAtPosition(position: VoxelCoord): VoxelTypeKey {
     return getVoxelAtPositionApi(terrainContext, perlin, position);
   }
   function getEntityAtPosition(position: VoxelCoord): Entity | undefined {

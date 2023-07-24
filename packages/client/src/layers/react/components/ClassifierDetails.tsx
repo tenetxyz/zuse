@@ -10,7 +10,7 @@ import {
   EMPTY_BYTES_32,
   InterfaceVoxel,
   entityToVoxelType,
-  voxelTypeDataKeyToVoxelVariantDataKey,
+  voxelTypeKeyToVoxelVariantDataKey,
   voxelTypeToEntity,
 } from "../../noa/types";
 import { stringToVoxelCoord, voxelCoordToString } from "../../../utils/coord";
@@ -159,7 +159,7 @@ const ClassifierDetails: React.FC<Props> = ({
       return null;
     }
 
-    const iconKey = voxelTypeDataKeyToVoxelVariantDataKey(voxelType);
+    const iconKey = voxelTypeKeyToVoxelVariantDataKey(voxelType);
     const iconUrl = getVoxelIconUrl(iconKey);
     const voxelCoord = getComponentValue(Position, interfaceVoxel);
     return (

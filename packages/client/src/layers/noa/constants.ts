@@ -21,7 +21,8 @@ export const Textures = {
   GrassSide: getNftStorageLink("bafkreibp5wefex2cunqz5ffwt3ucw776qthwl6y6pswr2j2zuzldrv6bqa"),
   Dirt: getNftStorageLink("bafkreibzraiuk6hgngtfczn57sivuqf3nv77twi6g3ftas2umjnbf6jefe"),
   Bedrock: getNftStorageLink("bafkreidfo756faklwx7o4q2753rxjqx6egzpmqh2zhylxaehqalvws555a"),
-  Tile: getNftStorageLink("bafkreifw7lb4m42jw4wtkjy3zgwfr44uqkwg7uranqazei5knpkzbkexqa"),
+  Tile: getNftStorageLink("bafkreiflbvybgotxeaaapdknflsgenpskbl6zp2ttzvt5qlwcwwo7t75qm"),
+  Tile2: getNftStorageLink("bafkreifun5pqgayquwuhorneu67bbz5q6mizqq323rxcszftlloatzavuq"),
 };
 
 export const UVWraps = {
@@ -29,5 +30,6 @@ export const UVWraps = {
   Grass: getNftStorageLink("bafkreihaagdyqnbie3eyx6upmoul2zb4qakubxg6bcha6k5ebp4fbsd3am"),
   Dirt: getNftStorageLink("bafkreifbshwckn4pgw5ew2obz3i74eujzpcomatus5gu2tk7mms373gqme"),
   Bedrock: getNftStorageLink("bafkreihdit6glam7sreijo7itbs7uwc2ltfeuvcfaublxf6rjo24hf6t4y"),
-  Tile: getNftStorageLink("bafkreia52odexmenv7pcj7sm54nuu3ifylaijdckdkv7k3yxph4b6khnii"),
+  Tile: getNftStorageLink("bafkreidmmv32qdtob3p4yt475xuvbwoovjd2iifrnxh4icyl44xyl6gtfe"),
+  Tile2: getNftStorageLink("bafkreidp4ec6ntaqoxhc6fdjearell4hqynvgkrmpepmtvdrkikmt72kfe"),
 };

@@ -10,6 +10,7 @@ import { GrassID } from "./voxels/GrassVoxelSystem.sol";
 import { DirtID } from "./voxels/DirtVoxelSystem.sol";
 import { BedrockID } from "./voxels/BedrockVoxelSystem.sol";
 import { TileID } from "./voxels/TileVoxelSystem.sol";
+import { Tile2ID } from "./voxels/Tile2VoxelSystem.sol";
 
 import { VoxelCoord, Tuple, VoxelVariantsKey } from "../Types.sol";
 import { div } from "../Utils.sol";
@@ -64,7 +65,10 @@ contract LibTerrainSystem is System {
     voxelTypeId = Air(y);
     if (voxelTypeId.voxelVariantId != EMPTY_ID) return voxelTypeId;
 
-    voxelTypeId = Tile(y);
+    voxelTypeId = Tile(x, y, z);
+    if (voxelTypeId.voxelVariantId != EMPTY_ID) return voxelTypeId;
+
+    voxelTypeId = Tile2(x, y, z);
     if (voxelTypeId.voxelVariantId != EMPTY_ID) return voxelTypeId;
 
     return VoxelVariantsKey({ voxelVariantNamespace: TENET_NAMESPACE, voxelVariantId: AirID });
@@ -309,12 +313,24 @@ contract LibTerrainSystem is System {
   }
 
   function Tile(VoxelCoord memory coord) public pure returns (VoxelVariantsKey memory) {
-    return Tile(coord.y);
+    return Tile(coord.x, coord.y, coord.z);
   }
 
-  function Tile(int32 y) internal pure returns (VoxelVariantsKey memory) {
-    if (y > CHUNK_MIN_Y && y <= 10) {
+  function Tile(int32 x, int32 y, int32 z) internal pure returns (VoxelVariantsKey memory) {
+    if (y > CHUNK_MIN_Y && y <= 10 && (x + z) % 2 != 0) {
       return VoxelVariantsKey({ voxelVariantNamespace: TENET_NAMESPACE, voxelVariantId: TileID });
+    }
+
+    return VoxelVariantsKey({ voxelVariantNamespace: EMPTY_NAMESPACE, voxelVariantId: EMPTY_ID });
+  }
+
+  function Tile2(VoxelCoord memory coord) public pure returns (VoxelVariantsKey memory) {
+    return Tile2(coord.x, coord.y, coord.z);
+  }
+
+  function Tile2(int32 x, int32 y, int32 z) internal pure returns (VoxelVariantsKey memory) {
+    if (y > CHUNK_MIN_Y && y <= 10 && (x + z) % 2 == 0) {
+      return VoxelVariantsKey({ voxelVariantNamespace: TENET_NAMESPACE, voxelVariantId: Tile2ID });
     }
 
     return VoxelVariantsKey({ voxelVariantNamespace: EMPTY_NAMESPACE, voxelVariantId: EMPTY_ID });

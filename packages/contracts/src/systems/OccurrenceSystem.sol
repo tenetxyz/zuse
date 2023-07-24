@@ -6,6 +6,7 @@ import { AirID } from "./voxels/AirVoxelSystem.sol";
 import { GrassID } from "./voxels/GrassVoxelSystem.sol";
 import { DirtID } from "./voxels/DirtVoxelSystem.sol";
 import { TileID } from "./voxels/TileVoxelSystem.sol";
+import { Tile2ID } from "./voxels/Tile2VoxelSystem.sol";
 import { BedrockID } from "./voxels/BedrockVoxelSystem.sol";
 import { VoxelCoord, VoxelVariantsKey } from "../Types.sol";
 import { System } from "@latticexyz/world/src/System.sol";
@@ -21,6 +22,7 @@ contract OccurrenceSystem is System {
     if (voxelType == DirtID) return abi.encode(ODirt(coord));
     if (voxelType == BedrockID) return abi.encode(OBedrock(coord));
     if (voxelType == TileID) return abi.encode(OTile(coord));
+    if (voxelType == Tile2ID) return abi.encode(OTile2(coord));
 
     return abi.encode(bytes32(0));
   }
@@ -63,6 +65,15 @@ contract OccurrenceSystem is System {
       VoxelVariantsKey({
         voxelVariantNamespace: IWorld(_world()).tenet_LibTerrainSystem_Tile(coord).voxelVariantNamespace,
         voxelVariantId: IWorld(_world()).tenet_LibTerrainSystem_Tile(coord).voxelVariantId
+      });
+  }
+
+  function OTile2(VoxelCoord memory coord) public view returns (VoxelVariantsKey memory) {
+    // TODO: Figure out why cant just call it once and store it in memory
+    return
+      VoxelVariantsKey({
+        voxelVariantNamespace: IWorld(_world()).tenet_LibTerrainSystem_Tile2(coord).voxelVariantNamespace,
+        voxelVariantId: IWorld(_world()).tenet_LibTerrainSystem_Tile2(coord).voxelVariantId
       });
   }
 }

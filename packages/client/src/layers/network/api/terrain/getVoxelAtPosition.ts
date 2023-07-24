@@ -3,7 +3,7 @@ import { VoxelCoord } from "@latticexyz/utils";
 import { Perlin } from "@latticexyz/noise";
 import { Terrain, TerrainState } from "./types";
 import { getTerrain } from "./utils";
-import { Air, AIR_ID, Bedrock, Tile } from "./occurrence";
+import { Air, AIR_ID, Bedrock, Tile, Tile2 } from "./occurrence";
 import { VoxelTypeDataKey } from "../../../noa/types";
 import { TENET_NAMESPACE } from "../../../../constants";
 
@@ -77,7 +77,8 @@ export function getTerrainVoxel(
   return (
     Bedrock(state) ||
     Air(state) ||
-    Tile(state) || {
+    Tile(state) ||
+    Tile2(state) || {
       voxelTypeNamespace: TENET_NAMESPACE,
       voxelTypeId: AIR_ID,
       voxelVariantNamespace: TENET_NAMESPACE,

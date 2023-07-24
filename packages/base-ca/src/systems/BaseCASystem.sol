@@ -8,6 +8,8 @@ import { CAVoxelTypeDefs, CAVoxelTypeDefsTableId, CAVoxelType, CAPosition, CAPos
 import { VoxelCoord } from "@tenet-registry/src/Types.sol";
 import { AirVoxelID, AirVoxelVariantID, DirtVoxelID, DirtVoxelVariantID, GrassVoxelID, GrassVoxelVariantID } from "@base-ca/src/Constants.sol";
 
+address constant hackworldAddress = 0x4c5859f0F772848b2D91F1D83E2Fe57935348029;
+
 contract BaseCASystem is System {
   function defineVoxelTypeDefs() public {
     require(
@@ -105,30 +107,43 @@ contract BaseCASystem is System {
         bytes32 neighbourVoxelTypeId = CAVoxelType.get(callerAddress, neighbourEntityIds[i]).voxelTypeId;
         if (neighbourVoxelTypeId == DirtVoxelID) {
           // change ourselves to dirt
-          CAVoxelType.set(callerAddress, interactEntity, DirtVoxelID, DirtVoxelVariantID);
+          // CAVoxelType.set(callerAddress, interactEntity, DirtVoxelID, DirtVoxelVariantID);
+
+          // move us over to the left
+          CAPositionData memory interactPosition = CAPosition.get(callerAddress, interactEntity);
+          exitWorld(interactEntity);
+          (bool success, bytes memory returnData) = hackworldAddress.call(
+            abi.encodeWithSignature(
+              "tenet_BuildSystem_buildVoxelType(bytes32,(int32,int32,int32))",
+              DirtVoxelID,
+              VoxelCoord({ x: interactPosition.x, y: interactPosition.y + 1, z: interactPosition.z })
+            )
+          );
+          require(success, "Failed to build voxel type");
+
           changedEntities[0] = interactEntity;
           break;
         }
       }
     }
 
-    for (uint8 i = 0; i < neighbourEntityIds.length; i++) {
-      bytes32 neighbourEntityId = neighbourEntityIds[i];
-      bytes32 neighbourVoxelTypeId = CAVoxelType.get(callerAddress, neighbourEntityId).voxelTypeId;
+    // for (uint8 i = 0; i < neighbourEntityIds.length; i++) {
+    //   bytes32 neighbourEntityId = neighbourEntityIds[i];
+    //   bytes32 neighbourVoxelTypeId = CAVoxelType.get(callerAddress, neighbourEntityId).voxelTypeId;
 
-      if (uint256(neighbourEntityId) == 0 || neighbourVoxelTypeId != GrassVoxelID) {
-        changedEntities[i + 1] = 0;
-        continue;
-      }
+    //   if (uint256(neighbourEntityId) == 0 || neighbourVoxelTypeId != GrassVoxelID) {
+    //     changedEntities[i + 1] = 0;
+    //     continue;
+    //   }
 
-      if (neighbourVoxelTypeId == GrassVoxelID && voxelTypeId == DirtVoxelID) {
-        // change ourselves to dirt
-        CAVoxelType.set(callerAddress, neighbourEntityId, DirtVoxelID, DirtVoxelVariantID);
-        changedEntities[i + 1] = neighbourEntityId;
-      } else {
-        changedEntities[i + 1] = 0;
-      }
-    }
+    //   if (neighbourVoxelTypeId == GrassVoxelID && voxelTypeId == DirtVoxelID) {
+    //     // change ourselves to dirt
+    //     CAVoxelType.set(callerAddress, neighbourEntityId, DirtVoxelID, DirtVoxelVariantID);
+    //     changedEntities[i + 1] = neighbourEntityId;
+    //   } else {
+    //     changedEntities[i + 1] = 0;
+    //   }
+    // }
 
     return changedEntities;
   }

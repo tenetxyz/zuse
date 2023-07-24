@@ -105,7 +105,7 @@ contract VoxelInteractionSystem is System {
       );
       if (neighbourEntitiesAtPosition.length == 1) {
         // entity exists so add it to the list
-        centerNeighbourEntities[i] = neighbourEntitiesAtPosition[0][0];
+        centerNeighbourEntities[i] = neighbourEntitiesAtPosition[0][1];
       } else {
         // no entity exists so add air
         // TODO: How do we deal with entities not created yet, but still in the world due to terrain generation
@@ -221,6 +221,9 @@ contract VoxelInteractionSystem is System {
     // Update VoxelType and Position at this level to match the CA
     for (uint256 i = 0; i < changedEntities.length; i++) {
       bytes32 changedEntity = changedEntities[i];
+      if (changedEntity == 0) {
+        continue;
+      }
       CAVoxelTypeData memory changedEntityVoxelType = CAVoxelType.get(IStore(caAddress), address(this), changedEntity);
       // Update VoxelType
       VoxelType.set(

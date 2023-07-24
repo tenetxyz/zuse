@@ -6,7 +6,7 @@ import { AirID } from "./voxels/AirVoxelSystem.sol";
 import { GrassID } from "./voxels/GrassVoxelSystem.sol";
 import { DirtID } from "./voxels/DirtVoxelSystem.sol";
 import { BedrockID } from "./voxels/BedrockVoxelSystem.sol";
-import { VoxelCoord, VoxelVariantsKey } from "../Types.sol";
+import { VoxelCoord } from "../Types.sol";
 import { System } from "@latticexyz/world/src/System.sol";
 
 // This system is used to check whether a given voxel occurs at a given location.
@@ -28,30 +28,15 @@ contract OccurrenceSystem is System {
   }
 
   // Occurence functions
-  function OGrass(VoxelCoord memory coord) public view returns (VoxelVariantsKey memory) {
-    // TODO: Figure out why cant just call it once and store it in memory
-    return
-      VoxelVariantsKey({
-        voxelVariantNamespace: IWorld(_world()).tenet_LibTerrainSystem_Grass(coord).voxelVariantNamespace,
-        voxelVariantId: IWorld(_world()).tenet_LibTerrainSystem_Grass(coord).voxelVariantId
-      });
+  function OGrass(VoxelCoord memory coord) public view returns (bytes32) {
+    return IWorld(_world()).tenet_LibTerrainSystem_Grass(coord);
   }
 
-  function ODirt(VoxelCoord memory coord) public view returns (VoxelVariantsKey memory) {
-    // TODO: Figure out why cant just call it once and store it in memory
-    return
-      VoxelVariantsKey({
-        voxelVariantNamespace: IWorld(_world()).tenet_LibTerrainSystem_Dirt(coord).voxelVariantNamespace,
-        voxelVariantId: IWorld(_world()).tenet_LibTerrainSystem_Dirt(coord).voxelVariantId
-      });
+  function ODirt(VoxelCoord memory coord) public view returns (bytes32) {
+    return IWorld(_world()).tenet_LibTerrainSystem_Dirt(coord);
   }
 
-  function OBedrock(VoxelCoord memory coord) public view returns (VoxelVariantsKey memory) {
-    // TODO: Figure out why cant just call it once and store it in memory
-    return
-      VoxelVariantsKey({
-        voxelVariantNamespace: IWorld(_world()).tenet_LibTerrainSystem_Bedrock(coord).voxelVariantNamespace,
-        voxelVariantId: IWorld(_world()).tenet_LibTerrainSystem_Bedrock(coord).voxelVariantId
-      });
+  function OBedrock(VoxelCoord memory coord) public view returns (bytes32) {
+    return IWorld(_world()).tenet_LibTerrainSystem_Bedrock(coord);
   }
 }

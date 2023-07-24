@@ -36,17 +36,17 @@ contract GiftVoxelTest is MudTest {
 
   function testNumUniqueVoxelTypesIOwn() public {
     vm.startPrank(alice);
-    bytes32 giftedVoxel = world.tenet_GiftVoxelSystem_giftVoxel(namespace, GrassID);
+    bytes32 giftedVoxel = world.tenet_GiftVoxelSystem_giftVoxel(GrassID);
     require(OwnedBy.get(store, giftedVoxel) == addressToEntityKey(alice), "Alice should own the voxel");
     require(world.tenet_GiftVoxelSystem_numUniqueVoxelTypesIOwn() == 1, "Alice should own 1 unique voxel type");
-    world.tenet_GiftVoxelSystem_giftVoxel(namespace, AirID);
+    world.tenet_GiftVoxelSystem_giftVoxel(AirID);
     require(world.tenet_GiftVoxelSystem_numUniqueVoxelTypesIOwn() == 2, "Alice should own 2 unique voxel types");
-    world.tenet_GiftVoxelSystem_giftVoxel(namespace, AirID);
+    world.tenet_GiftVoxelSystem_giftVoxel(AirID);
     require(
       world.tenet_GiftVoxelSystem_numUniqueVoxelTypesIOwn() == 2,
       "Alice should own 2 unique voxel types, after gifting a duplicate voxel type"
     );
-    world.tenet_GiftVoxelSystem_giftVoxel(namespace, DirtID);
+    world.tenet_GiftVoxelSystem_giftVoxel(DirtID);
     require(world.tenet_GiftVoxelSystem_numUniqueVoxelTypesIOwn() == 3, "Alice should own 3 unique voxel types");
     vm.stopPrank();
   }

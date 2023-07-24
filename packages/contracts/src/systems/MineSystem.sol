@@ -4,8 +4,8 @@ pragma solidity >=0.8.0;
 import { getUniqueEntity } from "@latticexyz/world/src/modules/uniqueentity/getUniqueEntity.sol";
 import { getKeysInTable } from "@latticexyz/world/src/modules/keysintable/getKeysInTable.sol";
 import { System } from "@latticexyz/world/src/System.sol";
-import { VoxelCoord, VoxelVariantsKey } from "@tenet-contracts/src/Types.sol";
-import { OwnedBy, Position, PositionTableId, VoxelType, VoxelTypeData, VoxelTypeRegistry, OfSpawn, Spawn, SpawnData } from "@tenet-contracts/src/codegen/Tables.sol";
+import { VoxelCoord } from "@tenet-contracts/src/Types.sol";
+import { OwnedBy, Position, PositionTableId, VoxelType, VoxelTypeData, OfSpawn, Spawn, SpawnData } from "@tenet-contracts/src/codegen/Tables.sol";
 import { AirID } from "./voxels/AirVoxelSystem.sol";
 import { enterVoxelIntoWorld, exitVoxelFromWorld, updateVoxelVariant, addressToEntityKey, getEntitiesAtCoord, safeStaticCallFunctionSelector, getVoxelVariant, removeEntityFromArray } from "@tenet-contracts/src/Utils.sol";
 import { Utils } from "@latticexyz/world/src/Utils.sol";
@@ -15,13 +15,7 @@ import { console } from "forge-std/console.sol";
 import { CHUNK_MAX_Y, CHUNK_MIN_Y } from "@tenet-contracts/src/Constants.sol";
 
 contract MineSystem is System {
-  function mine(
-    VoxelCoord memory coord,
-    bytes16 voxelTypeNamespace,
-    bytes32 voxelTypeId,
-    bytes16 voxelVariantNamespace,
-    bytes32 voxelVariantId
-  ) public returns (bytes32) {
+  function mine(VoxelCoord memory coord, bytes32 voxelTypeId, bytes32 voxelVariantId) public returns (bytes32) {
     require(voxelTypeId != AirID, "can not mine air");
     require(coord.y <= CHUNK_MAX_Y && coord.y >= CHUNK_MIN_Y, "out of chunk bounds");
 
@@ -42,17 +36,13 @@ contract MineSystem is System {
         abi.encode(coord)
       );
       require(occurrence.length > 0, "invalid terrain voxel type");
-      VoxelVariantsKey memory occurenceVoxelKey = abi.decode(occurrence, (VoxelVariantsKey));
-      require(
-        occurenceVoxelKey.voxelVariantNamespace == voxelVariantNamespace &&
-          occurenceVoxelKey.voxelVariantId == voxelVariantId,
-        "invalid terrain voxel variant"
-      );
+      bytes32 occurenceVoxelVariantId = abi.decode(occurrence, (bytes32));
+      require(occurenceVoxelVariantId == voxelVariantId, "invalid terrain voxel variant");
 
       // Create an ECS voxel from this coord's terrain voxel
       voxelToMine = getUniqueEntity();
       // in terrain gen, we know its our system namespace and we validated it above using the Occurrence table
-      VoxelType.set(voxelToMine, namespace, voxelTypeId, voxelVariantNamespace, voxelVariantId);
+      VoxelType.set(voxelToMine, voxelTypeId, voxelVariantId);
     } else {
       // Else, mine the non-air entity voxel at this position
       require(entitiesAtPosition.length == 1, "there should only be one entity at this position");
@@ -60,23 +50,20 @@ contract MineSystem is System {
       VoxelTypeData memory voxelTypeData = VoxelType.get(voxelToMine);
       require(voxelToMine != 0, "We found no voxels at that position");
       require(
-        voxelTypeData.voxelTypeNamespace == voxelTypeNamespace &&
-          voxelTypeData.voxelTypeId == voxelTypeId &&
-          voxelTypeData.voxelVariantNamespace == voxelVariantNamespace &&
-          voxelTypeData.voxelVariantId == voxelVariantId,
+        voxelTypeData.voxelTypeId == voxelTypeId && voxelTypeData.voxelVariantId == voxelVariantId,
         "The voxel at this position is not the same as the voxel you are trying to mine"
       );
       tryRemoveVoxelFromSpawn(voxelToMine);
       Position.deleteRecord(voxelToMine);
       exitVoxelFromWorld(_world(), voxelToMine);
-      VoxelType.set(voxelToMine, voxelTypeData.voxelTypeNamespace, voxelTypeData.voxelTypeId, "", "");
+      VoxelType.set(voxelToMine, voxelTypeData.voxelTypeId, "");
     }
 
     // Place an air voxel at this position
     airEntity = getUniqueEntity();
     // TODO: We don't need necessarily need to get the air voxel type from the registry, we could just use the AirID
     // Maybe consider doing this for performance reasons
-    VoxelType.set(airEntity, namespace, AirID, "", "");
+    VoxelType.set(airEntity, AirID, "");
     Position.set(airEntity, coord.x, coord.y, coord.z);
     enterVoxelIntoWorld(_world(), airEntity);
     updateVoxelVariant(_world(), airEntity);
@@ -124,13 +111,7 @@ contract MineSystem is System {
         // if it's air, then it's already clear
         continue;
       }
-      minedEntity = mine(
-        coord,
-        voxelTypeData.voxelTypeNamespace,
-        voxelTypeData.voxelTypeId,
-        voxelTypeData.voxelVariantNamespace,
-        voxelTypeData.voxelVariantId
-      );
+      minedEntity = mine(coord, voxelTypeData.voxelTypeId, voxelTypeData.voxelVariantId);
     }
     return minedEntity;
   }

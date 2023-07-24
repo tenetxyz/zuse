@@ -6,66 +6,32 @@ import { getKeysInTable } from "@latticexyz/world/src/modules/keysintable/getKey
 import { System } from "@latticexyz/world/src/System.sol";
 import { NamespaceOwner } from "@latticexyz/world/src/tables/NamespaceOwner.sol";
 import { FunctionSelectors } from "@latticexyz/world/src/modules/core/tables/FunctionSelectors.sol";
-import { VoxelTypeRegistry, VoxelTypeRegistryData, VoxelTypeRegistryTableId, VoxelVariants, VoxelVariantsData, VoxelVariantsTableId } from "@tenet-contracts/src/codegen/Tables.sol";
 import { IWorld } from "@tenet-contracts/src/codegen/world/IWorld.sol";
 import { NoaBlockType } from "@tenet-contracts/src/codegen/Types.sol";
+import { VoxelTypesAllowed } from "@tenet-contracts/src/codegen/Tables.sol";
 import { getCallerNamespace } from "../Utils.sol";
+import { AirID } from "./voxels/AirVoxelSystem.sol";
+import { GrassID } from "./voxels/GrassVoxelSystem.sol";
+import { DirtID } from "./voxels/DirtVoxelSystem.sol";
+import { BedrockID } from "./voxels/BedrockVoxelSystem.sol";
 
 contract VoxelRegistrySystem is System {
-  function registerVoxelType(
-    string memory name,
-    bytes32 voxelTypeId,
-    bytes16 previewVoxelVariantNamespace,
-    bytes32 previewVoxelVariantId,
-    bytes4 voxelVariantSelector,
-    bytes4 enterWorldSelector,
-    bytes4 exitWorldSelector,
-    bytes4 activateSelector
-  ) public {
-    bytes16 callerNamespace = getCallerNamespace(_msgSender());
-
-    // check if voxel type is already registered
-    bytes32[] memory keyTuple = new bytes32[](2);
-    keyTuple[0] = bytes32((callerNamespace));
-    keyTuple[1] = voxelTypeId;
-
-    require(!hasKey(VoxelTypeRegistryTableId, keyTuple), "Voxel type already registered for this namespace");
-
-    // TODO: We should add some signature check for voxelVariantSelector to make sure it returns the right type
-
-    // register voxel type
-    VoxelTypeRegistry.set(
-      callerNamespace,
-      voxelTypeId,
-      VoxelTypeRegistryData({
-        voxelVariantSelector: voxelVariantSelector,
-        enterWorldSelector: enterWorldSelector,
-        exitWorldSelector: exitWorldSelector,
-        activateSelector: activateSelector,
-        previewVoxelVariantNamespace: previewVoxelVariantNamespace,
-        previewVoxelVariantId: previewVoxelVariantId,
-        creator: tx.origin,
-        numSpawns: 0,
-        name: name
-      })
-    );
+  function initWorldVoxelTypes() public {
+    bytes32[] memory allowedVoxelTypes = new bytes32[](2);
+    allowedVoxelTypes[0] = AirID;
+    allowedVoxelTypes[1] = GrassID;
+    allowedVoxelTypes[1] = DirtID;
+    allowedVoxelTypes[1] = BedrockID;
+    VoxelTypesAllowed.set(allowedVoxelTypes);
   }
 
-  function registerVoxelVariant(bytes32 voxelVariantId, VoxelVariantsData memory voxelVariant) public {
-    // get caller's namespace
-    bytes16 callerNamespace = getCallerNamespace(_msgSender());
-
-    // check if voxel type is already registered
-    bytes32[] memory keyTuple = new bytes32[](2);
-    keyTuple[0] = bytes32((callerNamespace));
-    keyTuple[1] = voxelVariantId;
-
-    require(!hasKey(VoxelVariantsTableId, keyTuple), "Voxel variant already registered for this namespace");
-
-    bytes32[][] memory variants = getKeysInTable(VoxelVariantsTableId);
-    uint256 voxelVariantIdCounter = variants.length;
-    voxelVariant.variantId = voxelVariantIdCounter;
-
-    VoxelVariants.set(callerNamespace, voxelVariantId, voxelVariant);
+  function isVoxelTypeAllowed(bytes32 voxelTypeId) public returns (bool) {
+    bytes32[] memory allVoxelTypeIds = VoxelTypesAllowed.get();
+    for (uint256 i = 0; i < allVoxelTypeIds.length; i++) {
+      if (allVoxelTypeIds[i] == voxelTypeId) {
+        return true;
+      }
+    }
+    return false;
   }
 }

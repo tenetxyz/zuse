@@ -3,10 +3,11 @@ pragma solidity >=0.8.0;
 
 import { VoxelType } from "../../prototypes/VoxelType.sol";
 import { IWorld } from "../../../src/codegen/world/IWorld.sol";
-import { Occurrence, VoxelTypeData, VoxelVariantsData } from "@tenet-contracts/src/codegen/Tables.sol";
-import { NoaBlockType } from "@tenet-contracts/src/codegen/Types.sol";
-import { VoxelVariantsKey } from "@tenet-contracts/src/Types.sol";
-import { TENET_NAMESPACE } from "../../Constants.sol";
+import { Occurrence } from "@tenet-contracts/src/codegen/Tables.sol";
+import { VoxelVariantsRegistryData } from "@tenet-registry/src/codegen/tables/VoxelVariantsRegistry.sol";
+import { NoaBlockType } from "@tenet-registry/src/codegen/Types.sol";
+import { REGISTER_VOXEL_TYPE_SIG, REGISTER_VOXEL_VARIANT_SIG } from "@tenet-registry/src/Constants.sol";
+import { REGISTRY_WORLD } from "../../Constants.sol";
 import { DirtTexture } from "./DirtVoxelSystem.sol";
 
 bytes32 constant GrassID = bytes32(keccak256("grass"));
@@ -20,7 +21,7 @@ contract GrassVoxelSystem is VoxelType {
   function registerVoxel() public override {
     IWorld world = IWorld(_world());
 
-    VoxelVariantsData memory grassVariant;
+    VoxelVariantsRegistryData memory grassVariant;
     grassVariant.blockType = NoaBlockType.BLOCK;
     grassVariant.opaque = true;
     grassVariant.solid = true;
@@ -31,18 +32,8 @@ contract GrassVoxelSystem is VoxelType {
     grassVariant.materials = abi.encode(grassMaterials);
     grassVariant.uvWrap = GrassUVWrap;
 
-    world.tenet_VoxelRegistrySys_registerVoxelVariant(GrassID, grassVariant);
-
-    world.tenet_VoxelRegistrySys_registerVoxelType(
-      "Grass",
-      GrassID,
-      TENET_NAMESPACE,
-      GrassID,
-      world.tenet_GrassVoxelSystem_variantSelector.selector,
-      world.tenet_GrassVoxelSystem_enterWorld.selector,
-      world.tenet_GrassVoxelSystem_exitWorld.selector,
-      world.tenet_GrassVoxelSystem_activate.selector
-    );
+    REGISTRY_WORLD.call(abi.encodeWithSignature(REGISTER_VOXEL_VARIANT_SIG, GrassID, grassVariant));
+    REGISTRY_WORLD.call(abi.encodeWithSignature(REGISTER_VOXEL_TYPE_SIG, "Grass", GrassID, GrassID, _world()));
 
     Occurrence.set(GrassID, world.tenet_OccurrenceSystem_OGrass.selector);
   }
@@ -51,8 +42,8 @@ contract GrassVoxelSystem is VoxelType {
 
   function exitWorld(bytes32 entity) public override {}
 
-  function variantSelector(bytes32 entity) public pure override returns (VoxelVariantsKey memory) {
-    return VoxelVariantsKey({ voxelVariantNamespace: TENET_NAMESPACE, voxelVariantId: GrassID });
+  function variantSelector(bytes32 entity) public pure override returns (bytes32) {
+    return GrassID;
   }
 
   function activate(bytes32 entity) public override returns (bytes memory) {

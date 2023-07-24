@@ -7,8 +7,8 @@ import { CHUNK } from "@tenet-contracts/src/Constants.sol";
 import { hasKey } from "@latticexyz/world/src/modules/keysintable/hasKey.sol";
 import { Coord, VoxelCoord } from "@tenet-contracts/src/Types.sol";
 import { getKeysWithValue } from "@latticexyz/world/src/modules/keyswithvalue/getKeysWithValue.sol";
-import { Position, PositionData, PositionTableId, VoxelType, VoxelTypeRegistry, VoxelTypeRegistryData, VoxelTypeData } from "@tenet-contracts/src/codegen/Tables.sol";
-import { VoxelVariantsKey, BlockDirection } from "@tenet-contracts/src/Types.sol";
+import { Position, PositionData, PositionTableId, VoxelType, VoxelTypeData } from "@tenet-contracts/src/codegen/Tables.sol";
+import { BlockDirection } from "@tenet-contracts/src/Types.sol";
 import { Strings } from "@openzeppelin/contracts/utils/Strings.sol";
 
 function getCallerNamespace(address caller) view returns (bytes16) {
@@ -68,56 +68,37 @@ function getOppositeDirection(BlockDirection direction) pure returns (BlockDirec
   }
 }
 
-function getVoxelVariant(
-  address world,
-  bytes16 voxelTypeNamespace,
-  bytes32 voxelTypeId,
-  bytes32 entity
-) returns (VoxelVariantsKey memory) {
-  bytes4 voxelVariantSelector = VoxelTypeRegistry.get(voxelTypeNamespace, voxelTypeId).voxelVariantSelector;
-  bytes memory voxelVariantSelected = safeStaticCall(
-    world,
-    abi.encodeWithSelector(voxelVariantSelector, entity),
-    "get voxel variant"
-  );
-  return abi.decode(voxelVariantSelected, (VoxelVariantsKey));
+function getVoxelVariant(address world, bytes32 voxelTypeId, bytes32 entity) returns (bytes32 voxelVariantId) {
+  // bytes4 voxelVariantSelector = VoxelTypeRegistry.get(voxelTypeNamespace, voxelTypeId).voxelVariantSelector;
+  // bytes memory voxelVariantSelected = safeStaticCall(
+  //   world,
+  //   abi.encodeWithSelector(voxelVariantSelector, entity),
+  //   "get voxel variant"
+  // );
+  // return abi.decode(voxelVariantSelected, (VoxelVariantsKey));
 }
 
 function enterVoxelIntoWorld(address world, bytes32 entity) {
   VoxelTypeData memory entityVoxelType = VoxelType.get(entity);
-  bytes4 enterWorldSelector = VoxelTypeRegistry
-    .get(entityVoxelType.voxelTypeNamespace, entityVoxelType.voxelTypeId)
-    .enterWorldSelector;
-  safeCall(world, abi.encodeWithSelector(enterWorldSelector, entity), "voxel enter world");
+  // bytes4 enterWorldSelector = VoxelTypeRegistry
+  //   .get(entityVoxelType.voxelTypeNamespace, entityVoxelType.voxelTypeId)
+  //   .enterWorldSelector;
+  // safeCall(world, abi.encodeWithSelector(enterWorldSelector, entity), "voxel enter world");
 }
 
 function exitVoxelFromWorld(address world, bytes32 entity) {
   VoxelTypeData memory entityVoxelType = VoxelType.get(entity);
-  bytes4 exitWorldSelector = VoxelTypeRegistry
-    .get(entityVoxelType.voxelTypeNamespace, entityVoxelType.voxelTypeId)
-    .exitWorldSelector;
-  safeCall(world, abi.encodeWithSelector(exitWorldSelector, entity), "voxel exit world");
+  // bytes4 exitWorldSelector = VoxelTypeRegistry
+  //   .get(entityVoxelType.voxelTypeNamespace, entityVoxelType.voxelTypeId)
+  //   .exitWorldSelector;
+  // safeCall(world, abi.encodeWithSelector(exitWorldSelector, entity), "voxel exit world");
 }
 
 function updateVoxelVariant(address world, bytes32 entity) {
   VoxelTypeData memory entityVoxelType = VoxelType.get(entity);
-  VoxelVariantsKey memory voxelVariantData = getVoxelVariant(
-    world,
-    entityVoxelType.voxelTypeNamespace,
-    entityVoxelType.voxelTypeId,
-    entity
-  );
-  if (
-    voxelVariantData.voxelVariantNamespace != entityVoxelType.voxelVariantNamespace ||
-    voxelVariantData.voxelVariantId != entityVoxelType.voxelVariantId
-  ) {
-    VoxelType.set(
-      entity,
-      entityVoxelType.voxelTypeNamespace,
-      entityVoxelType.voxelTypeId,
-      voxelVariantData.voxelVariantNamespace,
-      voxelVariantData.voxelVariantId
-    );
+  bytes32 voxelVariantId = getVoxelVariant(world, entityVoxelType.voxelTypeId, entity);
+  if (voxelVariantId != entityVoxelType.voxelVariantId) {
+    VoxelType.set(entity, entityVoxelType.voxelTypeId, voxelVariantId);
   }
 }
 
@@ -180,9 +161,9 @@ function getEntitiesAtCoord(VoxelCoord memory coord) view returns (bytes32[][] m
 }
 
 function increaseVoxelTypeSpawnCount(bytes16 voxelTypeNamespace, bytes32 voxelTypeId) {
-  VoxelTypeRegistryData memory voxelTypeRegistryData = VoxelTypeRegistry.get(voxelTypeNamespace, voxelTypeId);
-  voxelTypeRegistryData.numSpawns += 1;
-  VoxelTypeRegistry.set(voxelTypeNamespace, voxelTypeId, voxelTypeRegistryData);
+  // VoxelTypeRegistryData memory voxelTypeRegistryData = VoxelTypeRegistry.get(voxelTypeNamespace, voxelTypeId);
+  // voxelTypeRegistryData.numSpawns += 1;
+  // VoxelTypeRegistry.set(voxelTypeNamespace, voxelTypeId, voxelTypeRegistryData);
 }
 
 // Thus function gets around solidity's horrible lack of dynamic arrays, sets, and data structure support

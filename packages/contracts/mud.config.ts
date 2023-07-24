@@ -141,11 +141,6 @@ export default mudConfig({
     {
       name: "KeysInTableModule",
       root: true,
-      args: [resolveTableId("VoxelVariants")],
-    },
-    {
-      name: "KeysInTableModule",
-      root: true,
       args: [resolveTableId("Classifier")],
     },
     {

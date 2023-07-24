@@ -5,14 +5,13 @@ import { Terrain, TerrainState } from "./types";
 import { getTerrain } from "./utils";
 import { Air, AIR_ID, Bedrock, Dirt, Grass } from "./occurrence";
 import { VoxelTypeDataKey } from "../../../noa/types";
-import { TENET_NAMESPACE } from "../../../../constants";
 
 export function getEntityAtPosition(
   context: {
     Position: Component<{ x: Type.Number; y: Type.Number; z: Type.Number }>;
     VoxelType: Component<{
       voxelBaseTypeId: Type.String;
-      voxelVariantId: Type.String;
+      voxelVariantTypeId: Type.String;
     }>;
     world: World;
   },
@@ -35,7 +34,7 @@ export function getEcsVoxelType(
     Position: Component<{ x: Type.Number; y: Type.Number; z: Type.Number }>;
     VoxelType: Component<{
       voxelBaseTypeId: Type.String;
-      voxelVariantId: Type.String;
+      voxelVariantTypeId: Type.String;
     }>;
     world: World;
   },
@@ -51,10 +50,8 @@ export function getVoxelAtPosition(
   context: {
     Position: Component<{ x: Type.Number; y: Type.Number; z: Type.Number }>;
     VoxelType: Component<{
-      voxelTypeNamespace: Type.String;
-      voxelTypeId: Type.String;
-      voxelVariantNamespace: Type.String;
-      voxelVariantId: Type.String;
+      voxelBaseTypeId: Type.String;
+      voxelVariantTypeId: Type.String;
     }>;
     world: World;
   },
@@ -75,10 +72,8 @@ export function getTerrainVoxel(
     Air(state) ||
     Grass(state) ||
     Dirt(state) || {
-      voxelTypeNamespace: TENET_NAMESPACE,
-      voxelTypeId: AIR_ID,
-      voxelVariantNamespace: TENET_NAMESPACE,
-      voxelVariantId: AIR_ID,
+      voxelBaseTypeId: AIR_ID,
+      voxelVariantTypeId: AIR_ID,
     }
   );
 }

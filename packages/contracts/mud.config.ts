@@ -21,7 +21,7 @@ export default mudConfig({
     VoxelType: {
       // TODO: Move this to a namespace?
       schema: {
-        voxelTypeId: "bytes32",
+        voxelTypeId: "bytes32", // TODO: rename to voxelBaseTypeId
         voxelVariantId: "bytes32",
       },
     },

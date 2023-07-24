@@ -10,9 +10,9 @@ import { TENET_NAMESPACE } from "../../Constants.sol";
 
 bytes32 constant TileID = bytes32(keccak256("tile"));
 
-string constant TileTexture = "bafkreiflbvybgotxeaaapdknflsgenpskbl6zp2ttzvt5qlwcwwo7t75qm";
+string constant TileTexture = "bafkreif6rxo4pssahqrmb7kfqzbt6fixmmj5nnsyqz6sexshpr5vs45tiq";
 
-string constant TileUVWrap = "bafkreidmmv32qdtob3p4yt475xuvbwoovjd2iifrnxh4icyl44xyl6gtfe";
+string constant TileUVWrap = "bafkreigmqx5f5chu2nusqgsmrxril52n3nxd7v2obigoify47hyxg4gpfe";
 
 contract TileVoxelSystem is VoxelType {
   function registerVoxel() public override {

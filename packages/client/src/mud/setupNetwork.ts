@@ -3,13 +3,16 @@ import { Entity, getComponentValue, createIndexer, runQuery, HasValue, World, cr
 import { createFastTxExecutor, createFaucetService, getSnapSyncRecords, createRelayStream } from "@latticexyz/network";
 import { getNetworkConfig } from "./getNetworkConfig";
 import { defineContractComponents } from "./contractComponents";
+import { defineContractComponents as defineRegistryContractComponents } from "@tenetxyz/registry/client/contractComponents";
 import { createPerlin } from "@latticexyz/noise";
 import { BigNumber, Contract, Signer, utils } from "ethers";
 import { JsonRpcProvider } from "@ethersproject/providers";
 import { IWorld__factory } from "@tenetxyz/contracts/types/ethers-contracts/factories/IWorld__factory.ts";
+import { IWorld__factory as RegistryIWorld__factory } from "@tenetxyz/registry/types/ethers-contracts/factories/IWorld__factory.ts";
 import { getTableIds, awaitPromise, computedToStream, VoxelCoord, Coord } from "@latticexyz/utils";
 import { map, timer, combineLatest, BehaviorSubject } from "rxjs";
 import storeConfig from "@tenetxyz/contracts/mud.config";
+import registryStoreConfig from "@tenetxyz/registry/mud.config";
 import {
   getEcsVoxelType,
   getTerrain,
@@ -61,19 +64,19 @@ const setupWorldRegistryNetwork = async () => {
     return;
   }
   const registryWorld = createWorld();
-  const contractComponents = defineContractComponents(registryWorld); // TODO: replace the defineContractComponents function with the one that is generate by the world registry
+  const contractComponents = defineRegistryContractComponents(registryWorld);
   giveComponentsAHumanReadableId(contractComponents);
 
   const networkConfig = await getNetworkConfig();
   networkConfig.worldAddress = registryAddress; // overwrite the world address with the registry address, so when we sync, we are syncing with the registry!
 
-  const result = await setupMUDV2Network<typeof contractComponents, typeof storeConfig>({
+  const result = await setupMUDV2Network<typeof contractComponents, typeof registryStoreConfig>({
     networkConfig,
     world: registryWorld,
     contractComponents,
     syncThread: "main", // PERF: sync using workers
-    storeConfig, // TODO: replace this storeConfig with the one from the registry world
-    worldAbi: IWorld__factory.abi, // TODO: replace this with the one from the registry world
+    storeConfig: registryStoreConfig,
+    worldAbi: RegistryIWorld__factory.abi,
   });
   result.startSync();
   // Give components a Human-readable ID
@@ -140,7 +143,7 @@ export async function setupNetwork() {
     setInterval(requestDrip, 20000);
   }
 
-  const registryContracts = await setupWorldRegistryNetwork();
+  const registryComponents = await setupWorldRegistryNetwork();
 
   // TODO: Uncomment once we support plugins
   // // Set initial component values
@@ -711,7 +714,7 @@ export async function setupNetwork() {
   return {
     ...result,
     contractComponents,
-    registryContracts,
+    registryComponents,
     world,
     worldContract,
     actions,

@@ -12,7 +12,7 @@ export async function createVoxelVariantSystem(network: NetworkLayer, context: N
   const {
     world,
     components: { LoadingState },
-    contractComponents: { VoxelVariants },
+    registryComponents: { VoxelVariants },
     voxelTypes: { VoxelVariantData, VoxelVariantDataSubscriptions },
   } = network;
 

@@ -270,13 +270,12 @@ export function createNoaLayer(network: NetworkLayer) {
   function getVoxelTypeInSelectedSlot(): VoxelBaseTypeId | undefined {
     const selectedSlot = getComponentValue(components.SelectedSlot, SingletonEntity)?.value;
     if (selectedSlot === null) return;
-    const voxelType = [
+    const voxelBaseTypeId = [
       ...getEntitiesWithValue(components.InventoryIndex, {
         value: selectedSlot,
       }),
     ][0];
-    if (voxelType === undefined) return;
-    return voxelTypeToVoxelBaseTypeId(voxelType);
+    return voxelBaseTypeId;
   }
 
   function getCurrentPlayerPosition() {
@@ -339,8 +338,8 @@ export function createNoaLayer(network: NetworkLayer) {
   VoxelVariantDataSubscriptions.push(voxelUVWrapSubscription);
 
   // initial run
-  for (const [voxelVariantKey, voxelVariantData] of VoxelVariantData.entries()) {
-    voxelUVWrapSubscription(voxelVariantKeyStringToKey(voxelVariantKey), voxelVariantData);
+  for (const [voxelVariantTypeId, voxelVariantDataValue] of VoxelVariantData.entries()) {
+    voxelUVWrapSubscription(voxelVariantTypeId, voxelVariantDataValue);
   }
 
   setComponent(components.FocusedUi, SingletonEntity, { value: FocusedUiType.WORLD });

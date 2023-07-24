@@ -5,7 +5,7 @@ import { filter, scan, merge, map } from "rxjs";
 import { registerUIComponent } from "../engine";
 import styled from "styled-components";
 import { filterNullish } from "@latticexyz/utils";
-import { voxelTypeToEntity, voxelTypeKeyToVoxelVariantDataKey, entityToVoxelType } from "../../noa/types";
+import { voxelTypeToEntity, entityToVoxelType } from "../../noa/types";
 import { AIR_ID } from "../../network/api/terrain/occurrence";
 
 type BlockEvent = {
@@ -198,32 +198,28 @@ export function registerBlockExplorer() {
             >
               {blockNumber % 16 === 0 ? <div className="BlockExplorer-BlockNumber">{blockNumber}</div> : null}
               <div className="BlockExplorer-Actions">
-                {Object.entries(block).map(([voxelTypeKey, counts]) => (
-                  <React.Fragment key={voxelTypeKey}>
-                    {counts.add ? (
-                      <div className="BlockExplorer-Action">
-                        <img
-                          src={getVoxelIconUrl(
-                            voxelTypeKeyToVoxelVariantDataKey(entityToVoxelType(voxelTypeKey as Entity))
-                          )}
-                        />
-                        <div className="BlockExplorer-ActionIcon BlockExplorer-ActionIcon--add">+{counts.add}</div>
-                      </div>
-                    ) : null}
-                    {counts.remove ? (
-                      <div className="BlockExplorer-Action">
-                        <img
-                          src={getVoxelIconUrl(
-                            voxelTypeKeyToVoxelVariantDataKey(entityToVoxelType(voxelTypeKey as Entity))
-                          )}
-                        />
-                        <div className="BlockExplorer-ActionIcon BlockExplorer-ActionIcon--remove">
-                          -{counts.remove}
+                {Object.entries(block).map(([voxelTypeKey, counts]) => {
+                  const voxelType = entityToVoxelType(voxelTypeKey as Entity);
+                  const voxelIconUrl = getVoxelIconUrl(voxelType.voxelVariantTypeId);
+                  return (
+                    <React.Fragment key={voxelTypeKey}>
+                      {counts.add ? (
+                        <div className="BlockExplorer-Action">
+                          <img src={voxelIconUrl} />
+                          <div className="BlockExplorer-ActionIcon BlockExplorer-ActionIcon--add">+{counts.add}</div>
                         </div>
-                      </div>
-                    ) : null}
-                  </React.Fragment>
-                ))}
+                      ) : null}
+                      {counts.remove ? (
+                        <div className="BlockExplorer-Action">
+                          <img src={voxelIconUrl} />
+                          <div className="BlockExplorer-ActionIcon BlockExplorer-ActionIcon--remove">
+                            -{counts.remove}
+                          </div>
+                        </div>
+                      ) : null}
+                    </React.Fragment>
+                  );
+                })}
               </div>
             </div>
           ))}

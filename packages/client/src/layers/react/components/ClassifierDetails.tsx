@@ -6,13 +6,7 @@ import { useClassifierSearch } from "./useClassifierSearch";
 import { CreationStoreFilters } from "./CreationStore";
 import { useComponentValue } from "@latticexyz/react";
 import { SetState } from "../../../utils/types";
-import {
-  EMPTY_BYTES_32,
-  InterfaceVoxel,
-  entityToVoxelType,
-  voxelTypeKeyToVoxelVariantDataKey,
-  voxelTypeToEntity,
-} from "../../noa/types";
+import { EMPTY_BYTES_32, InterfaceVoxel, entityToVoxelType, voxelTypeToEntity } from "../../noa/types";
 import { stringToVoxelCoord, voxelCoordToString } from "../../../utils/coord";
 import { getSpawnAtPosition } from "../../../utils/voxels";
 import { SearchBar } from "./common/SearchBar";
@@ -159,8 +153,7 @@ const ClassifierDetails: React.FC<Props> = ({
       return null;
     }
 
-    const iconKey = voxelTypeKeyToVoxelVariantDataKey(voxelType);
-    const iconUrl = getVoxelIconUrl(iconKey);
+    const iconUrl = getVoxelIconUrl(voxelType.voxelVariantId);
     const voxelCoord = getComponentValue(Position, interfaceVoxel);
     return (
       <div className="flex gap-2 items-center">

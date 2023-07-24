@@ -320,11 +320,10 @@ export async function setupNetwork() {
 
   function getVoxelPreviewVariant(VoxelBaseTypeId: VoxelBaseTypeId): VoxelVariantTypeId | undefined {
     const voxelTypeRecord = getComponentValue(registryComponents.VoxelTypeRegistry, VoxelBaseTypeId as Entity);
-    return (
-      voxelTypeRecord && {
-        voxelVariantId: voxelTypeRecord.previewVoxelVariantId,
-      }
-    );
+    if (!voxelTypeRecord) {
+      return undefined;
+    }
+    return voxelTypeRecord.previewVoxelVariantId;
   }
 
   function getVoxelTypePreviewUrl(VoxelBaseTypeId: VoxelBaseTypeId): string | undefined {
@@ -360,21 +359,21 @@ export async function setupNetwork() {
     return getComponentValue(contractComponents.Name, entity)?.value;
   }
 
-  function build(voxelType: VoxelBaseTypeId, coord: VoxelCoord) {
+  function build(voxelBaseTypeId: VoxelBaseTypeId, coord: VoxelCoord) {
     const voxelInstanceOfVoxelType = [
       ...runQuery([
         HasValue(contractComponents.OwnedBy, {
           value: to64CharAddress(playerAddress),
         }),
-        HasValue(contractComponents.VoxelType, voxelType),
+        HasValue(contractComponents.VoxelType, voxelBaseTypeId),
       ]),
     ][0];
     if (!voxelInstanceOfVoxelType) {
-      return console.warn(`cannot find a voxel (that you own) for voxelType=${voxelType}`);
+      return console.warn(`cannot find a voxel (that you own) for voxelType=${voxelBaseTypeId}`);
     }
 
-    const preview: string = getVoxelTypePreviewUrl(voxelType) || "";
-    const previewVoxelVariant = getVoxelPreviewVariant(voxelType);
+    const preview: string = getVoxelTypePreviewUrl(voxelBaseTypeId) || "";
+    const previewVoxelVariant = getVoxelPreviewVariant(voxelBaseTypeId);
 
     const newVoxelOfSameType = world.registerEntity();
 
@@ -415,8 +414,8 @@ export async function setupNetwork() {
           component: "VoxelType",
           entity: newVoxelOfSameType,
           value: {
-            voxelTypeNamespace: voxelType.voxelTypeNamespace,
-            voxelTypeId: voxelType.voxelTypeId,
+            voxelTypeNamespace: voxelBaseTypeId.voxelTypeNamespace,
+            voxelTypeId: voxelBaseTypeId.voxelTypeId,
             voxelVariantNamespace: previewVoxelVariant?.voxelVariantNamespace,
             voxelVariantId: previewVoxelVariant?.voxelVariantId,
           },
@@ -434,13 +433,9 @@ export async function setupNetwork() {
     const voxel = getEntityAtPosition(coord);
     const airEntity = world.registerEntity();
 
-    const voxelVariantTypeId: VoxelVariantDataKey = {
-      voxelVariantId: voxelTypeKey.voxelVariantId,
-    };
-
     actions.add({
       id: `mine+${coord.x}/${coord.y}/${coord.z}` as Entity,
-      metadata: { actionType: "mine", coord, voxelVariantTypeId },
+      metadata: { actionType: "mine", coord, voxelVariantTypeId: voxelTypeKey.voxelVariantTypeId },
       requirement: () => true,
       components: {
         Position: contractComponents.Position,
@@ -450,8 +445,8 @@ export async function setupNetwork() {
       execute: () => {
         return callSystem("tenet_MineSystem_mine", [
           coord,
-          voxelTypeKey.voxelTypeId,
-          voxelTypeKey.voxelVariantId,
+          voxelTypeKey.voxelBaseTypeId,
+          voxelTypeKey.voxelVariantTypeId,
           { gasLimit: 100_000_000 },
         ]);
       },
@@ -479,11 +474,11 @@ export async function setupNetwork() {
   }
 
   // needed in creative mode, to give the user new voxels
-  function giftVoxel(voxelTypeNamespace: string, voxelTypeId: string, preview: string) {
+  function giftVoxel(voxelTypeId: string, preview: string) {
     const newVoxel = world.registerEntity();
 
     actions.add({
-      id: `GiftVoxel+${voxelTypeNamespace}+${voxelTypeId}` as Entity,
+      id: `GiftVoxel+${voxelTypeId}` as Entity,
       metadata: { actionType: "giftVoxel", preview },
       requirement: () => true,
       components: {
@@ -491,11 +486,7 @@ export async function setupNetwork() {
         VoxelType: contractComponents.VoxelType,
       },
       execute: () => {
-        return callSystem("tenet_GiftVoxelSystem_giftVoxel", [
-          voxelTypeNamespace,
-          voxelTypeId,
-          { gasLimit: 10_000_000 },
-        ]);
+        return callSystem("tenet_GiftVoxelSystem_giftVoxel", [voxelTypeId, { gasLimit: 10_000_000 }]);
       },
       updates: () => [
         // {

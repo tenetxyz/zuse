@@ -15,7 +15,7 @@ export default mudConfig({
   tables: {
     VoxelTypeRegistry: {
       keySchema: {
-        voxelTypeId: "bytes32",
+        voxelTypeId: "bytes32", // AKA voxelBaseTypeId
       },
       schema: {
         caAddress: "address",

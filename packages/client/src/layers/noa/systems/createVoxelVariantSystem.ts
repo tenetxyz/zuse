@@ -12,7 +12,7 @@ export async function createVoxelVariantSystem(network: NetworkLayer, context: N
   const {
     world,
     components: { LoadingState },
-    registryComponents: { VoxelVariants },
+    registryComponents: { VoxelVariantsRegistry },
     voxelTypes: { VoxelVariantData, VoxelVariantDataSubscriptions },
   } = network;
 
@@ -20,9 +20,9 @@ export async function createVoxelVariantSystem(network: NetworkLayer, context: N
   let live = false;
   awaitStreamValue(LoadingState.update$, ({ value }) => value[0]?.state === SyncState.LIVE).then(() => (live = true));
 
-  defineComponentSystem(world, VoxelVariants, (update) => {
+  defineComponentSystem(world, VoxelVariantsRegistry, (update) => {
     // TODO: could use update.value?
-    const voxelVariantValue = getComponentValueStrict(VoxelVariants, update.entity);
+    const voxelVariantValue = getComponentValueStrict(VoxelVariantsRegistry, update.entity);
     const [voxelVariantNamespace, voxelVariantId] = update.entity.split(":");
     const voxelVariantDataKey = {
       voxelVariantNamespace: formatNamespace(voxelVariantNamespace),
@@ -31,6 +31,7 @@ export async function createVoxelVariantSystem(network: NetworkLayer, context: N
 
     if (!VoxelVariantData.has(voxelVariantDataKeyToString(voxelVariantDataKey))) {
       console.log("Adding new variant");
+      debugger;
       const materialArr: string[] = (abiDecode("string[]", voxelVariantValue.materials, false) as string[]) ?? [];
       // go through each hash in materialArr and format it to have the NFT storage link
       const formattedMaterialArr: string[] = materialArr.map((hash: string) => {

@@ -60,8 +60,7 @@ const setupWorldRegistryNetwork = async () => {
   const params = new URLSearchParams(window.location.search);
   const registryAddress = params.get("registryAddress");
   if (!registryAddress) {
-    console.warn("Cannot find world registry. You will not be able to see or join other worlds");
-    return;
+    throw "Cannot find world registry. You will not be able to see or join other worlds";
   }
   const registryWorld = createWorld();
   const contractComponents = defineRegistryContractComponents(registryWorld);

@@ -1,10 +1,17 @@
 import { mudConfig } from "@latticexyz/world/register";
 import { resolveTableId } from "@latticexyz/config";
 
+/**
+ * Importing this enables "snap sync mode".
+ * It allows clients to sync the latest state of the world using view functions.
+ */
+import "@latticexyz/world/snapsync";
+
 export default mudConfig({
   enums: {
     NoaBlockType: ["BLOCK", "MESH"],
   },
+  snapSync: true,
   tables: {
     VoxelTypeRegistry: {
       keySchema: {

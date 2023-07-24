@@ -12,7 +12,7 @@ import { VoxelTypesAllowed, Position, PositionData, PositionTableId, VoxelType, 
 import { hasEntity, updateVoxelVariant } from "../Utils.sol";
 import { safeCall } from "../Utils.sol";
 import { CAVoxelType, CAVoxelTypeData } from "@tenet-base-ca/src/codegen/tables/CAVoxelType.sol";
-import { AirVoxelID, DirtVoxelID } from "@tenet-base-ca/src/Constants.sol";
+import { AirVoxelID, DirtVoxelID, GrassVoxelID } from "@tenet-base-ca/src/Constants.sol";
 
 function getEntitiesAtCoord(VoxelCoord memory coord) view returns (bytes32[][] memory) {
   return getKeysWithValue(PositionTableId, Position.encode(coord.x, coord.y, coord.z));
@@ -79,9 +79,10 @@ contract VoxelInteractionSystem is System {
   ];
 
   function initWorldVoxelTypes() public {
-    bytes32[] memory allowedVoxelTypes = new bytes32[](2);
+    bytes32[] memory allowedVoxelTypes = new bytes32[](3);
     allowedVoxelTypes[0] = AirVoxelID;
     allowedVoxelTypes[1] = DirtVoxelID;
+    allowedVoxelTypes[2] = GrassVoxelID;
     VoxelTypesAllowed.set(allowedVoxelTypes);
   }
 

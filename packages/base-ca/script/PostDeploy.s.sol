@@ -6,7 +6,7 @@ import { Script } from "forge-std/Script.sol";
 import { console } from "forge-std/console.sol";
 import { VoxelVariantsRegistryData } from "@tenet-registry/src/codegen/tables/VoxelVariantsRegistry.sol";
 import { NoaBlockType } from "@tenet-registry/src/codegen/Types.sol";
-import { AirVoxelID, AirVoxelVariantID, DirtVoxelID, DirtVoxelVariantID, DirtTexture, DirtUVWrap, GrassVoxelID, GrassVoxelVariantID } from "@base-ca/src/Constants.sol";
+import { AirVoxelID, AirVoxelVariantID, DirtVoxelID, DirtVoxelVariantID, DirtTexture, DirtUVWrap, GrassVoxelID, GrassVoxelVariantID, GrassTexture, GrassSideTexture, GrassUVWrap } from "@base-ca/src/Constants.sol";
 
 address constant REGISTRY_WORLD = 0x5FbDB2315678afecb367f032d93F642f64180aa3;
 string constant REGISTER_VOXEL_TYPE_SIG = "registerVoxelType(string,bytes32,bytes32,address)";
@@ -25,6 +25,7 @@ contract PostDeploy is Script {
     // Register Air
     VoxelVariantsRegistryData memory airVariant;
     airVariant.blockType = NoaBlockType.BLOCK;
+    // TODO: Require they succeed
     REGISTRY_WORLD.call(abi.encodeWithSignature(REGISTER_VOXEL_VARIANT_SIG, AirVoxelVariantID, airVariant));
     REGISTRY_WORLD.call(
       abi.encodeWithSignature(REGISTER_VOXEL_TYPE_SIG, "Air", AirVoxelID, AirVoxelVariantID, worldAddress)
@@ -42,6 +43,22 @@ contract PostDeploy is Script {
     REGISTRY_WORLD.call(abi.encodeWithSignature(REGISTER_VOXEL_VARIANT_SIG, DirtVoxelVariantID, dirtVariant));
     REGISTRY_WORLD.call(
       abi.encodeWithSignature(REGISTER_VOXEL_TYPE_SIG, "Dirt", DirtVoxelID, DirtVoxelVariantID, worldAddress)
+    );
+
+    // Register Grass
+    VoxelVariantsRegistryData memory grassVariant;
+    grassVariant.blockType = NoaBlockType.BLOCK;
+    grassVariant.opaque = true;
+    grassVariant.solid = true;
+    string[] memory grassMaterials = new string[](3);
+    grassMaterials[0] = GrassTexture;
+    grassMaterials[1] = DirtTexture;
+    grassMaterials[2] = GrassSideTexture;
+    grassVariant.materials = abi.encode(grassMaterials);
+    grassVariant.uvWrap = GrassUVWrap;
+    REGISTRY_WORLD.call(abi.encodeWithSignature(REGISTER_VOXEL_VARIANT_SIG, GrassVoxelVariantID, grassVariant));
+    REGISTRY_WORLD.call(
+      abi.encodeWithSignature(REGISTER_VOXEL_TYPE_SIG, "Grass", GrassVoxelID, GrassVoxelVariantID, worldAddress)
     );
 
     vm.stopBroadcast();

@@ -63,7 +63,7 @@ contract BaseCASystem is System {
     CAVoxelType.set(callerAddress, entity, voxelTypeId, voxelVariantId);
   }
 
-  function updateVoxelVariant(bytes32 voxelTypeId, bytes32 entity) public returns (bytes32 voxelVariantId) {
+  function updateVoxelVariant(bytes32 voxelTypeId, bytes32 entity) public returns (bytes32) {
     if (voxelTypeId == AirVoxelID) {
       return AirVoxelVariantID;
     } else if (voxelTypeId == DirtVoxelID) {
@@ -86,12 +86,67 @@ contract BaseCASystem is System {
     CAVoxelType.set(callerAddress, entity, AirVoxelID, airVoxelVariantId);
   }
 
+  function runSingleInteraction(
+    bytes32 interactEntity,
+    bytes32[] memory neighbourEntityIds
+  ) public returns (bytes32[] memory changedEntities) {
+    address callerAddress = msg.sender;
+    changedEntities = new bytes32[](neighbourEntityIds.length + 1);
+    changedEntities[0] = 0;
+
+    bytes32 voxelTypeId = CAVoxelType.get(callerAddress, interactEntity).voxelTypeId;
+    if (voxelTypeId == GrassVoxelID) {
+      // check if neighbour is dirt
+      for (uint8 i = 0; i < neighbourEntityIds.length; i++) {
+        if (neighbourEntityIds[i] == 0) {
+          continue;
+        }
+
+        bytes32 neighbourVoxelTypeId = CAVoxelType.get(callerAddress, neighbourEntityIds[i]).voxelTypeId;
+        if (neighbourVoxelTypeId == DirtVoxelID) {
+          // change ourselves to dirt
+          CAVoxelType.set(callerAddress, interactEntity, DirtVoxelID, DirtVoxelVariantID);
+          changedEntities[0] = interactEntity;
+          break;
+        }
+      }
+    }
+
+    for (uint8 i = 0; i < neighbourEntityIds.length; i++) {
+      bytes32 neighbourEntityId = neighbourEntityIds[i];
+      bytes32 neighbourVoxelTypeId = CAVoxelType.get(callerAddress, neighbourEntityId).voxelTypeId;
+
+      if (uint256(neighbourEntityId) == 0 || neighbourVoxelTypeId != GrassVoxelID) {
+        changedEntities[i + 1] = 0;
+        continue;
+      }
+
+      if (neighbourVoxelTypeId == GrassVoxelID && voxelTypeId == DirtVoxelID) {
+        // change ourselves to dirt
+        CAVoxelType.set(callerAddress, neighbourEntityId, DirtVoxelID, DirtVoxelVariantID);
+        changedEntities[i + 1] = neighbourEntityId;
+      } else {
+        changedEntities[i + 1] = 0;
+      }
+    }
+
+    return changedEntities;
+  }
+
   function runInteraction(
     bytes32 interactEntity,
     bytes32[] memory neighbourEntityIds,
     bytes32[] memory childEntityIds,
     bytes32 parentEntity
   ) public returns (bytes32[] memory changedEntities) {
+    address callerAddress = msg.sender;
+    changedEntities = runSingleInteraction(interactEntity, neighbourEntityIds);
+    // for (uint8 i = 0; i < changedEntities.length; i++) {
+    //   if (changedEntities[i] != 0) {
+    //     changedEntities = runSingleInteraction(interactEntity, neighbourEntityIds);
+    //   }
+    // }
+
     // loop over all neighbours and run interaction logic
     // the interaction's used will can be in different namespaces
     // can change type at position

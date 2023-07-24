@@ -367,11 +367,24 @@ export async function setupNetwork() {
           value: to64CharAddress(playerAddress),
         }),
       ]),
-    ][0];
+    ];
     console.log(voxelInstanceOfVoxelType);
+    console.log(voxelType);
+    let useEntity = undefined;
+    voxelInstanceOfVoxelType.forEach((entityId) => {
+      const entityType = getComponentValue(
+        contractComponents.VoxelType,
+        "0x0000000000000000000000000000000000000000000000000000000000000001:" + entityId
+      );
+      if (entityType && entityType.voxelTypeId === voxelType.voxelTypeId) {
+        useEntity = entityId;
+      }
+    });
     if (!voxelInstanceOfVoxelType) {
       return console.warn(`cannot find a voxel (that you own) for voxelType=${voxelType}`);
     }
+    console.log("build");
+    console.log(useEntity);
 
     const preview: string = getVoxelTypePreviewUrl(voxelType) || "";
     const previewVoxelVariant = getVoxelPreviewVariant(voxelType);
@@ -393,11 +406,7 @@ export async function setupNetwork() {
         OwnedBy: contractComponents.OwnedBy, // I think it's needed cause we check to see if the owner owns the voxel we're placing
       },
       execute: () => {
-        return callSystem("tenet_BuildSystem_build", [
-          to64CharAddress(voxelInstanceOfVoxelType),
-          coord,
-          { gasLimit: 100_000_000 },
-        ]);
+        return callSystem("tenet_BuildSystem_build", [to64CharAddress(useEntity), coord, { gasLimit: 100_000_000 }]);
       },
       updates: () => [
         // commented cause we're in creative mode

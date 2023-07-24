@@ -56,6 +56,9 @@ export const useVoxelTypeSearch = ({ layers, filters }: Props) => {
         } as VoxelTypeDesc;
       });
 
+    console.log("here voxels");
+    console.log(allVoxelTypes.current);
+
     allVoxelTypes.current = allVoxelTypes.current.sort((a, b) => {
       if (a.numSpawns > b.numSpawns) {
         return -1;

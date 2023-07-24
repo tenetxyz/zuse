@@ -8,7 +8,7 @@ import {
   MINING_ANIMATION_BOX_VOXEL,
   MINING_ANIMATION_BOX_HAND,
 } from "../hand";
-import { VoxelTypeBaseKey, VoxelVariantDataKey, voxelVariantDataKeyToString } from "../../types";
+import { VoxelBaseTypeId, VoxelVariantDataKey, voxelVariantDataKeyToString } from "../../types";
 
 export interface HandComponent {
   isMining: boolean;
@@ -21,8 +21,8 @@ export const HAND_COMPONENT = "HAND_COMPONENT";
 
 export function registerHandComponent(
   noa: Engine,
-  getSelectedVoxelType: () => VoxelTypeBaseKey | undefined,
-  getVoxelPreviewVariant: (voxelTypeBaseKey: VoxelTypeBaseKey) => VoxelVariantDataKey | undefined,
+  getSelectedVoxelType: () => VoxelBaseTypeId | undefined,
+  getVoxelPreviewVariant: (VoxelBaseTypeId: VoxelBaseTypeId) => VoxelVariantDataKey | undefined,
   voxelMaterials: Map<string, BABYLON.Material | undefined>
 ) {
   // eslint-disable-next-line @typescript-eslint/ban-ts-comment

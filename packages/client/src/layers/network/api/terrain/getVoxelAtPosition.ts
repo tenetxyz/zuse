@@ -11,9 +11,7 @@ export function getEntityAtPosition(
   context: {
     Position: Component<{ x: Type.Number; y: Type.Number; z: Type.Number }>;
     VoxelType: Component<{
-      voxelTypeNamespace: Type.String;
-      voxelTypeId: Type.String;
-      voxelVariantNamespace: Type.String;
+      voxelBaseTypeId: Type.String;
       voxelVariantId: Type.String;
     }>;
     world: World;
@@ -27,7 +25,7 @@ export function getEntityAtPosition(
   return (
     entitiesAtPosition?.find((b) => {
       const voxelType = getComponentValue(VoxelType, b);
-      return voxelType && voxelType.voxelTypeId !== AIR_ID;
+      return voxelType && voxelType.voxelBaseTypeId !== AIR_ID;
     }) ?? entitiesAtPosition[0]
   );
 }
@@ -36,9 +34,7 @@ export function getEcsVoxelType(
   context: {
     Position: Component<{ x: Type.Number; y: Type.Number; z: Type.Number }>;
     VoxelType: Component<{
-      voxelTypeNamespace: Type.String;
-      voxelTypeId: Type.String;
-      voxelVariantNamespace: Type.String;
+      voxelBaseTypeId: Type.String;
       voxelVariantId: Type.String;
     }>;
     world: World;

@@ -21,7 +21,7 @@ export interface CreativeInventorySearch {
 export const useVoxelTypeSearch = ({ layers, filters }: Props) => {
   const {
     network: {
-      contractComponents: { VoxelTypeRegistry },
+      registryComponents: { VoxelTypeRegistry, VoxelVariantsRegistry },
     },
   } = layers;
 

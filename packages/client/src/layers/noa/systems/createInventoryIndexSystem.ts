@@ -17,9 +17,9 @@ import { switchMap } from "rxjs";
 import { NetworkLayer } from "../../network";
 import {
   NoaLayer,
-  voxelTypeToVoxelTypeBaseKey,
-  voxelTypeBaseKeyToEntity,
-  voxelTypeToVoxelTypeBaseKeyString as voxelTypeToVoxelTypeBaseKeyStr,
+  voxelTypeToVoxelBaseTypeId,
+  VoxelBaseTypeIdToEntity,
+  voxelTypeToVoxelBaseTypeIdString as voxelTypeToVoxelBaseTypeIdStr,
 } from "../types";
 import { to64CharAddress } from "../../../utils/entity";
 import { SyncState } from "@latticexyz/network";
@@ -47,7 +47,7 @@ export const getItemTypesIOwn = (
           console.warn(`voxelType of item you own is undefined item=${item.toString()}`);
           return "";
         }
-        return voxelTypeToVoxelTypeBaseKeyStr(voxelType);
+        return voxelTypeToVoxelBaseTypeIdStr(voxelType);
       })
       .filter((item) => item !== "")
   );
@@ -78,8 +78,8 @@ export function createInventoryIndexSystem(network: NetworkLayer, context: NoaLa
   const removeInventoryIndexesForItemsWeNoLongerOwn = () => {
     const itemTypesIOwn = getItemTypesIOwn(OwnedBy, VoxelType, connectedAddress);
     for (const itemType of InventoryIndex.values.value.keys()) {
-      const voxelTypeBaseKeyStr = itemType.description as string;
-      if (!itemTypesIOwn.has(voxelTypeBaseKeyStr)) {
+      const VoxelBaseTypeIdStr = itemType.description as string;
+      if (!itemTypesIOwn.has(VoxelBaseTypeIdStr)) {
         removeComponent(InventoryIndex, itemType.description as Entity);
       }
     }
@@ -99,12 +99,12 @@ export function createInventoryIndexSystem(network: NetworkLayer, context: NoaLa
     const voxelType = getComponentValue(VoxelType, update.entity);
 
     if (voxelType === undefined) return;
-    const voxelTypeBaseKey = voxelTypeToVoxelTypeBaseKeyStr(voxelType) as Entity;
+    const VoxelBaseTypeId = voxelTypeToVoxelBaseTypeIdStr(voxelType) as Entity;
 
     // Assign the first free inventory index
-    if (!hasComponent(InventoryIndex, voxelTypeBaseKey)) {
+    if (!hasComponent(InventoryIndex, VoxelBaseTypeId)) {
       const freeInventoryIndex = firstFreeInventoryIndex(InventoryIndex, 0);
-      setComponent(InventoryIndex, voxelTypeBaseKey, { value: freeInventoryIndex });
+      setComponent(InventoryIndex, VoxelBaseTypeId, { value: freeInventoryIndex });
     }
   });
 }

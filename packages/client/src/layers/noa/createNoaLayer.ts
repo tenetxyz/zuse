@@ -73,14 +73,7 @@ import { definePersistentNotificationComponent, NotificationIcon } from "./compo
 import { createVoxelSelectionOverlaySystem } from "./systems/createVoxelSelectionOverlaySystem";
 import { createSpawnCreationOverlaySystem } from "./systems/createSpawnCreationOverlaySystem";
 import { createSpawnOverlaySystem } from "./systems/createSpawnOverlaySystem";
-import {
-  VoxelVariantDataKey,
-  voxelVariantDataKeyToString,
-  voxelVariantKeyStringToKey,
-  VoxelVariantDataValue,
-  VoxelTypeBaseKey,
-  voxelTypeToVoxelTypeBaseKey,
-} from "./types";
+import { VoxelVariantDataValue, VoxelBaseTypeId, VoxelVariantTypeId } from "./types";
 import { DEFAULT_BLOCK_TEST_DISTANCE } from "./setup/setupNoaEngine";
 import { FocusedUiType } from "./components/FocusedUi";
 
@@ -100,7 +93,6 @@ export function createNoaLayer(network: NetworkLayer) {
     },
     components: { Recipe, LoadingState },
     contractComponents: { OwnedBy, VoxelType },
-    api: { build },
     voxelTypes: { VoxelVariantData, VoxelVariantDataSubscriptions },
     getVoxelPreviewVariant,
   } = network;
@@ -275,7 +267,7 @@ export function createNoaLayer(network: NetworkLayer) {
     });
   }
 
-  function getVoxelTypeInSelectedSlot(): VoxelTypeBaseKey | undefined {
+  function getVoxelTypeInSelectedSlot(): VoxelBaseTypeId | undefined {
     const selectedSlot = getComponentValue(components.SelectedSlot, SingletonEntity)?.value;
     if (selectedSlot === null) return;
     const voxelType = [
@@ -284,7 +276,7 @@ export function createNoaLayer(network: NetworkLayer) {
       }),
     ][0];
     if (voxelType === undefined) return;
-    return voxelTypeToVoxelTypeBaseKey(voxelType);
+    return voxelTypeToVoxelBaseTypeId(voxelType);
   }
 
   function getCurrentPlayerPosition() {
@@ -327,10 +319,9 @@ export function createNoaLayer(network: NetworkLayer) {
   const scene = noa.rendering.getScene();
 
   const voxelMaterials: Map<string, BABYLON.Material | undefined> = new Map();
-  function voxelUVWrapSubscription(voxelVariantKey: VoxelVariantDataKey, voxelVariantData: VoxelVariantDataValue) {
-    const voxelVariantKeyStr = voxelVariantDataKeyToString(voxelVariantKey);
+  function voxelUVWrapSubscription(voxelVariantKey: VoxelVariantTypeId, voxelVariantData: VoxelVariantDataValue) {
     if (voxelVariantData.data?.uvWrap) {
-      // console.log("Registering uvWrap", voxelVariantKeyStr);
+      // console.log("Registering uvWrap", voxelVariantKey);
       const voxelMaterial = noa.rendering.makeStandardMaterial("voxelMaterial-" + voxelVariantKey);
       voxelMaterial.diffuseTexture = new Texture(
         voxelVariantData.data.uvWrap,
@@ -339,9 +330,9 @@ export function createNoaLayer(network: NetworkLayer) {
         true,
         Texture.NEAREST_SAMPLINGMODE
       );
-      voxelMaterials.set(voxelVariantKeyStr, voxelMaterial);
+      voxelMaterials.set(voxelVariantKey, voxelMaterial);
     } else {
-      voxelMaterials.set(voxelVariantKeyStr, undefined);
+      voxelMaterials.set(voxelVariantKey, undefined);
     }
   }
 

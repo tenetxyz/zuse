@@ -7,7 +7,7 @@ import React from "react";
 import { getItemTypesIOwn } from "../../noa/systems/createInventoryIndexSystem";
 import { INVENTORY_HEIGHT, INVENTORY_WIDTH } from "./InventoryHud";
 import { toast } from "react-toastify";
-import { voxelTypeBaseKeyToEntity } from "../../noa/types";
+import { VoxelBaseTypeIdToEntity } from "../../noa/types";
 import { useVoxelTypeSearch } from "../../../utils/useVoxelTypeSearch";
 import { SearchBar } from "./common/SearchBar";
 
@@ -81,7 +81,7 @@ export const VoxelTypeStore: React.FC<Props> = ({ layers, filters, setFilters })
     const itemTypesIOwn = getItemTypesIOwn(OwnedBy, VoxelType, connectedAddress);
     if (
       itemTypesIOwn.has(
-        voxelTypeBaseKeyToEntity({
+        VoxelBaseTypeIdToEntity({
           voxelTypeNamespace: voxelType.namespace,
           voxelTypeId: voxelType.voxelType,
         })

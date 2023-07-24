@@ -24,10 +24,10 @@ import { Inventory } from "./Inventory";
 import { Layers } from "../../../types";
 import {
   entityToVoxelType,
-  voxelTypeToVoxelTypeBaseKeyString,
+  voxelTypeToVoxelBaseTypeIdString,
   voxelTypeDataKeyToVoxelVariantDataKey,
-  voxelTypeToVoxelTypeBaseKey,
-  voxelTypeBaseKeyToVoxelTypeDataKey,
+  voxelTypeToVoxelBaseTypeId,
+  VoxelBaseTypeIdToVoxelTypeDataKey,
 } from "../../noa/types";
 import { firstFreeInventoryIndex } from "../../noa/systems/createInventoryIndexSystem";
 import { StatusHud } from "./StatusHud";
@@ -74,7 +74,7 @@ export function registerInventoryHud() {
           scan((acc, curr) => {
             const voxelType = getComponentValue(VoxelType, curr.entity);
             if (!voxelType) return { ...acc };
-            const voxelTypeString = voxelTypeToVoxelTypeBaseKeyString(voxelType);
+            const voxelTypeString = voxelTypeToVoxelBaseTypeIdString(voxelType);
             acc[voxelTypeString] = acc[voxelTypeString] ?? 0;
             if (curr.type === UpdateType.Exit) {
               return { ...acc };
@@ -214,7 +214,7 @@ export function registerInventoryHud() {
             HasValue(OwnedBy, {
               value: to64CharAddress(connectedAddress.get()),
             }),
-            HasValue(VoxelType, voxelTypeBaseKeyToVoxelTypeDataKey(voxelTypeToVoxelTypeBaseKey(voxelTypeIdAtSlot))),
+            HasValue(VoxelType, VoxelBaseTypeIdToVoxelTypeDataKey(voxelTypeToVoxelBaseTypeId(voxelTypeIdAtSlot))),
           ]),
         ];
 
@@ -238,7 +238,7 @@ export function registerInventoryHud() {
       const Slots = [...range(INVENTORY_HEIGHT * INVENTORY_WIDTH)].map((i) => {
         const voxelType = [...getEntitiesWithValue(InventoryIndex, { value: i })][0];
         const quantity = voxelType && numVoxelsIOwnOfType[voxelType];
-        const voxelTypePreview = (voxelType && getVoxelTypePreviewUrl(voxelTypeToVoxelTypeBaseKey(voxelType))) || "";
+        const voxelTypePreview = (voxelType && getVoxelTypePreviewUrl(voxelTypeToVoxelBaseTypeId(voxelType))) || "";
         return (
           <Slot
             key={"slot" + i}

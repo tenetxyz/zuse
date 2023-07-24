@@ -25,14 +25,11 @@ import {
   NoaBlockType,
   VoxelVariantData,
   VoxelTypeDataKey,
-  VoxelVariantDataKey,
   VoxelVariantDataValue,
-  voxelVariantDataKeyToString,
-  voxelVariantKeyStringToKey,
   voxelTypeToEntity,
-  VoxelTypeBaseKey,
-  voxelTypeBaseKeyStrToVoxelTypeRegistryKeyStr,
+  VoxelBaseTypeId,
   InterfaceVoxel,
+  VoxelVariantTypeId,
 } from "../layers/noa/types";
 import { Textures, UVWraps } from "../layers/noa/constants";
 import { TENET_NAMESPACE } from "../constants";
@@ -46,13 +43,13 @@ import { BaseCreationInWorld } from "../layers/react/components/RegisterCreation
 export type SetupNetworkResult = Awaited<ReturnType<typeof setupNetwork>>;
 
 export type VoxelVariantSubscription = (
-  voxelVariantKey: VoxelVariantDataKey,
+  voxelVariantTypeId: VoxelVariantTypeId,
   voxelVariantData: VoxelVariantDataValue
 ) => void;
 
 const giveComponentsAHumanReadableId = (contractComponents: any) => {
   Object.entries(contractComponents).forEach(([name, component]) => {
-    component.id = name;
+    (component as any).id = name;
   });
 };
 
@@ -257,7 +254,7 @@ export async function setupNetwork() {
   const actions = createActionSystem<{
     actionType: string;
     coord?: VoxelCoord;
-    voxelVariantKey?: VoxelVariantDataKey;
+    voxelVariantTypeId?: VoxelVariantTypeId;
     preview?: string;
   }>(world, result.txReduced$);
 
@@ -274,91 +271,65 @@ export async function setupNetwork() {
   const VoxelVariantData: VoxelVariantData = new Map();
   const VoxelVariantDataSubscriptions: VoxelVariantSubscription[] = [];
   // TODO: should load initial ones from chain too
-  VoxelVariantData.set(
-    voxelVariantDataKeyToString({
-      voxelVariantNamespace: TENET_NAMESPACE,
-      voxelVariantId: AIR_ID,
-    }),
-    {
-      index: 0,
-      data: undefined,
-    }
-  );
-  VoxelVariantData.set(
-    voxelVariantDataKeyToString({
-      voxelVariantNamespace: TENET_NAMESPACE,
-      voxelVariantId: DIRT_ID,
-    }),
-    {
-      index: 1,
-      data: {
-        type: NoaBlockType.BLOCK,
-        material: Textures.Dirt,
-        uvWrap: UVWraps.Dirt,
-      },
-    }
-  );
-  VoxelVariantData.set(
-    voxelVariantDataKeyToString({
-      voxelVariantNamespace: TENET_NAMESPACE,
-      voxelVariantId: GRASS_ID,
-    }),
-    {
-      index: 2,
-      data: {
-        type: NoaBlockType.BLOCK,
-        material: [Textures.Grass, Textures.Dirt, Textures.GrassSide],
-        uvWrap: UVWraps.Grass,
-      },
-    }
-  );
-  VoxelVariantData.set(
-    voxelVariantDataKeyToString({
-      voxelVariantNamespace: TENET_NAMESPACE,
-      voxelVariantId: BEDROCK_ID,
-    }),
-    {
-      index: 3,
-      data: {
-        type: NoaBlockType.BLOCK,
-        material: Textures.Bedrock,
-        uvWrap: UVWraps.Bedrock,
-      },
-    }
-  );
+  VoxelVariantData.set(AIR_ID, {
+    index: 0,
+    data: undefined,
+  });
+  VoxelVariantData.set(DIRT_ID, {
+    index: 1,
+    data: {
+      type: NoaBlockType.BLOCK,
+      material: Textures.Dirt,
+      uvWrap: UVWraps.Dirt,
+    },
+  });
+  VoxelVariantData.set(GRASS_ID, {
+    index: 2,
+    data: {
+      type: NoaBlockType.BLOCK,
+      material: [Textures.Grass, Textures.Dirt, Textures.GrassSide],
+      uvWrap: UVWraps.Grass,
+    },
+  });
+  VoxelVariantData.set(BEDROCK_ID, {
+    index: 3,
+    data: {
+      type: NoaBlockType.BLOCK,
+      material: Textures.Bedrock,
+      uvWrap: UVWraps.Bedrock,
+    },
+  });
 
-  const VoxelVariantIndexToKey: Map<number, VoxelVariantDataKey> = new Map();
+  const VoxelVariantIndexToKey: Map<number, VoxelVariantTypeId> = new Map();
 
-  function voxelIndexSubscription(voxelVariantKey: VoxelVariantDataKey, voxelVariantData: VoxelVariantDataValue) {
-    VoxelVariantIndexToKey.set(voxelVariantData.index, voxelVariantKey);
+  function voxelIndexSubscription(voxelVariantTypeId: VoxelVariantTypeId, voxelVariantData: VoxelVariantDataValue) {
+    VoxelVariantIndexToKey.set(voxelVariantData.index, voxelVariantTypeId);
   }
 
   VoxelVariantDataSubscriptions.push(voxelIndexSubscription);
 
   // initial run
-  for (const [voxelVariantKey, voxelVariantData] of VoxelVariantData.entries()) {
-    voxelIndexSubscription(voxelVariantKeyStringToKey(voxelVariantKey), voxelVariantData);
+  for (const [voxelVariantTypeId, voxelVariantData] of VoxelVariantData.entries()) {
+    voxelIndexSubscription(voxelVariantTypeId, voxelVariantData);
   }
 
-  function getVoxelIconUrl(voxelTypeKey: VoxelVariantDataKey): string | undefined {
-    const voxel = VoxelVariantData.get(voxelVariantDataKeyToString(voxelTypeKey))?.data;
+  function getVoxelIconUrl(voxelVariantTypeId: VoxelVariantTypeId): string | undefined {
+    const voxel = VoxelVariantData.get(voxelVariantTypeId)?.data;
     if (!voxel) return undefined;
     return Array.isArray(voxel.material) ? voxel.material[0] : voxel.material;
   }
 
-  function getVoxelPreviewVariant(voxelTypeBaseKey: VoxelTypeBaseKey): VoxelVariantDataKey | undefined {
-    const voxelTypeRegistryKey = voxelTypeBaseKeyStrToVoxelTypeRegistryKeyStr(voxelTypeBaseKey) as Entity;
-    const voxelTypeRecord = getComponentValue(contractComponents.VoxelTypeRegistry, voxelTypeRegistryKey);
+  function getVoxelPreviewVariant(VoxelBaseTypeId: VoxelBaseTypeId): VoxelVariantTypeId | undefined {
+    const voxelTypeRecord = getComponentValue(registryComponents.VoxelTypeRegistry, VoxelBaseTypeId as Entity);
     return (
       voxelTypeRecord && {
-        voxelVariantNamespace: voxelTypeRecord.previewVoxelVariantNamespace,
         voxelVariantId: voxelTypeRecord.previewVoxelVariantId,
       }
     );
   }
 
-  function getVoxelTypePreviewUrl(voxelTypeBaseKey: VoxelTypeBaseKey): string | undefined {
-    const previewVoxelVariant = getVoxelPreviewVariant(voxelTypeBaseKey);
+  function getVoxelTypePreviewUrl(VoxelBaseTypeId: VoxelBaseTypeId): string | undefined {
+    const previewVoxelVariant = getVoxelPreviewVariant(VoxelBaseTypeId);
     return previewVoxelVariant && getVoxelIconUrl(previewVoxelVariant);
   }
 
@@ -390,7 +361,7 @@ export async function setupNetwork() {
     return getComponentValue(contractComponents.Name, entity)?.value;
   }
 
-  function build(voxelType: VoxelTypeBaseKey, coord: VoxelCoord) {
+  function build(voxelType: VoxelBaseTypeId, coord: VoxelCoord) {
     const voxelInstanceOfVoxelType = [
       ...runQuery([
         HasValue(contractComponents.OwnedBy, {
@@ -464,14 +435,13 @@ export async function setupNetwork() {
     const voxel = getEntityAtPosition(coord);
     const airEntity = world.registerEntity();
 
-    const voxelVariantKey: VoxelVariantDataKey = {
-      voxelVariantNamespace: voxelTypeKey.voxelVariantNamespace,
+    const voxelVariantTypeId: VoxelVariantDataKey = {
       voxelVariantId: voxelTypeKey.voxelVariantId,
     };
 
     actions.add({
       id: `mine+${coord.x}/${coord.y}/${coord.z}` as Entity,
-      metadata: { actionType: "mine", coord, voxelVariantKey },
+      metadata: { actionType: "mine", coord, voxelVariantTypeId },
       requirement: () => true,
       components: {
         Position: contractComponents.Position,
@@ -481,9 +451,7 @@ export async function setupNetwork() {
       execute: () => {
         return callSystem("tenet_MineSystem_mine", [
           coord,
-          voxelTypeKey.voxelTypeNamespace,
           voxelTypeKey.voxelTypeId,
-          voxelTypeKey.voxelVariantNamespace,
           voxelTypeKey.voxelVariantId,
           { gasLimit: 100_000_000 },
         ]);
@@ -498,9 +466,7 @@ export async function setupNetwork() {
           component: "VoxelType",
           entity: airEntity,
           value: {
-            voxelTypeNamespace: TENET_NAMESPACE,
             voxelTypeId: AIR_ID,
-            voxelVariantNamespace: TENET_NAMESPACE,
             voxelVariantId: AIR_ID,
           },
         },
@@ -654,7 +620,7 @@ export async function setupNetwork() {
 
   function activate(entity: Entity) {
     const voxelTypeObj = getComponentValue(contractComponents.VoxelType, entity);
-    const preview = getVoxelTypePreviewUrl(voxelTypeObj as VoxelTypeBaseKey);
+    const preview = getVoxelTypePreviewUrl(voxelTypeObj as VoxelBaseTypeId);
 
     actions.add({
       id: `activateVoxel+entity=${entity}` as Entity,

@@ -25,14 +25,6 @@ export default mudConfig({
         voxelVariantId: "bytes32",
       },
     },
-    CAVoxelTypeDefs: {
-      keySchema: {
-        voxelTypeId: "bytes32",
-      },
-      schema: {
-        voxelTypeIds: "bytes32[]",
-      },
-    },
   },
   modules: [
     {
@@ -44,11 +36,6 @@ export default mudConfig({
       name: "KeysInTableModule",
       root: true,
       args: [resolveTableId("CAPosition")],
-    },
-    {
-      name: "KeysInTableModule",
-      root: true,
-      args: [resolveTableId("CAVoxelTypeDefs")],
     },
   ],
 });

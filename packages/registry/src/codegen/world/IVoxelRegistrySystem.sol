@@ -9,6 +9,7 @@ interface IVoxelRegistrySystem {
   function registerVoxelType(
     string memory voxelTypeName,
     bytes32 voxelTypeId,
+    bytes32[] memory childVoxelTypeIds,
     bytes32 previewVoxelVariantId,
     address caAddress
   ) external;

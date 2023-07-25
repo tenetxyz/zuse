@@ -14,10 +14,23 @@ function registerVoxelVariant(bytes32 voxelVariantId, VoxelVariantsRegistryData 
   );
 }
 
-function registerVoxelType(string memory name, bytes32 voxelTypeId, bytes32 voxelVariantId, address worldAddress) {
+function registerVoxelType(
+  string memory name,
+  bytes32 voxelTypeId,
+  bytes32[] memory childVoxelTypeIds,
+  bytes32 voxelVariantId,
+  address worldAddress
+) {
   safeCall(
     REGISTRY_WORLD,
-    abi.encodeWithSignature(REGISTER_VOXEL_TYPE_SIG, name, voxelTypeId, voxelVariantId, worldAddress),
+    abi.encodeWithSignature(
+      REGISTER_VOXEL_TYPE_SIG,
+      name,
+      voxelTypeId,
+      childVoxelTypeIds,
+      voxelVariantId,
+      worldAddress
+    ),
     "registerVoxelType"
   );
 }

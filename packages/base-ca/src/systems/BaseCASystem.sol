@@ -5,34 +5,18 @@ import { IWorld } from "@base-ca/src/codegen/world/IWorld.sol";
 import { System } from "@latticexyz/world/src/System.sol";
 import { getKeysWithValue } from "@latticexyz/world/src/modules/keyswithvalue/getKeysWithValue.sol";
 import { hasKey } from "@latticexyz/world/src/modules/keysintable/hasKey.sol";
-import { CAVoxelTypeDefs, CAVoxelTypeDefsTableId, CAVoxelType, CAPosition, CAPositionData, CAPositionTableId } from "@base-ca/src/codegen/Tables.sol";
+import { CAVoxelType, CAPosition, CAPositionData, CAPositionTableId } from "@base-ca/src/codegen/Tables.sol";
 import { VoxelCoord } from "@tenet-utils/src/Types.sol";
-import { EMPTY_ID, AirVoxelID, AirVoxelVariantID, DirtVoxelID, DirtVoxelVariantID, GrassVoxelID, GrassVoxelVariantID } from "@base-ca/src/Constants.sol";
+import { EMPTY_ID, AirVoxelID, AirVoxelVariantID, DirtVoxelID, BedrockVoxelID, DirtVoxelVariantID, GrassVoxelID, GrassVoxelVariantID, BedrockVoxelVariantID } from "@base-ca/src/Constants.sol";
 
 contract BaseCASystem is System {
-  function defineVoxelTypeDefs() public {
-    require(
-      !hasKey(CAVoxelTypeDefsTableId, CAVoxelTypeDefs.encodeKeyTuple(AirVoxelID)) &&
-        !hasKey(CAVoxelTypeDefsTableId, CAVoxelTypeDefs.encodeKeyTuple(DirtVoxelID)) &&
-        !hasKey(CAVoxelTypeDefsTableId, CAVoxelTypeDefs.encodeKeyTuple(GrassVoxelID)),
-      "The voxel type's has already been defined for this CA"
-    );
-
-    bytes32[] memory airChildVoxelTypes = new bytes32[](1);
-    airChildVoxelTypes[0] = AirVoxelID;
-    CAVoxelTypeDefs.set(AirVoxelID, airChildVoxelTypes);
-
-    bytes32[] memory dirtChildVoxelTypes = new bytes32[](1);
-    dirtChildVoxelTypes[0] = DirtVoxelID;
-    CAVoxelTypeDefs.set(DirtVoxelID, dirtChildVoxelTypes);
-
-    bytes32[] memory grassChildVoxelTypes = new bytes32[](1);
-    grassChildVoxelTypes[0] = GrassVoxelID;
-    CAVoxelTypeDefs.set(GrassVoxelID, grassChildVoxelTypes);
-  }
-
   function isVoxelTypeAllowed(bytes32 voxelTypeId) public pure returns (bool) {
-    if (voxelTypeId == AirVoxelID || voxelTypeId == DirtVoxelID || voxelTypeId == GrassVoxelID) {
+    if (
+      voxelTypeId == AirVoxelID ||
+      voxelTypeId == DirtVoxelID ||
+      voxelTypeId == GrassVoxelID ||
+      voxelTypeId == BedrockVoxelID
+    ) {
       return true;
     }
     return false;
@@ -66,17 +50,19 @@ contract BaseCASystem is System {
       CAPosition.set(callerAddress, entity, CAPositionData({ x: coord.x, y: coord.y, z: coord.z }));
     }
 
-    bytes32 voxelVariantId = updateVoxelVariant(voxelTypeId, entity);
+    bytes32 voxelVariantId = getVoxelVariant(voxelTypeId, entity);
     CAVoxelType.set(callerAddress, entity, voxelTypeId, voxelVariantId);
   }
 
-  function updateVoxelVariant(bytes32 voxelTypeId, bytes32 entity) public returns (bytes32) {
+  function getVoxelVariant(bytes32 voxelTypeId, bytes32 entity) public view returns (bytes32) {
     if (voxelTypeId == AirVoxelID) {
       return AirVoxelVariantID;
     } else if (voxelTypeId == DirtVoxelID) {
       return DirtVoxelVariantID;
     } else if (voxelTypeId == GrassVoxelID) {
       return GrassVoxelVariantID;
+    } else if (voxelTypeId == BedrockVoxelID) {
+      return BedrockVoxelVariantID;
     } else {
       revert("This voxel type is not allowed in this CA");
     }
@@ -91,7 +77,7 @@ contract BaseCASystem is System {
       CAPosition.set(callerAddress, entity, CAPositionData({ x: coord.x, y: coord.y, z: coord.z }));
     }
     // set to Air
-    bytes32 airVoxelVariantId = updateVoxelVariant(AirVoxelID, entity);
+    bytes32 airVoxelVariantId = getVoxelVariant(AirVoxelID, entity);
     CAVoxelType.set(callerAddress, entity, AirVoxelID, airVoxelVariantId);
   }
 

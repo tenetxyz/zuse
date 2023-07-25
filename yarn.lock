@@ -1270,6 +1270,12 @@ __metadata:
   languageName: node
   linkType: soft
 
+"@latticexyz/store-cache@link:../../../mud/packages/store-cache::locator=client%40workspace%3Apackages%2Fclient":
+  version: 0.0.0-use.local
+  resolution: "@latticexyz/store-cache@link:../../../mud/packages/store-cache::locator=client%40workspace%3Apackages%2Fclient"
+  languageName: node
+  linkType: soft
+
 "@latticexyz/store@link:../../../mud/packages/store::locator=%40tenetxyz%2Fcontracts%40workspace%3Apackages%2Fcontracts":
   version: 0.0.0-use.local
   resolution: "@latticexyz/store@link:../../../mud/packages/store::locator=%40tenetxyz%2Fcontracts%40workspace%3Apackages%2Fcontracts"
@@ -2388,6 +2394,7 @@ box-intersect@fenomas/box-intersect:
     "@latticexyz/solecs": "link:../../../mud/packages/solecs"
     "@latticexyz/std-client": "link:../../../mud/packages/std-client"
     "@latticexyz/std-contracts": "link:../../../mud/packages/std-contracts"
+    "@latticexyz/store-cache": "link:../../../mud/packages/store-cache"
     "@latticexyz/utils": "link:../../../mud/packages/utils"
     "@latticexyz/world": "link:../../../mud/packages/world"
     "@tenetxyz/contracts": "workspace:*"

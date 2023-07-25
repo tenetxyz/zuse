@@ -5,6 +5,7 @@ import { Terrain, TerrainState } from "./types";
 import { getTerrain } from "./utils";
 import { Air, AIR_ID, Bedrock, Dirt, Grass } from "./occurrence";
 import { VoxelTypeKey, VoxelTypeKeyInMudTable } from "@tenetxyz/layers/noa/types";
+import { useRow } from "@latticexyz/react";
 
 export function getEntityAtPosition(
   context: {

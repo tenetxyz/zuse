@@ -39,7 +39,9 @@ import { voxelCoordToString } from "../utils/coord";
 import { toast } from "react-toastify";
 import { abiDecode } from "../utils/abi";
 import { BaseCreationInWorld } from "../layers/react/components/RegisterCreation";
+import { createDatabaseClient } from "@latticexyz/store-cache";
 
+export type TenetSToreCache = ReturnType<typeof createDatabaseClient<typeof storeConfig>>;
 export type SetupNetworkResult = Awaited<ReturnType<typeof setupNetwork>>;
 
 export type VoxelVariantSubscription = (

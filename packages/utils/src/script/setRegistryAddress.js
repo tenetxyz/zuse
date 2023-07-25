@@ -58,6 +58,6 @@ fs.readFile(solidityFilePath, 'utf8', (err, data) => {
             console.error('Error writing to file:', err);
             return;
         }
-        console.log('World address replaced successfully.');
+        console.log(`World address replaced successfully to ${worldAddress}.`);
     });
 });

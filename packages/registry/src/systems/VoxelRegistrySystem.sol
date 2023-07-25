@@ -25,12 +25,15 @@ contract VoxelRegistrySystem is System {
     );
     require(bytes(voxelTypeName).length > 0, "Name cannot be empty");
 
+    uint32 scale;
+
     VoxelTypeRegistry.set(
       voxelTypeId,
       VoxelTypeRegistryData({
         caAddress: caAddress,
         previewVoxelVariantId: previewVoxelVariantId,
         creator: tx.origin,
+        scale: scale,
         numSpawns: 0,
         name: voxelTypeName
       })

@@ -19,6 +19,7 @@ export default mudConfig({
       },
       schema: {
         caAddress: "address",
+        scale: "uint32",
         previewVoxelVariantId: "bytes32",
         creator: "address",
         numSpawns: "uint256",

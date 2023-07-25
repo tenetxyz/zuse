@@ -2,7 +2,7 @@
 pragma solidity >=0.8.0;
 import { OwnedBy, OwnedByTableId, VoxelType } from "@tenet-contracts/src/codegen/Tables.sol";
 import { System } from "@latticexyz/world/src/System.sol";
-import { addressToEntityKey } from "../Utils.sol";
+import { addressToEntityKey } from "@tenet-utils/src/Utils.sol";
 import { getKeysWithValue } from "@latticexyz/world/src/modules/keyswithvalue/getKeysWithValue.sol";
 
 // If we call this RemoveVoxelSystem, the foundry codegen fails cause they set a limit on the number of chars for an interface

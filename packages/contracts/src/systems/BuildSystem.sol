@@ -6,9 +6,10 @@ import { System } from "@latticexyz/world/src/System.sol";
 import { VoxelCoord } from "../Types.sol";
 import { OwnedBy, Position, PositionTableId, VoxelType, VoxelTypeData } from "@tenet-contracts/src/codegen/Tables.sol";
 import { AirID } from "./voxels/AirVoxelSystem.sol";
-import { addressToEntityKey, enterVoxelIntoWorld, updateVoxelVariant, increaseVoxelTypeSpawnCount } from "../Utils.sol";
+import { enterVoxelIntoWorld, updateVoxelVariant, increaseVoxelTypeSpawnCount } from "../Utils.sol";
 import { getUniqueEntity } from "@latticexyz/world/src/modules/uniqueentity/getUniqueEntity.sol";
 import { IWorld } from "@tenet-contracts/src/codegen/world/IWorld.sol";
+import { addressToEntityKey } from "@tenet-utils/src/Utils.sol";
 
 contract BuildSystem is System {
   function build(bytes32 entity, VoxelCoord memory coord) public returns (bytes32) {

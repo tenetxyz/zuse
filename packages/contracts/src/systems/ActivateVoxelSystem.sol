@@ -3,7 +3,7 @@ pragma solidity >=0.8.0;
 
 import { System } from "@latticexyz/world/src/System.sol";
 import { PositionTableId, VoxelType, VoxelTypeData } from "@tenet-contracts/src/codegen/Tables.sol";
-import { safeCall } from "@tenet-contracts/src/Utils.sol";
+import { safeCall } from "@tenet-utils/src/CallUtils.sol";
 import { Strings } from "@openzeppelin/contracts/utils/Strings.sol";
 import { hasKey } from "@latticexyz/world/src/modules/keysintable/hasKey.sol";
 import { IWorld } from "@tenet-contracts/src/codegen/world/IWorld.sol";

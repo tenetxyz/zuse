@@ -5,7 +5,8 @@ import { hasKey } from "@latticexyz/world/src/modules/keysintable/hasKey.sol";
 import { query, QueryFragment, QueryType } from "@latticexyz/world/src/modules/keysintable/query.sol";
 import { OwnedBy, VoxelType, OwnedByTableId, VoxelTypesAllowed, VoxelTypeTableId } from "@tenet-contracts/src/codegen/Tables.sol";
 import { System } from "@latticexyz/world/src/System.sol";
-import { addressToEntityKey, removeDuplicates } from "../Utils.sol";
+import { addressToEntityKey } from "@tenet-utils/src/Utils.sol";
+import { removeDuplicates } from "@tenet-utils/src/Utils.sol";
 import { getUniqueEntity } from "@latticexyz/world/src/modules/uniqueentity/getUniqueEntity.sol";
 import { console } from "forge-std/console.sol";
 

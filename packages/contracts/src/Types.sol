@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: MIT
 pragma solidity >=0.8.0;
-import { VoxelCoord } from "@tenet-registry/src/Types.sol";
+import { VoxelCoord } from "@tenet-utils/src/Types.sol";
 
 struct Coord {
   int32 x;

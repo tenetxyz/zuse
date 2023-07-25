@@ -9,7 +9,6 @@ import { Coord, VoxelCoord } from "@tenet-contracts/src/Types.sol";
 import { getKeysWithValue } from "@latticexyz/world/src/modules/keyswithvalue/getKeysWithValue.sol";
 import { Position, PositionData, PositionTableId, VoxelType, VoxelTypeData } from "@tenet-contracts/src/codegen/Tables.sol";
 import { BlockDirection } from "@tenet-contracts/src/Types.sol";
-import { Strings } from "@openzeppelin/contracts/utils/Strings.sol";
 
 function getCallerNamespace(address caller) view returns (bytes16) {
   require(uint256(SystemRegistry.get(caller)) != 0, "Caller is not a system"); // cannot be called by an EOA
@@ -102,18 +101,6 @@ function updateVoxelVariant(address world, bytes32 entity) {
   // }
 }
 
-function safeStaticCallFunctionSelector(
-  address world,
-  bytes4 functionPointer,
-  bytes memory args
-) returns (bytes memory) {
-  return safeStaticCall(world, bytes.concat(functionPointer, args), "staticcall function selector");
-}
-
-function addressToEntityKey(address addr) pure returns (bytes32) {
-  return bytes32(uint256(uint160(addr)));
-}
-
 // Divide with rounding down like Math.floor(a/b), not rounding towards zero
 function div(int32 a, int32 b) pure returns (int32) {
   int32 result = a / b;
@@ -125,37 +112,6 @@ function getChunkCoord(VoxelCoord memory coord) pure returns (Coord memory) {
   return Coord(div(coord.x, CHUNK), div(coord.z, CHUNK));
 }
 
-function int32ToString(int32 num) pure returns (string memory) {
-  return Strings.toString(int256(num));
-}
-
-function bytes4ToString(bytes4 num) pure returns (string memory) {
-  return Strings.toString(uint256(uint32(num)));
-}
-
-function add(VoxelCoord memory a, VoxelCoord memory b) pure returns (VoxelCoord memory) {
-  return VoxelCoord(a.x + b.x, a.y + b.y, a.z + b.z);
-}
-
-function sub(VoxelCoord memory a, VoxelCoord memory b) pure returns (VoxelCoord memory) {
-  return VoxelCoord(a.x - b.x, a.y - b.y, a.z - b.z);
-}
-
-function voxelCoordToString(VoxelCoord memory coord) pure returns (string memory) {
-  return
-    string(
-      abi.encodePacked("(", int32ToString(coord.x), ", ", int32ToString(coord.y), ", ", int32ToString(coord.z), ")")
-    );
-}
-
-function initializeArray(uint256 x, uint256 y) pure returns (uint256[][] memory) {
-  uint256[][] memory arr = new uint256[][](x);
-  for (uint256 i; i < x; i++) {
-    arr[i] = new uint256[](y);
-  }
-  return arr;
-}
-
 function getEntitiesAtCoord(VoxelCoord memory coord) view returns (bytes32[][] memory) {
   return getKeysWithValue(PositionTableId, Position.encode(coord.x, coord.y, coord.z));
 }
@@ -164,112 +120,6 @@ function increaseVoxelTypeSpawnCount(bytes16 voxelTypeNamespace, bytes32 voxelTy
   // VoxelTypeRegistryData memory voxelTypeRegistryData = VoxelTypeRegistry.get(voxelTypeNamespace, voxelTypeId);
   // voxelTypeRegistryData.numSpawns += 1;
   // VoxelTypeRegistry.set(voxelTypeNamespace, voxelTypeId, voxelTypeRegistryData);
-}
-
-// Thus function gets around solidity's horrible lack of dynamic arrays, sets, and data structure support
-// Note: this is O(n^2) and will be slow for large arrays
-function removeDuplicates(bytes[] memory arr) pure returns (bytes[] memory) {
-  bytes[] memory uniqueArray = new bytes[](arr.length);
-  uint uniqueCount = 0;
-
-  for (uint i = 0; i < arr.length; i++) {
-    bool isDuplicate = false;
-    for (uint j = 0; j < uniqueCount; j++) {
-      if (keccak256(arr[i]) == keccak256(uniqueArray[j])) {
-        isDuplicate = true;
-        break;
-      }
-    }
-    if (!isDuplicate) {
-      uniqueArray[uniqueCount] = arr[i];
-      uniqueCount++;
-    }
-  }
-
-  bytes[] memory result = new bytes[](uniqueCount);
-  for (uint i = 0; i < uniqueCount; i++) {
-    result[i] = uniqueArray[i];
-  }
-  return result;
-}
-
-function removeEntityFromArray(bytes32[] memory entities, bytes32 entity) pure returns (bytes32[] memory) {
-  bytes32[] memory updatedArray = new bytes32[](entities.length - 1);
-  uint index = 0;
-
-  // Copy elements from the original array to the updated array, excluding the entity
-  for (uint i = 0; i < entities.length; i++) {
-    if (entities[i] != entity) {
-      updatedArray[index] = entities[i];
-      index++;
-    }
-  }
-
-  return updatedArray;
-}
-
-function hasEntity(bytes32[] memory entities) pure returns (bool) {
-  for (uint256 i; i < entities.length; i++) {
-    if (uint256(entities[i]) != 0) {
-      return true;
-    }
-  }
-  return false;
-}
-
-enum CallType {
-  Call,
-  StaticCall,
-  DelegateCall
-}
-
-// bubbles up a revert reason string if the call fails
-function safeGenericCall(
-  CallType callType,
-  address target,
-  bytes memory callData,
-  string memory functionName
-) returns (bytes memory) {
-  bool success;
-  bytes memory returnData;
-
-  if (callType == CallType.Call) {
-    (success, returnData) = target.call(callData);
-  } else if (callType == CallType.StaticCall) {
-    (success, returnData) = target.staticcall(callData);
-  } else if (callType == CallType.DelegateCall) {
-    (success, returnData) = target.delegatecall(callData);
-  }
-
-  if (!success) {
-    // if there is a return reason string
-    if (returnData.length > 0) {
-      // bubble up any reason for revert
-      assembly {
-        let returnDataSize := mload(returnData)
-        revert(add(32, returnData), returnDataSize)
-      }
-    } else {
-      string memory revertMsg = string(
-        abi.encodePacked(functionName, " call reverted. Maybe the params aren't right?")
-      );
-      revert(revertMsg);
-    }
-  }
-
-  return returnData;
-}
-
-function safeCall(address target, bytes memory callData, string memory functionName) returns (bytes memory) {
-  return safeGenericCall(CallType.Call, target, callData, functionName);
-}
-
-function safeStaticCall(address target, bytes memory callData, string memory functionName) returns (bytes memory) {
-  return safeGenericCall(CallType.StaticCall, target, callData, functionName);
-}
-
-function safeDelegateCall(address target, bytes memory callData, string memory functionName) returns (bytes memory) {
-  return safeGenericCall(CallType.DelegateCall, target, callData, functionName);
 }
 
 function getVoxelCoordStrict(bytes32 entity) view returns (VoxelCoord memory) {
@@ -300,8 +150,4 @@ function entitiesToRelativeVoxelCoords(
     );
   }
   return relativeCoords;
-}
-
-function voxelCoordsAreEqual(VoxelCoord memory c1, VoxelCoord memory c2) pure returns (bool) {
-  return c1.x == c2.x && c1.y == c2.y && c1.z == c2.z;
 }

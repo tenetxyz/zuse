@@ -63,7 +63,7 @@ contract MineSystem is System {
     airEntity = getUniqueEntity();
     // TODO: We don't need necessarily need to get the air voxel type from the registry, we could just use the AirID
     // Maybe consider doing this for performance reasons
-    VoxelType.set(airEntity, AirID, "");
+    VoxelType.set(airEntity, AirID, AirID);
     Position.set(airEntity, coord.x, coord.y, coord.z);
     enterVoxelIntoWorld(_world(), airEntity);
     updateVoxelVariant(_world(), airEntity);

@@ -96,10 +96,10 @@ function exitVoxelFromWorld(address world, bytes32 entity) {
 
 function updateVoxelVariant(address world, bytes32 entity) {
   VoxelTypeData memory entityVoxelType = VoxelType.get(entity);
-  bytes32 voxelVariantId = getVoxelVariant(world, entityVoxelType.voxelTypeId, entity);
-  if (voxelVariantId != entityVoxelType.voxelVariantId) {
-    VoxelType.set(entity, entityVoxelType.voxelTypeId, voxelVariantId);
-  }
+  // bytes32 voxelVariantId = getVoxelVariant(world, entityVoxelType.voxelTypeId, entity);
+  // if (voxelVariantId != entityVoxelType.voxelVariantId) {
+  //   VoxelType.set(entity, entityVoxelType.voxelTypeId, voxelVariantId);
+  // }
 }
 
 function safeStaticCallFunctionSelector(

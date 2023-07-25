@@ -92,7 +92,7 @@ export function createNoaLayer(network: NetworkLayer) {
       connectedAddress,
     },
     components: { Recipe, LoadingState },
-    contractComponents: { OwnedBy, VoxelType },
+    contractComponents: { VoxelType },
     voxelTypes: { VoxelVariantData, VoxelVariantDataSubscriptions },
     getVoxelPreviewVariant,
   } = network;

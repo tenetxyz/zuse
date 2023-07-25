@@ -1,7 +1,6 @@
 import React from "react";
 import { Layers } from "../../../types";
 import { Entity } from "@latticexyz/recs";
-import { useCreationSearch } from "../../../utils/useCreationSearch";
 import { useClassifierSearch } from "./useClassifierSearch";
 import { CreationStoreFilters } from "./CreationStore";
 import { SetState } from "../../../utils/types";
@@ -43,11 +42,6 @@ const ClassifierStore: React.FC<Props> = ({
   setSelectedClassifier,
   setShowAllCreations,
 }: Props) => {
-  const { creationsToDisplay } = useCreationSearch({
-    layers,
-    filters: filters.creationFilter,
-  });
-
   const { classifiersToDisplay } = useClassifierSearch({
     layers,
     filters,

@@ -22,7 +22,7 @@ function getEntityPositionStrict(bytes32 entity) view returns (PositionData memo
   bytes32[] memory positionKeyTuple = new bytes32[](1);
   positionKeyTuple[0] = bytes32((entity));
   require(hasKey(PositionTableId, positionKeyTuple), "Entity must have a position"); // even if its air, it must have a position
-  return Position.get(entity);
+  return Position.get(1, entity);
 }
 
 function calculateBlockDirection(
@@ -79,7 +79,7 @@ function getVoxelVariant(address world, bytes32 voxelTypeId, bytes32 entity) ret
 }
 
 function enterVoxelIntoWorld(address world, bytes32 entity) {
-  VoxelTypeData memory entityVoxelType = VoxelType.get(entity);
+  VoxelTypeData memory entityVoxelType = VoxelType.get(1, entity);
   // bytes4 enterWorldSelector = VoxelTypeRegistry
   //   .get(entityVoxelType.voxelTypeNamespace, entityVoxelType.voxelTypeId)
   //   .enterWorldSelector;
@@ -87,7 +87,7 @@ function enterVoxelIntoWorld(address world, bytes32 entity) {
 }
 
 function exitVoxelFromWorld(address world, bytes32 entity) {
-  VoxelTypeData memory entityVoxelType = VoxelType.get(entity);
+  VoxelTypeData memory entityVoxelType = VoxelType.get(1, entity);
   // bytes4 exitWorldSelector = VoxelTypeRegistry
   //   .get(entityVoxelType.voxelTypeNamespace, entityVoxelType.voxelTypeId)
   //   .exitWorldSelector;
@@ -95,10 +95,10 @@ function exitVoxelFromWorld(address world, bytes32 entity) {
 }
 
 function updateVoxelVariant(address world, bytes32 entity) {
-  VoxelTypeData memory entityVoxelType = VoxelType.get(entity);
+  VoxelTypeData memory entityVoxelType = VoxelType.get(1, entity);
   // bytes32 voxelVariantId = getVoxelVariant(world, entityVoxelType.voxelTypeId, entity);
   // if (voxelVariantId != entityVoxelType.voxelVariantId) {
-  //   VoxelType.set(entity, entityVoxelType.voxelTypeId, voxelVariantId);
+  //   VoxelType.set(1, entity, entityVoxelType.voxelTypeId, voxelVariantId);
   // }
 }
 
@@ -280,7 +280,7 @@ function getVoxelCoordStrict(bytes32 entity) view returns (VoxelCoord memory) {
 function entitiesToVoxelCoords(bytes32[] memory entities) returns (VoxelCoord[] memory) {
   VoxelCoord[] memory coords = new VoxelCoord[](entities.length);
   for (uint256 i; i < entities.length; i++) {
-    PositionData memory position = Position.get(entities[i]);
+    PositionData memory position = Position.get(1, entities[i]);
     coords[i] = VoxelCoord(position.x, position.y, position.z);
   }
   return coords;

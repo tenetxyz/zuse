@@ -34,7 +34,7 @@ contract VoxelInteractionSystem is System {
 
   function calculateNeighbourEntities(bytes32 centerEntity) public view returns (bytes32[] memory) {
     bytes32[] memory centerNeighbourEntities = new bytes32[](NUM_VOXEL_NEIGHBOURS);
-    PositionData memory baseCoord = Position.get(centerEntity);
+    PositionData memory baseCoord = Position.get(1, centerEntity);
 
     for (uint8 i = 0; i < centerNeighbourEntities.length; i++) {
       VoxelCoord memory neighbouringCoord = VoxelCoord(
@@ -51,7 +51,7 @@ contract VoxelInteractionSystem is System {
       );
       if (neighbourEntitiesAtPosition.length == 1) {
         // entity exists so add it to the list
-        centerNeighbourEntities[i] = neighbourEntitiesAtPosition[0][0];
+        centerNeighbourEntities[i] = neighbourEntitiesAtPosition[0][1];
       } else {
         // no entity exists so add air
         // TODO: How do we deal with entities not created yet, but still in the world due to terrain generation

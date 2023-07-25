@@ -15,7 +15,7 @@ contract ActivateVoxelSystem is System {
     require(hasKey(PositionTableId, keyTuple), "The entity must be placed in the world");
 
     // TODO: Change to use the CA once we have it.
-    // VoxelTypeData memory voxelType = VoxelType.get(entity);
+    // VoxelTypeData memory voxelType = VoxelType.get(1, entity);
     // bytes4 activateSelector = VoxelTypeRegistry.getActivateSelector(
     //   voxelType.voxelTypeNamespace,
     //   voxelType.voxelTypeId

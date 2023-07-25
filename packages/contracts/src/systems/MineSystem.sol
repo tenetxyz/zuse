@@ -42,29 +42,29 @@ contract MineSystem is System {
       // Create an ECS voxel from this coord's terrain voxel
       voxelToMine = getUniqueEntity();
       // in terrain gen, we know its our system namespace and we validated it above using the Occurrence table
-      VoxelType.set(voxelToMine, voxelTypeId, voxelVariantId);
+      VoxelType.set(1, voxelToMine, voxelTypeId, voxelVariantId);
     } else {
       // Else, mine the non-air entity voxel at this position
       require(entitiesAtPosition.length == 1, "there should only be one entity at this position");
-      voxelToMine = entitiesAtPosition[0][0];
-      VoxelTypeData memory voxelTypeData = VoxelType.get(voxelToMine);
+      voxelToMine = entitiesAtPosition[0][1];
+      VoxelTypeData memory voxelTypeData = VoxelType.get(1, voxelToMine);
       require(voxelToMine != 0, "We found no voxels at that position");
       require(
         voxelTypeData.voxelTypeId == voxelTypeId && voxelTypeData.voxelVariantId == voxelVariantId,
         "The voxel at this position is not the same as the voxel you are trying to mine"
       );
       tryRemoveVoxelFromSpawn(voxelToMine);
-      Position.deleteRecord(voxelToMine);
+      Position.deleteRecord(1, voxelToMine);
       exitVoxelFromWorld(_world(), voxelToMine);
-      VoxelType.set(voxelToMine, voxelTypeData.voxelTypeId, "");
+      VoxelType.set(1, voxelToMine, voxelTypeData.voxelTypeId, "");
     }
 
     // Place an air voxel at this position
     airEntity = getUniqueEntity();
     // TODO: We don't need necessarily need to get the air voxel type from the registry, we could just use the AirID
     // Maybe consider doing this for performance reasons
-    VoxelType.set(airEntity, AirID, AirID);
-    Position.set(airEntity, coord.x, coord.y, coord.z);
+    VoxelType.set(1, airEntity, AirID, AirID);
+    Position.set(1, airEntity, coord.x, coord.y, coord.z);
     enterVoxelIntoWorld(_world(), airEntity);
     updateVoxelVariant(_world(), airEntity);
 
@@ -104,9 +104,9 @@ contract MineSystem is System {
     bytes32[][] memory entitiesAtPosition = getEntitiesAtCoord(coord);
     bytes32 minedEntity = 0;
     for (uint256 i = 0; i < entitiesAtPosition.length; i++) {
-      bytes32 entity = entitiesAtPosition[0][i];
+      bytes32 entity = entitiesAtPosition[i][1];
 
-      VoxelTypeData memory voxelTypeData = VoxelType.get(entity);
+      VoxelTypeData memory voxelTypeData = VoxelType.get(1, entity);
       if (voxelTypeData.voxelTypeId == AirID) {
         // if it's air, then it's already clear
         continue;

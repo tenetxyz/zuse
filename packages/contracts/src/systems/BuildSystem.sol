@@ -15,7 +15,7 @@ contract BuildSystem is System {
     // Require voxel to be owned by caller
     require(OwnedBy.get(entity) == addressToEntityKey(_msgSender()), "voxel is not owned by player");
 
-    VoxelTypeData memory voxelType = VoxelType.get(entity);
+    VoxelTypeData memory voxelType = VoxelType.get(1, entity);
     return buildVoxelType(voxelType, coord);
   }
 
@@ -29,19 +29,19 @@ contract BuildSystem is System {
     require(entitiesAtPosition.length <= 1, "This position is already occupied by another voxel");
     if (entitiesAtPosition.length == 1) {
       require(
-        VoxelType.get(entitiesAtPosition[0][0]).voxelTypeId == AirID,
+        VoxelType.get(1, entitiesAtPosition[0][1]).voxelTypeId == AirID,
         "This position is already occupied by another voxel"
       );
-      VoxelType.deleteRecord(entitiesAtPosition[0][0]);
-      Position.deleteRecord(entitiesAtPosition[0][0]);
+      VoxelType.deleteRecord(1, entitiesAtPosition[0][1]);
+      Position.deleteRecord(1, entitiesAtPosition[0][1]);
     }
 
     // TODO: check claim in chunk
     //    OwnedBy.deleteRecord(voxel);
     bytes32 newEntity = getUniqueEntity();
-    Position.set(newEntity, coord.x, coord.y, coord.z);
+    Position.set(1, newEntity, coord.x, coord.y, coord.z);
 
-    VoxelType.set(newEntity, voxelType);
+    VoxelType.set(1, newEntity, voxelType);
     // Note: Need to run this because we are in creative mode and this is a new entity
     enterVoxelIntoWorld(_world(), newEntity);
     updateVoxelVariant(_world(), newEntity);

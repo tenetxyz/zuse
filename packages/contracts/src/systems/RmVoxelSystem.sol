@@ -14,7 +14,7 @@ contract RmVoxelSystem is System {
       // delete the voxel
       // TODO: delete all values in relevant components as well
       OwnedBy.deleteRecord(voxels[i]);
-      VoxelType.deleteRecord(voxels[i]);
+      VoxelType.deleteRecord(1, voxels[i]);
     }
   }
 
@@ -25,7 +25,7 @@ contract RmVoxelSystem is System {
     );
     for (uint256 i = 0; i < entitiesOwnedBySender.length; i++) {
       OwnedBy.deleteRecord(entitiesOwnedBySender[0][i]);
-      VoxelType.deleteRecord(entitiesOwnedBySender[0][i]);
+      VoxelType.deleteRecord(1, entitiesOwnedBySender[0][i]);
     }
   }
 }

@@ -4,7 +4,7 @@ import { Perlin } from "@latticexyz/noise";
 import { Terrain, TerrainState } from "./types";
 import { getTerrain } from "./utils";
 import { Air, AIR_ID, Bedrock, Dirt, Grass } from "./occurrence";
-import { VoxelTypeKey } from "../../../noa/types";
+import { VoxelTypeKey, VoxelTypeKeyInMudTable } from "@tenetxyz/layers/noa/types";
 
 export function getEntityAtPosition(
   context: {
@@ -42,8 +42,11 @@ export function getEcsVoxelType(
 ): VoxelTypeKey | undefined {
   const entityAtPosition = getEntityAtPosition(context, coord);
   if (!entityAtPosition) return undefined;
-  const voxelTypeData = getComponentValue(context.VoxelType, entityAtPosition);
-  return voxelTypeData;
+  const voxelTypeKeyInMudTable = getComponentValue(context.VoxelType, entityAtPosition) as VoxelTypeKeyInMudTable;
+  return {
+    voxelBaseTypeId: voxelTypeKeyInMudTable.voxelTypeId,
+    voxelVariantTypeId: voxelTypeKeyInMudTable.voxelVariantId,
+  };
 }
 
 export function getVoxelAtPosition(

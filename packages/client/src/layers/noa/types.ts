@@ -43,6 +43,11 @@ export type NoaVoxelDef = {
 export type VoxelBaseTypeId = string;
 export type VoxelVariantTypeId = string;
 
+export type VoxelTypeKeyInMudTable = {
+  voxelTypeId: string;
+  voxelVariantId: string;
+};
+
 export type VoxelTypeKey = {
   voxelBaseTypeId: VoxelBaseTypeId;
   voxelVariantTypeId: VoxelVariantTypeId;

@@ -1,5 +1,5 @@
 import { setupMUDV2Network, createActionSystem } from "@latticexyz/std-client";
-import { Entity, getComponentValue, createIndexer, runQuery, HasValue, World, createWorld } from "@latticexyz/recs";
+import { Entity, getComponentValue, createIndexer, runQuery, HasValue, createWorld } from "@latticexyz/recs";
 import { createFastTxExecutor, createFaucetService, getSnapSyncRecords, createRelayStream } from "@latticexyz/network";
 import { getNetworkConfig } from "./getNetworkConfig";
 import { defineContractComponents } from "./contractComponents";
@@ -365,11 +365,14 @@ export async function setupNetwork() {
         HasValue(contractComponents.OwnedBy, {
           value: to64CharAddress(playerAddress),
         }),
-        HasValue(contractComponents.VoxelType, voxelBaseTypeId),
+        HasValue(contractComponents.VoxelType, {
+          voxelTypeId: voxelBaseTypeId as Entity,
+        }),
       ]),
     ][0];
     if (!voxelInstanceOfVoxelType) {
-      return console.warn(`cannot find a voxel (that you own) for voxelType=${voxelBaseTypeId}`);
+      toast(`cannot build since we couldn't find a voxel (that you own) for voxelBaseTypeId=${voxelBaseTypeId}`);
+      return console.warn(`cannot find a voxel (that you own) for voxelBaseTypeId=${voxelBaseTypeId}`);
     }
 
     const preview: string = getVoxelTypePreviewUrl(voxelBaseTypeId) || "";

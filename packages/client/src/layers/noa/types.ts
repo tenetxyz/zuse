@@ -44,8 +44,8 @@ export type VoxelBaseTypeId = string;
 export type VoxelVariantTypeId = string;
 
 export type VoxelTypeKeyInMudTable = {
-  voxelTypeId: string;
-  voxelVariantId: string;
+  voxelTypeId: VoxelBaseTypeId;
+  voxelVariantId: VoxelVariantTypeId;
 };
 
 export type VoxelTypeKey = {
@@ -53,12 +53,12 @@ export type VoxelTypeKey = {
   voxelVariantTypeId: VoxelVariantTypeId;
 };
 
-export type VoxelVariantDataValue = {
-  index: number;
-  data: NoaVoxelDef | undefined;
+export type VoxelVariantNoaDef = {
+  noaBlockIdx: number; // this is the idx of this variant in NOA. I think there will be a bug when we have 255 entities in the game, since noa can't assign blocks new entities
+  noaVoxelDef: NoaVoxelDef | undefined;
 };
 
-export type VoxelVariantData = Map<VoxelVariantTypeId, VoxelVariantDataValue>;
+export type VoxelVariantIdToDefMap = Map<VoxelVariantTypeId, VoxelVariantNoaDef>;
 
 export function voxelTypeToEntity(voxelTypeKey: VoxelTypeKeyInMudTable): Entity {
   return `${voxelTypeKey.voxelTypeId}:${voxelTypeKey.voxelVariantId}` as Entity;

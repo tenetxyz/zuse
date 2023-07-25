@@ -73,7 +73,7 @@ import { definePersistentNotificationComponent, NotificationIcon } from "./compo
 import { createVoxelSelectionOverlaySystem } from "./systems/createVoxelSelectionOverlaySystem";
 import { createSpawnCreationOverlaySystem } from "./systems/createSpawnCreationOverlaySystem";
 import { createSpawnOverlaySystem } from "./systems/createSpawnOverlaySystem";
-import { VoxelVariantDataValue, VoxelBaseTypeId, VoxelVariantTypeId } from "./types";
+import { VoxelVariantNoaDef, VoxelBaseTypeId, VoxelVariantTypeId } from "./types";
 import { DEFAULT_BLOCK_TEST_DISTANCE } from "./setup/setupNoaEngine";
 import { FocusedUiType } from "./components/FocusedUi";
 
@@ -93,7 +93,7 @@ export function createNoaLayer(network: NetworkLayer) {
     },
     components: { Recipe, LoadingState },
     contractComponents: { VoxelType },
-    voxelTypes: { VoxelVariantData, VoxelVariantDataSubscriptions },
+    voxelTypes: { VoxelVariantIdToDef, VoxelVariantSubscriptions },
     getVoxelPreviewVariant,
   } = network;
   const uniqueWorldId = chainId + worldAddress;
@@ -318,12 +318,12 @@ export function createNoaLayer(network: NetworkLayer) {
   const scene = noa.rendering.getScene();
 
   const voxelMaterials: Map<string, BABYLON.Material | undefined> = new Map();
-  function voxelUVWrapSubscription(voxelVariantTypeId: VoxelVariantTypeId, voxelVariantData: VoxelVariantDataValue) {
-    if (voxelVariantData.data?.uvWrap) {
+  function voxelUVWrapSubscription(voxelVariantTypeId: VoxelVariantTypeId, voxelVariantNoaDef: VoxelVariantNoaDef) {
+    if (voxelVariantNoaDef.noaVoxelDef?.uvWrap) {
       // console.log("Registering uvWrap", voxelVariantKey);
       const voxelMaterial = noa.rendering.makeStandardMaterial("voxelMaterial-" + voxelVariantTypeId);
       voxelMaterial.diffuseTexture = new Texture(
-        voxelVariantData.data.uvWrap,
+        voxelVariantNoaDef.noaVoxelDef.uvWrap,
         scene,
         true,
         true,
@@ -335,14 +335,14 @@ export function createNoaLayer(network: NetworkLayer) {
     }
   }
 
-  VoxelVariantDataSubscriptions.push(voxelUVWrapSubscription);
+  VoxelVariantSubscriptions.push(voxelUVWrapSubscription);
 
   // initial run
-  for (const [voxelVariantTypeId, voxelVariantDataValue] of VoxelVariantData.entries()) {
-    voxelUVWrapSubscription(voxelVariantTypeId, voxelVariantDataValue);
+  for (const [voxelVariantTypeId, voxelVariantNoaDef] of VoxelVariantIdToDef.entries()) {
+    voxelUVWrapSubscription(voxelVariantTypeId, voxelVariantNoaDef);
   }
 
-  setComponent(components.FocusedUi, SingletonEntity, { value: FocusedUiType.WORLD });
+  setComponent(components.FocusedUi, SingletonEntity, { value: FocusedUiType.WORLD as any });
 
   // --- SETUP NOA COMPONENTS AND MODULES --------------------------------------------------------
   monkeyPatchMeshComponent(noa);

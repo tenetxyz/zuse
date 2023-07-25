@@ -2,7 +2,7 @@ import { SyncState } from "@latticexyz/network";
 import { defineComponentSystem, defineEnterSystem, getComponentValueStrict, Has } from "@latticexyz/recs";
 import { awaitStreamValue } from "@latticexyz/utils";
 import { NetworkLayer } from "../../network";
-import { NoaLayer, VoxelVariantDataValue } from "../types";
+import { NoaLayer, VoxelVariantNoaDef } from "../types";
 import { getNftStorageLink } from "../constants";
 import { abiDecode } from "../../../utils/abi";
 
@@ -11,7 +11,7 @@ export async function createVoxelVariantSystem(network: NetworkLayer, context: N
     world,
     components: { LoadingState },
     registryComponents: { VoxelVariantsRegistry },
-    voxelTypes: { VoxelVariantData, VoxelVariantDataSubscriptions },
+    voxelTypes: { VoxelVariantIdToDef, VoxelVariantSubscriptions },
   } = network;
 
   // Loading state flag
@@ -23,7 +23,7 @@ export async function createVoxelVariantSystem(network: NetworkLayer, context: N
     const voxelVariantValue = getComponentValueStrict(VoxelVariantsRegistry, update.entity);
     const voxelVariantId = update.entity;
 
-    if (!VoxelVariantData.has(voxelVariantId)) {
+    if (!VoxelVariantIdToDef.has(voxelVariantId)) {
       console.log("Adding new variant");
       const materialArr: string[] = (abiDecode("string[]", voxelVariantValue.materials, false) as string[]) ?? [];
       // go through each hash in materialArr and format it to have the NFT storage link
@@ -37,9 +37,9 @@ export async function createVoxelVariantSystem(network: NetworkLayer, context: N
         material = formattedMaterialArr;
       }
 
-      const voxelVariantData: VoxelVariantDataValue = {
-        index: Number(voxelVariantValue.variantId),
-        data: {
+      const voxelVariantNoaDef: VoxelVariantNoaDef = {
+        noaBlockIdx: Number(voxelVariantValue.variantId), // TODO: BUG: When we have over 255 entities, noa will not be able to register this variantId as a block
+        noaVoxelDef: {
           material: material as any, // TODO: replace any with proper string[]
           type: voxelVariantValue.blockType,
           frames: voxelVariantValue.frames,
@@ -50,9 +50,9 @@ export async function createVoxelVariantSystem(network: NetworkLayer, context: N
           uvWrap: voxelVariantValue.uvWrap ? getNftStorageLink(voxelVariantValue.uvWrap) : undefined,
         },
       };
-      VoxelVariantData.set(voxelVariantId, voxelVariantData);
-      VoxelVariantDataSubscriptions.forEach((subscription) => {
-        subscription(voxelVariantId, voxelVariantData);
+      VoxelVariantIdToDef.set(voxelVariantId, voxelVariantNoaDef);
+      VoxelVariantSubscriptions.forEach((subscription) => {
+        subscription(voxelVariantId, voxelVariantNoaDef);
       });
     }
   });

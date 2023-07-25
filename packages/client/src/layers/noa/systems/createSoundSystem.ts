@@ -22,7 +22,6 @@ export function createSoundSystem(network: NetworkLayer, context: NoaLayer) {
     components: { LoadingState },
     contractComponents: { VoxelType, Position },
     api: { getTerrainVoxelTypeAtPosition },
-    voxelTypes: { VoxelVariantData },
   } = network;
   const {
     audioEngine,

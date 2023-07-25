@@ -23,9 +23,9 @@ import {
 import { to64CharAddress } from "../utils/entity";
 import {
   NoaBlockType,
-  VoxelVariantData,
+  VoxelVariantIdToDefMap,
   VoxelTypeKey,
-  VoxelVariantDataValue,
+  VoxelVariantNoaDef,
   voxelTypeToEntity,
   VoxelBaseTypeId,
   InterfaceVoxel,
@@ -44,7 +44,7 @@ export type SetupNetworkResult = Awaited<ReturnType<typeof setupNetwork>>;
 
 export type VoxelVariantSubscription = (
   voxelVariantTypeId: VoxelVariantTypeId,
-  voxelVariantData: VoxelVariantDataValue
+  voxelVariantNoaDef: VoxelVariantNoaDef
 ) => void;
 
 const giveComponentsAHumanReadableId = (contractComponents: any) => {
@@ -267,32 +267,32 @@ export async function setupNetwork() {
   contractComponents.OwnedBy = withOptimisticUpdates(contractComponents.OwnedBy);
   contractComponents.VoxelType = withOptimisticUpdates(contractComponents.VoxelType);
 
-  const VoxelVariantData: VoxelVariantData = new Map();
-  const VoxelVariantDataSubscriptions: VoxelVariantSubscription[] = [];
+  const VoxelVariantIdToDef: VoxelVariantIdToDefMap = new Map();
+  const VoxelVariantSubscriptions: VoxelVariantSubscription[] = [];
   // TODO: should load initial ones from chain too
-  VoxelVariantData.set(AIR_ID, {
-    index: 0,
-    data: undefined,
+  VoxelVariantIdToDef.set(AIR_ID, {
+    noaBlockIdx: 0,
+    noaVoxelDef: undefined,
   });
-  VoxelVariantData.set(DIRT_ID, {
-    index: 1,
-    data: {
+  VoxelVariantIdToDef.set(DIRT_ID, {
+    noaBlockIdx: 1,
+    noaVoxelDef: {
       type: NoaBlockType.BLOCK,
       material: Textures.Dirt,
       uvWrap: UVWraps.Dirt,
     },
   });
-  VoxelVariantData.set(GRASS_ID, {
-    index: 2,
-    data: {
+  VoxelVariantIdToDef.set(GRASS_ID, {
+    noaBlockIdx: 2,
+    noaVoxelDef: {
       type: NoaBlockType.BLOCK,
       material: [Textures.Grass, Textures.Dirt, Textures.GrassSide],
       uvWrap: UVWraps.Grass,
     },
   });
-  VoxelVariantData.set(BEDROCK_ID, {
-    index: 3,
-    data: {
+  VoxelVariantIdToDef.set(BEDROCK_ID, {
+    noaBlockIdx: 3,
+    noaVoxelDef: {
       type: NoaBlockType.BLOCK,
       material: Textures.Bedrock,
       uvWrap: UVWraps.Bedrock,
@@ -301,19 +301,19 @@ export async function setupNetwork() {
 
   const VoxelVariantIndexToKey: Map<number, VoxelVariantTypeId> = new Map();
 
-  function voxelIndexSubscription(voxelVariantTypeId: VoxelVariantTypeId, voxelVariantData: VoxelVariantDataValue) {
-    VoxelVariantIndexToKey.set(voxelVariantData.index, voxelVariantTypeId);
+  function voxelIndexSubscription(voxelVariantTypeId: VoxelVariantTypeId, voxelVariantNoaDef: VoxelVariantNoaDef) {
+    VoxelVariantIndexToKey.set(voxelVariantNoaDef.noaBlockIdx, voxelVariantTypeId);
   }
 
-  VoxelVariantDataSubscriptions.push(voxelIndexSubscription);
+  VoxelVariantSubscriptions.push(voxelIndexSubscription);
 
   // initial run
-  for (const [voxelVariantTypeId, voxelVariantData] of VoxelVariantData.entries()) {
-    voxelIndexSubscription(voxelVariantTypeId, voxelVariantData);
+  for (const [voxelVariantTypeId, voxelVariantNoaDef] of VoxelVariantIdToDef.entries()) {
+    voxelIndexSubscription(voxelVariantTypeId, voxelVariantNoaDef);
   }
 
   function getVoxelIconUrl(voxelVariantTypeId: VoxelVariantTypeId): string | undefined {
-    const voxel = VoxelVariantData.get(voxelVariantTypeId)?.data;
+    const voxel = VoxelVariantIdToDef.get(voxelVariantTypeId)?.noaVoxelDef;
     if (!voxel) return undefined;
     return Array.isArray(voxel.material) ? voxel.material[0] : voxel.material;
   }
@@ -704,9 +704,9 @@ export async function setupNetwork() {
     getVoxelTypePreviewUrl,
     getVoxelPreviewVariant,
     voxelTypes: {
-      VoxelVariantData,
+      VoxelVariantIdToDef,
       VoxelVariantIndexToKey,
-      VoxelVariantDataSubscriptions,
+      VoxelVariantSubscriptions,
     },
     objectStore: { transactionCallbacks }, // stores global objects. These aren't components since they don't really fit in with the rxjs event-based system
   };

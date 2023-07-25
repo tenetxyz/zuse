@@ -4,7 +4,7 @@ import styled from "styled-components";
 import { VoxelIcon } from "./VoxelIcon";
 import { AbsoluteBorder } from "./AbsoluteBorder";
 import { Border } from "./Border";
-import { VoxelVariantDataKey, entityToVoxelType } from "../../../noa/types";
+import { VoxelVariantIdToDefKey, entityToVoxelType } from "../../../noa/types";
 
 export const Slot: React.FC<{
   voxelType?: Entity;

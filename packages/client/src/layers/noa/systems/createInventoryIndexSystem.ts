@@ -70,8 +70,8 @@ export function createInventoryIndexSystem(network: NetworkLayer, context: NoaLa
   const removeInventoryIndexesForItemsWeNoLongerOwn = () => {
     const itemTypesIOwn = getItemTypesIOwn(OwnedBy, VoxelType, connectedAddress);
     for (const itemType of InventoryIndex.values.value.keys()) {
-      const VoxelBaseTypeIdStr = itemType.description as string;
-      if (!itemTypesIOwn.has(VoxelBaseTypeIdStr)) {
+      const voxelBaseTypeIdStr = itemType.description as string;
+      if (!itemTypesIOwn.has(voxelBaseTypeIdStr)) {
         removeComponent(InventoryIndex, itemType.description as Entity);
       }
     }
@@ -91,12 +91,12 @@ export function createInventoryIndexSystem(network: NetworkLayer, context: NoaLa
     const voxelType = getComponentValue(VoxelType, update.entity);
 
     if (voxelType === undefined) return;
-    const VoxelBaseTypeId = voxelType.voxelTypeId as Entity;
+    const voxelBaseTypeId = voxelType.voxelTypeId as Entity;
 
     // Assign the first free inventory index
-    if (!hasComponent(InventoryIndex, VoxelBaseTypeId)) {
+    if (!hasComponent(InventoryIndex, voxelBaseTypeId)) {
       const freeInventoryIndex = firstFreeInventoryIndex(InventoryIndex, 0);
-      setComponent(InventoryIndex, VoxelBaseTypeId, { value: freeInventoryIndex });
+      setComponent(InventoryIndex, voxelBaseTypeId, { value: freeInventoryIndex });
     }
   });
 }

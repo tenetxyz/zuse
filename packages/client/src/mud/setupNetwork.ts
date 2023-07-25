@@ -79,6 +79,7 @@ const setupWorldRegistryNetwork = async () => {
 };
 
 export async function setupNetwork() {
+  const registryComponents = await setupWorldRegistryNetwork(); // load the registry world first so the transactionHash$ stream is subscribed to this world (at least this is what I think. I just know that if you place it after, transactions fail with: "you have the wrong abi" when calling systems)
   const world = createWorld();
   const contractComponents = defineContractComponents(world);
   giveComponentsAHumanReadableId(contractComponents);
@@ -137,8 +138,6 @@ export async function setupNetwork() {
     // Request a drip every 20 seconds
     setInterval(requestDrip, 20000);
   }
-
-  const registryComponents = await setupWorldRegistryNetwork();
 
   // TODO: Uncomment once we support plugins
   // // Set initial component values

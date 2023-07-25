@@ -156,6 +156,7 @@ export function createSoundSystem(network: NetworkLayer, context: NoaLayer) {
 
       const sound: Sound | undefined = (() => {
         if (updateType === UpdateType.Exit) {
+          // TODO: this logic feels wrong. I think an id is an int, not a string
           if (voxelBaseTypeId.includes("Wool")) return effect["break"].Wool;
           if (["Log", "Planks"].includes(voxelBaseTypeId)) return effect["break"].Wood;
           if (["Diamond", "Coal"].includes(voxelBaseTypeId)) return effect["break"].Metal;

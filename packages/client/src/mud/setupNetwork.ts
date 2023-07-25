@@ -55,10 +55,7 @@ const giveComponentsAHumanReadableId = (contractComponents: any) => {
 
 const setupWorldRegistryNetwork = async () => {
   const params = new URLSearchParams(window.location.search);
-  const registryAddress = params.get("registryAddress");
-  if (!registryAddress) {
-    throw "Cannot find world registry. You will not be able to see or join other worlds";
-  }
+  const registryAddress = params.get("registryAddress") ?? import.meta.env.VITE_REGISTRY_ADDRESS;
   const registryWorld = createWorld();
   const contractComponents = defineRegistryContractComponents(registryWorld);
   giveComponentsAHumanReadableId(contractComponents);

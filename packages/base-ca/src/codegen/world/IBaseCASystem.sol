@@ -14,7 +14,7 @@ interface IBaseCASystem {
 
   function updateVoxelVariant(bytes32 voxelTypeId, bytes32 entity) external returns (bytes32);
 
-  function exitWorld(bytes32 entity) external;
+  function exitWorld(bytes32 voxelTypeId, VoxelCoord memory coord, bytes32 entity) external;
 
   function runInteraction(
     bytes32 interactEntity,

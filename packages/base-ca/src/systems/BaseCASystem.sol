@@ -1,12 +1,13 @@
 // SPDX-License-Identifier: MIT
 pragma solidity >=0.8.0;
 
+import { IWorld } from "@base-ca/src/codegen/world/IWorld.sol";
 import { System } from "@latticexyz/world/src/System.sol";
 import { getKeysWithValue } from "@latticexyz/world/src/modules/keyswithvalue/getKeysWithValue.sol";
 import { hasKey } from "@latticexyz/world/src/modules/keysintable/hasKey.sol";
 import { CAVoxelTypeDefs, CAVoxelTypeDefsTableId, CAVoxelType, CAPosition, CAPositionData, CAPositionTableId } from "@base-ca/src/codegen/Tables.sol";
 import { VoxelCoord } from "@tenet-utils/src/Types.sol";
-import { AirVoxelID, AirVoxelVariantID, DirtVoxelID, DirtVoxelVariantID, GrassVoxelID, GrassVoxelVariantID } from "@base-ca/src/Constants.sol";
+import { EMPTY_ID, AirVoxelID, AirVoxelVariantID, DirtVoxelID, DirtVoxelVariantID, GrassVoxelID, GrassVoxelVariantID } from "@base-ca/src/Constants.sol";
 
 contract BaseCASystem is System {
   function defineVoxelTypeDefs() public {
@@ -62,7 +63,6 @@ contract BaseCASystem is System {
         "This position is already occupied by another voxel"
       );
     } else {
-      // TODO: Add terrain gen checks
       CAPosition.set(callerAddress, entity, CAPositionData({ x: coord.x, y: coord.y, z: coord.z }));
     }
 
@@ -82,12 +82,14 @@ contract BaseCASystem is System {
     }
   }
 
-  function exitWorld(bytes32 entity) public {
+  function exitWorld(bytes32 voxelTypeId, VoxelCoord memory coord, bytes32 entity) public {
     address callerAddress = msg.sender;
-    require(
-      hasKey(CAPositionTableId, CAPosition.encodeKeyTuple(callerAddress, entity)),
-      "This entity is not in the world"
-    );
+    if (!hasKey(CAPositionTableId, CAPosition.encodeKeyTuple(callerAddress, entity))) {
+      // If there is no entity at this position, try mining the terrain voxel at this position
+      bytes32 terrainVoxelTypeId = IWorld(_world()).getTerrainVoxel(coord);
+      require(terrainVoxelTypeId != EMPTY_ID && terrainVoxelTypeId == voxelTypeId, "invalid terrain voxel type");
+      CAPosition.set(callerAddress, entity, CAPositionData({ x: coord.x, y: coord.y, z: coord.z }));
+    }
     // set to Air
     bytes32 airVoxelVariantId = updateVoxelVariant(AirVoxelID, entity);
     CAVoxelType.set(callerAddress, entity, AirVoxelID, airVoxelVariantId);

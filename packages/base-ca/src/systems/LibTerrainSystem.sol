@@ -3,17 +3,11 @@ pragma solidity >=0.8.0;
 
 //import { Perlin } from "noise/world.sol";
 //import { Perlin } from "./Perlin.sol";
-import { ABDKMath64x64 as Math } from "../libraries/ABDKMath64x64.sol";
-import { Biome, STRUCTURE_CHUNK, STRUCTURE_CHUNK_CENTER } from "../Constants.sol";
-import { AirID } from "./voxels/AirVoxelSystem.sol";
-import { GrassID } from "./voxels/GrassVoxelSystem.sol";
-import { DirtID } from "./voxels/DirtVoxelSystem.sol";
-import { BedrockID } from "./voxels/BedrockVoxelSystem.sol";
-
-import { VoxelCoord, Tuple } from "../Types.sol";
+import { ABDKMath64x64 as Math } from "@tenet-utils/src/libraries/ABDKMath64x64.sol";
+import { EMPTY_ID, CHUNK_MIN_Y, Biome, STRUCTURE_CHUNK, STRUCTURE_CHUNK_CENTER, AirVoxelID, GrassVoxelID, DirtVoxelID, BedrockVoxelID } from "../Constants.sol";
+import { VoxelCoord, Tuple } from "@tenet-utils/src/Types.sol";
 import { System } from "@latticexyz/world/src/System.sol";
-import { IWorld } from "@tenet-contracts/src/codegen/world/IWorld.sol";
-import { CHUNK_MIN_Y, TENET_NAMESPACE } from "../Constants.sol";
+import { IWorld } from "@base-ca/src/codegen/world/IWorld.sol";
 
 int128 constant _0 = 0; // 0 * 2**64
 int128 constant _0_3 = 5534023222112865484; // 0.3 * 2**64
@@ -36,9 +30,6 @@ int128 constant _4 = 4 * 2 ** 64;
 int128 constant _5 = 5 * 2 ** 64;
 int128 constant _10 = 10 * 2 ** 64;
 int128 constant _16 = 16 * 2 ** 64;
-
-bytes16 constant EMPTY_NAMESPACE = bytes16(0x0);
-bytes32 constant EMPTY_ID = bytes32(0x0);
 
 // Divide with rounding down like Math.floor(a/b), not rounding towards zero
 function div(int32 a, int32 b) pure returns (int32) {
@@ -79,17 +70,17 @@ contract LibTerrainSystem is System {
     voxelTypeId = Dirt(y);
     if (voxelTypeId != EMPTY_ID) return voxelTypeId;
 
-    return AirID;
+    return AirVoxelID;
   }
 
   function getHeight(int32 x, int32 z, int128[4] memory biome) internal view returns (int32) {
     // Compute perlin height
-    int128 perlin999 = IWorld(_world()).tenet_PerlinSystem_noise2d(x - 550, z + 550, 999, 64);
+    int128 perlin999 = IWorld(_world()).noise2d(x - 550, z + 550, 999, 64);
     int128 continentalHeight = continentalness(perlin999);
     int128 terrainHeight = Math.mul(perlin999, _10);
-    int128 perlin49 = IWorld(_world()).tenet_PerlinSystem_noise2d(x, z, 49, 64);
+    int128 perlin49 = IWorld(_world()).noise2d(x, z, 49, 64);
     terrainHeight = Math.add(terrainHeight, Math.mul(perlin49, _5));
-    terrainHeight = Math.add(terrainHeight, IWorld(_world()).tenet_PerlinSystem_noise2d(x, z, 13, 64));
+    terrainHeight = Math.add(terrainHeight, IWorld(_world()).noise2d(x, z, 13, 64));
     terrainHeight = Math.div(terrainHeight, _16);
 
     // Compute biome height
@@ -102,9 +93,7 @@ contract LibTerrainSystem is System {
     height = Math.add(continentalHeight, Math.div(height, _2));
 
     // Create valleys
-    int128 valley = valleys(
-      Math.div(Math.add(Math.mul(IWorld(_world()).tenet_PerlinSystem_noise2d(x, z, 333, 64), _2), perlin49), _3)
-    );
+    int128 valley = valleys(Math.div(Math.add(Math.mul(IWorld(_world()).noise2d(x, z, 333, 64), _2), perlin49), _3));
     height = Math.mul(height, valley);
 
     // Scale height
@@ -112,8 +101,8 @@ contract LibTerrainSystem is System {
   }
 
   function getBiome(int32 x, int32 z) internal view returns (int128[4] memory) {
-    int128 heat = IWorld(_world()).tenet_PerlinSystem_noise2d(x + 222, z + 222, 444, 64);
-    int128 humidity = IWorld(_world()).tenet_PerlinSystem_noise(z, x, 999, 333, 64);
+    int128 heat = IWorld(_world()).noise2d(x + 222, z + 222, 444, 64);
+    int128 humidity = IWorld(_world()).noise(z, x, 999, 333, 64);
 
     Tuple memory biomeVector = Tuple(humidity, heat);
     int128[4] memory biome;
@@ -226,7 +215,7 @@ contract LibTerrainSystem is System {
     }
 
     int128 t = Math.div(Math.sub(x, points[0].x), Math.sub(points[1].x, points[0].x));
-    return IWorld(_world()).tenet_PerlinSystem_lerp(t, points[0].y, points[1].y);
+    return IWorld(_world()).lerp(t, points[0].y, points[1].y);
   }
 
   function continentalness(int128 x) internal view returns (int128) {
@@ -290,7 +279,7 @@ contract LibTerrainSystem is System {
 
   function Air(int32 y) internal pure returns (bytes32) {
     if (y > 10) {
-      return AirID;
+      return AirVoxelID;
     }
 
     return EMPTY_ID;
@@ -302,7 +291,7 @@ contract LibTerrainSystem is System {
 
   function Bedrock(int32 y) internal pure returns (bytes32) {
     if (y <= CHUNK_MIN_Y) {
-      return BedrockID;
+      return BedrockVoxelID;
     }
 
     return EMPTY_ID;
@@ -314,7 +303,7 @@ contract LibTerrainSystem is System {
 
   function Grass(int32 y) internal pure returns (bytes32) {
     if (y == 10) {
-      return GrassID;
+      return GrassVoxelID;
     }
 
     return EMPTY_ID;
@@ -326,7 +315,7 @@ contract LibTerrainSystem is System {
 
   function Dirt(int32 y) internal pure returns (bytes32) {
     if (y > CHUNK_MIN_Y && y < 10) {
-      return DirtID;
+      return DirtVoxelID;
     }
 
     return EMPTY_ID;

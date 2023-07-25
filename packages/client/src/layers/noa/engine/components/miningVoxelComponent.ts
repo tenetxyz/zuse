@@ -4,6 +4,7 @@ import * as glvec3 from "gl-vec3";
 import { NetworkLayer } from "../../../network";
 import { VoxelCoord } from "@latticexyz/utils";
 import { MINING_DURATION, Textures } from "../../constants";
+import { getWorldScale } from "../../../../utils/coord";
 
 export interface MiningVoxelComponent {
   breakingVoxelMeshes: BABYLON.Mesh[];
@@ -142,7 +143,7 @@ export function registerMiningVoxelComponent(noa: Engine, networkLayer: NetworkL
             TEXTURES[Math.min(Math.floor(progress * (TEXTURES.length + 1)), TEXTURES.length - 1)];
           if (progress > 0.99) {
             states[i].active = false;
-            networkLayer.api.mine(coord);
+            networkLayer.api.mine(coord, getWorldScale(noa));
             createExplosion(noa, coord, particleModel, particleMaterial);
           }
         } else if (breakingVoxelMeshes[0].isEnabled()) {

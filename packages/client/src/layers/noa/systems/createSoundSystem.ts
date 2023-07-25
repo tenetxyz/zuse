@@ -16,12 +16,14 @@ import { timer } from "rxjs";
 import { NetworkLayer } from "../../network";
 import { NoaLayer, VoxelTypeKey } from "../types";
 import { AIR_ID } from "../../network/api/terrain/occurrence";
+import { getWorldScale } from "../../../utils/coord";
 
 export function createSoundSystem(network: NetworkLayer, context: NoaLayer) {
   const {
     components: { LoadingState },
     contractComponents: { VoxelType, Position },
     api: { getTerrainVoxelTypeAtPosition },
+    storeCache,
   } = network;
   const {
     audioEngine,
@@ -128,7 +130,7 @@ export function createSoundSystem(network: NetworkLayer, context: NoaLayer) {
       const position =
         update.type === UpdateType.Exit && isComponentUpdate(update, Position)
           ? update.value[1]
-          : getComponentValue(Position, update.entity);
+          : storeCache.tables.Position.get({ entity: update.entity, scale: getWorldScale(noa) });
 
       if (!voxelType || !position) return;
 

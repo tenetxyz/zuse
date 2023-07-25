@@ -5,7 +5,7 @@ import { InterfaceVoxel, NoaLayer } from "../types";
 import { renderChunkyWireframe } from "./renderWireframes";
 import { Color3, Mesh, Nullable } from "@babylonjs/core";
 import { ComponentRecord } from "../../../types";
-import { stringToVoxelCoord } from "../../../utils/coord";
+import { getWorldScale, stringToVoxelCoord } from "../../../utils/coord";
 import { getComponentValue } from "@latticexyz/recs";
 
 export function createVoxelSelectionOverlaySystem(network: NetworkLayer, noaLayer: NoaLayer) {
@@ -15,6 +15,7 @@ export function createVoxelSelectionOverlaySystem(network: NetworkLayer, noaLaye
   } = noaLayer;
   const {
     components: { Position },
+    storeCache,
   } = network;
   type IVoxelSelection = ComponentRecord<typeof VoxelSelection>;
   VoxelSelection.update$.subscribe((update) => {
@@ -57,7 +58,7 @@ export function createVoxelSelectionOverlaySystem(network: NetworkLayer, noaLaye
 
     renderedVoxelInterfaceSelectionMeshs = voxelInterfaceSelection.interfaceVoxels.map(
       (interfaceVoxel: InterfaceVoxel) => {
-        const voxelCoord = getComponentValue(Position, interfaceVoxel.entity as Entity);
+        const voxelCoord = storeCache.tables.Position.get({ entity: interfaceVoxel.entity, scale: getWorldScale(noa) });
         if (!voxelCoord) {
           return;
         }

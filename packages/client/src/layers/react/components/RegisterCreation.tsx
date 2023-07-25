@@ -8,6 +8,7 @@ import {
   add,
   decodeCoord,
   getVoxelCoordsOfCreation,
+  getWorldScale,
   stringToVoxelCoord,
   sub,
   voxelCoordToString,
@@ -46,6 +47,7 @@ const RegisterCreation: React.FC<Props> = ({ layers, formData, setFormData, rese
     network: {
       contractComponents: { OfSpawn, Spawn, Position, Creation },
       api: { getEntityAtPosition, registerCreation },
+      storeCache,
     },
   } = layers;
 
@@ -109,7 +111,8 @@ const RegisterCreation: React.FC<Props> = ({ layers, formData, setFormData, rese
     ); // convert to string so we can use a set to remove coords that are in the world
 
     for (const voxel of spawn.voxels) {
-      const voxelCoordInSpawn = voxelCoordToString(getComponentValueStrict(Position, stringToEntity(voxel)));
+      const position = storeCache.tables.Position.get({ entity: stringToEntity(voxel), scale: getWorldScale(noa) });
+      const voxelCoordInSpawn = voxelCoordToString(position);
       creationVoxelCoordsInWorld.delete(voxelCoordInSpawn);
     }
 

@@ -41,7 +41,7 @@ import { abiDecode } from "../utils/abi";
 import { BaseCreationInWorld } from "../layers/react/components/RegisterCreation";
 import { createDatabaseClient } from "@latticexyz/store-cache";
 
-export type TenetSToreCache = ReturnType<typeof createDatabaseClient<typeof storeConfig>>;
+export type TenetStoreCache = ReturnType<typeof createDatabaseClient<typeof storeConfig>>;
 export type SetupNetworkResult = Awaited<ReturnType<typeof setupNetwork>>;
 
 export type VoxelVariantSubscription = (
@@ -338,20 +338,21 @@ export async function setupNetwork() {
     Position: contractComponents.Position,
     VoxelType: contractComponents.VoxelType,
     world,
+    storeCache: result.storeCache,
   };
 
   function getTerrainVoxelTypeAtPosition(position: VoxelCoord): VoxelTypeKey {
     return getTerrainVoxel(getTerrain(position, perlin), position, perlin);
   }
 
-  function getEcsVoxelTypeAtPosition(position: VoxelCoord): VoxelTypeKey | undefined {
-    return getEcsVoxelType(terrainContext, position);
+  function getEcsVoxelTypeAtPosition(position: VoxelCoord, scale: number): VoxelTypeKey | undefined {
+    return getEcsVoxelType(terrainContext, position, scale);
   }
-  function getVoxelAtPosition(position: VoxelCoord): VoxelTypeKey {
-    return getVoxelAtPositionApi(terrainContext, perlin, position);
+  function getVoxelAtPosition(position: VoxelCoord, scale: number): VoxelTypeKey {
+    return getVoxelAtPositionApi(terrainContext, perlin, position, scale);
   }
-  function getEntityAtPosition(position: VoxelCoord): Entity | undefined {
-    return getEntityAtPositionApi(terrainContext, position);
+  function getEntityAtPosition(position: VoxelCoord, scale: number): Entity | undefined {
+    return getEntityAtPositionApi(terrainContext, position, scale);
   }
 
   function getName(entity: Entity): string | undefined {
@@ -424,13 +425,13 @@ export async function setupNetwork() {
     });
   }
 
-  async function mine(coord: VoxelCoord) {
-    const voxelTypeKey = getEcsVoxelTypeAtPosition(coord) ?? getTerrainVoxelTypeAtPosition(coord);
+  async function mine(coord: VoxelCoord, scale: number) {
+    const voxelTypeKey = getEcsVoxelTypeAtPosition(coord, scale) ?? getTerrainVoxelTypeAtPosition(coord);
 
     if (voxelTypeKey == null) {
       throw new Error("entity has no VoxelType");
     }
-    const voxel = getEntityAtPosition(coord);
+    const voxel = getEntityAtPosition(coord, scale);
     const airEntity = world.registerEntity();
 
     actions.add({

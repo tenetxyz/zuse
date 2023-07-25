@@ -3,6 +3,7 @@ import { Creation } from "../layers/react/components/CreationStore";
 import { abiDecode } from "./abi";
 import { Entity, getComponentValueStrict } from "@latticexyz/recs";
 import { decodeBaseCreations } from "./encodeOrDecode";
+import { Engine } from "noa-engine";
 
 export const ZERO_VECTOR: VoxelCoord = { x: 0, y: 0, z: 0 };
 
@@ -89,4 +90,8 @@ const calculateMinMaxCoords = (coords: VoxelCoord[]): { minCoord: VoxelCoord; ma
 
 export const decodeCoord = (encodedCoord: string): VoxelCoord => {
   return abiDecode("tuple(int32 x,int32 y,int32 z)", encodedCoord) as VoxelCoord;
+};
+
+export const getWorldScale = (noa: Engine): number => {
+  return parseInt(noa.worldName);
 };

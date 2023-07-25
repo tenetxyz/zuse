@@ -318,10 +318,10 @@ export function createNoaLayer(network: NetworkLayer) {
   const scene = noa.rendering.getScene();
 
   const voxelMaterials: Map<string, BABYLON.Material | undefined> = new Map();
-  function voxelUVWrapSubscription(voxelVariantKey: VoxelVariantTypeId, voxelVariantData: VoxelVariantDataValue) {
+  function voxelUVWrapSubscription(voxelVariantTypeId: VoxelVariantTypeId, voxelVariantData: VoxelVariantDataValue) {
     if (voxelVariantData.data?.uvWrap) {
       // console.log("Registering uvWrap", voxelVariantKey);
-      const voxelMaterial = noa.rendering.makeStandardMaterial("voxelMaterial-" + voxelVariantKey);
+      const voxelMaterial = noa.rendering.makeStandardMaterial("voxelMaterial-" + voxelVariantTypeId);
       voxelMaterial.diffuseTexture = new Texture(
         voxelVariantData.data.uvWrap,
         scene,
@@ -329,9 +329,9 @@ export function createNoaLayer(network: NetworkLayer) {
         true,
         Texture.NEAREST_SAMPLINGMODE
       );
-      voxelMaterials.set(voxelVariantKey, voxelMaterial);
+      voxelMaterials.set(voxelVariantTypeId, voxelMaterial);
     } else {
-      voxelMaterials.set(voxelVariantKey, undefined);
+      voxelMaterials.set(voxelVariantTypeId, undefined);
     }
   }
 

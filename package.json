@@ -9,7 +9,7 @@
     ]
   },
   "scripts": {
-    "anvil": "anvil --block-time 1 --block-base-fee-per-gas 0 --host 0.0.0.0 --chain-id 31337 --gas-limit 10000000000",
+    "anvil": "rm -rf ~/.foundry/anvil/tmp && anvil --block-time 1 --block-base-fee-per-gas 0 --host 0.0.0.0 --chain-id 31337 --gas-limit 1000000000",
     "mud": "node node_modules/@latticexyz/cli/dist/mud.js",
     "build": "yarn workspaces run build",
     "deploy": "concurrently -n contracts,client -c cyan,magenta \"cd packages/contracts && yarn run dev\" \"cd packages/client && yarn run deploy\"",

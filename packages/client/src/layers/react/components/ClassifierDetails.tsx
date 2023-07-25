@@ -1,26 +1,13 @@
-import React, { useEffect } from "react";
-import { Layers } from "../../../types";
-import { Entity, getComponentValue, removeComponent, setComponent } from "@latticexyz/recs";
-import { useCreationSearch } from "../../../utils/useCreationSearch";
-import { useClassifierSearch } from "./useClassifierSearch";
+import React from "react";
+import { ComponentRecord, Layers } from "../../../types";
+import { ComponentValue, Entity, getComponentValue, removeComponent, setComponent } from "@latticexyz/recs";
 import { CreationStoreFilters } from "./CreationStore";
 import { useComponentValue } from "@latticexyz/react";
 import { SetState } from "../../../utils/types";
-import {
-  EMPTY_BYTES_32,
-  InterfaceVoxel,
-  entityToVoxelType,
-  voxelTypeDataKeyToVoxelVariantDataKey,
-  voxelTypeToEntity,
-} from "../../noa/types";
-import { stringToVoxelCoord, voxelCoordToString } from "../../../utils/coord";
-import { getSpawnAtPosition } from "../../../utils/voxels";
-import { SearchBar } from "./common/SearchBar";
+import { EMPTY_BYTES_32, InterfaceVoxel } from "../../noa/types";
+import { voxelCoordToString } from "../../../utils/coord";
 import { Classifier } from "./ClassifierStore";
 import { twMerge } from "tailwind-merge";
-import { stringToEntity } from "../../../utils/entity";
-import { abiDecode } from "../../../utils/abi";
-import { ISpawn } from "../../noa/components/SpawnInFocus";
 import { ClassifierResults } from "./ClassifierResults";
 import { NotificationIcon } from "../../noa/components/persistentNotification";
 import { FocusedUiType } from "../../noa/components/FocusedUi";
@@ -65,19 +52,22 @@ const ClassifierDetails: React.FC<Props> = ({
   const spawnToUse = useComponentValue(SpawnToClassify, SingletonEntity);
   const spawnInFocus = useComponentValue(SpawnInFocus, SingletonEntity);
 
+  type VoxelInterfaceSelectionRecord = ComponentRecord<typeof VoxelInterfaceSelection>;
+  type FocusedUiRecord = ComponentRecord<typeof FocusedUi>;
+
   const selectInterfaceVoxel = (selectedVoxel: InterfaceVoxel) => {
     const voxelSelection = getComponentValue(VoxelInterfaceSelection, SingletonEntity);
     const allInterfaceVoxels =
-      voxelSelection?.interfaceVoxels || (selectedClassifier && selectedClassifier.selectorInterface);
+      voxelSelection?.interfaceVoxels || (selectedClassifier ? selectedClassifier.selectorInterface : undefined);
     setComponent(VoxelInterfaceSelection, SingletonEntity, {
       interfaceVoxels: allInterfaceVoxels,
       selectingVoxelIdx: selectedVoxel.index,
-    });
+    } as VoxelInterfaceSelectionRecord);
     setComponent(PersistentNotification, SingletonEntity, {
       message: "Press 'V' on a voxel to select it. Press - when done.",
       icon: NotificationIcon.NONE,
     });
-    setComponent(FocusedUi, SingletonEntity, { value: FocusedUiType.WORLD });
+    setComponent(FocusedUi, SingletonEntity, { value: FocusedUiType.WORLD as any });
   };
 
   const cancelInterfaceSelection = (selectedVoxel: InterfaceVoxel) => {
@@ -159,8 +149,7 @@ const ClassifierDetails: React.FC<Props> = ({
       return null;
     }
 
-    const iconKey = voxelTypeDataKeyToVoxelVariantDataKey(voxelType);
-    const iconUrl = getVoxelIconUrl(iconKey);
+    const iconUrl = getVoxelIconUrl(voxelType.voxelVariantId);
     const voxelCoord = getComponentValue(Position, interfaceVoxel);
     return (
       <div className="flex gap-2 items-center">

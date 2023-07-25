@@ -1,8 +1,6 @@
 import React from "react";
 import { Layers } from "../../../types";
 import { Creation } from "./CreationStore";
-import { SetState } from "../../../utils/types";
-import { voxelTypeDataKeyToVoxelVariantDataKey } from "../../noa/types";
 import { getComponentValueStrict } from "@latticexyz/recs";
 import { voxelCoordToString } from "../../../utils/coord";
 
@@ -28,8 +26,7 @@ const CreationDetails: React.FC<Props> = ({ layers, selectedCreation }: Props) =
         <h2 className="text-l font-bold text-black mb-5">Constructed With</h2>
         <div className="flex">
           {selectedCreation.voxelTypes.map((voxelType, idx) => {
-            const iconKey = voxelTypeDataKeyToVoxelVariantDataKey(voxelType);
-            const iconUrl = getVoxelIconUrl(iconKey);
+            const iconUrl = getVoxelIconUrl(voxelType.voxelVariantTypeId);
             return (
               <div key={"creation-voxel-" + idx} className="bg-slate-100 p-1 w-fit">
                 <img src={iconUrl} />

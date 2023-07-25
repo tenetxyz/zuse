@@ -3,10 +3,11 @@ pragma solidity >=0.8.0;
 
 import { VoxelType } from "@tenet-contracts/src/prototypes/VoxelType.sol";
 import { IWorld } from "../../../src/codegen/world/IWorld.sol";
-import { Occurrence, VoxelTypeData, VoxelVariantsData } from "@tenet-contracts/src/codegen/Tables.sol";
-import { NoaBlockType } from "@tenet-contracts/src/codegen/Types.sol";
-import { VoxelVariantsKey } from "@tenet-contracts/src/Types.sol";
-import { TENET_NAMESPACE } from "../../Constants.sol";
+import { Occurrence } from "@tenet-contracts/src/codegen/Tables.sol";
+import { VoxelVariantsRegistryData } from "@tenet-registry/src/codegen/tables/VoxelVariantsRegistry.sol";
+import { NoaBlockType } from "@tenet-registry/src/codegen/Types.sol";
+import { REGISTER_VOXEL_TYPE_SIG, REGISTER_VOXEL_VARIANT_SIG } from "@tenet-registry/src/Constants.sol";
+import { REGISTRY_WORLD } from "../../Constants.sol";
 
 bytes32 constant BedrockID = bytes32(keccak256("bedrock"));
 
@@ -18,7 +19,7 @@ contract BedrockVoxelSystem is VoxelType {
   function registerVoxel() public override {
     IWorld world = IWorld(_world());
 
-    VoxelVariantsData memory bedrockVariant;
+    VoxelVariantsRegistryData memory bedrockVariant;
     bedrockVariant.blockType = NoaBlockType.BLOCK;
     bedrockVariant.opaque = true;
     bedrockVariant.solid = true;
@@ -27,18 +28,8 @@ contract BedrockVoxelSystem is VoxelType {
     bedrockVariant.materials = abi.encode(bedrockMaterials);
     bedrockVariant.uvWrap = BedrockUVWrap;
 
-    world.tenet_VoxelRegistrySys_registerVoxelVariant(BedrockID, bedrockVariant);
-
-    world.tenet_VoxelRegistrySys_registerVoxelType(
-      "Bedrock",
-      BedrockID,
-      TENET_NAMESPACE,
-      BedrockID,
-      world.tenet_BedrockVoxelSyst_variantSelector.selector,
-      world.tenet_BedrockVoxelSyst_enterWorld.selector,
-      world.tenet_BedrockVoxelSyst_exitWorld.selector,
-      world.tenet_BedrockVoxelSyst_activate.selector
-    );
+    REGISTRY_WORLD.call(abi.encodeWithSignature(REGISTER_VOXEL_VARIANT_SIG, BedrockID, bedrockVariant));
+    REGISTRY_WORLD.call(abi.encodeWithSignature(REGISTER_VOXEL_TYPE_SIG, "Bedrock", BedrockID, BedrockID, _world()));
 
     Occurrence.set(BedrockID, world.tenet_OccurrenceSystem_OBedrock.selector);
   }
@@ -47,8 +38,8 @@ contract BedrockVoxelSystem is VoxelType {
 
   function exitWorld(bytes32 entity) public override {}
 
-  function variantSelector(bytes32 entity) public pure override returns (VoxelVariantsKey memory) {
-    return VoxelVariantsKey({ voxelVariantNamespace: TENET_NAMESPACE, voxelVariantId: BedrockID });
+  function variantSelector(bytes32 entity) public pure override returns (bytes32) {
+    return BedrockID;
   }
 
   function activate(bytes32 entity) public override returns (bytes memory) {}

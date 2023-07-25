@@ -1,6 +1,3 @@
-import { toUtf8Bytes } from "ethers/lib/utils.js";
-import { BigNumber } from "ethers";
-
 export enum Direction {
   Top,
   Right,
@@ -26,5 +23,3 @@ export function formatNamespace(namespace: string) {
     return namespace.substring(0, 34);
   }
 }
-
-export const TENET_NAMESPACE = formatNamespace(BigNumber.from(toUtf8Bytes("tenet")).toHexString());

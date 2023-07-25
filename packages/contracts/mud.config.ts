@@ -14,50 +14,23 @@ export default mudConfig({
   },
   snapSync: true,
   tables: {
-    Name: "string", // Used to name players
+    VoxelTypesAllowed: {
+      keySchema: {},
+      schema: "bytes32[]",
+    },
     VoxelType: {
       // TODO: Move this to a namespace?
       schema: {
-        voxelTypeNamespace: "bytes16",
-        voxelTypeId: "bytes32",
-        // TODO: Move this to its own type as keyof VoxelVariants
-        voxelVariantNamespace: "bytes16",
+        voxelTypeId: "bytes32", // TODO: rename to voxelBaseTypeId
         voxelVariantId: "bytes32",
       },
     },
-    VoxelVariants: {
-      keySchema: {
-        voxelVariantNamespace: "bytes16",
-        voxelVariantId: "bytes32",
-      },
+    Position: {
       schema: {
-        variantId: "uint256",
-        frames: "uint32",
-        opaque: "bool",
-        fluid: "bool",
-        solid: "bool",
-        blockType: "NoaBlockType",
-        // Note: These 2 dynamic fields MUST come at the end of the schema
-        materials: "bytes", // string[]
-        uvWrap: "string", // File ID Hash
-      },
-    },
-    VoxelTypeRegistry: {
-      // TODO: Move this to a namespace?
-      keySchema: {
-        voxelTypeNamespace: "bytes16",
-        voxelTypeId: "bytes32",
-      },
-      schema: {
-        previewVoxelVariantNamespace: "bytes16",
-        previewVoxelVariantId: "bytes32",
-        enterWorldSelector: "bytes4",
-        exitWorldSelector: "bytes4",
-        voxelVariantSelector: "bytes4",
-        activateSelector: "bytes4",
-        creator: "address",
-        numSpawns: "uint256",
-        name: "string", // NOTE: you don't want the VoxelTypeId to be based on the name, cause changing the name would change the ID
+        // VoxelCoord is removed in MUD2, so we need to manually specify x,y,z
+        x: "int32",
+        y: "int32",
+        z: "int32",
       },
     },
     Occurrence: {
@@ -68,14 +41,7 @@ export default mudConfig({
       },
     },
     OwnedBy: "bytes32",
-    Position: {
-      schema: {
-        // VoxelCoord is removed in MUD2, so we need to manually specify x,y,z
-        x: "int32",
-        y: "int32",
-        z: "int32",
-      },
-    },
+    Name: "string", // Used to name players
     VoxelInteractionExtension: {
       keySchema: {
         namespace: "bytes16",
@@ -171,16 +137,6 @@ export default mudConfig({
       name: "KeysInTableModule",
       root: true,
       args: [resolveTableId("VoxelType")],
-    },
-    {
-      name: "KeysInTableModule",
-      root: true,
-      args: [resolveTableId("VoxelTypeRegistry")],
-    },
-    {
-      name: "KeysInTableModule",
-      root: true,
-      args: [resolveTableId("VoxelVariants")],
     },
     {
       name: "KeysInTableModule",

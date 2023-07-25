@@ -7,7 +7,7 @@ import React from "react";
 import { getItemTypesIOwn } from "../../noa/systems/createInventoryIndexSystem";
 import { INVENTORY_HEIGHT, INVENTORY_WIDTH } from "./InventoryHud";
 import { toast } from "react-toastify";
-import { voxelTypeBaseKeyToEntity } from "../../noa/types";
+import { VoxelBaseTypeIdToEntity } from "../../noa/types";
 import { useVoxelTypeSearch } from "../../../utils/useVoxelTypeSearch";
 import { SearchBar } from "./common/SearchBar";
 
@@ -24,10 +24,8 @@ const NUM_ROWS = 7;
 
 export interface VoxelTypeDesc {
   name: string;
-  namespace: string;
   voxelType: Entity;
   previewVoxelVariantId: string;
-  previewVoxelVariantNamespace: string;
   numSpawns: BigInt;
   creator: string;
 }
@@ -48,11 +46,7 @@ export const VoxelTypeStore: React.FC<Props> = ({ layers, filters, setFilters })
     }
     const voxelDescription = voxelTypesToDisplay[i];
 
-    const previewIconUrl =
-      getVoxelIconUrl({
-        voxelVariantNamespace: voxelDescription.previewVoxelVariantNamespace,
-        voxelVariantId: voxelDescription.previewVoxelVariantId,
-      }) || "";
+    const previewIconUrl = getVoxelIconUrl(voxelDescription.previewVoxelVariantId) || "";
 
     return (
       <Slot
@@ -75,20 +69,12 @@ export const VoxelTypeStore: React.FC<Props> = ({ layers, filters, setFilters })
     );
   });
 
-  const tryGiftVoxel = (voxelType: VoxelTypeDesc, previewIconUrl: string) => {
+  const tryGiftVoxel = (voxelTypeDesc: VoxelTypeDesc, previewIconUrl: string) => {
     // It's better to do this validation off-chain since doing it on-chain is expensive.
     // Also this is more of a UI limitation. Who knows, maybe in the future, we WILL enforce strict inventory limits
     const itemTypesIOwn = getItemTypesIOwn(OwnedBy, VoxelType, connectedAddress);
-    if (
-      itemTypesIOwn.has(
-        voxelTypeBaseKeyToEntity({
-          voxelTypeNamespace: voxelType.namespace,
-          voxelTypeId: voxelType.voxelType,
-        })
-      ) ||
-      itemTypesIOwn.size < INVENTORY_WIDTH * INVENTORY_HEIGHT
-    ) {
-      giftVoxel(voxelType.namespace, voxelType.voxelType, previewIconUrl);
+    if (itemTypesIOwn.has(voxelTypeDesc.voxelType) || itemTypesIOwn.size < INVENTORY_WIDTH * INVENTORY_HEIGHT) {
+      giftVoxel(voxelTypeDesc.voxelType, previewIconUrl);
     } else {
       toast(`Your inventory is full! Right click on an item to delete it.`);
     }

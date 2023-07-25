@@ -3,10 +3,11 @@ pragma solidity >=0.8.0;
 
 import { VoxelType } from "../../prototypes/VoxelType.sol";
 import { IWorld } from "../../../src/codegen/world/IWorld.sol";
-import { Occurrence, VoxelTypeData, VoxelVariantsData } from "@tenet-contracts/src/codegen/Tables.sol";
-import { NoaBlockType } from "@tenet-contracts/src/codegen/Types.sol";
-import { VoxelVariantsKey } from "@tenet-contracts/src/Types.sol";
-import { TENET_NAMESPACE } from "../../Constants.sol";
+import { Occurrence } from "@tenet-contracts/src/codegen/Tables.sol";
+import { VoxelVariantsRegistryData } from "@tenet-registry/src/codegen/tables/VoxelVariantsRegistry.sol";
+import { NoaBlockType } from "@tenet-registry/src/codegen/Types.sol";
+import { REGISTER_VOXEL_TYPE_SIG, REGISTER_VOXEL_VARIANT_SIG } from "@tenet-registry/src/Constants.sol";
+import { REGISTRY_WORLD } from "../../Constants.sol";
 
 bytes32 constant DirtID = bytes32(keccak256("dirt"));
 
@@ -18,7 +19,7 @@ contract DirtVoxelSystem is VoxelType {
   function registerVoxel() public override {
     IWorld world = IWorld(_world());
 
-    VoxelVariantsData memory dirtVariant;
+    VoxelVariantsRegistryData memory dirtVariant;
     dirtVariant.blockType = NoaBlockType.BLOCK;
     dirtVariant.opaque = true;
     dirtVariant.solid = true;
@@ -26,18 +27,9 @@ contract DirtVoxelSystem is VoxelType {
     dirtMaterials[0] = DirtTexture;
     dirtVariant.materials = abi.encode(dirtMaterials);
     dirtVariant.uvWrap = DirtUVWrap;
-    world.tenet_VoxelRegistrySys_registerVoxelVariant(DirtID, dirtVariant);
 
-    world.tenet_VoxelRegistrySys_registerVoxelType(
-      "Dirt",
-      DirtID,
-      TENET_NAMESPACE,
-      DirtID,
-      world.tenet_DirtVoxelSystem_variantSelector.selector,
-      world.tenet_DirtVoxelSystem_enterWorld.selector,
-      world.tenet_DirtVoxelSystem_exitWorld.selector,
-      world.tenet_DirtVoxelSystem_activate.selector
-    );
+    REGISTRY_WORLD.call(abi.encodeWithSignature(REGISTER_VOXEL_VARIANT_SIG, DirtID, dirtVariant));
+    REGISTRY_WORLD.call(abi.encodeWithSignature(REGISTER_VOXEL_TYPE_SIG, "Dirt", DirtID, DirtID, _world()));
 
     Occurrence.set(DirtID, world.tenet_OccurrenceSystem_ODirt.selector);
   }
@@ -46,8 +38,8 @@ contract DirtVoxelSystem is VoxelType {
 
   function exitWorld(bytes32 entity) public override {}
 
-  function variantSelector(bytes32 entity) public pure override returns (VoxelVariantsKey memory) {
-    return VoxelVariantsKey({ voxelVariantNamespace: TENET_NAMESPACE, voxelVariantId: DirtID });
+  function variantSelector(bytes32 entity) public pure override returns (bytes32) {
+    return DirtID;
   }
 
   function activate(bytes32 entity) public override returns (bytes memory) {}

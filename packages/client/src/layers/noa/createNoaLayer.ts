@@ -73,14 +73,7 @@ import { definePersistentNotificationComponent, NotificationIcon } from "./compo
 import { createVoxelSelectionOverlaySystem } from "./systems/createVoxelSelectionOverlaySystem";
 import { createSpawnCreationOverlaySystem } from "./systems/createSpawnCreationOverlaySystem";
 import { createSpawnOverlaySystem } from "./systems/createSpawnOverlaySystem";
-import {
-  VoxelVariantDataKey,
-  voxelVariantDataKeyToString,
-  voxelVariantKeyStringToKey,
-  VoxelVariantDataValue,
-  VoxelTypeBaseKey,
-  voxelTypeToVoxelTypeBaseKey,
-} from "./types";
+import { VoxelVariantNoaDef, VoxelBaseTypeId, VoxelVariantTypeId } from "./types";
 import { DEFAULT_BLOCK_TEST_DISTANCE } from "./setup/setupNoaEngine";
 import { FocusedUiType } from "./components/FocusedUi";
 
@@ -99,9 +92,8 @@ export function createNoaLayer(network: NetworkLayer) {
       connectedAddress,
     },
     components: { Recipe, LoadingState },
-    contractComponents: { OwnedBy, VoxelType },
-    api: { build },
-    voxelTypes: { VoxelVariantData, VoxelVariantDataSubscriptions },
+    contractComponents: { VoxelType },
+    voxelTypes: { VoxelVariantIdToDef, VoxelVariantSubscriptions },
     getVoxelPreviewVariant,
   } = network;
   const uniqueWorldId = chainId + worldAddress;
@@ -227,7 +219,7 @@ export function createNoaLayer(network: NetworkLayer) {
         const rawVoxelId = craftingTable[x + minX][y + minY];
         const voxel = ((getEntityString(getEntitySymbol(rawVoxelId)) !== "-1" && rawVoxelId) || "0x00") as Entity;
         const voxelType = ((getEntityString(getEntitySymbol(rawVoxelId)) !== "-1" &&
-          getComponentValue(VoxelType, rawVoxelId)?.value) ||
+          getComponentValue(VoxelType, rawVoxelId)?.value) || // TODO: fix this bug. we don't care since crafting isn't implemented rn
           "0x00") as Entity;
         trimmedCraftingTableVoxels[x].push(voxel);
         trimmedCraftingTableVoxelTypes[x].push(voxelType);
@@ -275,16 +267,15 @@ export function createNoaLayer(network: NetworkLayer) {
     });
   }
 
-  function getVoxelTypeInSelectedSlot(): VoxelTypeBaseKey | undefined {
+  function getVoxelTypeInSelectedSlot(): VoxelBaseTypeId | undefined {
     const selectedSlot = getComponentValue(components.SelectedSlot, SingletonEntity)?.value;
     if (selectedSlot === null) return;
-    const voxelType = [
+    const voxelBaseTypeId = [
       ...getEntitiesWithValue(components.InventoryIndex, {
         value: selectedSlot,
       }),
     ][0];
-    if (voxelType === undefined) return;
-    return voxelTypeToVoxelTypeBaseKey(voxelType);
+    return voxelBaseTypeId;
   }
 
   function getCurrentPlayerPosition() {
@@ -327,32 +318,31 @@ export function createNoaLayer(network: NetworkLayer) {
   const scene = noa.rendering.getScene();
 
   const voxelMaterials: Map<string, BABYLON.Material | undefined> = new Map();
-  function voxelUVWrapSubscription(voxelVariantKey: VoxelVariantDataKey, voxelVariantData: VoxelVariantDataValue) {
-    const voxelVariantKeyStr = voxelVariantDataKeyToString(voxelVariantKey);
-    if (voxelVariantData.data?.uvWrap) {
-      // console.log("Registering uvWrap", voxelVariantKeyStr);
-      const voxelMaterial = noa.rendering.makeStandardMaterial("voxelMaterial-" + voxelVariantKey);
+  function voxelUVWrapSubscription(voxelVariantTypeId: VoxelVariantTypeId, voxelVariantNoaDef: VoxelVariantNoaDef) {
+    if (voxelVariantNoaDef.noaVoxelDef?.uvWrap) {
+      // console.log("Registering uvWrap", voxelVariantKey);
+      const voxelMaterial = noa.rendering.makeStandardMaterial("voxelMaterial-" + voxelVariantTypeId);
       voxelMaterial.diffuseTexture = new Texture(
-        voxelVariantData.data.uvWrap,
+        voxelVariantNoaDef.noaVoxelDef.uvWrap,
         scene,
         true,
         true,
         Texture.NEAREST_SAMPLINGMODE
       );
-      voxelMaterials.set(voxelVariantKeyStr, voxelMaterial);
+      voxelMaterials.set(voxelVariantTypeId, voxelMaterial);
     } else {
-      voxelMaterials.set(voxelVariantKeyStr, undefined);
+      voxelMaterials.set(voxelVariantTypeId, undefined);
     }
   }
 
-  VoxelVariantDataSubscriptions.push(voxelUVWrapSubscription);
+  VoxelVariantSubscriptions.push(voxelUVWrapSubscription);
 
   // initial run
-  for (const [voxelVariantKey, voxelVariantData] of VoxelVariantData.entries()) {
-    voxelUVWrapSubscription(voxelVariantKeyStringToKey(voxelVariantKey), voxelVariantData);
+  for (const [voxelVariantTypeId, voxelVariantNoaDef] of VoxelVariantIdToDef.entries()) {
+    voxelUVWrapSubscription(voxelVariantTypeId, voxelVariantNoaDef);
   }
 
-  setComponent(components.FocusedUi, SingletonEntity, { value: FocusedUiType.WORLD });
+  setComponent(components.FocusedUi, SingletonEntity, { value: FocusedUiType.WORLD as any });
 
   // --- SETUP NOA COMPONENTS AND MODULES --------------------------------------------------------
   monkeyPatchMeshComponent(noa);

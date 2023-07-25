@@ -9,12 +9,13 @@
     ]
   },
   "scripts": {
+    "anvil": "rm -rf ~/.foundry/anvil/tmp && anvil --block-time 1 --block-base-fee-per-gas 0 --host 0.0.0.0 --chain-id 31337 --gas-limit 1000000000",
     "mud": "node node_modules/@latticexyz/cli/dist/mud.js",
     "build": "yarn workspaces run build",
     "deploy": "concurrently -n contracts,client -c cyan,magenta \"cd packages/contracts && yarn run dev\" \"cd packages/client && yarn run deploy\"",
     "dev": "concurrently -n contracts,client -c cyan,magenta \"cd packages/contracts && yarn run dev\" \"cd packages/client && yarn run dev\"",
     "dev:client": "yarn workspace client run dev",
-    "dev:contracts": "yarn workspace contracts run dev",
+    "dev:contracts": "yarn workspace @tenetxyz/registry run deploy && yarn workspace @tenetxyz/contracts run deploy",
     "foundry:up": "curl -L https://foundry.paradigm.xyz | bash && bash $HOME/.foundry/bin/foundryup",
     "initialize": "yarn workspaces run initialize",
     "mud:up": "yarn workspaces foreach -t run yarn mud set-version -v canary && yarn install",

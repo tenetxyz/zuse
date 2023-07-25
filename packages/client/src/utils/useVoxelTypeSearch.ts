@@ -5,8 +5,6 @@ import Fuse from "fuse.js";
 import { useComponentUpdate } from "./useComponentUpdate";
 import { ComponentRecord, Layers } from "../types";
 import { getComponentValue, Entity } from "@latticexyz/recs";
-import { formatNamespace } from "../constants";
-import { getNftStorageLink } from "../layers/noa/constants";
 import { VoxelTypeStoreFilters, VoxelTypeDesc } from "../layers/react/components/VoxelTypeStore";
 
 export interface Props {
@@ -21,7 +19,7 @@ export interface CreativeInventorySearch {
 export const useVoxelTypeSearch = ({ layers, filters }: Props) => {
   const {
     network: {
-      contractComponents: { VoxelTypeRegistry },
+      registryComponents: { VoxelTypeRegistry },
     },
   } = layers;
 
@@ -43,13 +41,10 @@ export const useVoxelTypeSearch = ({ layers, filters }: Props) => {
     }
     allVoxelTypes.current = Array.from(voxelTypes.entries())
       .filter(([_, voxelTypeRecord]) => voxelTypeRecord !== undefined && voxelTypeRecord.name !== "Air")
-      .map(([voxelType, voxelTypeRecord]) => {
-        const [namespace, voxelTypeId] = voxelType.split(":");
+      .map(([voxelTypeId, voxelTypeRecord]) => {
         return {
           name: voxelTypeRecord!.name,
-          namespace: formatNamespace(namespace),
           voxelType: voxelTypeId as Entity,
-          previewVoxelVariantNamespace: voxelTypeRecord!.previewVoxelVariantNamespace,
           previewVoxelVariantId: voxelTypeRecord!.previewVoxelVariantId,
           numSpawns: voxelTypeRecord!.numSpawns,
           creator: voxelTypeRecord!.creator,

@@ -9,7 +9,7 @@ import { SearchBar } from "./common/SearchBar";
 import { SetState } from "../../../utils/types";
 import RegisterCreation, { RegisterCreationFormData } from "./RegisterCreation";
 import CreationDetails from "./CreationDetails";
-import { VoxelTypeDataKey } from "../../noa/types";
+import { VoxelTypeKey } from "../../noa/types";
 import { BaseCreation } from "../../noa/systems/createSpawnOverlaySystem";
 
 export interface CreationStoreFilters {
@@ -33,7 +33,7 @@ export interface Creation {
   description: string;
   creationId: Entity;
   creator: string;
-  voxelTypes: VoxelTypeDataKey[];
+  voxelTypes: VoxelTypeKey[];
   relativePositions: VoxelCoord[];
   numSpawns: BigInt;
   numVoxels: number;

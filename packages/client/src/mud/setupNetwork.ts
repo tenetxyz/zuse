@@ -1,15 +1,18 @@
 import { setupMUDV2Network, createActionSystem } from "@latticexyz/std-client";
-import { Entity, getComponentValue, createIndexer, runQuery, HasValue, World, createWorld } from "@latticexyz/recs";
+import { Entity, getComponentValue, createIndexer, runQuery, HasValue, createWorld } from "@latticexyz/recs";
 import { createFastTxExecutor, createFaucetService, getSnapSyncRecords, createRelayStream } from "@latticexyz/network";
 import { getNetworkConfig } from "./getNetworkConfig";
 import { defineContractComponents } from "./contractComponents";
+import { defineContractComponents as defineRegistryContractComponents } from "@tenetxyz/registry/client/contractComponents";
 import { createPerlin } from "@latticexyz/noise";
 import { BigNumber, Contract, Signer, utils } from "ethers";
 import { JsonRpcProvider } from "@ethersproject/providers";
-import { IWorld__factory } from "@tenetxyz/contracts/types/ethers-contracts/factories/IWorld__factory.ts";
+import { IWorld__factory } from "@tenetxyz/contracts/types/ethers-contracts/factories/IWorld__factory";
+import { IWorld__factory as RegistryIWorld__factory } from "@tenetxyz/registry/types/ethers-contracts/factories/IWorld__factory";
 import { getTableIds, awaitPromise, computedToStream, VoxelCoord, Coord } from "@latticexyz/utils";
 import { map, timer, combineLatest, BehaviorSubject } from "rxjs";
 import storeConfig from "@tenetxyz/contracts/mud.config";
+import registryStoreConfig from "@tenetxyz/registry/mud.config";
 import {
   getEcsVoxelType,
   getTerrain,
@@ -20,19 +23,16 @@ import {
 import { to64CharAddress } from "../utils/entity";
 import {
   NoaBlockType,
-  VoxelVariantData,
-  VoxelTypeDataKey,
-  VoxelVariantDataKey,
-  VoxelVariantDataValue,
-  voxelVariantDataKeyToString,
-  voxelVariantKeyStringToKey,
+  VoxelVariantIdToDefMap,
+  VoxelTypeKey,
+  VoxelVariantNoaDef,
   voxelTypeToEntity,
-  VoxelTypeBaseKey,
-  voxelTypeBaseKeyStrToVoxelTypeRegistryKeyStr,
+  VoxelBaseTypeId,
   InterfaceVoxel,
+  VoxelVariantTypeId,
+  VoxelTypeKeyInMudTable,
 } from "../layers/noa/types";
 import { Textures, UVWraps } from "../layers/noa/constants";
-import { TENET_NAMESPACE } from "../constants";
 import { AIR_ID, BEDROCK_ID, DIRT_ID, GRASS_ID } from "../layers/network/api/terrain/occurrence";
 import { getNftStorageLink } from "../layers/noa/constants";
 import { voxelCoordToString } from "../utils/coord";
@@ -43,13 +43,13 @@ import { BaseCreationInWorld } from "../layers/react/components/RegisterCreation
 export type SetupNetworkResult = Awaited<ReturnType<typeof setupNetwork>>;
 
 export type VoxelVariantSubscription = (
-  voxelVariantKey: VoxelVariantDataKey,
-  voxelVariantData: VoxelVariantDataValue
+  voxelVariantTypeId: VoxelVariantTypeId,
+  voxelVariantNoaDef: VoxelVariantNoaDef
 ) => void;
 
 const giveComponentsAHumanReadableId = (contractComponents: any) => {
   Object.entries(contractComponents).forEach(([name, component]) => {
-    component.id = name;
+    (component as any).id = name;
   });
 };
 
@@ -57,23 +57,22 @@ const setupWorldRegistryNetwork = async () => {
   const params = new URLSearchParams(window.location.search);
   const registryAddress = params.get("registryAddress");
   if (!registryAddress) {
-    console.warn("Cannot find world registry. You will not be able to see or join other worlds");
-    return;
+    throw "Cannot find world registry. You will not be able to see or join other worlds";
   }
   const registryWorld = createWorld();
-  const contractComponents = defineContractComponents(registryWorld); // TODO: replace the defineContractComponents function with the one that is generate by the world registry
+  const contractComponents = defineRegistryContractComponents(registryWorld);
   giveComponentsAHumanReadableId(contractComponents);
 
   const networkConfig = await getNetworkConfig();
   networkConfig.worldAddress = registryAddress; // overwrite the world address with the registry address, so when we sync, we are syncing with the registry!
 
-  const result = await setupMUDV2Network<typeof contractComponents, typeof storeConfig>({
+  const result = await setupMUDV2Network<typeof contractComponents, typeof registryStoreConfig>({
     networkConfig,
     world: registryWorld,
     contractComponents,
     syncThread: "main", // PERF: sync using workers
-    storeConfig, // TODO: replace this storeConfig with the one from the registry world
-    worldAbi: IWorld__factory.abi, // TODO: replace this with the one from the registry world
+    storeConfig: registryStoreConfig,
+    worldAbi: RegistryIWorld__factory.abi,
   });
   result.startSync();
   // Give components a Human-readable ID
@@ -81,6 +80,7 @@ const setupWorldRegistryNetwork = async () => {
 };
 
 export async function setupNetwork() {
+  const registryComponents = await setupWorldRegistryNetwork(); // load the registry world first so the transactionHash$ stream is subscribed to this world (at least this is what I think. I just know that if you place it after, transactions fail with: "you have the wrong abi" when calling systems)
   const world = createWorld();
   const contractComponents = defineContractComponents(world);
   giveComponentsAHumanReadableId(contractComponents);
@@ -140,8 +140,6 @@ export async function setupNetwork() {
     setInterval(requestDrip, 20000);
   }
 
-  const registryContracts = await setupWorldRegistryNetwork();
-
   // TODO: Uncomment once we support plugins
   // // Set initial component values
   // if (components.PluginRegistry.entities.length === 0) {
@@ -195,7 +193,7 @@ export async function setupNetwork() {
     options?: {
       retryCount?: number;
     }
-  ) => Promise<ReturnType<C[F]>>;
+  ) => Promise<{ hash: string; tx: ReturnType<C[F]> }>;
 
   function bindFastTxExecute<C extends Contract>(contract: C): BoundFastTxExecuteFn<C> {
     return async function (...args) {
@@ -246,7 +244,7 @@ export async function setupNetwork() {
       const parsedError = errorBody?.error?.message;
       return parsedError || defaultError;
     } catch (err) {
-      console.log("couldn't parse error body parseError=", err);
+      console.warn("couldn't parse error body parseError=", err);
       return defaultError;
     }
   };
@@ -255,7 +253,7 @@ export async function setupNetwork() {
   const actions = createActionSystem<{
     actionType: string;
     coord?: VoxelCoord;
-    voxelVariantKey?: VoxelVariantDataKey;
+    voxelVariantTypeId?: VoxelVariantTypeId;
     preview?: string;
   }>(world, result.txReduced$);
 
@@ -269,94 +267,67 @@ export async function setupNetwork() {
   contractComponents.OwnedBy = withOptimisticUpdates(contractComponents.OwnedBy);
   contractComponents.VoxelType = withOptimisticUpdates(contractComponents.VoxelType);
 
-  const VoxelVariantData: VoxelVariantData = new Map();
-  const VoxelVariantDataSubscriptions: VoxelVariantSubscription[] = [];
+  const VoxelVariantIdToDef: VoxelVariantIdToDefMap = new Map();
+  const VoxelVariantSubscriptions: VoxelVariantSubscription[] = [];
   // TODO: should load initial ones from chain too
-  VoxelVariantData.set(
-    voxelVariantDataKeyToString({
-      voxelVariantNamespace: TENET_NAMESPACE,
-      voxelVariantId: AIR_ID,
-    }),
-    {
-      index: 0,
-      data: undefined,
-    }
-  );
-  VoxelVariantData.set(
-    voxelVariantDataKeyToString({
-      voxelVariantNamespace: TENET_NAMESPACE,
-      voxelVariantId: DIRT_ID,
-    }),
-    {
-      index: 1,
-      data: {
-        type: NoaBlockType.BLOCK,
-        material: Textures.Dirt,
-        uvWrap: UVWraps.Dirt,
-      },
-    }
-  );
-  VoxelVariantData.set(
-    voxelVariantDataKeyToString({
-      voxelVariantNamespace: TENET_NAMESPACE,
-      voxelVariantId: GRASS_ID,
-    }),
-    {
-      index: 2,
-      data: {
-        type: NoaBlockType.BLOCK,
-        material: [Textures.Grass, Textures.Dirt, Textures.GrassSide],
-        uvWrap: UVWraps.Grass,
-      },
-    }
-  );
-  VoxelVariantData.set(
-    voxelVariantDataKeyToString({
-      voxelVariantNamespace: TENET_NAMESPACE,
-      voxelVariantId: BEDROCK_ID,
-    }),
-    {
-      index: 3,
-      data: {
-        type: NoaBlockType.BLOCK,
-        material: Textures.Bedrock,
-        uvWrap: UVWraps.Bedrock,
-      },
-    }
-  );
+  VoxelVariantIdToDef.set(AIR_ID, {
+    noaBlockIdx: 0,
+    noaVoxelDef: undefined,
+  });
+  VoxelVariantIdToDef.set(DIRT_ID, {
+    noaBlockIdx: 1,
+    noaVoxelDef: {
+      type: NoaBlockType.BLOCK,
+      material: Textures.Dirt,
+      uvWrap: UVWraps.Dirt,
+    },
+  });
+  VoxelVariantIdToDef.set(GRASS_ID, {
+    noaBlockIdx: 2,
+    noaVoxelDef: {
+      type: NoaBlockType.BLOCK,
+      material: [Textures.Grass, Textures.Dirt, Textures.GrassSide],
+      uvWrap: UVWraps.Grass,
+    },
+  });
+  VoxelVariantIdToDef.set(BEDROCK_ID, {
+    noaBlockIdx: 3,
+    noaVoxelDef: {
+      type: NoaBlockType.BLOCK,
+      material: Textures.Bedrock,
+      uvWrap: UVWraps.Bedrock,
+    },
+  });
 
-  const VoxelVariantIndexToKey: Map<number, VoxelVariantDataKey> = new Map();
+  const VoxelVariantIndexToKey: Map<number, VoxelVariantTypeId> = new Map();
 
-  function voxelIndexSubscription(voxelVariantKey: VoxelVariantDataKey, voxelVariantData: VoxelVariantDataValue) {
-    VoxelVariantIndexToKey.set(voxelVariantData.index, voxelVariantKey);
+  function voxelIndexSubscription(voxelVariantTypeId: VoxelVariantTypeId, voxelVariantNoaDef: VoxelVariantNoaDef) {
+    VoxelVariantIndexToKey.set(voxelVariantNoaDef.noaBlockIdx, voxelVariantTypeId);
   }
 
-  VoxelVariantDataSubscriptions.push(voxelIndexSubscription);
+  VoxelVariantSubscriptions.push(voxelIndexSubscription);
 
   // initial run
-  for (const [voxelVariantKey, voxelVariantData] of VoxelVariantData.entries()) {
-    voxelIndexSubscription(voxelVariantKeyStringToKey(voxelVariantKey), voxelVariantData);
+  for (const [voxelVariantTypeId, voxelVariantNoaDef] of VoxelVariantIdToDef.entries()) {
+    voxelIndexSubscription(voxelVariantTypeId, voxelVariantNoaDef);
   }
 
-  function getVoxelIconUrl(voxelTypeKey: VoxelVariantDataKey): string | undefined {
-    const voxel = VoxelVariantData.get(voxelVariantDataKeyToString(voxelTypeKey))?.data;
+  function getVoxelIconUrl(voxelVariantTypeId: VoxelVariantTypeId): string | undefined {
+    const voxel = VoxelVariantIdToDef.get(voxelVariantTypeId)?.noaVoxelDef;
     if (!voxel) return undefined;
     return Array.isArray(voxel.material) ? voxel.material[0] : voxel.material;
   }
 
-  function getVoxelPreviewVariant(voxelTypeBaseKey: VoxelTypeBaseKey): VoxelVariantDataKey | undefined {
-    const voxelTypeRegistryKey = voxelTypeBaseKeyStrToVoxelTypeRegistryKeyStr(voxelTypeBaseKey) as Entity;
-    const voxelTypeRecord = getComponentValue(contractComponents.VoxelTypeRegistry, voxelTypeRegistryKey);
-    return (
-      voxelTypeRecord && {
-        voxelVariantNamespace: voxelTypeRecord.previewVoxelVariantNamespace,
-        voxelVariantId: voxelTypeRecord.previewVoxelVariantId,
-      }
-    );
+  function getVoxelPreviewVariant(VoxelBaseTypeId: VoxelBaseTypeId): VoxelVariantTypeId | undefined {
+    const voxelTypeRecord = getComponentValue(registryComponents.VoxelTypeRegistry, VoxelBaseTypeId as Entity);
+    if (!voxelTypeRecord) {
+      return undefined;
+    }
+    return voxelTypeRecord.previewVoxelVariantId;
   }
 
-  function getVoxelTypePreviewUrl(voxelTypeBaseKey: VoxelTypeBaseKey): string | undefined {
-    const previewVoxelVariant = getVoxelPreviewVariant(voxelTypeBaseKey);
+  function getVoxelTypePreviewUrl(VoxelBaseTypeId: VoxelBaseTypeId): string | undefined {
+    const previewVoxelVariant = getVoxelPreviewVariant(VoxelBaseTypeId);
     return previewVoxelVariant && getVoxelIconUrl(previewVoxelVariant);
   }
 
@@ -370,14 +341,14 @@ export async function setupNetwork() {
     world,
   };
 
-  function getTerrainVoxelTypeAtPosition(position: VoxelCoord): VoxelTypeDataKey {
+  function getTerrainVoxelTypeAtPosition(position: VoxelCoord): VoxelTypeKey {
     return getTerrainVoxel(getTerrain(position, perlin), position, perlin);
   }
 
-  function getEcsVoxelTypeAtPosition(position: VoxelCoord): VoxelTypeDataKey | undefined {
+  function getEcsVoxelTypeAtPosition(position: VoxelCoord): VoxelTypeKey | undefined {
     return getEcsVoxelType(terrainContext, position);
   }
-  function getVoxelAtPosition(position: VoxelCoord): VoxelTypeDataKey {
+  function getVoxelAtPosition(position: VoxelCoord): VoxelTypeKey {
     return getVoxelAtPositionApi(terrainContext, perlin, position);
   }
   function getEntityAtPosition(position: VoxelCoord): Entity | undefined {
@@ -388,21 +359,24 @@ export async function setupNetwork() {
     return getComponentValue(contractComponents.Name, entity)?.value;
   }
 
-  function build(voxelType: VoxelTypeBaseKey, coord: VoxelCoord) {
+  function build(voxelBaseTypeId: VoxelBaseTypeId, coord: VoxelCoord) {
     const voxelInstanceOfVoxelType = [
       ...runQuery([
         HasValue(contractComponents.OwnedBy, {
           value: to64CharAddress(playerAddress),
         }),
-        HasValue(contractComponents.VoxelType, voxelType),
+        HasValue(contractComponents.VoxelType, {
+          voxelTypeId: voxelBaseTypeId as Entity,
+        }),
       ]),
     ][0];
     if (!voxelInstanceOfVoxelType) {
-      return console.warn(`cannot find a voxel (that you own) for voxelType=${voxelType}`);
+      toast(`cannot build since we couldn't find a voxel (that you own) for voxelBaseTypeId=${voxelBaseTypeId}`);
+      return console.warn(`cannot find a voxel (that you own) for voxelBaseTypeId=${voxelBaseTypeId}`);
     }
 
-    const preview: string = getVoxelTypePreviewUrl(voxelType) || "";
-    const previewVoxelVariant = getVoxelPreviewVariant(voxelType);
+    const preview: string = getVoxelTypePreviewUrl(voxelBaseTypeId) || "";
+    const previewVoxelVariant = getVoxelPreviewVariant(voxelBaseTypeId);
 
     const newVoxelOfSameType = world.registerEntity();
 
@@ -443,10 +417,8 @@ export async function setupNetwork() {
           component: "VoxelType",
           entity: newVoxelOfSameType,
           value: {
-            voxelTypeNamespace: voxelType.voxelTypeNamespace,
-            voxelTypeId: voxelType.voxelTypeId,
-            voxelVariantNamespace: previewVoxelVariant?.voxelVariantNamespace,
-            voxelVariantId: previewVoxelVariant?.voxelVariantId,
+            voxelTypeId: voxelBaseTypeId,
+            voxelVariantId: previewVoxelVariant,
           },
         },
       ],
@@ -462,14 +434,9 @@ export async function setupNetwork() {
     const voxel = getEntityAtPosition(coord);
     const airEntity = world.registerEntity();
 
-    const voxelVariantKey: VoxelVariantDataKey = {
-      voxelVariantNamespace: voxelTypeKey.voxelVariantNamespace,
-      voxelVariantId: voxelTypeKey.voxelVariantId,
-    };
-
     actions.add({
       id: `mine+${coord.x}/${coord.y}/${coord.z}` as Entity,
-      metadata: { actionType: "mine", coord, voxelVariantKey },
+      metadata: { actionType: "mine", coord, voxelVariantTypeId: voxelTypeKey.voxelVariantTypeId },
       requirement: () => true,
       components: {
         Position: contractComponents.Position,
@@ -479,10 +446,8 @@ export async function setupNetwork() {
       execute: () => {
         return callSystem("tenet_MineSystem_mine", [
           coord,
-          voxelTypeKey.voxelTypeNamespace,
-          voxelTypeKey.voxelTypeId,
-          voxelTypeKey.voxelVariantNamespace,
-          voxelTypeKey.voxelVariantId,
+          voxelTypeKey.voxelBaseTypeId,
+          voxelTypeKey.voxelVariantTypeId,
           { gasLimit: 100_000_000 },
         ]);
       },
@@ -496,9 +461,7 @@ export async function setupNetwork() {
           component: "VoxelType",
           entity: airEntity,
           value: {
-            voxelTypeNamespace: TENET_NAMESPACE,
             voxelTypeId: AIR_ID,
-            voxelVariantNamespace: TENET_NAMESPACE,
             voxelVariantId: AIR_ID,
           },
         },
@@ -512,11 +475,11 @@ export async function setupNetwork() {
   }
 
   // needed in creative mode, to give the user new voxels
-  function giftVoxel(voxelTypeNamespace: string, voxelTypeId: string, preview: string) {
+  function giftVoxel(voxelTypeId: string, preview: string) {
     const newVoxel = world.registerEntity();
 
     actions.add({
-      id: `GiftVoxel+${voxelTypeNamespace}+${voxelTypeId}` as Entity,
+      id: `GiftVoxel+${voxelTypeId}` as Entity,
       metadata: { actionType: "giftVoxel", preview },
       requirement: () => true,
       components: {
@@ -524,11 +487,7 @@ export async function setupNetwork() {
         VoxelType: contractComponents.VoxelType,
       },
       execute: () => {
-        return callSystem("tenet_GiftVoxelSystem_giftVoxel", [
-          voxelTypeNamespace,
-          voxelTypeId,
-          { gasLimit: 10_000_000 },
-        ]);
+        return callSystem("tenet_GiftVoxelSystem_giftVoxel", [voxelTypeId, { gasLimit: 10_000_000 }]);
       },
       updates: () => [
         // {
@@ -651,8 +610,8 @@ export async function setupNetwork() {
   }
 
   function activate(entity: Entity) {
-    const voxelTypeObj = getComponentValue(contractComponents.VoxelType, entity);
-    const preview = getVoxelTypePreviewUrl(voxelTypeObj as VoxelTypeBaseKey);
+    const voxelTypeKeyInMudTable = getComponentValue(contractComponents.VoxelType, entity) as VoxelTypeKeyInMudTable;
+    const preview = getVoxelTypePreviewUrl(voxelTypeKeyInMudTable.voxelVariantId);
 
     actions.add({
       id: `activateVoxel+entity=${entity}` as Entity,
@@ -711,7 +670,7 @@ export async function setupNetwork() {
   return {
     ...result,
     contractComponents,
-    registryContracts,
+    registryComponents,
     world,
     worldContract,
     actions,
@@ -745,9 +704,9 @@ export async function setupNetwork() {
     getVoxelTypePreviewUrl,
     getVoxelPreviewVariant,
     voxelTypes: {
-      VoxelVariantData,
+      VoxelVariantIdToDef,
       VoxelVariantIndexToKey,
-      VoxelVariantDataSubscriptions,
+      VoxelVariantSubscriptions,
     },
     objectStore: { transactionCallbacks }, // stores global objects. These aren't components since they don't really fit in with the rxjs event-based system
   };

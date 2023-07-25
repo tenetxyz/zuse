@@ -1,10 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
-import { registerUIComponent } from "../engine";
 import { getComponentEntities, getComponentValueStrict } from "@latticexyz/recs";
-import { map } from "rxjs";
 import styled from "styled-components";
 import { Action as ActionQueueItem } from "./Action";
-import { voxelVariantDataKeyToString } from "../../noa/types";
 import { publicClient$, transactionHash$ } from "@latticexyz/network/dev";
 import type { PublicClient, Chain } from "viem";
 import { registerTenetComponent } from "../engine/components/TenetComponentRenderer";
@@ -101,7 +98,7 @@ export function registerActionQueue() {
                 transactionCallbacks.get(txHash)?.(res.result);
                 return;
               }
-              console.error("Error getting transaction result", err);
+              console.error("[ActionQueue] Error getting transaction result", err);
               // Note: we can also use the fields in err.cause to get specific parts of the error message
               toast(err.shortMessage);
             })
@@ -120,8 +117,8 @@ export function registerActionQueue() {
         <ActionQueueList>
           {[...getComponentEntities(Action)].map((e) => {
             const { state, metadata, txHash } = getComponentValueStrict(Action, e);
-            const { actionType, coord, voxelVariantKey, preview } = metadata || {};
-            let icon = voxelVariantKey && getVoxelIconUrl(voxelVariantKey);
+            const { actionType, coord, voxelVariantTypeId, preview } = metadata || {};
+            let icon = voxelVariantTypeId && getVoxelIconUrl(voxelVariantTypeId);
             if (icon === undefined) {
               icon = preview;
             }
@@ -131,7 +128,7 @@ export function registerActionQueue() {
                   state={state}
                   icon={icon}
                   title={`${actionType} tx`}
-                  description={voxelVariantKey ? enforceMaxLen(voxelVariantDataKeyToString(voxelVariantKey)) : ""}
+                  description={voxelVariantTypeId ? enforceMaxLen(voxelVariantTypeId) : ""}
                   link={txHash && blockExplorer + "/tx/" + txHash}
                 />
                 {/* TODO: conditionally render this for debugging? */}

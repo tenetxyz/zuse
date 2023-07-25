@@ -3,9 +3,7 @@
 import React, { useEffect } from "react";
 import Fuse from "fuse.js";
 import { useComponentUpdate } from "./useComponentUpdate";
-import { ComponentRecord, Layers } from "../types";
-import { getComponentValue, Entity } from "@latticexyz/recs";
-import { formatNamespace } from "../constants";
+import { Layers } from "../types";
 import { WorldRegistryFilters, WorldDesc } from "../layers/react/components/WorldsRegistry";
 
 export interface Props {

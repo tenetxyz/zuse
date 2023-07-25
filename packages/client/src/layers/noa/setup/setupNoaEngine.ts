@@ -5,12 +5,11 @@ import "@babylonjs/core/Meshes/Builders/boxBuilder";
 import * as BABYLON from "@babylonjs/core";
 import { VoxelCoord } from "@latticexyz/utils";
 import { NetworkLayer } from "../../network";
-import { NoaBlockType, voxelTypeDataKeyToVoxelVariantDataKey, voxelVariantKeyStringToKey } from "../types";
+import { NoaBlockType, VoxelBaseTypeId, VoxelVariantTypeId } from "../types";
 import { createVoxelMesh } from "./utils";
-import { voxelVariantDataKeyToString, VoxelVariantDataKey } from "../types";
 import { setupScene } from "../engine/setupScene";
 import { CHUNK_RENDER_DISTANCE, CHUNK_SIZE, MIN_HEIGHT, SKY_COLOR } from "./constants";
-import { VoxelVariantDataValue } from "../types";
+import { VoxelVariantNoaDef } from "../types";
 import { AIR_ID } from "../../network/api/terrain/occurrence";
 import MovementComponent, { MOVEMENT_COMPONENT_NAME } from "../components/MovementComponent";
 import ReceiveInputsComponent, { RECEIVES_INPUTS_COMPONENT_NAME } from "../components/ReceivesInputsComponent";
@@ -43,7 +42,7 @@ export function setupNoaEngine(network: NetworkLayer) {
   };
   const {
     api: { getTerrainVoxelTypeAtPosition, getEcsVoxelTypeAtPosition },
-    voxelTypes: { VoxelVariantData, VoxelVariantIndexToKey, VoxelVariantDataSubscriptions },
+    voxelTypes: { VoxelVariantIdToDef, VoxelVariantIndexToKey, VoxelVariantSubscriptions },
   } = network;
 
   // Hack Babylon in order to have a -1 rendering group for the sky (to be always drawn behind everything else)
@@ -64,8 +63,8 @@ export function setupNoaEngine(network: NetworkLayer) {
   noa.world.maxProcessingPerTick = 12;
   noa.world.maxProcessingPerRender = 8;
 
-  function voxelMaterialSubscription(voxelVariantKey: VoxelVariantDataKey, voxelVariantData: VoxelVariantDataValue) {
-    const data = voxelVariantData.data;
+  function voxelMaterialSubscription(_voxelVariantTypeId: VoxelVariantTypeId, voxelVariantNoaDef: VoxelVariantNoaDef) {
+    const data = voxelVariantNoaDef.noaVoxelDef;
     if (!data) return;
     const voxelMaterials = (Array.isArray(data.material) ? data.material : [data.material]) as string[];
     for (const texture of voxelMaterials) {
@@ -74,11 +73,10 @@ export function setupNoaEngine(network: NetworkLayer) {
     }
   }
 
-  function voxelBlockSubscription(voxelVariantKey: VoxelVariantDataKey, voxelVariantData: VoxelVariantDataValue) {
-    const index = voxelVariantData.index;
-    const data = voxelVariantData.data;
+  function voxelBlockSubscription(voxelVariantTypeId: VoxelVariantTypeId, voxelVariantNoaDef: VoxelVariantNoaDef) {
+    const index = voxelVariantNoaDef.noaBlockIdx;
+    const data = voxelVariantNoaDef.noaVoxelDef;
     const voxel = data;
-    const voxelTypeKeyStr = voxelVariantDataKeyToString(voxelVariantKey);
 
     const augmentedVoxel = { ...voxel };
     if (!voxel) return;
@@ -89,7 +87,7 @@ export function setupNoaEngine(network: NetworkLayer) {
       if (texture === null) {
         throw new Error("Can't create a plant voxel without a material");
       }
-      const mesh = createVoxelMesh(noa, scene, texture, voxelTypeKeyStr, augmentedVoxel.frames);
+      const mesh = createVoxelMesh(noa, scene, texture, voxelVariantTypeId, augmentedVoxel.frames);
       augmentedVoxel.blockMesh = mesh;
       delete augmentedVoxel.material;
     }
@@ -98,24 +96,23 @@ export function setupNoaEngine(network: NetworkLayer) {
     noa.registry.registerBlock(index, augmentedVoxel);
   }
 
-  VoxelVariantDataSubscriptions.push(voxelMaterialSubscription);
-  VoxelVariantDataSubscriptions.push(voxelBlockSubscription);
+  VoxelVariantSubscriptions.push(voxelMaterialSubscription);
+  VoxelVariantSubscriptions.push(voxelBlockSubscription);
 
   // initial run
-  for (const [voxelVariantKey, voxelVariantData] of VoxelVariantData.entries()) {
-    const voxelVariantDataKey = voxelVariantKeyStringToKey(voxelVariantKey);
-    voxelMaterialSubscription(voxelVariantDataKey, voxelVariantData);
-    voxelBlockSubscription(voxelVariantDataKey, voxelVariantData);
+  for (const [voxelVariantTypeId, voxelVariantNoaDef] of VoxelVariantIdToDef.entries()) {
+    voxelMaterialSubscription(voxelVariantTypeId, voxelVariantNoaDef);
+    voxelBlockSubscription(voxelVariantTypeId, voxelVariantNoaDef);
   }
 
   // Register voxels
 
-  function setVoxel(coord: VoxelCoord | number[], voxelVariantDataKey: VoxelVariantDataKey) {
-    const index = VoxelVariantData.get(voxelVariantDataKeyToString(voxelVariantDataKey))?.index;
+  function setVoxel(coord: VoxelCoord | number[], voxelVariantTypeId: VoxelVariantTypeId) {
+    const noaBlockIdx = VoxelVariantIdToDef.get(voxelVariantTypeId)?.noaBlockIdx;
     if ("length" in coord) {
-      noa.setBlock(index, coord[0], coord[1], coord[2]);
+      noa.setBlock(noaBlockIdx, coord[0], coord[1], coord[2]);
     } else {
-      noa.setBlock(index, coord.x, coord.y, coord.z);
+      noa.setBlock(noaBlockIdx, coord.x, coord.y, coord.z);
     }
   }
 
@@ -135,26 +132,19 @@ export function setupNoaEngine(network: NetworkLayer) {
             y: y + j,
             z: z + k,
           });
-          let ecsVoxelTypeIndex = undefined;
+          let noaBlockIdx = undefined;
           if (ecsVoxelType !== undefined) {
-            ecsVoxelTypeIndex = VoxelVariantData.get(
-              voxelVariantDataKeyToString({
-                voxelVariantNamespace: ecsVoxelType.voxelVariantNamespace,
-                voxelVariantId: ecsVoxelType.voxelVariantId,
-              })
-            )?.index;
+            noaBlockIdx = VoxelVariantIdToDef.get(ecsVoxelType.voxelVariantTypeId)?.noaBlockIdx;
           }
-          if (ecsVoxelTypeIndex !== undefined) {
-            data.set(i, j, k, ecsVoxelTypeIndex);
+          if (noaBlockIdx !== undefined) {
+            data.set(i, j, k, noaBlockIdx);
           } else {
             const terrainVoxelType = getTerrainVoxelTypeAtPosition({
               x: x + i,
               y: y + j,
               z: z + k,
             });
-            const voxelTypeIndex = VoxelVariantData.get(
-              voxelVariantDataKeyToString(voxelTypeDataKeyToVoxelVariantDataKey(terrainVoxelType))
-            )?.index;
+            const voxelTypeIndex = VoxelVariantIdToDef.get(terrainVoxelType.voxelVariantTypeId)?.noaBlockIdx;
             data.set(i, j, k, voxelTypeIndex);
           }
         }
@@ -167,11 +157,11 @@ export function setupNoaEngine(network: NetworkLayer) {
 
   // Change voxel targeting mechanism
   noa.blockTargetIdCheck = function (index: number) {
-    const key = VoxelVariantIndexToKey.get(index);
+    const voxelVariantTypeId = VoxelVariantIndexToKey.get(index);
     return (
-      key != null &&
-      key.voxelVariantId != AIR_ID &&
-      !VoxelVariantData.get(voxelVariantDataKeyToString(key))?.data?.fluid
+      voxelVariantTypeId != null &&
+      voxelVariantTypeId != AIR_ID &&
+      !VoxelVariantIdToDef.get(voxelVariantTypeId)?.noaVoxelDef?.fluid
     );
   };
   return { noa, setVoxel, glow };

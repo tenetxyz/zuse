@@ -6,7 +6,7 @@ import { Layers } from "../types";
 import { getEntityString } from "@latticexyz/recs";
 import { to256BitString } from "@latticexyz/utils";
 import { VoxelCoord } from "@latticexyz/utils";
-import { VoxelTypeDataKey } from "../layers/noa/types";
+import { VoxelTypeKey } from "../layers/noa/types";
 import { abiDecode } from "./abi";
 import { decodeBaseCreations } from "./encodeOrDecode";
 
@@ -49,10 +49,10 @@ export const useCreationSearch = ({ layers, filters }: Props) => {
         return;
       }
 
-      const voxelTypes: VoxelTypeDataKey[] = abiDecode(
+      const voxelTypes: VoxelTypeKey[] = abiDecode(
         "tuple(bytes16 voxelTypeNamespace,bytes32 voxelTypeId,bytes16 voxelVariantNamespace,bytes32 voxelVariantId)[]",
         rawVoxelTypes
-      ) as VoxelTypeDataKey[];
+      ) as VoxelTypeKey[];
 
       const encodedRelativePositions = creationTable.relativePositions.get(creationId) ?? "";
       const relativePositions =

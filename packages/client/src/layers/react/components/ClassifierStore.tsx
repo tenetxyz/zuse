@@ -1,15 +1,11 @@
 import React from "react";
 import { Layers } from "../../../types";
-import { Entity, getComponentValue, setComponent } from "@latticexyz/recs";
+import { Entity } from "@latticexyz/recs";
 import { useCreationSearch } from "../../../utils/useCreationSearch";
 import { useClassifierSearch } from "./useClassifierSearch";
 import { CreationStoreFilters } from "./CreationStore";
-import { useComponentValue } from "@latticexyz/react";
 import { SetState } from "../../../utils/types";
 import { InterfaceVoxel } from "../../noa/types";
-import { stringToVoxelCoord } from "../../../utils/coord";
-import { ClassifierResults } from "./ClassifierResults";
-import { getSpawnAtPosition } from "../../../utils/voxels";
 import { SearchBar } from "./common/SearchBar";
 import ClassifierDetails from "./ClassifierDetails";
 import { twMerge } from "tailwind-merge";
@@ -47,17 +43,6 @@ const ClassifierStore: React.FC<Props> = ({
   setSelectedClassifier,
   setShowAllCreations,
 }: Props) => {
-  const {
-    noa: {
-      components: { SpawnToClassify },
-      SingletonEntity,
-    },
-    network: {
-      components: { VoxelType, OfSpawn },
-      api: { getEntityAtPosition, classifyCreation },
-      getVoxelIconUrl,
-    },
-  } = layers;
   const { creationsToDisplay } = useCreationSearch({
     layers,
     filters: filters.creationFilter,

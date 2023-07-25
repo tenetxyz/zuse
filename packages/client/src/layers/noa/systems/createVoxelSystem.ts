@@ -19,7 +19,6 @@ export async function createVoxelSystem(network: NetworkLayer, context: NoaLayer
     world,
     components: { LoadingState },
     contractComponents: { VoxelType, Position },
-    actions: { withOptimisticUpdates },
     api: { getVoxelAtPosition },
   } = network;
 
@@ -40,7 +39,7 @@ export async function createVoxelSystem(network: NetworkLayer, context: NoaLayer
     if (!live) return;
     if (!value[0] && value[1]) {
       const voxel = getVoxelAtPosition(value[1]);
-      setVoxel(value[1], voxel);
+      setVoxel(value[1], voxel.voxelVariantTypeId);
     }
   });
 

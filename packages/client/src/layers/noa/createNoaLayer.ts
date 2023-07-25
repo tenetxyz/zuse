@@ -219,7 +219,7 @@ export function createNoaLayer(network: NetworkLayer) {
         const rawVoxelId = craftingTable[x + minX][y + minY];
         const voxel = ((getEntityString(getEntitySymbol(rawVoxelId)) !== "-1" && rawVoxelId) || "0x00") as Entity;
         const voxelType = ((getEntityString(getEntitySymbol(rawVoxelId)) !== "-1" &&
-          getComponentValue(VoxelType, rawVoxelId)?.value) ||
+          getComponentValue(VoxelType, rawVoxelId)?.value) || // TODO: fix this bug. we don't care since crafting isn't implemented rn
           "0x00") as Entity;
         trimmedCraftingTableVoxels[x].push(voxel);
         trimmedCraftingTableVoxelTypes[x].push(voxelType);

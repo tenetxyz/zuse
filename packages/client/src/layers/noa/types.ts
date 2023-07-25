@@ -60,8 +60,8 @@ export type VoxelVariantDataValue = {
 
 export type VoxelVariantData = Map<VoxelVariantTypeId, VoxelVariantDataValue>;
 
-export function voxelTypeToEntity(voxelTypeKey: VoxelTypeKey): Entity {
-  return `${voxelTypeKey.voxelBaseTypeId}:${voxelTypeKey.voxelVariantTypeId}` as Entity;
+export function voxelTypeToEntity(voxelTypeKey: VoxelTypeKeyInMudTable): Entity {
+  return `${voxelTypeKey.voxelTypeId}:${voxelTypeKey.voxelVariantId}` as Entity;
 }
 
 export function entityToVoxelType(entity: Entity): VoxelTypeKey {

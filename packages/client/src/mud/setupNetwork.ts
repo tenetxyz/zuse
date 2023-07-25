@@ -30,6 +30,7 @@ import {
   VoxelBaseTypeId,
   InterfaceVoxel,
   VoxelVariantTypeId,
+  VoxelTypeKeyInMudTable,
 } from "../layers/noa/types";
 import { Textures, UVWraps } from "../layers/noa/constants";
 import { AIR_ID, BEDROCK_ID, DIRT_ID, GRASS_ID } from "../layers/network/api/terrain/occurrence";
@@ -192,7 +193,7 @@ export async function setupNetwork() {
     options?: {
       retryCount?: number;
     }
-  ) => Promise<ReturnType<C[F]>>;
+  ) => Promise<{ hash: string; tx: ReturnType<C[F]> }>;
 
   function bindFastTxExecute<C extends Contract>(contract: C): BoundFastTxExecuteFn<C> {
     return async function (...args) {
@@ -416,10 +417,8 @@ export async function setupNetwork() {
           component: "VoxelType",
           entity: newVoxelOfSameType,
           value: {
-            voxelTypeNamespace: voxelBaseTypeId.voxelTypeNamespace,
-            voxelTypeId: voxelBaseTypeId.voxelTypeId,
-            voxelVariantNamespace: previewVoxelVariant?.voxelVariantNamespace,
-            voxelVariantId: previewVoxelVariant?.voxelVariantId,
+            voxelTypeId: voxelBaseTypeId,
+            voxelVariantId: previewVoxelVariant,
           },
         },
       ],
@@ -611,8 +610,8 @@ export async function setupNetwork() {
   }
 
   function activate(entity: Entity) {
-    const voxelTypeObj = getComponentValue(contractComponents.VoxelType, entity);
-    const preview = getVoxelTypePreviewUrl(voxelTypeObj as VoxelBaseTypeId);
+    const voxelTypeKeyInMudTable = getComponentValue(contractComponents.VoxelType, entity) as VoxelTypeKeyInMudTable;
+    const preview = getVoxelTypePreviewUrl(voxelTypeKeyInMudTable.voxelVariantId);
 
     actions.add({
       id: `activateVoxel+entity=${entity}` as Entity,

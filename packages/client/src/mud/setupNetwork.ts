@@ -35,11 +35,12 @@ import {
 import { Textures, UVWraps } from "../layers/noa/constants";
 import { AIR_ID, BEDROCK_ID, DIRT_ID, GRASS_ID } from "../layers/network/api/terrain/occurrence";
 import { getNftStorageLink } from "../layers/noa/constants";
-import { voxelCoordToString } from "../utils/coord";
+import { getWorldScale, voxelCoordToString } from "../utils/coord";
 import { toast } from "react-toastify";
 import { abiDecode } from "../utils/abi";
 import { BaseCreationInWorld } from "../layers/react/components/RegisterCreation";
 import { getLiveStoreCache } from "./setupLiveStoreCache";
+import { Engine } from "noa-engine";
 
 export type SetupNetworkResult = Awaited<ReturnType<typeof setupNetwork>>;
 
@@ -359,21 +360,26 @@ export async function setupNetwork() {
     return getComponentValue(contractComponents.Name, entity)?.value;
   }
 
-  function build(voxelBaseTypeId: VoxelBaseTypeId, coord: VoxelCoord) {
-    const voxelInstanceOfVoxelType = [
+  function build(noa: Engine, voxelBaseTypeId: VoxelBaseTypeId, coord: VoxelCoord) {
+    const voxelInstancesOfVoxelType = [
       ...runQuery([
         HasValue(contractComponents.OwnedBy, {
           value: to64CharAddress(playerAddress),
         }),
-        HasValue(contractComponents.VoxelType, {
-          voxelTypeId: voxelBaseTypeId as Entity,
-        }),
       ]),
-    ][0];
-    if (!voxelInstanceOfVoxelType) {
+    ].filter((entityKey) => {
+      return (
+        getComponentValue(
+          contractComponents.VoxelType,
+          `${to64CharAddress("0x" + getWorldScale(noa))}:${entityKey}` as Entity
+        )?.voxelTypeId === voxelBaseTypeId
+      );
+    });
+    if (voxelInstancesOfVoxelType.length === 0) {
       toast(`cannot build since we couldn't find a voxel (that you own) for voxelBaseTypeId=${voxelBaseTypeId}`);
       return console.warn(`cannot find a voxel (that you own) for voxelBaseTypeId=${voxelBaseTypeId}`);
     }
+    const voxelInstanceOfVoxelType = voxelInstancesOfVoxelType[0];
 
     const preview: string = getVoxelTypePreviewUrl(voxelBaseTypeId) || "";
     const previewVoxelVariant = getVoxelPreviewVariant(voxelBaseTypeId);

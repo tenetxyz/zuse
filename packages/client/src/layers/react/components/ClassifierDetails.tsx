@@ -98,7 +98,7 @@ const ClassifierDetails: React.FC<Props> = ({
       return null;
     }
 
-    const voxelSelection = getComponentValue(VoxelInterfaceSelection, SingletonEntity);
+    const voxelSelection = getComponentValue(VoxelInterfaceSelection, SingletonEntity); // TODO: fix so we add scale
 
     return (
       <div className="flex flex-col">

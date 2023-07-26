@@ -32,11 +32,14 @@ export interface VoxelTypeDesc {
 
 export const VoxelTypeStore: React.FC<Props> = ({ layers, filters, setFilters }) => {
   const {
-    contractComponents: { OwnedBy, VoxelType },
-    api: { giftVoxel },
-    network: { connectedAddress },
-    getVoxelIconUrl,
-  } = layers.network;
+    network: {
+      contractComponents: { OwnedBy, VoxelType },
+      api: { giftVoxel },
+      network: { connectedAddress },
+      getVoxelIconUrl,
+    },
+    noa: { noa },
+  } = layers;
 
   const { voxelTypesToDisplay } = useVoxelTypeSearch({ layers, filters });
 
@@ -72,7 +75,7 @@ export const VoxelTypeStore: React.FC<Props> = ({ layers, filters, setFilters })
   const tryGiftVoxel = (voxelTypeDesc: VoxelTypeDesc, previewIconUrl: string) => {
     // It's better to do this validation off-chain since doing it on-chain is expensive.
     // Also this is more of a UI limitation. Who knows, maybe in the future, we WILL enforce strict inventory limits
-    const itemTypesIOwn = getItemTypesIOwn(OwnedBy, VoxelType, connectedAddress);
+    const itemTypesIOwn = getItemTypesIOwn(noa, OwnedBy, VoxelType, connectedAddress);
     if (itemTypesIOwn.has(voxelTypeDesc.voxelType) || itemTypesIOwn.size < INVENTORY_WIDTH * INVENTORY_HEIGHT) {
       giftVoxel(voxelTypeDesc.voxelType, previewIconUrl);
     } else {

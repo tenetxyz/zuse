@@ -19,8 +19,11 @@ import { NoaLayer, VoxelBaseTypeId } from "../types";
 import { to64CharAddress } from "../../../utils/entity";
 import { SyncState } from "@latticexyz/network";
 import { IComputedValue } from "mobx";
+import { getWorldScale } from "../../../utils/coord";
+import { Engine } from "noa-engine";
 
 export const getItemTypesIOwn = (
+  noa: Engine,
   OwnedBy: Component<{
     value: Type.String;
   }>,
@@ -30,11 +33,14 @@ export const getItemTypesIOwn = (
   }>,
   connectedAddress: IComputedValue<string | undefined>
 ): Set<VoxelBaseTypeId> => {
-  const itemsIOwn = runQuery([HasValue(OwnedBy, { value: to64CharAddress(connectedAddress.get()) }), Has(VoxelType)]);
+  const itemsIOwn = runQuery([HasValue(OwnedBy, { value: to64CharAddress(connectedAddress.get()) })]);
   return new Set(
     Array.from(itemsIOwn)
       .map((item) => {
-        const voxelType = getComponentValue(VoxelType, item);
+        const voxelType = getComponentValue(
+          VoxelType,
+          `${to64CharAddress("0x" + getWorldScale(noa))}:${item}` as Entity
+        );
         if (voxelType === undefined) {
           console.warn(`voxelType of item you own is undefined item=${item.toString()}`);
           return "";
@@ -45,7 +51,7 @@ export const getItemTypesIOwn = (
   );
 };
 
-export function createInventoryIndexSystem(network: NetworkLayer, context: NoaLayer) {
+export function createInventoryIndexSystem(network: NetworkLayer, noaLayer: NoaLayer) {
   const {
     components: { LoadingState },
     contractComponents: { OwnedBy, VoxelType },
@@ -55,20 +61,21 @@ export function createInventoryIndexSystem(network: NetworkLayer, context: NoaLa
   const {
     world,
     components: { InventoryIndex },
-  } = context;
+    noa,
+  } = noaLayer;
 
   const connectedAddress$ = computedToStream(connectedAddress);
 
   const update$ = connectedAddress$.pipe(
     switchMap(
       (address) =>
-        defineQuery([HasValue(OwnedBy, { value: to64CharAddress(address) }), Has(VoxelType)], {
+        defineQuery([HasValue(OwnedBy, { value: to64CharAddress(address) })], {
           runOnInit: true,
         }).update$
     )
   );
   const removeInventoryIndexesForItemsWeNoLongerOwn = () => {
-    const itemTypesIOwn = getItemTypesIOwn(OwnedBy, VoxelType, connectedAddress);
+    const itemTypesIOwn = getItemTypesIOwn(noa, OwnedBy, VoxelType, connectedAddress);
     for (const itemType of InventoryIndex.values.value.keys()) {
       const voxelBaseTypeIdStr = itemType.description as string;
       if (!itemTypesIOwn.has(voxelBaseTypeIdStr)) {
@@ -88,7 +95,10 @@ export function createInventoryIndexSystem(network: NetworkLayer, context: NoaLa
       // the voxel just got removed, so don't assign an inventory index for it
       return;
     }
-    const voxelType = getComponentValue(VoxelType, update.entity);
+    const voxelType = getComponentValue(
+      VoxelType,
+      `${to64CharAddress("0x" + getWorldScale(noaLayer.noa))}:${update.entity}` as Entity
+    );
 
     if (voxelType === undefined) return;
     const voxelBaseTypeId = voxelType.voxelTypeId as Entity;

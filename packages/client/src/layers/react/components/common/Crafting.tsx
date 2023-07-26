@@ -78,7 +78,7 @@ export const Crafting: React.FC<{
         HasValue(OwnedBy, {
           value: to64CharAddress(connectedAddress.get()),
         }),
-        HasValue(VoxelType, { value: holdingVoxelType }),
+        HasValue(VoxelType, { voxelTypeId: holdingVoxelType }),
       ]),
     ];
 

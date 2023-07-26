@@ -62,10 +62,9 @@ import { getNoaPositionStrict, setNoaPosition } from "./engine/components/utils"
 import { registerTargetedPositionComponent } from "./engine/components/targetedPositionComponent";
 import { defaultAbiCoder as abi, keccak256 } from "ethers/lib/utils";
 import { SingletonID, SyncState } from "@latticexyz/network";
-import { getChunkCoord, getChunkEntity } from "../../utils/chunk";
+import { getChunkCoord } from "../../utils/chunk";
 import { BehaviorSubject, map, throttleTime, timer } from "rxjs";
 // import { getStakeEntity } from "../../utils/stake"; // commented cause we aren't using it
-import { createCreativeModeSystem } from "./systems/createCreativeModeSystem";
 import { createSpawnPlayerSystem } from "./systems/createSpawnPlayerSystem";
 import { definePlayerMeshComponent } from "./components/PlayerMesh";
 import { Engine } from "@babylonjs/core";

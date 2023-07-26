@@ -6,8 +6,10 @@ export interface WorldRegistryFilters {
   query: string;
 }
 export interface WorldDesc {
+  worldAddress: string;
   name: string;
-  deployer: string;
+  description: string;
+  creator: string;
 }
 
 interface Props {

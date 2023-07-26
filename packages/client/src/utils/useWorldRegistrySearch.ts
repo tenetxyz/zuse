@@ -3,8 +3,9 @@
 import React, { useEffect } from "react";
 import Fuse from "fuse.js";
 import { useComponentUpdate } from "./useComponentUpdate";
-import { Layers } from "../types";
+import { ComponentRecord, Layers } from "../types";
 import { WorldRegistryFilters, WorldDesc } from "../layers/react/components/WorldsRegistry";
+import { Entity, getComponentValue } from "@latticexyz/recs";
 
 export interface Props {
   layers: Layers;
@@ -18,8 +19,7 @@ export interface CreativeInventorySearch {
 export const useWorldRegistrySearch = ({ layers, filters }: Props) => {
   const {
     network: {
-      // registryContracts: { Name }, // TODO: update this table to the correct one
-      contractComponents: { Name }, // TODO: update this table to the correct one
+      registryComponents: { WorldRegistry },
     },
   } = layers;
 
@@ -28,33 +28,29 @@ export const useWorldRegistrySearch = ({ layers, filters }: Props) => {
   const [worldsToDisplay, setWorldsToDisplay] = React.useState<WorldDesc[]>([]);
   const fuse = React.useRef<Fuse<WorldDesc>>();
 
-  useComponentUpdate(Name, () => {
-    // const allWorldsInRegistry = [...WorldRegistry.entities()];
-    // const worlds = new Map<Entity, ComponentRecord<typeof WorldRegistry>>();
-    // for (const world of allWorldsInRegistry) {
-    //   const worldRecord = getComponentValue(WorldRegistry, world);
-    //   if (!worldRecord) {
-    //     console.warn(`cannot find worldRecord for ${world}`);
-    //     continue;
-    //   }
-    //   worlds.set(world, worldRecord);
-    // }
-    // allWorlds.current = Array.from(worlds.entries())
-    //   .filter(([_, worldRecord]) => worldRecord !== undefined && worldRecord.name !== "Air")
-    //   .map(([world, worldRecord]) => {
-    //     const [namespace, worldId] = world.split(":");
-    //     return {
-    //       name: worldRecord!.name,
-    //       namespace: formatNamespace(namespace),
-    //       world: worldId as Entity,
-    //       previewVoxelVariantNamespace: worldRecord!.previewVoxelVariantNamespace,
-    //       previewVoxelVariantId: worldRecord!.previewVoxelVariantId,
-    //       numSpawns: worldRecord!.numSpawns,
-    //       creator: worldRecord!.creator,
-    //     } as WorldDesc;
-    //   });
+  useComponentUpdate(WorldRegistry, () => {
+    const allWorldsInRegistry = [...WorldRegistry.entities()];
+    console.log("worlds registry");
+    console.log(allWorldsInRegistry);
+    const worlds = new Map<Entity, ComponentRecord<typeof WorldRegistry>>();
+    for (const world of allWorldsInRegistry) {
+      const worldRecord = getComponentValue(WorldRegistry, world);
+      if (!worldRecord) {
+        console.warn(`cannot find worldRecord for ${world}`);
+        continue;
+      }
+      worlds.set(world, worldRecord);
+    }
+    allWorlds.current = Array.from(worlds.entries()).map(([world, worldRecord]) => {
+      return {
+        worldAddress: world,
+        name: worldRecord.name,
+        description: worldRecord.description,
+        creator: worldRecord.creator,
+      } as WorldDesc;
+    });
 
-    // // TODO: sort allWorlds.current;
+    // TODO: sort allWorlds.current;
 
     // After we have parsed all the worlds, apply the world
     // filters to narrow down the worlds that will be displayed.

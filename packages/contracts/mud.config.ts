@@ -19,13 +19,20 @@ export default mudConfig({
       schema: "bytes32[]",
     },
     VoxelType: {
-      // TODO: Move this to a namespace?
+      keySchema: {
+        scale: "uint32",
+        entity: "bytes32",
+      },
       schema: {
         voxelTypeId: "bytes32", // TODO: rename to voxelBaseTypeId
         voxelVariantId: "bytes32",
       },
     },
     Position: {
+      keySchema: {
+        scale: "uint32",
+        entity: "bytes32",
+      },
       schema: {
         // VoxelCoord is removed in MUD2, so we need to manually specify x,y,z
         x: "int32",

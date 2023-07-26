@@ -7,8 +7,9 @@ import { getKeysInTable } from "@latticexyz/world/src/modules/keysintable/getKey
 import { VoxelCoord } from "../Types.sol";
 import { NUM_VOXEL_NEIGHBOURS, MAX_VOXEL_NEIGHBOUR_UPDATE_DEPTH } from "../Constants.sol";
 import { Position, PositionData, VoxelType, VoxelTypeData, VoxelInteractionExtension, VoxelInteractionExtensionTableId } from "@tenet-contracts/src/codegen/Tables.sol";
-import { getEntitiesAtCoord, hasEntity, updateVoxelVariant } from "../Utils.sol";
-import { safeCall } from "../Utils.sol";
+import { getEntitiesAtCoord, updateVoxelVariant } from "../Utils.sol";
+import { hasEntity } from "@tenet-utils/src/Utils.sol";
+import { safeCall } from "@tenet-utils/src/CallUtils.sol";
 
 contract VoxelInteractionSystem is System {
   int8[18] private NEIGHBOUR_COORD_OFFSETS = [
@@ -34,7 +35,7 @@ contract VoxelInteractionSystem is System {
 
   function calculateNeighbourEntities(bytes32 centerEntity) public view returns (bytes32[] memory) {
     bytes32[] memory centerNeighbourEntities = new bytes32[](NUM_VOXEL_NEIGHBOURS);
-    PositionData memory baseCoord = Position.get(centerEntity);
+    PositionData memory baseCoord = Position.get(1, centerEntity);
 
     for (uint8 i = 0; i < centerNeighbourEntities.length; i++) {
       VoxelCoord memory neighbouringCoord = VoxelCoord(
@@ -51,7 +52,7 @@ contract VoxelInteractionSystem is System {
       );
       if (neighbourEntitiesAtPosition.length == 1) {
         // entity exists so add it to the list
-        centerNeighbourEntities[i] = neighbourEntitiesAtPosition[0][0];
+        centerNeighbourEntities[i] = neighbourEntitiesAtPosition[0][1];
       } else {
         // no entity exists so add air
         // TODO: How do we deal with entities not created yet, but still in the world due to terrain generation

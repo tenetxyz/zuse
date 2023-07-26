@@ -29,7 +29,9 @@ contract DirtVoxelSystem is VoxelType {
     dirtVariant.uvWrap = DirtUVWrap;
 
     REGISTRY_WORLD.call(abi.encodeWithSignature(REGISTER_VOXEL_VARIANT_SIG, DirtID, dirtVariant));
-    REGISTRY_WORLD.call(abi.encodeWithSignature(REGISTER_VOXEL_TYPE_SIG, "Dirt", DirtID, DirtID, _world()));
+    bytes32[] memory dirtChildVoxelTypes = new bytes32[](1);
+    dirtChildVoxelTypes[0] = DirtID;
+    REGISTRY_WORLD.call(abi.encodeWithSignature(REGISTER_VOXEL_TYPE_SIG, "Dirt", DirtID, dirtChildVoxelTypes, DirtID));
 
     Occurrence.set(DirtID, world.tenet_OccurrenceSystem_ODirt.selector);
   }

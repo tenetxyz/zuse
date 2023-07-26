@@ -5,12 +5,13 @@ import { CreationStoreFilters } from "./CreationStore";
 import { useComponentValue } from "@latticexyz/react";
 import { SetState } from "../../../utils/types";
 import { EMPTY_BYTES_32, InterfaceVoxel } from "../../noa/types";
-import { voxelCoordToString } from "../../../utils/coord";
+import { getWorldScale, voxelCoordToString } from "../../../utils/coord";
 import { Classifier } from "./ClassifierStore";
 import { twMerge } from "tailwind-merge";
 import { ClassifierResults } from "./ClassifierResults";
 import { NotificationIcon } from "../../noa/components/persistentNotification";
 import { FocusedUiType } from "../../noa/components/FocusedUi";
+import { to64CharAddress } from "../../../utils/entity";
 
 export interface ClassifierStoreFilters {
   classifierQuery: string;
@@ -44,8 +45,9 @@ const ClassifierDetails: React.FC<Props> = ({
       SingletonEntity,
     },
     network: {
-      components: { Position, VoxelType, OfSpawn, Spawn, Creation },
-      api: { getEntityAtPosition, classifyCreation },
+      liveStoreCache,
+      components: { VoxelType, OfSpawn, Spawn, Creation },
+      api: { classifyCreation },
       getVoxelIconUrl,
     },
   } = layers;
@@ -96,7 +98,7 @@ const ClassifierDetails: React.FC<Props> = ({
       return null;
     }
 
-    const voxelSelection = getComponentValue(VoxelInterfaceSelection, SingletonEntity);
+    const voxelSelection = getComponentValue(VoxelInterfaceSelection, SingletonEntity); // TODO: fix so we add scale
 
     return (
       <div className="flex flex-col">
@@ -150,7 +152,10 @@ const ClassifierDetails: React.FC<Props> = ({
     }
 
     const iconUrl = getVoxelIconUrl(voxelType.voxelVariantId);
-    const voxelCoord = getComponentValue(Position, interfaceVoxel);
+    const voxelCoord = liveStoreCache.Position.get({
+      entity: to64CharAddress("0x" + interfaceVoxel),
+      scale: getWorldScale(noa),
+    });
     return (
       <div className="flex gap-2 items-center">
         <div className="bg-slate-100 h-fit p-1">

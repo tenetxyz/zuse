@@ -28,6 +28,7 @@ import { StatusHud } from "./StatusHud";
 import { FocusedUiType } from "../../noa/components/FocusedUi";
 import { useComponentUpdate } from "../../../utils/useComponentUpdate";
 import { useComponentValue } from "@latticexyz/react";
+import { getWorldScale } from "../../../utils/coord";
 
 // This gives us 36 inventory slots. As of now there are 34 types of VoxelTypes, so it should fit.
 export const INVENTORY_WIDTH = 9;
@@ -51,22 +52,23 @@ export function registerInventoryHud() {
         },
         noa: {
           components: { UI, InventoryIndex, SelectedSlot, CraftingTable },
+          noa,
         },
       } = layers;
 
-      const VoxelsIOwnQuery = defineQuery(
-        [HasValue(OwnedBy, { value: to64CharAddress(connectedAddress.get()) }), Has(VoxelType)],
-        {
-          runOnInit: true,
-        }
-      );
+      const VoxelsIOwnQuery = defineQuery([HasValue(OwnedBy, { value: to64CharAddress(connectedAddress.get()) })], {
+        runOnInit: true,
+      });
 
       // maps voxel type -> number of voxels I own of that type
       const numVoxelsIOwnOfType$ = concat<{ [key: string]: number }[]>(
         of({}),
         VoxelsIOwnQuery.update$.pipe(
           scan((acc, curr) => {
-            const voxelType = getComponentValue(VoxelType, curr.entity);
+            const voxelType = getComponentValue(
+              VoxelType,
+              `${to64CharAddress("0x" + getWorldScale(noa))}:${curr.entity}` as Entity
+            );
             if (!voxelType) return { ...acc };
             const voxelBaseTypeId = voxelType.voxelTypeId;
             acc[voxelBaseTypeId] = acc[voxelBaseTypeId] ?? 0;
@@ -207,7 +209,7 @@ export function registerInventoryHud() {
             HasValue(OwnedBy, {
               value: to64CharAddress(connectedAddress.get()),
             }),
-            HasValue(VoxelType, voxelBaseTypeIdAtSlot),
+            HasValue(VoxelType, { voxelTypeId: voxelBaseTypeIdAtSlot }), // TODO: is it ok to just look for one value in this column?
           ]),
         ];
 

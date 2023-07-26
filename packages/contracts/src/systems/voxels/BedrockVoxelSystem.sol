@@ -29,7 +29,11 @@ contract BedrockVoxelSystem is VoxelType {
     bedrockVariant.uvWrap = BedrockUVWrap;
 
     REGISTRY_WORLD.call(abi.encodeWithSignature(REGISTER_VOXEL_VARIANT_SIG, BedrockID, bedrockVariant));
-    REGISTRY_WORLD.call(abi.encodeWithSignature(REGISTER_VOXEL_TYPE_SIG, "Bedrock", BedrockID, BedrockID, _world()));
+    bytes32[] memory bedrockChildVoxelTypes = new bytes32[](1);
+    bedrockChildVoxelTypes[0] = BedrockID;
+    REGISTRY_WORLD.call(
+      abi.encodeWithSignature(REGISTER_VOXEL_TYPE_SIG, "Bedrock", BedrockID, bedrockChildVoxelTypes, BedrockID)
+    );
 
     Occurrence.set(BedrockID, world.tenet_OccurrenceSystem_OBedrock.selector);
   }

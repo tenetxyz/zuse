@@ -11,7 +11,7 @@ import { AirID } from "../../systems/voxels/AirVoxelSystem.sol";
 import { GrassID } from "../../systems/voxels/GrassVoxelSystem.sol";
 import { DirtID } from "../../systems/voxels/DirtVoxelSystem.sol";
 
-import { addressToEntityKey } from "../../Utils.sol";
+import { addressToEntityKey } from "@tenet-utils/src/Utils.sol";
 import { VoxelCoord } from "../../Types.sol";
 import { Utilities } from "@latticexyz/std-contracts/src/test/Utilities.sol";
 import { console } from "forge-std/console.sol";

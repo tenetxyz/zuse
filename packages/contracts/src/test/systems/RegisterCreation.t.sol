@@ -3,7 +3,6 @@ pragma solidity >=0.8.0;
 
 import { getUniqueEntity } from "@latticexyz/world/src/modules/uniqueentity/getUniqueEntity.sol";
 import { MudTest } from "@latticexyz/store/src/MudTest.sol";
-import { addressToEntityKey } from "../../Utils.sol";
 import { VoxelCoord, BaseCreationInWorld } from "@tenet-contracts/src/Types.sol";
 import { OwnedBy, VoxelType, VoxelTypeData } from "@tenet-contracts/src/codegen/Tables.sol";
 import { IWorld } from "@tenet-contracts/src/codegen/world/IWorld.sol";

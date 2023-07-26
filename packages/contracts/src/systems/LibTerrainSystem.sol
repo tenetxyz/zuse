@@ -11,7 +11,6 @@ import { DirtID } from "./voxels/DirtVoxelSystem.sol";
 import { BedrockID } from "./voxels/BedrockVoxelSystem.sol";
 
 import { VoxelCoord, Tuple } from "../Types.sol";
-import { div } from "../Utils.sol";
 import { System } from "@latticexyz/world/src/System.sol";
 import { IWorld } from "@tenet-contracts/src/codegen/world/IWorld.sol";
 import { CHUNK_MIN_Y, TENET_NAMESPACE } from "../Constants.sol";
@@ -40,6 +39,13 @@ int128 constant _16 = 16 * 2 ** 64;
 
 bytes16 constant EMPTY_NAMESPACE = bytes16(0x0);
 bytes32 constant EMPTY_ID = bytes32(0x0);
+
+// Divide with rounding down like Math.floor(a/b), not rounding towards zero
+function div(int32 a, int32 b) pure returns (int32) {
+  int32 result = a / b;
+  int32 floor = (a < 0 || b < 0) && !(a < 0 && b < 0) && (a % b != 0) ? int32(1) : int32(0);
+  return result - floor;
+}
 
 contract LibTerrainSystem is System {
   function getTerrainVoxel(VoxelCoord memory coord) public view returns (bytes32) {

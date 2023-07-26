@@ -17,7 +17,7 @@ import { voxelCoordToString } from "../../../utils/coord";
 import { renderFloatingTextAboveCoord } from "./renderFloatingText";
 import { InterfaceVoxel } from "../types";
 import { World } from "noa-engine/dist/src/lib/world";
-import { decreaseScale, setScale } from "./createScaleManager";
+import { setScale } from "./createScaleManager";
 
 export function createInputSystem(layers: Layers) {
   const {
@@ -259,7 +259,7 @@ export function createInputSystem(layers: Layers) {
       // you are holding a block and are looking at a block. so place the block at the adjacent coord
       const pos = noa.targetedBlock.adjacent;
       const coord = { x: pos[0], y: pos[1], z: pos[2] };
-      build(voxelBaseTypeId, coord);
+      build(noa, voxelBaseTypeId, coord);
     } else {
       // you are holding nothing and are looking at a block. So activate the block
       const entity = getEntityAtPosition(getTargetedVoxelCoord(noa));
@@ -499,10 +499,10 @@ export function createInputSystem(layers: Layers) {
 
   bindInputEvent("zoomout");
   onDownInputEvent("zoomout", () => {
-    setScale(layers, -1);
+    setScale(layers, +1);
   });
   bindInputEvent("zoomin");
   onDownInputEvent("zoomin", () => {
-    setScale(layers, +1);
+    setScale(layers, -1);
   });
 }

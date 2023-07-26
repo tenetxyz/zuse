@@ -31,6 +31,7 @@
     "@latticexyz/solecs": "link:../../../mud/packages/solecs",
     "@latticexyz/std-client": "link:../../../mud/packages/std-client",
     "@latticexyz/std-contracts": "link:../../../mud/packages/std-contracts",
+    "@latticexyz/store-cache": "link:../../../mud/packages/store-cache",
     "@latticexyz/utils": "link:../../../mud/packages/utils",
     "@latticexyz/world": "link:../../../mud/packages/world",
     "@tenetxyz/contracts": "workspace:*",

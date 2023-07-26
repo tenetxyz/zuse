@@ -35,10 +35,12 @@ import {
 import { Textures, UVWraps } from "../layers/noa/constants";
 import { AIR_ID, BEDROCK_ID, DIRT_ID, GRASS_ID } from "../layers/network/api/terrain/occurrence";
 import { getNftStorageLink } from "../layers/noa/constants";
-import { voxelCoordToString } from "../utils/coord";
+import { getWorldScale, voxelCoordToString } from "../utils/coord";
 import { toast } from "react-toastify";
 import { abiDecode } from "../utils/abi";
 import { BaseCreationInWorld } from "../layers/react/components/RegisterCreation";
+import { getLiveStoreCache } from "./setupLiveStoreCache";
+import { Engine } from "noa-engine";
 
 export type SetupNetworkResult = Awaited<ReturnType<typeof setupNetwork>>;
 
@@ -332,45 +334,52 @@ export async function setupNetwork() {
 
   const perlin = await createPerlin();
 
+  const liveStoreCache = getLiveStoreCache(result.storeCache);
   const terrainContext = {
     Position: contractComponents.Position,
     VoxelType: contractComponents.VoxelType,
     world,
+    liveStoreCache,
   };
 
   function getTerrainVoxelTypeAtPosition(position: VoxelCoord): VoxelTypeKey {
     return getTerrainVoxel(getTerrain(position, perlin), position, perlin);
   }
 
-  function getEcsVoxelTypeAtPosition(position: VoxelCoord): VoxelTypeKey | undefined {
-    return getEcsVoxelType(terrainContext, position);
+  function getEcsVoxelTypeAtPosition(position: VoxelCoord, scale: number): VoxelTypeKey | undefined {
+    return getEcsVoxelType(terrainContext, position, scale);
   }
-  function getVoxelAtPosition(position: VoxelCoord): VoxelTypeKey {
-    return getVoxelAtPositionApi(terrainContext, perlin, position);
+  function getVoxelAtPosition(position: VoxelCoord, scale: number): VoxelTypeKey {
+    return getVoxelAtPositionApi(terrainContext, perlin, position, scale);
   }
-  function getEntityAtPosition(position: VoxelCoord): Entity | undefined {
-    return getEntityAtPositionApi(terrainContext, position);
+  function getEntityAtPosition(position: VoxelCoord, scale: number): Entity | undefined {
+    return getEntityAtPositionApi(terrainContext, position, scale);
   }
 
   function getName(entity: Entity): string | undefined {
     return getComponentValue(contractComponents.Name, entity)?.value;
   }
 
-  function build(voxelBaseTypeId: VoxelBaseTypeId, coord: VoxelCoord) {
-    const voxelInstanceOfVoxelType = [
+  function build(noa: Engine, voxelBaseTypeId: VoxelBaseTypeId, coord: VoxelCoord) {
+    const voxelInstancesOfVoxelType = [
       ...runQuery([
         HasValue(contractComponents.OwnedBy, {
           value: to64CharAddress(playerAddress),
         }),
-        HasValue(contractComponents.VoxelType, {
-          voxelTypeId: voxelBaseTypeId as Entity,
-        }),
       ]),
-    ][0];
-    if (!voxelInstanceOfVoxelType) {
+    ].filter((entityKey) => {
+      return (
+        getComponentValue(
+          contractComponents.VoxelType,
+          `${to64CharAddress("0x" + getWorldScale(noa))}:${entityKey}` as Entity
+        )?.voxelTypeId === voxelBaseTypeId
+      );
+    });
+    if (voxelInstancesOfVoxelType.length === 0) {
       toast(`cannot build since we couldn't find a voxel (that you own) for voxelBaseTypeId=${voxelBaseTypeId}`);
       return console.warn(`cannot find a voxel (that you own) for voxelBaseTypeId=${voxelBaseTypeId}`);
     }
+    const voxelInstanceOfVoxelType = voxelInstancesOfVoxelType[0];
 
     const preview: string = getVoxelTypePreviewUrl(voxelBaseTypeId) || "";
     const previewVoxelVariant = getVoxelPreviewVariant(voxelBaseTypeId);
@@ -422,13 +431,13 @@ export async function setupNetwork() {
     });
   }
 
-  async function mine(coord: VoxelCoord) {
-    const voxelTypeKey = getEcsVoxelTypeAtPosition(coord) ?? getTerrainVoxelTypeAtPosition(coord);
+  async function mine(coord: VoxelCoord, scale: number) {
+    const voxelTypeKey = getEcsVoxelTypeAtPosition(coord, scale) ?? getTerrainVoxelTypeAtPosition(coord);
 
     if (voxelTypeKey == null) {
       throw new Error("entity has no VoxelType");
     }
-    const voxel = getEntityAtPosition(coord);
+    const voxel = getEntityAtPosition(coord, scale);
     const airEntity = world.registerEntity();
 
     actions.add({
@@ -542,6 +551,9 @@ export async function setupNetwork() {
   ) {
     // TODO: Replace Diamond NFT with a creation symbol
     const preview = getNftStorageLink("bafkreicro56v6rinwnltbkyjfzqdwva2agtrtypwaeowud447louxqgl5y");
+    const voxelsWithoutScale = voxels.map((voxelEntityKey) => {
+      return voxelEntityKey.split(":")[1];
+    });
 
     actions.add({
       id: `RegisterCreation+${creationName}` as Entity,
@@ -554,7 +566,7 @@ export async function setupNetwork() {
         return callSystem("tenet_RegisterCreation_registerCreation", [
           creationName,
           creationDescription,
-          voxels,
+          voxelsWithoutScale,
           baseCreationsInWorld,
           { gasLimit: 30_000_000 },
         ]);
@@ -706,5 +718,6 @@ export async function setupNetwork() {
       VoxelVariantSubscriptions,
     },
     objectStore: { transactionCallbacks }, // stores global objects. These aren't components since they don't really fit in with the rxjs event-based system
+    liveStoreCache,
   };
 }

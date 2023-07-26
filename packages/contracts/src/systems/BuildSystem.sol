@@ -6,16 +6,17 @@ import { System } from "@latticexyz/world/src/System.sol";
 import { VoxelCoord } from "../Types.sol";
 import { OwnedBy, Position, PositionTableId, VoxelType, VoxelTypeData } from "@tenet-contracts/src/codegen/Tables.sol";
 import { AirID } from "./voxels/AirVoxelSystem.sol";
-import { addressToEntityKey, enterVoxelIntoWorld, updateVoxelVariant, increaseVoxelTypeSpawnCount } from "../Utils.sol";
+import { enterVoxelIntoWorld, updateVoxelVariant, increaseVoxelTypeSpawnCount } from "../Utils.sol";
 import { getUniqueEntity } from "@latticexyz/world/src/modules/uniqueentity/getUniqueEntity.sol";
 import { IWorld } from "@tenet-contracts/src/codegen/world/IWorld.sol";
+import { addressToEntityKey } from "@tenet-utils/src/Utils.sol";
 
 contract BuildSystem is System {
   function build(bytes32 entity, VoxelCoord memory coord) public returns (bytes32) {
     // Require voxel to be owned by caller
     require(OwnedBy.get(entity) == addressToEntityKey(_msgSender()), "voxel is not owned by player");
 
-    VoxelTypeData memory voxelType = VoxelType.get(entity);
+    VoxelTypeData memory voxelType = VoxelType.get(1, entity);
     return buildVoxelType(voxelType, coord);
   }
 
@@ -29,19 +30,19 @@ contract BuildSystem is System {
     require(entitiesAtPosition.length <= 1, "This position is already occupied by another voxel");
     if (entitiesAtPosition.length == 1) {
       require(
-        VoxelType.get(entitiesAtPosition[0][0]).voxelTypeId == AirID,
+        VoxelType.get(1, entitiesAtPosition[0][1]).voxelTypeId == AirID,
         "This position is already occupied by another voxel"
       );
-      VoxelType.deleteRecord(entitiesAtPosition[0][0]);
-      Position.deleteRecord(entitiesAtPosition[0][0]);
+      VoxelType.deleteRecord(1, entitiesAtPosition[0][1]);
+      Position.deleteRecord(1, entitiesAtPosition[0][1]);
     }
 
     // TODO: check claim in chunk
     //    OwnedBy.deleteRecord(voxel);
     bytes32 newEntity = getUniqueEntity();
-    Position.set(newEntity, coord.x, coord.y, coord.z);
+    Position.set(1, newEntity, coord.x, coord.y, coord.z);
 
-    VoxelType.set(newEntity, voxelType);
+    VoxelType.set(1, newEntity, voxelType);
     // Note: Need to run this because we are in creative mode and this is a new entity
     enterVoxelIntoWorld(_world(), newEntity);
     updateVoxelVariant(_world(), newEntity);

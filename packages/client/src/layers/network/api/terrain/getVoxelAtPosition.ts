@@ -5,6 +5,8 @@ import { Terrain, TerrainState } from "./types";
 import { getTerrain } from "./utils";
 import { Air, AIR_ID, Bedrock, Dirt, Grass } from "./occurrence";
 import { VoxelTypeKey, VoxelTypeKeyInMudTable } from "@tenetxyz/layers/noa/types";
+import { LiveStoreCache } from "@tenetxyz/mud/setupLiveStoreCache";
+import { to64CharAddress } from "../../../../utils/entity";
 
 export function getEntityAtPosition(
   context: {
@@ -14,18 +16,24 @@ export function getEntityAtPosition(
       voxelVariantId: Type.String;
     }>;
     world: World;
+    liveStoreCache: LiveStoreCache;
   },
-  coord: VoxelCoord
+  coord: VoxelCoord,
+  scale: number
 ): Entity | undefined {
   const { Position, VoxelType } = context;
-  const entitiesAtPosition = [...getEntitiesWithValue(Position, coord)];
+  const currentScaleInHexadecimal = to64CharAddress("0x" + scale);
+  const entityKeysAtPosition = [...getEntitiesWithValue(Position, coord)].filter((entityKey) => {
+    const [_scaleInHexadecimal, entity] = entityKey.split(":");
+    return _scaleInHexadecimal == currentScaleInHexadecimal;
+  });
 
   // Prefer non-air voxels at this position
   return (
-    entitiesAtPosition?.find((b) => {
-      const voxelType = getComponentValue(VoxelType, b);
+    entityKeysAtPosition?.find((entityKey) => {
+      const voxelType = getComponentValue(VoxelType, entityKey);
       return voxelType && voxelType.voxelTypeId !== AIR_ID;
-    }) ?? entitiesAtPosition[0]
+    }) ?? entityKeysAtPosition[0]
   );
 }
 
@@ -36,13 +44,18 @@ export function getEcsVoxelType(
       voxelTypeId: Type.String;
       voxelVariantId: Type.String;
     }>;
+    liveStoreCache: LiveStoreCache;
     world: World;
   },
-  coord: VoxelCoord
+  coord: VoxelCoord,
+  scale: number
 ): VoxelTypeKey | undefined {
-  const entityAtPosition = getEntityAtPosition(context, coord);
-  if (!entityAtPosition) return undefined;
-  const voxelTypeKeyInMudTable = getComponentValue(context.VoxelType, entityAtPosition) as VoxelTypeKeyInMudTable;
+  const { VoxelType } = context;
+  const entityKeyAtPosition = getEntityAtPosition(context, coord, scale);
+  if (!entityKeyAtPosition) return undefined;
+  // getEntityAtPosition already filters for voxels at the current scale, so we don't need to check it again here
+  const voxelTypeKeyInMudTable = getComponentValue(VoxelType, entityKeyAtPosition) as VoxelTypeKeyInMudTable;
+
   return {
     voxelBaseTypeId: voxelTypeKeyInMudTable.voxelTypeId,
     voxelVariantTypeId: voxelTypeKeyInMudTable.voxelVariantId,
@@ -57,11 +70,13 @@ export function getVoxelAtPosition(
       voxelVariantId: Type.String;
     }>;
     world: World;
+    liveStoreCache: LiveStoreCache;
   },
   perlin: Perlin,
-  coord: VoxelCoord
+  coord: VoxelCoord,
+  scale: number
 ): VoxelTypeKey {
-  return getEcsVoxelType(context, coord) ?? getTerrainVoxel(getTerrain(coord, perlin), coord, perlin);
+  return getEcsVoxelType(context, coord, scale) ?? getTerrainVoxel(getTerrain(coord, perlin), coord, perlin);
 }
 
 export function getTerrainVoxel(

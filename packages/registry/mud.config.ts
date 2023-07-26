@@ -13,16 +13,40 @@ export default mudConfig({
   },
   snapSync: true,
   tables: {
+    WorldRegistry: {
+      keySchema: {
+        worldAddress: "address",
+      },
+      schema: {
+        creator: "address",
+        name: "string",
+        description: "string",
+        caAddresses: "address[]",
+      },
+    },
+    CARegistry: {
+      keySchema: {
+        caAddress: "address",
+      },
+      schema: {
+        scale: "uint32",
+        creator: "address",
+        name: "string",
+        description: "string",
+        voxelTypeIds: "bytes32[]",
+      },
+    },
     VoxelTypeRegistry: {
       keySchema: {
         voxelTypeId: "bytes32", // AKA voxelBaseTypeId
       },
       schema: {
-        caAddress: "address",
+        scale: "uint32",
         previewVoxelVariantId: "bytes32",
         creator: "address",
         numSpawns: "uint256",
         name: "string",
+        childVoxelTypeIds: "bytes32[]",
       },
     },
     VoxelVariantsRegistry: {
@@ -43,6 +67,16 @@ export default mudConfig({
     },
   },
   modules: [
+    {
+      name: "KeysInTableModule",
+      root: true,
+      args: [resolveTableId("WorldRegistry")],
+    },
+    {
+      name: "KeysInTableModule",
+      root: true,
+      args: [resolveTableId("CARegistry")],
+    },
     {
       name: "KeysInTableModule",
       root: true,

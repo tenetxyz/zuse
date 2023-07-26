@@ -8,7 +8,7 @@ import { IWorld } from "@tenet-contracts/src/codegen/world/IWorld.sol";
 import { VoxelType, OwnedBy } from "@tenet-contracts/src/codegen/Tables.sol";
 
 import { GrassID } from "../../systems/voxels/GrassVoxelSystem.sol";
-import { addressToEntityKey } from "../../Utils.sol";
+import { addressToEntityKey } from "@tenet-utils/src/Utils.sol";
 import { VoxelCoord } from "../../Types.sol";
 import { Utilities } from "@latticexyz/std-contracts/src/test/Utilities.sol";
 import { console } from "forge-std/console.sol";
@@ -36,7 +36,7 @@ contract MineTest is MudTest {
 
     bytes32 minedEntity = world.tenet_MineSystem_mine(coord, GrassID, GrassID);
 
-    assertEq(VoxelType.get(store, minedEntity).voxelTypeId, GrassID);
+    assertEq(VoxelType.get(store, 1, minedEntity).voxelTypeId, GrassID);
     assertEq(OwnedBy.get(store, minedEntity), addressToEntityKey(alice));
     vm.stopPrank();
   }

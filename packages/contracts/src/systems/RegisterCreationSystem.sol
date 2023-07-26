@@ -5,7 +5,8 @@ import { getUniqueEntity } from "@latticexyz/world/src/modules/uniqueentity/getU
 import { System } from "@latticexyz/world/src/System.sol";
 import { Strings } from "@openzeppelin/contracts/utils/Strings.sol";
 import { IWorld } from "@tenet-contracts/src/codegen/world/IWorld.sol";
-import { addressToEntityKey, getEntitiesAtCoord, voxelCoordToString, voxelCoordsAreEqual, add, sub } from "../Utils.sol";
+import { getEntitiesAtCoord } from "../Utils.sol";
+import { voxelCoordToString, voxelCoordsAreEqual, add, sub } from "@tenet-utils/src/VoxelCoordUtils.sol";
 import { VoxelType, Position, Creation, CreationData, VoxelTypeData, Spawn, SpawnData, OfSpawn } from "@tenet-contracts/src/codegen/Tables.sol";
 import { PositionData } from "@tenet-contracts/src/codegen/tables/Position.sol";
 import { VoxelCoord, BaseCreation, BaseCreationInWorld } from "@tenet-contracts/src/Types.sol";
@@ -288,7 +289,7 @@ contract RegisterCreationSystem is System {
   function getVoxelTypes(bytes32[] memory voxels) public view returns (VoxelTypeData[] memory) {
     VoxelTypeData[] memory voxelTypeData = new VoxelTypeData[](voxels.length);
     for (uint32 i = 0; i < voxels.length; i++) {
-      voxelTypeData[i] = VoxelType.get(voxels[i]);
+      voxelTypeData[i] = VoxelType.get(1, voxels[i]);
     }
     return voxelTypeData;
   }
@@ -296,7 +297,7 @@ contract RegisterCreationSystem is System {
   function getVoxelCoords(bytes32[] memory voxels) private view returns (VoxelCoord[] memory) {
     VoxelCoord[] memory voxelCoords = new VoxelCoord[](voxels.length);
     for (uint32 i = 0; i < voxels.length; i++) {
-      PositionData memory position = Position.get(voxels[i]);
+      PositionData memory position = Position.get(1, voxels[i]);
       voxelCoords[i] = VoxelCoord(position.x, position.y, position.z);
     }
     return voxelCoords;

@@ -367,15 +367,16 @@ export async function setupNetwork() {
           player: playerAddress,
         }),
       ]),
-    ].filter((entityKey) => {
-      return getComponentValue(contractComponents.VoxelType, entityKey)?.voxelTypeId === voxelBaseTypeId;
-    });
+      HasValue(contractComponents.VoxelType, {
+        voxelTypeId: voxelBaseTypeId as Entity,
+      }),
+    ];
     if (voxelInstancesOfVoxelType.length === 0) {
       toast(`cannot build since we couldn't find a voxel (that you own) for voxelBaseTypeId=${voxelBaseTypeId}`);
       return console.warn(`cannot find a voxel (that you own) for voxelBaseTypeId=${voxelBaseTypeId}`);
     }
     const voxelInstanceOfVoxelType = voxelInstancesOfVoxelType[0];
-    const [scale, entityId] = voxelInstanceOfVoxelType.split(":");
+    const [scale, entityId] = (voxelInstanceOfVoxelType as string).split(":");
     const scaleAsNumber = parseInt(scale.substring(2)); // remove the leading 0x
     if (scaleAsNumber !== getWorldScale(noa)) {
       toast(`you can only place this voxel on scale ${scaleAsNumber}`);

@@ -7,25 +7,13 @@ import { World, markAllChunksInvalid } from "noa-engine/src/lib/world";
 // we are not calling invalidateChunksInBox (or the deprecated world.invalidateAllChunks) because using the world name is the proper way to do it
 // https://github.com/fenomas/noa/commit/095f42c15aa5b1832739b647523ee620f3606400
 
-const worldScales = new Map<string, World>(); // worldName -> world
-
-export const increaseScale = () => {};
-
-export const decreaseScale = (layers: Layers) => {
+export const setScale = (layers: Layers, scaleDiff: number) => {
   const {
     noa: { noa },
   } = layers;
-  // doesn't work
-  //   noa.world.worldName = "hi"; //
-  // noa.world = new World(noa, noaOptions);
-  markAllChunksInvalid(noa.world);
-};
+  const currentWorldScale = parseInt(noa.worldName);
 
-// const markAllChunksInvalid = (world: World) => {
-//   world._chunksInvalidated.copyFrom(world._chunksKnown);
-//   world._chunksToRemove.empty();
-//   world._chunksToRequest.empty();
-//   world._chunksToMesh.empty();
-//   world._chunksToMeshFirst.empty();
-//   sortQueueByDistanceFrom(world, world._chunksInvalidated);
-// };
+  // Note: There is a function in world.js that is a tick loop. This will check to see if the function has changed and properly update the world.
+  // noa automatically resets all chunks and reloads them when the worldName changes!
+  noa.worldName = (currentWorldScale + scaleDiff).toString();
+};

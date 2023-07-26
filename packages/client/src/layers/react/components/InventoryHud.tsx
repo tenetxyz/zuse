@@ -24,11 +24,8 @@ import { Inventory } from "./Inventory";
 import { Layers } from "../../../types";
 import { entityToVoxelType } from "../../noa/types";
 import { firstFreeInventoryIndex } from "../../noa/systems/createInventoryIndexSystem";
-import { StatusHud } from "./StatusHud";
 import { FocusedUiType } from "../../noa/components/FocusedUi";
-import { useComponentUpdate } from "../../../utils/useComponentUpdate";
 import { useComponentValue } from "@latticexyz/react";
-import { getWorldScale } from "../../../utils/coord";
 
 // This gives us 36 inventory slots. As of now there are 34 types of VoxelTypes, so it should fit.
 export const INVENTORY_WIDTH = 9;

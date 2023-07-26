@@ -364,27 +364,29 @@ export async function setupNetwork() {
     const voxelInstancesOfVoxelType = [
       ...runQuery([
         HasValue(contractComponents.OwnedBy, {
-          value: to64CharAddress(playerAddress),
+          player: playerAddress,
         }),
       ]),
     ].filter((entityKey) => {
-      return (
-        getComponentValue(
-          contractComponents.VoxelType,
-          `${to64CharAddress("0x" + getWorldScale(noa))}:${entityKey}` as Entity
-        )?.voxelTypeId === voxelBaseTypeId
-      );
+      return getComponentValue(contractComponents.VoxelType, entityKey)?.voxelTypeId === voxelBaseTypeId;
     });
     if (voxelInstancesOfVoxelType.length === 0) {
       toast(`cannot build since we couldn't find a voxel (that you own) for voxelBaseTypeId=${voxelBaseTypeId}`);
       return console.warn(`cannot find a voxel (that you own) for voxelBaseTypeId=${voxelBaseTypeId}`);
     }
     const voxelInstanceOfVoxelType = voxelInstancesOfVoxelType[0];
+    const [scale, entityId] = voxelInstanceOfVoxelType.split(":");
+    debugger;
+    const scaleAsNumber = parseInt(scale.substring(2)); // remove the leading 0x
+    if (scaleAsNumber !== getWorldScale(noa)) {
+      toast(`you can only place this voxel on scale ${scaleAsNumber}`);
+      return;
+    }
 
     const preview: string = getVoxelTypePreviewUrl(voxelBaseTypeId) || "";
     const previewVoxelVariant = getVoxelPreviewVariant(voxelBaseTypeId);
 
-    const newVoxelOfSameType = `${to64CharAddress("0x" + getWorldScale(noa))}:${world.registerEntity()}` as Entity;
+    const newVoxelOfSameType = `${to64CharAddress("0x" + scale)}:${world.registerEntity()}` as Entity;
 
     actions.add({
       id: `build+${voxelCoordToString(coord)}` as Entity, // used so we don't send the same transaction twice
@@ -401,7 +403,7 @@ export async function setupNetwork() {
         OwnedBy: contractComponents.OwnedBy, // I think it's needed cause we check to see if the owner owns the voxel we're placing
       },
       execute: () => {
-        return callSystem("build", [to64CharAddress(voxelInstanceOfVoxelType), coord, { gasLimit: 100_000_000 }]);
+        return callSystem("build", [scale, entityId, coord, { gasLimit: 100_000_000 }]);
       },
       updates: () => [
         // commented cause we're in creative mode

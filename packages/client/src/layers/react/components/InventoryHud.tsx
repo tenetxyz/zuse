@@ -56,7 +56,7 @@ export function registerInventoryHud() {
         },
       } = layers;
 
-      const VoxelsIOwnQuery = defineQuery([HasValue(OwnedBy, { value: to64CharAddress(connectedAddress.get()) })], {
+      const VoxelsIOwnQuery = defineQuery([HasValue(OwnedBy, { player: connectedAddress.get() })], {
         runOnInit: true,
       });
 
@@ -65,10 +65,7 @@ export function registerInventoryHud() {
         of({}),
         VoxelsIOwnQuery.update$.pipe(
           scan((acc, curr) => {
-            const voxelType = getComponentValue(
-              VoxelType,
-              `${to64CharAddress("0x" + getWorldScale(noa))}:${curr.entity}` as Entity
-            );
+            const voxelType = getComponentValue(VoxelType, curr.entity);
             if (!voxelType) return { ...acc };
             const voxelBaseTypeId = voxelType.voxelTypeId;
             acc[voxelBaseTypeId] = acc[voxelBaseTypeId] ?? 0;
@@ -207,7 +204,7 @@ export function registerInventoryHud() {
         const ownedEntitiesOfType = [
           ...runQuery([
             HasValue(OwnedBy, {
-              value: to64CharAddress(connectedAddress.get()),
+              player: connectedAddress.get(),
             }),
             HasValue(VoxelType, { voxelTypeId: voxelBaseTypeIdAtSlot }), // TODO: is it ok to just look for one value in this column?
           ]),

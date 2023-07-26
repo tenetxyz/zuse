@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: GPL-3.0
 pragma solidity >=0.8.0;
-
+import { IStore } from "@latticexyz/store/src/IStore.sol";
 import { getUniqueEntity } from "@latticexyz/world/src/modules/uniqueentity/getUniqueEntity.sol";
 import { System } from "@latticexyz/world/src/System.sol";
 import { Strings } from "@openzeppelin/contracts/utils/Strings.sol";
@@ -9,6 +9,8 @@ import { getEntitiesAtCoord } from "../Utils.sol";
 import { voxelCoordToString, voxelCoordsAreEqual, add, sub } from "@tenet-utils/src/VoxelCoordUtils.sol";
 import { VoxelType, Position, Creation, CreationData, VoxelTypeData, Spawn, SpawnData, OfSpawn } from "@tenet-contracts/src/codegen/Tables.sol";
 import { PositionData } from "@tenet-contracts/src/codegen/tables/Position.sol";
+import { VoxelTypeRegistry, VoxelTypeRegistryData } from "@tenet-registry/src/codegen/tables/VoxelTypeRegistry.sol";
+import { REGISTRY_ADDRESS } from "@tenet-contracts/src/Constants.sol";
 import { VoxelCoord, BaseCreation, BaseCreationInWorld } from "@tenet-contracts/src/Types.sol";
 //import { CreateBlock } from "../libraries/CreateBlock.sol";
 
@@ -22,8 +24,14 @@ contract RegisterCreationSystem is System {
     bytes32[] memory voxels,
     BaseCreationInWorld[] memory baseCreationsInWorld
   ) public returns (bytes32) {
-    VoxelCoord[] memory voxelCoords = getVoxelCoords(voxels); // NOTE: we do not know the relative position of these voxelCoords yet (since we don't know the coords of the voxels in the base creations). So we will reposition them later
-    VoxelTypeData[] memory voxelTypes = getVoxelTypes(voxels);
+    uint32[] memory scales = new uint32[](voxels.length);
+    for (uint256 i = 0; i < voxels.length; i++) {
+      require(IWorld(_world()).isVoxelTypeAllowed(voxels[i]), "Voxel type not allowed in this world");
+      VoxelTypeRegistryData memory voxelTypeData = VoxelTypeRegistry.get(IStore(REGISTRY_ADDRESS), voxels[i]);
+      scales[i] = voxelTypeData.scale;
+    }
+    VoxelCoord[] memory voxelCoords = getVoxelCoords(scales, voxels); // NOTE: we do not know the relative position of these voxelCoords yet (since we don't know the coords of the voxels in the base creations). So we will reposition them later
+    VoxelTypeData[] memory voxelTypes = getVoxelTypes(scales, voxels);
 
     // 1) get all of the voxelCoords of all voxels in the creation
     (VoxelCoord[] memory allVoxelCoordsInWorld, VoxelTypeData[] memory allVoxelTypes) = getVoxels(
@@ -286,18 +294,18 @@ contract RegisterCreationSystem is System {
     return baseCreations;
   }
 
-  function getVoxelTypes(bytes32[] memory voxels) public view returns (VoxelTypeData[] memory) {
+  function getVoxelTypes(uint32[] memory scales, bytes32[] memory voxels) public view returns (VoxelTypeData[] memory) {
     VoxelTypeData[] memory voxelTypeData = new VoxelTypeData[](voxels.length);
     for (uint32 i = 0; i < voxels.length; i++) {
-      voxelTypeData[i] = VoxelType.get(1, voxels[i]);
+      voxelTypeData[i] = VoxelType.get(scales[i], voxels[i]);
     }
     return voxelTypeData;
   }
 
-  function getVoxelCoords(bytes32[] memory voxels) private view returns (VoxelCoord[] memory) {
+  function getVoxelCoords(uint32[] memory scales, bytes32[] memory voxels) private view returns (VoxelCoord[] memory) {
     VoxelCoord[] memory voxelCoords = new VoxelCoord[](voxels.length);
     for (uint32 i = 0; i < voxels.length; i++) {
-      PositionData memory position = Position.get(1, voxels[i]);
+      PositionData memory position = Position.get(scales[i], voxels[i]);
       voxelCoords[i] = VoxelCoord(position.x, position.y, position.z);
     }
     return voxelCoords;

@@ -33,7 +33,9 @@ contract RegisterCreationTest is MudTest {
     bytes32 voxel1 = world.giftVoxel(GrassVoxelID);
     bytes32[] memory voxels = new bytes32[](1);
     voxels[0] = voxel1;
-    VoxelTypeData[] memory voxelTypes = world.getVoxelTypes(voxels);
+    uint32[] memory scales = new uint32[](1);
+    scales[0] = 1;
+    VoxelTypeData[] memory voxelTypes = world.getVoxelTypes(scales, voxels);
     assertEq(voxelTypes[0].voxelTypeId, GrassVoxelID);
 
     vm.stopPrank();
@@ -53,8 +55,8 @@ contract RegisterCreationTest is MudTest {
     VoxelCoord memory coord2 = VoxelCoord(2, 1, 2);
 
     // the build system spawns a new voxel before placing the newly spawned voxel in the world
-    bytes32 voxel1 = world.build(giftedVoxel, coord1);
-    bytes32 voxel2 = world.build(giftedVoxel, coord2);
+    bytes32 voxel1 = world.build(1, giftedVoxel, coord1);
+    bytes32 voxel2 = world.build(1, giftedVoxel, coord2);
 
     bytes32[] memory voxels = new bytes32[](2);
     voxels[0] = voxel1;

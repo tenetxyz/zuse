@@ -43,7 +43,15 @@ export default mudConfig({
         z: "int32",
       },
     },
-    OwnedBy: "bytes32",
+    OwnedBy: {
+      keySchema: {
+        scale: "uint32",
+        entity: "bytes32",
+      },
+      schema: {
+        player: "address",
+      },
+    },
     Name: "string", // Used to name players
     VoxelInteractionExtension: {
       keySchema: {

@@ -33,7 +33,7 @@ contract GiftVoxelTest is MudTest {
   function testNumUniqueVoxelTypesIOwn() public {
     vm.startPrank(alice);
     bytes32 giftedVoxel = world.giftVoxel(GrassVoxelID);
-    require(OwnedBy.get(store, giftedVoxel) == addressToEntityKey(alice), "Alice should own the voxel");
+    require(OwnedBy.get(store, 1, giftedVoxel) == alice, "Alice should own the voxel");
     require(world.numUniqueVoxelTypesIOwn() == 1, "Alice should own 1 unique voxel type");
     world.giftVoxel(AirVoxelID);
     require(world.numUniqueVoxelTypesIOwn() == 2, "Alice should own 2 unique voxel types");

@@ -24,11 +24,8 @@ import { Inventory } from "./Inventory";
 import { Layers } from "../../../types";
 import { entityToVoxelType } from "../../noa/types";
 import { firstFreeInventoryIndex } from "../../noa/systems/createInventoryIndexSystem";
-import { StatusHud } from "./StatusHud";
 import { FocusedUiType } from "../../noa/components/FocusedUi";
-import { useComponentUpdate } from "../../../utils/useComponentUpdate";
 import { useComponentValue } from "@latticexyz/react";
-import { getWorldScale } from "../../../utils/coord";
 
 // This gives us 36 inventory slots. As of now there are 34 types of VoxelTypes, so it should fit.
 export const INVENTORY_WIDTH = 9;
@@ -56,7 +53,7 @@ export function registerInventoryHud() {
         },
       } = layers;
 
-      const VoxelsIOwnQuery = defineQuery([HasValue(OwnedBy, { value: to64CharAddress(connectedAddress.get()) })], {
+      const VoxelsIOwnQuery = defineQuery([HasValue(OwnedBy, { player: connectedAddress.get() }), Has(VoxelType)], {
         runOnInit: true,
       });
 
@@ -65,10 +62,7 @@ export function registerInventoryHud() {
         of({}),
         VoxelsIOwnQuery.update$.pipe(
           scan((acc, curr) => {
-            const voxelType = getComponentValue(
-              VoxelType,
-              `${to64CharAddress("0x" + getWorldScale(noa))}:${curr.entity}` as Entity
-            );
+            const voxelType = getComponentValue(VoxelType, curr.entity);
             if (!voxelType) return { ...acc };
             const voxelBaseTypeId = voxelType.voxelTypeId;
             acc[voxelBaseTypeId] = acc[voxelBaseTypeId] ?? 0;
@@ -207,7 +201,7 @@ export function registerInventoryHud() {
         const ownedEntitiesOfType = [
           ...runQuery([
             HasValue(OwnedBy, {
-              value: to64CharAddress(connectedAddress.get()),
+              player: connectedAddress.get(),
             }),
             HasValue(VoxelType, { voxelTypeId: voxelBaseTypeIdAtSlot }), // TODO: is it ok to just look for one value in this column?
           ]),
@@ -244,6 +238,7 @@ export function registerInventoryHud() {
             onRightClick={() => removeVoxelType(i)}
             disabled={voxelTypeId === holdingVoxelType}
             selected={i === selectedSlot}
+            tooltipText={"todo: update"}
           />
         );
       });

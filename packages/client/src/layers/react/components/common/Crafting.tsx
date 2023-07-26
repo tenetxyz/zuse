@@ -76,7 +76,7 @@ export const Crafting: React.FC<{
     const ownedEntitiesOfType = [
       ...runQuery([
         HasValue(OwnedBy, {
-          value: to64CharAddress(connectedAddress.get()),
+          player: connectedAddress.get(),
         }),
         HasValue(VoxelType, { voxelTypeId: holdingVoxelType }),
       ]),

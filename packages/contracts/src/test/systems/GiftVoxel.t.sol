@@ -32,18 +32,18 @@ contract GiftVoxelTest is MudTest {
 
   function testNumUniqueVoxelTypesIOwn() public {
     vm.startPrank(alice);
-    bytes32 giftedVoxel = world.tenet_GiftVoxelSystem_giftVoxel(GrassVoxelID);
+    bytes32 giftedVoxel = world.giftVoxel(GrassVoxelID);
     require(OwnedBy.get(store, giftedVoxel) == addressToEntityKey(alice), "Alice should own the voxel");
-    require(world.tenet_GiftVoxelSystem_numUniqueVoxelTypesIOwn() == 1, "Alice should own 1 unique voxel type");
-    world.tenet_GiftVoxelSystem_giftVoxel(AirVoxelID);
-    require(world.tenet_GiftVoxelSystem_numUniqueVoxelTypesIOwn() == 2, "Alice should own 2 unique voxel types");
-    world.tenet_GiftVoxelSystem_giftVoxel(AirVoxelID);
+    require(world.numUniqueVoxelTypesIOwn() == 1, "Alice should own 1 unique voxel type");
+    world.giftVoxel(AirVoxelID);
+    require(world.numUniqueVoxelTypesIOwn() == 2, "Alice should own 2 unique voxel types");
+    world.giftVoxel(AirVoxelID);
     require(
-      world.tenet_GiftVoxelSystem_numUniqueVoxelTypesIOwn() == 2,
+      world.numUniqueVoxelTypesIOwn() == 2,
       "Alice should own 2 unique voxel types, after gifting a duplicate voxel type"
     );
-    world.tenet_GiftVoxelSystem_giftVoxel(DirtVoxelID);
-    require(world.tenet_GiftVoxelSystem_numUniqueVoxelTypesIOwn() == 3, "Alice should own 3 unique voxel types");
+    world.giftVoxel(DirtVoxelID);
+    require(world.numUniqueVoxelTypesIOwn() == 3, "Alice should own 3 unique voxel types");
     vm.stopPrank();
   }
 }

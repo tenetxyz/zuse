@@ -30,10 +30,10 @@ contract RegisterCreationTest is MudTest {
   function testGetVoxelTypes() public {
     vm.startPrank(alice);
 
-    bytes32 voxel1 = world.tenet_GiftVoxelSystem_giftVoxel(GrassVoxelID);
+    bytes32 voxel1 = world.giftVoxel(GrassVoxelID);
     bytes32[] memory voxels = new bytes32[](1);
     voxels[0] = voxel1;
-    VoxelTypeData[] memory voxelTypes = world.tenet_RegisterCreation_getVoxelTypes(voxels);
+    VoxelTypeData[] memory voxelTypes = world.getVoxelTypes(voxels);
     assertEq(voxelTypes[0].voxelTypeId, GrassVoxelID);
 
     vm.stopPrank();
@@ -47,26 +47,21 @@ contract RegisterCreationTest is MudTest {
     // NOTE: I don't think you can call Component.set(store, value);, you can only call Component.get(store, key);
     // This is why I am gifting the voxels to Alice.
     // For some reason, you also can't use: voxel1 = getUniqueEntity();
-    bytes32 giftedVoxel = world.tenet_GiftVoxelSystem_giftVoxel(GrassVoxelID);
+    bytes32 giftedVoxel = world.giftVoxel(GrassVoxelID);
 
     VoxelCoord memory coord1 = VoxelCoord(1, 2, 1);
     VoxelCoord memory coord2 = VoxelCoord(2, 1, 2);
 
     // the build system spawns a new voxel before placing the newly spawned voxel in the world
-    bytes32 voxel1 = world.tenet_BuildSystem_build(giftedVoxel, coord1);
-    bytes32 voxel2 = world.tenet_BuildSystem_build(giftedVoxel, coord2);
+    bytes32 voxel1 = world.build(giftedVoxel, coord1);
+    bytes32 voxel2 = world.build(giftedVoxel, coord2);
 
     bytes32[] memory voxels = new bytes32[](2);
     voxels[0] = voxel1;
     voxels[1] = voxel2;
 
     BaseCreationInWorld[] memory baseCreationsInWorld = new BaseCreationInWorld[](0);
-    world.tenet_RegisterCreation_registerCreation(
-      "test creation name",
-      "test creation desc",
-      voxels,
-      baseCreationsInWorld
-    );
+    world.registerCreation("test creation name", "test creation desc", voxels, baseCreationsInWorld);
     vm.stopPrank();
   }
 }

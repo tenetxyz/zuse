@@ -33,7 +33,7 @@ contract MineTest is MudTest {
     VoxelCoord memory coord = VoxelCoord({ x: -1598, y: 10, z: 4650 }); // Grass
     console.log("testMineTerrain");
 
-    bytes32 minedEntity = world.tenet_MineSystem_mine(GrassVoxelID, coord);
+    bytes32 minedEntity = world.mine(GrassVoxelID, coord);
 
     assertEq(VoxelType.get(store, 1, minedEntity).voxelTypeId, GrassVoxelID);
     assertEq(OwnedBy.get(store, minedEntity), addressToEntityKey(alice));

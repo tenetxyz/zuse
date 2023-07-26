@@ -21,7 +21,7 @@ import { exitWorld } from "@tenet-base-ca/src/Utils.sol";
 contract MineSystem is System {
   function mine(bytes32 voxelTypeId, VoxelCoord memory coord) public returns (bytes32) {
     require(coord.y <= CHUNK_MAX_Y && coord.y >= CHUNK_MIN_Y, "out of chunk bounds");
-    require(IWorld(_world()).tenet_InitSystem_isVoxelTypeAllowed(voxelTypeId), "Voxel type not allowed in this world");
+    require(IWorld(_world()).isVoxelTypeAllowed(voxelTypeId), "Voxel type not allowed in this world");
     VoxelTypeRegistryData memory voxelTypeData = VoxelTypeRegistry.get(IStore(REGISTRY_ADDRESS), voxelTypeId);
     address caAddress = CAConfig.get(voxelTypeId);
 
@@ -55,7 +55,7 @@ contract MineSystem is System {
     CAVoxelTypeData memory entityCAVoxelType = CAVoxelType.get(IStore(caAddress), _world(), voxelToMine);
     VoxelType.set(scale, voxelToMine, entityCAVoxelType.voxelTypeId, entityCAVoxelType.voxelVariantId);
 
-    IWorld(_world()).tenet_CASystem_runCA(caAddress, scale, voxelToMine);
+    IWorld(_world()).runCA(caAddress, scale, voxelToMine);
 
     OwnedBy.set(voxelToMine, addressToEntityKey(_msgSender()));
 

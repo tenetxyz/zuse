@@ -30,7 +30,7 @@ contract ActivateVoxelSystem is System {
     // );
 
     // Run voxel interaction logic
-    IWorld(_world()).tenet_VoxInteractSys_runInteractionSystems(entity);
+    IWorld(_world()).runInteractionSystems(entity);
 
     return activateReturnData;
   }

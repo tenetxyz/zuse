@@ -66,7 +66,7 @@ contract RegisterCreationSystem is System {
     Creation.set(creationId, creation);
 
     // 7) replace the voxels in the registration with a spawn!
-    IWorld(_world()).tenet_SpawnSystem_spawn(lowerSouthwestCorner, creationId); // make this creation a spawn
+    IWorld(_world()).spawn(lowerSouthwestCorner, creationId); // make this creation a spawn
     return creationId;
   }
 

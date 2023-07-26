@@ -3,6 +3,7 @@ const fs = require('fs');
 const chainId = process.argv[2];
 const worldsJsonPath = process.argv[3];
 const solidityFilePath = process.argv[4];
+const variableName = process.argv[5];
 
 if (chainId === undefined) {
     console.log('chainId is undefined');
@@ -16,6 +17,11 @@ if (worldsJsonPath === undefined) {
 
 if (solidityFilePath === undefined) {
     console.log('solidityFilePath is undefined');
+    return;
+}
+
+if (variableName === undefined) {
+    console.log('variableName is undefined');
     return;
 }
 
@@ -42,8 +48,8 @@ fs.readFile(solidityFilePath, 'utf8', (err, data) => {
     const newLines = [];
     for (let i = 0; i < lines.length; i++) {
         const line = lines[i];
-        if (line.startsWith('address constant REGISTRY_ADDRESS')) {
-            const newLine = `address constant REGISTRY_ADDRESS = ${worldAddress};`;
+        if (line.startsWith(`address constant ${variableName}`)) {
+            const newLine = `address constant ${variableName} = ${worldAddress};`;
             newLines.push(newLine);
         } else {
             newLines.push(line);
@@ -57,6 +63,6 @@ fs.readFile(solidityFilePath, 'utf8', (err, data) => {
             console.error('Error writing to file:', err);
             return;
         }
-        console.log(`World address replaced successfully to ${worldAddress}.`);
+        console.log(`Address variable ${variableName} replaced successfully to ${worldAddress}.`);
     });
 });

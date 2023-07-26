@@ -8,7 +8,6 @@ import { resolveTableId } from "@latticexyz/config";
 import "@latticexyz/world/snapsync";
 
 export default mudConfig({
-  namespace: "tenet",
   enums: {
     NoaBlockType: ["BLOCK", "MESH"],
   },

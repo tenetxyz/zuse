@@ -15,8 +15,9 @@ import { Strings } from "@openzeppelin/contracts/utils/Strings.sol";
 contract SpawnSystem is System {
   function spawn(VoxelCoord memory lowerSouthWestCorner, bytes32 creationId) public returns (bytes32) {
     // 1) get all the voxels in the creation
-    (VoxelCoord[] memory relativeVoxelCoords, VoxelTypeData[] memory voxelTypes) = IWorld(_world())
-      .tenet_RegisterCreation_getVoxelsInCreation(creationId);
+    (VoxelCoord[] memory relativeVoxelCoords, VoxelTypeData[] memory voxelTypes) = IWorld(_world()).getVoxelsInCreation(
+      creationId
+    );
 
     bytes32 spawnId = getUniqueEntity();
     bytes32[] memory spawnVoxels = new bytes32[](relativeVoxelCoords.length);
@@ -33,8 +34,8 @@ contract SpawnSystem is System {
       // );
 
       // delete the voxels at this coord
-      IWorld(_world()).tenet_MineSystem_clearCoord(spawnVoxelAtCoord); // it's important to MINE the voxels since this function also removes spawns from the world if all its voxels are gone
-      bytes32 newEntity = IWorld(_world()).tenet_BuildSystem_buildVoxelType(voxelTypes[i], spawnVoxelAtCoord);
+      IWorld(_world()).clearCoord(spawnVoxelAtCoord); // it's important to MINE the voxels since this function also removes spawns from the world if all its voxels are gone
+      bytes32 newEntity = IWorld(_world()).buildVoxelType(voxelTypes[i].voxelTypeId, spawnVoxelAtCoord);
 
       // update the spawn-related components
       OfSpawn.set(newEntity, spawnId);

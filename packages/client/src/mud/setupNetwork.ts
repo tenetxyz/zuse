@@ -376,8 +376,8 @@ export async function setupNetwork() {
       return console.warn(`cannot find a voxel (that you own) for voxelBaseTypeId=${voxelBaseTypeId}`);
     }
     const voxelInstanceOfVoxelType = voxelInstancesOfVoxelType[0];
-    const [scale, entityId] = (voxelInstanceOfVoxelType as string).split(":");
-    const scaleAsNumber = parseInt(scale.substring(2)); // remove the leading 0x
+    const [scaleAsHex, entityId] = (voxelInstanceOfVoxelType as string).split(":");
+    const scaleAsNumber = parseInt(scaleAsHex.substring(2)); // remove the leading 0x
     if (scaleAsNumber !== getWorldScale(noa)) {
       toast(`you can only place this voxel on scale ${scaleAsNumber}`);
       return;
@@ -386,7 +386,7 @@ export async function setupNetwork() {
     const preview: string = getVoxelTypePreviewUrl(voxelBaseTypeId) || "";
     const previewVoxelVariant = getVoxelPreviewVariant(voxelBaseTypeId);
 
-    const newVoxelOfSameType = `${to64CharAddress("0x" + scale)}:${world.registerEntity()}` as Entity;
+    const newVoxelOfSameType = `${scaleAsHex}:${world.registerEntity()}` as Entity;
 
     actions.add({
       id: `build+${voxelCoordToString(coord)}` as Entity, // used so we don't send the same transaction twice
@@ -403,7 +403,7 @@ export async function setupNetwork() {
         OwnedBy: contractComponents.OwnedBy, // I think it's needed cause we check to see if the owner owns the voxel we're placing
       },
       execute: () => {
-        return callSystem("build", [scale, entityId, coord, { gasLimit: 100_000_000 }]);
+        return callSystem("build", [scaleAsHex, entityId, coord, { gasLimit: 100_000_000 }]);
       },
       updates: () => [
         // commented cause we're in creative mode

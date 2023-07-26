@@ -15,7 +15,8 @@ import MovementComponent, { MOVEMENT_COMPONENT_NAME } from "../components/Moveme
 import ReceiveInputsComponent, { RECEIVES_INPUTS_COMPONENT_NAME } from "../components/ReceivesInputsComponent";
 import CollideTerrainComponent, { COLLIDE_TERRAIN_COMPONENT_NAME } from "../components/CollideTerrainComponent";
 import { ContractSchemaValueArrayToElement } from "@latticexyz/network";
-import { getWorldScale } from "../../../utils/coord";
+import { getWorldScale, voxelCoordToString } from "../../../utils/coord";
+import { ecs } from "@tenetxyz/boot";
 
 export const DEFAULT_BLOCK_TEST_DISTANCE = 7;
 
@@ -109,7 +110,6 @@ export function setupNoaEngine(network: NetworkLayer) {
   }
 
   // Register voxels
-
   function setVoxel(coord: VoxelCoord | number[], voxelVariantTypeId: VoxelVariantTypeId) {
     const noaBlockIdx = VoxelVariantIdToDef.get(voxelVariantTypeId)?.noaBlockIdx;
     if ("length" in coord) {

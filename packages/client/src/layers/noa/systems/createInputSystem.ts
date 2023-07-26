@@ -499,10 +499,10 @@ export function createInputSystem(layers: Layers) {
 
   bindInputEvent("zoomout");
   onDownInputEvent("zoomout", () => {
-    setScale(layers, -1);
+    setScale(layers, +1);
   });
   bindInputEvent("zoomin");
   onDownInputEvent("zoomin", () => {
-    setScale(layers, +1);
+    setScale(layers, -1);
   });
 }

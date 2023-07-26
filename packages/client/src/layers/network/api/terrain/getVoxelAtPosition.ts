@@ -6,6 +6,7 @@ import { getTerrain } from "./utils";
 import { Air, AIR_ID, Bedrock, Dirt, Grass } from "./occurrence";
 import { VoxelTypeKey, VoxelTypeKeyInMudTable } from "@tenetxyz/layers/noa/types";
 import { LiveStoreCache } from "@tenetxyz/mud/setupLiveStoreCache";
+import { to64CharAddress } from "../../../../utils/entity";
 
 export function getEntityAtPosition(
   context: {
@@ -21,7 +22,11 @@ export function getEntityAtPosition(
   scale: number
 ): Entity | undefined {
   const { Position, VoxelType } = context;
-  const entityKeysAtPosition = [...getEntitiesWithValue(Position, coord)];
+  const currentScaleInHexadecimal = to64CharAddress("0x" + scale);
+  const entityKeysAtPosition = [...getEntitiesWithValue(Position, coord)].filter((entityKey) => {
+    const [_scaleInHexadecimal, entity] = entityKey.split(":");
+    return _scaleInHexadecimal == currentScaleInHexadecimal;
+  });
 
   // Prefer non-air voxels at this position
   return (
@@ -48,6 +53,7 @@ export function getEcsVoxelType(
   const { VoxelType } = context;
   const entityKeyAtPosition = getEntityAtPosition(context, coord, scale);
   if (!entityKeyAtPosition) return undefined;
+  // getEntityAtPosition already filters for voxels at the current scale, so we don't need to check it again here
   const voxelTypeKeyInMudTable = getComponentValue(VoxelType, entityKeyAtPosition) as VoxelTypeKeyInMudTable;
 
   return {

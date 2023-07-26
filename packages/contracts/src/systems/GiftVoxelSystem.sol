@@ -3,7 +3,7 @@ pragma solidity >=0.8.0;
 import { IWorld } from "@tenet-contracts/src/codegen/world/IWorld.sol";
 import { hasKey } from "@latticexyz/world/src/modules/keysintable/hasKey.sol";
 import { query, QueryFragment, QueryType } from "@latticexyz/world/src/modules/keysintable/query.sol";
-import { OwnedBy, VoxelType, OwnedByTableId, VoxelTypesAllowed, VoxelTypeTableId } from "@tenet-contracts/src/codegen/Tables.sol";
+import { OwnedBy, VoxelType, OwnedByTableId, VoxelTypeTableId } from "@tenet-contracts/src/codegen/Tables.sol";
 import { System } from "@latticexyz/world/src/System.sol";
 import { addressToEntityKey } from "@tenet-utils/src/Utils.sol";
 import { removeDuplicates } from "@tenet-utils/src/Utils.sol";
@@ -13,10 +13,7 @@ import { console } from "forge-std/console.sol";
 contract GiftVoxelSystem is System {
   function giftVoxel(bytes32 voxelTypeId) public returns (bytes32) {
     //  assert this exists in the registry
-    require(
-      IWorld(_world()).tenet_VoxelRegistrySys_isVoxelTypeAllowed(voxelTypeId),
-      "Voxel type not allowed in this world"
-    );
+    require(IWorld(_world()).tenet_InitSystem_isVoxelTypeAllowed(voxelTypeId), "Voxel type not allowed in this world");
 
     // even if they request an entity of a type they already own, it's okay to disallow it since they would still have that entity type
     // Since numUniqueVoxelTypesIOwn is quadratic in gas (based on how many voxels you own), running this function could use up all your gas. So it's commented

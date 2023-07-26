@@ -16,7 +16,9 @@ export default mudConfig({
   tables: {
     VoxelTypesAllowed: {
       keySchema: {},
-      schema: "bytes32[]",
+      schema: {
+        voxelTypeIds: "bytes32[]",
+      },
     },
     VoxelType: {
       keySchema: {

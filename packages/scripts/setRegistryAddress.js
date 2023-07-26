@@ -38,13 +38,12 @@ fs.readFile(solidityFilePath, 'utf8', (err, data) => {
     }
 
     // Replace the line with the new content
-    // go through each line and find the one that starts with 'address constant REGISTRY_WORLD'
     const lines = data.split('\n');
     const newLines = [];
     for (let i = 0; i < lines.length; i++) {
         const line = lines[i];
-        if (line.startsWith('address constant REGISTRY_WORLD')) {
-            const newLine = `address constant REGISTRY_WORLD = ${worldAddress};`;
+        if (line.startsWith('address constant REGISTRY_ADDRESS')) {
+            const newLine = `address constant REGISTRY_ADDRESS = ${worldAddress};`;
             newLines.push(newLine);
         } else {
             newLines.push(line);

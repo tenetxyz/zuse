@@ -1,7 +1,8 @@
 // SPDX-License-Identifier: GPL-3.0
 pragma solidity >=0.8.0;
 
-address constant REGISTRY_WORLD = 0x5FbDB2315678afecb367f032d93F642f64180aa3;
+address constant REGISTRY_ADDRESS = 0x5FbDB2315678afecb367f032d93F642f64180aa3;
+address constant BASE_CA_ADDRESS = 0x9A9f2CCfdE556A7E9Ff0848998Aa4a0CFD8863AE;
 
 string constant REGISTER_EXTENSION_SIG = "tenet_ExtensionSystem_registerExtension(bytes4,string)";
 string constant CLEAR_COORD_SIG = "tenet_MineSystem_clearCoord((int32,int32,int32))";

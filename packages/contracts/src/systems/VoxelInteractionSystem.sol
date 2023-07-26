@@ -96,7 +96,11 @@ contract VoxelInteractionSystem is System {
     for (uint256 i = 0; i <= centerEntitiesToCheckStackIdx; i++) {
       bytes32 centerEntityId = centerEntitiesToCheckStack[i];
       // TODO: do we know for sure voxel type exists?
-      updateVoxelVariant(_world(), centerEntityId);
+      // VoxelTypeData memory entityVoxelType = VoxelType.get(1, entity);
+      // bytes32 voxelVariantId = getVoxelVariant(world, entityVoxelType.voxelTypeId, entity);
+      // if (voxelVariantId != entityVoxelType.voxelVariantId) {
+      //   VoxelType.set(1, entity, entityVoxelType.voxelTypeId, voxelVariantId);
+      // }
     }
   }
 }

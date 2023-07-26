@@ -93,40 +93,6 @@ function getOppositeDirection(BlockDirection direction) pure returns (BlockDirec
   }
 }
 
-function getVoxelVariant(address world, bytes32 voxelTypeId, bytes32 entity) returns (bytes32 voxelVariantId) {
-  // bytes4 voxelVariantSelector = VoxelTypeRegistry.get(voxelTypeNamespace, voxelTypeId).voxelVariantSelector;
-  // bytes memory voxelVariantSelected = safeStaticCall(
-  //   world,
-  //   abi.encodeWithSelector(voxelVariantSelector, entity),
-  //   "get voxel variant"
-  // );
-  // return abi.decode(voxelVariantSelected, (VoxelVariantsKey));
-}
-
-function enterVoxelIntoWorld(address world, bytes32 entity) {
-  VoxelTypeData memory entityVoxelType = VoxelType.get(1, entity);
-  // bytes4 enterWorldSelector = VoxelTypeRegistry
-  //   .get(entityVoxelType.voxelTypeNamespace, entityVoxelType.voxelTypeId)
-  //   .enterWorldSelector;
-  // safeCall(world, abi.encodeWithSelector(enterWorldSelector, entity), "voxel enter world");
-}
-
-function exitVoxelFromWorld(address world, bytes32 entity) {
-  VoxelTypeData memory entityVoxelType = VoxelType.get(1, entity);
-  // bytes4 exitWorldSelector = VoxelTypeRegistry
-  //   .get(entityVoxelType.voxelTypeNamespace, entityVoxelType.voxelTypeId)
-  //   .exitWorldSelector;
-  // safeCall(world, abi.encodeWithSelector(exitWorldSelector, entity), "voxel exit world");
-}
-
-function updateVoxelVariant(address world, bytes32 entity) {
-  VoxelTypeData memory entityVoxelType = VoxelType.get(1, entity);
-  // bytes32 voxelVariantId = getVoxelVariant(world, entityVoxelType.voxelTypeId, entity);
-  // if (voxelVariantId != entityVoxelType.voxelVariantId) {
-  //   VoxelType.set(1, entity, entityVoxelType.voxelTypeId, voxelVariantId);
-  // }
-}
-
 function getEntitiesAtCoord(VoxelCoord memory coord) view returns (bytes32[][] memory) {
   return getKeysWithValue(PositionTableId, Position.encode(coord.x, coord.y, coord.z));
 }

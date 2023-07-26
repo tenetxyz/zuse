@@ -20,18 +20,41 @@ interface Props {
 
 export const WorldRegistry = ({ layers, filters, setFilters }: Props) => {
   const { worldsToDisplay } = useWorldRegistrySearch({ layers, filters });
+
   return (
     <div className="flex flex-col p-4">
       <div className="flex w-full">
         <SearchBar value={filters.query} onChange={(e) => setFilters({ ...filters, query: e.target.value })} />
       </div>
-      {worldsToDisplay.map((world) => {
-        return (
-          <div>
-            <p>{world.name}</p>
-          </div>
-        );
-      })}
+      <div className="flex flex-col gap-5 mt-5 mb-4 w-full h-full justify-start items-center overflow-scroll">
+        {worldsToDisplay.map((world, idx) => {
+          return (
+            <div key={"world-" + idx} className="w-full p-6 bg-white border border-gray-200 rounded-lg shadow">
+              <h5 className="mb-2 text-2xl font-bold tracking-tight text-gray-900">{world.name}</h5>
+              <p className="font-normal text-gray-700 leading-4">{world.description}</p>
+              <p className="font-normal text-gray-700 leading-4 mt-4">{world.worldAddress}</p>
+              <div className="flex mt-5 gap-2">
+                <button
+                  type="button"
+                  // onClick={() => {
+                  //   spawnCreation(creation);
+                  // }}
+                  className="focus:outline-none text-white bg-green-700 hover:bg-green-800 focus:ring-4 focus:ring-green-300 font-medium rounded-lg text-sm px-5 py-2.5 mr-2 mb-2"
+                >
+                  Connect
+                </button>
+                <button
+                  type="button"
+                  // onClick={() => setSelectedCreation(creation)}
+                  className="text-gray-900 hover:text-white border border-gray-800 hover:bg-gray-900 focus:ring-4 focus:outline-none focus:ring-gray-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center mr-2 mb-2"
+                >
+                  View Details
+                </button>
+              </div>
+            </div>
+          );
+        })}
+      </div>
     </div>
   );
 };

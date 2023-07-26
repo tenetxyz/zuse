@@ -30,8 +30,6 @@ export const useWorldRegistrySearch = ({ layers, filters }: Props) => {
 
   useComponentUpdate(WorldRegistry, () => {
     const allWorldsInRegistry = [...WorldRegistry.entities()];
-    console.log("worlds registry");
-    console.log(allWorldsInRegistry);
     const worlds = new Map<Entity, ComponentRecord<typeof WorldRegistry>>();
     for (const world of allWorldsInRegistry) {
       const worldRecord = getComponentValue(WorldRegistry, world);
@@ -79,6 +77,7 @@ export const useWorldRegistrySearch = ({ layers, filters }: Props) => {
     if (!fuse.current) {
       return;
     }
+
     if (filters.query === "") {
       setWorldsToDisplay(filteredWorlds.current);
       return;

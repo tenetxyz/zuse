@@ -20,14 +20,13 @@ export function getEntityAtPosition(
   coord: VoxelCoord,
   scale: number
 ): Entity | undefined {
-  const { Position, liveStoreCache } = context;
+  const { Position, VoxelType } = context;
   const entityKeysAtPosition = [...getEntitiesWithValue(Position, coord)];
 
   // Prefer non-air voxels at this position
   return (
     entityKeysAtPosition?.find((entityKey) => {
-      const [_scaleInHexadecimal, entity] = entityKey.split(":");
-      const voxelType = liveStoreCache.VoxelType.get({ entity, scale });
+      const voxelType = getComponentValue(VoxelType, entityKey);
       return voxelType && voxelType.voxelTypeId !== AIR_ID;
     }) ?? entityKeysAtPosition[0]
   );
@@ -46,14 +45,10 @@ export function getEcsVoxelType(
   coord: VoxelCoord,
   scale: number
 ): VoxelTypeKey | undefined {
-  const { liveStoreCache } = context;
+  const { VoxelType } = context;
   const entityKeyAtPosition = getEntityAtPosition(context, coord, scale);
   if (!entityKeyAtPosition) return undefined;
-  const [_scaleInHexadecimal, entityAtPosition] = entityKeyAtPosition.split(":");
-  const voxelTypeKeyInMudTable = liveStoreCache.VoxelType.get({
-    entity: entityAtPosition,
-    scale: scale,
-  }) as VoxelTypeKeyInMudTable;
+  const voxelTypeKeyInMudTable = getComponentValue(VoxelType, entityKeyAtPosition) as VoxelTypeKeyInMudTable;
 
   return {
     voxelBaseTypeId: voxelTypeKeyInMudTable.voxelTypeId,

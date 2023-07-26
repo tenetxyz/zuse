@@ -7,6 +7,7 @@ import { Color3, Mesh, Nullable } from "@babylonjs/core";
 import { ComponentRecord } from "../../../types";
 import { getWorldScale, stringToVoxelCoord } from "../../../utils/coord";
 import { getComponentValue } from "@latticexyz/recs";
+import { to64CharAddress } from "../../../utils/entity";
 
 export function createVoxelSelectionOverlaySystem(network: NetworkLayer, noaLayer: NoaLayer) {
   const {
@@ -58,7 +59,10 @@ export function createVoxelSelectionOverlaySystem(network: NetworkLayer, noaLaye
 
     renderedVoxelInterfaceSelectionMeshs = voxelInterfaceSelection.interfaceVoxels.map(
       (interfaceVoxel: InterfaceVoxel) => {
-        const voxelCoord = liveStoreCache.Position.get({ entity: interfaceVoxel.entity, scale: getWorldScale(noa) });
+        const voxelCoord = liveStoreCache.Position.get({
+          entity: to64CharAddress("0x" + interfaceVoxel.entity),
+          scale: getWorldScale(noa),
+        });
         if (!voxelCoord) {
           return;
         }

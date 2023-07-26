@@ -33,8 +33,9 @@ export async function createVoxelSystem(networkLayer: NetworkLayer, noaLayer: No
   defineComponentSystem(world, VoxelType, async (update) => {
     if (!live) return;
     if (!update.value[0] || !update.value[1]) return;
-    const entity = to64CharAddress("0x" + update.entity);
-    const position = liveStoreCache.Position.get({ entity, scale: getWorldScale(noa) });
+    const position = getComponentValue(Position, update.entity);
+    // const entity = to64CharAddress("0x" + update.entity);
+    // const position = liveStoreCache.Position.get({ entity, scale: getWorldScale(noa) });
     if (!position) return; // if there's no position, the voxel is not in the world. so no need to display it
     setVoxel(position, update.value[0].voxelVariantId);
   });
@@ -52,7 +53,8 @@ export async function createVoxelSystem(networkLayer: NetworkLayer, noaLayer: No
   defineEnterSystem(world, [Has(Position), Has(VoxelType)], (update) => {
     if (!live) return;
     const entity = to64CharAddress("0x" + update.entity);
-    const position = liveStoreCache.Position.get({ entity, scale: getWorldScale(noa) });
+    const position = getComponentValueStrict(Position, update.entity);
+    // const position = liveStoreCache.Position.get({ entity, scale: getWorldScale(noa) });
     const voxel = getVoxelAtPosition(position, getWorldScale(noa)); // TODO: do we even need this funciton? we already have the entity from teh update, so it probably isn't a terrain block. I think we can just use getVoxelType for the given entity (after getting its position)
     setVoxel(position, voxel.voxelVariantTypeId);
   });

@@ -17,6 +17,7 @@ import { NetworkLayer } from "../../network";
 import { NoaLayer, VoxelTypeKey } from "../types";
 import { AIR_ID } from "../../network/api/terrain/occurrence";
 import { getWorldScale } from "../../../utils/coord";
+import { to64CharAddress } from "../../../utils/entity";
 
 export function createSoundSystem(network: NetworkLayer, context: NoaLayer) {
   const {
@@ -130,7 +131,8 @@ export function createSoundSystem(network: NetworkLayer, context: NoaLayer) {
       const position =
         update.type === UpdateType.Exit && isComponentUpdate(update, Position)
           ? update.value[1]
-          : liveStoreCache.Position.get({ entity: update.entity, scale: getWorldScale(noa) });
+          : // : liveStoreCache.Position.get({ entity: to64CharAddress("0x" + update.entity), scale: getWorldScale(noa) });
+            getComponentValue(Position, update.entity);
 
       if (!voxelType || !position) return;
 

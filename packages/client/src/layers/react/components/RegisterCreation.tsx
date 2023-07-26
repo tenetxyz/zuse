@@ -16,7 +16,7 @@ import {
 import { FocusedUiType } from "../../noa/components/FocusedUi";
 import { twMerge } from "tailwind-merge";
 import { SetState } from "../../../utils/types";
-import { stringToEntity } from "../../../utils/entity";
+import { stringToEntity, to64CharAddress } from "../../../utils/entity";
 import { defineSpawnInFocusComponent } from "../../noa/components";
 import { VoxelCoord } from "@latticexyz/utils";
 
@@ -43,6 +43,7 @@ const RegisterCreation: React.FC<Props> = ({ layers, formData, setFormData, rese
     noa: {
       components: { VoxelSelection, PersistentNotification, FocusedUi },
       SingletonEntity,
+      noa,
     },
     network: {
       contractComponents: { OfSpawn, Spawn, Position, Creation },
@@ -111,7 +112,10 @@ const RegisterCreation: React.FC<Props> = ({ layers, formData, setFormData, rese
     ); // convert to string so we can use a set to remove coords that are in the world
 
     for (const voxel of spawn.voxels) {
-      const position = liveStoreCache.Position.get({ entity: stringToEntity(voxel), scale: getWorldScale(noa) });
+      const position = liveStoreCache.Position.get({
+        entity: to64CharAddress("0x" + voxel),
+        scale: getWorldScale(noa),
+      });
       const voxelCoordInSpawn = voxelCoordToString(position);
       creationVoxelCoordsInWorld.delete(voxelCoordInSpawn);
     }

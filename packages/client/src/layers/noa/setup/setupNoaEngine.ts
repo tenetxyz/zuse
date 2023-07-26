@@ -14,32 +14,33 @@ import { AIR_ID } from "../../network/api/terrain/occurrence";
 import MovementComponent, { MOVEMENT_COMPONENT_NAME } from "../components/MovementComponent";
 import ReceiveInputsComponent, { RECEIVES_INPUTS_COMPONENT_NAME } from "../components/ReceivesInputsComponent";
 import CollideTerrainComponent, { COLLIDE_TERRAIN_COMPONENT_NAME } from "../components/CollideTerrainComponent";
+import { ContractSchemaValueArrayToElement } from "@latticexyz/network";
 
 export const DEFAULT_BLOCK_TEST_DISTANCE = 7;
 
+export const noaOptions = {
+  debug: false,
+  // TODO: log this FPS data to a metrics service
+  showFPS: true, // how to read FPS: https://github.com/fenomas/noa/blob/bd74cd8add3abf216b53a995139276af665b1d52/src/lib/rendering.js#LL611C13-L611C22
+  // The top number is the average FPS, the bottom is the WORSE fps experienced so far
+  inverseY: false,
+  inverseX: false,
+  chunkAddDistance: [CHUNK_RENDER_DISTANCE + 3, CHUNK_RENDER_DISTANCE + 3],
+  chunkRemoveDistance: [CHUNK_RENDER_DISTANCE + 8, CHUNK_RENDER_DISTANCE + 8],
+  chunkSize: CHUNK_SIZE,
+  gravity: [0, -20, 0],
+  playerStart: [-20000, 100, 20000],
+  blockTestDistance: DEFAULT_BLOCK_TEST_DISTANCE,
+  playerHeight: 1.85,
+  playerWidth: 0.6,
+  playerAutoStep: 1,
+  clearColor: SKY_COLOR,
+  useAO: true,
+  AOmultipliers: [0.93, 0.8, 0.5],
+  reverseAOmultiplier: 1.0,
+  preserveDrawingBuffer: true,
+};
 export function setupNoaEngine(network: NetworkLayer) {
-  const opts = {
-    debug: false,
-    // TODO: log this FPS data to a metrics service
-    showFPS: true, // how to read FPS: https://github.com/fenomas/noa/blob/bd74cd8add3abf216b53a995139276af665b1d52/src/lib/rendering.js#LL611C13-L611C22
-    // The top number is the average FPS, the bottom is the WORSE fps experienced so far
-    inverseY: false,
-    inverseX: false,
-    chunkAddDistance: [CHUNK_RENDER_DISTANCE + 3, CHUNK_RENDER_DISTANCE + 3],
-    chunkRemoveDistance: [CHUNK_RENDER_DISTANCE + 8, CHUNK_RENDER_DISTANCE + 8],
-    chunkSize: CHUNK_SIZE,
-    gravity: [0, -20, 0],
-    playerStart: [-20000, 100, 20000],
-    blockTestDistance: DEFAULT_BLOCK_TEST_DISTANCE,
-    playerHeight: 1.85,
-    playerWidth: 0.6,
-    playerAutoStep: 1,
-    clearColor: SKY_COLOR,
-    useAO: true,
-    AOmultipliers: [0.93, 0.8, 0.5],
-    reverseAOmultiplier: 1.0,
-    preserveDrawingBuffer: true,
-  };
   const {
     api: { getTerrainVoxelTypeAtPosition, getEcsVoxelTypeAtPosition },
     voxelTypes: { VoxelVariantIdToDef, VoxelVariantIndexToKey, VoxelVariantSubscriptions },
@@ -48,7 +49,7 @@ export function setupNoaEngine(network: NetworkLayer) {
   // Hack Babylon in order to have a -1 rendering group for the sky (to be always drawn behind everything else)
   BABYLON.RenderingManager.MIN_RENDERINGGROUPS = -1;
 
-  const noa = new Engine(opts);
+  const noa = new Engine(noaOptions);
   const scene = noa.rendering.getScene();
   noa.world.worldGenWhilePaused = false;
 
@@ -68,8 +69,7 @@ export function setupNoaEngine(network: NetworkLayer) {
     if (!data) return;
     const voxelMaterials = (Array.isArray(data.material) ? data.material : [data.material]) as string[];
     for (const texture of voxelMaterials) {
-      // console.log("Registering material", texture);
-      noa.registry.registerMaterial(texture, undefined, texture);
+      noa.registry.registerMaterial(texture, { textureURL: texture });
     }
   }
 

@@ -6,6 +6,7 @@ import { getTerrain } from "./utils";
 import { Air, AIR_ID, Bedrock, Dirt, Grass } from "./occurrence";
 import { VoxelTypeKey, VoxelTypeKeyInMudTable } from "@tenetxyz/layers/noa/types";
 import { TenetStoreCache } from "@tenetxyz/mud/setupNetwork";
+import { LiveStoreCache } from "@tenetxyz/mud/setupLiveStoreCache";
 
 export function getEntityAtPosition(
   context: {
@@ -15,18 +16,18 @@ export function getEntityAtPosition(
       voxelVariantId: Type.String;
     }>;
     world: World;
-    storeCache: TenetStoreCache;
+    liveStoreCache: LiveStoreCache;
   },
   coord: VoxelCoord,
   scale: number
 ): Entity | undefined {
-  const { Position, VoxelType, storeCache } = context;
+  const { Position, liveStoreCache } = context;
   const entitiesAtPosition = [...getEntitiesWithValue(Position, coord)];
 
   // Prefer non-air voxels at this position
   return (
     entitiesAtPosition?.find((entity) => {
-      const voxelType = storeCache.tables.VoxelType.get({ entity: entity, scale: scale });
+      const voxelType = liveStoreCache.VoxelType.get({ entity: entity, scale: scale });
       return voxelType && voxelType.voxelTypeId !== AIR_ID;
     }) ?? entitiesAtPosition[0]
   );
@@ -39,16 +40,16 @@ export function getEcsVoxelType(
       voxelTypeId: Type.String;
       voxelVariantId: Type.String;
     }>;
-    storeCache: TenetStoreCache;
+    liveStoreCache: LiveStoreCache;
     world: World;
   },
   coord: VoxelCoord,
   scale: number
 ): VoxelTypeKey | undefined {
-  const { storeCache } = context;
+  const { liveStoreCache } = context;
   const entityAtPosition = getEntityAtPosition(context, coord, scale);
   if (!entityAtPosition) return undefined;
-  const voxelTypeKeyInMudTable = storeCache.tables.VoxelType.get({
+  const voxelTypeKeyInMudTable = liveStoreCache.VoxelType.get({
     entity: entityAtPosition,
     scale: scale,
   }) as VoxelTypeKeyInMudTable;
@@ -66,7 +67,7 @@ export function getVoxelAtPosition(
       voxelVariantId: Type.String;
     }>;
     world: World;
-    storeCache: TenetStoreCache;
+    liveStoreCache: LiveStoreCache;
   },
   perlin: Perlin,
   coord: VoxelCoord,

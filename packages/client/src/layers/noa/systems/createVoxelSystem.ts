@@ -22,7 +22,7 @@ export async function createVoxelSystem(networkLayer: NetworkLayer, noaLayer: No
     components: { LoadingState },
     contractComponents: { VoxelType, Position },
     api: { getVoxelAtPosition },
-    storeCache,
+    liveStoreCache,
   } = networkLayer;
 
   // Loading state flag
@@ -32,7 +32,7 @@ export async function createVoxelSystem(networkLayer: NetworkLayer, noaLayer: No
   defineComponentSystem(world, VoxelType, async (update) => {
     if (!live) return;
     if (!update.value[0] || !update.value[1]) return;
-    const position = storeCache.tables.Position.get({ entity: update.entity, scale: getWorldScale(noa) });
+    const position = liveStoreCache.Position.get({ entity: update.entity, scale: getWorldScale(noa) });
     if (!position) return; // if there's no position, the voxel is not in the world. so no need to display it
     setVoxel(position, update.value[0].voxelVariantId);
   });
@@ -49,7 +49,7 @@ export async function createVoxelSystem(networkLayer: NetworkLayer, noaLayer: No
   // "Enter system"
   defineEnterSystem(world, [Has(Position), Has(VoxelType)], (update) => {
     if (!live) return;
-    const position = storeCache.tables.Position.get({ entity: update.entity, scale: getWorldScale(noa) });
+    const position = liveStoreCache.Position.get({ entity: update.entity, scale: getWorldScale(noa) });
     const voxel = getVoxelAtPosition(position, getWorldScale(noa));
     setVoxel(position, voxel.voxelVariantTypeId);
   });

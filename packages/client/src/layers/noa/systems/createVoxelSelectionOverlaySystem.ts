@@ -15,7 +15,7 @@ export function createVoxelSelectionOverlaySystem(network: NetworkLayer, noaLaye
   } = noaLayer;
   const {
     components: { Position },
-    storeCache,
+    liveStoreCache,
   } = network;
   type IVoxelSelection = ComponentRecord<typeof VoxelSelection>;
   VoxelSelection.update$.subscribe((update) => {
@@ -58,7 +58,7 @@ export function createVoxelSelectionOverlaySystem(network: NetworkLayer, noaLaye
 
     renderedVoxelInterfaceSelectionMeshs = voxelInterfaceSelection.interfaceVoxels.map(
       (interfaceVoxel: InterfaceVoxel) => {
-        const voxelCoord = storeCache.tables.Position.get({ entity: interfaceVoxel.entity, scale: getWorldScale(noa) });
+        const voxelCoord = liveStoreCache.Position.get({ entity: interfaceVoxel.entity, scale: getWorldScale(noa) });
         if (!voxelCoord) {
           return;
         }

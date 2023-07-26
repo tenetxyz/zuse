@@ -39,9 +39,8 @@ import { voxelCoordToString } from "../utils/coord";
 import { toast } from "react-toastify";
 import { abiDecode } from "../utils/abi";
 import { BaseCreationInWorld } from "../layers/react/components/RegisterCreation";
-import { createDatabaseClient } from "@latticexyz/store-cache";
+import { getLiveStoreCache } from "./setupLiveStoreCache";
 
-export type TenetStoreCache = ReturnType<typeof createDatabaseClient<typeof storeConfig>>;
 export type SetupNetworkResult = Awaited<ReturnType<typeof setupNetwork>>;
 
 export type VoxelVariantSubscription = (
@@ -334,11 +333,12 @@ export async function setupNetwork() {
 
   const perlin = await createPerlin();
 
+  const liveStoreCache = getLiveStoreCache(result.storeCache);
   const terrainContext = {
     Position: contractComponents.Position,
     VoxelType: contractComponents.VoxelType,
     world,
-    storeCache: result.storeCache,
+    liveStoreCache,
   };
 
   function getTerrainVoxelTypeAtPosition(position: VoxelCoord): VoxelTypeKey {
@@ -709,5 +709,6 @@ export async function setupNetwork() {
       VoxelVariantSubscriptions,
     },
     objectStore: { transactionCallbacks }, // stores global objects. These aren't components since they don't really fit in with the rxjs event-based system
+    liveStoreCache,
   };
 }

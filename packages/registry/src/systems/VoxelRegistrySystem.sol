@@ -11,11 +11,8 @@ contract VoxelRegistrySystem is System {
     string memory voxelTypeName,
     bytes32 voxelTypeId,
     bytes32[] memory childVoxelTypeIds,
-    bytes32 previewVoxelVariantId,
-    address caAddress
+    bytes32 previewVoxelVariantId
   ) public {
-    require(caAddress != address(0), "CA address cannot be empty");
-    // TODO: Add some more checks on caAddress
     require(
       !hasKey(VoxelTypeRegistryTableId, VoxelTypeRegistry.encodeKeyTuple(voxelTypeId)),
       "Voxel type ID has already been registered"
@@ -59,7 +56,6 @@ contract VoxelRegistrySystem is System {
     VoxelTypeRegistry.set(
       voxelTypeId,
       VoxelTypeRegistryData({
-        caAddress: caAddress,
         childVoxelTypeIds: childVoxelTypeIds,
         previewVoxelVariantId: previewVoxelVariantId,
         creator: tx.origin,

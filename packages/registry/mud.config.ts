@@ -13,12 +13,33 @@ export default mudConfig({
   },
   snapSync: true,
   tables: {
+    WorldRegistry: {
+      keySchema: {
+        worldAddress: "address",
+      },
+      schema: {
+        creator: "address",
+        name: "string",
+        description: "string",
+        caAddresses: "address[]",
+      },
+    },
+    CARegistry: {
+      keySchema: {
+        caAddress: "address",
+      },
+      schema: {
+        creator: "address",
+        name: "string",
+        description: "string",
+        voxelTypeIds: "bytes32[]",
+      },
+    },
     VoxelTypeRegistry: {
       keySchema: {
         voxelTypeId: "bytes32", // AKA voxelBaseTypeId
       },
       schema: {
-        caAddress: "address",
         scale: "uint32",
         previewVoxelVariantId: "bytes32",
         creator: "address",

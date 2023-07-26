@@ -33,7 +33,11 @@ contract GrassVoxelSystem is VoxelType {
     grassVariant.uvWrap = GrassUVWrap;
 
     REGISTRY_WORLD.call(abi.encodeWithSignature(REGISTER_VOXEL_VARIANT_SIG, GrassID, grassVariant));
-    REGISTRY_WORLD.call(abi.encodeWithSignature(REGISTER_VOXEL_TYPE_SIG, "Grass", GrassID, GrassID, _world()));
+    bytes32[] memory grassChildVoxelTypes = new bytes32[](1);
+    grassChildVoxelTypes[0] = GrassID;
+    REGISTRY_WORLD.call(
+      abi.encodeWithSignature(REGISTER_VOXEL_TYPE_SIG, "Grass", GrassID, grassChildVoxelTypes, GrassID)
+    );
 
     Occurrence.set(GrassID, world.tenet_OccurrenceSystem_OGrass.selector);
   }

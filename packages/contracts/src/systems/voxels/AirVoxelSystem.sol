@@ -15,7 +15,9 @@ contract AirVoxelSystem is VoxelType {
     VoxelVariantsRegistryData memory airVariant;
     airVariant.blockType = NoaBlockType.BLOCK;
     REGISTRY_WORLD.call(abi.encodeWithSignature(REGISTER_VOXEL_VARIANT_SIG, AirID, airVariant));
-    REGISTRY_WORLD.call(abi.encodeWithSignature(REGISTER_VOXEL_TYPE_SIG, "Air", AirID, AirID, _world()));
+    bytes32[] memory airChildVoxelTypes = new bytes32[](1);
+    airChildVoxelTypes[0] = AirID;
+    REGISTRY_WORLD.call(abi.encodeWithSignature(REGISTER_VOXEL_TYPE_SIG, "Air", AirID, airChildVoxelTypes, AirID));
   }
 
   function enterWorld(bytes32 entity) public override {}

@@ -10,8 +10,7 @@ interface IVoxelRegistrySystem {
     string memory voxelTypeName,
     bytes32 voxelTypeId,
     bytes32[] memory childVoxelTypeIds,
-    bytes32 previewVoxelVariantId,
-    address caAddress
+    bytes32 previewVoxelVariantId
   ) external;
 
   function registerVoxelVariant(bytes32 voxelVariantId, VoxelVariantsRegistryData memory voxelVariant) external;

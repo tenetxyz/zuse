@@ -6,6 +6,7 @@ pragma solidity >=0.8.0;
 import { IBaseWorld } from "@latticexyz/world/src/interfaces/IBaseWorld.sol";
 
 import { IBaseCASystem } from "./IBaseCASystem.sol";
+import { IInitSystem } from "./IInitSystem.sol";
 import { ILibTerrainSystem } from "./ILibTerrainSystem.sol";
 import { IPerlinSystem } from "./IPerlinSystem.sol";
 
@@ -13,6 +14,6 @@ import { IPerlinSystem } from "./IPerlinSystem.sol";
  * The IWorld interface includes all systems dynamically added to the World
  * during the deploy process.
  */
-interface IWorld is IBaseWorld, IBaseCASystem, ILibTerrainSystem, IPerlinSystem {
+interface IWorld is IBaseWorld, IBaseCASystem, IInitSystem, ILibTerrainSystem, IPerlinSystem {
 
 }

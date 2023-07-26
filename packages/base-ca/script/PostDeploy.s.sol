@@ -15,10 +15,12 @@ contract PostDeploy is Script {
     vm.startBroadcast(deployerPrivateKey);
 
     // Register the voxel types
-    registerAir(worldAddress);
-    registerDirt(worldAddress);
-    registerGrass(worldAddress);
-    registerBedrock(worldAddress);
+    registerAir();
+    registerDirt();
+    registerGrass();
+    registerBedrock();
+
+    IWorld(worldAddress).registerCA();
 
     vm.stopBroadcast();
   }

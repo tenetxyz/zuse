@@ -6,16 +6,16 @@ import { NoaBlockType } from "@tenet-registry/src/codegen/Types.sol";
 import { AirVoxelID, AirVoxelVariantID, DirtVoxelID, DirtVoxelVariantID, DirtTexture, DirtUVWrap, GrassVoxelID, GrassVoxelVariantID, GrassTexture, GrassSideTexture, GrassUVWrap, BedrockVoxelID, BedrockVoxelVariantID, BedrockTexture, BedrockUVWrap } from "@base-ca/src/Constants.sol";
 import { registerVoxelVariant, registerVoxelType } from "@base-ca/src/Utils.sol";
 
-function registerAir(address worldAddress) {
+function registerAir() {
   VoxelVariantsRegistryData memory airVariant;
   airVariant.blockType = NoaBlockType.BLOCK;
   registerVoxelVariant(AirVoxelVariantID, airVariant);
   bytes32[] memory airChildVoxelTypes = new bytes32[](1);
   airChildVoxelTypes[0] = AirVoxelID;
-  registerVoxelType("Air", AirVoxelID, airChildVoxelTypes, AirVoxelVariantID, worldAddress);
+  registerVoxelType("Air", AirVoxelID, airChildVoxelTypes, AirVoxelVariantID);
 }
 
-function registerDirt(address worldAddress) {
+function registerDirt() {
   VoxelVariantsRegistryData memory dirtVariant;
   dirtVariant.blockType = NoaBlockType.BLOCK;
   dirtVariant.opaque = true;
@@ -28,10 +28,10 @@ function registerDirt(address worldAddress) {
 
   bytes32[] memory dirtChildVoxelTypes = new bytes32[](1);
   dirtChildVoxelTypes[0] = DirtVoxelID;
-  registerVoxelType("Dirt", DirtVoxelID, dirtChildVoxelTypes, DirtVoxelVariantID, worldAddress);
+  registerVoxelType("Dirt", DirtVoxelID, dirtChildVoxelTypes, DirtVoxelVariantID);
 }
 
-function registerGrass(address worldAddress) {
+function registerGrass() {
   VoxelVariantsRegistryData memory grassVariant;
   grassVariant.blockType = NoaBlockType.BLOCK;
   grassVariant.opaque = true;
@@ -45,10 +45,10 @@ function registerGrass(address worldAddress) {
   registerVoxelVariant(GrassVoxelVariantID, grassVariant);
   bytes32[] memory grassChildVoxelTypes = new bytes32[](1);
   grassChildVoxelTypes[0] = GrassVoxelID;
-  registerVoxelType("Grass", GrassVoxelID, grassChildVoxelTypes, GrassVoxelVariantID, worldAddress);
+  registerVoxelType("Grass", GrassVoxelID, grassChildVoxelTypes, GrassVoxelVariantID);
 }
 
-function registerBedrock(address worldAddress) {
+function registerBedrock() {
   VoxelVariantsRegistryData memory bedrockVariant;
   bedrockVariant.blockType = NoaBlockType.BLOCK;
   bedrockVariant.opaque = true;
@@ -60,5 +60,5 @@ function registerBedrock(address worldAddress) {
   registerVoxelVariant(BedrockVoxelVariantID, bedrockVariant);
   bytes32[] memory bedrockChildVoxelTypes = new bytes32[](1);
   bedrockChildVoxelTypes[0] = BedrockVoxelID;
-  registerVoxelType("Bedrock", BedrockVoxelID, bedrockChildVoxelTypes, BedrockVoxelVariantID, worldAddress);
+  registerVoxelType("Bedrock", BedrockVoxelID, bedrockChildVoxelTypes, BedrockVoxelVariantID);
 }

@@ -551,6 +551,9 @@ export async function setupNetwork() {
   ) {
     // TODO: Replace Diamond NFT with a creation symbol
     const preview = getNftStorageLink("bafkreicro56v6rinwnltbkyjfzqdwva2agtrtypwaeowud447louxqgl5y");
+    const voxelsWithoutScale = voxels.map((voxelEntityKey) => {
+      return voxelEntityKey.split(":")[1];
+    });
 
     actions.add({
       id: `RegisterCreation+${creationName}` as Entity,
@@ -563,7 +566,7 @@ export async function setupNetwork() {
         return callSystem("tenet_RegisterCreation_registerCreation", [
           creationName,
           creationDescription,
-          voxels,
+          voxelsWithoutScale,
           baseCreationsInWorld,
           { gasLimit: 30_000_000 },
         ]);

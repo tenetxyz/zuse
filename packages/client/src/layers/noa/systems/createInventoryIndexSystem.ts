@@ -33,7 +33,7 @@ export const getItemTypesIOwn = (
   }>,
   connectedAddress: IComputedValue<string | undefined>
 ): Set<VoxelBaseTypeId> => {
-  const itemsIOwn = runQuery([HasValue(OwnedBy, { player: connectedAddress.get() })]);
+  const itemsIOwn = runQuery([HasValue(OwnedBy, { player: connectedAddress.get() }), Has(VoxelType)]);
   return new Set(
     Array.from(itemsIOwn)
       .map((item) => {
@@ -66,13 +66,14 @@ export function createInventoryIndexSystem(network: NetworkLayer, noaLayer: NoaL
   const update$ = connectedAddress$.pipe(
     switchMap(
       (address) =>
-        defineQuery([HasValue(OwnedBy, { player: address })], {
+        defineQuery([HasValue(OwnedBy, { player: address }), Has(VoxelType)], {
           runOnInit: true,
         }).update$
     )
   );
   const removeInventoryIndexesForItemsWeNoLongerOwn = () => {
     const itemTypesIOwn = getItemTypesIOwn(noa, OwnedBy, VoxelType, connectedAddress);
+    console.log("itemTypesIOwn", itemTypesIOwn);
     for (const itemType of InventoryIndex.values.value.keys()) {
       const voxelBaseTypeIdStr = itemType.description as string;
       if (!itemTypesIOwn.has(voxelBaseTypeIdStr)) {
@@ -88,7 +89,6 @@ export function createInventoryIndexSystem(network: NetworkLayer, noaLayer: NoaL
   // this function assigns inventory indexes to voxeltypes we own
   // whenever we get/lose a voxeltype, this function is run
   defineRxSystem(world, update$, (update) => {
-    console.log("update", update);
     if (!update.value[0]) {
       // the voxel just got removed, so don't assign an inventory index for it
       return;

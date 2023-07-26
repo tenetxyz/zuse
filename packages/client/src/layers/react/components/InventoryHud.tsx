@@ -53,7 +53,7 @@ export function registerInventoryHud() {
         },
       } = layers;
 
-      const VoxelsIOwnQuery = defineQuery([HasValue(OwnedBy, { player: connectedAddress.get() })], {
+      const VoxelsIOwnQuery = defineQuery([HasValue(OwnedBy, { player: connectedAddress.get() }), Has(VoxelType)], {
         runOnInit: true,
       });
 
@@ -238,6 +238,7 @@ export function registerInventoryHud() {
             onRightClick={() => removeVoxelType(i)}
             disabled={voxelTypeId === holdingVoxelType}
             selected={i === selectedSlot}
+            tooltipText={"todo: update"}
           />
         );
       });

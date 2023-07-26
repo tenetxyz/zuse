@@ -376,7 +376,6 @@ export async function setupNetwork() {
     }
     const voxelInstanceOfVoxelType = voxelInstancesOfVoxelType[0];
     const [scale, entityId] = voxelInstanceOfVoxelType.split(":");
-    debugger;
     const scaleAsNumber = parseInt(scale.substring(2)); // remove the leading 0x
     if (scaleAsNumber !== getWorldScale(noa)) {
       toast(`you can only place this voxel on scale ${scaleAsNumber}`);

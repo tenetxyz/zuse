@@ -9,6 +9,40 @@ import { getKeysWithValue } from "@latticexyz/world/src/modules/keyswithvalue/ge
 import { Position, PositionData, PositionTableId, VoxelType, VoxelTypeData } from "@tenet-contracts/src/codegen/Tables.sol";
 import { BlockDirection } from "@tenet-contracts/src/Types.sol";
 
+function calculateChildCoords(uint32 scale, VoxelCoord memory parentCoord) pure returns (VoxelCoord[] memory) {
+  VoxelCoord[] memory childCoords = new VoxelCoord[](uint256(scale * scale * scale));
+  uint256 index = 0;
+  for (uint32 dz = 0; dz < scale; dz++) {
+    for (uint32 dy = 0; dy < scale; dy++) {
+      for (uint32 dx = 0; dx < scale; dx++) {
+        childCoords[index] = VoxelCoord(
+          parentCoord.x * int32(scale) + int32(dx),
+          parentCoord.y * int32(scale) + int32(dy),
+          parentCoord.z * int32(scale) + int32(dz)
+        );
+        index++;
+      }
+    }
+  }
+  return childCoords;
+}
+
+function calculateParentCoord(VoxelCoord memory childCoord, uint32 scale) pure returns (VoxelCoord memory) {
+  int32 newX = childCoord.x / int32(scale);
+  if (childCoord.x < 0) {
+    newX -= 1; // We need to do this because Solidity rounds towards 0
+  }
+  int32 newY = childCoord.y / int32(scale);
+  if (childCoord.y < 0) {
+    newY -= 1; // We need to do this because Solidity rounds towards 0
+  }
+  int32 newZ = childCoord.z / int32(scale);
+  if (childCoord.z < 0) {
+    newZ -= 1; // We need to do this because Solidity rounds towards 0
+  }
+  return VoxelCoord(newX, newY, newZ);
+}
+
 function getEntityPositionStrict(bytes32 entity) view returns (PositionData memory) {
   bytes32[] memory positionKeyTuple = new bytes32[](1);
   positionKeyTuple[0] = bytes32((entity));
@@ -95,6 +129,21 @@ function updateVoxelVariant(address world, bytes32 entity) {
 
 function getEntitiesAtCoord(VoxelCoord memory coord) view returns (bytes32[][] memory) {
   return getKeysWithValue(PositionTableId, Position.encode(coord.x, coord.y, coord.z));
+}
+
+function getEntityAtCoord(uint32 scale, VoxelCoord memory coord) view returns (bytes32) {
+  bytes32[][] memory allEntitiesAtCoord = getKeysWithValue(PositionTableId, Position.encode(coord.x, coord.y, coord.z));
+  bytes32 entity;
+  for (uint256 i = 0; i < allEntitiesAtCoord.length; i++) {
+    if (uint256(allEntitiesAtCoord[i][0]) == scale) {
+      if (entity != 0) {
+        revert("Found more than one entity at the same position");
+      }
+      entity = allEntitiesAtCoord[i][1];
+    }
+  }
+
+  return entity;
 }
 
 function increaseVoxelTypeSpawnCount(bytes16 voxelTypeNamespace, bytes32 voxelTypeId) {

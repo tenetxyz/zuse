@@ -1,14 +1,19 @@
 // SPDX-License-Identifier: MIT
 pragma solidity >=0.8.0;
 
-import { getKeysWithValue } from "@latticexyz/world/src/modules/keyswithvalue/getKeysWithValue.sol";
+import { IStore } from "@latticexyz/store/src/IStore.sol";
+import { IWorld } from "@tenet-contracts/src/codegen/world/IWorld.sol";
 import { System } from "@latticexyz/world/src/System.sol";
 import { VoxelCoord } from "../Types.sol";
-import { OwnedBy, Position, PositionTableId, VoxelType, VoxelTypeData } from "@tenet-contracts/src/codegen/Tables.sol";
-import { enterVoxelIntoWorld, updateVoxelVariant, increaseVoxelTypeSpawnCount } from "../Utils.sol";
+import { VoxelTypeRegistry, VoxelTypeRegistryData } from "@tenet-registry/src/codegen/tables/VoxelTypeRegistry.sol";
+import { REGISTRY_ADDRESS } from "@tenet-contracts/src/Constants.sol";
+import { CARegistry } from "@tenet-registry/src/codegen/tables/CARegistry.sol";
+import { CAConfig, OwnedBy, Position, PositionTableId, VoxelType, VoxelTypeData } from "@tenet-contracts/src/codegen/Tables.sol";
+import { CAVoxelType, CAVoxelTypeData } from "@tenet-base-ca/src/codegen/tables/CAVoxelType.sol";
+import { calculateChildCoords } from "../Utils.sol";
 import { getUniqueEntity } from "@latticexyz/world/src/modules/uniqueentity/getUniqueEntity.sol";
-import { IWorld } from "@tenet-contracts/src/codegen/world/IWorld.sol";
 import { addressToEntityKey } from "@tenet-utils/src/Utils.sol";
+import { enterWorld } from "@tenet-base-ca/src/Utils.sol";
 
 contract BuildSystem is System {
   function build(bytes32 entity, VoxelCoord memory coord) public returns (bytes32) {
@@ -16,38 +21,42 @@ contract BuildSystem is System {
     require(OwnedBy.get(entity) == addressToEntityKey(_msgSender()), "voxel is not owned by player");
 
     VoxelTypeData memory voxelType = VoxelType.get(1, entity);
-    return buildVoxelType(voxelType, coord);
+    return buildVoxelType(voxelType.voxelTypeId, coord);
   }
 
   // TODO: when we have a survival mode, prevent ppl from alling this function directly (since they don't need to own the voxel to call it)
-  function buildVoxelType(VoxelTypeData memory voxelType, VoxelCoord memory coord) public returns (bytes32) {
-    // Require no other ECS voxels at this position except Air
-    bytes32[][] memory entitiesAtPosition = getKeysWithValue(
-      PositionTableId,
-      Position.encode(coord.x, coord.y, coord.z)
-    );
-    require(entitiesAtPosition.length <= 1, "This position is already occupied by another voxel");
-    if (entitiesAtPosition.length == 1) {
-      // require(
-      //   VoxelType.get(1, entitiesAtPosition[0][1]).voxelTypeId == AirID,
-      //   "This position is already occupied by another voxel"
-      // );
-      VoxelType.deleteRecord(1, entitiesAtPosition[0][1]);
-      Position.deleteRecord(1, entitiesAtPosition[0][1]);
+  function buildVoxelType(bytes32 voxelTypeId, VoxelCoord memory coord) public returns (bytes32) {
+    require(IWorld(_world()).tenet_InitSystem_isVoxelTypeAllowed(voxelTypeId), "Voxel type not allowed in this world");
+    VoxelTypeRegistryData memory voxelTypeData = VoxelTypeRegistry.get(IStore(REGISTRY_ADDRESS), voxelTypeId);
+    address caAddress = CAConfig.get(voxelTypeId);
+
+    uint32 scale = voxelTypeData.scale;
+    if (scale > 1) {
+      // Read the ChildTypes in this CA address
+      bytes32[] memory childVoxelTypeIds = voxelTypeData.childVoxelTypeIds;
+      // TODO: Make this general by using cube root
+      require(childVoxelTypeIds.length == 8, "Invalid length of child voxel type ids");
+      // TODO: move this to a library
+      VoxelCoord[] memory eightBlockVoxelCoords = calculateChildCoords(scale, coord);
+      for (uint8 i = 0; i < 8; i++) {
+        buildVoxelType(childVoxelTypeIds[i], eightBlockVoxelCoords[i]);
+      }
     }
 
-    // TODO: check claim in chunk
-    //    OwnedBy.deleteRecord(voxel);
+    // After we've built all the child types, we can build the parent type
     bytes32 newEntity = getUniqueEntity();
-    Position.set(1, newEntity, coord.x, coord.y, coord.z);
 
-    VoxelType.set(1, newEntity, voxelType);
-    // Note: Need to run this because we are in creative mode and this is a new entity
-    enterVoxelIntoWorld(_world(), newEntity);
-    updateVoxelVariant(_world(), newEntity);
+    // Enter World
+    enterWorld(caAddress, voxelTypeId, coord, newEntity);
 
-    // Run voxel interaction logic
-    IWorld(_world()).tenet_VoxInteractSys_runInteractionSystems(newEntity);
+    // Set Position
+    Position.set(scale, newEntity, coord.x, coord.y, coord.z);
+
+    // Set initial voxel type
+    CAVoxelTypeData memory entityCAVoxelType = CAVoxelType.get(IStore(caAddress), _world(), newEntity);
+    VoxelType.set(scale, newEntity, entityCAVoxelType.voxelTypeId, entityCAVoxelType.voxelVariantId);
+
+    IWorld(_world()).tenet_CASystem_runCA(caAddress, scale, newEntity);
 
     return newEntity;
   }

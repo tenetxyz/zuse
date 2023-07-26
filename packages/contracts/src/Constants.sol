@@ -13,3 +13,6 @@ string constant RM_ALL_OWNED_VOXELS_SIG = "tenet_RmVoxelSystem_removeAllOwnedVox
 // A block has six neighbours
 uint256 constant NUM_VOXEL_NEIGHBOURS = 6;
 uint256 constant MAX_VOXEL_NEIGHBOUR_UPDATE_DEPTH = 100;
+
+int32 constant CHUNK_MAX_Y = 255;
+int32 constant CHUNK_MIN_Y = -63;

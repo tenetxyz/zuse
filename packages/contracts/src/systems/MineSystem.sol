@@ -1,80 +1,63 @@
 // SPDX-License-Identifier: MIT
 pragma solidity >=0.8.0;
 
+import { IStore } from "@latticexyz/store/src/IStore.sol";
+import { IWorld } from "@tenet-contracts/src/codegen/world/IWorld.sol";
 import { getUniqueEntity } from "@latticexyz/world/src/modules/uniqueentity/getUniqueEntity.sol";
 import { getKeysInTable } from "@latticexyz/world/src/modules/keysintable/getKeysInTable.sol";
 import { System } from "@latticexyz/world/src/System.sol";
 import { VoxelCoord } from "@tenet-contracts/src/Types.sol";
-import { OwnedBy, Position, PositionTableId, VoxelType, VoxelTypeData, OfSpawn, Spawn, SpawnData } from "@tenet-contracts/src/codegen/Tables.sol";
-import { enterVoxelIntoWorld, exitVoxelFromWorld, updateVoxelVariant, getEntitiesAtCoord, getVoxelVariant } from "@tenet-contracts/src/Utils.sol";
+import { CAConfig, OwnedBy, Position, PositionTableId, VoxelType, VoxelTypeData, OfSpawn, Spawn, SpawnData } from "@tenet-contracts/src/codegen/Tables.sol";
+import { REGISTRY_ADDRESS } from "@tenet-contracts/src/Constants.sol";
+import { calculateChildCoords, getEntityAtCoord, getEntitiesAtCoord } from "@tenet-contracts/src/Utils.sol";
+import { CAVoxelType, CAVoxelTypeData } from "@tenet-base-ca/src/codegen/tables/CAVoxelType.sol";
+import { VoxelTypeRegistry, VoxelTypeRegistryData } from "@tenet-registry/src/codegen/tables/VoxelTypeRegistry.sol";
 import { addressToEntityKey } from "@tenet-utils/src/Utils.sol";
-import { safeStaticCallFunctionSelector } from "@tenet-utils/src/CallUtils.sol";
 import { removeEntityFromArray } from "@tenet-utils/src/Utils.sol";
 import { Utils } from "@latticexyz/world/src/Utils.sol";
-import { IWorld } from "@tenet-contracts/src/codegen/world/IWorld.sol";
-import { console } from "forge-std/console.sol";
+import { CHUNK_MAX_Y, CHUNK_MIN_Y } from "../Constants.sol";
+import { exitWorld } from "@tenet-base-ca/src/Utils.sol";
 
 contract MineSystem is System {
-  function mine(VoxelCoord memory coord, bytes32 voxelTypeId, bytes32 voxelVariantId) public returns (bytes32) {
-    // require(voxelTypeId != AirID, "can not mine air");
-    bytes32 AirID;
-    // require(coord.y <= CHUNK_MAX_Y && coord.y >= CHUNK_MIN_Y, "out of chunk bounds");
+  function mine(bytes32 voxelTypeId, VoxelCoord memory coord) public returns (bytes32) {
+    require(coord.y <= CHUNK_MAX_Y && coord.y >= CHUNK_MIN_Y, "out of chunk bounds");
+    require(IWorld(_world()).tenet_InitSystem_isVoxelTypeAllowed(voxelTypeId), "Voxel type not allowed in this world");
+    VoxelTypeRegistryData memory voxelTypeData = VoxelTypeRegistry.get(IStore(REGISTRY_ADDRESS), voxelTypeId);
+    address caAddress = CAConfig.get(voxelTypeId);
 
-    // Check ECS blocks at coord
-    bytes32[][] memory entitiesAtPosition = getEntitiesAtCoord(coord);
-
-    bytes32 voxelToMine;
-    bytes32 airEntity;
-
-    // Create an ECS voxel from this coord's terrain voxel
-    bytes16 namespace = Utils.systemNamespace();
-
-    if (entitiesAtPosition.length == 0) {
-      // If there is no entity at this position, try mining the terrain voxel at this position
-      // bytes memory occurrence = safeStaticCallFunctionSelector(
-      //   _world(),
-      //   Occurrence.get(voxelTypeId),
-      //   abi.encode(coord)
-      // );
-      // require(occurrence.length > 0, "invalid terrain voxel type");
-      // bytes32 occurenceVoxelVariantId = abi.decode(occurrence, (bytes32));
-      // require(occurenceVoxelVariantId == voxelVariantId, "invalid terrain voxel variant");
-
-      // Create an ECS voxel from this coord's terrain voxel
-      voxelToMine = getUniqueEntity();
-      // in terrain gen, we know its our system namespace and we validated it above using the Occurrence table
-      VoxelType.set(1, voxelToMine, voxelTypeId, voxelVariantId);
-    } else {
-      // Else, mine the non-air entity voxel at this position
-      require(entitiesAtPosition.length == 1, "there should only be one entity at this position");
-      voxelToMine = entitiesAtPosition[0][1];
-      VoxelTypeData memory voxelTypeData = VoxelType.get(1, voxelToMine);
-      require(voxelToMine != 0, "We found no voxels at that position");
-      require(
-        voxelTypeData.voxelTypeId == voxelTypeId && voxelTypeData.voxelVariantId == voxelVariantId,
-        "The voxel at this position is not the same as the voxel you are trying to mine"
-      );
-      tryRemoveVoxelFromSpawn(voxelToMine);
-      Position.deleteRecord(1, voxelToMine);
-      exitVoxelFromWorld(_world(), voxelToMine);
-      VoxelType.set(1, voxelToMine, voxelTypeData.voxelTypeId, "");
+    uint32 scale = voxelTypeData.scale;
+    bytes32 voxelToMine = getEntityAtCoord(scale, coord);
+    if (voxelToMine == 0) {
+      if (scale == 1) {
+        voxelToMine = getUniqueEntity();
+        Position.set(scale, voxelToMine, coord.x, coord.y, coord.z);
+      } else {
+        // TODO: Support terrain gen at higher scales yet
+        revert("Mining terrain at higher scales is not supported yet");
+      }
     }
 
-    // Place an air voxel at this position
-    airEntity = getUniqueEntity();
-    // TODO: We don't need necessarily need to get the air voxel type from the registry, we could just use the AirID
-    // Maybe consider doing this for performance reasons
-    VoxelType.set(1, airEntity, AirID, AirID);
-    Position.set(1, airEntity, coord.x, coord.y, coord.z);
-    enterVoxelIntoWorld(_world(), airEntity);
-    updateVoxelVariant(_world(), airEntity);
+    if (scale > 1) {
+      // Read the ChildTypes in this CA address
+      bytes32[] memory childVoxelTypeIds = voxelTypeData.childVoxelTypeIds;
+      // TODO: Make this general by using cube root
+      require(childVoxelTypeIds.length == 8, "Invalid length of child voxel type ids");
+      // TODO: move this to a library
+      VoxelCoord[] memory eightBlockVoxelCoords = calculateChildCoords(scale, coord);
+      for (uint8 i = 0; i < 8; i++) {
+        mine(childVoxelTypeIds[i], eightBlockVoxelCoords[i]);
+      }
+    }
+
+    exitWorld(caAddress, voxelTypeId, coord, voxelToMine);
+
+    // Set initial voxel type
+    CAVoxelTypeData memory entityCAVoxelType = CAVoxelType.get(IStore(caAddress), _world(), voxelToMine);
+    VoxelType.set(scale, voxelToMine, entityCAVoxelType.voxelTypeId, entityCAVoxelType.voxelVariantId);
+
+    IWorld(_world()).tenet_CASystem_runCA(caAddress, scale, voxelToMine);
 
     OwnedBy.set(voxelToMine, addressToEntityKey(_msgSender()));
-    // Since numUniqueVoxelTypesIOwn is quadratic in gas (based on how many voxels you own), running this function could use up all your gas. So it's commented
-    //    require(IWorld(_world()).tenet_GiftVoxelSystem_numUniqueVoxelTypesIOwn() <= 36, "you can only own 36 voxel types at a time");
-
-    // Run voxel interaction logic
-    IWorld(_world()).tenet_VoxInteractSys_runInteractionSystems(airEntity);
 
     return voxelToMine;
   }
@@ -113,7 +96,7 @@ contract MineSystem is System {
         // if it's air, then it's already clear
         continue;
       }
-      minedEntity = mine(coord, voxelTypeData.voxelTypeId, voxelTypeData.voxelVariantId);
+      minedEntity = mine(voxelTypeData.voxelTypeId, coord);
     }
     return minedEntity;
   }

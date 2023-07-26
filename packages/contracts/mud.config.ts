@@ -14,10 +14,12 @@ export default mudConfig({
   },
   snapSync: true,
   tables: {
-    VoxelTypesAllowed: {
-      keySchema: {},
+    CAConfig: {
+      keySchema: {
+        voxelTypeId: "bytes32",
+      },
       schema: {
-        voxelTypeIds: "bytes32[]",
+        caAddress: "address",
       },
     },
     VoxelType: {
@@ -114,6 +116,11 @@ export default mudConfig({
       name: "UniqueEntityModule",
       root: true,
       args: [],
+    },
+    {
+      name: "KeysInTableModule",
+      root: true,
+      args: [resolveTableId("CAConfig")],
     },
     {
       name: "KeysInTableModule",

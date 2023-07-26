@@ -7,7 +7,7 @@ import { getKeysInTable } from "@latticexyz/world/src/modules/keysintable/getKey
 import { VoxelCoord } from "../Types.sol";
 import { NUM_VOXEL_NEIGHBOURS, MAX_VOXEL_NEIGHBOUR_UPDATE_DEPTH } from "../Constants.sol";
 import { Position, PositionData, VoxelType, VoxelTypeData, VoxelInteractionExtension, VoxelInteractionExtensionTableId } from "@tenet-contracts/src/codegen/Tables.sol";
-import { getEntitiesAtCoord, updateVoxelVariant } from "../Utils.sol";
+import { getEntityAtCoord, updateVoxelVariant, calculateChildCoords, calculateParentCoord } from "../Utils.sol";
 import { hasEntity } from "@tenet-utils/src/Utils.sol";
 import { safeCall } from "@tenet-utils/src/CallUtils.sol";
 
@@ -33,9 +33,9 @@ contract VoxelInteractionSystem is System {
     int8(0)
   ];
 
-  function calculateNeighbourEntities(bytes32 centerEntity) public view returns (bytes32[] memory) {
+  function calculateNeighbourEntities(uint32 scale, bytes32 centerEntity) public view returns (bytes32[] memory) {
     bytes32[] memory centerNeighbourEntities = new bytes32[](NUM_VOXEL_NEIGHBOURS);
-    PositionData memory baseCoord = Position.get(1, centerEntity);
+    PositionData memory baseCoord = Position.get(scale, centerEntity);
 
     for (uint8 i = 0; i < centerNeighbourEntities.length; i++) {
       VoxelCoord memory neighbouringCoord = VoxelCoord(
@@ -44,15 +44,11 @@ contract VoxelInteractionSystem is System {
         baseCoord.z + NEIGHBOUR_COORD_OFFSETS[i * 3 + 2]
       );
 
-      bytes32[][] memory neighbourEntitiesAtPosition = getEntitiesAtCoord(neighbouringCoord);
+      bytes32 neighbourEntity = getEntityAtCoord(scale, neighbouringCoord);
 
-      require(
-        neighbourEntitiesAtPosition.length == 0 || neighbourEntitiesAtPosition.length == 1,
-        "found more than one voxel in the same position. The VoxelInteractions cannot be calculated"
-      );
-      if (neighbourEntitiesAtPosition.length == 1) {
+      if (neighbourEntity != 0) {
         // entity exists so add it to the list
-        centerNeighbourEntities[i] = neighbourEntitiesAtPosition[0][1];
+        centerNeighbourEntities[i] = neighbourEntity;
       } else {
         // no entity exists so add air
         // TODO: How do we deal with entities not created yet, but still in the world due to terrain generation
@@ -63,6 +59,7 @@ contract VoxelInteractionSystem is System {
     return centerNeighbourEntities;
   }
 
+  // Note: Deprecated
   function runInteractionSystems(bytes32 centerEntity) public {
     address world = _world();
 
@@ -81,7 +78,7 @@ contract VoxelInteractionSystem is System {
       // we'll go through each one until there is no more changed entities
       // order in which these systems are called should not matter since they all change their own components
       bytes32 useCenterEntityId = centerEntitiesToCheckStack[useStackIdx];
-      bytes32[] memory useNeighbourEntities = calculateNeighbourEntities(useCenterEntityId);
+      bytes32[] memory useNeighbourEntities = calculateNeighbourEntities(1, useCenterEntityId);
       if (!hasEntity(useNeighbourEntities)) {
         // if no neighbours, then we don't run any voxel interactions because there would be none
         break;

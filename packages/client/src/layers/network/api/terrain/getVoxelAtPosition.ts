@@ -5,7 +5,6 @@ import { Terrain, TerrainState } from "./types";
 import { getTerrain } from "./utils";
 import { Air, AIR_ID, Bedrock, Dirt, Grass } from "./occurrence";
 import { VoxelTypeKey, VoxelTypeKeyInMudTable } from "@tenetxyz/layers/noa/types";
-import { TenetStoreCache } from "@tenetxyz/mud/setupNetwork";
 import { LiveStoreCache } from "@tenetxyz/mud/setupLiveStoreCache";
 
 export function getEntityAtPosition(
@@ -22,14 +21,15 @@ export function getEntityAtPosition(
   scale: number
 ): Entity | undefined {
   const { Position, liveStoreCache } = context;
-  const entitiesAtPosition = [...getEntitiesWithValue(Position, coord)];
+  const entityKeysAtPosition = [...getEntitiesWithValue(Position, coord)];
 
   // Prefer non-air voxels at this position
   return (
-    entitiesAtPosition?.find((entity) => {
-      const voxelType = liveStoreCache.VoxelType.get({ entity: entity, scale: scale });
+    entityKeysAtPosition?.find((entityKey) => {
+      const [_scaleInHexadecimal, entity] = entityKey.split(":");
+      const voxelType = liveStoreCache.VoxelType.get({ entity, scale });
       return voxelType && voxelType.voxelTypeId !== AIR_ID;
-    }) ?? entitiesAtPosition[0]
+    }) ?? entityKeysAtPosition[0]
   );
 }
 
@@ -47,12 +47,14 @@ export function getEcsVoxelType(
   scale: number
 ): VoxelTypeKey | undefined {
   const { liveStoreCache } = context;
-  const entityAtPosition = getEntityAtPosition(context, coord, scale);
-  if (!entityAtPosition) return undefined;
+  const entityKeyAtPosition = getEntityAtPosition(context, coord, scale);
+  if (!entityKeyAtPosition) return undefined;
+  const [_scaleInHexadecimal, entityAtPosition] = entityKeyAtPosition.split(":");
   const voxelTypeKeyInMudTable = liveStoreCache.VoxelType.get({
     entity: entityAtPosition,
     scale: scale,
   }) as VoxelTypeKeyInMudTable;
+
   return {
     voxelBaseTypeId: voxelTypeKeyInMudTable.voxelTypeId,
     voxelVariantTypeId: voxelTypeKeyInMudTable.voxelVariantId,

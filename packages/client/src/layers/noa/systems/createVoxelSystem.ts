@@ -10,6 +10,7 @@ import { awaitStreamValue } from "@latticexyz/utils";
 import { NetworkLayer } from "../../network";
 import { NoaLayer } from "../types";
 import { getWorldScale } from "../../../utils/coord";
+import { to64CharAddress } from "../../../utils/entity";
 
 export async function createVoxelSystem(networkLayer: NetworkLayer, noaLayer: NoaLayer) {
   const {
@@ -32,7 +33,8 @@ export async function createVoxelSystem(networkLayer: NetworkLayer, noaLayer: No
   defineComponentSystem(world, VoxelType, async (update) => {
     if (!live) return;
     if (!update.value[0] || !update.value[1]) return;
-    const position = liveStoreCache.Position.get({ entity: update.entity, scale: getWorldScale(noa) });
+    const entity = to64CharAddress("0x" + update.entity);
+    const position = liveStoreCache.Position.get({ entity, scale: getWorldScale(noa) });
     if (!position) return; // if there's no position, the voxel is not in the world. so no need to display it
     setVoxel(position, update.value[0].voxelVariantId);
   });
@@ -49,8 +51,9 @@ export async function createVoxelSystem(networkLayer: NetworkLayer, noaLayer: No
   // "Enter system"
   defineEnterSystem(world, [Has(Position), Has(VoxelType)], (update) => {
     if (!live) return;
-    const position = liveStoreCache.Position.get({ entity: update.entity, scale: getWorldScale(noa) });
-    const voxel = getVoxelAtPosition(position, getWorldScale(noa));
+    const entity = to64CharAddress("0x" + update.entity);
+    const position = liveStoreCache.Position.get({ entity, scale: getWorldScale(noa) });
+    const voxel = getVoxelAtPosition(position, getWorldScale(noa)); // TODO: do we even need this funciton? we already have the entity from teh update, so it probably isn't a terrain block. I think we can just use getVoxelType for the given entity (after getting its position)
     setVoxel(position, voxel.voxelVariantTypeId);
   });
 }

@@ -17,7 +17,7 @@ import { voxelCoordToString } from "../../../utils/coord";
 import { renderFloatingTextAboveCoord } from "./renderFloatingText";
 import { InterfaceVoxel } from "../types";
 import { World } from "noa-engine/dist/src/lib/world";
-import { decreaseScale, setScale } from "./createScaleManager";
+import { setScale } from "./createScaleManager";
 
 export function createInputSystem(layers: Layers) {
   const {

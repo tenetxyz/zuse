@@ -69,6 +69,8 @@ contract BaseCASystem is System {
   }
 
   function exitWorld(bytes32 voxelTypeId, VoxelCoord memory coord, bytes32 entity) public {
+    require(voxelTypeId != AirVoxelID, "can not mine air");
+
     address callerAddress = _msgSender();
     if (!hasKey(CAPositionTableId, CAPosition.encodeKeyTuple(callerAddress, entity))) {
       // If there is no entity at this position, try mining the terrain voxel at this position

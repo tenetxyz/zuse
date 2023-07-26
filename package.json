@@ -15,7 +15,7 @@
     "deploy": "concurrently -n contracts,client -c cyan,magenta \"cd packages/contracts && yarn run dev\" \"cd packages/client && yarn run deploy\"",
     "dev": "concurrently -n contracts,client -c cyan,magenta \"cd packages/contracts && yarn run dev\" \"cd packages/client && yarn run dev\"",
     "dev:client": "yarn workspace client run dev",
-    "dev:contracts": "yarn workspace @tenetxyz/registry run deploy && yarn workspace @tenetxyz/contracts run deploy",
+    "dev:contracts": "yarn workspace @tenetxyz/registry run deploy && yarn workspace @tenetxyz/base-ca run deploy:local && yarn workspace @tenetxyz/contracts run deploy:local",
     "foundry:up": "curl -L https://foundry.paradigm.xyz | bash && bash $HOME/.foundry/bin/foundryup",
     "initialize": "yarn workspaces run initialize",
     "mud:up": "yarn workspaces foreach -t run yarn mud set-version -v canary && yarn install",

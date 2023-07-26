@@ -3,18 +3,44 @@ pragma solidity >=0.8.0;
 
 import { SystemRegistry } from "@latticexyz/world/src/modules/core/tables/SystemRegistry.sol";
 import { ResourceSelector } from "@latticexyz/world/src/ResourceSelector.sol";
-import { CHUNK } from "@tenet-contracts/src/Constants.sol";
 import { hasKey } from "@latticexyz/world/src/modules/keysintable/hasKey.sol";
 import { Coord, VoxelCoord } from "@tenet-contracts/src/Types.sol";
 import { getKeysWithValue } from "@latticexyz/world/src/modules/keyswithvalue/getKeysWithValue.sol";
 import { Position, PositionData, PositionTableId, VoxelType, VoxelTypeData } from "@tenet-contracts/src/codegen/Tables.sol";
 import { BlockDirection } from "@tenet-contracts/src/Types.sol";
 
-function getCallerNamespace(address caller) view returns (bytes16) {
-  require(uint256(SystemRegistry.get(caller)) != 0, "Caller is not a system"); // cannot be called by an EOA
-  bytes32 resourceSelector = SystemRegistry.get(caller);
-  bytes16 callerNamespace = ResourceSelector.getNamespace(resourceSelector);
-  return callerNamespace;
+function calculateChildCoords(uint32 scale, VoxelCoord memory parentCoord) pure returns (VoxelCoord[] memory) {
+  VoxelCoord[] memory childCoords = new VoxelCoord[](uint256(scale * scale * scale));
+  uint256 index = 0;
+  for (uint32 dz = 0; dz < scale; dz++) {
+    for (uint32 dy = 0; dy < scale; dy++) {
+      for (uint32 dx = 0; dx < scale; dx++) {
+        childCoords[index] = VoxelCoord(
+          parentCoord.x * int32(scale) + int32(dx),
+          parentCoord.y * int32(scale) + int32(dy),
+          parentCoord.z * int32(scale) + int32(dz)
+        );
+        index++;
+      }
+    }
+  }
+  return childCoords;
+}
+
+function calculateParentCoord(VoxelCoord memory childCoord, uint32 scale) pure returns (VoxelCoord memory) {
+  int32 newX = childCoord.x / int32(scale);
+  if (childCoord.x < 0) {
+    newX -= 1; // We need to do this because Solidity rounds towards 0
+  }
+  int32 newY = childCoord.y / int32(scale);
+  if (childCoord.y < 0) {
+    newY -= 1; // We need to do this because Solidity rounds towards 0
+  }
+  int32 newZ = childCoord.z / int32(scale);
+  if (childCoord.z < 0) {
+    newZ -= 1; // We need to do this because Solidity rounds towards 0
+  }
+  return VoxelCoord(newX, newY, newZ);
 }
 
 function getEntityPositionStrict(bytes32 entity) view returns (PositionData memory) {
@@ -67,42 +93,23 @@ function getOppositeDirection(BlockDirection direction) pure returns (BlockDirec
   }
 }
 
-function getVoxelVariant(address world, bytes32 voxelTypeId, bytes32 entity) returns (bytes32 voxelVariantId) {
-  // bytes4 voxelVariantSelector = VoxelTypeRegistry.get(voxelTypeNamespace, voxelTypeId).voxelVariantSelector;
-  // bytes memory voxelVariantSelected = safeStaticCall(
-  //   world,
-  //   abi.encodeWithSelector(voxelVariantSelector, entity),
-  //   "get voxel variant"
-  // );
-  // return abi.decode(voxelVariantSelected, (VoxelVariantsKey));
-}
-
-function enterVoxelIntoWorld(address world, bytes32 entity) {
-  VoxelTypeData memory entityVoxelType = VoxelType.get(1, entity);
-  // bytes4 enterWorldSelector = VoxelTypeRegistry
-  //   .get(entityVoxelType.voxelTypeNamespace, entityVoxelType.voxelTypeId)
-  //   .enterWorldSelector;
-  // safeCall(world, abi.encodeWithSelector(enterWorldSelector, entity), "voxel enter world");
-}
-
-function exitVoxelFromWorld(address world, bytes32 entity) {
-  VoxelTypeData memory entityVoxelType = VoxelType.get(1, entity);
-  // bytes4 exitWorldSelector = VoxelTypeRegistry
-  //   .get(entityVoxelType.voxelTypeNamespace, entityVoxelType.voxelTypeId)
-  //   .exitWorldSelector;
-  // safeCall(world, abi.encodeWithSelector(exitWorldSelector, entity), "voxel exit world");
-}
-
-function updateVoxelVariant(address world, bytes32 entity) {
-  VoxelTypeData memory entityVoxelType = VoxelType.get(1, entity);
-  // bytes32 voxelVariantId = getVoxelVariant(world, entityVoxelType.voxelTypeId, entity);
-  // if (voxelVariantId != entityVoxelType.voxelVariantId) {
-  //   VoxelType.set(1, entity, entityVoxelType.voxelTypeId, voxelVariantId);
-  // }
-}
-
 function getEntitiesAtCoord(VoxelCoord memory coord) view returns (bytes32[][] memory) {
   return getKeysWithValue(PositionTableId, Position.encode(coord.x, coord.y, coord.z));
+}
+
+function getEntityAtCoord(uint32 scale, VoxelCoord memory coord) view returns (bytes32) {
+  bytes32[][] memory allEntitiesAtCoord = getKeysWithValue(PositionTableId, Position.encode(coord.x, coord.y, coord.z));
+  bytes32 entity;
+  for (uint256 i = 0; i < allEntitiesAtCoord.length; i++) {
+    if (uint256(allEntitiesAtCoord[i][0]) == scale) {
+      if (entity != 0) {
+        revert("Found more than one entity at the same position");
+      }
+      entity = allEntitiesAtCoord[i][1];
+    }
+  }
+
+  return entity;
 }
 
 function increaseVoxelTypeSpawnCount(bytes16 voxelTypeNamespace, bytes32 voxelTypeId) {

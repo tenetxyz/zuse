@@ -401,11 +401,7 @@ export async function setupNetwork() {
         OwnedBy: contractComponents.OwnedBy, // I think it's needed cause we check to see if the owner owns the voxel we're placing
       },
       execute: () => {
-        return callSystem("tenet_BuildSystem_build", [
-          to64CharAddress(voxelInstanceOfVoxelType),
-          coord,
-          { gasLimit: 100_000_000 },
-        ]);
+        return callSystem("build", [to64CharAddress(voxelInstanceOfVoxelType), coord, { gasLimit: 100_000_000 }]);
       },
       updates: () => [
         // commented cause we're in creative mode
@@ -450,12 +446,7 @@ export async function setupNetwork() {
         VoxelType: contractComponents.VoxelType,
       },
       execute: () => {
-        return callSystem("tenet_MineSystem_mine", [
-          coord,
-          voxelTypeKey.voxelBaseTypeId,
-          voxelTypeKey.voxelVariantTypeId,
-          { gasLimit: 100_000_000 },
-        ]);
+        return callSystem("mine", [voxelTypeKey.voxelBaseTypeId, coord, { gasLimit: 100_000_000 }]);
       },
       updates: () => [
         {
@@ -493,7 +484,7 @@ export async function setupNetwork() {
         VoxelType: contractComponents.VoxelType,
       },
       execute: () => {
-        return callSystem("tenet_GiftVoxelSystem_giftVoxel", [voxelTypeId, { gasLimit: 10_000_000 }]);
+        return callSystem("giftVoxel", [voxelTypeId, { gasLimit: 10_000_000 }]);
       },
       updates: () => [
         // {
@@ -534,7 +525,7 @@ export async function setupNetwork() {
         VoxelType: contractComponents.VoxelType,
       },
       execute: () => {
-        return callSystem("tenet_RmVoxelSystem_removeVoxels", [
+        return callSystem("removeVoxels", [
           voxels.map((voxelId) => to64CharAddress(voxelId)),
           { gasLimit: 10_000_000 },
         ]);
@@ -563,7 +554,7 @@ export async function setupNetwork() {
         OwnedBy: contractComponents.OwnedBy,
       },
       execute: () => {
-        return callSystem("tenet_RegisterCreation_registerCreation", [
+        return callSystem("registerCreation", [
           creationName,
           creationDescription,
           voxelsWithoutScale,
@@ -585,7 +576,7 @@ export async function setupNetwork() {
       requirement: () => true,
       components: {},
       execute: () => {
-        return callSystem("tenet_SpawnSystem_spawn", [lowerSouthWestCorner, creationId, { gasLimit: 100_000_000 }]);
+        return callSystem("spawn", [lowerSouthWestCorner, creationId, { gasLimit: 100_000_000 }]);
       },
       updates: () => [],
     });
@@ -607,7 +598,7 @@ export async function setupNetwork() {
       components: {},
       execute: () => {
         return callSystem(
-          "tenet_ClassifyCreation_classify",
+          "classify",
           [classifierId, spawnId, interfaceVoxels, { gasLimit: 100_000_000 }],
           undefined,
           onSuccessCallback
@@ -628,17 +619,12 @@ export async function setupNetwork() {
       requirement: () => true,
       components: {},
       execute: () => {
-        return callSystem(
-          "tenet_ActivateVoxelSys_activateVoxel",
-          [entity, { gasLimit: 100_000_000 }],
-          undefined,
-          (rawResponse) => {
-            const response = abiDecode("string", rawResponse, false);
-            if (response !== "") {
-              toast(response);
-            }
+        return callSystem("activateVoxel", [entity, { gasLimit: 100_000_000 }], undefined, (rawResponse) => {
+          const response = abiDecode("string", rawResponse, false);
+          if (response !== "") {
+            toast(response);
           }
-        );
+        });
       },
       updates: () => [],
       txMayNotWriteToTable: true,

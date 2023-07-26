@@ -17,15 +17,9 @@ contract PostDeploy is Script {
 
     // Call world init function
     IWorld world = IWorld(worldAddress);
-    world.tenet_AirVoxelSystem_registerVoxel();
-    world.tenet_DirtVoxelSystem_registerVoxel();
-    world.tenet_GrassVoxelSystem_registerVoxel();
-    world.tenet_BedrockVoxelSyst_registerVoxel();
 
-    world.tenet_VoxelRegistrySys_initWorldVoxelTypes();
-
-    // Note: These have to be here instead of InitSystem as they have be called from the deployer account
-    // otherwise the msgSender is not the namespace owner
+    world.registerWorld();
+    world.initWorldVoxelTypes();
 
     vm.stopBroadcast();
   }

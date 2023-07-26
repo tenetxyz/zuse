@@ -10,14 +10,14 @@ import { voxelCoordsAreEqual, add } from "@tenet-utils/src/VoxelCoordUtils.sol";
 import { int32ToString } from "@tenet-utils/src/StringUtils.sol";
 import { IWorld } from "@tenet-contracts/src/codegen/world/IWorld.sol";
 import { console } from "forge-std/console.sol";
-import { CHUNK_MAX_Y, CHUNK_MIN_Y } from "../Constants.sol";
 import { Strings } from "@openzeppelin/contracts/utils/Strings.sol";
 
 contract SpawnSystem is System {
   function spawn(VoxelCoord memory lowerSouthWestCorner, bytes32 creationId) public returns (bytes32) {
     // 1) get all the voxels in the creation
-    (VoxelCoord[] memory relativeVoxelCoords, VoxelTypeData[] memory voxelTypes) = IWorld(_world())
-      .tenet_RegisterCreation_getVoxelsInCreation(creationId);
+    (VoxelCoord[] memory relativeVoxelCoords, VoxelTypeData[] memory voxelTypes) = IWorld(_world()).getVoxelsInCreation(
+      creationId
+    );
 
     bytes32 spawnId = getUniqueEntity();
     bytes32[] memory spawnVoxels = new bytes32[](relativeVoxelCoords.length);
@@ -26,16 +26,16 @@ contract SpawnSystem is System {
     for (uint i = 0; i < relativeVoxelCoords.length; i++) {
       VoxelCoord memory relativeCoord = relativeVoxelCoords[i];
       VoxelCoord memory spawnVoxelAtCoord = add(lowerSouthWestCorner, relativeCoord);
-      require(
-        spawnVoxelAtCoord.y >= CHUNK_MIN_Y && spawnVoxelAtCoord.y <= CHUNK_MAX_Y,
-        string(
-          abi.encodePacked("Cannot spawn voxel outside of chunk boundaries at y=", int32ToString(spawnVoxelAtCoord.y))
-        )
-      );
+      // require(
+      //   spawnVoxelAtCoord.y >= CHUNK_MIN_Y && spawnVoxelAtCoord.y <= CHUNK_MAX_Y,
+      //   string(
+      //     abi.encodePacked("Cannot spawn voxel outside of chunk boundaries at y=", int32ToString(spawnVoxelAtCoord.y))
+      //   )
+      // );
 
       // delete the voxels at this coord
-      IWorld(_world()).tenet_MineSystem_clearCoord(spawnVoxelAtCoord); // it's important to MINE the voxels since this function also removes spawns from the world if all its voxels are gone
-      bytes32 newEntity = IWorld(_world()).tenet_BuildSystem_buildVoxelType(voxelTypes[i], spawnVoxelAtCoord);
+      IWorld(_world()).clearCoord(spawnVoxelAtCoord); // it's important to MINE the voxels since this function also removes spawns from the world if all its voxels are gone
+      bytes32 newEntity = IWorld(_world()).buildVoxelType(voxelTypes[i].voxelTypeId, spawnVoxelAtCoord);
 
       // update the spawn-related components
       OfSpawn.set(newEntity, spawnId);

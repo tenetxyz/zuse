@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0
 pragma solidity >=0.8.0;
 
-address constant REGISTRY_WORLD = 0x5FbDB2315678afecb367f032d93F642f64180aa3;
+address constant REGISTRY_ADDRESS = 0x5FbDB2315678afecb367f032d93F642f64180aa3;
 
 bytes32 constant Level2AirVoxelID = bytes32(keccak256("level2-air"));
 

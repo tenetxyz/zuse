@@ -7,12 +7,11 @@ import { IStore } from "@latticexyz/store/src/IStore.sol";
 import { IWorld } from "@tenet-contracts/src/codegen/world/IWorld.sol";
 import { VoxelType, OwnedBy } from "@tenet-contracts/src/codegen/Tables.sol";
 
-import { GrassID } from "../../systems/voxels/GrassVoxelSystem.sol";
+import { GrassVoxelID } from "@tenet-base-ca/src/Constants.sol";
 import { addressToEntityKey } from "@tenet-utils/src/Utils.sol";
 import { VoxelCoord } from "../../Types.sol";
 import { Utilities } from "@latticexyz/std-contracts/src/test/Utilities.sol";
 import { console } from "forge-std/console.sol";
-import { TENET_NAMESPACE } from "../../Constants.sol";
 
 contract MineTest is MudTest {
   IWorld private world;
@@ -34,9 +33,9 @@ contract MineTest is MudTest {
     VoxelCoord memory coord = VoxelCoord({ x: -1598, y: 10, z: 4650 }); // Grass
     console.log("testMineTerrain");
 
-    bytes32 minedEntity = world.tenet_MineSystem_mine(coord, GrassID, GrassID);
+    bytes32 minedEntity = world.mine(GrassVoxelID, coord);
 
-    assertEq(VoxelType.get(store, 1, minedEntity).voxelTypeId, GrassID);
+    assertEq(VoxelType.get(store, 1, minedEntity).voxelTypeId, GrassVoxelID);
     assertEq(OwnedBy.get(store, minedEntity), addressToEntityKey(alice));
     vm.stopPrank();
   }

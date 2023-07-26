@@ -1,68 +1,19 @@
 // SPDX-License-Identifier: GPL-3.0
 pragma solidity >=0.8.0;
 
+import { IWorld } from "@tenet-contracts/src/codegen/world/IWorld.sol";
 import { System } from "@latticexyz/world/src/System.sol";
 import { getAddressById, addressToEntity } from "solecs/utils.sol";
 import { getKeysInTable } from "@latticexyz/world/src/modules/keysintable/getKeysInTable.sol";
 import { VoxelCoord } from "../Types.sol";
 import { NUM_VOXEL_NEIGHBOURS, MAX_VOXEL_NEIGHBOUR_UPDATE_DEPTH } from "../Constants.sol";
 import { Position, PositionData, VoxelType, VoxelTypeData, VoxelInteractionExtension, VoxelInteractionExtensionTableId } from "@tenet-contracts/src/codegen/Tables.sol";
-import { getEntitiesAtCoord, updateVoxelVariant } from "../Utils.sol";
+import { getEntityAtCoord, updateVoxelVariant, calculateChildCoords, calculateParentCoord } from "../Utils.sol";
 import { hasEntity } from "@tenet-utils/src/Utils.sol";
 import { safeCall } from "@tenet-utils/src/CallUtils.sol";
 
 contract VoxelInteractionSystem is System {
-  int8[18] private NEIGHBOUR_COORD_OFFSETS = [
-    int8(0),
-    int8(0),
-    int8(1),
-    int8(0),
-    int8(0),
-    int8(-1),
-    int8(1),
-    int8(0),
-    int8(0),
-    int8(-1),
-    int8(0),
-    int8(0),
-    int8(0),
-    int8(1),
-    int8(0),
-    int8(0),
-    int8(-1),
-    int8(0)
-  ];
-
-  function calculateNeighbourEntities(bytes32 centerEntity) public view returns (bytes32[] memory) {
-    bytes32[] memory centerNeighbourEntities = new bytes32[](NUM_VOXEL_NEIGHBOURS);
-    PositionData memory baseCoord = Position.get(1, centerEntity);
-
-    for (uint8 i = 0; i < centerNeighbourEntities.length; i++) {
-      VoxelCoord memory neighbouringCoord = VoxelCoord(
-        baseCoord.x + NEIGHBOUR_COORD_OFFSETS[i * 3],
-        baseCoord.y + NEIGHBOUR_COORD_OFFSETS[i * 3 + 1],
-        baseCoord.z + NEIGHBOUR_COORD_OFFSETS[i * 3 + 2]
-      );
-
-      bytes32[][] memory neighbourEntitiesAtPosition = getEntitiesAtCoord(neighbouringCoord);
-
-      require(
-        neighbourEntitiesAtPosition.length == 0 || neighbourEntitiesAtPosition.length == 1,
-        "found more than one voxel in the same position. The VoxelInteractions cannot be calculated"
-      );
-      if (neighbourEntitiesAtPosition.length == 1) {
-        // entity exists so add it to the list
-        centerNeighbourEntities[i] = neighbourEntitiesAtPosition[0][1];
-      } else {
-        // no entity exists so add air
-        // TODO: How do we deal with entities not created yet, but still in the world due to terrain generation
-        centerNeighbourEntities[i] = 0;
-      }
-    }
-
-    return centerNeighbourEntities;
-  }
-
+  // Note: Deprecated
   function runInteractionSystems(bytes32 centerEntity) public {
     address world = _world();
 
@@ -81,7 +32,7 @@ contract VoxelInteractionSystem is System {
       // we'll go through each one until there is no more changed entities
       // order in which these systems are called should not matter since they all change their own components
       bytes32 useCenterEntityId = centerEntitiesToCheckStack[useStackIdx];
-      bytes32[] memory useNeighbourEntities = calculateNeighbourEntities(useCenterEntityId);
+      bytes32[] memory useNeighbourEntities = IWorld(_world()).calculateNeighbourEntities(1, useCenterEntityId);
       if (!hasEntity(useNeighbourEntities)) {
         // if no neighbours, then we don't run any voxel interactions because there would be none
         break;
@@ -145,7 +96,11 @@ contract VoxelInteractionSystem is System {
     for (uint256 i = 0; i <= centerEntitiesToCheckStackIdx; i++) {
       bytes32 centerEntityId = centerEntitiesToCheckStack[i];
       // TODO: do we know for sure voxel type exists?
-      updateVoxelVariant(_world(), centerEntityId);
+      // VoxelTypeData memory entityVoxelType = VoxelType.get(1, entity);
+      // bytes32 voxelVariantId = getVoxelVariant(world, entityVoxelType.voxelTypeId, entity);
+      // if (voxelVariantId != entityVoxelType.voxelVariantId) {
+      //   VoxelType.set(1, entity, entityVoxelType.voxelTypeId, voxelVariantId);
+      // }
     }
   }
 }

@@ -8,15 +8,18 @@ import { resolveTableId } from "@latticexyz/config";
 import "@latticexyz/world/snapsync";
 
 export default mudConfig({
-  namespace: "tenet",
   enums: {
     NoaBlockType: ["BLOCK", "MESH"],
   },
   snapSync: true,
   tables: {
-    VoxelTypesAllowed: {
-      keySchema: {},
-      schema: "bytes32[]",
+    CAConfig: {
+      keySchema: {
+        voxelTypeId: "bytes32",
+      },
+      schema: {
+        caAddress: "address",
+      },
     },
     VoxelType: {
       keySchema: {
@@ -38,13 +41,6 @@ export default mudConfig({
         x: "int32",
         y: "int32",
         z: "int32",
-      },
-    },
-    Occurrence: {
-      // Each voxel generates at diff spots in the world, and each voxel has a function defining where it should appear.
-      // This table points to each voxel's respective generation function.
-      schema: {
-        functionPointer: "bytes4",
       },
     },
     OwnedBy: "bytes32",
@@ -119,6 +115,11 @@ export default mudConfig({
       name: "UniqueEntityModule",
       root: true,
       args: [],
+    },
+    {
+      name: "KeysInTableModule",
+      root: true,
+      args: [resolveTableId("CAConfig")],
     },
     {
       name: "KeysInTableModule",

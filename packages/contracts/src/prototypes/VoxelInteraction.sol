@@ -3,7 +3,7 @@ pragma solidity >=0.8.0;
 
 import { System } from "@latticexyz/world/src/System.sol";
 import { PositionData } from "@tenet-contracts/src/codegen/tables/Position.sol";
-import { getCallerNamespace } from "@tenet-contracts/src/Utils.sol";
+import { getCallerNamespace } from "@tenet-utils/src/Utils.sol";
 import { BlockDirection } from "@tenet-contracts/src/Types.sol";
 import { calculateBlockDirection, getEntityPositionStrict } from "../Utils.sol";
 

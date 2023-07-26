@@ -61,6 +61,7 @@ contract ComposedCASystem is System {
   }
 
   function exitWorld(bytes32 voxelTypeId, VoxelCoord memory coord, bytes32 entity) public {
+    require(voxelTypeId != Level2AirVoxelID, "can not mine air");
     address callerAddress = _msgSender();
     require(
       hasKey(CAPositionTableId, CAPosition.encodeKeyTuple(callerAddress, entity)),

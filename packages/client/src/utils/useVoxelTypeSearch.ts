@@ -40,7 +40,7 @@ export const useVoxelTypeSearch = ({ layers, filters }: Props) => {
       voxelTypes.set(voxelType, voxelTypeRecord);
     }
     allVoxelTypes.current = Array.from(voxelTypes.entries())
-      .filter(([_, voxelTypeRecord]) => voxelTypeRecord !== undefined && voxelTypeRecord.name !== "Air")
+      .filter(([_, voxelTypeRecord]) => voxelTypeRecord !== undefined && !voxelTypeRecord.name.includes("Air"))
       .map(([voxelTypeId, voxelTypeRecord]) => {
         return {
           name: voxelTypeRecord!.name,

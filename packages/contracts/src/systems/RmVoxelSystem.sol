@@ -7,25 +7,25 @@ import { getKeysWithValue } from "@latticexyz/world/src/modules/keyswithvalue/ge
 
 // If we call this RemoveVoxelSystem, the foundry codegen fails cause they set a limit on the number of chars for an interface
 contract RmVoxelSystem is System {
-  function removeVoxels(bytes32[] memory voxels) public {
+  function removeVoxels(uint32[] memory scales, bytes32[] memory voxels) public {
+    require(scales.length == voxels.length, "scales and voxels must be the same length");
     // for each voxel, require it to be owned by the _msgSender
     for (uint i = 0; i < voxels.length; i++) {
-      require(OwnedBy.get(voxels[i]) == addressToEntityKey(_msgSender()), "Voxel not owned by sender");
+      require(OwnedBy.get(scales[i], voxels[i]) == _msgSender(), "Voxel not owned by sender");
       // delete the voxel
       // TODO: delete all values in relevant components as well
-      OwnedBy.deleteRecord(voxels[i]);
-      VoxelType.deleteRecord(1, voxels[i]);
+      OwnedBy.deleteRecord(scales[i], voxels[i]);
+      VoxelType.deleteRecord(scales[i], voxels[i]);
     }
   }
 
   function removeAllOwnedVoxels() public {
-    bytes32[][] memory entitiesOwnedBySender = getKeysWithValue(
-      OwnedByTableId,
-      OwnedBy.encode(addressToEntityKey(_msgSender()))
-    );
+    bytes32[][] memory entitiesOwnedBySender = getKeysWithValue(OwnedByTableId, OwnedBy.encode(_msgSender()));
     for (uint256 i = 0; i < entitiesOwnedBySender.length; i++) {
-      OwnedBy.deleteRecord(entitiesOwnedBySender[0][i]);
-      VoxelType.deleteRecord(1, entitiesOwnedBySender[0][i]);
+      bytes32[] memory entity = entitiesOwnedBySender[i];
+      uint32 scale = uint32(uint256(entity[0]));
+      OwnedBy.deleteRecord(scale, entity[1]);
+      VoxelType.deleteRecord(scale, entity[1]);
     }
   }
 }

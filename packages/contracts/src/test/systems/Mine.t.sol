@@ -36,7 +36,7 @@ contract MineTest is MudTest {
     bytes32 minedEntity = world.mine(GrassVoxelID, coord);
 
     assertEq(VoxelType.get(store, 1, minedEntity).voxelTypeId, GrassVoxelID);
-    assertEq(OwnedBy.get(store, minedEntity), addressToEntityKey(alice));
+    assertEq(OwnedBy.get(store, 1, minedEntity), alice);
     vm.stopPrank();
   }
 }

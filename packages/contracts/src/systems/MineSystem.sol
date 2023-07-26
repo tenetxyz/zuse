@@ -57,7 +57,7 @@ contract MineSystem is System {
 
     IWorld(_world()).runCA(caAddress, scale, voxelToMine);
 
-    OwnedBy.set(voxelToMine, addressToEntityKey(_msgSender()));
+    OwnedBy.set(scale, voxelToMine, _msgSender());
 
     return voxelToMine;
   }
@@ -89,9 +89,10 @@ contract MineSystem is System {
     bytes32[][] memory entitiesAtPosition = getEntitiesAtCoord(coord);
     bytes32 minedEntity = 0;
     for (uint256 i = 0; i < entitiesAtPosition.length; i++) {
+      uint32 scale = uint32(uint256(entitiesAtPosition[i][0]));
       bytes32 entity = entitiesAtPosition[i][1];
 
-      VoxelTypeData memory voxelTypeData = VoxelType.get(1, entity);
+      VoxelTypeData memory voxelTypeData = VoxelType.get(scale, entity);
       if (voxelTypeData.voxelTypeId == AirID) {
         // if it's air, then it's already clear
         continue;

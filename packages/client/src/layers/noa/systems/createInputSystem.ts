@@ -16,6 +16,8 @@ import { Layers } from "../../../types";
 import { voxelCoordToString } from "../../../utils/coord";
 import { renderFloatingTextAboveCoord } from "./renderFloatingText";
 import { InterfaceVoxel } from "../types";
+import { World } from "noa-engine/dist/src/lib/world";
+import { decreaseScale } from "./createScaleManager";
 
 export function createInputSystem(layers: Layers) {
   const {
@@ -44,21 +46,28 @@ export function createInputSystem(layers: Layers) {
     },
   } = layers;
 
+  // https://fenomas.github.io/noa/API/classes/_internal_.Inputs.html#bind
+  // Key strings should align to KeyboardEvent.code strings - e.g. KeyA, ArrowDown, etc.
+  // https://developer.mozilla.org/en-US/docs/Web/API/UI_Events/Keyboard_event_code_values
+
   const InputEvent = {
-    "cancel-action": ["<backspace>", "<delete>"],
-    "toggle-inventory": "E",
-    sidebar: ["-", "Q"],
-    "select-voxel": "V",
-    fire: "F",
-    "alt-fire": ["<mouse 3>", "R"], // Note: if you ever change the name of this event, you might break some logic since in the code below, we first unbind alt-fire to remove the original binding of "E"
-    moving: ["W", "A", "S", "D", "<up>", "<left>", "<down>", "<right>"],
-    "voxel-explorer": "B",
-    slot: ["1", "2", "3", "4", "5", "6", "7", "8", "9"],
-    plugins: ";",
-    spawn: "O",
-    preteleport: "P",
-    "spawn-creation": "<enter>",
-    crouch: "<shift>",
+    "cancel-action": ["Backspace", "Delete"],
+    "toggle-inventory": "KeyE",
+    sidebar: ["Minus", "KeyQ"],
+    "select-voxel": "KeyV",
+    fire: ["Mouse1", "KeyF"],
+    "alt-fire": ["Mouse3", "KeyR"], // Note: if you ever change the name of this event, you might break some logic since in the code below, we first unbind alt-fire to remove the original binding of "E"
+    jump: "Space",
+    moving: ["KeyW", "KeyA", "KeyS", "KeyD", "ArrowUp", "ArrowLeft", "ArrowDown", "ArrowRight"],
+    "voxel-explorer": "KeyB",
+    slot: ["Digit1", "Digit2", "Digit3", "Digit4", "Digit5", "Digit6", "Digit7", "Digit8", "Digit9"],
+    plugins: "Semicolon",
+    spawn: "KeyO",
+    preteleport: "KeyP",
+    "spawn-creation": "Enter",
+    crouch: "ShiftLeft",
+    zoomout: "KeyK",
+    zoomin: "KeyJ",
   };
 
   type InputEventKey = keyof typeof InputEvent;
@@ -71,11 +80,11 @@ export function createInputSystem(layers: Layers) {
     noa.inputs.unbind(key);
   };
 
-  const onDownInputEvent = (key: InputEventKey, handler: () => void) => {
+  const onDownInputEvent = (key: InputEventKey, handler: (e?: any) => void) => {
     noa.inputs.down.on(key, handler);
   };
 
-  const onUpInputEvent = (key: InputEventKey, handler: () => void) => {
+  const onUpInputEvent = (key: InputEventKey, handler: (e?: any) => void) => {
     noa.inputs.up.on(key, handler);
   };
 
@@ -483,4 +492,14 @@ export function createInputSystem(layers: Layers) {
   // We are not doing anything when crouching in this file because noa's movement
   // component reads the crouch event and uses it to descend when flying
   // onDownInputEvent("crouch", () => {});
+
+  noa.inputs.bind("zoomout", InputEvent["zoomout"]); // I'm not sure why, but for crouch, it NEEDS to be registered this way
+  onDownInputEvent("zoomout", () => {
+    console.log("zoom out");
+  });
+  noa.inputs.bind("zoomin", InputEvent["zoomin"]); // I'm not sure why, but for crouch, it NEEDS to be registered this way
+  onDownInputEvent("zoomin", () => {
+    decreaseScale(layers);
+    console.log("zoom in");
+  });
 }

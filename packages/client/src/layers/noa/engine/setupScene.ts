@@ -5,7 +5,6 @@ import { CHUNK_RENDER_DISTANCE, CHUNK_SIZE, SKY_COLOR } from "../setup/constants
 export function setupScene(noa: Engine) {
   // eslint-disable-next-line @typescript-eslint/ban-ts-comment
   //@ts-ignore
-  const camera = noa.rendering._camera;
   const scene = noa.rendering.getScene();
   scene.fogMode = BABYLON.Scene.FOGMODE_LINEAR;
   scene.fogStart = CHUNK_RENDER_DISTANCE * CHUNK_SIZE;
@@ -19,7 +18,7 @@ export function setupScene(noa: Engine) {
   scene.imageProcessingConfiguration.colorGradingEnabled = true;
   scene.imageProcessingConfiguration.colorGradingTexture = colorGrading;
   // Color Curves
-  const postProcess = new BABYLON.ImageProcessingPostProcess("processing", 1.0, camera);
+  const postProcess = new BABYLON.ImageProcessingPostProcess("processing", 1.0, noa.rendering.camera);
   const curve = new BABYLON.ColorCurves();
   curve.globalSaturation = 60; // CANDY!
   postProcess.colorCurves = curve;

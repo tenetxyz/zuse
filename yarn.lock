@@ -1549,7 +1549,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@tenetxyz/base-ca@workspace:packages/base-ca":
+"@tenetxyz/base-ca@workspace:*, @tenetxyz/base-ca@workspace:packages/base-ca":
   version: 0.0.0-use.local
   resolution: "@tenetxyz/base-ca@workspace:packages/base-ca"
   dependencies:
@@ -1625,6 +1625,7 @@ __metadata:
     "@latticexyz/store": "link:../../../mud/packages/store"
     "@latticexyz/world": "link:../../../mud/packages/world"
     "@openzeppelin/contracts": ^4.9.1
+    "@tenetxyz/base-ca": "workspace:*"
     "@tenetxyz/registry": "workspace:*"
     "@tenetxyz/utils": "workspace:*"
     "@typechain/ethers-v5": ^10.2.0

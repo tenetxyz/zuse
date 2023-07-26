@@ -1,6 +1,16 @@
 // SPDX-License-Identifier: GPL-3.0
 pragma solidity >=0.8.0;
 
+import { SystemRegistry } from "@latticexyz/world/src/modules/core/tables/SystemRegistry.sol";
+import { ResourceSelector } from "@latticexyz/world/src/ResourceSelector.sol";
+
+function getCallerNamespace(address caller) view returns (bytes16) {
+  require(uint256(SystemRegistry.get(caller)) != 0, "Caller is not a system"); // cannot be called by an EOA
+  bytes32 resourceSelector = SystemRegistry.get(caller);
+  bytes16 callerNamespace = ResourceSelector.getNamespace(resourceSelector);
+  return callerNamespace;
+}
+
 function addressToEntityKey(address addr) pure returns (bytes32) {
   return bytes32(uint256(uint160(addr)));
 }
@@ -63,4 +73,3 @@ function removeEntityFromArray(bytes32[] memory entities, bytes32 entity) pure r
 
   return updatedArray;
 }
-

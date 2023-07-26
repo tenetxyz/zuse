@@ -7,15 +7,12 @@ import { IStore } from "@latticexyz/store/src/IStore.sol";
 import { IWorld } from "@tenet-contracts/src/codegen/world/IWorld.sol";
 import { VoxelType, OwnedBy } from "@tenet-contracts/src/codegen/Tables.sol";
 
-import { AirID } from "../../systems/voxels/AirVoxelSystem.sol";
-import { GrassID } from "../../systems/voxels/GrassVoxelSystem.sol";
-import { DirtID } from "../../systems/voxels/DirtVoxelSystem.sol";
+import { AirVoxelID, GrassVoxelID, DirtVoxelID } from "@tenet-base-ca/src/Constants.sol";
 
 import { addressToEntityKey } from "@tenet-utils/src/Utils.sol";
 import { VoxelCoord } from "../../Types.sol";
 import { Utilities } from "@latticexyz/std-contracts/src/test/Utilities.sol";
 import { console } from "forge-std/console.sol";
-import { TENET_NAMESPACE } from "../../Constants.sol";
 
 contract GiftVoxelTest is MudTest {
   IWorld private world;
@@ -29,24 +26,23 @@ contract GiftVoxelTest is MudTest {
     super.setUp();
     world = IWorld(worldAddress);
     store = IStore(worldAddress);
-    namespace = TENET_NAMESPACE;
 
     alice = utils.getNextUserAddress();
   }
 
   function testNumUniqueVoxelTypesIOwn() public {
     vm.startPrank(alice);
-    bytes32 giftedVoxel = world.tenet_GiftVoxelSystem_giftVoxel(GrassID);
+    bytes32 giftedVoxel = world.tenet_GiftVoxelSystem_giftVoxel(GrassVoxelID);
     require(OwnedBy.get(store, giftedVoxel) == addressToEntityKey(alice), "Alice should own the voxel");
     require(world.tenet_GiftVoxelSystem_numUniqueVoxelTypesIOwn() == 1, "Alice should own 1 unique voxel type");
-    world.tenet_GiftVoxelSystem_giftVoxel(AirID);
+    world.tenet_GiftVoxelSystem_giftVoxel(AirVoxelID);
     require(world.tenet_GiftVoxelSystem_numUniqueVoxelTypesIOwn() == 2, "Alice should own 2 unique voxel types");
-    world.tenet_GiftVoxelSystem_giftVoxel(AirID);
+    world.tenet_GiftVoxelSystem_giftVoxel(AirVoxelID);
     require(
       world.tenet_GiftVoxelSystem_numUniqueVoxelTypesIOwn() == 2,
       "Alice should own 2 unique voxel types, after gifting a duplicate voxel type"
     );
-    world.tenet_GiftVoxelSystem_giftVoxel(DirtID);
+    world.tenet_GiftVoxelSystem_giftVoxel(DirtVoxelID);
     require(world.tenet_GiftVoxelSystem_numUniqueVoxelTypesIOwn() == 3, "Alice should own 3 unique voxel types");
     vm.stopPrank();
   }

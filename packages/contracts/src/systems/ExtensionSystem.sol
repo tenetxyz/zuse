@@ -8,9 +8,8 @@ import { NamespaceOwner } from "@latticexyz/world/src/tables/NamespaceOwner.sol"
 import { FunctionSelectors } from "@latticexyz/world/src/modules/core/tables/FunctionSelectors.sol";
 import { System } from "@latticexyz/world/src/System.sol";
 import { VoxelInteractionExtension, VoxelInteractionExtensionTableId } from "@tenet-contracts/src/codegen/Tables.sol";
-import { getCallerNamespace } from "../Utils.sol";
+import { getCallerNamespace } from "@tenet-utils/src/Utils.sol";
 import { IWorld } from "@tenet-contracts/src/codegen/world/IWorld.sol";
-import { Occurrence } from "@tenet-contracts/src/codegen/Tables.sol";
 import { console } from "forge-std/console.sol";
 
 import { SystemRegistry } from "@latticexyz/world/src/modules/core/tables/SystemRegistry.sol";

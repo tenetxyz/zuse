@@ -17,10 +17,6 @@ contract PostDeploy is Script {
 
     // Call world init function
     IWorld world = IWorld(worldAddress);
-    world.tenet_AirVoxelSystem_registerVoxel();
-    world.tenet_DirtVoxelSystem_registerVoxel();
-    world.tenet_GrassVoxelSystem_registerVoxel();
-    world.tenet_BedrockVoxelSyst_registerVoxel();
 
     world.tenet_VoxelRegistrySys_initWorldVoxelTypes();
 

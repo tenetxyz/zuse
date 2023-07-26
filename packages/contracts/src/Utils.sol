@@ -3,19 +3,11 @@ pragma solidity >=0.8.0;
 
 import { SystemRegistry } from "@latticexyz/world/src/modules/core/tables/SystemRegistry.sol";
 import { ResourceSelector } from "@latticexyz/world/src/ResourceSelector.sol";
-import { CHUNK } from "@tenet-contracts/src/Constants.sol";
 import { hasKey } from "@latticexyz/world/src/modules/keysintable/hasKey.sol";
 import { Coord, VoxelCoord } from "@tenet-contracts/src/Types.sol";
 import { getKeysWithValue } from "@latticexyz/world/src/modules/keyswithvalue/getKeysWithValue.sol";
 import { Position, PositionData, PositionTableId, VoxelType, VoxelTypeData } from "@tenet-contracts/src/codegen/Tables.sol";
 import { BlockDirection } from "@tenet-contracts/src/Types.sol";
-
-function getCallerNamespace(address caller) view returns (bytes16) {
-  require(uint256(SystemRegistry.get(caller)) != 0, "Caller is not a system"); // cannot be called by an EOA
-  bytes32 resourceSelector = SystemRegistry.get(caller);
-  bytes16 callerNamespace = ResourceSelector.getNamespace(resourceSelector);
-  return callerNamespace;
-}
 
 function getEntityPositionStrict(bytes32 entity) view returns (PositionData memory) {
   bytes32[] memory positionKeyTuple = new bytes32[](1);

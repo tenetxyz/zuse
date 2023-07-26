@@ -10,8 +10,7 @@ import { OwnedBy, Position, PositionTableId, VoxelType, Spawn, SpawnTableId, Cla
 import { getEntitiesAtCoord } from "../utils.sol";
 import { IWorld } from "@tenet-contracts/src/codegen/world/IWorld.sol";
 import { InterfaceVoxel } from "@tenet-contracts/src/Types.sol";
-import { Occurrence, SpawnData, OfSpawn } from "@tenet-contracts/src/codegen/Tables.sol";
-import { CHUNK_MAX_Y, CHUNK_MIN_Y } from "../Constants.sol";
+import { SpawnData, OfSpawn } from "@tenet-contracts/src/codegen/Tables.sol";
 import { safeCall } from "@tenet-utils/src/CallUtils.sol";
 
 contract ClassifyCreationSystem is System {

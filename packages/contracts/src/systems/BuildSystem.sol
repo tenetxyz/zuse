@@ -5,7 +5,6 @@ import { getKeysWithValue } from "@latticexyz/world/src/modules/keyswithvalue/ge
 import { System } from "@latticexyz/world/src/System.sol";
 import { VoxelCoord } from "../Types.sol";
 import { OwnedBy, Position, PositionTableId, VoxelType, VoxelTypeData } from "@tenet-contracts/src/codegen/Tables.sol";
-import { AirID } from "./voxels/AirVoxelSystem.sol";
 import { enterVoxelIntoWorld, updateVoxelVariant, increaseVoxelTypeSpawnCount } from "../Utils.sol";
 import { getUniqueEntity } from "@latticexyz/world/src/modules/uniqueentity/getUniqueEntity.sol";
 import { IWorld } from "@tenet-contracts/src/codegen/world/IWorld.sol";
@@ -29,10 +28,10 @@ contract BuildSystem is System {
     );
     require(entitiesAtPosition.length <= 1, "This position is already occupied by another voxel");
     if (entitiesAtPosition.length == 1) {
-      require(
-        VoxelType.get(1, entitiesAtPosition[0][1]).voxelTypeId == AirID,
-        "This position is already occupied by another voxel"
-      );
+      // require(
+      //   VoxelType.get(1, entitiesAtPosition[0][1]).voxelTypeId == AirID,
+      //   "This position is already occupied by another voxel"
+      // );
       VoxelType.deleteRecord(1, entitiesAtPosition[0][1]);
       Position.deleteRecord(1, entitiesAtPosition[0][1]);
     }

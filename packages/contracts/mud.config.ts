@@ -40,13 +40,6 @@ export default mudConfig({
         z: "int32",
       },
     },
-    Occurrence: {
-      // Each voxel generates at diff spots in the world, and each voxel has a function defining where it should appear.
-      // This table points to each voxel's respective generation function.
-      schema: {
-        functionPointer: "bytes4",
-      },
-    },
     OwnedBy: "bytes32",
     Name: "string", // Used to name players
     VoxelInteractionExtension: {

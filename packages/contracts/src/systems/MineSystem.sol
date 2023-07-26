@@ -6,21 +6,19 @@ import { getKeysInTable } from "@latticexyz/world/src/modules/keysintable/getKey
 import { System } from "@latticexyz/world/src/System.sol";
 import { VoxelCoord } from "@tenet-contracts/src/Types.sol";
 import { OwnedBy, Position, PositionTableId, VoxelType, VoxelTypeData, OfSpawn, Spawn, SpawnData } from "@tenet-contracts/src/codegen/Tables.sol";
-import { AirID } from "./voxels/AirVoxelSystem.sol";
 import { enterVoxelIntoWorld, exitVoxelFromWorld, updateVoxelVariant, getEntitiesAtCoord, getVoxelVariant } from "@tenet-contracts/src/Utils.sol";
 import { addressToEntityKey } from "@tenet-utils/src/Utils.sol";
 import { safeStaticCallFunctionSelector } from "@tenet-utils/src/CallUtils.sol";
 import { removeEntityFromArray } from "@tenet-utils/src/Utils.sol";
 import { Utils } from "@latticexyz/world/src/Utils.sol";
 import { IWorld } from "@tenet-contracts/src/codegen/world/IWorld.sol";
-import { Occurrence } from "@tenet-contracts/src/codegen/Tables.sol";
 import { console } from "forge-std/console.sol";
-import { CHUNK_MAX_Y, CHUNK_MIN_Y } from "@tenet-contracts/src/Constants.sol";
 
 contract MineSystem is System {
   function mine(VoxelCoord memory coord, bytes32 voxelTypeId, bytes32 voxelVariantId) public returns (bytes32) {
-    require(voxelTypeId != AirID, "can not mine air");
-    require(coord.y <= CHUNK_MAX_Y && coord.y >= CHUNK_MIN_Y, "out of chunk bounds");
+    // require(voxelTypeId != AirID, "can not mine air");
+    bytes32 AirID;
+    // require(coord.y <= CHUNK_MAX_Y && coord.y >= CHUNK_MIN_Y, "out of chunk bounds");
 
     // Check ECS blocks at coord
     bytes32[][] memory entitiesAtPosition = getEntitiesAtCoord(coord);
@@ -33,14 +31,14 @@ contract MineSystem is System {
 
     if (entitiesAtPosition.length == 0) {
       // If there is no entity at this position, try mining the terrain voxel at this position
-      bytes memory occurrence = safeStaticCallFunctionSelector(
-        _world(),
-        Occurrence.get(voxelTypeId),
-        abi.encode(coord)
-      );
-      require(occurrence.length > 0, "invalid terrain voxel type");
-      bytes32 occurenceVoxelVariantId = abi.decode(occurrence, (bytes32));
-      require(occurenceVoxelVariantId == voxelVariantId, "invalid terrain voxel variant");
+      // bytes memory occurrence = safeStaticCallFunctionSelector(
+      //   _world(),
+      //   Occurrence.get(voxelTypeId),
+      //   abi.encode(coord)
+      // );
+      // require(occurrence.length > 0, "invalid terrain voxel type");
+      // bytes32 occurenceVoxelVariantId = abi.decode(occurrence, (bytes32));
+      // require(occurenceVoxelVariantId == voxelVariantId, "invalid terrain voxel variant");
 
       // Create an ECS voxel from this coord's terrain voxel
       voxelToMine = getUniqueEntity();
@@ -104,6 +102,7 @@ contract MineSystem is System {
   }
 
   function clearCoord(VoxelCoord memory coord) public returns (bytes32) {
+    bytes32 AirID;
     bytes32[][] memory entitiesAtPosition = getEntitiesAtCoord(coord);
     bytes32 minedEntity = 0;
     for (uint256 i = 0; i < entitiesAtPosition.length; i++) {

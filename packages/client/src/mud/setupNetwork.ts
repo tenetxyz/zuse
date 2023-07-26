@@ -31,6 +31,7 @@ import {
   InterfaceVoxel,
   VoxelVariantTypeId,
   VoxelTypeKeyInMudTable,
+  EMPTY_BYTES_32,
 } from "../layers/noa/types";
 import { Textures, UVWraps } from "../layers/noa/constants";
 import { AIR_ID, BEDROCK_ID, DIRT_ID, GRASS_ID } from "../layers/network/api/terrain/occurrence";
@@ -368,11 +369,13 @@ export async function setupNetwork() {
         HasValue(contractComponents.OwnedBy, {
           player: playerAddress,
         }),
+        HasValue(contractComponents.VoxelType, {
+          voxelTypeId: voxelBaseTypeId as Entity,
+          voxelVariantId: EMPTY_BYTES_32,
+        }),
       ]),
-      HasValue(contractComponents.VoxelType, {
-        voxelTypeId: voxelBaseTypeId as Entity,
-      }),
     ];
+
     if (voxelInstancesOfVoxelType.length === 0) {
       toast(`cannot build since we couldn't find a voxel (that you own) for voxelBaseTypeId=${voxelBaseTypeId}`);
       return console.warn(`cannot find a voxel (that you own) for voxelBaseTypeId=${voxelBaseTypeId}`);

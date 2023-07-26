@@ -12,6 +12,7 @@ import { removeDuplicates } from "@tenet-utils/src/Utils.sol";
 import { getUniqueEntity } from "@latticexyz/world/src/modules/uniqueentity/getUniqueEntity.sol";
 import { console } from "forge-std/console.sol";
 import { REGISTRY_ADDRESS } from "@tenet-contracts/src/Constants.sol";
+import { VoxelTypeRegistry, VoxelTypeRegistryData } from "@tenet-registry/src/codegen/tables/VoxelTypeRegistry.sol";
 
 contract GiftVoxelSystem is System {
   function giftVoxel(bytes32 voxelTypeId) public returns (bytes32) {

@@ -5,7 +5,7 @@ import { getUniqueEntity } from "@latticexyz/world/src/modules/uniqueentity/getU
 import { System } from "@latticexyz/world/src/System.sol";
 import { VoxelCoord, BaseCreation } from "@tenet-contracts/src/Types.sol";
 import { OwnedBy, Position, PositionTableId, VoxelType, VoxelTypeData, OfSpawn, Spawn, SpawnData, Creation, CreationData } from "@tenet-contracts/src/codegen/Tables.sol";
-import { enterVoxelIntoWorld, getEntitiesAtCoord, increaseVoxelTypeSpawnCount, updateVoxelVariant } from "../Utils.sol";
+import { getEntitiesAtCoord, increaseVoxelTypeSpawnCount } from "../Utils.sol";
 import { voxelCoordsAreEqual, add } from "@tenet-utils/src/VoxelCoordUtils.sol";
 import { int32ToString } from "@tenet-utils/src/StringUtils.sol";
 import { IWorld } from "@tenet-contracts/src/codegen/world/IWorld.sol";

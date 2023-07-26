@@ -8,7 +8,7 @@ import { safeCall } from "@tenet-utils/src/CallUtils.sol";
 import { CAVoxelType, CAVoxelTypeData } from "@tenet-base-ca/src/codegen/tables/CAVoxelType.sol";
 import { NUM_VOXEL_NEIGHBOURS, MAX_VOXEL_NEIGHBOUR_UPDATE_DEPTH } from "../Constants.sol";
 import { Position, PositionData, VoxelType, VoxelTypeData, VoxelInteractionExtension, VoxelInteractionExtensionTableId } from "@tenet-contracts/src/codegen/Tables.sol";
-import { getEntityAtCoord, updateVoxelVariant, calculateChildCoords, calculateParentCoord } from "../Utils.sol";
+import { getEntityAtCoord, calculateChildCoords, calculateParentCoord } from "../Utils.sol";
 import { runInteraction } from "@tenet-base-ca/src/Utils.sol";
 
 contract CASystem is System {

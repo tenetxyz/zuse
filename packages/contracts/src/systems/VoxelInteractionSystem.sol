@@ -8,7 +8,7 @@ import { getKeysInTable } from "@latticexyz/world/src/modules/keysintable/getKey
 import { VoxelCoord } from "../Types.sol";
 import { NUM_VOXEL_NEIGHBOURS, MAX_VOXEL_NEIGHBOUR_UPDATE_DEPTH } from "../Constants.sol";
 import { Position, PositionData, VoxelType, VoxelTypeData, VoxelInteractionExtension, VoxelInteractionExtensionTableId } from "@tenet-contracts/src/codegen/Tables.sol";
-import { getEntityAtCoord, updateVoxelVariant, calculateChildCoords, calculateParentCoord } from "../Utils.sol";
+import { getEntityAtCoord, calculateChildCoords, calculateParentCoord } from "../Utils.sol";
 import { hasEntity } from "@tenet-utils/src/Utils.sol";
 import { safeCall } from "@tenet-utils/src/CallUtils.sol";
 

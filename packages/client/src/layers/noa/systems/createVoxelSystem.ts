@@ -23,7 +23,6 @@ export async function createVoxelSystem(networkLayer: NetworkLayer, noaLayer: No
     components: { LoadingState },
     contractComponents: { VoxelType, Position },
     api: { getVoxelAtPosition },
-    liveStoreCache,
   } = networkLayer;
 
   // Loading state flag
@@ -31,7 +30,6 @@ export async function createVoxelSystem(networkLayer: NetworkLayer, noaLayer: No
   awaitStreamValue(LoadingState.update$, ({ value }) => value[0]?.state === SyncState.LIVE).then(() => (live = true));
 
   defineComponentSystem(world, VoxelType, async (update) => {
-    console.log("voxel type update");
     if (!live) return;
     if (!update.value[0] || !update.value[1]) return;
     const position = getComponentValue(Position, update.entity);
@@ -43,7 +41,6 @@ export async function createVoxelSystem(networkLayer: NetworkLayer, noaLayer: No
 
   // "Exit system"
   defineComponentSystem(world, Position, async ({ value }) => {
-    console.log("exit called");
     if (!live) return;
     if (!value[0] && value[1]) {
       const voxel = getVoxelAtPosition(value[1], getWorldScale(noa));
@@ -53,7 +50,6 @@ export async function createVoxelSystem(networkLayer: NetworkLayer, noaLayer: No
 
   // "Enter system"
   defineEnterSystem(world, [Has(Position), Has(VoxelType)], (update) => {
-    console.log("enter called");
     if (!live) return;
     // const entity = to64CharAddress("0x" + update.entity);
     const position = getComponentValueStrict(Position, update.entity);

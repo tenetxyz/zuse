@@ -14,9 +14,7 @@ import { AIR_ID } from "../../network/api/terrain/occurrence";
 import MovementComponent, { MOVEMENT_COMPONENT_NAME } from "../components/MovementComponent";
 import ReceiveInputsComponent, { RECEIVES_INPUTS_COMPONENT_NAME } from "../components/ReceivesInputsComponent";
 import CollideTerrainComponent, { COLLIDE_TERRAIN_COMPONENT_NAME } from "../components/CollideTerrainComponent";
-import { ContractSchemaValueArrayToElement } from "@latticexyz/network";
 import { getWorldScale, voxelCoordToString } from "../../../utils/coord";
-import { ecs } from "@tenetxyz/boot";
 
 export const DEFAULT_BLOCK_TEST_DISTANCE = 7;
 

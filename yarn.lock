@@ -367,156 +367,156 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@esbuild/android-arm64@npm:0.18.15":
-  version: 0.18.15
-  resolution: "@esbuild/android-arm64@npm:0.18.15"
+"@esbuild/android-arm64@npm:0.18.17":
+  version: 0.18.17
+  resolution: "@esbuild/android-arm64@npm:0.18.17"
   conditions: os=android & cpu=arm64
   languageName: node
   linkType: hard
 
-"@esbuild/android-arm@npm:0.18.15":
-  version: 0.18.15
-  resolution: "@esbuild/android-arm@npm:0.18.15"
+"@esbuild/android-arm@npm:0.18.17":
+  version: 0.18.17
+  resolution: "@esbuild/android-arm@npm:0.18.17"
   conditions: os=android & cpu=arm
   languageName: node
   linkType: hard
 
-"@esbuild/android-x64@npm:0.18.15":
-  version: 0.18.15
-  resolution: "@esbuild/android-x64@npm:0.18.15"
+"@esbuild/android-x64@npm:0.18.17":
+  version: 0.18.17
+  resolution: "@esbuild/android-x64@npm:0.18.17"
   conditions: os=android & cpu=x64
   languageName: node
   linkType: hard
 
-"@esbuild/darwin-arm64@npm:0.18.15":
-  version: 0.18.15
-  resolution: "@esbuild/darwin-arm64@npm:0.18.15"
+"@esbuild/darwin-arm64@npm:0.18.17":
+  version: 0.18.17
+  resolution: "@esbuild/darwin-arm64@npm:0.18.17"
   conditions: os=darwin & cpu=arm64
   languageName: node
   linkType: hard
 
-"@esbuild/darwin-x64@npm:0.18.15":
-  version: 0.18.15
-  resolution: "@esbuild/darwin-x64@npm:0.18.15"
+"@esbuild/darwin-x64@npm:0.18.17":
+  version: 0.18.17
+  resolution: "@esbuild/darwin-x64@npm:0.18.17"
   conditions: os=darwin & cpu=x64
   languageName: node
   linkType: hard
 
-"@esbuild/freebsd-arm64@npm:0.18.15":
-  version: 0.18.15
-  resolution: "@esbuild/freebsd-arm64@npm:0.18.15"
+"@esbuild/freebsd-arm64@npm:0.18.17":
+  version: 0.18.17
+  resolution: "@esbuild/freebsd-arm64@npm:0.18.17"
   conditions: os=freebsd & cpu=arm64
   languageName: node
   linkType: hard
 
-"@esbuild/freebsd-x64@npm:0.18.15":
-  version: 0.18.15
-  resolution: "@esbuild/freebsd-x64@npm:0.18.15"
+"@esbuild/freebsd-x64@npm:0.18.17":
+  version: 0.18.17
+  resolution: "@esbuild/freebsd-x64@npm:0.18.17"
   conditions: os=freebsd & cpu=x64
   languageName: node
   linkType: hard
 
-"@esbuild/linux-arm64@npm:0.18.15":
-  version: 0.18.15
-  resolution: "@esbuild/linux-arm64@npm:0.18.15"
+"@esbuild/linux-arm64@npm:0.18.17":
+  version: 0.18.17
+  resolution: "@esbuild/linux-arm64@npm:0.18.17"
   conditions: os=linux & cpu=arm64
   languageName: node
   linkType: hard
 
-"@esbuild/linux-arm@npm:0.18.15":
-  version: 0.18.15
-  resolution: "@esbuild/linux-arm@npm:0.18.15"
+"@esbuild/linux-arm@npm:0.18.17":
+  version: 0.18.17
+  resolution: "@esbuild/linux-arm@npm:0.18.17"
   conditions: os=linux & cpu=arm
   languageName: node
   linkType: hard
 
-"@esbuild/linux-ia32@npm:0.18.15":
-  version: 0.18.15
-  resolution: "@esbuild/linux-ia32@npm:0.18.15"
+"@esbuild/linux-ia32@npm:0.18.17":
+  version: 0.18.17
+  resolution: "@esbuild/linux-ia32@npm:0.18.17"
   conditions: os=linux & cpu=ia32
   languageName: node
   linkType: hard
 
-"@esbuild/linux-loong64@npm:0.18.15":
-  version: 0.18.15
-  resolution: "@esbuild/linux-loong64@npm:0.18.15"
+"@esbuild/linux-loong64@npm:0.18.17":
+  version: 0.18.17
+  resolution: "@esbuild/linux-loong64@npm:0.18.17"
   conditions: os=linux & cpu=loong64
   languageName: node
   linkType: hard
 
-"@esbuild/linux-mips64el@npm:0.18.15":
-  version: 0.18.15
-  resolution: "@esbuild/linux-mips64el@npm:0.18.15"
+"@esbuild/linux-mips64el@npm:0.18.17":
+  version: 0.18.17
+  resolution: "@esbuild/linux-mips64el@npm:0.18.17"
   conditions: os=linux & cpu=mips64el
   languageName: node
   linkType: hard
 
-"@esbuild/linux-ppc64@npm:0.18.15":
-  version: 0.18.15
-  resolution: "@esbuild/linux-ppc64@npm:0.18.15"
+"@esbuild/linux-ppc64@npm:0.18.17":
+  version: 0.18.17
+  resolution: "@esbuild/linux-ppc64@npm:0.18.17"
   conditions: os=linux & cpu=ppc64
   languageName: node
   linkType: hard
 
-"@esbuild/linux-riscv64@npm:0.18.15":
-  version: 0.18.15
-  resolution: "@esbuild/linux-riscv64@npm:0.18.15"
+"@esbuild/linux-riscv64@npm:0.18.17":
+  version: 0.18.17
+  resolution: "@esbuild/linux-riscv64@npm:0.18.17"
   conditions: os=linux & cpu=riscv64
   languageName: node
   linkType: hard
 
-"@esbuild/linux-s390x@npm:0.18.15":
-  version: 0.18.15
-  resolution: "@esbuild/linux-s390x@npm:0.18.15"
+"@esbuild/linux-s390x@npm:0.18.17":
+  version: 0.18.17
+  resolution: "@esbuild/linux-s390x@npm:0.18.17"
   conditions: os=linux & cpu=s390x
   languageName: node
   linkType: hard
 
-"@esbuild/linux-x64@npm:0.18.15":
-  version: 0.18.15
-  resolution: "@esbuild/linux-x64@npm:0.18.15"
+"@esbuild/linux-x64@npm:0.18.17":
+  version: 0.18.17
+  resolution: "@esbuild/linux-x64@npm:0.18.17"
   conditions: os=linux & cpu=x64
   languageName: node
   linkType: hard
 
-"@esbuild/netbsd-x64@npm:0.18.15":
-  version: 0.18.15
-  resolution: "@esbuild/netbsd-x64@npm:0.18.15"
+"@esbuild/netbsd-x64@npm:0.18.17":
+  version: 0.18.17
+  resolution: "@esbuild/netbsd-x64@npm:0.18.17"
   conditions: os=netbsd & cpu=x64
   languageName: node
   linkType: hard
 
-"@esbuild/openbsd-x64@npm:0.18.15":
-  version: 0.18.15
-  resolution: "@esbuild/openbsd-x64@npm:0.18.15"
+"@esbuild/openbsd-x64@npm:0.18.17":
+  version: 0.18.17
+  resolution: "@esbuild/openbsd-x64@npm:0.18.17"
   conditions: os=openbsd & cpu=x64
   languageName: node
   linkType: hard
 
-"@esbuild/sunos-x64@npm:0.18.15":
-  version: 0.18.15
-  resolution: "@esbuild/sunos-x64@npm:0.18.15"
+"@esbuild/sunos-x64@npm:0.18.17":
+  version: 0.18.17
+  resolution: "@esbuild/sunos-x64@npm:0.18.17"
   conditions: os=sunos & cpu=x64
   languageName: node
   linkType: hard
 
-"@esbuild/win32-arm64@npm:0.18.15":
-  version: 0.18.15
-  resolution: "@esbuild/win32-arm64@npm:0.18.15"
+"@esbuild/win32-arm64@npm:0.18.17":
+  version: 0.18.17
+  resolution: "@esbuild/win32-arm64@npm:0.18.17"
   conditions: os=win32 & cpu=arm64
   languageName: node
   linkType: hard
 
-"@esbuild/win32-ia32@npm:0.18.15":
-  version: 0.18.15
-  resolution: "@esbuild/win32-ia32@npm:0.18.15"
+"@esbuild/win32-ia32@npm:0.18.17":
+  version: 0.18.17
+  resolution: "@esbuild/win32-ia32@npm:0.18.17"
   conditions: os=win32 & cpu=ia32
   languageName: node
   linkType: hard
 
-"@esbuild/win32-x64@npm:0.18.15":
-  version: 0.18.15
-  resolution: "@esbuild/win32-x64@npm:0.18.15"
+"@esbuild/win32-x64@npm:0.18.17":
+  version: 0.18.17
+  resolution: "@esbuild/win32-x64@npm:0.18.17"
   conditions: os=win32 & cpu=x64
   languageName: node
   linkType: hard
@@ -1750,9 +1750,9 @@ __metadata:
   linkType: hard
 
 "@types/node@npm:^18.15.11":
-  version: 18.17.0
-  resolution: "@types/node@npm:18.17.0"
-  checksum: 3a43c5c5541342751b514485144818a515fac5427f663066068eaacbe8a108cbe1207aae75ec89d34c3b32414c334aad84e9083cf7fcf3ebfd970adc871314a4
+  version: 18.17.1
+  resolution: "@types/node@npm:18.17.1"
+  checksum: 56201bda9a2d05d68602df63b4e67b0545ac8c6d0280bd5fb31701350a978a577a027501fbf49db99bf177f2242ebd1244896bfd35e89042d5bd7dfebff28d4e
   languageName: node
   linkType: hard
 
@@ -1780,13 +1780,13 @@ __metadata:
   linkType: hard
 
 "@types/react@npm:*, @types/react@npm:^18.2.6":
-  version: 18.2.15
-  resolution: "@types/react@npm:18.2.15"
+  version: 18.2.17
+  resolution: "@types/react@npm:18.2.17"
   dependencies:
     "@types/prop-types": "*"
     "@types/scheduler": "*"
     csstype: ^3.0.2
-  checksum: 36989f638201bfe2f4110b06c119180f6df9c0e13d7060481e82e7a745f81745a01ae543c478a25b61e0767cb52e82da2ad5b0dedacabf99339e523d06176705
+  checksum: 150516b31bd98b635e4a56bcf2af007330b35cccb6e35e902f46a47f0e81e30c46cdacc095e91051bdf2f33e4846e7e62fd51b67e064dc7d15c00e15dfa449d5
   languageName: node
   linkType: hard
 
@@ -2969,9 +2969,9 @@ box-intersect@fenomas/box-intersect:
   linkType: hard
 
 "electron-to-chromium@npm:^1.4.431":
-  version: 1.4.468
-  resolution: "electron-to-chromium@npm:1.4.468"
-  checksum: 3da242381c95286a928ef03501c0fdcc71b773e382cc8574aa998562ae8c9b14712c910879b41d6184fd954ccecc2424865754a86e20d83077a35a0b75a1cfea
+  version: 1.4.471
+  resolution: "electron-to-chromium@npm:1.4.471"
+  checksum: c62ac1f2e9e0395b3095899c7d07a723611a6ca9bc754935101f9f659d7fc3f564f4e47cacb5639abdc172265db041923679942c72055fc8d6522e1b57f755df
   languageName: node
   linkType: hard
 
@@ -3122,31 +3122,31 @@ box-intersect@fenomas/box-intersect:
   linkType: hard
 
 "esbuild@npm:^0.18.10":
-  version: 0.18.15
-  resolution: "esbuild@npm:0.18.15"
+  version: 0.18.17
+  resolution: "esbuild@npm:0.18.17"
   dependencies:
-    "@esbuild/android-arm": 0.18.15
-    "@esbuild/android-arm64": 0.18.15
-    "@esbuild/android-x64": 0.18.15
-    "@esbuild/darwin-arm64": 0.18.15
-    "@esbuild/darwin-x64": 0.18.15
-    "@esbuild/freebsd-arm64": 0.18.15
-    "@esbuild/freebsd-x64": 0.18.15
-    "@esbuild/linux-arm": 0.18.15
-    "@esbuild/linux-arm64": 0.18.15
-    "@esbuild/linux-ia32": 0.18.15
-    "@esbuild/linux-loong64": 0.18.15
-    "@esbuild/linux-mips64el": 0.18.15
-    "@esbuild/linux-ppc64": 0.18.15
-    "@esbuild/linux-riscv64": 0.18.15
-    "@esbuild/linux-s390x": 0.18.15
-    "@esbuild/linux-x64": 0.18.15
-    "@esbuild/netbsd-x64": 0.18.15
-    "@esbuild/openbsd-x64": 0.18.15
-    "@esbuild/sunos-x64": 0.18.15
-    "@esbuild/win32-arm64": 0.18.15
-    "@esbuild/win32-ia32": 0.18.15
-    "@esbuild/win32-x64": 0.18.15
+    "@esbuild/android-arm": 0.18.17
+    "@esbuild/android-arm64": 0.18.17
+    "@esbuild/android-x64": 0.18.17
+    "@esbuild/darwin-arm64": 0.18.17
+    "@esbuild/darwin-x64": 0.18.17
+    "@esbuild/freebsd-arm64": 0.18.17
+    "@esbuild/freebsd-x64": 0.18.17
+    "@esbuild/linux-arm": 0.18.17
+    "@esbuild/linux-arm64": 0.18.17
+    "@esbuild/linux-ia32": 0.18.17
+    "@esbuild/linux-loong64": 0.18.17
+    "@esbuild/linux-mips64el": 0.18.17
+    "@esbuild/linux-ppc64": 0.18.17
+    "@esbuild/linux-riscv64": 0.18.17
+    "@esbuild/linux-s390x": 0.18.17
+    "@esbuild/linux-x64": 0.18.17
+    "@esbuild/netbsd-x64": 0.18.17
+    "@esbuild/openbsd-x64": 0.18.17
+    "@esbuild/sunos-x64": 0.18.17
+    "@esbuild/win32-arm64": 0.18.17
+    "@esbuild/win32-ia32": 0.18.17
+    "@esbuild/win32-x64": 0.18.17
   dependenciesMeta:
     "@esbuild/android-arm":
       optional: true
@@ -3194,7 +3194,7 @@ box-intersect@fenomas/box-intersect:
       optional: true
   bin:
     esbuild: bin/esbuild
-  checksum: 81eb78fb5ff9f4304512e383f518862875fa7a0cce0ef9e0270d80ebd21bf0210d5cd6cf721f8a96ca64cc2d36ade03d9ed80cbcd5e81530b5a7b95ab86f8ca6
+  checksum: c6e1ffa776978a45697763a07ec9b16411db3d3b3997b2c4a0165a211727fce8b63b87165a28d8ef60d3a28b98197bbbc2833e51b89888a4437e0a483dffc8ff
   languageName: node
   linkType: hard
 
@@ -4389,15 +4389,15 @@ box-intersect@fenomas/box-intersect:
   linkType: hard
 
 "jackspeak@npm:^2.0.3":
-  version: 2.2.1
-  resolution: "jackspeak@npm:2.2.1"
+  version: 2.2.2
+  resolution: "jackspeak@npm:2.2.2"
   dependencies:
     "@isaacs/cliui": ^8.0.2
     "@pkgjs/parseargs": ^0.11.0
   dependenciesMeta:
     "@pkgjs/parseargs":
       optional: true
-  checksum: e29291c0d0f280a063fa18fbd1e891ab8c2d7519fd34052c0ebde38538a15c603140d60c2c7f432375ff7ee4c5f1c10daa8b2ae19a97c3d4affe308c8360c1df
+  checksum: 7b1468dd910afc00642db87448f24b062346570b8b47531409aa9012bcb95fdf7ec2b1c48edbb8b57a938c08391f8cc01b5034fc335aa3a2e74dbcc0ee5c555a
   languageName: node
   linkType: hard
 
@@ -4902,7 +4902,7 @@ box-intersect@fenomas/box-intersect:
 
 "noa-engine@git+https://github.com/tenetxyz/noa.git#tenet-main":
   version: 0.34.0
-  resolution: "noa-engine@https://github.com/tenetxyz/noa.git#commit=c654e5cfacd78cac838599ef3064e6ec721121d9"
+  resolution: "noa-engine@https://github.com/tenetxyz/noa.git#commit=5c80106662df08f14812850c2fd17dd4505f3594"
   dependencies:
     aabb-3d: fenomas/aabb-3d
     box-intersect: fenomas/box-intersect
@@ -4917,7 +4917,7 @@ box-intersect@fenomas/box-intersect:
     voxel-physics-engine: ^0.13.0
   peerDependencies:
     "@babylonjs/core": ^6.1.0
-  checksum: 418c8655cdea1b2a60a68618ea91cb87be09ddfafeef31e58c41889b49bd51246671a836af31ac1bf2ea24e5cf817b65a1721cc7be36e96782f58989f452a249
+  checksum: 1c2f7ec7cd50f2ba5e1311788fc0113e6f5e5a261bccfcc381882a6e485a5831085e66d3a7593afa11e32893fb551178672a11a385064a7ed12730493c4da053
   languageName: node
   linkType: hard
 
@@ -6263,9 +6263,9 @@ box-intersect@fenomas/box-intersect:
   linkType: hard
 
 "tslib@npm:^2.1.0":
-  version: 2.6.0
-  resolution: "tslib@npm:2.6.0"
-  checksum: c01066038f950016a18106ddeca4649b4d76caa76ec5a31e2a26e10586a59fceb4ee45e96719bf6c715648e7c14085a81fee5c62f7e9ebee68e77a5396e5538f
+  version: 2.6.1
+  resolution: "tslib@npm:2.6.1"
+  checksum: b0d176d176487905b66ae4d5856647df50e37beea7571c53b8d10ba9222c074b81f1410fb91da13debaf2cbc970663609068bdebafa844ea9d69b146527c38fe
   languageName: node
   linkType: hard
 
@@ -6297,8 +6297,8 @@ box-intersect@fenomas/box-intersect:
   linkType: hard
 
 "typechain@npm:^8.1.1":
-  version: 8.3.0
-  resolution: "typechain@npm:8.3.0"
+  version: 8.3.1
+  resolution: "typechain@npm:8.3.1"
   dependencies:
     "@types/prettier": ^2.1.1
     debug: ^4.3.1
@@ -6314,7 +6314,7 @@ box-intersect@fenomas/box-intersect:
     typescript: ">=4.3.0"
   bin:
     typechain: dist/cli/cli.js
-  checksum: a23dc5f16f0f32924a44d379fbc53092860d61cb970587dad06f82103880c302a176c0fa14766c8f5ddf6eccddfb39c01a27648e6d523e6fa21a06a3f500affe
+  checksum: c1e11ab1452d0c83be0c34a8b900b156b0c6654b95f7e7bb18dd98c0decd6009ffa1316e393f4e8def187af1bea3e931a13503815cc37155c0c945b7ae5b5215
   languageName: node
   linkType: hard
 
@@ -6467,8 +6467,8 @@ box-intersect@fenomas/box-intersect:
   linkType: hard
 
 "viem@npm:^1.2.12":
-  version: 1.4.0
-  resolution: "viem@npm:1.4.0"
+  version: 1.4.1
+  resolution: "viem@npm:1.4.1"
   dependencies:
     "@adraffy/ens-normalize": 1.9.0
     "@noble/curves": 1.0.0
@@ -6484,7 +6484,7 @@ box-intersect@fenomas/box-intersect:
   peerDependenciesMeta:
     typescript:
       optional: true
-  checksum: d78491f38a4625bf913d0e35b6c7a4cfddbeed220e60086fb478224044eaf06cf6bc5d6b8eb400f3a7f5232bb30f0dedb367ea64b55518e27a0d728dcfced4c7
+  checksum: a8e3dfb139e38ebd576a1c31154f0f58a030e7fe762f0ca288aa1f489352ba8a5aaaf3193f89fb2b3e5fc252573b14068a6db04f524000b9fc6912b65a00ac02
   languageName: node
   linkType: hard
 
@@ -6498,8 +6498,8 @@ box-intersect@fenomas/box-intersect:
   linkType: hard
 
 "vite@npm:^4.2.1":
-  version: 4.4.6
-  resolution: "vite@npm:4.4.6"
+  version: 4.4.7
+  resolution: "vite@npm:4.4.7"
   dependencies:
     esbuild: ^0.18.10
     fsevents: ~2.3.2
@@ -6533,7 +6533,7 @@ box-intersect@fenomas/box-intersect:
       optional: true
   bin:
     vite: bin/vite.js
-  checksum: 5a821897f1e03f9786f827acb89e3117a79b8901d184bbc3a2e48d6404b37975a5cdeb6b6969ec24ed1e81d96f1959ed6f9426cbb64501d1e4770bdb20f9c02f
+  checksum: 787c4d891da18d0a0545bee07dec73c3201979dcf2b1ea3dc13fdd2d3b9ad76d413bcc0e68502183e309007a612c1f4116adefe0093d95fbbb9cf1c1755f7e41
   languageName: node
   linkType: hard
 

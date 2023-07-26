@@ -20,9 +20,7 @@
     "initialize": "yarn workspaces run initialize",
     "mud:up": "yarn workspaces foreach -t run yarn mud set-version -v canary && yarn install",
     "prepare": "(forge --version || yarn foundry:up)",
-    "test": "yarn workspaces run test",
-    "clean": "yarn rm-node-modules",
-    "rm-node-modules": "find . -type d -name 'node_modules' -exec rm -rf {} +"
+    "test": "yarn workspaces run test"
   },
   "devDependencies": {
     "@latticexyz/cli": "link:../mud/packages/cli",

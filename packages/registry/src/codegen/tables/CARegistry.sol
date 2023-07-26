@@ -21,6 +21,7 @@ bytes32 constant _tableId = bytes32(abi.encodePacked(bytes16(""), bytes16("CAReg
 bytes32 constant CARegistryTableId = _tableId;
 
 struct CARegistryData {
+  uint32 scale;
   address creator;
   string name;
   string description;
@@ -30,11 +31,12 @@ struct CARegistryData {
 library CARegistry {
   /** Get the table's schema */
   function getSchema() internal pure returns (Schema) {
-    SchemaType[] memory _schema = new SchemaType[](4);
-    _schema[0] = SchemaType.ADDRESS;
-    _schema[1] = SchemaType.STRING;
+    SchemaType[] memory _schema = new SchemaType[](5);
+    _schema[0] = SchemaType.UINT32;
+    _schema[1] = SchemaType.ADDRESS;
     _schema[2] = SchemaType.STRING;
-    _schema[3] = SchemaType.BYTES32_ARRAY;
+    _schema[3] = SchemaType.STRING;
+    _schema[4] = SchemaType.BYTES32_ARRAY;
 
     return SchemaLib.encode(_schema);
   }
@@ -48,11 +50,12 @@ library CARegistry {
 
   /** Get the table's metadata */
   function getMetadata() internal pure returns (string memory, string[] memory) {
-    string[] memory _fieldNames = new string[](4);
-    _fieldNames[0] = "creator";
-    _fieldNames[1] = "name";
-    _fieldNames[2] = "description";
-    _fieldNames[3] = "voxelTypeIds";
+    string[] memory _fieldNames = new string[](5);
+    _fieldNames[0] = "scale";
+    _fieldNames[1] = "creator";
+    _fieldNames[2] = "name";
+    _fieldNames[3] = "description";
+    _fieldNames[4] = "voxelTypeIds";
     return ("CARegistry", _fieldNames);
   }
 
@@ -78,12 +81,46 @@ library CARegistry {
     _store.setMetadata(_tableId, _tableName, _fieldNames);
   }
 
+  /** Get scale */
+  function getScale(address caAddress) internal view returns (uint32 scale) {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = bytes32(uint256(uint160(caAddress)));
+
+    bytes memory _blob = StoreSwitch.getField(_tableId, _keyTuple, 0);
+    return (uint32(Bytes.slice4(_blob, 0)));
+  }
+
+  /** Get scale (using the specified store) */
+  function getScale(IStore _store, address caAddress) internal view returns (uint32 scale) {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = bytes32(uint256(uint160(caAddress)));
+
+    bytes memory _blob = _store.getField(_tableId, _keyTuple, 0);
+    return (uint32(Bytes.slice4(_blob, 0)));
+  }
+
+  /** Set scale */
+  function setScale(address caAddress, uint32 scale) internal {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = bytes32(uint256(uint160(caAddress)));
+
+    StoreSwitch.setField(_tableId, _keyTuple, 0, abi.encodePacked((scale)));
+  }
+
+  /** Set scale (using the specified store) */
+  function setScale(IStore _store, address caAddress, uint32 scale) internal {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = bytes32(uint256(uint160(caAddress)));
+
+    _store.setField(_tableId, _keyTuple, 0, abi.encodePacked((scale)));
+  }
+
   /** Get creator */
   function getCreator(address caAddress) internal view returns (address creator) {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = bytes32(uint256(uint160(caAddress)));
 
-    bytes memory _blob = StoreSwitch.getField(_tableId, _keyTuple, 0);
+    bytes memory _blob = StoreSwitch.getField(_tableId, _keyTuple, 1);
     return (address(Bytes.slice20(_blob, 0)));
   }
 
@@ -92,7 +129,7 @@ library CARegistry {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = bytes32(uint256(uint160(caAddress)));
 
-    bytes memory _blob = _store.getField(_tableId, _keyTuple, 0);
+    bytes memory _blob = _store.getField(_tableId, _keyTuple, 1);
     return (address(Bytes.slice20(_blob, 0)));
   }
 
@@ -101,7 +138,7 @@ library CARegistry {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = bytes32(uint256(uint160(caAddress)));
 
-    StoreSwitch.setField(_tableId, _keyTuple, 0, abi.encodePacked((creator)));
+    StoreSwitch.setField(_tableId, _keyTuple, 1, abi.encodePacked((creator)));
   }
 
   /** Set creator (using the specified store) */
@@ -109,7 +146,7 @@ library CARegistry {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = bytes32(uint256(uint160(caAddress)));
 
-    _store.setField(_tableId, _keyTuple, 0, abi.encodePacked((creator)));
+    _store.setField(_tableId, _keyTuple, 1, abi.encodePacked((creator)));
   }
 
   /** Get name */
@@ -117,7 +154,7 @@ library CARegistry {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = bytes32(uint256(uint160(caAddress)));
 
-    bytes memory _blob = StoreSwitch.getField(_tableId, _keyTuple, 1);
+    bytes memory _blob = StoreSwitch.getField(_tableId, _keyTuple, 2);
     return (string(_blob));
   }
 
@@ -126,7 +163,7 @@ library CARegistry {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = bytes32(uint256(uint160(caAddress)));
 
-    bytes memory _blob = _store.getField(_tableId, _keyTuple, 1);
+    bytes memory _blob = _store.getField(_tableId, _keyTuple, 2);
     return (string(_blob));
   }
 
@@ -135,7 +172,7 @@ library CARegistry {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = bytes32(uint256(uint160(caAddress)));
 
-    StoreSwitch.setField(_tableId, _keyTuple, 1, bytes((name)));
+    StoreSwitch.setField(_tableId, _keyTuple, 2, bytes((name)));
   }
 
   /** Set name (using the specified store) */
@@ -143,7 +180,7 @@ library CARegistry {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = bytes32(uint256(uint160(caAddress)));
 
-    _store.setField(_tableId, _keyTuple, 1, bytes((name)));
+    _store.setField(_tableId, _keyTuple, 2, bytes((name)));
   }
 
   /** Get the length of name */
@@ -151,7 +188,7 @@ library CARegistry {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = bytes32(uint256(uint160(caAddress)));
 
-    uint256 _byteLength = StoreSwitch.getFieldLength(_tableId, _keyTuple, 1, getSchema());
+    uint256 _byteLength = StoreSwitch.getFieldLength(_tableId, _keyTuple, 2, getSchema());
     return _byteLength / 1;
   }
 
@@ -160,7 +197,7 @@ library CARegistry {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = bytes32(uint256(uint160(caAddress)));
 
-    uint256 _byteLength = _store.getFieldLength(_tableId, _keyTuple, 1, getSchema());
+    uint256 _byteLength = _store.getFieldLength(_tableId, _keyTuple, 2, getSchema());
     return _byteLength / 1;
   }
 
@@ -169,7 +206,7 @@ library CARegistry {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = bytes32(uint256(uint160(caAddress)));
 
-    bytes memory _blob = StoreSwitch.getFieldSlice(_tableId, _keyTuple, 1, getSchema(), _index * 1, (_index + 1) * 1);
+    bytes memory _blob = StoreSwitch.getFieldSlice(_tableId, _keyTuple, 2, getSchema(), _index * 1, (_index + 1) * 1);
     return (string(_blob));
   }
 
@@ -178,7 +215,7 @@ library CARegistry {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = bytes32(uint256(uint160(caAddress)));
 
-    bytes memory _blob = _store.getFieldSlice(_tableId, _keyTuple, 1, getSchema(), _index * 1, (_index + 1) * 1);
+    bytes memory _blob = _store.getFieldSlice(_tableId, _keyTuple, 2, getSchema(), _index * 1, (_index + 1) * 1);
     return (string(_blob));
   }
 
@@ -187,7 +224,7 @@ library CARegistry {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = bytes32(uint256(uint160(caAddress)));
 
-    StoreSwitch.pushToField(_tableId, _keyTuple, 1, bytes((_slice)));
+    StoreSwitch.pushToField(_tableId, _keyTuple, 2, bytes((_slice)));
   }
 
   /** Push a slice to name (using the specified store) */
@@ -195,7 +232,7 @@ library CARegistry {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = bytes32(uint256(uint160(caAddress)));
 
-    _store.pushToField(_tableId, _keyTuple, 1, bytes((_slice)));
+    _store.pushToField(_tableId, _keyTuple, 2, bytes((_slice)));
   }
 
   /** Pop a slice from name */
@@ -203,7 +240,7 @@ library CARegistry {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = bytes32(uint256(uint160(caAddress)));
 
-    StoreSwitch.popFromField(_tableId, _keyTuple, 1, 1);
+    StoreSwitch.popFromField(_tableId, _keyTuple, 2, 1);
   }
 
   /** Pop a slice from name (using the specified store) */
@@ -211,7 +248,7 @@ library CARegistry {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = bytes32(uint256(uint160(caAddress)));
 
-    _store.popFromField(_tableId, _keyTuple, 1, 1);
+    _store.popFromField(_tableId, _keyTuple, 2, 1);
   }
 
   /** Update a slice of name at `_index` */
@@ -219,7 +256,7 @@ library CARegistry {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = bytes32(uint256(uint160(caAddress)));
 
-    StoreSwitch.updateInField(_tableId, _keyTuple, 1, _index * 1, bytes((_slice)));
+    StoreSwitch.updateInField(_tableId, _keyTuple, 2, _index * 1, bytes((_slice)));
   }
 
   /** Update a slice of name (using the specified store) at `_index` */
@@ -227,7 +264,7 @@ library CARegistry {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = bytes32(uint256(uint160(caAddress)));
 
-    _store.updateInField(_tableId, _keyTuple, 1, _index * 1, bytes((_slice)));
+    _store.updateInField(_tableId, _keyTuple, 2, _index * 1, bytes((_slice)));
   }
 
   /** Get description */
@@ -235,7 +272,7 @@ library CARegistry {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = bytes32(uint256(uint160(caAddress)));
 
-    bytes memory _blob = StoreSwitch.getField(_tableId, _keyTuple, 2);
+    bytes memory _blob = StoreSwitch.getField(_tableId, _keyTuple, 3);
     return (string(_blob));
   }
 
@@ -244,7 +281,7 @@ library CARegistry {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = bytes32(uint256(uint160(caAddress)));
 
-    bytes memory _blob = _store.getField(_tableId, _keyTuple, 2);
+    bytes memory _blob = _store.getField(_tableId, _keyTuple, 3);
     return (string(_blob));
   }
 
@@ -253,7 +290,7 @@ library CARegistry {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = bytes32(uint256(uint160(caAddress)));
 
-    StoreSwitch.setField(_tableId, _keyTuple, 2, bytes((description)));
+    StoreSwitch.setField(_tableId, _keyTuple, 3, bytes((description)));
   }
 
   /** Set description (using the specified store) */
@@ -261,7 +298,7 @@ library CARegistry {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = bytes32(uint256(uint160(caAddress)));
 
-    _store.setField(_tableId, _keyTuple, 2, bytes((description)));
+    _store.setField(_tableId, _keyTuple, 3, bytes((description)));
   }
 
   /** Get the length of description */
@@ -269,7 +306,7 @@ library CARegistry {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = bytes32(uint256(uint160(caAddress)));
 
-    uint256 _byteLength = StoreSwitch.getFieldLength(_tableId, _keyTuple, 2, getSchema());
+    uint256 _byteLength = StoreSwitch.getFieldLength(_tableId, _keyTuple, 3, getSchema());
     return _byteLength / 1;
   }
 
@@ -278,7 +315,7 @@ library CARegistry {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = bytes32(uint256(uint160(caAddress)));
 
-    uint256 _byteLength = _store.getFieldLength(_tableId, _keyTuple, 2, getSchema());
+    uint256 _byteLength = _store.getFieldLength(_tableId, _keyTuple, 3, getSchema());
     return _byteLength / 1;
   }
 
@@ -287,7 +324,7 @@ library CARegistry {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = bytes32(uint256(uint160(caAddress)));
 
-    bytes memory _blob = StoreSwitch.getFieldSlice(_tableId, _keyTuple, 2, getSchema(), _index * 1, (_index + 1) * 1);
+    bytes memory _blob = StoreSwitch.getFieldSlice(_tableId, _keyTuple, 3, getSchema(), _index * 1, (_index + 1) * 1);
     return (string(_blob));
   }
 
@@ -296,7 +333,7 @@ library CARegistry {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = bytes32(uint256(uint160(caAddress)));
 
-    bytes memory _blob = _store.getFieldSlice(_tableId, _keyTuple, 2, getSchema(), _index * 1, (_index + 1) * 1);
+    bytes memory _blob = _store.getFieldSlice(_tableId, _keyTuple, 3, getSchema(), _index * 1, (_index + 1) * 1);
     return (string(_blob));
   }
 
@@ -305,7 +342,7 @@ library CARegistry {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = bytes32(uint256(uint160(caAddress)));
 
-    StoreSwitch.pushToField(_tableId, _keyTuple, 2, bytes((_slice)));
+    StoreSwitch.pushToField(_tableId, _keyTuple, 3, bytes((_slice)));
   }
 
   /** Push a slice to description (using the specified store) */
@@ -313,7 +350,7 @@ library CARegistry {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = bytes32(uint256(uint160(caAddress)));
 
-    _store.pushToField(_tableId, _keyTuple, 2, bytes((_slice)));
+    _store.pushToField(_tableId, _keyTuple, 3, bytes((_slice)));
   }
 
   /** Pop a slice from description */
@@ -321,7 +358,7 @@ library CARegistry {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = bytes32(uint256(uint160(caAddress)));
 
-    StoreSwitch.popFromField(_tableId, _keyTuple, 2, 1);
+    StoreSwitch.popFromField(_tableId, _keyTuple, 3, 1);
   }
 
   /** Pop a slice from description (using the specified store) */
@@ -329,7 +366,7 @@ library CARegistry {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = bytes32(uint256(uint160(caAddress)));
 
-    _store.popFromField(_tableId, _keyTuple, 2, 1);
+    _store.popFromField(_tableId, _keyTuple, 3, 1);
   }
 
   /** Update a slice of description at `_index` */
@@ -337,7 +374,7 @@ library CARegistry {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = bytes32(uint256(uint160(caAddress)));
 
-    StoreSwitch.updateInField(_tableId, _keyTuple, 2, _index * 1, bytes((_slice)));
+    StoreSwitch.updateInField(_tableId, _keyTuple, 3, _index * 1, bytes((_slice)));
   }
 
   /** Update a slice of description (using the specified store) at `_index` */
@@ -345,7 +382,7 @@ library CARegistry {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = bytes32(uint256(uint160(caAddress)));
 
-    _store.updateInField(_tableId, _keyTuple, 2, _index * 1, bytes((_slice)));
+    _store.updateInField(_tableId, _keyTuple, 3, _index * 1, bytes((_slice)));
   }
 
   /** Get voxelTypeIds */
@@ -353,7 +390,7 @@ library CARegistry {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = bytes32(uint256(uint160(caAddress)));
 
-    bytes memory _blob = StoreSwitch.getField(_tableId, _keyTuple, 3);
+    bytes memory _blob = StoreSwitch.getField(_tableId, _keyTuple, 4);
     return (SliceLib.getSubslice(_blob, 0, _blob.length).decodeArray_bytes32());
   }
 
@@ -362,7 +399,7 @@ library CARegistry {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = bytes32(uint256(uint160(caAddress)));
 
-    bytes memory _blob = _store.getField(_tableId, _keyTuple, 3);
+    bytes memory _blob = _store.getField(_tableId, _keyTuple, 4);
     return (SliceLib.getSubslice(_blob, 0, _blob.length).decodeArray_bytes32());
   }
 
@@ -371,7 +408,7 @@ library CARegistry {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = bytes32(uint256(uint160(caAddress)));
 
-    StoreSwitch.setField(_tableId, _keyTuple, 3, EncodeArray.encode((voxelTypeIds)));
+    StoreSwitch.setField(_tableId, _keyTuple, 4, EncodeArray.encode((voxelTypeIds)));
   }
 
   /** Set voxelTypeIds (using the specified store) */
@@ -379,7 +416,7 @@ library CARegistry {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = bytes32(uint256(uint160(caAddress)));
 
-    _store.setField(_tableId, _keyTuple, 3, EncodeArray.encode((voxelTypeIds)));
+    _store.setField(_tableId, _keyTuple, 4, EncodeArray.encode((voxelTypeIds)));
   }
 
   /** Get the length of voxelTypeIds */
@@ -387,7 +424,7 @@ library CARegistry {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = bytes32(uint256(uint160(caAddress)));
 
-    uint256 _byteLength = StoreSwitch.getFieldLength(_tableId, _keyTuple, 3, getSchema());
+    uint256 _byteLength = StoreSwitch.getFieldLength(_tableId, _keyTuple, 4, getSchema());
     return _byteLength / 32;
   }
 
@@ -396,7 +433,7 @@ library CARegistry {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = bytes32(uint256(uint160(caAddress)));
 
-    uint256 _byteLength = _store.getFieldLength(_tableId, _keyTuple, 3, getSchema());
+    uint256 _byteLength = _store.getFieldLength(_tableId, _keyTuple, 4, getSchema());
     return _byteLength / 32;
   }
 
@@ -405,7 +442,7 @@ library CARegistry {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = bytes32(uint256(uint160(caAddress)));
 
-    bytes memory _blob = StoreSwitch.getFieldSlice(_tableId, _keyTuple, 3, getSchema(), _index * 32, (_index + 1) * 32);
+    bytes memory _blob = StoreSwitch.getFieldSlice(_tableId, _keyTuple, 4, getSchema(), _index * 32, (_index + 1) * 32);
     return (Bytes.slice32(_blob, 0));
   }
 
@@ -414,7 +451,7 @@ library CARegistry {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = bytes32(uint256(uint160(caAddress)));
 
-    bytes memory _blob = _store.getFieldSlice(_tableId, _keyTuple, 3, getSchema(), _index * 32, (_index + 1) * 32);
+    bytes memory _blob = _store.getFieldSlice(_tableId, _keyTuple, 4, getSchema(), _index * 32, (_index + 1) * 32);
     return (Bytes.slice32(_blob, 0));
   }
 
@@ -423,7 +460,7 @@ library CARegistry {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = bytes32(uint256(uint160(caAddress)));
 
-    StoreSwitch.pushToField(_tableId, _keyTuple, 3, abi.encodePacked((_element)));
+    StoreSwitch.pushToField(_tableId, _keyTuple, 4, abi.encodePacked((_element)));
   }
 
   /** Push an element to voxelTypeIds (using the specified store) */
@@ -431,7 +468,7 @@ library CARegistry {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = bytes32(uint256(uint160(caAddress)));
 
-    _store.pushToField(_tableId, _keyTuple, 3, abi.encodePacked((_element)));
+    _store.pushToField(_tableId, _keyTuple, 4, abi.encodePacked((_element)));
   }
 
   /** Pop an element from voxelTypeIds */
@@ -439,7 +476,7 @@ library CARegistry {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = bytes32(uint256(uint160(caAddress)));
 
-    StoreSwitch.popFromField(_tableId, _keyTuple, 3, 32);
+    StoreSwitch.popFromField(_tableId, _keyTuple, 4, 32);
   }
 
   /** Pop an element from voxelTypeIds (using the specified store) */
@@ -447,7 +484,7 @@ library CARegistry {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = bytes32(uint256(uint160(caAddress)));
 
-    _store.popFromField(_tableId, _keyTuple, 3, 32);
+    _store.popFromField(_tableId, _keyTuple, 4, 32);
   }
 
   /** Update an element of voxelTypeIds at `_index` */
@@ -455,7 +492,7 @@ library CARegistry {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = bytes32(uint256(uint160(caAddress)));
 
-    StoreSwitch.updateInField(_tableId, _keyTuple, 3, _index * 32, abi.encodePacked((_element)));
+    StoreSwitch.updateInField(_tableId, _keyTuple, 4, _index * 32, abi.encodePacked((_element)));
   }
 
   /** Update an element of voxelTypeIds (using the specified store) at `_index` */
@@ -463,7 +500,7 @@ library CARegistry {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = bytes32(uint256(uint160(caAddress)));
 
-    _store.updateInField(_tableId, _keyTuple, 3, _index * 32, abi.encodePacked((_element)));
+    _store.updateInField(_tableId, _keyTuple, 4, _index * 32, abi.encodePacked((_element)));
   }
 
   /** Get the full data */
@@ -487,12 +524,13 @@ library CARegistry {
   /** Set the full data using individual values */
   function set(
     address caAddress,
+    uint32 scale,
     address creator,
     string memory name,
     string memory description,
     bytes32[] memory voxelTypeIds
   ) internal {
-    bytes memory _data = encode(creator, name, description, voxelTypeIds);
+    bytes memory _data = encode(scale, creator, name, description, voxelTypeIds);
 
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = bytes32(uint256(uint160(caAddress)));
@@ -504,12 +542,13 @@ library CARegistry {
   function set(
     IStore _store,
     address caAddress,
+    uint32 scale,
     address creator,
     string memory name,
     string memory description,
     bytes32[] memory voxelTypeIds
   ) internal {
-    bytes memory _data = encode(creator, name, description, voxelTypeIds);
+    bytes memory _data = encode(scale, creator, name, description, voxelTypeIds);
 
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = bytes32(uint256(uint160(caAddress)));
@@ -519,26 +558,28 @@ library CARegistry {
 
   /** Set the full data using the data struct */
   function set(address caAddress, CARegistryData memory _table) internal {
-    set(caAddress, _table.creator, _table.name, _table.description, _table.voxelTypeIds);
+    set(caAddress, _table.scale, _table.creator, _table.name, _table.description, _table.voxelTypeIds);
   }
 
   /** Set the full data using the data struct (using the specified store) */
   function set(IStore _store, address caAddress, CARegistryData memory _table) internal {
-    set(_store, caAddress, _table.creator, _table.name, _table.description, _table.voxelTypeIds);
+    set(_store, caAddress, _table.scale, _table.creator, _table.name, _table.description, _table.voxelTypeIds);
   }
 
   /** Decode the tightly packed blob using this table's schema */
   function decode(bytes memory _blob) internal pure returns (CARegistryData memory _table) {
-    // 20 is the total byte length of static data
-    PackedCounter _encodedLengths = PackedCounter.wrap(Bytes.slice32(_blob, 20));
+    // 24 is the total byte length of static data
+    PackedCounter _encodedLengths = PackedCounter.wrap(Bytes.slice32(_blob, 24));
 
-    _table.creator = (address(Bytes.slice20(_blob, 0)));
+    _table.scale = (uint32(Bytes.slice4(_blob, 0)));
+
+    _table.creator = (address(Bytes.slice20(_blob, 4)));
 
     // Store trims the blob if dynamic fields are all empty
-    if (_blob.length > 20) {
+    if (_blob.length > 24) {
       uint256 _start;
       // skip static data length + dynamic lengths word
-      uint256 _end = 52;
+      uint256 _end = 56;
 
       _start = _end;
       _end += _encodedLengths.atIndex(0);
@@ -556,6 +597,7 @@ library CARegistry {
 
   /** Tightly pack full data using this table's schema */
   function encode(
+    uint32 scale,
     address creator,
     string memory name,
     string memory description,
@@ -569,6 +611,7 @@ library CARegistry {
 
     return
       abi.encodePacked(
+        scale,
         creator,
         _encodedLengths.unwrap(),
         bytes((name)),

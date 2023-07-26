@@ -23,7 +23,7 @@ contract BaseCASystem is System {
   }
 
   function enterWorld(bytes32 voxelTypeId, VoxelCoord memory coord, bytes32 entity) public {
-    address callerAddress = msg.sender;
+    address callerAddress = _msgSender();
 
     require(isVoxelTypeAllowed(voxelTypeId), "This voxel type is not allowed in this CA");
 
@@ -69,7 +69,7 @@ contract BaseCASystem is System {
   }
 
   function exitWorld(bytes32 voxelTypeId, VoxelCoord memory coord, bytes32 entity) public {
-    address callerAddress = msg.sender;
+    address callerAddress = _msgSender();
     if (!hasKey(CAPositionTableId, CAPosition.encodeKeyTuple(callerAddress, entity))) {
       // If there is no entity at this position, try mining the terrain voxel at this position
       bytes32 terrainVoxelTypeId = IWorld(_world()).getTerrainVoxel(coord);

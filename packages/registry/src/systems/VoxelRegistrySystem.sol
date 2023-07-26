@@ -47,7 +47,7 @@ contract VoxelRegistrySystem is System {
           "Child voxel type ID has not been registered"
         );
         require(
-          VoxelTypeRegistry.get(childVoxelTypeIds[i]).scale == scale - 1,
+          VoxelTypeRegistry.getScale(childVoxelTypeIds[i]) == scale - 1,
           "Child voxel type scale must be one less than parent voxel type scale"
         );
       }

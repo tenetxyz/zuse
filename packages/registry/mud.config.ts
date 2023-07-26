@@ -29,6 +29,7 @@ export default mudConfig({
         caAddress: "address",
       },
       schema: {
+        scale: "uint32",
         creator: "address",
         name: "string",
         description: "string",
@@ -66,6 +67,16 @@ export default mudConfig({
     },
   },
   modules: [
+    {
+      name: "KeysInTableModule",
+      root: true,
+      args: [resolveTableId("WorldRegistry")],
+    },
+    {
+      name: "KeysInTableModule",
+      root: true,
+      args: [resolveTableId("CARegistry")],
+    },
     {
       name: "KeysInTableModule",
       root: true,

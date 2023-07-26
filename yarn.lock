@@ -2406,7 +2406,7 @@ box-intersect@fenomas/box-intersect:
     gl-vec3: ^1.1.3
     mobx: ^6.9.0
     mobx-react-lite: ^3.4.3
-    noa-engine: "git+https://github.com/tenetxyz/noa.git#tenet-main2"
+    noa-engine: "git+https://github.com/tenetxyz/noa.git#tenet-main"
     postcss: ^8.4.24
     proxy-deep: ^3.1.1
     react: ^18.2.0
@@ -4694,7 +4694,7 @@ box-intersect@fenomas/box-intersect:
   languageName: node
   linkType: hard
 
-"noa-engine@git+https://github.com/tenetxyz/noa.git#tenet-main2":
+"noa-engine@git+https://github.com/tenetxyz/noa.git#tenet-main":
   version: 0.34.0
   resolution: "noa-engine@https://github.com/tenetxyz/noa.git#commit=c654e5cfacd78cac838599ef3064e6ec721121d9"
   dependencies:

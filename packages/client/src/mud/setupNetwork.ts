@@ -384,7 +384,7 @@ export async function setupNetwork() {
     const preview: string = getVoxelTypePreviewUrl(voxelBaseTypeId) || "";
     const previewVoxelVariant = getVoxelPreviewVariant(voxelBaseTypeId);
 
-    const newVoxelOfSameType = world.registerEntity();
+    const newVoxelOfSameType = `${to64CharAddress("0x" + getWorldScale(noa))}:${world.registerEntity()}` as Entity;
 
     actions.add({
       id: `build+${voxelCoordToString(coord)}` as Entity, // used so we don't send the same transaction twice

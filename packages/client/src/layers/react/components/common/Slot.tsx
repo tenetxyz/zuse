@@ -57,7 +57,7 @@ const Inner = styled.div<{ disabled?: boolean; slotSize: string; selected?: bool
   font-size: 20px;
   opacity: ${(p) => (p.disabled ? 0.5 : 1)};
   border: 2px solid #374147;
-  background-color: rgba(36, 42, 47, 0.8);43
+  background-color: rgba(36, 42, 47, 0.8);
   border-radius: 4px;
   transition: box-shadow 0.3s ease;
   box-shadow: ${(p) => p.selected ? '#C9CACB 0px 0px 20px 5px' : 'none'};

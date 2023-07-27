@@ -245,8 +245,8 @@ export function setupClouds(noa: Engine) {
     cloudTexture.uOffset -= (pos[0] - noa.camera.getPosition()[0]) / 10000;
     pos = [...noa.camera.getPosition()];
 
-    // cloudMesh.position.copyFromFloats(x, SKY_HEIGHT - 5, z); // -1 so it shows up in front of the sky plane
-    cloudMesh.setPositionWithLocalVector(new BABYLON.Vector3(0, SKY_HEIGHT, 200));
+    cloudMesh.position.copyFromFloats(x, y + SKY_HEIGHT - 5, z); // -1 so it shows up in front of the sky plane
+    // cloudMesh.setPositionWithLocalVector(new BABYLON.Vector3(0, SKY_HEIGHT, 200));
   };
 
   noa.on("beforeRender", update);
@@ -294,7 +294,7 @@ export function setupSky(noa: Engine) {
     // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     const [playerX, playerY, playerZ] = noa.ents.getPositionData(noa.playerEntity)!.position!;
     const [x, y, z] = noa.globalToLocal([playerX, playerY, playerZ], [0, 0, 0], local);
-    skyMesh.position.copyFromFloats(x, y + SKY_HEIGHT, z);
+    skyMesh.position.copyFromFloats(x, playerY + SKY_HEIGHT, z);
   };
 
   noa.on("beforeRender", update);

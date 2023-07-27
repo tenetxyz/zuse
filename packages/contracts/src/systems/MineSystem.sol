@@ -57,7 +57,8 @@ contract MineSystem is System {
 
     IWorld(_world()).runCA(caAddress, scale, voxelToMine);
 
-    OwnedBy.set(scale, voxelToMine, _msgSender());
+    // Can't own it since it became air
+    // OwnedBy.set(scale, voxelToMine, _msgSender());
 
     return voxelToMine;
   }

@@ -13,6 +13,7 @@ import { registerTenetSidebar } from "./TenetSidebar";
 import { registerBackgroundFade } from "./BackgroundFade";
 import { registerSplashCard } from "./SplashCard";
 import { registerPersistentSidebar } from "./PersistentSidebar";
+import { registerZoomOverlay } from "./ZoomOverlay";
 export * from "./common";
 
 export function registerUIComponents() {
@@ -32,6 +33,6 @@ export function registerUIComponents() {
   registerAdminPanel();
   registerBackgroundFade();
   registerPersistentSidebar();
-
   // registerSplashCard();
+  registerZoomOverlay();
 }

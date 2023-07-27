@@ -1,7 +1,6 @@
 import { registerTenetComponent } from "../engine/components/TenetComponentRenderer";
 import { calculateChildCoords, calculateParentCoord, getWorldScale } from "../../../utils/coord";
 import { useEffect, useState } from "react";
-import { setScale } from "../../../layers/noa/systems/createScaleManager";
 import { useObservableValue } from "@latticexyz/react";
 import { toast } from "react-toastify";
 import { VoxelCoord } from "@latticexyz/utils";
@@ -48,7 +47,7 @@ export function registerPersistentSidebar() {
           },
           SingletonEntity,
           api: { teleport },
-          streams: { playerPosition$ },
+          streams: { playerPosition$, zoomEvent$ },
         },
       } = layers;
 
@@ -77,25 +76,33 @@ export function registerPersistentSidebar() {
           return;
         }
 
+        const isZoomingIn = scaleDiff === -1;
+        zoomEvent$.next(isZoomingIn); // trigger zooming animation
+
         // The proper way to change the scale is to use a new worldname:
         // we are not calling invalidateChunksInBox (or the deprecated world.invalidateAllChunks) because using the world name is the proper way to do it
         // https://github.com/fenomas/noa/commit/095f42c15aa5b1832739b647523ee620f3606400
         // Note: There is a function in world.js that is a tick loop. This will check to see if the function has changed and properly update the world.
         // noa automatically resets all chunks and reloads them when the worldName changes!
-        noa.worldName = newWorldScale.toString();
+        setTimeout(() => {
+          // only change the world name after the zooming animation fades to black (so the user doesn't see the world unload)
+          noa.worldName = newWorldScale.toString();
 
-        teleport(getNewPosition(currentWorldScale));
+          teleport(getNewPosition(currentWorldScale));
+        }, 200);
       };
 
-      const zoomIn = () => {
+      const zoomIn = (event: React.MouseEvent<HTMLButtonElement>) => {
+        (event.target as HTMLElement).blur(); // lose focus on the element
         setScale(-1, (currentWorldScale) => {
-          return calculateChildCoords(getWorldScale(noa) + 1, position!)[0];
+          return calculateChildCoords(currentWorldScale + 1, position!)[0];
         });
       };
 
-      const zoomOut = () => {
-        setScale(+1, () => {
-          const newPosition = calculateParentCoord(position!, getWorldScale(noa));
+      const zoomOut = (event: React.MouseEvent<HTMLButtonElement>) => {
+        (event.target as HTMLElement).blur();
+        setScale(+1, (currentWorldScale) => {
+          const newPosition = calculateParentCoord(position!, currentWorldScale);
           newPosition.y += 1;
           return newPosition;
         });

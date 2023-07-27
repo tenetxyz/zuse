@@ -345,8 +345,8 @@ export async function setupNetwork() {
     liveStoreCache,
   };
 
-  function getTerrainVoxelTypeAtPosition(position: VoxelCoord): VoxelTypeKey {
-    return getTerrainVoxel(getTerrain(position, perlin), position, perlin);
+  function getTerrainVoxelTypeAtPosition(position: VoxelCoord, scale: number): VoxelTypeKey {
+    return getTerrainVoxel(getTerrain(position, perlin), position, perlin, scale);
   }
 
   function getEcsVoxelTypeAtPosition(position: VoxelCoord, scale: number): VoxelTypeKey | undefined {
@@ -435,7 +435,7 @@ export async function setupNetwork() {
   }
 
   async function mine(coord: VoxelCoord, scale: number) {
-    const voxelTypeKey = getEcsVoxelTypeAtPosition(coord, scale) ?? getTerrainVoxelTypeAtPosition(coord);
+    const voxelTypeKey = getEcsVoxelTypeAtPosition(coord, scale) ?? getTerrainVoxelTypeAtPosition(coord, scale);
 
     if (voxelTypeKey == null) {
       throw new Error("entity has no VoxelType");

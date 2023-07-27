@@ -278,7 +278,7 @@ contract LibTerrainSystem is System {
   }
 
   function Air(int32 y) internal pure returns (bytes32) {
-    if (y > 10) {
+    if (y > 9) {
       return AirVoxelID;
     }
 
@@ -302,7 +302,7 @@ contract LibTerrainSystem is System {
   }
 
   function Grass(int32 y) internal pure returns (bytes32) {
-    if (y == 10) {
+    if (y == 9) {
       return GrassVoxelID;
     }
 
@@ -314,7 +314,7 @@ contract LibTerrainSystem is System {
   }
 
   function Dirt(int32 y) internal pure returns (bytes32) {
-    if (y > CHUNK_MIN_Y && y < 10) {
+    if (y > CHUNK_MIN_Y && y < 9) {
       return DirtVoxelID;
     }
 

@@ -19,4 +19,5 @@ export type TerrainState = {
   chunkOffset?: VoxelCoord;
   chunkHeight?: number;
   distanceFromHeight?: number;
+  scale: number;
 };

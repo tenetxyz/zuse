@@ -11,6 +11,12 @@ import { Layers } from "../../../types";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faMagnifyingGlassPlus, faMagnifyingGlassMinus, faBars } from "@fortawesome/free-solid-svg-icons";
 import styled from "styled-components";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip"
 
 
 export const SIDEBAR_BACKGROUND_COLOR = "#353535";
@@ -98,25 +104,42 @@ export function registerPersistentSidebar() {
       return (
         <div className="p-5 flex justify-between items-start" style={{ pointerEvents: "all" }}>
         <div>
-            <TooltipContainer>
-              <Button onClick={() => openSidebar(FocusedUi, SingletonEntity, PersistentNotification, SpawnCreation, noa)} >
-                <FontAwesomeIcon icon={faBars} style={{ color: "#C9CACB"}} />
-              </Button>
-              <TooltipText>Open Sidebar</TooltipText>
-            </TooltipContainer>
-            <TooltipContainer>
-              <Button onClick={zoomIn}>
-                <FontAwesomeIcon icon={faMagnifyingGlassPlus} style={{ color: "#C9CACB"}} />
-              </Button>
-              <TooltipText>Zoom In to Level {worldScale - 1}</TooltipText>
-            </TooltipContainer>
-            <TooltipContainer>
-              <Button onClick={zoomOut}>
-                <FontAwesomeIcon icon={faMagnifyingGlassMinus} style={{ color: "#C9CACB"}} />
-              </Button>
-              <TooltipText>Zoom Out to Level {worldScale + 1}</TooltipText>
-            </TooltipContainer>
-          </div>
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger>
+                <Button onClick={() => openSidebar(FocusedUi, SingletonEntity, PersistentNotification, SpawnCreation, noa)}>
+                  <FontAwesomeIcon icon={faBars} style={{ color: "#C9CACB"}} />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>
+                Open Sidebar
+              </TooltipContent>
+            </Tooltip>
+            
+            <Tooltip>
+              <TooltipTrigger>
+                <Button onClick={zoomIn}>
+                  <FontAwesomeIcon icon={faMagnifyingGlassPlus} style={{ color: "#C9CACB"}} />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>
+                Zoom In to Level {worldScale - 1}
+              </TooltipContent>
+            </Tooltip>
+
+            <Tooltip>
+              <TooltipTrigger>
+                <Button onClick={zoomOut}>
+                  <FontAwesomeIcon icon={faMagnifyingGlassMinus} style={{ color: "#C9CACB"}} />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>
+                Zoom Out to Level {worldScale + 1}
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+
+        </div>
 
           <div>
             <div>Scale Level: {worldScale}</div>
@@ -132,43 +155,6 @@ export function registerPersistentSidebar() {
   });
 }
 
-const TooltipText = styled.span`
-  visibility: hidden;
-  max-width: 120px; // set a maximum width
-  background-color: #555;
-  color: #fff;
-  text-align: center;
-  padding: 5px 0;
-  border-radius: 6px;
-  position: absolute;
-  z-index: 1;
-  bottom: 100%;
-  left: 50%;
-  transform: translateX(-50%); // center the tooltip
-  opacity: 0;
-  transition: opacity 0.1s;
-  white-space: nowrap; // prevent the text from wrapping
-  &:after {
-    content: "";
-    position: absolute;
-    top: 100%;
-    left: 50%;
-    margin-left: -5px;
-    border-width: 5px;
-    border-style: solid;
-    border-color: #555 transparent transparent transparent;
-  }
-`;
-
-
-const TooltipContainer = styled.div`
-  position: relative;
-  display: inline-block;
-  &:hover ${TooltipText} {
-    visibility: visible;
-    opacity: 1;
-  }
-`;
 
 const Button = styled.button<{ selected?: boolean }>`
   padding: 8px;

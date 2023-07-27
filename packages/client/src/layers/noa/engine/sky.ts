@@ -6,7 +6,7 @@ import { FOG_COLOR, SKY_COLOR } from "../setup/constants";
  * Setups clouds in a hacky way
  */
 const CLOUD_HEIGHT = 90.5;
-const SKY_HEIGHT = 40;
+const SKY_HEIGHT = 50;
 
 export function oldSetupClouds(noa: Engine) {
   // Parameters
@@ -302,8 +302,8 @@ export function setupSky(noa: Engine) {
     // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     const [playerX, playerY, playerZ] = noa.ents.getPositionData(noa.playerEntity)!.position!;
     const [x, y, z] = noa.globalToLocal([playerX, playerY, playerZ], [0, 0, 0], local);
-    skyMesh.position.copyFromFloats(x, y + 100, z);
-    skyBox.position.copyFromFloats(x, y + 100, z);
+    skyMesh.position.copyFromFloats(x, y + SKY_HEIGHT, z);
+    skyBox.position.copyFromFloats(x, y + SKY_HEIGHT, z);
     // skyMesh.setPositionWithLocalVector(new BABYLON.Vector3(0, 0, 500));
   };
 

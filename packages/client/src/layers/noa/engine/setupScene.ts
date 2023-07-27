@@ -8,9 +8,9 @@ export function setupScene(noa: Engine) {
   const scene = noa.rendering.getScene();
   scene.fogMode = BABYLON.Scene.FOGMODE_LINEAR;
   scene.fogStart = 100;
-  scene.fogEnd = 600;
+  scene.fogEnd = 300;
   scene.fogColor = new BABYLON.Color3(...FOG_COLOR);
-  scene.fogDensity = 0.00005;
+  scene.fogDensity = 0.005;
   const colorGrading = new BABYLON.Texture("./assets/textures/lut/LUT_Night2.png", scene, true, false);
   colorGrading.level = 0;
   colorGrading.wrapU = BABYLON.Texture.CLAMP_ADDRESSMODE;

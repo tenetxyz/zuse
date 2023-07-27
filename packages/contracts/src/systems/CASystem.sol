@@ -125,6 +125,7 @@ contract CASystem is System {
     useStackIdx = centerEntitiesToCheckStackIdx;
 
     // Keep looping until there is no neighbour to process or we reached max depth
+    // TODO: We need to call parent CA's as well after we're done going over this CA
     while (useStackIdx < MAX_VOXEL_NEIGHBOUR_UPDATE_DEPTH) {
       bytes32 useCenterEntityId = centerEntitiesToCheckStack[useStackIdx];
       bytes32[] memory useNeighbourEntities = calculateNeighbourEntities(scale, useCenterEntityId);

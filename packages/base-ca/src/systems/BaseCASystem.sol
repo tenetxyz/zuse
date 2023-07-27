@@ -102,6 +102,8 @@ contract BaseCASystem is System {
     // set to Air
     bytes32 airVoxelVariantId = getVoxelVariant(AirVoxelID, entity);
     CAVoxelType.set(callerAddress, entity, AirVoxelID, airVoxelVariantId);
+
+    // TODO: need to remove entities from ElectronTunnelSpot
   }
 
   function runInteraction(

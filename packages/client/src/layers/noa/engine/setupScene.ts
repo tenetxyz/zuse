@@ -21,7 +21,7 @@ export function setupScene(noa: Engine) {
   // Color Curves
   const postProcess = new BABYLON.ImageProcessingPostProcess("processing", 1.0, noa.rendering.camera);
   const curve = new BABYLON.ColorCurves();
-  curve.globalSaturation = 100; // CANDY!
+  curve.globalSaturation = 80; // CANDY!
   postProcess.colorCurves = curve;
   postProcess.colorCurvesEnabled = true;
   // Glow

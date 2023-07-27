@@ -197,8 +197,8 @@ export function setupClouds(noa: Engine) {
   cloudMesh = BABYLON.MeshBuilder.CreatePlane(
     "cloudMesh",
     {
-      height: 1.5e3,
-      width: 1.5e3,
+      height: 500,
+      width: 500,
     },
     scene
   );
@@ -226,21 +226,27 @@ export function setupClouds(noa: Engine) {
 
   noa.rendering.addMeshToScene(cloudMesh, false);
 
-  cloudMesh.setPositionWithLocalVector(new BABYLON.Vector3(0, 0, 200));
+  // cloudMesh.setPositionWithLocalVector(new BABYLON.Vector3(0, 0, 200));
 
   let pos = [...noa.camera.getPosition()];
 
+  const playerMeshState = noa.ents.getState(noa.playerEntity, noa.ents.names.mesh);
+  if (playerMeshState != undefined) {
+    cloudMesh.setParent(playerMeshState.mesh);
+  }
   const update = () => {
-    const x = noa.ents.getState(noa.playerEntity, noa.ents.names.mesh);
-    if (x != undefined) {
-      cloudMesh.setParent(x.mesh);
-    }
+    const local: number[] = [];
+
+    // cloudMesh.setPositionWithLocalVector(new BABYLON.Vector3(0, 0, 250 - noa.camera.getPosition()[1]));
+    const [playerX, playerY, playerZ] = noa.ents.getPositionData(noa.playerEntity)!.position!;
+    const [x, y, z] = noa.globalToLocal([playerX, playerY, playerZ], [0, 0, 0], local);
 
     cloudTexture.vOffset += 0.00001 + (pos[2] - noa.camera.getPosition()[2]) / 10000;
     cloudTexture.uOffset -= (pos[0] - noa.camera.getPosition()[0]) / 10000;
     pos = [...noa.camera.getPosition()];
 
-    cloudMesh.setPositionWithLocalVector(new BABYLON.Vector3(0, 0, 250 - noa.camera.getPosition()[1]));
+    // cloudMesh.position.copyFromFloats(x, SKY_HEIGHT - 5, z); // -1 so it shows up in front of the sky plane
+    cloudMesh.setPositionWithLocalVector(new BABYLON.Vector3(0, SKY_HEIGHT, 200));
   };
 
   noa.on("beforeRender", update);
@@ -264,16 +270,6 @@ export function setupSky(noa: Engine) {
     },
     scene
   );
-  const skyBox = MeshBuilder.CreateBox(
-    "skyMesh",
-    {
-      height: 1.2e4,
-      width: 1.2e4,
-      depth: 1000,
-    },
-    scene
-  );
-  const skyBoxMat = new StandardMaterial("skyBox", scene);
 
   const skyMat = new BABYLON.StandardMaterial("sky", scene);
   skyMat.backFaceCulling = false;
@@ -286,14 +282,10 @@ export function setupSky(noa: Engine) {
 
   skyMesh.rotation.x = -Math.PI / 2;
 
-  skyBoxMat.backFaceCulling = false;
-  skyBoxMat.diffuseColor = new Color3(...FOG_COLOR);
-  skyBox.renderingGroupId = -1;
-  skyBox.material = skyMat;
-  skyBox.applyFog = true;
-
   noa.rendering.addMeshToScene(skyMesh, false);
-  noa.rendering.addMeshToScene(skyBox, false);
+  const SCENE_COLOR = [0.65, 0.75, 0.85];
+  // https://doc.babylonjs.com/features/featuresDeepDive/environment/environment_introduction
+  scene.clearColor = new BABYLON.Color4(...SCENE_COLOR, 1);
 
   // skyMesh.setPositionWithLocalVector(new BABYLON.Vector3(0, 0, 500));
 
@@ -303,7 +295,6 @@ export function setupSky(noa: Engine) {
     const [playerX, playerY, playerZ] = noa.ents.getPositionData(noa.playerEntity)!.position!;
     const [x, y, z] = noa.globalToLocal([playerX, playerY, playerZ], [0, 0, 0], local);
     skyMesh.position.copyFromFloats(x, y + SKY_HEIGHT, z);
-    skyBox.position.copyFromFloats(x, y - 500, z);
   };
 
   noa.on("beforeRender", update);

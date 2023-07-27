@@ -56,11 +56,11 @@ export function registerZoomOverlay() {
             return;
           }
           const isZoomingIn = zoomState === ZoomState.ZOOMING_IN;
-          const zoomZPos = isZoomingIn ? -5 : 450;
+          const zoomZPos = isZoomingIn ? 450 : -450;
           const engine = new BABYLON.Engine(canvas, true);
           const createScene = function () {
             var scene = new BABYLON.Scene(engine);
-            scene.clearColor = new BABYLON.Color4(0, 0, 0, 0.5);
+            scene.clearColor = new BABYLON.Color4(0, 0, 0, 0.5); // opaque so it slowly dims the scene
             var camera = new BABYLON.FreeCamera("camera1", new BABYLON.Vector3(0, 0, zoomZPos), scene);
             camera.setTarget(BABYLON.Vector3.Zero());
             const warpLines: BABYLON.Mesh[] = [];
@@ -107,7 +107,7 @@ export function registerZoomOverlay() {
       if (zoomState === ZoomState.NOT_ZOOMING) {
         return null;
       }
-      return <Canvas ref={canvasRef} />;
+      return <Canvas className="animate-fade-in-and-out" ref={canvasRef} />;
     },
   });
 }

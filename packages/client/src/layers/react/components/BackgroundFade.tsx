@@ -26,6 +26,7 @@ export function registerBackgroundFade() {
       const focusedUiType = useComponentValue(FocusedUi, SingletonEntity)?.value;
       return focusedUiType !== FocusedUiType.WORLD ? (
         <Background
+          className="animate-fade-in"
           onClick={() => {
             setComponent(FocusedUi, SingletonEntity, { value: FocusedUiType.WORLD });
             noa.container.setPointerLock(true); // make the user be able to move again
@@ -37,10 +38,9 @@ export function registerBackgroundFade() {
 }
 
 const Background = styled.div`
-  background-color: rgba(0, 0, 0, 0.2);
   position: absolute;
   height: 100%;
   width: 100%;
   pointer-events: all;
-  backgroundcolor: "rgba(0,0,0,0.2)";
+  background-color: rgba(0, 0, 0, 0.2);
 `;

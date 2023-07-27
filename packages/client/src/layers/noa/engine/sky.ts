@@ -257,7 +257,7 @@ export function setupSky(noa: Engine) {
   skyMesh = BABYLON.MeshBuilder.CreatePlane(
     "skyMesh",
     {
-      height: 1.2e2,
+      height: 1.2e4,
       width: 1.2e4,
     },
     scene

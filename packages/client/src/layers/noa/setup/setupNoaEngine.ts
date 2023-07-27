@@ -27,7 +27,7 @@ export function setupNoaEngine(network: NetworkLayer) {
   const noaOptions = {
     debug: false,
     // TODO: log this FPS data to a metrics service
-    showFPS: true, // how to read FPS: https://github.com/fenomas/noa/blob/bd74cd8add3abf216b53a995139276af665b1d52/src/lib/rendering.js#LL611C13-L611C22
+    // showFPS: true, // how to read FPS: https://github.com/fenomas/noa/blob/bd74cd8add3abf216b53a995139276af665b1d52/src/lib/rendering.js#LL611C13-L611C22
     // The top number is the average FPS, the bottom is the WORSE fps experienced so far
     inverseY: false,
     inverseX: false,
@@ -45,6 +45,10 @@ export function setupNoaEngine(network: NetworkLayer) {
     AOmultipliers: [0.93, 0.8, 0.5],
     reverseAOmultiplier: 1.0,
     preserveDrawingBuffer: true,
+    ambientColor: [0.7, 0.7, 0.7], // affects how dark the side of the block away from the light source is
+    lightDiffuse: [1, 1, 1],
+    lightSpecular: [1, 1, 1],
+    groundLightColor: [1, 1, 1],
   };
 
   // Hack Babylon in order to have a -1 rendering group for the sky (to be always drawn behind everything else)
@@ -160,7 +164,6 @@ export function setupNoaEngine(network: NetworkLayer) {
     }
     noa.world.setChunkData(id, data, undefined);
   });
-
   const { glow } = setupScene(noa);
 
   // Change voxel targeting mechanism

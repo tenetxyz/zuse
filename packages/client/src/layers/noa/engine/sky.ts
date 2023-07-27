@@ -1,8 +1,8 @@
-import { Color3, MeshBuilder, Scene, StandardMaterial, Texture } from "@babylonjs/core";
 import * as BABYLON from "@babylonjs/core";
 import type { Engine } from "noa-engine";
 import { SCENE_COLOR, SKY_PLANE_COLOR } from "../setup/constants";
 
+// the sky and cloud logic was taken and modified from VoxelSrv: https://github.com/VoxelSrv/voxelsrv/blob/master/src/lib/gameplay/sky.ts
 const SKY_HEIGHT = 50;
 
 export let cloudMesh: BABYLON.Mesh;
@@ -44,14 +44,8 @@ export function setupClouds(noa: Engine) {
 
   let pos = [...noa.camera.getPosition()];
 
-  const playerMeshState = noa.ents.getState(noa.playerEntity, noa.ents.names.mesh);
-  if (playerMeshState != undefined) {
-    cloudMesh.setParent(playerMeshState.mesh);
-  }
+  const local: number[] = [];
   const update = () => {
-    const local: number[] = [];
-
-    // cloudMesh.setPositionWithLocalVector(new BABYLON.Vector3(0, 0, 250 - noa.camera.getPosition()[1]));
     const [playerX, playerY, playerZ] = noa.ents.getPositionData(noa.playerEntity)!.position!;
     const [x, y, z] = noa.globalToLocal([playerX, playerY, playerZ], [0, 0, 0], local);
 
@@ -59,7 +53,7 @@ export function setupClouds(noa: Engine) {
     cloudTexture.uOffset -= (pos[0] - noa.camera.getPosition()[0]) / 10000;
     pos = [...noa.camera.getPosition()];
 
-    cloudMesh.position.copyFromFloats(x, y + SKY_HEIGHT - 5, z); // -5 so it shows up in front of the sky plane
+    cloudMesh.position.copyFromFloats(x, y + SKY_HEIGHT - 5, z); // -5 so it shows up below the sky plane (i.e. in front of it)
   };
 
   noa.on("beforeRender", update);
@@ -87,8 +81,8 @@ export function setupSky(noa: Engine) {
   skyPlaneMesh = BABYLON.MeshBuilder.CreatePlane(
     "skyPlaneMesh",
     {
-      height: 1.2e4,
-      width: 1.2e4,
+      height: 1.2e4, // The height and width of the plane determines how large the cloud texture is.
+      width: 1.2e4, // Don't make these values too small or the clouds will not cover the entire sky
     },
     scene
   );
@@ -106,14 +100,9 @@ export function setupSky(noa: Engine) {
 
   noa.rendering.addMeshToScene(skyPlaneMesh, false);
 
-  // skyMesh.setPositionWithLocalVector(new BABYLON.Vector3(0, 0, 500));
-
   const update = () => {
-    const local: number[] = [];
-    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-    const [playerX, playerY, playerZ] = noa.ents.getPositionData(noa.playerEntity)!.position!;
-    const [x, y, z] = noa.globalToLocal([playerX, playerY, playerZ], [0, 0, 0], local);
-    skyPlaneMesh.position.copyFromFloats(x, playerY + SKY_HEIGHT, z);
+    let pos = noa.camera.getPosition();
+    skyPlaneMesh.position.copyFromFloats(pos[0], pos[1] + SKY_HEIGHT, pos[2]);
   };
 
   noa.on("beforeRender", update);

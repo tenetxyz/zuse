@@ -40,7 +40,6 @@ export function setupNoaEngine(network: NetworkLayer) {
     playerHeight: 1.85,
     playerWidth: 0.6,
     playerAutoStep: 1,
-    clearColor: SKY_PLANE_COLOR,
     useAO: true,
     AOmultipliers: [0.93, 0.8, 0.5],
     reverseAOmultiplier: 1.0,

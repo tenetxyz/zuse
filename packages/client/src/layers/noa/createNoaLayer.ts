@@ -40,7 +40,7 @@ import { Texture, Vector4 } from "@babylonjs/core";
 import { setupHand } from "./engine/hand";
 import { monkeyPatchMeshComponent } from "./engine/components/monkeyPatchMeshComponent";
 import { registerRotationComponent, registerTargetedRotationComponent } from "./engine/components/rotationComponent";
-import { oldSetupClouds, oldSetupSky, setupClouds, setupSky } from "./engine/sky";
+import { setupClouds, setupSky } from "./engine/sky";
 import { setupNoaEngine } from "./setup";
 import {
   createVoxelSystem,

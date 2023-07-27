@@ -359,11 +359,6 @@ export const ActionBarWrapper = styled.div`
 `;
 
 
-
-
-
-
-
 const PixelatedImage = styled.img`
   image-rendering: pixelated;
 `;

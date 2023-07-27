@@ -29,8 +29,9 @@ export function registerUIComponents() {
   clearTenetComponentRenderer();
   registerActionQueue();
   registerTenetSidebar();
-  registerPersistentSidebar();
   registerAdminPanel();
   registerBackgroundFade();
-  registerSplashCard();
+  registerPersistentSidebar();
+
+  // registerSplashCard();
 }

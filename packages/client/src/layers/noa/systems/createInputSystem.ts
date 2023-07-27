@@ -18,6 +18,28 @@ import { renderFloatingTextAboveCoord } from "./renderFloatingText";
 import { InterfaceVoxel } from "../types";
 import { World } from "noa-engine/dist/src/lib/world";
 
+
+export function closeSidebar(FocusedUi, SingletonEntity) {
+  setComponent(FocusedUi, SingletonEntity, { value: FocusedUiType.WORLD });
+}
+
+export function openSidebar(FocusedUi, SingletonEntity, PersistentNotification, SpawnCreation, noa) {
+  // clear persistent notification when we open the inventory
+  setComponent(PersistentNotification, SingletonEntity, {
+    message: "",
+    icon: NotificationIcon.NONE,
+  });
+
+  // clear SpawnCreation when we open the inventory
+  setComponent(SpawnCreation, SingletonEntity, {
+    creation: undefined,
+  });
+  noa.blockTestDistance = DEFAULT_BLOCK_TEST_DISTANCE; // reset block test distance
+
+  setComponent(FocusedUi, SingletonEntity, { value: FocusedUiType.TENET_SIDEBAR });
+}
+
+
 export function createInputSystem(layers: Layers) {
   const {
     noa: {
@@ -301,31 +323,11 @@ export function createInputSystem(layers: Layers) {
   onDownInputEvent("sidebar", () => {
     const isSidebarOpen = getComponentValue(FocusedUi, SingletonEntity)?.value === FocusedUiType.TENET_SIDEBAR;
     if (isSidebarOpen) {
-      closeSidebar();
+      closeSidebar(FocusedUi, SingletonEntity);
     } else {
-      openSidebar();
+      openSidebar(FocusedUi, SingletonEntity, PersistentNotification, SpawnCreation, noa);
     }
   });
-
-  function closeSidebar() {
-    setComponent(FocusedUi, SingletonEntity, { value: FocusedUiType.WORLD });
-  }
-
-  function openSidebar() {
-    // clear persistent notification when we open the inventory
-    setComponent(PersistentNotification, SingletonEntity, {
-      message: "",
-      icon: NotificationIcon.NONE,
-    });
-
-    // clear SpawnCreation when we open the inventory
-    setComponent(SpawnCreation, SingletonEntity, {
-      creation: undefined,
-    });
-    noa.blockTestDistance = DEFAULT_BLOCK_TEST_DISTANCE; // reset block test distance
-
-    setComponent(FocusedUi, SingletonEntity, { value: FocusedUiType.TENET_SIDEBAR });
-  }
 
   bindInputEvent("toggle-inventory");
   onDownInputEvent("toggle-inventory", () => {

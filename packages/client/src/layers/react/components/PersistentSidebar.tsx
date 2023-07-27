@@ -104,7 +104,7 @@ export function registerPersistentSidebar() {
       return (
         <div className="p-5 flex justify-between items-start" style={{ pointerEvents: "all" }}>
         <div>
-          <TooltipProvider>
+        <TooltipProvider delayDuration={100}>
             <Tooltip>
               <TooltipTrigger>
                 <Button onClick={() => openSidebar(FocusedUi, SingletonEntity, PersistentNotification, SpawnCreation, noa)}>

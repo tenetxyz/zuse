@@ -263,7 +263,7 @@ export function registerInventoryHud() {
             {/* <StatusHud layers={layers} /> */}
             <ActionBarWrapper>
               {[...range(INVENTORY_WIDTH)].map((i) => Slots[i])}
-            <TooltipProvider>
+            <TooltipProvider delayDuration={100}>
               <Tooltip>
                 <TooltipTrigger>
                   <Button variant="secondary" size="icon" onClick={() => setComponent(FocusedUi, SingletonEntity, { value: FocusedUiType.INVENTORY })}>
@@ -338,7 +338,6 @@ export function registerInventoryHud() {
 const Button = styled.button`
   width: 64px;
   height: 64px;
-  overflow: hidden;
   display: grid;
   justify-content: center;
   align-content: center;
@@ -348,10 +347,12 @@ const Button = styled.button`
   background-color: #ffffff12;
   border-radius: 4px;
   transition: box-shadow 0.3s ease;
+  margin-left: 4px;
   &:hover {
-    box-shadow: 0 2px 5px 0 rgba(0, 0, 0, 0.1);
+    transform: scale(1.05);
   }
 `;
+
 
 const BottomBar = styled.div`
   display: grid;

@@ -142,7 +142,7 @@ contract ElectronSystem is VoxelInteraction {
       // Tunnel to that spot
       mineWorld(callerAddress, BedrockVoxelID, positionDataToVoxelCoord(baseCoord));
       buildWorld(callerAddress, BedrockVoxelID, positionDataToVoxelCoord(otherCoord));
-      changedEntity = true;
+      // changedEntity = true;
     }
   }
 

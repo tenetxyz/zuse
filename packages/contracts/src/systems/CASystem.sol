@@ -12,28 +12,28 @@ import { getEntityAtCoord, calculateChildCoords, calculateParentCoord } from "..
 import { runInteraction } from "@tenet-base-ca/src/CallUtils.sol";
 
 contract CASystem is System {
-  int8[18] private NEIGHBOUR_COORD_OFFSETS = [
-    int8(0),
-    int8(0),
-    int8(1),
-    int8(0),
-    int8(0),
-    int8(-1),
-    int8(1),
-    int8(0),
-    int8(0),
-    int8(-1),
-    int8(0),
-    int8(0),
-    int8(0),
-    int8(1),
-    int8(0),
-    int8(0),
-    int8(-1),
-    int8(0)
-  ];
-
   function calculateNeighbourEntities(uint32 scale, bytes32 centerEntity) public view returns (bytes32[] memory) {
+    int8[18] memory NEIGHBOUR_COORD_OFFSETS = [
+      int8(0),
+      int8(0),
+      int8(1),
+      int8(0),
+      int8(0),
+      int8(-1),
+      int8(1),
+      int8(0),
+      int8(0),
+      int8(-1),
+      int8(0),
+      int8(0),
+      int8(0),
+      int8(1),
+      int8(0),
+      int8(0),
+      int8(-1),
+      int8(0)
+    ];
+
     bytes32[] memory centerNeighbourEntities = new bytes32[](NUM_VOXEL_NEIGHBOURS);
     PositionData memory baseCoord = Position.get(scale, centerEntity);
 
@@ -46,7 +46,7 @@ contract CASystem is System {
 
       bytes32 neighbourEntity = getEntityAtCoord(scale, neighbouringCoord);
 
-      if (neighbourEntity != 0) {
+      if (uint256(neighbourEntity) != 0) {
         // entity exists so add it to the list
         centerNeighbourEntities[i] = neighbourEntity;
       } else {

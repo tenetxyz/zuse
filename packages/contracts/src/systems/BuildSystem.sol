@@ -45,7 +45,7 @@ contract BuildSystem is System {
 
     // After we've built all the child types, we can build the parent type
     bytes32 voxelToBuild = getEntityAtCoord(scale, coord);
-    if (voxelToBuild == 0) {
+    if (uint256(voxelToBuild) == 0) {
       voxelToBuild = getUniqueEntity();
       // Set Position
       Position.set(scale, voxelToBuild, coord.x, coord.y, coord.z);

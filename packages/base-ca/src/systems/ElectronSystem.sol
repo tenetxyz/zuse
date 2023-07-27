@@ -24,8 +24,11 @@ contract ElectronSystem is VoxelInteraction {
   ) internal override returns (bool changedEntity) {
     // Check if block south of us is an electron, if so revert
     for (uint8 i = 0; i < neighbourEntityIds.length; i++) {
+      bytes32 neighbourEntityId = neighbourEntityIds[i];
+      if (neighbourEntityId == 0) {
+        continue;
+      }
       if (neighbourEntityDirections[i] == BlockDirection.South) {
-        bytes32 neighbourEntityId = neighbourEntityIds[i];
         bytes32 neighbourEntityType = CAVoxelType.getVoxelTypeId(callerAddress, neighbourEntityId);
         if (neighbourEntityType == BedrockVoxelID) {
           revert("ElectronSystem: Cannot place electron when it's tunneling spot is already occupied");

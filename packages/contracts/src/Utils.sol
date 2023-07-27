@@ -102,7 +102,7 @@ function getEntityAtCoord(uint32 scale, VoxelCoord memory coord) view returns (b
   bytes32 entity;
   for (uint256 i = 0; i < allEntitiesAtCoord.length; i++) {
     if (uint256(allEntitiesAtCoord[i][0]) == scale) {
-      if (entity != 0) {
+      if (uint256(entity) != 0) {
         revert("Found more than one entity at the same position");
       }
       entity = allEntitiesAtCoord[i][1];

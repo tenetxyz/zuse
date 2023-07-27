@@ -267,9 +267,9 @@ export function setupSky(noa: Engine) {
   const skyBox = MeshBuilder.CreateBox(
     "skyMesh",
     {
-      height: 1.2e6,
-      width: 1.2e6,
-      depth: 100000,
+      height: 1.2e4,
+      width: 1.2e4,
+      depth: 1000,
     },
     scene
   );
@@ -303,8 +303,7 @@ export function setupSky(noa: Engine) {
     const [playerX, playerY, playerZ] = noa.ents.getPositionData(noa.playerEntity)!.position!;
     const [x, y, z] = noa.globalToLocal([playerX, playerY, playerZ], [0, 0, 0], local);
     skyMesh.position.copyFromFloats(x, y + SKY_HEIGHT, z);
-    skyBox.position.copyFromFloats(x, y + SKY_HEIGHT, z);
-    // skyMesh.setPositionWithLocalVector(new BABYLON.Vector3(0, 0, 500));
+    skyBox.position.copyFromFloats(x, y - 500, z);
   };
 
   noa.on("beforeRender", update);

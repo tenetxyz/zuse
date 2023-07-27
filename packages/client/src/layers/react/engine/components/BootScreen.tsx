@@ -1,20 +1,44 @@
-import React, { useEffect, useState } from "react";
+import React, { ReactNode, useEffect, useState } from "react";
 import styled from "styled-components";
 
-export const BootScreen: React.FC<{ initialOpacity?: number }> = ({ children, initialOpacity }: any) => {
+export const BootScreen: React.FC<{ initialOpacity?: number; children: ReactNode }> = ({
+  children,
+  initialOpacity,
+}: any) => {
   const [opacity, setOpacity] = useState(initialOpacity ?? 0);
 
-  useEffect(() => setOpacity(1), []);
+  useEffect(() => setOpacity(0.35), []);
 
   return (
     <Container>
-      <img src="/img/everlon-light.png" style={{ opacity, width: 300 }}></img>
-      <div>
+      <img src="/img/loading-background.jpeg" style={{ opacity, width: "100%", position: "absolute" }}></img>
+      <LoadingMsgContainer>
+        <Title>EVERLON</Title>
         <>{children || <>&nbsp;</>}</>
-      </div>
+      </LoadingMsgContainer>
     </Container>
   );
 };
+const Title = styled.div`
+  font-family: "inter";
+  font-size: 100px;
+  opacity: 1;
+  color: white;
+  width: 100%;
+  height: 100%;
+  font-weight: bold;
+`;
+
+const LoadingMsgContainer = styled.div`
+  position: relative;
+  width: 100%;
+  height: 100%;
+  padding-top: 30px;
+  padding-left: 30px;
+  padding-right: 30px;
+  padding-bottom: 22px;
+  color: white;
+`;
 
 const Container = styled.div`
   width: 100%;

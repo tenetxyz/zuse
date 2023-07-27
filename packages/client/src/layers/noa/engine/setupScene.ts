@@ -1,15 +1,16 @@
 import * as BABYLON from "@babylonjs/core";
 import { Engine } from "noa-engine";
-import { CHUNK_RENDER_DISTANCE, CHUNK_SIZE, SKY_COLOR } from "../setup/constants";
+import { CHUNK_RENDER_DISTANCE, CHUNK_SIZE, SKY_COLOR, FOG_COLOR } from "../setup/constants";
 
 export function setupScene(noa: Engine) {
   // eslint-disable-next-line @typescript-eslint/ban-ts-comment
   //@ts-ignore
   const scene = noa.rendering.getScene();
   scene.fogMode = BABYLON.Scene.FOGMODE_LINEAR;
-  scene.fogStart = CHUNK_RENDER_DISTANCE * CHUNK_SIZE;
-  scene.fogEnd = CHUNK_RENDER_DISTANCE * CHUNK_SIZE + CHUNK_SIZE * 2;
-  scene.fogColor = new BABYLON.Color3(...SKY_COLOR);
+  scene.fogStart = 100;
+  scene.fogEnd = 1000;
+  scene.fogColor = new BABYLON.Color3(...FOG_COLOR);
+  scene.fogDensity = 0.000005;
   const colorGrading = new BABYLON.Texture("./assets/textures/lut/LUT_Night2.png", scene, true, false);
   colorGrading.level = 0;
   colorGrading.wrapU = BABYLON.Texture.CLAMP_ADDRESSMODE;

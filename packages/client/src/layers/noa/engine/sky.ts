@@ -1,7 +1,7 @@
 import { Color3, MeshBuilder, Scene, StandardMaterial, Texture } from "@babylonjs/core";
 import * as BABYLON from "@babylonjs/core";
 import type { Engine } from "noa-engine";
-import { SKY_COLOR } from "../setup/constants";
+import { FOG_COLOR, SKY_COLOR } from "../setup/constants";
 /*
  * Setups clouds in a hacky way
  */
@@ -249,8 +249,10 @@ export function setupClouds(noa: Engine) {
     noa.off("beforeRender", update);
   });
 }
+
 export function setupSky(noa: Engine) {
   const scene: BABYLON.Scene = noa.rendering.getScene();
+  scene.clearColor = new BABYLON.Color4(0.8, 0.9, 1, 1);
   if (skyMesh != null && !skyMesh.isDisposed) {
     skyMesh.dispose();
   }
@@ -262,10 +264,20 @@ export function setupSky(noa: Engine) {
     },
     scene
   );
+  const skyBox = MeshBuilder.CreateBox(
+    "skyMesh",
+    {
+      height: 1.2e6,
+      width: 1.2e6,
+      depth: 100000,
+    },
+    scene
+  );
+  const skyBoxMat = new StandardMaterial("skyBox", scene);
 
   const skyMat = new BABYLON.StandardMaterial("sky", scene);
   skyMat.backFaceCulling = false;
-  skyMat.emissiveColor = new BABYLON.Color3(0.2, 0.3, 0.7);
+  skyMat.emissiveColor = new BABYLON.Color3(...SKY_COLOR);
   skyMat.diffuseColor = skyMat.emissiveColor;
 
   skyMesh.infiniteDistance = true;
@@ -274,17 +286,29 @@ export function setupSky(noa: Engine) {
 
   skyMesh.rotation.x = -Math.PI / 2;
 
-  noa.rendering.addMeshToScene(skyMesh, false);
+  skyBoxMat.backFaceCulling = false;
+  skyBoxMat.diffuseColor = new Color3(...FOG_COLOR);
+  skyBox.renderingGroupId = -1;
+  skyBox.material = skyMat;
+  skyBox.applyFog = true;
 
-  skyMesh.setPositionWithLocalVector(new BABYLON.Vector3(0, 0, 500));
+  noa.rendering.addMeshToScene(skyMesh, false);
+  noa.rendering.addMeshToScene(skyBox, false);
+
+  // skyMesh.setPositionWithLocalVector(new BABYLON.Vector3(0, 0, 500));
 
   const update = () => {
-    skyMesh.setPositionWithLocalVector(new BABYLON.Vector3(0, 0, 500));
+    const local: number[] = [];
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+    const [playerX, playerY, playerZ] = noa.ents.getPositionData(noa.playerEntity)!.position!;
+    const [x, y, z] = noa.globalToLocal([playerX, playerY, playerZ], [0, 0, 0], local);
+    skyMesh.position.copyFromFloats(x, y + 100, z);
+    skyBox.position.copyFromFloats(x, y + 100, z);
+    // skyMesh.setPositionWithLocalVector(new BABYLON.Vector3(0, 0, 500));
   };
 
   noa.on("beforeRender", update);
-
-  cloudMesh.onDisposeObservable.add(() => {
+  skyMesh.onDisposeObservable.add(() => {
     noa.off("beforeRender", update);
   });
 }

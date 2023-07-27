@@ -353,7 +353,7 @@ export function createNoaLayer(network: NetworkLayer) {
   registerMiningVoxelComponent(noa, network);
   // oldSetupClouds(noa);
   // oldSetupSky(noa);
-  setupClouds(noa);
+  // setupClouds(noa);
   setupSky(noa);
   setupHand(noa, network);
   // setupDayNightCycle(noa, glow); // Curtis removed this because he had to constantly change his monitor brightness

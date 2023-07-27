@@ -100,22 +100,26 @@ contract ElectronSystem is VoxelInteraction {
         continue;
       }
       bytes32 neighbourEntityType = CAVoxelType.getVoxelTypeId(callerAddress, neighbourEntityId);
-      if (neighbourEntityDirections[i] == BlockDirection.South) {
+      if (neighbourEntityDirections[i] == BlockDirection.North) {
         if (neighbourEntityType == BedrockVoxelID) {
-          revert("ElectronSystem: Cannot place electron when it's tunneling spot is already occupied");
+          revert("ElectronSystem: Cannot place electron when it's tunneling spot is already occupied (north)");
         }
-      } else if (neighbourEntityDirections[i] == BlockDirection.North) {
-        if (neighbourEntityType == BedrockVoxelID) {
-          revert("ElectronSystem: Cannot place electron when it's tunneling spot is already occupied");
-        }
+
         CAPositionData memory neighbourCoord = CAPosition.get(callerAddress, neighbourEntityId);
         // Check one above
-        CAPositionData memory aboveCoord = CAPositionData(neighbourCoord.x, neighbourCoord.y, neighbourCoord.z + 1);
+        CAPositionData memory aboveCoord = CAPositionData(neighbourCoord.x, neighbourCoord.y, neighbourCoord.z - 1);
         bytes32 aboveEntity = getEntityAtCoord(callerAddress, aboveCoord);
         if (aboveEntity != 0) {
           bytes32 aboveEntityType = CAVoxelType.getVoxelTypeId(callerAddress, aboveEntity);
           if (aboveEntityType == BedrockVoxelID) {
-            revert("ElectronSystem: Cannot place electron when it's tunneling spot is already occupied");
+            revert("ElectronSystem: Cannot place electron when it's tunneling spot is already occupied (north above)");
+          }
+        }
+      } else if (neighbourEntityDirections[i] == BlockDirection.South) {
+        if (neighbourEntityType == BedrockVoxelID) {
+          bool neighbourAtTop = ElectronTunnelSpot.get(callerAddress, neighbourEntityType);
+          if (neighbourAtTop) {
+            revert("ElectronSystem: Cannot place electron when it's tunneling spot is already occupied (south)");
           }
         }
       }
@@ -138,6 +142,7 @@ contract ElectronSystem is VoxelInteraction {
       // Tunnel to that spot
       mineWorld(callerAddress, BedrockVoxelID, positionDataToVoxelCoord(baseCoord));
       buildWorld(callerAddress, BedrockVoxelID, positionDataToVoxelCoord(otherCoord));
+      changedEntity = true;
     }
   }
 

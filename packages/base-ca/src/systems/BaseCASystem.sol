@@ -57,8 +57,12 @@ contract BaseCASystem is System {
       bytes32 aboveEntity = getEntityAtCoord(callerAddress, aboveCoord);
       if (aboveEntity != 0) {
         if (hasKey(ElectronTunnelSpotTableId, ElectronTunnelSpot.encodeKeyTuple(callerAddress, aboveEntity))) {
-          ElectronTunnelSpot.set(callerAddress, aboveEntity, false);
-          ElectronTunnelSpot.set(callerAddress, entity, false);
+          if (ElectronTunnelSpot.get(callerAddress, aboveEntity)) {
+            ElectronTunnelSpot.set(callerAddress, aboveEntity, false);
+            ElectronTunnelSpot.set(callerAddress, entity, false);
+          } else {
+            ElectronTunnelSpot.set(callerAddress, entity, true);
+          }
         }
       } else {
         if (!hasKey(ElectronTunnelSpotTableId, ElectronTunnelSpot.encodeKeyTuple(callerAddress, entity))) {
@@ -108,13 +112,18 @@ contract BaseCASystem is System {
   ) public returns (bytes32[] memory changedEntities) {
     address callerAddress = _msgSender();
 
+    changedEntities = new bytes32[](neighbourEntityIds.length + 1);
+
     (bytes32 changedCenterEntityId, bytes32[] memory changedNeighbourEntityIds) = IWorld(_world()).electronEventHandler(
       callerAddress,
       interactEntity,
       neighbourEntityIds
     );
+    changedEntities[0] = changedCenterEntityId;
+    for (uint256 i = 0; i < changedNeighbourEntityIds.length; i++) {
+      changedEntities[i + 1] = changedNeighbourEntityIds[i];
+    }
 
-    // TODO: Fix return value
     return changedNeighbourEntityIds;
   }
 }

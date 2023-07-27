@@ -1150,6 +1150,12 @@ __metadata:
   languageName: node
   linkType: soft
 
+"@latticexyz/common@link:../../../mud/packages/common::locator=scripts%40workspace%3Apackages%2Fscripts":
+  version: 0.0.0-use.local
+  resolution: "@latticexyz/common@link:../../../mud/packages/common::locator=scripts%40workspace%3Apackages%2Fscripts"
+  languageName: node
+  linkType: soft
+
 "@latticexyz/config@link:../../../mud/packages/config::locator=%40tenetxyz%2Fbase-ca%40workspace%3Apackages%2Fbase-ca":
   version: 0.0.0-use.local
   resolution: "@latticexyz/config@link:../../../mud/packages/config::locator=%40tenetxyz%2Fbase-ca%40workspace%3Apackages%2Fbase-ca"
@@ -5668,6 +5674,14 @@ box-intersect@fenomas/box-intersect:
   checksum: d79192eeaa12abef860c195ea45d37cbf2bbf5f66e3c4dcd16f54a7da53b17788a70d109ee3d3dde1a0fd50e6a8fc171f4300356c5aee4fc0171de526bf35f8a
   languageName: node
   linkType: hard
+
+"scripts@workspace:packages/scripts":
+  version: 0.0.0-use.local
+  resolution: "scripts@workspace:packages/scripts"
+  dependencies:
+    "@latticexyz/common": "link:../../../mud/packages/common"
+  languageName: unknown
+  linkType: soft
 
 "scrypt-js@npm:3.0.1":
   version: 3.0.1

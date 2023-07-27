@@ -159,7 +159,7 @@ const ClassifierDetails: React.FC<Props> = ({
     return (
       <div className="flex gap-2 items-center">
         <div className="bg-slate-100 h-fit p-1">
-          <img src={iconUrl} />
+          <img src={iconUrl} className="w-[32px] h-[32px]" />
         </div>
         <span className="text-black">at {voxelCoord && voxelCoordToString(voxelCoord)}</span>
       </div>

@@ -77,13 +77,10 @@ contract BaseCASystem is System {
       bytes32 terrainVoxelTypeId = IWorld(_world()).getTerrainVoxel(coord);
       require(terrainVoxelTypeId != EMPTY_ID && terrainVoxelTypeId == voxelTypeId, "invalid terrain voxel type");
       CAPosition.set(callerAddress, entity, CAPositionData({ x: coord.x, y: coord.y, z: coord.z }));
-      bytes32 voxelVariantId = getVoxelVariant(terrainVoxelTypeId, entity);
-      CAVoxelType.set(callerAddress, entity, terrainVoxelTypeId, voxelVariantId);
-    } else {
-      // set to Air
-      bytes32 airVoxelVariantId = getVoxelVariant(AirVoxelID, entity);
-      CAVoxelType.set(callerAddress, entity, AirVoxelID, airVoxelVariantId);
     }
+    // set to Air
+    bytes32 airVoxelVariantId = getVoxelVariant(AirVoxelID, entity);
+    CAVoxelType.set(callerAddress, entity, AirVoxelID, airVoxelVariantId);
   }
 
   function runInteraction(

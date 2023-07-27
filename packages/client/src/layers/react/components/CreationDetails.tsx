@@ -29,7 +29,7 @@ const CreationDetails: React.FC<Props> = ({ layers, selectedCreation }: Props) =
             const iconUrl = getVoxelIconUrl(voxelType.voxelVariantTypeId);
             return (
               <div key={"creation-voxel-" + idx} className="bg-slate-100 p-1 w-fit">
-                <img src={iconUrl} />
+                <img src={iconUrl} className="w-[32px] h-[32px]" />
               </div>
             );
           })}

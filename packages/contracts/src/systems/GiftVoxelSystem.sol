@@ -27,7 +27,7 @@ contract GiftVoxelSystem is System {
     // When a voxel is in your inventory, it's not in the world so it should have no voxel variant
     VoxelType.set(voxelTypeData.scale, entity, voxelTypeId, "");
 
-    OwnedBy.set(voxelTypeData.scale, entity, _msgSender());
+    OwnedBy.set(voxelTypeData.scale, entity, tx.origin);
 
     return entity;
   }
@@ -35,7 +35,7 @@ contract GiftVoxelSystem is System {
   function numUniqueVoxelTypesIOwn() public view returns (uint) {
     // first make sure the user has enough inventory room to receive the gift
     QueryFragment[] memory fragments = new QueryFragment[](2);
-    fragments[0] = QueryFragment(QueryType.HasValue, OwnedByTableId, abi.encode(_msgSender())); // Specify OwnedBy first since it's a more restrictive filter (for performance reasons)
+    fragments[0] = QueryFragment(QueryType.HasValue, OwnedByTableId, abi.encode(tx.origin)); // Specify OwnedBy first since it's a more restrictive filter (for performance reasons)
     fragments[1] = QueryFragment(QueryType.Has, VoxelTypeTableId, new bytes(0));
 
     bytes32[][] memory voxelsIOwnTuples = query(fragments); // an array of 1-tuple keys are returned e.g. [[key1], [key2], [key3]]

@@ -31,6 +31,7 @@ import {
   InterfaceVoxel,
   VoxelVariantTypeId,
   VoxelTypeKeyInMudTable,
+  EMPTY_BYTES_32,
 } from "../layers/noa/types";
 import { Textures, UVWraps } from "../layers/noa/constants";
 import { AIR_ID, BEDROCK_ID, DIRT_ID, GRASS_ID } from "../layers/network/api/terrain/occurrence";
@@ -57,13 +58,12 @@ const giveComponentsAHumanReadableId = (contractComponents: any) => {
 
 const setupWorldRegistryNetwork = async () => {
   const params = new URLSearchParams(window.location.search);
-  const registryAddress = params.get("registryAddress") ?? import.meta.env.VITE_REGISTRY_ADDRESS;
   const registryWorld = createWorld();
   const contractComponents = defineRegistryContractComponents(registryWorld);
   giveComponentsAHumanReadableId(contractComponents);
 
-  const networkConfig = await getNetworkConfig();
-  networkConfig.worldAddress = registryAddress; // overwrite the world address with the registry address, so when we sync, we are syncing with the registry!
+  const networkConfig = await getNetworkConfig(true);
+  networkConfig.showInDevTools = false;
 
   const result = await setupMUDV2Network<typeof contractComponents, typeof registryStoreConfig>({
     networkConfig,
@@ -72,6 +72,7 @@ const setupWorldRegistryNetwork = async () => {
     syncThread: "main", // PERF: sync using workers
     storeConfig: registryStoreConfig,
     worldAbi: RegistryIWorld__factory.abi,
+    useABIInDevTools: false,
   });
   result.startSync();
   // Give components a Human-readable ID
@@ -85,7 +86,8 @@ export async function setupNetwork() {
   giveComponentsAHumanReadableId(contractComponents);
 
   console.log("Getting network config...");
-  const networkConfig = await getNetworkConfig();
+  const networkConfig = await getNetworkConfig(false);
+  networkConfig.showInDevTools = true;
   console.log("Got network config", networkConfig);
   const result = await setupMUDV2Network<typeof contractComponents, typeof storeConfig>({
     networkConfig,
@@ -94,6 +96,7 @@ export async function setupNetwork() {
     syncThread: "main", // PERF: sync using workers
     storeConfig,
     worldAbi: IWorld__factory.abi,
+    useABIInDevTools: true,
   });
   console.log("Setup MUD V2 network", result);
 
@@ -366,11 +369,13 @@ export async function setupNetwork() {
         HasValue(contractComponents.OwnedBy, {
           player: playerAddress,
         }),
+        HasValue(contractComponents.VoxelType, {
+          voxelTypeId: voxelBaseTypeId as Entity,
+          voxelVariantId: EMPTY_BYTES_32,
+        }),
       ]),
-      HasValue(contractComponents.VoxelType, {
-        voxelTypeId: voxelBaseTypeId as Entity,
-      }),
     ];
+
     if (voxelInstancesOfVoxelType.length === 0) {
       toast(`cannot build since we couldn't find a voxel (that you own) for voxelBaseTypeId=${voxelBaseTypeId}`);
       return console.warn(`cannot find a voxel (that you own) for voxelBaseTypeId=${voxelBaseTypeId}`);

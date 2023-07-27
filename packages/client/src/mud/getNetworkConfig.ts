@@ -1,8 +1,10 @@
 import { SetupContractConfig, getBurnerWallet } from "@latticexyz/std-client";
 import worldsJson from "@tenetxyz/contracts/worlds.json";
+import registryWorldsJson from "@tenetxyz/registry/worlds.json";
 import { supportedChains } from "./supportedChains";
 import { tenetTestnet, tenetRelayServiceUrl } from "./tenetTestnet";
 
+const registryWorlds = registryWorldsJson as Partial<Record<string, { address: string; blockNumber?: number }>>;
 const worlds = worldsJson as Partial<Record<string, { address: string; blockNumber?: number }>>;
 
 type NetworkConfig = SetupContractConfig & {
@@ -12,7 +14,7 @@ type NetworkConfig = SetupContractConfig & {
   relayServiceUrl?: string;
 };
 
-export async function getNetworkConfig(): Promise<NetworkConfig> {
+export async function getNetworkConfig(isRegistry: boolean): Promise<NetworkConfig> {
   const params = new URLSearchParams(window.location.search);
 
   const chainId = Number(params.get("chainId") || import.meta.env.VITE_CHAIN_ID || 31337);
@@ -22,8 +24,8 @@ export async function getNetworkConfig(): Promise<NetworkConfig> {
     throw new Error(`Chain ${chainId} not found`);
   }
 
-  const world = worlds[chain.id.toString()];
-  const worldAddress = params.get("worldAddress") || world?.address;
+  const world = isRegistry ? registryWorlds[chain.id.toString()] : worlds[chain.id.toString()];
+  const worldAddress = (isRegistry ? params.get("registryAddress") : params.get("worldAddress")) || world?.address;
   if (!worldAddress) {
     throw new Error(`No world address found for chain ${chainId}. Did you run \`mud deploy\`?`);
   }

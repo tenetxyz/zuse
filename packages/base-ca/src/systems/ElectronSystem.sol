@@ -18,7 +18,27 @@ contract ElectronSystem is VoxelInteraction {
     bytes32 neighbourEntityId,
     BlockDirection neighbourBlockDirection
   ) internal override returns (bool changedEntity) {
+    CAPositionData memory baseCoord = CAPosition.get(callerAddress, interactEntity);
+    (bytes32[] memory neighbourEntityIds, BlockDirection[] memory neighbourEntityDirections) = getNeighbours(
+      callerAddress,
+      baseCoord
+    );
+    uint256 currentReplusionForce = calculateReplusionForce(
+      callerAddress,
+      interactEntity,
+      neighbourEntityIds,
+      neighbourEntityDirections,
+      0
+    );
+    (uint256 otherReplusionForce, CAPositionData memory otherCoord) = calculateOtherReplusionForce(
+      callerAddress,
+      interactEntity,
+      baseCoord
+    );
     // return entityShouldInteract(callerAddress, neighbourEntityId);
+    if (otherReplusionForce < currentReplusionForce) {
+      return true;
+    }
     return false;
   }
 

@@ -26,9 +26,19 @@ import { entityToVoxelType } from "../../noa/types";
 import { firstFreeInventoryIndex } from "../../noa/systems/createInventoryIndexSystem";
 import { FocusedUiType } from "../../noa/components/FocusedUi";
 import { useComponentValue } from "@latticexyz/react";
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faSuitcase } from "@fortawesome/free-solid-svg-icons";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip"
+import { DashboardIcon } from "@radix-ui/react-icons"
+
 
 // This gives us 36 inventory slots. As of now there are 34 types of VoxelTypes, so it should fit.
-export const INVENTORY_WIDTH = 9;
+export const INVENTORY_WIDTH = 8;
 export const INVENTORY_HEIGHT = 4;
 
 export function registerInventoryHud() {
@@ -249,9 +259,24 @@ export function registerInventoryHud() {
             <PixelatedImage src="/img/mud-player.png" width={35} />
             <Sounds playRandomTheme={playRandomTheme} playNextTheme={playNextTheme} /> */}
           </ConnectedPlayersContainer>
-          <div className="flex flex-col">
+          <div className="flex flex-row">
             {/* <StatusHud layers={layers} /> */}
-            <ActionBarWrapper>{[...range(INVENTORY_WIDTH)].map((i) => Slots[i])}</ActionBarWrapper>
+            <ActionBarWrapper>
+              {[...range(INVENTORY_WIDTH)].map((i) => Slots[i])}
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger>
+                  <Button variant="secondary" size="icon" onClick={() => setComponent(FocusedUi, SingletonEntity, { value: FocusedUiType.INVENTORY })}>
+                    <DashboardIcon className="h-12 w-8" style={{ color: "#C9CACB" }}/>
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>
+                  Open Inventory
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+            </ActionBarWrapper>
+            {/* <ActionBarWrapper>{[...range(INVENTORY_WIDTH)].map((i) => Slots[i])}</ActionBarWrapper> */}
           </div>
         </BottomBar>
       );
@@ -309,6 +334,24 @@ export function registerInventoryHud() {
 //   z-index: 10;
 //   position: relative;
 // `;
+
+const Button = styled.button`
+  width: 64px;
+  height: 64px;
+  overflow: hidden;
+  display: grid;
+  justify-content: center;
+  align-content: center;
+  font-size: 20px;
+  opacity: ${(p) => (p.disabled ? 0.5 : 1)};
+  border: 1px solid #C9CACB;
+  background-color: #ffffff12;
+  border-radius: 4px;
+  transition: box-shadow 0.3s ease;
+  &:hover {
+    box-shadow: 0 2px 5px 0 rgba(0, 0, 0, 0.1);
+  }
+`;
 
 const BottomBar = styled.div`
   display: grid;

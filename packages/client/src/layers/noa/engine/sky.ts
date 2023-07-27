@@ -6,7 +6,7 @@ import { SCENE_COLOR, SKY_PLANE_COLOR } from "../setup/constants";
 const SKY_HEIGHT = 50;
 
 export let cloudMesh: BABYLON.Mesh;
-export let skyMesh: BABYLON.Mesh;
+export let skyPlaneMesh: BABYLON.Mesh;
 
 export function setupClouds(noa: Engine) {
   const scene = noa.rendering.getScene();
@@ -71,12 +71,21 @@ export function setupClouds(noa: Engine) {
 
 export function setupSky(noa: Engine) {
   const scene: BABYLON.Scene = noa.rendering.getScene();
-  scene.clearColor = new BABYLON.Color4(0.8, 0.9, 1, 1);
-  if (skyMesh != null && !skyMesh.isDisposed) {
-    skyMesh.dispose();
+
+  // change the color of the scene so when you look out, it blends with the color of the sky plane
+  // https://doc.babylonjs.com/features/featuresDeepDive/environment/environment_introduction
+  // I tried using a skybox instead to give color ot the lighter part of the sky, but
+  // since the latest version of noa adds "shadows" on the faces of meshes that are away fro mthe light source
+  // my skybox didn't have uniform color. This is why I am using clearColor instead
+  scene.clearColor = new BABYLON.Color4(...SCENE_COLOR, 1);
+
+  if (skyPlaneMesh != null && !skyPlaneMesh.isDisposed) {
+    skyPlaneMesh.dispose();
   }
-  skyMesh = BABYLON.MeshBuilder.CreatePlane(
-    "skyMesh",
+
+  // This plane is the darker part of the sky when you look up
+  skyPlaneMesh = BABYLON.MeshBuilder.CreatePlane(
+    "skyPlaneMesh",
     {
       height: 1.2e4,
       width: 1.2e4,
@@ -84,20 +93,18 @@ export function setupSky(noa: Engine) {
     scene
   );
 
-  const skyMat = new BABYLON.StandardMaterial("sky", scene);
-  skyMat.backFaceCulling = false;
-  skyMat.emissiveColor = new BABYLON.Color3(...SKY_PLANE_COLOR);
-  skyMat.diffuseColor = skyMat.emissiveColor;
+  const skyPlaneMat = new BABYLON.StandardMaterial("sky", scene);
+  skyPlaneMat.backFaceCulling = false;
+  skyPlaneMat.emissiveColor = new BABYLON.Color3(...SKY_PLANE_COLOR);
+  skyPlaneMat.diffuseColor = skyPlaneMat.emissiveColor;
 
-  skyMesh.infiniteDistance = true;
-  skyMesh.renderingGroupId;
-  skyMesh.material = skyMat;
+  skyPlaneMesh.infiniteDistance = true;
+  skyPlaneMesh.renderingGroupId;
+  skyPlaneMesh.material = skyPlaneMat;
 
-  skyMesh.rotation.x = -Math.PI / 2;
+  skyPlaneMesh.rotation.x = -Math.PI / 2;
 
-  noa.rendering.addMeshToScene(skyMesh, false);
-  // https://doc.babylonjs.com/features/featuresDeepDive/environment/environment_introduction
-  scene.clearColor = new BABYLON.Color4(...SCENE_COLOR, 1);
+  noa.rendering.addMeshToScene(skyPlaneMesh, false);
 
   // skyMesh.setPositionWithLocalVector(new BABYLON.Vector3(0, 0, 500));
 
@@ -106,11 +113,11 @@ export function setupSky(noa: Engine) {
     // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     const [playerX, playerY, playerZ] = noa.ents.getPositionData(noa.playerEntity)!.position!;
     const [x, y, z] = noa.globalToLocal([playerX, playerY, playerZ], [0, 0, 0], local);
-    skyMesh.position.copyFromFloats(x, playerY + SKY_HEIGHT, z);
+    skyPlaneMesh.position.copyFromFloats(x, playerY + SKY_HEIGHT, z);
   };
 
   noa.on("beforeRender", update);
-  skyMesh.onDisposeObservable.add(() => {
+  skyPlaneMesh.onDisposeObservable.add(() => {
     noa.off("beforeRender", update);
   });
 }

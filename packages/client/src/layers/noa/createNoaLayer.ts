@@ -351,8 +351,6 @@ export function createNoaLayer(network: NetworkLayer) {
   registerTargetedPositionComponent(noa);
   registerHandComponent(noa, getVoxelTypeInSelectedSlot, getVoxelPreviewVariant, voxelMaterials);
   registerMiningVoxelComponent(noa, network);
-  // oldSetupClouds(noa);
-  // oldSetupSky(noa);
   setupClouds(noa);
   setupSky(noa);
   setupHand(noa, network);

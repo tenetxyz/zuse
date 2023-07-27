@@ -11,7 +11,7 @@ export const BootScreen: React.FC<{ initialOpacity?: number; children: ReactNode
 
   return (
     <Container>
-      <img src="/img/loading-background.jpeg" style={{ opacity, width: "100%", position: "absolute" }}></img>
+      <img src="/img/loading-background.jpeg" style={{ opacity, width: "100%", height: "100%", position: "absolute", objectFit: "cover" }}></img>
       <LoadingMsgContainer>
         <Title>EVERLON</Title>
         <>{children || <>&nbsp;</>}</>

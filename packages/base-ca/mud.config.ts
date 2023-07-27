@@ -25,6 +25,15 @@ export default mudConfig({
         voxelVariantId: "bytes32",
       },
     },
+    ElectronTunnelSpot: {
+      keySchema: {
+        callerAddress: "address",
+        entity: "bytes32",
+      },
+      schema: {
+        atTop: "bool",
+      },
+    },
   },
   modules: [
     {
@@ -36,6 +45,11 @@ export default mudConfig({
       name: "KeysInTableModule",
       root: true,
       args: [resolveTableId("CAPosition")],
+    },
+    {
+      name: "KeysInTableModule",
+      root: true,
+      args: [resolveTableId("ElectronTunnelSpot")],
     },
   ],
 });

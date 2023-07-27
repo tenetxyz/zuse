@@ -4,9 +4,10 @@ pragma solidity >=0.8.0;
 import { IWorld } from "@base-ca/src/codegen/world/IWorld.sol";
 import { VoxelInteraction } from "@base-ca/src/prototypes/VoxelInteraction.sol";
 import { BlockDirection } from "@tenet-utils/src/Types.sol";
-import { CAVoxelType, CAPosition, CAPositionData, CAPositionTableId } from "@base-ca/src/codegen/Tables.sol";
+import { ElectronTunnelSpot, CAVoxelType, CAPosition, CAPositionData, CAPositionTableId } from "@base-ca/src/codegen/Tables.sol";
 import { AirVoxelID, DirtVoxelID, GrassVoxelID, BedrockVoxelID } from "@base-ca/src/Constants.sol";
-import { getEntityAtCoord } from "@base-ca/src/Utils.sol";
+import { getEntityAtCoord, getNeighbours, positionDataToVoxelCoord } from "@base-ca/src/Utils.sol";
+import { buildWorld } from "@base-ca/src/CallUtils.sol";
 import { safeCall } from "@tenet-utils/src/CallUtils.sol";
 
 contract ElectronSystem is VoxelInteraction {
@@ -87,6 +88,38 @@ contract ElectronSystem is VoxelInteraction {
           }
         }
       }
+    }
+
+    // We want to compare the replusion force at where we are, and at our other tunneling spot which is 1 block south of us
+    uint256 currentReplusionForce = calculateReplusionForce(
+      callerAddress,
+      interactEntity,
+      neighbourEntityIds,
+      neighbourEntityDirections
+    );
+    bool atTop = ElectronTunnelSpot.get(callerAddress, interactEntity);
+    CAPositionData memory otherCoord;
+    if (atTop) {
+      otherCoord = CAPositionData(baseCoord.x, baseCoord.y, baseCoord.z - 1);
+    } else {
+      otherCoord = CAPositionData(baseCoord.x, baseCoord.y, baseCoord.z + 1);
+    }
+    bytes32 otherEntity = getEntityAtCoord(callerAddress, otherCoord);
+    (bytes32[] memory otherNeighbourEntityIds, BlockDirection[] memory otherNeighbourEntityDirections) = getNeighbours(
+      callerAddress,
+      otherCoord
+    );
+    uint256 otherReplusionForce = calculateReplusionForce(
+      callerAddress,
+      otherEntity,
+      otherNeighbourEntityIds,
+      otherNeighbourEntityDirections
+    );
+    if (otherReplusionForce < currentReplusionForce) {
+      // Tunnel to that spot
+      // TODO: Should we call mine system?
+      exitWorld(BedrockVoxelID, positionDataToVoxelCoord(baseCoord), interactEntity);
+      buildWorld(callerAddress, BedrockVoxelID, otherCoord);
     }
   }
 

@@ -5,9 +5,10 @@ import { IWorld } from "@base-ca/src/codegen/world/IWorld.sol";
 import { System } from "@latticexyz/world/src/System.sol";
 import { getKeysWithValue } from "@latticexyz/world/src/modules/keyswithvalue/getKeysWithValue.sol";
 import { hasKey } from "@latticexyz/world/src/modules/keysintable/hasKey.sol";
-import { CAVoxelType, CAPosition, CAPositionData, CAPositionTableId } from "@base-ca/src/codegen/Tables.sol";
+import { CAVoxelType, CAPosition, CAPositionData, CAPositionTableId, ElectronTunnelSpot, ElectronTunnelSpotTableId } from "@base-ca/src/codegen/Tables.sol";
 import { VoxelCoord } from "@tenet-utils/src/Types.sol";
 import { EMPTY_ID, AirVoxelID, AirVoxelVariantID, DirtVoxelID, BedrockVoxelID, DirtVoxelVariantID, GrassVoxelID, GrassVoxelVariantID, BedrockVoxelVariantID } from "@base-ca/src/Constants.sol";
+import { getEntityAtCoord } from "@base-ca/src/Utils.sol";
 
 contract BaseCASystem is System {
   function isVoxelTypeAllowed(bytes32 voxelTypeId) public pure returns (bool) {
@@ -48,6 +49,22 @@ contract BaseCASystem is System {
       );
     } else {
       CAPosition.set(callerAddress, entity, CAPositionData({ x: coord.x, y: coord.y, z: coord.z }));
+    }
+
+    if (voxelTypeId == BedrockVoxelID) {
+      // Check one above
+      CAPositionData memory aboveCoord = CAPositionData(coord.x, coord.y, coord.z + 1);
+      bytes32 aboveEntity = getEntityAtCoord(callerAddress, aboveCoord);
+      if (aboveEntity != 0) {
+        if (hasKey(ElectronTunnelSpotTableId, ElectronTunnelSpot.encodeKeyTuple(callerAddress, aboveEntity))) {
+          ElectronTunnelSpot.set(callerAddress, aboveEntity, false);
+          ElectronTunnelSpot.set(callerAddress, entity, false);
+        }
+      } else {
+        if (!hasKey(ElectronTunnelSpotTableId, ElectronTunnelSpot.encodeKeyTuple(callerAddress, entity))) {
+          ElectronTunnelSpot.set(callerAddress, entity, true);
+        }
+      }
     }
 
     bytes32 voxelVariantId = getVoxelVariant(voxelTypeId, entity);

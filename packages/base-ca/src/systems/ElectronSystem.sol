@@ -9,6 +9,7 @@ import { AirVoxelID, DirtVoxelID, GrassVoxelID, BedrockVoxelID } from "@base-ca/
 import { getEntityAtCoord, getNeighbours, positionDataToVoxelCoord } from "@base-ca/src/Utils.sol";
 import { buildWorld, mineWorld } from "@base-ca/src/CallUtils.sol";
 import { safeCall } from "@tenet-utils/src/CallUtils.sol";
+import { Strings } from "@openzeppelin/contracts/utils/Strings.sol";
 
 contract ElectronSystem is VoxelInteraction {
   function onNewNeighbour(
@@ -24,7 +25,8 @@ contract ElectronSystem is VoxelInteraction {
     address callerAddress,
     bytes32 interactEntity,
     bytes32[] memory neighbourEntityIds,
-    BlockDirection[] memory neighbourEntityDirections
+    BlockDirection[] memory neighbourEntityDirections,
+    bytes32 excludingEntityId
   ) internal returns (uint256) {
     // Need to check all neighbours and see if they are electrons
     // First we check ones that are just close to us
@@ -32,7 +34,7 @@ contract ElectronSystem is VoxelInteraction {
 
     for (uint8 i = 0; i < neighbourEntityIds.length; i++) {
       bytes32 neighbourEntityId = neighbourEntityIds[i];
-      if (neighbourEntityId == 0) {
+      if (neighbourEntityId == 0 || neighbourEntityId == excludingEntityId) {
         continue;
       }
       bytes32 neighbourEntityType = CAVoxelType.getVoxelTypeId(callerAddress, neighbourEntityId);
@@ -53,6 +55,35 @@ contract ElectronSystem is VoxelInteraction {
     }
 
     return replusionForce;
+  }
+
+  function calculateOtherReplusionForce(
+    address callerAddress,
+    bytes32 interactEntity,
+    CAPositionData memory baseCoord
+  ) internal returns (uint256, CAPositionData memory) {
+    bool atTop = ElectronTunnelSpot.get(callerAddress, interactEntity);
+    CAPositionData memory otherCoord;
+    if (atTop) {
+      otherCoord = CAPositionData(baseCoord.x, baseCoord.y, baseCoord.z - 1);
+    } else {
+      otherCoord = CAPositionData(baseCoord.x, baseCoord.y, baseCoord.z + 1);
+    }
+    bytes32 otherEntity = getEntityAtCoord(callerAddress, otherCoord);
+    (bytes32[] memory otherNeighbourEntityIds, BlockDirection[] memory otherNeighbourEntityDirections) = getNeighbours(
+      callerAddress,
+      otherCoord
+    );
+    return (
+      calculateReplusionForce(
+        callerAddress,
+        otherEntity,
+        otherNeighbourEntityIds,
+        otherNeighbourEntityDirections,
+        interactEntity
+      ),
+      otherCoord
+    );
   }
 
   function runInteraction(
@@ -95,25 +126,13 @@ contract ElectronSystem is VoxelInteraction {
       callerAddress,
       interactEntity,
       neighbourEntityIds,
-      neighbourEntityDirections
+      neighbourEntityDirections,
+      0
     );
-    bool atTop = ElectronTunnelSpot.get(callerAddress, interactEntity);
-    CAPositionData memory otherCoord;
-    if (atTop) {
-      otherCoord = CAPositionData(baseCoord.x, baseCoord.y, baseCoord.z - 1);
-    } else {
-      otherCoord = CAPositionData(baseCoord.x, baseCoord.y, baseCoord.z + 1);
-    }
-    bytes32 otherEntity = getEntityAtCoord(callerAddress, otherCoord);
-    (bytes32[] memory otherNeighbourEntityIds, BlockDirection[] memory otherNeighbourEntityDirections) = getNeighbours(
+    (uint256 otherReplusionForce, CAPositionData memory otherCoord) = calculateOtherReplusionForce(
       callerAddress,
-      otherCoord
-    );
-    uint256 otherReplusionForce = calculateReplusionForce(
-      callerAddress,
-      otherEntity,
-      otherNeighbourEntityIds,
-      otherNeighbourEntityDirections
+      interactEntity,
+      baseCoord
     );
     if (otherReplusionForce < currentReplusionForce) {
       // Tunnel to that spot

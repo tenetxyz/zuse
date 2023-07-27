@@ -1,6 +1,6 @@
 import * as BABYLON from "@babylonjs/core";
 import { Engine } from "noa-engine";
-import { CHUNK_RENDER_DISTANCE, CHUNK_SIZE, SKY_COLOR, FOG_COLOR } from "../setup/constants";
+import { CHUNK_RENDER_DISTANCE, CHUNK_SIZE, SKY_PLANE_COLOR, FOG_COLOR } from "../setup/constants";
 
 export function setupScene(noa: Engine) {
   // eslint-disable-next-line @typescript-eslint/ban-ts-comment

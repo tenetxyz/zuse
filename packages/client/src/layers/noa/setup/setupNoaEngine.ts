@@ -8,7 +8,7 @@ import { NetworkLayer } from "../../network";
 import { NoaBlockType, VoxelBaseTypeId, VoxelVariantTypeId } from "../types";
 import { createVoxelMesh } from "./utils";
 import { setupScene } from "../engine/setupScene";
-import { CHUNK_RENDER_DISTANCE, CHUNK_SIZE, MIN_HEIGHT, SKY_COLOR } from "./constants";
+import { CHUNK_RENDER_DISTANCE, CHUNK_SIZE, MIN_HEIGHT, SKY_PLANE_COLOR } from "./constants";
 import { VoxelVariantNoaDef } from "../types";
 import { AIR_ID } from "../../network/api/terrain/occurrence";
 import MovementComponent, { MOVEMENT_COMPONENT_NAME } from "../components/MovementComponent";
@@ -40,7 +40,7 @@ export function setupNoaEngine(network: NetworkLayer) {
     playerHeight: 1.85,
     playerWidth: 0.6,
     playerAutoStep: 1,
-    clearColor: SKY_COLOR,
+    clearColor: SKY_PLANE_COLOR,
     useAO: true,
     AOmultipliers: [0.93, 0.8, 0.5],
     reverseAOmultiplier: 1.0,

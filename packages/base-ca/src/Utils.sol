@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0
 pragma solidity >=0.8.0;
 
-import { BlockDirection } from "@tenet-utils/src/Types.sol";
+import { BlockDirection, VoxelCoord } from "@tenet-utils/src/Types.sol";
 import { NUM_VOXEL_NEIGHBOURS } from "@tenet-utils/src/Constants.sol";
 import { getNeighbourCoords } from "@tenet-utils/src/VoxelCoordUtils.sol";
 import { hasKey } from "@latticexyz/world/src/modules/keysintable/hasKey.sol";
@@ -45,7 +45,7 @@ function getNeighbours(
 ) returns (bytes32[] memory, BlockDirection[] memory) {
   bytes32[] memory neighbourEntityIds = new bytes32[](NUM_VOXEL_NEIGHBOURS);
   BlockDirection[] memory neighbourEntityDirections = new BlockDirection[](NUM_VOXEL_NEIGHBOURS);
-  VoxelCoord[] memory neighbourCoords = getNeighbourCoords(centerCoord);
+  VoxelCoord[] memory neighbourCoords = getNeighbourCoords(positionDataToVoxelCoord(centerCoord));
   for (uint8 i = 0; i < neighbourCoords.length; i++) {
     CAPositionData memory neighbourCoord = voxelCoordToPositionData(neighbourCoords[i]);
     bytes32 entity = getEntityAtCoord(callerAddress, neighbourCoord);

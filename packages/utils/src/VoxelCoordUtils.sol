@@ -63,9 +63,9 @@ function getNeighbourCoords(VoxelCoord memory coord) pure returns (VoxelCoord[] 
 
   for (uint8 i = 0; i < NUM_VOXEL_NEIGHBOURS; i++) {
     neighbourCoords[i] = VoxelCoord(
-      baseCoord.x + NEIGHBOUR_COORD_OFFSETS[i * 3],
-      baseCoord.y + NEIGHBOUR_COORD_OFFSETS[i * 3 + 1],
-      baseCoord.z + NEIGHBOUR_COORD_OFFSETS[i * 3 + 2]
+      coord.x + NEIGHBOUR_COORD_OFFSETS[i * 3],
+      coord.y + NEIGHBOUR_COORD_OFFSETS[i * 3 + 1],
+      coord.z + NEIGHBOUR_COORD_OFFSETS[i * 3 + 2]
     );
   }
   return neighbourCoords;

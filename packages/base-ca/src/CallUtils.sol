@@ -5,12 +5,21 @@ import { VoxelCoord } from "@tenet-utils/src/Types.sol";
 import { CA_ENTER_WORLD_SIG, CA_EXIT_WORLD_SIG, CA_RUN_INTERACTION_SIG } from "./Constants.sol";
 import { safeCall } from "@tenet-utils/src/CallUtils.sol";
 
+function mineWorld(address callerAddress, bytes32 voxelTypeId, VoxelCoord memory coord) returns (bytes memory) {
+  return
+    safeCall(
+      callerAddress,
+      abi.encodeWithSignature("mine(bytes32,(int32,int32,int32))", voxelTypeId, coord),
+      string(abi.encode("mine ", voxelTypeId, " ", coord))
+    );
+}
+
 function buildWorld(address callerAddress, bytes32 voxelTypeId, VoxelCoord memory coord) returns (bytes memory) {
   return
     safeCall(
       callerAddress,
       abi.encodeWithSignature("buildVoxelType(bytes32,(int32,int32,int32))", voxelTypeId, coord),
-      string(abi.encode("enterWorld ", voxelTypeId, " ", coord))
+      string(abi.encode("buildVoxelType ", voxelTypeId, " ", coord))
     );
 }
 

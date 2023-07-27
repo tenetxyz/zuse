@@ -7,7 +7,7 @@ import { BlockDirection } from "@tenet-utils/src/Types.sol";
 import { ElectronTunnelSpot, CAVoxelType, CAPosition, CAPositionData, CAPositionTableId } from "@base-ca/src/codegen/Tables.sol";
 import { AirVoxelID, DirtVoxelID, GrassVoxelID, BedrockVoxelID } from "@base-ca/src/Constants.sol";
 import { getEntityAtCoord, getNeighbours, positionDataToVoxelCoord } from "@base-ca/src/Utils.sol";
-import { buildWorld } from "@base-ca/src/CallUtils.sol";
+import { buildWorld, mineWorld } from "@base-ca/src/CallUtils.sol";
 import { safeCall } from "@tenet-utils/src/CallUtils.sol";
 
 contract ElectronSystem is VoxelInteraction {
@@ -117,9 +117,8 @@ contract ElectronSystem is VoxelInteraction {
     );
     if (otherReplusionForce < currentReplusionForce) {
       // Tunnel to that spot
-      // TODO: Should we call mine system?
-      exitWorld(BedrockVoxelID, positionDataToVoxelCoord(baseCoord), interactEntity);
-      buildWorld(callerAddress, BedrockVoxelID, otherCoord);
+      mineWorld(callerAddress, BedrockVoxelID, positionDataToVoxelCoord(baseCoord));
+      buildWorld(callerAddress, BedrockVoxelID, positionDataToVoxelCoord(otherCoord));
     }
   }
 

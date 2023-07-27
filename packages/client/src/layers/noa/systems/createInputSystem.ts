@@ -512,9 +512,7 @@ export function createInputSystem(layers: Layers) {
     setScale(layers, -1);
     const preTeleportPosition = playerPosition$.getValue();
     if (preTeleportPosition) {
-      console.log("preTeleportPosition", preTeleportPosition);
       const newPosition = calculateChildCoords(getWorldScale(noa) + 1, preTeleportPosition)[0];
-      console.log("newPosition", newPosition);
       teleport(newPosition);
     }
   });

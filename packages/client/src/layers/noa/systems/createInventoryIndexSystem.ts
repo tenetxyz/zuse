@@ -73,7 +73,6 @@ export function createInventoryIndexSystem(network: NetworkLayer, noaLayer: NoaL
   );
   const removeInventoryIndexesForItemsWeNoLongerOwn = () => {
     const itemTypesIOwn = getItemTypesIOwn(noa, OwnedBy, VoxelType, connectedAddress);
-    console.log("itemTypesIOwn", itemTypesIOwn);
     for (const itemType of InventoryIndex.values.value.keys()) {
       const voxelBaseTypeIdStr = itemType.description as string;
       if (!itemTypesIOwn.has(voxelBaseTypeIdStr)) {

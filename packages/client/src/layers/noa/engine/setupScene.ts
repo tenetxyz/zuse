@@ -20,14 +20,14 @@ export function setupScene(noa: Engine) {
   // Color Curves
   const postProcess = new BABYLON.ImageProcessingPostProcess("processing", 1.0, noa.rendering.camera);
   const curve = new BABYLON.ColorCurves();
-  curve.globalSaturation = 60; // CANDY!
+  curve.globalSaturation = 100; // CANDY!
   postProcess.colorCurves = curve;
   postProcess.colorCurvesEnabled = true;
   // Glow
   const glow = new BABYLON.GlowLayer("glow", scene, {
     mainTextureFixedSize: 512,
-    blurKernelSize: 128,
+    blurKernelSize: 256,
   });
-  glow.intensity = 0.4;
+  glow.intensity = 0.1;
   return { colorGrading, postProcess, glow };
 }

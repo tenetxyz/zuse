@@ -40,7 +40,7 @@ import { Texture, Vector4 } from "@babylonjs/core";
 import { setupHand } from "./engine/hand";
 import { monkeyPatchMeshComponent } from "./engine/components/monkeyPatchMeshComponent";
 import { registerRotationComponent, registerTargetedRotationComponent } from "./engine/components/rotationComponent";
-import { setupClouds, setupSky } from "./engine/sky";
+import { oldSetupClouds, oldSetupSky, setupClouds, setupSky } from "./engine/sky";
 import { setupNoaEngine } from "./setup";
 import {
   createVoxelSystem,
@@ -351,7 +351,9 @@ export function createNoaLayer(network: NetworkLayer) {
   registerTargetedPositionComponent(noa);
   registerHandComponent(noa, getVoxelTypeInSelectedSlot, getVoxelPreviewVariant, voxelMaterials);
   registerMiningVoxelComponent(noa, network);
+  // oldSetupClouds(noa);
   setupClouds(noa);
+  // oldSetupSky(noa);
   setupSky(noa);
   setupHand(noa, network);
   // setupDayNightCycle(noa, glow); // Curtis removed this because he had to constantly change his monitor brightness

@@ -14,14 +14,14 @@ bytes32 constant AirVoxelVariantID = bytes32(keccak256("air"));
 
 bytes32 constant DirtVoxelID = bytes32(keccak256("dirt"));
 bytes32 constant DirtVoxelVariantID = bytes32(keccak256("dirt"));
-string constant DirtTexture = "bafkreibzraiuk6hgngtfczn57sivuqf3nv77twi6g3ftas2umjnbf6jefe";
-string constant DirtUVWrap = "bafkreifbshwckn4pgw5ew2obz3i74eujzpcomatus5gu2tk7mms373gqme";
+string constant DirtTexture = "bafkreihy3pblhqaqquwttcykwlyey3umpou57rkvtncpdrjo7mlgna53g4";
+string constant DirtUVWrap = "bafkreifsrs64rckwnfkwcyqkzpdo3tpa2at7jhe6bw7jhevkxa7estkdnm";
 
 bytes32 constant GrassVoxelID = bytes32(keccak256("grass"));
 bytes32 constant GrassVoxelVariantID = bytes32(keccak256("grass"));
-string constant GrassTexture = "bafkreifmvm3yxzbkzcb2r7m6gavjhe22n4p3o36lz2ypkgf5v6i6zzhv4a";
-string constant GrassSideTexture = "bafkreibp5wefex2cunqz5ffwt3ucw776qthwl6y6pswr2j2zuzldrv6bqa";
-string constant GrassUVWrap = "bafkreihaagdyqnbie3eyx6upmoul2zb4qakubxg6bcha6k5ebp4fbsd3am";
+string constant GrassTexture = "bafkreidtk7vevmnzt6is5dreyoocjkyy56bk66zbm5bx6wzck73iogdl6e";
+string constant GrassSideTexture = "bafkreien7wqwfkckd56rehamo2riwwy5jvecm5he6dmbw2lucvh3n4w6ue";
+string constant GrassUVWrap = "bafkreiaur4pmmnh3dts6rjtfl5f2z6ykazyuu4e2cbno6drslfelkga3yy";
 
 bytes32 constant BedrockVoxelID = bytes32(keccak256("bedrock"));
 bytes32 constant BedrockVoxelVariantID = bytes32(keccak256("bedrock"));

@@ -55,6 +55,9 @@ export function setupNoaEngine(network: NetworkLayer) {
   const scene = noa.rendering.getScene();
   noa.world.worldGenWhilePaused = false;
 
+  // from https://github.com/VoxelSrv/voxelsrv/blob/6e1c07b9c66ee07f4317e8c2867fd1d8f1653484/src/gui/menu/settings.ts#L50
+  noa.rendering.getScene().cameras[0].fov = (49 * Math.PI) / 180;
+
   // Make player float before world is loaded
   const body = noa.ents.getPhysics(1)?.body;
   if (body) body.gravityMultiplier = 0;

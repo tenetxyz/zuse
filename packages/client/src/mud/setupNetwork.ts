@@ -441,7 +441,7 @@ export async function setupNetwork() {
       throw new Error("entity has no VoxelType");
     }
     const voxel = getEntityAtPosition(coord, scale);
-    const airEntity = world.registerEntity();
+    const airEntity = `${to64CharAddress("0x" + scale.toString())}:${world.registerEntity()}` as Entity;
 
     actions.add({
       id: `mine+${coord.x}/${coord.y}/${coord.z}` as Entity,

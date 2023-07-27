@@ -51,7 +51,7 @@ export function Dirt(state: TerrainState): VoxelTypeKey | undefined {
   const BEDROCK_Y = calculateParentCoord({ x: 0, y: BEDROCK_HEIGHT, z: 0 }, scale).y;
   const GRASS_Y = calculateParentCoord({ x: 0, y: GRASS_HEIGHT, z: 0 }, scale).y;
 
-  if (y > GRASS_Y && y < BEDROCK_Y)
+  if (y > BEDROCK_Y && y < GRASS_Y)
     return {
       voxelBaseTypeId: DIRT_ID,
       voxelVariantTypeId: DIRT_ID,

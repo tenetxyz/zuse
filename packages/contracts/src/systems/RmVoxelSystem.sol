@@ -11,7 +11,7 @@ contract RmVoxelSystem is System {
     require(scales.length == voxels.length, "scales and voxels must be the same length");
     // for each voxel, require it to be owned by the _msgSender
     for (uint i = 0; i < voxels.length; i++) {
-      require(OwnedBy.get(scales[i], voxels[i]) == _msgSender(), "Voxel not owned by sender");
+      require(OwnedBy.get(scales[i], voxels[i]) == tx.origin, "Voxel not owned by sender");
       // delete the voxel
       // TODO: delete all values in relevant components as well
       OwnedBy.deleteRecord(scales[i], voxels[i]);
@@ -20,7 +20,7 @@ contract RmVoxelSystem is System {
   }
 
   function removeAllOwnedVoxels() public {
-    bytes32[][] memory entitiesOwnedBySender = getKeysWithValue(OwnedByTableId, OwnedBy.encode(_msgSender()));
+    bytes32[][] memory entitiesOwnedBySender = getKeysWithValue(OwnedByTableId, OwnedBy.encode(tx.origin));
     for (uint256 i = 0; i < entitiesOwnedBySender.length; i++) {
       bytes32[] memory entity = entitiesOwnedBySender[i];
       uint32 scale = uint32(uint256(entity[0]));

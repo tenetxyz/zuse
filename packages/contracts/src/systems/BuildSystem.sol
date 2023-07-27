@@ -18,7 +18,7 @@ import { enterWorld } from "@tenet-base-ca/src/Utils.sol";
 contract BuildSystem is System {
   function build(uint32 scale, bytes32 entity, VoxelCoord memory coord) public returns (bytes32) {
     // Require voxel to be owned by caller
-    require(OwnedBy.get(scale, entity) == _msgSender(), "voxel is not owned by player");
+    require(OwnedBy.get(scale, entity) == tx.origin, "voxel is not owned by player");
 
     VoxelTypeData memory voxelType = VoxelType.get(scale, entity);
     return buildVoxelType(voxelType.voxelTypeId, coord);

@@ -16,14 +16,22 @@ function calculateBlockDirection(
 ) pure returns (BlockDirection) {
   if (neighborCoord.x == centerCoord.x && neighborCoord.y == centerCoord.y && neighborCoord.z == centerCoord.z) {
     return BlockDirection.None;
-  } else if (neighborCoord.y > centerCoord.y) {
-    return BlockDirection.Up;
-  } else if (neighborCoord.y < centerCoord.y) {
-    return BlockDirection.Down;
   } else if (neighborCoord.z > centerCoord.z) {
-    return BlockDirection.North;
+    if (neighborCoord.x > centerCoord.x) {
+      return BlockDirection.NorthEast;
+    } else if (neighborCoord.x < centerCoord.x) {
+      return BlockDirection.NorthWest;
+    } else {
+      return BlockDirection.North;
+    }
   } else if (neighborCoord.z < centerCoord.z) {
-    return BlockDirection.South;
+    if (neighborCoord.x > centerCoord.x) {
+      return BlockDirection.SouthEast;
+    } else if (neighborCoord.x < centerCoord.x) {
+      return BlockDirection.SouthWest;
+    } else {
+      return BlockDirection.South;
+    }
   } else if (neighborCoord.x > centerCoord.x) {
     return BlockDirection.East;
   } else if (neighborCoord.x < centerCoord.x) {

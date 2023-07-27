@@ -13,25 +13,38 @@ import { runInteraction } from "@tenet-base-ca/src/CallUtils.sol";
 
 contract CASystem is System {
   function calculateNeighbourEntities(uint32 scale, bytes32 centerEntity) public view returns (bytes32[] memory) {
-    int8[18] memory NEIGHBOUR_COORD_OFFSETS = [
+    int8[NUM_VOXEL_NEIGHBOURS * 3] memory NEIGHBOUR_COORD_OFFSETS = [
       int8(0),
       int8(0),
       int8(1),
+      // ----
       int8(0),
       int8(0),
       int8(-1),
+      // ----
       int8(1),
       int8(0),
       int8(0),
+      // ----
       int8(-1),
       int8(0),
       int8(0),
-      int8(0),
+      // ----
       int8(1),
       int8(0),
+      int8(1),
+      // ----
+      int8(1),
       int8(0),
       int8(-1),
-      int8(0)
+      // ----
+      int8(-1),
+      int8(0),
+      int8(1),
+      // ----
+      int8(-1),
+      int8(0),
+      int8(-1)
     ];
 
     bytes32[] memory centerNeighbourEntities = new bytes32[](NUM_VOXEL_NEIGHBOURS);

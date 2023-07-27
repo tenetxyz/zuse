@@ -12,7 +12,7 @@ string constant GIFT_VOXEL_SIG = "giftVoxel(bytes16,bytes32)";
 string constant RM_ALL_OWNED_VOXELS_SIG = "removeAllOwnedVoxels()";
 
 // A block has six neighbours
-uint256 constant NUM_VOXEL_NEIGHBOURS = 6;
+uint256 constant NUM_VOXEL_NEIGHBOURS = 8;
 uint256 constant MAX_VOXEL_NEIGHBOUR_UPDATE_DEPTH = 100;
 
 int32 constant CHUNK_MAX_Y = 255;

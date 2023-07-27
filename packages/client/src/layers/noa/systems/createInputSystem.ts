@@ -17,7 +17,6 @@ import { calculateChildCoords, calculateParentCoord, getWorldScale, voxelCoordTo
 import { renderFloatingTextAboveCoord } from "./renderFloatingText";
 import { InterfaceVoxel } from "../types";
 import { World } from "noa-engine/dist/src/lib/world";
-import { setScale } from "./createScaleManager";
 
 export function createInputSystem(layers: Layers) {
   const {
@@ -66,8 +65,6 @@ export function createInputSystem(layers: Layers) {
     preteleport: "KeyP",
     "spawn-creation": "Enter",
     crouch: "ShiftLeft",
-    zoomout: "KeyK",
-    zoomin: "KeyJ",
   };
 
   type InputEventKey = keyof typeof InputEvent;
@@ -496,24 +493,4 @@ export function createInputSystem(layers: Layers) {
   // We are not doing anything when crouching in this file because noa's movement
   // component reads the crouch event and uses it to descend when flying
   // onDownInputEvent("crouch", () => {});
-
-  bindInputEvent("zoomout");
-  onDownInputEvent("zoomout", () => {
-    setScale(layers, +1);
-    const preTeleportPosition = playerPosition$.getValue();
-    if (preTeleportPosition) {
-      const newPosition = calculateParentCoord(preTeleportPosition, getWorldScale(noa));
-      newPosition.y += 1;
-      teleport(newPosition);
-    }
-  });
-  bindInputEvent("zoomin");
-  onDownInputEvent("zoomin", () => {
-    setScale(layers, -1);
-    const preTeleportPosition = playerPosition$.getValue();
-    if (preTeleportPosition) {
-      const newPosition = calculateChildCoords(getWorldScale(noa) + 1, preTeleportPosition)[0];
-      teleport(newPosition);
-    }
-  });
 }

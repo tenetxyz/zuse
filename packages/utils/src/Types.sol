@@ -19,10 +19,12 @@ struct Tuple {
 
 enum BlockDirection {
   None,
-  Up,
-  Down,
   North,
   South,
   East,
-  West
+  West,
+  NorthEast,
+  NorthWest,
+  SouthEast,
+  SouthWest
 }

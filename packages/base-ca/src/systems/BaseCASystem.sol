@@ -5,9 +5,10 @@ import { IWorld } from "@base-ca/src/codegen/world/IWorld.sol";
 import { System } from "@latticexyz/world/src/System.sol";
 import { getKeysWithValue } from "@latticexyz/world/src/modules/keyswithvalue/getKeysWithValue.sol";
 import { hasKey } from "@latticexyz/world/src/modules/keysintable/hasKey.sol";
-import { CAVoxelType, CAPosition, CAPositionData, CAPositionTableId } from "@base-ca/src/codegen/Tables.sol";
+import { CAVoxelType, CAPosition, CAPositionData, CAPositionTableId, ElectronTunnelSpot, ElectronTunnelSpotTableId } from "@base-ca/src/codegen/Tables.sol";
 import { VoxelCoord } from "@tenet-utils/src/Types.sol";
 import { EMPTY_ID, AirVoxelID, AirVoxelVariantID, DirtVoxelID, BedrockVoxelID, DirtVoxelVariantID, GrassVoxelID, GrassVoxelVariantID, BedrockVoxelVariantID } from "@base-ca/src/Constants.sol";
+import { getEntityAtCoord } from "@base-ca/src/Utils.sol";
 
 contract BaseCASystem is System {
   function isVoxelTypeAllowed(bytes32 voxelTypeId) public pure returns (bool) {
@@ -50,6 +51,27 @@ contract BaseCASystem is System {
       CAPosition.set(callerAddress, entity, CAPositionData({ x: coord.x, y: coord.y, z: coord.z }));
     }
 
+    if (voxelTypeId == BedrockVoxelID) {
+      // TODO: move to ElectronSystem
+      // Check one above
+      CAPositionData memory aboveCoord = CAPositionData(coord.x, coord.y, coord.z + 1);
+      bytes32 aboveEntity = getEntityAtCoord(callerAddress, aboveCoord);
+      if (aboveEntity != 0) {
+        if (hasKey(ElectronTunnelSpotTableId, ElectronTunnelSpot.encodeKeyTuple(callerAddress, aboveEntity))) {
+          if (ElectronTunnelSpot.get(callerAddress, aboveEntity)) {
+            ElectronTunnelSpot.set(callerAddress, aboveEntity, false);
+            ElectronTunnelSpot.set(callerAddress, entity, false);
+          } else {
+            ElectronTunnelSpot.set(callerAddress, entity, true);
+          }
+        }
+      } else {
+        if (!hasKey(ElectronTunnelSpotTableId, ElectronTunnelSpot.encodeKeyTuple(callerAddress, entity))) {
+          ElectronTunnelSpot.set(callerAddress, entity, true);
+        }
+      }
+    }
+
     bytes32 voxelVariantId = getVoxelVariant(voxelTypeId, entity);
     CAVoxelType.set(callerAddress, entity, voxelTypeId, voxelVariantId);
   }
@@ -81,6 +103,8 @@ contract BaseCASystem is System {
     // set to Air
     bytes32 airVoxelVariantId = getVoxelVariant(AirVoxelID, entity);
     CAVoxelType.set(callerAddress, entity, AirVoxelID, airVoxelVariantId);
+
+    // TODO: need to remove entities from ElectronTunnelSpot
   }
 
   function runInteraction(
@@ -89,9 +113,20 @@ contract BaseCASystem is System {
     bytes32[] memory childEntityIds,
     bytes32 parentEntity
   ) public returns (bytes32[] memory changedEntities) {
-    // loop over all neighbours and run interaction logic
-    // the interaction's used will can be in different namespaces
-    // can change type at position
-    // keep looping until no more type and position changes
+    address callerAddress = _msgSender();
+
+    changedEntities = new bytes32[](neighbourEntityIds.length + 1);
+
+    (bytes32 changedCenterEntityId, bytes32[] memory changedNeighbourEntityIds) = IWorld(_world()).electronEventHandler(
+      callerAddress,
+      interactEntity,
+      neighbourEntityIds
+    );
+    changedEntities[0] = changedCenterEntityId;
+    for (uint256 i = 0; i < changedNeighbourEntityIds.length; i++) {
+      changedEntities[i + 1] = changedNeighbourEntityIds[i];
+    }
+
+    return changedNeighbourEntityIds;
   }
 }

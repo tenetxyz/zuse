@@ -16,7 +16,7 @@ import { addressToEntityKey } from "@tenet-utils/src/Utils.sol";
 import { removeEntityFromArray } from "@tenet-utils/src/Utils.sol";
 import { Utils } from "@latticexyz/world/src/Utils.sol";
 import { CHUNK_MAX_Y, CHUNK_MIN_Y } from "../Constants.sol";
-import { exitWorld } from "@tenet-base-ca/src/Utils.sol";
+import { exitWorld } from "@tenet-base-ca/src/CallUtils.sol";
 
 contract MineSystem is System {
   function mine(bytes32 voxelTypeId, VoxelCoord memory coord) public returns (bytes32) {

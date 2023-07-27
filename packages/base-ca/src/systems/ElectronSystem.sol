@@ -18,7 +18,8 @@ contract ElectronSystem is VoxelInteraction {
     bytes32 neighbourEntityId,
     BlockDirection neighbourBlockDirection
   ) internal override returns (bool changedEntity) {
-    return entityShouldInteract(callerAddress, neighbourEntityId);
+    // return entityShouldInteract(callerAddress, neighbourEntityId);
+    return false;
   }
 
   function calculateReplusionForce(

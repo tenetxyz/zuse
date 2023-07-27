@@ -52,6 +52,7 @@ contract BaseCASystem is System {
     }
 
     if (voxelTypeId == BedrockVoxelID) {
+      // TODO: move to ElectronSystem
       // Check one above
       CAPositionData memory aboveCoord = CAPositionData(coord.x, coord.y, coord.z + 1);
       bytes32 aboveEntity = getEntityAtCoord(callerAddress, aboveCoord);

@@ -4,6 +4,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import * as BABYLON from "@babylonjs/core";
 import { disableInputs, enableInputs } from "../../noa/systems/createInputSystemHelpers";
 import { FocusedUiType } from "../../noa/components/FocusedUi";
+import { GRAVITY_MULTIPLIER } from "../../noa/constants";
 
 enum ZoomState {
   NOT_ZOOMING,
@@ -31,6 +32,8 @@ export function registerZoomOverlay() {
 
       useEffect(() => {
         zoomEvent$.subscribe((isZoomingIn) => {
+          const body = noa.entities.getPhysicsBody(noa.playerEntity)!;
+          body.gravityMultiplier = 0; // disable gravity, so it only resumes after the zooming animation finishes
           if (isZoomingIn) {
             setZoomState(ZoomState.ZOOMING_IN);
           } else {
@@ -42,6 +45,7 @@ export function registerZoomOverlay() {
           timeoutId.current = setTimeout(() => {
             setZoomState(ZoomState.NOT_ZOOMING);
             enableInputs(noa);
+            body.gravityMultiplier = GRAVITY_MULTIPLIER;
           }, ZOOM_DURATION_MS);
         });
         return () => {

@@ -3,7 +3,6 @@ import { registerTenetComponent } from "../engine/components/TenetComponentRende
 import { useComponentValue } from "@latticexyz/react";
 import { setComponent } from "@latticexyz/recs";
 import { FocusedUiType } from "../../noa/components/FocusedUi";
-import { useEffect } from "react";
 
 // This ui element is responsible for the dark backgroudn that appears when the user is in a UI
 // If the user clicks on the background, the user will be taken back to the world

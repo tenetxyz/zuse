@@ -48,7 +48,7 @@ export function registerPersistentSidebar() {
           },
           SingletonEntity,
           api: { teleport },
-          streams: { playerPosition$ },
+          streams: { playerPosition$, zoomEvent$ },
         },
       } = layers;
 
@@ -88,12 +88,14 @@ export function registerPersistentSidebar() {
       };
 
       const zoomIn = () => {
+        zoomEvent$.next(true);
         setScale(-1, (currentWorldScale) => {
           return calculateChildCoords(getWorldScale(noa) + 1, position!)[0];
         });
       };
 
       const zoomOut = () => {
+        zoomEvent$.next(false);
         setScale(+1, () => {
           const newPosition = calculateParentCoord(position!, getWorldScale(noa));
           newPosition.y += 1;

@@ -19,6 +19,41 @@ contract ElectronSystem is VoxelInteraction {
     return entityShouldInteract(callerAddress, neighbourEntityId);
   }
 
+  function calculateReplusionForce(
+    address callerAddress,
+    bytes32 interactEntity,
+    bytes32[] memory neighbourEntityIds,
+    BlockDirection[] memory neighbourEntityDirections
+  ) internal returns (uint256) {
+    // Need to check all neighbours and see if they are electrons
+    // First we check ones that are just close to us
+    uint256 replusionForce = 0;
+
+    for (uint8 i = 0; i < neighbourEntityIds.length; i++) {
+      bytes32 neighbourEntityId = neighbourEntityIds[i];
+      if (neighbourEntityId == 0) {
+        continue;
+      }
+      bytes32 neighbourEntityType = CAVoxelType.getVoxelTypeId(callerAddress, neighbourEntityId);
+      if (neighbourEntityType == BedrockVoxelID) {
+        require(neighbourEntityDirections[i] != BlockDirection.None, "ElectronSystem: Invalid direction");
+        if (
+          neighbourEntityDirections[i] == BlockDirection.North ||
+          neighbourEntityDirections[i] == BlockDirection.South ||
+          neighbourEntityDirections[i] == BlockDirection.East ||
+          neighbourEntityDirections[i] == BlockDirection.West
+        ) {
+          replusionForce += 5;
+        } else {
+          // it's a diagonal, so distance is smaller, so smaller force
+          replusionForce += 1;
+        }
+      }
+    }
+
+    return replusionForce;
+  }
+
   function runInteraction(
     address callerAddress,
     bytes32 interactEntity,

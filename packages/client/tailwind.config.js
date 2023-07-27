@@ -55,7 +55,7 @@ module.exports = {
         "accordion-down": "accordion-down 0.2s ease-out",
         "accordion-up": "accordion-up 0.2s ease-out",
         "fade-in": "fadeIn 500ms ease-in-out",
-        "fade-in-and-out": "fadeInAndOut 1500ms ease-in-out",
+        "fade-in-and-out": "fadeInAndOut 2000ms linear",
       },
       keyframes: {
         "accordion-down": {
@@ -72,7 +72,8 @@ module.exports = {
         },
         fadeInAndOut: {
           "0%": { opacity: 0 },
-          "50%": { opacity: 1 },
+          "10%": { opacity: 1 },
+          "90%": { opacity: 1 },
           "100%": { opacity: 0 },
         },
       },

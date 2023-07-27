@@ -4,7 +4,6 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import * as BABYLON from "@babylonjs/core";
 import { disableInputs, enableInputs } from "../../noa/systems/createInputSystemHelpers";
 import { FocusedUiType } from "../../noa/components/FocusedUi";
-import { GRAVITY_MULTIPLIER } from "../../noa/constants";
 
 enum ZoomState {
   NOT_ZOOMING,
@@ -28,12 +27,11 @@ export function registerZoomOverlay() {
 
       const [zoomState, setZoomState] = useState<ZoomState>(ZoomState.NOT_ZOOMING);
       const timeoutId = useRef<NodeJS.Timeout>();
-      const ZOOM_DURATION_MS = 1500;
+      const ZOOM_DURATION_MS = 2000;
 
       useEffect(() => {
         zoomEvent$.subscribe((isZoomingIn) => {
           const body = noa.entities.getPhysicsBody(noa.playerEntity)!;
-          body.gravityMultiplier = 0; // disable gravity, so it only resumes after the zooming animation finishes
           if (isZoomingIn) {
             setZoomState(ZoomState.ZOOMING_IN);
           } else {
@@ -45,7 +43,6 @@ export function registerZoomOverlay() {
           timeoutId.current = setTimeout(() => {
             setZoomState(ZoomState.NOT_ZOOMING);
             enableInputs(noa);
-            body.gravityMultiplier = GRAVITY_MULTIPLIER;
           }, ZOOM_DURATION_MS);
         });
         return () => {
@@ -64,7 +61,7 @@ export function registerZoomOverlay() {
           const engine = new BABYLON.Engine(canvas, true);
           const createScene = function () {
             var scene = new BABYLON.Scene(engine);
-            scene.clearColor = new BABYLON.Color4(0, 0, 0, 0.5); // opaque so it slowly dims the scene
+            scene.clearColor = new BABYLON.Color4(0, 0, 0, 1); // opaque so it slowly dims the scene
             var camera = new BABYLON.FreeCamera("camera1", new BABYLON.Vector3(0, 0, zoomZPos), scene);
             camera.setTarget(BABYLON.Vector3.Zero());
             const warpLines: BABYLON.Mesh[] = [];

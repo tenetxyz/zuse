@@ -76,15 +76,16 @@ export function getVoxelAtPosition(
   coord: VoxelCoord,
   scale: number
 ): VoxelTypeKey {
-  return getEcsVoxelType(context, coord, scale) ?? getTerrainVoxel(getTerrain(coord, perlin), coord, perlin);
+  return getEcsVoxelType(context, coord, scale) ?? getTerrainVoxel(getTerrain(coord, perlin), coord, perlin, scale);
 }
 
 export function getTerrainVoxel(
   { biome: biomeVector, height }: Terrain,
   coord: VoxelCoord,
-  perlin: Perlin
+  perlin: Perlin,
+  scale: number
 ): VoxelTypeKey {
-  const state: TerrainState = { biomeVector, height, coord, perlin };
+  const state: TerrainState = { biomeVector, height, coord, perlin, scale };
   return (
     Bedrock(state) ||
     Air(state) ||

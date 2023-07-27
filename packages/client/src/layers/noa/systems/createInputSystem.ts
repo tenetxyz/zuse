@@ -13,7 +13,7 @@ import { DEFAULT_BLOCK_TEST_DISTANCE } from "../setup/setupNoaEngine";
 import { calculateCornersFromTargetedBlock } from "./createSpawnCreationOverlaySystem";
 import { FocusedUiType } from "../components/FocusedUi";
 import { Layers } from "../../../types";
-import { voxelCoordToString } from "../../../utils/coord";
+import { calculateChildCoords, calculateParentCoord, getWorldScale, voxelCoordToString } from "../../../utils/coord";
 import { renderFloatingTextAboveCoord } from "./renderFloatingText";
 import { InterfaceVoxel } from "../types";
 import { World } from "noa-engine/dist/src/lib/world";
@@ -500,9 +500,20 @@ export function createInputSystem(layers: Layers) {
   bindInputEvent("zoomout");
   onDownInputEvent("zoomout", () => {
     setScale(layers, +1);
+    const preTeleportPosition = playerPosition$.getValue();
+    if (preTeleportPosition) {
+      const newPosition = calculateParentCoord(preTeleportPosition, getWorldScale(noa));
+      newPosition.y += 1;
+      teleport(newPosition);
+    }
   });
   bindInputEvent("zoomin");
   onDownInputEvent("zoomin", () => {
     setScale(layers, -1);
+    const preTeleportPosition = playerPosition$.getValue();
+    if (preTeleportPosition) {
+      const newPosition = calculateChildCoords(getWorldScale(noa) + 1, preTeleportPosition)[0];
+      teleport(newPosition);
+    }
   });
 }

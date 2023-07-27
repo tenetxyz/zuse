@@ -144,11 +144,14 @@ export function setupNoaEngine(network: NetworkLayer) {
           if (noaBlockIdx !== undefined) {
             data.set(i, j, k, noaBlockIdx);
           } else {
-            const terrainVoxelType = getTerrainVoxelTypeAtPosition({
-              x: x + i,
-              y: y + j,
-              z: z + k,
-            });
+            const terrainVoxelType = getTerrainVoxelTypeAtPosition(
+              {
+                x: x + i,
+                y: y + j,
+                z: z + k,
+              },
+              worldScale
+            );
             const voxelTypeIndex = VoxelVariantIdToDef.get(terrainVoxelType.voxelVariantTypeId)?.noaBlockIdx;
             data.set(i, j, k, voxelTypeIndex);
           }

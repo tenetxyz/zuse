@@ -95,3 +95,30 @@ export const decodeCoord = (encodedCoord: string): VoxelCoord => {
 export const getWorldScale = (noa: Engine): number => {
   return parseInt(noa.worldName);
 };
+
+export function calculateChildCoords(scale: number, parentCoord: VoxelCoord): VoxelCoord[] {
+  const childCoords: VoxelCoord[] = new Array<VoxelCoord>(scale * scale * scale);
+  let index = 0;
+  for (let dz = 0; dz < scale; dz++) {
+    for (let dy = 0; dy < scale; dy++) {
+      for (let dx = 0; dx < scale; dx++) {
+        childCoords[index] = {
+          x: parentCoord.x * scale + dx,
+          y: parentCoord.y * scale + dy,
+          z: parentCoord.z * scale + dz,
+        };
+        index++;
+      }
+    }
+  }
+  return childCoords;
+}
+
+export function calculateParentCoord(childCoord: VoxelCoord, scale: number): VoxelCoord {
+  const parentCoord: VoxelCoord = {
+    x: Math.floor(childCoord.x / scale),
+    y: Math.floor(childCoord.y / scale),
+    z: Math.floor(childCoord.z / scale),
+  };
+  return parentCoord;
+}

@@ -153,7 +153,7 @@ export function createSoundSystem(network: NetworkLayer, context: NoaLayer) {
         // const isOptimisticUpdate = world.entities[update.entity] == (update.entity as unknown);
         const isOptimisticUpdate = update.entity == (update.entity as unknown);
         if (!isOptimisticUpdate) return;
-        voxelBaseTypeId = getTerrainVoxelTypeAtPosition(position).voxelBaseTypeId;
+        voxelBaseTypeId = getTerrainVoxelTypeAtPosition(position, getWorldScale(noa)).voxelBaseTypeId;
         updateType = UpdateType.Exit;
       }
 

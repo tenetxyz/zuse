@@ -8,7 +8,7 @@ import { NetworkLayer } from "../../network";
 import { NoaBlockType, VoxelBaseTypeId, VoxelVariantTypeId } from "../types";
 import { createVoxelMesh } from "./utils";
 import { setupScene } from "../engine/setupScene";
-import { CHUNK_RENDER_DISTANCE, CHUNK_SIZE, MIN_HEIGHT, SKY_COLOR } from "./constants";
+import { CHUNK_RENDER_DISTANCE, CHUNK_SIZE, MIN_HEIGHT, SKY_PLANE_COLOR } from "./constants";
 import { VoxelVariantNoaDef } from "../types";
 import { AIR_ID } from "../../network/api/terrain/occurrence";
 import MovementComponent, { MOVEMENT_COMPONENT_NAME } from "../components/MovementComponent";
@@ -27,7 +27,7 @@ export function setupNoaEngine(network: NetworkLayer) {
   const noaOptions = {
     debug: false,
     // TODO: log this FPS data to a metrics service
-    showFPS: true, // how to read FPS: https://github.com/fenomas/noa/blob/bd74cd8add3abf216b53a995139276af665b1d52/src/lib/rendering.js#LL611C13-L611C22
+    // showFPS: true, // how to read FPS: https://github.com/fenomas/noa/blob/bd74cd8add3abf216b53a995139276af665b1d52/src/lib/rendering.js#LL611C13-L611C22
     // The top number is the average FPS, the bottom is the WORSE fps experienced so far
     inverseY: false,
     inverseX: false,
@@ -40,11 +40,14 @@ export function setupNoaEngine(network: NetworkLayer) {
     playerHeight: 1.85,
     playerWidth: 0.6,
     playerAutoStep: 1,
-    clearColor: SKY_COLOR,
     useAO: true,
     AOmultipliers: [0.93, 0.8, 0.5],
     reverseAOmultiplier: 1.0,
     preserveDrawingBuffer: true,
+    ambientColor: [0.7, 0.7, 0.7], // affects how dark the side of the block away from the light source is
+    lightDiffuse: [1, 1, 1],
+    lightSpecular: [1, 1, 1],
+    groundLightColor: [1, 1, 1],
   };
 
   // Hack Babylon in order to have a -1 rendering group for the sky (to be always drawn behind everything else)
@@ -54,6 +57,9 @@ export function setupNoaEngine(network: NetworkLayer) {
   noa.worldName = "1";
   const scene = noa.rendering.getScene();
   noa.world.worldGenWhilePaused = false;
+
+  // from https://github.com/VoxelSrv/voxelsrv/blob/6e1c07b9c66ee07f4317e8c2867fd1d8f1653484/src/gui/menu/settings.ts#L50
+  noa.rendering.getScene().cameras[0].fov = (49 * Math.PI) / 180;
 
   // Make player float before world is loaded
   const body = noa.ents.getPhysics(1)?.body;
@@ -160,7 +166,6 @@ export function setupNoaEngine(network: NetworkLayer) {
     }
     noa.world.setChunkData(id, data, undefined);
   });
-
   const { glow } = setupScene(noa);
 
   // Change voxel targeting mechanism

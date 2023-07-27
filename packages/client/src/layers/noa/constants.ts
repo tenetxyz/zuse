@@ -17,15 +17,15 @@ export function getNftStorageLink(hash: string) {
 }
 
 export const Textures = {
-  Grass: getNftStorageLink("bafkreifmvm3yxzbkzcb2r7m6gavjhe22n4p3o36lz2ypkgf5v6i6zzhv4a"),
-  GrassSide: getNftStorageLink("bafkreibp5wefex2cunqz5ffwt3ucw776qthwl6y6pswr2j2zuzldrv6bqa"),
-  Dirt: getNftStorageLink("bafkreibzraiuk6hgngtfczn57sivuqf3nv77twi6g3ftas2umjnbf6jefe"),
+  Grass: getNftStorageLink("bafkreidtk7vevmnzt6is5dreyoocjkyy56bk66zbm5bx6wzck73iogdl6e"),
+  GrassSide: getNftStorageLink("bafkreien7wqwfkckd56rehamo2riwwy5jvecm5he6dmbw2lucvh3n4w6ue"),
+  Dirt: getNftStorageLink("bafkreihy3pblhqaqquwttcykwlyey3umpou57rkvtncpdrjo7mlgna53g4"),
   Bedrock: getNftStorageLink("bafkreidfo756faklwx7o4q2753rxjqx6egzpmqh2zhylxaehqalvws555a"),
 };
 
 export const UVWraps = {
   Air: undefined,
-  Grass: getNftStorageLink("bafkreihaagdyqnbie3eyx6upmoul2zb4qakubxg6bcha6k5ebp4fbsd3am"),
-  Dirt: getNftStorageLink("bafkreifbshwckn4pgw5ew2obz3i74eujzpcomatus5gu2tk7mms373gqme"),
+  Grass: getNftStorageLink("bafkreiaur4pmmnh3dts6rjtfl5f2z6ykazyuu4e2cbno6drslfelkga3yy"),
+  Dirt: getNftStorageLink("bafkreifsrs64rckwnfkwcyqkzpdo3tpa2at7jhe6bw7jhevkxa7estkdnm"),
   Bedrock: getNftStorageLink("bafkreihdit6glam7sreijo7itbs7uwc2ltfeuvcfaublxf6rjo24hf6t4y"),
 };

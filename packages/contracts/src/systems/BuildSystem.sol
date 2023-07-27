@@ -10,7 +10,7 @@ import { REGISTRY_ADDRESS } from "@tenet-contracts/src/Constants.sol";
 import { CARegistry } from "@tenet-registry/src/codegen/tables/CARegistry.sol";
 import { CAConfig, OwnedBy, Position, PositionTableId, VoxelType, VoxelTypeData } from "@tenet-contracts/src/codegen/Tables.sol";
 import { CAVoxelType, CAVoxelTypeData } from "@tenet-base-ca/src/codegen/tables/CAVoxelType.sol";
-import { calculateChildCoords } from "../Utils.sol";
+import { calculateChildCoords, getEntityAtCoord } from "../Utils.sol";
 import { getUniqueEntity } from "@latticexyz/world/src/modules/uniqueentity/getUniqueEntity.sol";
 import { addressToEntityKey } from "@tenet-utils/src/Utils.sol";
 import { enterWorld } from "@tenet-base-ca/src/Utils.sol";
@@ -44,20 +44,22 @@ contract BuildSystem is System {
     }
 
     // After we've built all the child types, we can build the parent type
-    bytes32 newEntity = getUniqueEntity();
+    bytes32 voxelToBuild = getEntityAtCoord(scale, coord);
+    if (voxelToBuild == 0) {
+      voxelToBuild = getUniqueEntity();
+      // Set Position
+      Position.set(scale, voxelToBuild, coord.x, coord.y, coord.z);
+    }
 
     // Enter World
-    enterWorld(caAddress, voxelTypeId, coord, newEntity);
-
-    // Set Position
-    Position.set(scale, newEntity, coord.x, coord.y, coord.z);
+    enterWorld(caAddress, voxelTypeId, coord, voxelToBuild);
 
     // Set initial voxel type
-    CAVoxelTypeData memory entityCAVoxelType = CAVoxelType.get(IStore(caAddress), _world(), newEntity);
-    VoxelType.set(scale, newEntity, entityCAVoxelType.voxelTypeId, entityCAVoxelType.voxelVariantId);
+    CAVoxelTypeData memory entityCAVoxelType = CAVoxelType.get(IStore(caAddress), _world(), voxelToBuild);
+    VoxelType.set(scale, voxelToBuild, entityCAVoxelType.voxelTypeId, entityCAVoxelType.voxelVariantId);
 
-    IWorld(_world()).runCA(caAddress, scale, newEntity);
+    IWorld(_world()).runCA(caAddress, scale, voxelToBuild);
 
-    return newEntity;
+    return voxelToBuild;
   }
 }

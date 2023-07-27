@@ -55,7 +55,7 @@ module.exports = {
         "accordion-down": "accordion-down 0.2s ease-out",
         "accordion-up": "accordion-up 0.2s ease-out",
         "fade-in": "fadeIn 500ms ease-in-out",
-        "fade-in-and-out": "fadeInAndOut 2000ms linear",
+        "fade-in-and-out": "fadeInAndOut 2000ms linear", // Used by the zooming animation
       },
       keyframes: {
         "accordion-down": {

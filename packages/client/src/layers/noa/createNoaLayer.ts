@@ -374,7 +374,7 @@ export function createNoaLayer(network: NetworkLayer) {
   const playerChunk$ = new BehaviorSubject(getCurrentChunk());
   world.registerDisposer(playerPosition$.pipe(map((pos) => getChunkCoord(pos))).subscribe(playerChunk$)?.unsubscribe);
 
-  const zoomEvent$ = new Subject<boolean>();
+  const zoomEvent$ = new Subject<boolean>(); // When the user presses the sidebar, this stream tells the zoom overlay to trigger. True if we're zooming in, false if we're zooming out.
 
   // const stakeAndClaim$ = new BehaviorSubject(getStakeAndClaim(getCurrentChunk()));
   // world.registerDisposer(

@@ -238,7 +238,6 @@ export function registerInventoryHud() {
             onRightClick={() => removeVoxelType(i)}
             disabled={voxelTypeId === holdingVoxelType}
             selected={i === selectedSlot}
-            tooltipText={"todo: update"}
           />
         );
       });
@@ -260,7 +259,7 @@ export function registerInventoryHud() {
       const InventoryWrapper = (
         <Absolute>
           <Center>
-            <AbsoluteBorder borderColor={"#999999"} borderWidth={3}>
+            <AbsoluteBorder borderColor="transparent" borderWidth={0}>
               <InventoryContainer>
                 <Inventory
                   layers={layers}
@@ -287,18 +286,83 @@ export function registerInventoryHud() {
   );
 }
 
+// const InventoryContainer = styled.div`
+//   width: 100%;
+//   background-color: lightgray;
+//   display: grid;
+//   grid-template-columns: repeat(2, auto);
+//   justify-content: center;
+//   align-items: center;
+//   grid-gap: 10px;
+//   padding: 20px;
+//   z-index: 11;
+//   pointer-events: all;
+// `;
+
+// export const ActionBarWrapper = styled.div`
+//   background-color: rgb(0 0 0 / 40%);
+//   display: grid;
+//   grid-template-columns: repeat(9, 1fr);
+//   align-items: center;
+//   pointer-events: all;
+//   border: 5px lightgray solid;
+//   z-index: 10;
+//   position: relative;
+// `;
+
+const BottomBar = styled.div`
+  display: grid;
+  align-items: end;
+  justify-content: space-between;
+  grid-template-columns: 1fr auto 1fr;
+  width: 100%;
+  padding-bottom: 20px;
+  position: relative;
+`;
+
+
+
+
 const InventoryContainer = styled.div`
   width: 100%;
-  background-color: lightgray;
+  background-color: #ffffff12;
+  border: 1px solid #C9CACB;
   display: grid;
   grid-template-columns: repeat(2, auto);
   justify-content: center;
   align-items: center;
-  grid-gap: 10px;
-  padding: 20px;
+  grid-gap: 5px;
+  padding: 12px;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.05);
   z-index: 11;
   pointer-events: all;
+  transition: box-shadow 0.3s ease;
+  &:hover {
+    box-shadow: 0 6px 10px 0 rgba(0, 0, 0, 0.1);
+  }
 `;
+
+export const ActionBarWrapper = styled.div`
+  //background: linear-gradient(90deg, #f0f0f0 0%, #e0e0e0 50%, #f0f0f0 100%);
+  display: grid;
+  grid-template-columns: repeat(9, 1fr);
+  align-items: center;
+  pointer-events: all;
+
+  z-index: 10;
+  position: relative;
+  transition: box-shadow 0.3s ease, transform 0.3s ease;
+  & > div:hover {
+    transform: scale(1.05);
+  }
+`;
+
+
+
+
+
+
 
 const PixelatedImage = styled.img`
   image-rendering: pixelated;
@@ -320,27 +384,6 @@ const LogoContainer = styled.div`
   display: grid;
   justify-items: end;
   padding: 0 20px;
-`;
-
-export const ActionBarWrapper = styled.div`
-  background-color: rgb(0 0 0 / 40%);
-  display: grid;
-  grid-template-columns: repeat(9, 1fr);
-  align-items: center;
-  pointer-events: all;
-  border: 5px lightgray solid;
-  z-index: 10;
-  position: relative;
-`;
-
-const BottomBar = styled.div`
-  display: grid;
-  align-items: end;
-  justify-content: space-between;
-  grid-template-columns: 1fr auto 1fr;
-  width: 100%;
-  padding-bottom: 20px;
-  position: relative;
 `;
 
 const Wrapper = styled(Center)`

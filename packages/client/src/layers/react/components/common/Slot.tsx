@@ -17,14 +17,15 @@ export const Slot: React.FC<{
   slotSize?: string;
 }> = ({ voxelType, quantity, onClick, onRightClick, selected, disabled, iconUrl, tooltipText, slotSize }) => {
   return (
-    <AbsoluteBorder borderColor={selected ? "#ffffff" : "transparent"} borderWidth={6}>
+    <AbsoluteBorder borderColor={"transparent"} borderWidth={2}>
       <TooltipContainer>
-        <Border borderColor={"#b1b1b1"}>
-          <Border borderColor={"#797979"}>
-            <Border borderColor={"rgb(0 0 0 / 10%)"}>
+        {/* <Border borderColor={"transparent"}>
+          <Border borderColor={"transparent"}> */}
+            <Border borderColor={"transparent"}>
               <Inner
                 onClick={onClick}
-                disabled={disabled}
+                disabled={false}
+                selected={selected}
                 onContextMenu={(event: React.MouseEvent<HTMLDivElement>) => {
                   event.preventDefault(); // Prevent the default browser context menu from showing up
                   onRightClick && onRightClick();
@@ -38,23 +39,37 @@ export const Slot: React.FC<{
                 ) : null}
               </Inner>
             </Border>
-          </Border>
-        </Border>
+          {/* </Border>
+        </Border> */}
         {tooltipText !== undefined && <TooltipText>{tooltipText}</TooltipText>}
       </TooltipContainer>
     </AbsoluteBorder>
   );
 };
 
-const Inner = styled.div<{ disabled?: boolean; slotSize: string }>`
+const Inner = styled.div<{ disabled?: boolean; slotSize: string; selected?: boolean }>`
   width: ${(p) => p.slotSize};
   height: ${(p) => p.slotSize};
+  overflow: hidden;
   display: grid;
-  justify-items: center;
-  align-items: center;
+  justify-content: center;
+  align-content: center;
   font-size: 20px;
   opacity: ${(p) => (p.disabled ? 0.5 : 1)};
+  border: 2px solid #374147;
+  background-color: rgba(36, 42, 47, 0.8);
+  border-radius: 4px;
+  transition: box-shadow 0.3s ease;
+  box-shadow: ${(p) => p.selected ? 'rgb(55 65 71) 0px 0px 10px 3px' : 'none'};
+  &:hover {
+    box-shadow: 0 2px 5px 0 rgba(0, 0, 0, 0.1);
+  }
 `;
+
+
+
+
+
 
 const Quantity = styled.div`
   width: 100%;
@@ -62,7 +77,7 @@ const Quantity = styled.div`
   display: grid;
   justify-content: end;
   align-content: end;
-  padding: 7px 3px;
+  padding: 8px 6px;
   user-select: none;
 `;
 
@@ -101,7 +116,7 @@ const TooltipText = styled.div`
 const TooltipContainer = styled.div`
   position: relative;
   display: inline-block;
-  border-bottom: 1px dotted black;
+  // border-bottom: 1px dotted black;
 
   &:hover ${TooltipText} {
     visibility: visible;

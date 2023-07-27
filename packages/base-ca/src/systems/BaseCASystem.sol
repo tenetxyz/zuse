@@ -89,9 +89,15 @@ contract BaseCASystem is System {
     bytes32[] memory childEntityIds,
     bytes32 parentEntity
   ) public returns (bytes32[] memory changedEntities) {
-    // loop over all neighbours and run interaction logic
-    // the interaction's used will can be in different namespaces
-    // can change type at position
-    // keep looping until no more type and position changes
+    address callerAddress = _msgSender();
+
+    (bytes32 changedCenterEntityId, bytes32[] memory changedNeighbourEntityIds) = IWorld(_world()).electronEventHandler(
+      callerAddress,
+      interactEntity,
+      neighbourEntityIds
+    );
+
+    // TODO: Fix return value
+    return changedNeighbourEntityIds;
   }
 }

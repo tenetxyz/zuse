@@ -2,6 +2,8 @@ import styled from "styled-components";
 import { registerTenetComponent } from "../engine/components/TenetComponentRenderer";
 import { useCallback, useEffect, useRef, useState } from "react";
 import * as BABYLON from "@babylonjs/core";
+import { disableInputs, enableInputs } from "../../noa/systems/createInputSystemHelpers";
+import { FocusedUiType } from "../../noa/components/FocusedUi";
 
 enum ZoomState {
   NOT_ZOOMING,
@@ -18,6 +20,7 @@ export function registerZoomOverlay() {
     Component: ({ layers }) => {
       const {
         noa: {
+          noa,
           streams: { zoomEvent$ },
         },
       } = layers;
@@ -33,10 +36,12 @@ export function registerZoomOverlay() {
           } else {
             setZoomState(ZoomState.ZOOMING_OUT);
           }
+          disableInputs(noa, FocusedUiType.WORLD);
 
           clearTimeout(timeoutId.current); // stop any existing zoom animation
           timeoutId.current = setTimeout(() => {
             setZoomState(ZoomState.NOT_ZOOMING);
+            enableInputs(noa);
           }, ZOOM_DURATION_MS);
         });
         return () => {
@@ -50,15 +55,17 @@ export function registerZoomOverlay() {
           if (!canvas) {
             return;
           }
-          var engine = new BABYLON.Engine(canvas, true);
-          var createScene = function () {
+          const isZoomingIn = zoomState === ZoomState.ZOOMING_IN;
+          const zoomZPos = isZoomingIn ? -5 : 450;
+          const engine = new BABYLON.Engine(canvas, true);
+          const createScene = function () {
             var scene = new BABYLON.Scene(engine);
             scene.clearColor = new BABYLON.Color4(0, 0, 0, 0.5);
-            var camera = new BABYLON.FreeCamera("camera1", new BABYLON.Vector3(0, 0, -5), scene);
+            var camera = new BABYLON.FreeCamera("camera1", new BABYLON.Vector3(0, 0, zoomZPos), scene);
             camera.setTarget(BABYLON.Vector3.Zero());
             const warpLines: BABYLON.Mesh[] = [];
             for (var z = -1000; z < 1000; z += 20) {
-              var line = BABYLON.MeshBuilder.CreateCylinder(
+              const line = BABYLON.MeshBuilder.CreateCylinder(
                 "cylinder",
                 { height: 1, diameterTop: 4, diameterBottom: 4, tessellation: 32 },
                 scene
@@ -73,23 +80,13 @@ export function registerZoomOverlay() {
               warpLines.push(line);
             }
 
-            if (zoomState === ZoomState.ZOOMING_IN) {
-              scene.beforeRender = function () {
-                for (var i = 0; i < warpLines.length; i++) {
-                  line = warpLines[i];
-                  line.position.z += i / 5; // Adjust divisor here for speed
-                  if (line.position.z > 1000) line.position.z -= 2000;
-                }
-              };
-            } else {
-              scene.beforeRender = function () {
-                for (var i = 0; i < warpLines.length; i++) {
-                  line = warpLines[i];
-                  line.position.z -= i / 5; // Adjust divisor here for speed
-                  if (line.position.z < -1000) line.position.z += 2000;
-                }
-              };
-            }
+            scene.beforeRender = function () {
+              for (let i = 0; i < warpLines.length; i++) {
+                const line = warpLines[i];
+                line.position.z += i / 5; // Adjust divisor here for speed
+                if (line.position.z > 1000) line.position.z -= 2000;
+              }
+            };
 
             return scene;
           };

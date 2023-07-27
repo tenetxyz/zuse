@@ -9,7 +9,7 @@ import { CAVoxelType, CAVoxelTypeData } from "@tenet-base-ca/src/codegen/tables/
 import { NUM_VOXEL_NEIGHBOURS, MAX_VOXEL_NEIGHBOUR_UPDATE_DEPTH } from "../Constants.sol";
 import { Position, PositionData, VoxelType, VoxelTypeData, VoxelInteractionExtension, VoxelInteractionExtensionTableId } from "@tenet-contracts/src/codegen/Tables.sol";
 import { getEntityAtCoord, calculateChildCoords, calculateParentCoord } from "../Utils.sol";
-import { runInteraction } from "@tenet-base-ca/src/Utils.sol";
+import { runInteraction } from "@tenet-base-ca/src/CallUtils.sol";
 
 contract CASystem is System {
   int8[18] private NEIGHBOUR_COORD_OFFSETS = [

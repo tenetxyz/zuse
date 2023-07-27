@@ -141,7 +141,7 @@ export function createInputSystem(layers: Layers) {
   // If the user is in a UI (e.g. inventory), disable inputs that could conflict with typing into the UI
   // otherwise, enable the inputs
   FocusedUi.update$.subscribe((update) => {
-    const focusedUiType = update.value[0].value;
+    const focusedUiType = update.value[0]?.value ?? FocusedUiType.WORLD; // Assume the user is focuesed on the world if focusedUiType is undefined
     if (focusedUiType === FocusedUiType.WORLD) {
       enableInputs();
       noa.container.setPointerLock(true);

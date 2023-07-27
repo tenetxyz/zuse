@@ -84,18 +84,18 @@ export function registerPersistentSidebar() {
         // noa automatically resets all chunks and reloads them when the worldName changes!
         noa.worldName = newWorldScale.toString();
 
+        const isZoomingIn = scaleDiff === -1;
+        zoomEvent$.next(isZoomingIn); // trigger zooming animation
         teleport(getNewPosition(currentWorldScale));
       };
 
       const zoomIn = () => {
-        zoomEvent$.next(true);
         setScale(-1, (currentWorldScale) => {
           return calculateChildCoords(getWorldScale(noa) + 1, position!)[0];
         });
       };
 
       const zoomOut = () => {
-        zoomEvent$.next(false);
         setScale(+1, () => {
           const newPosition = calculateParentCoord(position!, getWorldScale(noa));
           newPosition.y += 1;

@@ -8,7 +8,7 @@ import { hasKey } from "@latticexyz/world/src/modules/keysintable/hasKey.sol";
 import { CAVoxelType, CAPosition, CAPositionData, CAPositionTableId, ElectronTunnelSpot, ElectronTunnelSpotTableId } from "@base-ca/src/codegen/Tables.sol";
 import { VoxelCoord } from "@tenet-utils/src/Types.sol";
 import { EMPTY_ID, AirVoxelID, AirVoxelVariantID, DirtVoxelID, BedrockVoxelID, DirtVoxelVariantID, GrassVoxelID, GrassVoxelVariantID, BedrockVoxelVariantID } from "@base-ca/src/Constants.sol";
-import { getEntityAtCoord } from "@base-ca/src/Utils.sol";
+import { getEntityAtCoord, voxelCoordToPositionData } from "@base-ca/src/Utils.sol";
 import { Strings } from "@openzeppelin/contracts/utils/Strings.sol";
 
 contract BaseCASystem is System {
@@ -34,7 +34,7 @@ contract BaseCASystem is System {
       CAPositionTableId,
       CAPosition.encode(coord.x, coord.y, coord.z)
     );
-    bytes32 existingEntity = getEntityAtCoord(callerAddress, coord);
+    bytes32 existingEntity = getEntityAtCoord(callerAddress, voxelCoordToPositionData(coord));
     if (uint256(existingEntity) != 0) {
       require(
         CAVoxelType.get(callerAddress, existingEntity).voxelTypeId == AirVoxelID,
@@ -58,25 +58,25 @@ contract BaseCASystem is System {
       bytes32 aboveEntity = getEntityAtCoord(callerAddress, aboveCoord);
       if (aboveEntity != 0) {
         if (CAVoxelType.getVoxelTypeId(callerAddress, aboveEntity) == BedrockVoxelID) {
-          bool neighbourAtTop = ElectronTunnelSpot.get(callerAddress, aboveEntity);
+          bool neighbourAtTop = ElectronTunnelSpot.get(callerAddress, aboveEntity).atTop;
           if (neighbourAtTop) {
             revert("ElectronSystem: Cannot place electron when it's tunneling spot is already occupied (south)");
           } else {
-            ElectronTunnelSpot.set(callerAddress, entity, true);
+            ElectronTunnelSpot.set(callerAddress, entity, true, 0);
           }
         } else {
           if (hasKey(ElectronTunnelSpotTableId, ElectronTunnelSpot.encodeKeyTuple(callerAddress, aboveEntity))) {
-            if (ElectronTunnelSpot.get(callerAddress, aboveEntity)) {
-              ElectronTunnelSpot.set(callerAddress, aboveEntity, false);
-              ElectronTunnelSpot.set(callerAddress, entity, false);
+            if (ElectronTunnelSpot.get(callerAddress, aboveEntity).atTop) {
+              ElectronTunnelSpot.set(callerAddress, aboveEntity, false, entity);
+              ElectronTunnelSpot.set(callerAddress, entity, false, aboveEntity);
             } else {
-              ElectronTunnelSpot.set(callerAddress, entity, true);
+              ElectronTunnelSpot.set(callerAddress, entity, true, 0);
             }
           }
         }
       } else {
         if (!hasKey(ElectronTunnelSpotTableId, ElectronTunnelSpot.encodeKeyTuple(callerAddress, entity))) {
-          ElectronTunnelSpot.set(callerAddress, entity, true);
+          ElectronTunnelSpot.set(callerAddress, entity, true, 0);
         }
       }
     }

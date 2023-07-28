@@ -7,6 +7,7 @@ import { ComponentRecord, Layers } from "../types";
 import { WorldRegistryFilters, WorldDesc, CaDesc } from "../layers/react/components/WorldsRegistry";
 import { Entity, getComponentValue } from "@latticexyz/recs";
 import { onStreamUpdate } from "./stream";
+import { to40CharAddress } from "./entity";
 
 export interface Props {
   layers: Layers;
@@ -20,7 +21,7 @@ export interface CreativeInventorySearch {
 export const useWorldRegistrySearch = ({ layers, filters }: Props) => {
   const {
     network: {
-      registryComponents: { WorldRegistry, CARegistry },
+      registryComponents: { WorldRegistry },
     },
   } = layers;
 
@@ -44,10 +45,11 @@ export const useWorldRegistrySearch = ({ layers, filters }: Props) => {
     }
     allWorlds.current = Array.from(worlds.entries()).map(([world, worldRecord]) => {
       return {
-        worldAddress: world,
+        worldAddress: to40CharAddress(world),
         name: worldRecord.name,
         description: worldRecord.description,
         creator: worldRecord.creator,
+        caAddresses: worldRecord.caAddresses.map(to40CharAddress),
       } as WorldDesc;
     });
 

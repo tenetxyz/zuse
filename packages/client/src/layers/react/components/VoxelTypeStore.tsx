@@ -24,10 +24,12 @@ const NUM_ROWS = 7;
 
 export interface VoxelTypeDesc {
   name: string;
-  voxelType: Entity;
+  VoxelBaseTypeId: Entity;
   previewVoxelVariantId: string;
   numSpawns: BigInt;
   creator: string;
+  scale: number;
+  childVoxelTypeIds: string[];
 }
 
 export const VoxelTypeStore: React.FC<Props> = ({ layers, filters, setFilters }) => {
@@ -55,7 +57,7 @@ export const VoxelTypeStore: React.FC<Props> = ({ layers, filters, setFilters })
       <Slot
         key={`creative-slot-${voxelDescription.name}`}
         slotSize={"69px"}
-        voxelType={voxelDescription.voxelType}
+        voxelType={voxelDescription.VoxelBaseTypeId}
         iconUrl={previewIconUrl}
         quantity={undefined} // undefined so no number appears
         onClick={() => tryGiftVoxel(voxelDescription, previewIconUrl)}
@@ -76,8 +78,8 @@ export const VoxelTypeStore: React.FC<Props> = ({ layers, filters, setFilters })
     // It's better to do this validation off-chain since doing it on-chain is expensive.
     // Also this is more of a UI limitation. Who knows, maybe in the future, we WILL enforce strict inventory limits
     const itemTypesIOwn = getItemTypesIOwn(noa, OwnedBy, VoxelType, connectedAddress);
-    if (itemTypesIOwn.has(voxelTypeDesc.voxelType) || itemTypesIOwn.size < INVENTORY_WIDTH * INVENTORY_HEIGHT) {
-      giftVoxel(voxelTypeDesc.voxelType, previewIconUrl);
+    if (itemTypesIOwn.has(voxelTypeDesc.VoxelBaseTypeId) || itemTypesIOwn.size < INVENTORY_WIDTH * INVENTORY_HEIGHT) {
+      giftVoxel(voxelTypeDesc.VoxelBaseTypeId, previewIconUrl);
     } else {
       toast(`Your inventory is full! Right click on an item to delete it.`);
     }

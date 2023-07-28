@@ -47,7 +47,6 @@ export const InputEvent = {
 
 export type InputEventKey = keyof typeof InputEvent;
 
-
 export function closeSidebar(FocusedUi, SingletonEntity) {
   setComponent(FocusedUi, SingletonEntity, { value: FocusedUiType.WORLD });
 }
@@ -67,7 +66,6 @@ export function openSidebar(FocusedUi, SingletonEntity, PersistentNotification, 
 
   setComponent(FocusedUi, SingletonEntity, { value: FocusedUiType.TENET_SIDEBAR });
 }
-
 
 export function createInputSystem(layers: Layers) {
   const {
@@ -255,7 +253,7 @@ export function createInputSystem(layers: Layers) {
       build(noa, voxelBaseTypeId, coord);
     } else {
       // you are holding nothing and are looking at a block. So activate the block
-      const entity = getEntityAtPosition(getTargetedVoxelCoord(noa));
+      const entity = getEntityAtPosition(getTargetedVoxelCoord(noa), getWorldScale(noa));
       if (entity) {
         activate(entity);
       }
@@ -409,7 +407,7 @@ export function createInputSystem(layers: Layers) {
       const voxelSelection = getComponentValue(VoxelInterfaceSelection, SingletonEntity);
       if (!voxelSelection || !voxelSelection.interfaceVoxels) return;
       const coord = getTargetedVoxelCoord(noa);
-      const entityAtCoord = getEntityAtPosition(coord);
+      const entityAtCoord = getEntityAtPosition(coord, getWorldScale(noa));
 
       if (!entityAtCoord) {
         return;

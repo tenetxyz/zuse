@@ -4,8 +4,9 @@ import React, { useEffect } from "react";
 import Fuse from "fuse.js";
 import { useComponentUpdate } from "./useComponentUpdate";
 import { ComponentRecord, Layers } from "../types";
-import { WorldRegistryFilters, WorldDesc } from "../layers/react/components/WorldsRegistry";
+import { WorldRegistryFilters, WorldDesc, CaDesc } from "../layers/react/components/WorldsRegistry";
 import { Entity, getComponentValue } from "@latticexyz/recs";
+import { onStreamUpdate } from "./stream";
 
 export interface Props {
   layers: Layers;
@@ -19,7 +20,7 @@ export interface CreativeInventorySearch {
 export const useWorldRegistrySearch = ({ layers, filters }: Props) => {
   const {
     network: {
-      registryComponents: { WorldRegistry },
+      registryComponents: { WorldRegistry, CARegistry },
     },
   } = layers;
 
@@ -28,6 +29,8 @@ export const useWorldRegistrySearch = ({ layers, filters }: Props) => {
   const [worldsToDisplay, setWorldsToDisplay] = React.useState<WorldDesc[]>([]);
   const fuse = React.useRef<Fuse<WorldDesc>>();
 
+  // PERF: this useComponentUpdate is triggered on every update. it means that we refetch EVERYTHING on each update.
+  // we should only fetch once? or just read all the values of the component when we first load the page?
   useComponentUpdate(WorldRegistry, () => {
     const allWorldsInRegistry = [...WorldRegistry.entities()];
     const worlds = new Map<Entity, ComponentRecord<typeof WorldRegistry>>();

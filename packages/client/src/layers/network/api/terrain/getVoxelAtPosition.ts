@@ -4,8 +4,8 @@ import { Perlin } from "@latticexyz/noise";
 import { Terrain, TerrainState } from "./types";
 import { getTerrain } from "./utils";
 import { Air, AIR_ID, Bedrock, Dirt, Grass } from "./occurrence";
-import { VoxelTypeKey, VoxelTypeKeyInMudTable } from "@tenetxyz/layers/noa/types";
-import { LiveStoreCache } from "@tenetxyz/mud/setupLiveStoreCache";
+import { VoxelTypeKey, VoxelTypeKeyInMudTable } from "@/layers/noa/types";
+import { LiveStoreCache } from "@/mud/setupLiveStoreCache";
 import { to64CharAddress } from "../../../../utils/entity";
 
 export function getEntityAtPosition(

@@ -15,11 +15,11 @@
     "jsx": "react-jsx",
     "jsxImportSource": "react",
     "paths": {
-      "@tenetxyz": ["./src"],
-      "@tenetxyz/*": ["./src/*"],
+      "@tenetxyz": ["../"],
+      "@tenetxyz/*": ["../"],
       "@/*": ["./src/*"]
     },
-    "baseUrl": ".",
+    "baseUrl": "."
   },
   "include": ["src"]
 }

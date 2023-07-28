@@ -1,6 +1,6 @@
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
-import path from "path"
+import path from "path";
 import { optimizeCssModules } from "vite-plugin-optimize-css-modules";
 
 // https://www.npmjs.com/package/vite-plugin-require-transform
@@ -32,7 +32,8 @@ export default defineConfig({
     dedupe: ["proxy-deep", "styled-components"],
     alias: {
       "@": path.resolve(__dirname, "./src"),
-    }
+      "@tenetxyz": path.resolve(__dirname, "../"),
+    },
   },
   define: {
     global: "globalThis",

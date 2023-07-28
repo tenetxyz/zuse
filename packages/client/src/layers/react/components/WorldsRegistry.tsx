@@ -1,6 +1,8 @@
+import { useComponentUpdate } from "@/utils/useComponentUpdate";
 import { Layers } from "../../../types";
-import { useWorldRegistrySearch } from "../../../utils/useWorldRegistrySearch";
 import { SearchBar } from "./common/SearchBar";
+import { useRef } from "react";
+import { useWorldRegistrySearch } from "@/utils/useWorldRegistrySearch";
 
 export interface WorldRegistryFilters {
   query: string;
@@ -12,6 +14,15 @@ export interface WorldDesc {
   creator: string;
 }
 
+export interface CaDesc {
+  caAddress: string;
+  name: string;
+  description: string;
+  creator: string;
+  scale: number;
+  voxelBaseTypeIds: string[];
+}
+
 interface Props {
   layers: Layers;
   filters: WorldRegistryFilters;
@@ -19,7 +30,32 @@ interface Props {
 }
 
 export const WorldRegistry = ({ layers, filters, setFilters }: Props) => {
+  const {
+    network: {
+      registryComponents: { CARegistry },
+    },
+  } = layers;
   const { worldsToDisplay } = useWorldRegistrySearch({ layers, filters });
+
+  const caDescs = useRef<CaDesc[]>([]);
+
+  useComponentUpdate(CARegistry, (update) => {
+    console.log(update);
+    const caDesc = update.value[0];
+    if (!caDesc) {
+      console.warn(`cannot find values for ${update.entity}`);
+      return;
+    }
+    caDescs.current.push({
+      caAddress: update.entity,
+      name: caDesc.name,
+      description: caDesc.description,
+      creator: caDesc.creator,
+      scale: caDesc.scale,
+      voxelBaseTypeIds: caDesc.voxelTypeIds,
+    } as CaDesc);
+    console.log(caDescs);
+  });
 
   return (
     <div className="flex flex-col p-4">

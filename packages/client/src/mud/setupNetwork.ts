@@ -84,7 +84,6 @@ const setupWorldRegistryNetwork = async () => {
     useABIInDevTools: false,
   });
   result.startSync();
-  // Give components a Human-readable ID
   return contractComponents;
 };
 

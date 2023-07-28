@@ -28,6 +28,7 @@ export const useVoxelTypeSearch = ({ layers, filters }: Props) => {
   const [voxelTypesToDisplay, setVoxelTypesToDisplay] = React.useState<VoxelTypeDesc[]>([]);
   const fuse = React.useRef<Fuse<VoxelTypeDesc>>();
 
+  // PERF: this refetches all voxelTypes when any voxelType is updated. we should only fetch once? or just read all the values of the component when we first load the page?
   useComponentUpdate(VoxelTypeRegistry, () => {
     const allVoxelTypesInRegistry = [...VoxelTypeRegistry.entities()];
     const voxelTypes = new Map<Entity, ComponentRecord<typeof VoxelTypeRegistry>>();
@@ -44,10 +45,12 @@ export const useVoxelTypeSearch = ({ layers, filters }: Props) => {
       .map(([voxelTypeId, voxelTypeRecord]) => {
         return {
           name: voxelTypeRecord!.name,
-          voxelType: voxelTypeId as Entity,
+          VoxelBaseTypeId: voxelTypeId as Entity,
           previewVoxelVariantId: voxelTypeRecord!.previewVoxelVariantId,
           numSpawns: voxelTypeRecord!.numSpawns,
           creator: voxelTypeRecord!.creator,
+          scale: voxelTypeRecord!.scale,
+          childVoxelTypeIds: voxelTypeRecord!.childVoxelTypeIds,
         } as VoxelTypeDesc;
       });
 

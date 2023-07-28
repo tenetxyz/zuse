@@ -23,7 +23,7 @@ export function setupHand(noa: Engine, networkLayer: NetworkLayer) {
   core.visibility = 0;
   const handMaterial = noa.rendering.makeStandardMaterial("handMaterial");
   handMaterial.diffuseTexture = new Texture(
-    "./assets/skins/player1.png",
+    "./assets/skins/ironman_player.png",
     scene,
     true,
     true,

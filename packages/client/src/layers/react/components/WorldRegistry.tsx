@@ -1,11 +1,21 @@
 import { useComponentUpdate } from "@/utils/useComponentUpdate";
 import { Layers } from "../../../types";
 import { SearchBar } from "./common/SearchBar";
-import { useRef } from "react";
 import { useWorldRegistrySearch } from "@/utils/useWorldRegistrySearch";
 import { to40CharAddress } from "@/utils/entity";
 import { VoxelTypeDesc } from "./VoxelTypeStore";
 import { VoxelBaseTypeId } from "@/layers/noa/types";
+import { useState, useRef } from 'react';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { CardStackMinusIcon } from "@radix-ui/react-icons";
 
 type CaAddress = string;
 export interface WorldRegistryFilters {
@@ -41,12 +51,15 @@ export const WorldRegistry = ({ layers, filters, setFilters }: Props) => {
   const {
     network: {
       registryComponents: { CARegistry, VoxelTypeRegistry },
+      getVoxelIconUrl
     },
   } = layers;
   const { worldsToDisplay } = useWorldRegistrySearch({ layers, filters });
 
   const caDescs = useRef<CaDescs>(new Map());
   const voxelTypeDescs = useRef<VoxelTypeDescs>(new Map());
+
+  const [details, setDetails] = useState<CaDesc[] | null>(null);
 
   useComponentUpdate(CARegistry, (update) => {
     const caDesc = update.value[0];
@@ -108,20 +121,47 @@ export const WorldRegistry = ({ layers, filters, setFilters }: Props) => {
                 <button
                   type="button"
                   onClick={() => {
-                    console.log("printing ca descs for world", world.worldAddress);
+                    let detailsArray: CaDesc[] = [];
                     for (const caAddress of world.caAddresses) {
-                      console.log(caDescs.current.get(caAddress));
+                      const caDesc = caDescs.current.get(caAddress);
+                      if (caDesc) {
+                        detailsArray.push(caDesc);
+                      }
                     }
+                    setDetails(detailsArray.length > 0 ? detailsArray : null);
                   }}
                   className="text-gray-900 hover:text-white border border-gray-800 hover:bg-gray-900 focus:ring-4 focus:outline-none focus:ring-gray-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center mr-2 mb-2"
                 >
                   View Details
                 </button>
               </div>
+              {details && (
+                <div style={{color: "black"}}>
+                  {details.sort((a, b) => b.scale - a.scale).map((detail, idx) => (
+                    <Card key={idx} style={{marginBottom: "8px"}}>
+                      <CardHeader>
+                        <CardTitle>{detail.name}</CardTitle>
+                        <CardDescription>{detail.description}</CardDescription>
+                        <Badge variant="outline" className="rounded" style={{width: "fit-content"}}> Creator: {detail.creator.slice(0, 10)}... </Badge>
+                      </CardHeader>
+                      <CardContent>
+                        <div style={{display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(32px, 1fr))', gap: '2px'}}>
+                          {detail.voxelBaseTypeIds.map(voxelBaseTypeId => {
+                            const iconUrl = getVoxelIconUrl(voxelBaseTypeId);
+                            return iconUrl && <img src={iconUrl} alt={detail.name} style={{width: '32px', height: '32px'}} /> // Render the image
+                          })}
+                        </div>
+                      </CardContent>
+                    </Card>
+                  ))}
+                </div>
+              )}
             </div>
           );
         })}
       </div>
+
+
     </div>
   );
 };

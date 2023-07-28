@@ -77,3 +77,33 @@ function registerTile2() {
   tile2ChildVoxelTypes[0] = GrassVoxelID;
   registerVoxelType(REGISTRY_ADDRESS, "Tile2", Tile2VoxelID, tile2ChildVoxelTypes, Tile2VoxelVariantID);
 }
+
+function registerTile3() {
+  VoxelVariantsRegistryData memory tile3Variant;
+  tile3Variant.blockType = NoaBlockType.BLOCK;
+  tile3Variant.opaque = true;
+  tile3Variant.solid = true;
+  string[] memory tile3Materials = new string[](1);
+  tile3Materials[0] = Tile3Texture;
+  tile3Variant.materials = abi.encode(tile3Materials);
+  tile3Variant.uvWrap = Tile3UVWrap;
+  registerVoxelVariant(REGISTRY_ADDRESS, Tile3VoxelVariantID, tile3Variant);
+  bytes33[] memory tile3ChildVoxelTypes = new bytes32[](1);
+  tile3ChildVoxelTypes[0] = Tile2VoxelID;
+  registerVoxelType(REGISTRY_ADDRESS, "Tile3", Tile3VoxelID, tile3ChildVoxelTypes, Tile3VoxelVariantID);
+}
+
+function registerTile4() {
+  VoxelVariantsRegistryData memory tile4Variant;
+  tile4Variant.blockType = NoaBlockType.BLOCK;
+  tile4Variant.opaque = true;
+  tile4Variant.solid = true;
+  string[] memory tile4Materials = new string[](1);
+  tile4Materials[0] = Tile4Texture;
+  tile4Variant.materials = abi.encode(tile4Materials);
+  tile4Variant.uvWrap = Tile4UVWrap;
+  registerVoxelVariant(REGISTRY_ADDRESS, Tile4VoxelVariantID, tile4Variant);
+  bytes44[] memory tile4ChildVoxelTypes = new bytes32[](1);
+  tile4ChildVoxelTypes[0] = Tile3VoxelID;
+  registerVoxelType(REGISTRY_ADDRESS, "Tile4", Tile4VoxelID, tile4ChildVoxelTypes, Tile4VoxelVariantID);
+}

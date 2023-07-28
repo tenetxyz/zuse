@@ -4,7 +4,7 @@ pragma solidity >=0.8.0;
 import { IWorld } from "../src/codegen/world/IWorld.sol";
 import { Script } from "forge-std/Script.sol";
 import { console } from "forge-std/console.sol";
-import { registerAir, registerDirt, registerGrass, registerBedrock } from "./RegisterVoxels.sol";
+import { registerAir, registerDirt, registerGrass, registerBedrock, registerTile2, registerTile3, registerTile4 } from "./RegisterVoxels.sol";
 
 contract PostDeploy is Script {
   function run(address worldAddress) external {
@@ -19,6 +19,9 @@ contract PostDeploy is Script {
     registerDirt();
     registerGrass();
     registerBedrock();
+    registerTile2();
+    registerTile3();
+    registerTile4();
 
     IWorld(worldAddress).registerCA();
 

@@ -4,7 +4,7 @@ pragma solidity >=0.8.0;
 //import { Perlin } from "noise/world.sol";
 //import { Perlin } from "./Perlin.sol";
 import { ABDKMath64x64 as Math } from "@tenet-utils/src/libraries/ABDKMath64x64.sol";
-import { EMPTY_ID, CHUNK_MIN_Y, Biome, STRUCTURE_CHUNK, STRUCTURE_CHUNK_CENTER, AirVoxelID, GrassVoxelID, DirtVoxelID, BedrockVoxelID } from "../Constants.sol";
+import { EMPTY_ID, CHUNK_MIN_Y, Biome, STRUCTURE_CHUNK, STRUCTURE_CHUNK_CENTER, AirVoxelID, GrassVoxelID, DirtVoxelID, BedrockVoxelID, Tile2VoxelID, Tile3VoxelID, Tile4VoxelID } from "../Constants.sol";
 import { VoxelCoord, Tuple } from "@tenet-utils/src/Types.sol";
 import { System } from "@latticexyz/world/src/System.sol";
 import { IWorld } from "@base-ca/src/codegen/world/IWorld.sol";

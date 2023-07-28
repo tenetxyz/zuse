@@ -368,7 +368,7 @@ export function registerPersistentSidebar() {
                 </Tooltip>
               </TooltipProvider>
             </div>
-            <Badge style={{ padding: "4px 2px", border: "0.5px solid #C9CACB", borderRadius: "8px", marginTop: "8px", backgroundColor: "#ffffff12", backdropFilter: "blur(2px)", textShadow: "1px 1px 2px rgba(0, 0, 0, 0.5)" }}>
+            <Badge style={{ padding: "4px 2px", border: "0.5px solid #C9CACB", borderRadius: "4px", marginTop: "8px", backgroundColor: "#ffffff12", backdropFilter: "blur(2px)", textShadow: "1px 1px 2px rgba(0, 0, 0, 0.5)" }}>
               <TooltipProvider delayDuration={100}>
                 <span>
                   <Badge variant="secondary" style={{borderRadius: "4px", paddingLeft: "4px", paddingRight: "4px"}}> LEVEL: {worldScale} </Badge>
@@ -397,7 +397,7 @@ export function registerPersistentSidebar() {
             </Badge>
           </div>
           <div>
-            <Badge style={{ padding: "4px 2px", border: "0.5px solid #C9CACB", borderRadius: "8px", marginTop: "8px", backgroundColor: "#ffffff12", backdropFilter: "blur(2px)"}}>
+            <Badge style={{ padding: "4px 2px", border: "0.5px solid #C9CACB", borderRadius: "4px", marginTop: "8px", backgroundColor: "#ffffff12", backdropFilter: "blur(2px)"}}>
                 <CardContent className="p-4">
                   <div style = {{marginBottom: "4px", maxWidth: "200px", overflow: "hidden"}}>
                     <Badge variant="secondary" style={{borderRadius: "4px", paddingLeft: "4px", paddingRight: "4px", textShadow: "1px 1px 2px rgba(0, 0, 0, 0.5)"}}> BRANCH: {layers.network.worldAddress.slice(0, 10)}... </Badge> 

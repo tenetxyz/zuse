@@ -3,7 +3,7 @@ import { VoxelCoord } from "@latticexyz/utils";
 import { Perlin } from "@latticexyz/noise";
 import { Terrain, TerrainState } from "./types";
 import { getTerrain } from "./utils";
-import { Air, AIR_ID, Bedrock, Dirt, Grass } from "./occurrence";
+import { Air, AIR_ID, Bedrock, Dirt, Tile } from "./occurrence";
 import { VoxelTypeKey, VoxelTypeKeyInMudTable } from "@/layers/noa/types";
 import { LiveStoreCache } from "@/mud/setupLiveStoreCache";
 import { to64CharAddress } from "../../../../utils/entity";
@@ -89,7 +89,7 @@ export function getTerrainVoxel(
   return (
     Bedrock(state) ||
     Air(state) ||
-    Grass(state) ||
+    Tile(state) ||
     Dirt(state) || {
       voxelBaseTypeId: AIR_ID,
       voxelVariantTypeId: AIR_ID,

@@ -64,7 +64,7 @@ contract LibTerrainSystem is System {
 
     int32 distanceFromHeight = height - y;
 
-    voxelTypeId = Grass(y);
+    voxelTypeId = Tile(y);
     if (voxelTypeId != EMPTY_ID) return voxelTypeId;
 
     voxelTypeId = Dirt(y);
@@ -297,16 +297,19 @@ contract LibTerrainSystem is System {
     return EMPTY_ID;
   }
 
-  function Grass(VoxelCoord memory coord) public pure returns (bytes32) {
-    return Grass(coord.y);
+  function Tile(VoxelCoord memory coord) public pure returns (bytes32) {
+    return Tile(coord.y);
   }
 
-  function Grass(int32 y) internal pure returns (bytes32) {
-    if (y == 9) {
-      return GrassVoxelID;
+  function Tile(int32 y) internal pure returns (bytes32) {
+    if (y != 9) {
+      return EMPTY_ID;
     }
-
-    return EMPTY_ID;
+    if (scale == 1) {
+      return GrassVoxelID;
+    } else if (scale == 2) {
+      return GrassVoxelID;
+    } else if (scale == 3) {} else {}
   }
 
   function Dirt(VoxelCoord memory coord) public pure returns (bytes32) {

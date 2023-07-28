@@ -25,7 +25,7 @@ export const Textures = {
 
 export const UVWraps = {
   Air: undefined,
-  Grass: getNftStorageLink("bafkreiaur4pmmnh3dts6rjtfl5f2z6ykazyuu4e2cbno6drslfelkga3yy"),
+  Grass: getNftStorageLink("bafkreiewghdyhnlq4yiqe4umxaytoy67jw3k65lwll2rbomfzr6oivhvpy"),
   Dirt: getNftStorageLink("bafkreifsrs64rckwnfkwcyqkzpdo3tpa2at7jhe6bw7jhevkxa7estkdnm"),
   Bedrock: getNftStorageLink("bafkreihdit6glam7sreijo7itbs7uwc2ltfeuvcfaublxf6rjo24hf6t4y"),
 };

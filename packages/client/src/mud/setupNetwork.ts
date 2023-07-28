@@ -300,6 +300,29 @@ export async function setupNetwork() {
       uvWrap: UVWraps.Bedrock,
     },
   });
+  VoxelVariantIdToDef.set(TILE2_ID, {
+    noaBlockIdx: 4,
+    noaVoxelDef: {
+      type: NoaBlockType.BLOCK,
+      material: [Textures.Grass, Textures.Dirt, Textures.GrassSide],
+      uvWrap: UVWraps.Grass,
+    },
+  });
+  VoxelVariantIdToDef.set(TILE3_ID, {
+    noaBlockIdx: 4,
+    noaVoxelDef: {
+      type: NoaBlockType.BLOCK,
+      material: [Textures.Grass, Textures.Dirt, Textures.GrassSide],
+      uvWrap: UVWraps.Grass,
+    },
+  });
+  VoxelVariantIdToDef.set(TILE4_ID, {
+    noaBlockIdx: 4,
+    noaVoxelDef: {
+      type: NoaBlockType.BLOCK,
+      material: [Textures.Grass, Textures.Dirt, Textures.GrassSide],
+      uvWrap: UVWraps.Grass,
+    },
 
   const VoxelVariantIndexToKey: Map<number, VoxelVariantTypeId> = new Map();
 

@@ -9,6 +9,7 @@ import { CAVoxelType, CAPosition, CAPositionData, CAPositionTableId, ElectronTun
 import { VoxelCoord } from "@tenet-utils/src/Types.sol";
 import { EMPTY_ID, AirVoxelID, AirVoxelVariantID, DirtVoxelID, BedrockVoxelID, DirtVoxelVariantID, GrassVoxelID, GrassVoxelVariantID, BedrockVoxelVariantID } from "@base-ca/src/Constants.sol";
 import { getEntityAtCoord } from "@base-ca/src/Utils.sol";
+import { Strings } from "@openzeppelin/contracts/utils/Strings.sol";
 
 contract BaseCASystem is System {
   function isVoxelTypeAllowed(bytes32 voxelTypeId) public pure returns (bool) {
@@ -33,19 +34,18 @@ contract BaseCASystem is System {
       CAPositionTableId,
       CAPosition.encode(coord.x, coord.y, coord.z)
     );
-    bytes32 existingEntity;
-    for (uint256 i = 0; i < entitiesAtPosition.length; i++) {
-      if (entitiesAtPosition[i][0] == bytes32(uint256(uint160(callerAddress)))) {
-        if (existingEntity != 0) {
-          revert("This position is already occupied by another voxel");
-        }
-        existingEntity = entitiesAtPosition[i][1];
-      }
-    }
-    if (existingEntity != 0) {
+    bytes32 existingEntity = getEntityAtCoord(callerAddress, coord);
+    if (uint256(existingEntity) != 0) {
       require(
         CAVoxelType.get(callerAddress, existingEntity).voxelTypeId == AirVoxelID,
-        "This position is already occupied by another voxel"
+        string(
+          abi.encode(
+            "This position is already occupied by another voxel: ",
+            Strings.toString(coord.x),
+            Strings.toString(coord.y),
+            Strings.toString(coord.z)
+          )
+        )
       );
     } else {
       CAPosition.set(callerAddress, entity, CAPositionData({ x: coord.x, y: coord.y, z: coord.z }));
@@ -57,12 +57,21 @@ contract BaseCASystem is System {
       CAPositionData memory aboveCoord = CAPositionData(coord.x, coord.y, coord.z + 1);
       bytes32 aboveEntity = getEntityAtCoord(callerAddress, aboveCoord);
       if (aboveEntity != 0) {
-        if (hasKey(ElectronTunnelSpotTableId, ElectronTunnelSpot.encodeKeyTuple(callerAddress, aboveEntity))) {
-          if (ElectronTunnelSpot.get(callerAddress, aboveEntity)) {
-            ElectronTunnelSpot.set(callerAddress, aboveEntity, false);
-            ElectronTunnelSpot.set(callerAddress, entity, false);
+        if (CAVoxelType.getVoxelTypeId(callerAddress, aboveEntity) == BedrockVoxelID) {
+          bool neighbourAtTop = ElectronTunnelSpot.get(callerAddress, aboveEntity);
+          if (neighbourAtTop) {
+            revert("ElectronSystem: Cannot place electron when it's tunneling spot is already occupied (south)");
           } else {
             ElectronTunnelSpot.set(callerAddress, entity, true);
+          }
+        } else {
+          if (hasKey(ElectronTunnelSpotTableId, ElectronTunnelSpot.encodeKeyTuple(callerAddress, aboveEntity))) {
+            if (ElectronTunnelSpot.get(callerAddress, aboveEntity)) {
+              ElectronTunnelSpot.set(callerAddress, aboveEntity, false);
+              ElectronTunnelSpot.set(callerAddress, entity, false);
+            } else {
+              ElectronTunnelSpot.set(callerAddress, entity, true);
+            }
           }
         }
       } else {

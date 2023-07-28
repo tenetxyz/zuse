@@ -1,6 +1,6 @@
 import { registerTenetComponent } from "../engine/components/TenetComponentRenderer";
 import { calculateChildCoords, calculateParentCoord, getWorldScale } from "../../../utils/coord";
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useObservableValue } from "@latticexyz/react";
 import { toast } from "react-toastify";
 import { VoxelCoord } from "@latticexyz/utils";
@@ -35,6 +35,80 @@ import {
 import { Border } from "./common";
 import { config } from "@fortawesome/fontawesome-svg-core";
 import { Network } from "lucide-react";
+
+type BlockEvent = {
+  blockNumber: number;
+  voxelTypeKey?: string;
+  action?: "add" | "remove";
+};
+
+type BlockSummaryElement = [
+  number, // block number
+  {
+    [voxelType: string]: {
+      add?: number;
+      remove?: number;
+    };
+  }
+];
+
+type BlockSummary = BlockSummaryElement[];
+
+const BlockExplorerContainer = styled.div`
+  display: flex;
+  justify-content: flex-end;
+  flex-direction: row-reverse;
+  padding: 8px;
+  overflow: hidden;
+  // background: linear-gradient(180deg, rgba(31, 31, 31, 0.6) 0%, rgba(31, 31, 31, 0) 75%);
+  font-size: 0.8rem;
+
+  .BlockExplorer-Block {
+    border-left: 2px solid rgba(31, 31, 31, 0.3);
+    position: relative;
+    margin-bottom: 1em;
+    pointer-events: all;
+    cursor: pointer;
+  }
+  .BlockExplorer-BlockNumber {
+    position: absolute;
+    bottom: -1em;
+    left: -2px;
+    border-left: 2px solid rgba(31, 31, 31, 0.3);
+    height: 1em;
+    padding-left: 3px;
+    padding-top: 3px;
+  }
+  .BlockExplorer-Actions {
+    height: 20px;
+    display: flex;
+    padding: 0 1px;
+  }
+  .BlockExplorer-Action {
+    position: relative;
+    margin: 0 1px;
+    width: 20px;
+  }
+  .BlockExplorer-Action img {
+    height: 100%;
+    aspect-ratio: 1;
+    object-fit: cover;
+    border-radius: 2px;
+  }
+  .BlockExplorer-ActionIcon {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  .BlockExplorer-ActionIcon--remove {
+    color: hsl(0, 100%, 80%);
+  }
+  .BlockExplorer-ActionIcon--add {
+    color: hsl(100, 100%, 80%);
+  }
+`;
 
 export function registerPersistentSidebar() {
   registerTenetComponent({
@@ -73,6 +147,70 @@ export function registerPersistentSidebar() {
           getVoxelIconUrl,
         }
       } = layers;
+
+      const [summary, setSummary] = useState<BlockSummary>([]);
+      useEffect(() => {
+        const subscription = merge(
+          blockNumber$.pipe(map<number, BlockEvent>((blockNumber) => ({ blockNumber }))),
+          ecsEvent$
+            .pipe(filter(isNetworkComponentUpdateEvent))
+            .pipe(filter(({ txHash }) => txHash !== "worker" && txHash !== "cache"))
+            .pipe(
+              map<NetworkComponentUpdate, BlockEvent | undefined>(({ blockNumber, component, value, entity }) => {
+                const componentKey = mappings[component];
+
+                if (componentKey === "Position") {
+                  const voxelType = entity !== null ? getComponentValue(VoxelType, entity) : undefined;
+                  if (!voxelType) {
+                    return;
+                  }
+                  const voxelTypeKey = voxelTypeToEntity(voxelType);
+    
+                  if (value) {
+                    return {
+                      blockNumber,
+                      voxelTypeKey,
+                      action: "add",
+                    };
+                  }
+                }
+              })
+            )
+            .pipe(filterNullish())
+        )
+          .pipe(
+            filter(
+              (update) =>
+                update.voxelTypeKey === undefined ||
+                entityToVoxelType(update.voxelTypeKey as Entity).voxelTypeId !== AIR_ID
+            )
+          )
+          .pipe(
+            scan<BlockEvent, BlockSummary>((summary, event) => {
+              const block =
+                summary.find(([blockNumber]) => event.blockNumber === blockNumber) ||
+                ([event.blockNumber, {}] as BlockSummaryElement);
+              const otherBlocks = summary.filter(([blockNumber]) => event.blockNumber !== blockNumber) as BlockSummary;
+    
+              if (event.voxelTypeKey && event.action) {
+                block[1][event.voxelTypeKey] = block[1][event.voxelTypeKey] || {
+                  [event.action]: 0,
+                };
+                const current = block[1][event.voxelTypeKey][event.action] || 0;
+                block[1][event.voxelTypeKey][event.action] = current + 1;
+              }
+    
+              return [...otherBlocks, block].slice(-500);
+            }, [] as BlockSummary)
+          )
+          .subscribe(newSummary => {
+            setSummary(newSummary);
+          });
+    
+        // Cleanup on unmount
+        return () => subscription.unsubscribe();
+      }, [blockNumber$, ecsEvent$, mappings, VoxelType, getVoxelIconUrl]);
+    
 
       const [worldScale, setWorldScale] = useState<number>(1);
 
@@ -179,12 +317,48 @@ export function registerPersistentSidebar() {
                       <span className="font-mono text-sm font-semibold" > {layers.network.worldAddress.slice(2, 11)}... </span>
                     </span>
                   </div>
-
                   <div style = {{marginBottom: "8px"}}>
                     <span>
                       <span className="font-thin px-[0.3rem] py-[0.2rem] font-mono text-xs" style={{color: "#c8c9ca"}}> LEVEL: </span>
                       <span className="font-mono text-sm font-semibold" > {worldScale} </span>
                     </span>
+                  </div>
+                  <div style = {{marginBottom: "8px", maxWidth: "200px", overflow: "hidden"}}>
+                    <BlockExplorerContainer>
+                          {summary.map(([blockNumber, block]) => (
+                            <div
+                              key={blockNumber}
+                              className="BlockExplorer-Block"
+                              // onClick={() => window.open(blockExplorer + "/block/" + blockNumber)}
+                            >
+                              {blockNumber % 16 === 0 ? <div className="BlockExplorer-BlockNumber">{blockNumber}</div> : null}
+                              <div className="BlockExplorer-Actions">
+                                {Object.entries(block).map(([voxelTypeKey, counts]) => {
+                                  const voxelType = entityToVoxelType(voxelTypeKey as Entity);
+                                  const voxelIconUrl = getVoxelIconUrl(voxelType.voxelVariantTypeId);
+                                  return (
+                                    <React.Fragment key={voxelTypeKey}>
+                                      {counts.add ? (
+                                        <div className="BlockExplorer-Action">
+                                          <img src={voxelIconUrl} />
+                                          <div className="BlockExplorer-ActionIcon BlockExplorer-ActionIcon--add">+{counts.add}</div>
+                                        </div>
+                                      ) : null}
+                                      {counts.remove ? (
+                                        <div className="BlockExplorer-Action">
+                                          <img src={voxelIconUrl} />
+                                          <div className="BlockExplorer-ActionIcon BlockExplorer-ActionIcon--remove">
+                                            -{counts.remove}
+                                          </div>
+                                        </div>
+                                      ) : null}
+                                    </React.Fragment>
+                                  );
+                                })}
+                              </div>
+                            </div>
+                          ))}
+                    </BlockExplorerContainer>
                   </div>
                   <hr style={{borderTop: "1px solid #c8c9ca", marginBottom: "8px"}}/>
                   <div style = {{marginBottom: "8px"}}>

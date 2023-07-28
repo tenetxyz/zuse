@@ -39,10 +39,10 @@ export async function createVoxelVariantSystem(network: NetworkLayer, noaLayer: 
         material = formattedMaterialArr;
       }
 
+      // If noa hasn't registered this block yet, register it to get the noaBlockIdx for this voxel variant
       let noaBlockIdx = variantIdToNoaBlockIdx.get(voxelVariantId);
       if (!noaBlockIdx) {
         const numBlocksRegisteredInNoa = noa.registry._solidityLookup.length;
-        console.log("noa registry", noa.registry._solidityLookup);
         noaBlockIdx = numBlocksRegisteredInNoa;
         variantIdToNoaBlockIdx.set(voxelVariantId, noaBlockIdx!);
       }

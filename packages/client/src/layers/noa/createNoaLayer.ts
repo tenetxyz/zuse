@@ -63,7 +63,7 @@ import { registerTargetedPositionComponent } from "./engine/components/targetedP
 import { defaultAbiCoder as abi, keccak256 } from "ethers/lib/utils";
 import { SingletonID, SyncState } from "@latticexyz/network";
 import { getChunkCoord } from "../../utils/chunk";
-import { BehaviorSubject, map, throttleTime, timer } from "rxjs";
+import { BehaviorSubject, map, Subject, throttleTime, timer } from "rxjs";
 // import { getStakeEntity } from "../../utils/stake"; // commented cause we aren't using it
 import { createSpawnPlayerSystem } from "./systems/createSpawnPlayerSystem";
 import { definePlayerMeshComponent } from "./components/PlayerMesh";
@@ -374,6 +374,8 @@ export function createNoaLayer(network: NetworkLayer) {
   const playerChunk$ = new BehaviorSubject(getCurrentChunk());
   world.registerDisposer(playerPosition$.pipe(map((pos) => getChunkCoord(pos))).subscribe(playerChunk$)?.unsubscribe);
 
+  const zoomEvent$ = new Subject<boolean>(); // When the user presses the sidebar, this stream tells the zoom overlay to trigger. True if we're zooming in, false if we're zooming out.
+
   // const stakeAndClaim$ = new BehaviorSubject(getStakeAndClaim(getCurrentChunk()));
   // world.registerDisposer(
   //   playerChunk$.pipe(map((coord) => getStakeAndClaim(coord))).subscribe(stakeAndClaim$)?.unsubscribe
@@ -406,6 +408,7 @@ export function createNoaLayer(network: NetworkLayer) {
       playerPosition$,
       slowPlayerPosition$,
       playerChunk$,
+      zoomEvent$,
       // stakeAndClaim$,
     },
     SingletonEntity,

@@ -11,7 +11,7 @@ import { VoxelType, Position, Creation, CreationData, VoxelTypeData, Spawn, Spaw
 import { PositionData } from "@tenet-contracts/src/codegen/tables/Position.sol";
 import { VoxelTypeRegistry, VoxelTypeRegistryData } from "@tenet-registry/src/codegen/tables/VoxelTypeRegistry.sol";
 import { REGISTRY_ADDRESS } from "@tenet-contracts/src/Constants.sol";
-import { VoxelCoord, BaseCreation, BaseCreationInWorld } from "@tenet-contracts/src/Types.sol";
+import { VoxelCoord, BaseCreation, BaseCreationInWorld, VoxelEntity } from "@tenet-contracts/src/Types.sol";
 //import { CreateBlock } from "../libraries/CreateBlock.sol";
 
 uint256 constant MAX_BLOCKS_IN_CREATION = 100;
@@ -21,17 +21,15 @@ contract RegisterCreationSystem is System {
   function registerCreation(
     string memory name,
     string memory description,
-    bytes32[] memory voxels,
+    VoxelEntity[] memory voxels,
     BaseCreationInWorld[] memory baseCreationsInWorld
   ) public returns (bytes32) {
-    uint32[] memory scales = new uint32[](voxels.length);
-    for (uint256 i = 0; i < voxels.length; i++) {
-      require(IWorld(_world()).isVoxelTypeAllowed(voxels[i]), "Voxel type not allowed in this world");
-      VoxelTypeRegistryData memory voxelTypeData = VoxelTypeRegistry.get(IStore(REGISTRY_ADDRESS), voxels[i]);
-      scales[i] = voxelTypeData.scale;
+    VoxelTypeData[] memory voxelTypes = getVoxelTypes(voxels);
+    for (uint256 i = 0; i < voxelTypes.length; i++) {
+      require(IWorld(_world()).isVoxelTypeAllowed(voxelTypes[i].voxelTypeId), "Voxel type not allowed in this world");
     }
-    VoxelCoord[] memory voxelCoords = getVoxelCoords(scales, voxels); // NOTE: we do not know the relative position of these voxelCoords yet (since we don't know the coords of the voxels in the base creations). So we will reposition them later
-    VoxelTypeData[] memory voxelTypes = getVoxelTypes(scales, voxels);
+
+    VoxelCoord[] memory voxelCoords = getVoxelCoords(voxels); // NOTE: we do not know the relative position of these voxelCoords yet (since we don't know the coords of the voxels in the base creations). So we will reposition them later
 
     // 1) get all of the voxelCoords of all voxels in the creation
     (VoxelCoord[] memory allVoxelCoordsInWorld, VoxelTypeData[] memory allVoxelTypes) = getVoxels(
@@ -294,18 +292,18 @@ contract RegisterCreationSystem is System {
     return baseCreations;
   }
 
-  function getVoxelTypes(uint32[] memory scales, bytes32[] memory voxels) public view returns (VoxelTypeData[] memory) {
+  function getVoxelTypes(VoxelEntity[] memory voxels) public view returns (VoxelTypeData[] memory) {
     VoxelTypeData[] memory voxelTypeData = new VoxelTypeData[](voxels.length);
     for (uint32 i = 0; i < voxels.length; i++) {
-      voxelTypeData[i] = VoxelType.get(scales[i], voxels[i]);
+      voxelTypeData[i] = VoxelType.get(voxels[i].scale, voxels[i].entityId);
     }
     return voxelTypeData;
   }
 
-  function getVoxelCoords(uint32[] memory scales, bytes32[] memory voxels) private view returns (VoxelCoord[] memory) {
+  function getVoxelCoords(VoxelEntity[] memory voxels) private view returns (VoxelCoord[] memory) {
     VoxelCoord[] memory voxelCoords = new VoxelCoord[](voxels.length);
     for (uint32 i = 0; i < voxels.length; i++) {
-      PositionData memory position = Position.get(scales[i], voxels[i]);
+      PositionData memory position = Position.get(voxels[i].scale, voxels[i].entityId);
       voxelCoords[i] = VoxelCoord(position.x, position.y, position.z);
     }
     return voxelCoords;

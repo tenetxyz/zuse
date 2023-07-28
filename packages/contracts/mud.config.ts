@@ -53,15 +53,6 @@ export default mudConfig({
       },
     },
     Name: "string", // Used to name players
-    VoxelInteractionExtension: {
-      keySchema: {
-        namespace: "bytes16",
-        eventHandler: "bytes4",
-      },
-      schema: {
-        placeholder: "bool",
-      },
-    },
     Recipe: "bytes32",
     // tables for creations
     Creation: {
@@ -103,11 +94,6 @@ export default mudConfig({
     },
   },
   systems: {
-    VoxelInteractionSystem: {
-      name: "VoxInteractSys", // Note: This has to be <= 16 characters and can't conflict with table names
-      openAccess: false, // it's a subsystem now, so only systems in this namespace can call it
-      accessList: ["MineSystem", "BuildSystem"],
-    },
     RegisterClassifierSystem: {
       name: "RegClassifierSys", // Note: This has to be <= 16 characters and can't conflict with table names
       openAccess: true,
@@ -128,11 +114,6 @@ export default mudConfig({
       name: "KeysInTableModule",
       root: true,
       args: [resolveTableId("CAConfig")],
-    },
-    {
-      name: "KeysInTableModule",
-      root: true,
-      args: [resolveTableId("VoxelInteractionExtension")],
     },
     {
       name: "KeysWithValueModule",

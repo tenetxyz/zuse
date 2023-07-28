@@ -56,10 +56,6 @@ function calculateBlockDirection(
 ) pure returns (BlockDirection) {
   if (neighborCoord.x == centerCoord.x && neighborCoord.y == centerCoord.y && neighborCoord.z == centerCoord.z) {
     return BlockDirection.None;
-  } else if (neighborCoord.y > centerCoord.y) {
-    return BlockDirection.Up;
-  } else if (neighborCoord.y < centerCoord.y) {
-    return BlockDirection.Down;
   } else if (neighborCoord.z > centerCoord.z) {
     return BlockDirection.North;
   } else if (neighborCoord.z < centerCoord.z) {
@@ -76,10 +72,6 @@ function calculateBlockDirection(
 function getOppositeDirection(BlockDirection direction) pure returns (BlockDirection) {
   if (direction == BlockDirection.None) {
     return BlockDirection.None;
-  } else if (direction == BlockDirection.Up) {
-    return BlockDirection.Down;
-  } else if (direction == BlockDirection.Down) {
-    return BlockDirection.Up;
   } else if (direction == BlockDirection.North) {
     return BlockDirection.South;
   } else if (direction == BlockDirection.South) {
@@ -102,7 +94,7 @@ function getEntityAtCoord(uint32 scale, VoxelCoord memory coord) view returns (b
   bytes32 entity;
   for (uint256 i = 0; i < allEntitiesAtCoord.length; i++) {
     if (uint256(allEntitiesAtCoord[i][0]) == scale) {
-      if (entity != 0) {
+      if (uint256(entity) != 0) {
         revert("Found more than one entity at the same position");
       }
       entity = allEntitiesAtCoord[i][1];

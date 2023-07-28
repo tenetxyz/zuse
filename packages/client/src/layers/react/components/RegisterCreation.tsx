@@ -144,7 +144,7 @@ const RegisterCreation: React.FC<Props> = ({ layers, formData, setFormData, rese
     for (let x = minX; x <= maxX; x++) {
       for (let y = minY; y <= maxY; y++) {
         for (let z = minZ; z <= maxZ; z++) {
-          const entity = getEntityAtPosition({ x, y, z });
+          const entity = getEntityAtPosition({ x, y, z }, getWorldScale(noa));
           if (entity !== undefined) {
             voxels.push(entity);
           }

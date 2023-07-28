@@ -26,6 +26,7 @@ contract SpawnSystem is System {
     for (uint i = 0; i < relativeVoxelCoords.length; i++) {
       VoxelCoord memory relativeCoord = relativeVoxelCoords[i];
       VoxelCoord memory spawnVoxelAtCoord = add(lowerSouthWestCorner, relativeCoord);
+      // TODO: do we need this?
       // require(
       //   spawnVoxelAtCoord.y >= CHUNK_MIN_Y && spawnVoxelAtCoord.y <= CHUNK_MAX_Y,
       //   string(

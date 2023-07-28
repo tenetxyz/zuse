@@ -2,6 +2,7 @@ import { getComponentValue } from "@latticexyz/recs";
 import { VoxelCoord } from "@latticexyz/utils";
 import { Engine } from "noa-engine";
 import { Layers } from "../types";
+import { getWorldScale } from "./coord";
 
 export const calculateMinMax = (corner1: VoxelCoord, corner2: VoxelCoord) => {
   const minX = Math.min(corner1.x, corner2.x);
@@ -40,13 +41,14 @@ export const getTargetedSpawnId = (layers: Layers, targetedBlock: TargetedBlock)
       contractComponents: { OfSpawn },
       api: { getEntityAtPosition },
     },
+    noa: { noa },
   } = layers;
   if (!targetedBlock) {
     return undefined;
   }
   const position = targetedBlock.position;
   // if this block is a spawn, then get the spawnId
-  const entityAtPosition = getEntityAtPosition({ x: position[0], y: position[1], z: position[2] });
+  const entityAtPosition = getEntityAtPosition({ x: position[0], y: position[1], z: position[2] }, getWorldScale(noa));
   if (!entityAtPosition) {
     return undefined;
   }

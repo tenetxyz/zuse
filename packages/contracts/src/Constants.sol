@@ -1,18 +1,17 @@
 // SPDX-License-Identifier: GPL-3.0
 pragma solidity >=0.8.0;
 
-address constant REGISTRY_ADDRESS = 0x324B984055f9b0C42c9f6be51A8F5fBF9dd4B7B6;
-address constant BASE_CA_ADDRESS = 0x1D99a347B5EcdbAa3C5365470d461Cf66B77ECd2;
-address constant COMPOSED_CA_ADDRESS = 0x95AF2694e3359a8DF8294E7A3ad66E68F7066dB9;
+address constant REGISTRY_ADDRESS = 0x057ef64E23666F000b34aE31332854aCBd1c8544;
+address constant BASE_CA_ADDRESS = 0x8464135c8F25Da09e49BC8782676a84730C318bC;
+address constant COMPOSED_CA_ADDRESS = 0x663F3ad617193148711d28f5334eE4Ed07016602;
 
-string constant REGISTER_EXTENSION_SIG = "registerExtension(bytes4,string)";
 string constant CLEAR_COORD_SIG = "clearCoord((int32,int32,int32))";
 string constant BUILD_SIG = "build(bytes32,(int32,int32,int32))";
 string constant GIFT_VOXEL_SIG = "giftVoxel(bytes16,bytes32)";
 string constant RM_ALL_OWNED_VOXELS_SIG = "removeAllOwnedVoxels()";
 
 // A block has six neighbours
-uint256 constant NUM_VOXEL_NEIGHBOURS = 6;
+uint256 constant NUM_VOXEL_NEIGHBOURS = 8;
 uint256 constant MAX_VOXEL_NEIGHBOUR_UPDATE_DEPTH = 100;
 
 int32 constant CHUNK_MAX_Y = 255;

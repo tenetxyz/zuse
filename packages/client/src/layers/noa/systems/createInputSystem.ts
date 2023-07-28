@@ -17,7 +17,35 @@ import { calculateChildCoords, calculateParentCoord, getWorldScale, voxelCoordTo
 import { renderFloatingTextAboveCoord } from "./renderFloatingText";
 import { InterfaceVoxel } from "../types";
 import { World } from "noa-engine/dist/src/lib/world";
+import {
+  disableInputs,
+  enableInputs,
+  bindInputEvent as bindInputEventUsingNoa,
+  unbindInputEvent as unbindInputEventUsingNoa,
+} from "./createInputSystemHelpers";
 
+// https://fenomas.github.io/noa/API/classes/_internal_.Inputs.html#bind
+// Key strings should align to KeyboardEvent.code strings - e.g. KeyA, ArrowDown, etc.
+// https://developer.mozilla.org/en-US/docs/Web/API/UI_Events/Keyboard_event_code_values
+export const InputEvent = {
+  "cancel-action": ["Backspace", "Delete"],
+  "toggle-inventory": "KeyE",
+  sidebar: ["Minus", "KeyQ"],
+  "select-voxel": "KeyV",
+  fire: ["Mouse1", "KeyF"],
+  "alt-fire": ["Mouse3", "KeyR"], // Note: if you ever change the name of this event, you might break some logic since in the code below, we first unbind alt-fire to remove the original binding of "E"
+  jump: "Space",
+  moving: ["KeyW", "KeyA", "KeyS", "KeyD", "ArrowUp", "ArrowLeft", "ArrowDown", "ArrowRight"],
+  "voxel-explorer": "KeyB",
+  slot: ["Digit1", "Digit2", "Digit3", "Digit4", "Digit5", "Digit6", "Digit7", "Digit8", "Digit9"],
+  plugins: "Semicolon",
+  spawn: "KeyO",
+  preteleport: "KeyP",
+  "spawn-creation": "Enter",
+  crouch: "ShiftLeft",
+};
+
+export type InputEventKey = keyof typeof InputEvent;
 
 export function closeSidebar(FocusedUi, SingletonEntity) {
   setComponent(FocusedUi, SingletonEntity, { value: FocusedUiType.WORLD });
@@ -38,7 +66,6 @@ export function openSidebar(FocusedUi, SingletonEntity, PersistentNotification, 
 
   setComponent(FocusedUi, SingletonEntity, { value: FocusedUiType.TENET_SIDEBAR });
 }
-
 
 export function createInputSystem(layers: Layers) {
   const {
@@ -67,41 +94,12 @@ export function createInputSystem(layers: Layers) {
     },
   } = layers;
 
-  // https://fenomas.github.io/noa/API/classes/_internal_.Inputs.html#bind
-  // Key strings should align to KeyboardEvent.code strings - e.g. KeyA, ArrowDown, etc.
-  // https://developer.mozilla.org/en-US/docs/Web/API/UI_Events/Keyboard_event_code_values
-
-  const InputEvent = {
-    "cancel-action": ["Backspace", "Delete"],
-    "toggle-inventory": "KeyE",
-    sidebar: ["Minus", "KeyQ"],
-    "select-voxel": "KeyV",
-    fire: ["Mouse1", "KeyF"],
-    "alt-fire": ["Mouse3", "KeyR"], // Note: if you ever change the name of this event, you might break some logic since in the code below, we first unbind alt-fire to remove the original binding of "E"
-    jump: "Space",
-    moving: ["KeyW", "KeyA", "KeyS", "KeyD", "ArrowUp", "ArrowLeft", "ArrowDown", "ArrowRight"],
-    "voxel-explorer": "KeyB",
-    slot: ["Digit1", "Digit2", "Digit3", "Digit4", "Digit5", "Digit6", "Digit7", "Digit8", "Digit9"],
-    plugins: "Semicolon",
-    spawn: "KeyO",
-    preteleport: "KeyP",
-    "spawn-creation": "Enter",
-    crouch: "ShiftLeft",
-  };
-
-  type InputEventKey = keyof typeof InputEvent;
-
   const bindInputEvent = (key: InputEventKey) => {
-    const inputKeys = InputEvent[key];
-    if (Array.isArray(inputKeys)) {
-      noa.inputs.bind(key, ...inputKeys);
-    } else {
-      noa.inputs.bind(key, inputKeys);
-    }
+    bindInputEventUsingNoa(noa, key);
   };
 
   const unbindInputEvent = (key: InputEventKey) => {
-    noa.inputs.unbind(key);
+    unbindInputEventUsingNoa(noa, key);
   };
 
   const onDownInputEvent = (key: InputEventKey, handler: (e?: any) => void) => {
@@ -112,42 +110,16 @@ export function createInputSystem(layers: Layers) {
     noa.inputs.up.on(key, handler);
   };
 
-  function disableInputs(focusedUi: FocusedUiType) {
-    // disable movement when inventory is open
-    // https://github.com/fenomas/noa/issues/61
-    noa.entities.removeComponent(noa.playerEntity, noa.ents.names.receivesInputs);
-    unbindInputEvent("select-voxel");
-    if (focusedUi !== FocusedUiType.TENET_SIDEBAR) {
-      unbindInputEvent("sidebar");
-    }
-    if (focusedUi !== FocusedUiType.INVENTORY) {
-      // do NOT unbind toggle-inventory if the user is in the inventory (so they can close it)
-      unbindInputEvent("toggle-inventory");
-    }
-    noa.entities.getMovement(noa.playerEntity).isPlayerSlowedToAStop = true; // stops the player's input from moving the player
-    unbindInputEvent("cancel-action");
-  }
-
-  function enableInputs() {
-    // since a react component calls this function times, we need to use addComponentAgain (rather than addComponent)
-    noa.entities.addComponentAgain(noa.playerEntity, "receivesInputs", noa.ents.names.receivesInputs);
-    bindInputEvent("select-voxel");
-    bindInputEvent("sidebar");
-    bindInputEvent("toggle-inventory");
-    noa.entities.getMovement(noa.playerEntity).isPlayerSlowedToAStop = false;
-    bindInputEvent("cancel-action");
-  }
-
   // If the user is in a UI (e.g. inventory), disable inputs that could conflict with typing into the UI
   // otherwise, enable the inputs
   FocusedUi.update$.subscribe((update) => {
-    const focusedUiType = update.value[0].value;
+    const focusedUiType = update.value[0]?.value ?? FocusedUiType.WORLD; // Assume the user is focuesed on the world if focusedUiType is undefined
     if (focusedUiType === FocusedUiType.WORLD) {
-      enableInputs();
+      enableInputs(noa);
       noa.container.setPointerLock(true);
     } else {
       noa.container.setPointerLock(false);
-      disableInputs(focusedUiType as FocusedUiType);
+      disableInputs(noa, focusedUiType as FocusedUiType);
     }
   });
 
@@ -281,7 +253,7 @@ export function createInputSystem(layers: Layers) {
       build(noa, voxelBaseTypeId, coord);
     } else {
       // you are holding nothing and are looking at a block. So activate the block
-      const entity = getEntityAtPosition(getTargetedVoxelCoord(noa));
+      const entity = getEntityAtPosition(getTargetedVoxelCoord(noa), getWorldScale(noa));
       if (entity) {
         activate(entity);
       }
@@ -435,7 +407,7 @@ export function createInputSystem(layers: Layers) {
       const voxelSelection = getComponentValue(VoxelInterfaceSelection, SingletonEntity);
       if (!voxelSelection || !voxelSelection.interfaceVoxels) return;
       const coord = getTargetedVoxelCoord(noa);
-      const entityAtCoord = getEntityAtPosition(coord);
+      const entityAtCoord = getEntityAtPosition(coord, getWorldScale(noa));
 
       if (!entityAtCoord) {
         return;

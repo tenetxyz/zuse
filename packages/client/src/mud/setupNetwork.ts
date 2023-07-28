@@ -549,8 +549,12 @@ export async function setupNetwork() {
   ) {
     // TODO: Replace Diamond NFT with a creation symbol
     const preview = getNftStorageLink("bafkreicro56v6rinwnltbkyjfzqdwva2agtrtypwaeowud447louxqgl5y");
-    const voxelsWithoutScale = voxels.map((voxelEntityKey) => {
-      return voxelEntityKey.split(":")[1];
+    const voxelEntities = voxels.map((voxelEntityKey) => {
+      const voxelCompositeKey = voxelEntityKey.split(":");
+      return {
+        scale: Number(voxelCompositeKey[0]),
+        entityId: voxelCompositeKey[1],
+      };
     });
 
     actions.add({
@@ -564,7 +568,7 @@ export async function setupNetwork() {
         return callSystem("registerCreation", [
           creationName,
           creationDescription,
-          voxelsWithoutScale,
+          voxelEntities,
           baseCreationsInWorld,
           { gasLimit: 30_000_000 },
         ]);

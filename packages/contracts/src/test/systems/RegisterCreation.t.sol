@@ -3,7 +3,7 @@ pragma solidity >=0.8.0;
 
 import { getUniqueEntity } from "@latticexyz/world/src/modules/uniqueentity/getUniqueEntity.sol";
 import { MudTest } from "@latticexyz/store/src/MudTest.sol";
-import { VoxelCoord, BaseCreationInWorld } from "@tenet-contracts/src/Types.sol";
+import { VoxelCoord, BaseCreationInWorld, VoxelEntity } from "@tenet-contracts/src/Types.sol";
 import { OwnedBy, VoxelType, VoxelTypeData } from "@tenet-contracts/src/codegen/Tables.sol";
 import { IWorld } from "@tenet-contracts/src/codegen/world/IWorld.sol";
 import { IStore } from "@latticexyz/store/src/IStore.sol";
@@ -31,11 +31,9 @@ contract RegisterCreationTest is MudTest {
     vm.startPrank(alice);
 
     bytes32 voxel1 = world.giftVoxel(GrassVoxelID);
-    bytes32[] memory voxels = new bytes32[](1);
-    voxels[0] = voxel1;
-    uint32[] memory scales = new uint32[](1);
-    scales[0] = 1;
-    VoxelTypeData[] memory voxelTypes = world.getVoxelTypes(scales, voxels);
+    VoxelEntity[] memory voxels = new VoxelEntity[](1);
+    voxels[0] = VoxelEntity({ scale: 1, entityId: voxel1 });
+    VoxelTypeData[] memory voxelTypes = world.getVoxelTypes(voxels);
     assertEq(voxelTypes[0].voxelTypeId, GrassVoxelID);
 
     vm.stopPrank();
@@ -58,9 +56,9 @@ contract RegisterCreationTest is MudTest {
     bytes32 voxel1 = world.build(1, giftedVoxel, coord1);
     bytes32 voxel2 = world.build(1, giftedVoxel, coord2);
 
-    bytes32[] memory voxels = new bytes32[](2);
-    voxels[0] = voxel1;
-    voxels[1] = voxel2;
+    VoxelEntity[] memory voxels = new VoxelEntity[](2);
+    voxels[0] = VoxelEntity({ scale: 1, entityId: voxel1 });
+    voxels[1] = VoxelEntity({ scale: 1, entityId: voxel2 });
 
     BaseCreationInWorld[] memory baseCreationsInWorld = new BaseCreationInWorld[](0);
     world.registerCreation("test creation name", "test creation desc", voxels, baseCreationsInWorld);

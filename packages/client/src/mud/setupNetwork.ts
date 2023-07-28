@@ -34,7 +34,15 @@ import {
   EMPTY_BYTES_32,
 } from "../layers/noa/types";
 import { Textures, UVWraps } from "../layers/noa/constants";
-import { AIR_ID, BEDROCK_ID, DIRT_ID, GRASS_ID } from "../layers/network/api/terrain/occurrence";
+import {
+  AIR_ID,
+  BEDROCK_ID,
+  DIRT_ID,
+  GRASS_ID,
+  TILE2_ID,
+  TILE3_ID,
+  TILE4_ID,
+} from "../layers/network/api/terrain/occurrence";
 import { getNftStorageLink } from "../layers/noa/constants";
 import { getWorldScale, voxelCoordToString } from "../utils/coord";
 import { toast } from "react-toastify";
@@ -298,6 +306,30 @@ export async function setupNetwork() {
       type: NoaBlockType.BLOCK,
       material: Textures.Bedrock,
       uvWrap: UVWraps.Bedrock,
+    },
+  });
+  VoxelVariantIdToDef.set(TILE2_ID, {
+    noaBlockIdx: 4,
+    noaVoxelDef: {
+      type: NoaBlockType.BLOCK,
+      material: Textures.Tile2,
+      uvWrap: UVWraps.Grass,
+    },
+  });
+  VoxelVariantIdToDef.set(TILE3_ID, {
+    noaBlockIdx: 4,
+    noaVoxelDef: {
+      type: NoaBlockType.BLOCK,
+      material: Textures.Tile3,
+      uvWrap: UVWraps.Grass,
+    },
+  });
+  VoxelVariantIdToDef.set(TILE4_ID, {
+    noaBlockIdx: 4,
+    noaVoxelDef: {
+      type: NoaBlockType.BLOCK,
+      material: Textures.Tile4,
+      uvWrap: UVWraps.Grass,
     },
   });
 

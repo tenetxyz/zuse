@@ -21,7 +21,7 @@ export const to64CharAddress = (hexAddress: string | undefined) => {
   return "0x" + addressWithout0x.padStart(64, "0");
 };
 
-// same as above, but 40 chars
+// same as above, but 40 chars. Useful for converting uint256 to an address
 export const to40CharAddress = (hexAddress: string | undefined) => {
   if (!hexAddress) {
     console.error("trying to run a query on an undefined address");

@@ -4,6 +4,8 @@ import { SearchBar } from "./common/SearchBar";
 import { useRef } from "react";
 import { useWorldRegistrySearch } from "@/utils/useWorldRegistrySearch";
 import { to40CharAddress } from "@/utils/entity";
+import { VoxelTypeDesc } from "./VoxelTypeStore";
+import { VoxelBaseTypeId } from "@/layers/noa/types";
 
 type CaAddress = string;
 export interface WorldRegistryFilters {
@@ -35,12 +37,13 @@ interface Props {
 export const WorldRegistry = ({ layers, filters, setFilters }: Props) => {
   const {
     network: {
-      registryComponents: { CARegistry },
+      registryComponents: { CARegistry, VoxelTypeRegistry },
     },
   } = layers;
   const { worldsToDisplay } = useWorldRegistrySearch({ layers, filters });
 
   const caDescs = useRef<Map<CaAddress, CaDesc>>(new Map());
+  const voxelTypeDescs = useRef<Map<VoxelBaseTypeId, VoxelTypeDesc>>(new Map());
 
   useComponentUpdate(CARegistry, (update) => {
     const caDesc = update.value[0];
@@ -57,6 +60,24 @@ export const WorldRegistry = ({ layers, filters, setFilters }: Props) => {
       scale: caDesc.scale,
       voxelBaseTypeIds: caDesc.voxelTypeIds,
     } as CaDesc);
+  });
+
+  useComponentUpdate(VoxelTypeRegistry, (update) => {
+    const voxelTypeDesc = update.value[0];
+    if (!voxelTypeDesc) {
+      console.warn(`cannot find values for ${update.entity}`);
+      return;
+    }
+    const VoxelBaseTypeId = update.entity;
+    voxelTypeDescs.current.set(VoxelBaseTypeId, {
+      VoxelBaseTypeId: VoxelBaseTypeId,
+      name: voxelTypeDesc.name,
+      previewVoxelVariantId: voxelTypeDesc.previewVoxelVariantId,
+      numSpawns: voxelTypeDesc.numSpawns,
+      creator: voxelTypeDesc.creator,
+      scale: voxelTypeDesc.scale,
+      childVoxelTypeIds: voxelTypeDesc.childVoxelTypeIds,
+    } as VoxelTypeDesc);
   });
 
   return (

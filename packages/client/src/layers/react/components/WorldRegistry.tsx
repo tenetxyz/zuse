@@ -71,9 +71,9 @@ export const WorldRegistry = ({ layers, filters, setFilters }: Props) => {
       console.warn(`cannot find values for ${update.entity}`);
       return;
     }
-    const VoxelBaseTypeId = update.entity;
-    voxelTypeDescs.current.set(VoxelBaseTypeId, {
-      VoxelBaseTypeId: VoxelBaseTypeId,
+    const voxelBaseTypeId = update.entity;
+    voxelTypeDescs.current.set(voxelBaseTypeId, {
+      voxelBaseTypeId,
       name: voxelTypeDesc.name,
       previewVoxelVariantId: voxelTypeDesc.previewVoxelVariantId,
       numSpawns: voxelTypeDesc.numSpawns,

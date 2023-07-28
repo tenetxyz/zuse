@@ -45,7 +45,7 @@ export const useVoxelTypeSearch = ({ layers, filters }: Props) => {
       .map(([voxelTypeId, voxelTypeRecord]) => {
         return {
           name: voxelTypeRecord!.name,
-          VoxelBaseTypeId: voxelTypeId as Entity,
+          voxelBaseTypeId: voxelTypeId as Entity,
           previewVoxelVariantId: voxelTypeRecord!.previewVoxelVariantId,
           numSpawns: voxelTypeRecord!.numSpawns,
           creator: voxelTypeRecord!.creator,

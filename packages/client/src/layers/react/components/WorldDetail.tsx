@@ -50,9 +50,12 @@ export const WorldDetail = ({ caDescs, voxelTypeDescs, worldDesc }: Props) => {
             {voxelTypeDescsForCa.map((voxelTypeDesc, voxelTypeIdx) => {
               return (
                 <div key={`world-address-${worldDesc.worldAddress}-ca-${caIdx}-voxel-type-${voxelTypeIdx}`}>
-                  <p>Voxel Base Type Id: {voxelTypeDesc.VoxelBaseTypeId}</p>
+                  <p>Voxel Base Type Id: {voxelTypeDesc.voxelBaseTypeId}</p>
                   <p>Name: {voxelTypeDesc.name}</p>
                   <p>Creator: {voxelTypeDesc.creator}</p>
+                  {/* <p>Scale: {voxelTypeDesc.scale}</p> */}
+                  name: string; VoxelBaseTypeId: Entity; previewVoxelVariantId: string; numSpawns: BigInt; creator:
+                  string; scale: number; childVoxelTypeIds: string[];
                 </div>
               );
             })}

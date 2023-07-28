@@ -7,7 +7,7 @@ import { VoxelCoord } from "@latticexyz/utils";
 import { openSidebar, closeSidebar } from "../../../layers/noa/systems/createInputSystem";
 import { Layers } from "../../../types";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faMagnifyingGlassPlus, faMagnifyingGlassMinus, faBars } from "@fortawesome/free-solid-svg-icons";
+import { faArrowUp , faArrowDown, faBars } from "@fortawesome/free-solid-svg-icons";
 import styled from "styled-components";
 import { SetupContractConfig, getBurnerWallet } from "@latticexyz/std-client";
 import { registerBlockExplorer } from "./BlockExplorer";
@@ -40,7 +40,8 @@ import { publicClient$, transactionHash$ } from "@latticexyz/network/dev";
 import type { PublicClient, Chain } from "viem";
 import { useComponentUpdate } from "../../../utils/useComponentUpdate";
 import { getTransactionResult } from "@latticexyz/dev-tools";
-import { Badge } from "@/components/ui/badge"
+import { Badge } from "@/components/ui/badge";
+
 
 type BlockEvent = {
   blockNumber: number;
@@ -357,7 +358,7 @@ export function registerPersistentSidebar() {
               <TooltipProvider delayDuration={100} >
                 <Tooltip>
                   <TooltipTrigger>
-                    <Button style={{ margin: "0" }} onClick={() => openSidebar(FocusedUi, SingletonEntity, PersistentNotification, SpawnCreation, noa)}>
+                    <Button style={{ margin: "0", padding: "8px" }} onClick={() => openSidebar(FocusedUi, SingletonEntity, PersistentNotification, SpawnCreation, noa)}>
                       <FontAwesomeIcon icon={faBars} style={{ color: "#C9CACB"}} />
                     </Button>
                   </TooltipTrigger>
@@ -375,7 +376,7 @@ export function registerPersistentSidebar() {
                 <Tooltip>
                   <TooltipTrigger>
                     <Button onClick={zoomIn}>
-                      <FontAwesomeIcon icon={faMagnifyingGlassPlus} style={{ color: "#C9CACB"}} />
+                      <FontAwesomeIcon icon={faArrowDown} style={{ color: "#C9CACB"}} />
                     </Button>
                   </TooltipTrigger>
                   <TooltipContent>
@@ -385,7 +386,7 @@ export function registerPersistentSidebar() {
                 <Tooltip>
                   <TooltipTrigger>
                     <Button onClick={zoomOut}>
-                      <FontAwesomeIcon icon={faMagnifyingGlassMinus} style={{ color: "#C9CACB"}} />
+                      <FontAwesomeIcon icon={faArrowUp} style={{ color: "#C9CACB"}} />
                     </Button>
                   </TooltipTrigger>
                   <TooltipContent>
@@ -486,7 +487,7 @@ export function registerPersistentSidebar() {
 
 
 const Button = styled.button<{ selected?: boolean }>`
-  padding: 8px;
+  padding: 4px 8px;
   margin: 0 4px;
   border: 2px solid #374147;
   background-color: rgba(36, 42, 47, 1);

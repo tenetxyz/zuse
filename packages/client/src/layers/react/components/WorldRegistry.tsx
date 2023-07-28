@@ -28,6 +28,9 @@ export interface CaDesc {
   voxelBaseTypeIds: string[];
 }
 
+export type CaDescs = Map<CaAddress, CaDesc>;
+export type VoxelTypeDescs = Map<VoxelBaseTypeId, VoxelTypeDesc>;
+
 interface Props {
   layers: Layers;
   filters: WorldRegistryFilters;
@@ -42,8 +45,8 @@ export const WorldRegistry = ({ layers, filters, setFilters }: Props) => {
   } = layers;
   const { worldsToDisplay } = useWorldRegistrySearch({ layers, filters });
 
-  const caDescs = useRef<Map<CaAddress, CaDesc>>(new Map());
-  const voxelTypeDescs = useRef<Map<VoxelBaseTypeId, VoxelTypeDesc>>(new Map());
+  const caDescs = useRef<CaDescs>(new Map());
+  const voxelTypeDescs = useRef<VoxelTypeDescs>(new Map());
 
   useComponentUpdate(CARegistry, (update) => {
     const caDesc = update.value[0];
@@ -68,9 +71,9 @@ export const WorldRegistry = ({ layers, filters, setFilters }: Props) => {
       console.warn(`cannot find values for ${update.entity}`);
       return;
     }
-    const VoxelBaseTypeId = update.entity;
-    voxelTypeDescs.current.set(VoxelBaseTypeId, {
-      VoxelBaseTypeId: VoxelBaseTypeId,
+    const voxelBaseTypeId = update.entity;
+    voxelTypeDescs.current.set(voxelBaseTypeId, {
+      voxelBaseTypeId,
       name: voxelTypeDesc.name,
       previewVoxelVariantId: voxelTypeDesc.previewVoxelVariantId,
       numSpawns: voxelTypeDesc.numSpawns,
@@ -105,10 +108,10 @@ export const WorldRegistry = ({ layers, filters, setFilters }: Props) => {
                 <button
                   type="button"
                   onClick={() => {
-                    console.log("printing ca descs for world", world.worldAddress);
-                    for (const caAddress of world.caAddresses) {
-                      console.log(caDescs.current.get(caAddress));
-                    }
+                    // console.log("printing ca descs for world", world.worldAddress);
+                    // for (const caAddress of world.caAddresses) {
+                    //   console.log(caDescs.current.get(caAddress));
+                    // }
                   }}
                   className="text-gray-900 hover:text-white border border-gray-800 hover:bg-gray-900 focus:ring-4 focus:outline-none focus:ring-gray-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center mr-2 mb-2"
                 >

@@ -3,7 +3,7 @@ pragma solidity >=0.8.0;
 
 import { VoxelVariantsRegistryData } from "@tenet-registry/src/codegen/tables/VoxelVariantsRegistry.sol";
 import { NoaBlockType } from "@tenet-registry/src/codegen/Types.sol";
-import { REGISTRY_ADDRESS, AirVoxelID, AirVoxelVariantID, DirtVoxelID, DirtVoxelVariantID, DirtTexture, DirtUVWrap, GrassVoxelID, GrassVoxelVariantID, GrassTexture, GrassSideTexture, GrassUVWrap, BedrockVoxelID, BedrockVoxelVariantID, BedrockTexture, BedrockUVWrap } from "@base-ca/src/Constants.sol";
+import { REGISTRY_ADDRESS, AirVoxelID, AirVoxelVariantID, DirtVoxelID, DirtVoxelVariantID, DirtTexture, DirtUVWrap, Tile2VoxelID, Tile2VoxelVariantID, Tile2Texture, Tile2SideTexture, Tile2UVWrap, BedrockVoxelID, BedrockVoxelVariantID, BedrockTexture, BedrockUVWrap } from "@base-ca/src/Constants.sol";
 import { registerVoxelVariant, registerVoxelType } from "@tenet-registry/src/Utils.sol";
 
 function registerAir() {
@@ -61,4 +61,19 @@ function registerBedrock() {
   bytes32[] memory bedrockChildVoxelTypes = new bytes32[](1);
   bedrockChildVoxelTypes[0] = BedrockVoxelID;
   registerVoxelType(REGISTRY_ADDRESS, "Bedrock", BedrockVoxelID, bedrockChildVoxelTypes, BedrockVoxelVariantID);
+}
+
+function registerTile2() {
+  VoxelVariantsRegistryData memory tile2Variant;
+  tile2Variant.blockType = NoaBlockType.BLOCK;
+  tile2Variant.opaque = true;
+  tile2Variant.solid = true;
+  string[] memory tile2Materials = new string[](1);
+  tile2Materials[0] = Tile2Texture;
+  tile2Variant.materials = abi.encode(tile2Materials);
+  tile2Variant.uvWrap = Tile2UVWrap;
+  registerVoxelVariant(REGISTRY_ADDRESS, Tile2VoxelVariantID, tile2Variant);
+  bytes32[] memory tile2ChildVoxelTypes = new bytes32[](1);
+  tile2ChildVoxelTypes[0] = GrassVoxelID;
+  registerVoxelType(REGISTRY_ADDRESS, "Tile2", Tile2VoxelID, tile2ChildVoxelTypes, Tile2VoxelVariantID);
 }

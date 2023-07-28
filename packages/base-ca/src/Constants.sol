@@ -28,6 +28,21 @@ bytes32 constant BedrockVoxelVariantID = bytes32(keccak256("bedrock"));
 string constant BedrockTexture = "bafkreidfo756faklwx7o4q2753rxjqx6egzpmqh2zhylxaehqalvws555a";
 string constant BedrockUVWrap = "bafkreihdit6glam7sreijo7itbs7uwc2ltfeuvcfaublxf6rjo24hf6t4y";
 
+bytes32 constant Tile2VoxelID = bytes32(keccak256("tile2"));
+bytes32 constant Tile2VoxelVariantID = bytes32(keccak256("tile2"));
+string constant Tile2Texture = "bafkreihy3pblhqaqquwttcykwlyey3umpou57rkvtncpdrjo7mlgna53g4";
+string constant Tile2UVWrap = "bafkreifsrs64rckwnfkwcyqkzpdo3tpa2at7jhe6bw7jhevkxa7estkdnm";
+
+bytes32 constant Tile3VoxelID = bytes32(keccak256("tile3"));
+bytes32 constant Tile3VoxelVariantID = bytes32(keccak256("tile3"));
+string constant Tile3Texture = "bafkreihy3pblhqaqquwttcykwlyey3umpou57rkvtncpdrjo7mlgna53g4";
+string constant Tile3UVWrap = "bafkreifsrs64rckwnfkwcyqkzpdo3tpa2at7jhe6bw7jhevkxa7estkdnm";
+
+bytes32 constant Tile4VoxelID = bytes32(keccak256("tile4"));
+bytes32 constant Tile4VoxelVariantID = bytes32(keccak256("tile4"));
+string constant Tile4Texture = "bafkreihy3pblhqaqquwttcykwlyey3umpou57rkvtncpdrjo7mlgna53g4";
+string constant Tile4UVWrap = "bafkreifsrs64rckwnfkwcyqkzpdo3tpa2at7jhe6bw7jhevkxa7estkdnm";
+
 int32 constant CHUNK_MAX_Y = 255;
 int32 constant CHUNK_MIN_Y = -63;
 

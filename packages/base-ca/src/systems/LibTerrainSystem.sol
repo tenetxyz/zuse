@@ -308,8 +308,12 @@ contract LibTerrainSystem is System {
     if (scale == 1) {
       return GrassVoxelID;
     } else if (scale == 2) {
-      return GrassVoxelID;
-    } else if (scale == 3) {} else {}
+      return Tile2VoxelID;
+    } else if (scale == 3) {
+      return Tile3VoxelID;
+    } else {
+      return Tile4VoxelID;
+    }
   }
 
   function Dirt(VoxelCoord memory coord) public pure returns (bytes32) {

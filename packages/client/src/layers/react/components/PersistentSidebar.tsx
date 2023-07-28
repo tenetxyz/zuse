@@ -367,7 +367,7 @@ export function registerPersistentSidebar() {
                 </Tooltip>
               </TooltipProvider>
             </div>
-            <Badge style={{ padding: "4px 2px", border: "1px solid rgb(201, 202, 203, 0.1)",borderRadius: "8px", marginTop: "8px"}}>
+            <Badge style={{ padding: "4px 2px", border: "0.5px solid #C9CACB", borderRadius: "8px", marginTop: "8px", backgroundColor: "#ffffff12", backdropFilter: "blur(2px)", textShadow: "1px 1px 2px rgba(0, 0, 0, 0.5)" }}>
               <TooltipProvider delayDuration={100}>
                 <span>
                   <Badge variant="secondary" style={{borderRadius: "4px", paddingLeft: "4px", paddingRight: "4px"}}> LEVEL: {worldScale} </Badge>
@@ -396,10 +396,10 @@ export function registerPersistentSidebar() {
             </Badge>
           </div>
           <div>
-            <Badge style={{ padding: "4px 2px", border: "1px solid rgb(201, 202, 203, 0.1)",borderRadius: "8px", marginTop: "8px"}}>
+            <Badge style={{ padding: "4px 2px", border: "0.5px solid #C9CACB", borderRadius: "8px", marginTop: "8px", backgroundColor: "#ffffff12", backdropFilter: "blur(2px)"}}>
                 <CardContent className="p-4">
                   <div style = {{marginBottom: "4px", maxWidth: "200px", overflow: "hidden"}}>
-                    <Badge variant="secondary" style={{borderRadius: "4px", paddingLeft: "4px", paddingRight: "4px"}}> BRANCH: {layers.network.worldAddress.slice(0, 10)}... </Badge> 
+                    <Badge variant="secondary" style={{borderRadius: "4px", paddingLeft: "4px", paddingRight: "4px", textShadow: "1px 1px 2px rgba(0, 0, 0, 0.5)"}}> BRANCH: {layers.network.worldAddress.slice(0, 10)}... </Badge> 
                     <BlockExplorerContainer>
                           {summary.map(([blockNumber, block]) => (
                             <div
@@ -455,7 +455,7 @@ export function registerPersistentSidebar() {
                       </span>
                       )}
                   </div> */}
-                  <Badge variant="secondary" style={{borderRadius: "4px", paddingLeft: "4px", paddingRight: "4px"}}> PLAYER: {layers.network.network.connectedAddress.get().slice(0, 10)}... </Badge> 
+                  <Badge variant="secondary" style={{borderRadius: "4px", paddingLeft: "4px", paddingRight: "4px", textShadow: "1px 1px 2px rgba(0, 0, 0, 0.5)"}}> PLAYER: {layers.network.network.connectedAddress.get().slice(0, 10)}... </Badge> 
                   <ActionQueueList>
                     {[...getComponentEntities(Action)].reverse().map((e) => {
                       const { state, metadata, txHash } = getComponentValueStrict(Action, e);
@@ -477,10 +477,6 @@ export function registerPersistentSidebar() {
                   </ActionQueueList>
                 </CardContent>
             </Badge>
-
-
-
-
           </div>
         </div>
       );

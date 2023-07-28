@@ -37,9 +37,9 @@ export function Tile(state: TerrainState): VoxelTypeKey | undefined {
     coord: { y },
     scale,
   } = state;
-  const GRASS_Y = calculateParentCoord({ x: 0, y: TILE_HEIGHT, z: 0 }, scale).y;
+  const tileY = calculateParentCoord({ x: 0, y: TILE_HEIGHT, z: 0 }, scale).y;
 
-  if (y !== GRASS_Y) {
+  if (y !== tileY) {
     return;
   }
   switch (scale) {

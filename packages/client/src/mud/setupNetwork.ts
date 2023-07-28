@@ -313,23 +313,23 @@ export async function setupNetwork() {
     noaVoxelDef: {
       type: NoaBlockType.BLOCK,
       material: Textures.Tile2,
-      uvWrap: UVWraps.Grass,
+      uvWrap: UVWraps.Tile2,
     },
   });
   VoxelVariantIdToDef.set(TILE3_ID, {
-    noaBlockIdx: 4,
+    noaBlockIdx: 5,
     noaVoxelDef: {
       type: NoaBlockType.BLOCK,
       material: Textures.Tile3,
-      uvWrap: UVWraps.Grass,
+      uvWrap: UVWraps.Tile3,
     },
   });
   VoxelVariantIdToDef.set(TILE4_ID, {
-    noaBlockIdx: 4,
+    noaBlockIdx: 6,
     noaVoxelDef: {
       type: NoaBlockType.BLOCK,
       material: Textures.Tile4,
-      uvWrap: UVWraps.Grass,
+      uvWrap: UVWraps.Tile4,
     },
   });
 

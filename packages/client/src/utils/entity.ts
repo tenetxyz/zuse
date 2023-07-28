@@ -21,6 +21,16 @@ export const to64CharAddress = (hexAddress: string | undefined) => {
   return "0x" + addressWithout0x.padStart(64, "0");
 };
 
+// same as above, but 40 chars
+export const to40CharAddress = (hexAddress: string | undefined) => {
+  if (!hexAddress) {
+    console.error("trying to run a query on an undefined address");
+    return "";
+  }
+  const rightmostChars = hexAddress.slice(-40);
+  return "0x" + rightmostChars.padStart(40, "0");
+};
+
 // this is mainly for documentation so ppl know the internal representation
 // also so people will look this up and see the other definitions in this file
 // Notice how we're using the wrapper object String not string

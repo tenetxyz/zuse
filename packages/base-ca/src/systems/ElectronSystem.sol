@@ -4,7 +4,8 @@ pragma solidity >=0.8.0;
 import { IWorld } from "@base-ca/src/codegen/world/IWorld.sol";
 import { VoxelInteraction } from "@base-ca/src/prototypes/VoxelInteraction.sol";
 import { BlockDirection } from "@tenet-utils/src/Types.sol";
-import { ElectronTunnelSpot, CAVoxelType, CAPosition, CAPositionData, CAPositionTableId } from "@base-ca/src/codegen/Tables.sol";
+import { hasKey } from "@latticexyz/world/src/modules/keysintable/hasKey.sol";
+import { ElectronTunnelSpot, ElectronTunnelSpotData, ElectronTunnelSpotTableId, CAVoxelType, CAPosition, CAPositionData, CAPositionTableId } from "@base-ca/src/codegen/Tables.sol";
 import { AirVoxelID, DirtVoxelID, GrassVoxelID, BedrockVoxelID } from "@base-ca/src/Constants.sol";
 import { getEntityAtCoord, getNeighbours, positionDataToVoxelCoord } from "@base-ca/src/Utils.sol";
 import { buildWorld, mineWorld } from "@base-ca/src/CallUtils.sol";
@@ -18,6 +19,9 @@ contract ElectronSystem is VoxelInteraction {
     bytes32 neighbourEntityId,
     BlockDirection neighbourBlockDirection
   ) internal override returns (bool changedEntity) {
+    if (neighbourEntityId == 0) {
+      return false;
+    }
     CAPositionData memory baseCoord = CAPosition.get(callerAddress, interactEntity);
     (bytes32[] memory neighbourEntityIds, BlockDirection[] memory neighbourEntityDirections) = getNeighbours(
       callerAddress,
@@ -83,7 +87,7 @@ contract ElectronSystem is VoxelInteraction {
     bytes32 interactEntity,
     CAPositionData memory baseCoord
   ) internal returns (uint256, CAPositionData memory) {
-    bool atTop = ElectronTunnelSpot.get(callerAddress, interactEntity);
+    bool atTop = ElectronTunnelSpot.get(callerAddress, interactEntity).atTop;
     CAPositionData memory otherCoord;
     if (atTop) {
       otherCoord = CAPositionData(baseCoord.x, baseCoord.y, baseCoord.z - 1);
@@ -114,6 +118,7 @@ contract ElectronSystem is VoxelInteraction {
     BlockDirection[] memory neighbourEntityDirections
   ) internal override returns (bool changedEntity) {
     CAPositionData memory baseCoord = CAPosition.get(callerAddress, interactEntity);
+    bool interactAtTop = ElectronTunnelSpot.get(callerAddress, interactEntity).atTop;
     // Check if block south of us is an electron, if so revert
     for (uint8 i = 0; i < neighbourEntityIds.length; i++) {
       bytes32 neighbourEntityId = neighbourEntityIds[i];
@@ -121,24 +126,41 @@ contract ElectronSystem is VoxelInteraction {
         continue;
       }
       bytes32 neighbourEntityType = CAVoxelType.getVoxelTypeId(callerAddress, neighbourEntityId);
-      if (neighbourEntityDirections[i] == BlockDirection.North) {
+      if (interactAtTop && neighbourEntityDirections[i] == BlockDirection.North) {
         if (neighbourEntityType == BedrockVoxelID) {
           revert("ElectronSystem: Cannot place electron when it's tunneling spot is already occupied (north)");
         }
 
-        // CAPositionData memory neighbourCoord = CAPosition.get(callerAddress, neighbourEntityId);
-        // // Check one above
-        // CAPositionData memory aboveCoord = CAPositionData(neighbourCoord.x, neighbourCoord.y, neighbourCoord.z - 1);
-        // bytes32 aboveEntity = getEntityAtCoord(callerAddress, aboveCoord);
-        // if (aboveEntity != 0) {
-        //   bytes32 aboveEntityType = CAVoxelType.getVoxelTypeId(callerAddress, aboveEntity);
-        //   if (aboveEntityType == BedrockVoxelID) {
-        //     revert("ElectronSystem: Cannot place electron when it's tunneling spot is already occupied (north above)");
-        //   }
-        // }
-      } else if (neighbourEntityDirections[i] == BlockDirection.South) {
+        CAPositionData memory neighbourCoord = CAPosition.get(callerAddress, neighbourEntityId);
+        // Check one above
+        CAPositionData memory aboveCoord = CAPositionData(neighbourCoord.x, neighbourCoord.y, neighbourCoord.z - 1);
+        bytes32 aboveEntity = getEntityAtCoord(callerAddress, aboveCoord);
+
+        if (aboveEntity != 0) {
+          if (hasKey(ElectronTunnelSpotTableId, ElectronTunnelSpot.encodeKeyTuple(callerAddress, aboveEntity))) {
+            ElectronTunnelSpotData memory electronTunnelData = ElectronTunnelSpot.get(callerAddress, aboveEntity);
+            if (electronTunnelData.atTop || electronTunnelData.sibling == interactEntity) {} else {
+              revert(
+                string(
+                  abi.encode(
+                    "ElectronSystem: Cannot place electron when it's tunneling spot is already occupied (north above)",
+                    Strings.toString(uint256(interactEntity)),
+                    Strings.toString(baseCoord.x),
+                    Strings.toString(baseCoord.y),
+                    Strings.toString(baseCoord.z),
+                    Strings.toString(uint256(aboveEntity)),
+                    Strings.toString(aboveCoord.x),
+                    Strings.toString(aboveCoord.y),
+                    Strings.toString(aboveCoord.z)
+                  )
+                )
+              );
+            }
+          }
+        }
+      } else if (!interactAtTop && neighbourEntityDirections[i] == BlockDirection.South) {
         if (neighbourEntityType == BedrockVoxelID) {
-          bool neighbourAtTop = ElectronTunnelSpot.get(callerAddress, neighbourEntityType);
+          bool neighbourAtTop = ElectronTunnelSpot.get(callerAddress, neighbourEntityType).atTop;
           if (neighbourAtTop) {
             revert("ElectronSystem: Cannot place electron when it's tunneling spot is already occupied (south)");
           }

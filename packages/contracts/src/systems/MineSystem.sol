@@ -17,6 +17,7 @@ import { removeEntityFromArray } from "@tenet-utils/src/Utils.sol";
 import { Utils } from "@latticexyz/world/src/Utils.sol";
 import { CHUNK_MAX_Y, CHUNK_MIN_Y } from "../Constants.sol";
 import { exitWorld } from "@tenet-base-ca/src/CallUtils.sol";
+import { AirVoxelID } from "@tenet-base-ca/src/Constants.sol";
 
 contract MineSystem is System {
   function mine(bytes32 voxelTypeId, VoxelCoord memory coord) public returns (bytes32) {
@@ -86,7 +87,6 @@ contract MineSystem is System {
   }
 
   function clearCoord(VoxelCoord memory coord) public returns (bytes32) {
-    bytes32 AirID;
     bytes32[][] memory entitiesAtPosition = getEntitiesAtCoord(coord);
     bytes32 minedEntity = 0;
     for (uint256 i = 0; i < entitiesAtPosition.length; i++) {
@@ -94,7 +94,7 @@ contract MineSystem is System {
       bytes32 entity = entitiesAtPosition[i][1];
 
       VoxelTypeData memory voxelTypeData = VoxelType.get(scale, entity);
-      if (voxelTypeData.voxelTypeId == AirID) {
+      if (voxelTypeData.voxelTypeId == AirVoxelID) {
         // if it's air, then it's already clear
         continue;
       }

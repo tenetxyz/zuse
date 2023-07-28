@@ -42,6 +42,9 @@ contract VoxelRegistrySystem is System {
       );
     } else {
       for (uint256 i; i < childVoxelTypeIds.length; i++) {
+        if (childVoxelTypeIds[i] == 0) {
+          continue;
+        }
         require(
           hasKey(VoxelTypeRegistryTableId, VoxelTypeRegistry.encodeKeyTuple(childVoxelTypeIds[i])),
           "Child voxel type ID has not been registered"

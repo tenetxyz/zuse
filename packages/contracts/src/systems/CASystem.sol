@@ -13,6 +13,10 @@ import { getEntityAtCoord, calculateChildCoords, calculateParentCoord } from "..
 import { runInteraction } from "@tenet-base-ca/src/CallUtils.sol";
 
 contract CASystem is System {
+  function getVoxelTypeId(uint32 scale, bytes32 entity) public view returns (bytes32) {
+    return VoxelType.getVoxelTypeId(scale, entity);
+  }
+
   function calculateNeighbourEntities(uint32 scale, bytes32 centerEntity) public view returns (bytes32[] memory) {
     int8[NUM_VOXEL_NEIGHBOURS * 3] memory NEIGHBOUR_COORD_OFFSETS = [
       int8(0),
@@ -85,9 +89,9 @@ contract CASystem is System {
         // filter for the ones with scale-1
         bytes32 childEntityAtPosition = getEntityAtCoord(scale - 1, eightBlockVoxelCoords[i]);
 
-        if (childEntityAtPosition == 0) {
-          revert("found no child entity");
-        }
+        // if (childEntityAtPosition == 0) {
+        //   revert("found no child entity");
+        // }
 
         childEntities[i] = childEntityAtPosition;
       }
@@ -131,10 +135,10 @@ contract CASystem is System {
       bytes32[] memory useNeighbourEntities = calculateNeighbourEntities(scale, useCenterEntityId);
       bytes32[] memory childEntityIds = calculateChildEntities(scale, useCenterEntityId);
       bytes32 parentEntity = calculateParentEntity(scale, useCenterEntityId);
-      if (!hasEntity(useNeighbourEntities)) {
-        // if no neighbours, then we don't run any voxel interactions because there would be none
-        break;
-      }
+      // if (!hasEntity(useNeighbourEntities)) {
+      //   // if no neighbours, then we don't run any voxel interactions because there would be none
+      //   break;
+      // }
 
       // Run interaction logic
       bytes memory returnData = runInteraction(
@@ -175,6 +179,8 @@ contract CASystem is System {
       if (changedEntity == 0) {
         continue;
       }
+
+      // Run the CA for each parent now
 
       CAVoxelTypeData memory changedEntityVoxelType = CAVoxelType.get(IStore(caAddress), _world(), changedEntity);
       // Update VoxelType

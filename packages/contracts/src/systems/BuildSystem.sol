@@ -39,6 +39,9 @@ contract BuildSystem is System {
       // TODO: move this to a library
       VoxelCoord[] memory eightBlockVoxelCoords = calculateChildCoords(scale, coord);
       for (uint8 i = 0; i < 8; i++) {
+        if (childVoxelTypeIds[i] == 0) {
+          continue;
+        }
         buildVoxelType(childVoxelTypeIds[i], eightBlockVoxelCoords[i]);
       }
     }

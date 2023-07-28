@@ -5,14 +5,20 @@ import { IWorld } from "@composed-ca/src/codegen/world/IWorld.sol";
 import { System } from "@latticexyz/world/src/System.sol";
 import { getKeysWithValue } from "@latticexyz/world/src/modules/keyswithvalue/getKeysWithValue.sol";
 import { hasKey } from "@latticexyz/world/src/modules/keysintable/hasKey.sol";
-import { CAVoxelType, CAPosition, CAPositionData, CAPositionTableId } from "@composed-ca/src/codegen/Tables.sol";
+import { CAVoxelType, CAVoxelTypeData, CAPosition, CAPositionData, CAPositionTableId } from "@composed-ca/src/codegen/Tables.sol";
 import { VoxelCoord } from "@tenet-utils/src/Types.sol";
-import { Level2AirVoxelID, RoadVoxelID, RoadVoxelVariantID } from "@composed-ca/src/Constants.sol";
-import { AirVoxelVariantID } from "@tenet-base-ca/src/Constants.sol";
+import { Level2AirVoxelID, RoadVoxelID, RoadVoxelVariantID, SignalVoxelID, SignalOffVoxelVariantID, SignalOnVoxelVariantID } from "@composed-ca/src/Constants.sol";
+// import { AirVoxelVariantID } from "@base-ca/src/Constants.sol";
+import { BedrockVoxelID } from "@tenet-base-ca/src/Constants.sol";
+import { safeCall } from "@tenet-utils/src/CallUtils.sol";
+import { Strings } from "@openzeppelin/contracts/utils/Strings.sol";
+
+bytes32 constant AirVoxelID = bytes32(keccak256("air"));
+bytes32 constant AirVoxelVariantID = bytes32(keccak256("air"));
 
 contract ComposedCASystem is System {
   function isVoxelTypeAllowed(bytes32 voxelTypeId) public pure returns (bool) {
-    if (voxelTypeId == Level2AirVoxelID || voxelTypeId == RoadVoxelID) {
+    if (voxelTypeId == Level2AirVoxelID || voxelTypeId == RoadVoxelID || voxelTypeId == SignalVoxelID) {
       return true;
     }
     return false;
@@ -55,6 +61,8 @@ contract ComposedCASystem is System {
       return AirVoxelVariantID;
     } else if (voxelTypeId == RoadVoxelID) {
       return RoadVoxelVariantID;
+    } else if (voxelTypeId == SignalVoxelID) {
+      return SignalOffVoxelVariantID;
     } else {
       revert("This voxel type is not allowed in this CA");
     }
@@ -72,15 +80,95 @@ contract ComposedCASystem is System {
     CAVoxelType.set(callerAddress, entity, Level2AirVoxelID, airVoxelVariantId);
   }
 
+  function signalInteraction(
+    address callerAddress,
+    bytes32 interactEntity,
+    bytes32[] memory childEntityIds,
+    CAVoxelTypeData memory entityTypeData
+  ) public returns (bool changedEntity) {
+    uint8 found = 0;
+    for (uint256 i = 0; i < childEntityIds.length; i++) {
+      if (childEntityIds[i] != 0) {
+        found++;
+      }
+    }
+
+    bytes32 bottomLeft = childEntityIds[0];
+    // require(bottomLeft != 0, "bottomLeft is not set");
+    bytes32 bottomRight = childEntityIds[1];
+    // require(bottomRight != 0, "bottomRight is not set");
+    bytes32 topLeft = childEntityIds[4];
+    // require(topLeft != 0, "topLeft is not set");
+    bytes32 topRight = childEntityIds[5];
+    // require(topRight != 0, "topRight is not set");
+    bytes32 bottomLeftType = AirVoxelID;
+    if (bottomLeft != 0) {
+      bytes memory returnData = safeCall(
+        callerAddress,
+        abi.encodeWithSignature("getVoxelTypeId(uint32,bytes32)", 1, bottomLeft),
+        "getVoxelTypeId"
+      );
+      bottomLeftType = abi.decode(returnData, (bytes32));
+    }
+    bytes32 bottomRightType = AirVoxelID;
+    if (bottomRight != 0) {
+      bytes memory returnData = safeCall(
+        callerAddress,
+        abi.encodeWithSignature("getVoxelTypeId(uint32,bytes32)", 1, bottomRight),
+        "getVoxelTypeId"
+      );
+      bottomRightType = abi.decode(returnData, (bytes32));
+    }
+    bytes32 topLeftType = AirVoxelID;
+    if (topLeft != 0) {
+      bytes memory returnData = safeCall(
+        callerAddress,
+        abi.encodeWithSignature("getVoxelTypeId(uint32,bytes32)", 1, topLeft),
+        "getVoxelTypeId"
+      );
+      topLeftType = abi.decode(returnData, (bytes32));
+    }
+    bytes32 topRightType = AirVoxelID;
+    if (topRight != 0) {
+      bytes memory returnData = safeCall(
+        callerAddress,
+        abi.encodeWithSignature("getVoxelTypeId(uint32,bytes32)", 1, topRight),
+        "getVoxelTypeId"
+      );
+      topRightType = abi.decode(returnData, (bytes32));
+    }
+
+    if (topLeftType == BedrockVoxelID && bottomRightType == BedrockVoxelID) {
+      if (entityTypeData.voxelVariantId != SignalOffVoxelVariantID) {
+        CAVoxelType.set(callerAddress, interactEntity, SignalVoxelID, SignalOffVoxelVariantID);
+        changedEntity = true;
+      }
+    } else if (bottomLeftType == BedrockVoxelID && topRightType == BedrockVoxelID) {
+      if (entityTypeData.voxelVariantId != SignalOnVoxelVariantID) {
+        CAVoxelType.set(callerAddress, interactEntity, SignalVoxelID, SignalOnVoxelVariantID);
+        changedEntity = true;
+      }
+    }
+  }
+
   function runInteraction(
     bytes32 interactEntity,
     bytes32[] memory neighbourEntityIds,
     bytes32[] memory childEntityIds,
     bytes32 parentEntity
   ) public returns (bytes32[] memory changedEntities) {
+    address callerAddress = _msgSender();
+    changedEntities = new bytes32[](1);
     // loop over all neighbours and run interaction logic
     // the interaction's used will can be in different namespaces
     // can change type at position
     // keep looping until no more type and position changes
+    CAVoxelTypeData memory entityTypeData = CAVoxelType.get(callerAddress, interactEntity);
+    if (entityTypeData.voxelTypeId == SignalVoxelID) {
+      // calculate electron positions in childEntityIds
+      if (signalInteraction(callerAddress, interactEntity, childEntityIds, entityTypeData)) {
+        changedEntities[0] = interactEntity;
+      }
+    }
   }
 }

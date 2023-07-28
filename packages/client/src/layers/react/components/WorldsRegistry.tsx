@@ -3,7 +3,9 @@ import { Layers } from "../../../types";
 import { SearchBar } from "./common/SearchBar";
 import { useRef } from "react";
 import { useWorldRegistrySearch } from "@/utils/useWorldRegistrySearch";
+import { to40CharAddress } from "@/utils/entity";
 
+type CaAddress = string;
 export interface WorldRegistryFilters {
   query: string;
 }
@@ -12,6 +14,7 @@ export interface WorldDesc {
   name: string;
   description: string;
   creator: string;
+  caAddresses: CaAddress[];
 }
 
 export interface CaDesc {
@@ -37,24 +40,23 @@ export const WorldRegistry = ({ layers, filters, setFilters }: Props) => {
   } = layers;
   const { worldsToDisplay } = useWorldRegistrySearch({ layers, filters });
 
-  const caDescs = useRef<CaDesc[]>([]);
+  const caDescs = useRef<Map<CaAddress, CaDesc>>(new Map());
 
   useComponentUpdate(CARegistry, (update) => {
-    console.log(update);
     const caDesc = update.value[0];
     if (!caDesc) {
       console.warn(`cannot find values for ${update.entity}`);
       return;
     }
-    caDescs.current.push({
-      caAddress: update.entity,
+    const caAddress = to40CharAddress(update.entity);
+    caDescs.current.set(caAddress, {
+      caAddress,
       name: caDesc.name,
       description: caDesc.description,
       creator: caDesc.creator,
       scale: caDesc.scale,
       voxelBaseTypeIds: caDesc.voxelTypeIds,
     } as CaDesc);
-    console.log(caDescs);
   });
 
   return (
@@ -81,7 +83,12 @@ export const WorldRegistry = ({ layers, filters, setFilters }: Props) => {
                 </button>
                 <button
                   type="button"
-                  // onClick={() => setSelectedCreation(creation)}
+                  onClick={() => {
+                    console.log("printing ca descs for world", world.worldAddress);
+                    for (const caAddress of world.caAddresses) {
+                      console.log(caDescs.current.get(caAddress));
+                    }
+                  }}
                   className="text-gray-900 hover:text-white border border-gray-800 hover:bg-gray-900 focus:ring-4 focus:outline-none focus:ring-gray-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center mr-2 mb-2"
                 >
                   View Details

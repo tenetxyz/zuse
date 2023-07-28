@@ -14,7 +14,7 @@ import { TargetedBlock, getTargetedSpawnId } from "../../../utils/voxels";
 import { stringToEntity } from "../../../utils/entity";
 import { abiDecode } from "../../../utils/abi";
 import { ISpawn } from "../../noa/components/SpawnInFocus";
-import { WorldRegistry, WorldRegistryFilters } from "./WorldsRegistry";
+import { WorldRegistry, WorldRegistryFilters } from "./WorldRegistry";
 
 enum SidebarTab {
   VOXELS = "Voxel Types",

@@ -5,6 +5,15 @@ import { PendingIcon } from "./icons/PendingIcon";
 import { CheckIcon } from "./icons/CheckIcon";
 import { CloseIcon } from "./icons/CloseIcon";
 import { Container } from "./common";
+import { Badge } from "@/components/ui/badge";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 
 type Props = {
   state: ActionState;
@@ -14,15 +23,14 @@ type Props = {
   link?: string;
 };
 
-const ActionContainer = styled(Container)<{ clickable?: boolean }>`
-  ${(p) =>
-    p.clickable
-      ? `
-  pointer-events: all;
-  cursor: pointer;
-  `
-      : ""}
+const ActionContainer = styled.div`
   display: flex;
+  border: 0.5px solid #374147;
+  background-color: rgba(36, 42, 47, 0.8);
+  border-radius: 4px;
+  box-shadow: '#C9CACB 0px 0px 20px 5px';
+
+  padding: 4px;
 
   gap: 10px;
   position: relative;
@@ -34,8 +42,8 @@ const ActionContainer = styled(Container)<{ clickable?: boolean }>`
 
   .ActionIcon {
     flex-shrink: 0;
-    width: 32px;
-    height: 32px;
+    width: 16px;
+    height: 16px;
     overflow: hidden;
     img {
       width: 100%;
@@ -51,14 +59,13 @@ const ActionContainer = styled(Container)<{ clickable?: boolean }>`
   }
 
   .ActionTitle {
-    color: #ff0;
+    color: white;
     text-transform: capitalize;
   }
 
   .ActionStatus {
     position: absolute;
-    top: 4px;
-    right: 4px;
+    right: 8px;
     font-size: 1rem;
   }
 

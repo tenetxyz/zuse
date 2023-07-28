@@ -51,10 +51,10 @@ function enforceMaxLen(str: string) {
 type MudPublicClient = PublicClient & { chain: Chain };
 export function registerActionQueue() {
   registerTenetComponent({
-    rowStart: 6,
-    rowEnd: 12,
-    columnStart: 10,
-    columnEnd: 13,
+    rowStart: 0,
+    rowEnd: 0,
+    columnStart: 0,
+    columnEnd: 0,
     Component: ({ layers }) => {
       const {
         network: {
@@ -113,37 +113,37 @@ export function registerActionQueue() {
         });
       }, []);
 
-      return (
-        <ActionQueueList>
-          {[...getComponentEntities(Action)].map((e) => {
-            const { state, metadata, txHash } = getComponentValueStrict(Action, e);
-            const { actionType, coord, voxelVariantTypeId, preview } = metadata || {};
-            let icon = voxelVariantTypeId && getVoxelIconUrl(voxelVariantTypeId);
-            if (icon === undefined) {
-              icon = preview;
-            }
-            return (
-              <div key={e} className="ActionQueueItem">
-                <ActionQueueItem
-                  state={state}
-                  icon={icon}
-                  title={`${actionType} tx`}
-                  description={voxelVariantTypeId ? enforceMaxLen(voxelVariantTypeId) : ""}
-                  link={txHash && blockExplorer + "/tx/" + txHash}
-                />
-                {/* TODO: conditionally render this for debugging? */}
-                {coord ? (
-                  <div className="ActionQueueItemPosition">
-                    <div>X: {coord.x}</div>
-                    <div>Y: {coord.y}</div>
-                    <div>Z: {coord.z}</div>
-                  </div>
-                ) : null}
-              </div>
-            );
-          })}
-        </ActionQueueList>
-      );
+      // return (
+      //   <ActionQueueList>
+      //     {[...getComponentEntities(Action)].map((e) => {
+      //       const { state, metadata, txHash } = getComponentValueStrict(Action, e);
+      //       const { actionType, coord, voxelVariantTypeId, preview } = metadata || {};
+      //       let icon = voxelVariantTypeId && getVoxelIconUrl(voxelVariantTypeId);
+      //       if (icon === undefined) {
+      //         icon = preview;
+      //       }
+      //       return (
+      //         <div key={e} className="ActionQueueItem">
+      //           <ActionQueueItem
+      //             state={state}
+      //             icon={icon}
+      //             title={`${actionType} tx`}
+      //             description={voxelVariantTypeId ? enforceMaxLen(voxelVariantTypeId) : ""}
+      //             link={txHash && blockExplorer + "/tx/" + txHash}
+      //           />
+      //           {/* TODO: conditionally render this for debugging? */}
+      //           {coord ? (
+      //             <div className="ActionQueueItemPosition">
+      //               <div>X: {coord.x}</div>
+      //               <div>Y: {coord.y}</div>
+      //               <div>Z: {coord.z}</div>
+      //             </div>
+      //           ) : null}
+      //         </div>
+      //       );
+      //     })}
+      //   </ActionQueueList>
+      // );
     },
   });
 }

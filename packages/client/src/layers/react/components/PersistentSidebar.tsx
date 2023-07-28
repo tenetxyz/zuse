@@ -1,6 +1,6 @@
 import { registerTenetComponent } from "../engine/components/TenetComponentRenderer";
 import { calculateChildCoords, calculateParentCoord, getWorldScale } from "../../../utils/coord";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { useObservableValue } from "@latticexyz/react";
 import { toast } from "react-toastify";
 import { VoxelCoord } from "@latticexyz/utils";
@@ -12,7 +12,7 @@ import styled from "styled-components";
 import { SetupContractConfig, getBurnerWallet } from "@latticexyz/std-client";
 import { registerBlockExplorer } from "./BlockExplorer";
 import { isNetworkComponentUpdateEvent, NetworkComponentUpdate } from "@latticexyz/network";
-import { setComponent, ComponentValue, Entity, getComponentValue, SchemaOf } from "@latticexyz/recs";
+import { setComponent, ComponentValue, Entity, getComponentValue, SchemaOf, getComponentEntities, getComponentValueStrict } from "@latticexyz/recs";
 import { filter, scan, merge, map } from "rxjs";
 import { registerUIComponent } from "../engine";
 import { filterNullish } from "@latticexyz/utils";
@@ -35,6 +35,12 @@ import {
 import { Border } from "./common";
 import { config } from "@fortawesome/fontawesome-svg-core";
 import { Network } from "lucide-react";
+import { Action as ActionQueueItem } from "./Action";
+import { publicClient$, transactionHash$ } from "@latticexyz/network/dev";
+import type { PublicClient, Chain } from "viem";
+import { useComponentUpdate } from "../../../utils/useComponentUpdate";
+import { getTransactionResult } from "@latticexyz/dev-tools";
+import { Badge } from "@/components/ui/badge"
 
 type BlockEvent = {
   blockNumber: number;
@@ -110,6 +116,31 @@ const BlockExplorerContainer = styled.div`
   }
 `;
 
+const ActionQueueList = styled.div`
+  width: 200px;
+  max-height: 80px;
+  overflow-y: scroll;
+  display: flex;
+  flex-grow: 1;
+  flex-direction: column;
+  gap: 2px;
+
+  .ActionQueueItem {
+    position: relative;
+  }
+`;
+
+const MAX_DESCRIPTION_LEN = 13;
+
+function enforceMaxLen(str: string) {
+  if (str.length > MAX_DESCRIPTION_LEN) {
+    return str.substring(0, MAX_DESCRIPTION_LEN) + "...";
+  }
+  return str;
+}
+type MudPublicClient = PublicClient & { chain: Chain };
+
+
 export function registerPersistentSidebar() {
   registerTenetComponent({
     rowStart: 1,
@@ -145,6 +176,8 @@ export function registerPersistentSidebar() {
           world,
           config: { blockExplorer },
           getVoxelIconUrl,
+          actions: { Action },
+          objectStore: { transactionCallbacks },
         }
       } = layers;
 
@@ -216,6 +249,54 @@ export function registerPersistentSidebar() {
 
       const position = useObservableValue(playerPosition$);
 
+      const [_update, setUpdate] = useState<any>(); // by calling setUpdate, it allows us to update the queue
+      useComponentUpdate(Action as any, setUpdate); // there's probably a better way to update this, since we get all the component entities below when we call getComponentEntities(Action).
+      const txRef = useRef<string>();
+      const publicClient = useRef<MudPublicClient>();
+      useEffect(() => {
+        publicClient$.subscribe((client) => {
+          publicClient.current = client as MudPublicClient;
+        });
+      }, []);
+
+      // listen to the results of the transactions and surface errors as toasts for the user
+      useEffect(() => {
+        transactionHash$.subscribe((txHash) => {
+          txRef.current = txHash;
+          if (!publicClient.current) {
+            return;
+          }
+          // I think our viem version is different, so MUD's PublicClient object is out of date, causing the type error below
+          const transactionResultPromise = getTransactionResult(publicClient.current, txHash);
+          transactionResultPromise
+            .then((res) => {
+              transactionCallbacks.get(txHash)?.(res.result);
+            })
+            .catch((err) => {
+              if (err.name === "TransactionReceiptNotFoundError") {
+                // this error isn't urgent. it may occur when the transaction hasn't been processed on a block yet.
+                console.warn("Transaction receipt not found error: ", err.shortMessage);
+                // Note: when we call classifiers, the transaction always finishes, but the transaction receipt is not always found. We aren't sure what to listen to learn when it's actually finished. In the meantime, we assume that when we
+                // get this error, the classifier has finished. This is why we are calling the callback here (as a hack)
+                transactionCallbacks.get(txHash)?.(res.result);
+                return;
+              }
+              console.error("[ActionQueue] Error getting transaction result", err);
+              // Note: we can also use the fields in err.cause to get specific parts of the error message
+              toast(err.shortMessage);
+            })
+            .finally(() => {
+              transactionCallbacks.delete(txHash);
+              if (transactionCallbacks.size > 15) {
+                console.warn(
+                  `${transactionCallbacks.size} stale transaction callbacks are NOT cleared. This means that we are not cleaning up after every transaction that occurs. We need to find locate WHEN these missing transactions finish`
+                );
+              }
+            });
+        });
+      }, []);
+
+
       useEffect(() => {
         noa.on("newWorldName", (_newWorldName: string) => {
           setWorldScale(getWorldScale(noa));
@@ -267,63 +348,58 @@ export function registerPersistentSidebar() {
           newPosition.y += 1;
           return newPosition;
         });
-      };
+      };   
 
       return (
         <div className="p-5 flex justify-between items-start" style={{ pointerEvents: "all" }}>
           <div>
-            <TooltipProvider delayDuration={100}>
-              <Tooltip>
-                <TooltipTrigger>
-                  <Button onClick={() => openSidebar(FocusedUi, SingletonEntity, PersistentNotification, SpawnCreation, noa)}>
-                    <FontAwesomeIcon icon={faBars} style={{ color: "#C9CACB"}} />
-                  </Button>
-                </TooltipTrigger>
-                <TooltipContent>
-                  Open Sidebar
-                </TooltipContent>
-              </Tooltip>
-              
-              <Tooltip>
-                <TooltipTrigger>
-                  <Button onClick={zoomIn}>
-                    <FontAwesomeIcon icon={faMagnifyingGlassPlus} style={{ color: "#C9CACB"}} />
-                  </Button>
-                </TooltipTrigger>
-                <TooltipContent>
-                  Zoom In to Level {worldScale - 1}
-                </TooltipContent>
-              </Tooltip>
-
-              <Tooltip>
-                <TooltipTrigger>
-                  <Button onClick={zoomOut}>
-                    <FontAwesomeIcon icon={faMagnifyingGlassMinus} style={{ color: "#C9CACB"}} />
-                  </Button>
-                </TooltipTrigger>
-                <TooltipContent>
-                  Zoom Out to Level {worldScale + 1}
-                </TooltipContent>
+            <div>
+              <TooltipProvider delayDuration={100} >
+                <Tooltip>
+                  <TooltipTrigger>
+                    <Button style={{ margin: "0" }} onClick={() => openSidebar(FocusedUi, SingletonEntity, PersistentNotification, SpawnCreation, noa)}>
+                      <FontAwesomeIcon icon={faBars} style={{ color: "#C9CACB"}} />
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent side="right">
+                    Open Sidebar
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+            </div>
+            <Badge style={{ padding: "4px 2px", border: "1px solid rgb(201, 202, 203, 0.1)",borderRadius: "8px", marginTop: "8px"}}>
+              <TooltipProvider delayDuration={100}>
+                <span>
+                  <Badge variant="secondary" style={{borderRadius: "4px", paddingLeft: "4px", paddingRight: "4px"}}> LEVEL: {worldScale} </Badge>
+                </span>
+                <Tooltip>
+                  <TooltipTrigger>
+                    <Button onClick={zoomIn}>
+                      <FontAwesomeIcon icon={faMagnifyingGlassPlus} style={{ color: "#C9CACB"}} />
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    Zoom In to Level {worldScale - 1}
+                  </TooltipContent>
+                </Tooltip>
+                <Tooltip>
+                  <TooltipTrigger>
+                    <Button onClick={zoomOut}>
+                      <FontAwesomeIcon icon={faMagnifyingGlassMinus} style={{ color: "#C9CACB"}} />
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    Zoom Out to Level {worldScale + 1}
+                  </TooltipContent>
               </Tooltip>
             </TooltipProvider>
+            </Badge>
           </div>
           <div>
-            <Card style={{ backgroundColor: "rgba(255, 255, 255, 0.07)", padding: "2px", border: "1px solid rgb(201, 202, 203)"}}>
-              <Card style={{ backgroundColor: "rgba(36, 42, 47, 0.8)", border: "2px solid rgb(55, 65, 71)"}}>
+            <Badge style={{ padding: "4px 2px", border: "1px solid rgb(201, 202, 203, 0.1)",borderRadius: "8px", marginTop: "8px"}}>
                 <CardContent className="p-4">
-                  <div style = {{marginBottom: "8px"}}>
-                    <span>
-                      <span className="font-thin px-[0.3rem] py-[0.2rem] font-mono text-xs" style={{color: "#c8c9ca"}}> BRANCH: </span>
-                      <span className="font-mono text-sm font-semibold" > {layers.network.worldAddress.slice(2, 11)}... </span>
-                    </span>
-                  </div>
-                  <div style = {{marginBottom: "8px"}}>
-                    <span>
-                      <span className="font-thin px-[0.3rem] py-[0.2rem] font-mono text-xs" style={{color: "#c8c9ca"}}> LEVEL: </span>
-                      <span className="font-mono text-sm font-semibold" > {worldScale} </span>
-                    </span>
-                  </div>
-                  <div style = {{marginBottom: "8px", maxWidth: "200px", overflow: "hidden"}}>
+                  <div style = {{marginBottom: "4px", maxWidth: "200px", overflow: "hidden"}}>
+                    <Badge variant="secondary" style={{borderRadius: "4px", paddingLeft: "4px", paddingRight: "4px"}}> BRANCH: {layers.network.worldAddress.slice(0, 10)}... </Badge> 
                     <BlockExplorerContainer>
                           {summary.map(([blockNumber, block]) => (
                             <div
@@ -360,14 +436,8 @@ export function registerPersistentSidebar() {
                           ))}
                     </BlockExplorerContainer>
                   </div>
-                  <hr style={{borderTop: "1px solid #c8c9ca", marginBottom: "8px"}}/>
-                  <div style = {{marginBottom: "8px"}}>
-                    <span>
-                      <span className="font-thin px-[0.3rem] py-[0.2rem] font-mono text-xs" style={{color: "#c8c9ca"}}> PLAYER: </span>
-                      <span className="font-mono text-sm font-semibold" > { layers.network.network.connectedAddress.get().slice(2, 11) }... </span>
-                    </span>
-                  </div>
-                  <div>
+                  <hr style={{borderTop: "1px solid rgb(201, 202, 203, 0.5)", marginBottom: "4px"}}/>
+                  {/* <div>
                     {position && (
                       <span>
                         <span>
@@ -384,10 +454,29 @@ export function registerPersistentSidebar() {
                         </span>
                       </span>
                       )}
-                  </div>
+                  </div> */}
+                  <Badge variant="secondary" style={{borderRadius: "4px", paddingLeft: "4px", paddingRight: "4px"}}> PLAYER: {layers.network.network.connectedAddress.get().slice(0, 10)}... </Badge> 
+                  <ActionQueueList>
+                    {[...getComponentEntities(Action)].reverse().map((e) => {
+                      const { state, metadata, txHash } = getComponentValueStrict(Action, e);
+                      const { actionType, coord, voxelVariantTypeId, preview } = metadata || {};
+                      let icon = voxelVariantTypeId && getVoxelIconUrl(voxelVariantTypeId);
+                      if (icon === undefined) {
+                        icon = preview;
+                      }
+                      return (
+                        <div key={e} className="ActionQueueItem">
+                          <ActionQueueItem
+                            state={state}
+                            icon={icon}
+                            title={`${actionType} tx`}
+                          />
+                        </div>
+                      );
+                    })}
+                  </ActionQueueList>
                 </CardContent>
-              </Card>
-            </Card>
+            </Badge>
 
 
 
@@ -413,4 +502,3 @@ const Button = styled.button<{ selected?: boolean }>`
     transform: scale(1.05);
   }
 `;
-

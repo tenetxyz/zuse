@@ -33,6 +33,7 @@ export default mudConfig({
       schema: {
         atTop: "bool",
         sibling: "bytes32",
+        lastUpdateBlock: "uint256",
       },
     },
   },

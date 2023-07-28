@@ -19,26 +19,42 @@ contract ElectronSystem is VoxelInteraction {
     bytes32 neighbourEntityId,
     BlockDirection neighbourBlockDirection
   ) internal override returns (bool changedEntity) {
+    if (neighbourEntityId == 0) {
+      return false;
+    }
+    ElectronTunnelSpotData memory electronTunnelData = ElectronTunnelSpot.get(callerAddress, interactEntity);
     CAPositionData memory baseCoord = CAPosition.get(callerAddress, interactEntity);
-    (bytes32[] memory neighbourEntityIds, BlockDirection[] memory neighbourEntityDirections) = getNeighbours(
-      callerAddress,
-      baseCoord
-    );
-    uint256 currentReplusionForce = calculateReplusionForce(
-      callerAddress,
-      interactEntity,
-      neighbourEntityIds,
-      neighbourEntityDirections,
-      0
-    );
-    (uint256 otherReplusionForce, CAPositionData memory otherCoord) = calculateOtherReplusionForce(
-      callerAddress,
-      interactEntity,
-      baseCoord
-    );
-    // return entityShouldInteract(callerAddress, neighbourEntityId);
-    if (otherReplusionForce < currentReplusionForce) {
-      return true;
+    // (bytes32[] memory neighbourEntityIds, BlockDirection[] memory neighbourEntityDirections) = getNeighbours(
+    //   callerAddress,
+    //   baseCoord
+    // );
+    // uint256 currentReplusionForce = calculateReplusionForce(
+    //   callerAddress,
+    //   interactEntity,
+    //   neighbourEntityIds,
+    //   neighbourEntityDirections,
+    //   0
+    // );
+    // // return entityShouldInteract(callerAddress, neighbourEntityId);
+    // if (otherReplusionForce < currentReplusionForce) {
+    //   return true;
+    // }
+    bytes32 neighbourEntityType = CAVoxelType.getVoxelTypeId(callerAddress, neighbourEntityId);
+    if (neighbourEntityType == BedrockVoxelID) {
+      if (electronTunnelData.lastUpdateBlock != block.number) {
+        CAPositionData memory otherCoord;
+        if (electronTunnelData.atTop) {
+          otherCoord = CAPositionData(baseCoord.x, baseCoord.y, baseCoord.z - 1);
+        } else {
+          otherCoord = CAPositionData(baseCoord.x, baseCoord.y, baseCoord.z + 1);
+        }
+
+        electronTunnelData.lastUpdateBlock = block.number;
+        ElectronTunnelSpot.set(callerAddress, interactEntity, electronTunnelData);
+        mineWorld(callerAddress, BedrockVoxelID, positionDataToVoxelCoord(baseCoord));
+        buildWorld(callerAddress, BedrockVoxelID, positionDataToVoxelCoord(otherCoord));
+        // return true;
+      }
     }
     return false;
   }
@@ -122,6 +138,7 @@ contract ElectronSystem is VoxelInteraction {
     BlockDirection[] memory neighbourEntityDirections
   ) internal override returns (bool changedEntity) {
     CAPositionData memory baseCoord = CAPosition.get(callerAddress, interactEntity);
+    bool interactAtTop = ElectronTunnelSpot.get(callerAddress, interactEntity).atTop;
     // Check if block south of us is an electron, if so revert
     for (uint8 i = 0; i < neighbourEntityIds.length; i++) {
       bytes32 neighbourEntityId = neighbourEntityIds[i];
@@ -129,7 +146,7 @@ contract ElectronSystem is VoxelInteraction {
         continue;
       }
       bytes32 neighbourEntityType = CAVoxelType.getVoxelTypeId(callerAddress, neighbourEntityId);
-      if (neighbourEntityDirections[i] == BlockDirection.North) {
+      if (interactAtTop && neighbourEntityDirections[i] == BlockDirection.North) {
         if (neighbourEntityType == BedrockVoxelID) {
           revert("ElectronSystem: Cannot place electron when it's tunneling spot is already occupied (north)");
         }
@@ -138,15 +155,19 @@ contract ElectronSystem is VoxelInteraction {
         // Check one above
         CAPositionData memory aboveCoord = CAPositionData(neighbourCoord.x, neighbourCoord.y, neighbourCoord.z - 1);
         bytes32 aboveEntity = getEntityAtCoord(callerAddress, aboveCoord);
+
         if (aboveEntity != 0) {
           if (hasKey(ElectronTunnelSpotTableId, ElectronTunnelSpot.encodeKeyTuple(callerAddress, aboveEntity))) {
             ElectronTunnelSpotData memory electronTunnelData = ElectronTunnelSpot.get(callerAddress, aboveEntity);
-            if (!electronTunnelData.atTop && electronTunnelData.sibling == interactEntity) {} else {
+            if (electronTunnelData.atTop || electronTunnelData.sibling == interactEntity) {} else {
               revert(
                 string(
                   abi.encode(
                     "ElectronSystem: Cannot place electron when it's tunneling spot is already occupied (north above)",
                     Strings.toString(uint256(interactEntity)),
+                    Strings.toString(baseCoord.x),
+                    Strings.toString(baseCoord.y),
+                    Strings.toString(baseCoord.z),
                     Strings.toString(uint256(aboveEntity)),
                     Strings.toString(aboveCoord.x),
                     Strings.toString(aboveCoord.y),
@@ -157,7 +178,7 @@ contract ElectronSystem is VoxelInteraction {
             }
           }
         }
-      } else if (neighbourEntityDirections[i] == BlockDirection.South) {
+      } else if (!interactAtTop && neighbourEntityDirections[i] == BlockDirection.South) {
         if (neighbourEntityType == BedrockVoxelID) {
           bool neighbourAtTop = ElectronTunnelSpot.get(callerAddress, neighbourEntityType).atTop;
           if (neighbourAtTop) {
@@ -168,24 +189,24 @@ contract ElectronSystem is VoxelInteraction {
     }
 
     // We want to compare the replusion force at where we are, and at our other tunneling spot which is 1 block south of us
-    uint256 currentReplusionForce = calculateReplusionForce(
-      callerAddress,
-      interactEntity,
-      neighbourEntityIds,
-      neighbourEntityDirections,
-      0
-    );
-    (uint256 otherReplusionForce, CAPositionData memory otherCoord) = calculateOtherReplusionForce(
-      callerAddress,
-      interactEntity,
-      baseCoord
-    );
-    if (otherReplusionForce < currentReplusionForce) {
-      // Tunnel to that spot
-      mineWorld(callerAddress, BedrockVoxelID, positionDataToVoxelCoord(baseCoord));
-      buildWorld(callerAddress, BedrockVoxelID, positionDataToVoxelCoord(otherCoord));
-      // changedEntity = true;
-    }
+    // uint256 currentReplusionForce = calculateReplusionForce(
+    //   callerAddress,
+    //   interactEntity,
+    //   neighbourEntityIds,
+    //   neighbourEntityDirections,
+    //   0
+    // );
+    // (uint256 otherReplusionForce, CAPositionData memory otherCoord) = calculateOtherReplusionForce(
+    //   callerAddress,
+    //   interactEntity,
+    //   baseCoord
+    // );
+    // if (otherReplusionForce < currentReplusionForce) {
+    //   // Tunnel to that spot
+    //   mineWorld(callerAddress, BedrockVoxelID, positionDataToVoxelCoord(baseCoord));
+    //   buildWorld(callerAddress, BedrockVoxelID, positionDataToVoxelCoord(otherCoord));
+    //   // changedEntity = true;
+    // }
   }
 
   function entityShouldInteract(address callerAddress, bytes32 entityId) internal view override returns (bool) {

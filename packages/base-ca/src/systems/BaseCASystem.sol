@@ -5,7 +5,7 @@ import { IWorld } from "@base-ca/src/codegen/world/IWorld.sol";
 import { System } from "@latticexyz/world/src/System.sol";
 import { getKeysWithValue } from "@latticexyz/world/src/modules/keyswithvalue/getKeysWithValue.sol";
 import { hasKey } from "@latticexyz/world/src/modules/keysintable/hasKey.sol";
-import { CAVoxelType, CAPosition, CAPositionData, CAPositionTableId, ElectronTunnelSpot, ElectronTunnelSpotTableId } from "@base-ca/src/codegen/Tables.sol";
+import { CAVoxelType, CAPosition, CAPositionData, CAPositionTableId, ElectronTunnelSpot, ElectronTunnelSpotData, ElectronTunnelSpotTableId } from "@base-ca/src/codegen/Tables.sol";
 import { VoxelCoord } from "@tenet-utils/src/Types.sol";
 import { EMPTY_ID, AirVoxelID, AirVoxelVariantID, DirtVoxelID, BedrockVoxelID, DirtVoxelVariantID, GrassVoxelID, GrassVoxelVariantID, BedrockVoxelVariantID } from "@base-ca/src/Constants.sol";
 import { getEntityAtCoord, voxelCoordToPositionData } from "@base-ca/src/Utils.sol";
@@ -52,33 +52,75 @@ contract BaseCASystem is System {
     }
 
     if (voxelTypeId == BedrockVoxelID) {
-      // TODO: move to ElectronSystem
-      // Check one above
       CAPositionData memory aboveCoord = CAPositionData(coord.x, coord.y, coord.z + 1);
       bytes32 aboveEntity = getEntityAtCoord(callerAddress, aboveCoord);
-      if (aboveEntity != 0) {
-        if (CAVoxelType.getVoxelTypeId(callerAddress, aboveEntity) == BedrockVoxelID) {
-          bool neighbourAtTop = ElectronTunnelSpot.get(callerAddress, aboveEntity).atTop;
-          if (neighbourAtTop) {
-            revert("ElectronSystem: Cannot place electron when it's tunneling spot is already occupied (south)");
-          } else {
-            ElectronTunnelSpot.set(callerAddress, entity, true, 0);
+
+      if (hasKey(ElectronTunnelSpotTableId, ElectronTunnelSpot.encodeKeyTuple(callerAddress, entity))) {
+        ElectronTunnelSpotData memory electronTunnelData = ElectronTunnelSpot.get(callerAddress, entity);
+        if (electronTunnelData.atTop) {
+          if (CAVoxelType.getVoxelTypeId(callerAddress, electronTunnelData.sibling) == AirVoxelID) {
+            electronTunnelData.atTop = false;
+            electronTunnelData.lastUpdateBlock = block.number;
+            ElectronTunnelSpot.set(callerAddress, entity, electronTunnelData);
+            ElectronTunnelSpot.setAtTop(callerAddress, electronTunnelData.sibling, false);
           }
         } else {
-          if (hasKey(ElectronTunnelSpotTableId, ElectronTunnelSpot.encodeKeyTuple(callerAddress, aboveEntity))) {
-            if (ElectronTunnelSpot.get(callerAddress, aboveEntity).atTop) {
-              ElectronTunnelSpot.set(callerAddress, aboveEntity, false, entity);
-              ElectronTunnelSpot.set(callerAddress, entity, false, aboveEntity);
-            } else {
-              ElectronTunnelSpot.set(callerAddress, entity, true, 0);
-            }
+          if (CAVoxelType.getVoxelTypeId(callerAddress, electronTunnelData.sibling) == AirVoxelID) {
+            electronTunnelData.atTop = true;
+            electronTunnelData.lastUpdateBlock = block.number;
+            ElectronTunnelSpot.set(callerAddress, entity, electronTunnelData);
+            ElectronTunnelSpot.setAtTop(callerAddress, electronTunnelData.sibling, true);
           }
         }
       } else {
-        if (!hasKey(ElectronTunnelSpotTableId, ElectronTunnelSpot.encodeKeyTuple(callerAddress, entity))) {
-          ElectronTunnelSpot.set(callerAddress, entity, true, 0);
+        if (aboveEntity != 0) {
+          if (CAVoxelType.getVoxelTypeId(callerAddress, aboveEntity) == BedrockVoxelID) {
+            bool neighbourAtTop = ElectronTunnelSpot.get(callerAddress, aboveEntity).atTop;
+            if (neighbourAtTop) {
+              revert("ElectronSystem: Cannot place electron when it's tunneling spot is already occupied (south)");
+            } else {
+              ElectronTunnelSpot.set(callerAddress, entity, true, 0, block.number);
+            }
+          } else {
+            if (hasKey(ElectronTunnelSpotTableId, ElectronTunnelSpot.encodeKeyTuple(callerAddress, aboveEntity))) {
+              if (ElectronTunnelSpot.get(callerAddress, aboveEntity).atTop) {
+                ElectronTunnelSpot.set(callerAddress, aboveEntity, false, entity, block.number);
+                ElectronTunnelSpot.set(callerAddress, entity, false, aboveEntity, block.number);
+              } else {
+                // ElectronTunnelSpot.set(callerAddress, entity, true, 0, block.number);
+                revert("how you here");
+              }
+            }
+          }
+        } else {
+          ElectronTunnelSpot.set(callerAddress, entity, true, 0, block.number);
         }
       }
+      // TODO: move to ElectronSystem
+      // Check one above
+      // if (aboveEntity != 0) {
+      //   if (CAVoxelType.getVoxelTypeId(callerAddress, aboveEntity) == BedrockVoxelID) {
+      //     bool neighbourAtTop = ElectronTunnelSpot.get(callerAddress, aboveEntity).atTop;
+      //     if (neighbourAtTop) {
+      //       revert("ElectronSystem: Cannot place electron when it's tunneling spot is already occupied (south)");
+      //     } else {
+      //       ElectronTunnelSpot.set(callerAddress, entity, true, 0, block.number);
+      //     }
+      //   } else {
+      //     if (hasKey(ElectronTunnelSpotTableId, ElectronTunnelSpot.encodeKeyTuple(callerAddress, aboveEntity))) {
+      //       if (ElectronTunnelSpot.get(callerAddress, aboveEntity).atTop) {
+      //         ElectronTunnelSpot.set(callerAddress, aboveEntity, false, entity, block.number);
+      //         ElectronTunnelSpot.set(callerAddress, entity, false, aboveEntity, block.number);
+      //       } else {
+      //         ElectronTunnelSpot.set(callerAddress, entity, true, 0, block.number);
+      //       }
+      //     }
+      //   }
+      // } else {
+      //   if (!hasKey(ElectronTunnelSpotTableId, ElectronTunnelSpot.encodeKeyTuple(callerAddress, entity))) {
+      //     ElectronTunnelSpot.set(callerAddress, entity, true, 0, block.number);
+      //   }
+      // }
     }
 
     bytes32 voxelVariantId = getVoxelVariant(voxelTypeId, entity);

@@ -23,14 +23,16 @@ bytes32 constant ElectronTunnelSpotTableId = _tableId;
 struct ElectronTunnelSpotData {
   bool atTop;
   bytes32 sibling;
+  uint256 lastUpdateBlock;
 }
 
 library ElectronTunnelSpot {
   /** Get the table's schema */
   function getSchema() internal pure returns (Schema) {
-    SchemaType[] memory _schema = new SchemaType[](2);
+    SchemaType[] memory _schema = new SchemaType[](3);
     _schema[0] = SchemaType.BOOL;
     _schema[1] = SchemaType.BYTES32;
+    _schema[2] = SchemaType.UINT256;
 
     return SchemaLib.encode(_schema);
   }
@@ -45,9 +47,10 @@ library ElectronTunnelSpot {
 
   /** Get the table's metadata */
   function getMetadata() internal pure returns (string memory, string[] memory) {
-    string[] memory _fieldNames = new string[](2);
+    string[] memory _fieldNames = new string[](3);
     _fieldNames[0] = "atTop";
     _fieldNames[1] = "sibling";
+    _fieldNames[2] = "lastUpdateBlock";
     return ("ElectronTunnelSpot", _fieldNames);
   }
 
@@ -149,6 +152,48 @@ library ElectronTunnelSpot {
     _store.setField(_tableId, _keyTuple, 1, abi.encodePacked((sibling)));
   }
 
+  /** Get lastUpdateBlock */
+  function getLastUpdateBlock(address callerAddress, bytes32 entity) internal view returns (uint256 lastUpdateBlock) {
+    bytes32[] memory _keyTuple = new bytes32[](2);
+    _keyTuple[0] = bytes32(uint256(uint160(callerAddress)));
+    _keyTuple[1] = entity;
+
+    bytes memory _blob = StoreSwitch.getField(_tableId, _keyTuple, 2);
+    return (uint256(Bytes.slice32(_blob, 0)));
+  }
+
+  /** Get lastUpdateBlock (using the specified store) */
+  function getLastUpdateBlock(
+    IStore _store,
+    address callerAddress,
+    bytes32 entity
+  ) internal view returns (uint256 lastUpdateBlock) {
+    bytes32[] memory _keyTuple = new bytes32[](2);
+    _keyTuple[0] = bytes32(uint256(uint160(callerAddress)));
+    _keyTuple[1] = entity;
+
+    bytes memory _blob = _store.getField(_tableId, _keyTuple, 2);
+    return (uint256(Bytes.slice32(_blob, 0)));
+  }
+
+  /** Set lastUpdateBlock */
+  function setLastUpdateBlock(address callerAddress, bytes32 entity, uint256 lastUpdateBlock) internal {
+    bytes32[] memory _keyTuple = new bytes32[](2);
+    _keyTuple[0] = bytes32(uint256(uint160(callerAddress)));
+    _keyTuple[1] = entity;
+
+    StoreSwitch.setField(_tableId, _keyTuple, 2, abi.encodePacked((lastUpdateBlock)));
+  }
+
+  /** Set lastUpdateBlock (using the specified store) */
+  function setLastUpdateBlock(IStore _store, address callerAddress, bytes32 entity, uint256 lastUpdateBlock) internal {
+    bytes32[] memory _keyTuple = new bytes32[](2);
+    _keyTuple[0] = bytes32(uint256(uint160(callerAddress)));
+    _keyTuple[1] = entity;
+
+    _store.setField(_tableId, _keyTuple, 2, abi.encodePacked((lastUpdateBlock)));
+  }
+
   /** Get the full data */
   function get(address callerAddress, bytes32 entity) internal view returns (ElectronTunnelSpotData memory _table) {
     bytes32[] memory _keyTuple = new bytes32[](2);
@@ -174,8 +219,8 @@ library ElectronTunnelSpot {
   }
 
   /** Set the full data using individual values */
-  function set(address callerAddress, bytes32 entity, bool atTop, bytes32 sibling) internal {
-    bytes memory _data = encode(atTop, sibling);
+  function set(address callerAddress, bytes32 entity, bool atTop, bytes32 sibling, uint256 lastUpdateBlock) internal {
+    bytes memory _data = encode(atTop, sibling, lastUpdateBlock);
 
     bytes32[] memory _keyTuple = new bytes32[](2);
     _keyTuple[0] = bytes32(uint256(uint160(callerAddress)));
@@ -185,8 +230,15 @@ library ElectronTunnelSpot {
   }
 
   /** Set the full data using individual values (using the specified store) */
-  function set(IStore _store, address callerAddress, bytes32 entity, bool atTop, bytes32 sibling) internal {
-    bytes memory _data = encode(atTop, sibling);
+  function set(
+    IStore _store,
+    address callerAddress,
+    bytes32 entity,
+    bool atTop,
+    bytes32 sibling,
+    uint256 lastUpdateBlock
+  ) internal {
+    bytes memory _data = encode(atTop, sibling, lastUpdateBlock);
 
     bytes32[] memory _keyTuple = new bytes32[](2);
     _keyTuple[0] = bytes32(uint256(uint160(callerAddress)));
@@ -197,12 +249,12 @@ library ElectronTunnelSpot {
 
   /** Set the full data using the data struct */
   function set(address callerAddress, bytes32 entity, ElectronTunnelSpotData memory _table) internal {
-    set(callerAddress, entity, _table.atTop, _table.sibling);
+    set(callerAddress, entity, _table.atTop, _table.sibling, _table.lastUpdateBlock);
   }
 
   /** Set the full data using the data struct (using the specified store) */
   function set(IStore _store, address callerAddress, bytes32 entity, ElectronTunnelSpotData memory _table) internal {
-    set(_store, callerAddress, entity, _table.atTop, _table.sibling);
+    set(_store, callerAddress, entity, _table.atTop, _table.sibling, _table.lastUpdateBlock);
   }
 
   /** Decode the tightly packed blob using this table's schema */
@@ -210,11 +262,13 @@ library ElectronTunnelSpot {
     _table.atTop = (_toBool(uint8(Bytes.slice1(_blob, 0))));
 
     _table.sibling = (Bytes.slice32(_blob, 1));
+
+    _table.lastUpdateBlock = (uint256(Bytes.slice32(_blob, 33)));
   }
 
   /** Tightly pack full data using this table's schema */
-  function encode(bool atTop, bytes32 sibling) internal pure returns (bytes memory) {
-    return abi.encodePacked(atTop, sibling);
+  function encode(bool atTop, bytes32 sibling, uint256 lastUpdateBlock) internal pure returns (bytes memory) {
+    return abi.encodePacked(atTop, sibling, lastUpdateBlock);
   }
 
   /** Encode keys as a bytes32 array using this table's schema */

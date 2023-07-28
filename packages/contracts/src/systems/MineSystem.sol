@@ -46,7 +46,10 @@ contract MineSystem is System {
       // TODO: move this to a library
       VoxelCoord[] memory eightBlockVoxelCoords = calculateChildCoords(scale, coord);
       for (uint8 i = 0; i < 8; i++) {
-        mine(childVoxelTypeIds[i], eightBlockVoxelCoords[i]);
+        bytes32 childVoxelToMine = getEntityAtCoord(scale, eightBlockVoxelCoords[i]);
+        if (childVoxelToMine != 0) {
+          mine(VoxelType.getVoxelTypeId(scale, childVoxelToMine), eightBlockVoxelCoords[i]);
+        }
       }
     }
 

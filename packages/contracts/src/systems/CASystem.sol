@@ -13,6 +13,10 @@ import { getEntityAtCoord, calculateChildCoords, calculateParentCoord } from "..
 import { runInteraction } from "@tenet-base-ca/src/CallUtils.sol";
 
 contract CASystem is System {
+  function getVoxelTypeId(uint32 scale, bytes32 entity) public view returns (bytes32) {
+    return VoxelType.getVoxelTypeId(scale, entity);
+  }
+
   function calculateNeighbourEntities(uint32 scale, bytes32 centerEntity) public view returns (bytes32[] memory) {
     int8[NUM_VOXEL_NEIGHBOURS * 3] memory NEIGHBOUR_COORD_OFFSETS = [
       int8(0),
@@ -85,9 +89,9 @@ contract CASystem is System {
         // filter for the ones with scale-1
         bytes32 childEntityAtPosition = getEntityAtCoord(scale - 1, eightBlockVoxelCoords[i]);
 
-        if (childEntityAtPosition == 0) {
-          revert("found no child entity");
-        }
+        // if (childEntityAtPosition == 0) {
+        //   revert("found no child entity");
+        // }
 
         childEntities[i] = childEntityAtPosition;
       }
@@ -179,6 +183,9 @@ contract CASystem is System {
       CAVoxelTypeData memory changedEntityVoxelType = CAVoxelType.get(IStore(caAddress), _world(), changedEntity);
       // Update VoxelType
       VoxelType.set(scale, changedEntity, changedEntityVoxelType.voxelTypeId, changedEntityVoxelType.voxelVariantId);
+
+      // Run the CA for each parent now
+
       // TODO: Do we need this?
       // Position should not change of the entity
       // Position.set(scale, changedEntities[i], coord.x, coord.y, coord.z);

@@ -6,10 +6,11 @@ import { calculateParentCoord } from "../../../../utils/coord";
 export const AIR_ID = keccak256("air");
 export const BEDROCK_ID = keccak256("bedrock");
 export const GRASS_ID = keccak256("grass");
+export const TILE1_ID = keccak256("tile1"); // NOTE: these tiles are not in the registry. They are only client-side so the player has a surface to place blocks on. (also so the floors looks different when they zoom out)
 export const DIRT_ID = keccak256("dirt");
-export const TILE2_ID = keccak256("tile2"); // NOTE: these tiles are not in the registry. They are only client-side so the player has a surface to place blocks on. (also so the floors looks different when they zoom out)
 export const TILE3_ID = keccak256("tile3");
 export const TILE4_ID = keccak256("tile4");
+export const TILE5_ID = keccak256("tile5");
 
 const TILE_HEIGHT = 9;
 const BEDROCK_HEIGHT = -63;
@@ -45,23 +46,28 @@ export function Tile(state: TerrainState): VoxelTypeKey | undefined {
   switch (scale) {
     case 1:
       return {
-        voxelBaseTypeId: GRASS_ID,
-        voxelVariantTypeId: GRASS_ID,
+        voxelBaseTypeId: TILE1_ID,
+        voxelVariantTypeId: TILE1_ID,
       };
     case 2:
       return {
-        voxelBaseTypeId: TILE2_ID,
-        voxelVariantTypeId: TILE2_ID,
+        voxelBaseTypeId: GRASS_ID,
+        voxelVariantTypeId: GRASS_ID,
       };
     case 3:
       return {
         voxelBaseTypeId: TILE3_ID,
         voxelVariantTypeId: TILE3_ID,
       };
-    default:
+    case 4:
       return {
         voxelBaseTypeId: TILE4_ID,
         voxelVariantTypeId: TILE4_ID,
+      };
+    default:
+      return {
+        voxelBaseTypeId: TILE5_ID,
+        voxelVariantTypeId: TILE5_ID,
       };
   }
 }

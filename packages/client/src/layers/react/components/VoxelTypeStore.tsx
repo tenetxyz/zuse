@@ -10,10 +10,20 @@ import { toast } from "react-toastify";
 import { VoxelBaseTypeIdToEntity } from "../../noa/types";
 import { useVoxelTypeSearch } from "../../../utils/useVoxelTypeSearch";
 import { SearchBar } from "./common/SearchBar";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
 
 export interface VoxelTypeStoreFilters {
   query: string;
+  scale: number | null;
 }
+
 interface Props {
   layers: Layers;
   filters: VoxelTypeStoreFilters;
@@ -43,7 +53,27 @@ export const VoxelTypeStore: React.FC<Props> = ({ layers, filters, setFilters })
     noa: { noa },
   } = layers;
 
-  const { voxelTypesToDisplay } = useVoxelTypeSearch({ layers, filters });
+  const { voxelTypesToDisplay } = useVoxelTypeSearch({ layers, filters, scale: filters.scale !== null ? filters.scale : undefined });
+
+  const ScaleBar: React.FC<{ value: number | null; onChange: (e: React.ChangeEvent<HTMLSelectElement>) => void }> = ({
+    value,
+    onChange,
+  }) => {
+    return (
+      <select value={value || ''} onChange={onChange}>
+        <option value="" disabled>Select Scale</option>
+        <option value="">All Scales</option>
+        {Array.from({ length: 10 }, (_, i) => i + 1).map((scale) => (
+          <option key={scale} value={scale}>
+            Scale {scale}
+          </option>
+        ))}
+      </select>
+
+
+    );
+  };
+  
 
   const Slots = [...range(NUM_ROWS * NUM_COLS)].map((i) => {
     if (!voxelTypesToDisplay || i >= voxelTypesToDisplay.length) {
@@ -84,12 +114,14 @@ export const VoxelTypeStore: React.FC<Props> = ({ layers, filters, setFilters })
       toast(`Your inventory is full! Right click on an item to delete it.`);
     }
   };
+  
 
   return (
     <div className="flex flex-col p-4">
-      <div className="flex w-full">
-        <SearchBar value={filters.query} onChange={(e) => setFilters({ ...filters, query: e.target.value })} />
-      </div>
+    <div className="flex w-full">
+      <SearchBar value={filters.query} onChange={(e) => setFilters({ ...filters, query: e.target.value })} />
+      <ScaleBar value={filters.scale} onChange={(e) => setFilters({ ...filters, scale: e.target.value ? parseInt(e.target.value) : null })} />
+    </div>
       <div className="flex w-full mt-5 justify-center items-center">
         <ActionBarWrapper>{[...range(NUM_COLS * NUM_ROWS)].map((i) => Slots[i])}</ActionBarWrapper>
       </div>

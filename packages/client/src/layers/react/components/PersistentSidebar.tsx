@@ -398,7 +398,7 @@ export function registerPersistentSidebar() {
           </div>
           <div>
             <Badge style={{ padding: "4px 2px", border: "0.5px solid #C9CACB", borderRadius: "4px", marginTop: "8px", backgroundColor: "#ffffff12", backdropFilter: "blur(2px)"}}>
-                <CardContent className="p-4">
+                <CardContent className="p-2">
                   <div style = {{marginBottom: "4px", maxWidth: "200px", overflow: "hidden"}}>
                     <Badge variant="secondary" style={{borderRadius: "4px", paddingLeft: "4px", paddingRight: "4px", textShadow: "1px 1px 2px rgba(0, 0, 0, 0.5)"}}> BRANCH: {layers.network.worldAddress.slice(0, 10)}... </Badge> 
                     <BlockExplorerContainer>

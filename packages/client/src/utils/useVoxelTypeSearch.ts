@@ -70,8 +70,13 @@ export const useVoxelTypeSearch = ({ layers, filters }: Props) => {
   });
 
   const applyFilters = () => {
-    // TODO: add filters for the serach
-    filteredVoxelTypes.current = allVoxelTypes.current;
+    // TODO: add filters for the search
+    // Apply scale filter if it's defined
+    if (filters.scale !== undefined && filters.scale !== null) {
+      filteredVoxelTypes.current = allVoxelTypes.current.filter((voxel) => voxel.scale === filters.scale);
+    } else {
+      filteredVoxelTypes.current = allVoxelTypes.current;
+    }
     // TODO: add a sort function to sort by namespace
     const options = {
       isCaseSensitive: false,
@@ -80,10 +85,11 @@ export const useVoxelTypeSearch = ({ layers, filters }: Props) => {
       keys: ["name"],
       threshold: 0.3,
     };
-
+  
     fuse.current = new Fuse(filteredVoxelTypes.current, options);
     queryForVoxelTypesToDisplay();
   };
+  
   // recalculate which voxelTypes are in the display pool when the filters change
   useEffect(applyFilters, [filters]);
 

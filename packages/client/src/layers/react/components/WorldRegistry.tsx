@@ -137,7 +137,7 @@ export const WorldRegistry = ({ layers, filters, setFilters }: Props) => {
                           {details
                             .sort((a, b) => b.scale - a.scale)
                             .map((detail, idx) => (
-                              <div>
+                              <div key={`world-details-${idx}`}>
                                 <div className="flex justify-between space-x-4">
                                   <div className="space-y-1">
                                     <h4 className="text-sm font-black">{detail.name}</h4>
@@ -154,6 +154,7 @@ export const WorldRegistry = ({ layers, filters, setFilters }: Props) => {
                                         return (
                                           iconUrl && (
                                             <img
+                                              key={`world-details-${idx}-voxelBaseTypeId-${voxelBaseTypeId}`}
                                               src={iconUrl}
                                               alt={detail.name}
                                               style={{

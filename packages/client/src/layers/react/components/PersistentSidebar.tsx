@@ -518,7 +518,7 @@ export function registerPersistentSidebar() {
   });
 }
 
-const Button = styled.button<{ selected?: boolean }>`
+const Button = styled.div<{ selected?: boolean }>`
   padding: 4px 8px;
   margin: 0 4px;
   border: 2px solid #374147;

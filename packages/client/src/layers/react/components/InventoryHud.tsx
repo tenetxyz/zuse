@@ -329,7 +329,7 @@ export function registerInventoryHud() {
 //   position: relative;
 // `;
 
-const Button = styled.button`
+const Button = styled.div`
   width: 64px;
   height: 64px;
   display: grid;

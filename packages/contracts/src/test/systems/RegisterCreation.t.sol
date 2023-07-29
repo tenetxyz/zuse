@@ -7,7 +7,7 @@ import { VoxelCoord, BaseCreationInWorld, VoxelEntity } from "@tenet-contracts/s
 import { OwnedBy, VoxelType, VoxelTypeData } from "@tenet-contracts/src/codegen/Tables.sol";
 import { IWorld } from "@tenet-contracts/src/codegen/world/IWorld.sol";
 import { IStore } from "@latticexyz/store/src/IStore.sol";
-import { GrassVoxelID } from "@tenet-base-ca/src/Constants.sol";
+import { ElectronVoxelID } from "@tenet-base-ca/src/Constants.sol";
 import { Utilities } from "@latticexyz/std-contracts/src/test/Utilities.sol";
 import { console } from "forge-std/console.sol";
 
@@ -30,11 +30,11 @@ contract RegisterCreationTest is MudTest {
   function testGetVoxelTypes() public {
     vm.startPrank(alice);
 
-    bytes32 voxel1 = world.giftVoxel(GrassVoxelID);
+    bytes32 voxel1 = world.giftVoxel(ElectronVoxelID);
     VoxelEntity[] memory voxels = new VoxelEntity[](1);
     voxels[0] = VoxelEntity({ scale: 1, entityId: voxel1 });
     VoxelTypeData[] memory voxelTypes = world.getVoxelTypes(voxels);
-    assertEq(voxelTypes[0].voxelTypeId, GrassVoxelID);
+    assertEq(voxelTypes[0].voxelTypeId, ElectronVoxelID);
 
     vm.stopPrank();
   }
@@ -47,7 +47,7 @@ contract RegisterCreationTest is MudTest {
     // NOTE: I don't think you can call Component.set(store, value);, you can only call Component.get(store, key);
     // This is why I am gifting the voxels to Alice.
     // For some reason, you also can't use: voxel1 = getUniqueEntity();
-    bytes32 giftedVoxel = world.giftVoxel(GrassVoxelID);
+    bytes32 giftedVoxel = world.giftVoxel(ElectronVoxelID);
 
     VoxelCoord memory coord1 = VoxelCoord(1, 2, 1);
     VoxelCoord memory coord2 = VoxelCoord(2, 1, 2);

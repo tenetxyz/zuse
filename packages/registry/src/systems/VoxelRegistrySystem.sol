@@ -42,7 +42,10 @@ contract VoxelRegistrySystem is System {
         if (scale == 0) {
           scale = VoxelTypeRegistry.getScale(childVoxelTypeIds[i]) + 1;
         } else {
-          require(scale == VoxelTypeRegistry.getScale(childVoxelTypeIds[i]), "All voxel types must be the same scale");
+          require(
+            scale == VoxelTypeRegistry.getScale(childVoxelTypeIds[i]) + 1,
+            "All voxel types must be the same scale"
+          );
         }
       }
     } else {

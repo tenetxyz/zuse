@@ -6,32 +6,28 @@ import { toast } from "react-toastify";
 import { VoxelCoord } from "@latticexyz/utils";
 import { openSidebar, closeSidebar } from "../../../layers/noa/systems/createInputSystem";
 import { Layers } from "../../../types";
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faArrowUp , faArrowDown, faBars } from "@fortawesome/free-solid-svg-icons";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faArrowUp, faArrowDown, faBars } from "@fortawesome/free-solid-svg-icons";
 import styled from "styled-components";
 import { SetupContractConfig, getBurnerWallet } from "@latticexyz/std-client";
 import { registerBlockExplorer } from "./BlockExplorer";
 import { isNetworkComponentUpdateEvent, NetworkComponentUpdate } from "@latticexyz/network";
-import { setComponent, ComponentValue, Entity, getComponentValue, SchemaOf, getComponentEntities, getComponentValueStrict } from "@latticexyz/recs";
+import {
+  setComponent,
+  ComponentValue,
+  Entity,
+  getComponentValue,
+  SchemaOf,
+  getComponentEntities,
+  getComponentValueStrict,
+} from "@latticexyz/recs";
 import { filter, scan, merge, map } from "rxjs";
 import { registerUIComponent } from "../engine";
 import { filterNullish } from "@latticexyz/utils";
 import { voxelTypeToEntity, entityToVoxelType } from "../../noa/types";
 import { AIR_ID } from "../../network/api/terrain/occurrence";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Border } from "./common";
 import { config } from "@fortawesome/fontawesome-svg-core";
 import { Network } from "lucide-react";
@@ -41,7 +37,6 @@ import type { PublicClient, Chain } from "viem";
 import { useComponentUpdate } from "../../../utils/useComponentUpdate";
 import { getTransactionResult } from "@latticexyz/dev-tools";
 import { Badge } from "@/components/ui/badge";
-
 
 type BlockEvent = {
   blockNumber: number;
@@ -141,7 +136,6 @@ function enforceMaxLen(str: string) {
 }
 type MudPublicClient = PublicClient & { chain: Chain };
 
-
 export function registerPersistentSidebar() {
   registerTenetComponent({
     rowStart: 1,
@@ -168,8 +162,8 @@ export function registerPersistentSidebar() {
           api: { teleport },
           streams: { playerPosition$, zoomEvent$ },
         },
-        network:{
-          network:{connectedAddress},          
+        network: {
+          network: { connectedAddress },
           ecsEvent$,
           mappings,
           contractComponents: { VoxelType },
@@ -179,7 +173,7 @@ export function registerPersistentSidebar() {
           getVoxelIconUrl,
           actions: { Action },
           objectStore: { transactionCallbacks },
-        }
+        },
       } = layers;
 
       const [summary, setSummary] = useState<BlockSummary>([]);
@@ -199,7 +193,7 @@ export function registerPersistentSidebar() {
                     return;
                   }
                   const voxelTypeKey = voxelTypeToEntity(voxelType);
-    
+
                   if (value) {
                     return {
                       blockNumber,
@@ -225,7 +219,7 @@ export function registerPersistentSidebar() {
                 summary.find(([blockNumber]) => event.blockNumber === blockNumber) ||
                 ([event.blockNumber, {}] as BlockSummaryElement);
               const otherBlocks = summary.filter(([blockNumber]) => event.blockNumber !== blockNumber) as BlockSummary;
-    
+
               if (event.voxelTypeKey && event.action) {
                 block[1][event.voxelTypeKey] = block[1][event.voxelTypeKey] || {
                   [event.action]: 0,
@@ -233,18 +227,17 @@ export function registerPersistentSidebar() {
                 const current = block[1][event.voxelTypeKey][event.action] || 0;
                 block[1][event.voxelTypeKey][event.action] = current + 1;
               }
-    
+
               return [...otherBlocks, block].slice(-500);
             }, [] as BlockSummary)
           )
-          .subscribe(newSummary => {
+          .subscribe((newSummary) => {
             setSummary(newSummary);
           });
-    
+
         // Cleanup on unmount
         return () => subscription.unsubscribe();
       }, [blockNumber$, ecsEvent$, mappings, VoxelType, getVoxelIconUrl]);
-    
 
       const [worldScale, setWorldScale] = useState<number>(1);
 
@@ -297,7 +290,6 @@ export function registerPersistentSidebar() {
         });
       }, []);
 
-
       useEffect(() => {
         noa.on("newWorldName", (_newWorldName: string) => {
           setWorldScale(getWorldScale(noa));
@@ -349,96 +341,130 @@ export function registerPersistentSidebar() {
           newPosition.y += 1;
           return newPosition;
         });
-      };   
+      };
 
       return (
         <div className="p-5 flex justify-between items-start" style={{ pointerEvents: "all" }}>
           <div>
             <div>
-              <TooltipProvider delayDuration={100} >
+              <TooltipProvider delayDuration={100}>
                 <Tooltip>
                   <TooltipTrigger>
-                    <Button style={{ margin: "0", padding: "8px" }} onClick={() => openSidebar(FocusedUi, SingletonEntity, PersistentNotification, SpawnCreation, noa)}>
-                      <FontAwesomeIcon icon={faBars} style={{ color: "#C9CACB"}} />
+                    <Button
+                      style={{ margin: "0", padding: "8px" }}
+                      onClick={() =>
+                        openSidebar(FocusedUi, SingletonEntity, PersistentNotification, SpawnCreation, noa)
+                      }
+                    >
+                      <FontAwesomeIcon icon={faBars} style={{ color: "#C9CACB" }} />
                     </Button>
                   </TooltipTrigger>
-                  <TooltipContent side="right">
-                    Open Sidebar
-                  </TooltipContent>
+                  <TooltipContent side="right">Open Sidebar</TooltipContent>
                 </Tooltip>
               </TooltipProvider>
             </div>
-            <Badge style={{ padding: "4px 2px", border: "0.5px solid #C9CACB", borderRadius: "4px", marginTop: "8px", backgroundColor: "#ffffff12", backdropFilter: "blur(2px)", textShadow: "1px 1px 2px rgba(0, 0, 0, 0.5)" }}>
+            <Badge
+              style={{
+                padding: "4px 2px",
+                border: "0.5px solid #C9CACB",
+                borderRadius: "4px",
+                marginTop: "8px",
+                backgroundColor: "#ffffff12",
+                backdropFilter: "blur(2px)",
+                textShadow: "1px 1px 2px rgba(0, 0, 0, 0.5)",
+              }}
+            >
               <TooltipProvider delayDuration={100}>
                 <span>
-                  <Badge variant="secondary" style={{borderRadius: "4px", paddingLeft: "4px", paddingRight: "4px"}}> LEVEL: {worldScale} </Badge>
+                  <Badge variant="secondary" style={{ borderRadius: "4px", paddingLeft: "4px", paddingRight: "4px" }}>
+                    {" "}
+                    LEVEL: {worldScale}{" "}
+                  </Badge>
                 </span>
                 <Tooltip>
                   <TooltipTrigger>
                     <Button onClick={zoomIn}>
-                      <FontAwesomeIcon icon={faArrowDown} style={{ color: "#C9CACB"}} />
+                      <FontAwesomeIcon icon={faArrowDown} style={{ color: "#C9CACB" }} />
                     </Button>
                   </TooltipTrigger>
-                  <TooltipContent>
-                    Zoom In to Level {worldScale - 1}
-                  </TooltipContent>
+                  <TooltipContent>Zoom In to Level {worldScale - 1}</TooltipContent>
                 </Tooltip>
                 <Tooltip>
                   <TooltipTrigger>
                     <Button onClick={zoomOut}>
-                      <FontAwesomeIcon icon={faArrowUp} style={{ color: "#C9CACB"}} />
+                      <FontAwesomeIcon icon={faArrowUp} style={{ color: "#C9CACB" }} />
                     </Button>
                   </TooltipTrigger>
-                  <TooltipContent>
-                    Zoom Out to Level {worldScale + 1}
-                  </TooltipContent>
-              </Tooltip>
-            </TooltipProvider>
+                  <TooltipContent>Zoom Out to Level {worldScale + 1}</TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
             </Badge>
           </div>
           <div>
-            <Badge style={{ padding: "4px 2px", border: "0.5px solid #C9CACB", borderRadius: "4px", marginTop: "8px", backgroundColor: "#ffffff12", backdropFilter: "blur(2px)"}}>
-                <CardContent className="p-2">
-                  <div style = {{marginBottom: "4px", maxWidth: "200px", overflow: "hidden"}}>
-                    <Badge variant="secondary" style={{borderRadius: "4px", paddingLeft: "4px", paddingRight: "4px", textShadow: "1px 1px 2px rgba(0, 0, 0, 0.5)"}}> BRANCH: {layers.network.worldAddress.slice(0, 10)}... </Badge> 
-                    <BlockExplorerContainer>
-                          {summary.map(([blockNumber, block]) => (
-                            <div
-                              key={blockNumber}
-                              className="BlockExplorer-Block"
-                              // onClick={() => window.open(blockExplorer + "/block/" + blockNumber)}
-                            >
-                              {blockNumber % 16 === 0 ? <div className="BlockExplorer-BlockNumber">{blockNumber}</div> : null}
-                              <div className="BlockExplorer-Actions">
-                                {Object.entries(block).map(([voxelTypeKey, counts]) => {
-                                  const voxelType = entityToVoxelType(voxelTypeKey as Entity);
-                                  const voxelIconUrl = getVoxelIconUrl(voxelType.voxelVariantTypeId);
-                                  return (
-                                    <React.Fragment key={voxelTypeKey}>
-                                      {counts.add ? (
-                                        <div className="BlockExplorer-Action">
-                                          <img src={voxelIconUrl} />
-                                          <div className="BlockExplorer-ActionIcon BlockExplorer-ActionIcon--add">+{counts.add}</div>
-                                        </div>
-                                      ) : null}
-                                      {counts.remove ? (
-                                        <div className="BlockExplorer-Action">
-                                          <img src={voxelIconUrl} />
-                                          <div className="BlockExplorer-ActionIcon BlockExplorer-ActionIcon--remove">
-                                            -{counts.remove}
-                                          </div>
-                                        </div>
-                                      ) : null}
-                                    </React.Fragment>
-                                  );
-                                })}
-                              </div>
-                            </div>
-                          ))}
-                    </BlockExplorerContainer>
-                  </div>
-                  <hr style={{borderTop: "1px solid rgb(201, 202, 203, 0.5)", marginBottom: "4px"}}/>
-                  {/* <div>
+            <Badge
+              style={{
+                padding: "4px 2px",
+                border: "0.5px solid #C9CACB",
+                borderRadius: "4px",
+                marginTop: "8px",
+                backgroundColor: "#ffffff12",
+                backdropFilter: "blur(2px)",
+              }}
+            >
+              <CardContent className="p-2">
+                <div style={{ marginBottom: "4px", maxWidth: "200px", overflow: "hidden" }}>
+                  <Badge
+                    variant="secondary"
+                    style={{
+                      borderRadius: "4px",
+                      paddingLeft: "4px",
+                      paddingRight: "4px",
+                      textShadow: "1px 1px 2px rgba(0, 0, 0, 0.5)",
+                    }}
+                  >
+                    {" "}
+                    BRANCH: {layers.network.worldAddress.slice(0, 10)}...{" "}
+                  </Badge>
+                  <BlockExplorerContainer>
+                    {summary.map(([blockNumber, block]) => (
+                      <div
+                        key={blockNumber}
+                        className="BlockExplorer-Block"
+                        // onClick={() => window.open(blockExplorer + "/block/" + blockNumber)}
+                      >
+                        {blockNumber % 16 === 0 ? <div className="BlockExplorer-BlockNumber">{blockNumber}</div> : null}
+                        <div className="BlockExplorer-Actions">
+                          {Object.entries(block).map(([voxelTypeKey, counts]) => {
+                            const voxelType = entityToVoxelType(voxelTypeKey as Entity);
+                            const voxelIconUrl = getVoxelIconUrl(voxelType.voxelVariantTypeId);
+                            return (
+                              <React.Fragment key={voxelTypeKey}>
+                                {counts.add ? (
+                                  <div className="BlockExplorer-Action">
+                                    <img src={voxelIconUrl} />
+                                    <div className="BlockExplorer-ActionIcon BlockExplorer-ActionIcon--add">
+                                      +{counts.add}
+                                    </div>
+                                  </div>
+                                ) : null}
+                                {counts.remove ? (
+                                  <div className="BlockExplorer-Action">
+                                    <img src={voxelIconUrl} />
+                                    <div className="BlockExplorer-ActionIcon BlockExplorer-ActionIcon--remove">
+                                      -{counts.remove}
+                                    </div>
+                                  </div>
+                                ) : null}
+                              </React.Fragment>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    ))}
+                  </BlockExplorerContainer>
+                </div>
+                <hr style={{ borderTop: "1px solid rgb(201, 202, 203, 0.5)", marginBottom: "4px" }} />
+                {/* <div>
                     {position && (
                       <span>
                         <span>
@@ -456,27 +482,34 @@ export function registerPersistentSidebar() {
                       </span>
                       )}
                   </div> */}
-                  <Badge variant="secondary" style={{borderRadius: "4px", paddingLeft: "4px", paddingRight: "4px", textShadow: "1px 1px 2px rgba(0, 0, 0, 0.5)"}}> PLAYER: {layers.network.network.connectedAddress.get().slice(0, 10)}... </Badge> 
-                  <ActionQueueList>
-                    {[...getComponentEntities(Action)].reverse().map((e) => {
-                      const { state, metadata, txHash } = getComponentValueStrict(Action, e);
-                      const { actionType, coord, voxelVariantTypeId, preview } = metadata || {};
-                      let icon = voxelVariantTypeId && getVoxelIconUrl(voxelVariantTypeId);
-                      if (icon === undefined) {
-                        icon = preview;
-                      }
-                      return (
-                        <div key={e} className="ActionQueueItem">
-                          <ActionQueueItem
-                            state={state}
-                            icon={icon}
-                            title={`${actionType} tx`}
-                          />
-                        </div>
-                      );
-                    })}
-                  </ActionQueueList>
-                </CardContent>
+                <Badge
+                  variant="secondary"
+                  style={{
+                    borderRadius: "4px",
+                    paddingLeft: "4px",
+                    paddingRight: "4px",
+                    textShadow: "1px 1px 2px rgba(0, 0, 0, 0.5)",
+                  }}
+                >
+                  {" "}
+                  PLAYER: {layers.network.network.connectedAddress.get().slice(0, 10)}...{" "}
+                </Badge>
+                <ActionQueueList>
+                  {[...getComponentEntities(Action)].reverse().map((e) => {
+                    const { state, metadata, txHash } = getComponentValueStrict(Action, e);
+                    const { actionType, coord, voxelVariantTypeId, preview } = metadata || {};
+                    let icon = voxelVariantTypeId && getVoxelIconUrl(voxelVariantTypeId);
+                    if (icon === undefined) {
+                      icon = preview;
+                    }
+                    return (
+                      <div key={e} className="ActionQueueItem">
+                        <ActionQueueItem state={state} icon={icon} title={`${actionType} tx`} />
+                      </div>
+                    );
+                  })}
+                </ActionQueueList>
+              </CardContent>
             </Badge>
           </div>
         </div>
@@ -485,7 +518,6 @@ export function registerPersistentSidebar() {
   });
 }
 
-
 const Button = styled.button<{ selected?: boolean }>`
   padding: 4px 8px;
   margin: 0 4px;
@@ -493,7 +525,7 @@ const Button = styled.button<{ selected?: boolean }>`
   background-color: rgba(36, 42, 47, 1);
   border-radius: 8px;
   transition: box-shadow 0.3s ease;
-  box-shadow: ${(p) => p.selected ? '#C9CACB 0px 0px 20px 5px' : 'none'};
+  box-shadow: ${(p) => (p.selected ? "#C9CACB 0px 0px 20px 5px" : "none")};
   &:hover {
     box-shadow: 0 2px 5px 0 rgba(0, 0, 0, 0.1);
     transform: scale(1.05);

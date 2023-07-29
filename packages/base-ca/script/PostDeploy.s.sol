@@ -13,12 +13,12 @@ contract PostDeploy is Script {
     // Start broadcasting transactions from the deployer account
     vm.startBroadcast(deployerPrivateKey);
 
-    IWorld(worldAddress).registerCA();
-
     IWorld(worldAddress).registerVoxelAir();
     IWorld(worldAddress).registerVoxelElectron();
 
     IWorld(worldAddress).registerInteractionElectron();
+
+    IWorld(worldAddress).registerCA();
 
     vm.stopBroadcast();
   }

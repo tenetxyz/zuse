@@ -7,17 +7,12 @@ import { getKeysWithValue } from "@latticexyz/world/src/modules/keyswithvalue/ge
 import { hasKey } from "@latticexyz/world/src/modules/keysintable/hasKey.sol";
 import { CAVoxelType, CAPosition, CAPositionData, CAPositionTableId, ElectronTunnelSpot, ElectronTunnelSpotData, ElectronTunnelSpotTableId } from "@base-ca/src/codegen/Tables.sol";
 import { VoxelCoord } from "@tenet-utils/src/Types.sol";
-import { EMPTY_ID, AirVoxelID, AirVoxelVariantID, DirtVoxelID, BedrockVoxelID, DirtVoxelVariantID, GrassVoxelID, GrassVoxelVariantID, BedrockVoxelVariantID } from "@base-ca/src/Constants.sol";
+import { EMPTY_ID, AirVoxelID, AirVoxelVariantID, ElectronVoxelID, ElectronVoxelVariantID } from "@base-ca/src/Constants.sol";
 import { getEntityAtCoord, voxelCoordToPositionData } from "@base-ca/src/Utils.sol";
 
 contract BaseCASystem is System {
   function isVoxelTypeAllowed(bytes32 voxelTypeId) public pure returns (bool) {
-    if (
-      voxelTypeId == AirVoxelID ||
-      voxelTypeId == DirtVoxelID ||
-      voxelTypeId == GrassVoxelID ||
-      voxelTypeId == BedrockVoxelID
-    ) {
+    if (voxelTypeId == AirVoxelID || voxelTypeId == ElectronVoxelID) {
       return true;
     }
     return false;
@@ -43,7 +38,7 @@ contract BaseCASystem is System {
       CAPosition.set(callerAddress, entity, CAPositionData({ x: coord.x, y: coord.y, z: coord.z }));
     }
 
-    if (voxelTypeId == BedrockVoxelID) {
+    if (voxelTypeId == ElectronVoxelID) {
       // TODO: move to ElectronSystem
       // Check one above
       CAPositionData memory aboveCoord = CAPositionData(coord.x, coord.y, coord.z + 1);
@@ -63,7 +58,7 @@ contract BaseCASystem is System {
         }
       } else {
         if (aboveEntity != 0) {
-          if (CAVoxelType.getVoxelTypeId(callerAddress, aboveEntity) == BedrockVoxelID) {
+          if (CAVoxelType.getVoxelTypeId(callerAddress, aboveEntity) == ElectronVoxelID) {
             bool neighbourAtTop = ElectronTunnelSpot.get(callerAddress, aboveEntity).atTop;
             if (neighbourAtTop) {
               revert("ElectronSystem: Cannot place electron when it's tunneling spot is already occupied (south)");
@@ -94,12 +89,8 @@ contract BaseCASystem is System {
   function getVoxelVariant(bytes32 voxelTypeId, bytes32 entity) public view returns (bytes32) {
     if (voxelTypeId == AirVoxelID) {
       return AirVoxelVariantID;
-    } else if (voxelTypeId == DirtVoxelID) {
-      return DirtVoxelVariantID;
-    } else if (voxelTypeId == GrassVoxelID) {
-      return GrassVoxelVariantID;
-    } else if (voxelTypeId == BedrockVoxelID) {
-      return BedrockVoxelVariantID;
+    } else if (voxelTypeId == ElectronVoxelID) {
+      return ElectronVoxelVariantID;
     } else {
       revert("This voxel type is not allowed in this CA");
     }
@@ -107,14 +98,11 @@ contract BaseCASystem is System {
 
   function exitWorld(bytes32 voxelTypeId, VoxelCoord memory coord, bytes32 entity) public {
     require(voxelTypeId != AirVoxelID, "can not mine air");
-
     address callerAddress = _msgSender();
-    if (!hasKey(CAPositionTableId, CAPosition.encodeKeyTuple(callerAddress, entity))) {
-      // If there is no entity at this position, try mining the terrain voxel at this position
-      bytes32 terrainVoxelTypeId = IWorld(_world()).getTerrainVoxel(coord);
-      require(terrainVoxelTypeId != EMPTY_ID && terrainVoxelTypeId == voxelTypeId, "invalid terrain voxel type");
-      CAPosition.set(callerAddress, entity, CAPositionData({ x: coord.x, y: coord.y, z: coord.z }));
-    }
+    require(
+      hasKey(CAPositionTableId, CAPosition.encodeKeyTuple(callerAddress, entity)),
+      "This entity is not in the world"
+    );
     // set to Air
     bytes32 airVoxelVariantId = getVoxelVariant(AirVoxelID, entity);
     CAVoxelType.set(callerAddress, entity, AirVoxelID, airVoxelVariantId);

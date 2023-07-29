@@ -17,7 +17,6 @@ contract PostDeploy is Script {
     // Register the voxel types
     registerAir();
     registerRoad();
-    registerSignal();
 
     IWorld(worldAddress).registerCA();
 

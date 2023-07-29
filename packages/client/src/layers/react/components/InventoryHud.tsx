@@ -26,16 +26,10 @@ import { entityToVoxelType } from "../../noa/types";
 import { firstFreeInventoryIndex } from "../../noa/systems/createInventoryIndexSystem";
 import { FocusedUiType } from "../../noa/components/FocusedUi";
 import { useComponentValue } from "@latticexyz/react";
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faSuitcase } from "@fortawesome/free-solid-svg-icons";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip"
-import { DashboardIcon } from "@radix-ui/react-icons"
-
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { DashboardIcon } from "@radix-ui/react-icons";
 
 // This gives us 36 inventory slots. As of now there are 34 types of VoxelTypes, so it should fit.
 export const INVENTORY_WIDTH = 8;
@@ -263,18 +257,18 @@ export function registerInventoryHud() {
             {/* <StatusHud layers={layers} /> */}
             <ActionBarWrapper>
               {[...range(INVENTORY_WIDTH)].map((i) => Slots[i])}
-            <TooltipProvider delayDuration={100}>
-              <Tooltip>
-                <TooltipTrigger>
-                  <Button variant="secondary" size="icon" onClick={() => setComponent(FocusedUi, SingletonEntity, { value: FocusedUiType.INVENTORY })}>
-                    <DashboardIcon className="h-12 w-8" style={{ color: "#C9CACB" }}/>
-                  </Button>
-                </TooltipTrigger>
-                <TooltipContent>
-                  Open Inventory
-                </TooltipContent>
-              </Tooltip>
-            </TooltipProvider>
+              <TooltipProvider delayDuration={100}>
+                <Tooltip>
+                  <TooltipTrigger>
+                    <Button
+                      onClick={() => setComponent(FocusedUi, SingletonEntity, { value: FocusedUiType.INVENTORY })}
+                    >
+                      <DashboardIcon className="h-12 w-8" style={{ color: "#C9CACB" }} />
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent>Open Inventory</TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
             </ActionBarWrapper>
             {/* <ActionBarWrapper>{[...range(INVENTORY_WIDTH)].map((i) => Slots[i])}</ActionBarWrapper> */}
           </div>
@@ -343,7 +337,7 @@ const Button = styled.button`
   align-content: center;
   font-size: 20px;
   opacity: ${(p) => (p.disabled ? 0.5 : 1)};
-  border: 1px solid #C9CACB;
+  border: 1px solid #c9cacb;
   background-color: #ffffff12;
   border-radius: 4px;
   transition: box-shadow 0.3s ease;
@@ -352,7 +346,6 @@ const Button = styled.button`
     transform: scale(1.05);
   }
 `;
-
 
 const BottomBar = styled.div`
   display: grid;
@@ -364,13 +357,10 @@ const BottomBar = styled.div`
   position: relative;
 `;
 
-
-
-
 const InventoryContainer = styled.div`
   width: 100%;
   background-color: #ffffff12;
-  border: 1px solid #C9CACB;
+  border: 1px solid #c9cacb;
   display: grid;
   grid-template-columns: repeat(2, auto);
   justify-content: center;
@@ -401,7 +391,6 @@ export const ActionBarWrapper = styled.div`
     transform: scale(1.05);
   }
 `;
-
 
 const PixelatedImage = styled.img`
   image-rendering: pixelated;

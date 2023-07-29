@@ -15,7 +15,7 @@ import { Strings } from "@openzeppelin/contracts/utils/Strings.sol";
 contract ElectronSystem is VoxelInteraction {
   function registerInteractionElectron() public {
     address world = _world();
-    CAVoxelInteractionConfig.push(IWorld(world).eventHandlerElectron);
+    CAVoxelInteractionConfig.push(IWorld(world).eventHandlerElectron.selector);
   }
 
   function onNewNeighbour(

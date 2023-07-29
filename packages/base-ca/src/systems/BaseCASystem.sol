@@ -9,10 +9,10 @@ import { CAVoxelInteractionConfig, CAVoxelConfig, CAVoxelConfigTableId, CAVoxelT
 import { VoxelCoord } from "@tenet-utils/src/Types.sol";
 import { AirVoxelID, AirVoxelVariantID, ElectronVoxelID, ElectronVoxelVariantID } from "@base-ca/src/Constants.sol";
 import { getEntityAtCoord, voxelCoordToPositionData } from "@base-ca/src/Utils.sol";
-import { safeCall } from "@tenet-utils/src/CallUtils.sol";
+import { safeCall, safeStaticCall } from "@tenet-utils/src/CallUtils.sol";
 
 contract BaseCASystem is System {
-  function isVoxelTypeAllowed(bytes32 voxelTypeId) public pure returns (bool) {
+  function isVoxelTypeAllowed(bytes32 voxelTypeId) public view returns (bool) {
     return hasKey(CAVoxelConfigTableId, CAVoxelConfig.encodeKeyTuple(voxelTypeId));
   }
 
@@ -32,15 +32,19 @@ contract BaseCASystem is System {
     }
 
     bytes4 voxelEnterWorldSelector = CAVoxelConfig.getEnterWorldSelector(voxelTypeId);
-    safeCall(_world(), abi.encodeWithSelector(voxelEnterWorldSelector, coord, entity), "voxel enter world");
+    safeCall(
+      _world(),
+      abi.encodeWithSelector(voxelEnterWorldSelector, callerAddress, coord, entity),
+      "voxel enter world"
+    );
 
     bytes32 voxelVariantId = getVoxelVariant(voxelTypeId, entity);
     CAVoxelType.set(callerAddress, entity, voxelTypeId, voxelVariantId);
   }
 
-  function getVoxelVariant(bytes32 voxelTypeId, bytes32 entity) public view returns (bytes32) {
+  function getVoxelVariant(bytes32 voxelTypeId, bytes32 entity) public returns (bytes32) {
     bytes4 voxelVariantSelector = CAVoxelConfig.getVoxelVariantSelector(voxelTypeId);
-    bytes memory returnData = safeCall(
+    bytes memory returnData = safeStaticCall(
       _world(),
       abi.encodeWithSelector(voxelVariantSelector, entity),
       "voxel variant selector"
@@ -60,7 +64,11 @@ contract BaseCASystem is System {
     CAVoxelType.set(callerAddress, entity, AirVoxelID, airVoxelVariantId);
 
     bytes4 voxelExitWorldSelector = CAVoxelConfig.getExitWorldSelector(voxelTypeId);
-    safeCall(_world(), abi.encodeWithSelector(voxelExitWorldSelector, coord, entity), "voxel exit world");
+    safeCall(
+      _world(),
+      abi.encodeWithSelector(voxelExitWorldSelector, callerAddress, coord, entity),
+      "voxel exit world"
+    );
   }
 
   function runInteraction(
@@ -89,13 +97,13 @@ contract BaseCASystem is System {
       if (changedEntities[0] == 0) {
         changedEntities[0] = changedCenterEntityId;
       }
-      for (uint256 i = 0; i < changedNeighbourEntityIds.length; i++) {
-        if (changedEntities[i + 1] == 0) {
-          changedEntities[i + 1] = changedNeighbourEntityIds[i];
+      for (uint256 j = 0; j < changedNeighbourEntityIds.length; j++) {
+        if (changedEntities[j + 1] == 0) {
+          changedEntities[j + 1] = changedNeighbourEntityIds[i];
         }
       }
     }
 
-    return changedNeighbourEntityIds;
+    return changedEntities;
   }
 }

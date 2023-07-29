@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity >=0.8.0;
 
+import { IWorld } from "@base-ca/src/codegen/world/IWorld.sol";
 import { System } from "@latticexyz/world/src/System.sol";
 import { VoxelVariantsRegistryData } from "@tenet-registry/src/codegen/tables/VoxelVariantsRegistry.sol";
 import { NoaBlockType } from "@tenet-registry/src/codegen/Types.sol";
@@ -37,7 +38,7 @@ contract ElectronVoxelSystem is System {
     );
   }
 
-  function enterWorldElectron(VoxelCoord memory coord, bytes32 entity) public {
+  function enterWorldElectron(address callerAddress, VoxelCoord memory coord, bytes32 entity) public {
     // Check one above
     CAPositionData memory aboveCoord = CAPositionData(coord.x, coord.y, coord.z + 1);
     bytes32 aboveEntity = getEntityAtCoord(callerAddress, aboveCoord);
@@ -79,7 +80,7 @@ contract ElectronVoxelSystem is System {
     }
   }
 
-  function exitWorldElectron(VoxelCoord memory coord, bytes32 entity) public {
+  function exitWorldElectron(address callerAddress, VoxelCoord memory coord, bytes32 entity) public {
     // TODO: Remove values from ElectronTunnelSpot
   }
 

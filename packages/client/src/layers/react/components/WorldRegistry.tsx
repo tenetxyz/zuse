@@ -186,9 +186,7 @@ export const WorldRegistry = ({ layers, filters, setFilters }: Props) => {
                   onClick={() => {
                     const currentURL = window.location.href;
                     const newURL =
-                      currentURL +
-                      (currentURL.includes("?") ? "&" : "?") +
-                      `worldAddress={todo:set it to the selected world address}`;
+                      currentURL + (currentURL.includes("?") ? "&" : "?") + `worldAddress=${world.worldAddress}}`;
                     // Redirect to the new URL
                     window.location.href = newURL;
                   }}

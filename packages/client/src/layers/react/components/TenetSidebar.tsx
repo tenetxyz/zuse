@@ -15,10 +15,11 @@ import { stringToEntity } from "../../../utils/entity";
 import { abiDecode } from "../../../utils/abi";
 import { ISpawn } from "../../noa/components/SpawnInFocus";
 import { WorldRegistry, WorldRegistryFilters } from "./WorldRegistry";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 
 enum SidebarTab {
-  VOXELS = "Voxel Types",
-  VOXEL_CREATIONS = "Voxel Creations",
+  VOXELS = "Blocks",
+  VOXEL_CREATIONS = "Creations",
   WORLDS = "Worlds",
 }
 
@@ -169,30 +170,31 @@ export function registerTenetSidebar() {
             showSidebar ? "translate-x-0 opacity-100" : "-translate-x-full opacity-0"
           )}
           // "pointerEvents: all" is needed so when we click on the admin panel, we don't gain focus on the noa canvasvoxelTypes = creationTable.voxelTypes.get(creationId)
-          style={{ pointerEvents: "all" }}
+          style={{ pointerEvents: "all", background: "#24292E" }}
         >
-          <div className="flex flex-col h-full">
-            <div className="flex justify-center items-center w-full text-sm font-medium text-center text-gray-500 border-b border-gray-200">
-              <ul className="flex flex-wrap -mb-px">
-                {sidebarTabsArray.map((tab) => (
-                  <li className="mr-2" key={"tenet-sidebar-tab-" + tab}>
-                    <a
-                      onClick={() => setSelectedTab(tab)}
-                      className={twMerge(
-                        "inline-block p-4 border-b-2 rounded-t-lg cursor-pointer",
-                        selectedTab === tab
-                          ? "text-blue-600 border-blue-600 active"
-                          : "border-transparent hover:text-gray-600 hover:border-gray-300"
-                      )}
-                    >
-                      {tab}
-                    </a>
-                  </li>
-                ))}
-              </ul>
-            </div>
-            {SelectedTabPage}
-          </div>
+<div className="flex flex-col h-full">
+  <div className="flex justify-center items-center w-full text-sm font-medium text-center text-gray-500">
+    <ul className="flex flex-wrap rounded m-4 p-1 justify-between" style={{ pointerEvents: "all", background: "rgb(47, 53, 60)", width: "inherit" }}>
+      {sidebarTabsArray.map((tab) => (
+        <li key={"tenet-sidebar-tab-" + tab} className="flex-grow text-center">
+          <a
+            onClick={() => setSelectedTab(tab)}
+            className={twMerge(
+              "block w-full px-4 py-1 rounded cursor-pointer",
+              selectedTab === tab
+                ? "text-gray-800 bg-slate-100 font-black"
+                : "text-gray-600 hover:text-gray-800 font-black"
+            )}
+          >
+            {tab}
+          </a>
+        </li>
+      ))}
+    </ul>
+  </div>
+  {SelectedTabPage}
+</div>
+
         </div>
       );
     },

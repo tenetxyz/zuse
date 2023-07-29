@@ -3,7 +3,7 @@ pragma solidity >=0.8.0;
 
 import { VoxelVariantsRegistryData } from "@tenet-registry/src/codegen/tables/VoxelVariantsRegistry.sol";
 import { NoaBlockType } from "@tenet-registry/src/codegen/Types.sol";
-import { REGISTRY_ADDRESS, AirVoxelID, AirVoxelVariantID, DirtVoxelID, DirtVoxelVariantID, DirtTexture, DirtUVWrap, GrassVoxelID, GrassVoxelVariantID, GrassTexture, GrassSideTexture, GrassUVWrap, BedrockVoxelID, BedrockVoxelVariantID, BedrockTexture, BedrockUVWrap } from "@base-ca/src/Constants.sol";
+import { REGISTRY_ADDRESS, AirVoxelID, AirVoxelVariantID, ElectronVoxelID, ElectronVoxelVariantID, ElectronTexture } from "@base-ca/src/Constants.sol";
 import { registerVoxelVariant, registerVoxelType } from "@tenet-registry/src/Utils.sol";
 
 function registerAir() {
@@ -15,50 +15,18 @@ function registerAir() {
   registerVoxelType(REGISTRY_ADDRESS, "Air", AirVoxelID, airChildVoxelTypes, AirVoxelVariantID);
 }
 
-function registerDirt() {
-  VoxelVariantsRegistryData memory dirtVariant;
-  dirtVariant.blockType = NoaBlockType.BLOCK;
-  dirtVariant.opaque = true;
-  dirtVariant.solid = true;
-  string[] memory dirtMaterials = new string[](1);
-  dirtMaterials[0] = DirtTexture;
-  dirtVariant.materials = abi.encode(dirtMaterials);
-  dirtVariant.uvWrap = DirtUVWrap;
-  registerVoxelVariant(REGISTRY_ADDRESS, DirtVoxelVariantID, dirtVariant);
+function registerElectron() {
+  VoxelVariantsRegistryData memory electronVariant;
+  electronVariant.blockType = NoaBlockType.MESH;
+  electronVariant.opaque = false;
+  electronVariant.solid = false;
+  electronVariant.frames = 1;
+  string[] memory electronMaterials = new string[](1);
+  electronMaterials[0] = ElectronTexture;
+  electronVariant.materials = abi.encode(electronMaterials);
+  registerVoxelVariant(REGISTRY_ADDRESS, ElectronVoxelVariantID, electronVariant);
 
-  bytes32[] memory dirtChildVoxelTypes = new bytes32[](1);
-  dirtChildVoxelTypes[0] = DirtVoxelID;
-  registerVoxelType(REGISTRY_ADDRESS, "Dirt", DirtVoxelID, dirtChildVoxelTypes, DirtVoxelVariantID);
-}
-
-function registerGrass() {
-  VoxelVariantsRegistryData memory grassVariant;
-  grassVariant.blockType = NoaBlockType.BLOCK;
-  grassVariant.opaque = true;
-  grassVariant.solid = true;
-  string[] memory grassMaterials = new string[](3);
-  grassMaterials[0] = GrassTexture;
-  grassMaterials[1] = DirtTexture;
-  grassMaterials[2] = GrassSideTexture;
-  grassVariant.materials = abi.encode(grassMaterials);
-  grassVariant.uvWrap = GrassUVWrap;
-  registerVoxelVariant(REGISTRY_ADDRESS, GrassVoxelVariantID, grassVariant);
-  bytes32[] memory grassChildVoxelTypes = new bytes32[](1);
-  grassChildVoxelTypes[0] = GrassVoxelID;
-  registerVoxelType(REGISTRY_ADDRESS, "Grass", GrassVoxelID, grassChildVoxelTypes, GrassVoxelVariantID);
-}
-
-function registerBedrock() {
-  VoxelVariantsRegistryData memory bedrockVariant;
-  bedrockVariant.blockType = NoaBlockType.BLOCK;
-  bedrockVariant.opaque = true;
-  bedrockVariant.solid = true;
-  string[] memory bedrockMaterials = new string[](1);
-  bedrockMaterials[0] = BedrockTexture;
-  bedrockVariant.materials = abi.encode(bedrockMaterials);
-  bedrockVariant.uvWrap = BedrockUVWrap;
-  registerVoxelVariant(REGISTRY_ADDRESS, BedrockVoxelVariantID, bedrockVariant);
-  bytes32[] memory bedrockChildVoxelTypes = new bytes32[](1);
-  bedrockChildVoxelTypes[0] = BedrockVoxelID;
-  registerVoxelType(REGISTRY_ADDRESS, "Bedrock", BedrockVoxelID, bedrockChildVoxelTypes, BedrockVoxelVariantID);
+  bytes32[] memory electronChildVoxelTypes = new bytes32[](1);
+  electronChildVoxelTypes[0] = ElectronVoxelID;
+  registerVoxelType(REGISTRY_ADDRESS, "Electron", ElectronVoxelID, electronChildVoxelTypes, ElectronVoxelVariantID);
 }

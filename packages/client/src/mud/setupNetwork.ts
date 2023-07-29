@@ -448,7 +448,7 @@ export async function setupNetwork() {
         OwnedBy: contractComponents.OwnedBy, // I think it's needed cause we check to see if the owner owns the voxel we're placing
       },
       execute: () => {
-        return callSystem("build", [scaleAsHex, entityId, coord, { gasLimit: 100_000_000 }]);
+        return callSystem("build", [scaleAsHex, entityId, coord, { gasLimit: 900_000_000 }]);
       },
       updates: () => [
         // commented cause we're in creative mode
@@ -493,7 +493,7 @@ export async function setupNetwork() {
         VoxelType: contractComponents.VoxelType,
       },
       execute: () => {
-        return callSystem("mine", [voxelTypeKey.voxelBaseTypeId, coord, { gasLimit: 100_000_000 }]);
+        return callSystem("mine", [voxelTypeKey.voxelBaseTypeId, coord, { gasLimit: 900_000_000 }]);
       },
       updates: () => [
         {
@@ -627,7 +627,7 @@ export async function setupNetwork() {
       requirement: () => true,
       components: {},
       execute: () => {
-        return callSystem("spawn", [lowerSouthWestCorner, creationId, { gasLimit: 100_000_000 }]);
+        return callSystem("spawn", [lowerSouthWestCorner, creationId, { gasLimit: 900_000_000 }]);
       },
       updates: () => [],
     });
@@ -650,7 +650,7 @@ export async function setupNetwork() {
       execute: () => {
         return callSystem(
           "classify",
-          [classifierId, spawnId, interfaceVoxels, { gasLimit: 100_000_000 }],
+          [classifierId, spawnId, interfaceVoxels, { gasLimit: 900_000_000 }],
           undefined,
           onSuccessCallback
         );
@@ -670,7 +670,7 @@ export async function setupNetwork() {
       requirement: () => true,
       components: {},
       execute: () => {
-        return callSystem("activateVoxel", [entity, { gasLimit: 100_000_000 }], undefined, (rawResponse) => {
+        return callSystem("activateVoxel", [entity, { gasLimit: 900_000_000 }], undefined, (rawResponse) => {
           const response = abiDecode("string", rawResponse, false);
           if (response !== "") {
             toast(response);

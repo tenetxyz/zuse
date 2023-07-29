@@ -37,7 +37,7 @@ contract BuildSystem is System {
       // TODO: Make this general by using cube root
       require(childVoxelTypeIds.length == 8, "Invalid length of child voxel type ids");
       // TODO: move this to a library
-      VoxelCoord[] memory eightBlockVoxelCoords = calculateChildCoords(scale, coord);
+      VoxelCoord[] memory eightBlockVoxelCoords = calculateChildCoords(2, coord);
       for (uint8 i = 0; i < 8; i++) {
         if (childVoxelTypeIds[i] == 0) {
           continue;

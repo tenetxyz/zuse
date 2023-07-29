@@ -29,7 +29,8 @@ contract MineSystem is System {
     uint32 scale = voxelTypeData.scale;
     bytes32 voxelToMine = getEntityAtCoord(scale, coord);
     if (voxelToMine == 0) {
-      if (scale == 1) {
+      if (scale == 2) {
+        // For us 2 has he terrain gen (ie Grass, Dirt, etc.)
         voxelToMine = getUniqueEntity();
         Position.set(scale, voxelToMine, coord.x, coord.y, coord.z);
       } else {
@@ -44,7 +45,7 @@ contract MineSystem is System {
       // TODO: Make this general by using cube root
       require(childVoxelTypeIds.length == 8, "Invalid length of child voxel type ids");
       // TODO: move this to a library
-      VoxelCoord[] memory eightBlockVoxelCoords = calculateChildCoords(scale, coord);
+      VoxelCoord[] memory eightBlockVoxelCoords = calculateChildCoords(2, coord);
       for (uint8 i = 0; i < 8; i++) {
         // mine(childVoxelTypeIds[i], eightBlockVoxelCoords[i]);
         bytes32 childVoxelToMine = getEntityAtCoord(scale, eightBlockVoxelCoords[i]);

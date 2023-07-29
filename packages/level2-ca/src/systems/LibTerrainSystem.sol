@@ -4,10 +4,12 @@ pragma solidity >=0.8.0;
 //import { Perlin } from "noise/world.sol";
 //import { Perlin } from "./Perlin.sol";
 import { ABDKMath64x64 as Math } from "@tenet-utils/src/libraries/ABDKMath64x64.sol";
-import { EMPTY_ID, CHUNK_MIN_Y, Biome, STRUCTURE_CHUNK, STRUCTURE_CHUNK_CENTER, AirVoxelID, GrassVoxelID, DirtVoxelID, BedrockVoxelID } from "../Constants.sol";
+import { CHUNK_MIN_Y, Biome, STRUCTURE_CHUNK, STRUCTURE_CHUNK_CENTER, Level2AirVoxelID, GrassVoxelID, DirtVoxelID, BedrockVoxelID } from "../Constants.sol";
 import { VoxelCoord, Tuple } from "@tenet-utils/src/Types.sol";
 import { System } from "@latticexyz/world/src/System.sol";
-import { IWorld } from "@base-ca/src/codegen/world/IWorld.sol";
+import { IWorld } from "@level2-ca/src/codegen/world/IWorld.sol";
+
+bytes32 constant EMPTY_ID = bytes32(0x0);
 
 int128 constant _0 = 0; // 0 * 2**64
 int128 constant _0_3 = 5534023222112865484; // 0.3 * 2**64
@@ -70,7 +72,7 @@ contract LibTerrainSystem is System {
     voxelTypeId = Dirt(y);
     if (voxelTypeId != EMPTY_ID) return voxelTypeId;
 
-    return AirVoxelID;
+    return Level2AirVoxelID;
   }
 
   function getHeight(int32 x, int32 z, int128[4] memory biome) internal view returns (int32) {
@@ -279,7 +281,7 @@ contract LibTerrainSystem is System {
 
   function Air(int32 y) internal pure returns (bytes32) {
     if (y > 9) {
-      return AirVoxelID;
+      return Level2AirVoxelID;
     }
 
     return EMPTY_ID;

@@ -26,21 +26,11 @@ contract VoxelRegistrySystem is System {
     uint32 scale;
     if (childVoxelTypeIds.length == 1) {
       scale = 1;
-    } else if (childVoxelTypeIds.length == 8) {
-      scale = 2;
-    } else if (childVoxelTypeIds.length == 27) {
-      scale = 3;
-    } else {
-      // TODO: Figure out how to cube root this
-      revert("Invalid number of child voxel types");
-    }
-
-    if (scale == 1) {
       require(
         childVoxelTypeIds[0] == voxelTypeId,
         "Child voxel type ID must be the same as parent voxel type ID for scale 1"
       );
-    } else {
+    } else if (childVoxelTypeIds.length == 8) {
       for (uint256 i; i < childVoxelTypeIds.length; i++) {
         if (childVoxelTypeIds[i] == 0) {
           continue;
@@ -49,11 +39,17 @@ contract VoxelRegistrySystem is System {
           hasKey(VoxelTypeRegistryTableId, VoxelTypeRegistry.encodeKeyTuple(childVoxelTypeIds[i])),
           "Child voxel type ID has not been registered"
         );
-        require(
-          VoxelTypeRegistry.getScale(childVoxelTypeIds[i]) == scale - 1,
-          "Child voxel type scale must be one less than parent voxel type scale"
-        );
+        if (scale == 0) {
+          scale = VoxelTypeRegistry.getScale(childVoxelTypeIds[i]) + 1;
+        } else {
+          require(
+            scale == VoxelTypeRegistry.getScale(childVoxelTypeIds[i]) + 1,
+            "All voxel types must be the same scale"
+          );
+        }
       }
+    } else {
+      revert("Invalid number of child voxel types");
     }
 
     VoxelTypeRegistry.set(

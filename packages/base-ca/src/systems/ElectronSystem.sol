@@ -6,7 +6,7 @@ import { VoxelInteraction } from "@base-ca/src/prototypes/VoxelInteraction.sol";
 import { BlockDirection } from "@tenet-utils/src/Types.sol";
 import { hasKey } from "@latticexyz/world/src/modules/keysintable/hasKey.sol";
 import { ElectronTunnelSpot, ElectronTunnelSpotData, ElectronTunnelSpotTableId, CAVoxelType, CAPosition, CAPositionData, CAPositionTableId } from "@base-ca/src/codegen/Tables.sol";
-import { AirVoxelID, DirtVoxelID, GrassVoxelID, BedrockVoxelID } from "@base-ca/src/Constants.sol";
+import { AirVoxelID, ElectronVoxelID } from "@base-ca/src/Constants.sol";
 import { getEntityAtCoord, getNeighbours, positionDataToVoxelCoord } from "@base-ca/src/Utils.sol";
 import { buildWorld, mineWorld } from "@base-ca/src/CallUtils.sol";
 import { safeCall } from "@tenet-utils/src/CallUtils.sol";
@@ -63,7 +63,7 @@ contract ElectronSystem is VoxelInteraction {
         continue;
       }
       bytes32 neighbourEntityType = CAVoxelType.getVoxelTypeId(callerAddress, neighbourEntityId);
-      if (neighbourEntityType == BedrockVoxelID) {
+      if (neighbourEntityType == ElectronVoxelID) {
         require(neighbourEntityDirections[i] != BlockDirection.None, "ElectronSystem: Invalid direction");
         if (
           neighbourEntityDirections[i] == BlockDirection.North ||
@@ -127,7 +127,7 @@ contract ElectronSystem is VoxelInteraction {
       }
       bytes32 neighbourEntityType = CAVoxelType.getVoxelTypeId(callerAddress, neighbourEntityId);
       if (interactAtTop && neighbourEntityDirections[i] == BlockDirection.North) {
-        if (neighbourEntityType == BedrockVoxelID) {
+        if (neighbourEntityType == ElectronVoxelID) {
           revert("ElectronSystem: Cannot place electron when it's tunneling spot is already occupied (north)");
         }
 
@@ -159,7 +159,7 @@ contract ElectronSystem is VoxelInteraction {
           }
         }
       } else if (!interactAtTop && neighbourEntityDirections[i] == BlockDirection.South) {
-        if (neighbourEntityType == BedrockVoxelID) {
+        if (neighbourEntityType == ElectronVoxelID) {
           bool neighbourAtTop = ElectronTunnelSpot.get(callerAddress, neighbourEntityType).atTop;
           if (neighbourAtTop) {
             revert("ElectronSystem: Cannot place electron when it's tunneling spot is already occupied (south)");
@@ -183,15 +183,15 @@ contract ElectronSystem is VoxelInteraction {
     );
     if (otherReplusionForce < currentReplusionForce) {
       // Tunnel to that spot
-      mineWorld(callerAddress, BedrockVoxelID, positionDataToVoxelCoord(baseCoord));
-      buildWorld(callerAddress, BedrockVoxelID, positionDataToVoxelCoord(otherCoord));
+      mineWorld(callerAddress, ElectronVoxelID, positionDataToVoxelCoord(baseCoord));
+      buildWorld(callerAddress, ElectronVoxelID, positionDataToVoxelCoord(otherCoord));
       // changedEntity = true;
     }
   }
 
   function entityShouldInteract(address callerAddress, bytes32 entityId) internal view override returns (bool) {
     bytes32 entityType = CAVoxelType.getVoxelTypeId(callerAddress, entityId);
-    return entityType == BedrockVoxelID;
+    return entityType == ElectronVoxelID;
   }
 
   function electronEventHandler(

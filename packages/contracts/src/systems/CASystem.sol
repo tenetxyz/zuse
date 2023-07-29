@@ -79,11 +79,11 @@ contract CASystem is System {
 
   // TODO: Make this general by using cube root
   function calculateChildEntities(uint32 scale, bytes32 entity) public view returns (bytes32[] memory) {
-    if (scale == 2) {
+    if (scale >= 2) {
       bytes32[] memory childEntities = new bytes32[](8);
       PositionData memory baseCoord = Position.get(scale, entity);
       VoxelCoord memory baseVoxelCoord = VoxelCoord({ x: baseCoord.x, y: baseCoord.y, z: baseCoord.z });
-      VoxelCoord[] memory eightBlockVoxelCoords = calculateChildCoords(scale, baseVoxelCoord);
+      VoxelCoord[] memory eightBlockVoxelCoords = calculateChildCoords(2, baseVoxelCoord);
 
       for (uint8 i = 0; i < 8; i++) {
         // filter for the ones with scale-1
@@ -106,6 +106,7 @@ contract CASystem is System {
   function calculateParentEntity(uint32 scale, bytes32 entity) public view returns (bytes32) {
     bytes32 parentEntity;
     if (scale == 1) {
+      // TODO: Fix this
       PositionData memory baseCoord = Position.get(scale, entity);
       VoxelCoord memory baseVoxelCoord = VoxelCoord({ x: baseCoord.x, y: baseCoord.y, z: baseCoord.z });
       VoxelCoord memory parentVoxelCoord = calculateParentCoord(baseVoxelCoord, scale);

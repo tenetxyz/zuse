@@ -1,0 +1,7 @@
+ds-test/=../../node_modules/ds-test/src/
+forge-std/=../../node_modules/forge-std/src/
+@latticexyz/=../../node_modules/@latticexyz/
+@tenet-utils/=../../node_modules/@tenetxyz/utils
+@tenet-registry/=../../node_modules/@tenetxyz/registry
+@tenet-base-ca/=../../node_modules/@tenetxyz/base-ca
+@level2-ca/=./

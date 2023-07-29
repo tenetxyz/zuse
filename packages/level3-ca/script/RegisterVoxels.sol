@@ -3,9 +3,10 @@ pragma solidity >=0.8.0;
 
 import { VoxelVariantsRegistryData } from "@tenet-registry/src/codegen/tables/VoxelVariantsRegistry.sol";
 import { NoaBlockType } from "@tenet-registry/src/codegen/Types.sol";
-import { REGISTRY_ADDRESS, RoadVoxelID, RoadVoxelVariantID, RoadTexture, RoadUVWrap, Level3AirVoxelID } from "@composed-ca/src/Constants.sol";
+import { REGISTRY_ADDRESS, RoadVoxelID, RoadVoxelVariantID, RoadTexture, RoadUVWrap, Level3AirVoxelID } from "@level3-ca/src/Constants.sol";
 import { registerVoxelVariant, registerVoxelType } from "@tenet-registry/src/Utils.sol";
-import { DirtVoxelID, AirVoxelVariantID, AirVoxelID, BedrockVoxelID } from "@tenet-base-ca/src/Constants.sol";
+import { AirVoxelVariantID, AirVoxelID } from "@tenet-base-ca/src/Constants.sol";
+import { DirtVoxelID } from "@tenet-level2-ca/src/Constants.sol";
 
 function registerAir() {
   bytes32[] memory airChildVoxelTypes = new bytes32[](8);

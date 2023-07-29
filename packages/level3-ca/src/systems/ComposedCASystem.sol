@@ -7,8 +7,8 @@ import { getKeysWithValue } from "@latticexyz/world/src/modules/keyswithvalue/ge
 import { hasKey } from "@latticexyz/world/src/modules/keysintable/hasKey.sol";
 import { CAVoxelType, CAVoxelTypeData, CAPosition, CAPositionData, CAPositionTableId } from "@level3-ca/src/codegen/Tables.sol";
 import { VoxelCoord } from "@tenet-utils/src/Types.sol";
-import { Level3AirVoxelID, RoadVoxelID, RoadVoxelVariantID, SignalVoxelID, SignalOffVoxelVariantID, SignalOnVoxelVariantID } from "@composed-ca/src/Constants.sol";
-import { AirVoxelVariantID, BedrockVoxelID } from "@tenet-base-ca/src/Constants.sol";
+import { Level3AirVoxelID, RoadVoxelID, RoadVoxelVariantID } from "@level3-ca/src/Constants.sol";
+import { AirVoxelVariantID } from "@tenet-base-ca/src/Constants.sol";
 import { safeCall } from "@tenet-utils/src/CallUtils.sol";
 import { Strings } from "@openzeppelin/contracts/utils/Strings.sol";
 

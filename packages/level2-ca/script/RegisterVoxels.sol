@@ -3,7 +3,7 @@ pragma solidity >=0.8.0;
 
 import { VoxelVariantsRegistryData } from "@tenet-registry/src/codegen/tables/VoxelVariantsRegistry.sol";
 import { NoaBlockType } from "@tenet-registry/src/codegen/Types.sol";
-import { REGISTRY_ADDRESS, DirtVoxelID, DirtVoxelVariantID, DirtTexture, DirtUVWrap, GrassVoxelID, GrassVoxelVariantID, GrassTexture, GrassSideTexture, GrassUVWrap, BedrockVoxelID, BedrockVoxelVariantID, BedrockTexture, BedrockUVWrap, Level2AirVoxelID, SignalVoxelID, SignalOffVoxelVariantID, SignalOnVoxelVariantID, SignalOnTexture, SignalOffTexture, SignalOnUVWrap, SignalOffUVWrap } from "@composed-ca/src/Constants.sol";
+import { REGISTRY_ADDRESS, DirtVoxelID, DirtVoxelVariantID, DirtTexture, DirtUVWrap, GrassVoxelID, GrassVoxelVariantID, GrassTexture, GrassSideTexture, GrassUVWrap, BedrockVoxelID, BedrockVoxelVariantID, BedrockTexture, BedrockUVWrap, Level2AirVoxelID, SignalVoxelID, SignalOffVoxelVariantID, SignalOnVoxelVariantID, SignalOnTexture, SignalOffTexture, SignalOnUVWrap, SignalOffUVWrap } from "@level2-ca/src/Constants.sol";
 import { registerVoxelVariant, registerVoxelType } from "@tenet-registry/src/Utils.sol";
 import { AirVoxelVariantID, AirVoxelID, ElectronVoxelID } from "@tenet-base-ca/src/Constants.sol";
 

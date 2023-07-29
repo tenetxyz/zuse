@@ -8,7 +8,8 @@ import { hasKey } from "@latticexyz/world/src/modules/keysintable/hasKey.sol";
 import { CAVoxelType, CAVoxelTypeData, CAPosition, CAPositionData, CAPositionTableId } from "@level2-ca/src/codegen/Tables.sol";
 import { VoxelCoord } from "@tenet-utils/src/Types.sol";
 import { Level2AirVoxelID, DirtVoxelID, DirtVoxelVariantID, GrassVoxelID, GrassVoxelVariantID, BedrockVoxelID, BedrockVoxelVariantID, SignalVoxelID, SignalOffVoxelVariantID, SignalOnVoxelVariantID } from "@level2-ca/src/Constants.sol";
-import { AirVoxelVariantID, ElectronVoxelID } from "@tenet-base-ca/src/Constants.sol";
+import { EMPTY_ID } from "./LibTerrainSystem.sol";
+import { AirVoxelID, AirVoxelVariantID, ElectronVoxelID } from "@tenet-base-ca/src/Constants.sol";
 import { safeCall } from "@tenet-utils/src/CallUtils.sol";
 import { Strings } from "@openzeppelin/contracts/utils/Strings.sol";
 

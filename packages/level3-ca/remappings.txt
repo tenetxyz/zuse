@@ -4,4 +4,5 @@ forge-std/=../../node_modules/forge-std/src/
 @tenet-utils/=../../node_modules/@tenetxyz/utils
 @tenet-registry/=../../node_modules/@tenetxyz/registry
 @tenet-base-ca/=../../node_modules/@tenetxyz/base-ca
+@tenet-level2-ca/=../../node_modules/@tenetxyz/level2-ca
 @level3-ca/=./

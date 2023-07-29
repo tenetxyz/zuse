@@ -7,11 +7,13 @@ import { IBaseWorld } from "@latticexyz/world/src/interfaces/IBaseWorld.sol";
 
 import { IComposedCASystem } from "./IComposedCASystem.sol";
 import { IInitSystem } from "./IInitSystem.sol";
+import { ILibTerrainSystem } from "./ILibTerrainSystem.sol";
+import { IPerlinSystem } from "./IPerlinSystem.sol";
 
 /**
  * The IWorld interface includes all systems dynamically added to the World
  * during the deploy process.
  */
-interface IWorld is IBaseWorld, IComposedCASystem, IInitSystem {
+interface IWorld is IBaseWorld, IComposedCASystem, IInitSystem, ILibTerrainSystem, IPerlinSystem {
 
 }

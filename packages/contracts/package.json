@@ -12,7 +12,7 @@
     "setLocalLevel2CAAddress": "node ../scripts/setRegistryAddress.js 31337 ../level2-ca/worlds.json src/Constants.sol LEVEL_2_CA_ADDRESS",
     "setLocalLevel3CAAddress": "node ../scripts/setRegistryAddress.js 31337 ../level3-ca/worlds.json src/Constants.sol LEVEL_3_CA_ADDRESS",
     "setAddress": "yarn run setLocalRegistryAddress && yarn run setLocalBaseCAAddress && yarn run setLocalLevel2CAAddress && yarn run setLocalLevel3CAAddress",
-    "deploy:local": "yarn run setAddress && yarn run initialize && yarn mud deploy",
+    "build:local": "yarn run setAddress && yarn run initialize && yarn mud deploy",
     "deploy": "yarn initialize && yarn mud deploy",
     "deploy:hackathon": "yarn initialize && yarn mud deploy --profile=hackathon-testnet",
     "deploy:testnet": "yarn initialize && yarn mud deploy --profile=lattice-testnet",

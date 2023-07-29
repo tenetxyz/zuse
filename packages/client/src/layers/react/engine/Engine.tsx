@@ -1,17 +1,15 @@
 import React from "react";
 import { LayerContext, EngineContext } from "./context";
 import { EngineStore } from "./store";
-import { BootScreen, MainWindow } from "./components";
+import { BootScreen, ComponentRenderer } from "./components";
 import { observer } from "mobx-react-lite";
-import { useEffect } from "react";
-import { useState } from "react";
-import { Layers } from "../../../types";
+import { Layers } from "@/types";
 
 export const Engine: React.FC<{
-  layers: any; // TODO: Figure out proper type
+  layers: Partial<Layers>;
   customBootScreen?: React.ReactElement;
 }> = observer(({ layers, customBootScreen }) => {
-  if (!layers) return customBootScreen || <BootScreen />;
+  if (!layers) return customBootScreen || <BootScreen initialOpacity={1} children={null} />;
 
   return (
     <LayerContext.Provider value={layers}>
@@ -20,4 +18,8 @@ export const Engine: React.FC<{
       </EngineContext.Provider>
     </LayerContext.Provider>
   );
+});
+
+const MainWindow: React.FC = observer(() => {
+  return <ComponentRenderer />;
 });

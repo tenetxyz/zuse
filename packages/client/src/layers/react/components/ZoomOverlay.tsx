@@ -98,7 +98,6 @@ export function registerZoomOverlay() {
           });
 
           window.addEventListener("resize", function () {
-            console.log("resize");
             engine.resize();
           });
         },

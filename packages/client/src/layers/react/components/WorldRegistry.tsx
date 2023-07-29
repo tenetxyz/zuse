@@ -146,7 +146,7 @@ export const WorldRegistry = ({ layers, filters, setFilters }: Props) => {
                     {details && (
                       <div>
                         {details.sort((a, b) => b.scale - a.scale).map((detail, idx) => (
-                          <div className="hover:bg-slate-800 transition-colors duration-200">
+                          <div>
                             <div className="flex justify-between space-x-4">
                               <div className="space-y-1">
                                 <h4 className="text-sm font-black">{detail.name}</h4>

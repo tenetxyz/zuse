@@ -172,29 +172,28 @@ export function registerTenetSidebar() {
           // "pointerEvents: all" is needed so when we click on the admin panel, we don't gain focus on the noa canvasvoxelTypes = creationTable.voxelTypes.get(creationId)
           style={{ pointerEvents: "all", background: "#24292E" }}
         >
-<div className="flex flex-col h-full">
-  <div className="flex justify-center items-center w-full text-sm font-medium text-center text-gray-500">
-    <ul className="flex flex-wrap rounded m-4 p-1 justify-between" style={{ pointerEvents: "all", background: "rgb(47, 53, 60)", width: "inherit" }}>
-      {sidebarTabsArray.map((tab) => (
-        <li key={"tenet-sidebar-tab-" + tab} className="flex-grow text-center">
-          <a
-            onClick={() => setSelectedTab(tab)}
-            className={twMerge(
-              "block w-full px-4 py-1 rounded cursor-pointer",
-              selectedTab === tab
-                ? "text-gray-800 bg-slate-100 font-black"
-                : "text-gray-600 hover:text-gray-800 font-black"
-            )}
-          >
-            {tab}
-          </a>
-        </li>
-      ))}
-    </ul>
-  </div>
-  {SelectedTabPage}
-</div>
-
+        <div className="flex flex-col h-full">
+          <div className="flex justify-center items-center w-full text-sm font-medium text-center text-gray-500">
+            <ul className="flex flex-wrap rounded m-4 p-1 justify-between" style={{ pointerEvents: "all", background: "rgb(47, 53, 60)", width: "inherit" }}>
+              {sidebarTabsArray.map((tab) => (
+                <li key={"tenet-sidebar-tab-" + tab} className="flex-grow text-center">
+                  <a
+                    onClick={() => setSelectedTab(tab)}
+                    className={twMerge(
+                      "block w-full px-4 py-1 rounded cursor-pointer",
+                      selectedTab === tab
+                        ? "text-gray-800 bg-slate-100 font-black"
+                        : "text-gray-600 hover:text-gray-800 font-black"
+                    )}
+                  >
+                    {tab}
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </div>
+          {SelectedTabPage}
+        </div>
         </div>
       );
     },

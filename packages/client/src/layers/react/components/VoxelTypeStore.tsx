@@ -97,13 +97,17 @@ export const VoxelTypeStore: React.FC<Props> = ({ layers, filters, setFilters })
   );
 };
 
-const ActionBarWrapper = styled.div`
-  background-color: rgb(0 0 0 / 40%);
+export const ActionBarWrapper = styled.div`
   display: grid;
-  grid-template-columns: repeat(5, 1fr);
+  grid-template-columns: repeat(auto-fit, minmax(69px, 1fr));
   align-items: center;
   pointer-events: all;
-  border: 5px lightgray solid;
+  width: 100%; // Ensure it takes up full width of the parent container
+
   z-index: 10;
   position: relative;
+  transition: box-shadow 0.3s ease, transform 0.3s ease;
+  & > div:hover {
+    transform: scale(1.05);
+  }
 `;

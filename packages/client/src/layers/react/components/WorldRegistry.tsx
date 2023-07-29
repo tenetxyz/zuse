@@ -5,26 +5,14 @@ import { useWorldRegistrySearch } from "@/utils/useWorldRegistrySearch";
 import { to40CharAddress } from "@/utils/entity";
 import { VoxelTypeDesc } from "./VoxelTypeStore";
 import { VoxelBaseTypeId } from "@/layers/noa/types";
-import { useState, useRef } from 'react';
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { useState, useRef } from "react";
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { CardStackMinusIcon } from "@radix-ui/react-icons";
 import { Button } from "@/components/ui/button";
-import {
-  Collapsible,
-  CollapsibleContent,
-  CollapsibleTrigger,
-} from "@/components/ui/collapsible";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { CaretSortIcon } from "@radix-ui/react-icons";
 import { Separator } from "@/components/ui/separator";
-
 
 type CaAddress = string;
 export interface WorldRegistryFilters {
@@ -60,7 +48,7 @@ export const WorldRegistry = ({ layers, filters, setFilters }: Props) => {
   const {
     network: {
       registryComponents: { CARegistry, VoxelTypeRegistry },
-      getVoxelIconUrl
+      getVoxelIconUrl,
     },
   } = layers;
   const { worldsToDisplay } = useWorldRegistrySearch({ layers, filters });
@@ -110,72 +98,108 @@ export const WorldRegistry = ({ layers, filters, setFilters }: Props) => {
       <div className="flex w-full">
         <SearchBar value={filters.query} onChange={(e) => setFilters({ ...filters, query: e.target.value })} />
       </div>
-      <div 
-        style = {{background: "#24292E"}}
-        className="mt-4 mb-2"
-      >
+      <div style={{ background: "#24292E" }} className="mt-4 mb-2">
         {worldsToDisplay.map((world, idx) => {
           return (
-            <Card key={"world-" + idx} className="rounded" style = {{border: "1px solid #374147"}}>
+            <Card key={"world-" + idx} className="rounded" style={{ border: "1px solid #374147" }}>
               <div className="flex flex-col">
-              <Collapsible>
+                <Collapsible>
                   <div className="flex items-center justify-between ">
                     <CardHeader>
                       <CardTitle>{world.name}</CardTitle>
                       <CardDescription>{world.description}</CardDescription>
                     </CardHeader>
                     <CollapsibleTrigger asChild>
-                      <Button variant="ghost" size="sm" className="rounded mr-4 hover:bg-slate-500 ..."
-                              onClick={() => {
-                                let detailsArray: CaDesc[] = [];
-                                for (const caAddress of world.caAddresses) {
-                                  const caDesc = caDescs.current.get(caAddress);
-                                  if (caDesc) {
-                                    detailsArray.push(caDesc);
-                                  }
-                                }
-                                setDetails(detailsArray.length > 0 ? detailsArray : null);
-                              }}>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="rounded mr-4 hover:bg-slate-500 ..."
+                        onClick={() => {
+                          let detailsArray: CaDesc[] = [];
+                          for (const caAddress of world.caAddresses) {
+                            const caDesc = caDescs.current.get(caAddress);
+                            if (caDesc) {
+                              detailsArray.push(caDesc);
+                            }
+                          }
+                          setDetails(detailsArray.length > 0 ? detailsArray : null);
+                        }}
+                      >
                         <CaretSortIcon className="h-4 w-4" />
                         <span className="sr-only">Toggle</span>
                       </Button>
                     </CollapsibleTrigger>
                   </div>
-                <CollapsibleContent>
-                  <CardContent>
-                    {details && (
-                      <div>
-                        {details.sort((a, b) => b.scale - a.scale).map((detail, idx) => (
-                          <div>
-                            <div className="flex justify-between space-x-4">
-                              <div className="space-y-1">
-                                <h4 className="text-sm font-black">{detail.name}</h4>
-                                <p className="text-xs font-medium">
-                                  {detail.description}
-                                </p>
-                                  <div style={{display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(24px, 1fr))', gap: '1px'}}>
-                                    {detail.voxelBaseTypeIds.map(voxelBaseTypeId => {
-                                      const iconUrl = getVoxelIconUrl(voxelBaseTypeId);
-                                      return iconUrl && <img src={iconUrl} alt={detail.name} style={{width: '24px', height: '24px', borderRadius: "2px", border: "1px solid #374147"}} /> // Render the image
-                                    })}
+                  <CollapsibleContent>
+                    <CardContent>
+                      {details && (
+                        <div>
+                          {details
+                            .sort((a, b) => b.scale - a.scale)
+                            .map((detail, idx) => (
+                              <div>
+                                <div className="flex justify-between space-x-4">
+                                  <div className="space-y-1">
+                                    <h4 className="text-sm font-black">{detail.name}</h4>
+                                    <p className="text-xs font-medium">{detail.description}</p>
+                                    <div
+                                      style={{
+                                        display: "grid",
+                                        gridTemplateColumns: "repeat(auto-fill, minmax(24px, 1fr))",
+                                        gap: "1px",
+                                      }}
+                                    >
+                                      {detail.voxelBaseTypeIds.map((voxelBaseTypeId) => {
+                                        const iconUrl = getVoxelIconUrl(voxelBaseTypeId);
+                                        return (
+                                          iconUrl && (
+                                            <img
+                                              src={iconUrl}
+                                              alt={detail.name}
+                                              style={{
+                                                width: "24px",
+                                                height: "24px",
+                                                borderRadius: "2px",
+                                                border: "1px solid #374147",
+                                              }}
+                                            />
+                                          )
+                                        ); // Render the image
+                                      })}
+                                    </div>
                                   </div>
+                                </div>
+                                {idx < details.length - 1 && (
+                                  <Separator className="my-4" style={{ background: "#374147" }} />
+                                )}{" "}
+                                {/* Add condition here */}
                               </div>
-                            </div>
-                            {idx < details.length - 1 && <Separator className="my-4" style = {{background: "#374147"}} />} {/* Add condition here */}
-                          </div>
-                        ))}
-                      </div>
-                    )}
-                  </CardContent>
-                </CollapsibleContent>
-            </Collapsible>
-            <Button className="ml-4 mr-4 bg-amber-400 hover:bg-amber-500 text-slate-600 font-bold mb-4 rounded"> Connect </Button>
-            </div>
-          </Card>
+                            ))}
+                        </div>
+                      )}
+                    </CardContent>
+                  </CollapsibleContent>
+                </Collapsible>
+                <Button
+                  className="ml-4 mr-4 bg-amber-400 hover:bg-amber-500 text-slate-600 font-bold mb-4 rounded"
+                  onClick={() => {
+                    const currentURL = window.location.href;
+                    const newURL =
+                      currentURL +
+                      (currentURL.includes("?") ? "&" : "?") +
+                      `worldAddress={todo:set it to the selected world address}`;
+                    // Redirect to the new URL
+                    window.location.href = newURL;
+                  }}
+                >
+                  {" "}
+                  Connect{" "}
+                </Button>
+              </div>
+            </Card>
           );
         })}
       </div>
-
     </div>
   );
 };

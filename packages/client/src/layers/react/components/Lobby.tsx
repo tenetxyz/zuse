@@ -1,59 +1,36 @@
 import { useEffect, useState } from "react";
 import { WorldRegistry, WorldRegistryFilters } from "./WorldRegistry";
-import { createWorld } from "@latticexyz/recs";
 import { defineContractComponents as defineRegistryContractComponents } from "@tenetxyz/registry/client/contractComponents";
 import { getNetworkConfig } from "@/mud/getNetworkConfig";
 import { setupMUDV2Network } from "@latticexyz/std-client";
 import registryStoreConfig from "@tenetxyz/registry/mud.config";
 import { IWorld__factory as RegistryIWorld__factory } from "@tenetxyz/registry/types/ethers-contracts/factories/IWorld__factory";
+import { Layers } from "@/types";
 
-export function lobby() {
-  const [contractComponents, setContractComponents] = useState<any>(null);
-  const giveComponentsAHumanReadableId = (contractComponents: any) => {
-    Object.entries(contractComponents).forEach(([name, component]) => {
-      (component as any).id = name;
-    });
-  };
-
-  const setupWorldRegistryNetwork = async () => {
-    const params = new URLSearchParams(window.location.search);
-    const registryWorld = createWorld();
-    const contractComponents = defineRegistryContractComponents(registryWorld);
-    giveComponentsAHumanReadableId(contractComponents);
-
-    const networkConfig = await getNetworkConfig(true);
-    networkConfig.showInDevTools = false;
-
-    const result = await setupMUDV2Network<typeof contractComponents, typeof registryStoreConfig>({
-      networkConfig,
-      world: registryWorld,
-      contractComponents,
-      syncThread: "main", // PERF: sync using workers
-      storeConfig: registryStoreConfig,
-      worldAbi: RegistryIWorld__factory.abi,
-      useABIInDevTools: false,
-    });
-    result.startSync();
-    return contractComponents;
-  };
-
-  useEffect(() => {
-    const contractComponents = setupWorldRegistryNetwork();
-    setContractComponents(contractComponents);
-  }, []);
-
+type Props = {
+  layers: Layers;
+};
+export function Lobby({ layers }: Props) {
   const [worldRegistryFilters, setWorldRegistryFilters] = useState<WorldRegistryFilters>({
     query: "",
   });
   return (
-    <WorldRegistry
-      layers={{
-        network: {
-          registryComponents: contractComponents,
-        },
-      }}
-      filters={worldRegistryFilters}
-      setFilters={setWorldRegistryFilters}
-    />
+    // we need a high z-index so we can render on top of the noa canvas (this is a hack since we are rendering the world before we even know what world to load from the user!)
+    <div className="z-50 relative bg-black h-50 w-full flex justify-center items-center" style={{ height: "100vh" }}>
+      <img
+        src="/img/loading-background.jpeg"
+        className="z-10"
+        style={{ opacity: 0.5, width: "100%", height: "100%", position: "absolute", objectFit: "cover" }}
+      />
+      <div className="flex flex-col">
+        <div className="font-inter z-20 text-9xl opacity-100 text-white w-full h-full font-bold text-center mb-5">
+          EVERLON
+        </div>
+        {/* "pointerEvents: all" is needed so we don't gain focus on the background */}
+        <div className="z-20 bg-slate-200 " style={{ pointerEvents: "all" }}>
+          <WorldRegistry layers={layers} filters={worldRegistryFilters} setFilters={setWorldRegistryFilters} />;
+        </div>
+      </div>
+    </div>
   );
 }

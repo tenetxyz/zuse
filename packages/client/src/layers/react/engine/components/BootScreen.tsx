@@ -11,23 +11,17 @@ export const BootScreen: React.FC<{ initialOpacity?: number; children: ReactNode
 
   return (
     <Container>
-      <img src="/img/loading-background.jpeg" style={{ opacity, width: "100%", height: "100%", position: "absolute", objectFit: "cover" }}></img>
+      <img
+        src="/img/loading-background.jpeg"
+        style={{ opacity, width: "100%", height: "100%", position: "absolute", objectFit: "cover" }}
+      ></img>
       <LoadingMsgContainer>
-        <Title>EVERLON</Title>
+        <div className="font-inter text-9xl opacity-100 text-white w-full h-full font-bold">EVERLON</div>
         <>{children || <>&nbsp;</>}</>
       </LoadingMsgContainer>
     </Container>
   );
 };
-const Title = styled.div`
-  font-family: "inter";
-  font-size: 100px;
-  opacity: 1;
-  color: white;
-  width: 100%;
-  height: 100%;
-  font-weight: bold;
-`;
 
 const LoadingMsgContainer = styled.div`
   position: relative;

@@ -8,6 +8,7 @@ import { GridConfiguration, UIComponent } from "../types";
 import { useObservableValue } from "@latticexyz/react";
 import { Layers } from "../../../../types";
 import { TenetComponentRenderer } from "./TenetComponentRenderer";
+import { Lobby } from "../../components/Lobby";
 
 const UIGrid = styled.div`
   display: grid;
@@ -65,6 +66,15 @@ export const ComponentRenderer: React.FC = observer(() => {
   const { UIComponents } = useEngineStore();
   const layers = useLayers();
   if (!layers) return null;
+
+  // if there is no world address param
+  const params = new URLSearchParams(window.location.search);
+  const worldAddress = params.get("worldAddress");
+  // TODO: this is a hack, cause we have already loaded up layers before we show the lobby page.
+  // In the future, we should only pass in the registry world to the lobby if the user hasn't selected a world
+  if (!worldAddress) {
+    return <Lobby layers={layers} />;
+  }
 
   return (
     <UIGrid>

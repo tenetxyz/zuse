@@ -29,7 +29,8 @@ contract MineSystem is System {
     uint32 scale = voxelTypeData.scale;
     bytes32 voxelToMine = getEntityAtCoord(scale, coord);
     if (voxelToMine == 0) {
-      if (scale == 1) {
+      if (scale == 2) {
+        // For us 2 has he terrain gen (ie Grass, Dirt, etc.)
         voxelToMine = getUniqueEntity();
         Position.set(scale, voxelToMine, coord.x, coord.y, coord.z);
       } else {

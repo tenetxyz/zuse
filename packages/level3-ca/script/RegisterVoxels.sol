@@ -5,13 +5,13 @@ import { VoxelVariantsRegistryData } from "@tenet-registry/src/codegen/tables/Vo
 import { NoaBlockType } from "@tenet-registry/src/codegen/Types.sol";
 import { REGISTRY_ADDRESS, RoadVoxelID, RoadVoxelVariantID, RoadTexture, RoadUVWrap, Level3AirVoxelID } from "@level3-ca/src/Constants.sol";
 import { registerVoxelVariant, registerVoxelType } from "@tenet-registry/src/Utils.sol";
-import { AirVoxelVariantID, AirVoxelID } from "@tenet-base-ca/src/Constants.sol";
-import { DirtVoxelID } from "@tenet-level2-ca/src/Constants.sol";
+import { AirVoxelVariantID } from "@tenet-base-ca/src/Constants.sol";
+import { Level2AirVoxelID, DirtVoxelID } from "@tenet-level2-ca/src/Constants.sol";
 
 function registerAir() {
   bytes32[] memory airChildVoxelTypes = new bytes32[](8);
   for (uint i = 0; i < 8; i++) {
-    airChildVoxelTypes[i] = AirVoxelID;
+    airChildVoxelTypes[i] = Level2AirVoxelID;
   }
   registerVoxelType(REGISTRY_ADDRESS, "Level 3 Air", Level3AirVoxelID, airChildVoxelTypes, AirVoxelVariantID);
 }

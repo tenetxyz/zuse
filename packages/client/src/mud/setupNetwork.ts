@@ -477,7 +477,6 @@ export async function setupNetwork() {
 
   async function mine(coord: VoxelCoord, scale: number) {
     const voxelTypeKey = getEcsVoxelTypeAtPosition(coord, scale) ?? getTerrainVoxelTypeAtPosition(coord, scale);
-    console.log(coord);
 
     if (voxelTypeKey == null) {
       throw new Error("entity has no VoxelType");

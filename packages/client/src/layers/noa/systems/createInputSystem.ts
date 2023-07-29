@@ -1,6 +1,6 @@
 import { getComponentValue, HasValue, runQuery, setComponent, updateComponent } from "@latticexyz/recs";
 import { sleep, VoxelCoord, keccak256 } from "@latticexyz/utils";
-import { FAST_MINING_DURATION, SPAWN_POINT } from "../constants";
+import { FAST_MINING_DURATION } from "../constants";
 import { HandComponent, HAND_COMPONENT } from "../engine/components/handComponent";
 import { MiningVoxelComponent, MINING_VOXEL_COMPONENT } from "../engine/components/miningVoxelComponent";
 import { getNoaComponent, getNoaComponentStrict } from "../engine/components/utils";
@@ -8,7 +8,7 @@ import { toast } from "react-toastify";
 import { Creation } from "../../react/components/CreationStore";
 import { calculateMinMax, getTargetedSpawnId, getTargetedVoxelCoord, TargetedBlock } from "../../../utils/voxels";
 import { NotificationIcon } from "../components/persistentNotification";
-import { BEDROCK_ID } from "../../network/api/terrain/occurrence";
+import { BEDROCK_ID, TILE_HEIGHT } from "../../network/api/terrain/occurrence";
 import { DEFAULT_BLOCK_TEST_DISTANCE } from "../setup/setupNoaEngine";
 import { calculateCornersFromTargetedBlock } from "./createSpawnCreationOverlaySystem";
 import { FocusedUiType } from "../components/FocusedUi";
@@ -357,7 +357,8 @@ export function createInputSystem(layers: Layers) {
   onDownInputEvent("spawn", () => {
     if (!noa.container.hasPointerLock) return;
     setComponent(PreTeleportPosition, SingletonEntity, playerPosition$.getValue());
-    teleport(SPAWN_POINT);
+    const spawn_point = calculateParentCoord({ x: 0, y: TILE_HEIGHT + 1, z: 0 }, getWorldScale(noa));
+    teleport(spawn_point);
     updateComponent(Tutorial, SingletonEntity, { teleport: false });
   });
 

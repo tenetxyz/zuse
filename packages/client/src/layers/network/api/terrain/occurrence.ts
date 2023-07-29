@@ -12,8 +12,8 @@ export const TILE3_ID = keccak256("tile3");
 export const TILE4_ID = keccak256("tile4");
 export const TILE5_ID = keccak256("tile5");
 
-const TILE_HEIGHT = 9;
-const BEDROCK_HEIGHT = -63;
+const TILE_HEIGHT = 19;
+const BEDROCK_HEIGHT = -125;
 
 export function Air({ coord: { y }, scale }: TerrainState): VoxelTypeKey | undefined {
   const GRASS_Y = calculateParentCoord({ x: 0, y: TILE_HEIGHT, z: 0 }, scale).y;

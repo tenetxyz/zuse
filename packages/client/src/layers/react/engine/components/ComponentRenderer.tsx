@@ -67,7 +67,7 @@ export const ComponentRenderer: React.FC = observer(() => {
   const layers = useLayers();
   if (!layers) return null;
 
-  // if there is no world address param
+  // if there is no world address param, then show the lobby screen
   const params = new URLSearchParams(window.location.search);
   const worldAddress = params.get("worldAddress");
   // TODO: this is a hack, cause we have already loaded up layers before we show the lobby page.

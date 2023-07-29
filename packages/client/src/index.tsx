@@ -15,8 +15,6 @@ root.render(
   </BootScreen>
 );
 
-// const worldAddress = useState<string | null>(null);
-
 // TODO: figure out if we actually want this to be async or if we should render something else in the meantime
 setup().then((result) => {
   root.render(

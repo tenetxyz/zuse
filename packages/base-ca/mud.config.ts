@@ -53,6 +53,23 @@ export default mudConfig({
       },
     },
   },
+  systems: {
+    AirVoxelSystem: {
+      name: "AirVoxelSystem",
+      openAccess: false,
+      accessList: ["BaseCASystem"],
+    },
+    ElectronVoxelSystem: {
+      name: "ElectronVoxelSys",
+      openAccess: false,
+      accessList: ["BaseCASystem"],
+    },
+    ElectronSystem: {
+      name: "ElectronSystem",
+      openAccess: false,
+      accessList: ["BaseCASystem"],
+    },
+  },
   modules: [
     {
       name: "KeysInTableModule",

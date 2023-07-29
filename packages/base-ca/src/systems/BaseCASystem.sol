@@ -5,29 +5,22 @@ import { IWorld } from "@base-ca/src/codegen/world/IWorld.sol";
 import { System } from "@latticexyz/world/src/System.sol";
 import { getKeysWithValue } from "@latticexyz/world/src/modules/keyswithvalue/getKeysWithValue.sol";
 import { hasKey } from "@latticexyz/world/src/modules/keysintable/hasKey.sol";
-import { CAVoxelType, CAPosition, CAPositionData, CAPositionTableId, ElectronTunnelSpot, ElectronTunnelSpotData, ElectronTunnelSpotTableId } from "@base-ca/src/codegen/Tables.sol";
+import { CAVoxelInteractionConfig, CAVoxelConfig, CAVoxelConfigTableId, CAVoxelType, CAPosition, CAPositionData, CAPositionTableId, ElectronTunnelSpot, ElectronTunnelSpotData, ElectronTunnelSpotTableId } from "@base-ca/src/codegen/Tables.sol";
 import { VoxelCoord } from "@tenet-utils/src/Types.sol";
 import { AirVoxelID, AirVoxelVariantID, ElectronVoxelID, ElectronVoxelVariantID } from "@base-ca/src/Constants.sol";
 import { getEntityAtCoord, voxelCoordToPositionData } from "@base-ca/src/Utils.sol";
+import { safeCall } from "@tenet-utils/src/CallUtils.sol";
 
 contract BaseCASystem is System {
   function isVoxelTypeAllowed(bytes32 voxelTypeId) public pure returns (bool) {
-    if (voxelTypeId == AirVoxelID || voxelTypeId == ElectronVoxelID) {
-      return true;
-    }
-    return false;
+    return hasKey(CAVoxelConfigTableId, CAVoxelConfig.encodeKeyTuple(voxelTypeId));
   }
 
   function enterWorld(bytes32 voxelTypeId, VoxelCoord memory coord, bytes32 entity) public {
     address callerAddress = _msgSender();
-
     require(isVoxelTypeAllowed(voxelTypeId), "This voxel type is not allowed in this CA");
 
     // Check if we can set the voxel type at this position
-    bytes32[][] memory entitiesAtPosition = getKeysWithValue(
-      CAPositionTableId,
-      CAPosition.encode(coord.x, coord.y, coord.z)
-    );
     bytes32 existingEntity = getEntityAtCoord(callerAddress, voxelCoordToPositionData(coord));
     if (existingEntity != 0) {
       require(
@@ -38,62 +31,21 @@ contract BaseCASystem is System {
       CAPosition.set(callerAddress, entity, CAPositionData({ x: coord.x, y: coord.y, z: coord.z }));
     }
 
-    if (voxelTypeId == ElectronVoxelID) {
-      // TODO: move to ElectronSystem
-      // Check one above
-      CAPositionData memory aboveCoord = CAPositionData(coord.x, coord.y, coord.z + 1);
-      bytes32 aboveEntity = getEntityAtCoord(callerAddress, aboveCoord);
-      if (hasKey(ElectronTunnelSpotTableId, ElectronTunnelSpot.encodeKeyTuple(callerAddress, entity))) {
-        ElectronTunnelSpotData memory electronTunnelData = ElectronTunnelSpot.get(callerAddress, entity);
-        if (electronTunnelData.atTop) {
-          if (CAVoxelType.getVoxelTypeId(callerAddress, electronTunnelData.sibling) == AirVoxelID) {
-            ElectronTunnelSpot.setAtTop(callerAddress, entity, false);
-            ElectronTunnelSpot.setAtTop(callerAddress, electronTunnelData.sibling, false);
-          }
-        } else {
-          if (CAVoxelType.getVoxelTypeId(callerAddress, electronTunnelData.sibling) == AirVoxelID) {
-            ElectronTunnelSpot.setAtTop(callerAddress, entity, true);
-            ElectronTunnelSpot.setAtTop(callerAddress, electronTunnelData.sibling, true);
-          }
-        }
-      } else {
-        if (aboveEntity != 0) {
-          if (CAVoxelType.getVoxelTypeId(callerAddress, aboveEntity) == ElectronVoxelID) {
-            bool neighbourAtTop = ElectronTunnelSpot.get(callerAddress, aboveEntity).atTop;
-            if (neighbourAtTop) {
-              revert("ElectronSystem: Cannot place electron when it's tunneling spot is already occupied (south)");
-            } else {
-              ElectronTunnelSpot.set(callerAddress, entity, true, 0);
-            }
-          } else {
-            if (hasKey(ElectronTunnelSpotTableId, ElectronTunnelSpot.encodeKeyTuple(callerAddress, aboveEntity))) {
-              if (ElectronTunnelSpot.get(callerAddress, aboveEntity).atTop) {
-                ElectronTunnelSpot.set(callerAddress, aboveEntity, false, entity);
-                ElectronTunnelSpot.set(callerAddress, entity, false, aboveEntity);
-              } else {
-                // ElectronTunnelSpot.set(callerAddress, entity, true, 0);
-                revert("how you here");
-              }
-            }
-          }
-        } else {
-          ElectronTunnelSpot.set(callerAddress, entity, true, 0);
-        }
-      }
-    }
+    bytes4 voxelEnterWorldSelector = CAVoxelConfig.getEnterWorldSelector(voxelTypeId);
+    safeCall(_world(), abi.encodeWithSelector(voxelEnterWorldSelector, coord, entity), "voxel enter world");
 
     bytes32 voxelVariantId = getVoxelVariant(voxelTypeId, entity);
     CAVoxelType.set(callerAddress, entity, voxelTypeId, voxelVariantId);
   }
 
   function getVoxelVariant(bytes32 voxelTypeId, bytes32 entity) public view returns (bytes32) {
-    if (voxelTypeId == AirVoxelID) {
-      return AirVoxelVariantID;
-    } else if (voxelTypeId == ElectronVoxelID) {
-      return ElectronVoxelVariantID;
-    } else {
-      revert("This voxel type is not allowed in this CA");
-    }
+    bytes4 voxelVariantSelector = CAVoxelConfig.getVoxelVariantSelector(voxelTypeId);
+    bytes memory returnData = safeCall(
+      _world(),
+      abi.encodeWithSelector(voxelVariantSelector, entity),
+      "voxel variant selector"
+    );
+    return abi.decode(returnData, (bytes32));
   }
 
   function exitWorld(bytes32 voxelTypeId, VoxelCoord memory coord, bytes32 entity) public {
@@ -107,7 +59,8 @@ contract BaseCASystem is System {
     bytes32 airVoxelVariantId = getVoxelVariant(AirVoxelID, entity);
     CAVoxelType.set(callerAddress, entity, AirVoxelID, airVoxelVariantId);
 
-    // TODO: need to remove entities from ElectronTunnelSpot
+    bytes4 voxelExitWorldSelector = CAVoxelConfig.getExitWorldSelector(voxelTypeId);
+    safeCall(_world(), abi.encodeWithSelector(voxelExitWorldSelector, coord, entity), "voxel exit world");
   }
 
   function runInteraction(
@@ -120,14 +73,27 @@ contract BaseCASystem is System {
 
     changedEntities = new bytes32[](neighbourEntityIds.length + 1);
 
-    (bytes32 changedCenterEntityId, bytes32[] memory changedNeighbourEntityIds) = IWorld(_world()).electronEventHandler(
-      callerAddress,
-      interactEntity,
-      neighbourEntityIds
-    );
-    changedEntities[0] = changedCenterEntityId;
-    for (uint256 i = 0; i < changedNeighbourEntityIds.length; i++) {
-      changedEntities[i + 1] = changedNeighbourEntityIds[i];
+    bytes4[] memory interactionSelectors = CAVoxelInteractionConfig.get();
+    for (uint256 i = 0; i < interactionSelectors.length; i++) {
+      bytes4 interactionSelector = interactionSelectors[i];
+      bytes memory returnData = safeCall(
+        _world(),
+        abi.encodeWithSelector(interactionSelector, callerAddress, interactEntity, neighbourEntityIds),
+        "voxel interaction selector"
+      );
+      (bytes32 changedCenterEntityId, bytes32[] memory changedNeighbourEntityIds) = abi.decode(
+        returnData,
+        (bytes32, bytes32[])
+      );
+
+      if (changedEntities[0] == 0) {
+        changedEntities[0] = changedCenterEntityId;
+      }
+      for (uint256 i = 0; i < changedNeighbourEntityIds.length; i++) {
+        if (changedEntities[i + 1] == 0) {
+          changedEntities[i + 1] = changedNeighbourEntityIds[i];
+        }
+      }
     }
 
     return changedNeighbourEntityIds;

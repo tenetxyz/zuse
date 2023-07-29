@@ -5,7 +5,7 @@ import { IWorld } from "@base-ca/src/codegen/world/IWorld.sol";
 import { VoxelInteraction } from "@base-ca/src/prototypes/VoxelInteraction.sol";
 import { BlockDirection } from "@tenet-utils/src/Types.sol";
 import { hasKey } from "@latticexyz/world/src/modules/keysintable/hasKey.sol";
-import { ElectronTunnelSpot, ElectronTunnelSpotData, ElectronTunnelSpotTableId, CAVoxelType, CAPosition, CAPositionData, CAPositionTableId } from "@base-ca/src/codegen/Tables.sol";
+import { CAVoxelInteractionConfig, ElectronTunnelSpot, ElectronTunnelSpotData, ElectronTunnelSpotTableId, CAVoxelType, CAPosition, CAPositionData, CAPositionTableId } from "@base-ca/src/codegen/Tables.sol";
 import { AirVoxelID, ElectronVoxelID } from "@base-ca/src/Constants.sol";
 import { getEntityAtCoord, getNeighbours, positionDataToVoxelCoord } from "@base-ca/src/Utils.sol";
 import { buildWorld, mineWorld } from "@base-ca/src/CallUtils.sol";
@@ -13,6 +13,11 @@ import { safeCall } from "@tenet-utils/src/CallUtils.sol";
 import { Strings } from "@openzeppelin/contracts/utils/Strings.sol";
 
 contract ElectronSystem is VoxelInteraction {
+  function registerInteractionElectron() public {
+    address world = _world();
+    CAVoxelInteractionConfig.push(IWorld(world).eventHandlerElectron);
+  }
+
   function onNewNeighbour(
     address callerAddress,
     bytes32 interactEntity,
@@ -194,7 +199,7 @@ contract ElectronSystem is VoxelInteraction {
     return entityType == ElectronVoxelID;
   }
 
-  function electronEventHandler(
+  function eventHandlerElectron(
     address callerAddress,
     bytes32 centerEntityId,
     bytes32[] memory neighbourEntityIds

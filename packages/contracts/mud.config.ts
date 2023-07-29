@@ -13,7 +13,7 @@ export default mudConfig({
   },
   snapSync: true,
   tables: {
-    CAConfig: {
+    WorldConfig: {
       keySchema: {
         voxelTypeId: "bytes32",
       },
@@ -113,7 +113,7 @@ export default mudConfig({
     {
       name: "KeysInTableModule",
       root: true,
-      args: [resolveTableId("CAConfig")],
+      args: [resolveTableId("WorldConfig")],
     },
     {
       name: "KeysWithValueModule",

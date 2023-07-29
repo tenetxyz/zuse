@@ -27,7 +27,7 @@ export function registerZoomOverlay() {
 
       const [zoomState, setZoomState] = useState<ZoomState>(ZoomState.NOT_ZOOMING);
       const timeoutId = useRef<NodeJS.Timeout>();
-      const ZOOM_DURATION_MS = 2000;
+      const ZOOM_DURATION_MS = 2500;
 
       useEffect(() => {
         zoomEvent$.subscribe((isZoomingIn) => {

@@ -54,10 +54,6 @@ function registerVoxelVariant(address world, bytes32 voxelVariantId, VoxelVarian
   );
 }
 
-function entityIsSignal(bytes32 entity, bytes16 callerNamespace) view returns (bool) {
-  return Signal.get(callerNamespace, entity).hasValue;
-}
-
 function entityIsActiveSignal(bytes32 entity, bytes16 callerNamespace) view returns (bool) {
   SignalData memory signalData = Signal.get(callerNamespace, entity);
   return signalData.hasValue && signalData.isActive;
@@ -66,10 +62,6 @@ function entityIsActiveSignal(bytes32 entity, bytes16 callerNamespace) view retu
 function entityIsInactiveSignal(bytes32 entity, bytes16 callerNamespace) view returns (bool) {
   SignalData memory signalData = Signal.get(callerNamespace, entity);
   return signalData.hasValue && !signalData.isActive;
-}
-
-function entityIsSignalSource(bytes32 entity, bytes16 callerNamespace) view returns (bool) {
-  return SignalSource.get(callerNamespace, entity).hasValue;
 }
 
 function entityIsPowered(bytes32 entity, bytes16 callerNamespace) view returns (bool) {

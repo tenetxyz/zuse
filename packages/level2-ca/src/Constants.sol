@@ -9,9 +9,11 @@ bytes32 constant GrassVoxelID = bytes32(keccak256("grass"));
 bytes32 constant BedrockVoxelID = bytes32(keccak256("bedrock"));
 bytes32 constant WireVoxelID = bytes32(keccak256("wire"));
 bytes32 constant SignalVoxelID = bytes32(keccak256("signal"));
+bytes32 constant InvertedSignalVoxelID = bytes32(keccak256("invertedsignal"));
 bytes32 constant SignalSourceVoxelID = bytes32(keccak256("signalsource"));
 bytes32 constant OrangeFlowerVoxelID = bytes32(keccak256("orangeflower"));
 bytes32 constant LogVoxelID = bytes32(keccak256("log"));
+bytes32 constant SandVoxelID = bytes32(keccak256("sand"));
 
 int32 constant CHUNK_MAX_Y = 255;
 int32 constant CHUNK_MIN_Y = -128;

@@ -116,7 +116,7 @@ abstract contract CA is System {
       }
       for (uint256 j = 0; j < changedNeighbourEntityIds.length; j++) {
         if (changedEntities[j + 1] == 0) {
-          changedEntities[j + 1] = changedNeighbourEntityIds[i];
+          changedEntities[j + 1] = changedNeighbourEntityIds[j];
         }
       }
     }

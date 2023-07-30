@@ -31,7 +31,7 @@ contract SignalSourceVoxelSystem is System {
     }
     registerVoxelType(
       REGISTRY_ADDRESS,
-      "Signal",
+      "Signal Source",
       SignalSourceVoxelID,
       signalChildVoxelTypes,
       SignalSourceVoxelVariantID

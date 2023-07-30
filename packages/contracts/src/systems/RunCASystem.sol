@@ -49,7 +49,15 @@ contract RunCASystem is System {
       // ----
       int8(-1),
       int8(0),
-      int8(-1)
+      int8(-1),
+      // ----
+      int8(0),
+      int8(1),
+      int8(0),
+      // ----
+      int8(0),
+      int8(-1),
+      int8(0)
     ];
 
     bytes32[] memory centerNeighbourEntities = new bytes32[](NUM_VOXEL_NEIGHBOURS);

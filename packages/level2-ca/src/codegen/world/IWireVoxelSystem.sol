@@ -12,5 +12,5 @@ interface IWireVoxelSystem {
 
   function exitWorldWire(address callerAddress, VoxelCoord memory coord, bytes32 entity) external;
 
-  function variantSelectorWire(bytes32 entity) external view returns (bytes32);
+  function variantSelectorWire(address callerAddress, bytes32 entity) external view returns (bytes32);
 }

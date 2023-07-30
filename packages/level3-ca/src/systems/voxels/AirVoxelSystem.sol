@@ -34,7 +34,7 @@ contract AirVoxelSystem is System {
 
   function exitWorldAir(address callerAddress, VoxelCoord memory coord, bytes32 entity) public {}
 
-  function variantSelectorAir(bytes32 entity) public view returns (bytes32) {
+  function variantSelectorAir(address callerAddress, bytes32 entity) public view returns (bytes32) {
     return AirVoxelVariantID;
   }
 }

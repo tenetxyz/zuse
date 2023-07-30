@@ -2,6 +2,9 @@ import { mudConfig } from "@latticexyz/world/register";
 import { resolveTableId } from "@latticexyz/config";
 
 export default mudConfig({
+  enums: {
+    BlockDirection: ["None", "North", "South", "East", "West", "NorthEast", "NorthWest", "SouthEast", "SouthWest"],
+  },
   tables: {
     CAVoxelConfig: {
       // TODO: Should this be in registry?
@@ -42,6 +45,28 @@ export default mudConfig({
         voxelVariantId: "bytes32",
       },
     },
+    // Specific CA tables
+    Signal: {
+      keySchema: {
+        callerAddress: "address",
+        entity: "bytes32",
+      },
+      schema: {
+        isActive: "bool",
+        direction: "BlockDirection",
+        hasValue: "bool", // TODO: Remove this once we can install non-root modules
+      },
+    },
+    SignalSource: {
+      keySchema: {
+        callerAddress: "address",
+        entity: "bytes32",
+      },
+      schema: {
+        isNatural: "bool",
+        hasValue: "bool", // TODO: Remove this once we can install non-root modules
+      },
+    },
   },
   systems: {
     AirVoxelSystem: {
@@ -71,6 +96,21 @@ export default mudConfig({
     },
     WireSystem: {
       name: "WireSystem",
+      openAccess: false,
+      accessList: ["CASystem"],
+    },
+    SignalVoxelSystem: {
+      name: "SignalVoxelSys",
+      openAccess: false,
+      accessList: ["CASystem"],
+    },
+    SignalSourceVoxelSystem: {
+      name: "SignalSourceVoxe",
+      openAccess: false,
+      accessList: ["CASystem"],
+    },
+    SignalSystem: {
+      name: "SignalSystem",
       openAccess: false,
       accessList: ["CASystem"],
     },

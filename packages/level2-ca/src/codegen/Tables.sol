@@ -7,3 +7,5 @@ import { CAVoxelConfig, CAVoxelConfigData, CAVoxelConfigTableId } from "./tables
 import { CAVoxelInteractionConfig, CAVoxelInteractionConfigTableId } from "./tables/CAVoxelInteractionConfig.sol";
 import { CAPosition, CAPositionData, CAPositionTableId } from "./tables/CAPosition.sol";
 import { CAVoxelType, CAVoxelTypeData, CAVoxelTypeTableId } from "./tables/CAVoxelType.sol";
+import { Signal, SignalData, SignalTableId } from "./tables/Signal.sol";
+import { SignalSource, SignalSourceData, SignalSourceTableId } from "./tables/SignalSource.sol";

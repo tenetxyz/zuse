@@ -32,6 +32,23 @@ string constant WireOnTexture = "bafkreihitx2k2hpnqnxmdpc5qgsuexeqkvshlezzfwzdh7
 string constant WireOffUVWrap = "bafkreifdtu65gok35bevprpupxucirs2tan2k77444sl67stdhdgzwffra";
 string constant WireOnUVWrap = "bafkreib3vwppyquoziyisfjz3eodmtg6nneenkp2ejy7e3itycdfamm2ye";
 
+bytes32 constant SignalVoxelID = bytes32(keccak256("signal"));
+
+bytes32 constant SignalOffVoxelVariantID = bytes32(keccak256("signal.off"));
+bytes32 constant SignalOnVoxelVariantID = bytes32(keccak256("signal.on"));
+
+string constant SignalOffTexture = "bafkreihofjdel3lyz2vbqq6txdujbjvg2mqsaeczxeb7gszj2ltmhpinui";
+string constant SignalOnTexture = "bafkreihitx2k2hpnqnxmdpc5qgsuexeqkvshlezzfwzdh7u3av6x3ar7qy";
+
+string constant SignalOffUVWrap = "bafkreifdtu65gok35bevprpupxucirs2tan2k77444sl67stdhdgzwffra";
+string constant SignalOnUVWrap = "bafkreib3vwppyquoziyisfjz3eodmtg6nneenkp2ejy7e3itycdfamm2ye";
+
+bytes32 constant SignalSourceVoxelID = bytes32(keccak256("signalsource"));
+bytes32 constant SignalSourceVoxelVariantID = bytes32(keccak256("signalsource"));
+
+string constant SignalSourceTexture = "bafkreifciafvv63x3nnnsdvsccp45ggcx5xczfhoaz3xy3y5k666ma2m4y";
+string constant SignalSourceUVWrap = "bafkreibyxohq35sq2fqujxffs5nfjdtfx5cmnqhnyliar2xbkqxgcd7d5u";
+
 int32 constant CHUNK_MAX_Y = 255;
 int32 constant CHUNK_MIN_Y = -128;
 int32 constant TILE_Y = 0;

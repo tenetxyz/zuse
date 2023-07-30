@@ -52,7 +52,7 @@ contract WireVoxelSystem is System {
 
   function exitWorldWire(address callerAddress, VoxelCoord memory coord, bytes32 entity) public {}
 
-  function variantSelectorWire(bytes32 entity) public view returns (bytes32) {
+  function variantSelectorWire(address callerAddress, bytes32 entity) public view returns (bytes32) {
     return WireOffVoxelVariantID;
   }
 }

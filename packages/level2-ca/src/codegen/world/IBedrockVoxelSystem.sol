@@ -12,5 +12,5 @@ interface IBedrockVoxelSystem {
 
   function exitWorldBecrock(address callerAddress, VoxelCoord memory coord, bytes32 entity) external;
 
-  function variantSelectorBedrock(bytes32 entity) external view returns (bytes32);
+  function variantSelectorBedrock(address callerAddress, bytes32 entity) external view returns (bytes32);
 }

@@ -12,5 +12,5 @@ interface IDirtVoxelSystem {
 
   function exitWorldDirt(address callerAddress, VoxelCoord memory coord, bytes32 entity) external;
 
-  function variantSelectorDirt(bytes32 entity) external view returns (bytes32);
+  function variantSelectorDirt(address callerAddress, bytes32 entity) external view returns (bytes32);
 }

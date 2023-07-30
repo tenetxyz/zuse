@@ -53,10 +53,11 @@ abstract contract CA is System {
   }
 
   function getVoxelVariant(bytes32 voxelTypeId, bytes32 entity) public returns (bytes32) {
+    address callerAddress = _msgSender();
     bytes4 voxelVariantSelector = CAVoxelConfig.getVoxelVariantSelector(voxelTypeId);
     bytes memory returnData = safeStaticCall(
       _world(),
-      abi.encodeWithSelector(voxelVariantSelector, entity),
+      abi.encodeWithSelector(voxelVariantSelector, callerAddress, entity),
       "voxel variant selector"
     );
     return abi.decode(returnData, (bytes32));

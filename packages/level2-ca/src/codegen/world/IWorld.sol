@@ -9,11 +9,14 @@ import { ICASystem } from "./ICASystem.sol";
 import { IInitSystem } from "./IInitSystem.sol";
 import { ILibTerrainSystem } from "./ILibTerrainSystem.sol";
 import { IPerlinSystem } from "./IPerlinSystem.sol";
+import { ISignalSystem } from "./ISignalSystem.sol";
 import { IWireSystem } from "./IWireSystem.sol";
 import { IAirVoxelSystem } from "./IAirVoxelSystem.sol";
 import { IBedrockVoxelSystem } from "./IBedrockVoxelSystem.sol";
 import { IDirtVoxelSystem } from "./IDirtVoxelSystem.sol";
 import { IGrassVoxelSystem } from "./IGrassVoxelSystem.sol";
+import { ISignalSourceVoxelSystem } from "./ISignalSourceVoxelSystem.sol";
+import { ISignalVoxelSystem } from "./ISignalVoxelSystem.sol";
 import { IWireVoxelSystem } from "./IWireVoxelSystem.sol";
 
 /**
@@ -26,11 +29,14 @@ interface IWorld is
   IInitSystem,
   ILibTerrainSystem,
   IPerlinSystem,
+  ISignalSystem,
   IWireSystem,
   IAirVoxelSystem,
   IBedrockVoxelSystem,
   IDirtVoxelSystem,
   IGrassVoxelSystem,
+  ISignalSourceVoxelSystem,
+  ISignalVoxelSystem,
   IWireVoxelSystem
 {
 

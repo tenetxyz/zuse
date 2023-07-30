@@ -12,5 +12,5 @@ interface IAirVoxelSystem {
 
   function exitWorldAir(address callerAddress, VoxelCoord memory coord, bytes32 entity) external;
 
-  function variantSelectorAir(bytes32 entity) external view returns (bytes32);
+  function variantSelectorAir(address callerAddress, bytes32 entity) external view returns (bytes32);
 }

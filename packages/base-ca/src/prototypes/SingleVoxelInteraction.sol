@@ -7,17 +7,17 @@ import { BlockDirection, VoxelCoord } from "@tenet-utils/src/Types.sol";
 
 abstract contract SingleVoxelInteraction is VoxelInteraction {
   function onNewNeighbour(
-    bytes16 callerNamespace,
+    address callerAddress,
     bytes32 interactEntity,
     bytes32 neighbourEntityId,
     BlockDirection neighbourBlockDirection
   ) internal override returns (bool changedEntity) {
-    changedEntity = runSingleInteraction(callerNamespace, interactEntity, neighbourEntityId, neighbourBlockDirection);
+    changedEntity = runSingleInteraction(callerAddress, interactEntity, neighbourEntityId, neighbourBlockDirection);
     return changedEntity;
   }
 
   function runSingleInteraction(
-    bytes16 callerNamespace,
+    address callerAddress,
     bytes32 interactEntity,
     bytes32 neighbourEntityId,
     BlockDirection neighbourEntityDirection
@@ -42,7 +42,7 @@ abstract contract SingleVoxelInteraction is VoxelInteraction {
         continue;
       }
       bool changedInteractionEntity = runSingleInteraction(
-        callerNamespace,
+        callerAddress,
         interactEntity,
         neighbourEntityId,
         neighbourEntityDirections[i]

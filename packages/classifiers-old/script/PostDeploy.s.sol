@@ -17,12 +17,6 @@ contract PostDeploy is Script {
     // Call world init function
     IWorld world = IWorld(worldAddress);
 
-    // Register all the voxels
-    world.extension_PowerSignalVoxel_registerVoxel();
-
-    // Register all the voxel interactions
-    world.extension_PowerSignalSyste_registerInteraction();
-
     // Note: These have to be here instead of ExtensionInitSystem as they have be called from the deployer account
     // otherwise the msgSender is not the namespace owner
     InterfaceVoxel[] memory andGateInterface = new InterfaceVoxel[](3);

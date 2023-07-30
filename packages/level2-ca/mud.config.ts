@@ -172,6 +172,18 @@ export default mudConfig({
         hasValue: "bool", // TODO: Remove this once we can install non-root modules
       },
     },
+    // TODO: Move this to a different level 2 CA
+    PowerSignal: {
+      keySchema: {
+        callerAddress: "address",
+        entity: "bytes32",
+      },
+      schema: {
+        isActive: "bool",
+        direction: "BlockDirection",
+        hasValue: "bool", // TODO: Remove this once we can install non-root modules
+      },
+    },
   },
   systems: {
     AirVoxelSystem: {

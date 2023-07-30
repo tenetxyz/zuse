@@ -5,9 +5,6 @@ const KeysInTableModule_ADDRESS = "0xCf7Ed3AccA5a467e9e704C703E8D87F634fB0Fc9";
 
 export default mudConfig({
   namespace: "extension",
-  enums: {
-    BlockDirection: ["None", "Up", "Down", "North", "South", "East", "West"],
-  },
   tables: {
     TwoDirtCR: {
       // TwoDirt classify result - The key is the creationId
@@ -24,17 +21,6 @@ export default mudConfig({
         blockNumber: "uint256", // the blockNumber when the creation passed the classifier
         displayText: "string",
         voxelInterfaces: "bytes",
-      },
-    },
-    PowerSignal: {
-      keySchema: {
-        namespace: "bytes16",
-        entity: "bytes32",
-      },
-      schema: {
-        isActive: "bool",
-        direction: "BlockDirection",
-        hasValue: "bool", // TODO: Remove this once we can install non-root modules
       },
     },
   },

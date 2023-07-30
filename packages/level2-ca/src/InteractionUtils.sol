@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: GPL-3.0
 pragma solidity >=0.8.0;
-import { Signal, SignalData, SignalSource, Powered, InvertedSignal, Temperature, Generator, PowerWire, Storage, Consumer } from "@tenet-level2-ca/src/codegen/Tables.sol";
+import { Signal, SignalData, SignalSource, Powered, InvertedSignal, Temperature, Generator, PowerWire, Storage, Consumer, PowerSignal } from "@tenet-level2-ca/src/codegen/Tables.sol";
 
 function entityIsSignal(address callerAddress, bytes32 entity) view returns (bool) {
   return Signal.get(callerAddress, entity).hasValue;
@@ -36,4 +36,8 @@ function entityIsStorage(address callerAddress, bytes32 entity) view returns (bo
 
 function entityIsConsumer(address callerAddress, bytes32 entity) view returns (bool) {
   return Consumer.get(callerAddress, entity).hasValue;
+}
+
+function entityIsPowerSignal(address callerAddress, bytes32 entity) view returns (bool) {
+  return PowerSignal.get(callerAddress, entity).hasValue;
 }

@@ -20,6 +20,7 @@ bytes32 constant ThermoGenVoxelID = bytes32(keccak256("thermogen"));
 bytes32 constant PowerWireVoxelID = bytes32(keccak256("powerwire"));
 bytes32 constant StorageVoxelID = bytes32(keccak256("storage"));
 bytes32 constant LightBulbVoxelID = bytes32(keccak256("lightbulb"));
+bytes32 constant PowerSignalVoxelID = bytes32(keccak256("powersignal"));
 
 int32 constant CHUNK_MAX_Y = 255;
 int32 constant CHUNK_MIN_Y = -128;

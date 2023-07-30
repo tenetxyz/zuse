@@ -321,19 +321,19 @@ __metadata:
   linkType: hard
 
 "@babylonjs/core@npm:^6.10.0":
-  version: 6.13.0
-  resolution: "@babylonjs/core@npm:6.13.0"
-  checksum: af94eb5f8b8e8ae5c9df1d2539cca79cd99b965936f840682b04765292b3a2c9e558ab5105670173f7557fb2d536432350993d9b19ff75fd8383a17610a4cffd
+  version: 6.14.0
+  resolution: "@babylonjs/core@npm:6.14.0"
+  checksum: 2115bdfb7411a0205a66c969a86c4cec16382562aece4ebaefd8b2df0a17850af9cae18b54f973da04b656b0d65f86ed3bcf8a7e84e9759b289f078ae736f701
   languageName: node
   linkType: hard
 
 "@babylonjs/loaders@npm:^6.10.0":
-  version: 6.13.0
-  resolution: "@babylonjs/loaders@npm:6.13.0"
+  version: 6.14.0
+  resolution: "@babylonjs/loaders@npm:6.14.0"
   peerDependencies:
     "@babylonjs/core": ^6.0.0
     babylonjs-gltf2interface: ^6.0.0
-  checksum: 862878dafbbc5c7fd73063f0c1555d1448ca9ce9795d6c80c17eecb66d9113b1e92921f7e9c099b6204671cd771ac54cbae0522b0ecfd5f59d82822a38172dd8
+  checksum: e5752d2206e063c88af4c2917ba542bd1599decd618624bbe1cf17991c609a863b383f68f1dd42def21fdad2bbfe2ed3c5c0f14e60f832def5e9249f662a7f31
   languageName: node
   linkType: hard
 
@@ -940,19 +940,22 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@floating-ui/core@npm:^1.3.1":
-  version: 1.3.1
-  resolution: "@floating-ui/core@npm:1.3.1"
-  checksum: fe3b40fcaec95b0825c01a98330ae75b60c61c395ca012055a32f9c22ab97fde8ce1bd14fce3d242beb9dbe4564c90ce4a7a767851911d4215b9ec7721440e5b
+"@floating-ui/core@npm:^1.4.1":
+  version: 1.4.1
+  resolution: "@floating-ui/core@npm:1.4.1"
+  dependencies:
+    "@floating-ui/utils": ^0.1.1
+  checksum: be4ab864fe17eeba5e205bd554c264b9a4895a57c573661bbf638357fa3108677fed7ba3269ec15b4da90e29274c9b626d5a15414e8d1fe691e210d02a03695c
   languageName: node
   linkType: hard
 
 "@floating-ui/dom@npm:^1.3.0":
-  version: 1.4.5
-  resolution: "@floating-ui/dom@npm:1.4.5"
+  version: 1.5.1
+  resolution: "@floating-ui/dom@npm:1.5.1"
   dependencies:
-    "@floating-ui/core": ^1.3.1
-  checksum: 8e25c75b9fde158c2314cb30a9e0a9ce97f8eff4d3c892c85d73a5acbd845fe5dd97ae70ef8d43f7db8036df1c75a51cd3e1ac0999196d40363797002c07efb1
+    "@floating-ui/core": ^1.4.1
+    "@floating-ui/utils": ^0.1.1
+  checksum: ddb509030978536ba7b321cf8c764ae9d0142a3b1fefb7e6bc050a5de7e825e12131fa5089009edabf7c125fb274886da211a5220fe17a71d875a7a96eb1386c
   languageName: node
   linkType: hard
 
@@ -965,6 +968,13 @@ __metadata:
     react: ">=16.8.0"
     react-dom: ">=16.8.0"
   checksum: 00fef2cf69ac2b15952e47505fd9e23f6cc5c20a26adc707862932826d1682f3c30f83c9887abfc93574fdca2d34dd2fc00271527318b1db403549cd6bc9eb00
+  languageName: node
+  linkType: hard
+
+"@floating-ui/utils@npm:^0.1.1":
+  version: 0.1.1
+  resolution: "@floating-ui/utils@npm:0.1.1"
+  checksum: 548acdda7902f45b0afbe34e2e7f4cbff0696b95bad8c039f80936519de24ef2ec20e79902825b7815294b37f51a7c52ee86288b0688869a57cc229a164d86b4
   languageName: node
   linkType: hard
 
@@ -1166,9 +1176,9 @@ __metadata:
   languageName: node
   linkType: soft
 
-"@latticexyz/cli@link:../../../mud/packages/cli::locator=extension-contracts%40workspace%3Apackages%2Fextension-contracts":
+"@latticexyz/cli@link:../../../mud/packages/cli::locator=extension-contracts%40workspace%3Apackages%2Fclassifiers-old":
   version: 0.0.0-use.local
-  resolution: "@latticexyz/cli@link:../../../mud/packages/cli::locator=extension-contracts%40workspace%3Apackages%2Fextension-contracts"
+  resolution: "@latticexyz/cli@link:../../../mud/packages/cli::locator=extension-contracts%40workspace%3Apackages%2Fclassifiers-old"
   languageName: node
   linkType: soft
 
@@ -1232,9 +1242,9 @@ __metadata:
   languageName: node
   linkType: soft
 
-"@latticexyz/config@link:../../../mud/packages/config::locator=extension-contracts%40workspace%3Apackages%2Fextension-contracts":
+"@latticexyz/config@link:../../../mud/packages/config::locator=extension-contracts%40workspace%3Apackages%2Fclassifiers-old":
   version: 0.0.0-use.local
-  resolution: "@latticexyz/config@link:../../../mud/packages/config::locator=extension-contracts%40workspace%3Apackages%2Fextension-contracts"
+  resolution: "@latticexyz/config@link:../../../mud/packages/config::locator=extension-contracts%40workspace%3Apackages%2Fclassifiers-old"
   languageName: node
   linkType: soft
 
@@ -1358,9 +1368,9 @@ __metadata:
   languageName: node
   linkType: soft
 
-"@latticexyz/schema-type@link:../../../mud/packages/schema-type::locator=extension-contracts%40workspace%3Apackages%2Fextension-contracts":
+"@latticexyz/schema-type@link:../../../mud/packages/schema-type::locator=extension-contracts%40workspace%3Apackages%2Fclassifiers-old":
   version: 0.0.0-use.local
-  resolution: "@latticexyz/schema-type@link:../../../mud/packages/schema-type::locator=extension-contracts%40workspace%3Apackages%2Fextension-contracts"
+  resolution: "@latticexyz/schema-type@link:../../../mud/packages/schema-type::locator=extension-contracts%40workspace%3Apackages%2Fclassifiers-old"
   languageName: node
   linkType: soft
 
@@ -1436,9 +1446,9 @@ __metadata:
   languageName: node
   linkType: soft
 
-"@latticexyz/std-contracts@link:../../../mud/packages/std-contracts::locator=extension-contracts%40workspace%3Apackages%2Fextension-contracts":
+"@latticexyz/std-contracts@link:../../../mud/packages/std-contracts::locator=extension-contracts%40workspace%3Apackages%2Fclassifiers-old":
   version: 0.0.0-use.local
-  resolution: "@latticexyz/std-contracts@link:../../../mud/packages/std-contracts::locator=extension-contracts%40workspace%3Apackages%2Fextension-contracts"
+  resolution: "@latticexyz/std-contracts@link:../../../mud/packages/std-contracts::locator=extension-contracts%40workspace%3Apackages%2Fclassifiers-old"
   languageName: node
   linkType: soft
 
@@ -1484,9 +1494,9 @@ __metadata:
   languageName: node
   linkType: soft
 
-"@latticexyz/store@link:../../../mud/packages/store::locator=extension-contracts%40workspace%3Apackages%2Fextension-contracts":
+"@latticexyz/store@link:../../../mud/packages/store::locator=extension-contracts%40workspace%3Apackages%2Fclassifiers-old":
   version: 0.0.0-use.local
-  resolution: "@latticexyz/store@link:../../../mud/packages/store::locator=extension-contracts%40workspace%3Apackages%2Fextension-contracts"
+  resolution: "@latticexyz/store@link:../../../mud/packages/store::locator=extension-contracts%40workspace%3Apackages%2Fclassifiers-old"
   languageName: node
   linkType: soft
 
@@ -1550,9 +1560,9 @@ __metadata:
   languageName: node
   linkType: soft
 
-"@latticexyz/world@link:../../../mud/packages/world::locator=extension-contracts%40workspace%3Apackages%2Fextension-contracts":
+"@latticexyz/world@link:../../../mud/packages/world::locator=extension-contracts%40workspace%3Apackages%2Fclassifiers-old":
   version: 0.0.0-use.local
-  resolution: "@latticexyz/world@link:../../../mud/packages/world::locator=extension-contracts%40workspace%3Apackages%2Fextension-contracts"
+  resolution: "@latticexyz/world@link:../../../mud/packages/world::locator=extension-contracts%40workspace%3Apackages%2Fclassifiers-old"
   languageName: node
   linkType: soft
 
@@ -1616,9 +1626,9 @@ __metadata:
   linkType: hard
 
 "@openzeppelin/contracts@npm:^4.9.1":
-  version: 4.9.2
-  resolution: "@openzeppelin/contracts@npm:4.9.2"
-  checksum: 0538b18fe222e5414a5a539c240b155e0bef2a23c5182fb8e137d71a0c390fe899160f2d55701f75b127f54cc61aee4375370acc832475f19829368ac65c1fc6
+  version: 4.9.3
+  resolution: "@openzeppelin/contracts@npm:4.9.3"
+  checksum: 4932063e733b35fa7669b9fe2053f69b062366c5c208b0c6cfa1ac451712100c78acff98120c3a4b88d94154c802be05d160d71f37e7d74cadbe150964458838
   languageName: node
   linkType: hard
 
@@ -3207,16 +3217,16 @@ box-intersect@fenomas/box-intersect:
   linkType: hard
 
 "browserslist@npm:^4.21.5, browserslist@npm:^4.21.9":
-  version: 4.21.9
-  resolution: "browserslist@npm:4.21.9"
+  version: 4.21.10
+  resolution: "browserslist@npm:4.21.10"
   dependencies:
-    caniuse-lite: ^1.0.30001503
-    electron-to-chromium: ^1.4.431
-    node-releases: ^2.0.12
+    caniuse-lite: ^1.0.30001517
+    electron-to-chromium: ^1.4.477
+    node-releases: ^2.0.13
     update-browserslist-db: ^1.0.11
   bin:
     browserslist: cli.js
-  checksum: 80d3820584e211484ad1b1a5cfdeca1dd00442f47be87e117e1dda34b628c87e18b81ae7986fa5977b3e6a03154f6d13cd763baa6b8bf5dd9dd19f4926603698
+  checksum: 1e27c0f111a35d1dd0e8fc2c61781b0daefabc2c9471b0b10537ce54843014bceb2a1ce4571af1a82b2bf1e6e6e05d38865916689a158f03bc2c7a4ec2577db8
   languageName: node
   linkType: hard
 
@@ -3314,7 +3324,7 @@ box-intersect@fenomas/box-intersect:
   languageName: node
   linkType: hard
 
-"caniuse-lite@npm:^1.0.30001464, caniuse-lite@npm:^1.0.30001503":
+"caniuse-lite@npm:^1.0.30001464, caniuse-lite@npm:^1.0.30001517":
   version: 1.0.30001517
   resolution: "caniuse-lite@npm:1.0.30001517"
   checksum: e4e87436ae1c4408cf4438aac22902b31eb03f3f5bad7f33bc518d12ffb35f3fd9395ccf7efc608ee046f90ce324ec6f7f26f8a8172b8c43c26a06ecee612a29
@@ -3808,10 +3818,10 @@ box-intersect@fenomas/box-intersect:
   languageName: node
   linkType: hard
 
-"electron-to-chromium@npm:^1.4.431":
-  version: 1.4.471
-  resolution: "electron-to-chromium@npm:1.4.471"
-  checksum: c62ac1f2e9e0395b3095899c7d07a723611a6ca9bc754935101f9f659d7fc3f564f4e47cacb5639abdc172265db041923679942c72055fc8d6522e1b57f755df
+"electron-to-chromium@npm:^1.4.477":
+  version: 1.4.477
+  resolution: "electron-to-chromium@npm:1.4.477"
+  checksum: 1bf6117b2b58d4f18eff4f019fdffd0a68988142e095d8e59a66dbd0b6587e963b405aefc925b229959de20e3e8483849bcc41e3edb4366a359f825bc0a97377
   languageName: node
   linkType: hard
 
@@ -4104,12 +4114,12 @@ box-intersect@fenomas/box-intersect:
   linkType: hard
 
 "eslint-scope@npm:^7.1.1":
-  version: 7.2.1
-  resolution: "eslint-scope@npm:7.2.1"
+  version: 7.2.2
+  resolution: "eslint-scope@npm:7.2.2"
   dependencies:
     esrecurse: ^4.3.0
     estraverse: ^5.2.0
-  checksum: dccda5c8909216f6261969b72c77b95e385f9086bed4bc09d8a6276df8439d8f986810fd9ac3bd02c94c0572cefc7fdbeae392c69df2e60712ab8263986522c5
+  checksum: ec97dbf5fb04b94e8f4c5a91a7f0a6dd3c55e46bfc7bbcd0e3138c3a76977570e02ed89a1810c778dcd72072ff0e9621ba1379b4babe53921d71e2e4486fda3e
   languageName: node
   linkType: hard
 
@@ -4132,9 +4142,9 @@ box-intersect@fenomas/box-intersect:
   linkType: hard
 
 "eslint-visitor-keys@npm:^3.3.0, eslint-visitor-keys@npm:^3.4.1":
-  version: 3.4.1
-  resolution: "eslint-visitor-keys@npm:3.4.1"
-  checksum: f05121d868202736b97de7d750847a328fcfa8593b031c95ea89425333db59676ac087fa905eba438d0a3c5769632f828187e0c1a0d271832a2153c1d3661c2c
+  version: 3.4.2
+  resolution: "eslint-visitor-keys@npm:3.4.2"
+  checksum: 9e0e7e4aaea705c097ae37c97410e5f167d4d2193be2edcb1f0760762ede3df01545e4820ae314f42dcec687745f2c6dcaf6d83575c4a2a241eb0c8517d724f2
   languageName: node
   linkType: hard
 
@@ -4307,9 +4317,9 @@ box-intersect@fenomas/box-intersect:
   languageName: node
   linkType: hard
 
-"extension-contracts@workspace:packages/extension-contracts":
+"extension-contracts@workspace:packages/classifiers-old":
   version: 0.0.0-use.local
-  resolution: "extension-contracts@workspace:packages/extension-contracts"
+  resolution: "extension-contracts@workspace:packages/classifiers-old"
   dependencies:
     "@ethersproject/abi": ^5.7.0
     "@ethersproject/bytes": ^5.7.0
@@ -5357,14 +5367,14 @@ box-intersect@fenomas/box-intersect:
   linkType: hard
 
 "jsx-ast-utils@npm:^2.4.1 || ^3.0.0":
-  version: 3.3.4
-  resolution: "jsx-ast-utils@npm:3.3.4"
+  version: 3.3.5
+  resolution: "jsx-ast-utils@npm:3.3.5"
   dependencies:
     array-includes: ^3.1.6
     array.prototype.flat: ^1.3.1
     object.assign: ^4.1.4
     object.values: ^1.1.6
-  checksum: a6a00d324e38f0d47e04f973d79670248a663422a4dccdc02efd6f1caf1c00042fb0aafcff1023707c85dea6f013d435b90db67c1c6841bf345628f0a720d8b3
+  checksum: f4b05fa4d7b5234230c905cfa88d36dc8a58a6666975a3891429b1a8cdc8a140bca76c297225cb7a499fad25a2c052ac93934449a2c31a44fc9edd06c773780a
   languageName: node
   linkType: hard
 
@@ -5767,7 +5777,7 @@ box-intersect@fenomas/box-intersect:
 
 "noa-engine@git+https://github.com/tenetxyz/noa.git#tenet-main":
   version: 0.34.0
-  resolution: "noa-engine@https://github.com/tenetxyz/noa.git#commit=5c80106662df08f14812850c2fd17dd4505f3594"
+  resolution: "noa-engine@https://github.com/tenetxyz/noa.git#commit=32e53f8d75f99c7203c169d0144b5c09a426de92"
   dependencies:
     aabb-3d: fenomas/aabb-3d
     box-intersect: fenomas/box-intersect
@@ -5782,7 +5792,7 @@ box-intersect@fenomas/box-intersect:
     voxel-physics-engine: ^0.13.0
   peerDependencies:
     "@babylonjs/core": ^6.1.0
-  checksum: 1c2f7ec7cd50f2ba5e1311788fc0113e6f5e5a261bccfcc381882a6e485a5831085e66d3a7593afa11e32893fb551178672a11a385064a7ed12730493c4da053
+  checksum: c085b3ec6536f59be881f655f90f45c56c3c71cf4e5bc8545a3020d0c1d7dc60a6185329edc05c33d5aa9a64ba453942cbf36b893d7773fea88f7cbb8f766b8b
   languageName: node
   linkType: hard
 
@@ -5807,7 +5817,7 @@ box-intersect@fenomas/box-intersect:
   languageName: node
   linkType: hard
 
-"node-releases@npm:^2.0.12":
+"node-releases@npm:^2.0.13":
   version: 2.0.13
   resolution: "node-releases@npm:2.0.13"
   checksum: 17ec8f315dba62710cae71a8dad3cd0288ba943d2ece43504b3b1aa8625bf138637798ab470b1d9035b0545996f63000a8a926e0f6d35d0996424f8b6d36dda3
@@ -6507,8 +6517,8 @@ box-intersect@fenomas/box-intersect:
   linkType: hard
 
 "rollup@npm:^3.25.2":
-  version: 3.26.3
-  resolution: "rollup@npm:3.26.3"
+  version: 3.27.0
+  resolution: "rollup@npm:3.27.0"
   dependencies:
     fsevents: ~2.3.2
   dependenciesMeta:
@@ -6516,7 +6526,7 @@ box-intersect@fenomas/box-intersect:
       optional: true
   bin:
     rollup: dist/bin/rollup
-  checksum: e6a765b2b7af709170344cc804392936613e06b6bdab46a04d264368d154bdadaaaf77de39e6e656bf728a060d7b4867d81e2464d791c0f37dd5b21aa9c7a6df
+  checksum: f60c2c288d039dc14e1f6e7fd673b7fcb11928b5a781675791b37a741f63b7af110fc5d040d60d603175b6e03ff978bed83db018dd2ac542ef809fe1a5b32dae
   languageName: node
   linkType: hard
 
@@ -6675,9 +6685,9 @@ box-intersect@fenomas/box-intersect:
   linkType: hard
 
 "signal-exit@npm:^4.0.1":
-  version: 4.0.2
-  resolution: "signal-exit@npm:4.0.2"
-  checksum: 41f5928431cc6e91087bf0343db786a6313dd7c6fd7e551dbc141c95bb5fb26663444fd9df8ea47c5d7fc202f60aa7468c3162a9365cbb0615fc5e1b1328fe31
+  version: 4.1.0
+  resolution: "signal-exit@npm:4.1.0"
+  checksum: 64c757b498cb8629ffa5f75485340594d2f8189e9b08700e69199069c8e3070fb3e255f7ab873c05dc0b3cec412aea7402e10a5990cb6a050bd33ba062a6c549
   languageName: node
   linkType: hard
 
@@ -7432,8 +7442,8 @@ box-intersect@fenomas/box-intersect:
   linkType: hard
 
 "viem@npm:^1.2.12":
-  version: 1.4.1
-  resolution: "viem@npm:1.4.1"
+  version: 1.4.2
+  resolution: "viem@npm:1.4.2"
   dependencies:
     "@adraffy/ens-normalize": 1.9.0
     "@noble/curves": 1.0.0
@@ -7449,7 +7459,7 @@ box-intersect@fenomas/box-intersect:
   peerDependenciesMeta:
     typescript:
       optional: true
-  checksum: a8e3dfb139e38ebd576a1c31154f0f58a030e7fe762f0ca288aa1f489352ba8a5aaaf3193f89fb2b3e5fc252573b14068a6db04f524000b9fc6912b65a00ac02
+  checksum: 225f11847d4b4c1d19ada3d29638e138034702f251f955707766ef24e2a438effcc9130f3465d38657e5e88af19cf331a9eca9f40d4a6460454068be765babc1
   languageName: node
   linkType: hard
 

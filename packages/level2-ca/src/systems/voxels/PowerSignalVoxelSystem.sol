@@ -43,7 +43,7 @@ contract PowerSignalVoxelSystem is System {
     powerSignalOnVariant.materials = abi.encode(powerSignalOnMaterials);
     registerVoxelVariant(REGISTRY_ADDRESS, PowerSignalOnVoxelVariantID, powerSignalOnVariant);
 
-    VoxelVariantsData memory powerSignalBrokenVariant;
+    VoxelVariantsRegistryData memory powerSignalBrokenVariant;
     powerSignalBrokenVariant.blockType = NoaBlockType.MESH;
     powerSignalBrokenVariant.opaque = false;
     powerSignalBrokenVariant.solid = false;
@@ -75,10 +75,6 @@ contract PowerSignalVoxelSystem is System {
   }
 
   function enterWorldPowerSignal(address callerAddress, VoxelCoord memory coord, bytes32 entity) public {
-    Signal.set(callerAddress, entity, SignalData({ isActive: false, direction: BlockDirection.None, hasValue: true }));
-  }
-
-  function exitWorldPowerSignal(address callerAddress, VoxelCoord memory coord, bytes32 entity) public {
     PowerSignal.set(
       callerAddress,
       entity,
@@ -103,6 +99,11 @@ contract PowerSignalVoxelSystem is System {
         hasValue: true
       })
     );
+  }
+
+  function exitWorldPowerSignal(address callerAddress, VoxelCoord memory coord, bytes32 entity) public {
+    PowerSignal.deleteRecord(callerAddress, entity);
+    PowerWire.deleteRecord(callerAddress, entity);
   }
 
   function variantSelectorPowerSignal(

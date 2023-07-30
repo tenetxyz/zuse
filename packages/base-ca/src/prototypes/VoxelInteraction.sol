@@ -3,7 +3,6 @@ pragma solidity >=0.8.0;
 
 import { IStore } from "@latticexyz/store/src/IStore.sol";
 import { System } from "@latticexyz/world/src/System.sol";
-import { getCallerNamespace } from "@tenet-utils/src/Utils.sol";
 import { calculateBlockDirection } from "@tenet-utils/src/VoxelCoordUtils.sol";
 import { BlockDirection, VoxelCoord } from "@tenet-utils/src/Types.sol";
 import { getEntityPositionStrict } from "@tenet-base-ca/src/Utils.sol";

@@ -9,7 +9,7 @@ import { getOppositeDirection } from "@tenet-utils/src/VoxelCoordUtils.sol";
 import { entityIsPowerSignal, entityIsSignalSource, entityIsInvertedSignal, entityIsGenerator } from "@tenet-level2-ca/src/InteractionUtils.sol";
 
 contract PowerSignalSystem is SingleVoxelInteraction {
-  function registerInteractionPowerSignal() public override {
+  function registerInteractionPowerSignal() public {
     address world = _world();
     CAVoxelInteractionConfig.push(IWorld(world).eventHandlerPowerSignal.selector);
   }

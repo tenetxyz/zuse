@@ -1,20 +1,25 @@
 // SPDX-License-Identifier: GPL-3.0
 pragma solidity >=0.8.0;
 
+import { IStore } from "@latticexyz/store/src/IStore.sol";
 import { BlockDirection, VoxelCoord } from "@tenet-utils/src/Types.sol";
 import { NUM_VOXEL_NEIGHBOURS } from "@tenet-utils/src/Constants.sol";
-import { getNeighbourCoords } from "@tenet-utils/src/VoxelCoordUtils.sol";
+import { getNeighbourCoords, calculateBlockDirection } from "@tenet-utils/src/VoxelCoordUtils.sol";
 import { hasKey } from "@latticexyz/world/src/modules/keysintable/hasKey.sol";
 import { getKeysWithValue } from "@latticexyz/world/src/modules/keyswithvalue/getKeysWithValue.sol";
-import { CAPosition, CAPositionData, CAPositionTableId } from "@base-ca/src/codegen/Tables.sol";
+import { CAPosition, CAPositionData, CAPositionTableId } from "@tenet-base-ca/src/codegen/tables/CAPosition.sol";
 
-function getEntityPositionStrict(address callerAddress, bytes32 entity) view returns (CAPositionData memory) {
-  require(hasKey(CAPositionTableId, CAPosition.encodeKeyTuple(callerAddress, entity)), "Entity must have a position"); // even if its air, it must have a position
-  return CAPosition.get(callerAddress, entity);
+function getEntityPositionStrict(IStore store, address callerAddress, bytes32 entity) view returns (VoxelCoord memory) {
+  require(
+    hasKey(store, CAPositionTableId, CAPosition.encodeKeyTuple(callerAddress, entity)),
+    "Entity must have a position"
+  ); // even if its air, it must have a position
+  return positionDataToVoxelCoord(CAPosition.get(callerAddress, entity));
 }
 
-function getEntityAtCoord(address callerAddress, CAPositionData memory coord) view returns (bytes32) {
+function getEntityAtCoord(IStore store, address callerAddress, VoxelCoord memory coord) view returns (bytes32) {
   bytes32[][] memory allEntitiesAtCoord = getKeysWithValue(
+    store,
     CAPositionTableId,
     CAPosition.encode(coord.x, coord.y, coord.z)
   );
@@ -40,48 +45,17 @@ function positionDataToVoxelCoord(CAPositionData memory coord) pure returns (Vox
 }
 
 function getNeighbours(
+  IStore store,
   address callerAddress,
-  CAPositionData memory centerCoord
+  VoxelCoord memory centerCoord
 ) returns (bytes32[] memory, BlockDirection[] memory) {
   bytes32[] memory neighbourEntityIds = new bytes32[](NUM_VOXEL_NEIGHBOURS);
   BlockDirection[] memory neighbourEntityDirections = new BlockDirection[](NUM_VOXEL_NEIGHBOURS);
-  VoxelCoord[] memory neighbourCoords = getNeighbourCoords(positionDataToVoxelCoord(centerCoord));
+  VoxelCoord[] memory neighbourCoords = getNeighbourCoords(centerCoord);
   for (uint8 i = 0; i < neighbourCoords.length; i++) {
-    CAPositionData memory neighbourCoord = voxelCoordToPositionData(neighbourCoords[i]);
-    bytes32 entity = getEntityAtCoord(callerAddress, neighbourCoord);
+    bytes32 entity = getEntityAtCoord(store, callerAddress, neighbourCoords[i]);
     neighbourEntityIds[i] = entity;
-    neighbourEntityDirections[i] = calculateBlockDirection(neighbourCoord, centerCoord);
+    neighbourEntityDirections[i] = calculateBlockDirection(neighbourCoords[i], centerCoord);
   }
   return (neighbourEntityIds, neighbourEntityDirections);
-}
-
-function calculateBlockDirection(
-  CAPositionData memory centerCoord,
-  CAPositionData memory neighborCoord
-) pure returns (BlockDirection) {
-  if (neighborCoord.x == centerCoord.x && neighborCoord.y == centerCoord.y && neighborCoord.z == centerCoord.z) {
-    return BlockDirection.None;
-  } else if (neighborCoord.z > centerCoord.z) {
-    if (neighborCoord.x > centerCoord.x) {
-      return BlockDirection.NorthEast;
-    } else if (neighborCoord.x < centerCoord.x) {
-      return BlockDirection.NorthWest;
-    } else {
-      return BlockDirection.North;
-    }
-  } else if (neighborCoord.z < centerCoord.z) {
-    if (neighborCoord.x > centerCoord.x) {
-      return BlockDirection.SouthEast;
-    } else if (neighborCoord.x < centerCoord.x) {
-      return BlockDirection.SouthWest;
-    } else {
-      return BlockDirection.South;
-    }
-  } else if (neighborCoord.x > centerCoord.x) {
-    return BlockDirection.East;
-  } else if (neighborCoord.x < centerCoord.x) {
-    return BlockDirection.West;
-  } else {
-    return BlockDirection.None;
-  }
 }

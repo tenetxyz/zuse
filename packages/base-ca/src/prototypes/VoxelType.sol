@@ -6,18 +6,15 @@ import { hasKey } from "@latticexyz/world/src/modules/keysintable/hasKey.sol";
 
 // Represents a voxel (or Minecraft block)
 abstract contract VoxelType is System {
-  // Called once to register the voxel into the world
+  // Called once to register the voxel into the CA
   function registerVoxel() public virtual;
 
-  // Called by the world every time the voxel is placed in the world
+  // Called by the CA every time the voxel is placed in the world
   function enterWorld(bytes32 entity) public virtual;
 
-  // Called by the world every time the voxel is removed from the world
+  // Called by the CA every time the voxel is removed from the world
   function exitWorld(bytes32 entity) public virtual;
 
-  // Called by the world to determine which variant (or graphic) of the voxel to use
+  // Called by the CA to determine which variant (or graphic) of the voxel to use
   function variantSelector(bytes32 entity) public view virtual returns (bytes32 voxelVariantId);
-
-  // Called by the world when a user activates an entity
-  function activate(bytes32 entity) public virtual returns (bytes memory);
 }

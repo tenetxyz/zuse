@@ -3,6 +3,23 @@ import { resolveTableId } from "@latticexyz/config";
 
 export default mudConfig({
   tables: {
+    CAVoxelConfig: {
+      // TODO: Should this be in registry?
+      keySchema: {
+        voxelTypeId: "bytes32",
+      },
+      schema: {
+        enterWorldSelector: "bytes4",
+        exitWorldSelector: "bytes4",
+        voxelVariantSelector: "bytes4",
+      },
+    },
+    CAVoxelInteractionConfig: {
+      keySchema: {},
+      schema: {
+        interactionSelectors: "bytes4[]",
+      },
+    },
     CAPosition: {
       keySchema: {
         callerAddress: "address",
@@ -26,7 +43,44 @@ export default mudConfig({
       },
     },
   },
+  systems: {
+    AirVoxelSystem: {
+      name: "AirVoxelSystem",
+      openAccess: false,
+      accessList: ["CASystem"],
+    },
+    DirtVoxelSystem: {
+      name: "DirtVoxelSystem",
+      openAccess: false,
+      accessList: ["CASystem"],
+    },
+    GrassVoxelSystem: {
+      name: "GrassVoxelSystem",
+      openAccess: false,
+      accessList: ["CASystem"],
+    },
+    BedrockVoxelSystem: {
+      name: "BedrockVoxelSys",
+      openAccess: false,
+      accessList: ["CASystem"],
+    },
+    WireVoxelSystem: {
+      name: "WireVoxelSystem",
+      openAccess: false,
+      accessList: ["CASystem"],
+    },
+    WireSystem: {
+      name: "WireSystem",
+      openAccess: false,
+      accessList: ["CASystem"],
+    },
+  },
   modules: [
+    {
+      name: "KeysInTableModule",
+      root: true,
+      args: [resolveTableId("CAVoxelConfig")],
+    },
     {
       name: "KeysWithValueModule",
       root: true,

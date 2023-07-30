@@ -7,7 +7,7 @@ import { ABDKMath64x64 as Math } from "@tenet-utils/src/libraries/ABDKMath64x64.
 import { CHUNK_MIN_Y, TILE_Y, Biome, STRUCTURE_CHUNK, STRUCTURE_CHUNK_CENTER, Level2AirVoxelID, GrassVoxelID, DirtVoxelID, BedrockVoxelID } from "../Constants.sol";
 import { VoxelCoord, Tuple } from "@tenet-utils/src/Types.sol";
 import { System } from "@latticexyz/world/src/System.sol";
-import { IWorld } from "@level2-ca/src/codegen/world/IWorld.sol";
+import { IWorld } from "@tenet-level2-ca/src/codegen/world/IWorld.sol";
 
 bytes32 constant EMPTY_ID = bytes32(0x0);
 

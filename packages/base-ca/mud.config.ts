@@ -3,6 +3,23 @@ import { resolveTableId } from "@latticexyz/config";
 
 export default mudConfig({
   tables: {
+    CAVoxelConfig: {
+      // TODO: Should this be in registry?
+      keySchema: {
+        voxelTypeId: "bytes32",
+      },
+      schema: {
+        enterWorldSelector: "bytes4",
+        exitWorldSelector: "bytes4",
+        voxelVariantSelector: "bytes4",
+      },
+    },
+    CAVoxelInteractionConfig: {
+      keySchema: {},
+      schema: {
+        interactionSelectors: "bytes4[]",
+      },
+    },
     CAPosition: {
       keySchema: {
         callerAddress: "address",
@@ -36,7 +53,29 @@ export default mudConfig({
       },
     },
   },
+  systems: {
+    AirVoxelSystem: {
+      name: "AirVoxelSystem",
+      openAccess: false,
+      accessList: ["CASystem"],
+    },
+    ElectronVoxelSystem: {
+      name: "ElectronVoxelSys",
+      openAccess: false,
+      accessList: ["CASystem"],
+    },
+    ElectronSystem: {
+      name: "ElectronSystem",
+      openAccess: false,
+      accessList: ["CASystem"],
+    },
+  },
   modules: [
+    {
+      name: "KeysInTableModule",
+      root: true,
+      args: [resolveTableId("CAVoxelConfig")],
+    },
     {
       name: "KeysWithValueModule",
       root: true,

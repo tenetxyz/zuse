@@ -89,6 +89,40 @@ export default mudConfig({
         hasValue: "bool", // TODO: Remove this once we can install non-root modules
       },
     },
+    Temperature: {
+      keySchema: {
+        callerAddress: "address",
+        entity: "bytes32",
+      },
+      schema: {
+        temperature: "uint256",
+        lastUpdateBlock: "uint256",
+        hasValue: "bool", // TODO: Remove this once we can install non-root modules
+      },
+    },
+    TemperatureAtTime: {
+      keySchema: {
+        callerAddress: "address",
+        entity: "bytes32",
+      },
+      schema: {
+        temperature: "uint256",
+        lastUpdateBlock: "uint256",
+        hasValue: "bool", // TODO: Remove this once we can install non-root modules
+      },
+    },
+    Generator: {
+      keySchema: {
+        callerAddress: "address",
+        entity: "bytes32",
+      },
+      schema: {
+        genRate: "uint256",
+        hasValue: "bool", // TODO: Remove this once we can install non-root modules
+        sources: "bytes32[]",
+        sourceDirections: "bytes", // BlockDirection[]
+      },
+    },
   },
   systems: {
     AirVoxelSystem: {

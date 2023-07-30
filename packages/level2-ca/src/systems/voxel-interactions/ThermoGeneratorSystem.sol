@@ -1,12 +1,11 @@
 // SPDX-License-Identifier: MIT
 pragma solidity >=0.8.0;
 
-import { VoxelInteraction } from "@tenet-contracts/src/prototypes/VoxelInteraction.sol";
-import { IWorld } from "../../../src/codegen/world/IWorld.sol";
-import { Generator, TemperatureAtTime, GeneratorData, Temperature, TemperatureData, TemperatureAtTimeData } from "../../codegen/Tables.sol";
-import { BlockDirection } from "../../codegen/Types.sol";
-import { getCallerNamespace } from "@tenet-contracts/src/Utils.sol";
-import { registerExtension, entityIsGenerator, entityHasTemperature, entityIsPowerWire } from "../../Utils.sol";
+import { VoxelInteraction } from "@tenet-base-ca/src/prototypes/VoxelInteraction.sol";
+import { IWorld } from "@tenet-level2-ca/src/codegen/world/IWorld.sol";
+import { CAVoxelInteractionConfig, Generator, TemperatureAtTime, GeneratorData, Temperature, TemperatureData, TemperatureAtTimeData } from "@tenet-level2-ca/src/codegen/Tables.sol";
+import { BlockDirection } from "@tenet-utils/src/Types.sol";
+import { entityIsGenerator, entityHasTemperature } from "@tenet-level2-ca/src/InteractionUtils.sol";
 
 struct TemperatureEntity {
   bytes32 entity;
@@ -15,18 +14,18 @@ struct TemperatureEntity {
 }
 
 contract ThermoGeneratorSystem is VoxelInteraction {
-  function registerInteraction() public override {
+  function registerInteractionThermoGen() public {
     address world = _world();
-    registerExtension(world, "ThermoGeneratorSystem", IWorld(world).extension_ThermoGeneratorS_eventHandler.selector);
+    CAVoxelInteractionConfig.push(IWorld(world).eventHandlerThermoGenerator.selector);
   }
 
   function onNewNeighbour(
-    bytes16 callerNamespace,
+    address callerAddress,
     bytes32 interactEntity,
     bytes32 neighbourEntityId,
     BlockDirection neighbourBlockDirection
   ) internal override returns (bool changedEntity) {
-    GeneratorData memory generatorData = Generator.get(callerNamespace, interactEntity);
+    GeneratorData memory generatorData = Generator.get(callerAddress, interactEntity);
     bool isSourceDirection = false;
     if (generatorData.sources.length == 2) {
       BlockDirection[] memory sourceDirections = abi.decode(generatorData.sourceDirections, (BlockDirection[]));
@@ -36,22 +35,20 @@ contract ThermoGeneratorSystem is VoxelInteraction {
     }
 
     return
-      entityHasTemperature(neighbourEntityId, callerNamespace) ||
-      entityIsPowerWire(neighbourEntityId, callerNamespace) ||
+      entityHasTemperature(callerAddress, neighbourEntityId) ||
+      //   entityIsPowerWire(callerAddress, neighbourEntityId) ||
       isSourceDirection;
   }
 
-  function entityShouldInteract(bytes32 entityId, bytes16 callerNamespace) internal view override returns (bool) {
-    return entityIsGenerator(entityId, callerNamespace);
-  }
-
   function runInteraction(
-    bytes16 callerNamespace,
+    address callerAddress,
     bytes32 interactEntity,
     bytes32[] memory neighbourEntityIds,
-    BlockDirection[] memory neighbourEntityDirections
+    BlockDirection[] memory neighbourEntityDirections,
+    bytes32[] memory childEntityIds,
+    bytes32 parentEntity
   ) internal override returns (bool changedEntity) {
-    GeneratorData memory generatorData = Generator.get(callerNamespace, interactEntity);
+    GeneratorData memory generatorData = Generator.get(callerAddress, interactEntity);
     changedEntity = false;
 
     TemperatureEntity[] memory tempDataEntities = new TemperatureEntity[](2);
@@ -60,13 +57,13 @@ contract ThermoGeneratorSystem is VoxelInteraction {
     bytes32 source2 = bytes32(0);
     if (
       generatorData.sources.length == 2 &&
-      entityHasTemperature(generatorData.sources[0], callerNamespace) &&
-      entityHasTemperature(generatorData.sources[1], callerNamespace)
+      entityHasTemperature(callerAddress, generatorData.sources[0]) &&
+      entityHasTemperature(callerAddress, generatorData.sources[1])
     ) {
       // already have sources
       TemperatureEntity memory source1Entity;
       source1Entity.entity = generatorData.sources[0];
-      source1Entity.data = Temperature.get(callerNamespace, generatorData.sources[0]);
+      source1Entity.data = Temperature.get(callerAddress, generatorData.sources[0]);
       BlockDirection[] memory sourceDirections = abi.decode(generatorData.sourceDirections, (BlockDirection[]));
       source1Entity.entityBlockDirection = sourceDirections[0];
       tempDataEntities[0] = source1Entity;
@@ -74,16 +71,16 @@ contract ThermoGeneratorSystem is VoxelInteraction {
       TemperatureEntity memory source2Entity;
       source2Entity.entity = generatorData.sources[1];
       source2Entity.entityBlockDirection = sourceDirections[1];
-      source2Entity.data = Temperature.get(callerNamespace, generatorData.sources[1]);
+      source2Entity.data = Temperature.get(callerAddress, generatorData.sources[1]);
       tempDataEntities[1] = source2Entity;
       count = 2;
     } else {
       for (uint256 i = 0; i < neighbourEntityIds.length && count < 2; i++) {
-        if (entityHasTemperature(neighbourEntityIds[i], callerNamespace)) {
+        if (entityHasTemperature(callerAddress, neighbourEntityIds[i])) {
           // Create a new TemperatureEntity
           TemperatureEntity memory tempEntity;
           tempEntity.entity = neighbourEntityIds[i];
-          tempEntity.data = Temperature.get(callerNamespace, neighbourEntityIds[i]);
+          tempEntity.data = Temperature.get(callerAddress, neighbourEntityIds[i]);
           tempEntity.entityBlockDirection = neighbourEntityDirections[i];
 
           // Add it to the memory array
@@ -94,13 +91,13 @@ contract ThermoGeneratorSystem is VoxelInteraction {
     }
 
     if (count == 2) {
-      changedEntity = handleTempDataEntities(callerNamespace, interactEntity, generatorData, tempDataEntities);
+      changedEntity = handleTempDataEntities(callerAddress, interactEntity, generatorData, tempDataEntities);
     } else {
       if (generatorData.sources.length != 0) {
         generatorData.genRate = 0;
         generatorData.sources = new bytes32[](0);
         generatorData.sourceDirections = abi.encode(new BlockDirection[](0));
-        Generator.set(callerNamespace, interactEntity, generatorData);
+        Generator.set(callerAddress, interactEntity, generatorData);
       }
     }
 
@@ -108,7 +105,7 @@ contract ThermoGeneratorSystem is VoxelInteraction {
   }
 
   function handleTempDataEntities(
-    bytes16 callerNamespace,
+    address callerAddress,
     bytes32 interactEntity,
     GeneratorData memory generatorData,
     TemperatureEntity[] memory tempDataEntities
@@ -125,13 +122,13 @@ contract ThermoGeneratorSystem is VoxelInteraction {
       Temp2AtTime.temperature = tempDataEntities[1].data.temperature;
       Temp2AtTime.lastUpdateBlock = tempDataEntities[1].data.lastUpdateBlock;
 
-      TemperatureAtTime.set(callerNamespace, tempDataEntities[0].entity, Temp1AtTime);
-      TemperatureAtTime.set(callerNamespace, tempDataEntities[1].entity, Temp2AtTime);
+      TemperatureAtTime.set(callerAddress, tempDataEntities[0].entity, Temp1AtTime);
+      TemperatureAtTime.set(callerAddress, tempDataEntities[1].entity, Temp2AtTime);
 
       changedEntity = false;
     } else {
-      TemperatureAtTimeData memory Temp1AtTimeData = TemperatureAtTime.get(callerNamespace, tempDataEntities[0].entity);
-      TemperatureAtTimeData memory Temp2AtTimeData = TemperatureAtTime.get(callerNamespace, tempDataEntities[1].entity);
+      TemperatureAtTimeData memory Temp1AtTimeData = TemperatureAtTime.get(callerAddress, tempDataEntities[0].entity);
+      TemperatureAtTimeData memory Temp2AtTimeData = TemperatureAtTime.get(callerAddress, tempDataEntities[1].entity);
 
       uint256 absoluteDifferenceAtTime;
       if (Temp1AtTimeData.temperature >= Temp2AtTimeData.temperature) {
@@ -140,8 +137,8 @@ contract ThermoGeneratorSystem is VoxelInteraction {
         absoluteDifferenceAtTime = Temp2AtTimeData.temperature - Temp1AtTimeData.temperature;
       }
 
-      TemperatureData memory temp1Data = Temperature.get(callerNamespace, tempDataEntities[0].entity);
-      TemperatureData memory temp2Data = Temperature.get(callerNamespace, tempDataEntities[1].entity);
+      TemperatureData memory temp1Data = Temperature.get(callerAddress, tempDataEntities[0].entity);
+      TemperatureData memory temp2Data = Temperature.get(callerAddress, tempDataEntities[1].entity);
 
       uint256 absoluteDifferenceNow;
       if (temp1Data.temperature >= temp2Data.temperature) {
@@ -164,7 +161,7 @@ contract ThermoGeneratorSystem is VoxelInteraction {
         generatorData.genRate = newGenRate;
         generatorData.sources = sources;
         generatorData.sourceDirections = abi.encode(sourceDirections);
-        Generator.set(callerNamespace, interactEntity, generatorData);
+        Generator.set(callerAddress, interactEntity, generatorData);
         changedEntity = true;
       }
     }
@@ -172,10 +169,17 @@ contract ThermoGeneratorSystem is VoxelInteraction {
     return changedEntity;
   }
 
-  function eventHandler(
+  function entityShouldInteract(address callerAddress, bytes32 entityId) internal view override returns (bool) {
+    return entityIsGenerator(callerAddress, entityId);
+  }
+
+  function eventHandlerThermoGenerator(
+    address callerAddress,
     bytes32 centerEntityId,
-    bytes32[] memory neighbourEntityIds
-  ) public override returns (bytes32, bytes32[] memory) {
-    return super.eventHandler(centerEntityId, neighbourEntityIds);
+    bytes32[] memory neighbourEntityIds,
+    bytes32[] memory childEntityIds,
+    bytes32 parentEntity
+  ) public returns (bytes32, bytes32[] memory) {
+    return super.eventHandler(callerAddress, centerEntityId, neighbourEntityIds, childEntityIds, parentEntity);
   }
 }

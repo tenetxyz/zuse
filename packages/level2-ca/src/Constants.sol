@@ -14,6 +14,9 @@ bytes32 constant SignalSourceVoxelID = bytes32(keccak256("signalsource"));
 bytes32 constant OrangeFlowerVoxelID = bytes32(keccak256("orangeflower"));
 bytes32 constant LogVoxelID = bytes32(keccak256("log"));
 bytes32 constant SandVoxelID = bytes32(keccak256("sand"));
+bytes32 constant LavaVoxelID = bytes32(keccak256("lava"));
+bytes32 constant IceVoxelID = bytes32(keccak256("ice"));
+bytes32 constant ThermoGenVoxelID = bytes32(keccak256("thermogen"));
 
 int32 constant CHUNK_MAX_Y = 255;
 int32 constant CHUNK_MIN_Y = -128;

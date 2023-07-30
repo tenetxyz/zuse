@@ -5,8 +5,8 @@ import { IWorld } from "@tenet-level2-ca/src/codegen/world/IWorld.sol";
 import { SingleVoxelInteraction } from "@tenet-base-ca/src/prototypes/SingleVoxelInteraction.sol";
 import { BlockDirection } from "@tenet-utils/src/Types.sol";
 import { getOppositeDirection } from "@tenet-utils/src/VoxelCoordUtils.sol";
-import { CAVoxelInteractionConfig, Signal, SignalData, InvertedSignal, InvertedSignalData } from "@tenet-level2-ca/src/codegen/Tables.sol";
-import { entityIsSignal, entityIsSignalSource, entityIsInvertedSignal } from "@tenet-level2-ca/src/InteractionUtils.sol";
+import { CAVoxelInteractionConfig, Signal, SignalData, InvertedSignal, InvertedSignalData, Generator } from "@tenet-level2-ca/src/codegen/Tables.sol";
+import { entityIsSignal, entityIsSignalSource, entityIsInvertedSignal, entityIsGenerator } from "@tenet-level2-ca/src/InteractionUtils.sol";
 
 contract SignalSystem is SingleVoxelInteraction {
   function registerInteractionSignal() public {
@@ -33,9 +33,8 @@ contract SignalSystem is SingleVoxelInteraction {
     }
 
     bool compareIsSignalSource = entityIsSignalSource(callerAddress, compareEntity);
-    bool compareIsActiveGenerator = false;
-    // bool compareIsActiveGenerator = entityIsGenerator(compareEntity, callerAddress) &&
-    //   Generator.get(callerAddress, compareEntity).genRate > 0;
+    bool compareIsActiveGenerator = entityIsGenerator(callerAddress, compareEntity) &&
+      Generator.get(callerAddress, compareEntity).genRate > 0;
     bool compareIsActiveSignal = entityIsSignal(callerAddress, compareEntity);
     if (compareIsActiveSignal) {
       SignalData memory compareSignalData = Signal.get(callerAddress, compareEntity);

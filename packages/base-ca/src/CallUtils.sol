@@ -52,7 +52,7 @@ function exitWorld(
   return
     safeCall(
       caAddress,
-      abi.encodeWithSignature(CA_EXIT_WORLD_SIG, voxelTypeId, coord, entity, neighbourEntityIds, childEntityIds, parentEntit),
+      abi.encodeWithSignature(CA_EXIT_WORLD_SIG, voxelTypeId, coord, entity, neighbourEntityIds, childEntityIds, parentEntity),
       string(abi.encode("exitWorld ", voxelTypeId, " ", coord, " ", entity, " ", neighbourEntityIds, " ", childEntityIds, " ", parentEntity))
     );
 }

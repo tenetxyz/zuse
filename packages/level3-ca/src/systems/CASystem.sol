@@ -1,13 +1,13 @@
 // SPDX-License-Identifier: MIT
 pragma solidity >=0.8.0;
 
-import { CA } from "../prototypes/CA.sol";
+import { CA } from "@tenet-base-ca/src/prototypes/CA.sol";
 import { VoxelCoord } from "@tenet-utils/src/Types.sol";
-import { AirVoxelID } from "@tenet-base-ca/src/Constants.sol";
+import { Level3AirVoxelID } from "@tenet-level3-ca/src/Constants.sol";
 
 contract CASystem is CA {
   function emptyVoxelId() internal pure override returns (bytes32) {
-    return AirVoxelID;
+    return Level3AirVoxelID;
   }
 
   function terrainGen(
@@ -16,6 +16,6 @@ contract CASystem is CA {
     VoxelCoord memory coord,
     bytes32 entity
   ) public override {
-    revert("BaseCA: Terrain gen not implemented");
+    revert("Level2CA: Terrain gen not implemented");
   }
 }

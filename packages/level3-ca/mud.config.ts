@@ -3,6 +3,23 @@ import { resolveTableId } from "@latticexyz/config";
 
 export default mudConfig({
   tables: {
+    CAVoxelConfig: {
+      // TODO: Should this be in registry?
+      keySchema: {
+        voxelTypeId: "bytes32",
+      },
+      schema: {
+        enterWorldSelector: "bytes4",
+        exitWorldSelector: "bytes4",
+        voxelVariantSelector: "bytes4",
+      },
+    },
+    CAVoxelInteractionConfig: {
+      keySchema: {},
+      schema: {
+        interactionSelectors: "bytes4[]",
+      },
+    },
     CAPosition: {
       keySchema: {
         callerAddress: "address",

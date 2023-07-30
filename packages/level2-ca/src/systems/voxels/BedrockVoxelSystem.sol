@@ -47,7 +47,13 @@ contract BedrockVoxelSystem is System {
 
   function exitWorldBecrock(address callerAddress, VoxelCoord memory coord, bytes32 entity) public {}
 
-  function variantSelectorBedrock(address callerAddress, bytes32 entity) public view returns (bytes32) {
+  function variantSelectorBedrock(
+    address callerAddress,
+    bytes32 entity,
+    bytes32[] memory neighbourEntityIds,
+    bytes32[] memory childEntityIds,
+    bytes32 parentEntity
+  ) public view returns (bytes32) {
     return BedrockVoxelVariantID;
   }
 }

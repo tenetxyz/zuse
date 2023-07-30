@@ -67,7 +67,13 @@ contract SignalVoxelSystem is System {
     Signal.deleteRecord(callerAddress, entity);
   }
 
-  function variantSelectorSignal(address callerAddress, bytes32 entity) public view returns (bytes32) {
+  function variantSelectorSignal(
+    address callerAddress,
+    bytes32 entity,
+    bytes32[] memory neighbourEntityIds,
+    bytes32[] memory childEntityIds,
+    bytes32 parentEntity
+  ) public view returns (bytes32) {
     SignalData memory signalData = Signal.get(callerAddress, entity);
     if (signalData.isActive) {
       return SignalOnVoxelVariantID;

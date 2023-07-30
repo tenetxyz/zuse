@@ -116,11 +116,6 @@ export default mudConfig({
       openAccess: false,
       accessList: ["CASystem"],
     },
-    WireSystem: {
-      name: "WireSystem",
-      openAccess: false,
-      accessList: ["CASystem"],
-    },
     SignalVoxelSystem: {
       name: "SignalVoxelSys",
       openAccess: false,

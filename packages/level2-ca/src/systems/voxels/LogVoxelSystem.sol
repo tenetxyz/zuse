@@ -51,7 +51,13 @@ contract LogVoxelSystem is System {
 
   function exitWorldLog(address callerAddress, VoxelCoord memory coord, bytes32 entity) public {}
 
-  function variantSelectorLog(address callerAddress, bytes32 entity) public view returns (bytes32) {
+  function variantSelectorLog(
+    address callerAddress,
+    bytes32 entity,
+    bytes32[] memory neighbourEntityIds,
+    bytes32[] memory childEntityIds,
+    bytes32 parentEntity
+  ) public view returns (bytes32) {
     return LogVoxelVariantID;
   }
 }

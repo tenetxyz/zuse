@@ -58,7 +58,13 @@ contract SandVoxelSystem is System {
     Powered.deleteRecord(callerAddress, entity);
   }
 
-  function variantSelectorSand(address callerAddress, bytes32 entity) public view returns (bytes32) {
+  function variantSelectorSand(
+    address callerAddress,
+    bytes32 entity,
+    bytes32[] memory neighbourEntityIds,
+    bytes32[] memory childEntityIds,
+    bytes32 parentEntity
+  ) public view returns (bytes32) {
     return SandVoxelVariantID;
   }
 }

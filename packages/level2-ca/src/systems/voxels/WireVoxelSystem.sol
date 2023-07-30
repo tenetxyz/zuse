@@ -3,6 +3,7 @@ pragma solidity >=0.8.0;
 
 import { IWorld } from "@tenet-level2-ca/src/codegen/world/IWorld.sol";
 import { System } from "@latticexyz/world/src/System.sol";
+import { CAVoxelType, CAVoxelTypeData } from "@tenet-level2-ca/src/codegen/tables/CAVoxelType.sol";
 import { VoxelVariantsRegistryData } from "@tenet-registry/src/codegen/tables/VoxelVariantsRegistry.sol";
 import { NoaBlockType } from "@tenet-registry/src/codegen/Types.sol";
 import { registerVoxelVariant, registerVoxelType } from "@tenet-registry/src/Utils.sol";
@@ -10,6 +11,8 @@ import { CAVoxelConfig } from "@tenet-level2-ca/src/codegen/Tables.sol";
 import { REGISTRY_ADDRESS, WireVoxelID } from "@tenet-level2-ca/src/Constants.sol";
 import { VoxelCoord } from "@tenet-utils/src/Types.sol";
 import { ElectronVoxelID } from "@tenet-base-ca/src/Constants.sol";
+import { AirVoxelID } from "@tenet-base-ca/src/Constants.sol";
+import { getVoxelTypeFromCaller } from "@tenet-base-ca/src/CallUtils.sol";
 
 bytes32 constant WireOffVoxelVariantID = bytes32(keccak256("wire.off"));
 bytes32 constant WireOnVoxelVariantID = bytes32(keccak256("wire.on"));
@@ -61,7 +64,31 @@ contract WireVoxelSystem is System {
 
   function exitWorldWire(address callerAddress, VoxelCoord memory coord, bytes32 entity) public {}
 
-  function variantSelectorWire(address callerAddress, bytes32 entity) public view returns (bytes32) {
+  function variantSelectorWire(
+    address callerAddress,
+    bytes32 entity,
+    bytes32[] memory neighbourEntityIds,
+    bytes32[] memory childEntityIds,
+    bytes32 parentEntity
+  ) public returns (bytes32) {
+    bytes32 bottomLeftType = childEntityIds[0] == 0
+      ? AirVoxelID
+      : getVoxelTypeFromCaller(callerAddress, 1, childEntityIds[0]);
+    bytes32 bottomRightType = childEntityIds[1] == 0
+      ? AirVoxelID
+      : getVoxelTypeFromCaller(callerAddress, 1, childEntityIds[1]);
+    bytes32 topLeftType = childEntityIds[4] == 0
+      ? AirVoxelID
+      : getVoxelTypeFromCaller(callerAddress, 1, childEntityIds[4]);
+    bytes32 topRightType = childEntityIds[5] == 0
+      ? AirVoxelID
+      : getVoxelTypeFromCaller(callerAddress, 1, childEntityIds[5]);
+
+    if (topLeftType == ElectronVoxelID && bottomRightType == ElectronVoxelID) {
+      return WireOffVoxelVariantID;
+    } else if (bottomLeftType == ElectronVoxelID && topRightType == ElectronVoxelID) {
+      return WireOnVoxelVariantID;
+    }
     return WireOffVoxelVariantID;
   }
 }

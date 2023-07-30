@@ -61,7 +61,13 @@ contract SignalSourceVoxelSystem is System {
     SignalSource.deleteRecord(callerAddress, entity);
   }
 
-  function variantSelectorSignalSource(address callerAddress, bytes32 entity) public view returns (bytes32) {
+  function variantSelectorSignalSource(
+    address callerAddress,
+    bytes32 entity,
+    bytes32[] memory neighbourEntityIds,
+    bytes32[] memory childEntityIds,
+    bytes32 parentEntity
+  ) public view returns (bytes32) {
     return SignalSourceVoxelVariantID;
   }
 }

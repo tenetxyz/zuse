@@ -51,7 +51,13 @@ contract GrassVoxelSystem is System {
 
   function exitWorldGrass(address callerAddress, VoxelCoord memory coord, bytes32 entity) public {}
 
-  function variantSelectorGrass(address callerAddress, bytes32 entity) public view returns (bytes32) {
+  function variantSelectorGrass(
+    address callerAddress,
+    bytes32 entity,
+    bytes32[] memory neighbourEntityIds,
+    bytes32[] memory childEntityIds,
+    bytes32 parentEntity
+  ) public view returns (bytes32) {
     return GrassVoxelVariantID;
   }
 }

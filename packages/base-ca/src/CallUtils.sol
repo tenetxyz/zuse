@@ -3,7 +3,7 @@ pragma solidity >=0.8.0;
 
 import { VoxelCoord } from "@tenet-utils/src/Types.sol";
 import { CA_ENTER_WORLD_SIG, CA_EXIT_WORLD_SIG, CA_RUN_INTERACTION_SIG } from "./Constants.sol";
-import { safeCall } from "@tenet-utils/src/CallUtils.sol";
+import { safeCall, safeStaticCall } from "@tenet-utils/src/CallUtils.sol";
 
 function mineWorld(address callerAddress, bytes32 voxelTypeId, VoxelCoord memory coord) returns (bytes memory) {
   return
@@ -64,4 +64,44 @@ function runInteraction(
       abi.encodeWithSignature(CA_RUN_INTERACTION_SIG, entity, neighbourEntityIds, childEntityIds, parentEntity),
       string(abi.encode("runInteraction ", entity, " ", neighbourEntityIds, " ", childEntityIds, " ", parentEntity))
     );
+}
+
+function getVoxelTypeFromCaller(address callerAddress, uint32 scale, bytes32 entity) returns (bytes32) {
+  bytes memory returnData = safeStaticCall(
+    callerAddress,
+    abi.encodeWithSignature("getVoxelTypeId(uint32,bytes32)", scale, entity),
+    "getVoxelTypeId"
+  );
+  return abi.decode(returnData, (bytes32));
+}
+
+function getNeighbourEntitiesFromCaller(
+  address callerAddress,
+  uint32 scale,
+  bytes32 entity
+) returns (bytes32[] memory) {
+  bytes memory returnData = safeCall(
+    callerAddress,
+    abi.encodeWithSignature("calculateNeighbourEntities(uint32,bytes32)", scale, entity),
+    "calculateNeighbourEntities"
+  );
+  return abi.decode(returnData, (bytes32[]));
+}
+
+function getChildEntitiesFromCaller(address callerAddress, uint32 scale, bytes32 entity) returns (bytes32[] memory) {
+  bytes memory returnData = safeCall(
+    callerAddress,
+    abi.encodeWithSignature("calculateChildEntities(uint32,bytes32)", scale, entity),
+    "calculateChildEntities"
+  );
+  return abi.decode(returnData, (bytes32[]));
+}
+
+function getParentEntityFromCaller(address callerAddress, uint32 scale, bytes32 entity) returns (bytes32) {
+  bytes memory returnData = safeCall(
+    callerAddress,
+    abi.encodeWithSignature("calculateParentEntity(uint32,bytes32)", scale, entity),
+    "calculateParentEntity"
+  );
+  return abi.decode(returnData, (bytes32));
 }

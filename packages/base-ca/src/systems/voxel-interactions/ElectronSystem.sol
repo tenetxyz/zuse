@@ -2,14 +2,14 @@
 pragma solidity >=0.8.0;
 
 import { IStore } from "@latticexyz/store/src/IStore.sol";
-import { IWorld } from "@base-ca/src/codegen/world/IWorld.sol";
-import { VoxelInteraction } from "@base-ca/src/prototypes/VoxelInteraction.sol";
+import { IWorld } from "@tenet-base-ca/src/codegen/world/IWorld.sol";
+import { VoxelInteraction } from "@tenet-base-ca/src/prototypes/VoxelInteraction.sol";
 import { BlockDirection, VoxelCoord } from "@tenet-utils/src/Types.sol";
 import { hasKey } from "@latticexyz/world/src/modules/keysintable/hasKey.sol";
-import { CAVoxelInteractionConfig, ElectronTunnelSpot, ElectronTunnelSpotData, ElectronTunnelSpotTableId, CAVoxelType, CAPosition, CAPositionData, CAPositionTableId } from "@base-ca/src/codegen/Tables.sol";
-import { AirVoxelID, ElectronVoxelID } from "@base-ca/src/Constants.sol";
-import { getEntityAtCoord, getNeighbours, positionDataToVoxelCoord, getEntityPositionStrict } from "@base-ca/src/Utils.sol";
-import { buildWorld, mineWorld } from "@base-ca/src/CallUtils.sol";
+import { CAVoxelInteractionConfig, ElectronTunnelSpot, ElectronTunnelSpotData, ElectronTunnelSpotTableId, CAVoxelType, CAPosition, CAPositionData, CAPositionTableId } from "@tenet-base-ca/src/codegen/Tables.sol";
+import { AirVoxelID, ElectronVoxelID } from "@tenet-base-ca/src/Constants.sol";
+import { getEntityAtCoord, getNeighbours, positionDataToVoxelCoord, getEntityPositionStrict } from "@tenet-base-ca/src/Utils.sol";
+import { buildWorld, mineWorld } from "@tenet-base-ca/src/CallUtils.sol";
 import { safeCall } from "@tenet-utils/src/CallUtils.sol";
 import { Strings } from "@openzeppelin/contracts/utils/Strings.sol";
 

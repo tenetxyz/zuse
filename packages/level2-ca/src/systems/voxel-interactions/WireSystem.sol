@@ -1,12 +1,13 @@
 // SPDX-License-Identifier: MIT
 pragma solidity >=0.8.0;
 
-import { IWorld } from "@level2-ca/src/codegen/world/IWorld.sol";
+import { IWorld } from "@tenet-level2-ca/src/codegen/world/IWorld.sol";
 import { VoxelInteraction } from "@tenet-base-ca/src/prototypes/VoxelInteraction.sol";
 import { BlockDirection } from "@tenet-utils/src/Types.sol";
-import { CAVoxelType, CAVoxelTypeData } from "@level2-ca/src/codegen/Tables.sol";
+import { CAVoxelInteractionConfig, CAVoxelType, CAVoxelTypeData } from "@tenet-level2-ca/src/codegen/Tables.sol";
 import { safeCall } from "@tenet-utils/src/CallUtils.sol";
 import { AirVoxelID, ElectronVoxelID } from "@tenet-base-ca/src/Constants.sol";
+import { WireVoxelID, WireOnVoxelVariantID, WireOffVoxelVariantID } from "@tenet-level2-ca/src/Constants.sol";
 
 contract WireSystem is VoxelInteraction {
   function registerInteractionWire() public {
@@ -23,6 +24,18 @@ contract WireSystem is VoxelInteraction {
     return false;
   }
 
+  function getVoxelTypeFromCaller(address callerAddress, uint32 scale, bytes32 entity) internal returns (bytes32) {
+    if (entity != 0) {
+      bytes memory returnData = safeCall(
+        callerAddress,
+        abi.encodeWithSignature("getVoxelTypeId(uint32,bytes32)", scale, entity),
+        "getVoxelTypeId"
+      );
+      return abi.decode(returnData, (bytes32));
+    }
+    return AirVoxelID;
+  }
+
   function runInteraction(
     address callerAddress,
     bytes32 interactEntity,
@@ -31,56 +44,21 @@ contract WireSystem is VoxelInteraction {
     bytes32[] memory childEntityIds,
     bytes32 parentEntity
   ) internal override returns (bool changedEntity) {
-    bytes32 bottomLeft = childEntityIds[0];
-    bytes32 bottomRight = childEntityIds[1];
-    bytes32 topLeft = childEntityIds[4];
-    bytes32 topRight = childEntityIds[5];
+    CAVoxelTypeData memory entityTypeData = CAVoxelType.get(callerAddress, interactEntity);
 
-    bytes32 bottomLeftType = AirVoxelID;
-    if (bottomLeft != 0) {
-      bytes memory returnData = safeCall(
-        callerAddress,
-        abi.encodeWithSignature("getVoxelTypeId(uint32,bytes32)", 1, bottomLeft),
-        "getVoxelTypeId"
-      );
-      bottomLeftType = abi.decode(returnData, (bytes32));
-    }
-    bytes32 bottomRightType = AirVoxelID;
-    if (bottomRight != 0) {
-      bytes memory returnData = safeCall(
-        callerAddress,
-        abi.encodeWithSignature("getVoxelTypeId(uint32,bytes32)", 1, bottomRight),
-        "getVoxelTypeId"
-      );
-      bottomRightType = abi.decode(returnData, (bytes32));
-    }
-    bytes32 topLeftType = AirVoxelID;
-    if (topLeft != 0) {
-      bytes memory returnData = safeCall(
-        callerAddress,
-        abi.encodeWithSignature("getVoxelTypeId(uint32,bytes32)", 1, topLeft),
-        "getVoxelTypeId"
-      );
-      topLeftType = abi.decode(returnData, (bytes32));
-    }
-    bytes32 topRightType = AirVoxelID;
-    if (topRight != 0) {
-      bytes memory returnData = safeCall(
-        callerAddress,
-        abi.encodeWithSignature("getVoxelTypeId(uint32,bytes32)", 1, topRight),
-        "getVoxelTypeId"
-      );
-      topRightType = abi.decode(returnData, (bytes32));
-    }
+    bytes32 bottomLeftType = getVoxelTypeFromCaller(callerAddress, 1, childEntityIds[0]);
+    bytes32 bottomRightType = getVoxelTypeFromCaller(callerAddress, 1, childEntityIds[1]);
+    bytes32 topLeftType = getVoxelTypeFromCaller(callerAddress, 1, childEntityIds[4]);
+    bytes32 topRightType = getVoxelTypeFromCaller(callerAddress, 1, childEntityIds[5]);
 
     if (topLeftType == ElectronVoxelID && bottomRightType == ElectronVoxelID) {
-      if (entityTypeData.voxelVariantId != SignalOffVoxelVariantID) {
-        CAVoxelType.set(callerAddress, interactEntity, SignalVoxelID, SignalOffVoxelVariantID);
+      if (entityTypeData.voxelVariantId != WireOffVoxelVariantID) {
+        CAVoxelType.set(callerAddress, interactEntity, WireVoxelID, WireOffVoxelVariantID);
         changedEntity = true;
       }
     } else if (bottomLeftType == ElectronVoxelID && topRightType == ElectronVoxelID) {
-      if (entityTypeData.voxelVariantId != SignalOnVoxelVariantID) {
-        CAVoxelType.set(callerAddress, interactEntity, SignalVoxelID, SignalOnVoxelVariantID);
+      if (entityTypeData.voxelVariantId != WireOnVoxelVariantID) {
+        CAVoxelType.set(callerAddress, interactEntity, WireVoxelID, WireOnVoxelVariantID);
         changedEntity = true;
       }
     }

@@ -1,16 +1,16 @@
 // SPDX-License-Identifier: MIT
 pragma solidity >=0.8.0;
 
-import { IWorld } from "@base-ca/src/codegen/world/IWorld.sol";
+import { IWorld } from "@tenet-base-ca/src/codegen/world/IWorld.sol";
 import { System } from "@latticexyz/world/src/System.sol";
 import { VoxelVariantsRegistryData } from "@tenet-registry/src/codegen/tables/VoxelVariantsRegistry.sol";
 import { NoaBlockType } from "@tenet-registry/src/codegen/Types.sol";
 import { hasKey } from "@latticexyz/world/src/modules/keysintable/hasKey.sol";
 import { registerVoxelVariant, registerVoxelType } from "@tenet-registry/src/Utils.sol";
-import { CAVoxelConfig, CAVoxelType, CAPosition, CAPositionData, CAPositionTableId, ElectronTunnelSpot, ElectronTunnelSpotData, ElectronTunnelSpotTableId } from "@base-ca/src/codegen/Tables.sol";
-import { REGISTRY_ADDRESS, AirVoxelID, AirVoxelVariantID } from "@base-ca/src/Constants.sol";
+import { CAVoxelConfig, CAVoxelType, CAPosition, CAPositionData, CAPositionTableId, ElectronTunnelSpot, ElectronTunnelSpotData, ElectronTunnelSpotTableId } from "@tenet-base-ca/src/codegen/Tables.sol";
+import { REGISTRY_ADDRESS, AirVoxelID, AirVoxelVariantID } from "@tenet-base-ca/src/Constants.sol";
 import { VoxelCoord } from "@tenet-utils/src/Types.sol";
-import { getEntityAtCoord, voxelCoordToPositionData } from "@base-ca/src/Utils.sol";
+import { getEntityAtCoord, voxelCoordToPositionData } from "@tenet-base-ca/src/Utils.sol";
 
 contract AirVoxelSystem is System {
   function registerVoxelAir() public {

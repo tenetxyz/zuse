@@ -1,17 +1,17 @@
 // SPDX-License-Identifier: MIT
 pragma solidity >=0.8.0;
 
-import { IWorld } from "@level2-ca/src/codegen/world/IWorld.sol";
+import { IWorld } from "@tenet-level2-ca/src/codegen/world/IWorld.sol";
 import { IStore } from "@latticexyz/store/src/IStore.sol";
 import { System } from "@latticexyz/world/src/System.sol";
 import { getKeysWithValue } from "@latticexyz/world/src/modules/keyswithvalue/getKeysWithValue.sol";
 import { hasKey } from "@latticexyz/world/src/modules/keysintable/hasKey.sol";
-import { CAVoxelInteractionConfig, CAVoxelConfig, CAVoxelConfigTableId, CAVoxelType, CAVoxelTypeData, CAPosition, CAPositionData, CAPositionTableId } from "@level2-ca/src/codegen/Tables.sol";
+import { CAVoxelInteractionConfig, CAVoxelConfig, CAVoxelConfigTableId, CAVoxelType, CAVoxelTypeData, CAPosition, CAPositionData, CAPositionTableId } from "@tenet-level2-ca/src/codegen/Tables.sol";
 import { VoxelCoord } from "@tenet-utils/src/Types.sol";
-import { Level2AirVoxelID, DirtVoxelID, DirtVoxelVariantID, GrassVoxelID, GrassVoxelVariantID, BedrockVoxelID, BedrockVoxelVariantID, SignalVoxelID, SignalOffVoxelVariantID, SignalOnVoxelVariantID } from "@level2-ca/src/Constants.sol";
+import { Level2AirVoxelID } from "@tenet-level2-ca/src/Constants.sol";
 import { EMPTY_ID } from "./LibTerrainSystem.sol";
-import { AirVoxelID, AirVoxelVariantID, ElectronVoxelID } from "@tenet-base-ca/src/Constants.sol";
-import { safeCall } from "@tenet-utils/src/CallUtils.sol";
+import { getEntityAtCoord } from "@tenet-base-ca/src/Utils.sol";
+import { safeCall, safeStaticCall } from "@tenet-utils/src/CallUtils.sol";
 
 contract CASystem is System {
   function isVoxelTypeAllowed(bytes32 voxelTypeId) public view returns (bool) {

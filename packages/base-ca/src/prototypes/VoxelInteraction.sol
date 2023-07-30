@@ -6,7 +6,7 @@ import { System } from "@latticexyz/world/src/System.sol";
 import { getCallerNamespace } from "@tenet-utils/src/Utils.sol";
 import { calculateBlockDirection } from "@tenet-utils/src/VoxelCoordUtils.sol";
 import { BlockDirection, VoxelCoord } from "@tenet-utils/src/Types.sol";
-import { getEntityPositionStrict } from "@base-ca/src/Utils.sol";
+import { getEntityPositionStrict } from "@tenet-base-ca/src/Utils.sol";
 
 abstract contract VoxelInteraction is System {
   function onNewNeighbour(

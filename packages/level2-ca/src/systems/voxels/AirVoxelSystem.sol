@@ -1,13 +1,13 @@
 // SPDX-License-Identifier: MIT
 pragma solidity >=0.8.0;
 
-import { IWorld } from "@level2-ca/src/codegen/world/IWorld.sol";
+import { IWorld } from "@tenet-level2-ca/src/codegen/world/IWorld.sol";
 import { System } from "@latticexyz/world/src/System.sol";
 import { VoxelVariantsRegistryData } from "@tenet-registry/src/codegen/tables/VoxelVariantsRegistry.sol";
 import { NoaBlockType } from "@tenet-registry/src/codegen/Types.sol";
 import { registerVoxelVariant, registerVoxelType } from "@tenet-registry/src/Utils.sol";
-import { CAVoxelConfig } from "@level2-ca/src/codegen/Tables.sol";
-import { REGISTRY_ADDRESS, Level2AirVoxelID } from "@level2-ca/src/Constants.sol";
+import { CAVoxelConfig } from "@tenet-level2-ca/src/codegen/Tables.sol";
+import { REGISTRY_ADDRESS, Level2AirVoxelID } from "@tenet-level2-ca/src/Constants.sol";
 import { VoxelCoord } from "@tenet-utils/src/Types.sol";
 import { AirVoxelID, AirVoxelVariantID } from "@tenet-base-ca/src/Constants.sol";
 

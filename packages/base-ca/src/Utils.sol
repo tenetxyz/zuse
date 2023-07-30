@@ -7,7 +7,7 @@ import { NUM_VOXEL_NEIGHBOURS } from "@tenet-utils/src/Constants.sol";
 import { getNeighbourCoords, calculateBlockDirection } from "@tenet-utils/src/VoxelCoordUtils.sol";
 import { hasKey } from "@latticexyz/world/src/modules/keysintable/hasKey.sol";
 import { getKeysWithValue } from "@latticexyz/world/src/modules/keyswithvalue/getKeysWithValue.sol";
-import { CAPosition, CAPositionData, CAPositionTableId } from "@base-ca/src/codegen/Tables.sol";
+import { CAPosition, CAPositionData, CAPositionTableId } from "@tenet-base-ca/src/codegen/tables/CAPosition.sol";
 
 function getEntityPositionStrict(IStore store, address callerAddress, bytes32 entity) view returns (VoxelCoord memory) {
   require(

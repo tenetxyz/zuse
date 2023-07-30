@@ -2,14 +2,14 @@
 pragma solidity >=0.8.0;
 
 import { IStore } from "@latticexyz/store/src/IStore.sol";
-import { IWorld } from "@base-ca/src/codegen/world/IWorld.sol";
+import { IWorld } from "@tenet-base-ca/src/codegen/world/IWorld.sol";
 import { System } from "@latticexyz/world/src/System.sol";
 import { getKeysWithValue } from "@latticexyz/world/src/modules/keyswithvalue/getKeysWithValue.sol";
 import { hasKey } from "@latticexyz/world/src/modules/keysintable/hasKey.sol";
-import { CAVoxelInteractionConfig, CAVoxelConfig, CAVoxelConfigTableId, CAVoxelType, CAPosition, CAPositionData, CAPositionTableId, ElectronTunnelSpot, ElectronTunnelSpotData, ElectronTunnelSpotTableId } from "@base-ca/src/codegen/Tables.sol";
+import { CAVoxelInteractionConfig, CAVoxelConfig, CAVoxelConfigTableId, CAVoxelType, CAPosition, CAPositionData, CAPositionTableId } from "@tenet-base-ca/src/codegen/Tables.sol";
 import { VoxelCoord } from "@tenet-utils/src/Types.sol";
-import { AirVoxelID, AirVoxelVariantID, ElectronVoxelID, ElectronVoxelVariantID } from "@base-ca/src/Constants.sol";
-import { getEntityAtCoord, voxelCoordToPositionData } from "@base-ca/src/Utils.sol";
+import { AirVoxelID } from "@tenet-base-ca/src/Constants.sol";
+import { getEntityAtCoord } from "@tenet-base-ca/src/Utils.sol";
 import { safeCall, safeStaticCall } from "@tenet-utils/src/CallUtils.sol";
 
 contract CASystem is System {

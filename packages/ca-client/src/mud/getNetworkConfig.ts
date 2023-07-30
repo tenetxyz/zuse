@@ -1,5 +1,5 @@
 import { SetupContractConfig, getBurnerWallet } from "@latticexyz/std-client";
-import worldsJson from "../../../worlds.json";
+import worldsJson from "@tenetxyz/level2-ca/worlds.json";
 import { supportedChains } from "./supportedChains";
 
 const worlds = worldsJson as Partial<Record<string, { address: string; blockNumber?: number }>>;

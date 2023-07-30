@@ -12,7 +12,7 @@
     "deploy:local": "yarn mud deploy",
     "deploy:hackathon": "yarn run initialize && yarn mud deploy --profile=hackathon-testnet",
     "deploy:testnet": "yarn run initialize && yarn mud deploy --profile=lattice-testnet",
-    "dev": "yarn mud dev-contracts --tsgenOutput ./client/src/mud",
+    "dev": "yarn mud dev-contracts --tsgenOutput ./client",
     "setLocalRegistryAddress": "node ../scripts/setRegistryAddress.js 31337 ../registry/worlds.json src/Constants.sol REGISTRY_ADDRESS",
     "initialize": "yarn run tablegen && yarn run worldgen && yarn run build && yarn run worldtypes && yarn run tsgen",
     "lint": "yarn run prettier && yarn run solhint",
@@ -21,7 +21,7 @@
     "tablegen": "yarn mud tablegen",
     "test": "yarn mud test",
     "test-verbose": "yarn run initialize && yarn mud test --forgeOptions='-vvv'",
-    "tsgen": "yarn mud tsgen --configPath mud.config.ts --out ./client/src/mud",
+    "tsgen": "yarn mud tsgen --configPath mud.config.ts --out ./client",
     "worldgen": "yarn mud worldgen",
     "worldtypes": "rimraf types && typechain --target=ethers-v5 out/IWorld.sol/IWorld.json"
   },

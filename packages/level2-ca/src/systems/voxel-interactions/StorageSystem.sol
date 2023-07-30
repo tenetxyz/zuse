@@ -1,32 +1,27 @@
 // SPDX-License-Identifier: MIT
 pragma solidity >=0.8.0;
 
-import { SingleVoxelInteraction } from "@tenet-contracts/src/prototypes/SingleVoxelInteraction.sol";
-import { IWorld } from "../../../src/codegen/world/IWorld.sol";
-import { PowerWire, PowerWireData, Storage, StorageData } from "../../codegen/Tables.sol";
-import { BlockDirection } from "../../codegen/Types.sol";
-import { registerExtension, entityIsStorage, entityIsPowerWire } from "../../Utils.sol";
-import { getOppositeDirection } from "@tenet-contracts/src/Utils.sol";
-import { BlockHeightUpdate } from "@tenet-contracts/src/Types.sol";
+import { IWorld } from "@tenet-level2-ca/src/codegen/world/IWorld.sol";
+import { SingleVoxelInteraction } from "@tenet-base-ca/src/prototypes/SingleVoxelInteraction.sol";
+import { CAVoxelInteractionConfig, PowerWire, PowerWireData, Storage, StorageData } from "@tenet-level2-ca/src/codegen/Tables.sol";
+import { BlockDirection, BlockHeightUpdate } from "@tenet-utils/src/Types.sol";
+import { entityIsStorage, entityIsPowerWire } from "@tenet-level2-ca/src/InteractionUtils.sol";
+import { getOppositeDirection } from "@tenet-utils/src/VoxelCoordUtils.sol";
 
 contract StorageSystem is SingleVoxelInteraction {
-  function registerInteraction() public override {
+  function registerInteractionStorage() public {
     address world = _world();
-    registerExtension(world, "StorageSystem", IWorld(world).extension_StorageSystem_eventHandler.selector);
-  }
-
-  function entityShouldInteract(bytes32 entityId, bytes16 callerNamespace) internal view override returns (bool) {
-    return entityIsStorage(entityId, callerNamespace);
+    CAVoxelInteractionConfig.push(IWorld(world).eventHandlerStorage.selector);
   }
 
   function usePowerWireAsSource(
-    bytes16 callerNamespace,
+    address callerAddress,
     bytes32 powerWireEntity,
     BlockDirection powerWireDirection,
     bytes32 storageEntity,
     StorageData memory storageData
   ) internal returns (bool changedEntity) {
-    PowerWireData memory sourceWireData = PowerWire.get(callerNamespace, powerWireEntity);
+    PowerWireData memory sourceWireData = PowerWire.get(callerAddress, powerWireEntity);
     if (sourceWireData.source == bytes32(0) || sourceWireData.source == storageEntity) {
       return false;
     }
@@ -68,19 +63,19 @@ contract StorageSystem is SingleVoxelInteraction {
         storageData.outBlockHeightUpdate = abi.encode(outBlockHeightUpdate);
       }
 
-      Storage.set(callerNamespace, storageEntity, storageData);
+      Storage.set(callerAddress, storageEntity, storageData);
       changedEntity = true;
     }
   }
 
   function usePowerWireAsDestination(
-    bytes16 callerNamespace,
+    address callerAddress,
     bytes32 powerWireEntity,
     BlockDirection powerWireDirection,
     bytes32 storageEntity,
     StorageData memory storageData
   ) internal returns (bool changedEntity) {
-    PowerWireData memory destinationWireData = PowerWire.get(callerNamespace, powerWireEntity);
+    PowerWireData memory destinationWireData = PowerWire.get(callerAddress, powerWireEntity);
     if (storageData.source == powerWireEntity) {
       // the source cant be the destination
       return false;
@@ -131,21 +126,21 @@ contract StorageSystem is SingleVoxelInteraction {
       storageData.outRate = validTransferRate;
       outBlockHeightUpdate.lastUpdateBlock = block.number;
       storageData.outBlockHeightUpdate = abi.encode(outBlockHeightUpdate);
-      Storage.set(callerNamespace, storageEntity, storageData);
+      Storage.set(callerAddress, storageEntity, storageData);
       changedEntity = true;
     }
   }
 
   function runSingleInteraction(
-    bytes16 callerNamespace,
+    address callerAddress,
     bytes32 storageEntity,
     bytes32 compareEntity,
     BlockDirection compareBlockDirection
   ) internal override returns (bool changedEntity) {
-    StorageData memory storageData = Storage.get(callerNamespace, storageEntity);
+    StorageData memory storageData = Storage.get(callerAddress, storageEntity);
     changedEntity = false;
 
-    bool isPowerWire = entityIsPowerWire(compareEntity, callerNamespace);
+    bool isPowerWire = entityIsPowerWire(callerAddress, compareEntity);
 
     bool isEnergyStored = storageData.energyStored > 0;
     bool doesHaveSource = storageData.source != bytes32(0);
@@ -156,7 +151,7 @@ contract StorageSystem is SingleVoxelInteraction {
       inBlockHeightUpdate.blockNumber = block.number;
       inBlockHeightUpdate.blockHeightDelta = block.number - inBlockHeightUpdate.lastUpdateBlock;
       storageData.inBlockHeightUpdate = abi.encode(inBlockHeightUpdate);
-      Storage.set(callerNamespace, storageEntity, storageData);
+      Storage.set(callerAddress, storageEntity, storageData);
     }
 
     BlockHeightUpdate memory outBlockHeightUpdate = abi.decode(storageData.outBlockHeightUpdate, (BlockHeightUpdate));
@@ -164,13 +159,13 @@ contract StorageSystem is SingleVoxelInteraction {
       outBlockHeightUpdate.blockNumber = block.number;
       outBlockHeightUpdate.blockHeightDelta = block.number - outBlockHeightUpdate.lastUpdateBlock;
       storageData.outBlockHeightUpdate = abi.encode(outBlockHeightUpdate);
-      Storage.set(callerNamespace, storageEntity, storageData);
+      Storage.set(callerAddress, storageEntity, storageData);
     }
 
     if (!doesHaveSource) {
       if (isPowerWire) {
         changedEntity = usePowerWireAsSource(
-          callerNamespace,
+          callerAddress,
           compareEntity,
           compareBlockDirection,
           storageEntity,
@@ -179,11 +174,11 @@ contract StorageSystem is SingleVoxelInteraction {
       }
     } else if (compareBlockDirection == storageData.sourceDirection) {
       if (
-        entityIsPowerWire(storageData.source, callerNamespace) &&
-        PowerWire.get(callerNamespace, storageData.source).source != bytes32(0)
+        entityIsPowerWire(callerAddress, storageData.source) &&
+        PowerWire.get(callerAddress, storageData.source).source != bytes32(0)
       ) {
         changedEntity = usePowerWireAsSource(
-          callerNamespace,
+          callerAddress,
           compareEntity,
           compareBlockDirection,
           storageEntity,
@@ -195,7 +190,7 @@ contract StorageSystem is SingleVoxelInteraction {
         storageData.inBlockHeightUpdate = abi.encode(inBlockHeightUpdate);
         storageData.source = bytes32(0);
         storageData.sourceDirection = BlockDirection.None;
-        Storage.set(callerNamespace, storageEntity, storageData);
+        Storage.set(callerAddress, storageEntity, storageData);
         changedEntity = true;
       }
     }
@@ -203,7 +198,7 @@ contract StorageSystem is SingleVoxelInteraction {
     if ((isEnergyStored || doesHaveSource) && !doesHaveDest) {
       if (isPowerWire) {
         changedEntity = usePowerWireAsDestination(
-          callerNamespace,
+          callerAddress,
           compareEntity,
           compareBlockDirection,
           storageEntity,
@@ -211,9 +206,9 @@ contract StorageSystem is SingleVoxelInteraction {
         );
       }
     } else if (compareBlockDirection == storageData.destinationDirection) {
-      if (entityIsPowerWire(storageData.destination, callerNamespace) && (isEnergyStored || doesHaveSource)) {
+      if (entityIsPowerWire(callerAddress, storageData.destination) && (isEnergyStored || doesHaveSource)) {
         changedEntity = usePowerWireAsDestination(
-          callerNamespace,
+          callerAddress,
           compareEntity,
           compareBlockDirection,
           storageEntity,
@@ -225,7 +220,7 @@ contract StorageSystem is SingleVoxelInteraction {
         storageData.outBlockHeightUpdate = abi.encode(outBlockHeightUpdate);
         storageData.destination = bytes32(0);
         storageData.destinationDirection = BlockDirection.None;
-        Storage.set(callerNamespace, storageEntity, storageData);
+        Storage.set(callerAddress, storageEntity, storageData);
         changedEntity = true;
       }
     }
@@ -233,10 +228,17 @@ contract StorageSystem is SingleVoxelInteraction {
     return changedEntity;
   }
 
-  function eventHandler(
+  function entityShouldInteract(address callerAddress, bytes32 entityId) internal view override returns (bool) {
+    return entityIsStorage(callerAddress, entityId);
+  }
+
+  function eventHandlerStorage(
+    address callerAddress,
     bytes32 centerEntityId,
-    bytes32[] memory neighbourEntityIds
-  ) public override returns (bytes32, bytes32[] memory) {
-    return super.eventHandler(centerEntityId, neighbourEntityIds);
+    bytes32[] memory neighbourEntityIds,
+    bytes32[] memory childEntityIds,
+    bytes32 parentEntity
+  ) public returns (bytes32, bytes32[] memory) {
+    return super.eventHandler(callerAddress, centerEntityId, neighbourEntityIds, childEntityIds, parentEntity);
   }
 }

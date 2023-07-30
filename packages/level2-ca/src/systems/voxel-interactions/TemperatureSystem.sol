@@ -1,29 +1,25 @@
 // SPDX-License-Identifier: MIT
 pragma solidity >=0.8.0;
 
-import { SingleVoxelInteraction } from "@tenet-contracts/src/prototypes/SingleVoxelInteraction.sol";
-import { IWorld } from "../../../src/codegen/world/IWorld.sol";
-import { Temperature, TemperatureData } from "../../codegen/Tables.sol";
-import { BlockDirection } from "../../codegen/Types.sol";
-import { registerExtension, entityHasTemperature } from "../../Utils.sol";
+import { SingleVoxelInteraction } from "@tenet-base-ca/src/prototypes/SingleVoxelInteraction.sol";
+import { IWorld } from "@tenet-level2-ca/src/codegen/world/IWorld.sol";
+import { CAVoxelInteractionConfig, Temperature, TemperatureData } from "@tenet-level2-ca/src/codegen/Tables.sol";
+import { BlockDirection } from "@tenet-utils/src/Types.sol";
+import { entityIsSignal, entityHasTemperature } from "@tenet-level2-ca/src/InteractionUtils.sol";
 
 contract TemperatureSystem is SingleVoxelInteraction {
-  function registerInteraction() public override {
+  function registerInteractionTemperature() public {
     address world = _world();
-    registerExtension(world, "TemperatureSystem", IWorld(world).extension_TemperatureSyste_eventHandler.selector);
-  }
-
-  function entityShouldInteract(bytes32 entityId, bytes16 callerNamespace) internal view override returns (bool) {
-    return entityHasTemperature(entityId, callerNamespace);
+    CAVoxelInteractionConfig.push(IWorld(world).eventHandlerTemperature.selector);
   }
 
   function runSingleInteraction(
-    bytes16 callerNamespace,
+    address callerAddress,
     bytes32 temperatureEntity,
     bytes32 compareEntity,
     BlockDirection compareBlockDirection
   ) internal override returns (bool changedEntity) {
-    TemperatureData memory temperatureData = Temperature.get(callerNamespace, temperatureEntity);
+    TemperatureData memory temperatureData = Temperature.get(callerAddress, temperatureEntity);
     changedEntity = false;
 
     uint256 roomTemperature = 20000;
@@ -48,17 +44,24 @@ contract TemperatureSystem is SingleVoxelInteraction {
     if (temperatureData.lastUpdateBlock != lastUpdateBlock) {
       temperatureData.temperature = currentTemperature;
       temperatureData.lastUpdateBlock = lastUpdateBlock;
-      Temperature.set(callerNamespace, temperatureEntity, temperatureData);
+      Temperature.set(callerAddress, temperatureEntity, temperatureData);
       changedEntity = true;
     }
 
     return changedEntity;
   }
 
-  function eventHandler(
+  function entityShouldInteract(address callerAddress, bytes32 entityId) internal view override returns (bool) {
+    return entityHasTemperature(callerAddress, entityId);
+  }
+
+  function eventHandlerTemperature(
+    address callerAddress,
     bytes32 centerEntityId,
-    bytes32[] memory neighbourEntityIds
-  ) public override returns (bytes32, bytes32[] memory) {
-    return super.eventHandler(centerEntityId, neighbourEntityIds);
+    bytes32[] memory neighbourEntityIds,
+    bytes32[] memory childEntityIds,
+    bytes32 parentEntity
+  ) public returns (bytes32, bytes32[] memory) {
+    return super.eventHandler(callerAddress, centerEntityId, neighbourEntityIds, childEntityIds, parentEntity);
   }
 }

@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: GPL-3.0
 pragma solidity >=0.8.0;
-import { Signal, SignalData, SignalSource, Powered, InvertedSignal } from "@tenet-level2-ca/src/codegen/Tables.sol";
+import { Signal, SignalData, SignalSource, Powered, InvertedSignal, Temperature, Generator, PowerWire, Storage, Consumer, PowerSignal } from "@tenet-level2-ca/src/codegen/Tables.sol";
 
 function entityIsSignal(address callerAddress, bytes32 entity) view returns (bool) {
   return Signal.get(callerAddress, entity).hasValue;
@@ -18,22 +18,26 @@ function entityIsInvertedSignal(address callerAddress, bytes32 entity) view retu
   return InvertedSignal.get(callerAddress, entity).hasValue;
 }
 
-// function entityHasTemperature(bytes32 entity, bytes16 callerNamespace) view returns (bool) {
-//   return Temperature.get(callerNamespace, entity).hasValue;
-// }
+function entityHasTemperature(address callerAddress, bytes32 entity) view returns (bool) {
+  return Temperature.get(callerAddress, entity).hasValue;
+}
 
-// function entityIsGenerator(bytes32 entity, bytes16 callerNamespace) view returns (bool) {
-//   return Generator.get(callerNamespace, entity).hasValue;
-// }
+function entityIsGenerator(address callerAddress, bytes32 entity) view returns (bool) {
+  return Generator.get(callerAddress, entity).hasValue;
+}
 
-// function entityIsPowerWire(bytes32 entity, bytes16 callerNamespace) view returns (bool) {
-//   return PowerWire.get(callerNamespace, entity).hasValue;
-// }
+function entityIsPowerWire(address callerAddress, bytes32 entity) view returns (bool) {
+  return PowerWire.get(callerAddress, entity).hasValue;
+}
 
-// function entityIsStorage(bytes32 entity, bytes16 callerNamespace) view returns (bool) {
-//   return Storage.get(callerNamespace, entity).hasValue;
-// }
+function entityIsStorage(address callerAddress, bytes32 entity) view returns (bool) {
+  return Storage.get(callerAddress, entity).hasValue;
+}
 
-// function entityIsConsumer(bytes32 entity, bytes16 callerNamespace) view returns (bool) {
-//   return Consumer.get(callerNamespace, entity).hasValue;
-// }
+function entityIsConsumer(address callerAddress, bytes32 entity) view returns (bool) {
+  return Consumer.get(callerAddress, entity).hasValue;
+}
+
+function entityIsPowerSignal(address callerAddress, bytes32 entity) view returns (bool) {
+  return PowerSignal.get(callerAddress, entity).hasValue;
+}

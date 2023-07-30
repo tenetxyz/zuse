@@ -30,3 +30,9 @@ enum BlockDirection {
   Up,
   Down
 }
+
+struct BlockHeightUpdate {
+  uint256 blockNumber;
+  uint256 blockHeightDelta;
+  uint256 lastUpdateBlock;
+}

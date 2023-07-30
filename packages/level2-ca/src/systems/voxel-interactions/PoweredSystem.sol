@@ -5,8 +5,8 @@ import { IWorld } from "@tenet-level2-ca/src/codegen/world/IWorld.sol";
 import { SingleVoxelInteraction } from "@tenet-base-ca/src/prototypes/SingleVoxelInteraction.sol";
 import { BlockDirection } from "@tenet-utils/src/Types.sol";
 import { getOppositeDirection } from "@tenet-utils/src/VoxelCoordUtils.sol";
-import { CAVoxelInteractionConfig, PoweredData, Powered, Signal, SignalData } from "@tenet-level2-ca/src/codegen/Tables.sol";
-import { entityIsPowered, entityIsSignal, entityIsSignalSource } from "@tenet-level2-ca/src/InteractionUtils.sol";
+import { CAVoxelInteractionConfig, PoweredData, Powered, Signal, SignalData, PowerSignal, PowerSignalData } from "@tenet-level2-ca/src/codegen/Tables.sol";
+import { entityIsPowered, entityIsSignal, entityIsSignalSource, entityIsPowerSignal } from "@tenet-level2-ca/src/InteractionUtils.sol";
 
 contract PoweredSystem is SingleVoxelInteraction {
   function registerInteractionPowered() public {
@@ -40,14 +40,13 @@ contract PoweredSystem is SingleVoxelInteraction {
         compareSignalData.isActive &&
         (compareSignalData.direction == compareBlockDirection || compareBlockDirection == BlockDirection.Down);
     }
-    bool compareIsActivePowerSignal = false;
-    // bool compareIsActivePowerSignal = entityIsPowerSignal(callerAddress, compareEntity);
-    // if (compareIsActivePowerSignal) {
-    //   PowerSignalData memory comparePowerSignalData = PowerSignal.get(callerAddress, compareEntity);
-    //   compareIsActivePowerSignal =
-    //     comparePowerSignalData.isActive &&
-    //     (comparePowerSignalData.direction == compareBlockDirection || compareBlockDirection == BlockDirection.Down);
-    // }
+    bool compareIsActivePowerSignal = entityIsPowerSignal(callerAddress, compareEntity);
+    if (compareIsActivePowerSignal) {
+      PowerSignalData memory comparePowerSignalData = PowerSignal.get(callerAddress, compareEntity);
+      compareIsActivePowerSignal =
+        comparePowerSignalData.isActive &&
+        (comparePowerSignalData.direction == compareBlockDirection || compareBlockDirection == BlockDirection.Down);
+    }
 
     if (poweredData.isActive) {
       // if we're active and the source direction is the same as the compare block direction

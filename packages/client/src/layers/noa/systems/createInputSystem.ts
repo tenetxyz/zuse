@@ -8,7 +8,7 @@ import { toast } from "react-toastify";
 import { Creation } from "../../react/components/CreationStore";
 import { calculateMinMax, getTargetedSpawnId, getTargetedVoxelCoord, TargetedBlock } from "../../../utils/voxels";
 import { NotificationIcon } from "../components/persistentNotification";
-import { BEDROCK_ID, getBedrockHeight, TILE_HEIGHT } from "../../network/api/terrain/occurrence";
+import { BEDROCK_ID, getBedrockHeight, TILE_Y } from "../../network/api/terrain/occurrence";
 import { DEFAULT_BLOCK_TEST_DISTANCE } from "../setup/setupNoaEngine";
 import { calculateCornersFromTargetedBlock } from "./createSpawnCreationOverlaySystem";
 import { FocusedUiType } from "../components/FocusedUi";
@@ -360,7 +360,7 @@ export function createInputSystem(layers: Layers) {
   onDownInputEvent("spawn", () => {
     if (!noa.container.hasPointerLock) return;
     setComponent(PreTeleportPosition, SingletonEntity, playerPosition$.getValue());
-    const spawn_point = calculateParentCoord({ x: 0, y: TILE_HEIGHT + 1, z: 0 }, getWorldScale(noa));
+    const spawn_point = calculateParentCoord({ x: 0, y: TILE_Y + 1, z: 0 }, getWorldScale(noa));
     teleport(spawn_point);
     updateComponent(Tutorial, SingletonEntity, { teleport: false });
   });

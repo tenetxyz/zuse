@@ -109,11 +109,11 @@ export default mudConfig({
       openAccess: false,
       accessList: ["CASystem"],
     },
-    // SignalSystem: {
-    //   name: "SignalSystem",
-    //   openAccess: false,
-    //   accessList: ["CASystem"],
-    // },
+    SignalSystem: {
+      name: "SignalSystem",
+      openAccess: false,
+      accessList: ["CASystem"],
+    },
   },
   modules: [
     {

@@ -21,6 +21,8 @@ contract PostDeploy is Script {
     IWorld(worldAddress).registerVoxelWire();
     IWorld(worldAddress).registerVoxelSignalSource();
     IWorld(worldAddress).registerVoxelSignal();
+    IWorld(worldAddress).registerVoxelFlower();
+    IWorld(worldAddress).registerVoxelLog();
 
     // Register the voxel interactions
     IWorld(worldAddress).registerInteractionWire();

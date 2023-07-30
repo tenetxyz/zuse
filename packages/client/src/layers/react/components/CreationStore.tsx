@@ -193,7 +193,7 @@ const CreationStore: React.FC<Props> = ({
             <div className="flex items-center">
               <a
                 onClick={creationsNavClicked}
-                className="cursor-pointer text-sm font-medium text-gray-700 hover:text-blue-600"
+                className="cursor-pointer text-sm font-medium text-gray-700 hover:text-slate-500"
               >
                 Creations
               </a>

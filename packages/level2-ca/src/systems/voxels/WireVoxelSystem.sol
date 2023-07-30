@@ -71,6 +71,10 @@ contract WireVoxelSystem is System {
     bytes32[] memory childEntityIds,
     bytes32 parentEntity
   ) public returns (bytes32) {
+    if (childEntityIds.length == 0) {
+      return WireOffVoxelVariantID;
+    }
+
     bytes32 bottomLeftType = childEntityIds[0] == 0
       ? AirVoxelID
       : getVoxelTypeFromCaller(callerAddress, 1, childEntityIds[0]);

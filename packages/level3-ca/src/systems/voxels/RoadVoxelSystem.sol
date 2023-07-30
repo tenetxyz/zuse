@@ -7,10 +7,15 @@ import { VoxelVariantsRegistryData } from "@tenet-registry/src/codegen/tables/Vo
 import { NoaBlockType } from "@tenet-registry/src/codegen/Types.sol";
 import { registerVoxelVariant, registerVoxelType } from "@tenet-registry/src/Utils.sol";
 import { CAVoxelConfig } from "@tenet-level3-ca/src/codegen/Tables.sol";
-import { REGISTRY_ADDRESS, RoadVoxelID, RoadVoxelVariantID, RoadTexture, RoadUVWrap } from "@tenet-level3-ca/src/Constants.sol";
+import { REGISTRY_ADDRESS, RoadVoxelID } from "@tenet-level3-ca/src/Constants.sol";
 import { DirtVoxelID } from "@tenet-level2-ca/src/Constants.sol";
 import { VoxelCoord } from "@tenet-utils/src/Types.sol";
 import { AirVoxelID } from "@tenet-base-ca/src/Constants.sol";
+
+bytes32 constant RoadVoxelVariantID = bytes32(keccak256("road"));
+
+string constant RoadTexture = "bafkreiaavptzcmkl6xdyqk6ivp75ehsx45yl6kgxnahumozfbur6z6xcni";
+string constant RoadUVWrap = "bafkreihibx43dpw57halle4yfzidfrclm35xlyoiko3kq3m2uh5mewnmyu";
 
 contract RoadVoxelSystem is System {
   function registerVoxelRoad() public {
@@ -44,7 +49,13 @@ contract RoadVoxelSystem is System {
 
   function exitWorldRoad(address callerAddress, VoxelCoord memory coord, bytes32 entity) public {}
 
-  function variantSelectorRoad(address callerAddress, bytes32 entity) public view returns (bytes32) {
+  function variantSelectorRoad(
+    address callerAddress,
+    bytes32 entity,
+    bytes32[] memory neighbourEntityIds,
+    bytes32[] memory childEntityIds,
+    bytes32 parentEntity
+  ) public view returns (bytes32) {
     return RoadVoxelVariantID;
   }
 }

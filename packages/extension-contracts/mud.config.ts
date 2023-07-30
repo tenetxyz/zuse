@@ -9,49 +9,6 @@ export default mudConfig({
     BlockDirection: ["None", "Up", "Down", "North", "South", "East", "West"],
   },
   tables: {
-    Signal: {
-      keySchema: {
-        namespace: "bytes16",
-        entity: "bytes32",
-      },
-      schema: {
-        isActive: "bool",
-        direction: "BlockDirection",
-        hasValue: "bool", // TODO: Remove this once we can install non-root modules
-      },
-    },
-    SignalSource: {
-      keySchema: {
-        namespace: "bytes16",
-        entity: "bytes32",
-      },
-      schema: {
-        isNatural: "bool",
-        hasValue: "bool", // TODO: Remove this once we can install non-root modules
-      },
-    },
-    Powered: {
-      keySchema: {
-        namespace: "bytes16",
-        entity: "bytes32",
-      },
-      schema: {
-        isActive: "bool",
-        direction: "BlockDirection",
-        hasValue: "bool", // TODO: Remove this once we can install non-root modules
-      },
-    },
-    InvertedSignal: {
-      keySchema: {
-        namespace: "bytes16",
-        entity: "bytes32",
-      },
-      schema: {
-        isActive: "bool",
-        direction: "BlockDirection",
-        hasValue: "bool", // TODO: Remove this once we can install non-root modules
-      },
-    },
     TwoDirtCR: {
       // TwoDirt classify result - The key is the creationId
       schema: {

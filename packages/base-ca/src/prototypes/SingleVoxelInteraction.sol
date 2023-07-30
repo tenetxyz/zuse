@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity >=0.8.0;
 
-import { VoxelInteraction } from "./VoxelInteraction.sol";
+import { VoxelInteraction } from "@tenet-base-ca/src/prototypes/VoxelInteraction.sol";
 import { System } from "@latticexyz/world/src/System.sol";
 import { BlockDirection, VoxelCoord } from "@tenet-utils/src/Types.sol";
 

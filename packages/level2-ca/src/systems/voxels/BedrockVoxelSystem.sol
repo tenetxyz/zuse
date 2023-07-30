@@ -7,9 +7,13 @@ import { VoxelVariantsRegistryData } from "@tenet-registry/src/codegen/tables/Vo
 import { NoaBlockType } from "@tenet-registry/src/codegen/Types.sol";
 import { registerVoxelVariant, registerVoxelType } from "@tenet-registry/src/Utils.sol";
 import { CAVoxelConfig } from "@tenet-level2-ca/src/codegen/Tables.sol";
-import { REGISTRY_ADDRESS, BedrockVoxelID, BedrockVoxelVariantID, BedrockTexture, BedrockUVWrap } from "@tenet-level2-ca/src/Constants.sol";
+import { REGISTRY_ADDRESS, BedrockVoxelID } from "@tenet-level2-ca/src/Constants.sol";
 import { VoxelCoord } from "@tenet-utils/src/Types.sol";
 import { AirVoxelID } from "@tenet-base-ca/src/Constants.sol";
+
+bytes32 constant BedrockVoxelVariantID = bytes32(keccak256("bedrock"));
+string constant BedrockTexture = "bafkreidfo756faklwx7o4q2753rxjqx6egzpmqh2zhylxaehqalvws555a";
+string constant BedrockUVWrap = "bafkreihdit6glam7sreijo7itbs7uwc2ltfeuvcfaublxf6rjo24hf6t4y";
 
 contract BedrockVoxelSystem is System {
   function registerVoxelBedrock() public {
@@ -43,7 +47,13 @@ contract BedrockVoxelSystem is System {
 
   function exitWorldBecrock(address callerAddress, VoxelCoord memory coord, bytes32 entity) public {}
 
-  function variantSelectorBedrock(address callerAddress, bytes32 entity) public view returns (bytes32) {
+  function variantSelectorBedrock(
+    address callerAddress,
+    bytes32 entity,
+    bytes32[] memory neighbourEntityIds,
+    bytes32[] memory childEntityIds,
+    bytes32 parentEntity
+  ) public view returns (bytes32) {
     return BedrockVoxelVariantID;
   }
 }

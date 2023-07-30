@@ -5,22 +5,22 @@ import { IWorld } from "@tenet-level2-ca/src/codegen/world/IWorld.sol";
 import { SingleVoxelInteraction } from "@tenet-base-ca/src/prototypes/SingleVoxelInteraction.sol";
 import { BlockDirection } from "@tenet-utils/src/Types.sol";
 import { getOppositeDirection } from "@tenet-utils/src/VoxelCoordUtils.sol";
-import { CAVoxelInteractionConfig, Signal, SignalData, InvertedSignal, InvertedSignalData } from "@tenet-level2-ca/src/codegen/Tables.sol";
-import { entityIsSignal, entityIsSignalSource, entityIsInvertedSignal } from "@tenet-level2-ca/src/InteractionUtils.sol";
+import { CAVoxelInteractionConfig, PoweredData, Powered, Signal, SignalData } from "@tenet-level2-ca/src/codegen/Tables.sol";
+import { entityIsPowered, entityIsSignal, entityIsSignalSource } from "@tenet-level2-ca/src/InteractionUtils.sol";
 
-contract SignalSystem is SingleVoxelInteraction {
-  function registerInteractionSignal() public {
+contract PoweredSystem is SingleVoxelInteraction {
+  function registerInteractionPowered() public {
     address world = _world();
-    CAVoxelInteractionConfig.push(IWorld(world).eventHandlerSignal.selector);
+    CAVoxelInteractionConfig.push(IWorld(world).eventHandlerPowered.selector);
   }
 
   function runSingleInteraction(
     address callerAddress,
-    bytes32 signalEntity,
+    bytes32 poweredEntity,
     bytes32 compareEntity,
     BlockDirection compareBlockDirection
   ) internal override returns (bool changedEntity) {
-    SignalData memory signalData = Signal.get(callerAddress, signalEntity);
+    PoweredData memory poweredData = Powered.get(callerAddress, poweredEntity);
     changedEntity = false;
 
     if (
@@ -33,45 +33,40 @@ contract SignalSystem is SingleVoxelInteraction {
     }
 
     bool compareIsSignalSource = entityIsSignalSource(callerAddress, compareEntity);
-    bool compareIsActiveGenerator = false;
-    // bool compareIsActiveGenerator = entityIsGenerator(compareEntity, callerAddress) &&
-    //   Generator.get(callerAddress, compareEntity).genRate > 0;
     bool compareIsActiveSignal = entityIsSignal(callerAddress, compareEntity);
     if (compareIsActiveSignal) {
       SignalData memory compareSignalData = Signal.get(callerAddress, compareEntity);
       compareIsActiveSignal =
         compareSignalData.isActive &&
-        compareSignalData.direction != getOppositeDirection(compareBlockDirection);
+        (compareSignalData.direction == compareBlockDirection || compareBlockDirection == BlockDirection.Down);
     }
-    bool compareIsActiveInvertedSignal = entityIsInvertedSignal(callerAddress, compareEntity);
-    if (compareIsActiveInvertedSignal) {
-      InvertedSignalData memory compareInvertedSignalData = InvertedSignal.get(callerAddress, compareEntity);
-      compareIsActiveInvertedSignal = compareInvertedSignalData.isActive;
-    }
+    bool compareIsActivePowerSignal = false;
+    // bool compareIsActivePowerSignal = entityIsPowerSignal(callerAddress, compareEntity);
+    // if (compareIsActivePowerSignal) {
+    //   PowerSignalData memory comparePowerSignalData = PowerSignal.get(callerAddress, compareEntity);
+    //   compareIsActivePowerSignal =
+    //     comparePowerSignalData.isActive &&
+    //     (comparePowerSignalData.direction == compareBlockDirection || compareBlockDirection == BlockDirection.Down);
+    // }
 
-    if (signalData.isActive) {
+    if (poweredData.isActive) {
       // if we're active and the source direction is the same as the compare block direction
       // and if the compare entity is not active, we should become inactive
-      if (signalData.direction == compareBlockDirection) {
-        if (
-          !compareIsActiveGenerator &&
-          !compareIsSignalSource &&
-          !compareIsActiveSignal &&
-          !compareIsActiveInvertedSignal
-        ) {
-          signalData.isActive = false;
-          signalData.direction = BlockDirection.None;
-          Signal.set(callerAddress, signalEntity, signalData);
+      if (poweredData.direction == compareBlockDirection) {
+        if (!compareIsSignalSource && !compareIsActiveSignal && !compareIsActivePowerSignal) {
+          poweredData.isActive = false;
+          poweredData.direction = BlockDirection.None;
+          Powered.set(callerAddress, poweredEntity, poweredData);
           changedEntity = true;
         }
       }
     } else {
       // if we're not active, and the compare entity is active, we should become active
-      // compare entity could be a signal source, or it could be an active signal
-      if (compareIsSignalSource || compareIsActiveSignal || compareIsActiveInvertedSignal || compareIsActiveGenerator) {
-        signalData.isActive = true;
-        signalData.direction = compareBlockDirection;
-        Signal.set(callerAddress, signalEntity, signalData);
+      // compare entity could be a signal source, or it could be an active signal that's in our direction or below us
+      if (compareIsSignalSource || compareIsActiveSignal || compareIsActivePowerSignal) {
+        poweredData.isActive = true;
+        poweredData.direction = compareBlockDirection;
+        Powered.set(callerAddress, poweredEntity, poweredData);
         changedEntity = true;
       }
     }
@@ -80,10 +75,10 @@ contract SignalSystem is SingleVoxelInteraction {
   }
 
   function entityShouldInteract(address callerAddress, bytes32 entityId) internal view override returns (bool) {
-    return entityIsSignal(callerAddress, entityId);
+    return entityIsPowered(callerAddress, entityId);
   }
 
-  function eventHandlerSignal(
+  function eventHandlerPowered(
     address callerAddress,
     bytes32 centerEntityId,
     bytes32[] memory neighbourEntityIds,

@@ -4,12 +4,15 @@ pragma solidity >=0.8.0;
 import { IStore } from "@latticexyz/store/src/IStore.sol";
 import { System } from "@latticexyz/world/src/System.sol";
 import { hasKey } from "@latticexyz/world/src/modules/keysintable/hasKey.sol";
+import { VoxelTypeRegistry } from "@tenet-registry/src/codegen/tables/VoxelTypeRegistry.sol";
 import { CAPosition, CAPositionData, CAPositionTableId } from "@tenet-base-ca/src/codegen/tables/CAPosition.sol";
 import { CAVoxelInteractionConfig } from "@tenet-base-ca/src/codegen/tables/CAVoxelInteractionConfig.sol";
 import { CAVoxelConfig, CAVoxelConfigTableId } from "@tenet-base-ca/src/codegen/tables/CAVoxelConfig.sol";
 import { CAVoxelType } from "@tenet-base-ca/src/codegen/tables/CAVoxelType.sol";
 import { VoxelCoord } from "@tenet-utils/src/Types.sol";
 import { getEntityAtCoord } from "@tenet-base-ca/src/Utils.sol";
+import { REGISTRY_ADDRESS } from "@tenet-base-ca/src/Constants.sol";
+import { getNeighbourEntitiesFromCaller, getChildEntitiesFromCaller, getParentEntityFromCaller } from "@tenet-base-ca/src/CallUtils.sol";
 import { safeCall, safeStaticCall } from "@tenet-utils/src/CallUtils.sol";
 
 abstract contract CA is System {
@@ -26,7 +29,14 @@ abstract contract CA is System {
     return hasKey(CAVoxelConfigTableId, CAVoxelConfig.encodeKeyTuple(voxelTypeId));
   }
 
-  function enterWorld(bytes32 voxelTypeId, VoxelCoord memory coord, bytes32 entity) public {
+  function enterWorld(
+    bytes32 voxelTypeId,
+    VoxelCoord memory coord,
+    bytes32 entity,
+    bytes32[] memory neighbourEntityIds,
+    bytes32[] memory childEntityIds,
+    bytes32 parentEntity
+  ) public {
     address callerAddress = _msgSender();
     require(isVoxelTypeAllowed(voxelTypeId), "This voxel type is not allowed in this CA");
 
@@ -48,29 +58,55 @@ abstract contract CA is System {
       "voxel enter world"
     );
 
-    bytes32 voxelVariantId = getVoxelVariant(voxelTypeId, entity);
+    bytes32 voxelVariantId = getVoxelVariant(voxelTypeId, entity, neighbourEntityIds, childEntityIds, parentEntity);
     CAVoxelType.set(callerAddress, entity, voxelTypeId, voxelVariantId);
   }
 
-  function getVoxelVariant(bytes32 voxelTypeId, bytes32 entity) public returns (bytes32) {
+  function getVoxelVariant(
+    bytes32 voxelTypeId,
+    bytes32 entity,
+    bytes32[] memory neighbourEntityIds,
+    bytes32[] memory childEntityIds,
+    bytes32 parentEntity
+  ) public returns (bytes32) {
     address callerAddress = _msgSender();
     bytes4 voxelVariantSelector = CAVoxelConfig.getVoxelVariantSelector(voxelTypeId);
     bytes memory returnData = safeStaticCall(
       _world(),
-      abi.encodeWithSelector(voxelVariantSelector, callerAddress, entity),
+      abi.encodeWithSelector(
+        voxelVariantSelector,
+        callerAddress,
+        entity,
+        neighbourEntityIds,
+        childEntityIds,
+        parentEntity
+      ),
       "voxel variant selector"
     );
     return abi.decode(returnData, (bytes32));
   }
 
-  function exitWorld(bytes32 voxelTypeId, VoxelCoord memory coord, bytes32 entity) public {
+  function exitWorld(
+    bytes32 voxelTypeId,
+    VoxelCoord memory coord,
+    bytes32 entity,
+    bytes32[] memory neighbourEntityIds,
+    bytes32[] memory childEntityIds,
+    bytes32 parentEntity
+  ) public {
     require(voxelTypeId != emptyVoxelId(), "can not mine air");
     address callerAddress = _msgSender();
     if (!hasKey(CAPositionTableId, CAPosition.encodeKeyTuple(callerAddress, entity))) {
       terrainGen(callerAddress, voxelTypeId, coord, entity);
     }
     // set to Air
-    bytes32 airVoxelVariantId = getVoxelVariant(emptyVoxelId(), entity);
+    bytes32 airVoxelVariantId = getVoxelVariant(
+      emptyVoxelId(),
+      entity,
+      neighbourEntityIds,
+      childEntityIds,
+      parentEntity
+    );
     CAVoxelType.set(callerAddress, entity, emptyVoxelId(), airVoxelVariantId);
 
     bytes4 voxelExitWorldSelector = CAVoxelConfig.getExitWorldSelector(voxelTypeId);
@@ -122,10 +158,18 @@ abstract contract CA is System {
     }
 
     for (uint256 i = 0; i < changedEntities.length; i++) {
-      if (changedEntities[i] != 0) {
-        bytes32 voxelTypeId = CAVoxelType.getVoxelTypeId(callerAddress, changedEntities[i]);
-        bytes32 voxelVariantId = getVoxelVariant(voxelTypeId, changedEntities[i]);
-        CAVoxelType.set(callerAddress, changedEntities[i], voxelTypeId, voxelVariantId);
+      bytes32 changedEntity = changedEntities[i];
+      if (changedEntity != 0) {
+        bytes32 voxelTypeId = CAVoxelType.getVoxelTypeId(callerAddress, changedEntity);
+        uint32 scale = VoxelTypeRegistry.getScale(IStore(REGISTRY_ADDRESS), voxelTypeId);
+        bytes32 voxelVariantId = getVoxelVariant(
+          voxelTypeId,
+          changedEntity,
+          getNeighbourEntitiesFromCaller(callerAddress, scale, changedEntity),
+          getChildEntitiesFromCaller(callerAddress, scale, changedEntity),
+          getParentEntityFromCaller(callerAddress, scale, changedEntity)
+        );
+        CAVoxelType.set(callerAddress, changedEntity, voxelTypeId, voxelVariantId);
       }
     }
 

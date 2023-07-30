@@ -7,9 +7,14 @@ import { VoxelVariantsRegistryData } from "@tenet-registry/src/codegen/tables/Vo
 import { NoaBlockType } from "@tenet-registry/src/codegen/Types.sol";
 import { registerVoxelVariant, registerVoxelType } from "@tenet-registry/src/Utils.sol";
 import { CAVoxelConfig, SignalSource } from "@tenet-level2-ca/src/codegen/Tables.sol";
-import { REGISTRY_ADDRESS, SignalSourceVoxelID, SignalSourceVoxelVariantID, SignalSourceTexture, SignalSourceUVWrap } from "@tenet-level2-ca/src/Constants.sol";
+import { REGISTRY_ADDRESS, SignalSourceVoxelID } from "@tenet-level2-ca/src/Constants.sol";
 import { VoxelCoord, BlockDirection } from "@tenet-utils/src/Types.sol";
 import { AirVoxelID } from "@tenet-base-ca/src/Constants.sol";
+
+bytes32 constant SignalSourceVoxelVariantID = bytes32(keccak256("signalsource"));
+
+string constant SignalSourceTexture = "bafkreifciafvv63x3nnnsdvsccp45ggcx5xczfhoaz3xy3y5k666ma2m4y";
+string constant SignalSourceUVWrap = "bafkreibyxohq35sq2fqujxffs5nfjdtfx5cmnqhnyliar2xbkqxgcd7d5u";
 
 contract SignalSourceVoxelSystem is System {
   function registerVoxelSignalSource() public {
@@ -56,7 +61,13 @@ contract SignalSourceVoxelSystem is System {
     SignalSource.deleteRecord(callerAddress, entity);
   }
 
-  function variantSelectorSignalSource(address callerAddress, bytes32 entity) public view returns (bytes32) {
+  function variantSelectorSignalSource(
+    address callerAddress,
+    bytes32 entity,
+    bytes32[] memory neighbourEntityIds,
+    bytes32[] memory childEntityIds,
+    bytes32 parentEntity
+  ) public view returns (bytes32) {
     return SignalSourceVoxelVariantID;
   }
 }

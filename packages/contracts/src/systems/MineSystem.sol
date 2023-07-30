@@ -16,7 +16,6 @@ import { addressToEntityKey } from "@tenet-utils/src/Utils.sol";
 import { removeEntityFromArray } from "@tenet-utils/src/Utils.sol";
 import { Utils } from "@latticexyz/world/src/Utils.sol";
 import { CHUNK_MAX_Y, CHUNK_MIN_Y } from "../Constants.sol";
-import { exitWorld } from "@tenet-base-ca/src/CallUtils.sol";
 import { AirVoxelID } from "@tenet-base-ca/src/Constants.sol";
 
 contract MineSystem is System {
@@ -55,7 +54,7 @@ contract MineSystem is System {
       }
     }
 
-    exitWorld(caAddress, voxelTypeId, coord, voxelToMine);
+    IWorld(_world()).exitCA(caAddress, scale, voxelTypeId, coord, voxelToMine);
 
     // Set initial voxel type
     CAVoxelTypeData memory entityCAVoxelType = CAVoxelType.get(IStore(caAddress), _world(), voxelToMine);

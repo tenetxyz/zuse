@@ -26,55 +26,6 @@ export default mudConfig({
         voxelInterfaces: "bytes",
       },
     },
-    PowerWire: {
-      keySchema: {
-        namespace: "bytes16",
-        entity: "bytes32",
-      },
-      schema: {
-        source: "bytes32",
-        destination: "bytes32",
-        transferRate: "uint256",
-        maxTransferRate: "uint256",
-        sourceDirection: "BlockDirection",
-        destinationDirection: "BlockDirection",
-        lastUpdateBlock: "uint256",
-        isBroken: "bool",
-        hasValue: "bool", // TODO: Remove this once we can install non-root modules
-      },
-    },
-    Storage: {
-      keySchema: {
-        namespace: "bytes16",
-        entity: "bytes32",
-      },
-      schema: {
-        maxStorage: "uint256",
-        energyStored: "uint256",
-        inRate: "uint256",
-        outRate: "uint256",
-        source: "bytes32",
-        destination: "bytes32",
-        sourceDirection: "BlockDirection",
-        destinationDirection: "BlockDirection",
-        hasValue: "bool", // TODO: Remove this once we can install non-root modules
-        inBlockHeightUpdate: "bytes", // BlockHeightUpdate
-        outBlockHeightUpdate: "bytes", // BlockHeightUpdate
-      },
-    },
-    Consumer: {
-      keySchema: {
-        namespace: "bytes16",
-        entity: "bytes32",
-      },
-      schema: {
-        source: "bytes32",
-        sourceDirection: "BlockDirection",
-        inRate: "uint256",
-        lastUpdateBlock: "uint256",
-        hasValue: "bool", // TODO: Remove this once we can install non-root modules
-      },
-    },
     PowerSignal: {
       keySchema: {
         namespace: "bytes16",

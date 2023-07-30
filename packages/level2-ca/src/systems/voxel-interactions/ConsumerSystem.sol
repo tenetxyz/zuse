@@ -1,32 +1,27 @@
 // SPDX-License-Identifier: MIT
 pragma solidity >=0.8.0;
 
-import { SingleVoxelInteraction } from "@tenet-contracts/src/prototypes/SingleVoxelInteraction.sol";
-import { IWorld } from "../../../src/codegen/world/IWorld.sol";
-import { Consumer, ConsumerData, PowerWire, PowerWireData, Storage, StorageData } from "../../codegen/Tables.sol";
-import { BlockDirection } from "../../codegen/Types.sol";
-import { registerExtension, entityIsPowerWire, entityIsConsumer } from "../../Utils.sol";
-import { getOppositeDirection } from "@tenet-contracts/src/Utils.sol";
-import { BlockHeightUpdate } from "@tenet-contracts/src/Types.sol";
+import { IWorld } from "@tenet-level2-ca/src/codegen/world/IWorld.sol";
+import { SingleVoxelInteraction } from "@tenet-base-ca/src/prototypes/SingleVoxelInteraction.sol";
+import { CAVoxelInteractionConfig, Consumer, ConsumerData, PowerWire, PowerWireData, Storage, StorageData } from "@tenet-level2-ca/src/codegen/Tables.sol";
+import { BlockDirection, BlockHeightUpdate } from "@tenet-utils/src/Types.sol";
+import { entityIsPowerWire, entityIsConsumer } from "@tenet-level2-ca/src/InteractionUtils.sol";
+import { getOppositeDirection } from "@tenet-utils/src/VoxelCoordUtils.sol";
 
 contract ConsumerSystem is SingleVoxelInteraction {
-  function registerInteraction() public override {
+  function registerInteractionConsumer() public {
     address world = _world();
-    registerExtension(world, "ConsumerSystem", IWorld(world).extension_ConsumerSystem_eventHandler.selector);
-  }
-
-  function entityShouldInteract(bytes32 entityId, bytes16 callerNamespace) internal view override returns (bool) {
-    return entityIsConsumer(entityId, callerNamespace);
+    CAVoxelInteractionConfig.push(IWorld(world).eventHandlerConsumer.selector);
   }
 
   function usePowerWireAsSource(
-    bytes16 callerNamespace,
+    address callerAddress,
     bytes32 powerWireEntity,
     BlockDirection powerWireDirection,
     bytes32 consumerEntity,
     ConsumerData memory consumerData
   ) internal returns (bool changedEntity) {
-    PowerWireData memory sourceWireData = PowerWire.get(callerNamespace, powerWireEntity);
+    PowerWireData memory sourceWireData = PowerWire.get(callerAddress, powerWireEntity);
     if (sourceWireData.source == bytes32(0)) {
       return false;
     }
@@ -49,28 +44,28 @@ contract ConsumerSystem is SingleVoxelInteraction {
     ) {
       consumerData.inRate = sourceWireData.transferRate;
       consumerData.lastUpdateBlock = block.number;
-      Consumer.set(callerNamespace, consumerEntity, consumerData);
+      Consumer.set(callerAddress, consumerEntity, consumerData);
       changedEntity = true;
     }
   }
 
   function runSingleInteraction(
-    bytes16 callerNamespace,
+    address callerAddress,
     bytes32 consumerEntity,
     bytes32 compareEntity,
     BlockDirection compareBlockDirection
   ) internal override returns (bool changedEntity) {
-    ConsumerData memory consumerData = Consumer.get(callerNamespace, consumerEntity);
+    ConsumerData memory consumerData = Consumer.get(callerAddress, consumerEntity);
     changedEntity = false;
 
-    bool isPowerWire = entityIsPowerWire(compareEntity, callerNamespace);
+    bool isPowerWire = entityIsPowerWire(callerAddress, compareEntity);
 
     bool doesHaveSource = consumerData.source != bytes32(0);
 
     if (!doesHaveSource) {
       if (isPowerWire) {
         changedEntity = usePowerWireAsSource(
-          callerNamespace,
+          callerAddress,
           compareEntity,
           compareBlockDirection,
           consumerEntity,
@@ -79,11 +74,11 @@ contract ConsumerSystem is SingleVoxelInteraction {
       }
     } else if (compareBlockDirection == consumerData.sourceDirection) {
       if (
-        entityIsPowerWire(consumerData.source, callerNamespace) &&
-        PowerWire.get(callerNamespace, consumerData.source).source != bytes32(0)
+        entityIsPowerWire(callerAddress, consumerData.source) &&
+        PowerWire.get(callerAddress, consumerData.source).source != bytes32(0)
       ) {
         changedEntity = usePowerWireAsSource(
-          callerNamespace,
+          callerAddress,
           compareEntity,
           compareBlockDirection,
           consumerEntity,
@@ -94,7 +89,7 @@ contract ConsumerSystem is SingleVoxelInteraction {
         consumerData.sourceDirection = BlockDirection.None;
         consumerData.inRate = 0;
         consumerData.lastUpdateBlock = block.number;
-        Consumer.set(callerNamespace, consumerEntity, consumerData);
+        Consumer.set(callerAddress, consumerEntity, consumerData);
         changedEntity = true;
       }
     }
@@ -102,10 +97,17 @@ contract ConsumerSystem is SingleVoxelInteraction {
     return changedEntity;
   }
 
-  function eventHandler(
+  function entityShouldInteract(address callerAddress, bytes32 entityId) internal view override returns (bool) {
+    return entityIsConsumer(callerAddress, entityId);
+  }
+
+  function eventHandlerConsumer(
+    address callerAddress,
     bytes32 centerEntityId,
-    bytes32[] memory neighbourEntityIds
-  ) public override returns (bytes32, bytes32[] memory) {
-    return super.eventHandler(centerEntityId, neighbourEntityIds);
+    bytes32[] memory neighbourEntityIds,
+    bytes32[] memory childEntityIds,
+    bytes32 parentEntity
+  ) public returns (bytes32, bytes32[] memory) {
+    return super.eventHandler(callerAddress, centerEntityId, neighbourEntityIds, childEntityIds, parentEntity);
   }
 }

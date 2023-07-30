@@ -179,9 +179,9 @@ const RegisterCreation: React.FC<Props> = ({ layers, formData, setFormData, rese
 
   return (
     <div className="flex flex-col gap-y-4 mt-5">
-      <h4 className="text-2xl font-bold text-black">Register New Creation</h4>
+      <h4 className="text-2xl font-bold">Register New Creation</h4>
       <div>
-        <label className="block mb-2 text-sm font-medium text-gray-900">Creation Name</label>
+        <label className="block mb-2 text-sm font-medium">Creation Name</label>
         <input
           type="text"
           placeholder="ABC"
@@ -189,11 +189,11 @@ const RegisterCreation: React.FC<Props> = ({ layers, formData, setFormData, rese
           onChange={handleInputChange}
           autoComplete={"on"}
           name="name"
-          className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
+          className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-2.5"
         />
       </div>
       <div>
-        <label className="block mb-2 text-sm font-medium text-gray-900">Description (optional)</label>
+        <label className="block mb-2 text-sm font-medium">Description (optional)</label>
         <input
           type="text"
           placeholder=""
@@ -206,20 +206,23 @@ const RegisterCreation: React.FC<Props> = ({ layers, formData, setFormData, rese
       <button
         type="button"
         onClick={onSelectCreationCorners}
-        className="py-2.5 px-5 mr-2 mb-2 text-sm font-medium text-gray-900 focus:outline-none bg-white rounded-lg border border-gray-200 hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-4 focus:ring-gray-200"
+        style={{ background: "#374147"}}
+        className="py-2.5 px-5 mb-2 text-sm focus:outline-none rounded hover:text-slate-300 focus:z-10"
       >
         {selectCreationCornerButtonLabel}
       </button>
+
       <button
-        onClick={handleSubmit}
-        disabled={isSubmitDisabled}
-        className={twMerge(
-          "text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-full sm:w-auto px-5 py-2.5 text-center",
-          isSubmitDisabled ? "opacity-50 cursor-not-allowed" : ""
-        )}
-      >
-        Submit
-      </button>
+          type="button"
+          onClick={handleSubmit}
+          disabled={isSubmitDisabled}
+          className={twMerge(
+            "py-2.5 px-5 text-sm font-bold rounded bg-amber-400 hover:bg-amber-500 text-slate-600",
+            isSubmitDisabled ? "opacity-50 cursor-not-allowed" : ""
+          )}
+        >
+          Submit
+        </button>
     </div>
   );
 };

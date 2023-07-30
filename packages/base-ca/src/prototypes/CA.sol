@@ -29,7 +29,14 @@ abstract contract CA is System {
     return hasKey(CAVoxelConfigTableId, CAVoxelConfig.encodeKeyTuple(voxelTypeId));
   }
 
-  function enterWorld(bytes32 voxelTypeId, VoxelCoord memory coord, bytes32 entity) public {
+  function enterWorld(
+    bytes32 voxelTypeId,
+    VoxelCoord memory coord,
+    bytes32 entity,
+    bytes32[] memory neighbourEntityIds,
+    bytes32[] memory childEntityIds,
+    bytes32 parentEntity
+  ) public {
     address callerAddress = _msgSender();
     require(isVoxelTypeAllowed(voxelTypeId), "This voxel type is not allowed in this CA");
 
@@ -51,7 +58,7 @@ abstract contract CA is System {
       "voxel enter world"
     );
 
-    bytes32 voxelVariantId = getVoxelVariant(voxelTypeId, entity, new bytes32[](0), new bytes32[](0), 0);
+    bytes32 voxelVariantId = getVoxelVariant(voxelTypeId, entity, neighbourEntityIds, childEntityIds, parentEntity);
     CAVoxelType.set(callerAddress, entity, voxelTypeId, voxelVariantId);
   }
 
@@ -79,14 +86,27 @@ abstract contract CA is System {
     return abi.decode(returnData, (bytes32));
   }
 
-  function exitWorld(bytes32 voxelTypeId, VoxelCoord memory coord, bytes32 entity) public {
+  function exitWorld(
+    bytes32 voxelTypeId,
+    VoxelCoord memory coord,
+    bytes32 entity,
+    bytes32[] memory neighbourEntityIds,
+    bytes32[] memory childEntityIds,
+    bytes32 parentEntity
+  ) public {
     require(voxelTypeId != emptyVoxelId(), "can not mine air");
     address callerAddress = _msgSender();
     if (!hasKey(CAPositionTableId, CAPosition.encodeKeyTuple(callerAddress, entity))) {
       terrainGen(callerAddress, voxelTypeId, coord, entity);
     }
     // set to Air
-    bytes32 airVoxelVariantId = getVoxelVariant(emptyVoxelId(), entity, new bytes32[](0), new bytes32[](0), 0);
+    bytes32 airVoxelVariantId = getVoxelVariant(
+      emptyVoxelId(),
+      entity,
+      neighbourEntityIds,
+      childEntityIds,
+      parentEntity
+    );
     CAVoxelType.set(callerAddress, entity, emptyVoxelId(), airVoxelVariantId);
 
     bytes4 voxelExitWorldSelector = CAVoxelConfig.getExitWorldSelector(voxelTypeId);

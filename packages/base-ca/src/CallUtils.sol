@@ -27,7 +27,10 @@ function enterWorld(
   address caAddress,
   bytes32 voxelTypeId,
   VoxelCoord memory coord,
-  bytes32 entity
+  bytes32 entity,
+  bytes32[] memory neighbourEntityIds,
+  bytes32[] memory childEntityIds,
+  bytes32 parentEntity
 ) returns (bytes memory) {
   return
     safeCall(
@@ -41,7 +44,10 @@ function exitWorld(
   address caAddress,
   bytes32 voxelTypeId,
   VoxelCoord memory coord,
-  bytes32 entity
+  bytes32 entity,
+  bytes32[] memory neighbourEntityIds,
+  bytes32[] memory childEntityIds,
+  bytes32 parentEntity
 ) returns (bytes memory) {
   return
     safeCall(

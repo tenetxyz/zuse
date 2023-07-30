@@ -45,7 +45,7 @@ export async function createVoxelSystem(networkLayer: NetworkLayer, noaLayer: No
     if (!isEntityInCurrentScale(entityKey, worldScale)) {
       return;
     }
-    setVoxel(position, update.value[1].voxelVariantId);
+    setVoxel(position, update.value[0].voxelVariantId);
   });
 
   // "Exit system"

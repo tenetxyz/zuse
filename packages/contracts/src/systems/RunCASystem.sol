@@ -10,11 +10,37 @@ import { CAVoxelType, CAVoxelTypeData } from "@tenet-base-ca/src/codegen/tables/
 import { NUM_VOXEL_NEIGHBOURS, MAX_VOXEL_NEIGHBOUR_UPDATE_DEPTH } from "../Constants.sol";
 import { Position, PositionData, VoxelType, VoxelTypeData } from "@tenet-contracts/src/codegen/Tables.sol";
 import { getEntityAtCoord, calculateChildCoords, calculateParentCoord } from "../Utils.sol";
-import { runInteraction } from "@tenet-base-ca/src/CallUtils.sol";
+import { runInteraction, enterWorld, exitWorld } from "@tenet-base-ca/src/CallUtils.sol";
 
 contract RunCASystem is System {
   function getVoxelTypeId(uint32 scale, bytes32 entity) public view returns (bytes32) {
     return VoxelType.getVoxelTypeId(scale, entity);
+  }
+
+  function enterCA(
+    address caAddress,
+    uint32 scale,
+    bytes32 voxelTypeId,
+    VoxelCoord memory coord,
+    bytes32 entity
+  ) public {
+    bytes32[] memory neighbourEntities = calculateNeighbourEntities(scale, entity);
+    bytes32[] memory childEntityIds = calculateChildEntities(scale, entity);
+    bytes32 parentEntity = calculateParentEntity(scale, entity);
+    enterWorld(caAddress, voxelTypeId, coord, entity, neighbourEntities, childEntityIds, parentEntity);
+  }
+
+  function exitCA(
+    address caAddress,
+    uint32 scale,
+    bytes32 voxelTypeId,
+    VoxelCoord memory coord,
+    bytes32 entity
+  ) public {
+    bytes32[] memory neighbourEntities = calculateNeighbourEntities(scale, entity);
+    bytes32[] memory childEntityIds = calculateChildEntities(scale, entity);
+    bytes32 parentEntity = calculateParentEntity(scale, entity);
+    exitWorld(caAddress, voxelTypeId, coord, entity, neighbourEntities, childEntityIds, parentEntity);
   }
 
   function calculateNeighbourEntities(uint32 scale, bytes32 centerEntity) public view returns (bytes32[] memory) {

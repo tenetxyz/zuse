@@ -13,7 +13,7 @@ import { DEFAULT_BLOCK_TEST_DISTANCE } from "../setup/setupNoaEngine";
 import { calculateCornersFromTargetedBlock } from "./createSpawnCreationOverlaySystem";
 import { FocusedUiType } from "../components/FocusedUi";
 import { Layers } from "../../../types";
-import { calculateChildCoords, calculateParentCoord, getWorldScale, voxelCoordToString } from "../../../utils/coord";
+import { calculateParentCoord, getWorldScale, voxelCoordToString } from "../../../utils/coord";
 import { renderFloatingTextAboveCoord } from "./renderFloatingText";
 import { InterfaceVoxel } from "../types";
 import { World } from "noa-engine/dist/src/lib/world";
@@ -88,7 +88,10 @@ export function createInputSystem(layers: Layers) {
     },
     network: {
       contractComponents: { Creation },
-      network: { connectedAddress },
+      network: {
+        connectedAddress,
+        config: { blockExplorer },
+      },
       streams: { balanceGwei$ },
       api: { spawnCreation, build, activate, getEntityAtPosition },
     },
@@ -350,7 +353,7 @@ export function createInputSystem(layers: Layers) {
   bindInputEvent("voxel-explorer");
   onDownInputEvent("voxel-explorer", () => {
     if (!noa.container.hasPointerLock) return;
-    window.open(network.network.config.blockExplorer);
+    window.open(blockExplorer);
   });
 
   bindInputEvent("spawn");

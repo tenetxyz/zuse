@@ -11,6 +11,7 @@ import RegisterCreation, { RegisterCreationFormData } from "./RegisterCreation";
 import CreationDetails from "./CreationDetails";
 import { VoxelTypeKey } from "../../noa/types";
 import { BaseCreation } from "../../noa/systems/createSpawnOverlaySystem";
+import { Separator } from "@/components/ui/separator";
 
 export interface CreationStoreFilters {
   search: string;
@@ -171,7 +172,7 @@ const CreationStore: React.FC<Props> = ({
         <button
           type="button"
           onClick={() => setRegisterNewCreation(true)}
-          className="py-2.5 px-5 mr-2 text-sm font-medium text-gray-900 focus:outline-none bg-white rounded-lg border border-gray-200 hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-4 focus:ring-gray-200"
+          className="py-2.5 px-5 mr-2 text-sm font-bold rounded bg-amber-400 hover:bg-amber-500 text-slate-600"
         >
           Register New Creation
         </button>
@@ -221,7 +222,7 @@ const CreationStore: React.FC<Props> = ({
         </ol>
       </nav>
       {renderMiddleContent()}
-      <hr className="h-0.5 bg-gray-300 mt-4 mb-4 border-0" />
+      <Separator className="my-4" style={{ background: "#374147" }} />
       {renderFooter()}
     </div>
   );

@@ -78,9 +78,9 @@ const ClassifierStore: React.FC<Props> = ({
           <div className="flex w-full mt-5 flex-col items-center">
             <div
               onClick={() => setShowAllCreations(true)}
-              className="w-full cursor-pointer block p-6 bg-white border border-gray-200 rounded-lg shadow hover:bg-gray-100"
+              className="w-full cursor-pointer block p-2 border border-slate-600 rounded hover:bg-slate-600"
             >
-              <h5 className="mb-2 text-2xl font-bold tracking-tight text-gray-900">All Creations</h5>
+              <h5 className="ml-4 text-lg font-bold tracking-tight">All Creations</h5>
             </div>
           </div>
         </>
@@ -130,9 +130,9 @@ const ClassifierStore: React.FC<Props> = ({
         <div className="flex w-full h-full mt-5 flex-col gap-5 items-center overflow-scroll">
           {classifiersToDisplay.map((classifier, idx) => {
             return (
-              <div key={"classifier-" + idx} className="w-full p-6 bg-white border border-gray-200 rounded-lg shadow">
-                <h5 className="mb-2 text-2xl font-bold tracking-tight text-gray-900">{classifier.name}</h5>
-                <p className="font-normal text-gray-700 leading-4">{classifier.description}</p>
+              <div key={"classifier-" + idx} className="w-full cursor-pointer block p-2 border border-slate-600 rounded hover:bg-slate-600">
+                <h5 className="ml-4 text-lg font-bold tracking-tight">{classifier.name}</h5>
+                <p className="font-normal leading-4">{classifier.description}</p>
                 <div className="flex mt-5 gap-2">
                   <button
                     type="button"

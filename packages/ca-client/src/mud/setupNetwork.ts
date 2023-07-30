@@ -14,6 +14,8 @@ export type SetupNetworkResult = Awaited<ReturnType<typeof setupNetwork>>;
 export async function setupNetwork() {
   const contractComponents = defineContractComponents(world);
   const networkConfig = await getNetworkConfig();
+  networkConfig.showInDevTools = true;
+
   const result = await setupMUDV2Network<typeof contractComponents, typeof storeConfig>({
     networkConfig,
     world,
@@ -21,6 +23,7 @@ export async function setupNetwork() {
     syncThread: "main",
     storeConfig,
     worldAbi: IWorld__factory.abi,
+    useABIInDevTools: true,
   });
 
   // Request drip from faucet

@@ -1178,6 +1178,12 @@ __metadata:
   languageName: node
   linkType: soft
 
+"@latticexyz/common@link:../../../mud/packages/common::locator=ca-client%40workspace%3Apackages%2Fca-client":
+  version: 0.0.0-use.local
+  resolution: "@latticexyz/common@link:../../../mud/packages/common::locator=ca-client%40workspace%3Apackages%2Fca-client"
+  languageName: node
+  linkType: soft
+
 "@latticexyz/common@link:../../../mud/packages/common::locator=client%40workspace%3Apackages%2Fclient":
   version: 0.0.0-use.local
   resolution: "@latticexyz/common@link:../../../mud/packages/common::locator=client%40workspace%3Apackages%2Fclient"
@@ -1232,6 +1238,12 @@ __metadata:
   languageName: node
   linkType: soft
 
+"@latticexyz/dev-tools@link:../../../mud/packages/dev-tools::locator=ca-client%40workspace%3Apackages%2Fca-client":
+  version: 0.0.0-use.local
+  resolution: "@latticexyz/dev-tools@link:../../../mud/packages/dev-tools::locator=ca-client%40workspace%3Apackages%2Fca-client"
+  languageName: node
+  linkType: soft
+
 "@latticexyz/dev-tools@link:../../../mud/packages/dev-tools::locator=client%40workspace%3Apackages%2Fclient":
   version: 0.0.0-use.local
   resolution: "@latticexyz/dev-tools@link:../../../mud/packages/dev-tools::locator=client%40workspace%3Apackages%2Fclient"
@@ -1241,6 +1253,12 @@ __metadata:
 "@latticexyz/ecs-browser@link:../../../mud/packages/ecs-browser::locator=client%40workspace%3Apackages%2Fclient":
   version: 0.0.0-use.local
   resolution: "@latticexyz/ecs-browser@link:../../../mud/packages/ecs-browser::locator=client%40workspace%3Apackages%2Fclient"
+  languageName: node
+  linkType: soft
+
+"@latticexyz/network@link:../../../mud/packages/network::locator=ca-client%40workspace%3Apackages%2Fca-client":
+  version: 0.0.0-use.local
+  resolution: "@latticexyz/network@link:../../../mud/packages/network::locator=ca-client%40workspace%3Apackages%2Fca-client"
   languageName: node
   linkType: soft
 
@@ -1268,9 +1286,21 @@ __metadata:
   languageName: node
   linkType: soft
 
+"@latticexyz/react@link:../../../mud/packages/react::locator=ca-client%40workspace%3Apackages%2Fca-client":
+  version: 0.0.0-use.local
+  resolution: "@latticexyz/react@link:../../../mud/packages/react::locator=ca-client%40workspace%3Apackages%2Fca-client"
+  languageName: node
+  linkType: soft
+
 "@latticexyz/react@link:../../../mud/packages/react::locator=client%40workspace%3Apackages%2Fclient":
   version: 0.0.0-use.local
   resolution: "@latticexyz/react@link:../../../mud/packages/react::locator=client%40workspace%3Apackages%2Fclient"
+  languageName: node
+  linkType: soft
+
+"@latticexyz/recs@link:../../../mud/packages/recs::locator=ca-client%40workspace%3Apackages%2Fca-client":
+  version: 0.0.0-use.local
+  resolution: "@latticexyz/recs@link:../../../mud/packages/recs::locator=ca-client%40workspace%3Apackages%2Fca-client"
   languageName: node
   linkType: soft
 
@@ -1316,6 +1346,12 @@ __metadata:
   languageName: node
   linkType: soft
 
+"@latticexyz/schema-type@link:../../../mud/packages/schema-type::locator=ca-client%40workspace%3Apackages%2Fca-client":
+  version: 0.0.0-use.local
+  resolution: "@latticexyz/schema-type@link:../../../mud/packages/schema-type::locator=ca-client%40workspace%3Apackages%2Fca-client"
+  languageName: node
+  linkType: soft
+
 "@latticexyz/schema-type@link:../../../mud/packages/schema-type::locator=client%40workspace%3Apackages%2Fclient":
   version: 0.0.0-use.local
   resolution: "@latticexyz/schema-type@link:../../../mud/packages/schema-type::locator=client%40workspace%3Apackages%2Fclient"
@@ -1343,6 +1379,12 @@ __metadata:
 "@latticexyz/solecs@link:../../../mud/packages/solecs::locator=client%40workspace%3Apackages%2Fclient":
   version: 0.0.0-use.local
   resolution: "@latticexyz/solecs@link:../../../mud/packages/solecs::locator=client%40workspace%3Apackages%2Fclient"
+  languageName: node
+  linkType: soft
+
+"@latticexyz/std-client@link:../../../mud/packages/std-client::locator=ca-client%40workspace%3Apackages%2Fca-client":
+  version: 0.0.0-use.local
+  resolution: "@latticexyz/std-client@link:../../../mud/packages/std-client::locator=ca-client%40workspace%3Apackages%2Fca-client"
   languageName: node
   linkType: soft
 
@@ -1448,6 +1490,12 @@ __metadata:
   languageName: node
   linkType: soft
 
+"@latticexyz/utils@link:../../../mud/packages/utils::locator=ca-client%40workspace%3Apackages%2Fca-client":
+  version: 0.0.0-use.local
+  resolution: "@latticexyz/utils@link:../../../mud/packages/utils::locator=ca-client%40workspace%3Apackages%2Fca-client"
+  languageName: node
+  linkType: soft
+
 "@latticexyz/utils@link:../../../mud/packages/utils::locator=client%40workspace%3Apackages%2Fclient":
   version: 0.0.0-use.local
   resolution: "@latticexyz/utils@link:../../../mud/packages/utils::locator=client%40workspace%3Apackages%2Fclient"
@@ -1487,6 +1535,12 @@ __metadata:
 "@latticexyz/world@link:../../../mud/packages/world::locator=%40tenetxyz%2Futils%40workspace%3Apackages%2Futils":
   version: 0.0.0-use.local
   resolution: "@latticexyz/world@link:../../../mud/packages/world::locator=%40tenetxyz%2Futils%40workspace%3Apackages%2Futils"
+  languageName: node
+  linkType: soft
+
+"@latticexyz/world@link:../../../mud/packages/world::locator=ca-client%40workspace%3Apackages%2Fca-client":
+  version: 0.0.0-use.local
+  resolution: "@latticexyz/world@link:../../../mud/packages/world::locator=ca-client%40workspace%3Apackages%2Fca-client"
   languageName: node
   linkType: soft
 
@@ -3179,6 +3233,35 @@ box-intersect@fenomas/box-intersect:
   checksum: 2eaf6d4757400065f9b445c60e2d0835d844b86e081f6d62c92fea0ac8e8a101e61b270dba388dfb020bcc70ebd53f17612db9cd7a32e097b35ada8e9dab6b2b
   languageName: node
   linkType: hard
+
+"ca-client@workspace:packages/ca-client":
+  version: 0.0.0-use.local
+  resolution: "ca-client@workspace:packages/ca-client"
+  dependencies:
+    "@ethersproject/providers": ^5.7.2
+    "@latticexyz/common": "link:../../../mud/packages/common"
+    "@latticexyz/dev-tools": "link:../../../mud/packages/dev-tools"
+    "@latticexyz/network": "link:../../../mud/packages/network"
+    "@latticexyz/react": "link:../../../mud/packages/react"
+    "@latticexyz/recs": "link:../../../mud/packages/recs"
+    "@latticexyz/schema-type": "link:../../../mud/packages/schema-type"
+    "@latticexyz/std-client": "link:../../../mud/packages/std-client"
+    "@latticexyz/utils": "link:../../../mud/packages/utils"
+    "@latticexyz/world": "link:../../../mud/packages/world"
+    "@tenetxyz/level2-ca": "workspace:*"
+    "@types/react": ^18.2.6
+    "@types/react-dom": ^18.2.4
+    "@vitejs/plugin-react": ^3.1.0
+    "@wagmi/chains": ^0.2.22
+    eslint-plugin-react: 7.31.11
+    eslint-plugin-react-hooks: 4.6.0
+    ethers: ^5.7.2
+    react: ^18.2.0
+    react-dom: ^18.2.0
+    vite: ^4.2.1
+    wait-port: ^1.0.4
+  languageName: unknown
+  linkType: soft
 
 "cacache@npm:^17.0.0":
   version: 17.1.3

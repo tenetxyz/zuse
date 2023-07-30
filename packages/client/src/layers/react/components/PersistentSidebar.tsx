@@ -296,7 +296,7 @@ export function registerPersistentSidebar() {
         });
       }, []);
 
-      const setScale = (scaleDiff: number, getNewPosition: (currentWorldScale: number) => VoxelCoord) => {
+      const setScale = (scaleDiff: number, getNewPosition: (newWorldScale: number) => VoxelCoord) => {
         const {
           noa: { noa },
         } = layers;
@@ -323,21 +323,21 @@ export function registerPersistentSidebar() {
           // only change the world name after the zooming animation fades to black (so the user doesn't see the world unload)
           noa.worldName = newWorldScale.toString();
 
-          teleport(getNewPosition(currentWorldScale));
+          teleport(getNewPosition(newWorldScale));
         }, 200);
       };
 
       const zoomIn = (event: React.MouseEvent<HTMLButtonElement>) => {
         (event.target as HTMLElement).blur(); // lose focus on the element
-        setScale(-1, (currentWorldScale) => {
-          return calculateChildCoords(currentWorldScale + 1, position!)[0];
+        setScale(-1, (newWorldScale) => {
+          return calculateChildCoords(newWorldScale + 1, position!)[0];
         });
       };
 
       const zoomOut = (event: React.MouseEvent<HTMLButtonElement>) => {
         (event.target as HTMLElement).blur();
-        setScale(+1, (currentWorldScale) => {
-          const newPosition = calculateParentCoord(position!, currentWorldScale);
+        setScale(+1, (newWorldScale) => {
+          const newPosition = calculateParentCoord(position!, newWorldScale);
           newPosition.y += 1;
           return newPosition;
         });

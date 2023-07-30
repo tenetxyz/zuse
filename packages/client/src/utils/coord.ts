@@ -96,12 +96,13 @@ export const getWorldScale = (noa: Engine): number => {
   return parseInt(noa.worldName);
 };
 
-export function calculateChildCoords(scale: number, parentCoord: VoxelCoord): VoxelCoord[] {
+export function calculateChildCoords(parentCoord: VoxelCoord): VoxelCoord[] {
+  // Since the side length of
   const childCoords: VoxelCoord[] = new Array<VoxelCoord>(scale * scale * scale);
   let index = 0;
-  for (let dz = 0; dz < scale; dz++) {
-    for (let dy = 0; dy < scale; dy++) {
-      for (let dx = 0; dx < scale; dx++) {
+  for (let dz = 0; dz < 2; dz++) {
+    for (let dy = 0; dy < 2; dy++) {
+      for (let dx = 0; dx < 2; dx++) {
         childCoords[index] = {
           x: parentCoord.x * scale + dx,
           y: parentCoord.y * scale + dy,

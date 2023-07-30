@@ -12,7 +12,7 @@ export const TILE3_ID = keccak256("tile3");
 export const TILE4_ID = keccak256("tile4");
 export const TILE5_ID = keccak256("tile5");
 
-export const TILE_HEIGHT = 19;
+export const TILE_HEIGHT = 19; // height at level 1
 const BEDROCK_HEIGHT = -125;
 
 export function Air({ coord: { y }, scale }: TerrainState): VoxelTypeKey | undefined {

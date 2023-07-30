@@ -22,7 +22,7 @@ contract InvertedSignalVoxelSystem is System {
     }
     registerVoxelType(
       REGISTRY_ADDRESS,
-      "Signal",
+      "Inverted Signal",
       InvertedSignalVoxelID,
       invertedSignalChildVoxelTypes,
       SignalOnVoxelVariantID
@@ -41,7 +41,7 @@ contract InvertedSignalVoxelSystem is System {
     InvertedSignal.set(
       callerAddress,
       entity,
-      InvertedSignalData({ isActive: false, direction: BlockDirection.None, hasValue: true })
+      InvertedSignalData({ isActive: true, direction: BlockDirection.None, hasValue: true })
     );
   }
 

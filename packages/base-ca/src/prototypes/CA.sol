@@ -121,6 +121,14 @@ abstract contract CA is System {
       }
     }
 
+    for (uint256 i = 0; i < changedEntities.length; i++) {
+      if (changedEntities[i] != 0) {
+        bytes32 voxelTypeId = CAVoxelType.getVoxelTypeId(callerAddress, changedEntities[i]);
+        bytes32 voxelVariantId = getVoxelVariant(voxelTypeId, changedEntities[i]);
+        CAVoxelType.set(callerAddress, changedEntities[i], voxelTypeId, voxelVariantId);
+      }
+    }
+
     return changedEntities;
   }
 }

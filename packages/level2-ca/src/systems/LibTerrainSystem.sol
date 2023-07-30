@@ -4,7 +4,7 @@ pragma solidity >=0.8.0;
 //import { Perlin } from "noise/world.sol";
 //import { Perlin } from "./Perlin.sol";
 import { ABDKMath64x64 as Math } from "@tenet-utils/src/libraries/ABDKMath64x64.sol";
-import { CHUNK_MIN_Y, Biome, STRUCTURE_CHUNK, STRUCTURE_CHUNK_CENTER, Level2AirVoxelID, GrassVoxelID, DirtVoxelID, BedrockVoxelID } from "../Constants.sol";
+import { CHUNK_MIN_Y, TILE_Y, Biome, STRUCTURE_CHUNK, STRUCTURE_CHUNK_CENTER, Level2AirVoxelID, GrassVoxelID, DirtVoxelID, BedrockVoxelID } from "../Constants.sol";
 import { VoxelCoord, Tuple } from "@tenet-utils/src/Types.sol";
 import { System } from "@latticexyz/world/src/System.sol";
 import { IWorld } from "@level2-ca/src/codegen/world/IWorld.sol";
@@ -280,7 +280,7 @@ contract LibTerrainSystem is System {
   }
 
   function Air(int32 y) internal pure returns (bytes32) {
-    if (y > 9) {
+    if (y > TILE_Y) {
       return Level2AirVoxelID;
     }
 
@@ -304,7 +304,7 @@ contract LibTerrainSystem is System {
   }
 
   function Grass(int32 y) internal pure returns (bytes32) {
-    if (y == 9) {
+    if (y == TILE_Y) {
       return GrassVoxelID;
     }
 
@@ -316,7 +316,7 @@ contract LibTerrainSystem is System {
   }
 
   function Dirt(int32 y) internal pure returns (bytes32) {
-    if (y > CHUNK_MIN_Y && y < 9) {
+    if (y > CHUNK_MIN_Y && y < TILE_Y) {
       return DirtVoxelID;
     }
 

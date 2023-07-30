@@ -8,12 +8,12 @@ import { toast } from "react-toastify";
 import { Creation } from "../../react/components/CreationStore";
 import { calculateMinMax, getTargetedSpawnId, getTargetedVoxelCoord, TargetedBlock } from "../../../utils/voxels";
 import { NotificationIcon } from "../components/persistentNotification";
-import { BEDROCK_ID, TILE_HEIGHT } from "../../network/api/terrain/occurrence";
+import { BEDROCK_ID, getBedrockHeight, TILE_HEIGHT } from "../../network/api/terrain/occurrence";
 import { DEFAULT_BLOCK_TEST_DISTANCE } from "../setup/setupNoaEngine";
 import { calculateCornersFromTargetedBlock } from "./createSpawnCreationOverlaySystem";
 import { FocusedUiType } from "../components/FocusedUi";
 import { Layers } from "../../../types";
-import { calculateChildCoords, calculateParentCoord, getWorldScale, voxelCoordToString } from "../../../utils/coord";
+import { calculateParentCoord, getWorldScale, voxelCoordToString } from "../../../utils/coord";
 import { renderFloatingTextAboveCoord } from "./renderFloatingText";
 import { InterfaceVoxel } from "../types";
 import { World } from "noa-engine/dist/src/lib/world";
@@ -88,7 +88,10 @@ export function createInputSystem(layers: Layers) {
     },
     network: {
       contractComponents: { Creation },
-      network: { connectedAddress },
+      network: {
+        connectedAddress,
+        config: { blockExplorer },
+      },
       streams: { balanceGwei$ },
       api: { spawnCreation, build, activate, getEntityAtPosition },
     },
@@ -141,7 +144,7 @@ export function createInputSystem(layers: Layers) {
     if (noa.targetedBlock) {
       if (!canInteract()) return;
       const pos = noa.targetedBlock.position;
-      if (pos[1] < -63) return;
+      if (pos[1] < getBedrockHeight(getWorldScale(noa))) return;
       const miningComponent = getNoaComponentStrict<MiningVoxelComponent>(
         noa,
         noa.playerEntity,
@@ -350,7 +353,7 @@ export function createInputSystem(layers: Layers) {
   bindInputEvent("voxel-explorer");
   onDownInputEvent("voxel-explorer", () => {
     if (!noa.container.hasPointerLock) return;
-    window.open(network.network.config.blockExplorer);
+    window.open(blockExplorer);
   });
 
   bindInputEvent("spawn");

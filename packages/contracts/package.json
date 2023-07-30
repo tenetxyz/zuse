@@ -5,7 +5,7 @@
   "license": "MIT",
   "scripts": {
     "mud": "node ../../node_modules/@latticexyz/cli/dist/mud.js",
-    "build": "yarn clean && forge build",
+    "build": "forge build",
     "clean": "forge clean",
     "setLocalRegistryAddress": "node ../scripts/setRegistryAddress.js 31337 ../registry/worlds.json src/Constants.sol REGISTRY_ADDRESS",
     "setLocalBaseCAAddress": "node ../scripts/setRegistryAddress.js 31337 ../base-ca/worlds.json src/Constants.sol BASE_CA_ADDRESS",

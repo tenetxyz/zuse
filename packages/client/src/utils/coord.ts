@@ -96,7 +96,23 @@ export const getWorldScale = (noa: Engine): number => {
   return parseInt(noa.worldName);
 };
 
-export function calculateChildCoords(scale: number, parentCoord: VoxelCoord): VoxelCoord[] {
+export const getPositionInLevelAbove = (position: VoxelCoord): VoxelCoord => {
+  return { x: position.x / 2, y: position.y / 2, z: position.z / 2 };
+};
+export const getPositionInLevelBelow = (position: VoxelCoord): VoxelCoord => {
+  return { x: position.x * 2, y: position.y * 2, z: position.z * 2 };
+};
+export const getPositionInLevel1Scale = (position: VoxelCoord, scale: number): VoxelCoord => {
+  const numberOfSideLengths = Math.pow(2, scale - 1);
+  return {
+    x: position.x * numberOfSideLengths,
+    y: position.y * numberOfSideLengths,
+    z: position.z * numberOfSideLengths,
+  };
+};
+
+export function calculateChildCoords(parentCoord: VoxelCoord, scale: number): VoxelCoord[] {
+  // Since the side length of
   const childCoords: VoxelCoord[] = new Array<VoxelCoord>(scale * scale * scale);
   let index = 0;
   for (let dz = 0; dz < scale; dz++) {

@@ -24,8 +24,9 @@ export function getEntityAtPosition(
   const { Position, VoxelType } = context;
   const currentScaleInHexadecimal = to64CharAddress("0x" + scale);
   const entityKeysAtPosition = [...getEntitiesWithValue(Position, coord)].filter((entityKey) => {
-    const [_scaleInHexadecimal, entity] = entityKey.split(":");
-    return _scaleInHexadecimal == currentScaleInHexadecimal;
+    // filter out the voxels that are not at the current scale
+    const [scaleInHexadecimal, _entity] = entityKey.split(":");
+    return scaleInHexadecimal === currentScaleInHexadecimal;
   });
 
   // Prefer non-air voxels at this position

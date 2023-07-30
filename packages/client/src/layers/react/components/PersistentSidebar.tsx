@@ -297,7 +297,6 @@ export function registerPersistentSidebar() {
           noa.worldName = newWorldScale.toString();
 
           const position = playerPosition$.getValue();
-          console.log("position", position);
           teleport(getNewPosition(position));
         }, 200);
       };

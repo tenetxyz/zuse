@@ -77,6 +77,10 @@ function calculateBlockDirection(
 ) pure returns (BlockDirection) {
   if (neighborCoord.x == centerCoord.x && neighborCoord.y == centerCoord.y && neighborCoord.z == centerCoord.z) {
     return BlockDirection.None;
+  } else if (neighborCoord.y > centerCoord.y) {
+    return BlockDirection.Up;
+  } else if (neighborCoord.y < centerCoord.y) {
+    return BlockDirection.Down;
   } else if (neighborCoord.z > centerCoord.z) {
     if (neighborCoord.x > centerCoord.x) {
       return BlockDirection.NorthEast;
@@ -105,6 +109,10 @@ function calculateBlockDirection(
 function getOppositeDirection(BlockDirection direction) pure returns (BlockDirection) {
   if (direction == BlockDirection.None) {
     return BlockDirection.None;
+  } else if (direction == BlockDirection.Up) {
+    return BlockDirection.Down;
+  } else if (direction == BlockDirection.Down) {
+    return BlockDirection.Up;
   } else if (direction == BlockDirection.North) {
     return BlockDirection.South;
   } else if (direction == BlockDirection.South) {

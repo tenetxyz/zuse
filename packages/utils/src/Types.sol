@@ -26,5 +26,7 @@ enum BlockDirection {
   NorthEast,
   NorthWest,
   SouthEast,
-  SouthWest
+  SouthWest,
+  Up,
+  Down
 }

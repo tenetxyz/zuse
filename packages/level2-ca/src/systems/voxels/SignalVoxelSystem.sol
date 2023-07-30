@@ -7,9 +7,18 @@ import { VoxelVariantsRegistryData } from "@tenet-registry/src/codegen/tables/Vo
 import { NoaBlockType } from "@tenet-registry/src/codegen/Types.sol";
 import { registerVoxelVariant, registerVoxelType } from "@tenet-registry/src/Utils.sol";
 import { CAVoxelConfig, Signal, SignalData } from "@tenet-level2-ca/src/codegen/Tables.sol";
-import { REGISTRY_ADDRESS, SignalVoxelID, SignalOffVoxelVariantID, SignalOnVoxelVariantID, SignalOnTexture, SignalOffTexture, SignalOffUVWrap, SignalOnUVWrap } from "@tenet-level2-ca/src/Constants.sol";
+import { REGISTRY_ADDRESS, SignalVoxelID } from "@tenet-level2-ca/src/Constants.sol";
 import { VoxelCoord, BlockDirection } from "@tenet-utils/src/Types.sol";
 import { AirVoxelID } from "@tenet-base-ca/src/Constants.sol";
+
+bytes32 constant SignalOffVoxelVariantID = bytes32(keccak256("signal.off"));
+bytes32 constant SignalOnVoxelVariantID = bytes32(keccak256("signal.on"));
+
+string constant SignalOffTexture = "bafkreihofjdel3lyz2vbqq6txdujbjvg2mqsaeczxeb7gszj2ltmhpinui";
+string constant SignalOnTexture = "bafkreihitx2k2hpnqnxmdpc5qgsuexeqkvshlezzfwzdh7u3av6x3ar7qy";
+
+string constant SignalOffUVWrap = "bafkreifdtu65gok35bevprpupxucirs2tan2k77444sl67stdhdgzwffra";
+string constant SignalOnUVWrap = "bafkreib3vwppyquoziyisfjz3eodmtg6nneenkp2ejy7e3itycdfamm2ye";
 
 contract SignalVoxelSystem is System {
   function registerVoxelSignal() public {
@@ -58,7 +67,13 @@ contract SignalVoxelSystem is System {
     Signal.deleteRecord(callerAddress, entity);
   }
 
-  function variantSelectorSignal(address callerAddress, bytes32 entity) public view returns (bytes32) {
+  function variantSelectorSignal(
+    address callerAddress,
+    bytes32 entity,
+    bytes32[] memory neighbourEntityIds,
+    bytes32[] memory childEntityIds,
+    bytes32 parentEntity
+  ) public view returns (bytes32) {
     SignalData memory signalData = Signal.get(callerAddress, entity);
     if (signalData.isActive) {
       return SignalOnVoxelVariantID;

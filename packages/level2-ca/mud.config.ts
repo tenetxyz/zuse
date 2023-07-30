@@ -67,6 +67,28 @@ export default mudConfig({
         hasValue: "bool", // TODO: Remove this once we can install non-root modules
       },
     },
+    Powered: {
+      keySchema: {
+        callerAddress: "address",
+        entity: "bytes32",
+      },
+      schema: {
+        isActive: "bool",
+        direction: "BlockDirection",
+        hasValue: "bool", // TODO: Remove this once we can install non-root modules
+      },
+    },
+    InvertedSignal: {
+      keySchema: {
+        callerAddress: "address",
+        entity: "bytes32",
+      },
+      schema: {
+        isActive: "bool",
+        direction: "BlockDirection",
+        hasValue: "bool", // TODO: Remove this once we can install non-root modules
+      },
+    },
   },
   systems: {
     AirVoxelSystem: {
@@ -91,11 +113,6 @@ export default mudConfig({
     },
     WireVoxelSystem: {
       name: "WireVoxelSystem",
-      openAccess: false,
-      accessList: ["CASystem"],
-    },
-    WireSystem: {
-      name: "WireSystem",
       openAccess: false,
       accessList: ["CASystem"],
     },

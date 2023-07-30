@@ -13,7 +13,6 @@ import { CAVoxelType, CAVoxelTypeData } from "@tenet-base-ca/src/codegen/tables/
 import { calculateChildCoords, getEntityAtCoord } from "../Utils.sol";
 import { getUniqueEntity } from "@latticexyz/world/src/modules/uniqueentity/getUniqueEntity.sol";
 import { addressToEntityKey } from "@tenet-utils/src/Utils.sol";
-import { enterWorld } from "@tenet-base-ca/src/CallUtils.sol";
 
 contract BuildSystem is System {
   function build(uint32 scale, bytes32 entity, VoxelCoord memory coord) public returns (bytes32) {
@@ -55,7 +54,7 @@ contract BuildSystem is System {
     }
 
     // Enter World
-    enterWorld(caAddress, voxelTypeId, coord, voxelToBuild);
+    IWorld(_world()).enterCA(caAddress, scale, voxelTypeId, coord, voxelToBuild);
 
     // Set initial voxel type
     CAVoxelTypeData memory entityCAVoxelType = CAVoxelType.get(IStore(caAddress), _world(), voxelToBuild);

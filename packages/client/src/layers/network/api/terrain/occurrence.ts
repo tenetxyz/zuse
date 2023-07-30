@@ -15,6 +15,11 @@ export const TILE5_ID = keccak256("tile5");
 export const TILE_HEIGHT = 0; // height at level 1. Note: if this is nonzero, we need to use getPositionInLevel1Scale in the functions below (when comparing the y)
 const BEDROCK_HEIGHT = -128;
 
+export function getBedrockHeight(scale: number): number {
+  // This logic doesn't match with the contracts rn, cause the contracts doens't consider scale (thinks that it's -128). whatever
+  return getPositionInLevel1Scale({ x: 0, y: BEDROCK_HEIGHT, z: 0 }, scale).y;
+}
+
 export function Air({ coord: { y }, scale }: TerrainState): VoxelTypeKey | undefined {
   if (y > TILE_HEIGHT)
     return {
@@ -24,7 +29,7 @@ export function Air({ coord: { y }, scale }: TerrainState): VoxelTypeKey | undef
 }
 
 export function Bedrock({ coord: { y }, scale }: TerrainState): VoxelTypeKey | undefined {
-  const BEDROCK_Y = getPositionInLevel1Scale({ x: 0, y: BEDROCK_HEIGHT, z: 0 }, scale).y;
+  const BEDROCK_Y = getBedrockHeight(scale);
   if (y <= BEDROCK_Y)
     return {
       voxelBaseTypeId: BEDROCK_ID,
@@ -75,7 +80,7 @@ export function Dirt(state: TerrainState): VoxelTypeKey | undefined {
     coord: { y },
     scale,
   } = state;
-  const BEDROCK_Y = getPositionInLevel1Scale({ x: 0, y: BEDROCK_HEIGHT, z: 0 }, scale).y;
+  const BEDROCK_Y = getBedrockHeight(scale);
 
   if (y <= BEDROCK_Y || y >= TILE_HEIGHT) {
     return;

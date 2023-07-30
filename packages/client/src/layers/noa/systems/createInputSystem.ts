@@ -8,7 +8,7 @@ import { toast } from "react-toastify";
 import { Creation } from "../../react/components/CreationStore";
 import { calculateMinMax, getTargetedSpawnId, getTargetedVoxelCoord, TargetedBlock } from "../../../utils/voxels";
 import { NotificationIcon } from "../components/persistentNotification";
-import { BEDROCK_ID, TILE_HEIGHT } from "../../network/api/terrain/occurrence";
+import { BEDROCK_ID, getBedrockHeight, TILE_HEIGHT } from "../../network/api/terrain/occurrence";
 import { DEFAULT_BLOCK_TEST_DISTANCE } from "../setup/setupNoaEngine";
 import { calculateCornersFromTargetedBlock } from "./createSpawnCreationOverlaySystem";
 import { FocusedUiType } from "../components/FocusedUi";
@@ -144,7 +144,7 @@ export function createInputSystem(layers: Layers) {
     if (noa.targetedBlock) {
       if (!canInteract()) return;
       const pos = noa.targetedBlock.position;
-      if (pos[1] < -63) return;
+      if (pos[1] < getBedrockHeight(getWorldScale(noa))) return;
       const miningComponent = getNoaComponentStrict<MiningVoxelComponent>(
         noa,
         noa.playerEntity,

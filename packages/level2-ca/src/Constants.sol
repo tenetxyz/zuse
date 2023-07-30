@@ -33,7 +33,8 @@ string constant SignalOffUVWrap = "bafkreifdtu65gok35bevprpupxucirs2tan2k77444sl
 string constant SignalOnUVWrap = "bafkreib3vwppyquoziyisfjz3eodmtg6nneenkp2ejy7e3itycdfamm2ye";
 
 int32 constant CHUNK_MAX_Y = 255;
-int32 constant CHUNK_MIN_Y = -63;
+int32 constant CHUNK_MIN_Y = -128;
+int32 constant TILE_Y = 0;
 
 // Terrain
 enum Biome {

@@ -9,7 +9,4 @@ string constant CA_RUN_INTERACTION_SIG = "runInteraction(bytes32,bytes32[],bytes
 
 bytes32 constant AirVoxelID = bytes32(keccak256("air"));
 bytes32 constant AirVoxelVariantID = bytes32(keccak256("air"));
-
 bytes32 constant ElectronVoxelID = bytes32(keccak256("electron"));
-bytes32 constant ElectronVoxelVariantID = bytes32(keccak256("electron"));
-string constant ElectronTexture = "bafkreigrssavucschngym657tmepaqe2mmjyjoc7arznjygjsfdfi2cxny";

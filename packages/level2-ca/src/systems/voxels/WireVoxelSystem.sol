@@ -7,9 +7,18 @@ import { VoxelVariantsRegistryData } from "@tenet-registry/src/codegen/tables/Vo
 import { NoaBlockType } from "@tenet-registry/src/codegen/Types.sol";
 import { registerVoxelVariant, registerVoxelType } from "@tenet-registry/src/Utils.sol";
 import { CAVoxelConfig } from "@tenet-level2-ca/src/codegen/Tables.sol";
-import { REGISTRY_ADDRESS, WireVoxelID, WireOffVoxelVariantID, WireOnVoxelVariantID, WireOnTexture, WireOffTexture, WireOnUVWrap, WireOffUVWrap } from "@tenet-level2-ca/src/Constants.sol";
+import { REGISTRY_ADDRESS, WireVoxelID } from "@tenet-level2-ca/src/Constants.sol";
 import { VoxelCoord } from "@tenet-utils/src/Types.sol";
 import { ElectronVoxelID } from "@tenet-base-ca/src/Constants.sol";
+
+bytes32 constant WireOffVoxelVariantID = bytes32(keccak256("wire.off"));
+bytes32 constant WireOnVoxelVariantID = bytes32(keccak256("wire.on"));
+
+string constant WireOffTexture = "bafkreict4muklnulzho2xm73eupjehofskrotwk3d4aiagyckho2hhxwoq";
+string constant WireOnTexture = "bafkreibm3kna5kjjwusivjiq3ip6ormyc2rxwrhomwiolgmwgdurlqrnhq";
+
+string constant WireOffUVWrap = "bafkreiffca6iq4562ko5m57lq6drti27bzwxcdpbq5xcgpraxcv7knr5qa";
+string constant WireOnUVWrap = "bafkreia3okzu23ncgtcgrdmgb2zgvawyqndssuxwbzt5nf4ktxvepexz3m";
 
 contract WireVoxelSystem is System {
   function registerVoxelWire() public {

@@ -9,9 +9,12 @@ import { NoaBlockType } from "@tenet-registry/src/codegen/Types.sol";
 import { hasKey } from "@latticexyz/world/src/modules/keysintable/hasKey.sol";
 import { registerVoxelVariant, registerVoxelType } from "@tenet-registry/src/Utils.sol";
 import { CAVoxelConfig, CAVoxelType, ElectronTunnelSpot, ElectronTunnelSpotData, ElectronTunnelSpotTableId } from "@tenet-base-ca/src/codegen/Tables.sol";
-import { REGISTRY_ADDRESS, AirVoxelID, AirVoxelVariantID, ElectronVoxelID, ElectronVoxelVariantID, ElectronTexture } from "@tenet-base-ca/src/Constants.sol";
+import { REGISTRY_ADDRESS, AirVoxelID, AirVoxelVariantID, ElectronVoxelID } from "@tenet-base-ca/src/Constants.sol";
 import { VoxelCoord } from "@tenet-utils/src/Types.sol";
 import { getEntityAtCoord, voxelCoordToPositionData } from "@tenet-base-ca/src/Utils.sol";
+
+bytes32 constant ElectronVoxelVariantID = bytes32(keccak256("electron"));
+string constant ElectronTexture = "bafkreigrssavucschngym657tmepaqe2mmjyjoc7arznjygjsfdfi2cxny";
 
 contract ElectronVoxelSystem is System {
   function registerVoxelElectron() public {

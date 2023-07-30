@@ -7,7 +7,8 @@ import { BlockDirection } from "@tenet-utils/src/Types.sol";
 import { CAVoxelInteractionConfig, CAVoxelType, CAVoxelTypeData } from "@tenet-level2-ca/src/codegen/Tables.sol";
 import { safeCall } from "@tenet-utils/src/CallUtils.sol";
 import { AirVoxelID, ElectronVoxelID } from "@tenet-base-ca/src/Constants.sol";
-import { WireVoxelID, WireOnVoxelVariantID, WireOffVoxelVariantID } from "@tenet-level2-ca/src/Constants.sol";
+import { WireVoxelID } from "@tenet-level2-ca/src/Constants.sol";
+import { WireOnVoxelVariantID, WireOffVoxelVariantID } from "@tenet-level2-ca/src/systems/voxels/WireVOxelSystem.sol";
 
 contract WireSystem is VoxelInteraction {
   function registerInteractionWire() public {

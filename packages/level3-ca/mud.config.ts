@@ -43,7 +43,24 @@ export default mudConfig({
       },
     },
   },
+  systems: {
+    AirVoxelSystem: {
+      name: "AirVoxelSystem",
+      openAccess: false,
+      accessList: ["CASystem"],
+    },
+    RoadVoxelSystem: {
+      name: "RoadVoxelSystem",
+      openAccess: false,
+      accessList: ["CASystem"],
+    },
+  },
   modules: [
+    {
+      name: "KeysInTableModule",
+      root: true,
+      args: [resolveTableId("CAVoxelConfig")],
+    },
     {
       name: "KeysWithValueModule",
       root: true,

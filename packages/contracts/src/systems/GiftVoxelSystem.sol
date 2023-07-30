@@ -17,7 +17,7 @@ import { VoxelTypeRegistry, VoxelTypeRegistryData } from "@tenet-registry/src/co
 contract GiftVoxelSystem is System {
   function giftVoxel(bytes32 voxelTypeId) public returns (bytes32) {
     //  assert this exists in the registry
-    require(IWorld(_world()).isVoxelTypeAllowed(voxelTypeId), "Voxel type not allowed in this world");
+    require(IWorld(_world()).isVoxelTypeAllowed(voxelTypeId), "GiftVoxel: Voxel type not allowed in this world");
     VoxelTypeRegistryData memory voxelTypeData = VoxelTypeRegistry.get(IStore(REGISTRY_ADDRESS), voxelTypeId);
 
     // even if they request an entity of a type they already own, it's okay to disallow it since they would still have that entity type

@@ -26,7 +26,10 @@ contract RegisterCreationSystem is System {
   ) public returns (bytes32) {
     VoxelTypeData[] memory voxelTypes = getVoxelTypes(voxels);
     for (uint256 i = 0; i < voxelTypes.length; i++) {
-      require(IWorld(_world()).isVoxelTypeAllowed(voxelTypes[i].voxelTypeId), "Voxel type not allowed in this world");
+      require(
+        IWorld(_world()).isVoxelTypeAllowed(voxelTypes[i].voxelTypeId),
+        "RegisterL Voxel type not allowed in this world"
+      );
     }
 
     VoxelCoord[] memory voxelCoords = getVoxelCoords(voxels); // NOTE: we do not know the relative position of these voxelCoords yet (since we don't know the coords of the voxels in the base creations). So we will reposition them later

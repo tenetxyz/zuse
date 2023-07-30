@@ -101,3 +101,19 @@ function calculateBlockDirection(
     return BlockDirection.None;
   }
 }
+
+function getOppositeDirection(BlockDirection direction) pure returns (BlockDirection) {
+  if (direction == BlockDirection.None) {
+    return BlockDirection.None;
+  } else if (direction == BlockDirection.North) {
+    return BlockDirection.South;
+  } else if (direction == BlockDirection.South) {
+    return BlockDirection.North;
+  } else if (direction == BlockDirection.East) {
+    return BlockDirection.West;
+  } else if (direction == BlockDirection.West) {
+    return BlockDirection.East;
+  } else {
+    return BlockDirection.None;
+  }
+}

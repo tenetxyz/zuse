@@ -106,7 +106,7 @@ abstract contract VoxelInteraction is System {
     bytes32[] memory neighbourEntityIds,
     bytes32[] memory childEntityIds,
     bytes32 parentEntity
-  ) public returns (bytes32, bytes32[] memory) {
+  ) internal returns (bytes32, bytes32[] memory) {
     VoxelCoord memory centerPosition = getEntityPositionStrict(IStore(_world()), callerAddress, centerEntityId);
 
     // case one: center is the entity we care about, check neighbours to see if things need to change

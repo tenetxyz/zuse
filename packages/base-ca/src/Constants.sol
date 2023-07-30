@@ -12,4 +12,4 @@ bytes32 constant AirVoxelVariantID = bytes32(keccak256("air"));
 
 bytes32 constant ElectronVoxelID = bytes32(keccak256("electron"));
 bytes32 constant ElectronVoxelVariantID = bytes32(keccak256("electron"));
-string constant ElectronTexture = "bafkreibmk2qi52v4atyfka3x5ygj44vfig7ks4jz6xzxqfdzduux3fqifa";
+string constant ElectronTexture = "bafkreigrssavucschngym657tmepaqe2mmjyjoc7arznjygjsfdfi2cxny";

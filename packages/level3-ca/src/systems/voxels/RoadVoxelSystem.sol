@@ -44,7 +44,7 @@ contract RoadVoxelSystem is System {
 
   function exitWorldRoad(address callerAddress, VoxelCoord memory coord, bytes32 entity) public {}
 
-  function variantSelectorRoad(bytes32 entity) public view returns (bytes32) {
+  function variantSelectorRoad(address callerAddress, bytes32 entity) public view returns (bytes32) {
     return RoadVoxelVariantID;
   }
 }

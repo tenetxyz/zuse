@@ -85,7 +85,7 @@ contract ElectronVoxelSystem is System {
     // TODO: Remove values from ElectronTunnelSpot
   }
 
-  function variantSelectorElectron(bytes32 entity) public view returns (bytes32) {
+  function variantSelectorElectron(address callerAddress, bytes32 entity) public view returns (bytes32) {
     return ElectronVoxelVariantID;
   }
 }

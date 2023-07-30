@@ -43,7 +43,7 @@ contract DirtVoxelSystem is System {
 
   function exitWorldDirt(address callerAddress, VoxelCoord memory coord, bytes32 entity) public {}
 
-  function variantSelectorDirt(bytes32 entity) public view returns (bytes32) {
+  function variantSelectorDirt(address callerAddress, bytes32 entity) public view returns (bytes32) {
     return DirtVoxelVariantID;
   }
 }

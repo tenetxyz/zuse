@@ -12,7 +12,7 @@ import { Position, PositionData, VoxelType, VoxelTypeData } from "@tenet-contrac
 import { getEntityAtCoord, calculateChildCoords, calculateParentCoord } from "../Utils.sol";
 import { runInteraction } from "@tenet-base-ca/src/CallUtils.sol";
 
-contract CASystem is System {
+contract RunCASystem is System {
   function getVoxelTypeId(uint32 scale, bytes32 entity) public view returns (bytes32) {
     return VoxelType.getVoxelTypeId(scale, entity);
   }

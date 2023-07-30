@@ -60,7 +60,7 @@ export default mudConfig({
       accessList: ["CASystem"],
     },
     BedrockVoxelSystem: {
-      name: "BedrockVoxelSystem",
+      name: "BedrockVoxelSys",
       openAccess: false,
       accessList: ["CASystem"],
     },

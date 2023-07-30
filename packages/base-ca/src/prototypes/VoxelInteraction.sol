@@ -3,8 +3,9 @@ pragma solidity >=0.8.0;
 
 import { System } from "@latticexyz/world/src/System.sol";
 import { getCallerNamespace } from "@tenet-utils/src/Utils.sol";
+import { calculateBlockDirection } from "@tenet-utils/src/VoxelCoordUtils.sol";
 import { BlockDirection, VoxelCoord } from "@tenet-utils/src/Types.sol";
-import { getEntityPositionStrict, calculateBlockDirection } from "@base-ca/src/Utils.sol";
+import { getEntityPositionStrict } from "@base-ca/src/Utils.sol";
 
 abstract contract VoxelInteraction is System {
   function onNewNeighbour(
@@ -35,7 +36,7 @@ abstract contract VoxelInteraction is System {
     bytes32 changedCenterEntityId = 0;
     bytes32[] memory changedEntityIds = new bytes32[](neighbourEntityIds.length);
 
-    VoxelCoord memory centerPosition = getEntityPositionStrict(callerAddress, centerEntityId);
+    VoxelCoord memory centerPosition = getEntityPositionStrict(IStore(_world()), callerAddress, centerEntityId);
 
     // case one: center is the entity we care about, check neighbours to see if things need to change
     if (entityShouldInteract(callerAddress, centerEntityId)) {
@@ -48,7 +49,7 @@ abstract contract VoxelInteraction is System {
         }
 
         BlockDirection centerBlockDirection = calculateBlockDirection(
-          getEntityPositionStrict(callerAddress, neighbourEntityId),
+          getEntityPositionStrict(IStore(_world()), callerAddress, neighbourEntityId),
           centerPosition
         );
         neighbourEntityDirections[i] = centerBlockDirection;
@@ -77,7 +78,7 @@ abstract contract VoxelInteraction is System {
 
       BlockDirection centerBlockDirection = calculateBlockDirection(
         centerPosition,
-        getEntityPositionStrict(callerAddress, neighbourEntityId)
+        getEntityPositionStrict(IStore(_world()), callerAddress, neighbourEntityId)
       );
 
       bool changedEntity = onNewNeighbour(callerAddress, neighbourEntityId, centerEntityId, centerBlockDirection);

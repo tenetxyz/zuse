@@ -70,3 +70,34 @@ function getNeighbourCoords(VoxelCoord memory coord) pure returns (VoxelCoord[] 
   }
   return neighbourCoords;
 }
+
+function calculateBlockDirection(
+  VoxelCoord memory centerCoord,
+  VoxelCoord memory neighborCoord
+) pure returns (BlockDirection) {
+  if (neighborCoord.x == centerCoord.x && neighborCoord.y == centerCoord.y && neighborCoord.z == centerCoord.z) {
+    return BlockDirection.None;
+  } else if (neighborCoord.z > centerCoord.z) {
+    if (neighborCoord.x > centerCoord.x) {
+      return BlockDirection.NorthEast;
+    } else if (neighborCoord.x < centerCoord.x) {
+      return BlockDirection.NorthWest;
+    } else {
+      return BlockDirection.North;
+    }
+  } else if (neighborCoord.z < centerCoord.z) {
+    if (neighborCoord.x > centerCoord.x) {
+      return BlockDirection.SouthEast;
+    } else if (neighborCoord.x < centerCoord.x) {
+      return BlockDirection.SouthWest;
+    } else {
+      return BlockDirection.South;
+    }
+  } else if (neighborCoord.x > centerCoord.x) {
+    return BlockDirection.East;
+  } else if (neighborCoord.x < centerCoord.x) {
+    return BlockDirection.West;
+  } else {
+    return BlockDirection.None;
+  }
+}

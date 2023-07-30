@@ -28,7 +28,7 @@ contract ElectronSystem is VoxelInteraction {
     if (neighbourEntityId == 0) {
       return false;
     }
-    VoxelCoord memory baseCoord = getEntityPositionStrict(callerAddress, interactEntity);
+    VoxelCoord memory baseCoord = getEntityPositionStrict(IStore(_world()), callerAddress, interactEntity);
     (bytes32[] memory neighbourEntityIds, BlockDirection[] memory neighbourEntityDirections) = getNeighbours(
       IStore(_world()),
       callerAddress,
@@ -138,7 +138,7 @@ contract ElectronSystem is VoxelInteraction {
           revert("ElectronSystem: Cannot place electron when it's tunneling spot is already occupied (north)");
         }
 
-        VoxelCoord memory neighbourCoord = getEntityPositionStrict(callerAddress, neighbourEntityId);
+        VoxelCoord memory neighbourCoord = getEntityPositionStrict(IStore(_world()), callerAddress, neighbourEntityId);
         // Check one above
         bytes32 aboveEntity = getEntityAtCoord(
           IStore(_world()),
@@ -175,7 +175,7 @@ contract ElectronSystem is VoxelInteraction {
     bytes32[] memory childEntityIds,
     bytes32 parentEntity
   ) internal override returns (bool changedEntity) {
-    VoxelCoord memory baseCoord = getEntityPositionStrict(callerAddress, interactEntity);
+    VoxelCoord memory baseCoord = getEntityPositionStrict(IStore(_world()), callerAddress, interactEntity);
 
     requireValidElectronSpot(callerAddress, interactEntity, neighbourEntityIds, neighbourEntityDirections);
 

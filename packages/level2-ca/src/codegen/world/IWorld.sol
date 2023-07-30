@@ -5,16 +5,33 @@ pragma solidity >=0.8.0;
 
 import { IBaseWorld } from "@latticexyz/world/src/interfaces/IBaseWorld.sol";
 
-import { IComposedCASystem } from "./IComposedCASystem.sol";
+import { ICASystem } from "./ICASystem.sol";
 import { IInitSystem } from "./IInitSystem.sol";
 import { ILibTerrainSystem } from "./ILibTerrainSystem.sol";
 import { IPerlinSystem } from "./IPerlinSystem.sol";
+import { IWireSystem } from "./IWireSystem.sol";
+import { IAirVoxelSystem } from "./IAirVoxelSystem.sol";
+import { IBedrockVoxelSystem } from "./IBedrockVoxelSystem.sol";
 import { IDirtVoxelSystem } from "./IDirtVoxelSystem.sol";
+import { IGrassVoxelSystem } from "./IGrassVoxelSystem.sol";
+import { IWireVoxelSystem } from "./IWireVoxelSystem.sol";
 
 /**
  * The IWorld interface includes all systems dynamically added to the World
  * during the deploy process.
  */
-interface IWorld is IBaseWorld, IComposedCASystem, IInitSystem, ILibTerrainSystem, IPerlinSystem, IDirtVoxelSystem {
+interface IWorld is
+  IBaseWorld,
+  ICASystem,
+  IInitSystem,
+  ILibTerrainSystem,
+  IPerlinSystem,
+  IWireSystem,
+  IAirVoxelSystem,
+  IBedrockVoxelSystem,
+  IDirtVoxelSystem,
+  IGrassVoxelSystem,
+  IWireVoxelSystem
+{
 
 }

@@ -9,6 +9,8 @@ interface IElectronSystem {
   function eventHandlerElectron(
     address callerAddress,
     bytes32 centerEntityId,
-    bytes32[] memory neighbourEntityIds
+    bytes32[] memory neighbourEntityIds,
+    bytes32[] memory childEntityIds,
+    bytes32 parentEntity
   ) external returns (bytes32, bytes32[] memory);
 }

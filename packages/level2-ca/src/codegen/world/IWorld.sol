@@ -9,11 +9,12 @@ import { IComposedCASystem } from "./IComposedCASystem.sol";
 import { IInitSystem } from "./IInitSystem.sol";
 import { ILibTerrainSystem } from "./ILibTerrainSystem.sol";
 import { IPerlinSystem } from "./IPerlinSystem.sol";
+import { IDirtVoxelSystem } from "./IDirtVoxelSystem.sol";
 
 /**
  * The IWorld interface includes all systems dynamically added to the World
  * during the deploy process.
  */
-interface IWorld is IBaseWorld, IComposedCASystem, IInitSystem, ILibTerrainSystem, IPerlinSystem {
+interface IWorld is IBaseWorld, IComposedCASystem, IInitSystem, ILibTerrainSystem, IPerlinSystem, IDirtVoxelSystem {
 
 }

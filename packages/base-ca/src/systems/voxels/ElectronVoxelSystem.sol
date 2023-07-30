@@ -1,13 +1,14 @@
 // SPDX-License-Identifier: MIT
 pragma solidity >=0.8.0;
 
+import { IStore } from "@latticexyz/store/src/IStore.sol";
 import { IWorld } from "@base-ca/src/codegen/world/IWorld.sol";
 import { System } from "@latticexyz/world/src/System.sol";
 import { VoxelVariantsRegistryData } from "@tenet-registry/src/codegen/tables/VoxelVariantsRegistry.sol";
 import { NoaBlockType } from "@tenet-registry/src/codegen/Types.sol";
 import { hasKey } from "@latticexyz/world/src/modules/keysintable/hasKey.sol";
 import { registerVoxelVariant, registerVoxelType } from "@tenet-registry/src/Utils.sol";
-import { CAVoxelConfig, CAVoxelType, CAPosition, CAPositionData, CAPositionTableId, ElectronTunnelSpot, ElectronTunnelSpotData, ElectronTunnelSpotTableId } from "@base-ca/src/codegen/Tables.sol";
+import { CAVoxelConfig, CAVoxelType, ElectronTunnelSpot, ElectronTunnelSpotData, ElectronTunnelSpotTableId } from "@base-ca/src/codegen/Tables.sol";
 import { REGISTRY_ADDRESS, AirVoxelID, AirVoxelVariantID, ElectronVoxelID, ElectronVoxelVariantID, ElectronTexture } from "@base-ca/src/Constants.sol";
 import { VoxelCoord } from "@tenet-utils/src/Types.sol";
 import { getEntityAtCoord, voxelCoordToPositionData } from "@base-ca/src/Utils.sol";
@@ -40,8 +41,8 @@ contract ElectronVoxelSystem is System {
 
   function enterWorldElectron(address callerAddress, VoxelCoord memory coord, bytes32 entity) public {
     // Check one above
-    CAPositionData memory aboveCoord = CAPositionData(coord.x, coord.y, coord.z + 1);
-    bytes32 aboveEntity = getEntityAtCoord(callerAddress, aboveCoord);
+    VoxelCoord memory aboveCoord = VoxelCoord(coord.x, coord.y, coord.z + 1);
+    bytes32 aboveEntity = getEntityAtCoord(IStore(_world()), callerAddress, aboveCoord);
     if (hasKey(ElectronTunnelSpotTableId, ElectronTunnelSpot.encodeKeyTuple(callerAddress, entity))) {
       ElectronTunnelSpotData memory electronTunnelData = ElectronTunnelSpot.get(callerAddress, entity);
       if (electronTunnelData.atTop) {

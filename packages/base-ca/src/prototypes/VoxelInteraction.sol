@@ -2,9 +2,8 @@
 pragma solidity >=0.8.0;
 
 import { System } from "@latticexyz/world/src/System.sol";
-import { CAPositionData } from "@base-ca/src/codegen/Tables.sol";
 import { getCallerNamespace } from "@tenet-utils/src/Utils.sol";
-import { BlockDirection } from "@tenet-utils/src/Types.sol";
+import { BlockDirection, VoxelCoord } from "@tenet-utils/src/Types.sol";
 import { getEntityPositionStrict, calculateBlockDirection } from "@base-ca/src/Utils.sol";
 
 abstract contract VoxelInteraction is System {
@@ -19,7 +18,9 @@ abstract contract VoxelInteraction is System {
     address callerAddress,
     bytes32 interactEntity,
     bytes32[] memory neighbourEntityIds,
-    BlockDirection[] memory neighbourEntityDirections
+    BlockDirection[] memory neighbourEntityDirections,
+    bytes32[] memory childEntityIds,
+    bytes32 parentEntity
   ) internal virtual returns (bool changedEntity);
 
   function entityShouldInteract(address callerAddress, bytes32 entityId) internal view virtual returns (bool);
@@ -27,12 +28,14 @@ abstract contract VoxelInteraction is System {
   function eventHandler(
     address callerAddress,
     bytes32 centerEntityId,
-    bytes32[] memory neighbourEntityIds
+    bytes32[] memory neighbourEntityIds,
+    bytes32[] memory childEntityIds,
+    bytes32 parentEntity
   ) public returns (bytes32, bytes32[] memory) {
     bytes32 changedCenterEntityId = 0;
     bytes32[] memory changedEntityIds = new bytes32[](neighbourEntityIds.length);
 
-    CAPositionData memory centerPosition = getEntityPositionStrict(callerAddress, centerEntityId);
+    VoxelCoord memory centerPosition = getEntityPositionStrict(callerAddress, centerEntityId);
 
     // case one: center is the entity we care about, check neighbours to see if things need to change
     if (entityShouldInteract(callerAddress, centerEntityId)) {
@@ -50,7 +53,14 @@ abstract contract VoxelInteraction is System {
         );
         neighbourEntityDirections[i] = centerBlockDirection;
       }
-      bool changedEntity = runInteraction(callerAddress, centerEntityId, neighbourEntityIds, neighbourEntityDirections);
+      bool changedEntity = runInteraction(
+        callerAddress,
+        centerEntityId,
+        neighbourEntityIds,
+        neighbourEntityDirections,
+        childEntityIds,
+        parentEntity
+      );
       if (changedEntity) {
         changedCenterEntityId = centerEntityId;
       }

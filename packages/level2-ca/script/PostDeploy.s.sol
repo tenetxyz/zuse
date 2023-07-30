@@ -4,7 +4,6 @@ pragma solidity >=0.8.0;
 import { IWorld } from "../src/codegen/world/IWorld.sol";
 import { Script } from "forge-std/Script.sol";
 import { console } from "forge-std/console.sol";
-import { registerAir, registerDirt, registerGrass, registerBedrock, registerSignal } from "./RegisterVoxels.sol";
 
 contract PostDeploy is Script {
   function run(address worldAddress) external {
@@ -15,11 +14,11 @@ contract PostDeploy is Script {
     vm.startBroadcast(deployerPrivateKey);
 
     // Register the voxel types
-    registerAir();
-    registerDirt();
-    registerGrass();
-    registerBedrock();
-    registerSignal();
+    IWorld(worldAddress).registerVoxelAir();
+    IWorld(worldAddress).registerVoxelDirt();
+    IWorld(worldAddress).registerVoxelGrass();
+    IWorld(worldAddress).registerVoxelBedrock();
+    IWorld(worldAddress).registerVoxelWire();
 
     IWorld(worldAddress).registerCA();
 

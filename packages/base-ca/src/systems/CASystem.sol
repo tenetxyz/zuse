@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity >=0.8.0;
 
+import { IStore } from "@latticexyz/store/src/IStore.sol";
 import { IWorld } from "@base-ca/src/codegen/world/IWorld.sol";
 import { System } from "@latticexyz/world/src/System.sol";
 import { getKeysWithValue } from "@latticexyz/world/src/modules/keyswithvalue/getKeysWithValue.sol";
@@ -11,7 +12,7 @@ import { AirVoxelID, AirVoxelVariantID, ElectronVoxelID, ElectronVoxelVariantID 
 import { getEntityAtCoord, voxelCoordToPositionData } from "@base-ca/src/Utils.sol";
 import { safeCall, safeStaticCall } from "@tenet-utils/src/CallUtils.sol";
 
-contract BaseCASystem is System {
+contract CASystem is System {
   function isVoxelTypeAllowed(bytes32 voxelTypeId) public view returns (bool) {
     return hasKey(CAVoxelConfigTableId, CAVoxelConfig.encodeKeyTuple(voxelTypeId));
   }
@@ -21,7 +22,7 @@ contract BaseCASystem is System {
     require(isVoxelTypeAllowed(voxelTypeId), "This voxel type is not allowed in this CA");
 
     // Check if we can set the voxel type at this position
-    bytes32 existingEntity = getEntityAtCoord(callerAddress, voxelCoordToPositionData(coord));
+    bytes32 existingEntity = getEntityAtCoord(IStore(_world()), callerAddress, coord);
     if (existingEntity != 0) {
       require(
         CAVoxelType.get(callerAddress, existingEntity).voxelTypeId == AirVoxelID,
@@ -86,7 +87,14 @@ contract BaseCASystem is System {
       bytes4 interactionSelector = interactionSelectors[i];
       bytes memory returnData = safeCall(
         _world(),
-        abi.encodeWithSelector(interactionSelector, callerAddress, interactEntity, neighbourEntityIds),
+        abi.encodeWithSelector(
+          interactionSelector,
+          callerAddress,
+          interactEntity,
+          neighbourEntityIds,
+          childEntityIds,
+          parentEntity
+        ),
         "voxel interaction selector"
       );
       (bytes32 changedCenterEntityId, bytes32[] memory changedNeighbourEntityIds) = abi.decode(

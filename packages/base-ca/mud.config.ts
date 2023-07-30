@@ -57,17 +57,17 @@ export default mudConfig({
     AirVoxelSystem: {
       name: "AirVoxelSystem",
       openAccess: false,
-      accessList: ["BaseCASystem"],
+      accessList: ["CASystem"],
     },
     ElectronVoxelSystem: {
       name: "ElectronVoxelSys",
       openAccess: false,
-      accessList: ["BaseCASystem"],
+      accessList: ["CASystem"],
     },
     ElectronSystem: {
       name: "ElectronSystem",
       openAccess: false,
-      accessList: ["BaseCASystem"],
+      accessList: ["CASystem"],
     },
   },
   modules: [

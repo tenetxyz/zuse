@@ -1,36 +1,22 @@
 import { registerTenetComponent } from "../engine/components/TenetComponentRenderer";
-import { calculateChildCoords, calculateParentCoord, getWorldScale } from "../../../utils/coord";
+import { getPositionInLevelAbove, getPositionInLevelBelow, getWorldScale } from "../../../utils/coord";
+
 import React, { useEffect, useState, useRef } from "react";
 import { useObservableValue } from "@latticexyz/react";
 import { toast } from "react-toastify";
 import { VoxelCoord } from "@latticexyz/utils";
-import { openSidebar, closeSidebar } from "../../../layers/noa/systems/createInputSystem";
-import { Layers } from "../../../types";
+import { openSidebar } from "../../../layers/noa/systems/createInputSystem";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faArrowUp, faArrowDown, faBars } from "@fortawesome/free-solid-svg-icons";
 import styled from "styled-components";
-import { SetupContractConfig, getBurnerWallet } from "@latticexyz/std-client";
-import { registerBlockExplorer } from "./BlockExplorer";
 import { isNetworkComponentUpdateEvent, NetworkComponentUpdate } from "@latticexyz/network";
-import {
-  setComponent,
-  ComponentValue,
-  Entity,
-  getComponentValue,
-  SchemaOf,
-  getComponentEntities,
-  getComponentValueStrict,
-} from "@latticexyz/recs";
+import { Entity, getComponentValue, getComponentEntities, getComponentValueStrict } from "@latticexyz/recs";
 import { filter, scan, merge, map } from "rxjs";
-import { registerUIComponent } from "../engine";
 import { filterNullish } from "@latticexyz/utils";
 import { voxelTypeToEntity, entityToVoxelType } from "../../noa/types";
 import { AIR_ID } from "../../network/api/terrain/occurrence";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { Border } from "./common";
-import { config } from "@fortawesome/fontawesome-svg-core";
-import { Network } from "lucide-react";
+import { CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Action as ActionQueueItem } from "./Action";
 import { publicClient$, transactionHash$ } from "@latticexyz/network/dev";
 import type { PublicClient, Chain } from "viem";
@@ -147,29 +133,16 @@ export function registerPersistentSidebar() {
       const {
         noa: {
           noa,
-          components: {
-            SelectedSlot,
-            FocusedUi,
-            Tutorial,
-            PreTeleportPosition,
-            VoxelSelection,
-            SpawnCreation,
-            PersistentNotification,
-            VoxelInterfaceSelection,
-            SpawnToClassify,
-          },
+          components: { FocusedUi, SpawnCreation, PersistentNotification },
           SingletonEntity,
           api: { teleport },
           streams: { playerPosition$, zoomEvent$ },
         },
         network: {
-          network: { connectedAddress },
           ecsEvent$,
           mappings,
           contractComponents: { VoxelType },
-          network: { blockNumber$ },
-          world,
-          config: { blockExplorer },
+          network: { blockNumber$, connectedAddress },
           getVoxelIconUrl,
           actions: { Action },
           objectStore: { transactionCallbacks },
@@ -296,7 +269,7 @@ export function registerPersistentSidebar() {
         });
       }, []);
 
-      const setScale = (scaleDiff: number, getNewPosition: (newWorldScale: number) => VoxelCoord) => {
+      const setScale = (scaleDiff: number, getNewPosition: (newWorldScale: VoxelCoord) => VoxelCoord) => {
         const {
           noa: { noa },
         } = layers;
@@ -323,22 +296,26 @@ export function registerPersistentSidebar() {
           // only change the world name after the zooming animation fades to black (so the user doesn't see the world unload)
           noa.worldName = newWorldScale.toString();
 
-          teleport(getNewPosition(newWorldScale));
+          const position = playerPosition$.getValue();
+          console.log("position", position);
+          teleport(getNewPosition(position));
         }, 200);
       };
 
-      const zoomIn = (event: React.MouseEvent<HTMLButtonElement>) => {
+      const zoomIn = (event: React.MouseEvent<HTMLDivElement>) => {
         (event.target as HTMLElement).blur(); // lose focus on the element
-        setScale(-1, (newWorldScale) => {
-          return calculateChildCoords(newWorldScale + 1, position!)[0];
-        });
+        setScale(-1, getPositionInLevelBelow);
       };
 
-      const zoomOut = (event: React.MouseEvent<HTMLButtonElement>) => {
+      const zoomOut = (event: React.MouseEvent<HTMLDivElement>) => {
         (event.target as HTMLElement).blur();
-        setScale(+1, (newWorldScale) => {
-          const newPosition = calculateParentCoord(position!, newWorldScale);
-          newPosition.y += 1;
+        setScale(+1, (playerPosition) => {
+          const newPosition = getPositionInLevelAbove(playerPosition);
+          if (playerPosition.y === 1) {
+            // they were on the ground floor
+            // give them extra y so the user doesn't get stuck in the terrain
+            newPosition.y += 1;
+          }
           return newPosition;
         });
       };
@@ -464,24 +441,42 @@ export function registerPersistentSidebar() {
                   </BlockExplorerContainer>
                 </div>
                 <hr style={{ borderTop: "1px solid rgb(201, 202, 203, 0.5)", marginBottom: "4px" }} />
-                {/* <div>
-                    {position && (
+                <div>
+                  {position && (
+                    <span>
                       <span>
-                        <span>
-                          <span className="font-thin px-[0.3rem] py-[0.2rem] font-mono text-xs" style={{color: "#c8c9ca"}}> X: </span>
-                          <span className="font-mono text-sm font-semibold" > {Math.round(position.x)} </span>
+                        <span
+                          className="font-thin px-[0.3rem] py-[0.2rem] font-mono text-xs"
+                          style={{ color: "#c8c9ca" }}
+                        >
+                          {" "}
+                          X:{" "}
                         </span>
-                        <span>
-                          <span className="font-thin px-[0.3rem] py-[0.2rem] font-mono text-xs" style={{color: "#c8c9ca"}}> Y: </span>
-                          <span className="font-mono text-sm font-semibold" > {Math.round(position.y)} </span>
-                        </span>
-                        <span>
-                          <span className="font-thin px-[0.3rem] py-[0.2rem] font-mono text-xs" style={{color: "#c8c9ca"}}> Z: </span>
-                          <span className="font-mono text-sm font-semibold" > {Math.round(position.z)} </span>
-                        </span>
+                        <span className="font-mono text-sm font-semibold"> {Math.round(position.x)} </span>
                       </span>
-                      )}
-                  </div> */}
+                      <span>
+                        <span
+                          className="font-thin px-[0.3rem] py-[0.2rem] font-mono text-xs"
+                          style={{ color: "#c8c9ca" }}
+                        >
+                          {" "}
+                          Y:{" "}
+                        </span>
+                        <span className="font-mono text-sm font-semibold"> {Math.round(position.y)} </span>
+                      </span>
+                      <span>
+                        <span
+                          className="font-thin px-[0.3rem] py-[0.2rem] font-mono text-xs"
+                          style={{ color: "#c8c9ca" }}
+                        >
+                          {" "}
+                          Z:{" "}
+                        </span>
+                        <span className="font-mono text-sm font-semibold"> {Math.round(position.z)} </span>
+                      </span>
+                    </span>
+                  )}
+                </div>
                 <Badge
                   variant="secondary"
                   style={{
@@ -492,7 +487,7 @@ export function registerPersistentSidebar() {
                   }}
                 >
                   {" "}
-                  PLAYER: {layers.network.network.connectedAddress.get().slice(0, 10)}...{" "}
+                  PLAYER: {connectedAddress.get()?.slice(0, 10)}...{" "}
                 </Badge>
                 <ActionQueueList>
                   {[...getComponentEntities(Action)].reverse().map((e) => {

@@ -1,7 +1,7 @@
 import { TerrainState } from "./types";
 import { keccak256 } from "@latticexyz/utils";
 import { VoxelTypeKey } from "../../../noa/types";
-import { calculateParentCoord } from "../../../../utils/coord";
+import { calculateParentCoord, getPositionInLevel1Scale } from "../../../../utils/coord";
 
 export const AIR_ID = keccak256("air");
 export const BEDROCK_ID = keccak256("bedrock");
@@ -12,12 +12,11 @@ export const TILE3_ID = keccak256("tile3");
 export const TILE4_ID = keccak256("tile4");
 export const TILE5_ID = keccak256("tile5");
 
-export const TILE_HEIGHT = 19; // height at level 1
-const BEDROCK_HEIGHT = -125;
+export const TILE_HEIGHT = 0; // height at level 1. Note: if this is nonzero, we need to use getPositionInLevel1Scale in the functions below (when comparing the y)
+const BEDROCK_HEIGHT = -128;
 
 export function Air({ coord: { y }, scale }: TerrainState): VoxelTypeKey | undefined {
-  const GRASS_Y = calculateParentCoord({ x: 0, y: TILE_HEIGHT, z: 0 }, scale).y;
-  if (y > GRASS_Y)
+  if (y > TILE_HEIGHT)
     return {
       voxelBaseTypeId: AIR_ID,
       voxelVariantTypeId: AIR_ID,
@@ -25,7 +24,7 @@ export function Air({ coord: { y }, scale }: TerrainState): VoxelTypeKey | undef
 }
 
 export function Bedrock({ coord: { y }, scale }: TerrainState): VoxelTypeKey | undefined {
-  const BEDROCK_Y = calculateParentCoord({ x: 0, y: BEDROCK_HEIGHT, z: 0 }, scale).y;
+  const BEDROCK_Y = getPositionInLevel1Scale({ x: 0, y: BEDROCK_HEIGHT, z: 0 }, scale).y;
   if (y <= BEDROCK_Y)
     return {
       voxelBaseTypeId: BEDROCK_ID,
@@ -38,9 +37,8 @@ export function Tile(state: TerrainState): VoxelTypeKey | undefined {
     coord: { y },
     scale,
   } = state;
-  const tileY = calculateParentCoord({ x: 0, y: TILE_HEIGHT, z: 0 }, scale).y;
 
-  if (y !== tileY) {
+  if (y !== TILE_HEIGHT) {
     return;
   }
   switch (scale) {
@@ -77,10 +75,9 @@ export function Dirt(state: TerrainState): VoxelTypeKey | undefined {
     coord: { y },
     scale,
   } = state;
-  const BEDROCK_Y = calculateParentCoord({ x: 0, y: BEDROCK_HEIGHT, z: 0 }, scale).y;
-  const GRASS_Y = calculateParentCoord({ x: 0, y: TILE_HEIGHT, z: 0 }, scale).y;
+  const BEDROCK_Y = getPositionInLevel1Scale({ x: 0, y: BEDROCK_HEIGHT, z: 0 }, scale).y;
 
-  if (y <= BEDROCK_Y || y >= GRASS_Y) {
+  if (y <= BEDROCK_Y || y >= TILE_HEIGHT) {
     return;
   }
   if (scale === 2) {

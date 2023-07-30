@@ -13,11 +13,15 @@ import { SearchBar } from "./common/SearchBar";
 import {
   DropdownMenu,
   DropdownMenuContent,
-  DropdownMenuItem,
   DropdownMenuLabel,
+  DropdownMenuRadioGroup,
+  DropdownMenuRadioItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faFilter } from "@fortawesome/free-solid-svg-icons";
+import { Button } from "@/components/ui/button";
 
 export interface VoxelTypeStoreFilters {
   query: string;
@@ -55,25 +59,46 @@ export const VoxelTypeStore: React.FC<Props> = ({ layers, filters, setFilters })
 
   const { voxelTypesToDisplay } = useVoxelTypeSearch({ layers, filters, scale: filters.scale !== null ? filters.scale : undefined });
 
+  const StyledDropdownMenuRadioItem = styled(DropdownMenuRadioItem)`
+    cursor: pointer;
+    border-radius: 2px;
+    transition: background-color 0.3s ease, color 0.3s ease;
+
+    &:hover {
+      background-color: slategray;
+      color: white;
+    }
+  `;
+
   const ScaleBar: React.FC<{ value: number | null; onChange: (e: React.ChangeEvent<HTMLSelectElement>) => void }> = ({
     value,
     onChange,
   }) => {
     return (
-      <select value={value || ''} onChange={onChange}>
-        <option value="" disabled>Select Scale</option>
-        <option value="">All Scales</option>
-        {Array.from({ length: 10 }, (_, i) => i + 1).map((scale) => (
-          <option key={scale} value={scale}>
-            Scale {scale}
-          </option>
-        ))}
-      </select>
-
-
+      <DropdownMenu>
+        <DropdownMenuTrigger>
+        <Button
+          variant="ghost"
+          size="icon"
+          className="rounded ml-2 mr-1 hover:bg-slate-500 ...">
+          <FontAwesomeIcon className="h-4 w-4" icon={faFilter} style={{ color: "#C9CACB" }} />
+        </Button>
+        </DropdownMenuTrigger>
+          <DropdownMenuContent style={{ zIndex: 1000, backgroundColor: "#374147", borderRadius: "5px", width: "fit-content", color: "white", border: "1px solid transparent" }} className="w-56">
+          <DropdownMenuLabel className="font-bold" >Select Level</DropdownMenuLabel>
+          <DropdownMenuSeparator className="bg-slate-300" />
+          <DropdownMenuRadioGroup value={value === null ? "All" : value.toString()} onValueChange={(val) => onChange({ target: { value: val === "All" ? "" : val } })}>
+            <StyledDropdownMenuRadioItem value="All">All Levels</StyledDropdownMenuRadioItem>
+            {Array.from({ length: 10 }, (_, i) => i + 1).map((scale) => (
+              <StyledDropdownMenuRadioItem key={scale} value={scale.toString()}>
+                Level {scale}
+              </StyledDropdownMenuRadioItem>
+            ))}
+          </DropdownMenuRadioGroup>
+          </DropdownMenuContent>
+      </DropdownMenu>
     );
   };
-  
 
   const Slots = [...range(NUM_ROWS * NUM_COLS)].map((i) => {
     if (!voxelTypesToDisplay || i >= voxelTypesToDisplay.length) {

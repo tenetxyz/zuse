@@ -140,7 +140,7 @@ abstract contract CA is System {
       bytes32 changedEntity = changedEntities[i];
       if (changedEntity != 0) {
         bytes32 voxelTypeId = CAVoxelType.getVoxelTypeId(callerAddress, changedEntity);
-        uint32 scale = VoxelTypeRegistry.getScale(voxelTypeId);
+        uint32 scale = VoxelTypeRegistry.getScale(IStore(REGISTRY_ADDRESS), voxelTypeId);
         bytes32 voxelVariantId = getVoxelVariant(
           voxelTypeId,
           changedEntity,

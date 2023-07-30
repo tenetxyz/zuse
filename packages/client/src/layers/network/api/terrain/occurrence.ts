@@ -12,7 +12,7 @@ export const TILE3_ID = keccak256("tile3");
 export const TILE4_ID = keccak256("tile4");
 export const TILE5_ID = keccak256("tile5");
 
-export const TILE_HEIGHT = 0; // height at level 1. Note: if this is nonzero, we need to use getPositionInLevel1Scale in the functions below (when comparing the y)
+export const TILE_Y = -1; // height at level 1. Note: if this is nonzero, we need to use getPositionInLevel1Scale in the functions below (when comparing the y)
 const BEDROCK_HEIGHT = -128;
 
 export function getBedrockHeight(scale: number): number {
@@ -21,7 +21,7 @@ export function getBedrockHeight(scale: number): number {
 }
 
 export function Air({ coord: { y }, scale }: TerrainState): VoxelTypeKey | undefined {
-  if (y > TILE_HEIGHT)
+  if (y > TILE_Y)
     return {
       voxelBaseTypeId: AIR_ID,
       voxelVariantTypeId: AIR_ID,
@@ -43,7 +43,7 @@ export function Tile(state: TerrainState): VoxelTypeKey | undefined {
     scale,
   } = state;
 
-  if (y !== TILE_HEIGHT) {
+  if (y !== TILE_Y) {
     return;
   }
   switch (scale) {
@@ -82,7 +82,7 @@ export function Dirt(state: TerrainState): VoxelTypeKey | undefined {
   } = state;
   const BEDROCK_Y = getBedrockHeight(scale);
 
-  if (y <= BEDROCK_Y || y >= TILE_HEIGHT) {
+  if (y <= BEDROCK_Y || y >= TILE_Y) {
     return;
   }
   if (scale === 2) {

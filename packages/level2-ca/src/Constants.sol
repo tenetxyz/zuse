@@ -51,7 +51,7 @@ string constant SignalSourceUVWrap = "bafkreibyxohq35sq2fqujxffs5nfjdtfx5cmnqhny
 
 int32 constant CHUNK_MAX_Y = 255;
 int32 constant CHUNK_MIN_Y = -128;
-int32 constant TILE_Y = 0;
+int32 constant TILE_Y = -1;
 
 // Terrain
 enum Biome {

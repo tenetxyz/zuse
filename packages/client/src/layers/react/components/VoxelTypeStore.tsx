@@ -46,7 +46,7 @@ export interface VoxelTypeDesc {
   childVoxelTypeIds: string[];
 }
 
-export const VoxelTypeStore: React.FC<Props> = ({ layers, filters, setFilters }) => {
+export const VoxelTypeStore: React.FC<Props> = ({ layers, filters = { query: '', scale: null }, setFilters }) => {
   const {
     network: {
       contractComponents: { OwnedBy, VoxelType },
@@ -57,7 +57,8 @@ export const VoxelTypeStore: React.FC<Props> = ({ layers, filters, setFilters })
     noa: { noa },
   } = layers;
 
-  const { voxelTypesToDisplay } = useVoxelTypeSearch({ layers, filters, scale: filters.scale !== null ? filters.scale : undefined });
+  // const { voxelTypesToDisplay } = useVoxelTypeSearch({ layers, filters, scale: filters.scale !== null ? filters.scale : undefined });
+  const { voxelTypesToDisplay } = useVoxelTypeSearch({ layers, filters, scale: filters.scale });
 
   const StyledDropdownMenuRadioItem = styled(DropdownMenuRadioItem)`
     cursor: pointer;
@@ -70,7 +71,7 @@ export const VoxelTypeStore: React.FC<Props> = ({ layers, filters, setFilters })
     }
   `;
 
-  const ScaleBar: React.FC<{ value: number | null; onChange: (e: React.ChangeEvent<HTMLSelectElement>) => void }> = ({
+  const ScaleBar: React.FC<{ value: number | null; onChange: (val: string) => void }> = ({
     value,
     onChange,
   }) => {
@@ -87,7 +88,7 @@ export const VoxelTypeStore: React.FC<Props> = ({ layers, filters, setFilters })
           <DropdownMenuContent style={{ zIndex: 1000, backgroundColor: "#374147", borderRadius: "5px", width: "fit-content", color: "white", border: "1px solid transparent" }} className="w-56">
           <DropdownMenuLabel className="font-bold" >Select Level</DropdownMenuLabel>
           <DropdownMenuSeparator className="bg-slate-300" />
-          <DropdownMenuRadioGroup value={value === null ? "All" : value.toString()} onValueChange={(val) => onChange({ target: { value: val === "All" ? "" : val } })}>
+          <DropdownMenuRadioGroup value={value === null || value === undefined ? "All" : value.toString()} onValueChange={onChange}>
             <StyledDropdownMenuRadioItem value="All">All Levels</StyledDropdownMenuRadioItem>
             {Array.from({ length: 10 }, (_, i) => i + 1).map((scale) => (
               <StyledDropdownMenuRadioItem key={scale} value={scale.toString()}>
@@ -98,7 +99,7 @@ export const VoxelTypeStore: React.FC<Props> = ({ layers, filters, setFilters })
           </DropdownMenuContent>
       </DropdownMenu>
     );
-  };
+  };  
 
   const Slots = [...range(NUM_ROWS * NUM_COLS)].map((i) => {
     if (!voxelTypesToDisplay || i >= voxelTypesToDisplay.length) {
@@ -130,8 +131,6 @@ export const VoxelTypeStore: React.FC<Props> = ({ layers, filters, setFilters })
   });
 
   const tryGiftVoxel = (voxelTypeDesc: VoxelTypeDesc, previewIconUrl: string) => {
-    // It's better to do this validation off-chain since doing it on-chain is expensive.
-    // Also this is more of a UI limitation. Who knows, maybe in the future, we WILL enforce strict inventory limits
     const itemTypesIOwn = getItemTypesIOwn(noa, OwnedBy, VoxelType, connectedAddress);
     if (itemTypesIOwn.has(voxelTypeDesc.voxelBaseTypeId) || itemTypesIOwn.size < INVENTORY_WIDTH * INVENTORY_HEIGHT) {
       giftVoxel(voxelTypeDesc.voxelBaseTypeId, previewIconUrl);
@@ -139,13 +138,12 @@ export const VoxelTypeStore: React.FC<Props> = ({ layers, filters, setFilters })
       toast(`Your inventory is full! Right click on an item to delete it.`);
     }
   };
-  
 
   return (
     <div className="flex flex-col p-4">
     <div className="flex w-full">
       <SearchBar value={filters.query} onChange={(e) => setFilters({ ...filters, query: e.target.value })} />
-      <ScaleBar value={filters.scale} onChange={(e) => setFilters({ ...filters, scale: e.target.value ? parseInt(e.target.value) : null })} />
+      <ScaleBar value={filters.scale} onChange={(val) => setFilters({ ...filters, scale: val === 'All' ? null : parseInt(val) })} />
     </div>
       <div className="flex w-full mt-5 justify-center items-center">
         <ActionBarWrapper>{[...range(NUM_COLS * NUM_ROWS)].map((i) => Slots[i])}</ActionBarWrapper>

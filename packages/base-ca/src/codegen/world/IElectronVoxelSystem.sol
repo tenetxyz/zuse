@@ -12,5 +12,5 @@ interface IElectronVoxelSystem {
 
   function exitWorldElectron(address callerAddress, VoxelCoord memory coord, bytes32 entity) external;
 
-  function variantSelectorElectron(bytes32 entity) external view returns (bytes32);
+  function variantSelectorElectron(address callerAddress, bytes32 entity) external view returns (bytes32);
 }

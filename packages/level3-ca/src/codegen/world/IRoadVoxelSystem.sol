@@ -12,5 +12,5 @@ interface IRoadVoxelSystem {
 
   function exitWorldRoad(address callerAddress, VoxelCoord memory coord, bytes32 entity) external;
 
-  function variantSelectorRoad(bytes32 entity) external view returns (bytes32);
+  function variantSelectorRoad(address callerAddress, bytes32 entity) external view returns (bytes32);
 }

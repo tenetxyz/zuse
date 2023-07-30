@@ -11,6 +11,7 @@ import { CAVoxelConfig, CAVoxelConfigTableId } from "@tenet-base-ca/src/codegen/
 import { CAVoxelType } from "@tenet-base-ca/src/codegen/tables/CAVoxelType.sol";
 import { VoxelCoord } from "@tenet-utils/src/Types.sol";
 import { getEntityAtCoord } from "@tenet-base-ca/src/Utils.sol";
+import { REGISTRY_ADDRESS } from "@tenet-base-ca/src/Constants.sol";
 import { getNeighbourEntitiesFromCaller, getChildEntitiesFromCaller, getParentEntityFromCaller } from "@tenet-base-ca/src/CallUtils.sol";
 import { safeCall, safeStaticCall } from "@tenet-utils/src/CallUtils.sol";
 

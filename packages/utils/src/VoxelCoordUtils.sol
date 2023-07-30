@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0
 pragma solidity >=0.8.0;
 
-import { VoxelCoord } from "@tenet-utils/src/Types.sol";
+import { VoxelCoord, BlockDirection } from "@tenet-utils/src/Types.sol";
 import { int32ToString } from "@tenet-utils/src/StringUtils.sol";
 import { NUM_VOXEL_NEIGHBOURS } from "@tenet-utils/src/Constants.sol";
 

@@ -6,6 +6,7 @@
   "scripts": {
     "mud": "node ../../node_modules/@latticexyz/cli/dist/mud.js",
     "build": "forge build",
+    "clean": "forge clean",
     "deploy": "yarn run initialize && yarn mud deploy --installDefaultModules false --worldAddress 0x5FbDB2315678afecb367f032d93F642f64180aa3",
     "deploy:hackathon": "yarn run initialize && yarn mud deploy --profile=hackathon-testnet",
     "deploy:testnet": "yarn run initialize && yarn mud deploy --profile=lattice-testnet",

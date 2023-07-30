@@ -6,6 +6,7 @@
   "scripts": {
     "mud": "node ../../node_modules/@latticexyz/cli/dist/mud.js",
     "build": "forge build",
+    "clean": "forge clean",
     "deploy": "yarn run initialize && yarn mud deploy",
     "build:local": "yarn run setLocalRegistryAddress && yarn run initialize",
     "deploy:local": "yarn mud deploy",

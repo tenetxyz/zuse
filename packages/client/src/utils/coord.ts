@@ -103,11 +103,11 @@ export const getPositionInLevelBelow = (position: VoxelCoord): VoxelCoord => {
   return { x: position.x * 2, y: position.y * 2, z: position.z * 2 };
 };
 export const getPositionInLevel1Scale = (position: VoxelCoord, scale: number): VoxelCoord => {
-  const numberOfMultiplications = Math.pow(2, scale - 1);
+  const numberOfSideLengths = Math.pow(2, scale - 1);
   return {
-    x: position.x * numberOfMultiplications,
-    y: position.y * numberOfMultiplications,
-    z: position.z * numberOfMultiplications,
+    x: position.x * numberOfSideLengths,
+    y: position.y * numberOfSideLengths,
+    z: position.z * numberOfSideLengths,
   };
 };
 
@@ -115,9 +115,9 @@ export function calculateChildCoords(parentCoord: VoxelCoord, scale: number): Vo
   // Since the side length of
   const childCoords: VoxelCoord[] = new Array<VoxelCoord>(scale * scale * scale);
   let index = 0;
-  for (let dz = 0; dz < 2; dz++) {
-    for (let dy = 0; dy < 2; dy++) {
-      for (let dx = 0; dx < 2; dx++) {
+  for (let dz = 0; dz < scale; dz++) {
+    for (let dy = 0; dy < scale; dy++) {
+      for (let dx = 0; dx < scale; dx++) {
         childCoords[index] = {
           x: parentCoord.x * scale + dx,
           y: parentCoord.y * scale + dy,

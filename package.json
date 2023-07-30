@@ -11,7 +11,9 @@
   "scripts": {
     "anvil": "rm -rf ~/.foundry/anvil/tmp && anvil --block-time 1 --block-base-fee-per-gas 0 --host 0.0.0.0 --chain-id 31337 --gas-limit 1000000000",
     "mud": "node node_modules/@latticexyz/cli/dist/mud.js",
-    "build": "yarn workspaces run build",
+    "build": "yarn run clean && yarn workspaces run build",
+    "build-no-clean": "yarn workspaces run build",
+    "clean": "concurrently \"yarn workspace client run clean\" \"yarn workspace @tenetxyz/registry run clean\" \"yarn workspace @tenetxyz/contracts run clean\" \"yarn workspace @tenetxyz/base-ca run clean\" \"yarn workspace @tenetxyz/level2-ca run clean\" \"yarn workspace @tenetxyz/level3-ca run clean\"",
     "deploy": "concurrently -n contracts,client -c cyan,magenta \"cd packages/contracts && yarn run dev\" \"cd packages/client && yarn run deploy\"",
     "dev": "concurrently -n anvil,contracts,client -c blue,cyan,magenta \"cd packages/scripts && yarn run anvil\" \"yarn run dev:contracts\" \"yarn run dev:client\"",
     "deploy:ca": "concurrently -n base -c blue \"yarn workspace @tenetxyz/base-ca run deploy:local\" && concurrently -n level2:ca -c cyan \"yarn workspace @tenetxyz/level2-ca run deploy:local\" && concurrently -n level3-ca -c magenta \"yarn workspace @tenetxyz/level3-ca run deploy:local\"",

@@ -6,6 +6,7 @@
   "type": "module",
   "scripts": {
     "build": "NODE_OPTIONS=--max-old-space-size=16384 vite build && yarn postbuild",
+    "clean": "",
     "postbuild": "rm dist.zip; zip dist.zip -r dist",
     "dev": "yarn wait-port localhost:8545 && vite",
     "preview": "vite preview",

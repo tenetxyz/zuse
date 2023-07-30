@@ -5,6 +5,7 @@
   "license": "MIT",
   "scripts": {
     "build": "forge build",
+    "clean": "forge clean",
     "lint": "yarn run prettier && yarn run solhint",
     "prettier": "prettier --write 'src/**/*.sol'",
     "solhint": "solhint --config ./.solhint.json 'src/**/*.sol' --fix"

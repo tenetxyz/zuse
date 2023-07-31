@@ -1,9 +1,11 @@
 import { VoxelCoord } from "@latticexyz/utils";
 import { Creation } from "../layers/react/components/CreationStore";
 import { abiDecode } from "./abi";
-import { Entity, getComponentValueStrict } from "@latticexyz/recs";
+import { Entity, getComponentValue, getComponentValueStrict } from "@latticexyz/recs";
 import { decodeBaseCreations } from "./encodeOrDecode";
 import { Engine } from "noa-engine";
+import { VoxelTypeDesc } from "@/layers/react/components/VoxelTypeStore";
+import { VoxelTypeKeyInMudTable } from "@/layers/noa/types";
 
 export const ZERO_VECTOR: VoxelCoord = { x: 0, y: 0, z: 0 };
 
@@ -37,35 +39,69 @@ export function stringToVoxelCoord(coordString: string): VoxelCoord {
   };
 }
 
-export const calculateMinMaxRelativeCoordsOfCreation = (Creation: any, creationId: Entity) => {
-  const relativeVoxelCoords = getVoxelCoordsOfCreation(Creation, creationId);
+export const calculateMinMaxRelativeCoordsOfCreation = (
+  VoxelTypeRegistry: any,
+  Creation: any,
+  creationId: Entity,
+  scale: number
+) => {
+  const relativeVoxelCoords = getVoxelCoordsOfCreation(VoxelTypeRegistry, Creation, creationId, scale);
   return calculateMinMaxCoords(relativeVoxelCoords);
 };
 
 // TODO: fix the type of Creation:any. Note: I didn't want to pass in "layers" since this function is called a lot, and we'd be dereferencing layers a lot to get Creation
-export const getVoxelCoordsOfCreation = (Creation: any, creationId: Entity): VoxelCoord[] => {
+export const getVoxelCoordsOfCreation = (
+  VoxelTypeRegistry: any,
+  Creation: any,
+  creationId: Entity,
+  scale: number
+): VoxelCoord[] => {
   // PERF: if users tend to spawn the same creation multiple times we should memoize the creation fetching process
   const creation = getComponentValueStrict(Creation, creationId);
 
   // 1) Add the voxel coords from the creation itself
   const voxelCoords =
     (abiDecode("tuple(uint32 x,uint32 y,uint32 z)[]", creation.relativePositions) as VoxelCoord[]) || [];
+
+  const voxelTypes =
+    (abiDecode(
+      "tuple(bytes32 voxelTypeId, bytes32 voxelVariantId)[]",
+      creation.voxelTypes
+    ) as VoxelTypeKeyInMudTable[]) || [];
+
+  // 2) Filter out voxelCoords that are on a diff scale
+  const voxelCoordsOnScale = [];
+  for (let i = 0; i < voxelCoords.length; i++) {
+    const voxelCoord = voxelCoords[i];
+    const voxelType = voxelTypes[i];
+    // TODO: replace with strict
+    const voxelTypeDesc = getComponentValueStrict(VoxelTypeRegistry, voxelType.voxelTypeId);
+    if (voxelTypeDesc.scale === scale) {
+      voxelCoordsOnScale.push(voxelCoord);
+    }
+  }
+
   const baseCreations = decodeBaseCreations(creation.baseCreations);
 
-  // 2) add the voxel coords from the base creations
+  // 3) add the voxel coords from the base creations
   for (const baseCreation of baseCreations) {
-    const baseCreationVoxelCoords = getVoxelCoordsOfCreation(Creation, baseCreation.creationId);
+    const baseCreationVoxelCoords = getVoxelCoordsOfCreation(
+      VoxelTypeRegistry,
+      Creation,
+      baseCreation.creationId,
+      scale
+    );
     const uniqueCoords = new Set<string>(baseCreationVoxelCoords.map(voxelCoordToString));
     for (const deletedRelativeCoord of baseCreation.deletedRelativeCoords) {
       uniqueCoords.delete(voxelCoordToString(deletedRelativeCoord));
     }
-    voxelCoords.push(
+    voxelCoordsOnScale.push(
       ...Array.from(uniqueCoords)
         .map(stringToVoxelCoord)
         .map((voxelCoord) => add(voxelCoord, baseCreation.coordOffset))
     );
   }
-  return voxelCoords;
+  return voxelCoordsOnScale;
 };
 
 const calculateMinMaxCoords = (coords: VoxelCoord[]): { minCoord: VoxelCoord; maxCoord: VoxelCoord } => {

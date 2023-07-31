@@ -6,9 +6,10 @@ import { renderChunkyWireframe } from "./renderWireframes";
 import { Color3, Mesh, Nullable } from "@babylonjs/core";
 import { ISpawnCreation } from "../components/SpawnCreation";
 import { Creation } from "../../react/components/CreationStore";
-import { add, calculateMinMaxRelativeCoordsOfCreation } from "../../../utils/coord";
+import { add, calculateMinMaxRelativeCoordsOfCreation, getWorldScale } from "../../../utils/coord";
 import { VoxelCoord } from "@latticexyz/utils";
 import { TargetedBlock } from "../../../utils/voxels";
+import { Engine } from "noa-engine";
 
 export function createSpawnCreationOverlaySystem(network: NetworkLayer, noaLayer: NoaLayer) {
   const {
@@ -17,6 +18,7 @@ export function createSpawnCreationOverlaySystem(network: NetworkLayer, noaLayer
   } = noaLayer;
   const {
     contractComponents: { Creation },
+    registryComponents: { VoxelTypeRegistry },
   } = network;
 
   let creationToSpawn: Creation | undefined;
@@ -48,19 +50,36 @@ export function createSpawnCreationOverlaySystem(network: NetworkLayer, noaLayer
   };
 
   const renderCreationOutline = (creation: Creation, targetedBlock: TargetedBlock) => {
-    const { corner1, corner2 } = calculateCornersFromTargetedBlock(Creation, creation, targetedBlock);
+    const { corner1, corner2 } = calculateCornersFromTargetedBlock(
+      noa,
+      VoxelTypeRegistry,
+      Creation,
+      creation,
+      targetedBlock
+    );
     renderedCreationOutlineMesh = renderChunkyWireframe(corner1, corner2, noa, new Color3(0, 0, 1), 0.05);
   };
   // TODO: once we have rendered the right outline mesh, we need to also use this coord for the spawning location
 }
 
-export const calculateCornersFromTargetedBlock = (Creation: any, creation: Creation, targetedBlock: TargetedBlock) => {
+export const calculateCornersFromTargetedBlock = (
+  noa: Engine,
+  VoxelTypeRegistry: any,
+  Creation: any,
+  creation: Creation,
+  targetedBlock: TargetedBlock
+) => {
   const {
     adjacent: [x, y, z],
     normal: [normalX, normalY, normalZ],
   } = targetedBlock;
 
-  const { minCoord, maxCoord } = calculateMinMaxRelativeCoordsOfCreation(Creation, creation.creationId);
+  const { minCoord, maxCoord } = calculateMinMaxRelativeCoordsOfCreation(
+    VoxelTypeRegistry,
+    Creation,
+    creation.creationId,
+    getWorldScale(noa)
+  );
   const height = maxCoord.y - minCoord.y;
   const width = maxCoord.x - minCoord.x;
   const depth = maxCoord.z - minCoord.z;

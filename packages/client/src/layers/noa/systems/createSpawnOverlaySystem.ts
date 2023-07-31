@@ -4,9 +4,9 @@ import { NetworkLayer } from "../../network";
 import { NoaLayer } from "../types";
 import { renderChunkyWireframe } from "./renderWireframes";
 import { Color3, Mesh } from "@babylonjs/core";
-import { add, calculateMinMaxRelativeCoordsOfCreation, decodeCoord } from "../../../utils/coord";
+import { add, calculateMinMaxRelativeCoordsOfCreation, decodeCoord, getWorldScale } from "../../../utils/coord";
 import { Entity } from "@latticexyz/recs";
-import { VoxelCoord } from "@latticexyz/utils";
+import { VoxelCoord, awaitStreamValue } from "@latticexyz/utils";
 import { ISpawn } from "../components/SpawnInFocus";
 
 export type BaseCreation = {
@@ -21,14 +21,26 @@ export function createSpawnOverlaySystem(networkLayer: NetworkLayer, noaLayer: N
   const { noa } = noaLayer;
   const {
     contractComponents: { Spawn, Creation },
+    registryComponents: { VoxelTypeRegistry },
   } = networkLayer;
 
+  // I think there's an implicit assumption here that the spawn is done loading.
   Spawn.update$.subscribe((update) => {
     const spawnTable = update.component?.values;
     if (spawnTable === undefined) {
       return;
     }
+    renderSpawnOutlines();
+  });
+
+  // when the player zooms to a different level, we need to re-render the spawn outlines (since voxels on a spawn may not exist on that level)
+  noa.on("newWorldName", (_newWorldName: string) => {
+    renderSpawnOutlines();
+  });
+
+  const createSpawnArray = (): ISpawn[] => {
     const spawns: ISpawn[] = [];
+    const spawnTable = Spawn.values;
     spawnTable.creationId.forEach((creationId, rawSpawnId) => {
       const spawnId = rawSpawnId as any;
       const encodedLowerSouthWestCorner = spawnTable.lowerSouthWestCorner.get(spawnId)!;
@@ -42,19 +54,26 @@ export function createSpawnOverlaySystem(networkLayer: NetworkLayer, noaLayer: N
         });
       }
     });
-    renderSpawnOutlines(spawns);
-  });
+    return spawns;
+  };
 
   let spawnOutlineMeshes: Mesh[] = [];
-  const renderSpawnOutlines = (spawns: ISpawn[]) => {
+  const renderSpawnOutlines = () => {
+    const spawns = createSpawnArray();
     // PERF: only dispose of the meshes that changed
     for (let i = 0; i < spawnOutlineMeshes.length; i++) {
       spawnOutlineMeshes[i].dispose();
     }
     spawnOutlineMeshes = [];
+    const scale = getWorldScale(noa);
 
     for (const spawn of spawns) {
-      const { minCoord, maxCoord } = calculateMinMaxRelativeCoordsOfCreation(Creation, spawn.creationId);
+      const { minCoord, maxCoord } = calculateMinMaxRelativeCoordsOfCreation(
+        VoxelTypeRegistry,
+        Creation,
+        spawn.creationId,
+        scale
+      );
 
       const corner1 = add(spawn.lowerSouthWestCorner, minCoord);
       const corner2 = add(spawn.lowerSouthWestCorner, maxCoord);

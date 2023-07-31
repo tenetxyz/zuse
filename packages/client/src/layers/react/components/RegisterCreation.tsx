@@ -47,6 +47,7 @@ const RegisterCreation: React.FC<Props> = ({ layers, formData, setFormData, rese
     },
     network: {
       contractComponents: { OfSpawn, Spawn, Position, Creation },
+      registryComponents: { VoxelTypeRegistry },
       api: { getEntityAtPosition, registerCreation },
       liveStoreCache,
     },
@@ -105,7 +106,12 @@ const RegisterCreation: React.FC<Props> = ({ layers, formData, setFormData, rese
   // What if you place a spawn, and another spawn overlaps and deletes one block, will this code still work?
   // Yes. Since that block was deleted by the second spawn, it will not show up as a voxel of that spawn, so it will still be flagged as deleted
   const findDeletedVoxelCoords = (spawn: any, lowerSouthWestCornerInWorld: VoxelCoord) => {
-    const creationVoxelCoords = getVoxelCoordsOfCreation(Creation, stringToEntity(spawn.creationId));
+    const creationVoxelCoords = getVoxelCoordsOfCreation(
+      VoxelTypeRegistry,
+      Creation,
+      stringToEntity(spawn.creationId),
+      getWorldScale(noa)
+    );
 
     const creationVoxelCoordsInWorld = new Set<string>(
       creationVoxelCoords.map((voxelCoord) => add(lowerSouthWestCornerInWorld, voxelCoord)).map(voxelCoordToString)
@@ -206,23 +212,23 @@ const RegisterCreation: React.FC<Props> = ({ layers, formData, setFormData, rese
       <button
         type="button"
         onClick={onSelectCreationCorners}
-        style={{ background: "#374147"}}
+        style={{ background: "#374147" }}
         className="py-2.5 px-5 mb-2 text-sm focus:outline-none rounded hover:text-slate-300 focus:z-10"
       >
         {selectCreationCornerButtonLabel}
       </button>
 
       <button
-          type="button"
-          onClick={handleSubmit}
-          disabled={isSubmitDisabled}
-          className={twMerge(
-            "py-2.5 px-5 text-sm font-bold rounded bg-amber-400 hover:bg-amber-500 text-slate-600",
-            isSubmitDisabled ? "opacity-50 cursor-not-allowed" : ""
-          )}
-        >
-          Submit
-        </button>
+        type="button"
+        onClick={handleSubmit}
+        disabled={isSubmitDisabled}
+        className={twMerge(
+          "py-2.5 px-5 text-sm font-bold rounded bg-amber-400 hover:bg-amber-500 text-slate-600",
+          isSubmitDisabled ? "opacity-50 cursor-not-allowed" : ""
+        )}
+      >
+        Submit
+      </button>
     </div>
   );
 };

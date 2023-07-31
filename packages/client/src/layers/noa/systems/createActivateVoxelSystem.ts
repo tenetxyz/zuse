@@ -3,13 +3,15 @@ import { defineComponentSystem, defineEnterSystem, getComponentValueStrict, Has 
 import { awaitStreamValue } from "@latticexyz/utils";
 import { NetworkLayer } from "../../network";
 import { NoaLayer, VoxelVariantNoaDef } from "../types";
+import { toast } from "react-toastify";
 import { getNftStorageLink } from "../constants";
 import { abiDecode } from "../../../utils/abi";
 
 export async function createActivateVoxelSystem(network: NetworkLayer, noaLayer: NoaLayer) {
   const {
     world,
-    components: { LoadingState, ActivatedVoxel },
+    components: { LoadingState, VoxelActivated },
+    playerEntity,
   } = network;
   const { noa } = noaLayer;
 
@@ -17,8 +19,12 @@ export async function createActivateVoxelSystem(network: NetworkLayer, noaLayer:
   let live = false;
   awaitStreamValue(LoadingState.update$, ({ value }) => value[0]?.state === SyncState.LIVE).then(() => (live = true));
 
-  defineComponentSystem(world, ActivatedVoxel, (update) => {
-    console.log("ActivatedVoxel");
-    console.log(update);
+  defineComponentSystem(world, VoxelActivated, (update) => {
+    if (update.value[0] === undefined) {
+      return;
+    }
+    if (update.entity === playerEntity) {
+      toast(`Activated voxel message: ${voxelActivatedData.message}`);
+    }
   });
 }

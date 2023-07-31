@@ -11,7 +11,7 @@ import {
   updateComponent,
   UpdateType,
 } from "@latticexyz/recs";
-import { euclidean, isNotEmpty, pickRandom, keccak256 } from "@latticexyz/utils";
+import { euclidean, isNotEmpty, pickRandom, keccak256, awaitStreamValue } from "@latticexyz/utils";
 import { timer } from "rxjs";
 import { NetworkLayer } from "../../network";
 import { NoaLayer, VoxelTypeKey } from "../types";
@@ -24,6 +24,7 @@ export function createSoundSystem(network: NetworkLayer, context: NoaLayer) {
     components: { LoadingState },
     contractComponents: { VoxelType, Position },
     api: { getTerrainVoxelTypeAtPosition },
+    streams: { doneSyncing$ },
     liveStoreCache,
   } = network;
   const {
@@ -112,12 +113,17 @@ export function createSoundSystem(network: NetworkLayer, context: NoaLayer) {
   //   }
   // });
 
+  let isDoneSyncingWorlds = false;
+  awaitStreamValue(doneSyncing$, (isDoneSyncing) => isDoneSyncing).then(() => {
+    isDoneSyncingWorlds = true;
+  });
+
   defineSystem(
     world,
     [Has(Position), Has(VoxelType)],
     (update) => {
       // Don't play sounds during initial loading
-      if (getComponentValue(LoadingState, SingletonEntity)?.state !== SyncState.LIVE) return;
+      if (!isDoneSyncingWorlds) return;
 
       // Get data
       const { x, y, z } = playerPosition$.getValue();

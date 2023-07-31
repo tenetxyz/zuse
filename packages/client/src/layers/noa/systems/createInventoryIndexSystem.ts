@@ -50,9 +50,9 @@ export const getItemTypesIOwn = (
 
 export function createInventoryIndexSystem(network: NetworkLayer, noaLayer: NoaLayer) {
   const {
-    components: { LoadingState },
     contractComponents: { OwnedBy, VoxelType },
     network: { connectedAddress },
+    streams: { doneSyncing$ },
   } = network;
 
   const {
@@ -81,9 +81,7 @@ export function createInventoryIndexSystem(network: NetworkLayer, noaLayer: NoaL
     }
   };
 
-  awaitStreamValue(LoadingState.update$, ({ value }) => value[0]?.state === SyncState.LIVE).then(
-    removeInventoryIndexesForItemsWeNoLongerOwn
-  );
+  awaitStreamValue(doneSyncing$, (isDoneSyncing) => isDoneSyncing).then(removeInventoryIndexesForItemsWeNoLongerOwn);
 
   // this function assigns inventory indexes to voxeltypes we own
   // whenever we get/lose a voxeltype, this function is run

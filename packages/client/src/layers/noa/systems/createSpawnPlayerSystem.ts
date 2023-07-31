@@ -17,10 +17,10 @@ export function createSpawnPlayerSystem(network: NetworkLayer, context: NoaLayer
   } = context;
 
   const {
-    components: { LoadingState },
+    streams: { doneSyncing$ },
   } = network;
 
-  awaitStreamValue(LoadingState.update$, ({ value }) => value[0]?.state === SyncState.LIVE).then(() => {
+  awaitStreamValue(doneSyncing$, (isDoneSyncing) => isDoneSyncing).then(() => {
     noa.entities.addComponentAgain(noa.playerEntity, MINING_VOXEL_COMPONENT, {});
 
     // Reset gravity once world is loaded

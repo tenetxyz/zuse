@@ -12,12 +12,15 @@ export async function createVoxelVariantSystem(network: NetworkLayer, noaLayer: 
     components: { LoadingState },
     registryComponents: { VoxelVariantsRegistry },
     voxelTypes: { VoxelVariantIdToDef, VoxelVariantSubscriptions },
+    streams: { doneSyncing$ },
   } = network;
   const { noa } = noaLayer;
 
   // Loading state flag
-  let live = false;
-  awaitStreamValue(LoadingState.update$, ({ value }) => value[0]?.state === SyncState.LIVE).then(() => (live = true));
+  let isDoneSyncingWorlds = false;
+  awaitStreamValue(doneSyncing$, (isDoneSyncing) => isDoneSyncing).then(() => {
+    isDoneSyncingWorlds = true;
+  });
 
   const variantIdToNoaBlockIdx = new Map<string, number>();
   defineComponentSystem(world, VoxelVariantsRegistry, (update) => {

@@ -17,7 +17,6 @@ import { registerZoomOverlay } from "./ZoomOverlay";
 export * from "./common";
 
 export function registerUIComponents() {
-  registerLoadingState();
   registerCrosshairs();
   // registerBlockExplorer();
   registerInventoryHud();
@@ -28,6 +27,7 @@ export function registerUIComponents() {
   // registerPlugins();
 
   clearTenetComponentRenderer();
+  registerLoadingState();
   registerActionQueue();
   registerTenetSidebar();
   registerAdminPanel();

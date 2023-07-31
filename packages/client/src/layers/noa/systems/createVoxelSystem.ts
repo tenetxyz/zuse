@@ -23,14 +23,16 @@ export async function createVoxelSystem(networkLayer: NetworkLayer, noaLayer: No
     components: { LoadingState },
     contractComponents: { VoxelType, Position },
     api: { getVoxelAtPosition },
+    streams: { doneSyncing$ },
   } = networkLayer;
 
-  // Loading state flag
-  let live = false;
-  awaitStreamValue(LoadingState.update$, ({ value }) => value[0]?.state === SyncState.LIVE).then(() => (live = true));
+  let isDoneSyncingWorlds = false;
+  awaitStreamValue(doneSyncing$, (isDoneSyncing) => isDoneSyncing).then(() => {
+    isDoneSyncingWorlds = true;
+  });
 
   defineComponentSystem(world, VoxelType, async (update) => {
-    if (!live) return;
+    if (!isDoneSyncingWorlds) return;
     // if the new type is none, or the old type is none, return
     // Basically, the main part of this function runs when the VoxelType variant has changed
     // Actually, I've also noticed that this function also runs when we place a voxel into the world
@@ -50,7 +52,7 @@ export async function createVoxelSystem(networkLayer: NetworkLayer, noaLayer: No
 
   // "Exit system"
   defineComponentSystem(world, Position, async ({ value }) => {
-    if (!live) return;
+    if (!isDoneSyncingWorlds) return;
     if (!value[0] && value[1]) {
       const voxel = getVoxelAtPosition(value[1], getWorldScale(noa));
       setVoxel(value[1], voxel.voxelVariantTypeId);
@@ -59,7 +61,7 @@ export async function createVoxelSystem(networkLayer: NetworkLayer, noaLayer: No
 
   // "Enter system"
   defineEnterSystem(world, [Has(Position), Has(VoxelType)], (update) => {
-    if (!live) return;
+    if (!isDoneSyncingWorlds) return;
     const entityKey = update.entity;
     const worldScale = getWorldScale(noa);
     const position = getComponentValueStrict(Position, entityKey);

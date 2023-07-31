@@ -22,7 +22,7 @@ import {
 import { to64CharAddress } from "../../../utils/entity";
 import { Inventory } from "./Inventory";
 import { Layers } from "../../../types";
-import { entityToVoxelType } from "../../noa/types";
+import { EMPTY_BYTES_32, entityToVoxelType } from "../../noa/types";
 import { firstFreeInventoryIndex } from "../../noa/systems/createInventoryIndexSystem";
 import { FocusedUiType } from "../../noa/components/FocusedUi";
 import { useComponentValue } from "@latticexyz/react";
@@ -202,21 +202,12 @@ export function registerInventoryHud() {
         }
         numVoxelsIOwnOfType[voxelBaseTypeIdAtSlot] = 0;
 
-        const ownedEntitiesOfType = [
-          ...runQuery([
-            HasValue(OwnedBy, {
-              player: connectedAddress.get(),
-            }),
-            HasValue(VoxelType, { voxelTypeId: voxelBaseTypeIdAtSlot }), // TODO: is it ok to just look for one value in this column?
-          ]),
-        ];
-
         // since we no longer have VoxelTypes of this type, remove this from the InventoryIndex,
         // so new voxeltypes can be placed on that index
         removeComponent(InventoryIndex, voxelBaseTypeIdAtSlot);
 
         // remove the voxels at this slot
-        removeVoxels(ownedEntitiesOfType);
+        removeVoxels(voxelBaseTypeIdAtSlot);
       }
 
       const focusedUiType = useComponentValue(FocusedUi, SingletonEntity);
@@ -261,7 +252,9 @@ export function registerInventoryHud() {
                 <Tooltip>
                   <TooltipTrigger>
                     <Button
-                      onClick={() => setComponent(FocusedUi, SingletonEntity, { value: FocusedUiType.INVENTORY })}
+                      onClick={() =>
+                        setComponent(FocusedUi, SingletonEntity, { value: FocusedUiType.INVENTORY as any })
+                      }
                     >
                       <DashboardIcon className="h-12 w-8" style={{ color: "#C9CACB" }} />
                     </Button>

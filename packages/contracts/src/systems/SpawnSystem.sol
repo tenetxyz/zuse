@@ -34,8 +34,6 @@ contract SpawnSystem is System {
         )
       );
 
-      // delete the voxels at this coord
-      IWorld(_world()).mine(voxelTypes[i].voxelTypeId, spawnVoxelAtCoord); // it's important to MINE the voxels since this function also removes spawns from the world if all its voxels are gone
       (uint32 scale, bytes32 newEntity) = IWorld(_world()).buildVoxelType(
         voxelTypes[i].voxelTypeId,
         spawnVoxelAtCoord,

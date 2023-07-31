@@ -39,7 +39,6 @@ export async function createVoxelSystem(networkLayer: NetworkLayer, noaLayer: No
     if (!update.value[0] || !update.value[1]) return;
     const position = getComponentValue(Position, update.entity);
     // const entity = to64CharAddress("0x" + update.entity);
-    // const position = liveStoreCache.Position.get({ entity, scale: getWorldScale(noa) });
     if (!position) return; // if there's no position, the voxel is not in the world. so no need to display it
     const entityKey = update.entity;
     const worldScale = getWorldScale(noa);

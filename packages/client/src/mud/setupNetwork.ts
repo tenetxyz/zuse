@@ -1,5 +1,13 @@
 import { setupMUDV2Network, createActionSystem } from "@latticexyz/std-client";
-import { Entity, getComponentValue, createIndexer, runQuery, HasValue, createWorld } from "@latticexyz/recs";
+import {
+  Entity,
+  getComponentValue,
+  createIndexer,
+  runQuery,
+  HasValue,
+  createWorld,
+  getComponentValueStrict,
+} from "@latticexyz/recs";
 import {
   createFastTxExecutor,
   createFaucetService,
@@ -55,7 +63,6 @@ import { getWorldScale, voxelCoordToString } from "../utils/coord";
 import { toast } from "react-toastify";
 import { abiDecode } from "../utils/abi";
 import { BaseCreationInWorld } from "../layers/react/components/RegisterCreation";
-import { getLiveStoreCache } from "./setupLiveStoreCache";
 import { Engine } from "noa-engine";
 
 export type SetupNetworkResult = Awaited<ReturnType<typeof setupNetwork>>;
@@ -383,12 +390,10 @@ export async function setupNetwork() {
 
   const perlin = await createPerlin();
 
-  const liveStoreCache = getLiveStoreCache(result.storeCache);
   const terrainContext = {
     Position: contractComponents.Position,
     VoxelType: contractComponents.VoxelType,
     world,
-    liveStoreCache,
   };
 
   function getTerrainVoxelTypeAtPosition(position: VoxelCoord, scale: number): VoxelTypeKey {
@@ -409,18 +414,22 @@ export async function setupNetwork() {
     return getComponentValue(contractComponents.Name, entity)?.value;
   }
 
-  function build(noa: Engine, voxelBaseTypeId: VoxelBaseTypeId, coord: VoxelCoord) {
-    const voxelInstancesOfVoxelType = [
+  const getOwnedEntiesOfType = (voxelBaseTypeId: string) => {
+    return [
       ...runQuery([
         HasValue(contractComponents.OwnedBy, {
           player: playerAddress,
         }),
         HasValue(contractComponents.VoxelType, {
-          voxelTypeId: voxelBaseTypeId as Entity,
+          voxelTypeId: voxelBaseTypeId,
           voxelVariantId: EMPTY_BYTES_32,
         }),
       ]),
     ];
+  };
+
+  function build(noa: Engine, voxelBaseTypeId: VoxelBaseTypeId, coord: VoxelCoord) {
+    const voxelInstancesOfVoxelType = getOwnedEntiesOfType(voxelBaseTypeId);
 
     if (voxelInstancesOfVoxelType.length === 0) {
       toast(`cannot build since we couldn't find a voxel (that you own) for voxelBaseTypeId=${voxelBaseTypeId}`);
@@ -560,15 +569,21 @@ export async function setupNetwork() {
   }
 
   // needed in creative mode, to allow the user to remove voxels. Otherwise their inventory will fill up
-  function removeVoxels(voxels: Entity[]) {
+  function removeVoxels(voxelBaseTypeIdAtSlot: Entity) {
+    const voxels = getOwnedEntiesOfType(voxelBaseTypeIdAtSlot);
     if (voxels.length === 0) {
       return console.warn("trying to remove 0 voxels");
     }
+    const voxelScales: string[] = [];
+    const voxelBaseTypes: string[] = [];
+    for (let i = 0; i < voxels.length; i++) {
+      const [voxelScale, voxelBaseType] = voxels[i].split(":");
+      voxelScales.push(voxelScale);
+      voxelBaseTypes.push(voxelBaseType);
+    }
 
-    const voxelType = getComponentValue(contractComponents.VoxelType, voxels[0]);
-    const voxelTypeKey = voxelType ? (voxelTypeToEntity(voxelType) as string) : "";
     actions.add({
-      id: `RemoveVoxels+VoxelType=${voxelTypeKey}` as Entity,
+      id: `RemoveVoxels+VoxelType=${voxelBaseTypes}` as Entity,
       metadata: {
         actionType: "removeVoxels",
       },
@@ -578,10 +593,7 @@ export async function setupNetwork() {
         VoxelType: contractComponents.VoxelType,
       },
       execute: () => {
-        return callSystem("removeVoxels", [
-          voxels.map((voxelId) => to64CharAddress(voxelId)),
-          { gasLimit: 10_000_000 },
-        ]);
+        return callSystem("removeVoxels", [voxelScales, voxelBaseTypes, { gasLimit: 10_000_000 }]);
       },
       updates: () => [],
     });
@@ -780,6 +792,5 @@ export async function setupNetwork() {
       VoxelVariantSubscriptions,
     },
     objectStore: { transactionCallbacks }, // stores global objects. These aren't components since they don't really fit in with the rxjs event-based system
-    liveStoreCache,
   };
 }

@@ -45,8 +45,7 @@ const ClassifierDetails: React.FC<Props> = ({
       SingletonEntity,
     },
     network: {
-      liveStoreCache,
-      components: { VoxelType, OfSpawn, Spawn, Creation },
+      components: { VoxelType, OfSpawn, Spawn, Creation, Position },
       api: { classifyCreation },
       getVoxelIconUrl,
     },
@@ -152,10 +151,7 @@ const ClassifierDetails: React.FC<Props> = ({
     }
 
     const iconUrl = getVoxelIconUrl(voxelType.voxelVariantId);
-    const voxelCoord = liveStoreCache.Position.get({
-      entity: to64CharAddress("0x" + interfaceVoxel),
-      scale: getWorldScale(noa),
-    });
+    const voxelCoord = getComponentValue(Position, interfaceVoxel);
     return (
       <div className="flex gap-2 items-center">
         <div className="bg-slate-100 h-fit p-1">

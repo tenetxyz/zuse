@@ -132,7 +132,8 @@ const CreationStore: React.FC<Props> = ({
                   <div className="flex mt-5 gap-2">
                     <button
                       type="button"
-                      onClick={() => {
+                      onClick={(event) => {
+                        (event.target as HTMLElement).blur();
                         spawnCreation(creation);
                       }}
                       className="py-2.5 px-5 mr-2 text-sm font-bold rounded bg-amber-400 hover:bg-amber-500 text-slate-600"

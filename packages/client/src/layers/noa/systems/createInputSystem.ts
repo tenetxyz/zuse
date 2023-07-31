@@ -88,7 +88,7 @@ export function createInputSystem(layers: Layers) {
     },
     network: {
       contractComponents: { Creation },
-      registryComponents: {VoxelTypeRegistry},
+      registryComponents: { VoxelTypeRegistry },
       network: {
         connectedAddress,
         config: { blockExplorer },

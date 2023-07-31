@@ -12,7 +12,7 @@ INSTANCE_ID=$(aws ec2 run-instances \
     --count 1 \
     --instance-type c7g.large \
     --key-name Tenet \
-    --block-device-mappings '[{"DeviceName":"/dev/xvda","Ebs":{"VolumeSize":32}}]' `# configure the server with 32 Gb of storage` \
+    --block-device-mappings '[{"DeviceName":"/dev/xvda","Ebs":{"VolumeSize":64}}]' `# configure the server with 64 Gb of storage` \
     --enclave-options 'Enabled=false' \
     --query 'Instances[0].InstanceId' --output text) \
 && sleep 5 && PUBLIC_IP=$(aws ec2 describe-instances --instance-ids $INSTANCE_ID --query 'Reservations[].Instances[].PublicIpAddress' --output text) \

@@ -63,7 +63,6 @@ import { getWorldScale, voxelCoordToString } from "../utils/coord";
 import { toast } from "react-toastify";
 import { abiDecode } from "../utils/abi";
 import { BaseCreationInWorld } from "../layers/react/components/RegisterCreation";
-import { getLiveStoreCache } from "./setupLiveStoreCache";
 import { Engine } from "noa-engine";
 
 export type SetupNetworkResult = Awaited<ReturnType<typeof setupNetwork>>;
@@ -391,12 +390,10 @@ export async function setupNetwork() {
 
   const perlin = await createPerlin();
 
-  const liveStoreCache = getLiveStoreCache(result.storeCache);
   const terrainContext = {
     Position: contractComponents.Position,
     VoxelType: contractComponents.VoxelType,
     world,
-    liveStoreCache,
   };
 
   function getTerrainVoxelTypeAtPosition(position: VoxelCoord, scale: number): VoxelTypeKey {
@@ -795,6 +792,5 @@ export async function setupNetwork() {
       VoxelVariantSubscriptions,
     },
     objectStore: { transactionCallbacks }, // stores global objects. These aren't components since they don't really fit in with the rxjs event-based system
-    liveStoreCache,
   };
 }

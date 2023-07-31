@@ -1,7 +1,7 @@
 import { VoxelCoord } from "@latticexyz/utils";
 import { Creation } from "../layers/react/components/CreationStore";
 import { abiDecode } from "./abi";
-import { Entity, getComponentValueStrict } from "@latticexyz/recs";
+import { Entity, getComponentValue, getComponentValueStrict } from "@latticexyz/recs";
 import { decodeBaseCreations } from "./encodeOrDecode";
 import { Engine } from "noa-engine";
 import { VoxelTypeDesc } from "@/layers/react/components/VoxelTypeStore";
@@ -74,7 +74,10 @@ export const getVoxelCoordsOfCreation = (
   for (let i = 0; i < voxelCoords.length; i++) {
     const voxelCoord = voxelCoords[i];
     const voxelType = voxelTypes[i];
-    const voxelTypeDesc = getComponentValueStrict(VoxelTypeRegistry, voxelType.voxelTypeId);
+    const voxelTypeDesc = getComponentValue(VoxelTypeRegistry, voxelType.voxelTypeId);
+    if (voxelTypeDesc === undefined) {
+      continue;
+    }
     if (voxelTypeDesc.scale === scale) {
       voxelCoordsOnScale.push(voxelCoord);
     }

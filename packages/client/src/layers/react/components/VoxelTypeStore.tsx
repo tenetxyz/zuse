@@ -7,7 +7,6 @@ import React from "react";
 import { getItemTypesIOwn } from "../../noa/systems/createInventoryIndexSystem";
 import { INVENTORY_HEIGHT, INVENTORY_WIDTH } from "./InventoryHud";
 import { toast } from "react-toastify";
-import { VoxelBaseTypeIdToEntity } from "../../noa/types";
 import { useVoxelTypeSearch } from "../../../utils/useVoxelTypeSearch";
 import { SearchBar } from "./common/SearchBar";
 import {
@@ -18,7 +17,7 @@ import {
   DropdownMenuRadioItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
+} from "@/components/ui/dropdown-menu";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faFilter } from "@fortawesome/free-solid-svg-icons";
 import { Button } from "@/components/ui/button";
@@ -46,7 +45,7 @@ export interface VoxelTypeDesc {
   childVoxelTypeIds: string[];
 }
 
-export const VoxelTypeStore: React.FC<Props> = ({ layers, filters = { query: '', scale: null }, setFilters }) => {
+export const VoxelTypeStore: React.FC<Props> = ({ layers, filters = { query: "", scale: null }, setFilters }) => {
   const {
     network: {
       contractComponents: { OwnedBy, VoxelType },
@@ -71,24 +70,31 @@ export const VoxelTypeStore: React.FC<Props> = ({ layers, filters = { query: '',
     }
   `;
 
-  const ScaleBar: React.FC<{ value: number | null; onChange: (val: string) => void }> = ({
-    value,
-    onChange,
-  }) => {
+  const ScaleBar: React.FC<{ value: number | null; onChange: (val: string) => void }> = ({ value, onChange }) => {
     return (
       <DropdownMenu>
         <DropdownMenuTrigger>
-        <Button
-          variant="ghost"
-          size="icon"
-          className="rounded ml-2 mr-1 hover:bg-slate-500 ...">
-          <FontAwesomeIcon className="h-4 w-4" icon={faFilter} style={{ color: "#C9CACB" }} />
-        </Button>
+          <Button variant="ghost" size="icon" className="rounded ml-2 mr-1 hover:bg-slate-500 ...">
+            <FontAwesomeIcon className="h-4 w-4" icon={faFilter} style={{ color: "#C9CACB" }} />
+          </Button>
         </DropdownMenuTrigger>
-          <DropdownMenuContent style={{ zIndex: 1000, backgroundColor: "#374147", borderRadius: "5px", width: "fit-content", color: "white", border: "1px solid transparent" }} className="w-56">
-          <DropdownMenuLabel className="font-bold" >Select Level</DropdownMenuLabel>
+        <DropdownMenuContent
+          style={{
+            zIndex: 1000,
+            backgroundColor: "#374147",
+            borderRadius: "5px",
+            width: "fit-content",
+            color: "white",
+            border: "1px solid transparent",
+          }}
+          className="w-56"
+        >
+          <DropdownMenuLabel className="font-bold">Select Level</DropdownMenuLabel>
           <DropdownMenuSeparator className="bg-slate-300" />
-          <DropdownMenuRadioGroup value={value === null || value === undefined ? "All" : value.toString()} onValueChange={onChange}>
+          <DropdownMenuRadioGroup
+            value={value === null || value === undefined ? "All" : value.toString()}
+            onValueChange={onChange}
+          >
             <StyledDropdownMenuRadioItem value="All">All Levels</StyledDropdownMenuRadioItem>
             {Array.from({ length: 10 }, (_, i) => i + 1).map((scale) => (
               <StyledDropdownMenuRadioItem key={scale} value={scale.toString()}>
@@ -96,10 +102,10 @@ export const VoxelTypeStore: React.FC<Props> = ({ layers, filters = { query: '',
               </StyledDropdownMenuRadioItem>
             ))}
           </DropdownMenuRadioGroup>
-          </DropdownMenuContent>
+        </DropdownMenuContent>
       </DropdownMenu>
     );
-  };  
+  };
 
   const Slots = [...range(NUM_ROWS * NUM_COLS)].map((i) => {
     if (!voxelTypesToDisplay || i >= voxelTypesToDisplay.length) {
@@ -141,10 +147,13 @@ export const VoxelTypeStore: React.FC<Props> = ({ layers, filters = { query: '',
 
   return (
     <div className="flex flex-col p-4">
-    <div className="flex w-full">
-      <SearchBar value={filters.query} onChange={(e) => setFilters({ ...filters, query: e.target.value })} />
-      <ScaleBar value={filters.scale} onChange={(val) => setFilters({ ...filters, scale: val === 'All' ? null : parseInt(val) })} />
-    </div>
+      <div className="flex w-full">
+        <SearchBar value={filters.query} onChange={(e) => setFilters({ ...filters, query: e.target.value })} />
+        <ScaleBar
+          value={filters.scale}
+          onChange={(val) => setFilters({ ...filters, scale: val === "All" ? null : parseInt(val) })}
+        />
+      </div>
       <div className="flex w-full mt-5 justify-center items-center">
         <ActionBarWrapper>{[...range(NUM_COLS * NUM_ROWS)].map((i) => Slots[i])}</ActionBarWrapper>
       </div>

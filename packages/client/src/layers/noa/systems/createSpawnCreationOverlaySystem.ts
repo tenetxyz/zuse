@@ -46,16 +46,15 @@ export function createSpawnCreationOverlaySystem(network: NetworkLayer, noaLayer
       return;
     }
 
-    renderCreationOutline(creationToSpawn, targetedBlock);
+    renderCreationOutline(creationToSpawn);
   };
 
-  const renderCreationOutline = (creation: Creation, targetedBlock: TargetedBlock) => {
+  const renderCreationOutline = (creation: Creation) => {
     const { corner1, corner2 } = calculateCornersFromTargetedBlock(
       noa,
       VoxelTypeRegistry,
       Creation,
       creation,
-      targetedBlock
     );
     renderedCreationOutlineMesh = renderChunkyWireframe(corner1, corner2, noa, new Color3(0, 0, 1), 0.05);
   };
@@ -67,12 +66,11 @@ export const calculateCornersFromTargetedBlock = (
   VoxelTypeRegistry: any,
   Creation: any,
   creation: Creation,
-  targetedBlock: TargetedBlock
 ) => {
   const {
     adjacent: [x, y, z],
     normal: [normalX, normalY, normalZ],
-  } = targetedBlock;
+  } = noa.targetedBlock!;
 
   const { minCoord, maxCoord } = calculateMinMaxRelativeCoordsOfCreation(
     VoxelTypeRegistry,

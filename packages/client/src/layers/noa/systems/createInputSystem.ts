@@ -88,6 +88,7 @@ export function createInputSystem(layers: Layers) {
     },
     network: {
       contractComponents: { Creation },
+      registryComponents: {VoxelTypeRegistry},
       network: {
         connectedAddress,
         config: { blockExplorer },
@@ -460,7 +461,7 @@ export function createInputSystem(layers: Layers) {
       return;
     }
     // @ts-nocheck
-    const { corner1, corner2 } = calculateCornersFromTargetedBlock(Creation, creation, noa.targetedBlock);
+    const { corner1, corner2 } = calculateCornersFromTargetedBlock(noa, VoxelTypeRegistry, Creation, creation);
     const { minX, minY, minZ } = calculateMinMax(corner1, corner2);
 
     spawnCreation({ x: minX, y: minY, z: minZ }, (creation as Creation).creationId);

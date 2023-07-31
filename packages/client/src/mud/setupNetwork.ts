@@ -1,5 +1,13 @@
 import { setupMUDV2Network, createActionSystem } from "@latticexyz/std-client";
-import { Entity, getComponentValue, createIndexer, runQuery, HasValue, createWorld } from "@latticexyz/recs";
+import {
+  Entity,
+  getComponentValue,
+  createIndexer,
+  runQuery,
+  HasValue,
+  createWorld,
+  getComponentValueStrict,
+} from "@latticexyz/recs";
 import {
   createFastTxExecutor,
   createFaucetService,
@@ -569,9 +577,12 @@ export async function setupNetwork() {
     if (voxels.length === 0) {
       return console.warn("trying to remove 0 voxels");
     }
+    debugger;
 
     const voxelType = getComponentValue(contractComponents.VoxelType, voxels[0]);
     const voxelTypeKey = voxelType ? (voxelTypeToEntity(voxelType) as string) : "";
+    const voxelScale = getComponentValueStrict(registryComponents.VoxelTypeRegistry, voxelBaseTypeIdAtSlot).scale;
+    const voxelScales = Array(voxels.length).fill(to64CharAddress("0x" + voxelScale.toString()));
     actions.add({
       id: `RemoveVoxels+VoxelType=${voxelTypeKey}` as Entity,
       metadata: {
@@ -584,6 +595,7 @@ export async function setupNetwork() {
       },
       execute: () => {
         return callSystem("removeVoxels", [
+          voxelScales,
           voxels.map((voxelId) => to64CharAddress(voxelId)),
           { gasLimit: 10_000_000 },
         ]);

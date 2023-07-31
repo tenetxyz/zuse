@@ -55,6 +55,7 @@ contract SignalVoxelSystem is System {
       SignalVoxelID,
       IWorld(world).enterWorldSignal.selector,
       IWorld(world).exitWorldSignal.selector,
+      IWorld(world).variantSelectorSignal.selector,
       IWorld(world).activateSelectorSignal.selector
     );
   }

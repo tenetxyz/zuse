@@ -34,7 +34,7 @@ contract InvertedSignalVoxelSystem is System {
       IWorld(world).enterWorldInvertedSignal.selector,
       IWorld(world).exitWorldInvertedSignal.selector,
       IWorld(world).variantSelectorInvertedSignal.selector,
-      IWorld(world).activateSelectorInvertedSignal.selector,
+      IWorld(world).activateSelectorInvertedSignal.selector
     );
   }
 

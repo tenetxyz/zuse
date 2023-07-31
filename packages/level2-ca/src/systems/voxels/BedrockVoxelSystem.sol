@@ -39,6 +39,7 @@ contract BedrockVoxelSystem is System {
       BedrockVoxelID,
       IWorld(world).enterWorldBedrock.selector,
       IWorld(world).exitWorldBecrock.selector,
+      IWorld(world).variantSelectorBedrock.selector,
       IWorld(world).activateSelectorBedrock.selector
     );
   }

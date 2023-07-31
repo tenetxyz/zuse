@@ -95,21 +95,6 @@ contract BuildSystem is System {
     return true;
   }
 
-  function voxelCoordToStr(VoxelCoord memory coord) internal returns (string memory) {
-    return
-      string(
-        abi.encodePacked(
-          "(",
-          Strings.toString(coord.x),
-          ", ",
-          Strings.toString(coord.y),
-          ", ",
-          Strings.toString(coord.z),
-          ")"
-        )
-      );
-  }
-
   function buildParentVoxel(uint32 buildScale, bytes32 buildVoxelEntity, VoxelCoord memory coord) internal {
     // Calculate childVoxelTypes
     VoxelCoord memory parentVoxelCoord = calculateParentCoord(2, coord);
@@ -124,67 +109,30 @@ contract BuildSystem is System {
       }
     }
 
-    require(
-    existingCount == 1,
-    string(
-      abi.encode(
-        "Failed: ",
-        Strings.toString(uint256(existingChildVoxelTypes[0])),
-        Strings.toString(uint256(existingChildVoxelTypes[1])),
-        Strings.toString(uint256(existingChildVoxelTypes[2])),
-        Strings.toString(uint256(existingChildVoxelTypes[3])),
-        Strings.toString(uint256(existingChildVoxelTypes[4])),
-        Strings.toString(uint256(existingChildVoxelTypes[5])),
-        Strings.toString(uint256(existingChildVoxelTypes[6])),
-        Strings.toString(uint256(existingChildVoxelTypes[7]))
-      )
-    )
-  );
-
     // Check if parent is there, and build if there
-    // bytes32[][] memory worldVoxelTypeKeys = getKeysInTable(WorldConfigTableId);
-    // for (uint256 i = 0; i < worldVoxelTypeKeys.length; i++) {
-    //   bytes32 worldVoxelTypeId = worldVoxelTypeKeys[i][0];
-    //   VoxelTypeRegistryData memory voxelTypeData = VoxelTypeRegistry.get(IStore(REGISTRY_ADDRESS), worldVoxelTypeId);
-    //   if (voxelTypeData.scale == buildScale + 1) {
-    //     bytes32[] memory childVoxelTypes = voxelTypeData.childVoxelTypeIds;
-    //     if (worldVoxelTypeId == bytes32(keccak256("wire"))) {
-    //       require(
-    //         existingCount == 1,
-    //         string(
-    //           abi.encode(
-    //             "Failed: ",
-    //             Strings.toString(uint256(existingChildVoxelTypes[0])),
-    //             Strings.toString(uint256(existingChildVoxelTypes[1])),
-    //             Strings.toString(uint256(existingChildVoxelTypes[2])),
-    //             Strings.toString(uint256(existingChildVoxelTypes[3])),
-    //             Strings.toString(uint256(existingChildVoxelTypes[4])),
-    //             Strings.toString(uint256(existingChildVoxelTypes[5])),
-    //             Strings.toString(uint256(existingChildVoxelTypes[6])),
-    //             Strings.toString(uint256(existingChildVoxelTypes[7]))
-    //           )
-    //         )
-    //       );
-    //     }
-    //     // bool hasSameSchema = hasSameVoxelTypeSchema(
-    //     //   buildScale,
-    //     //   childVoxelTypes,
-    //     //   existingChildVoxelTypes,
-    //     //   eightBlockVoxelCoords
-    //     // );
+    bytes32[][] memory worldVoxelTypeKeys = getKeysInTable(WorldConfigTableId);
+    for (uint256 i = 0; i < worldVoxelTypeKeys.length; i++) {
+      bytes32 worldVoxelTypeId = worldVoxelTypeKeys[i][0];
+      VoxelTypeRegistryData memory voxelTypeData = VoxelTypeRegistry.get(IStore(REGISTRY_ADDRESS), worldVoxelTypeId);
+      if (voxelTypeData.scale == buildScale + 1) {
+        bool hasSameSchema = hasSameVoxelTypeSchema(
+          buildScale,
+          voxelTypeData.schemaVoxelTypeIds,
+          existingChildVoxelTypes,
+          eightBlockVoxelCoords
+        );
 
-    //     // if (hasSameSchema) {
-    //     //   revert("dhvani here");
-    //     //   (uint32 parentScale, bytes32 parentVoxelEntity) = buildVoxelTypeHelper(
-    //     //     worldVoxelTypeId,
-    //     //     parentVoxelCoord,
-    //     //     false
-    //     //   );
-    //     //   buildParentVoxel(parentScale, parentVoxelEntity, parentVoxelCoord);
-    //     //   break;
-    //     // }
-    //   }
-    // }
+        if (hasSameSchema) {
+          (uint32 parentScale, bytes32 parentVoxelEntity) = buildVoxelTypeHelper(
+            worldVoxelTypeId,
+            parentVoxelCoord,
+            false
+          );
+          buildParentVoxel(parentScale, parentVoxelEntity, parentVoxelCoord);
+          break;
+        }
+      }
+    }
   }
 
   // TODO: when we have a survival mode, prevent ppl from alling this function directly (since they don't need to own the voxel to call it)
@@ -196,9 +144,9 @@ contract BuildSystem is System {
   ) public returns (uint32, bytes32) {
     (uint32 buildScale, bytes32 buildVoxelEntity) = buildVoxelTypeHelper(voxelTypeId, coord, buildChildren);
 
-    // if (buildParent) {
-    //   buildParentVoxel(buildScale, buildVoxelEntity, coord);
-    // }
+    if (buildParent) {
+      buildParentVoxel(buildScale, buildVoxelEntity, coord);
+    }
 
     return (buildScale, buildVoxelEntity);
   }

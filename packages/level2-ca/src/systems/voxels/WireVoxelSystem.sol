@@ -49,7 +49,10 @@ contract WireVoxelSystem is System {
     bytes32[] memory wireChildVoxelTypes = new bytes32[](8);
     wireChildVoxelTypes[4] = ElectronVoxelID;
     wireChildVoxelTypes[5] = ElectronVoxelID;
-    registerVoxelType(REGISTRY_ADDRESS, "Electron Wire", WireVoxelID, wireChildVoxelTypes, WireOffVoxelVariantID);
+    bytes32[] memory wireSchemaVoxelTypes = new bytes32[](8);
+    wireSchemaVoxelTypes[4] = ElectronVoxelID;
+    wireSchemaVoxelTypes[1] = ElectronVoxelID; // The second electron moves to be diagonal from the first
+    registerVoxelType(REGISTRY_ADDRESS, "Electron Wire", WireVoxelID, wireChildVoxelTypes, wireSchemaVoxelTypes, WireOffVoxelVariantID);
 
     // TODO: Check to make sure it doesn't already exist
     CAVoxelConfig.set(

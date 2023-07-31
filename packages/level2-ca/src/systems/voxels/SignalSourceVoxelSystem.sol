@@ -39,6 +39,7 @@ contract SignalSourceVoxelSystem is System {
       "Signal Source",
       SignalSourceVoxelID,
       signalChildVoxelTypes,
+      signalChildVoxelTypes,
       SignalSourceVoxelVariantID
     );
 

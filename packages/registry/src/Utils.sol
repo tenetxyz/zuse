@@ -23,12 +23,13 @@ function registerVoxelType(
   string memory name,
   bytes32 voxelTypeId,
   bytes32[] memory childVoxelTypeIds,
+  bytes32[] memory schemaVoxelTypeIds,
   bytes32 voxelVariantId
 ) returns (bytes memory) {
   return
     safeCall(
       registryAddress,
-      abi.encodeWithSignature(REGISTER_VOXEL_TYPE_SIG, name, voxelTypeId, childVoxelTypeIds, voxelVariantId),
+      abi.encodeWithSignature(REGISTER_VOXEL_TYPE_SIG, name, voxelTypeId, childVoxelTypeIds, schemaVoxelTypeIds, voxelVariantId),
       "registerVoxelType"
     );
 }

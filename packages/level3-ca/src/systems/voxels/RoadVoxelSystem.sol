@@ -34,7 +34,7 @@ contract RoadVoxelSystem is System {
     for (uint i = 0; i < 8; i++) {
       roadChildVoxelTypes[i] = DirtVoxelID;
     }
-    registerVoxelType(REGISTRY_ADDRESS, "Road", RoadVoxelID, roadChildVoxelTypes, RoadVoxelVariantID);
+    registerVoxelType(REGISTRY_ADDRESS, "Road", RoadVoxelID, roadChildVoxelTypes, roadChildVoxelTypes, RoadVoxelVariantID);
 
     // TODO: Check to make sure it doesn't already exist
     CAVoxelConfig.set(

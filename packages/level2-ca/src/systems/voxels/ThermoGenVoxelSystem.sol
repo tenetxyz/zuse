@@ -41,6 +41,7 @@ contract ThermoGenVoxelSystem is System {
       "ThermoGen",
       ThermoGenVoxelID,
       thermoGenChildVoxelTypes,
+      thermoGenChildVoxelTypes,
       ThermoGenVoxelVariantID
     );
 

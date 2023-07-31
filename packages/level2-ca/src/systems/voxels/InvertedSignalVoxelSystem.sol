@@ -25,6 +25,7 @@ contract InvertedSignalVoxelSystem is System {
       "Inverted Signal",
       InvertedSignalVoxelID,
       invertedSignalChildVoxelTypes,
+      invertedSignalChildVoxelTypes,
       SignalOnVoxelVariantID
     );
 

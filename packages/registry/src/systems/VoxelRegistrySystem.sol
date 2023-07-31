@@ -11,6 +11,7 @@ contract VoxelRegistrySystem is System {
     string memory voxelTypeName,
     bytes32 voxelTypeId,
     bytes32[] memory childVoxelTypeIds,
+    bytes32[] memory schemaVoxelTypeIds,
     bytes32 previewVoxelVariantId
   ) public {
     require(
@@ -52,10 +53,31 @@ contract VoxelRegistrySystem is System {
       revert("Invalid number of child voxel types");
     }
 
+    if (schemaVoxelTypeIds.length == 1) {
+      require(
+        schemaVoxelTypeIds[0] == voxelTypeId,
+        "Schemal voxel type ID must be the same as parent voxel type ID for scale 1"
+      );
+    } else if (childVoxelTypeIds.length == 8) {
+      // TODO: Add more checks on schemaVoxelTypeIds
+      for (uint256 i; i < schemaVoxelTypeIds.length; i++) {
+          if (schemaVoxelTypeIds[i] == 0) {
+            continue;
+          }
+          require(
+            hasKey(VoxelTypeRegistryTableId, VoxelTypeRegistry.encodeKeyTuple(schemaVoxelTypeIds[i])),
+            "Schema voxel type ID has not been registered"
+          );
+      }
+    } else{
+      revert("Invalid number of schema voxel types");
+    }
+
     VoxelTypeRegistry.set(
       voxelTypeId,
       VoxelTypeRegistryData({
         childVoxelTypeIds: childVoxelTypeIds,
+        schemaVoxelTypeIds: schemaVoxelTypeIds,
         previewVoxelVariantId: previewVoxelVariantId,
         creator: tx.origin,
         scale: scale,

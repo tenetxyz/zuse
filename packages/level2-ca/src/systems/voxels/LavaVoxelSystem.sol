@@ -49,7 +49,7 @@ contract LavaVoxelSystem is System {
     for (uint i = 0; i < 8; i++) {
       lavaChildVoxelTypes[i] = AirVoxelID;
     }
-    registerVoxelType(REGISTRY_ADDRESS, "Lava", LavaVoxelID, lavaChildVoxelTypes, LavaHotVoxelVariantID);
+    registerVoxelType(REGISTRY_ADDRESS, "Lava", LavaVoxelID, lavaChildVoxelTypes, lavaChildVoxelTypes, LavaHotVoxelVariantID);
 
     // TODO: Check to make sure it doesn't already exist
     CAVoxelConfig.set(

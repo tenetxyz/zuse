@@ -409,18 +409,22 @@ export async function setupNetwork() {
     return getComponentValue(contractComponents.Name, entity)?.value;
   }
 
-  function build(noa: Engine, voxelBaseTypeId: VoxelBaseTypeId, coord: VoxelCoord) {
-    const voxelInstancesOfVoxelType = [
+  const getOwnedEntiesOfType = (voxelBaseTypeId: string) => {
+    return [
       ...runQuery([
         HasValue(contractComponents.OwnedBy, {
           player: playerAddress,
         }),
         HasValue(contractComponents.VoxelType, {
-          voxelTypeId: voxelBaseTypeId as Entity,
+          voxelTypeId: voxelBaseTypeId,
           voxelVariantId: EMPTY_BYTES_32,
-        }),
+        }), // TODO: is it ok to just look for one value in this column?
       ]),
     ];
+  };
+
+  function build(noa: Engine, voxelBaseTypeId: VoxelBaseTypeId, coord: VoxelCoord) {
+    const voxelInstancesOfVoxelType = getOwnedEntiesOfType(voxelBaseTypeId);
 
     if (voxelInstancesOfVoxelType.length === 0) {
       toast(`cannot build since we couldn't find a voxel (that you own) for voxelBaseTypeId=${voxelBaseTypeId}`);
@@ -560,7 +564,8 @@ export async function setupNetwork() {
   }
 
   // needed in creative mode, to allow the user to remove voxels. Otherwise their inventory will fill up
-  function removeVoxels(voxels: Entity[]) {
+  function removeVoxels(voxelBaseTypeIdAtSlot: Entity) {
+    const voxels = getOwnedEntiesOfType(voxelBaseTypeIdAtSlot);
     if (voxels.length === 0) {
       return console.warn("trying to remove 0 voxels");
     }

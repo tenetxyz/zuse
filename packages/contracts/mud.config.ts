@@ -31,6 +31,17 @@ export default mudConfig({
         voxelVariantId: "bytes32",
       },
     },
+    VoxelActivated: {
+      keySchema: {
+        player: "bytes32",
+      },
+      schema: {
+        scale: "uint32",
+        entity: "bytes32",
+        message: "string",
+      },
+      ephemeral: true,
+    },
     Position: {
       keySchema: {
         scale: "uint32",

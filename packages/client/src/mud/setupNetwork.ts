@@ -670,12 +670,7 @@ export async function setupNetwork() {
       requirement: () => true,
       components: {},
       execute: () => {
-        return callSystem("activateVoxel", [entity, { gasLimit: 900_000_000 }], undefined, (rawResponse) => {
-          const response = abiDecode("string", rawResponse, false);
-          if (response !== "") {
-            toast(response);
-          }
-        });
+        return callSystem("activateVoxel", [entity, { gasLimit: 900_000_000 }]);
       },
       updates: () => [],
       txMayNotWriteToTable: true,

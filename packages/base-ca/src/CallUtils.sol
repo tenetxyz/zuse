@@ -2,7 +2,7 @@
 pragma solidity >=0.8.0;
 
 import { VoxelCoord } from "@tenet-utils/src/Types.sol";
-import { CA_ENTER_WORLD_SIG, CA_EXIT_WORLD_SIG, CA_RUN_INTERACTION_SIG } from "./Constants.sol";
+import { CA_ENTER_WORLD_SIG, CA_EXIT_WORLD_SIG, CA_RUN_INTERACTION_SIG, CA_ACTIVATE_VOXEL_SIG } from "./Constants.sol";
 import { safeCall, safeStaticCall } from "@tenet-utils/src/CallUtils.sol";
 
 function mineWorld(address callerAddress, bytes32 voxelTypeId, VoxelCoord memory coord) returns (bytes memory) {
@@ -35,8 +35,31 @@ function enterWorld(
   return
     safeCall(
       caAddress,
-      abi.encodeWithSignature(CA_ENTER_WORLD_SIG, voxelTypeId, coord, entity, neighbourEntityIds, childEntityIds, parentEntity),
-      string(abi.encode("enterWorld ", voxelTypeId, " ", coord, " ", entity, " ", neighbourEntityIds, " ", childEntityIds, " ", parentEntity))
+      abi.encodeWithSignature(
+        CA_ENTER_WORLD_SIG,
+        voxelTypeId,
+        coord,
+        entity,
+        neighbourEntityIds,
+        childEntityIds,
+        parentEntity
+      ),
+      string(
+        abi.encode(
+          "enterWorld ",
+          voxelTypeId,
+          " ",
+          coord,
+          " ",
+          entity,
+          " ",
+          neighbourEntityIds,
+          " ",
+          childEntityIds,
+          " ",
+          parentEntity
+        )
+      )
     );
 }
 
@@ -52,8 +75,31 @@ function exitWorld(
   return
     safeCall(
       caAddress,
-      abi.encodeWithSignature(CA_EXIT_WORLD_SIG, voxelTypeId, coord, entity, neighbourEntityIds, childEntityIds, parentEntity),
-      string(abi.encode("exitWorld ", voxelTypeId, " ", coord, " ", entity, " ", neighbourEntityIds, " ", childEntityIds, " ", parentEntity))
+      abi.encodeWithSignature(
+        CA_EXIT_WORLD_SIG,
+        voxelTypeId,
+        coord,
+        entity,
+        neighbourEntityIds,
+        childEntityIds,
+        parentEntity
+      ),
+      string(
+        abi.encode(
+          "exitWorld ",
+          voxelTypeId,
+          " ",
+          coord,
+          " ",
+          entity,
+          " ",
+          neighbourEntityIds,
+          " ",
+          childEntityIds,
+          " ",
+          parentEntity
+        )
+      )
     );
 }
 
@@ -69,6 +115,15 @@ function runInteraction(
       caAddress,
       abi.encodeWithSignature(CA_RUN_INTERACTION_SIG, entity, neighbourEntityIds, childEntityIds, parentEntity),
       string(abi.encode("runInteraction ", entity, " ", neighbourEntityIds, " ", childEntityIds, " ", parentEntity))
+    );
+}
+
+function activateVoxel(address caAddress, bytes32 entity) returns (bytes memory) {
+  return
+    safeCall(
+      caAddress,
+      abi.encodeWithSignature(CA_ACTIVATE_VOXEL_SIG, entity),
+      string(abi.encode("activateVoxel ", entity))
     );
 }
 

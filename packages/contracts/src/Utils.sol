@@ -139,3 +139,7 @@ function entitiesToRelativeVoxelCoords(
   }
   return relativeCoords;
 }
+
+function positionDataToVoxelCoord(PositionData memory coord) pure returns (VoxelCoord memory) {
+  return VoxelCoord(coord.x, coord.y, coord.z);
+}

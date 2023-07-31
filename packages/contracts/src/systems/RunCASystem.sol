@@ -8,9 +8,10 @@ import { hasEntity } from "@tenet-utils/src/Utils.sol";
 import { safeCall } from "@tenet-utils/src/CallUtils.sol";
 import { CAVoxelType, CAVoxelTypeData } from "@tenet-base-ca/src/codegen/tables/CAVoxelType.sol";
 import { NUM_VOXEL_NEIGHBOURS, MAX_VOXEL_NEIGHBOUR_UPDATE_DEPTH } from "../Constants.sol";
-import { Position, PositionData, VoxelType, VoxelTypeData } from "@tenet-contracts/src/codegen/Tables.sol";
+import { Position, PositionData, VoxelType, VoxelTypeData, VoxelActivated, VoxelActivatedData } from "@tenet-contracts/src/codegen/Tables.sol";
 import { getEntityAtCoord, calculateChildCoords, calculateParentCoord } from "../Utils.sol";
-import { runInteraction, enterWorld, exitWorld } from "@tenet-base-ca/src/CallUtils.sol";
+import { runInteraction, enterWorld, exitWorld, activateVoxel } from "@tenet-base-ca/src/CallUtils.sol";
+import { addressToEntityKey } from "@tenet-utils/src/Utils.sol";
 
 contract RunCASystem is System {
   function getVoxelTypeId(uint32 scale, bytes32 entity) public view returns (bytes32) {
@@ -41,6 +42,15 @@ contract RunCASystem is System {
     bytes32[] memory childEntityIds = calculateChildEntities(scale, entity);
     bytes32 parentEntity = calculateParentEntity(scale, entity);
     exitWorld(caAddress, voxelTypeId, coord, entity, neighbourEntities, childEntityIds, parentEntity);
+  }
+
+  function activateCA(address caAddress, uint32 scale, bytes32 entity) public {
+    bytes memory returnData = activateVoxel(caAddress, entity);
+    string memory activateStr = abi.decode(returnData, (string));
+    VoxelActivated.emitEphemeral(
+      addressToEntityKey(tx.origin),
+      VoxelActivatedData({ scale: scale, entity: entity, message: activateStr })
+    );
   }
 
   function calculateNeighbourEntities(uint32 scale, bytes32 centerEntity) public view returns (bytes32[] memory) {

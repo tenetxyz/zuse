@@ -27,8 +27,17 @@ export function Lobby({ layers }: Props) {
         <div className="font-inter z-20 text-9xl opacity-100 text-white w-full h-full font-bold text-center mb-5">
           EVERLON
         </div>
-        <div className="z-20 bg-slate-200 ">
-          <WorldRegistry layers={layers} filters={worldRegistryFilters} setFilters={setWorldRegistryFilters} />;
+        <div 
+          className="z-20 text-white"
+          style={{
+            padding: "4px 2px",
+            // border: "0.5px solid #C9CACB",
+            borderRadius: "4px",
+            marginTop: "8px",
+            backgroundColor: "#ffffff12",
+            backdropFilter: "blur(2px)",
+          }}>
+          <WorldRegistry layers={layers} filters={worldRegistryFilters} setFilters={setWorldRegistryFilters} />
         </div>
       </div>
     </div>

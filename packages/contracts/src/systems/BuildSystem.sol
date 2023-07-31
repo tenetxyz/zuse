@@ -15,7 +15,7 @@ import { getUniqueEntity } from "@latticexyz/world/src/modules/uniqueentity/getU
 import { addressToEntityKey } from "@tenet-utils/src/Utils.sol";
 
 contract BuildSystem is System {
-  function build(uint32 scale, bytes32 entity, VoxelCoord memory coord) public returns (bytes32) {
+  function build(uint32 scale, bytes32 entity, VoxelCoord memory coord) public returns (uint32, bytes32) {
     // Require voxel to be owned by caller
     require(OwnedBy.get(scale, entity) == tx.origin, "voxel is not owned by player");
 
@@ -24,7 +24,7 @@ contract BuildSystem is System {
   }
 
   // TODO: when we have a survival mode, prevent ppl from alling this function directly (since they don't need to own the voxel to call it)
-  function buildVoxelType(bytes32 voxelTypeId, VoxelCoord memory coord) public returns (bytes32) {
+  function buildVoxelType(bytes32 voxelTypeId, VoxelCoord memory coord) public returns (uint32, bytes32) {
     require(IWorld(_world()).isVoxelTypeAllowed(voxelTypeId), "BuildSystem: Voxel type not allowed in this world");
     VoxelTypeRegistryData memory voxelTypeData = VoxelTypeRegistry.get(IStore(REGISTRY_ADDRESS), voxelTypeId);
     address caAddress = WorldConfig.get(voxelTypeId);
@@ -62,6 +62,6 @@ contract BuildSystem is System {
 
     IWorld(_world()).runCA(caAddress, scale, voxelToBuild);
 
-    return voxelToBuild;
+    return (scale, voxelToBuild);
   }
 }

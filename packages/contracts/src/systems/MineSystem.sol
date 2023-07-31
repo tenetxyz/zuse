@@ -6,14 +6,13 @@ import { IWorld } from "@tenet-contracts/src/codegen/world/IWorld.sol";
 import { getUniqueEntity } from "@latticexyz/world/src/modules/uniqueentity/getUniqueEntity.sol";
 import { getKeysInTable } from "@latticexyz/world/src/modules/keysintable/getKeysInTable.sol";
 import { System } from "@latticexyz/world/src/System.sol";
-import { VoxelCoord } from "@tenet-contracts/src/Types.sol";
+import { VoxelCoord, VoxelEntity } from "@tenet-contracts/src/Types.sol";
 import { WorldConfig, OwnedBy, Position, PositionTableId, VoxelType, VoxelTypeData, OfSpawn, Spawn, SpawnData } from "@tenet-contracts/src/codegen/Tables.sol";
 import { REGISTRY_ADDRESS } from "@tenet-contracts/src/Constants.sol";
 import { calculateChildCoords, getEntityAtCoord, getEntitiesAtCoord } from "@tenet-contracts/src/Utils.sol";
 import { CAVoxelType, CAVoxelTypeData } from "@tenet-base-ca/src/codegen/tables/CAVoxelType.sol";
 import { VoxelTypeRegistry, VoxelTypeRegistryData } from "@tenet-registry/src/codegen/tables/VoxelTypeRegistry.sol";
 import { addressToEntityKey } from "@tenet-utils/src/Utils.sol";
-import { removeEntityFromArray } from "@tenet-utils/src/Utils.sol";
 import { Utils } from "@latticexyz/world/src/Utils.sol";
 import { CHUNK_MAX_Y, CHUNK_MIN_Y } from "../Constants.sol";
 import { AirVoxelVariantID } from "@tenet-base-ca/src/Constants.sol";
@@ -65,27 +64,40 @@ contract MineSystem is System {
     // Can't own it since it became air, so we gift it
     IWorld(_world()).giftVoxel(voxelTypeId);
 
+    tryRemoveVoxelFromSpawn(scale, voxelToMine);
+
     return voxelToMine;
   }
 
-  function tryRemoveVoxelFromSpawn(bytes32 voxel) internal {
-    bytes32 spawnId = OfSpawn.get(voxel);
+  function tryRemoveVoxelFromSpawn(uint32 scale, bytes32 voxel) internal {
+    bytes32 spawnId = OfSpawn.get(scale, voxel);
     if (spawnId == 0) {
       return;
     }
 
     OfSpawn.deleteRecord(voxel);
     SpawnData memory spawn = Spawn.get(spawnId);
+
     // should we check to see if the entity is in the array before trying to remove it?
     // I think it's ok to assume it's there, since this is the only way to remove a voxel from a spawn
-    bytes32[] memory newVoxels = removeEntityFromArray(spawn.voxels, voxel);
+    VoxelEntity[] memory existingVoxels = abi.decode(spawn.voxels, (VoxelEntity[]));
+    bytes32[] memory newVoxels = new bytes32[](existingVoxels.length - 1);
+    uint index = 0;
+
+    // Copy elements from the original array to the updated array, excluding the entity
+    for (uint i = 0; i < existingVoxels.length; i++) {
+      if (existingVoxels[i].scale != scale || existingVoxels[i].entityId != voxel) {
+        newVoxels[index] = existingVoxels[i];
+        index++;
+      }
+    }
 
     if (newVoxels.length == 0) {
       // no more voxels of this spawn are in the world, so delete it
       Spawn.deleteRecord(spawnId);
     } else {
       // This spawn is still in the world, but it has been modified (since a voxel was removed)
-      Spawn.setVoxels(spawnId, newVoxels);
+      Spawn.setVoxels(spawnId, abi.encode(newVoxels));
       Spawn.setIsModified(spawnId, true);
     }
   }

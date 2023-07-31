@@ -14,6 +14,8 @@ root.render(
     <span className="text-white">Connecting</span>
   </BootScreen>
 );
+const params = new URLSearchParams(window.location.search);
+const shouldMountDevTools = params.get("mountDevTools");
 
 // TODO: figure out if we actually want this to be async or if we should render something else in the meantime
 setup().then((result) => {
@@ -22,5 +24,7 @@ setup().then((result) => {
       <App />
     </MUDProvider>
   );
-  mountDevTools();
+  if (shouldMountDevTools) {
+    mountDevTools();
+  }
 });

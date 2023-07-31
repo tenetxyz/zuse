@@ -75,10 +75,7 @@ export const getVoxelCoordsOfCreation = (
     const voxelCoord = voxelCoords[i];
     const voxelType = voxelTypes[i];
     // TODO: replace with strict
-    const voxelTypeDesc = getComponentValue(VoxelTypeRegistry, voxelType.voxelTypeId);
-    if (voxelTypeDesc === undefined) {
-      continue;
-    }
+    const voxelTypeDesc = getComponentValueStrict(VoxelTypeRegistry, voxelType.voxelTypeId);
     if (voxelTypeDesc.scale === scale) {
       voxelCoordsOnScale.push(voxelCoord);
     }

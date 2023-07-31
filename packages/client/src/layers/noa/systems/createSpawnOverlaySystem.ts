@@ -33,6 +33,7 @@ export function createSpawnOverlaySystem(networkLayer: NetworkLayer, noaLayer: N
     renderSpawnOutlines();
   });
 
+  // when the player zooms to a different level, we need to re-render the spawn outlines (since voxels on a spawn may not exist on that level)
   noa.on("newWorldName", (_newWorldName: string) => {
     renderSpawnOutlines();
   });

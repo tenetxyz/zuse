@@ -1,1 +1,1 @@
-export SERVER_HOST=ec2-3-14-81-253.us-east-2.compute.amazonaws.com
+SERVER_HOST=3.140.237.192

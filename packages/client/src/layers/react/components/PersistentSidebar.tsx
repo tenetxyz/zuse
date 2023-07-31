@@ -9,8 +9,8 @@ import { openSidebar } from "../../../layers/noa/systems/createInputSystem";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faArrowUp, faArrowDown, faBars } from "@fortawesome/free-solid-svg-icons";
 import styled from "styled-components";
-import { isNetworkComponentUpdateEvent, NetworkComponentUpdate } from "@latticexyz/network";
-import { Entity, getComponentValue, getComponentEntities, getComponentValueStrict } from "@latticexyz/recs";
+import { isNetworkComponentUpdateEvent, NetworkComponentUpdate, SingletonID } from "@latticexyz/network";
+import { Entity, getComponentValue, getComponentEntities, getComponentValueStrict, setComponent } from "@latticexyz/recs";
 import { filter, scan, merge, map } from "rxjs";
 import { filterNullish } from "@latticexyz/utils";
 import { voxelTypeToEntity, entityToVoxelType } from "../../noa/types";
@@ -133,7 +133,7 @@ export function registerPersistentSidebar() {
       const {
         noa: {
           noa,
-          components: { FocusedUi, SpawnCreation, PersistentNotification },
+          components: { FocusedUi, SpawnCreation, PersistentNotification, WorldScale },
           SingletonEntity,
           api: { teleport },
           streams: { playerPosition$, zoomEvent$ },
@@ -295,6 +295,8 @@ export function registerPersistentSidebar() {
         setTimeout(() => {
           // only change the world name after the zooming animation fades to black (so the user doesn't see the world unload)
           noa.worldName = newWorldScale.toString();
+
+          setComponent(WorldScale, SingletonID, { value: newWorldScale});
 
           const position = playerPosition$.getValue();
           teleport(getNewPosition(position));

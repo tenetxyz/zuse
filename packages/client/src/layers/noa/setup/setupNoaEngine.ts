@@ -54,7 +54,6 @@ export function setupNoaEngine(network: NetworkLayer) {
   BABYLON.RenderingManager.MIN_RENDERINGGROUPS = -1;
 
   const noa = new Engine(noaOptions);
-  noa.worldName = "2";
   const scene = noa.rendering.getScene();
   noa.world.worldGenWhilePaused = false;
 

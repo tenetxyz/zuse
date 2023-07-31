@@ -75,6 +75,7 @@ import { createSpawnOverlaySystem } from "./systems/createSpawnOverlaySystem";
 import { VoxelVariantNoaDef, VoxelBaseTypeId, VoxelVariantTypeId } from "./types";
 import { DEFAULT_BLOCK_TEST_DISTANCE } from "./setup/setupNoaEngine";
 import { FocusedUiType } from "./components/FocusedUi";
+import { defineWorldScaleComponent } from "./components/WorldScale";
 
 export enum UiComponentType {
   INVENTORY = "Inventory",
@@ -124,10 +125,15 @@ export function createNoaLayer(network: NetworkLayer) {
     SpawnCreation: defineSpawnCreationComponent(world),
     SpawnInFocus: defineSpawnInFocusComponent(world),
     SpawnToClassify: defineSpawnToClassifyComponent(world),
+    WorldScale: createLocalCache(defineWorldScaleComponent(world)),
   };
 
   // --- SETUP ----------------------------------------------------------------------
   const { noa, setVoxel, glow } = setupNoaEngine(network);
+
+  const existingWorldScale = getComponentValue(components.WorldScale, SingletonID)
+  const worldScale = existingWorldScale?.value.toString() ?? "2";
+  noa.worldName = worldScale;
 
   // Because NOA and RECS currently use different ECS libraries we need to maintain a mapping of RECS ID to Noa ID
   // A future version of OPCraft will remove the NOA ECS library and use pure RECS only
@@ -355,7 +361,7 @@ export function createNoaLayer(network: NetworkLayer) {
   setupClouds(noa);
   setupSky(noa);
   setupHand(noa, network);
-  setupDayNightCycle(noa, glow); // Curtis removed this because he had to constantly change his monitor brightness
+  // setupDayNightCycle(noa, glow); // Curtis removed this because he had to constantly change his monitor brightness
 
   // Pause noa until initial loading is done
   noa.setPaused(true);

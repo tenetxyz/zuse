@@ -299,7 +299,13 @@ export function registerPersistentSidebar() {
           setComponent(WorldScale, SingletonID, { value: newWorldScale});
 
           const position = playerPosition$.getValue();
-          teleport(getNewPosition(position));
+
+          // If we teleport too soon, the player will teleport to the right spot, but noa will unload the world
+          // so the player falls down.  Then the world loads again, but by then, we've fallen down by one block
+          setTimeout(() => {
+            // note: this logic is buggy if the user spams the scale button a lot, but it's much simpler than trying to keep track of the user's gravity multiplier
+            teleport(getNewPosition(position));
+          }, 2000)
         }, 200);
       };
 
@@ -311,13 +317,8 @@ export function registerPersistentSidebar() {
       const zoomOut = (event: React.MouseEvent<HTMLDivElement>) => {
         (event.target as HTMLElement).blur();
         setScale(+1, (playerPosition) => {
-          const newPosition = getPositionInLevelAbove(playerPosition);
-          if (playerPosition.y === 1) {
-            // they were on the ground floor
-            // give them extra y so the user doesn't get stuck in the terrain
-            newPosition.y += 1;
-          }
-          return newPosition;
+          playerPosition.y += 1; // add one since we are dividing the player's y by 2
+          return getPositionInLevelAbove(playerPosition);
         });
       };
 
@@ -443,7 +444,7 @@ export function registerPersistentSidebar() {
                 </div>
                 <hr style={{ borderTop: "1px solid rgb(201, 202, 203, 0.5)", marginBottom: "4px" }} />
                 <div>
-                  {/* {position && (
+                   {/*{position && (
                     <span>
                       <span>
                         <span

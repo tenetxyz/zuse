@@ -91,7 +91,7 @@ contract LavaVoxelSystem is System {
   function activateSelectorLava(address callerAddress, bytes32 entity) public view returns (string memory) {
     TemperatureData memory temperatureData = Temperature.get(callerAddress, entity);
     if (temperatureData.hasValue) {
-      return string(abi.encode("temperature: ", Strings.toString(temperatureData.temperature)));
+      return string.concat("temperature: ", Strings.toString(temperatureData.temperature));
     }
   }
 }

@@ -149,17 +149,11 @@ contract RunCASystem is System {
   // TODO: Make this general by using cube root
   function calculateParentEntity(uint32 scale, bytes32 entity) public view returns (bytes32) {
     bytes32 parentEntity;
-    if (scale == 1) {
-      // TODO: Fix this
-      PositionData memory baseCoord = Position.get(scale, entity);
-      VoxelCoord memory baseVoxelCoord = VoxelCoord({ x: baseCoord.x, y: baseCoord.y, z: baseCoord.z });
-      VoxelCoord memory parentVoxelCoord = calculateParentCoord(scale, baseVoxelCoord); // TODO: Should this be 2?
-      parentEntity = getEntityAtCoord(scale + 1, parentVoxelCoord);
-      if (parentEntity == 0) {
-        // TODO: it's not always there
-        // revert("found no parent entity");
-      }
-    }
+
+    PositionData memory baseCoord = Position.get(scale, entity);
+    VoxelCoord memory baseVoxelCoord = VoxelCoord({ x: baseCoord.x, y: baseCoord.y, z: baseCoord.z });
+    VoxelCoord memory parentVoxelCoord = calculateParentCoord(2, baseVoxelCoord);
+    parentEntity = getEntityAtCoord(scale + 1, parentVoxelCoord);
 
     return parentEntity;
   }

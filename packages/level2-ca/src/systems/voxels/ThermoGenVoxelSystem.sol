@@ -88,7 +88,7 @@ contract ThermoGenVoxelSystem is System {
   function activateSelectorThermoGen(address callerAddress, bytes32 entity) public view returns (string memory) {
     GeneratorData memory generatorData = Generator.get(callerAddress, entity);
     if (generatorData.hasValue) {
-      return string(abi.encode("genRate: ", Strings.toString(generatorData.genRate)));
+      return string.concat("genRate: ", Strings.toString(generatorData.genRate));
     }
   }
 }

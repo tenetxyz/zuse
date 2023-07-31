@@ -5,7 +5,7 @@ import { getUniqueEntity } from "@latticexyz/world/src/modules/uniqueentity/getU
 import { System } from "@latticexyz/world/src/System.sol";
 import { VoxelCoord, BaseCreation, VoxelEntity } from "@tenet-contracts/src/Types.sol";
 import { OwnedBy, Position, PositionTableId, VoxelType, VoxelTypeData, OfSpawn, Spawn, SpawnData, Creation, CreationData } from "@tenet-contracts/src/codegen/Tables.sol";
-import { getEntitiesAtCoord, increaseVoxelTypeSpawnCount } from "../Utils.sol";
+import { increaseVoxelTypeSpawnCount } from "../Utils.sol";
 import { voxelCoordsAreEqual, add } from "@tenet-utils/src/VoxelCoordUtils.sol";
 import { int32ToString } from "@tenet-utils/src/StringUtils.sol";
 import { IWorld } from "@tenet-contracts/src/codegen/world/IWorld.sol";
@@ -35,7 +35,7 @@ contract SpawnSystem is System {
       );
 
       // delete the voxels at this coord
-      IWorld(_world()).clearCoord(spawnVoxelAtCoord); // it's important to MINE the voxels since this function also removes spawns from the world if all its voxels are gone
+      IWorld(_world()).clearCoord(voxelTypes[i], spawnVoxelAtCoord); // it's important to MINE the voxels since this function also removes spawns from the world if all its voxels are gone
       (uint32 scale, bytes32 newEntity) = IWorld(_world()).buildVoxelType(voxelTypes[i].voxelTypeId, spawnVoxelAtCoord);
 
       // update the spawn-related components

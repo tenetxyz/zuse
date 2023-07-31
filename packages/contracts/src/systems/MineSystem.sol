@@ -9,7 +9,7 @@ import { System } from "@latticexyz/world/src/System.sol";
 import { VoxelCoord, VoxelEntity } from "@tenet-contracts/src/Types.sol";
 import { WorldConfig, OwnedBy, Position, PositionTableId, VoxelType, VoxelTypeData, OfSpawn, Spawn, SpawnData } from "@tenet-contracts/src/codegen/Tables.sol";
 import { REGISTRY_ADDRESS } from "@tenet-contracts/src/Constants.sol";
-import { calculateChildCoords, getEntityAtCoord, getEntitiesAtCoord } from "@tenet-contracts/src/Utils.sol";
+import { calculateChildCoords, getEntityAtCoord, positionDataToVoxelCoord } from "@tenet-contracts/src/Utils.sol";
 import { CAVoxelType, CAVoxelTypeData } from "@tenet-base-ca/src/codegen/tables/CAVoxelType.sol";
 import { VoxelTypeRegistry, VoxelTypeRegistryData } from "@tenet-registry/src/codegen/tables/VoxelTypeRegistry.sol";
 import { addressToEntityKey } from "@tenet-utils/src/Utils.sol";
@@ -18,7 +18,23 @@ import { CHUNK_MAX_Y, CHUNK_MIN_Y } from "../Constants.sol";
 import { AirVoxelVariantID } from "@tenet-base-ca/src/Constants.sol";
 
 contract MineSystem is System {
-  function mine(bytes32 voxelTypeId, VoxelCoord memory coord) public returns (bytes32) {
+  function mine(bytes32 voxelTypeId, VoxelCoord memory coord) public returns (uint32, bytes32) {
+    (uint32 scale, bytes32 voxelToMine) = mineVoxelType(voxelTypeId, coord, true);
+
+    bytes32 parentEntity = IWorld(_world()).calculateParentEntity(scale, voxelToMine);
+    if (parentEntity != 0) {
+      bytes32 parentVoxelTypeId = VoxelType.getVoxelTypeId(scale + 1, parentEntity);
+      VoxelCoord memory parentCoord = positionDataToVoxelCoord(Position.get(scale + 1, parentEntity));
+      mineVoxelType(parentVoxelTypeId, parentCoord, false);
+    }
+    return (scale, voxelToMine);
+  }
+
+  function mineVoxelType(
+    bytes32 voxelTypeId,
+    VoxelCoord memory coord,
+    bool mineChildren
+  ) internal returns (uint32, bytes32) {
     require(coord.y <= CHUNK_MAX_Y && coord.y >= CHUNK_MIN_Y, "out of chunk bounds");
     require(IWorld(_world()).isVoxelTypeAllowed(voxelTypeId), "MineSystem: Voxel type not allowed in this world");
     VoxelTypeRegistryData memory voxelTypeData = VoxelTypeRegistry.get(IStore(REGISTRY_ADDRESS), voxelTypeId);
@@ -37,7 +53,7 @@ contract MineSystem is System {
       }
     }
 
-    if (scale > 1) {
+    if (mineChildren && scale > 1) {
       // Read the ChildTypes in this CA address
       bytes32[] memory childVoxelTypeIds = voxelTypeData.childVoxelTypeIds;
       // TODO: Make this general by using cube root
@@ -66,7 +82,7 @@ contract MineSystem is System {
 
     tryRemoveVoxelFromSpawn(scale, voxelToMine);
 
-    return voxelToMine;
+    return (scale, voxelToMine);
   }
 
   function tryRemoveVoxelFromSpawn(uint32 scale, bytes32 voxel) internal {
@@ -102,20 +118,12 @@ contract MineSystem is System {
     }
   }
 
-  function clearCoord(VoxelCoord memory coord) public returns (bytes32) {
-    bytes32[][] memory entitiesAtPosition = getEntitiesAtCoord(coord);
-    bytes32 minedEntity = 0;
-    for (uint256 i = 0; i < entitiesAtPosition.length; i++) {
-      uint32 scale = uint32(uint256(entitiesAtPosition[i][0]));
-      bytes32 entity = entitiesAtPosition[i][1];
-
-      VoxelTypeData memory voxelTypeData = VoxelType.get(scale, entity);
-      if (voxelTypeData.voxelVariantId == AirVoxelVariantID) {
-        // if it's air, then it's already clear
-        continue;
-      }
-      minedEntity = mine(voxelTypeData.voxelTypeId, coord);
+  function clearCoord(VoxelTypeData memory voxelTypeData, VoxelCoord memory coord) public returns (bytes32) {
+    if (voxelTypeData.voxelVariantId != AirVoxelVariantID) {
+      (uint32 minedScale, bytes32 voxelToMine) = mine(voxelTypeData.voxelTypeId, coord);
+      return voxelToMine;
     }
-    return minedEntity;
+
+    return 0;
   }
 }

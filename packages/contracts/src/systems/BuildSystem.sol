@@ -23,8 +23,11 @@ contract BuildSystem is System {
     return buildVoxelType(voxelType.voxelTypeId, coord);
   }
 
-  // TODO: when we have a survival mode, prevent ppl from alling this function directly (since they don't need to own the voxel to call it)
-  function buildVoxelType(bytes32 voxelTypeId, VoxelCoord memory coord) public returns (uint32, bytes32) {
+  function buildVoxelTypeHelper(
+    bytes32 voxelTypeId,
+    VoxelCoord memory coord,
+    bool buildChildren
+  ) internal returns (uint32, bytes32) {
     require(IWorld(_world()).isVoxelTypeAllowed(voxelTypeId), "BuildSystem: Voxel type not allowed in this world");
     VoxelTypeRegistryData memory voxelTypeData = VoxelTypeRegistry.get(IStore(REGISTRY_ADDRESS), voxelTypeId);
     address caAddress = WorldConfig.get(voxelTypeId);
@@ -63,5 +66,10 @@ contract BuildSystem is System {
     IWorld(_world()).runCA(caAddress, scale, voxelToBuild);
 
     return (scale, voxelToBuild);
+  }
+
+  // TODO: when we have a survival mode, prevent ppl from alling this function directly (since they don't need to own the voxel to call it)
+  function buildVoxelType(bytes32 voxelTypeId, VoxelCoord memory coord) public returns (uint32, bytes32) {
+    return buildVoxelTypeHelper(voxelTypeId, coord, true);
   }
 }

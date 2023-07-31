@@ -21,11 +21,13 @@ contract MineSystem is System {
   function mine(bytes32 voxelTypeId, VoxelCoord memory coord) public returns (uint32, bytes32) {
     (uint32 scale, bytes32 voxelToMine) = mineVoxelType(voxelTypeId, coord, true);
 
-    bytes32 parentEntity = IWorld(_world()).calculateParentEntity(scale, voxelToMine);
-    if (parentEntity != 0) {
-      bytes32 parentVoxelTypeId = VoxelType.getVoxelTypeId(scale + 1, parentEntity);
-      VoxelCoord memory parentCoord = positionDataToVoxelCoord(Position.get(scale + 1, parentEntity));
-      mineVoxelType(parentVoxelTypeId, parentCoord, false);
+    bytes32 useParentEntity = IWorld(_world()).calculateParentEntity(scale, voxelToMine);
+    uint32 useParentScale = scale + 1;
+    while (useParentEntity != 0) {
+      bytes32 parentVoxelTypeId = VoxelType.getVoxelTypeId(useParentScale, useParentEntity);
+      VoxelCoord memory parentCoord = positionDataToVoxelCoord(Position.get(useParentScale, useParentEntity));
+      (uint32 minedParentScale, bytes32 minedParentEntity) = mineVoxelType(parentVoxelTypeId, parentCoord, false);
+      useParentEntity = IWorld(_world()).calculateParentEntity(minedParentScale, minedParentEntity);
     }
     return (scale, voxelToMine);
   }
@@ -77,8 +79,10 @@ contract MineSystem is System {
 
     IWorld(_world()).runCA(caAddress, scale, voxelToMine);
 
-    // Can't own it since it became air, so we gift it
-    IWorld(_world()).giftVoxel(voxelTypeId);
+    if (VoxelType.getVoxelVariantId(scale, voxelToMine) != AirVoxelVariantID) {
+      // Can't own it since it became air, so we gift it
+      IWorld(_world()).giftVoxel(voxelTypeId);
+    }
 
     tryRemoveVoxelFromSpawn(scale, voxelToMine);
 

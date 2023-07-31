@@ -8,11 +8,13 @@ import { VoxelCoord } from "../Types.sol";
 import { VoxelTypeRegistry, VoxelTypeRegistryData } from "@tenet-registry/src/codegen/tables/VoxelTypeRegistry.sol";
 import { REGISTRY_ADDRESS } from "@tenet-contracts/src/Constants.sol";
 import { CARegistry } from "@tenet-registry/src/codegen/tables/CARegistry.sol";
-import { WorldConfig, OwnedBy, Position, PositionTableId, VoxelType, VoxelTypeData } from "@tenet-contracts/src/codegen/Tables.sol";
+import { WorldConfig, WorldConfigTableId, OwnedBy, Position, PositionTableId, VoxelType, VoxelTypeData } from "@tenet-contracts/src/codegen/Tables.sol";
 import { CAVoxelType, CAVoxelTypeData } from "@tenet-base-ca/src/codegen/tables/CAVoxelType.sol";
-import { calculateChildCoords, getEntityAtCoord } from "../Utils.sol";
+import { getKeysInTable } from "@latticexyz/world/src/modules/keysintable/getKeysInTable.sol";
+import { calculateChildCoords, getEntityAtCoord, calculateParentCoord } from "../Utils.sol";
 import { getUniqueEntity } from "@latticexyz/world/src/modules/uniqueentity/getUniqueEntity.sol";
 import { addressToEntityKey } from "@tenet-utils/src/Utils.sol";
+import { AirVoxelVariantID } from "@tenet-base-ca/src/Constants.sol";
 
 contract BuildSystem is System {
   function build(uint32 scale, bytes32 entity, VoxelCoord memory coord) public returns (uint32, bytes32) {
@@ -68,8 +70,75 @@ contract BuildSystem is System {
     return (scale, voxelToBuild);
   }
 
+  function hasSameVoxelTypeSchema(
+    uint32 scale,
+    bytes32[] memory referenceVoxelTypeIds,
+    bytes32[] memory existingVoxelTypeIds,
+    VoxelCoord[] memory eightBlockVoxelCoords
+  ) internal view returns (bool) {
+    if (referenceVoxelTypeIds.length != existingVoxelTypeIds.length) {
+      return false;
+    }
+    for (uint256 i = 0; i < referenceVoxelTypeIds.length; i++) {
+      if (referenceVoxelTypeIds[i] != 0) {
+        if (referenceVoxelTypeIds[i] != existingVoxelTypeIds[i]) {
+          return false;
+        }
+      } else {
+        bytes32 siblingEntity = getEntityAtCoord(scale, eightBlockVoxelCoords[i]);
+        if (siblingEntity != 0 && VoxelType.getVoxelVariantId(scale, siblingEntity) != AirVoxelVariantID) {
+          return false;
+        }
+      }
+    }
+    return true;
+  }
+
+  function buildParent(uint32 buildScale, bytes32 buildVoxelEntity, VoxelCoord memory coord) internal {
+    // Calculate childVoxelTypes
+    VoxelCoord memory parentVoxelCoord = calculateParentCoord(2, coord);
+    VoxelCoord[] memory eightBlockVoxelCoords = calculateChildCoords(2, parentVoxelCoord);
+    bytes32[] memory existingChildVoxelTypes = new bytes32[](8);
+    for (uint8 i = 0; i < 8; i++) {
+      bytes32 siblingEntity = getEntityAtCoord(buildScale, eightBlockVoxelCoords[i]);
+      if (siblingEntity != 0) {
+        existingChildVoxelTypes[i] = VoxelType.getVoxelTypeId(buildScale, siblingEntity);
+      }
+    }
+
+    // Check if parent is there, and build if there
+    bytes32[][] memory worldVoxelTypeKeys = getKeysInTable(WorldConfigTableId);
+    for (uint256 i = 0; i < worldVoxelTypeKeys.length; i++) {
+      bytes32 worldVoxelTypeId = worldVoxelTypeKeys[i][0];
+      VoxelTypeRegistryData memory voxelTypeData = VoxelTypeRegistry.get(IStore(REGISTRY_ADDRESS), worldVoxelTypeId);
+      if (voxelTypeData.scale == buildScale + 1) {
+        bytes32[] memory childVoxelTypes = voxelTypeData.childVoxelTypeIds;
+        bool hasSameSchema = hasSameVoxelTypeSchema(
+          buildScale,
+          childVoxelTypes,
+          existingChildVoxelTypes,
+          eightBlockVoxelCoords
+        );
+
+        if (hasSameSchema) {
+          (uint32 parentScale, bytes32 parentVoxelEntity) = buildVoxelTypeHelper(
+            worldVoxelTypeId,
+            parentVoxelCoord,
+            false
+          );
+          buildParent(parentScale, parentVoxelEntity, parentVoxelCoord);
+          break;
+        }
+      }
+    }
+  }
+
   // TODO: when we have a survival mode, prevent ppl from alling this function directly (since they don't need to own the voxel to call it)
   function buildVoxelType(bytes32 voxelTypeId, VoxelCoord memory coord) public returns (uint32, bytes32) {
-    return buildVoxelTypeHelper(voxelTypeId, coord, true);
+    (uint32 buildScale, bytes32 buildVoxelEntity) = buildVoxelTypeHelper(voxelTypeId, coord, true);
+
+    buildParent(buildScale, buildVoxelEntity, coord);
+
+    return (buildScale, buildVoxelEntity);
   }
 }

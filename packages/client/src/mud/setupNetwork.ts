@@ -16,7 +16,7 @@ import { JsonRpcProvider } from "@ethersproject/providers";
 import { IWorld__factory } from "@tenetxyz/contracts/types/ethers-contracts/factories/IWorld__factory";
 import { IWorld__factory as RegistryIWorld__factory } from "@tenetxyz/registry/types/ethers-contracts/factories/IWorld__factory";
 import { getTableIds, awaitPromise, computedToStream, VoxelCoord, Coord, awaitStreamValue } from "@latticexyz/utils";
-import { map, timer, combineLatest, BehaviorSubject, Subject } from "rxjs";
+import { map, timer, combineLatest, BehaviorSubject } from "rxjs";
 import storeConfig from "@tenetxyz/contracts/mud.config";
 import registryStoreConfig from "@tenetxyz/registry/mud.config";
 import {

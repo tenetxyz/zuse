@@ -153,7 +153,7 @@ contract RunCASystem is System {
       // TODO: Fix this
       PositionData memory baseCoord = Position.get(scale, entity);
       VoxelCoord memory baseVoxelCoord = VoxelCoord({ x: baseCoord.x, y: baseCoord.y, z: baseCoord.z });
-      VoxelCoord memory parentVoxelCoord = calculateParentCoord(baseVoxelCoord, scale);
+      VoxelCoord memory parentVoxelCoord = calculateParentCoord(scale, baseVoxelCoord); // TODO: Should this be 2?
       parentEntity = getEntityAtCoord(scale + 1, parentVoxelCoord);
       if (parentEntity == 0) {
         // TODO: it's not always there

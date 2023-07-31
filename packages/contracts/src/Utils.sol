@@ -27,7 +27,7 @@ function calculateChildCoords(uint32 scale, VoxelCoord memory parentCoord) pure 
   return childCoords;
 }
 
-function calculateParentCoord(VoxelCoord memory childCoord, uint32 scale) pure returns (VoxelCoord memory) {
+function calculateParentCoord(uint32 scale, VoxelCoord memory childCoord) pure returns (VoxelCoord memory) {
   int32 newX = childCoord.x / int32(scale);
   if (childCoord.x < 0) {
     newX -= 1; // We need to do this because Solidity rounds towards 0

@@ -121,10 +121,14 @@ const CreationStore: React.FC<Props> = ({
           <div className="flex flex-col gap-5 mt-5 mb-4 w-full h-full justify-start items-center overflow-scroll">
             {creationsToDisplay.map((creation, idx) => {
               return (
-                <div key={"creation-" + idx} className="w-full p-6 bg-white border border-gray-200 rounded-lg shadow">
-                  <h5 className="mb-2 text-2xl font-bold tracking-tight text-gray-900">{creation.name}</h5>
-                  <p className="font-normal text-gray-700 leading-4">{creation.description}</p>
-                  <p className="font-normal text-gray-700 leading-4 mt-4"># Spawns: {creation.numSpawns.toString()}</p>
+                <div key={"creation-" + idx} style={{ border: "1px solid #374147" }} className="w-full p-6 rounded">
+                  <div className="flex justify-between items-center mb-4">
+                    <h5 className="font-black tracking-tight">{creation.name}</h5>
+                    <span className="inline-block bg-slate-600 rounded-full px-2 py-0 text-xs text-slate-200">
+                      Spawns: {creation.numSpawns.toString()}
+                    </span>
+                  </div>
+                  <p className="font-light text-xs">{creation.description}</p>
                   <div className="flex mt-5 gap-2">
                     <button
                       type="button"
@@ -132,16 +136,14 @@ const CreationStore: React.FC<Props> = ({
                         (event.target as HTMLElement).blur();
                         spawnCreation(creation);
                       }}
-                      className="focus:outline-none text-white bg-green-700 hover:bg-green-800 focus:ring-4 focus:ring-green-300 font-medium rounded-lg text-sm px-5 py-2.5 mr-2 mb-2"
+                      className="py-2.5 px-5 mr-2 text-sm font-bold rounded bg-amber-400 hover:bg-amber-500 text-slate-600"
                     >
                       Spawn
                     </button>
                     <button
                       type="button"
-                      onClick={() => {
-                        setSelectedCreation(creation);
-                      }}
-                      className="text-gray-900 hover:text-white border border-gray-800 hover:bg-gray-900 focus:ring-4 focus:outline-none focus:ring-gray-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center mr-2 mb-2"
+                      onClick={() => setSelectedCreation(creation)}
+                      className="py-2.5 px-5 mr-2 text-sm font-bold rounded border border-amber-400 hover:bg-slate-600 text-amber-400"
                     >
                       View Details
                     </button>

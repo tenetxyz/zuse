@@ -3,6 +3,7 @@ import { Layers } from "../../../types";
 import { Creation } from "./CreationStore";
 import { getComponentValueStrict } from "@latticexyz/recs";
 import { voxelCoordToString } from "../../../utils/coord";
+import { Separator } from "@radix-ui/react-dropdown-menu";
 
 interface Props {
   layers: Layers;
@@ -21,14 +22,17 @@ const CreationDetails: React.FC<Props> = ({ layers, selectedCreation }: Props) =
   }
 
   const renderVoxelTypes = () => {
+    const uniqueVoxelTypes = selectedCreation.voxelTypes.filter(
+      (voxelType, index, self) => index === self.findIndex((t) => t.voxelVariantTypeId === voxelType.voxelVariantTypeId)
+    );
     return (
       <div className="flex flex-col">
-        <h2 className="text-l font-bold text-black mb-5">Constructed With</h2>
+        <h2 className="text-l font-bold mb-5">Constructed With:</h2>
         <div className="flex">
-          {selectedCreation.voxelTypes.map((voxelType, idx) => {
+          {uniqueVoxelTypes.map((voxelType, idx) => {
             const iconUrl = getVoxelIconUrl(voxelType.voxelVariantTypeId);
             return (
-              <div key={"creation-voxel-" + idx} className="bg-slate-100 p-1 w-fit">
+              <div key={"creation-voxel-" + idx} className="p-1 w-fit border rounded border-slate-700">
                 <img src={iconUrl} className="w-[32px] h-[32px]" />
               </div>
             );
@@ -41,7 +45,7 @@ const CreationDetails: React.FC<Props> = ({ layers, selectedCreation }: Props) =
   const renderBaseCreations = () => {
     return (
       <div className="flex flex-col">
-        <h2 className="text-l font-bold text-black mb-5">Base Creations</h2>
+        <h2 className="text-l font-bold mb-5">Base Creations:</h2>
         <div className="flex">
           {selectedCreation.baseCreations.map((baseCreation, idx) => {
             const childCreation = getComponentValueStrict(Creation, baseCreation.creationId);
@@ -58,14 +62,15 @@ const CreationDetails: React.FC<Props> = ({ layers, selectedCreation }: Props) =
 
   return (
     <div className="flex flex-col h-full mt-5 gap-5">
-      <h4 className="text-2xl font-bold text-black">{selectedCreation.name}</h4>
-      <p className="font-normal text-gray-700 leading-4">{selectedCreation.description}</p>
-      <p className="font-normal text-gray-700 leading-4">
-        <b>Creator:</b> {selectedCreation.creator}
-      </p>
-      <p className="font-normal text-gray-700 leading-4">
-        <b># Spawns:</b> {selectedCreation.numSpawns.toString()}
-      </p>
+      <h4 className="text-2xl font-bold">{selectedCreation.name}</h4>
+      <p className="font-normal text-slate-200 leading-4">{selectedCreation.description}</p>
+      <span className="inline-block text-slate-200 text-sm">
+        <b>Creator:</b> {selectedCreation.creator.slice(2, 10)}...
+      </span>
+      <span className="inline-block text-sm text-slate-200">
+        <b>Spawns: </b> {selectedCreation.numSpawns.toString()}
+      </span>
+      <hr className="my-1 border border-slate-600" />
       {renderVoxelTypes()}
       {renderBaseCreations()}
     </div>

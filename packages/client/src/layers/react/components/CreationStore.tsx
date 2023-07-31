@@ -128,7 +128,8 @@ const CreationStore: React.FC<Props> = ({
                   <div className="flex mt-5 gap-2">
                     <button
                       type="button"
-                      onClick={() => {
+                      onClick={(event) => {
+                        (event.target as HTMLElement).blur();
                         spawnCreation(creation);
                       }}
                       className="focus:outline-none text-white bg-green-700 hover:bg-green-800 focus:ring-4 focus:ring-green-300 font-medium rounded-lg text-sm px-5 py-2.5 mr-2 mb-2"

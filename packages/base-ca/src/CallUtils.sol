@@ -9,7 +9,7 @@ function mineWorld(address callerAddress, bytes32 voxelTypeId, VoxelCoord memory
   return
     safeCall(
       callerAddress,
-      abi.encodeWithSignature("mine(bytes32,(int32,int32,int32))", voxelTypeId, coord),
+      abi.encodeWithSignature("mineVoxelType(bytes32,(int32,int32,int32),bool)", voxelTypeId, coord, true),
       string(abi.encode("mine ", voxelTypeId, " ", coord))
     );
 }
@@ -18,7 +18,7 @@ function buildWorld(address callerAddress, bytes32 voxelTypeId, VoxelCoord memor
   return
     safeCall(
       callerAddress,
-      abi.encodeWithSignature("buildVoxelType(bytes32,(int32,int32,int32))", voxelTypeId, coord),
+      abi.encodeWithSignature("buildVoxelType(bytes32,(int32,int32,int32),bool,bool)", voxelTypeId, coord, true, false),
       string(abi.encode("buildVoxelType ", voxelTypeId, " ", coord))
     );
 }

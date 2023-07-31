@@ -41,7 +41,8 @@ contract RoadVoxelSystem is System {
       RoadVoxelID,
       IWorld(world).enterWorldRoad.selector,
       IWorld(world).exitWorldRoad.selector,
-      IWorld(world).variantSelectorRoad.selector
+      IWorld(world).variantSelectorRoad.selector,
+      IWorld(world).activateSelectorRoad.selector
     );
   }
 
@@ -58,4 +59,6 @@ contract RoadVoxelSystem is System {
   ) public view returns (bytes32) {
     return RoadVoxelVariantID;
   }
+
+  function activateSelectorRoad(address callerAddress, bytes32 entity) public view returns (string memory) {}
 }

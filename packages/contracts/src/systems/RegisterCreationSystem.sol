@@ -5,7 +5,6 @@ import { getUniqueEntity } from "@latticexyz/world/src/modules/uniqueentity/getU
 import { System } from "@latticexyz/world/src/System.sol";
 import { Strings } from "@openzeppelin/contracts/utils/Strings.sol";
 import { IWorld } from "@tenet-contracts/src/codegen/world/IWorld.sol";
-import { getEntitiesAtCoord } from "../Utils.sol";
 import { voxelCoordToString, voxelCoordsAreEqual, add, sub } from "@tenet-utils/src/VoxelCoordUtils.sol";
 import { VoxelType, Position, Creation, CreationData, VoxelTypeData, Spawn, SpawnData, OfSpawn } from "@tenet-contracts/src/codegen/Tables.sol";
 import { PositionData } from "@tenet-contracts/src/codegen/tables/Position.sol";

@@ -43,7 +43,8 @@ contract LogVoxelSystem is System {
       LogVoxelID,
       IWorld(world).enterWorldLog.selector,
       IWorld(world).exitWorldLog.selector,
-      IWorld(world).variantSelectorLog.selector
+      IWorld(world).variantSelectorLog.selector,
+      IWorld(world).activateSelectorLog.selector
     );
   }
 
@@ -60,4 +61,6 @@ contract LogVoxelSystem is System {
   ) public view returns (bytes32) {
     return LogVoxelVariantID;
   }
+
+  function activateSelectorLog(address callerAddress, bytes32 entity) public view returns (string memory) {}
 }

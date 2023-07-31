@@ -38,7 +38,8 @@ contract ElectronVoxelSystem is System {
       ElectronVoxelID,
       IWorld(world).enterWorldElectron.selector,
       IWorld(world).exitWorldElectron.selector,
-      IWorld(world).variantSelectorElectron.selector
+      IWorld(world).variantSelectorElectron.selector,
+      IWorld(world).activateSelectorElectron.selector
     );
   }
 
@@ -97,4 +98,6 @@ contract ElectronVoxelSystem is System {
   ) public view returns (bytes32) {
     return ElectronVoxelVariantID;
   }
+
+  function activateSelectorElectron(address callerAddress, bytes32 entity) public view returns (string memory) {}
 }

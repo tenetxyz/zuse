@@ -45,6 +45,7 @@ import { setupNoaEngine } from "./setup";
 import {
   createVoxelSystem,
   createVoxelVariantSystem,
+  createActivateVoxelSystem,
   createInputSystem,
   createInventoryIndexSystem,
   createPlayerPositionSystem,
@@ -424,6 +425,7 @@ export function createNoaLayer(network: NetworkLayer) {
     noa: context,
   };
   createInputSystem(layers);
+  createActivateVoxelSystem(network, context);
   createVoxelVariantSystem(network, context);
   createVoxelSystem(network, context);
   createPlayerPositionSystem(network, context);

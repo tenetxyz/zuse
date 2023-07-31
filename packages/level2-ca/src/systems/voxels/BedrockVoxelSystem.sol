@@ -39,7 +39,8 @@ contract BedrockVoxelSystem is System {
       BedrockVoxelID,
       IWorld(world).enterWorldBedrock.selector,
       IWorld(world).exitWorldBecrock.selector,
-      IWorld(world).variantSelectorBedrock.selector
+      IWorld(world).variantSelectorBedrock.selector,
+      IWorld(world).activateSelectorBedrock.selector
     );
   }
 
@@ -56,4 +57,6 @@ contract BedrockVoxelSystem is System {
   ) public view returns (bytes32) {
     return BedrockVoxelVariantID;
   }
+
+  function activateSelectorBedrock(address callerAddress, bytes32 entity) public view returns (string memory) {}
 }

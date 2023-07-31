@@ -10,6 +10,7 @@ import { CAVoxelConfig, Temperature, TemperatureData } from "@tenet-level2-ca/sr
 import { REGISTRY_ADDRESS, IceVoxelID } from "@tenet-level2-ca/src/Constants.sol";
 import { VoxelCoord, BlockDirection } from "@tenet-utils/src/Types.sol";
 import { AirVoxelID } from "@tenet-base-ca/src/Constants.sol";
+import { Strings } from "@openzeppelin/contracts/utils/Strings.sol";
 
 bytes32 constant IceHotVoxelVariantID = bytes32(keccak256("ice.hot"));
 bytes32 constant IceColdVoxelVariantID = bytes32(keccak256("ice.cold"));
@@ -55,7 +56,8 @@ contract IceVoxelSystem is System {
       IceVoxelID,
       IWorld(world).enterWorldIce.selector,
       IWorld(world).exitWorldIce.selector,
-      IWorld(world).variantSelectorIce.selector
+      IWorld(world).variantSelectorIce.selector,
+      IWorld(world).activateSelectorIce.selector
     );
   }
 
@@ -83,6 +85,13 @@ contract IceVoxelSystem is System {
       return IceHotVoxelVariantID;
     } else {
       return IceColdVoxelVariantID;
+    }
+  }
+
+  function activateSelectorIce(address callerAddress, bytes32 entity) public view returns (string memory) {
+    TemperatureData memory temperatureData = Temperature.get(callerAddress, entity);
+    if (temperatureData.hasValue) {
+      return string.concat("temperature: ", Strings.toString(temperatureData.temperature));
     }
   }
 }

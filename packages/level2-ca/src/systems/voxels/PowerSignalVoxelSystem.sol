@@ -70,7 +70,8 @@ contract PowerSignalVoxelSystem is System {
       PowerSignalVoxelID,
       IWorld(world).enterWorldPowerSignal.selector,
       IWorld(world).exitWorldPowerSignal.selector,
-      IWorld(world).variantSelectorPowerSignal.selector
+      IWorld(world).variantSelectorPowerSignal.selector,
+      IWorld(world).activateSelectorPowerSignal.selector
     );
   }
 
@@ -125,4 +126,6 @@ contract PowerSignalVoxelSystem is System {
       }
     }
   }
+
+  function activateSelectorPowerSignal(address callerAddress, bytes32 entity) public view returns (string memory) {}
 }

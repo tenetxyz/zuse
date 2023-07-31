@@ -669,6 +669,7 @@ export async function setupNetwork() {
   function activate(entity: Entity) {
     const voxelTypeKeyInMudTable = getComponentValue(contractComponents.VoxelType, entity) as VoxelTypeKeyInMudTable;
     const preview = getVoxelTypePreviewUrl(voxelTypeKeyInMudTable.voxelVariantId);
+    const [scaleAsHex, entityId] = (entity as string).split(":");
 
     actions.add({
       id: `activateVoxel+entity=${entity}` as Entity,
@@ -676,12 +677,7 @@ export async function setupNetwork() {
       requirement: () => true,
       components: {},
       execute: () => {
-        return callSystem("activateVoxel", [entity, { gasLimit: 900_000_000 }], undefined, (rawResponse) => {
-          const response = abiDecode("string", rawResponse, false);
-          if (response !== "") {
-            toast(response);
-          }
-        });
+        return callSystem("activateVoxel", [scaleAsHex, entityId, { gasLimit: 900_000_000 }]);
       },
       updates: () => [],
       txMayNotWriteToTable: true,

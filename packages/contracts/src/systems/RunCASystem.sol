@@ -8,9 +8,10 @@ import { hasEntity } from "@tenet-utils/src/Utils.sol";
 import { safeCall } from "@tenet-utils/src/CallUtils.sol";
 import { CAVoxelType, CAVoxelTypeData } from "@tenet-base-ca/src/codegen/tables/CAVoxelType.sol";
 import { NUM_VOXEL_NEIGHBOURS, MAX_VOXEL_NEIGHBOUR_UPDATE_DEPTH } from "../Constants.sol";
-import { Position, PositionData, VoxelType, VoxelTypeData } from "@tenet-contracts/src/codegen/Tables.sol";
+import { Position, PositionData, VoxelType, VoxelTypeData, VoxelActivated, VoxelActivatedData } from "@tenet-contracts/src/codegen/Tables.sol";
 import { getEntityAtCoord, calculateChildCoords, calculateParentCoord } from "../Utils.sol";
-import { runInteraction, enterWorld, exitWorld } from "@tenet-base-ca/src/CallUtils.sol";
+import { runInteraction, enterWorld, exitWorld, activateVoxel } from "@tenet-base-ca/src/CallUtils.sol";
+import { addressToEntityKey } from "@tenet-utils/src/Utils.sol";
 
 contract RunCASystem is System {
   function getVoxelTypeId(uint32 scale, bytes32 entity) public view returns (bytes32) {
@@ -41,6 +42,15 @@ contract RunCASystem is System {
     bytes32[] memory childEntityIds = calculateChildEntities(scale, entity);
     bytes32 parentEntity = calculateParentEntity(scale, entity);
     exitWorld(caAddress, voxelTypeId, coord, entity, neighbourEntities, childEntityIds, parentEntity);
+  }
+
+  function activateCA(address caAddress, uint32 scale, bytes32 entity) public {
+    bytes memory returnData = activateVoxel(caAddress, entity);
+    string memory activateStr = abi.decode(returnData, (string));
+    VoxelActivated.emitEphemeral(
+      addressToEntityKey(tx.origin),
+      VoxelActivatedData({ scale: scale, entity: entity, message: activateStr })
+    );
   }
 
   function calculateNeighbourEntities(uint32 scale, bytes32 centerEntity) public view returns (bytes32[] memory) {
@@ -139,17 +149,11 @@ contract RunCASystem is System {
   // TODO: Make this general by using cube root
   function calculateParentEntity(uint32 scale, bytes32 entity) public view returns (bytes32) {
     bytes32 parentEntity;
-    if (scale == 1) {
-      // TODO: Fix this
-      PositionData memory baseCoord = Position.get(scale, entity);
-      VoxelCoord memory baseVoxelCoord = VoxelCoord({ x: baseCoord.x, y: baseCoord.y, z: baseCoord.z });
-      VoxelCoord memory parentVoxelCoord = calculateParentCoord(baseVoxelCoord, scale);
-      parentEntity = getEntityAtCoord(scale + 1, parentVoxelCoord);
-      if (parentEntity == 0) {
-        // TODO: it's not always there
-        // revert("found no parent entity");
-      }
-    }
+
+    PositionData memory baseCoord = Position.get(scale, entity);
+    VoxelCoord memory baseVoxelCoord = VoxelCoord({ x: baseCoord.x, y: baseCoord.y, z: baseCoord.z });
+    VoxelCoord memory parentVoxelCoord = calculateParentCoord(2, baseVoxelCoord);
+    parentEntity = getEntityAtCoord(scale + 1, parentVoxelCoord);
 
     return parentEntity;
   }

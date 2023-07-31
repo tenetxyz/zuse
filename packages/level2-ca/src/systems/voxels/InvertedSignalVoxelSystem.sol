@@ -33,7 +33,8 @@ contract InvertedSignalVoxelSystem is System {
       InvertedSignalVoxelID,
       IWorld(world).enterWorldInvertedSignal.selector,
       IWorld(world).exitWorldInvertedSignal.selector,
-      IWorld(world).variantSelectorInvertedSignal.selector
+      IWorld(world).variantSelectorInvertedSignal.selector,
+      IWorld(world).activateSelectorInvertedSignal.selector
     );
   }
 
@@ -63,4 +64,6 @@ contract InvertedSignalVoxelSystem is System {
       return SignalOffVoxelVariantID;
     }
   }
+
+  function activateSelectorInvertedSignal(address callerAddress, bytes32 entity) public view returns (string memory) {}
 }

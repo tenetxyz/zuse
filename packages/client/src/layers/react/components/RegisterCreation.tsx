@@ -119,8 +119,8 @@ const RegisterCreation: React.FC<Props> = ({ layers, formData, setFormData, rese
 
     for (const voxel of spawn.voxels) {
       const position = liveStoreCache.Position.get({
-        entity: to64CharAddress("0x" + voxel),
-        scale: getWorldScale(noa),
+        entity: voxel.entityId,
+        scale: voxel.scale,
       });
       const voxelCoordInSpawn = voxelCoordToString(position);
       creationVoxelCoordsInWorld.delete(voxelCoordInSpawn);

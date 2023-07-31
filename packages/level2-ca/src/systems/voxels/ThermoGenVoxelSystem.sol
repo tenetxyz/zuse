@@ -10,6 +10,7 @@ import { CAVoxelConfig, Generator, GeneratorData } from "@tenet-level2-ca/src/co
 import { REGISTRY_ADDRESS, ThermoGenVoxelID } from "@tenet-level2-ca/src/Constants.sol";
 import { VoxelCoord, BlockDirection } from "@tenet-utils/src/Types.sol";
 import { AirVoxelID } from "@tenet-base-ca/src/Constants.sol";
+import { Strings } from "@openzeppelin/contracts/utils/Strings.sol";
 
 bytes32 constant ThermoGenVoxelVariantID = bytes32(keccak256("thermogen"));
 
@@ -48,7 +49,8 @@ contract ThermoGenVoxelSystem is System {
       ThermoGenVoxelID,
       IWorld(world).enterWorldThermoGen.selector,
       IWorld(world).exitWorldThermoGen.selector,
-      IWorld(world).variantSelectorThermoGen.selector
+      IWorld(world).variantSelectorThermoGen.selector,
+      IWorld(world).activateSelectorThermoGen.selector
     );
   }
 
@@ -81,5 +83,12 @@ contract ThermoGenVoxelSystem is System {
     bytes32 parentEntity
   ) public view returns (bytes32) {
     return ThermoGenVoxelVariantID;
+  }
+
+  function activateSelectorThermoGen(address callerAddress, bytes32 entity) public view returns (string memory) {
+    GeneratorData memory generatorData = Generator.get(callerAddress, entity);
+    if (generatorData.hasValue) {
+      return string.concat("genRate: ", Strings.toString(generatorData.genRate));
+    }
   }
 }

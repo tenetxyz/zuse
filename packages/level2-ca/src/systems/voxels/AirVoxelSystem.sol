@@ -25,7 +25,8 @@ contract AirVoxelSystem is System {
       Level2AirVoxelID,
       IWorld(world).enterWorldAir.selector,
       IWorld(world).exitWorldAir.selector,
-      IWorld(world).variantSelectorAir.selector
+      IWorld(world).variantSelectorAir.selector,
+      IWorld(world).activateSelectorAir.selector
     );
   }
 
@@ -42,4 +43,6 @@ contract AirVoxelSystem is System {
   ) public view returns (bytes32) {
     return AirVoxelVariantID;
   }
+
+  function activateSelectorAir(address callerAddress, bytes32 entity) public view returns (string memory) {}
 }

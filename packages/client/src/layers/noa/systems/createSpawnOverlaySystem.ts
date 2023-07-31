@@ -8,6 +8,7 @@ import { add, calculateMinMaxRelativeCoordsOfCreation, decodeCoord, getWorldScal
 import { Entity } from "@latticexyz/recs";
 import { VoxelCoord, awaitStreamValue } from "@latticexyz/utils";
 import { ISpawn } from "../components/SpawnInFocus";
+import { abiDecode } from "@/utils/abi";
 
 export type BaseCreation = {
   creationId: Entity;
@@ -45,12 +46,14 @@ export function createSpawnOverlaySystem(networkLayer: NetworkLayer, noaLayer: N
       const spawnId = rawSpawnId as any;
       const encodedLowerSouthWestCorner = spawnTable.lowerSouthWestCorner.get(spawnId)!;
       const lowerSouthWestCorner = decodeCoord(encodedLowerSouthWestCorner);
+      const encodedVoxelEntities = spawnTable.voxels.get(spawnId)!;
+      const voxelEntities = abiDecode("(uint32 scale,bytes32 entityId)[]", encodedVoxelEntities);
       if (lowerSouthWestCorner) {
         spawns.push({
           spawnId: spawnId,
           creationId: creationId as Entity,
           lowerSouthWestCorner: lowerSouthWestCorner,
-          voxels: spawnTable.voxels.get(spawnId) as Entity[],
+          voxels: voxelEntities,
         });
       }
     });

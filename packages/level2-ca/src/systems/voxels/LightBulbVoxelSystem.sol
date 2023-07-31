@@ -58,7 +58,8 @@ contract LightBulbVoxelSystem is System {
       LightBulbVoxelID,
       IWorld(world).enterWorldLightBulb.selector,
       IWorld(world).exitWorldLightBulb.selector,
-      IWorld(world).variantSelectorLightBulb.selector
+      IWorld(world).variantSelectorLightBulb.selector,
+      IWorld(world).activateSelectorLightBulb.selector
     );
   }
 
@@ -94,4 +95,6 @@ contract LightBulbVoxelSystem is System {
       return LightBulbOffVoxelVariantID;
     }
   }
+
+  function activateSelectorLightBulb(address callerAddress, bytes32 entity) public view returns (string memory) {}
 }

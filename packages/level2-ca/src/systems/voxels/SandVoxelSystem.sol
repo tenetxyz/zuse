@@ -42,7 +42,8 @@ contract SandVoxelSystem is System {
       SandVoxelID,
       IWorld(world).enterWorldSand.selector,
       IWorld(world).exitWorldSand.selector,
-      IWorld(world).variantSelectorSand.selector
+      IWorld(world).variantSelectorSand.selector,
+      IWorld(world).activateSelectorSand.selector
     );
   }
 
@@ -67,4 +68,6 @@ contract SandVoxelSystem is System {
   ) public view returns (bytes32) {
     return SandVoxelVariantID;
   }
+
+  function activateSelectorSand(address callerAddress, bytes32 entity) public view returns (string memory) {}
 }

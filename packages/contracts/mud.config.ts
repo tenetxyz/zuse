@@ -31,6 +31,17 @@ export default mudConfig({
         voxelVariantId: "bytes32",
       },
     },
+    VoxelActivated: {
+      keySchema: {
+        player: "bytes32",
+      },
+      schema: {
+        scale: "uint32",
+        entity: "bytes32",
+        message: "string",
+      },
+      ephemeral: true,
+    },
     Position: {
       keySchema: {
         scale: "uint32",
@@ -71,13 +82,22 @@ export default mudConfig({
     },
 
     // tables for spawning
-    OfSpawn: "bytes32", // maps a voxel spawned in the world -> the entityId representing its spawn
+    OfSpawn: {
+      // maps a voxel spawned in the world -> the entityId representing its spawn
+      keySchema: {
+        scale: "uint32",
+        entity: "bytes32",
+      },
+      schema: {
+        spawnId: "bytes32",
+      },
+    },
     Spawn: {
       schema: {
         creationId: "bytes32", // the creation that it's a spawn of
         isModified: "bool", // modified spawns can't be submitted to classifiers
         lowerSouthWestCorner: "bytes", // VoxelCoord
-        voxels: "bytes32[]", // the voxelIds that have been spawned
+        voxels: "bytes", // the voxel entities that have been spawned
       },
     },
     Classifier: {

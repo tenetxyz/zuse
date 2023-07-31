@@ -70,7 +70,8 @@ contract PowerWireVoxelSystem is System {
       PowerWireVoxelID,
       IWorld(world).enterWorldPowerWire.selector,
       IWorld(world).exitWorldPowerWire.selector,
-      IWorld(world).variantSelectorPowerWire.selector
+      IWorld(world).variantSelectorPowerWire.selector,
+      IWorld(world).activateSelectorPowerWire.selector
     );
   }
 
@@ -117,4 +118,6 @@ contract PowerWireVoxelSystem is System {
       }
     }
   }
+
+  function activateSelectorPowerWire(address callerAddress, bytes32 entity) public view returns (string memory) {}
 }

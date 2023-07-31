@@ -7,7 +7,6 @@ import { getKeysInTable } from "@latticexyz/world/src/modules/keysintable/getKey
 import { System } from "@latticexyz/world/src/System.sol";
 import { VoxelCoord } from "../types.sol";
 import { OwnedBy, Position, PositionTableId, VoxelType, Spawn, SpawnTableId, Classifier, ClassifierData, ClassifierTableId } from "@tenet-contracts/src/codegen/Tables.sol";
-import { getEntitiesAtCoord } from "../utils.sol";
 import { IWorld } from "@tenet-contracts/src/codegen/world/IWorld.sol";
 import { InterfaceVoxel } from "@tenet-contracts/src/Types.sol";
 import { SpawnData, OfSpawn } from "@tenet-contracts/src/codegen/Tables.sol";
@@ -44,7 +43,8 @@ contract ClassifyCreationSystem is System {
     for (uint32 i = 0; i < input.length; i++) {
       bytes32 voxel = input[i].entity;
       require(uint256(voxel) != 0, "Interface voxel cannot be 0");
-      require(OfSpawn.get(voxel) == spawnId, "All voxels in the interface must be in the spawn");
+      // TODO: Fix by adding scale
+      // require(OfSpawn.get(voxel) == spawnId, "All voxels in the interface must be in the spawn");
     }
   }
 

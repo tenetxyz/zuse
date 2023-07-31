@@ -94,7 +94,10 @@ abstract contract CA is System {
     bytes32[] memory childEntityIds,
     bytes32 parentEntity
   ) public {
-    require(voxelTypeId != emptyVoxelId(), "can not mine air");
+    if (voxelTypeId == emptyVoxelId()) {
+      return;
+    }
+
     address callerAddress = _msgSender();
     if (!hasKey(CAPositionTableId, CAPosition.encodeKeyTuple(callerAddress, entity))) {
       terrainGen(callerAddress, voxelTypeId, coord, entity);
@@ -174,5 +177,17 @@ abstract contract CA is System {
     }
 
     return changedEntities;
+  }
+
+  function activateVoxel(bytes32 entity) public returns (string memory) {
+    address callerAddress = _msgSender();
+    bytes32 voxelTypeId = CAVoxelType.getVoxelTypeId(callerAddress, entity);
+    bytes4 voxelActivateSelector = CAVoxelConfig.getActivateSelector(voxelTypeId);
+    bytes memory returnData = safeCall(
+      _world(),
+      abi.encodeWithSelector(voxelActivateSelector, callerAddress, entity),
+      "voxel activate"
+    );
+    return abi.decode(returnData, (string));
   }
 }

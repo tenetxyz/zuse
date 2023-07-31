@@ -42,7 +42,8 @@ contract StorageVoxelSystem is System {
       StorageVoxelID,
       IWorld(world).enterWorldStorage.selector,
       IWorld(world).exitWorldStorage.selector,
-      IWorld(world).variantSelectorStorage.selector
+      IWorld(world).variantSelectorStorage.selector,
+      IWorld(world).activateSelectorStorage.selector
     );
   }
 
@@ -83,4 +84,6 @@ contract StorageVoxelSystem is System {
   ) public view returns (bytes32) {
     return StorageVoxelVariantID;
   }
+
+  function activateSelectorStorage(address callerAddress, bytes32 entity) public view returns (string memory) {}
 }

@@ -36,7 +36,7 @@ contract MineSystem is System {
     bytes32 voxelTypeId,
     VoxelCoord memory coord,
     bool mineChildren
-  ) internal returns (uint32, bytes32) {
+  ) public returns (uint32, bytes32) {
     require(coord.y <= CHUNK_MAX_Y && coord.y >= CHUNK_MIN_Y, "out of chunk bounds");
     require(IWorld(_world()).isVoxelTypeAllowed(voxelTypeId), "MineSystem: Voxel type not allowed in this world");
     VoxelTypeRegistryData memory voxelTypeData = VoxelTypeRegistry.get(IStore(REGISTRY_ADDRESS), voxelTypeId);

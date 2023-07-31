@@ -47,6 +47,7 @@ export default mudConfig({
         numSpawns: "uint256",
         name: "string",
         childVoxelTypeIds: "bytes32[]",
+        schemaVoxelTypeIds: "bytes32[]",
       },
     },
     VoxelVariantsRegistry: {

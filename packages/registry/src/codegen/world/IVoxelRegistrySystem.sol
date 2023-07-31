@@ -10,6 +10,7 @@ interface IVoxelRegistrySystem {
     string memory voxelTypeName,
     bytes32 voxelTypeId,
     bytes32[] memory childVoxelTypeIds,
+    bytes32[] memory schemaVoxelTypeIds,
     bytes32 previewVoxelVariantId
   ) external;
 

@@ -37,6 +37,7 @@ contract FlowerVoxelSystem is System {
       "Orange Flower",
       OrangeFlowerVoxelID,
       flowerChildVoxelTypes,
+      flowerChildVoxelTypes,
       OrangeFlowerVoxelVariantID
     );
 

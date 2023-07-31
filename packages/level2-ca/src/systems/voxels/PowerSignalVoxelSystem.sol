@@ -62,6 +62,7 @@ contract PowerSignalVoxelSystem is System {
       "Power Signal",
       PowerSignalVoxelID,
       powerSignalChildVoxelTypes,
+      powerSignalChildVoxelTypes,
       PowerSignalOffVoxelVariantID
     );
 

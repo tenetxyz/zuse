@@ -62,6 +62,7 @@ contract PowerWireVoxelSystem is System {
       "Power Wire",
       PowerWireVoxelID,
       powerWireChildVoxelTypes,
+      powerWireChildVoxelTypes,
       PowerWireOffVoxelVariantID
     );
 

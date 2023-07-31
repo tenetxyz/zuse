@@ -50,6 +50,7 @@ contract LightBulbVoxelSystem is System {
       "Light Bulb",
       LightBulbVoxelID,
       lightBulbChildVoxelTypes,
+      lightBulbChildVoxelTypes,
       LightBulbOffVoxelVariantID
     );
 

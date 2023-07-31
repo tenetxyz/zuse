@@ -6,6 +6,7 @@ import { NoaLayer, VoxelVariantNoaDef } from "../types";
 import { toast } from "react-toastify";
 import { getNftStorageLink } from "../constants";
 import { abiDecode } from "../../../utils/abi";
+import { removeTrailingNulls } from "@/utils/encodeOrDecode";
 
 export async function createActivateVoxelSystem(network: NetworkLayer, noaLayer: NoaLayer) {
   const {
@@ -24,7 +25,11 @@ export async function createActivateVoxelSystem(network: NetworkLayer, noaLayer:
       return;
     }
     if (update.entity === playerEntity) {
-      toast(`Activated voxel message: ${voxelActivatedData.message}`);
+      const voxelActivatedData = update.value[0];
+      const activateMsg = removeTrailingNulls(voxelActivatedData.message);
+      if (activateMsg.length > 0) {
+        toast(`Activated voxel message: ${activateMsg}`);
+      }
     }
   });
 }

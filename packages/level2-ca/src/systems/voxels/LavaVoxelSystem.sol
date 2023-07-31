@@ -10,6 +10,7 @@ import { CAVoxelConfig, Temperature, TemperatureData } from "@tenet-level2-ca/sr
 import { REGISTRY_ADDRESS, LavaVoxelID } from "@tenet-level2-ca/src/Constants.sol";
 import { VoxelCoord, BlockDirection } from "@tenet-utils/src/Types.sol";
 import { AirVoxelID } from "@tenet-base-ca/src/Constants.sol";
+import { Strings } from "@openzeppelin/contracts/utils/Strings.sol";
 
 bytes32 constant LavaHotVoxelVariantID = bytes32(keccak256("lava.hot"));
 bytes32 constant LavaColdVoxelVariantID = bytes32(keccak256("lava.cold"));
@@ -87,5 +88,10 @@ contract LavaVoxelSystem is System {
     }
   }
 
-  function activateSelectorLava(address callerAddress, bytes32 entity) public view returns (string memory) {}
+  function activateSelectorLava(address callerAddress, bytes32 entity) public view returns (string memory) {
+    TemperatureData memory temperatureData = Temperature.get(callerAddress, entity);
+    if (temperatureData.hasValue) {
+      return string(abi.encode("temperature: ", Strings.toString(temperatureData.temperature)));
+    }
+  }
 }

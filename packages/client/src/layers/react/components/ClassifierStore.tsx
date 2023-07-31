@@ -8,6 +8,7 @@ import { InterfaceVoxel } from "../../noa/types";
 import { SearchBar } from "./common/SearchBar";
 import ClassifierDetails from "./ClassifierDetails";
 import { twMerge } from "tailwind-merge";
+import { toast } from "react-toastify";
 
 export interface ClassifierStoreFilters {
   classifierQuery: string;
@@ -130,13 +131,19 @@ const ClassifierStore: React.FC<Props> = ({
         <div className="flex w-full h-full mt-5 flex-col gap-5 items-center overflow-scroll">
           {classifiersToDisplay.map((classifier, idx) => {
             return (
-              <div key={"classifier-" + idx} className="w-full cursor-pointer block p-2 border border-slate-600 rounded hover:bg-slate-600">
+              <div
+                key={"classifier-" + idx}
+                className="w-full cursor-pointer block p-2 border border-slate-600 rounded hover:bg-slate-600"
+              >
                 <h5 className="ml-4 text-lg font-bold tracking-tight">{classifier.name}</h5>
                 <p className="font-normal leading-4">{classifier.description}</p>
                 <div className="flex mt-5 gap-2">
                   <button
                     type="button"
-                    onClick={() => setSelectedClassifier(classifier)}
+                    onClick={() => {
+                      toast("Coming soon!");
+                      // setSelectedClassifier(classifier)
+                    }}
                     className="text-gray-900 hover:text-white border border-gray-800 hover:bg-gray-900 focus:ring-4 focus:outline-none focus:ring-gray-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center mr-2 mb-2"
                   >
                     View Details

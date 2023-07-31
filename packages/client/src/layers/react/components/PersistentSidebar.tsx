@@ -10,7 +10,13 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faArrowUp, faArrowDown, faBars } from "@fortawesome/free-solid-svg-icons";
 import styled from "styled-components";
 import { isNetworkComponentUpdateEvent, NetworkComponentUpdate, SingletonID } from "@latticexyz/network";
-import { Entity, getComponentValue, getComponentEntities, getComponentValueStrict, setComponent } from "@latticexyz/recs";
+import {
+  Entity,
+  getComponentValue,
+  getComponentEntities,
+  getComponentValueStrict,
+  setComponent,
+} from "@latticexyz/recs";
 import { filter, scan, merge, map } from "rxjs";
 import { filterNullish } from "@latticexyz/utils";
 import { voxelTypeToEntity, entityToVoxelType } from "../../noa/types";
@@ -296,7 +302,7 @@ export function registerPersistentSidebar() {
           // only change the world name after the zooming animation fades to black (so the user doesn't see the world unload)
           noa.worldName = newWorldScale.toString();
 
-          setComponent(WorldScale, SingletonID, { value: newWorldScale});
+          setComponent(WorldScale, SingletonID, { value: newWorldScale });
 
           const position = playerPosition$.getValue();
 
@@ -305,7 +311,7 @@ export function registerPersistentSidebar() {
           setTimeout(() => {
             // note: this logic is buggy if the user spams the scale button a lot, but it's much simpler than trying to keep track of the user's gravity multiplier
             teleport(getNewPosition(position));
-          }, 2000)
+          }, 2000);
         }, 200);
       };
 
@@ -338,7 +344,7 @@ export function registerPersistentSidebar() {
                       <FontAwesomeIcon icon={faBars} style={{ color: "#C9CACB" }} />
                     </Button>
                   </TooltipTrigger>
-                  <TooltipContent side="right">Open Sidebar</TooltipContent>
+                  <TooltipContent side="right">Open Sidebar (Q)</TooltipContent>
                 </Tooltip>
               </TooltipProvider>
             </div>
@@ -444,7 +450,7 @@ export function registerPersistentSidebar() {
                 </div>
                 <hr style={{ borderTop: "1px solid rgb(201, 202, 203, 0.5)", marginBottom: "4px" }} />
                 <div>
-                   {/*{position && (
+                  {/*{position && (
                     <span>
                       <span>
                         <span

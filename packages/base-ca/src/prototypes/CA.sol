@@ -94,7 +94,10 @@ abstract contract CA is System {
     bytes32[] memory childEntityIds,
     bytes32 parentEntity
   ) public {
-    require(voxelTypeId != emptyVoxelId(), "can not mine air");
+    if (voxelTypeId == emptyVoxelId()) {
+      return;
+    }
+
     address callerAddress = _msgSender();
     if (!hasKey(CAPositionTableId, CAPosition.encodeKeyTuple(callerAddress, entity))) {
       terrainGen(callerAddress, voxelTypeId, coord, entity);

@@ -117,13 +117,4 @@ contract MineSystem is System {
       Spawn.setIsModified(spawnId, true);
     }
   }
-
-  function clearCoord(VoxelTypeData memory voxelTypeData, VoxelCoord memory coord) public returns (bytes32) {
-    if (voxelTypeData.voxelVariantId != AirVoxelVariantID) {
-      (uint32 minedScale, bytes32 voxelToMine) = mine(voxelTypeData.voxelTypeId, coord);
-      return voxelToMine;
-    }
-
-    return 0;
-  }
 }

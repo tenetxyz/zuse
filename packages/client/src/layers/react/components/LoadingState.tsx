@@ -5,54 +5,41 @@ import { getComponentValue } from "@latticexyz/recs";
 import { SingletonID, SyncState } from "@latticexyz/network";
 import styled from "styled-components";
 import { LoadingBar } from "./common";
+import { useStream } from "@/utils/stream";
+import { registerTenetComponent } from "../engine/components/TenetComponentRenderer";
 
 export function registerLoadingState() {
-  registerUIComponent(
-    "LoadingState",
-    {
-      rowStart: 1,
-      rowEnd: 13,
-      colStart: 1,
-      colEnd: 13,
-    },
-    (layers) => {
+  registerTenetComponent({
+    rowStart: 0,
+    rowEnd: 0,
+    columnStart: 13,
+    columnEnd: 13,
+    Component: ({ layers }) => {
       const {
         components: { LoadingState },
         world,
+        streams: { doneSyncing$ },
       } = layers.network;
 
-      return concat([1], LoadingState.update$).pipe(
-        map(() => ({
-          LoadingState,
-          world,
-        }))
-      );
-    },
-
-    ({ LoadingState, world }) => {
       // const GodEntityIndex = world.entityToIndex.get(SingletonID);
       const GodEntityIndex = SingletonID;
 
-      const loadingState = GodEntityIndex == null ? null : getComponentValue(LoadingState, GodEntityIndex);
-      if (loadingState == null) {
-        return <BootScreen initialOpacity={1}>Connecting</BootScreen>;
-      }
+      const isDoneSyncingWorlds = useStream(doneSyncing$);
 
-      if (loadingState.state !== SyncState.LIVE) {
+      // TODO: set the percentage
+      // const loadingState = GodEntityIndex == null ? null : getComponentValue(LoadingState, GodEntityIndex);
+      // Maybe for now, we just show the percentage of the LoadingState of the world
+      if (!isDoneSyncingWorlds) {
         return (
           <BootScreen initialOpacity={1}>
-            {loadingState.msg}
-            <LoadingContainer>
-              {Math.floor(loadingState.percentage)}%
-              <Loading percentage={loadingState.percentage} />
-            </LoadingContainer>
+            "Loading"
+            <LoadingContainer />
           </BootScreen>
         );
       }
-
       return null;
-    }
-  );
+    },
+  });
 }
 
 const LoadingContainer = styled.div`

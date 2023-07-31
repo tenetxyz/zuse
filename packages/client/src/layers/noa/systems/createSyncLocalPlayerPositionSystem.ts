@@ -2,10 +2,11 @@ import { SyncState } from "@latticexyz/network";
 import { defineRxSystem, getComponentValueStrict, hasComponent, setComponent } from "@latticexyz/recs";
 import { NetworkLayer } from "../../network";
 import { NoaLayer } from "../types";
+import { awaitStreamValue } from "@latticexyz/utils";
 
 export function createSyncLocalPlayerPositionSystem(network: NetworkLayer, context: NoaLayer) {
   const {
-    components: { LoadingState },
+    streams: { doneSyncing$ },
   } = network;
   const {
     components: { LocalPlayerPosition },
@@ -14,9 +15,13 @@ export function createSyncLocalPlayerPositionSystem(network: NetworkLayer, conte
     world,
   } = context;
 
+  let isDoneSyncingWorlds = false;
+  awaitStreamValue(doneSyncing$, (isDoneSyncing) => isDoneSyncing).then(() => {
+    isDoneSyncingWorlds = true;
+  });
+
   defineRxSystem(world, slowPlayerPosition$, (pos) => {
-    if (!hasComponent(LoadingState, SingletonEntity)) return;
-    if (getComponentValueStrict(LoadingState, SingletonEntity).state !== SyncState.LIVE) {
+    if (!isDoneSyncingWorlds) {
       return;
     }
     setComponent(LocalPlayerPosition, SingletonEntity, pos);

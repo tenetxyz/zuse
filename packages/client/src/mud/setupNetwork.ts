@@ -1,6 +1,12 @@
 import { setupMUDV2Network, createActionSystem } from "@latticexyz/std-client";
 import { Entity, getComponentValue, createIndexer, runQuery, HasValue, createWorld } from "@latticexyz/recs";
-import { createFastTxExecutor, createFaucetService, getSnapSyncRecords, createRelayStream } from "@latticexyz/network";
+import {
+  createFastTxExecutor,
+  createFaucetService,
+  getSnapSyncRecords,
+  createRelayStream,
+  SyncState,
+} from "@latticexyz/network";
 import { getNetworkConfig } from "./getNetworkConfig";
 import { defineContractComponents } from "./contractComponents";
 import { defineContractComponents as defineRegistryContractComponents } from "@tenetxyz/registry/client/contractComponents";
@@ -9,7 +15,7 @@ import { BigNumber, Contract, Signer, utils } from "ethers";
 import { JsonRpcProvider } from "@ethersproject/providers";
 import { IWorld__factory } from "@tenetxyz/contracts/types/ethers-contracts/factories/IWorld__factory";
 import { IWorld__factory as RegistryIWorld__factory } from "@tenetxyz/registry/types/ethers-contracts/factories/IWorld__factory";
-import { getTableIds, awaitPromise, computedToStream, VoxelCoord, Coord } from "@latticexyz/utils";
+import { getTableIds, awaitPromise, computedToStream, VoxelCoord, Coord, awaitStreamValue } from "@latticexyz/utils";
 import { map, timer, combineLatest, BehaviorSubject } from "rxjs";
 import storeConfig from "@tenetxyz/contracts/mud.config";
 import registryStoreConfig from "@tenetxyz/registry/mud.config";
@@ -68,27 +74,27 @@ const giveComponentsAHumanReadableId = (contractComponents: any) => {
 const setupWorldRegistryNetwork = async () => {
   const params = new URLSearchParams(window.location.search);
   const registryWorld = createWorld();
-  const contractComponents = defineRegistryContractComponents(registryWorld);
-  giveComponentsAHumanReadableId(contractComponents);
+  const registryComponents = defineRegistryContractComponents(registryWorld);
+  giveComponentsAHumanReadableId(registryComponents);
 
   const networkConfig = await getNetworkConfig(true);
   networkConfig.showInDevTools = false;
 
-  const result = await setupMUDV2Network<typeof contractComponents, typeof registryStoreConfig>({
+  const result = await setupMUDV2Network<typeof registryComponents, typeof registryStoreConfig>({
     networkConfig,
     world: registryWorld,
-    contractComponents,
+    contractComponents: registryComponents,
     syncThread: "main", // PERF: sync using workers
     storeConfig: registryStoreConfig,
     worldAbi: RegistryIWorld__factory.abi,
     useABIInDevTools: false,
   });
   result.startSync();
-  return contractComponents;
+  return { registryComponents, registryResult: result };
 };
 
 export async function setupNetwork() {
-  const registryComponents = await setupWorldRegistryNetwork(); // load the registry world first so the transactionHash$ stream is subscribed to this world (at least this is what I think. I just know that if you place it after, transactions fail with: "you have the wrong abi" when calling systems)
+  const { registryComponents, registryResult } = await setupWorldRegistryNetwork(); // load the registry world first so the transactionHash$ stream is subscribed to this world (at least this is what I think. I just know that if you place it after, transactions fail with: "you have the wrong abi" when calling systems)
   const world = createWorld();
   const contractComponents = defineContractComponents(world);
   giveComponentsAHumanReadableId(contractComponents);
@@ -710,6 +716,29 @@ export async function setupNetwork() {
     awaitPromise()
   );
 
+  // wait until both the registry and contracts world are done syncing. Tnen send the live event
+  const doneSyncing$ = new BehaviorSubject<boolean>(false);
+  let contractsSynced = false;
+  let registrySynced = false;
+  const trySendDoneSyncing = () => {
+    if (contractsSynced && registrySynced) {
+      doneSyncing$.next(true);
+    }
+  };
+  awaitStreamValue(result.components.LoadingState.update$, ({ value }) => value[0]?.state === SyncState.LIVE).then(
+    () => {
+      contractsSynced = true;
+      trySendDoneSyncing();
+    }
+  );
+  awaitStreamValue(
+    registryResult.components.LoadingState.update$,
+    ({ value }) => value[0]?.state === SyncState.LIVE
+  ).then(() => {
+    registrySynced = true;
+    trySendDoneSyncing();
+  });
+
   // please don't remove. This is for documentation purposes
   const internalMudWorldAndStoreComponents = result.components;
 
@@ -740,7 +769,7 @@ export async function setupNetwork() {
     fastTxExecutor,
     // dev: setupDevSystems(world, encoders as Promise<any>, systems),
     // dev: setupDevSystems(world),
-    streams: { connectedClients$, balanceGwei$ },
+    streams: { connectedClients$, balanceGwei$, doneSyncing$ },
     config: networkConfig,
     relay,
     faucet,

@@ -90,7 +90,8 @@ export function createNoaLayer(network: NetworkLayer) {
       config: { chainId },
       connectedAddress,
     },
-    components: { Recipe, LoadingState },
+    streams: { doneSyncing$ },
+    components: { Recipe },
     contractComponents: { VoxelType },
     voxelTypes: { VoxelVariantIdToDef, VoxelVariantSubscriptions },
     getVoxelPreviewVariant,
@@ -357,12 +358,8 @@ export function createNoaLayer(network: NetworkLayer) {
   setupDayNightCycle(noa, glow); // Curtis removed this because he had to constantly change his monitor brightness
 
   // Pause noa until initial loading is done
-  setTimeout(() => {
-    if (getComponentValue(LoadingState, SingletonEntity)?.state !== SyncState.LIVE) noa.setPaused(true);
-  }, 1000);
-  awaitStreamValue(LoadingState.update$, ({ value }) => value[0]?.state === SyncState.LIVE).then(() =>
-    noa.setPaused(false)
-  );
+  noa.setPaused(true);
+  awaitStreamValue(doneSyncing$, (isDoneSyncing) => isDoneSyncing).then(() => noa.setPaused(false));
 
   // --- SETUP STREAMS --------------------------------------------------------------
   // (Create streams as BehaviorSubject to allow for multiple observers and getting the current value)

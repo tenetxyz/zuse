@@ -15,6 +15,7 @@ import MovementComponent, { MOVEMENT_COMPONENT_NAME } from "../components/Moveme
 import ReceiveInputsComponent, { RECEIVES_INPUTS_COMPONENT_NAME } from "../components/ReceivesInputsComponent";
 import CollideTerrainComponent, { COLLIDE_TERRAIN_COMPONENT_NAME } from "../components/CollideTerrainComponent";
 import { getWorldScale, voxelCoordToString } from "../../../utils/coord";
+import { SingletonID } from "@latticexyz/network";
 
 export const DEFAULT_BLOCK_TEST_DISTANCE = 7;
 
@@ -54,7 +55,6 @@ export function setupNoaEngine(network: NetworkLayer) {
   BABYLON.RenderingManager.MIN_RENDERINGGROUPS = -1;
 
   const noa = new Engine(noaOptions);
-  noa.worldName = "2";
   const scene = noa.rendering.getScene();
   noa.world.worldGenWhilePaused = false;
 

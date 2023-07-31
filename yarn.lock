@@ -1266,6 +1266,12 @@ __metadata:
   languageName: node
   linkType: soft
 
+"@latticexyz/gas-report@link:../../../mud/packages/gas-report::locator=%40tenetxyz%2Fregistry%40workspace%3Apackages%2Fregistry":
+  version: 0.0.0-use.local
+  resolution: "@latticexyz/gas-report@link:../../../mud/packages/gas-report::locator=%40tenetxyz%2Fregistry%40workspace%3Apackages%2Fregistry"
+  languageName: node
+  linkType: soft
+
 "@latticexyz/network@link:../../../mud/packages/network::locator=ca-client%40workspace%3Apackages%2Fca-client":
   version: 0.0.0-use.local
   resolution: "@latticexyz/network@link:../../../mud/packages/network::locator=ca-client%40workspace%3Apackages%2Fca-client"
@@ -2430,6 +2436,7 @@ __metadata:
     "@ethersproject/providers": ^5.7.2
     "@latticexyz/cli": "link:../../../mud/packages/cli"
     "@latticexyz/config": "link:../../../mud/packages/config"
+    "@latticexyz/gas-report": "link:../../../mud/packages/gas-report"
     "@latticexyz/schema-type": "link:../../../mud/packages/schema-type"
     "@latticexyz/std-contracts": "link:../../../mud/packages/std-contracts"
     "@latticexyz/store": "link:../../../mud/packages/store"
@@ -3325,9 +3332,9 @@ box-intersect@fenomas/box-intersect:
   linkType: hard
 
 "caniuse-lite@npm:^1.0.30001464, caniuse-lite@npm:^1.0.30001517":
-  version: 1.0.30001517
-  resolution: "caniuse-lite@npm:1.0.30001517"
-  checksum: e4e87436ae1c4408cf4438aac22902b31eb03f3f5bad7f33bc518d12ffb35f3fd9395ccf7efc608ee046f90ce324ec6f7f26f8a8172b8c43c26a06ecee612a29
+  version: 1.0.30001518
+  resolution: "caniuse-lite@npm:1.0.30001518"
+  checksum: 1b63272f6e3d628ac52e2547e0b75fc477004d4b19b63e34b2c045de7f2e48909f9ea513978fc5a46c4ab5ac6c9daf9cc5e6a78466e90684fb824c3f2105e8f5
   languageName: node
   linkType: hard
 

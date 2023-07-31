@@ -1,7 +1,6 @@
 import * as BABYLON from "@babylonjs/core";
 import type { Engine } from "noa-engine";
 import { SCENE_COLOR, SKY_PLANE_COLOR } from "../setup/constants";
-
 // the sky and cloud logic was taken and modified from VoxelSrv: https://github.com/VoxelSrv/voxelsrv/blob/master/src/lib/gameplay/sky.ts
 const SKY_HEIGHT = 50;
 
@@ -21,13 +20,7 @@ export function setupClouds(noa: Engine) {
 
   const cloudMat = new BABYLON.StandardMaterial("cloud", scene);
 
-  const cloudTexture = new BABYLON.Texture(
-    "./public/img/clouds.png",
-    scene,
-    true,
-    true,
-    BABYLON.Texture.NEAREST_SAMPLINGMODE
-  );
+  const cloudTexture = new BABYLON.Texture("./img/clouds.png", scene, true, true, BABYLON.Texture.NEAREST_SAMPLINGMODE);
   cloudTexture.hasAlpha = true;
   cloudTexture.vScale = 0.75;
   cloudTexture.uScale = 0.75;

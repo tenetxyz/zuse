@@ -113,8 +113,8 @@ const RegisterCreation: React.FC<Props> = ({ layers, formData, setFormData, rese
 
     for (const voxel of spawn.voxels) {
       const position = liveStoreCache.Position.get({
-        entity: to64CharAddress("0x" + voxel),
-        scale: getWorldScale(noa),
+        entity: voxel.entityId,
+        scale: voxel.scale,
       });
       const voxelCoordInSpawn = voxelCoordToString(position);
       creationVoxelCoordsInWorld.delete(voxelCoordInSpawn);
@@ -206,23 +206,23 @@ const RegisterCreation: React.FC<Props> = ({ layers, formData, setFormData, rese
       <button
         type="button"
         onClick={onSelectCreationCorners}
-        style={{ background: "#374147"}}
+        style={{ background: "#374147" }}
         className="py-2.5 px-5 mb-2 text-sm focus:outline-none rounded hover:text-slate-300 focus:z-10"
       >
         {selectCreationCornerButtonLabel}
       </button>
 
       <button
-          type="button"
-          onClick={handleSubmit}
-          disabled={isSubmitDisabled}
-          className={twMerge(
-            "py-2.5 px-5 text-sm font-bold rounded bg-amber-400 hover:bg-amber-500 text-slate-600",
-            isSubmitDisabled ? "opacity-50 cursor-not-allowed" : ""
-          )}
-        >
-          Submit
-        </button>
+        type="button"
+        onClick={handleSubmit}
+        disabled={isSubmitDisabled}
+        className={twMerge(
+          "py-2.5 px-5 text-sm font-bold rounded bg-amber-400 hover:bg-amber-500 text-slate-600",
+          isSubmitDisabled ? "opacity-50 cursor-not-allowed" : ""
+        )}
+      >
+        Submit
+      </button>
     </div>
   );
 };

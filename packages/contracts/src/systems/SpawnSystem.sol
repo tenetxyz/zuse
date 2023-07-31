@@ -21,7 +21,7 @@ contract SpawnSystem is System {
     );
 
     bytes32 spawnId = getUniqueEntity();
-    VoxelEntity[] memory spawnVoxels = new bytes32[](relativeVoxelCoords.length);
+    VoxelEntity[] memory spawnVoxels = new VoxelEntity[](relativeVoxelCoords.length);
 
     // 2) create an instance of each voxel in the creation, put it into the world, and add it to the spawnVoxels array
     for (uint i = 0; i < relativeVoxelCoords.length; i++) {

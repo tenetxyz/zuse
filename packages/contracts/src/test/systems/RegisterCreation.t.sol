@@ -53,12 +53,12 @@ contract RegisterCreationTest is MudTest {
     VoxelCoord memory coord2 = VoxelCoord(2, 1, 2);
 
     // the build system spawns a new voxel before placing the newly spawned voxel in the world
-    bytes32 voxel1 = world.build(1, giftedVoxel, coord1);
-    bytes32 voxel2 = world.build(1, giftedVoxel, coord2);
+    (uint32 scaleVoxel1, bytes32 voxel1) = world.build(1, giftedVoxel, coord1);
+    (uint32 scaleVoxel2, bytes32 voxel2) = world.build(1, giftedVoxel, coord2);
 
     VoxelEntity[] memory voxels = new VoxelEntity[](2);
-    voxels[0] = VoxelEntity({ scale: 1, entityId: voxel1 });
-    voxels[1] = VoxelEntity({ scale: 1, entityId: voxel2 });
+    voxels[0] = VoxelEntity({ scale: scaleVoxel1, entityId: voxel1 });
+    voxels[1] = VoxelEntity({ scale: scaleVoxel2, entityId: voxel2 });
 
     BaseCreationInWorld[] memory baseCreationsInWorld = new BaseCreationInWorld[](0);
     world.registerCreation("test creation name", "test creation desc", voxels, baseCreationsInWorld);

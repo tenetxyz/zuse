@@ -44,7 +44,8 @@ contract ClassifyCreationSystem is System {
     for (uint32 i = 0; i < input.length; i++) {
       bytes32 voxel = input[i].entity;
       require(uint256(voxel) != 0, "Interface voxel cannot be 0");
-      require(OfSpawn.get(voxel) == spawnId, "All voxels in the interface must be in the spawn");
+      // TODO: Fix by adding scale
+      // require(OfSpawn.get(voxel) == spawnId, "All voxels in the interface must be in the spawn");
     }
   }
 

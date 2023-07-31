@@ -75,13 +75,13 @@ contract MineSystem is System {
       return;
     }
 
-    OfSpawn.deleteRecord(voxel);
+    OfSpawn.deleteRecord(scale, voxel);
     SpawnData memory spawn = Spawn.get(spawnId);
 
     // should we check to see if the entity is in the array before trying to remove it?
     // I think it's ok to assume it's there, since this is the only way to remove a voxel from a spawn
     VoxelEntity[] memory existingVoxels = abi.decode(spawn.voxels, (VoxelEntity[]));
-    bytes32[] memory newVoxels = new bytes32[](existingVoxels.length - 1);
+    VoxelEntity[] memory newVoxels = new VoxelEntity[](existingVoxels.length - 1);
     uint index = 0;
 
     // Copy elements from the original array to the updated array, excluding the entity

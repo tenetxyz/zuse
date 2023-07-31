@@ -6,7 +6,7 @@ import { renderChunkyWireframe } from "./renderWireframes";
 import { Color3, Mesh } from "@babylonjs/core";
 import { add, calculateMinMaxRelativeCoordsOfCreation, decodeCoord, getWorldScale } from "../../../utils/coord";
 import { Entity } from "@latticexyz/recs";
-import { VoxelCoord } from "@latticexyz/utils";
+import { VoxelCoord, awaitStreamValue } from "@latticexyz/utils";
 import { ISpawn } from "../components/SpawnInFocus";
 
 export type BaseCreation = {
@@ -30,7 +30,16 @@ export function createSpawnOverlaySystem(networkLayer: NetworkLayer, noaLayer: N
     if (spawnTable === undefined) {
       return;
     }
+    renderSpawnOutlines();
+  });
+
+  noa.on("newWorldName", (_newWorldName: string) => {
+    renderSpawnOutlines();
+  });
+
+  const createSpawnArray = (): ISpawn[] => {
     const spawns: ISpawn[] = [];
+    const spawnTable = Spawn.values;
     spawnTable.creationId.forEach((creationId, rawSpawnId) => {
       const spawnId = rawSpawnId as any;
       const encodedLowerSouthWestCorner = spawnTable.lowerSouthWestCorner.get(spawnId)!;
@@ -44,11 +53,12 @@ export function createSpawnOverlaySystem(networkLayer: NetworkLayer, noaLayer: N
         });
       }
     });
-    renderSpawnOutlines(spawns);
-  });
+    return spawns;
+  };
 
   let spawnOutlineMeshes: Mesh[] = [];
-  const renderSpawnOutlines = (spawns: ISpawn[]) => {
+  const renderSpawnOutlines = () => {
+    const spawns = createSpawnArray();
     // PERF: only dispose of the meshes that changed
     for (let i = 0; i < spawnOutlineMeshes.length; i++) {
       spawnOutlineMeshes[i].dispose();

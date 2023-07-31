@@ -55,7 +55,8 @@ contract IceVoxelSystem is System {
       IceVoxelID,
       IWorld(world).enterWorldIce.selector,
       IWorld(world).exitWorldIce.selector,
-      IWorld(world).variantSelectorIce.selector
+      IWorld(world).variantSelectorIce.selector,
+      IWorld(world).activateSelectorIce.selector
     );
   }
 
@@ -85,4 +86,6 @@ contract IceVoxelSystem is System {
       return IceColdVoxelVariantID;
     }
   }
+
+  function activateSelectorIce(address callerAddress, bytes32 entity) public view returns (string memory) {}
 }

@@ -15,6 +15,7 @@ export default mudConfig({
         enterWorldSelector: "bytes4",
         exitWorldSelector: "bytes4",
         voxelVariantSelector: "bytes4",
+        activateSelector: "bytes4",
       },
     },
     CAVoxelInteractionConfig: {

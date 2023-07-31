@@ -47,7 +47,8 @@ contract SignalSourceVoxelSystem is System {
       SignalSourceVoxelID,
       IWorld(world).enterWorldSignalSource.selector,
       IWorld(world).exitWorldSignalSource.selector,
-      IWorld(world).variantSelectorSignalSource.selector
+      IWorld(world).variantSelectorSignalSource.selector,
+      IWorld(world).activateSelectorSignalSource.selector
     );
   }
 
@@ -70,4 +71,6 @@ contract SignalSourceVoxelSystem is System {
   ) public view returns (bytes32) {
     return SignalSourceVoxelVariantID;
   }
+
+  function activateSelectorSignalSource(address callerAddress, bytes32 entity) public view returns (string memory) {}
 }

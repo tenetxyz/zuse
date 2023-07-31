@@ -45,7 +45,8 @@ contract FlowerVoxelSystem is System {
       OrangeFlowerVoxelID,
       IWorld(world).enterWorldFlower.selector,
       IWorld(world).exitWorldFlower.selector,
-      IWorld(world).variantSelectorFlower.selector
+      IWorld(world).variantSelectorFlower.selector,
+      IWorld(world).activateSelectorFlower.selector
     );
   }
 
@@ -62,4 +63,6 @@ contract FlowerVoxelSystem is System {
   ) public view returns (bytes32) {
     return OrangeFlowerVoxelVariantID;
   }
+
+  function activateSelectorFlower(address callerAddress, bytes32 entity) public view returns (string memory) {}
 }

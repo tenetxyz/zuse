@@ -39,7 +39,8 @@ contract DirtVoxelSystem is System {
       DirtVoxelID,
       IWorld(world).enterWorldDirt.selector,
       IWorld(world).exitWorldDirt.selector,
-      IWorld(world).variantSelectorDirt.selector
+      IWorld(world).variantSelectorDirt.selector,
+      IWorld(world).activateSelectorDirt.selector
     );
   }
 
@@ -56,4 +57,6 @@ contract DirtVoxelSystem is System {
   ) public view returns (bytes32) {
     return DirtVoxelVariantID;
   }
+
+  function activateSelectorDirt(address callerAddress, bytes32 entity) public view returns (string memory) {}
 }

@@ -55,7 +55,8 @@ contract LavaVoxelSystem is System {
       LavaVoxelID,
       IWorld(world).enterWorldLava.selector,
       IWorld(world).exitWorldLava.selector,
-      IWorld(world).variantSelectorLava.selector
+      IWorld(world).variantSelectorLava.selector,
+      IWorld(world).activateSelectorLava.selector
     );
   }
 
@@ -85,4 +86,6 @@ contract LavaVoxelSystem is System {
       return LavaColdVoxelVariantID;
     }
   }
+
+  function activateSelectorLava(address callerAddress, bytes32 entity) public view returns (string memory) {}
 }

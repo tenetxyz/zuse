@@ -99,7 +99,5 @@ contract ElectronVoxelSystem is System {
     return ElectronVoxelVariantID;
   }
 
-  function activateSelectorElectron(address callerAddress, bytes32 entity) public view returns (string memory) {
-    return "activateElectron";
-  }
+  function activateSelectorElectron(address callerAddress, bytes32 entity) public view returns (string memory) {}
 }

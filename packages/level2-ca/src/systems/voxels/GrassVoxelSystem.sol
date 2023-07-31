@@ -43,7 +43,8 @@ contract GrassVoxelSystem is System {
       GrassVoxelID,
       IWorld(world).enterWorldGrass.selector,
       IWorld(world).exitWorldGrass.selector,
-      IWorld(world).variantSelectorGrass.selector
+      IWorld(world).variantSelectorGrass.selector,
+      IWorld(world).activateSelectorGrass.selector
     );
   }
 
@@ -60,4 +61,6 @@ contract GrassVoxelSystem is System {
   ) public view returns (bytes32) {
     return GrassVoxelVariantID;
   }
+
+  function activateSelectorGrass(address callerAddress, bytes32 entity) public view returns (string memory) {}
 }

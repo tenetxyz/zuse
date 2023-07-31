@@ -56,7 +56,8 @@ contract WireVoxelSystem is System {
       WireVoxelID,
       IWorld(world).enterWorldWire.selector,
       IWorld(world).exitWorldWire.selector,
-      IWorld(world).variantSelectorWire.selector
+      IWorld(world).variantSelectorWire.selector,
+      IWorld(world).activateSelectorWire.selector
     );
   }
 
@@ -95,4 +96,6 @@ contract WireVoxelSystem is System {
     }
     return WireOffVoxelVariantID;
   }
+
+  function activateSelectorWire(address callerAddress, bytes32 entity) public view returns (string memory) {}
 }

@@ -48,7 +48,8 @@ contract ThermoGenVoxelSystem is System {
       ThermoGenVoxelID,
       IWorld(world).enterWorldThermoGen.selector,
       IWorld(world).exitWorldThermoGen.selector,
-      IWorld(world).variantSelectorThermoGen.selector
+      IWorld(world).variantSelectorThermoGen.selector,
+      IWorld(world).activateSelectorThermoGen.selector
     );
   }
 
@@ -81,5 +82,12 @@ contract ThermoGenVoxelSystem is System {
     bytes32 parentEntity
   ) public view returns (bytes32) {
     return ThermoGenVoxelVariantID;
+  }
+
+  function activateSelectorThermoGen(address callerAddress, bytes32 entity) public view returns (string memory) {
+    GeneratorData memory generatorData = Generator.get(callerAddress, entity);
+    if (generatorData.hasValue) {
+      return string(abi.encode("genRate: ", generatorData.genRate));
+    }
   }
 }

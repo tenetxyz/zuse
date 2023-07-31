@@ -15,7 +15,7 @@ import { VoxelTypeRegistry, VoxelTypeRegistryData } from "@tenet-registry/src/co
 import { addressToEntityKey } from "@tenet-utils/src/Utils.sol";
 import { Utils } from "@latticexyz/world/src/Utils.sol";
 import { CHUNK_MAX_Y, CHUNK_MIN_Y } from "../Constants.sol";
-import { AirVoxelVariantID } from "@tenet-base-ca/src/Constants.sol";
+import { AirVoxelID, AirVoxelVariantID } from "@tenet-base-ca/src/Constants.sol";
 
 contract MineSystem is System {
   function mine(bytes32 voxelTypeId, VoxelCoord memory coord) public returns (uint32, bytes32) {
@@ -79,7 +79,7 @@ contract MineSystem is System {
 
     IWorld(_world()).runCA(caAddress, scale, voxelToMine);
 
-    if (VoxelType.getVoxelVariantId(scale, voxelToMine) != AirVoxelVariantID) {
+    if (voxelTypeId != AirVoxelID) { // TODO: Figure out how to add other airs
       // Can't own it since it became air, so we gift it
       IWorld(_world()).giftVoxel(voxelTypeId);
     }

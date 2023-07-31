@@ -24,7 +24,6 @@ export function createSoundSystem(network: NetworkLayer, context: NoaLayer) {
     contractComponents: { VoxelType, Position },
     api: { getTerrainVoxelTypeAtPosition },
     streams: { doneSyncing$ },
-    liveStoreCache,
   } = network;
   const {
     audioEngine,
@@ -136,8 +135,7 @@ export function createSoundSystem(network: NetworkLayer, context: NoaLayer) {
       const position =
         update.type === UpdateType.Exit && isComponentUpdate(update, Position)
           ? update.value[1]
-          : // : liveStoreCache.Position.get({ entity: to64CharAddress("0x" + update.entity), scale: getWorldScale(noa) });
-            getComponentValue(Position, update.entity);
+          : getComponentValue(Position, update.entity);
 
       if (!voxelType || !position) return;
 

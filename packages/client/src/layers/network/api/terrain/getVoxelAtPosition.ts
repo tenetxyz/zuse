@@ -5,7 +5,6 @@ import { Terrain, TerrainState } from "./types";
 import { getTerrain } from "./utils";
 import { Air, AIR_ID, Bedrock, Dirt, Tile } from "./occurrence";
 import { VoxelTypeKey, VoxelTypeKeyInMudTable } from "@/layers/noa/types";
-import { LiveStoreCache } from "@/mud/setupLiveStoreCache";
 import { to64CharAddress } from "../../../../utils/entity";
 
 export function getEntityAtPosition(
@@ -16,7 +15,6 @@ export function getEntityAtPosition(
       voxelVariantId: Type.String;
     }>;
     world: World;
-    liveStoreCache: LiveStoreCache;
   },
   coord: VoxelCoord,
   scale: number
@@ -45,7 +43,6 @@ export function getEcsVoxelType(
       voxelTypeId: Type.String;
       voxelVariantId: Type.String;
     }>;
-    liveStoreCache: LiveStoreCache;
     world: World;
   },
   coord: VoxelCoord,
@@ -71,7 +68,6 @@ export function getVoxelAtPosition(
       voxelVariantId: Type.String;
     }>;
     world: World;
-    liveStoreCache: LiveStoreCache;
   },
   perlin: Perlin,
   coord: VoxelCoord,

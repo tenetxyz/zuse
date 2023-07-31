@@ -4,7 +4,7 @@ import { NetworkLayer } from "../../network";
 import { NoaLayer } from "../types";
 import { renderChunkyWireframe } from "./renderWireframes";
 import { Color3, Mesh } from "@babylonjs/core";
-import { add, calculateMinMaxRelativeCoordsOfCreation, decodeCoord } from "../../../utils/coord";
+import { add, calculateMinMaxRelativeCoordsOfCreation, decodeCoord, getWorldScale } from "../../../utils/coord";
 import { Entity } from "@latticexyz/recs";
 import { VoxelCoord } from "@latticexyz/utils";
 import { ISpawn } from "../components/SpawnInFocus";
@@ -21,6 +21,7 @@ export function createSpawnOverlaySystem(networkLayer: NetworkLayer, noaLayer: N
   const { noa } = noaLayer;
   const {
     contractComponents: { Spawn, Creation },
+    registryComponents: { VoxelTypeRegistry },
   } = networkLayer;
 
   Spawn.update$.subscribe((update) => {
@@ -52,9 +53,15 @@ export function createSpawnOverlaySystem(networkLayer: NetworkLayer, noaLayer: N
       spawnOutlineMeshes[i].dispose();
     }
     spawnOutlineMeshes = [];
+    const scale = getWorldScale(noa);
 
     for (const spawn of spawns) {
-      const { minCoord, maxCoord } = calculateMinMaxRelativeCoordsOfCreation(Creation, spawn.creationId);
+      const { minCoord, maxCoord } = calculateMinMaxRelativeCoordsOfCreation(
+        VoxelTypeRegistry,
+        Creation,
+        spawn.creationId,
+        scale
+      );
 
       const corner1 = add(spawn.lowerSouthWestCorner, minCoord);
       const corner2 = add(spawn.lowerSouthWestCorner, maxCoord);

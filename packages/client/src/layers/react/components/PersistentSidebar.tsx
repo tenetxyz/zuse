@@ -441,7 +441,7 @@ export function registerPersistentSidebar() {
                 </div>
                 <hr style={{ borderTop: "1px solid rgb(201, 202, 203, 0.5)", marginBottom: "4px" }} />
                 <div>
-                  {/* {position && (
+                  {position && (
                     <span>
                       <span>
                         <span
@@ -474,7 +474,7 @@ export function registerPersistentSidebar() {
                         <span className="font-mono text-sm font-semibold"> {Math.round(position.z)} </span>
                       </span>
                     </span>
-                  )} */}
+                  )}
                 </div>
                 <Badge
                   variant="secondary"

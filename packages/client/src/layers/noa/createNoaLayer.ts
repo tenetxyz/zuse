@@ -91,7 +91,7 @@ export function createNoaLayer(network: NetworkLayer) {
       connectedAddress,
     },
     streams: { doneSyncing$ },
-    components: { Recipe, LoadingState },
+    components: { Recipe },
     contractComponents: { VoxelType },
     voxelTypes: { VoxelVariantIdToDef, VoxelVariantSubscriptions },
     getVoxelPreviewVariant,

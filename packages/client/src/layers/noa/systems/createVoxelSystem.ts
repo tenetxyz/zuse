@@ -20,7 +20,6 @@ export async function createVoxelSystem(networkLayer: NetworkLayer, noaLayer: No
 
   const {
     world,
-    components: { LoadingState },
     contractComponents: { VoxelType, Position },
     api: { getVoxelAtPosition },
     streams: { doneSyncing$ },

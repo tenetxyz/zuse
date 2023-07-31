@@ -8,7 +8,7 @@ import { LoadingBar } from "./common";
 import { useStream } from "@/utils/stream";
 import { registerTenetComponent } from "../engine/components/TenetComponentRenderer";
 
-export function registerActionQueue() {
+export function registerLoadingState() {
   registerTenetComponent({
     rowStart: 0,
     rowEnd: 0,
@@ -26,32 +26,18 @@ export function registerActionQueue() {
 
       const isDoneSyncingWorlds = useStream(doneSyncing$);
 
-      if (!isDoneSyncingWorlds) {
-        return <BootScreen initialOpacity={1}>Connecting</BootScreen>;
-      }
-
       // TODO: set the percentage
       // const loadingState = GodEntityIndex == null ? null : getComponentValue(LoadingState, GodEntityIndex);
       // Maybe for now, we just show the percentage of the LoadingState of the world
-      return (
-        <BootScreen initialOpacity={1}>
-          "Loading"
-          <LoadingContainer />
-        </BootScreen>
-      );
-
-      // if (loadingState.state !== SyncState.LIVE) {
-      //   return (
-      //     <BootScreen initialOpacity={1}>
-      //       {loadingState.msg}
-      //       <LoadingContainer>
-      //         {Math.floor(loadingState.percentage)}%
-      //         <Loading percentage={loadingState.percentage} />
-      //       </LoadingContainer>
-      //     </BootScreen>
-      //   );
-      // }
-      // return null;
+      if (!isDoneSyncingWorlds) {
+        return (
+          <BootScreen initialOpacity={1}>
+            "Loading"
+            <LoadingContainer />
+          </BootScreen>
+        );
+      }
+      return null;
     },
   });
 }

@@ -21,7 +21,6 @@ import { to64CharAddress } from "../../../utils/entity";
 
 export function createSoundSystem(network: NetworkLayer, context: NoaLayer) {
   const {
-    components: { LoadingState },
     contractComponents: { VoxelType, Position },
     api: { getTerrainVoxelTypeAtPosition },
     streams: { doneSyncing$ },

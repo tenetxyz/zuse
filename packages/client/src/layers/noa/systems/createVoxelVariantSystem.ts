@@ -9,7 +9,6 @@ import { abiDecode } from "../../../utils/abi";
 export async function createVoxelVariantSystem(network: NetworkLayer, noaLayer: NoaLayer) {
   const {
     world,
-    components: { LoadingState },
     registryComponents: { VoxelVariantsRegistry },
     voxelTypes: { VoxelVariantIdToDef, VoxelVariantSubscriptions },
     streams: { doneSyncing$ },

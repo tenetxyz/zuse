@@ -426,7 +426,7 @@ export async function setupNetwork() {
         HasValue(contractComponents.VoxelType, {
           voxelTypeId: voxelBaseTypeId,
           voxelVariantId: EMPTY_BYTES_32,
-        }), // TODO: is it ok to just look for one value in this column?
+        }),
       ]),
     ];
   };
@@ -577,14 +577,16 @@ export async function setupNetwork() {
     if (voxels.length === 0) {
       return console.warn("trying to remove 0 voxels");
     }
-    debugger;
+    const voxelScales: string[] = [];
+    const voxelBaseTypes: string[] = [];
+    for (let i = 0; i < voxels.length; i++) {
+      const [voxelScale, voxelBaseType] = voxels[i].split(":");
+      voxelScales.push(voxelScale);
+      voxelBaseTypes.push(voxelBaseType);
+    }
 
-    const voxelType = getComponentValue(contractComponents.VoxelType, voxels[0]);
-    const voxelTypeKey = voxelType ? (voxelTypeToEntity(voxelType) as string) : "";
-    const voxelScale = getComponentValueStrict(registryComponents.VoxelTypeRegistry, voxelBaseTypeIdAtSlot).scale;
-    const voxelScales = Array(voxels.length).fill(to64CharAddress("0x" + voxelScale.toString()));
     actions.add({
-      id: `RemoveVoxels+VoxelType=${voxelTypeKey}` as Entity,
+      id: `RemoveVoxels+VoxelType=${voxelBaseTypes}` as Entity,
       metadata: {
         actionType: "removeVoxels",
       },
@@ -594,11 +596,7 @@ export async function setupNetwork() {
         VoxelType: contractComponents.VoxelType,
       },
       execute: () => {
-        return callSystem("removeVoxels", [
-          voxelScales,
-          voxels.map((voxelId) => to64CharAddress(voxelId)),
-          { gasLimit: 10_000_000 },
-        ]);
+        return callSystem("removeVoxels", [voxelScales, voxelBaseTypes, { gasLimit: 10_000_000 }]);
       },
       updates: () => [],
     });

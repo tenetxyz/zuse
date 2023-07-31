@@ -28,7 +28,7 @@ contract RegisterCreationSystem is System {
     for (uint256 i = 0; i < voxelTypes.length; i++) {
       require(
         IWorld(_world()).isVoxelTypeAllowed(voxelTypes[i].voxelTypeId),
-        "RegisterL Voxel type not allowed in this world"
+        "Register Voxel type not allowed in this world"
       );
     }
 

@@ -610,7 +610,7 @@ export async function setupNetwork() {
           creationDescription,
           voxelEntities,
           baseCreationsInWorld,
-          { gasLimit: 30_000_000 },
+          { gasLimit: 900_000_000 },
         ]);
       },
       updates: () => [],

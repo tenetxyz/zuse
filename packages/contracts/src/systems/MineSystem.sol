@@ -16,7 +16,7 @@ import { addressToEntityKey } from "@tenet-utils/src/Utils.sol";
 import { removeEntityFromArray } from "@tenet-utils/src/Utils.sol";
 import { Utils } from "@latticexyz/world/src/Utils.sol";
 import { CHUNK_MAX_Y, CHUNK_MIN_Y } from "../Constants.sol";
-import { AirVoxelID } from "@tenet-base-ca/src/Constants.sol";
+import { AirVoxelVariantID } from "@tenet-base-ca/src/Constants.sol";
 
 contract MineSystem is System {
   function mine(bytes32 voxelTypeId, VoxelCoord memory coord) public returns (bytes32) {
@@ -98,7 +98,7 @@ contract MineSystem is System {
       bytes32 entity = entitiesAtPosition[i][1];
 
       VoxelTypeData memory voxelTypeData = VoxelType.get(scale, entity);
-      if (voxelTypeData.voxelTypeId == AirVoxelID) {
+      if (voxelTypeData.voxelVariantId == AirVoxelVariantID) {
         // if it's air, then it's already clear
         continue;
       }

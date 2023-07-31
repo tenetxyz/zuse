@@ -62,9 +62,9 @@ contract MineSystem is System {
       VoxelCoord[] memory eightBlockVoxelCoords = calculateChildCoords(2, coord);
       for (uint8 i = 0; i < 8; i++) {
         // mine(childVoxelTypeIds[i], eightBlockVoxelCoords[i]);
-        bytes32 childVoxelToMine = getEntityAtCoord(scale, eightBlockVoxelCoords[i]);
+        bytes32 childVoxelToMine = getEntityAtCoord(scale - 1, eightBlockVoxelCoords[i]);
         if (childVoxelToMine != 0) {
-          mine(VoxelType.getVoxelTypeId(scale, childVoxelToMine), eightBlockVoxelCoords[i]);
+          mineVoxelType(VoxelType.getVoxelTypeId(scale - 1, childVoxelToMine), eightBlockVoxelCoords[i], true);
         }
       }
     }

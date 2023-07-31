@@ -33,7 +33,7 @@ contract BuildSystem is System {
     address caAddress = WorldConfig.get(voxelTypeId);
 
     uint32 scale = voxelTypeData.scale;
-    if (scale > 1) {
+    if (buildChildren && scale > 1) {
       // Read the ChildTypes in this CA address
       bytes32[] memory childVoxelTypeIds = voxelTypeData.childVoxelTypeIds;
       // TODO: Make this general by using cube root
@@ -44,7 +44,7 @@ contract BuildSystem is System {
         if (childVoxelTypeIds[i] == 0) {
           continue;
         }
-        buildVoxelType(childVoxelTypeIds[i], eightBlockVoxelCoords[i]);
+        buildVoxelTypeHelper(childVoxelTypeIds[i], eightBlockVoxelCoords[i], true);
       }
     }
 

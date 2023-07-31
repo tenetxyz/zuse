@@ -296,7 +296,6 @@ export function registerPersistentSidebar() {
           // only change the world name after the zooming animation fades to black (so the user doesn't see the world unload)
           noa.worldName = newWorldScale.toString();
 
-          console.log(WorldScale);
           setComponent(WorldScale, SingletonID, { value: newWorldScale});
 
           const position = playerPosition$.getValue();

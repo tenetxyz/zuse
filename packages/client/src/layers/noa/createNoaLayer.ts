@@ -125,7 +125,7 @@ export function createNoaLayer(network: NetworkLayer) {
     SpawnCreation: defineSpawnCreationComponent(world),
     SpawnInFocus: defineSpawnInFocusComponent(world),
     SpawnToClassify: defineSpawnToClassifyComponent(world),
-    WorldScale: defineWorldScaleComponent(world),
+    WorldScale: createLocalCache(defineWorldScaleComponent(world)),
   };
 
   // --- SETUP ----------------------------------------------------------------------
@@ -133,7 +133,6 @@ export function createNoaLayer(network: NetworkLayer) {
 
   const existingWorldScale = getComponentValue(components.WorldScale, SingletonID)
   const worldScale = existingWorldScale?.value.toString() ?? "2";
-  debugger
   noa.worldName = worldScale;
 
   // Because NOA and RECS currently use different ECS libraries we need to maintain a mapping of RECS ID to Noa ID
@@ -362,7 +361,7 @@ export function createNoaLayer(network: NetworkLayer) {
   setupClouds(noa);
   setupSky(noa);
   setupHand(noa, network);
-  setupDayNightCycle(noa, glow); // Curtis removed this because he had to constantly change his monitor brightness
+  // setupDayNightCycle(noa, glow); // Curtis removed this because he had to constantly change his monitor brightness
 
   // Pause noa until initial loading is done
   noa.setPaused(true);

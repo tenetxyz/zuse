@@ -24,6 +24,7 @@ export function createSpawnOverlaySystem(networkLayer: NetworkLayer, noaLayer: N
     registryComponents: { VoxelTypeRegistry },
   } = networkLayer;
 
+  // I think there's an implicit assumption here that the spawn is done loading.
   Spawn.update$.subscribe((update) => {
     const spawnTable = update.component?.values;
     if (spawnTable === undefined) {

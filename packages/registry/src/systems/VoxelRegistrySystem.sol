@@ -93,6 +93,7 @@ contract VoxelRegistrySystem is System {
     VoxelTypeRegistry.set(
       voxelTypeId,
       VoxelTypeRegistryData({
+        baseVoxelTypeId: baseVoxelTypeId,
         childVoxelTypeIds: childVoxelTypeIds,
         schemaVoxelTypeIds: schemaVoxelTypeIds,
         previewVoxelVariantId: previewVoxelVariantId,

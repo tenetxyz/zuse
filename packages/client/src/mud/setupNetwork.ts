@@ -110,9 +110,6 @@ const setupWorldRegistryNetwork = async () => {
       currentBlockNumber,
       signerOrProvider
     );
-    console.log(tableRecords);
-    console.log(getTableIds(registryStoreConfig));
-    console.log(tableRecords[0].tableId.toHex());
     console.log(`Syncing ${tableRecords.length} records`);
     result.startSync(tableRecords, currentBlockNumber);
   } else {

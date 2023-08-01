@@ -137,20 +137,28 @@ abstract contract CA is System {
     voxelExitWorld(callerAddress, voxelTypeId, coord, entity);
   }
 
-  function runInteraction(
+  function voxelRunInteraction(
+    address callerAddress,
+    bytes32 voxelTypeId,
     bytes32 interactEntity,
     bytes32[] memory neighbourEntityIds,
     bytes32[] memory childEntityIds,
     bytes32 parentEntity
-  ) public returns (bytes32[] memory changedEntities) {
-    address callerAddress = _msgSender();
+  ) internal returns (bytes32[]) {
+    bytes32[] memory changedEntities = new bytes32[](neighbourEntityIds.length + 1);
 
-    changedEntities = new bytes32[](neighbourEntityIds.length + 1);
+    bytes32 baseVoxelTypeId = VoxelTypeRegistry.getBaseVoxelTypeId(IStore(REGISTRY_ADDRESS), voxelTypeId);
+    while(baseVoxelTypeId != voxelTypeId){
+      bytes32[] memory insideChangedEntityIds = voxelRunInteraction(callerAddress, baseVoxelTypeId, interactEntity, neighbourEntityIds, childEntityIds, parentEntity); // recursive, so we get the entire stack of russian dolls
 
-    bytes4[] memory interactionSelectors = CAVoxelInteractionConfig.get();
-    for (uint256 i = 0; i < interactionSelectors.length; i++) {
-      bytes4 interactionSelector = interactionSelectors[i];
-      bytes memory returnData = safeCall(
+      for (uint256 i = 0; i < insideChangedEntityIds.length; i++) {
+        if (changedEntities[i] == 0) {
+          changedEntities[i] = insideChangedEntityIds[i];
+        }
+      }
+    }
+    bytes4 interactionSelector = CAVoxelConfig.getInteractionSelector(baseVoxelTypeId);
+    bytes memory returnData = safeCall(
         _world(),
         abi.encodeWithSelector(
           interactionSelector,
@@ -161,21 +169,45 @@ abstract contract CA is System {
           parentEntity
         ),
         "voxel interaction selector"
-      );
-      (bytes32 changedCenterEntityId, bytes32[] memory changedNeighbourEntityIds) = abi.decode(
+    );
+
+    (bytes32 changedCenterEntityId, bytes32[] memory changedNeighbourEntityIds) = abi.decode(
         returnData,
         (bytes32, bytes32[])
-      );
+    );
 
-      if (changedEntities[0] == 0) {
-        changedEntities[0] = changedCenterEntityId;
-      }
-      for (uint256 j = 0; j < changedNeighbourEntityIds.length; j++) {
-        if (changedEntities[j + 1] == 0) {
-          changedEntities[j + 1] = changedNeighbourEntityIds[j];
-        }
+    if (changedEntities[0] == 0) {
+      changedEntities[0] = changedCenterEntityId;
+    }
+
+    for (uint256 i = 0; i < changedNeighbourEntityIds.length; i++) {
+      if (changedEntities[i + 1] == 0) {
+        changedEntities[i + 1] = changedNeighbourEntityIds[i];
       }
     }
+
+    return changedEntities;
+  }
+
+  function runInteraction(
+    bytes32 interactEntity,
+    bytes32[] memory neighbourEntityIds,
+    bytes32[] memory childEntityIds,
+    bytes32 parentEntity
+  ) public returns (bytes32[] memory changedEntities) {
+    address callerAddress = _msgSender();
+    require(hasKey(CAVoxelTypeTableId, CAVoxelType.encodeKeyTuple(callerAddress, interactEntity)), "Entity does not exist");
+    bytes32 voxelTypeId = CAVoxelType.getVoxelTypeId(callerAddress, interactEntity);
+
+    changedEntities = voxelRunInteraction(
+      callerAddress,
+      voxelTypeId,
+      interactEntity,
+      neighbourEntityIds,
+      childEntityIds,
+      parentEntity
+    );
+
 
     for (uint256 i = 0; i < changedEntities.length; i++) {
       bytes32 changedEntity = changedEntities[i];

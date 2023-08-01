@@ -79,7 +79,6 @@ const giveComponentsAHumanReadableId = (contractComponents: any) => {
 };
 
 const setupWorldRegistryNetwork = async () => {
-  const params = new URLSearchParams(window.location.search);
   const registryWorld = createWorld();
   const registryComponents = defineRegistryContractComponents(registryWorld);
   giveComponentsAHumanReadableId(registryComponents);

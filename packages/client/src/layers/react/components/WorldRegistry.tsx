@@ -13,6 +13,7 @@ import { Button } from "@/components/ui/button";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { CaretSortIcon } from "@radix-ui/react-icons";
 import { Separator } from "@/components/ui/separator";
+import { setUrlParam } from "@/utils/url";
 
 type CaAddress = string;
 export interface WorldRegistryFilters {
@@ -184,11 +185,8 @@ export const WorldRegistry = ({ layers, filters, setFilters }: Props) => {
                 <Button
                   className="ml-4 mr-4 bg-amber-400 hover:bg-amber-500 text-slate-600 font-bold mb-4 rounded"
                   onClick={() => {
-                    const currentURL = window.location.href;
-                    const newURL =
-                      currentURL + (currentURL.includes("?") ? "&" : "?") + `worldAddress=${world.worldAddress}`;
                     // Redirect to the new URL
-                    window.location.href = newURL;
+                    window.location.href = setUrlParam(window.location.href, "worldAddress", world.worldAddress);
                   }}
                 >
                   {" "}

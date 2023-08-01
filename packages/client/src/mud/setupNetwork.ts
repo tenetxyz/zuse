@@ -83,18 +83,42 @@ const setupWorldRegistryNetwork = async () => {
   giveComponentsAHumanReadableId(registryComponents);
 
   const networkConfig = await getNetworkConfig(true);
+  console.log("Got registry network config", networkConfig);
   networkConfig.showInDevTools = false;
 
   const result = await setupMUDV2Network<typeof registryComponents, typeof registryStoreConfig>({
     networkConfig,
     world: registryWorld,
     contractComponents: registryComponents,
-    syncThread: "main", // PERF: sync using workers
+    syncThread: "worker", // PERF: sync using workers
     storeConfig: registryStoreConfig,
     worldAbi: RegistryIWorld__factory.abi,
     useABIInDevTools: false,
   });
-  result.startSync();
+  console.log("Setup registry MUD V2 network", result);
+
+  const provider = result.network.providers.get().json;
+
+  const signer = result.network.signer.get();
+  const signerOrProvider = signer ?? provider;
+
+  if (networkConfig.snapSync) {
+    const currentBlockNumber = await provider.getBlockNumber();
+    const tableRecords = await getSnapSyncRecords(
+      networkConfig.worldAddress,
+      getTableIds(registryStoreConfig),
+      currentBlockNumber,
+      signerOrProvider
+    );
+    console.log(tableRecords);
+    console.log(getTableIds(registryStoreConfig));
+    console.log(tableRecords[0].tableId.toHex());
+    console.log(`Syncing ${tableRecords.length} records`);
+    result.startSync(tableRecords, currentBlockNumber);
+  } else {
+    result.startSync();
+  }
+
   return { registryComponents, registryResult: result };
 };
 
@@ -185,20 +209,6 @@ export async function setupNetwork() {
   const worldContract = IWorld__factory.connect(networkConfig.worldAddress, signerOrProvider);
   const uniqueWorldId = networkConfig.chainId + networkConfig.worldAddress;
 
-  if (networkConfig.snapSync) {
-    const currentBlockNumber = await provider.getBlockNumber();
-    const tableRecords = await getSnapSyncRecords(
-      networkConfig.worldAddress,
-      getTableIds(storeConfig),
-      currentBlockNumber,
-      signerOrProvider
-    );
-
-    console.log(`Syncing ${tableRecords.length} records`);
-    result.startSync(tableRecords, currentBlockNumber);
-  } else {
-    result.startSync();
-  }
 
   // Create a fast tx executor
   // Note: The check for signer?.provider instanceof JsonRpcProvider was removed because Vite build changes the name
@@ -728,22 +738,42 @@ export async function setupNetwork() {
   let registrySynced = false;
   const trySendDoneSyncing = () => {
     if (contractsSynced && registrySynced) {
+      console.log("doneSyncing");
       doneSyncing$.next(true);
     }
   };
+  awaitStreamValue(
+    registryResult.components.LoadingState.update$,
+    ({ value }) => value[0]?.state === SyncState.LIVE
+  ).then(async () => {
+    console.log("registrySynced");
+    registrySynced = true;
+
+    if (networkConfig.snapSync) {
+      const currentBlockNumber = await provider.getBlockNumber();
+      const tableRecords = await getSnapSyncRecords(
+        networkConfig.worldAddress,
+        getTableIds(storeConfig),
+        currentBlockNumber,
+        signerOrProvider
+      );
+
+      console.log(`Syncing ${tableRecords.length} records`);
+      result.startSync(tableRecords, currentBlockNumber);
+    } else {
+      result.startSync();
+    }
+
+    trySendDoneSyncing();
+  });
+
   awaitStreamValue(result.components.LoadingState.update$, ({ value }) => value[0]?.state === SyncState.LIVE).then(
     () => {
+      console.log("contractsSynced");
       contractsSynced = true;
       trySendDoneSyncing();
     }
   );
-  awaitStreamValue(
-    registryResult.components.LoadingState.update$,
-    ({ value }) => value[0]?.state === SyncState.LIVE
-  ).then(() => {
-    registrySynced = true;
-    trySendDoneSyncing();
-  });
 
   // please don't remove. This is for documentation purposes
   const internalMudWorldAndStoreComponents = result.components;

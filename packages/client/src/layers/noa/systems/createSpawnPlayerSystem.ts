@@ -21,10 +21,8 @@ export function createSpawnPlayerSystem(network: NetworkLayer, context: NoaLayer
   } = network;
 
   awaitStreamValue(doneSyncing$, (isDoneSyncing) => isDoneSyncing).then(() => {
-    noa.entities.addComponentAgain(noa.playerEntity, MINING_VOXEL_COMPONENT, {});
-
     // Reset gravity once world is loaded
-    const body = noa.ents.getPhysics(1)?.body;
+    const body = noa.ents.getPhysics(noa.playerEntity)?.body;
     if (body) body.gravityMultiplier = GRAVITY_MULTIPLIER;
 
     if (hasComponent(LocalPlayerPosition, SingletonEntity)) {

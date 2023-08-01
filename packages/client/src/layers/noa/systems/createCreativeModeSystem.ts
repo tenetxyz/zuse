@@ -1,7 +1,6 @@
 import { defineComponentSystem } from "@latticexyz/recs";
 import { NetworkLayer } from "../../network";
 import { NoaLayer } from "../types";
-import { MOVEMENT_COMPONENT_NAME } from "../components/MovementComponent";
 
 export function createCreativeModeSystem(network: NetworkLayer, context: NoaLayer) {
   const { noa, SingletonEntity } = context;

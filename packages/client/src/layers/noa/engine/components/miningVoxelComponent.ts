@@ -158,6 +158,7 @@ export function registerMiningVoxelComponent(noa: Engine, networkLayer: NetworkL
       }
     },
   });
+  noa.entities.addComponent(noa.playerEntity, MINING_VOXEL_COMPONENT, {});
 }
 
 function createExplosion(

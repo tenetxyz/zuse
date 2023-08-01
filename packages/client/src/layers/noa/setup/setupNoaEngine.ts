@@ -15,6 +15,7 @@ import MovementComponent, { MOVEMENT_COMPONENT_NAME } from "../components/Moveme
 import ReceiveInputsComponent, { RECEIVES_INPUTS_COMPONENT_NAME } from "../components/ReceivesInputsComponent";
 import CollideTerrainComponent, { COLLIDE_TERRAIN_COMPONENT_NAME } from "../components/CollideTerrainComponent";
 import { getWorldScale, voxelCoordToString } from "../../../utils/coord";
+import { MINING_VOXEL_COMPONENT } from "../engine/components/miningVoxelComponent";
 
 export const DEFAULT_BLOCK_TEST_DISTANCE = 7;
 

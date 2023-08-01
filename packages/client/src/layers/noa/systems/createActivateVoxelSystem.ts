@@ -11,14 +11,9 @@ import { removeTrailingNulls } from "@/utils/encodeOrDecode";
 export async function createActivateVoxelSystem(network: NetworkLayer, noaLayer: NoaLayer) {
   const {
     world,
-    components: { LoadingState, VoxelActivated },
+    components: { VoxelActivated },
     playerEntity,
   } = network;
-  const { noa } = noaLayer;
-
-  // Loading state flag
-  let live = false;
-  awaitStreamValue(LoadingState.update$, ({ value }) => value[0]?.state === SyncState.LIVE).then(() => (live = true));
 
   defineComponentSystem(world, VoxelActivated, (update) => {
     if (update.value[0] === undefined) {

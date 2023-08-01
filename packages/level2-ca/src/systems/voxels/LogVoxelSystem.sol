@@ -34,7 +34,7 @@ contract LogVoxelSystem is System {
     logVariant.uvWrap = LogUVWrap;
     registerVoxelVariant(REGISTRY_ADDRESS, LogVoxelVariantID, logVariant);
 
-    bytes32[] memory logChildVoxelTypes = = VoxelTypeRegistry.getChildVoxelTypeIds(IStore(REGISTRY_ADDRESS), Level2AirVoxelID);
+    bytes32[] memory logChildVoxelTypes = VoxelTypeRegistry.getChildVoxelTypeIds(IStore(REGISTRY_ADDRESS), Level2AirVoxelID);
     bytes32 baseVoxelTypeId = Level2AirVoxelID;
     registerVoxelType(REGISTRY_ADDRESS, "Log", LogVoxelID, baseVoxelTypeId, logChildVoxelTypes, logChildVoxelTypes, LogVoxelVariantID);
 

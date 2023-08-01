@@ -29,6 +29,19 @@ abstract contract CA is System {
     return hasKey(CAVoxelConfigTableId, CAVoxelConfig.encodeKeyTuple(voxelTypeId));
   }
 
+  function voxelEnterWorld(address callerAddress, bytes32 voxelTypeId, VoxelCoord memory coord, bytes32 entity) internal {
+    bytes32 baseVoxelTypeId = VoxelTypeRegistry.getBaseVoxelTypeId(IStore(REGISTRY_ADDRESS), voxelTypeId);
+    while(baseVoxelTypeId != voxelTypeId){
+      voxelEnterWorld(callerAddress, baseVoxelTypeId, coord, entity); // recursive, so we get the entire stack of russian dolls
+    }
+    bytes4 voxelEnterWorldSelector = CAVoxelConfig.getEnterWorldSelector(baseVoxelTypeId);
+    safeCall(
+      _world(),
+      abi.encodeWithSelector(voxelEnterWorldSelector, callerAddress, coord, entity),
+      "voxel enter world"
+    );
+  }
+
   function enterWorld(
     bytes32 voxelTypeId,
     VoxelCoord memory coord,
@@ -51,12 +64,7 @@ abstract contract CA is System {
       CAPosition.set(callerAddress, entity, CAPositionData({ x: coord.x, y: coord.y, z: coord.z }));
     }
 
-    bytes4 voxelEnterWorldSelector = CAVoxelConfig.getEnterWorldSelector(voxelTypeId);
-    safeCall(
-      _world(),
-      abi.encodeWithSelector(voxelEnterWorldSelector, callerAddress, coord, entity),
-      "voxel enter world"
-    );
+    voxelEnterWorld(callerAddress, voxelTypeId, coord, entity);
 
     bytes32 voxelVariantId = getVoxelVariant(voxelTypeId, entity, neighbourEntityIds, childEntityIds, parentEntity);
     CAVoxelType.set(callerAddress, entity, voxelTypeId, voxelVariantId);
@@ -86,6 +94,20 @@ abstract contract CA is System {
     return abi.decode(returnData, (bytes32));
   }
 
+  function voxelExitWorld(address callerAddress, bytes32 voxelTypeId, VoxelCoord memory coord, bytes32 entity) internal {
+    bytes4 voxelExitWorldSelector = CAVoxelConfig.getExitWorldSelector(voxelTypeId);
+    safeCall(
+      _world(),
+      abi.encodeWithSelector(voxelExitWorldSelector, callerAddress, coord, entity),
+      "voxel exit world"
+    );
+
+    bytes32 baseVoxelTypeId = VoxelTypeRegistry.getBaseVoxelTypeId(IStore(REGISTRY_ADDRESS), voxelTypeId);
+    if(baseVoxelTypeId != voxelTypeId){
+      voxelExitWorld(callerAddress, baseVoxelTypeId, coord, entity); // recursive, so we get the entire stack of russian dolls
+    }
+  }
+
   function exitWorld(
     bytes32 voxelTypeId,
     VoxelCoord memory coord,
@@ -112,12 +134,7 @@ abstract contract CA is System {
     );
     CAVoxelType.set(callerAddress, entity, emptyVoxelId(), airVoxelVariantId);
 
-    bytes4 voxelExitWorldSelector = CAVoxelConfig.getExitWorldSelector(voxelTypeId);
-    safeCall(
-      _world(),
-      abi.encodeWithSelector(voxelExitWorldSelector, callerAddress, coord, entity),
-      "voxel exit world"
-    );
+    voxelExitWorld(callerAddress, voxelTypeId, coord, entity);
   }
 
   function runInteraction(

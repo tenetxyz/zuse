@@ -17,10 +17,6 @@ run_faucet() {
     sh run-faucet.sh
 }
 
-run_snapshot() {
-    sh run-snapshot.sh
-}
-
 run_relay() {
     sh run-relay.sh
 }
@@ -32,8 +28,7 @@ while true; do
     echo "2: Run node"
     echo "3: Run client"
     echo "4: Run faucet"
-    echo "5: Run snapshot"
-    echo "6: Run relay"
+    echo "5: Run relay"
     echo "q: Quit"
     read input
 
@@ -42,8 +37,7 @@ while true; do
         2) run_node; break ;;
         3) run_client; break ;;
         4) run_faucet; break ;;
-        5) run_snapshot; break ;;
-        6) run_relay; break ;;
+        5) run_relay; break ;;
         q) echo "Quitting..."; break ;;
         *) echo "Invalid option. Please enter a number from 1-6, or 'q' to quit." ;;
     esac

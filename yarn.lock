@@ -1266,12 +1266,6 @@ __metadata:
   languageName: node
   linkType: soft
 
-"@latticexyz/gas-report@link:../../../mud/packages/gas-report::locator=%40tenetxyz%2Fregistry%40workspace%3Apackages%2Fregistry":
-  version: 0.0.0-use.local
-  resolution: "@latticexyz/gas-report@link:../../../mud/packages/gas-report::locator=%40tenetxyz%2Fregistry%40workspace%3Apackages%2Fregistry"
-  languageName: node
-  linkType: soft
-
 "@latticexyz/network@link:../../../mud/packages/network::locator=ca-client%40workspace%3Apackages%2Fca-client":
   version: 0.0.0-use.local
   resolution: "@latticexyz/network@link:../../../mud/packages/network::locator=ca-client%40workspace%3Apackages%2Fca-client"
@@ -2436,7 +2430,6 @@ __metadata:
     "@ethersproject/providers": ^5.7.2
     "@latticexyz/cli": "link:../../../mud/packages/cli"
     "@latticexyz/config": "link:../../../mud/packages/config"
-    "@latticexyz/gas-report": "link:../../../mud/packages/gas-report"
     "@latticexyz/schema-type": "link:../../../mud/packages/schema-type"
     "@latticexyz/std-contracts": "link:../../../mud/packages/std-contracts"
     "@latticexyz/store": "link:../../../mud/packages/store"

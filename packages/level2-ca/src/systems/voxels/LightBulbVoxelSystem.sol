@@ -1,6 +1,8 @@
 // SPDX-License-Identifier: MIT
 pragma solidity >=0.8.0;
 
+import { IStore } from "@latticexyz/store/src/IStore.sol";
+import { VoxelTypeRegistry } from "@tenet-registry/src/codegen/tables/VoxelTypeRegistry.sol";
 import { IWorld } from "@tenet-level2-ca/src/codegen/world/IWorld.sol";
 import { System } from "@latticexyz/world/src/System.sol";
 import { VoxelVariantsRegistryData } from "@tenet-registry/src/codegen/tables/VoxelVariantsRegistry.sol";
@@ -41,10 +43,7 @@ contract LightBulbVoxelSystem is System {
     lightBulbOnVariant.materials = abi.encode(lightBulbOnMaterials);
     registerVoxelVariant(REGISTRY_ADDRESS, LightBulbOnVoxelVariantID, lightBulbOnVariant);
 
-    bytes32[] memory lightBulbChildVoxelTypes = new bytes32[](8);
-    for (uint i = 0; i < 8; i++) {
-      lightBulbChildVoxelTypes[i] = AirVoxelID;
-    }
+    bytes32[] memory lightBulbChildVoxelTypes = VoxelTypeRegistry.getChildVoxelTypeIds(IStore(REGISTRY_ADDRESS), Level2AirVoxelID);
     bytes32 baseVoxelTypeId = Level2AirVoxelID;
     registerVoxelType(
       REGISTRY_ADDRESS,

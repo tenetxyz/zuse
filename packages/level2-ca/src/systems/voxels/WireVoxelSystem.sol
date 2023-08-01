@@ -53,7 +53,7 @@ contract WireVoxelSystem is System {
     wireSchemaVoxelTypes[4] = ElectronVoxelID;
     wireSchemaVoxelTypes[1] = ElectronVoxelID; // The second electron moves to be diagonal from the first
 
-    bytes32 baseVoxelTypeId = Level2AirVoxelID;
+    bytes32 baseVoxelTypeId = WireVoxelID;
     registerVoxelType(REGISTRY_ADDRESS, "Electron Wire", WireVoxelID, baseVoxelTypeId, wireChildVoxelTypes, wireSchemaVoxelTypes, WireOffVoxelVariantID);
 
     // TODO: Check to make sure it doesn't already exist

@@ -1,6 +1,8 @@
 // SPDX-License-Identifier: MIT
 pragma solidity >=0.8.0;
 
+import { IStore } from "@latticexyz/store/src/IStore.sol";
+import { VoxelTypeRegistry } from "@tenet-registry/src/codegen/tables/VoxelTypeRegistry.sol";
 import { IWorld } from "@tenet-level2-ca/src/codegen/world/IWorld.sol";
 import { System } from "@latticexyz/world/src/System.sol";
 import { VoxelVariantsRegistryData } from "@tenet-registry/src/codegen/tables/VoxelVariantsRegistry.sol";
@@ -32,10 +34,7 @@ contract LogVoxelSystem is System {
     logVariant.uvWrap = LogUVWrap;
     registerVoxelVariant(REGISTRY_ADDRESS, LogVoxelVariantID, logVariant);
 
-    bytes32[] memory logChildVoxelTypes = new bytes32[](8);
-    for (uint i = 0; i < 8; i++) {
-      logChildVoxelTypes[i] = AirVoxelID;
-    }
+    bytes32[] memory logChildVoxelTypes = = VoxelTypeRegistry.getChildVoxelTypeIds(IStore(REGISTRY_ADDRESS), Level2AirVoxelID);
     bytes32 baseVoxelTypeId = Level2AirVoxelID;
     registerVoxelType(REGISTRY_ADDRESS, "Log", LogVoxelID, baseVoxelTypeId, logChildVoxelTypes, logChildVoxelTypes, LogVoxelVariantID);
 

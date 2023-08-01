@@ -1,6 +1,8 @@
 // SPDX-License-Identifier: MIT
 pragma solidity >=0.8.0;
 
+import { IStore } from "@latticexyz/store/src/IStore.sol";
+import { VoxelTypeRegistry } from "@tenet-registry/src/codegen/tables/VoxelTypeRegistry.sol";
 import { IWorld } from "@tenet-level2-ca/src/codegen/world/IWorld.sol";
 import { System } from "@latticexyz/world/src/System.sol";
 import { VoxelVariantsRegistryData } from "@tenet-registry/src/codegen/tables/VoxelVariantsRegistry.sol";
@@ -53,10 +55,7 @@ contract PowerSignalVoxelSystem is System {
     powerSignalBrokenVariant.materials = abi.encode(powerSignalBrokenMaterials);
     registerVoxelVariant(REGISTRY_ADDRESS, PowerSignalBrokenVoxelVariantID, powerSignalBrokenVariant);
 
-    bytes32[] memory powerSignalChildVoxelTypes = new bytes32[](8);
-    for (uint i = 0; i < 8; i++) {
-      powerSignalChildVoxelTypes[i] = AirVoxelID;
-    }
+    bytes32[] memory powerSignalChildVoxelTypes = VoxelTypeRegistry.getChildVoxelTypeIds(IStore(REGISTRY_ADDRESS), PowerWireVoxelID);
     bytes32 baseVoxelTypeId = PowerWireVoxelID;
     registerVoxelType(
       REGISTRY_ADDRESS,

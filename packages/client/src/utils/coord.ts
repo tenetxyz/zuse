@@ -1,6 +1,6 @@
 import { VoxelCoord } from "@latticexyz/utils";
 import { Creation } from "../layers/react/components/CreationStore";
-import { abiDecode } from "./abi";
+import { abiDecode } from "@/utils/encodeOrDecode";
 import { Entity, getComponentValue, getComponentValueStrict } from "@latticexyz/recs";
 import { decodeBaseCreations } from "./encodeOrDecode";
 import { Engine } from "noa-engine";

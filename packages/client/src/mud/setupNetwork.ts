@@ -61,7 +61,6 @@ import {
 import { getNftStorageLink } from "../layers/noa/constants";
 import { getWorldScale, voxelCoordToString } from "../utils/coord";
 import { toast } from "react-toastify";
-import { abiDecode } from "../utils/abi";
 import { BaseCreationInWorld } from "../layers/react/components/RegisterCreation";
 import { Engine } from "noa-engine";
 

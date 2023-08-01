@@ -4,7 +4,7 @@ import { awaitStreamValue } from "@latticexyz/utils";
 import { NetworkLayer } from "../../network";
 import { NoaLayer, VoxelVariantNoaDef } from "../types";
 import { getNftStorageLink } from "../constants";
-import { abiDecode } from "../../../utils/abi";
+import { abiDecode } from "@/utils/encodeOrDecode";
 
 export async function createVoxelVariantSystem(network: NetworkLayer, noaLayer: NoaLayer) {
   const {

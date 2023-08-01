@@ -67,5 +67,10 @@ export default mudConfig({
       root: true,
       args: [resolveTableId("CAPosition")],
     },
+    {
+      name: "KeysInTableModule",
+      root: true,
+      args: [resolveTableId("CAVoxelType")],
+    },
   ],
 });

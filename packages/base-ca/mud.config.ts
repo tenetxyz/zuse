@@ -85,6 +85,11 @@ export default mudConfig({
     {
       name: "KeysInTableModule",
       root: true,
+      args: [resolveTableId("CAVoxelType")],
+    },
+    {
+      name: "KeysInTableModule",
+      root: true,
       args: [resolveTableId("ElectronTunnelSpot")],
     },
   ],

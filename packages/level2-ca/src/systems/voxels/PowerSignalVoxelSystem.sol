@@ -7,7 +7,7 @@ import { VoxelVariantsRegistryData } from "@tenet-registry/src/codegen/tables/Vo
 import { NoaBlockType } from "@tenet-registry/src/codegen/Types.sol";
 import { registerVoxelVariant, registerVoxelType } from "@tenet-registry/src/Utils.sol";
 import { CAVoxelConfig, PowerSignal, PowerSignalData, PowerWire, PowerWireData } from "@tenet-level2-ca/src/codegen/Tables.sol";
-import { REGISTRY_ADDRESS, PowerSignalVoxelID } from "@tenet-level2-ca/src/Constants.sol";
+import { REGISTRY_ADDRESS, PowerSignalVoxelID, PowerWireVoxelID } from "@tenet-level2-ca/src/Constants.sol";
 import { VoxelCoord, BlockDirection } from "@tenet-utils/src/Types.sol";
 import { AirVoxelID } from "@tenet-base-ca/src/Constants.sol";
 
@@ -57,7 +57,7 @@ contract PowerSignalVoxelSystem is System {
     for (uint i = 0; i < 8; i++) {
       powerSignalChildVoxelTypes[i] = AirVoxelID;
     }
-    bytes32 baseVoxelTypeId = PowerSignalVoxelID;
+    bytes32 baseVoxelTypeId = PowerWireVoxelID;
     registerVoxelType(
       REGISTRY_ADDRESS,
       "Power Signal",
@@ -85,30 +85,10 @@ contract PowerSignalVoxelSystem is System {
       entity,
       PowerSignalData({ isActive: false, direction: BlockDirection.None, hasValue: true })
     );
-
-    bytes32 _source = bytes32(0);
-    bytes32 _destination = bytes32(0);
-
-    PowerWire.set(
-      callerAddress,
-      entity,
-      PowerWireData({
-        source: _source,
-        destination: _destination,
-        transferRate: 0,
-        maxTransferRate: 45900,
-        lastUpdateBlock: block.number,
-        sourceDirection: BlockDirection.None,
-        destinationDirection: BlockDirection.None,
-        isBroken: false,
-        hasValue: true
-      })
-    );
   }
 
   function exitWorldPowerSignal(address callerAddress, VoxelCoord memory coord, bytes32 entity) public {
     PowerSignal.deleteRecord(callerAddress, entity);
-    PowerWire.deleteRecord(callerAddress, entity);
   }
 
   function variantSelectorPowerSignal(

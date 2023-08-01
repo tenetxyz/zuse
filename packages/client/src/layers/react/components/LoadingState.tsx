@@ -10,10 +10,10 @@ import { registerTenetComponent } from "../engine/components/TenetComponentRende
 
 export function registerLoadingState() {
   registerTenetComponent({
-    rowStart: 0,
-    rowEnd: 0,
-    columnStart: 13,
-    columnEnd: 13,
+    rowStart: 1,
+    rowEnd: 12,
+    columnStart: 1,
+    columnEnd: 12,
     Component: ({ layers }) => {
       const {
         components: { LoadingState },
@@ -32,7 +32,7 @@ export function registerLoadingState() {
       if (!isDoneSyncingWorlds) {
         return (
           <BootScreen initialOpacity={1}>
-            "Loading"
+            Loading
             <LoadingContainer />
           </BootScreen>
         );

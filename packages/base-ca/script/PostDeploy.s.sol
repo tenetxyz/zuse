@@ -17,9 +17,6 @@ contract PostDeploy is Script {
     IWorld(worldAddress).registerVoxelAir();
     IWorld(worldAddress).registerVoxelElectron();
 
-    // Register the voxel interactions
-    IWorld(worldAddress).registerInteractionElectron();
-
     IWorld(worldAddress).registerCA();
 
     vm.stopBroadcast();

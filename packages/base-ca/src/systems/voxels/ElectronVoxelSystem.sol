@@ -40,7 +40,8 @@ contract ElectronVoxelSystem is System {
       IWorld(world).enterWorldElectron.selector,
       IWorld(world).exitWorldElectron.selector,
       IWorld(world).variantSelectorElectron.selector,
-      IWorld(world).activateSelectorElectron.selector
+      IWorld(world).activateSelectorElectron.selector,
+      IWorld(world).eventHandlerElectron.selector
     );
   }
 

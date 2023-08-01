@@ -6,9 +6,8 @@ import { System } from "@latticexyz/world/src/System.sol";
 import { hasKey } from "@latticexyz/world/src/modules/keysintable/hasKey.sol";
 import { VoxelTypeRegistry } from "@tenet-registry/src/codegen/tables/VoxelTypeRegistry.sol";
 import { CAPosition, CAPositionData, CAPositionTableId } from "@tenet-base-ca/src/codegen/tables/CAPosition.sol";
-import { CAVoxelInteractionConfig } from "@tenet-base-ca/src/codegen/tables/CAVoxelInteractionConfig.sol";
 import { CAVoxelConfig, CAVoxelConfigTableId } from "@tenet-base-ca/src/codegen/tables/CAVoxelConfig.sol";
-import { CAVoxelType } from "@tenet-base-ca/src/codegen/tables/CAVoxelType.sol";
+import { CAVoxelType, CAVoxelTypeTableId } from "@tenet-base-ca/src/codegen/tables/CAVoxelType.sol";
 import { VoxelCoord } from "@tenet-utils/src/Types.sol";
 import { getEntityAtCoord } from "@tenet-base-ca/src/Utils.sol";
 import { REGISTRY_ADDRESS } from "@tenet-base-ca/src/Constants.sol";
@@ -144,7 +143,7 @@ abstract contract CA is System {
     bytes32[] memory neighbourEntityIds,
     bytes32[] memory childEntityIds,
     bytes32 parentEntity
-  ) internal returns (bytes32[]) {
+  ) internal returns (bytes32[] memory) {
     bytes32[] memory changedEntities = new bytes32[](neighbourEntityIds.length + 1);
 
     bytes32 baseVoxelTypeId = VoxelTypeRegistry.getBaseVoxelTypeId(IStore(REGISTRY_ADDRESS), voxelTypeId);
@@ -208,20 +207,20 @@ abstract contract CA is System {
       parentEntity
     );
 
-
+    // Update voxel types after interaction
     for (uint256 i = 0; i < changedEntities.length; i++) {
       bytes32 changedEntity = changedEntities[i];
       if (changedEntity != 0) {
-        bytes32 voxelTypeId = CAVoxelType.getVoxelTypeId(callerAddress, changedEntity);
-        uint32 scale = VoxelTypeRegistry.getScale(IStore(REGISTRY_ADDRESS), voxelTypeId);
+        bytes32 changedVoxelTypeId = CAVoxelType.getVoxelTypeId(callerAddress, changedEntity);
+        uint32 scale = VoxelTypeRegistry.getScale(IStore(REGISTRY_ADDRESS), changedVoxelTypeId);
         bytes32 voxelVariantId = getVoxelVariant(
-          voxelTypeId,
+          changedVoxelTypeId,
           changedEntity,
           getNeighbourEntitiesFromCaller(callerAddress, scale, changedEntity),
           getChildEntitiesFromCaller(callerAddress, scale, changedEntity),
           getParentEntityFromCaller(callerAddress, scale, changedEntity)
         );
-        CAVoxelType.set(callerAddress, changedEntity, voxelTypeId, voxelVariantId);
+        CAVoxelType.set(callerAddress, changedEntity, changedVoxelTypeId, voxelVariantId);
       }
     }
 

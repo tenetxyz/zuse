@@ -25,16 +25,18 @@ struct CAVoxelConfigData {
   bytes4 exitWorldSelector;
   bytes4 voxelVariantSelector;
   bytes4 activateSelector;
+  bytes4 interactionSelector;
 }
 
 library CAVoxelConfig {
   /** Get the table's schema */
   function getSchema() internal pure returns (Schema) {
-    SchemaType[] memory _schema = new SchemaType[](4);
+    SchemaType[] memory _schema = new SchemaType[](5);
     _schema[0] = SchemaType.BYTES4;
     _schema[1] = SchemaType.BYTES4;
     _schema[2] = SchemaType.BYTES4;
     _schema[3] = SchemaType.BYTES4;
+    _schema[4] = SchemaType.BYTES4;
 
     return SchemaLib.encode(_schema);
   }
@@ -48,11 +50,12 @@ library CAVoxelConfig {
 
   /** Get the table's metadata */
   function getMetadata() internal pure returns (string memory, string[] memory) {
-    string[] memory _fieldNames = new string[](4);
+    string[] memory _fieldNames = new string[](5);
     _fieldNames[0] = "enterWorldSelector";
     _fieldNames[1] = "exitWorldSelector";
     _fieldNames[2] = "voxelVariantSelector";
     _fieldNames[3] = "activateSelector";
+    _fieldNames[4] = "interactionSelector";
     return ("CAVoxelConfig", _fieldNames);
   }
 
@@ -217,6 +220,43 @@ library CAVoxelConfig {
     _store.setField(_tableId, _keyTuple, 3, abi.encodePacked((activateSelector)));
   }
 
+  /** Get interactionSelector */
+  function getInteractionSelector(bytes32 voxelTypeId) internal view returns (bytes4 interactionSelector) {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = voxelTypeId;
+
+    bytes memory _blob = StoreSwitch.getField(_tableId, _keyTuple, 4);
+    return (Bytes.slice4(_blob, 0));
+  }
+
+  /** Get interactionSelector (using the specified store) */
+  function getInteractionSelector(
+    IStore _store,
+    bytes32 voxelTypeId
+  ) internal view returns (bytes4 interactionSelector) {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = voxelTypeId;
+
+    bytes memory _blob = _store.getField(_tableId, _keyTuple, 4);
+    return (Bytes.slice4(_blob, 0));
+  }
+
+  /** Set interactionSelector */
+  function setInteractionSelector(bytes32 voxelTypeId, bytes4 interactionSelector) internal {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = voxelTypeId;
+
+    StoreSwitch.setField(_tableId, _keyTuple, 4, abi.encodePacked((interactionSelector)));
+  }
+
+  /** Set interactionSelector (using the specified store) */
+  function setInteractionSelector(IStore _store, bytes32 voxelTypeId, bytes4 interactionSelector) internal {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = voxelTypeId;
+
+    _store.setField(_tableId, _keyTuple, 4, abi.encodePacked((interactionSelector)));
+  }
+
   /** Get the full data */
   function get(bytes32 voxelTypeId) internal view returns (CAVoxelConfigData memory _table) {
     bytes32[] memory _keyTuple = new bytes32[](1);
@@ -241,9 +281,16 @@ library CAVoxelConfig {
     bytes4 enterWorldSelector,
     bytes4 exitWorldSelector,
     bytes4 voxelVariantSelector,
-    bytes4 activateSelector
+    bytes4 activateSelector,
+    bytes4 interactionSelector
   ) internal {
-    bytes memory _data = encode(enterWorldSelector, exitWorldSelector, voxelVariantSelector, activateSelector);
+    bytes memory _data = encode(
+      enterWorldSelector,
+      exitWorldSelector,
+      voxelVariantSelector,
+      activateSelector,
+      interactionSelector
+    );
 
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = voxelTypeId;
@@ -258,9 +305,16 @@ library CAVoxelConfig {
     bytes4 enterWorldSelector,
     bytes4 exitWorldSelector,
     bytes4 voxelVariantSelector,
-    bytes4 activateSelector
+    bytes4 activateSelector,
+    bytes4 interactionSelector
   ) internal {
-    bytes memory _data = encode(enterWorldSelector, exitWorldSelector, voxelVariantSelector, activateSelector);
+    bytes memory _data = encode(
+      enterWorldSelector,
+      exitWorldSelector,
+      voxelVariantSelector,
+      activateSelector,
+      interactionSelector
+    );
 
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = voxelTypeId;
@@ -275,7 +329,8 @@ library CAVoxelConfig {
       _table.enterWorldSelector,
       _table.exitWorldSelector,
       _table.voxelVariantSelector,
-      _table.activateSelector
+      _table.activateSelector,
+      _table.interactionSelector
     );
   }
 
@@ -287,7 +342,8 @@ library CAVoxelConfig {
       _table.enterWorldSelector,
       _table.exitWorldSelector,
       _table.voxelVariantSelector,
-      _table.activateSelector
+      _table.activateSelector,
+      _table.interactionSelector
     );
   }
 
@@ -300,6 +356,8 @@ library CAVoxelConfig {
     _table.voxelVariantSelector = (Bytes.slice4(_blob, 8));
 
     _table.activateSelector = (Bytes.slice4(_blob, 12));
+
+    _table.interactionSelector = (Bytes.slice4(_blob, 16));
   }
 
   /** Tightly pack full data using this table's schema */
@@ -307,9 +365,17 @@ library CAVoxelConfig {
     bytes4 enterWorldSelector,
     bytes4 exitWorldSelector,
     bytes4 voxelVariantSelector,
-    bytes4 activateSelector
+    bytes4 activateSelector,
+    bytes4 interactionSelector
   ) internal pure returns (bytes memory) {
-    return abi.encodePacked(enterWorldSelector, exitWorldSelector, voxelVariantSelector, activateSelector);
+    return
+      abi.encodePacked(
+        enterWorldSelector,
+        exitWorldSelector,
+        voxelVariantSelector,
+        activateSelector,
+        interactionSelector
+      );
   }
 
   /** Encode keys as a bytes32 array using this table's schema */

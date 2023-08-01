@@ -21,4 +21,12 @@ interface IAirVoxelSystem {
   ) external view returns (bytes32);
 
   function activateSelectorAir(address callerAddress, bytes32 entity) external view returns (string memory);
+
+  function eventHandlerAir(
+    address callerAddress,
+    bytes32 centerEntityId,
+    bytes32[] memory neighbourEntityIds,
+    bytes32[] memory childEntityIds,
+    bytes32 parentEntity
+  ) external returns (bytes32, bytes32[] memory);
 }

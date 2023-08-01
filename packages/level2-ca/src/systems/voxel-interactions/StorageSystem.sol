@@ -3,17 +3,12 @@ pragma solidity >=0.8.0;
 
 import { IWorld } from "@tenet-level2-ca/src/codegen/world/IWorld.sol";
 import { SingleVoxelInteraction } from "@tenet-base-ca/src/prototypes/SingleVoxelInteraction.sol";
-import { CAVoxelInteractionConfig, PowerWire, PowerWireData, Storage, StorageData } from "@tenet-level2-ca/src/codegen/Tables.sol";
+import { PowerWire, PowerWireData, Storage, StorageData } from "@tenet-level2-ca/src/codegen/Tables.sol";
 import { BlockDirection, BlockHeightUpdate } from "@tenet-utils/src/Types.sol";
 import { entityIsStorage, entityIsPowerWire } from "@tenet-level2-ca/src/InteractionUtils.sol";
 import { getOppositeDirection } from "@tenet-utils/src/VoxelCoordUtils.sol";
 
 contract StorageSystem is SingleVoxelInteraction {
-  function registerInteractionStorage() public {
-    address world = _world();
-    CAVoxelInteractionConfig.push(IWorld(world).eventHandlerStorage.selector);
-  }
-
   function usePowerWireAsSource(
     address callerAddress,
     bytes32 powerWireEntity,

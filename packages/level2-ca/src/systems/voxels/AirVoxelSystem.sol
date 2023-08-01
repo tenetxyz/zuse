@@ -27,7 +27,8 @@ contract AirVoxelSystem is System {
       IWorld(world).enterWorldAir.selector,
       IWorld(world).exitWorldAir.selector,
       IWorld(world).variantSelectorAir.selector,
-      IWorld(world).activateSelectorAir.selector
+      IWorld(world).activateSelectorAir.selector,
+      IWorld(world).eventHandlerAir.selector
     );
   }
 
@@ -46,4 +47,12 @@ contract AirVoxelSystem is System {
   }
 
   function activateSelectorAir(address callerAddress, bytes32 entity) public view returns (string memory) {}
+
+  function eventHandlerAir(
+    address callerAddress,
+    bytes32 centerEntityId,
+    bytes32[] memory neighbourEntityIds,
+    bytes32[] memory childEntityIds,
+    bytes32 parentEntity
+  ) public returns (bytes32, bytes32[] memory) {}
 }

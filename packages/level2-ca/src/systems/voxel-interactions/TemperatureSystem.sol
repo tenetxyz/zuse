@@ -3,16 +3,11 @@ pragma solidity >=0.8.0;
 
 import { SingleVoxelInteraction } from "@tenet-base-ca/src/prototypes/SingleVoxelInteraction.sol";
 import { IWorld } from "@tenet-level2-ca/src/codegen/world/IWorld.sol";
-import { CAVoxelInteractionConfig, Temperature, TemperatureData } from "@tenet-level2-ca/src/codegen/Tables.sol";
+import { Temperature, TemperatureData } from "@tenet-level2-ca/src/codegen/Tables.sol";
 import { BlockDirection } from "@tenet-utils/src/Types.sol";
 import { entityIsSignal, entityHasTemperature } from "@tenet-level2-ca/src/InteractionUtils.sol";
 
 contract TemperatureSystem is SingleVoxelInteraction {
-  function registerInteractionTemperature() public {
-    address world = _world();
-    CAVoxelInteractionConfig.push(IWorld(world).eventHandlerTemperature.selector);
-  }
-
   function runSingleInteraction(
     address callerAddress,
     bytes32 temperatureEntity,

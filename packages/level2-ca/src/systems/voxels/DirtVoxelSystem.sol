@@ -41,7 +41,8 @@ contract DirtVoxelSystem is System {
       IWorld(world).enterWorldDirt.selector,
       IWorld(world).exitWorldDirt.selector,
       IWorld(world).variantSelectorDirt.selector,
-      IWorld(world).activateSelectorDirt.selector
+      IWorld(world).activateSelectorDirt.selector,
+      IWorld(world).eventHandlerDirt.selector
     );
   }
 
@@ -60,4 +61,12 @@ contract DirtVoxelSystem is System {
   }
 
   function activateSelectorDirt(address callerAddress, bytes32 entity) public view returns (string memory) {}
+
+   function eventHandlerDirt(
+    address callerAddress,
+    bytes32 centerEntityId,
+    bytes32[] memory neighbourEntityIds,
+    bytes32[] memory childEntityIds,
+    bytes32 parentEntity
+  ) public returns (bytes32, bytes32[] memory) {}
 }

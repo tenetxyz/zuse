@@ -7,7 +7,7 @@ import { VoxelVariantsRegistryData } from "@tenet-registry/src/codegen/tables/Vo
 import { NoaBlockType } from "@tenet-registry/src/codegen/Types.sol";
 import { registerVoxelVariant, registerVoxelType } from "@tenet-registry/src/Utils.sol";
 import { CAVoxelConfig, Consumer, ConsumerData } from "@tenet-level2-ca/src/codegen/Tables.sol";
-import { REGISTRY_ADDRESS, LightBulbVoxelID } from "@tenet-level2-ca/src/Constants.sol";
+import { REGISTRY_ADDRESS, LightBulbVoxelID, Level2AirVoxelID } from "@tenet-level2-ca/src/Constants.sol";
 import { VoxelCoord, BlockDirection } from "@tenet-utils/src/Types.sol";
 import { AirVoxelID } from "@tenet-base-ca/src/Constants.sol";
 
@@ -45,7 +45,7 @@ contract LightBulbVoxelSystem is System {
     for (uint i = 0; i < 8; i++) {
       lightBulbChildVoxelTypes[i] = AirVoxelID;
     }
-    bytes32 baseVoxelTypeId = LightBulbVoxelID;
+    bytes32 baseVoxelTypeId = Level2AirVoxelID;
     registerVoxelType(
       REGISTRY_ADDRESS,
       "Light Bulb",
@@ -62,7 +62,8 @@ contract LightBulbVoxelSystem is System {
       IWorld(world).enterWorldLightBulb.selector,
       IWorld(world).exitWorldLightBulb.selector,
       IWorld(world).variantSelectorLightBulb.selector,
-      IWorld(world).activateSelectorLightBulb.selector
+      IWorld(world).activateSelectorLightBulb.selector,
+      IWorld(world).eventHandlerConsumer.selector
     );
   }
 

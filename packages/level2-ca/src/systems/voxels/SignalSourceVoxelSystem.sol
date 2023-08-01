@@ -7,7 +7,7 @@ import { VoxelVariantsRegistryData } from "@tenet-registry/src/codegen/tables/Vo
 import { NoaBlockType } from "@tenet-registry/src/codegen/Types.sol";
 import { registerVoxelVariant, registerVoxelType } from "@tenet-registry/src/Utils.sol";
 import { CAVoxelConfig, SignalSource } from "@tenet-level2-ca/src/codegen/Tables.sol";
-import { REGISTRY_ADDRESS, SignalSourceVoxelID } from "@tenet-level2-ca/src/Constants.sol";
+import { REGISTRY_ADDRESS, SignalSourceVoxelID, Level2AirVoxelID } from "@tenet-level2-ca/src/Constants.sol";
 import { VoxelCoord, BlockDirection } from "@tenet-utils/src/Types.sol";
 import { AirVoxelID } from "@tenet-base-ca/src/Constants.sol";
 
@@ -34,7 +34,7 @@ contract SignalSourceVoxelSystem is System {
     for (uint i = 0; i < 8; i++) {
       signalChildVoxelTypes[i] = AirVoxelID;
     }
-    bytes32 baseVoxelTypeId = SignalSourceVoxelID;
+    bytes32 baseVoxelTypeId = Level2AirVoxelID;
     registerVoxelType(
       REGISTRY_ADDRESS,
       "Signal Source",
@@ -51,7 +51,8 @@ contract SignalSourceVoxelSystem is System {
       IWorld(world).enterWorldSignalSource.selector,
       IWorld(world).exitWorldSignalSource.selector,
       IWorld(world).variantSelectorSignalSource.selector,
-      IWorld(world).activateSelectorSignalSource.selector
+      IWorld(world).activateSelectorSignalSource.selector,
+      IWorld(world).eventHandlerSignalSource.selector
     );
   }
 
@@ -76,4 +77,12 @@ contract SignalSourceVoxelSystem is System {
   }
 
   function activateSelectorSignalSource(address callerAddress, bytes32 entity) public view returns (string memory) {}
+
+  function eventHandlerSignalSource(
+    address callerAddress,
+    bytes32 centerEntityId,
+    bytes32[] memory neighbourEntityIds,
+    bytes32[] memory childEntityIds,
+    bytes32 parentEntity
+  ) public returns (bytes32, bytes32[] memory) {}
 }

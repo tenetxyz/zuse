@@ -33,17 +33,6 @@ contract PostDeploy is Script {
     IWorld(worldAddress).registerVoxelLightBulb();
     IWorld(worldAddress).registerVoxelPowerSignal();
 
-    // Register the voxel interactions
-    IWorld(worldAddress).registerInteractionSignal();
-    IWorld(worldAddress).registerInteractionInvertedSignal();
-    IWorld(worldAddress).registerInteractionPowered();
-    IWorld(worldAddress).registerInteractionTemperature();
-    IWorld(worldAddress).registerInteractionThermoGen();
-    IWorld(worldAddress).registerInteractionPowerWire();
-    IWorld(worldAddress).registerInteractionStorage();
-    IWorld(worldAddress).registerInteractionConsumer();
-    IWorld(worldAddress).registerInteractionPowerSignal();
-
     IWorld(worldAddress).registerCA();
 
     vm.stopBroadcast();

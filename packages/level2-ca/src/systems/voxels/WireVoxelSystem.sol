@@ -8,7 +8,7 @@ import { VoxelVariantsRegistryData } from "@tenet-registry/src/codegen/tables/Vo
 import { NoaBlockType } from "@tenet-registry/src/codegen/Types.sol";
 import { registerVoxelVariant, registerVoxelType } from "@tenet-registry/src/Utils.sol";
 import { CAVoxelConfig } from "@tenet-level2-ca/src/codegen/Tables.sol";
-import { REGISTRY_ADDRESS, WireVoxelID } from "@tenet-level2-ca/src/Constants.sol";
+import { REGISTRY_ADDRESS, WireVoxelID, Level2AirVoxelID } from "@tenet-level2-ca/src/Constants.sol";
 import { VoxelCoord } from "@tenet-utils/src/Types.sol";
 import { ElectronVoxelID } from "@tenet-base-ca/src/Constants.sol";
 import { AirVoxelID } from "@tenet-base-ca/src/Constants.sol";
@@ -53,7 +53,7 @@ contract WireVoxelSystem is System {
     wireSchemaVoxelTypes[4] = ElectronVoxelID;
     wireSchemaVoxelTypes[1] = ElectronVoxelID; // The second electron moves to be diagonal from the first
 
-    bytes32 baseVoxelTypeId = WireVoxelID;
+    bytes32 baseVoxelTypeId = Level2AirVoxelID;
     registerVoxelType(REGISTRY_ADDRESS, "Electron Wire", WireVoxelID, baseVoxelTypeId, wireChildVoxelTypes, wireSchemaVoxelTypes, WireOffVoxelVariantID);
 
     // TODO: Check to make sure it doesn't already exist
@@ -62,7 +62,8 @@ contract WireVoxelSystem is System {
       IWorld(world).enterWorldWire.selector,
       IWorld(world).exitWorldWire.selector,
       IWorld(world).variantSelectorWire.selector,
-      IWorld(world).activateSelectorWire.selector
+      IWorld(world).activateSelectorWire.selector,
+      IWorld(world).eventHandlerWire.selector
     );
   }
 
@@ -103,4 +104,13 @@ contract WireVoxelSystem is System {
   }
 
   function activateSelectorWire(address callerAddress, bytes32 entity) public view returns (string memory) {}
+
+
+  function eventHandlerWire(
+    address callerAddress,
+    bytes32 centerEntityId,
+    bytes32[] memory neighbourEntityIds,
+    bytes32[] memory childEntityIds,
+    bytes32 parentEntity
+  ) public returns (bytes32, bytes32[] memory) {}
 }

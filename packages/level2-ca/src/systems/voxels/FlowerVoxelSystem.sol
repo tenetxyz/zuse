@@ -7,7 +7,7 @@ import { VoxelVariantsRegistryData } from "@tenet-registry/src/codegen/tables/Vo
 import { NoaBlockType } from "@tenet-registry/src/codegen/Types.sol";
 import { registerVoxelVariant, registerVoxelType } from "@tenet-registry/src/Utils.sol";
 import { CAVoxelConfig } from "@tenet-level2-ca/src/codegen/Tables.sol";
-import { REGISTRY_ADDRESS, OrangeFlowerVoxelID } from "@tenet-level2-ca/src/Constants.sol";
+import { REGISTRY_ADDRESS, OrangeFlowerVoxelID, Level2AirVoxelID } from "@tenet-level2-ca/src/Constants.sol";
 import { VoxelCoord } from "@tenet-utils/src/Types.sol";
 import { AirVoxelID } from "@tenet-base-ca/src/Constants.sol";
 
@@ -32,7 +32,7 @@ contract FlowerVoxelSystem is System {
     for (uint i = 0; i < 8; i++) {
       flowerChildVoxelTypes[i] = AirVoxelID;
     }
-    bytes32 baseVoxelTypeId = OrangeFlowerVoxelID;
+    bytes32 baseVoxelTypeId = Level2AirVoxelID;
     registerVoxelType(
       REGISTRY_ADDRESS,
       "Orange Flower",
@@ -49,7 +49,8 @@ contract FlowerVoxelSystem is System {
       IWorld(world).enterWorldFlower.selector,
       IWorld(world).exitWorldFlower.selector,
       IWorld(world).variantSelectorFlower.selector,
-      IWorld(world).activateSelectorFlower.selector
+      IWorld(world).activateSelectorFlower.selector,
+      IWorld(world).eventHandlerFlower.selector
     );
   }
 
@@ -68,4 +69,12 @@ contract FlowerVoxelSystem is System {
   }
 
   function activateSelectorFlower(address callerAddress, bytes32 entity) public view returns (string memory) {}
+
+  function eventHandlerFlower(
+    address callerAddress,
+    bytes32 centerEntityId,
+    bytes32[] memory neighbourEntityIds,
+    bytes32[] memory childEntityIds,
+    bytes32 parentEntity
+  ) public returns (bytes32, bytes32[] memory) {}
 }

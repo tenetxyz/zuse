@@ -5,15 +5,10 @@ import { IWorld } from "@tenet-level2-ca/src/codegen/world/IWorld.sol";
 import { SingleVoxelInteraction } from "@tenet-base-ca/src/prototypes/SingleVoxelInteraction.sol";
 import { BlockDirection } from "@tenet-utils/src/Types.sol";
 import { getOppositeDirection } from "@tenet-utils/src/VoxelCoordUtils.sol";
-import { CAVoxelInteractionConfig, PoweredData, Powered, Signal, SignalData, PowerSignal, PowerSignalData } from "@tenet-level2-ca/src/codegen/Tables.sol";
+import { PoweredData, Powered, Signal, SignalData, PowerSignal, PowerSignalData } from "@tenet-level2-ca/src/codegen/Tables.sol";
 import { entityIsPowered, entityIsSignal, entityIsSignalSource, entityIsPowerSignal } from "@tenet-level2-ca/src/InteractionUtils.sol";
 
 contract PoweredSystem is SingleVoxelInteraction {
-  function registerInteractionPowered() public {
-    address world = _world();
-    CAVoxelInteractionConfig.push(IWorld(world).eventHandlerPowered.selector);
-  }
-
   function runSingleInteraction(
     address callerAddress,
     bytes32 poweredEntity,

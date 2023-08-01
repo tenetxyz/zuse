@@ -7,7 +7,7 @@ import { VoxelVariantsRegistryData } from "@tenet-registry/src/codegen/tables/Vo
 import { NoaBlockType } from "@tenet-registry/src/codegen/Types.sol";
 import { registerVoxelVariant, registerVoxelType } from "@tenet-registry/src/Utils.sol";
 import { CAVoxelConfig, Temperature, TemperatureData } from "@tenet-level2-ca/src/codegen/Tables.sol";
-import { REGISTRY_ADDRESS, IceVoxelID } from "@tenet-level2-ca/src/Constants.sol";
+import { REGISTRY_ADDRESS, IceVoxelID, Level2AirVoxelID } from "@tenet-level2-ca/src/Constants.sol";
 import { VoxelCoord, BlockDirection } from "@tenet-utils/src/Types.sol";
 import { AirVoxelID } from "@tenet-base-ca/src/Constants.sol";
 import { Strings } from "@openzeppelin/contracts/utils/Strings.sol";
@@ -49,7 +49,7 @@ contract IceVoxelSystem is System {
     for (uint i = 0; i < 8; i++) {
       iceChildVoxelTypes[i] = AirVoxelID;
     }
-    bytes32 baseVoxelTypeId = IceVoxelID;
+    bytes32 baseVoxelTypeId = Level2AirVoxelID;
     registerVoxelType(REGISTRY_ADDRESS, "Ice", IceVoxelID, baseVoxelTypeId, iceChildVoxelTypes, iceChildVoxelTypes, IceColdVoxelVariantID);
 
     // TODO: Check to make sure it doesn't already exist
@@ -58,7 +58,8 @@ contract IceVoxelSystem is System {
       IWorld(world).enterWorldIce.selector,
       IWorld(world).exitWorldIce.selector,
       IWorld(world).variantSelectorIce.selector,
-      IWorld(world).activateSelectorIce.selector
+      IWorld(world).activateSelectorIce.selector,
+      IWorld(world).eventHandlerTemperature.selector
     );
   }
 

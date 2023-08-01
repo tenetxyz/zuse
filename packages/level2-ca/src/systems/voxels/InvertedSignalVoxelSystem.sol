@@ -7,7 +7,7 @@ import { VoxelVariantsRegistryData } from "@tenet-registry/src/codegen/tables/Vo
 import { NoaBlockType } from "@tenet-registry/src/codegen/Types.sol";
 import { registerVoxelVariant, registerVoxelType } from "@tenet-registry/src/Utils.sol";
 import { CAVoxelConfig, InvertedSignal, InvertedSignalData } from "@tenet-level2-ca/src/codegen/Tables.sol";
-import { REGISTRY_ADDRESS, InvertedSignalVoxelID } from "@tenet-level2-ca/src/Constants.sol";
+import { REGISTRY_ADDRESS, InvertedSignalVoxelID, Level2AirVoxelID } from "@tenet-level2-ca/src/Constants.sol";
 import { SignalOnVoxelVariantID, SignalOffVoxelVariantID } from "@tenet-level2-ca/src/systems/voxels/SignalVoxelSystem.sol";
 import { VoxelCoord, BlockDirection } from "@tenet-utils/src/Types.sol";
 import { AirVoxelID } from "@tenet-base-ca/src/Constants.sol";
@@ -20,7 +20,7 @@ contract InvertedSignalVoxelSystem is System {
     for (uint i = 0; i < 8; i++) {
       invertedSignalChildVoxelTypes[i] = AirVoxelID;
     }
-    bytes32 baseVoxelTypeId = InvertedSignalVoxelID;
+    bytes32 baseVoxelTypeId = Level2AirVoxelID;
     registerVoxelType(
       REGISTRY_ADDRESS,
       "Inverted Signal",
@@ -37,7 +37,8 @@ contract InvertedSignalVoxelSystem is System {
       IWorld(world).enterWorldInvertedSignal.selector,
       IWorld(world).exitWorldInvertedSignal.selector,
       IWorld(world).variantSelectorInvertedSignal.selector,
-      IWorld(world).activateSelectorInvertedSignal.selector
+      IWorld(world).activateSelectorInvertedSignal.selector,
+      IWorld(world).eventHandlerInvertedSignal.selector
     );
   }
 

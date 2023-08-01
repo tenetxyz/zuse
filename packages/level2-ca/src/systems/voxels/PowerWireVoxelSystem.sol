@@ -7,7 +7,7 @@ import { VoxelVariantsRegistryData } from "@tenet-registry/src/codegen/tables/Vo
 import { NoaBlockType } from "@tenet-registry/src/codegen/Types.sol";
 import { registerVoxelVariant, registerVoxelType } from "@tenet-registry/src/Utils.sol";
 import { CAVoxelConfig, PowerWire, PowerWireData } from "@tenet-level2-ca/src/codegen/Tables.sol";
-import { REGISTRY_ADDRESS, PowerWireVoxelID } from "@tenet-level2-ca/src/Constants.sol";
+import { REGISTRY_ADDRESS, PowerWireVoxelID, Level2AirVoxelID } from "@tenet-level2-ca/src/Constants.sol";
 import { VoxelCoord, BlockDirection } from "@tenet-utils/src/Types.sol";
 import { AirVoxelID } from "@tenet-base-ca/src/Constants.sol";
 
@@ -57,7 +57,7 @@ contract PowerWireVoxelSystem is System {
     for (uint i = 0; i < 8; i++) {
       powerWireChildVoxelTypes[i] = AirVoxelID;
     }
-    bytes32 baseVoxelTypeId = PowerWireVoxelID;
+    bytes32 baseVoxelTypeId = Level2AirVoxelID;
     registerVoxelType(
       REGISTRY_ADDRESS,
       "Power Wire",
@@ -74,7 +74,8 @@ contract PowerWireVoxelSystem is System {
       IWorld(world).enterWorldPowerWire.selector,
       IWorld(world).exitWorldPowerWire.selector,
       IWorld(world).variantSelectorPowerWire.selector,
-      IWorld(world).activateSelectorPowerWire.selector
+      IWorld(world).activateSelectorPowerWire.selector,
+      IWorld(world).eventHandlerPowerWire.selector
     );
   }
 

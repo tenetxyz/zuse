@@ -7,7 +7,7 @@ import { VoxelVariantsRegistryData } from "@tenet-registry/src/codegen/tables/Vo
 import { NoaBlockType } from "@tenet-registry/src/codegen/Types.sol";
 import { registerVoxelVariant, registerVoxelType } from "@tenet-registry/src/Utils.sol";
 import { CAVoxelConfig, Generator, GeneratorData } from "@tenet-level2-ca/src/codegen/Tables.sol";
-import { REGISTRY_ADDRESS, ThermoGenVoxelID } from "@tenet-level2-ca/src/Constants.sol";
+import { REGISTRY_ADDRESS, ThermoGenVoxelID, Level2AirVoxelID } from "@tenet-level2-ca/src/Constants.sol";
 import { VoxelCoord, BlockDirection } from "@tenet-utils/src/Types.sol";
 import { AirVoxelID } from "@tenet-base-ca/src/Constants.sol";
 import { Strings } from "@openzeppelin/contracts/utils/Strings.sol";
@@ -36,7 +36,7 @@ contract ThermoGenVoxelSystem is System {
     for (uint i = 0; i < 8; i++) {
       thermoGenChildVoxelTypes[i] = AirVoxelID;
     }
-    bytes32 baseVoxelTypeId = ThermoGenVoxelID;
+    bytes32 baseVoxelTypeId = Level2AirVoxelID;
     registerVoxelType(
       REGISTRY_ADDRESS,
       "ThermoGen",
@@ -53,7 +53,8 @@ contract ThermoGenVoxelSystem is System {
       IWorld(world).enterWorldThermoGen.selector,
       IWorld(world).exitWorldThermoGen.selector,
       IWorld(world).variantSelectorThermoGen.selector,
-      IWorld(world).activateSelectorThermoGen.selector
+      IWorld(world).activateSelectorThermoGen.selector,
+      IWorld(world).eventHandlerThermoGenerator.selector
     );
   }
 

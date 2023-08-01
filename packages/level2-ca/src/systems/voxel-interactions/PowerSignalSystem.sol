@@ -3,17 +3,12 @@ pragma solidity >=0.8.0;
 
 import { IWorld } from "@tenet-level2-ca/src/codegen/world/IWorld.sol";
 import { SingleVoxelInteraction } from "@tenet-base-ca/src/prototypes/SingleVoxelInteraction.sol";
-import { CAVoxelInteractionConfig, PowerSignal, PowerSignalData, PowerWire, PowerWireData, InvertedSignalData, InvertedSignal, SignalSource, Generator } from "@tenet-level2-ca/src/codegen/Tables.sol";
+import { PowerSignal, PowerSignalData, PowerWire, PowerWireData, InvertedSignalData, InvertedSignal, SignalSource, Generator } from "@tenet-level2-ca/src/codegen/Tables.sol";
 import { BlockDirection } from "@tenet-utils/src/Types.sol";
 import { getOppositeDirection } from "@tenet-utils/src/VoxelCoordUtils.sol";
 import { entityIsPowerSignal, entityIsSignalSource, entityIsInvertedSignal, entityIsGenerator } from "@tenet-level2-ca/src/InteractionUtils.sol";
 
 contract PowerSignalSystem is SingleVoxelInteraction {
-  function registerInteractionPowerSignal() public {
-    address world = _world();
-    CAVoxelInteractionConfig.push(IWorld(world).eventHandlerPowerSignal.selector);
-  }
-
   function runSingleInteraction(
     address callerAddress,
     bytes32 powerSignalEntity,

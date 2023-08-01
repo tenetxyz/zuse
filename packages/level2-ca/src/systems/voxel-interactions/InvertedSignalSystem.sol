@@ -5,15 +5,10 @@ import { IWorld } from "@tenet-level2-ca/src/codegen/world/IWorld.sol";
 import { SingleVoxelInteraction } from "@tenet-base-ca/src/prototypes/SingleVoxelInteraction.sol";
 import { BlockDirection } from "@tenet-utils/src/Types.sol";
 import { getOppositeDirection } from "@tenet-utils/src/VoxelCoordUtils.sol";
-import { CAVoxelInteractionConfig, InvertedSignal, InvertedSignalData, PoweredData, Powered } from "@tenet-level2-ca/src/codegen/Tables.sol";
+import { InvertedSignal, InvertedSignalData, PoweredData, Powered } from "@tenet-level2-ca/src/codegen/Tables.sol";
 import { entityIsInvertedSignal, entityIsSignal, entityIsSignalSource, entityIsPowered } from "@tenet-level2-ca/src/InteractionUtils.sol";
 
 contract InvertedSignalSystem is SingleVoxelInteraction {
-  function registerInteractionInvertedSignal() public {
-    address world = _world();
-    CAVoxelInteractionConfig.push(IWorld(world).eventHandlerInvertedSignal.selector);
-  }
-
   function runSingleInteraction(
     address callerAddress,
     bytes32 invertedSignalEntity,

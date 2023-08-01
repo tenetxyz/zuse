@@ -7,7 +7,7 @@ import { VoxelVariantsRegistryData } from "@tenet-registry/src/codegen/tables/Vo
 import { NoaBlockType } from "@tenet-registry/src/codegen/Types.sol";
 import { registerVoxelVariant, registerVoxelType } from "@tenet-registry/src/Utils.sol";
 import { CAVoxelConfig, Signal, SignalData } from "@tenet-level2-ca/src/codegen/Tables.sol";
-import { REGISTRY_ADDRESS, SignalVoxelID } from "@tenet-level2-ca/src/Constants.sol";
+import { REGISTRY_ADDRESS, SignalVoxelID, Level2AirVoxelID } from "@tenet-level2-ca/src/Constants.sol";
 import { VoxelCoord, BlockDirection } from "@tenet-utils/src/Types.sol";
 import { AirVoxelID } from "@tenet-base-ca/src/Constants.sol";
 
@@ -48,7 +48,7 @@ contract SignalVoxelSystem is System {
     for (uint i = 0; i < 8; i++) {
       signalChildVoxelTypes[i] = AirVoxelID;
     }
-    bytes32 baseVoxelTypeId = SignalVoxelID;
+    bytes32 baseVoxelTypeId = Level2AirVoxelID;
     registerVoxelType(REGISTRY_ADDRESS, "Signal", SignalVoxelID, baseVoxelTypeId, signalChildVoxelTypes, signalChildVoxelTypes, SignalOffVoxelVariantID);
 
     // TODO: Check to make sure it doesn't already exist
@@ -57,7 +57,8 @@ contract SignalVoxelSystem is System {
       IWorld(world).enterWorldSignal.selector,
       IWorld(world).exitWorldSignal.selector,
       IWorld(world).variantSelectorSignal.selector,
-      IWorld(world).activateSelectorSignal.selector
+      IWorld(world).activateSelectorSignal.selector,
+      IWorld(world).eventHandlerSignal.selector
     );
   }
 

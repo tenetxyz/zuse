@@ -16,12 +16,7 @@ export default mudConfig({
         exitWorldSelector: "bytes4",
         voxelVariantSelector: "bytes4",
         activateSelector: "bytes4",
-      },
-    },
-    CAVoxelInteractionConfig: {
-      keySchema: {},
-      schema: {
-        interactionSelectors: "bytes4[]",
+        interactionSelector: "bytes4",
       },
     },
     CAPosition: {

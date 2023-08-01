@@ -7,7 +7,7 @@ import { VoxelVariantsRegistryData } from "@tenet-registry/src/codegen/tables/Vo
 import { NoaBlockType } from "@tenet-registry/src/codegen/Types.sol";
 import { registerVoxelVariant, registerVoxelType } from "@tenet-registry/src/Utils.sol";
 import { CAVoxelConfig, Storage, StorageData } from "@tenet-level2-ca/src/codegen/Tables.sol";
-import { REGISTRY_ADDRESS, StorageVoxelID } from "@tenet-level2-ca/src/Constants.sol";
+import { REGISTRY_ADDRESS, StorageVoxelID, Level2AirVoxelID } from "@tenet-level2-ca/src/Constants.sol";
 import { VoxelCoord, BlockDirection, BlockHeightUpdate } from "@tenet-utils/src/Types.sol";
 import { AirVoxelID } from "@tenet-base-ca/src/Constants.sol";
 
@@ -35,7 +35,7 @@ contract StorageVoxelSystem is System {
     for (uint i = 0; i < 8; i++) {
       storageChildVoxelTypes[i] = AirVoxelID;
     }
-    bytes32 baseVoxelTypeId = StorageVoxelID;
+    bytes32 baseVoxelTypeId = Level2AirVoxelID;
     registerVoxelType(REGISTRY_ADDRESS, "Storage", StorageVoxelID, baseVoxelTypeId, storageChildVoxelTypes, storageChildVoxelTypes, StorageVoxelVariantID);
 
     // TODO: Check to make sure it doesn't already exist
@@ -44,7 +44,8 @@ contract StorageVoxelSystem is System {
       IWorld(world).enterWorldStorage.selector,
       IWorld(world).exitWorldStorage.selector,
       IWorld(world).variantSelectorStorage.selector,
-      IWorld(world).activateSelectorStorage.selector
+      IWorld(world).activateSelectorStorage.selector,
+      IWorld(world).eventHandlerStorage.selector
     );
   }
 

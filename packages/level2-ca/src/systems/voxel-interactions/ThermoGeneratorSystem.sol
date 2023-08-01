@@ -3,7 +3,7 @@ pragma solidity >=0.8.0;
 
 import { VoxelInteraction } from "@tenet-base-ca/src/prototypes/VoxelInteraction.sol";
 import { IWorld } from "@tenet-level2-ca/src/codegen/world/IWorld.sol";
-import { CAVoxelInteractionConfig, Generator, TemperatureAtTime, GeneratorData, Temperature, TemperatureData, TemperatureAtTimeData } from "@tenet-level2-ca/src/codegen/Tables.sol";
+import { Generator, TemperatureAtTime, GeneratorData, Temperature, TemperatureData, TemperatureAtTimeData } from "@tenet-level2-ca/src/codegen/Tables.sol";
 import { BlockDirection } from "@tenet-utils/src/Types.sol";
 import { entityIsGenerator, entityHasTemperature } from "@tenet-level2-ca/src/InteractionUtils.sol";
 
@@ -14,11 +14,6 @@ struct TemperatureEntity {
 }
 
 contract ThermoGeneratorSystem is VoxelInteraction {
-  function registerInteractionThermoGen() public {
-    address world = _world();
-    CAVoxelInteractionConfig.push(IWorld(world).eventHandlerThermoGenerator.selector);
-  }
-
   function onNewNeighbour(
     address callerAddress,
     bytes32 interactEntity,

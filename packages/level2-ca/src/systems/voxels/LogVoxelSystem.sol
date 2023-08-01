@@ -7,7 +7,7 @@ import { VoxelVariantsRegistryData } from "@tenet-registry/src/codegen/tables/Vo
 import { NoaBlockType } from "@tenet-registry/src/codegen/Types.sol";
 import { registerVoxelVariant, registerVoxelType } from "@tenet-registry/src/Utils.sol";
 import { CAVoxelConfig } from "@tenet-level2-ca/src/codegen/Tables.sol";
-import { REGISTRY_ADDRESS, LogVoxelID } from "@tenet-level2-ca/src/Constants.sol";
+import { REGISTRY_ADDRESS, LogVoxelID, Level2AirVoxelID } from "@tenet-level2-ca/src/Constants.sol";
 import { VoxelCoord } from "@tenet-utils/src/Types.sol";
 import { AirVoxelID } from "@tenet-base-ca/src/Constants.sol";
 
@@ -36,7 +36,7 @@ contract LogVoxelSystem is System {
     for (uint i = 0; i < 8; i++) {
       logChildVoxelTypes[i] = AirVoxelID;
     }
-    bytes32 baseVoxelTypeId = LogVoxelID;
+    bytes32 baseVoxelTypeId = Level2AirVoxelID;
     registerVoxelType(REGISTRY_ADDRESS, "Log", LogVoxelID, baseVoxelTypeId, logChildVoxelTypes, logChildVoxelTypes, LogVoxelVariantID);
 
     // TODO: Check to make sure it doesn't already exist
@@ -45,7 +45,8 @@ contract LogVoxelSystem is System {
       IWorld(world).enterWorldLog.selector,
       IWorld(world).exitWorldLog.selector,
       IWorld(world).variantSelectorLog.selector,
-      IWorld(world).activateSelectorLog.selector
+      IWorld(world).activateSelectorLog.selector,
+      IWorld(world).eventHandlerLog.selector
     );
   }
 
@@ -64,4 +65,12 @@ contract LogVoxelSystem is System {
   }
 
   function activateSelectorLog(address callerAddress, bytes32 entity) public view returns (string memory) {}
+
+  function eventHandlerLog(
+    address callerAddress,
+    bytes32 centerEntityId,
+    bytes32[] memory neighbourEntityIds,
+    bytes32[] memory childEntityIds,
+    bytes32 parentEntity
+  ) public returns (bytes32, bytes32[] memory) {}
 }

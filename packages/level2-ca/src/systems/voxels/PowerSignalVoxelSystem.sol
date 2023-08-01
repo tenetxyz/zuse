@@ -74,7 +74,8 @@ contract PowerSignalVoxelSystem is System {
       IWorld(world).enterWorldPowerSignal.selector,
       IWorld(world).exitWorldPowerSignal.selector,
       IWorld(world).variantSelectorPowerSignal.selector,
-      IWorld(world).activateSelectorPowerSignal.selector
+      IWorld(world).activateSelectorPowerSignal.selector,
+      IWorld(world).eventHandlerPowerSignal.selector
     );
   }
 

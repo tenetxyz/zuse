@@ -7,7 +7,7 @@ import { VoxelVariantsRegistryData } from "@tenet-registry/src/codegen/tables/Vo
 import { NoaBlockType } from "@tenet-registry/src/codegen/Types.sol";
 import { registerVoxelVariant, registerVoxelType } from "@tenet-registry/src/Utils.sol";
 import { CAVoxelConfig, Temperature, TemperatureData } from "@tenet-level2-ca/src/codegen/Tables.sol";
-import { REGISTRY_ADDRESS, LavaVoxelID } from "@tenet-level2-ca/src/Constants.sol";
+import { REGISTRY_ADDRESS, LavaVoxelID, Level2AirVoxelID } from "@tenet-level2-ca/src/Constants.sol";
 import { VoxelCoord, BlockDirection } from "@tenet-utils/src/Types.sol";
 import { AirVoxelID } from "@tenet-base-ca/src/Constants.sol";
 import { Strings } from "@openzeppelin/contracts/utils/Strings.sol";
@@ -49,7 +49,7 @@ contract LavaVoxelSystem is System {
     for (uint i = 0; i < 8; i++) {
       lavaChildVoxelTypes[i] = AirVoxelID;
     }
-    bytes32 baseVoxelTypeId = LavaVoxelID;
+    bytes32 baseVoxelTypeId = Level2AirVoxelID;
     registerVoxelType(REGISTRY_ADDRESS, "Lava", LavaVoxelID, baseVoxelTypeId, lavaChildVoxelTypes, lavaChildVoxelTypes, LavaHotVoxelVariantID);
 
     // TODO: Check to make sure it doesn't already exist
@@ -58,7 +58,8 @@ contract LavaVoxelSystem is System {
       IWorld(world).enterWorldLava.selector,
       IWorld(world).exitWorldLava.selector,
       IWorld(world).variantSelectorLava.selector,
-      IWorld(world).activateSelectorLava.selector
+      IWorld(world).activateSelectorLava.selector,
+      IWorld(world).eventHandlerTemperature.selector
     );
   }
 

@@ -7,7 +7,7 @@ import { VoxelVariantsRegistryData } from "@tenet-registry/src/codegen/tables/Vo
 import { NoaBlockType } from "@tenet-registry/src/codegen/Types.sol";
 import { registerVoxelVariant, registerVoxelType } from "@tenet-registry/src/Utils.sol";
 import { CAVoxelConfig, Powered, PoweredData } from "@tenet-level2-ca/src/codegen/Tables.sol";
-import { REGISTRY_ADDRESS, SandVoxelID } from "@tenet-level2-ca/src/Constants.sol";
+import { REGISTRY_ADDRESS, SandVoxelID, Level2AirVoxelID } from "@tenet-level2-ca/src/Constants.sol";
 import { VoxelCoord, BlockDirection } from "@tenet-utils/src/Types.sol";
 import { AirVoxelID } from "@tenet-base-ca/src/Constants.sol";
 
@@ -35,7 +35,7 @@ contract SandVoxelSystem is System {
     for (uint i = 0; i < 8; i++) {
       sandChildVoxelTypes[i] = AirVoxelID;
     }
-    bytes32 baseVoxelTypeId = SandVoxelID;
+    bytes32 baseVoxelTypeId = Level2AirVoxelID;
     registerVoxelType(REGISTRY_ADDRESS, "Powered Sand", SandVoxelID, baseVoxelTypeId, sandChildVoxelTypes, sandChildVoxelTypes, SandVoxelVariantID);
 
     // TODO: Check to make sure it doesn't already exist
@@ -44,7 +44,8 @@ contract SandVoxelSystem is System {
       IWorld(world).enterWorldSand.selector,
       IWorld(world).exitWorldSand.selector,
       IWorld(world).variantSelectorSand.selector,
-      IWorld(world).activateSelectorSand.selector
+      IWorld(world).activateSelectorSand.selector,
+      IWorld(world).eventHandlerPowered.selector
     );
   }
 

@@ -35,7 +35,8 @@ contract SandVoxelSystem is System {
     for (uint i = 0; i < 8; i++) {
       sandChildVoxelTypes[i] = AirVoxelID;
     }
-    registerVoxelType(REGISTRY_ADDRESS, "Powered Sand", SandVoxelID, sandChildVoxelTypes, sandChildVoxelTypes, SandVoxelVariantID);
+    bytes32 baseVoxelTypeId = SandVoxelID;
+    registerVoxelType(REGISTRY_ADDRESS, "Powered Sand", SandVoxelID, baseVoxelTypeId, sandChildVoxelTypes, sandChildVoxelTypes, SandVoxelVariantID);
 
     // TODO: Check to make sure it doesn't already exist
     CAVoxelConfig.set(

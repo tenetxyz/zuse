@@ -73,3 +73,17 @@ function removeEntityFromArray(bytes32[] memory entities, bytes32 entity) pure r
 
   return updatedArray;
 }
+
+function entityArraysAreEqual(bytes32[] memory arr1, bytes32[] memory arr2) pure returns (bool) {
+  if (arr1.length != arr2.length) {
+    return false;
+  }
+
+  for (uint i = 0; i < arr1.length; i++) {
+    if (arr1[i] != arr2[i]) {
+      return false;
+    }
+  }
+
+  return true;
+}

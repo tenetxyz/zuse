@@ -49,7 +49,8 @@ contract IceVoxelSystem is System {
     for (uint i = 0; i < 8; i++) {
       iceChildVoxelTypes[i] = AirVoxelID;
     }
-    registerVoxelType(REGISTRY_ADDRESS, "Ice", IceVoxelID, iceChildVoxelTypes, iceChildVoxelTypes, IceColdVoxelVariantID);
+    bytes32 baseVoxelTypeId = IceVoxelID;
+    registerVoxelType(REGISTRY_ADDRESS, "Ice", IceVoxelID, baseVoxelTypeId, iceChildVoxelTypes, iceChildVoxelTypes, IceColdVoxelVariantID);
 
     // TODO: Check to make sure it doesn't already exist
     CAVoxelConfig.set(

@@ -34,10 +34,12 @@ contract SignalSourceVoxelSystem is System {
     for (uint i = 0; i < 8; i++) {
       signalChildVoxelTypes[i] = AirVoxelID;
     }
+    bytes32 baseVoxelTypeId = SignalSourceVoxelID;
     registerVoxelType(
       REGISTRY_ADDRESS,
       "Signal Source",
       SignalSourceVoxelID,
+      baseVoxelTypeId,
       signalChildVoxelTypes,
       signalChildVoxelTypes,
       SignalSourceVoxelVariantID

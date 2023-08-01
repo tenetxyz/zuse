@@ -57,10 +57,12 @@ contract PowerSignalVoxelSystem is System {
     for (uint i = 0; i < 8; i++) {
       powerSignalChildVoxelTypes[i] = AirVoxelID;
     }
+    bytes32 baseVoxelTypeId = PowerSignalVoxelID;
     registerVoxelType(
       REGISTRY_ADDRESS,
       "Power Signal",
       PowerSignalVoxelID,
+      baseVoxelTypeId,
       powerSignalChildVoxelTypes,
       powerSignalChildVoxelTypes,
       PowerSignalOffVoxelVariantID

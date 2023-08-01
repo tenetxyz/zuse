@@ -36,10 +36,12 @@ contract ThermoGenVoxelSystem is System {
     for (uint i = 0; i < 8; i++) {
       thermoGenChildVoxelTypes[i] = AirVoxelID;
     }
+    bytes32 baseVoxelTypeId = ThermoGenVoxelID;
     registerVoxelType(
       REGISTRY_ADDRESS,
       "ThermoGen",
       ThermoGenVoxelID,
+      baseVoxelTypeId,
       thermoGenChildVoxelTypes,
       thermoGenChildVoxelTypes,
       ThermoGenVoxelVariantID

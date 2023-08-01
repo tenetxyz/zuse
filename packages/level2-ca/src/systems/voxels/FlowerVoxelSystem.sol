@@ -32,10 +32,12 @@ contract FlowerVoxelSystem is System {
     for (uint i = 0; i < 8; i++) {
       flowerChildVoxelTypes[i] = AirVoxelID;
     }
+    bytes32 baseVoxelTypeId = OrangeFlowerVoxelID;
     registerVoxelType(
       REGISTRY_ADDRESS,
       "Orange Flower",
       OrangeFlowerVoxelID,
+      baseVoxelTypeId,
       flowerChildVoxelTypes,
       flowerChildVoxelTypes,
       OrangeFlowerVoxelVariantID

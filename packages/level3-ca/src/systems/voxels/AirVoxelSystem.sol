@@ -19,7 +19,8 @@ contract AirVoxelSystem is System {
     for (uint i = 0; i < 8; i++) {
       airChildVoxelTypes[i] = Level2AirVoxelID;
     }
-    registerVoxelType(REGISTRY_ADDRESS, "Level 3 Air", Level3AirVoxelID, airChildVoxelTypes, airChildVoxelTypes, AirVoxelVariantID);
+    bytes32 baseVoxelTypeId = Level3AirVoxelID;
+    registerVoxelType(REGISTRY_ADDRESS, "Level 3 Air", Level3AirVoxelID, baseVoxelTypeId, airChildVoxelTypes, airChildVoxelTypes, AirVoxelVariantID);
 
     // TODO: Check to make sure it doesn't already exist
     CAVoxelConfig.set(

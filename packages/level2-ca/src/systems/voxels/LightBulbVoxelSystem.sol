@@ -45,10 +45,12 @@ contract LightBulbVoxelSystem is System {
     for (uint i = 0; i < 8; i++) {
       lightBulbChildVoxelTypes[i] = AirVoxelID;
     }
+    bytes32 baseVoxelTypeId = LightBulbVoxelID;
     registerVoxelType(
       REGISTRY_ADDRESS,
       "Light Bulb",
       LightBulbVoxelID,
+      baseVoxelTypeId,
       lightBulbChildVoxelTypes,
       lightBulbChildVoxelTypes,
       LightBulbOffVoxelVariantID

@@ -20,10 +20,12 @@ contract InvertedSignalVoxelSystem is System {
     for (uint i = 0; i < 8; i++) {
       invertedSignalChildVoxelTypes[i] = AirVoxelID;
     }
+    bytes32 baseVoxelTypeId = InvertedSignalVoxelID;
     registerVoxelType(
       REGISTRY_ADDRESS,
       "Inverted Signal",
       InvertedSignalVoxelID,
+      baseVoxelTypeId,
       invertedSignalChildVoxelTypes,
       invertedSignalChildVoxelTypes,
       SignalOnVoxelVariantID

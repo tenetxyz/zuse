@@ -35,7 +35,8 @@ contract StorageVoxelSystem is System {
     for (uint i = 0; i < 8; i++) {
       storageChildVoxelTypes[i] = AirVoxelID;
     }
-    registerVoxelType(REGISTRY_ADDRESS, "Storage", StorageVoxelID, storageChildVoxelTypes, storageChildVoxelTypes, StorageVoxelVariantID);
+    bytes32 baseVoxelTypeId = StorageVoxelID;
+    registerVoxelType(REGISTRY_ADDRESS, "Storage", StorageVoxelID, baseVoxelTypeId, storageChildVoxelTypes, storageChildVoxelTypes, StorageVoxelVariantID);
 
     // TODO: Check to make sure it doesn't already exist
     CAVoxelConfig.set(

@@ -5,11 +5,13 @@ import { hasKey } from "@latticexyz/world/src/modules/keysintable/hasKey.sol";
 import { getKeysInTable } from "@latticexyz/world/src/modules/keysintable/getKeysInTable.sol";
 import { System } from "@latticexyz/world/src/System.sol";
 import { VoxelTypeRegistry, VoxelTypeRegistryData, VoxelTypeRegistryTableId, VoxelVariantsRegistry, VoxelVariantsRegistryData, VoxelVariantsRegistryTableId } from "../codegen/Tables.sol";
+import { entityArraysAreEqual } from "@tenet-utils/src/Utils.sol";
 
 contract VoxelRegistrySystem is System {
   function registerVoxelType(
     string memory voxelTypeName,
     bytes32 voxelTypeId,
+    bytes32 baseVoxelTypeId,
     bytes32[] memory childVoxelTypeIds,
     bytes32[] memory schemaVoxelTypeIds,
     bytes32 previewVoxelVariantId
@@ -71,6 +73,21 @@ contract VoxelRegistrySystem is System {
       }
     } else{
       revert("Invalid number of schema voxel types");
+    }
+
+    if (baseVoxelTypeId != voxelTypeId) { // otherwise, this is a base voxel type, so we don't need any checks
+      require(
+        hasKey(VoxelTypeRegistryTableId, VoxelTypeRegistry.encodeKeyTuple(baseVoxelTypeId)),
+        "Base voxel type ID has not been registered"
+      );
+
+      require(
+        scale == VoxelTypeRegistry.getScale(baseVoxelTypeId),
+        "Base voxel type must be the same scale"
+      );
+
+      require(entityArraysAreEqual(childVoxelTypeIds, VoxelTypeRegistry.getChildVoxelTypeIds(baseVoxelTypeId)), "Child voxel type IDs must be the same as base");
+      require(entityArraysAreEqual(schemaVoxelTypeIds, VoxelTypeRegistry.getSchemaVoxelTypeIds(baseVoxelTypeId)), "Schema voxel type IDs must be the same as base");
     }
 
     VoxelTypeRegistry.set(

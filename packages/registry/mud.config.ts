@@ -45,6 +45,7 @@ export default mudConfig({
         previewVoxelVariantId: "bytes32",
         creator: "address",
         numSpawns: "uint256",
+        baseVoxelTypId: "bytes32",
         name: "string",
         childVoxelTypeIds: "bytes32[]",
         schemaVoxelTypeIds: "bytes32[]",

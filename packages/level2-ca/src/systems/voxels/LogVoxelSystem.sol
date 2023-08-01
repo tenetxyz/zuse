@@ -36,7 +36,8 @@ contract LogVoxelSystem is System {
     for (uint i = 0; i < 8; i++) {
       logChildVoxelTypes[i] = AirVoxelID;
     }
-    registerVoxelType(REGISTRY_ADDRESS, "Log", LogVoxelID, logChildVoxelTypes, logChildVoxelTypes, LogVoxelVariantID);
+    bytes32 baseVoxelTypeId = LogVoxelID;
+    registerVoxelType(REGISTRY_ADDRESS, "Log", LogVoxelID, baseVoxelTypeId, logChildVoxelTypes, logChildVoxelTypes, LogVoxelVariantID);
 
     // TODO: Check to make sure it doesn't already exist
     CAVoxelConfig.set(

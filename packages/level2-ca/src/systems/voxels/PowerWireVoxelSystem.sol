@@ -57,10 +57,12 @@ contract PowerWireVoxelSystem is System {
     for (uint i = 0; i < 8; i++) {
       powerWireChildVoxelTypes[i] = AirVoxelID;
     }
+    bytes32 baseVoxelTypeId = PowerWireVoxelID;
     registerVoxelType(
       REGISTRY_ADDRESS,
       "Power Wire",
       PowerWireVoxelID,
+      baseVoxelTypeId,
       powerWireChildVoxelTypes,
       powerWireChildVoxelTypes,
       PowerWireOffVoxelVariantID

@@ -8,7 +8,7 @@ import { add, calculateMinMaxRelativeCoordsOfCreation, decodeCoord, getWorldScal
 import { Entity } from "@latticexyz/recs";
 import { VoxelCoord, awaitStreamValue } from "@latticexyz/utils";
 import { ISpawn } from "../components/SpawnInFocus";
-import { abiDecode } from "@/utils/abi";
+import { abiDecode } from "@/utils/encodeOrDecode";
 
 export type BaseCreation = {
   creationId: Entity;

@@ -6,7 +6,8 @@ import { Entity, getComponentValue, getEntityString } from "@latticexyz/recs";
 import { Classifier, ClassifierStoreFilters } from "./ClassifierStore";
 import { to64CharAddress } from "../../../utils/entity";
 import { ethers } from "ethers";
-import { abiDecode, cleanObjArray } from "../../../utils/abi";
+import { abiDecode, cleanObjArray } from "@/utils/encodeOrDecode";
+
 import { hexToAscii, removeTrailingNulls } from "../../../utils/encodeOrDecode";
 import { InterfaceVoxel } from "../../noa/types";
 

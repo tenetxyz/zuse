@@ -7,7 +7,7 @@ import { getEntityString } from "@latticexyz/recs";
 import { to256BitString } from "@latticexyz/utils";
 import { VoxelCoord } from "@latticexyz/utils";
 import { VoxelTypeKey, VoxelTypeKeyInMudTable } from "../layers/noa/types";
-import { abiDecode } from "./abi";
+import { abiDecode } from "@/utils/encodeOrDecode";
 import { decodeBaseCreations } from "./encodeOrDecode";
 
 export interface Props {

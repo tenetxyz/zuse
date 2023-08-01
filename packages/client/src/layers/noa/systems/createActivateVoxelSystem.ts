@@ -5,7 +5,7 @@ import { NetworkLayer } from "../../network";
 import { NoaLayer, VoxelVariantNoaDef } from "../types";
 import { toast } from "react-toastify";
 import { getNftStorageLink } from "../constants";
-import { abiDecode } from "../../../utils/abi";
+import { abiDecode } from "@/utils/encodeOrDecode";
 import { removeTrailingNulls } from "@/utils/encodeOrDecode";
 
 export async function createActivateVoxelSystem(network: NetworkLayer, noaLayer: NoaLayer) {

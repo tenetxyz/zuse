@@ -33,7 +33,7 @@ abstract contract CA is System {
     while(baseVoxelTypeId != voxelTypeId){
       voxelEnterWorld(callerAddress, baseVoxelTypeId, coord, entity); // recursive, so we get the entire stack of russian dolls
     }
-    bytes4 voxelEnterWorldSelector = CAVoxelConfig.getEnterWorldSelector(baseVoxelTypeId);
+    bytes4 voxelEnterWorldSelector = CAVoxelConfig.getEnterWorldSelector(voxelTypeId);
     safeCall(
       _world(),
       abi.encodeWithSelector(voxelEnterWorldSelector, callerAddress, coord, entity),
@@ -151,12 +151,12 @@ abstract contract CA is System {
       bytes32[] memory insideChangedEntityIds = voxelRunInteraction(callerAddress, baseVoxelTypeId, interactEntity, neighbourEntityIds, childEntityIds, parentEntity); // recursive, so we get the entire stack of russian dolls
 
       for (uint256 i = 0; i < insideChangedEntityIds.length; i++) {
-        if (changedEntities[i] == 0) {
+        if (changedEntities[i] == 0 && insideChangedEntityIds[i] != 0) {
           changedEntities[i] = insideChangedEntityIds[i];
         }
       }
     }
-    bytes4 interactionSelector = CAVoxelConfig.getInteractionSelector(baseVoxelTypeId);
+    bytes4 interactionSelector = CAVoxelConfig.getInteractionSelector(voxelTypeId);
     bytes memory returnData = safeCall(
         _world(),
         abi.encodeWithSelector(
@@ -175,12 +175,12 @@ abstract contract CA is System {
         (bytes32, bytes32[])
     );
 
-    if (changedEntities[0] == 0) {
+    if (changedEntities[0] == 0 && changedCenterEntityId != 0) {
       changedEntities[0] = changedCenterEntityId;
     }
 
     for (uint256 i = 0; i < changedNeighbourEntityIds.length; i++) {
-      if (changedEntities[i + 1] == 0) {
+      if (changedEntities[i + 1] == 0 && changedNeighbourEntityIds[i] != 0) {
         changedEntities[i + 1] = changedNeighbourEntityIds[i];
       }
     }

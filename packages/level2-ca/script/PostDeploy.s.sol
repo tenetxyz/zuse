@@ -18,20 +18,6 @@ contract PostDeploy is Script {
     IWorld(worldAddress).registerVoxelDirt();
     IWorld(worldAddress).registerVoxelGrass();
     IWorld(worldAddress).registerVoxelBedrock();
-    IWorld(worldAddress).registerVoxelWire();
-    IWorld(worldAddress).registerVoxelSignalSource();
-    IWorld(worldAddress).registerVoxelSignal();
-    IWorld(worldAddress).registerVoxelInvertedSignal();
-    IWorld(worldAddress).registerVoxelSand();
-    IWorld(worldAddress).registerVoxelFlower();
-    IWorld(worldAddress).registerVoxelLog();
-    IWorld(worldAddress).registerVoxelLava();
-    IWorld(worldAddress).registerVoxelIce();
-    IWorld(worldAddress).registerVoxelThermoGen();
-    IWorld(worldAddress).registerVoxelPowerWire();
-    IWorld(worldAddress).registerVoxelStorage();
-    IWorld(worldAddress).registerVoxelLightBulb();
-    IWorld(worldAddress).registerVoxelPowerSignal();
 
     IWorld(worldAddress).registerCA();
 

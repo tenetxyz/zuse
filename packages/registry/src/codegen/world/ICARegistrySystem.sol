@@ -5,4 +5,6 @@ pragma solidity >=0.8.0;
 
 interface ICARegistrySystem {
   function registerCA(string memory name, string memory description, bytes32[] memory voxelTypeIds) external;
+
+  function addVoxelToCA(bytes32 voxelTypeId) external;
 }

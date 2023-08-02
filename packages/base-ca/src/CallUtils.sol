@@ -2,7 +2,7 @@
 pragma solidity >=0.8.0;
 
 import { VoxelCoord } from "@tenet-utils/src/Types.sol";
-import { CA_ENTER_WORLD_SIG, CA_EXIT_WORLD_SIG, CA_RUN_INTERACTION_SIG, CA_ACTIVATE_VOXEL_SIG } from "./Constants.sol";
+import { CA_ENTER_WORLD_SIG, CA_EXIT_WORLD_SIG, CA_RUN_INTERACTION_SIG, CA_ACTIVATE_VOXEL_SIG, CA_REGISTER_VOXEL_SIG } from "./Constants.sol";
 import { safeCall, safeStaticCall } from "@tenet-utils/src/CallUtils.sol";
 
 function mineWorld(address callerAddress, bytes32 voxelTypeId, VoxelCoord memory coord) returns (bytes memory) {
@@ -165,4 +165,44 @@ function getParentEntityFromCaller(address callerAddress, uint32 scale, bytes32 
     "calculateParentEntity"
   );
   return abi.decode(returnData, (bytes32));
+}
+
+function registerCAVoxelType(
+  address caAddress,
+  bytes32 voxelTypeId,
+  bytes4 enterWorldSelector,
+  bytes4 exitWorldSelector,
+  bytes4 voxelVariantSelector,
+  bytes4 activateSelector,
+  bytes4 interactionSelector
+) returns (bytes memory) {
+  return
+    safeCall(
+      caAddress,
+      abi.encodeWithSignature(
+        CA_REGISTER_VOXEL_SIG,
+        voxelTypeId,
+        enterWorldSelector,
+        exitWorldSelector,
+        voxelVariantSelector,
+        activateSelector,
+        interactionSelector
+      ),
+      string(
+        abi.encode(
+          "registerVoxelType ",
+          voxelTypeId,
+          " ",
+          enterWorldSelector,
+          " ",
+          exitWorldSelector,
+          " ",
+          voxelVariantSelector,
+          " ",
+          activateSelector,
+          " ",
+          interactionSelector
+        )
+      )
+    );
 }

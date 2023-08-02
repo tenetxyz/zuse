@@ -40,6 +40,16 @@ contract InitSystem is System {
     }
   }
 
+  function onNewCAVoxelType(address caAddress, bytes32 voxelTypeId) public {
+    require(_msgSender() == REGISTRY_ADDRESS, "Only the registry can call this function");
+    require(
+      !hasKey(WorldConfigTableId, WorldConfig.encodeKeyTuple(voxelTypeId)),
+      "Voxel type already exists in this world"
+    );
+    require(isCAAllowed(caAddress), "CA is not allowed in this world");
+    WorldConfig.set(voxelTypeId, caAddress);
+  }
+
   function isCAAllowed(address caAddress) public view returns (bool) {
     address[] memory caAddresses = WorldRegistry.getCaAddresses(IStore(REGISTRY_ADDRESS), _world());
     for (uint256 i = 0; i < caAddresses.length; i++) {

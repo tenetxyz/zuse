@@ -30,7 +30,7 @@ abstract contract CA is System {
 
   function voxelEnterWorld(address callerAddress, bytes32 voxelTypeId, VoxelCoord memory coord, bytes32 entity) internal {
     bytes32 baseVoxelTypeId = VoxelTypeRegistry.getBaseVoxelTypeId(IStore(REGISTRY_ADDRESS), voxelTypeId);
-    while(baseVoxelTypeId != voxelTypeId){
+    if (baseVoxelTypeId != voxelTypeId){
       voxelEnterWorld(callerAddress, baseVoxelTypeId, coord, entity); // recursive, so we get the entire stack of russian dolls
     }
     bytes4 voxelEnterWorldSelector = CAVoxelConfig.getEnterWorldSelector(voxelTypeId);
@@ -147,7 +147,7 @@ abstract contract CA is System {
     bytes32[] memory changedEntities = new bytes32[](neighbourEntityIds.length + 1);
 
     bytes32 baseVoxelTypeId = VoxelTypeRegistry.getBaseVoxelTypeId(IStore(REGISTRY_ADDRESS), voxelTypeId);
-    while(baseVoxelTypeId != voxelTypeId){
+    if (baseVoxelTypeId != voxelTypeId){
       bytes32[] memory insideChangedEntityIds = voxelRunInteraction(callerAddress, baseVoxelTypeId, interactEntity, neighbourEntityIds, childEntityIds, parentEntity); // recursive, so we get the entire stack of russian dolls
 
       for (uint256 i = 0; i < insideChangedEntityIds.length; i++) {

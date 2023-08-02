@@ -33,7 +33,15 @@ contract BedrockVoxelSystem is System {
       bedrockChildVoxelTypes[i] = AirVoxelID;
     }
     bytes32 baseVoxelTypeId = BedrockVoxelID;
-    registerVoxelType(REGISTRY_ADDRESS, "Bedrock", BedrockVoxelID, baseVoxelTypeId, bedrockChildVoxelTypes, bedrockChildVoxelTypes, BedrockVoxelVariantID);
+    registerVoxelType(
+      REGISTRY_ADDRESS,
+      "Bedrock",
+      BedrockVoxelID,
+      baseVoxelTypeId,
+      bedrockChildVoxelTypes,
+      bedrockChildVoxelTypes,
+      BedrockVoxelVariantID
+    );
 
     // TODO: Check to make sure it doesn't already exist
     CAVoxelConfig.set(

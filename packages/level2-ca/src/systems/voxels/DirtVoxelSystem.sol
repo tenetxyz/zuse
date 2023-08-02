@@ -33,7 +33,15 @@ contract DirtVoxelSystem is System {
       dirtChildVoxelTypes[i] = AirVoxelID;
     }
     bytes32 baseVoxelTypeId = DirtVoxelID;
-    registerVoxelType(REGISTRY_ADDRESS, "Dirt", DirtVoxelID, baseVoxelTypeId, dirtChildVoxelTypes, dirtChildVoxelTypes, DirtVoxelVariantID);
+    registerVoxelType(
+      REGISTRY_ADDRESS,
+      "Dirt",
+      DirtVoxelID,
+      baseVoxelTypeId,
+      dirtChildVoxelTypes,
+      dirtChildVoxelTypes,
+      DirtVoxelVariantID
+    );
 
     // TODO: Check to make sure it doesn't already exist
     CAVoxelConfig.set(
@@ -62,7 +70,7 @@ contract DirtVoxelSystem is System {
 
   function activateSelectorDirt(address callerAddress, bytes32 entity) public view returns (string memory) {}
 
-   function eventHandlerDirt(
+  function eventHandlerDirt(
     address callerAddress,
     bytes32 centerEntityId,
     bytes32[] memory neighbourEntityIds,

@@ -32,7 +32,10 @@ contract SignalSourceVoxelSystem is System {
     signalSourceVariant.uvWrap = SignalSourceUVWrap;
     registerVoxelVariant(REGISTRY_ADDRESS, SignalSourceVoxelVariantID, signalSourceVariant);
 
-    bytes32[] memory signalChildVoxelTypes = VoxelTypeRegistry.getChildVoxelTypeIds(IStore(REGISTRY_ADDRESS), Level2AirVoxelID);
+    bytes32[] memory signalChildVoxelTypes = VoxelTypeRegistry.getChildVoxelTypeIds(
+      IStore(REGISTRY_ADDRESS),
+      Level2AirVoxelID
+    );
     bytes32 baseVoxelTypeId = Level2AirVoxelID;
     registerVoxelType(
       REGISTRY_ADDRESS,

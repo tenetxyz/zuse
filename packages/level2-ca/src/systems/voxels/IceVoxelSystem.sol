@@ -47,9 +47,20 @@ contract IceVoxelSystem is System {
     iceColdVariant.uvWrap = IceColdUVWrap;
     registerVoxelVariant(REGISTRY_ADDRESS, IceColdVoxelVariantID, iceColdVariant);
 
-    bytes32[] memory iceChildVoxelTypes = VoxelTypeRegistry.getChildVoxelTypeIds(IStore(REGISTRY_ADDRESS), Level2AirVoxelID);
+    bytes32[] memory iceChildVoxelTypes = VoxelTypeRegistry.getChildVoxelTypeIds(
+      IStore(REGISTRY_ADDRESS),
+      Level2AirVoxelID
+    );
     bytes32 baseVoxelTypeId = Level2AirVoxelID;
-    registerVoxelType(REGISTRY_ADDRESS, "Ice", IceVoxelID, baseVoxelTypeId, iceChildVoxelTypes, iceChildVoxelTypes, IceColdVoxelVariantID);
+    registerVoxelType(
+      REGISTRY_ADDRESS,
+      "Ice",
+      IceVoxelID,
+      baseVoxelTypeId,
+      iceChildVoxelTypes,
+      iceChildVoxelTypes,
+      IceColdVoxelVariantID
+    );
 
     // TODO: Check to make sure it doesn't already exist
     CAVoxelConfig.set(

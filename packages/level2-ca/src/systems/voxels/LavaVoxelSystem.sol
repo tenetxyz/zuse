@@ -47,9 +47,20 @@ contract LavaVoxelSystem is System {
     lavaColdVariant.uvWrap = LavaColdUVWrap;
     registerVoxelVariant(REGISTRY_ADDRESS, LavaColdVoxelVariantID, lavaColdVariant);
 
-    bytes32[] memory lavaChildVoxelTypes = VoxelTypeRegistry.getChildVoxelTypeIds(IStore(REGISTRY_ADDRESS), Level2AirVoxelID);
+    bytes32[] memory lavaChildVoxelTypes = VoxelTypeRegistry.getChildVoxelTypeIds(
+      IStore(REGISTRY_ADDRESS),
+      Level2AirVoxelID
+    );
     bytes32 baseVoxelTypeId = Level2AirVoxelID;
-    registerVoxelType(REGISTRY_ADDRESS, "Lava", LavaVoxelID, baseVoxelTypeId, lavaChildVoxelTypes, lavaChildVoxelTypes, LavaHotVoxelVariantID);
+    registerVoxelType(
+      REGISTRY_ADDRESS,
+      "Lava",
+      LavaVoxelID,
+      baseVoxelTypeId,
+      lavaChildVoxelTypes,
+      lavaChildVoxelTypes,
+      LavaHotVoxelVariantID
+    );
 
     // TODO: Check to make sure it doesn't already exist
     CAVoxelConfig.set(

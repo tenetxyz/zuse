@@ -34,7 +34,10 @@ contract ThermoGenVoxelSystem is System {
     thermoGenVariant.uvWrap = ThermoGenUVWrap;
     registerVoxelVariant(REGISTRY_ADDRESS, ThermoGenVoxelVariantID, thermoGenVariant);
 
-    bytes32[] memory thermoGenChildVoxelTypes = VoxelTypeRegistry.getChildVoxelTypeIds(IStore(REGISTRY_ADDRESS), Level2AirVoxelID);
+    bytes32[] memory thermoGenChildVoxelTypes = VoxelTypeRegistry.getChildVoxelTypeIds(
+      IStore(REGISTRY_ADDRESS),
+      Level2AirVoxelID
+    );
     bytes32 baseVoxelTypeId = Level2AirVoxelID;
     registerVoxelType(
       REGISTRY_ADDRESS,

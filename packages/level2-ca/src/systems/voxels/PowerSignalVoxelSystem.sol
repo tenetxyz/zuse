@@ -55,7 +55,10 @@ contract PowerSignalVoxelSystem is System {
     powerSignalBrokenVariant.materials = abi.encode(powerSignalBrokenMaterials);
     registerVoxelVariant(REGISTRY_ADDRESS, PowerSignalBrokenVoxelVariantID, powerSignalBrokenVariant);
 
-    bytes32[] memory powerSignalChildVoxelTypes = VoxelTypeRegistry.getChildVoxelTypeIds(IStore(REGISTRY_ADDRESS), PowerWireVoxelID);
+    bytes32[] memory powerSignalChildVoxelTypes = VoxelTypeRegistry.getChildVoxelTypeIds(
+      IStore(REGISTRY_ADDRESS),
+      PowerWireVoxelID
+    );
     bytes32 baseVoxelTypeId = PowerWireVoxelID;
     registerVoxelType(
       REGISTRY_ADDRESS,

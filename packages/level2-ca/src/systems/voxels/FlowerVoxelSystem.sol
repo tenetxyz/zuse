@@ -30,7 +30,10 @@ contract FlowerVoxelSystem is System {
     orangeFlowerVariant.materials = abi.encode(orangeFlowerMaterials);
     registerVoxelVariant(REGISTRY_ADDRESS, OrangeFlowerVoxelVariantID, orangeFlowerVariant);
 
-    bytes32[] memory flowerChildVoxelTypes = VoxelTypeRegistry.getChildVoxelTypeIds(IStore(REGISTRY_ADDRESS), Level2AirVoxelID);
+    bytes32[] memory flowerChildVoxelTypes = VoxelTypeRegistry.getChildVoxelTypeIds(
+      IStore(REGISTRY_ADDRESS),
+      Level2AirVoxelID
+    );
     bytes32 baseVoxelTypeId = Level2AirVoxelID;
     registerVoxelType(
       REGISTRY_ADDRESS,

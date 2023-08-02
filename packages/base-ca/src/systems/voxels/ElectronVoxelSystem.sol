@@ -32,7 +32,15 @@ contract ElectronVoxelSystem is System {
     bytes32[] memory electronChildVoxelTypes = new bytes32[](1);
     electronChildVoxelTypes[0] = ElectronVoxelID;
     bytes32 baseVoxelTypeId = ElectronVoxelID;
-    registerVoxelType(REGISTRY_ADDRESS, "Electron", ElectronVoxelID, baseVoxelTypeId, electronChildVoxelTypes, electronChildVoxelTypes, ElectronVoxelVariantID);
+    registerVoxelType(
+      REGISTRY_ADDRESS,
+      "Electron",
+      ElectronVoxelID,
+      baseVoxelTypeId,
+      electronChildVoxelTypes,
+      electronChildVoxelTypes,
+      ElectronVoxelVariantID
+    );
 
     // TODO: Check to make sure it doesn't already exist
     CAVoxelConfig.set(

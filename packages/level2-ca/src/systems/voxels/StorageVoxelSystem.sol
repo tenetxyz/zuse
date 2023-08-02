@@ -33,9 +33,20 @@ contract StorageVoxelSystem is System {
     storageVariant.uvWrap = StorageUVWrap;
     registerVoxelVariant(REGISTRY_ADDRESS, StorageVoxelVariantID, storageVariant);
 
-    bytes32[] memory storageChildVoxelTypes = VoxelTypeRegistry.getChildVoxelTypeIds(IStore(REGISTRY_ADDRESS), Level2AirVoxelID);
+    bytes32[] memory storageChildVoxelTypes = VoxelTypeRegistry.getChildVoxelTypeIds(
+      IStore(REGISTRY_ADDRESS),
+      Level2AirVoxelID
+    );
     bytes32 baseVoxelTypeId = Level2AirVoxelID;
-    registerVoxelType(REGISTRY_ADDRESS, "Storage", StorageVoxelID, baseVoxelTypeId, storageChildVoxelTypes, storageChildVoxelTypes, StorageVoxelVariantID);
+    registerVoxelType(
+      REGISTRY_ADDRESS,
+      "Storage",
+      StorageVoxelID,
+      baseVoxelTypeId,
+      storageChildVoxelTypes,
+      storageChildVoxelTypes,
+      StorageVoxelVariantID
+    );
 
     // TODO: Check to make sure it doesn't already exist
     CAVoxelConfig.set(

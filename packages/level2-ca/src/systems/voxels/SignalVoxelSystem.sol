@@ -46,9 +46,20 @@ contract SignalVoxelSystem is System {
     signalOnVariant.uvWrap = SignalOnUVWrap;
     registerVoxelVariant(REGISTRY_ADDRESS, SignalOnVoxelVariantID, signalOnVariant);
 
-    bytes32[] memory signalChildVoxelTypes = VoxelTypeRegistry.getChildVoxelTypeIds(IStore(REGISTRY_ADDRESS), Level2AirVoxelID);
+    bytes32[] memory signalChildVoxelTypes = VoxelTypeRegistry.getChildVoxelTypeIds(
+      IStore(REGISTRY_ADDRESS),
+      Level2AirVoxelID
+    );
     bytes32 baseVoxelTypeId = Level2AirVoxelID;
-    registerVoxelType(REGISTRY_ADDRESS, "Signal", SignalVoxelID, baseVoxelTypeId, signalChildVoxelTypes, signalChildVoxelTypes, SignalOffVoxelVariantID);
+    registerVoxelType(
+      REGISTRY_ADDRESS,
+      "Signal",
+      SignalVoxelID,
+      baseVoxelTypeId,
+      signalChildVoxelTypes,
+      signalChildVoxelTypes,
+      SignalOffVoxelVariantID
+    );
 
     // TODO: Check to make sure it doesn't already exist
     CAVoxelConfig.set(

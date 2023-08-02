@@ -37,7 +37,15 @@ contract GrassVoxelSystem is System {
       grassChildVoxelTypes[i] = AirVoxelID;
     }
     bytes32 baseVoxelTypeId = GrassVoxelID;
-    registerVoxelType(REGISTRY_ADDRESS, "Grass", GrassVoxelID, baseVoxelTypeId, grassChildVoxelTypes, grassChildVoxelTypes, GrassVoxelVariantID);
+    registerVoxelType(
+      REGISTRY_ADDRESS,
+      "Grass",
+      GrassVoxelID,
+      baseVoxelTypeId,
+      grassChildVoxelTypes,
+      grassChildVoxelTypes,
+      GrassVoxelVariantID
+    );
 
     // TODO: Check to make sure it doesn't already exist
     CAVoxelConfig.set(

@@ -18,7 +18,10 @@ contract InvertedSignalVoxelSystem is System {
   function registerVoxelInvertedSignal() public {
     address world = _world();
 
-    bytes32[] memory invertedSignalChildVoxelTypes = VoxelTypeRegistry.getChildVoxelTypeIds(IStore(REGISTRY_ADDRESS), Level2AirVoxelID);
+    bytes32[] memory invertedSignalChildVoxelTypes = VoxelTypeRegistry.getChildVoxelTypeIds(
+      IStore(REGISTRY_ADDRESS),
+      Level2AirVoxelID
+    );
     bytes32 baseVoxelTypeId = Level2AirVoxelID;
     registerVoxelType(
       REGISTRY_ADDRESS,

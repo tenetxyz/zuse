@@ -33,9 +33,20 @@ contract SandVoxelSystem is System {
     sandVariant.uvWrap = SandUVWrap;
     registerVoxelVariant(REGISTRY_ADDRESS, SandVoxelVariantID, sandVariant);
 
-    bytes32[] memory sandChildVoxelTypes = VoxelTypeRegistry.getChildVoxelTypeIds(IStore(REGISTRY_ADDRESS), Level2AirVoxelID);
+    bytes32[] memory sandChildVoxelTypes = VoxelTypeRegistry.getChildVoxelTypeIds(
+      IStore(REGISTRY_ADDRESS),
+      Level2AirVoxelID
+    );
     bytes32 baseVoxelTypeId = Level2AirVoxelID;
-    registerVoxelType(REGISTRY_ADDRESS, "Powered Sand", SandVoxelID, baseVoxelTypeId, sandChildVoxelTypes, sandChildVoxelTypes, SandVoxelVariantID);
+    registerVoxelType(
+      REGISTRY_ADDRESS,
+      "Powered Sand",
+      SandVoxelID,
+      baseVoxelTypeId,
+      sandChildVoxelTypes,
+      sandChildVoxelTypes,
+      SandVoxelVariantID
+    );
 
     // TODO: Check to make sure it doesn't already exist
     CAVoxelConfig.set(

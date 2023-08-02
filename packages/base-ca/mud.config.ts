@@ -2,6 +2,7 @@ import { mudConfig } from "@latticexyz/world/register";
 import { resolveTableId } from "@latticexyz/config";
 
 export default mudConfig({
+  namespace: "ca",
   tables: {
     CAVoxelConfig: {
       // TODO: Should this be in registry?

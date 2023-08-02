@@ -14,10 +14,10 @@ contract PostDeploy is Script {
     vm.startBroadcast(deployerPrivateKey);
 
     // Register the voxel types
-    IWorld(worldAddress).registerVoxelAir();
-    IWorld(worldAddress).registerVoxelElectron();
+    IWorld(worldAddress).ca_AirVoxelSystem_registerVoxel();
+    IWorld(worldAddress).ca_ElectronVoxelSys_registerVoxel();
 
-    IWorld(worldAddress).registerCA();
+    IWorld(worldAddress).ca_InitSystem_registerCA();
 
     vm.stopBroadcast();
   }

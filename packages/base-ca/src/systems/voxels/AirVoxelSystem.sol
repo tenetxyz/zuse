@@ -33,7 +33,7 @@ contract AirVoxelSystem is VoxelType {
       AirVoxelVariantID
     );
 
-    CAVoxelConfig.set(
+    IWorld(world).registerInitialVoxelType(
       AirVoxelID,
       IWorld(world).ca_AirVoxelSystem_enterWorld.selector,
       IWorld(world).ca_AirVoxelSystem_exitWorld.selector,

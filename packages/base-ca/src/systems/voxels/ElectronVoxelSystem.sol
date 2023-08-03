@@ -42,7 +42,7 @@ contract ElectronVoxelSystem is VoxelType {
       ElectronVoxelVariantID
     );
 
-    CAVoxelConfig.set(
+    IWorld(world).registerInitialVoxelType(
       ElectronVoxelID,
       IWorld(world).ca_ElectronVoxelSys_enterWorld.selector,
       IWorld(world).ca_ElectronVoxelSys_exitWorld.selector,

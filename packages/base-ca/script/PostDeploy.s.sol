@@ -17,7 +17,7 @@ contract PostDeploy is Script {
     IWorld(worldAddress).ca_AirVoxelSystem_registerVoxel();
     IWorld(worldAddress).ca_ElectronVoxelSys_registerVoxel();
 
-    IWorld(worldAddress).ca_InitSystem_registerCA();
+    IWorld(worldAddress).registerCA();
 
     vm.stopBroadcast();
   }

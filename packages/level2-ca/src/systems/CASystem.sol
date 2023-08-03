@@ -18,7 +18,7 @@ contract CASystem is CA {
     bytes32 voxelTypeId,
     VoxelCoord memory coord,
     bytes32 entity
-  ) public override {
+  ) internal override {
     // If there is no entity at this position, try mining the terrain voxel at this position
     bytes32 terrainVoxelTypeId = IWorld(_world()).getTerrainVoxel(coord);
     require(terrainVoxelTypeId != EMPTY_ID && terrainVoxelTypeId == voxelTypeId, "invalid terrain voxel type");

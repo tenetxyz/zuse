@@ -112,6 +112,23 @@ export default mudConfig({
         classificationResultTableName: "string", // needed so the client can know which table to query for the classification result
       },
     },
+
+    Player: {
+      keySchema: {
+        player: "address",
+      },
+      schema: {
+        stamina: "uint32",
+      },
+    },
+    Approval: {
+      keySchema: {
+        callee: "bytes4", // the function that is called
+      },
+      schema: {
+        approverSelector: "bytes4", // the approver function returns true/false to allow/disallow the user from calling the callee function
+      },
+    },
   },
   systems: {
     RegisterClassifierSystem: {

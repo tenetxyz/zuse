@@ -4,7 +4,7 @@ pragma solidity >=0.8.0;
 import { System } from "@latticexyz/world/src/System.sol";
 import { IWorld } from "@tenet-contracts/src/codegen/world/IWorld.sol";
 import { IStore } from "@latticexyz/store/src/IStore.sol";
-import { WorldConfig, WorldConfigTableId } from "@tenet-contracts/src/codegen/Tables.sol";
+import { WorldConfig, WorldConfigTableId, Approval } from "@tenet-contracts/src/codegen/Tables.sol";
 import { WorldRegistry } from "@tenet-registry/src/codegen/tables/WorldRegistry.sol";
 import { hasKey } from "@latticexyz/world/src/modules/keysintable/hasKey.sol";
 import { CARegistry } from "@tenet-registry/src/codegen/tables/CARegistry.sol";
@@ -38,6 +38,10 @@ contract InitSystem is System {
         WorldConfig.set(voxelTypeIds[j], caAddress);
       }
     }
+  }
+
+  function initWorldApprovals() public {
+    uint hi = 5;
   }
 
   function isCAAllowed(address caAddress) public view returns (bool) {

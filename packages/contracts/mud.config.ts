@@ -123,7 +123,7 @@ export default mudConfig({
     },
     Approval: {
       keySchema: {
-        callee: "bytes4", // the function that is called
+        calleeSelector: "bytes4", // the function that is called
       },
       schema: {
         approverSelector: "bytes4", // the approver function returns true/false to allow/disallow the user from calling the callee function

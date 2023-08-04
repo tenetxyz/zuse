@@ -60,7 +60,7 @@ contract InitSystem is System {
     return false;
   }
 
-  function isVoxelTypeAllowed(bytes32 voxelTypeId) public view returns (bool) {
+  function isVoxelTypeAllowed(bytes32 voxelTypeId) public returns (bool) {
     return hasKey(WorldConfigTableId, WorldConfig.encodeKeyTuple(voxelTypeId));
   }
 }

@@ -11,6 +11,7 @@ import { registerVoxelVariant, registerVoxelType } from "@tenet-registry/src/Uti
 import { CAVoxelConfig, CAVoxelType, ElectronTunnelSpot, ElectronTunnelSpotData, ElectronTunnelSpotTableId } from "@tenet-base-ca/src/codegen/Tables.sol";
 import { REGISTRY_ADDRESS, AirVoxelID, AirVoxelVariantID, ElectronVoxelID } from "@tenet-base-ca/src/Constants.sol";
 import { VoxelCoord } from "@tenet-utils/src/Types.sol";
+import { getFirstCaller } from "@tenet-utils/src/Utils.sol";
 import { getEntityAtCoord, voxelCoordToPositionData } from "@tenet-base-ca/src/Utils.sol";
 
 bytes32 constant ElectronVoxelVariantID = bytes32(keccak256("electron"));
@@ -53,7 +54,10 @@ contract ElectronVoxelSystem is VoxelType {
   }
 
   function enterWorld(VoxelCoord memory coord, bytes32 entity) public override {
-    address callerAddress = _msgSender();
+    address callerAddress = getFirstCaller();
+    if (callerAddress == address(0)) {
+      callerAddress = _msgSender();
+    }
 
     // Check one above
     VoxelCoord memory aboveCoord = VoxelCoord(coord.x, coord.y, coord.z + 1);
@@ -117,7 +121,11 @@ contract ElectronVoxelSystem is VoxelType {
     bytes32[] memory childEntityIds,
     bytes32 parentEntity
   ) public override returns (bytes32, bytes32[] memory) {
-    address callerAddress = _msgSender();
+    address callerAddress = getFirstCaller();
+    if (callerAddress == address(0)) {
+      callerAddress = _msgSender();
+    }
+
     return
       IWorld(_world()).ca_ElectronSystem_eventHandlerElectron(
         callerAddress,

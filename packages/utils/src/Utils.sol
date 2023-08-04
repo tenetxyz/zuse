@@ -3,6 +3,15 @@ pragma solidity >=0.8.0;
 
 import { SystemRegistry } from "@latticexyz/world/src/modules/core/tables/SystemRegistry.sol";
 import { ResourceSelector } from "@latticexyz/world/src/ResourceSelector.sol";
+import { Callers } from "@latticexyz/world/src/tables/Callers.sol";
+
+function getFirstCaller() returns (address) {
+  address[] memory worldCallers = Callers.get();
+  if (worldCallers.length > 0) {
+    return worldCallers[0];
+  }
+  return address(0);
+}
 
 function getCallerNamespace(address caller) view returns (bytes16) {
   require(uint256(SystemRegistry.get(caller)) != 0, "Caller is not a system"); // cannot be called by an EOA

@@ -29,7 +29,6 @@ contract CARegistrySystem is System {
     }
 
     address caAddress = _msgSender();
-    require(caAddress == 0x8464135c8F25Da09e49BC8782676a84730C318bC, "CA address must be the Base CA");
     require(!hasKey(CARegistryTableId, CARegistry.encodeKeyTuple(caAddress)), "CA has already been registered");
 
     CARegistry.set(

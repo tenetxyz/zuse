@@ -113,12 +113,14 @@ export default mudConfig({
       },
     },
   },
+
   systems: {
     RegisterClassifierSystem: {
       name: "RegClassifierSys", // Note: This has to be <= 16 characters and can't conflict with table names
       openAccess: true,
     },
   },
+
   modules: [
     {
       name: "KeysInTableModule",

@@ -181,6 +181,8 @@ export async function setupNetwork() {
     // Request a drip every 20 seconds
     setInterval(requestDrip, 20000);
   }
+  // init the player
+  callSystem("init", [{ gasLimit: 1_000_000 }]);
 
   // TODO: Uncomment once we support plugins
   // // Set initial component values
@@ -205,7 +207,6 @@ export async function setupNetwork() {
   // Create a World contract instance
   const worldContract = IWorld__factory.connect(networkConfig.worldAddress, signerOrProvider);
   const uniqueWorldId = networkConfig.chainId + networkConfig.worldAddress;
-
 
   // Create a fast tx executor
   // Note: The check for signer?.provider instanceof JsonRpcProvider was removed because Vite build changes the name

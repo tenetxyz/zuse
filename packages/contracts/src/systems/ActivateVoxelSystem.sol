@@ -3,7 +3,7 @@ pragma solidity >=0.8.0;
 
 import { IStore } from "@latticexyz/store/src/IStore.sol";
 import { System } from "@latticexyz/world/src/System.sol";
-import { WorldConfig, Position, PositionTableId, VoxelType, VoxelTypeTableId, VoxelTypeData } from "@tenet-contracts/src/codegen/Tables.sol";
+import { WorldConfig, Position, PositionTableId, VoxelType, VoxelTypeTableId, VoxelTypeData, Player } from "@tenet-contracts/src/codegen/Tables.sol";
 import { VoxelTypeRegistry, VoxelTypeRegistryData } from "@tenet-registry/src/codegen/tables/VoxelTypeRegistry.sol";
 import { safeCall } from "@tenet-utils/src/CallUtils.sol";
 import { Strings } from "@openzeppelin/contracts/utils/Strings.sol";
@@ -15,6 +15,7 @@ import { calculateChildCoords, getEntityAtCoord, positionDataToVoxelCoord } from
 
 contract ActivateVoxelSystem is System {
   function activateVoxel(uint32 scale, bytes32 entity) public {
+    verifyCanActivate();
     require(
       hasKey(VoxelTypeTableId, VoxelType.encodeKeyTuple(scale, entity)),
       "ActivateVoxelSystem: entity does not exist"
@@ -46,5 +47,11 @@ contract ActivateVoxelSystem is System {
 
     // Enter World
     IWorld(_world()).activateCA(caAddress, scale, entity);
+  }
+
+  function verifyCanActivate() private {
+    uint32 stamina = Player.getStamina(tx.origin);
+    require(stamina > 0, "BuildSystem: Player has no stamina");
+    Player.setStamina(tx.origin, stamina - 1);
   }
 }

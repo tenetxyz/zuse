@@ -8,7 +8,7 @@ import { VoxelCoord } from "../Types.sol";
 import { VoxelTypeRegistry, VoxelTypeRegistryData } from "@tenet-registry/src/codegen/tables/VoxelTypeRegistry.sol";
 import { REGISTRY_ADDRESS } from "@tenet-contracts/src/Constants.sol";
 import { CARegistry } from "@tenet-registry/src/codegen/tables/CARegistry.sol";
-import { WorldConfig, WorldConfigTableId, OwnedBy, Position, PositionTableId, VoxelType, VoxelTypeData } from "@tenet-contracts/src/codegen/Tables.sol";
+import { WorldConfig, WorldConfigTableId, OwnedBy, Position, PositionTableId, VoxelType, VoxelTypeData, Player } from "@tenet-contracts/src/codegen/Tables.sol";
 import { CAVoxelType, CAVoxelTypeData } from "@tenet-base-ca/src/codegen/tables/CAVoxelType.sol";
 import { getKeysInTable } from "@latticexyz/world/src/modules/keysintable/getKeysInTable.sol";
 import { calculateChildCoords, getEntityAtCoord, calculateParentCoord } from "../Utils.sol";
@@ -19,11 +19,18 @@ import { Strings } from "@openzeppelin/contracts/utils/Strings.sol";
 
 contract BuildSystem is System {
   function build(uint32 scale, bytes32 entity, VoxelCoord memory coord) public returns (uint32, bytes32) {
+    verifyCanBuild();
     // Require voxel to be owned by caller
     require(OwnedBy.get(scale, entity) == tx.origin, "voxel is not owned by player");
 
     VoxelTypeData memory voxelType = VoxelType.get(scale, entity);
     return buildVoxelType(voxelType.voxelTypeId, coord, true, true);
+  }
+
+  function verifyCanBuild() private {
+    uint32 stamina = Player.getStamina(tx.origin);
+    require(stamina > 0, "BuildSystem: Player has no stamina");
+    Player.setStamina(tx.origin, stamina - 1);
   }
 
   function buildVoxelTypeHelper(

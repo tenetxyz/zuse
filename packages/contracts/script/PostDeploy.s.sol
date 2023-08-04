@@ -20,7 +20,7 @@ contract PostDeploy is Script {
 
     world.registerWorld();
     world.initWorldVoxelTypes();
-    world.initWorldApprovals();
+    world.initWorldVoxelTypes();
 
     vm.stopBroadcast();
   }

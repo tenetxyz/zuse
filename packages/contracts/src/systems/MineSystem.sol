@@ -7,7 +7,7 @@ import { getUniqueEntity } from "@latticexyz/world/src/modules/uniqueentity/getU
 import { getKeysInTable } from "@latticexyz/world/src/modules/keysintable/getKeysInTable.sol";
 import { System } from "@latticexyz/world/src/System.sol";
 import { VoxelCoord, VoxelEntity } from "@tenet-contracts/src/Types.sol";
-import { WorldConfig, OwnedBy, Position, PositionTableId, VoxelType, VoxelTypeData, OfSpawn, Spawn, SpawnData } from "@tenet-contracts/src/codegen/Tables.sol";
+import { WorldConfig, OwnedBy, Position, PositionTableId, VoxelType, VoxelTypeData, OfSpawn, Spawn, SpawnData, Player } from "@tenet-contracts/src/codegen/Tables.sol";
 import { REGISTRY_ADDRESS } from "@tenet-contracts/src/Constants.sol";
 import { calculateChildCoords, getEntityAtCoord, positionDataToVoxelCoord } from "@tenet-contracts/src/Utils.sol";
 import { CAVoxelType, CAVoxelTypeData } from "@tenet-base-ca/src/codegen/tables/CAVoxelType.sol";
@@ -19,6 +19,7 @@ import { AirVoxelID, AirVoxelVariantID } from "@tenet-base-ca/src/Constants.sol"
 
 contract MineSystem is System {
   function mine(bytes32 voxelTypeId, VoxelCoord memory coord) public returns (uint32, bytes32) {
+    verifyCanMine();
     (uint32 scale, bytes32 voxelToMine) = mineVoxelType(voxelTypeId, coord, true);
 
     bytes32 useParentEntity = IWorld(_world()).calculateParentEntity(scale, voxelToMine);
@@ -30,6 +31,12 @@ contract MineSystem is System {
       useParentEntity = IWorld(_world()).calculateParentEntity(minedParentScale, minedParentEntity);
     }
     return (scale, voxelToMine);
+  }
+
+  function verifyCanMine() private {
+    uint32 stamina = Player.getStamina(tx.origin);
+    require(stamina > 0, "BuildSystem: Player has no stamina");
+    Player.setStamina(tx.origin, stamina - 1);
   }
 
   function mineVoxelType(
@@ -79,7 +86,8 @@ contract MineSystem is System {
 
     IWorld(_world()).runCA(caAddress, scale, voxelToMine);
 
-    if (voxelTypeId != AirVoxelID) { // TODO: Figure out how to add other airs
+    if (voxelTypeId != AirVoxelID) {
+      // TODO: Figure out how to add other airs
       // Can't own it since it became air, so we gift it
       IWorld(_world()).giftVoxel(voxelTypeId);
     }

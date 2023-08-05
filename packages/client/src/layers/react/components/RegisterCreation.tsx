@@ -17,7 +17,6 @@ import { FocusedUiType } from "../../noa/components/FocusedUi";
 import { twMerge } from "tailwind-merge";
 import { SetState } from "../../../utils/types";
 import { stringToEntity, to64CharAddress, voxelEntityToEntity } from "../../../utils/entity";
-import { defineSpawnInFocusComponent } from "../../noa/components";
 import { VoxelCoord } from "@latticexyz/utils";
 import { abiDecode } from "@/utils/encodeOrDecode";
 import { VoxelEntity } from "@/layers/noa/types";
@@ -161,7 +160,7 @@ const RegisterCreation: React.FC<Props> = ({ layers, formData, setFormData, rese
   const onSelectCreationCorners = () => {
     setComponent(PersistentNotification, SingletonEntity, {
       message:
-        "Select your creation's corners by 1) Holding 'V' and 2) Left/Right clicking on blocks. Press - when done.",
+        "Select your creation's corners by 1) Holding 'V' and 2) Left/Right clicking on blocks. Press Q when done.",
       icon: NotificationIcon.NONE,
     });
     setComponent(FocusedUi, SingletonEntity, { value: FocusedUiType.WORLD });

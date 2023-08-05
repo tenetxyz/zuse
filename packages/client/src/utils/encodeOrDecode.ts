@@ -15,6 +15,7 @@ export function removeTrailingNulls(input: string): string {
   return input.replace(/\u0000+$/, "");
 }
 
+// this is like JSON.stringify but for bigints
 // from https://github.com/latticexyz/mud/blob/73e200cc8bc2e28aa927637a0cbd55b71c1608a1/packages/dev-tools/src/tables/Table.tsx#L53
 export function serializeWithoutIndexedValues(obj: any) {
   return JSON.stringify(obj, (key, value) => {

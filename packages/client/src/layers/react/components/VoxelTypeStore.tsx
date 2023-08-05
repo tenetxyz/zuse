@@ -59,17 +59,6 @@ export const VoxelTypeStore: React.FC<Props> = ({ layers, filters = { query: "",
   // const { voxelTypesToDisplay } = useVoxelTypeSearch({ layers, filters, scale: filters.scale !== null ? filters.scale : undefined });
   const { voxelTypesToDisplay } = useVoxelTypeSearch({ layers, filters, scale: filters.scale });
 
-  const StyledDropdownMenuRadioItem = styled(DropdownMenuRadioItem)`
-    cursor: pointer;
-    border-radius: 2px;
-    transition: background-color 0.3s ease, color 0.3s ease;
-
-    &:hover {
-      background-color: slategray;
-      color: white;
-    }
-  `;
-
   const ScaleBar: React.FC<{ value: number | null; onChange: (val: string) => void }> = ({ value, onChange }) => {
     return (
       <DropdownMenu>
@@ -160,6 +149,17 @@ export const VoxelTypeStore: React.FC<Props> = ({ layers, filters = { query: "",
     </div>
   );
 };
+
+const StyledDropdownMenuRadioItem = styled(DropdownMenuRadioItem)`
+  cursor: pointer;
+  border-radius: 2px;
+  transition: background-color 0.3s ease, color 0.3s ease;
+
+  &:hover {
+    background-color: slategray;
+    color: white;
+  }
+`;
 
 export const ActionBarWrapper = styled.div`
   display: grid;

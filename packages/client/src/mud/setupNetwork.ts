@@ -704,6 +704,69 @@ export async function setupNetwork() {
     });
   }
 
+  function registerTruthTableClassifier(
+    name: string,
+    inputRows: BigNumber[],
+    outputRows: BigNumber[],
+    numInputBits: number,
+    numOutputBits: number
+  ) {
+    // TODO: Replace Iron NFT with a an register symbol
+    const preview = getNftStorageLink("bafkreidkik2uccshptqcskpippfotmusg7algnfh5ozfsga72xyfdrvacm");
+    actions.add({
+      id: `registerTruthTableClassifier+name=${name}` as Entity,
+      metadata: { actionType: "registerTruthTableClassifier", preview },
+      requirement: () => true,
+      components: {},
+      execute: () => {
+        return callSystem("registerTruthTable", [
+          name,
+          inputRows,
+          outputRows,
+          numInputBits,
+          numOutputBits,
+          { gasLimit: 900_000_000 },
+        ]);
+      },
+      updates: () => [],
+      txMayNotWriteToTable: true,
+    });
+  }
+
+  function classifyIfCreationSatisfiesTruthTable(
+    booleanClassifierId: Entity,
+    spawnId: Entity,
+    interfaceVoxels: InterfaceVoxel[],
+    onSuccessCallback: (res: string) => void
+  ) {
+    // TODO: Relpace Iron NFT with a an register symbol
+    const preview = getNftStorageLink("bafkreidkik2uccshptqcskpippfotmusg7algnfh5ozfsga72xyfdrvacm");
+
+    interfaceVoxels.map((interfaceVoxel) => {
+      interfaceVoxel.entity = interfaceVoxel.entity.split(":")[1]; // get rid of the scale for the entity
+      return interfaceVoxel;
+    });
+
+    const inInterfaceVoxels = interfaceVoxels.filter((interfaceVoxel) => interfaceVoxel.name.startsWith("in"));
+    const outInterfaceVoxels = interfaceVoxels.filter((interfaceVoxel) => interfaceVoxel.name.startsWith("out"));
+    actions.add({
+      id: `classifyIfCreationSatisfiesTruthTable+booleanClassifierId=${booleanClassifierId}+spawnId=${spawnId}` as Entity,
+      metadata: { actionType: "classifyIfCreationSatisfiesTruthTable", preview },
+      requirement: () => true,
+      components: {},
+      execute: () => {
+        return callSystem(
+          "classifyIfCreationSatisfiesTruthTable",
+          [booleanClassifierId, spawnId, inInterfaceVoxels, outInterfaceVoxels, { gasLimit: 900_000_000 }],
+          undefined,
+          onSuccessCallback
+        );
+      },
+      updates: () => [],
+      txMayNotWriteToTable: true,
+    });
+  }
+
   function stake(chunkCoord: Coord) {
     return 0;
   }
@@ -801,6 +864,8 @@ export async function setupNetwork() {
       claim,
       getName,
       activate,
+      registerTruthTableClassifier,
+      classifyIfCreationSatisfiesTruthTable,
     },
     fastTxExecutor,
     // dev: setupDevSystems(world, encoders as Promise<any>, systems),

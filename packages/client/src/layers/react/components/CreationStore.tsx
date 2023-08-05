@@ -12,6 +12,7 @@ import CreationDetails from "./CreationDetails";
 import { VoxelTypeKey } from "../../noa/types";
 import { BaseCreation } from "../../noa/systems/createSpawnOverlaySystem";
 import { Separator } from "@/components/ui/separator";
+import { CreationsPage } from "./ClassifierStore";
 
 export interface CreationStoreFilters {
   search: string;
@@ -22,7 +23,7 @@ interface Props {
   layers: Layers;
   filters: CreationStoreFilters;
   setFilters: React.Dispatch<React.SetStateAction<CreationStoreFilters>>;
-  setShowAllCreations: SetState<boolean>;
+  setCreationsPage: SetState<CreationsPage>;
   selectedCreation: Creation | null;
   setSelectedCreation: SetState<Creation | null>;
   registerCreationFormData: RegisterCreationFormData;
@@ -46,7 +47,7 @@ const CreationStore: React.FC<Props> = ({
   layers,
   filters,
   setFilters,
-  setShowAllCreations,
+  setCreationsPage,
   selectedCreation,
   setSelectedCreation,
   registerCreationFormData,
@@ -163,7 +164,7 @@ const CreationStore: React.FC<Props> = ({
     } else if (selectedCreation != null) {
       setSelectedCreation(null);
     } else {
-      setShowAllCreations(false);
+      setCreationsPage(CreationsPage.CLASSIFIER_CREATIONS);
     }
   };
 

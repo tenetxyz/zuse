@@ -82,4 +82,16 @@ contract MineSystem is MineEvent {
       Spawn.setIsModified(spawnId, true);
     }
   }
+
+  function clearCoord(uint32 scale, VoxelCoord memory coord) public returns (uint32, bytes32) {
+    bytes32 entity = getEntityAtCoord(scale, coord);
+
+    bytes32 voxelTypeId = VoxelType.getVoxelTypeId(scale, entity);
+    if (voxelTypeId == AirVoxelID) {
+      // if it's air, then it's already clear
+      return (0, 0);
+    }
+
+    return mine(voxelTypeId, coord);
+  }
 }

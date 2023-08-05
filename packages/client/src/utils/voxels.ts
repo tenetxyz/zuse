@@ -52,5 +52,5 @@ export const getTargetedSpawnId = (layers: Layers, targetedBlock: TargetedBlock)
   if (!entityAtPosition) {
     return undefined;
   }
-  return getComponentValue(OfSpawn, entityAtPosition)?.value;
+  return getComponentValue(OfSpawn, entityAtPosition)?.spawnId;
 };

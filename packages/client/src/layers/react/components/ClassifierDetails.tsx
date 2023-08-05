@@ -12,6 +12,8 @@ import { ClassifierResults } from "./ClassifierResults";
 import { NotificationIcon } from "../../noa/components/persistentNotification";
 import { FocusedUiType } from "../../noa/components/FocusedUi";
 import { to64CharAddress } from "../../../utils/entity";
+import { TruthTableClassifierResults } from "./TruthTableClassifierResults";
+import { toast } from "react-toastify";
 
 export interface ClassifierStoreFilters {
   classifierQuery: string;
@@ -21,16 +23,9 @@ export interface ClassifierStoreFilters {
 interface Props {
   layers: Layers;
   selectedClassifier: Classifier | null;
-  setSelectedClassifier: SetState<Classifier | null>;
-  setShowAllCreations: SetState<boolean>;
 }
 
-const ClassifierDetails: React.FC<Props> = ({
-  layers,
-  selectedClassifier,
-  setSelectedClassifier,
-  setShowAllCreations,
-}: Props) => {
+const ClassifierDetails: React.FC<Props> = ({ layers, selectedClassifier }: Props) => {
   const {
     noa: {
       noa,
@@ -45,8 +40,8 @@ const ClassifierDetails: React.FC<Props> = ({
       SingletonEntity,
     },
     network: {
-      components: { VoxelType, OfSpawn, Spawn, Position },
-      api: { classifyCreation },
+      components: { VoxelType, OfSpawn, Spawn, Creation, Position },
+      api: { classifyCreation, classifyIfCreationSatisfiesTruthTable },
       getVoxelIconUrl,
     },
   } = layers;
@@ -65,7 +60,7 @@ const ClassifierDetails: React.FC<Props> = ({
       selectingVoxelIdx: selectedVoxel.index,
     } as VoxelInterfaceSelectionRecord);
     setComponent(PersistentNotification, SingletonEntity, {
-      message: "Press 'V' on a voxel to select it. Press - when done.",
+      message: "Press 'V' on a voxel to select it. Press Q when done.",
       icon: NotificationIcon.NONE,
     });
     setComponent(FocusedUi, SingletonEntity, { value: FocusedUiType.WORLD as any });
@@ -109,7 +104,7 @@ const ClassifierDetails: React.FC<Props> = ({
           {selectedClassifier.selectorInterface.map((interfaceVoxel, idx) => {
             let selectedVoxel: Entity | undefined = undefined;
             if (voxelSelection && voxelSelection.interfaceVoxels) {
-              selectedVoxel = voxelSelection.interfaceVoxels[interfaceVoxel.index].entity;
+              selectedVoxel = voxelSelection.interfaceVoxels[interfaceVoxel.index]?.entity;
               if (selectedVoxel === EMPTY_BYTES_32) {
                 selectedVoxel = undefined;
               }
@@ -218,6 +213,34 @@ const ClassifierDetails: React.FC<Props> = ({
     return false;
   };
 
+  const onClassifySuccess = (txHash: string) => {
+    removeComponent(VoxelInterfaceSelection, SingletonEntity);
+    removeComponent(SpawnToClassify, SingletonEntity);
+    toast("The creation passes the classifier!");
+  };
+
+  const isClassifierTruthTable = selectedClassifier.namespace === "tenet-truth-table";
+
+  const onSubmit = () => {
+    const voxelSelection = getComponentValue(VoxelInterfaceSelection, SingletonEntity);
+    if (isClassifierTruthTable) {
+      // special case for tenet classifiers
+      classifyIfCreationSatisfiesTruthTable(
+        selectedClassifier.classifierId,
+        spawnToUse!.spawn!.spawnId,
+        voxelSelection?.interfaceVoxels || [],
+        onClassifySuccess
+      );
+    } else {
+      classifyCreation(
+        selectedClassifier.classifierId,
+        spawnToUse!.spawn!.spawnId, // the spawn must exist if the submit button is enabled (and pressed)
+        voxelSelection?.interfaceVoxels || [],
+        onClassifySuccess
+      );
+    }
+  };
+
   return (
     <div className="flex flex-col h-full mt-5 gap-5">
       <h4 className="text-2xl font-bold text-black">{selectedClassifier.name}</h4>
@@ -234,18 +257,7 @@ const ClassifierDetails: React.FC<Props> = ({
       </button>
       {renderInterfaces()}
       <button
-        onClick={() => {
-          const voxelSelection = getComponentValue(VoxelInterfaceSelection, SingletonEntity);
-          classifyCreation(
-            selectedClassifier.classifierId,
-            spawnToUse.spawn.spawnId,
-            voxelSelection?.interfaceVoxels || [],
-            (txHash: string) => {
-              removeComponent(VoxelInterfaceSelection, SingletonEntity);
-              removeComponent(SpawnToClassify, SingletonEntity);
-            }
-          );
-        }}
+        onClick={onSubmit}
         disabled={isSubmitDisabled()}
         className={twMerge(
           "text-white bg-green-700 hover:bg-green-800 focus:ring-4 focus:outline-none focus:ring-green-300 font-medium rounded-lg text-sm w-full sm:w-auto px-5 py-2.5 text-center",
@@ -256,7 +268,11 @@ const ClassifierDetails: React.FC<Props> = ({
       </button>
       <hr className="h-0.5 bg-gray-300 mt-4 mb-4 border-0" />
       <h3 className="text-xl font-bold text-black">Submissions</h3>
-      <ClassifierResults layers={layers} classifier={selectedClassifier} />
+      {isClassifierTruthTable ? (
+        <TruthTableClassifierResults layers={layers} classifier={selectedClassifier} />
+      ) : (
+        <ClassifierResults layers={layers} classifier={selectedClassifier} />
+      )}
     </div>
   );
 };

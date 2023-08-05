@@ -4,7 +4,7 @@ import { VoxelTypeStore, VoxelTypeStoreFilters } from "./VoxelTypeStore";
 import RegisterCreation, { RegisterCreationFormData } from "./RegisterCreation";
 import { TabRadioSelector } from "./TabRadioSelector";
 import CreationStore, { Creation, CreationStoreFilters } from "./CreationStore";
-import ClassifierStore, { Classifier, ClassifierStoreFilters } from "./ClassifierStore";
+import ClassifierStore, { Classifier, ClassifierStoreFilters, CreationsPage } from "./ClassifierStore";
 import { ElectiveBar } from "./ElectiveBar";
 import { Entity, getComponentValue, setComponent } from "@latticexyz/recs";
 import { FocusedUiType } from "../../noa/components/FocusedUi";
@@ -60,6 +60,7 @@ export function registerTenetSidebar() {
       // This state is hoisted up to this component so that the state is not lost when leaving the inventory to select voxels
       const [creativeInventoryFilters, setCreativeInventoryFilters] = useState<VoxelTypeStoreFilters>({
         query: "",
+        scale: null,
       });
       const [creationStoreFilters, setCreationStoreFilters] = useState<CreationStoreFilters>({
         search: "",
@@ -78,7 +79,7 @@ export function registerTenetSidebar() {
 
       const [selectedClassifier, setSelectedClassifier] = useState<Classifier | null>(null);
       const [selectedCreation, setSelectedCreation] = useState<Creation | null>(null);
-      const [showAllCreations, setShowAllCreations] = useState<boolean>(false);
+      const [creationsPage, setCreationsPage] = useState<CreationsPage>(CreationsPage.CLASSIFIER_CREATIONS);
 
       useEffect(() => {
         noa.on("targetBlockChanged", getSpawnUserIsLookingAt);
@@ -128,13 +129,13 @@ export function registerTenetSidebar() {
               />
             );
           case SidebarTab.VOXEL_CREATIONS:
-            if (showAllCreations) {
+            if (creationsPage === CreationsPage.ALL_CREATIONS) {
               return (
                 <CreationStore
                   layers={layers}
                   filters={creationStoreFilters}
                   setFilters={setCreationStoreFilters}
-                  setShowAllCreations={setShowAllCreations}
+                  setCreationsPage={setCreationsPage}
                   selectedCreation={selectedCreation}
                   setSelectedCreation={setSelectedCreation}
                   registerCreationFormData={registerCreationFormData}
@@ -150,7 +151,8 @@ export function registerTenetSidebar() {
                 setFilters={setClassifierStoreFilters}
                 selectedClassifier={selectedClassifier}
                 setSelectedClassifier={setSelectedClassifier}
-                setShowAllCreations={setShowAllCreations}
+                creationsPage={creationsPage}
+                setCreationsPage={setCreationsPage}
               />
             );
           case SidebarTab.WORLDS:

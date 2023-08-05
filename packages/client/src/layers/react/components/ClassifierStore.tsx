@@ -9,6 +9,7 @@ import { SearchBar } from "./common/SearchBar";
 import ClassifierDetails from "./ClassifierDetails";
 import { twMerge } from "tailwind-merge";
 import { toast } from "react-toastify";
+import { Button } from "./common";
 
 export interface ClassifierStoreFilters {
   classifierQuery: string;
@@ -154,6 +155,7 @@ const ClassifierStore: React.FC<Props> = ({
           })}
         </div>
       )}
+      <Button>Add Boolean Logic Classifier</Button>
     </div>
   );
 };

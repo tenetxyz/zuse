@@ -79,7 +79,8 @@ contract MineSystem is System {
 
     IWorld(_world()).runCA(caAddress, scale, voxelToMine);
 
-    if (voxelTypeId != AirVoxelID) { // TODO: Figure out how to add other airs
+    if (voxelTypeId != AirVoxelID) {
+      // TODO: Figure out how to add other airs
       // Can't own it since it became air, so we gift it
       IWorld(_world()).giftVoxel(voxelTypeId);
     }
@@ -120,5 +121,27 @@ contract MineSystem is System {
       Spawn.setVoxels(spawnId, abi.encode(newVoxels));
       Spawn.setIsModified(spawnId, true);
     }
+  }
+
+  function clearCoord(VoxelCoord memory coord, uint32 scale) public returns (bytes32) {
+    bytes32[] memory entitiesAtPosition = getEntitiesAtCoord(coord);
+    bytes32 minedEntity = 0;
+    for (uint256 i = 0; i < entitiesAtPosition.length; i++) {
+      bytes32 entity = entitiesAtPosition[i];
+
+      VoxelTypeData memory voxelTypeData = VoxelType.get(entity);
+      if (voxelTypeData.voxelTypeId == AirID) {
+        // if it's air, then it's already clear
+        continue;
+      }
+      minedEntity = mine(
+        coord,
+        voxelTypeData.voxelTypeNamespace,
+        voxelTypeData.voxelTypeId,
+        voxelTypeData.voxelVariantNamespace,
+        voxelTypeData.voxelVariantId
+      );
+    }
+    return minedEntity;
   }
 }

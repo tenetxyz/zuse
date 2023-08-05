@@ -112,6 +112,24 @@ export default mudConfig({
         classificationResultTableName: "string", // needed so the client can know which table to query for the classification result
       },
     },
+    TruthTable: {
+      schema: {
+        creator: "address",
+        numInputBits: "uint16",
+        numOutputBits: "uint16",
+        inputRows: "uint256[]", // Note: if the outputRows are always 2^n, then we don't even need the input rows. Since we can say the ith output row is for the ith input row (represented by binary number i)
+        outputRows: "uint256[]",
+      },
+    },
+
+    // CR = Classification Result
+    TruthTableCR: {
+      schema: {
+        creationId: "bytes32",
+        blockNumber: "bytes32",
+        voxelInterfaces: "bytes", // so we know what the input/outputs are
+      },
+    },
   },
 
   systems: {

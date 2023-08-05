@@ -12,4 +12,4 @@ awk -v start="$start_pattern" -v end="$end_pattern" -v rep="$replacement" '
   !p
 ' "$input_file" > "$temp_file" && mv "$temp_file" "$input_file"
 
-echo "Replaced generated types in Types.sol"
+echo "[TENET] Replaced generated types in Types.sol"

@@ -4,9 +4,7 @@ import { useComponentUpdate } from "../../../utils/useComponentUpdate";
 import { Layers } from "../../../types";
 import { Entity, getComponentValue, getEntityString } from "@latticexyz/recs";
 import { Classifier, ClassifierStoreFilters } from "./ClassifierStore";
-import { to64CharAddress } from "../../../utils/entity";
-import { ethers } from "ethers";
-import { abiDecode, cleanObjArray } from "@/utils/encodeOrDecode";
+import { abiDecode } from "@/utils/encodeOrDecode";
 
 import { hexToAscii, removeTrailingNulls } from "../../../utils/encodeOrDecode";
 import { InterfaceVoxel } from "../../noa/types";
@@ -25,7 +23,6 @@ export const useClassifierSearch = ({ layers, filters }: Props) => {
     network: {
       components: { FunctionSelectors },
       contractComponents: { Classifier },
-      worldContract,
     },
   } = layers;
 
@@ -65,7 +62,6 @@ export const useClassifierSearch = ({ layers, filters }: Props) => {
       selectorInterface.forEach((voxel) => {
         voxel.index = parseInt(voxel.index.toString()); // We want a number here, not a BigInt
       });
-      debugger;
 
       allClassifiers.current.push({
         creator: creator,

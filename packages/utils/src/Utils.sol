@@ -5,7 +5,7 @@ import { SystemRegistry } from "@latticexyz/world/src/modules/core/tables/System
 import { ResourceSelector } from "@latticexyz/world/src/ResourceSelector.sol";
 import { Callers } from "@latticexyz/world/src/tables/Callers.sol";
 
-function getFirstCaller() returns (address) {
+function getFirstCaller() view returns (address) {
   address[] memory worldCallers = Callers.get();
   if (worldCallers.length > 0) {
     return worldCallers[0];

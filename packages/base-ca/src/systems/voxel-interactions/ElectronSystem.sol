@@ -9,7 +9,6 @@ import { hasKey } from "@latticexyz/world/src/modules/keysintable/hasKey.sol";
 import { ElectronTunnelSpot, ElectronTunnelSpotData, ElectronTunnelSpotTableId, CAVoxelType, CAPosition, CAPositionData, CAPositionTableId } from "@tenet-base-ca/src/codegen/Tables.sol";
 import { AirVoxelID, ElectronVoxelID } from "@tenet-base-ca/src/Constants.sol";
 import { getEntityAtCoord, getNeighbours, positionDataToVoxelCoord, getEntityPositionStrict } from "@tenet-base-ca/src/Utils.sol";
-import { buildWorld, mineWorld } from "@tenet-base-ca/src/CallUtils.sol";
 import { safeCall } from "@tenet-utils/src/CallUtils.sol";
 import { Strings } from "@openzeppelin/contracts/utils/Strings.sol";
 
@@ -189,8 +188,8 @@ contract ElectronSystem is VoxelInteraction {
     );
     if (otherReplusionForce < currentReplusionForce) {
       // Tunnel to that spot
-      mineWorld(callerAddress, ElectronVoxelID, baseCoord);
-      buildWorld(callerAddress, ElectronVoxelID, otherCoord);
+      IWorld(_world()).mineCAWorld(callerAddress, ElectronVoxelID, baseCoord);
+      IWorld(_world()).buildCAWorld(callerAddress, ElectronVoxelID, otherCoord);
       // changedEntity = true;
     }
   }

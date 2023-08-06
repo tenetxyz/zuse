@@ -2,10 +2,12 @@
 pragma solidity >=0.8.0;
 
 import { hasKey } from "@latticexyz/world/src/modules/keysintable/hasKey.sol";
+import { BlockDirection, VoxelCoord } from "@tenet-utils/src/Types.sol";
 import { getKeysInTable } from "@latticexyz/world/src/modules/keysintable/getKeysInTable.sol";
 import { System } from "@latticexyz/world/src/System.sol";
 import { CAVoxelConfig, CAVoxelConfigTableId } from "@tenet-base-ca/src/codegen/Tables.sol";
 import { getCallerNamespace } from "@tenet-utils/src/Utils.sol";
+import { buildWorld, mineWorld } from "@tenet-base-ca/src/CallUtils.sol";
 
 contract CallCASystem is System {
   function registerInitialVoxelType(
@@ -29,5 +31,13 @@ contract CallCASystem is System {
       activateSelector,
       interactionSelector
     );
+  }
+
+  function buildCAWorld(address callerAddress, bytes32 voxelTypeId, VoxelCoord memory coord) public {
+    buildWorld(callerAddress, voxelTypeId, coord);
+  }
+
+  function mineCAWorld(address callerAddress, bytes32 voxelTypeId, VoxelCoord memory coord) public {
+    mineWorld(callerAddress, voxelTypeId, coord);
   }
 }

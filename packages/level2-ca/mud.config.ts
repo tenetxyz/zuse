@@ -2,11 +2,13 @@ import { mudConfig } from "@latticexyz/world/register";
 import { resolveTableId } from "@latticexyz/config";
 
 export default mudConfig({
+  namespace: "ca",
   enums: {
     BlockDirection: ["None", "North", "South", "East", "West", "NorthEast", "NorthWest", "SouthEast", "SouthWest"],
   },
   tables: {
     CAVoxelConfig: {
+      registerAsRoot: true,
       // TODO: Should this be in registry?
       keySchema: {
         voxelTypeId: "bytes32",
@@ -20,6 +22,7 @@ export default mudConfig({
       },
     },
     CAPosition: {
+      registerAsRoot: true,
       keySchema: {
         callerAddress: "address",
         entity: "bytes32",
@@ -32,6 +35,7 @@ export default mudConfig({
       },
     },
     CAVoxelType: {
+      registerAsRoot: true,
       keySchema: {
         callerAddress: "address",
         entity: "bytes32",
@@ -43,25 +47,16 @@ export default mudConfig({
     },
   },
   systems: {
-    AirVoxelSystem: {
-      name: "AirVoxelSystem",
-      openAccess: false,
-      accessList: ["CASystem"],
+    CASystem: {
+      name: "CASystem",
+      openAccess: true,
+      registerAsRoot: true,
     },
-    DirtVoxelSystem: {
-      name: "DirtVoxelSystem",
+    CallCASystem: {
+      name: "CallCASystem",
       openAccess: false,
-      accessList: ["CASystem"],
-    },
-    GrassVoxelSystem: {
-      name: "GrassVoxelSystem",
-      openAccess: false,
-      accessList: ["CASystem"],
-    },
-    BedrockVoxelSystem: {
-      name: "BedrockVoxelSys",
-      openAccess: false,
-      accessList: ["CASystem"],
+      registerAsRoot: true,
+      accessList: ["AirVoxelSystem", "DirtVoxelSystem", "GrassVoxelSystem", "BedrockVoxelSys"],
     },
   },
   modules: [

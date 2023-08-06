@@ -52,11 +52,16 @@ export default mudConfig({
       openAccess: true,
       registerAsRoot: true,
     },
-    CallCASystem: {
-      name: "CallCASystem",
+    CACallerSystem: {
+      name: "CACallerSystem",
       openAccess: false,
       registerAsRoot: true,
-      accessList: ["AirVoxelSystem", "DirtVoxelSystem", "GrassVoxelSystem", "BedrockVoxelSys"],
+      accessList: ["AirVoxelSystem", "DirtVoxelSystem", "GrassVoxelSystem", "BedrockVoxelSystem"],
+    },
+    CAVoxelRegistrySystem: {
+      name: "CAVoxelRegistryS",
+      openAccess: true,
+      registerAsRoot: true,
     },
   },
   modules: [

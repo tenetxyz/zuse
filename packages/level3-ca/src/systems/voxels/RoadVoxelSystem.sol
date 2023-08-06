@@ -2,7 +2,7 @@
 pragma solidity >=0.8.0;
 
 import { IWorld } from "@tenet-level3-ca/src/codegen/world/IWorld.sol";
-import { System } from "@latticexyz/world/src/System.sol";
+import { VoxelType } from "@tenet-base-ca/src/prototypes/VoxelType.sol";
 import { VoxelVariantsRegistryData } from "@tenet-registry/src/codegen/tables/VoxelVariantsRegistry.sol";
 import { NoaBlockType } from "@tenet-registry/src/codegen/Types.sol";
 import { registerVoxelVariant, registerVoxelType } from "@tenet-registry/src/Utils.sol";
@@ -17,8 +17,8 @@ bytes32 constant RoadVoxelVariantID = bytes32(keccak256("road"));
 string constant RoadTexture = "bafkreiaavptzcmkl6xdyqk6ivp75ehsx45yl6kgxnahumozfbur6z6xcni";
 string constant RoadUVWrap = "bafkreihibx43dpw57halle4yfzidfrclm35xlyoiko3kq3m2uh5mewnmyu";
 
-contract RoadVoxelSystem is System {
-  function registerVoxelRoad() public {
+contract RoadVoxelSystem is VoxelType {
+  function registerVoxel() public override {
     address world = _world();
     VoxelVariantsRegistryData memory roadVariant;
     roadVariant.blockType = NoaBlockType.BLOCK;
@@ -45,38 +45,35 @@ contract RoadVoxelSystem is System {
       RoadVoxelVariantID
     );
 
-    // TODO: Check to make sure it doesn't already exist
-    CAVoxelConfig.set(
+    IWorld(world).registerInitialVoxelType(
       RoadVoxelID,
-      IWorld(world).enterWorldRoad.selector,
-      IWorld(world).exitWorldRoad.selector,
-      IWorld(world).variantSelectorRoad.selector,
-      IWorld(world).activateSelectorRoad.selector,
-      IWorld(world).eventHandlerRoad.selector
+      IWorld(world).ca_RoadVoxelSystem_enterWorld.selector,
+      IWorld(world).ca_RoadVoxelSystem_exitWorld.selector,
+      IWorld(world).ca_RoadVoxelSystem_variantSelector.selector,
+      IWorld(world).ca_RoadVoxelSystem_activate.selector,
+      IWorld(world).ca_RoadVoxelSystem_eventHandler.selector
     );
   }
 
-  function enterWorldRoad(address callerAddress, VoxelCoord memory coord, bytes32 entity) public {}
+  function enterWorld(VoxelCoord memory coord, bytes32 entity) public override {}
 
-  function exitWorldRoad(address callerAddress, VoxelCoord memory coord, bytes32 entity) public {}
+  function exitWorld(VoxelCoord memory coord, bytes32 entity) public override {}
 
-  function variantSelectorRoad(
-    address callerAddress,
+  function variantSelector(
     bytes32 entity,
     bytes32[] memory neighbourEntityIds,
     bytes32[] memory childEntityIds,
     bytes32 parentEntity
-  ) public view returns (bytes32) {
+  ) public view override returns (bytes32) {
     return RoadVoxelVariantID;
   }
 
-  function activateSelectorRoad(address callerAddress, bytes32 entity) public view returns (string memory) {}
+  function activate(bytes32 entity) public view override returns (string memory) {}
 
-  function eventHandlerRoad(
-    address callerAddress,
+  function eventHandler(
     bytes32 centerEntityId,
     bytes32[] memory neighbourEntityIds,
     bytes32[] memory childEntityIds,
     bytes32 parentEntity
-  ) public returns (bytes32, bytes32[] memory) {}
+  ) public override returns (bytes32, bytes32[] memory) {}
 }

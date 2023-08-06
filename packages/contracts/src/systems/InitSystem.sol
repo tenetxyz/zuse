@@ -16,8 +16,8 @@ contract InitSystem is System {
   function registerWorld() public {
     address[] memory caAddresses = new address[](1);
     caAddresses[0] = BASE_CA_ADDRESS;
-    // caAddresses[1] = LEVEL_2_CA_ADDRESS;
-    // caAddresses[2] = LEVEL_3_CA_ADDRESS;
+    caAddresses[1] = LEVEL_2_CA_ADDRESS;
+    caAddresses[2] = LEVEL_3_CA_ADDRESS;
 
     safeCall(
       REGISTRY_ADDRESS,
@@ -60,7 +60,7 @@ contract InitSystem is System {
     return false;
   }
 
-  function isVoxelTypeAllowed(bytes32 voxelTypeId) public returns (bool) {
+  function isVoxelTypeAllowed(bytes32 voxelTypeId) public view returns (bool) {
     return hasKey(WorldConfigTableId, WorldConfig.encodeKeyTuple(voxelTypeId));
   }
 }

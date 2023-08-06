@@ -59,8 +59,8 @@ export default mudConfig({
       openAccess: true,
       registerAsRoot: true,
     },
-    CallCASystem: {
-      name: "CallCASystem",
+    CACallerSystem: {
+      name: "CACallerSystem",
       openAccess: false,
       registerAsRoot: true,
       accessList: ["AirVoxelSystem", "ElectronVoxelSystem", "ElectronSystem"],

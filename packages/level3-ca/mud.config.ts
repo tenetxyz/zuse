@@ -2,8 +2,10 @@ import { mudConfig } from "@latticexyz/world/register";
 import { resolveTableId } from "@latticexyz/config";
 
 export default mudConfig({
+  namespace: "ca",
   tables: {
     CAVoxelConfig: {
+      registerAsRoot: true,
       // TODO: Should this be in registry?
       keySchema: {
         voxelTypeId: "bytes32",
@@ -17,6 +19,7 @@ export default mudConfig({
       },
     },
     CAPosition: {
+      registerAsRoot: true,
       keySchema: {
         callerAddress: "address",
         entity: "bytes32",
@@ -29,6 +32,7 @@ export default mudConfig({
       },
     },
     CAVoxelType: {
+      registerAsRoot: true,
       keySchema: {
         callerAddress: "address",
         entity: "bytes32",
@@ -40,15 +44,16 @@ export default mudConfig({
     },
   },
   systems: {
-    AirVoxelSystem: {
-      name: "AirVoxelSystem",
-      openAccess: false,
-      accessList: ["CASystem"],
+    CASystem: {
+      name: "CASystem",
+      openAccess: true,
+      registerAsRoot: true,
     },
-    RoadVoxelSystem: {
-      name: "RoadVoxelSystem",
+    CACallerSystem: {
+      name: "CACallerSystem",
       openAccess: false,
-      accessList: ["CASystem"],
+      registerAsRoot: true,
+      accessList: ["AirVoxelSystem", "RoadVoxelSystem"],
     },
   },
   modules: [

@@ -5,7 +5,7 @@ pragma solidity >=0.8.0;
 
 import { VoxelCoord } from "@tenet-utils/src/Types.sol";
 
-interface ICallCASystem {
+interface ICACallerSystem {
   function registerInitialVoxelType(
     bytes32 voxelTypeId,
     bytes4 enterWorldSelector,

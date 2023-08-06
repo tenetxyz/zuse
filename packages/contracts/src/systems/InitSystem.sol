@@ -14,7 +14,7 @@ import { safeCall } from "@tenet-utils/src/CallUtils.sol";
 
 contract InitSystem is System {
   function registerWorld() public {
-    address[] memory caAddresses = new address[](1);
+    address[] memory caAddresses = new address[](3);
     caAddresses[0] = BASE_CA_ADDRESS;
     caAddresses[1] = LEVEL_2_CA_ADDRESS;
     caAddresses[2] = LEVEL_3_CA_ADDRESS;

@@ -18,7 +18,7 @@ contract RegisterClassifierSystem is System {
     string memory classificationResultTableName,
     InterfaceVoxel[] memory selectorInterface
   ) public {
-    (bytes16 namespace, , , ) = FunctionSelectors.get(classifySelector);
+    (, bytes16 namespace, , ) = FunctionSelectors.get(classifySelector);
     require(NamespaceOwner.get(namespace) == _msgSender(), "Caller is not namespace owner");
     bytes32 uniqueEntity = getUniqueEntity();
     validateInterfaceVoxels(selectorInterface);

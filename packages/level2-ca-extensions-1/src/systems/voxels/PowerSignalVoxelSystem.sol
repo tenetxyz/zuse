@@ -60,15 +60,16 @@ contract PowerSignalVoxelSystem is VoxelType {
       IStore(REGISTRY_ADDRESS),
       PowerWireVoxelID
     );
-    bytes32 baseVoxelTypeId = PowerWireVoxelID;
+
     registerVoxelType(
       REGISTRY_ADDRESS,
       "Power Signal",
       PowerSignalVoxelID,
-      baseVoxelTypeId,
+      PowerWireVoxelID,
       powerSignalChildVoxelTypes,
       powerSignalChildVoxelTypes,
-      PowerSignalOffVoxelVariantID
+      PowerSignalOffVoxelVariantID,
+      world
     );
 
     registerCAVoxelType(

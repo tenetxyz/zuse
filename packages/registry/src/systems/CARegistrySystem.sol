@@ -15,6 +15,8 @@ contract CARegistrySystem is System {
     require(bytes(description).length > 0, "Description cannot be empty");
     require(voxelTypeIds.length > 0, "Must have at least one voxel type");
 
+    address caAddress = _msgSender();
+
     uint32 scale = 0;
     for (uint256 i; i < voxelTypeIds.length; i++) {
       require(
@@ -26,9 +28,9 @@ contract CARegistrySystem is System {
       } else {
         require(scale == VoxelTypeRegistry.getScale(voxelTypeIds[i]), "All voxel types must be the same scale");
       }
+      require(VoxelTypeRegistry.getCaAddress(voxelTypeIds[i]) == caAddress, "Voxel type must be registered to this CA");
     }
 
-    address caAddress = _msgSender();
     require(!hasKey(CARegistryTableId, CARegistry.encodeKeyTuple(caAddress)), "CA has already been registered");
 
     CARegistry.set(
@@ -53,16 +55,17 @@ contract CARegistrySystem is System {
 
     CARegistryData memory caData = CARegistry.get(caAddress);
     require(caData.scale == VoxelTypeRegistry.getScale(voxelTypeId), "Voxel type must be the same scale as the CA");
+    require(VoxelTypeRegistry.getCaAddress(voxelTypeId) == caAddress, "Voxel type must be registered to this CA");
 
     bytes32[] memory voxelTypeIds = caData.voxelTypeIds;
-    for (uint256 i; i < voxelTypeIds.length; i++) {
+    for (uint256 i = 0; i < voxelTypeIds.length; i++) {
       if (voxelTypeIds[i] == voxelTypeId) {
         revert("Voxel type has already been added to CA");
       }
     }
 
     bytes32[] memory updatedVoxelTypeIds = new bytes32[](voxelTypeIds.length + 1);
-    for (uint256 i; i < voxelTypeIds.length; i++) {
+    for (uint256 i = 0; i < voxelTypeIds.length; i++) {
       updatedVoxelTypeIds[i] = voxelTypeIds[i];
     }
     updatedVoxelTypeIds[voxelTypeIds.length] = voxelTypeId;

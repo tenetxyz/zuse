@@ -32,7 +32,8 @@ contract InvertedSignalVoxelSystem is VoxelType {
       baseVoxelTypeId,
       invertedSignalChildVoxelTypes,
       invertedSignalChildVoxelTypes,
-      SignalOnVoxelVariantID
+      SignalOnVoxelVariantID,
+      world
     );
 
     registerCAVoxelType(

@@ -42,7 +42,8 @@ contract RoadVoxelSystem is VoxelType {
       baseVoxelTypeId,
       roadChildVoxelTypes,
       roadChildVoxelTypes,
-      RoadVoxelVariantID
+      RoadVoxelVariantID,
+      world
     );
 
     IWorld(world).registerInitialVoxelType(

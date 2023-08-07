@@ -14,7 +14,8 @@ contract VoxelRegistrySystem is System {
     bytes32 baseVoxelTypeId,
     bytes32[] memory childVoxelTypeIds,
     bytes32[] memory schemaVoxelTypeIds,
-    bytes32 previewVoxelVariantId
+    bytes32 previewVoxelVariantId,
+    address caAddress
   ) public {
     require(
       !hasKey(VoxelTypeRegistryTableId, VoxelTypeRegistry.encodeKeyTuple(voxelTypeId)),
@@ -63,31 +64,35 @@ contract VoxelRegistrySystem is System {
     } else if (childVoxelTypeIds.length == 8) {
       // TODO: Add more checks on schemaVoxelTypeIds
       for (uint256 i; i < schemaVoxelTypeIds.length; i++) {
-          if (schemaVoxelTypeIds[i] == 0) {
-            continue;
-          }
-          require(
-            hasKey(VoxelTypeRegistryTableId, VoxelTypeRegistry.encodeKeyTuple(schemaVoxelTypeIds[i])),
-            "Schema voxel type ID has not been registered"
-          );
+        if (schemaVoxelTypeIds[i] == 0) {
+          continue;
+        }
+        require(
+          hasKey(VoxelTypeRegistryTableId, VoxelTypeRegistry.encodeKeyTuple(schemaVoxelTypeIds[i])),
+          "Schema voxel type ID has not been registered"
+        );
       }
-    } else{
+    } else {
       revert("Invalid number of schema voxel types");
     }
 
-    if (baseVoxelTypeId != voxelTypeId) { // otherwise, this is a base voxel type, so we don't need any checks
+    if (baseVoxelTypeId != voxelTypeId) {
+      // otherwise, this is a base voxel type, so we don't need any checks
       require(
         hasKey(VoxelTypeRegistryTableId, VoxelTypeRegistry.encodeKeyTuple(baseVoxelTypeId)),
         "Base voxel type ID has not been registered"
       );
 
-      require(
-        scale == VoxelTypeRegistry.getScale(baseVoxelTypeId),
-        "Base voxel type must be the same scale"
-      );
+      require(scale == VoxelTypeRegistry.getScale(baseVoxelTypeId), "Base voxel type must be the same scale");
 
-      require(entityArraysAreEqual(childVoxelTypeIds, VoxelTypeRegistry.getChildVoxelTypeIds(baseVoxelTypeId)), "Child voxel type IDs must be the same as base");
-      require(entityArraysAreEqual(schemaVoxelTypeIds, VoxelTypeRegistry.getSchemaVoxelTypeIds(baseVoxelTypeId)), "Schema voxel type IDs must be the same as base");
+      require(
+        entityArraysAreEqual(childVoxelTypeIds, VoxelTypeRegistry.getChildVoxelTypeIds(baseVoxelTypeId)),
+        "Child voxel type IDs must be the same as base"
+      );
+      require(
+        entityArraysAreEqual(schemaVoxelTypeIds, VoxelTypeRegistry.getSchemaVoxelTypeIds(baseVoxelTypeId)),
+        "Schema voxel type IDs must be the same as base"
+      );
     }
 
     VoxelTypeRegistry.set(
@@ -97,6 +102,7 @@ contract VoxelRegistrySystem is System {
         childVoxelTypeIds: childVoxelTypeIds,
         schemaVoxelTypeIds: schemaVoxelTypeIds,
         previewVoxelVariantId: previewVoxelVariantId,
+        caAddress: caAddress,
         creator: tx.origin,
         scale: scale,
         numSpawns: 0,

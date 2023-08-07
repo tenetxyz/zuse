@@ -47,7 +47,8 @@ contract LogVoxelSystem is VoxelType {
       baseVoxelTypeId,
       logChildVoxelTypes,
       logChildVoxelTypes,
-      LogVoxelVariantID
+      LogVoxelVariantID,
+      world
     );
 
     registerCAVoxelType(

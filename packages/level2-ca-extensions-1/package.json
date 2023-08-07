@@ -25,7 +25,7 @@
     "test-verbose": "yarn run initialize && yarn mud test --forgeOptions='-vvv'",
     "tsgen": "yarn mud tsgen --configPath mud.config.ts --out ../ca-client/src/mud",
     "worldgen": "yarn mud worldgen",
-    "worldtypes": "rimraf types && typechain --target=ethers-v5 out/IWorld.sol/IWorld.json"
+    "worldtypes": "rimraf types && typechain --target=ethers-v5 out/world/IWorld.sol/IWorld.json"
   },
   "dependencies": {
     "@ethersproject/abi": "^5.7.0",

@@ -3,7 +3,7 @@ pragma solidity >=0.8.0;
 
 import { IStore } from "@latticexyz/store/src/IStore.sol";
 import { IWorld } from "@tenet-base-ca/src/codegen/world/IWorld.sol";
-import { System } from "@latticexyz/world/src/System.sol";
+import { VoxelType } from "@tenet-base-ca/src/prototypes/VoxelType.sol";
 import { VoxelVariantsRegistryData } from "@tenet-registry/src/codegen/tables/VoxelVariantsRegistry.sol";
 import { NoaBlockType } from "@tenet-registry/src/codegen/Types.sol";
 import { hasKey } from "@latticexyz/world/src/modules/keysintable/hasKey.sol";
@@ -11,13 +11,14 @@ import { registerVoxelVariant, registerVoxelType } from "@tenet-registry/src/Uti
 import { CAVoxelConfig, CAVoxelType, ElectronTunnelSpot, ElectronTunnelSpotData, ElectronTunnelSpotTableId } from "@tenet-base-ca/src/codegen/Tables.sol";
 import { REGISTRY_ADDRESS, AirVoxelID, AirVoxelVariantID, ElectronVoxelID } from "@tenet-base-ca/src/Constants.sol";
 import { VoxelCoord } from "@tenet-utils/src/Types.sol";
+import { getFirstCaller } from "@tenet-utils/src/Utils.sol";
 import { getEntityAtCoord, voxelCoordToPositionData } from "@tenet-base-ca/src/Utils.sol";
 
 bytes32 constant ElectronVoxelVariantID = bytes32(keccak256("electron"));
 string constant ElectronTexture = "bafkreigrssavucschngym657tmepaqe2mmjyjoc7arznjygjsfdfi2cxny";
 
-contract ElectronVoxelSystem is System {
-  function registerVoxelElectron() public {
+contract ElectronVoxelSystem is VoxelType {
+  function registerVoxel() public override {
     address world = _world();
     VoxelVariantsRegistryData memory electronVariant;
     electronVariant.blockType = NoaBlockType.MESH;
@@ -31,19 +32,30 @@ contract ElectronVoxelSystem is System {
 
     bytes32[] memory electronChildVoxelTypes = new bytes32[](1);
     electronChildVoxelTypes[0] = ElectronVoxelID;
-    registerVoxelType(REGISTRY_ADDRESS, "Electron", ElectronVoxelID, electronChildVoxelTypes, electronChildVoxelTypes, ElectronVoxelVariantID);
-
-    // TODO: Check to make sure it doesn't already exist
-    CAVoxelConfig.set(
+    bytes32 baseVoxelTypeId = ElectronVoxelID;
+    registerVoxelType(
+      REGISTRY_ADDRESS,
+      "Electron",
       ElectronVoxelID,
-      IWorld(world).enterWorldElectron.selector,
-      IWorld(world).exitWorldElectron.selector,
-      IWorld(world).variantSelectorElectron.selector,
-      IWorld(world).activateSelectorElectron.selector
+      baseVoxelTypeId,
+      electronChildVoxelTypes,
+      electronChildVoxelTypes,
+      ElectronVoxelVariantID
+    );
+
+    IWorld(world).registerInitialVoxelType(
+      ElectronVoxelID,
+      IWorld(world).ca_ElectronVoxelSys_enterWorld.selector,
+      IWorld(world).ca_ElectronVoxelSys_exitWorld.selector,
+      IWorld(world).ca_ElectronVoxelSys_variantSelector.selector,
+      IWorld(world).ca_ElectronVoxelSys_activate.selector,
+      IWorld(world).ca_ElectronVoxelSys_eventHandler.selector
     );
   }
 
-  function enterWorldElectron(address callerAddress, VoxelCoord memory coord, bytes32 entity) public {
+  function enterWorld(VoxelCoord memory coord, bytes32 entity) public override {
+    address callerAddress = super.getCallerAddress();
+
     // Check one above
     VoxelCoord memory aboveCoord = VoxelCoord(coord.x, coord.y, coord.z + 1);
     bytes32 aboveEntity = getEntityAtCoord(IStore(_world()), callerAddress, aboveCoord);
@@ -85,19 +97,36 @@ contract ElectronVoxelSystem is System {
     }
   }
 
-  function exitWorldElectron(address callerAddress, VoxelCoord memory coord, bytes32 entity) public {
+  function exitWorld(VoxelCoord memory coord, bytes32 entity) public override {
     // TODO: Remove values from ElectronTunnelSpot
   }
 
-  function variantSelectorElectron(
-    address callerAddress,
+  function variantSelector(
     bytes32 entity,
     bytes32[] memory neighbourEntityIds,
     bytes32[] memory childEntityIds,
     bytes32 parentEntity
-  ) public view returns (bytes32) {
+  ) public view override returns (bytes32) {
     return ElectronVoxelVariantID;
   }
 
-  function activateSelectorElectron(address callerAddress, bytes32 entity) public view returns (string memory) {}
+  function activate(bytes32 entity) public view override returns (string memory) {}
+
+  function eventHandler(
+    bytes32 centerEntityId,
+    bytes32[] memory neighbourEntityIds,
+    bytes32[] memory childEntityIds,
+    bytes32 parentEntity
+  ) public override returns (bytes32, bytes32[] memory) {
+    address callerAddress = super.getCallerAddress();
+
+    return
+      IWorld(_world()).ca_ElectronSystem_eventHandlerElectron(
+        callerAddress,
+        centerEntityId,
+        neighbourEntityIds,
+        childEntityIds,
+        parentEntity
+      );
+  }
 }

@@ -6,19 +6,25 @@ pragma solidity >=0.8.0;
 import { VoxelCoord } from "@tenet-utils/src/Types.sol";
 
 interface IAirVoxelSystem {
-  function registerVoxelAir() external;
+  function ca_AirVoxelSystem_registerVoxel() external;
 
-  function enterWorldAir(address callerAddress, VoxelCoord memory coord, bytes32 entity) external;
+  function ca_AirVoxelSystem_enterWorld(VoxelCoord memory coord, bytes32 entity) external;
 
-  function exitWorldAir(address callerAddress, VoxelCoord memory coord, bytes32 entity) external;
+  function ca_AirVoxelSystem_exitWorld(VoxelCoord memory coord, bytes32 entity) external;
 
-  function variantSelectorAir(
-    address callerAddress,
+  function ca_AirVoxelSystem_variantSelector(
     bytes32 entity,
     bytes32[] memory neighbourEntityIds,
     bytes32[] memory childEntityIds,
     bytes32 parentEntity
   ) external view returns (bytes32);
 
-  function activateSelectorAir(address callerAddress, bytes32 entity) external view returns (string memory);
+  function ca_AirVoxelSystem_activate(bytes32 entity) external view returns (string memory);
+
+  function ca_AirVoxelSystem_eventHandler(
+    bytes32 centerEntityId,
+    bytes32[] memory neighbourEntityIds,
+    bytes32[] memory childEntityIds,
+    bytes32 parentEntity
+  ) external returns (bytes32, bytes32[] memory);
 }

@@ -14,35 +14,10 @@ contract PostDeploy is Script {
     vm.startBroadcast(deployerPrivateKey);
 
     // Register the voxel types
-    IWorld(worldAddress).registerVoxelAir();
-    IWorld(worldAddress).registerVoxelDirt();
-    IWorld(worldAddress).registerVoxelGrass();
-    IWorld(worldAddress).registerVoxelBedrock();
-    IWorld(worldAddress).registerVoxelWire();
-    IWorld(worldAddress).registerVoxelSignalSource();
-    IWorld(worldAddress).registerVoxelSignal();
-    IWorld(worldAddress).registerVoxelInvertedSignal();
-    IWorld(worldAddress).registerVoxelSand();
-    IWorld(worldAddress).registerVoxelFlower();
-    IWorld(worldAddress).registerVoxelLog();
-    IWorld(worldAddress).registerVoxelLava();
-    IWorld(worldAddress).registerVoxelIce();
-    IWorld(worldAddress).registerVoxelThermoGen();
-    IWorld(worldAddress).registerVoxelPowerWire();
-    IWorld(worldAddress).registerVoxelStorage();
-    IWorld(worldAddress).registerVoxelLightBulb();
-    IWorld(worldAddress).registerVoxelPowerSignal();
-
-    // Register the voxel interactions
-    IWorld(worldAddress).registerInteractionSignal();
-    IWorld(worldAddress).registerInteractionInvertedSignal();
-    IWorld(worldAddress).registerInteractionPowered();
-    IWorld(worldAddress).registerInteractionTemperature();
-    IWorld(worldAddress).registerInteractionThermoGen();
-    IWorld(worldAddress).registerInteractionPowerWire();
-    IWorld(worldAddress).registerInteractionStorage();
-    IWorld(worldAddress).registerInteractionConsumer();
-    IWorld(worldAddress).registerInteractionPowerSignal();
+    IWorld(worldAddress).ca_AirVoxelSystem_registerVoxel();
+    IWorld(worldAddress).ca_DirtVoxelSystem_registerVoxel();
+    IWorld(worldAddress).ca_GrassVoxelSystem_registerVoxel();
+    IWorld(worldAddress).ca_BedrockVoxelSyst_registerVoxel();
 
     IWorld(worldAddress).registerCA();
 

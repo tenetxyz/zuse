@@ -56,8 +56,26 @@ function safeCall(address target, bytes memory callData, string memory functionN
   return safeGenericCall(CallType.Call, target, callData, functionName);
 }
 
-function safeStaticCall(address target, bytes memory callData, string memory functionName) returns (bytes memory) {
-  return safeGenericCall(CallType.StaticCall, target, callData, functionName);
+function safeStaticCall(address target, bytes memory callData, string memory functionName) view returns (bytes memory) {
+  (bool success, bytes memory returnData) = target.staticcall(callData);
+
+  if (!success) {
+    // if there is a return reason string
+    if (returnData.length > 0) {
+      // bubble up any reason for revert
+      assembly {
+        let returnDataSize := mload(returnData)
+        revert(add(32, returnData), returnDataSize)
+      }
+    } else {
+      string memory revertMsg = string(
+        abi.encodePacked(functionName, " call reverted. Maybe the params aren't right?")
+      );
+      revert(revertMsg);
+    }
+  }
+
+  return returnData;
 }
 
 function safeDelegateCall(address target, bytes memory callData, string memory functionName) returns (bytes memory) {

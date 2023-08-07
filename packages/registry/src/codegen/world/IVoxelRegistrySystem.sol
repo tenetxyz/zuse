@@ -9,6 +9,7 @@ interface IVoxelRegistrySystem {
   function registerVoxelType(
     string memory voxelTypeName,
     bytes32 voxelTypeId,
+    bytes32 baseVoxelTypeId,
     bytes32[] memory childVoxelTypeIds,
     bytes32[] memory schemaVoxelTypeIds,
     bytes32 previewVoxelVariantId

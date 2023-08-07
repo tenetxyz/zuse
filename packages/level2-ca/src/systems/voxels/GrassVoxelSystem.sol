@@ -2,7 +2,7 @@
 pragma solidity >=0.8.0;
 
 import { IWorld } from "@tenet-level2-ca/src/codegen/world/IWorld.sol";
-import { System } from "@latticexyz/world/src/System.sol";
+import { VoxelType } from "@tenet-base-ca/src/prototypes/VoxelType.sol";
 import { VoxelVariantsRegistryData } from "@tenet-registry/src/codegen/tables/VoxelVariantsRegistry.sol";
 import { NoaBlockType } from "@tenet-registry/src/codegen/Types.sol";
 import { registerVoxelVariant, registerVoxelType } from "@tenet-registry/src/Utils.sol";
@@ -17,8 +17,8 @@ string constant GrassTexture = "bafkreidtk7vevmnzt6is5dreyoocjkyy56bk66zbm5bx6wz
 string constant GrassSideTexture = "bafkreien7wqwfkckd56rehamo2riwwy5jvecm5he6dmbw2lucvh3n4w6ue";
 string constant GrassUVWrap = "bafkreiaur4pmmnh3dts6rjtfl5f2z6ykazyuu4e2cbno6drslfelkga3yy";
 
-contract GrassVoxelSystem is System {
-  function registerVoxelGrass() public {
+contract GrassVoxelSystem is VoxelType {
+  function registerVoxel() public override {
     address world = _world();
     VoxelVariantsRegistryData memory grassVariant;
     grassVariant.blockType = NoaBlockType.BLOCK;
@@ -36,31 +36,47 @@ contract GrassVoxelSystem is System {
     for (uint i = 0; i < 8; i++) {
       grassChildVoxelTypes[i] = AirVoxelID;
     }
-    registerVoxelType(REGISTRY_ADDRESS, "Grass", GrassVoxelID, grassChildVoxelTypes, grassChildVoxelTypes, GrassVoxelVariantID);
+    bytes32 baseVoxelTypeId = GrassVoxelID;
+    registerVoxelType(
+      REGISTRY_ADDRESS,
+      "Grass",
+      GrassVoxelID,
+      baseVoxelTypeId,
+      grassChildVoxelTypes,
+      grassChildVoxelTypes,
+      GrassVoxelVariantID
+    );
 
     // TODO: Check to make sure it doesn't already exist
-    CAVoxelConfig.set(
+    IWorld(world).registerInitialVoxelType(
       GrassVoxelID,
-      IWorld(world).enterWorldGrass.selector,
-      IWorld(world).exitWorldGrass.selector,
-      IWorld(world).variantSelectorGrass.selector,
-      IWorld(world).activateSelectorGrass.selector
+      IWorld(world).ca_GrassVoxelSystem_enterWorld.selector,
+      IWorld(world).ca_GrassVoxelSystem_exitWorld.selector,
+      IWorld(world).ca_GrassVoxelSystem_variantSelector.selector,
+      IWorld(world).ca_GrassVoxelSystem_activate.selector,
+      IWorld(world).ca_GrassVoxelSystem_eventHandler.selector
     );
   }
 
-  function enterWorldGrass(address callerAddress, VoxelCoord memory coord, bytes32 entity) public {}
+  function enterWorld(VoxelCoord memory coord, bytes32 entity) public override {}
 
-  function exitWorldGrass(address callerAddress, VoxelCoord memory coord, bytes32 entity) public {}
+  function exitWorld(VoxelCoord memory coord, bytes32 entity) public override {}
 
-  function variantSelectorGrass(
-    address callerAddress,
+  function variantSelector(
     bytes32 entity,
     bytes32[] memory neighbourEntityIds,
     bytes32[] memory childEntityIds,
     bytes32 parentEntity
-  ) public view returns (bytes32) {
+  ) public view override returns (bytes32) {
     return GrassVoxelVariantID;
   }
 
-  function activateSelectorGrass(address callerAddress, bytes32 entity) public view returns (string memory) {}
+  function activate(bytes32 entity) public view override returns (string memory) {}
+
+  function eventHandler(
+    bytes32 centerEntityId,
+    bytes32[] memory neighbourEntityIds,
+    bytes32[] memory childEntityIds,
+    bytes32 parentEntity
+  ) public override returns (bytes32, bytes32[] memory) {}
 }

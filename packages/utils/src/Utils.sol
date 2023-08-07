@@ -3,6 +3,15 @@ pragma solidity >=0.8.0;
 
 import { SystemRegistry } from "@latticexyz/world/src/modules/core/tables/SystemRegistry.sol";
 import { ResourceSelector } from "@latticexyz/world/src/ResourceSelector.sol";
+import { Callers } from "@latticexyz/world/src/tables/Callers.sol";
+
+function getFirstCaller() view returns (address) {
+  address[] memory worldCallers = Callers.get();
+  if (worldCallers.length > 0) {
+    return worldCallers[0];
+  }
+  return address(0);
+}
 
 function getCallerNamespace(address caller) view returns (bytes16) {
   require(uint256(SystemRegistry.get(caller)) != 0, "Caller is not a system"); // cannot be called by an EOA
@@ -72,4 +81,18 @@ function removeEntityFromArray(bytes32[] memory entities, bytes32 entity) pure r
   }
 
   return updatedArray;
+}
+
+function entityArraysAreEqual(bytes32[] memory arr1, bytes32[] memory arr2) pure returns (bool) {
+  if (arr1.length != arr2.length) {
+    return false;
+  }
+
+  for (uint i = 0; i < arr1.length; i++) {
+    if (arr1[i] != arr2[i]) {
+      return false;
+    }
+  }
+
+  return true;
 }

@@ -2,7 +2,7 @@
 pragma solidity >=0.8.0;
 
 import { IWorld } from "@tenet-level3-ca/src/codegen/world/IWorld.sol";
-import { System } from "@latticexyz/world/src/System.sol";
+import { VoxelType } from "@tenet-base-ca/src/prototypes/VoxelType.sol";
 import { VoxelVariantsRegistryData } from "@tenet-registry/src/codegen/tables/VoxelVariantsRegistry.sol";
 import { NoaBlockType } from "@tenet-registry/src/codegen/Types.sol";
 import { registerVoxelVariant, registerVoxelType } from "@tenet-registry/src/Utils.sol";
@@ -12,38 +12,53 @@ import { Level2AirVoxelID } from "@tenet-level2-ca/src/Constants.sol";
 import { VoxelCoord } from "@tenet-utils/src/Types.sol";
 import { AirVoxelVariantID } from "@tenet-base-ca/src/Constants.sol";
 
-contract AirVoxelSystem is System {
-  function registerVoxelAir() public {
+contract AirVoxelSystem is VoxelType {
+  function registerVoxel() public override {
     address world = _world();
     bytes32[] memory airChildVoxelTypes = new bytes32[](8);
     for (uint i = 0; i < 8; i++) {
       airChildVoxelTypes[i] = Level2AirVoxelID;
     }
-    registerVoxelType(REGISTRY_ADDRESS, "Level 3 Air", Level3AirVoxelID, airChildVoxelTypes, airChildVoxelTypes, AirVoxelVariantID);
-
-    // TODO: Check to make sure it doesn't already exist
-    CAVoxelConfig.set(
+    bytes32 baseVoxelTypeId = Level3AirVoxelID;
+    registerVoxelType(
+      REGISTRY_ADDRESS,
+      "Level 3 Air",
       Level3AirVoxelID,
-      IWorld(world).enterWorldAir.selector,
-      IWorld(world).exitWorldAir.selector,
-      IWorld(world).variantSelectorAir.selector,
-      IWorld(world).activateSelectorAir.selector
+      baseVoxelTypeId,
+      airChildVoxelTypes,
+      airChildVoxelTypes,
+      AirVoxelVariantID
+    );
+
+    IWorld(world).registerInitialVoxelType(
+      Level3AirVoxelID,
+      IWorld(world).ca_AirVoxelSystem_enterWorld.selector,
+      IWorld(world).ca_AirVoxelSystem_exitWorld.selector,
+      IWorld(world).ca_AirVoxelSystem_variantSelector.selector,
+      IWorld(world).ca_AirVoxelSystem_activate.selector,
+      IWorld(world).ca_AirVoxelSystem_eventHandler.selector
     );
   }
 
-  function enterWorldAir(address callerAddress, VoxelCoord memory coord, bytes32 entity) public {}
+  function enterWorld(VoxelCoord memory coord, bytes32 entity) public override {}
 
-  function exitWorldAir(address callerAddress, VoxelCoord memory coord, bytes32 entity) public {}
+  function exitWorld(VoxelCoord memory coord, bytes32 entity) public override {}
 
-  function variantSelectorAir(
-    address callerAddress,
+  function variantSelector(
     bytes32 entity,
     bytes32[] memory neighbourEntityIds,
     bytes32[] memory childEntityIds,
     bytes32 parentEntity
-  ) public view returns (bytes32) {
+  ) public view override returns (bytes32) {
     return AirVoxelVariantID;
   }
 
-  function activateSelectorAir(address callerAddress, bytes32 entity) public view returns (string memory) {}
+  function activate(bytes32 entity) public view override returns (string memory) {}
+
+  function eventHandler(
+    bytes32 centerEntityId,
+    bytes32[] memory neighbourEntityIds,
+    bytes32[] memory childEntityIds,
+    bytes32 parentEntity
+  ) public override returns (bytes32, bytes32[] memory) {}
 }

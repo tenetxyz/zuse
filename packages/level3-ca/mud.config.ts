@@ -2,8 +2,10 @@ import { mudConfig } from "@latticexyz/world/register";
 import { resolveTableId } from "@latticexyz/config";
 
 export default mudConfig({
+  namespace: "ca",
   tables: {
     CAVoxelConfig: {
+      registerAsRoot: true,
       // TODO: Should this be in registry?
       keySchema: {
         voxelTypeId: "bytes32",
@@ -13,15 +15,11 @@ export default mudConfig({
         exitWorldSelector: "bytes4",
         voxelVariantSelector: "bytes4",
         activateSelector: "bytes4",
-      },
-    },
-    CAVoxelInteractionConfig: {
-      keySchema: {},
-      schema: {
-        interactionSelectors: "bytes4[]",
+        interactionSelector: "bytes4",
       },
     },
     CAPosition: {
+      registerAsRoot: true,
       keySchema: {
         callerAddress: "address",
         entity: "bytes32",
@@ -34,6 +32,7 @@ export default mudConfig({
       },
     },
     CAVoxelType: {
+      registerAsRoot: true,
       keySchema: {
         callerAddress: "address",
         entity: "bytes32",
@@ -45,15 +44,16 @@ export default mudConfig({
     },
   },
   systems: {
-    AirVoxelSystem: {
-      name: "AirVoxelSystem",
-      openAccess: false,
-      accessList: ["CASystem"],
+    CASystem: {
+      name: "CASystem",
+      openAccess: true,
+      registerAsRoot: true,
     },
-    RoadVoxelSystem: {
-      name: "RoadVoxelSystem",
+    CACallerSystem: {
+      name: "CACallerSystem",
       openAccess: false,
-      accessList: ["CASystem"],
+      registerAsRoot: true,
+      accessList: ["AirVoxelSystem", "RoadVoxelSystem"],
     },
   },
   modules: [
@@ -71,6 +71,11 @@ export default mudConfig({
       name: "KeysInTableModule",
       root: true,
       args: [resolveTableId("CAPosition")],
+    },
+    {
+      name: "KeysInTableModule",
+      root: true,
+      args: [resolveTableId("CAVoxelType")],
     },
   ],
 });

@@ -3,14 +3,36 @@ pragma solidity >=0.8.0;
 
 import { IWorld } from "@tenet-level2-ca/src/codegen/world/IWorld.sol";
 import { CA } from "@tenet-base-ca/src/prototypes/CA.sol";
-import { CAPosition, CAPositionData } from "@tenet-level2-ca/src/codegen/Tables.sol";
+import { CAPosition, CAPositionData, CAVoxelConfigTableId } from "@tenet-level2-ca/src/codegen/Tables.sol";
 import { VoxelCoord } from "@tenet-utils/src/Types.sol";
 import { Level2AirVoxelID } from "@tenet-level2-ca/src/Constants.sol";
+import { getKeysInTable } from "@latticexyz/world/src/modules/keysintable/getKeysInTable.sol";
+import { REGISTER_CA_SIG } from "@tenet-registry/src/Constants.sol";
 import { EMPTY_ID } from "./LibTerrainSystem.sol";
+import { REGISTRY_ADDRESS } from "../Constants.sol";
+import { safeCall } from "@tenet-utils/src/CallUtils.sol";
 
 contract CASystem is CA {
+  function getRegistryAddress() internal pure override returns (address) {
+    return REGISTRY_ADDRESS;
+  }
+
   function emptyVoxelId() internal pure override returns (bytes32) {
     return Level2AirVoxelID;
+  }
+
+  function registerCA() public override {
+    bytes32[][] memory caVoxelTypeKeys = getKeysInTable(CAVoxelConfigTableId);
+    bytes32[] memory caVoxelTypes = new bytes32[](caVoxelTypeKeys.length);
+    for (uint i = 0; i < caVoxelTypeKeys.length; i++) {
+      caVoxelTypes[i] = caVoxelTypeKeys[i][0];
+    }
+
+    safeCall(
+      getRegistryAddress(),
+      abi.encodeWithSignature(REGISTER_CA_SIG, "Level 2 CA", "Has road and signal", caVoxelTypes),
+      "registerCA"
+    );
   }
 
   function terrainGen(
@@ -18,9 +40,9 @@ contract CASystem is CA {
     bytes32 voxelTypeId,
     VoxelCoord memory coord,
     bytes32 entity
-  ) public override {
+  ) internal override {
     // If there is no entity at this position, try mining the terrain voxel at this position
-    bytes32 terrainVoxelTypeId = IWorld(_world()).getTerrainVoxel(coord);
+    bytes32 terrainVoxelTypeId = IWorld(_world()).ca_LibTerrainSystem_getTerrainVoxel(coord);
     require(terrainVoxelTypeId != EMPTY_ID && terrainVoxelTypeId == voxelTypeId, "invalid terrain voxel type");
     CAPosition.set(callerAddress, entity, CAPositionData({ x: coord.x, y: coord.y, z: coord.z }));
   }

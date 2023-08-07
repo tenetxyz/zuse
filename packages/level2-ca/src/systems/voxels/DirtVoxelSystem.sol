@@ -2,7 +2,7 @@
 pragma solidity >=0.8.0;
 
 import { IWorld } from "@tenet-level2-ca/src/codegen/world/IWorld.sol";
-import { System } from "@latticexyz/world/src/System.sol";
+import { VoxelType } from "@tenet-base-ca/src/prototypes/VoxelType.sol";
 import { VoxelVariantsRegistryData } from "@tenet-registry/src/codegen/tables/VoxelVariantsRegistry.sol";
 import { NoaBlockType } from "@tenet-registry/src/codegen/Types.sol";
 import { registerVoxelVariant, registerVoxelType } from "@tenet-registry/src/Utils.sol";
@@ -15,8 +15,8 @@ bytes32 constant DirtVoxelVariantID = bytes32(keccak256("dirt"));
 string constant DirtTexture = "bafkreihy3pblhqaqquwttcykwlyey3umpou57rkvtncpdrjo7mlgna53g4";
 string constant DirtUVWrap = "bafkreifsrs64rckwnfkwcyqkzpdo3tpa2at7jhe6bw7jhevkxa7estkdnm";
 
-contract DirtVoxelSystem is System {
-  function registerVoxelDirt() public {
+contract DirtVoxelSystem is VoxelType {
+  function registerVoxel() public override {
     address world = _world();
     VoxelVariantsRegistryData memory dirtVariant;
     dirtVariant.blockType = NoaBlockType.BLOCK;
@@ -32,31 +32,47 @@ contract DirtVoxelSystem is System {
     for (uint i = 0; i < 8; i++) {
       dirtChildVoxelTypes[i] = AirVoxelID;
     }
-    registerVoxelType(REGISTRY_ADDRESS, "Dirt", DirtVoxelID, dirtChildVoxelTypes, dirtChildVoxelTypes, DirtVoxelVariantID);
+    bytes32 baseVoxelTypeId = DirtVoxelID;
+    registerVoxelType(
+      REGISTRY_ADDRESS,
+      "Dirt",
+      DirtVoxelID,
+      baseVoxelTypeId,
+      dirtChildVoxelTypes,
+      dirtChildVoxelTypes,
+      DirtVoxelVariantID
+    );
 
     // TODO: Check to make sure it doesn't already exist
-    CAVoxelConfig.set(
+    IWorld(world).registerInitialVoxelType(
       DirtVoxelID,
-      IWorld(world).enterWorldDirt.selector,
-      IWorld(world).exitWorldDirt.selector,
-      IWorld(world).variantSelectorDirt.selector,
-      IWorld(world).activateSelectorDirt.selector
+      IWorld(world).ca_DirtVoxelSystem_enterWorld.selector,
+      IWorld(world).ca_DirtVoxelSystem_exitWorld.selector,
+      IWorld(world).ca_DirtVoxelSystem_variantSelector.selector,
+      IWorld(world).ca_DirtVoxelSystem_activate.selector,
+      IWorld(world).ca_DirtVoxelSystem_eventHandler.selector
     );
   }
 
-  function enterWorldDirt(address callerAddress, VoxelCoord memory coord, bytes32 entity) public {}
+  function enterWorld(VoxelCoord memory coord, bytes32 entity) public override {}
 
-  function exitWorldDirt(address callerAddress, VoxelCoord memory coord, bytes32 entity) public {}
+  function exitWorld(VoxelCoord memory coord, bytes32 entity) public override {}
 
-  function variantSelectorDirt(
-    address callerAddress,
+  function variantSelector(
     bytes32 entity,
     bytes32[] memory neighbourEntityIds,
     bytes32[] memory childEntityIds,
     bytes32 parentEntity
-  ) public view returns (bytes32) {
+  ) public view override returns (bytes32) {
     return DirtVoxelVariantID;
   }
 
-  function activateSelectorDirt(address callerAddress, bytes32 entity) public view returns (string memory) {}
+  function activate(bytes32 entity) public view override returns (string memory) {}
+
+  function eventHandler(
+    bytes32 centerEntityId,
+    bytes32[] memory neighbourEntityIds,
+    bytes32[] memory childEntityIds,
+    bytes32 parentEntity
+  ) public override returns (bytes32, bytes32[] memory) {}
 }

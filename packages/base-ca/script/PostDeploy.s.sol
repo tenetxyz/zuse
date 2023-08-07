@@ -14,11 +14,8 @@ contract PostDeploy is Script {
     vm.startBroadcast(deployerPrivateKey);
 
     // Register the voxel types
-    IWorld(worldAddress).registerVoxelAir();
-    IWorld(worldAddress).registerVoxelElectron();
-
-    // Register the voxel interactions
-    IWorld(worldAddress).registerInteractionElectron();
+    IWorld(worldAddress).ca_AirVoxelSystem_registerVoxel();
+    IWorld(worldAddress).ca_ElectronVoxelSys_registerVoxel();
 
     IWorld(worldAddress).registerCA();
 

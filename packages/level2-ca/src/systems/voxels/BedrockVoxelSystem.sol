@@ -44,7 +44,6 @@ contract BedrockVoxelSystem is VoxelType {
       world
     );
 
-    // TODO: Check to make sure it doesn't already exist
     IWorld(world).registerInitialVoxelType(
       BedrockVoxelID,
       IWorld(world).ca_BedrockVoxelSyst_enterWorld.selector,

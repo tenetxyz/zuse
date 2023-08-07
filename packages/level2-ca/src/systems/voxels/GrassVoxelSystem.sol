@@ -48,7 +48,6 @@ contract GrassVoxelSystem is VoxelType {
       world
     );
 
-    // TODO: Check to make sure it doesn't already exist
     IWorld(world).registerInitialVoxelType(
       GrassVoxelID,
       IWorld(world).ca_GrassVoxelSystem_enterWorld.selector,

@@ -4,7 +4,7 @@ pragma solidity >=0.8.0;
 import { IStore } from "@latticexyz/store/src/IStore.sol";
 import { VoxelTypeRegistry } from "@tenet-registry/src/codegen/tables/VoxelTypeRegistry.sol";
 import { IWorld } from "@tenet-level2-ca-extensions-1/src/codegen/world/IWorld.sol";
-import { System } from "@latticexyz/world/src/System.sol";
+import { VoxelType } from "@tenet-base-ca/src/prototypes/VoxelType.sol";
 import { VoxelVariantsRegistryData } from "@tenet-registry/src/codegen/tables/VoxelVariantsRegistry.sol";
 import { NoaBlockType } from "@tenet-registry/src/codegen/Types.sol";
 import { registerVoxelVariant, registerVoxelType } from "@tenet-registry/src/Utils.sol";
@@ -22,8 +22,8 @@ string constant PowerSignalOnTexture = "bafkreie2phfl3w4dodcaiizezn3akmg4xwq3xjv
 string constant PowerSignalOffTexture = "bafkreickzqimtlmzkjogvewi4e7wwtsg6dgmmylb2gr6av6yh36ommfbd4";
 string constant PowerSignalBrokenTexture = "bafkreigppq2ona2xam2iflprmbalqh2wg7xts2awsec4hdkdv7t4l5brom";
 
-contract PowerSignalVoxelSystem is System {
-  function registerVoxelPowerSignal() public {
+contract PowerSignalVoxelSystem is VoxelType {
+  function registerVoxel() public override {
     address world = _world();
 
     VoxelVariantsRegistryData memory powerSignalOffVariant;
@@ -74,15 +74,16 @@ contract PowerSignalVoxelSystem is System {
     registerCAVoxelType(
       CA_ADDRESS,
       PowerSignalVoxelID,
-      IWorld(world).enterWorldPowerSignal.selector,
-      IWorld(world).exitWorldPowerSignal.selector,
-      IWorld(world).variantSelectorPowerSignal.selector,
-      IWorld(world).activateSelectorPowerSignal.selector,
-      IWorld(world).eventHandlerPowerSignal.selector
+      IWorld(world).extension1_PowerSignalVoxel_enterWorld.selector,
+      IWorld(world).extension1_PowerSignalVoxel_exitWorld.selector,
+      IWorld(world).extension1_PowerSignalVoxel_variantSelector.selector,
+      IWorld(world).extension1_PowerSignalVoxel_activate.selector,
+      IWorld(world).extension1_PowerSignalVoxel_eventHandler.selector
     );
   }
 
-  function enterWorldPowerSignal(address callerAddress, VoxelCoord memory coord, bytes32 entity) public {
+  function enterWorld(VoxelCoord memory coord, bytes32 entity) public override {
+    address callerAddress = super.getCallerAddress();
     PowerSignal.set(
       callerAddress,
       entity,
@@ -90,17 +91,18 @@ contract PowerSignalVoxelSystem is System {
     );
   }
 
-  function exitWorldPowerSignal(address callerAddress, VoxelCoord memory coord, bytes32 entity) public {
+  function exitWorld(VoxelCoord memory coord, bytes32 entity) public override {
+    address callerAddress = super.getCallerAddress();
     PowerSignal.deleteRecord(callerAddress, entity);
   }
 
-  function variantSelectorPowerSignal(
-    address callerAddress,
+  function variantSelector(
     bytes32 entity,
     bytes32[] memory neighbourEntityIds,
     bytes32[] memory childEntityIds,
     bytes32 parentEntity
-  ) public view returns (bytes32) {
+  ) public view override returns (bytes32) {
+    address callerAddress = super.getCallerAddress();
     PowerWireData memory powerWireData = PowerWire.get(callerAddress, entity);
     PowerSignalData memory powerSignalData = PowerSignal.get(callerAddress, entity);
     if (powerWireData.isBroken) {
@@ -114,5 +116,22 @@ contract PowerSignalVoxelSystem is System {
     }
   }
 
-  function activateSelectorPowerSignal(address callerAddress, bytes32 entity) public view returns (string memory) {}
+  function activate(bytes32 entity) public view override returns (string memory) {}
+
+  function eventHandler(
+    bytes32 centerEntityId,
+    bytes32[] memory neighbourEntityIds,
+    bytes32[] memory childEntityIds,
+    bytes32 parentEntity
+  ) public override returns (bytes32, bytes32[] memory) {
+    address callerAddress = super.getCallerAddress();
+    return
+      IWorld(_world()).extension1_PowerSignalSyste_eventHandlerPowerSignal(
+        callerAddress,
+        centerEntityId,
+        neighbourEntityIds,
+        childEntityIds,
+        parentEntity
+      );
+  }
 }

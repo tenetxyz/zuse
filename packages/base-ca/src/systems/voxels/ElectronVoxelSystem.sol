@@ -54,10 +54,7 @@ contract ElectronVoxelSystem is VoxelType {
   }
 
   function enterWorld(VoxelCoord memory coord, bytes32 entity) public override {
-    address callerAddress = getFirstCaller();
-    if (callerAddress == address(0)) {
-      callerAddress = _msgSender();
-    }
+    address callerAddress = super.getCallerAddress();
 
     // Check one above
     VoxelCoord memory aboveCoord = VoxelCoord(coord.x, coord.y, coord.z + 1);
@@ -121,10 +118,7 @@ contract ElectronVoxelSystem is VoxelType {
     bytes32[] memory childEntityIds,
     bytes32 parentEntity
   ) public override returns (bytes32, bytes32[] memory) {
-    address callerAddress = getFirstCaller();
-    if (callerAddress == address(0)) {
-      callerAddress = _msgSender();
-    }
+    address callerAddress = super.getCallerAddress();
 
     return
       IWorld(_world()).ca_ElectronSystem_eventHandlerElectron(

@@ -4,7 +4,7 @@ pragma solidity >=0.8.0;
 import { IStore } from "@latticexyz/store/src/IStore.sol";
 import { VoxelTypeRegistry } from "@tenet-registry/src/codegen/tables/VoxelTypeRegistry.sol";
 import { IWorld } from "@tenet-level2-ca-extensions-1/src/codegen/world/IWorld.sol";
-import { System } from "@latticexyz/world/src/System.sol";
+import { VoxelType } from "@tenet-base-ca/src/prototypes/VoxelType.sol";
 import { VoxelVariantsRegistryData } from "@tenet-registry/src/codegen/tables/VoxelVariantsRegistry.sol";
 import { NoaBlockType } from "@tenet-registry/src/codegen/Types.sol";
 import { registerVoxelVariant, registerVoxelType } from "@tenet-registry/src/Utils.sol";
@@ -21,8 +21,8 @@ string constant SandTexture = "bafkreia4afumfatsrlbmq5azbehfwzoqmgu7bjkiutb6njsu
 
 string constant SandUVWrap = "bafkreiewghdyhnlq4yiqe4umxaytoy67jw3k65lwll2rbomfzr6oivhvpy";
 
-contract SandVoxelSystem is System {
-  function registerVoxelSand() public {
+contract SandVoxelSystem is VoxelType {
+  function registerVoxel() public override {
     address world = _world();
 
     VoxelVariantsRegistryData memory sandVariant;
@@ -53,15 +53,16 @@ contract SandVoxelSystem is System {
     registerCAVoxelType(
       CA_ADDRESS,
       SandVoxelID,
-      IWorld(world).enterWorldSand.selector,
-      IWorld(world).exitWorldSand.selector,
-      IWorld(world).variantSelectorSand.selector,
-      IWorld(world).activateSelectorSand.selector,
-      IWorld(world).eventHandlerPowered.selector
+      IWorld(world).extension1_SandVoxelSystem_enterWorld.selector,
+      IWorld(world).extension1_SandVoxelSystem_exitWorld.selector,
+      IWorld(world).extension1_SandVoxelSystem_variantSelector.selector,
+      IWorld(world).extension1_SandVoxelSystem_activate.selector,
+      IWorld(world).extension1_SandVoxelSystem_eventHandler.selector
     );
   }
 
-  function enterWorldSand(address callerAddress, VoxelCoord memory coord, bytes32 entity) public {
+  function enterWorld(VoxelCoord memory coord, bytes32 entity) public override {
+    address callerAddress = super.getCallerAddress();
     Powered.set(
       callerAddress,
       entity,
@@ -69,19 +70,36 @@ contract SandVoxelSystem is System {
     );
   }
 
-  function exitWorldSand(address callerAddress, VoxelCoord memory coord, bytes32 entity) public {
+  function exitWorld(VoxelCoord memory coord, bytes32 entity) public override {
+    address callerAddress = super.getCallerAddress();
     Powered.deleteRecord(callerAddress, entity);
   }
 
-  function variantSelectorSand(
-    address callerAddress,
+  function variantSelector(
     bytes32 entity,
     bytes32[] memory neighbourEntityIds,
     bytes32[] memory childEntityIds,
     bytes32 parentEntity
-  ) public view returns (bytes32) {
+  ) public view override returns (bytes32) {
     return SandVoxelVariantID;
   }
 
-  function activateSelectorSand(address callerAddress, bytes32 entity) public view returns (string memory) {}
+  function activate(bytes32 entity) public view override returns (string memory) {}
+
+  function eventHandler(
+    bytes32 centerEntityId,
+    bytes32[] memory neighbourEntityIds,
+    bytes32[] memory childEntityIds,
+    bytes32 parentEntity
+  ) public override returns (bytes32, bytes32[] memory) {
+    address callerAddress = super.getCallerAddress();
+    return
+      IWorld(_world()).extension1_PoweredSystem_eventHandlerPowered(
+        callerAddress,
+        centerEntityId,
+        neighbourEntityIds,
+        childEntityIds,
+        parentEntity
+      );
+  }
 }

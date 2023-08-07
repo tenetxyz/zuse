@@ -4,7 +4,7 @@ pragma solidity >=0.8.0;
 import { IStore } from "@latticexyz/store/src/IStore.sol";
 import { VoxelTypeRegistry } from "@tenet-registry/src/codegen/tables/VoxelTypeRegistry.sol";
 import { IWorld } from "@tenet-level2-ca-extensions-1/src/codegen/world/IWorld.sol";
-import { System } from "@latticexyz/world/src/System.sol";
+import { VoxelType } from "@tenet-base-ca/src/prototypes/VoxelType.sol";
 import { VoxelVariantsRegistryData } from "@tenet-registry/src/codegen/tables/VoxelVariantsRegistry.sol";
 import { NoaBlockType } from "@tenet-registry/src/codegen/Types.sol";
 import { registerVoxelVariant, registerVoxelType } from "@tenet-registry/src/Utils.sol";
@@ -24,8 +24,8 @@ string constant SignalOnTexture = "bafkreihitx2k2hpnqnxmdpc5qgsuexeqkvshlezzfwzd
 string constant SignalOffUVWrap = "bafkreifdtu65gok35bevprpupxucirs2tan2k77444sl67stdhdgzwffra";
 string constant SignalOnUVWrap = "bafkreib3vwppyquoziyisfjz3eodmtg6nneenkp2ejy7e3itycdfamm2ye";
 
-contract SignalVoxelSystem is System {
-  function registerVoxelSignal() public {
+contract SignalVoxelSystem is VoxelType {
+  function registerVoxel() public override {
     address world = _world();
 
     VoxelVariantsRegistryData memory signalOffVariant;
@@ -66,29 +66,31 @@ contract SignalVoxelSystem is System {
     registerCAVoxelType(
       CA_ADDRESS,
       SignalVoxelID,
-      IWorld(world).enterWorldSignal.selector,
-      IWorld(world).exitWorldSignal.selector,
-      IWorld(world).variantSelectorSignal.selector,
-      IWorld(world).activateSelectorSignal.selector,
-      IWorld(world).eventHandlerSignal.selector
+      IWorld(world).extension1_SignalVoxelSyste_enterWorld.selector,
+      IWorld(world).extension1_SignalVoxelSyste_exitWorld.selector,
+      IWorld(world).extension1_SignalVoxelSyste_variantSelector.selector,
+      IWorld(world).extension1_SignalVoxelSyste_activate.selector,
+      IWorld(world).extension1_SignalVoxelSyste_eventHandler.selector
     );
   }
 
-  function enterWorldSignal(address callerAddress, VoxelCoord memory coord, bytes32 entity) public {
+  function enterWorld(VoxelCoord memory coord, bytes32 entity) public override {
+    address callerAddress = super.getCallerAddress();
     Signal.set(callerAddress, entity, SignalData({ isActive: false, direction: BlockDirection.None, hasValue: true }));
   }
 
-  function exitWorldSignal(address callerAddress, VoxelCoord memory coord, bytes32 entity) public {
+  function exitWorld(VoxelCoord memory coord, bytes32 entity) public override {
+    address callerAddress = super.getCallerAddress();
     Signal.deleteRecord(callerAddress, entity);
   }
 
-  function variantSelectorSignal(
-    address callerAddress,
+  function variantSelector(
     bytes32 entity,
     bytes32[] memory neighbourEntityIds,
     bytes32[] memory childEntityIds,
     bytes32 parentEntity
-  ) public view returns (bytes32) {
+  ) public view override returns (bytes32) {
+    address callerAddress = super.getCallerAddress();
     SignalData memory signalData = Signal.get(callerAddress, entity);
     if (signalData.isActive) {
       return SignalOnVoxelVariantID;
@@ -97,5 +99,22 @@ contract SignalVoxelSystem is System {
     }
   }
 
-  function activateSelectorSignal(address callerAddress, bytes32 entity) public view returns (string memory) {}
+  function activate(bytes32 entity) public view override returns (string memory) {}
+
+  function eventHandler(
+    bytes32 centerEntityId,
+    bytes32[] memory neighbourEntityIds,
+    bytes32[] memory childEntityIds,
+    bytes32 parentEntity
+  ) public override returns (bytes32, bytes32[] memory) {
+    address callerAddress = super.getCallerAddress();
+    return
+      IWorld(_world()).extension1_SignalSystem_eventHandlerSignal(
+        callerAddress,
+        centerEntityId,
+        neighbourEntityIds,
+        childEntityIds,
+        parentEntity
+      );
+  }
 }

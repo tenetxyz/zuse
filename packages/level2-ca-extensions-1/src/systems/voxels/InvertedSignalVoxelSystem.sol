@@ -4,7 +4,7 @@ pragma solidity >=0.8.0;
 import { IStore } from "@latticexyz/store/src/IStore.sol";
 import { VoxelTypeRegistry } from "@tenet-registry/src/codegen/tables/VoxelTypeRegistry.sol";
 import { IWorld } from "@tenet-level2-ca-extensions-1/src/codegen/world/IWorld.sol";
-import { System } from "@latticexyz/world/src/System.sol";
+import { VoxelType } from "@tenet-base-ca/src/prototypes/VoxelType.sol";
 import { VoxelVariantsRegistryData } from "@tenet-registry/src/codegen/tables/VoxelVariantsRegistry.sol";
 import { NoaBlockType } from "@tenet-registry/src/codegen/Types.sol";
 import { registerVoxelVariant, registerVoxelType } from "@tenet-registry/src/Utils.sol";
@@ -16,8 +16,8 @@ import { VoxelCoord, BlockDirection } from "@tenet-utils/src/Types.sol";
 import { AirVoxelID } from "@tenet-base-ca/src/Constants.sol";
 import { registerCAVoxelType } from "@tenet-base-ca/src/CallUtils.sol";
 
-contract InvertedSignalVoxelSystem is System {
-  function registerVoxelInvertedSignal() public {
+contract InvertedSignalVoxelSystem is VoxelType {
+  function registerVoxel() public override {
     address world = _world();
 
     bytes32[] memory invertedSignalChildVoxelTypes = VoxelTypeRegistry.getChildVoxelTypeIds(
@@ -38,15 +38,16 @@ contract InvertedSignalVoxelSystem is System {
     registerCAVoxelType(
       CA_ADDRESS,
       InvertedSignalVoxelID,
-      IWorld(world).enterWorldInvertedSignal.selector,
-      IWorld(world).exitWorldInvertedSignal.selector,
-      IWorld(world).variantSelectorInvertedSignal.selector,
-      IWorld(world).activateSelectorInvertedSignal.selector,
-      IWorld(world).eventHandlerInvertedSignal.selector
+      IWorld(world).extension1_InvertedSignalVo_enterWorld.selector,
+      IWorld(world).extension1_InvertedSignalVo_exitWorld.selector,
+      IWorld(world).extension1_InvertedSignalVo_variantSelector.selector,
+      IWorld(world).extension1_InvertedSignalVo_activate.selector,
+      IWorld(world).extension1_InvertedSignalVo_eventHandler.selector
     );
   }
 
-  function enterWorldInvertedSignal(address callerAddress, VoxelCoord memory coord, bytes32 entity) public {
+  function enterWorld(VoxelCoord memory coord, bytes32 entity) public override {
+    address callerAddress = super.getCallerAddress();
     InvertedSignal.set(
       callerAddress,
       entity,
@@ -54,17 +55,18 @@ contract InvertedSignalVoxelSystem is System {
     );
   }
 
-  function exitWorldInvertedSignal(address callerAddress, VoxelCoord memory coord, bytes32 entity) public {
+  function exitWorld(VoxelCoord memory coord, bytes32 entity) public override {
+    address callerAddress = super.getCallerAddress();
     InvertedSignal.deleteRecord(callerAddress, entity);
   }
 
-  function variantSelectorInvertedSignal(
-    address callerAddress,
+  function variantSelector(
     bytes32 entity,
     bytes32[] memory neighbourEntityIds,
     bytes32[] memory childEntityIds,
     bytes32 parentEntity
-  ) public view returns (bytes32) {
+  ) public view override returns (bytes32) {
+    address callerAddress = super.getCallerAddress();
     InvertedSignalData memory invertedSignalData = InvertedSignal.get(callerAddress, entity);
     if (invertedSignalData.isActive) {
       return SignalOnVoxelVariantID;
@@ -73,5 +75,22 @@ contract InvertedSignalVoxelSystem is System {
     }
   }
 
-  function activateSelectorInvertedSignal(address callerAddress, bytes32 entity) public view returns (string memory) {}
+  function activate(bytes32 entity) public view override returns (string memory) {}
+
+  function eventHandler(
+    bytes32 centerEntityId,
+    bytes32[] memory neighbourEntityIds,
+    bytes32[] memory childEntityIds,
+    bytes32 parentEntity
+  ) public override returns (bytes32, bytes32[] memory) {
+    address callerAddress = super.getCallerAddress();
+    return
+      IWorld(_world()).extension1_InvertedSignalSy_eventHandlerInvertedSignal(
+        callerAddress,
+        centerEntityId,
+        neighbourEntityIds,
+        childEntityIds,
+        parentEntity
+      );
+  }
 }

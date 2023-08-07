@@ -4,7 +4,7 @@ pragma solidity >=0.8.0;
 import { IStore } from "@latticexyz/store/src/IStore.sol";
 import { VoxelTypeRegistry } from "@tenet-registry/src/codegen/tables/VoxelTypeRegistry.sol";
 import { IWorld } from "@tenet-level2-ca-extensions-1/src/codegen/world/IWorld.sol";
-import { System } from "@latticexyz/world/src/System.sol";
+import { VoxelType } from "@tenet-base-ca/src/prototypes/VoxelType.sol";
 import { VoxelVariantsRegistryData } from "@tenet-registry/src/codegen/tables/VoxelVariantsRegistry.sol";
 import { NoaBlockType } from "@tenet-registry/src/codegen/Types.sol";
 import { registerVoxelVariant, registerVoxelType } from "@tenet-registry/src/Utils.sol";
@@ -21,8 +21,8 @@ bytes32 constant LightBulbOnVoxelVariantID = bytes32(keccak256("lightbulb.on"));
 string constant LightBulbOffTexture = "bafkreihaz4jaes4rix623okfyvai64jnkqwofpffamje7kgkfwemvrpiha";
 string constant LightBulbOnTexture = "bafkreifcm3mxlydwxpsflgvmltyyalpus24fo2tm7dmervb2z3hwt5juuu";
 
-contract LightBulbVoxelSystem is System {
-  function registerVoxelLightBulb() public {
+contract LightBulbVoxelSystem is VoxelType {
+  function registerVoxel() public override {
     address world = _world();
 
     VoxelVariantsRegistryData memory lightBulbOffVariant;
@@ -63,15 +63,16 @@ contract LightBulbVoxelSystem is System {
     registerCAVoxelType(
       CA_ADDRESS,
       LightBulbVoxelID,
-      IWorld(world).enterWorldLightBulb.selector,
-      IWorld(world).exitWorldLightBulb.selector,
-      IWorld(world).variantSelectorLightBulb.selector,
-      IWorld(world).activateSelectorLightBulb.selector,
-      IWorld(world).eventHandlerConsumer.selector
+      IWorld(world).extension1_LightBulbVoxelSy_enterWorld.selector,
+      IWorld(world).extension1_LightBulbVoxelSy_exitWorld.selector,
+      IWorld(world).extension1_LightBulbVoxelSy_variantSelector.selector,
+      IWorld(world).extension1_LightBulbVoxelSy_activate.selector,
+      IWorld(world).extension1_LightBulbVoxelSy_eventHandler.selector
     );
   }
 
-  function enterWorldLightBulb(address callerAddress, VoxelCoord memory coord, bytes32 entity) public {
+  function enterWorld(VoxelCoord memory coord, bytes32 entity) public override {
+    address callerAddress = super.getCallerAddress();
     Consumer.set(
       callerAddress,
       entity,
@@ -85,17 +86,18 @@ contract LightBulbVoxelSystem is System {
     );
   }
 
-  function exitWorldLightBulb(address callerAddress, VoxelCoord memory coord, bytes32 entity) public {
+  function exitWorld(VoxelCoord memory coord, bytes32 entity) public override {
+    address callerAddress = super.getCallerAddress();
     Consumer.deleteRecord(callerAddress, entity);
   }
 
-  function variantSelectorLightBulb(
-    address callerAddress,
+  function variantSelector(
     bytes32 entity,
     bytes32[] memory neighbourEntityIds,
     bytes32[] memory childEntityIds,
     bytes32 parentEntity
-  ) public view returns (bytes32) {
+  ) public view override returns (bytes32) {
+    address callerAddress = super.getCallerAddress();
     ConsumerData memory consumerData = Consumer.get(callerAddress, entity);
     if (consumerData.inRate > 0) {
       return LightBulbOnVoxelVariantID;
@@ -104,5 +106,22 @@ contract LightBulbVoxelSystem is System {
     }
   }
 
-  function activateSelectorLightBulb(address callerAddress, bytes32 entity) public view returns (string memory) {}
+  function activate(bytes32 entity) public view override returns (string memory) {}
+
+  function eventHandler(
+    bytes32 centerEntityId,
+    bytes32[] memory neighbourEntityIds,
+    bytes32[] memory childEntityIds,
+    bytes32 parentEntity
+  ) public override returns (bytes32, bytes32[] memory) {
+    address callerAddress = super.getCallerAddress();
+    return
+      IWorld(_world()).extension1_ConsumerSystem_eventHandlerConsumer(
+        callerAddress,
+        centerEntityId,
+        neighbourEntityIds,
+        childEntityIds,
+        parentEntity
+      );
+  }
 }

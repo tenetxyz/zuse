@@ -4,7 +4,7 @@ pragma solidity >=0.8.0;
 import { IStore } from "@latticexyz/store/src/IStore.sol";
 import { VoxelTypeRegistry } from "@tenet-registry/src/codegen/tables/VoxelTypeRegistry.sol";
 import { IWorld } from "@tenet-level2-ca-extensions-1/src/codegen/world/IWorld.sol";
-import { System } from "@latticexyz/world/src/System.sol";
+import { VoxelType } from "@tenet-base-ca/src/prototypes/VoxelType.sol";
 import { VoxelVariantsRegistryData } from "@tenet-registry/src/codegen/tables/VoxelVariantsRegistry.sol";
 import { NoaBlockType } from "@tenet-registry/src/codegen/Types.sol";
 import { registerVoxelVariant, registerVoxelType } from "@tenet-registry/src/Utils.sol";
@@ -25,8 +25,8 @@ string constant LavaColdTexture = "bafkreie4o6lycwzopnlwclm2aq2erodgjhu6dmmcfdpg
 string constant LavaHotUVWrap = "bafkreic7cbg2d5llpndtr4svt447egqyazffj54ztjwrwx665tl2ghw2gu";
 string constant LavaColdUVWrap = "bafkreigqpljgmycgnw5qdelq6vz2g43ximv54xqgilrjoejembqwgkix5e";
 
-contract LavaVoxelSystem is System {
-  function registerVoxelLava() public {
+contract LavaVoxelSystem is VoxelType {
+  function registerVoxel() public override {
     address world = _world();
 
     VoxelVariantsRegistryData memory lavaHotVariant;
@@ -67,15 +67,16 @@ contract LavaVoxelSystem is System {
     registerCAVoxelType(
       CA_ADDRESS,
       LavaVoxelID,
-      IWorld(world).enterWorldLava.selector,
-      IWorld(world).exitWorldLava.selector,
-      IWorld(world).variantSelectorLava.selector,
-      IWorld(world).activateSelectorLava.selector,
-      IWorld(world).eventHandlerTemperature.selector
+      IWorld(world).extension1_LavaVoxelSystem_enterWorld.selector,
+      IWorld(world).extension1_LavaVoxelSystem_exitWorld.selector,
+      IWorld(world).extension1_LavaVoxelSystem_variantSelector.selector,
+      IWorld(world).extension1_LavaVoxelSystem_activate.selector,
+      IWorld(world).extension1_LavaVoxelSystem_eventHandler.selector
     );
   }
 
-  function enterWorldLava(address callerAddress, VoxelCoord memory coord, bytes32 entity) public {
+  function enterWorld(VoxelCoord memory coord, bytes32 entity) public override {
+    address callerAddress = super.getCallerAddress();
     Temperature.set(
       callerAddress,
       entity,
@@ -83,17 +84,18 @@ contract LavaVoxelSystem is System {
     );
   }
 
-  function exitWorldLava(address callerAddress, VoxelCoord memory coord, bytes32 entity) public {
+  function exitWorld(VoxelCoord memory coord, bytes32 entity) public override {
+    address callerAddress = super.getCallerAddress();
     Temperature.deleteRecord(callerAddress, entity);
   }
 
-  function variantSelectorLava(
-    address callerAddress,
+  function variantSelector(
     bytes32 entity,
     bytes32[] memory neighbourEntityIds,
     bytes32[] memory childEntityIds,
     bytes32 parentEntity
-  ) public view returns (bytes32) {
+  ) public view override returns (bytes32) {
+    address callerAddress = super.getCallerAddress();
     TemperatureData memory temperatureData = Temperature.get(callerAddress, entity);
     if (temperatureData.temperature > 30000) {
       return LavaHotVoxelVariantID;
@@ -102,10 +104,29 @@ contract LavaVoxelSystem is System {
     }
   }
 
-  function activateSelectorLava(address callerAddress, bytes32 entity) public view returns (string memory) {
+  function activate(bytes32 entity) public view override returns (string memory) {
+    address callerAddress = super.getCallerAddress();
     TemperatureData memory temperatureData = Temperature.get(callerAddress, entity);
     if (temperatureData.hasValue) {
       return string.concat("temperature: ", Strings.toString(temperatureData.temperature));
     }
+  }
+
+  function eventHandler(
+    bytes32 centerEntityId,
+    bytes32[] memory neighbourEntityIds,
+    bytes32[] memory childEntityIds,
+    bytes32 parentEntity
+  ) public override returns (bytes32, bytes32[] memory) {
+    address callerAddress = super.getCallerAddress();
+
+    return
+      IWorld(_world()).extension1_TemperatureSyste_eventHandlerTemperature(
+        callerAddress,
+        centerEntityId,
+        neighbourEntityIds,
+        childEntityIds,
+        parentEntity
+      );
   }
 }

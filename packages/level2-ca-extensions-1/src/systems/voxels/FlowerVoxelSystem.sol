@@ -4,7 +4,7 @@ pragma solidity >=0.8.0;
 import { IStore } from "@latticexyz/store/src/IStore.sol";
 import { VoxelTypeRegistry } from "@tenet-registry/src/codegen/tables/VoxelTypeRegistry.sol";
 import { IWorld } from "@tenet-level2-ca-extensions-1/src/codegen/world/IWorld.sol";
-import { System } from "@latticexyz/world/src/System.sol";
+import { VoxelType } from "@tenet-base-ca/src/prototypes/VoxelType.sol";
 import { VoxelVariantsRegistryData } from "@tenet-registry/src/codegen/tables/VoxelVariantsRegistry.sol";
 import { NoaBlockType } from "@tenet-registry/src/codegen/Types.sol";
 import { registerVoxelVariant, registerVoxelType } from "@tenet-registry/src/Utils.sol";
@@ -18,8 +18,8 @@ bytes32 constant OrangeFlowerVoxelVariantID = bytes32(keccak256("orangeflower"))
 
 string constant OrangeFlowerTexture = "bafkreicins36cmwliwf7ryrlcs32khvi6kleof6buiirlvgv2w6cejpg54";
 
-contract FlowerVoxelSystem is System {
-  function registerVoxelFlower() public {
+contract FlowerVoxelSystem is VoxelType {
+  function registerVoxel() public override {
     address world = _world();
     VoxelVariantsRegistryData memory orangeFlowerVariant;
     orangeFlowerVariant.blockType = NoaBlockType.MESH;
@@ -49,35 +49,33 @@ contract FlowerVoxelSystem is System {
     registerCAVoxelType(
       CA_ADDRESS,
       OrangeFlowerVoxelID,
-      IWorld(world).enterWorldFlower.selector,
-      IWorld(world).exitWorldFlower.selector,
-      IWorld(world).variantSelectorFlower.selector,
-      IWorld(world).activateSelectorFlower.selector,
-      IWorld(world).eventHandlerFlower.selector
+      IWorld(world).extension1_FlowerVoxelSyste_enterWorld.selector,
+      IWorld(world).extension1_FlowerVoxelSyste_exitWorld.selector,
+      IWorld(world).extension1_FlowerVoxelSyste_variantSelector.selector,
+      IWorld(world).extension1_FlowerVoxelSyste_activate.selector,
+      IWorld(world).extension1_FlowerVoxelSyste_eventHandler.selector
     );
   }
 
-  function enterWorldFlower(address callerAddress, VoxelCoord memory coord, bytes32 entity) public {}
+  function enterWorld(VoxelCoord memory coord, bytes32 entity) public override {}
 
-  function exitWorldFlower(address callerAddress, VoxelCoord memory coord, bytes32 entity) public {}
+  function exitWorld(VoxelCoord memory coord, bytes32 entity) public override {}
 
-  function variantSelectorFlower(
-    address callerAddress,
+  function variantSelector(
     bytes32 entity,
     bytes32[] memory neighbourEntityIds,
     bytes32[] memory childEntityIds,
     bytes32 parentEntity
-  ) public view returns (bytes32) {
+  ) public view override returns (bytes32) {
     return OrangeFlowerVoxelVariantID;
   }
 
-  function activateSelectorFlower(address callerAddress, bytes32 entity) public view returns (string memory) {}
+  function activate(bytes32 entity) public view override returns (string memory) {}
 
-  function eventHandlerFlower(
-    address callerAddress,
+  function eventHandler(
     bytes32 centerEntityId,
     bytes32[] memory neighbourEntityIds,
     bytes32[] memory childEntityIds,
     bytes32 parentEntity
-  ) public returns (bytes32, bytes32[] memory) {}
+  ) public override returns (bytes32, bytes32[] memory) {}
 }

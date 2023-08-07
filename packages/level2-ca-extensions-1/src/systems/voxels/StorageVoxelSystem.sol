@@ -4,7 +4,7 @@ pragma solidity >=0.8.0;
 import { IStore } from "@latticexyz/store/src/IStore.sol";
 import { VoxelTypeRegistry } from "@tenet-registry/src/codegen/tables/VoxelTypeRegistry.sol";
 import { IWorld } from "@tenet-level2-ca-extensions-1/src/codegen/world/IWorld.sol";
-import { System } from "@latticexyz/world/src/System.sol";
+import { VoxelType } from "@tenet-base-ca/src/prototypes/VoxelType.sol";
 import { VoxelVariantsRegistryData } from "@tenet-registry/src/codegen/tables/VoxelVariantsRegistry.sol";
 import { NoaBlockType } from "@tenet-registry/src/codegen/Types.sol";
 import { registerVoxelVariant, registerVoxelType } from "@tenet-registry/src/Utils.sol";
@@ -21,8 +21,8 @@ string constant StorageTexture = "bafkreidq36bqpc6fno5vtoafgn7zhyrin2v5wkjfybhqf
 
 string constant StorageUVWrap = "bafkreifdtu65gok35bevprpupxucirs2tan2k77444sl67stdhdgzwffra";
 
-contract StorageVoxelSystem is System {
-  function registerVoxelStorage() public {
+contract StorageVoxelSystem is VoxelType {
+  function registerVoxel() public override {
     address world = _world();
 
     VoxelVariantsRegistryData memory storageVariant;
@@ -53,15 +53,16 @@ contract StorageVoxelSystem is System {
     registerCAVoxelType(
       CA_ADDRESS,
       StorageVoxelID,
-      IWorld(world).enterWorldStorage.selector,
-      IWorld(world).exitWorldStorage.selector,
-      IWorld(world).variantSelectorStorage.selector,
-      IWorld(world).activateSelectorStorage.selector,
-      IWorld(world).eventHandlerStorage.selector
+      IWorld(world).extension1_StorageVoxelSyst_enterWorld.selector,
+      IWorld(world).extension1_StorageVoxelSyst_exitWorld.selector,
+      IWorld(world).extension1_StorageVoxelSyst_variantSelector.selector,
+      IWorld(world).extension1_StorageVoxelSyst_activate.selector,
+      IWorld(world).extension1_StorageVoxelSyst_eventHandler.selector
     );
   }
 
-  function enterWorldStorage(address callerAddress, VoxelCoord memory coord, bytes32 entity) public {
+  function enterWorld(VoxelCoord memory coord, bytes32 entity) public override {
+    address callerAddress = super.getCallerAddress();
     Storage.set(
       callerAddress,
       entity,
@@ -85,19 +86,36 @@ contract StorageVoxelSystem is System {
     );
   }
 
-  function exitWorldStorage(address callerAddress, VoxelCoord memory coord, bytes32 entity) public {
+  function exitWorld(VoxelCoord memory coord, bytes32 entity) public override {
+    address callerAddress = super.getCallerAddress();
     Storage.deleteRecord(callerAddress, entity);
   }
 
-  function variantSelectorStorage(
-    address callerAddress,
+  function variantSelector(
     bytes32 entity,
     bytes32[] memory neighbourEntityIds,
     bytes32[] memory childEntityIds,
     bytes32 parentEntity
-  ) public view returns (bytes32) {
+  ) public view override returns (bytes32) {
     return StorageVoxelVariantID;
   }
 
-  function activateSelectorStorage(address callerAddress, bytes32 entity) public view returns (string memory) {}
+  function activate(bytes32 entity) public view override returns (string memory) {}
+
+  function eventHandler(
+    bytes32 centerEntityId,
+    bytes32[] memory neighbourEntityIds,
+    bytes32[] memory childEntityIds,
+    bytes32 parentEntity
+  ) public override returns (bytes32, bytes32[] memory) {
+    address callerAddress = super.getCallerAddress();
+    return
+      IWorld(_world()).extension1_StorageSystem_eventHandlerStorage(
+        callerAddress,
+        centerEntityId,
+        neighbourEntityIds,
+        childEntityIds,
+        parentEntity
+      );
+  }
 }

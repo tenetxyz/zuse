@@ -4,7 +4,7 @@ pragma solidity >=0.8.0;
 import { IStore } from "@latticexyz/store/src/IStore.sol";
 import { VoxelTypeRegistry } from "@tenet-registry/src/codegen/tables/VoxelTypeRegistry.sol";
 import { IWorld } from "@tenet-level2-ca-extensions-1/src/codegen/world/IWorld.sol";
-import { System } from "@latticexyz/world/src/System.sol";
+import { VoxelType } from "@tenet-base-ca/src/prototypes/VoxelType.sol";
 import { VoxelVariantsRegistryData } from "@tenet-registry/src/codegen/tables/VoxelVariantsRegistry.sol";
 import { NoaBlockType } from "@tenet-registry/src/codegen/Types.sol";
 import { registerVoxelVariant, registerVoxelType } from "@tenet-registry/src/Utils.sol";
@@ -22,8 +22,8 @@ string constant ThermoGenTexture = "bafkreidohfeb5yddppqv6swfjs6s3g7qe44u75ogwaq
 
 string constant ThermoGenUVWrap = "bafkreigx5gstl4b2fcz62dwex55mstoo7egdcsrmsox6trmiieplcuyalm";
 
-contract ThermoGenVoxelSystem is System {
-  function registerVoxelThermoGen() public {
+contract ThermoGenVoxelSystem is VoxelType {
+  function registerVoxel() public override {
     address world = _world();
 
     VoxelVariantsRegistryData memory thermoGenVariant;
@@ -54,15 +54,16 @@ contract ThermoGenVoxelSystem is System {
     registerCAVoxelType(
       CA_ADDRESS,
       ThermoGenVoxelID,
-      IWorld(world).enterWorldThermoGen.selector,
-      IWorld(world).exitWorldThermoGen.selector,
-      IWorld(world).variantSelectorThermoGen.selector,
-      IWorld(world).activateSelectorThermoGen.selector,
-      IWorld(world).eventHandlerThermoGenerator.selector
+      IWorld(world).extension1_ThermoGenVoxelSy_enterWorld.selector,
+      IWorld(world).extension1_ThermoGenVoxelSy_exitWorld.selector,
+      IWorld(world).extension1_ThermoGenVoxelSy_variantSelector.selector,
+      IWorld(world).extension1_ThermoGenVoxelSy_activate.selector,
+      IWorld(world).extension1_ThermoGenVoxelSy_eventHandler.selector
     );
   }
 
-  function enterWorldThermoGen(address callerAddress, VoxelCoord memory coord, bytes32 entity) public {
+  function enterWorld(VoxelCoord memory coord, bytes32 entity) public override {
+    address callerAddress = super.getCallerAddress();
     bytes32[] memory sources = new bytes32[](0);
     BlockDirection[] memory sourceDirections = new BlockDirection[](0);
     uint256 genRate = 0;
@@ -79,24 +80,42 @@ contract ThermoGenVoxelSystem is System {
     );
   }
 
-  function exitWorldThermoGen(address callerAddress, VoxelCoord memory coord, bytes32 entity) public {
+  function exitWorld(VoxelCoord memory coord, bytes32 entity) public override {
+    address callerAddress = super.getCallerAddress();
     Generator.deleteRecord(callerAddress, entity);
   }
 
-  function variantSelectorThermoGen(
-    address callerAddress,
+  function variantSelector(
     bytes32 entity,
     bytes32[] memory neighbourEntityIds,
     bytes32[] memory childEntityIds,
     bytes32 parentEntity
-  ) public view returns (bytes32) {
+  ) public view override returns (bytes32) {
     return ThermoGenVoxelVariantID;
   }
 
-  function activateSelectorThermoGen(address callerAddress, bytes32 entity) public view returns (string memory) {
+  function activate(bytes32 entity) public view override returns (string memory) {
+    address callerAddress = super.getCallerAddress();
     GeneratorData memory generatorData = Generator.get(callerAddress, entity);
     if (generatorData.hasValue) {
       return string.concat("genRate: ", Strings.toString(generatorData.genRate));
     }
+  }
+
+  function eventHandler(
+    bytes32 centerEntityId,
+    bytes32[] memory neighbourEntityIds,
+    bytes32[] memory childEntityIds,
+    bytes32 parentEntity
+  ) public override returns (bytes32, bytes32[] memory) {
+    address callerAddress = super.getCallerAddress();
+    return
+      IWorld(_world()).extension1_ThermoGeneratorS_eventHandlerThermoGenerator(
+        callerAddress,
+        centerEntityId,
+        neighbourEntityIds,
+        childEntityIds,
+        parentEntity
+      );
   }
 }

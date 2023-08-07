@@ -4,7 +4,7 @@ pragma solidity >=0.8.0;
 import { IStore } from "@latticexyz/store/src/IStore.sol";
 import { VoxelTypeRegistry } from "@tenet-registry/src/codegen/tables/VoxelTypeRegistry.sol";
 import { IWorld } from "@tenet-level2-ca-extensions-1/src/codegen/world/IWorld.sol";
-import { System } from "@latticexyz/world/src/System.sol";
+import { VoxelType } from "@tenet-base-ca/src/prototypes/VoxelType.sol";
 import { VoxelVariantsRegistryData } from "@tenet-registry/src/codegen/tables/VoxelVariantsRegistry.sol";
 import { NoaBlockType } from "@tenet-registry/src/codegen/Types.sol";
 import { registerVoxelVariant, registerVoxelType } from "@tenet-registry/src/Utils.sol";
@@ -21,8 +21,8 @@ string constant LogTopTexture = "bafkreiekx2odo544mawzn7np6p4uhkm2bt53nl4n2dhzj3
 
 string constant LogUVWrap = "bafkreiddsx5ke3e664ain2gnzd7jxicko34clxnlqzp2paqomvf7a7gb7m";
 
-contract LogVoxelSystem is System {
-  function registerVoxelLog() public {
+contract LogVoxelSystem is VoxelType {
+  function registerVoxel() public override {
     address world = _world();
     VoxelVariantsRegistryData memory logVariant;
     logVariant.blockType = NoaBlockType.BLOCK;
@@ -53,35 +53,33 @@ contract LogVoxelSystem is System {
     registerCAVoxelType(
       CA_ADDRESS,
       LogVoxelID,
-      IWorld(world).enterWorldLog.selector,
-      IWorld(world).exitWorldLog.selector,
-      IWorld(world).variantSelectorLog.selector,
-      IWorld(world).activateSelectorLog.selector,
-      IWorld(world).eventHandlerLog.selector
+      IWorld(world).extension1_LogVoxelSystem_enterWorld.selector,
+      IWorld(world).extension1_LogVoxelSystem_exitWorld.selector,
+      IWorld(world).extension1_LogVoxelSystem_variantSelector.selector,
+      IWorld(world).extension1_LogVoxelSystem_activate.selector,
+      IWorld(world).extension1_LogVoxelSystem_eventHandler.selector
     );
   }
 
-  function enterWorldLog(address callerAddress, VoxelCoord memory coord, bytes32 entity) public {}
+  function enterWorld(VoxelCoord memory coord, bytes32 entity) public override {}
 
-  function exitWorldLog(address callerAddress, VoxelCoord memory coord, bytes32 entity) public {}
+  function exitWorld(VoxelCoord memory coord, bytes32 entity) public override {}
 
-  function variantSelectorLog(
-    address callerAddress,
+  function variantSelector(
     bytes32 entity,
     bytes32[] memory neighbourEntityIds,
     bytes32[] memory childEntityIds,
     bytes32 parentEntity
-  ) public view returns (bytes32) {
+  ) public view override returns (bytes32) {
     return LogVoxelVariantID;
   }
 
-  function activateSelectorLog(address callerAddress, bytes32 entity) public view returns (string memory) {}
+  function activate(bytes32 entity) public view override returns (string memory) {}
 
-  function eventHandlerLog(
-    address callerAddress,
+  function eventHandler(
     bytes32 centerEntityId,
     bytes32[] memory neighbourEntityIds,
     bytes32[] memory childEntityIds,
     bytes32 parentEntity
-  ) public returns (bytes32, bytes32[] memory) {}
+  ) public override returns (bytes32, bytes32[] memory) {}
 }

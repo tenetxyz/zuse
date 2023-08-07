@@ -4,7 +4,7 @@ pragma solidity >=0.8.0;
 import { IStore } from "@latticexyz/store/src/IStore.sol";
 import { VoxelTypeRegistry } from "@tenet-registry/src/codegen/tables/VoxelTypeRegistry.sol";
 import { IWorld } from "@tenet-level2-ca-extensions-1/src/codegen/world/IWorld.sol";
-import { System } from "@latticexyz/world/src/System.sol";
+import { VoxelType } from "@tenet-base-ca/src/prototypes/VoxelType.sol";
 import { VoxelVariantsRegistryData } from "@tenet-registry/src/codegen/tables/VoxelVariantsRegistry.sol";
 import { NoaBlockType } from "@tenet-registry/src/codegen/Types.sol";
 import { registerVoxelVariant, registerVoxelType } from "@tenet-registry/src/Utils.sol";
@@ -25,8 +25,8 @@ string constant IceColdTexture = "bafkreihwvfsy3l3ubp4hfbqrp3byjcftzcqxzgiolf3c7
 string constant IceHotUVWrap = "bafkreifzspflrxdiofxp4iczayi2nqszvwipceblpoywspylt7anh3dcu4";
 string constant IceColdUVWrap = "bafkreicso63lyy5mj4krdwsmbd7tox5pzscgazvbbk4cz37v7vxr42azjq";
 
-contract IceVoxelSystem is System {
-  function registerVoxelIce() public {
+contract IceVoxelSystem is VoxelType {
+  function registerVoxel() public override {
     address world = _world();
 
     VoxelVariantsRegistryData memory iceHotVariant;
@@ -67,15 +67,16 @@ contract IceVoxelSystem is System {
     registerCAVoxelType(
       CA_ADDRESS,
       IceVoxelID,
-      IWorld(world).enterWorldIce.selector,
-      IWorld(world).exitWorldIce.selector,
-      IWorld(world).variantSelectorIce.selector,
-      IWorld(world).activateSelectorIce.selector,
-      IWorld(world).eventHandlerTemperature.selector
+      IWorld(world).extension1_IceVoxelSystem_enterWorld.selector,
+      IWorld(world).extension1_IceVoxelSystem_exitWorld.selector,
+      IWorld(world).extension1_IceVoxelSystem_variantSelector.selector,
+      IWorld(world).extension1_IceVoxelSystem_activate.selector,
+      IWorld(world).extension1_IceVoxelSystem_eventHandler.selector
     );
   }
 
-  function enterWorldIce(address callerAddress, VoxelCoord memory coord, bytes32 entity) public {
+  function enterWorld(VoxelCoord memory coord, bytes32 entity) public override {
+    address callerAddress = super.getCallerAddress();
     Temperature.set(
       callerAddress,
       entity,
@@ -83,17 +84,18 @@ contract IceVoxelSystem is System {
     );
   }
 
-  function exitWorldIce(address callerAddress, VoxelCoord memory coord, bytes32 entity) public {
+  function exitWorld(VoxelCoord memory coord, bytes32 entity) public override {
+    address callerAddress = super.getCallerAddress();
     Temperature.deleteRecord(callerAddress, entity);
   }
 
-  function variantSelectorIce(
-    address callerAddress,
+  function variantSelector(
     bytes32 entity,
     bytes32[] memory neighbourEntityIds,
     bytes32[] memory childEntityIds,
     bytes32 parentEntity
-  ) public view returns (bytes32) {
+  ) public view override returns (bytes32) {
+    address callerAddress = super.getCallerAddress();
     TemperatureData memory temperatureData = Temperature.get(callerAddress, entity);
     if (temperatureData.temperature > 15000) {
       return IceHotVoxelVariantID;
@@ -102,10 +104,29 @@ contract IceVoxelSystem is System {
     }
   }
 
-  function activateSelectorIce(address callerAddress, bytes32 entity) public view returns (string memory) {
+  function activate(bytes32 entity) public view override returns (string memory) {
+    address callerAddress = super.getCallerAddress();
     TemperatureData memory temperatureData = Temperature.get(callerAddress, entity);
     if (temperatureData.hasValue) {
       return string.concat("temperature: ", Strings.toString(temperatureData.temperature));
     }
+  }
+
+  function eventHandler(
+    bytes32 centerEntityId,
+    bytes32[] memory neighbourEntityIds,
+    bytes32[] memory childEntityIds,
+    bytes32 parentEntity
+  ) public override returns (bytes32, bytes32[] memory) {
+    address callerAddress = super.getCallerAddress();
+
+    return
+      IWorld(_world()).extension1_TemperatureSyste_eventHandlerTemperature(
+        callerAddress,
+        centerEntityId,
+        neighbourEntityIds,
+        childEntityIds,
+        parentEntity
+      );
   }
 }

@@ -2,7 +2,7 @@
 pragma solidity >=0.8.0;
 
 import { IWorld } from "@tenet-level2-ca-extensions-1/src/codegen/world/IWorld.sol";
-import { System } from "@latticexyz/world/src/System.sol";
+import { VoxelType } from "@tenet-base-ca/src/prototypes/VoxelType.sol";
 import { VoxelVariantsRegistryData } from "@tenet-registry/src/codegen/tables/VoxelVariantsRegistry.sol";
 import { NoaBlockType } from "@tenet-registry/src/codegen/Types.sol";
 import { registerVoxelVariant, registerVoxelType } from "@tenet-registry/src/Utils.sol";
@@ -23,8 +23,8 @@ string constant WireOnTexture = "bafkreibm3kna5kjjwusivjiq3ip6ormyc2rxwrhomwiolg
 string constant WireOffUVWrap = "bafkreiffca6iq4562ko5m57lq6drti27bzwxcdpbq5xcgpraxcv7knr5qa";
 string constant WireOnUVWrap = "bafkreia3okzu23ncgtcgrdmgb2zgvawyqndssuxwbzt5nf4ktxvepexz3m";
 
-contract WireVoxelSystem is System {
-  function registerVoxelWire() public {
+contract WireVoxelSystem is VoxelType {
+  function registerVoxel() public override {
     address world = _world();
     VoxelVariantsRegistryData memory wireOffVariant;
     wireOffVariant.blockType = NoaBlockType.BLOCK;
@@ -67,25 +67,25 @@ contract WireVoxelSystem is System {
     registerCAVoxelType(
       CA_ADDRESS,
       WireVoxelID,
-      IWorld(world).enterWorldWire.selector,
-      IWorld(world).exitWorldWire.selector,
-      IWorld(world).variantSelectorWire.selector,
-      IWorld(world).activateSelectorWire.selector,
-      IWorld(world).eventHandlerWire.selector
+      IWorld(world).extension1_WireVoxelSystem_enterWorld.selector,
+      IWorld(world).extension1_WireVoxelSystem_exitWorld.selector,
+      IWorld(world).extension1_WireVoxelSystem_variantSelector.selector,
+      IWorld(world).extension1_WireVoxelSystem_activate.selector,
+      IWorld(world).extension1_WireVoxelSystem_eventHandler.selector
     );
   }
 
-  function enterWorldWire(address callerAddress, VoxelCoord memory coord, bytes32 entity) public {}
+  function enterWorld(VoxelCoord memory coord, bytes32 entity) public override {}
 
-  function exitWorldWire(address callerAddress, VoxelCoord memory coord, bytes32 entity) public {}
+  function exitWorld(VoxelCoord memory coord, bytes32 entity) public override {}
 
-  function variantSelectorWire(
-    address callerAddress,
+  function variantSelector(
     bytes32 entity,
     bytes32[] memory neighbourEntityIds,
     bytes32[] memory childEntityIds,
     bytes32 parentEntity
-  ) public returns (bytes32) {
+  ) public view override returns (bytes32) {
+    address callerAddress = super.getCallerAddress();
     if (childEntityIds.length == 0) {
       return WireOffVoxelVariantID;
     }
@@ -111,13 +111,12 @@ contract WireVoxelSystem is System {
     return WireOffVoxelVariantID;
   }
 
-  function activateSelectorWire(address callerAddress, bytes32 entity) public view returns (string memory) {}
+  function activate(bytes32 entity) public view override returns (string memory) {}
 
-  function eventHandlerWire(
-    address callerAddress,
+  function eventHandler(
     bytes32 centerEntityId,
     bytes32[] memory neighbourEntityIds,
     bytes32[] memory childEntityIds,
     bytes32 parentEntity
-  ) public returns (bytes32, bytes32[] memory) {}
+  ) public override returns (bytes32, bytes32[] memory) {}
 }

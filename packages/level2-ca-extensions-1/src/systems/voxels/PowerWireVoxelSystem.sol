@@ -4,7 +4,7 @@ pragma solidity >=0.8.0;
 import { IStore } from "@latticexyz/store/src/IStore.sol";
 import { VoxelTypeRegistry } from "@tenet-registry/src/codegen/tables/VoxelTypeRegistry.sol";
 import { IWorld } from "@tenet-level2-ca-extensions-1/src/codegen/world/IWorld.sol";
-import { System } from "@latticexyz/world/src/System.sol";
+import { VoxelType } from "@tenet-base-ca/src/prototypes/VoxelType.sol";
 import { VoxelVariantsRegistryData } from "@tenet-registry/src/codegen/tables/VoxelVariantsRegistry.sol";
 import { NoaBlockType } from "@tenet-registry/src/codegen/Types.sol";
 import { registerVoxelVariant, registerVoxelType } from "@tenet-registry/src/Utils.sol";
@@ -23,8 +23,8 @@ string constant PowerWireOnTexture = "bafkreibmk2qi52v4atyfka3x5ygj44vfig7ks4jz6
 string constant PowerWireOffTexture = "bafkreia5773gxqcwqxaumba55oqhtpxc2rkfe7ztq32kcjimbmat36lsau";
 string constant PowerWireBrokenTexture = "bafkreif52wl2kr4tjvzr2nou3vxwhswjrkknqdc3g7c4pyquiuhlcplw5a";
 
-contract PowerWireVoxelSystem is System {
-  function registerVoxelPowerWire() public {
+contract PowerWireVoxelSystem is VoxelType {
+  function registerVoxel() public override {
     address world = _world();
 
     VoxelVariantsRegistryData memory powerWireOffVariant;
@@ -75,15 +75,16 @@ contract PowerWireVoxelSystem is System {
     registerCAVoxelType(
       CA_ADDRESS,
       PowerWireVoxelID,
-      IWorld(world).enterWorldPowerWire.selector,
-      IWorld(world).exitWorldPowerWire.selector,
-      IWorld(world).variantSelectorPowerWire.selector,
-      IWorld(world).activateSelectorPowerWire.selector,
-      IWorld(world).eventHandlerPowerWire.selector
+      IWorld(world).extension1_PowerWireVoxelSy_enterWorld.selector,
+      IWorld(world).extension1_PowerWireVoxelSy_exitWorld.selector,
+      IWorld(world).extension1_PowerWireVoxelSy_variantSelector.selector,
+      IWorld(world).extension1_PowerWireVoxelSy_activate.selector,
+      IWorld(world).extension1_PowerWireVoxelSy_eventHandler.selector
     );
   }
 
-  function enterWorldPowerWire(address callerAddress, VoxelCoord memory coord, bytes32 entity) public {
+  function enterWorld(VoxelCoord memory coord, bytes32 entity) public override {
+    address callerAddress = super.getCallerAddress();
     bytes32 _source = bytes32(0);
     bytes32 _destination = bytes32(0);
 
@@ -104,17 +105,18 @@ contract PowerWireVoxelSystem is System {
     );
   }
 
-  function exitWorldPowerWire(address callerAddress, VoxelCoord memory coord, bytes32 entity) public {
+  function exitWorld(VoxelCoord memory coord, bytes32 entity) public override {
+    address callerAddress = super.getCallerAddress();
     PowerWire.deleteRecord(callerAddress, entity);
   }
 
-  function variantSelectorPowerWire(
-    address callerAddress,
+  function variantSelector(
     bytes32 entity,
     bytes32[] memory neighbourEntityIds,
     bytes32[] memory childEntityIds,
     bytes32 parentEntity
-  ) public view returns (bytes32) {
+  ) public view override returns (bytes32) {
+    address callerAddress = super.getCallerAddress();
     PowerWireData memory powerWireData = PowerWire.get(callerAddress, entity);
     if (powerWireData.isBroken) {
       return PowerWireBrokenVoxelVariantID;
@@ -127,5 +129,23 @@ contract PowerWireVoxelSystem is System {
     }
   }
 
-  function activateSelectorPowerWire(address callerAddress, bytes32 entity) public view returns (string memory) {}
+  function activate(bytes32 entity) public view override returns (string memory) {}
+
+  function eventHandler(
+    bytes32 centerEntityId,
+    bytes32[] memory neighbourEntityIds,
+    bytes32[] memory childEntityIds,
+    bytes32 parentEntity
+  ) public override returns (bytes32, bytes32[] memory) {
+    address callerAddress = super.getCallerAddress();
+
+    return
+      IWorld(_world()).extension1_PowerWireSystem_eventHandlerPowerWire(
+        callerAddress,
+        centerEntityId,
+        neighbourEntityIds,
+        childEntityIds,
+        parentEntity
+      );
+  }
 }

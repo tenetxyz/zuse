@@ -127,7 +127,7 @@ function activateVoxel(address caAddress, bytes32 entity) returns (bytes memory)
     );
 }
 
-function getVoxelTypeFromCaller(address callerAddress, uint32 scale, bytes32 entity) returns (bytes32) {
+function getVoxelTypeFromCaller(address callerAddress, uint32 scale, bytes32 entity) view returns (bytes32) {
   bytes memory returnData = safeStaticCall(
     callerAddress,
     abi.encodeWithSignature("getVoxelTypeId(uint32,bytes32)", scale, entity),

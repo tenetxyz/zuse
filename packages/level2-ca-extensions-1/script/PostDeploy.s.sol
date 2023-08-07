@@ -14,20 +14,20 @@ contract PostDeploy is Script {
     vm.startBroadcast(deployerPrivateKey);
 
     // Register the voxel types
-    IWorld(worldAddress).extension1_PowerWireVoxelSy_registerVoxelPowerWire();
-    IWorld(worldAddress).registerVoxelSignalSource();
-    IWorld(worldAddress).registerVoxelSignal();
-    IWorld(worldAddress).registerVoxelInvertedSignal();
-    IWorld(worldAddress).registerVoxelSand();
-    IWorld(worldAddress).registerVoxelFlower();
-    IWorld(worldAddress).registerVoxelLog();
-    IWorld(worldAddress).registerVoxelLava();
-    IWorld(worldAddress).registerVoxelIce();
-    IWorld(worldAddress).registerVoxelThermoGen();
-    IWorld(worldAddress).registerVoxelPowerWire();
-    IWorld(worldAddress).registerVoxelStorage();
-    IWorld(worldAddress).registerVoxelLightBulb();
-    IWorld(worldAddress).registerVoxelPowerSignal();
+    IWorld(worldAddress).extension1_WireVoxelSystem_registerVoxel();
+    IWorld(worldAddress).extension1_SignalSourceVoxe_registerVoxel();
+    IWorld(worldAddress).extension1_SignalVoxelSyste_registerVoxel();
+    IWorld(worldAddress).extension1_InvertedSignalVo_registerVoxel();
+    IWorld(worldAddress).extension1_SandVoxelSystem_registerVoxel();
+    IWorld(worldAddress).extension1_FlowerVoxelSyste_registerVoxel();
+    IWorld(worldAddress).extension1_LogVoxelSystem_registerVoxel();
+    IWorld(worldAddress).extension1_LavaVoxelSystem_registerVoxel();
+    IWorld(worldAddress).extension1_IceVoxelSystem_registerVoxel();
+    IWorld(worldAddress).extension1_ThermoGenVoxelSy_registerVoxel();
+    IWorld(worldAddress).extension1_PowerWireVoxelSy_registerVoxel();
+    IWorld(worldAddress).extension1_StorageVoxelSyst_registerVoxel();
+    IWorld(worldAddress).extension1_LightBulbVoxelSy_registerVoxel();
+    IWorld(worldAddress).extension1_PowerSignalVoxel_registerVoxel();
 
     vm.stopBroadcast();
   }

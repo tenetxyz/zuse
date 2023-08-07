@@ -61,15 +61,16 @@ contract PowerWireVoxelSystem is VoxelType {
       IStore(REGISTRY_ADDRESS),
       Level2AirVoxelID
     );
-    bytes32 baseVoxelTypeId = Level2AirVoxelID;
+
     registerVoxelType(
       REGISTRY_ADDRESS,
       "Power Wire",
       PowerWireVoxelID,
-      baseVoxelTypeId,
+      Level2AirVoxelID,
       powerWireChildVoxelTypes,
       powerWireChildVoxelTypes,
-      PowerWireOffVoxelVariantID
+      PowerWireOffVoxelVariantID,
+      world
     );
 
     registerCAVoxelType(

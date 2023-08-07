@@ -40,7 +40,8 @@ contract DirtVoxelSystem is VoxelType {
       baseVoxelTypeId,
       dirtChildVoxelTypes,
       dirtChildVoxelTypes,
-      DirtVoxelVariantID
+      DirtVoxelVariantID,
+      world
     );
 
     // TODO: Check to make sure it doesn't already exist

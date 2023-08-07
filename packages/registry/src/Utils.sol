@@ -25,7 +25,8 @@ function registerVoxelType(
   bytes32 baseVoxelTypeId,
   bytes32[] memory childVoxelTypeIds,
   bytes32[] memory schemaVoxelTypeIds,
-  bytes32 voxelVariantId
+  bytes32 voxelVariantId,
+  address caAddress
 ) returns (bytes memory) {
   return
     safeCall(
@@ -37,7 +38,8 @@ function registerVoxelType(
         baseVoxelTypeId,
         childVoxelTypeIds,
         schemaVoxelTypeIds,
-        voxelVariantId
+        voxelVariantId,
+        caAddress
       ),
       "registerVoxelType"
     );

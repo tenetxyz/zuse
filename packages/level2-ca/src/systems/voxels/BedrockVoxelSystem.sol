@@ -40,7 +40,8 @@ contract BedrockVoxelSystem is VoxelType {
       baseVoxelTypeId,
       bedrockChildVoxelTypes,
       bedrockChildVoxelTypes,
-      BedrockVoxelVariantID
+      BedrockVoxelVariantID,
+      world
     );
 
     // TODO: Check to make sure it doesn't already exist

@@ -61,7 +61,8 @@ contract LavaVoxelSystem is VoxelType {
       baseVoxelTypeId,
       lavaChildVoxelTypes,
       lavaChildVoxelTypes,
-      LavaHotVoxelVariantID
+      LavaHotVoxelVariantID,
+      world
     );
 
     registerCAVoxelType(

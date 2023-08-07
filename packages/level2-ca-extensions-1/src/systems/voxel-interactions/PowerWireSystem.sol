@@ -248,6 +248,15 @@ contract PowerWireSystem is SingleVoxelInteraction {
     PowerWireData memory powerWireData = PowerWire.get(callerAddress, powerWireEntity);
     changedEntity = false;
 
+    if (
+      compareBlockDirection == BlockDirection.NorthEast ||
+      compareBlockDirection == BlockDirection.NorthWest ||
+      compareBlockDirection == BlockDirection.SouthEast ||
+      compareBlockDirection == BlockDirection.SouthWest
+    ) {
+      return false;
+    }
+
     bool isPowerWire = entityIsPowerWire(callerAddress, compareEntity);
     bool isGenerator = entityIsGenerator(callerAddress, compareEntity);
     bool isStorage = entityIsStorage(callerAddress, compareEntity);

@@ -17,6 +17,15 @@ contract TemperatureSystem is SingleVoxelInteraction {
     TemperatureData memory temperatureData = Temperature.get(callerAddress, temperatureEntity);
     changedEntity = false;
 
+    if (
+      compareBlockDirection == BlockDirection.NorthEast ||
+      compareBlockDirection == BlockDirection.NorthWest ||
+      compareBlockDirection == BlockDirection.SouthEast ||
+      compareBlockDirection == BlockDirection.SouthWest
+    ) {
+      return false;
+    }
+
     uint256 roomTemperature = 20000;
     uint256 currentTemperature = temperatureData.temperature;
     uint256 lastUpdateBlock = temperatureData.lastUpdateBlock;

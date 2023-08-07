@@ -53,6 +53,15 @@ contract ConsumerSystem is SingleVoxelInteraction {
     ConsumerData memory consumerData = Consumer.get(callerAddress, consumerEntity);
     changedEntity = false;
 
+    if (
+      compareBlockDirection == BlockDirection.NorthEast ||
+      compareBlockDirection == BlockDirection.NorthWest ||
+      compareBlockDirection == BlockDirection.SouthEast ||
+      compareBlockDirection == BlockDirection.SouthWest
+    ) {
+      return false;
+    }
+
     bool isPowerWire = entityIsPowerWire(callerAddress, compareEntity);
 
     bool doesHaveSource = consumerData.source != bytes32(0);

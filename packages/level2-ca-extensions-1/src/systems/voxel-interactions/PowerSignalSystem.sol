@@ -19,6 +19,15 @@ contract PowerSignalSystem is SingleVoxelInteraction {
     PowerWireData memory powerWireData = PowerWire.get(callerAddress, powerSignalEntity);
     changedEntity = false;
 
+    if (
+      compareBlockDirection == BlockDirection.NorthEast ||
+      compareBlockDirection == BlockDirection.NorthWest ||
+      compareBlockDirection == BlockDirection.SouthEast ||
+      compareBlockDirection == BlockDirection.SouthWest
+    ) {
+      return false;
+    }
+
     bool compareIsSignalSource = entityIsSignalSource(callerAddress, compareEntity);
     bool compareIsActiveGenerator = entityIsGenerator(callerAddress, compareEntity) &&
       Generator.get(callerAddress, compareEntity).genRate > 0;

@@ -12,7 +12,7 @@ import { distanceBetween } from "@tenet-utils/src/VoxelCoordUtils.sol";
 uint256 constant MAX_HEALTH = 100;
 uint256 constant MAX_STAMINA = 100;
 uint256 constant STAMINA_BLOCK_RATE = 1;
-uint256 constant TRAVEL_BLOCK_RATE = 1;
+uint256 constant TRAVEL_BLOCK_RATE = 10;
 uint256 constant MINE_STAMINA_COST = 5;
 uint256 constant BUILD_STAMINA_COST = 5;
 uint256 constant ACTIVATE_STAMINA_COST = 1;

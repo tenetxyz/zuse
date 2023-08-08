@@ -47,7 +47,10 @@ contract ApprovalSystem is System {
     PlayerData memory playerData = Player.get(caller);
     uint256 numBlocksPassed = block.number - playerData.lastUpdateBlock;
     uint256 distanceDelta = distanceBetween(abi.decode(playerData.lastUpdateCoord, (VoxelCoord)), coord);
-    require(distanceDelta <= numBlocksPassed * TRAVEL_BLOCK_RATE, "Cannot travel that far.");
+    require(
+      distanceDelta <= numBlocksPassed * TRAVEL_BLOCK_RATE,
+      string.concat("Cannot travel that far. Distance delta: ", Strings.toString(distanceDelta))
+    );
     Player.setLastUpdateCoord(caller, abi.encode(coord));
   }
 

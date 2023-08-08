@@ -23,6 +23,7 @@ contract BuildSystem is System {
     require(OwnedBy.get(scale, entity) == tx.origin, "voxel is not owned by player");
 
     VoxelTypeData memory voxelType = VoxelType.get(scale, entity);
+    IWorld(_world()).approveBuild(tx.origin, voxelType.voxelTypeId, coord);
     return buildVoxelType(voxelType.voxelTypeId, coord, true, true);
   }
 

@@ -9,6 +9,8 @@ import { System } from "@latticexyz/world/src/System.sol";
 
 uint256 constant STAMINA_BLOCK_RATE = 1;
 uint256 constant MINE_STAMINA_COST = 5;
+uint256 constant BUILD_STAMINA_COST = 5;
+uint256 constant ACTIVATE_STAMINA_COST = 1;
 
 contract ApprovalSystem is System {
   function playerInit(address caller) internal {
@@ -18,15 +20,29 @@ contract ApprovalSystem is System {
     }
   }
 
-  function approveMine(address caller, bytes32 voxelTypeId, VoxelCoord memory coord) public {
-    playerInit(caller);
+  function staminaLimit(address caller, uint256 limit) public returns (uint256) {
     PlayerData memory playerData = Player.get(caller);
     uint256 numBlocksPassed = block.number - playerData.lastUpdateBlock;
     uint256 newStamina = playerData.stamina + (numBlocksPassed * STAMINA_BLOCK_RATE);
-    require(newStamina >= MINE_STAMINA_COST, "MineSystem: not enough stamina");
+    require(newStamina >= limit, "MineSystem: not enough stamina");
     Player.set(
       caller,
-      PlayerData({ health: playerData.health, stamina: newStamina - MINE_STAMINA_COST, lastUpdateBlock: block.number })
+      PlayerData({ health: playerData.health, stamina: newStamina - limit, lastUpdateBlock: block.number })
     );
+  }
+
+  function approveMine(address caller, bytes32 voxelTypeId, VoxelCoord memory coord) public {
+    playerInit(caller);
+    staminaLimit(caller, MINE_STAMINA_COST);
+  }
+
+  function approveBuild(address caller, bytes32 voxelTypeId, VoxelCoord memory coord) public {
+    playerInit(caller);
+    staminaLimit(caller, BUILD_STAMINA_COST);
+  }
+
+  function approveActivate(address caller, bytes32 voxelTypeId, VoxelCoord memory coord) public {
+    playerInit(caller);
+    staminaLimit(caller, ACTIVATE_STAMINA_COST);
   }
 }

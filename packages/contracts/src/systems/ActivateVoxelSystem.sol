@@ -24,6 +24,7 @@ contract ActivateVoxelSystem is System {
     VoxelTypeRegistryData memory voxelTypeData = VoxelTypeRegistry.get(IStore(REGISTRY_ADDRESS), voxelTypeId);
     require(voxelTypeData.scale == scale, "ActivateVoxelSystem: scale mismatch");
     address caAddress = WorldConfig.get(voxelTypeId);
+    IWorld(_world()).approveActivate(tx.origin, voxelTypeId, coord);
 
     if (scale > 1) {
       // Read the ChildTypes in this CA address

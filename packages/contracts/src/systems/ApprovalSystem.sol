@@ -1,12 +1,12 @@
 // SPDX-License-Identifier: GPL-3.0
 pragma solidity >=0.8.0;
 import { IStore } from "@latticexyz/store/src/IStore.sol";
+import { EventApprovals } from "../prototypes/EventApprovals.sol";
 import { hasKey } from "@latticexyz/world/src/modules/keysintable/hasKey.sol";
 import { IWorld } from "@tenet-contracts/src/codegen/world/IWorld.sol";
-import { VoxelCoord } from "@tenet-contracts/src/Types.sol";
+import { VoxelCoord, EventType } from "@tenet-contracts/src/Types.sol";
 import { Player, PlayerTableId, PlayerData } from "@tenet-contracts/src/codegen/Tables.sol";
 import { Strings } from "@openzeppelin/contracts/utils/Strings.sol";
-import { System } from "@latticexyz/world/src/System.sol";
 import { distanceBetween } from "@tenet-utils/src/VoxelCoordUtils.sol";
 
 uint256 constant MAX_HEALTH = 100;
@@ -17,8 +17,13 @@ uint256 constant MINE_STAMINA_COST = 5;
 uint256 constant BUILD_STAMINA_COST = 5;
 uint256 constant ACTIVATE_STAMINA_COST = 1;
 
-contract ApprovalSystem is System {
-  function playerInit(address caller, VoxelCoord memory coord) internal {
+contract ApprovalSystem is EventApprovals {
+  function preApproval(
+    EventType eventType,
+    address caller,
+    bytes32 voxelTypeId,
+    VoxelCoord memory coord
+  ) internal override {
     // if there isn't a player entry in the table, then set the default values for the player
     if (!hasKey(PlayerTableId, Player.encodeKeyTuple(caller))) {
       Player.set(
@@ -29,7 +34,16 @@ contract ApprovalSystem is System {
     }
   }
 
-  function staminaLimit(address caller, uint256 limit) internal {
+  function postApproval(
+    EventType eventType,
+    address caller,
+    bytes32 voxelTypeId,
+    VoxelCoord memory coord
+  ) internal override {
+    Player.setLastUpdateBlock(caller, block.number);
+  }
+
+  function staminaLimit(address caller, uint256 actionCost) internal {
     PlayerData memory playerData = Player.get(caller);
     uint256 numBlocksPassed = block.number - playerData.lastUpdateBlock;
     uint256 newStamina = playerData.stamina + (numBlocksPassed * STAMINA_BLOCK_RATE);
@@ -37,10 +51,10 @@ contract ApprovalSystem is System {
       newStamina = MAX_STAMINA;
     }
     require(
-      newStamina >= limit,
-      string.concat("Not enough stamina. Need ", Strings.toString(limit), " for this action")
+      newStamina >= actionCost,
+      string.concat("Not enough stamina. Need ", Strings.toString(actionCost), " for this action")
     );
-    Player.setStamina(caller, newStamina - limit);
+    Player.setStamina(caller, newStamina - actionCost);
   }
 
   function movementLimit(address caller, VoxelCoord memory coord) internal {
@@ -54,24 +68,33 @@ contract ApprovalSystem is System {
     Player.setLastUpdateCoord(caller, abi.encode(coord));
   }
 
-  function approveMine(address caller, bytes32 voxelTypeId, VoxelCoord memory coord) public {
-    playerInit(caller, coord);
+  function approveEvent(
+    EventType eventType,
+    address caller,
+    bytes32 voxelTypeId,
+    VoxelCoord memory coord
+  ) internal override {
     movementLimit(caller, coord);
-    staminaLimit(caller, MINE_STAMINA_COST);
-    Player.setLastUpdateBlock(caller, block.number);
+    uint256 staminaCost;
+    if (eventType == EventType.Mine) {
+      staminaCost = MINE_STAMINA_COST;
+    } else if (eventType == EventType.Build) {
+      staminaCost = BUILD_STAMINA_COST;
+    } else if (eventType == EventType.Activate) {
+      staminaCost = ACTIVATE_STAMINA_COST;
+    }
+    staminaLimit(caller, staminaCost);
   }
 
-  function approveBuild(address caller, bytes32 voxelTypeId, VoxelCoord memory coord) public {
-    playerInit(caller, coord);
-    movementLimit(caller, coord);
-    staminaLimit(caller, BUILD_STAMINA_COST);
-    Player.setLastUpdateBlock(caller, block.number);
+  function approveMine(address caller, bytes32 voxelTypeId, VoxelCoord memory coord) public override {
+    super.approveMine(caller, voxelTypeId, coord);
   }
 
-  function approveActivate(address caller, bytes32 voxelTypeId, VoxelCoord memory coord) public {
-    playerInit(caller, coord);
-    movementLimit(caller, coord);
-    staminaLimit(caller, ACTIVATE_STAMINA_COST);
-    Player.setLastUpdateBlock(caller, block.number);
+  function approveBuild(address caller, bytes32 voxelTypeId, VoxelCoord memory coord) public override {
+    super.approveBuild(caller, voxelTypeId, coord);
+  }
+
+  function approveActivate(address caller, bytes32 voxelTypeId, VoxelCoord memory coord) public override {
+    super.approveActivate(caller, voxelTypeId, coord);
   }
 }

@@ -47,10 +47,7 @@ contract RunCASystem is System {
   function activateCA(address caAddress, uint32 scale, bytes32 entity) public {
     bytes memory returnData = activateVoxel(caAddress, entity);
     string memory activateStr = abi.decode(returnData, (string));
-    VoxelActivated.emitEphemeral(
-      addressToEntityKey(tx.origin),
-      VoxelActivatedData({ scale: scale, entity: entity, message: activateStr })
-    );
+    VoxelActivated.emitEphemeral(tx.origin, VoxelActivatedData({ scale: scale, entity: entity, message: activateStr }));
   }
 
   function calculateNeighbourEntities(uint32 scale, bytes32 centerEntity) public view returns (bytes32[] memory) {

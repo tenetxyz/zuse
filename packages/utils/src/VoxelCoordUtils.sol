@@ -24,6 +24,23 @@ function voxelCoordToString(VoxelCoord memory coord) pure returns (string memory
     );
 }
 
+// Using Babylonian method
+function sqrt(uint x) returns (uint y) {
+  uint z = (x + 1) / 2;
+  y = x;
+  while (z < y) {
+    y = z;
+    z = (x / z + z) / 2;
+  }
+}
+
+function distanceBetween(VoxelCoord memory c1, VoxelCoord memory c2) returns (uint256) {
+  uint32 squaredDistanceX = uint32((c2.x - c1.x) * (c2.x - c1.x));
+  uint32 squaredDistanceY = uint32((c2.y - c1.y) * (c2.y - c1.y));
+  uint32 squaredDistanceZ = uint32((c2.z - c1.z) * (c2.z - c1.z));
+  return sqrt(uint256(squaredDistanceX + squaredDistanceY + squaredDistanceZ));
+}
+
 function getNeighbourCoords(VoxelCoord memory coord) pure returns (VoxelCoord[] memory) {
   int8[NUM_VOXEL_NEIGHBOURS * 3] memory NEIGHBOUR_COORD_OFFSETS = [
     int8(0),

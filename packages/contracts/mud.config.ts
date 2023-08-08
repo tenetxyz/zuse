@@ -33,7 +33,7 @@ export default mudConfig({
     },
     VoxelActivated: {
       keySchema: {
-        player: "bytes32",
+        player: "address",
       },
       schema: {
         scale: "uint32",
@@ -54,6 +54,17 @@ export default mudConfig({
         z: "int32",
       },
     },
+    Player: {
+      keySchema: {
+        player: "address",
+      },
+      schema: {
+        health: "uint256",
+        stamina: "uint256",
+        lastUpdateBlock: "uint256",
+        lastUpdateCoord: "bytes", // VoxelCoord
+      },
+    },
     OwnedBy: {
       keySchema: {
         scale: "uint32",
@@ -63,7 +74,6 @@ export default mudConfig({
         player: "address",
       },
     },
-    Name: "string", // Used to name players
     Recipe: "bytes32",
     // tables for creations
     Creation: {
@@ -166,6 +176,11 @@ export default mudConfig({
       name: "KeysInTableModule",
       root: true,
       args: [resolveTableId("Spawn")],
+    },
+    {
+      name: "KeysInTableModule",
+      root: true,
+      args: [resolveTableId("Player")],
     },
   ],
 });

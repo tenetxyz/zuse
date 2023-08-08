@@ -44,15 +44,13 @@ export function createPlayerPositionSystem(network: NetworkLayer, context: NoaLa
     components: { PlayerPosition, PlayerRelayerChunkPosition, PlayerDirection, PlayerMesh },
   } = context;
 
-  const {
-    world,
-    contractComponents: { Name },
-  } = network;
+  const { world } = network;
 
   async function spawnPlayer(entity: Entity) {
     // const address = world.entities[entity];
     const address = entity;
-    const name = getComponentValue(Name, entity)?.value ?? address.substring(0, 10);
+    // const name = getComponentValue(Name, entity)?.value ?? address.substring(0, 10);
+    const name = address.substring(0, 10);
     const isMappingStored = mudToNoaId.has(entity);
     const noaEntity: number = mudToNoaId.get(entity) ?? noa.entities.add();
     if (!isMappingStored) {
@@ -76,7 +74,8 @@ export function createPlayerPositionSystem(network: NetworkLayer, context: NoaLa
   function updateNameTag(entity: Entity) {
     // const address = world.entities[entity];
     const address = entity;
-    const name = getComponentValue(Name, entity)?.value ?? address.substring(0, 10);
+    // const name = getComponentValue(Name, entity)?.value ?? address.substring(0, 10);
+    const name = address.substring(0, 10);
     const isMappingStored = mudToNoaId.has(entity);
     const noaEntity: number = mudToNoaId.get(entity) ?? noa.entities.add();
     if (!isMappingStored) {
@@ -116,10 +115,10 @@ export function createPlayerPositionSystem(network: NetworkLayer, context: NoaLa
     }
   );
 
-  defineSystem(world, [Has(Name), Has(PlayerMesh)], (update) => {
-    if (update.type === UpdateType.Exit) return;
-    updateNameTag(update.entity);
-  });
+  // defineSystem(world, [Has(Name), Has(PlayerMesh)], (update) => {
+  //   if (update.type === UpdateType.Exit) return;
+  //   updateNameTag(update.entity);
+  // });
 
   defineSystem(world, [Has(PlayerPosition), Has(PlayerDirection)], (update) => {
     if (update.type === UpdateType.Enter) {

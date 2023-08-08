@@ -19,6 +19,8 @@ import { AirVoxelID, AirVoxelVariantID } from "@tenet-base-ca/src/Constants.sol"
 
 contract MineSystem is System {
   function mine(bytes32 voxelTypeId, VoxelCoord memory coord) public returns (uint32, bytes32) {
+    IWorld(_world()).approveMine(tx.origin, voxelTypeId, coord);
+
     (uint32 scale, bytes32 voxelToMine) = mineVoxelType(voxelTypeId, coord, true);
 
     bytes32 useParentEntity = IWorld(_world()).calculateParentEntity(scale, voxelToMine);
@@ -79,7 +81,8 @@ contract MineSystem is System {
 
     IWorld(_world()).runCA(caAddress, scale, voxelToMine);
 
-    if (voxelTypeId != AirVoxelID) { // TODO: Figure out how to add other airs
+    if (voxelTypeId != AirVoxelID) {
+      // TODO: Figure out how to add other airs
       // Can't own it since it became air, so we gift it
       IWorld(_world()).giftVoxel(voxelTypeId);
     }

@@ -6,6 +6,7 @@ import { registerUIComponent } from "../engine";
 import { combineLatest, concat, map, of, scan } from "rxjs";
 import styled from "styled-components";
 import { Absolute, AbsoluteBorder, Center, Slot } from "./common";
+import { StatusHud } from "./StatusHud";
 import { range } from "@latticexyz/utils";
 import {
   defineQuery,
@@ -244,8 +245,8 @@ export function registerInventoryHud() {
             <PixelatedImage src="/img/mud-player.png" width={35} />
             <Sounds playRandomTheme={playRandomTheme} playNextTheme={playNextTheme} /> */}
           </ConnectedPlayersContainer>
-          <div className="flex flex-row">
-            {/* <StatusHud layers={layers} /> */}
+          <div className="flex flex-col">
+            <StatusHud layers={layers} />
             <ActionBarWrapper>
               {[...range(INVENTORY_WIDTH)].map((i) => Slots[i])}
               <TooltipProvider delayDuration={100}>

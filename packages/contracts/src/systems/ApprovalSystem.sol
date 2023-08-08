@@ -28,7 +28,7 @@ contract ApprovalSystem is EventApprovals {
     if (!hasKey(PlayerTableId, Player.encodeKeyTuple(caller))) {
       Player.set(
         caller,
-        PlayerData({ health: 50, stamina: 30, lastUpdateBlock: block.number, lastUpdateCoord: abi.encode(coord) })
+        PlayerData({ health: 100, stamina: 100, lastUpdateBlock: block.number, lastUpdateCoord: abi.encode(coord) })
         // TODO: Should use player spawn point
       );
     }

@@ -8,7 +8,6 @@ import { Player, PlayerTableId, PlayerData } from "@tenet-contracts/src/codegen/
 import { System } from "@latticexyz/world/src/System.sol";
 
 uint256 constant STAMINA_BLOCK_RATE = 1;
-uint256 constant HEALTH_BLOCK_RATE = 1;
 uint256 constant MINE_STAMINA_COST = 5;
 
 contract ApprovalSystem is System {
@@ -24,7 +23,7 @@ contract ApprovalSystem is System {
     PlayerData memory playerData = Player.get(caller);
     uint256 numBlocksPassed = block.number - playerData.lastUpdateBlock;
     uint256 newStamina = playerData.stamina + (numBlocksPassed * STAMINA_BLOCK_RATE);
-    require(playerData.stamina >= MINE_STAMINA_COST, "MineSystem: not enough stamina");
+    require(newStamina >= MINE_STAMINA_COST, "MineSystem: not enough stamina");
     Player.set(
       caller,
       PlayerData({ health: playerData.health, stamina: newStamina - MINE_STAMINA_COST, lastUpdateBlock: block.number })

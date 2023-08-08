@@ -115,10 +115,10 @@ export function createPlayerPositionSystem(network: NetworkLayer, context: NoaLa
     }
   );
 
-  defineSystem(world, [Has(Name), Has(PlayerMesh)], (update) => {
-    if (update.type === UpdateType.Exit) return;
-    updateNameTag(update.entity);
-  });
+  // defineSystem(world, [Has(Name), Has(PlayerMesh)], (update) => {
+  //   if (update.type === UpdateType.Exit) return;
+  //   updateNameTag(update.entity);
+  // });
 
   defineSystem(world, [Has(PlayerPosition), Has(PlayerDirection)], (update) => {
     if (update.type === UpdateType.Enter) {

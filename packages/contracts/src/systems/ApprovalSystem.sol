@@ -63,7 +63,16 @@ contract ApprovalSystem is EventApprovals {
     uint256 distanceDelta = distanceBetween(abi.decode(playerData.lastUpdateCoord, (VoxelCoord)), coord);
     require(
       distanceDelta <= numBlocksPassed * TRAVEL_BLOCK_RATE,
-      string.concat("Cannot travel that far. Distance delta: ", Strings.toString(distanceDelta))
+      string.concat(
+        "Cannot travel that far in ",
+        Strings.toString(numBlocksPassed),
+        " ",
+        Strings.toString(block.number),
+        " ",
+        Strings.toString(playerData.lastUpdateBlock),
+        " blocks. Distance delta: ",
+        Strings.toString(distanceDelta)
+      )
     );
     Player.setLastUpdateCoord(caller, abi.encode(coord));
   }

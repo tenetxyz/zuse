@@ -19,8 +19,8 @@ export const StatusHud: React.FC<Props> = ({ layers }) => {
 
   if (playerEntity === undefined) return <></>;
 
-  const health = Number(getComponentValue(Player, playerEntity)?.health) || 50;
-  const stamina = Number(getComponentValue(Player, playerEntity)?.stamina) || 30;
+  const health = Number(getComponentValue(Player, playerEntity)?.health) || 100;
+  const stamina = Number(getComponentValue(Player, playerEntity)?.stamina) || 100;
 
   return (
     <div className="flex flex-row space-x-32 mb-3">

@@ -14,6 +14,7 @@ import { CAVoxelType, CAVoxelTypeData } from "@tenet-base-ca/src/codegen/tables/
 import { VoxelTypeRegistry, VoxelTypeRegistryData } from "@tenet-registry/src/codegen/tables/VoxelTypeRegistry.sol";
 
 abstract contract MineEvent is System {
+  // Called by users
   function mine(bytes32 voxelTypeId, VoxelCoord memory coord) public virtual returns (uint32, bytes32) {
     IWorld(_world()).approveMine(tx.origin, voxelTypeId, coord);
 
@@ -34,6 +35,7 @@ abstract contract MineEvent is System {
     return (scale, voxelToMine);
   }
 
+  // Called by CA
   function mineVoxelType(
     bytes32 voxelTypeId,
     VoxelCoord memory coord,

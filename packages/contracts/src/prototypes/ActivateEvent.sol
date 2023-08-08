@@ -14,8 +14,18 @@ import { VoxelCoord } from "../Types.sol";
 import { calculateChildCoords, getEntityAtCoord, positionDataToVoxelCoord } from "../Utils.sol";
 
 abstract contract ActivateEvent is System {
+  // Called by users
   function activateVoxel(bytes32 voxelTypeId, VoxelCoord memory coord) public virtual {
     IWorld(_world()).approveActivate(tx.origin, voxelTypeId, coord);
+    IWorld(_world()).activateVoxelType(voxelTypeId, coord);
+  }
+
+  // Called by CA
+  function activateVoxelType(bytes32 voxelTypeId, VoxelCoord memory coord) public virtual {
+    require(
+      _msgSender() == _world() || IWorld(_world()).isCAAllowed(_msgSender()),
+      "BuildSystem: Not allowed to build"
+    );
 
     require(IWorld(_world()).isVoxelTypeAllowed(voxelTypeId), "BuildSystem: Voxel type not allowed in this world");
     VoxelTypeRegistryData memory voxelTypeData = VoxelTypeRegistry.get(IStore(REGISTRY_ADDRESS), voxelTypeId);
@@ -35,7 +45,7 @@ abstract contract ActivateEvent is System {
         if (childVoxelTypeIds[i] == 0) {
           continue;
         }
-        activateVoxel(childVoxelTypeIds[i], eightBlockVoxelCoords[i]);
+        activateVoxelType(childVoxelTypeIds[i], eightBlockVoxelCoords[i]);
       }
     }
 

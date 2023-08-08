@@ -24,4 +24,8 @@ contract ActivateVoxelSystem is ActivateEvent {
     VoxelCoord memory coord = positionDataToVoxelCoord(Position.get(scale, entity));
     super.activateVoxel(voxelTypeId, coord);
   }
+
+  function activateVoxelType(bytes32 voxelTypeId, VoxelCoord memory coord) public override {
+    super.activateVoxelType(voxelTypeId, coord);
+  }
 }

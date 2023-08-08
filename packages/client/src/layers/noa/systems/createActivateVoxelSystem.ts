@@ -12,14 +12,14 @@ export async function createActivateVoxelSystem(network: NetworkLayer, noaLayer:
   const {
     world,
     components: { VoxelActivated },
-    playerEntity,
+    playerAddress,
   } = network;
 
   defineComponentSystem(world, VoxelActivated, (update) => {
     if (update.value[0] === undefined) {
       return;
     }
-    if (update.entity === playerEntity) {
+    if (update.entity === playerAddress) {
       const voxelActivatedData = update.value[0];
       const activateMsg = removeTrailingNulls(voxelActivatedData.message);
       if (activateMsg.length > 0) {

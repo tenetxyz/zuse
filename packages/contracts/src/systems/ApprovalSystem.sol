@@ -5,8 +5,11 @@ import { hasKey } from "@latticexyz/world/src/modules/keysintable/hasKey.sol";
 import { IWorld } from "@tenet-contracts/src/codegen/world/IWorld.sol";
 import { VoxelCoord } from "@tenet-contracts/src/Types.sol";
 import { Player, PlayerTableId, PlayerData } from "@tenet-contracts/src/codegen/Tables.sol";
+import { Strings } from "@openzeppelin/contracts/utils/Strings.sol";
 import { System } from "@latticexyz/world/src/System.sol";
 
+uint256 constant MAX_HEALTH = 100;
+uint256 constant MAX_STAMINA = 100;
 uint256 constant STAMINA_BLOCK_RATE = 1;
 uint256 constant MINE_STAMINA_COST = 5;
 uint256 constant BUILD_STAMINA_COST = 5;
@@ -20,11 +23,17 @@ contract ApprovalSystem is System {
     }
   }
 
-  function staminaLimit(address caller, uint256 limit) public returns (uint256) {
+  function staminaLimit(address caller, uint256 limit) public {
     PlayerData memory playerData = Player.get(caller);
     uint256 numBlocksPassed = block.number - playerData.lastUpdateBlock;
     uint256 newStamina = playerData.stamina + (numBlocksPassed * STAMINA_BLOCK_RATE);
-    require(newStamina >= limit, "MineSystem: not enough stamina");
+    if (newStamina > MAX_STAMINA) {
+      newStamina = MAX_STAMINA;
+    }
+    require(
+      newStamina >= limit,
+      string.concat("Not enough stamina. Need ", Strings.toString(limit), " for this action")
+    );
     Player.set(
       caller,
       PlayerData({ health: playerData.health, stamina: newStamina - limit, lastUpdateBlock: block.number })

@@ -3,20 +3,29 @@
 import React, { useEffect, useState } from "react";
 import Bar from "../../noa/components/Bar";
 import { Layers } from "../../../types";
+import { getComponentValue } from "@latticexyz/recs";
 
 interface Props {
   layers: Layers;
 }
 
 export const StatusHud: React.FC<Props> = ({ layers }) => {
-  const maxHealth = 100;
-  const maxStamina = 100;
-  const [health, setHealth] = useState(80);
-  const [stamina, setStamina] = useState(70);
+  const {
+    network: {
+      contractComponents: { Player },
+      playerEntity,
+    },
+  } = layers;
+
+  if (playerEntity === undefined) return <></>;
+
+  const health = Number(getComponentValue(Player, playerEntity)?.health) || 50;
+  const stamina = Number(getComponentValue(Player, playerEntity)?.stamina) || 30;
+
   return (
     <div className="flex flex-row space-x-32 mb-3">
-      <Bar percentage={(health * 100) / maxHealth} color={"#ff3838"} text={"Health"} barFloatLeft={true} />
-      <Bar percentage={(stamina * 100) / maxStamina} color={"#5671e8"} text={"Stamina"} barFloatLeft={false} />
+      <Bar percentage={health} color={"#ff3838"} text={"Health"} barFloatLeft={true} />
+      <Bar percentage={stamina} color={"#5671e8"} text={"Stamina"} barFloatLeft={false} />
     </div>
   );
 };

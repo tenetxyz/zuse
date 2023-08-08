@@ -46,6 +46,7 @@ contract ApprovalSystem is EventApprovals {
   function staminaLimit(address caller, uint256 actionCost) internal {
     PlayerData memory playerData = Player.get(caller);
     uint256 numBlocksPassed = block.number - playerData.lastUpdateBlock;
+    // TODO: What to do if numBlocksPassed is 0? Ie multiple tx in same block
     uint256 newStamina = playerData.stamina + (numBlocksPassed * STAMINA_BLOCK_RATE);
     if (newStamina > MAX_STAMINA) {
       newStamina = MAX_STAMINA;
@@ -60,16 +61,13 @@ contract ApprovalSystem is EventApprovals {
   function movementLimit(address caller, VoxelCoord memory coord) internal {
     PlayerData memory playerData = Player.get(caller);
     uint256 numBlocksPassed = block.number - playerData.lastUpdateBlock;
+    // TODO: What to do if numBlocksPassed is 0? Ie multiple tx in same block
     uint256 distanceDelta = distanceBetween(abi.decode(playerData.lastUpdateCoord, (VoxelCoord)), coord);
     require(
       distanceDelta <= numBlocksPassed * TRAVEL_BLOCK_RATE,
       string.concat(
         "Cannot travel that far in ",
         Strings.toString(numBlocksPassed),
-        " ",
-        Strings.toString(block.number),
-        " ",
-        Strings.toString(playerData.lastUpdateBlock),
         " blocks. Distance delta: ",
         Strings.toString(distanceDelta)
       )

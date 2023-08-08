@@ -59,8 +59,8 @@ export default mudConfig({
         player: "address",
       },
       schema: {
-        health: "uint32",
-        stamina: "uint32",
+        health: "uint256",
+        stamina: "uint256",
         lastUpdateBlock: "uint256",
       },
     },

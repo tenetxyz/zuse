@@ -18,6 +18,7 @@ import { AirVoxelVariantID } from "@tenet-base-ca/src/Constants.sol";
 import { Strings } from "@openzeppelin/contracts/utils/Strings.sol";
 
 abstract contract BuildEvent is System {
+  // Called by users
   function build(bytes32 voxelTypeId, VoxelCoord memory coord) public virtual returns (uint32, bytes32) {
     IWorld(_world()).approveBuild(tx.origin, voxelTypeId, coord);
     return IWorld(_world()).buildVoxelType(voxelTypeId, coord, true, true);
@@ -132,6 +133,7 @@ abstract contract BuildEvent is System {
     }
   }
 
+  // Called by CA's
   function buildVoxelType(
     bytes32 voxelTypeId,
     VoxelCoord memory coord,

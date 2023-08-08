@@ -62,6 +62,7 @@ export default mudConfig({
         health: "uint256",
         stamina: "uint256",
         lastUpdateBlock: "uint256",
+        lastUpdateCoord: "bytes", // VoxelCoord
       },
     },
     OwnedBy: {

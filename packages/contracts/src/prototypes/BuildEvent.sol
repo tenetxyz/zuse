@@ -49,17 +49,18 @@ abstract contract BuildEvent is Event {
     buildParentVoxel(scale, eventVoxelEntity, coord);
   }
 
-  // function onEntityDoesntExist(
-  //   bytes32 voxelTypeId,
-  //   VoxelCoord memory coord,
-  //   uint32 scale
-  // ) internal override returns (bytes32) {
-  //   bytes32 voxelToBuild = getUniqueEntity();
-  //   // Set Position
-  //   Position.set(scale, voxelToBuild, coord.x, coord.y, coord.z);
-
-  //   return voxelToBuild;
-  // }
+  function runEventHandlerForChildren(
+    bytes32 voxelTypeId,
+    VoxelCoord memory coord,
+    uint32 scale,
+    bytes32 eventVoxelEntity,
+    bytes32 childVoxelTypeId,
+    VoxelCoord memory childCoord
+  ) internal override {
+    if (childVoxelTypeId != 0) {
+      runEventHandler(childVoxelTypeId, childCoord, true, false);
+    }
+  }
 
   function preRunCA(
     address caAddress,

@@ -31,17 +31,23 @@ contract MineSystem is MineEvent {
     bool mineChildren,
     bool mineParent
   ) public override returns (uint32, bytes32) {
-    (uint32 scale, bytes32 voxelToMine) = super.runEventHandler(voxelTypeId, coord, mineChildren, mineParent);
+    return super.runEventHandler(voxelTypeId, coord, mineChildren, mineParent);
+  }
 
+  function postRunCA(
+    address caAddress,
+    bytes32 voxelTypeId,
+    VoxelCoord memory coord,
+    uint32 scale,
+    bytes32 eventVoxelEntity
+  ) internal override {
     if (voxelTypeId != AirVoxelID) {
       // TODO: Figure out how to add other airs
       // Can't own it since it became air, so we gift it
       IWorld(_world()).giftVoxel(voxelTypeId);
     }
 
-    tryRemoveVoxelFromSpawn(scale, voxelToMine);
-
-    return (scale, voxelToMine);
+    tryRemoveVoxelFromSpawn(scale, eventVoxelEntity);
   }
 
   function tryRemoveVoxelFromSpawn(uint32 scale, bytes32 voxel) internal {

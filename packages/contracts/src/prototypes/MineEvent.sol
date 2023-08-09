@@ -57,21 +57,19 @@ abstract contract MineEvent is Event {
     bytes32 eventVoxelEntity
   ) internal override {}
 
-  // function onEntityDoesntExist(
-  //   bytes32 voxelTypeId,
-  //   VoxelCoord memory coord,
-  //   uint32 scale
-  // ) internal override returns (bytes32) {
-  //   if (scale == 2) {
-  //     // For us 2 has he terrain gen (ie Grass, Dirt, etc.)
-  //     bytes32 voxelToMine = getUniqueEntity();
-  //     Position.set(scale, voxelToMine, coord.x, coord.y, coord.z);
-  //     return voxelToMine;
-  //   } else {
-  //     // TODO: Support terrain gen at higher scales yet
-  //     revert("Mining terrain at higher scales is not supported yet");
-  //   }
-  // }
+  function runEventHandlerForChildren(
+    bytes32 voxelTypeId,
+    VoxelCoord memory coord,
+    uint32 scale,
+    bytes32 eventVoxelEntity,
+    bytes32 childVoxelTypeId,
+    VoxelCoord memory childCoord
+  ) internal override {
+    bytes32 childVoxelEntity = getEntityAtCoord(scale - 1, childCoord);
+    if (childVoxelEntity != 0) {
+      runEventHandler(VoxelType.getVoxelTypeId(scale - 1, childVoxelEntity), childCoord, true, false);
+    }
+  }
 
   function preRunCA(
     address caAddress,
@@ -83,12 +81,4 @@ abstract contract MineEvent is Event {
     // Enter World
     IWorld(_world()).exitCA(caAddress, scale, voxelTypeId, coord, eventVoxelEntity);
   }
-
-  function postRunCA(
-    address caAddress,
-    bytes32 voxelTypeId,
-    VoxelCoord memory coord,
-    uint32 scale,
-    bytes32 eventVoxelEntity
-  ) internal override {}
 }

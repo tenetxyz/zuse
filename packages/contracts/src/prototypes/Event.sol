@@ -64,6 +64,15 @@ abstract contract Event is System {
     bytes32 eventVoxelEntity
   ) internal virtual;
 
+  function runEventHandlerForChildren(
+    bytes32 voxelTypeId,
+    VoxelCoord memory coord,
+    uint32 scale,
+    bytes32 eventVoxelEntity,
+    bytes32 childVoxelTypeId,
+    VoxelCoord memory childCoord
+  ) internal virtual;
+
   // Called by CA
   function runEventHandler(
     bytes32 voxelTypeId,
@@ -96,7 +105,7 @@ abstract contract Event is System {
     uint32 scale = voxelTypeData.scale;
 
     bytes32 eventVoxelEntity = getEntityAtCoord(scale, coord);
-    if (eventVoxelEntity == 0) {
+    if (uint256(eventVoxelEntity) == 0) {
       eventVoxelEntity = getUniqueEntity();
       Position.set(scale, eventVoxelEntity, coord.x, coord.y, coord.z);
     }
@@ -109,15 +118,14 @@ abstract contract Event is System {
       // TODO: move this to a library
       VoxelCoord[] memory eightBlockVoxelCoords = calculateChildCoords(2, coord);
       for (uint8 i = 0; i < 8; i++) {
-        // mine(childVoxelTypeIds[i], eightBlockVoxelCoords[i]);
-        bytes32 childVoxelEntity = getEntityAtCoord(scale - 1, eightBlockVoxelCoords[i]);
-        if (childVoxelEntity != 0) {
-          runEventHandler(VoxelType.getVoxelTypeId(scale - 1, childVoxelEntity), eightBlockVoxelCoords[i], true, false);
-        } else {
-          if (childVoxelTypeIds[i] != 0) {
-            runEventHandler(childVoxelTypeIds[i], eightBlockVoxelCoords[i], true, false);
-          }
-        }
+        runEventHandlerForChildren(
+          voxelTypeId,
+          coord,
+          scale,
+          eventVoxelEntity,
+          childVoxelTypeIds[i],
+          eightBlockVoxelCoords[i]
+        );
       }
     }
 

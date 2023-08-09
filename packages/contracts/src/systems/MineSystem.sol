@@ -1,34 +1,37 @@
 // SPDX-License-Identifier: MIT
 pragma solidity >=0.8.0;
 
-import { IStore } from "@latticexyz/store/src/IStore.sol";
 import { IWorld } from "@tenet-contracts/src/codegen/world/IWorld.sol";
-import { getUniqueEntity } from "@latticexyz/world/src/modules/uniqueentity/getUniqueEntity.sol";
-import { getKeysInTable } from "@latticexyz/world/src/modules/keysintable/getKeysInTable.sol";
 import { MineEvent } from "../prototypes/MineEvent.sol";
 import { VoxelCoord, VoxelEntity } from "@tenet-contracts/src/Types.sol";
-import { WorldConfig, OwnedBy, Position, PositionTableId, VoxelType, VoxelTypeData, OfSpawn, Spawn, SpawnData } from "@tenet-contracts/src/codegen/Tables.sol";
-import { REGISTRY_ADDRESS } from "@tenet-contracts/src/Constants.sol";
-import { calculateChildCoords, getEntityAtCoord, positionDataToVoxelCoord } from "@tenet-contracts/src/Utils.sol";
-import { CAVoxelType, CAVoxelTypeData } from "@tenet-base-ca/src/codegen/tables/CAVoxelType.sol";
-import { VoxelTypeRegistry, VoxelTypeRegistryData } from "@tenet-registry/src/codegen/tables/VoxelTypeRegistry.sol";
-import { addressToEntityKey } from "@tenet-utils/src/Utils.sol";
-import { Utils } from "@latticexyz/world/src/Utils.sol";
+import { VoxelType, VoxelTypeData, OfSpawn, Spawn, SpawnData } from "@tenet-contracts/src/codegen/Tables.sol";
 import { CHUNK_MAX_Y, CHUNK_MIN_Y } from "../Constants.sol";
-import { AirVoxelID, AirVoxelVariantID } from "@tenet-base-ca/src/Constants.sol";
+import { AirVoxelID } from "@tenet-base-ca/src/Constants.sol";
 
 contract MineSystem is MineEvent {
-  function mine(bytes32 voxelTypeId, VoxelCoord memory coord) public override returns (uint32, bytes32) {
-    require(coord.y <= CHUNK_MAX_Y && coord.y >= CHUNK_MIN_Y, "out of chunk bounds");
-    super.mine(voxelTypeId, coord);
+  function callEventHandler(
+    bytes32 voxelTypeId,
+    VoxelCoord memory coord,
+    bool runEventOnChildren,
+    bool runEventOnParent
+  ) internal override returns (uint32, bytes32) {
+    return IWorld(_world()).mineVoxelType(voxelTypeId, coord, runEventOnChildren, runEventOnParent);
   }
 
+  // Called by users
+  function mine(bytes32 voxelTypeId, VoxelCoord memory coord) public override returns (uint32, bytes32) {
+    require(coord.y <= CHUNK_MAX_Y && coord.y >= CHUNK_MIN_Y, "out of chunk bounds");
+    super.runEvent(voxelTypeId, coord);
+  }
+
+  // Called by CA
   function mineVoxelType(
     bytes32 voxelTypeId,
     VoxelCoord memory coord,
-    bool mineChildren
+    bool mineChildren,
+    bool mineParent
   ) public override returns (uint32, bytes32) {
-    (uint32 scale, bytes32 voxelToMine) = super.mineVoxelType(voxelTypeId, coord, mineChildren);
+    (uint32 scale, bytes32 voxelToMine) = super.runEventHandler(voxelTypeId, coord, mineChildren, mineParent);
 
     if (voxelTypeId != AirVoxelID) {
       // TODO: Figure out how to add other airs

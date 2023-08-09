@@ -4,23 +4,34 @@ pragma solidity >=0.8.0;
 import { IWorld } from "@tenet-contracts/src/codegen/world/IWorld.sol";
 import { BuildEvent } from "../prototypes/BuildEvent.sol";
 import { VoxelCoord } from "../Types.sol";
-import { WorldConfig, WorldConfigTableId, OwnedBy, Position, PositionTableId, VoxelType, VoxelTypeData } from "@tenet-contracts/src/codegen/Tables.sol";
+import { OwnedBy, VoxelType, VoxelTypeData } from "@tenet-contracts/src/codegen/Tables.sol";
 
 contract BuildSystem is BuildEvent {
-  function build(uint32 scale, bytes32 entity, VoxelCoord memory coord) public returns (uint32, bytes32) {
+  function callEventHandler(
+    bytes32 voxelTypeId,
+    VoxelCoord memory coord,
+    bool runEventOnChildren,
+    bool runEventOnParent
+  ) internal override returns (uint32, bytes32) {
+    return IWorld(_world()).buildVoxelType(voxelTypeId, coord, runEventOnChildren, runEventOnParent);
+  }
+
+  // Called by users
+  function build(uint32 scale, bytes32 entity, VoxelCoord memory coord) public override returns (uint32, bytes32) {
     // Require voxel to be owned by caller
     require(OwnedBy.get(scale, entity) == tx.origin, "voxel is not owned by player");
     VoxelTypeData memory voxelType = VoxelType.get(scale, entity);
 
-    return super.build(voxelType.voxelTypeId, coord);
+    return super.runEvent(voxelType.voxelTypeId, coord);
   }
 
+  // Called by CA
   function buildVoxelType(
     bytes32 voxelTypeId,
     VoxelCoord memory coord,
     bool buildChildren,
     bool buildParent
   ) public override returns (uint32, bytes32) {
-    return super.buildVoxelType(voxelTypeId, coord, buildChildren, buildParent);
+    return super.runEventHandler(voxelTypeId, coord, buildChildren, buildParent);
   }
 }

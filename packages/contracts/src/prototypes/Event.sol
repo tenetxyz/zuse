@@ -30,7 +30,6 @@ abstract contract Event is System {
     bool runEventOnParent
   ) internal virtual returns (uint32, bytes32);
 
-  // Called by users
   function runEvent(bytes32 voxelTypeId, VoxelCoord memory coord) internal virtual returns (uint32, bytes32) {
     preEvent(voxelTypeId, coord);
 

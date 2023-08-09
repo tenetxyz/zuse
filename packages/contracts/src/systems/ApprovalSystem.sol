@@ -47,6 +47,9 @@ contract ApprovalSystem is EventApprovals {
     PlayerData memory playerData = Player.get(caller);
     uint256 numBlocksPassed = block.number - playerData.lastUpdateBlock;
     // TODO: What to do if numBlocksPassed is 0? Ie multiple tx in same block
+    if (numBlocksPassed == 0) {
+      numBlocksPassed = 1;
+    }
     uint256 newStamina = playerData.stamina + (numBlocksPassed * STAMINA_BLOCK_RATE);
     if (newStamina > MAX_STAMINA) {
       newStamina = MAX_STAMINA;
@@ -62,6 +65,9 @@ contract ApprovalSystem is EventApprovals {
     PlayerData memory playerData = Player.get(caller);
     uint256 numBlocksPassed = block.number - playerData.lastUpdateBlock;
     // TODO: What to do if numBlocksPassed is 0? Ie multiple tx in same block
+    if (numBlocksPassed == 0) {
+      numBlocksPassed = 1;
+    }
     uint256 distanceDelta = distanceBetween(abi.decode(playerData.lastUpdateCoord, (VoxelCoord)), coord);
     require(
       distanceDelta <= numBlocksPassed * TRAVEL_BLOCK_RATE,

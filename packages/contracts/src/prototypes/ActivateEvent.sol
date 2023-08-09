@@ -2,7 +2,7 @@
 pragma solidity >=0.8.0;
 
 import { IStore } from "@latticexyz/store/src/IStore.sol";
-import { System } from "@latticexyz/world/src/System.sol";
+import { Event } from "./Event.sol";
 import { WorldConfig, Position, PositionTableId, VoxelType, VoxelTypeTableId, VoxelTypeData } from "@tenet-contracts/src/codegen/Tables.sol";
 import { VoxelTypeRegistry, VoxelTypeRegistryData } from "@tenet-registry/src/codegen/tables/VoxelTypeRegistry.sol";
 import { safeCall } from "@tenet-utils/src/CallUtils.sol";
@@ -13,45 +13,70 @@ import { IWorld } from "@tenet-contracts/src/codegen/world/IWorld.sol";
 import { VoxelCoord } from "../Types.sol";
 import { calculateChildCoords, getEntityAtCoord, positionDataToVoxelCoord } from "../Utils.sol";
 
-abstract contract ActivateEvent is System {
+abstract contract ActivateEvent is Event {
   // Called by users
-  function activateVoxel(bytes32 voxelTypeId, VoxelCoord memory coord) public virtual {
-    IWorld(_world()).approveActivate(tx.origin, voxelTypeId, coord);
-    IWorld(_world()).activateVoxelType(voxelTypeId, coord);
+  function activate(bytes32 voxelTypeId, VoxelCoord memory coord) public virtual returns (uint32, bytes32) {
+    VoxelTypeRegistryData memory voxelTypeData = VoxelTypeRegistry.get(IStore(REGISTRY_ADDRESS), voxelTypeId);
+    uint32 scale = voxelTypeData.scale;
+    bytes32 eventVoxelEntity = getEntityAtCoord(scale, coord);
+    require(eventVoxelEntity != 0, "ActivateEvent: no voxel entity at coord");
+    return runEvent(voxelTypeId, coord);
   }
 
   // Called by CA
-  function activateVoxelType(bytes32 voxelTypeId, VoxelCoord memory coord) public virtual {
-    require(
-      _msgSender() == _world() || IWorld(_world()).isCAAllowed(_msgSender()),
-      "BuildSystem: Not allowed to build"
-    );
+  function activateVoxelType(
+    bytes32 voxelTypeId,
+    VoxelCoord memory coord,
+    bool activateChildren,
+    bool activateParent
+  ) public virtual returns (uint32, bytes32);
 
-    require(IWorld(_world()).isVoxelTypeAllowed(voxelTypeId), "BuildSystem: Voxel type not allowed in this world");
-    VoxelTypeRegistryData memory voxelTypeData = VoxelTypeRegistry.get(IStore(REGISTRY_ADDRESS), voxelTypeId);
-    uint32 scale = voxelTypeData.scale;
-    address caAddress = WorldConfig.get(voxelTypeId);
-    bytes32 voxelToActivate = getEntityAtCoord(scale, coord);
-    require(voxelToActivate != 0, "ActivateEvent: Voxel to activate does not exist");
+  function preEvent(bytes32 voxelTypeId, VoxelCoord memory coord) internal override {
+    IWorld(_world()).approveActivate(tx.origin, voxelTypeId, coord);
+  }
 
-    if (scale > 1) {
-      // Read the ChildTypes in this CA address
-      bytes32[] memory childVoxelTypeIds = voxelTypeData.childVoxelTypeIds;
-      // TODO: Make this general by using cube root
-      require(childVoxelTypeIds.length == 8, "Invalid length of child voxel type ids");
-      // TODO: move this to a library
-      VoxelCoord[] memory eightBlockVoxelCoords = calculateChildCoords(2, coord);
-      for (uint8 i = 0; i < 8; i++) {
-        if (childVoxelTypeIds[i] == 0) {
-          continue;
-        }
-        activateVoxelType(childVoxelTypeIds[i], eightBlockVoxelCoords[i]);
-      }
+  function postEvent(
+    bytes32 voxelTypeId,
+    VoxelCoord memory coord,
+    uint32 scale,
+    bytes32 eventVoxelEntity
+  ) internal override {}
+
+  function runEventHandlerForParent(
+    bytes32 voxelTypeId,
+    VoxelCoord memory coord,
+    uint32 scale,
+    bytes32 eventVoxelEntity
+  ) internal override {}
+
+  function runEventHandlerForChildren(
+    bytes32 voxelTypeId,
+    VoxelCoord memory coord,
+    uint32 scale,
+    bytes32 eventVoxelEntity,
+    bytes32 childVoxelTypeId,
+    VoxelCoord memory childCoord
+  ) internal override {
+    if (childVoxelTypeId != 0) {
+      runEventHandler(childVoxelTypeId, childCoord, true, false);
     }
+  }
 
-    IWorld(_world()).runCA(caAddress, scale, voxelToActivate);
+  function preRunCA(
+    address caAddress,
+    bytes32 voxelTypeId,
+    VoxelCoord memory coord,
+    uint32 scale,
+    bytes32 eventVoxelEntity
+  ) internal override {}
 
-    // Enter World
-    IWorld(_world()).activateCA(caAddress, scale, voxelToActivate);
+  function postRunCA(
+    address caAddress,
+    bytes32 voxelTypeId,
+    VoxelCoord memory coord,
+    uint32 scale,
+    bytes32 eventVoxelEntity
+  ) internal override {
+    IWorld(_world()).activateCA(caAddress, scale, eventVoxelEntity);
   }
 }

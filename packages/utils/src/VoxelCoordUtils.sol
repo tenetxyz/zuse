@@ -34,7 +34,7 @@ function sqrt(uint x) pure returns (uint y) {
   }
 }
 
-function distanceBetween(VoxelCoord memory c1, VoxelCoord memory c2) returns (uint256) {
+function distanceBetween(VoxelCoord memory c1, VoxelCoord memory c2) pure returns (uint256) {
   uint32 squaredDistanceX = uint32((c2.x - c1.x) * (c2.x - c1.x));
   uint32 squaredDistanceY = uint32((c2.y - c1.y) * (c2.y - c1.y));
   uint32 squaredDistanceZ = uint32((c2.z - c1.z) * (c2.z - c1.z));

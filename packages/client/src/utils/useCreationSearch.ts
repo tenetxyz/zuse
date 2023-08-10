@@ -7,7 +7,7 @@ import { getEntityString } from "@latticexyz/recs";
 import { to256BitString } from "@latticexyz/utils";
 import { VoxelCoord } from "@latticexyz/utils";
 import { VoxelTypeKey, VoxelTypeKeyInMudTable } from "../layers/noa/types";
-import { abiDecode } from "@/utils/encodeOrDecode";
+import { abiDecode, cleanObj } from "@/utils/encodeOrDecode";
 import { decodeBaseCreations } from "./encodeOrDecode";
 
 export interface Props {
@@ -19,11 +19,23 @@ export interface CreationSearch {
   creationsToDisplay: Creation[];
 }
 
+export type CreationSpawns = {
+  worldAddress: string;
+  numSpawns: BigInt;
+};
+
+export type CreationMetadata = {
+  name: string;
+  description: string;
+  spawns: CreationSpawns[];
+};
+
 export const useCreationSearch = ({ layers, filters }: Props) => {
   const {
     network: {
       registryComponents: { CreationRegistry },
       network: { connectedAddress },
+      worldAddress,
     },
   } = layers;
 
@@ -36,16 +48,22 @@ export const useCreationSearch = ({ layers, filters }: Props) => {
     allCreations.current = [];
     const creationTable = CreationRegistry.values;
     creationTable.metadata.forEach((rawMetadata: string, creationId) => {
-      const metaData = abiDecode(
-        "tuple(string name,string description,tuple(address world, uint256 numSpawns)[])",
+      const metaData: CreationMetadata = abiDecode(
+        "tuple(string name,string description,tuple(address worldAddress, uint256 numSpawns)[] spawns)",
         rawMetadata
       );
       console.log("Creation metaData");
       console.log(metaData);
       const name = metaData.name;
       const description = metaData.description;
+      let numSpawns = 0;
+      metaData.spawns.forEach((spawn) => {
+        const cleanedSpawn = cleanObj(spawn);
+        if (cleanedSpawn.worldAddress.toLowerCase() === worldAddress.toLowerCase()) {
+          numSpawns = Number(cleanedSpawn.numSpawns);
+        }
+      });
       const creator = creationTable.creator.get(creationId);
-      const numSpawns = 0;
       if (!creator) {
         console.warn("No creator found for creation", creationId);
         return;

@@ -95,7 +95,7 @@ contract CreationRegistrySystem is System {
     bool found = false;
     uint256 newSpawnCount = 0;
     for (uint256 i = 0; i < creationSpawns.length; i++) {
-      if (creationSpawns[i].world == worldAddress) {
+      if (creationSpawns[i].worldAddress == worldAddress) {
         creationSpawns[i].numSpawns += 1;
         newSpawnCount = creationSpawns[i].numSpawns;
         creationMetadata.spawns = creationSpawns;
@@ -110,7 +110,7 @@ contract CreationRegistrySystem is System {
       for (uint256 i = 0; i < creationSpawns.length; i++) {
         newCreationSpawns[i] = creationSpawns[i];
       }
-      newCreationSpawns[creationSpawns.length] = CreationSpawns({ world: worldAddress, numSpawns: 1 });
+      newCreationSpawns[creationSpawns.length] = CreationSpawns({ worldAddress: worldAddress, numSpawns: 1 });
       creationMetadata.spawns = newCreationSpawns;
       newSpawnCount = 1;
       CreationRegistry.setMetadata(creationId, abi.encode(creationMetadata));

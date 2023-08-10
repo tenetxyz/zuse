@@ -2,7 +2,7 @@
 pragma solidity >=0.8.0;
 
 struct CreationSpawns {
-  address world;
+  address worldAddress;
   uint256 numSpawns;
 }
 

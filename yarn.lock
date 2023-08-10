@@ -1474,6 +1474,12 @@ __metadata:
   languageName: node
   linkType: soft
 
+"@latticexyz/store-sync@link:../../../mud/packages/store-sync::locator=client%40workspace%3Apackages%2Fclient":
+  version: 0.0.0-use.local
+  resolution: "@latticexyz/store-sync@link:../../../mud/packages/store-sync::locator=client%40workspace%3Apackages%2Fclient"
+  languageName: node
+  linkType: soft
+
 "@latticexyz/store@link:../../../mud/packages/store::locator=%40tenetxyz%2Fbase-ca%40workspace%3Apackages%2Fbase-ca":
   version: 0.0.0-use.local
   resolution: "@latticexyz/store@link:../../../mud/packages/store::locator=%40tenetxyz%2Fbase-ca%40workspace%3Apackages%2Fbase-ca"
@@ -3492,6 +3498,7 @@ box-intersect@fenomas/box-intersect:
     "@latticexyz/std-client": "link:../../../mud/packages/std-client"
     "@latticexyz/std-contracts": "link:../../../mud/packages/std-contracts"
     "@latticexyz/store-cache": "link:../../../mud/packages/store-cache"
+    "@latticexyz/store-sync": "link:../../../mud/packages/store-sync"
     "@latticexyz/utils": "link:../../../mud/packages/utils"
     "@latticexyz/world": "link:../../../mud/packages/world"
     "@radix-ui/react-collapsible": ^1.0.3
@@ -3533,7 +3540,7 @@ box-intersect@fenomas/box-intersect:
     tailwindcss: ^3.3.2
     tailwindcss-animate: ^1.0.6
     terser: ^5.19.0
-    viem: ^1.2.12
+    viem: ^1.3.1
     vite: ^4.2.1
     vite-plugin-optimize-css-modules: ^1.0.4
     wait-port: ^1.0.4
@@ -7508,7 +7515,7 @@ box-intersect@fenomas/box-intersect:
   languageName: node
   linkType: hard
 
-"viem@npm:^1.2.12":
+"viem@npm:^1.3.1":
   version: 1.5.4
   resolution: "viem@npm:1.5.4"
   dependencies:

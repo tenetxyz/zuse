@@ -3,6 +3,7 @@ import worldsJson from "@tenetxyz/contracts/worlds.json";
 import registryWorldsJson from "@tenetxyz/registry/worlds.json";
 import { supportedChains } from "./supportedChains";
 import { tenetTestnet, tenetRelayServiceUrl } from "./tenetTestnet";
+import { createClock } from "@latticexyz/network";
 
 const registryWorlds = registryWorldsJson as Partial<Record<string, { address: string; blockNumber?: number }>>;
 const worlds = worldsJson as Partial<Record<string, { address: string; blockNumber?: number }>>;
@@ -14,7 +15,7 @@ type NetworkConfig = SetupContractConfig & {
   relayServiceUrl?: string;
 };
 
-export async function getNetworkConfig(isRegistry: boolean): Promise<NetworkConfig> {
+export async function getNetworkConfig(isRegistry: boolean) {
   const params = new URLSearchParams(window.location.search);
 
   const chainId = Number(params.get("chainId") || import.meta.env.VITE_CHAIN_ID || 31337);
@@ -34,23 +35,33 @@ export async function getNetworkConfig(isRegistry: boolean): Promise<NetworkConf
 
   const initialBlockNumber = params.has("initialBlockNumber")
     ? Number(params.get("initialBlockNumber"))
-    : world?.blockNumber ?? -1; // -1 will attempt to find the block number from RPC
+    : world?.blockNumber ?? 0n;
+
+  // const clock = createClock({
+  //   period: 1000,
+  //   initialTime: 0,
+  //   syncInterval: 5000,
+  // });
+  // world?.registerDisposer(() => clock.dispose());
+  // latestBlock$
+  // .pipe(
+  //   map((block) => Number(block.timestamp) * 1000), // Map to timestamp in ms
+  //   filter((blockTimestamp) => blockTimestamp !== clock.lastUpdateTime), // Ignore if the clock was already refreshed with this block
+  //   filter((blockTimestamp) => blockTimestamp !== clock.currentTime) // Ignore if the current local timestamp is correct
+  // )
+  // .subscribe(clock.update); // Update the local clock
 
   return {
-    clock: {
-      period: 1000,
-      initialTime: 0,
-      syncInterval: 5000,
-    },
     provider: {
       chainId,
       jsonRpcUrl: params.get("rpc") ?? chain.rpcUrls.default.http[0],
       wsRpcUrl: params.get("wsRpc") ?? chain.rpcUrls.default.webSocket?.[0],
     },
     privateKey: getBurnerWallet().value,
+    chain,
     chainId,
     chainConfig: chain,
-    modeUrl: params.get("mode") ?? chain.modeUrl,
+    // modeUrl: params.get("mode") ?? chain.modeUrl,
     faucetServiceUrl: params.get("faucet") ?? chain.faucetUrl,
     worldAddress,
     initialBlockNumber,

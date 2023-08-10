@@ -9,12 +9,19 @@ import {
   getComponentValueStrict,
 } from "@latticexyz/recs";
 import {
-  createFastTxExecutor,
-  createFaucetService,
-  getSnapSyncRecords,
-  createRelayStream,
-  SyncState,
-} from "@latticexyz/network";
+  createPublicClient,
+  fallback,
+  webSocket,
+  http,
+  createWalletClient,
+  getContract,
+  Hex,
+  parseEther,
+  ClientConfig,
+} from "viem";
+import { encodeEntity, syncToRecs, SyncStep, singletonEntity } from "@latticexyz/store-sync/recs";
+import { createBurnerAccount, createContract, transportObserver } from "@latticexyz/common";
+import { createFaucetService, createRelayStream, SyncState } from "@latticexyz/network";
 import { getNetworkConfig } from "./getNetworkConfig";
 import { defineContractComponents } from "./contractComponents";
 import { defineContractComponents as defineRegistryContractComponents } from "@tenetxyz/registry/client/contractComponents";
@@ -23,7 +30,8 @@ import { BigNumber, Contract, Signer, utils } from "ethers";
 import { JsonRpcProvider } from "@ethersproject/providers";
 import { IWorld__factory } from "@tenetxyz/contracts/types/ethers-contracts/factories/IWorld__factory";
 import { IWorld__factory as RegistryIWorld__factory } from "@tenetxyz/registry/types/ethers-contracts/factories/IWorld__factory";
-import { getTableIds, awaitPromise, computedToStream, VoxelCoord, Coord, awaitStreamValue } from "@latticexyz/utils";
+import { awaitPromise, computedToStream, VoxelCoord, Coord, awaitStreamValue } from "@latticexyz/utils";
+import { getTableIds } from "@latticexyz/common/deprecated";
 import { map, timer, combineLatest, BehaviorSubject } from "rxjs";
 import storeConfig from "@tenetxyz/contracts/mud.config";
 import registryStoreConfig from "@tenetxyz/registry/mud.config";
@@ -86,20 +94,53 @@ const setupWorldRegistryNetwork = async () => {
   console.log("Got registry network config", networkConfig);
   networkConfig.showInDevTools = false;
 
-  const result = await setupMUDV2Network<typeof registryComponents, typeof registryStoreConfig>({
-    networkConfig,
+  const clientOptions = {
+    chain: networkConfig.chain,
+    transport: transportObserver(fallback([webSocket(), http()])),
+    pollingInterval: 1000,
+  } as const satisfies ClientConfig;
+
+  const publicClient = createPublicClient(clientOptions);
+
+  const result = await syncToRecs<typeof registryStoreConfig, typeof registryComponents>({
+    // networkConfig,
     world: registryWorld,
-    contractComponents: registryComponents,
-    syncThread: "worker", // PERF: sync using workers
-    storeConfig: registryStoreConfig,
-    worldAbi: RegistryIWorld__factory.abi,
+    config: registryStoreConfig,
+    address: networkConfig.worldAddress as Hex,
+    publicClient,
+    components: registryComponents,
+    // syncThread: "worker", // PERF: sync using workers
+    // storeConfig: registryStoreConfig,
+    // worldAbi: RegistryIWorld__factory.abi,
+    startBlock: BigInt(networkConfig.initialBlockNumber),
     useABIInDevTools: false,
   });
+  const burnerAccount = createBurnerAccount(networkConfig.privateKey as Hex);
+  const burnerWalletClient = createWalletClient({
+    ...clientOptions,
+    account: burnerAccount,
+  });
+  const { components, latestBlock$, blockStorageOperations$, waitForTransaction } = await syncToRecs({
+    world,
+    config: storeConfig,
+    address: networkConfig.worldAddress as Hex,
+    publicClient,
+    components: contractComponents,
+    startBlock: BigInt(networkConfig.initialBlockNumber),
+    indexerUrl: networkConfig.indexerUrl ?? undefined,
+  });
+
+  const worldContract = createContract({
+    address: networkConfig.worldAddress as Hex,
+    abi: IWorld__factory.abi,
+    publicClient,
+    walletClient: burnerWalletClient,
+  });
+
   console.log("Setup registry MUD V2 network", result);
 
   const provider = result.network.providers.get().json;
 
-  const signer = result.network.signer.get();
   const signerOrProvider = signer ?? provider;
 
   if (networkConfig.snapSync) {
@@ -127,10 +168,10 @@ export async function setupNetwork() {
 
   console.log("Getting network config...");
   const networkConfig = await getNetworkConfig(false);
-  networkConfig.showInDevTools = true;
+  // networkConfig.showInDevTools = true;
   console.log("Got network config", networkConfig);
-  const result = await setupMUDV2Network<typeof contractComponents, typeof storeConfig>({
-    networkConfig,
+  const result = await syncToRecs<typeof storeConfig, typeof contractComponents>({
+    // networkConfig,
     world,
     contractComponents,
     syncThread: "main", // PERF: sync using workers
@@ -140,7 +181,6 @@ export async function setupNetwork() {
   });
   console.log("Setup MUD V2 network", result);
 
-  const signer = result.network.signer.get();
   const playerAddress = result.network.connectedAddress.get();
 
   // Relayer setup
@@ -159,16 +199,16 @@ export async function setupNetwork() {
 
   // Request drip from faucet
   let faucet: any = undefined;
-  if (networkConfig.faucetServiceUrl && signer) {
-    const address = await signer.getAddress();
+  if (networkConfig.faucetServiceUrl) {
+    const address = burnerAccount.address;
     console.info("[Dev Faucet]: Player address -> ", address);
 
     faucet = createFaucetService(networkConfig.faucetServiceUrl);
 
     const requestDrip = async () => {
-      const balance = await signer.getBalance();
+      const balance = await publicClient.getBalance({ address });
       console.info(`[Dev Faucet]: Player balance -> ${balance}`);
-      const lowBalance = balance?.lte(utils.parseEther("1"));
+      const lowBalance = balance < parseEther("1");
       if (lowBalance) {
         console.info("[Dev Faucet]: Balance is low, dripping funds to player");
         // Double drip
@@ -779,7 +819,8 @@ export async function setupNetwork() {
     ...result,
     contractComponents,
     registryComponents,
-    world,
+    playerEntity: encodeEntity({ address: "address" }, { address: burnerWalletClient.account.address }),
+    publicClient,
     worldContract,
     actions,
     api: {
@@ -802,11 +843,10 @@ export async function setupNetwork() {
     fastTxExecutor,
     // dev: setupDevSystems(world, encoders as Promise<any>, systems),
     // dev: setupDevSystems(world),
-    streams: { connectedClients$, balanceGwei$, doneSyncing$ },
+    streams: { connectedClients$, balanceGwei$, doneSyncing$, latestBlock$, blockStorageOperations$ },
     config: networkConfig,
     relay,
     faucet,
-    worldAddress: networkConfig.worldAddress,
     uniqueWorldId,
     getVoxelIconUrl,
     getVoxelTypePreviewUrl,
@@ -817,5 +857,9 @@ export async function setupNetwork() {
       VoxelVariantSubscriptions,
     },
     objectStore: { transactionCallbacks }, // stores global objects. These aren't components since they don't really fit in with the rxjs event-based system
+    worldAddress: networkConfig.worldAddress,
+    waitForTransaction,
+    walletClient: burnerWalletClient,
+    world,
   };
 }

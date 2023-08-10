@@ -19,11 +19,6 @@ export type GameConfig = {
 };
 
 export const getNetworkConfig: (networkConfig: GameConfig) => SetupContractConfig = (config) => ({
-  clock: {
-    period: config.blockTime,
-    initialTime: 0,
-    syncInterval: 60_000,
-  },
   provider: {
     chainId: config.chainId,
     jsonRpcUrl: config.jsonRpc,

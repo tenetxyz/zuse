@@ -43,7 +43,7 @@ export async function getNetworkConfig(): Promise<NetworkConfig> {
     },
     privateKey: getBurnerWallet().value,
     chainId,
-    modeUrl: params.get("mode") ?? chain.modeUrl,
+    // modeUrl: params.get("mode") ?? chain.modeUrl,
     faucetServiceUrl: params.get("faucet") ?? chain.faucetUrl,
     worldAddress,
     initialBlockNumber,

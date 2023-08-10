@@ -67,19 +67,17 @@ contract CreationRegistrySystem is System {
       !hasKey(CreationRegistryTableId, CreationRegistry.encodeKeyTuple(creationId)),
       "Creation has already been registered"
     );
-    CreationRegistry.set(
-      creationId,
-      CreationRegistryData({
-        creator: tx.origin,
-        numSpawns: 0,
-        numVoxels: uint32(allVoxelCoordsInWorld.length),
-        voxelTypes: abi.encode(voxelTypes),
-        relativePositions: abi.encode(relativePositions),
-        name: name,
-        description: description,
-        baseCreations: abi.encode(baseCreations)
-      })
-    );
+    CreationRegistryData memory creationData;
+    creationData.creator = tx.origin;
+    creationData.numSpawns = 0;
+    creationData.numVoxels = uint32(allVoxelCoordsInWorld.length);
+    creationData.voxelTypes = abi.encode(allVoxelTypes);
+    creationData.relativePositions = abi.encode(relativePositions);
+    creationData.name = name;
+    creationData.description = description;
+    creationData.baseCreations = abi.encode(baseCreations);
+
+    CreationRegistry.set(creationId, creationData);
 
     return (creationId, lowerSouthwestCorner);
   }

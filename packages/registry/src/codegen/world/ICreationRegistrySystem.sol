@@ -12,5 +12,7 @@ interface ICreationRegistrySystem {
     VoxelTypeData[] memory voxelTypes,
     VoxelCoord[] memory voxelCoords,
     BaseCreationInWorld[] memory baseCreationsInWorld
-  ) external returns (bytes32);
+  ) external returns (bytes32, VoxelCoord memory);
+
+  function getVoxelsInCreation(bytes32 creationId) external view returns (VoxelCoord[] memory, VoxelTypeData[] memory);
 }

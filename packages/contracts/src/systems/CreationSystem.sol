@@ -27,19 +27,17 @@ contract CreationSystem is System {
     VoxelCoord[] memory voxelCoords = getVoxelCoords(voxels); // NOTE: we do not know the relative position of these voxelCoords yet (since we don't know the coords of the voxels in the base creations). So we will reposition them later
 
     // Call registry
-    (bytes32 creationId, VoxelCoord memory lowerSouthwestCorner) = registerCreation(
-      REGISTRY_ADDRESS,
-      name,
-      description,
-      voxelTypes,
-      voxelCoords,
-      baseCreationsInWorld
-    );
+    (
+      bytes32 creationId,
+      VoxelCoord memory lowerSouthwestCorner,
+      VoxelTypeData[] memory allVoxelTypes,
+      VoxelCoord[] memory allVoxelCoordsInWorld
+    ) = registerCreation(REGISTRY_ADDRESS, name, description, voxelTypes, voxelCoords, baseCreationsInWorld);
 
     // Replace the voxels in the registration with a spawn!
     // delete the voxels at this coord
-    for (uint256 i; i < voxelCoords.length; i++) {
-      IWorld(_world()).mineVoxelType(voxelTypes[i].voxelTypeId, voxelCoords[i], true, true);
+    for (uint256 i; i < allVoxelCoordsInWorld.length; i++) {
+      IWorld(_world()).mineVoxelType(allVoxelTypes[i].voxelTypeId, allVoxelCoordsInWorld[i], true, true);
     }
 
     IWorld(_world()).spawn(lowerSouthwestCorner, creationId); // make this creation a spawn

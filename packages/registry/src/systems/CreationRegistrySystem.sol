@@ -18,7 +18,7 @@ contract CreationRegistrySystem is System {
     VoxelTypeData[] memory voxelTypes,
     VoxelCoord[] memory voxelCoords,
     BaseCreationInWorld[] memory baseCreationsInWorld
-  ) public returns (bytes32, VoxelCoord memory) {
+  ) public returns (bytes32, VoxelCoord memory, VoxelTypeData[] memory, VoxelCoord[] memory) {
     for (uint256 i = 0; i < voxelTypes.length; i++) {
       require(
         hasKey(VoxelTypeRegistryTableId, VoxelTypeRegistry.encodeKeyTuple(voxelTypes[i].voxelTypeId)),
@@ -35,6 +35,7 @@ contract CreationRegistrySystem is System {
         "Base creation ID has not been registered"
       );
     }
+    CreationRegistryData memory creationData;
 
     // 1) get all of the voxelCoords of all voxels in the creation
     (VoxelCoord[] memory allVoxelCoordsInWorld, VoxelTypeData[] memory allVoxelTypes) = getVoxels(
@@ -49,38 +50,43 @@ contract CreationRegistrySystem is System {
     // 3) find the lowestSouthWestCorner so we can center the voxels about the origin (lowerSouthwestCorner)
     VoxelCoord memory lowerSouthwestCorner = getLowerSouthwestCorner(allVoxelCoordsInWorld);
 
-    // 4) reposition the voxels so the lowerSouthwestCorner is on the origin
-    // Note: we do NOT need to reposition the voxels within base creations because they are already positioned relative to the base creation
-    VoxelCoord[] memory relativePositions = repositionBlocksSoLowerSouthwestCornerIsOnOrigin(
-      voxelCoords,
-      lowerSouthwestCorner
-    );
+    bytes32 creationId;
+    {
+      // 4) reposition the voxels so the lowerSouthwestCorner is on the origin
+      // Note: we do NOT need to reposition the voxels within base creations because they are already positioned relative to the base creation
+      VoxelCoord[] memory relativePositions = repositionBlocksSoLowerSouthwestCornerIsOnOrigin(
+        voxelCoords,
+        lowerSouthwestCorner
+      );
+      creationData.relativePositions = abi.encode(relativePositions);
+      creationId = getCreationHash(allVoxelTypes, relativePositions);
+      require(
+        !hasKey(CreationRegistryTableId, CreationRegistry.encodeKeyTuple(creationId)),
+        "Creation has already been registered"
+      );
+    }
 
-    // 5) Reposition the base creations about the origin
-    BaseCreation[] memory baseCreations = convertBaseCreationsInWorldToBaseCreation(
-      baseCreationsInWorld,
-      lowerSouthwestCorner
-    );
+    {
+      // 5) Reposition the base creations about the origin
+      BaseCreation[] memory baseCreations = convertBaseCreationsInWorldToBaseCreation(
+        baseCreationsInWorld,
+        lowerSouthwestCorner
+      );
+      creationData.baseCreations = abi.encode(baseCreations);
+    }
 
     // 6) write all the fields of the creation to the table
-    bytes32 creationId = getCreationHash(allVoxelTypes, relativePositions);
-    require(
-      !hasKey(CreationRegistryTableId, CreationRegistry.encodeKeyTuple(creationId)),
-      "Creation has already been registered"
-    );
-    CreationRegistryData memory creationData;
     creationData.creator = tx.origin;
     creationData.numVoxels = uint32(allVoxelCoordsInWorld.length);
     creationData.voxelTypes = abi.encode(allVoxelTypes);
-    creationData.relativePositions = abi.encode(relativePositions);
-    creationData.baseCreations = abi.encode(baseCreations);
-    creationData.metadata = abi.encode(
-      CreationMetadata({ name: name, description: description, spawns: new CreationSpawns[](0) })
-    );
-
+    creationData.metadata = getMetadata(name, description);
     CreationRegistry.set(creationId, creationData);
 
-    return (creationId, lowerSouthwestCorner);
+    return (creationId, lowerSouthwestCorner, allVoxelTypes, allVoxelCoordsInWorld);
+  }
+
+  function getMetadata(string memory name, string memory description) internal pure returns (bytes memory) {
+    return abi.encode(CreationMetadata({ name: name, description: description, spawns: new CreationSpawns[](0) }));
   }
 
   function creationSpawned(bytes32 creationId) public returns (uint256) {

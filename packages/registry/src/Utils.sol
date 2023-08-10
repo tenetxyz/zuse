@@ -53,13 +53,13 @@ function registerCreation(
   VoxelTypeData[] memory voxelTypes,
   VoxelCoord[] memory voxelCoords,
   BaseCreationInWorld[] memory baseCreationsInWorld
-) returns (bytes32, VoxelCoord memory) {
+) returns (bytes32, VoxelCoord memory, VoxelTypeData[] memory, VoxelCoord[] memory) {
   bytes memory result = safeCall(
     registryAddress,
     abi.encodeWithSignature(REGISTER_CREATION_SIG, name, description, voxelTypes, voxelCoords, baseCreationsInWorld),
     "registerCreation"
   );
-  return abi.decode(result, (bytes32, VoxelCoord));
+  return abi.decode(result, (bytes32, VoxelCoord, VoxelTypeData[], VoxelCoord[]));
 }
 
 function getVoxelsInCreation(

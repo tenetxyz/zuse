@@ -7,11 +7,12 @@
     "mud": "node ../../node_modules/@latticexyz/cli/dist/mud.js",
     "build": "forge build",
     "clean": "forge clean",
+    "replaceGeneratedTypes": "../scripts/replaceGeneratedTypes.sh",
     "deploy": "yarn run initialize && yarn mud deploy",
     "deploy:hackathon": "yarn run initialize && yarn mud deploy --profile=hackathon-testnet",
     "deploy:testnet": "yarn run initialize && yarn mud deploy --profile=lattice-testnet",
     "dev": "yarn mud dev-contracts --tsgenOutput ./client",
-    "initialize": "yarn run tablegen && yarn run worldgen && yarn run build && yarn run worldtypes && yarn run tsgen",
+    "initialize": "yarn run tablegen && yarn run worldgen && yarn run replaceGeneratedTypes && yarn run build && yarn run worldtypes && yarn run tsgen",
     "lint": "yarn run prettier && yarn run solhint",
     "prettier": "prettier --write 'src/**/*.sol'",
     "solhint": "solhint --config ./.solhint.json 'src/**/*.sol' --fix",
@@ -37,6 +38,7 @@
     "rimraf": "^5.0.1"
   },
   "devDependencies": {
+    "@openzeppelin/contracts": "^4.9.1",
     "@typechain/ethers-v5": "^10.2.0",
     "@types/node": "^18.15.11",
     "ds-test": "https://github.com/dapphub/ds-test.git#c9ce3f25bde29fc5eb9901842bf02850dfd2d084",

@@ -16,9 +16,11 @@ import {
 import { FocusedUiType } from "../../noa/components/FocusedUi";
 import { twMerge } from "tailwind-merge";
 import { SetState } from "../../../utils/types";
-import { stringToEntity, to64CharAddress } from "../../../utils/entity";
+import { stringToEntity, to64CharAddress, voxelEntityToEntity } from "../../../utils/entity";
 import { defineSpawnInFocusComponent } from "../../noa/components";
 import { VoxelCoord } from "@latticexyz/utils";
+import { abiDecode } from "@/utils/encodeOrDecode";
+import { VoxelEntity } from "@/layers/noa/types";
 
 export interface RegisterCreationFormData {
   name: string;
@@ -46,8 +48,8 @@ const RegisterCreation: React.FC<Props> = ({ layers, formData, setFormData, rese
       noa,
     },
     network: {
-      contractComponents: { OfSpawn, Spawn, Position, Creation },
-      registryComponents: { VoxelTypeRegistry },
+      contractComponents: { OfSpawn, Spawn, Position },
+      registryComponents: { VoxelTypeRegistry, CreationRegistry },
       api: { getEntityAtPosition, registerCreation },
     },
   } = layers;
@@ -66,7 +68,7 @@ const RegisterCreation: React.FC<Props> = ({ layers, formData, setFormData, rese
     const spawnDefs = new Set<string>(); // spawnId, and lowerleft corner
     const voxelsNotInSpawn = [];
     for (const voxel of voxels) {
-      const spawnId = getComponentValue(OfSpawn, voxel)?.value;
+      const spawnId = getComponentValue(OfSpawn, voxel)?.spawnId;
       if (spawnId) {
         const encodedLowerSouthWestCorner = getComponentValueStrict(
           Spawn,
@@ -107,7 +109,7 @@ const RegisterCreation: React.FC<Props> = ({ layers, formData, setFormData, rese
   const findDeletedVoxelCoords = (spawn: any, lowerSouthWestCornerInWorld: VoxelCoord) => {
     const creationVoxelCoords = getVoxelCoordsOfCreation(
       VoxelTypeRegistry,
-      Creation,
+      CreationRegistry,
       stringToEntity(spawn.creationId),
       getWorldScale(noa)
     );
@@ -116,8 +118,9 @@ const RegisterCreation: React.FC<Props> = ({ layers, formData, setFormData, rese
       creationVoxelCoords.map((voxelCoord) => add(lowerSouthWestCornerInWorld, voxelCoord)).map(voxelCoordToString)
     ); // convert to string so we can use a set to remove coords that are in the world
 
-    for (const voxel of spawn.voxels) {
-      const voxelCoordInSpawn = voxelCoordToString(getComponentValueStrict(Position, stringToEntity(voxel)));
+    const decodedVoxels = abiDecode("tuple(uint32 scale, bytes32 entityId)[]", spawn.voxels) as VoxelEntity[];
+    for (const voxel of decodedVoxels) {
+      const voxelCoordInSpawn = voxelCoordToString(getComponentValueStrict(Position, voxelEntityToEntity(voxel)));
       creationVoxelCoordsInWorld.delete(voxelCoordInSpawn);
     }
 

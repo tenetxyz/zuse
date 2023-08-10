@@ -2494,6 +2494,7 @@ __metadata:
     "@latticexyz/std-contracts": "link:../../../mud/packages/std-contracts"
     "@latticexyz/store": "link:../../../mud/packages/store"
     "@latticexyz/world": "link:../../../mud/packages/world"
+    "@openzeppelin/contracts": ^4.9.1
     "@tenetxyz/utils": "workspace:*"
     "@typechain/ethers-v5": ^10.2.0
     "@types/node": ^18.15.11
@@ -3333,6 +3334,7 @@ box-intersect@fenomas/box-intersect:
     "@latticexyz/utils": "link:../../../mud/packages/utils"
     "@latticexyz/world": "link:../../../mud/packages/world"
     "@tenetxyz/level2-ca": "workspace:*"
+    "@tenetxyz/registry": "workspace:*"
     "@types/react": ^18.2.6
     "@types/react-dom": ^18.2.4
     "@vitejs/plugin-react": ^3.1.0

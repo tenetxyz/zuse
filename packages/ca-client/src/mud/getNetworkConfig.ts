@@ -1,8 +1,10 @@
 import { SetupContractConfig, getBurnerWallet } from "@latticexyz/std-client";
-import worldsJson from "@tenetxyz/level2-ca/worlds.json";
+import level2CAWorldsJson from "@tenetxyz/level2-ca/worlds.json";
+import registryWorldsJson from "@tenetxyz/registry/worlds.json";
 import { supportedChains } from "./supportedChains";
 
-const worlds = worldsJson as Partial<Record<string, { address: string; blockNumber?: number }>>;
+const level2CAWorlds = level2CAWorldsJson as Partial<Record<string, { address: string; blockNumber?: number }>>;
+const registryCAWorlds = registryWorldsJson as Partial<Record<string, { address: string; blockNumber?: number }>>;
 
 type NetworkConfig = SetupContractConfig & {
   privateKey: string;
@@ -10,7 +12,7 @@ type NetworkConfig = SetupContractConfig & {
   snapSync?: boolean;
 };
 
-export async function getNetworkConfig(): Promise<NetworkConfig> {
+export async function getNetworkConfig(worldId: string): Promise<NetworkConfig> {
   const params = new URLSearchParams(window.location.search);
 
   const chainId = Number(params.get("chainId") || import.meta.env.VITE_CHAIN_ID || 31337);
@@ -20,7 +22,15 @@ export async function getNetworkConfig(): Promise<NetworkConfig> {
     throw new Error(`Chain ${chainId} not found`);
   }
 
-  const world = worlds[chain.id.toString()];
+  let world = undefined;
+  if (worldId === "level2-ca") {
+    world = level2CAWorlds[chain.id.toString()];
+  } else if (worldId === "registry") {
+    world = registryCAWorlds[chain.id.toString()];
+  } else {
+    throw new Error(`Unknown world ${worldId}`);
+  }
+
   const worldAddress = params.get("worldAddress") || world?.address;
   if (!worldAddress) {
     throw new Error(`No world address found for chain ${chainId}. Did you run \`mud deploy\`?`);

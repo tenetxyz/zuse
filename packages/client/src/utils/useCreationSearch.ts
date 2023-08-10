@@ -7,7 +7,7 @@ import { getEntityString } from "@latticexyz/recs";
 import { to256BitString } from "@latticexyz/utils";
 import { VoxelCoord } from "@latticexyz/utils";
 import { VoxelTypeKey, VoxelTypeKeyInMudTable } from "../layers/noa/types";
-import { abiDecode } from "@/utils/encodeOrDecode";
+import { abiDecode, cleanObj } from "@/utils/encodeOrDecode";
 import { decodeBaseCreations } from "./encodeOrDecode";
 
 export interface Props {
@@ -19,11 +19,23 @@ export interface CreationSearch {
   creationsToDisplay: Creation[];
 }
 
+export type CreationSpawns = {
+  worldAddress: string;
+  numSpawns: BigInt;
+};
+
+export type CreationMetadata = {
+  name: string;
+  description: string;
+  spawns: CreationSpawns[];
+};
+
 export const useCreationSearch = ({ layers, filters }: Props) => {
   const {
     network: {
-      contractComponents: { Creation },
+      registryComponents: { CreationRegistry },
       network: { connectedAddress },
+      worldAddress,
     },
   } = layers;
 
@@ -32,11 +44,25 @@ export const useCreationSearch = ({ layers, filters }: Props) => {
   const [creationsToDisplay, setCreationsToDisplay] = React.useState<Creation[]>([]);
   const fuse = React.useRef<Fuse<Creation>>();
 
-  useComponentUpdate(Creation, () => {
+  useComponentUpdate(CreationRegistry, () => {
     allCreations.current = [];
-    const creationTable = Creation.values;
-    creationTable.name.forEach((name: string, creationId) => {
-      const description = creationTable.description.get(creationId) ?? "";
+    const creationTable = CreationRegistry.values;
+    creationTable.metadata.forEach((rawMetadata: string, creationId) => {
+      const metaData: CreationMetadata = abiDecode(
+        "tuple(string name,string description,tuple(address worldAddress, uint256 numSpawns)[] spawns)",
+        rawMetadata
+      );
+      console.log("Creation metaData");
+      console.log(metaData);
+      const name = metaData.name;
+      const description = metaData.description;
+      let numSpawns = 0;
+      metaData.spawns.forEach((spawn) => {
+        const cleanedSpawn = cleanObj(spawn);
+        if (cleanedSpawn.worldAddress.toLowerCase() === worldAddress.toLowerCase()) {
+          numSpawns = Number(cleanedSpawn.numSpawns);
+        }
+      });
       const creator = creationTable.creator.get(creationId);
       if (!creator) {
         console.warn("No creator found for creation", creationId);
@@ -81,7 +107,7 @@ export const useCreationSearch = ({ layers, filters }: Props) => {
         creator: creator,
         voxelTypes: voxelTypes,
         relativePositions,
-        numSpawns: creationTable.numSpawns.get(creationId) ?? 0,
+        numSpawns: numSpawns,
         numVoxels: creationTable.numVoxels.get(creationId) ?? 0,
         baseCreations,
       } as Creation);

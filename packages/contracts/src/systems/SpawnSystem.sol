@@ -3,20 +3,23 @@ pragma solidity >=0.8.0;
 
 import { getUniqueEntity } from "@latticexyz/world/src/modules/uniqueentity/getUniqueEntity.sol";
 import { System } from "@latticexyz/world/src/System.sol";
-import { VoxelCoord, BaseCreation, VoxelEntity } from "@tenet-contracts/src/Types.sol";
-import { OwnedBy, Position, PositionTableId, VoxelType, VoxelTypeData, OfSpawn, Spawn, SpawnData, Creation, CreationData } from "@tenet-contracts/src/codegen/Tables.sol";
+import { VoxelCoord, VoxelEntity } from "@tenet-contracts/src/Types.sol";
+import { OwnedBy, Position, PositionTableId, VoxelType, VoxelTypeData, OfSpawn, Spawn, SpawnData } from "@tenet-contracts/src/codegen/Tables.sol";
 import { increaseVoxelTypeSpawnCount } from "../Utils.sol";
 import { voxelCoordsAreEqual, add } from "@tenet-utils/src/VoxelCoordUtils.sol";
 import { int32ToString } from "@tenet-utils/src/StringUtils.sol";
 import { IWorld } from "@tenet-contracts/src/codegen/world/IWorld.sol";
 import { console } from "forge-std/console.sol";
+import { REGISTRY_ADDRESS } from "@tenet-contracts/src/Constants.sol";
 import { CHUNK_MAX_Y, CHUNK_MIN_Y } from "../Constants.sol";
 import { Strings } from "@openzeppelin/contracts/utils/Strings.sol";
+import { getVoxelsInCreation, creationSpawned } from "@tenet-registry/src/Utils.sol";
 
 contract SpawnSystem is System {
   function spawn(VoxelCoord memory lowerSouthWestCorner, bytes32 creationId) public returns (bytes32) {
     // 1) get all the voxels in the creation
-    (VoxelCoord[] memory relativeVoxelCoords, VoxelTypeData[] memory voxelTypes) = IWorld(_world()).getVoxelsInCreation(
+    (VoxelCoord[] memory relativeVoxelCoords, VoxelTypeData[] memory voxelTypes) = getVoxelsInCreation(
+      REGISTRY_ADDRESS,
       creationId
     );
 
@@ -55,13 +58,8 @@ contract SpawnSystem is System {
     Spawn.set(spawnId, spawnData);
 
     // 4) update spawn creation metrics
-    increaseCreationSpawnCount(creationId);
-    return spawnId;
-  }
+    creationSpawned(REGISTRY_ADDRESS, creationId);
 
-  function increaseCreationSpawnCount(bytes32 creationId) private {
-    CreationData memory creationData = Creation.get(creationId);
-    creationData.numSpawns += 1;
-    Creation.set(creationId, creationData);
+    return spawnId;
   }
 }

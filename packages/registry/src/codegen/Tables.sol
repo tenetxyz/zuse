@@ -7,3 +7,4 @@ import { WorldRegistry, WorldRegistryData, WorldRegistryTableId } from "./tables
 import { CARegistry, CARegistryData, CARegistryTableId } from "./tables/CARegistry.sol";
 import { VoxelTypeRegistry, VoxelTypeRegistryData, VoxelTypeRegistryTableId } from "./tables/VoxelTypeRegistry.sol";
 import { VoxelVariantsRegistry, VoxelVariantsRegistryData, VoxelVariantsRegistryTableId } from "./tables/VoxelVariantsRegistry.sol";
+import { CreationRegistry, CreationRegistryData, CreationRegistryTableId } from "./tables/CreationRegistry.sol";

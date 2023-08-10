@@ -41,23 +41,23 @@ export function stringToVoxelCoord(coordString: string): VoxelCoord {
 
 export const calculateMinMaxRelativeCoordsOfCreation = (
   VoxelTypeRegistry: any,
-  Creation: any,
+  CreationRegistry: any,
   creationId: Entity,
   scale: number
 ) => {
-  const relativeVoxelCoords = getVoxelCoordsOfCreation(VoxelTypeRegistry, Creation, creationId, scale);
+  const relativeVoxelCoords = getVoxelCoordsOfCreation(VoxelTypeRegistry, CreationRegistry, creationId, scale);
   return calculateMinMaxCoords(relativeVoxelCoords);
 };
 
 // TODO: fix the type of Creation:any. Note: I didn't want to pass in "layers" since this function is called a lot, and we'd be dereferencing layers a lot to get Creation
 export const getVoxelCoordsOfCreation = (
   VoxelTypeRegistry: any,
-  Creation: any,
+  CreationRegistry: any,
   creationId: Entity,
   scale: number
 ): VoxelCoord[] => {
   // PERF: if users tend to spawn the same creation multiple times we should memoize the creation fetching process
-  const creation = getComponentValueStrict(Creation, creationId);
+  const creation = getComponentValueStrict(CreationRegistry, creationId);
 
   // 1) Add the voxel coords from the creation itself
   const voxelCoords =
@@ -87,7 +87,7 @@ export const getVoxelCoordsOfCreation = (
   for (const baseCreation of baseCreations) {
     const baseCreationVoxelCoords = getVoxelCoordsOfCreation(
       VoxelTypeRegistry,
-      Creation,
+      CreationRegistry,
       baseCreation.creationId,
       scale
     );

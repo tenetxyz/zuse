@@ -16,6 +16,11 @@ export type InterfaceVoxel = {
   desc: string;
 };
 
+export type VoxelEntity = {
+  scale: number;
+  entityId: string;
+};
+
 export enum NoaBlockType {
   BLOCK,
   MESH,

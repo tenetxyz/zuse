@@ -17,8 +17,7 @@ export function createSpawnCreationOverlaySystem(network: NetworkLayer, noaLayer
     noa,
   } = noaLayer;
   const {
-    contractComponents: { Creation },
-    registryComponents: { VoxelTypeRegistry },
+    registryComponents: { VoxelTypeRegistry, CreationRegistry },
   } = network;
 
   let creationToSpawn: Creation | undefined;
@@ -50,12 +49,7 @@ export function createSpawnCreationOverlaySystem(network: NetworkLayer, noaLayer
   };
 
   const renderCreationOutline = (creation: Creation) => {
-    const { corner1, corner2 } = calculateCornersFromTargetedBlock(
-      noa,
-      VoxelTypeRegistry,
-      Creation,
-      creation,
-    );
+    const { corner1, corner2 } = calculateCornersFromTargetedBlock(noa, VoxelTypeRegistry, CreationRegistry, creation);
     renderedCreationOutlineMesh = renderChunkyWireframe(corner1, corner2, noa, new Color3(0, 0, 1), 0.05);
   };
   // TODO: once we have rendered the right outline mesh, we need to also use this coord for the spawning location
@@ -64,8 +58,8 @@ export function createSpawnCreationOverlaySystem(network: NetworkLayer, noaLayer
 export const calculateCornersFromTargetedBlock = (
   noa: Engine,
   VoxelTypeRegistry: any,
-  Creation: any,
-  creation: Creation,
+  CreationRegistry: any,
+  creation: Creation
 ) => {
   const {
     adjacent: [x, y, z],
@@ -74,7 +68,7 @@ export const calculateCornersFromTargetedBlock = (
 
   const { minCoord, maxCoord } = calculateMinMaxRelativeCoordsOfCreation(
     VoxelTypeRegistry,
-    Creation,
+    CreationRegistry,
     creation.creationId,
     getWorldScale(noa)
   );

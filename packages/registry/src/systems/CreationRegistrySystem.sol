@@ -5,7 +5,7 @@ import { System } from "@latticexyz/world/src/System.sol";
 import { hasKey } from "@latticexyz/world/src/modules/keysintable/hasKey.sol";
 import { Strings } from "@openzeppelin/contracts/utils/Strings.sol";
 import { voxelCoordToString, voxelCoordsAreEqual, add, sub } from "@tenet-utils/src/VoxelCoordUtils.sol";
-import { CreationRegistryTableId, CreationRegistry, CreationRegistryData, VoxelTypeRegistryTableId, VoxelTypeRegistry, VoxelVariantsRegistryTableId, VoxelVariantsRegistry } from "@tenet-registry/src/codegen/Tables.sol";
+import { WorldRegistryTableId, WorldRegistry, CreationRegistryTableId, CreationRegistry, CreationRegistryData, VoxelTypeRegistryTableId, VoxelTypeRegistry, VoxelVariantsRegistryTableId, VoxelVariantsRegistry } from "@tenet-registry/src/codegen/Tables.sol";
 import { VoxelCoord, BaseCreation, BaseCreationInWorld, VoxelTypeData } from "@tenet-utils/src/Types.sol";
 import { CreationMetadata, CreationSpawns } from "../Types.sol";
 
@@ -81,6 +81,42 @@ contract CreationRegistrySystem is System {
     CreationRegistry.set(creationId, creationData);
 
     return (creationId, lowerSouthwestCorner);
+  }
+
+  function creationSpawned(bytes32 creationId) public returns (uint256) {
+    address worldAddress = _msgSender();
+    require(hasKey(WorldRegistryTableId, WorldRegistry.encodeKeyTuple(worldAddress)), "World has not been registered");
+    require(
+      hasKey(CreationRegistryTableId, CreationRegistry.encodeKeyTuple(creationId)),
+      "Creation has not been registered"
+    );
+    CreationMetadata memory creationMetadata = abi.decode(CreationRegistry.getMetadata(creationId), (CreationMetadata));
+    CreationSpawns[] memory creationSpawns = creationMetadata.spawns;
+    bool found = false;
+    uint256 newSpawnCount = 0;
+    for (uint256 i = 0; i < creationSpawns.length; i++) {
+      if (creationSpawns[i].world == worldAddress) {
+        creationSpawns[i].numSpawns += 1;
+        newSpawnCount = creationSpawns[i].numSpawns;
+        creationMetadata.spawns = creationSpawns;
+        CreationRegistry.setMetadata(creationId, abi.encode(creationMetadata));
+        found = true;
+        break;
+      }
+    }
+    if (!found) {
+      // this means, this is a new world, and we need to add it to the array
+      CreationSpawns[] memory newCreationSpawns = new CreationSpawns[](creationSpawns.length + 1);
+      for (uint256 i = 0; i < creationSpawns.length; i++) {
+        newCreationSpawns[i] = creationSpawns[i];
+      }
+      newCreationSpawns[creationSpawns.length] = CreationSpawns({ world: worldAddress, numSpawns: 1 });
+      creationMetadata.spawns = newCreationSpawns;
+      newSpawnCount = 1;
+      CreationRegistry.setMetadata(creationId, abi.encode(creationMetadata));
+    }
+
+    return newSpawnCount;
   }
 
   function validateCreation(VoxelCoord[] memory voxelCoords) internal pure {

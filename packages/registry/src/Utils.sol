@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity >=0.8.0;
 
-import { REGISTER_VOXEL_TYPE_SIG, REGISTER_VOXEL_VARIANT_SIG, REGISTER_CREATION_SIG, GET_VOXELS_IN_CREATION_SIG } from "@tenet-registry/src/Constants.sol";
+import { REGISTER_VOXEL_TYPE_SIG, REGISTER_VOXEL_VARIANT_SIG, REGISTER_CREATION_SIG, GET_VOXELS_IN_CREATION_SIG, CREATION_SPAWNED_SIG } from "@tenet-registry/src/Constants.sol";
 import { VoxelVariantsRegistryData } from "@tenet-registry/src/codegen/tables/VoxelVariantsRegistry.sol";
 import { VoxelCoord, BaseCreationInWorld, VoxelTypeData } from "@tenet-utils/src/Types.sol";
 import { safeCall } from "@tenet-utils/src/CallUtils.sol";
@@ -72,4 +72,13 @@ function getVoxelsInCreation(
     "getVoxelsInCreation"
   );
   return abi.decode(result, (VoxelCoord[], VoxelTypeData[]));
+}
+
+function creationSpawned(address registryAddress, bytes32 creationId) returns (uint256) {
+  bytes memory result = safeCall(
+    registryAddress,
+    abi.encodeWithSignature(CREATION_SPAWNED_SIG, creationId),
+    "creationSpawned"
+  );
+  return abi.decode(result, (uint256));
 }

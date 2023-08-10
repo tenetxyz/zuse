@@ -9,3 +9,4 @@ string constant REGISTER_WORLD_SIG = "registerWorld(string,string,address[])";
 string constant WORLD_NOTIFY_NEW_CA_VOXEL_TYPE_SIG = "onNewCAVoxelType(address,bytes32)";
 string constant REGISTER_CREATION_SIG = "registerCreation(string,string,(bytes32,bytes32)[],(int32,int32,int32)[],(bytes32,(int32,int32,int32),(int32,int32,int32)[])[])";
 string constant GET_VOXELS_IN_CREATION_SIG = "getVoxelsInCreation(bytes32)";
+string constant CREATION_SPAWNED_SIG = "creationSpawned(bytes32)";

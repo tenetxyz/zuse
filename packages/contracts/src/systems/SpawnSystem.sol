@@ -13,7 +13,7 @@ import { console } from "forge-std/console.sol";
 import { REGISTRY_ADDRESS } from "@tenet-contracts/src/Constants.sol";
 import { CHUNK_MAX_Y, CHUNK_MIN_Y } from "../Constants.sol";
 import { Strings } from "@openzeppelin/contracts/utils/Strings.sol";
-import { getVoxelsInCreation } from "@tenet-registry/src/Utils.sol";
+import { getVoxelsInCreation, creationSpawned } from "@tenet-registry/src/Utils.sol";
 
 contract SpawnSystem is System {
   function spawn(VoxelCoord memory lowerSouthWestCorner, bytes32 creationId) public returns (bytes32) {
@@ -58,13 +58,8 @@ contract SpawnSystem is System {
     Spawn.set(spawnId, spawnData);
 
     // 4) update spawn creation metrics
-    increaseCreationSpawnCount(creationId);
-    return spawnId;
-  }
+    creationSpawned(REGISTRY_ADDRESS, creationId);
 
-  function increaseCreationSpawnCount(bytes32 creationId) private {
-    // CreationData memory creationData = Creation.get(creationId);
-    // creationData.numSpawns += 1;
-    // Creation.set(creationId, creationData);
+    return spawnId;
   }
 }

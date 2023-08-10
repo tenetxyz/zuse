@@ -25,7 +25,7 @@ function voxelCoordToString(VoxelCoord memory coord) pure returns (string memory
 }
 
 // Using Babylonian method
-function sqrt(uint x) returns (uint y) {
+function sqrt(uint x) pure returns (uint y) {
   uint z = (x + 1) / 2;
   y = x;
   while (z < y) {

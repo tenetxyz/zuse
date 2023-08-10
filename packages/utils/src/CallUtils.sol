@@ -5,7 +5,7 @@ function safeStaticCallFunctionSelector(
   address world,
   bytes4 functionPointer,
   bytes memory args
-) returns (bytes memory) {
+) view returns (bytes memory) {
   return safeStaticCall(world, bytes.concat(functionPointer, args), "staticcall function selector");
 }
 

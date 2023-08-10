@@ -5,16 +5,33 @@ import { defineContractComponents } from "./contractComponents";
 import { world } from "./world";
 import { Contract, Signer, utils } from "ethers";
 import { JsonRpcProvider } from "@ethersproject/providers";
-import { IWorld__factory } from "@tenetxyz/level2-ca/types/ethers-contracts/factories/IWorld__factory";
+import { IWorld__factory as Level2CAWordl_factory } from "@tenetxyz/level2-ca/types/ethers-contracts/factories/IWorld__factory";
+import { IWorld__factory as RegistryIWorld__factory } from "@tenetxyz/registry/types/ethers-contracts/factories/IWorld__factory";
+import Level2CaStoreConfig from "@tenetxyz/level2-ca/mud.config";
+import RegistryStoreConfig from "@tenetxyz/registry/mud.config";
+
 import { getTableIds } from "@latticexyz/utils";
-import storeConfig from "@tenetxyz/level2-ca/mud.config";
 
 export type SetupNetworkResult = Awaited<ReturnType<typeof setupNetwork>>;
 
+const USE_WORLD = "registry";
+
 export async function setupNetwork() {
   const contractComponents = defineContractComponents(world);
-  const networkConfig = await getNetworkConfig();
+  const networkConfig = await getNetworkConfig(USE_WORLD);
   networkConfig.showInDevTools = true;
+
+  let storeConfig = undefined;
+  let worldFactory = undefined;
+  if (USE_WORLD === "level2-ca") {
+    storeConfig = Level2CaStoreConfig;
+    worldFactory = Level2CAWordl_factory;
+  } else if (USE_WORLD === "registry") {
+    storeConfig = RegistryStoreConfig;
+    worldFactory = RegistryIWorld__factory;
+  } else {
+    throw new Error("Unknown world");
+  }
 
   const result = await setupMUDV2Network<typeof contractComponents, typeof storeConfig>({
     networkConfig,
@@ -22,7 +39,7 @@ export async function setupNetwork() {
     contractComponents,
     syncThread: "main",
     storeConfig,
-    worldAbi: IWorld__factory.abi,
+    worldAbi: worldFactory.abi,
     useABIInDevTools: true,
   });
 
@@ -54,7 +71,7 @@ export async function setupNetwork() {
   const provider = result.network.providers.get().json;
   const signerOrProvider = signer ?? provider;
   // Create a World contract instance
-  const worldContract = IWorld__factory.connect(networkConfig.worldAddress, signerOrProvider);
+  const worldContract = worldFactory.connect(networkConfig.worldAddress, signerOrProvider);
 
   if (networkConfig.snapSync) {
     const currentBlockNumber = await provider.getBlockNumber();

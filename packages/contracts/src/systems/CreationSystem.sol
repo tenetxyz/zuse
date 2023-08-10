@@ -39,7 +39,7 @@ contract CreationSystem is System {
     // Replace the voxels in the registration with a spawn!
     // delete the voxels at this coord
     for (uint256 i; i < voxelCoords.length; i++) {
-      IWorld(_world()).mine(voxelTypes[i].voxelTypeId, voxelCoords[i]);
+      IWorld(_world()).mineVoxelType(voxelTypes[i].voxelTypeId, voxelCoords[i], true, true);
     }
 
     IWorld(_world()).spawn(lowerSouthwestCorner, creationId); // make this creation a spawn

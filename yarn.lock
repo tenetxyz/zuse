@@ -3334,6 +3334,7 @@ box-intersect@fenomas/box-intersect:
     "@latticexyz/utils": "link:../../../mud/packages/utils"
     "@latticexyz/world": "link:../../../mud/packages/world"
     "@tenetxyz/level2-ca": "workspace:*"
+    "@tenetxyz/registry": "workspace:*"
     "@types/react": ^18.2.6
     "@types/react-dom": ^18.2.4
     "@vitejs/plugin-react": ^3.1.0

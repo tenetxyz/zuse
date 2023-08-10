@@ -8,7 +8,7 @@ export const App = () => {
 
   return (
     <>
-      <div>Basic CA Client</div>
+      <div>Basic Client</div>
     </>
   );
 };

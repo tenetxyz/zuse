@@ -77,6 +77,7 @@ const giveComponentsAHumanReadableId = (contractComponents: any) => {
   });
 };
 
+// TODO: fix multiple ABIs in same client. Note: This doesn't currently work, use the other client instead
 const SHOW_REGISTRY_WORLD_IN_DEV_TOOLS = false;
 
 const setupWorldRegistryNetwork = async () => {

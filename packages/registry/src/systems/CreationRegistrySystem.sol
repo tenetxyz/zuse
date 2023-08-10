@@ -17,7 +17,7 @@ contract CreationRegistrySystem is System {
     VoxelTypeData[] memory voxelTypes,
     VoxelCoord[] memory voxelCoords,
     BaseCreationInWorld[] memory baseCreationsInWorld
-  ) public returns (bytes32) {
+  ) public returns (bytes32, VoxelCoord memory) {
     for (uint256 i = 0; i < voxelTypes.length; i++) {
       require(
         hasKey(VoxelTypeRegistryTableId, VoxelTypeRegistry.encodeKeyTuple(voxelTypes[i].voxelTypeId)),
@@ -81,7 +81,7 @@ contract CreationRegistrySystem is System {
       })
     );
 
-    return creationId;
+    return (creationId, lowerSouthwestCorner);
   }
 
   function validateCreation(VoxelCoord[] memory voxelCoords) internal pure {
@@ -238,7 +238,7 @@ contract CreationRegistrySystem is System {
   // so we just need to compile a list of all the voxels in the base creations
   // then we need to remove the voxels that are deleted
 
-  function getVoxelsInCreation(bytes32 creationId) internal view returns (VoxelCoord[] memory, VoxelTypeData[] memory) {
+  function getVoxelsInCreation(bytes32 creationId) public view returns (VoxelCoord[] memory, VoxelTypeData[] memory) {
     CreationRegistryData memory creation = CreationRegistry.get(creationId);
     VoxelCoord[] memory allRelativeCoords = new VoxelCoord[](creation.numVoxels);
     VoxelTypeData[] memory allVoxelTypes = new VoxelTypeData[](creation.numVoxels);

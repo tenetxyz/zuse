@@ -627,7 +627,7 @@ export async function setupNetwork() {
         OwnedBy: contractComponents.OwnedBy,
       },
       execute: () => {
-        return callSystem("registerCreation", [
+        return callSystem("registerCreationWorld", [
           creationName,
           creationDescription,
           voxelEntities,

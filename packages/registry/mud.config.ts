@@ -74,14 +74,12 @@ export default mudConfig({
       },
       schema: {
         creator: "address",
-        numSpawns: "uint256",
         numVoxels: "uint32", // The total number of voxels in this creation (including the voxels in the base creations). This value is really important to prevent extra computation when determining the voxels in base creations
         voxelTypes: "bytes", // VoxelTypeData[]
         relativePositions: "bytes", // VoxelCoord[], the relative position for each voxel in the creation
-        name: "string",
-        description: "string",
-        // Note: can't add more dynamic fields cause rn we can only have at most 5 dynamic fields: https://github.com/tenetxyz/mud/blob/main/packages/store/src/Schema.sol#L20
         baseCreations: "bytes", // it is called "base" creation - cause of "base class" in c++. To make composable creations work, root creations are comprised of these base creations.
+        metadata: "bytes", // CreationMetadata
+        // Note: can't add more dynamic fields cause rn we can only have at most 5 dynamic fields: https://github.com/tenetxyz/mud/blob/main/packages/store/src/Schema.sol#L20
       },
     },
   },

@@ -3,12 +3,12 @@ import { useMUD } from "./MUDContext";
 
 export const App = () => {
   const {
-    network: { singletonEntity },
+    network: { singletonEntity, worldId },
   } = useMUD();
 
   return (
     <>
-      <div>Basic Client</div>
+      <div>Basic Client for World: {worldId}</div>
     </>
   );
 };

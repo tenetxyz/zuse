@@ -14,19 +14,18 @@ import { getTableIds } from "@latticexyz/utils";
 
 export type SetupNetworkResult = Awaited<ReturnType<typeof setupNetwork>>;
 
-const USE_WORLD = "registry";
-
 export async function setupNetwork() {
+  const worldId = "registry";
   const contractComponents = defineContractComponents(world);
-  const networkConfig = await getNetworkConfig(USE_WORLD);
+  const networkConfig = await getNetworkConfig(worldId);
   networkConfig.showInDevTools = true;
 
   let storeConfig = undefined;
   let worldFactory = undefined;
-  if (USE_WORLD === "level2-ca") {
+  if (worldId === "level2-ca") {
     storeConfig = Level2CaStoreConfig;
     worldFactory = Level2CAWordl_factory;
-  } else if (USE_WORLD === "registry") {
+  } else if (worldId === "registry") {
     storeConfig = RegistryStoreConfig;
     worldFactory = RegistryIWorld__factory;
   } else {
@@ -118,5 +117,6 @@ export async function setupNetwork() {
     worldContract,
     worldSend: bindFastTxExecute(worldContract),
     fastTxExecutor,
+    worldId,
   };
 }

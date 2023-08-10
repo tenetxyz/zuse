@@ -35,9 +35,17 @@ export const useCreationSearch = ({ layers, filters }: Props) => {
   useComponentUpdate(CreationRegistry, () => {
     allCreations.current = [];
     const creationTable = CreationRegistry.values;
-    creationTable.name.forEach((name: string, creationId) => {
-      const description = creationTable.description.get(creationId) ?? "";
+    creationTable.metadata.forEach((rawMetadata: string, creationId) => {
+      const metaData = abiDecode(
+        "tuple(string name,string description,tuple(address world, uint256 numSpawns)[])",
+        rawMetadata
+      );
+      console.log("Creation metaData");
+      console.log(metaData);
+      const name = metaData.name;
+      const description = metaData.description;
       const creator = creationTable.creator.get(creationId);
+      const numSpawns = 0;
       if (!creator) {
         console.warn("No creator found for creation", creationId);
         return;
@@ -81,7 +89,7 @@ export const useCreationSearch = ({ layers, filters }: Props) => {
         creator: creator,
         voxelTypes: voxelTypes,
         relativePositions,
-        numSpawns: creationTable.numSpawns.get(creationId) ?? 0,
+        numSpawns: numSpawns,
         numVoxels: creationTable.numVoxels.get(creationId) ?? 0,
         baseCreations,
       } as Creation);

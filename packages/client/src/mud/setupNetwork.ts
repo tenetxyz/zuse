@@ -77,6 +77,8 @@ const giveComponentsAHumanReadableId = (contractComponents: any) => {
   });
 };
 
+const SHOW_REGISTRY_WORLD_IN_DEV_TOOLS = false;
+
 const setupWorldRegistryNetwork = async () => {
   const registryWorld = createWorld();
   const registryComponents = defineRegistryContractComponents(registryWorld);
@@ -84,7 +86,7 @@ const setupWorldRegistryNetwork = async () => {
 
   const networkConfig = await getNetworkConfig(true);
   console.log("Got registry network config", networkConfig);
-  networkConfig.showInDevTools = false;
+  networkConfig.showInDevTools = SHOW_REGISTRY_WORLD_IN_DEV_TOOLS;
 
   const result = await setupMUDV2Network<typeof registryComponents, typeof registryStoreConfig>({
     networkConfig,
@@ -93,7 +95,7 @@ const setupWorldRegistryNetwork = async () => {
     syncThread: "worker", // PERF: sync using workers
     storeConfig: registryStoreConfig,
     worldAbi: RegistryIWorld__factory.abi,
-    useABIInDevTools: false,
+    useABIInDevTools: SHOW_REGISTRY_WORLD_IN_DEV_TOOLS,
   });
   console.log("Setup registry MUD V2 network", result);
 
@@ -127,7 +129,7 @@ export async function setupNetwork() {
 
   console.log("Getting network config...");
   const networkConfig = await getNetworkConfig(false);
-  networkConfig.showInDevTools = true;
+  networkConfig.showInDevTools = !SHOW_REGISTRY_WORLD_IN_DEV_TOOLS;
   console.log("Got network config", networkConfig);
   const result = await setupMUDV2Network<typeof contractComponents, typeof storeConfig>({
     networkConfig,
@@ -136,7 +138,7 @@ export async function setupNetwork() {
     syncThread: "main", // PERF: sync using workers
     storeConfig,
     worldAbi: IWorld__factory.abi,
-    useABIInDevTools: true,
+    useABIInDevTools: !SHOW_REGISTRY_WORLD_IN_DEV_TOOLS,
   });
   console.log("Setup MUD V2 network", result);
 

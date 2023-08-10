@@ -1,3 +1,4 @@
+import { VoxelEntity } from "@/layers/noa/types";
 import { Entity } from "@latticexyz/recs";
 import { BigNumber } from "ethers";
 // this function was originally from import { formatEntityID } from "@latticexyz/network";
@@ -36,4 +37,8 @@ export const to40CharAddress = (hexAddress: string | undefined) => {
 // Notice how we're using the wrapper object String not string
 export const stringToEntity = (str: String): Entity => {
   return str as Entity;
+};
+
+export const voxelEntityToEntity = (voxelEntity: VoxelEntity): Entity => {
+  return (to64CharAddress(BigNumber.from(voxelEntity.scale).toHexString()) + ":" + voxelEntity.entityId) as Entity;
 };

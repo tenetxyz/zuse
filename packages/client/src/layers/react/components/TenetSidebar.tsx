@@ -16,6 +16,7 @@ import { ISpawn } from "../../noa/components/SpawnInFocus";
 import { WorldRegistry, WorldRegistryFilters } from "./WorldRegistry";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { abiDecode } from "@/utils/encodeOrDecode";
+import { VoxelEntity } from "@/layers/noa/types";
 
 enum SidebarTab {
   VOXELS = "Blocks",
@@ -104,7 +105,7 @@ export function registerTenetSidebar() {
           spawnId: stringToEntity(spawnId),
           creationId: stringToEntity(rawSpawn.creationId),
           lowerSouthWestCorner: abiDecode("tuple(int32 x,int32 y,int32 z)", rawSpawn.lowerSouthWestCorner),
-          voxels: rawSpawn.voxels as Entity[],
+          voxels: abiDecode("tuple(uint32 scale, bytes32 entityId)[]", rawSpawn.voxels) as VoxelEntity[],
         } as ISpawn;
         const creation = getComponentValue(CreationRegistry, spawn.creationId);
         setComponent(SpawnInFocus, SingletonEntity, {

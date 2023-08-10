@@ -22,7 +22,7 @@ export interface CreationSearch {
 export const useCreationSearch = ({ layers, filters }: Props) => {
   const {
     network: {
-      contractComponents: { Creation },
+      registryComponents: { CreationRegistry },
       network: { connectedAddress },
     },
   } = layers;
@@ -32,9 +32,9 @@ export const useCreationSearch = ({ layers, filters }: Props) => {
   const [creationsToDisplay, setCreationsToDisplay] = React.useState<Creation[]>([]);
   const fuse = React.useRef<Fuse<Creation>>();
 
-  useComponentUpdate(Creation, () => {
+  useComponentUpdate(CreationRegistry, () => {
     allCreations.current = [];
-    const creationTable = Creation.values;
+    const creationTable = CreationRegistry.values;
     creationTable.name.forEach((name: string, creationId) => {
       const description = creationTable.description.get(creationId) ?? "";
       const creator = creationTable.creator.get(creationId);

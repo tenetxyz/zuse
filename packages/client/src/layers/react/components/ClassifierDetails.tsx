@@ -45,7 +45,7 @@ const ClassifierDetails: React.FC<Props> = ({
       SingletonEntity,
     },
     network: {
-      components: { VoxelType, OfSpawn, Spawn, Creation, Position },
+      components: { VoxelType, OfSpawn, Spawn, Position },
       api: { classifyCreation },
       getVoxelIconUrl,
     },

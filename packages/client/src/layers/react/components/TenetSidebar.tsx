@@ -42,7 +42,8 @@ export function registerTenetSidebar() {
           SingletonEntity,
         },
         network: {
-          components: { Spawn, Creation },
+          components: { Spawn },
+          registryComponents: { CreationRegistry },
         },
       } = layers;
 
@@ -105,7 +106,7 @@ export function registerTenetSidebar() {
           lowerSouthWestCorner: abiDecode("tuple(int32 x,int32 y,int32 z)", rawSpawn.lowerSouthWestCorner),
           voxels: rawSpawn.voxels as Entity[],
         } as ISpawn;
-        const creation = getComponentValue(Creation, spawn.creationId);
+        const creation = getComponentValue(CreationRegistry, spawn.creationId);
         setComponent(SpawnInFocus, SingletonEntity, {
           spawn: spawn,
           creation: creation,

@@ -2592,13 +2592,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/node@npm:*":
-  version: 20.4.9
-  resolution: "@types/node@npm:20.4.9"
-  checksum: 504e3da96274f3865c1251830f4750bb0a8f6ef6f8648902cd3bba33370c5f219235471bfbf55cce726b25c8eacfcc8e2aad0ec3b13e27ea6708b00d4a9a46c8
-  languageName: node
-  linkType: hard
-
 "@types/node@npm:^18.15.11":
   version: 18.17.4
   resolution: "@types/node@npm:18.17.4"
@@ -2662,15 +2655,6 @@ __metadata:
     "@types/react": "*"
     csstype: ^3.0.2
   checksum: 84f53b3101739b20d1731554fb7735bc2f3f5d050a8b392e9845403c8c8bbd729737d033978649f9195a97b557875b010d46e35a4538564a2d0dbcce661dbf76
-  languageName: node
-  linkType: hard
-
-"@types/ws@npm:^8.5.4":
-  version: 8.5.5
-  resolution: "@types/ws@npm:8.5.5"
-  dependencies:
-    "@types/node": "*"
-  checksum: d00bf8070e6938e3ccf933010921c6ce78ac3606696ce37a393b27a9a603f7bd93ea64f3c5fa295a2f743575ba9c9a9fdb904af0f5fe2229bf2adf0630386e4a
   languageName: node
   linkType: hard
 
@@ -3540,7 +3524,7 @@ box-intersect@fenomas/box-intersect:
     tailwindcss: ^3.3.2
     tailwindcss-animate: ^1.0.6
     terser: ^5.19.0
-    viem: ^1.3.1
+    viem: 1.3.1
     vite: ^4.2.1
     vite-plugin-optimize-css-modules: ^1.0.4
     wait-port: ^1.0.4
@@ -7515,16 +7499,15 @@ box-intersect@fenomas/box-intersect:
   languageName: node
   linkType: hard
 
-"viem@npm:^1.3.1":
-  version: 1.5.4
-  resolution: "viem@npm:1.5.4"
+"viem@npm:1.3.1":
+  version: 1.3.1
+  resolution: "viem@npm:1.3.1"
   dependencies:
     "@adraffy/ens-normalize": 1.9.0
     "@noble/curves": 1.0.0
     "@noble/hashes": 1.3.0
     "@scure/bip32": 1.3.0
     "@scure/bip39": 1.2.0
-    "@types/ws": ^8.5.4
     "@wagmi/chains": 1.6.0
     abitype: 0.9.3
     isomorphic-ws: 5.0.0
@@ -7534,7 +7517,7 @@ box-intersect@fenomas/box-intersect:
   peerDependenciesMeta:
     typescript:
       optional: true
-  checksum: c49517b74cbea11e951bebfe1143b4d526c3567491062a5153d9bc8ca131557a129807fa02c077ed8b5dc974e31d51143f35937877322dbc17d58f7b4e567e91
+  checksum: f93eff83a50d201c06270966eec12eb1cbb69821bab7c9bd6ba8877390e35d247f09345b04c7d9304b9f418e567d4cf898c80528800c6a57fd23d88519c91e74
   languageName: node
   linkType: hard
 

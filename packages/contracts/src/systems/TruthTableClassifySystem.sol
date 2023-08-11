@@ -10,12 +10,12 @@ import { IWorld } from "@tenet-contracts/src/codegen/world/IWorld.sol";
 import { VoxelCoord } from "@tenet-contracts/src/Types.sol";
 import { getVoxelCoordStrict } from "@tenet-contracts/src/Utils.sol";
 import { getUniqueEntity } from "@latticexyz/world/src/modules/uniqueentity/getUniqueEntity.sol";
-import { SignalSourceVoxelID } from "@tenet-level2-ca/src/Constants.sol";
+import { SignalSourceVoxelID } from "@tenet-level2-ca-extensions-1/src/Constants.sol";
 // import { entityIsActiveSignal, isEntityIsInactiveSignal } from "@tenet-level2-ca/src/InteractionUtils.sol";
 import { VoxelType } from "@tenet-contracts/src/codegen/tables/voxelType.sol";
-import { InterfaceVoxel } from "@tenet-contracts/src/Types.sol";
+import { InterfaceVoxel } from "@tenet-utils/src/Types.sol";
 import { voxelCoordToString } from "@tenet-utils/src/VoxelCoordUtils.sol";
-import { Signal, SignalData } from "@tenet-level2-ca/src/codegen/tables/Signal.sol";
+import { Signal, SignalData } from "@tenet-level2-ca-extensions-1/src/codegen/tables/Signal.sol";
 import { Strings } from "@openzeppelin/contracts/utils/Strings.sol";
 
 contract TruthTableClassifySystem is System {
@@ -60,12 +60,12 @@ contract TruthTableClassifySystem is System {
 
     VoxelCoord[] memory inCoords = new VoxelCoord[](inInterfaces.length);
     for (uint i = 0; i < inCoords.length; i++) {
-      inCoords[i] = getVoxelCoordStrict(2, inInterfaces[i].entity);
+      inCoords[i] = getVoxelCoordStrict(2, inInterfaces[i].entity.entityId);
     }
 
     bytes32[] memory outEntities = new bytes32[](outInterfaces.length);
     for (uint i = 0; i < outInterfaces.length; i++) {
-      outEntities[i] = outInterfaces[i].entity;
+      outEntities[i] = outInterfaces[i].entity.entityId;
     }
 
     // These are the signal source voxels we'll use for each input.

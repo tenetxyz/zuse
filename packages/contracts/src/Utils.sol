@@ -112,7 +112,7 @@ function getVoxelCoordStrict(uint32 scale, bytes32 entity) view returns (VoxelCo
   return VoxelCoord(position.x, position.y, position.z);
 }
 
-function entitiesToVoxelCoords(bytes32[] memory entities) returns (VoxelCoord[] memory) {
+function entitiesToVoxelCoords(bytes32[] memory entities) view returns (VoxelCoord[] memory) {
   VoxelCoord[] memory coords = new VoxelCoord[](entities.length);
   for (uint256 i; i < entities.length; i++) {
     PositionData memory position = Position.get(1, entities[i]);
@@ -124,7 +124,7 @@ function entitiesToVoxelCoords(bytes32[] memory entities) returns (VoxelCoord[] 
 function entitiesToRelativeVoxelCoords(
   bytes32[] memory entities,
   VoxelCoord memory lowerSouthWestCorner
-) returns (VoxelCoord[] memory) {
+) view returns (VoxelCoord[] memory) {
   VoxelCoord[] memory coords = entitiesToVoxelCoords(entities);
   VoxelCoord[] memory relativeCoords = new VoxelCoord[](coords.length);
   for (uint256 i; i < coords.length; i++) {

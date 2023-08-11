@@ -2377,6 +2377,7 @@ __metadata:
     "@openzeppelin/contracts": ^4.9.1
     "@tenetxyz/base-ca": "workspace:*"
     "@tenetxyz/level2-ca": "workspace:*"
+    "@tenetxyz/level2-ca-extensions-1": "workspace:*"
     "@tenetxyz/registry": "workspace:*"
     "@tenetxyz/utils": "workspace:*"
     "@typechain/ethers-v5": ^10.2.0
@@ -2396,7 +2397,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@tenetxyz/level2-ca-extensions-1@workspace:packages/level2-ca-extensions-1":
+"@tenetxyz/level2-ca-extensions-1@workspace:*, @tenetxyz/level2-ca-extensions-1@workspace:packages/level2-ca-extensions-1":
   version: 0.0.0-use.local
   resolution: "@tenetxyz/level2-ca-extensions-1@workspace:packages/level2-ca-extensions-1"
   dependencies:

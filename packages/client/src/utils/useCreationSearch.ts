@@ -25,9 +25,28 @@ export type CreationSpawns = {
 };
 
 export type CreationMetadata = {
+  creator: string;
   name: string;
   description: string;
   spawns: CreationSpawns[];
+};
+
+export const parseCreationMetadata = (rawMetadata: string, worldAddress: string) => {
+  const metaData: CreationMetadata = abiDecode(
+    "tuple(address creator, string name,string description,tuple(address worldAddress, uint256 numSpawns)[] spawns)",
+    rawMetadata
+  );
+  const creator = metaData.creator;
+  const name = metaData.name;
+  const description = metaData.description;
+  let numSpawns = 0;
+  metaData.spawns.forEach((spawn) => {
+    const cleanedSpawn = cleanObj(spawn);
+    if (cleanedSpawn.worldAddress.toLowerCase() === worldAddress.toLowerCase()) {
+      numSpawns = Number(cleanedSpawn.numSpawns);
+    }
+  });
+  return { creator, name, description, numSpawns };
 };
 
 export const useCreationSearch = ({ layers, filters }: Props) => {
@@ -48,22 +67,7 @@ export const useCreationSearch = ({ layers, filters }: Props) => {
     allCreations.current = [];
     const creationTable = CreationRegistry.values;
     creationTable.metadata.forEach((rawMetadata: string, creationId) => {
-      const metaData: CreationMetadata = abiDecode(
-        "tuple(string name,string description,tuple(address worldAddress, uint256 numSpawns)[] spawns)",
-        rawMetadata
-      );
-      console.log("Creation metaData");
-      console.log(metaData);
-      const name = metaData.name;
-      const description = metaData.description;
-      let numSpawns = 0;
-      metaData.spawns.forEach((spawn) => {
-        const cleanedSpawn = cleanObj(spawn);
-        if (cleanedSpawn.worldAddress.toLowerCase() === worldAddress.toLowerCase()) {
-          numSpawns = Number(cleanedSpawn.numSpawns);
-        }
-      });
-      const creator = creationTable.creator.get(creationId);
+      const { creator, name, description, numSpawns } = parseCreationMetadata(rawMetadata, worldAddress);
       if (!creator) {
         console.warn("No creator found for creation", creationId);
         return;

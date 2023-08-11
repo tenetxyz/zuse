@@ -44,18 +44,14 @@ contract FlowerVoxelSystem is VoxelType {
       flowerChildVoxelTypes,
       flowerChildVoxelTypes,
       OrangeFlowerVoxelVariantID,
-      world
-    );
-
-    registerCAVoxelType(
-      CA_ADDRESS,
-      OrangeFlowerVoxelID,
       IWorld(world).extension1_FlowerVoxelSyste_enterWorld.selector,
       IWorld(world).extension1_FlowerVoxelSyste_exitWorld.selector,
       IWorld(world).extension1_FlowerVoxelSyste_variantSelector.selector,
       IWorld(world).extension1_FlowerVoxelSyste_activate.selector,
       IWorld(world).extension1_FlowerVoxelSyste_eventHandler.selector
     );
+
+    registerCAVoxelType(CA_ADDRESS, OrangeFlowerVoxelID);
   }
 
   function enterWorld(VoxelCoord memory coord, bytes32 entity) public override {}

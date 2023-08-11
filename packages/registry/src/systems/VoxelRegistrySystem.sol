@@ -4,8 +4,9 @@ pragma solidity >=0.8.0;
 import { hasKey } from "@latticexyz/world/src/modules/keysintable/hasKey.sol";
 import { getKeysInTable } from "@latticexyz/world/src/modules/keysintable/getKeysInTable.sol";
 import { System } from "@latticexyz/world/src/System.sol";
-import { VoxelTypeRegistry, VoxelTypeRegistryData, VoxelTypeRegistryTableId, VoxelVariantsRegistry, VoxelVariantsRegistryData, VoxelVariantsRegistryTableId } from "../codegen/Tables.sol";
+import { WorldRegistryTableId, WorldRegistry, VoxelTypeRegistry, VoxelTypeRegistryData, VoxelTypeRegistryTableId, VoxelVariantsRegistry, VoxelVariantsRegistryData, VoxelVariantsRegistryTableId } from "../codegen/Tables.sol";
 import { entityArraysAreEqual } from "@tenet-utils/src/Utils.sol";
+import { CreationMetadata, CreationSpawns } from "../Types.sol";
 
 contract VoxelRegistrySystem is System {
   function registerVoxelType(
@@ -15,7 +16,11 @@ contract VoxelRegistrySystem is System {
     bytes32[] memory childVoxelTypeIds,
     bytes32[] memory schemaVoxelTypeIds,
     bytes32 previewVoxelVariantId,
-    address caAddress
+    bytes4 enterWorldSelector,
+    bytes4 exitWorldSelector,
+    bytes4 voxelVariantSelector,
+    bytes4 activateSelector,
+    bytes4 interactionSelector
   ) public {
     require(
       !hasKey(VoxelTypeRegistryTableId, VoxelTypeRegistry.encodeKeyTuple(voxelTypeId)),
@@ -95,20 +100,30 @@ contract VoxelRegistrySystem is System {
       );
     }
 
-    VoxelTypeRegistry.set(
-      voxelTypeId,
-      VoxelTypeRegistryData({
-        baseVoxelTypeId: baseVoxelTypeId,
-        childVoxelTypeIds: childVoxelTypeIds,
-        schemaVoxelTypeIds: schemaVoxelTypeIds,
-        previewVoxelVariantId: previewVoxelVariantId,
-        caAddress: caAddress,
-        creator: tx.origin,
-        scale: scale,
-        numSpawns: 0,
-        name: voxelTypeName
-      })
-    );
+    // TODO: add checks on selectors
+    VoxelTypeRegistryData memory voxelTypeData;
+    voxelTypeData.baseVoxelTypeId = baseVoxelTypeId;
+    voxelTypeData.enterWorldSelector = enterWorldSelector;
+    voxelTypeData.exitWorldSelector = exitWorldSelector;
+    voxelTypeData.voxelVariantSelector = voxelVariantSelector;
+    voxelTypeData.activateSelector = activateSelector;
+    voxelTypeData.interactionSelector = interactionSelector;
+    voxelTypeData.childVoxelTypeIds = childVoxelTypeIds;
+    voxelTypeData.schemaVoxelTypeIds = schemaVoxelTypeIds;
+    voxelTypeData.previewVoxelVariantId = previewVoxelVariantId;
+    voxelTypeData.scale = scale;
+    {
+      voxelTypeData.metadata = getMetadata(voxelTypeName);
+    }
+
+    VoxelTypeRegistry.set(voxelTypeId, voxelTypeData);
+  }
+
+  function getMetadata(string memory name) internal view returns (bytes memory) {
+    return
+      abi.encode(
+        CreationMetadata({ creator: tx.origin, name: name, description: "", spawns: new CreationSpawns[](0) })
+      );
   }
 
   function registerVoxelVariant(bytes32 voxelVariantId, VoxelVariantsRegistryData memory voxelVariant) public {
@@ -121,5 +136,44 @@ contract VoxelRegistrySystem is System {
     uint256 voxelVariantIdCounter = variants.length;
     voxelVariant.variantId = voxelVariantIdCounter;
     VoxelVariantsRegistry.set(voxelVariantId, voxelVariant);
+  }
+
+  function voxelSpawned(bytes32 voxelTypeId) public returns (uint256) {
+    address worldAddress = _msgSender();
+    require(hasKey(WorldRegistryTableId, WorldRegistry.encodeKeyTuple(worldAddress)), "World has not been registered");
+    require(
+      hasKey(VoxelTypeRegistryTableId, VoxelTypeRegistry.encodeKeyTuple(voxelTypeId)),
+      "Voxel type ID has not been registered"
+    );
+    CreationMetadata memory creationMetadata = abi.decode(
+      VoxelTypeRegistry.getMetadata(voxelTypeId),
+      (CreationMetadata)
+    );
+    CreationSpawns[] memory creationSpawns = creationMetadata.spawns;
+    bool found = false;
+    uint256 newSpawnCount = 0;
+    for (uint256 i = 0; i < creationSpawns.length; i++) {
+      if (creationSpawns[i].worldAddress == worldAddress) {
+        creationSpawns[i].numSpawns += 1;
+        newSpawnCount = creationSpawns[i].numSpawns;
+        creationMetadata.spawns = creationSpawns;
+        VoxelTypeRegistry.setMetadata(voxelTypeId, abi.encode(creationMetadata));
+        found = true;
+        break;
+      }
+    }
+    if (!found) {
+      // this means, this is a new world, and we need to add it to the array
+      CreationSpawns[] memory newCreationSpawns = new CreationSpawns[](creationSpawns.length + 1);
+      for (uint256 i = 0; i < creationSpawns.length; i++) {
+        newCreationSpawns[i] = creationSpawns[i];
+      }
+      newCreationSpawns[creationSpawns.length] = CreationSpawns({ worldAddress: worldAddress, numSpawns: 1 });
+      creationMetadata.spawns = newCreationSpawns;
+      newSpawnCount = 1;
+      VoxelTypeRegistry.setMetadata(voxelTypeId, abi.encode(creationMetadata));
+    }
+
+    return newSpawnCount;
   }
 }

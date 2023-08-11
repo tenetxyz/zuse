@@ -49,18 +49,14 @@ contract ThermoGenVoxelSystem is VoxelType {
       thermoGenChildVoxelTypes,
       thermoGenChildVoxelTypes,
       ThermoGenVoxelVariantID,
-      world
-    );
-
-    registerCAVoxelType(
-      CA_ADDRESS,
-      ThermoGenVoxelID,
       IWorld(world).extension1_ThermoGenVoxelSy_enterWorld.selector,
       IWorld(world).extension1_ThermoGenVoxelSy_exitWorld.selector,
       IWorld(world).extension1_ThermoGenVoxelSy_variantSelector.selector,
       IWorld(world).extension1_ThermoGenVoxelSy_activate.selector,
       IWorld(world).extension1_ThermoGenVoxelSy_eventHandler.selector
     );
+
+    registerCAVoxelType(CA_ADDRESS, ThermoGenVoxelID);
   }
 
   function enterWorld(VoxelCoord memory coord, bytes32 entity) public override {

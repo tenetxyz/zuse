@@ -5,8 +5,8 @@ import { IStore } from "@latticexyz/store/src/IStore.sol";
 import { System } from "@latticexyz/world/src/System.sol";
 import { hasKey } from "@latticexyz/world/src/modules/keysintable/hasKey.sol";
 import { VoxelTypeRegistry } from "@tenet-registry/src/codegen/tables/VoxelTypeRegistry.sol";
+import { CARegistry } from "@tenet-registry/src/codegen/tables/CARegistry.sol";
 import { CAPosition, CAPositionData, CAPositionTableId } from "@tenet-base-ca/src/codegen/tables/CAPosition.sol";
-import { CAVoxelConfig, CAVoxelConfigTableId } from "@tenet-base-ca/src/codegen/tables/CAVoxelConfig.sol";
 import { CAVoxelType, CAVoxelTypeTableId } from "@tenet-base-ca/src/codegen/tables/CAVoxelType.sol";
 import { VoxelCoord } from "@tenet-utils/src/Types.sol";
 import { getEntityAtCoord } from "@tenet-base-ca/src/Utils.sol";
@@ -28,7 +28,13 @@ abstract contract CA is System {
   ) internal virtual;
 
   function isVoxelTypeAllowed(bytes32 voxelTypeId) public view returns (bool) {
-    return hasKey(CAVoxelConfigTableId, CAVoxelConfig.encodeKeyTuple(voxelTypeId));
+    bytes32[] memory voxelTypeIds = CARegistry.getVoxelTypeIds(IStore(getRegistryAddress()), _world());
+    for (uint256 i = 0; i < voxelTypeIds.length; i++) {
+      if (voxelTypeIds[i] == voxelTypeId) {
+        return true;
+      }
+    }
+    return false;
   }
 
   function voxelEnterWorld(bytes32 voxelTypeId, VoxelCoord memory coord, bytes32 entity) internal {
@@ -36,7 +42,7 @@ abstract contract CA is System {
     if (baseVoxelTypeId != voxelTypeId) {
       voxelEnterWorld(baseVoxelTypeId, coord, entity); // recursive, so we get the entire stack of russian dolls
     }
-    bytes4 voxelEnterWorldSelector = CAVoxelConfig.getEnterWorldSelector(voxelTypeId);
+    bytes4 voxelEnterWorldSelector = VoxelTypeRegistry.getEnterWorldSelector(IStore(getRegistryAddress()), voxelTypeId);
     safeCall(_world(), abi.encodeWithSelector(voxelEnterWorldSelector, coord, entity), "voxel enter world");
   }
 
@@ -75,7 +81,7 @@ abstract contract CA is System {
     bytes32[] memory childEntityIds,
     bytes32 parentEntity
   ) public returns (bytes32) {
-    bytes4 voxelVariantSelector = CAVoxelConfig.getVoxelVariantSelector(voxelTypeId);
+    bytes4 voxelVariantSelector = VoxelTypeRegistry.getVoxelVariantSelector(IStore(getRegistryAddress()), voxelTypeId);
     bytes memory returnData = safeStaticCall(
       _world(),
       abi.encodeWithSelector(voxelVariantSelector, entity, neighbourEntityIds, childEntityIds, parentEntity),
@@ -85,7 +91,7 @@ abstract contract CA is System {
   }
 
   function voxelExitWorld(bytes32 voxelTypeId, VoxelCoord memory coord, bytes32 entity) internal {
-    bytes4 voxelExitWorldSelector = CAVoxelConfig.getExitWorldSelector(voxelTypeId);
+    bytes4 voxelExitWorldSelector = VoxelTypeRegistry.getExitWorldSelector(IStore(getRegistryAddress()), voxelTypeId);
     safeCall(_world(), abi.encodeWithSelector(voxelExitWorldSelector, coord, entity), "voxel exit world");
 
     bytes32 baseVoxelTypeId = VoxelTypeRegistry.getBaseVoxelTypeId(IStore(getRegistryAddress()), voxelTypeId);
@@ -148,7 +154,7 @@ abstract contract CA is System {
         }
       }
     }
-    bytes4 interactionSelector = CAVoxelConfig.getInteractionSelector(voxelTypeId);
+    bytes4 interactionSelector = VoxelTypeRegistry.getInteractionSelector(IStore(getRegistryAddress()), voxelTypeId);
     bytes memory returnData = safeCall(
       _world(),
       abi.encodeWithSelector(interactionSelector, interactEntity, neighbourEntityIds, childEntityIds, parentEntity),
@@ -242,7 +248,7 @@ abstract contract CA is System {
   function activateVoxel(bytes32 entity) public returns (string memory) {
     address callerAddress = _msgSender();
     bytes32 voxelTypeId = CAVoxelType.getVoxelTypeId(callerAddress, entity);
-    bytes4 voxelActivateSelector = CAVoxelConfig.getActivateSelector(voxelTypeId);
+    bytes4 voxelActivateSelector = VoxelTypeRegistry.getActivateSelector(IStore(getRegistryAddress()), voxelTypeId);
     bytes memory returnData = safeCall(
       _world(),
       abi.encodeWithSelector(voxelActivateSelector, entity),

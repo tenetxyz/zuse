@@ -167,42 +167,11 @@ function getParentEntityFromCaller(address callerAddress, uint32 scale, bytes32 
   return abi.decode(returnData, (bytes32));
 }
 
-function registerCAVoxelType(
-  address caAddress,
-  bytes32 voxelTypeId,
-  bytes4 enterWorldSelector,
-  bytes4 exitWorldSelector,
-  bytes4 voxelVariantSelector,
-  bytes4 activateSelector,
-  bytes4 interactionSelector
-) returns (bytes memory) {
+function registerCAVoxelType(address caAddress, bytes32 voxelTypeId) returns (bytes memory) {
   return
     safeCall(
       caAddress,
-      abi.encodeWithSignature(
-        CA_REGISTER_VOXEL_SIG,
-        voxelTypeId,
-        enterWorldSelector,
-        exitWorldSelector,
-        voxelVariantSelector,
-        activateSelector,
-        interactionSelector
-      ),
-      string(
-        abi.encode(
-          "registerVoxelType ",
-          voxelTypeId,
-          " ",
-          enterWorldSelector,
-          " ",
-          exitWorldSelector,
-          " ",
-          voxelVariantSelector,
-          " ",
-          activateSelector,
-          " ",
-          interactionSelector
-        )
-      )
+      abi.encodeWithSignature(CA_REGISTER_VOXEL_SIG, voxelTypeId),
+      string(abi.encode("registerVoxelType ", voxelTypeId))
     );
 }

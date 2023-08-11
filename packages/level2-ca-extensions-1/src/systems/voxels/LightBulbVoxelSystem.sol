@@ -58,18 +58,14 @@ contract LightBulbVoxelSystem is VoxelType {
       lightBulbChildVoxelTypes,
       lightBulbChildVoxelTypes,
       LightBulbOffVoxelVariantID,
-      world
-    );
-
-    registerCAVoxelType(
-      CA_ADDRESS,
-      LightBulbVoxelID,
       IWorld(world).extension1_LightBulbVoxelSy_enterWorld.selector,
       IWorld(world).extension1_LightBulbVoxelSy_exitWorld.selector,
       IWorld(world).extension1_LightBulbVoxelSy_variantSelector.selector,
       IWorld(world).extension1_LightBulbVoxelSy_activate.selector,
       IWorld(world).extension1_LightBulbVoxelSy_eventHandler.selector
     );
+
+    registerCAVoxelType(CA_ADDRESS, LightBulbVoxelID);
   }
 
   function enterWorld(VoxelCoord memory coord, bytes32 entity) public override {

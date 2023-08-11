@@ -62,18 +62,14 @@ contract WireVoxelSystem is VoxelType {
       wireChildVoxelTypes,
       wireSchemaVoxelTypes,
       WireOffVoxelVariantID,
-      world
-    );
-
-    registerCAVoxelType(
-      CA_ADDRESS,
-      WireVoxelID,
       IWorld(world).extension1_WireVoxelSystem_enterWorld.selector,
       IWorld(world).extension1_WireVoxelSystem_exitWorld.selector,
       IWorld(world).extension1_WireVoxelSystem_variantSelector.selector,
       IWorld(world).extension1_WireVoxelSystem_activate.selector,
       IWorld(world).extension1_WireVoxelSystem_eventHandler.selector
     );
+
+    registerCAVoxelType(CA_ADDRESS, WireVoxelID);
   }
 
   function enterWorld(VoxelCoord memory coord, bytes32 entity) public override {}

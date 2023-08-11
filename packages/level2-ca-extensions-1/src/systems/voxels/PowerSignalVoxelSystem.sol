@@ -69,18 +69,14 @@ contract PowerSignalVoxelSystem is VoxelType {
       powerSignalChildVoxelTypes,
       powerSignalChildVoxelTypes,
       PowerSignalOffVoxelVariantID,
-      world
-    );
-
-    registerCAVoxelType(
-      CA_ADDRESS,
-      PowerSignalVoxelID,
       IWorld(world).extension1_PowerSignalVoxel_enterWorld.selector,
       IWorld(world).extension1_PowerSignalVoxel_exitWorld.selector,
       IWorld(world).extension1_PowerSignalVoxel_variantSelector.selector,
       IWorld(world).extension1_PowerSignalVoxel_activate.selector,
       IWorld(world).extension1_PowerSignalVoxel_eventHandler.selector
     );
+
+    registerCAVoxelType(CA_ADDRESS, PowerSignalVoxelID);
   }
 
   function enterWorld(VoxelCoord memory coord, bytes32 entity) public override {

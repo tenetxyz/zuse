@@ -6,6 +6,7 @@ import { useComponentUpdate } from "./useComponentUpdate";
 import { ComponentRecord, Layers } from "../types";
 import { getComponentValue, Entity } from "@latticexyz/recs";
 import { VoxelTypeStoreFilters, VoxelTypeDesc } from "../layers/react/components/VoxelTypeStore";
+import { parseCreationMetadata, parseMetadata } from "./useCreationSearch";
 
 export interface Props {
   layers: Layers;
@@ -20,6 +21,7 @@ export const useVoxelTypeSearch = ({ layers, filters }: Props) => {
   const {
     network: {
       registryComponents: { VoxelTypeRegistry },
+      worldAddress,
     },
   } = layers;
 
@@ -38,6 +40,11 @@ export const useVoxelTypeSearch = ({ layers, filters }: Props) => {
         console.warn(`cannot find voxelTypeRecord for ${voxelType}`);
         continue;
       }
+      const { creator, name, description, numSpawns } = parseCreationMetadata(voxelTypeRecord.metadata, worldAddress);
+      voxelTypeRecord.creator = creator;
+      voxelTypeRecord.name = name;
+      voxelTypeRecord.description = description;
+      voxelTypeRecord.numSpawns = numSpawns;
       voxelTypes.set(voxelType, voxelTypeRecord);
     }
     allVoxelTypes.current = Array.from(voxelTypes.entries())
@@ -85,11 +92,11 @@ export const useVoxelTypeSearch = ({ layers, filters }: Props) => {
       keys: ["name"],
       threshold: 0.3,
     };
-  
+
     fuse.current = new Fuse(filteredVoxelTypes.current, options);
     queryForVoxelTypesToDisplay();
   };
-  
+
   // recalculate which voxelTypes are in the display pool when the filters change
   useEffect(applyFilters, [filters]);
 

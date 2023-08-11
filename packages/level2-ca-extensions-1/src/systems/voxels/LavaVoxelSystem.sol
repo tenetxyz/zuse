@@ -62,18 +62,14 @@ contract LavaVoxelSystem is VoxelType {
       lavaChildVoxelTypes,
       lavaChildVoxelTypes,
       LavaHotVoxelVariantID,
-      world
-    );
-
-    registerCAVoxelType(
-      CA_ADDRESS,
-      LavaVoxelID,
       IWorld(world).extension1_LavaVoxelSystem_enterWorld.selector,
       IWorld(world).extension1_LavaVoxelSystem_exitWorld.selector,
       IWorld(world).extension1_LavaVoxelSystem_variantSelector.selector,
       IWorld(world).extension1_LavaVoxelSystem_activate.selector,
       IWorld(world).extension1_LavaVoxelSystem_eventHandler.selector
     );
+
+    registerCAVoxelType(CA_ADDRESS, LavaVoxelID);
   }
 
   function enterWorld(VoxelCoord memory coord, bytes32 entity) public override {

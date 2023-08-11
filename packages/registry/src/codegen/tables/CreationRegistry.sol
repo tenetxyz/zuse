@@ -21,7 +21,6 @@ bytes32 constant _tableId = bytes32(abi.encodePacked(bytes16(""), bytes16("Creat
 bytes32 constant CreationRegistryTableId = _tableId;
 
 struct CreationRegistryData {
-  address creator;
   uint32 numVoxels;
   bytes voxelTypes;
   bytes relativePositions;
@@ -32,13 +31,12 @@ struct CreationRegistryData {
 library CreationRegistry {
   /** Get the table's schema */
   function getSchema() internal pure returns (Schema) {
-    SchemaType[] memory _schema = new SchemaType[](6);
-    _schema[0] = SchemaType.ADDRESS;
-    _schema[1] = SchemaType.UINT32;
+    SchemaType[] memory _schema = new SchemaType[](5);
+    _schema[0] = SchemaType.UINT32;
+    _schema[1] = SchemaType.BYTES;
     _schema[2] = SchemaType.BYTES;
     _schema[3] = SchemaType.BYTES;
     _schema[4] = SchemaType.BYTES;
-    _schema[5] = SchemaType.BYTES;
 
     return SchemaLib.encode(_schema);
   }
@@ -52,13 +50,12 @@ library CreationRegistry {
 
   /** Get the table's metadata */
   function getMetadata() internal pure returns (string memory, string[] memory) {
-    string[] memory _fieldNames = new string[](6);
-    _fieldNames[0] = "creator";
-    _fieldNames[1] = "numVoxels";
-    _fieldNames[2] = "voxelTypes";
-    _fieldNames[3] = "relativePositions";
-    _fieldNames[4] = "baseCreations";
-    _fieldNames[5] = "metadata";
+    string[] memory _fieldNames = new string[](5);
+    _fieldNames[0] = "numVoxels";
+    _fieldNames[1] = "voxelTypes";
+    _fieldNames[2] = "relativePositions";
+    _fieldNames[3] = "baseCreations";
+    _fieldNames[4] = "metadata";
     return ("CreationRegistry", _fieldNames);
   }
 
@@ -84,46 +81,12 @@ library CreationRegistry {
     _store.setMetadata(_tableId, _tableName, _fieldNames);
   }
 
-  /** Get creator */
-  function getCreator(bytes32 creationId) internal view returns (address creator) {
-    bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = creationId;
-
-    bytes memory _blob = StoreSwitch.getField(_tableId, _keyTuple, 0);
-    return (address(Bytes.slice20(_blob, 0)));
-  }
-
-  /** Get creator (using the specified store) */
-  function getCreator(IStore _store, bytes32 creationId) internal view returns (address creator) {
-    bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = creationId;
-
-    bytes memory _blob = _store.getField(_tableId, _keyTuple, 0);
-    return (address(Bytes.slice20(_blob, 0)));
-  }
-
-  /** Set creator */
-  function setCreator(bytes32 creationId, address creator) internal {
-    bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = creationId;
-
-    StoreSwitch.setField(_tableId, _keyTuple, 0, abi.encodePacked((creator)));
-  }
-
-  /** Set creator (using the specified store) */
-  function setCreator(IStore _store, bytes32 creationId, address creator) internal {
-    bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = creationId;
-
-    _store.setField(_tableId, _keyTuple, 0, abi.encodePacked((creator)));
-  }
-
   /** Get numVoxels */
   function getNumVoxels(bytes32 creationId) internal view returns (uint32 numVoxels) {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = creationId;
 
-    bytes memory _blob = StoreSwitch.getField(_tableId, _keyTuple, 1);
+    bytes memory _blob = StoreSwitch.getField(_tableId, _keyTuple, 0);
     return (uint32(Bytes.slice4(_blob, 0)));
   }
 
@@ -132,7 +95,7 @@ library CreationRegistry {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = creationId;
 
-    bytes memory _blob = _store.getField(_tableId, _keyTuple, 1);
+    bytes memory _blob = _store.getField(_tableId, _keyTuple, 0);
     return (uint32(Bytes.slice4(_blob, 0)));
   }
 
@@ -141,7 +104,7 @@ library CreationRegistry {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = creationId;
 
-    StoreSwitch.setField(_tableId, _keyTuple, 1, abi.encodePacked((numVoxels)));
+    StoreSwitch.setField(_tableId, _keyTuple, 0, abi.encodePacked((numVoxels)));
   }
 
   /** Set numVoxels (using the specified store) */
@@ -149,7 +112,7 @@ library CreationRegistry {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = creationId;
 
-    _store.setField(_tableId, _keyTuple, 1, abi.encodePacked((numVoxels)));
+    _store.setField(_tableId, _keyTuple, 0, abi.encodePacked((numVoxels)));
   }
 
   /** Get voxelTypes */
@@ -157,7 +120,7 @@ library CreationRegistry {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = creationId;
 
-    bytes memory _blob = StoreSwitch.getField(_tableId, _keyTuple, 2);
+    bytes memory _blob = StoreSwitch.getField(_tableId, _keyTuple, 1);
     return (bytes(_blob));
   }
 
@@ -166,7 +129,7 @@ library CreationRegistry {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = creationId;
 
-    bytes memory _blob = _store.getField(_tableId, _keyTuple, 2);
+    bytes memory _blob = _store.getField(_tableId, _keyTuple, 1);
     return (bytes(_blob));
   }
 
@@ -175,7 +138,7 @@ library CreationRegistry {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = creationId;
 
-    StoreSwitch.setField(_tableId, _keyTuple, 2, bytes((voxelTypes)));
+    StoreSwitch.setField(_tableId, _keyTuple, 1, bytes((voxelTypes)));
   }
 
   /** Set voxelTypes (using the specified store) */
@@ -183,7 +146,7 @@ library CreationRegistry {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = creationId;
 
-    _store.setField(_tableId, _keyTuple, 2, bytes((voxelTypes)));
+    _store.setField(_tableId, _keyTuple, 1, bytes((voxelTypes)));
   }
 
   /** Get the length of voxelTypes */
@@ -191,7 +154,7 @@ library CreationRegistry {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = creationId;
 
-    uint256 _byteLength = StoreSwitch.getFieldLength(_tableId, _keyTuple, 2, getSchema());
+    uint256 _byteLength = StoreSwitch.getFieldLength(_tableId, _keyTuple, 1, getSchema());
     return _byteLength / 1;
   }
 
@@ -200,7 +163,7 @@ library CreationRegistry {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = creationId;
 
-    uint256 _byteLength = _store.getFieldLength(_tableId, _keyTuple, 2, getSchema());
+    uint256 _byteLength = _store.getFieldLength(_tableId, _keyTuple, 1, getSchema());
     return _byteLength / 1;
   }
 
@@ -209,7 +172,7 @@ library CreationRegistry {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = creationId;
 
-    bytes memory _blob = StoreSwitch.getFieldSlice(_tableId, _keyTuple, 2, getSchema(), _index * 1, (_index + 1) * 1);
+    bytes memory _blob = StoreSwitch.getFieldSlice(_tableId, _keyTuple, 1, getSchema(), _index * 1, (_index + 1) * 1);
     return (bytes(_blob));
   }
 
@@ -218,7 +181,7 @@ library CreationRegistry {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = creationId;
 
-    bytes memory _blob = _store.getFieldSlice(_tableId, _keyTuple, 2, getSchema(), _index * 1, (_index + 1) * 1);
+    bytes memory _blob = _store.getFieldSlice(_tableId, _keyTuple, 1, getSchema(), _index * 1, (_index + 1) * 1);
     return (bytes(_blob));
   }
 
@@ -227,7 +190,7 @@ library CreationRegistry {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = creationId;
 
-    StoreSwitch.pushToField(_tableId, _keyTuple, 2, bytes((_slice)));
+    StoreSwitch.pushToField(_tableId, _keyTuple, 1, bytes((_slice)));
   }
 
   /** Push a slice to voxelTypes (using the specified store) */
@@ -235,7 +198,7 @@ library CreationRegistry {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = creationId;
 
-    _store.pushToField(_tableId, _keyTuple, 2, bytes((_slice)));
+    _store.pushToField(_tableId, _keyTuple, 1, bytes((_slice)));
   }
 
   /** Pop a slice from voxelTypes */
@@ -243,7 +206,7 @@ library CreationRegistry {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = creationId;
 
-    StoreSwitch.popFromField(_tableId, _keyTuple, 2, 1);
+    StoreSwitch.popFromField(_tableId, _keyTuple, 1, 1);
   }
 
   /** Pop a slice from voxelTypes (using the specified store) */
@@ -251,7 +214,7 @@ library CreationRegistry {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = creationId;
 
-    _store.popFromField(_tableId, _keyTuple, 2, 1);
+    _store.popFromField(_tableId, _keyTuple, 1, 1);
   }
 
   /** Update a slice of voxelTypes at `_index` */
@@ -259,7 +222,7 @@ library CreationRegistry {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = creationId;
 
-    StoreSwitch.updateInField(_tableId, _keyTuple, 2, _index * 1, bytes((_slice)));
+    StoreSwitch.updateInField(_tableId, _keyTuple, 1, _index * 1, bytes((_slice)));
   }
 
   /** Update a slice of voxelTypes (using the specified store) at `_index` */
@@ -267,7 +230,7 @@ library CreationRegistry {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = creationId;
 
-    _store.updateInField(_tableId, _keyTuple, 2, _index * 1, bytes((_slice)));
+    _store.updateInField(_tableId, _keyTuple, 1, _index * 1, bytes((_slice)));
   }
 
   /** Get relativePositions */
@@ -275,7 +238,7 @@ library CreationRegistry {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = creationId;
 
-    bytes memory _blob = StoreSwitch.getField(_tableId, _keyTuple, 3);
+    bytes memory _blob = StoreSwitch.getField(_tableId, _keyTuple, 2);
     return (bytes(_blob));
   }
 
@@ -287,7 +250,7 @@ library CreationRegistry {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = creationId;
 
-    bytes memory _blob = _store.getField(_tableId, _keyTuple, 3);
+    bytes memory _blob = _store.getField(_tableId, _keyTuple, 2);
     return (bytes(_blob));
   }
 
@@ -296,7 +259,7 @@ library CreationRegistry {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = creationId;
 
-    StoreSwitch.setField(_tableId, _keyTuple, 3, bytes((relativePositions)));
+    StoreSwitch.setField(_tableId, _keyTuple, 2, bytes((relativePositions)));
   }
 
   /** Set relativePositions (using the specified store) */
@@ -304,7 +267,7 @@ library CreationRegistry {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = creationId;
 
-    _store.setField(_tableId, _keyTuple, 3, bytes((relativePositions)));
+    _store.setField(_tableId, _keyTuple, 2, bytes((relativePositions)));
   }
 
   /** Get the length of relativePositions */
@@ -312,7 +275,7 @@ library CreationRegistry {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = creationId;
 
-    uint256 _byteLength = StoreSwitch.getFieldLength(_tableId, _keyTuple, 3, getSchema());
+    uint256 _byteLength = StoreSwitch.getFieldLength(_tableId, _keyTuple, 2, getSchema());
     return _byteLength / 1;
   }
 
@@ -321,7 +284,7 @@ library CreationRegistry {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = creationId;
 
-    uint256 _byteLength = _store.getFieldLength(_tableId, _keyTuple, 3, getSchema());
+    uint256 _byteLength = _store.getFieldLength(_tableId, _keyTuple, 2, getSchema());
     return _byteLength / 1;
   }
 
@@ -330,7 +293,7 @@ library CreationRegistry {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = creationId;
 
-    bytes memory _blob = StoreSwitch.getFieldSlice(_tableId, _keyTuple, 3, getSchema(), _index * 1, (_index + 1) * 1);
+    bytes memory _blob = StoreSwitch.getFieldSlice(_tableId, _keyTuple, 2, getSchema(), _index * 1, (_index + 1) * 1);
     return (bytes(_blob));
   }
 
@@ -343,7 +306,7 @@ library CreationRegistry {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = creationId;
 
-    bytes memory _blob = _store.getFieldSlice(_tableId, _keyTuple, 3, getSchema(), _index * 1, (_index + 1) * 1);
+    bytes memory _blob = _store.getFieldSlice(_tableId, _keyTuple, 2, getSchema(), _index * 1, (_index + 1) * 1);
     return (bytes(_blob));
   }
 
@@ -352,7 +315,7 @@ library CreationRegistry {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = creationId;
 
-    StoreSwitch.pushToField(_tableId, _keyTuple, 3, bytes((_slice)));
+    StoreSwitch.pushToField(_tableId, _keyTuple, 2, bytes((_slice)));
   }
 
   /** Push a slice to relativePositions (using the specified store) */
@@ -360,7 +323,7 @@ library CreationRegistry {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = creationId;
 
-    _store.pushToField(_tableId, _keyTuple, 3, bytes((_slice)));
+    _store.pushToField(_tableId, _keyTuple, 2, bytes((_slice)));
   }
 
   /** Pop a slice from relativePositions */
@@ -368,7 +331,7 @@ library CreationRegistry {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = creationId;
 
-    StoreSwitch.popFromField(_tableId, _keyTuple, 3, 1);
+    StoreSwitch.popFromField(_tableId, _keyTuple, 2, 1);
   }
 
   /** Pop a slice from relativePositions (using the specified store) */
@@ -376,7 +339,7 @@ library CreationRegistry {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = creationId;
 
-    _store.popFromField(_tableId, _keyTuple, 3, 1);
+    _store.popFromField(_tableId, _keyTuple, 2, 1);
   }
 
   /** Update a slice of relativePositions at `_index` */
@@ -384,7 +347,7 @@ library CreationRegistry {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = creationId;
 
-    StoreSwitch.updateInField(_tableId, _keyTuple, 3, _index * 1, bytes((_slice)));
+    StoreSwitch.updateInField(_tableId, _keyTuple, 2, _index * 1, bytes((_slice)));
   }
 
   /** Update a slice of relativePositions (using the specified store) at `_index` */
@@ -392,7 +355,7 @@ library CreationRegistry {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = creationId;
 
-    _store.updateInField(_tableId, _keyTuple, 3, _index * 1, bytes((_slice)));
+    _store.updateInField(_tableId, _keyTuple, 2, _index * 1, bytes((_slice)));
   }
 
   /** Get baseCreations */
@@ -400,7 +363,7 @@ library CreationRegistry {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = creationId;
 
-    bytes memory _blob = StoreSwitch.getField(_tableId, _keyTuple, 4);
+    bytes memory _blob = StoreSwitch.getField(_tableId, _keyTuple, 3);
     return (bytes(_blob));
   }
 
@@ -409,7 +372,7 @@ library CreationRegistry {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = creationId;
 
-    bytes memory _blob = _store.getField(_tableId, _keyTuple, 4);
+    bytes memory _blob = _store.getField(_tableId, _keyTuple, 3);
     return (bytes(_blob));
   }
 
@@ -418,7 +381,7 @@ library CreationRegistry {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = creationId;
 
-    StoreSwitch.setField(_tableId, _keyTuple, 4, bytes((baseCreations)));
+    StoreSwitch.setField(_tableId, _keyTuple, 3, bytes((baseCreations)));
   }
 
   /** Set baseCreations (using the specified store) */
@@ -426,7 +389,7 @@ library CreationRegistry {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = creationId;
 
-    _store.setField(_tableId, _keyTuple, 4, bytes((baseCreations)));
+    _store.setField(_tableId, _keyTuple, 3, bytes((baseCreations)));
   }
 
   /** Get the length of baseCreations */
@@ -434,7 +397,7 @@ library CreationRegistry {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = creationId;
 
-    uint256 _byteLength = StoreSwitch.getFieldLength(_tableId, _keyTuple, 4, getSchema());
+    uint256 _byteLength = StoreSwitch.getFieldLength(_tableId, _keyTuple, 3, getSchema());
     return _byteLength / 1;
   }
 
@@ -443,7 +406,7 @@ library CreationRegistry {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = creationId;
 
-    uint256 _byteLength = _store.getFieldLength(_tableId, _keyTuple, 4, getSchema());
+    uint256 _byteLength = _store.getFieldLength(_tableId, _keyTuple, 3, getSchema());
     return _byteLength / 1;
   }
 
@@ -452,7 +415,7 @@ library CreationRegistry {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = creationId;
 
-    bytes memory _blob = StoreSwitch.getFieldSlice(_tableId, _keyTuple, 4, getSchema(), _index * 1, (_index + 1) * 1);
+    bytes memory _blob = StoreSwitch.getFieldSlice(_tableId, _keyTuple, 3, getSchema(), _index * 1, (_index + 1) * 1);
     return (bytes(_blob));
   }
 
@@ -465,7 +428,7 @@ library CreationRegistry {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = creationId;
 
-    bytes memory _blob = _store.getFieldSlice(_tableId, _keyTuple, 4, getSchema(), _index * 1, (_index + 1) * 1);
+    bytes memory _blob = _store.getFieldSlice(_tableId, _keyTuple, 3, getSchema(), _index * 1, (_index + 1) * 1);
     return (bytes(_blob));
   }
 
@@ -474,7 +437,7 @@ library CreationRegistry {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = creationId;
 
-    StoreSwitch.pushToField(_tableId, _keyTuple, 4, bytes((_slice)));
+    StoreSwitch.pushToField(_tableId, _keyTuple, 3, bytes((_slice)));
   }
 
   /** Push a slice to baseCreations (using the specified store) */
@@ -482,7 +445,7 @@ library CreationRegistry {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = creationId;
 
-    _store.pushToField(_tableId, _keyTuple, 4, bytes((_slice)));
+    _store.pushToField(_tableId, _keyTuple, 3, bytes((_slice)));
   }
 
   /** Pop a slice from baseCreations */
@@ -490,7 +453,7 @@ library CreationRegistry {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = creationId;
 
-    StoreSwitch.popFromField(_tableId, _keyTuple, 4, 1);
+    StoreSwitch.popFromField(_tableId, _keyTuple, 3, 1);
   }
 
   /** Pop a slice from baseCreations (using the specified store) */
@@ -498,7 +461,7 @@ library CreationRegistry {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = creationId;
 
-    _store.popFromField(_tableId, _keyTuple, 4, 1);
+    _store.popFromField(_tableId, _keyTuple, 3, 1);
   }
 
   /** Update a slice of baseCreations at `_index` */
@@ -506,7 +469,7 @@ library CreationRegistry {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = creationId;
 
-    StoreSwitch.updateInField(_tableId, _keyTuple, 4, _index * 1, bytes((_slice)));
+    StoreSwitch.updateInField(_tableId, _keyTuple, 3, _index * 1, bytes((_slice)));
   }
 
   /** Update a slice of baseCreations (using the specified store) at `_index` */
@@ -514,7 +477,7 @@ library CreationRegistry {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = creationId;
 
-    _store.updateInField(_tableId, _keyTuple, 4, _index * 1, bytes((_slice)));
+    _store.updateInField(_tableId, _keyTuple, 3, _index * 1, bytes((_slice)));
   }
 
   /** Get metadata */
@@ -522,7 +485,7 @@ library CreationRegistry {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = creationId;
 
-    bytes memory _blob = StoreSwitch.getField(_tableId, _keyTuple, 5);
+    bytes memory _blob = StoreSwitch.getField(_tableId, _keyTuple, 4);
     return (bytes(_blob));
   }
 
@@ -531,7 +494,7 @@ library CreationRegistry {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = creationId;
 
-    bytes memory _blob = _store.getField(_tableId, _keyTuple, 5);
+    bytes memory _blob = _store.getField(_tableId, _keyTuple, 4);
     return (bytes(_blob));
   }
 
@@ -540,7 +503,7 @@ library CreationRegistry {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = creationId;
 
-    StoreSwitch.setField(_tableId, _keyTuple, 5, bytes((metadata)));
+    StoreSwitch.setField(_tableId, _keyTuple, 4, bytes((metadata)));
   }
 
   /** Set metadata (using the specified store) */
@@ -548,7 +511,7 @@ library CreationRegistry {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = creationId;
 
-    _store.setField(_tableId, _keyTuple, 5, bytes((metadata)));
+    _store.setField(_tableId, _keyTuple, 4, bytes((metadata)));
   }
 
   /** Get the length of metadata */
@@ -556,7 +519,7 @@ library CreationRegistry {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = creationId;
 
-    uint256 _byteLength = StoreSwitch.getFieldLength(_tableId, _keyTuple, 5, getSchema());
+    uint256 _byteLength = StoreSwitch.getFieldLength(_tableId, _keyTuple, 4, getSchema());
     return _byteLength / 1;
   }
 
@@ -565,7 +528,7 @@ library CreationRegistry {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = creationId;
 
-    uint256 _byteLength = _store.getFieldLength(_tableId, _keyTuple, 5, getSchema());
+    uint256 _byteLength = _store.getFieldLength(_tableId, _keyTuple, 4, getSchema());
     return _byteLength / 1;
   }
 
@@ -574,7 +537,7 @@ library CreationRegistry {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = creationId;
 
-    bytes memory _blob = StoreSwitch.getFieldSlice(_tableId, _keyTuple, 5, getSchema(), _index * 1, (_index + 1) * 1);
+    bytes memory _blob = StoreSwitch.getFieldSlice(_tableId, _keyTuple, 4, getSchema(), _index * 1, (_index + 1) * 1);
     return (bytes(_blob));
   }
 
@@ -583,7 +546,7 @@ library CreationRegistry {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = creationId;
 
-    bytes memory _blob = _store.getFieldSlice(_tableId, _keyTuple, 5, getSchema(), _index * 1, (_index + 1) * 1);
+    bytes memory _blob = _store.getFieldSlice(_tableId, _keyTuple, 4, getSchema(), _index * 1, (_index + 1) * 1);
     return (bytes(_blob));
   }
 
@@ -592,7 +555,7 @@ library CreationRegistry {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = creationId;
 
-    StoreSwitch.pushToField(_tableId, _keyTuple, 5, bytes((_slice)));
+    StoreSwitch.pushToField(_tableId, _keyTuple, 4, bytes((_slice)));
   }
 
   /** Push a slice to metadata (using the specified store) */
@@ -600,7 +563,7 @@ library CreationRegistry {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = creationId;
 
-    _store.pushToField(_tableId, _keyTuple, 5, bytes((_slice)));
+    _store.pushToField(_tableId, _keyTuple, 4, bytes((_slice)));
   }
 
   /** Pop a slice from metadata */
@@ -608,7 +571,7 @@ library CreationRegistry {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = creationId;
 
-    StoreSwitch.popFromField(_tableId, _keyTuple, 5, 1);
+    StoreSwitch.popFromField(_tableId, _keyTuple, 4, 1);
   }
 
   /** Pop a slice from metadata (using the specified store) */
@@ -616,7 +579,7 @@ library CreationRegistry {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = creationId;
 
-    _store.popFromField(_tableId, _keyTuple, 5, 1);
+    _store.popFromField(_tableId, _keyTuple, 4, 1);
   }
 
   /** Update a slice of metadata at `_index` */
@@ -624,7 +587,7 @@ library CreationRegistry {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = creationId;
 
-    StoreSwitch.updateInField(_tableId, _keyTuple, 5, _index * 1, bytes((_slice)));
+    StoreSwitch.updateInField(_tableId, _keyTuple, 4, _index * 1, bytes((_slice)));
   }
 
   /** Update a slice of metadata (using the specified store) at `_index` */
@@ -632,7 +595,7 @@ library CreationRegistry {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = creationId;
 
-    _store.updateInField(_tableId, _keyTuple, 5, _index * 1, bytes((_slice)));
+    _store.updateInField(_tableId, _keyTuple, 4, _index * 1, bytes((_slice)));
   }
 
   /** Get the full data */
@@ -656,14 +619,13 @@ library CreationRegistry {
   /** Set the full data using individual values */
   function set(
     bytes32 creationId,
-    address creator,
     uint32 numVoxels,
     bytes memory voxelTypes,
     bytes memory relativePositions,
     bytes memory baseCreations,
     bytes memory metadata
   ) internal {
-    bytes memory _data = encode(creator, numVoxels, voxelTypes, relativePositions, baseCreations, metadata);
+    bytes memory _data = encode(numVoxels, voxelTypes, relativePositions, baseCreations, metadata);
 
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = creationId;
@@ -675,14 +637,13 @@ library CreationRegistry {
   function set(
     IStore _store,
     bytes32 creationId,
-    address creator,
     uint32 numVoxels,
     bytes memory voxelTypes,
     bytes memory relativePositions,
     bytes memory baseCreations,
     bytes memory metadata
   ) internal {
-    bytes memory _data = encode(creator, numVoxels, voxelTypes, relativePositions, baseCreations, metadata);
+    bytes memory _data = encode(numVoxels, voxelTypes, relativePositions, baseCreations, metadata);
 
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = creationId;
@@ -694,7 +655,6 @@ library CreationRegistry {
   function set(bytes32 creationId, CreationRegistryData memory _table) internal {
     set(
       creationId,
-      _table.creator,
       _table.numVoxels,
       _table.voxelTypes,
       _table.relativePositions,
@@ -708,7 +668,6 @@ library CreationRegistry {
     set(
       _store,
       creationId,
-      _table.creator,
       _table.numVoxels,
       _table.voxelTypes,
       _table.relativePositions,
@@ -719,18 +678,16 @@ library CreationRegistry {
 
   /** Decode the tightly packed blob using this table's schema */
   function decode(bytes memory _blob) internal pure returns (CreationRegistryData memory _table) {
-    // 24 is the total byte length of static data
-    PackedCounter _encodedLengths = PackedCounter.wrap(Bytes.slice32(_blob, 24));
+    // 4 is the total byte length of static data
+    PackedCounter _encodedLengths = PackedCounter.wrap(Bytes.slice32(_blob, 4));
 
-    _table.creator = (address(Bytes.slice20(_blob, 0)));
-
-    _table.numVoxels = (uint32(Bytes.slice4(_blob, 20)));
+    _table.numVoxels = (uint32(Bytes.slice4(_blob, 0)));
 
     // Store trims the blob if dynamic fields are all empty
-    if (_blob.length > 24) {
+    if (_blob.length > 4) {
       uint256 _start;
       // skip static data length + dynamic lengths word
-      uint256 _end = 56;
+      uint256 _end = 36;
 
       _start = _end;
       _end += _encodedLengths.atIndex(0);
@@ -752,7 +709,6 @@ library CreationRegistry {
 
   /** Tightly pack full data using this table's schema */
   function encode(
-    address creator,
     uint32 numVoxels,
     bytes memory voxelTypes,
     bytes memory relativePositions,
@@ -768,7 +724,6 @@ library CreationRegistry {
 
     return
       abi.encodePacked(
-        creator,
         numVoxels,
         _encodedLengths.unwrap(),
         bytes((voxelTypes)),

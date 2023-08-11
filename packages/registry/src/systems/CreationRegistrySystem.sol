@@ -76,7 +76,6 @@ contract CreationRegistrySystem is System {
     }
 
     // 6) write all the fields of the creation to the table
-    creationData.creator = tx.origin;
     creationData.numVoxels = uint32(allVoxelCoordsInWorld.length);
     creationData.voxelTypes = abi.encode(allVoxelTypes);
     creationData.metadata = getMetadata(name, description);
@@ -85,8 +84,11 @@ contract CreationRegistrySystem is System {
     return (creationId, lowerSouthwestCorner, allVoxelTypes, allVoxelCoordsInWorld);
   }
 
-  function getMetadata(string memory name, string memory description) internal pure returns (bytes memory) {
-    return abi.encode(CreationMetadata({ name: name, description: description, spawns: new CreationSpawns[](0) }));
+  function getMetadata(string memory name, string memory description) internal view returns (bytes memory) {
+    return
+      abi.encode(
+        CreationMetadata({ creator: tx.origin, name: name, description: description, spawns: new CreationSpawns[](0) })
+      );
   }
 
   function creationSpawned(bytes32 creationId) public returns (uint256) {

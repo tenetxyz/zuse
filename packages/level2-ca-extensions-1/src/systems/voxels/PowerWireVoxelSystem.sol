@@ -70,18 +70,14 @@ contract PowerWireVoxelSystem is VoxelType {
       powerWireChildVoxelTypes,
       powerWireChildVoxelTypes,
       PowerWireOffVoxelVariantID,
-      world
-    );
-
-    registerCAVoxelType(
-      CA_ADDRESS,
-      PowerWireVoxelID,
       IWorld(world).extension1_PowerWireVoxelSy_enterWorld.selector,
       IWorld(world).extension1_PowerWireVoxelSy_exitWorld.selector,
       IWorld(world).extension1_PowerWireVoxelSy_variantSelector.selector,
       IWorld(world).extension1_PowerWireVoxelSy_activate.selector,
       IWorld(world).extension1_PowerWireVoxelSy_eventHandler.selector
     );
+
+    registerCAVoxelType(CA_ADDRESS, PowerWireVoxelID);
   }
 
   function enterWorld(VoxelCoord memory coord, bytes32 entity) public override {

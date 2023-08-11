@@ -7,20 +7,6 @@ export default mudConfig({
     BlockDirection: ["None", "North", "South", "East", "West", "NorthEast", "NorthWest", "SouthEast", "SouthWest"],
   },
   tables: {
-    CAVoxelConfig: {
-      registerAsRoot: true,
-      // TODO: Should this be in registry?
-      keySchema: {
-        voxelTypeId: "bytes32",
-      },
-      schema: {
-        enterWorldSelector: "bytes4",
-        exitWorldSelector: "bytes4",
-        voxelVariantSelector: "bytes4",
-        activateSelector: "bytes4",
-        interactionSelector: "bytes4",
-      },
-    },
     CAPosition: {
       registerAsRoot: true,
       keySchema: {
@@ -65,11 +51,6 @@ export default mudConfig({
     },
   },
   modules: [
-    {
-      name: "KeysInTableModule",
-      root: true,
-      args: [resolveTableId("CAVoxelConfig")],
-    },
     {
       name: "KeysWithValueModule",
       root: true,

@@ -23,11 +23,13 @@ bytes32 constant VoxelTypeRegistryTableId = _tableId;
 struct VoxelTypeRegistryData {
   uint32 scale;
   bytes32 previewVoxelVariantId;
-  address creator;
-  uint256 numSpawns;
   bytes32 baseVoxelTypeId;
-  address caAddress;
-  string name;
+  bytes4 enterWorldSelector;
+  bytes4 exitWorldSelector;
+  bytes4 voxelVariantSelector;
+  bytes4 activateSelector;
+  bytes4 interactionSelector;
+  bytes metadata;
   bytes32[] childVoxelTypeIds;
   bytes32[] schemaVoxelTypeIds;
 }
@@ -35,16 +37,18 @@ struct VoxelTypeRegistryData {
 library VoxelTypeRegistry {
   /** Get the table's schema */
   function getSchema() internal pure returns (Schema) {
-    SchemaType[] memory _schema = new SchemaType[](9);
+    SchemaType[] memory _schema = new SchemaType[](11);
     _schema[0] = SchemaType.UINT32;
     _schema[1] = SchemaType.BYTES32;
-    _schema[2] = SchemaType.ADDRESS;
-    _schema[3] = SchemaType.UINT256;
-    _schema[4] = SchemaType.BYTES32;
-    _schema[5] = SchemaType.ADDRESS;
-    _schema[6] = SchemaType.STRING;
-    _schema[7] = SchemaType.BYTES32_ARRAY;
-    _schema[8] = SchemaType.BYTES32_ARRAY;
+    _schema[2] = SchemaType.BYTES32;
+    _schema[3] = SchemaType.BYTES4;
+    _schema[4] = SchemaType.BYTES4;
+    _schema[5] = SchemaType.BYTES4;
+    _schema[6] = SchemaType.BYTES4;
+    _schema[7] = SchemaType.BYTES4;
+    _schema[8] = SchemaType.BYTES;
+    _schema[9] = SchemaType.BYTES32_ARRAY;
+    _schema[10] = SchemaType.BYTES32_ARRAY;
 
     return SchemaLib.encode(_schema);
   }
@@ -58,16 +62,18 @@ library VoxelTypeRegistry {
 
   /** Get the table's metadata */
   function getMetadata() internal pure returns (string memory, string[] memory) {
-    string[] memory _fieldNames = new string[](9);
+    string[] memory _fieldNames = new string[](11);
     _fieldNames[0] = "scale";
     _fieldNames[1] = "previewVoxelVariantId";
-    _fieldNames[2] = "creator";
-    _fieldNames[3] = "numSpawns";
-    _fieldNames[4] = "baseVoxelTypeId";
-    _fieldNames[5] = "caAddress";
-    _fieldNames[6] = "name";
-    _fieldNames[7] = "childVoxelTypeIds";
-    _fieldNames[8] = "schemaVoxelTypeIds";
+    _fieldNames[2] = "baseVoxelTypeId";
+    _fieldNames[3] = "enterWorldSelector";
+    _fieldNames[4] = "exitWorldSelector";
+    _fieldNames[5] = "voxelVariantSelector";
+    _fieldNames[6] = "activateSelector";
+    _fieldNames[7] = "interactionSelector";
+    _fieldNames[8] = "metadata";
+    _fieldNames[9] = "childVoxelTypeIds";
+    _fieldNames[10] = "schemaVoxelTypeIds";
     return ("VoxelTypeRegistry", _fieldNames);
   }
 
@@ -164,80 +170,12 @@ library VoxelTypeRegistry {
     _store.setField(_tableId, _keyTuple, 1, abi.encodePacked((previewVoxelVariantId)));
   }
 
-  /** Get creator */
-  function getCreator(bytes32 voxelTypeId) internal view returns (address creator) {
-    bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = voxelTypeId;
-
-    bytes memory _blob = StoreSwitch.getField(_tableId, _keyTuple, 2);
-    return (address(Bytes.slice20(_blob, 0)));
-  }
-
-  /** Get creator (using the specified store) */
-  function getCreator(IStore _store, bytes32 voxelTypeId) internal view returns (address creator) {
-    bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = voxelTypeId;
-
-    bytes memory _blob = _store.getField(_tableId, _keyTuple, 2);
-    return (address(Bytes.slice20(_blob, 0)));
-  }
-
-  /** Set creator */
-  function setCreator(bytes32 voxelTypeId, address creator) internal {
-    bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = voxelTypeId;
-
-    StoreSwitch.setField(_tableId, _keyTuple, 2, abi.encodePacked((creator)));
-  }
-
-  /** Set creator (using the specified store) */
-  function setCreator(IStore _store, bytes32 voxelTypeId, address creator) internal {
-    bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = voxelTypeId;
-
-    _store.setField(_tableId, _keyTuple, 2, abi.encodePacked((creator)));
-  }
-
-  /** Get numSpawns */
-  function getNumSpawns(bytes32 voxelTypeId) internal view returns (uint256 numSpawns) {
-    bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = voxelTypeId;
-
-    bytes memory _blob = StoreSwitch.getField(_tableId, _keyTuple, 3);
-    return (uint256(Bytes.slice32(_blob, 0)));
-  }
-
-  /** Get numSpawns (using the specified store) */
-  function getNumSpawns(IStore _store, bytes32 voxelTypeId) internal view returns (uint256 numSpawns) {
-    bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = voxelTypeId;
-
-    bytes memory _blob = _store.getField(_tableId, _keyTuple, 3);
-    return (uint256(Bytes.slice32(_blob, 0)));
-  }
-
-  /** Set numSpawns */
-  function setNumSpawns(bytes32 voxelTypeId, uint256 numSpawns) internal {
-    bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = voxelTypeId;
-
-    StoreSwitch.setField(_tableId, _keyTuple, 3, abi.encodePacked((numSpawns)));
-  }
-
-  /** Set numSpawns (using the specified store) */
-  function setNumSpawns(IStore _store, bytes32 voxelTypeId, uint256 numSpawns) internal {
-    bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = voxelTypeId;
-
-    _store.setField(_tableId, _keyTuple, 3, abi.encodePacked((numSpawns)));
-  }
-
   /** Get baseVoxelTypeId */
   function getBaseVoxelTypeId(bytes32 voxelTypeId) internal view returns (bytes32 baseVoxelTypeId) {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = voxelTypeId;
 
-    bytes memory _blob = StoreSwitch.getField(_tableId, _keyTuple, 4);
+    bytes memory _blob = StoreSwitch.getField(_tableId, _keyTuple, 2);
     return (Bytes.slice32(_blob, 0));
   }
 
@@ -246,7 +184,7 @@ library VoxelTypeRegistry {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = voxelTypeId;
 
-    bytes memory _blob = _store.getField(_tableId, _keyTuple, 4);
+    bytes memory _blob = _store.getField(_tableId, _keyTuple, 2);
     return (Bytes.slice32(_blob, 0));
   }
 
@@ -255,7 +193,7 @@ library VoxelTypeRegistry {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = voxelTypeId;
 
-    StoreSwitch.setField(_tableId, _keyTuple, 4, abi.encodePacked((baseVoxelTypeId)));
+    StoreSwitch.setField(_tableId, _keyTuple, 2, abi.encodePacked((baseVoxelTypeId)));
   }
 
   /** Set baseVoxelTypeId (using the specified store) */
@@ -263,159 +201,301 @@ library VoxelTypeRegistry {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = voxelTypeId;
 
-    _store.setField(_tableId, _keyTuple, 4, abi.encodePacked((baseVoxelTypeId)));
+    _store.setField(_tableId, _keyTuple, 2, abi.encodePacked((baseVoxelTypeId)));
   }
 
-  /** Get caAddress */
-  function getCaAddress(bytes32 voxelTypeId) internal view returns (address caAddress) {
+  /** Get enterWorldSelector */
+  function getEnterWorldSelector(bytes32 voxelTypeId) internal view returns (bytes4 enterWorldSelector) {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = voxelTypeId;
+
+    bytes memory _blob = StoreSwitch.getField(_tableId, _keyTuple, 3);
+    return (Bytes.slice4(_blob, 0));
+  }
+
+  /** Get enterWorldSelector (using the specified store) */
+  function getEnterWorldSelector(IStore _store, bytes32 voxelTypeId) internal view returns (bytes4 enterWorldSelector) {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = voxelTypeId;
+
+    bytes memory _blob = _store.getField(_tableId, _keyTuple, 3);
+    return (Bytes.slice4(_blob, 0));
+  }
+
+  /** Set enterWorldSelector */
+  function setEnterWorldSelector(bytes32 voxelTypeId, bytes4 enterWorldSelector) internal {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = voxelTypeId;
+
+    StoreSwitch.setField(_tableId, _keyTuple, 3, abi.encodePacked((enterWorldSelector)));
+  }
+
+  /** Set enterWorldSelector (using the specified store) */
+  function setEnterWorldSelector(IStore _store, bytes32 voxelTypeId, bytes4 enterWorldSelector) internal {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = voxelTypeId;
+
+    _store.setField(_tableId, _keyTuple, 3, abi.encodePacked((enterWorldSelector)));
+  }
+
+  /** Get exitWorldSelector */
+  function getExitWorldSelector(bytes32 voxelTypeId) internal view returns (bytes4 exitWorldSelector) {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = voxelTypeId;
+
+    bytes memory _blob = StoreSwitch.getField(_tableId, _keyTuple, 4);
+    return (Bytes.slice4(_blob, 0));
+  }
+
+  /** Get exitWorldSelector (using the specified store) */
+  function getExitWorldSelector(IStore _store, bytes32 voxelTypeId) internal view returns (bytes4 exitWorldSelector) {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = voxelTypeId;
+
+    bytes memory _blob = _store.getField(_tableId, _keyTuple, 4);
+    return (Bytes.slice4(_blob, 0));
+  }
+
+  /** Set exitWorldSelector */
+  function setExitWorldSelector(bytes32 voxelTypeId, bytes4 exitWorldSelector) internal {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = voxelTypeId;
+
+    StoreSwitch.setField(_tableId, _keyTuple, 4, abi.encodePacked((exitWorldSelector)));
+  }
+
+  /** Set exitWorldSelector (using the specified store) */
+  function setExitWorldSelector(IStore _store, bytes32 voxelTypeId, bytes4 exitWorldSelector) internal {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = voxelTypeId;
+
+    _store.setField(_tableId, _keyTuple, 4, abi.encodePacked((exitWorldSelector)));
+  }
+
+  /** Get voxelVariantSelector */
+  function getVoxelVariantSelector(bytes32 voxelTypeId) internal view returns (bytes4 voxelVariantSelector) {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = voxelTypeId;
 
     bytes memory _blob = StoreSwitch.getField(_tableId, _keyTuple, 5);
-    return (address(Bytes.slice20(_blob, 0)));
+    return (Bytes.slice4(_blob, 0));
   }
 
-  /** Get caAddress (using the specified store) */
-  function getCaAddress(IStore _store, bytes32 voxelTypeId) internal view returns (address caAddress) {
+  /** Get voxelVariantSelector (using the specified store) */
+  function getVoxelVariantSelector(
+    IStore _store,
+    bytes32 voxelTypeId
+  ) internal view returns (bytes4 voxelVariantSelector) {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = voxelTypeId;
 
     bytes memory _blob = _store.getField(_tableId, _keyTuple, 5);
-    return (address(Bytes.slice20(_blob, 0)));
+    return (Bytes.slice4(_blob, 0));
   }
 
-  /** Set caAddress */
-  function setCaAddress(bytes32 voxelTypeId, address caAddress) internal {
+  /** Set voxelVariantSelector */
+  function setVoxelVariantSelector(bytes32 voxelTypeId, bytes4 voxelVariantSelector) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = voxelTypeId;
 
-    StoreSwitch.setField(_tableId, _keyTuple, 5, abi.encodePacked((caAddress)));
+    StoreSwitch.setField(_tableId, _keyTuple, 5, abi.encodePacked((voxelVariantSelector)));
   }
 
-  /** Set caAddress (using the specified store) */
-  function setCaAddress(IStore _store, bytes32 voxelTypeId, address caAddress) internal {
+  /** Set voxelVariantSelector (using the specified store) */
+  function setVoxelVariantSelector(IStore _store, bytes32 voxelTypeId, bytes4 voxelVariantSelector) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = voxelTypeId;
 
-    _store.setField(_tableId, _keyTuple, 5, abi.encodePacked((caAddress)));
+    _store.setField(_tableId, _keyTuple, 5, abi.encodePacked((voxelVariantSelector)));
   }
 
-  /** Get name */
-  function getName(bytes32 voxelTypeId) internal view returns (string memory name) {
+  /** Get activateSelector */
+  function getActivateSelector(bytes32 voxelTypeId) internal view returns (bytes4 activateSelector) {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = voxelTypeId;
 
     bytes memory _blob = StoreSwitch.getField(_tableId, _keyTuple, 6);
-    return (string(_blob));
+    return (Bytes.slice4(_blob, 0));
   }
 
-  /** Get name (using the specified store) */
-  function getName(IStore _store, bytes32 voxelTypeId) internal view returns (string memory name) {
+  /** Get activateSelector (using the specified store) */
+  function getActivateSelector(IStore _store, bytes32 voxelTypeId) internal view returns (bytes4 activateSelector) {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = voxelTypeId;
 
     bytes memory _blob = _store.getField(_tableId, _keyTuple, 6);
-    return (string(_blob));
+    return (Bytes.slice4(_blob, 0));
   }
 
-  /** Set name */
-  function setName(bytes32 voxelTypeId, string memory name) internal {
+  /** Set activateSelector */
+  function setActivateSelector(bytes32 voxelTypeId, bytes4 activateSelector) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = voxelTypeId;
 
-    StoreSwitch.setField(_tableId, _keyTuple, 6, bytes((name)));
+    StoreSwitch.setField(_tableId, _keyTuple, 6, abi.encodePacked((activateSelector)));
   }
 
-  /** Set name (using the specified store) */
-  function setName(IStore _store, bytes32 voxelTypeId, string memory name) internal {
+  /** Set activateSelector (using the specified store) */
+  function setActivateSelector(IStore _store, bytes32 voxelTypeId, bytes4 activateSelector) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = voxelTypeId;
 
-    _store.setField(_tableId, _keyTuple, 6, bytes((name)));
+    _store.setField(_tableId, _keyTuple, 6, abi.encodePacked((activateSelector)));
   }
 
-  /** Get the length of name */
-  function lengthName(bytes32 voxelTypeId) internal view returns (uint256) {
+  /** Get interactionSelector */
+  function getInteractionSelector(bytes32 voxelTypeId) internal view returns (bytes4 interactionSelector) {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = voxelTypeId;
 
-    uint256 _byteLength = StoreSwitch.getFieldLength(_tableId, _keyTuple, 6, getSchema());
+    bytes memory _blob = StoreSwitch.getField(_tableId, _keyTuple, 7);
+    return (Bytes.slice4(_blob, 0));
+  }
+
+  /** Get interactionSelector (using the specified store) */
+  function getInteractionSelector(
+    IStore _store,
+    bytes32 voxelTypeId
+  ) internal view returns (bytes4 interactionSelector) {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = voxelTypeId;
+
+    bytes memory _blob = _store.getField(_tableId, _keyTuple, 7);
+    return (Bytes.slice4(_blob, 0));
+  }
+
+  /** Set interactionSelector */
+  function setInteractionSelector(bytes32 voxelTypeId, bytes4 interactionSelector) internal {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = voxelTypeId;
+
+    StoreSwitch.setField(_tableId, _keyTuple, 7, abi.encodePacked((interactionSelector)));
+  }
+
+  /** Set interactionSelector (using the specified store) */
+  function setInteractionSelector(IStore _store, bytes32 voxelTypeId, bytes4 interactionSelector) internal {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = voxelTypeId;
+
+    _store.setField(_tableId, _keyTuple, 7, abi.encodePacked((interactionSelector)));
+  }
+
+  /** Get metadata */
+  function getMetadata(bytes32 voxelTypeId) internal view returns (bytes memory metadata) {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = voxelTypeId;
+
+    bytes memory _blob = StoreSwitch.getField(_tableId, _keyTuple, 8);
+    return (bytes(_blob));
+  }
+
+  /** Get metadata (using the specified store) */
+  function getMetadata(IStore _store, bytes32 voxelTypeId) internal view returns (bytes memory metadata) {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = voxelTypeId;
+
+    bytes memory _blob = _store.getField(_tableId, _keyTuple, 8);
+    return (bytes(_blob));
+  }
+
+  /** Set metadata */
+  function setMetadata(bytes32 voxelTypeId, bytes memory metadata) internal {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = voxelTypeId;
+
+    StoreSwitch.setField(_tableId, _keyTuple, 8, bytes((metadata)));
+  }
+
+  /** Set metadata (using the specified store) */
+  function setMetadata(IStore _store, bytes32 voxelTypeId, bytes memory metadata) internal {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = voxelTypeId;
+
+    _store.setField(_tableId, _keyTuple, 8, bytes((metadata)));
+  }
+
+  /** Get the length of metadata */
+  function lengthMetadata(bytes32 voxelTypeId) internal view returns (uint256) {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = voxelTypeId;
+
+    uint256 _byteLength = StoreSwitch.getFieldLength(_tableId, _keyTuple, 8, getSchema());
     return _byteLength / 1;
   }
 
-  /** Get the length of name (using the specified store) */
-  function lengthName(IStore _store, bytes32 voxelTypeId) internal view returns (uint256) {
+  /** Get the length of metadata (using the specified store) */
+  function lengthMetadata(IStore _store, bytes32 voxelTypeId) internal view returns (uint256) {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = voxelTypeId;
 
-    uint256 _byteLength = _store.getFieldLength(_tableId, _keyTuple, 6, getSchema());
+    uint256 _byteLength = _store.getFieldLength(_tableId, _keyTuple, 8, getSchema());
     return _byteLength / 1;
   }
 
-  /** Get an item of name (unchecked, returns invalid data if index overflows) */
-  function getItemName(bytes32 voxelTypeId, uint256 _index) internal view returns (string memory) {
+  /** Get an item of metadata (unchecked, returns invalid data if index overflows) */
+  function getItemMetadata(bytes32 voxelTypeId, uint256 _index) internal view returns (bytes memory) {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = voxelTypeId;
 
-    bytes memory _blob = StoreSwitch.getFieldSlice(_tableId, _keyTuple, 6, getSchema(), _index * 1, (_index + 1) * 1);
-    return (string(_blob));
+    bytes memory _blob = StoreSwitch.getFieldSlice(_tableId, _keyTuple, 8, getSchema(), _index * 1, (_index + 1) * 1);
+    return (bytes(_blob));
   }
 
-  /** Get an item of name (using the specified store) (unchecked, returns invalid data if index overflows) */
-  function getItemName(IStore _store, bytes32 voxelTypeId, uint256 _index) internal view returns (string memory) {
+  /** Get an item of metadata (using the specified store) (unchecked, returns invalid data if index overflows) */
+  function getItemMetadata(IStore _store, bytes32 voxelTypeId, uint256 _index) internal view returns (bytes memory) {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = voxelTypeId;
 
-    bytes memory _blob = _store.getFieldSlice(_tableId, _keyTuple, 6, getSchema(), _index * 1, (_index + 1) * 1);
-    return (string(_blob));
+    bytes memory _blob = _store.getFieldSlice(_tableId, _keyTuple, 8, getSchema(), _index * 1, (_index + 1) * 1);
+    return (bytes(_blob));
   }
 
-  /** Push a slice to name */
-  function pushName(bytes32 voxelTypeId, string memory _slice) internal {
+  /** Push a slice to metadata */
+  function pushMetadata(bytes32 voxelTypeId, bytes memory _slice) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = voxelTypeId;
 
-    StoreSwitch.pushToField(_tableId, _keyTuple, 6, bytes((_slice)));
+    StoreSwitch.pushToField(_tableId, _keyTuple, 8, bytes((_slice)));
   }
 
-  /** Push a slice to name (using the specified store) */
-  function pushName(IStore _store, bytes32 voxelTypeId, string memory _slice) internal {
+  /** Push a slice to metadata (using the specified store) */
+  function pushMetadata(IStore _store, bytes32 voxelTypeId, bytes memory _slice) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = voxelTypeId;
 
-    _store.pushToField(_tableId, _keyTuple, 6, bytes((_slice)));
+    _store.pushToField(_tableId, _keyTuple, 8, bytes((_slice)));
   }
 
-  /** Pop a slice from name */
-  function popName(bytes32 voxelTypeId) internal {
+  /** Pop a slice from metadata */
+  function popMetadata(bytes32 voxelTypeId) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = voxelTypeId;
 
-    StoreSwitch.popFromField(_tableId, _keyTuple, 6, 1);
+    StoreSwitch.popFromField(_tableId, _keyTuple, 8, 1);
   }
 
-  /** Pop a slice from name (using the specified store) */
-  function popName(IStore _store, bytes32 voxelTypeId) internal {
+  /** Pop a slice from metadata (using the specified store) */
+  function popMetadata(IStore _store, bytes32 voxelTypeId) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = voxelTypeId;
 
-    _store.popFromField(_tableId, _keyTuple, 6, 1);
+    _store.popFromField(_tableId, _keyTuple, 8, 1);
   }
 
-  /** Update a slice of name at `_index` */
-  function updateName(bytes32 voxelTypeId, uint256 _index, string memory _slice) internal {
+  /** Update a slice of metadata at `_index` */
+  function updateMetadata(bytes32 voxelTypeId, uint256 _index, bytes memory _slice) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = voxelTypeId;
 
-    StoreSwitch.updateInField(_tableId, _keyTuple, 6, _index * 1, bytes((_slice)));
+    StoreSwitch.updateInField(_tableId, _keyTuple, 8, _index * 1, bytes((_slice)));
   }
 
-  /** Update a slice of name (using the specified store) at `_index` */
-  function updateName(IStore _store, bytes32 voxelTypeId, uint256 _index, string memory _slice) internal {
+  /** Update a slice of metadata (using the specified store) at `_index` */
+  function updateMetadata(IStore _store, bytes32 voxelTypeId, uint256 _index, bytes memory _slice) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = voxelTypeId;
 
-    _store.updateInField(_tableId, _keyTuple, 6, _index * 1, bytes((_slice)));
+    _store.updateInField(_tableId, _keyTuple, 8, _index * 1, bytes((_slice)));
   }
 
   /** Get childVoxelTypeIds */
@@ -423,7 +503,7 @@ library VoxelTypeRegistry {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = voxelTypeId;
 
-    bytes memory _blob = StoreSwitch.getField(_tableId, _keyTuple, 7);
+    bytes memory _blob = StoreSwitch.getField(_tableId, _keyTuple, 9);
     return (SliceLib.getSubslice(_blob, 0, _blob.length).decodeArray_bytes32());
   }
 
@@ -435,7 +515,7 @@ library VoxelTypeRegistry {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = voxelTypeId;
 
-    bytes memory _blob = _store.getField(_tableId, _keyTuple, 7);
+    bytes memory _blob = _store.getField(_tableId, _keyTuple, 9);
     return (SliceLib.getSubslice(_blob, 0, _blob.length).decodeArray_bytes32());
   }
 
@@ -444,7 +524,7 @@ library VoxelTypeRegistry {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = voxelTypeId;
 
-    StoreSwitch.setField(_tableId, _keyTuple, 7, EncodeArray.encode((childVoxelTypeIds)));
+    StoreSwitch.setField(_tableId, _keyTuple, 9, EncodeArray.encode((childVoxelTypeIds)));
   }
 
   /** Set childVoxelTypeIds (using the specified store) */
@@ -452,7 +532,7 @@ library VoxelTypeRegistry {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = voxelTypeId;
 
-    _store.setField(_tableId, _keyTuple, 7, EncodeArray.encode((childVoxelTypeIds)));
+    _store.setField(_tableId, _keyTuple, 9, EncodeArray.encode((childVoxelTypeIds)));
   }
 
   /** Get the length of childVoxelTypeIds */
@@ -460,7 +540,7 @@ library VoxelTypeRegistry {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = voxelTypeId;
 
-    uint256 _byteLength = StoreSwitch.getFieldLength(_tableId, _keyTuple, 7, getSchema());
+    uint256 _byteLength = StoreSwitch.getFieldLength(_tableId, _keyTuple, 9, getSchema());
     return _byteLength / 32;
   }
 
@@ -469,7 +549,7 @@ library VoxelTypeRegistry {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = voxelTypeId;
 
-    uint256 _byteLength = _store.getFieldLength(_tableId, _keyTuple, 7, getSchema());
+    uint256 _byteLength = _store.getFieldLength(_tableId, _keyTuple, 9, getSchema());
     return _byteLength / 32;
   }
 
@@ -478,7 +558,7 @@ library VoxelTypeRegistry {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = voxelTypeId;
 
-    bytes memory _blob = StoreSwitch.getFieldSlice(_tableId, _keyTuple, 7, getSchema(), _index * 32, (_index + 1) * 32);
+    bytes memory _blob = StoreSwitch.getFieldSlice(_tableId, _keyTuple, 9, getSchema(), _index * 32, (_index + 1) * 32);
     return (Bytes.slice32(_blob, 0));
   }
 
@@ -491,7 +571,7 @@ library VoxelTypeRegistry {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = voxelTypeId;
 
-    bytes memory _blob = _store.getFieldSlice(_tableId, _keyTuple, 7, getSchema(), _index * 32, (_index + 1) * 32);
+    bytes memory _blob = _store.getFieldSlice(_tableId, _keyTuple, 9, getSchema(), _index * 32, (_index + 1) * 32);
     return (Bytes.slice32(_blob, 0));
   }
 
@@ -500,7 +580,7 @@ library VoxelTypeRegistry {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = voxelTypeId;
 
-    StoreSwitch.pushToField(_tableId, _keyTuple, 7, abi.encodePacked((_element)));
+    StoreSwitch.pushToField(_tableId, _keyTuple, 9, abi.encodePacked((_element)));
   }
 
   /** Push an element to childVoxelTypeIds (using the specified store) */
@@ -508,7 +588,7 @@ library VoxelTypeRegistry {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = voxelTypeId;
 
-    _store.pushToField(_tableId, _keyTuple, 7, abi.encodePacked((_element)));
+    _store.pushToField(_tableId, _keyTuple, 9, abi.encodePacked((_element)));
   }
 
   /** Pop an element from childVoxelTypeIds */
@@ -516,7 +596,7 @@ library VoxelTypeRegistry {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = voxelTypeId;
 
-    StoreSwitch.popFromField(_tableId, _keyTuple, 7, 32);
+    StoreSwitch.popFromField(_tableId, _keyTuple, 9, 32);
   }
 
   /** Pop an element from childVoxelTypeIds (using the specified store) */
@@ -524,7 +604,7 @@ library VoxelTypeRegistry {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = voxelTypeId;
 
-    _store.popFromField(_tableId, _keyTuple, 7, 32);
+    _store.popFromField(_tableId, _keyTuple, 9, 32);
   }
 
   /** Update an element of childVoxelTypeIds at `_index` */
@@ -532,7 +612,7 @@ library VoxelTypeRegistry {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = voxelTypeId;
 
-    StoreSwitch.updateInField(_tableId, _keyTuple, 7, _index * 32, abi.encodePacked((_element)));
+    StoreSwitch.updateInField(_tableId, _keyTuple, 9, _index * 32, abi.encodePacked((_element)));
   }
 
   /** Update an element of childVoxelTypeIds (using the specified store) at `_index` */
@@ -540,7 +620,7 @@ library VoxelTypeRegistry {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = voxelTypeId;
 
-    _store.updateInField(_tableId, _keyTuple, 7, _index * 32, abi.encodePacked((_element)));
+    _store.updateInField(_tableId, _keyTuple, 9, _index * 32, abi.encodePacked((_element)));
   }
 
   /** Get schemaVoxelTypeIds */
@@ -548,7 +628,7 @@ library VoxelTypeRegistry {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = voxelTypeId;
 
-    bytes memory _blob = StoreSwitch.getField(_tableId, _keyTuple, 8);
+    bytes memory _blob = StoreSwitch.getField(_tableId, _keyTuple, 10);
     return (SliceLib.getSubslice(_blob, 0, _blob.length).decodeArray_bytes32());
   }
 
@@ -560,7 +640,7 @@ library VoxelTypeRegistry {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = voxelTypeId;
 
-    bytes memory _blob = _store.getField(_tableId, _keyTuple, 8);
+    bytes memory _blob = _store.getField(_tableId, _keyTuple, 10);
     return (SliceLib.getSubslice(_blob, 0, _blob.length).decodeArray_bytes32());
   }
 
@@ -569,7 +649,7 @@ library VoxelTypeRegistry {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = voxelTypeId;
 
-    StoreSwitch.setField(_tableId, _keyTuple, 8, EncodeArray.encode((schemaVoxelTypeIds)));
+    StoreSwitch.setField(_tableId, _keyTuple, 10, EncodeArray.encode((schemaVoxelTypeIds)));
   }
 
   /** Set schemaVoxelTypeIds (using the specified store) */
@@ -577,7 +657,7 @@ library VoxelTypeRegistry {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = voxelTypeId;
 
-    _store.setField(_tableId, _keyTuple, 8, EncodeArray.encode((schemaVoxelTypeIds)));
+    _store.setField(_tableId, _keyTuple, 10, EncodeArray.encode((schemaVoxelTypeIds)));
   }
 
   /** Get the length of schemaVoxelTypeIds */
@@ -585,7 +665,7 @@ library VoxelTypeRegistry {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = voxelTypeId;
 
-    uint256 _byteLength = StoreSwitch.getFieldLength(_tableId, _keyTuple, 8, getSchema());
+    uint256 _byteLength = StoreSwitch.getFieldLength(_tableId, _keyTuple, 10, getSchema());
     return _byteLength / 32;
   }
 
@@ -594,7 +674,7 @@ library VoxelTypeRegistry {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = voxelTypeId;
 
-    uint256 _byteLength = _store.getFieldLength(_tableId, _keyTuple, 8, getSchema());
+    uint256 _byteLength = _store.getFieldLength(_tableId, _keyTuple, 10, getSchema());
     return _byteLength / 32;
   }
 
@@ -603,7 +683,14 @@ library VoxelTypeRegistry {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = voxelTypeId;
 
-    bytes memory _blob = StoreSwitch.getFieldSlice(_tableId, _keyTuple, 8, getSchema(), _index * 32, (_index + 1) * 32);
+    bytes memory _blob = StoreSwitch.getFieldSlice(
+      _tableId,
+      _keyTuple,
+      10,
+      getSchema(),
+      _index * 32,
+      (_index + 1) * 32
+    );
     return (Bytes.slice32(_blob, 0));
   }
 
@@ -616,7 +703,7 @@ library VoxelTypeRegistry {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = voxelTypeId;
 
-    bytes memory _blob = _store.getFieldSlice(_tableId, _keyTuple, 8, getSchema(), _index * 32, (_index + 1) * 32);
+    bytes memory _blob = _store.getFieldSlice(_tableId, _keyTuple, 10, getSchema(), _index * 32, (_index + 1) * 32);
     return (Bytes.slice32(_blob, 0));
   }
 
@@ -625,7 +712,7 @@ library VoxelTypeRegistry {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = voxelTypeId;
 
-    StoreSwitch.pushToField(_tableId, _keyTuple, 8, abi.encodePacked((_element)));
+    StoreSwitch.pushToField(_tableId, _keyTuple, 10, abi.encodePacked((_element)));
   }
 
   /** Push an element to schemaVoxelTypeIds (using the specified store) */
@@ -633,7 +720,7 @@ library VoxelTypeRegistry {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = voxelTypeId;
 
-    _store.pushToField(_tableId, _keyTuple, 8, abi.encodePacked((_element)));
+    _store.pushToField(_tableId, _keyTuple, 10, abi.encodePacked((_element)));
   }
 
   /** Pop an element from schemaVoxelTypeIds */
@@ -641,7 +728,7 @@ library VoxelTypeRegistry {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = voxelTypeId;
 
-    StoreSwitch.popFromField(_tableId, _keyTuple, 8, 32);
+    StoreSwitch.popFromField(_tableId, _keyTuple, 10, 32);
   }
 
   /** Pop an element from schemaVoxelTypeIds (using the specified store) */
@@ -649,7 +736,7 @@ library VoxelTypeRegistry {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = voxelTypeId;
 
-    _store.popFromField(_tableId, _keyTuple, 8, 32);
+    _store.popFromField(_tableId, _keyTuple, 10, 32);
   }
 
   /** Update an element of schemaVoxelTypeIds at `_index` */
@@ -657,7 +744,7 @@ library VoxelTypeRegistry {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = voxelTypeId;
 
-    StoreSwitch.updateInField(_tableId, _keyTuple, 8, _index * 32, abi.encodePacked((_element)));
+    StoreSwitch.updateInField(_tableId, _keyTuple, 10, _index * 32, abi.encodePacked((_element)));
   }
 
   /** Update an element of schemaVoxelTypeIds (using the specified store) at `_index` */
@@ -665,7 +752,7 @@ library VoxelTypeRegistry {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = voxelTypeId;
 
-    _store.updateInField(_tableId, _keyTuple, 8, _index * 32, abi.encodePacked((_element)));
+    _store.updateInField(_tableId, _keyTuple, 10, _index * 32, abi.encodePacked((_element)));
   }
 
   /** Get the full data */
@@ -691,22 +778,26 @@ library VoxelTypeRegistry {
     bytes32 voxelTypeId,
     uint32 scale,
     bytes32 previewVoxelVariantId,
-    address creator,
-    uint256 numSpawns,
     bytes32 baseVoxelTypeId,
-    address caAddress,
-    string memory name,
+    bytes4 enterWorldSelector,
+    bytes4 exitWorldSelector,
+    bytes4 voxelVariantSelector,
+    bytes4 activateSelector,
+    bytes4 interactionSelector,
+    bytes memory metadata,
     bytes32[] memory childVoxelTypeIds,
     bytes32[] memory schemaVoxelTypeIds
   ) internal {
     bytes memory _data = encode(
       scale,
       previewVoxelVariantId,
-      creator,
-      numSpawns,
       baseVoxelTypeId,
-      caAddress,
-      name,
+      enterWorldSelector,
+      exitWorldSelector,
+      voxelVariantSelector,
+      activateSelector,
+      interactionSelector,
+      metadata,
       childVoxelTypeIds,
       schemaVoxelTypeIds
     );
@@ -723,22 +814,26 @@ library VoxelTypeRegistry {
     bytes32 voxelTypeId,
     uint32 scale,
     bytes32 previewVoxelVariantId,
-    address creator,
-    uint256 numSpawns,
     bytes32 baseVoxelTypeId,
-    address caAddress,
-    string memory name,
+    bytes4 enterWorldSelector,
+    bytes4 exitWorldSelector,
+    bytes4 voxelVariantSelector,
+    bytes4 activateSelector,
+    bytes4 interactionSelector,
+    bytes memory metadata,
     bytes32[] memory childVoxelTypeIds,
     bytes32[] memory schemaVoxelTypeIds
   ) internal {
     bytes memory _data = encode(
       scale,
       previewVoxelVariantId,
-      creator,
-      numSpawns,
       baseVoxelTypeId,
-      caAddress,
-      name,
+      enterWorldSelector,
+      exitWorldSelector,
+      voxelVariantSelector,
+      activateSelector,
+      interactionSelector,
+      metadata,
       childVoxelTypeIds,
       schemaVoxelTypeIds
     );
@@ -755,11 +850,13 @@ library VoxelTypeRegistry {
       voxelTypeId,
       _table.scale,
       _table.previewVoxelVariantId,
-      _table.creator,
-      _table.numSpawns,
       _table.baseVoxelTypeId,
-      _table.caAddress,
-      _table.name,
+      _table.enterWorldSelector,
+      _table.exitWorldSelector,
+      _table.voxelVariantSelector,
+      _table.activateSelector,
+      _table.interactionSelector,
+      _table.metadata,
       _table.childVoxelTypeIds,
       _table.schemaVoxelTypeIds
     );
@@ -772,11 +869,13 @@ library VoxelTypeRegistry {
       voxelTypeId,
       _table.scale,
       _table.previewVoxelVariantId,
-      _table.creator,
-      _table.numSpawns,
       _table.baseVoxelTypeId,
-      _table.caAddress,
-      _table.name,
+      _table.enterWorldSelector,
+      _table.exitWorldSelector,
+      _table.voxelVariantSelector,
+      _table.activateSelector,
+      _table.interactionSelector,
+      _table.metadata,
       _table.childVoxelTypeIds,
       _table.schemaVoxelTypeIds
     );
@@ -784,30 +883,34 @@ library VoxelTypeRegistry {
 
   /** Decode the tightly packed blob using this table's schema */
   function decode(bytes memory _blob) internal pure returns (VoxelTypeRegistryData memory _table) {
-    // 140 is the total byte length of static data
-    PackedCounter _encodedLengths = PackedCounter.wrap(Bytes.slice32(_blob, 140));
+    // 88 is the total byte length of static data
+    PackedCounter _encodedLengths = PackedCounter.wrap(Bytes.slice32(_blob, 88));
 
     _table.scale = (uint32(Bytes.slice4(_blob, 0)));
 
     _table.previewVoxelVariantId = (Bytes.slice32(_blob, 4));
 
-    _table.creator = (address(Bytes.slice20(_blob, 36)));
+    _table.baseVoxelTypeId = (Bytes.slice32(_blob, 36));
 
-    _table.numSpawns = (uint256(Bytes.slice32(_blob, 56)));
+    _table.enterWorldSelector = (Bytes.slice4(_blob, 68));
 
-    _table.baseVoxelTypeId = (Bytes.slice32(_blob, 88));
+    _table.exitWorldSelector = (Bytes.slice4(_blob, 72));
 
-    _table.caAddress = (address(Bytes.slice20(_blob, 120)));
+    _table.voxelVariantSelector = (Bytes.slice4(_blob, 76));
+
+    _table.activateSelector = (Bytes.slice4(_blob, 80));
+
+    _table.interactionSelector = (Bytes.slice4(_blob, 84));
 
     // Store trims the blob if dynamic fields are all empty
-    if (_blob.length > 140) {
+    if (_blob.length > 88) {
       uint256 _start;
       // skip static data length + dynamic lengths word
-      uint256 _end = 172;
+      uint256 _end = 120;
 
       _start = _end;
       _end += _encodedLengths.atIndex(0);
-      _table.name = (string(SliceLib.getSubslice(_blob, _start, _end).toBytes()));
+      _table.metadata = (bytes(SliceLib.getSubslice(_blob, _start, _end).toBytes()));
 
       _start = _end;
       _end += _encodedLengths.atIndex(1);
@@ -823,16 +926,18 @@ library VoxelTypeRegistry {
   function encode(
     uint32 scale,
     bytes32 previewVoxelVariantId,
-    address creator,
-    uint256 numSpawns,
     bytes32 baseVoxelTypeId,
-    address caAddress,
-    string memory name,
+    bytes4 enterWorldSelector,
+    bytes4 exitWorldSelector,
+    bytes4 voxelVariantSelector,
+    bytes4 activateSelector,
+    bytes4 interactionSelector,
+    bytes memory metadata,
     bytes32[] memory childVoxelTypeIds,
     bytes32[] memory schemaVoxelTypeIds
   ) internal pure returns (bytes memory) {
     uint40[] memory _counters = new uint40[](3);
-    _counters[0] = uint40(bytes(name).length);
+    _counters[0] = uint40(bytes(metadata).length);
     _counters[1] = uint40(childVoxelTypeIds.length * 32);
     _counters[2] = uint40(schemaVoxelTypeIds.length * 32);
     PackedCounter _encodedLengths = PackedCounterLib.pack(_counters);
@@ -841,12 +946,14 @@ library VoxelTypeRegistry {
       abi.encodePacked(
         scale,
         previewVoxelVariantId,
-        creator,
-        numSpawns,
         baseVoxelTypeId,
-        caAddress,
+        enterWorldSelector,
+        exitWorldSelector,
+        voxelVariantSelector,
+        activateSelector,
+        interactionSelector,
         _encodedLengths.unwrap(),
-        bytes((name)),
+        bytes((metadata)),
         EncodeArray.encode((childVoxelTypeIds)),
         EncodeArray.encode((schemaVoxelTypeIds))
       );

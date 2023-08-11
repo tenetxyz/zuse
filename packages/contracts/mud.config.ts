@@ -8,9 +8,6 @@ import { resolveTableId } from "@latticexyz/config";
 import "@latticexyz/world/snapsync";
 
 export default mudConfig({
-  enums: {
-    NoaBlockType: ["BLOCK", "MESH"],
-  },
   snapSync: true,
   tables: {
     WorldConfig: {
@@ -19,39 +16,6 @@ export default mudConfig({
       },
       schema: {
         caAddress: "address",
-      },
-    },
-    VoxelType: {
-      keySchema: {
-        scale: "uint32",
-        entity: "bytes32",
-      },
-      schema: {
-        voxelTypeId: "bytes32", // TODO: rename to voxelBaseTypeId
-        voxelVariantId: "bytes32",
-      },
-    },
-    VoxelActivated: {
-      keySchema: {
-        player: "address",
-      },
-      schema: {
-        scale: "uint32",
-        entity: "bytes32",
-        message: "string",
-      },
-      ephemeral: true,
-    },
-    Position: {
-      keySchema: {
-        scale: "uint32",
-        entity: "bytes32",
-      },
-      schema: {
-        // VoxelCoord is removed in MUD2, so we need to manually specify x,y,z
-        x: "int32",
-        y: "int32",
-        z: "int32",
       },
     },
     Player: {
@@ -65,16 +29,39 @@ export default mudConfig({
         lastUpdateCoord: "bytes", // VoxelCoord
       },
     },
-    OwnedBy: {
+    VoxelType: {
       keySchema: {
         scale: "uint32",
         entity: "bytes32",
       },
       schema: {
-        player: "address",
+        voxelTypeId: "bytes32", // TODO: rename to voxelBaseTypeId
+        voxelVariantId: "bytes32",
       },
     },
-    Recipe: "bytes32",
+    Position: {
+      keySchema: {
+        scale: "uint32",
+        entity: "bytes32",
+      },
+      schema: {
+        // VoxelCoord is removed in MUD2, so we need to manually specify x,y,z
+        x: "int32",
+        y: "int32",
+        z: "int32",
+      },
+    },
+    VoxelActivated: {
+      keySchema: {
+        player: "address",
+      },
+      schema: {
+        scale: "uint32",
+        entity: "bytes32",
+        message: "string",
+      },
+      ephemeral: true,
+    },
     // tables for spawning
     OfSpawn: {
       // maps a voxel spawned in the world -> the entityId representing its spawn
@@ -94,35 +81,27 @@ export default mudConfig({
         voxels: "bytes", // the voxel entities that have been spawned
       },
     },
-    Classifier: {
-      // the id is just the classifierId
-      schema: {
-        creator: "address",
-        classifySelector: "bytes4", // the function that will be called when the user submits to the classifier
-        // namespace: "bytes16", // the namespace of the classifier (and its classification result table)
-        name: "string",
-        description: "string",
-        selectorInterface: "bytes", // InterfaceVoxels[] the interface that the classifier will use
-        classificationResultTableName: "string", // needed so the client can know which table to query for the classification result
+    // Other World specific tables
+    OwnedBy: {
+      keySchema: {
+        scale: "uint32",
+        entity: "bytes32",
       },
-    },
-  },
-  systems: {
-    RegisterClassifierSystem: {
-      name: "RegClassifierSys", // Note: This has to be <= 16 characters and can't conflict with table names
-      openAccess: true,
+      schema: {
+        player: "address",
+      },
     },
   },
   modules: [
     {
-      name: "KeysInTableModule",
-      root: true,
-      args: [resolveTableId("Position")],
-    },
-    {
       name: "UniqueEntityModule",
       root: true,
       args: [],
+    },
+    {
+      name: "KeysInTableModule",
+      root: true,
+      args: [resolveTableId("Position")],
     },
     {
       name: "KeysInTableModule",
@@ -148,11 +127,6 @@ export default mudConfig({
       name: "KeysInTableModule",
       root: true,
       args: [resolveTableId("VoxelType")],
-    },
-    {
-      name: "KeysInTableModule",
-      root: true,
-      args: [resolveTableId("Classifier")],
     },
     {
       name: "KeysInTableModule",

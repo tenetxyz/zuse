@@ -12,3 +12,10 @@ struct CreationMetadata {
   string description;
   CreationSpawns[] spawns;
 }
+
+struct InterfaceVoxel {
+  uint256 index;
+  bytes32 entity;
+  string name;
+  string desc;
+}

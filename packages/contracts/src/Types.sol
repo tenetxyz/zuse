@@ -12,10 +12,3 @@ struct VoxelEntity {
   uint32 scale;
   bytes32 entityId;
 }
-
-struct InterfaceVoxel {
-  uint256 index;
-  bytes32 entity;
-  string name;
-  string desc;
-}

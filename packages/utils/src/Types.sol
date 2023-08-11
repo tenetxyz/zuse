@@ -42,6 +42,30 @@ struct VoxelTypeData {
   bytes32 voxelVariantId;
 }
 
+struct CreationSpawns {
+  address worldAddress;
+  uint256 numSpawns;
+}
+
+struct CreationMetadata {
+  address creator;
+  string name;
+  string description;
+  CreationSpawns[] spawns;
+}
+
+struct VoxelEntity {
+  uint32 scale;
+  bytes32 entityId;
+}
+
+struct InterfaceVoxel {
+  uint256 index;
+  VoxelEntity entity;
+  string name;
+  string desc;
+}
+
 struct BaseCreationInWorld {
   bytes32 creationId;
   VoxelCoord lowerSouthWestCornerInWorld;

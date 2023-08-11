@@ -7,8 +7,3 @@ enum EventType {
   Mine,
   Activate
 }
-
-struct VoxelEntity {
-  uint32 scale;
-  bytes32 entityId;
-}

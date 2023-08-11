@@ -1,5 +1,9 @@
 # Everlon
 
+### Architecture
+
+![architecture](./architecture.png)
+
 ### Installation
 
 1. Run `brew install yarn` to install yarn

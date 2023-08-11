@@ -44,8 +44,7 @@ contract GrassVoxelSystem is VoxelType {
       baseVoxelTypeId,
       grassChildVoxelTypes,
       grassChildVoxelTypes,
-      GrassVoxelVariantID,
-      world
+      GrassVoxelVariantID
     );
 
     IWorld(world).registerInitialVoxelType(

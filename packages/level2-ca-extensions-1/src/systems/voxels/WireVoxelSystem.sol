@@ -61,8 +61,7 @@ contract WireVoxelSystem is VoxelType {
       baseVoxelTypeId,
       wireChildVoxelTypes,
       wireSchemaVoxelTypes,
-      WireOffVoxelVariantID,
-      world
+      WireOffVoxelVariantID
     );
 
     registerCAVoxelType(

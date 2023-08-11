@@ -40,8 +40,7 @@ contract DirtVoxelSystem is VoxelType {
       baseVoxelTypeId,
       dirtChildVoxelTypes,
       dirtChildVoxelTypes,
-      DirtVoxelVariantID,
-      world
+      DirtVoxelVariantID
     );
 
     IWorld(world).registerInitialVoxelType(

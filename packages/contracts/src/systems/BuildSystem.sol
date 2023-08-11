@@ -5,6 +5,7 @@ import { IWorld } from "@tenet-contracts/src/codegen/world/IWorld.sol";
 import { BuildEvent } from "../prototypes/BuildEvent.sol";
 import { VoxelCoord } from "../Types.sol";
 import { OwnedBy, VoxelType, VoxelTypeData } from "@tenet-contracts/src/codegen/Tables.sol";
+import { REGISTRY_ADDRESS } from "@tenet-contracts/src/Constants.sol";
 
 contract BuildSystem is BuildEvent {
   function callEventHandler(
@@ -32,6 +33,6 @@ contract BuildSystem is BuildEvent {
     bool buildChildren,
     bool buildParent
   ) public override returns (uint32, bytes32) {
-    return super.runEventHandler(voxelTypeId, coord, buildChildren, buildParent);
+    return super.buildVoxelType(voxelTypeId, coord, buildChildren, buildParent);
   }
 }

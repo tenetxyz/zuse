@@ -47,8 +47,7 @@ contract SandVoxelSystem is VoxelType {
       baseVoxelTypeId,
       sandChildVoxelTypes,
       sandChildVoxelTypes,
-      SandVoxelVariantID,
-      world
+      SandVoxelVariantID
     );
 
     registerCAVoxelType(

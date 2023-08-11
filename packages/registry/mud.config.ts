@@ -38,18 +38,16 @@ export default mudConfig({
     },
     VoxelTypeRegistry: {
       keySchema: {
-        voxelTypeId: "bytes32", // AKA voxelBaseTypeId
+        voxelTypeId: "bytes32",
       },
       schema: {
         scale: "uint32",
         previewVoxelVariantId: "bytes32",
         creator: "address",
-        numSpawns: "uint256",
         baseVoxelTypeId: "bytes32",
-        caAddress: "address",
-        name: "string",
+        metadata: "bytes", // CreationMetadata
         childVoxelTypeIds: "bytes32[]",
-        schemaVoxelTypeIds: "bytes32[]",
+        schemaVoxelTypeIds: "bytes32[]", // This is used when a child is built to figure out if the parent should be built. We can't juse use childVoxelTypeIds, because the child entities may move
       },
     },
     VoxelVariantsRegistry: {
@@ -57,7 +55,7 @@ export default mudConfig({
         voxelVariantId: "bytes32",
       },
       schema: {
-        variantId: "uint256",
+        variantId: "uint256", // Used by the client
         frames: "uint32",
         opaque: "bool",
         fluid: "bool",

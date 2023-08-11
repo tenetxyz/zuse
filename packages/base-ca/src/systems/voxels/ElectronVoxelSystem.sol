@@ -40,8 +40,7 @@ contract ElectronVoxelSystem is VoxelType {
       baseVoxelTypeId,
       electronChildVoxelTypes,
       electronChildVoxelTypes,
-      ElectronVoxelVariantID,
-      world
+      ElectronVoxelVariantID
     );
 
     IWorld(world).registerInitialVoxelType(

@@ -16,6 +16,7 @@ import { getUniqueEntity } from "@latticexyz/world/src/modules/uniqueentity/getU
 import { addressToEntityKey } from "@tenet-utils/src/Utils.sol";
 import { AirVoxelVariantID } from "@tenet-base-ca/src/Constants.sol";
 import { Strings } from "@openzeppelin/contracts/utils/Strings.sol";
+import { voxelSpawned } from "@tenet-registry/src/Utils.sol";
 
 abstract contract BuildEvent is Event {
   // Called by users
@@ -27,7 +28,11 @@ abstract contract BuildEvent is Event {
     VoxelCoord memory coord,
     bool buildChildren,
     bool buildParent
-  ) public virtual returns (uint32, bytes32);
+  ) public virtual returns (uint32, bytes32) {
+    (uint32 scale, bytes32 eventVoxelEntity) = super.runEventHandler(voxelTypeId, coord, buildChildren, buildParent);
+    voxelSpawned(REGISTRY_ADDRESS, voxelTypeId);
+    return (scale, eventVoxelEntity);
+  }
 
   function preEvent(bytes32 voxelTypeId, VoxelCoord memory coord) internal override {
     IWorld(_world()).approveBuild(tx.origin, voxelTypeId, coord);

@@ -28,7 +28,6 @@ contract CARegistrySystem is System {
       } else {
         require(scale == VoxelTypeRegistry.getScale(voxelTypeIds[i]), "All voxel types must be the same scale");
       }
-      require(VoxelTypeRegistry.getCaAddress(voxelTypeIds[i]) == caAddress, "Voxel type must be registered to this CA");
     }
 
     require(!hasKey(CARegistryTableId, CARegistry.encodeKeyTuple(caAddress)), "CA has already been registered");
@@ -55,7 +54,6 @@ contract CARegistrySystem is System {
 
     CARegistryData memory caData = CARegistry.get(caAddress);
     require(caData.scale == VoxelTypeRegistry.getScale(voxelTypeId), "Voxel type must be the same scale as the CA");
-    require(VoxelTypeRegistry.getCaAddress(voxelTypeId) == caAddress, "Voxel type must be registered to this CA");
 
     bytes32[] memory voxelTypeIds = caData.voxelTypeIds;
     for (uint256 i = 0; i < voxelTypeIds.length; i++) {

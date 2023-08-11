@@ -69,8 +69,7 @@ contract PowerWireVoxelSystem is VoxelType {
       Level2AirVoxelID,
       powerWireChildVoxelTypes,
       powerWireChildVoxelTypes,
-      PowerWireOffVoxelVariantID,
-      world
+      PowerWireOffVoxelVariantID
     );
 
     registerCAVoxelType(

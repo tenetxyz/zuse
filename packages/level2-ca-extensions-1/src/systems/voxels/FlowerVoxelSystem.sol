@@ -43,8 +43,7 @@ contract FlowerVoxelSystem is VoxelType {
       baseVoxelTypeId,
       flowerChildVoxelTypes,
       flowerChildVoxelTypes,
-      OrangeFlowerVoxelVariantID,
-      world
+      OrangeFlowerVoxelVariantID
     );
 
     registerCAVoxelType(

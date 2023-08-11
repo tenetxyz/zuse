@@ -68,8 +68,7 @@ contract PowerSignalVoxelSystem is VoxelType {
       PowerWireVoxelID,
       powerSignalChildVoxelTypes,
       powerSignalChildVoxelTypes,
-      PowerSignalOffVoxelVariantID,
-      world
+      PowerSignalOffVoxelVariantID
     );
 
     registerCAVoxelType(

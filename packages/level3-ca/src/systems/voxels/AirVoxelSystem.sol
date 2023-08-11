@@ -27,8 +27,7 @@ contract AirVoxelSystem is VoxelType {
       baseVoxelTypeId,
       airChildVoxelTypes,
       airChildVoxelTypes,
-      AirVoxelVariantID,
-      world
+      AirVoxelVariantID
     );
 
     IWorld(world).registerInitialVoxelType(

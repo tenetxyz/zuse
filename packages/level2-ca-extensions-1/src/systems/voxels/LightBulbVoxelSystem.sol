@@ -57,8 +57,7 @@ contract LightBulbVoxelSystem is VoxelType {
       baseVoxelTypeId,
       lightBulbChildVoxelTypes,
       lightBulbChildVoxelTypes,
-      LightBulbOffVoxelVariantID,
-      world
+      LightBulbOffVoxelVariantID
     );
 
     registerCAVoxelType(

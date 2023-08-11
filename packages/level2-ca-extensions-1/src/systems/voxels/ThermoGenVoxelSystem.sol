@@ -48,8 +48,7 @@ contract ThermoGenVoxelSystem is VoxelType {
       baseVoxelTypeId,
       thermoGenChildVoxelTypes,
       thermoGenChildVoxelTypes,
-      ThermoGenVoxelVariantID,
-      world
+      ThermoGenVoxelVariantID
     );
 
     registerCAVoxelType(

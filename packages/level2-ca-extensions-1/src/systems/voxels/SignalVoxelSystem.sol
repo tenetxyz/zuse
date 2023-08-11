@@ -60,8 +60,7 @@ contract SignalVoxelSystem is VoxelType {
       baseVoxelTypeId,
       signalChildVoxelTypes,
       signalChildVoxelTypes,
-      SignalOffVoxelVariantID,
-      world
+      SignalOffVoxelVariantID
     );
 
     registerCAVoxelType(

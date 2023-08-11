@@ -61,8 +61,7 @@ contract IceVoxelSystem is VoxelType {
       baseVoxelTypeId,
       iceChildVoxelTypes,
       iceChildVoxelTypes,
-      IceColdVoxelVariantID,
-      world
+      IceColdVoxelVariantID
     );
 
     registerCAVoxelType(

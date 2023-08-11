@@ -47,8 +47,7 @@ contract StorageVoxelSystem is VoxelType {
       baseVoxelTypeId,
       storageChildVoxelTypes,
       storageChildVoxelTypes,
-      StorageVoxelVariantID,
-      world
+      StorageVoxelVariantID
     );
 
     registerCAVoxelType(

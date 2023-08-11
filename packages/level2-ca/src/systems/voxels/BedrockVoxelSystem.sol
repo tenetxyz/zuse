@@ -40,8 +40,7 @@ contract BedrockVoxelSystem is VoxelType {
       baseVoxelTypeId,
       bedrockChildVoxelTypes,
       bedrockChildVoxelTypes,
-      BedrockVoxelVariantID,
-      world
+      BedrockVoxelVariantID
     );
 
     IWorld(world).registerInitialVoxelType(

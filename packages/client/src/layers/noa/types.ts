@@ -11,7 +11,7 @@ export type Material = {
 
 export type InterfaceVoxel = {
   index: number;
-  entity: string;
+  entity: VoxelEntity;
   name: string;
   desc: string;
 };

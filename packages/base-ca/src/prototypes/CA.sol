@@ -28,7 +28,7 @@ abstract contract CA is System {
   ) internal virtual;
 
   function isVoxelTypeAllowed(bytes32 voxelTypeId) public view returns (bool) {
-    bytes32[] memory voxelTypeIds = CARegistry.getVoxelTypeIds(_world());
+    bytes32[] memory voxelTypeIds = CARegistry.getVoxelTypeIds(IStore(getRegistryAddress()), _world());
     for (uint256 i = 0; i < voxelTypeIds.length; i++) {
       if (voxelTypeIds[i] == voxelTypeId) {
         return true;

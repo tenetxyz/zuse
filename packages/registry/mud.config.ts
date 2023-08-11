@@ -89,9 +89,9 @@ export default mudConfig({
       },
       schema: {
         creator: "address",
+        classifySelector: "bytes4", // the function that will be called when the user submits to the classifier
         name: "string",
         description: "string",
-        classifySelector: "bytes4", // the function that will be called when the user submits to the classifier
         selectorInterface: "bytes", // InterfaceVoxel[] the interface that the classifier will use
         classificationResultTableName: "string", // needed so the client can know which table to query for the classification result
       },

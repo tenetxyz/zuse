@@ -22,9 +22,9 @@ bytes32 constant ClassifierRegistryTableId = _tableId;
 
 struct ClassifierRegistryData {
   address creator;
+  bytes4 classifySelector;
   string name;
   string description;
-  bytes4 classifySelector;
   bytes selectorInterface;
   string classificationResultTableName;
 }
@@ -34,9 +34,9 @@ library ClassifierRegistry {
   function getSchema() internal pure returns (Schema) {
     SchemaType[] memory _schema = new SchemaType[](6);
     _schema[0] = SchemaType.ADDRESS;
-    _schema[1] = SchemaType.STRING;
+    _schema[1] = SchemaType.BYTES4;
     _schema[2] = SchemaType.STRING;
-    _schema[3] = SchemaType.BYTES4;
+    _schema[3] = SchemaType.STRING;
     _schema[4] = SchemaType.BYTES;
     _schema[5] = SchemaType.STRING;
 
@@ -54,9 +54,9 @@ library ClassifierRegistry {
   function getMetadata() internal pure returns (string memory, string[] memory) {
     string[] memory _fieldNames = new string[](6);
     _fieldNames[0] = "creator";
-    _fieldNames[1] = "name";
-    _fieldNames[2] = "description";
-    _fieldNames[3] = "classifySelector";
+    _fieldNames[1] = "classifySelector";
+    _fieldNames[2] = "name";
+    _fieldNames[3] = "description";
     _fieldNames[4] = "selectorInterface";
     _fieldNames[5] = "classificationResultTableName";
     return ("ClassifierRegistry", _fieldNames);
@@ -118,12 +118,46 @@ library ClassifierRegistry {
     _store.setField(_tableId, _keyTuple, 0, abi.encodePacked((creator)));
   }
 
+  /** Get classifySelector */
+  function getClassifySelector(bytes32 classifierId) internal view returns (bytes4 classifySelector) {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = classifierId;
+
+    bytes memory _blob = StoreSwitch.getField(_tableId, _keyTuple, 1);
+    return (Bytes.slice4(_blob, 0));
+  }
+
+  /** Get classifySelector (using the specified store) */
+  function getClassifySelector(IStore _store, bytes32 classifierId) internal view returns (bytes4 classifySelector) {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = classifierId;
+
+    bytes memory _blob = _store.getField(_tableId, _keyTuple, 1);
+    return (Bytes.slice4(_blob, 0));
+  }
+
+  /** Set classifySelector */
+  function setClassifySelector(bytes32 classifierId, bytes4 classifySelector) internal {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = classifierId;
+
+    StoreSwitch.setField(_tableId, _keyTuple, 1, abi.encodePacked((classifySelector)));
+  }
+
+  /** Set classifySelector (using the specified store) */
+  function setClassifySelector(IStore _store, bytes32 classifierId, bytes4 classifySelector) internal {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = classifierId;
+
+    _store.setField(_tableId, _keyTuple, 1, abi.encodePacked((classifySelector)));
+  }
+
   /** Get name */
   function getName(bytes32 classifierId) internal view returns (string memory name) {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = classifierId;
 
-    bytes memory _blob = StoreSwitch.getField(_tableId, _keyTuple, 1);
+    bytes memory _blob = StoreSwitch.getField(_tableId, _keyTuple, 2);
     return (string(_blob));
   }
 
@@ -132,7 +166,7 @@ library ClassifierRegistry {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = classifierId;
 
-    bytes memory _blob = _store.getField(_tableId, _keyTuple, 1);
+    bytes memory _blob = _store.getField(_tableId, _keyTuple, 2);
     return (string(_blob));
   }
 
@@ -141,7 +175,7 @@ library ClassifierRegistry {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = classifierId;
 
-    StoreSwitch.setField(_tableId, _keyTuple, 1, bytes((name)));
+    StoreSwitch.setField(_tableId, _keyTuple, 2, bytes((name)));
   }
 
   /** Set name (using the specified store) */
@@ -149,7 +183,7 @@ library ClassifierRegistry {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = classifierId;
 
-    _store.setField(_tableId, _keyTuple, 1, bytes((name)));
+    _store.setField(_tableId, _keyTuple, 2, bytes((name)));
   }
 
   /** Get the length of name */
@@ -157,7 +191,7 @@ library ClassifierRegistry {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = classifierId;
 
-    uint256 _byteLength = StoreSwitch.getFieldLength(_tableId, _keyTuple, 1, getSchema());
+    uint256 _byteLength = StoreSwitch.getFieldLength(_tableId, _keyTuple, 2, getSchema());
     return _byteLength / 1;
   }
 
@@ -166,7 +200,7 @@ library ClassifierRegistry {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = classifierId;
 
-    uint256 _byteLength = _store.getFieldLength(_tableId, _keyTuple, 1, getSchema());
+    uint256 _byteLength = _store.getFieldLength(_tableId, _keyTuple, 2, getSchema());
     return _byteLength / 1;
   }
 
@@ -175,7 +209,7 @@ library ClassifierRegistry {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = classifierId;
 
-    bytes memory _blob = StoreSwitch.getFieldSlice(_tableId, _keyTuple, 1, getSchema(), _index * 1, (_index + 1) * 1);
+    bytes memory _blob = StoreSwitch.getFieldSlice(_tableId, _keyTuple, 2, getSchema(), _index * 1, (_index + 1) * 1);
     return (string(_blob));
   }
 
@@ -184,7 +218,7 @@ library ClassifierRegistry {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = classifierId;
 
-    bytes memory _blob = _store.getFieldSlice(_tableId, _keyTuple, 1, getSchema(), _index * 1, (_index + 1) * 1);
+    bytes memory _blob = _store.getFieldSlice(_tableId, _keyTuple, 2, getSchema(), _index * 1, (_index + 1) * 1);
     return (string(_blob));
   }
 
@@ -193,7 +227,7 @@ library ClassifierRegistry {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = classifierId;
 
-    StoreSwitch.pushToField(_tableId, _keyTuple, 1, bytes((_slice)));
+    StoreSwitch.pushToField(_tableId, _keyTuple, 2, bytes((_slice)));
   }
 
   /** Push a slice to name (using the specified store) */
@@ -201,7 +235,7 @@ library ClassifierRegistry {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = classifierId;
 
-    _store.pushToField(_tableId, _keyTuple, 1, bytes((_slice)));
+    _store.pushToField(_tableId, _keyTuple, 2, bytes((_slice)));
   }
 
   /** Pop a slice from name */
@@ -209,7 +243,7 @@ library ClassifierRegistry {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = classifierId;
 
-    StoreSwitch.popFromField(_tableId, _keyTuple, 1, 1);
+    StoreSwitch.popFromField(_tableId, _keyTuple, 2, 1);
   }
 
   /** Pop a slice from name (using the specified store) */
@@ -217,7 +251,7 @@ library ClassifierRegistry {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = classifierId;
 
-    _store.popFromField(_tableId, _keyTuple, 1, 1);
+    _store.popFromField(_tableId, _keyTuple, 2, 1);
   }
 
   /** Update a slice of name at `_index` */
@@ -225,7 +259,7 @@ library ClassifierRegistry {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = classifierId;
 
-    StoreSwitch.updateInField(_tableId, _keyTuple, 1, _index * 1, bytes((_slice)));
+    StoreSwitch.updateInField(_tableId, _keyTuple, 2, _index * 1, bytes((_slice)));
   }
 
   /** Update a slice of name (using the specified store) at `_index` */
@@ -233,7 +267,7 @@ library ClassifierRegistry {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = classifierId;
 
-    _store.updateInField(_tableId, _keyTuple, 1, _index * 1, bytes((_slice)));
+    _store.updateInField(_tableId, _keyTuple, 2, _index * 1, bytes((_slice)));
   }
 
   /** Get description */
@@ -241,7 +275,7 @@ library ClassifierRegistry {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = classifierId;
 
-    bytes memory _blob = StoreSwitch.getField(_tableId, _keyTuple, 2);
+    bytes memory _blob = StoreSwitch.getField(_tableId, _keyTuple, 3);
     return (string(_blob));
   }
 
@@ -250,7 +284,7 @@ library ClassifierRegistry {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = classifierId;
 
-    bytes memory _blob = _store.getField(_tableId, _keyTuple, 2);
+    bytes memory _blob = _store.getField(_tableId, _keyTuple, 3);
     return (string(_blob));
   }
 
@@ -259,7 +293,7 @@ library ClassifierRegistry {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = classifierId;
 
-    StoreSwitch.setField(_tableId, _keyTuple, 2, bytes((description)));
+    StoreSwitch.setField(_tableId, _keyTuple, 3, bytes((description)));
   }
 
   /** Set description (using the specified store) */
@@ -267,7 +301,7 @@ library ClassifierRegistry {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = classifierId;
 
-    _store.setField(_tableId, _keyTuple, 2, bytes((description)));
+    _store.setField(_tableId, _keyTuple, 3, bytes((description)));
   }
 
   /** Get the length of description */
@@ -275,7 +309,7 @@ library ClassifierRegistry {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = classifierId;
 
-    uint256 _byteLength = StoreSwitch.getFieldLength(_tableId, _keyTuple, 2, getSchema());
+    uint256 _byteLength = StoreSwitch.getFieldLength(_tableId, _keyTuple, 3, getSchema());
     return _byteLength / 1;
   }
 
@@ -284,7 +318,7 @@ library ClassifierRegistry {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = classifierId;
 
-    uint256 _byteLength = _store.getFieldLength(_tableId, _keyTuple, 2, getSchema());
+    uint256 _byteLength = _store.getFieldLength(_tableId, _keyTuple, 3, getSchema());
     return _byteLength / 1;
   }
 
@@ -293,7 +327,7 @@ library ClassifierRegistry {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = classifierId;
 
-    bytes memory _blob = StoreSwitch.getFieldSlice(_tableId, _keyTuple, 2, getSchema(), _index * 1, (_index + 1) * 1);
+    bytes memory _blob = StoreSwitch.getFieldSlice(_tableId, _keyTuple, 3, getSchema(), _index * 1, (_index + 1) * 1);
     return (string(_blob));
   }
 
@@ -306,7 +340,7 @@ library ClassifierRegistry {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = classifierId;
 
-    bytes memory _blob = _store.getFieldSlice(_tableId, _keyTuple, 2, getSchema(), _index * 1, (_index + 1) * 1);
+    bytes memory _blob = _store.getFieldSlice(_tableId, _keyTuple, 3, getSchema(), _index * 1, (_index + 1) * 1);
     return (string(_blob));
   }
 
@@ -315,7 +349,7 @@ library ClassifierRegistry {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = classifierId;
 
-    StoreSwitch.pushToField(_tableId, _keyTuple, 2, bytes((_slice)));
+    StoreSwitch.pushToField(_tableId, _keyTuple, 3, bytes((_slice)));
   }
 
   /** Push a slice to description (using the specified store) */
@@ -323,7 +357,7 @@ library ClassifierRegistry {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = classifierId;
 
-    _store.pushToField(_tableId, _keyTuple, 2, bytes((_slice)));
+    _store.pushToField(_tableId, _keyTuple, 3, bytes((_slice)));
   }
 
   /** Pop a slice from description */
@@ -331,7 +365,7 @@ library ClassifierRegistry {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = classifierId;
 
-    StoreSwitch.popFromField(_tableId, _keyTuple, 2, 1);
+    StoreSwitch.popFromField(_tableId, _keyTuple, 3, 1);
   }
 
   /** Pop a slice from description (using the specified store) */
@@ -339,7 +373,7 @@ library ClassifierRegistry {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = classifierId;
 
-    _store.popFromField(_tableId, _keyTuple, 2, 1);
+    _store.popFromField(_tableId, _keyTuple, 3, 1);
   }
 
   /** Update a slice of description at `_index` */
@@ -347,7 +381,7 @@ library ClassifierRegistry {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = classifierId;
 
-    StoreSwitch.updateInField(_tableId, _keyTuple, 2, _index * 1, bytes((_slice)));
+    StoreSwitch.updateInField(_tableId, _keyTuple, 3, _index * 1, bytes((_slice)));
   }
 
   /** Update a slice of description (using the specified store) at `_index` */
@@ -355,41 +389,7 @@ library ClassifierRegistry {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = classifierId;
 
-    _store.updateInField(_tableId, _keyTuple, 2, _index * 1, bytes((_slice)));
-  }
-
-  /** Get classifySelector */
-  function getClassifySelector(bytes32 classifierId) internal view returns (bytes4 classifySelector) {
-    bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = classifierId;
-
-    bytes memory _blob = StoreSwitch.getField(_tableId, _keyTuple, 3);
-    return (Bytes.slice4(_blob, 0));
-  }
-
-  /** Get classifySelector (using the specified store) */
-  function getClassifySelector(IStore _store, bytes32 classifierId) internal view returns (bytes4 classifySelector) {
-    bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = classifierId;
-
-    bytes memory _blob = _store.getField(_tableId, _keyTuple, 3);
-    return (Bytes.slice4(_blob, 0));
-  }
-
-  /** Set classifySelector */
-  function setClassifySelector(bytes32 classifierId, bytes4 classifySelector) internal {
-    bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = classifierId;
-
-    StoreSwitch.setField(_tableId, _keyTuple, 3, abi.encodePacked((classifySelector)));
-  }
-
-  /** Set classifySelector (using the specified store) */
-  function setClassifySelector(IStore _store, bytes32 classifierId, bytes4 classifySelector) internal {
-    bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = classifierId;
-
-    _store.setField(_tableId, _keyTuple, 3, abi.encodePacked((classifySelector)));
+    _store.updateInField(_tableId, _keyTuple, 3, _index * 1, bytes((_slice)));
   }
 
   /** Get selectorInterface */
@@ -681,17 +681,17 @@ library ClassifierRegistry {
   function set(
     bytes32 classifierId,
     address creator,
+    bytes4 classifySelector,
     string memory name,
     string memory description,
-    bytes4 classifySelector,
     bytes memory selectorInterface,
     string memory classificationResultTableName
   ) internal {
     bytes memory _data = encode(
       creator,
+      classifySelector,
       name,
       description,
-      classifySelector,
       selectorInterface,
       classificationResultTableName
     );
@@ -707,17 +707,17 @@ library ClassifierRegistry {
     IStore _store,
     bytes32 classifierId,
     address creator,
+    bytes4 classifySelector,
     string memory name,
     string memory description,
-    bytes4 classifySelector,
     bytes memory selectorInterface,
     string memory classificationResultTableName
   ) internal {
     bytes memory _data = encode(
       creator,
+      classifySelector,
       name,
       description,
-      classifySelector,
       selectorInterface,
       classificationResultTableName
     );
@@ -733,9 +733,9 @@ library ClassifierRegistry {
     set(
       classifierId,
       _table.creator,
+      _table.classifySelector,
       _table.name,
       _table.description,
-      _table.classifySelector,
       _table.selectorInterface,
       _table.classificationResultTableName
     );
@@ -747,9 +747,9 @@ library ClassifierRegistry {
       _store,
       classifierId,
       _table.creator,
+      _table.classifySelector,
       _table.name,
       _table.description,
-      _table.classifySelector,
       _table.selectorInterface,
       _table.classificationResultTableName
     );
@@ -791,9 +791,9 @@ library ClassifierRegistry {
   /** Tightly pack full data using this table's schema */
   function encode(
     address creator,
+    bytes4 classifySelector,
     string memory name,
     string memory description,
-    bytes4 classifySelector,
     bytes memory selectorInterface,
     string memory classificationResultTableName
   ) internal pure returns (bytes memory) {

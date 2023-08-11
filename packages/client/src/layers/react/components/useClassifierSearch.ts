@@ -24,7 +24,7 @@ export const useClassifierSearch = ({ layers, filters }: Props) => {
   const {
     network: {
       components: { FunctionSelectors },
-      contractComponents: { Classifier },
+      registryComponents: { ClassifierRegistry },
       worldContract,
     },
   } = layers;

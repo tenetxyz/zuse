@@ -40,17 +40,20 @@ export const useVoxelTypeSearch = ({ layers, filters }: Props) => {
         console.warn(`cannot find voxelTypeRecord for ${voxelType}`);
         continue;
       }
+      const { name, description, numSpawns } = parseCreationMetadata(voxelTypeRecord.metadata, worldAddress);
+      voxelTypeRecord.name = name;
+      voxelTypeRecord.description = description;
+      voxelTypeRecord.numSpawns = numSpawns;
       voxelTypes.set(voxelType, voxelTypeRecord);
     }
     allVoxelTypes.current = Array.from(voxelTypes.entries())
       .filter(([_, voxelTypeRecord]) => voxelTypeRecord !== undefined && !voxelTypeRecord.name.includes("Air"))
       .map(([voxelTypeId, voxelTypeRecord]) => {
-        const { name, description, numSpawns } = parseCreationMetadata(voxelTypeRecord.metadata, worldAddress);
         return {
-          name: name,
+          name: voxelTypeRecord!.name,
           voxelBaseTypeId: voxelTypeId as Entity,
           previewVoxelVariantId: voxelTypeRecord!.previewVoxelVariantId,
-          numSpawns: numSpawns,
+          numSpawns: voxelTypeRecord!.numSpawns,
           creator: voxelTypeRecord!.creator,
           scale: voxelTypeRecord!.scale,
           childVoxelTypeIds: voxelTypeRecord!.childVoxelTypeIds,

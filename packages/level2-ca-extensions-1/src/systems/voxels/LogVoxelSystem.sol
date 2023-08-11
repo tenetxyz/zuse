@@ -47,18 +47,15 @@ contract LogVoxelSystem is VoxelType {
       baseVoxelTypeId,
       logChildVoxelTypes,
       logChildVoxelTypes,
-      LogVoxelVariantID
-    );
-
-    registerCAVoxelType(
-      CA_ADDRESS,
-      LogVoxelID,
+      LogVoxelVariantID,
       IWorld(world).extension1_LogVoxelSystem_enterWorld.selector,
       IWorld(world).extension1_LogVoxelSystem_exitWorld.selector,
       IWorld(world).extension1_LogVoxelSystem_variantSelector.selector,
       IWorld(world).extension1_LogVoxelSystem_activate.selector,
       IWorld(world).extension1_LogVoxelSystem_eventHandler.selector
     );
+
+    registerCAVoxelType(CA_ADDRESS, LogVoxelID);
   }
 
   function enterWorld(VoxelCoord memory coord, bytes32 entity) public override {}

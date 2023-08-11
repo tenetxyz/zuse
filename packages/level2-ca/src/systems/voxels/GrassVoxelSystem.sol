@@ -6,7 +6,6 @@ import { VoxelType } from "@tenet-base-ca/src/prototypes/VoxelType.sol";
 import { VoxelVariantsRegistryData } from "@tenet-registry/src/codegen/tables/VoxelVariantsRegistry.sol";
 import { NoaBlockType } from "@tenet-registry/src/codegen/Types.sol";
 import { registerVoxelVariant, registerVoxelType } from "@tenet-registry/src/Utils.sol";
-import { CAVoxelConfig } from "@tenet-level2-ca/src/codegen/Tables.sol";
 import { REGISTRY_ADDRESS, GrassVoxelID } from "@tenet-level2-ca/src/Constants.sol";
 import { DirtTexture } from "@tenet-level2-ca/src/systems/voxels/DirtVoxelSystem.sol";
 import { VoxelCoord } from "@tenet-utils/src/Types.sol";
@@ -44,11 +43,7 @@ contract GrassVoxelSystem is VoxelType {
       baseVoxelTypeId,
       grassChildVoxelTypes,
       grassChildVoxelTypes,
-      GrassVoxelVariantID
-    );
-
-    IWorld(world).registerInitialVoxelType(
-      GrassVoxelID,
+      GrassVoxelVariantID,
       IWorld(world).ca_GrassVoxelSystem_enterWorld.selector,
       IWorld(world).ca_GrassVoxelSystem_exitWorld.selector,
       IWorld(world).ca_GrassVoxelSystem_variantSelector.selector,

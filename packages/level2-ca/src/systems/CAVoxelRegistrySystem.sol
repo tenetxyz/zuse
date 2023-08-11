@@ -9,22 +9,7 @@ contract CAVoxelRegistrySystem is CAVoxelRegistry {
     return REGISTRY_ADDRESS;
   }
 
-  function registerVoxelType(
-    bytes32 voxelTypeId,
-    bytes4 enterWorldSelector,
-    bytes4 exitWorldSelector,
-    bytes4 voxelVariantSelector,
-    bytes4 activateSelector,
-    bytes4 interactionSelector
-  ) public override {
-    return
-      super.registerVoxelType(
-        voxelTypeId,
-        enterWorldSelector,
-        exitWorldSelector,
-        voxelVariantSelector,
-        activateSelector,
-        interactionSelector
-      );
+  function registerVoxelType(bytes32 voxelTypeId) public override {
+    return super.registerVoxelType(voxelTypeId);
   }
 }

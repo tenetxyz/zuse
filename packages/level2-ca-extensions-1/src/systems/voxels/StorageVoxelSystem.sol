@@ -47,18 +47,15 @@ contract StorageVoxelSystem is VoxelType {
       baseVoxelTypeId,
       storageChildVoxelTypes,
       storageChildVoxelTypes,
-      StorageVoxelVariantID
-    );
-
-    registerCAVoxelType(
-      CA_ADDRESS,
-      StorageVoxelID,
+      StorageVoxelVariantID,
       IWorld(world).extension1_StorageVoxelSyst_enterWorld.selector,
       IWorld(world).extension1_StorageVoxelSyst_exitWorld.selector,
       IWorld(world).extension1_StorageVoxelSyst_variantSelector.selector,
       IWorld(world).extension1_StorageVoxelSyst_activate.selector,
       IWorld(world).extension1_StorageVoxelSyst_eventHandler.selector
     );
+
+    registerCAVoxelType(CA_ADDRESS, StorageVoxelID);
   }
 
   function enterWorld(VoxelCoord memory coord, bytes32 entity) public override {

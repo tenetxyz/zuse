@@ -26,7 +26,12 @@ function registerVoxelType(
   bytes32 baseVoxelTypeId,
   bytes32[] memory childVoxelTypeIds,
   bytes32[] memory schemaVoxelTypeIds,
-  bytes32 voxelVariantId
+  bytes32 previewVoxelVariantId,
+  bytes4 enterWorldSelector,
+  bytes4 exitWorldSelector,
+  bytes4 voxelVariantSelector,
+  bytes4 activateSelector,
+  bytes4 interactionSelector
 ) returns (bytes memory) {
   return
     safeCall(
@@ -38,7 +43,12 @@ function registerVoxelType(
         baseVoxelTypeId,
         childVoxelTypeIds,
         schemaVoxelTypeIds,
-        voxelVariantId
+        previewVoxelVariantId,
+        enterWorldSelector,
+        exitWorldSelector,
+        voxelVariantSelector,
+        activateSelector,
+        interactionSelector
       ),
       "registerVoxelType"
     );

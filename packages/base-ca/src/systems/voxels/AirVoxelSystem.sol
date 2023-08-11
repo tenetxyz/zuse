@@ -7,7 +7,7 @@ import { VoxelVariantsRegistryData } from "@tenet-registry/src/codegen/tables/Vo
 import { NoaBlockType } from "@tenet-registry/src/codegen/Types.sol";
 import { hasKey } from "@latticexyz/world/src/modules/keysintable/hasKey.sol";
 import { registerVoxelVariant, registerVoxelType } from "@tenet-registry/src/Utils.sol";
-import { CAVoxelConfig, CAVoxelType, CAPosition, CAPositionData, CAPositionTableId, ElectronTunnelSpot, ElectronTunnelSpotData, ElectronTunnelSpotTableId } from "@tenet-base-ca/src/codegen/Tables.sol";
+import { CAVoxelType, CAPosition, CAPositionData, CAPositionTableId, ElectronTunnelSpot, ElectronTunnelSpotData, ElectronTunnelSpotTableId } from "@tenet-base-ca/src/codegen/Tables.sol";
 import { REGISTRY_ADDRESS, AirVoxelID, AirVoxelVariantID } from "@tenet-base-ca/src/Constants.sol";
 import { VoxelCoord } from "@tenet-utils/src/Types.sol";
 import { getEntityAtCoord, voxelCoordToPositionData } from "@tenet-base-ca/src/Utils.sol";
@@ -30,11 +30,7 @@ contract AirVoxelSystem is VoxelType {
       baseVoxelTypeId,
       airChildVoxelTypes,
       airChildVoxelTypes,
-      AirVoxelVariantID
-    );
-
-    IWorld(world).registerInitialVoxelType(
-      AirVoxelID,
+      AirVoxelVariantID,
       IWorld(world).ca_AirVoxelSystem_enterWorld.selector,
       IWorld(world).ca_AirVoxelSystem_exitWorld.selector,
       IWorld(world).ca_AirVoxelSystem_variantSelector.selector,

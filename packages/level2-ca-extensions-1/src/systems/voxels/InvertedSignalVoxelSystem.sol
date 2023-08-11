@@ -32,18 +32,15 @@ contract InvertedSignalVoxelSystem is VoxelType {
       baseVoxelTypeId,
       invertedSignalChildVoxelTypes,
       invertedSignalChildVoxelTypes,
-      SignalOnVoxelVariantID
-    );
-
-    registerCAVoxelType(
-      CA_ADDRESS,
-      InvertedSignalVoxelID,
+      SignalOnVoxelVariantID,
       IWorld(world).extension1_InvertedSignalVo_enterWorld.selector,
       IWorld(world).extension1_InvertedSignalVo_exitWorld.selector,
       IWorld(world).extension1_InvertedSignalVo_variantSelector.selector,
       IWorld(world).extension1_InvertedSignalVo_activate.selector,
       IWorld(world).extension1_InvertedSignalVo_eventHandler.selector
     );
+
+    registerCAVoxelType(CA_ADDRESS, InvertedSignalVoxelID);
   }
 
   function enterWorld(VoxelCoord memory coord, bytes32 entity) public override {

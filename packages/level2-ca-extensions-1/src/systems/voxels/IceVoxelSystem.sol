@@ -61,18 +61,15 @@ contract IceVoxelSystem is VoxelType {
       baseVoxelTypeId,
       iceChildVoxelTypes,
       iceChildVoxelTypes,
-      IceColdVoxelVariantID
-    );
-
-    registerCAVoxelType(
-      CA_ADDRESS,
-      IceVoxelID,
+      IceColdVoxelVariantID,
       IWorld(world).extension1_IceVoxelSystem_enterWorld.selector,
       IWorld(world).extension1_IceVoxelSystem_exitWorld.selector,
       IWorld(world).extension1_IceVoxelSystem_variantSelector.selector,
       IWorld(world).extension1_IceVoxelSystem_activate.selector,
       IWorld(world).extension1_IceVoxelSystem_eventHandler.selector
     );
+
+    registerCAVoxelType(CA_ADDRESS, IceVoxelID);
   }
 
   function enterWorld(VoxelCoord memory coord, bytes32 entity) public override {

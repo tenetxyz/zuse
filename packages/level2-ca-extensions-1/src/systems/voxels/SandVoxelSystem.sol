@@ -47,18 +47,15 @@ contract SandVoxelSystem is VoxelType {
       baseVoxelTypeId,
       sandChildVoxelTypes,
       sandChildVoxelTypes,
-      SandVoxelVariantID
-    );
-
-    registerCAVoxelType(
-      CA_ADDRESS,
-      SandVoxelID,
+      SandVoxelVariantID,
       IWorld(world).extension1_SandVoxelSystem_enterWorld.selector,
       IWorld(world).extension1_SandVoxelSystem_exitWorld.selector,
       IWorld(world).extension1_SandVoxelSystem_variantSelector.selector,
       IWorld(world).extension1_SandVoxelSystem_activate.selector,
       IWorld(world).extension1_SandVoxelSystem_eventHandler.selector
     );
+
+    registerCAVoxelType(CA_ADDRESS, SandVoxelID);
   }
 
   function enterWorld(VoxelCoord memory coord, bytes32 entity) public override {

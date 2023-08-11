@@ -60,18 +60,15 @@ contract SignalVoxelSystem is VoxelType {
       baseVoxelTypeId,
       signalChildVoxelTypes,
       signalChildVoxelTypes,
-      SignalOffVoxelVariantID
-    );
-
-    registerCAVoxelType(
-      CA_ADDRESS,
-      SignalVoxelID,
+      SignalOffVoxelVariantID,
       IWorld(world).extension1_SignalVoxelSyste_enterWorld.selector,
       IWorld(world).extension1_SignalVoxelSyste_exitWorld.selector,
       IWorld(world).extension1_SignalVoxelSyste_variantSelector.selector,
       IWorld(world).extension1_SignalVoxelSyste_activate.selector,
       IWorld(world).extension1_SignalVoxelSyste_eventHandler.selector
     );
+
+    registerCAVoxelType(CA_ADDRESS, SignalVoxelID);
   }
 
   function enterWorld(VoxelCoord memory coord, bytes32 entity) public override {

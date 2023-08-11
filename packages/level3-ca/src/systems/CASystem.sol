@@ -3,8 +3,7 @@ pragma solidity >=0.8.0;
 
 import { CA } from "@tenet-base-ca/src/prototypes/CA.sol";
 import { VoxelCoord } from "@tenet-utils/src/Types.sol";
-import { CAVoxelConfigTableId } from "@tenet-level3-ca/src/codegen/Tables.sol";
-import { Level3AirVoxelID } from "@tenet-level3-ca/src/Constants.sol";
+import { Level3AirVoxelID, RoadVoxelID } from "@tenet-level3-ca/src/Constants.sol";
 import { getKeysInTable } from "@latticexyz/world/src/modules/keysintable/getKeysInTable.sol";
 import { REGISTER_CA_SIG } from "@tenet-registry/src/Constants.sol";
 import { REGISTRY_ADDRESS } from "../Constants.sol";
@@ -20,11 +19,9 @@ contract CASystem is CA {
   }
 
   function registerCA() public override {
-    bytes32[][] memory caVoxelTypeKeys = getKeysInTable(CAVoxelConfigTableId);
-    bytes32[] memory caVoxelTypes = new bytes32[](caVoxelTypeKeys.length);
-    for (uint i = 0; i < caVoxelTypeKeys.length; i++) {
-      caVoxelTypes[i] = caVoxelTypeKeys[i][0];
-    }
+    bytes32[] memory caVoxelTypes = new bytes32[](2);
+    caVoxelTypes[0] = Level3AirVoxelID;
+    caVoxelTypes[1] = RoadVoxelID;
 
     safeCall(
       getRegistryAddress(),

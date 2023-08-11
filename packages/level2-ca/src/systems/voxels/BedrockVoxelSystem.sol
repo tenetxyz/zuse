@@ -6,7 +6,6 @@ import { VoxelType } from "@tenet-base-ca/src/prototypes/VoxelType.sol";
 import { VoxelVariantsRegistryData } from "@tenet-registry/src/codegen/tables/VoxelVariantsRegistry.sol";
 import { NoaBlockType } from "@tenet-registry/src/codegen/Types.sol";
 import { registerVoxelVariant, registerVoxelType } from "@tenet-registry/src/Utils.sol";
-import { CAVoxelConfig } from "@tenet-level2-ca/src/codegen/Tables.sol";
 import { REGISTRY_ADDRESS, BedrockVoxelID } from "@tenet-level2-ca/src/Constants.sol";
 import { VoxelCoord } from "@tenet-utils/src/Types.sol";
 import { AirVoxelID } from "@tenet-base-ca/src/Constants.sol";
@@ -40,11 +39,7 @@ contract BedrockVoxelSystem is VoxelType {
       baseVoxelTypeId,
       bedrockChildVoxelTypes,
       bedrockChildVoxelTypes,
-      BedrockVoxelVariantID
-    );
-
-    IWorld(world).registerInitialVoxelType(
-      BedrockVoxelID,
+      BedrockVoxelVariantID,
       IWorld(world).ca_BedrockVoxelSyst_enterWorld.selector,
       IWorld(world).ca_BedrockVoxelSyst_exitWorld.selector,
       IWorld(world).ca_BedrockVoxelSyst_variantSelector.selector,

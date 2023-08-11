@@ -7,6 +7,7 @@ struct CreationSpawns {
 }
 
 struct CreationMetadata {
+  address creator;
   string name;
   string description;
   CreationSpawns[] spawns;

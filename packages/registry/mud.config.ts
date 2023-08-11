@@ -43,8 +43,12 @@ export default mudConfig({
       schema: {
         scale: "uint32",
         previewVoxelVariantId: "bytes32",
-        creator: "address",
         baseVoxelTypeId: "bytes32",
+        enterWorldSelector: "bytes4",
+        exitWorldSelector: "bytes4",
+        voxelVariantSelector: "bytes4",
+        activateSelector: "bytes4",
+        interactionSelector: "bytes4",
         metadata: "bytes", // CreationMetadata
         childVoxelTypeIds: "bytes32[]",
         schemaVoxelTypeIds: "bytes32[]", // This is used when a child is built to figure out if the parent should be built. We can't juse use childVoxelTypeIds, because the child entities may move
@@ -71,7 +75,6 @@ export default mudConfig({
         creationId: "bytes32",
       },
       schema: {
-        creator: "address",
         numVoxels: "uint32", // The total number of voxels in this creation (including the voxels in the base creations). This value is really important to prevent extra computation when determining the voxels in base creations
         voxelTypes: "bytes", // VoxelTypeData[]
         relativePositions: "bytes", // VoxelCoord[], the relative position for each voxel in the creation

@@ -40,7 +40,8 @@ export const useVoxelTypeSearch = ({ layers, filters }: Props) => {
         console.warn(`cannot find voxelTypeRecord for ${voxelType}`);
         continue;
       }
-      const { name, description, numSpawns } = parseCreationMetadata(voxelTypeRecord.metadata, worldAddress);
+      const { creator, name, description, numSpawns } = parseCreationMetadata(voxelTypeRecord.metadata, worldAddress);
+      voxelTypeRecord.creator = creator;
       voxelTypeRecord.name = name;
       voxelTypeRecord.description = description;
       voxelTypeRecord.numSpawns = numSpawns;

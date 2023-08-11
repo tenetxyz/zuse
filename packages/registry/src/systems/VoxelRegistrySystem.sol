@@ -15,7 +15,12 @@ contract VoxelRegistrySystem is System {
     bytes32 baseVoxelTypeId,
     bytes32[] memory childVoxelTypeIds,
     bytes32[] memory schemaVoxelTypeIds,
-    bytes32 previewVoxelVariantId
+    bytes32 previewVoxelVariantId,
+    bytes4 enterWorldSelector,
+    bytes4 exitWorldSelector,
+    bytes4 voxelVariantSelector,
+    bytes4 activateSelector,
+    bytes4 interactionSelector
   ) public {
     require(
       !hasKey(VoxelTypeRegistryTableId, VoxelTypeRegistry.encodeKeyTuple(voxelTypeId)),
@@ -95,20 +100,30 @@ contract VoxelRegistrySystem is System {
       );
     }
 
-    VoxelTypeRegistry.set(
-      voxelTypeId,
-      VoxelTypeRegistryData({
-        baseVoxelTypeId: baseVoxelTypeId,
-        childVoxelTypeIds: childVoxelTypeIds,
-        schemaVoxelTypeIds: schemaVoxelTypeIds,
-        previewVoxelVariantId: previewVoxelVariantId,
-        creator: tx.origin,
-        scale: scale,
-        metadata: abi.encode(
-          CreationMetadata({ name: voxelTypeName, description: "", spawns: new CreationSpawns[](0) })
-        )
-      })
-    );
+    // TODO: add checks on selectors
+    VoxelTypeRegistryData memory voxelTypeData;
+    voxelTypeData.baseVoxelTypeId = baseVoxelTypeId;
+    voxelTypeData.enterWorldSelector = enterWorldSelector;
+    voxelTypeData.exitWorldSelector = exitWorldSelector;
+    voxelTypeData.voxelVariantSelector = voxelVariantSelector;
+    voxelTypeData.activateSelector = activateSelector;
+    voxelTypeData.interactionSelector = interactionSelector;
+    voxelTypeData.childVoxelTypeIds = childVoxelTypeIds;
+    voxelTypeData.schemaVoxelTypeIds = schemaVoxelTypeIds;
+    voxelTypeData.previewVoxelVariantId = previewVoxelVariantId;
+    voxelTypeData.scale = scale;
+    {
+      voxelTypeData.metadata = getMetadata(voxelTypeName);
+    }
+
+    VoxelTypeRegistry.set(voxelTypeId, voxelTypeData);
+  }
+
+  function getMetadata(string memory name) internal view returns (bytes memory) {
+    return
+      abi.encode(
+        CreationMetadata({ creator: tx.origin, name: name, description: "", spawns: new CreationSpawns[](0) })
+      );
   }
 
   function registerVoxelVariant(bytes32 voxelVariantId, VoxelVariantsRegistryData memory voxelVariant) public {

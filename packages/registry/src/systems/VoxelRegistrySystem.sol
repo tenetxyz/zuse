@@ -6,7 +6,7 @@ import { getKeysInTable } from "@latticexyz/world/src/modules/keysintable/getKey
 import { System } from "@latticexyz/world/src/System.sol";
 import { WorldRegistryTableId, WorldRegistry, VoxelTypeRegistry, VoxelTypeRegistryData, VoxelTypeRegistryTableId, VoxelVariantsRegistry, VoxelVariantsRegistryData, VoxelVariantsRegistryTableId } from "../codegen/Tables.sol";
 import { entityArraysAreEqual } from "@tenet-utils/src/Utils.sol";
-import { CreationMetadata, CreationSpawns } from "../Types.sol";
+import { CreationMetadata, CreationSpawns } from "@tenet-utils/src/Types.sol";
 
 contract VoxelRegistrySystem is System {
   function registerVoxelType(

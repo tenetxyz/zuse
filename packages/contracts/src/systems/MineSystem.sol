@@ -3,7 +3,7 @@ pragma solidity >=0.8.0;
 
 import { IWorld } from "@tenet-contracts/src/codegen/world/IWorld.sol";
 import { MineEvent } from "../prototypes/MineEvent.sol";
-import { VoxelCoord, VoxelEntity } from "@tenet-contracts/src/Types.sol";
+import { VoxelCoord, VoxelEntity } from "@tenet-utils/src/Types.sol";
 import { VoxelType, VoxelTypeData, OfSpawn, Spawn, SpawnData } from "@tenet-contracts/src/codegen/Tables.sol";
 import { CHUNK_MAX_Y, CHUNK_MIN_Y } from "../Constants.sol";
 import { AirVoxelID } from "@tenet-base-ca/src/Constants.sol";

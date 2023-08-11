@@ -6,7 +6,7 @@ import { IWorld } from "@tenet-contracts/src/codegen/world/IWorld.sol";
 import { getUniqueEntity } from "@latticexyz/world/src/modules/uniqueentity/getUniqueEntity.sol";
 import { getKeysInTable } from "@latticexyz/world/src/modules/keysintable/getKeysInTable.sol";
 import { Event } from "./Event.sol";
-import { VoxelCoord, VoxelEntity } from "@tenet-contracts/src/Types.sol";
+import { VoxelCoord, VoxelEntity } from "@tenet-utils/src/Types.sol";
 import { WorldConfig, OwnedBy, Position, PositionTableId, VoxelType, VoxelTypeData, OfSpawn, Spawn, SpawnData } from "@tenet-contracts/src/codegen/Tables.sol";
 import { REGISTRY_ADDRESS } from "@tenet-contracts/src/Constants.sol";
 import { calculateChildCoords, getEntityAtCoord, positionDataToVoxelCoord } from "@tenet-contracts/src/Utils.sol";

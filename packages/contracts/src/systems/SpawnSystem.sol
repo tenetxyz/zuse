@@ -3,7 +3,7 @@ pragma solidity >=0.8.0;
 
 import { getUniqueEntity } from "@latticexyz/world/src/modules/uniqueentity/getUniqueEntity.sol";
 import { System } from "@latticexyz/world/src/System.sol";
-import { VoxelCoord, VoxelEntity } from "@tenet-contracts/src/Types.sol";
+import { VoxelCoord, VoxelEntity } from "@tenet-utils/src/Types.sol";
 import { OwnedBy, Position, PositionTableId, VoxelType, VoxelTypeData, OfSpawn, Spawn, SpawnData } from "@tenet-contracts/src/codegen/Tables.sol";
 import { increaseVoxelTypeSpawnCount } from "../Utils.sol";
 import { voxelCoordsAreEqual, add } from "@tenet-utils/src/VoxelCoordUtils.sol";

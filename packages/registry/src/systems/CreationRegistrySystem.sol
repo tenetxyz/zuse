@@ -7,7 +7,7 @@ import { Strings } from "@openzeppelin/contracts/utils/Strings.sol";
 import { voxelCoordToString, voxelCoordsAreEqual, add, sub } from "@tenet-utils/src/VoxelCoordUtils.sol";
 import { WorldRegistryTableId, WorldRegistry, CreationRegistryTableId, CreationRegistry, CreationRegistryData, VoxelTypeRegistryTableId, VoxelTypeRegistry, VoxelVariantsRegistryTableId, VoxelVariantsRegistry } from "@tenet-registry/src/codegen/Tables.sol";
 import { VoxelCoord, BaseCreation, BaseCreationInWorld, VoxelTypeData } from "@tenet-utils/src/Types.sol";
-import { CreationMetadata, CreationSpawns } from "../Types.sol";
+import { CreationMetadata, CreationSpawns } from "@tenet-utils/src/Types.sol";
 
 uint256 constant MAX_BLOCKS_IN_CREATION = 100;
 

@@ -93,7 +93,6 @@ export function createNoaLayer(network: NetworkLayer) {
       connectedAddress,
     },
     streams: { doneSyncing$ },
-    components: { Recipe },
     contractComponents: { VoxelType },
     voxelTypes: { VoxelVariantIdToDef, VoxelVariantSubscriptions },
     getVoxelPreviewVariant,
@@ -132,7 +131,7 @@ export function createNoaLayer(network: NetworkLayer) {
   // --- SETUP ----------------------------------------------------------------------
   const { noa, setVoxel, glow } = setupNoaEngine(network);
 
-  const existingWorldScale = getComponentValue(components.WorldScale, SingletonID)
+  const existingWorldScale = getComponentValue(components.WorldScale, SingletonID);
   const worldScale = existingWorldScale?.value.toString() ?? "2";
   noa.worldName = worldScale;
 
@@ -247,7 +246,8 @@ export function createNoaLayer(network: NetworkLayer) {
     const hash = keccak256(abi.encode(["uint256[][]"], [voxelTypes]));
 
     // Check for voxel types with this recipe hash
-    const resultID = [...getEntitiesWithValue(Recipe, { value: hash })][0];
+    // const resultID = [...getEntitiesWithValue(Recipe, { value: hash })][0];
+    const resultID = undefined;
     // const resultID = resultIndex == null ? undefined : world.entities[resultIndex];
     return resultID;
   }

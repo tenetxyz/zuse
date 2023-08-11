@@ -3,14 +3,10 @@ pragma solidity >=0.8.0;
 
 import { getUniqueEntity } from "@latticexyz/world/src/modules/uniqueentity/getUniqueEntity.sol";
 import { System } from "@latticexyz/world/src/System.sol";
-import { Classifier, ClassifierData } from "@tenet-contracts/src/codegen/Tables.sol";
-import { IWorld } from "@tenet-contracts/src/codegen/world/IWorld.sol";
-import { console } from "forge-std/console.sol";
-import { FunctionSelectors } from "@latticexyz/world/src/modules/core/tables/FunctionSelectors.sol";
-import { NamespaceOwner } from "@latticexyz/world/src/tables/NamespaceOwner.sol";
-import { InterfaceVoxel } from "@tenet-contracts/src/Types.sol";
+import { ClassifierRegistry, ClassifierRegistryData } from "@tenet-registry/src/codegen/Tables.sol";
+import { InterfaceVoxel } from "@tenet-utils/src/Types.sol";
 
-contract RegisterClassifierSystem is System {
+contract ClassifierRegistrySystem is System {
   function registerClassifier(
     bytes4 classifySelector,
     string memory name,
@@ -18,13 +14,11 @@ contract RegisterClassifierSystem is System {
     string memory classificationResultTableName,
     InterfaceVoxel[] memory selectorInterface
   ) public {
-    (, bytes16 namespace, , ) = FunctionSelectors.get(classifySelector);
-    require(NamespaceOwner.get(namespace) == _msgSender(), "Caller is not namespace owner");
-    bytes32 uniqueEntity = getUniqueEntity();
+    bytes32 classifierId = getUniqueEntity();
     validateInterfaceVoxels(selectorInterface);
-    Classifier.set(
-      uniqueEntity,
-      ClassifierData({
+    ClassifierRegistry.set(
+      classifierId,
+      ClassifierRegistryData({
         creator: tx.origin,
         classifySelector: classifySelector,
         name: name,
@@ -35,7 +29,7 @@ contract RegisterClassifierSystem is System {
     );
   }
 
-  function validateInterfaceVoxels(InterfaceVoxel[] memory selectorInterface) public {
+  function validateInterfaceVoxels(InterfaceVoxel[] memory selectorInterface) internal pure {
     for (uint256 i = 0; i < selectorInterface.length; i++) {
       InterfaceVoxel memory interfaceVoxel = selectorInterface[i];
       require(bytes(interfaceVoxel.name).length > 0, "Interface voxel name cannot be empty");

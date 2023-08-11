@@ -1,6 +1,15 @@
 // SPDX-License-Identifier: GPL-3.0
 pragma solidity >=0.8.0;
-import { Signal, SignalData, SignalSource, Powered, InvertedSignal, Temperature, Generator, PowerWire, Storage, Consumer, PowerSignal } from "@tenet-level2-ca-extensions-1/src/codegen/Tables.sol";
+import { Signal, SignalData } from "@tenet-level2-ca-extensions-1/src/codegen/tables/Signal.sol";
+import { SignalSource } from "@tenet-level2-ca-extensions-1/src/codegen/tables/SignalSource.sol";
+import { Powered } from "@tenet-level2-ca-extensions-1/src/codegen/tables/Powered.sol";
+import { InvertedSignal } from "@tenet-level2-ca-extensions-1/src/codegen/tables/InvertedSignal.sol";
+import { Temperature } from "@tenet-level2-ca-extensions-1/src/codegen/tables/Temperature.sol";
+import { Generator } from "@tenet-level2-ca-extensions-1/src/codegen/tables/Generator.sol";
+import { PowerWire } from "@tenet-level2-ca-extensions-1/src/codegen/tables/PowerWire.sol";
+import { Storage } from "@tenet-level2-ca-extensions-1/src/codegen/tables/Storage.sol";
+import { Consumer } from "@tenet-level2-ca-extensions-1/src/codegen/tables/Consumer.sol";
+import { PowerSignal } from "@tenet-level2-ca-extensions-1/src/codegen/tables/PowerSignal.sol";
 
 function entityIsSignal(address callerAddress, bytes32 entity) view returns (bool) {
   return Signal.get(callerAddress, entity).hasValue;

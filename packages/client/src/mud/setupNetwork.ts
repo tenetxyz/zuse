@@ -380,16 +380,16 @@ export async function setupNetwork() {
     return Array.isArray(voxel.material) ? voxel.material[0] : voxel.material;
   }
 
-  function getVoxelPreviewVariant(VoxelBaseTypeId: VoxelBaseTypeId): VoxelVariantTypeId | undefined {
-    const voxelTypeRecord = getComponentValue(registryComponents.VoxelTypeRegistry, VoxelBaseTypeId as Entity);
+  function getVoxelPreviewVariant(voxelBaseTypeId: VoxelBaseTypeId): VoxelVariantTypeId | undefined {
+    const voxelTypeRecord = getComponentValue(registryComponents.VoxelTypeRegistry, voxelBaseTypeId as Entity);
     if (!voxelTypeRecord) {
       return undefined;
     }
     return voxelTypeRecord.previewVoxelVariantId;
   }
 
-  function getVoxelTypePreviewUrl(VoxelBaseTypeId: VoxelBaseTypeId): string | undefined {
-    const previewVoxelVariant = getVoxelPreviewVariant(VoxelBaseTypeId);
+  function getVoxelTypePreviewUrl(voxelBaseTypeId: VoxelBaseTypeId): string | undefined {
+    const previewVoxelVariant = getVoxelPreviewVariant(voxelBaseTypeId);
     return previewVoxelVariant && getVoxelIconUrl(previewVoxelVariant);
   }
 

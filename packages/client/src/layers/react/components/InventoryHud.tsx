@@ -109,8 +109,6 @@ export function registerInventoryHud() {
       const {
         network: {
           api: { removeVoxels },
-          contractComponents: { OwnedBy, VoxelType },
-          network: { connectedAddress },
           getVoxelIconUrl,
           getVoxelTypePreviewUrl,
         },

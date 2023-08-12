@@ -16,10 +16,7 @@ import { awaitStreamValue, computedToStream } from "@latticexyz/utils";
 import { switchMap } from "rxjs";
 import { NetworkLayer } from "../../network";
 import { NoaLayer, VoxelBaseTypeId } from "../types";
-import { to42CharAddress, to64CharAddress } from "../../../utils/entity";
-import { SyncState } from "@latticexyz/network";
 import { IComputedValue } from "mobx";
-import { getWorldScale } from "../../../utils/coord";
 import { Engine } from "noa-engine";
 
 export const getItemTypesIOwn = (

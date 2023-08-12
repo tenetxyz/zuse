@@ -53,7 +53,7 @@ export type VoxelTypeKeyInMudTable = {
 };
 
 export type VoxelTypeKey = {
-  voxelBaseTypeId: VoxelBaseTypeId;
+  voxelBaseTypeId: VoxelBaseTypeId; // this is different from baseVoxelTypeId (which is the voxelType it inherits from). voxelBaseTypeId is just the voxelTypeId without inheritance
   voxelVariantTypeId: VoxelVariantTypeId;
 };
 

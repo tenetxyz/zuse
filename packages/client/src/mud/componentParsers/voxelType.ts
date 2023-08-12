@@ -5,7 +5,8 @@ import { WorldMetadata } from "./componentParser";
 export interface VoxelTypeDesc {
   name: string;
   description: string;
-  voxelBaseTypeId: Entity;
+  voxelBaseTypeId: Entity; // This is the Id for this VoxelType. We call it voxelBaseType to disambiguate from the VoxelTypeKey which is a combination of voxelBaseType and voxelVariantType
+  baseVoxelTypeId: Entity; // the base voxel type that this voxel type inherits
   previewVoxelVariantId: string;
   numSpawns: number;
   creator: string;
@@ -14,7 +15,7 @@ export interface VoxelTypeDesc {
 }
 
 export function parseVoxelType<S extends Schema>(update: ComponentUpdate<S, undefined>, worldMetadata: WorldMetadata) {
-  const voxelTypeId = update.entity; // same as voxelBaseTypeId
+  const voxelTypeId = update.entity;
   const rawVoxelType = update.value[0];
   if (rawVoxelType === undefined) {
     return undefined;
@@ -28,7 +29,8 @@ export function parseVoxelType<S extends Schema>(update: ComponentUpdate<S, unde
   const voxelTypeDesc = {
     name,
     description,
-    voxelBaseTypeId: rawVoxelType.baseVoxelTypeId,
+    voxelBaseTypeId: voxelTypeId,
+    baseVoxelTypeId: rawVoxelType.baseVoxelTypeId,
     previewVoxelVariantId: rawVoxelType.previewVoxelVariantId,
     numSpawns,
     creator,

@@ -8,7 +8,8 @@ EXCLUDE_DIRS=("src/codegen" "cache")
 
 # Define the commands to be run
 CMD_SOL="clear && printf '\e[3J' && forge build"
-CMD_TS="yarn run tablegen && yarn run worldgen && $CMD_SOL"
+CMD_TS="yarn run initialize && $CMD_SOL"
+eval $CMD_TS
 
 # Create the exclude parameters
 EXCLUDE_PARAMS=""

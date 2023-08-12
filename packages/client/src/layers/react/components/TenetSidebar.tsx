@@ -4,9 +4,9 @@ import { VoxelTypeStore, VoxelTypeStoreFilters } from "./VoxelTypeStore";
 import RegisterCreation, { RegisterCreationFormData } from "./RegisterCreation";
 import { TabRadioSelector } from "./TabRadioSelector";
 import CreationStore, { Creation, CreationStoreFilters } from "./CreationStore";
-import ClassifierStore, { Classifier, ClassifierStoreFilters } from "./ClassifierStore";
+import ClassifierStore, { Classifier, ClassifierStoreFilters, CreationsPage } from "./ClassifierStore";
 import { ElectiveBar } from "./ElectiveBar";
-import { Entity, getComponentValue, setComponent } from "@latticexyz/recs";
+import { Entity, getComponentValue, getComponentValueStrict, setComponent } from "@latticexyz/recs";
 import { FocusedUiType } from "../../noa/components/FocusedUi";
 import { useComponentValue } from "@latticexyz/react";
 import { twMerge } from "tailwind-merge";
@@ -17,6 +17,7 @@ import { WorldRegistry, WorldRegistryFilters } from "./WorldRegistry";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { abiDecode } from "@/utils/encodeOrDecode";
 import { VoxelEntity } from "@/layers/noa/types";
+import { parseCreationMetadata } from "@/utils/useCreationSearch";
 
 enum SidebarTab {
   VOXELS = "Blocks",
@@ -45,6 +46,7 @@ export function registerTenetSidebar() {
         network: {
           components: { Spawn },
           registryComponents: { CreationRegistry },
+          worldAddress,
         },
       } = layers;
 
@@ -60,6 +62,7 @@ export function registerTenetSidebar() {
       // This state is hoisted up to this component so that the state is not lost when leaving the inventory to select voxels
       const [creativeInventoryFilters, setCreativeInventoryFilters] = useState<VoxelTypeStoreFilters>({
         query: "",
+        scale: null,
       });
       const [creationStoreFilters, setCreationStoreFilters] = useState<CreationStoreFilters>({
         search: "",
@@ -78,7 +81,7 @@ export function registerTenetSidebar() {
 
       const [selectedClassifier, setSelectedClassifier] = useState<Classifier | null>(null);
       const [selectedCreation, setSelectedCreation] = useState<Creation | null>(null);
-      const [showAllCreations, setShowAllCreations] = useState<boolean>(false);
+      const [creationsPage, setCreationsPage] = useState<CreationsPage>(CreationsPage.CLASSIFIER_CREATIONS);
 
       useEffect(() => {
         noa.on("targetBlockChanged", getSpawnUserIsLookingAt);
@@ -101,16 +104,24 @@ export function registerTenetSidebar() {
           return;
         }
 
+        const voxels = abiDecode("tuple(uint32 scale, bytes32 entityId)[]", rawSpawn.voxels) as VoxelEntity[];
+
         const spawn = {
           spawnId: stringToEntity(spawnId),
           creationId: stringToEntity(rawSpawn.creationId),
           lowerSouthWestCorner: abiDecode("tuple(int32 x,int32 y,int32 z)", rawSpawn.lowerSouthWestCorner),
-          voxels: abiDecode("tuple(uint32 scale, bytes32 entityId)[]", rawSpawn.voxels) as VoxelEntity[],
+          voxels,
         } as ISpawn;
-        const creation = getComponentValue(CreationRegistry, spawn.creationId);
+        const creation = getComponentValueStrict(CreationRegistry, spawn.creationId);
+        // TODO: use a function to parse the creation, rther than this hacky thing
+        const { creator, name, description, numSpawns } = parseCreationMetadata(creation.metadata, worldAddress);
+        creation.creator = creator;
+        creation.name = creator;
+        creation.description = creator;
+        creation.numSpawns = creator;
         setComponent(SpawnInFocus, SingletonEntity, {
-          spawn: spawn,
-          creation: creation,
+          spawn,
+          creation,
         });
       };
 
@@ -128,13 +139,13 @@ export function registerTenetSidebar() {
               />
             );
           case SidebarTab.VOXEL_CREATIONS:
-            if (showAllCreations) {
+            if (creationsPage === CreationsPage.ALL_CREATIONS) {
               return (
                 <CreationStore
                   layers={layers}
                   filters={creationStoreFilters}
                   setFilters={setCreationStoreFilters}
-                  setShowAllCreations={setShowAllCreations}
+                  setCreationsPage={setCreationsPage}
                   selectedCreation={selectedCreation}
                   setSelectedCreation={setSelectedCreation}
                   registerCreationFormData={registerCreationFormData}
@@ -150,7 +161,8 @@ export function registerTenetSidebar() {
                 setFilters={setClassifierStoreFilters}
                 selectedClassifier={selectedClassifier}
                 setSelectedClassifier={setSelectedClassifier}
-                setShowAllCreations={setShowAllCreations}
+                creationsPage={creationsPage}
+                setCreationsPage={setCreationsPage}
               />
             );
           case SidebarTab.WORLDS:

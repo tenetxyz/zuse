@@ -4,14 +4,16 @@ import { ComponentValue, Entity, getComponentValue, removeComponent, setComponen
 import { CreationStoreFilters } from "./CreationStore";
 import { useComponentValue } from "@latticexyz/react";
 import { SetState } from "../../../utils/types";
-import { EMPTY_BYTES_32, InterfaceVoxel } from "../../noa/types";
+import { EMPTY_BYTES_32, EMPTY_VOXEL_ENTITY, InterfaceVoxel, VoxelEntity } from "../../noa/types";
 import { getWorldScale, voxelCoordToString } from "../../../utils/coord";
 import { Classifier } from "./ClassifierStore";
 import { twMerge } from "tailwind-merge";
 import { ClassifierResults } from "./ClassifierResults";
 import { NotificationIcon } from "../../noa/components/persistentNotification";
 import { FocusedUiType } from "../../noa/components/FocusedUi";
-import { to64CharAddress } from "../../../utils/entity";
+import { to64CharAddress, voxelEntityToEntity } from "../../../utils/entity";
+import { TruthTableClassifierResults } from "./TruthTableClassifierResults";
+import { toast } from "react-toastify";
 
 export interface ClassifierStoreFilters {
   classifierQuery: string;
@@ -21,32 +23,18 @@ export interface ClassifierStoreFilters {
 interface Props {
   layers: Layers;
   selectedClassifier: Classifier | null;
-  setSelectedClassifier: SetState<Classifier | null>;
-  setShowAllCreations: SetState<boolean>;
 }
 
-const ClassifierDetails: React.FC<Props> = ({
-  layers,
-  selectedClassifier,
-  setSelectedClassifier,
-  setShowAllCreations,
-}: Props) => {
+const ClassifierDetails: React.FC<Props> = ({ layers, selectedClassifier }: Props) => {
   const {
     noa: {
       noa,
-      components: {
-        FocusedUi,
-        PersistentNotification,
-        SpawnToClassify,
-        VoxelSelection,
-        SpawnInFocus,
-        VoxelInterfaceSelection,
-      },
+      components: { FocusedUi, PersistentNotification, SpawnToClassify, SpawnInFocus, VoxelInterfaceSelection },
       SingletonEntity,
     },
     network: {
       components: { VoxelType, OfSpawn, Spawn, Position },
-      api: { classifyCreation },
+      api: { classifyCreation, classifyIfCreationSatisfiesTruthTable },
       getVoxelIconUrl,
     },
   } = layers;
@@ -60,12 +48,14 @@ const ClassifierDetails: React.FC<Props> = ({
     const voxelSelection = getComponentValue(VoxelInterfaceSelection, SingletonEntity);
     const allInterfaceVoxels =
       voxelSelection?.interfaceVoxels || (selectedClassifier ? selectedClassifier.selectorInterface : undefined);
+
+    console.log("VoxelInterfaceSelection", allInterfaceVoxels);
     setComponent(VoxelInterfaceSelection, SingletonEntity, {
       interfaceVoxels: allInterfaceVoxels,
       selectingVoxelIdx: selectedVoxel.index,
     } as VoxelInterfaceSelectionRecord);
     setComponent(PersistentNotification, SingletonEntity, {
-      message: "Press 'V' on a voxel to select it. Press - when done.",
+      message: "Press 'V' on a voxel to select it. Press Q when done.",
       icon: NotificationIcon.NONE,
     });
     setComponent(FocusedUi, SingletonEntity, { value: FocusedUiType.WORLD as any });
@@ -79,13 +69,13 @@ const ClassifierDetails: React.FC<Props> = ({
     const allInterfaceVoxels = voxelSelection.interfaceVoxels;
     allInterfaceVoxels[selectedVoxel.index] = {
       ...selectedVoxel,
-      entity: EMPTY_BYTES_32,
+      entity: EMPTY_VOXEL_ENTITY,
     };
     setComponent(VoxelInterfaceSelection, SingletonEntity, {
       interfaceVoxels: allInterfaceVoxels,
       selectingVoxelIdx: selectedVoxel.index,
     });
-    setComponent(FocusedUi, SingletonEntity, { value: FocusedUiType.TENET_SIDEBAR });
+    setComponent(FocusedUi, SingletonEntity, { value: FocusedUiType.TENET_SIDEBAR as any });
   };
 
   const renderInterfaces = () => {
@@ -107,10 +97,10 @@ const ClassifierDetails: React.FC<Props> = ({
         )}
         <div className="flex flex-col gap-5">
           {selectedClassifier.selectorInterface.map((interfaceVoxel, idx) => {
-            let selectedVoxel: Entity | undefined = undefined;
+            let selectedVoxel: VoxelEntity | undefined = undefined;
             if (voxelSelection && voxelSelection.interfaceVoxels) {
-              selectedVoxel = voxelSelection.interfaceVoxels[interfaceVoxel.index].entity;
-              if (selectedVoxel === EMPTY_BYTES_32) {
+              selectedVoxel = voxelSelection.interfaceVoxels[interfaceVoxel.index]?.entity;
+              if (selectedVoxel === EMPTY_VOXEL_ENTITY) {
                 selectedVoxel = undefined;
               }
             }
@@ -139,19 +129,20 @@ const ClassifierDetails: React.FC<Props> = ({
     );
   };
 
-  const renderInterfaceVoxelImage = (interfaceVoxel: Entity) => {
+  const renderInterfaceVoxelImage = (interfaceVoxel: VoxelEntity) => {
     if (!interfaceVoxel) {
       console.warn("Voxel not found at coord", interfaceVoxel);
       return null;
     }
-    const voxelType = getComponentValue(VoxelType, interfaceVoxel);
+    const voxelEntityKey = voxelEntityToEntity(interfaceVoxel);
+    const voxelType = getComponentValue(VoxelType, voxelEntityKey);
     if (!voxelType) {
       console.warn("Voxel type not found for voxel", interfaceVoxel);
       return null;
     }
 
     const iconUrl = getVoxelIconUrl(voxelType.voxelVariantId);
-    const voxelCoord = getComponentValue(Position, interfaceVoxel);
+    const voxelCoord = getComponentValue(Position, voxelEntityKey);
     return (
       <div className="flex gap-2 items-center">
         <div className="bg-slate-100 h-fit p-1">
@@ -209,13 +200,41 @@ const ClassifierDetails: React.FC<Props> = ({
 
       for (let i = 0; i < voxelSelection.interfaceVoxels.length; i++) {
         const interfaceVoxel = voxelSelection.interfaceVoxels[i];
-        if (interfaceVoxel.entity === EMPTY_BYTES_32) {
+        if (interfaceVoxel.entity === EMPTY_VOXEL_ENTITY) {
           return true;
         }
       }
     }
 
     return false;
+  };
+
+  const onClassifySuccess = (txHash: string) => {
+    removeComponent(VoxelInterfaceSelection, SingletonEntity);
+    removeComponent(SpawnToClassify, SingletonEntity);
+    toast("The creation passes the classifier!");
+  };
+
+  const isClassifierTruthTable = selectedClassifier.namespace === "tenet-truth-table";
+
+  const onSubmit = () => {
+    const voxelSelection = getComponentValue(VoxelInterfaceSelection, SingletonEntity);
+    if (isClassifierTruthTable) {
+      // special case for tenet classifiers
+      classifyIfCreationSatisfiesTruthTable(
+        selectedClassifier.classifierId,
+        spawnToUse!.spawn!.spawnId,
+        voxelSelection?.interfaceVoxels || [],
+        onClassifySuccess
+      );
+    } else {
+      classifyCreation(
+        selectedClassifier.classifierId,
+        spawnToUse!.spawn!.spawnId, // the spawn must exist if the submit button is enabled (and pressed)
+        voxelSelection?.interfaceVoxels || [],
+        onClassifySuccess
+      );
+    }
   };
 
   return (
@@ -234,18 +253,7 @@ const ClassifierDetails: React.FC<Props> = ({
       </button>
       {renderInterfaces()}
       <button
-        onClick={() => {
-          const voxelSelection = getComponentValue(VoxelInterfaceSelection, SingletonEntity);
-          classifyCreation(
-            selectedClassifier.classifierId,
-            spawnToUse.spawn.spawnId,
-            voxelSelection?.interfaceVoxels || [],
-            (txHash: string) => {
-              removeComponent(VoxelInterfaceSelection, SingletonEntity);
-              removeComponent(SpawnToClassify, SingletonEntity);
-            }
-          );
-        }}
+        onClick={onSubmit}
         disabled={isSubmitDisabled()}
         className={twMerge(
           "text-white bg-green-700 hover:bg-green-800 focus:ring-4 focus:outline-none focus:ring-green-300 font-medium rounded-lg text-sm w-full sm:w-auto px-5 py-2.5 text-center",
@@ -256,7 +264,11 @@ const ClassifierDetails: React.FC<Props> = ({
       </button>
       <hr className="h-0.5 bg-gray-300 mt-4 mb-4 border-0" />
       <h3 className="text-xl font-bold text-black">Submissions</h3>
-      <ClassifierResults layers={layers} classifier={selectedClassifier} />
+      {isClassifierTruthTable ? (
+        <TruthTableClassifierResults layers={layers} classifier={selectedClassifier} />
+      ) : (
+        <ClassifierResults layers={layers} classifier={selectedClassifier} />
+      )}
     </div>
   );
 };

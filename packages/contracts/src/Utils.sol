@@ -43,11 +43,12 @@ function calculateParentCoord(uint32 scale, VoxelCoord memory childCoord) pure r
   return VoxelCoord(newX, newY, newZ);
 }
 
-function getEntityPositionStrict(bytes32 entity) view returns (PositionData memory) {
-  bytes32[] memory positionKeyTuple = new bytes32[](1);
-  positionKeyTuple[0] = bytes32((entity));
+function getEntityPositionStrict(uint32 scale, bytes32 entity) view returns (PositionData memory) {
+  bytes32[] memory positionKeyTuple = new bytes32[](2);
+  positionKeyTuple[0] = bytes32(uint256(scale));
+  positionKeyTuple[1] = (entity);
   require(hasKey(PositionTableId, positionKeyTuple), "Entity must have a position"); // even if its air, it must have a position
-  return Position.get(1, entity);
+  return Position.get(scale, entity);
 }
 
 function calculateBlockDirection(
@@ -106,12 +107,12 @@ function increaseVoxelTypeSpawnCount(bytes16 voxelTypeNamespace, bytes32 voxelTy
   // VoxelTypeRegistry.set(voxelTypeNamespace, voxelTypeId, voxelTypeRegistryData);
 }
 
-function getVoxelCoordStrict(bytes32 entity) view returns (VoxelCoord memory) {
-  PositionData memory position = getEntityPositionStrict(entity);
+function getVoxelCoordStrict(uint32 scale, bytes32 entity) view returns (VoxelCoord memory) {
+  PositionData memory position = getEntityPositionStrict(scale, entity);
   return VoxelCoord(position.x, position.y, position.z);
 }
 
-function entitiesToVoxelCoords(bytes32[] memory entities) returns (VoxelCoord[] memory) {
+function entitiesToVoxelCoords(bytes32[] memory entities) view returns (VoxelCoord[] memory) {
   VoxelCoord[] memory coords = new VoxelCoord[](entities.length);
   for (uint256 i; i < entities.length; i++) {
     PositionData memory position = Position.get(1, entities[i]);
@@ -123,7 +124,7 @@ function entitiesToVoxelCoords(bytes32[] memory entities) returns (VoxelCoord[] 
 function entitiesToRelativeVoxelCoords(
   bytes32[] memory entities,
   VoxelCoord memory lowerSouthWestCorner
-) returns (VoxelCoord[] memory) {
+) view returns (VoxelCoord[] memory) {
   VoxelCoord[] memory coords = entitiesToVoxelCoords(entities);
   VoxelCoord[] memory relativeCoords = new VoxelCoord[](coords.length);
   for (uint256 i; i < coords.length; i++) {

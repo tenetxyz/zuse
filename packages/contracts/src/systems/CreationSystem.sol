@@ -8,10 +8,10 @@ import { PositionData } from "@tenet-contracts/src/codegen/tables/Position.sol";
 import { REGISTRY_ADDRESS } from "@tenet-contracts/src/Constants.sol";
 import { VoxelCoord, VoxelEntity } from "@tenet-utils/src/Types.sol";
 import { BaseCreationInWorld } from "@tenet-utils/src/Types.sol";
-import { registerCreation } from "@tenet-registry/src/Utils.sol";
+import { registerCreation as registerCreationToRegistry } from "@tenet-registry/src/Utils.sol";
 
 contract CreationSystem is System {
-  function registerCreationWorld(
+  function registerCreation(
     string memory name,
     string memory description,
     VoxelEntity[] memory voxels,
@@ -32,7 +32,7 @@ contract CreationSystem is System {
       VoxelCoord memory lowerSouthwestCorner,
       VoxelTypeData[] memory allVoxelTypes,
       VoxelCoord[] memory allVoxelCoordsInWorld
-    ) = registerCreation(REGISTRY_ADDRESS, name, description, voxelTypes, voxelCoords, baseCreationsInWorld);
+    ) = registerCreationToRegistry(REGISTRY_ADDRESS, name, description, voxelTypes, voxelCoords, baseCreationsInWorld);
 
     // Replace the voxels in the registration with a spawn!
     // delete the voxels at this coord

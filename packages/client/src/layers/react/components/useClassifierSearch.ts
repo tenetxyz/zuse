@@ -6,10 +6,11 @@ import { Entity, getComponentValue, getEntityString } from "@latticexyz/recs";
 import { Classifier, ClassifierStoreFilters } from "./ClassifierStore";
 import { to64CharAddress } from "../../../utils/entity";
 import { ethers } from "ethers";
-import { abiDecode, cleanObjArray } from "@/utils/encodeOrDecode";
+import { abiDecode, cleanObjArray, serializeWithoutIndexedValues } from "@/utils/encodeOrDecode";
 
 import { hexToAscii, removeTrailingNulls } from "../../../utils/encodeOrDecode";
-import { InterfaceVoxel } from "../../noa/types";
+import { EMPTY_VOXEL_ENTITY, InterfaceVoxel } from "../../noa/types";
+import { keccak256 } from "@latticexyz/utils";
 
 export interface Props {
   layers: Layers;
@@ -24,16 +25,17 @@ export const useClassifierSearch = ({ layers, filters }: Props) => {
   const {
     network: {
       components: { FunctionSelectors },
-      registryComponents: { ClassifierRegistry },
+      contractComponents: { Classifier, TruthTable },
       worldContract,
     },
   } = layers;
 
-  // const allClassifiers = React.useRef<Classifier[]>([]);
-  // const filteredClassifiers = React.useRef<Classifier[]>([]); // Filtered based on the specified filters. The user's search box query does NOT affect this.
-  // const [classifiersToDisplay, setClassifiersToDisplay] = React.useState<Classifier[]>([]);
-  // const fuse = React.useRef<Fuse<Classifier>>();
+  const allClassifiers = React.useRef<Classifier[]>([]);
+  const filteredClassifiers = React.useRef<Classifier[]>([]); // Filtered based on the specified filters. The user's search box query does NOT affect this.
+  const [classifiersToDisplay, setClassifiersToDisplay] = React.useState<Classifier[]>([]);
+  const fuse = React.useRef<Fuse<Classifier>>();
 
+  // Commented out since it's not used
   // useComponentUpdate(Classifier, () => {
   //   allClassifiers.current = [];
   //   const classifierTable = Classifier.values;
@@ -82,49 +84,118 @@ export const useClassifierSearch = ({ layers, filters }: Props) => {
   //   applyClassifierFilters();
   // });
 
-  // const applyClassifierFilters = () => {
-  //   // TODO: add classifier filters
-  //   // maybe people will filter classifiers based on their name, description, creator, or voxelTypes
-  //   filteredClassifiers.current = allClassifiers.current;
+  // Here we derive classifiers based on the TruthTable table
+  useComponentUpdate(TruthTable, () => {
+    allClassifiers.current = [];
+    const truthTableTable = TruthTable.values;
+    truthTableTable.name.forEach((name: string, classifierId) => {
+      const creator = truthTableTable.creator.get(classifierId);
+      if (!creator) {
+        console.warn("No creator found for classifier", classifierId);
+        return;
+      }
+      const inputRows = truthTableTable.inputRows.get(classifierId);
+      if (!inputRows) {
+        console.warn("No inputRows found for classifier", classifierId);
+        return;
+      }
+      const outputRows = truthTableTable.outputRows.get(classifierId);
+      if (!outputRows) {
+        console.warn("No outputRows found for classifier", classifierId);
+        return;
+      }
+      const numInputBits = truthTableTable.numInputBits.get(classifierId);
+      if (!numInputBits) {
+        console.warn("No numInputBits found for classifier", classifierId);
+        return;
+      }
+      const numOutputBits = truthTableTable.numOutputBits.get(classifierId);
+      if (!numOutputBits) {
+        console.warn("No numOutputBits found for classifier", classifierId);
+        return;
+      }
+      const interfaceVoxels = getInputInterfaceVoxels(numInputBits).concat(
+        getOutputInterfaceVoxels(numInputBits, numOutputBits)
+      );
 
-  //   // only the filtered classifiers can be queried
-  //   const options = {
-  //     includeScore: false,
-  //     // TODO: the creator is just an address. we need to replace it with a readable name
-  //     keys: ["name", "description", "creator"],
-  //   };
-  //   fuse.current = new Fuse(filteredClassifiers.current, options);
+      const tableInfo = {
+        inputRows: inputRows.map((row) => row.toString()),
+        outputRows: outputRows.map((row) => row.toString()),
+        numInputBits: numInputBits,
+        numOutputBits: numOutputBits,
+      };
 
-  //   queryForClassifiersToDisplay();
-  // };
-  // // recalculate which classifiers are in the display pool when the filters change
-  // useEffect(applyClassifierFilters, [filters]);
+      allClassifiers.current.push({
+        name: name,
+        description: JSON.stringify(tableInfo),
+        classifierId: getEntityString(classifierId),
+        creator: creator as Entity,
+        // functionSelector: "TruthTableClassifier",
+        classificationResultTableName: "TruthTableCR",
+        selectorInterface: interfaceVoxels,
+        namespace: "tenet-truth-table", // TODO: we should remove this since namespace isnt' used anymore
+      } as Classifier);
+    });
+    applyClassifierFilters();
+  });
 
-  // const queryForClassifiersToDisplay = () => {
-  //   if (!fuse.current) {
-  //     return;
-  //   }
-  //   if (filters.classifierQuery === "") {
-  //     setClassifiersToDisplay(filteredClassifiers.current);
-  //     return;
-  //   }
+  const getInputInterfaceVoxels = (numInputBits: number) => {
+    const poweredInterfaceVoxels = [];
+    for (let i = 0; i < numInputBits; i++) {
+      poweredInterfaceVoxels.push({
+        index: i,
+        entity: EMPTY_VOXEL_ENTITY, // not used until the user actually selects a voxel as an interface
+        name: "in" + i + 1,
+        desc: "input bit",
+      } as InterfaceVoxel);
+    }
+    return poweredInterfaceVoxels;
+  };
 
-  //   const queryResult = fuse.current.search(filters.classifierQuery).map((r) => r.item);
-  //   setClassifiersToDisplay(queryResult);
-  // };
-  // React.useEffect(queryForClassifiersToDisplay, [filters.classifierQuery]);
-  const classifiersToDisplay: Classifier[] = [
-    {
-      name: "AND Gate",
-      description: "Classifies if this creation is an AND Gate",
-      classifierId: "0x12213123" as Entity,
-      creator: "0x1231242" as Entity,
-      functionSelector: "0x123123123",
-      classificationResultTableName: "classifiaction result table name",
-      selectorInterface: [],
-      namespace: "tenet",
-    },
-  ];
+  const getOutputInterfaceVoxels = (numInputBits: number, numOutputBits: number) => {
+    const outputInterfaceVoxels = [];
+    for (let i = 0; i < numOutputBits; i++) {
+      outputInterfaceVoxels.push({
+        index: numInputBits + i,
+        entity: EMPTY_VOXEL_ENTITY, // not used until the user actually selects a voxel as an interface
+        name: "output" + i + 1,
+        desc: "ouput bit",
+      } as InterfaceVoxel);
+    }
+    return outputInterfaceVoxels;
+  };
+
+  const applyClassifierFilters = () => {
+    // TODO: add classifier filters
+    // maybe people will filter classifiers based on their name, description, creator, or voxelTypes
+    filteredClassifiers.current = allClassifiers.current;
+
+    // only the filtered classifiers can be queried
+    const options = {
+      includeScore: false,
+      // TODO: the creator is just an address. we need to replace it with a readable name
+      keys: ["name", "description", "creator"],
+    };
+    fuse.current = new Fuse(filteredClassifiers.current, options);
+
+    queryForClassifiersToDisplay();
+  };
+  // recalculate which classifiers are in the display pool when the filters change
+  useEffect(applyClassifierFilters, [filters]);
+
+  const queryForClassifiersToDisplay = () => {
+    if (!fuse.current) {
+      return;
+    }
+    if (filters.classifierQuery === "") {
+      setClassifiersToDisplay(filteredClassifiers.current);
+      return;
+    }
+
+    const queryResult = fuse.current.search(filters.classifierQuery).map((r) => r.item);
+    setClassifiersToDisplay(queryResult);
+  };
+  React.useEffect(queryForClassifiersToDisplay, [filters.classifierQuery]);
 
   return {
     classifiersToDisplay,

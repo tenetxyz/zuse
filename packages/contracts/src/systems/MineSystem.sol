@@ -7,6 +7,7 @@ import { VoxelCoord, VoxelEntity } from "@tenet-utils/src/Types.sol";
 import { VoxelType, VoxelTypeData, OfSpawn, Spawn, SpawnData } from "@tenet-contracts/src/codegen/Tables.sol";
 import { CHUNK_MAX_Y, CHUNK_MIN_Y } from "../Constants.sol";
 import { AirVoxelID } from "@tenet-base-ca/src/Constants.sol";
+import { getEntityAtCoord } from "../Utils.sol";
 
 contract MineSystem is MineEvent {
   function callEventHandler(
@@ -81,5 +82,17 @@ contract MineSystem is MineEvent {
       Spawn.setVoxels(spawnId, abi.encode(newVoxels));
       Spawn.setIsModified(spawnId, true);
     }
+  }
+
+  function clearCoord(uint32 scale, VoxelCoord memory coord) public returns (uint32, bytes32) {
+    bytes32 entity = getEntityAtCoord(scale, coord);
+
+    bytes32 voxelTypeId = VoxelType.getVoxelTypeId(scale, entity);
+    if (voxelTypeId == AirVoxelID) {
+      // if it's air, then it's already clear
+      return (0, 0);
+    }
+
+    return mine(voxelTypeId, coord);
   }
 }

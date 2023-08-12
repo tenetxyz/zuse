@@ -9,6 +9,9 @@ import { SearchBar } from "./common/SearchBar";
 import ClassifierDetails from "./ClassifierDetails";
 import { twMerge } from "tailwind-merge";
 import { toast } from "react-toastify";
+import { Button } from "./common";
+import { set } from "@latticexyz/store-cache";
+import { RegisterTruthTableClassifier } from "./RegisterTruthTableClassifier";
 
 export interface ClassifierStoreFilters {
   classifierQuery: string;
@@ -18,10 +21,17 @@ export interface ClassifierStoreFilters {
 interface Props {
   layers: Layers;
   filters: ClassifierStoreFilters;
+  creationsPage: CreationsPage;
   setFilters: SetState<ClassifierStoreFilters>;
   selectedClassifier: Classifier | null;
   setSelectedClassifier: SetState<Classifier | null>;
-  setShowAllCreations: SetState<boolean>;
+  setCreationsPage: SetState<CreationsPage>;
+}
+
+export enum CreationsPage {
+  ALL_CREATIONS,
+  CLASSIFIER_CREATIONS,
+  REGISTER_TRUTH_TABLE_CLASSIFIER,
 }
 
 export interface Classifier {
@@ -29,7 +39,7 @@ export interface Classifier {
   description: string;
   classifierId: Entity;
   creator: Entity;
-  functionSelector: string;
+  // functionSelector: string;
   classificationResultTableName: string;
   selectorInterface: InterfaceVoxel[];
   namespace: string;
@@ -38,10 +48,11 @@ export interface Classifier {
 const ClassifierStore: React.FC<Props> = ({
   layers,
   filters,
+  creationsPage,
   setFilters,
   selectedClassifier,
   setSelectedClassifier,
-  setShowAllCreations,
+  setCreationsPage,
 }: Props) => {
   const { classifiersToDisplay } = useClassifierSearch({
     layers,
@@ -52,11 +63,15 @@ const ClassifierStore: React.FC<Props> = ({
     if (selectedClassifier) {
       return selectedClassifier.name;
     }
+    if (creationsPage === CreationsPage.REGISTER_TRUTH_TABLE_CLASSIFIER) {
+      return "Register Truth Table Classifier";
+    }
     return "";
   };
 
   const classifiersNavClicked = () => {
     setSelectedClassifier(null);
+    setCreationsPage(CreationsPage.CLASSIFIER_CREATIONS);
   };
 
   return (
@@ -78,7 +93,7 @@ const ClassifierStore: React.FC<Props> = ({
           </div>
           <div className="flex w-full mt-5 flex-col items-center">
             <div
-              onClick={() => setShowAllCreations(true)}
+              onClick={() => setCreationsPage(CreationsPage.ALL_CREATIONS)}
               className="w-full cursor-pointer block p-2 border border-slate-600 rounded hover:bg-slate-600"
             >
               <h5 className="ml-4 text-lg font-bold tracking-tight">All Creations</h5>
@@ -120,13 +135,13 @@ const ClassifierStore: React.FC<Props> = ({
           </li>
         </ol>
       </nav>
+
+      {creationsPage === CreationsPage.REGISTER_TRUTH_TABLE_CLASSIFIER && (
+        <RegisterTruthTableClassifier layers={layers} />
+      )}
+
       {selectedClassifier ? (
-        <ClassifierDetails
-          layers={layers}
-          selectedClassifier={selectedClassifier}
-          setSelectedClassifier={setSelectedClassifier}
-          setShowAllCreations={setShowAllCreations}
-        />
+        <ClassifierDetails layers={layers} selectedClassifier={selectedClassifier} />
       ) : (
         <div className="flex w-full h-full mt-5 flex-col gap-5 items-center overflow-scroll">
           {classifiersToDisplay.map((classifier, idx) => {
@@ -141,8 +156,7 @@ const ClassifierStore: React.FC<Props> = ({
                   <button
                     type="button"
                     onClick={() => {
-                      toast("Coming soon!");
-                      // setSelectedClassifier(classifier)
+                      setSelectedClassifier(classifier);
                     }}
                     className="text-gray-900 hover:text-white border border-gray-800 hover:bg-gray-900 focus:ring-4 focus:outline-none focus:ring-gray-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center mr-2 mb-2"
                   >
@@ -154,6 +168,13 @@ const ClassifierStore: React.FC<Props> = ({
           })}
         </div>
       )}
+      <Button
+        onClick={() => {
+          setCreationsPage(CreationsPage.REGISTER_TRUTH_TABLE_CLASSIFIER);
+        }}
+      >
+        Add Boolean Logic Classifier
+      </Button>
     </div>
   );
 };

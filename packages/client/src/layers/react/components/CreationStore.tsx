@@ -30,19 +30,6 @@ interface Props {
   setRegisterCreationFormData: SetState<RegisterCreationFormData>;
 }
 
-export interface Creation {
-  name: string;
-  description: string;
-  creationId: Entity;
-  creator: string;
-  voxelTypes: VoxelTypeKey[];
-  relativePositions: VoxelCoord[];
-  numSpawns: BigInt;
-  numVoxels: number;
-  // voxelMetadata: string[];
-  baseCreations: BaseCreation[];
-}
-
 const CreationStore: React.FC<Props> = ({
   layers,
   filters,

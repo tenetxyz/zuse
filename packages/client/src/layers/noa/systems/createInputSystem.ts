@@ -5,7 +5,6 @@ import { HandComponent, HAND_COMPONENT } from "../engine/components/handComponen
 import { MiningVoxelComponent, MINING_VOXEL_COMPONENT } from "../engine/components/miningVoxelComponent";
 import { getNoaComponent, getNoaComponentStrict } from "../engine/components/utils";
 import { toast } from "react-toastify";
-import { Creation } from "../../react/components/CreationStore";
 import { calculateMinMax, getTargetedSpawnId, getTargetedVoxelCoord, TargetedBlock } from "../../../utils/voxels";
 import { NotificationIcon } from "../components/persistentNotification";
 import { BEDROCK_ID, getBedrockHeight, TILE_Y } from "../../network/api/terrain/occurrence";
@@ -23,6 +22,7 @@ import {
   bindInputEvent as bindInputEventUsingNoa,
   unbindInputEvent as unbindInputEventUsingNoa,
 } from "./createInputSystemHelpers";
+import { Creation } from "@/mud/componentParsers/creation";
 
 // https://fenomas.github.io/noa/API/classes/_internal_.Inputs.html#bind
 // Key strings should align to KeyboardEvent.code strings - e.g. KeyA, ArrowDown, etc.
@@ -87,7 +87,8 @@ export function createInputSystem(layers: Layers) {
       streams: { playerPosition$ },
     },
     network: {
-      registryComponents: { VoxelTypeRegistry, CreationRegistry },
+      parsedComponents: { ParsedCreationRegistry },
+      registryComponents: { VoxelTypeRegistry },
       network: {
         connectedAddress,
         config: { blockExplorer },
@@ -465,7 +466,12 @@ export function createInputSystem(layers: Layers) {
       return;
     }
     // @ts-nocheck
-    const { corner1, corner2 } = calculateCornersFromTargetedBlock(noa, VoxelTypeRegistry, CreationRegistry, creation);
+    const { corner1, corner2 } = calculateCornersFromTargetedBlock(
+      noa,
+      VoxelTypeRegistry,
+      ParsedCreationRegistry,
+      creation
+    );
     const { minX, minY, minZ } = calculateMinMax(corner1, corner2);
 
     spawnCreation({ x: minX, y: minY, z: minZ }, (creation as Creation).creationId);

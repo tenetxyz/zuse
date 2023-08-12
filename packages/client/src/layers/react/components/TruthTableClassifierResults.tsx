@@ -32,7 +32,7 @@ export const TruthTableClassifierResults = ({ layers, classifier }: Props) => {
   const {
     network: {
       contractComponents: { TruthTableCR },
-      registryComponents: { CreationRegistry },
+      parsedComponents: { ParsedCreationRegistry },
     },
   } = layers;
   //   useObservableValue(cacheStore$);
@@ -68,7 +68,7 @@ export const TruthTableClassifierResults = ({ layers, classifier }: Props) => {
         return;
       }
 
-      const creation = getComponentValueStrict(CreationRegistry, stringToEntity(to256BitString(creationId.toString())));
+      const creation = ParsedCreationRegistry.componentRows.get(stringToEntity(to256BitString(creationId.toString())));
 
       records.push({
         creation,

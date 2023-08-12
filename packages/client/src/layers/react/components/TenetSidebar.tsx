@@ -45,7 +45,7 @@ export function registerTenetSidebar() {
         },
         network: {
           components: { Spawn },
-          registryComponents: { CreationRegistry },
+          parsedComponents: { ParsedCreationRegistry },
           worldAddress,
         },
       } = layers;
@@ -112,13 +112,17 @@ export function registerTenetSidebar() {
           lowerSouthWestCorner: abiDecode("tuple(int32 x,int32 y,int32 z)", rawSpawn.lowerSouthWestCorner),
           voxels,
         } as ISpawn;
-        const creation = getComponentValueStrict(CreationRegistry, spawn.creationId);
         // TODO: use a function to parse the creation, rther than this hacky thing
-        const { creator, name, description, numSpawns } = parseCreationMetadata(creation.metadata, worldAddress);
-        creation.creator = creator;
-        creation.name = creator;
-        creation.description = creator;
-        creation.numSpawns = creator;
+        const creation = ParsedCreationRegistry.componentRows.get(spawn.creationId);
+        if (creation === undefined) {
+          console.warn(
+            "cannot find creation for the spawn's creationId. creationId=",
+            spawn.creationId,
+            " spawnId=",
+            spawn.spawnId
+          );
+          return;
+        }
         setComponent(SpawnInFocus, SingletonEntity, {
           spawn,
           creation,

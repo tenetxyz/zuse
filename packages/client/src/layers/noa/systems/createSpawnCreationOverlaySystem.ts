@@ -5,11 +5,12 @@ import { NoaLayer } from "../types";
 import { renderChunkyWireframe } from "./renderWireframes";
 import { Color3, Mesh, Nullable } from "@babylonjs/core";
 import { ISpawnCreation } from "../components/SpawnCreation";
-import { Creation } from "../../react/components/CreationStore";
 import { add, calculateMinMaxRelativeCoordsOfCreation, getWorldScale } from "../../../utils/coord";
 import { VoxelCoord } from "@latticexyz/utils";
 import { TargetedBlock } from "../../../utils/voxels";
 import { Engine } from "noa-engine";
+import { ComponentParser } from "@/mud/componentParsers/componentParser";
+import { Creation } from "@/mud/componentParsers/creation";
 
 export function createSpawnCreationOverlaySystem(network: NetworkLayer, noaLayer: NoaLayer) {
   const {
@@ -17,7 +18,8 @@ export function createSpawnCreationOverlaySystem(network: NetworkLayer, noaLayer
     noa,
   } = noaLayer;
   const {
-    registryComponents: { VoxelTypeRegistry, CreationRegistry },
+    registryComponents: { VoxelTypeRegistry },
+    parsedComponents: { ParsedCreationRegistry },
   } = network;
 
   let creationToSpawn: Creation | undefined;
@@ -49,7 +51,12 @@ export function createSpawnCreationOverlaySystem(network: NetworkLayer, noaLayer
   };
 
   const renderCreationOutline = (creation: Creation) => {
-    const { corner1, corner2 } = calculateCornersFromTargetedBlock(noa, VoxelTypeRegistry, CreationRegistry, creation);
+    const { corner1, corner2 } = calculateCornersFromTargetedBlock(
+      noa,
+      VoxelTypeRegistry,
+      ParsedCreationRegistry,
+      creation
+    );
     renderedCreationOutlineMesh = renderChunkyWireframe(corner1, corner2, noa, new Color3(0, 0, 1), 0.05);
   };
   // TODO: once we have rendered the right outline mesh, we need to also use this coord for the spawning location
@@ -58,7 +65,7 @@ export function createSpawnCreationOverlaySystem(network: NetworkLayer, noaLayer
 export const calculateCornersFromTargetedBlock = (
   noa: Engine,
   VoxelTypeRegistry: any,
-  CreationRegistry: any,
+  ParsedCreationRegistry: ComponentParser<Creation>,
   creation: Creation
 ) => {
   const {
@@ -68,7 +75,7 @@ export const calculateCornersFromTargetedBlock = (
 
   const { minCoord, maxCoord } = calculateMinMaxRelativeCoordsOfCreation(
     VoxelTypeRegistry,
-    CreationRegistry,
+    ParsedCreationRegistry,
     creation.creationId,
     getWorldScale(noa)
   );

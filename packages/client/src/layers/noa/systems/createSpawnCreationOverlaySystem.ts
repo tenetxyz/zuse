@@ -11,6 +11,7 @@ import { TargetedBlock } from "../../../utils/voxels";
 import { Engine } from "noa-engine";
 import { ComponentParser } from "@/mud/componentParsers/componentParser";
 import { Creation } from "@/mud/componentParsers/creation";
+import { VoxelTypeDesc } from "@/mud/componentParsers/voxelType";
 
 export function createSpawnCreationOverlaySystem(network: NetworkLayer, noaLayer: NoaLayer) {
   const {
@@ -63,7 +64,7 @@ export function createSpawnCreationOverlaySystem(network: NetworkLayer, noaLayer
 
 export const calculateCornersFromTargetedBlock = (
   noa: Engine,
-  ParsedVoxelTypeRegistry: any,
+  ParsedVoxelTypeRegistry: ComponentParser<VoxelTypeDesc>,
   ParsedCreationRegistry: ComponentParser<Creation>,
   creation: Creation
 ) => {

@@ -53,7 +53,6 @@ export function parseCreation<S extends Schema>(update: ComponentUpdate<S, undef
     );
     return;
   }
-  // TODO: add voxelMetadata
   const creation = {
     creationId: creationId,
     name: name,

@@ -1,17 +1,16 @@
 import React from "react";
 import { ComponentRecord, Layers } from "../../../types";
-import { ComponentValue, Entity, getComponentValue, removeComponent, setComponent } from "@latticexyz/recs";
+import { getComponentValue, removeComponent, setComponent } from "@latticexyz/recs";
 import { CreationStoreFilters } from "./CreationStore";
 import { useComponentValue } from "@latticexyz/react";
-import { SetState } from "../../../utils/types";
-import { EMPTY_BYTES_32, EMPTY_VOXEL_ENTITY, InterfaceVoxel, VoxelEntity } from "../../noa/types";
-import { getWorldScale, voxelCoordToString } from "../../../utils/coord";
+import { EMPTY_VOXEL_ENTITY, InterfaceVoxel, VoxelEntity } from "../../noa/types";
+import { voxelCoordToString } from "../../../utils/coord";
 import { Classifier } from "./ClassifierStore";
 import { twMerge } from "tailwind-merge";
 import { ClassifierResults } from "./ClassifierResults";
 import { NotificationIcon } from "../../noa/components/persistentNotification";
 import { FocusedUiType } from "../../noa/components/FocusedUi";
-import { to64CharAddress, voxelEntityToEntity } from "../../../utils/entity";
+import { voxelEntityToEntity } from "../../../utils/entity";
 import { TruthTableClassifierResults } from "./TruthTableClassifierResults";
 import { toast } from "react-toastify";
 

@@ -25,7 +25,6 @@ export function parseVoxelType<S extends Schema>(update: ComponentUpdate<S, unde
     worldMetadata.worldAddress
   );
 
-  // TODO: add voxelMetadata
   const voxelTypeDesc = {
     name,
     description,

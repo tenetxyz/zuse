@@ -1,4 +1,3 @@
-import { ComponentValue, Type } from "@latticexyz/recs";
 import { Entity } from "@latticexyz/recs";
 import { createNoaLayer } from "./createNoaLayer";
 
@@ -82,3 +81,7 @@ export function voxelBaseTypeIdToVoxelTypeKey(voxelBaseTypeId: VoxelBaseTypeId):
 }
 
 export const EMPTY_BYTES_32 = "0x0000000000000000000000000000000000000000000000000000000000000000";
+export const EMPTY_VOXEL_ENTITY: VoxelEntity = {
+  scale: 0,
+  entityId: EMPTY_BYTES_32,
+};

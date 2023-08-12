@@ -9,7 +9,7 @@ import { ethers } from "ethers";
 import { abiDecode, cleanObjArray, serializeWithoutIndexedValues } from "@/utils/encodeOrDecode";
 
 import { hexToAscii, removeTrailingNulls } from "../../../utils/encodeOrDecode";
-import { InterfaceVoxel } from "../../noa/types";
+import { EMPTY_VOXEL_ENTITY, InterfaceVoxel } from "../../noa/types";
 import { keccak256 } from "@latticexyz/utils";
 
 export interface Props {
@@ -144,7 +144,7 @@ export const useClassifierSearch = ({ layers, filters }: Props) => {
     for (let i = 0; i < numInputBits; i++) {
       poweredInterfaceVoxels.push({
         index: i,
-        entity: "0", // not used until the user actually selects a voxel as an interface
+        entity: EMPTY_VOXEL_ENTITY, // not used until the user actually selects a voxel as an interface
         name: "in" + i + 1,
         desc: "input bit",
       } as InterfaceVoxel);
@@ -157,7 +157,7 @@ export const useClassifierSearch = ({ layers, filters }: Props) => {
     for (let i = 0; i < numOutputBits; i++) {
       outputInterfaceVoxels.push({
         index: numInputBits + i,
-        entity: "0", // not used until the user actually selects a voxel as an interface
+        entity: EMPTY_VOXEL_ENTITY, // not used until the user actually selects a voxel as an interface
         name: "output" + i + 1,
         desc: "ouput bit",
       } as InterfaceVoxel);

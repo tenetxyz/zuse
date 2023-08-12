@@ -15,7 +15,7 @@ import { FocusedUiType } from "../components/FocusedUi";
 import { Layers } from "../../../types";
 import { calculateParentCoord, getWorldScale, voxelCoordToString } from "../../../utils/coord";
 import { renderFloatingTextAboveCoord } from "./renderFloatingText";
-import { InterfaceVoxel } from "../types";
+import { InterfaceVoxel, VoxelEntity } from "../types";
 import { World } from "noa-engine/dist/src/lib/world";
 import {
   disableInputs,
@@ -416,11 +416,16 @@ export function createInputSystem(layers: Layers) {
       if (!entityAtCoord) {
         return;
       }
+      const entityParts = entityAtCoord.split(":");
+      const interfaceVoxel: VoxelEntity = {
+        scale: parseInt(entityParts[0]),
+        entityId: entityParts[1],
+      };
 
       // Note: We need to clone here because it won't let me modify the entity directly
       const newInterfaceVoxels = structuredClone(voxelSelection.interfaceVoxels);
       const newInterfaceVoxel: InterfaceVoxel = newInterfaceVoxels[voxelSelection.selectingVoxelIdx];
-      newInterfaceVoxel.entity = entityAtCoord as string;
+      newInterfaceVoxel.entity = interfaceVoxel;
       setComponent(VoxelInterfaceSelection, SingletonEntity, {
         interfaceVoxels: newInterfaceVoxels,
         selectingVoxelIdx: voxelSelection.selectingVoxelIdx,

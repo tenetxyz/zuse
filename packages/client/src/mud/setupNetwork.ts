@@ -630,7 +630,7 @@ export async function setupNetwork() {
         OwnedBy: contractComponents.OwnedBy,
       },
       execute: () => {
-        return callSystem("registerCreationWorld", [
+        return callSystem("registerCreation", [
           creationName,
           creationDescription,
           voxelEntities,
@@ -742,16 +742,11 @@ export async function setupNetwork() {
     // TODO: Relpace Iron NFT with a an register symbol
     const preview = getNftStorageLink("bafkreidkik2uccshptqcskpippfotmusg7algnfh5ozfsga72xyfdrvacm");
 
-    interfaceVoxels.map((interfaceVoxel) => {
-      interfaceVoxel.entity = interfaceVoxel.entity.split(":")[1]; // get rid of the scale for the entity
-      return interfaceVoxel;
-    });
-
     const inInterfaceVoxels = interfaceVoxels.filter((interfaceVoxel) => interfaceVoxel.name.startsWith("in"));
     const outInterfaceVoxels = interfaceVoxels.filter((interfaceVoxel) => interfaceVoxel.name.startsWith("out"));
     actions.add({
       id: `classifyIfCreationSatisfiesTruthTable+booleanClassifierId=${booleanClassifierId}+spawnId=${spawnId}` as Entity,
-      metadata: { actionType: "classifyIfCreationSatisfiesTruthTable", preview },
+      metadata: { actionType: "cassifyIfCreationSatisfiesTruthTable", preview },
       requirement: () => true,
       components: {},
       execute: () => {

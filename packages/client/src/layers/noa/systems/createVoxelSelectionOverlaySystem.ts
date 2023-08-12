@@ -1,13 +1,12 @@
 // the purpose of this system is to render a wireframe around voxels/creations the user selects
 
 import { NetworkLayer } from "../../network";
-import { InterfaceVoxel, NoaLayer } from "../types";
+import { InterfaceVoxel, NoaLayer, VoxelEntity } from "@/layers/noa/types";
 import { renderChunkyWireframe } from "./renderWireframes";
 import { Color3, Mesh, Nullable } from "@babylonjs/core";
 import { ComponentRecord } from "../../../types";
-import { getWorldScale, stringToVoxelCoord } from "../../../utils/coord";
 import { getComponentValue } from "@latticexyz/recs";
-import { to64CharAddress } from "../../../utils/entity";
+import { voxelEntityToEntity } from "../../../utils/entity";
 
 export function createVoxelSelectionOverlaySystem(network: NetworkLayer, noaLayer: NoaLayer) {
   const {
@@ -43,28 +42,31 @@ export function createVoxelSelectionOverlaySystem(network: NetworkLayer, noaLaye
     );
   };
 
-  type IVoxelInterfaceSelection = ComponentRecord<typeof VoxelInterfaceSelection>;
+  type VoxelInterfaceSelectionRecord = ComponentRecord<typeof VoxelInterfaceSelection>;
   VoxelInterfaceSelection.update$.subscribe((update) => {
-    const voxelInterfaceSelection = update.value[0] as IVoxelInterfaceSelection;
+    const voxelInterfaceSelection = update.value[0] as VoxelInterfaceSelectionRecord;
     renderVoxelInterfaceSelection(voxelInterfaceSelection);
   });
 
   let renderedVoxelInterfaceSelectionMeshs: Nullable<Mesh>[] = [];
-  const renderVoxelInterfaceSelection = (voxelInterfaceSelection: IVoxelInterfaceSelection) => {
+  const renderVoxelInterfaceSelection = (voxelInterfaceSelection: VoxelInterfaceSelectionRecord) => {
     if (renderedVoxelInterfaceSelectionMeshs) {
       // remove the previous mesh since the user can only have one range selection
       renderedVoxelInterfaceSelectionMeshs.forEach((mesh) => mesh?.dispose());
     }
 
-    renderedVoxelInterfaceSelectionMeshs = voxelInterfaceSelection.interfaceVoxels.map(
-      (interfaceVoxel: InterfaceVoxel) => {
-        const voxelCoord = getComponentValue(Position, interfaceVoxel.entity as Entity);
-        if (!voxelCoord) {
-          return;
-        }
+    const interfaceVoxels = voxelInterfaceSelection?.interfaceVoxels;
+    if (!interfaceVoxels) {
+      return;
+    }
 
-        return renderChunkyWireframe(voxelCoord, voxelCoord, noa, new Color3(1, 0.1, 0.1), 0.04);
+    renderedVoxelInterfaceSelectionMeshs = interfaceVoxels.map((interfaceVoxel: InterfaceVoxel) => {
+      const voxelCoord = getComponentValue(Position, voxelEntityToEntity(interfaceVoxel.entity));
+      if (!voxelCoord) {
+        return;
       }
-    );
+
+      return renderChunkyWireframe(voxelCoord, voxelCoord, noa, new Color3(1, 0.1, 0.1), 0.04);
+    });
   };
 }

@@ -4,14 +4,14 @@ import { ComponentValue, Entity, getComponentValue, removeComponent, setComponen
 import { CreationStoreFilters } from "./CreationStore";
 import { useComponentValue } from "@latticexyz/react";
 import { SetState } from "../../../utils/types";
-import { EMPTY_BYTES_32, InterfaceVoxel } from "../../noa/types";
+import { EMPTY_BYTES_32, EMPTY_VOXEL_ENTITY, InterfaceVoxel, VoxelEntity } from "../../noa/types";
 import { getWorldScale, voxelCoordToString } from "../../../utils/coord";
 import { Classifier } from "./ClassifierStore";
 import { twMerge } from "tailwind-merge";
 import { ClassifierResults } from "./ClassifierResults";
 import { NotificationIcon } from "../../noa/components/persistentNotification";
 import { FocusedUiType } from "../../noa/components/FocusedUi";
-import { to64CharAddress } from "../../../utils/entity";
+import { to64CharAddress, voxelEntityToEntity } from "../../../utils/entity";
 import { TruthTableClassifierResults } from "./TruthTableClassifierResults";
 import { toast } from "react-toastify";
 
@@ -29,18 +29,11 @@ const ClassifierDetails: React.FC<Props> = ({ layers, selectedClassifier }: Prop
   const {
     noa: {
       noa,
-      components: {
-        FocusedUi,
-        PersistentNotification,
-        SpawnToClassify,
-        VoxelSelection,
-        SpawnInFocus,
-        VoxelInterfaceSelection,
-      },
+      components: { FocusedUi, PersistentNotification, SpawnToClassify, SpawnInFocus, VoxelInterfaceSelection },
       SingletonEntity,
     },
     network: {
-      components: { VoxelType, OfSpawn, Spawn, Creation, Position },
+      components: { VoxelType, OfSpawn, Spawn, Position },
       api: { classifyCreation, classifyIfCreationSatisfiesTruthTable },
       getVoxelIconUrl,
     },
@@ -55,6 +48,8 @@ const ClassifierDetails: React.FC<Props> = ({ layers, selectedClassifier }: Prop
     const voxelSelection = getComponentValue(VoxelInterfaceSelection, SingletonEntity);
     const allInterfaceVoxels =
       voxelSelection?.interfaceVoxels || (selectedClassifier ? selectedClassifier.selectorInterface : undefined);
+
+    console.log("VoxelInterfaceSelection", allInterfaceVoxels);
     setComponent(VoxelInterfaceSelection, SingletonEntity, {
       interfaceVoxels: allInterfaceVoxels,
       selectingVoxelIdx: selectedVoxel.index,
@@ -74,13 +69,13 @@ const ClassifierDetails: React.FC<Props> = ({ layers, selectedClassifier }: Prop
     const allInterfaceVoxels = voxelSelection.interfaceVoxels;
     allInterfaceVoxels[selectedVoxel.index] = {
       ...selectedVoxel,
-      entity: EMPTY_BYTES_32,
+      entity: EMPTY_VOXEL_ENTITY,
     };
     setComponent(VoxelInterfaceSelection, SingletonEntity, {
       interfaceVoxels: allInterfaceVoxels,
       selectingVoxelIdx: selectedVoxel.index,
     });
-    setComponent(FocusedUi, SingletonEntity, { value: FocusedUiType.TENET_SIDEBAR });
+    setComponent(FocusedUi, SingletonEntity, { value: FocusedUiType.TENET_SIDEBAR as any });
   };
 
   const renderInterfaces = () => {
@@ -102,10 +97,10 @@ const ClassifierDetails: React.FC<Props> = ({ layers, selectedClassifier }: Prop
         )}
         <div className="flex flex-col gap-5">
           {selectedClassifier.selectorInterface.map((interfaceVoxel, idx) => {
-            let selectedVoxel: Entity | undefined = undefined;
+            let selectedVoxel: VoxelEntity | undefined = undefined;
             if (voxelSelection && voxelSelection.interfaceVoxels) {
               selectedVoxel = voxelSelection.interfaceVoxels[interfaceVoxel.index]?.entity;
-              if (selectedVoxel === EMPTY_BYTES_32) {
+              if (selectedVoxel === EMPTY_VOXEL_ENTITY) {
                 selectedVoxel = undefined;
               }
             }
@@ -134,19 +129,20 @@ const ClassifierDetails: React.FC<Props> = ({ layers, selectedClassifier }: Prop
     );
   };
 
-  const renderInterfaceVoxelImage = (interfaceVoxel: Entity) => {
+  const renderInterfaceVoxelImage = (interfaceVoxel: VoxelEntity) => {
     if (!interfaceVoxel) {
       console.warn("Voxel not found at coord", interfaceVoxel);
       return null;
     }
-    const voxelType = getComponentValue(VoxelType, interfaceVoxel);
+    const voxelEntityKey = voxelEntityToEntity(interfaceVoxel);
+    const voxelType = getComponentValue(VoxelType, voxelEntityKey);
     if (!voxelType) {
       console.warn("Voxel type not found for voxel", interfaceVoxel);
       return null;
     }
 
     const iconUrl = getVoxelIconUrl(voxelType.voxelVariantId);
-    const voxelCoord = getComponentValue(Position, interfaceVoxel);
+    const voxelCoord = getComponentValue(Position, voxelEntityKey);
     return (
       <div className="flex gap-2 items-center">
         <div className="bg-slate-100 h-fit p-1">
@@ -204,7 +200,7 @@ const ClassifierDetails: React.FC<Props> = ({ layers, selectedClassifier }: Prop
 
       for (let i = 0; i < voxelSelection.interfaceVoxels.length; i++) {
         const interfaceVoxel = voxelSelection.interfaceVoxels[i];
-        if (interfaceVoxel.entity === EMPTY_BYTES_32) {
+        if (interfaceVoxel.entity === EMPTY_VOXEL_ENTITY) {
           return true;
         }
       }

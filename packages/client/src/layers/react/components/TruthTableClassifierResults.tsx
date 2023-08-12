@@ -31,7 +31,8 @@ interface TruthTableClassifierResult {
 export const TruthTableClassifierResults = ({ layers, classifier }: Props) => {
   const {
     network: {
-      contractComponents: { Creation, TruthTableCR },
+      contractComponents: { TruthTableCR },
+      registryComponents: { CreationRegistry },
     },
   } = layers;
   //   useObservableValue(cacheStore$);
@@ -67,7 +68,7 @@ export const TruthTableClassifierResults = ({ layers, classifier }: Props) => {
         return;
       }
 
-      const creation = getComponentValueStrict(Creation, stringToEntity(to256BitString(creationId.toString())));
+      const creation = getComponentValueStrict(CreationRegistry, stringToEntity(to256BitString(creationId.toString())));
 
       records.push({
         creation,
@@ -97,6 +98,7 @@ export const TruthTableClassifierResults = ({ layers, classifier }: Props) => {
           {results.map((result, index) => (
             <tr key={"creation-" + index} className="bg-white border-b">
               <th scope="row" className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap">
+                {/* TODO: this needs to be creation metadata */}
                 {result.creation?.name ?? ""}
               </th>
               <td className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap">

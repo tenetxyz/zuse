@@ -1,6 +1,8 @@
 import { Component, ComponentUpdate, createWorld, Entity, isComponentUpdate, Metadata, Schema } from "@latticexyz/recs";
 import { useEffect } from "react";
 import { Subject } from "rxjs";
+import { parseCreation } from "./creation";
+import { parseVoxelType } from "./voxelType";
 
 export interface WorldMetadata {
   worldAddress: string;
@@ -9,12 +11,44 @@ export interface WorldMetadata {
 export type ComponentParser<ComponentRecord> = {
   updateStream$: Subject<ComponentRecord>;
   componentRows: Map<Entity, ComponentRecord>;
+  getRecordStrict: (entityId: Entity) => ComponentRecord;
 };
+
+export function setupComponentParsers(
+  world: Awaited<ReturnType<typeof createWorld>>,
+  registryResult: any,
+  worldAddress: string
+) {
+  const worldMetadata = {
+    worldAddress: worldAddress,
+  } as WorldMetadata;
+
+  const ParsedCreationRegistry = setupComponentParser(
+    world,
+    registryResult.components.CreationRegistry,
+    parseCreation,
+    worldMetadata,
+    "ParsedCreationRegistry"
+  );
+
+  const ParsedVoxelTypeRegistry = setupComponentParser(
+    world,
+    registryResult.components.VoxelTypeRegistry,
+    parseVoxelType,
+    worldMetadata,
+    "ParsedVoxelTypeRegistry"
+  );
+
+  return {
+    ParsedCreationRegistry,
+    ParsedVoxelTypeRegistry,
+  };
+}
 
 // This function returns a componentParser, which contains information about
 // component updates. Why can't we just read these updates from the Components in recs?
 // Cause some components have fields that are encoded (e.g. in bytes). We need to parse these fields!
-export function setupComponentParser<S extends Schema, ComponentRecord>(
+function setupComponentParser<S extends Schema, ComponentRecord>(
   world: Awaited<ReturnType<typeof createWorld>>,
   component: Component<S, Metadata, undefined>,
   parseComponent: (
@@ -26,15 +60,11 @@ export function setupComponentParser<S extends Schema, ComponentRecord>(
         componentRecord: ComponentRecord;
       }
     | undefined,
-  worldMetadata: WorldMetadata
+  worldMetadata: WorldMetadata,
+  parserName: string
 ): ComponentParser<ComponentRecord> {
   const updateStream$ = new Subject<ComponentRecord>();
   const componentRows = new Map<Entity, ComponentRecord>();
-
-  const parsedComponent = {
-    updateStream$,
-    componentRows,
-  };
 
   const subscription = component.update$.subscribe((update) => {
     if (isComponentUpdate(update, component)) {
@@ -50,6 +80,20 @@ export function setupComponentParser<S extends Schema, ComponentRecord>(
     }
   });
   world.registerDisposer(() => subscription.unsubscribe());
+
+  const getRecordStrict = (entityId: Entity): ComponentRecord => {
+    const record = componentRows.get(entityId);
+    if (record === undefined) {
+      throw `[${parserName}] cannot getRecordStrict for entityId=${entityId}`;
+    }
+    return record;
+  };
+
+  const parsedComponent = {
+    updateStream$,
+    componentRows,
+    getRecordStrict,
+  };
   return parsedComponent;
 }
 

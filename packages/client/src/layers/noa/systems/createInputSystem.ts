@@ -87,8 +87,7 @@ export function createInputSystem(layers: Layers) {
       streams: { playerPosition$ },
     },
     network: {
-      parsedComponents: { ParsedCreationRegistry },
-      registryComponents: { VoxelTypeRegistry },
+      parsedComponents: { ParsedCreationRegistry, ParsedVoxelTypeRegistry },
       network: {
         connectedAddress,
         config: { blockExplorer },
@@ -318,7 +317,7 @@ export function createInputSystem(layers: Layers) {
   });
 
   function closeInventory() {
-    setComponent(FocusedUi, SingletonEntity, { value: FocusedUiType.WORLD });
+    setComponent(FocusedUi, SingletonEntity, { value: FocusedUiType.WORLD as any });
   }
 
   function openInventory() {
@@ -334,7 +333,7 @@ export function createInputSystem(layers: Layers) {
     });
     noa.blockTestDistance = DEFAULT_BLOCK_TEST_DISTANCE; // reset block test distance
 
-    setComponent(FocusedUi, SingletonEntity, { value: FocusedUiType.INVENTORY });
+    setComponent(FocusedUi, SingletonEntity, { value: FocusedUiType.INVENTORY as any });
   }
 
   // bindInputEvent("stake", "X");
@@ -468,7 +467,7 @@ export function createInputSystem(layers: Layers) {
     // @ts-nocheck
     const { corner1, corner2 } = calculateCornersFromTargetedBlock(
       noa,
-      VoxelTypeRegistry,
+      ParsedVoxelTypeRegistry,
       ParsedCreationRegistry,
       creation
     );

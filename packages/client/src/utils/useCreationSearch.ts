@@ -56,7 +56,6 @@ export const useCreationSearch = ({ layers, filters }: Props) => {
     network: {
       parsedComponents: { ParsedCreationRegistry },
       network: { connectedAddress },
-      worldAddress,
     },
   } = layers;
 

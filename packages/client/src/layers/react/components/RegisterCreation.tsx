@@ -48,8 +48,7 @@ const RegisterCreation: React.FC<Props> = ({ layers, formData, setFormData, rese
     },
     network: {
       contractComponents: { OfSpawn, Spawn, Position },
-      registryComponents: { VoxelTypeRegistry },
-      parsedComponents: { ParsedCreationRegistry },
+      parsedComponents: { ParsedVoxelTypeRegistry, ParsedCreationRegistry },
       api: { getEntityAtPosition, registerCreation },
     },
   } = layers;
@@ -108,7 +107,7 @@ const RegisterCreation: React.FC<Props> = ({ layers, formData, setFormData, rese
   // Yes. Since that block was deleted by the second spawn, it will not show up as a voxel of that spawn, so it will still be flagged as deleted
   const findDeletedVoxelCoords = (spawn: any, lowerSouthWestCornerInWorld: VoxelCoord) => {
     const creationVoxelCoords = getVoxelCoordsOfCreation(
-      VoxelTypeRegistry,
+      ParsedVoxelTypeRegistry,
       ParsedCreationRegistry,
       stringToEntity(spawn.creationId),
       getWorldScale(noa)

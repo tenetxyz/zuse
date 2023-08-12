@@ -3,10 +3,10 @@ import { abiDecode } from "@/utils/encodeOrDecode";
 import { Entity, getComponentValue, getComponentValueStrict } from "@latticexyz/recs";
 import { decodeBaseCreations } from "./encodeOrDecode";
 import { Engine } from "noa-engine";
-import { VoxelTypeDesc } from "@/layers/react/components/VoxelTypeStore";
 import { VoxelTypeKeyInMudTable } from "@/layers/noa/types";
 import { ComponentParser } from "@/mud/componentParsers/componentParser";
 import { Creation } from "@/mud/componentParsers/creation";
+import { VoxelTypeDesc } from "@/mud/componentParsers/voxelType";
 
 export const ZERO_VECTOR: VoxelCoord = { x: 0, y: 0, z: 0 };
 
@@ -41,28 +41,28 @@ export function stringToVoxelCoord(coordString: string): VoxelCoord {
 }
 
 export const calculateMinMaxRelativeCoordsOfCreation = (
-  VoxelTypeRegistry: any,
+  ParsedVoxelTypeRegistry: ComponentParser<VoxelTypeDesc>,
   ParsedCreationRegistry: ComponentParser<Creation>,
   creationId: Entity,
   scale: number
 ) => {
-  const relativeVoxelCoords = getVoxelCoordsOfCreation(VoxelTypeRegistry, ParsedCreationRegistry, creationId, scale);
+  const relativeVoxelCoords = getVoxelCoordsOfCreation(
+    ParsedVoxelTypeRegistry,
+    ParsedCreationRegistry,
+    creationId,
+    scale
+  );
   return calculateMinMaxCoords(relativeVoxelCoords);
 };
 
 // TODO: fix the type of Creation:any. Note: I didn't want to pass in "layers" since this function is called a lot, and we'd be dereferencing layers a lot to get Creation
 export const getVoxelCoordsOfCreation = (
-  VoxelTypeRegistry: any,
+  ParsedVoxelTypeRegistry: ComponentParser<VoxelTypeDesc>,
   ParsedCreationRegistry: ComponentParser<Creation>,
   creationId: Entity,
   scale: number
 ): VoxelCoord[] => {
-  // PERF: if users tend to spawn the same creation multiple times we should memoize the creation fetching process
-  const creation = ParsedCreationRegistry.componentRows.get(creationId);
-  if (creation === undefined) {
-    console.warn(`getVoxelCoordsOfCreation cannot find creation for creationId=${creationId}`);
-    return [];
-  }
+  const creation = ParsedCreationRegistry.getRecordStrict(creationId);
 
   // 1) Add the voxel coords from the creation itself
   const voxelCoords = creation.relativePositions;
@@ -74,8 +74,7 @@ export const getVoxelCoordsOfCreation = (
   for (let i = 0; i < voxelCoords.length; i++) {
     const voxelCoord = voxelCoords[i];
     const voxelType = voxelTypes[i];
-    // TODO: replace with strict
-    const voxelTypeDesc = getComponentValueStrict(VoxelTypeRegistry, voxelType.voxelBaseTypeId as Entity);
+    const voxelTypeDesc = ParsedVoxelTypeRegistry.getRecordStrict(voxelType.voxelBaseTypeId as Entity);
     if (voxelTypeDesc.scale === scale) {
       voxelCoordsOnScale.push(voxelCoord);
     }
@@ -86,7 +85,7 @@ export const getVoxelCoordsOfCreation = (
   // 3) add the voxel coords from the base creations
   for (const baseCreation of baseCreations) {
     const baseCreationVoxelCoords = getVoxelCoordsOfCreation(
-      VoxelTypeRegistry,
+      ParsedVoxelTypeRegistry,
       ParsedCreationRegistry,
       baseCreation.creationId,
       scale

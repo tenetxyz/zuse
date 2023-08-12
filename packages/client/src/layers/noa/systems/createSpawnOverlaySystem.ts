@@ -22,8 +22,7 @@ export function createSpawnOverlaySystem(networkLayer: NetworkLayer, noaLayer: N
   const { noa } = noaLayer;
   const {
     contractComponents: { Spawn },
-    registryComponents: { VoxelTypeRegistry },
-    parsedComponents: { ParsedCreationRegistry },
+    parsedComponents: { ParsedVoxelTypeRegistry, ParsedCreationRegistry },
   } = networkLayer;
 
   // I think there's an implicit assumption here that the spawn is done loading.
@@ -73,7 +72,7 @@ export function createSpawnOverlaySystem(networkLayer: NetworkLayer, noaLayer: N
 
     for (const spawn of spawns) {
       const { minCoord, maxCoord } = calculateMinMaxRelativeCoordsOfCreation(
-        VoxelTypeRegistry,
+        ParsedVoxelTypeRegistry,
         ParsedCreationRegistry,
         spawn.creationId,
         scale

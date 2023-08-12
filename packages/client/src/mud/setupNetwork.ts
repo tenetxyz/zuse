@@ -40,7 +40,6 @@ import {
   VoxelVariantIdToDefMap,
   VoxelTypeKey,
   VoxelVariantNoaDef,
-  voxelTypeToEntity,
   VoxelBaseTypeId,
   InterfaceVoxel,
   VoxelVariantTypeId,
@@ -63,8 +62,7 @@ import { getWorldScale, voxelCoordToString } from "../utils/coord";
 import { toast } from "react-toastify";
 import { BaseCreationInWorld } from "../layers/react/components/RegisterCreation";
 import { Engine } from "noa-engine";
-import { setupComponentParser } from "./componentParsers/componentParser";
-import { parseCreation } from "./componentParsers/creation";
+import { setupComponentParsers } from "./componentParsers/componentParser";
 
 export type SetupNetworkResult = Awaited<ReturnType<typeof setupNetwork>>;
 
@@ -835,13 +833,10 @@ export async function setupNetwork() {
     }
   );
 
-  const ParsedCreationRegistry = setupComponentParser(
+  const { ParsedCreationRegistry, ParsedVoxelTypeRegistry } = setupComponentParsers(
     world,
-    registryResult.components.CreationRegistry,
-    parseCreation,
-    {
-      worldAddress: networkConfig.worldAddress,
-    }
+    registryResult,
+    networkConfig.worldAddress
   );
 
   // please don't remove. This is for documentation purposes
@@ -853,6 +848,7 @@ export async function setupNetwork() {
     registryComponents,
     parsedComponents: {
       ParsedCreationRegistry,
+      ParsedVoxelTypeRegistry,
     },
     world,
     worldContract,

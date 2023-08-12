@@ -44,7 +44,7 @@ export type NoaVoxelDef = {
   uvWrap?: string | undefined;
 };
 
-export type VoxelBaseTypeId = string;
+export type VoxelBaseTypeId = string; // TODO: make this an entity?
 export type VoxelVariantTypeId = string;
 
 export type VoxelTypeKeyInMudTable = {

@@ -63,6 +63,8 @@ import { getWorldScale, voxelCoordToString } from "../utils/coord";
 import { toast } from "react-toastify";
 import { BaseCreationInWorld } from "../layers/react/components/RegisterCreation";
 import { Engine } from "noa-engine";
+import { setupComponentParser } from "./componentParsers/componentParser";
+import { parseCreation } from "./componentParsers/creation";
 
 export type SetupNetworkResult = Awaited<ReturnType<typeof setupNetwork>>;
 
@@ -833,6 +835,15 @@ export async function setupNetwork() {
     }
   );
 
+  const ParsedCreationRegistry = setupComponentParser(
+    world,
+    registryResult.components.CreationRegistry,
+    parseCreation,
+    {
+      worldAddress: networkConfig.worldAddress,
+    }
+  );
+
   // please don't remove. This is for documentation purposes
   const internalMudWorldAndStoreComponents = result.components;
 
@@ -840,6 +851,9 @@ export async function setupNetwork() {
     ...result,
     contractComponents,
     registryComponents,
+    parsedComponents: {
+      ParsedCreationRegistry,
+    },
     world,
     worldContract,
     actions,

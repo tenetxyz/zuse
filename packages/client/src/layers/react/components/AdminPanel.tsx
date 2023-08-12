@@ -17,7 +17,7 @@ export function registerAdminPanel() {
           SingletonEntity,
         },
         network: {
-          contractComponents: { VoxelTypeRegistry },
+          registryComponents: { VoxelTypeRegistry },
         },
       } = layers;
 

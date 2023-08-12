@@ -1,5 +1,4 @@
 import { Slot } from "./common";
-import { Entity, getComponentValue, getEntitiesWithValue } from "@latticexyz/recs";
 import { Layers } from "../../../types";
 import { range } from "@latticexyz/utils";
 import styled from "styled-components";
@@ -21,6 +20,7 @@ import {
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faFilter } from "@fortawesome/free-solid-svg-icons";
 import { Button } from "@/components/ui/button";
+import { VoxelTypeDesc } from "@/mud/componentParsers/voxelType";
 
 export interface VoxelTypeStoreFilters {
   query: string;
@@ -46,8 +46,7 @@ export const VoxelTypeStore: React.FC<Props> = ({ layers, filters = { query: "",
     noa: { noa },
   } = layers;
 
-  // const { voxelTypesToDisplay } = useVoxelTypeSearch({ layers, filters, scale: filters.scale !== null ? filters.scale : undefined });
-  const { voxelTypesToDisplay } = useVoxelTypeSearch({ layers, filters, scale: filters.scale });
+  const { voxelTypesToDisplay } = useVoxelTypeSearch({ layers, filters });
 
   const ScaleBar: React.FC<{ value: number | null; onChange: (val: string) => void }> = ({ value, onChange }) => {
     return (

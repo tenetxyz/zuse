@@ -317,7 +317,7 @@ export function createInputSystem(layers: Layers) {
   });
 
   function closeInventory() {
-    setComponent(FocusedUi, SingletonEntity, { value: FocusedUiType.WORLD });
+    setComponent(FocusedUi, SingletonEntity, { value: FocusedUiType.WORLD as any });
   }
 
   function openInventory() {
@@ -333,7 +333,7 @@ export function createInputSystem(layers: Layers) {
     });
     noa.blockTestDistance = DEFAULT_BLOCK_TEST_DISTANCE; // reset block test distance
 
-    setComponent(FocusedUi, SingletonEntity, { value: FocusedUiType.INVENTORY });
+    setComponent(FocusedUi, SingletonEntity, { value: FocusedUiType.INVENTORY as any });
   }
 
   // bindInputEvent("stake", "X");

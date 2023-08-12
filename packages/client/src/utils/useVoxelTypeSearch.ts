@@ -2,12 +2,10 @@
 // when searching through the creative inventory
 import React, { useEffect } from "react";
 import Fuse from "fuse.js";
-import { useComponentUpdate } from "./useComponentUpdate";
-import { ComponentRecord, Layers } from "../types";
-import { getComponentValue, Entity } from "@latticexyz/recs";
+import { Layers } from "../types";
 import { VoxelTypeStoreFilters } from "../layers/react/components/VoxelTypeStore";
-import { parseCreationMetadata } from "./useCreationSearch";
 import { VoxelTypeDesc } from "@/mud/componentParsers/voxelType";
+import { useParsedComponentUpdate } from "@/mud/componentParsers/componentParser";
 
 export interface Props {
   layers: Layers;
@@ -21,8 +19,7 @@ export interface CreativeInventorySearch {
 export const useVoxelTypeSearch = ({ layers, filters }: Props) => {
   const {
     network: {
-      registryComponents: { VoxelTypeRegistry },
-      worldAddress,
+      parsedComponents: { ParsedVoxelTypeRegistry },
     },
   } = layers;
 
@@ -32,50 +29,28 @@ export const useVoxelTypeSearch = ({ layers, filters }: Props) => {
   const fuse = React.useRef<Fuse<VoxelTypeDesc>>();
 
   // PERF: this refetches all voxelTypes when any voxelType is updated. we should only fetch once? or just read all the values of the component when we first load the page?
-  useComponentUpdate(VoxelTypeRegistry, () => {
-    const allVoxelTypesInRegistry = [...VoxelTypeRegistry.entities()];
-    const voxelTypes = new Map<Entity, ComponentRecord<typeof VoxelTypeRegistry>>();
-    for (const voxelType of allVoxelTypesInRegistry) {
-      const voxelTypeRecord = getComponentValue(VoxelTypeRegistry, voxelType);
-      if (!voxelTypeRecord) {
-        console.warn(`cannot find voxelTypeRecord for ${voxelType}`);
-        continue;
-      }
-      const { creator, name, description, numSpawns } = parseCreationMetadata(voxelTypeRecord.metadata, worldAddress);
-      voxelTypeRecord.creator = creator;
-      voxelTypeRecord.name = name;
-      voxelTypeRecord.description = description;
-      voxelTypeRecord.numSpawns = numSpawns;
-      voxelTypes.set(voxelType, voxelTypeRecord);
-    }
-    allVoxelTypes.current = Array.from(voxelTypes.entries())
-      .filter(([_, voxelTypeRecord]) => voxelTypeRecord !== undefined && !voxelTypeRecord.name.includes("Air"))
-      .map(([voxelTypeId, voxelTypeRecord]) => {
-        return {
-          name: voxelTypeRecord!.name,
-          voxelBaseTypeId: voxelTypeId as Entity,
-          previewVoxelVariantId: voxelTypeRecord!.previewVoxelVariantId,
-          numSpawns: voxelTypeRecord!.numSpawns,
-          creator: voxelTypeRecord!.creator,
-          scale: voxelTypeRecord!.scale,
-          childVoxelTypeIds: voxelTypeRecord!.childVoxelTypeIds,
-        } as VoxelTypeDesc;
-      });
+  useParsedComponentUpdate<VoxelTypeDesc>(
+    ParsedVoxelTypeRegistry,
+    (update, componentRows) => {
+      allVoxelTypes.current = Array.from(componentRows.values())
+        .filter((voxelTypeRecord) => !voxelTypeRecord.name.includes("Air"))
+        .sort((a, b) => {
+          // TODO: consolidate this sort function
+          if (a.numSpawns > b.numSpawns) {
+            return -1;
+          } else if (a.numSpawns < b.numSpawns) {
+            return 1;
+          } else {
+            return 0;
+          }
+        });
 
-    allVoxelTypes.current = allVoxelTypes.current.sort((a, b) => {
-      if (a.numSpawns > b.numSpawns) {
-        return -1;
-      } else if (a.numSpawns < b.numSpawns) {
-        return 1;
-      } else {
-        return 0;
-      }
-    });
-
-    // After we have parsed all the voxeltypes, apply the voxeltype
-    // filters to narrow down the voxeltypes that will be displayed.
-    applyFilters();
-  });
+      // After we have parsed all the voxeltypes, apply the voxeltype
+      // filters to narrow down the voxeltypes that will be displayed.
+      applyFilters();
+    },
+    true
+  );
 
   const applyFilters = () => {
     // TODO: add filters for the search

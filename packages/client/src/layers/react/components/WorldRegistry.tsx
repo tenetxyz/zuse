@@ -3,17 +3,16 @@ import { Layers } from "../../../types";
 import { SearchBar } from "./common/SearchBar";
 import { useWorldRegistrySearch } from "@/utils/useWorldRegistrySearch";
 import { to40CharAddress } from "@/utils/entity";
-import { VoxelTypeDesc } from "./VoxelTypeStore";
 import { VoxelBaseTypeId } from "@/layers/noa/types";
 import { useState, useRef } from "react";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { CardStackMinusIcon } from "@radix-ui/react-icons";
 import { Button } from "@/components/ui/button";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { CaretSortIcon } from "@radix-ui/react-icons";
 import { Separator } from "@/components/ui/separator";
 import { setUrlParam } from "@/utils/url";
+import { VoxelTypeDesc } from "@/mud/componentParsers/voxelType";
+import { useParsedComponentUpdate } from "@/mud/componentParsers/componentParser";
 
 type CaAddress = string;
 export interface WorldRegistryFilters {
@@ -48,7 +47,8 @@ interface Props {
 export const WorldRegistry = ({ layers, filters, setFilters }: Props) => {
   const {
     network: {
-      registryComponents: { CARegistry, VoxelTypeRegistry },
+      registryComponents: { CARegistry },
+      parsedComponents: { ParsedVoxelTypeRegistry },
       getVoxelIconUrl,
     },
   } = layers;
@@ -76,23 +76,16 @@ export const WorldRegistry = ({ layers, filters, setFilters }: Props) => {
     } as CaDesc);
   });
 
-  useComponentUpdate(VoxelTypeRegistry, (update) => {
-    const voxelTypeDesc = update.value[0];
-    if (!voxelTypeDesc) {
-      console.warn(`cannot find values for ${update.entity}`);
-      return;
-    }
-    const voxelBaseTypeId = update.entity;
-    voxelTypeDescs.current.set(voxelBaseTypeId, {
-      voxelBaseTypeId,
-      name: voxelTypeDesc.name,
-      previewVoxelVariantId: voxelTypeDesc.previewVoxelVariantId,
-      numSpawns: voxelTypeDesc.numSpawns,
-      creator: voxelTypeDesc.creator,
-      scale: voxelTypeDesc.scale,
-      childVoxelTypeIds: voxelTypeDesc.childVoxelTypeIds,
-    } as VoxelTypeDesc);
-  });
+  useParsedComponentUpdate(
+    ParsedVoxelTypeRegistry,
+    (update, componentRows) => {
+      if (update === undefined) {
+        return;
+      }
+      voxelTypeDescs.current.set(update.voxelBaseTypeId, update);
+    },
+    true
+  );
 
   return (
     <div className="flex flex-col p-4">

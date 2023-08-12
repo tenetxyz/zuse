@@ -1,7 +1,5 @@
-import { Layers } from "@/types";
 import { CaDesc, CaDescs, VoxelTypeDescs, WorldDesc } from "./WorldRegistry";
 import { Ref } from "@/utils/types";
-import { VoxelTypeDesc } from "./VoxelTypeStore";
 
 interface Props {
   worldDesc: WorldDesc;

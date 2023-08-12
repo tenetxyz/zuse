@@ -29,7 +29,7 @@ export function parseVoxelType<S extends Schema>(update: ComponentUpdate<S, unde
   const voxelTypeDesc = {
     name,
     description,
-    voxelBaseTypeId: rawVoxelType.voxelBaseTypeId,
+    voxelBaseTypeId: rawVoxelType.baseVoxelTypeId,
     previewVoxelVariantId: rawVoxelType.previewVoxelVariantId,
     numSpawns,
     creator,

@@ -18,7 +18,7 @@ export function createSpawnCreationOverlaySystem(network: NetworkLayer, noaLayer
     noa,
   } = noaLayer;
   const {
-    parsedComponents: { ParsedCreationRegistry },
+    parsedComponents: { ParsedVoxelTypeRegistry, ParsedCreationRegistry },
   } = network;
 
   let creationToSpawn: Creation | undefined;

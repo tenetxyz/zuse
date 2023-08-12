@@ -40,7 +40,6 @@ import {
   VoxelVariantIdToDefMap,
   VoxelTypeKey,
   VoxelVariantNoaDef,
-  voxelTypeToEntity,
   VoxelBaseTypeId,
   InterfaceVoxel,
   VoxelVariantTypeId,

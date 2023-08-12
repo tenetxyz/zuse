@@ -3,7 +3,7 @@ import { ComponentRecord, Layers } from "../../../types";
 import { getComponentValue, removeComponent, setComponent } from "@latticexyz/recs";
 import { CreationStoreFilters } from "./CreationStore";
 import { useComponentValue } from "@latticexyz/react";
-import { EMPTY_VOXEL_ENTITY, InterfaceVoxel, VoxelEntity } from "../../noa/types";
+import { EMPTY_VOXEL_ENTITY, InterfaceVoxel, VoxelEntity, voxelEntityIsEmptyVoxel } from "../../noa/types";
 import { voxelCoordToString } from "../../../utils/coord";
 import { Classifier } from "./ClassifierStore";
 import { twMerge } from "tailwind-merge";
@@ -96,10 +96,11 @@ const ClassifierDetails: React.FC<Props> = ({ layers, selectedClassifier }: Prop
         )}
         <div className="flex flex-col gap-5">
           {selectedClassifier.selectorInterface.map((interfaceVoxel, idx) => {
+            console.log("interface voxel", interfaceVoxel);
             let selectedVoxel: VoxelEntity | undefined = undefined;
             if (voxelSelection && voxelSelection.interfaceVoxels) {
               selectedVoxel = voxelSelection.interfaceVoxels[interfaceVoxel.index]?.entity;
-              if (selectedVoxel === EMPTY_VOXEL_ENTITY) {
+              if (!selectedVoxel || voxelEntityIsEmptyVoxel(selectedVoxel)) {
                 selectedVoxel = undefined;
               }
             }
@@ -199,7 +200,7 @@ const ClassifierDetails: React.FC<Props> = ({ layers, selectedClassifier }: Prop
 
       for (let i = 0; i < voxelSelection.interfaceVoxels.length; i++) {
         const interfaceVoxel = voxelSelection.interfaceVoxels[i];
-        if (interfaceVoxel.entity === EMPTY_VOXEL_ENTITY) {
+        if (voxelEntityIsEmptyVoxel(interfaceVoxel.entity)) {
           return true;
         }
       }

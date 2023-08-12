@@ -21,7 +21,7 @@ interface ClassifierResult {
 export const ClassifierResults = ({ layers, classifier }: Props) => {
   const {
     network: {
-      registryComponents: { CreationRegistry },
+      parsedComponents: { ParsedCreationRegistry },
     },
   } = layers;
   //   useObservableValue(cacheStore$);
@@ -64,7 +64,9 @@ export const ClassifierResults = ({ layers, classifier }: Props) => {
       .map(([cacheStoreKey, record]) => {
         const [_componentIndex, entityIndex] = unpackTuple(cacheStoreKey);
         const creationId = storeEvent.current.entities[entityIndex];
-        const creation = getComponentValue(CreationRegistry, stringToEntity(to256BitString(creationId.toString())));
+        const creation = ParsedCreationRegistry.componentRows.get(
+          stringToEntity(to256BitString(creationId.toString()))
+        );
         return {
           creation,
           record: JSON.parse(record as string), // TODO: Need to test this with a table having a BigInt, eg. a hash

@@ -6,7 +6,7 @@ export interface WorldMetadata {
   worldAddress: string;
 }
 
-type ComponentParser<ComponentRecord> = {
+export type ComponentParser<ComponentRecord> = {
   updateStream$: Subject<ComponentRecord>;
   componentRows: Map<Entity, ComponentRecord>;
 };

@@ -14,7 +14,7 @@ const CreationDetails: React.FC<Props> = ({ layers, selectedCreation }: Props) =
   const {
     network: {
       getVoxelIconUrl,
-      registryComponents: { CreationRegistry },
+      parsedComponents: { ParsedCreationRegistry },
     },
   } = layers;
   if (selectedCreation === null) {
@@ -48,10 +48,10 @@ const CreationDetails: React.FC<Props> = ({ layers, selectedCreation }: Props) =
         <h2 className="text-l font-bold mb-5">Base Creations:</h2>
         <div className="flex">
           {selectedCreation.baseCreations.map((baseCreation, idx) => {
-            const childCreation = getComponentValueStrict(CreationRegistry, baseCreation.creationId);
+            const childCreation = ParsedCreationRegistry.componentRows.get(baseCreation.creationId);
             return (
               <div key={"creation-base-creation-" + idx} className="text-slate-700 p-1 w-fit">
-                {childCreation.name} at {voxelCoordToString(baseCreation.coordOffset)}
+                {childCreation?.name} at {voxelCoordToString(baseCreation.coordOffset)}
               </div>
             );
           })}

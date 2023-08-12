@@ -48,7 +48,8 @@ const RegisterCreation: React.FC<Props> = ({ layers, formData, setFormData, rese
     },
     network: {
       contractComponents: { OfSpawn, Spawn, Position },
-      registryComponents: { VoxelTypeRegistry, CreationRegistry },
+      registryComponents: { VoxelTypeRegistry },
+      parsedComponents: { ParsedCreationRegistry },
       api: { getEntityAtPosition, registerCreation },
     },
   } = layers;
@@ -108,7 +109,7 @@ const RegisterCreation: React.FC<Props> = ({ layers, formData, setFormData, rese
   const findDeletedVoxelCoords = (spawn: any, lowerSouthWestCornerInWorld: VoxelCoord) => {
     const creationVoxelCoords = getVoxelCoordsOfCreation(
       VoxelTypeRegistry,
-      CreationRegistry,
+      ParsedCreationRegistry,
       stringToEntity(spawn.creationId),
       getWorldScale(noa)
     );

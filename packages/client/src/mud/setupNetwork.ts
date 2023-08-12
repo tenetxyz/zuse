@@ -23,11 +23,8 @@ import { encodeEntity, syncToRecs, SyncStep, singletonEntity } from "@latticexyz
 import { createBurnerAccount, createContract, transportObserver } from "@latticexyz/common";
 import { createFaucetService, createRelayStream, SyncState } from "@latticexyz/network";
 import { getNetworkConfig } from "./getNetworkConfig";
-import { defineContractComponents } from "./contractComponents";
-import { defineContractComponents as defineRegistryContractComponents } from "@tenetxyz/registry/client/contractComponents";
 import { createPerlin } from "@latticexyz/noise";
 import { BigNumber, Contract, Signer, utils } from "ethers";
-import { JsonRpcProvider } from "@ethersproject/providers";
 import { IWorld__factory } from "@tenetxyz/contracts/types/ethers-contracts/factories/IWorld__factory";
 import { IWorld__factory as RegistryIWorld__factory } from "@tenetxyz/registry/types/ethers-contracts/factories/IWorld__factory";
 import { awaitPromise, computedToStream, VoxelCoord, Coord, awaitStreamValue } from "@latticexyz/utils";
@@ -87,13 +84,10 @@ const giveComponentsAHumanReadableId = (contractComponents: any) => {
 
 const setupWorldRegistryNetwork = async (
   world: Awaited<ReturnType<typeof createWorld>>,
-  components: any,
   IWorld__factoryAbi: any,
   storeConfig: any,
   isRegistry: boolean
 ) => {
-  giveComponentsAHumanReadableId(components);
-
   const networkConfig = await getNetworkConfig(isRegistry);
   console.log("Got registry network config", networkConfig);
   // networkConfig.showInDevTools = !isRegistry; // TODO: add back in
@@ -106,13 +100,12 @@ const setupWorldRegistryNetwork = async (
 
   const publicClient = createPublicClient(clientOptions);
 
-  const result = await syncToRecs<typeof storeConfig, typeof components>({
+  const result = await syncToRecs<typeof storeConfig>({
     // networkConfig,
     world,
     config: storeConfig,
     address: networkConfig.worldAddress as Hex,
     publicClient,
-    components: components,
     // syncThread: "worker", // PERF: sync using workers
     // storeConfig: registryStoreConfig,
     // worldAbi: RegistryIWorld__factory.abi,
@@ -132,38 +125,26 @@ const setupWorldRegistryNetwork = async (
   });
 
   console.log("Setup registry MUD V2 network", result);
-  return { components, result, worldContract, networkConfig, burnerWalletClient, publicClient };
+  return { result, worldContract, networkConfig, burnerWalletClient, publicClient };
 };
 
 export async function setupNetwork() {
   const registryWorld = createWorld();
   const {
-    components: registryComponents,
+    // components: registryComponents,
     result: registryResult,
     worldContract: registryContract,
-  } = await setupWorldRegistryNetwork(
-    registryWorld,
-    defineRegistryContractComponents(registryWorld),
-    RegistryIWorld__factory.abi,
-    registryStoreConfig,
-    true
-  ); // load the registry world first so the transactionHash$ stream is subscribed to this world (at least this is what I think. I just know that if you place it after, transactions fail with: "you have the wrong abi" when calling systems)
+  } = await setupWorldRegistryNetwork(registryWorld, RegistryIWorld__factory.abi, registryStoreConfig, true); // load the registry world first so the transactionHash$ stream is subscribed to this world (at least this is what I think. I just know that if you place it after, transactions fail with: "you have the wrong abi" when calling systems)
 
   const world = createWorld();
   const {
-    components: contractComponents,
+    // components: contractComponents,
     result,
     worldContract,
     networkConfig,
     burnerWalletClient,
     publicClient,
-  } = await setupWorldRegistryNetwork(
-    registryWorld,
-    defineRegistryContractComponents(registryWorld),
-    RegistryIWorld__factory.abi,
-    storeConfig,
-    false
-  ); // load the registry world first so the transactionHash$ stream is subscribed to this world (at least this is what I think. I just know that if you place it after, transactions fail with: "you have the wrong abi" when calling systems)
+  } = await setupWorldRegistryNetwork(world, IWorld__factory.abi, storeConfig, false); // load the registry world first so the transactionHash$ stream is subscribed to this world (at least this is what I think. I just know that if you place it after, transactions fail with: "you have the wrong abi" when calling systems)
 
   const playerAddress = burnerWalletClient.account.address; // Not sure what this is compared to burnerWalletClient.getAddresses()
 

@@ -85,3 +85,6 @@ export const EMPTY_VOXEL_ENTITY: VoxelEntity = {
   scale: 0,
   entityId: EMPTY_BYTES_32,
 };
+export const voxelEntityIsEmptyVoxel = (voxelEntity: VoxelEntity): boolean => {
+  return voxelEntity.scale === EMPTY_VOXEL_ENTITY.scale && voxelEntity.entityId === EMPTY_VOXEL_ENTITY.entityId;
+};

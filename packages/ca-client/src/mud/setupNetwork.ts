@@ -6,7 +6,7 @@ import { world } from "./world";
 import { Contract, Signer, utils } from "ethers";
 import { JsonRpcProvider } from "@ethersproject/providers";
 import { IWorld__factory } from "@tenetxyz/level2-ca/types/ethers-contracts/factories/IWorld__factory";
-import { getTableIds } from "@latticexyz/utils";
+import { getTableIds } from "@latticexyz/common/deprecated";
 import storeConfig from "@tenetxyz/level2-ca/mud.config";
 
 export type SetupNetworkResult = Awaited<ReturnType<typeof setupNetwork>>;

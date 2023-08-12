@@ -5,8 +5,9 @@ import Fuse from "fuse.js";
 import { useComponentUpdate } from "./useComponentUpdate";
 import { ComponentRecord, Layers } from "../types";
 import { getComponentValue, Entity } from "@latticexyz/recs";
-import { VoxelTypeStoreFilters, VoxelTypeDesc } from "../layers/react/components/VoxelTypeStore";
-import { parseCreationMetadata, parseMetadata } from "./useCreationSearch";
+import { VoxelTypeStoreFilters } from "../layers/react/components/VoxelTypeStore";
+import { parseCreationMetadata } from "./useCreationSearch";
+import { VoxelTypeDesc } from "@/mud/componentParsers/voxelType";
 
 export interface Props {
   layers: Layers;

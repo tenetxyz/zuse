@@ -35,16 +35,6 @@ interface Props {
 const NUM_COLS = 5;
 const NUM_ROWS = 7;
 
-export interface VoxelTypeDesc {
-  name: string;
-  voxelBaseTypeId: Entity;
-  previewVoxelVariantId: string;
-  numSpawns: BigInt;
-  creator: string;
-  scale: number;
-  childVoxelTypeIds: string[];
-}
-
 export const VoxelTypeStore: React.FC<Props> = ({ layers, filters = { query: "", scale: null }, setFilters }) => {
   const {
     network: {

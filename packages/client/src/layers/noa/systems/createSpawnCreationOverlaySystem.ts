@@ -18,7 +18,6 @@ export function createSpawnCreationOverlaySystem(network: NetworkLayer, noaLayer
     noa,
   } = noaLayer;
   const {
-    registryComponents: { VoxelTypeRegistry },
     parsedComponents: { ParsedCreationRegistry },
   } = network;
 
@@ -53,7 +52,7 @@ export function createSpawnCreationOverlaySystem(network: NetworkLayer, noaLayer
   const renderCreationOutline = (creation: Creation) => {
     const { corner1, corner2 } = calculateCornersFromTargetedBlock(
       noa,
-      VoxelTypeRegistry,
+      ParsedVoxelTypeRegistry,
       ParsedCreationRegistry,
       creation
     );
@@ -64,7 +63,7 @@ export function createSpawnCreationOverlaySystem(network: NetworkLayer, noaLayer
 
 export const calculateCornersFromTargetedBlock = (
   noa: Engine,
-  VoxelTypeRegistry: any,
+  ParsedVoxelTypeRegistry: any,
   ParsedCreationRegistry: ComponentParser<Creation>,
   creation: Creation
 ) => {
@@ -74,7 +73,7 @@ export const calculateCornersFromTargetedBlock = (
   } = noa.targetedBlock!;
 
   const { minCoord, maxCoord } = calculateMinMaxRelativeCoordsOfCreation(
-    VoxelTypeRegistry,
+    ParsedVoxelTypeRegistry,
     ParsedCreationRegistry,
     creation.creationId,
     getWorldScale(noa)

@@ -87,8 +87,7 @@ export function createInputSystem(layers: Layers) {
       streams: { playerPosition$ },
     },
     network: {
-      parsedComponents: { ParsedCreationRegistry },
-      registryComponents: { VoxelTypeRegistry },
+      parsedComponents: { ParsedCreationRegistry, ParsedVoxelTypeRegistry },
       network: {
         connectedAddress,
         config: { blockExplorer },
@@ -468,7 +467,7 @@ export function createInputSystem(layers: Layers) {
     // @ts-nocheck
     const { corner1, corner2 } = calculateCornersFromTargetedBlock(
       noa,
-      VoxelTypeRegistry,
+      ParsedVoxelTypeRegistry,
       ParsedCreationRegistry,
       creation
     );

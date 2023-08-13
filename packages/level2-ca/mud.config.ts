@@ -7,6 +7,26 @@ export default mudConfig({
     BlockDirection: ["None", "North", "South", "East", "West", "NorthEast", "NorthWest", "SouthEast", "SouthWest"],
   },
   tables: {
+    CAEntityMapping: {
+      registerAsRoot: true,
+      keySchema: {
+        callerAddress: "address",
+        entity: "bytes32",
+      },
+      schema: {
+        caEntity: "bytes32",
+      },
+    },
+    CAEntityReverseMapping: {
+      registerAsRoot: true,
+      keySchema: {
+        caEntity: "bytes32",
+      },
+      schema: {
+        callerAddress: "address",
+        entity: "bytes32",
+      },
+    },
     CAPosition: {
       registerAsRoot: true,
       keySchema: {
@@ -52,6 +72,11 @@ export default mudConfig({
   },
   modules: [
     {
+      name: "UniqueEntityModule",
+      root: true,
+      args: [],
+    },
+    {
       name: "KeysWithValueModule",
       root: true,
       args: [resolveTableId("CAPosition")],
@@ -65,6 +90,16 @@ export default mudConfig({
       name: "KeysInTableModule",
       root: true,
       args: [resolveTableId("CAVoxelType")],
+    },
+    {
+      name: "KeysInTableModule",
+      root: true,
+      args: [resolveTableId("CAEntityMapping")],
+    },
+    {
+      name: "KeysInTableModule",
+      root: true,
+      args: [resolveTableId("CAEntityReverseMapping")],
     },
   ],
 });

@@ -11,10 +11,11 @@ import { CAPosition, CAPositionData, CAPositionTableId } from "@tenet-base-ca/sr
 import { CAEntityMapping, CAEntityMappingTableId } from "@tenet-base-ca/src/codegen/tables/CAEntityMapping.sol";
 import { CAEntityReverseMapping } from "@tenet-base-ca/src/codegen/tables/CAEntityReverseMapping.sol";
 import { CAVoxelType, CAVoxelTypeTableId } from "@tenet-base-ca/src/codegen/tables/CAVoxelType.sol";
-import { VoxelCoord } from "@tenet-utils/src/Types.sol";
+import { VoxelCoord, InteractionSelector } from "@tenet-utils/src/Types.sol";
 import { getEntityAtCoord, entityArrayToCAEntityArray, entityToCAEntity, caEntityArrayToEntityArray } from "@tenet-base-ca/src/Utils.sol";
 import { getNeighbourEntitiesFromCaller, getChildEntitiesFromCaller, getParentEntityFromCaller } from "@tenet-base-ca/src/CallUtils.sol";
 import { safeCall, safeStaticCall } from "@tenet-utils/src/CallUtils.sol";
+import { getEnterWorldSelector, getExitWorldSelector, getVoxelVariantSelector, getActivateSelector, getInteractionSelectors } from "@tenet-registry/src/Utils.sol";
 
 abstract contract CA is System {
   function getRegistryAddress() internal pure virtual returns (address);
@@ -50,7 +51,7 @@ abstract contract CA is System {
     if (baseVoxelTypeId != voxelTypeId) {
       voxelEnterWorld(baseVoxelTypeId, coord, caEntity); // recursive, so we get the entire stack of russian dolls
     }
-    bytes4 voxelEnterWorldSelector = VoxelTypeRegistry.getEnterWorldSelector(IStore(getRegistryAddress()), voxelTypeId);
+    bytes4 voxelEnterWorldSelector = getEnterWorldSelector(IStore(getRegistryAddress()), voxelTypeId);
     safeCall(_world(), abi.encodeWithSelector(voxelEnterWorldSelector, coord, caEntity), "voxel enter world");
   }
 
@@ -97,7 +98,7 @@ abstract contract CA is System {
     bytes32[] memory childEntityIds,
     bytes32 parentEntity
   ) public returns (bytes32) {
-    bytes4 voxelVariantSelector = VoxelTypeRegistry.getVoxelVariantSelector(IStore(getRegistryAddress()), voxelTypeId);
+    bytes4 voxelVariantSelector = getVoxelVariantSelector(IStore(getRegistryAddress()), voxelTypeId);
     bytes memory returnData = safeStaticCall(
       _world(),
       abi.encodeWithSelector(voxelVariantSelector, caEntity, caNeighbourEntityIds, childEntityIds, parentEntity),
@@ -107,7 +108,7 @@ abstract contract CA is System {
   }
 
   function voxelExitWorld(bytes32 voxelTypeId, VoxelCoord memory coord, bytes32 caEntity) internal {
-    bytes4 voxelExitWorldSelector = VoxelTypeRegistry.getExitWorldSelector(IStore(getRegistryAddress()), voxelTypeId);
+    bytes4 voxelExitWorldSelector = getExitWorldSelector(IStore(getRegistryAddress()), voxelTypeId);
     safeCall(_world(), abi.encodeWithSelector(voxelExitWorldSelector, coord, caEntity), "voxel exit world");
 
     bytes32 baseVoxelTypeId = VoxelTypeRegistry.getBaseVoxelTypeId(IStore(getRegistryAddress()), voxelTypeId);
@@ -261,7 +262,11 @@ abstract contract CA is System {
         }
       }
     }
-    bytes4 interactionSelector = VoxelTypeRegistry.getInteractionSelector(IStore(getRegistryAddress()), voxelTypeId);
+    InteractionSelector[] memory interactionSelectors = getInteractionSelectors(
+      IStore(getRegistryAddress()),
+      voxelTypeId
+    );
+    bytes4 interactionSelector = interactionSelectors[0].interactionSelector;
     bytes memory returnData = safeCall(
       _world(),
       abi.encodeWithSelector(interactionSelector, caInteractEntity, caNeighbourEntityIds, childEntityIds, parentEntity),
@@ -370,7 +375,7 @@ abstract contract CA is System {
   function activateVoxel(bytes32 entity) public returns (string memory) {
     address callerAddress = _msgSender();
     bytes32 voxelTypeId = CAVoxelType.getVoxelTypeId(callerAddress, entity);
-    bytes4 voxelActivateSelector = VoxelTypeRegistry.getActivateSelector(IStore(getRegistryAddress()), voxelTypeId);
+    bytes4 voxelActivateSelector = getActivateSelector(IStore(getRegistryAddress()), voxelTypeId);
     bytes32 caEntity = entityToCAEntity(callerAddress, entity);
     bytes memory returnData = safeCall(
       _world(),

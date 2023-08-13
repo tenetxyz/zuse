@@ -44,11 +44,7 @@ export default mudConfig({
         scale: "uint32",
         previewVoxelVariantId: "bytes32",
         baseVoxelTypeId: "bytes32",
-        enterWorldSelector: "bytes4",
-        exitWorldSelector: "bytes4",
-        voxelVariantSelector: "bytes4",
-        activateSelector: "bytes4",
-        interactionSelector: "bytes4",
+        selectors: "bytes", // VoxelSelectors
         metadata: "bytes", // CreationMetadata
         childVoxelTypeIds: "bytes32[]",
         schemaVoxelTypeIds: "bytes32[]", // This is used when a child is built to figure out if the parent should be built. We can't juse use childVoxelTypeIds, because the child entities may move

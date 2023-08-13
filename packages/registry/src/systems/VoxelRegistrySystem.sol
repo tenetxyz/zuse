@@ -6,7 +6,7 @@ import { getKeysInTable } from "@latticexyz/world/src/modules/keysintable/getKey
 import { System } from "@latticexyz/world/src/System.sol";
 import { WorldRegistryTableId, WorldRegistry, VoxelTypeRegistry, VoxelTypeRegistryData, VoxelTypeRegistryTableId, VoxelVariantsRegistry, VoxelVariantsRegistryData, VoxelVariantsRegistryTableId } from "../codegen/Tables.sol";
 import { entityArraysAreEqual } from "@tenet-utils/src/Utils.sol";
-import { CreationMetadata, CreationSpawns } from "@tenet-utils/src/Types.sol";
+import { CreationMetadata, CreationSpawns, VoxelSelectors } from "@tenet-utils/src/Types.sol";
 
 contract VoxelRegistrySystem is System {
   function registerVoxelType(
@@ -16,11 +16,7 @@ contract VoxelRegistrySystem is System {
     bytes32[] memory childVoxelTypeIds,
     bytes32[] memory schemaVoxelTypeIds,
     bytes32 previewVoxelVariantId,
-    bytes4 enterWorldSelector,
-    bytes4 exitWorldSelector,
-    bytes4 voxelVariantSelector,
-    bytes4 activateSelector,
-    bytes4 interactionSelector
+    VoxelSelectors memory voxelSelectors
   ) public {
     require(
       !hasKey(VoxelTypeRegistryTableId, VoxelTypeRegistry.encodeKeyTuple(voxelTypeId)),
@@ -100,14 +96,10 @@ contract VoxelRegistrySystem is System {
       );
     }
 
-    // TODO: add checks on selectors
     VoxelTypeRegistryData memory voxelTypeData;
     voxelTypeData.baseVoxelTypeId = baseVoxelTypeId;
-    voxelTypeData.enterWorldSelector = enterWorldSelector;
-    voxelTypeData.exitWorldSelector = exitWorldSelector;
-    voxelTypeData.voxelVariantSelector = voxelVariantSelector;
-    voxelTypeData.activateSelector = activateSelector;
-    voxelTypeData.interactionSelector = interactionSelector;
+    // TODO: add checks on selectors
+    voxelTypeData.selectors = abi.encode(voxelSelectors);
     voxelTypeData.childVoxelTypeIds = childVoxelTypeIds;
     voxelTypeData.schemaVoxelTypeIds = schemaVoxelTypeIds;
     voxelTypeData.previewVoxelVariantId = previewVoxelVariantId;

@@ -1,9 +1,11 @@
 import React from "react";
 import { Layers } from "../../../types";
-import { Creation } from "./CreationStore";
-import { getComponentValueStrict } from "@latticexyz/recs";
+import { Entity, getComponentValueStrict } from "@latticexyz/recs";
 import { voxelCoordToString } from "../../../utils/coord";
 import { Separator } from "@radix-ui/react-dropdown-menu";
+import { Creation } from "@/mud/componentParsers/creation";
+import { Slot } from "./common";
+import { VoxelTypeKey } from "@/layers/noa/types";
 
 interface Props {
   layers: Layers;
@@ -14,26 +16,53 @@ const CreationDetails: React.FC<Props> = ({ layers, selectedCreation }: Props) =
   const {
     network: {
       getVoxelIconUrl,
-      parsedComponents: { ParsedCreationRegistry },
+      parsedComponents: { ParsedCreationRegistry, ParsedVoxelTypeRegistry },
     },
   } = layers;
   if (selectedCreation === null) {
     return null;
   }
 
+  interface VoxelCount {
+    voxelTypeKey: VoxelTypeKey;
+    count: number;
+  }
+
   const renderVoxelTypes = () => {
-    const uniqueVoxelTypes = selectedCreation.voxelTypes.filter(
-      (voxelType, index, self) => index === self.findIndex((t) => t.voxelVariantTypeId === voxelType.voxelVariantTypeId)
+    const uniqueVoxelTypesWithCount = selectedCreation.voxelTypes.reduce(
+      (acc: VoxelCount[], voxelTypeKey: VoxelTypeKey) => {
+        // Find the existing unique object in the accumulator array
+        const found = acc.find((item) => item.voxelTypeKey.voxelVariantTypeId === voxelTypeKey.voxelVariantTypeId);
+
+        if (found) {
+          // Increment the count of the existing unique object
+          found.count += 1;
+        } else {
+          // Add a new unique object with a count of 1
+          acc.push({ voxelTypeKey, count: 1 });
+        }
+
+        return acc;
+      },
+      []
     );
+
     return (
       <div className="flex flex-col">
         <h2 className="text-l font-bold mb-5">Constructed With:</h2>
         <div className="flex">
-          {uniqueVoxelTypes.map((voxelType, idx) => {
-            const iconUrl = getVoxelIconUrl(voxelType.voxelVariantTypeId);
+          {uniqueVoxelTypesWithCount.map(({ voxelTypeKey, count }, idx) => {
+            const iconUrl = getVoxelIconUrl(voxelTypeKey.voxelVariantTypeId);
+            const voxelTypeDesc = ParsedVoxelTypeRegistry.getRecordStrict(voxelTypeKey.voxelBaseTypeId as Entity);
             return (
               <div key={"creation-voxel-" + idx} className="p-1 w-fit border rounded border-slate-700">
-                <img src={iconUrl} className="w-[32px] h-[32px]" />
+                <Slot
+                  voxelType={voxelTypeKey.voxelBaseTypeId as Entity}
+                  iconUrl={iconUrl}
+                  slotSize={64}
+                  quantity={count}
+                  tooltipText={<p>{voxelTypeDesc.name}</p>}
+                />
               </div>
             );
           })}

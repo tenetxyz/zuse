@@ -14,32 +14,32 @@ export const Slot: React.FC<{
   disabled?: boolean;
   iconUrl?: string;
   tooltipText?: React.ReactNode;
-  slotSize?: string;
+  slotSize?: number;
 }> = ({ voxelType, quantity, onClick, onRightClick, selected, disabled, iconUrl, tooltipText, slotSize }) => {
   return (
     <AbsoluteBorder borderColor={"transparent"} borderWidth={2}>
       <TooltipContainer>
         {/* <Border borderColor={"transparent"}>
           <Border borderColor={"transparent"}> */}
-            <Border borderColor={"transparent"}>
-              <Inner
-                onClick={onClick}
-                disabled={false}
-                selected={selected}
-                onContextMenu={(event: React.MouseEvent<HTMLDivElement>) => {
-                  event.preventDefault(); // Prevent the default browser context menu from showing up
-                  onRightClick && onRightClick();
-                }}
-                slotSize={slotSize || "64px"}
-              >
-                {voxelType ? (
-                  <VoxelIcon iconUrl={iconUrl ? iconUrl : ""} scale={4}>
-                    {quantity !== null ? <Quantity>{quantity}</Quantity> : null}
-                  </VoxelIcon>
-                ) : null}
-              </Inner>
-            </Border>
-          {/* </Border>
+        <Border borderColor={"transparent"}>
+          <Inner
+            onClick={onClick}
+            disabled={false}
+            selected={selected}
+            onContextMenu={(event: React.MouseEvent<HTMLDivElement>) => {
+              event.preventDefault(); // Prevent the default browser context menu from showing up
+              onRightClick && onRightClick();
+            }}
+            slotSize={`${slotSize || 64}px`}
+          >
+            {voxelType ? (
+              <VoxelIcon iconUrl={iconUrl ? iconUrl : ""} scale={4}>
+                {quantity !== null ? <Quantity scale={4}>{quantity}</Quantity> : null}
+              </VoxelIcon>
+            ) : null}
+          </Inner>
+        </Border>
+        {/* </Border>
         </Border> */}
         {tooltipText !== undefined && <TooltipText>{tooltipText}</TooltipText>}
       </TooltipContainer>
@@ -60,18 +60,14 @@ const Inner = styled.div<{ disabled?: boolean; slotSize: string; selected?: bool
   background-color: rgba(36, 42, 47, 0.8);
   border-radius: 4px;
   transition: box-shadow 0.3s ease;
-  box-shadow: ${(p) => p.selected ? '#C9CACB 0px 0px 20px 5px' : 'none'};
+  box-shadow: ${(p) => (p.selected ? "#C9CACB 0px 0px 20px 5px" : "none")};
   &:hover {
     box-shadow: 0 2px 5px 0 rgba(0, 0, 0, 0.1);
   }
 `;
 
-
-
-
-
-
-const Quantity = styled.div`
+// TODO: scale quantity based on the scale
+const Quantity = styled.div<{ scale: number }>`
   width: 100%;
   height: 100%;
   display: grid;

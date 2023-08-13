@@ -13,6 +13,7 @@ import { FocusedUiType } from "../../noa/components/FocusedUi";
 import { voxelEntityToEntity } from "../../../utils/entity";
 import { TruthTableClassifierResults } from "./TruthTableClassifierResults";
 import { toast } from "react-toastify";
+import { TableInfo } from "./useClassifierSearch";
 
 export interface ClassifierStoreFilters {
   classifierQuery: string;
@@ -27,12 +28,11 @@ interface Props {
 const ClassifierDetails: React.FC<Props> = ({ layers, selectedClassifier }: Props) => {
   const {
     noa: {
-      noa,
       components: { FocusedUi, PersistentNotification, SpawnToClassify, SpawnInFocus, VoxelInterfaceSelection },
       SingletonEntity,
     },
     network: {
-      components: { VoxelType, OfSpawn, Spawn, Position },
+      components: { VoxelType, Position },
       api: { classifyCreation, classifyIfCreationSatisfiesTruthTable },
       getVoxelIconUrl,
     },
@@ -48,7 +48,6 @@ const ClassifierDetails: React.FC<Props> = ({ layers, selectedClassifier }: Prop
     const allInterfaceVoxels =
       voxelSelection?.interfaceVoxels || (selectedClassifier ? selectedClassifier.selectorInterface : undefined);
 
-    console.log("VoxelInterfaceSelection", allInterfaceVoxels);
     setComponent(VoxelInterfaceSelection, SingletonEntity, {
       interfaceVoxels: allInterfaceVoxels,
       selectingVoxelIdx: selectedVoxel.index,
@@ -262,6 +261,15 @@ const ClassifierDetails: React.FC<Props> = ({ layers, selectedClassifier }: Prop
       >
         Submit Creation
       </button>
+      <div>
+        {isClassifierTruthTable && (
+          <div>
+            <p className="mb-8">Truth Table</p>
+            {renderTruthTable(selectedClassifier.truthTableInfo!)}
+          </div>
+        )}
+      </div>
+
       <hr className="h-0.5 bg-gray-300 mt-4 mb-4 border-0" />
       <h3 className="text-xl font-bold text-black">Submissions</h3>
       {isClassifierTruthTable ? (
@@ -269,6 +277,57 @@ const ClassifierDetails: React.FC<Props> = ({ layers, selectedClassifier }: Prop
       ) : (
         <ClassifierResults layers={layers} classifier={selectedClassifier} />
       )}
+    </div>
+  );
+};
+
+const renderTruthTable = (tableInfo: TableInfo) => {
+  const headers = () => {
+    const res = [];
+    for (let i = 0; i < tableInfo.numInputBits; i++) {
+      res.push(
+        <th scope="col" className="px-6 py-3">
+          In{i}
+        </th>
+      );
+    }
+    for (let i = 0; i < tableInfo.numOutputBits; i++) {
+      res.push(
+        <th scope="col" className="px-6 py-3">
+          Out{i}
+        </th>
+      );
+    }
+    return res;
+  };
+
+  const truthTableRow = (rowIdx: number) => {
+    const res = [];
+    const inputRow = tableInfo.inputRows[rowIdx].padStart(tableInfo.numInputBits, "0");
+    const outputRow = tableInfo.outputRows[rowIdx].padStart(tableInfo.numOutputBits, "0");
+    for (let i = 0; i < tableInfo.numInputBits; i++) {
+      res.push(<td className="px-6 py-4 whitespace-nowrap">{inputRow[i]}</td>);
+    }
+    for (let i = 0; i < tableInfo.numOutputBits; i++) {
+      res.push(<td className="px-6 py-4 whitespace-nowrap">{outputRow[i]}</td>);
+    }
+    return res;
+  };
+
+  return (
+    <div className="relative overflow-x-auto">
+      <table className="w-full text-sm text-left text-gray-500">
+        <thead className="text-xs text-gray-700 uppercase bg-gray-50">
+          <tr>{headers()}</tr>
+        </thead>
+        <tbody>
+          {tableInfo.inputRows.map((_result, index) => (
+            <tr key={"creation-" + index} className="bg-white border-b">
+              {truthTableRow(index)}
+            </tr>
+          ))}
+        </tbody>
+      </table>
     </div>
   );
 };

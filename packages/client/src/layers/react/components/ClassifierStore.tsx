@@ -1,7 +1,7 @@
 import React from "react";
 import { Layers } from "../../../types";
 import { Entity } from "@latticexyz/recs";
-import { useClassifierSearch } from "./useClassifierSearch";
+import { TableInfo, useClassifierSearch } from "./useClassifierSearch";
 import { CreationStoreFilters } from "./CreationStore";
 import { SetState } from "../../../utils/types";
 import { InterfaceVoxel } from "../../noa/types";
@@ -43,6 +43,7 @@ export interface Classifier {
   classificationResultTableName: string;
   selectorInterface: InterfaceVoxel[];
   namespace: string;
+  truthTableInfo?: TableInfo;
 }
 
 const ClassifierStore: React.FC<Props> = ({

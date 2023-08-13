@@ -21,6 +21,13 @@ export interface ClassifierSearch {
   classifiersToDisplay: Classifier[];
 }
 
+export interface TableInfo {
+  inputRows: string[];
+  outputRows: string[];
+  numInputBits: number;
+  numOutputBits: number;
+}
+
 export const useClassifierSearch = ({ layers, filters }: Props) => {
   const {
     network: {
@@ -127,13 +134,14 @@ export const useClassifierSearch = ({ layers, filters }: Props) => {
 
       allClassifiers.current.push({
         name: name,
-        description: JSON.stringify(tableInfo),
+        description: "hi",
         classifierId: getEntityString(classifierId),
         creator: creator as Entity,
         // functionSelector: "TruthTableClassifier",
         classificationResultTableName: "TruthTableCR",
         selectorInterface: interfaceVoxels,
         namespace: "tenet-truth-table", // TODO: we should remove this since namespace isnt' used anymore
+        truthTableInfo: tableInfo,
       } as Classifier);
     });
     applyClassifierFilters();

@@ -8,6 +8,46 @@ import { getNeighbourCoords, calculateBlockDirection } from "@tenet-utils/src/Vo
 import { hasKey } from "@latticexyz/world/src/modules/keysintable/hasKey.sol";
 import { getKeysWithValue } from "@latticexyz/world/src/modules/keyswithvalue/getKeysWithValue.sol";
 import { CAPosition, CAPositionData, CAPositionTableId } from "@tenet-base-ca/src/codegen/tables/CAPosition.sol";
+import { CAEntityMapping, CAEntityMappingTableId } from "@tenet-base-ca/src/codegen/tables/CAEntityMapping.sol";
+import { CAEntityReverseMapping, CAEntityReverseMappingTableId } from "@tenet-base-ca/src/codegen/tables/CAEntityReverseMapping.sol";
+
+function entityToCAEntity(address callerAddress, bytes32 entity) {
+  if (entity == 0) {
+    return entity;
+  }
+  require(
+    hasKey(CAEntityMappingTableId, CAEntityMapping.encodeKeyTuple(callerAddress, entity)),
+    "Entity must be mapped to a CAEntity"
+  );
+  return CAEntityMapping.get(callerAddress, entity);
+}
+
+function caEntityToEntity(bytes32 caEntity) returns (bytes32) {
+  if (caEntity == 0) {
+    return caEntity;
+  }
+  require(
+    hasKey(CAEntityReverseMappingTableId, CAEntityReverseMapping.encodeKeyTuple(caEntity)),
+    "CAEntity must be mapped to an entity"
+  );
+  return CAEntityReverseMapping.getEntity(caEntity);
+}
+
+function entityArrayToCAEntityArray(address callerAddress, bytes32[] memory entities) returns (bytes32[] memory) {
+  bytes32[] memory caEntities = new bytes32[](entities.length);
+  for (uint256 i = 0; i < entities.length; i++) {
+    caEntities[i] = entityToCAEntity(callerAddress, entities[i]);
+  }
+  return caEntities;
+}
+
+function caEntityArrayToEntityArray(bytes32[] memory caEntities) returns (bytes32[] memory) {
+  bytes32[] memory entities = new bytes32[](caEntities.length);
+  for (uint256 i = 0; i < caEntities.length; i++) {
+    entities[i] = caEntityToEntity(caEntities[i]);
+  }
+  return entities;
+}
 
 function getEntityPositionStrict(IStore store, address callerAddress, bytes32 entity) view returns (VoxelCoord memory) {
   require(

@@ -20,6 +20,7 @@ import { stringToEntity, to64CharAddress, voxelEntityToEntity } from "../../../u
 import { VoxelCoord } from "@latticexyz/utils";
 import { abiDecode } from "@/utils/encodeOrDecode";
 import { VoxelEntity } from "@/layers/noa/types";
+import { ISpawn } from "@/mud/componentParsers/spawn";
 
 export interface RegisterCreationFormData {
   name: string;
@@ -47,8 +48,8 @@ const RegisterCreation: React.FC<Props> = ({ layers, formData, setFormData, rese
       noa,
     },
     network: {
-      contractComponents: { OfSpawn, Spawn, Position },
-      parsedComponents: { ParsedVoxelTypeRegistry, ParsedCreationRegistry },
+      contractComponents: { OfSpawn, Position },
+      parsedComponents: { ParsedVoxelTypeRegistry, ParsedCreationRegistry, ParsedSpawn },
       api: { getEntityAtPosition, registerCreation },
     },
   } = layers;
@@ -69,11 +70,8 @@ const RegisterCreation: React.FC<Props> = ({ layers, formData, setFormData, rese
     for (const voxel of voxels) {
       const spawnId = getComponentValue(OfSpawn, voxel)?.spawnId;
       if (spawnId) {
-        const encodedLowerSouthWestCorner = getComponentValueStrict(
-          Spawn,
-          stringToEntity(spawnId)
-        ).lowerSouthWestCorner;
-        spawnDefs.add(`${spawnId}:${encodedLowerSouthWestCorner}`);
+        const lowerSouthWestCorner = ParsedSpawn.getRecordStrict(stringToEntity(spawnId)).lowerSouthWestCorner;
+        spawnDefs.add(`${spawnId}:${voxelCoordToString(lowerSouthWestCorner)}`);
       } else {
         voxelsNotInSpawn.push(voxel);
       }
@@ -87,10 +85,10 @@ const RegisterCreation: React.FC<Props> = ({ layers, formData, setFormData, rese
     // for each spawn, check to see if all of its voxels are in its defined cooordinate in the base creation.
     // if it is not, then it must be deleted
     for (const spawnDef of spawnDefs) {
-      const [spawnId, encodedLowerSouthWestCorner] = spawnDef.split(":");
-      const lowerSouthWestCornerInWorld = decodeCoord(encodedLowerSouthWestCorner);
+      const [spawnId, lowerSouthWestCorner] = spawnDef.split(":");
+      const lowerSouthWestCornerInWorld = stringToVoxelCoord(lowerSouthWestCorner);
 
-      const spawn = getComponentValueStrict(Spawn, stringToEntity(spawnId));
+      const spawn = ParsedSpawn.getRecordStrict(stringToEntity(spawnId));
       const deletedRelativeCoords = findDeletedVoxelCoords(spawn, lowerSouthWestCornerInWorld);
 
       baseCreations.push({
@@ -105,7 +103,7 @@ const RegisterCreation: React.FC<Props> = ({ layers, formData, setFormData, rese
   // The deleted voxel coords are the ones that are in the creation, but not in the spawn
   // What if you place a spawn, and another spawn overlaps and deletes one block, will this code still work?
   // Yes. Since that block was deleted by the second spawn, it will not show up as a voxel of that spawn, so it will still be flagged as deleted
-  const findDeletedVoxelCoords = (spawn: any, lowerSouthWestCornerInWorld: VoxelCoord) => {
+  const findDeletedVoxelCoords = (spawn: ISpawn, lowerSouthWestCornerInWorld: VoxelCoord) => {
     const creationVoxels = getVoxelTypeCoordsOfCreation(
       ParsedVoxelTypeRegistry,
       ParsedCreationRegistry,
@@ -117,8 +115,7 @@ const RegisterCreation: React.FC<Props> = ({ layers, formData, setFormData, rese
       creationVoxels.map((voxel) => add(lowerSouthWestCornerInWorld, voxel.coord)).map(voxelCoordToString)
     ); // convert to string so we can use a set to remove coords that are in the world
 
-    const decodedVoxels = abiDecode("tuple(uint32 scale, bytes32 entityId)[]", spawn.voxels) as VoxelEntity[];
-    for (const voxel of decodedVoxels) {
+    for (const voxel of spawn.voxels) {
       const voxelCoordInSpawn = voxelCoordToString(getComponentValueStrict(Position, voxelEntityToEntity(voxel)));
       creationVoxelCoordsInWorld.delete(voxelCoordInSpawn);
     }
@@ -163,7 +160,7 @@ const RegisterCreation: React.FC<Props> = ({ layers, formData, setFormData, rese
         "Select your creation's corners by 1) Holding 'V' and 2) Left/Right clicking on blocks. Press Q when done.",
       icon: NotificationIcon.NONE,
     });
-    setComponent(FocusedUi, SingletonEntity, { value: FocusedUiType.WORLD });
+    setComponent(FocusedUi, SingletonEntity, { value: FocusedUiType.WORLD as any });
   };
 
   const selectCreationCornerButtonLabel =

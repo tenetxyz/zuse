@@ -7,8 +7,6 @@ import { Color3, Mesh } from "@babylonjs/core";
 import { add, calculateMinMaxRelativeCoordsOfCreation, decodeCoord, getWorldScale } from "../../../utils/coord";
 import { Entity } from "@latticexyz/recs";
 import { VoxelCoord } from "@latticexyz/utils";
-import { abiDecode } from "@/utils/encodeOrDecode";
-import { ISpawn } from "@/mud/componentParsers/spawn";
 
 export type BaseCreation = {
   creationId: Entity;
@@ -21,48 +19,23 @@ export type BaseCreation = {
 export function createSpawnOverlaySystem(networkLayer: NetworkLayer, noaLayer: NoaLayer) {
   const { noa } = noaLayer;
   const {
-    contractComponents: { Spawn },
-    parsedComponents: { ParsedVoxelTypeRegistry, ParsedCreationRegistry },
+    parsedComponents: { ParsedVoxelTypeRegistry, ParsedCreationRegistry, ParsedSpawn },
+    world,
   } = networkLayer;
 
-  // I think there's an implicit assumption here that the spawn is done loading.
-  Spawn.update$.subscribe((update) => {
-    const spawnTable = update.component?.values;
-    if (spawnTable === undefined) {
-      return;
-    }
+  const subscription = ParsedSpawn.updateStream$.subscribe((spawn) => {
+    // When a spawn has been deleted/created, re-render the spawn outlines
     renderSpawnOutlines();
   });
+  world.registerDisposer(() => subscription.unsubscribe());
 
   // when the player zooms to a different level, we need to re-render the spawn outlines (since voxels on a spawn may not exist on that level)
   noa.on("newWorldName", (_newWorldName: string) => {
     renderSpawnOutlines();
   });
 
-  const createSpawnArray = (): ISpawn[] => {
-    const spawns: ISpawn[] = [];
-    const spawnTable = Spawn.values;
-    spawnTable.creationId.forEach((creationId, rawSpawnId) => {
-      const spawnId = rawSpawnId as any;
-      const encodedLowerSouthWestCorner = spawnTable.lowerSouthWestCorner.get(spawnId)!;
-      const lowerSouthWestCorner = decodeCoord(encodedLowerSouthWestCorner);
-      const encodedVoxelEntities = spawnTable.voxels.get(spawnId)!;
-      const voxelEntities = abiDecode("(uint32 scale,bytes32 entityId)[]", encodedVoxelEntities);
-      if (lowerSouthWestCorner) {
-        spawns.push({
-          spawnId: spawnId,
-          creationId: creationId as Entity,
-          lowerSouthWestCorner: lowerSouthWestCorner,
-          voxels: voxelEntities,
-        });
-      }
-    });
-    return spawns;
-  };
-
   let spawnOutlineMeshes: Mesh[] = [];
   const renderSpawnOutlines = () => {
-    const spawns = createSpawnArray();
     // PERF: only dispose of the meshes that changed
     for (let i = 0; i < spawnOutlineMeshes.length; i++) {
       spawnOutlineMeshes[i].dispose();
@@ -70,6 +43,7 @@ export function createSpawnOverlaySystem(networkLayer: NetworkLayer, noaLayer: N
     spawnOutlineMeshes = [];
     const scale = getWorldScale(noa);
 
+    const spawns = ParsedSpawn.componentRows.values();
     for (const spawn of spawns) {
       const { minCoord, maxCoord } = calculateMinMaxRelativeCoordsOfCreation(
         ParsedVoxelTypeRegistry,

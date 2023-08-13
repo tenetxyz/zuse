@@ -85,18 +85,10 @@ abstract contract CA is System {
     CAEntityMapping.set(callerAddress, entity, caEntity);
     CAEntityReverseMapping.set(caEntity, callerAddress, entity);
     bytes32[] memory caNeighbourEntityIds = entityArrayToCAEntityArray(callerAddress, neighbourEntityIds);
-    bytes32[] memory caChildEntityIds = entityArrayToCAEntityArray(callerAddress, childEntityIds);
-    bytes32 caParentEntity = entityToCAEntity(callerAddress, parentEntity);
 
     voxelEnterWorld(voxelTypeId, coord, caEntity);
 
-    bytes32 voxelVariantId = getVoxelVariant(
-      voxelTypeId,
-      caEntity,
-      caNeighbourEntityIds,
-      caChildEntityIds,
-      caParentEntity
-    );
+    bytes32 voxelVariantId = getVoxelVariant(voxelTypeId, caEntity, caNeighbourEntityIds, childEntityIds, parentEntity);
     CAVoxelType.set(callerAddress, entity, voxelTypeId, voxelVariantId);
   }
 
@@ -104,13 +96,13 @@ abstract contract CA is System {
     bytes32 voxelTypeId,
     bytes32 caEntity,
     bytes32[] memory caNeighbourEntityIds,
-    bytes32[] memory caChildEntityIds,
-    bytes32 caParentEntity
+    bytes32[] memory childEntityIds,
+    bytes32 parentEntity
   ) public returns (bytes32) {
     bytes4 voxelVariantSelector = VoxelTypeRegistry.getVoxelVariantSelector(IStore(getRegistryAddress()), voxelTypeId);
     bytes memory returnData = safeStaticCall(
       _world(),
-      abi.encodeWithSelector(voxelVariantSelector, caEntity, caNeighbourEntityIds, caChildEntityIds, caParentEntity),
+      abi.encodeWithSelector(voxelVariantSelector, caEntity, caNeighbourEntityIds, childEntityIds, parentEntity),
       "voxel variant selector"
     );
     return abi.decode(returnData, (bytes32));
@@ -145,16 +137,14 @@ abstract contract CA is System {
 
     bytes32 caEntity = entityToCAEntity(callerAddress, entity);
     bytes32[] memory caNeighbourEntityIds = entityArrayToCAEntityArray(callerAddress, neighbourEntityIds);
-    bytes32[] memory caChildEntityIds = entityArrayToCAEntityArray(callerAddress, childEntityIds);
-    bytes32 caParentEntity = entityToCAEntity(callerAddress, parentEntity);
 
     // set to Air
     bytes32 airVoxelVariantId = getVoxelVariant(
       emptyVoxelId(),
       caEntity,
       caNeighbourEntityIds,
-      caChildEntityIds,
-      caParentEntity
+      childEntityIds,
+      parentEntity
     );
     CAVoxelType.set(callerAddress, entity, emptyVoxelId(), airVoxelVariantId);
 
@@ -168,8 +158,8 @@ abstract contract CA is System {
     bytes32 voxelTypeId,
     bytes32 caInteractEntity,
     bytes32[] memory caNeighbourEntityIds,
-    bytes32[] memory caChildEntityIds,
-    bytes32 caParentEntity
+    bytes32[] memory childEntityIds,
+    bytes32 parentEntity
   ) internal returns (bytes32[] memory) {
     bytes32[] memory changedCAEntities = new bytes32[](caNeighbourEntityIds.length + 1);
 
@@ -179,8 +169,8 @@ abstract contract CA is System {
         baseVoxelTypeId,
         caInteractEntity,
         caNeighbourEntityIds,
-        caChildEntityIds,
-        caParentEntity
+        childEntityIds,
+        parentEntity
       ); // recursive, so we get the entire stack of russian dolls
 
       for (uint256 i = 0; i < insideChangedCAEntityIds.length; i++) {
@@ -192,13 +182,7 @@ abstract contract CA is System {
     bytes4 interactionSelector = VoxelTypeRegistry.getInteractionSelector(IStore(getRegistryAddress()), voxelTypeId);
     bytes memory returnData = safeCall(
       _world(),
-      abi.encodeWithSelector(
-        interactionSelector,
-        caInteractEntity,
-        caNeighbourEntityIds,
-        caChildEntityIds,
-        caParentEntity
-      ),
+      abi.encodeWithSelector(interactionSelector, caInteractEntity, caNeighbourEntityIds, childEntityIds, parentEntity),
       "voxel interaction selector"
     );
 
@@ -235,8 +219,6 @@ abstract contract CA is System {
 
     bytes32 caInteractEntity = entityToCAEntity(callerAddress, interactEntity);
     bytes32[] memory caNeighbourEntityIds = entityArrayToCAEntityArray(callerAddress, neighbourEntityIds);
-    bytes32[] memory caChildEntityIds = entityArrayToCAEntityArray(callerAddress, childEntityIds);
-    bytes32 caParentEntity = entityToCAEntity(callerAddress, parentEntity);
 
     // TODO: Call update function before calling mind
 
@@ -250,8 +232,8 @@ abstract contract CA is System {
       voxelTypeId,
       caInteractEntity,
       caNeighbourEntityIds,
-      caChildEntityIds,
-      caParentEntity
+      childEntityIds,
+      parentEntity
     );
 
     // Neighbour Interactions
@@ -263,8 +245,8 @@ abstract contract CA is System {
           neighbourVoxelTypeId,
           caInteractEntity,
           caNeighbourEntityIds,
-          caChildEntityIds,
-          caParentEntity
+          childEntityIds,
+          parentEntity
         );
 
         for (uint256 j = 0; j < changedCANeighbourEntities.length; j++) {
@@ -295,8 +277,8 @@ abstract contract CA is System {
             callerAddress,
             getNeighbourEntitiesFromCaller(callerAddress, scale, changedEntity)
           ),
-          entityArrayToCAEntityArray(callerAddress, getChildEntitiesFromCaller(callerAddress, scale, changedEntity)),
-          entityToCAEntity(callerAddress, getParentEntityFromCaller(callerAddress, scale, changedEntity))
+          getChildEntitiesFromCaller(callerAddress, scale, changedEntity),
+          getParentEntityFromCaller(callerAddress, scale, changedEntity)
         );
         CAVoxelType.set(callerAddress, changedEntity, changedVoxelTypeId, voxelVariantId);
       }

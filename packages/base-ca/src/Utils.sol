@@ -13,7 +13,7 @@ import { CAEntityMapping, CAEntityMappingTableId } from "@tenet-base-ca/src/code
 import { CAEntityReverseMapping, CAEntityReverseMappingTableId, CAEntityReverseMappingData } from "@tenet-base-ca/src/codegen/tables/CAEntityReverseMapping.sol";
 
 function entityToCAEntity(address callerAddress, bytes32 entity) view returns (bytes32) {
-  if (entity == 0) {
+  if (uint256(entity) == 0) {
     return entity;
   }
   require(

@@ -153,7 +153,7 @@ export const useClassifierSearch = ({ layers, filters }: Props) => {
       poweredInterfaceVoxels.push({
         index: i,
         entity: EMPTY_VOXEL_ENTITY, // not used until the user actually selects a voxel as an interface
-        name: "in" + i + 1,
+        name: "in" + (i + 1),
         desc: "input bit",
       } as InterfaceVoxel);
     }
@@ -166,7 +166,7 @@ export const useClassifierSearch = ({ layers, filters }: Props) => {
       outputInterfaceVoxels.push({
         index: numInputBits + i,
         entity: EMPTY_VOXEL_ENTITY, // not used until the user actually selects a voxel as an interface
-        name: "output" + i + 1,
+        name: "output" + (i + 1),
         desc: "ouput bit",
       } as InterfaceVoxel);
     }

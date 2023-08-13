@@ -89,7 +89,7 @@ const ClassifierDetails: React.FC<Props> = ({ layers, selectedClassifier }: Prop
 
     return (
       <div className="flex flex-col">
-        <h2 className="text-l font-bold text-black mb-5">Interfaces</h2>
+        <h2 className="text-l font-bold text-white mb-5">Interfaces</h2>
         {selectedClassifier.selectorInterface.length === 0 && (
           <p className="font-normal text-gray-700 leading-4">This classifier requires no interfaces.</p>
         )}
@@ -106,15 +106,15 @@ const ClassifierDetails: React.FC<Props> = ({ layers, selectedClassifier }: Prop
 
             return (
               <div className="flex flex-col" key={"interface-" + idx}>
-                <label className="mb-1 text-sm font-normal text-gray-900">{interfaceVoxel.name}</label>
-                <label className="mb-2 text-sm font-normal text-gray-700">{interfaceVoxel.desc}</label>
+                <label className="mb-1 text-sm font-normal text-gray-300">{interfaceVoxel.name}</label>
+                <label className="mb-2 text-sm font-normal text-gray-300">{interfaceVoxel.desc}</label>
                 <div className="flex">
                   <button
                     type="button"
                     onClick={() =>
                       selectedVoxel ? cancelInterfaceSelection(interfaceVoxel) : selectInterfaceVoxel(interfaceVoxel)
                     }
-                    className="text-gray-900 hover:text-white border border-gray-800 hover:bg-gray-900 focus:ring-4 focus:outline-none focus:ring-gray-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center mr-2 mb-2"
+                    className="text-gray-400 hover:text-white border border-gray-800 hover:bg-gray-900 focus:ring-4 focus:outline-none focus:ring-gray-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center mr-2 mb-2"
                   >
                     {selectedVoxel ? "Cancel Selection" : "Select Voxel"}
                   </button>
@@ -237,10 +237,10 @@ const ClassifierDetails: React.FC<Props> = ({ layers, selectedClassifier }: Prop
   };
 
   return (
-    <div className="flex flex-col h-full mt-5 gap-5">
-      <h4 className="text-2xl font-bold text-black">{selectedClassifier.name}</h4>
-      <p className="font-normal text-gray-700 leading-4">{selectedClassifier.description}</p>
-      <p className="font-normal text-gray-700 leading-4">
+    <div className="flex flex-col h-full mt-5 gap-5 overflow-y-auto">
+      <h4 className="text-2xl font-bold text-white">{selectedClassifier.name}</h4>
+      <p className="font-normal text-gray-200 leading-4">{selectedClassifier.description}</p>
+      <p className="font-normal text-gray-300 leading-4">
         <b>Creator:</b> {selectedClassifier.creator}
       </p>
       <button
@@ -271,7 +271,7 @@ const ClassifierDetails: React.FC<Props> = ({ layers, selectedClassifier }: Prop
       </div>
 
       <hr className="h-0.5 bg-gray-300 mt-4 mb-4 border-0" />
-      <h3 className="text-xl font-bold text-black">Submissions</h3>
+      <h3 className="text-xl font-bold">Submissions</h3>
       {isClassifierTruthTable ? (
         <TruthTableClassifierResults layers={layers} classifier={selectedClassifier} />
       ) : (
@@ -286,14 +286,14 @@ const renderTruthTable = (tableInfo: TableInfo) => {
     const res = [];
     for (let i = 0; i < tableInfo.numInputBits; i++) {
       res.push(
-        <th scope="col" className="px-6 py-3">
+        <th scope="col" className="px-2 py-3">
           In{i}
         </th>
       );
     }
     for (let i = 0; i < tableInfo.numOutputBits; i++) {
       res.push(
-        <th scope="col" className="px-6 py-3">
+        <th scope="col" className="px-2 py-3">
           Out{i}
         </th>
       );
@@ -306,17 +306,17 @@ const renderTruthTable = (tableInfo: TableInfo) => {
     const inputRow = tableInfo.inputRows[rowIdx].padStart(tableInfo.numInputBits, "0");
     const outputRow = tableInfo.outputRows[rowIdx].padStart(tableInfo.numOutputBits, "0");
     for (let i = 0; i < tableInfo.numInputBits; i++) {
-      res.push(<td className="px-6 py-4 whitespace-nowrap">{inputRow[i]}</td>);
+      res.push(<td className="px-2 py-2 whitespace-nowrap w-2">{inputRow[i]}</td>);
     }
     for (let i = 0; i < tableInfo.numOutputBits; i++) {
-      res.push(<td className="px-6 py-4 whitespace-nowrap">{outputRow[i]}</td>);
+      res.push(<td className="px-2 py-2 whitespace-nowrap w-2">{outputRow[i]}</td>); // Added w-4 here
     }
     return res;
   };
 
   return (
     <div className="relative overflow-x-auto">
-      <table className="w-full text-sm text-left text-gray-500">
+      <table className="w-full text-sm text-left text-gray-500 m-2">
         <thead className="text-xs text-gray-700 uppercase bg-gray-50">
           <tr>{headers()}</tr>
         </thead>

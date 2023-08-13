@@ -48,7 +48,7 @@ const RegisterCreation: React.FC<Props> = ({ layers, formData, setFormData, rese
       noa,
     },
     network: {
-      contractComponents: { OfSpawn, Position },
+      contractComponents: { OfSpawn, Position, VoxelType },
       parsedComponents: { ParsedVoxelTypeRegistry, ParsedCreationRegistry, ParsedSpawn },
       api: { getEntityAtPosition, registerCreation },
     },
@@ -151,6 +151,13 @@ const RegisterCreation: React.FC<Props> = ({ layers, formData, setFormData, rese
         }
       }
     }
+    // filter out air voxels
+    const nonAirVoxels = voxels.filter((entity) => {
+      const voxelTypeId = getComponentValueStrict(VoxelType, entity);
+      const voxelTypeDesc = ParsedVoxelTypeRegistry.getRecordStrict(voxelTypeId.voxelTypeId as Entity);
+      // This is kinda sus since no voxel can have "Air" in its name.
+      return !voxelTypeDesc.name.includes("Air");
+    });
     return voxels;
   };
 

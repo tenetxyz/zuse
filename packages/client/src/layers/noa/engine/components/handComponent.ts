@@ -22,7 +22,7 @@ export const HAND_COMPONENT = "HAND_COMPONENT";
 export function registerHandComponent(
   noa: Engine,
   getSelectedVoxelType: () => VoxelBaseTypeId | undefined,
-  getVoxelPreviewVariant: (VoxelBaseTypeId: VoxelBaseTypeId) => VoxelVariantTypeId | undefined,
+  getVoxelBaseTypePreviewUrl: (VoxelBaseTypeId: VoxelBaseTypeId) => VoxelVariantTypeId | undefined,
   voxelMaterials: Map<string, BABYLON.Material | undefined>
 ) {
   // eslint-disable-next-line @typescript-eslint/ban-ts-comment
@@ -44,7 +44,7 @@ export function registerHandComponent(
           const selectedVoxelType = getSelectedVoxelType();
           let voxelMaterialKey = undefined;
           if (selectedVoxelType) {
-            voxelMaterialKey = getVoxelPreviewVariant(selectedVoxelType);
+            voxelMaterialKey = getVoxelBaseTypePreviewUrl(selectedVoxelType);
           }
           if (voxelMaterialKey && voxelMaterials.get(voxelMaterialKey) !== undefined) {
             // eslint-disable-next-line @typescript-eslint/no-non-null-assertion

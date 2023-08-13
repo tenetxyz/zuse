@@ -18,7 +18,6 @@ export const Crafting: React.FC<{
       contractComponents: { OwnedBy, VoxelType },
       network: { connectedAddress },
       api: { craft },
-      getVoxelIconUrl,
     },
     noa: {
       api: { getCraftingTable, setCraftingTableIndex, clearCraftingTable, getCraftingResult, getTrimmedCraftingTable },
@@ -117,26 +116,14 @@ export const Crafting: React.FC<{
     const y = getY(index);
     const voxelIndex = craftingTable[x][y];
     const voxelType = getComponentValue(VoxelType, voxelIndex)?.value as Entity | undefined;
-    return (
-      <Slot
-        key={"crafting-slot" + index}
-        voxelType={voxelType}
-        onClick={() => handleInput(index)}
-        getVoxelIconUrl={getVoxelIconUrl}
-      />
-    );
+    return <Slot key={"crafting-slot" + index} voxelType={voxelType} onClick={() => handleInput(index)} />;
   });
 
   return (
     <CraftingWrapper>
       <CraftingInput sideLength={sideLength}>{[...range(sideLength * sideLength)].map((i) => Slots[i])}</CraftingInput>
       <CraftingOutput>
-        <Slot
-          voxelType={getCraftingResult()}
-          onClick={() => handleOutput()}
-          selected={true}
-          getVoxelIconUrl={getVoxelIconUrl}
-        />
+        <Slot voxelType={getCraftingResult()} onClick={() => handleOutput()} selected={true} />
       </CraftingOutput>
     </CraftingWrapper>
   );

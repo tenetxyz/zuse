@@ -1,9 +1,9 @@
 import React from "react";
 import { Layers } from "../../../types";
-import { Creation } from "./CreationStore";
 import { getComponentValueStrict } from "@latticexyz/recs";
 import { voxelCoordToString } from "../../../utils/coord";
 import { Separator } from "@radix-ui/react-dropdown-menu";
+import { Creation } from "@/mud/componentParsers/creation";
 
 interface Props {
   layers: Layers;
@@ -13,7 +13,7 @@ interface Props {
 const CreationDetails: React.FC<Props> = ({ layers, selectedCreation }: Props) => {
   const {
     network: {
-      getVoxelIconUrl,
+      getVoxelTypePreviewUrl,
       parsedComponents: { ParsedCreationRegistry },
     },
   } = layers;
@@ -21,6 +21,7 @@ const CreationDetails: React.FC<Props> = ({ layers, selectedCreation }: Props) =
     return null;
   }
 
+  // TODO: fix
   const renderVoxelTypes = () => {
     const uniqueVoxelTypes = selectedCreation.voxelTypes.filter(
       (voxelType, index, self) => index === self.findIndex((t) => t.voxelVariantTypeId === voxelType.voxelVariantTypeId)
@@ -30,7 +31,7 @@ const CreationDetails: React.FC<Props> = ({ layers, selectedCreation }: Props) =
         <h2 className="text-l font-bold mb-5">Constructed With:</h2>
         <div className="flex">
           {uniqueVoxelTypes.map((voxelType, idx) => {
-            const iconUrl = getVoxelIconUrl(voxelType.voxelVariantTypeId);
+            const iconUrl = getVoxelTypePreviewUrl(voxelType.voxelBaseTypeId);
             return (
               <div key={"creation-voxel-" + idx} className="p-1 w-fit border rounded border-slate-700">
                 <img src={iconUrl} className="w-[32px] h-[32px]" />

@@ -374,12 +374,14 @@ export async function setupNetwork() {
     voxelIndexSubscription(voxelVariantTypeId, voxelVariantNoaDef);
   }
 
+  // never use this function. use the below two
   function getVoxelIconUrl(voxelVariantTypeId: VoxelVariantTypeId): string | undefined {
     const voxel = VoxelVariantIdToDef.get(voxelVariantTypeId)?.noaVoxelDef;
     if (!voxel) return undefined;
     return Array.isArray(voxel.material) ? voxel.material[0] : voxel.material;
   }
 
+  // If there is a specific variant
   function getVoxelPreviewVariant(voxelBaseTypeId: VoxelBaseTypeId): VoxelVariantTypeId | undefined {
     const voxelTypeRecord = getComponentValue(registryComponents.VoxelTypeRegistry, voxelBaseTypeId as Entity);
     if (!voxelTypeRecord) {
@@ -388,7 +390,8 @@ export async function setupNetwork() {
     return voxelTypeRecord.previewVoxelVariantId;
   }
 
-  function getVoxelTypePreviewUrl(voxelBaseTypeId: VoxelBaseTypeId): string | undefined {
+  // If you want to get the preview for a voxel, use this one
+  function getVoxelBaseTypePreviewUrl(voxelBaseTypeId: VoxelBaseTypeId): string | undefined {
     const previewVoxelVariant = getVoxelPreviewVariant(voxelBaseTypeId);
     return previewVoxelVariant && getVoxelIconUrl(previewVoxelVariant);
   }
@@ -450,7 +453,7 @@ export async function setupNetwork() {
       return;
     }
 
-    const preview: string = getVoxelTypePreviewUrl(voxelBaseTypeId) || "";
+    const preview: string = getVoxelBaseTypePreviewUrl(voxelBaseTypeId) || "";
     const previewVoxelVariant = getVoxelPreviewVariant(voxelBaseTypeId);
 
     const newVoxelOfSameType = `${scaleAsHex}:${world.registerEntity()}` as Entity;
@@ -687,7 +690,7 @@ export async function setupNetwork() {
 
   function activate(entity: Entity) {
     const voxelTypeKeyInMudTable = getComponentValue(contractComponents.VoxelType, entity) as VoxelTypeKeyInMudTable;
-    const preview = getVoxelTypePreviewUrl(voxelTypeKeyInMudTable.voxelVariantId);
+    const preview = getVoxelBaseTypePreviewUrl(voxelTypeKeyInMudTable.voxelVariantId);
     const [scaleAsHex, entityId] = (entity as string).split(":");
     const coord = getComponentValue(contractComponents.Position, entity) as VoxelCoord;
 
@@ -881,9 +884,7 @@ export async function setupNetwork() {
     faucet,
     worldAddress: networkConfig.worldAddress,
     uniqueWorldId,
-    getVoxelIconUrl,
-    getVoxelTypePreviewUrl,
-    getVoxelPreviewVariant,
+    getVoxelTypePreviewUrl: getVoxelBaseTypePreviewUrl,
     voxelTypes: {
       VoxelVariantIdToDef,
       VoxelVariantIndexToKey,

@@ -60,7 +60,6 @@ export function registerActionQueue() {
         network: {
           actions: { Action },
           config: { blockExplorer },
-          getVoxelIconUrl,
           objectStore: { transactionCallbacks },
         },
       } = layers;
@@ -117,8 +116,8 @@ export function registerActionQueue() {
       //   <ActionQueueList>
       //     {[...getComponentEntities(Action)].map((e) => {
       //       const { state, metadata, txHash } = getComponentValueStrict(Action, e);
-      //       const { actionType, coord, voxelVariantTypeId, preview } = metadata || {};
-      //       let icon = voxelVariantTypeId && getVoxelIconUrl(voxelVariantTypeId);
+      //       const { actionType, coord, voxelBaseTypeId, preview } = metadata || {};
+      //       let icon = voxelBaseTypeId && getVoxelIconUrl(voxelBaseTypeId);
       //       if (icon === undefined) {
       //         icon = preview;
       //       }
@@ -128,7 +127,7 @@ export function registerActionQueue() {
       //             state={state}
       //             icon={icon}
       //             title={`${actionType} tx`}
-      //             description={voxelVariantTypeId ? enforceMaxLen(voxelVariantTypeId) : ""}
+      //             description={voxelBaseTypeId ? enforceMaxLen(voxelBaseTypeId) : ""}
       //             link={txHash && blockExplorer + "/tx/" + txHash}
       //           />
       //           {/* TODO: conditionally render this for debugging? */}

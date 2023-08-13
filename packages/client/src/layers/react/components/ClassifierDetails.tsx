@@ -34,7 +34,7 @@ const ClassifierDetails: React.FC<Props> = ({ layers, selectedClassifier }: Prop
     network: {
       components: { VoxelType, OfSpawn, Spawn, Position },
       api: { classifyCreation, classifyIfCreationSatisfiesTruthTable },
-      getVoxelIconUrl,
+      getVoxelTypePreviewUrl,
     },
   } = layers;
   const spawnToUse = useComponentValue(SpawnToClassify, SingletonEntity);
@@ -141,7 +141,7 @@ const ClassifierDetails: React.FC<Props> = ({ layers, selectedClassifier }: Prop
       return null;
     }
 
-    const iconUrl = getVoxelIconUrl(voxelType.voxelVariantId);
+    const iconUrl = getVoxelTypePreviewUrl(voxelType.voxelTypeId);
     const voxelCoord = getComponentValue(Position, voxelEntityKey);
     return (
       <div className="flex gap-2 items-center">

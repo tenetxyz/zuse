@@ -109,7 +109,6 @@ export function registerInventoryHud() {
       const {
         network: {
           api: { removeVoxels },
-          getVoxelIconUrl,
           getVoxelTypePreviewUrl,
         },
         noa: {
@@ -126,8 +125,9 @@ export function registerInventoryHud() {
           return;
         }
         const voxelTypeKey = entityToVoxelType(holdingVoxelType);
-        const icon = getVoxelIconUrl(voxelTypeKey.voxelVariantTypeId);
+        const icon = getVoxelTypePreviewUrl(voxelTypeKey.voxelBaseTypeId);
         document.body.style.cursor = `url(${icon}) 12 12, auto`;
+        console.log("voxelTypeKey", voxelTypeKey);
       }, [holdingVoxelType]);
 
       const onSlotClick = (slotIdx: number, event: React.MouseEvent<HTMLDivElement>) => {

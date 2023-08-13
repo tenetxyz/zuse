@@ -149,7 +149,7 @@ export function registerPersistentSidebar() {
           mappings,
           contractComponents: { VoxelType },
           network: { blockNumber$, connectedAddress },
-          getVoxelIconUrl,
+          getVoxelTypePreviewUrl,
           actions: { Action },
           objectStore: { transactionCallbacks },
         },
@@ -216,7 +216,7 @@ export function registerPersistentSidebar() {
 
         // Cleanup on unmount
         return () => subscription.unsubscribe();
-      }, [blockNumber$, ecsEvent$, mappings, VoxelType, getVoxelIconUrl]);
+      }, [blockNumber$, ecsEvent$, mappings, VoxelType, getVoxelTypePreviewUrl]);
 
       const [worldScale, setWorldScale] = useState<number>(1);
 
@@ -421,7 +421,7 @@ export function registerPersistentSidebar() {
                         <div className="BlockExplorer-Actions">
                           {Object.entries(block).map(([voxelTypeKey, counts]) => {
                             const voxelType = entityToVoxelType(voxelTypeKey as Entity);
-                            const voxelIconUrl = getVoxelIconUrl(voxelType.voxelVariantTypeId);
+                            const voxelIconUrl = getVoxelTypePreviewUrl(voxelType.voxelBaseTypeId);
                             return (
                               <React.Fragment key={voxelTypeKey}>
                                 {counts.add ? (
@@ -500,8 +500,8 @@ export function registerPersistentSidebar() {
                 <ActionQueueList>
                   {[...getComponentEntities(Action)].reverse().map((e) => {
                     const { state, metadata, txHash } = getComponentValueStrict(Action, e);
-                    const { actionType, coord, voxelVariantTypeId, preview } = metadata || {};
-                    let icon = voxelVariantTypeId && getVoxelIconUrl(voxelVariantTypeId);
+                    const { actionType, coord, voxelBaseTypeId, preview } = metadata || {};
+                    let icon = voxelBaseTypeId && getVoxelTypePreviewUrl(voxelBaseTypeId);
                     if (icon === undefined) {
                       icon = preview;
                     }

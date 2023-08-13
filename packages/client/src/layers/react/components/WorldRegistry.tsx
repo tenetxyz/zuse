@@ -49,7 +49,7 @@ export const WorldRegistry = ({ layers, filters, setFilters }: Props) => {
     network: {
       registryComponents: { CARegistry },
       parsedComponents: { ParsedVoxelTypeRegistry },
-      getVoxelIconUrl,
+      getVoxelTypePreviewUrl,
     },
   } = layers;
   const { worldsToDisplay } = useWorldRegistrySearch({ layers, filters });
@@ -144,7 +144,7 @@ export const WorldRegistry = ({ layers, filters, setFilters }: Props) => {
                                       }}
                                     >
                                       {detail.voxelBaseTypeIds.map((voxelBaseTypeId) => {
-                                        const iconUrl = getVoxelIconUrl(voxelBaseTypeId);
+                                        const iconUrl = getVoxelTypePreviewUrl(voxelBaseTypeId);
                                         return (
                                           iconUrl && (
                                             <img

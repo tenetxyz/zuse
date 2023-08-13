@@ -41,7 +41,7 @@ export const VoxelTypeStore: React.FC<Props> = ({ layers, filters = { query: "",
       contractComponents: { OwnedBy, VoxelType },
       api: { giftVoxel },
       network: { connectedAddress },
-      getVoxelIconUrl,
+      getVoxelTypePreviewUrl,
     },
     noa: { noa },
   } = layers;
@@ -91,7 +91,7 @@ export const VoxelTypeStore: React.FC<Props> = ({ layers, filters = { query: "",
     }
     const voxelDescription = voxelTypesToDisplay[i];
 
-    const previewIconUrl = getVoxelIconUrl(voxelDescription.previewVoxelVariantId) || "";
+    const previewIconUrl = getVoxelTypePreviewUrl(voxelDescription.previewVoxelVariantId) || "";
 
     return (
       <Slot

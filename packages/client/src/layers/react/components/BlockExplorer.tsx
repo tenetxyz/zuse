@@ -99,7 +99,7 @@ export function registerBlockExplorer() {
           network: { blockNumber$ },
           world,
           config: { blockExplorer },
-          getVoxelIconUrl,
+          getVoxelTypePreviewUrl,
         },
       } = layers;
 
@@ -184,10 +184,10 @@ export function registerBlockExplorer() {
 
             return [...otherBlocks, block].slice(-500);
           }, [] as BlockSummary),
-          map((summary) => ({ summary, blockExplorer, getVoxelIconUrl }))
+          map((summary) => ({ summary, blockExplorer, getVoxelTypePreviewUrl }))
         );
     },
-    ({ summary, blockExplorer, getVoxelIconUrl }) => {
+    ({ summary, blockExplorer, getVoxelTypePreviewUrl }) => {
       return (
         <BlockExplorerContainer>
           {summary.map(([blockNumber, block]) => (
@@ -200,7 +200,7 @@ export function registerBlockExplorer() {
               <div className="BlockExplorer-Actions">
                 {Object.entries(block).map(([voxelTypeKey, counts]) => {
                   const voxelType = entityToVoxelType(voxelTypeKey as Entity);
-                  const voxelIconUrl = getVoxelIconUrl(voxelType.voxelVariantTypeId);
+                  const voxelIconUrl = getVoxelTypePreviewUrl(voxelType.voxelVariantTypeId);
                   return (
                     <React.Fragment key={voxelTypeKey}>
                       {counts.add ? (

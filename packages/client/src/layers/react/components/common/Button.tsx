@@ -11,7 +11,9 @@ export const Button = styled.div<{ disabled?: boolean }>`
 
   ${(p) =>
     p.disabled
-      ? `opacity: 0.5;`
+      ? `opacity: 0.5;
+      cursor: not-allowed;
+      `
       : `
   cursor: pointer;
   

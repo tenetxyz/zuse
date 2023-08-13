@@ -16,6 +16,7 @@ export const RegisterTruthTableClassifier: React.FC<Props> = ({ layers }: Props)
 
   // TODO: we should move this state up so the data is persisted
   const [name, setName] = useState("");
+  const [description, setDescription] = useState("");
   const [inputText, setInputText] = useState("");
   const [outputText, setOutputText] = useState("");
 
@@ -39,7 +40,7 @@ export const RegisterTruthTableClassifier: React.FC<Props> = ({ layers }: Props)
       toast(`Invalid truth table. Input and output have different number of rows.`);
       return;
     }
-    registerTruthTableClassifier(name, inputRows, outputRows, numInputBits, numOutputBits);
+    registerTruthTableClassifier(name, description, inputRows, outputRows, numInputBits, numOutputBits);
   };
 
   // An entry of the truth table is stored as a single uint256 number
@@ -73,16 +74,27 @@ export const RegisterTruthTableClassifier: React.FC<Props> = ({ layers }: Props)
     return { rows, numBits };
   };
 
+  const isSubmitDisabled = name === "" || inputText === "" || outputText === "";
+
   return (
-    <div className="flex flex-col w-full mt-5">
+    <div className="flex flex-col w-full mt-5 overflow-y-auto">
+      <p>Name</p>
       <input
-        placeholder="name (e.g. AND Gate)"
+        placeholder="AND Gate"
         className="p-5 m-5 text-slate-800"
         value={name}
         onChange={(e) => setName(e.target.value)}
-      ></input>
+      />
 
-      <p>Input</p>
+      <p>Description</p>
+      <input
+        placeholder="Turns on when both inputs are on!"
+        className="p-5 m-5 text-slate-800"
+        value={description}
+        onChange={(e) => setDescription(e.target.value)}
+      />
+
+      <p>Truth Table Input</p>
       <textarea
         placeholder="0,0
 0,1
@@ -92,7 +104,7 @@ export const RegisterTruthTableClassifier: React.FC<Props> = ({ layers }: Props)
         value={inputText}
         onChange={(e) => setInputText(e.target.value)}
       ></textarea>
-      <p>Output</p>
+      <p>Truth Table Output</p>
       <textarea
         placeholder="0
 0
@@ -102,7 +114,15 @@ export const RegisterTruthTableClassifier: React.FC<Props> = ({ layers }: Props)
         value={outputText}
         onChange={(e) => setOutputText(e.target.value)}
       ></textarea>
-      <Button className="p-5 m-5" onClick={handleSubmit}>
+      <Button
+        className="p-5 m-5"
+        onClick={() => {
+          if (!isSubmitDisabled) {
+            handleSubmit();
+          }
+        }}
+        disabled={isSubmitDisabled}
+      >
         Submit
       </Button>
     </div>

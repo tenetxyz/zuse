@@ -21,6 +21,7 @@ import { Strings } from "@openzeppelin/contracts/utils/Strings.sol";
 contract TruthTableClassifySystem is System {
   function registerTruthTable(
     string memory name,
+    string memory description,
     uint256[] memory inputRows,
     uint256[] memory outputRows,
     uint16 numInputBits,
@@ -38,6 +39,7 @@ contract TruthTableClassifySystem is System {
       booleanClassifierId,
       TruthTableData({
         name: name,
+        description: description,
         creator: _msgSender(),
         inputRows: inputRows,
         outputRows: outputRows,

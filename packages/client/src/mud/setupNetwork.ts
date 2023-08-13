@@ -707,6 +707,7 @@ export async function setupNetwork() {
 
   function registerTruthTableClassifier(
     name: string,
+    description: string,
     inputRows: BigNumber[],
     outputRows: BigNumber[],
     numInputBits: number,
@@ -722,6 +723,7 @@ export async function setupNetwork() {
       execute: () => {
         return callSystem("registerTruthTable", [
           name,
+          description,
           inputRows,
           outputRows,
           numInputBits,

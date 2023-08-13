@@ -96,6 +96,7 @@ export const useClassifierSearch = ({ layers, filters }: Props) => {
     allClassifiers.current = [];
     const truthTableTable = TruthTable.values;
     truthTableTable.name.forEach((name: string, classifierId) => {
+      const description = truthTableTable.description.get(classifierId) ?? "";
       const creator = truthTableTable.creator.get(classifierId);
       if (!creator) {
         console.warn("No creator found for classifier", classifierId);
@@ -133,8 +134,8 @@ export const useClassifierSearch = ({ layers, filters }: Props) => {
       };
 
       allClassifiers.current.push({
-        name: name,
-        description: "hi",
+        name,
+        description,
         classifierId: getEntityString(classifierId),
         creator: creator as Entity,
         // functionSelector: "TruthTableClassifier",

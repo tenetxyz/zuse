@@ -52,13 +52,9 @@ export const calculateMinMaxRelativeCoordsOfCreation = (
     creationId,
     scale
   );
-  // filter out all air voxels, since we don't want it to affect how the outline is drawn
-  const relativeVoxelsWithoutAir = relativeVoxels.filter(
-    (voxel) => !ParsedVoxelTypeRegistry.getRecordStrict(voxel.voxelType.voxelBaseTypeId as Entity).name.includes("Air")
-  );
-  const relativeVoxelCoordsWithoutAir = relativeVoxelsWithoutAir.map((voxel) => voxel.coord);
+  const relativeVoxelCoords = relativeVoxels.map((voxel) => voxel.coord);
 
-  return calculateMinMaxCoords(relativeVoxelCoordsWithoutAir);
+  return calculateMinMaxCoords(relativeVoxelCoords);
 };
 
 // TODO: fix the type of Creation:any. Note: I didn't want to pass in "layers" since this function is called a lot, and we'd be dereferencing layers a lot to get Creation

@@ -5,8 +5,10 @@ import { defineContractComponents } from "./contractComponents";
 import { world } from "./world";
 import { Contract, Signer, utils } from "ethers";
 import { JsonRpcProvider } from "@ethersproject/providers";
+import { IWorld__factory as BaseCAWordl_factory } from "@tenetxyz/base-ca/types/ethers-contracts/factories/IWorld__factory";
 import { IWorld__factory as Level2CAWordl_factory } from "@tenetxyz/level2-ca/types/ethers-contracts/factories/IWorld__factory";
 import { IWorld__factory as RegistryIWorld__factory } from "@tenetxyz/registry/types/ethers-contracts/factories/IWorld__factory";
+import BaseCaStoreConfig from "@tenetxyz/base-ca/mud.config";
 import Level2CaStoreConfig from "@tenetxyz/level2-ca/mud.config";
 import RegistryStoreConfig from "@tenetxyz/registry/mud.config";
 
@@ -15,14 +17,17 @@ import { getTableIds } from "@latticexyz/utils";
 export type SetupNetworkResult = Awaited<ReturnType<typeof setupNetwork>>;
 
 export async function setupNetwork() {
-  const worldId = "level2-ca";
+  const worldId = "base-ca";
   const contractComponents = defineContractComponents(world);
   const networkConfig = await getNetworkConfig(worldId);
   networkConfig.showInDevTools = true;
 
   let storeConfig = undefined;
   let worldFactory = undefined;
-  if (worldId === "level2-ca") {
+  if (worldId === "base-ca") {
+    storeConfig = BaseCaStoreConfig;
+    worldFactory = BaseCAWordl_factory;
+  } else if (worldId === "level2-ca") {
     storeConfig = Level2CaStoreConfig;
     worldFactory = Level2CAWordl_factory;
   } else if (worldId === "registry") {

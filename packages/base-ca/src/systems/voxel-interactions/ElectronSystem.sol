@@ -189,7 +189,18 @@ contract ElectronSystem is VoxelInteraction {
       // Tunnel to that spot
       // IWorld(_world()).mineCAWorld(callerAddress, ElectronVoxelID, baseCoord);
       // IWorld(_world()).buildCAWorld(callerAddress, ElectronVoxelID, otherCoord);
-      IWorld(_world()).moveCAWorld(callerAddress, ElectronVoxelID, baseCoord, otherCoord);
+      {
+        bool interactAtTop = ElectronTunnelSpot.get(callerAddress, interactEntity).atTop;
+        (bytes32 oldEntityId, bytes32 newEntityId) = IWorld(_world()).moveCAWorld(
+          callerAddress,
+          ElectronVoxelID,
+          baseCoord,
+          otherCoord
+        );
+        require(newEntityId == interactEntity, "ElectronSystem: New entity id does not match interact entity");
+        ElectronTunnelSpot.set(callerAddress, interactEntity, !interactAtTop, oldEntityId);
+        // ElectronTunnelSpot.set(callerAddress, oldEntityId, interactAtTop, interactEntity);
+      }
       // changedEntity = true;
     }
   }

@@ -149,7 +149,7 @@ function moveLayer(
       ),
       string(
         abi.encode(
-          "enterWorld ",
+          "moveWorld ",
           voxelTypeId,
           " ",
           oldCoord,

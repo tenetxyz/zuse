@@ -194,8 +194,8 @@ abstract contract CA is System {
       );
       CAPosition.set(callerAddress, newEntity, CAPositionData({ x: newCoord.x, y: newCoord.y, z: newCoord.z }));
       newCAEntity = getUniqueEntity();
-      CAEntityMapping.set(callerAddress, newEntity, newCAEntity);
-      CAEntityReverseMapping.set(newCAEntity, callerAddress, newEntity);
+      // CAEntityMapping.set(callerAddress, newEntity, newCAEntity);
+      // CAEntityReverseMapping.set(newCAEntity, callerAddress, newEntity);
     }
 
     // Update CA entity mapping from old to new

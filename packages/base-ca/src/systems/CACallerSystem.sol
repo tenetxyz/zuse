@@ -18,7 +18,7 @@ contract CACallerSystem is CACaller {
     bytes32 voxelTypeId,
     VoxelCoord memory oldCoord,
     VoxelCoord memory newCoord
-  ) public override {
+  ) public override returns (bytes32, bytes32) {
     return super.moveCAWorld(callerAddress, voxelTypeId, oldCoord, newCoord);
   }
 }

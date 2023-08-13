@@ -1,8 +1,10 @@
 import { SetupContractConfig, getBurnerWallet } from "@latticexyz/std-client";
+import baseCAWorldsJson from "@tenetxyz/base-ca/worlds.json";
 import level2CAWorldsJson from "@tenetxyz/level2-ca/worlds.json";
 import registryWorldsJson from "@tenetxyz/registry/worlds.json";
 import { supportedChains } from "./supportedChains";
 
+const baseCAWorlds = baseCAWorldsJson as Partial<Record<string, { address: string; blockNumber?: number }>>;
 const level2CAWorlds = level2CAWorldsJson as Partial<Record<string, { address: string; blockNumber?: number }>>;
 const registryCAWorlds = registryWorldsJson as Partial<Record<string, { address: string; blockNumber?: number }>>;
 
@@ -23,7 +25,9 @@ export async function getNetworkConfig(worldId: string): Promise<NetworkConfig> 
   }
 
   let world = undefined;
-  if (worldId === "level2-ca") {
+  if (worldId === "base-ca") {
+    world = baseCAWorlds[chain.id.toString()];
+  } else if (worldId === "level2-ca") {
     world = level2CAWorlds[chain.id.toString()];
   } else if (worldId === "registry") {
     world = registryCAWorlds[chain.id.toString()];

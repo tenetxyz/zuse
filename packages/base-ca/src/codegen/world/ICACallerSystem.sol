@@ -15,5 +15,5 @@ interface ICACallerSystem {
     bytes32 voxelTypeId,
     VoxelCoord memory oldCoord,
     VoxelCoord memory newCoord
-  ) external;
+  ) external returns (bytes32, bytes32);
 }

@@ -21,16 +21,21 @@ contract MoveSystem is System {
     VoxelCoord memory newCoord,
     bool moveChildren,
     bool moveParent
-  ) public returns (uint32, bytes32) {
+  ) public returns (uint32, bytes32, bytes32) {
     require(IWorld(_world()).isCAAllowed(_msgSender()), "Not allowed to run event handler. Must be CA");
 
-    (uint32 scale, bytes32 eventVoxelEntity) = runMoveEventHandlerHelper(voxelTypeId, oldCoord, newCoord, moveChildren);
+    (uint32 scale, bytes32 oldVoxelEntity, bytes32 newVoxelEntity) = runMoveEventHandlerHelper(
+      voxelTypeId,
+      oldCoord,
+      newCoord,
+      moveChildren
+    );
 
     if (moveParent) {
       // runEventHandlerForParent(voxelTypeId, coord, scale, eventVoxelEntity);
     }
 
-    return (scale, eventVoxelEntity);
+    return (scale, oldVoxelEntity, newVoxelEntity);
   }
 
   function runMoveEventHandlerHelper(
@@ -38,7 +43,7 @@ contract MoveSystem is System {
     VoxelCoord memory oldCoord,
     VoxelCoord memory newCoord,
     bool runEventOnChildren
-  ) internal virtual returns (uint32, bytes32) {
+  ) internal virtual returns (uint32, bytes32, bytes32) {
     require(IWorld(_world()).isVoxelTypeAllowed(voxelTypeId), "Voxel type not allowed in this world");
     VoxelTypeRegistryData memory voxelTypeData = VoxelTypeRegistry.get(IStore(REGISTRY_ADDRESS), voxelTypeId);
     address caAddress = WorldConfig.get(voxelTypeId);
@@ -87,6 +92,6 @@ contract MoveSystem is System {
     IWorld(_world()).runCA(caAddress, scale, oldVoxelEntity);
     IWorld(_world()).runCA(caAddress, scale, newVoxelEntity);
 
-    return (scale, newVoxelEntity);
+    return (scale, oldVoxelEntity, newVoxelEntity);
   }
 }

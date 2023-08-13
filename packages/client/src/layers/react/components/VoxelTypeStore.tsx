@@ -87,7 +87,7 @@ export const VoxelTypeStore: React.FC<Props> = ({ layers, filters = { query: "",
 
   const Slots = [...range(NUM_ROWS * NUM_COLS)].map((i) => {
     if (!voxelTypesToDisplay || i >= voxelTypesToDisplay.length) {
-      return <Slot key={"voxel-search-slot" + i} disabled={true} slotSize={"69px"} />;
+      return <Slot key={"voxel-search-slot" + i} disabled={true} slotSize={69} />;
     }
     const voxelDescription = voxelTypesToDisplay[i];
 
@@ -96,7 +96,7 @@ export const VoxelTypeStore: React.FC<Props> = ({ layers, filters = { query: "",
     return (
       <Slot
         key={`creative-slot-${voxelDescription.name}`}
-        slotSize={"69px"}
+        slotSize={69}
         voxelType={voxelDescription.voxelBaseTypeId}
         iconUrl={previewIconUrl}
         quantity={undefined} // undefined so no number appears

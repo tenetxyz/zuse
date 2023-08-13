@@ -59,7 +59,7 @@ export function registerActionQueue() {
       const {
         network: {
           actions: { Action },
-          config: { blockExplorer },
+          networkConfig: { blockExplorer },
           getVoxelIconUrl,
           objectStore: { transactionCallbacks },
         },

@@ -68,7 +68,7 @@ export async function createRelaySystem(network: NetworkLayer, context: NoaLayer
   } = context;
 
   const {
-    network: { connectedAddress },
+    worldAddress,
     streams: { balanceGwei$ },
     relay,
   } = network;
@@ -145,7 +145,7 @@ export async function createRelaySystem(network: NetworkLayer, context: NoaLayer
       direction: [qx, qy, qz, qw],
     } = decodeMessage(message.data);
     // TODO: do we need to use toQueryAddress? This is broken rn, so we didn't test it
-    if (address === connectedAddress.get()) return;
+    if (address === worldAddress) return;
     const playerChunk = toChunkCoord({ x, y: z }, RELAY_CHUNK_SIZE);
     if (!visibleChunks.current.has(playerChunk) || !visibleChunks.current.get(playerChunk)) return;
     const entity = world.registerEntity({ id: address as Entity });

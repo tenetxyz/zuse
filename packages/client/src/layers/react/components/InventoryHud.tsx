@@ -50,15 +50,16 @@ export function registerInventoryHud() {
         network: {
           contractComponents: { OwnedBy, VoxelType },
           streams: { connectedClients$ },
-          network: { connectedAddress },
+          walletClient,
         },
         noa: {
           components: { UI, InventoryIndex, SelectedSlot, CraftingTable },
           noa,
         },
       } = layers;
+      const connectedAddress = walletClient.account.address;
 
-      const VoxelsIOwnQuery = defineQuery([HasValue(OwnedBy, { player: connectedAddress.get() }), Has(VoxelType)], {
+      const VoxelsIOwnQuery = defineQuery([HasValue(OwnedBy, { player: connectedAddress }), Has(VoxelType)], {
         runOnInit: true,
       });
 
@@ -110,7 +111,6 @@ export function registerInventoryHud() {
         network: {
           api: { removeVoxels },
           contractComponents: { OwnedBy, VoxelType },
-          network: { connectedAddress },
           getVoxelIconUrl,
           getVoxelTypePreviewUrl,
         },

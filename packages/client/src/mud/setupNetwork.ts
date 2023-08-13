@@ -125,20 +125,20 @@ const setupWorldRegistryNetwork = async (
   });
 
   console.log("Setup registry MUD V2 network", result);
-  return { result, worldContract, networkConfig, burnerWalletClient, publicClient };
+  return { components: result.components, result, worldContract, networkConfig, burnerWalletClient, publicClient };
 };
 
 export async function setupNetwork() {
   const registryWorld = createWorld();
   const {
-    // components: registryComponents,
+    components: registryComponents,
     result: registryResult,
     worldContract: registryContract,
   } = await setupWorldRegistryNetwork(registryWorld, RegistryIWorld__factory.abi, registryStoreConfig, true); // load the registry world first so the transactionHash$ stream is subscribed to this world (at least this is what I think. I just know that if you place it after, transactions fail with: "you have the wrong abi" when calling systems)
 
   const world = createWorld();
   const {
-    // components: contractComponents,
+    components: contractComponents,
     result,
     worldContract,
     networkConfig,
@@ -433,7 +433,9 @@ export async function setupNetwork() {
     const voxelInstanceOfVoxelType = voxelInstancesOfVoxelType[0];
     const [scaleAsHex, entityId] = (voxelInstanceOfVoxelType as string).split(":");
     const scaleAsNumber = parseInt(scaleAsHex.substring(2)); // remove the leading 0x
-    if (scaleAsNumber !== getWorldScale(noa)) {
+    const worldScale = getWorldScale(noa);
+    debugger;
+    if (scaleAsNumber !== worldScale) {
       toast(`you can only place this voxel on scale ${scaleAsNumber}`);
       return;
     }
@@ -458,7 +460,8 @@ export async function setupNetwork() {
         OwnedBy: contractComponents.OwnedBy, // I think it's needed cause we check to see if the owner owns the voxel we're placing
       },
       execute: () => {
-        return callSystem(worldContract.write.build([scaleAsHex, entityId, coord, { gasLimit: 900_000_000 }]));
+        // return callSystem(worldContract.write.build([scaleAsHex, entityId, coord, { gasLimit: 900_000_000 }]));
+        return callSystem(worldContract.write.build([scaleAsHex, entityId, coord]));
       },
       updates: () => [
         // commented cause we're in creative mode
@@ -503,7 +506,8 @@ export async function setupNetwork() {
         VoxelType: contractComponents.VoxelType,
       },
       execute: () => {
-        return callSystem(worldContract.write.mine([voxelTypeKey.voxelBaseTypeId, coord, { gasLimit: 900_000_000 }]));
+        // return callSystem(worldContract.write.mine([voxelTypeKey.voxelBaseTypeId, coord, { gasLimit: 900_000_000 }]));
+        return callSystem(worldContract.write.mine([voxelTypeKey.voxelBaseTypeId, coord]));
       },
       updates: () => [
         {
@@ -541,7 +545,8 @@ export async function setupNetwork() {
         VoxelType: contractComponents.VoxelType,
       },
       execute: () => {
-        return callSystem(worldContract.write.giftVoxel([voxelTypeId, { gasLimit: 10_000_000 }]));
+        // return callSystem(worldContract.write.giftVoxel([voxelTypeId, { gasLimit: 10_000_000 }]));
+        return callSystem(worldContract.write.giftVoxel([voxelTypeId]));
       },
       updates: () => [
         // {
@@ -588,7 +593,8 @@ export async function setupNetwork() {
         VoxelType: contractComponents.VoxelType,
       },
       execute: () => {
-        return callSystem(worldContract.write.removeVoxels([voxelScales, voxelBaseTypes, { gasLimit: 10_000_000 }]));
+        // return callSystem(worldContract.write.removeVoxels([voxelScales, voxelBaseTypes, { gasLimit: 10_000_000 }]));
+        return callSystem(worldContract.write.removeVoxels([voxelScales, voxelBaseTypes]));
       },
       updates: () => [],
     });
@@ -618,14 +624,17 @@ export async function setupNetwork() {
         OwnedBy: contractComponents.OwnedBy,
       },
       execute: () => {
+        // return callSystem(
+        //   worldContract.write.registerCreation([
+        //     creationName,
+        //     creationDescription,
+        //     voxelEntities,
+        //     baseCreationsInWorld,
+        //     { gasLimit: 900_000_000 },
+        //   ])
+        // );
         return callSystem(
-          worldContract.write.registerCreation([
-            creationName,
-            creationDescription,
-            voxelEntities,
-            baseCreationsInWorld,
-            { gasLimit: 900_000_000 },
-          ])
+          worldContract.write.registerCreation([creationName, creationDescription, voxelEntities, baseCreationsInWorld])
         );
       },
       updates: () => [],
@@ -642,7 +651,8 @@ export async function setupNetwork() {
       requirement: () => true,
       components: {},
       execute: () => {
-        return callSystem(worldContract.write.spawn([lowerSouthWestCorner, creationId, { gasLimit: 900_000_000 }]));
+        // return callSystem(worldContract.write.spawn([lowerSouthWestCorner, creationId, { gasLimit: 900_000_000 }]));
+        return callSystem(worldContract.write.spawn([lowerSouthWestCorner, creationId]));
       },
       updates: () => [],
     });
@@ -663,9 +673,10 @@ export async function setupNetwork() {
       requirement: () => true,
       components: {},
       execute: () => {
-        return callSystem(
-          worldContract.write.classify([classifierId, spawnId, interfaceVoxels, { gasLimit: 900_000_000 }])
-        );
+        // return callSystem(
+        //   worldContract.write.classify([classifierId, spawnId, interfaceVoxels, { gasLimit: 900_000_000 }])
+        // );
+        return callSystem(worldContract.write.classify([classifierId, spawnId, interfaceVoxels]));
       },
       updates: () => [],
       awaitConfirmation: true,
@@ -684,9 +695,11 @@ export async function setupNetwork() {
       requirement: () => true,
       components: {},
       execute: () => {
-        return callSystem(
-          worldContract.write.activate([voxelTypeKeyInMudTable.voxelTypeId, coord, { gasLimit: 900_000_000 }])
-        );
+        // return callSystem(
+        //   worldContract.write.activate([voxelTypeKeyInMudTable.voxelTypeId, coord, { gasLimit: 900_000_000 }])
+        // );
+        debugger;
+        return callSystem(worldContract.write.activate([voxelTypeKeyInMudTable.voxelTypeId, coord]));
       },
       updates: () => [],
       txMayNotWriteToTable: true,
@@ -730,11 +743,10 @@ export async function setupNetwork() {
       doneSyncing$.next(true);
     }
   };
-  awaitStreamValue(registryResult.components.SyncProgress.update$, (value: any) => {
-    debugger; // TODO: not sure if this is the update type of value
-    return value[0]?.step === SyncState.LIVE;
-  }).then(async () => {
-    console.log("registrySynced");
+  awaitStreamValue(
+    registryResult.components.SyncProgress.update$,
+    (update: any) => update.value[0]?.step === SyncStep.LIVE
+  ).then(async () => {
     registrySynced = true;
 
     // if (networkConfig.snapSync) {
@@ -755,13 +767,13 @@ export async function setupNetwork() {
     trySendDoneSyncing();
   });
 
-  awaitStreamValue(result.components.SyncProgress.update$, (value: any) => value[0]?.step === SyncState.LIVE).then(
-    () => {
-      console.log("contractsSynced");
-      contractsSynced = true;
-      trySendDoneSyncing();
-    }
-  );
+  awaitStreamValue(
+    result.components.SyncProgress.update$,
+    (update: any) => update.value[0]?.step === SyncStep.LIVE
+  ).then(() => {
+    contractsSynced = true;
+    trySendDoneSyncing();
+  });
 
   const latestBlock$ = result.latestBlock$;
   const blockStorageOperations$ = result.blockStorageOperations$;
@@ -797,7 +809,7 @@ export async function setupNetwork() {
     // dev: setupDevSystems(world, encoders as Promise<any>, systems),
     // dev: setupDevSystems(world),
     streams: { connectedClients$, balanceGwei$, doneSyncing$, latestBlock$, blockStorageOperations$ },
-    config: networkConfig,
+    networkConfig,
     // relay,
     faucet,
     uniqueWorldId,

@@ -48,9 +48,9 @@ export interface VoxelTypeDesc {
 export const VoxelTypeStore: React.FC<Props> = ({ layers, filters = { query: "", scale: null }, setFilters }) => {
   const {
     network: {
+      walletClient,
       contractComponents: { OwnedBy, VoxelType },
       api: { giftVoxel },
-      network: { connectedAddress },
       getVoxelIconUrl,
     },
     noa: { noa },
@@ -136,6 +136,7 @@ export const VoxelTypeStore: React.FC<Props> = ({ layers, filters = { query: "",
     );
   });
 
+  const connectedAddress = walletClient.account.address;
   const tryGiftVoxel = (voxelTypeDesc: VoxelTypeDesc, previewIconUrl: string) => {
     const itemTypesIOwn = getItemTypesIOwn(noa, OwnedBy, VoxelType, connectedAddress);
     if (itemTypesIOwn.has(voxelTypeDesc.voxelBaseTypeId) || itemTypesIOwn.size < INVENTORY_WIDTH * INVENTORY_HEIGHT) {

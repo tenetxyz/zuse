@@ -12,14 +12,10 @@ import {
   Component,
   Type,
 } from "@latticexyz/recs";
-import { awaitStreamValue, computedToStream } from "@latticexyz/utils";
-import { switchMap } from "rxjs";
+import { awaitStreamValue } from "@latticexyz/utils";
 import { NetworkLayer } from "../../network";
 import { NoaLayer, VoxelBaseTypeId } from "../types";
-import { to42CharAddress, to64CharAddress } from "../../../utils/entity";
-import { SyncState } from "@latticexyz/network";
 import { IComputedValue } from "mobx";
-import { getWorldScale } from "../../../utils/coord";
 import { Engine } from "noa-engine";
 
 export const getItemTypesIOwn = (
@@ -31,9 +27,9 @@ export const getItemTypesIOwn = (
     voxelTypeId: Type.String;
     voxelVariantId: Type.String;
   }>,
-  connectedAddress: IComputedValue<string | undefined>
+  connectedAddress: string
 ): Set<VoxelBaseTypeId> => {
-  const itemsIOwn = runQuery([HasValue(OwnedBy, { player: connectedAddress.get() }), Has(VoxelType)]);
+  const itemsIOwn = runQuery([HasValue(OwnedBy, { player: connectedAddress }), Has(VoxelType)]);
   return new Set(
     Array.from(itemsIOwn)
       .map((item) => {
@@ -51,7 +47,7 @@ export const getItemTypesIOwn = (
 export function createInventoryIndexSystem(network: NetworkLayer, noaLayer: NoaLayer) {
   const {
     contractComponents: { OwnedBy, VoxelType },
-    network: { connectedAddress },
+    walletClient,
     streams: { doneSyncing$ },
   } = network;
 
@@ -60,17 +56,11 @@ export function createInventoryIndexSystem(network: NetworkLayer, noaLayer: NoaL
     components: { InventoryIndex },
     noa,
   } = noaLayer;
+  const connectedAddress = walletClient.account.address;
 
-  const connectedAddress$ = computedToStream(connectedAddress);
-
-  const update$ = connectedAddress$.pipe(
-    switchMap(
-      (address) =>
-        defineQuery([HasValue(OwnedBy, { player: address }), Has(VoxelType)], {
-          runOnInit: true,
-        }).update$
-    )
-  );
+  const update$ = defineQuery([HasValue(OwnedBy, { player: connectedAddress }), Has(VoxelType)], {
+    runOnInit: true,
+  }).update$;
   const removeInventoryIndexesForItemsWeNoLongerOwn = () => {
     const itemTypesIOwn = getItemTypesIOwn(noa, OwnedBy, VoxelType, connectedAddress);
     for (const itemType of InventoryIndex.values.value.keys()) {

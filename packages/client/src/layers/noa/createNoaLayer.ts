@@ -88,17 +88,14 @@ export function createNoaLayer(network: NetworkLayer) {
   const world = namespaceWorld(network.world, "noa");
   const {
     worldAddress,
-    network: {
-      config: { chainId },
-      connectedAddress,
-    },
+    networkConfig,
     streams: { doneSyncing$ },
     components: { Recipe },
     contractComponents: { VoxelType },
     voxelTypes: { VoxelVariantIdToDef, VoxelVariantSubscriptions },
     getVoxelPreviewVariant,
   } = network;
-  const uniqueWorldId = chainId + worldAddress;
+  const uniqueWorldId = networkConfig.chainId + worldAddress;
 
   const SingletonEntity = world.registerEntity({ id: SingletonID });
 
@@ -132,7 +129,7 @@ export function createNoaLayer(network: NetworkLayer) {
   // --- SETUP ----------------------------------------------------------------------
   const { noa, setVoxel, glow } = setupNoaEngine(network);
 
-  const existingWorldScale = getComponentValue(components.WorldScale, SingletonID)
+  const existingWorldScale = getComponentValue(components.WorldScale, SingletonID);
   const worldScale = existingWorldScale?.value.toString() ?? "2";
   noa.worldName = worldScale;
 

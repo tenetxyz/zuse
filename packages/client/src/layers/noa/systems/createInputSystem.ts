@@ -87,16 +87,15 @@ export function createInputSystem(layers: Layers) {
       streams: { playerPosition$ },
     },
     network: {
+      walletClient,
       contractComponents: { Creation },
       registryComponents: { VoxelTypeRegistry },
-      network: {
-        connectedAddress,
-        config: { blockExplorer },
-      },
       streams: { balanceGwei$ },
       api: { spawnCreation, build, activate, getEntityAtPosition },
     },
   } = layers;
+
+  const connectedAddress = walletClient.account.address;
 
   const bindInputEvent = (key: InputEventKey) => {
     bindInputEventUsingNoa(noa, key);
@@ -134,7 +133,7 @@ export function createInputSystem(layers: Layers) {
     if (balanceGwei$.getValue() === 0) return false;
     // const { claim } = stakeAndClaim$.getValue() || {};
     const claim = undefined;
-    const playerAddress = connectedAddress.get();
+    const playerAddress = connectedAddress;
     if (!playerAddress) return false;
     if (!claim) return true;
     return true;
@@ -354,7 +353,12 @@ export function createInputSystem(layers: Layers) {
   bindInputEvent("voxel-explorer");
   onDownInputEvent("voxel-explorer", () => {
     if (!noa.container.hasPointerLock) return;
-    window.open(blockExplorer);
+
+    alert(`TODO: enable block explorer`);
+    // Curtis: When we migrated to mud's new network stack, the blockExplorer wasn't returned properly
+    // If we want it back, we need to know where it is!
+    // Look at the old OPCraft code to see how the blockExplorer variable was retrieved before
+    // window.open(blockExplorer);
   });
 
   bindInputEvent("spawn");

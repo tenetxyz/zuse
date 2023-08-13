@@ -98,7 +98,7 @@ export function registerBlockExplorer() {
           contractComponents: { VoxelType },
           network: { blockNumber$ },
           world,
-          config: { blockExplorer },
+          networkConfig: { blockExplorer },
           getVoxelIconUrl,
         },
       } = layers;

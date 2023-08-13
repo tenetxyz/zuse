@@ -6,9 +6,9 @@ import { IWorld } from "@tenet-base-ca/src/codegen/world/IWorld.sol";
 import { VoxelInteraction } from "@tenet-base-ca/src/prototypes/VoxelInteraction.sol";
 import { BlockDirection, VoxelCoord } from "@tenet-utils/src/Types.sol";
 import { hasKey } from "@latticexyz/world/src/modules/keysintable/hasKey.sol";
-import { ElectronTunnelSpot, ElectronTunnelSpotData, ElectronTunnelSpotTableId, CAVoxelType, CAPosition, CAPositionData, CAPositionTableId } from "@tenet-base-ca/src/codegen/Tables.sol";
+import { ElectronTunnelSpot, ElectronTunnelSpotData, ElectronTunnelSpotTableId } from "@tenet-base-ca/src/codegen/Tables.sol";
 import { AirVoxelID, ElectronVoxelID } from "@tenet-base-ca/src/Constants.sol";
-import { getEntityAtCoord, getNeighbours, positionDataToVoxelCoord, getEntityPositionStrict } from "@tenet-base-ca/src/Utils.sol";
+import { getCAEntityAtCoord, getCAVoxelType, getCANeighbours, positionDataToVoxelCoord, getCAEntityPositionStrict } from "@tenet-base-ca/src/Utils.sol";
 import { safeCall } from "@tenet-utils/src/CallUtils.sol";
 import { Strings } from "@openzeppelin/contracts/utils/Strings.sol";
 
@@ -22,8 +22,8 @@ contract ElectronSystem is VoxelInteraction {
     if (neighbourEntityId == 0) {
       return false;
     }
-    VoxelCoord memory baseCoord = getEntityPositionStrict(IStore(_world()), callerAddress, interactEntity);
-    (bytes32[] memory neighbourEntityIds, BlockDirection[] memory neighbourEntityDirections) = getNeighbours(
+    VoxelCoord memory baseCoord = getCAEntityPositionStrict(IStore(_world()), interactEntity);
+    (bytes32[] memory neighbourEntityIds, BlockDirection[] memory neighbourEntityDirections) = getCANeighbours(
       IStore(_world()),
       callerAddress,
       baseCoord
@@ -63,7 +63,7 @@ contract ElectronSystem is VoxelInteraction {
       if (neighbourEntityId == 0 || neighbourEntityId == excludingEntityId) {
         continue;
       }
-      bytes32 neighbourEntityType = CAVoxelType.getVoxelTypeId(callerAddress, neighbourEntityId);
+      bytes32 neighbourEntityType = getCAVoxelType(neighbourEntityId);
       if (neighbourEntityType == ElectronVoxelID) {
         require(neighbourEntityDirections[i] != BlockDirection.None, "ElectronSystem: Invalid direction");
         if (
@@ -95,12 +95,11 @@ contract ElectronSystem is VoxelInteraction {
     } else {
       otherCoord = VoxelCoord(baseCoord.x, baseCoord.y, baseCoord.z + 1);
     }
-    bytes32 otherEntity = getEntityAtCoord(IStore(_world()), callerAddress, otherCoord);
-    (bytes32[] memory otherNeighbourEntityIds, BlockDirection[] memory otherNeighbourEntityDirections) = getNeighbours(
-      IStore(_world()),
-      callerAddress,
-      otherCoord
-    );
+    bytes32 otherEntity = getCAEntityAtCoord(IStore(_world()), callerAddress, otherCoord);
+    (
+      bytes32[] memory otherNeighbourEntityIds,
+      BlockDirection[] memory otherNeighbourEntityDirections
+    ) = getCANeighbours(IStore(_world()), callerAddress, otherCoord);
     return (
       calculateReplusionForce(
         callerAddress,
@@ -126,15 +125,15 @@ contract ElectronSystem is VoxelInteraction {
       if (neighbourEntityId == 0) {
         continue;
       }
-      bytes32 neighbourEntityType = CAVoxelType.getVoxelTypeId(callerAddress, neighbourEntityId);
+      bytes32 neighbourEntityType = getCAVoxelType(neighbourEntityId);
       if (interactAtTop && neighbourEntityDirections[i] == BlockDirection.North) {
         if (neighbourEntityType == ElectronVoxelID) {
           revert("ElectronSystem: Cannot place electron when it's tunneling spot is already occupied (north)");
         }
 
-        VoxelCoord memory neighbourCoord = getEntityPositionStrict(IStore(_world()), callerAddress, neighbourEntityId);
+        VoxelCoord memory neighbourCoord = getCAEntityPositionStrict(IStore(_world()), neighbourEntityId);
         // Check one above
-        bytes32 aboveEntity = getEntityAtCoord(
+        bytes32 aboveEntity = getCAEntityAtCoord(
           IStore(_world()),
           callerAddress,
           VoxelCoord(neighbourCoord.x, neighbourCoord.y, neighbourCoord.z - 1)
@@ -169,7 +168,7 @@ contract ElectronSystem is VoxelInteraction {
     bytes32[] memory childEntityIds,
     bytes32 parentEntity
   ) internal override returns (bool changedEntity) {
-    VoxelCoord memory baseCoord = getEntityPositionStrict(IStore(_world()), callerAddress, interactEntity);
+    VoxelCoord memory baseCoord = getCAEntityPositionStrict(IStore(_world()), interactEntity);
 
     requireValidElectronSpot(callerAddress, interactEntity, neighbourEntityIds, neighbourEntityDirections);
 
@@ -195,7 +194,7 @@ contract ElectronSystem is VoxelInteraction {
   }
 
   function entityShouldInteract(address callerAddress, bytes32 entityId) internal view override returns (bool) {
-    bytes32 entityType = CAVoxelType.getVoxelTypeId(callerAddress, entityId);
+    bytes32 entityType = getCAVoxelType(entityId);
     return entityType == ElectronVoxelID;
   }
 

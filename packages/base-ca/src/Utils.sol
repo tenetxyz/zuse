@@ -63,6 +63,11 @@ function getEntityPositionStrict(IStore store, address callerAddress, bytes32 en
   return positionDataToVoxelCoord(CAPosition.get(callerAddress, entity));
 }
 
+function getCAEntityPositionStrict(IStore store, bytes32 caEntity) view returns (VoxelCoord memory) {
+  CAEntityReverseMappingData memory entityData = CAEntityReverseMapping.get(caEntity);
+  return getEntityPositionStrict(store, entityData.callerAddress, entityData.entity);
+}
+
 function getEntityAtCoord(IStore store, address callerAddress, VoxelCoord memory coord) view returns (bytes32) {
   bytes32[][] memory allEntitiesAtCoord = getKeysWithValue(
     store,
@@ -94,7 +99,7 @@ function positionDataToVoxelCoord(CAPositionData memory coord) pure returns (Vox
   return VoxelCoord(coord.x, coord.y, coord.z);
 }
 
-function getNeighbours(
+function getCANeighbours(
   IStore store,
   address callerAddress,
   VoxelCoord memory centerCoord
@@ -103,7 +108,7 @@ function getNeighbours(
   BlockDirection[] memory neighbourEntityDirections = new BlockDirection[](NUM_VOXEL_NEIGHBOURS);
   VoxelCoord[] memory neighbourCoords = getNeighbourCoords(centerCoord);
   for (uint8 i = 0; i < neighbourCoords.length; i++) {
-    bytes32 entity = getEntityAtCoord(store, callerAddress, neighbourCoords[i]);
+    bytes32 entity = getCAEntityAtCoord(store, callerAddress, neighbourCoords[i]);
     neighbourEntityIds[i] = entity;
     neighbourEntityDirections[i] = calculateBlockDirection(neighbourCoords[i], centerCoord);
   }

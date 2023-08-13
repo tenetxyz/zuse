@@ -75,7 +75,7 @@ abstract contract CA is System {
       );
       caEntity = entityToCAEntity(callerAddress, entity);
     } else {
-      require(!hasKey(CAEntityMappingTableId, CAEntityMapping.encodeKeyTuple(callerAddress, entity)), "Entity exists"));
+      require(!hasKey(CAEntityMappingTableId, CAEntityMapping.encodeKeyTuple(callerAddress, entity)), "Entity exists");
       CAPosition.set(callerAddress, entity, CAPositionData({ x: coord.x, y: coord.y, z: coord.z }));
       caEntity = getUniqueEntity();
       CAEntityMapping.set(callerAddress, entity, caEntity);
@@ -168,15 +168,16 @@ abstract contract CA is System {
     bytes32 oldCAEntity = entityToCAEntity(callerAddress, oldEntity);
     // TODO: Note these neighbour, child, and parent are NOT for the old coord
     // But for air, we don't need them.
-    bytes32 airVoxelVariantId = getVoxelVariant(
-      emptyVoxelId(),
-      new bytes32(0),
-      new bytes32[](0),
-      new bytes32[](0),
-      new bytes32(0)
-    );
-    CAVoxelType.set(callerAddress, oldEntity, emptyVoxelId(), airVoxelVariantId);
-
+    {
+      bytes32 airVoxelVariantId = getVoxelVariant(
+        emptyVoxelId(),
+        bytes32(0),
+        new bytes32[](0),
+        new bytes32[](0),
+        bytes32(0)
+      );
+      CAVoxelType.set(callerAddress, oldEntity, emptyVoxelId(), airVoxelVariantId);
+    }
     // Set new entity to voxel type
     bytes32 existingEntity = getEntityAtCoord(IStore(_world()), callerAddress, newCoord);
     bytes32 newCAEntity;
@@ -187,14 +188,15 @@ abstract contract CA is System {
       );
       newCAEntity = entityToCAEntity(callerAddress, newEntity);
     } else {
-      require(!hasKey(CAEntityMappingTableId, CAEntityMapping.encodeKeyTuple(callerAddress, newEntity)), "Entity exists"));
+      require(
+        !hasKey(CAEntityMappingTableId, CAEntityMapping.encodeKeyTuple(callerAddress, newEntity)),
+        "Entity exists"
+      );
       CAPosition.set(callerAddress, newEntity, CAPositionData({ x: newCoord.x, y: newCoord.y, z: newCoord.z }));
       newCAEntity = getUniqueEntity();
       CAEntityMapping.set(callerAddress, newEntity, newCAEntity);
       CAEntityReverseMapping.set(newCAEntity, callerAddress, newEntity);
     }
-
-    bytes32[] memory caNeighbourEntityIds = entityArrayToCAEntityArray(callerAddress, neighbourEntityIds);
 
     // Update CA entity mapping from old to new
     // Note: This is the main move of the pointer
@@ -203,6 +205,27 @@ abstract contract CA is System {
     CAEntityMapping.set(callerAddress, newEntity, oldCAEntity);
     CAEntityReverseMapping.set(oldCAEntity, callerAddress, newEntity);
 
+    moveWorldHelper(
+      callerAddress,
+      oldCAEntity,
+      newEntity,
+      voxelTypeId,
+      neighbourEntityIds,
+      childEntityIds,
+      parentEntity
+    );
+  }
+
+  function moveWorldHelper(
+    address callerAddress,
+    bytes32 oldCAEntity,
+    bytes32 newEntity,
+    bytes32 voxelTypeId,
+    bytes32[] memory neighbourEntityIds,
+    bytes32[] memory childEntityIds,
+    bytes32 parentEntity
+  ) internal {
+    bytes32[] memory caNeighbourEntityIds = entityArrayToCAEntityArray(callerAddress, neighbourEntityIds);
     bytes32 voxelVariantId = getVoxelVariant(
       voxelTypeId,
       oldCAEntity, // This needs to be the old one, since it's a move

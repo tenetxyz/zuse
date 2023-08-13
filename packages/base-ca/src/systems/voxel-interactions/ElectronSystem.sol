@@ -187,8 +187,9 @@ contract ElectronSystem is VoxelInteraction {
     );
     if (otherReplusionForce < currentReplusionForce) {
       // Tunnel to that spot
-      IWorld(_world()).mineCAWorld(callerAddress, ElectronVoxelID, baseCoord);
-      IWorld(_world()).buildCAWorld(callerAddress, ElectronVoxelID, otherCoord);
+      // IWorld(_world()).mineCAWorld(callerAddress, ElectronVoxelID, baseCoord);
+      // IWorld(_world()).buildCAWorld(callerAddress, ElectronVoxelID, otherCoord);
+      IWorld(_world()).moveCAWorld(callerAddress, ElectronVoxelID, baseCoord, otherCoord);
       // changedEntity = true;
     }
   }

@@ -309,7 +309,7 @@ const renderTruthTable = (tableInfo: TableInfo) => {
       res.push(<td className="px-2 py-2 whitespace-nowrap w-2">{inputRow[i]}</td>);
     }
     for (let i = 0; i < tableInfo.numOutputBits; i++) {
-      res.push(<td className="px-2 py-2 whitespace-nowrap w-2">{outputRow[i]}</td>); // Added w-4 here
+      res.push(<td className="px-2 py-2 whitespace-nowrap w-2">{outputRow[i]}</td>);
     }
     return res;
   };

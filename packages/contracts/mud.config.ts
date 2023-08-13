@@ -98,6 +98,7 @@ export default mudConfig({
         numInputBits: "uint16",
         numOutputBits: "uint16",
         name: "string",
+        description: "string",
         inputRows: "uint256[]", // Note: if the outputRows are always 2^n, then we don't even need the input rows. Since we can say the ith output row is for the ith input row (represented by binary number i)
         outputRows: "uint256[]",
       },

@@ -33,7 +33,7 @@ contract TruthTableClassifyTest is MudTest {
     inputRows[0] = 1;
     uint256[] memory outputRows = new uint256[](1);
     outputRows[0] = 1;
-    world.registerTruthTable("onTable", inputRows, outputRows, 1, 1);
+    world.registerTruthTable("onTable", "desc", inputRows, outputRows, 1, 1);
   }
 
   // just test that we can register the truth table

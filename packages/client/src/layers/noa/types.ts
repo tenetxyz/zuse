@@ -1,5 +1,6 @@
 import { Entity } from "@latticexyz/recs";
 import { createNoaLayer } from "./createNoaLayer";
+import { VoxelCoord } from "@latticexyz/utils";
 
 export type NoaLayer = Awaited<ReturnType<typeof createNoaLayer>>;
 
@@ -55,6 +56,11 @@ export type VoxelTypeKeyInMudTable = {
 export type VoxelTypeKey = {
   voxelBaseTypeId: VoxelBaseTypeId; // this is different from baseVoxelTypeId (which is the voxelType it inherits from). voxelBaseTypeId is just the voxelTypeId without inheritance
   voxelVariantTypeId: VoxelVariantTypeId;
+};
+
+export type VoxelTypeCoord = {
+  voxelType: VoxelTypeKey;
+  coord: VoxelCoord;
 };
 
 export type VoxelVariantNoaDef = {

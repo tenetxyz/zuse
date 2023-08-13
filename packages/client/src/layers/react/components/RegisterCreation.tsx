@@ -7,7 +7,7 @@ import { useComponentValue } from "@latticexyz/react";
 import {
   add,
   decodeCoord,
-  getVoxelCoordsOfCreation,
+  getVoxelTypeCoordsOfCreation,
   getWorldScale,
   stringToVoxelCoord,
   sub,
@@ -106,7 +106,7 @@ const RegisterCreation: React.FC<Props> = ({ layers, formData, setFormData, rese
   // What if you place a spawn, and another spawn overlaps and deletes one block, will this code still work?
   // Yes. Since that block was deleted by the second spawn, it will not show up as a voxel of that spawn, so it will still be flagged as deleted
   const findDeletedVoxelCoords = (spawn: any, lowerSouthWestCornerInWorld: VoxelCoord) => {
-    const creationVoxelCoords = getVoxelCoordsOfCreation(
+    const creationVoxels = getVoxelTypeCoordsOfCreation(
       ParsedVoxelTypeRegistry,
       ParsedCreationRegistry,
       stringToEntity(spawn.creationId),
@@ -114,7 +114,7 @@ const RegisterCreation: React.FC<Props> = ({ layers, formData, setFormData, rese
     );
 
     const creationVoxelCoordsInWorld = new Set<string>(
-      creationVoxelCoords.map((voxelCoord) => add(lowerSouthWestCornerInWorld, voxelCoord)).map(voxelCoordToString)
+      creationVoxels.map((voxel) => add(lowerSouthWestCornerInWorld, voxel.coord)).map(voxelCoordToString)
     ); // convert to string so we can use a set to remove coords that are in the world
 
     const decodedVoxels = abiDecode("tuple(uint32 scale, bytes32 entityId)[]", spawn.voxels) as VoxelEntity[];

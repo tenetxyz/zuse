@@ -23,7 +23,7 @@ import {
 import { to64CharAddress } from "../../../utils/entity";
 import { Inventory } from "./Inventory";
 import { Layers } from "../../../types";
-import { EMPTY_BYTES_32, entityToVoxelType } from "../../noa/types";
+import { EMPTY_BYTES_32, VoxelBaseTypeId, entityToVoxelType } from "../../noa/types";
 import { firstFreeInventoryIndex } from "../../noa/systems/createInventoryIndexSystem";
 import { FocusedUiType } from "../../noa/components/FocusedUi";
 import { useComponentValue } from "@latticexyz/react";
@@ -118,15 +118,14 @@ export function registerInventoryHud() {
         },
       } = layers;
 
-      const [holdingVoxelType, setHoldingVoxelType] = useState<Entity | undefined>();
+      const [holdingVoxelType, setHoldingVoxelType] = useState<VoxelBaseTypeId | undefined>();
 
       useEffect(() => {
         if (!holdingVoxelType) {
           document.body.style.cursor = "unset";
           return;
         }
-        const voxelTypeKey = entityToVoxelType(holdingVoxelType);
-        const icon = getVoxelIconUrl(voxelTypeKey.voxelVariantTypeId);
+        const icon = getVoxelTypePreviewUrl(holdingVoxelType);
         document.body.style.cursor = `url(${icon}) 12 12, auto`;
       }, [holdingVoxelType]);
 

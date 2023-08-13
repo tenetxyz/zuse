@@ -576,23 +576,24 @@ export async function setupNetwork() {
   }
 
   // needed in creative mode, to allow the user to remove voxels. Otherwise their inventory will fill up
-  function removeVoxels(voxelBaseTypeIdAtSlot: Entity) {
+  function removeVoxels(voxelBaseTypeIdAtSlot: VoxelBaseTypeId) {
     const voxels = getOwnedEntiesOfType(voxelBaseTypeIdAtSlot);
     if (voxels.length === 0) {
       return console.warn("trying to remove 0 voxels");
     }
     const voxelScales: string[] = [];
-    const voxelBaseTypes: string[] = [];
+    const entityIds: string[] = [];
     for (let i = 0; i < voxels.length; i++) {
-      const [voxelScale, voxelBaseType] = voxels[i].split(":");
+      const [voxelScale, entityId] = voxels[i].split(":");
       voxelScales.push(voxelScale);
-      voxelBaseTypes.push(voxelBaseType);
+      entityIds.push(entityId);
     }
 
     actions.add({
-      id: `RemoveVoxels+VoxelType=${voxelBaseTypes}` as Entity,
+      id: `RemoveVoxels+VoxelType=${entityIds}` as Entity,
       metadata: {
         actionType: "removeVoxels",
+        voxelVariantTypeId: getVoxelPreviewVariant(voxelBaseTypeIdAtSlot),
       },
       requirement: () => true,
       components: {
@@ -600,7 +601,7 @@ export async function setupNetwork() {
         VoxelType: contractComponents.VoxelType,
       },
       execute: () => {
-        return callSystem("removeVoxels", [voxelScales, voxelBaseTypes, { gasLimit: 10_000_000 }]);
+        return callSystem("removeVoxels", [voxelScales, entityIds, { gasLimit: 10_000_000 }]);
       },
       updates: () => [],
     });

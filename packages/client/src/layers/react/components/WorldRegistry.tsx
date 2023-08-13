@@ -36,7 +36,6 @@ export interface CaDesc {
 }
 
 export type CaDescs = Map<CaAddress, CaDesc>;
-export type VoxelTypeDescs = Map<VoxelBaseTypeId, VoxelTypeDesc>;
 
 interface Props {
   layers: Layers;
@@ -55,7 +54,6 @@ export const WorldRegistry = ({ layers, filters, setFilters }: Props) => {
   const { worldsToDisplay } = useWorldRegistrySearch({ layers, filters });
 
   const caDescs = useRef<CaDescs>(new Map());
-  const voxelTypeDescs = useRef<VoxelTypeDescs>(new Map());
 
   const [details, setDetails] = useState<CaDesc[] | null>(null);
 
@@ -75,17 +73,6 @@ export const WorldRegistry = ({ layers, filters, setFilters }: Props) => {
       voxelBaseTypeIds: caDesc.voxelTypeIds,
     } as CaDesc);
   });
-
-  useParsedComponentUpdate(
-    ParsedVoxelTypeRegistry,
-    (update, componentRows) => {
-      if (update === undefined) {
-        return;
-      }
-      voxelTypeDescs.current.set(update.voxelBaseTypeId, update);
-    },
-    true
-  );
 
   return (
     <div className="flex flex-col p-4">

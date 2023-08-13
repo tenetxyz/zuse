@@ -3,13 +3,14 @@ import { useEffect } from "react";
 import { Subject } from "rxjs";
 import { parseCreation } from "./creation";
 import { parseVoxelType } from "./voxelType";
+import { parseSpawn } from "./spawn";
 
 export interface WorldMetadata {
   worldAddress: string;
 }
 
 export type ComponentParser<ComponentRecord> = {
-  updateStream$: Subject<ComponentRecord>;
+  updateStream$: Subject<ComponentRecord | undefined>;
   componentRows: Map<Entity, ComponentRecord>;
   getRecordStrict: (entityId: Entity) => ComponentRecord;
 };
@@ -17,6 +18,7 @@ export type ComponentParser<ComponentRecord> = {
 export function setupComponentParsers(
   world: Awaited<ReturnType<typeof createWorld>>,
   registryResult: any,
+  result: any,
   worldAddress: string
 ) {
   const worldMetadata = {
@@ -39,9 +41,12 @@ export function setupComponentParsers(
     "ParsedVoxelTypeRegistry"
   );
 
+  const ParsedSpawn = setupComponentParser(world, result.components.Spawn, parseSpawn, worldMetadata, "Spawn");
+
   return {
     ParsedCreationRegistry,
     ParsedVoxelTypeRegistry,
+    ParsedSpawn,
   };
 }
 
@@ -63,18 +68,25 @@ function setupComponentParser<S extends Schema, ComponentRecord>(
   worldMetadata: WorldMetadata,
   parserName: string
 ): ComponentParser<ComponentRecord> {
-  const updateStream$ = new Subject<ComponentRecord>();
+  const updateStream$ = new Subject<ComponentRecord | undefined>();
   const componentRows = new Map<Entity, ComponentRecord>();
 
   const subscription = component.update$.subscribe((update) => {
     if (isComponentUpdate(update, component)) {
+      // if this is a delete update
+      if (update.value[0] === undefined) {
+        componentRows.delete(update.entity);
+        updateStream$.next(undefined);
+        return;
+      }
+
       const result = parseComponent(update, worldMetadata);
       if (result === undefined) {
         console.warn("cannot parse entity", update.entity);
         return;
       }
+
       const { entityId, componentRecord } = result;
-      // TODO: see if the update was a deletion
       componentRows.set(entityId, componentRecord);
       updateStream$.next(componentRecord);
     }

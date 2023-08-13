@@ -8,10 +8,11 @@ import { getNeighbourCoords, calculateBlockDirection } from "@tenet-utils/src/Vo
 import { hasKey } from "@latticexyz/world/src/modules/keysintable/hasKey.sol";
 import { getKeysWithValue } from "@latticexyz/world/src/modules/keyswithvalue/getKeysWithValue.sol";
 import { CAPosition, CAPositionData, CAPositionTableId } from "@tenet-base-ca/src/codegen/tables/CAPosition.sol";
+import { CAVoxelType } from "@tenet-base-ca/src/codegen/tables/CAVoxelType.sol";
 import { CAEntityMapping, CAEntityMappingTableId } from "@tenet-base-ca/src/codegen/tables/CAEntityMapping.sol";
-import { CAEntityReverseMapping, CAEntityReverseMappingTableId } from "@tenet-base-ca/src/codegen/tables/CAEntityReverseMapping.sol";
+import { CAEntityReverseMapping, CAEntityReverseMappingTableId, CAEntityReverseMappingData } from "@tenet-base-ca/src/codegen/tables/CAEntityReverseMapping.sol";
 
-function entityToCAEntity(address callerAddress, bytes32 entity) {
+function entityToCAEntity(address callerAddress, bytes32 entity) view returns (bytes32) {
   if (entity == 0) {
     return entity;
   }
@@ -22,7 +23,7 @@ function entityToCAEntity(address callerAddress, bytes32 entity) {
   return CAEntityMapping.get(callerAddress, entity);
 }
 
-function caEntityToEntity(bytes32 caEntity) returns (bytes32) {
+function caEntityToEntity(bytes32 caEntity) view returns (bytes32) {
   if (caEntity == 0) {
     return caEntity;
   }
@@ -33,7 +34,7 @@ function caEntityToEntity(bytes32 caEntity) returns (bytes32) {
   return CAEntityReverseMapping.getEntity(caEntity);
 }
 
-function entityArrayToCAEntityArray(address callerAddress, bytes32[] memory entities) returns (bytes32[] memory) {
+function entityArrayToCAEntityArray(address callerAddress, bytes32[] memory entities) view returns (bytes32[] memory) {
   bytes32[] memory caEntities = new bytes32[](entities.length);
   for (uint256 i = 0; i < entities.length; i++) {
     caEntities[i] = entityToCAEntity(callerAddress, entities[i]);
@@ -41,12 +42,17 @@ function entityArrayToCAEntityArray(address callerAddress, bytes32[] memory enti
   return caEntities;
 }
 
-function caEntityArrayToEntityArray(bytes32[] memory caEntities) returns (bytes32[] memory) {
+function caEntityArrayToEntityArray(bytes32[] memory caEntities) view returns (bytes32[] memory) {
   bytes32[] memory entities = new bytes32[](caEntities.length);
   for (uint256 i = 0; i < caEntities.length; i++) {
     entities[i] = caEntityToEntity(caEntities[i]);
   }
   return entities;
+}
+
+function getCAVoxelType(bytes32 caEntity) view returns (bytes32) {
+  CAEntityReverseMappingData memory entityData = CAEntityReverseMapping.get(caEntity);
+  return CAVoxelType.getVoxelTypeId(entityData.callerAddress, entityData.entity);
 }
 
 function getEntityPositionStrict(IStore store, address callerAddress, bytes32 entity) view returns (VoxelCoord memory) {
@@ -74,6 +80,10 @@ function getEntityAtCoord(IStore store, address callerAddress, VoxelCoord memory
   }
 
   return entity;
+}
+
+function getCAEntityAtCoord(IStore store, address callerAddress, VoxelCoord memory coord) view returns (bytes32) {
+  return entityToCAEntity(callerAddress, getEntityAtCoord(store, callerAddress, coord));
 }
 
 function voxelCoordToPositionData(VoxelCoord memory coord) pure returns (CAPositionData memory) {

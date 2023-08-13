@@ -7,7 +7,9 @@ import { hasKey } from "@latticexyz/world/src/modules/keysintable/hasKey.sol";
 import { getUniqueEntity } from "@latticexyz/world/src/modules/uniqueentity/getUniqueEntity.sol";
 import { VoxelTypeRegistry } from "@tenet-registry/src/codegen/tables/VoxelTypeRegistry.sol";
 import { CARegistry } from "@tenet-registry/src/codegen/tables/CARegistry.sol";
-import { CAEntityMapping, CAEntityReverseMapping, CAEntityMappingTableId, CAPosition, CAPositionData, CAPositionTableId } from "@tenet-base-ca/src/codegen/tables/CAPosition.sol";
+import { CAPosition, CAPositionData, CAPositionTableId } from "@tenet-base-ca/src/codegen/tables/CAPosition.sol";
+import { CAEntityMapping, CAEntityMappingTableId } from "@tenet-base-ca/src/codegen/tables/CAEntityMapping.sol";
+import { CAEntityReverseMapping } from "@tenet-base-ca/src/codegen/tables/CAEntityReverseMapping.sol";
 import { CAVoxelType, CAVoxelTypeTableId } from "@tenet-base-ca/src/codegen/tables/CAVoxelType.sol";
 import { VoxelCoord } from "@tenet-utils/src/Types.sol";
 import { getEntityAtCoord, entityArrayToCAEntityArray, entityToCAEntity, caEntityArrayToEntityArray } from "@tenet-base-ca/src/Utils.sol";
@@ -82,8 +84,8 @@ abstract contract CA is System {
     bytes32 caEntity = getUniqueEntity();
     CAEntityMapping.set(callerAddress, entity, caEntity);
     CAEntityReverseMapping.set(caEntity, callerAddress, entity);
-    bytes32 caNeighbourEntityIds = entityArrayToCAEntityArray(callerAddress, neighbourEntityIds);
-    bytes32 caChildEntityIds = entityArrayToCAEntityArray(callerAddress, childEntityIds);
+    bytes32[] memory caNeighbourEntityIds = entityArrayToCAEntityArray(callerAddress, neighbourEntityIds);
+    bytes32[] memory caChildEntityIds = entityArrayToCAEntityArray(callerAddress, childEntityIds);
     bytes32 caParentEntity = entityToCAEntity(callerAddress, parentEntity);
 
     voxelEnterWorld(voxelTypeId, coord, caEntity);
@@ -142,8 +144,8 @@ abstract contract CA is System {
     }
 
     bytes32 caEntity = entityToCAEntity(callerAddress, entity);
-    bytes32 caNeighbourEntityIds = entityArrayToCAEntityArray(callerAddress, neighbourEntityIds);
-    bytes32 caChildEntityIds = entityArrayToCAEntityArray(callerAddress, childEntityIds);
+    bytes32[] memory caNeighbourEntityIds = entityArrayToCAEntityArray(callerAddress, neighbourEntityIds);
+    bytes32[] memory caChildEntityIds = entityArrayToCAEntityArray(callerAddress, childEntityIds);
     bytes32 caParentEntity = entityToCAEntity(callerAddress, parentEntity);
 
     // set to Air
@@ -169,7 +171,7 @@ abstract contract CA is System {
     bytes32[] memory caChildEntityIds,
     bytes32 caParentEntity
   ) internal returns (bytes32[] memory) {
-    bytes32[] memory changedCAEntities = new bytes32[](neighbourEntityIds.length + 1);
+    bytes32[] memory changedCAEntities = new bytes32[](caNeighbourEntityIds.length + 1);
 
     bytes32 baseVoxelTypeId = VoxelTypeRegistry.getBaseVoxelTypeId(IStore(getRegistryAddress()), voxelTypeId);
     if (baseVoxelTypeId != voxelTypeId) {
@@ -232,8 +234,8 @@ abstract contract CA is System {
     bytes32 voxelTypeId = CAVoxelType.getVoxelTypeId(callerAddress, interactEntity);
 
     bytes32 caInteractEntity = entityToCAEntity(callerAddress, interactEntity);
-    bytes32 caNeighbourEntityIds = entityArrayToCAEntityArray(callerAddress, neighbourEntityIds);
-    bytes32 caChildEntityIds = entityArrayToCAEntityArray(callerAddress, childEntityIds);
+    bytes32[] memory caNeighbourEntityIds = entityArrayToCAEntityArray(callerAddress, neighbourEntityIds);
+    bytes32[] memory caChildEntityIds = entityArrayToCAEntityArray(callerAddress, childEntityIds);
     bytes32 caParentEntity = entityToCAEntity(callerAddress, parentEntity);
 
     // TODO: Call update function before calling mind
@@ -273,19 +275,22 @@ abstract contract CA is System {
       }
     }
 
-    changedEntities = new bytes32[](changedCAEntities.length);
     changedEntities = caEntityArrayToEntityArray(changedCAEntities);
-
     // Update voxel types after interaction
+    updateVoxelTypes(callerAddress, changedEntities);
+
+    return changedEntities;
+  }
+
+  function updateVoxelTypes(address callerAddress, bytes32[] memory changedEntities) internal {
     for (uint256 i = 0; i < changedEntities.length; i++) {
       bytes32 changedEntity = changedEntities[i];
       if (changedEntity != 0) {
         bytes32 changedVoxelTypeId = CAVoxelType.getVoxelTypeId(callerAddress, changedEntity);
         uint32 scale = VoxelTypeRegistry.getScale(IStore(getRegistryAddress()), changedVoxelTypeId);
-        bytes32 changedCAEntity = entityToCAEntity(callerAddress, changedEntity);
         bytes32 voxelVariantId = getVoxelVariant(
           changedVoxelTypeId,
-          changedCAEntity,
+          entityToCAEntity(callerAddress, changedEntity),
           entityArrayToCAEntityArray(
             callerAddress,
             getNeighbourEntitiesFromCaller(callerAddress, scale, changedEntity)
@@ -296,8 +301,6 @@ abstract contract CA is System {
         CAVoxelType.set(callerAddress, changedEntity, changedVoxelTypeId, voxelVariantId);
       }
     }
-
-    return changedEntities;
   }
 
   function activateVoxel(bytes32 entity) public returns (string memory) {

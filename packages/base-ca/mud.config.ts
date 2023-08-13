@@ -101,6 +101,11 @@ export default mudConfig({
     {
       name: "KeysInTableModule",
       root: true,
+      args: [resolveTableId("CAEntityReverseMapping")],
+    },
+    {
+      name: "KeysInTableModule",
+      root: true,
       args: [resolveTableId("ElectronTunnelSpot")],
     },
   ],

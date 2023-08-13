@@ -5,7 +5,7 @@ import { IWorld } from "@tenet-level3-ca/src/codegen/world/IWorld.sol";
 import { VoxelType } from "@tenet-base-ca/src/prototypes/VoxelType.sol";
 import { VoxelVariantsRegistryData } from "@tenet-registry/src/codegen/tables/VoxelVariantsRegistry.sol";
 import { NoaBlockType } from "@tenet-registry/src/codegen/Types.sol";
-import { registerVoxelVariant, registerVoxelType } from "@tenet-registry/src/Utils.sol";
+import { registerVoxelVariant, registerVoxelType, voxelSelectorsForVoxel } from "@tenet-registry/src/Utils.sol";
 import { REGISTRY_ADDRESS, RoadVoxelID } from "@tenet-level3-ca/src/Constants.sol";
 import { DirtVoxelID } from "@tenet-level2-ca/src/Constants.sol";
 import { VoxelCoord } from "@tenet-utils/src/Types.sol";
@@ -42,11 +42,13 @@ contract RoadVoxelSystem is VoxelType {
       roadChildVoxelTypes,
       roadChildVoxelTypes,
       RoadVoxelVariantID,
-      IWorld(world).ca_RoadVoxelSystem_enterWorld.selector,
-      IWorld(world).ca_RoadVoxelSystem_exitWorld.selector,
-      IWorld(world).ca_RoadVoxelSystem_variantSelector.selector,
-      IWorld(world).ca_RoadVoxelSystem_activate.selector,
-      IWorld(world).ca_RoadVoxelSystem_eventHandler.selector
+      voxelSelectorsForVoxel(
+        IWorld(world).ca_RoadVoxelSystem_enterWorld.selector,
+        IWorld(world).ca_RoadVoxelSystem_exitWorld.selector,
+        IWorld(world).ca_RoadVoxelSystem_variantSelector.selector,
+        IWorld(world).ca_RoadVoxelSystem_activate.selector,
+        IWorld(world).ca_RoadVoxelSystem_eventHandler.selector
+      )
     );
   }
 

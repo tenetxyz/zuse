@@ -7,7 +7,7 @@ import { IWorld } from "@tenet-level2-ca-extensions-1/src/codegen/world/IWorld.s
 import { VoxelType } from "@tenet-base-ca/src/prototypes/VoxelType.sol";
 import { VoxelVariantsRegistryData } from "@tenet-registry/src/codegen/tables/VoxelVariantsRegistry.sol";
 import { NoaBlockType } from "@tenet-registry/src/codegen/Types.sol";
-import { registerVoxelVariant, registerVoxelType } from "@tenet-registry/src/Utils.sol";
+import { registerVoxelVariant, registerVoxelType, voxelSelectorsForVoxel } from "@tenet-registry/src/Utils.sol";
 import { InvertedSignal, InvertedSignalData } from "@tenet-level2-ca-extensions-1/src/codegen/Tables.sol";
 import { CA_ADDRESS, REGISTRY_ADDRESS, InvertedSignalVoxelID } from "@tenet-level2-ca-extensions-1/src/Constants.sol";
 import { Level2AirVoxelID } from "@tenet-level2-ca/src/Constants.sol";
@@ -33,11 +33,13 @@ contract InvertedSignalVoxelSystem is VoxelType {
       invertedSignalChildVoxelTypes,
       invertedSignalChildVoxelTypes,
       SignalOnVoxelVariantID,
-      IWorld(world).extension1_InvertedSignalVo_enterWorld.selector,
-      IWorld(world).extension1_InvertedSignalVo_exitWorld.selector,
-      IWorld(world).extension1_InvertedSignalVo_variantSelector.selector,
-      IWorld(world).extension1_InvertedSignalVo_activate.selector,
-      IWorld(world).extension1_InvertedSignalVo_eventHandler.selector
+      voxelSelectorsForVoxel(
+        IWorld(world).extension1_InvertedSignalVo_enterWorld.selector,
+        IWorld(world).extension1_InvertedSignalVo_exitWorld.selector,
+        IWorld(world).extension1_InvertedSignalVo_variantSelector.selector,
+        IWorld(world).extension1_InvertedSignalVo_activate.selector,
+        IWorld(world).extension1_InvertedSignalVo_eventHandler.selector
+      )
     );
 
     registerCAVoxelType(CA_ADDRESS, InvertedSignalVoxelID);

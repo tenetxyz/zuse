@@ -7,7 +7,7 @@ import { IWorld } from "@tenet-level2-ca-extensions-1/src/codegen/world/IWorld.s
 import { VoxelType } from "@tenet-base-ca/src/prototypes/VoxelType.sol";
 import { VoxelVariantsRegistryData } from "@tenet-registry/src/codegen/tables/VoxelVariantsRegistry.sol";
 import { NoaBlockType } from "@tenet-registry/src/codegen/Types.sol";
-import { registerVoxelVariant, registerVoxelType } from "@tenet-registry/src/Utils.sol";
+import { registerVoxelVariant, registerVoxelType, voxelSelectorsForVoxel } from "@tenet-registry/src/Utils.sol";
 import { CA_ADDRESS, REGISTRY_ADDRESS, OrangeFlowerVoxelID } from "@tenet-level2-ca-extensions-1/src/Constants.sol";
 import { Level2AirVoxelID } from "@tenet-level2-ca/src/Constants.sol";
 import { VoxelCoord } from "@tenet-utils/src/Types.sol";
@@ -44,11 +44,13 @@ contract FlowerVoxelSystem is VoxelType {
       flowerChildVoxelTypes,
       flowerChildVoxelTypes,
       OrangeFlowerVoxelVariantID,
-      IWorld(world).extension1_FlowerVoxelSyste_enterWorld.selector,
-      IWorld(world).extension1_FlowerVoxelSyste_exitWorld.selector,
-      IWorld(world).extension1_FlowerVoxelSyste_variantSelector.selector,
-      IWorld(world).extension1_FlowerVoxelSyste_activate.selector,
-      IWorld(world).extension1_FlowerVoxelSyste_eventHandler.selector
+      voxelSelectorsForVoxel(
+        IWorld(world).extension1_FlowerVoxelSyste_enterWorld.selector,
+        IWorld(world).extension1_FlowerVoxelSyste_exitWorld.selector,
+        IWorld(world).extension1_FlowerVoxelSyste_variantSelector.selector,
+        IWorld(world).extension1_FlowerVoxelSyste_activate.selector,
+        IWorld(world).extension1_FlowerVoxelSyste_eventHandler.selector
+      )
     );
 
     registerCAVoxelType(CA_ADDRESS, OrangeFlowerVoxelID);

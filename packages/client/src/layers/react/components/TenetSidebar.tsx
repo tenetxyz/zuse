@@ -1,23 +1,17 @@
 import { useEffect, useState } from "react";
 import { registerTenetComponent } from "../engine/components/TenetComponentRenderer";
 import { VoxelTypeStore, VoxelTypeStoreFilters } from "./VoxelTypeStore";
-import RegisterCreation, { RegisterCreationFormData } from "./RegisterCreation";
-import { TabRadioSelector } from "./TabRadioSelector";
-import CreationStore, { Creation, CreationStoreFilters } from "./CreationStore";
+import { RegisterCreationFormData } from "./RegisterCreation";
+import CreationStore, { CreationStoreFilters } from "./CreationStore";
 import ClassifierStore, { Classifier, ClassifierStoreFilters, CreationsPage } from "./ClassifierStore";
-import { ElectiveBar } from "./ElectiveBar";
-import { Entity, getComponentValue, getComponentValueStrict, setComponent } from "@latticexyz/recs";
+import { getComponentValue, setComponent } from "@latticexyz/recs";
 import { FocusedUiType } from "../../noa/components/FocusedUi";
 import { useComponentValue } from "@latticexyz/react";
 import { twMerge } from "tailwind-merge";
 import { TargetedBlock, getTargetedSpawnId } from "../../../utils/voxels";
 import { stringToEntity } from "../../../utils/entity";
-import { ISpawn } from "../../noa/components/SpawnInFocus";
 import { WorldRegistry, WorldRegistryFilters } from "./WorldRegistry";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { abiDecode } from "@/utils/encodeOrDecode";
-import { VoxelEntity } from "@/layers/noa/types";
-import { parseCreationMetadata } from "@/utils/useCreationSearch";
+import { Creation } from "@/mud/componentParsers/creation";
 
 enum SidebarTab {
   VOXELS = "Blocks",
@@ -45,7 +39,7 @@ export function registerTenetSidebar() {
         },
         network: {
           components: { Spawn },
-          parsedComponents: { ParsedCreationRegistry },
+          parsedComponents: { ParsedCreationRegistry, ParsedSpawn },
           worldAddress,
         },
       } = layers;
@@ -98,34 +92,11 @@ export function registerTenetSidebar() {
           return;
         }
 
-        const rawSpawn = getComponentValue(Spawn, stringToEntity(spawnId));
-        if (!rawSpawn) {
-          console.error("cannot find spawn object with spawnId=", spawnId);
-          return;
-        }
-
-        const voxels = abiDecode("tuple(uint32 scale, bytes32 entityId)[]", rawSpawn.voxels) as VoxelEntity[];
-
-        const spawn = {
-          spawnId: stringToEntity(spawnId),
-          creationId: stringToEntity(rawSpawn.creationId),
-          lowerSouthWestCorner: abiDecode("tuple(int32 x,int32 y,int32 z)", rawSpawn.lowerSouthWestCorner),
-          voxels,
-        } as ISpawn;
-        // TODO: use a function to parse the creation, rther than this hacky thing
-        const creation = ParsedCreationRegistry.componentRows.get(spawn.creationId);
-        if (creation === undefined) {
-          console.warn(
-            "cannot find creation for the spawn's creationId. creationId=",
-            spawn.creationId,
-            " spawnId=",
-            spawn.spawnId
-          );
-          return;
-        }
+        const spawn = ParsedSpawn.getRecordStrict(stringToEntity(spawnId));
+        const creation = ParsedCreationRegistry.getRecordStrict(spawn.creationId);
         setComponent(SpawnInFocus, SingletonEntity, {
-          spawn,
-          creation,
+          spawn: spawn as any,
+          creation: creation as any,
         });
       };
 

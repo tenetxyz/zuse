@@ -158,7 +158,7 @@ const RegisterCreation: React.FC<Props> = ({ layers, formData, setFormData, rese
       // This is kinda sus since no voxel can have "Air" in its name.
       return !voxelTypeDesc.name.includes("Air");
     });
-    return voxels;
+    return nonAirVoxels;
   };
 
   const onSelectCreationCorners = () => {

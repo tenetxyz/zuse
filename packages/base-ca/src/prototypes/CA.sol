@@ -76,14 +76,15 @@ abstract contract CA is System {
       CAPosition.set(callerAddress, entity, CAPositionData({ x: coord.x, y: coord.y, z: coord.z }));
     }
 
-    require(
-      !hasKey(CAEntityMappingTableId, CAEntityMapping.encodeKeyTuple(callerAddress, entity)),
-      "CA Entity already exists"
-    );
+    bytes32 caEntity;
+    if (!hasKey(CAEntityMappingTableId, CAEntityMapping.encodeKeyTuple(callerAddress, entity))) {
+      caEntity = getUniqueEntity();
+      CAEntityMapping.set(callerAddress, entity, caEntity);
+      CAEntityReverseMapping.set(caEntity, callerAddress, entity);
+    } else {
+      caEntity = entityToCAEntity(callerAddress, entity);
+    }
 
-    bytes32 caEntity = getUniqueEntity();
-    CAEntityMapping.set(callerAddress, entity, caEntity);
-    CAEntityReverseMapping.set(caEntity, callerAddress, entity);
     bytes32[] memory caNeighbourEntityIds = entityArrayToCAEntityArray(callerAddress, neighbourEntityIds);
 
     voxelEnterWorld(voxelTypeId, coord, caEntity);
@@ -149,9 +150,6 @@ abstract contract CA is System {
     CAVoxelType.set(callerAddress, entity, emptyVoxelId(), airVoxelVariantId);
 
     voxelExitWorld(voxelTypeId, coord, caEntity);
-
-    CAEntityMapping.deleteRecord(callerAddress, entity);
-    CAEntityReverseMapping.deleteRecord(caEntity);
   }
 
   function voxelRunInteraction(

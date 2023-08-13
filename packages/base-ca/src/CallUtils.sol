@@ -2,7 +2,7 @@
 pragma solidity >=0.8.0;
 
 import { VoxelCoord } from "@tenet-utils/src/Types.sol";
-import { CA_ENTER_WORLD_SIG, CA_EXIT_WORLD_SIG, CA_RUN_INTERACTION_SIG, CA_ACTIVATE_VOXEL_SIG, CA_REGISTER_VOXEL_SIG } from "@tenet-base-ca/src/Constants.sol";
+import { CA_ENTER_WORLD_SIG, CA_EXIT_WORLD_SIG, CA_RUN_INTERACTION_SIG, CA_ACTIVATE_VOXEL_SIG, CA_REGISTER_VOXEL_SIG, CA_MOVE_WORLD_SIG } from "@tenet-base-ca/src/Constants.sol";
 import { safeCall, safeStaticCall } from "@tenet-utils/src/CallUtils.sol";
 
 function mineWorld(address callerAddress, bytes32 voxelTypeId, VoxelCoord memory coord) returns (bytes memory) {
@@ -20,6 +20,27 @@ function buildWorld(address callerAddress, bytes32 voxelTypeId, VoxelCoord memor
       callerAddress,
       abi.encodeWithSignature("buildVoxelType(bytes32,(int32,int32,int32),bool,bool)", voxelTypeId, coord, true, false),
       string(abi.encode("buildVoxelType ", voxelTypeId, " ", coord))
+    );
+}
+
+function moveWorld(
+  address callerAddress,
+  bytes32 voxelTypeId,
+  VoxelCoord memory oldCoord,
+  VoxelCoord memory newCoord
+) returns (bytes memory) {
+  return
+    safeCall(
+      callerAddress,
+      abi.encodeWithSignature(
+        "moveVoxelType(bytes32,(int32,int32,int32),(int32,int32,int32),bool,bool)",
+        voxelTypeId,
+        oldCoord,
+        newCoord,
+        true,
+        false
+      ),
+      string(abi.encode("moveVoxelType ", voxelTypeId, " ", oldCoord, " ", newCoord))
     );
 }
 
@@ -90,6 +111,50 @@ function exitWorld(
           voxelTypeId,
           " ",
           coord,
+          " ",
+          entity,
+          " ",
+          neighbourEntityIds,
+          " ",
+          childEntityIds,
+          " ",
+          parentEntity
+        )
+      )
+    );
+}
+
+function moveLayer(
+  address caAddress,
+  bytes32 voxelTypeId,
+  VoxelCoord memory oldCoord,
+  VoxelCoord memory newCoord,
+  bytes32 entity,
+  bytes32[] memory neighbourEntityIds,
+  bytes32[] memory childEntityIds,
+  bytes32 parentEntity
+) returns (bytes memory) {
+  return
+    safeCall(
+      caAddress,
+      abi.encodeWithSignature(
+        CA_MOVE_WORLD_SIG,
+        voxelTypeId,
+        oldCoord,
+        newCoord,
+        entity,
+        neighbourEntityIds,
+        childEntityIds,
+        parentEntity
+      ),
+      string(
+        abi.encode(
+          "enterWorld ",
+          voxelTypeId,
+          " ",
+          oldCoord,
+          " ",
+          newCoord,
           " ",
           entity,
           " ",

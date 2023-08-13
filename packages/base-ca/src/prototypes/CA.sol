@@ -67,22 +67,19 @@ abstract contract CA is System {
 
     // Check if we can set the voxel type at this position
     bytes32 existingEntity = getEntityAtCoord(IStore(_world()), callerAddress, coord);
+    bytes32 caEntity;
     if (existingEntity != 0) {
       require(
         CAVoxelType.get(callerAddress, existingEntity).voxelTypeId == emptyVoxelId(),
         "This position is already occupied by another voxel"
       );
+      caEntity = entityToCAEntity(callerAddress, entity);
     } else {
+      require(!hasKey(CAEntityMappingTableId, CAEntityMapping.encodeKeyTuple(callerAddress, entity)), "Entity exists"));
       CAPosition.set(callerAddress, entity, CAPositionData({ x: coord.x, y: coord.y, z: coord.z }));
-    }
-
-    bytes32 caEntity;
-    if (!hasKey(CAEntityMappingTableId, CAEntityMapping.encodeKeyTuple(callerAddress, entity))) {
       caEntity = getUniqueEntity();
       CAEntityMapping.set(callerAddress, entity, caEntity);
       CAEntityReverseMapping.set(caEntity, callerAddress, entity);
-    } else {
-      caEntity = entityToCAEntity(callerAddress, entity);
     }
 
     bytes32[] memory caNeighbourEntityIds = entityArrayToCAEntityArray(callerAddress, neighbourEntityIds);
@@ -150,6 +147,70 @@ abstract contract CA is System {
     CAVoxelType.set(callerAddress, entity, emptyVoxelId(), airVoxelVariantId);
 
     voxelExitWorld(voxelTypeId, coord, caEntity);
+  }
+
+  function moveWorld(
+    bytes32 voxelTypeId,
+    VoxelCoord memory oldCoord,
+    VoxelCoord memory newCoord,
+    bytes32 newEntity,
+    bytes32[] memory neighbourEntityIds,
+    bytes32[] memory childEntityIds,
+    bytes32 parentEntity
+  ) public {
+    address callerAddress = _msgSender();
+    require(isVoxelTypeAllowed(voxelTypeId), "CASystem: This voxel type is not allowed in this CA");
+
+    bytes32 oldEntity = getEntityAtCoord(IStore(_world()), callerAddress, oldCoord);
+    require(oldEntity != 0, "No entity at old coord");
+
+    // Set to old entity Air
+    bytes32 oldCAEntity = entityToCAEntity(callerAddress, oldEntity);
+    // TODO: Note these neighbour, child, and parent are NOT for the old coord
+    // But for air, we don't need them.
+    bytes32 airVoxelVariantId = getVoxelVariant(
+      emptyVoxelId(),
+      new bytes32(0),
+      new bytes32[](0),
+      new bytes32[](0),
+      new bytes32(0)
+    );
+    CAVoxelType.set(callerAddress, oldEntity, emptyVoxelId(), airVoxelVariantId);
+
+    // Set new entity to voxel type
+    bytes32 existingEntity = getEntityAtCoord(IStore(_world()), callerAddress, newCoord);
+    bytes32 newCAEntity;
+    if (existingEntity != 0) {
+      require(
+        CAVoxelType.get(callerAddress, existingEntity).voxelTypeId == emptyVoxelId(),
+        "This position is already occupied by another voxel"
+      );
+      newCAEntity = entityToCAEntity(callerAddress, newEntity);
+    } else {
+      require(!hasKey(CAEntityMappingTableId, CAEntityMapping.encodeKeyTuple(callerAddress, newEntity)), "Entity exists"));
+      CAPosition.set(callerAddress, newEntity, CAPositionData({ x: newCoord.x, y: newCoord.y, z: newCoord.z }));
+      newCAEntity = getUniqueEntity();
+      CAEntityMapping.set(callerAddress, newEntity, newCAEntity);
+      CAEntityReverseMapping.set(newCAEntity, callerAddress, newEntity);
+    }
+
+    bytes32[] memory caNeighbourEntityIds = entityArrayToCAEntityArray(callerAddress, neighbourEntityIds);
+
+    // Update CA entity mapping from old to new
+    // Note: This is the main move of the pointer
+    CAEntityMapping.set(callerAddress, oldEntity, newCAEntity);
+    CAEntityReverseMapping.set(newCAEntity, callerAddress, oldEntity);
+    CAEntityMapping.set(callerAddress, newEntity, oldCAEntity);
+    CAEntityReverseMapping.set(oldCAEntity, callerAddress, newEntity);
+
+    bytes32 voxelVariantId = getVoxelVariant(
+      voxelTypeId,
+      oldCAEntity, // This needs to be the old one, since it's a move
+      caNeighbourEntityIds,
+      childEntityIds,
+      parentEntity
+    );
+    CAVoxelType.set(callerAddress, newEntity, voxelTypeId, voxelVariantId);
   }
 
   function voxelRunInteraction(

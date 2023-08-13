@@ -10,7 +10,7 @@ import { CAVoxelType, CAVoxelTypeData } from "@tenet-base-ca/src/codegen/tables/
 import { NUM_VOXEL_NEIGHBOURS, MAX_VOXEL_NEIGHBOUR_UPDATE_DEPTH } from "../Constants.sol";
 import { Position, PositionData, VoxelType, VoxelTypeData, VoxelActivated, VoxelActivatedData } from "@tenet-contracts/src/codegen/Tables.sol";
 import { getEntityAtCoord, calculateChildCoords, calculateParentCoord } from "../Utils.sol";
-import { runInteraction, enterWorld, exitWorld, activateVoxel } from "@tenet-base-ca/src/CallUtils.sol";
+import { runInteraction, enterWorld, exitWorld, activateVoxel, moveLayer } from "@tenet-base-ca/src/CallUtils.sol";
 import { addressToEntityKey } from "@tenet-utils/src/Utils.sol";
 
 contract RunCASystem is System {
@@ -29,6 +29,20 @@ contract RunCASystem is System {
     bytes32[] memory childEntityIds = calculateChildEntities(scale, entity);
     bytes32 parentEntity = calculateParentEntity(scale, entity);
     enterWorld(caAddress, voxelTypeId, coord, entity, neighbourEntities, childEntityIds, parentEntity);
+  }
+
+  function moveCA(
+    address caAddress,
+    uint32 scale,
+    bytes32 voxelTypeId,
+    VoxelCoord memory oldCoord,
+    VoxelCoord memory newCoord,
+    bytes32 newEntity
+  ) public {
+    bytes32[] memory neighbourEntities = calculateNeighbourEntities(scale, newEntity);
+    bytes32[] memory childEntityIds = calculateChildEntities(scale, newEntity);
+    bytes32 parentEntity = calculateParentEntity(scale, newEntity);
+    moveLayer(caAddress, voxelTypeId, oldCoord, newCoord, newEntity, neighbourEntities, childEntityIds, parentEntity);
   }
 
   function exitCA(

@@ -7,8 +7,8 @@ import { Color3, Mesh } from "@babylonjs/core";
 import { add, calculateMinMaxRelativeCoordsOfCreation, decodeCoord, getWorldScale } from "../../../utils/coord";
 import { Entity } from "@latticexyz/recs";
 import { VoxelCoord } from "@latticexyz/utils";
-import { ISpawn } from "../components/SpawnInFocus";
 import { abiDecode } from "@/utils/encodeOrDecode";
+import { ISpawn } from "@/mud/componentParsers/spawn";
 
 export type BaseCreation = {
   creationId: Entity;

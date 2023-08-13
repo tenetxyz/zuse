@@ -834,9 +834,10 @@ export async function setupNetwork() {
     }
   );
 
-  const { ParsedCreationRegistry, ParsedVoxelTypeRegistry } = setupComponentParsers(
+  const { ParsedCreationRegistry, ParsedVoxelTypeRegistry, ParsedSpawn } = setupComponentParsers(
     world,
     registryResult,
+    result,
     networkConfig.worldAddress
   );
 
@@ -850,6 +851,7 @@ export async function setupNetwork() {
     parsedComponents: {
       ParsedCreationRegistry,
       ParsedVoxelTypeRegistry,
+      ParsedSpawn,
     },
     world,
     worldContract,

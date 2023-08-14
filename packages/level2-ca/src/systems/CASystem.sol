@@ -4,7 +4,7 @@ pragma solidity >=0.8.0;
 import { IWorld } from "@tenet-level2-ca/src/codegen/world/IWorld.sol";
 import { CA } from "@tenet-base-ca/src/prototypes/CA.sol";
 import { VoxelCoord } from "@tenet-utils/src/Types.sol";
-import { Level2AirVoxelID, GrassVoxelID, DirtVoxelID, BedrockVoxelID } from "@tenet-level2-ca/src/Constants.sol";
+import { Level2AirVoxelID, GrassVoxelID, DirtVoxelID, BedrockVoxelID, FighterVoxelID } from "@tenet-level2-ca/src/Constants.sol";
 import { getKeysInTable } from "@latticexyz/world/src/modules/keysintable/getKeysInTable.sol";
 import { REGISTER_CA_SIG } from "@tenet-registry/src/Constants.sol";
 import { EMPTY_ID } from "./LibTerrainSystem.sol";
@@ -21,11 +21,12 @@ contract CASystem is CA {
   }
 
   function registerCA() public override {
-    bytes32[] memory caVoxelTypes = new bytes32[](4);
+    bytes32[] memory caVoxelTypes = new bytes32[](5);
     caVoxelTypes[0] = Level2AirVoxelID;
     caVoxelTypes[1] = GrassVoxelID;
     caVoxelTypes[2] = DirtVoxelID;
     caVoxelTypes[3] = BedrockVoxelID;
+    caVoxelTypes[4] = FighterVoxelID;
 
     safeCall(
       getRegistryAddress(),

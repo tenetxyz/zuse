@@ -2,16 +2,17 @@
 pragma solidity >=0.8.0;
 
 import { IStore } from "@latticexyz/store/src/IStore.sol";
-import { IWorld } from "@tenet-base-ca/src/codegen/world/IWorld.sol";
+import { IWorld } from "@tenet-level2-ca/src/codegen/world/IWorld.sol";
 import { VoxelType } from "@tenet-base-ca/src/prototypes/VoxelType.sol";
 import { VoxelVariantsRegistryData } from "@tenet-registry/src/codegen/tables/VoxelVariantsRegistry.sol";
 import { NoaBlockType } from "@tenet-registry/src/codegen/Types.sol";
 import { hasKey } from "@latticexyz/world/src/modules/keysintable/hasKey.sol";
 import { registerVoxelVariant, registerVoxelType, voxelSelectorsForVoxel } from "@tenet-registry/src/Utils.sol";
-import { REGISTRY_ADDRESS, FighterVoxelID } from "@tenet-base-ca/src/Constants.sol";
+import { REGISTRY_ADDRESS, FighterVoxelID } from "@tenet-level2-ca/src/Constants.sol";
 import { VoxelCoord } from "@tenet-utils/src/Types.sol";
 import { getFirstCaller } from "@tenet-utils/src/Utils.sol";
 import { getCAEntityAtCoord, getCAVoxelType } from "@tenet-base-ca/src/Utils.sol";
+import { AirVoxelID } from "@tenet-base-ca/src/Constants.sol";
 
 bytes32 constant FighterVoxelVariantID = bytes32(keccak256("fighter"));
 string constant FighterTexture = "bafkreihpdljsgdltghxehq4cebngtugfj3pduucijxcrvcla4hoy34f7vq";
@@ -29,8 +30,10 @@ contract FighterAgentSystem is VoxelType {
     fighterVariant.materials = abi.encode(fighterMaterials);
     registerVoxelVariant(REGISTRY_ADDRESS, FighterVoxelVariantID, fighterVariant);
 
-    bytes32[] memory fighterChildVoxelTypes = new bytes32[](1);
-    fighterChildVoxelTypes[0] = FighterVoxelID;
+    bytes32[] memory fighterChildVoxelTypes = new bytes32[](8);
+    for (uint i = 0; i < 8; i++) {
+      fighterChildVoxelTypes[i] = AirVoxelID;
+    }
     bytes32 baseVoxelTypeId = FighterVoxelID;
     registerVoxelType(
       REGISTRY_ADDRESS,

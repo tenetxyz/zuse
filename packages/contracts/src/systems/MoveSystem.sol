@@ -89,8 +89,8 @@ contract MoveSystem is System {
     VoxelType.set(scale, newVoxelEntity, newCAVoxelType.voxelTypeId, newCAVoxelType.voxelVariantId);
 
     // Need to run 2 interactions because we're moving so two entities are involved
-    IWorld(_world()).runCA(caAddress, scale, oldVoxelEntity);
-    IWorld(_world()).runCA(caAddress, scale, newVoxelEntity);
+    IWorld(_world()).runCA(caAddress, scale, oldVoxelEntity, bytes4(0));
+    IWorld(_world()).runCA(caAddress, scale, newVoxelEntity, bytes4(0));
 
     return (scale, oldVoxelEntity, newVoxelEntity);
   }

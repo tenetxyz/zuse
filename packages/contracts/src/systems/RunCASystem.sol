@@ -170,7 +170,7 @@ contract RunCASystem is System {
     return parentEntity;
   }
 
-  function runCA(address caAddress, uint32 scale, bytes32 entity) public {
+  function runCA(address caAddress, uint32 scale, bytes32 entity, bytes4 interactionSelector) public {
     bytes32[] memory centerEntitiesToCheckStack = new bytes32[](MAX_VOXEL_NEIGHBOUR_UPDATE_DEPTH);
     uint256 centerEntitiesToCheckStackIdx = 0;
     uint256 useStackIdx = 0;
@@ -181,6 +181,8 @@ contract RunCASystem is System {
 
     // Keep looping until there is no neighbour to process or we reached max depth
     // TODO: We need to call parent CA's as well after we're done going over this CA
+    bytes4 useInteractionSelector = interactionSelector;
+
     while (useStackIdx < MAX_VOXEL_NEIGHBOUR_UPDATE_DEPTH) {
       bytes32 useCenterEntityId = centerEntitiesToCheckStack[useStackIdx];
       bytes32[] memory useNeighbourEntities = calculateNeighbourEntities(scale, useCenterEntityId);
@@ -194,12 +196,14 @@ contract RunCASystem is System {
       // Run interaction logic
       bytes memory returnData = runInteraction(
         caAddress,
+        useInteractionSelector,
         useCenterEntityId,
         useNeighbourEntities,
         childEntityIds,
         parentEntity
       );
       bytes32[] memory changedEntities = abi.decode(returnData, (bytes32[]));
+      useInteractionSelector = bytes4(0); // Only use the interaction selector for the first call, then use the Mind
 
       // If there are changed entities, we want to run voxel interactions again but with this new neighbour as the center
       for (uint256 i; i < changedEntities.length; i++) {

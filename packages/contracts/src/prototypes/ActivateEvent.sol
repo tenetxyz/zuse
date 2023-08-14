@@ -10,17 +10,21 @@ import { Strings } from "@openzeppelin/contracts/utils/Strings.sol";
 import { hasKey } from "@latticexyz/world/src/modules/keysintable/hasKey.sol";
 import { REGISTRY_ADDRESS } from "@tenet-contracts/src/Constants.sol";
 import { IWorld } from "@tenet-contracts/src/codegen/world/IWorld.sol";
-import { VoxelCoord } from "../Types.sol";
+import { VoxelCoord, ActivateEventData } from "../Types.sol";
 import { calculateChildCoords, getEntityAtCoord, positionDataToVoxelCoord } from "../Utils.sol";
 
 abstract contract ActivateEvent is Event {
   // Called by users
-  function activate(bytes32 voxelTypeId, VoxelCoord memory coord) public virtual returns (uint32, bytes32) {
+  function activate(
+    bytes32 voxelTypeId,
+    VoxelCoord memory coord,
+    bytes4 interactionSelector
+  ) public virtual returns (uint32, bytes32) {
     VoxelTypeRegistryData memory voxelTypeData = VoxelTypeRegistry.get(IStore(REGISTRY_ADDRESS), voxelTypeId);
     uint32 scale = voxelTypeData.scale;
     bytes32 eventVoxelEntity = getEntityAtCoord(scale, coord);
     require(eventVoxelEntity != 0, "ActivateEvent: no voxel entity at coord");
-    return runEvent(voxelTypeId, coord, abi.encode(0));
+    return runEvent(voxelTypeId, coord, abi.encode(ActivateEventData({ interactionSelector: interactionSelector })));
   }
 
   // Called by CA
@@ -84,5 +88,10 @@ abstract contract ActivateEvent is Event {
     bytes memory eventData
   ) internal override {
     IWorld(_world()).activateCA(caAddress, scale, eventVoxelEntity);
+  }
+
+  function runCA(address caAddress, uint32 scale, bytes32 eventVoxelEntity, bytes memory eventData) internal override {
+    ActivateEventData memory activateEventData = abi.decode(eventData, (ActivateEventData));
+    IWorld(_world()).runCA(caAddress, scale, eventVoxelEntity, activateEventData.interactionSelector);
   }
 }

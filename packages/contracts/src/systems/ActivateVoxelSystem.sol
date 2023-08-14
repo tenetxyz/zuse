@@ -17,8 +17,12 @@ contract ActivateVoxelSystem is ActivateEvent {
   }
 
   // Called by users
-  function activate(bytes32 voxelTypeId, VoxelCoord memory coord) public override returns (uint32, bytes32) {
-    return super.activate(voxelTypeId, coord);
+  function activate(
+    bytes32 voxelTypeId,
+    VoxelCoord memory coord,
+    bytes4 interactionSelector
+  ) public override returns (uint32, bytes32) {
+    return super.activate(voxelTypeId, coord, interactionSelector);
   }
 
   // Called by CA

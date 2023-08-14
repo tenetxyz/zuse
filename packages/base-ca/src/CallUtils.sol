@@ -174,6 +174,7 @@ function moveLayer(
 
 function runInteraction(
   address caAddress,
+  bytes4 interactionSelector,
   bytes32 entity,
   bytes32[] memory neighbourEntityIds,
   bytes32[] memory childEntityIds,
@@ -182,8 +183,28 @@ function runInteraction(
   return
     safeCall(
       caAddress,
-      abi.encodeWithSignature(CA_RUN_INTERACTION_SIG, entity, neighbourEntityIds, childEntityIds, parentEntity),
-      string(abi.encode("runInteraction ", entity, " ", neighbourEntityIds, " ", childEntityIds, " ", parentEntity))
+      abi.encodeWithSignature(
+        CA_RUN_INTERACTION_SIG,
+        interactionSelector,
+        entity,
+        neighbourEntityIds,
+        childEntityIds,
+        parentEntity
+      ),
+      string(
+        abi.encode(
+          "runInteraction ",
+          interactionSelector,
+          " ",
+          entity,
+          " ",
+          neighbourEntityIds,
+          " ",
+          childEntityIds,
+          " ",
+          parentEntity
+        )
+      )
     );
 }
 

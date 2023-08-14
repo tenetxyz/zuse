@@ -87,4 +87,8 @@ abstract contract MineEvent is Event {
     // Enter World
     IWorld(_world()).exitCA(caAddress, scale, voxelTypeId, coord, eventVoxelEntity);
   }
+
+  function runCA(address caAddress, uint32 scale, bytes32 eventVoxelEntity, bytes memory eventData) internal override {
+    IWorld(_world()).runCA(caAddress, scale, eventVoxelEntity, bytes4(0));
+  }
 }

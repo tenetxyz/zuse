@@ -65,6 +65,8 @@ abstract contract Event is System {
     bytes memory eventData
   ) internal virtual;
 
+  function runCA(address caAddress, uint32 scale, bytes32 eventVoxelEntity, bytes memory eventData) internal virtual;
+
   function runEventHandlerForParent(
     bytes32 voxelTypeId,
     VoxelCoord memory coord,
@@ -159,7 +161,7 @@ abstract contract Event is System {
     CAVoxelTypeData memory entityCAVoxelType = CAVoxelType.get(IStore(caAddress), _world(), eventVoxelEntity);
     VoxelType.set(scale, eventVoxelEntity, entityCAVoxelType.voxelTypeId, entityCAVoxelType.voxelVariantId);
 
-    IWorld(_world()).runCA(caAddress, scale, eventVoxelEntity);
+    runCA(caAddress, scale, eventVoxelEntity, eventData);
 
     postRunCA(caAddress, voxelTypeId, coord, scale, eventVoxelEntity, eventData);
 

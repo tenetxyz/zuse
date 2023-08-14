@@ -693,13 +693,20 @@ export async function setupNetwork() {
     const [scaleAsHex, entityId] = (entity as string).split(":");
     const coord = getComponentValue(contractComponents.Position, entity) as VoxelCoord;
 
+    const activateSelector = "0x00000000";
+
     actions.add({
       id: `activateVoxel+entity=${entity}` as Entity,
       metadata: { actionType: "activateVoxel", preview },
       requirement: () => true,
       components: {},
       execute: () => {
-        return callSystem("activate", [voxelTypeKeyInMudTable.voxelTypeId, coord, { gasLimit: 900_000_000 }]);
+        return callSystem("activate", [
+          voxelTypeKeyInMudTable.voxelTypeId,
+          coord,
+          activateSelector,
+          { gasLimit: 900_000_000 },
+        ]);
       },
       updates: () => [],
       txMayNotWriteToTable: true,

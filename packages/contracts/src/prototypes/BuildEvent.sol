@@ -104,6 +104,10 @@ abstract contract BuildEvent is Event {
     bytes memory eventData
   ) internal override {}
 
+  function runCA(address caAddress, uint32 scale, bytes32 eventVoxelEntity, bytes memory eventData) internal override {
+    IWorld(_world()).runCA(caAddress, scale, eventVoxelEntity, bytes4(0));
+  }
+
   function hasSameVoxelTypeSchema(
     uint32 scale,
     bytes32[] memory referenceVoxelTypeIds,

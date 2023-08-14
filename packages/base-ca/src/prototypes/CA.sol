@@ -243,6 +243,7 @@ abstract contract CA is System {
   }
 
   function voxelRunInteraction(
+    bytes4 interactionSelector,
     bytes32 voxelTypeId,
     bytes32 caInteractEntity,
     bytes32[] memory caNeighbourEntityIds,
@@ -254,6 +255,7 @@ abstract contract CA is System {
     bytes32 baseVoxelTypeId = VoxelTypeRegistry.getBaseVoxelTypeId(IStore(getRegistryAddress()), voxelTypeId);
     if (baseVoxelTypeId != voxelTypeId) {
       bytes32[] memory insideChangedCAEntityIds = voxelRunInteraction(
+        bytes4(0),
         baseVoxelTypeId,
         caInteractEntity,
         caNeighbourEntityIds,
@@ -275,15 +277,32 @@ abstract contract CA is System {
       IStore(getRegistryAddress()),
       voxelTypeId
     );
-    bytes4 interactionSelector;
-    if (mindSelector != 0) {
-      // call mind to figure out which interaction selector to use
+    bytes4 useinteractionSelector = 0;
+    if (interactionSelector != 0) {
+      for (uint256 i = 0; i < interactionSelectors.length; i++) {
+        if (interactionSelectors[i].interactionSelector == interactionSelector) {
+          useinteractionSelector = interactionSelector;
+          break;
+        }
+      }
     } else {
-      interactionSelector = interactionSelectors[0].interactionSelector; // use the first one
+      if (mindSelector != 0) {
+        // call mind to figure out which interaction selector to use
+      } else {
+        useinteractionSelector = interactionSelectors[0].interactionSelector; // use the first one
+      }
     }
+    require(useinteractionSelector != 0, "Interaction selector not allowed");
+
     bytes memory returnData = safeCall(
       _world(),
-      abi.encodeWithSelector(interactionSelector, caInteractEntity, caNeighbourEntityIds, childEntityIds, parentEntity),
+      abi.encodeWithSelector(
+        useinteractionSelector,
+        caInteractEntity,
+        caNeighbourEntityIds,
+        childEntityIds,
+        parentEntity
+      ),
       "voxel interaction selector"
     );
 
@@ -306,6 +325,7 @@ abstract contract CA is System {
   }
 
   function runInteraction(
+    bytes4 interactionSelector,
     bytes32 interactEntity,
     bytes32[] memory neighbourEntityIds,
     bytes32[] memory childEntityIds,
@@ -328,6 +348,7 @@ abstract contract CA is System {
 
     // Center Interaction
     bytes32[] memory changedCAEntities = voxelRunInteraction(
+      interactionSelector,
       voxelTypeId,
       caInteractEntity,
       caNeighbourEntityIds,
@@ -341,6 +362,7 @@ abstract contract CA is System {
         bytes32 neighbourVoxelTypeId = CAVoxelType.getVoxelTypeId(callerAddress, neighbourEntityIds[i]);
         // Call voxel interaction
         bytes32[] memory changedCANeighbourEntities = voxelRunInteraction(
+          bytes4(0),
           neighbourVoxelTypeId,
           caInteractEntity,
           caNeighbourEntityIds,

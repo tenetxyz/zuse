@@ -14,6 +14,7 @@ import { registerBackgroundFade } from "./BackgroundFade";
 import { registerSplashCard } from "./SplashCard";
 import { registerPersistentSidebar } from "./PersistentSidebar";
 import { registerZoomOverlay } from "./ZoomOverlay";
+import { registerWorldMap } from "./WorldMap";
 export * from "./common";
 
 export function registerUIComponents() {
@@ -35,4 +36,5 @@ export function registerUIComponents() {
   registerPersistentSidebar();
   // registerSplashCard();
   registerZoomOverlay();
+  registerWorldMap();
 }

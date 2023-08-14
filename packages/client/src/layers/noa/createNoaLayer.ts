@@ -77,6 +77,8 @@ import { VoxelVariantNoaDef, VoxelBaseTypeId, VoxelVariantTypeId } from "./types
 import { DEFAULT_BLOCK_TEST_DISTANCE } from "./setup/setupNoaEngine";
 import { FocusedUiType } from "./components/FocusedUi";
 import { defineWorldScaleComponent } from "./components/WorldScale";
+import { createPhaserEngine } from "@latticexyz/phaserx";
+import { phaserConfig } from "./setup/setupPhaser";
 
 export enum UiComponentType {
   INVENTORY = "Inventory",
@@ -84,7 +86,7 @@ export enum UiComponentType {
   WORLD = "World",
 }
 
-export function createNoaLayer(network: NetworkLayer) {
+export async function createNoaLayer(network: NetworkLayer) {
   const world = namespaceWorld(network.world, "noa");
   const {
     worldAddress,
@@ -385,11 +387,16 @@ export function createNoaLayer(network: NetworkLayer) {
   //   playerChunk$.pipe(map((coord) => getStakeAndClaim(coord))).subscribe(stakeAndClaim$)?.unsubscribe
   // );
 
+  const phaser = await createPhaserEngine(phaserConfig);
+  const { game, scenes, dispose: disposePhaser } = phaser; // I unwrapped these vars here just for documentation purposes
+  world.registerDisposer(disposePhaser);
+
   const context = {
     world,
     components,
     mudToNoaId,
     noa,
+    phaser,
     api: {
       setVoxel,
       setCraftingTable,

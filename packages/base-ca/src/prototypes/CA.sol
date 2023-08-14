@@ -292,7 +292,7 @@ abstract contract CA is System {
         useinteractionSelector = interactionSelectors[0].interactionSelector; // use the first one
       }
     }
-    require(useinteractionSelector != 0, "Interaction selector not allowed");
+    require(useinteractionSelector != 0, "Interaction selector not found");
 
     bytes memory returnData = safeCall(
       _world(),

@@ -48,6 +48,16 @@ export default mudConfig({
         voxelVariantId: "bytes32",
       },
     },
+    CAMind: {
+      registerAsRoot: true,
+      keySchema: {
+        caEntity: "bytes32",
+      },
+      schema: {
+        voxelTypeId: "bytes32",
+        mindSelector: "bytes4",
+      },
+    },
   },
   systems: {
     CASystem: {
@@ -92,6 +102,11 @@ export default mudConfig({
       name: "KeysInTableModule",
       root: true,
       args: [resolveTableId("CAEntityReverseMapping")],
+    },
+    {
+      name: "KeysInTableModule",
+      root: true,
+      args: [resolveTableId("CAMind")],
     },
   ],
 });

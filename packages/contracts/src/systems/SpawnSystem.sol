@@ -41,7 +41,8 @@ contract SpawnSystem is System {
         voxelTypes[i].voxelTypeId,
         spawnVoxelAtCoord,
         true,
-        true
+        true,
+        abi.encode(0)
       );
 
       // update the spawn-related components

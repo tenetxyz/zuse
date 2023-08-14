@@ -20,7 +20,7 @@ abstract contract ActivateEvent is Event {
     uint32 scale = voxelTypeData.scale;
     bytes32 eventVoxelEntity = getEntityAtCoord(scale, coord);
     require(eventVoxelEntity != 0, "ActivateEvent: no voxel entity at coord");
-    return runEvent(voxelTypeId, coord);
+    return runEvent(voxelTypeId, coord, abi.encode(0));
   }
 
   // Called by CA
@@ -28,10 +28,11 @@ abstract contract ActivateEvent is Event {
     bytes32 voxelTypeId,
     VoxelCoord memory coord,
     bool activateChildren,
-    bool activateParent
+    bool activateParent,
+    bytes memory eventData
   ) public virtual returns (uint32, bytes32);
 
-  function preEvent(bytes32 voxelTypeId, VoxelCoord memory coord) internal override {
+  function preEvent(bytes32 voxelTypeId, VoxelCoord memory coord, bytes memory eventData) internal override {
     IWorld(_world()).approveActivate(tx.origin, voxelTypeId, coord);
   }
 
@@ -39,26 +40,29 @@ abstract contract ActivateEvent is Event {
     bytes32 voxelTypeId,
     VoxelCoord memory coord,
     uint32 scale,
-    bytes32 eventVoxelEntity
+    bytes32 eventVoxelEntity,
+    bytes memory eventData
   ) internal override {}
 
   function runEventHandlerForParent(
     bytes32 voxelTypeId,
     VoxelCoord memory coord,
     uint32 scale,
-    bytes32 eventVoxelEntity
+    bytes32 eventVoxelEntity,
+    bytes memory eventData
   ) internal override {}
 
-  function runEventHandlerForChildren(
+  function runEventHandlerForIndividualChildren(
     bytes32 voxelTypeId,
     VoxelCoord memory coord,
     uint32 scale,
     bytes32 eventVoxelEntity,
     bytes32 childVoxelTypeId,
-    VoxelCoord memory childCoord
+    VoxelCoord memory childCoord,
+    bytes memory eventData
   ) internal override {
     if (childVoxelTypeId != 0) {
-      runEventHandler(childVoxelTypeId, childCoord, true, false);
+      runEventHandler(childVoxelTypeId, childCoord, true, false, eventData);
     }
   }
 
@@ -67,7 +71,8 @@ abstract contract ActivateEvent is Event {
     bytes32 voxelTypeId,
     VoxelCoord memory coord,
     uint32 scale,
-    bytes32 eventVoxelEntity
+    bytes32 eventVoxelEntity,
+    bytes memory eventData
   ) internal override {}
 
   function postRunCA(
@@ -75,7 +80,8 @@ abstract contract ActivateEvent is Event {
     bytes32 voxelTypeId,
     VoxelCoord memory coord,
     uint32 scale,
-    bytes32 eventVoxelEntity
+    bytes32 eventVoxelEntity,
+    bytes memory eventData
   ) internal override {
     IWorld(_world()).activateCA(caAddress, scale, eventVoxelEntity);
   }

@@ -12,9 +12,10 @@ contract BuildSystem is BuildEvent {
     bytes32 voxelTypeId,
     VoxelCoord memory coord,
     bool runEventOnChildren,
-    bool runEventOnParent
+    bool runEventOnParent,
+    bytes memory eventData
   ) internal override returns (uint32, bytes32) {
-    return IWorld(_world()).buildVoxelType(voxelTypeId, coord, runEventOnChildren, runEventOnParent);
+    return IWorld(_world()).buildVoxelType(voxelTypeId, coord, runEventOnChildren, runEventOnParent, eventData);
   }
 
   // Called by users
@@ -23,7 +24,7 @@ contract BuildSystem is BuildEvent {
     require(OwnedBy.get(scale, entity) == tx.origin, "voxel is not owned by player");
     VoxelTypeData memory voxelType = VoxelType.get(scale, entity);
 
-    return super.runEvent(voxelType.voxelTypeId, coord);
+    return super.runEvent(voxelType.voxelTypeId, coord, abi.encode(0));
   }
 
   // Called by CA
@@ -31,8 +32,9 @@ contract BuildSystem is BuildEvent {
     bytes32 voxelTypeId,
     VoxelCoord memory coord,
     bool buildChildren,
-    bool buildParent
+    bool buildParent,
+    bytes memory eventData
   ) public override returns (uint32, bytes32) {
-    return super.buildVoxelType(voxelTypeId, coord, buildChildren, buildParent);
+    return super.buildVoxelType(voxelTypeId, coord, buildChildren, buildParent, eventData);
   }
 }

@@ -22,6 +22,9 @@ contract MindRegistrySystem is System {
         "World address has not been registered"
       );
     }
+    // Set creator
+    mind.creator = tx.origin;
+
     Mind[] memory newMinds;
     if (hasKey(MindRegistryTableId, MindRegistry.encodeKeyTuple(voxelTypeId, worldAddress))) {
       bytes memory mindData = MindRegistry.get(voxelTypeId, worldAddress);

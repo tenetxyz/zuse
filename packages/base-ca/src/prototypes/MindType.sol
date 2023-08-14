@@ -6,7 +6,7 @@ import { VoxelCoord } from "@tenet-utils/src/Types.sol";
 import { getFirstCaller } from "@tenet-utils/src/Utils.sol";
 
 // Represents a voxel (or Minecraft block)
-abstract contract Mind is System {
+abstract contract MindType is System {
   function getCallerAddress() public view returns (address) {
     address callerAddress = getFirstCaller();
     if (callerAddress == address(0)) {

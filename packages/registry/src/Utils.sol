@@ -142,7 +142,11 @@ function voxelSpawned(address registryAddress, bytes32 voxelTypeId) returns (uin
   return abi.decode(result, (uint256));
 }
 
-function registerMind(address registryAddress, bytes32 voxelTypeId, Mind memory mind) returns (bytes memory) {
+function registerMindIntoRegistry(
+  address registryAddress,
+  bytes32 voxelTypeId,
+  Mind memory mind
+) returns (bytes memory) {
   return safeCall(registryAddress, abi.encodeWithSignature(REGISTER_MIND_SIG, voxelTypeId, mind), "registerMind");
 }
 

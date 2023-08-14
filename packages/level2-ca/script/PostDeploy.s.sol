@@ -20,6 +20,8 @@ contract PostDeploy is Script {
     IWorld(worldAddress).ca_BedrockVoxelSyst_registerVoxel();
     IWorld(worldAddress).ca_FighterAgentSyst_registerVoxel();
 
+    IWorld(worldAddress).ca_FighterMindSyste_registerMind();
+
     IWorld(worldAddress).registerCA();
 
     vm.stopBroadcast();

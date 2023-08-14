@@ -7,3 +7,7 @@ enum EventType {
   Mine,
   Activate
 }
+
+struct BuildEventData {
+  bytes4 mindSelector;
+}

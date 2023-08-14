@@ -4,6 +4,7 @@ pragma solidity >=0.8.0;
 import { getUniqueEntity } from "@latticexyz/world/src/modules/uniqueentity/getUniqueEntity.sol";
 import { System } from "@latticexyz/world/src/System.sol";
 import { VoxelCoord, VoxelEntity } from "@tenet-utils/src/Types.sol";
+import { BuildEventData } from "../Types.sol";
 import { OwnedBy, Position, PositionTableId, VoxelType, VoxelTypeData, OfSpawn, Spawn, SpawnData } from "@tenet-contracts/src/codegen/Tables.sol";
 import { increaseVoxelTypeSpawnCount } from "../Utils.sol";
 import { voxelCoordsAreEqual, add } from "@tenet-utils/src/VoxelCoordUtils.sol";
@@ -42,7 +43,7 @@ contract SpawnSystem is System {
         spawnVoxelAtCoord,
         true,
         true,
-        abi.encode(0)
+        abi.encode(BuildEventData({ mindSelector: bytes4(0) })) /// TODO: which mind to use during spawns?
       );
 
       // update the spawn-related components

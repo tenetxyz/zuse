@@ -4,7 +4,7 @@ pragma solidity >=0.8.0;
 import { IStore } from "@latticexyz/store/src/IStore.sol";
 import { IWorld } from "@tenet-contracts/src/codegen/world/IWorld.sol";
 import { Event } from "./Event.sol";
-import { VoxelCoord } from "../Types.sol";
+import { VoxelCoord, BuildEventData } from "../Types.sol";
 import { VoxelTypeRegistry, VoxelTypeRegistryData } from "@tenet-registry/src/codegen/tables/VoxelTypeRegistry.sol";
 import { REGISTRY_ADDRESS } from "@tenet-contracts/src/Constants.sol";
 import { CARegistry } from "@tenet-registry/src/codegen/tables/CARegistry.sol";
@@ -20,7 +20,12 @@ import { voxelSpawned } from "@tenet-registry/src/Utils.sol";
 
 abstract contract BuildEvent is Event {
   // Called by users
-  function build(uint32 scale, bytes32 entity, VoxelCoord memory coord) public virtual returns (uint32, bytes32);
+  function build(
+    uint32 scale,
+    bytes32 entity,
+    VoxelCoord memory coord,
+    bytes4 mindSelector
+  ) public virtual returns (uint32, bytes32);
 
   // Called by CA
   function buildVoxelType(
@@ -85,8 +90,9 @@ abstract contract BuildEvent is Event {
     bytes32 eventVoxelEntity,
     bytes memory eventData
   ) internal override {
+    BuildEventData memory buildEventData = abi.decode(eventData, (BuildEventData));
     // Enter World
-    IWorld(_world()).enterCA(caAddress, scale, voxelTypeId, bytes4(0), coord, eventVoxelEntity);
+    IWorld(_world()).enterCA(caAddress, scale, voxelTypeId, buildEventData.mindSelector, coord, eventVoxelEntity);
   }
 
   function postRunCA(
@@ -159,7 +165,7 @@ abstract contract BuildEvent is Event {
             worldVoxelTypeId,
             parentVoxelCoord,
             false,
-            eventData
+            abi.encode(BuildEventData({ mindSelector: bytes4(0) })) // TODO: which mind to use for the parent?
           );
           buildParentVoxel(parentScale, parentVoxelEntity, parentVoxelCoord, eventData);
           break;

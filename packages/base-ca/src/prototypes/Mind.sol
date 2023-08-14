@@ -19,9 +19,10 @@ abstract contract Mind is System {
   function registerMind() public virtual;
 
   function mindLogic(
+    bytes32 voxelTypeId,
     bytes32 entity,
     bytes32[] memory neighbourEntityIds,
     bytes32[] memory childEntityIds,
     bytes32 parentEntity
-  ) public virtual;
+  ) public virtual returns (bytes4);
 }

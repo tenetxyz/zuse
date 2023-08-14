@@ -288,6 +288,23 @@ abstract contract CA is System {
     } else {
       if (mindSelector != 0) {
         // call mind to figure out which interaction selector to use
+        bytes memory mindReturnData = safeCall(
+          _world(),
+          abi.encodeWithSelector(
+            mindSelector,
+            voxelTypeId,
+            caInteractEntity,
+            caNeighbourEntityIds,
+            childEntityIds,
+            parentEntity
+          ),
+          "voxel activate"
+        );
+        useinteractionSelector = abi.decode(mindReturnData, (bytes4));
+        if (useinteractionSelector == 0) {
+          // The mind has chosen to not run a voxel interaction
+          return changedCAEntities;
+        }
       } else {
         useinteractionSelector = interactionSelectors[0].interactionSelector; // use the first one
       }

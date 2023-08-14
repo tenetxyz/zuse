@@ -44,6 +44,7 @@ export default mudConfig({
         scale: "uint32",
         previewVoxelVariantId: "bytes32",
         baseVoxelTypeId: "bytes32",
+        minds: "bytes", // Mind[]
         selectors: "bytes", // VoxelSelectors
         metadata: "bytes", // CreationMetadata
         childVoxelTypeIds: "bytes32[]",

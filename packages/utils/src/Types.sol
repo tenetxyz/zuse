@@ -31,6 +31,13 @@ enum BlockDirection {
   Down
 }
 
+struct Mind {
+  address creator;
+  string name;
+  string description;
+  bytes4 mindSelector;
+}
+
 struct InteractionSelector {
   bytes4 interactionSelector;
   string interactionName;

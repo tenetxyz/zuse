@@ -13,3 +13,4 @@ string constant CA_REGISTER_VOXEL_SIG = "registerVoxelType(bytes32)";
 bytes32 constant AirVoxelID = bytes32(keccak256("air"));
 bytes32 constant AirVoxelVariantID = bytes32(keccak256("air"));
 bytes32 constant ElectronVoxelID = bytes32(keccak256("electron"));
+bytes32 constant FighterVoxelID = bytes32(keccak256("fighter"));

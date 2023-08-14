@@ -5,6 +5,7 @@ pragma solidity >=0.8.0;
 
 import { IBaseWorld } from "@latticexyz/world/src/interfaces/IBaseWorld.sol";
 
+import { IFighterAgentSystem } from "./IFighterAgentSystem.sol";
 import { ICACallerSystem } from "./ICACallerSystem.sol";
 import { ICASystem } from "./ICASystem.sol";
 import { IElectronSystem } from "./IElectronSystem.sol";
@@ -15,6 +16,14 @@ import { IElectronVoxelSystem } from "./IElectronVoxelSystem.sol";
  * The IWorld interface includes all systems dynamically added to the World
  * during the deploy process.
  */
-interface IWorld is IBaseWorld, ICACallerSystem, ICASystem, IElectronSystem, IAirVoxelSystem, IElectronVoxelSystem {
+interface IWorld is
+  IBaseWorld,
+  IFighterAgentSystem,
+  ICACallerSystem,
+  ICASystem,
+  IElectronSystem,
+  IAirVoxelSystem,
+  IElectronVoxelSystem
+{
 
 }

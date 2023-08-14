@@ -22,13 +22,14 @@ contract RunCASystem is System {
     address caAddress,
     uint32 scale,
     bytes32 voxelTypeId,
+    bytes4 mindSelector,
     VoxelCoord memory coord,
     bytes32 entity
   ) public {
     bytes32[] memory neighbourEntities = calculateNeighbourEntities(scale, entity);
     bytes32[] memory childEntityIds = calculateChildEntities(scale, entity);
     bytes32 parentEntity = calculateParentEntity(scale, entity);
-    enterWorld(caAddress, voxelTypeId, coord, entity, neighbourEntities, childEntityIds, parentEntity);
+    enterWorld(caAddress, voxelTypeId, mindSelector, coord, entity, neighbourEntities, childEntityIds, parentEntity);
   }
 
   function moveCA(

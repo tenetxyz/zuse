@@ -47,6 +47,7 @@ function moveWorld(
 function enterWorld(
   address caAddress,
   bytes32 voxelTypeId,
+  bytes4 mindSelector,
   VoxelCoord memory coord,
   bytes32 entity,
   bytes32[] memory neighbourEntityIds,
@@ -59,6 +60,7 @@ function enterWorld(
       abi.encodeWithSignature(
         CA_ENTER_WORLD_SIG,
         voxelTypeId,
+        mindSelector,
         coord,
         entity,
         neighbourEntityIds,
@@ -69,6 +71,8 @@ function enterWorld(
         abi.encode(
           "enterWorld ",
           voxelTypeId,
+          " ",
+          mindSelector,
           " ",
           coord,
           " ",

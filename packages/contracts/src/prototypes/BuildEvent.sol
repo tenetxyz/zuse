@@ -75,7 +75,7 @@ abstract contract BuildEvent is Event {
     bytes32 eventVoxelEntity
   ) internal override {
     // Enter World
-    IWorld(_world()).enterCA(caAddress, scale, voxelTypeId, coord, eventVoxelEntity);
+    IWorld(_world()).enterCA(caAddress, scale, voxelTypeId, bytes4(0), coord, eventVoxelEntity);
   }
 
   function postRunCA(

@@ -8,6 +8,7 @@ import { getUniqueEntity } from "@latticexyz/world/src/modules/uniqueentity/getU
 import { VoxelTypeRegistry } from "@tenet-registry/src/codegen/tables/VoxelTypeRegistry.sol";
 import { CARegistry } from "@tenet-registry/src/codegen/tables/CARegistry.sol";
 import { CAPosition, CAPositionData, CAPositionTableId } from "@tenet-base-ca/src/codegen/tables/CAPosition.sol";
+import { CAMind, CAMindTableId } from "@tenet-base-ca/src/codegen/tables/CAMind.sol";
 import { CAEntityMapping, CAEntityMappingTableId } from "@tenet-base-ca/src/codegen/tables/CAEntityMapping.sol";
 import { CAEntityReverseMapping } from "@tenet-base-ca/src/codegen/tables/CAEntityReverseMapping.sol";
 import { CAVoxelType, CAVoxelTypeTableId } from "@tenet-base-ca/src/codegen/tables/CAVoxelType.sol";
@@ -57,6 +58,7 @@ abstract contract CA is System {
 
   function enterWorld(
     bytes32 voxelTypeId,
+    bytes4 mindSelector,
     VoxelCoord memory coord,
     bytes32 entity,
     bytes32[] memory neighbourEntityIds,
@@ -82,6 +84,7 @@ abstract contract CA is System {
       CAEntityMapping.set(callerAddress, entity, caEntity);
       CAEntityReverseMapping.set(caEntity, callerAddress, entity);
     }
+    CAMind.set(caEntity, voxelTypeId, mindSelector);
 
     bytes32[] memory caNeighbourEntityIds = entityArrayToCAEntityArray(callerAddress, neighbourEntityIds);
 
@@ -148,6 +151,8 @@ abstract contract CA is System {
     CAVoxelType.set(callerAddress, entity, emptyVoxelId(), airVoxelVariantId);
 
     voxelExitWorld(voxelTypeId, coord, caEntity);
+
+    CAMind.set(caEntity, voxelTypeId, bytes4(0)); // emoty voxel has no mind
   }
 
   function moveWorld(
@@ -262,11 +267,20 @@ abstract contract CA is System {
         }
       }
     }
+    // Call mind to figure out whch voxel interaction to run
+    require(hasKey(CAMindTableId, CAMind.encodeKeyTuple(caInteractEntity)), "Mind does not exist");
+    bytes4 mindSelector = CAMind.getMindSelector(caInteractEntity);
+
     InteractionSelector[] memory interactionSelectors = getInteractionSelectors(
       IStore(getRegistryAddress()),
       voxelTypeId
     );
-    bytes4 interactionSelector = interactionSelectors[0].interactionSelector;
+    bytes4 interactionSelector;
+    if (mindSelector != 0) {
+      // call mind to figure out which interaction selector to use
+    } else {
+      interactionSelector = interactionSelectors[0].interactionSelector; // use the first one
+    }
     bytes memory returnData = safeCall(
       _world(),
       abi.encodeWithSelector(interactionSelector, caInteractEntity, caNeighbourEntityIds, childEntityIds, parentEntity),
@@ -308,8 +322,6 @@ abstract contract CA is System {
     bytes32[] memory caNeighbourEntityIds = entityArrayToCAEntityArray(callerAddress, neighbourEntityIds);
 
     // TODO: Call update function before calling mind
-
-    // TODO: Call mind to figure out whch voxel interaction to run
 
     // Note: Center and Neighbour could just be different interfaces, but then the user would have to
     // define two, so instead we just call one interface and pass in the entity ids

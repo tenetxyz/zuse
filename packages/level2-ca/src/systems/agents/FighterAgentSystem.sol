@@ -13,6 +13,7 @@ import { VoxelCoord } from "@tenet-utils/src/Types.sol";
 import { getFirstCaller } from "@tenet-utils/src/Utils.sol";
 import { getCAEntityAtCoord, getCAVoxelType } from "@tenet-base-ca/src/Utils.sol";
 import { AirVoxelID } from "@tenet-base-ca/src/Constants.sol";
+import { console } from "forge-std/console.sol";
 
 bytes32 constant FighterVoxelVariantID = bytes32(keccak256("fighter"));
 string constant FighterTexture = "bafkreihpdljsgdltghxehq4cebngtugfj3pduucijxcrvcla4hoy34f7vq";
@@ -35,6 +36,8 @@ contract FighterAgentSystem is VoxelType {
       fighterChildVoxelTypes[i] = AirVoxelID;
     }
     bytes32 baseVoxelTypeId = FighterVoxelID;
+    console.log("Fighter");
+    console.logBytes4(IWorld(world).ca_FighterAgentSyst_eventHandler.selector);
     registerVoxelType(
       REGISTRY_ADDRESS,
       "Fighter",
@@ -75,5 +78,13 @@ contract FighterAgentSystem is VoxelType {
     bytes32 parentEntity
   ) public override returns (bytes32, bytes32[] memory) {
     address callerAddress = super.getCallerAddress();
+    return
+      IWorld(_world()).ca_MoveForwardSyste_eventHandlerMoveForward(
+        callerAddress,
+        centerEntityId,
+        neighbourEntityIds,
+        childEntityIds,
+        parentEntity
+      );
   }
 }

@@ -17,7 +17,7 @@ import { getTableIds } from "@latticexyz/utils";
 export type SetupNetworkResult = Awaited<ReturnType<typeof setupNetwork>>;
 
 export async function setupNetwork() {
-  const worldId = "base-ca";
+  const worldId = "registry";
   const contractComponents = defineContractComponents(world);
   const networkConfig = await getNetworkConfig(worldId);
   networkConfig.showInDevTools = true;

@@ -44,11 +44,19 @@ export default mudConfig({
         scale: "uint32",
         previewVoxelVariantId: "bytes32",
         baseVoxelTypeId: "bytes32",
-        minds: "bytes", // Mind[]
         selectors: "bytes", // VoxelSelectors
         metadata: "bytes", // CreationMetadata
         childVoxelTypeIds: "bytes32[]",
         schemaVoxelTypeIds: "bytes32[]", // This is used when a child is built to figure out if the parent should be built. We can't juse use childVoxelTypeIds, because the child entities may move
+      },
+    },
+    MindRegistry: {
+      keySchema: {
+        voxelTypeId: "bytes32",
+        worldAddress: "address",
+      },
+      schema: {
+        minds: "bytes", // Mind[]
       },
     },
     VoxelVariantsRegistry: {

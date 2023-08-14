@@ -11,3 +11,5 @@ string constant REGISTER_CREATION_SIG = "registerCreation(string,string,(bytes32
 string constant GET_VOXELS_IN_CREATION_SIG = "getVoxelsInCreation(bytes32)";
 string constant CREATION_SPAWNED_SIG = "creationSpawned(bytes32)";
 string constant VOXEL_SPAWNED_SIG = "voxelSpawned(bytes32)";
+string constant REGISTER_MIND_SIG = "registerMind(bytes32,(address,string,string,bytes4))";
+string constant REGISTER_MIND_WORLD_SIG = "registerMindForWorld(bytes32,address,(address,string,string,bytes4))";

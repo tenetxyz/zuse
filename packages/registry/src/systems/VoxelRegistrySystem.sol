@@ -6,7 +6,7 @@ import { getKeysInTable } from "@latticexyz/world/src/modules/keysintable/getKey
 import { System } from "@latticexyz/world/src/System.sol";
 import { WorldRegistryTableId, WorldRegistry, VoxelTypeRegistry, VoxelTypeRegistryData, VoxelTypeRegistryTableId, VoxelVariantsRegistry, VoxelVariantsRegistryData, VoxelVariantsRegistryTableId } from "../codegen/Tables.sol";
 import { entityArraysAreEqual } from "@tenet-utils/src/Utils.sol";
-import { CreationMetadata, CreationSpawns, VoxelSelectors, Mind } from "@tenet-utils/src/Types.sol";
+import { CreationMetadata, CreationSpawns, VoxelSelectors } from "@tenet-utils/src/Types.sol";
 
 contract VoxelRegistrySystem is System {
   function registerVoxelType(
@@ -98,7 +98,6 @@ contract VoxelRegistrySystem is System {
 
     VoxelTypeRegistryData memory voxelTypeData;
     voxelTypeData.baseVoxelTypeId = baseVoxelTypeId;
-    voxelTypeData.minds = abi.encode(new Mind[](0));
     // TODO: add checks on selectors
     voxelTypeData.selectors = abi.encode(voxelSelectors);
     voxelTypeData.childVoxelTypeIds = childVoxelTypeIds;
@@ -168,21 +167,5 @@ contract VoxelRegistrySystem is System {
     }
 
     return newSpawnCount;
-  }
-
-  function registerMind(bytes32 voxelTypeId, Mind memory mind) public {
-    require(
-      hasKey(VoxelTypeRegistryTableId, VoxelTypeRegistry.encodeKeyTuple(voxelTypeId)),
-      "Voxel type ID has not been registered"
-    );
-    bytes memory mindData = VoxelTypeRegistry.getMinds(voxelTypeId);
-    Mind[] memory minds = abi.decode(mindData, (Mind[]));
-    Mind[] memory newMinds = new Mind[](minds.length + 1);
-    for (uint256 i = 0; i < minds.length; i++) {
-      require(minds[i].mindSelector != mind.mindSelector, "Mind already registered");
-      newMinds[i] = minds[i];
-    }
-    newMinds[minds.length] = mind;
-    VoxelTypeRegistry.setMinds(voxelTypeId, abi.encode(newMinds));
   }
 }

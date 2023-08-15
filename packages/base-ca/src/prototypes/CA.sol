@@ -309,7 +309,10 @@ abstract contract CA is System {
         useinteractionSelector = interactionSelectors[0].interactionSelector; // use the first one
       }
     }
-    require(useinteractionSelector != 0, "Interaction selector not found");
+    require(
+      useinteractionSelector != 0,
+      string(abi.encode("Interaction selector not found", " ", interactionSelector))
+    );
 
     bytes memory returnData = safeCall(
       _world(),

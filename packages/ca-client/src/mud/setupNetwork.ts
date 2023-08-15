@@ -5,6 +5,7 @@ import { defineContractComponents } from "./contractComponents";
 import { world } from "./world";
 import { Contract, Signer, utils } from "ethers";
 import { JsonRpcProvider } from "@ethersproject/providers";
+import { defaultAbiCoder as abi } from "ethers/lib/utils";
 import { IWorld__factory as BaseCAWordl_factory } from "@tenetxyz/base-ca/types/ethers-contracts/factories/IWorld__factory";
 import { IWorld__factory as Level2CAWordl_factory } from "@tenetxyz/level2-ca/types/ethers-contracts/factories/IWorld__factory";
 import { IWorld__factory as RegistryIWorld__factory } from "@tenetxyz/registry/types/ethers-contracts/factories/IWorld__factory";
@@ -36,6 +37,13 @@ export async function setupNetwork() {
   } else {
     throw new Error("Unknown world");
   }
+
+  const encodedType = "(bytes4,bytes4,bytes4,bytes4,(bytes4,string,string)[])"; // VoxelSelectors
+  const encodedBytes =
+    "0x000000000000000000000000000000000000000000000000000000000000002098d9e45600000000000000000000000000000000000000000000000000000000b1bd6251000000000000000000000000000000000000000000000000000000005e01311800000000000000000000000000000000000000000000000000000000c4e5cde70000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000a000000000000000000000000000000000000000000000000000000000000000010000000000000000000000000000000000000000000000000000000000000020fd50185600000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000006000000000000000000000000000000000000000000000000000000000000000a0000000000000000000000000000000000000000000000000000000000000000744656661756c74000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000";
+  const decodedData = abi.decode([encodedType], encodedBytes)[0];
+  console.log("decodedData");
+  console.log(decodedData);
 
   const result = await setupMUDV2Network<typeof contractComponents, typeof storeConfig>({
     networkConfig,

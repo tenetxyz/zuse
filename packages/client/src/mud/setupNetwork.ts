@@ -694,6 +694,7 @@ export async function setupNetwork() {
     const coord = getComponentValue(contractComponents.Position, entity) as VoxelCoord;
 
     const activateSelector = "0x00000000";
+    const moveForwardSelector = "0xfd501856";
 
     actions.add({
       id: `activateVoxel+entity=${entity}` as Entity,
@@ -704,7 +705,7 @@ export async function setupNetwork() {
         return callSystem("activate", [
           voxelTypeKeyInMudTable.voxelTypeId,
           coord,
-          activateSelector,
+          moveForwardSelector,
           { gasLimit: 900_000_000 },
         ]);
       },

@@ -25,6 +25,27 @@ abstract contract CA is System {
 
   function emptyVoxelId() internal pure virtual returns (bytes32) {}
 
+  function callVoxelEnterWorld(bytes32 voxelTypeId, VoxelCoord memory coord, bytes32 caEntity) internal virtual;
+
+  function callVoxelExitWorld(bytes32 voxelTypeId, VoxelCoord memory coord, bytes32 caEntity) internal virtual;
+
+  function callVoxelRunInteraction(
+    bytes4 interactionSelector,
+    bytes32 voxelTypeId,
+    bytes32 caInteractEntity,
+    bytes32[] memory caNeighbourEntityIds,
+    bytes32[] memory childEntityIds,
+    bytes32 parentEntity
+  ) internal virtual returns (bytes32[] memory);
+
+  function callGetVoxelVariant(
+    bytes32 voxelTypeId,
+    bytes32 caEntity,
+    bytes32[] memory caNeighbourEntityIds,
+    bytes32[] memory childEntityIds,
+    bytes32 parentEntity
+  ) internal virtual returns (bytes32);
+
   function terrainGen(
     address callerAddress,
     bytes32 voxelTypeId,
@@ -45,15 +66,6 @@ abstract contract CA is System {
       }
     }
     return false;
-  }
-
-  function voxelEnterWorld(bytes32 voxelTypeId, VoxelCoord memory coord, bytes32 caEntity) internal {
-    bytes32 baseVoxelTypeId = VoxelTypeRegistry.getBaseVoxelTypeId(IStore(getRegistryAddress()), voxelTypeId);
-    if (baseVoxelTypeId != voxelTypeId) {
-      voxelEnterWorld(baseVoxelTypeId, coord, caEntity); // recursive, so we get the entire stack of russian dolls
-    }
-    bytes4 voxelEnterWorldSelector = getEnterWorldSelector(IStore(getRegistryAddress()), voxelTypeId);
-    safeCall(_world(), abi.encodeWithSelector(voxelEnterWorldSelector, coord, caEntity), "voxel enter world");
   }
 
   function enterWorld(
@@ -88,36 +100,16 @@ abstract contract CA is System {
 
     bytes32[] memory caNeighbourEntityIds = entityArrayToCAEntityArray(callerAddress, neighbourEntityIds);
 
-    voxelEnterWorld(voxelTypeId, coord, caEntity);
+    callVoxelEnterWorld(voxelTypeId, coord, caEntity);
 
-    bytes32 voxelVariantId = getVoxelVariant(voxelTypeId, caEntity, caNeighbourEntityIds, childEntityIds, parentEntity);
-    CAVoxelType.set(callerAddress, entity, voxelTypeId, voxelVariantId);
-  }
-
-  function getVoxelVariant(
-    bytes32 voxelTypeId,
-    bytes32 caEntity,
-    bytes32[] memory caNeighbourEntityIds,
-    bytes32[] memory childEntityIds,
-    bytes32 parentEntity
-  ) public returns (bytes32) {
-    bytes4 voxelVariantSelector = getVoxelVariantSelector(IStore(getRegistryAddress()), voxelTypeId);
-    bytes memory returnData = safeStaticCall(
-      _world(),
-      abi.encodeWithSelector(voxelVariantSelector, caEntity, caNeighbourEntityIds, childEntityIds, parentEntity),
-      "voxel variant selector"
+    bytes32 voxelVariantId = callGetVoxelVariant(
+      voxelTypeId,
+      caEntity,
+      caNeighbourEntityIds,
+      childEntityIds,
+      parentEntity
     );
-    return abi.decode(returnData, (bytes32));
-  }
-
-  function voxelExitWorld(bytes32 voxelTypeId, VoxelCoord memory coord, bytes32 caEntity) internal {
-    bytes4 voxelExitWorldSelector = getExitWorldSelector(IStore(getRegistryAddress()), voxelTypeId);
-    safeCall(_world(), abi.encodeWithSelector(voxelExitWorldSelector, coord, caEntity), "voxel exit world");
-
-    bytes32 baseVoxelTypeId = VoxelTypeRegistry.getBaseVoxelTypeId(IStore(getRegistryAddress()), voxelTypeId);
-    if (baseVoxelTypeId != voxelTypeId) {
-      voxelExitWorld(baseVoxelTypeId, coord, caEntity); // recursive, so we get the entire stack of russian dolls
-    }
+    CAVoxelType.set(callerAddress, entity, voxelTypeId, voxelVariantId);
   }
 
   function exitWorld(
@@ -141,7 +133,7 @@ abstract contract CA is System {
     bytes32[] memory caNeighbourEntityIds = entityArrayToCAEntityArray(callerAddress, neighbourEntityIds);
 
     // set to Air
-    bytes32 airVoxelVariantId = getVoxelVariant(
+    bytes32 airVoxelVariantId = callGetVoxelVariant(
       emptyVoxelId(),
       caEntity,
       caNeighbourEntityIds,
@@ -150,7 +142,7 @@ abstract contract CA is System {
     );
     CAVoxelType.set(callerAddress, entity, emptyVoxelId(), airVoxelVariantId);
 
-    voxelExitWorld(voxelTypeId, coord, caEntity);
+    callVoxelExitWorld(voxelTypeId, coord, caEntity);
 
     CAMind.set(caEntity, voxelTypeId, bytes4(0)); // emoty voxel has no mind
   }
@@ -175,7 +167,7 @@ abstract contract CA is System {
     // TODO: Note these neighbour, child, and parent are NOT for the old coord
     // But for air, we don't need them.
     {
-      bytes32 airVoxelVariantId = getVoxelVariant(
+      bytes32 airVoxelVariantId = callGetVoxelVariant(
         emptyVoxelId(),
         bytes32(0),
         new bytes32[](0),
@@ -234,7 +226,7 @@ abstract contract CA is System {
     bytes32 parentEntity
   ) internal {
     bytes32[] memory caNeighbourEntityIds = entityArrayToCAEntityArray(callerAddress, neighbourEntityIds);
-    bytes32 voxelVariantId = getVoxelVariant(
+    bytes32 voxelVariantId = callGetVoxelVariant(
       voxelTypeId,
       oldCAEntity, // This needs to be the old one, since it's a move
       caNeighbourEntityIds,
@@ -242,105 +234,6 @@ abstract contract CA is System {
       parentEntity
     );
     CAVoxelType.set(callerAddress, newEntity, voxelTypeId, voxelVariantId);
-  }
-
-  function voxelRunInteraction(
-    bytes4 interactionSelector,
-    bytes32 voxelTypeId,
-    bytes32 caInteractEntity,
-    bytes32[] memory caNeighbourEntityIds,
-    bytes32[] memory childEntityIds,
-    bytes32 parentEntity
-  ) internal returns (bytes32[] memory) {
-    bytes32[] memory changedCAEntities = new bytes32[](caNeighbourEntityIds.length + 1);
-
-    bytes32 baseVoxelTypeId = VoxelTypeRegistry.getBaseVoxelTypeId(IStore(getRegistryAddress()), voxelTypeId);
-    if (baseVoxelTypeId != voxelTypeId) {
-      bytes32[] memory insideChangedCAEntityIds = voxelRunInteraction(
-        bytes4(0),
-        baseVoxelTypeId,
-        caInteractEntity,
-        caNeighbourEntityIds,
-        childEntityIds,
-        parentEntity
-      ); // recursive, so we get the entire stack of russian dolls
-
-      for (uint256 i = 0; i < insideChangedCAEntityIds.length; i++) {
-        if (changedCAEntities[i] == 0 && insideChangedCAEntityIds[i] != 0) {
-          changedCAEntities[i] = insideChangedCAEntityIds[i];
-        }
-      }
-    }
-    // Call mind to figure out whch voxel interaction to run
-    require(hasKey(CAMindTableId, CAMind.encodeKeyTuple(caInteractEntity)), "Mind does not exist");
-    bytes4 mindSelector = CAMind.getMindSelector(caInteractEntity);
-
-    InteractionSelector[] memory interactionSelectors = getInteractionSelectors(
-      IStore(getRegistryAddress()),
-      voxelTypeId
-    );
-    bytes4 useinteractionSelector = 0;
-    if (interactionSelector != bytes4(0)) {
-      for (uint256 i = 0; i < interactionSelectors.length; i++) {
-        if (interactionSelectors[i].interactionSelector == interactionSelector) {
-          useinteractionSelector = interactionSelector;
-          break;
-        }
-      }
-    } else {
-      if (mindSelector != bytes4(0)) {
-        // call mind to figure out which interaction selector to use
-        bytes memory mindReturnData = safeCall(
-          _world(),
-          abi.encodeWithSelector(
-            mindSelector,
-            voxelTypeId,
-            caInteractEntity,
-            caNeighbourEntityIds,
-            childEntityIds,
-            parentEntity
-          ),
-          "voxel activate"
-        );
-        useinteractionSelector = abi.decode(mindReturnData, (bytes4));
-        if (useinteractionSelector == bytes4(0)) {
-          // The mind has chosen to not run a voxel interaction
-          return changedCAEntities;
-        }
-      } else {
-        useinteractionSelector = interactionSelectors[0].interactionSelector; // use the first one
-      }
-    }
-    require(useinteractionSelector != 0, "Interaction selector not found");
-
-    bytes memory returnData = safeCall(
-      _world(),
-      abi.encodeWithSelector(
-        useinteractionSelector,
-        caInteractEntity,
-        caNeighbourEntityIds,
-        childEntityIds,
-        parentEntity
-      ),
-      "voxel interaction selector"
-    );
-
-    (bytes32 changedCACenterEntityId, bytes32[] memory changedCANeighbourEntityIds) = abi.decode(
-      returnData,
-      (bytes32, bytes32[])
-    );
-
-    if (changedCAEntities[0] == 0 && changedCACenterEntityId != 0) {
-      changedCAEntities[0] = changedCACenterEntityId;
-    }
-
-    for (uint256 i = 0; i < changedCANeighbourEntityIds.length; i++) {
-      if (changedCAEntities[i + 1] == 0 && changedCANeighbourEntityIds[i] != 0) {
-        changedCAEntities[i + 1] = changedCANeighbourEntityIds[i];
-      }
-    }
-
-    return changedCAEntities;
   }
 
   function runInteraction(
@@ -364,7 +257,7 @@ abstract contract CA is System {
     // define two, so instead we just call one interface and pass in the entity ids
 
     // Center Interaction
-    bytes32[] memory changedCAEntities = voxelRunInteraction(
+    bytes32[] memory changedCAEntities = callVoxelRunInteraction(
       interactionSelector,
       voxelTypeId,
       caInteractEntity,
@@ -390,7 +283,7 @@ abstract contract CA is System {
         }
 
         // Call voxel interaction
-        bytes32[] memory changedCANeighbourEntities = voxelRunInteraction(
+        bytes32[] memory changedCANeighbourEntities = callVoxelRunInteraction(
           bytes4(0),
           neighbourVoxelTypeId,
           caInteractEntity,
@@ -420,7 +313,7 @@ abstract contract CA is System {
       if (changedEntity != 0) {
         bytes32 changedVoxelTypeId = CAVoxelType.getVoxelTypeId(callerAddress, changedEntity);
         uint32 scale = VoxelTypeRegistry.getScale(IStore(getRegistryAddress()), changedVoxelTypeId);
-        bytes32 voxelVariantId = getVoxelVariant(
+        bytes32 voxelVariantId = callGetVoxelVariant(
           changedVoxelTypeId,
           entityToCAEntity(callerAddress, changedEntity),
           entityArrayToCAEntityArray(

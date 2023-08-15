@@ -46,4 +46,41 @@ contract CASystem is CA {
     require(terrainVoxelTypeId != EMPTY_ID && terrainVoxelTypeId == voxelTypeId, "invalid terrain voxel type");
     super.terrainGen(callerAddress, voxelTypeId, coord, entity);
   }
+
+  function callVoxelEnterWorld(bytes32 voxelTypeId, VoxelCoord memory coord, bytes32 caEntity) internal override {
+    IWorld(_world()).voxelEnterWorld(voxelTypeId, coord, caEntity);
+  }
+
+  function callVoxelExitWorld(bytes32 voxelTypeId, VoxelCoord memory coord, bytes32 caEntity) internal override {
+    IWorld(_world()).voxelExitWorld(voxelTypeId, coord, caEntity);
+  }
+
+  function callVoxelRunInteraction(
+    bytes4 interactionSelector,
+    bytes32 voxelTypeId,
+    bytes32 caInteractEntity,
+    bytes32[] memory caNeighbourEntityIds,
+    bytes32[] memory childEntityIds,
+    bytes32 parentEntity
+  ) internal override returns (bytes32[] memory) {
+    return
+      IWorld(_world()).voxelRunInteraction(
+        interactionSelector,
+        voxelTypeId,
+        caInteractEntity,
+        caNeighbourEntityIds,
+        childEntityIds,
+        parentEntity
+      );
+  }
+
+  function callGetVoxelVariant(
+    bytes32 voxelTypeId,
+    bytes32 caEntity,
+    bytes32[] memory caNeighbourEntityIds,
+    bytes32[] memory childEntityIds,
+    bytes32 parentEntity
+  ) internal override returns (bytes32) {
+    return IWorld(_world()).getVoxelVariant(voxelTypeId, caEntity, caNeighbourEntityIds, childEntityIds, parentEntity);
+  }
 }

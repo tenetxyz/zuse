@@ -84,7 +84,10 @@ contract FighterAgentSystem is VoxelType {
 
   function activate(bytes32 entity) public view override returns (string memory) {}
 
-  function onNewNeighbour(bytes32 interactEntity, bytes32 neighbourEntityId) public {}
+  function onNewNeighbour(bytes32 interactEntity, bytes32 neighbourEntityId) public {
+    address callerAddress = super.getCallerAddress();
+    Fighters.setHealth(callerAddress, interactEntity, 50);
+  }
 
   function eventHandler(
     bytes32 centerEntityId,

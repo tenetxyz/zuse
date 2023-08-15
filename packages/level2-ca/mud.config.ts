@@ -78,6 +78,12 @@ export default mudConfig({
       openAccess: true,
       registerAsRoot: true,
     },
+    CAHelperSystem: {
+      name: "CAHelperSystem",
+      openAccess: false,
+      registerAsRoot: true,
+      accessList: ["CASystem"],
+    },
     CACallerSystem: {
       name: "CACallerSystem",
       openAccess: false,

@@ -16,7 +16,7 @@ import { VoxelCoord, InteractionSelector } from "@tenet-utils/src/Types.sol";
 import { getEntityAtCoord, entityArrayToCAEntityArray, entityToCAEntity, caEntityArrayToEntityArray } from "@tenet-base-ca/src/Utils.sol";
 import { getNeighbourEntitiesFromCaller, getChildEntitiesFromCaller, getParentEntityFromCaller } from "@tenet-base-ca/src/CallUtils.sol";
 import { safeCall, safeStaticCall } from "@tenet-utils/src/CallUtils.sol";
-import { getEnterWorldSelector, getExitWorldSelector, getVoxelVariantSelector, getActivateSelector, getInteractionSelectors, getoOnNewNeighbourSelector } from "@tenet-registry/src/Utils.sol";
+import { getEnterWorldSelector, getExitWorldSelector, getVoxelVariantSelector, getActivateSelector, getInteractionSelectors, getOnNewNeighbourSelector } from "@tenet-registry/src/Utils.sol";
 
 abstract contract CA is System {
   function getRegistryAddress() internal pure virtual returns (address);
@@ -379,10 +379,7 @@ abstract contract CA is System {
         bytes32 neighbourVoxelTypeId = CAVoxelType.getVoxelTypeId(callerAddress, neighbourEntityIds[i]);
 
         {
-          bytes4 onNewNeighbourSelector = getoOnNewNeighbourSelector(
-            IStore(getRegistryAddress()),
-            neighbourVoxelTypeId
-          );
+          bytes4 onNewNeighbourSelector = getOnNewNeighbourSelector(IStore(getRegistryAddress()), neighbourVoxelTypeId);
           if (onNewNeighbourSelector != bytes4(0)) {
             safeCall(
               _world(),

@@ -92,7 +92,7 @@ function getActivateSelector(IStore store, bytes32 voxelTypeId) view returns (by
   return abi.decode(selectors, (VoxelSelectors)).activateSelector;
 }
 
-function getoOnNewNeighbourSelector(IStore store, bytes32 voxelTypeId) view returns (bytes4) {
+function getOnNewNeighbourSelector(IStore store, bytes32 voxelTypeId) view returns (bytes4) {
   bytes memory selectors = VoxelTypeRegistry.getSelectors(store, voxelTypeId);
   return abi.decode(selectors, (VoxelSelectors)).onNewNeighbourSelector;
 }

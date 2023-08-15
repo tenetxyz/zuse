@@ -72,7 +72,7 @@ export default mudConfig({
       name: "CACallerSystem",
       openAccess: false,
       registerAsRoot: true,
-      accessList: ["AirVoxelSystem", "DirtVoxelSystem", "GrassVoxelSystem", "BedrockVoxelSystem"],
+      accessList: ["AirVoxelSystem", "DirtVoxelSystem", "GrassVoxelSystem", "BedrockVoxelSystem", "MoveForwardSystem"],
     },
     CAVoxelRegistrySystem: {
       name: "CAVoxelRegistryS",

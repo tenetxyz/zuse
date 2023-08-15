@@ -66,7 +66,13 @@ abstract contract ActivateEvent is Event {
     bytes memory eventData
   ) internal override {
     if (childVoxelTypeId != 0) {
-      runEventHandler(childVoxelTypeId, childCoord, true, false, eventData);
+      runEventHandler(
+        childVoxelTypeId,
+        childCoord,
+        true,
+        false,
+        abi.encode(ActivateEventData({ interactionSelector: bytes4(0) }))
+      );
     }
   }
 

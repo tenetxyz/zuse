@@ -278,7 +278,7 @@ abstract contract CA is System {
       voxelTypeId
     );
     bytes4 useinteractionSelector = 0;
-    if (interactionSelector != 0) {
+    if (interactionSelector != bytes4(0)) {
       for (uint256 i = 0; i < interactionSelectors.length; i++) {
         if (interactionSelectors[i].interactionSelector == interactionSelector) {
           useinteractionSelector = interactionSelector;
@@ -286,7 +286,7 @@ abstract contract CA is System {
         }
       }
     } else {
-      if (mindSelector != 0) {
+      if (mindSelector != bytes4(0)) {
         // call mind to figure out which interaction selector to use
         bytes memory mindReturnData = safeCall(
           _world(),
@@ -301,7 +301,7 @@ abstract contract CA is System {
           "voxel activate"
         );
         useinteractionSelector = abi.decode(mindReturnData, (bytes4));
-        if (useinteractionSelector == 0) {
+        if (useinteractionSelector == bytes4(0)) {
           // The mind has chosen to not run a voxel interaction
           return changedCAEntities;
         }
@@ -309,10 +309,7 @@ abstract contract CA is System {
         useinteractionSelector = interactionSelectors[0].interactionSelector; // use the first one
       }
     }
-    require(
-      useinteractionSelector != 0,
-      string(abi.encode("Interaction selector not found", " ", interactionSelector))
-    );
+    require(useinteractionSelector != 0, "Interaction selector not found");
 
     bytes memory returnData = safeCall(
       _world(),

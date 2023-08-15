@@ -200,6 +200,8 @@ abstract contract CA is System {
       );
       CAPosition.set(callerAddress, newEntity, CAPositionData({ x: newCoord.x, y: newCoord.y, z: newCoord.z }));
       newCAEntity = getUniqueEntity();
+      // TODO: should there be a mind for this new entity?
+      CAMind.set(newCAEntity, voxelTypeId, bytes4(0));
       // CAEntityMapping.set(callerAddress, newEntity, newCAEntity);
       // CAEntityReverseMapping.set(newCAEntity, callerAddress, newEntity);
     }

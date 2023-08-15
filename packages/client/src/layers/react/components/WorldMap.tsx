@@ -11,9 +11,9 @@ import {
 import { defineEnterSystem } from "@latticexyz/recs";
 import { registerTenetComponent } from "../engine/components/TenetComponentRenderer";
 import { Layers } from "@/types";
-import { useEffect } from "react";
-import { phaserConfig } from "@/layers/noa/setup/setupPhaser";
+import { useEffect, useRef } from "react";
 import { VoxelVariantNoaDef, VoxelVariantTypeId } from "@/layers/noa/types";
+import { Tileset, getPhaserConfig } from "@/layers/noa/setup/setupPhaser";
 
 const TILE_SIZE = 16;
 const ANIMATION_INTERVAL = 200;
@@ -49,51 +49,76 @@ export const registerWorldMap = () => {
           // },
         },
       } = layers;
+      const disposePhaser = useRef<any>();
+
+      const voxelVariantToTileSet = (
+        voxelVariantTypeId: VoxelVariantTypeId,
+        voxelVariantNoaDef: VoxelVariantNoaDef
+      ) => {
+        const voxelIconUrl = getVoxelIconUrl(voxelVariantTypeId);
+        if (!voxelIconUrl) {
+          console.warn("no url found for voxelVariantTypeId=", voxelVariantTypeId);
+          return undefined;
+        }
+        return {
+          name: voxelVariantNoaDef.noaBlockIdx.toString(),
+          path: voxelIconUrl,
+        };
+      };
       useEffect(() => {
-        (async () => {
-          const phaser = await createPhaserEngine(phaserConfig);
-          const { game, scenes, dispose: disposePhaser } = phaser; // I unwrapped these vars here just for documentation purposes
-          // console.log(inspect(game));
-          // console.log(inspect(scenes));
-          // createAnimatedTilemap;
-          // game.scene.
-          debugger;
-          world.registerDisposer(disposePhaser);
-          const {
-            camera: { phaserCamera, worldView$ },
-            maps: {
-              Main: { putTileAt },
-            },
-          } = scenes.Main;
-          // Phaser.Tilemaps.Tilemap.
+        const tilesets: Tileset[] = [];
 
-          for (const phaserScene of game.scene.getScenes(false)) {
-            const emptyMap = new Phaser.Tilemaps.Tilemap(phaserScene, new Phaser.Tilemaps.MapData());
-            // const tileset emptyMap.addTilesetImage();
-            // if (!tileset) {
-            //   console.error(`Adding tileset ${tilesetKey} failed.`);
-            //   continue;
-            // }
+        // initial load
+        for (const [voxelVariantTypeId, voxelVariantNoaDef] of VoxelVariantIdToDef.entries()) {
+          const tileset = voxelVariantToTileSet(voxelVariantTypeId, voxelVariantNoaDef);
+          if (tileset) {
+            tilesets.push(tileset);
           }
+        }
 
-          for (const [voxelVariantTypeId, voxelVariantNoaDef] of VoxelVariantIdToDef.entries()) {
-            // VoxelVariantSubscriptions.push();
-            // addTilesetImage(voxelVariantNoaDef.name, voxelVariantNoaDef.name);
+        VoxelVariantSubscriptions.push(
+          (voxelVariantTypeId: VoxelVariantTypeId, voxelVariantNoaDef: VoxelVariantNoaDef) => {
+            const tileset = voxelVariantToTileSet(voxelVariantTypeId, voxelVariantNoaDef);
+            if (tileset) {
+              tilesets.push(tileset);
+              console.log("render 2");
+              if (disposePhaser.current) {
+                disposePhaser.current();
+              }
+              renderPhaser(tilesets);
+            }
           }
+        );
 
-          phaserCamera.setBounds(-1000, -1000, 2000, 2000);
-          phaserCamera.centerOn(0, 0);
-          putTileAt({ x: 0, y: 0 }, 2); // puts on default background layer
-          putTileAt({ x: 1, y: 0 }, 10); // puts on default background layer
-          const phaserCanvas = document.querySelectorAll("#phaser-game canvas")[0];
-          // not sure if there's a param within phaser to set the size of the canvas
-          phaserCanvas.style.height = 200 + "px";
-          phaserCanvas.style.width = 200 * getScreenRatio() + "px";
-
-          const chunks = createChunks(worldView$, 16 * 16); // Tile size in pixels * Tiles per chunk
-        })();
-        // world.registerDisposer(disposePhaser);
+        // renderPhaser(tilesets);
       }, []);
+
+      const renderPhaser = async (tilesets: Tileset[]) => {
+        const phaser = await createPhaserEngine(getPhaserConfig(tilesets));
+        const { game, scenes, dispose: disposePhaserFunc } = phaser; // I unwrapped these vars here just for documentation purposes
+        disposePhaser.current = disposePhaserFunc;
+        // console.log(inspect(game));
+        // console.log(inspect(scenes));
+        // createAnimatedTilemap;
+        // game.scene.
+        const {
+          camera: { phaserCamera, worldView$ },
+          maps: {
+            Main: { putTileAt },
+          },
+        } = scenes.Main;
+
+        phaserCamera.setBounds(-1000, -1000, 2000, 2000);
+        phaserCamera.centerOn(0, 0);
+        putTileAt({ x: 0, y: 0 }, 2); // puts on default background layer
+        putTileAt({ x: 1, y: 0 }, 10); // puts on default background layer
+        const phaserCanvas = document.querySelectorAll("#phaser-game canvas")[0];
+        // not sure if there's a param within phaser to set the size of the canvas
+        phaserCanvas.style.height = 200 + "px";
+        phaserCanvas.style.width = 200 * getScreenRatio() + "px";
+
+        // const chunks = createChunks(worldView$, 16 * 16); // Tile size in pixels * Tiles per chunk
+      };
 
       // Draw map for ECS tiles
       //   defineEnterSystem(world, [Has(Position), Has(Item)], ({ entity }) => {

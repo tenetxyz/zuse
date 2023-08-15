@@ -29,12 +29,29 @@ import overworldTileset from "./overworld-tileset.png";
 const TILE_SIZE = 16;
 const ANIMATION_INTERVAL = 200;
 
-export const phaserConfig = {
-  sceneConfig: {
-    Main: defineSceneConfig({
-      assets: {
+export interface Tileset {
+  name: string;
+  path: string;
+}
+
+export const getPhaserConfig = (tilesets: Tileset[]) => {
+  const tilesetAssets: any = {
+    [Assets.OverworldTileset]: { type: AssetType.Image, key: Assets.OverworldTileset, path: overworldTileset },
+  };
+  for (const tileset of tilesets) {
+    tilesetAssets[tileset.name] = {
+      type: AssetType.Image,
+      key: tileset.name,
+      path: tileset.path,
+    };
+  }
+
+  return {
+    sceneConfig: {
+      Main: defineSceneConfig({
+        // assets: {
         // TODO: we need to create a tileset from the OPCraft textures and load it here
-        [Assets.OverworldTileset]: { type: AssetType.Image, key: Assets.OverworldTileset, path: overworldTileset },
+        //   [Assets.OverworldTileset]: { type: AssetType.Image, key: Assets.OverworldTileset, path: overworldTileset },
         // [Assets.MainAtlas]: {
         //   type: AssetType.MultiAtlas,
         //   key: Assets.MainAtlas,
@@ -43,49 +60,51 @@ export const phaserConfig = {
         //     imagePath: "/atlases/sprites/",
         //   },
         // },
-      },
-      maps: {
-        Main: defineMapConfig({
-          chunkSize: TILE_SIZE * 64, // tile size * tile amount
-          tileWidth: TILE_SIZE,
-          tileHeight: TILE_SIZE,
-          backgroundTile: [1],
-          animationInterval: ANIMATION_INTERVAL,
-          tileAnimations: {},
-          layers: {
+        // },
+        assets: tilesetAssets,
+        maps: {
+          Main: defineMapConfig({
+            chunkSize: TILE_SIZE * 64, // tile size * tile amount
+            tileWidth: TILE_SIZE,
+            tileHeight: TILE_SIZE,
+            backgroundTile: [1],
+            animationInterval: ANIMATION_INTERVAL,
+            tileAnimations: {},
             layers: {
-              Background: { tilesets: ["Default"], hasHueTintShader: true },
-              Foreground: { tilesets: ["Default"], hasHueTintShader: true },
+              layers: {
+                Background: { tilesets: ["Default"], hasHueTintShader: true },
+                Foreground: { tilesets: ["Default"], hasHueTintShader: true },
+              },
+              defaultLayer: "Background",
             },
-            defaultLayer: "Background",
-          },
-        }),
-      },
-      sprites: {
-        [Sprites.Settlement]: {
-          assetKey: Assets.MainAtlas,
-          frame: "sprites/resources/crystal.png",
+          }),
         },
-      },
-      animations: [],
-      tilesets: {
-        Default: { assetKey: Assets.OverworldTileset, tileWidth: TILE_SIZE, tileHeight: TILE_SIZE },
-      },
+        sprites: {
+          [Sprites.Settlement]: {
+            assetKey: Assets.MainAtlas,
+            frame: "sprites/resources/crystal.png",
+          },
+        },
+        animations: [],
+        tilesets: {
+          Default: { assetKey: Assets.OverworldTileset, tileWidth: TILE_SIZE, tileHeight: TILE_SIZE },
+        },
+      }),
+    },
+    scale: defineScaleConfig({
+      parent: "phaser-game",
+      zoom: 2,
+      mode: Phaser.Scale.NONE,
+      // width: "500px", // this doens't work :(
+      // height: "500px",
     }),
-  },
-  scale: defineScaleConfig({
-    parent: "phaser-game",
-    zoom: 2,
-    mode: Phaser.Scale.NONE,
-    // width: "500px", // this doens't work :(
-    // height: "500px",
-  }),
-  cameraConfig: defineCameraConfig({
-    // phaserSelector: "phaser-game",
-    pinchSpeed: 1,
-    wheelSpeed: 1,
-    maxZoom: 4,
-    minZoom: 1,
-  }),
-  cullingChunkSize: TILE_SIZE * 16,
+    cameraConfig: defineCameraConfig({
+      // phaserSelector: "phaser-game",
+      pinchSpeed: 1,
+      wheelSpeed: 1,
+      maxZoom: 4,
+      minZoom: 1,
+    }),
+    cullingChunkSize: TILE_SIZE * 16,
+  };
 };

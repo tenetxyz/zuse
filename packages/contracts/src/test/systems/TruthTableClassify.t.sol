@@ -55,8 +55,8 @@ contract TruthTableClassifyTest is MudTest {
     VoxelCoord memory coord1 = VoxelCoord(1, 2, 1);
     VoxelCoord memory coord2 = VoxelCoord(2, 1, 2);
 
-    (uint32 scaleVoxel1, bytes32 voxel1) = world.build(1, giftedSignalSource, coord1);
-    (uint32 scaleVoxel2, bytes32 voxel2) = world.build(1, giftedSignal, coord2);
+    (uint32 scaleVoxel1, bytes32 voxel1) = world.build(1, giftedSignalSource, coord1, bytes4(0));
+    (uint32 scaleVoxel2, bytes32 voxel2) = world.build(1, giftedSignal, coord2, bytes4(0));
 
     VoxelEntity[] memory voxels = new VoxelEntity[](2);
     voxels[0] = VoxelEntity({ scale: scaleVoxel1, entityId: voxel1 });

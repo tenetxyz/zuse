@@ -10,7 +10,7 @@ import { CAVoxelType, CAVoxelTypeData } from "@tenet-base-ca/src/codegen/tables/
 import { NUM_VOXEL_NEIGHBOURS, MAX_VOXEL_NEIGHBOUR_UPDATE_DEPTH } from "../Constants.sol";
 import { Position, PositionData, VoxelType, VoxelTypeData, VoxelActivated, VoxelActivatedData } from "@tenet-contracts/src/codegen/Tables.sol";
 import { getEntityAtCoord, calculateChildCoords, calculateParentCoord } from "../Utils.sol";
-import { runInteraction, enterWorld, exitWorld, activateVoxel } from "@tenet-base-ca/src/CallUtils.sol";
+import { runInteraction, enterWorld, exitWorld, activateVoxel, moveLayer } from "@tenet-base-ca/src/CallUtils.sol";
 import { addressToEntityKey } from "@tenet-utils/src/Utils.sol";
 
 contract RunCASystem is System {
@@ -22,13 +22,28 @@ contract RunCASystem is System {
     address caAddress,
     uint32 scale,
     bytes32 voxelTypeId,
+    bytes4 mindSelector,
     VoxelCoord memory coord,
     bytes32 entity
   ) public {
     bytes32[] memory neighbourEntities = calculateNeighbourEntities(scale, entity);
     bytes32[] memory childEntityIds = calculateChildEntities(scale, entity);
     bytes32 parentEntity = calculateParentEntity(scale, entity);
-    enterWorld(caAddress, voxelTypeId, coord, entity, neighbourEntities, childEntityIds, parentEntity);
+    enterWorld(caAddress, voxelTypeId, mindSelector, coord, entity, neighbourEntities, childEntityIds, parentEntity);
+  }
+
+  function moveCA(
+    address caAddress,
+    uint32 scale,
+    bytes32 voxelTypeId,
+    VoxelCoord memory oldCoord,
+    VoxelCoord memory newCoord,
+    bytes32 newEntity
+  ) public {
+    bytes32[] memory neighbourEntities = calculateNeighbourEntities(scale, newEntity);
+    bytes32[] memory childEntityIds = calculateChildEntities(scale, newEntity);
+    bytes32 parentEntity = calculateParentEntity(scale, newEntity);
+    moveLayer(caAddress, voxelTypeId, oldCoord, newCoord, newEntity, neighbourEntities, childEntityIds, parentEntity);
   }
 
   function exitCA(
@@ -155,7 +170,7 @@ contract RunCASystem is System {
     return parentEntity;
   }
 
-  function runCA(address caAddress, uint32 scale, bytes32 entity) public {
+  function runCA(address caAddress, uint32 scale, bytes32 entity, bytes4 interactionSelector) public {
     bytes32[] memory centerEntitiesToCheckStack = new bytes32[](MAX_VOXEL_NEIGHBOUR_UPDATE_DEPTH);
     uint256 centerEntitiesToCheckStackIdx = 0;
     uint256 useStackIdx = 0;
@@ -166,6 +181,8 @@ contract RunCASystem is System {
 
     // Keep looping until there is no neighbour to process or we reached max depth
     // TODO: We need to call parent CA's as well after we're done going over this CA
+    bytes4 useInteractionSelector = interactionSelector;
+
     while (useStackIdx < MAX_VOXEL_NEIGHBOUR_UPDATE_DEPTH) {
       bytes32 useCenterEntityId = centerEntitiesToCheckStack[useStackIdx];
       bytes32[] memory useNeighbourEntities = calculateNeighbourEntities(scale, useCenterEntityId);
@@ -179,12 +196,14 @@ contract RunCASystem is System {
       // Run interaction logic
       bytes memory returnData = runInteraction(
         caAddress,
+        useInteractionSelector,
         useCenterEntityId,
         useNeighbourEntities,
         childEntityIds,
         parentEntity
       );
       bytes32[] memory changedEntities = abi.decode(returnData, (bytes32[]));
+      useInteractionSelector = bytes4(0); // Only use the interaction selector for the first call, then use the Mind
 
       // If there are changed entities, we want to run voxel interactions again but with this new neighbour as the center
       for (uint256 i; i < changedEntities.length; i++) {

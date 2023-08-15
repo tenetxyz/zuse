@@ -7,7 +7,7 @@ import { IWorld } from "@tenet-level2-ca-extensions-1/src/codegen/world/IWorld.s
 import { VoxelType } from "@tenet-base-ca/src/prototypes/VoxelType.sol";
 import { VoxelVariantsRegistryData } from "@tenet-registry/src/codegen/tables/VoxelVariantsRegistry.sol";
 import { NoaBlockType } from "@tenet-registry/src/codegen/Types.sol";
-import { registerVoxelVariant, registerVoxelType } from "@tenet-registry/src/Utils.sol";
+import { registerVoxelVariant, registerVoxelType, voxelSelectorsForVoxel } from "@tenet-registry/src/Utils.sol";
 import { PowerSignal, PowerSignalData, PowerWire, PowerWireData } from "@tenet-level2-ca-extensions-1/src/codegen/Tables.sol";
 import { CA_ADDRESS, REGISTRY_ADDRESS, PowerSignalVoxelID, PowerWireVoxelID } from "@tenet-level2-ca-extensions-1/src/Constants.sol";
 import { VoxelCoord, BlockDirection } from "@tenet-utils/src/Types.sol";
@@ -69,11 +69,13 @@ contract PowerSignalVoxelSystem is VoxelType {
       powerSignalChildVoxelTypes,
       powerSignalChildVoxelTypes,
       PowerSignalOffVoxelVariantID,
-      IWorld(world).extension1_PowerSignalVoxel_enterWorld.selector,
-      IWorld(world).extension1_PowerSignalVoxel_exitWorld.selector,
-      IWorld(world).extension1_PowerSignalVoxel_variantSelector.selector,
-      IWorld(world).extension1_PowerSignalVoxel_activate.selector,
-      IWorld(world).extension1_PowerSignalVoxel_eventHandler.selector
+      voxelSelectorsForVoxel(
+        IWorld(world).extension1_PowerSignalVoxel_enterWorld.selector,
+        IWorld(world).extension1_PowerSignalVoxel_exitWorld.selector,
+        IWorld(world).extension1_PowerSignalVoxel_variantSelector.selector,
+        IWorld(world).extension1_PowerSignalVoxel_activate.selector,
+        IWorld(world).extension1_PowerSignalVoxel_eventHandler.selector
+      )
     );
 
     registerCAVoxelType(CA_ADDRESS, PowerSignalVoxelID);

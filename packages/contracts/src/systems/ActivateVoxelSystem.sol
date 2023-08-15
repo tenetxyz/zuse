@@ -10,14 +10,19 @@ contract ActivateVoxelSystem is ActivateEvent {
     bytes32 voxelTypeId,
     VoxelCoord memory coord,
     bool runEventOnChildren,
-    bool runEventOnParent
+    bool runEventOnParent,
+    bytes memory eventData
   ) internal override returns (uint32, bytes32) {
-    return IWorld(_world()).activateVoxelType(voxelTypeId, coord, runEventOnChildren, runEventOnParent);
+    return IWorld(_world()).activateVoxelType(voxelTypeId, coord, runEventOnChildren, runEventOnParent, eventData);
   }
 
   // Called by users
-  function activate(bytes32 voxelTypeId, VoxelCoord memory coord) public override returns (uint32, bytes32) {
-    return super.activate(voxelTypeId, coord);
+  function activate(
+    bytes32 voxelTypeId,
+    VoxelCoord memory coord,
+    bytes4 interactionSelector
+  ) public override returns (uint32, bytes32) {
+    return super.activate(voxelTypeId, coord, interactionSelector);
   }
 
   // Called by CA
@@ -25,8 +30,9 @@ contract ActivateVoxelSystem is ActivateEvent {
     bytes32 voxelTypeId,
     VoxelCoord memory coord,
     bool activateChildren,
-    bool activateParent
+    bool activateParent,
+    bytes memory eventData
   ) public override returns (uint32, bytes32) {
-    return super.runEventHandler(voxelTypeId, coord, activateChildren, activateParent);
+    return super.runEventHandler(voxelTypeId, coord, activateChildren, activateParent, eventData);
   }
 }

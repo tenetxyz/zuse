@@ -31,6 +31,28 @@ enum BlockDirection {
   Down
 }
 
+struct Mind {
+  address creator;
+  string name;
+  string description;
+  bytes4 mindSelector;
+}
+
+struct InteractionSelector {
+  bytes4 interactionSelector;
+  string interactionName;
+  string interactionDescription;
+}
+
+struct VoxelSelectors {
+  bytes4 enterWorldSelector;
+  bytes4 exitWorldSelector;
+  bytes4 voxelVariantSelector;
+  bytes4 activateSelector;
+  bytes4 onNewNeighbourSelector;
+  InteractionSelector[] interactionSelectors;
+}
+
 struct BlockHeightUpdate {
   uint256 blockNumber;
   uint256 blockHeightDelta;

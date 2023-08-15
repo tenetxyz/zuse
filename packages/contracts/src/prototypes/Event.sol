@@ -15,28 +15,34 @@ import { CAVoxelType, CAVoxelTypeData } from "@tenet-base-ca/src/codegen/tables/
 import { VoxelTypeRegistry, VoxelTypeRegistryData } from "@tenet-registry/src/codegen/tables/VoxelTypeRegistry.sol";
 
 abstract contract Event is System {
-  function preEvent(bytes32 voxelTypeId, VoxelCoord memory coord) internal virtual;
+  function preEvent(bytes32 voxelTypeId, VoxelCoord memory coord, bytes memory eventData) internal virtual;
 
   function postEvent(
     bytes32 voxelTypeId,
     VoxelCoord memory coord,
     uint32 scale,
-    bytes32 eventVoxelEntity
+    bytes32 eventVoxelEntity,
+    bytes memory eventData
   ) internal virtual;
 
   function callEventHandler(
     bytes32 voxelTypeId,
     VoxelCoord memory coord,
     bool runEventOnChildren,
-    bool runEventOnParent
+    bool runEventOnParent,
+    bytes memory eventData
   ) internal virtual returns (uint32, bytes32);
 
-  function runEvent(bytes32 voxelTypeId, VoxelCoord memory coord) internal virtual returns (uint32, bytes32) {
-    preEvent(voxelTypeId, coord);
+  function runEvent(
+    bytes32 voxelTypeId,
+    VoxelCoord memory coord,
+    bytes memory eventData
+  ) internal virtual returns (uint32, bytes32) {
+    preEvent(voxelTypeId, coord, eventData);
 
-    (uint32 scale, bytes32 eventVoxelEntity) = callEventHandler(voxelTypeId, coord, true, true);
+    (uint32 scale, bytes32 eventVoxelEntity) = callEventHandler(voxelTypeId, coord, true, true, eventData);
 
-    postEvent(voxelTypeId, coord, scale, eventVoxelEntity);
+    postEvent(voxelTypeId, coord, scale, eventVoxelEntity, eventData);
 
     return (scale, eventVoxelEntity);
   }
@@ -46,7 +52,8 @@ abstract contract Event is System {
     bytes32 voxelTypeId,
     VoxelCoord memory coord,
     uint32 scale,
-    bytes32 eventVoxelEntity
+    bytes32 eventVoxelEntity,
+    bytes memory eventData
   ) internal virtual;
 
   function postRunCA(
@@ -54,23 +61,55 @@ abstract contract Event is System {
     bytes32 voxelTypeId,
     VoxelCoord memory coord,
     uint32 scale,
-    bytes32 eventVoxelEntity
+    bytes32 eventVoxelEntity,
+    bytes memory eventData
   ) internal virtual;
+
+  function runCA(address caAddress, uint32 scale, bytes32 eventVoxelEntity, bytes memory eventData) internal virtual;
 
   function runEventHandlerForParent(
     bytes32 voxelTypeId,
     VoxelCoord memory coord,
     uint32 scale,
-    bytes32 eventVoxelEntity
+    bytes32 eventVoxelEntity,
+    bytes memory eventData
   ) internal virtual;
 
   function runEventHandlerForChildren(
+    bytes32 voxelTypeId,
+    VoxelTypeRegistryData memory voxelTypeData,
+    VoxelCoord memory coord,
+    uint32 scale,
+    bytes32 eventVoxelEntity,
+    bytes memory eventData
+  ) internal virtual {
+    // Read the ChildTypes in this CA address
+    bytes32[] memory childVoxelTypeIds = voxelTypeData.childVoxelTypeIds;
+    // TODO: Make this general by using cube root
+    require(childVoxelTypeIds.length == 8, "Invalid length of child voxel type ids");
+    // TODO: move this to a library
+    VoxelCoord[] memory eightBlockVoxelCoords = calculateChildCoords(2, coord);
+    for (uint8 i = 0; i < 8; i++) {
+      runEventHandlerForIndividualChildren(
+        voxelTypeId,
+        coord,
+        scale,
+        eventVoxelEntity,
+        childVoxelTypeIds[i],
+        eightBlockVoxelCoords[i],
+        eventData
+      );
+    }
+  }
+
+  function runEventHandlerForIndividualChildren(
     bytes32 voxelTypeId,
     VoxelCoord memory coord,
     uint32 scale,
     bytes32 eventVoxelEntity,
     bytes32 childVoxelTypeId,
-    VoxelCoord memory childCoord
+    VoxelCoord memory childCoord,
+    bytes memory eventData
   ) internal virtual;
 
   // Called by CA
@@ -78,16 +117,17 @@ abstract contract Event is System {
     bytes32 voxelTypeId,
     VoxelCoord memory coord,
     bool runEventOnChildren,
-    bool runEventOnParent
+    bool runEventOnParent,
+    bytes memory eventData
   ) internal virtual returns (uint32, bytes32) {
     require(
       _msgSender() == _world() || IWorld(_world()).isCAAllowed(_msgSender()),
       "Not allowed to run event handler. Must be world or CA"
     );
-    (uint32 scale, bytes32 eventVoxelEntity) = runEventHandlerHelper(voxelTypeId, coord, runEventOnChildren);
+    (uint32 scale, bytes32 eventVoxelEntity) = runEventHandlerHelper(voxelTypeId, coord, runEventOnChildren, eventData);
 
     if (runEventOnParent) {
-      runEventHandlerForParent(voxelTypeId, coord, scale, eventVoxelEntity);
+      runEventHandlerForParent(voxelTypeId, coord, scale, eventVoxelEntity, eventData);
     }
 
     return (scale, eventVoxelEntity);
@@ -96,7 +136,8 @@ abstract contract Event is System {
   function runEventHandlerHelper(
     bytes32 voxelTypeId,
     VoxelCoord memory coord,
-    bool runEventOnChildren
+    bool runEventOnChildren,
+    bytes memory eventData
   ) internal virtual returns (uint32, bytes32) {
     require(IWorld(_world()).isVoxelTypeAllowed(voxelTypeId), "Voxel type not allowed in this world");
     VoxelTypeRegistryData memory voxelTypeData = VoxelTypeRegistry.get(IStore(REGISTRY_ADDRESS), voxelTypeId);
@@ -111,33 +152,18 @@ abstract contract Event is System {
     }
 
     if (runEventOnChildren && scale > 1) {
-      // Read the ChildTypes in this CA address
-      bytes32[] memory childVoxelTypeIds = voxelTypeData.childVoxelTypeIds;
-      // TODO: Make this general by using cube root
-      require(childVoxelTypeIds.length == 8, "Invalid length of child voxel type ids");
-      // TODO: move this to a library
-      VoxelCoord[] memory eightBlockVoxelCoords = calculateChildCoords(2, coord);
-      for (uint8 i = 0; i < 8; i++) {
-        runEventHandlerForChildren(
-          voxelTypeId,
-          coord,
-          scale,
-          eventVoxelEntity,
-          childVoxelTypeIds[i],
-          eightBlockVoxelCoords[i]
-        );
-      }
+      runEventHandlerForChildren(voxelTypeId, voxelTypeData, coord, scale, eventVoxelEntity, eventData);
     }
 
-    preRunCA(caAddress, voxelTypeId, coord, scale, eventVoxelEntity);
+    preRunCA(caAddress, voxelTypeId, coord, scale, eventVoxelEntity, eventData);
 
     // Set initial voxel type
     CAVoxelTypeData memory entityCAVoxelType = CAVoxelType.get(IStore(caAddress), _world(), eventVoxelEntity);
     VoxelType.set(scale, eventVoxelEntity, entityCAVoxelType.voxelTypeId, entityCAVoxelType.voxelVariantId);
 
-    IWorld(_world()).runCA(caAddress, scale, eventVoxelEntity);
+    runCA(caAddress, scale, eventVoxelEntity, eventData);
 
-    postRunCA(caAddress, voxelTypeId, coord, scale, eventVoxelEntity);
+    postRunCA(caAddress, voxelTypeId, coord, scale, eventVoxelEntity, eventData);
 
     return (scale, eventVoxelEntity);
   }

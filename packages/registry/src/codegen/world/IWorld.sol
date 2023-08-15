@@ -8,6 +8,7 @@ import { IBaseWorld } from "@latticexyz/world/src/interfaces/IBaseWorld.sol";
 import { ICARegistrySystem } from "./ICARegistrySystem.sol";
 import { IClassifierRegistrySystem } from "./IClassifierRegistrySystem.sol";
 import { ICreationRegistrySystem } from "./ICreationRegistrySystem.sol";
+import { IMindRegistrySystem } from "./IMindRegistrySystem.sol";
 import { IVoxelRegistrySystem } from "./IVoxelRegistrySystem.sol";
 import { IWorldRegistrySystem } from "./IWorldRegistrySystem.sol";
 
@@ -20,6 +21,7 @@ interface IWorld is
   ICARegistrySystem,
   IClassifierRegistrySystem,
   ICreationRegistrySystem,
+  IMindRegistrySystem,
   IVoxelRegistrySystem,
   IWorldRegistrySystem
 {

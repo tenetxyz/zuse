@@ -3,7 +3,7 @@ pragma solidity >=0.8.0;
 
 import { IWorld } from "@tenet-contracts/src/codegen/world/IWorld.sol";
 import { BuildEvent } from "../prototypes/BuildEvent.sol";
-import { VoxelCoord } from "../Types.sol";
+import { VoxelCoord, BuildEventData } from "../Types.sol";
 import { OwnedBy, VoxelType, VoxelTypeData } from "@tenet-contracts/src/codegen/Tables.sol";
 import { REGISTRY_ADDRESS } from "@tenet-contracts/src/Constants.sol";
 
@@ -12,18 +12,24 @@ contract BuildSystem is BuildEvent {
     bytes32 voxelTypeId,
     VoxelCoord memory coord,
     bool runEventOnChildren,
-    bool runEventOnParent
+    bool runEventOnParent,
+    bytes memory eventData
   ) internal override returns (uint32, bytes32) {
-    return IWorld(_world()).buildVoxelType(voxelTypeId, coord, runEventOnChildren, runEventOnParent);
+    return IWorld(_world()).buildVoxelType(voxelTypeId, coord, runEventOnChildren, runEventOnParent, eventData);
   }
 
   // Called by users
-  function build(uint32 scale, bytes32 entity, VoxelCoord memory coord) public override returns (uint32, bytes32) {
+  function build(
+    uint32 scale,
+    bytes32 entity,
+    VoxelCoord memory coord,
+    bytes4 mindSelector
+  ) public override returns (uint32, bytes32) {
     // Require voxel to be owned by caller
     require(OwnedBy.get(scale, entity) == tx.origin, "voxel is not owned by player");
     VoxelTypeData memory voxelType = VoxelType.get(scale, entity);
 
-    return super.runEvent(voxelType.voxelTypeId, coord);
+    return super.runEvent(voxelType.voxelTypeId, coord, abi.encode(BuildEventData({ mindSelector: mindSelector })));
   }
 
   // Called by CA
@@ -31,8 +37,9 @@ contract BuildSystem is BuildEvent {
     bytes32 voxelTypeId,
     VoxelCoord memory coord,
     bool buildChildren,
-    bool buildParent
+    bool buildParent,
+    bytes memory eventData
   ) public override returns (uint32, bytes32) {
-    return super.buildVoxelType(voxelTypeId, coord, buildChildren, buildParent);
+    return super.buildVoxelType(voxelTypeId, coord, buildChildren, buildParent, eventData);
   }
 }

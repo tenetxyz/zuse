@@ -14,15 +14,16 @@ contract MineSystem is MineEvent {
     bytes32 voxelTypeId,
     VoxelCoord memory coord,
     bool runEventOnChildren,
-    bool runEventOnParent
+    bool runEventOnParent,
+    bytes memory eventData
   ) internal override returns (uint32, bytes32) {
-    return IWorld(_world()).mineVoxelType(voxelTypeId, coord, runEventOnChildren, runEventOnParent);
+    return IWorld(_world()).mineVoxelType(voxelTypeId, coord, runEventOnChildren, runEventOnParent, eventData);
   }
 
   // Called by users
   function mine(bytes32 voxelTypeId, VoxelCoord memory coord) public override returns (uint32, bytes32) {
     require(coord.y <= CHUNK_MAX_Y && coord.y >= CHUNK_MIN_Y, "out of chunk bounds");
-    super.runEvent(voxelTypeId, coord);
+    super.runEvent(voxelTypeId, coord, abi.encode(0));
   }
 
   // Called by CA
@@ -30,9 +31,10 @@ contract MineSystem is MineEvent {
     bytes32 voxelTypeId,
     VoxelCoord memory coord,
     bool mineChildren,
-    bool mineParent
+    bool mineParent,
+    bytes memory eventData
   ) public override returns (uint32, bytes32) {
-    return super.runEventHandler(voxelTypeId, coord, mineChildren, mineParent);
+    return super.runEventHandler(voxelTypeId, coord, mineChildren, mineParent, eventData);
   }
 
   function postRunCA(
@@ -40,7 +42,8 @@ contract MineSystem is MineEvent {
     bytes32 voxelTypeId,
     VoxelCoord memory coord,
     uint32 scale,
-    bytes32 eventVoxelEntity
+    bytes32 eventVoxelEntity,
+    bytes memory eventData
   ) internal override {
     if (voxelTypeId != AirVoxelID) {
       // TODO: Figure out how to add other airs

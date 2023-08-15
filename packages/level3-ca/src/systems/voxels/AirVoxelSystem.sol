@@ -5,7 +5,7 @@ import { IWorld } from "@tenet-level3-ca/src/codegen/world/IWorld.sol";
 import { VoxelType } from "@tenet-base-ca/src/prototypes/VoxelType.sol";
 import { VoxelVariantsRegistryData } from "@tenet-registry/src/codegen/tables/VoxelVariantsRegistry.sol";
 import { NoaBlockType } from "@tenet-registry/src/codegen/Types.sol";
-import { registerVoxelVariant, registerVoxelType } from "@tenet-registry/src/Utils.sol";
+import { registerVoxelVariant, registerVoxelType, voxelSelectorsForVoxel } from "@tenet-registry/src/Utils.sol";
 import { REGISTRY_ADDRESS, Level3AirVoxelID } from "@tenet-level3-ca/src/Constants.sol";
 import { Level2AirVoxelID } from "@tenet-level2-ca/src/Constants.sol";
 import { VoxelCoord } from "@tenet-utils/src/Types.sol";
@@ -27,11 +27,13 @@ contract AirVoxelSystem is VoxelType {
       airChildVoxelTypes,
       airChildVoxelTypes,
       AirVoxelVariantID,
-      IWorld(world).ca_AirVoxelSystem_enterWorld.selector,
-      IWorld(world).ca_AirVoxelSystem_exitWorld.selector,
-      IWorld(world).ca_AirVoxelSystem_variantSelector.selector,
-      IWorld(world).ca_AirVoxelSystem_activate.selector,
-      IWorld(world).ca_AirVoxelSystem_eventHandler.selector
+      voxelSelectorsForVoxel(
+        IWorld(world).ca_AirVoxelSystem_enterWorld.selector,
+        IWorld(world).ca_AirVoxelSystem_exitWorld.selector,
+        IWorld(world).ca_AirVoxelSystem_variantSelector.selector,
+        IWorld(world).ca_AirVoxelSystem_activate.selector,
+        IWorld(world).ca_AirVoxelSystem_eventHandler.selector
+      )
     );
   }
 

@@ -22,10 +22,11 @@ abstract contract MineEvent is Event {
     bytes32 voxelTypeId,
     VoxelCoord memory coord,
     bool mineChildren,
-    bool mineParent
+    bool mineParent,
+    bytes memory eventData
   ) public virtual returns (uint32, bytes32);
 
-  function preEvent(bytes32 voxelTypeId, VoxelCoord memory coord) internal override {
+  function preEvent(bytes32 voxelTypeId, VoxelCoord memory coord, bytes memory eventData) internal override {
     IWorld(_world()).approveMine(tx.origin, voxelTypeId, coord);
   }
 
@@ -33,7 +34,8 @@ abstract contract MineEvent is Event {
     bytes32 voxelTypeId,
     VoxelCoord memory coord,
     uint32 scale,
-    bytes32 eventVoxelEntity
+    bytes32 eventVoxelEntity,
+    bytes memory eventData
   ) internal override {
     bytes32 useParentEntity = IWorld(_world()).calculateParentEntity(scale, eventVoxelEntity);
     uint32 useParentScale = scale + 1;
@@ -44,7 +46,8 @@ abstract contract MineEvent is Event {
         parentVoxelTypeId,
         parentCoord,
         false,
-        false
+        false,
+        eventData
       );
       useParentEntity = IWorld(_world()).calculateParentEntity(minedParentScale, minedParentEntity);
     }
@@ -54,20 +57,23 @@ abstract contract MineEvent is Event {
     bytes32 voxelTypeId,
     VoxelCoord memory coord,
     uint32 scale,
-    bytes32 eventVoxelEntity
+    bytes32 eventVoxelEntity,
+    bytes memory eventData
   ) internal override {}
 
-  function runEventHandlerForChildren(
+  function runEventHandlerForIndividualChildren(
     bytes32 voxelTypeId,
     VoxelCoord memory coord,
     uint32 scale,
     bytes32 eventVoxelEntity,
     bytes32 childVoxelTypeId,
-    VoxelCoord memory childCoord
+    VoxelCoord memory childCoord,
+    bytes memory eventData
   ) internal override {
     bytes32 childVoxelEntity = getEntityAtCoord(scale - 1, childCoord);
     if (childVoxelEntity != 0) {
-      runEventHandler(VoxelType.getVoxelTypeId(scale - 1, childVoxelEntity), childCoord, true, false);
+      // TODO: Update when using event data. Child event data should be different from parent event data
+      runEventHandler(VoxelType.getVoxelTypeId(scale - 1, childVoxelEntity), childCoord, true, false, eventData);
     }
   }
 
@@ -76,9 +82,14 @@ abstract contract MineEvent is Event {
     bytes32 voxelTypeId,
     VoxelCoord memory coord,
     uint32 scale,
-    bytes32 eventVoxelEntity
+    bytes32 eventVoxelEntity,
+    bytes memory eventData
   ) internal override {
     // Enter World
     IWorld(_world()).exitCA(caAddress, scale, voxelTypeId, coord, eventVoxelEntity);
+  }
+
+  function runCA(address caAddress, uint32 scale, bytes32 eventVoxelEntity, bytes memory eventData) internal override {
+    IWorld(_world()).runCA(caAddress, scale, eventVoxelEntity, bytes4(0));
   }
 }

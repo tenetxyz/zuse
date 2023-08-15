@@ -74,7 +74,7 @@ abstract contract CA is System {
     if (existingEntity != 0) {
       require(
         CAVoxelType.get(callerAddress, existingEntity).voxelTypeId == emptyVoxelId(),
-        "This position is already occupied by another voxel"
+        "EnterWorld: This position is already occupied by another voxel"
       );
       caEntity = entityToCAEntity(callerAddress, entity);
     } else {
@@ -190,7 +190,7 @@ abstract contract CA is System {
     if (existingEntity != 0) {
       require(
         CAVoxelType.get(callerAddress, existingEntity).voxelTypeId == emptyVoxelId(),
-        "This position is already occupied by another voxel"
+        "MoveWorld: This position is already occupied by another voxel"
       );
       newCAEntity = entityToCAEntity(callerAddress, newEntity);
     } else {

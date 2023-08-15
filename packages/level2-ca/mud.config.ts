@@ -61,6 +61,16 @@ export default mudConfig({
         mindSelector: "bytes4",
       },
     },
+    Fighters: {
+      keySchema: {
+        callerAddress: "address",
+        entity: "bytes32",
+      },
+      schema: {
+        health: "int32",
+        hasValue: "bool",
+      },
+    },
   },
   systems: {
     CASystem: {

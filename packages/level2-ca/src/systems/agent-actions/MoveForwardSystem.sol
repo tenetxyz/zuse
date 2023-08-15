@@ -3,16 +3,28 @@ pragma solidity >=0.8.0;
 
 import { IStore } from "@latticexyz/store/src/IStore.sol";
 import { IWorld } from "@tenet-level2-ca/src/codegen/world/IWorld.sol";
-import { SingleVoxelInteraction } from "@tenet-base-ca/src/prototypes/SingleVoxelInteraction.sol";
+import { VoxelInteraction } from "@tenet-base-ca/src/prototypes/VoxelInteraction.sol";
 import { BlockDirection, VoxelCoord } from "@tenet-utils/src/Types.sol";
 import { getCAEntityAtCoord, getCAVoxelType, getCAEntityPositionStrict } from "@tenet-base-ca/src/Utils.sol";
+import { Fighters } from "@tenet-level2-ca/src/codegen/tables/Fighters.sol";
 
-contract MoveForwardSystem is SingleVoxelInteraction {
-  function runSingleInteraction(
+contract MoveForwardSystem is VoxelInteraction {
+  function onNewNeighbour(
     address callerAddress,
     bytes32 interactEntity,
-    bytes32 compareEntity,
-    BlockDirection compareBlockDirection
+    bytes32 neighbourEntityId,
+    BlockDirection neighbourBlockDirection
+  ) internal override returns (bool changedEntity) {
+    return false;
+  }
+
+  function runInteraction(
+    address callerAddress,
+    bytes32 interactEntity,
+    bytes32[] memory neighbourEntityIds,
+    BlockDirection[] memory neighbourEntityDirections,
+    bytes32[] memory childEntityIds,
+    bytes32 parentEntity
   ) internal override returns (bool changedEntity) {
     changedEntity = false;
     VoxelCoord memory baseCoord = getCAEntityPositionStrict(IStore(_world()), interactEntity);
@@ -25,7 +37,7 @@ contract MoveForwardSystem is SingleVoxelInteraction {
   }
 
   function entityShouldInteract(address callerAddress, bytes32 entityId) internal view override returns (bool) {
-    return true;
+    return Fighters.get(callerAddress, entityId).hasValue;
   }
 
   function eventHandlerMoveForward(

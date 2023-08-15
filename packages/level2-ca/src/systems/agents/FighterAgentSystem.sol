@@ -14,6 +14,7 @@ import { getFirstCaller } from "@tenet-utils/src/Utils.sol";
 import { getCAEntityAtCoord, getCAVoxelType } from "@tenet-base-ca/src/Utils.sol";
 import { AirVoxelID } from "@tenet-base-ca/src/Constants.sol";
 import { console } from "forge-std/console.sol";
+import { Fighters, FightersData } from "@tenet-level2-ca/src/codegen/tables/Fighters.sol";
 
 bytes32 constant FighterVoxelVariantID = bytes32(keccak256("fighter"));
 string constant FighterTexture = "bafkreihpdljsgdltghxehq4cebngtugfj3pduucijxcrvcla4hoy34f7vq";
@@ -56,9 +57,15 @@ contract FighterAgentSystem is VoxelType {
     );
   }
 
-  function enterWorld(VoxelCoord memory coord, bytes32 entity) public override {}
+  function enterWorld(VoxelCoord memory coord, bytes32 entity) public override {
+    address callerAddress = super.getCallerAddress();
+    Fighters.set(callerAddress, entity, FightersData({ health: 100, hasValue: true }));
+  }
 
-  function exitWorld(VoxelCoord memory coord, bytes32 entity) public override {}
+  function exitWorld(VoxelCoord memory coord, bytes32 entity) public override {
+    address callerAddress = super.getCallerAddress();
+    Fighters.deleteRecord(callerAddress, entity);
+  }
 
   function variantSelector(
     bytes32 entity,

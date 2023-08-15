@@ -6,12 +6,14 @@ import {
   defineCameraConfig,
   createPhaserEngine,
   createChunks,
+  createAnimatedTilemap,
 } from "@latticexyz/phaserx";
 import { defineEnterSystem } from "@latticexyz/recs";
 import { registerTenetComponent } from "../engine/components/TenetComponentRenderer";
 import { Layers } from "@/types";
 import { useEffect } from "react";
 import { phaserConfig } from "@/layers/noa/setup/setupPhaser";
+import { VoxelVariantNoaDef, VoxelVariantTypeId } from "@/layers/noa/types";
 
 const TILE_SIZE = 16;
 const ANIMATION_INTERVAL = 200;
@@ -29,6 +31,7 @@ export const registerWorldMap = () => {
           config: { blockExplorer },
           getVoxelIconUrl,
           objectStore: { transactionCallbacks },
+          voxelTypes: { VoxelVariantIdToDef, VoxelVariantSubscriptions },
         },
       } = layers;
       const {
@@ -50,15 +53,33 @@ export const registerWorldMap = () => {
         (async () => {
           const phaser = await createPhaserEngine(phaserConfig);
           const { game, scenes, dispose: disposePhaser } = phaser; // I unwrapped these vars here just for documentation purposes
+          // console.log(inspect(game));
+          // console.log(inspect(scenes));
+          // createAnimatedTilemap;
+          // game.scene.
+          debugger;
           world.registerDisposer(disposePhaser);
           const {
-            Main: {
-              camera: { phaserCamera, worldView$ },
-              maps: {
-                Main: { putTileAt },
-              },
+            camera: { phaserCamera, worldView$ },
+            maps: {
+              Main: { putTileAt },
             },
-          } = scenes;
+          } = scenes.Main;
+          // Phaser.Tilemaps.Tilemap.
+
+          for (const phaserScene of game.scene.getScenes(false)) {
+            const emptyMap = new Phaser.Tilemaps.Tilemap(phaserScene, new Phaser.Tilemaps.MapData());
+            // const tileset emptyMap.addTilesetImage();
+            // if (!tileset) {
+            //   console.error(`Adding tileset ${tilesetKey} failed.`);
+            //   continue;
+            // }
+          }
+
+          for (const [voxelVariantTypeId, voxelVariantNoaDef] of VoxelVariantIdToDef.entries()) {
+            // VoxelVariantSubscriptions.push();
+            // addTilesetImage(voxelVariantNoaDef.name, voxelVariantNoaDef.name);
+          }
 
           phaserCamera.setBounds(-1000, -1000, 2000, 2000);
           phaserCamera.centerOn(0, 0);

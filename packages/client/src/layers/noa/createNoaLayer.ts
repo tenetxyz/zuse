@@ -340,6 +340,7 @@ export async function createNoaLayer(network: NetworkLayer) {
       );
       voxelMaterials.set(voxelVariantTypeId, voxelMaterial);
     } else {
+      // I think this case should be triggered for flowers (no uvwrap)
       voxelMaterials.set(voxelVariantTypeId, undefined);
     }
   }

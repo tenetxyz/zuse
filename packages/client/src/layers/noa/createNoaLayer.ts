@@ -387,16 +387,16 @@ export async function createNoaLayer(network: NetworkLayer) {
   //   playerChunk$.pipe(map((coord) => getStakeAndClaim(coord))).subscribe(stakeAndClaim$)?.unsubscribe
   // );
 
-  const phaser = await createPhaserEngine(phaserConfig);
-  const { game, scenes, dispose: disposePhaser } = phaser; // I unwrapped these vars here just for documentation purposes
-  world.registerDisposer(disposePhaser);
+  // const phaser = await createPhaserEngine(phaserConfig);
+  // const { game, scenes, dispose: disposePhaser } = phaser; // I unwrapped these vars here just for documentation purposes
+  // world.registerDisposer(disposePhaser);
 
   const context = {
     world,
     components,
     mudToNoaId,
     noa,
-    phaser,
+    // phaser,
     api: {
       setVoxel,
       setCraftingTable,

@@ -35,14 +35,14 @@ export const phaserConfig = {
       assets: {
         // TODO: we need to create a tileset from the OPCraft textures and load it here
         [Assets.OverworldTileset]: { type: AssetType.Image, key: Assets.OverworldTileset, path: overworldTileset },
-        [Assets.MainAtlas]: {
-          type: AssetType.MultiAtlas,
-          key: Assets.MainAtlas,
-          path: "/atlases/sprites/atlas.json",
-          options: {
-            imagePath: "/atlases/sprites/",
-          },
-        },
+        // [Assets.MainAtlas]: {
+        //   type: AssetType.MultiAtlas,
+        //   key: Assets.MainAtlas,
+        //   path: "/atlases/sprites/atlas.json",
+        //   options: {
+        //     imagePath: "/atlases/sprites/",
+        //   },
+        // },
       },
       maps: {
         Main: defineMapConfig({

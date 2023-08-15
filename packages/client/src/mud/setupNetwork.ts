@@ -456,6 +456,7 @@ export async function setupNetwork() {
     const newVoxelOfSameType = `${scaleAsHex}:${world.registerEntity()}` as Entity;
 
     const mindSelector = "0x00000000";
+    const fighterMindSelector = "0xa303e6be";
 
     actions.add({
       id: `build+${voxelCoordToString(coord)}` as Entity, // used so we don't send the same transaction twice
@@ -472,7 +473,7 @@ export async function setupNetwork() {
         OwnedBy: contractComponents.OwnedBy, // I think it's needed cause we check to see if the owner owns the voxel we're placing
       },
       execute: () => {
-        return callSystem("build", [scaleAsHex, entityId, coord, mindSelector, { gasLimit: 900_000_000 }]);
+        return callSystem("build", [scaleAsHex, entityId, coord, fighterMindSelector, { gasLimit: 900_000_000 }]);
       },
       updates: () => [
         // commented cause we're in creative mode

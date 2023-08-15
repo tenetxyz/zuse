@@ -78,6 +78,7 @@ contract FighterAgentSystem is VoxelType {
     bytes32 parentEntity
   ) public override returns (bytes32, bytes32[] memory) {
     address callerAddress = super.getCallerAddress();
+
     return
       IWorld(_world()).ca_MoveForwardSyste_eventHandlerMoveForward(
         callerAddress,

@@ -38,9 +38,9 @@ abstract contract SingleVoxelInteraction is VoxelInteraction {
     changedEntity = false;
     for (uint8 i = 0; i < neighbourEntityIds.length; i++) {
       bytes32 neighbourEntityId = neighbourEntityIds[i];
-      if (uint256(neighbourEntityId) == 0) {
-        continue;
-      }
+      // if (uint256(neighbourEntityId) == 0) {
+      //   continue;
+      // }
       bool changedInteractionEntity = runSingleInteraction(
         callerAddress,
         interactEntity,

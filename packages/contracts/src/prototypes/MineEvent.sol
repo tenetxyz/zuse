@@ -72,6 +72,7 @@ abstract contract MineEvent is Event {
   ) internal override {
     bytes32 childVoxelEntity = getEntityAtCoord(scale - 1, childCoord);
     if (childVoxelEntity != 0) {
+      // TODO: Update when using event data. Child event data should be different from parent event data
       runEventHandler(VoxelType.getVoxelTypeId(scale - 1, childVoxelEntity), childCoord, true, false, eventData);
     }
   }

@@ -78,7 +78,13 @@ abstract contract BuildEvent is Event {
     bytes memory eventData
   ) internal override {
     if (childVoxelTypeId != 0) {
-      runEventHandler(childVoxelTypeId, childCoord, true, false, eventData);
+      runEventHandler(
+        childVoxelTypeId,
+        childCoord,
+        true,
+        false,
+        abi.encode(BuildEventData({ mindSelector: bytes4(0) })) // TODO: which mind to use for the children?
+      );
     }
   }
 

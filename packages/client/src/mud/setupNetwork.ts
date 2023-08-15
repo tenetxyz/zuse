@@ -298,7 +298,7 @@ export async function setupNetwork() {
   contractComponents.VoxelType = withOptimisticUpdates(contractComponents.VoxelType);
 
   const VoxelVariantIdToDef: VoxelVariantIdToDefMap = new Map();
-  const VoxelVariantSubscriptions: VoxelVariantSubscription[] = [];
+  const VoxelVariantSubscriptions: VoxelVariantSubscription[] = []; // When a new voxel is detected, run these functions and pass in the new voxel
   // TODO: should load initial ones from chain too
   VoxelVariantIdToDef.set(AIR_ID, {
     noaBlockIdx: 0,

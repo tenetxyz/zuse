@@ -67,6 +67,7 @@ function voxelSelectorsForVoxel(
       exitWorldSelector: exitWorldSelector,
       voxelVariantSelector: voxelVariantSelector,
       activateSelector: activateSelector,
+      onNewNeighbourSelector: bytes4(0),
       interactionSelectors: voxelInteractionSelectors
     });
 }
@@ -89,6 +90,11 @@ function getVoxelVariantSelector(IStore store, bytes32 voxelTypeId) view returns
 function getActivateSelector(IStore store, bytes32 voxelTypeId) view returns (bytes4) {
   bytes memory selectors = VoxelTypeRegistry.getSelectors(store, voxelTypeId);
   return abi.decode(selectors, (VoxelSelectors)).activateSelector;
+}
+
+function getoOnNewNeighbourSelector(IStore store, bytes32 voxelTypeId) view returns (bytes4) {
+  bytes memory selectors = VoxelTypeRegistry.getSelectors(store, voxelTypeId);
+  return abi.decode(selectors, (VoxelSelectors)).onNewNeighbourSelector;
 }
 
 function getInteractionSelectors(IStore store, bytes32 voxelTypeId) view returns (InteractionSelector[] memory) {

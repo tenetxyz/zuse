@@ -7,13 +7,12 @@ import { VoxelType } from "@tenet-base-ca/src/prototypes/VoxelType.sol";
 import { VoxelVariantsRegistryData } from "@tenet-registry/src/codegen/tables/VoxelVariantsRegistry.sol";
 import { NoaBlockType } from "@tenet-registry/src/codegen/Types.sol";
 import { hasKey } from "@latticexyz/world/src/modules/keysintable/hasKey.sol";
-import { registerVoxelVariant, registerVoxelType, voxelSelectorsForVoxel } from "@tenet-registry/src/Utils.sol";
+import { registerVoxelVariant, registerVoxelType } from "@tenet-registry/src/Utils.sol";
 import { REGISTRY_ADDRESS, FighterVoxelID } from "@tenet-level2-ca/src/Constants.sol";
-import { VoxelCoord } from "@tenet-utils/src/Types.sol";
+import { VoxelCoord, VoxelSelectors, InteractionSelector } from "@tenet-utils/src/Types.sol";
 import { getFirstCaller } from "@tenet-utils/src/Utils.sol";
 import { getCAEntityAtCoord, getCAVoxelType } from "@tenet-base-ca/src/Utils.sol";
 import { AirVoxelID } from "@tenet-base-ca/src/Constants.sol";
-import { console } from "forge-std/console.sol";
 import { Fighters, FightersData } from "@tenet-level2-ca/src/codegen/tables/Fighters.sol";
 
 bytes32 constant FighterVoxelVariantID = bytes32(keccak256("fighter"));
@@ -37,8 +36,14 @@ contract FighterAgentSystem is VoxelType {
       fighterChildVoxelTypes[i] = AirVoxelID;
     }
     bytes32 baseVoxelTypeId = FighterVoxelID;
-    console.log("Fighter");
-    console.logBytes4(IWorld(world).ca_FighterAgentSyst_eventHandler.selector);
+
+    InteractionSelector[] memory voxelInteractionSelectors = new InteractionSelector[](1);
+    voxelInteractionSelectors[0] = InteractionSelector({
+      interactionSelector: IWorld(world).ca_FighterAgentSyst_eventHandler.selector,
+      interactionName: "Move Forward",
+      interactionDescription: ""
+    });
+
     registerVoxelType(
       REGISTRY_ADDRESS,
       "Fighter",
@@ -47,13 +52,14 @@ contract FighterAgentSystem is VoxelType {
       fighterChildVoxelTypes,
       fighterChildVoxelTypes,
       FighterVoxelVariantID,
-      voxelSelectorsForVoxel(
-        IWorld(world).ca_FighterAgentSyst_enterWorld.selector,
-        IWorld(world).ca_FighterAgentSyst_exitWorld.selector,
-        IWorld(world).ca_FighterAgentSyst_variantSelector.selector,
-        IWorld(world).ca_FighterAgentSyst_activate.selector,
-        IWorld(world).ca_FighterAgentSyst_eventHandler.selector
-      )
+      VoxelSelectors({
+        enterWorldSelector: IWorld(world).ca_FighterAgentSyst_enterWorld.selector,
+        exitWorldSelector: IWorld(world).ca_FighterAgentSyst_exitWorld.selector,
+        voxelVariantSelector: IWorld(world).ca_FighterAgentSyst_variantSelector.selector,
+        activateSelector: IWorld(world).ca_FighterAgentSyst_activate.selector,
+        onNewNeighbourSelector: IWorld(world).ca_FighterAgentSyst_onNewNeighbour.selector,
+        interactionSelectors: voxelInteractionSelectors
+      })
     );
   }
 
@@ -77,6 +83,8 @@ contract FighterAgentSystem is VoxelType {
   }
 
   function activate(bytes32 entity) public view override returns (string memory) {}
+
+  function onNewNeighbour(bytes32 interactEntity, bytes32 neighbourEntityId) public {}
 
   function eventHandler(
     bytes32 centerEntityId,

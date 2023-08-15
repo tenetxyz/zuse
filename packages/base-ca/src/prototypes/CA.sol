@@ -16,7 +16,7 @@ import { VoxelCoord, InteractionSelector } from "@tenet-utils/src/Types.sol";
 import { getEntityAtCoord, entityArrayToCAEntityArray, entityToCAEntity, caEntityArrayToEntityArray } from "@tenet-base-ca/src/Utils.sol";
 import { getNeighbourEntitiesFromCaller, getChildEntitiesFromCaller, getParentEntityFromCaller } from "@tenet-base-ca/src/CallUtils.sol";
 import { safeCall, safeStaticCall } from "@tenet-utils/src/CallUtils.sol";
-import { getEnterWorldSelector, getExitWorldSelector, getVoxelVariantSelector, getActivateSelector, getInteractionSelectors } from "@tenet-registry/src/Utils.sol";
+import { getEnterWorldSelector, getExitWorldSelector, getVoxelVariantSelector, getActivateSelector, getInteractionSelectors, getoOnNewNeighbourSelector } from "@tenet-registry/src/Utils.sol";
 
 abstract contract CA is System {
   function getRegistryAddress() internal pure virtual returns (address);
@@ -360,8 +360,6 @@ abstract contract CA is System {
     bytes32 caInteractEntity = entityToCAEntity(callerAddress, interactEntity);
     bytes32[] memory caNeighbourEntityIds = entityArrayToCAEntityArray(callerAddress, neighbourEntityIds);
 
-    // TODO: Call update function before calling mind
-
     // Note: Center and Neighbour could just be different interfaces, but then the user would have to
     // define two, so instead we just call one interface and pass in the entity ids
 
@@ -379,6 +377,21 @@ abstract contract CA is System {
     for (uint256 i = 0; i < neighbourEntityIds.length; i++) {
       if (neighbourEntityIds[i] != 0) {
         bytes32 neighbourVoxelTypeId = CAVoxelType.getVoxelTypeId(callerAddress, neighbourEntityIds[i]);
+
+        {
+          bytes4 onNewNeighbourSelector = getoOnNewNeighbourSelector(
+            IStore(getRegistryAddress()),
+            neighbourVoxelTypeId
+          );
+          if (onNewNeighbourSelector != bytes4(0)) {
+            safeCall(
+              _world(),
+              abi.encodeWithSelector(onNewNeighbourSelector, caNeighbourEntityIds[i], caInteractEntity),
+              "onNewNeighbourSelector"
+            );
+          }
+        }
+
         // Call voxel interaction
         bytes32[] memory changedCANeighbourEntities = voxelRunInteraction(
           bytes4(0),

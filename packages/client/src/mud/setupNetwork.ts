@@ -473,7 +473,7 @@ export async function setupNetwork() {
         OwnedBy: contractComponents.OwnedBy, // I think it's needed cause we check to see if the owner owns the voxel we're placing
       },
       execute: () => {
-        return callSystem("build", [scaleAsHex, entityId, coord, fighterMindSelector, { gasLimit: 900_000_000 }]);
+        return callSystem("build", [scaleAsHex, entityId, coord, mindSelector, { gasLimit: 900_000_000 }]);
       },
       updates: () => [
         // commented cause we're in creative mode
@@ -707,7 +707,7 @@ export async function setupNetwork() {
         return callSystem("activate", [
           voxelTypeKeyInMudTable.voxelTypeId,
           coord,
-          moveForwardSelector,
+          activateSelector,
           { gasLimit: 900_000_000 },
         ]);
       },

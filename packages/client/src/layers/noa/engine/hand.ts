@@ -1,7 +1,6 @@
 import * as BABYLON from "@babylonjs/core";
 import { Texture, Vector4 } from "@babylonjs/core";
 import { Engine } from "noa-engine";
-import { UVWraps } from "../constants";
 import { HAND_COMPONENT } from "./components/handComponent";
 import { NetworkLayer } from "../../network";
 export const X_HAND = 0.4;

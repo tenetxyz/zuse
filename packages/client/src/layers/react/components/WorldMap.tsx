@@ -14,14 +14,15 @@ import { Layers } from "@/types";
 import { useEffect, useRef } from "react";
 import { VoxelVariantNoaDef, VoxelVariantTypeId } from "@/layers/noa/types";
 import { Tileset, getPhaserConfig } from "@/layers/noa/setup/setupPhaser";
+import { useStream } from "@/utils/stream";
 
 const TILE_SIZE = 16;
 const ANIMATION_INTERVAL = 200;
 export const registerWorldMap = () => {
   registerTenetComponent({
-    rowStart: 2,
+    rowStart: 3,
     rowEnd: 6,
-    columnStart: 1,
+    columnStart: 2,
     columnEnd: 4,
     Component: ({ layers }) => {
       const {
@@ -32,24 +33,11 @@ export const registerWorldMap = () => {
           getVoxelIconUrl,
           objectStore: { transactionCallbacks },
           voxelTypes: { VoxelVariantIdToDef, VoxelVariantSubscriptions },
-        },
-      } = layers;
-      const {
-        noa: {
-          // phaser: {
-          //   scenes: {
-          //     Main: {
-          //       camera: { phaserCamera, worldView$ },
-          //       maps: {
-          //         Main: { putTileAt },
-          //       },
-          //     },
-          //   },
-          //   game,
-          // },
+          streams: { doneSyncing$ },
         },
       } = layers;
       const disposePhaser = useRef<any>();
+      const tilesets = useRef<Tileset[]>([]);
 
       const voxelVariantToTileSet = (
         voxelVariantTypeId: VoxelVariantTypeId,
@@ -66,37 +54,38 @@ export const registerWorldMap = () => {
         };
       };
       useEffect(() => {
-        const tilesets: Tileset[] = [];
-
         // initial load
         for (const [voxelVariantTypeId, voxelVariantNoaDef] of VoxelVariantIdToDef.entries()) {
           const tileset = voxelVariantToTileSet(voxelVariantTypeId, voxelVariantNoaDef);
           if (tileset) {
-            tilesets.push(tileset);
+            tilesets.current.push(tileset);
           }
         }
 
+        console.log("render 1");
         VoxelVariantSubscriptions.push(
           (voxelVariantTypeId: VoxelVariantTypeId, voxelVariantNoaDef: VoxelVariantNoaDef) => {
             const tileset = voxelVariantToTileSet(voxelVariantTypeId, voxelVariantNoaDef);
             if (tileset) {
-              tilesets.push(tileset);
+              tilesets.current.push(tileset);
               console.log("render 2");
-              if (disposePhaser.current) {
-                disposePhaser.current();
-              }
-              renderPhaser(tilesets);
             }
           }
         );
-
-        // renderPhaser(tilesets);
       }, []);
+
+      const isDoneSyncingWorlds = useStream(doneSyncing$);
+      useEffect(() => {
+        if (isDoneSyncingWorlds) {
+          console.log("finished syncing");
+          renderPhaser(tilesets.current);
+        }
+      }, [isDoneSyncingWorlds]);
 
       const renderPhaser = async (tilesets: Tileset[]) => {
         const phaser = await createPhaserEngine(getPhaserConfig(tilesets));
         const { game, scenes, dispose: disposePhaserFunc } = phaser; // I unwrapped these vars here just for documentation purposes
-        disposePhaser.current = disposePhaserFunc;
+        world.registerDisposer(disposePhaserFunc);
         // console.log(inspect(game));
         // console.log(inspect(scenes));
         // createAnimatedTilemap;
@@ -114,8 +103,8 @@ export const registerWorldMap = () => {
         putTileAt({ x: 1, y: 0 }, 10); // puts on default background layer
         const phaserCanvas = document.querySelectorAll("#phaser-game canvas")[0];
         // not sure if there's a param within phaser to set the size of the canvas
-        phaserCanvas.style.height = 200 + "px";
-        phaserCanvas.style.width = 200 * getScreenRatio() + "px";
+        // phaserCanvas.style.height = 200 + "px";
+        // phaserCanvas.style.width = 200 * getScreenRatio() + "px";
 
         // const chunks = createChunks(worldView$, 16 * 16); // Tile size in pixels * Tiles per chunk
       };

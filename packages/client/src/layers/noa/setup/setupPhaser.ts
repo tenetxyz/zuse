@@ -37,6 +37,7 @@ export interface Tileset {
 export const getPhaserConfig = (tilesets: Tileset[]) => {
   const tilesetAssets: any = {
     [Assets.OverworldTileset]: { type: AssetType.Image, key: Assets.OverworldTileset, path: overworldTileset },
+    tileHover: { type: AssetType.Image, key: "tileHover", path: "/assets/blocks/11-Glass.png" },
   };
   for (const tileset of tilesets) {
     tilesetAssets[tileset.name] = {
@@ -93,8 +94,9 @@ export const getPhaserConfig = (tilesets: Tileset[]) => {
     },
     scale: defineScaleConfig({
       parent: "phaser-game",
-      zoom: 2,
-      mode: Phaser.Scale.NONE,
+      // zoom: 2,
+      mode: Phaser.Scale.RESIZE, // if you use Phaser.Scale.NONE, the canvas will try to take up the entire screen
+      // mode: Phaser.Scale.NONE,
       // width: "500px", // this doens't work :(
       // height: "500px",
     }),

@@ -11,15 +11,8 @@ export async function createVoxelVariantSystem(network: NetworkLayer, noaLayer: 
     world,
     registryComponents: { VoxelVariantsRegistry },
     voxelTypes: { VoxelVariantIdToDef, VoxelVariantSubscriptions },
-    streams: { doneSyncing$ },
   } = network;
   const { noa } = noaLayer;
-
-  // Loading state flag
-  let isDoneSyncingWorlds = false;
-  awaitStreamValue(doneSyncing$, (isDoneSyncing) => isDoneSyncing).then(() => {
-    isDoneSyncingWorlds = true;
-  });
 
   const variantIdToNoaBlockIdx = new Map<string, number>();
   defineComponentSystem(world, VoxelVariantsRegistry, (update) => {

@@ -28,7 +28,7 @@ export function setupNoaEngine(network: NetworkLayer) {
   const noaOptions = {
     debug: false,
     // TODO: log this FPS data to a metrics service
-    // showFPS: true, // how to read FPS: https://github.com/fenomas/noa/blob/bd74cd8add3abf216b53a995139276af665b1d52/src/lib/rendering.js#LL611C13-L611C22
+    showFPS: true, // how to read FPS: https://github.com/fenomas/noa/blob/bd74cd8add3abf216b53a995139276af665b1d52/src/lib/rendering.js#LL611C13-L611C22
     // The top number is the average FPS, the bottom is the WORSE fps experienced so far
     inverseY: false,
     inverseX: false,

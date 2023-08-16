@@ -36,5 +36,5 @@ export function registerUIComponents() {
   registerPersistentSidebar();
   // registerSplashCard();
   registerZoomOverlay();
-  registerWorldMap();
+  // registerWorldMap();
 }

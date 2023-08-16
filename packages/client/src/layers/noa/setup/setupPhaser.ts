@@ -92,11 +92,9 @@ export const getPhaserConfig = (tilesets: Tileset[]) => {
           Default: { assetKey: Assets.Dirt, tileWidth: TILE_SIZE, tileHeight: TILE_SIZE },
         },
         preload: (scene: Phaser.Scene) => {
-          console.log("preload");
           for (const tileset of tilesets) {
             scene.load.image(tileset.noaBlockIdx, tileset.path);
           }
-          console.log(tilesets);
         },
       }),
     },

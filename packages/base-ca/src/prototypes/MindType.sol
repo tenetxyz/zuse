@@ -2,10 +2,8 @@
 pragma solidity >=0.8.0;
 
 import { System } from "@latticexyz/world/src/System.sol";
-import { VoxelCoord } from "@tenet-utils/src/Types.sol";
 import { getFirstCaller } from "@tenet-utils/src/Utils.sol";
 
-// Represents a voxel (or Minecraft block)
 abstract contract MindType is System {
   function getCallerAddress() public view returns (address) {
     address callerAddress = getFirstCaller();
@@ -19,7 +17,7 @@ abstract contract MindType is System {
   function registerMind() public virtual;
 
   function mindLogic(
-    bytes32 voxelTypeId,
+    bytes32 bodyTypeId,
     bytes32 entity,
     bytes32[] memory neighbourEntityIds,
     bytes32[] memory childEntityIds,

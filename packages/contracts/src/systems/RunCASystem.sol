@@ -6,22 +6,22 @@ import { System } from "@latticexyz/world/src/System.sol";
 import { VoxelCoord } from "../Types.sol";
 import { hasEntity } from "@tenet-utils/src/Utils.sol";
 import { safeCall } from "@tenet-utils/src/CallUtils.sol";
-import { CAVoxelType, CAVoxelTypeData } from "@tenet-base-ca/src/codegen/tables/CAVoxelType.sol";
+import { CABodyType, CABodyTypeData } from "@tenet-base-ca/src/codegen/tables/CABodyType.sol";
 import { NUM_VOXEL_NEIGHBOURS, MAX_VOXEL_NEIGHBOUR_UPDATE_DEPTH } from "../Constants.sol";
-import { Position, PositionData, VoxelType, VoxelTypeData, VoxelActivated, VoxelActivatedData } from "@tenet-contracts/src/codegen/Tables.sol";
+import { Position, PositionData, BodyType, VoxelActivated, VoxelActivatedData } from "@tenet-contracts/src/codegen/Tables.sol";
 import { getEntityAtCoord, calculateChildCoords, calculateParentCoord } from "../Utils.sol";
-import { runInteraction, enterWorld, exitWorld, activateVoxel, moveLayer } from "@tenet-base-ca/src/CallUtils.sol";
+import { runInteraction, enterWorld, exitWorld, activateBody, moveLayer } from "@tenet-base-ca/src/CallUtils.sol";
 import { addressToEntityKey } from "@tenet-utils/src/Utils.sol";
 
 contract RunCASystem is System {
-  function getVoxelTypeId(uint32 scale, bytes32 entity) public view returns (bytes32) {
-    return VoxelType.getVoxelTypeId(scale, entity);
+  function getBodyTypeId(uint32 scale, bytes32 entity) public view returns (bytes32) {
+    return BodyType.getBodyTypeId(scale, entity);
   }
 
   function enterCA(
     address caAddress,
     uint32 scale,
-    bytes32 voxelTypeId,
+    bytes32 bodyTypeId,
     bytes4 mindSelector,
     VoxelCoord memory coord,
     bytes32 entity
@@ -29,13 +29,13 @@ contract RunCASystem is System {
     bytes32[] memory neighbourEntities = calculateNeighbourEntities(scale, entity);
     bytes32[] memory childEntityIds = calculateChildEntities(scale, entity);
     bytes32 parentEntity = calculateParentEntity(scale, entity);
-    enterWorld(caAddress, voxelTypeId, mindSelector, coord, entity, neighbourEntities, childEntityIds, parentEntity);
+    enterWorld(caAddress, bodyTypeId, mindSelector, coord, entity, neighbourEntities, childEntityIds, parentEntity);
   }
 
   function moveCA(
     address caAddress,
     uint32 scale,
-    bytes32 voxelTypeId,
+    bytes32 bodyTypeId,
     VoxelCoord memory oldCoord,
     VoxelCoord memory newCoord,
     bytes32 newEntity
@@ -43,24 +43,18 @@ contract RunCASystem is System {
     bytes32[] memory neighbourEntities = calculateNeighbourEntities(scale, newEntity);
     bytes32[] memory childEntityIds = calculateChildEntities(scale, newEntity);
     bytes32 parentEntity = calculateParentEntity(scale, newEntity);
-    moveLayer(caAddress, voxelTypeId, oldCoord, newCoord, newEntity, neighbourEntities, childEntityIds, parentEntity);
+    moveLayer(caAddress, bodyTypeId, oldCoord, newCoord, newEntity, neighbourEntities, childEntityIds, parentEntity);
   }
 
-  function exitCA(
-    address caAddress,
-    uint32 scale,
-    bytes32 voxelTypeId,
-    VoxelCoord memory coord,
-    bytes32 entity
-  ) public {
+  function exitCA(address caAddress, uint32 scale, bytes32 bodyTypeId, VoxelCoord memory coord, bytes32 entity) public {
     bytes32[] memory neighbourEntities = calculateNeighbourEntities(scale, entity);
     bytes32[] memory childEntityIds = calculateChildEntities(scale, entity);
     bytes32 parentEntity = calculateParentEntity(scale, entity);
-    exitWorld(caAddress, voxelTypeId, coord, entity, neighbourEntities, childEntityIds, parentEntity);
+    exitWorld(caAddress, bodyTypeId, coord, entity, neighbourEntities, childEntityIds, parentEntity);
   }
 
   function activateCA(address caAddress, uint32 scale, bytes32 entity) public {
-    bytes memory returnData = activateVoxel(caAddress, entity);
+    bytes memory returnData = activateBody(caAddress, entity);
     string memory activateStr = abi.decode(returnData, (string));
     VoxelActivated.emitEphemeral(tx.origin, VoxelActivatedData({ scale: scale, entity: entity, message: activateStr }));
   }
@@ -139,11 +133,11 @@ contract RunCASystem is System {
       bytes32[] memory childEntities = new bytes32[](8);
       PositionData memory baseCoord = Position.get(scale, entity);
       VoxelCoord memory baseVoxelCoord = VoxelCoord({ x: baseCoord.x, y: baseCoord.y, z: baseCoord.z });
-      VoxelCoord[] memory eightBlockVoxelCoords = calculateChildCoords(2, baseVoxelCoord);
+      VoxelCoord[] memory eightBlockBodyCoords = calculateChildCoords(2, baseVoxelCoord);
 
       for (uint8 i = 0; i < 8; i++) {
         // filter for the ones with scale-1
-        bytes32 childEntityAtPosition = getEntityAtCoord(scale - 1, eightBlockVoxelCoords[i]);
+        bytes32 childEntityAtPosition = getEntityAtCoord(scale - 1, eightBlockBodyCoords[i]);
 
         // if (childEntityAtPosition == 0) {
         //   revert("found no child entity");
@@ -227,7 +221,7 @@ contract RunCASystem is System {
       }
     }
 
-    // Update VoxelType and Position at this level to match the CA
+    // Update BodyType and Position at this level to match the CA
     // Go through all the center entities that had an event run, and run its variant selector
     for (uint256 i = 0; i <= centerEntitiesToCheckStackIdx; i++) {
       bytes32 changedEntity = centerEntitiesToCheckStack[i];
@@ -237,12 +231,9 @@ contract RunCASystem is System {
 
       // Run the CA for each parent now
 
-      CAVoxelTypeData memory changedEntityVoxelType = CAVoxelType.get(IStore(caAddress), _world(), changedEntity);
-      // Update VoxelType
-      VoxelType.set(scale, changedEntity, changedEntityVoxelType.voxelTypeId, changedEntityVoxelType.voxelVariantId);
-      // TODO: Do we need this?
-      // Position should not change of the entity
-      // Position.set(scale, changedEntities[i], coord.x, coord.y, coord.z);
+      CABodyTypeData memory changedEntityBodyType = CABodyType.get(IStore(caAddress), _world(), changedEntity);
+      // Update BodyType
+      BodyType.set(scale, changedEntity, changedEntityBodyType.bodyTypeId, changedEntityBodyType.bodyVariantId);
     }
   }
 }

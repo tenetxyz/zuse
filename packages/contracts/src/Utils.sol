@@ -6,7 +6,7 @@ import { ResourceSelector } from "@latticexyz/world/src/ResourceSelector.sol";
 import { hasKey } from "@latticexyz/world/src/modules/keysintable/hasKey.sol";
 import { Coord, VoxelCoord } from "@tenet-contracts/src/Types.sol";
 import { getKeysWithValue } from "@latticexyz/world/src/modules/keyswithvalue/getKeysWithValue.sol";
-import { Position, PositionData, PositionTableId, VoxelType, VoxelTypeData } from "@tenet-contracts/src/codegen/Tables.sol";
+import { Position, PositionData, PositionTableId, BodyType } from "@tenet-contracts/src/codegen/Tables.sol";
 import { BlockDirection } from "@tenet-contracts/src/Types.sol";
 
 function calculateChildCoords(uint32 scale, VoxelCoord memory parentCoord) pure returns (VoxelCoord[] memory) {
@@ -51,41 +51,6 @@ function getEntityPositionStrict(uint32 scale, bytes32 entity) view returns (Pos
   return Position.get(scale, entity);
 }
 
-function calculateBlockDirection(
-  PositionData memory centerCoord,
-  PositionData memory neighborCoord
-) pure returns (BlockDirection) {
-  if (neighborCoord.x == centerCoord.x && neighborCoord.y == centerCoord.y && neighborCoord.z == centerCoord.z) {
-    return BlockDirection.None;
-  } else if (neighborCoord.z > centerCoord.z) {
-    return BlockDirection.North;
-  } else if (neighborCoord.z < centerCoord.z) {
-    return BlockDirection.South;
-  } else if (neighborCoord.x > centerCoord.x) {
-    return BlockDirection.East;
-  } else if (neighborCoord.x < centerCoord.x) {
-    return BlockDirection.West;
-  } else {
-    return BlockDirection.None;
-  }
-}
-
-function getOppositeDirection(BlockDirection direction) pure returns (BlockDirection) {
-  if (direction == BlockDirection.None) {
-    return BlockDirection.None;
-  } else if (direction == BlockDirection.North) {
-    return BlockDirection.South;
-  } else if (direction == BlockDirection.South) {
-    return BlockDirection.North;
-  } else if (direction == BlockDirection.East) {
-    return BlockDirection.West;
-  } else if (direction == BlockDirection.West) {
-    return BlockDirection.East;
-  } else {
-    return BlockDirection.None;
-  }
-}
-
 function getEntityAtCoord(uint32 scale, VoxelCoord memory coord) view returns (bytes32) {
   bytes32[][] memory allEntitiesAtCoord = getKeysWithValue(PositionTableId, Position.encode(coord.x, coord.y, coord.z));
   bytes32 entity;
@@ -99,12 +64,6 @@ function getEntityAtCoord(uint32 scale, VoxelCoord memory coord) view returns (b
   }
 
   return entity;
-}
-
-function increaseVoxelTypeSpawnCount(bytes16 voxelTypeNamespace, bytes32 voxelTypeId) {
-  // VoxelTypeRegistryData memory voxelTypeRegistryData = VoxelTypeRegistry.get(voxelTypeNamespace, voxelTypeId);
-  // voxelTypeRegistryData.numSpawns += 1;
-  // VoxelTypeRegistry.set(voxelTypeNamespace, voxelTypeId, voxelTypeRegistryData);
 }
 
 function getVoxelCoordStrict(uint32 scale, bytes32 entity) view returns (VoxelCoord memory) {

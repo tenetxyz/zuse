@@ -8,7 +8,7 @@ import { VoxelCoord } from "@tenet-utils/src/Types.sol";
 
 contract MoveSystem is MoveEvent {
   function callEventHandler(
-    bytes32 voxelTypeId,
+    bytes32 bodyTypeId,
     VoxelCoord memory coord,
     bool runEventOnChildren,
     bool runEventOnParent,
@@ -18,13 +18,13 @@ contract MoveSystem is MoveEvent {
   }
 
   // Called by CA's
-  function moveVoxelType(
-    bytes32 voxelTypeId,
+  function moveBodyType(
+    bytes32 bodyTypeId,
     VoxelCoord memory oldCoord,
     VoxelCoord memory newCoord,
     bool moveChildren,
     bool moveParent
   ) public override returns (uint32, bytes32, bytes32) {
-    return super.moveVoxelType(voxelTypeId, oldCoord, newCoord, moveChildren, moveParent);
+    return super.moveBodyType(bodyTypeId, oldCoord, newCoord, moveChildren, moveParent);
   }
 }

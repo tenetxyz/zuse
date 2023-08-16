@@ -6,7 +6,7 @@ import { System } from "@latticexyz/world/src/System.sol";
 import { CARegistry, CARegistryTableId, CARegistryData, WorldRegistry, WorldRegistryTableId, WorldRegistryData } from "../codegen/Tables.sol";
 
 contract WorldRegistrySystem is System {
-  // TODO: How do we know this CA is using these voxel types?
+  // TODO: How do we know this world is using these CA's?
   function registerWorld(string memory name, string memory description, address[] memory caAddresses) public {
     require(bytes(name).length > 0, "Name cannot be empty");
     require(bytes(description).length > 0, "Description cannot be empty");

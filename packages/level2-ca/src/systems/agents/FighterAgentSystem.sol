@@ -4,14 +4,14 @@ pragma solidity >=0.8.0;
 import { IStore } from "@latticexyz/store/src/IStore.sol";
 import { IWorld } from "@tenet-level2-ca/src/codegen/world/IWorld.sol";
 import { VoxelType } from "@tenet-base-ca/src/prototypes/VoxelType.sol";
-import { VoxelVariantsRegistryData } from "@tenet-registry/src/codegen/tables/VoxelVariantsRegistry.sol";
+import { BodyVariantsRegistryData } from "@tenet-registry/src/codegen/tables/BodyVariantsRegistry.sol";
 import { NoaBlockType } from "@tenet-registry/src/codegen/Types.sol";
 import { hasKey } from "@latticexyz/world/src/modules/keysintable/hasKey.sol";
-import { registerVoxelVariant, registerVoxelType } from "@tenet-registry/src/Utils.sol";
+import { registerBodyVariant, registerBodyType } from "@tenet-registry/src/Utils.sol";
 import { REGISTRY_ADDRESS, FighterVoxelID } from "@tenet-level2-ca/src/Constants.sol";
-import { VoxelCoord, VoxelSelectors, InteractionSelector } from "@tenet-utils/src/Types.sol";
+import { VoxelCoord, BodySelectors, InteractionSelector } from "@tenet-utils/src/Types.sol";
 import { getFirstCaller } from "@tenet-utils/src/Utils.sol";
-import { getCAEntityAtCoord, getCAVoxelType } from "@tenet-base-ca/src/Utils.sol";
+import { getCAEntityAtCoord, getCABodyType } from "@tenet-base-ca/src/Utils.sol";
 import { AirVoxelID } from "@tenet-base-ca/src/Constants.sol";
 import { Fighters, FightersData } from "@tenet-level2-ca/src/codegen/tables/Fighters.sol";
 
@@ -21,7 +21,7 @@ string constant FighterTexture = "bafkreihpdljsgdltghxehq4cebngtugfj3pduucijxcrv
 contract FighterAgentSystem is VoxelType {
   function registerVoxel() public override {
     address world = _world();
-    VoxelVariantsRegistryData memory fighterVariant;
+    BodyVariantsRegistryData memory fighterVariant;
     fighterVariant.blockType = NoaBlockType.MESH;
     fighterVariant.opaque = false;
     fighterVariant.solid = false;
@@ -29,13 +29,13 @@ contract FighterAgentSystem is VoxelType {
     string[] memory fighterMaterials = new string[](1);
     fighterMaterials[0] = FighterTexture;
     fighterVariant.materials = abi.encode(fighterMaterials);
-    registerVoxelVariant(REGISTRY_ADDRESS, FighterVoxelVariantID, fighterVariant);
+    registerBodyVariant(REGISTRY_ADDRESS, FighterVoxelVariantID, fighterVariant);
 
-    bytes32[] memory fighterChildVoxelTypes = new bytes32[](8);
+    bytes32[] memory fighterChildBodyTypes = new bytes32[](8);
     for (uint i = 0; i < 8; i++) {
-      fighterChildVoxelTypes[i] = AirVoxelID;
+      fighterChildBodyTypes[i] = AirVoxelID;
     }
-    bytes32 baseVoxelTypeId = FighterVoxelID;
+    bytes32 baseBodyTypeId = FighterVoxelID;
 
     InteractionSelector[] memory voxelInteractionSelectors = new InteractionSelector[](1);
     voxelInteractionSelectors[0] = InteractionSelector({
@@ -44,18 +44,18 @@ contract FighterAgentSystem is VoxelType {
       interactionDescription: ""
     });
 
-    registerVoxelType(
+    registerBodyType(
       REGISTRY_ADDRESS,
       "Fighter",
       FighterVoxelID,
-      baseVoxelTypeId,
-      fighterChildVoxelTypes,
-      fighterChildVoxelTypes,
+      baseBodyTypeId,
+      fighterChildBodyTypes,
+      fighterChildBodyTypes,
       FighterVoxelVariantID,
-      VoxelSelectors({
+      BodySelectors({
         enterWorldSelector: IWorld(world).ca_FighterAgentSyst_enterWorld.selector,
         exitWorldSelector: IWorld(world).ca_FighterAgentSyst_exitWorld.selector,
-        voxelVariantSelector: IWorld(world).ca_FighterAgentSyst_variantSelector.selector,
+        bodyVariantSelector: IWorld(world).ca_FighterAgentSyst_variantSelector.selector,
         activateSelector: IWorld(world).ca_FighterAgentSyst_activate.selector,
         onNewNeighbourSelector: IWorld(world).ca_FighterAgentSyst_onNewNeighbour.selector,
         interactionSelectors: voxelInteractionSelectors

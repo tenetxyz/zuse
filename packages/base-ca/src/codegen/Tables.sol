@@ -6,6 +6,6 @@ pragma solidity >=0.8.0;
 import { CAEntityMapping, CAEntityMappingTableId } from "./tables/CAEntityMapping.sol";
 import { CAEntityReverseMapping, CAEntityReverseMappingData, CAEntityReverseMappingTableId } from "./tables/CAEntityReverseMapping.sol";
 import { CAPosition, CAPositionData, CAPositionTableId } from "./tables/CAPosition.sol";
-import { CAVoxelType, CAVoxelTypeData, CAVoxelTypeTableId } from "./tables/CAVoxelType.sol";
+import { CABodyType, CABodyTypeData, CABodyTypeTableId } from "./tables/CABodyType.sol";
 import { CAMind, CAMindData, CAMindTableId } from "./tables/CAMind.sol";
 import { ElectronTunnelSpot, ElectronTunnelSpotData, ElectronTunnelSpotTableId } from "./tables/ElectronTunnelSpot.sol";

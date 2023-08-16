@@ -8,7 +8,7 @@ import { BlockDirection, VoxelCoord } from "@tenet-utils/src/Types.sol";
 import { hasKey } from "@latticexyz/world/src/modules/keysintable/hasKey.sol";
 import { ElectronTunnelSpot, ElectronTunnelSpotData, ElectronTunnelSpotTableId } from "@tenet-base-ca/src/codegen/Tables.sol";
 import { AirVoxelID, ElectronVoxelID } from "@tenet-base-ca/src/Constants.sol";
-import { getCAEntityAtCoord, getCAVoxelType, getCANeighbours, positionDataToVoxelCoord, getCAEntityPositionStrict } from "@tenet-base-ca/src/Utils.sol";
+import { getCAEntityAtCoord, getCABodyType, getCANeighbours, positionDataToVoxelCoord, getCAEntityPositionStrict } from "@tenet-base-ca/src/Utils.sol";
 import { safeCall } from "@tenet-utils/src/CallUtils.sol";
 import { Strings } from "@openzeppelin/contracts/utils/Strings.sol";
 
@@ -63,7 +63,7 @@ contract ElectronSystem is VoxelInteraction {
       if (neighbourEntityId == 0 || neighbourEntityId == excludingEntityId) {
         continue;
       }
-      bytes32 neighbourEntityType = getCAVoxelType(neighbourEntityId);
+      bytes32 neighbourEntityType = getCABodyType(neighbourEntityId);
       if (neighbourEntityType == ElectronVoxelID) {
         require(neighbourEntityDirections[i] != BlockDirection.None, "ElectronSystem: Invalid direction");
         if (
@@ -125,7 +125,7 @@ contract ElectronSystem is VoxelInteraction {
       if (neighbourEntityId == 0) {
         continue;
       }
-      bytes32 neighbourEntityType = getCAVoxelType(neighbourEntityId);
+      bytes32 neighbourEntityType = getCABodyType(neighbourEntityId);
       if (interactAtTop && neighbourEntityDirections[i] == BlockDirection.North) {
         if (neighbourEntityType == ElectronVoxelID) {
           revert("ElectronSystem: Cannot place electron when it's tunneling spot is already occupied (north)");
@@ -213,7 +213,7 @@ contract ElectronSystem is VoxelInteraction {
   }
 
   function entityShouldInteract(address callerAddress, bytes32 entityId) internal view override returns (bool) {
-    bytes32 entityType = getCAVoxelType(entityId);
+    bytes32 entityType = getCABodyType(entityId);
     return entityType == ElectronVoxelID;
   }
 

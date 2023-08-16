@@ -30,7 +30,7 @@ abstract contract VoxelType is System {
     bytes32[] memory neighbourEntityIds,
     bytes32[] memory childEntityIds,
     bytes32 parentEntity
-  ) public view virtual returns (bytes32 voxelVariantId);
+  ) public view virtual returns (bytes32 bodyVariantId);
 
   // Called by the CA when the player right clicks it
   function activate(bytes32 entity) public view virtual returns (string memory);

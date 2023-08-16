@@ -3,8 +3,8 @@ pragma solidity >=0.8.0;
 
 import { getUniqueEntity } from "@latticexyz/world/src/modules/uniqueentity/getUniqueEntity.sol";
 import { MudTest } from "@latticexyz/store/src/MudTest.sol";
-import { VoxelCoord, BaseCreationInWorld, VoxelEntity } from "@tenet-utils/src/Types.sol";
-import { OwnedBy, VoxelType, VoxelTypeData } from "@tenet-contracts/src/codegen/Tables.sol";
+import { VoxelCoord, BaseCreationInWorld, BodyEntity } from "@tenet-utils/src/Types.sol";
+import { OwnedBy, BodyType } from "@tenet-contracts/src/codegen/Tables.sol";
 import { IWorld } from "@tenet-contracts/src/codegen/world/IWorld.sol";
 import { IStore } from "@latticexyz/store/src/IStore.sol";
 import { ElectronVoxelID } from "@tenet-base-ca/src/Constants.sol";
@@ -58,9 +58,9 @@ contract TruthTableClassifyTest is MudTest {
     (uint32 scaleVoxel1, bytes32 voxel1) = world.build(1, giftedSignalSource, coord1, bytes4(0));
     (uint32 scaleVoxel2, bytes32 voxel2) = world.build(1, giftedSignal, coord2, bytes4(0));
 
-    VoxelEntity[] memory voxels = new VoxelEntity[](2);
-    voxels[0] = VoxelEntity({ scale: scaleVoxel1, entityId: voxel1 });
-    voxels[1] = VoxelEntity({ scale: scaleVoxel2, entityId: voxel2 });
+    BodyEntity[] memory voxels = new BodyEntity[](2);
+    voxels[0] = BodyEntity({ scale: scaleVoxel1, entityId: voxel1 });
+    voxels[1] = BodyEntity({ scale: scaleVoxel2, entityId: voxel2 });
 
     // TODO: fix registering the creation
     // BaseCreationInWorld[] memory baseCreationsInWorld = new BaseCreationInWorld[](0);

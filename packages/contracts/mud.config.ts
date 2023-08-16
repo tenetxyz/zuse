@@ -12,7 +12,7 @@ export default mudConfig({
   tables: {
     WorldConfig: {
       keySchema: {
-        voxelTypeId: "bytes32",
+        bodyTypeId: "bytes32",
       },
       schema: {
         caAddress: "address",
@@ -29,14 +29,14 @@ export default mudConfig({
         lastUpdateCoord: "bytes", // VoxelCoord
       },
     },
-    VoxelType: {
+    BodyType: {
       keySchema: {
         scale: "uint32",
         entity: "bytes32",
       },
       schema: {
-        voxelTypeId: "bytes32", // TODO: rename to voxelBaseTypeId
-        voxelVariantId: "bytes32",
+        bodyTypeId: "bytes32", // TODO: rename to bodyBaseTypeId
+        bodyVariantId: "bytes32",
       },
     },
     Position: {
@@ -146,12 +146,12 @@ export default mudConfig({
     {
       name: "KeysWithValueModule",
       root: true,
-      args: [resolveTableId("VoxelType")],
+      args: [resolveTableId("BodyType")],
     },
     {
       name: "KeysInTableModule",
       root: true,
-      args: [resolveTableId("VoxelType")],
+      args: [resolveTableId("BodyType")],
     },
     {
       name: "KeysInTableModule",

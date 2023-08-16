@@ -3,9 +3,9 @@ pragma solidity >=0.8.0;
 
 import { IWorld } from "@tenet-level2-ca/src/codegen/world/IWorld.sol";
 import { VoxelType } from "@tenet-base-ca/src/prototypes/VoxelType.sol";
-import { VoxelVariantsRegistryData } from "@tenet-registry/src/codegen/tables/VoxelVariantsRegistry.sol";
+import { BodyVariantsRegistryData } from "@tenet-registry/src/codegen/tables/BodyVariantsRegistry.sol";
 import { NoaBlockType } from "@tenet-registry/src/codegen/Types.sol";
-import { registerVoxelVariant, registerVoxelType, voxelSelectorsForVoxel } from "@tenet-registry/src/Utils.sol";
+import { registerBodyVariant, registerBodyType, bodySelectorsForVoxel } from "@tenet-registry/src/Utils.sol";
 import { REGISTRY_ADDRESS, GrassVoxelID } from "@tenet-level2-ca/src/Constants.sol";
 import { DirtTexture } from "@tenet-level2-ca/src/systems/voxels/DirtVoxelSystem.sol";
 import { VoxelCoord } from "@tenet-utils/src/Types.sol";
@@ -19,7 +19,7 @@ string constant GrassUVWrap = "bafkreiaur4pmmnh3dts6rjtfl5f2z6ykazyuu4e2cbno6drs
 contract GrassVoxelSystem is VoxelType {
   function registerVoxel() public override {
     address world = _world();
-    VoxelVariantsRegistryData memory grassVariant;
+    BodyVariantsRegistryData memory grassVariant;
     grassVariant.blockType = NoaBlockType.BLOCK;
     grassVariant.opaque = true;
     grassVariant.solid = true;
@@ -29,22 +29,22 @@ contract GrassVoxelSystem is VoxelType {
     grassMaterials[2] = GrassSideTexture;
     grassVariant.materials = abi.encode(grassMaterials);
     grassVariant.uvWrap = GrassUVWrap;
-    registerVoxelVariant(REGISTRY_ADDRESS, GrassVoxelVariantID, grassVariant);
+    registerBodyVariant(REGISTRY_ADDRESS, GrassVoxelVariantID, grassVariant);
 
-    bytes32[] memory grassChildVoxelTypes = new bytes32[](8);
+    bytes32[] memory grassChildBodyTypes = new bytes32[](8);
     for (uint i = 0; i < 8; i++) {
-      grassChildVoxelTypes[i] = AirVoxelID;
+      grassChildBodyTypes[i] = AirVoxelID;
     }
-    bytes32 baseVoxelTypeId = GrassVoxelID;
-    registerVoxelType(
+    bytes32 baseBodyTypeId = GrassVoxelID;
+    registerBodyType(
       REGISTRY_ADDRESS,
       "Grass",
       GrassVoxelID,
-      baseVoxelTypeId,
-      grassChildVoxelTypes,
-      grassChildVoxelTypes,
+      baseBodyTypeId,
+      grassChildBodyTypes,
+      grassChildBodyTypes,
       GrassVoxelVariantID,
-      voxelSelectorsForVoxel(
+      bodySelectorsForVoxel(
         IWorld(world).ca_GrassVoxelSystem_enterWorld.selector,
         IWorld(world).ca_GrassVoxelSystem_exitWorld.selector,
         IWorld(world).ca_GrassVoxelSystem_variantSelector.selector,

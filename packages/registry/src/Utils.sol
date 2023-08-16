@@ -2,59 +2,59 @@
 pragma solidity >=0.8.0;
 
 import { IStore } from "@latticexyz/store/src/IStore.sol";
-import { REGISTER_VOXEL_TYPE_SIG, REGISTER_VOXEL_VARIANT_SIG, REGISTER_CREATION_SIG, GET_VOXELS_IN_CREATION_SIG, CREATION_SPAWNED_SIG, VOXEL_SPAWNED_SIG, REGISTER_MIND_SIG, REGISTER_MIND_WORLD_SIG } from "@tenet-registry/src/Constants.sol";
-import { VoxelVariantsRegistryData } from "@tenet-registry/src/codegen/tables/VoxelVariantsRegistry.sol";
-import { VoxelTypeRegistry } from "@tenet-registry/src/codegen/tables/VoxelTypeRegistry.sol";
-import { VoxelCoord, BaseCreationInWorld, VoxelTypeData, VoxelSelectors, InteractionSelector, Mind } from "@tenet-utils/src/Types.sol";
+import { REGISTER_BODY_TYPE_SIG, REGISTER_BODY_VARIANT_SIG, REGISTER_CREATION_SIG, GET_VOXELS_IN_CREATION_SIG, CREATION_SPAWNED_SIG, BODY_SPAWNED_SIG, REGISTER_MIND_SIG, REGISTER_MIND_WORLD_SIG } from "@tenet-registry/src/Constants.sol";
+import { BodyVariantsRegistryData } from "@tenet-registry/src/codegen/tables/BodyVariantsRegistry.sol";
+import { BodyTypeRegistry } from "@tenet-registry/src/codegen/tables/BodyTypeRegistry.sol";
+import { VoxelCoord, BaseCreationInWorld, BodyTypeData, BodySelectors, InteractionSelector, Mind } from "@tenet-utils/src/Types.sol";
 import { safeCall } from "@tenet-utils/src/CallUtils.sol";
 
-function registerVoxelVariant(
+function registerBodyVariant(
   address registryAddress,
-  bytes32 voxelVariantId,
-  VoxelVariantsRegistryData memory voxelVariantData
+  bytes32 bodyVariantId,
+  BodyVariantsRegistryData memory bodyVariantData
 ) returns (bytes memory) {
   return
     safeCall(
       registryAddress,
-      abi.encodeWithSignature(REGISTER_VOXEL_VARIANT_SIG, voxelVariantId, voxelVariantData),
-      "registerVoxelVariant"
+      abi.encodeWithSignature(REGISTER_BODY_VARIANT_SIG, bodyVariantId, bodyVariantData),
+      "registerBodyVariant"
     );
 }
 
-function registerVoxelType(
+function registerBodyType(
   address registryAddress,
   string memory name,
-  bytes32 voxelTypeId,
-  bytes32 baseVoxelTypeId,
-  bytes32[] memory childVoxelTypeIds,
-  bytes32[] memory schemaVoxelTypeIds,
-  bytes32 previewVoxelVariantId,
-  VoxelSelectors memory voxelSelectors
+  bytes32 bodyTypeId,
+  bytes32 baseBodyTypeId,
+  bytes32[] memory childBodyTypeIds,
+  bytes32[] memory schemaBodyTypeIds,
+  bytes32 previewBodyVariantId,
+  BodySelectors memory bodySelectors
 ) returns (bytes memory) {
   return
     safeCall(
       registryAddress,
       abi.encodeWithSignature(
-        REGISTER_VOXEL_TYPE_SIG,
+        REGISTER_BODY_TYPE_SIG,
         name,
-        voxelTypeId,
-        baseVoxelTypeId,
-        childVoxelTypeIds,
-        schemaVoxelTypeIds,
-        previewVoxelVariantId,
-        voxelSelectors
+        bodyTypeId,
+        baseBodyTypeId,
+        childBodyTypeIds,
+        schemaBodyTypeIds,
+        previewBodyVariantId,
+        bodySelectors
       ),
-      "registerVoxelType"
+      "registerBodyType"
     );
 }
 
-function voxelSelectorsForVoxel(
+function bodySelectorsForVoxel(
   bytes4 enterWorldSelector,
   bytes4 exitWorldSelector,
-  bytes4 voxelVariantSelector,
+  bytes4 bodyVariantSelector,
   bytes4 activateSelector,
   bytes4 interactionSelector
-) pure returns (VoxelSelectors memory) {
+) pure returns (BodySelectors memory) {
   InteractionSelector[] memory voxelInteractionSelectors = new InteractionSelector[](1);
   voxelInteractionSelectors[0] = InteractionSelector({
     interactionSelector: interactionSelector,
@@ -62,72 +62,72 @@ function voxelSelectorsForVoxel(
     interactionDescription: ""
   });
   return
-    VoxelSelectors({
+    BodySelectors({
       enterWorldSelector: enterWorldSelector,
       exitWorldSelector: exitWorldSelector,
-      voxelVariantSelector: voxelVariantSelector,
+      bodyVariantSelector: bodyVariantSelector,
       activateSelector: activateSelector,
       onNewNeighbourSelector: bytes4(0),
       interactionSelectors: voxelInteractionSelectors
     });
 }
 
-function getEnterWorldSelector(IStore store, bytes32 voxelTypeId) view returns (bytes4) {
-  bytes memory selectors = VoxelTypeRegistry.getSelectors(store, voxelTypeId);
-  return abi.decode(selectors, (VoxelSelectors)).enterWorldSelector;
+function getEnterWorldSelector(IStore store, bytes32 bodyTypeId) view returns (bytes4) {
+  bytes memory selectors = BodyTypeRegistry.getSelectors(store, bodyTypeId);
+  return abi.decode(selectors, (BodySelectors)).enterWorldSelector;
 }
 
-function getExitWorldSelector(IStore store, bytes32 voxelTypeId) view returns (bytes4) {
-  bytes memory selectors = VoxelTypeRegistry.getSelectors(store, voxelTypeId);
-  return abi.decode(selectors, (VoxelSelectors)).exitWorldSelector;
+function getExitWorldSelector(IStore store, bytes32 bodyTypeId) view returns (bytes4) {
+  bytes memory selectors = BodyTypeRegistry.getSelectors(store, bodyTypeId);
+  return abi.decode(selectors, (BodySelectors)).exitWorldSelector;
 }
 
-function getVoxelVariantSelector(IStore store, bytes32 voxelTypeId) view returns (bytes4) {
-  bytes memory selectors = VoxelTypeRegistry.getSelectors(store, voxelTypeId);
-  return abi.decode(selectors, (VoxelSelectors)).voxelVariantSelector;
+function getBodyVariantSelector(IStore store, bytes32 bodyTypeId) view returns (bytes4) {
+  bytes memory selectors = BodyTypeRegistry.getSelectors(store, bodyTypeId);
+  return abi.decode(selectors, (BodySelectors)).bodyVariantSelector;
 }
 
-function getActivateSelector(IStore store, bytes32 voxelTypeId) view returns (bytes4) {
-  bytes memory selectors = VoxelTypeRegistry.getSelectors(store, voxelTypeId);
-  return abi.decode(selectors, (VoxelSelectors)).activateSelector;
+function getActivateSelector(IStore store, bytes32 bodyTypeId) view returns (bytes4) {
+  bytes memory selectors = BodyTypeRegistry.getSelectors(store, bodyTypeId);
+  return abi.decode(selectors, (BodySelectors)).activateSelector;
 }
 
-function getOnNewNeighbourSelector(IStore store, bytes32 voxelTypeId) view returns (bytes4) {
-  bytes memory selectors = VoxelTypeRegistry.getSelectors(store, voxelTypeId);
-  return abi.decode(selectors, (VoxelSelectors)).onNewNeighbourSelector;
+function getOnNewNeighbourSelector(IStore store, bytes32 bodyTypeId) view returns (bytes4) {
+  bytes memory selectors = BodyTypeRegistry.getSelectors(store, bodyTypeId);
+  return abi.decode(selectors, (BodySelectors)).onNewNeighbourSelector;
 }
 
-function getInteractionSelectors(IStore store, bytes32 voxelTypeId) view returns (InteractionSelector[] memory) {
-  bytes memory selectors = VoxelTypeRegistry.getSelectors(store, voxelTypeId);
-  return abi.decode(selectors, (VoxelSelectors)).interactionSelectors;
+function getInteractionSelectors(IStore store, bytes32 bodyTypeId) view returns (InteractionSelector[] memory) {
+  bytes memory selectors = BodyTypeRegistry.getSelectors(store, bodyTypeId);
+  return abi.decode(selectors, (BodySelectors)).interactionSelectors;
 }
 
 function registerCreation(
   address registryAddress,
   string memory name,
   string memory description,
-  VoxelTypeData[] memory voxelTypes,
+  BodyTypeData[] memory bodyTypes,
   VoxelCoord[] memory voxelCoords,
   BaseCreationInWorld[] memory baseCreationsInWorld
-) returns (bytes32, VoxelCoord memory, VoxelTypeData[] memory, VoxelCoord[] memory) {
+) returns (bytes32, VoxelCoord memory, BodyTypeData[] memory, VoxelCoord[] memory) {
   bytes memory result = safeCall(
     registryAddress,
-    abi.encodeWithSignature(REGISTER_CREATION_SIG, name, description, voxelTypes, voxelCoords, baseCreationsInWorld),
+    abi.encodeWithSignature(REGISTER_CREATION_SIG, name, description, bodyTypes, voxelCoords, baseCreationsInWorld),
     "registerCreation"
   );
-  return abi.decode(result, (bytes32, VoxelCoord, VoxelTypeData[], VoxelCoord[]));
+  return abi.decode(result, (bytes32, VoxelCoord, BodyTypeData[], VoxelCoord[]));
 }
 
 function getVoxelsInCreation(
   address registryAddress,
   bytes32 creationId
-) returns (VoxelCoord[] memory, VoxelTypeData[] memory) {
+) returns (VoxelCoord[] memory, BodyTypeData[] memory) {
   bytes memory result = safeCall(
     registryAddress,
     abi.encodeWithSignature(GET_VOXELS_IN_CREATION_SIG, creationId),
     "getVoxelsInCreation"
   );
-  return abi.decode(result, (VoxelCoord[], VoxelTypeData[]));
+  return abi.decode(result, (VoxelCoord[], BodyTypeData[]));
 }
 
 function creationSpawned(address registryAddress, bytes32 creationId) returns (uint256) {
@@ -139,33 +139,29 @@ function creationSpawned(address registryAddress, bytes32 creationId) returns (u
   return abi.decode(result, (uint256));
 }
 
-function voxelSpawned(address registryAddress, bytes32 voxelTypeId) returns (uint256) {
-  bytes memory result = safeCall(
-    registryAddress,
-    abi.encodeWithSignature(VOXEL_SPAWNED_SIG, voxelTypeId),
-    "voxelSpawned"
-  );
+function bodySpawned(address registryAddress, bytes32 bodyTypeId) returns (uint256) {
+  bytes memory result = safeCall(registryAddress, abi.encodeWithSignature(BODY_SPAWNED_SIG, bodyTypeId), "bodySpawned");
   return abi.decode(result, (uint256));
 }
 
 function registerMindIntoRegistry(
   address registryAddress,
-  bytes32 voxelTypeId,
+  bytes32 bodyTypeId,
   Mind memory mind
 ) returns (bytes memory) {
-  return safeCall(registryAddress, abi.encodeWithSignature(REGISTER_MIND_SIG, voxelTypeId, mind), "registerMind");
+  return safeCall(registryAddress, abi.encodeWithSignature(REGISTER_MIND_SIG, bodyTypeId, mind), "registerMind");
 }
 
 function registerMindForWorld(
   address registryAddress,
-  bytes32 voxelTypeId,
+  bytes32 bodyTypeId,
   address worldAddress,
   Mind memory mind
 ) returns (bytes memory) {
   return
     safeCall(
       registryAddress,
-      abi.encodeWithSignature(REGISTER_MIND_WORLD_SIG, voxelTypeId, worldAddress, mind),
+      abi.encodeWithSignature(REGISTER_MIND_WORLD_SIG, bodyTypeId, worldAddress, mind),
       "registerMindForWorld"
     );
 }

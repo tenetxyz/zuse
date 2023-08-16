@@ -9,23 +9,23 @@ import { entityToCAEntity } from "@tenet-base-ca/src/Utils.sol";
 import { distanceBetween } from "@tenet-utils/src/VoxelCoordUtils.sol";
 
 abstract contract CACaller is System {
-  function buildCAWorld(address callerAddress, bytes32 voxelTypeId, VoxelCoord memory coord) public virtual {
-    buildWorld(callerAddress, voxelTypeId, coord);
+  function buildCAWorld(address callerAddress, bytes32 bodyTypeId, VoxelCoord memory coord) public virtual {
+    buildWorld(callerAddress, bodyTypeId, coord);
   }
 
-  function mineCAWorld(address callerAddress, bytes32 voxelTypeId, VoxelCoord memory coord) public virtual {
-    mineWorld(callerAddress, voxelTypeId, coord);
+  function mineCAWorld(address callerAddress, bytes32 bodyTypeId, VoxelCoord memory coord) public virtual {
+    mineWorld(callerAddress, bodyTypeId, coord);
   }
 
   function moveCAWorld(
     address callerAddress,
-    bytes32 voxelTypeId,
+    bytes32 bodyTypeId,
     VoxelCoord memory oldCoord,
     VoxelCoord memory newCoord
   ) public virtual returns (bytes32, bytes32) {
     // Note: Currently, we only support movements of 1 voxel in any direction
     require(distanceBetween(oldCoord, newCoord) == 1, "Can only move 1 voxel at a time");
-    bytes memory returnData = moveWorld(callerAddress, voxelTypeId, oldCoord, newCoord);
+    bytes memory returnData = moveWorld(callerAddress, bodyTypeId, oldCoord, newCoord);
     (, bytes32 oldEntityId, bytes32 newEntityId) = abi.decode(returnData, (uint32, bytes32, bytes32));
     return (entityToCAEntity(callerAddress, oldEntityId), entityToCAEntity(callerAddress, newEntityId));
   }

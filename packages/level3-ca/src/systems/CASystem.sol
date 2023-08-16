@@ -15,51 +15,51 @@ contract CASystem is CA {
     return REGISTRY_ADDRESS;
   }
 
-  function emptyVoxelId() internal pure override returns (bytes32) {
+  function emptyBodyId() internal pure override returns (bytes32) {
     return Level3AirVoxelID;
   }
 
   function registerCA() public override {
-    bytes32[] memory caVoxelTypes = new bytes32[](2);
-    caVoxelTypes[0] = Level3AirVoxelID;
-    caVoxelTypes[1] = RoadVoxelID;
+    bytes32[] memory caBodyTypes = new bytes32[](2);
+    caBodyTypes[0] = Level3AirVoxelID;
+    caBodyTypes[1] = RoadVoxelID;
 
     safeCall(
       getRegistryAddress(),
-      abi.encodeWithSignature(REGISTER_CA_SIG, "Level 3 CA", "Has road", caVoxelTypes),
+      abi.encodeWithSignature(REGISTER_CA_SIG, "Level 3 CA", "Has road", caBodyTypes),
       "registerCA"
     );
   }
 
   function terrainGen(
     address callerAddress,
-    bytes32 voxelTypeId,
+    bytes32 bodyTypeId,
     VoxelCoord memory coord,
     bytes32 entity
   ) internal override {
     revert("Level2CA: Terrain gen not implemented");
   }
 
-  function callVoxelEnterWorld(bytes32 voxelTypeId, VoxelCoord memory coord, bytes32 caEntity) internal override {
-    IWorld(_world()).voxelEnterWorld(voxelTypeId, coord, caEntity);
+  function callBodyEnterWorld(bytes32 bodyTypeId, VoxelCoord memory coord, bytes32 caEntity) internal override {
+    IWorld(_world()).bodyEnterWorld(bodyTypeId, coord, caEntity);
   }
 
-  function callVoxelExitWorld(bytes32 voxelTypeId, VoxelCoord memory coord, bytes32 caEntity) internal override {
-    IWorld(_world()).voxelExitWorld(voxelTypeId, coord, caEntity);
+  function callBodyExitWorld(bytes32 bodyTypeId, VoxelCoord memory coord, bytes32 caEntity) internal override {
+    IWorld(_world()).bodyExitWorld(bodyTypeId, coord, caEntity);
   }
 
-  function callVoxelRunInteraction(
+  function callBodyRunInteraction(
     bytes4 interactionSelector,
-    bytes32 voxelTypeId,
+    bytes32 bodyTypeId,
     bytes32 caInteractEntity,
     bytes32[] memory caNeighbourEntityIds,
     bytes32[] memory childEntityIds,
     bytes32 parentEntity
   ) internal override returns (bytes32[] memory) {
     return
-      IWorld(_world()).voxelRunInteraction(
+      IWorld(_world()).bodyRunInteraction(
         interactionSelector,
-        voxelTypeId,
+        bodyTypeId,
         caInteractEntity,
         caNeighbourEntityIds,
         childEntityIds,
@@ -67,13 +67,13 @@ contract CASystem is CA {
       );
   }
 
-  function callGetVoxelVariant(
-    bytes32 voxelTypeId,
+  function callGetBodyVariant(
+    bytes32 bodyTypeId,
     bytes32 caEntity,
     bytes32[] memory caNeighbourEntityIds,
     bytes32[] memory childEntityIds,
     bytes32 parentEntity
   ) internal override returns (bytes32) {
-    return IWorld(_world()).getVoxelVariant(voxelTypeId, caEntity, caNeighbourEntityIds, childEntityIds, parentEntity);
+    return IWorld(_world()).getBodyVariant(bodyTypeId, caEntity, caNeighbourEntityIds, childEntityIds, parentEntity);
   }
 }

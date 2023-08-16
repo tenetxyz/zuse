@@ -26,28 +26,28 @@ contract InitSystem is System {
     );
   }
 
-  function initWorldVoxelTypes() public {
+  function initWorldBodyTypes() public {
     // Go through all the CA's
     address[] memory caAddresses = WorldRegistry.getCaAddresses(IStore(REGISTRY_ADDRESS), _world());
     for (uint256 i; i < caAddresses.length; i++) {
       address caAddress = caAddresses[i];
       // Go through all the voxel types
-      bytes32[] memory voxelTypeIds = CARegistry.getVoxelTypeIds(IStore(REGISTRY_ADDRESS), caAddress);
-      for (uint256 j; j < voxelTypeIds.length; j++) {
+      bytes32[] memory bodyTypeIds = CARegistry.getBodyTypeIds(IStore(REGISTRY_ADDRESS), caAddress);
+      for (uint256 j; j < bodyTypeIds.length; j++) {
         // TODO: Check for duplicates?
-        WorldConfig.set(voxelTypeIds[j], caAddress);
+        WorldConfig.set(bodyTypeIds[j], caAddress);
       }
     }
   }
 
-  function onNewCAVoxelType(address caAddress, bytes32 voxelTypeId) public {
+  function onNewCABodyType(address caAddress, bytes32 bodyTypeId) public {
     require(_msgSender() == REGISTRY_ADDRESS, "Only the registry can call this function");
     require(
-      !hasKey(WorldConfigTableId, WorldConfig.encodeKeyTuple(voxelTypeId)),
+      !hasKey(WorldConfigTableId, WorldConfig.encodeKeyTuple(bodyTypeId)),
       "Voxel type already exists in this world"
     );
     require(isCAAllowed(caAddress), "CA is not allowed in this world");
-    WorldConfig.set(voxelTypeId, caAddress);
+    WorldConfig.set(bodyTypeId, caAddress);
   }
 
   function isCAAllowed(address caAddress) public view returns (bool) {
@@ -60,7 +60,7 @@ contract InitSystem is System {
     return false;
   }
 
-  function isVoxelTypeAllowed(bytes32 voxelTypeId) public view returns (bool) {
-    return hasKey(WorldConfigTableId, WorldConfig.encodeKeyTuple(voxelTypeId));
+  function isBodyTypeAllowed(bytes32 bodyTypeId) public view returns (bool) {
+    return hasKey(WorldConfigTableId, WorldConfig.encodeKeyTuple(bodyTypeId));
   }
 }

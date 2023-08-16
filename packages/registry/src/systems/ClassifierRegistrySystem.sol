@@ -4,7 +4,7 @@ pragma solidity >=0.8.0;
 import { getUniqueEntity } from "@latticexyz/world/src/modules/uniqueentity/getUniqueEntity.sol";
 import { System } from "@latticexyz/world/src/System.sol";
 import { ClassifierRegistry, ClassifierRegistryData } from "@tenet-registry/src/codegen/Tables.sol";
-import { InterfaceVoxel } from "@tenet-utils/src/Types.sol";
+import { InterfaceBody } from "@tenet-utils/src/Types.sol";
 
 contract ClassifierRegistrySystem is System {
   function registerClassifier(
@@ -12,7 +12,7 @@ contract ClassifierRegistrySystem is System {
     string memory name,
     string memory description,
     string memory classificationResultTableName,
-    InterfaceVoxel[] memory selectorInterface
+    InterfaceBody[] memory selectorInterface
   ) public {
     bytes32 classifierId = getUniqueEntity();
     validateInterfaceVoxels(selectorInterface);
@@ -29,9 +29,9 @@ contract ClassifierRegistrySystem is System {
     );
   }
 
-  function validateInterfaceVoxels(InterfaceVoxel[] memory selectorInterface) internal pure {
+  function validateInterfaceVoxels(InterfaceBody[] memory selectorInterface) internal pure {
     for (uint256 i = 0; i < selectorInterface.length; i++) {
-      InterfaceVoxel memory interfaceVoxel = selectorInterface[i];
+      InterfaceBody memory interfaceVoxel = selectorInterface[i];
       require(bytes(interfaceVoxel.name).length > 0, "Interface voxel name cannot be empty");
     }
   }

@@ -2,19 +2,19 @@
 pragma solidity >=0.8.0;
 
 import { IStore } from "@latticexyz/store/src/IStore.sol";
-import { VoxelTypeRegistry } from "@tenet-registry/src/codegen/tables/VoxelTypeRegistry.sol";
+import { BodyTypeRegistry } from "@tenet-registry/src/codegen/tables/BodyTypeRegistry.sol";
 import { IWorld } from "@tenet-level2-ca-extensions-1/src/codegen/world/IWorld.sol";
 import { VoxelType } from "@tenet-base-ca/src/prototypes/VoxelType.sol";
-import { VoxelVariantsRegistryData } from "@tenet-registry/src/codegen/tables/VoxelVariantsRegistry.sol";
+import { BodyVariantsRegistryData } from "@tenet-registry/src/codegen/tables/BodyVariantsRegistry.sol";
 import { NoaBlockType } from "@tenet-registry/src/codegen/Types.sol";
-import { registerVoxelVariant, registerVoxelType, voxelSelectorsForVoxel } from "@tenet-registry/src/Utils.sol";
+import { registerBodyVariant, registerBodyType, bodySelectorsForVoxel } from "@tenet-registry/src/Utils.sol";
 import { Generator, GeneratorData } from "@tenet-level2-ca-extensions-1/src/codegen/Tables.sol";
 import { CA_ADDRESS, REGISTRY_ADDRESS, ThermoGenVoxelID } from "@tenet-level2-ca-extensions-1/src/Constants.sol";
 import { Level2AirVoxelID } from "@tenet-level2-ca/src/Constants.sol";
 import { VoxelCoord, BlockDirection } from "@tenet-utils/src/Types.sol";
 import { AirVoxelID } from "@tenet-base-ca/src/Constants.sol";
 import { Strings } from "@openzeppelin/contracts/utils/Strings.sol";
-import { registerCAVoxelType } from "@tenet-base-ca/src/CallUtils.sol";
+import { registerCABodyType } from "@tenet-base-ca/src/CallUtils.sol";
 
 bytes32 constant ThermoGenVoxelVariantID = bytes32(keccak256("thermogen"));
 
@@ -26,7 +26,7 @@ contract ThermoGenVoxelSystem is VoxelType {
   function registerVoxel() public override {
     address world = _world();
 
-    VoxelVariantsRegistryData memory thermoGenVariant;
+    BodyVariantsRegistryData memory thermoGenVariant;
     thermoGenVariant.blockType = NoaBlockType.BLOCK;
     thermoGenVariant.opaque = true;
     thermoGenVariant.solid = true;
@@ -34,22 +34,22 @@ contract ThermoGenVoxelSystem is VoxelType {
     thermoGenMaterials[0] = ThermoGenTexture;
     thermoGenVariant.materials = abi.encode(thermoGenMaterials);
     thermoGenVariant.uvWrap = ThermoGenUVWrap;
-    registerVoxelVariant(REGISTRY_ADDRESS, ThermoGenVoxelVariantID, thermoGenVariant);
+    registerBodyVariant(REGISTRY_ADDRESS, ThermoGenVoxelVariantID, thermoGenVariant);
 
-    bytes32[] memory thermoGenChildVoxelTypes = VoxelTypeRegistry.getChildVoxelTypeIds(
+    bytes32[] memory thermoGenChildBodyTypes = BodyTypeRegistry.getChildBodyTypeIds(
       IStore(REGISTRY_ADDRESS),
       Level2AirVoxelID
     );
-    bytes32 baseVoxelTypeId = Level2AirVoxelID;
-    registerVoxelType(
+    bytes32 baseBodyTypeId = Level2AirVoxelID;
+    registerBodyType(
       REGISTRY_ADDRESS,
       "ThermoGen",
       ThermoGenVoxelID,
-      baseVoxelTypeId,
-      thermoGenChildVoxelTypes,
-      thermoGenChildVoxelTypes,
+      baseBodyTypeId,
+      thermoGenChildBodyTypes,
+      thermoGenChildBodyTypes,
       ThermoGenVoxelVariantID,
-      voxelSelectorsForVoxel(
+      bodySelectorsForVoxel(
         IWorld(world).extension1_ThermoGenVoxelSy_enterWorld.selector,
         IWorld(world).extension1_ThermoGenVoxelSy_exitWorld.selector,
         IWorld(world).extension1_ThermoGenVoxelSy_variantSelector.selector,
@@ -58,7 +58,7 @@ contract ThermoGenVoxelSystem is VoxelType {
       )
     );
 
-    registerCAVoxelType(CA_ADDRESS, ThermoGenVoxelID);
+    registerCABodyType(CA_ADDRESS, ThermoGenVoxelID);
   }
 
   function enterWorld(VoxelCoord memory coord, bytes32 entity) public override {

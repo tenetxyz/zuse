@@ -3,7 +3,7 @@ pragma solidity >=0.8.0;
 
 import { IStore } from "@latticexyz/store/src/IStore.sol";
 import { System } from "@latticexyz/world/src/System.sol";
-import { WorldConfig, Position, PositionTableId, VoxelTypeTableId, VoxelTypeData, TruthTable, TruthTableData, TruthTableCR, TruthTableCRData, Spawn } from "@tenet-contracts/src/codegen/Tables.sol";
+import { WorldConfig, Position, PositionTableId, TruthTable, TruthTableData, TruthTableCR, TruthTableCRData, Spawn } from "@tenet-contracts/src/codegen/Tables.sol";
 import { safeCall } from "@tenet-utils/src/CallUtils.sol";
 import { LEVEL_2_CA_ADDRESS } from "@tenet-contracts/src/Constants.sol";
 import { IWorld } from "@tenet-contracts/src/codegen/world/IWorld.sol";
@@ -12,8 +12,8 @@ import { getVoxelCoordStrict } from "@tenet-contracts/src/Utils.sol";
 import { getUniqueEntity } from "@latticexyz/world/src/modules/uniqueentity/getUniqueEntity.sol";
 import { SignalSourceVoxelID } from "@tenet-level2-ca-extensions-1/src/Constants.sol";
 // import { entityIsActiveSignal, isEntityIsInactiveSignal } from "@tenet-level2-ca/src/InteractionUtils.sol";
-import { VoxelType } from "@tenet-contracts/src/codegen/tables/voxelType.sol";
-import { InterfaceVoxel } from "@tenet-utils/src/Types.sol";
+import { BodyType } from "@tenet-contracts/src/codegen/tables/BodyType.sol";
+import { InterfaceBody } from "@tenet-utils/src/Types.sol";
 import { voxelCoordToString } from "@tenet-utils/src/VoxelCoordUtils.sol";
 import { Signal, SignalData } from "@tenet-level2-ca-extensions-1/src/codegen/tables/Signal.sol";
 import { Strings } from "@openzeppelin/contracts/utils/Strings.sol";
@@ -49,12 +49,12 @@ contract TruthTableClassifySystem is System {
     );
   }
 
-  // VoxelEntity
+  // BodyEntity
   function classifyIfCreationSatisfiesTruthTable(
     bytes32 booleanClassifierId,
     bytes32 spawnId,
-    InterfaceVoxel[] memory inInterfaces,
-    InterfaceVoxel[] memory outInterfaces
+    InterfaceBody[] memory inInterfaces,
+    InterfaceBody[] memory outInterfaces
   ) public {
     // TODO: do validation that is like in ClassifyCreationSystem
     // right now, I didn't do it because for the demo, we don't expect users to add their own classifiers
@@ -157,8 +157,8 @@ contract TruthTableClassifySystem is System {
     IWorld(_world()).build(2, entity, coord, bytes4(0));
   }
 
-  function giftVoxel(bytes32 baseVoxelType) private returns (bytes32) {
-    return IWorld(_world()).giftVoxel(baseVoxelType);
+  function giftVoxel(bytes32 baseBodyType) private returns (bytes32) {
+    return IWorld(_world()).giftVoxel(baseBodyType);
   }
 
   function isEntityActiveSignal(bytes32 entity) private view returns (bool) {

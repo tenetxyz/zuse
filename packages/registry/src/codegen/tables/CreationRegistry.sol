@@ -22,7 +22,7 @@ bytes32 constant CreationRegistryTableId = _tableId;
 
 struct CreationRegistryData {
   uint32 numVoxels;
-  bytes voxelTypes;
+  bytes bodyTypes;
   bytes relativePositions;
   bytes baseCreations;
   bytes metadata;
@@ -52,7 +52,7 @@ library CreationRegistry {
   function getMetadata() internal pure returns (string memory, string[] memory) {
     string[] memory _fieldNames = new string[](5);
     _fieldNames[0] = "numVoxels";
-    _fieldNames[1] = "voxelTypes";
+    _fieldNames[1] = "bodyTypes";
     _fieldNames[2] = "relativePositions";
     _fieldNames[3] = "baseCreations";
     _fieldNames[4] = "metadata";
@@ -115,8 +115,8 @@ library CreationRegistry {
     _store.setField(_tableId, _keyTuple, 0, abi.encodePacked((numVoxels)));
   }
 
-  /** Get voxelTypes */
-  function getVoxelTypes(bytes32 creationId) internal view returns (bytes memory voxelTypes) {
+  /** Get bodyTypes */
+  function getBodyTypes(bytes32 creationId) internal view returns (bytes memory bodyTypes) {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = creationId;
 
@@ -124,8 +124,8 @@ library CreationRegistry {
     return (bytes(_blob));
   }
 
-  /** Get voxelTypes (using the specified store) */
-  function getVoxelTypes(IStore _store, bytes32 creationId) internal view returns (bytes memory voxelTypes) {
+  /** Get bodyTypes (using the specified store) */
+  function getBodyTypes(IStore _store, bytes32 creationId) internal view returns (bytes memory bodyTypes) {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = creationId;
 
@@ -133,24 +133,24 @@ library CreationRegistry {
     return (bytes(_blob));
   }
 
-  /** Set voxelTypes */
-  function setVoxelTypes(bytes32 creationId, bytes memory voxelTypes) internal {
+  /** Set bodyTypes */
+  function setBodyTypes(bytes32 creationId, bytes memory bodyTypes) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = creationId;
 
-    StoreSwitch.setField(_tableId, _keyTuple, 1, bytes((voxelTypes)));
+    StoreSwitch.setField(_tableId, _keyTuple, 1, bytes((bodyTypes)));
   }
 
-  /** Set voxelTypes (using the specified store) */
-  function setVoxelTypes(IStore _store, bytes32 creationId, bytes memory voxelTypes) internal {
+  /** Set bodyTypes (using the specified store) */
+  function setBodyTypes(IStore _store, bytes32 creationId, bytes memory bodyTypes) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = creationId;
 
-    _store.setField(_tableId, _keyTuple, 1, bytes((voxelTypes)));
+    _store.setField(_tableId, _keyTuple, 1, bytes((bodyTypes)));
   }
 
-  /** Get the length of voxelTypes */
-  function lengthVoxelTypes(bytes32 creationId) internal view returns (uint256) {
+  /** Get the length of bodyTypes */
+  function lengthBodyTypes(bytes32 creationId) internal view returns (uint256) {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = creationId;
 
@@ -158,8 +158,8 @@ library CreationRegistry {
     return _byteLength / 1;
   }
 
-  /** Get the length of voxelTypes (using the specified store) */
-  function lengthVoxelTypes(IStore _store, bytes32 creationId) internal view returns (uint256) {
+  /** Get the length of bodyTypes (using the specified store) */
+  function lengthBodyTypes(IStore _store, bytes32 creationId) internal view returns (uint256) {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = creationId;
 
@@ -167,8 +167,8 @@ library CreationRegistry {
     return _byteLength / 1;
   }
 
-  /** Get an item of voxelTypes (unchecked, returns invalid data if index overflows) */
-  function getItemVoxelTypes(bytes32 creationId, uint256 _index) internal view returns (bytes memory) {
+  /** Get an item of bodyTypes (unchecked, returns invalid data if index overflows) */
+  function getItemBodyTypes(bytes32 creationId, uint256 _index) internal view returns (bytes memory) {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = creationId;
 
@@ -176,8 +176,8 @@ library CreationRegistry {
     return (bytes(_blob));
   }
 
-  /** Get an item of voxelTypes (using the specified store) (unchecked, returns invalid data if index overflows) */
-  function getItemVoxelTypes(IStore _store, bytes32 creationId, uint256 _index) internal view returns (bytes memory) {
+  /** Get an item of bodyTypes (using the specified store) (unchecked, returns invalid data if index overflows) */
+  function getItemBodyTypes(IStore _store, bytes32 creationId, uint256 _index) internal view returns (bytes memory) {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = creationId;
 
@@ -185,48 +185,48 @@ library CreationRegistry {
     return (bytes(_blob));
   }
 
-  /** Push a slice to voxelTypes */
-  function pushVoxelTypes(bytes32 creationId, bytes memory _slice) internal {
+  /** Push a slice to bodyTypes */
+  function pushBodyTypes(bytes32 creationId, bytes memory _slice) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = creationId;
 
     StoreSwitch.pushToField(_tableId, _keyTuple, 1, bytes((_slice)));
   }
 
-  /** Push a slice to voxelTypes (using the specified store) */
-  function pushVoxelTypes(IStore _store, bytes32 creationId, bytes memory _slice) internal {
+  /** Push a slice to bodyTypes (using the specified store) */
+  function pushBodyTypes(IStore _store, bytes32 creationId, bytes memory _slice) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = creationId;
 
     _store.pushToField(_tableId, _keyTuple, 1, bytes((_slice)));
   }
 
-  /** Pop a slice from voxelTypes */
-  function popVoxelTypes(bytes32 creationId) internal {
+  /** Pop a slice from bodyTypes */
+  function popBodyTypes(bytes32 creationId) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = creationId;
 
     StoreSwitch.popFromField(_tableId, _keyTuple, 1, 1);
   }
 
-  /** Pop a slice from voxelTypes (using the specified store) */
-  function popVoxelTypes(IStore _store, bytes32 creationId) internal {
+  /** Pop a slice from bodyTypes (using the specified store) */
+  function popBodyTypes(IStore _store, bytes32 creationId) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = creationId;
 
     _store.popFromField(_tableId, _keyTuple, 1, 1);
   }
 
-  /** Update a slice of voxelTypes at `_index` */
-  function updateVoxelTypes(bytes32 creationId, uint256 _index, bytes memory _slice) internal {
+  /** Update a slice of bodyTypes at `_index` */
+  function updateBodyTypes(bytes32 creationId, uint256 _index, bytes memory _slice) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = creationId;
 
     StoreSwitch.updateInField(_tableId, _keyTuple, 1, _index * 1, bytes((_slice)));
   }
 
-  /** Update a slice of voxelTypes (using the specified store) at `_index` */
-  function updateVoxelTypes(IStore _store, bytes32 creationId, uint256 _index, bytes memory _slice) internal {
+  /** Update a slice of bodyTypes (using the specified store) at `_index` */
+  function updateBodyTypes(IStore _store, bytes32 creationId, uint256 _index, bytes memory _slice) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = creationId;
 
@@ -620,12 +620,12 @@ library CreationRegistry {
   function set(
     bytes32 creationId,
     uint32 numVoxels,
-    bytes memory voxelTypes,
+    bytes memory bodyTypes,
     bytes memory relativePositions,
     bytes memory baseCreations,
     bytes memory metadata
   ) internal {
-    bytes memory _data = encode(numVoxels, voxelTypes, relativePositions, baseCreations, metadata);
+    bytes memory _data = encode(numVoxels, bodyTypes, relativePositions, baseCreations, metadata);
 
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = creationId;
@@ -638,12 +638,12 @@ library CreationRegistry {
     IStore _store,
     bytes32 creationId,
     uint32 numVoxels,
-    bytes memory voxelTypes,
+    bytes memory bodyTypes,
     bytes memory relativePositions,
     bytes memory baseCreations,
     bytes memory metadata
   ) internal {
-    bytes memory _data = encode(numVoxels, voxelTypes, relativePositions, baseCreations, metadata);
+    bytes memory _data = encode(numVoxels, bodyTypes, relativePositions, baseCreations, metadata);
 
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = creationId;
@@ -656,7 +656,7 @@ library CreationRegistry {
     set(
       creationId,
       _table.numVoxels,
-      _table.voxelTypes,
+      _table.bodyTypes,
       _table.relativePositions,
       _table.baseCreations,
       _table.metadata
@@ -669,7 +669,7 @@ library CreationRegistry {
       _store,
       creationId,
       _table.numVoxels,
-      _table.voxelTypes,
+      _table.bodyTypes,
       _table.relativePositions,
       _table.baseCreations,
       _table.metadata
@@ -691,7 +691,7 @@ library CreationRegistry {
 
       _start = _end;
       _end += _encodedLengths.atIndex(0);
-      _table.voxelTypes = (bytes(SliceLib.getSubslice(_blob, _start, _end).toBytes()));
+      _table.bodyTypes = (bytes(SliceLib.getSubslice(_blob, _start, _end).toBytes()));
 
       _start = _end;
       _end += _encodedLengths.atIndex(1);
@@ -710,13 +710,13 @@ library CreationRegistry {
   /** Tightly pack full data using this table's schema */
   function encode(
     uint32 numVoxels,
-    bytes memory voxelTypes,
+    bytes memory bodyTypes,
     bytes memory relativePositions,
     bytes memory baseCreations,
     bytes memory metadata
   ) internal pure returns (bytes memory) {
     uint40[] memory _counters = new uint40[](4);
-    _counters[0] = uint40(bytes(voxelTypes).length);
+    _counters[0] = uint40(bytes(bodyTypes).length);
     _counters[1] = uint40(bytes(relativePositions).length);
     _counters[2] = uint40(bytes(baseCreations).length);
     _counters[3] = uint40(bytes(metadata).length);
@@ -726,7 +726,7 @@ library CreationRegistry {
       abi.encodePacked(
         numVoxels,
         _encodedLengths.unwrap(),
-        bytes((voxelTypes)),
+        bytes((bodyTypes)),
         bytes((relativePositions)),
         bytes((baseCreations)),
         bytes((metadata))

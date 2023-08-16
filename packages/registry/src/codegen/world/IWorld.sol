@@ -5,11 +5,11 @@ pragma solidity >=0.8.0;
 
 import { IBaseWorld } from "@latticexyz/world/src/interfaces/IBaseWorld.sol";
 
+import { IBodyRegistrySystem } from "./IBodyRegistrySystem.sol";
 import { ICARegistrySystem } from "./ICARegistrySystem.sol";
 import { IClassifierRegistrySystem } from "./IClassifierRegistrySystem.sol";
 import { ICreationRegistrySystem } from "./ICreationRegistrySystem.sol";
 import { IMindRegistrySystem } from "./IMindRegistrySystem.sol";
-import { IVoxelRegistrySystem } from "./IVoxelRegistrySystem.sol";
 import { IWorldRegistrySystem } from "./IWorldRegistrySystem.sol";
 
 /**
@@ -18,11 +18,11 @@ import { IWorldRegistrySystem } from "./IWorldRegistrySystem.sol";
  */
 interface IWorld is
   IBaseWorld,
+  IBodyRegistrySystem,
   ICARegistrySystem,
   IClassifierRegistrySystem,
   ICreationRegistrySystem,
   IMindRegistrySystem,
-  IVoxelRegistrySystem,
   IWorldRegistrySystem
 {
 

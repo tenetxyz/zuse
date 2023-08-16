@@ -4,15 +4,15 @@ pragma solidity >=0.8.0;
 import { IStore } from "@latticexyz/store/src/IStore.sol";
 import { IWorld } from "@tenet-base-ca/src/codegen/world/IWorld.sol";
 import { VoxelType } from "@tenet-base-ca/src/prototypes/VoxelType.sol";
-import { VoxelVariantsRegistryData } from "@tenet-registry/src/codegen/tables/VoxelVariantsRegistry.sol";
+import { BodyVariantsRegistryData } from "@tenet-registry/src/codegen/tables/BodyVariantsRegistry.sol";
 import { NoaBlockType } from "@tenet-registry/src/codegen/Types.sol";
 import { hasKey } from "@latticexyz/world/src/modules/keysintable/hasKey.sol";
-import { registerVoxelVariant, registerVoxelType, voxelSelectorsForVoxel } from "@tenet-registry/src/Utils.sol";
+import { registerBodyVariant, registerBodyType, bodySelectorsForVoxel } from "@tenet-registry/src/Utils.sol";
 import { ElectronTunnelSpot, ElectronTunnelSpotData, ElectronTunnelSpotTableId } from "@tenet-base-ca/src/codegen/Tables.sol";
 import { REGISTRY_ADDRESS, AirVoxelID, AirVoxelVariantID, ElectronVoxelID } from "@tenet-base-ca/src/Constants.sol";
 import { VoxelCoord } from "@tenet-utils/src/Types.sol";
 import { getFirstCaller } from "@tenet-utils/src/Utils.sol";
-import { getCAEntityAtCoord, getCAVoxelType } from "@tenet-base-ca/src/Utils.sol";
+import { getCAEntityAtCoord, getCABodyType } from "@tenet-base-ca/src/Utils.sol";
 
 bytes32 constant ElectronVoxelVariantID = bytes32(keccak256("electron"));
 string constant ElectronTexture = "bafkreigrssavucschngym657tmepaqe2mmjyjoc7arznjygjsfdfi2cxny";
@@ -20,7 +20,7 @@ string constant ElectronTexture = "bafkreigrssavucschngym657tmepaqe2mmjyjoc7arzn
 contract ElectronVoxelSystem is VoxelType {
   function registerVoxel() public override {
     address world = _world();
-    VoxelVariantsRegistryData memory electronVariant;
+    BodyVariantsRegistryData memory electronVariant;
     electronVariant.blockType = NoaBlockType.MESH;
     electronVariant.opaque = false;
     electronVariant.solid = false;
@@ -28,20 +28,20 @@ contract ElectronVoxelSystem is VoxelType {
     string[] memory electronMaterials = new string[](1);
     electronMaterials[0] = ElectronTexture;
     electronVariant.materials = abi.encode(electronMaterials);
-    registerVoxelVariant(REGISTRY_ADDRESS, ElectronVoxelVariantID, electronVariant);
+    registerBodyVariant(REGISTRY_ADDRESS, ElectronVoxelVariantID, electronVariant);
 
-    bytes32[] memory electronChildVoxelTypes = new bytes32[](1);
-    electronChildVoxelTypes[0] = ElectronVoxelID;
-    bytes32 baseVoxelTypeId = ElectronVoxelID;
-    registerVoxelType(
+    bytes32[] memory electronChildBodyTypes = new bytes32[](1);
+    electronChildBodyTypes[0] = ElectronVoxelID;
+    bytes32 baseBodyTypeId = ElectronVoxelID;
+    registerBodyType(
       REGISTRY_ADDRESS,
       "Electron",
       ElectronVoxelID,
-      baseVoxelTypeId,
-      electronChildVoxelTypes,
-      electronChildVoxelTypes,
+      baseBodyTypeId,
+      electronChildBodyTypes,
+      electronChildBodyTypes,
       ElectronVoxelVariantID,
-      voxelSelectorsForVoxel(
+      bodySelectorsForVoxel(
         IWorld(world).ca_ElectronVoxelSys_enterWorld.selector,
         IWorld(world).ca_ElectronVoxelSys_exitWorld.selector,
         IWorld(world).ca_ElectronVoxelSys_variantSelector.selector,
@@ -60,19 +60,19 @@ contract ElectronVoxelSystem is VoxelType {
     if (hasKey(ElectronTunnelSpotTableId, ElectronTunnelSpot.encodeKeyTuple(callerAddress, entity))) {
       ElectronTunnelSpotData memory electronTunnelData = ElectronTunnelSpot.get(callerAddress, entity);
       if (electronTunnelData.atTop) {
-        if (getCAVoxelType(electronTunnelData.sibling) == AirVoxelID) {
+        if (getCABodyType(electronTunnelData.sibling) == AirVoxelID) {
           ElectronTunnelSpot.setAtTop(callerAddress, entity, false);
           ElectronTunnelSpot.setAtTop(callerAddress, electronTunnelData.sibling, false);
         }
       } else {
-        if (getCAVoxelType(electronTunnelData.sibling) == AirVoxelID) {
+        if (getCABodyType(electronTunnelData.sibling) == AirVoxelID) {
           ElectronTunnelSpot.setAtTop(callerAddress, entity, true);
           ElectronTunnelSpot.setAtTop(callerAddress, electronTunnelData.sibling, true);
         }
       }
     } else {
       if (aboveEntity != 0) {
-        if (getCAVoxelType(aboveEntity) == ElectronVoxelID) {
+        if (getCABodyType(aboveEntity) == ElectronVoxelID) {
           bool neighbourAtTop = ElectronTunnelSpot.get(callerAddress, aboveEntity).atTop;
           if (neighbourAtTop) {
             revert("ElectronSystem: Cannot place electron when it's tunneling spot is already occupied (south)");

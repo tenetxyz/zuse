@@ -40,15 +40,15 @@ export default mudConfig({
         z: "int32",
       },
     },
-    CAVoxelType: {
+    CABodyType: {
       registerAsRoot: true,
       keySchema: {
         callerAddress: "address",
         entity: "bytes32",
       },
       schema: {
-        voxelTypeId: "bytes32",
-        voxelVariantId: "bytes32",
+        bodyTypeId: "bytes32",
+        bodyVariantId: "bytes32",
       },
     },
     CAMind: {
@@ -57,7 +57,7 @@ export default mudConfig({
         caEntity: "bytes32",
       },
       schema: {
-        voxelTypeId: "bytes32",
+        bodyTypeId: "bytes32",
         mindSelector: "bytes4",
       },
     },
@@ -90,8 +90,8 @@ export default mudConfig({
       registerAsRoot: true,
       accessList: ["AirVoxelSystem", "DirtVoxelSystem", "GrassVoxelSystem", "BedrockVoxelSystem", "MoveForwardSystem"],
     },
-    CAVoxelRegistrySystem: {
-      name: "CAVoxelRegistryS",
+    CABodyRegistrySystem: {
+      name: "CABodyRegistryS",
       openAccess: true,
       registerAsRoot: true,
     },
@@ -115,7 +115,7 @@ export default mudConfig({
     {
       name: "KeysInTableModule",
       root: true,
-      args: [resolveTableId("CAVoxelType")],
+      args: [resolveTableId("CABodyType")],
     },
     {
       name: "KeysInTableModule",

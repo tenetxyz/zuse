@@ -3,9 +3,9 @@ pragma solidity >=0.8.0;
 
 import { IWorld } from "@tenet-level2-ca/src/codegen/world/IWorld.sol";
 import { VoxelType } from "@tenet-base-ca/src/prototypes/VoxelType.sol";
-import { VoxelVariantsRegistryData } from "@tenet-registry/src/codegen/tables/VoxelVariantsRegistry.sol";
+import { BodyVariantsRegistryData } from "@tenet-registry/src/codegen/tables/BodyVariantsRegistry.sol";
 import { NoaBlockType } from "@tenet-registry/src/codegen/Types.sol";
-import { registerVoxelVariant, registerVoxelType, voxelSelectorsForVoxel } from "@tenet-registry/src/Utils.sol";
+import { registerBodyVariant, registerBodyType, bodySelectorsForVoxel } from "@tenet-registry/src/Utils.sol";
 import { REGISTRY_ADDRESS, DirtVoxelID } from "@tenet-level2-ca/src/Constants.sol";
 import { VoxelCoord } from "@tenet-utils/src/Types.sol";
 import { AirVoxelID } from "@tenet-base-ca/src/Constants.sol";
@@ -17,7 +17,7 @@ string constant DirtUVWrap = "bafkreifsrs64rckwnfkwcyqkzpdo3tpa2at7jhe6bw7jhevkx
 contract DirtVoxelSystem is VoxelType {
   function registerVoxel() public override {
     address world = _world();
-    VoxelVariantsRegistryData memory dirtVariant;
+    BodyVariantsRegistryData memory dirtVariant;
     dirtVariant.blockType = NoaBlockType.BLOCK;
     dirtVariant.opaque = true;
     dirtVariant.solid = true;
@@ -25,22 +25,22 @@ contract DirtVoxelSystem is VoxelType {
     dirtMaterials[0] = DirtTexture;
     dirtVariant.materials = abi.encode(dirtMaterials);
     dirtVariant.uvWrap = DirtUVWrap;
-    registerVoxelVariant(REGISTRY_ADDRESS, DirtVoxelVariantID, dirtVariant);
+    registerBodyVariant(REGISTRY_ADDRESS, DirtVoxelVariantID, dirtVariant);
 
-    bytes32[] memory dirtChildVoxelTypes = new bytes32[](8);
+    bytes32[] memory dirtChildBodyTypes = new bytes32[](8);
     for (uint i = 0; i < 8; i++) {
-      dirtChildVoxelTypes[i] = AirVoxelID;
+      dirtChildBodyTypes[i] = AirVoxelID;
     }
-    bytes32 baseVoxelTypeId = DirtVoxelID;
-    registerVoxelType(
+    bytes32 baseBodyTypeId = DirtVoxelID;
+    registerBodyType(
       REGISTRY_ADDRESS,
       "Dirt",
       DirtVoxelID,
-      baseVoxelTypeId,
-      dirtChildVoxelTypes,
-      dirtChildVoxelTypes,
+      baseBodyTypeId,
+      dirtChildBodyTypes,
+      dirtChildBodyTypes,
       DirtVoxelVariantID,
-      voxelSelectorsForVoxel(
+      bodySelectorsForVoxel(
         IWorld(world).ca_DirtVoxelSystem_enterWorld.selector,
         IWorld(world).ca_DirtVoxelSystem_exitWorld.selector,
         IWorld(world).ca_DirtVoxelSystem_variantSelector.selector,

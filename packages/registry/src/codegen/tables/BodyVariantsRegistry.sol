@@ -20,10 +20,10 @@ import { PackedCounter, PackedCounterLib } from "@latticexyz/store/src/PackedCou
 // Import user types
 import { NoaBlockType } from "@tenet-registry/src/codegen/Types.sol";
 
-bytes32 constant _tableId = bytes32(abi.encodePacked(bytes16(""), bytes16("VoxelVariantsReg")));
-bytes32 constant VoxelVariantsRegistryTableId = _tableId;
+bytes32 constant _tableId = bytes32(abi.encodePacked(bytes16(""), bytes16("BodyVariantsRegi")));
+bytes32 constant BodyVariantsRegistryTableId = _tableId;
 
-struct VoxelVariantsRegistryData {
+struct BodyVariantsRegistryData {
   uint256 variantId;
   uint32 frames;
   bool opaque;
@@ -34,7 +34,7 @@ struct VoxelVariantsRegistryData {
   string uvWrap;
 }
 
-library VoxelVariantsRegistry {
+library BodyVariantsRegistry {
   /** Get the table's schema */
   function getSchema() internal pure returns (Schema) {
     SchemaType[] memory _schema = new SchemaType[](8);
@@ -68,7 +68,7 @@ library VoxelVariantsRegistry {
     _fieldNames[5] = "blockType";
     _fieldNames[6] = "materials";
     _fieldNames[7] = "uvWrap";
-    return ("VoxelVariantsRegistry", _fieldNames);
+    return ("BodyVariantsRegistry", _fieldNames);
   }
 
   /** Register the table's schema */
@@ -94,462 +94,458 @@ library VoxelVariantsRegistry {
   }
 
   /** Get variantId */
-  function getVariantId(bytes32 voxelVariantId) internal view returns (uint256 variantId) {
+  function getVariantId(bytes32 bodyVariantId) internal view returns (uint256 variantId) {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = voxelVariantId;
+    _keyTuple[0] = bodyVariantId;
 
     bytes memory _blob = StoreSwitch.getField(_tableId, _keyTuple, 0);
     return (uint256(Bytes.slice32(_blob, 0)));
   }
 
   /** Get variantId (using the specified store) */
-  function getVariantId(IStore _store, bytes32 voxelVariantId) internal view returns (uint256 variantId) {
+  function getVariantId(IStore _store, bytes32 bodyVariantId) internal view returns (uint256 variantId) {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = voxelVariantId;
+    _keyTuple[0] = bodyVariantId;
 
     bytes memory _blob = _store.getField(_tableId, _keyTuple, 0);
     return (uint256(Bytes.slice32(_blob, 0)));
   }
 
   /** Set variantId */
-  function setVariantId(bytes32 voxelVariantId, uint256 variantId) internal {
+  function setVariantId(bytes32 bodyVariantId, uint256 variantId) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = voxelVariantId;
+    _keyTuple[0] = bodyVariantId;
 
     StoreSwitch.setField(_tableId, _keyTuple, 0, abi.encodePacked((variantId)));
   }
 
   /** Set variantId (using the specified store) */
-  function setVariantId(IStore _store, bytes32 voxelVariantId, uint256 variantId) internal {
+  function setVariantId(IStore _store, bytes32 bodyVariantId, uint256 variantId) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = voxelVariantId;
+    _keyTuple[0] = bodyVariantId;
 
     _store.setField(_tableId, _keyTuple, 0, abi.encodePacked((variantId)));
   }
 
   /** Get frames */
-  function getFrames(bytes32 voxelVariantId) internal view returns (uint32 frames) {
+  function getFrames(bytes32 bodyVariantId) internal view returns (uint32 frames) {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = voxelVariantId;
+    _keyTuple[0] = bodyVariantId;
 
     bytes memory _blob = StoreSwitch.getField(_tableId, _keyTuple, 1);
     return (uint32(Bytes.slice4(_blob, 0)));
   }
 
   /** Get frames (using the specified store) */
-  function getFrames(IStore _store, bytes32 voxelVariantId) internal view returns (uint32 frames) {
+  function getFrames(IStore _store, bytes32 bodyVariantId) internal view returns (uint32 frames) {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = voxelVariantId;
+    _keyTuple[0] = bodyVariantId;
 
     bytes memory _blob = _store.getField(_tableId, _keyTuple, 1);
     return (uint32(Bytes.slice4(_blob, 0)));
   }
 
   /** Set frames */
-  function setFrames(bytes32 voxelVariantId, uint32 frames) internal {
+  function setFrames(bytes32 bodyVariantId, uint32 frames) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = voxelVariantId;
+    _keyTuple[0] = bodyVariantId;
 
     StoreSwitch.setField(_tableId, _keyTuple, 1, abi.encodePacked((frames)));
   }
 
   /** Set frames (using the specified store) */
-  function setFrames(IStore _store, bytes32 voxelVariantId, uint32 frames) internal {
+  function setFrames(IStore _store, bytes32 bodyVariantId, uint32 frames) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = voxelVariantId;
+    _keyTuple[0] = bodyVariantId;
 
     _store.setField(_tableId, _keyTuple, 1, abi.encodePacked((frames)));
   }
 
   /** Get opaque */
-  function getOpaque(bytes32 voxelVariantId) internal view returns (bool opaque) {
+  function getOpaque(bytes32 bodyVariantId) internal view returns (bool opaque) {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = voxelVariantId;
+    _keyTuple[0] = bodyVariantId;
 
     bytes memory _blob = StoreSwitch.getField(_tableId, _keyTuple, 2);
     return (_toBool(uint8(Bytes.slice1(_blob, 0))));
   }
 
   /** Get opaque (using the specified store) */
-  function getOpaque(IStore _store, bytes32 voxelVariantId) internal view returns (bool opaque) {
+  function getOpaque(IStore _store, bytes32 bodyVariantId) internal view returns (bool opaque) {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = voxelVariantId;
+    _keyTuple[0] = bodyVariantId;
 
     bytes memory _blob = _store.getField(_tableId, _keyTuple, 2);
     return (_toBool(uint8(Bytes.slice1(_blob, 0))));
   }
 
   /** Set opaque */
-  function setOpaque(bytes32 voxelVariantId, bool opaque) internal {
+  function setOpaque(bytes32 bodyVariantId, bool opaque) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = voxelVariantId;
+    _keyTuple[0] = bodyVariantId;
 
     StoreSwitch.setField(_tableId, _keyTuple, 2, abi.encodePacked((opaque)));
   }
 
   /** Set opaque (using the specified store) */
-  function setOpaque(IStore _store, bytes32 voxelVariantId, bool opaque) internal {
+  function setOpaque(IStore _store, bytes32 bodyVariantId, bool opaque) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = voxelVariantId;
+    _keyTuple[0] = bodyVariantId;
 
     _store.setField(_tableId, _keyTuple, 2, abi.encodePacked((opaque)));
   }
 
   /** Get fluid */
-  function getFluid(bytes32 voxelVariantId) internal view returns (bool fluid) {
+  function getFluid(bytes32 bodyVariantId) internal view returns (bool fluid) {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = voxelVariantId;
+    _keyTuple[0] = bodyVariantId;
 
     bytes memory _blob = StoreSwitch.getField(_tableId, _keyTuple, 3);
     return (_toBool(uint8(Bytes.slice1(_blob, 0))));
   }
 
   /** Get fluid (using the specified store) */
-  function getFluid(IStore _store, bytes32 voxelVariantId) internal view returns (bool fluid) {
+  function getFluid(IStore _store, bytes32 bodyVariantId) internal view returns (bool fluid) {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = voxelVariantId;
+    _keyTuple[0] = bodyVariantId;
 
     bytes memory _blob = _store.getField(_tableId, _keyTuple, 3);
     return (_toBool(uint8(Bytes.slice1(_blob, 0))));
   }
 
   /** Set fluid */
-  function setFluid(bytes32 voxelVariantId, bool fluid) internal {
+  function setFluid(bytes32 bodyVariantId, bool fluid) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = voxelVariantId;
+    _keyTuple[0] = bodyVariantId;
 
     StoreSwitch.setField(_tableId, _keyTuple, 3, abi.encodePacked((fluid)));
   }
 
   /** Set fluid (using the specified store) */
-  function setFluid(IStore _store, bytes32 voxelVariantId, bool fluid) internal {
+  function setFluid(IStore _store, bytes32 bodyVariantId, bool fluid) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = voxelVariantId;
+    _keyTuple[0] = bodyVariantId;
 
     _store.setField(_tableId, _keyTuple, 3, abi.encodePacked((fluid)));
   }
 
   /** Get solid */
-  function getSolid(bytes32 voxelVariantId) internal view returns (bool solid) {
+  function getSolid(bytes32 bodyVariantId) internal view returns (bool solid) {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = voxelVariantId;
+    _keyTuple[0] = bodyVariantId;
 
     bytes memory _blob = StoreSwitch.getField(_tableId, _keyTuple, 4);
     return (_toBool(uint8(Bytes.slice1(_blob, 0))));
   }
 
   /** Get solid (using the specified store) */
-  function getSolid(IStore _store, bytes32 voxelVariantId) internal view returns (bool solid) {
+  function getSolid(IStore _store, bytes32 bodyVariantId) internal view returns (bool solid) {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = voxelVariantId;
+    _keyTuple[0] = bodyVariantId;
 
     bytes memory _blob = _store.getField(_tableId, _keyTuple, 4);
     return (_toBool(uint8(Bytes.slice1(_blob, 0))));
   }
 
   /** Set solid */
-  function setSolid(bytes32 voxelVariantId, bool solid) internal {
+  function setSolid(bytes32 bodyVariantId, bool solid) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = voxelVariantId;
+    _keyTuple[0] = bodyVariantId;
 
     StoreSwitch.setField(_tableId, _keyTuple, 4, abi.encodePacked((solid)));
   }
 
   /** Set solid (using the specified store) */
-  function setSolid(IStore _store, bytes32 voxelVariantId, bool solid) internal {
+  function setSolid(IStore _store, bytes32 bodyVariantId, bool solid) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = voxelVariantId;
+    _keyTuple[0] = bodyVariantId;
 
     _store.setField(_tableId, _keyTuple, 4, abi.encodePacked((solid)));
   }
 
   /** Get blockType */
-  function getBlockType(bytes32 voxelVariantId) internal view returns (NoaBlockType blockType) {
+  function getBlockType(bytes32 bodyVariantId) internal view returns (NoaBlockType blockType) {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = voxelVariantId;
+    _keyTuple[0] = bodyVariantId;
 
     bytes memory _blob = StoreSwitch.getField(_tableId, _keyTuple, 5);
     return NoaBlockType(uint8(Bytes.slice1(_blob, 0)));
   }
 
   /** Get blockType (using the specified store) */
-  function getBlockType(IStore _store, bytes32 voxelVariantId) internal view returns (NoaBlockType blockType) {
+  function getBlockType(IStore _store, bytes32 bodyVariantId) internal view returns (NoaBlockType blockType) {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = voxelVariantId;
+    _keyTuple[0] = bodyVariantId;
 
     bytes memory _blob = _store.getField(_tableId, _keyTuple, 5);
     return NoaBlockType(uint8(Bytes.slice1(_blob, 0)));
   }
 
   /** Set blockType */
-  function setBlockType(bytes32 voxelVariantId, NoaBlockType blockType) internal {
+  function setBlockType(bytes32 bodyVariantId, NoaBlockType blockType) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = voxelVariantId;
+    _keyTuple[0] = bodyVariantId;
 
     StoreSwitch.setField(_tableId, _keyTuple, 5, abi.encodePacked(uint8(blockType)));
   }
 
   /** Set blockType (using the specified store) */
-  function setBlockType(IStore _store, bytes32 voxelVariantId, NoaBlockType blockType) internal {
+  function setBlockType(IStore _store, bytes32 bodyVariantId, NoaBlockType blockType) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = voxelVariantId;
+    _keyTuple[0] = bodyVariantId;
 
     _store.setField(_tableId, _keyTuple, 5, abi.encodePacked(uint8(blockType)));
   }
 
   /** Get materials */
-  function getMaterials(bytes32 voxelVariantId) internal view returns (bytes memory materials) {
+  function getMaterials(bytes32 bodyVariantId) internal view returns (bytes memory materials) {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = voxelVariantId;
+    _keyTuple[0] = bodyVariantId;
 
     bytes memory _blob = StoreSwitch.getField(_tableId, _keyTuple, 6);
     return (bytes(_blob));
   }
 
   /** Get materials (using the specified store) */
-  function getMaterials(IStore _store, bytes32 voxelVariantId) internal view returns (bytes memory materials) {
+  function getMaterials(IStore _store, bytes32 bodyVariantId) internal view returns (bytes memory materials) {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = voxelVariantId;
+    _keyTuple[0] = bodyVariantId;
 
     bytes memory _blob = _store.getField(_tableId, _keyTuple, 6);
     return (bytes(_blob));
   }
 
   /** Set materials */
-  function setMaterials(bytes32 voxelVariantId, bytes memory materials) internal {
+  function setMaterials(bytes32 bodyVariantId, bytes memory materials) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = voxelVariantId;
+    _keyTuple[0] = bodyVariantId;
 
     StoreSwitch.setField(_tableId, _keyTuple, 6, bytes((materials)));
   }
 
   /** Set materials (using the specified store) */
-  function setMaterials(IStore _store, bytes32 voxelVariantId, bytes memory materials) internal {
+  function setMaterials(IStore _store, bytes32 bodyVariantId, bytes memory materials) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = voxelVariantId;
+    _keyTuple[0] = bodyVariantId;
 
     _store.setField(_tableId, _keyTuple, 6, bytes((materials)));
   }
 
   /** Get the length of materials */
-  function lengthMaterials(bytes32 voxelVariantId) internal view returns (uint256) {
+  function lengthMaterials(bytes32 bodyVariantId) internal view returns (uint256) {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = voxelVariantId;
+    _keyTuple[0] = bodyVariantId;
 
     uint256 _byteLength = StoreSwitch.getFieldLength(_tableId, _keyTuple, 6, getSchema());
     return _byteLength / 1;
   }
 
   /** Get the length of materials (using the specified store) */
-  function lengthMaterials(IStore _store, bytes32 voxelVariantId) internal view returns (uint256) {
+  function lengthMaterials(IStore _store, bytes32 bodyVariantId) internal view returns (uint256) {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = voxelVariantId;
+    _keyTuple[0] = bodyVariantId;
 
     uint256 _byteLength = _store.getFieldLength(_tableId, _keyTuple, 6, getSchema());
     return _byteLength / 1;
   }
 
   /** Get an item of materials (unchecked, returns invalid data if index overflows) */
-  function getItemMaterials(bytes32 voxelVariantId, uint256 _index) internal view returns (bytes memory) {
+  function getItemMaterials(bytes32 bodyVariantId, uint256 _index) internal view returns (bytes memory) {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = voxelVariantId;
+    _keyTuple[0] = bodyVariantId;
 
     bytes memory _blob = StoreSwitch.getFieldSlice(_tableId, _keyTuple, 6, getSchema(), _index * 1, (_index + 1) * 1);
     return (bytes(_blob));
   }
 
   /** Get an item of materials (using the specified store) (unchecked, returns invalid data if index overflows) */
-  function getItemMaterials(
-    IStore _store,
-    bytes32 voxelVariantId,
-    uint256 _index
-  ) internal view returns (bytes memory) {
+  function getItemMaterials(IStore _store, bytes32 bodyVariantId, uint256 _index) internal view returns (bytes memory) {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = voxelVariantId;
+    _keyTuple[0] = bodyVariantId;
 
     bytes memory _blob = _store.getFieldSlice(_tableId, _keyTuple, 6, getSchema(), _index * 1, (_index + 1) * 1);
     return (bytes(_blob));
   }
 
   /** Push a slice to materials */
-  function pushMaterials(bytes32 voxelVariantId, bytes memory _slice) internal {
+  function pushMaterials(bytes32 bodyVariantId, bytes memory _slice) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = voxelVariantId;
+    _keyTuple[0] = bodyVariantId;
 
     StoreSwitch.pushToField(_tableId, _keyTuple, 6, bytes((_slice)));
   }
 
   /** Push a slice to materials (using the specified store) */
-  function pushMaterials(IStore _store, bytes32 voxelVariantId, bytes memory _slice) internal {
+  function pushMaterials(IStore _store, bytes32 bodyVariantId, bytes memory _slice) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = voxelVariantId;
+    _keyTuple[0] = bodyVariantId;
 
     _store.pushToField(_tableId, _keyTuple, 6, bytes((_slice)));
   }
 
   /** Pop a slice from materials */
-  function popMaterials(bytes32 voxelVariantId) internal {
+  function popMaterials(bytes32 bodyVariantId) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = voxelVariantId;
+    _keyTuple[0] = bodyVariantId;
 
     StoreSwitch.popFromField(_tableId, _keyTuple, 6, 1);
   }
 
   /** Pop a slice from materials (using the specified store) */
-  function popMaterials(IStore _store, bytes32 voxelVariantId) internal {
+  function popMaterials(IStore _store, bytes32 bodyVariantId) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = voxelVariantId;
+    _keyTuple[0] = bodyVariantId;
 
     _store.popFromField(_tableId, _keyTuple, 6, 1);
   }
 
   /** Update a slice of materials at `_index` */
-  function updateMaterials(bytes32 voxelVariantId, uint256 _index, bytes memory _slice) internal {
+  function updateMaterials(bytes32 bodyVariantId, uint256 _index, bytes memory _slice) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = voxelVariantId;
+    _keyTuple[0] = bodyVariantId;
 
     StoreSwitch.updateInField(_tableId, _keyTuple, 6, _index * 1, bytes((_slice)));
   }
 
   /** Update a slice of materials (using the specified store) at `_index` */
-  function updateMaterials(IStore _store, bytes32 voxelVariantId, uint256 _index, bytes memory _slice) internal {
+  function updateMaterials(IStore _store, bytes32 bodyVariantId, uint256 _index, bytes memory _slice) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = voxelVariantId;
+    _keyTuple[0] = bodyVariantId;
 
     _store.updateInField(_tableId, _keyTuple, 6, _index * 1, bytes((_slice)));
   }
 
   /** Get uvWrap */
-  function getUvWrap(bytes32 voxelVariantId) internal view returns (string memory uvWrap) {
+  function getUvWrap(bytes32 bodyVariantId) internal view returns (string memory uvWrap) {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = voxelVariantId;
+    _keyTuple[0] = bodyVariantId;
 
     bytes memory _blob = StoreSwitch.getField(_tableId, _keyTuple, 7);
     return (string(_blob));
   }
 
   /** Get uvWrap (using the specified store) */
-  function getUvWrap(IStore _store, bytes32 voxelVariantId) internal view returns (string memory uvWrap) {
+  function getUvWrap(IStore _store, bytes32 bodyVariantId) internal view returns (string memory uvWrap) {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = voxelVariantId;
+    _keyTuple[0] = bodyVariantId;
 
     bytes memory _blob = _store.getField(_tableId, _keyTuple, 7);
     return (string(_blob));
   }
 
   /** Set uvWrap */
-  function setUvWrap(bytes32 voxelVariantId, string memory uvWrap) internal {
+  function setUvWrap(bytes32 bodyVariantId, string memory uvWrap) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = voxelVariantId;
+    _keyTuple[0] = bodyVariantId;
 
     StoreSwitch.setField(_tableId, _keyTuple, 7, bytes((uvWrap)));
   }
 
   /** Set uvWrap (using the specified store) */
-  function setUvWrap(IStore _store, bytes32 voxelVariantId, string memory uvWrap) internal {
+  function setUvWrap(IStore _store, bytes32 bodyVariantId, string memory uvWrap) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = voxelVariantId;
+    _keyTuple[0] = bodyVariantId;
 
     _store.setField(_tableId, _keyTuple, 7, bytes((uvWrap)));
   }
 
   /** Get the length of uvWrap */
-  function lengthUvWrap(bytes32 voxelVariantId) internal view returns (uint256) {
+  function lengthUvWrap(bytes32 bodyVariantId) internal view returns (uint256) {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = voxelVariantId;
+    _keyTuple[0] = bodyVariantId;
 
     uint256 _byteLength = StoreSwitch.getFieldLength(_tableId, _keyTuple, 7, getSchema());
     return _byteLength / 1;
   }
 
   /** Get the length of uvWrap (using the specified store) */
-  function lengthUvWrap(IStore _store, bytes32 voxelVariantId) internal view returns (uint256) {
+  function lengthUvWrap(IStore _store, bytes32 bodyVariantId) internal view returns (uint256) {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = voxelVariantId;
+    _keyTuple[0] = bodyVariantId;
 
     uint256 _byteLength = _store.getFieldLength(_tableId, _keyTuple, 7, getSchema());
     return _byteLength / 1;
   }
 
   /** Get an item of uvWrap (unchecked, returns invalid data if index overflows) */
-  function getItemUvWrap(bytes32 voxelVariantId, uint256 _index) internal view returns (string memory) {
+  function getItemUvWrap(bytes32 bodyVariantId, uint256 _index) internal view returns (string memory) {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = voxelVariantId;
+    _keyTuple[0] = bodyVariantId;
 
     bytes memory _blob = StoreSwitch.getFieldSlice(_tableId, _keyTuple, 7, getSchema(), _index * 1, (_index + 1) * 1);
     return (string(_blob));
   }
 
   /** Get an item of uvWrap (using the specified store) (unchecked, returns invalid data if index overflows) */
-  function getItemUvWrap(IStore _store, bytes32 voxelVariantId, uint256 _index) internal view returns (string memory) {
+  function getItemUvWrap(IStore _store, bytes32 bodyVariantId, uint256 _index) internal view returns (string memory) {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = voxelVariantId;
+    _keyTuple[0] = bodyVariantId;
 
     bytes memory _blob = _store.getFieldSlice(_tableId, _keyTuple, 7, getSchema(), _index * 1, (_index + 1) * 1);
     return (string(_blob));
   }
 
   /** Push a slice to uvWrap */
-  function pushUvWrap(bytes32 voxelVariantId, string memory _slice) internal {
+  function pushUvWrap(bytes32 bodyVariantId, string memory _slice) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = voxelVariantId;
+    _keyTuple[0] = bodyVariantId;
 
     StoreSwitch.pushToField(_tableId, _keyTuple, 7, bytes((_slice)));
   }
 
   /** Push a slice to uvWrap (using the specified store) */
-  function pushUvWrap(IStore _store, bytes32 voxelVariantId, string memory _slice) internal {
+  function pushUvWrap(IStore _store, bytes32 bodyVariantId, string memory _slice) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = voxelVariantId;
+    _keyTuple[0] = bodyVariantId;
 
     _store.pushToField(_tableId, _keyTuple, 7, bytes((_slice)));
   }
 
   /** Pop a slice from uvWrap */
-  function popUvWrap(bytes32 voxelVariantId) internal {
+  function popUvWrap(bytes32 bodyVariantId) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = voxelVariantId;
+    _keyTuple[0] = bodyVariantId;
 
     StoreSwitch.popFromField(_tableId, _keyTuple, 7, 1);
   }
 
   /** Pop a slice from uvWrap (using the specified store) */
-  function popUvWrap(IStore _store, bytes32 voxelVariantId) internal {
+  function popUvWrap(IStore _store, bytes32 bodyVariantId) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = voxelVariantId;
+    _keyTuple[0] = bodyVariantId;
 
     _store.popFromField(_tableId, _keyTuple, 7, 1);
   }
 
   /** Update a slice of uvWrap at `_index` */
-  function updateUvWrap(bytes32 voxelVariantId, uint256 _index, string memory _slice) internal {
+  function updateUvWrap(bytes32 bodyVariantId, uint256 _index, string memory _slice) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = voxelVariantId;
+    _keyTuple[0] = bodyVariantId;
 
     StoreSwitch.updateInField(_tableId, _keyTuple, 7, _index * 1, bytes((_slice)));
   }
 
   /** Update a slice of uvWrap (using the specified store) at `_index` */
-  function updateUvWrap(IStore _store, bytes32 voxelVariantId, uint256 _index, string memory _slice) internal {
+  function updateUvWrap(IStore _store, bytes32 bodyVariantId, uint256 _index, string memory _slice) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = voxelVariantId;
+    _keyTuple[0] = bodyVariantId;
 
     _store.updateInField(_tableId, _keyTuple, 7, _index * 1, bytes((_slice)));
   }
 
   /** Get the full data */
-  function get(bytes32 voxelVariantId) internal view returns (VoxelVariantsRegistryData memory _table) {
+  function get(bytes32 bodyVariantId) internal view returns (BodyVariantsRegistryData memory _table) {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = voxelVariantId;
+    _keyTuple[0] = bodyVariantId;
 
     bytes memory _blob = StoreSwitch.getRecord(_tableId, _keyTuple, getSchema());
     return decode(_blob);
   }
 
   /** Get the full data (using the specified store) */
-  function get(IStore _store, bytes32 voxelVariantId) internal view returns (VoxelVariantsRegistryData memory _table) {
+  function get(IStore _store, bytes32 bodyVariantId) internal view returns (BodyVariantsRegistryData memory _table) {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = voxelVariantId;
+    _keyTuple[0] = bodyVariantId;
 
     bytes memory _blob = _store.getRecord(_tableId, _keyTuple, getSchema());
     return decode(_blob);
@@ -557,7 +553,7 @@ library VoxelVariantsRegistry {
 
   /** Set the full data using individual values */
   function set(
-    bytes32 voxelVariantId,
+    bytes32 bodyVariantId,
     uint256 variantId,
     uint32 frames,
     bool opaque,
@@ -570,7 +566,7 @@ library VoxelVariantsRegistry {
     bytes memory _data = encode(variantId, frames, opaque, fluid, solid, blockType, materials, uvWrap);
 
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = voxelVariantId;
+    _keyTuple[0] = bodyVariantId;
 
     StoreSwitch.setRecord(_tableId, _keyTuple, _data);
   }
@@ -578,7 +574,7 @@ library VoxelVariantsRegistry {
   /** Set the full data using individual values (using the specified store) */
   function set(
     IStore _store,
-    bytes32 voxelVariantId,
+    bytes32 bodyVariantId,
     uint256 variantId,
     uint32 frames,
     bool opaque,
@@ -591,15 +587,15 @@ library VoxelVariantsRegistry {
     bytes memory _data = encode(variantId, frames, opaque, fluid, solid, blockType, materials, uvWrap);
 
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = voxelVariantId;
+    _keyTuple[0] = bodyVariantId;
 
     _store.setRecord(_tableId, _keyTuple, _data);
   }
 
   /** Set the full data using the data struct */
-  function set(bytes32 voxelVariantId, VoxelVariantsRegistryData memory _table) internal {
+  function set(bytes32 bodyVariantId, BodyVariantsRegistryData memory _table) internal {
     set(
-      voxelVariantId,
+      bodyVariantId,
       _table.variantId,
       _table.frames,
       _table.opaque,
@@ -612,10 +608,10 @@ library VoxelVariantsRegistry {
   }
 
   /** Set the full data using the data struct (using the specified store) */
-  function set(IStore _store, bytes32 voxelVariantId, VoxelVariantsRegistryData memory _table) internal {
+  function set(IStore _store, bytes32 bodyVariantId, BodyVariantsRegistryData memory _table) internal {
     set(
       _store,
-      voxelVariantId,
+      bodyVariantId,
       _table.variantId,
       _table.frames,
       _table.opaque,
@@ -628,7 +624,7 @@ library VoxelVariantsRegistry {
   }
 
   /** Decode the tightly packed blob using this table's schema */
-  function decode(bytes memory _blob) internal pure returns (VoxelVariantsRegistryData memory _table) {
+  function decode(bytes memory _blob) internal pure returns (BodyVariantsRegistryData memory _table) {
     // 40 is the total byte length of static data
     PackedCounter _encodedLengths = PackedCounter.wrap(Bytes.slice32(_blob, 40));
 
@@ -691,23 +687,23 @@ library VoxelVariantsRegistry {
   }
 
   /** Encode keys as a bytes32 array using this table's schema */
-  function encodeKeyTuple(bytes32 voxelVariantId) internal pure returns (bytes32[] memory _keyTuple) {
+  function encodeKeyTuple(bytes32 bodyVariantId) internal pure returns (bytes32[] memory _keyTuple) {
     _keyTuple = new bytes32[](1);
-    _keyTuple[0] = voxelVariantId;
+    _keyTuple[0] = bodyVariantId;
   }
 
   /* Delete all data for given keys */
-  function deleteRecord(bytes32 voxelVariantId) internal {
+  function deleteRecord(bytes32 bodyVariantId) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = voxelVariantId;
+    _keyTuple[0] = bodyVariantId;
 
     StoreSwitch.deleteRecord(_tableId, _keyTuple);
   }
 
   /* Delete all data for given keys (using the specified store) */
-  function deleteRecord(IStore _store, bytes32 voxelVariantId) internal {
+  function deleteRecord(IStore _store, bytes32 bodyVariantId) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = voxelVariantId;
+    _keyTuple[0] = bodyVariantId;
 
     _store.deleteRecord(_tableId, _keyTuple);
   }

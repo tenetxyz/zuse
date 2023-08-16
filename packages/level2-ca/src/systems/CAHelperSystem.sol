@@ -11,36 +11,36 @@ contract CAHelperSystem is CAHelper {
     return REGISTRY_ADDRESS;
   }
 
-  function voxelEnterWorld(bytes32 voxelTypeId, VoxelCoord memory coord, bytes32 caEntity) public override {
-    super.voxelEnterWorld(voxelTypeId, coord, caEntity);
+  function bodyEnterWorld(bytes32 bodyTypeId, VoxelCoord memory coord, bytes32 caEntity) public override {
+    super.bodyEnterWorld(bodyTypeId, coord, caEntity);
   }
 
-  function getVoxelVariant(
-    bytes32 voxelTypeId,
+  function getBodyVariant(
+    bytes32 bodyTypeId,
     bytes32 caEntity,
     bytes32[] memory caNeighbourEntityIds,
     bytes32[] memory childEntityIds,
     bytes32 parentEntity
   ) public override returns (bytes32) {
-    return super.getVoxelVariant(voxelTypeId, caEntity, caNeighbourEntityIds, childEntityIds, parentEntity);
+    return super.getBodyVariant(bodyTypeId, caEntity, caNeighbourEntityIds, childEntityIds, parentEntity);
   }
 
-  function voxelExitWorld(bytes32 voxelTypeId, VoxelCoord memory coord, bytes32 caEntity) public override {
-    super.voxelExitWorld(voxelTypeId, coord, caEntity);
+  function bodyExitWorld(bytes32 bodyTypeId, VoxelCoord memory coord, bytes32 caEntity) public override {
+    super.bodyExitWorld(bodyTypeId, coord, caEntity);
   }
 
-  function voxelRunInteraction(
+  function bodyRunInteraction(
     bytes4 interactionSelector,
-    bytes32 voxelTypeId,
+    bytes32 bodyTypeId,
     bytes32 caInteractEntity,
     bytes32[] memory caNeighbourEntityIds,
     bytes32[] memory childEntityIds,
     bytes32 parentEntity
   ) public override returns (bytes32[] memory) {
     return
-      super.voxelRunInteraction(
+      super.bodyRunInteraction(
         interactionSelector,
-        voxelTypeId,
+        bodyTypeId,
         caInteractEntity,
         caNeighbourEntityIds,
         childEntityIds,

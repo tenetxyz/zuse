@@ -23,7 +23,7 @@ contract FighterMindSystem is MindType {
   }
 
   function mindLogic(
-    bytes32 voxelTypeId,
+    bytes32 bodyTypeId,
     bytes32 entity,
     bytes32[] memory neighbourEntityIds,
     bytes32[] memory childEntityIds,

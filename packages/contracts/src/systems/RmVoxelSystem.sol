@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: GPL-3.0
 pragma solidity >=0.8.0;
-import { OwnedBy, OwnedByTableId, VoxelType } from "@tenet-contracts/src/codegen/Tables.sol";
+import { OwnedBy, OwnedByTableId, BodyType } from "@tenet-contracts/src/codegen/Tables.sol";
 import { System } from "@latticexyz/world/src/System.sol";
 import { addressToEntityKey } from "@tenet-utils/src/Utils.sol";
 import { getKeysWithValue } from "@latticexyz/world/src/modules/keyswithvalue/getKeysWithValue.sol";
@@ -15,7 +15,7 @@ contract RmVoxelSystem is System {
       // delete the voxel
       // TODO: delete all values in relevant components as well
       OwnedBy.deleteRecord(scales[i], voxels[i]);
-      VoxelType.deleteRecord(scales[i], voxels[i]);
+      BodyType.deleteRecord(scales[i], voxels[i]);
     }
   }
 
@@ -25,7 +25,7 @@ contract RmVoxelSystem is System {
       bytes32[] memory entity = entitiesOwnedBySender[i];
       uint32 scale = uint32(uint256(entity[0]));
       OwnedBy.deleteRecord(scale, entity[1]);
-      VoxelType.deleteRecord(scale, entity[1]);
+      BodyType.deleteRecord(scale, entity[1]);
     }
   }
 }

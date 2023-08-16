@@ -2,18 +2,18 @@
 pragma solidity >=0.8.0;
 
 import { IStore } from "@latticexyz/store/src/IStore.sol";
-import { VoxelTypeRegistry } from "@tenet-registry/src/codegen/tables/VoxelTypeRegistry.sol";
+import { BodyTypeRegistry } from "@tenet-registry/src/codegen/tables/BodyTypeRegistry.sol";
 import { IWorld } from "@tenet-level2-ca-extensions-1/src/codegen/world/IWorld.sol";
 import { VoxelType } from "@tenet-base-ca/src/prototypes/VoxelType.sol";
-import { VoxelVariantsRegistryData } from "@tenet-registry/src/codegen/tables/VoxelVariantsRegistry.sol";
+import { BodyVariantsRegistryData } from "@tenet-registry/src/codegen/tables/BodyVariantsRegistry.sol";
 import { NoaBlockType } from "@tenet-registry/src/codegen/Types.sol";
-import { registerVoxelVariant, registerVoxelType, voxelSelectorsForVoxel } from "@tenet-registry/src/Utils.sol";
+import { registerBodyVariant, registerBodyType, bodySelectorsForVoxel } from "@tenet-registry/src/Utils.sol";
 import { SignalSource } from "@tenet-level2-ca-extensions-1/src/codegen/Tables.sol";
 import { CA_ADDRESS, REGISTRY_ADDRESS, SignalSourceVoxelID } from "@tenet-level2-ca-extensions-1/src/Constants.sol";
 import { Level2AirVoxelID } from "@tenet-level2-ca/src/Constants.sol";
 import { VoxelCoord, BlockDirection } from "@tenet-utils/src/Types.sol";
 import { AirVoxelID } from "@tenet-base-ca/src/Constants.sol";
-import { registerCAVoxelType } from "@tenet-base-ca/src/CallUtils.sol";
+import { registerCABodyType } from "@tenet-base-ca/src/CallUtils.sol";
 
 bytes32 constant SignalSourceVoxelVariantID = bytes32(keccak256("signalsource"));
 
@@ -24,7 +24,7 @@ contract SignalSourceVoxelSystem is VoxelType {
   function registerVoxel() public override {
     address world = _world();
 
-    VoxelVariantsRegistryData memory signalSourceVariant;
+    BodyVariantsRegistryData memory signalSourceVariant;
     signalSourceVariant.blockType = NoaBlockType.BLOCK;
     signalSourceVariant.opaque = true;
     signalSourceVariant.solid = true;
@@ -32,22 +32,22 @@ contract SignalSourceVoxelSystem is VoxelType {
     signalSourceMaterials[0] = SignalSourceTexture;
     signalSourceVariant.materials = abi.encode(signalSourceMaterials);
     signalSourceVariant.uvWrap = SignalSourceUVWrap;
-    registerVoxelVariant(REGISTRY_ADDRESS, SignalSourceVoxelVariantID, signalSourceVariant);
+    registerBodyVariant(REGISTRY_ADDRESS, SignalSourceVoxelVariantID, signalSourceVariant);
 
-    bytes32[] memory signalChildVoxelTypes = VoxelTypeRegistry.getChildVoxelTypeIds(
+    bytes32[] memory signalChildBodyTypes = BodyTypeRegistry.getChildBodyTypeIds(
       IStore(REGISTRY_ADDRESS),
       Level2AirVoxelID
     );
-    bytes32 baseVoxelTypeId = Level2AirVoxelID;
-    registerVoxelType(
+    bytes32 baseBodyTypeId = Level2AirVoxelID;
+    registerBodyType(
       REGISTRY_ADDRESS,
       "Signal Source",
       SignalSourceVoxelID,
-      baseVoxelTypeId,
-      signalChildVoxelTypes,
-      signalChildVoxelTypes,
+      baseBodyTypeId,
+      signalChildBodyTypes,
+      signalChildBodyTypes,
       SignalSourceVoxelVariantID,
-      voxelSelectorsForVoxel(
+      bodySelectorsForVoxel(
         IWorld(world).extension1_SignalSourceVoxe_enterWorld.selector,
         IWorld(world).extension1_SignalSourceVoxe_exitWorld.selector,
         IWorld(world).extension1_SignalSourceVoxe_variantSelector.selector,
@@ -56,7 +56,7 @@ contract SignalSourceVoxelSystem is VoxelType {
       )
     );
 
-    registerCAVoxelType(CA_ADDRESS, SignalSourceVoxelID);
+    registerCABodyType(CA_ADDRESS, SignalSourceVoxelID);
   }
 
   function enterWorld(VoxelCoord memory coord, bytes32 entity) public override {

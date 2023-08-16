@@ -5,7 +5,7 @@ import "forge-std/Test.sol";
 import { MudTest } from "@latticexyz/store/src/MudTest.sol";
 import { IStore } from "@latticexyz/store/src/IStore.sol";
 import { IWorld } from "@tenet-contracts/src/codegen/world/IWorld.sol";
-import { VoxelType, OwnedBy } from "@tenet-contracts/src/codegen/Tables.sol";
+import { BodyType, OwnedBy } from "@tenet-contracts/src/codegen/Tables.sol";
 
 import { AirVoxelID, ElectronVoxelID } from "@tenet-base-ca/src/Constants.sol";
 

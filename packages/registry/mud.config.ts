@@ -33,35 +33,35 @@ export default mudConfig({
         creator: "address",
         name: "string",
         description: "string",
-        voxelTypeIds: "bytes32[]",
+        bodyTypeIds: "bytes32[]",
       },
     },
-    VoxelTypeRegistry: {
+    BodyTypeRegistry: {
       keySchema: {
-        voxelTypeId: "bytes32",
+        bodyTypeId: "bytes32",
       },
       schema: {
         scale: "uint32",
-        previewVoxelVariantId: "bytes32",
-        baseVoxelTypeId: "bytes32",
-        selectors: "bytes", // VoxelSelectors
+        previewBodyVariantId: "bytes32",
+        baseBodyTypeId: "bytes32",
+        selectors: "bytes", // BodySelectors
         metadata: "bytes", // CreationMetadata
-        childVoxelTypeIds: "bytes32[]",
-        schemaVoxelTypeIds: "bytes32[]", // This is used when a child is built to figure out if the parent should be built. We can't juse use childVoxelTypeIds, because the child entities may move
+        childBodyTypeIds: "bytes32[]",
+        schemaBodyTypeIds: "bytes32[]", // This is used when a child is built to figure out if the parent should be built. We can't juse use childBodyTypeIds, because the child entities may move
       },
     },
     MindRegistry: {
       keySchema: {
-        voxelTypeId: "bytes32",
+        bodyTypeId: "bytes32",
         worldAddress: "address",
       },
       schema: {
         minds: "bytes", // Mind[]
       },
     },
-    VoxelVariantsRegistry: {
+    BodyVariantsRegistry: {
       keySchema: {
-        voxelVariantId: "bytes32",
+        bodyVariantId: "bytes32",
       },
       schema: {
         variantId: "uint256", // Used by the client
@@ -81,7 +81,7 @@ export default mudConfig({
       },
       schema: {
         numVoxels: "uint32", // The total number of voxels in this creation (including the voxels in the base creations). This value is really important to prevent extra computation when determining the voxels in base creations
-        voxelTypes: "bytes", // VoxelTypeData[]
+        bodyTypes: "bytes", // BodyTypeData[]
         relativePositions: "bytes", // VoxelCoord[], the relative position for each voxel in the creation
         baseCreations: "bytes", // it is called "base" creation - cause of "base class" in c++. To make composable creations work, root creations are comprised of these base creations.
         metadata: "bytes", // CreationMetadata
@@ -131,12 +131,12 @@ export default mudConfig({
     {
       name: "KeysInTableModule",
       root: true,
-      args: [resolveTableId("VoxelTypeRegistry")],
+      args: [resolveTableId("BodyTypeRegistry")],
     },
     {
       name: "KeysInTableModule",
       root: true,
-      args: [resolveTableId("VoxelVariantsRegistry")],
+      args: [resolveTableId("BodyVariantsRegistry")],
     },
     {
       name: "KeysInTableModule",

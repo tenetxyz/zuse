@@ -5,8 +5,8 @@ import { System } from "@latticexyz/world/src/System.sol";
 import { hasKey } from "@latticexyz/world/src/modules/keysintable/hasKey.sol";
 import { Strings } from "@openzeppelin/contracts/utils/Strings.sol";
 import { voxelCoordToString, voxelCoordsAreEqual, add, sub } from "@tenet-utils/src/VoxelCoordUtils.sol";
-import { WorldRegistryTableId, WorldRegistry, CreationRegistryTableId, CreationRegistry, CreationRegistryData, VoxelTypeRegistryTableId, VoxelTypeRegistry, VoxelVariantsRegistryTableId, VoxelVariantsRegistry } from "@tenet-registry/src/codegen/Tables.sol";
-import { VoxelCoord, BaseCreation, BaseCreationInWorld, VoxelTypeData } from "@tenet-utils/src/Types.sol";
+import { WorldRegistryTableId, WorldRegistry, CreationRegistryTableId, CreationRegistry, CreationRegistryData, BodyTypeRegistryTableId, BodyTypeRegistry, BodyVariantsRegistryTableId, BodyVariantsRegistry } from "@tenet-registry/src/codegen/Tables.sol";
+import { VoxelCoord, BaseCreation, BaseCreationInWorld, BodyTypeData } from "@tenet-utils/src/Types.sol";
 import { CreationMetadata, CreationSpawns } from "@tenet-utils/src/Types.sol";
 
 uint256 constant MAX_BLOCKS_IN_CREATION = 100;
@@ -15,17 +15,17 @@ contract CreationRegistrySystem is System {
   function registerCreation(
     string memory name,
     string memory description,
-    VoxelTypeData[] memory voxelTypes,
+    BodyTypeData[] memory bodyTypes,
     VoxelCoord[] memory voxelCoords,
     BaseCreationInWorld[] memory baseCreationsInWorld
-  ) public returns (bytes32, VoxelCoord memory, VoxelTypeData[] memory, VoxelCoord[] memory) {
-    for (uint256 i = 0; i < voxelTypes.length; i++) {
+  ) public returns (bytes32, VoxelCoord memory, BodyTypeData[] memory, VoxelCoord[] memory) {
+    for (uint256 i = 0; i < bodyTypes.length; i++) {
       require(
-        hasKey(VoxelTypeRegistryTableId, VoxelTypeRegistry.encodeKeyTuple(voxelTypes[i].voxelTypeId)),
+        hasKey(BodyTypeRegistryTableId, BodyTypeRegistry.encodeKeyTuple(bodyTypes[i].bodyTypeId)),
         "Voxel type ID has not been registered"
       );
       require(
-        hasKey(VoxelVariantsRegistryTableId, VoxelVariantsRegistry.encodeKeyTuple(voxelTypes[i].voxelVariantId)),
+        hasKey(BodyVariantsRegistryTableId, BodyVariantsRegistry.encodeKeyTuple(bodyTypes[i].bodyVariantId)),
         "Voxel variant ID has not been registered"
       );
     }
@@ -38,9 +38,9 @@ contract CreationRegistrySystem is System {
     CreationRegistryData memory creationData;
 
     // 1) get all of the voxelCoords of all voxels in the creation
-    (VoxelCoord[] memory allVoxelCoordsInWorld, VoxelTypeData[] memory allVoxelTypes) = getVoxels(
+    (VoxelCoord[] memory allVoxelCoordsInWorld, BodyTypeData[] memory allBodyTypes) = getVoxels(
       voxelCoords,
-      voxelTypes,
+      bodyTypes,
       baseCreationsInWorld
     );
 
@@ -59,7 +59,7 @@ contract CreationRegistrySystem is System {
         lowerSouthwestCorner
       );
       creationData.relativePositions = abi.encode(relativePositions);
-      creationId = getCreationHash(allVoxelTypes, relativePositions);
+      creationId = getCreationHash(allBodyTypes, relativePositions);
       require(
         !hasKey(CreationRegistryTableId, CreationRegistry.encodeKeyTuple(creationId)),
         "Creation has already been registered"
@@ -77,11 +77,11 @@ contract CreationRegistrySystem is System {
 
     // 6) write all the fields of the creation to the table
     creationData.numVoxels = uint32(allVoxelCoordsInWorld.length);
-    creationData.voxelTypes = abi.encode(allVoxelTypes);
+    creationData.bodyTypes = abi.encode(allBodyTypes);
     creationData.metadata = getMetadata(name, description);
     CreationRegistry.set(creationId, creationData);
 
-    return (creationId, lowerSouthwestCorner, allVoxelTypes, allVoxelCoordsInWorld);
+    return (creationId, lowerSouthwestCorner, allBodyTypes, allVoxelCoordsInWorld);
   }
 
   function getMetadata(string memory name, string memory description) internal view returns (bytes memory) {
@@ -193,25 +193,25 @@ contract CreationRegistrySystem is System {
   // where all the baseCreationsInWorld are in the world.
   function getVoxels(
     VoxelCoord[] memory rootVoxelCoords,
-    VoxelTypeData[] memory rootVoxelTypes,
+    BodyTypeData[] memory rootBodyTypes,
     BaseCreationInWorld[] memory baseCreationsInWorld
-  ) internal view returns (VoxelCoord[] memory, VoxelTypeData[] memory) {
-    uint32 numVoxels = calculateNumVoxelsInComposedCreation(baseCreationsInWorld, rootVoxelTypes.length);
+  ) internal view returns (VoxelCoord[] memory, BodyTypeData[] memory) {
+    uint32 numVoxels = calculateNumVoxelsInComposedCreation(baseCreationsInWorld, rootBodyTypes.length);
 
     VoxelCoord[] memory allVoxelCoords = new VoxelCoord[](numVoxels); // these are the coords of the voxel in the world. they are NOT relative
-    VoxelTypeData[] memory allVoxelTypes = new VoxelTypeData[](numVoxels);
+    BodyTypeData[] memory allBodyTypes = new BodyTypeData[](numVoxels);
 
     // 1) add all the (non-base) voxels in this creation to the arrays
     for (uint32 i = 0; i < rootVoxelCoords.length; i++) {
       allVoxelCoords[i] = rootVoxelCoords[i];
-      allVoxelTypes[i] = rootVoxelTypes[i];
+      allBodyTypes[i] = rootBodyTypes[i];
     }
 
     uint32 voxelIdx = uint32(rootVoxelCoords.length);
 
     for (uint32 i = 0; i < baseCreationsInWorld.length; i++) {
       BaseCreationInWorld memory baseCreationInWorld = baseCreationsInWorld[i];
-      (VoxelCoord[] memory baseVoxelCoords, VoxelTypeData[] memory baseVoxelTypes) = getVoxelsInCreation(
+      (VoxelCoord[] memory baseVoxelCoords, BodyTypeData[] memory baseBodyTypes) = getVoxelsInCreation(
         baseCreationInWorld.creationId
       );
 
@@ -231,7 +231,7 @@ contract CreationRegistrySystem is System {
         }
         if (!isDeleted) {
           allVoxelCoords[voxelIdx] = add(baseCreationInWorld.lowerSouthWestCornerInWorld, baseVoxelCoord);
-          allVoxelTypes[voxelIdx] = baseVoxelTypes[j];
+          allBodyTypes[voxelIdx] = baseBodyTypes[j];
           voxelIdx++;
         }
       }
@@ -247,14 +247,14 @@ contract CreationRegistrySystem is System {
         )
       );
     }
-    return (allVoxelCoords, allVoxelTypes);
+    return (allVoxelCoords, allBodyTypes);
   }
 
   function calculateNumVoxelsInComposedCreation(
     BaseCreationInWorld[] memory baseCreationsInWorld,
-    uint256 rootVoxelTypesLength
+    uint256 rootBodyTypesLength
   ) internal view returns (uint32) {
-    uint32 numVoxels = uint32(rootVoxelTypesLength);
+    uint32 numVoxels = uint32(rootBodyTypesLength);
     for (uint32 i = 0; i < baseCreationsInWorld.length; i++) {
       BaseCreationInWorld memory baseCreation = baseCreationsInWorld[i];
       uint256 numVoxelsInBaseCreation = CreationRegistry.getNumVoxels(baseCreation.creationId);
@@ -281,18 +281,18 @@ contract CreationRegistrySystem is System {
   // so we just need to compile a list of all the voxels in the base creations
   // then we need to remove the voxels that are deleted
 
-  function getVoxelsInCreation(bytes32 creationId) public view returns (VoxelCoord[] memory, VoxelTypeData[] memory) {
+  function getVoxelsInCreation(bytes32 creationId) public view returns (VoxelCoord[] memory, BodyTypeData[] memory) {
     CreationRegistryData memory creation = CreationRegistry.get(creationId);
     VoxelCoord[] memory allRelativeCoords = new VoxelCoord[](creation.numVoxels);
-    VoxelTypeData[] memory allVoxelTypes = new VoxelTypeData[](creation.numVoxels);
+    BodyTypeData[] memory allBodyTypes = new BodyTypeData[](creation.numVoxels);
 
     VoxelCoord[] memory creationRelativeCoords = abi.decode(creation.relativePositions, (VoxelCoord[]));
-    VoxelTypeData[] memory creationVoxelTypes = abi.decode(creation.voxelTypes, (VoxelTypeData[]));
+    BodyTypeData[] memory creationBodyTypes = abi.decode(creation.bodyTypes, (BodyTypeData[]));
 
     // 1) add all the (non-base) voxels in this creation to the arrays
     for (uint32 i = 0; i < creationRelativeCoords.length; i++) {
       allRelativeCoords[i] = creationRelativeCoords[i];
-      allVoxelTypes[i] = creationVoxelTypes[i];
+      allBodyTypes[i] = creationBodyTypes[i];
     }
     uint32 voxelIdx = uint32(creationRelativeCoords.length);
 
@@ -302,7 +302,7 @@ contract CreationRegistrySystem is System {
     for (uint32 i = 0; i < baseCreations.length; i++) {
       BaseCreation memory baseCreation = baseCreations[i];
 
-      (VoxelCoord[] memory childVoxelCoords, VoxelTypeData[] memory childVoxelTypes) = getVoxelsInCreation(
+      (VoxelCoord[] memory childVoxelCoords, BodyTypeData[] memory childBodyTypes) = getVoxelsInCreation(
         baseCreation.creationId
       );
 
@@ -320,12 +320,12 @@ contract CreationRegistrySystem is System {
         }
         if (!isDeleted) {
           allRelativeCoords[voxelIdx] = add(baseCreation.coordOffset, childVoxelCoord);
-          allVoxelTypes[voxelIdx] = childVoxelTypes[j];
+          allBodyTypes[voxelIdx] = childBodyTypes[j];
           voxelIdx++;
         }
       }
     }
-    return (allRelativeCoords, allVoxelTypes);
+    return (allRelativeCoords, allBodyTypes);
   }
 
   function convertBaseCreationsInWorldToBaseCreation(
@@ -358,9 +358,9 @@ contract CreationRegistrySystem is System {
   }
 
   function getCreationHash(
-    VoxelTypeData[] memory voxelTypes,
+    BodyTypeData[] memory bodyTypes,
     VoxelCoord[] memory relativePositions
   ) internal pure returns (bytes32) {
-    return bytes32(keccak256(abi.encode(voxelTypes, relativePositions)));
+    return bytes32(keccak256(abi.encode(bodyTypes, relativePositions)));
   }
 }

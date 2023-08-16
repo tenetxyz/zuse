@@ -5,9 +5,14 @@ pragma solidity >=0.8.0;
 //import { Perlin } from "./Perlin.sol";
 import { ABDKMath64x64 as Math } from "@tenet-utils/src/libraries/ABDKMath64x64.sol";
 import { CHUNK_MIN_Y, TILE_Y, Biome, STRUCTURE_CHUNK, STRUCTURE_CHUNK_CENTER, Level2AirVoxelID, GrassVoxelID, DirtVoxelID, BedrockVoxelID } from "../Constants.sol";
-import { VoxelCoord, Tuple } from "@tenet-utils/src/Types.sol";
+import { VoxelCoord } from "@tenet-utils/src/Types.sol";
 import { System } from "@latticexyz/world/src/System.sol";
 import { IWorld } from "@tenet-level2-ca/src/codegen/world/IWorld.sol";
+
+struct Tuple {
+  int128 x;
+  int128 y;
+}
 
 bytes32 constant EMPTY_ID = bytes32(0x0);
 
@@ -54,23 +59,23 @@ contract LibTerrainSystem is System {
     int32 height,
     int128[4] memory biomeValues
   ) internal pure returns (bytes32) {
-    bytes32 voxelTypeId;
+    bytes32 bodyTypeId;
 
-    voxelTypeId = Bedrock(y);
-    if (voxelTypeId != EMPTY_ID) return voxelTypeId;
+    bodyTypeId = Bedrock(y);
+    if (bodyTypeId != EMPTY_ID) return bodyTypeId;
 
-    voxelTypeId = Air(y);
-    if (voxelTypeId != EMPTY_ID) return voxelTypeId;
+    bodyTypeId = Air(y);
+    if (bodyTypeId != EMPTY_ID) return bodyTypeId;
 
     uint8 biome = getMaxBiome(biomeValues);
 
     int32 distanceFromHeight = height - y;
 
-    voxelTypeId = Grass(y);
-    if (voxelTypeId != EMPTY_ID) return voxelTypeId;
+    bodyTypeId = Grass(y);
+    if (bodyTypeId != EMPTY_ID) return bodyTypeId;
 
-    voxelTypeId = Dirt(y);
-    if (voxelTypeId != EMPTY_ID) return voxelTypeId;
+    bodyTypeId = Dirt(y);
+    if (bodyTypeId != EMPTY_ID) return bodyTypeId;
 
     return Level2AirVoxelID;
   }

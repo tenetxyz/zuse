@@ -67,9 +67,9 @@ library MindRegistry {
   }
 
   /** Get minds */
-  function get(bytes32 voxelTypeId, address worldAddress) internal view returns (bytes memory minds) {
+  function get(bytes32 bodyTypeId, address worldAddress) internal view returns (bytes memory minds) {
     bytes32[] memory _keyTuple = new bytes32[](2);
-    _keyTuple[0] = voxelTypeId;
+    _keyTuple[0] = bodyTypeId;
     _keyTuple[1] = bytes32(uint256(uint160(worldAddress)));
 
     bytes memory _blob = StoreSwitch.getField(_tableId, _keyTuple, 0);
@@ -77,9 +77,9 @@ library MindRegistry {
   }
 
   /** Get minds (using the specified store) */
-  function get(IStore _store, bytes32 voxelTypeId, address worldAddress) internal view returns (bytes memory minds) {
+  function get(IStore _store, bytes32 bodyTypeId, address worldAddress) internal view returns (bytes memory minds) {
     bytes32[] memory _keyTuple = new bytes32[](2);
-    _keyTuple[0] = voxelTypeId;
+    _keyTuple[0] = bodyTypeId;
     _keyTuple[1] = bytes32(uint256(uint160(worldAddress)));
 
     bytes memory _blob = _store.getField(_tableId, _keyTuple, 0);
@@ -87,27 +87,27 @@ library MindRegistry {
   }
 
   /** Set minds */
-  function set(bytes32 voxelTypeId, address worldAddress, bytes memory minds) internal {
+  function set(bytes32 bodyTypeId, address worldAddress, bytes memory minds) internal {
     bytes32[] memory _keyTuple = new bytes32[](2);
-    _keyTuple[0] = voxelTypeId;
+    _keyTuple[0] = bodyTypeId;
     _keyTuple[1] = bytes32(uint256(uint160(worldAddress)));
 
     StoreSwitch.setField(_tableId, _keyTuple, 0, bytes((minds)));
   }
 
   /** Set minds (using the specified store) */
-  function set(IStore _store, bytes32 voxelTypeId, address worldAddress, bytes memory minds) internal {
+  function set(IStore _store, bytes32 bodyTypeId, address worldAddress, bytes memory minds) internal {
     bytes32[] memory _keyTuple = new bytes32[](2);
-    _keyTuple[0] = voxelTypeId;
+    _keyTuple[0] = bodyTypeId;
     _keyTuple[1] = bytes32(uint256(uint160(worldAddress)));
 
     _store.setField(_tableId, _keyTuple, 0, bytes((minds)));
   }
 
   /** Get the length of minds */
-  function length(bytes32 voxelTypeId, address worldAddress) internal view returns (uint256) {
+  function length(bytes32 bodyTypeId, address worldAddress) internal view returns (uint256) {
     bytes32[] memory _keyTuple = new bytes32[](2);
-    _keyTuple[0] = voxelTypeId;
+    _keyTuple[0] = bodyTypeId;
     _keyTuple[1] = bytes32(uint256(uint160(worldAddress)));
 
     uint256 _byteLength = StoreSwitch.getFieldLength(_tableId, _keyTuple, 0, getSchema());
@@ -115,9 +115,9 @@ library MindRegistry {
   }
 
   /** Get the length of minds (using the specified store) */
-  function length(IStore _store, bytes32 voxelTypeId, address worldAddress) internal view returns (uint256) {
+  function length(IStore _store, bytes32 bodyTypeId, address worldAddress) internal view returns (uint256) {
     bytes32[] memory _keyTuple = new bytes32[](2);
-    _keyTuple[0] = voxelTypeId;
+    _keyTuple[0] = bodyTypeId;
     _keyTuple[1] = bytes32(uint256(uint160(worldAddress)));
 
     uint256 _byteLength = _store.getFieldLength(_tableId, _keyTuple, 0, getSchema());
@@ -125,9 +125,9 @@ library MindRegistry {
   }
 
   /** Get an item of minds (unchecked, returns invalid data if index overflows) */
-  function getItem(bytes32 voxelTypeId, address worldAddress, uint256 _index) internal view returns (bytes memory) {
+  function getItem(bytes32 bodyTypeId, address worldAddress, uint256 _index) internal view returns (bytes memory) {
     bytes32[] memory _keyTuple = new bytes32[](2);
-    _keyTuple[0] = voxelTypeId;
+    _keyTuple[0] = bodyTypeId;
     _keyTuple[1] = bytes32(uint256(uint160(worldAddress)));
 
     bytes memory _blob = StoreSwitch.getFieldSlice(_tableId, _keyTuple, 0, getSchema(), _index * 1, (_index + 1) * 1);
@@ -137,12 +137,12 @@ library MindRegistry {
   /** Get an item of minds (using the specified store) (unchecked, returns invalid data if index overflows) */
   function getItem(
     IStore _store,
-    bytes32 voxelTypeId,
+    bytes32 bodyTypeId,
     address worldAddress,
     uint256 _index
   ) internal view returns (bytes memory) {
     bytes32[] memory _keyTuple = new bytes32[](2);
-    _keyTuple[0] = voxelTypeId;
+    _keyTuple[0] = bodyTypeId;
     _keyTuple[1] = bytes32(uint256(uint160(worldAddress)));
 
     bytes memory _blob = _store.getFieldSlice(_tableId, _keyTuple, 0, getSchema(), _index * 1, (_index + 1) * 1);
@@ -150,45 +150,45 @@ library MindRegistry {
   }
 
   /** Push a slice to minds */
-  function push(bytes32 voxelTypeId, address worldAddress, bytes memory _slice) internal {
+  function push(bytes32 bodyTypeId, address worldAddress, bytes memory _slice) internal {
     bytes32[] memory _keyTuple = new bytes32[](2);
-    _keyTuple[0] = voxelTypeId;
+    _keyTuple[0] = bodyTypeId;
     _keyTuple[1] = bytes32(uint256(uint160(worldAddress)));
 
     StoreSwitch.pushToField(_tableId, _keyTuple, 0, bytes((_slice)));
   }
 
   /** Push a slice to minds (using the specified store) */
-  function push(IStore _store, bytes32 voxelTypeId, address worldAddress, bytes memory _slice) internal {
+  function push(IStore _store, bytes32 bodyTypeId, address worldAddress, bytes memory _slice) internal {
     bytes32[] memory _keyTuple = new bytes32[](2);
-    _keyTuple[0] = voxelTypeId;
+    _keyTuple[0] = bodyTypeId;
     _keyTuple[1] = bytes32(uint256(uint160(worldAddress)));
 
     _store.pushToField(_tableId, _keyTuple, 0, bytes((_slice)));
   }
 
   /** Pop a slice from minds */
-  function pop(bytes32 voxelTypeId, address worldAddress) internal {
+  function pop(bytes32 bodyTypeId, address worldAddress) internal {
     bytes32[] memory _keyTuple = new bytes32[](2);
-    _keyTuple[0] = voxelTypeId;
+    _keyTuple[0] = bodyTypeId;
     _keyTuple[1] = bytes32(uint256(uint160(worldAddress)));
 
     StoreSwitch.popFromField(_tableId, _keyTuple, 0, 1);
   }
 
   /** Pop a slice from minds (using the specified store) */
-  function pop(IStore _store, bytes32 voxelTypeId, address worldAddress) internal {
+  function pop(IStore _store, bytes32 bodyTypeId, address worldAddress) internal {
     bytes32[] memory _keyTuple = new bytes32[](2);
-    _keyTuple[0] = voxelTypeId;
+    _keyTuple[0] = bodyTypeId;
     _keyTuple[1] = bytes32(uint256(uint160(worldAddress)));
 
     _store.popFromField(_tableId, _keyTuple, 0, 1);
   }
 
   /** Update a slice of minds at `_index` */
-  function update(bytes32 voxelTypeId, address worldAddress, uint256 _index, bytes memory _slice) internal {
+  function update(bytes32 bodyTypeId, address worldAddress, uint256 _index, bytes memory _slice) internal {
     bytes32[] memory _keyTuple = new bytes32[](2);
-    _keyTuple[0] = voxelTypeId;
+    _keyTuple[0] = bodyTypeId;
     _keyTuple[1] = bytes32(uint256(uint160(worldAddress)));
 
     StoreSwitch.updateInField(_tableId, _keyTuple, 0, _index * 1, bytes((_slice)));
@@ -197,13 +197,13 @@ library MindRegistry {
   /** Update a slice of minds (using the specified store) at `_index` */
   function update(
     IStore _store,
-    bytes32 voxelTypeId,
+    bytes32 bodyTypeId,
     address worldAddress,
     uint256 _index,
     bytes memory _slice
   ) internal {
     bytes32[] memory _keyTuple = new bytes32[](2);
-    _keyTuple[0] = voxelTypeId;
+    _keyTuple[0] = bodyTypeId;
     _keyTuple[1] = bytes32(uint256(uint160(worldAddress)));
 
     _store.updateInField(_tableId, _keyTuple, 0, _index * 1, bytes((_slice)));
@@ -219,28 +219,25 @@ library MindRegistry {
   }
 
   /** Encode keys as a bytes32 array using this table's schema */
-  function encodeKeyTuple(
-    bytes32 voxelTypeId,
-    address worldAddress
-  ) internal pure returns (bytes32[] memory _keyTuple) {
+  function encodeKeyTuple(bytes32 bodyTypeId, address worldAddress) internal pure returns (bytes32[] memory _keyTuple) {
     _keyTuple = new bytes32[](2);
-    _keyTuple[0] = voxelTypeId;
+    _keyTuple[0] = bodyTypeId;
     _keyTuple[1] = bytes32(uint256(uint160(worldAddress)));
   }
 
   /* Delete all data for given keys */
-  function deleteRecord(bytes32 voxelTypeId, address worldAddress) internal {
+  function deleteRecord(bytes32 bodyTypeId, address worldAddress) internal {
     bytes32[] memory _keyTuple = new bytes32[](2);
-    _keyTuple[0] = voxelTypeId;
+    _keyTuple[0] = bodyTypeId;
     _keyTuple[1] = bytes32(uint256(uint160(worldAddress)));
 
     StoreSwitch.deleteRecord(_tableId, _keyTuple);
   }
 
   /* Delete all data for given keys (using the specified store) */
-  function deleteRecord(IStore _store, bytes32 voxelTypeId, address worldAddress) internal {
+  function deleteRecord(IStore _store, bytes32 bodyTypeId, address worldAddress) internal {
     bytes32[] memory _keyTuple = new bytes32[](2);
-    _keyTuple[0] = voxelTypeId;
+    _keyTuple[0] = bodyTypeId;
     _keyTuple[1] = bytes32(uint256(uint160(worldAddress)));
 
     _store.deleteRecord(_tableId, _keyTuple);

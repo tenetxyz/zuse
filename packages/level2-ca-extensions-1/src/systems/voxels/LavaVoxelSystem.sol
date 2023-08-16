@@ -2,19 +2,19 @@
 pragma solidity >=0.8.0;
 
 import { IStore } from "@latticexyz/store/src/IStore.sol";
-import { VoxelTypeRegistry } from "@tenet-registry/src/codegen/tables/VoxelTypeRegistry.sol";
+import { BodyTypeRegistry } from "@tenet-registry/src/codegen/tables/BodyTypeRegistry.sol";
 import { IWorld } from "@tenet-level2-ca-extensions-1/src/codegen/world/IWorld.sol";
 import { VoxelType } from "@tenet-base-ca/src/prototypes/VoxelType.sol";
-import { VoxelVariantsRegistryData } from "@tenet-registry/src/codegen/tables/VoxelVariantsRegistry.sol";
+import { BodyVariantsRegistryData } from "@tenet-registry/src/codegen/tables/BodyVariantsRegistry.sol";
 import { NoaBlockType } from "@tenet-registry/src/codegen/Types.sol";
-import { registerVoxelVariant, registerVoxelType, voxelSelectorsForVoxel } from "@tenet-registry/src/Utils.sol";
+import { registerBodyVariant, registerBodyType, bodySelectorsForVoxel } from "@tenet-registry/src/Utils.sol";
 import { Temperature, TemperatureData } from "@tenet-level2-ca-extensions-1/src/codegen/Tables.sol";
 import { CA_ADDRESS, REGISTRY_ADDRESS, LavaVoxelID } from "@tenet-level2-ca-extensions-1/src/Constants.sol";
 import { Level2AirVoxelID } from "@tenet-level2-ca/src/Constants.sol";
 import { VoxelCoord, BlockDirection } from "@tenet-utils/src/Types.sol";
 import { AirVoxelID } from "@tenet-base-ca/src/Constants.sol";
 import { Strings } from "@openzeppelin/contracts/utils/Strings.sol";
-import { registerCAVoxelType } from "@tenet-base-ca/src/CallUtils.sol";
+import { registerCABodyType } from "@tenet-base-ca/src/CallUtils.sol";
 
 bytes32 constant LavaHotVoxelVariantID = bytes32(keccak256("lava.hot"));
 bytes32 constant LavaColdVoxelVariantID = bytes32(keccak256("lava.cold"));
@@ -29,7 +29,7 @@ contract LavaVoxelSystem is VoxelType {
   function registerVoxel() public override {
     address world = _world();
 
-    VoxelVariantsRegistryData memory lavaHotVariant;
+    BodyVariantsRegistryData memory lavaHotVariant;
     lavaHotVariant.blockType = NoaBlockType.BLOCK;
     lavaHotVariant.opaque = true;
     lavaHotVariant.solid = true;
@@ -37,9 +37,9 @@ contract LavaVoxelSystem is VoxelType {
     lavaHotMaterials[0] = LavaHotTexture;
     lavaHotVariant.materials = abi.encode(lavaHotMaterials);
     lavaHotVariant.uvWrap = LavaHotUVWrap;
-    registerVoxelVariant(REGISTRY_ADDRESS, LavaHotVoxelVariantID, lavaHotVariant);
+    registerBodyVariant(REGISTRY_ADDRESS, LavaHotVoxelVariantID, lavaHotVariant);
 
-    VoxelVariantsRegistryData memory lavaColdVariant;
+    BodyVariantsRegistryData memory lavaColdVariant;
     lavaColdVariant.blockType = NoaBlockType.BLOCK;
     lavaColdVariant.opaque = true;
     lavaColdVariant.solid = true;
@@ -47,22 +47,22 @@ contract LavaVoxelSystem is VoxelType {
     lavaColdMaterials[0] = LavaColdTexture;
     lavaColdVariant.materials = abi.encode(lavaColdMaterials);
     lavaColdVariant.uvWrap = LavaColdUVWrap;
-    registerVoxelVariant(REGISTRY_ADDRESS, LavaColdVoxelVariantID, lavaColdVariant);
+    registerBodyVariant(REGISTRY_ADDRESS, LavaColdVoxelVariantID, lavaColdVariant);
 
-    bytes32[] memory lavaChildVoxelTypes = VoxelTypeRegistry.getChildVoxelTypeIds(
+    bytes32[] memory lavaChildBodyTypes = BodyTypeRegistry.getChildBodyTypeIds(
       IStore(REGISTRY_ADDRESS),
       Level2AirVoxelID
     );
-    bytes32 baseVoxelTypeId = Level2AirVoxelID;
-    registerVoxelType(
+    bytes32 baseBodyTypeId = Level2AirVoxelID;
+    registerBodyType(
       REGISTRY_ADDRESS,
       "Lava",
       LavaVoxelID,
-      baseVoxelTypeId,
-      lavaChildVoxelTypes,
-      lavaChildVoxelTypes,
+      baseBodyTypeId,
+      lavaChildBodyTypes,
+      lavaChildBodyTypes,
       LavaHotVoxelVariantID,
-      voxelSelectorsForVoxel(
+      bodySelectorsForVoxel(
         IWorld(world).extension1_LavaVoxelSystem_enterWorld.selector,
         IWorld(world).extension1_LavaVoxelSystem_exitWorld.selector,
         IWorld(world).extension1_LavaVoxelSystem_variantSelector.selector,
@@ -71,7 +71,7 @@ contract LavaVoxelSystem is VoxelType {
       )
     );
 
-    registerCAVoxelType(CA_ADDRESS, LavaVoxelID);
+    registerCABodyType(CA_ADDRESS, LavaVoxelID);
   }
 
   function enterWorld(VoxelCoord memory coord, bytes32 entity) public override {

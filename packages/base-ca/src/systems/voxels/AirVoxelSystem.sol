@@ -3,11 +3,11 @@ pragma solidity >=0.8.0;
 
 import { IWorld } from "@tenet-base-ca/src/codegen/world/IWorld.sol";
 import { VoxelType } from "@tenet-base-ca/src/prototypes/VoxelType.sol";
-import { VoxelVariantsRegistryData } from "@tenet-registry/src/codegen/tables/VoxelVariantsRegistry.sol";
+import { BodyVariantsRegistryData } from "@tenet-registry/src/codegen/tables/BodyVariantsRegistry.sol";
 import { NoaBlockType } from "@tenet-registry/src/codegen/Types.sol";
 import { hasKey } from "@latticexyz/world/src/modules/keysintable/hasKey.sol";
-import { registerVoxelVariant, registerVoxelType, voxelSelectorsForVoxel } from "@tenet-registry/src/Utils.sol";
-import { CAVoxelType, CAPosition, CAPositionData, CAPositionTableId, ElectronTunnelSpot, ElectronTunnelSpotData, ElectronTunnelSpotTableId } from "@tenet-base-ca/src/codegen/Tables.sol";
+import { registerBodyVariant, registerBodyType, bodySelectorsForVoxel } from "@tenet-registry/src/Utils.sol";
+import { CABodyType, CAPosition, CAPositionData, CAPositionTableId, ElectronTunnelSpot, ElectronTunnelSpotData, ElectronTunnelSpotTableId } from "@tenet-base-ca/src/codegen/Tables.sol";
 import { REGISTRY_ADDRESS, AirVoxelID, AirVoxelVariantID } from "@tenet-base-ca/src/Constants.sol";
 import { VoxelCoord } from "@tenet-utils/src/Types.sol";
 import { getEntityAtCoord, voxelCoordToPositionData } from "@tenet-base-ca/src/Utils.sol";
@@ -16,22 +16,22 @@ contract AirVoxelSystem is VoxelType {
   function registerVoxel() public override {
     address world = _world();
 
-    VoxelVariantsRegistryData memory airVariant;
+    BodyVariantsRegistryData memory airVariant;
     airVariant.blockType = NoaBlockType.BLOCK;
-    registerVoxelVariant(REGISTRY_ADDRESS, AirVoxelVariantID, airVariant);
+    registerBodyVariant(REGISTRY_ADDRESS, AirVoxelVariantID, airVariant);
 
-    bytes32[] memory airChildVoxelTypes = new bytes32[](1);
-    airChildVoxelTypes[0] = AirVoxelID;
-    bytes32 baseVoxelTypeId = AirVoxelID;
-    registerVoxelType(
+    bytes32[] memory airChildBodyTypes = new bytes32[](1);
+    airChildBodyTypes[0] = AirVoxelID;
+    bytes32 baseBodyTypeId = AirVoxelID;
+    registerBodyType(
       REGISTRY_ADDRESS,
       "Air",
       AirVoxelID,
-      baseVoxelTypeId,
-      airChildVoxelTypes,
-      airChildVoxelTypes,
+      baseBodyTypeId,
+      airChildBodyTypes,
+      airChildBodyTypes,
       AirVoxelVariantID,
-      voxelSelectorsForVoxel(
+      bodySelectorsForVoxel(
         IWorld(world).ca_AirVoxelSystem_enterWorld.selector,
         IWorld(world).ca_AirVoxelSystem_exitWorld.selector,
         IWorld(world).ca_AirVoxelSystem_variantSelector.selector,

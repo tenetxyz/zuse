@@ -3,16 +3,16 @@ pragma solidity >=0.8.0;
 
 import { IWorld } from "@tenet-level2-ca-extensions-1/src/codegen/world/IWorld.sol";
 import { VoxelType } from "@tenet-base-ca/src/prototypes/VoxelType.sol";
-import { VoxelVariantsRegistryData } from "@tenet-registry/src/codegen/tables/VoxelVariantsRegistry.sol";
+import { BodyVariantsRegistryData } from "@tenet-registry/src/codegen/tables/BodyVariantsRegistry.sol";
 import { NoaBlockType } from "@tenet-registry/src/codegen/Types.sol";
-import { registerVoxelVariant, registerVoxelType, voxelSelectorsForVoxel } from "@tenet-registry/src/Utils.sol";
+import { registerBodyVariant, registerBodyType, bodySelectorsForVoxel } from "@tenet-registry/src/Utils.sol";
 import { CA_ADDRESS, REGISTRY_ADDRESS, WireVoxelID } from "@tenet-level2-ca-extensions-1/src/Constants.sol";
 import { Level2AirVoxelID } from "@tenet-level2-ca/src/Constants.sol";
 import { VoxelCoord } from "@tenet-utils/src/Types.sol";
 import { ElectronVoxelID } from "@tenet-base-ca/src/Constants.sol";
 import { AirVoxelID } from "@tenet-base-ca/src/Constants.sol";
-import { getVoxelTypeFromCaller } from "@tenet-base-ca/src/CallUtils.sol";
-import { registerCAVoxelType } from "@tenet-base-ca/src/CallUtils.sol";
+import { getBodyTypeFromCaller } from "@tenet-base-ca/src/CallUtils.sol";
+import { registerCABodyType } from "@tenet-base-ca/src/CallUtils.sol";
 
 bytes32 constant WireOffVoxelVariantID = bytes32(keccak256("wire.off"));
 bytes32 constant WireOnVoxelVariantID = bytes32(keccak256("wire.on"));
@@ -26,7 +26,7 @@ string constant WireOnUVWrap = "bafkreia3okzu23ncgtcgrdmgb2zgvawyqndssuxwbzt5nf4
 contract WireVoxelSystem is VoxelType {
   function registerVoxel() public override {
     address world = _world();
-    VoxelVariantsRegistryData memory wireOffVariant;
+    BodyVariantsRegistryData memory wireOffVariant;
     wireOffVariant.blockType = NoaBlockType.BLOCK;
     wireOffVariant.opaque = true;
     wireOffVariant.solid = true;
@@ -34,9 +34,9 @@ contract WireVoxelSystem is VoxelType {
     wireOffMaterials[0] = WireOffTexture;
     wireOffVariant.materials = abi.encode(wireOffMaterials);
     wireOffVariant.uvWrap = WireOffUVWrap;
-    registerVoxelVariant(REGISTRY_ADDRESS, WireOffVoxelVariantID, wireOffVariant);
+    registerBodyVariant(REGISTRY_ADDRESS, WireOffVoxelVariantID, wireOffVariant);
 
-    VoxelVariantsRegistryData memory wireOnVariant;
+    BodyVariantsRegistryData memory wireOnVariant;
     wireOnVariant.blockType = NoaBlockType.BLOCK;
     wireOnVariant.opaque = true;
     wireOnVariant.solid = true;
@@ -44,25 +44,25 @@ contract WireVoxelSystem is VoxelType {
     wireOnMaterials[0] = WireOnTexture;
     wireOnVariant.materials = abi.encode(wireOnMaterials);
     wireOnVariant.uvWrap = WireOnUVWrap;
-    registerVoxelVariant(REGISTRY_ADDRESS, WireOnVoxelVariantID, wireOnVariant);
+    registerBodyVariant(REGISTRY_ADDRESS, WireOnVoxelVariantID, wireOnVariant);
 
-    bytes32[] memory wireChildVoxelTypes = new bytes32[](8);
-    wireChildVoxelTypes[4] = ElectronVoxelID;
-    wireChildVoxelTypes[5] = ElectronVoxelID;
-    bytes32[] memory wireSchemaVoxelTypes = new bytes32[](8);
-    wireSchemaVoxelTypes[4] = ElectronVoxelID;
-    wireSchemaVoxelTypes[1] = ElectronVoxelID; // The second electron moves to be diagonal from the first
+    bytes32[] memory wireChildBodyTypes = new bytes32[](8);
+    wireChildBodyTypes[4] = ElectronVoxelID;
+    wireChildBodyTypes[5] = ElectronVoxelID;
+    bytes32[] memory wireSchemaBodyTypes = new bytes32[](8);
+    wireSchemaBodyTypes[4] = ElectronVoxelID;
+    wireSchemaBodyTypes[1] = ElectronVoxelID; // The second electron moves to be diagonal from the first
 
-    bytes32 baseVoxelTypeId = WireVoxelID;
-    registerVoxelType(
+    bytes32 baseBodyTypeId = WireVoxelID;
+    registerBodyType(
       REGISTRY_ADDRESS,
       "Electron Wire",
       WireVoxelID,
-      baseVoxelTypeId,
-      wireChildVoxelTypes,
-      wireSchemaVoxelTypes,
+      baseBodyTypeId,
+      wireChildBodyTypes,
+      wireSchemaBodyTypes,
       WireOffVoxelVariantID,
-      voxelSelectorsForVoxel(
+      bodySelectorsForVoxel(
         IWorld(world).extension1_WireVoxelSystem_enterWorld.selector,
         IWorld(world).extension1_WireVoxelSystem_exitWorld.selector,
         IWorld(world).extension1_WireVoxelSystem_variantSelector.selector,
@@ -71,7 +71,7 @@ contract WireVoxelSystem is VoxelType {
       )
     );
 
-    registerCAVoxelType(CA_ADDRESS, WireVoxelID);
+    registerCABodyType(CA_ADDRESS, WireVoxelID);
   }
 
   function enterWorld(VoxelCoord memory coord, bytes32 entity) public override {}
@@ -91,16 +91,16 @@ contract WireVoxelSystem is VoxelType {
 
     bytes32 bottomLeftType = childEntityIds[0] == 0
       ? AirVoxelID
-      : getVoxelTypeFromCaller(callerAddress, 1, childEntityIds[0]);
+      : getBodyTypeFromCaller(callerAddress, 1, childEntityIds[0]);
     bytes32 bottomRightType = childEntityIds[1] == 0
       ? AirVoxelID
-      : getVoxelTypeFromCaller(callerAddress, 1, childEntityIds[1]);
+      : getBodyTypeFromCaller(callerAddress, 1, childEntityIds[1]);
     bytes32 topLeftType = childEntityIds[4] == 0
       ? AirVoxelID
-      : getVoxelTypeFromCaller(callerAddress, 1, childEntityIds[4]);
+      : getBodyTypeFromCaller(callerAddress, 1, childEntityIds[4]);
     bytes32 topRightType = childEntityIds[5] == 0
       ? AirVoxelID
-      : getVoxelTypeFromCaller(callerAddress, 1, childEntityIds[5]);
+      : getBodyTypeFromCaller(callerAddress, 1, childEntityIds[5]);
 
     if (topLeftType == ElectronVoxelID && bottomRightType == ElectronVoxelID) {
       return WireOffVoxelVariantID;

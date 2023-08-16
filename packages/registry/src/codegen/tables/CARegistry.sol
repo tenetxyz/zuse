@@ -25,7 +25,7 @@ struct CARegistryData {
   address creator;
   string name;
   string description;
-  bytes32[] voxelTypeIds;
+  bytes32[] bodyTypeIds;
 }
 
 library CARegistry {
@@ -55,7 +55,7 @@ library CARegistry {
     _fieldNames[1] = "creator";
     _fieldNames[2] = "name";
     _fieldNames[3] = "description";
-    _fieldNames[4] = "voxelTypeIds";
+    _fieldNames[4] = "bodyTypeIds";
     return ("CARegistry", _fieldNames);
   }
 
@@ -385,8 +385,8 @@ library CARegistry {
     _store.updateInField(_tableId, _keyTuple, 3, _index * 1, bytes((_slice)));
   }
 
-  /** Get voxelTypeIds */
-  function getVoxelTypeIds(address caAddress) internal view returns (bytes32[] memory voxelTypeIds) {
+  /** Get bodyTypeIds */
+  function getBodyTypeIds(address caAddress) internal view returns (bytes32[] memory bodyTypeIds) {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = bytes32(uint256(uint160(caAddress)));
 
@@ -394,8 +394,8 @@ library CARegistry {
     return (SliceLib.getSubslice(_blob, 0, _blob.length).decodeArray_bytes32());
   }
 
-  /** Get voxelTypeIds (using the specified store) */
-  function getVoxelTypeIds(IStore _store, address caAddress) internal view returns (bytes32[] memory voxelTypeIds) {
+  /** Get bodyTypeIds (using the specified store) */
+  function getBodyTypeIds(IStore _store, address caAddress) internal view returns (bytes32[] memory bodyTypeIds) {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = bytes32(uint256(uint160(caAddress)));
 
@@ -403,24 +403,24 @@ library CARegistry {
     return (SliceLib.getSubslice(_blob, 0, _blob.length).decodeArray_bytes32());
   }
 
-  /** Set voxelTypeIds */
-  function setVoxelTypeIds(address caAddress, bytes32[] memory voxelTypeIds) internal {
+  /** Set bodyTypeIds */
+  function setBodyTypeIds(address caAddress, bytes32[] memory bodyTypeIds) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = bytes32(uint256(uint160(caAddress)));
 
-    StoreSwitch.setField(_tableId, _keyTuple, 4, EncodeArray.encode((voxelTypeIds)));
+    StoreSwitch.setField(_tableId, _keyTuple, 4, EncodeArray.encode((bodyTypeIds)));
   }
 
-  /** Set voxelTypeIds (using the specified store) */
-  function setVoxelTypeIds(IStore _store, address caAddress, bytes32[] memory voxelTypeIds) internal {
+  /** Set bodyTypeIds (using the specified store) */
+  function setBodyTypeIds(IStore _store, address caAddress, bytes32[] memory bodyTypeIds) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = bytes32(uint256(uint160(caAddress)));
 
-    _store.setField(_tableId, _keyTuple, 4, EncodeArray.encode((voxelTypeIds)));
+    _store.setField(_tableId, _keyTuple, 4, EncodeArray.encode((bodyTypeIds)));
   }
 
-  /** Get the length of voxelTypeIds */
-  function lengthVoxelTypeIds(address caAddress) internal view returns (uint256) {
+  /** Get the length of bodyTypeIds */
+  function lengthBodyTypeIds(address caAddress) internal view returns (uint256) {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = bytes32(uint256(uint160(caAddress)));
 
@@ -428,8 +428,8 @@ library CARegistry {
     return _byteLength / 32;
   }
 
-  /** Get the length of voxelTypeIds (using the specified store) */
-  function lengthVoxelTypeIds(IStore _store, address caAddress) internal view returns (uint256) {
+  /** Get the length of bodyTypeIds (using the specified store) */
+  function lengthBodyTypeIds(IStore _store, address caAddress) internal view returns (uint256) {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = bytes32(uint256(uint160(caAddress)));
 
@@ -437,8 +437,8 @@ library CARegistry {
     return _byteLength / 32;
   }
 
-  /** Get an item of voxelTypeIds (unchecked, returns invalid data if index overflows) */
-  function getItemVoxelTypeIds(address caAddress, uint256 _index) internal view returns (bytes32) {
+  /** Get an item of bodyTypeIds (unchecked, returns invalid data if index overflows) */
+  function getItemBodyTypeIds(address caAddress, uint256 _index) internal view returns (bytes32) {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = bytes32(uint256(uint160(caAddress)));
 
@@ -446,8 +446,8 @@ library CARegistry {
     return (Bytes.slice32(_blob, 0));
   }
 
-  /** Get an item of voxelTypeIds (using the specified store) (unchecked, returns invalid data if index overflows) */
-  function getItemVoxelTypeIds(IStore _store, address caAddress, uint256 _index) internal view returns (bytes32) {
+  /** Get an item of bodyTypeIds (using the specified store) (unchecked, returns invalid data if index overflows) */
+  function getItemBodyTypeIds(IStore _store, address caAddress, uint256 _index) internal view returns (bytes32) {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = bytes32(uint256(uint160(caAddress)));
 
@@ -455,48 +455,48 @@ library CARegistry {
     return (Bytes.slice32(_blob, 0));
   }
 
-  /** Push an element to voxelTypeIds */
-  function pushVoxelTypeIds(address caAddress, bytes32 _element) internal {
+  /** Push an element to bodyTypeIds */
+  function pushBodyTypeIds(address caAddress, bytes32 _element) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = bytes32(uint256(uint160(caAddress)));
 
     StoreSwitch.pushToField(_tableId, _keyTuple, 4, abi.encodePacked((_element)));
   }
 
-  /** Push an element to voxelTypeIds (using the specified store) */
-  function pushVoxelTypeIds(IStore _store, address caAddress, bytes32 _element) internal {
+  /** Push an element to bodyTypeIds (using the specified store) */
+  function pushBodyTypeIds(IStore _store, address caAddress, bytes32 _element) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = bytes32(uint256(uint160(caAddress)));
 
     _store.pushToField(_tableId, _keyTuple, 4, abi.encodePacked((_element)));
   }
 
-  /** Pop an element from voxelTypeIds */
-  function popVoxelTypeIds(address caAddress) internal {
+  /** Pop an element from bodyTypeIds */
+  function popBodyTypeIds(address caAddress) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = bytes32(uint256(uint160(caAddress)));
 
     StoreSwitch.popFromField(_tableId, _keyTuple, 4, 32);
   }
 
-  /** Pop an element from voxelTypeIds (using the specified store) */
-  function popVoxelTypeIds(IStore _store, address caAddress) internal {
+  /** Pop an element from bodyTypeIds (using the specified store) */
+  function popBodyTypeIds(IStore _store, address caAddress) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = bytes32(uint256(uint160(caAddress)));
 
     _store.popFromField(_tableId, _keyTuple, 4, 32);
   }
 
-  /** Update an element of voxelTypeIds at `_index` */
-  function updateVoxelTypeIds(address caAddress, uint256 _index, bytes32 _element) internal {
+  /** Update an element of bodyTypeIds at `_index` */
+  function updateBodyTypeIds(address caAddress, uint256 _index, bytes32 _element) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = bytes32(uint256(uint160(caAddress)));
 
     StoreSwitch.updateInField(_tableId, _keyTuple, 4, _index * 32, abi.encodePacked((_element)));
   }
 
-  /** Update an element of voxelTypeIds (using the specified store) at `_index` */
-  function updateVoxelTypeIds(IStore _store, address caAddress, uint256 _index, bytes32 _element) internal {
+  /** Update an element of bodyTypeIds (using the specified store) at `_index` */
+  function updateBodyTypeIds(IStore _store, address caAddress, uint256 _index, bytes32 _element) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = bytes32(uint256(uint160(caAddress)));
 
@@ -528,9 +528,9 @@ library CARegistry {
     address creator,
     string memory name,
     string memory description,
-    bytes32[] memory voxelTypeIds
+    bytes32[] memory bodyTypeIds
   ) internal {
-    bytes memory _data = encode(scale, creator, name, description, voxelTypeIds);
+    bytes memory _data = encode(scale, creator, name, description, bodyTypeIds);
 
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = bytes32(uint256(uint160(caAddress)));
@@ -546,9 +546,9 @@ library CARegistry {
     address creator,
     string memory name,
     string memory description,
-    bytes32[] memory voxelTypeIds
+    bytes32[] memory bodyTypeIds
   ) internal {
-    bytes memory _data = encode(scale, creator, name, description, voxelTypeIds);
+    bytes memory _data = encode(scale, creator, name, description, bodyTypeIds);
 
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = bytes32(uint256(uint160(caAddress)));
@@ -558,12 +558,12 @@ library CARegistry {
 
   /** Set the full data using the data struct */
   function set(address caAddress, CARegistryData memory _table) internal {
-    set(caAddress, _table.scale, _table.creator, _table.name, _table.description, _table.voxelTypeIds);
+    set(caAddress, _table.scale, _table.creator, _table.name, _table.description, _table.bodyTypeIds);
   }
 
   /** Set the full data using the data struct (using the specified store) */
   function set(IStore _store, address caAddress, CARegistryData memory _table) internal {
-    set(_store, caAddress, _table.scale, _table.creator, _table.name, _table.description, _table.voxelTypeIds);
+    set(_store, caAddress, _table.scale, _table.creator, _table.name, _table.description, _table.bodyTypeIds);
   }
 
   /** Decode the tightly packed blob using this table's schema */
@@ -591,7 +591,7 @@ library CARegistry {
 
       _start = _end;
       _end += _encodedLengths.atIndex(2);
-      _table.voxelTypeIds = (SliceLib.getSubslice(_blob, _start, _end).decodeArray_bytes32());
+      _table.bodyTypeIds = (SliceLib.getSubslice(_blob, _start, _end).decodeArray_bytes32());
     }
   }
 
@@ -601,12 +601,12 @@ library CARegistry {
     address creator,
     string memory name,
     string memory description,
-    bytes32[] memory voxelTypeIds
+    bytes32[] memory bodyTypeIds
   ) internal pure returns (bytes memory) {
     uint40[] memory _counters = new uint40[](3);
     _counters[0] = uint40(bytes(name).length);
     _counters[1] = uint40(bytes(description).length);
-    _counters[2] = uint40(voxelTypeIds.length * 32);
+    _counters[2] = uint40(bodyTypeIds.length * 32);
     PackedCounter _encodedLengths = PackedCounterLib.pack(_counters);
 
     return
@@ -616,7 +616,7 @@ library CARegistry {
         _encodedLengths.unwrap(),
         bytes((name)),
         bytes((description)),
-        EncodeArray.encode((voxelTypeIds))
+        EncodeArray.encode((bodyTypeIds))
       );
   }
 

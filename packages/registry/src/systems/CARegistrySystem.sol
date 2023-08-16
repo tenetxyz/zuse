@@ -3,30 +3,30 @@ pragma solidity >=0.8.0;
 
 import { hasKey } from "@latticexyz/world/src/modules/keysintable/hasKey.sol";
 import { System } from "@latticexyz/world/src/System.sol";
-import { CARegistry, CARegistryTableId, CARegistryData, VoxelTypeRegistry, VoxelTypeRegistryTableId, WorldRegistry, WorldRegistryTableId } from "../codegen/Tables.sol";
+import { CARegistry, CARegistryTableId, CARegistryData, BodyTypeRegistry, BodyTypeRegistryTableId, WorldRegistry, WorldRegistryTableId } from "../codegen/Tables.sol";
 import { getKeysInTable } from "@latticexyz/world/src/modules/keysintable/getKeysInTable.sol";
-import { WORLD_NOTIFY_NEW_CA_VOXEL_TYPE_SIG } from "../Constants.sol";
+import { WORLD_NOTIFY_NEW_CA_BODY_TYPE_SIG } from "../Constants.sol";
 import { safeCall } from "@tenet-utils/src/CallUtils.sol";
 
 contract CARegistrySystem is System {
-  // TODO: How do we know this CA is using these voxel types?
-  function registerCA(string memory name, string memory description, bytes32[] memory voxelTypeIds) public {
+  // TODO: How do we know this CA is using these body types?
+  function registerCA(string memory name, string memory description, bytes32[] memory bodyTypeIds) public {
     require(bytes(name).length > 0, "Name cannot be empty");
     require(bytes(description).length > 0, "Description cannot be empty");
-    require(voxelTypeIds.length > 0, "Must have at least one voxel type");
+    require(bodyTypeIds.length > 0, "Must have at least one body type");
 
     address caAddress = _msgSender();
 
     uint32 scale = 0;
-    for (uint256 i; i < voxelTypeIds.length; i++) {
+    for (uint256 i; i < bodyTypeIds.length; i++) {
       require(
-        hasKey(VoxelTypeRegistryTableId, VoxelTypeRegistry.encodeKeyTuple(voxelTypeIds[i])),
-        "Voxel type ID has not been registered"
+        hasKey(BodyTypeRegistryTableId, BodyTypeRegistry.encodeKeyTuple(bodyTypeIds[i])),
+        "Body type ID has not been registered"
       );
       if (scale == 0) {
-        scale = VoxelTypeRegistry.getScale(voxelTypeIds[i]);
+        scale = BodyTypeRegistry.getScale(bodyTypeIds[i]);
       } else {
-        require(scale == VoxelTypeRegistry.getScale(voxelTypeIds[i]), "All voxel types must be the same scale");
+        require(scale == BodyTypeRegistry.getScale(bodyTypeIds[i]), "All body types must be the same scale");
       }
     }
 
@@ -39,38 +39,38 @@ contract CARegistrySystem is System {
         description: description,
         creator: tx.origin,
         scale: scale,
-        voxelTypeIds: voxelTypeIds
+        bodyTypeIds: bodyTypeIds
       })
     );
   }
 
-  function addVoxelToCA(bytes32 voxelTypeId) public {
+  function addBodyToCA(bytes32 bodyTypeId) public {
     address caAddress = _msgSender();
     require(hasKey(CARegistryTableId, CARegistry.encodeKeyTuple(caAddress)), "CA has not been registered");
     require(
-      hasKey(VoxelTypeRegistryTableId, VoxelTypeRegistry.encodeKeyTuple(voxelTypeId)),
-      "Voxel type ID has not been registered"
+      hasKey(BodyTypeRegistryTableId, BodyTypeRegistry.encodeKeyTuple(bodyTypeId)),
+      "Body type ID has not been registered"
     );
 
     CARegistryData memory caData = CARegistry.get(caAddress);
-    require(caData.scale == VoxelTypeRegistry.getScale(voxelTypeId), "Voxel type must be the same scale as the CA");
+    require(caData.scale == BodyTypeRegistry.getScale(bodyTypeId), "Body type must be the same scale as the CA");
 
-    bytes32[] memory voxelTypeIds = caData.voxelTypeIds;
-    for (uint256 i = 0; i < voxelTypeIds.length; i++) {
-      if (voxelTypeIds[i] == voxelTypeId) {
-        revert("Voxel type has already been added to CA");
+    bytes32[] memory bodyTypeIds = caData.bodyTypeIds;
+    for (uint256 i = 0; i < bodyTypeIds.length; i++) {
+      if (bodyTypeIds[i] == bodyTypeId) {
+        revert("Body type has already been added to CA");
       }
     }
 
-    bytes32[] memory updatedVoxelTypeIds = new bytes32[](voxelTypeIds.length + 1);
-    for (uint256 i = 0; i < voxelTypeIds.length; i++) {
-      updatedVoxelTypeIds[i] = voxelTypeIds[i];
+    bytes32[] memory updatedBodyTypeIds = new bytes32[](bodyTypeIds.length + 1);
+    for (uint256 i = 0; i < bodyTypeIds.length; i++) {
+      updatedBodyTypeIds[i] = bodyTypeIds[i];
     }
-    updatedVoxelTypeIds[voxelTypeIds.length] = voxelTypeId;
+    updatedBodyTypeIds[bodyTypeIds.length] = bodyTypeId;
 
-    CARegistry.setVoxelTypeIds(caAddress, updatedVoxelTypeIds);
+    CARegistry.setBodyTypeIds(caAddress, updatedBodyTypeIds);
 
-    // Notify worlds using this CA that a new voxel type has been added
+    // Notify worlds using this CA that a new body type has been added
     bytes32[][] memory worlds = getKeysInTable(WorldRegistryTableId);
     for (uint256 i = 0; i < worlds.length; i++) {
       address world = address(uint160(uint256(worlds[i][0])));
@@ -79,8 +79,8 @@ contract CARegistrySystem is System {
         if (worldCAs[j] == caAddress) {
           safeCall(
             world,
-            abi.encodeWithSignature(WORLD_NOTIFY_NEW_CA_VOXEL_TYPE_SIG, caAddress, voxelTypeId),
-            "addVoxelToCA"
+            abi.encodeWithSignature(WORLD_NOTIFY_NEW_CA_BODY_TYPE_SIG, caAddress, bodyTypeId),
+            "addBodyToCA"
           );
         }
       }

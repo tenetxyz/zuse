@@ -2,17 +2,17 @@
 pragma solidity >=0.8.0;
 
 import { IStore } from "@latticexyz/store/src/IStore.sol";
-import { VoxelTypeRegistry } from "@tenet-registry/src/codegen/tables/VoxelTypeRegistry.sol";
+import { BodyTypeRegistry } from "@tenet-registry/src/codegen/tables/BodyTypeRegistry.sol";
 import { IWorld } from "@tenet-level2-ca-extensions-1/src/codegen/world/IWorld.sol";
 import { VoxelType } from "@tenet-base-ca/src/prototypes/VoxelType.sol";
-import { VoxelVariantsRegistryData } from "@tenet-registry/src/codegen/tables/VoxelVariantsRegistry.sol";
+import { BodyVariantsRegistryData } from "@tenet-registry/src/codegen/tables/BodyVariantsRegistry.sol";
 import { NoaBlockType } from "@tenet-registry/src/codegen/Types.sol";
-import { registerVoxelVariant, registerVoxelType, voxelSelectorsForVoxel } from "@tenet-registry/src/Utils.sol";
+import { registerBodyVariant, registerBodyType, bodySelectorsForVoxel } from "@tenet-registry/src/Utils.sol";
 import { PowerSignal, PowerSignalData, PowerWire, PowerWireData } from "@tenet-level2-ca-extensions-1/src/codegen/Tables.sol";
 import { CA_ADDRESS, REGISTRY_ADDRESS, PowerSignalVoxelID, PowerWireVoxelID } from "@tenet-level2-ca-extensions-1/src/Constants.sol";
 import { VoxelCoord, BlockDirection } from "@tenet-utils/src/Types.sol";
 import { AirVoxelID } from "@tenet-base-ca/src/Constants.sol";
-import { registerCAVoxelType } from "@tenet-base-ca/src/CallUtils.sol";
+import { registerCABodyType } from "@tenet-base-ca/src/CallUtils.sol";
 
 bytes32 constant PowerSignalOffVoxelVariantID = bytes32(keccak256("powersignal.off"));
 bytes32 constant PowerSignalOnVoxelVariantID = bytes32(keccak256("powersignal.on"));
@@ -26,7 +26,7 @@ contract PowerSignalVoxelSystem is VoxelType {
   function registerVoxel() public override {
     address world = _world();
 
-    VoxelVariantsRegistryData memory powerSignalOffVariant;
+    BodyVariantsRegistryData memory powerSignalOffVariant;
     powerSignalOffVariant.blockType = NoaBlockType.MESH;
     powerSignalOffVariant.opaque = false;
     powerSignalOffVariant.solid = false;
@@ -34,9 +34,9 @@ contract PowerSignalVoxelSystem is VoxelType {
     string[] memory powerSignalOffMaterials = new string[](1);
     powerSignalOffMaterials[0] = PowerSignalOffTexture;
     powerSignalOffVariant.materials = abi.encode(powerSignalOffMaterials);
-    registerVoxelVariant(REGISTRY_ADDRESS, PowerSignalOffVoxelVariantID, powerSignalOffVariant);
+    registerBodyVariant(REGISTRY_ADDRESS, PowerSignalOffVoxelVariantID, powerSignalOffVariant);
 
-    VoxelVariantsRegistryData memory powerSignalOnVariant;
+    BodyVariantsRegistryData memory powerSignalOnVariant;
     powerSignalOnVariant.blockType = NoaBlockType.MESH;
     powerSignalOnVariant.opaque = false;
     powerSignalOnVariant.solid = false;
@@ -44,9 +44,9 @@ contract PowerSignalVoxelSystem is VoxelType {
     string[] memory powerSignalOnMaterials = new string[](1);
     powerSignalOnMaterials[0] = PowerSignalOnTexture;
     powerSignalOnVariant.materials = abi.encode(powerSignalOnMaterials);
-    registerVoxelVariant(REGISTRY_ADDRESS, PowerSignalOnVoxelVariantID, powerSignalOnVariant);
+    registerBodyVariant(REGISTRY_ADDRESS, PowerSignalOnVoxelVariantID, powerSignalOnVariant);
 
-    VoxelVariantsRegistryData memory powerSignalBrokenVariant;
+    BodyVariantsRegistryData memory powerSignalBrokenVariant;
     powerSignalBrokenVariant.blockType = NoaBlockType.MESH;
     powerSignalBrokenVariant.opaque = false;
     powerSignalBrokenVariant.solid = false;
@@ -54,22 +54,22 @@ contract PowerSignalVoxelSystem is VoxelType {
     string[] memory powerSignalBrokenMaterials = new string[](1);
     powerSignalBrokenMaterials[0] = PowerSignalBrokenTexture;
     powerSignalBrokenVariant.materials = abi.encode(powerSignalBrokenMaterials);
-    registerVoxelVariant(REGISTRY_ADDRESS, PowerSignalBrokenVoxelVariantID, powerSignalBrokenVariant);
+    registerBodyVariant(REGISTRY_ADDRESS, PowerSignalBrokenVoxelVariantID, powerSignalBrokenVariant);
 
-    bytes32[] memory powerSignalChildVoxelTypes = VoxelTypeRegistry.getChildVoxelTypeIds(
+    bytes32[] memory powerSignalChildBodyTypes = BodyTypeRegistry.getChildBodyTypeIds(
       IStore(REGISTRY_ADDRESS),
       PowerWireVoxelID
     );
 
-    registerVoxelType(
+    registerBodyType(
       REGISTRY_ADDRESS,
       "Power Signal",
       PowerSignalVoxelID,
       PowerWireVoxelID,
-      powerSignalChildVoxelTypes,
-      powerSignalChildVoxelTypes,
+      powerSignalChildBodyTypes,
+      powerSignalChildBodyTypes,
       PowerSignalOffVoxelVariantID,
-      voxelSelectorsForVoxel(
+      bodySelectorsForVoxel(
         IWorld(world).extension1_PowerSignalVoxel_enterWorld.selector,
         IWorld(world).extension1_PowerSignalVoxel_exitWorld.selector,
         IWorld(world).extension1_PowerSignalVoxel_variantSelector.selector,
@@ -78,7 +78,7 @@ contract PowerSignalVoxelSystem is VoxelType {
       )
     );
 
-    registerCAVoxelType(CA_ADDRESS, PowerSignalVoxelID);
+    registerCABodyType(CA_ADDRESS, PowerSignalVoxelID);
   }
 
   function enterWorld(VoxelCoord memory coord, bytes32 entity) public override {

@@ -2,18 +2,18 @@
 pragma solidity >=0.8.0;
 
 import { IStore } from "@latticexyz/store/src/IStore.sol";
-import { VoxelTypeRegistry } from "@tenet-registry/src/codegen/tables/VoxelTypeRegistry.sol";
+import { BodyTypeRegistry } from "@tenet-registry/src/codegen/tables/BodyTypeRegistry.sol";
 import { IWorld } from "@tenet-level2-ca-extensions-1/src/codegen/world/IWorld.sol";
 import { VoxelType } from "@tenet-base-ca/src/prototypes/VoxelType.sol";
-import { VoxelVariantsRegistryData } from "@tenet-registry/src/codegen/tables/VoxelVariantsRegistry.sol";
+import { BodyVariantsRegistryData } from "@tenet-registry/src/codegen/tables/BodyVariantsRegistry.sol";
 import { NoaBlockType } from "@tenet-registry/src/codegen/Types.sol";
-import { registerVoxelVariant, registerVoxelType, voxelSelectorsForVoxel } from "@tenet-registry/src/Utils.sol";
+import { registerBodyVariant, registerBodyType, bodySelectorsForVoxel } from "@tenet-registry/src/Utils.sol";
 import { PowerWire, PowerWireData } from "@tenet-level2-ca-extensions-1/src/codegen/Tables.sol";
 import { CA_ADDRESS, REGISTRY_ADDRESS, PowerWireVoxelID } from "@tenet-level2-ca-extensions-1/src/Constants.sol";
 import { Level2AirVoxelID } from "@tenet-level2-ca/src/Constants.sol";
 import { VoxelCoord, BlockDirection } from "@tenet-utils/src/Types.sol";
 import { AirVoxelID } from "@tenet-base-ca/src/Constants.sol";
-import { registerCAVoxelType } from "@tenet-base-ca/src/CallUtils.sol";
+import { registerCABodyType } from "@tenet-base-ca/src/CallUtils.sol";
 
 bytes32 constant PowerWireOffVoxelVariantID = bytes32(keccak256("powerwire.off"));
 bytes32 constant PowerWireOnVoxelVariantID = bytes32(keccak256("powerwire.on"));
@@ -27,7 +27,7 @@ contract PowerWireVoxelSystem is VoxelType {
   function registerVoxel() public override {
     address world = _world();
 
-    VoxelVariantsRegistryData memory powerWireOffVariant;
+    BodyVariantsRegistryData memory powerWireOffVariant;
     powerWireOffVariant.blockType = NoaBlockType.MESH;
     powerWireOffVariant.opaque = false;
     powerWireOffVariant.solid = false;
@@ -35,9 +35,9 @@ contract PowerWireVoxelSystem is VoxelType {
     string[] memory powerWireOffMaterials = new string[](1);
     powerWireOffMaterials[0] = PowerWireOffTexture;
     powerWireOffVariant.materials = abi.encode(powerWireOffMaterials);
-    registerVoxelVariant(REGISTRY_ADDRESS, PowerWireOffVoxelVariantID, powerWireOffVariant);
+    registerBodyVariant(REGISTRY_ADDRESS, PowerWireOffVoxelVariantID, powerWireOffVariant);
 
-    VoxelVariantsRegistryData memory powerWireOnVariant;
+    BodyVariantsRegistryData memory powerWireOnVariant;
     powerWireOnVariant.blockType = NoaBlockType.MESH;
     powerWireOnVariant.opaque = false;
     powerWireOnVariant.solid = false;
@@ -45,9 +45,9 @@ contract PowerWireVoxelSystem is VoxelType {
     string[] memory powerWireOnMaterials = new string[](1);
     powerWireOnMaterials[0] = PowerWireOnTexture;
     powerWireOnVariant.materials = abi.encode(powerWireOnMaterials);
-    registerVoxelVariant(REGISTRY_ADDRESS, PowerWireOnVoxelVariantID, powerWireOnVariant);
+    registerBodyVariant(REGISTRY_ADDRESS, PowerWireOnVoxelVariantID, powerWireOnVariant);
 
-    VoxelVariantsRegistryData memory powerWireBrokenVariant;
+    BodyVariantsRegistryData memory powerWireBrokenVariant;
     powerWireBrokenVariant.blockType = NoaBlockType.MESH;
     powerWireBrokenVariant.opaque = false;
     powerWireBrokenVariant.solid = false;
@@ -55,22 +55,22 @@ contract PowerWireVoxelSystem is VoxelType {
     string[] memory powerWireBrokenMaterials = new string[](1);
     powerWireBrokenMaterials[0] = PowerWireBrokenTexture;
     powerWireBrokenVariant.materials = abi.encode(powerWireBrokenMaterials);
-    registerVoxelVariant(REGISTRY_ADDRESS, PowerWireBrokenVoxelVariantID, powerWireBrokenVariant);
+    registerBodyVariant(REGISTRY_ADDRESS, PowerWireBrokenVoxelVariantID, powerWireBrokenVariant);
 
-    bytes32[] memory powerWireChildVoxelTypes = VoxelTypeRegistry.getChildVoxelTypeIds(
+    bytes32[] memory powerWireChildBodyTypes = BodyTypeRegistry.getChildBodyTypeIds(
       IStore(REGISTRY_ADDRESS),
       Level2AirVoxelID
     );
 
-    registerVoxelType(
+    registerBodyType(
       REGISTRY_ADDRESS,
       "Power Wire",
       PowerWireVoxelID,
       Level2AirVoxelID,
-      powerWireChildVoxelTypes,
-      powerWireChildVoxelTypes,
+      powerWireChildBodyTypes,
+      powerWireChildBodyTypes,
       PowerWireOffVoxelVariantID,
-      voxelSelectorsForVoxel(
+      bodySelectorsForVoxel(
         IWorld(world).extension1_PowerWireVoxelSy_enterWorld.selector,
         IWorld(world).extension1_PowerWireVoxelSy_exitWorld.selector,
         IWorld(world).extension1_PowerWireVoxelSy_variantSelector.selector,
@@ -79,7 +79,7 @@ contract PowerWireVoxelSystem is VoxelType {
       )
     );
 
-    registerCAVoxelType(CA_ADDRESS, PowerWireVoxelID);
+    registerCABodyType(CA_ADDRESS, PowerWireVoxelID);
   }
 
   function enterWorld(VoxelCoord memory coord, bytes32 entity) public override {

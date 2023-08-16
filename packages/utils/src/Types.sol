@@ -12,11 +12,6 @@ struct Coord {
   int32 y;
 }
 
-struct Tuple {
-  int128 x;
-  int128 y;
-}
-
 enum BlockDirection {
   None,
   North,
@@ -44,10 +39,10 @@ struct InteractionSelector {
   string interactionDescription;
 }
 
-struct VoxelSelectors {
+struct BodySelectors {
   bytes4 enterWorldSelector;
   bytes4 exitWorldSelector;
-  bytes4 voxelVariantSelector;
+  bytes4 bodyVariantSelector;
   bytes4 activateSelector;
   bytes4 onNewNeighbourSelector;
   InteractionSelector[] interactionSelectors;
@@ -59,9 +54,9 @@ struct BlockHeightUpdate {
   uint256 lastUpdateBlock;
 }
 
-struct VoxelTypeData {
-  bytes32 voxelTypeId;
-  bytes32 voxelVariantId;
+struct BodyTypeData {
+  bytes32 bodyTypeId;
+  bytes32 bodyVariantId;
 }
 
 struct CreationSpawns {
@@ -76,14 +71,14 @@ struct CreationMetadata {
   CreationSpawns[] spawns;
 }
 
-struct VoxelEntity {
+struct BodyEntity {
   uint32 scale;
   bytes32 entityId;
 }
 
-struct InterfaceVoxel {
+struct InterfaceBody {
   uint256 index;
-  VoxelEntity entity;
+  BodyEntity entity;
   string name;
   string desc;
 }

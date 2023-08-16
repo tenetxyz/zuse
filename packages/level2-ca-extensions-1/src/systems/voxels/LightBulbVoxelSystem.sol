@@ -2,18 +2,18 @@
 pragma solidity >=0.8.0;
 
 import { IStore } from "@latticexyz/store/src/IStore.sol";
-import { VoxelTypeRegistry } from "@tenet-registry/src/codegen/tables/VoxelTypeRegistry.sol";
+import { BodyTypeRegistry } from "@tenet-registry/src/codegen/tables/BodyTypeRegistry.sol";
 import { IWorld } from "@tenet-level2-ca-extensions-1/src/codegen/world/IWorld.sol";
 import { VoxelType } from "@tenet-base-ca/src/prototypes/VoxelType.sol";
-import { VoxelVariantsRegistryData } from "@tenet-registry/src/codegen/tables/VoxelVariantsRegistry.sol";
+import { BodyVariantsRegistryData } from "@tenet-registry/src/codegen/tables/BodyVariantsRegistry.sol";
 import { NoaBlockType } from "@tenet-registry/src/codegen/Types.sol";
-import { registerVoxelVariant, registerVoxelType, voxelSelectorsForVoxel } from "@tenet-registry/src/Utils.sol";
+import { registerBodyVariant, registerBodyType, bodySelectorsForVoxel } from "@tenet-registry/src/Utils.sol";
 import { Consumer, ConsumerData } from "@tenet-level2-ca-extensions-1/src/codegen/Tables.sol";
 import { CA_ADDRESS, REGISTRY_ADDRESS, LightBulbVoxelID } from "@tenet-level2-ca-extensions-1/src/Constants.sol";
 import { Level2AirVoxelID } from "@tenet-level2-ca/src/Constants.sol";
 import { VoxelCoord, BlockDirection } from "@tenet-utils/src/Types.sol";
 import { AirVoxelID } from "@tenet-base-ca/src/Constants.sol";
-import { registerCAVoxelType } from "@tenet-base-ca/src/CallUtils.sol";
+import { registerCABodyType } from "@tenet-base-ca/src/CallUtils.sol";
 
 bytes32 constant LightBulbOffVoxelVariantID = bytes32(keccak256("lightbulb.off"));
 bytes32 constant LightBulbOnVoxelVariantID = bytes32(keccak256("lightbulb.on"));
@@ -25,7 +25,7 @@ contract LightBulbVoxelSystem is VoxelType {
   function registerVoxel() public override {
     address world = _world();
 
-    VoxelVariantsRegistryData memory lightBulbOffVariant;
+    BodyVariantsRegistryData memory lightBulbOffVariant;
     lightBulbOffVariant.blockType = NoaBlockType.MESH;
     lightBulbOffVariant.opaque = false;
     lightBulbOffVariant.solid = false;
@@ -33,9 +33,9 @@ contract LightBulbVoxelSystem is VoxelType {
     string[] memory lightBulbOffMaterials = new string[](1);
     lightBulbOffMaterials[0] = LightBulbOffTexture;
     lightBulbOffVariant.materials = abi.encode(lightBulbOffMaterials);
-    registerVoxelVariant(REGISTRY_ADDRESS, LightBulbOffVoxelVariantID, lightBulbOffVariant);
+    registerBodyVariant(REGISTRY_ADDRESS, LightBulbOffVoxelVariantID, lightBulbOffVariant);
 
-    VoxelVariantsRegistryData memory lightBulbOnVariant;
+    BodyVariantsRegistryData memory lightBulbOnVariant;
     lightBulbOnVariant.blockType = NoaBlockType.MESH;
     lightBulbOnVariant.opaque = false;
     lightBulbOnVariant.solid = false;
@@ -43,22 +43,22 @@ contract LightBulbVoxelSystem is VoxelType {
     string[] memory lightBulbOnMaterials = new string[](1);
     lightBulbOnMaterials[0] = LightBulbOnTexture;
     lightBulbOnVariant.materials = abi.encode(lightBulbOnMaterials);
-    registerVoxelVariant(REGISTRY_ADDRESS, LightBulbOnVoxelVariantID, lightBulbOnVariant);
+    registerBodyVariant(REGISTRY_ADDRESS, LightBulbOnVoxelVariantID, lightBulbOnVariant);
 
-    bytes32[] memory lightBulbChildVoxelTypes = VoxelTypeRegistry.getChildVoxelTypeIds(
+    bytes32[] memory lightBulbChildBodyTypes = BodyTypeRegistry.getChildBodyTypeIds(
       IStore(REGISTRY_ADDRESS),
       Level2AirVoxelID
     );
-    bytes32 baseVoxelTypeId = Level2AirVoxelID;
-    registerVoxelType(
+    bytes32 baseBodyTypeId = Level2AirVoxelID;
+    registerBodyType(
       REGISTRY_ADDRESS,
       "Light Bulb",
       LightBulbVoxelID,
-      baseVoxelTypeId,
-      lightBulbChildVoxelTypes,
-      lightBulbChildVoxelTypes,
+      baseBodyTypeId,
+      lightBulbChildBodyTypes,
+      lightBulbChildBodyTypes,
       LightBulbOffVoxelVariantID,
-      voxelSelectorsForVoxel(
+      bodySelectorsForVoxel(
         IWorld(world).extension1_LightBulbVoxelSy_enterWorld.selector,
         IWorld(world).extension1_LightBulbVoxelSy_exitWorld.selector,
         IWorld(world).extension1_LightBulbVoxelSy_variantSelector.selector,
@@ -67,7 +67,7 @@ contract LightBulbVoxelSystem is VoxelType {
       )
     );
 
-    registerCAVoxelType(CA_ADDRESS, LightBulbVoxelID);
+    registerCABodyType(CA_ADDRESS, LightBulbVoxelID);
   }
 
   function enterWorld(VoxelCoord memory coord, bytes32 entity) public override {

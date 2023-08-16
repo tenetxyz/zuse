@@ -21,7 +21,7 @@ contract ApprovalSystem is EventApprovals {
   function preApproval(
     EventType eventType,
     address caller,
-    bytes32 voxelTypeId,
+    bytes32 bodyTypeId,
     VoxelCoord memory coord
   ) internal override {
     // if there isn't a player entry in the table, then set the default values for the player
@@ -37,7 +37,7 @@ contract ApprovalSystem is EventApprovals {
   function postApproval(
     EventType eventType,
     address caller,
-    bytes32 voxelTypeId,
+    bytes32 bodyTypeId,
     VoxelCoord memory coord
   ) internal override {
     Player.setLastUpdateBlock(caller, block.number);
@@ -84,7 +84,7 @@ contract ApprovalSystem is EventApprovals {
   function approveEvent(
     EventType eventType,
     address caller,
-    bytes32 voxelTypeId,
+    bytes32 bodyTypeId,
     VoxelCoord memory coord
   ) internal override {
     movementLimit(caller, coord);
@@ -99,15 +99,15 @@ contract ApprovalSystem is EventApprovals {
     staminaLimit(caller, staminaCost);
   }
 
-  function approveMine(address caller, bytes32 voxelTypeId, VoxelCoord memory coord) public override {
-    super.approveMine(caller, voxelTypeId, coord);
+  function approveMine(address caller, bytes32 bodyTypeId, VoxelCoord memory coord) public override {
+    super.approveMine(caller, bodyTypeId, coord);
   }
 
-  function approveBuild(address caller, bytes32 voxelTypeId, VoxelCoord memory coord) public override {
-    super.approveBuild(caller, voxelTypeId, coord);
+  function approveBuild(address caller, bytes32 bodyTypeId, VoxelCoord memory coord) public override {
+    super.approveBuild(caller, bodyTypeId, coord);
   }
 
-  function approveActivate(address caller, bytes32 voxelTypeId, VoxelCoord memory coord) public override {
-    super.approveActivate(caller, voxelTypeId, coord);
+  function approveActivate(address caller, bytes32 bodyTypeId, VoxelCoord memory coord) public override {
+    super.approveActivate(caller, bodyTypeId, coord);
   }
 }

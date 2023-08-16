@@ -3,9 +3,9 @@ pragma solidity >=0.8.0;
 
 import { IWorld } from "@tenet-level2-ca/src/codegen/world/IWorld.sol";
 import { VoxelType } from "@tenet-base-ca/src/prototypes/VoxelType.sol";
-import { VoxelVariantsRegistryData } from "@tenet-registry/src/codegen/tables/VoxelVariantsRegistry.sol";
+import { BodyVariantsRegistryData } from "@tenet-registry/src/codegen/tables/BodyVariantsRegistry.sol";
 import { NoaBlockType } from "@tenet-registry/src/codegen/Types.sol";
-import { registerVoxelVariant, registerVoxelType, voxelSelectorsForVoxel } from "@tenet-registry/src/Utils.sol";
+import { registerBodyVariant, registerBodyType, bodySelectorsForVoxel } from "@tenet-registry/src/Utils.sol";
 import { REGISTRY_ADDRESS, BedrockVoxelID } from "@tenet-level2-ca/src/Constants.sol";
 import { VoxelCoord } from "@tenet-utils/src/Types.sol";
 import { AirVoxelID } from "@tenet-base-ca/src/Constants.sol";
@@ -17,7 +17,7 @@ string constant BedrockUVWrap = "bafkreihdit6glam7sreijo7itbs7uwc2ltfeuvcfaublxf
 contract BedrockVoxelSystem is VoxelType {
   function registerVoxel() public override {
     address world = _world();
-    VoxelVariantsRegistryData memory bedrockVariant;
+    BodyVariantsRegistryData memory bedrockVariant;
     bedrockVariant.blockType = NoaBlockType.BLOCK;
     bedrockVariant.opaque = true;
     bedrockVariant.solid = true;
@@ -25,22 +25,22 @@ contract BedrockVoxelSystem is VoxelType {
     bedrockMaterials[0] = BedrockTexture;
     bedrockVariant.materials = abi.encode(bedrockMaterials);
     bedrockVariant.uvWrap = BedrockUVWrap;
-    registerVoxelVariant(REGISTRY_ADDRESS, BedrockVoxelVariantID, bedrockVariant);
+    registerBodyVariant(REGISTRY_ADDRESS, BedrockVoxelVariantID, bedrockVariant);
 
-    bytes32[] memory bedrockChildVoxelTypes = new bytes32[](8);
+    bytes32[] memory bedrockChildBodyTypes = new bytes32[](8);
     for (uint i = 0; i < 8; i++) {
-      bedrockChildVoxelTypes[i] = AirVoxelID;
+      bedrockChildBodyTypes[i] = AirVoxelID;
     }
-    bytes32 baseVoxelTypeId = BedrockVoxelID;
-    registerVoxelType(
+    bytes32 baseBodyTypeId = BedrockVoxelID;
+    registerBodyType(
       REGISTRY_ADDRESS,
       "Bedrock",
       BedrockVoxelID,
-      baseVoxelTypeId,
-      bedrockChildVoxelTypes,
-      bedrockChildVoxelTypes,
+      baseBodyTypeId,
+      bedrockChildBodyTypes,
+      bedrockChildBodyTypes,
       BedrockVoxelVariantID,
-      voxelSelectorsForVoxel(
+      bodySelectorsForVoxel(
         IWorld(world).ca_BedrockVoxelSyst_enterWorld.selector,
         IWorld(world).ca_BedrockVoxelSyst_exitWorld.selector,
         IWorld(world).ca_BedrockVoxelSyst_variantSelector.selector,

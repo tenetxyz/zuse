@@ -8,15 +8,15 @@ import { getKeysInTable } from "@latticexyz/world/src/modules/keysintable/getKey
 import { System } from "@latticexyz/world/src/System.sol";
 import { REGISTRY_ADDRESS } from "@tenet-contracts/src/Constants.sol";
 import { VoxelCoord } from "../types.sol";
-import { OwnedBy, Position, PositionTableId, VoxelType, Spawn, SpawnTableId } from "@tenet-contracts/src/codegen/Tables.sol";
+import { OwnedBy, Position, PositionTableId, BodyType, Spawn, SpawnTableId } from "@tenet-contracts/src/codegen/Tables.sol";
 import { IWorld } from "@tenet-contracts/src/codegen/world/IWorld.sol";
 import { ClassifierRegistry, ClassifierRegistryTableId } from "@tenet-registry/src/codegen/tables/ClassifierRegistry.sol";
-import { InterfaceVoxel, VoxelEntity } from "@tenet-utils/src/Types.sol";
+import { InterfaceBody, BodyEntity } from "@tenet-utils/src/Types.sol";
 import { SpawnData, OfSpawn } from "@tenet-contracts/src/codegen/Tables.sol";
 import { safeCall } from "@tenet-utils/src/CallUtils.sol";
 
 contract ClassifyCreationSystem is System {
-  function classify(bytes32 classifierId, bytes32 spawnId, InterfaceVoxel[] memory input) public {
+  function classify(bytes32 classifierId, bytes32 spawnId, InterfaceBody[] memory input) public {
     require(
       hasKey(IStore(REGISTRY_ADDRESS), ClassifierRegistryTableId, ClassifierRegistry.encodeKeyTuple(classifierId)),
       "Classifier doesn't exist"
@@ -40,9 +40,9 @@ contract ClassifyCreationSystem is System {
     safeCall(_world(), abi.encodeWithSelector(classifySelector, spawn, spawnId, input), "classify");
   }
 
-  function verifyThatAllInterfaceVoxelsExistInSpawn(bytes32 spawnId, InterfaceVoxel[] memory input) internal view {
+  function verifyThatAllInterfaceVoxelsExistInSpawn(bytes32 spawnId, InterfaceBody[] memory input) internal view {
     for (uint32 i = 0; i < input.length; i++) {
-      VoxelEntity memory voxel = input[i].entity;
+      BodyEntity memory voxel = input[i].entity;
       require(OfSpawn.get(voxel.scale, voxel.entityId) == spawnId, "All voxels in the interface must be in the spawn");
     }
   }

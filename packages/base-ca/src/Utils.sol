@@ -8,7 +8,7 @@ import { getNeighbourCoords, calculateBlockDirection } from "@tenet-utils/src/Vo
 import { hasKey } from "@latticexyz/world/src/modules/keysintable/hasKey.sol";
 import { getKeysWithValue } from "@latticexyz/world/src/modules/keyswithvalue/getKeysWithValue.sol";
 import { CAPosition, CAPositionData, CAPositionTableId } from "@tenet-base-ca/src/codegen/tables/CAPosition.sol";
-import { CAVoxelType } from "@tenet-base-ca/src/codegen/tables/CAVoxelType.sol";
+import { CABodyType } from "@tenet-base-ca/src/codegen/tables/CABodyType.sol";
 import { CAEntityMapping, CAEntityMappingTableId } from "@tenet-base-ca/src/codegen/tables/CAEntityMapping.sol";
 import { CAEntityReverseMapping, CAEntityReverseMappingTableId, CAEntityReverseMappingData } from "@tenet-base-ca/src/codegen/tables/CAEntityReverseMapping.sol";
 
@@ -50,9 +50,9 @@ function caEntityArrayToEntityArray(bytes32[] memory caEntities) view returns (b
   return entities;
 }
 
-function getCAVoxelType(bytes32 caEntity) view returns (bytes32) {
+function getCABodyType(bytes32 caEntity) view returns (bytes32) {
   CAEntityReverseMappingData memory entityData = CAEntityReverseMapping.get(caEntity);
-  return CAVoxelType.getVoxelTypeId(entityData.callerAddress, entityData.entity);
+  return CABodyType.getBodyTypeId(entityData.callerAddress, entityData.entity);
 }
 
 function getEntityPositionStrict(IStore store, address callerAddress, bytes32 entity) view returns (VoxelCoord memory) {

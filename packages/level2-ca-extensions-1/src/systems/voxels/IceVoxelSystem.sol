@@ -2,19 +2,19 @@
 pragma solidity >=0.8.0;
 
 import { IStore } from "@latticexyz/store/src/IStore.sol";
-import { VoxelTypeRegistry } from "@tenet-registry/src/codegen/tables/VoxelTypeRegistry.sol";
+import { BodyTypeRegistry } from "@tenet-registry/src/codegen/tables/BodyTypeRegistry.sol";
 import { IWorld } from "@tenet-level2-ca-extensions-1/src/codegen/world/IWorld.sol";
 import { VoxelType } from "@tenet-base-ca/src/prototypes/VoxelType.sol";
-import { VoxelVariantsRegistryData } from "@tenet-registry/src/codegen/tables/VoxelVariantsRegistry.sol";
+import { BodyVariantsRegistryData } from "@tenet-registry/src/codegen/tables/BodyVariantsRegistry.sol";
 import { NoaBlockType } from "@tenet-registry/src/codegen/Types.sol";
-import { registerVoxelVariant, registerVoxelType, voxelSelectorsForVoxel } from "@tenet-registry/src/Utils.sol";
+import { registerBodyVariant, registerBodyType, bodySelectorsForVoxel } from "@tenet-registry/src/Utils.sol";
 import { Temperature, TemperatureData } from "@tenet-level2-ca-extensions-1/src/codegen/Tables.sol";
 import { CA_ADDRESS, REGISTRY_ADDRESS, IceVoxelID } from "@tenet-level2-ca-extensions-1/src/Constants.sol";
 import { Level2AirVoxelID } from "@tenet-level2-ca/src/Constants.sol";
 import { VoxelCoord, BlockDirection } from "@tenet-utils/src/Types.sol";
 import { AirVoxelID } from "@tenet-base-ca/src/Constants.sol";
 import { Strings } from "@openzeppelin/contracts/utils/Strings.sol";
-import { registerCAVoxelType } from "@tenet-base-ca/src/CallUtils.sol";
+import { registerCABodyType } from "@tenet-base-ca/src/CallUtils.sol";
 
 bytes32 constant IceHotVoxelVariantID = bytes32(keccak256("ice.hot"));
 bytes32 constant IceColdVoxelVariantID = bytes32(keccak256("ice.cold"));
@@ -29,7 +29,7 @@ contract IceVoxelSystem is VoxelType {
   function registerVoxel() public override {
     address world = _world();
 
-    VoxelVariantsRegistryData memory iceHotVariant;
+    BodyVariantsRegistryData memory iceHotVariant;
     iceHotVariant.blockType = NoaBlockType.BLOCK;
     iceHotVariant.opaque = true;
     iceHotVariant.solid = true;
@@ -37,9 +37,9 @@ contract IceVoxelSystem is VoxelType {
     iceHotMaterials[0] = IceHotTexture;
     iceHotVariant.materials = abi.encode(iceHotMaterials);
     iceHotVariant.uvWrap = IceHotUVWrap;
-    registerVoxelVariant(REGISTRY_ADDRESS, IceHotVoxelVariantID, iceHotVariant);
+    registerBodyVariant(REGISTRY_ADDRESS, IceHotVoxelVariantID, iceHotVariant);
 
-    VoxelVariantsRegistryData memory iceColdVariant;
+    BodyVariantsRegistryData memory iceColdVariant;
     iceColdVariant.blockType = NoaBlockType.BLOCK;
     iceColdVariant.opaque = true;
     iceColdVariant.solid = true;
@@ -47,22 +47,22 @@ contract IceVoxelSystem is VoxelType {
     iceColdMaterials[0] = IceColdTexture;
     iceColdVariant.materials = abi.encode(iceColdMaterials);
     iceColdVariant.uvWrap = IceColdUVWrap;
-    registerVoxelVariant(REGISTRY_ADDRESS, IceColdVoxelVariantID, iceColdVariant);
+    registerBodyVariant(REGISTRY_ADDRESS, IceColdVoxelVariantID, iceColdVariant);
 
-    bytes32[] memory iceChildVoxelTypes = VoxelTypeRegistry.getChildVoxelTypeIds(
+    bytes32[] memory iceChildBodyTypes = BodyTypeRegistry.getChildBodyTypeIds(
       IStore(REGISTRY_ADDRESS),
       Level2AirVoxelID
     );
-    bytes32 baseVoxelTypeId = Level2AirVoxelID;
-    registerVoxelType(
+    bytes32 baseBodyTypeId = Level2AirVoxelID;
+    registerBodyType(
       REGISTRY_ADDRESS,
       "Ice",
       IceVoxelID,
-      baseVoxelTypeId,
-      iceChildVoxelTypes,
-      iceChildVoxelTypes,
+      baseBodyTypeId,
+      iceChildBodyTypes,
+      iceChildBodyTypes,
       IceColdVoxelVariantID,
-      voxelSelectorsForVoxel(
+      bodySelectorsForVoxel(
         IWorld(world).extension1_IceVoxelSystem_enterWorld.selector,
         IWorld(world).extension1_IceVoxelSystem_exitWorld.selector,
         IWorld(world).extension1_IceVoxelSystem_variantSelector.selector,
@@ -71,7 +71,7 @@ contract IceVoxelSystem is VoxelType {
       )
     );
 
-    registerCAVoxelType(CA_ADDRESS, IceVoxelID);
+    registerCABodyType(CA_ADDRESS, IceVoxelID);
   }
 
   function enterWorld(VoxelCoord memory coord, bytes32 entity) public override {

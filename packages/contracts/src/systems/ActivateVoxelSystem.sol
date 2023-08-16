@@ -7,32 +7,32 @@ import { VoxelCoord } from "../Types.sol";
 
 contract ActivateVoxelSystem is ActivateEvent {
   function callEventHandler(
-    bytes32 voxelTypeId,
+    bytes32 bodyTypeId,
     VoxelCoord memory coord,
     bool runEventOnChildren,
     bool runEventOnParent,
     bytes memory eventData
   ) internal override returns (uint32, bytes32) {
-    return IWorld(_world()).activateVoxelType(voxelTypeId, coord, runEventOnChildren, runEventOnParent, eventData);
+    return IWorld(_world()).activateBodyType(bodyTypeId, coord, runEventOnChildren, runEventOnParent, eventData);
   }
 
   // Called by users
   function activate(
-    bytes32 voxelTypeId,
+    bytes32 bodyTypeId,
     VoxelCoord memory coord,
     bytes4 interactionSelector
   ) public override returns (uint32, bytes32) {
-    return super.activate(voxelTypeId, coord, interactionSelector);
+    return super.activate(bodyTypeId, coord, interactionSelector);
   }
 
   // Called by CA
-  function activateVoxelType(
-    bytes32 voxelTypeId,
+  function activateBodyType(
+    bytes32 bodyTypeId,
     VoxelCoord memory coord,
     bool activateChildren,
     bool activateParent,
     bytes memory eventData
   ) public override returns (uint32, bytes32) {
-    return super.runEventHandler(voxelTypeId, coord, activateChildren, activateParent, eventData);
+    return super.runEventHandler(bodyTypeId, coord, activateChildren, activateParent, eventData);
   }
 }

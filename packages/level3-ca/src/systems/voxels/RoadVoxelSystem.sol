@@ -3,9 +3,9 @@ pragma solidity >=0.8.0;
 
 import { IWorld } from "@tenet-level3-ca/src/codegen/world/IWorld.sol";
 import { VoxelType } from "@tenet-base-ca/src/prototypes/VoxelType.sol";
-import { VoxelVariantsRegistryData } from "@tenet-registry/src/codegen/tables/VoxelVariantsRegistry.sol";
+import { BodyVariantsRegistryData } from "@tenet-registry/src/codegen/tables/BodyVariantsRegistry.sol";
 import { NoaBlockType } from "@tenet-registry/src/codegen/Types.sol";
-import { registerVoxelVariant, registerVoxelType, voxelSelectorsForVoxel } from "@tenet-registry/src/Utils.sol";
+import { registerBodyVariant, registerBodyType, bodySelectorsForVoxel } from "@tenet-registry/src/Utils.sol";
 import { REGISTRY_ADDRESS, RoadVoxelID } from "@tenet-level3-ca/src/Constants.sol";
 import { DirtVoxelID } from "@tenet-level2-ca/src/Constants.sol";
 import { VoxelCoord } from "@tenet-utils/src/Types.sol";
@@ -19,7 +19,7 @@ string constant RoadUVWrap = "bafkreihibx43dpw57halle4yfzidfrclm35xlyoiko3kq3m2u
 contract RoadVoxelSystem is VoxelType {
   function registerVoxel() public override {
     address world = _world();
-    VoxelVariantsRegistryData memory roadVariant;
+    BodyVariantsRegistryData memory roadVariant;
     roadVariant.blockType = NoaBlockType.BLOCK;
     roadVariant.opaque = true;
     roadVariant.solid = true;
@@ -27,22 +27,22 @@ contract RoadVoxelSystem is VoxelType {
     roadMaterials[0] = RoadTexture;
     roadVariant.materials = abi.encode(roadMaterials);
     roadVariant.uvWrap = RoadUVWrap;
-    registerVoxelVariant(REGISTRY_ADDRESS, RoadVoxelVariantID, roadVariant);
+    registerBodyVariant(REGISTRY_ADDRESS, RoadVoxelVariantID, roadVariant);
 
-    bytes32[] memory roadChildVoxelTypes = new bytes32[](8);
+    bytes32[] memory roadChildBodyTypes = new bytes32[](8);
     for (uint i = 0; i < 8; i++) {
-      roadChildVoxelTypes[i] = DirtVoxelID;
+      roadChildBodyTypes[i] = DirtVoxelID;
     }
-    bytes32 baseVoxelTypeId = RoadVoxelID;
-    registerVoxelType(
+    bytes32 baseBodyTypeId = RoadVoxelID;
+    registerBodyType(
       REGISTRY_ADDRESS,
       "Road",
       RoadVoxelID,
-      baseVoxelTypeId,
-      roadChildVoxelTypes,
-      roadChildVoxelTypes,
+      baseBodyTypeId,
+      roadChildBodyTypes,
+      roadChildBodyTypes,
       RoadVoxelVariantID,
-      voxelSelectorsForVoxel(
+      bodySelectorsForVoxel(
         IWorld(world).ca_RoadVoxelSystem_enterWorld.selector,
         IWorld(world).ca_RoadVoxelSystem_exitWorld.selector,
         IWorld(world).ca_RoadVoxelSystem_variantSelector.selector,

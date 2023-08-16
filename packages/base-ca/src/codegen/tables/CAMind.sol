@@ -21,7 +21,7 @@ bytes32 constant _tableId = bytes32(abi.encodePacked(bytes16(""), bytes16("CAMin
 bytes32 constant CAMindTableId = _tableId;
 
 struct CAMindData {
-  bytes32 voxelTypeId;
+  bytes32 bodyTypeId;
   bytes4 mindSelector;
 }
 
@@ -45,7 +45,7 @@ library CAMind {
   /** Get the table's metadata */
   function getMetadata() internal pure returns (string memory, string[] memory) {
     string[] memory _fieldNames = new string[](2);
-    _fieldNames[0] = "voxelTypeId";
+    _fieldNames[0] = "bodyTypeId";
     _fieldNames[1] = "mindSelector";
     return ("CAMind", _fieldNames);
   }
@@ -72,8 +72,8 @@ library CAMind {
     _store.setMetadata(_tableId, _tableName, _fieldNames);
   }
 
-  /** Get voxelTypeId */
-  function getVoxelTypeId(bytes32 caEntity) internal view returns (bytes32 voxelTypeId) {
+  /** Get bodyTypeId */
+  function getBodyTypeId(bytes32 caEntity) internal view returns (bytes32 bodyTypeId) {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = caEntity;
 
@@ -81,8 +81,8 @@ library CAMind {
     return (Bytes.slice32(_blob, 0));
   }
 
-  /** Get voxelTypeId (using the specified store) */
-  function getVoxelTypeId(IStore _store, bytes32 caEntity) internal view returns (bytes32 voxelTypeId) {
+  /** Get bodyTypeId (using the specified store) */
+  function getBodyTypeId(IStore _store, bytes32 caEntity) internal view returns (bytes32 bodyTypeId) {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = caEntity;
 
@@ -90,20 +90,20 @@ library CAMind {
     return (Bytes.slice32(_blob, 0));
   }
 
-  /** Set voxelTypeId */
-  function setVoxelTypeId(bytes32 caEntity, bytes32 voxelTypeId) internal {
+  /** Set bodyTypeId */
+  function setBodyTypeId(bytes32 caEntity, bytes32 bodyTypeId) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = caEntity;
 
-    StoreSwitch.setField(_tableId, _keyTuple, 0, abi.encodePacked((voxelTypeId)));
+    StoreSwitch.setField(_tableId, _keyTuple, 0, abi.encodePacked((bodyTypeId)));
   }
 
-  /** Set voxelTypeId (using the specified store) */
-  function setVoxelTypeId(IStore _store, bytes32 caEntity, bytes32 voxelTypeId) internal {
+  /** Set bodyTypeId (using the specified store) */
+  function setBodyTypeId(IStore _store, bytes32 caEntity, bytes32 bodyTypeId) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = caEntity;
 
-    _store.setField(_tableId, _keyTuple, 0, abi.encodePacked((voxelTypeId)));
+    _store.setField(_tableId, _keyTuple, 0, abi.encodePacked((bodyTypeId)));
   }
 
   /** Get mindSelector */
@@ -159,8 +159,8 @@ library CAMind {
   }
 
   /** Set the full data using individual values */
-  function set(bytes32 caEntity, bytes32 voxelTypeId, bytes4 mindSelector) internal {
-    bytes memory _data = encode(voxelTypeId, mindSelector);
+  function set(bytes32 caEntity, bytes32 bodyTypeId, bytes4 mindSelector) internal {
+    bytes memory _data = encode(bodyTypeId, mindSelector);
 
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = caEntity;
@@ -169,8 +169,8 @@ library CAMind {
   }
 
   /** Set the full data using individual values (using the specified store) */
-  function set(IStore _store, bytes32 caEntity, bytes32 voxelTypeId, bytes4 mindSelector) internal {
-    bytes memory _data = encode(voxelTypeId, mindSelector);
+  function set(IStore _store, bytes32 caEntity, bytes32 bodyTypeId, bytes4 mindSelector) internal {
+    bytes memory _data = encode(bodyTypeId, mindSelector);
 
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = caEntity;
@@ -180,24 +180,24 @@ library CAMind {
 
   /** Set the full data using the data struct */
   function set(bytes32 caEntity, CAMindData memory _table) internal {
-    set(caEntity, _table.voxelTypeId, _table.mindSelector);
+    set(caEntity, _table.bodyTypeId, _table.mindSelector);
   }
 
   /** Set the full data using the data struct (using the specified store) */
   function set(IStore _store, bytes32 caEntity, CAMindData memory _table) internal {
-    set(_store, caEntity, _table.voxelTypeId, _table.mindSelector);
+    set(_store, caEntity, _table.bodyTypeId, _table.mindSelector);
   }
 
   /** Decode the tightly packed blob using this table's schema */
   function decode(bytes memory _blob) internal pure returns (CAMindData memory _table) {
-    _table.voxelTypeId = (Bytes.slice32(_blob, 0));
+    _table.bodyTypeId = (Bytes.slice32(_blob, 0));
 
     _table.mindSelector = (Bytes.slice4(_blob, 32));
   }
 
   /** Tightly pack full data using this table's schema */
-  function encode(bytes32 voxelTypeId, bytes4 mindSelector) internal pure returns (bytes memory) {
-    return abi.encodePacked(voxelTypeId, mindSelector);
+  function encode(bytes32 bodyTypeId, bytes4 mindSelector) internal pure returns (bytes memory) {
+    return abi.encodePacked(bodyTypeId, mindSelector);
   }
 
   /** Encode keys as a bytes32 array using this table's schema */

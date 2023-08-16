@@ -7,39 +7,39 @@ abstract contract EventApprovals is System {
   function preApproval(
     EventType eventType,
     address caller,
-    bytes32 voxelTypeId,
+    bytes32 bodyTypeId,
     VoxelCoord memory coord
   ) internal virtual;
 
   function approveEvent(
     EventType eventType,
     address caller,
-    bytes32 voxelTypeId,
+    bytes32 bodyTypeId,
     VoxelCoord memory coord
   ) internal virtual;
 
   function postApproval(
     EventType eventType,
     address caller,
-    bytes32 voxelTypeId,
+    bytes32 bodyTypeId,
     VoxelCoord memory coord
   ) internal virtual;
 
-  function approveMine(address caller, bytes32 voxelTypeId, VoxelCoord memory coord) public virtual {
-    preApproval(EventType.Mine, caller, voxelTypeId, coord);
-    approveEvent(EventType.Mine, caller, voxelTypeId, coord);
-    postApproval(EventType.Mine, caller, voxelTypeId, coord);
+  function approveMine(address caller, bytes32 bodyTypeId, VoxelCoord memory coord) public virtual {
+    preApproval(EventType.Mine, caller, bodyTypeId, coord);
+    approveEvent(EventType.Mine, caller, bodyTypeId, coord);
+    postApproval(EventType.Mine, caller, bodyTypeId, coord);
   }
 
-  function approveBuild(address caller, bytes32 voxelTypeId, VoxelCoord memory coord) public virtual {
-    preApproval(EventType.Build, caller, voxelTypeId, coord);
-    approveEvent(EventType.Build, caller, voxelTypeId, coord);
-    postApproval(EventType.Build, caller, voxelTypeId, coord);
+  function approveBuild(address caller, bytes32 bodyTypeId, VoxelCoord memory coord) public virtual {
+    preApproval(EventType.Build, caller, bodyTypeId, coord);
+    approveEvent(EventType.Build, caller, bodyTypeId, coord);
+    postApproval(EventType.Build, caller, bodyTypeId, coord);
   }
 
-  function approveActivate(address caller, bytes32 voxelTypeId, VoxelCoord memory coord) public virtual {
-    preApproval(EventType.Activate, caller, voxelTypeId, coord);
-    approveEvent(EventType.Activate, caller, voxelTypeId, coord);
-    postApproval(EventType.Activate, caller, voxelTypeId, coord);
+  function approveActivate(address caller, bytes32 bodyTypeId, VoxelCoord memory coord) public virtual {
+    preApproval(EventType.Activate, caller, bodyTypeId, coord);
+    approveEvent(EventType.Activate, caller, bodyTypeId, coord);
+    postApproval(EventType.Activate, caller, bodyTypeId, coord);
   }
 }

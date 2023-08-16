@@ -11,6 +11,8 @@ export enum Assets {
   MountainTileset = "MountainTileset",
   MainAtlas = "MainAtlas",
   Tileset = "Tileset",
+  TileHover = "TileHover",
+  Dirt = "Dirt", // This is just a filler tileset so we can have a default tileset to show
 }
 
 export enum Sprites {
@@ -36,16 +38,26 @@ export interface Tileset {
 
 export const getPhaserConfig = (tilesets: Tileset[]) => {
   const tilesetAssets: any = {
-    [Assets.OverworldTileset]: { type: AssetType.Image, key: Assets.OverworldTileset, path: overworldTileset },
-    tileHover: { type: AssetType.Image, key: "tileHover", path: "/assets/blocks/11-Glass.png" },
+    // [Assets.OverworldTileset]: { type: AssetType.Image, key: Assets.OverworldTileset, path: overworldTileset },
+    // [Assets.OverworldTileset]: { type: AssetType.Image, key: Assets.OverworldTileset, path: overworldTileset },
+    // [Assets.TileHover]: { type: AssetType.Image, key: Assets.TileHover, path: "/assets/blocks/11-Glass.png" },
   };
   for (const tileset of tilesets) {
     tilesetAssets[tileset.name] = {
       type: AssetType.Image,
       key: tileset.name,
       path: tileset.path,
+      // path: "https://bafkreihy3pblhqaqquwttcykwlyey3umpou57rkvtncpdrjo7mlgna53g4.ipfs.nftstorage.link/",
     };
   }
+
+  tilesetAssets[Assets.Dirt] = {
+    type: AssetType.Image,
+    key: Assets.Dirt,
+    path: "https://bafkreihy3pblhqaqquwttcykwlyey3umpou57rkvtncpdrjo7mlgna53g4.ipfs.nftstorage.link/",
+  };
+  const tilesetKeys = Array.from(Object.keys(tilesetAssets));
+  console.log("tileset assets ", tilesetAssets);
 
   return {
     sceneConfig: {
@@ -73,8 +85,11 @@ export const getPhaserConfig = (tilesets: Tileset[]) => {
             tileAnimations: {},
             layers: {
               layers: {
-                Background: { tilesets: ["Default"], hasHueTintShader: true },
-                Foreground: { tilesets: ["Default"], hasHueTintShader: true },
+                // Background: { tilesets: ["Default"], hasHueTintShader: true },
+                // Foreground: { tilesets: ["Default"], hasHueTintShader: true },
+                // as any was needed so typescript doesn't complain
+                Background: { tilesets: tilesetKeys as any, hasHueTintShader: true },
+                Foreground: { tilesets: tilesetKeys as any, hasHueTintShader: true },
               },
               defaultLayer: "Background",
             },
@@ -88,7 +103,7 @@ export const getPhaserConfig = (tilesets: Tileset[]) => {
         },
         animations: [],
         tilesets: {
-          Default: { assetKey: Assets.OverworldTileset, tileWidth: TILE_SIZE, tileHeight: TILE_SIZE },
+          Default: { assetKey: Assets.Dirt, tileWidth: TILE_SIZE, tileHeight: TILE_SIZE },
         },
       }),
     },

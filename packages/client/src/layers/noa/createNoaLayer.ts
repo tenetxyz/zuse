@@ -392,6 +392,8 @@ export async function createNoaLayer(network: NetworkLayer) {
   // const { game, scenes, dispose: disposePhaser } = phaser; // I unwrapped these vars here just for documentation purposes
   // world.registerDisposer(disposePhaser);
 
+  const variantIdToNoaBlockIdx = new Map<string, number>();
+
   const context = {
     world,
     components,
@@ -425,6 +427,10 @@ export async function createNoaLayer(network: NetworkLayer) {
     },
     SingletonEntity,
     audioEngine: Engine.audioEngine,
+    objectStore: {
+      // This contains js objects that are not event-driven, but still hold state needed for the app
+      variantIdToNoaBlockIdx,
+    },
   };
 
   // --- SYSTEMS --------------------------------------------------------------------

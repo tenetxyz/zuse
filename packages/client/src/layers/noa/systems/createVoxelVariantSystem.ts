@@ -1,5 +1,5 @@
 import { SyncState } from "@latticexyz/network";
-import { defineComponentSystem, defineEnterSystem, getComponentValueStrict, Has } from "@latticexyz/recs";
+import { defineComponentSystem, getComponentValueStrict, Has } from "@latticexyz/recs";
 import { awaitStreamValue } from "@latticexyz/utils";
 import { NetworkLayer } from "../../network";
 import { NoaLayer, VoxelVariantNoaDef } from "../types";
@@ -12,9 +12,11 @@ export async function createVoxelVariantSystem(network: NetworkLayer, noaLayer: 
     registryComponents: { VoxelVariantsRegistry },
     voxelTypes: { VoxelVariantIdToDef, VoxelVariantSubscriptions },
   } = network;
-  const { noa } = noaLayer;
+  const {
+    noa,
+    objectStore: { variantIdToNoaBlockIdx },
+  } = noaLayer;
 
-  const variantIdToNoaBlockIdx = new Map<string, number>();
   defineComponentSystem(world, VoxelVariantsRegistry, (update) => {
     // TODO: could use update.value?
     const voxelVariantValue = getComponentValueStrict(VoxelVariantsRegistry, update.entity);
@@ -61,4 +63,5 @@ export async function createVoxelVariantSystem(network: NetworkLayer, noaLayer: 
       });
     }
   });
+  return variantIdToNoaBlockIdx;
 }

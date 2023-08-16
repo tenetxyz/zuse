@@ -37,7 +37,6 @@ export const registerWorldMap = () => {
           api: { getVoxelAtPosition },
           world,
           actions: { Action },
-          config: { blockExplorer },
           getVoxelIconUrl,
           objectStore: { transactionCallbacks },
           voxelTypes: { VoxelVariantIdToDef, VoxelVariantSubscriptions },
@@ -58,12 +57,12 @@ export const registerWorldMap = () => {
           return undefined;
         }
         return {
-          name: voxelVariantNoaDef.noaBlockIdx.toString(),
+          noaBlockIdx: voxelVariantNoaDef.noaBlockIdx.toString(),
           path: voxelIconUrl,
         };
       };
       useEffect(() => {
-        // initial load
+        // populate the tilesets array with noaBlockId and the path to the sprite
         for (const [voxelVariantTypeId, voxelVariantNoaDef] of VoxelVariantIdToDef.entries()) {
           const tileset = voxelVariantToTileSet(voxelVariantTypeId, voxelVariantNoaDef);
           if (tileset) {
@@ -71,13 +70,11 @@ export const registerWorldMap = () => {
           }
         }
 
-        console.log("render 1");
         VoxelVariantSubscriptions.push(
           (voxelVariantTypeId: VoxelVariantTypeId, voxelVariantNoaDef: VoxelVariantNoaDef) => {
             const tileset = voxelVariantToTileSet(voxelVariantTypeId, voxelVariantNoaDef);
             if (tileset) {
               tilesets.current.push(tileset);
-              console.log("render 2");
             }
           }
         );
@@ -86,38 +83,23 @@ export const registerWorldMap = () => {
       const isDoneSyncingWorlds = useStream(doneSyncing$);
       useEffect(() => {
         if (isDoneSyncingWorlds) {
-          renderPhaser(tilesets.current);
+          renderPhaser();
         }
       }, [isDoneSyncingWorlds]);
 
-      const renderPhaser = async (tilesets: Tileset[]) => {
-        const phaser = await createPhaserEngine(getPhaserConfig(tilesets));
+      const renderPhaser = async () => {
+        const phaser = await createPhaserEngine(getPhaserConfig(tilesets.current));
         const { game, scenes, dispose: disposePhaserFunc } = phaser; // I unwrapped these vars here just for documentation purposes
         console.log("Loaded phaser");
         world.registerDisposer(disposePhaserFunc);
-        // console.log(inspect(game));
-        // console.log(inspect(scenes));
-        // createAnimatedTilemap;
-        // game.scene.
         const {
           phaserScene,
-          camera: { phaserCamera, worldView$ },
-          maps: {
-            Main: { putTileAt },
-          },
+          camera: { phaserCamera },
         } = scenes.Main;
 
         phaserCamera.setBounds(-1000, -1000, 2000, 2000);
         phaserCamera.centerOn(0, 0);
         minimapCamera.current = phaserCamera;
-
-        // phaserScene.add.sprite(0, 0, "6").setOrigin(0, 0);
-        // putTileAt({ x: 0, y: 0 }, 3, "Background"); // puts on default background layer
-        // putTileAt({ x: 1, y: 0 }, 10); // puts on default background layer
-        // putTileAt({ x: 1, y: 0 }, 4, "Background"); // puts on default background layer
-        const phaserCanvas = document.querySelectorAll("#phaser-game canvas")[0];
-
-        // const chunks = createChunks(worldView$, 16 * 16); // Tile size in pixels * Tiles per chunk
 
         // Draw map for ECS tiles
         // "Enter system"
@@ -156,6 +138,7 @@ export const registerWorldMap = () => {
       });
 
       // As a last resort, you can use this to change the size of the canvas
+      // const phaserCanvas = document.querySelectorAll("#phaser-game canvas")[0];
       // phaserCanvas.style.height = 200 + "px";
       // phaserCanvas.style.width = 200 * getScreenRatio() + "px";
       return <div style={{ pointerEvents: "all" }} id="phaser-game"></div>;

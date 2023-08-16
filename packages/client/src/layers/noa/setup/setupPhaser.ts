@@ -32,7 +32,7 @@ const TILE_SIZE = 16;
 const ANIMATION_INTERVAL = 200;
 
 export interface Tileset {
-  name: string;
+  noaBlockIdx: string;
   path: string;
 }
 
@@ -94,7 +94,7 @@ export const getPhaserConfig = (tilesets: Tileset[]) => {
         preload: (scene: Phaser.Scene) => {
           console.log("preload");
           for (const tileset of tilesets) {
-            scene.load.image(tileset.name, tileset.path);
+            scene.load.image(tileset.noaBlockIdx, tileset.path);
           }
           console.log(tilesets);
         },

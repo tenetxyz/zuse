@@ -86,7 +86,6 @@ export const registerWorldMap = () => {
       const isDoneSyncingWorlds = useStream(doneSyncing$);
       useEffect(() => {
         if (isDoneSyncingWorlds) {
-          console.log("finished syncing");
           renderPhaser(tilesets.current);
         }
       }, [isDoneSyncingWorlds]);
@@ -152,6 +151,8 @@ export const registerWorldMap = () => {
           return;
         }
         minimapCamera.current.centerOn(Math.round(update.x) * TILE_SIZE, Math.round(update.z) * TILE_SIZE);
+        // Even without Math.round, the image looks choppy (it doesn't update fast enough)
+        // minimapCamera.current.centerOn(update.x * TILE_SIZE, update.z * TILE_SIZE);
       });
 
       // As a last resort, you can use this to change the size of the canvas

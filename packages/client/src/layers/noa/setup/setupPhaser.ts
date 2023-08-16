@@ -38,32 +38,18 @@ export interface Tileset {
 
 export const getPhaserConfig = (tilesets: Tileset[]) => {
   const tilesetAssets: any = {
-    // [Assets.OverworldTileset]: { type: AssetType.Image, key: Assets.OverworldTileset, path: overworldTileset },
-    // [Assets.OverworldTileset]: { type: AssetType.Image, key: Assets.OverworldTileset, path: overworldTileset },
-    // [Assets.TileHover]: { type: AssetType.Image, key: Assets.TileHover, path: "/assets/blocks/11-Glass.png" },
-  };
-  for (const tileset of tilesets) {
-    tilesetAssets[tileset.name] = {
+    [Assets.Dirt]: {
       type: AssetType.Image,
-      key: tileset.name,
-      path: tileset.path,
-      // path: "https://bafkreihy3pblhqaqquwttcykwlyey3umpou57rkvtncpdrjo7mlgna53g4.ipfs.nftstorage.link/",
-    };
-  }
-
-  tilesetAssets[Assets.Dirt] = {
-    type: AssetType.Image,
-    key: Assets.Dirt,
-    path: "https://bafkreihy3pblhqaqquwttcykwlyey3umpou57rkvtncpdrjo7mlgna53g4.ipfs.nftstorage.link/",
+      key: Assets.Dirt,
+      path: "https://bafkreihy3pblhqaqquwttcykwlyey3umpou57rkvtncpdrjo7mlgna53g4.ipfs.nftstorage.link/",
+    },
   };
   const tilesetKeys = Array.from(Object.keys(tilesetAssets));
-  console.log("tileset assets ", tilesetAssets);
 
   return {
     sceneConfig: {
       Main: defineSceneConfig({
         // assets: {
-        // TODO: we need to create a tileset from the OPCraft textures and load it here
         //   [Assets.OverworldTileset]: { type: AssetType.Image, key: Assets.OverworldTileset, path: overworldTileset },
         // [Assets.MainAtlas]: {
         //   type: AssetType.MultiAtlas,
@@ -104,6 +90,13 @@ export const getPhaserConfig = (tilesets: Tileset[]) => {
         animations: [],
         tilesets: {
           Default: { assetKey: Assets.Dirt, tileWidth: TILE_SIZE, tileHeight: TILE_SIZE },
+        },
+        preload: (scene: Phaser.Scene) => {
+          console.log("preload");
+          for (const tileset of tilesets) {
+            scene.load.image(tileset.name, tileset.path);
+          }
+          console.log(tilesets);
         },
       }),
     },

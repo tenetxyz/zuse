@@ -22,15 +22,16 @@ abstract contract MoveEvent is Event {
     VoxelCoord memory newCoord,
     bool moveChildren,
     bool moveParent
-  ) public virtual returns (uint32, bytes32) {
-    return
-      super.runEventHandler(
-        voxelTypeId,
-        newCoord,
-        moveChildren,
-        moveParent,
-        abi.encode(MoveEventData({ oldCoord: oldCoord }))
-      );
+  ) public virtual returns (uint32, bytes32, bytes32) {
+    (uint32 scale, bytes32 newEntityId) = super.runEventHandler(
+      voxelTypeId,
+      newCoord,
+      moveChildren,
+      moveParent,
+      abi.encode(MoveEventData({ oldCoord: oldCoord }))
+    );
+    bytes32 oldEntityId = getEntityAtCoord(scale, oldCoord);
+    return (scale, oldEntityId, newEntityId);
   }
 
   function preEvent(bytes32 voxelTypeId, VoxelCoord memory coord, bytes memory eventData) internal override {}

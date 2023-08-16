@@ -24,7 +24,7 @@ contract MoveSystem is MoveEvent {
     VoxelCoord memory newCoord,
     bool moveChildren,
     bool moveParent
-  ) public override returns (uint32, bytes32) {
+  ) public override returns (uint32, bytes32, bytes32) {
     return super.moveVoxelType(voxelTypeId, oldCoord, newCoord, moveChildren, moveParent);
   }
 }

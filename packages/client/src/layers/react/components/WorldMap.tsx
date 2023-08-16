@@ -14,7 +14,7 @@ import { Layers } from "@/types";
 import { useEffect, useRef } from "react";
 import { VoxelVariantNoaDef, VoxelVariantTypeId } from "@/layers/noa/types";
 import { Tileset, getPhaserConfig } from "@/layers/noa/setup/setupPhaser";
-import { useStream } from "@/utils/stream";
+import { onStreamUpdate, useStream } from "@/utils/stream";
 import { getWorldScale } from "@/utils/coord";
 import { getVoxelAtPosition } from "@/layers/network/api";
 
@@ -31,6 +31,7 @@ export const registerWorldMap = () => {
         noa: {
           noa,
           objectStore: { variantIdToNoaBlockIdx },
+          streams: { playerPosition$ },
         },
         network: {
           api: { getVoxelAtPosition },
@@ -44,7 +45,7 @@ export const registerWorldMap = () => {
           components: { Position, VoxelType },
         },
       } = layers;
-      const disposePhaser = useRef<any>();
+      const minimapCamera = useRef<Phaser.Cameras.Scene2D.Camera>();
       const tilesets = useRef<Tileset[]>([]);
 
       const voxelVariantToTileSet = (
@@ -93,6 +94,7 @@ export const registerWorldMap = () => {
       const renderPhaser = async (tilesets: Tileset[]) => {
         const phaser = await createPhaserEngine(getPhaserConfig(tilesets));
         const { game, scenes, dispose: disposePhaserFunc } = phaser; // I unwrapped these vars here just for documentation purposes
+        console.log("Loaded phaser");
         world.registerDisposer(disposePhaserFunc);
         // console.log(inspect(game));
         // console.log(inspect(scenes));
@@ -108,12 +110,12 @@ export const registerWorldMap = () => {
 
         phaserCamera.setBounds(-1000, -1000, 2000, 2000);
         phaserCamera.centerOn(0, 0);
+        minimapCamera.current = phaserCamera;
 
         // phaserScene.add.sprite(0, 0, "6").setOrigin(0, 0);
         // putTileAt({ x: 0, y: 0 }, 3, "Background"); // puts on default background layer
         // putTileAt({ x: 1, y: 0 }, 10); // puts on default background layer
         // putTileAt({ x: 1, y: 0 }, 4, "Background"); // puts on default background layer
-        console.log("FINISHED PUTTING TILES");
         const phaserCanvas = document.querySelectorAll("#phaser-game canvas")[0];
 
         // const chunks = createChunks(worldView$, 16 * 16); // Tile size in pixels * Tiles per chunk
@@ -144,6 +146,14 @@ export const registerWorldMap = () => {
         });
       };
 
+      onStreamUpdate(playerPosition$, (update) => {
+        console.log(minimapCamera.current);
+        if (minimapCamera.current === undefined) {
+          return;
+        }
+        minimapCamera.current.centerOn(Math.round(update.x) * TILE_SIZE, Math.round(update.z) * TILE_SIZE);
+      });
+
       // As a last resort, you can use this to change the size of the canvas
       // phaserCanvas.style.height = 200 + "px";
       // phaserCanvas.style.width = 200 * getScreenRatio() + "px";
@@ -151,10 +161,3 @@ export const registerWorldMap = () => {
     },
   });
 };
-
-function getScreenRatio() {
-  var screenWidth = window.innerWidth || document.documentElement.clientWidth || document.body.clientWidth;
-  var screenHeight = window.innerHeight || document.documentElement.clientHeight || document.body.clientHeight;
-  var ratio = screenWidth / screenHeight;
-  return ratio;
-}

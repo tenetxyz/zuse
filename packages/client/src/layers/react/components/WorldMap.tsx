@@ -8,7 +8,7 @@ import {
   createChunks,
   createAnimatedTilemap,
 } from "@latticexyz/phaserx";
-import { Has, defineEnterSystem, getComponentValueStrict } from "@latticexyz/recs";
+import { Has, defineEnterSystem, defineRxSystem, getComponentValueStrict } from "@latticexyz/recs";
 import { registerTenetComponent } from "../engine/components/TenetComponentRenderer";
 import { Layers } from "@/types";
 import { useEffect, useRef } from "react";
@@ -17,6 +17,8 @@ import { Tileset, getPhaserConfig } from "@/layers/noa/setup/setupPhaser";
 import { onStreamUpdate, useStream } from "@/utils/stream";
 import { getWorldScale } from "@/utils/coord";
 import { getVoxelAtPosition } from "@/layers/network/api";
+import { CHUNK_SIZE } from "@/layers/noa/setup/constants";
+import { TILE_Y } from "@/layers/network/api/terrain/occurrence";
 
 const TILE_SIZE = 16;
 const ANIMATION_INTERVAL = 200;
@@ -34,7 +36,7 @@ export const registerWorldMap = () => {
           streams: { playerPosition$ },
         },
         network: {
-          api: { getVoxelAtPosition },
+          api: { getVoxelAtPosition, getTerrainVoxelTypeAtPosition },
           world,
           actions: { Action },
           getVoxelIconUrl,
@@ -94,13 +96,18 @@ export const registerWorldMap = () => {
         world.registerDisposer(disposePhaserFunc);
         const {
           phaserScene,
-          camera: { phaserCamera },
+          camera: { phaserCamera, worldView$ },
         } = scenes.Main;
 
         phaserCamera.setBounds(-1000, -1000, 2000, 2000);
         phaserCamera.centerOn(0, 0);
         minimapCamera.current = phaserCamera;
 
+        const renderSpriteAtCoord = (noaBlockIdx: number, x: number, z: number) => {
+          const sprite = phaserScene.add.sprite(x * TILE_SIZE, z * TILE_SIZE, noaBlockIdx.toString()).setOrigin(0, 0);
+          sprite.displayHeight = TILE_SIZE;
+          sprite.displayWidth = TILE_SIZE;
+        };
         // Draw map for ECS tiles
         // "Enter system"
         defineEnterSystem(world, [Has(Position), Has(VoxelType)], (update) => {
@@ -109,7 +116,6 @@ export const registerWorldMap = () => {
           const worldScale = getWorldScale(noa);
           const position = getComponentValueStrict(Position, entityKey);
           const voxel = getVoxelAtPosition(position, worldScale); // TODO: do we even need this funciton? we already have the entity from teh update, so it probably isn't a terrain block. I think we can just use getVoxelType for the given entity (after getting its position)
-          // const noaBlockIdx = variantIdToNoaBlockIdx.get();
           const voxelVariantNoaDef = VoxelVariantIdToDef.get(voxel.voxelVariantTypeId as string);
           if (
             !voxelVariantNoaDef ||
@@ -119,16 +125,36 @@ export const registerWorldMap = () => {
             return;
           }
           const noaBlockIdx = voxelVariantNoaDef.noaBlockIdx;
-          const sprite = phaserScene.add
-            .sprite(position.x * TILE_SIZE, position.z * TILE_SIZE, noaBlockIdx.toString())
-            .setOrigin(0, 0);
-          sprite.displayHeight = TILE_SIZE;
-          sprite.displayWidth = TILE_SIZE;
+          renderSpriteAtCoord(noaBlockIdx, position.x, position.z);
+        });
+
+        // Why are we making a new chunks object, why not reuse the one in createNoaLayer (where the player's chunkd render area is defined)
+        // cause the user may scroll away on the map, meaning we'd have to render new chunks the player isn't in rn
+        const chunks = createChunks(worldView$, CHUNK_SIZE);
+        defineRxSystem(world, chunks.addedChunks$, (chunk) => {
+          const tilesPerChunk = CHUNK_SIZE;
+          // since the worldgen is simple, we just get the tile for that y-level;
+          const coord = { x: 0, y: TILE_Y, z: 0 };
+          debugger;
+          const terrainTile = getTerrainVoxelTypeAtPosition(coord, getWorldScale(noa));
+          const noaBlockIdx = variantIdToNoaBlockIdx.get(terrainTile.voxelVariantTypeId);
+          if (!noaBlockIdx) {
+            console.warn(`cannot find noaBlockIdx for voxelVariantId=${terrainTile.voxelVariantTypeId}`);
+            return;
+          }
+          for (let xOffset = 0; xOffset < tilesPerChunk; xOffset += 1) {
+            for (let zOffset = 0; zOffset < tilesPerChunk; zOffset += 1) {
+              const x = chunk.x * tilesPerChunk + xOffset;
+              const z = chunk.y * tilesPerChunk + zOffset; // yes. chunk.y
+
+              // TODO: investigate why variantIdToNoaBlockIdx and VoxelVariantIdToDef doesn't contain all the blockIdxes for terrainTile.voxelVariantTypeId or voxel.voxelVariantTypeId (in the function above)
+              renderSpriteAtCoord(noaBlockIdx, x, z);
+            }
+          }
         });
       };
 
       onStreamUpdate(playerPosition$, (update) => {
-        console.log(minimapCamera.current);
         if (minimapCamera.current === undefined) {
           return;
         }

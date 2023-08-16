@@ -15,3 +15,7 @@ struct BuildEventData {
 struct ActivateEventData {
   bytes4 interactionSelector;
 }
+
+struct MoveEventData {
+  VoxelCoord oldCoord;
+}

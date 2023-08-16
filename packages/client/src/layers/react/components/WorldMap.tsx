@@ -109,7 +109,7 @@ export const registerWorldMap = () => {
         phaserCamera.setBounds(-1000, -1000, 2000, 2000);
         phaserCamera.centerOn(0, 0);
 
-        phaserScene.add.sprite(0, 0, "6").setOrigin(0, 0);
+        // phaserScene.add.sprite(0, 0, "6").setOrigin(0, 0);
         // putTileAt({ x: 0, y: 0 }, 3, "Background"); // puts on default background layer
         // putTileAt({ x: 1, y: 0 }, 10); // puts on default background layer
         // putTileAt({ x: 1, y: 0 }, 4, "Background"); // puts on default background layer
@@ -136,7 +136,11 @@ export const registerWorldMap = () => {
             return;
           }
           const noaBlockIdx = voxelVariantNoaDef.noaBlockIdx;
-          phaserScene.add.sprite(position.x, position.y, noaBlockIdx.toString()).setOrigin(0, 0);
+          const sprite = phaserScene.add
+            .sprite(position.x * TILE_SIZE, position.z * TILE_SIZE, noaBlockIdx.toString())
+            .setOrigin(0, 0);
+          sprite.displayHeight = TILE_SIZE;
+          sprite.displayWidth = TILE_SIZE;
         });
       };
 

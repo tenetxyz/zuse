@@ -22,7 +22,7 @@ string constant StorageTexture = "bafkreidq36bqpc6fno5vtoafgn7zhyrin2v5wkjfybhqf
 string constant StorageUVWrap = "bafkreifdtu65gok35bevprpupxucirs2tan2k77444sl67stdhdgzwffra";
 
 contract StorageVoxelSystem is VoxelType {
-  function registerVoxel() public override {
+  function registerBody() public override {
     address world = _world();
 
     VoxelVariantsRegistryData memory storageVariant;

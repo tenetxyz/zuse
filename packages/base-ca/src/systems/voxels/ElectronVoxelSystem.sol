@@ -18,7 +18,7 @@ bytes32 constant ElectronVoxelVariantID = bytes32(keccak256("electron"));
 string constant ElectronTexture = "bafkreigrssavucschngym657tmepaqe2mmjyjoc7arznjygjsfdfi2cxny";
 
 contract ElectronVoxelSystem is VoxelType {
-  function registerVoxel() public override {
+  function registerBody() public override {
     address world = _world();
     VoxelVariantsRegistryData memory electronVariant;
     electronVariant.blockType = NoaBlockType.MESH;

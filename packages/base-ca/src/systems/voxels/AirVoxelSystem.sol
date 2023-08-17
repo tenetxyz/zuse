@@ -13,7 +13,7 @@ import { VoxelCoord } from "@tenet-utils/src/Types.sol";
 import { getEntityAtCoord, voxelCoordToPositionData } from "@tenet-base-ca/src/Utils.sol";
 
 contract AirVoxelSystem is VoxelType {
-  function registerVoxel() public override {
+  function registerBody() public override {
     address world = _world();
 
     VoxelVariantsRegistryData memory airVariant;

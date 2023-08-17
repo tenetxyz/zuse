@@ -19,7 +19,7 @@ bytes32 constant OrangeFlowerVoxelVariantID = bytes32(keccak256("orangeflower"))
 string constant OrangeFlowerTexture = "bafkreicins36cmwliwf7ryrlcs32khvi6kleof6buiirlvgv2w6cejpg54";
 
 contract FlowerVoxelSystem is VoxelType {
-  function registerVoxel() public override {
+  function registerBody() public override {
     address world = _world();
     VoxelVariantsRegistryData memory orangeFlowerVariant;
     orangeFlowerVariant.blockType = NoaBlockType.MESH;

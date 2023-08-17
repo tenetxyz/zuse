@@ -11,7 +11,7 @@ import { VoxelCoord } from "@tenet-utils/src/Types.sol";
 import { AirVoxelID, AirVoxelVariantID } from "@tenet-base-ca/src/Constants.sol";
 
 contract AirVoxelSystem is VoxelType {
-  function registerVoxel() public override {
+  function registerBody() public override {
     address world = _world();
     bytes32[] memory airChildVoxelTypes = new bytes32[](8);
     for (uint i = 0; i < 8; i++) {

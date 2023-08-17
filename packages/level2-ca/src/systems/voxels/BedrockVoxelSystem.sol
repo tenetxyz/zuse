@@ -15,7 +15,7 @@ string constant BedrockTexture = "bafkreidfo756faklwx7o4q2753rxjqx6egzpmqh2zhylx
 string constant BedrockUVWrap = "bafkreihdit6glam7sreijo7itbs7uwc2ltfeuvcfaublxf6rjo24hf6t4y";
 
 contract BedrockVoxelSystem is VoxelType {
-  function registerVoxel() public override {
+  function registerBody() public override {
     address world = _world();
     VoxelVariantsRegistryData memory bedrockVariant;
     bedrockVariant.blockType = NoaBlockType.BLOCK;

@@ -21,7 +21,7 @@ string constant SignalSourceTexture = "bafkreifciafvv63x3nnnsdvsccp45ggcx5xczfho
 string constant SignalSourceUVWrap = "bafkreibyxohq35sq2fqujxffs5nfjdtfx5cmnqhnyliar2xbkqxgcd7d5u";
 
 contract SignalSourceVoxelSystem is VoxelType {
-  function registerVoxel() public override {
+  function registerBody() public override {
     address world = _world();
 
     VoxelVariantsRegistryData memory signalSourceVariant;

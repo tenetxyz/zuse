@@ -17,7 +17,7 @@ import { AirVoxelID } from "@tenet-base-ca/src/Constants.sol";
 import { registerCAVoxelType } from "@tenet-base-ca/src/CallUtils.sol";
 
 contract InvertedSignalVoxelSystem is VoxelType {
-  function registerVoxel() public override {
+  function registerBody() public override {
     address world = _world();
 
     bytes32[] memory invertedSignalChildVoxelTypes = VoxelTypeRegistry.getChildVoxelTypeIds(

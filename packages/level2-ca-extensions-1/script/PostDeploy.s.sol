@@ -14,20 +14,20 @@ contract PostDeploy is Script {
     vm.startBroadcast(deployerPrivateKey);
 
     // Register the voxel types
-    IWorld(worldAddress).extension1_WireVoxelSystem_registerVoxel();
-    IWorld(worldAddress).extension1_SignalSourceVoxe_registerVoxel();
-    IWorld(worldAddress).extension1_SignalVoxelSyste_registerVoxel();
-    IWorld(worldAddress).extension1_InvertedSignalVo_registerVoxel();
-    IWorld(worldAddress).extension1_SandVoxelSystem_registerVoxel();
-    IWorld(worldAddress).extension1_FlowerVoxelSyste_registerVoxel();
-    IWorld(worldAddress).extension1_LogVoxelSystem_registerVoxel();
-    IWorld(worldAddress).extension1_LavaVoxelSystem_registerVoxel();
-    IWorld(worldAddress).extension1_IceVoxelSystem_registerVoxel();
-    IWorld(worldAddress).extension1_ThermoGenVoxelSy_registerVoxel();
-    IWorld(worldAddress).extension1_PowerWireVoxelSy_registerVoxel();
-    IWorld(worldAddress).extension1_StorageVoxelSyst_registerVoxel();
-    IWorld(worldAddress).extension1_LightBulbVoxelSy_registerVoxel();
-    IWorld(worldAddress).extension1_PowerSignalVoxel_registerVoxel();
+    IWorld(worldAddress).extension1_WireVoxelSystem_registerBody();
+    IWorld(worldAddress).extension1_SignalSourceVoxe_registerBody();
+    IWorld(worldAddress).extension1_SignalVoxelSyste_registerBody();
+    IWorld(worldAddress).extension1_InvertedSignalVo_registerBody();
+    IWorld(worldAddress).extension1_SandVoxelSystem_registerBody();
+    IWorld(worldAddress).extension1_FlowerVoxelSyste_registerBody();
+    IWorld(worldAddress).extension1_LogVoxelSystem_registerBody();
+    IWorld(worldAddress).extension1_LavaVoxelSystem_registerBody();
+    IWorld(worldAddress).extension1_IceVoxelSystem_registerBody();
+    IWorld(worldAddress).extension1_ThermoGenVoxelSy_registerBody();
+    IWorld(worldAddress).extension1_PowerWireVoxelSy_registerBody();
+    IWorld(worldAddress).extension1_StorageVoxelSyst_registerBody();
+    IWorld(worldAddress).extension1_LightBulbVoxelSy_registerBody();
+    IWorld(worldAddress).extension1_PowerSignalVoxel_registerBody();
 
     vm.stopBroadcast();
   }

@@ -24,7 +24,7 @@ string constant PowerWireOffTexture = "bafkreia5773gxqcwqxaumba55oqhtpxc2rkfe7zt
 string constant PowerWireBrokenTexture = "bafkreif52wl2kr4tjvzr2nou3vxwhswjrkknqdc3g7c4pyquiuhlcplw5a";
 
 contract PowerWireVoxelSystem is VoxelType {
-  function registerVoxel() public override {
+  function registerBody() public override {
     address world = _world();
 
     VoxelVariantsRegistryData memory powerWireOffVariant;

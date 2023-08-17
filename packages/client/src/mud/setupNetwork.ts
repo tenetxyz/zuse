@@ -696,7 +696,7 @@ export async function setupNetwork() {
     const coord = getComponentValue(contractComponents.Position, entity) as VoxelCoord;
 
     const activateSelector = "0x00000000";
-    const moveForwardSelector = "0xfd501856";
+    const moveForwardSelector = "0x7c9a5247";
 
     actions.add({
       id: `activateVoxel+entity=${entity}` as Entity,

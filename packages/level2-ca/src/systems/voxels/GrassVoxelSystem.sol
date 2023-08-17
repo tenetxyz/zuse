@@ -17,7 +17,7 @@ string constant GrassSideTexture = "bafkreien7wqwfkckd56rehamo2riwwy5jvecm5he6dm
 string constant GrassUVWrap = "bafkreiaur4pmmnh3dts6rjtfl5f2z6ykazyuu4e2cbno6drslfelkga3yy";
 
 contract GrassVoxelSystem is VoxelType {
-  function registerVoxel() public override {
+  function registerBody() public override {
     address world = _world();
     VoxelVariantsRegistryData memory grassVariant;
     grassVariant.blockType = NoaBlockType.BLOCK;

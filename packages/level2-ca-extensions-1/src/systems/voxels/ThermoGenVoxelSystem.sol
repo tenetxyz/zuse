@@ -23,7 +23,7 @@ string constant ThermoGenTexture = "bafkreidohfeb5yddppqv6swfjs6s3g7qe44u75ogwaq
 string constant ThermoGenUVWrap = "bafkreigx5gstl4b2fcz62dwex55mstoo7egdcsrmsox6trmiieplcuyalm";
 
 contract ThermoGenVoxelSystem is VoxelType {
-  function registerVoxel() public override {
+  function registerBody() public override {
     address world = _world();
 
     VoxelVariantsRegistryData memory thermoGenVariant;

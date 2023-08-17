@@ -22,7 +22,7 @@ string constant LightBulbOffTexture = "bafkreihaz4jaes4rix623okfyvai64jnkqwofpff
 string constant LightBulbOnTexture = "bafkreifcm3mxlydwxpsflgvmltyyalpus24fo2tm7dmervb2z3hwt5juuu";
 
 contract LightBulbVoxelSystem is VoxelType {
-  function registerVoxel() public override {
+  function registerBody() public override {
     address world = _world();
 
     VoxelVariantsRegistryData memory lightBulbOffVariant;

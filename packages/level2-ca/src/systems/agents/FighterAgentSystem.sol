@@ -3,7 +3,7 @@ pragma solidity >=0.8.0;
 
 import { IStore } from "@latticexyz/store/src/IStore.sol";
 import { IWorld } from "@tenet-level2-ca/src/codegen/world/IWorld.sol";
-import { VoxelType } from "@tenet-base-ca/src/prototypes/VoxelType.sol";
+import { AgentType } from "@tenet-base-ca/src/prototypes/AgentType.sol";
 import { VoxelVariantsRegistryData } from "@tenet-registry/src/codegen/tables/VoxelVariantsRegistry.sol";
 import { NoaBlockType } from "@tenet-registry/src/codegen/Types.sol";
 import { hasKey } from "@latticexyz/world/src/modules/keysintable/hasKey.sol";
@@ -18,8 +18,8 @@ import { Fighters, FightersData } from "@tenet-level2-ca/src/codegen/tables/Figh
 bytes32 constant FighterVoxelVariantID = bytes32(keccak256("fighter"));
 string constant FighterTexture = "bafkreihpdljsgdltghxehq4cebngtugfj3pduucijxcrvcla4hoy34f7vq";
 
-contract FighterAgentSystem is VoxelType {
-  function registerVoxel() public override {
+contract FighterAgentSystem is AgentType {
+  function registerBody() public override {
     address world = _world();
     VoxelVariantsRegistryData memory fighterVariant;
     fighterVariant.blockType = NoaBlockType.MESH;
@@ -37,13 +37,6 @@ contract FighterAgentSystem is VoxelType {
     }
     bytes32 baseVoxelTypeId = FighterVoxelID;
 
-    InteractionSelector[] memory voxelInteractionSelectors = new InteractionSelector[](1);
-    voxelInteractionSelectors[0] = InteractionSelector({
-      interactionSelector: IWorld(world).ca_FighterAgentSyst_eventHandler.selector,
-      interactionName: "Move Forward",
-      interactionDescription: ""
-    });
-
     registerVoxelType(
       REGISTRY_ADDRESS,
       "Fighter",
@@ -58,7 +51,7 @@ contract FighterAgentSystem is VoxelType {
         voxelVariantSelector: IWorld(world).ca_FighterAgentSyst_variantSelector.selector,
         activateSelector: IWorld(world).ca_FighterAgentSyst_activate.selector,
         onNewNeighbourSelector: IWorld(world).ca_FighterAgentSyst_onNewNeighbour.selector,
-        interactionSelectors: voxelInteractionSelectors
+        interactionSelectors: getInteractionSelectors()
       })
     );
   }
@@ -84,17 +77,27 @@ contract FighterAgentSystem is VoxelType {
 
   function activate(bytes32 entity) public view override returns (string memory) {}
 
-  function onNewNeighbour(bytes32 interactEntity, bytes32 neighbourEntityId) public {
+  function onNewNeighbour(bytes32 interactEntity, bytes32 neighbourEntityId) public override {
     address callerAddress = super.getCallerAddress();
     Fighters.setHealth(callerAddress, interactEntity, 50);
   }
 
-  function eventHandler(
+  function getInteractionSelectors() public override returns (InteractionSelector[] memory) {
+    InteractionSelector[] memory voxelInteractionSelectors = new InteractionSelector[](1);
+    voxelInteractionSelectors[0] = InteractionSelector({
+      interactionSelector: IWorld(_world()).ca_FighterAgentSyst_moveForwardEventHandler.selector,
+      interactionName: "Move Forward",
+      interactionDescription: ""
+    });
+    return voxelInteractionSelectors;
+  }
+
+  function moveForwardEventHandler(
     bytes32 centerEntityId,
     bytes32[] memory neighbourEntityIds,
     bytes32[] memory childEntityIds,
     bytes32 parentEntity
-  ) public override returns (bytes32, bytes32[] memory) {
+  ) public returns (bytes32, bytes32[] memory) {
     address callerAddress = super.getCallerAddress();
 
     return

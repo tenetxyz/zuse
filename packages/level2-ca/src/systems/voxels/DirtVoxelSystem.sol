@@ -15,7 +15,7 @@ string constant DirtTexture = "bafkreihy3pblhqaqquwttcykwlyey3umpou57rkvtncpdrjo
 string constant DirtUVWrap = "bafkreifsrs64rckwnfkwcyqkzpdo3tpa2at7jhe6bw7jhevkxa7estkdnm";
 
 contract DirtVoxelSystem is VoxelType {
-  function registerVoxel() public override {
+  function registerBody() public override {
     address world = _world();
     VoxelVariantsRegistryData memory dirtVariant;
     dirtVariant.blockType = NoaBlockType.BLOCK;

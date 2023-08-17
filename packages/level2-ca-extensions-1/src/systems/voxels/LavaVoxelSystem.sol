@@ -26,7 +26,7 @@ string constant LavaHotUVWrap = "bafkreic7cbg2d5llpndtr4svt447egqyazffj54ztjwrwx
 string constant LavaColdUVWrap = "bafkreigqpljgmycgnw5qdelq6vz2g43ximv54xqgilrjoejembqwgkix5e";
 
 contract LavaVoxelSystem is VoxelType {
-  function registerVoxel() public override {
+  function registerBody() public override {
     address world = _world();
 
     VoxelVariantsRegistryData memory lavaHotVariant;

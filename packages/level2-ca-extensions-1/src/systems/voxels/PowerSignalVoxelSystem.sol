@@ -23,7 +23,7 @@ string constant PowerSignalOffTexture = "bafkreickzqimtlmzkjogvewi4e7wwtsg6dgmmy
 string constant PowerSignalBrokenTexture = "bafkreigppq2ona2xam2iflprmbalqh2wg7xts2awsec4hdkdv7t4l5brom";
 
 contract PowerSignalVoxelSystem is VoxelType {
-  function registerVoxel() public override {
+  function registerBody() public override {
     address world = _world();
 
     VoxelVariantsRegistryData memory powerSignalOffVariant;

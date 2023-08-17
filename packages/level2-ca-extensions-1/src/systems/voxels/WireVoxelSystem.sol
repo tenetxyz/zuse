@@ -24,7 +24,7 @@ string constant WireOffUVWrap = "bafkreiffca6iq4562ko5m57lq6drti27bzwxcdpbq5xcgp
 string constant WireOnUVWrap = "bafkreia3okzu23ncgtcgrdmgb2zgvawyqndssuxwbzt5nf4ktxvepexz3m";
 
 contract WireVoxelSystem is VoxelType {
-  function registerVoxel() public override {
+  function registerBody() public override {
     address world = _world();
     VoxelVariantsRegistryData memory wireOffVariant;
     wireOffVariant.blockType = NoaBlockType.BLOCK;

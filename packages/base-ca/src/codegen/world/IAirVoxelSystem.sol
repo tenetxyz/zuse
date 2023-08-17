@@ -6,7 +6,7 @@ pragma solidity >=0.8.0;
 import { VoxelCoord } from "@tenet-utils/src/Types.sol";
 
 interface IAirVoxelSystem {
-  function ca_AirVoxelSystem_registerVoxel() external;
+  function ca_AirVoxelSystem_registerBody() external;
 
   function ca_AirVoxelSystem_enterWorld(VoxelCoord memory coord, bytes32 entity) external;
 

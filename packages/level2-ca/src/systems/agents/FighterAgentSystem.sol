@@ -85,7 +85,7 @@ contract FighterAgentSystem is AgentType {
   function getInteractionSelectors() public override returns (InteractionSelector[] memory) {
     InteractionSelector[] memory voxelInteractionSelectors = new InteractionSelector[](1);
     voxelInteractionSelectors[0] = InteractionSelector({
-      interactionSelector: IWorld(world).ca_FighterAgentSyst_moveForwardEventHandler.selector,
+      interactionSelector: IWorld(_world()).ca_FighterAgentSyst_moveForwardEventHandler.selector,
       interactionName: "Move Forward",
       interactionDescription: ""
     });

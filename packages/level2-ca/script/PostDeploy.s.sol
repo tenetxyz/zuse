@@ -14,11 +14,11 @@ contract PostDeploy is Script {
     vm.startBroadcast(deployerPrivateKey);
 
     // Register the voxel types
-    IWorld(worldAddress).ca_AirVoxelSystem_registerVoxel();
-    IWorld(worldAddress).ca_DirtVoxelSystem_registerVoxel();
-    IWorld(worldAddress).ca_GrassVoxelSystem_registerVoxel();
-    IWorld(worldAddress).ca_BedrockVoxelSyst_registerVoxel();
-    IWorld(worldAddress).ca_FighterAgentSyst_registerVoxel();
+    IWorld(worldAddress).ca_AirVoxelSystem_registerBody();
+    IWorld(worldAddress).ca_DirtVoxelSystem_registerBody();
+    IWorld(worldAddress).ca_GrassVoxelSystem_registerBody();
+    IWorld(worldAddress).ca_BedrockVoxelSyst_registerBody();
+    IWorld(worldAddress).ca_FighterAgentSyst_registerBody();
 
     IWorld(worldAddress).ca_FighterMindSyste_registerMind();
 

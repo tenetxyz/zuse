@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0
 pragma solidity >=0.8.0;
 
+import { IWorld } from "@tenet-contracts/src/codegen/world/IWorld.sol";
 import { IStore } from "@latticexyz/store/src/IStore.sol";
 import { System } from "@latticexyz/world/src/System.sol";
 import { VoxelCoord } from "../Types.sol";
@@ -14,10 +15,6 @@ import { runInteraction, enterWorld, exitWorld, activateVoxel, moveLayer } from 
 import { addressToEntityKey } from "@tenet-utils/src/Utils.sol";
 
 contract RunCASystem is System {
-  function getVoxelTypeId(uint32 scale, bytes32 entity) public view returns (bytes32) {
-    return VoxelType.getVoxelTypeId(scale, entity);
-  }
-
   function enterCA(
     address caAddress,
     uint32 scale,
@@ -26,9 +23,9 @@ contract RunCASystem is System {
     VoxelCoord memory coord,
     bytes32 entity
   ) public {
-    bytes32[] memory neighbourEntities = calculateNeighbourEntities(scale, entity);
-    bytes32[] memory childEntityIds = calculateChildEntities(scale, entity);
-    bytes32 parentEntity = calculateParentEntity(scale, entity);
+    bytes32[] memory neighbourEntities = IWorld(_world()).calculateNeighbourEntities(scale, entity);
+    bytes32[] memory childEntityIds = IWorld(_world()).calculateChildEntities(scale, entity);
+    bytes32 parentEntity = IWorld(_world()).calculateParentEntity(scale, entity);
     enterWorld(caAddress, voxelTypeId, mindSelector, coord, entity, neighbourEntities, childEntityIds, parentEntity);
   }
 
@@ -40,9 +37,9 @@ contract RunCASystem is System {
     VoxelCoord memory newCoord,
     bytes32 newEntity
   ) public {
-    bytes32[] memory neighbourEntities = calculateNeighbourEntities(scale, newEntity);
-    bytes32[] memory childEntityIds = calculateChildEntities(scale, newEntity);
-    bytes32 parentEntity = calculateParentEntity(scale, newEntity);
+    bytes32[] memory neighbourEntities = IWorld(_world()).calculateNeighbourEntities(scale, newEntity);
+    bytes32[] memory childEntityIds = IWorld(_world()).calculateChildEntities(scale, newEntity);
+    bytes32 parentEntity = IWorld(_world()).calculateParentEntity(scale, newEntity);
     moveLayer(caAddress, voxelTypeId, oldCoord, newCoord, newEntity, neighbourEntities, childEntityIds, parentEntity);
   }
 
@@ -53,9 +50,9 @@ contract RunCASystem is System {
     VoxelCoord memory coord,
     bytes32 entity
   ) public {
-    bytes32[] memory neighbourEntities = calculateNeighbourEntities(scale, entity);
-    bytes32[] memory childEntityIds = calculateChildEntities(scale, entity);
-    bytes32 parentEntity = calculateParentEntity(scale, entity);
+    bytes32[] memory neighbourEntities = IWorld(_world()).calculateNeighbourEntities(scale, entity);
+    bytes32[] memory childEntityIds = IWorld(_world()).calculateChildEntities(scale, entity);
+    bytes32 parentEntity = IWorld(_world()).calculateParentEntity(scale, entity);
     exitWorld(caAddress, voxelTypeId, coord, entity, neighbourEntities, childEntityIds, parentEntity);
   }
 
@@ -63,111 +60,6 @@ contract RunCASystem is System {
     bytes memory returnData = activateVoxel(caAddress, entity);
     string memory activateStr = abi.decode(returnData, (string));
     VoxelActivated.emitEphemeral(tx.origin, VoxelActivatedData({ scale: scale, entity: entity, message: activateStr }));
-  }
-
-  function calculateNeighbourEntities(uint32 scale, bytes32 centerEntity) public view returns (bytes32[] memory) {
-    int8[NUM_VOXEL_NEIGHBOURS * 3] memory NEIGHBOUR_COORD_OFFSETS = [
-      int8(0),
-      int8(0),
-      int8(1),
-      // ----
-      int8(0),
-      int8(0),
-      int8(-1),
-      // ----
-      int8(1),
-      int8(0),
-      int8(0),
-      // ----
-      int8(-1),
-      int8(0),
-      int8(0),
-      // ----
-      int8(1),
-      int8(0),
-      int8(1),
-      // ----
-      int8(1),
-      int8(0),
-      int8(-1),
-      // ----
-      int8(-1),
-      int8(0),
-      int8(1),
-      // ----
-      int8(-1),
-      int8(0),
-      int8(-1),
-      // ----
-      int8(0),
-      int8(1),
-      int8(0),
-      // ----
-      int8(0),
-      int8(-1),
-      int8(0)
-    ];
-
-    bytes32[] memory centerNeighbourEntities = new bytes32[](NUM_VOXEL_NEIGHBOURS);
-    PositionData memory baseCoord = Position.get(scale, centerEntity);
-
-    for (uint8 i = 0; i < centerNeighbourEntities.length; i++) {
-      VoxelCoord memory neighbouringCoord = VoxelCoord(
-        baseCoord.x + NEIGHBOUR_COORD_OFFSETS[i * 3],
-        baseCoord.y + NEIGHBOUR_COORD_OFFSETS[i * 3 + 1],
-        baseCoord.z + NEIGHBOUR_COORD_OFFSETS[i * 3 + 2]
-      );
-
-      bytes32 neighbourEntity = getEntityAtCoord(scale, neighbouringCoord);
-
-      if (uint256(neighbourEntity) != 0) {
-        // entity exists so add it to the list
-        centerNeighbourEntities[i] = neighbourEntity;
-      } else {
-        // no entity exists so add air
-        // TODO: How do we deal with entities not created yet, but still in the world due to terrain generation
-        centerNeighbourEntities[i] = 0;
-      }
-    }
-
-    return centerNeighbourEntities;
-  }
-
-  // TODO: Make this general by using cube root
-  function calculateChildEntities(uint32 scale, bytes32 entity) public view returns (bytes32[] memory) {
-    if (scale >= 2) {
-      bytes32[] memory childEntities = new bytes32[](8);
-      PositionData memory baseCoord = Position.get(scale, entity);
-      VoxelCoord memory baseVoxelCoord = VoxelCoord({ x: baseCoord.x, y: baseCoord.y, z: baseCoord.z });
-      VoxelCoord[] memory eightBlockVoxelCoords = calculateChildCoords(2, baseVoxelCoord);
-
-      for (uint8 i = 0; i < 8; i++) {
-        // filter for the ones with scale-1
-        bytes32 childEntityAtPosition = getEntityAtCoord(scale - 1, eightBlockVoxelCoords[i]);
-
-        // if (childEntityAtPosition == 0) {
-        //   revert("found no child entity");
-        // }
-
-        childEntities[i] = childEntityAtPosition;
-      }
-
-      return childEntities;
-    }
-
-    return new bytes32[](0);
-  }
-
-  // TODO: Make this general by using cube root
-  function calculateParentEntity(uint32 scale, bytes32 entity) public view returns (bytes32) {
-    bytes32 parentEntity;
-
-    PositionData memory baseCoord = Position.get(scale, entity);
-    VoxelCoord memory baseVoxelCoord = VoxelCoord({ x: baseCoord.x, y: baseCoord.y, z: baseCoord.z });
-    VoxelCoord memory parentVoxelCoord = calculateParentCoord(2, baseVoxelCoord);
-    parentEntity = getEntityAtCoord(scale + 1, parentVoxelCoord);
-
-    return parentEntity;
   }
 
   function runCA(address caAddress, uint32 scale, bytes32 entity, bytes4 interactionSelector) public {
@@ -185,9 +77,9 @@ contract RunCASystem is System {
 
     while (useStackIdx < MAX_VOXEL_NEIGHBOUR_UPDATE_DEPTH) {
       bytes32 useCenterEntityId = centerEntitiesToCheckStack[useStackIdx];
-      bytes32[] memory useNeighbourEntities = calculateNeighbourEntities(scale, useCenterEntityId);
-      bytes32[] memory childEntityIds = calculateChildEntities(scale, useCenterEntityId);
-      bytes32 parentEntity = calculateParentEntity(scale, useCenterEntityId);
+      bytes32[] memory useNeighbourEntities = IWorld(_world()).calculateNeighbourEntities(scale, useCenterEntityId);
+      bytes32[] memory childEntityIds = IWorld(_world()).calculateChildEntities(scale, useCenterEntityId);
+      bytes32 parentEntity = IWorld(_world()).calculateParentEntity(scale, useCenterEntityId);
       // if (!hasEntity(useNeighbourEntities)) {
       //   // if no neighbours, then we don't run any voxel interactions because there would be none
       //   break;

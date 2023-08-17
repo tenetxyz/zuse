@@ -117,6 +117,13 @@ export default mudConfig({
       },
     },
   },
+  systems: {
+    RunCASystem: {
+      name: "RunCASystem",
+      openAccess: false,
+      accessList: ["BuildSystem", "MineSystem", "ActivateVoxelSystem", "MoveSystem"],
+    },
+  },
   modules: [
     {
       name: "UniqueEntityModule",

@@ -1,4 +1,3 @@
-import { SyncState } from "@latticexyz/network";
 import { defineRxSystem, getComponentValueStrict, hasComponent, setComponent } from "@latticexyz/recs";
 import { NetworkLayer } from "../../network";
 import { NoaLayer } from "../types";

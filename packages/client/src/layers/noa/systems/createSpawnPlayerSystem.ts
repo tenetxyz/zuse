@@ -1,4 +1,3 @@
-import { SyncState } from "@latticexyz/network";
 import { getComponentValueStrict, hasComponent } from "@latticexyz/recs";
 import { awaitStreamValue } from "@latticexyz/utils";
 import { NetworkLayer } from "../../network";

@@ -1,3 +1,6 @@
+import { Entity } from "@latticexyz/recs";
+import { Hex, pad } from "viem";
+
 export enum Direction {
   Top,
   Right,
@@ -23,3 +26,5 @@ export function formatNamespace(namespace: string) {
     return namespace.substring(0, 34);
   }
 }
+
+export const SingletonID = pad("0x060d" as Hex, { size: 32 }) as Entity;

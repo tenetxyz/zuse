@@ -1,5 +1,4 @@
 import { Scene, Sound, Vector3 } from "@babylonjs/core";
-import { SyncState } from "@latticexyz/network";
 import {
   defineComponentSystem,
   defineRxSystem,

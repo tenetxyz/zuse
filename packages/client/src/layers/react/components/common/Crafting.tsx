@@ -1,5 +1,5 @@
 import React, { useEffect } from "react";
-import { SingletonID } from "@latticexyz/network";
+import { SingletonID } from "@/constants";
 import { Entity, getComponentValue, runQuery, HasValue } from "@latticexyz/recs";
 import { range } from "@latticexyz/utils";
 import styled from "styled-components";

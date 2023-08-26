@@ -2,7 +2,7 @@ import React from "react";
 import { BootScreen, registerUIComponent } from "../engine";
 import { concat, map } from "rxjs";
 import { getComponentValue } from "@latticexyz/recs";
-import { SingletonID, SyncState } from "@latticexyz/network";
+import { SingletonID } from "@/constants";
 import styled from "styled-components";
 import { LoadingBar } from "./common";
 import { useStream } from "@/utils/stream";

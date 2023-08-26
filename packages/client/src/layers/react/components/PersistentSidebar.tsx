@@ -9,7 +9,8 @@ import { openSidebar } from "../../../layers/noa/systems/createInputSystem";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faArrowUp, faArrowDown, faBars } from "@fortawesome/free-solid-svg-icons";
 import styled from "styled-components";
-import { isNetworkComponentUpdateEvent, NetworkComponentUpdate, SingletonID } from "@latticexyz/network";
+import { isNetworkComponentUpdateEvent, NetworkComponentUpdate } from "@latticexyz/network";
+import { SingletonID } from "@/constants";
 import {
   Entity,
   getComponentValue,

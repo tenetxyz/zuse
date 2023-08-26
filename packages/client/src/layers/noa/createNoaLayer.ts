@@ -62,7 +62,6 @@ import { setupDayNightCycle } from "./engine/dayNightCycle";
 import { getNoaPositionStrict, setNoaPosition } from "./engine/components/utils";
 import { registerTargetedPositionComponent } from "./engine/components/targetedPositionComponent";
 import { defaultAbiCoder as abi, keccak256 } from "ethers/lib/utils";
-import { SingletonID, SyncState } from "@latticexyz/network";
 import { getChunkCoord } from "../../utils/chunk";
 import { BehaviorSubject, map, Subject, throttleTime, timer } from "rxjs";
 // import { getStakeEntity } from "../../utils/stake"; // commented cause we aren't using it
@@ -77,6 +76,7 @@ import { VoxelVariantNoaDef, VoxelBaseTypeId, VoxelVariantTypeId } from "./types
 import { DEFAULT_BLOCK_TEST_DISTANCE } from "./setup/setupNoaEngine";
 import { FocusedUiType } from "./components/FocusedUi";
 import { defineWorldScaleComponent } from "./components/WorldScale";
+import { SingletonID } from "@/constants";
 
 export enum UiComponentType {
   INVENTORY = "Inventory",

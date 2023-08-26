@@ -1,4 +1,3 @@
-import { SyncState } from "@latticexyz/network";
 import {
   defineComponentSystem,
   defineEnterSystem,

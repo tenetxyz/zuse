@@ -8,14 +8,12 @@ import { OwnedBy, VoxelType, VoxelTypeData } from "@tenet-contracts/src/codegen/
 import { IWorld } from "@tenet-contracts/src/codegen/world/IWorld.sol";
 import { IStore } from "@latticexyz/store/src/IStore.sol";
 import { ElectronVoxelID } from "@tenet-base-ca/src/Constants.sol";
-import { Utilities } from "@latticexyz/std-contracts/src/test/Utilities.sol";
 import { console } from "forge-std/console.sol";
 import { SignalSourceVoxelID, SignalVoxelID } from "@tenet-level2-ca-extensions-1/src/Constants.sol";
 
 contract TruthTableClassifyTest is MudTest {
   IWorld private world;
   IStore private store;
-  Utilities internal immutable utils = new Utilities();
 
   address payable internal alice;
   bytes16 namespace;
@@ -24,8 +22,6 @@ contract TruthTableClassifyTest is MudTest {
     super.setUp();
     world = IWorld(worldAddress);
     store = IStore(worldAddress);
-
-    alice = utils.getNextUserAddress();
   }
 
   function registerOnTable() private {

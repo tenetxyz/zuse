@@ -35,8 +35,16 @@ struct VoxelVariantsRegistryData {
 }
 
 library VoxelVariantsRegistry {
-  /** Get the table's schema */
-  function getSchema() internal pure returns (Schema) {
+  /** Get the table's key schema */
+  function getKeySchema() internal pure returns (Schema) {
+    SchemaType[] memory _schema = new SchemaType[](1);
+    _schema[0] = SchemaType.BYTES32;
+
+    return SchemaLib.encode(_schema);
+  }
+
+  /** Get the table's value schema */
+  function getValueSchema() internal pure returns (Schema) {
     SchemaType[] memory _schema = new SchemaType[](8);
     _schema[0] = SchemaType.UINT256;
     _schema[1] = SchemaType.UINT32;
@@ -50,47 +58,33 @@ library VoxelVariantsRegistry {
     return SchemaLib.encode(_schema);
   }
 
-  function getKeySchema() internal pure returns (Schema) {
-    SchemaType[] memory _schema = new SchemaType[](1);
-    _schema[0] = SchemaType.BYTES32;
-
-    return SchemaLib.encode(_schema);
+  /** Get the table's key names */
+  function getKeyNames() internal pure returns (string[] memory keyNames) {
+    keyNames = new string[](1);
+    keyNames[0] = "voxelVariantId";
   }
 
-  /** Get the table's metadata */
-  function getMetadata() internal pure returns (string memory, string[] memory) {
-    string[] memory _fieldNames = new string[](8);
-    _fieldNames[0] = "variantId";
-    _fieldNames[1] = "frames";
-    _fieldNames[2] = "opaque";
-    _fieldNames[3] = "fluid";
-    _fieldNames[4] = "solid";
-    _fieldNames[5] = "blockType";
-    _fieldNames[6] = "materials";
-    _fieldNames[7] = "uvWrap";
-    return ("VoxelVariantsRegistry", _fieldNames);
+  /** Get the table's field names */
+  function getFieldNames() internal pure returns (string[] memory fieldNames) {
+    fieldNames = new string[](8);
+    fieldNames[0] = "variantId";
+    fieldNames[1] = "frames";
+    fieldNames[2] = "opaque";
+    fieldNames[3] = "fluid";
+    fieldNames[4] = "solid";
+    fieldNames[5] = "blockType";
+    fieldNames[6] = "materials";
+    fieldNames[7] = "uvWrap";
   }
 
-  /** Register the table's schema */
-  function registerSchema() internal {
-    StoreSwitch.registerSchema(_tableId, getSchema(), getKeySchema());
+  /** Register the table's key schema, value schema, key names and value names */
+  function register() internal {
+    StoreSwitch.registerTable(_tableId, getKeySchema(), getValueSchema(), getKeyNames(), getFieldNames());
   }
 
-  /** Register the table's schema (using the specified store) */
-  function registerSchema(IStore _store) internal {
-    _store.registerSchema(_tableId, getSchema(), getKeySchema());
-  }
-
-  /** Set the table's metadata */
-  function setMetadata() internal {
-    (string memory _tableName, string[] memory _fieldNames) = getMetadata();
-    StoreSwitch.setMetadata(_tableId, _tableName, _fieldNames);
-  }
-
-  /** Set the table's metadata (using the specified store) */
-  function setMetadata(IStore _store) internal {
-    (string memory _tableName, string[] memory _fieldNames) = getMetadata();
-    _store.setMetadata(_tableId, _tableName, _fieldNames);
+  /** Register the table's key schema, value schema, key names and value names (using the specified store) */
+  function register(IStore _store) internal {
+    _store.registerTable(_tableId, getKeySchema(), getValueSchema(), getKeyNames(), getFieldNames());
   }
 
   /** Get variantId */
@@ -98,7 +92,7 @@ library VoxelVariantsRegistry {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = voxelVariantId;
 
-    bytes memory _blob = StoreSwitch.getField(_tableId, _keyTuple, 0);
+    bytes memory _blob = StoreSwitch.getField(_tableId, _keyTuple, 0, getValueSchema());
     return (uint256(Bytes.slice32(_blob, 0)));
   }
 
@@ -107,7 +101,7 @@ library VoxelVariantsRegistry {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = voxelVariantId;
 
-    bytes memory _blob = _store.getField(_tableId, _keyTuple, 0);
+    bytes memory _blob = _store.getField(_tableId, _keyTuple, 0, getValueSchema());
     return (uint256(Bytes.slice32(_blob, 0)));
   }
 
@@ -116,7 +110,7 @@ library VoxelVariantsRegistry {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = voxelVariantId;
 
-    StoreSwitch.setField(_tableId, _keyTuple, 0, abi.encodePacked((variantId)));
+    StoreSwitch.setField(_tableId, _keyTuple, 0, abi.encodePacked((variantId)), getValueSchema());
   }
 
   /** Set variantId (using the specified store) */
@@ -124,7 +118,7 @@ library VoxelVariantsRegistry {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = voxelVariantId;
 
-    _store.setField(_tableId, _keyTuple, 0, abi.encodePacked((variantId)));
+    _store.setField(_tableId, _keyTuple, 0, abi.encodePacked((variantId)), getValueSchema());
   }
 
   /** Get frames */
@@ -132,7 +126,7 @@ library VoxelVariantsRegistry {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = voxelVariantId;
 
-    bytes memory _blob = StoreSwitch.getField(_tableId, _keyTuple, 1);
+    bytes memory _blob = StoreSwitch.getField(_tableId, _keyTuple, 1, getValueSchema());
     return (uint32(Bytes.slice4(_blob, 0)));
   }
 
@@ -141,7 +135,7 @@ library VoxelVariantsRegistry {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = voxelVariantId;
 
-    bytes memory _blob = _store.getField(_tableId, _keyTuple, 1);
+    bytes memory _blob = _store.getField(_tableId, _keyTuple, 1, getValueSchema());
     return (uint32(Bytes.slice4(_blob, 0)));
   }
 
@@ -150,7 +144,7 @@ library VoxelVariantsRegistry {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = voxelVariantId;
 
-    StoreSwitch.setField(_tableId, _keyTuple, 1, abi.encodePacked((frames)));
+    StoreSwitch.setField(_tableId, _keyTuple, 1, abi.encodePacked((frames)), getValueSchema());
   }
 
   /** Set frames (using the specified store) */
@@ -158,7 +152,7 @@ library VoxelVariantsRegistry {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = voxelVariantId;
 
-    _store.setField(_tableId, _keyTuple, 1, abi.encodePacked((frames)));
+    _store.setField(_tableId, _keyTuple, 1, abi.encodePacked((frames)), getValueSchema());
   }
 
   /** Get opaque */
@@ -166,7 +160,7 @@ library VoxelVariantsRegistry {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = voxelVariantId;
 
-    bytes memory _blob = StoreSwitch.getField(_tableId, _keyTuple, 2);
+    bytes memory _blob = StoreSwitch.getField(_tableId, _keyTuple, 2, getValueSchema());
     return (_toBool(uint8(Bytes.slice1(_blob, 0))));
   }
 
@@ -175,7 +169,7 @@ library VoxelVariantsRegistry {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = voxelVariantId;
 
-    bytes memory _blob = _store.getField(_tableId, _keyTuple, 2);
+    bytes memory _blob = _store.getField(_tableId, _keyTuple, 2, getValueSchema());
     return (_toBool(uint8(Bytes.slice1(_blob, 0))));
   }
 
@@ -184,7 +178,7 @@ library VoxelVariantsRegistry {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = voxelVariantId;
 
-    StoreSwitch.setField(_tableId, _keyTuple, 2, abi.encodePacked((opaque)));
+    StoreSwitch.setField(_tableId, _keyTuple, 2, abi.encodePacked((opaque)), getValueSchema());
   }
 
   /** Set opaque (using the specified store) */
@@ -192,7 +186,7 @@ library VoxelVariantsRegistry {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = voxelVariantId;
 
-    _store.setField(_tableId, _keyTuple, 2, abi.encodePacked((opaque)));
+    _store.setField(_tableId, _keyTuple, 2, abi.encodePacked((opaque)), getValueSchema());
   }
 
   /** Get fluid */
@@ -200,7 +194,7 @@ library VoxelVariantsRegistry {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = voxelVariantId;
 
-    bytes memory _blob = StoreSwitch.getField(_tableId, _keyTuple, 3);
+    bytes memory _blob = StoreSwitch.getField(_tableId, _keyTuple, 3, getValueSchema());
     return (_toBool(uint8(Bytes.slice1(_blob, 0))));
   }
 
@@ -209,7 +203,7 @@ library VoxelVariantsRegistry {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = voxelVariantId;
 
-    bytes memory _blob = _store.getField(_tableId, _keyTuple, 3);
+    bytes memory _blob = _store.getField(_tableId, _keyTuple, 3, getValueSchema());
     return (_toBool(uint8(Bytes.slice1(_blob, 0))));
   }
 
@@ -218,7 +212,7 @@ library VoxelVariantsRegistry {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = voxelVariantId;
 
-    StoreSwitch.setField(_tableId, _keyTuple, 3, abi.encodePacked((fluid)));
+    StoreSwitch.setField(_tableId, _keyTuple, 3, abi.encodePacked((fluid)), getValueSchema());
   }
 
   /** Set fluid (using the specified store) */
@@ -226,7 +220,7 @@ library VoxelVariantsRegistry {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = voxelVariantId;
 
-    _store.setField(_tableId, _keyTuple, 3, abi.encodePacked((fluid)));
+    _store.setField(_tableId, _keyTuple, 3, abi.encodePacked((fluid)), getValueSchema());
   }
 
   /** Get solid */
@@ -234,7 +228,7 @@ library VoxelVariantsRegistry {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = voxelVariantId;
 
-    bytes memory _blob = StoreSwitch.getField(_tableId, _keyTuple, 4);
+    bytes memory _blob = StoreSwitch.getField(_tableId, _keyTuple, 4, getValueSchema());
     return (_toBool(uint8(Bytes.slice1(_blob, 0))));
   }
 
@@ -243,7 +237,7 @@ library VoxelVariantsRegistry {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = voxelVariantId;
 
-    bytes memory _blob = _store.getField(_tableId, _keyTuple, 4);
+    bytes memory _blob = _store.getField(_tableId, _keyTuple, 4, getValueSchema());
     return (_toBool(uint8(Bytes.slice1(_blob, 0))));
   }
 
@@ -252,7 +246,7 @@ library VoxelVariantsRegistry {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = voxelVariantId;
 
-    StoreSwitch.setField(_tableId, _keyTuple, 4, abi.encodePacked((solid)));
+    StoreSwitch.setField(_tableId, _keyTuple, 4, abi.encodePacked((solid)), getValueSchema());
   }
 
   /** Set solid (using the specified store) */
@@ -260,7 +254,7 @@ library VoxelVariantsRegistry {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = voxelVariantId;
 
-    _store.setField(_tableId, _keyTuple, 4, abi.encodePacked((solid)));
+    _store.setField(_tableId, _keyTuple, 4, abi.encodePacked((solid)), getValueSchema());
   }
 
   /** Get blockType */
@@ -268,7 +262,7 @@ library VoxelVariantsRegistry {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = voxelVariantId;
 
-    bytes memory _blob = StoreSwitch.getField(_tableId, _keyTuple, 5);
+    bytes memory _blob = StoreSwitch.getField(_tableId, _keyTuple, 5, getValueSchema());
     return NoaBlockType(uint8(Bytes.slice1(_blob, 0)));
   }
 
@@ -277,7 +271,7 @@ library VoxelVariantsRegistry {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = voxelVariantId;
 
-    bytes memory _blob = _store.getField(_tableId, _keyTuple, 5);
+    bytes memory _blob = _store.getField(_tableId, _keyTuple, 5, getValueSchema());
     return NoaBlockType(uint8(Bytes.slice1(_blob, 0)));
   }
 
@@ -286,7 +280,7 @@ library VoxelVariantsRegistry {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = voxelVariantId;
 
-    StoreSwitch.setField(_tableId, _keyTuple, 5, abi.encodePacked(uint8(blockType)));
+    StoreSwitch.setField(_tableId, _keyTuple, 5, abi.encodePacked(uint8(blockType)), getValueSchema());
   }
 
   /** Set blockType (using the specified store) */
@@ -294,7 +288,7 @@ library VoxelVariantsRegistry {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = voxelVariantId;
 
-    _store.setField(_tableId, _keyTuple, 5, abi.encodePacked(uint8(blockType)));
+    _store.setField(_tableId, _keyTuple, 5, abi.encodePacked(uint8(blockType)), getValueSchema());
   }
 
   /** Get materials */
@@ -302,7 +296,7 @@ library VoxelVariantsRegistry {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = voxelVariantId;
 
-    bytes memory _blob = StoreSwitch.getField(_tableId, _keyTuple, 6);
+    bytes memory _blob = StoreSwitch.getField(_tableId, _keyTuple, 6, getValueSchema());
     return (bytes(_blob));
   }
 
@@ -311,7 +305,7 @@ library VoxelVariantsRegistry {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = voxelVariantId;
 
-    bytes memory _blob = _store.getField(_tableId, _keyTuple, 6);
+    bytes memory _blob = _store.getField(_tableId, _keyTuple, 6, getValueSchema());
     return (bytes(_blob));
   }
 
@@ -320,7 +314,7 @@ library VoxelVariantsRegistry {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = voxelVariantId;
 
-    StoreSwitch.setField(_tableId, _keyTuple, 6, bytes((materials)));
+    StoreSwitch.setField(_tableId, _keyTuple, 6, bytes((materials)), getValueSchema());
   }
 
   /** Set materials (using the specified store) */
@@ -328,7 +322,7 @@ library VoxelVariantsRegistry {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = voxelVariantId;
 
-    _store.setField(_tableId, _keyTuple, 6, bytes((materials)));
+    _store.setField(_tableId, _keyTuple, 6, bytes((materials)), getValueSchema());
   }
 
   /** Get the length of materials */
@@ -336,8 +330,10 @@ library VoxelVariantsRegistry {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = voxelVariantId;
 
-    uint256 _byteLength = StoreSwitch.getFieldLength(_tableId, _keyTuple, 6, getSchema());
-    return _byteLength / 1;
+    uint256 _byteLength = StoreSwitch.getFieldLength(_tableId, _keyTuple, 6, getValueSchema());
+    unchecked {
+      return _byteLength / 1;
+    }
   }
 
   /** Get the length of materials (using the specified store) */
@@ -345,20 +341,37 @@ library VoxelVariantsRegistry {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = voxelVariantId;
 
-    uint256 _byteLength = _store.getFieldLength(_tableId, _keyTuple, 6, getSchema());
-    return _byteLength / 1;
+    uint256 _byteLength = _store.getFieldLength(_tableId, _keyTuple, 6, getValueSchema());
+    unchecked {
+      return _byteLength / 1;
+    }
   }
 
-  /** Get an item of materials (unchecked, returns invalid data if index overflows) */
+  /**
+   * Get an item of materials
+   * (unchecked, returns invalid data if index overflows)
+   */
   function getItemMaterials(bytes32 voxelVariantId, uint256 _index) internal view returns (bytes memory) {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = voxelVariantId;
 
-    bytes memory _blob = StoreSwitch.getFieldSlice(_tableId, _keyTuple, 6, getSchema(), _index * 1, (_index + 1) * 1);
-    return (bytes(_blob));
+    unchecked {
+      bytes memory _blob = StoreSwitch.getFieldSlice(
+        _tableId,
+        _keyTuple,
+        6,
+        getValueSchema(),
+        _index * 1,
+        (_index + 1) * 1
+      );
+      return (bytes(_blob));
+    }
   }
 
-  /** Get an item of materials (using the specified store) (unchecked, returns invalid data if index overflows) */
+  /**
+   * Get an item of materials (using the specified store)
+   * (unchecked, returns invalid data if index overflows)
+   */
   function getItemMaterials(
     IStore _store,
     bytes32 voxelVariantId,
@@ -367,8 +380,10 @@ library VoxelVariantsRegistry {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = voxelVariantId;
 
-    bytes memory _blob = _store.getFieldSlice(_tableId, _keyTuple, 6, getSchema(), _index * 1, (_index + 1) * 1);
-    return (bytes(_blob));
+    unchecked {
+      bytes memory _blob = _store.getFieldSlice(_tableId, _keyTuple, 6, getValueSchema(), _index * 1, (_index + 1) * 1);
+      return (bytes(_blob));
+    }
   }
 
   /** Push a slice to materials */
@@ -376,7 +391,7 @@ library VoxelVariantsRegistry {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = voxelVariantId;
 
-    StoreSwitch.pushToField(_tableId, _keyTuple, 6, bytes((_slice)));
+    StoreSwitch.pushToField(_tableId, _keyTuple, 6, bytes((_slice)), getValueSchema());
   }
 
   /** Push a slice to materials (using the specified store) */
@@ -384,7 +399,7 @@ library VoxelVariantsRegistry {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = voxelVariantId;
 
-    _store.pushToField(_tableId, _keyTuple, 6, bytes((_slice)));
+    _store.pushToField(_tableId, _keyTuple, 6, bytes((_slice)), getValueSchema());
   }
 
   /** Pop a slice from materials */
@@ -392,7 +407,7 @@ library VoxelVariantsRegistry {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = voxelVariantId;
 
-    StoreSwitch.popFromField(_tableId, _keyTuple, 6, 1);
+    StoreSwitch.popFromField(_tableId, _keyTuple, 6, 1, getValueSchema());
   }
 
   /** Pop a slice from materials (using the specified store) */
@@ -400,23 +415,33 @@ library VoxelVariantsRegistry {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = voxelVariantId;
 
-    _store.popFromField(_tableId, _keyTuple, 6, 1);
+    _store.popFromField(_tableId, _keyTuple, 6, 1, getValueSchema());
   }
 
-  /** Update a slice of materials at `_index` */
+  /**
+   * Update a slice of materials at `_index`
+   * (checked only to prevent modifying other tables; can corrupt own data if index overflows)
+   */
   function updateMaterials(bytes32 voxelVariantId, uint256 _index, bytes memory _slice) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = voxelVariantId;
 
-    StoreSwitch.updateInField(_tableId, _keyTuple, 6, _index * 1, bytes((_slice)));
+    unchecked {
+      StoreSwitch.updateInField(_tableId, _keyTuple, 6, _index * 1, bytes((_slice)), getValueSchema());
+    }
   }
 
-  /** Update a slice of materials (using the specified store) at `_index` */
+  /**
+   * Update a slice of materials (using the specified store) at `_index`
+   * (checked only to prevent modifying other tables; can corrupt own data if index overflows)
+   */
   function updateMaterials(IStore _store, bytes32 voxelVariantId, uint256 _index, bytes memory _slice) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = voxelVariantId;
 
-    _store.updateInField(_tableId, _keyTuple, 6, _index * 1, bytes((_slice)));
+    unchecked {
+      _store.updateInField(_tableId, _keyTuple, 6, _index * 1, bytes((_slice)), getValueSchema());
+    }
   }
 
   /** Get uvWrap */
@@ -424,7 +449,7 @@ library VoxelVariantsRegistry {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = voxelVariantId;
 
-    bytes memory _blob = StoreSwitch.getField(_tableId, _keyTuple, 7);
+    bytes memory _blob = StoreSwitch.getField(_tableId, _keyTuple, 7, getValueSchema());
     return (string(_blob));
   }
 
@@ -433,7 +458,7 @@ library VoxelVariantsRegistry {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = voxelVariantId;
 
-    bytes memory _blob = _store.getField(_tableId, _keyTuple, 7);
+    bytes memory _blob = _store.getField(_tableId, _keyTuple, 7, getValueSchema());
     return (string(_blob));
   }
 
@@ -442,7 +467,7 @@ library VoxelVariantsRegistry {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = voxelVariantId;
 
-    StoreSwitch.setField(_tableId, _keyTuple, 7, bytes((uvWrap)));
+    StoreSwitch.setField(_tableId, _keyTuple, 7, bytes((uvWrap)), getValueSchema());
   }
 
   /** Set uvWrap (using the specified store) */
@@ -450,7 +475,7 @@ library VoxelVariantsRegistry {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = voxelVariantId;
 
-    _store.setField(_tableId, _keyTuple, 7, bytes((uvWrap)));
+    _store.setField(_tableId, _keyTuple, 7, bytes((uvWrap)), getValueSchema());
   }
 
   /** Get the length of uvWrap */
@@ -458,8 +483,10 @@ library VoxelVariantsRegistry {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = voxelVariantId;
 
-    uint256 _byteLength = StoreSwitch.getFieldLength(_tableId, _keyTuple, 7, getSchema());
-    return _byteLength / 1;
+    uint256 _byteLength = StoreSwitch.getFieldLength(_tableId, _keyTuple, 7, getValueSchema());
+    unchecked {
+      return _byteLength / 1;
+    }
   }
 
   /** Get the length of uvWrap (using the specified store) */
@@ -467,26 +494,45 @@ library VoxelVariantsRegistry {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = voxelVariantId;
 
-    uint256 _byteLength = _store.getFieldLength(_tableId, _keyTuple, 7, getSchema());
-    return _byteLength / 1;
+    uint256 _byteLength = _store.getFieldLength(_tableId, _keyTuple, 7, getValueSchema());
+    unchecked {
+      return _byteLength / 1;
+    }
   }
 
-  /** Get an item of uvWrap (unchecked, returns invalid data if index overflows) */
+  /**
+   * Get an item of uvWrap
+   * (unchecked, returns invalid data if index overflows)
+   */
   function getItemUvWrap(bytes32 voxelVariantId, uint256 _index) internal view returns (string memory) {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = voxelVariantId;
 
-    bytes memory _blob = StoreSwitch.getFieldSlice(_tableId, _keyTuple, 7, getSchema(), _index * 1, (_index + 1) * 1);
-    return (string(_blob));
+    unchecked {
+      bytes memory _blob = StoreSwitch.getFieldSlice(
+        _tableId,
+        _keyTuple,
+        7,
+        getValueSchema(),
+        _index * 1,
+        (_index + 1) * 1
+      );
+      return (string(_blob));
+    }
   }
 
-  /** Get an item of uvWrap (using the specified store) (unchecked, returns invalid data if index overflows) */
+  /**
+   * Get an item of uvWrap (using the specified store)
+   * (unchecked, returns invalid data if index overflows)
+   */
   function getItemUvWrap(IStore _store, bytes32 voxelVariantId, uint256 _index) internal view returns (string memory) {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = voxelVariantId;
 
-    bytes memory _blob = _store.getFieldSlice(_tableId, _keyTuple, 7, getSchema(), _index * 1, (_index + 1) * 1);
-    return (string(_blob));
+    unchecked {
+      bytes memory _blob = _store.getFieldSlice(_tableId, _keyTuple, 7, getValueSchema(), _index * 1, (_index + 1) * 1);
+      return (string(_blob));
+    }
   }
 
   /** Push a slice to uvWrap */
@@ -494,7 +540,7 @@ library VoxelVariantsRegistry {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = voxelVariantId;
 
-    StoreSwitch.pushToField(_tableId, _keyTuple, 7, bytes((_slice)));
+    StoreSwitch.pushToField(_tableId, _keyTuple, 7, bytes((_slice)), getValueSchema());
   }
 
   /** Push a slice to uvWrap (using the specified store) */
@@ -502,7 +548,7 @@ library VoxelVariantsRegistry {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = voxelVariantId;
 
-    _store.pushToField(_tableId, _keyTuple, 7, bytes((_slice)));
+    _store.pushToField(_tableId, _keyTuple, 7, bytes((_slice)), getValueSchema());
   }
 
   /** Pop a slice from uvWrap */
@@ -510,7 +556,7 @@ library VoxelVariantsRegistry {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = voxelVariantId;
 
-    StoreSwitch.popFromField(_tableId, _keyTuple, 7, 1);
+    StoreSwitch.popFromField(_tableId, _keyTuple, 7, 1, getValueSchema());
   }
 
   /** Pop a slice from uvWrap (using the specified store) */
@@ -518,23 +564,33 @@ library VoxelVariantsRegistry {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = voxelVariantId;
 
-    _store.popFromField(_tableId, _keyTuple, 7, 1);
+    _store.popFromField(_tableId, _keyTuple, 7, 1, getValueSchema());
   }
 
-  /** Update a slice of uvWrap at `_index` */
+  /**
+   * Update a slice of uvWrap at `_index`
+   * (checked only to prevent modifying other tables; can corrupt own data if index overflows)
+   */
   function updateUvWrap(bytes32 voxelVariantId, uint256 _index, string memory _slice) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = voxelVariantId;
 
-    StoreSwitch.updateInField(_tableId, _keyTuple, 7, _index * 1, bytes((_slice)));
+    unchecked {
+      StoreSwitch.updateInField(_tableId, _keyTuple, 7, _index * 1, bytes((_slice)), getValueSchema());
+    }
   }
 
-  /** Update a slice of uvWrap (using the specified store) at `_index` */
+  /**
+   * Update a slice of uvWrap (using the specified store) at `_index`
+   * (checked only to prevent modifying other tables; can corrupt own data if index overflows)
+   */
   function updateUvWrap(IStore _store, bytes32 voxelVariantId, uint256 _index, string memory _slice) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = voxelVariantId;
 
-    _store.updateInField(_tableId, _keyTuple, 7, _index * 1, bytes((_slice)));
+    unchecked {
+      _store.updateInField(_tableId, _keyTuple, 7, _index * 1, bytes((_slice)), getValueSchema());
+    }
   }
 
   /** Get the full data */
@@ -542,7 +598,7 @@ library VoxelVariantsRegistry {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = voxelVariantId;
 
-    bytes memory _blob = StoreSwitch.getRecord(_tableId, _keyTuple, getSchema());
+    bytes memory _blob = StoreSwitch.getRecord(_tableId, _keyTuple, getValueSchema());
     return decode(_blob);
   }
 
@@ -551,7 +607,7 @@ library VoxelVariantsRegistry {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = voxelVariantId;
 
-    bytes memory _blob = _store.getRecord(_tableId, _keyTuple, getSchema());
+    bytes memory _blob = _store.getRecord(_tableId, _keyTuple, getValueSchema());
     return decode(_blob);
   }
 
@@ -572,7 +628,7 @@ library VoxelVariantsRegistry {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = voxelVariantId;
 
-    StoreSwitch.setRecord(_tableId, _keyTuple, _data);
+    StoreSwitch.setRecord(_tableId, _keyTuple, _data, getValueSchema());
   }
 
   /** Set the full data using individual values (using the specified store) */
@@ -593,7 +649,7 @@ library VoxelVariantsRegistry {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = voxelVariantId;
 
-    _store.setRecord(_tableId, _keyTuple, _data);
+    _store.setRecord(_tableId, _keyTuple, _data, getValueSchema());
   }
 
   /** Set the full data using the data struct */
@@ -627,7 +683,10 @@ library VoxelVariantsRegistry {
     );
   }
 
-  /** Decode the tightly packed blob using this table's schema */
+  /**
+   * Decode the tightly packed blob using this table's schema.
+   * Undefined behaviour for invalid blobs.
+   */
   function decode(bytes memory _blob) internal pure returns (VoxelVariantsRegistryData memory _table) {
     // 40 is the total byte length of static data
     PackedCounter _encodedLengths = PackedCounter.wrap(Bytes.slice32(_blob, 40));
@@ -646,16 +705,18 @@ library VoxelVariantsRegistry {
 
     // Store trims the blob if dynamic fields are all empty
     if (_blob.length > 40) {
-      uint256 _start;
       // skip static data length + dynamic lengths word
-      uint256 _end = 72;
-
-      _start = _end;
-      _end += _encodedLengths.atIndex(0);
+      uint256 _start = 72;
+      uint256 _end;
+      unchecked {
+        _end = 72 + _encodedLengths.atIndex(0);
+      }
       _table.materials = (bytes(SliceLib.getSubslice(_blob, _start, _end).toBytes()));
 
       _start = _end;
-      _end += _encodedLengths.atIndex(1);
+      unchecked {
+        _end += _encodedLengths.atIndex(1);
+      }
       _table.uvWrap = (string(SliceLib.getSubslice(_blob, _start, _end).toBytes()));
     }
   }
@@ -671,10 +732,11 @@ library VoxelVariantsRegistry {
     bytes memory materials,
     string memory uvWrap
   ) internal pure returns (bytes memory) {
-    uint40[] memory _counters = new uint40[](2);
-    _counters[0] = uint40(bytes(materials).length);
-    _counters[1] = uint40(bytes(uvWrap).length);
-    PackedCounter _encodedLengths = PackedCounterLib.pack(_counters);
+    PackedCounter _encodedLengths;
+    // Lengths are effectively checked during copy by 2**40 bytes exceeding gas limits
+    unchecked {
+      _encodedLengths = PackedCounterLib.pack(bytes(materials).length, bytes(uvWrap).length);
+    }
 
     return
       abi.encodePacked(
@@ -691,9 +753,11 @@ library VoxelVariantsRegistry {
   }
 
   /** Encode keys as a bytes32 array using this table's schema */
-  function encodeKeyTuple(bytes32 voxelVariantId) internal pure returns (bytes32[] memory _keyTuple) {
-    _keyTuple = new bytes32[](1);
+  function encodeKeyTuple(bytes32 voxelVariantId) internal pure returns (bytes32[] memory) {
+    bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = voxelVariantId;
+
+    return _keyTuple;
   }
 
   /* Delete all data for given keys */
@@ -701,7 +765,7 @@ library VoxelVariantsRegistry {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = voxelVariantId;
 
-    StoreSwitch.deleteRecord(_tableId, _keyTuple);
+    StoreSwitch.deleteRecord(_tableId, _keyTuple, getValueSchema());
   }
 
   /* Delete all data for given keys (using the specified store) */
@@ -709,7 +773,7 @@ library VoxelVariantsRegistry {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = voxelVariantId;
 
-    _store.deleteRecord(_tableId, _keyTuple);
+    _store.deleteRecord(_tableId, _keyTuple, getValueSchema());
   }
 }
 

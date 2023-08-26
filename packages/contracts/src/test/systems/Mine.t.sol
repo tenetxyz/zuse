@@ -9,13 +9,11 @@ import { VoxelType, OwnedBy } from "@tenet-contracts/src/codegen/Tables.sol";
 
 import { addressToEntityKey } from "@tenet-utils/src/Utils.sol";
 import { VoxelCoord } from "../../Types.sol";
-import { Utilities } from "@latticexyz/std-contracts/src/test/Utilities.sol";
 import { console } from "forge-std/console.sol";
 
 contract MineTest is MudTest {
   IWorld private world;
   IStore private store;
-  Utilities internal immutable utils = new Utilities();
 
   address payable internal alice;
 
@@ -23,7 +21,5 @@ contract MineTest is MudTest {
     super.setUp();
     world = IWorld(worldAddress);
     store = IStore(worldAddress);
-
-    alice = utils.getNextUserAddress();
   }
 }

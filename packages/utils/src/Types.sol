@@ -31,11 +31,26 @@ enum BlockDirection {
   Down
 }
 
+struct DecisionRuleKey {
+  bytes32 srcVoxelTypeId;
+  bytes32 targetVoxelTypeId;
+  address worldAddress;
+  bytes32 decisionRuleId;
+}
+
+struct DecisionRule {
+  bytes32 decisionRuleId;
+  string name;
+  string description;
+  address creator;
+  bytes4 decisionRuleSelector;
+}
+
 struct Mind {
   address creator;
   string name;
   string description;
-  bytes4 mindSelector;
+  DecisionRuleKey[] decisionRules;
 }
 
 struct InteractionSelector {
@@ -74,6 +89,26 @@ struct CreationMetadata {
   string name;
   string description;
   CreationSpawns[] spawns;
+}
+
+
+enum ComponentType{
+ RANGE, STATE
+}
+
+struct ComponentDef {
+  ComponentType componentType;
+  string name;
+  bytes definition; // RangeComponent or StateComponent
+}
+
+struct RangeComponent {
+  int32 rangeStart;
+  int32 rangeEnd;
+}
+
+struct StateComponent {
+  string[] states;
 }
 
 struct VoxelEntity {

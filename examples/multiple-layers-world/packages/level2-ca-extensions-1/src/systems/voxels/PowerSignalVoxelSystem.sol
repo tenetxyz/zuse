@@ -10,7 +10,7 @@ import { NoaBlockType } from "@tenet-registry/src/codegen/Types.sol";
 import { registerVoxelVariant, registerVoxelType, voxelSelectorsForVoxel } from "@tenet-registry/src/Utils.sol";
 import { PowerSignal, PowerSignalData, PowerWire, PowerWireData } from "@tenet-level2-ca-extensions-1/src/codegen/Tables.sol";
 import { CA_ADDRESS, REGISTRY_ADDRESS, PowerSignalVoxelID, PowerWireVoxelID } from "@tenet-level2-ca-extensions-1/src/Constants.sol";
-import { VoxelCoord, BlockDirection } from "@tenet-utils/src/Types.sol";
+import { VoxelCoord, BlockDirection, ComponentDef } from "@tenet-utils/src/Types.sol";
 import { AirVoxelID } from "@tenet-level1-ca/src/Constants.sol";
 import { registerCAVoxelType } from "@tenet-base-ca/src/CallUtils.sol";
 
@@ -61,6 +61,7 @@ contract PowerSignalVoxelSystem is VoxelType {
       PowerWireVoxelID
     );
 
+    ComponentDef[] memory componentDefs = new ComponentDef[](0);
     registerVoxelType(
       REGISTRY_ADDRESS,
       "Power Signal",
@@ -75,7 +76,8 @@ contract PowerSignalVoxelSystem is VoxelType {
         IWorld(world).extension1_PowerSignalVoxel_variantSelector.selector,
         IWorld(world).extension1_PowerSignalVoxel_activate.selector,
         IWorld(world).extension1_PowerSignalVoxel_eventHandler.selector
-      )
+      ),
+      abi.encode(componentDefs)
     );
 
     registerCAVoxelType(CA_ADDRESS, PowerSignalVoxelID);

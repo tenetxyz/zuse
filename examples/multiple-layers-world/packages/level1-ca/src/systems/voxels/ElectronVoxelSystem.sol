@@ -10,7 +10,7 @@ import { hasKey } from "@latticexyz/world/src/modules/keysintable/hasKey.sol";
 import { registerVoxelVariant, registerVoxelType, voxelSelectorsForVoxel } from "@tenet-registry/src/Utils.sol";
 import { ElectronTunnelSpot, ElectronTunnelSpotData, ElectronTunnelSpotTableId } from "@tenet-level1-ca/src/codegen/Tables.sol";
 import { REGISTRY_ADDRESS, AirVoxelID, AirVoxelVariantID, ElectronVoxelID } from "@tenet-level1-ca/src/Constants.sol";
-import { VoxelCoord } from "@tenet-utils/src/Types.sol";
+import { VoxelCoord, ComponentDef } from "@tenet-utils/src/Types.sol";
 import { getFirstCaller } from "@tenet-utils/src/Utils.sol";
 import { getCAEntityAtCoord, getCAVoxelType } from "@tenet-base-ca/src/Utils.sol";
 
@@ -33,6 +33,7 @@ contract ElectronVoxelSystem is VoxelType {
     bytes32[] memory electronChildVoxelTypes = new bytes32[](1);
     electronChildVoxelTypes[0] = ElectronVoxelID;
     bytes32 baseVoxelTypeId = ElectronVoxelID;
+    ComponentDef[] memory componentDefs = new ComponentDef[](0);
     registerVoxelType(
       REGISTRY_ADDRESS,
       "Electron",
@@ -47,7 +48,8 @@ contract ElectronVoxelSystem is VoxelType {
         IWorld(world).ca_ElectronVoxelSys_variantSelector.selector,
         IWorld(world).ca_ElectronVoxelSys_activate.selector,
         IWorld(world).ca_ElectronVoxelSys_eventHandler.selector
-      )
+      ),
+      abi.encode(componentDefs)
     );
   }
 

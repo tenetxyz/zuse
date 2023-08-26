@@ -6,6 +6,7 @@ pragma solidity >=0.8.0;
 import { WorldRegistry, WorldRegistryData, WorldRegistryTableId } from "./tables/WorldRegistry.sol";
 import { CARegistry, CARegistryData, CARegistryTableId } from "./tables/CARegistry.sol";
 import { VoxelTypeRegistry, VoxelTypeRegistryData, VoxelTypeRegistryTableId } from "./tables/VoxelTypeRegistry.sol";
+import { DecisionRuleRegistry, DecisionRuleRegistryTableId } from "./tables/DecisionRuleRegistry.sol";
 import { MindRegistry, MindRegistryTableId } from "./tables/MindRegistry.sol";
 import { VoxelVariantsRegistry, VoxelVariantsRegistryData, VoxelVariantsRegistryTableId } from "./tables/VoxelVariantsRegistry.sol";
 import { CreationRegistry, CreationRegistryData, CreationRegistryTableId } from "./tables/CreationRegistry.sol";

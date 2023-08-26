@@ -32,7 +32,7 @@ contract MindRegistrySystem is System {
 
       newMinds = new Mind[](minds.length + 1);
       for (uint256 i = 0; i < minds.length; i++) {
-        require(minds[i].mindSelector != mind.mindSelector, "Mind already registered");
+        require(!isDecisionRulesTheSame(minds[i], mind), "A mind with the same decision rules has already registered");
         newMinds[i] = minds[i];
       }
       newMinds[minds.length] = mind;
@@ -42,5 +42,17 @@ contract MindRegistrySystem is System {
     }
 
     MindRegistry.set(voxelTypeId, worldAddress, abi.encode(newMinds));
+  }
+
+  function isDecisionRulesTheSame(Mind memory existingMind, Mind memory newMind) private pure returns (bool) {
+    if (existingMind.decisionRules.length != newMind.decisionRules.length) {
+      return false;
+    }
+    for (uint256 i = 0; i < newMind.decisionRules.length; i++) {
+      if (existingMind.decisionRules[i].decisionRuleId != newMind.decisionRules[i].decisionRuleId) {
+        return false;
+      }
+    }
+    return true;
   }
 }

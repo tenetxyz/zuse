@@ -8,7 +8,7 @@ import { NoaBlockType } from "@tenet-registry/src/codegen/Types.sol";
 import { registerVoxelVariant, registerVoxelType, voxelSelectorsForVoxel } from "@tenet-registry/src/Utils.sol";
 import { CA_ADDRESS, REGISTRY_ADDRESS, WireVoxelID } from "@tenet-level2-ca-extensions-1/src/Constants.sol";
 import { Level2AirVoxelID } from "@tenet-level2-ca/src/Constants.sol";
-import { VoxelCoord } from "@tenet-utils/src/Types.sol";
+import { VoxelCoord, ComponentDef } from "@tenet-utils/src/Types.sol";
 import { ElectronVoxelID } from "@tenet-level1-ca/src/Constants.sol";
 import { AirVoxelID } from "@tenet-level1-ca/src/Constants.sol";
 import { getVoxelTypeFromCaller } from "@tenet-base-ca/src/CallUtils.sol";
@@ -54,6 +54,7 @@ contract WireVoxelSystem is VoxelType {
     wireSchemaVoxelTypes[1] = ElectronVoxelID; // The second electron moves to be diagonal from the first
 
     bytes32 baseVoxelTypeId = WireVoxelID;
+    ComponentDef[] memory componentDefs = new ComponentDef[](0);
     registerVoxelType(
       REGISTRY_ADDRESS,
       "Electron Wire",
@@ -68,7 +69,8 @@ contract WireVoxelSystem is VoxelType {
         IWorld(world).extension1_WireVoxelSystem_variantSelector.selector,
         IWorld(world).extension1_WireVoxelSystem_activate.selector,
         IWorld(world).extension1_WireVoxelSystem_eventHandler.selector
-      )
+      ),
+      abi.encode(componentDefs)
     );
 
     registerCAVoxelType(CA_ADDRESS, WireVoxelID);

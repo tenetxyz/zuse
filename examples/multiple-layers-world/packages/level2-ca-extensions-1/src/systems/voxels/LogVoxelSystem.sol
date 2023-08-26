@@ -10,7 +10,7 @@ import { NoaBlockType } from "@tenet-registry/src/codegen/Types.sol";
 import { registerVoxelVariant, registerVoxelType, voxelSelectorsForVoxel } from "@tenet-registry/src/Utils.sol";
 import { CA_ADDRESS, REGISTRY_ADDRESS, LogVoxelID } from "@tenet-level2-ca-extensions-1/src/Constants.sol";
 import { Level2AirVoxelID } from "@tenet-level2-ca/src/Constants.sol";
-import { VoxelCoord } from "@tenet-utils/src/Types.sol";
+import { VoxelCoord, ComponentDef } from "@tenet-utils/src/Types.sol";
 import { AirVoxelID } from "@tenet-level1-ca/src/Constants.sol";
 import { registerCAVoxelType } from "@tenet-base-ca/src/CallUtils.sol";
 
@@ -40,6 +40,7 @@ contract LogVoxelSystem is VoxelType {
       Level2AirVoxelID
     );
     bytes32 baseVoxelTypeId = Level2AirVoxelID;
+    ComponentDef[] memory componentDefs = new ComponentDef[](0);
     registerVoxelType(
       REGISTRY_ADDRESS,
       "Log",
@@ -54,7 +55,8 @@ contract LogVoxelSystem is VoxelType {
         IWorld(world).extension1_LogVoxelSystem_variantSelector.selector,
         IWorld(world).extension1_LogVoxelSystem_activate.selector,
         IWorld(world).extension1_LogVoxelSystem_eventHandler.selector
-      )
+      ),
+      abi.encode(componentDefs)
     );
 
     registerCAVoxelType(CA_ADDRESS, LogVoxelID);

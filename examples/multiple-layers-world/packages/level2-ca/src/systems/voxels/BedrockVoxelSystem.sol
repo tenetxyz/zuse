@@ -7,7 +7,7 @@ import { VoxelVariantsRegistryData } from "@tenet-registry/src/codegen/tables/Vo
 import { NoaBlockType } from "@tenet-registry/src/codegen/Types.sol";
 import { registerVoxelVariant, registerVoxelType, voxelSelectorsForVoxel } from "@tenet-registry/src/Utils.sol";
 import { REGISTRY_ADDRESS, BedrockVoxelID } from "@tenet-level2-ca/src/Constants.sol";
-import { VoxelCoord } from "@tenet-utils/src/Types.sol";
+import { VoxelCoord, ComponentDef } from "@tenet-utils/src/Types.sol";
 import { AirVoxelID } from "@tenet-level1-ca/src/Constants.sol";
 
 bytes32 constant BedrockVoxelVariantID = bytes32(keccak256("bedrock"));
@@ -32,6 +32,7 @@ contract BedrockVoxelSystem is VoxelType {
       bedrockChildVoxelTypes[i] = AirVoxelID;
     }
     bytes32 baseVoxelTypeId = BedrockVoxelID;
+    ComponentDef[] memory componentDefs = new ComponentDef[](0);
     registerVoxelType(
       REGISTRY_ADDRESS,
       "Bedrock",
@@ -46,7 +47,8 @@ contract BedrockVoxelSystem is VoxelType {
         IWorld(world).ca_BedrockVoxelSyst_variantSelector.selector,
         IWorld(world).ca_BedrockVoxelSyst_activate.selector,
         IWorld(world).ca_BedrockVoxelSyst_eventHandler.selector
-      )
+      ),
+      abi.encode(componentDefs)
     );
   }
 

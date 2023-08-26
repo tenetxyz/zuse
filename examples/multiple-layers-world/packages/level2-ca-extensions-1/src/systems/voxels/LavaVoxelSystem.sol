@@ -11,7 +11,7 @@ import { registerVoxelVariant, registerVoxelType, voxelSelectorsForVoxel } from 
 import { Temperature, TemperatureData } from "@tenet-level2-ca-extensions-1/src/codegen/Tables.sol";
 import { CA_ADDRESS, REGISTRY_ADDRESS, LavaVoxelID } from "@tenet-level2-ca-extensions-1/src/Constants.sol";
 import { Level2AirVoxelID } from "@tenet-level2-ca/src/Constants.sol";
-import { VoxelCoord, BlockDirection } from "@tenet-utils/src/Types.sol";
+import { VoxelCoord, BlockDirection, ComponentDef } from "@tenet-utils/src/Types.sol";
 import { AirVoxelID } from "@tenet-level1-ca/src/Constants.sol";
 import { Strings } from "@openzeppelin/contracts/utils/Strings.sol";
 import { registerCAVoxelType } from "@tenet-base-ca/src/CallUtils.sol";
@@ -54,6 +54,7 @@ contract LavaVoxelSystem is VoxelType {
       Level2AirVoxelID
     );
     bytes32 baseVoxelTypeId = Level2AirVoxelID;
+    ComponentDef[] memory componentDefs = new ComponentDef[](0);
     registerVoxelType(
       REGISTRY_ADDRESS,
       "Lava",
@@ -68,7 +69,8 @@ contract LavaVoxelSystem is VoxelType {
         IWorld(world).extension1_LavaVoxelSystem_variantSelector.selector,
         IWorld(world).extension1_LavaVoxelSystem_activate.selector,
         IWorld(world).extension1_LavaVoxelSystem_eventHandler.selector
-      )
+      ),
+      abi.encode(componentDefs)
     );
 
     registerCAVoxelType(CA_ADDRESS, LavaVoxelID);

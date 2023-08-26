@@ -28,6 +28,7 @@ struct VoxelTypeRegistryData {
   bytes metadata;
   bytes32[] childVoxelTypeIds;
   bytes32[] schemaVoxelTypeIds;
+  bytes componentDefs;
 }
 
 library VoxelTypeRegistry {
@@ -41,7 +42,7 @@ library VoxelTypeRegistry {
 
   /** Get the table's value schema */
   function getValueSchema() internal pure returns (Schema) {
-    SchemaType[] memory _schema = new SchemaType[](7);
+    SchemaType[] memory _schema = new SchemaType[](8);
     _schema[0] = SchemaType.UINT32;
     _schema[1] = SchemaType.BYTES32;
     _schema[2] = SchemaType.BYTES32;
@@ -49,6 +50,7 @@ library VoxelTypeRegistry {
     _schema[4] = SchemaType.BYTES;
     _schema[5] = SchemaType.BYTES32_ARRAY;
     _schema[6] = SchemaType.BYTES32_ARRAY;
+    _schema[7] = SchemaType.BYTES;
 
     return SchemaLib.encode(_schema);
   }
@@ -61,7 +63,7 @@ library VoxelTypeRegistry {
 
   /** Get the table's field names */
   function getFieldNames() internal pure returns (string[] memory fieldNames) {
-    fieldNames = new string[](7);
+    fieldNames = new string[](8);
     fieldNames[0] = "scale";
     fieldNames[1] = "previewVoxelVariantId";
     fieldNames[2] = "baseVoxelTypeId";
@@ -69,6 +71,7 @@ library VoxelTypeRegistry {
     fieldNames[4] = "metadata";
     fieldNames[5] = "childVoxelTypeIds";
     fieldNames[6] = "schemaVoxelTypeIds";
+    fieldNames[7] = "componentDefs";
   }
 
   /** Register the table's key schema, value schema, key names and value names */
@@ -810,6 +813,159 @@ library VoxelTypeRegistry {
     }
   }
 
+  /** Get componentDefs */
+  function getComponentDefs(bytes32 voxelTypeId) internal view returns (bytes memory componentDefs) {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = voxelTypeId;
+
+    bytes memory _blob = StoreSwitch.getField(_tableId, _keyTuple, 7, getValueSchema());
+    return (bytes(_blob));
+  }
+
+  /** Get componentDefs (using the specified store) */
+  function getComponentDefs(IStore _store, bytes32 voxelTypeId) internal view returns (bytes memory componentDefs) {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = voxelTypeId;
+
+    bytes memory _blob = _store.getField(_tableId, _keyTuple, 7, getValueSchema());
+    return (bytes(_blob));
+  }
+
+  /** Set componentDefs */
+  function setComponentDefs(bytes32 voxelTypeId, bytes memory componentDefs) internal {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = voxelTypeId;
+
+    StoreSwitch.setField(_tableId, _keyTuple, 7, bytes((componentDefs)), getValueSchema());
+  }
+
+  /** Set componentDefs (using the specified store) */
+  function setComponentDefs(IStore _store, bytes32 voxelTypeId, bytes memory componentDefs) internal {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = voxelTypeId;
+
+    _store.setField(_tableId, _keyTuple, 7, bytes((componentDefs)), getValueSchema());
+  }
+
+  /** Get the length of componentDefs */
+  function lengthComponentDefs(bytes32 voxelTypeId) internal view returns (uint256) {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = voxelTypeId;
+
+    uint256 _byteLength = StoreSwitch.getFieldLength(_tableId, _keyTuple, 7, getValueSchema());
+    unchecked {
+      return _byteLength / 1;
+    }
+  }
+
+  /** Get the length of componentDefs (using the specified store) */
+  function lengthComponentDefs(IStore _store, bytes32 voxelTypeId) internal view returns (uint256) {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = voxelTypeId;
+
+    uint256 _byteLength = _store.getFieldLength(_tableId, _keyTuple, 7, getValueSchema());
+    unchecked {
+      return _byteLength / 1;
+    }
+  }
+
+  /**
+   * Get an item of componentDefs
+   * (unchecked, returns invalid data if index overflows)
+   */
+  function getItemComponentDefs(bytes32 voxelTypeId, uint256 _index) internal view returns (bytes memory) {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = voxelTypeId;
+
+    unchecked {
+      bytes memory _blob = StoreSwitch.getFieldSlice(
+        _tableId,
+        _keyTuple,
+        7,
+        getValueSchema(),
+        _index * 1,
+        (_index + 1) * 1
+      );
+      return (bytes(_blob));
+    }
+  }
+
+  /**
+   * Get an item of componentDefs (using the specified store)
+   * (unchecked, returns invalid data if index overflows)
+   */
+  function getItemComponentDefs(
+    IStore _store,
+    bytes32 voxelTypeId,
+    uint256 _index
+  ) internal view returns (bytes memory) {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = voxelTypeId;
+
+    unchecked {
+      bytes memory _blob = _store.getFieldSlice(_tableId, _keyTuple, 7, getValueSchema(), _index * 1, (_index + 1) * 1);
+      return (bytes(_blob));
+    }
+  }
+
+  /** Push a slice to componentDefs */
+  function pushComponentDefs(bytes32 voxelTypeId, bytes memory _slice) internal {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = voxelTypeId;
+
+    StoreSwitch.pushToField(_tableId, _keyTuple, 7, bytes((_slice)), getValueSchema());
+  }
+
+  /** Push a slice to componentDefs (using the specified store) */
+  function pushComponentDefs(IStore _store, bytes32 voxelTypeId, bytes memory _slice) internal {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = voxelTypeId;
+
+    _store.pushToField(_tableId, _keyTuple, 7, bytes((_slice)), getValueSchema());
+  }
+
+  /** Pop a slice from componentDefs */
+  function popComponentDefs(bytes32 voxelTypeId) internal {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = voxelTypeId;
+
+    StoreSwitch.popFromField(_tableId, _keyTuple, 7, 1, getValueSchema());
+  }
+
+  /** Pop a slice from componentDefs (using the specified store) */
+  function popComponentDefs(IStore _store, bytes32 voxelTypeId) internal {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = voxelTypeId;
+
+    _store.popFromField(_tableId, _keyTuple, 7, 1, getValueSchema());
+  }
+
+  /**
+   * Update a slice of componentDefs at `_index`
+   * (checked only to prevent modifying other tables; can corrupt own data if index overflows)
+   */
+  function updateComponentDefs(bytes32 voxelTypeId, uint256 _index, bytes memory _slice) internal {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = voxelTypeId;
+
+    unchecked {
+      StoreSwitch.updateInField(_tableId, _keyTuple, 7, _index * 1, bytes((_slice)), getValueSchema());
+    }
+  }
+
+  /**
+   * Update a slice of componentDefs (using the specified store) at `_index`
+   * (checked only to prevent modifying other tables; can corrupt own data if index overflows)
+   */
+  function updateComponentDefs(IStore _store, bytes32 voxelTypeId, uint256 _index, bytes memory _slice) internal {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = voxelTypeId;
+
+    unchecked {
+      _store.updateInField(_tableId, _keyTuple, 7, _index * 1, bytes((_slice)), getValueSchema());
+    }
+  }
+
   /** Get the full data */
   function get(bytes32 voxelTypeId) internal view returns (VoxelTypeRegistryData memory _table) {
     bytes32[] memory _keyTuple = new bytes32[](1);
@@ -837,7 +993,8 @@ library VoxelTypeRegistry {
     bytes memory selectors,
     bytes memory metadata,
     bytes32[] memory childVoxelTypeIds,
-    bytes32[] memory schemaVoxelTypeIds
+    bytes32[] memory schemaVoxelTypeIds,
+    bytes memory componentDefs
   ) internal {
     bytes memory _data = encode(
       scale,
@@ -846,7 +1003,8 @@ library VoxelTypeRegistry {
       selectors,
       metadata,
       childVoxelTypeIds,
-      schemaVoxelTypeIds
+      schemaVoxelTypeIds,
+      componentDefs
     );
 
     bytes32[] memory _keyTuple = new bytes32[](1);
@@ -865,7 +1023,8 @@ library VoxelTypeRegistry {
     bytes memory selectors,
     bytes memory metadata,
     bytes32[] memory childVoxelTypeIds,
-    bytes32[] memory schemaVoxelTypeIds
+    bytes32[] memory schemaVoxelTypeIds,
+    bytes memory componentDefs
   ) internal {
     bytes memory _data = encode(
       scale,
@@ -874,7 +1033,8 @@ library VoxelTypeRegistry {
       selectors,
       metadata,
       childVoxelTypeIds,
-      schemaVoxelTypeIds
+      schemaVoxelTypeIds,
+      componentDefs
     );
 
     bytes32[] memory _keyTuple = new bytes32[](1);
@@ -893,7 +1053,8 @@ library VoxelTypeRegistry {
       _table.selectors,
       _table.metadata,
       _table.childVoxelTypeIds,
-      _table.schemaVoxelTypeIds
+      _table.schemaVoxelTypeIds,
+      _table.componentDefs
     );
   }
 
@@ -908,7 +1069,8 @@ library VoxelTypeRegistry {
       _table.selectors,
       _table.metadata,
       _table.childVoxelTypeIds,
-      _table.schemaVoxelTypeIds
+      _table.schemaVoxelTypeIds,
+      _table.componentDefs
     );
   }
 
@@ -953,6 +1115,12 @@ library VoxelTypeRegistry {
         _end += _encodedLengths.atIndex(3);
       }
       _table.schemaVoxelTypeIds = (SliceLib.getSubslice(_blob, _start, _end).decodeArray_bytes32());
+
+      _start = _end;
+      unchecked {
+        _end += _encodedLengths.atIndex(4);
+      }
+      _table.componentDefs = (bytes(SliceLib.getSubslice(_blob, _start, _end).toBytes()));
     }
   }
 
@@ -964,7 +1132,8 @@ library VoxelTypeRegistry {
     bytes memory selectors,
     bytes memory metadata,
     bytes32[] memory childVoxelTypeIds,
-    bytes32[] memory schemaVoxelTypeIds
+    bytes32[] memory schemaVoxelTypeIds,
+    bytes memory componentDefs
   ) internal pure returns (bytes memory) {
     PackedCounter _encodedLengths;
     // Lengths are effectively checked during copy by 2**40 bytes exceeding gas limits
@@ -973,7 +1142,8 @@ library VoxelTypeRegistry {
         bytes(selectors).length,
         bytes(metadata).length,
         childVoxelTypeIds.length * 32,
-        schemaVoxelTypeIds.length * 32
+        schemaVoxelTypeIds.length * 32,
+        bytes(componentDefs).length
       );
     }
 
@@ -986,7 +1156,8 @@ library VoxelTypeRegistry {
         bytes((selectors)),
         bytes((metadata)),
         EncodeArray.encode((childVoxelTypeIds)),
-        EncodeArray.encode((schemaVoxelTypeIds))
+        EncodeArray.encode((schemaVoxelTypeIds)),
+        bytes((componentDefs))
       );
   }
 

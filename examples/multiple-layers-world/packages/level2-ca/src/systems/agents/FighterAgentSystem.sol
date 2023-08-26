@@ -9,7 +9,7 @@ import { NoaBlockType } from "@tenet-registry/src/codegen/Types.sol";
 import { hasKey } from "@latticexyz/world/src/modules/keysintable/hasKey.sol";
 import { registerVoxelVariant, registerVoxelType } from "@tenet-registry/src/Utils.sol";
 import { REGISTRY_ADDRESS, FighterVoxelID } from "@tenet-level2-ca/src/Constants.sol";
-import { VoxelCoord, VoxelSelectors, InteractionSelector } from "@tenet-utils/src/Types.sol";
+import { VoxelCoord, VoxelSelectors, InteractionSelector, ComponentDef, RangeComponent, StateComponent, ComponentType } from "@tenet-utils/src/Types.sol";
 import { getFirstCaller } from "@tenet-utils/src/Utils.sol";
 import { getCAEntityAtCoord, getCAVoxelType } from "@tenet-base-ca/src/Utils.sol";
 import { AirVoxelID } from "@tenet-level1-ca/src/Constants.sol";
@@ -37,6 +37,23 @@ contract FighterAgentSystem is AgentType {
     }
     bytes32 baseVoxelTypeId = FighterVoxelID;
 
+    ComponentDef[] memory componentDefs = new ComponentDef[](3);
+    componentDefs[0] = ComponentDef(
+      ComponentType.RANGE,
+      "Health",
+      abi.encode(RangeComponent({ rangeStart: 0, rangeEnd: 100 }))
+    );
+    componentDefs[1] = ComponentDef(
+      ComponentType.RANGE,
+      "Stamina",
+      abi.encode(RangeComponent({ rangeStart: 0, rangeEnd: 100 }))
+    );
+    string[] memory states = new string[](3);
+    states[0] = "Running";
+    states[1] = "Defending";
+    states[2] = "Attacking";
+    componentDefs[2] = ComponentDef(ComponentType.STATE, "State", abi.encode(StateComponent(states)));
+
     registerVoxelType(
       REGISTRY_ADDRESS,
       "Fighter",
@@ -52,7 +69,8 @@ contract FighterAgentSystem is AgentType {
         activateSelector: IWorld(world).ca_FighterAgentSyst_activate.selector,
         onNewNeighbourSelector: IWorld(world).ca_FighterAgentSyst_onNewNeighbour.selector,
         interactionSelectors: getInteractionSelectors()
-      })
+      }),
+      abi.encode(componentDefs)
     );
   }
 
@@ -83,10 +101,21 @@ contract FighterAgentSystem is AgentType {
   }
 
   function getInteractionSelectors() public override returns (InteractionSelector[] memory) {
-    InteractionSelector[] memory voxelInteractionSelectors = new InteractionSelector[](1);
+    InteractionSelector[] memory voxelInteractionSelectors = new InteractionSelector[](3);
     voxelInteractionSelectors[0] = InteractionSelector({
       interactionSelector: IWorld(_world()).ca_FighterAgentSyst_moveForwardEventHandler.selector,
       interactionName: "Move Forward",
+      interactionDescription: ""
+    });
+    // TODO: change the selectors so they point to legit contracts
+    voxelInteractionSelectors[1] = InteractionSelector({
+      interactionSelector: IWorld(_world()).ca_FighterAgentSyst_moveForwardEventHandler.selector,
+      interactionName: "Attack",
+      interactionDescription: ""
+    });
+    voxelInteractionSelectors[2] = InteractionSelector({
+      interactionSelector: IWorld(_world()).ca_FighterAgentSyst_moveForwardEventHandler.selector,
+      interactionName: "Defend",
       interactionDescription: ""
     });
     return voxelInteractionSelectors;

@@ -1,9 +1,12 @@
-import { World } from "@latticexyz/recs";
-import { defineNumberComponent } from "@latticexyz/std-client";
+import { defineComponent, Type, World } from "@latticexyz/recs";
 
 export function defineStakeComponent(world: World) {
-  return defineNumberComponent(world, {
-    id: "Stake",
-    metadata: { contractId: "component.Stake" },
-  });
+  return defineComponent(
+    world,
+    { value: Type.Number },
+    {
+      id: "Stake",
+      metadata: { contractId: "component.Stake" },
+    }
+  );
 }

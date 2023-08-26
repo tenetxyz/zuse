@@ -1,6 +1,5 @@
-import { World } from "@latticexyz/recs";
-import { defineBoolComponent } from "@latticexyz/std-client";
+import { defineComponent, Type, World } from "@latticexyz/recs";
 
 export function definePlayerMeshComponent(world: World) {
-  return defineBoolComponent(world, { id: "PlayerMesh" });
+  return defineComponent(world, { value: Type.Boolean }, { id: "PlayerMesh" });
 }

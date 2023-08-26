@@ -2,7 +2,6 @@ import { useEffect, useState } from "react";
 import { WorldRegistry, WorldRegistryFilters } from "./WorldRegistry";
 import { defineContractComponents as defineRegistryContractComponents } from "@tenetxyz/registry/client/contractComponents";
 import { getNetworkConfig } from "@/mud/getNetworkConfig";
-import { setupMUDV2Network } from "@latticexyz/std-client";
 import registryStoreConfig from "@tenetxyz/registry/mud.config";
 import { IWorld__factory as RegistryIWorld__factory } from "@tenetxyz/registry/types/ethers-contracts/factories/IWorld__factory";
 import { Layers } from "@/types";
@@ -27,7 +26,7 @@ export function Lobby({ layers }: Props) {
         <div className="font-inter z-20 text-9xl opacity-100 text-white w-full h-full font-bold text-center mb-5">
           EVERLON
         </div>
-        <div 
+        <div
           className="z-20 text-white"
           style={{
             padding: "4px 2px",
@@ -36,7 +35,8 @@ export function Lobby({ layers }: Props) {
             marginTop: "8px",
             backgroundColor: "#ffffff12",
             backdropFilter: "blur(2px)",
-          }}>
+          }}
+        >
           <WorldRegistry layers={layers} filters={worldRegistryFilters} setFilters={setWorldRegistryFilters} />
         </div>
       </div>

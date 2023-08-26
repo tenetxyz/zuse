@@ -1,19 +1,12 @@
 import React from "react";
-import { ActionState } from "@latticexyz/std-client";
+import { ActionState } from "@latticexyz/recs/src/deprecated";
 import styled from "styled-components";
 import { PendingIcon } from "./icons/PendingIcon";
 import { CheckIcon } from "./icons/CheckIcon";
 import { CloseIcon } from "./icons/CloseIcon";
 import { Container } from "./common";
 import { Badge } from "@/components/ui/badge";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 
 type Props = {
   state: ActionState;
@@ -28,7 +21,7 @@ const ActionContainer = styled.div`
   border: 0.5px solid #374147;
   background-color: rgba(36, 42, 47, 0.8);
   border-radius: 4px;
-  box-shadow: '#C9CACB 0px 0px 20px 5px';
+  box-shadow: "#C9CACB 0px 0px 20px 5px";
 
   padding: 4px;
 

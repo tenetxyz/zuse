@@ -1,6 +1,5 @@
-import { World } from "@latticexyz/recs";
-import { defineVoxelCoordComponent } from "@latticexyz/std-client";
+import { defineComponent, Type, World } from "@latticexyz/recs";
 
 export function defineLocalPlayerPositionComponent(world: World) {
-  return defineVoxelCoordComponent(world, { id: "LocalPlayerPosition" });
+  return defineComponent(world, { x: Type.Number, y: Type.Number, z: Type.Number }, { id: "LocalPlayerPosition" });
 }

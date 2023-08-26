@@ -1,4 +1,4 @@
-import { setupMUDV2Network, createActionSystem } from "@latticexyz/std-client";
+import { createActionSystem } from "@latticexyz/recs/src/deprecated";
 import {
   Entity,
   getComponentValue,
@@ -26,7 +26,15 @@ import { IWorld__factory as RegistryIWorld__factory } from "@tenetxyz/registry/t
 import { getTableIds, awaitPromise, computedToStream, VoxelCoord, Coord, awaitStreamValue } from "@latticexyz/utils";
 import { map, timer, combineLatest, BehaviorSubject } from "rxjs";
 import storeConfig from "@tenetxyz/contracts/mud.config";
-import registryStoreConfig from "@tenetxyz/registry/mud.config";
+import registryMudConfig from "@tenetxyz/registry/mud.config";
+import { createPublicClient, fallback, webSocket, http, createWalletClient, Hex, parseEther, ClientConfig } from "viem";
+import { createFaucetService } from "@latticexyz/services/faucet";
+import { encodeEntity, syncToRecs } from "@latticexyz/store-sync/recs";
+import { getNetworkConfig } from "./getNetworkConfig";
+import { world } from "./world";
+import { IWorld__factory } from "contracts/types/ethers-contracts/factories/IWorld__factory";
+import { createBurnerAccount, createContract, transportObserver, ContractWrite } from "@latticexyz/common";
+import { Subject, share } from "rxjs";
 import {
   getEcsVoxelType,
   getTerrain,
@@ -77,49 +85,28 @@ const giveComponentsAHumanReadableId = (contractComponents: any) => {
   });
 };
 
-// TODO: fix multiple ABIs in same client. Note: This doesn't currently work, use the other client instead
-const SHOW_REGISTRY_WORLD_IN_DEV_TOOLS = false;
-
 const setupWorldRegistryNetwork = async () => {
   const registryWorld = createWorld();
-  const registryComponents = defineRegistryContractComponents(registryWorld);
-  giveComponentsAHumanReadableId(registryComponents);
-
   const networkConfig = await getNetworkConfig(true);
   console.log("Got registry network config", networkConfig);
-  networkConfig.showInDevTools = SHOW_REGISTRY_WORLD_IN_DEV_TOOLS;
 
-  const result = await setupMUDV2Network<typeof registryComponents, typeof registryStoreConfig>({
-    networkConfig,
-    world: registryWorld,
-    contractComponents: registryComponents,
-    syncThread: "worker", // PERF: sync using workers
-    storeConfig: registryStoreConfig,
-    worldAbi: RegistryIWorld__factory.abi,
-    useABIInDevTools: SHOW_REGISTRY_WORLD_IN_DEV_TOOLS,
+  const clientOptions = {
+    chain: networkConfig.chain,
+    transport: transportObserver(fallback([webSocket(), http()])),
+    pollingInterval: 1000,
+  } as const satisfies ClientConfig;
+
+  const publicClient = createPublicClient(clientOptions);
+
+  const { components, latestBlock$, blockStorageOperations$, waitForTransaction } = await syncToRecs({
+    registryWorld,
+    config: registryMudConfig,
+    address: networkConfig.worldAddress as Hex,
+    publicClient,
+    startBlock: BigInt(networkConfig.initialBlockNumber),
   });
-  console.log("Setup registry MUD V2 network", result);
 
-  const provider = result.network.providers.get().json;
-
-  const signer = result.network.signer.get();
-  const signerOrProvider = signer ?? provider;
-
-  if (networkConfig.snapSync) {
-    const currentBlockNumber = await provider.getBlockNumber();
-    const tableRecords = await getSnapSyncRecords(
-      networkConfig.worldAddress,
-      getTableIds(registryStoreConfig),
-      currentBlockNumber,
-      signerOrProvider
-    );
-    console.log(`Syncing ${tableRecords.length} records`);
-    result.startSync(tableRecords, currentBlockNumber);
-  } else {
-    result.startSync();
-  }
-
-  return { registryComponents, registryResult: result };
+  return { registryComponents: components };
 };
 
 export async function setupNetwork() {

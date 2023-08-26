@@ -30,7 +30,6 @@
     "@latticexyz/schema-type": "link:../../../mud/packages/schema-type",
     "@latticexyz/services": "link:../../../mud/packages/services",
     "@latticexyz/solecs": "link:../../../mud/packages/solecs",
-    "@latticexyz/std-client": "link:../../../mud/packages/std-client",
     "@latticexyz/std-contracts": "link:../../../mud/packages/std-contracts",
     "@latticexyz/store-cache": "link:../../../mud/packages/store-cache",
     "@latticexyz/utils": "link:../../../mud/packages/utils",

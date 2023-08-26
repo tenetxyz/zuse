@@ -1,9 +1,12 @@
-import { World } from "@latticexyz/recs";
-import { defineStringComponent } from "@latticexyz/std-client";
+import { defineComponent, Type, World } from "@latticexyz/recs";
 
 export function defineVoxelTypeComponent(world: World) {
-  return defineStringComponent(world, {
-    id: "VoxelType",
-    metadata: { contractId: "component.VoxelType" },
-  });
+  return defineComponent(
+    world,
+    { value: Type.String },
+    {
+      id: "VoxelType",
+      metadata: { contractId: "component.VoxelType" },
+    }
+  );
 }

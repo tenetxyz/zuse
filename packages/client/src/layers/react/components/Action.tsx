@@ -1,5 +1,5 @@
 import React from "react";
-import { ActionState } from "@latticexyz/recs/src/deprecated";
+import { ActionState } from "@latticexyz/recs/deprecated";
 import styled from "styled-components";
 import { PendingIcon } from "./icons/PendingIcon";
 import { CheckIcon } from "./icons/CheckIcon";

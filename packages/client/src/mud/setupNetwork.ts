@@ -1,4 +1,4 @@
-import { createActionSystem } from "@latticexyz/recs/src/deprecated";
+import { createActionSystem } from "@latticexyz/recs/deprecated";
 import { Entity, getComponentValue, createIndexer, runQuery, HasValue, createWorld } from "@latticexyz/recs";
 import { getNetworkConfig } from "./getNetworkConfig";
 import { createPerlin } from "@latticexyz/noise";

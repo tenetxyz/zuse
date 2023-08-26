@@ -118,14 +118,20 @@ export async function setupNetwork() {
     onWrite: (write) => write$.next(write),
   });
 
-  const { components, latestBlock$, blockStorageOperations$, waitForTransaction } = await syncToRecs({
-    world,
-    config: mudConfig,
-    address: networkConfig.worldAddress as Hex,
-    publicClient,
-    startBlock: BigInt(networkConfig.initialBlockNumber),
-  });
+  const { components, blockLogsStorage$, latestBlock$, blockStorageOperations$, waitForTransaction } = await syncToRecs(
+    {
+      world,
+      config: mudConfig,
+      address: networkConfig.worldAddress as Hex,
+      publicClient,
+      startBlock: BigInt(networkConfig.initialBlockNumber),
+    }
+  );
   const contractComponents = components;
+
+  const txReduced$ = blockLogsStorage$.pipe(
+    mergeMap(({ operations }) => from(operations.map((op) => op.log?.transactionHash).filter(isDefined)))
+  );
 
   // Relayer setup
   let relay: Awaited<ReturnType<typeof createRelayStream>> | undefined;
@@ -152,7 +158,7 @@ export async function setupNetwork() {
     const requestDrip = async () => {
       const balance = await publicClient.getBalance({ address });
       console.info(`[Dev Faucet]: Player balance -> ${balance}`);
-      const lowBalance = balance?.lte(utils.parseEther("1"));
+      const lowBalance = balance < parseEther("1");
       if (lowBalance) {
         console.info("[Dev Faucet]: Balance is low, dripping funds to player");
         // Double drip
@@ -190,7 +196,7 @@ export async function setupNetwork() {
     coord?: VoxelCoord;
     voxelVariantTypeId?: VoxelVariantTypeId;
     preview?: string;
-  }>(world, result.txReduced$);
+  }>(world, txReduced$, waitForTransaction);
 
   // Add optimistic updates and indexers
   const { withOptimisticUpdates } = actions;
@@ -330,7 +336,7 @@ export async function setupNetwork() {
     return [
       ...runQuery([
         HasValue(contractComponents.OwnedBy, {
-          player: playerAddress,
+          player: burnerAccount.address,
         }),
         HasValue(contractComponents.VoxelType, {
           voxelTypeId: voxelBaseTypeId,
@@ -692,11 +698,11 @@ export async function setupNetwork() {
   // --- STREAMS --------------------------------------------------------------------
   const balanceGwei$ = new BehaviorSubject<number>(1);
   world.registerDisposer(
-    combineLatest([timer(0, 5000), computedToStream(result.network.signer)])
+    combineLatest([timer(0, 5000), computedToStream(publicClient)])
       .pipe(
-        map<[number, Signer | undefined], Promise<number>>(async ([, signer]) =>
-          signer
-            ? signer.getBalance().then((v) => v.div(BigNumber.from(10).pow(9)).toNumber())
+        map<[number, any | undefined], Promise<number>>(async ([, publicClient]) =>
+          publicClient
+            ? publicClient.getBalance().then((v) => v.div(BigNumber.from(10).pow(9)).toNumber())
             : new Promise((res) => res(0))
         ),
         awaitPromise()
@@ -772,7 +778,6 @@ export async function setupNetwork() {
       registerTruthTableClassifier,
       classifyIfCreationSatisfiesTruthTable,
     },
-    fastTxExecutor,
     // dev: setupDevSystems(world, encoders as Promise<any>, systems),
     // dev: setupDevSystems(world),
     streams: { connectedClients$, balanceGwei$, doneSyncing$ },
@@ -780,7 +785,6 @@ export async function setupNetwork() {
     relay,
     faucet,
     worldAddress: networkConfig.worldAddress,
-    uniqueWorldId,
     getVoxelIconUrl,
     getVoxelTypePreviewUrl,
     getVoxelPreviewVariant,

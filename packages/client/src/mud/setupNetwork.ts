@@ -1,40 +1,17 @@
 import { createActionSystem } from "@latticexyz/recs/src/deprecated";
-import {
-  Entity,
-  getComponentValue,
-  createIndexer,
-  runQuery,
-  HasValue,
-  createWorld,
-  getComponentValueStrict,
-} from "@latticexyz/recs";
-import {
-  createFastTxExecutor,
-  createFaucetService,
-  getSnapSyncRecords,
-  createRelayStream,
-  SyncState,
-} from "@latticexyz/network";
+import { Entity, getComponentValue, createIndexer, runQuery, HasValue, createWorld } from "@latticexyz/recs";
 import { getNetworkConfig } from "./getNetworkConfig";
-import { defineContractComponents } from "./contractComponents";
-import { defineContractComponents as defineRegistryContractComponents } from "@tenetxyz/registry/client/contractComponents";
 import { createPerlin } from "@latticexyz/noise";
-import { BigNumber, Contract, Signer, utils } from "ethers";
-import { JsonRpcProvider } from "@ethersproject/providers";
+import mudConfig from "@tenetxyz/contracts/mud.config";
+import registryMudConfig from "@tenetxyz/registry/mud.config";
 import { IWorld__factory } from "@tenetxyz/contracts/types/ethers-contracts/factories/IWorld__factory";
 import { IWorld__factory as RegistryIWorld__factory } from "@tenetxyz/registry/types/ethers-contracts/factories/IWorld__factory";
-import { getTableIds, awaitPromise, computedToStream, VoxelCoord, Coord, awaitStreamValue } from "@latticexyz/utils";
-import { map, timer, combineLatest, BehaviorSubject } from "rxjs";
-import storeConfig from "@tenetxyz/contracts/mud.config";
-import registryMudConfig from "@tenetxyz/registry/mud.config";
+import { awaitPromise, computedToStream, VoxelCoord, Coord, awaitStreamValue } from "@latticexyz/utils";
+import { map, timer, combineLatest, BehaviorSubject, Subject, share } from "rxjs";
 import { createPublicClient, fallback, webSocket, http, createWalletClient, Hex, parseEther, ClientConfig } from "viem";
 import { createFaucetService } from "@latticexyz/services/faucet";
-import { encodeEntity, syncToRecs } from "@latticexyz/store-sync/recs";
-import { getNetworkConfig } from "./getNetworkConfig";
-import { world } from "./world";
-import { IWorld__factory } from "contracts/types/ethers-contracts/factories/IWorld__factory";
+import { encodeEntity, syncToRecs, SyncStep, singletonEntity } from "@latticexyz/store-sync/recs";
 import { createBurnerAccount, createContract, transportObserver, ContractWrite } from "@latticexyz/common";
-import { Subject, share } from "rxjs";
 import {
   getEcsVoxelType,
   getTerrain,
@@ -71,6 +48,7 @@ import { toast } from "react-toastify";
 import { BaseCreationInWorld } from "../layers/react/components/RegisterCreation";
 import { Engine } from "noa-engine";
 import { setupComponentParsers } from "./componentParsers/componentParser";
+import { createRelayStream } from "./createRelayStream";
 
 export type SetupNetworkResult = Awaited<ReturnType<typeof setupNetwork>>;
 
@@ -106,39 +84,55 @@ const setupWorldRegistryNetwork = async () => {
     startBlock: BigInt(networkConfig.initialBlockNumber),
   });
 
-  return { registryComponents: components };
+  return { registryComponents: components, registryResult: { components: components } };
 };
 
 export async function setupNetwork() {
   const { registryComponents, registryResult } = await setupWorldRegistryNetwork(); // load the registry world first so the transactionHash$ stream is subscribed to this world (at least this is what I think. I just know that if you place it after, transactions fail with: "you have the wrong abi" when calling systems)
   const world = createWorld();
-  const contractComponents = defineContractComponents(world);
-  giveComponentsAHumanReadableId(contractComponents);
 
   console.log("Getting network config...");
   const networkConfig = await getNetworkConfig(false);
-  networkConfig.showInDevTools = !SHOW_REGISTRY_WORLD_IN_DEV_TOOLS;
   console.log("Got network config", networkConfig);
-  const result = await setupMUDV2Network<typeof contractComponents, typeof storeConfig>({
-    networkConfig,
-    world,
-    contractComponents,
-    syncThread: "main", // PERF: sync using workers
-    storeConfig,
-    worldAbi: IWorld__factory.abi,
-    useABIInDevTools: !SHOW_REGISTRY_WORLD_IN_DEV_TOOLS,
-  });
-  console.log("Setup MUD V2 network", result);
 
-  const signer = result.network.signer.get();
-  const playerAddress = result.network.connectedAddress.get();
+  const clientOptions = {
+    chain: networkConfig.chain,
+    transport: transportObserver(fallback([webSocket(), http()])),
+    pollingInterval: 1000,
+  } as const satisfies ClientConfig;
+
+  const publicClient = createPublicClient(clientOptions);
+
+  const burnerAccount = createBurnerAccount(networkConfig.privateKey as Hex);
+  const burnerWalletClient = createWalletClient({
+    ...clientOptions,
+    account: burnerAccount,
+  });
+
+  const write$ = new Subject<ContractWrite>();
+  const worldContract = createContract({
+    address: networkConfig.worldAddress as Hex,
+    abi: IWorld__factory.abi,
+    publicClient,
+    walletClient: burnerWalletClient,
+    onWrite: (write) => write$.next(write),
+  });
+
+  const { components, latestBlock$, blockStorageOperations$, waitForTransaction } = await syncToRecs({
+    world,
+    config: mudConfig,
+    address: networkConfig.worldAddress as Hex,
+    publicClient,
+    startBlock: BigInt(networkConfig.initialBlockNumber),
+  });
+  const contractComponents = components;
 
   // Relayer setup
   let relay: Awaited<ReturnType<typeof createRelayStream>> | undefined;
   try {
     relay =
-      networkConfig.relayServiceUrl && playerAddress && signer
-        ? await createRelayStream(signer, networkConfig.relayServiceUrl, playerAddress)
+      networkConfig.relayServiceUrl && burnerAccount.address
+        ? await createRelayStream(burnerWalletClient, networkConfig.relayServiceUrl, burnerAccount.address)
         : undefined;
   } catch (e) {
     console.error(e);
@@ -149,14 +143,14 @@ export async function setupNetwork() {
 
   // Request drip from faucet
   let faucet: any = undefined;
-  if (networkConfig.faucetServiceUrl && signer) {
-    const address = await signer.getAddress();
+  if (networkConfig.faucetServiceUrl) {
+    const address = burnerAccount.address;
     console.info("[Dev Faucet]: Player address -> ", address);
 
     faucet = createFaucetService(networkConfig.faucetServiceUrl);
 
     const requestDrip = async () => {
-      const balance = await signer.getBalance();
+      const balance = await publicClient.getBalance({ address });
       console.info(`[Dev Faucet]: Player balance -> ${balance}`);
       const lowBalance = balance?.lte(utils.parseEther("1"));
       if (lowBalance) {
@@ -189,82 +183,6 @@ export async function setupNetwork() {
   //     source: "https://github.com/latticexyz/opcraft-plugins",
   //   });
   // }
-
-  const provider = result.network.providers.get().json;
-  const signerOrProvider = signer ?? provider;
-  // Create a World contract instance
-  const worldContract = IWorld__factory.connect(networkConfig.worldAddress, signerOrProvider);
-  const uniqueWorldId = networkConfig.chainId + networkConfig.worldAddress;
-
-  // Create a fast tx executor
-  // Note: The check for signer?.provider instanceof JsonRpcProvider was removed because Vite build changes the name
-  // of the instance. And they don't have a solution yet. Tracked here: https://github.com/vitejs/vite/issues/9528
-  const fastTxExecutor = signer?.provider
-    ? await createFastTxExecutor(signer as Signer & { provider: JsonRpcProvider })
-    : null;
-
-  // TODO: infer this from fastTxExecute signature?
-  type BoundFastTxExecuteFn<C extends Contract> = <F extends keyof C>(
-    func: F,
-    args: Parameters<C[F]>,
-    options?: {
-      retryCount?: number;
-    }
-  ) => Promise<{ hash: string; tx: ReturnType<C[F]> }>;
-
-  function bindFastTxExecute<C extends Contract>(contract: C): BoundFastTxExecuteFn<C> {
-    return async function (...args) {
-      if (!fastTxExecutor) {
-        throw new Error("no signer");
-      }
-      return fastTxExecutor.fastTxExecute(contract, ...args);
-    };
-  }
-
-  // TODO: if some transactions never finish, we may not evict them from this map.
-  // I don't know the code enough to know if that's the case. we need to monitor this in the meantime
-  const transactionCallbacks = new Map<string, (res: string) => void>();
-
-  type WorldContract = typeof worldContract;
-  // please use callSystem instead because it handles errors better, haldes awaiting for the tx to finish, and handles callbacks for the system when it finishes
-  const worldSend: BoundFastTxExecuteFn<WorldContract> = bindFastTxExecute(worldContract);
-
-  async function callSystem<F extends keyof WorldContract>(
-    func: F,
-    args: Parameters<WorldContract[F]>,
-    options?: {
-      retryCount?: number;
-    },
-    onSuccessCallback?: (res: string) => void // This callback will be called with the result of the transaction
-  ) {
-    try {
-      const { hash, tx } = await worldSend(func, args, options);
-      if (onSuccessCallback) {
-        transactionCallbacks.set(hash, onSuccessCallback);
-      }
-      return tx;
-    } catch (err) {
-      // These errors typically happen BEFORE the transaction is executed (mainly gas errors)
-      console.error(`Transaction call failed: ${err}`);
-
-      toast(`Transaction call failed: ${parseTxError(err)}`);
-    }
-  }
-
-  const parseTxError = (err: any): string => {
-    const defaultError = "couldn't parse error. See console for more info";
-
-    if (!err) return defaultError;
-
-    try {
-      const errorBody = JSON.parse(err.body);
-      const parsedError = errorBody?.error?.message;
-      return parsedError || defaultError;
-    } catch (err) {
-      console.warn("couldn't parse error body parseError=", err);
-      return defaultError;
-    }
-  };
 
   // --- ACTION SYSTEM --------------------------------------------------------------
   const actions = createActionSystem<{
@@ -802,50 +720,29 @@ export async function setupNetwork() {
     }
   };
   awaitStreamValue(
-    registryResult.components.LoadingState.update$,
-    ({ value }) => value[0]?.state === SyncState.LIVE
+    registryResult.components.SyncProgress.update$,
+    ({ value }) => value[0]?.step === SyncStep.LIVE
   ).then(async () => {
     console.log("registrySynced");
     registrySynced = true;
 
-    if (networkConfig.snapSync) {
-      const currentBlockNumber = await provider.getBlockNumber();
-      const tableRecords = await getSnapSyncRecords(
-        networkConfig.worldAddress,
-        getTableIds(storeConfig),
-        currentBlockNumber,
-        signerOrProvider
-      );
-
-      console.log(`Syncing ${tableRecords.length} records`);
-      result.startSync(tableRecords, currentBlockNumber);
-    } else {
-      result.startSync();
-    }
-
     trySendDoneSyncing();
   });
 
-  awaitStreamValue(result.components.LoadingState.update$, ({ value }) => value[0]?.state === SyncState.LIVE).then(
-    () => {
-      console.log("contractsSynced");
-      contractsSynced = true;
-      trySendDoneSyncing();
-    }
-  );
+  awaitStreamValue(components.SyncProgress.update$, ({ value }) => value[0]?.step === SyncStep.LIVE).then(() => {
+    console.log("contractsSynced");
+    contractsSynced = true;
+    trySendDoneSyncing();
+  });
 
   const { ParsedCreationRegistry, ParsedVoxelTypeRegistry, ParsedSpawn } = setupComponentParsers(
     world,
     registryResult,
-    result,
+    components,
     networkConfig.worldAddress
   );
 
-  // please don't remove. This is for documentation purposes
-  const internalMudWorldAndStoreComponents = result.components;
-
   return {
-    ...result,
     contractComponents,
     registryComponents,
     parsedComponents: {

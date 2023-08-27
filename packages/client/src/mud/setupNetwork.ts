@@ -78,7 +78,7 @@ const setupWorldRegistryNetwork = async () => {
   const publicClient = createPublicClient(clientOptions);
 
   const { components, latestBlock$, blockStorageOperations$, waitForTransaction } = await syncToRecs({
-    registryWorld,
+    world: registryWorld,
     config: registryMudConfig,
     address: networkConfig.worldAddress as Hex,
     publicClient,

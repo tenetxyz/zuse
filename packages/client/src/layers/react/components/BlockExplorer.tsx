@@ -107,7 +107,7 @@ export function registerBlockExplorer() {
       return merge(
         blockNumber$.pipe(map<number, BlockEvent>((blockNumber) => ({ blockNumber }))),
         ecsEvent$
-          .pipe(filter(isNetworkComponentUpdateEvent))
+          .pipe(filter((e) => e.type === "NetworkComponentUpdate"))
           // We're only visualizing the stream of new blocks so skip backfill
           .pipe(filter(({ txHash }) => txHash !== "worker" && txHash !== "cache"))
           .pipe(

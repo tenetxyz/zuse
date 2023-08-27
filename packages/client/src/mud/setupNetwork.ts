@@ -10,7 +10,8 @@ import { awaitPromise, computedToStream, VoxelCoord, Coord, awaitStreamValue } f
 import { map, timer, combineLatest, BehaviorSubject, Subject, share } from "rxjs";
 import { createPublicClient, fallback, webSocket, http, createWalletClient, Hex, parseEther, ClientConfig } from "viem";
 import { createFaucetService } from "@latticexyz/services/faucet";
-import { encodeEntity, syncToRecs, SyncStep, singletonEntity } from "@latticexyz/store-sync/recs";
+import { encodeEntity, syncToRecs, singletonEntity } from "@latticexyz/store-sync/recs";
+import { SyncStep } from "@latticexyz/store-sync";
 import { createBurnerAccount, createContract, transportObserver, ContractWrite } from "@latticexyz/common";
 import {
   getEcsVoxelType,

@@ -1,4 +1,4 @@
-import { cacheStore$ } from "@latticexyz/network/dev";
+// import { cacheStore$ } from "@latticexyz/network/dev";
 import { Classifier } from "./ClassifierStore";
 import { useEffect, useRef, useState } from "react";
 import { to256BitString, unpackTuple } from "@latticexyz/utils";
@@ -28,12 +28,12 @@ export const ClassifierResults = ({ layers, classifier }: Props) => {
   const storeEvent = useRef<any>(undefined);
   const [results, setResults] = useState<ClassifierResult[]>([]);
 
-  useEffect(() => {
-    const subscription = cacheStore$.subscribe((event) => {
-      storeEvent.current = event;
-    });
-    return () => subscription.unsubscribe();
-  }, [cacheStore$]);
+  // useEffect(() => {
+  //   const subscription = cacheStore$.subscribe((event) => {
+  //     storeEvent.current = event;
+  //   });
+  //   return () => subscription.unsubscribe();
+  // }, [cacheStore$]);
 
   // This method to use the cacheStore to get the values from deployed tables (after the initial deploy) is taken from the mud dev tools:
   // https://github.com/latticexyz/mud/blob/73e200cc8bc2e28aa927637a0cbd55b71c1608a1/packages/dev-tools/src/tables/Table.tsx#L29

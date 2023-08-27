@@ -28,11 +28,11 @@ export function registerUIComponents() {
 
   clearTenetComponentRenderer();
   registerLoadingState();
-  registerActionQueue();
+  // registerActionQueue();
   registerTenetSidebar();
   registerAdminPanel();
   registerBackgroundFade();
-  registerPersistentSidebar();
+  // registerPersistentSidebar();
   // registerSplashCard();
   registerZoomOverlay();
 }

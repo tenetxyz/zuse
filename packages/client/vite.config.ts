@@ -42,6 +42,6 @@ export default defineConfig({
     esbuildOptions: {
       target: "es2022",
     },
-    exclude: ["@latticexyz/noise", "buffer"],
+    exclude: ["@latticexyz/noise"],
   },
 });

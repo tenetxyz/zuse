@@ -111,5 +111,6 @@ export async function setupNetwork() {
     worldContract,
     write$: write$.asObservable().pipe(share()),
     worldId,
+    storeConfig,
   };
 }

@@ -2,7 +2,6 @@ import ReactDOM from "react-dom/client";
 import { App } from "./App";
 import { setup } from "./mud/setup";
 import { MUDProvider } from "./MUDContext";
-import mudConfig from "contracts/mud.config";
 
 const rootElement = document.getElementById("react-root");
 if (!rootElement) throw new Error("React root not found");
@@ -20,7 +19,7 @@ setup().then(async (result) => {
   if (import.meta.env.DEV) {
     const { mount: mountDevTools } = await import("@latticexyz/dev-tools");
     mountDevTools({
-      config: mudConfig,
+      config: result.network.storeConfig,
       publicClient: result.network.publicClient,
       walletClient: result.network.walletClient,
       latestBlock$: result.network.latestBlock$,

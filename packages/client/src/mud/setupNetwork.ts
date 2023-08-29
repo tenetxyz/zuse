@@ -84,6 +84,7 @@ const setupWorldRegistryNetwork = async () => {
     address: networkConfig.worldAddress as Hex,
     publicClient,
     startBlock: BigInt(networkConfig.initialBlockNumber),
+    maxBlockRange: BigInt(100000),
   });
 
   return { registryComponents: components, registryResult: { components: components } };
@@ -127,6 +128,7 @@ export async function setupNetwork() {
       address: networkConfig.worldAddress as Hex,
       publicClient,
       startBlock: BigInt(networkConfig.initialBlockNumber),
+      maxBlockRange: BigInt(100000),
     }
   );
   const contractComponents = components;
@@ -767,7 +769,6 @@ export async function setupNetwork() {
       ParsedSpawn,
     },
     world,
-    worldContract,
     api: {
       getTerrainVoxelTypeAtPosition,
       getEcsVoxelTypeAtPosition,

@@ -88,10 +88,7 @@ export function createNoaLayer(network: NetworkLayer) {
   const world = namespaceWorld(network.world, "noa");
   const {
     worldAddress,
-    network: {
-      config: { chainId },
-      connectedAddress,
-    },
+    config: { chainId },
     streams: { doneSyncing$ },
     contractComponents: { VoxelType },
     voxelTypes: { VoxelVariantIdToDef, VoxelVariantSubscriptions },
@@ -430,11 +427,11 @@ export function createNoaLayer(network: NetworkLayer) {
   createVoxelSystem(network, context);
   createPlayerPositionSystem(network, context);
   createRelaySystem(network, context);
-  createInventoryIndexSystem(network, context);
+  // createInventoryIndexSystem(network, context);
   createSyncLocalPlayerPositionSystem(network, context);
   // createCreativeModeSystem(network, context);
   createSpawnPlayerSystem(network, context);
-  createTutorialSystem(network, context);
+  // createTutorialSystem(network, context);
   createSoundSystem(network, context);
   createVoxelSelectionOverlaySystem(network, context);
   createSpawnCreationOverlaySystem(network, context);

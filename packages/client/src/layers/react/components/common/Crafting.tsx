@@ -16,7 +16,7 @@ export const Crafting: React.FC<{
   const {
     network: {
       contractComponents: { OwnedBy, VoxelType },
-      network: { connectedAddress },
+      connectedAddress,
       api: { craft },
       getVoxelIconUrl,
     },
@@ -76,7 +76,7 @@ export const Crafting: React.FC<{
     const ownedEntitiesOfType = [
       ...runQuery([
         HasValue(OwnedBy, {
-          player: connectedAddress.get(),
+          player: connectedAddress,
         }),
         HasValue(VoxelType, { voxelTypeId: holdingVoxelType }),
       ]),

@@ -25,6 +25,16 @@ setup().then((result) => {
     </MUDProvider>
   );
   if (shouldMountDevTools) {
-    mountDevTools();
+    mountDevTools({
+      config: result.network.storeConfig,
+      publicClient: result.network.publicClient,
+      walletClient: result.network.walletClient,
+      latestBlock$: result.network.latestBlock$,
+      blockStorageOperations$: result.network.blockStorageOperations$,
+      worldAddress: result.network.worldContract.address,
+      worldAbi: result.network.worldContract.abi,
+      write$: result.network.write$,
+      recsWorld: result.network.world,
+    });
   }
 });

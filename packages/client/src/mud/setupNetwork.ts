@@ -50,6 +50,7 @@ import { BaseCreationInWorld } from "../layers/react/components/RegisterCreation
 import { Engine } from "noa-engine";
 import { setupComponentParsers } from "./componentParsers/componentParser";
 import { createRelayStream } from "./createRelayStream";
+import { ComputeNormalsBlock } from "@babylonjs/core";
 
 export type SetupNetworkResult = Awaited<ReturnType<typeof setupNetwork>>;
 
@@ -130,10 +131,6 @@ export async function setupNetwork() {
   );
   const contractComponents = components;
 
-  const txReduced$ = blockLogsStorage$.pipe(
-    mergeMap(({ operations }) => from(operations.map((op) => op.log?.transactionHash).filter(isDefined)))
-  );
-
   // Relayer setup
   let relay: Awaited<ReturnType<typeof createRelayStream>> | undefined;
   try {
@@ -190,24 +187,6 @@ export async function setupNetwork() {
   //     source: "https://github.com/latticexyz/opcraft-plugins",
   //   });
   // }
-
-  // --- ACTION SYSTEM --------------------------------------------------------------
-  const actions = createActionSystem<{
-    actionType: string;
-    coord?: VoxelCoord;
-    voxelVariantTypeId?: VoxelVariantTypeId;
-    preview?: string;
-  }>(world, txReduced$, waitForTransaction);
-
-  // Add optimistic updates and indexers
-  const { withOptimisticUpdates } = actions;
-  contractComponents.Position = createIndexer(withOptimisticUpdates(contractComponents.Position));
-  // Note: we don't add indexer to OwnedBy because there's current bugs with indexer in MUD 2
-  // contractComponents.OwnedBy = createIndexer(
-  //   withOptimisticUpdates(contractComponents.OwnedBy)
-  // );
-  contractComponents.OwnedBy = withOptimisticUpdates(contractComponents.OwnedBy);
-  contractComponents.VoxelType = withOptimisticUpdates(contractComponents.VoxelType);
 
   const VoxelVariantIdToDef: VoxelVariantIdToDefMap = new Map();
   const VoxelVariantSubscriptions: VoxelVariantSubscription[] = [];
@@ -697,19 +676,19 @@ export async function setupNetwork() {
   }
 
   // --- STREAMS --------------------------------------------------------------------
-  const balanceGwei$ = new BehaviorSubject<number>(1);
-  world.registerDisposer(
-    combineLatest([timer(0, 5000), computedToStream(publicClient)])
-      .pipe(
-        map<[number, any | undefined], Promise<number>>(async ([, publicClient]) =>
-          publicClient
-            ? publicClient.getBalance().then((v) => v.div(BigNumber.from(10).pow(9)).toNumber())
-            : new Promise((res) => res(0))
-        ),
-        awaitPromise()
-      )
-      .subscribe(balanceGwei$)?.unsubscribe
-  );
+  // const balanceGwei$ = new BehaviorSubject<number>(1);
+  // world.registerDisposer(
+  //   combineLatest([timer(0, 5000), computedToStream(publicClient)])
+  //     .pipe(
+  //       map<[number, any | undefined], Promise<number>>(async ([, publicClient]) =>
+  //         publicClient
+  //           ? publicClient.getBalance().then((v) => v.div(BigNumber.from(10).pow(9)).toNumber())
+  //           : new Promise((res) => res(0))
+  //       ),
+  //       awaitPromise()
+  //     )
+  //     .subscribe(balanceGwei$)?.unsubscribe
+  // );
 
   const connectedClients$ = timer(0, 5000).pipe(
     map(async () => relay?.countConnected() || 0),
@@ -726,21 +705,40 @@ export async function setupNetwork() {
       doneSyncing$.next(true);
     }
   };
-  awaitStreamValue(
-    registryResult.components.SyncProgress.update$,
-    ({ value }) => value[0]?.step === SyncStep.LIVE
-  ).then(async () => {
-    console.log("registrySynced");
-    registrySynced = true;
+  // awaitStreamValue(
+  //   registryResult.components.SyncProgress.update$,
+  //   ({ value }) => value[0]?.step === SyncStep.LIVE
+  // ).then(async () => {
+  //   console.log("registrySynced");
+  //   registrySynced = true;
 
-    trySendDoneSyncing();
+  //   trySendDoneSyncing();
+  // });
+
+  registryResult.components.SyncProgress.update$.subscribe(({ value }) => {
+    const syncStep = value[0]?.step;
+    if (syncStep === SyncStep.LIVE) {
+      console.log("registrySynced");
+      registrySynced = true;
+
+      trySendDoneSyncing();
+    }
   });
 
-  awaitStreamValue(components.SyncProgress.update$, ({ value }) => value[0]?.step === SyncStep.LIVE).then(() => {
-    console.log("contractsSynced");
-    contractsSynced = true;
-    trySendDoneSyncing();
+  components.SyncProgress.update$.subscribe(({ value }) => {
+    const syncStep = value[0]?.step;
+    if (syncStep === SyncStep.LIVE) {
+      console.log("contractsSynced");
+      contractsSynced = true;
+      trySendDoneSyncing();
+    }
   });
+
+  // awaitStreamValue(components.SyncProgress.update$, ({ value }) => value[0]?.step === SyncStep.LIVE).then(() => {
+  //   console.log("contractsSynced");
+  //   contractsSynced = true;
+  //   trySendDoneSyncing();
+  // });
 
   const { ParsedCreationRegistry, ParsedVoxelTypeRegistry, ParsedSpawn } = setupComponentParsers(
     world,
@@ -750,6 +748,17 @@ export async function setupNetwork() {
   );
 
   return {
+    config: networkConfig,
+    storeConfig: mudConfig,
+    playerEntity: encodeEntity({ address: "address" }, { address: burnerWalletClient.account.address }),
+    publicClient,
+    walletClient: burnerWalletClient,
+    latestBlock$,
+    blockStorageOperations$,
+    waitForTransaction,
+    worldContract,
+    write$: write$.asObservable().pipe(share()),
+    components,
     contractComponents,
     registryComponents,
     parsedComponents: {
@@ -759,7 +768,6 @@ export async function setupNetwork() {
     },
     world,
     worldContract,
-    actions,
     api: {
       getTerrainVoxelTypeAtPosition,
       getEcsVoxelTypeAtPosition,
@@ -781,8 +789,8 @@ export async function setupNetwork() {
     },
     // dev: setupDevSystems(world, encoders as Promise<any>, systems),
     // dev: setupDevSystems(world),
-    streams: { connectedClients$, balanceGwei$, doneSyncing$ },
-    config: networkConfig,
+    connectedAddress: burnerAccount.address,
+    streams: { connectedClients$, doneSyncing$ },
     relay,
     faucet,
     worldAddress: networkConfig.worldAddress,
@@ -794,6 +802,5 @@ export async function setupNetwork() {
       VoxelVariantIndexToKey,
       VoxelVariantSubscriptions,
     },
-    objectStore: { transactionCallbacks }, // stores global objects. These aren't components since they don't really fit in with the rxjs event-based system
   };
 }

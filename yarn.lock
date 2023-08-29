@@ -1605,21 +1605,21 @@ __metadata:
   languageName: node
   linkType: soft
 
-"@noble/curves@npm:1.0.0, @noble/curves@npm:~1.0.0":
-  version: 1.0.0
-  resolution: "@noble/curves@npm:1.0.0"
-  dependencies:
-    "@noble/hashes": 1.3.0
-  checksum: 6bcef44d626c640dc8961819d68dd67dffb907e3b973b7c27efe0ecdd9a5c6ce62c7b9e3dfc930c66605dced7f1ec0514d191c09a2ce98d6d52b66e3315ffa79
-  languageName: node
-  linkType: hard
-
 "@noble/curves@npm:1.1.0":
   version: 1.1.0
   resolution: "@noble/curves@npm:1.1.0"
   dependencies:
     "@noble/hashes": 1.3.1
   checksum: 2658cdd3f84f71079b4e3516c47559d22cf4b55c23ac8ee9d2b1f8e5b72916d9689e59820e0f9d9cb4a46a8423af5b56dc6bb7782405c88be06a015180508db5
+  languageName: node
+  linkType: hard
+
+"@noble/curves@npm:~1.0.0":
+  version: 1.0.0
+  resolution: "@noble/curves@npm:1.0.0"
+  dependencies:
+    "@noble/hashes": 1.3.0
+  checksum: 6bcef44d626c640dc8961819d68dd67dffb907e3b973b7c27efe0ecdd9a5c6ce62c7b9e3dfc930c66605dced7f1ec0514d191c09a2ce98d6d52b66e3315ffa79
   languageName: node
   linkType: hard
 
@@ -3576,7 +3576,7 @@ box-intersect@fenomas/box-intersect:
     tailwindcss-animate: ^1.0.6
     terser: ^5.19.0
     threads: ^1.7.0
-    viem: 1.3.1
+    viem: 1.6.0
     vite: ^4.2.1
     vite-plugin-optimize-css-modules: ^1.0.4
     wait-port: ^1.0.4
@@ -7638,28 +7638,6 @@ box-intersect@fenomas/box-intersect:
   version: 1.0.2
   resolution: "util-deprecate@npm:1.0.2"
   checksum: 474acf1146cb2701fe3b074892217553dfcf9a031280919ba1b8d651a068c9b15d863b7303cb15bd00a862b498e6cf4ad7b4a08fb134edd5a6f7641681cb54a2
-  languageName: node
-  linkType: hard
-
-"viem@npm:1.3.1":
-  version: 1.3.1
-  resolution: "viem@npm:1.3.1"
-  dependencies:
-    "@adraffy/ens-normalize": 1.9.0
-    "@noble/curves": 1.0.0
-    "@noble/hashes": 1.3.0
-    "@scure/bip32": 1.3.0
-    "@scure/bip39": 1.2.0
-    "@wagmi/chains": 1.6.0
-    abitype: 0.9.3
-    isomorphic-ws: 5.0.0
-    ws: 8.12.0
-  peerDependencies:
-    typescript: ">=5.0.4"
-  peerDependenciesMeta:
-    typescript:
-      optional: true
-  checksum: f93eff83a50d201c06270966eec12eb1cbb69821bab7c9bd6ba8877390e35d247f09345b04c7d9304b9f418e567d4cf898c80528800c6a57fd23d88519c91e74
   languageName: node
   linkType: hard
 

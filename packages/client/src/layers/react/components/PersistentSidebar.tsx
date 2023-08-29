@@ -496,7 +496,7 @@ export function registerPersistentSidebar() {
                   }}
                 >
                   {" "}
-                  PLAYER: {connectedAddress.get()?.slice(0, 10)}...{" "}
+                  PLAYER: {connectedAddress.slice(0, 10)}...{" "}
                 </Badge>
                 <ActionQueueList>
                   {[...getComponentEntities(Action)].reverse().map((e) => {

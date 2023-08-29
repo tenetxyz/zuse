@@ -30,7 +30,7 @@ export const getItemTypesIOwn = (
   }>,
   connectedAddress: IComputedValue<string | undefined>
 ): Set<VoxelBaseTypeId> => {
-  const itemsIOwn = runQuery([HasValue(OwnedBy, { player: connectedAddress.get() }), Has(VoxelType)]);
+  const itemsIOwn = runQuery([HasValue(OwnedBy, { player: connectedAddress }), Has(VoxelType)]);
   return new Set(
     Array.from(itemsIOwn)
       .map((item) => {
@@ -48,7 +48,7 @@ export const getItemTypesIOwn = (
 export function createInventoryIndexSystem(network: NetworkLayer, noaLayer: NoaLayer) {
   const {
     contractComponents: { OwnedBy, VoxelType },
-    network: { connectedAddress },
+    connectedAddress,
     streams: { doneSyncing$ },
   } = network;
 

@@ -55,7 +55,7 @@ export const useCreationSearch = ({ layers, filters }: Props) => {
   const {
     network: {
       parsedComponents: { ParsedCreationRegistry },
-      network: { connectedAddress },
+      connectedAddress,
     },
   } = layers;
 
@@ -85,7 +85,7 @@ export const useCreationSearch = ({ layers, filters }: Props) => {
   );
 
   const applyCreationFilters = () => {
-    const playerAddress = to256BitString(connectedAddress.get() ?? "");
+    const playerAddress = to256BitString(connectedAddress ?? "");
     filteredCreations.current = filters.isMyCreation
       ? allCreations.current.filter((creation) => creation.creator === playerAddress)
       : allCreations.current;

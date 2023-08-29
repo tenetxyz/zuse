@@ -88,10 +88,8 @@ export function createInputSystem(layers: Layers) {
     },
     network: {
       parsedComponents: { ParsedCreationRegistry, ParsedVoxelTypeRegistry },
-      network: {
-        connectedAddress,
-        config: { blockExplorer },
-      },
+      connectedAddress,
+      config: { blockExplorer },
       streams: { balanceGwei$ },
       api: { spawnCreation, build, activate, getEntityAtPosition },
     },
@@ -133,7 +131,7 @@ export function createInputSystem(layers: Layers) {
     if (balanceGwei$.getValue() === 0) return false;
     // const { claim } = stakeAndClaim$.getValue() || {};
     const claim = undefined;
-    const playerAddress = connectedAddress.get();
+    const playerAddress = connectedAddress;
     if (!playerAddress) return false;
     if (!claim) return true;
     return true;

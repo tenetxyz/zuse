@@ -51,6 +51,7 @@ import { Engine } from "noa-engine";
 import { setupComponentParsers } from "./componentParsers/componentParser";
 import { createRelayStream } from "./createRelayStream";
 import { ComputeNormalsBlock } from "@babylonjs/core";
+import { BigNumber } from "ethers";
 
 export type SetupNetworkResult = Awaited<ReturnType<typeof setupNetwork>>;
 
@@ -170,6 +171,17 @@ export async function setupNetwork() {
     requestDrip();
     // Request a drip every 20 seconds
     setInterval(requestDrip, 20000);
+  }
+
+  async function callSystem(tx: Promise<Hex>) {
+    try {
+      return await tx;
+    } catch (err) {
+      // These errors typically happen BEFORE the transaction is executed (mainly gas errors)
+      console.error(`Transaction call failed: ${err}`);
+
+      toast(`Transaction call failed: ${parseTxError(err)}`);
+    }
   }
 
   // TODO: Uncomment once we support plugins
@@ -401,39 +413,40 @@ export async function setupNetwork() {
     const voxel = getEntityAtPosition(coord, scale);
     const airEntity = `${to64CharAddress("0x" + scale.toString())}:${world.registerEntity()}` as Entity;
 
-    actions.add({
-      id: `mine+${coord.x}/${coord.y}/${coord.z}` as Entity,
-      metadata: { actionType: "mine", coord, voxelVariantTypeId: voxelTypeKey.voxelVariantTypeId },
-      requirement: () => true,
-      components: {
-        Position: contractComponents.Position,
-        OwnedBy: contractComponents.OwnedBy,
-        VoxelType: contractComponents.VoxelType,
-      },
-      execute: () => {
-        return callSystem("mine", [voxelTypeKey.voxelBaseTypeId, coord, { gasLimit: 900_000_000 }]);
-      },
-      updates: () => [
-        {
-          component: "Position",
-          entity: airEntity,
-          value: coord,
-        },
-        {
-          component: "VoxelType",
-          entity: airEntity,
-          value: {
-            voxelTypeId: AIR_ID,
-            voxelVariantId: AIR_ID,
-          },
-        },
-        {
-          component: "Position",
-          entity: voxel || (Number.MAX_SAFE_INTEGER.toString() as Entity),
-          value: null,
-        },
-      ],
-    });
+    await callSystem(worldContract.write.mine([voxelTypeKey.voxelBaseTypeId, coord]));
+    // actions.add({
+    //   id: `mine+${coord.x}/${coord.y}/${coord.z}` as Entity,
+    //   metadata: { actionType: "mine", coord, voxelVariantTypeId: voxelTypeKey.voxelVariantTypeId },
+    //   requirement: () => true,
+    //   components: {
+    //     Position: contractComponents.Position,
+    //     OwnedBy: contractComponents.OwnedBy,
+    //     VoxelType: contractComponents.VoxelType,
+    //   },
+    //   execute: () => {
+    //     return callSystem(worldContract.write.mine(voxelTypeKey.voxelBaseTypeId, coord));
+    //   },
+    //   updates: () => [
+    //     {
+    //       component: "Position",
+    //       entity: airEntity,
+    //       value: coord,
+    //     },
+    //     {
+    //       component: "VoxelType",
+    //       entity: airEntity,
+    //       value: {
+    //         voxelTypeId: AIR_ID,
+    //         voxelVariantId: AIR_ID,
+    //       },
+    //     },
+    //     {
+    //       component: "Position",
+    //       entity: voxel || (Number.MAX_SAFE_INTEGER.toString() as Entity),
+    //       value: null,
+    //     },
+    //   ],
+    // });
   }
 
   // needed in creative mode, to give the user new voxels
@@ -678,19 +691,16 @@ export async function setupNetwork() {
   }
 
   // --- STREAMS --------------------------------------------------------------------
-  // const balanceGwei$ = new BehaviorSubject<number>(1);
-  // world.registerDisposer(
-  //   combineLatest([timer(0, 5000), computedToStream(publicClient)])
-  //     .pipe(
-  //       map<[number, any | undefined], Promise<number>>(async ([, publicClient]) =>
-  //         publicClient
-  //           ? publicClient.getBalance().then((v) => v.div(BigNumber.from(10).pow(9)).toNumber())
-  //           : new Promise((res) => res(0))
-  //       ),
-  //       awaitPromise()
-  //     )
-  //     .subscribe(balanceGwei$)?.unsubscribe
-  // );
+  const balanceGwei$ = new BehaviorSubject<number>(1);
+  const intervalId = setInterval(async () => {
+    try {
+      const balance = BigNumber.from(await publicClient.getBalance({ address: burnerWalletClient.account.address }));
+      balanceGwei$.next(balance.div(BigNumber.from(10).pow(9)).toNumber());
+    } catch (error) {
+      balanceGwei$.error(error);
+    }
+  }, 5000);
+  world.registerDisposer(() => clearInterval(intervalId)); // This will clean up the interval when unsubscribed
 
   const connectedClients$ = timer(0, 5000).pipe(
     map(async () => relay?.countConnected() || 0),
@@ -791,7 +801,7 @@ export async function setupNetwork() {
     // dev: setupDevSystems(world, encoders as Promise<any>, systems),
     // dev: setupDevSystems(world),
     connectedAddress: burnerAccount.address,
-    streams: { connectedClients$, doneSyncing$ },
+    streams: { connectedClients$, balanceGwei$, doneSyncing$ },
     relay,
     faucet,
     worldAddress: networkConfig.worldAddress,

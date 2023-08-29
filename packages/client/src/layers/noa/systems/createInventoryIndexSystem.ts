@@ -58,16 +58,10 @@ export function createInventoryIndexSystem(network: NetworkLayer, noaLayer: NoaL
     noa,
   } = noaLayer;
 
-  const connectedAddress$ = computedToStream(connectedAddress);
+  const update$ = defineQuery([HasValue(OwnedBy, { player: connectedAddress }), Has(VoxelType)], {
+    runOnInit: true,
+  }).update$;
 
-  const update$ = connectedAddress$.pipe(
-    switchMap(
-      (address) =>
-        defineQuery([HasValue(OwnedBy, { player: address }), Has(VoxelType)], {
-          runOnInit: true,
-        }).update$
-    )
-  );
   const removeInventoryIndexesForItemsWeNoLongerOwn = () => {
     const itemTypesIOwn = getItemTypesIOwn(noa, OwnedBy, VoxelType, connectedAddress);
     for (const itemType of InventoryIndex.values.value.keys()) {

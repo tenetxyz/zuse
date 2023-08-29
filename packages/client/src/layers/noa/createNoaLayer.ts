@@ -427,7 +427,7 @@ export function createNoaLayer(network: NetworkLayer) {
   createVoxelSystem(network, context);
   createPlayerPositionSystem(network, context);
   createRelaySystem(network, context);
-  // createInventoryIndexSystem(network, context);
+  createInventoryIndexSystem(network, context);
   createSyncLocalPlayerPositionSystem(network, context);
   // createCreativeModeSystem(network, context);
   createSpawnPlayerSystem(network, context);

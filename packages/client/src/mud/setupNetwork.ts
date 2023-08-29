@@ -340,7 +340,7 @@ export async function setupNetwork() {
     ];
   };
 
-  function build(noa: Engine, voxelBaseTypeId: VoxelBaseTypeId, coord: VoxelCoord) {
+  async function build(noa: Engine, voxelBaseTypeId: VoxelBaseTypeId, coord: VoxelCoord) {
     const voxelInstancesOfVoxelType = getOwnedEntiesOfType(voxelBaseTypeId);
 
     if (voxelInstancesOfVoxelType.length === 0) {
@@ -348,7 +348,8 @@ export async function setupNetwork() {
       return console.warn(`cannot find a voxel (that you own) for voxelBaseTypeId=${voxelBaseTypeId}`);
     }
     const voxelInstanceOfVoxelType = voxelInstancesOfVoxelType[0];
-    const [scaleAsHex, entityId] = (voxelInstanceOfVoxelType as string).split(":");
+    const scaleAsHex = (voxelInstanceOfVoxelType as string).substring(0, 66);
+    const entityId = "0x" + (voxelInstanceOfVoxelType as string).substring(66);
     const scaleAsNumber = parseInt(scaleAsHex.substring(2)); // remove the leading 0x
     if (scaleAsNumber !== getWorldScale(noa)) {
       toast(`you can only place this voxel on scale ${scaleAsNumber}`);
@@ -363,45 +364,47 @@ export async function setupNetwork() {
     const mindSelector = "0x00000000";
     const fighterMindSelector = "0xa303e6be";
 
-    actions.add({
-      id: `build+${voxelCoordToString(coord)}` as Entity, // used so we don't send the same transaction twice
-      metadata: {
-        // metadata determines how the transaction dialog box appears in the bottom left corner
-        actionType: "build",
-        coord,
-        preview,
-      },
-      requirement: () => true,
-      components: {
-        Position: contractComponents.Position,
-        VoxelType: contractComponents.VoxelType,
-        OwnedBy: contractComponents.OwnedBy, // I think it's needed cause we check to see if the owner owns the voxel we're placing
-      },
-      execute: () => {
-        return callSystem("build", [scaleAsHex, entityId, coord, mindSelector, { gasLimit: 900_000_000 }]);
-      },
-      updates: () => [
-        // commented cause we're in creative mode
-        // {
-        //   component: "OwnedBy",
-        //   entity: entity,
-        //   value: { value: SingletonID },
-        // },
-        {
-          component: "Position",
-          entity: newVoxelOfSameType,
-          value: coord,
-        },
-        {
-          component: "VoxelType",
-          entity: newVoxelOfSameType,
-          value: {
-            voxelTypeId: voxelBaseTypeId,
-            voxelVariantId: previewVoxelVariant,
-          },
-        },
-      ],
-    });
+    await callSystem(worldContract.write.build([scaleAsNumber, entityId, coord, mindSelector]));
+
+    // actions.add({
+    //   id: `build+${voxelCoordToString(coord)}` as Entity, // used so we don't send the same transaction twice
+    //   metadata: {
+    //     // metadata determines how the transaction dialog box appears in the bottom left corner
+    //     actionType: "build",
+    //     coord,
+    //     preview,
+    //   },
+    //   requirement: () => true,
+    //   components: {
+    //     Position: contractComponents.Position,
+    //     VoxelType: contractComponents.VoxelType,
+    //     OwnedBy: contractComponents.OwnedBy, // I think it's needed cause we check to see if the owner owns the voxel we're placing
+    //   },
+    //   execute: () => {
+    //     return callSystem("build", [scaleAsHex, entityId, coord, mindSelector, { gasLimit: 900_000_000 }]);
+    //   },
+    //   updates: () => [
+    //     // commented cause we're in creative mode
+    //     // {
+    //     //   component: "OwnedBy",
+    //     //   entity: entity,
+    //     //   value: { value: SingletonID },
+    //     // },
+    //     {
+    //       component: "Position",
+    //       entity: newVoxelOfSameType,
+    //       value: coord,
+    //     },
+    //     {
+    //       component: "VoxelType",
+    //       entity: newVoxelOfSameType,
+    //       value: {
+    //         voxelTypeId: voxelBaseTypeId,
+    //         voxelVariantId: previewVoxelVariant,
+    //       },
+    //     },
+    //   ],
+    // });
   }
 
   async function mine(coord: VoxelCoord, scale: number) {
@@ -450,38 +453,40 @@ export async function setupNetwork() {
   }
 
   // needed in creative mode, to give the user new voxels
-  function giftVoxel(voxelTypeId: string, preview: string) {
+  async function giftVoxel(voxelTypeId: string, preview: string) {
     const newVoxel = world.registerEntity();
 
-    actions.add({
-      id: `GiftVoxel+${voxelTypeId}` as Entity,
-      metadata: { actionType: "giftVoxel", preview },
-      requirement: () => true,
-      components: {
-        OwnedBy: contractComponents.OwnedBy,
-        VoxelType: contractComponents.VoxelType,
-      },
-      execute: () => {
-        return callSystem("giftVoxel", [voxelTypeId, { gasLimit: 10_000_000 }]);
-      },
-      updates: () => [
-        // {
-        //   component: "VoxelType",
-        //   entity: newVoxel,
-        //   value: {
-        //     voxelTypeNamespace: voxelTypeNamespace,
-        //     voxelTypeId: voxelTypeId,
-        //     voxelVariantNamespace: "",
-        //     voxelVariantId: "",
-        //   },
-        // },
-        // {
-        //   component: "OwnedBy",
-        //   entity: newVoxel,
-        //   value: { value: to64CharAddress(playerAddress) },
-        // },
-      ],
-    });
+    await callSystem(worldContract.write.giftVoxel([voxelTypeId]));
+
+    // actions.add({
+    //   id: `GiftVoxel+${voxelTypeId}` as Entity,
+    //   metadata: { actionType: "giftVoxel", preview },
+    //   requirement: () => true,
+    //   components: {
+    //     OwnedBy: contractComponents.OwnedBy,
+    //     VoxelType: contractComponents.VoxelType,
+    //   },
+    //   execute: () => {
+    //     return callSystem("giftVoxel", [voxelTypeId, { gasLimit: 10_000_000 }]);
+    //   },
+    //   updates: () => [
+    //     // {
+    //     //   component: "VoxelType",
+    //     //   entity: newVoxel,
+    //     //   value: {
+    //     //     voxelTypeNamespace: voxelTypeNamespace,
+    //     //     voxelTypeId: voxelTypeId,
+    //     //     voxelVariantNamespace: "",
+    //     //     voxelVariantId: "",
+    //     //   },
+    //     // },
+    //     // {
+    //     //   component: "OwnedBy",
+    //     //   entity: newVoxel,
+    //     //   value: { value: to64CharAddress(playerAddress) },
+    //     // },
+    //   ],
+    // });
   }
 
   // needed in creative mode, to allow the user to remove voxels. Otherwise their inventory will fill up

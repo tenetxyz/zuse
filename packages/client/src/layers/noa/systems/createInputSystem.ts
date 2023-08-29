@@ -246,6 +246,7 @@ export function createInputSystem(layers: Layers) {
       return;
     }
 
+
     const voxelBaseTypeId = getVoxelTypeInSelectedSlot();
     if (voxelBaseTypeId) {
       // you are holding a block and are looking at a block. so place the block at the adjacent coord

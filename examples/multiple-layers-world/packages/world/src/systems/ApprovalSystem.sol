@@ -3,9 +3,9 @@ pragma solidity >=0.8.0;
 import { IStore } from "@latticexyz/store/src/IStore.sol";
 import { EventApprovals } from "../prototypes/EventApprovals.sol";
 import { hasKey } from "@latticexyz/world/src/modules/keysintable/hasKey.sol";
-import { IWorld } from "@tenet-contracts/src/codegen/world/IWorld.sol";
-import { VoxelCoord, EventType } from "@tenet-contracts/src/Types.sol";
-import { Player, PlayerTableId, PlayerData } from "@tenet-contracts/src/codegen/Tables.sol";
+import { IWorld } from "@tenet-world/src/codegen/world/IWorld.sol";
+import { VoxelCoord, EventType } from "@tenet-world/src/Types.sol";
+import { Player, PlayerTableId, PlayerData } from "@tenet-world/src/codegen/Tables.sol";
 import { Strings } from "@openzeppelin/contracts/utils/Strings.sol";
 import { distanceBetween } from "@tenet-utils/src/VoxelCoordUtils.sol";
 

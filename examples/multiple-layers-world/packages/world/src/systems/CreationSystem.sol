@@ -2,10 +2,10 @@
 pragma solidity >=0.8.0;
 import { System } from "@latticexyz/world/src/System.sol";
 import { Strings } from "@openzeppelin/contracts/utils/Strings.sol";
-import { IWorld } from "@tenet-contracts/src/codegen/world/IWorld.sol";
-import { VoxelType, Position, VoxelTypeData } from "@tenet-contracts/src/codegen/Tables.sol";
-import { PositionData } from "@tenet-contracts/src/codegen/tables/Position.sol";
-import { REGISTRY_ADDRESS } from "@tenet-contracts/src/Constants.sol";
+import { IWorld } from "@tenet-world/src/codegen/world/IWorld.sol";
+import { VoxelType, Position, VoxelTypeData } from "@tenet-world/src/codegen/Tables.sol";
+import { PositionData } from "@tenet-world/src/codegen/tables/Position.sol";
+import { REGISTRY_ADDRESS } from "@tenet-world/src/Constants.sol";
 import { VoxelCoord, VoxelEntity } from "@tenet-utils/src/Types.sol";
 import { BaseCreationInWorld } from "@tenet-utils/src/Types.sol";
 import { registerCreation as registerCreationToRegistry } from "@tenet-registry/src/Utils.sol";

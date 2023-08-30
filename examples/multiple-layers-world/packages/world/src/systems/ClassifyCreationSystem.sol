@@ -6,13 +6,13 @@ import { hasKey } from "@latticexyz/world/src/modules/keysintable/hasKey.sol";
 import { getUniqueEntity } from "@latticexyz/world/src/modules/uniqueentity/getUniqueEntity.sol";
 import { getKeysInTable } from "@latticexyz/world/src/modules/keysintable/getKeysInTable.sol";
 import { System } from "@latticexyz/world/src/System.sol";
-import { REGISTRY_ADDRESS } from "@tenet-contracts/src/Constants.sol";
+import { REGISTRY_ADDRESS } from "@tenet-world/src/Constants.sol";
 import { VoxelCoord } from "../types.sol";
-import { OwnedBy, Position, PositionTableId, VoxelType, Spawn, SpawnTableId } from "@tenet-contracts/src/codegen/Tables.sol";
-import { IWorld } from "@tenet-contracts/src/codegen/world/IWorld.sol";
+import { OwnedBy, Position, PositionTableId, VoxelType, Spawn, SpawnTableId } from "@tenet-world/src/codegen/Tables.sol";
+import { IWorld } from "@tenet-world/src/codegen/world/IWorld.sol";
 import { ClassifierRegistry, ClassifierRegistryTableId } from "@tenet-registry/src/codegen/tables/ClassifierRegistry.sol";
 import { InterfaceVoxel, VoxelEntity } from "@tenet-utils/src/Types.sol";
-import { SpawnData, OfSpawn } from "@tenet-contracts/src/codegen/Tables.sol";
+import { SpawnData, OfSpawn } from "@tenet-world/src/codegen/Tables.sol";
 import { safeCall } from "@tenet-utils/src/CallUtils.sol";
 
 contract ClassifyCreationSystem is System {

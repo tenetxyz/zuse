@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: GPL-3.0
 pragma solidity >=0.8.0;
-import { OwnedBy, OwnedByTableId, VoxelType } from "@tenet-contracts/src/codegen/Tables.sol";
+import { OwnedBy, OwnedByTableId, VoxelType } from "@tenet-world/src/codegen/Tables.sol";
 import { System } from "@latticexyz/world/src/System.sol";
 import { addressToEntityKey } from "@tenet-utils/src/Utils.sol";
 import { getKeysWithValue } from "@latticexyz/world/src/modules/keyswithvalue/getKeysWithValue.sol";

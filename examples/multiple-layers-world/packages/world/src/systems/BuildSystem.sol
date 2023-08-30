@@ -1,11 +1,11 @@
 // SPDX-License-Identifier: MIT
 pragma solidity >=0.8.0;
 
-import { IWorld } from "@tenet-contracts/src/codegen/world/IWorld.sol";
+import { IWorld } from "@tenet-world/src/codegen/world/IWorld.sol";
 import { BuildEvent } from "../prototypes/BuildEvent.sol";
 import { VoxelCoord, BuildEventData } from "../Types.sol";
-import { OwnedBy, VoxelType, VoxelTypeData } from "@tenet-contracts/src/codegen/Tables.sol";
-import { REGISTRY_ADDRESS } from "@tenet-contracts/src/Constants.sol";
+import { OwnedBy, VoxelType, VoxelTypeData } from "@tenet-world/src/codegen/Tables.sol";
+import { REGISTRY_ADDRESS } from "@tenet-world/src/Constants.sol";
 
 contract BuildSystem is BuildEvent {
   function callEventHandler(

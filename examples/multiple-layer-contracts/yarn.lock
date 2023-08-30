@@ -550,9 +550,9 @@ __metadata:
   languageName: node
   linkType: soft
 
-"@latticexyz/cli@link:../../mud/packages/cli::locator=multiple-layer-contracts%40workspace%3A.":
+"@latticexyz/cli@link:../../../mud/packages/cli::locator=multiple-layer-contracts%40workspace%3A.":
   version: 0.0.0-use.local
-  resolution: "@latticexyz/cli@link:../../mud/packages/cli::locator=multiple-layer-contracts%40workspace%3A."
+  resolution: "@latticexyz/cli@link:../../../mud/packages/cli::locator=multiple-layer-contracts%40workspace%3A."
   languageName: node
   linkType: soft
 
@@ -2188,7 +2188,7 @@ __metadata:
     "@fortawesome/fontawesome-svg-core": ^6.4.0
     "@fortawesome/free-brands-svg-icons": ^6.4.0
     "@fortawesome/react-fontawesome": ^0.2.0
-    "@latticexyz/cli": "link:../../mud/packages/cli"
+    "@latticexyz/cli": "link:../../../mud/packages/cli"
     "@solidstate/contracts": ^0.0.57
     "@typescript-eslint/eslint-plugin": 5.46.1
     "@typescript-eslint/parser": 5.46.1

@@ -3,6 +3,7 @@
   "version": "0.0.1",
   "private": true,
   "license": "MIT",
+  "type": "module",
   "scripts": {
     "mud": "node ../../node_modules/@latticexyz/cli/dist/mud.js",
     "build": "forge build",

@@ -29,7 +29,7 @@
     "test": "yarn workspaces run test"
   },
   "devDependencies": {
-    "@latticexyz/cli": "link:../../mud/packages/cli",
+    "@latticexyz/cli": "link:../../../mud/packages/cli",
     "@solidstate/contracts": "^0.0.57",
     "@typescript-eslint/eslint-plugin": "5.46.1",
     "@typescript-eslint/parser": "5.46.1",

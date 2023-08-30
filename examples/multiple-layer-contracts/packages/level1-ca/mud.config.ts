@@ -1,7 +1,7 @@
-import { mudConfig } from "@latticexyz/world/register";
+import { tenetMudConfig, TenetMudConfigType } from "@tenetxyz/base-ca/script/mudConfig";
 import { resolveTableId } from "@latticexyz/config";
 
-export default mudConfig({
+export default tenetMudConfig(TenetMudConfigType.Layer, {
   namespace: "ca",
   tables: {
     ElectronTunnelSpot: {
@@ -35,41 +35,6 @@ export default mudConfig({
     },
   },
   modules: [
-    {
-      name: "UniqueEntityModule",
-      root: true,
-      args: [],
-    },
-    {
-      name: "KeysWithValueModule",
-      root: true,
-      args: [resolveTableId("CAPosition")],
-    },
-    {
-      name: "KeysInTableModule",
-      root: true,
-      args: [resolveTableId("CAPosition")],
-    },
-    {
-      name: "KeysInTableModule",
-      root: true,
-      args: [resolveTableId("CAVoxelType")],
-    },
-    {
-      name: "KeysInTableModule",
-      root: true,
-      args: [resolveTableId("CAEntityMapping")],
-    },
-    {
-      name: "KeysInTableModule",
-      root: true,
-      args: [resolveTableId("CAEntityReverseMapping")],
-    },
-    {
-      name: "KeysInTableModule",
-      root: true,
-      args: [resolveTableId("CAMind")],
-    },
     {
       name: "KeysInTableModule",
       root: true,

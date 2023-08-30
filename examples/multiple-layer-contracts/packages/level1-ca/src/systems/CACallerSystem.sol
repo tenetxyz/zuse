@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity >=0.8.0;
 
-import { CACaller } from "../prototypes/CACaller.sol";
+import { CACaller } from "@tenet-base-ca/src/prototypes/CACaller.sol";
 import { VoxelCoord } from "@tenet-utils/src/Types.sol";
 
 contract CACallerSystem is CACaller {

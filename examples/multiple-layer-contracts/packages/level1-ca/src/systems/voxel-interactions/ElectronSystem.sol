@@ -2,15 +2,14 @@
 pragma solidity >=0.8.0;
 
 import { IStore } from "@latticexyz/store/src/IStore.sol";
-import { IWorld } from "@tenet-base-ca/src/codegen/world/IWorld.sol";
+import { IWorld } from "@tenet-level1-ca/src/codegen/world/IWorld.sol";
 import { VoxelInteraction } from "@tenet-base-ca/src/prototypes/VoxelInteraction.sol";
 import { BlockDirection, VoxelCoord } from "@tenet-utils/src/Types.sol";
 import { hasKey } from "@latticexyz/world/src/modules/keysintable/hasKey.sol";
-import { ElectronTunnelSpot, ElectronTunnelSpotData, ElectronTunnelSpotTableId } from "@tenet-base-ca/src/codegen/Tables.sol";
-import { AirVoxelID, ElectronVoxelID } from "@tenet-base-ca/src/Constants.sol";
+import { ElectronTunnelSpot, ElectronTunnelSpotData, ElectronTunnelSpotTableId } from "@tenet-level1-ca/src/codegen/Tables.sol";
+import { AirVoxelID, ElectronVoxelID } from "@tenet-level1-ca/src/Constants.sol";
 import { getCAEntityAtCoord, getCAVoxelType, getCANeighbours, positionDataToVoxelCoord, getCAEntityPositionStrict } from "@tenet-base-ca/src/Utils.sol";
 import { safeCall } from "@tenet-utils/src/CallUtils.sol";
-import { Strings } from "@openzeppelin/contracts/utils/Strings.sol";
 
 contract ElectronSystem is VoxelInteraction {
   function onNewNeighbour(

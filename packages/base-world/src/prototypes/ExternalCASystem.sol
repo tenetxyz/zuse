@@ -13,12 +13,12 @@ import { getEntityAtCoord, calculateChildCoords, calculateParentCoord } from "..
 import { runInteraction, enterWorld, exitWorld, activateVoxel, moveLayer } from "@tenet-base-ca/src/CallUtils.sol";
 import { addressToEntityKey } from "@tenet-utils/src/Utils.sol";
 
-contract ExternalCASystem is System {
-  function getVoxelTypeId(uint32 scale, bytes32 entity) public view returns (bytes32) {
+abstract contract ExternalCASystem is System {
+  function getVoxelTypeId(uint32 scale, bytes32 entity) public view virtual returns (bytes32) {
     return VoxelType.getVoxelTypeId(scale, entity);
   }
 
-  function calculateNeighbourEntities(uint32 scale, bytes32 centerEntity) public view returns (bytes32[] memory) {
+  function calculateNeighbourEntities(uint32 scale, bytes32 centerEntity) public view virtual returns (bytes32[] memory) {
     int8[NUM_VOXEL_NEIGHBOURS * 3] memory NEIGHBOUR_COORD_OFFSETS = [
       int8(0),
       int8(0),
@@ -87,7 +87,7 @@ contract ExternalCASystem is System {
   }
 
   // TODO: Make this general by using cube root
-  function calculateChildEntities(uint32 scale, bytes32 entity) public view returns (bytes32[] memory) {
+  function calculateChildEntities(uint32 scale, bytes32 entity) public view virtual returns (bytes32[] memory) {
     if (scale >= 2) {
       bytes32[] memory childEntities = new bytes32[](8);
       PositionData memory baseCoord = Position.get(scale, entity);
@@ -112,7 +112,7 @@ contract ExternalCASystem is System {
   }
 
   // TODO: Make this general by using cube root
-  function calculateParentEntity(uint32 scale, bytes32 entity) public view returns (bytes32) {
+  function calculateParentEntity(uint32 scale, bytes32 entity) public view virtual returns (bytes32) {
     bytes32 parentEntity;
 
     PositionData memory baseCoord = Position.get(scale, entity);

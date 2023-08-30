@@ -14,7 +14,7 @@ import { getEntityAtCoord, calculateChildCoords, calculateParentCoord } from "..
 import { runInteraction, enterWorld, exitWorld, activateVoxel, moveLayer } from "@tenet-base-ca/src/CallUtils.sol";
 import { addressToEntityKey } from "@tenet-utils/src/Utils.sol";
 
-contract RunCASystem is System {
+abstract contract RunCASystem is System {
   function enterCA(
     address caAddress,
     uint32 scale,
@@ -22,7 +22,7 @@ contract RunCASystem is System {
     bytes4 mindSelector,
     VoxelCoord memory coord,
     bytes32 entity
-  ) public {
+  ) public virtual {
     bytes32[] memory neighbourEntities = IWorld(_world()).calculateNeighbourEntities(scale, entity);
     bytes32[] memory childEntityIds = IWorld(_world()).calculateChildEntities(scale, entity);
     bytes32 parentEntity = IWorld(_world()).calculateParentEntity(scale, entity);
@@ -36,7 +36,7 @@ contract RunCASystem is System {
     VoxelCoord memory oldCoord,
     VoxelCoord memory newCoord,
     bytes32 newEntity
-  ) public {
+  ) public virtual {
     bytes32[] memory neighbourEntities = IWorld(_world()).calculateNeighbourEntities(scale, newEntity);
     bytes32[] memory childEntityIds = IWorld(_world()).calculateChildEntities(scale, newEntity);
     bytes32 parentEntity = IWorld(_world()).calculateParentEntity(scale, newEntity);
@@ -49,20 +49,20 @@ contract RunCASystem is System {
     bytes32 voxelTypeId,
     VoxelCoord memory coord,
     bytes32 entity
-  ) public {
+  ) public virtual {
     bytes32[] memory neighbourEntities = IWorld(_world()).calculateNeighbourEntities(scale, entity);
     bytes32[] memory childEntityIds = IWorld(_world()).calculateChildEntities(scale, entity);
     bytes32 parentEntity = IWorld(_world()).calculateParentEntity(scale, entity);
     exitWorld(caAddress, voxelTypeId, coord, entity, neighbourEntities, childEntityIds, parentEntity);
   }
 
-  function activateCA(address caAddress, uint32 scale, bytes32 entity) public {
+  function activateCA(address caAddress, uint32 scale, bytes32 entity) public virtual {
     bytes memory returnData = activateVoxel(caAddress, entity);
     string memory activateStr = abi.decode(returnData, (string));
     VoxelActivated.emitEphemeral(tx.origin, VoxelActivatedData({ scale: scale, entity: entity, message: activateStr }));
   }
 
-  function runCA(address caAddress, uint32 scale, bytes32 entity, bytes4 interactionSelector) public {
+  function runCA(address caAddress, uint32 scale, bytes32 entity, bytes4 interactionSelector) public virtual {
     bytes32[] memory centerEntitiesToCheckStack = new bytes32[](MAX_VOXEL_NEIGHBOUR_UPDATE_DEPTH);
     uint256 centerEntitiesToCheckStackIdx = 0;
     uint256 useStackIdx = 0;

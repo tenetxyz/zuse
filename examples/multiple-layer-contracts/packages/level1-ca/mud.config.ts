@@ -1,4 +1,4 @@
-import { tenetMudConfig, TenetMudConfigType } from "@tenetxyz/base-ca/script/mudConfig";
+import { tenetMudConfig, TenetMudConfigType } from "@tenetxyz/base-ca";
 import { resolveTableId } from "@latticexyz/config";
 
 export default tenetMudConfig(TenetMudConfigType.Layer, {

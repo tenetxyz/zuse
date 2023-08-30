@@ -1,44 +1,7 @@
-import { resolveTableId } from "@latticexyz/config";
-import { TenetMudConfigType, tenetMudConfig } from "./script/mudConfig";
+import { tenetMudConfig, TenetMudConfigType } from "./ts/mudConfig";
 
 export default tenetMudConfig(TenetMudConfigType.Layer, {
   namespace: "ca",
-  tables: {
-    ElectronTunnelSpot: {
-      keySchema: {
-        callerAddress: "address",
-        entity: "bytes32",
-      },
-      schema: {
-        atTop: "bool",
-        sibling: "bytes32",
-      },
-    },
-  },
-  systems: {
-    CASystem: {
-      name: "CASystem",
-      openAccess: true,
-      registerAsRoot: true,
-    },
-    CAHelperSystem: {
-      name: "CAHelperSystem",
-      openAccess: false,
-      registerAsRoot: true,
-      accessList: ["CASystem"],
-    },
-    CACallerSystem: {
-      name: "CACallerSystem",
-      openAccess: false,
-      registerAsRoot: true,
-      accessList: ["AirVoxelSystem", "ElectronVoxelSystem", "ElectronSystem"],
-    },
-  },
-  modules: [
-    {
-      name: "KeysInTableModule",
-      root: true,
-      args: [resolveTableId("ElectronTunnelSpot")],
-    },
-  ],
+  tables: {},
+  modules: []
 });

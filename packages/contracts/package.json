@@ -32,8 +32,6 @@
   },
   "dependencies": {
     "@tenetxyz/base-ca": "workspace:*",
-    "@tenetxyz/level2-ca": "workspace:*",
-    "@tenetxyz/level2-ca-extensions-1": "workspace:*",
     "@tenetxyz/registry": "workspace:*",
     "@tenetxyz/utils": "workspace:*"
   },

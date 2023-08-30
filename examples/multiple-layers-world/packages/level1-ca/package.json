@@ -1,17 +1,11 @@
 {
-  "name": "@tenetxyz/base-ca",
+  "name": "@tenetxyz/level1-ca",
   "version": "0.0.1",
   "private": true,
   "license": "MIT",
-  "type": "module",
-  "exports": {
-    ".": "./dist/index.js",
-    "./*": "./dist/*"
-  },
   "scripts": {
     "mud": "node ../../node_modules/@latticexyz/cli/dist/mud.js",
-    "build": "forge build && yarn run build:js",
-    "build:js": "tsup",
+    "build": "forge build",
     "clean": "forge clean",
     "deploy": "yarn run initialize && yarn mud deploy",
     "build:local": "yarn run setLocalRegistryAddress && yarn run initialize",
@@ -19,7 +13,7 @@
     "deploy:hackathon": "yarn run initialize && yarn mud deploy --profile=hackathon-testnet",
     "deploy:testnet": "yarn run initialize && yarn mud deploy --profile=lattice-testnet",
     "dev": "yarn mud dev-contracts --tsgenOutput ./client",
-    "setLocalRegistryAddress": "node ../../scripts/setRegistryAddress.js 31337 ../registry/worlds.json src/Constants.sol REGISTRY_ADDRESS",
+    "setLocalRegistryAddress": "node ../../../../scripts/setRegistryAddress.js 31337 ../../../../packages/registry/worlds.json src/Constants.sol REGISTRY_ADDRESS",
     "initialize": "yarn run tablegen && yarn run worldgen && yarn run build && yarn run worldtypes",
     "lint": "yarn run prettier && yarn run solhint",
     "prettier": "prettier --write 'src/**/*.sol'",
@@ -34,15 +28,16 @@
     "@ethersproject/abi": "^5.7.0",
     "@ethersproject/bytes": "^5.7.0",
     "@ethersproject/providers": "^5.7.2",
-    "@latticexyz/cli": "link:../../../mud/packages/cli",
-    "@latticexyz/config": "link:../../../mud/packages/config",
-    "@latticexyz/schema-type": "link:../../../mud/packages/schema-type",
-    "@latticexyz/std-contracts": "link:../../../mud/packages/std-contracts",
-    "@latticexyz/store": "link:../../../mud/packages/store",
-    "@latticexyz/world": "link:../../../mud/packages/world",
+    "@latticexyz/cli": "link:../../../../../mud/packages/cli",
+    "@latticexyz/config": "link:../../../../../mud/packages/config",
+    "@latticexyz/schema-type": "link:../../../../../mud/packages/schema-type",
+    "@latticexyz/std-contracts": "link:../../../../../mud/packages/std-contracts",
+    "@latticexyz/store": "link:../../../../../mud/packages/store",
+    "@latticexyz/world": "link:../../../../../mud/packages/world",
     "@openzeppelin/contracts": "^4.9.1",
-    "@tenetxyz/registry": "workspace:*",
-    "@tenetxyz/utils": "workspace:*",
+    "@tenetxyz/base-ca": "link:../../../../packages/base-ca",
+    "@tenetxyz/registry": "link:../../../../packages/registry",
+    "@tenetxyz/utils": "link:../../../../packages/utils",
     "ethers": "^5.7.2",
     "rimraf": "^5.0.1"
   },
@@ -56,7 +51,6 @@
     "solhint": "^3.3.7",
     "solhint-config-mud": "2.0.0-alpha.1.197+5e6cc0f5",
     "solhint-plugin-mud": "2.0.0-alpha.1.197+5e6cc0f5",
-    "tsup": "^7.2.0",
     "typechain": "^8.1.1"
   }
 }

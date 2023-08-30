@@ -7,7 +7,7 @@ import { VoxelCoord, BaseCreationInWorld, VoxelEntity } from "@tenet-utils/src/T
 import { OwnedBy, VoxelType, VoxelTypeData } from "@tenet-contracts/src/codegen/Tables.sol";
 import { IWorld } from "@tenet-contracts/src/codegen/world/IWorld.sol";
 import { IStore } from "@latticexyz/store/src/IStore.sol";
-import { ElectronVoxelID } from "@tenet-base-ca/src/Constants.sol";
+import { ElectronVoxelID } from "@tenet-level1-ca/src/Constants.sol";
 import { console } from "forge-std/console.sol";
 import { SignalSourceVoxelID, SignalVoxelID } from "@tenet-level2-ca-extensions-1/src/Constants.sol";
 

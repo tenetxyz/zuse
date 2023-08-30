@@ -7,7 +7,7 @@ import { IStore } from "@latticexyz/store/src/IStore.sol";
 import { IWorld } from "@tenet-contracts/src/codegen/world/IWorld.sol";
 import { VoxelType, OwnedBy } from "@tenet-contracts/src/codegen/Tables.sol";
 
-import { AirVoxelID, ElectronVoxelID } from "@tenet-base-ca/src/Constants.sol";
+import { AirVoxelID, ElectronVoxelID } from "@tenet-level1-ca/src/Constants.sol";
 
 import { addressToEntityKey } from "@tenet-utils/src/Utils.sol";
 import { VoxelCoord } from "../../Types.sol";

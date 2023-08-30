@@ -416,6 +416,8 @@ export async function setupNetwork() {
     const voxel = getEntityAtPosition(coord, scale);
     const airEntity = `${to64CharAddress("0x" + scale.toString())}:${world.registerEntity()}` as Entity;
 
+    console.log(coord);
+
     await callSystem(worldContract.write.mine([voxelTypeKey.voxelBaseTypeId, coord]));
     // actions.add({
     //   id: `mine+${coord.x}/${coord.y}/${coord.z}` as Entity,

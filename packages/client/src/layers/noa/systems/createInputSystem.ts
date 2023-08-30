@@ -246,7 +246,6 @@ export function createInputSystem(layers: Layers) {
       return;
     }
 
-
     const voxelBaseTypeId = getVoxelTypeInSelectedSlot();
     if (voxelBaseTypeId) {
       // you are holding a block and are looking at a block. so place the block at the adjacent coord
@@ -359,8 +358,8 @@ export function createInputSystem(layers: Layers) {
   onDownInputEvent("spawn", () => {
     if (!noa.container.hasPointerLock) return;
     setComponent(PreTeleportPosition, SingletonEntity, playerPosition$.getValue());
-    const spawn_point = calculateParentCoord({ x: 0, y: TILE_Y + 1, z: 0 }, getWorldScale(noa));
-    teleport(spawn_point);
+    const spawn_point = calculateParentCoord({ x: 575, y: TILE_Y + 1, z: -251 }, getWorldScale(noa));
+    teleport({ x: 573, y: 2, z: -254 });
     updateComponent(Tutorial, SingletonEntity, { teleport: false });
   });
 

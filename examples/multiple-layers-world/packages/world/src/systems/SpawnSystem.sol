@@ -4,15 +4,15 @@ pragma solidity >=0.8.0;
 import { getUniqueEntity } from "@latticexyz/world/src/modules/uniqueentity/getUniqueEntity.sol";
 import { System } from "@latticexyz/world/src/System.sol";
 import { VoxelCoord, VoxelEntity } from "@tenet-utils/src/Types.sol";
-import { BuildEventData } from "../Types.sol";
+import { BuildEventData } from "@tenet-base-world/src/Types.sol";
 import { OwnedBy, Position, PositionTableId, VoxelType, VoxelTypeData, OfSpawn, Spawn, SpawnData } from "@tenet-world/src/codegen/Tables.sol";
-import { increaseVoxelTypeSpawnCount } from "../Utils.sol";
+import { increaseVoxelTypeSpawnCount } from "@tenet-base-world/src/Utils.sol";
 import { voxelCoordsAreEqual, add } from "@tenet-utils/src/VoxelCoordUtils.sol";
 import { int32ToString } from "@tenet-utils/src/StringUtils.sol";
 import { IWorld } from "@tenet-world/src/codegen/world/IWorld.sol";
 import { console } from "forge-std/console.sol";
 import { REGISTRY_ADDRESS } from "@tenet-world/src/Constants.sol";
-import { CHUNK_MAX_Y, CHUNK_MIN_Y } from "../Constants.sol";
+import { CHUNK_MAX_Y, CHUNK_MIN_Y } from "@tenet-world/src/Constants.sol";
 import { Strings } from "@openzeppelin/contracts/utils/Strings.sol";
 import { getVoxelsInCreation, creationSpawned } from "@tenet-registry/src/Utils.sol";
 

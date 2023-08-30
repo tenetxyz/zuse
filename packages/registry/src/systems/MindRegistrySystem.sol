@@ -3,7 +3,7 @@ pragma solidity >=0.8.0;
 
 import { hasKey } from "@latticexyz/world/src/modules/keysintable/hasKey.sol";
 import { System } from "@latticexyz/world/src/System.sol";
-import { MindRegistry, MindRegistryTableId, VoxelTypeRegistryTableId, VoxelTypeRegistry, WorldRegistry, WorldRegistryTableId, WorldRegistryData } from "../codegen/Tables.sol";
+import { MindRegistry, MindRegistryTableId, VoxelTypeRegistryTableId, VoxelTypeRegistry, WorldRegistry, WorldRegistryTableId, WorldRegistryData } from "@tenet-registry/src/codegen/Tables.sol";
 import { Mind } from "@tenet-utils/src/Types.sol";
 
 contract MindRegistrySystem is System {

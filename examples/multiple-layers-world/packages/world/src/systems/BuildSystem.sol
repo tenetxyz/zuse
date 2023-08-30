@@ -2,8 +2,8 @@
 pragma solidity >=0.8.0;
 
 import { IWorld } from "@tenet-world/src/codegen/world/IWorld.sol";
-import { BuildEvent } from "../prototypes/BuildEvent.sol";
-import { VoxelCoord, BuildEventData } from "../Types.sol";
+import { BuildEvent } from "@tenet-base-world/src/prototypes/BuildEvent.sol";
+import { VoxelCoord, BuildEventData } from "@tenet-base-world/src/Types.sol";
 import { OwnedBy, VoxelType, VoxelTypeData } from "@tenet-world/src/codegen/Tables.sol";
 import { REGISTRY_ADDRESS } from "@tenet-world/src/Constants.sol";
 

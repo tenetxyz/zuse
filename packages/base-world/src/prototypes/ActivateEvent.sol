@@ -2,15 +2,17 @@
 pragma solidity >=0.8.0;
 
 import { IStore } from "@latticexyz/store/src/IStore.sol";
-import { Event } from "./Event.sol";
-import { WorldConfig, Position, PositionTableId, VoxelType, VoxelTypeTableId, VoxelTypeData } from "@tenet-base-world/src/codegen/Tables.sol";
+import { Event } from "@tenet-base-world/src/prototypes/Event.sol";
+import { WorldConfig } from "@tenet-base-world/src/codegen/tables/WorldConfig.sol";
+import { Position, PositionTableId } from "@tenet-base-world/src/codegen/tables/Position.sol";
+import { VoxelType, VoxelTypeTableId, VoxelTypeData } from "@tenet-base-world/src/codegen/tables/VoxelType.sol";
 import { VoxelTypeRegistry, VoxelTypeRegistryData } from "@tenet-registry/src/codegen/tables/VoxelTypeRegistry.sol";
 import { safeCall } from "@tenet-utils/src/CallUtils.sol";
 import { Strings } from "@openzeppelin/contracts/utils/Strings.sol";
 import { hasKey } from "@latticexyz/world/src/modules/keysintable/hasKey.sol";
 import { IWorld } from "@tenet-base-world/src/codegen/world/IWorld.sol";
-import { VoxelCoord, ActivateEventData } from "../Types.sol";
-import { calculateChildCoords, getEntityAtCoord, positionDataToVoxelCoord } from "../Utils.sol";
+import { VoxelCoord, ActivateEventData } from "@tenet-base-world/src/Types.sol";
+import { calculateChildCoords, getEntityAtCoord, positionDataToVoxelCoord } from "@tenet-base-world/src/Utils.sol";
 
 abstract contract ActivateEvent is Event {
   // Called by users

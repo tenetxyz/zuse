@@ -1,10 +1,10 @@
 // SPDX-License-Identifier: GPL-3.0
 pragma solidity >=0.8.0;
 import { IStore } from "@latticexyz/store/src/IStore.sol";
-import { EventApprovals } from "../prototypes/EventApprovals.sol";
+import { EventApprovalsSystem } from "@tenet-base-world/src/prototypes/EventApprovalsSystem.sol";
 import { hasKey } from "@latticexyz/world/src/modules/keysintable/hasKey.sol";
 import { IWorld } from "@tenet-world/src/codegen/world/IWorld.sol";
-import { VoxelCoord, EventType } from "@tenet-world/src/Types.sol";
+import { VoxelCoord, EventType } from "@tenet-base-world/src/Types.sol";
 import { Player, PlayerTableId, PlayerData } from "@tenet-world/src/codegen/Tables.sol";
 import { Strings } from "@openzeppelin/contracts/utils/Strings.sol";
 import { distanceBetween } from "@tenet-utils/src/VoxelCoordUtils.sol";
@@ -17,7 +17,7 @@ uint256 constant MINE_STAMINA_COST = 5;
 uint256 constant BUILD_STAMINA_COST = 5;
 uint256 constant ACTIVATE_STAMINA_COST = 1;
 
-contract ApprovalSystem is EventApprovals {
+contract ApprovalSystem is EventApprovalsSystem {
   function preApproval(
     EventType eventType,
     address caller,

@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: MIT
 pragma solidity >=0.8.0;
 
-import { ActivateEvent } from "../prototypes/ActivateEvent.sol";
+import { ActivateEvent } from "@tenet-base-world/src/prototypes/ActivateEvent.sol";
 import { IWorld } from "@tenet-world/src/codegen/world/IWorld.sol";
-import { VoxelCoord } from "../Types.sol";
+import { VoxelCoord } from "@tenet-base-world/src/Types.sol";
 
 contract ActivateVoxelSystem is ActivateEvent {
   function callEventHandler(

@@ -2,7 +2,7 @@
 pragma solidity >=0.8.0;
 
 import { System } from "@latticexyz/world/src/System.sol";
-import { SpawnData } from "@tenet-base-world/src/codegen/Tables.sol";
+import { SpawnData } from "@tenet-base-world/src/codegen/tables/Spawn.sol";
 import { InterfaceVoxel } from "@tenet-utils/src/Types.sol";
 
 // The classifier system that is called when a player submits a spawn for classifiaction

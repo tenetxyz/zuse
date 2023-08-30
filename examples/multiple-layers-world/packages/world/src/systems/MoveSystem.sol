@@ -5,13 +5,12 @@ import { IStore } from "@latticexyz/store/src/IStore.sol";
 import { System } from "@latticexyz/world/src/System.sol";
 import { IWorld } from "@tenet-world/src/codegen/world/IWorld.sol";
 import { getUniqueEntity } from "@latticexyz/world/src/modules/uniqueentity/getUniqueEntity.sol";
-import { BuildEvent } from "../prototypes/BuildEvent.sol";
-import { VoxelCoord } from "../Types.sol";
+import { VoxelCoord } from "@tenet-base-world/src/Types.sol";
 import { WorldConfig, OwnedBy, Position, PositionTableId, VoxelType, VoxelTypeData, OfSpawn, Spawn, SpawnData } from "@tenet-world/src/codegen/Tables.sol";
 import { VoxelTypeRegistry, VoxelTypeRegistryData } from "@tenet-registry/src/codegen/tables/VoxelTypeRegistry.sol";
 import { CAVoxelType, CAVoxelTypeData } from "@tenet-base-ca/src/codegen/tables/CAVoxelType.sol";
 import { REGISTRY_ADDRESS } from "@tenet-world/src/Constants.sol";
-import { calculateChildCoords, getEntityAtCoord, positionDataToVoxelCoord } from "@tenet-world/src/Utils.sol";
+import { calculateChildCoords, getEntityAtCoord, positionDataToVoxelCoord } from "@tenet-base-world/src/Utils.sol";
 
 contract MoveSystem is System {
   // Called by CA's

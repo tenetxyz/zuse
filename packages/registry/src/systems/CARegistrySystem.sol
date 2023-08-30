@@ -3,9 +3,9 @@ pragma solidity >=0.8.0;
 
 import { hasKey } from "@latticexyz/world/src/modules/keysintable/hasKey.sol";
 import { System } from "@latticexyz/world/src/System.sol";
-import { CARegistry, CARegistryTableId, CARegistryData, VoxelTypeRegistry, VoxelTypeRegistryTableId, WorldRegistry, WorldRegistryTableId } from "../codegen/Tables.sol";
+import { CARegistry, CARegistryTableId, CARegistryData, VoxelTypeRegistry, VoxelTypeRegistryTableId, WorldRegistry, WorldRegistryTableId } from "@tenet-registry/src/codegen/Tables.sol";
 import { getKeysInTable } from "@latticexyz/world/src/modules/keysintable/getKeysInTable.sol";
-import { WORLD_NOTIFY_NEW_CA_VOXEL_TYPE_SIG } from "../Constants.sol";
+import { WORLD_NOTIFY_NEW_CA_VOXEL_TYPE_SIG } from "@tenet-registry/src/Constants.sol";
 import { safeCall } from "@tenet-utils/src/CallUtils.sol";
 
 contract CARegistrySystem is System {

@@ -59,6 +59,14 @@ function getNeighbourCoords(VoxelCoord memory coord) pure returns (VoxelCoord[] 
     int8(0),
     int8(0),
     // ----
+    int8(0),
+    int8(1),
+    int8(0),
+    // ----
+    int8(0),
+    int8(-1),
+    int8(0),
+    // ----
     int8(1),
     int8(0),
     int8(1),

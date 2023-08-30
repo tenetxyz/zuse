@@ -9,7 +9,7 @@ src = "src"
 test = "test"
 out = "out"
 # not sure what's the difference between libs and allow_list, but it seems to both be the same
-libs = ["../../node_modules", "../../../mud"]
+libs = ["../../node_modules", "../../../../../mud"]
 extra_output_files = [
   "abi",
   "evm.bytecode"

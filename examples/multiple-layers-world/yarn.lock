@@ -568,6 +568,12 @@ __metadata:
   languageName: node
   linkType: soft
 
+"@latticexyz/cli@link:../../../../../mud/packages/cli::locator=%40tenetxyz%2Fworld%40workspace%3Apackages%2Fworld":
+  version: 0.0.0-use.local
+  resolution: "@latticexyz/cli@link:../../../../../mud/packages/cli::locator=%40tenetxyz%2Fworld%40workspace%3Apackages%2Fworld"
+  languageName: node
+  linkType: soft
+
 "@latticexyz/cli@link:../../../mud/packages/cli::locator=multiple-layer-contracts%40workspace%3A.":
   version: 0.0.0-use.local
   resolution: "@latticexyz/cli@link:../../../mud/packages/cli::locator=multiple-layer-contracts%40workspace%3A."
@@ -598,6 +604,18 @@ __metadata:
   languageName: node
   linkType: soft
 
+"@latticexyz/config@link:../../../../../mud/packages/config::locator=%40tenetxyz%2Fworld%40workspace%3Apackages%2Fworld":
+  version: 0.0.0-use.local
+  resolution: "@latticexyz/config@link:../../../../../mud/packages/config::locator=%40tenetxyz%2Fworld%40workspace%3Apackages%2Fworld"
+  languageName: node
+  linkType: soft
+
+"@latticexyz/noise@link:../../../../../mud/packages/noise::locator=%40tenetxyz%2Fworld%40workspace%3Apackages%2Fworld":
+  version: 0.0.0-use.local
+  resolution: "@latticexyz/noise@link:../../../../../mud/packages/noise::locator=%40tenetxyz%2Fworld%40workspace%3Apackages%2Fworld"
+  languageName: node
+  linkType: soft
+
 "@latticexyz/schema-type@link:../../../../../mud/packages/schema-type::locator=%40tenetxyz%2Flevel1-ca%40workspace%3Apackages%2Flevel1-ca":
   version: 0.0.0-use.local
   resolution: "@latticexyz/schema-type@link:../../../../../mud/packages/schema-type::locator=%40tenetxyz%2Flevel1-ca%40workspace%3Apackages%2Flevel1-ca"
@@ -619,6 +637,18 @@ __metadata:
 "@latticexyz/schema-type@link:../../../../../mud/packages/schema-type::locator=%40tenetxyz%2Flevel3-ca%40workspace%3Apackages%2Flevel3-ca":
   version: 0.0.0-use.local
   resolution: "@latticexyz/schema-type@link:../../../../../mud/packages/schema-type::locator=%40tenetxyz%2Flevel3-ca%40workspace%3Apackages%2Flevel3-ca"
+  languageName: node
+  linkType: soft
+
+"@latticexyz/schema-type@link:../../../../../mud/packages/schema-type::locator=%40tenetxyz%2Fworld%40workspace%3Apackages%2Fworld":
+  version: 0.0.0-use.local
+  resolution: "@latticexyz/schema-type@link:../../../../../mud/packages/schema-type::locator=%40tenetxyz%2Fworld%40workspace%3Apackages%2Fworld"
+  languageName: node
+  linkType: soft
+
+"@latticexyz/solecs@link:../../../../../mud/packages/solecs::locator=%40tenetxyz%2Fworld%40workspace%3Apackages%2Fworld":
+  version: 0.0.0-use.local
+  resolution: "@latticexyz/solecs@link:../../../../../mud/packages/solecs::locator=%40tenetxyz%2Fworld%40workspace%3Apackages%2Fworld"
   languageName: node
   linkType: soft
 
@@ -646,6 +676,12 @@ __metadata:
   languageName: node
   linkType: soft
 
+"@latticexyz/std-contracts@link:../../../../../mud/packages/std-contracts::locator=%40tenetxyz%2Fworld%40workspace%3Apackages%2Fworld":
+  version: 0.0.0-use.local
+  resolution: "@latticexyz/std-contracts@link:../../../../../mud/packages/std-contracts::locator=%40tenetxyz%2Fworld%40workspace%3Apackages%2Fworld"
+  languageName: node
+  linkType: soft
+
 "@latticexyz/store@link:../../../../../mud/packages/store::locator=%40tenetxyz%2Flevel1-ca%40workspace%3Apackages%2Flevel1-ca":
   version: 0.0.0-use.local
   resolution: "@latticexyz/store@link:../../../../../mud/packages/store::locator=%40tenetxyz%2Flevel1-ca%40workspace%3Apackages%2Flevel1-ca"
@@ -670,6 +706,12 @@ __metadata:
   languageName: node
   linkType: soft
 
+"@latticexyz/store@link:../../../../../mud/packages/store::locator=%40tenetxyz%2Fworld%40workspace%3Apackages%2Fworld":
+  version: 0.0.0-use.local
+  resolution: "@latticexyz/store@link:../../../../../mud/packages/store::locator=%40tenetxyz%2Fworld%40workspace%3Apackages%2Fworld"
+  languageName: node
+  linkType: soft
+
 "@latticexyz/world@link:../../../../../mud/packages/world::locator=%40tenetxyz%2Flevel1-ca%40workspace%3Apackages%2Flevel1-ca":
   version: 0.0.0-use.local
   resolution: "@latticexyz/world@link:../../../../../mud/packages/world::locator=%40tenetxyz%2Flevel1-ca%40workspace%3Apackages%2Flevel1-ca"
@@ -691,6 +733,12 @@ __metadata:
 "@latticexyz/world@link:../../../../../mud/packages/world::locator=%40tenetxyz%2Flevel3-ca%40workspace%3Apackages%2Flevel3-ca":
   version: 0.0.0-use.local
   resolution: "@latticexyz/world@link:../../../../../mud/packages/world::locator=%40tenetxyz%2Flevel3-ca%40workspace%3Apackages%2Flevel3-ca"
+  languageName: node
+  linkType: soft
+
+"@latticexyz/world@link:../../../../../mud/packages/world::locator=%40tenetxyz%2Fworld%40workspace%3Apackages%2Fworld":
+  version: 0.0.0-use.local
+  resolution: "@latticexyz/world@link:../../../../../mud/packages/world::locator=%40tenetxyz%2Fworld%40workspace%3Apackages%2Fworld"
   languageName: node
   linkType: soft
 
@@ -775,6 +823,18 @@ __metadata:
   languageName: node
   linkType: soft
 
+"@tenetxyz/base-ca@link:../../../../packages/base-ca::locator=%40tenetxyz%2Fworld%40workspace%3Apackages%2Fworld":
+  version: 0.0.0-use.local
+  resolution: "@tenetxyz/base-ca@link:../../../../packages/base-ca::locator=%40tenetxyz%2Fworld%40workspace%3Apackages%2Fworld"
+  languageName: node
+  linkType: soft
+
+"@tenetxyz/base-world@link:../../../../packages/base-world::locator=%40tenetxyz%2Fworld%40workspace%3Apackages%2Fworld":
+  version: 0.0.0-use.local
+  resolution: "@tenetxyz/base-world@link:../../../../packages/base-world::locator=%40tenetxyz%2Fworld%40workspace%3Apackages%2Fworld"
+  languageName: node
+  linkType: soft
+
 "@tenetxyz/level1-ca@workspace:*, @tenetxyz/level1-ca@workspace:packages/level1-ca":
   version: 0.0.0-use.local
   resolution: "@tenetxyz/level1-ca@workspace:packages/level1-ca"
@@ -807,7 +867,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@tenetxyz/level2-ca-extensions-1@workspace:packages/level2-ca-extensions-1":
+"@tenetxyz/level2-ca-extensions-1@workspace:*, @tenetxyz/level2-ca-extensions-1@workspace:packages/level2-ca-extensions-1":
   version: 0.0.0-use.local
   resolution: "@tenetxyz/level2-ca-extensions-1@workspace:packages/level2-ca-extensions-1"
   dependencies:
@@ -932,6 +992,12 @@ __metadata:
   languageName: node
   linkType: soft
 
+"@tenetxyz/registry@link:../../../../packages/registry::locator=%40tenetxyz%2Fworld%40workspace%3Apackages%2Fworld":
+  version: 0.0.0-use.local
+  resolution: "@tenetxyz/registry@link:../../../../packages/registry::locator=%40tenetxyz%2Fworld%40workspace%3Apackages%2Fworld"
+  languageName: node
+  linkType: soft
+
 "@tenetxyz/utils@link:../../../../packages/utils::locator=%40tenetxyz%2Flevel1-ca%40workspace%3Apackages%2Flevel1-ca":
   version: 0.0.0-use.local
   resolution: "@tenetxyz/utils@link:../../../../packages/utils::locator=%40tenetxyz%2Flevel1-ca%40workspace%3Apackages%2Flevel1-ca"
@@ -954,6 +1020,51 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@tenetxyz/utils@link:../../../../packages/utils::locator=%40tenetxyz%2Flevel3-ca%40workspace%3Apackages%2Flevel3-ca"
   languageName: node
+  linkType: soft
+
+"@tenetxyz/utils@link:../../../../packages/utils::locator=%40tenetxyz%2Fworld%40workspace%3Apackages%2Fworld":
+  version: 0.0.0-use.local
+  resolution: "@tenetxyz/utils@link:../../../../packages/utils::locator=%40tenetxyz%2Fworld%40workspace%3Apackages%2Fworld"
+  languageName: node
+  linkType: soft
+
+"@tenetxyz/world@workspace:packages/world":
+  version: 0.0.0-use.local
+  resolution: "@tenetxyz/world@workspace:packages/world"
+  dependencies:
+    "@ethersproject/abi": ^5.7.0
+    "@ethersproject/bytes": ^5.7.0
+    "@ethersproject/providers": ^5.7.2
+    "@latticexyz/cli": "link:../../../../../mud/packages/cli"
+    "@latticexyz/config": "link:../../../../../mud/packages/config"
+    "@latticexyz/noise": "link:../../../../../mud/packages/noise"
+    "@latticexyz/schema-type": "link:../../../../../mud/packages/schema-type"
+    "@latticexyz/solecs": "link:../../../../../mud/packages/solecs"
+    "@latticexyz/std-contracts": "link:../../../../../mud/packages/std-contracts"
+    "@latticexyz/store": "link:../../../../../mud/packages/store"
+    "@latticexyz/world": "link:../../../../../mud/packages/world"
+    "@openzeppelin/contracts": ^4.9.1
+    "@tenetxyz/base-ca": "link:../../../../packages/base-ca"
+    "@tenetxyz/base-world": "link:../../../../packages/base-world"
+    "@tenetxyz/level2-ca": "workspace:*"
+    "@tenetxyz/level2-ca-extensions-1": "workspace:*"
+    "@tenetxyz/registry": "link:../../../../packages/registry"
+    "@tenetxyz/utils": "link:../../../../packages/utils"
+    "@typechain/ethers-v5": ^10.2.0
+    "@types/node": ^18.15.11
+    abdk-libraries-solidity: ^3.2.0
+    ds-test: "https://github.com/dapphub/ds-test.git"
+    ethers: ^5.7.2
+    forge-std: "https://github.com/foundry-rs/forge-std"
+    memmove: "https://github.com/dk1a/memmove.git"
+    prettier: ^2.6.2
+    prettier-plugin-solidity: ^1.0.0-beta.19
+    rimraf: ^5.0.1
+    solhint: ^3.3.7
+    solhint-config-mud: 2.0.0-alpha.1.197+5e6cc0f5
+    solhint-plugin-mud: 2.0.0-alpha.1.197+5e6cc0f5
+    typechain: ^8.1.1
+  languageName: unknown
   linkType: soft
 
 "@typechain/ethers-v5@npm:^10.2.0":
@@ -1117,6 +1228,13 @@ __metadata:
     "@typescript-eslint/types": 5.46.1
     eslint-visitor-keys: ^3.3.0
   checksum: 952cf20e29a040e0820e52d6815097abf042ea8e1fd5d013c0a319284ea0e2e29e0ca9ef244717450a6eb9d32ebf7fa9ed91185675a27adc35c9ad070d561b7c
+  languageName: node
+  linkType: hard
+
+"abdk-libraries-solidity@npm:^3.2.0":
+  version: 3.2.0
+  resolution: "abdk-libraries-solidity@npm:3.2.0"
+  checksum: e5b8f1445cca23408a866be4769b77aae6bc6641e29f8207b4cfb8c811515bb5be87b1f1e54d00406696ef040ed2a0cfe54b6cff81ed8ef12ec4b32752839fdd
   languageName: node
   linkType: hard
 
@@ -1538,6 +1656,13 @@ __metadata:
   dependencies:
     esutils: ^2.0.2
   checksum: fd7673ca77fe26cd5cba38d816bc72d641f500f1f9b25b83e8ce28827fe2da7ad583a8da26ab6af85f834138cf8dae9f69b0cd6ab925f52ddab1754db44d99ce
+  languageName: node
+  linkType: hard
+
+"ds-test@https://github.com/dapphub/ds-test.git":
+  version: 1.0.0
+  resolution: "ds-test@https://github.com/dapphub/ds-test.git#commit=e282159d5170298eb2455a6c05280ab5a73a4ef0"
+  checksum: 8f36e20dde868d062841c790fc43c9dd18b93d6180995f378bedaee1f24444950838843c0f2ffa5ac3b8a21b4c29fd97a60725e29e8ff71c9cf28f837614d96f
   languageName: node
   linkType: hard
 
@@ -2360,6 +2485,13 @@ __metadata:
   version: 10.0.1
   resolution: "lru-cache@npm:10.0.1"
   checksum: 06f8d0e1ceabd76bb6f644a26dbb0b4c471b79c7b514c13c6856113879b3bf369eb7b497dad4ff2b7e2636db202412394865b33c332100876d838ad1372f0181
+  languageName: node
+  linkType: hard
+
+"memmove@https://github.com/dk1a/memmove.git":
+  version: 0.1.0
+  resolution: "memmove@https://github.com/dk1a/memmove.git#commit=ffd71cd77b1708574ef46a667b23ca3a5cc9fa27"
+  checksum: 14b885e97e156c0ec38744a40a7d2d6124a3fb3d8110bf3d529416cdecee4cd09aa4acdbf7f7d2f66845ee2c8a1c1474bda65ad0e64fc281f6b358d6ff02541c
   languageName: node
   linkType: hard
 

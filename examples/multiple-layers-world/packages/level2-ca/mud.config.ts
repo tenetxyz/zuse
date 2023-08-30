@@ -1,7 +1,7 @@
-import { tenetMudConfig, TenetMudConfigType } from "@tenetxyz/base-ca";
+import { tenetMudConfig } from "@tenetxyz/base-ca";
 import { resolveTableId } from "@latticexyz/config";
 
-export default tenetMudConfig(TenetMudConfigType.Layer, {
+export default tenetMudConfig({
   namespace: "ca",
   enums: {
     BlockDirection: ["None", "North", "South", "East", "West", "NorthEast", "NorthWest", "SouthEast", "SouthWest"],

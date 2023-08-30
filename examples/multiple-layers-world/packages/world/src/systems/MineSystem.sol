@@ -6,7 +6,7 @@ import { MineEvent } from "../prototypes/MineEvent.sol";
 import { VoxelCoord, VoxelEntity } from "@tenet-utils/src/Types.sol";
 import { VoxelType, VoxelTypeData, OfSpawn, Spawn, SpawnData } from "@tenet-contracts/src/codegen/Tables.sol";
 import { CHUNK_MAX_Y, CHUNK_MIN_Y } from "../Constants.sol";
-import { AirVoxelID } from "@tenet-level1-ca/src/Constants.sol";
+import { AirVoxelID } from "@tenet-base-ca/src/Constants.sol";
 import { getEntityAtCoord } from "../Utils.sol";
 
 contract MineSystem is MineEvent {

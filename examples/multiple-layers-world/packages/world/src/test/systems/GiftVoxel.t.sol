@@ -7,15 +7,17 @@ import { IStore } from "@latticexyz/store/src/IStore.sol";
 import { IWorld } from "@tenet-contracts/src/codegen/world/IWorld.sol";
 import { VoxelType, OwnedBy } from "@tenet-contracts/src/codegen/Tables.sol";
 
-import { AirVoxelID, ElectronVoxelID } from "@tenet-level1-ca/src/Constants.sol";
+import { AirVoxelID, ElectronVoxelID } from "@tenet-base-ca/src/Constants.sol";
 
 import { addressToEntityKey } from "@tenet-utils/src/Utils.sol";
 import { VoxelCoord } from "../../Types.sol";
+import { Utilities } from "@latticexyz/std-contracts/src/test/Utilities.sol";
 import { console } from "forge-std/console.sol";
 
 contract GiftVoxelTest is MudTest {
   IWorld private world;
   IStore private store;
+  Utilities internal immutable utils = new Utilities();
 
   address payable internal alice;
   bytes16 namespace;
@@ -24,5 +26,7 @@ contract GiftVoxelTest is MudTest {
     super.setUp();
     world = IWorld(worldAddress);
     store = IStore(worldAddress);
+
+    alice = utils.getNextUserAddress();
   }
 }

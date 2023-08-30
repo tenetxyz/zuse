@@ -3,31 +3,28 @@ import { ExtractUserTypes, StringForUnion } from "@latticexyz/common/type-utils"
 import { MUDUserConfig, TableConfig } from "@latticexyz/store/config";
 import { ExpandMUDUserConfig } from "@latticexyz/store/register";
 
-const LAYER_TABLES: Record<string, TableConfig> = {
-  CAEntityMapping: {
-    registerAsRoot: true,
+const WORLD_TABLES: Record<string, TableConfig> = {
+  WorldConfig: {
     keySchema: {
-      callerAddress: "address",
+      voxelTypeId: "bytes32",
+    },
+    schema: {
+      caAddress: "address",
+    },
+  },
+  VoxelType: {
+    keySchema: {
+      scale: "uint32",
       entity: "bytes32",
     },
     schema: {
-      caEntity: "bytes32",
+      voxelTypeId: "bytes32", // TODO: rename to voxelBaseTypeId
+      voxelVariantId: "bytes32",
     },
   },
-  CAEntityReverseMapping: {
-    registerAsRoot: true,
+  Position: {
     keySchema: {
-      caEntity: "bytes32",
-    },
-    schema: {
-      callerAddress: "address",
-      entity: "bytes32",
-    },
-  },
-  CAPosition: {
-    registerAsRoot: true,
-    keySchema: {
-      callerAddress: "address",
+      scale: "uint32",
       entity: "bytes32",
     },
     schema: {
@@ -37,64 +34,73 @@ const LAYER_TABLES: Record<string, TableConfig> = {
       z: "int32",
     },
   },
-  CAVoxelType: {
-    registerAsRoot: true,
+  VoxelActivated: {
     keySchema: {
-      callerAddress: "address",
+      player: "address",
+    },
+    schema: {
+      scale: "uint32",
+      entity: "bytes32",
+      message: "string",
+    },
+    ephemeral: true,
+  },
+  // tables for spawning
+  OfSpawn: {
+    // maps a voxel spawned in the world -> the entityId representing its spawn
+    keySchema: {
+      scale: "uint32",
       entity: "bytes32",
     },
     schema: {
-      voxelTypeId: "bytes32",
-      voxelVariantId: "bytes32",
+      spawnId: "bytes32",
     },
   },
-  CAMind: {
-    registerAsRoot: true,
-    keySchema: {
-      caEntity: "bytes32",
-    },
+  Spawn: {
     schema: {
-      voxelTypeId: "bytes32",
-      mindSelector: "bytes4",
+      creationId: "bytes32", // the creation that it's a spawn of
+      isModified: "bool", // modified spawns can't be submitted to classifiers
+      lowerSouthWestCorner: "bytes", // VoxelCoord
+      voxels: "bytes", // the voxel entities that have been spawned
     },
-  },
+  }
 };
 
-const LAYER_MODULES = [
+const WORLD_MODULES = [
   {
     name: "UniqueEntityModule",
     root: true,
     args: [],
   },
   {
+    name: "KeysInTableModule",
+    root: true,
+    args: [resolveTableId("Position")],
+  },
+  {
+    name: "KeysInTableModule",
+    root: true,
+    args: [resolveTableId("WorldConfig")],
+  },
+  {
     name: "KeysWithValueModule",
     root: true,
-    args: [resolveTableId("CAPosition")],
+    args: [resolveTableId("Position")],
+  },
+  {
+    name: "KeysWithValueModule",
+    root: true,
+    args: [resolveTableId("VoxelType")],
   },
   {
     name: "KeysInTableModule",
     root: true,
-    args: [resolveTableId("CAPosition")],
+    args: [resolveTableId("VoxelType")],
   },
   {
     name: "KeysInTableModule",
     root: true,
-    args: [resolveTableId("CAVoxelType")],
-  },
-  {
-    name: "KeysInTableModule",
-    root: true,
-    args: [resolveTableId("CAEntityMapping")],
-  },
-  {
-    name: "KeysInTableModule",
-    root: true,
-    args: [resolveTableId("CAEntityReverseMapping")],
-  },
-  {
-    name: "KeysInTableModule",
-    root: true,
-    args: [resolveTableId("CAMind")],
+    args: [resolveTableId("Spawn")],
   },
 ];
 
@@ -108,18 +114,18 @@ export function tenetMudConfig<
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
  // add layer Tables
  const existingTableNames = new Set(Object.keys(config.tables));
- for (const tableName of Object.keys(LAYER_TABLES)) {
+ for (const tableName of Object.keys(WORLD_TABLES)) {
    if (existingTableNames.has(tableName)) {
      // TODO: Support overriding tables
      throw new Error(`Table ${tableName} already exists`);
    }
-   const table = LAYER_TABLES[tableName];
+   const table = WORLD_TABLES[tableName];
    config.tables[tableName] = table;
  }
 
  // add layer Modules
  // TODO: Add check on duplicates
- config.modules = config.modules.concat(LAYER_MODULES);
+ config.modules = config.modules.concat(WORLD_MODULES);
 
   return mudCoreConfig(config) as any;
 }

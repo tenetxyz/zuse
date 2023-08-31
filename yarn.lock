@@ -1055,6 +1055,17 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@improbable-eng/grpc-web@npm:^0.15.0":
+  version: 0.15.0
+  resolution: "@improbable-eng/grpc-web@npm:0.15.0"
+  dependencies:
+    browser-headers: ^0.4.1
+  peerDependencies:
+    google-protobuf: ^3.14.0
+  checksum: 8c6322e681965be4fcadf58fde0571f7972c36b48290474e87c7d12bed09b27163fd6ed73c6c36e896885da782abf1835bbeaf65b35bcdb65d9114ea8a0e6ba5
+  languageName: node
+  linkType: hard
+
 "@isaacs/cliui@npm:^8.0.2":
   version: 8.0.2
   resolution: "@isaacs/cliui@npm:8.0.2"
@@ -1270,12 +1281,6 @@ __metadata:
   languageName: node
   linkType: soft
 
-"@latticexyz/network@link:../../../mud/packages/network::locator=ca-client%40workspace%3Apackages%2Fca-client":
-  version: 0.0.0-use.local
-  resolution: "@latticexyz/network@link:../../../mud/packages/network::locator=ca-client%40workspace%3Apackages%2Fca-client"
-  languageName: node
-  linkType: soft
-
 "@latticexyz/network@link:../../../mud/packages/network::locator=client%40workspace%3Apackages%2Fclient":
   version: 0.0.0-use.local
   resolution: "@latticexyz/network@link:../../../mud/packages/network::locator=client%40workspace%3Apackages%2Fclient"
@@ -1384,6 +1389,12 @@ __metadata:
   languageName: node
   linkType: soft
 
+"@latticexyz/services@link:../../../mud/packages/services::locator=ca-client%40workspace%3Apackages%2Fca-client":
+  version: 0.0.0-use.local
+  resolution: "@latticexyz/services@link:../../../mud/packages/services::locator=ca-client%40workspace%3Apackages%2Fca-client"
+  languageName: node
+  linkType: soft
+
 "@latticexyz/services@link:../../../mud/packages/services::locator=client%40workspace%3Apackages%2Fclient":
   version: 0.0.0-use.local
   resolution: "@latticexyz/services@link:../../../mud/packages/services::locator=client%40workspace%3Apackages%2Fclient"
@@ -1399,18 +1410,6 @@ __metadata:
 "@latticexyz/solecs@link:../../../mud/packages/solecs::locator=client%40workspace%3Apackages%2Fclient":
   version: 0.0.0-use.local
   resolution: "@latticexyz/solecs@link:../../../mud/packages/solecs::locator=client%40workspace%3Apackages%2Fclient"
-  languageName: node
-  linkType: soft
-
-"@latticexyz/std-client@link:../../../mud/packages/std-client::locator=ca-client%40workspace%3Apackages%2Fca-client":
-  version: 0.0.0-use.local
-  resolution: "@latticexyz/std-client@link:../../../mud/packages/std-client::locator=ca-client%40workspace%3Apackages%2Fca-client"
-  languageName: node
-  linkType: soft
-
-"@latticexyz/std-client@link:../../../mud/packages/std-client::locator=client%40workspace%3Apackages%2Fclient":
-  version: 0.0.0-use.local
-  resolution: "@latticexyz/std-client@link:../../../mud/packages/std-client::locator=client%40workspace%3Apackages%2Fclient"
   languageName: node
   linkType: soft
 
@@ -1471,6 +1470,18 @@ __metadata:
 "@latticexyz/store-cache@link:../../../mud/packages/store-cache::locator=client%40workspace%3Apackages%2Fclient":
   version: 0.0.0-use.local
   resolution: "@latticexyz/store-cache@link:../../../mud/packages/store-cache::locator=client%40workspace%3Apackages%2Fclient"
+  languageName: node
+  linkType: soft
+
+"@latticexyz/store-sync@link:../../../mud/packages/store-sync::locator=ca-client%40workspace%3Apackages%2Fca-client":
+  version: 0.0.0-use.local
+  resolution: "@latticexyz/store-sync@link:../../../mud/packages/store-sync::locator=ca-client%40workspace%3Apackages%2Fca-client"
+  languageName: node
+  linkType: soft
+
+"@latticexyz/store-sync@link:../../../mud/packages/store-sync::locator=client%40workspace%3Apackages%2Fclient":
+  version: 0.0.0-use.local
+  resolution: "@latticexyz/store-sync@link:../../../mud/packages/store-sync::locator=client%40workspace%3Apackages%2Fclient"
   languageName: node
   linkType: soft
 
@@ -2877,6 +2888,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"abort-controller-x@npm:^0.4.0":
+  version: 0.4.3
+  resolution: "abort-controller-x@npm:0.4.3"
+  checksum: a8009c8185060bd5b291b5db8ca30460d5e5ac5b6b3d707e498c50ab313c5d9d79da719534696512ab6987d249ca1c86b8d048687b762db82002955f0ea222bd
+  languageName: node
+  linkType: hard
+
 "acorn-jsx@npm:^5.3.2":
   version: 5.3.2
   resolution: "acorn-jsx@npm:5.3.2"
@@ -3302,6 +3320,13 @@ box-intersect@fenomas/box-intersect:
   languageName: node
   linkType: hard
 
+"browser-headers@npm:^0.4.1":
+  version: 0.4.1
+  resolution: "browser-headers@npm:0.4.1"
+  checksum: 28b927dd90e4882eeb0625cd4a20a8e868f892144bca794a9b027fad9d2094656daf46473cb9084d650590504c581dd6a711146243035b66e75ade61bbe4d3cf
+  languageName: node
+  linkType: hard
+
 "browserslist@npm:^4.21.5, browserslist@npm:^4.21.9":
   version: 4.21.10
   resolution: "browserslist@npm:4.21.10"
@@ -3337,24 +3362,26 @@ box-intersect@fenomas/box-intersect:
     "@ethersproject/providers": ^5.7.2
     "@latticexyz/common": "link:../../../mud/packages/common"
     "@latticexyz/dev-tools": "link:../../../mud/packages/dev-tools"
-    "@latticexyz/network": "link:../../../mud/packages/network"
     "@latticexyz/react": "link:../../../mud/packages/react"
     "@latticexyz/recs": "link:../../../mud/packages/recs"
     "@latticexyz/schema-type": "link:../../../mud/packages/schema-type"
-    "@latticexyz/std-client": "link:../../../mud/packages/std-client"
+    "@latticexyz/services": "link:../../../mud/packages/services"
+    "@latticexyz/store-sync": "link:../../../mud/packages/store-sync"
     "@latticexyz/utils": "link:../../../mud/packages/utils"
     "@latticexyz/world": "link:../../../mud/packages/world"
+    "@tenetxyz/base-ca": "workspace:*"
     "@tenetxyz/level2-ca": "workspace:*"
     "@tenetxyz/registry": "workspace:*"
     "@types/react": ^18.2.6
     "@types/react-dom": ^18.2.4
     "@vitejs/plugin-react": ^3.1.0
-    "@wagmi/chains": ^0.2.22
     eslint-plugin-react: 7.31.11
     eslint-plugin-react-hooks: 4.6.0
     ethers: ^5.7.2
     react: ^18.2.0
     react-dom: ^18.2.0
+    rxjs: 7.5.5
+    viem: 1.6.0
     vite: ^4.2.1
     wait-port: ^1.0.4
   languageName: unknown
@@ -3390,7 +3417,7 @@ box-intersect@fenomas/box-intersect:
   languageName: node
   linkType: hard
 
-"callsites@npm:^3.0.0":
+"callsites@npm:^3.0.0, callsites@npm:^3.1.0":
   version: 3.1.0
   resolution: "callsites@npm:3.1.0"
   checksum: 072d17b6abb459c2ba96598918b55868af677154bec7e73d222ef95a8fdb9bbf7dae96a8421085cdad8cd190d86653b5b6dc55a4484f2e5b2e27d5e0c3fc15b3
@@ -3491,6 +3518,7 @@ box-intersect@fenomas/box-intersect:
     "@fontsource/fira-sans": ^5.0.5
     "@fortawesome/free-brands-svg-icons": ^6.4.0
     "@fortawesome/free-solid-svg-icons": ^6.4.0
+    "@improbable-eng/grpc-web": ^0.15.0
     "@latticexyz/common": "link:../../../mud/packages/common"
     "@latticexyz/dev-tools": "link:../../../mud/packages/dev-tools"
     "@latticexyz/ecs-browser": "link:../../../mud/packages/ecs-browser"
@@ -3502,9 +3530,9 @@ box-intersect@fenomas/box-intersect:
     "@latticexyz/schema-type": "link:../../../mud/packages/schema-type"
     "@latticexyz/services": "link:../../../mud/packages/services"
     "@latticexyz/solecs": "link:../../../mud/packages/solecs"
-    "@latticexyz/std-client": "link:../../../mud/packages/std-client"
     "@latticexyz/std-contracts": "link:../../../mud/packages/std-contracts"
     "@latticexyz/store-cache": "link:../../../mud/packages/store-cache"
+    "@latticexyz/store-sync": "link:../../../mud/packages/store-sync"
     "@latticexyz/utils": "link:../../../mud/packages/utils"
     "@latticexyz/world": "link:../../../mud/packages/world"
     "@radix-ui/react-collapsible": ^1.0.3
@@ -3534,6 +3562,7 @@ box-intersect@fenomas/box-intersect:
     lucide-react: ^0.263.1
     mobx: ^6.9.0
     mobx-react-lite: ^3.4.3
+    nice-grpc-web: ^2.0.1
     noa-engine: "git+https://github.com/tenetxyz/noa.git#tenet-main"
     postcss: ^8.4.24
     proxy-deep: ^3.1.1
@@ -3546,7 +3575,8 @@ box-intersect@fenomas/box-intersect:
     tailwindcss: ^3.3.2
     tailwindcss-animate: ^1.0.6
     terser: ^5.19.0
-    viem: ^1.2.12
+    threads: ^1.7.0
+    viem: 1.6.0
     vite: ^4.2.1
     vite-plugin-optimize-css-modules: ^1.0.4
     wait-port: ^1.0.4
@@ -3779,7 +3809,7 @@ box-intersect@fenomas/box-intersect:
   languageName: node
   linkType: hard
 
-"debug@npm:4, debug@npm:^4.1.0, debug@npm:^4.1.1, debug@npm:^4.3.1, debug@npm:^4.3.2, debug@npm:^4.3.3, debug@npm:^4.3.4":
+"debug@npm:4, debug@npm:^4.1.0, debug@npm:^4.1.1, debug@npm:^4.2.0, debug@npm:^4.3.1, debug@npm:^4.3.2, debug@npm:^4.3.3, debug@npm:^4.3.4":
   version: 4.3.4
   resolution: "debug@npm:4.3.4"
   dependencies:
@@ -4274,6 +4304,13 @@ box-intersect@fenomas/box-intersect:
   bin:
     eslint: bin/eslint.js
   checksum: e05204b05907b82d910983995cb946e0ba62ca514eb2b6791c43f623333b143564a2eee0139909d31c10935c21877d815b1f76dd674a59cb91c471064325c4ab
+  languageName: node
+  linkType: hard
+
+"esm@npm:^3.2.25":
+  version: 3.2.25
+  resolution: "esm@npm:3.2.25"
+  checksum: 978aabe2de83541c105605a6d60a26ed8e627ef6bb0a7605fe15a95bbdea6b8348bd045255cb22219c054dd09a81a94823df00843d9e97f42419c92015ce3a64
   languageName: node
   linkType: hard
 
@@ -5249,6 +5286,13 @@ box-intersect@fenomas/box-intersect:
   languageName: node
   linkType: hard
 
+"is-observable@npm:^2.1.0":
+  version: 2.1.0
+  resolution: "is-observable@npm:2.1.0"
+  checksum: 93b0e0f9b115ef4b5f0523f4930667a7809a42e9cf1b23a444f8a9c15f72b9c1729b2a4691d55a5c479a05eafd5dda9b51ed1b65336d56027b7989ecb8ef51bf
+  languageName: node
+  linkType: hard
+
 "is-path-inside@npm:^3.0.3":
   version: 3.0.3
   resolution: "is-path-inside@npm:3.0.3"
@@ -5353,6 +5397,13 @@ box-intersect@fenomas/box-intersect:
   bin:
     jiti: bin/jiti.js
   checksum: fdf55e315f9e81c04ae902416642062851d92c6cdcc17a59d5d1d35e1a0842e4e79be38da86613c5776fa18c579954542a441b93d1c347a50137dee2e558cbd0
+  languageName: node
+  linkType: hard
+
+"js-base64@npm:^3.7.2":
+  version: 3.7.5
+  resolution: "js-base64@npm:3.7.5"
+  checksum: 67a78c8b1c47b73f1c6fba1957e9fe6fd9dc78ac93ac46cc2e43472dcb9cf150d126fb0e593192e88e0497354fa634d17d255add7cc6ee3c7b4d29870faa8e18
   languageName: node
   linkType: hard
 
@@ -5855,6 +5906,27 @@ box-intersect@fenomas/box-intersect:
   languageName: node
   linkType: hard
 
+"nice-grpc-common@npm:^2.0.1":
+  version: 2.0.2
+  resolution: "nice-grpc-common@npm:2.0.2"
+  dependencies:
+    ts-error: ^1.0.6
+  checksum: d9b600a7044495c508f3e3faab7caa49675f329c7209e829f41a31ef390bbe493c7be2d6c63056831f383299bae034852a84090e7fd9c6a6e8c52f919b03ed44
+  languageName: node
+  linkType: hard
+
+"nice-grpc-web@npm:^2.0.1":
+  version: 2.0.2
+  resolution: "nice-grpc-web@npm:2.0.2"
+  dependencies:
+    "@improbable-eng/grpc-web": ^0.15.0
+    abort-controller-x: ^0.4.0
+    js-base64: ^3.7.2
+    nice-grpc-common: ^2.0.1
+  checksum: e56c9ed8d12631021f1ff6d468ffc9e7f9a2fea8987707fbfa200d7df1faff1b09aea9386a78712c856d6bf565cabdf63f08b1aa6a629322c884012b33f3c69a
+  languageName: node
+  linkType: hard
+
 "noa-engine@git+https://github.com/tenetxyz/noa.git#tenet-main":
   version: 0.34.0
   resolution: "noa-engine@https://github.com/tenetxyz/noa.git#commit=32e53f8d75f99c7203c169d0144b5c09a426de92"
@@ -6021,6 +6093,13 @@ box-intersect@fenomas/box-intersect:
     define-properties: ^1.1.4
     es-abstract: ^1.20.4
   checksum: f6fff9fd817c24cfd8107f50fb33061d81cd11bacc4e3dbb3852e9ff7692fde4dbce823d4333ea27cd9637ef1b6690df5fbb61f1ed314fa2959598dc3ae23d8e
+  languageName: node
+  linkType: hard
+
+"observable-fns@npm:^0.6.1":
+  version: 0.6.1
+  resolution: "observable-fns@npm:0.6.1"
+  checksum: b575f23f90c6129a8bead1d5001dbae2d83c6d01724a4790ec8f1c7f2db352440c87eae2ffb562117cb58b4a68b4503ab3a7017a77025916993ad710cd0efdd9
   languageName: node
   linkType: hard
 
@@ -6616,6 +6695,15 @@ box-intersect@fenomas/box-intersect:
   dependencies:
     queue-microtask: ^1.2.2
   checksum: cb4f97ad25a75ebc11a8ef4e33bb962f8af8516bb2001082ceabd8902e15b98f4b84b4f8a9b222e5d57fc3bd1379c483886ed4619367a7680dad65316993021d
+  languageName: node
+  linkType: hard
+
+"rxjs@npm:7.5.5":
+  version: 7.5.5
+  resolution: "rxjs@npm:7.5.5"
+  dependencies:
+    tslib: ^2.1.0
+  checksum: e034f60805210cce756dd2f49664a8108780b117cf5d0e2281506e9e6387f7b4f1532d974a8c8b09314fa7a16dd2f6cff3462072a5789672b5dcb45c4173f3c6
   languageName: node
   linkType: hard
 
@@ -7224,6 +7312,31 @@ box-intersect@fenomas/box-intersect:
   languageName: node
   linkType: hard
 
+"threads@npm:^1.7.0":
+  version: 1.7.0
+  resolution: "threads@npm:1.7.0"
+  dependencies:
+    callsites: ^3.1.0
+    debug: ^4.2.0
+    is-observable: ^2.1.0
+    observable-fns: ^0.6.1
+    tiny-worker: ">= 2"
+  dependenciesMeta:
+    tiny-worker:
+      optional: true
+  checksum: 253574bc5c70d0663756d74c7a438ced64f9c6746ff550abea18b11919a24cc6b1be3322b4d0bdb8c6077e52774eb65f49549bb9deec24e693f149470c316ee1
+  languageName: node
+  linkType: hard
+
+"tiny-worker@npm:>= 2":
+  version: 2.3.0
+  resolution: "tiny-worker@npm:2.3.0"
+  dependencies:
+    esm: ^3.2.25
+  checksum: 33492c9b0623e064dd39bc64d61e7031a3ba146ed1d6de179c3f8c2e3b965061e204e602c0b019fa363ccca1e6939fc2e8d03c4ad070450cc491d47cd5382409
+  languageName: node
+  linkType: hard
+
 "to-fast-properties@npm:^2.0.0":
   version: 2.0.0
   resolution: "to-fast-properties@npm:2.0.0"
@@ -7260,6 +7373,13 @@ box-intersect@fenomas/box-intersect:
   bin:
     write-markdown: dist/write-markdown.js
   checksum: 7c0a7582e94f1d2160e3dd379851ec4f1758bc673ccd71bae07f839f83051b6b83e0ae14325c2d04ea728e5bde7b7eacfd2ab060b8fd4b8ab29e0bbf77f6c51e
+  languageName: node
+  linkType: hard
+
+"ts-error@npm:^1.0.6":
+  version: 1.0.6
+  resolution: "ts-error@npm:1.0.6"
+  checksum: 043d15c155bf3aeeb146523f24650a773a4aa607587252692640eb233f9d832b73e207c4f076c2e7bc68e9897979eec0586cf631a919f3a3c542fb981d35a5d7
   languageName: node
   linkType: hard
 
@@ -7521,7 +7641,7 @@ box-intersect@fenomas/box-intersect:
   languageName: node
   linkType: hard
 
-"viem@npm:^1.2.12":
+"viem@npm:1.6.0":
   version: 1.6.0
   resolution: "viem@npm:1.6.0"
   dependencies:

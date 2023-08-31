@@ -1,4 +1,4 @@
-import { ActionState } from "@latticexyz/std-client";
+import { ActionState } from "@latticexyz/recs/deprecated";
 import React from "react";
 import styled, { ThemedStyledFunction } from "styled-components";
 import { ActionStatusIcon } from "../Action";

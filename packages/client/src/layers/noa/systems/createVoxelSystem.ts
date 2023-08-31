@@ -1,4 +1,3 @@
-import { SyncState } from "@latticexyz/network";
 import {
   defineComponentSystem,
   defineEnterSystem,
@@ -68,7 +67,9 @@ export async function createVoxelSystem(networkLayer: NetworkLayer, noaLayer: No
   });
 
   const isEntityInCurrentScale = (entityKey: string, scale: number) => {
-    const [_scaleInHexadecimal, entity] = entityKey.split(":");
+    // const [_scaleInHexadecimal, entity] = entityKey.split(":");
+    const _scaleInHexadecimal = entityKey.substring(0, 66);
+    const entity = "0x" + entityKey.substring(66);
     return _scaleInHexadecimal == to64CharAddress("0x" + scale);
   };
 }

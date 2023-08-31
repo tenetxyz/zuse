@@ -1,9 +1,12 @@
-import { World } from "@latticexyz/recs";
-import { defineStringComponent } from "@latticexyz/std-client";
+import { defineComponent, Type, World } from "@latticexyz/recs";
 
 export function defineSystemsRegistryComponent(world: World) {
-  return defineStringComponent(world, {
-    id: "SystemsRegistry",
-    metadata: { contractId: "world.component.systems" },
-  });
+  return defineComponent(
+    world,
+    { value: Type.String },
+    {
+      id: "SystemsRegistry",
+      metadata: { contractId: "world.component.systems" },
+    }
+  );
 }

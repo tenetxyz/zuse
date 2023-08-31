@@ -1,9 +1,12 @@
-import { World } from "@latticexyz/recs";
-import { defineVoxelCoordComponent } from "@latticexyz/std-client";
+import { defineComponent, Type, World } from "@latticexyz/recs";
 
 export function definePositionComponent(world: World) {
-  return defineVoxelCoordComponent(world, {
-    id: "Position",
-    metadata: { contractId: "component.Position" },
-  });
+  return defineComponent(
+    world,
+    { x: Type.Number, y: Type.Number, z: Type.Number },
+    {
+      id: "Position",
+      metadata: { contractId: "component.Position" },
+    }
+  );
 }

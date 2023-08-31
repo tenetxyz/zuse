@@ -18,7 +18,7 @@ export type ComponentParser<ComponentRecord> = {
 export function setupComponentParsers(
   world: Awaited<ReturnType<typeof createWorld>>,
   registryResult: any,
-  result: any,
+  components: any,
   worldAddress: string
 ) {
   const worldMetadata = {
@@ -41,7 +41,7 @@ export function setupComponentParsers(
     "ParsedVoxelTypeRegistry"
   );
 
-  const ParsedSpawn = setupComponentParser(world, result.components.Spawn, parseSpawn, worldMetadata, "Spawn");
+  const ParsedSpawn = setupComponentParser(world, components.Spawn, parseSpawn, worldMetadata, "Spawn");
 
   return {
     ParsedCreationRegistry,

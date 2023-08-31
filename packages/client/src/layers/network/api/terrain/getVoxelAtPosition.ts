@@ -23,7 +23,8 @@ export function getEntityAtPosition(
   const currentScaleInHexadecimal = to64CharAddress("0x" + scale);
   const entityKeysAtPosition = [...getEntitiesWithValue(Position, coord)].filter((entityKey) => {
     // filter out the voxels that are not at the current scale
-    const [scaleInHexadecimal, _entity] = entityKey.split(":");
+    const scaleInHexadecimal = entityKey.substring(0, 66);
+    const _entity = "0x" + entityKey.substring(66);
     return scaleInHexadecimal === currentScaleInHexadecimal;
   });
 

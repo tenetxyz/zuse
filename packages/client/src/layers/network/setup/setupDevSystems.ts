@@ -1,4 +1,3 @@
-import { TxQueue } from "@latticexyz/network";
 import { Component, ComponentValue, defineComponent, Entity, Schema, Type, World } from "@latticexyz/recs";
 import { keccak256 } from "@latticexyz/utils";
 import { BigNumber } from "ethers";

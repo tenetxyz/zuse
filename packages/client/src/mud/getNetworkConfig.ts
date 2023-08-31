@@ -1,4 +1,4 @@
-import { SetupContractConfig, getBurnerWallet } from "@latticexyz/std-client";
+import { getBurnerPrivateKey } from "@latticexyz/common";
 import worldsJson from "@tenetxyz/contracts/worlds.json";
 import registryWorldsJson from "@tenetxyz/registry/worlds.json";
 import { supportedChains } from "./supportedChains";
@@ -7,14 +7,9 @@ import { tenetTestnet, tenetRelayServiceUrl } from "./tenetTestnet";
 const registryWorlds = registryWorldsJson as Partial<Record<string, { address: string; blockNumber?: number }>>;
 const worlds = worldsJson as Partial<Record<string, { address: string; blockNumber?: number }>>;
 
-type NetworkConfig = SetupContractConfig & {
-  privateKey: string;
-  faucetServiceUrl?: string;
-  snapSync?: boolean;
-  relayServiceUrl?: string;
-};
+export type NetworkConfig = Awaited<ReturnType<typeof getNetworkConfig>>;
 
-export async function getNetworkConfig(isRegistry: boolean): Promise<NetworkConfig> {
+export async function getNetworkConfig(isRegistry: boolean) {
   const params = new URLSearchParams(window.location.search);
 
   const chainId = Number(params.get("chainId") || import.meta.env.VITE_CHAIN_ID || 31337);
@@ -34,7 +29,7 @@ export async function getNetworkConfig(isRegistry: boolean): Promise<NetworkConf
 
   const initialBlockNumber = params.has("initialBlockNumber")
     ? Number(params.get("initialBlockNumber"))
-    : world?.blockNumber ?? -1; // -1 will attempt to find the block number from RPC
+    : world?.blockNumber ?? 0n;
 
   return {
     clock: {
@@ -47,14 +42,13 @@ export async function getNetworkConfig(isRegistry: boolean): Promise<NetworkConf
       jsonRpcUrl: params.get("rpc") ?? chain.rpcUrls.default.http[0],
       wsRpcUrl: params.get("wsRpc") ?? chain.rpcUrls.default.webSocket?.[0],
     },
-    privateKey: getBurnerWallet().value,
+    privateKey: getBurnerPrivateKey(),
     chainId,
+    chain,
     chainConfig: chain,
-    modeUrl: params.get("mode") ?? chain.modeUrl,
     faucetServiceUrl: params.get("faucet") ?? chain.faucetUrl,
     worldAddress,
     initialBlockNumber,
-    snapSync: params.get("snapSync") === "false" ? false : true,
     disableCache: params.get("cache") === "false",
     relayServiceUrl: params.get("relay") ?? defaultRelay,
   };

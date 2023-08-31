@@ -1,6 +1,5 @@
-import { World } from "@latticexyz/recs";
-import { defineNumberComponent } from "@latticexyz/std-client";
+import { defineComponent, Type, World } from "@latticexyz/recs";
 
 export function defineSelectedSlotComponent(world: World) {
-  return defineNumberComponent(world, { id: "SelectedSlot" });
+  return defineComponent(world, { value: Type.Number }, { id: "SelectedSlot" });
 }

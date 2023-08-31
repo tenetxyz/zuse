@@ -1,4 +1,3 @@
-// import { formatEntityID } from "@latticexyz/network";
 import { formatEntityID } from "./entity";
 import { Coord, padToBitLength, to256BitString, toInt32 } from "@latticexyz/utils";
 

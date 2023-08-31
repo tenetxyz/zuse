@@ -8,7 +8,7 @@ export default defineConfig({
   plugins: [react(), optimizeCssModules()],
   server: {
     host: "0.0.0.0",
-    port: 3000,
+    port: 3003,
     fs: {
       strict: false,
     },
@@ -42,6 +42,6 @@ export default defineConfig({
     esbuildOptions: {
       target: "es2022",
     },
-    exclude: ["@latticexyz/noise", "buffer"],
+    exclude: ["@latticexyz/noise"],
   },
 });

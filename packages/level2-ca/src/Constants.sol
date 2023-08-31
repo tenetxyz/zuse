@@ -12,7 +12,7 @@ bytes32 constant FighterVoxelID = bytes32(keccak256("fighter"));
 
 int32 constant CHUNK_MAX_Y = 255;
 int32 constant CHUNK_MIN_Y = -128;
-int32 constant TILE_Y = -1;
+int32 constant TILE_Y = 1;
 
 // Terrain
 enum Biome {

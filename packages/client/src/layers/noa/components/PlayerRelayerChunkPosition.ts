@@ -1,6 +1,5 @@
-import { World } from "@latticexyz/recs";
-import { defineCoordComponent } from "@latticexyz/std-client";
+import { defineComponent, Type, World } from "@latticexyz/recs";
 
 export function definePlayerRelayerChunkPositionComponent(world: World) {
-  return defineCoordComponent(world, { id: "PlayerRelayerChunkPosition" });
+  return defineComponent(world, { x: Type.Number, y: Type.Number }, { id: "PlayerRelayerChunkPosition" });
 }

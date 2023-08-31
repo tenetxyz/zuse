@@ -40,7 +40,7 @@ export const VoxelTypeStore: React.FC<Props> = ({ layers, filters = { query: "",
     network: {
       contractComponents: { OwnedBy, VoxelType },
       api: { giftVoxel },
-      network: { connectedAddress },
+      connectedAddress,
       getVoxelIconUrl,
     },
     noa: { noa },

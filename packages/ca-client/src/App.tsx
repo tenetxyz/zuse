@@ -3,7 +3,7 @@ import { useMUD } from "./MUDContext";
 
 export const App = () => {
   const {
-    network: { singletonEntity, worldId },
+    network: { worldId },
   } = useMUD();
 
   return (

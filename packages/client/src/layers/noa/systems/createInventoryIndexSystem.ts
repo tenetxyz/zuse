@@ -30,7 +30,7 @@ export const getItemTypesIOwn = (
   }>,
   connectedAddress: IComputedValue<string | undefined>
 ): Set<VoxelBaseTypeId> => {
-  const itemsIOwn = runQuery([HasValue(OwnedBy, { player: connectedAddress.get() }), Has(VoxelType)]);
+  const itemsIOwn = runQuery([HasValue(OwnedBy, { player: connectedAddress }), Has(VoxelType)]);
   return new Set(
     Array.from(itemsIOwn)
       .map((item) => {
@@ -48,7 +48,7 @@ export const getItemTypesIOwn = (
 export function createInventoryIndexSystem(network: NetworkLayer, noaLayer: NoaLayer) {
   const {
     contractComponents: { OwnedBy, VoxelType },
-    network: { connectedAddress },
+    connectedAddress,
     streams: { doneSyncing$ },
   } = network;
 
@@ -58,16 +58,10 @@ export function createInventoryIndexSystem(network: NetworkLayer, noaLayer: NoaL
     noa,
   } = noaLayer;
 
-  const connectedAddress$ = computedToStream(connectedAddress);
+  const update$ = defineQuery([HasValue(OwnedBy, { player: connectedAddress }), Has(VoxelType)], {
+    runOnInit: true,
+  }).update$;
 
-  const update$ = connectedAddress$.pipe(
-    switchMap(
-      (address) =>
-        defineQuery([HasValue(OwnedBy, { player: address }), Has(VoxelType)], {
-          runOnInit: true,
-        }).update$
-    )
-  );
   const removeInventoryIndexesForItemsWeNoLongerOwn = () => {
     const itemTypesIOwn = getItemTypesIOwn(noa, OwnedBy, VoxelType, connectedAddress);
     for (const itemType of InventoryIndex.values.value.keys()) {

@@ -272,9 +272,8 @@ const ClassifierDetails: React.FC<Props> = ({ layers, selectedClassifier }: Prop
 
       <hr className="h-0.5 bg-gray-300 mt-4 mb-4 border-0" />
       <h3 className="text-xl font-bold">Submissions</h3>
-      {isClassifierTruthTable ? (
-        <TruthTableClassifierResults layers={layers} classifier={selectedClassifier} />
-      ) : (
+      {isClassifierTruthTable ? // <TruthTableClassifierResults layers={layers} classifier={selectedClassifier} />
+      null : (
         <ClassifierResults layers={layers} classifier={selectedClassifier} />
       )}
     </div>

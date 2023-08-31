@@ -4,7 +4,7 @@ import styled from "styled-components";
 import { Button, Container, Relative, Title } from "./common";
 import { ecoji } from "../../../utils/ecoji";
 import { FaucetServiceClient } from "@latticexyz/services/protobuf/ts/faucet/faucet";
-import { ActionState } from "@latticexyz/std-client";
+import { ActionState } from "@latticexyz/recs/deprecated";
 import { ActionStatusIcon } from "./Action";
 import { Observable } from "rxjs";
 

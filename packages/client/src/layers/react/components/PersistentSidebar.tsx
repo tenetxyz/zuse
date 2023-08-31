@@ -9,7 +9,8 @@ import { openSidebar } from "../../../layers/noa/systems/createInputSystem";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faArrowUp, faArrowDown, faBars } from "@fortawesome/free-solid-svg-icons";
 import styled from "styled-components";
-import { isNetworkComponentUpdateEvent, NetworkComponentUpdate, SingletonID } from "@latticexyz/network";
+import { isNetworkComponentUpdateEvent, NetworkComponentUpdate } from "@latticexyz/network";
+import { SingletonID } from "@/constants";
 import {
   Entity,
   getComponentValue,
@@ -495,7 +496,7 @@ export function registerPersistentSidebar() {
                   }}
                 >
                   {" "}
-                  PLAYER: {connectedAddress.get()?.slice(0, 10)}...{" "}
+                  PLAYER: {connectedAddress.slice(0, 10)}...{" "}
                 </Badge>
                 <ActionQueueList>
                   {[...getComponentEntities(Action)].reverse().map((e) => {

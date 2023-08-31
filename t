@@ -16,7 +16,7 @@ if [[ "$1" == "run" ]]; then
             ;;
         "dev:contracts")
             # Replace this with the command you want to execute for ./t run dev-no-client
-            yarn run dev && cd examples/multiple-layers-world && yarn run dev
+            yarn run dev && concurrently -n example -c \#fb8500 "cd examples/multiple-layers-world && yarn run dev"
             ;;
         "dev:client")
             # Replace this with the command you want to execute for ./t run client

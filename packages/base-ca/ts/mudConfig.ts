@@ -99,7 +99,6 @@ const LAYER_MODULES = [
   },
 ];
 
-/** mudCoreConfig wrapper to use generics in some options for better type inference */
 export function tenetMudConfig<
   T extends MUDCoreUserConfig,
   // (`never` is overridden by inference, so only the defined enums can be used by default)
@@ -122,5 +121,5 @@ export function tenetMudConfig<
  // TODO: Add check on duplicates
  config.modules = config.modules.concat(LAYER_MODULES);
 
-  return mudCoreConfig(config) as any;
+  return mudConfig(config) as any;
 }

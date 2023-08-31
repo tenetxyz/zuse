@@ -105,7 +105,6 @@ const WORLD_MODULES = [
   },
 ];
 
-/** mudCoreConfig wrapper to use generics in some options for better type inference */
 export function tenetMudConfig<
   T extends MUDCoreUserConfig,
   // (`never` is overridden by inference, so only the defined enums can be used by default)

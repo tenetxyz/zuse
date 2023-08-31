@@ -1,4 +1,5 @@
-import { mudCoreConfig, MUDCoreUserConfig, resolveTableId } from "@latticexyz/config";
+import { MUDCoreUserConfig, resolveTableId } from "@latticexyz/config";
+import { mudConfig } from "@latticexyz/world/register";
 import { ExtractUserTypes, StringForUnion } from "@latticexyz/common/type-utils";
 import { MUDUserConfig, TableConfig } from "@latticexyz/store/config";
 import { ExpandMUDUserConfig } from "@latticexyz/store/register";
@@ -121,11 +122,11 @@ export function tenetMudConfig<
    }
    const table = WORLD_TABLES[tableName];
    config.tables[tableName] = table;
- }
+  }
 
- // add layer Modules
- // TODO: Add check on duplicates
- config.modules = config.modules.concat(WORLD_MODULES);
+  // add layer Modules
+  // TODO: Add check on duplicates
+  config.modules = config.modules.concat(WORLD_MODULES);
 
-  return mudCoreConfig(config) as any;
+  return mudConfig(config) as any;
 }

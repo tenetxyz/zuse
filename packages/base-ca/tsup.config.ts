@@ -8,4 +8,5 @@ export default defineConfig({
   sourcemap: true,
   clean: true,
   minify: true,
+  external: ["@latticexyz/world/register", "@latticexyz/config", "@latticexyz/common/type-utils", "@latticexyz/store/config", "@latticexyz/store/register"]
 });

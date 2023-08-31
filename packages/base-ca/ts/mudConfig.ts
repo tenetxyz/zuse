@@ -1,4 +1,5 @@
-import { mudCoreConfig, MUDCoreUserConfig, resolveTableId } from "@latticexyz/config";
+import { MUDCoreUserConfig, resolveTableId } from "@latticexyz/config";
+import { mudConfig } from "@latticexyz/world/register";
 import { ExtractUserTypes, StringForUnion } from "@latticexyz/common/type-utils";
 import { MUDUserConfig, TableConfig } from "@latticexyz/store/config";
 import { ExpandMUDUserConfig } from "@latticexyz/store/register";

@@ -35,4 +35,4 @@ development/
 
 ### Running locally
 
-Run `yarn run dev` in the top directory
+Run `./t run dev` in the top directory

@@ -8,4 +8,3 @@ import { CAEntityReverseMapping, CAEntityReverseMappingData, CAEntityReverseMapp
 import { CAPosition, CAPositionData, CAPositionTableId } from "./tables/CAPosition.sol";
 import { CAVoxelType, CAVoxelTypeData, CAVoxelTypeTableId } from "./tables/CAVoxelType.sol";
 import { CAMind, CAMindData, CAMindTableId } from "./tables/CAMind.sol";
-import { ElectronTunnelSpot, ElectronTunnelSpotData, ElectronTunnelSpotTableId } from "./tables/ElectronTunnelSpot.sol";

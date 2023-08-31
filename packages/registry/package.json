@@ -7,7 +7,7 @@
     "mud": "node ../../node_modules/@latticexyz/cli/dist/mud.js",
     "build": "forge build",
     "clean": "forge clean",
-    "replaceGeneratedTypes": "../scripts/replaceGeneratedTypes.sh",
+    "replaceGeneratedTypes": "../../scripts/replaceGeneratedTypes.sh",
     "deploy": "yarn run initialize && yarn mud deploy",
     "deploy:hackathon": "yarn run initialize && yarn mud deploy --profile=hackathon-testnet",
     "deploy:testnet": "yarn run initialize && yarn mud deploy --profile=lattice-testnet",

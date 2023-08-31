@@ -1,0 +1,14 @@
+{
+  "name": "scripts",
+  "version": "1.0.0",
+  "description": "",
+  "type": "module",
+  "scripts": {
+    "anvil": "node runAnvil.js"
+  },
+  "dependencies": {
+    "@latticexyz/common": "link:../../mud/packages/common"
+  },
+  "author": "",
+  "license": "ISC"
+}

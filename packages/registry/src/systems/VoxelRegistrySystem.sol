@@ -4,7 +4,7 @@ pragma solidity >=0.8.0;
 import { hasKey } from "@latticexyz/world/src/modules/keysintable/hasKey.sol";
 import { getKeysInTable } from "@latticexyz/world/src/modules/keysintable/getKeysInTable.sol";
 import { System } from "@latticexyz/world/src/System.sol";
-import { WorldRegistryTableId, WorldRegistry, VoxelTypeRegistry, VoxelTypeRegistryData, VoxelTypeRegistryTableId, VoxelVariantsRegistry, VoxelVariantsRegistryData, VoxelVariantsRegistryTableId } from "../codegen/Tables.sol";
+import { WorldRegistryTableId, WorldRegistry, VoxelTypeRegistry, VoxelTypeRegistryData, VoxelTypeRegistryTableId, VoxelVariantsRegistry, VoxelVariantsRegistryData, VoxelVariantsRegistryTableId } from "@tenet-registry/src/codegen/Tables.sol";
 import { entityArraysAreEqual } from "@tenet-utils/src/Utils.sol";
 import { CreationMetadata, CreationSpawns, VoxelSelectors } from "@tenet-utils/src/Types.sol";
 

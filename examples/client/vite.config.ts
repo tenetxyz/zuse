@@ -31,8 +31,7 @@ export default defineConfig({
   resolve: {
     dedupe: ["proxy-deep", "styled-components"],
     alias: {
-      "@": path.resolve(__dirname, "./src"),
-      "@tenetxyz": path.resolve(__dirname, "../"),
+      "@": path.resolve(__dirname, "./src")
     },
   },
   define: {

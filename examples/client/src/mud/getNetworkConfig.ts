@@ -1,5 +1,5 @@
 import { getBurnerPrivateKey } from "@latticexyz/common";
-import worldsJson from "@tenetxyz/contracts/worlds.json";
+import worldsJson from "@tenetxyz/world/worlds.json";
 import registryWorldsJson from "@tenetxyz/registry/worlds.json";
 import { supportedChains } from "./supportedChains";
 import { tenetTestnet, tenetRelayServiceUrl } from "./tenetTestnet";

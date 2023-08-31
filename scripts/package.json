@@ -7,7 +7,7 @@
     "anvil": "node runAnvil.js"
   },
   "dependencies": {
-    "@latticexyz/common": "link:../../../mud/packages/common"
+    "@latticexyz/common": "link:../../mud/packages/common"
   },
   "author": "",
   "license": "ISC"

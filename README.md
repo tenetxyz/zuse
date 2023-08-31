@@ -6,7 +6,7 @@
 
 ### Installation
 
-1. Run `brew install yarn` to install yarn
+1. Run `brew install yarn` to install yarn and `npm i -g concurrently` to install concurrently
 2. Run `yarn set version stable` to generate `.yarnrc.yml` and use the latest stable version of yarn (3.6.0)
    - We need to use at least yarn 3.6.0 because we need to link the yarn packages, which have pnpm-based package.jsons.
      If we use an earlier version of yarn, we would not be able to link the dependencies of each mud package, because they use workspace:\* syntax

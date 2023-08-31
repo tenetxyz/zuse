@@ -646,12 +646,6 @@ __metadata:
   languageName: node
   linkType: soft
 
-"@latticexyz/solecs@link:../../../../../mud/packages/solecs::locator=%40tenetxyz%2Fworld%40workspace%3Apackages%2Fworld":
-  version: 0.0.0-use.local
-  resolution: "@latticexyz/solecs@link:../../../../../mud/packages/solecs::locator=%40tenetxyz%2Fworld%40workspace%3Apackages%2Fworld"
-  languageName: node
-  linkType: soft
-
 "@latticexyz/std-contracts@link:../../../../../mud/packages/std-contracts::locator=%40tenetxyz%2Flevel1-ca%40workspace%3Apackages%2Flevel1-ca":
   version: 0.0.0-use.local
   resolution: "@latticexyz/std-contracts@link:../../../../../mud/packages/std-contracts::locator=%40tenetxyz%2Flevel1-ca%40workspace%3Apackages%2Flevel1-ca"
@@ -673,12 +667,6 @@ __metadata:
 "@latticexyz/std-contracts@link:../../../../../mud/packages/std-contracts::locator=%40tenetxyz%2Flevel3-ca%40workspace%3Apackages%2Flevel3-ca":
   version: 0.0.0-use.local
   resolution: "@latticexyz/std-contracts@link:../../../../../mud/packages/std-contracts::locator=%40tenetxyz%2Flevel3-ca%40workspace%3Apackages%2Flevel3-ca"
-  languageName: node
-  linkType: soft
-
-"@latticexyz/std-contracts@link:../../../../../mud/packages/std-contracts::locator=%40tenetxyz%2Fworld%40workspace%3Apackages%2Fworld":
-  version: 0.0.0-use.local
-  resolution: "@latticexyz/std-contracts@link:../../../../../mud/packages/std-contracts::locator=%40tenetxyz%2Fworld%40workspace%3Apackages%2Fworld"
   languageName: node
   linkType: soft
 
@@ -1039,8 +1027,6 @@ __metadata:
     "@latticexyz/config": "link:../../../../../mud/packages/config"
     "@latticexyz/noise": "link:../../../../../mud/packages/noise"
     "@latticexyz/schema-type": "link:../../../../../mud/packages/schema-type"
-    "@latticexyz/solecs": "link:../../../../../mud/packages/solecs"
-    "@latticexyz/std-contracts": "link:../../../../../mud/packages/std-contracts"
     "@latticexyz/store": "link:../../../../../mud/packages/store"
     "@latticexyz/world": "link:../../../../../mud/packages/world"
     "@openzeppelin/contracts": ^4.9.1

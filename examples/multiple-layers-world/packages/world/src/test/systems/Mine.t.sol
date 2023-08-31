@@ -20,6 +20,5 @@ contract MineTest is MudTest {
     super.setUp();
     world = IWorld(worldAddress);
     store = IStore(worldAddress);
-
   }
 }

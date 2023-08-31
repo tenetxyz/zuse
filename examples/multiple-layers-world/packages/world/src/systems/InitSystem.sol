@@ -2,7 +2,6 @@
 pragma solidity >=0.8.0;
 
 import { InitWorldSystem } from "@tenet-base-world/src/prototypes/InitWorldSystem.sol";
-import { REGISTRY_ADDRESS } from "@tenet-world/src/Constants.sol";
 import { WorldRegistry } from "@tenet-registry/src/codegen/tables/WorldRegistry.sol";
 import { hasKey } from "@latticexyz/world/src/modules/keysintable/hasKey.sol";
 import { CARegistry } from "@tenet-registry/src/codegen/tables/CARegistry.sol";

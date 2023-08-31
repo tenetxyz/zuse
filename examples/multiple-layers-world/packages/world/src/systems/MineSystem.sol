@@ -6,10 +6,15 @@ import { MineEvent } from "@tenet-base-world/src/prototypes/MineEvent.sol";
 import { VoxelCoord, VoxelEntity } from "@tenet-utils/src/Types.sol";
 import { VoxelType, VoxelTypeData, OfSpawn, Spawn, SpawnData } from "@tenet-world/src/codegen/Tables.sol";
 import { CHUNK_MAX_Y, CHUNK_MIN_Y } from "../Constants.sol";
-import { AirVoxelID } from "@tenet-base-ca/src/Constants.sol";
+import { AirVoxelID } from "@tenet-level1-ca/src/Constants.sol";
 import { getEntityAtCoord } from "@tenet-base-world/src/Utils.sol";
+import { REGISTRY_ADDRESS } from "@tenet-world/src/Constants.sol";
 
 contract MineSystem is MineEvent {
+  function getRegistryAddress() internal pure override returns (address) {
+    return REGISTRY_ADDRESS;
+  }
+
   function callEventHandler(
     bytes32 voxelTypeId,
     VoxelCoord memory coord,

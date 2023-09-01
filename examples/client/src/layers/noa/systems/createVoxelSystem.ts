@@ -67,7 +67,6 @@ export async function createVoxelSystem(networkLayer: NetworkLayer, noaLayer: No
   });
 
   const isEntityInCurrentScale = (entityKey: string, scale: number) => {
-    // const [_scaleInHexadecimal, entity] = entityKey.split(":");
     const [_scaleInHexadecimal, entity] = parseTwoKeysFromMultiKeyString(entityKey);
     return _scaleInHexadecimal == to64CharAddress("0x" + scale);
   };

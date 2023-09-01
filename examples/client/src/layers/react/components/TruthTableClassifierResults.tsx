@@ -15,6 +15,7 @@ import {
 import { stringToEntity } from "../../../utils/entity";
 import { Layers } from "../../../types";
 import { serializeWithoutIndexedValues } from "../../../utils/encodeOrDecode";
+import { parseTwoKeysFromMultiKeyString } from "@/layers/noa/types";
 
 export interface Props {
   layers: Layers;
@@ -51,7 +52,7 @@ export const TruthTableClassifierResults = ({ layers, classifier }: Props) => {
     const records: TruthTableClassifierResult[] = [];
     const truthTableCrTable = TruthTableCR.values;
     truthTableCrTable.blockNumber.forEach((blockNumber: BigInt, key: EntitySymbol) => {
-      const [truthTableId, creationId] = key.description!.split(":");
+      const [truthTableId, creationId] = parseTwoKeysFromMultiKeyString(key.description!);
       if (truthTableId !== classifier.classifierId) {
         return;
       }

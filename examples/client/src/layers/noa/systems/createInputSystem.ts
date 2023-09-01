@@ -14,7 +14,7 @@ import { FocusedUiType } from "../components/FocusedUi";
 import { Layers } from "../../../types";
 import { calculateParentCoord, getWorldScale, voxelCoordToString } from "../../../utils/coord";
 import { renderFloatingTextAboveCoord } from "./renderFloatingText";
-import { InterfaceVoxel, VoxelEntity } from "../types";
+import { InterfaceVoxel, parseTwoKeysFromMultiKeyString, VoxelEntity } from "../types";
 import { World } from "noa-engine/dist/src/lib/world";
 import {
   disableInputs,
@@ -89,7 +89,7 @@ export function createInputSystem(layers: Layers) {
     network: {
       parsedComponents: { ParsedCreationRegistry, ParsedVoxelTypeRegistry },
       connectedAddress,
-      config: { blockExplorer },
+      // config: { blockExplorer },
       streams: { balanceGwei$ },
       api: { spawnCreation, build, activate, getEntityAtPosition },
     },
@@ -351,7 +351,8 @@ export function createInputSystem(layers: Layers) {
   bindInputEvent("voxel-explorer");
   onDownInputEvent("voxel-explorer", () => {
     if (!noa.container.hasPointerLock) return;
-    window.open(blockExplorer);
+    alert(`TODO: enable block explorer`);
+    // window.open(blockExplorer);
   });
 
   bindInputEvent("spawn");
@@ -414,7 +415,7 @@ export function createInputSystem(layers: Layers) {
       if (!entityAtCoord) {
         return;
       }
-      const entityParts = entityAtCoord.split(":");
+      const entityParts = parseTwoKeysFromMultiKeyString(entityAtCoord);
       const interfaceVoxel: VoxelEntity = {
         scale: parseInt(entityParts[0]),
         entityId: entityParts[1],

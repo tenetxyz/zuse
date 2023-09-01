@@ -4,7 +4,7 @@ import { Perlin } from "@latticexyz/noise";
 import { Terrain, TerrainState } from "./types";
 import { getTerrain } from "./utils";
 import { Air, AIR_ID, Bedrock, Dirt, Tile } from "./occurrence";
-import { VoxelTypeKey, VoxelTypeKeyInMudTable } from "@/layers/noa/types";
+import { parseTwoKeysFromMultiKeyString, VoxelTypeKey, VoxelTypeKeyInMudTable } from "@/layers/noa/types";
 import { to64CharAddress } from "../../../../utils/entity";
 
 export function getEntityAtPosition(
@@ -23,8 +23,7 @@ export function getEntityAtPosition(
   const currentScaleInHexadecimal = to64CharAddress("0x" + scale);
   const entityKeysAtPosition = [...getEntitiesWithValue(Position, coord)].filter((entityKey) => {
     // filter out the voxels that are not at the current scale
-    const scaleInHexadecimal = entityKey.substring(0, 66);
-    const _entity = "0x" + entityKey.substring(66);
+    const [scaleInHexadecimal, _entity] = parseTwoKeysFromMultiKeyString(entityKey);
     return scaleInHexadecimal === currentScaleInHexadecimal;
   });
 

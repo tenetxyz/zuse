@@ -94,3 +94,9 @@ export const EMPTY_VOXEL_ENTITY: VoxelEntity = {
 export const voxelEntityIsEmptyVoxel = (voxelEntity: VoxelEntity): boolean => {
   return voxelEntity.scale === EMPTY_VOXEL_ENTITY.scale && voxelEntity.entityId === EMPTY_VOXEL_ENTITY.entityId;
 };
+
+export const parseTwoKeysFromMultiKeyString = (entityKey: string) => {
+  const keyOne = entityKey.substring(0, 66);
+  const keyTwo = "0x" + entityKey.substring(66);
+  return [keyOne, keyTwo];
+}

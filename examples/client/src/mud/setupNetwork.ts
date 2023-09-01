@@ -348,8 +348,7 @@ export async function setupNetwork() {
       return console.warn(`cannot find a voxel (that you own) for voxelBaseTypeId=${voxelBaseTypeId}`);
     }
     const voxelInstanceOfVoxelType = voxelInstancesOfVoxelType[0];
-    const scaleAsHex = (voxelInstanceOfVoxelType as string).substring(0, 66);
-    const entityId = "0x" + (voxelInstanceOfVoxelType as string).substring(66);
+    const [scaleAsHex, entityId] = parseTwoKeysFromMultiKeyString(voxelInstanceOfVoxelType as string);
     const scaleAsNumber = parseInt(scaleAsHex.substring(2)); // remove the leading 0x
     if (scaleAsNumber !== getWorldScale(noa)) {
       toast(`you can only place this voxel on scale ${scaleAsNumber}`);

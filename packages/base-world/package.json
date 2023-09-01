@@ -21,7 +21,7 @@
     "dev": "yarn mud dev-contracts --tsgenOutput ../client/src/mud",
     "hotreload": "sh hotreload.sh",
     "initialize": "yarn tablegen && yarn worldgen && yarn customScripts && yarn build && yarn worldtypes",
-    "customScripts": "../../scripts/replaceGeneratedTypes.sh && python script/replaceImports.py src/codegen/world/IWorld.sol",
+    "customScripts": "../../scripts/replaceGeneratedTypes.sh && python3 script/replaceImports.py src/codegen/world/IWorld.sol",
     "lint": "yarn prettier && yarn solhint",
     "prettier": "prettier --write 'src/**/*.sol'",
     "solhint": "solhint --config ./.solhint.json 'src/**/*.sol' --fix",

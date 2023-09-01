@@ -7,12 +7,16 @@ import { DecisionRule } from "@tenet-utils/src/Types.sol";
 
 interface IDecisionRuleRegSystem {
   function registerDecisionRule(
+    string memory name,
+    string memory description,
     bytes32 srcVoxelTypeId,
     bytes32 targetVoxelTypeId,
     DecisionRule memory decisionRule
   ) external;
 
   function registerDecisionRuleForWorld(
+    string memory name,
+    string memory description,
     bytes32 srcVoxelTypeId,
     bytes32 targetVoxelTypeId,
     address worldAddress,

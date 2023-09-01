@@ -4,19 +4,23 @@ pragma solidity >=0.8.0;
 import { hasKey } from "@latticexyz/world/src/modules/keysintable/hasKey.sol";
 import { System } from "@latticexyz/world/src/System.sol";
 import { DecisionRuleRegistry, DecisionRuleRegistryTableId, VoxelTypeRegistryTableId, VoxelTypeRegistry, WorldRegistry, WorldRegistryTableId, WorldRegistryData } from "../codegen/Tables.sol";
-import { DecisionRule } from "@tenet-utils/src/Types.sol";
+import { DecisionRule, CreationMetadata, CreationSpawns } from "@tenet-utils/src/Types.sol";
 
 // not called DecisionRuleRegstrySystem since the name is too long, which makes it cut off, which makes it have the same name as the table
 contract DecisionRuleRegSystem is System {
   function registerDecisionRule(
+    string memory name,
+    string memory description,
     bytes32 srcVoxelTypeId,
     bytes32 targetVoxelTypeId,
     DecisionRule memory decisionRule
   ) public {
-    registerDecisionRuleForWorld(srcVoxelTypeId, targetVoxelTypeId, address(0), decisionRule);
+    registerDecisionRuleForWorld(name, description, srcVoxelTypeId, targetVoxelTypeId, address(0), decisionRule);
   }
 
   function registerDecisionRuleForWorld(
+    string memory name,
+    string memory description,
     bytes32 srcVoxelTypeId,
     bytes32 targetVoxelTypeId,
     address worldAddress,
@@ -37,14 +41,15 @@ contract DecisionRuleRegSystem is System {
       );
     }
 
-    decisionRule.creator = tx.origin;
+    CreationSpawns[] memory spawns = new CreationSpawns[](0);
+    decisionRule.creationMetadata = abi.encode(CreationMetadata(msg.sender, name, description, spawns));
     decisionRule.decisionRuleId = keccak256(
       abi.encodePacked(
         srcVoxelTypeId,
         targetVoxelTypeId,
         worldAddress,
         decisionRule.decisionRuleSelector,
-        decisionRule.creator
+        msg.sender
       )
     );
 

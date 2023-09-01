@@ -40,9 +40,7 @@ struct DecisionRuleKey {
 
 struct DecisionRule {
   bytes32 decisionRuleId;
-  string name;
-  string description;
-  address creator;
+  bytes creationMetadata;
   bytes4 decisionRuleSelector;
 }
 

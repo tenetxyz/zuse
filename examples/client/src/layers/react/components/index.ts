@@ -22,7 +22,7 @@ export function registerUIComponents() {
   registerInventoryHud();
   // registerSidebar();
   registerToast();
-  // registerPersistentNotifications();
+  registerPersistentNotifications();
   // TODO: Need to make sure plugin structure works with MUD2 before renabling
   // registerPlugins();
 
@@ -32,7 +32,7 @@ export function registerUIComponents() {
   registerTenetSidebar();
   registerAdminPanel();
   registerBackgroundFade();
-  // registerPersistentSidebar();
+  registerPersistentSidebar();
   // registerSplashCard();
   registerZoomOverlay();
 }

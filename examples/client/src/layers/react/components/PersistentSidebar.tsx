@@ -9,7 +9,7 @@ import { openSidebar } from "../../../layers/noa/systems/createInputSystem";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faArrowUp, faArrowDown, faBars } from "@fortawesome/free-solid-svg-icons";
 import styled from "styled-components";
-import { isNetworkComponentUpdateEvent, NetworkComponentUpdate } from "@latticexyz/network";
+// import { isNetworkComponentUpdateEvent, NetworkComponentUpdate } from "@latticexyz/network";
 import { SingletonID } from "@/constants";
 import {
   Entity,
@@ -24,8 +24,7 @@ import { voxelTypeToEntity, entityToVoxelType } from "../../noa/types";
 import { AIR_ID } from "../../network/api/terrain/occurrence";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { Action as ActionQueueItem } from "./Action";
-import { publicClient$, transactionHash$ } from "@latticexyz/network/dev";
+// import { Action as ActionQueueItem } from "./Action";
 import type { PublicClient, Chain } from "viem";
 import { useComponentUpdate } from "../../../utils/useComponentUpdate";
 import { getTransactionResult } from "@latticexyz/dev-tools";
@@ -146,129 +145,125 @@ export function registerPersistentSidebar() {
           streams: { playerPosition$, zoomEvent$ },
         },
         network: {
-          ecsEvent$,
-          mappings,
           contractComponents: { VoxelType },
-          network: { blockNumber$, connectedAddress },
+          connectedAddress,
           getVoxelIconUrl,
-          actions: { Action },
-          objectStore: { transactionCallbacks },
         },
       } = layers;
 
       const [summary, setSummary] = useState<BlockSummary>([]);
-      useEffect(() => {
-        const subscription = merge(
-          blockNumber$.pipe(map<number, BlockEvent>((blockNumber) => ({ blockNumber }))),
-          ecsEvent$
-            .pipe(filter(isNetworkComponentUpdateEvent))
-            .pipe(filter(({ txHash }) => txHash !== "worker" && txHash !== "cache"))
-            .pipe(
-              map<NetworkComponentUpdate, BlockEvent | undefined>(({ blockNumber, component, value, entity }) => {
-                const componentKey = mappings[component];
+      // useEffect(() => {
+      //   const subscription = merge(
+      //     blockNumber$.pipe(map<number, BlockEvent>((blockNumber) => ({ blockNumber }))),
+      //     ecsEvent$
+      //       .pipe(filter(isNetworkComponentUpdateEvent))
+      //       .pipe(filter(({ txHash }) => txHash !== "worker" && txHash !== "cache"))
+      //       .pipe(
+      //         map<NetworkComponentUpdate, BlockEvent | undefined>(({ blockNumber, component, value, entity }) => {
+      //           const componentKey = mappings[component];
 
-                if (componentKey === "Position") {
-                  const voxelType = entity !== null ? getComponentValue(VoxelType, entity) : undefined;
-                  if (!voxelType) {
-                    return;
-                  }
-                  const voxelTypeKey = voxelTypeToEntity(voxelType);
+      //           if (componentKey === "Position") {
+      //             const voxelType = entity !== null ? getComponentValue(VoxelType, entity) : undefined;
+      //             if (!voxelType) {
+      //               return;
+      //             }
+      //             const voxelTypeKey = voxelTypeToEntity(voxelType);
 
-                  if (value) {
-                    return {
-                      blockNumber,
-                      voxelTypeKey,
-                      action: "add",
-                    };
-                  }
-                }
-              })
-            )
-            .pipe(filterNullish())
-        )
-          .pipe(
-            filter(
-              (update) =>
-                update.voxelTypeKey === undefined ||
-                entityToVoxelType(update.voxelTypeKey as Entity).voxelTypeId !== AIR_ID
-            )
-          )
-          .pipe(
-            scan<BlockEvent, BlockSummary>((summary, event) => {
-              const block =
-                summary.find(([blockNumber]) => event.blockNumber === blockNumber) ||
-                ([event.blockNumber, {}] as BlockSummaryElement);
-              const otherBlocks = summary.filter(([blockNumber]) => event.blockNumber !== blockNumber) as BlockSummary;
+      //             if (value) {
+      //               return {
+      //                 blockNumber,
+      //                 voxelTypeKey,
+      //                 action: "add",
+      //               };
+      //             }
+      //           }
+      //         })
+      //       )
+      //       .pipe(filterNullish())
+      //   )
+      //     .pipe(
+      //       filter(
+      //         (update) =>
+      //           update.voxelTypeKey === undefined ||
+      //           entityToVoxelType(update.voxelTypeKey as Entity).voxelTypeId !== AIR_ID
+      //       )
+      //     )
+      //     .pipe(
+      //       scan<BlockEvent, BlockSummary>((summary, event) => {
+      //         const block =
+      //           summary.find(([blockNumber]) => event.blockNumber === blockNumber) ||
+      //           ([event.blockNumber, {}] as BlockSummaryElement);
+      //         const otherBlocks = summary.filter(([blockNumber]) => event.blockNumber !== blockNumber) as BlockSummary;
 
-              if (event.voxelTypeKey && event.action) {
-                block[1][event.voxelTypeKey] = block[1][event.voxelTypeKey] || {
-                  [event.action]: 0,
-                };
-                const current = block[1][event.voxelTypeKey][event.action] || 0;
-                block[1][event.voxelTypeKey][event.action] = current + 1;
-              }
+      //         if (event.voxelTypeKey && event.action) {
+      //           block[1][event.voxelTypeKey] = block[1][event.voxelTypeKey] || {
+      //             [event.action]: 0,
+      //           };
+      //           const current = block[1][event.voxelTypeKey][event.action] || 0;
+      //           block[1][event.voxelTypeKey][event.action] = current + 1;
+      //         }
 
-              return [...otherBlocks, block].slice(-500);
-            }, [] as BlockSummary)
-          )
-          .subscribe((newSummary) => {
-            setSummary(newSummary);
-          });
+      //         return [...otherBlocks, block].slice(-500);
+      //       }, [] as BlockSummary)
+      //     )
+      //     .subscribe((newSummary) => {
+      //       setSummary(newSummary);
+      //     });
 
-        // Cleanup on unmount
-        return () => subscription.unsubscribe();
-      }, [blockNumber$, ecsEvent$, mappings, VoxelType, getVoxelIconUrl]);
+      //   // Cleanup on unmount
+      //   return () => subscription.unsubscribe();
+      // }, [blockNumber$, ecsEvent$, mappings, VoxelType, getVoxelIconUrl]);
 
       const [worldScale, setWorldScale] = useState<number>(1);
 
       const position = useObservableValue(playerPosition$);
 
-      const [_update, setUpdate] = useState<any>(); // by calling setUpdate, it allows us to update the queue
-      useComponentUpdate(Action as any, setUpdate); // there's probably a better way to update this, since we get all the component entities below when we call getComponentEntities(Action).
-      const txRef = useRef<string>();
-      const publicClient = useRef<MudPublicClient>();
-      useEffect(() => {
-        publicClient$.subscribe((client) => {
-          publicClient.current = client as MudPublicClient;
-        });
-      }, []);
+      // const [_update, setUpdate] = useState<any>(); // by calling setUpdate, it allows us to update the queue
+      // useComponentUpdate(Action as any, setUpdate); // there's probably a better way to update this, since we get all the component entities below when we call getComponentEntities(Action).
+      // const txRef = useRef<string>();
+      // const publicClient = useRef<MudPublicClient>();
+      // useEffect(() => {
+      //   publicClient$.subscribe((client) => {
+      //     publicClient.current = client as MudPublicClient;
+      //   });
+      // }, []);
 
-      // listen to the results of the transactions and surface errors as toasts for the user
-      useEffect(() => {
-        transactionHash$.subscribe((txHash) => {
-          txRef.current = txHash;
-          if (!publicClient.current) {
-            return;
-          }
-          // I think our viem version is different, so MUD's PublicClient object is out of date, causing the type error below
-          const transactionResultPromise = getTransactionResult(publicClient.current, txHash);
-          transactionResultPromise
-            .then((res) => {
-              transactionCallbacks.get(txHash)?.(res.result);
-            })
-            .catch((err) => {
-              if (err.name === "TransactionReceiptNotFoundError") {
-                // this error isn't urgent. it may occur when the transaction hasn't been processed on a block yet.
-                console.warn("Transaction receipt not found error: ", err.shortMessage);
-                // Note: when we call classifiers, the transaction always finishes, but the transaction receipt is not always found. We aren't sure what to listen to learn when it's actually finished. In the meantime, we assume that when we
-                // get this error, the classifier has finished. This is why we are calling the callback here (as a hack)
-                transactionCallbacks.get(txHash)?.(res.result);
-                return;
-              }
-              console.error("[ActionQueue] Error getting transaction result", err);
-              // Note: we can also use the fields in err.cause to get specific parts of the error message
-              toast(err.shortMessage);
-            })
-            .finally(() => {
-              transactionCallbacks.delete(txHash);
-              if (transactionCallbacks.size > 15) {
-                console.warn(
-                  `${transactionCallbacks.size} stale transaction callbacks are NOT cleared. This means that we are not cleaning up after every transaction that occurs. We need to find locate WHEN these missing transactions finish`
-                );
-              }
-            });
-        });
-      }, []);
+      // // listen to the results of the transactions and surface errors as toasts for the user
+      // useEffect(() => {
+      //   transactionHash$.subscribe((txHash) => {
+      //     txRef.current = txHash;
+      //     if (!publicClient.current) {
+      //       return;
+      //     }
+      //     // I think our viem version is different, so MUD's PublicClient object is out of date, causing the type error below
+      //     const transactionResultPromise = getTransactionResult(publicClient.current, txHash);
+      //     transactionResultPromise
+      //       .then((res) => {
+      //         transactionCallbacks.get(txHash)?.(res.result);
+      //       })
+      //       .catch((err) => {
+      //         if (err.name === "TransactionReceiptNotFoundError") {
+      //           // this error isn't urgent. it may occur when the transaction hasn't been processed on a block yet.
+      //           console.warn("Transaction receipt not found error: ", err.shortMessage);
+      //           // Note: when we call classifiers, the transaction always finishes, but the transaction receipt is not always found. We aren't sure what to listen to learn when it's actually finished. In the meantime, we assume that when we
+      //           // get this error, the classifier has finished. This is why we are calling the callback here (as a hack)
+      //           transactionCallbacks.get(txHash)?.(res.result);
+      //           return;
+      //         }
+      //         console.error("[ActionQueue] Error getting transaction result", err);
+      //         // Note: we can also use the fields in err.cause to get specific parts of the error message
+      //         toast(err.shortMessage);
+      //       })
+      //       .finally(() => {
+      //         transactionCallbacks.delete(txHash);
+      //         if (transactionCallbacks.size > 15) {
+      //           console.warn(
+      //             `${transactionCallbacks.size} stale transaction callbacks are NOT cleared. This means that we are not cleaning up after every transaction that occurs. We need to find locate WHEN these missing transactions finish`
+      //           );
+      //         }
+      //       });
+      //   });
+      // }, []);
 
       useEffect(() => {
         noa.on("newWorldName", (_newWorldName: string) => {
@@ -498,7 +493,7 @@ export function registerPersistentSidebar() {
                   {" "}
                   PLAYER: {connectedAddress.slice(0, 10)}...{" "}
                 </Badge>
-                <ActionQueueList>
+                {/* <ActionQueueList>
                   {[...getComponentEntities(Action)].reverse().map((e) => {
                     const { state, metadata, txHash } = getComponentValueStrict(Action, e);
                     const { actionType, coord, voxelVariantTypeId, preview } = metadata || {};
@@ -512,7 +507,7 @@ export function registerPersistentSidebar() {
                       </div>
                     );
                   })}
-                </ActionQueueList>
+                </ActionQueueList> */}
               </CardContent>
             </Badge>
           </div>

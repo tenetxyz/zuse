@@ -31,6 +31,7 @@ import {
   VoxelVariantTypeId,
   VoxelTypeKeyInMudTable,
   EMPTY_BYTES_32,
+  parseTwoKeysFromMultiKeyString,
 } from "../layers/noa/types";
 import { Textures, UVWraps } from "../layers/noa/constants";
 import {

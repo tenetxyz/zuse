@@ -89,7 +89,7 @@ export function createInputSystem(layers: Layers) {
     network: {
       parsedComponents: { ParsedCreationRegistry, ParsedVoxelTypeRegistry },
       connectedAddress,
-      config: { blockExplorer },
+      // config: { blockExplorer },
       streams: { balanceGwei$ },
       api: { spawnCreation, build, activate, getEntityAtPosition },
     },
@@ -351,7 +351,8 @@ export function createInputSystem(layers: Layers) {
   bindInputEvent("voxel-explorer");
   onDownInputEvent("voxel-explorer", () => {
     if (!noa.container.hasPointerLock) return;
-    window.open(blockExplorer);
+    alert(`TODO: enable block explorer`);
+    // window.open(blockExplorer);
   });
 
   bindInputEvent("spawn");

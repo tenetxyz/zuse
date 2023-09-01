@@ -492,7 +492,7 @@ export async function setupNetwork() {
   }
 
   // needed in creative mode, to allow the user to remove voxels. Otherwise their inventory will fill up
-  function removeVoxels(voxelBaseTypeIdAtSlot: VoxelBaseTypeId) {
+  async function removeVoxels(voxelBaseTypeIdAtSlot: VoxelBaseTypeId) {
     const voxels = getOwnedEntiesOfType(voxelBaseTypeIdAtSlot);
     if (voxels.length === 0) {
       return console.warn("trying to remove 0 voxels");
@@ -505,25 +505,27 @@ export async function setupNetwork() {
       entityIds.push(entityId);
     }
 
-    actions.add({
-      id: `RemoveVoxels+VoxelType=${entityIds}` as Entity,
-      metadata: {
-        actionType: "removeVoxels",
-        voxelVariantTypeId: getVoxelPreviewVariant(voxelBaseTypeIdAtSlot),
-      },
-      requirement: () => true,
-      components: {
-        OwnedBy: contractComponents.OwnedBy,
-        VoxelType: contractComponents.VoxelType,
-      },
-      execute: () => {
-        return callSystem("removeVoxels", [voxelScales, entityIds, { gasLimit: 10_000_000 }]);
-      },
-      updates: () => [],
-    });
+    await callSystem(worldContract.write.removeVoxels([voxelScales, entityIds]));
+
+    // actions.add({
+    //   id: `RemoveVoxels+VoxelType=${entityIds}` as Entity,
+    //   metadata: {
+    //     actionType: "removeVoxels",
+    //     voxelVariantTypeId: getVoxelPreviewVariant(voxelBaseTypeIdAtSlot),
+    //   },
+    //   requirement: () => true,
+    //   components: {
+    //     OwnedBy: contractComponents.OwnedBy,
+    //     VoxelType: contractComponents.VoxelType,
+    //   },
+    //   execute: () => {
+    //     return callSystem("removeVoxels", [voxelScales, entityIds, { gasLimit: 10_000_000 }]);
+    //   },
+    //   updates: () => [],
+    // });
   }
 
-  function registerCreation(
+  async function registerCreation(
     creationName: string,
     creationDescription: string,
     voxels: Entity[],
@@ -539,43 +541,51 @@ export async function setupNetwork() {
       };
     });
 
-    actions.add({
-      id: `RegisterCreation+${creationName}` as Entity,
-      metadata: { actionType: "registerCreation", preview },
-      requirement: () => true,
-      components: {
-        OwnedBy: contractComponents.OwnedBy,
-      },
-      execute: () => {
-        return callSystem("registerCreation", [
-          creationName,
-          creationDescription,
-          voxelEntities,
-          baseCreationsInWorld,
-          { gasLimit: 900_000_000 },
-        ]);
-      },
-      updates: () => [],
-    });
+    await callSystem(worldContract.write.registerCreation([
+      creationName,
+      creationDescription,
+      voxelEntities,
+      baseCreationsInWorld]));
+
+    // actions.add({
+    //   id: `RegisterCreation+${creationName}` as Entity,
+    //   metadata: { actionType: "registerCreation", preview },
+    //   requirement: () => true,
+    //   components: {
+    //     OwnedBy: contractComponents.OwnedBy,
+    //   },
+    //   execute: () => {
+    //     return callSystem("registerCreation", [
+    //       creationName,
+    //       creationDescription,
+    //       voxelEntities,
+    //       baseCreationsInWorld,
+    //       { gasLimit: 900_000_000 },
+    //     ]);
+    //   },
+    //   updates: () => [],
+    // });
   }
 
-  function spawnCreation(lowerSouthWestCorner: VoxelCoord, creationId: Entity) {
+  async function spawnCreation(lowerSouthWestCorner: VoxelCoord, creationId: Entity) {
     // TODO: Relpace Iron NFT with a spawn symbol
     const preview = getNftStorageLink("bafkreidkik2uccshptqcskpippfotmusg7algnfh5ozfsga72xyfdrvacm");
 
-    actions.add({
-      id: `SpawnCreation+${creationId}+at+${voxelCoordToString(lowerSouthWestCorner)}` as Entity,
-      metadata: { actionType: "spawnCreation", preview },
-      requirement: () => true,
-      components: {},
-      execute: () => {
-        return callSystem("spawn", [lowerSouthWestCorner, creationId, { gasLimit: 900_000_000 }]);
-      },
-      updates: () => [],
-    });
+    await callSystem(worldContract.write.spawnCreation([lowerSouthWestCorner, creationId]));
+
+    // actions.add({
+    //   id: `SpawnCreation+${creationId}+at+${voxelCoordToString(lowerSouthWestCorner)}` as Entity,
+    //   metadata: { actionType: "spawnCreation", preview },
+    //   requirement: () => true,
+    //   components: {},
+    //   execute: () => {
+    //     return callSystem("spawn", [lowerSouthWestCorner, creationId, { gasLimit: 900_000_000 }]);
+    //   },
+    //   updates: () => [],
+    // });
   }
 
-  function classifyCreation(
+  async function classifyCreation(
     classifierId: Entity,
     spawnId: Entity,
     interfaceVoxels: InterfaceVoxel[],
@@ -584,25 +594,27 @@ export async function setupNetwork() {
     // TODO: Relpace Iron NFT with a spawn symbol
     const preview = getNftStorageLink("bafkreidkik2uccshptqcskpippfotmusg7algnfh5ozfsga72xyfdrvacm");
 
-    actions.add({
-      id: `classifyCreation+classifier=${classifierId}+spawnId=${spawnId}+interfaceVoxels=${interfaceVoxels.toString()}` as Entity,
-      metadata: { actionType: "classifyCreation", preview },
-      requirement: () => true,
-      components: {},
-      execute: () => {
-        return callSystem(
-          "classify",
-          [classifierId, spawnId, interfaceVoxels, { gasLimit: 900_000_000 }],
-          undefined,
-          onSuccessCallback
-        );
-      },
-      updates: () => [],
-      awaitConfirmation: true,
-    });
+    await callSystem(worldContract.write.classify([classifierId, spawnId, interfaceVoxels]));
+
+    // actions.add({
+    //   id: `classifyCreation+classifier=${classifierId}+spawnId=${spawnId}+interfaceVoxels=${interfaceVoxels.toString()}` as Entity,
+    //   metadata: { actionType: "classifyCreation", preview },
+    //   requirement: () => true,
+    //   components: {},
+    //   execute: () => {
+    //     return callSystem(
+    //       "classify",
+    //       [classifierId, spawnId, interfaceVoxels, { gasLimit: 900_000_000 }],
+    //       undefined,
+    //       onSuccessCallback
+    //     );
+    //   },
+    //   updates: () => [],
+    //   awaitConfirmation: true,
+    // });
   }
 
-  function activate(entity: Entity) {
+  async function activate(entity: Entity) {
     const voxelTypeKeyInMudTable = getComponentValue(contractComponents.VoxelType, entity) as VoxelTypeKeyInMudTable;
     const preview = getVoxelTypePreviewUrl(voxelTypeKeyInMudTable.voxelVariantId);
     const [scaleAsHex, entityId] = parseTwoKeysFromMultiKeyString(entity as string);
@@ -611,25 +623,27 @@ export async function setupNetwork() {
     const activateSelector = "0x00000000";
     const moveForwardSelector = "0x7c9a5247";
 
-    actions.add({
-      id: `activateVoxel+entity=${entity}` as Entity,
-      metadata: { actionType: "activateVoxel", preview },
-      requirement: () => true,
-      components: {},
-      execute: () => {
-        return callSystem("activate", [
-          voxelTypeKeyInMudTable.voxelTypeId,
-          coord,
-          activateSelector,
-          { gasLimit: 900_000_000 },
-        ]);
-      },
-      updates: () => [],
-      txMayNotWriteToTable: true,
-    });
+    await callSystem(worldContract.write.activate([voxelTypeKeyInMudTable.voxelTypeId, coord, activateSelector]));
+
+    // actions.add({
+    //   id: `activateVoxel+entity=${entity}` as Entity,
+    //   metadata: { actionType: "activateVoxel", preview },
+    //   requirement: () => true,
+    //   components: {},
+    //   execute: () => {
+    //     return callSystem("activate", [
+    //       voxelTypeKeyInMudTable.voxelTypeId,
+    //       coord,
+    //       activateSelector,
+    //       { gasLimit: 900_000_000 },
+    //     ]);
+    //   },
+    //   updates: () => [],
+    //   txMayNotWriteToTable: true,
+    // });
   }
 
-  function registerTruthTableClassifier(
+  async function registerTruthTableClassifier(
     name: string,
     description: string,
     inputRows: BigNumber[],
@@ -639,28 +653,38 @@ export async function setupNetwork() {
   ) {
     // TODO: Replace Iron NFT with a an register symbol
     const preview = getNftStorageLink("bafkreidkik2uccshptqcskpippfotmusg7algnfh5ozfsga72xyfdrvacm");
-    actions.add({
-      id: `registerTruthTableClassifier+name=${name}` as Entity,
-      metadata: { actionType: "registerTruthTableClassifier", preview },
-      requirement: () => true,
-      components: {},
-      execute: () => {
-        return callSystem("registerTruthTable", [
+
+    await callSystem(worldContract.write.registerTruthTable([
           name,
           description,
           inputRows,
           outputRows,
           numInputBits,
-          numOutputBits,
-          { gasLimit: 900_000_000 },
-        ]);
-      },
-      updates: () => [],
-      txMayNotWriteToTable: true,
-    });
+          numOutputBits
+    ]));
+
+    // actions.add({
+    //   id: `registerTruthTableClassifier+name=${name}` as Entity,
+    //   metadata: { actionType: "registerTruthTableClassifier", preview },
+    //   requirement: () => true,
+    //   components: {},
+    //   execute: () => {
+    //     return callSystem("registerTruthTable", [
+    //       name,
+    //       description,
+    //       inputRows,
+    //       outputRows,
+    //       numInputBits,
+    //       numOutputBits,
+    //       { gasLimit: 900_000_000 },
+    //     ]);
+    //   },
+    //   updates: () => [],
+    //   txMayNotWriteToTable: true,
+    // });
   }
 
-  function classifyIfCreationSatisfiesTruthTable(
+  async function classifyIfCreationSatisfiesTruthTable(
     booleanClassifierId: Entity,
     spawnId: Entity,
     interfaceVoxels: InterfaceVoxel[],
@@ -671,22 +695,24 @@ export async function setupNetwork() {
 
     const inInterfaceVoxels = interfaceVoxels.filter((interfaceVoxel) => interfaceVoxel.name.startsWith("in"));
     const outInterfaceVoxels = interfaceVoxels.filter((interfaceVoxel) => interfaceVoxel.name.startsWith("out"));
-    actions.add({
-      id: `classifyIfCreationSatisfiesTruthTable+booleanClassifierId=${booleanClassifierId}+spawnId=${spawnId}` as Entity,
-      metadata: { actionType: "cassifyIfCreationSatisfiesTruthTable", preview },
-      requirement: () => true,
-      components: {},
-      execute: () => {
-        return callSystem(
-          "classifyIfCreationSatisfiesTruthTable",
-          [booleanClassifierId, spawnId, inInterfaceVoxels, outInterfaceVoxels, { gasLimit: 900_000_000 }],
-          undefined,
-          onSuccessCallback
-        );
-      },
-      updates: () => [],
-      txMayNotWriteToTable: true,
-    });
+
+    await callSystem(worldContract.write.classifyIfCreationSatisfiesTruthTable([booleanClassifierId, spawnId, inInterfaceVoxels, outInterfaceVoxels]));
+    // actions.add({
+    //   id: `classifyIfCreationSatisfiesTruthTable+booleanClassifierId=${booleanClassifierId}+spawnId=${spawnId}` as Entity,
+    //   metadata: { actionType: "cassifyIfCreationSatisfiesTruthTable", preview },
+    //   requirement: () => true,
+    //   components: {},
+    //   execute: () => {
+    //     return callSystem(
+    //       "classifyIfCreationSatisfiesTruthTable",
+    //       [booleanClassifierId, spawnId, inInterfaceVoxels, outInterfaceVoxels, { gasLimit: 900_000_000 }],
+    //       undefined,
+    //       onSuccessCallback
+    //     );
+    //   },
+    //   updates: () => [],
+    //   txMayNotWriteToTable: true,
+    // });
   }
 
   function stake(chunkCoord: Coord) {

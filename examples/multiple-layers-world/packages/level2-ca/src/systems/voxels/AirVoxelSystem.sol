@@ -7,7 +7,7 @@ import { VoxelVariantsRegistryData } from "@tenet-registry/src/codegen/tables/Vo
 import { NoaBlockType } from "@tenet-registry/src/codegen/Types.sol";
 import { registerVoxelVariant, registerVoxelType, voxelSelectorsForVoxel } from "@tenet-registry/src/Utils.sol";
 import { REGISTRY_ADDRESS, Level2AirVoxelID } from "@tenet-level2-ca/src/Constants.sol";
-import { VoxelCoord } from "@tenet-utils/src/Types.sol";
+import { VoxelCoord, ComponentDef } from "@tenet-utils/src/Types.sol";
 import { AirVoxelID, AirVoxelVariantID } from "@tenet-level1-ca/src/Constants.sol";
 
 contract AirVoxelSystem is VoxelType {
@@ -18,6 +18,7 @@ contract AirVoxelSystem is VoxelType {
       airChildVoxelTypes[i] = AirVoxelID;
     }
     bytes32 baseVoxelTypeId = Level2AirVoxelID;
+    ComponentDef[] memory componentDefs = new ComponentDef[](0);
     registerVoxelType(
       REGISTRY_ADDRESS,
       "Level 2 Air",
@@ -32,7 +33,8 @@ contract AirVoxelSystem is VoxelType {
         IWorld(world).ca_AirVoxelSystem_variantSelector.selector,
         IWorld(world).ca_AirVoxelSystem_activate.selector,
         IWorld(world).ca_AirVoxelSystem_eventHandler.selector
-      )
+      ),
+      abi.encode(componentDefs)
     );
   }
 

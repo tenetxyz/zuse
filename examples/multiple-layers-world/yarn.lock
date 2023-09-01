@@ -1032,6 +1032,7 @@ __metadata:
     "@openzeppelin/contracts": ^4.9.1
     "@tenetxyz/base-ca": "link:../../../../packages/base-ca"
     "@tenetxyz/base-world": "link:../../../../packages/base-world"
+    "@tenetxyz/level1-ca": "workspace:*"
     "@tenetxyz/level2-ca": "workspace:*"
     "@tenetxyz/level2-ca-extensions-1": "workspace:*"
     "@tenetxyz/registry": "link:../../../../packages/registry"
@@ -1077,9 +1078,9 @@ __metadata:
   linkType: hard
 
 "@types/node@npm:^18.15.11":
-  version: 18.17.12
-  resolution: "@types/node@npm:18.17.12"
-  checksum: 79f8bcca3067a3c529f30e172df8d14f25ab9e4cd6a05ed897a924ab1dec774e8ea172ef5c4a67ffec433d423a0c81778f17db22606d574bc83871b60aab298e
+  version: 18.17.13
+  resolution: "@types/node@npm:18.17.13"
+  checksum: d70f263b7591f3993ddc348b809c867f9e4cc5151c7108ffdc89f32777da829e14a471932357da099afbd8db03f62bfc8119cd2d56f06b826bb28bb879feaf9f
   languageName: node
   linkType: hard
 
@@ -2024,8 +2025,8 @@ __metadata:
 
 "forge-std@https://github.com/foundry-rs/forge-std":
   version: 1.6.0
-  resolution: "forge-std@https://github.com/foundry-rs/forge-std.git#commit=fe9d28aafbbadcfeff06bc662a8cab0c5486a69f"
-  checksum: d7534b83144c9007e4b2103456e6ee347976c4f9e3112233b44383545a2444fe2319b8fbab5df2a9a8a17682275c62f9a9e4b2694c9e3b571c71ecfa1b86311b
+  resolution: "forge-std@https://github.com/foundry-rs/forge-std.git#commit=1d9650e951204a0ddce9ff89c32f1997984cef4d"
+  checksum: 83835bcd430d0a4fd7d0dd96862fec60094911206740546d79caf521a75536d702f0f8d0e324f70793c895968ad8051d97bcac7b39f6834a5449817a11a95270
   languageName: node
   linkType: hard
 
@@ -2087,8 +2088,8 @@ __metadata:
   linkType: hard
 
 "glob@npm:^10.2.5":
-  version: 10.3.3
-  resolution: "glob@npm:10.3.3"
+  version: 10.3.4
+  resolution: "glob@npm:10.3.4"
   dependencies:
     foreground-child: ^3.1.0
     jackspeak: ^2.0.3
@@ -2097,7 +2098,7 @@ __metadata:
     path-scurry: ^1.10.1
   bin:
     glob: dist/cjs/src/bin.js
-  checksum: 29190d3291f422da0cb40b77a72fc8d2c51a36524e99b8bf412548b7676a6627489528b57250429612b6eec2e6fe7826d328451d3e694a9d15e575389308ec53
+  checksum: 176b97c124414401cb51329a93d2ba112cef8814adbed10348481916b9521b677773eee2691cb6b24d66632d8c8bb8913533f5ac4bfb2d0ef5454a1856082361
   languageName: node
   linkType: hard
 

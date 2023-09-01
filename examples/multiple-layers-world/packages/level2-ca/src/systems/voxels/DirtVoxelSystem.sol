@@ -7,7 +7,7 @@ import { VoxelVariantsRegistryData } from "@tenet-registry/src/codegen/tables/Vo
 import { NoaBlockType } from "@tenet-registry/src/codegen/Types.sol";
 import { registerVoxelVariant, registerVoxelType, voxelSelectorsForVoxel } from "@tenet-registry/src/Utils.sol";
 import { REGISTRY_ADDRESS, DirtVoxelID } from "@tenet-level2-ca/src/Constants.sol";
-import { VoxelCoord } from "@tenet-utils/src/Types.sol";
+import { VoxelCoord, ComponentDef } from "@tenet-utils/src/Types.sol";
 import { AirVoxelID } from "@tenet-level1-ca/src/Constants.sol";
 
 bytes32 constant DirtVoxelVariantID = bytes32(keccak256("dirt"));
@@ -32,6 +32,7 @@ contract DirtVoxelSystem is VoxelType {
       dirtChildVoxelTypes[i] = AirVoxelID;
     }
     bytes32 baseVoxelTypeId = DirtVoxelID;
+    ComponentDef[] memory componentDefs = new ComponentDef[](0);
     registerVoxelType(
       REGISTRY_ADDRESS,
       "Dirt",
@@ -46,7 +47,8 @@ contract DirtVoxelSystem is VoxelType {
         IWorld(world).ca_DirtVoxelSystem_variantSelector.selector,
         IWorld(world).ca_DirtVoxelSystem_activate.selector,
         IWorld(world).ca_DirtVoxelSystem_eventHandler.selector
-      )
+      ),
+      abi.encode(componentDefs)
     );
   }
 

@@ -11,7 +11,7 @@ import { registerVoxelVariant, registerVoxelType, voxelSelectorsForVoxel } from 
 import { Consumer, ConsumerData } from "@tenet-level2-ca-extensions-1/src/codegen/Tables.sol";
 import { CA_ADDRESS, REGISTRY_ADDRESS, LightBulbVoxelID } from "@tenet-level2-ca-extensions-1/src/Constants.sol";
 import { Level2AirVoxelID } from "@tenet-level2-ca/src/Constants.sol";
-import { VoxelCoord, BlockDirection } from "@tenet-utils/src/Types.sol";
+import { VoxelCoord, BlockDirection, ComponentDef } from "@tenet-utils/src/Types.sol";
 import { AirVoxelID } from "@tenet-level1-ca/src/Constants.sol";
 import { registerCAVoxelType } from "@tenet-base-ca/src/CallUtils.sol";
 
@@ -50,6 +50,7 @@ contract LightBulbVoxelSystem is VoxelType {
       Level2AirVoxelID
     );
     bytes32 baseVoxelTypeId = Level2AirVoxelID;
+    ComponentDef[] memory componentDefs = new ComponentDef[](0);
     registerVoxelType(
       REGISTRY_ADDRESS,
       "Light Bulb",
@@ -64,7 +65,8 @@ contract LightBulbVoxelSystem is VoxelType {
         IWorld(world).extension1_LightBulbVoxelSy_variantSelector.selector,
         IWorld(world).extension1_LightBulbVoxelSy_activate.selector,
         IWorld(world).extension1_LightBulbVoxelSy_eventHandler.selector
-      )
+      ),
+      abi.encode(componentDefs)
     );
 
     registerCAVoxelType(CA_ADDRESS, LightBulbVoxelID);

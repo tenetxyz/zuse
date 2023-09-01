@@ -46,11 +46,23 @@ export default mudConfig({
         metadata: "bytes", // CreationMetadata
         childVoxelTypeIds: "bytes32[]",
         schemaVoxelTypeIds: "bytes32[]", // This is used when a child is built to figure out if the parent should be built. We can't juse use childVoxelTypeIds, because the child entities may move
+        componentDefs: "bytes", // ComponentDef[]
+      },
+    },
+
+    DecisionRuleRegistry: {
+      keySchema: {
+        srcVoxelTypeId: "bytes32",
+        targetVoxelTypeId: "bytes32",
+        worldAddress: "address",
+      },
+      schema: {
+        decisionRules: "bytes", // DecisionRule[]
       },
     },
     MindRegistry: {
       keySchema: {
-        voxelTypeId: "bytes32",
+        voxelTypeId: "bytes32", // technically bodyIds
         worldAddress: "address",
       },
       schema: {

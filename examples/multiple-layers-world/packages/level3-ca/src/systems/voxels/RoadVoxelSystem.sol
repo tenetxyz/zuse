@@ -8,7 +8,7 @@ import { NoaBlockType } from "@tenet-registry/src/codegen/Types.sol";
 import { registerVoxelVariant, registerVoxelType, voxelSelectorsForVoxel } from "@tenet-registry/src/Utils.sol";
 import { REGISTRY_ADDRESS, RoadVoxelID } from "@tenet-level3-ca/src/Constants.sol";
 import { DirtVoxelID } from "@tenet-level2-ca/src/Constants.sol";
-import { VoxelCoord } from "@tenet-utils/src/Types.sol";
+import { VoxelCoord, ComponentDef } from "@tenet-utils/src/Types.sol";
 
 bytes32 constant RoadVoxelVariantID = bytes32(keccak256("road"));
 
@@ -33,6 +33,7 @@ contract RoadVoxelSystem is VoxelType {
       roadChildVoxelTypes[i] = DirtVoxelID;
     }
     bytes32 baseVoxelTypeId = RoadVoxelID;
+    ComponentDef[] memory componentDefs = new ComponentDef[](0);
     registerVoxelType(
       REGISTRY_ADDRESS,
       "Road",
@@ -47,7 +48,8 @@ contract RoadVoxelSystem is VoxelType {
         IWorld(world).ca_RoadVoxelSystem_variantSelector.selector,
         IWorld(world).ca_RoadVoxelSystem_activate.selector,
         IWorld(world).ca_RoadVoxelSystem_eventHandler.selector
-      )
+      ),
+      abi.encode(componentDefs)
     );
   }
 

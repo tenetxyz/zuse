@@ -8,7 +8,7 @@ import { NoaBlockType } from "@tenet-registry/src/codegen/Types.sol";
 import { registerVoxelVariant, registerVoxelType, voxelSelectorsForVoxel } from "@tenet-registry/src/Utils.sol";
 import { REGISTRY_ADDRESS, GrassVoxelID } from "@tenet-level2-ca/src/Constants.sol";
 import { DirtTexture } from "@tenet-level2-ca/src/systems/voxels/DirtVoxelSystem.sol";
-import { VoxelCoord } from "@tenet-utils/src/Types.sol";
+import { VoxelCoord, ComponentDef } from "@tenet-utils/src/Types.sol";
 import { AirVoxelID } from "@tenet-level1-ca/src/Constants.sol";
 
 bytes32 constant GrassVoxelVariantID = bytes32(keccak256("grass"));
@@ -36,6 +36,7 @@ contract GrassVoxelSystem is VoxelType {
       grassChildVoxelTypes[i] = AirVoxelID;
     }
     bytes32 baseVoxelTypeId = GrassVoxelID;
+    ComponentDef[] memory componentDefs = new ComponentDef[](0);
     registerVoxelType(
       REGISTRY_ADDRESS,
       "Grass",
@@ -50,7 +51,8 @@ contract GrassVoxelSystem is VoxelType {
         IWorld(world).ca_GrassVoxelSystem_variantSelector.selector,
         IWorld(world).ca_GrassVoxelSystem_activate.selector,
         IWorld(world).ca_GrassVoxelSystem_eventHandler.selector
-      )
+      ),
+      abi.encode(componentDefs)
     );
   }
 

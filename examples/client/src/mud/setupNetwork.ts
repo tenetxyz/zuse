@@ -500,7 +500,7 @@ export async function setupNetwork() {
     const voxelScales: string[] = [];
     const entityIds: string[] = [];
     for (let i = 0; i < voxels.length; i++) {
-      const [voxelScale, entityId] = voxels[i].split(":");
+      const [voxelScale, entityId] = parseTwoKeysFromMultiKeyString(voxels[i]);
       voxelScales.push(voxelScale);
       entityIds.push(entityId);
     }
@@ -532,7 +532,7 @@ export async function setupNetwork() {
     // TODO: Replace Diamond NFT with a creation symbol
     const preview = getNftStorageLink("bafkreicro56v6rinwnltbkyjfzqdwva2agtrtypwaeowud447louxqgl5y");
     const voxelEntities = voxels.map((voxelEntityKey) => {
-      const voxelCompositeKey = voxelEntityKey.split(":");
+      const voxelCompositeKey = parseTwoKeysFromMultiKeyString(voxelEntityKey);
       return {
         scale: Number(voxelCompositeKey[0]),
         entityId: voxelCompositeKey[1],
@@ -605,7 +605,7 @@ export async function setupNetwork() {
   function activate(entity: Entity) {
     const voxelTypeKeyInMudTable = getComponentValue(contractComponents.VoxelType, entity) as VoxelTypeKeyInMudTable;
     const preview = getVoxelTypePreviewUrl(voxelTypeKeyInMudTable.voxelVariantId);
-    const [scaleAsHex, entityId] = (entity as string).split(":");
+    const [scaleAsHex, entityId] = parseTwoKeysFromMultiKeyString(entity as string);
     const coord = getComponentValue(contractComponents.Position, entity) as VoxelCoord;
 
     const activateSelector = "0x00000000";

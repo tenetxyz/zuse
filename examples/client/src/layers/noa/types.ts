@@ -75,7 +75,7 @@ export function voxelTypeToEntity(voxelTypeKey: VoxelTypeKeyInMudTable): Entity 
 }
 
 export function entityToVoxelType(entity: Entity): VoxelTypeKey {
-  const [voxelBaseTypeId, voxelVariantTypeId] = entity.split(":");
+  const [voxelBaseTypeId, voxelVariantTypeId] = parseTwoKeysFromMultiKeyString(entity as string);
   return { voxelBaseTypeId, voxelVariantTypeId };
 }
 

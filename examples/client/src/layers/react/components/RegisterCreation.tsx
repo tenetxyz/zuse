@@ -19,7 +19,7 @@ import { SetState } from "../../../utils/types";
 import { stringToEntity, to64CharAddress, voxelEntityToEntity } from "../../../utils/entity";
 import { VoxelCoord } from "@latticexyz/utils";
 import { abiDecode } from "@/utils/encodeOrDecode";
-import { VoxelEntity } from "@/layers/noa/types";
+import { VoxelEntity, parseTwoKeysFromMultiKeyString } from "@/layers/noa/types";
 import { ISpawn } from "@/mud/componentParsers/spawn";
 
 export interface RegisterCreationFormData {
@@ -85,7 +85,7 @@ const RegisterCreation: React.FC<Props> = ({ layers, formData, setFormData, rese
     // for each spawn, check to see if all of its voxels are in its defined cooordinate in the base creation.
     // if it is not, then it must be deleted
     for (const spawnDef of spawnDefs) {
-      const [spawnId, lowerSouthWestCorner] = spawnDef.split(":");
+      const [spawnId, lowerSouthWestCorner] = parseTwoKeysFromMultiKeyString(spawnDef);
       const lowerSouthWestCornerInWorld = stringToVoxelCoord(lowerSouthWestCorner);
 
       const spawn = ParsedSpawn.getRecordStrict(stringToEntity(spawnId));

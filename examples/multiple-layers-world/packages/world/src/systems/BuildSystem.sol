@@ -4,7 +4,8 @@ pragma solidity >=0.8.0;
 import { IWorld } from "@tenet-world/src/codegen/world/IWorld.sol";
 import { BuildEvent } from "@tenet-base-world/src/prototypes/BuildEvent.sol";
 import { VoxelCoord, BuildEventData } from "@tenet-base-world/src/Types.sol";
-import { OwnedBy, VoxelType, VoxelTypeData } from "@tenet-world/src/codegen/Tables.sol";
+import { OwnedBy, VoxelType } from "@tenet-world/src/codegen/Tables.sol";
+import { VoxelTypeData } from "@tenet-utils/src/Types.sol";
 import { REGISTRY_ADDRESS } from "@tenet-world/src/Constants.sol";
 import { AirVoxelID } from "@tenet-level1-ca/src/Constants.sol";
 

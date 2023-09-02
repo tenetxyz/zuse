@@ -3,7 +3,8 @@ pragma solidity >=0.8.0;
 
 import { IStore } from "@latticexyz/store/src/IStore.sol";
 import { System } from "@latticexyz/world/src/System.sol";
-import { WorldConfig, Position, PositionTableId, VoxelTypeTableId, VoxelTypeData, TruthTable, TruthTableData, TruthTableCR, TruthTableCRData, Spawn } from "@tenet-world/src/codegen/Tables.sol";
+import { WorldConfig, Position, PositionTableId, VoxelType, VoxelTypeTableId, TruthTable, TruthTableData, TruthTableCR, TruthTableCRData, Spawn } from "@tenet-world/src/codegen/Tables.sol";
+import { VoxelTypeData } from "@tenet-utils/src/Types.sol";
 import { safeCall } from "@tenet-utils/src/CallUtils.sol";
 import { LEVEL_2_CA_ADDRESS } from "@tenet-world/src/Constants.sol";
 import { IWorld } from "@tenet-world/src/codegen/world/IWorld.sol";
@@ -12,7 +13,6 @@ import { getVoxelCoordStrict } from "@tenet-base-world/src/Utils.sol";
 import { getUniqueEntity } from "@latticexyz/world/src/modules/uniqueentity/getUniqueEntity.sol";
 import { SignalSourceVoxelID } from "@tenet-level2-ca-extensions-1/src/Constants.sol";
 // import { entityIsActiveSignal, isEntityIsInactiveSignal } from "@tenet-level2-ca/src/InteractionUtils.sol";
-import { VoxelType } from "@tenet-world/src/codegen/tables/voxelType.sol";
 import { InterfaceVoxel } from "@tenet-utils/src/Types.sol";
 import { voxelCoordToString } from "@tenet-utils/src/VoxelCoordUtils.sol";
 import { Signal, SignalData } from "@tenet-level2-ca-extensions-1/src/codegen/tables/Signal.sol";

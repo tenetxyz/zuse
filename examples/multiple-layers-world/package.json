@@ -16,7 +16,7 @@
     "deploy": "concurrently -n contracts,client -c cyan,magenta \"cd packages/contracts && yarn run dev\" \"cd packages/client && yarn run deploy\"",
     "dev": "yarn run clean && yarn run dev-no-clean",
     "dev-no-clean": "yarn run build:ca && yarn run deploy:ca && concurrently -n world -c yellow \"yarn workspace @tenetxyz/world run deploy:local\" && concurrently -n level2-extensions -c blue \"yarn workspace @tenetxyz/level2-ca-extensions-1 run deploy:local\"",
-    "deploy:ca": "concurrently -n level1 -c blue \"yarn workspace @tenetxyz/level1-ca run deploy:local\" && concurrently -n level2:ca -c cyan \"yarn workspace @tenetxyz/level2-ca run deploy:local\" && concurrently -n level3-ca -c magenta \"yarn workspace @tenetxyz/level3-ca run deploy:local\" && concurrently -n level2-extensions -c blue \"yarn workspace @tenetxyz/level2-ca-extensions-1 run build:local\"",
+    "deploy:ca": "concurrently -n level1 -c blue \"yarn workspace @tenetxyz/level1-ca run deploy:local\" && concurrently -n level2 -c cyan \"yarn workspace @tenetxyz/level2-ca run deploy:local\" && concurrently -n level3 -c magenta \"yarn workspace @tenetxyz/level3-ca run deploy:local\" && concurrently -n level2-extensions -c blue \"yarn workspace @tenetxyz/level2-ca-extensions-1 run build:local\"",
     "build:ca": "concurrently -n level1,level2,level3 -c blue,cyan,magenta \"cd packages/level1-ca && yarn run build:local\" \"cd packages/level2-ca && yarn run build:local\" \"cd packages/level3-ca && yarn run build:local\"",
     "foundry:up": "curl -L https://foundry.paradigm.xyz | bash && bash $HOME/.foundry/bin/foundryup",
     "initialize": "yarn workspaces run initialize",

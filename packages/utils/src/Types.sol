@@ -45,9 +45,7 @@ struct DecisionRule {
 }
 
 struct Mind {
-  address creator;
-  string name;
-  string description;
+  bytes creationMetadata;
   DecisionRuleKey[] decisionRules;
 }
 

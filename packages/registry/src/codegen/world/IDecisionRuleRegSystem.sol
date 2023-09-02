@@ -9,7 +9,7 @@ interface IDecisionRuleRegSystem {
     string memory description,
     bytes32 srcVoxelTypeId,
     bytes32 targetVoxelTypeId,
-    string memory decisionRuleSelector
+    bytes4 decisionRuleSelector
   ) external;
 
   function registerDecisionRuleForWorld(
@@ -18,6 +18,6 @@ interface IDecisionRuleRegSystem {
     bytes32 srcVoxelTypeId,
     bytes32 targetVoxelTypeId,
     address worldAddress,
-    string memory decisionRuleSelector
+    bytes4 decisionRuleSelector
   ) external;
 }

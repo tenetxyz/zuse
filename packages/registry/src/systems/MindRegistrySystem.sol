@@ -4,14 +4,14 @@ pragma solidity >=0.8.0;
 import { hasKey } from "@latticexyz/world/src/modules/keysintable/hasKey.sol";
 import { System } from "@latticexyz/world/src/System.sol";
 import { MindRegistry, MindRegistryTableId, VoxelTypeRegistryTableId, VoxelTypeRegistry, WorldRegistry, WorldRegistryTableId, WorldRegistryData } from "@tenet-registry/src/codegen/Tables.sol";
-import { Mind } from "@tenet-utils/src/Types.sol";
+import { Mind, CreationMetadata, DecisionRuleKey, CreationSpawns } from "@tenet-utils/src/Types.sol";
 
 contract MindRegistrySystem is System {
-  function registerMind(bytes32 voxelTypeId, Mind memory mind) public {
-    registerMindForWorld(voxelTypeId, address(0), mind);
+  function registerMind(bytes32 voxelTypeId, string memory name, string memory description, DecisionRuleKey[] memory decisionRules) public {
+    registerMindForWorld(voxelTypeId, address(0), name, description, decisionRules);
   }
 
-  function registerMindForWorld(bytes32 voxelTypeId, address worldAddress, Mind memory mind) public {
+  function registerMindForWorld(bytes32 voxelTypeId, address worldAddress, string memory name, string memory description, DecisionRuleKey[] memory decisionRules) public {
     require(
       hasKey(VoxelTypeRegistryTableId, VoxelTypeRegistry.encodeKeyTuple(voxelTypeId)),
       "Voxel type ID has not been registered"
@@ -23,7 +23,12 @@ contract MindRegistrySystem is System {
       );
     }
     // Set creator
-    mind.creator = tx.origin;
+    CreationSpawns[] memory spawns = new CreationSpawns[](0);
+    bytes memory creationMetadata = abi.encode(CreationMetadata(tx.origin, name, description, spawns));
+    Mind memory mind = Mind({
+      creationMetadata: creationMetadata,
+      decisionRules: new DecisionRuleKey[](0)
+    });
 
     Mind[] memory newMinds;
     if (hasKey(MindRegistryTableId, MindRegistry.encodeKeyTuple(voxelTypeId, worldAddress))) {

@@ -19,7 +19,7 @@ contract MindRegistrySystem is System {
     if (worldAddress != address(0)) {
       require(
         hasKey(WorldRegistryTableId, WorldRegistry.encodeKeyTuple(worldAddress)),
-        "World address has not been registered"
+        "World address hassources not been registered"
       );
     }
     // Set creator

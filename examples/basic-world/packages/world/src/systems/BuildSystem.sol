@@ -42,7 +42,7 @@ contract BuildSystem is BuildEvent {
     return super.runEvent(voxelType.voxelTypeId, coord, abi.encode(BuildEventData({ mindSelector: mindSelector })));
   }
 
-  function build(
+  function buildVoxel(
     bytes32 voxelTypeId,
     VoxelCoord memory coord,
     bytes4 mindSelector

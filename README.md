@@ -35,4 +35,4 @@ development/
 
 ### Running locally
 
-Run `./t run dev` in the top directory
+Run `./t run dev basic-world` in the top directory

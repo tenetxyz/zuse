@@ -4,22 +4,33 @@
 if [[ "$1" == "run" ]]; then
     case "$2" in
         "dev")
-            concurrently -n anvil,contracts,client -c blue,green,white "./t run dev:anvil" "./t run dev:contracts"  "./t run dev:client"
+            if [[ "$3" == "multiple-layers-world" ]]; then
+                concurrently -n anvil,contracts,client -c blue,green,white "./t run dev:anvil" "./t run dev:multiple-layers-world"  "./t run dev:client";
+            elif [[ "$3" == "basic-world" ]]; then
+                concurrently -n anvil,contracts,client -c blue,green,white "./t run dev:anvil" "./t run dev:basic-world"  "./t run dev:client";
+            else
+                echo "No/incorrect example world specified."
+            fi
             ;;
         "dev-no-client")
-            # Replace this with the command you want to execute for ./t run dev-no-client
-            concurrently -n anvil,contracts -c blue,green,white "./t run dev:anvil" "./t run dev:contracts"
+            if [[ "$3" == "multiple-layers-world" ]]; then
+                concurrently -n anvil,contracts -c blue,green,white "./t run dev:anvil" "./t run dev:multiple-layers-world"
+            elif [[ "$3" == "basic-world" ]]; then
+                concurrently -n anvil,contracts -c blue,green,white "./t run dev:anvil" "./t run dev:basic-world"
+            else
+                echo "No/incorrect example world specified."
+            fi
             ;;
         "dev:anvil")
-            # Replace this with the command you want to execute for ./t run dev-no-client
             cd scripts && yarn run anvil
             ;;
-        "dev:contracts")
-            # Replace this with the command you want to execute for ./t run dev-no-client
+        "dev:multiple-layers-world")
             yarn run dev && concurrently -n example -c \#fb8500 "cd examples/multiple-layers-world && yarn run dev"
             ;;
+        "dev:basic-world")
+            yarn run dev && concurrently -n example -c \#fb8500 "cd examples/basic-world && yarn run dev"
+            ;;
         "dev:client")
-            # Replace this with the command you want to execute for ./t run client
             cd examples/client && yarn run dev
             ;;
         *)

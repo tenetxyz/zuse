@@ -42,6 +42,15 @@ contract BuildSystem is BuildEvent {
     return super.runEvent(voxelType.voxelTypeId, coord, abi.encode(BuildEventData({ mindSelector: mindSelector })));
   }
 
+  function build(
+    bytes32 voxelTypeId,
+    VoxelCoord memory coord,
+    bytes4 mindSelector
+  ) public returns (uint32, bytes32) {
+    // TODO: add permission check on ownership
+    return super.runEvent(voxelTypeId, coord, abi.encode(BuildEventData({ mindSelector: mindSelector })));
+  }
+
   // Called by CA
   function buildVoxelType(
     bytes32 voxelTypeId,

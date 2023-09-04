@@ -38,8 +38,6 @@
     "@tenetxyz/base-ca": "link:../../../../packages/base-ca",
     "@tenetxyz/base-world": "link:../../../../packages/base-world",
     "@tenetxyz/level1-ca": "workspace:*",
-    "@tenetxyz/level2-ca": "workspace:*",
-    "@tenetxyz/level2-ca-extensions-1": "workspace:*",
     "@tenetxyz/registry": "link:../../../../packages/registry",
     "@tenetxyz/utils": "link:../../../../packages/utils"
   },

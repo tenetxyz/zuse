@@ -32,7 +32,7 @@ contract GrassVoxelSystem is VoxelType {
     registerVoxelVariant(REGISTRY_ADDRESS, GrassVoxelVariantID, grassVariant);
 
     bytes32[] memory grassChildVoxelTypes = new bytes32[](1);
-    grassChildVoxelTypes[1] = GrassVoxelID;
+    grassChildVoxelTypes[0] = GrassVoxelID;
     bytes32 baseVoxelTypeId = GrassVoxelID;
     ComponentDef[] memory componentDefs = new ComponentDef[](0);
     registerVoxelType(

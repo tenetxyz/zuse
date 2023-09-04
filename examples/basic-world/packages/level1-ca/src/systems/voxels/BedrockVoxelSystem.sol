@@ -28,7 +28,7 @@ contract BedrockVoxelSystem is VoxelType {
     registerVoxelVariant(REGISTRY_ADDRESS, BedrockVoxelVariantID, bedrockVariant);
 
     bytes32[] memory bedrockChildVoxelTypes = new bytes32[](1);
-    bedrockChildVoxelTypes[1] = BedrockVoxelID;
+    bedrockChildVoxelTypes[0] = BedrockVoxelID;
     bytes32 baseVoxelTypeId = BedrockVoxelID;
     ComponentDef[] memory componentDefs = new ComponentDef[](0);
     registerVoxelType(

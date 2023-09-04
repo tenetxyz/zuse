@@ -28,7 +28,7 @@ contract DirtVoxelSystem is VoxelType {
     registerVoxelVariant(REGISTRY_ADDRESS, DirtVoxelVariantID, dirtVariant);
 
     bytes32[] memory dirtChildVoxelTypes = new bytes32[](1);
-    dirtChildVoxelTypes[1] = DirtVoxelID;
+    dirtChildVoxelTypes[0] = DirtVoxelID;
     bytes32 baseVoxelTypeId = DirtVoxelID;
     ComponentDef[] memory componentDefs = new ComponentDef[](0);
     registerVoxelType(

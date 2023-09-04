@@ -13,8 +13,13 @@ import { AirVoxelID, AirVoxelVariantID } from "@tenet-level1-ca/src/Constants.so
 contract AirVoxelSystem is VoxelType {
   function registerBody() public override {
     address world = _world();
+
+    VoxelVariantsRegistryData memory airVariant;
+    airVariant.blockType = NoaBlockType.BLOCK;
+    registerVoxelVariant(REGISTRY_ADDRESS, AirVoxelVariantID, airVariant);
+
     bytes32[] memory airChildVoxelTypes = new bytes32[](1);
-    airChildVoxelTypes[1] = AirVoxelID;
+    airChildVoxelTypes[0] = AirVoxelID;
     bytes32 baseVoxelTypeId = AirVoxelID;
     ComponentDef[] memory componentDefs = new ComponentDef[](0);
     registerVoxelType(

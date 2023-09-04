@@ -1,13 +1,13 @@
 // SPDX-License-Identifier: MIT
 pragma solidity >=0.8.0;
 
-import { IWorld } from "@tenet-level2-ca/src/codegen/world/IWorld.sol";
+import { IWorld } from "@tenet-level1-ca/src/codegen/world/IWorld.sol";
 import { VoxelType } from "@tenet-base-ca/src/prototypes/VoxelType.sol";
 import { VoxelVariantsRegistryData } from "@tenet-registry/src/codegen/tables/VoxelVariantsRegistry.sol";
 import { NoaBlockType } from "@tenet-registry/src/codegen/Types.sol";
 import { registerVoxelVariant, registerVoxelType, voxelSelectorsForVoxel } from "@tenet-registry/src/Utils.sol";
-import { REGISTRY_ADDRESS, GrassVoxelID } from "@tenet-level2-ca/src/Constants.sol";
-import { DirtTexture } from "@tenet-level2-ca/src/systems/voxels/DirtVoxelSystem.sol";
+import { REGISTRY_ADDRESS, GrassVoxelID } from "@tenet-level1-ca/src/Constants.sol";
+import { DirtTexture } from "@tenet-level1-ca/src/systems/voxels/DirtVoxelSystem.sol";
 import { VoxelCoord, ComponentDef } from "@tenet-utils/src/Types.sol";
 import { AirVoxelID } from "@tenet-level1-ca/src/Constants.sol";
 
@@ -31,10 +31,8 @@ contract GrassVoxelSystem is VoxelType {
     grassVariant.uvWrap = GrassUVWrap;
     registerVoxelVariant(REGISTRY_ADDRESS, GrassVoxelVariantID, grassVariant);
 
-    bytes32[] memory grassChildVoxelTypes = new bytes32[](8);
-    for (uint i = 0; i < 8; i++) {
-      grassChildVoxelTypes[i] = AirVoxelID;
-    }
+    bytes32[] memory grassChildVoxelTypes = new bytes32[](1);
+    grassChildVoxelTypes[1] = GrassVoxelID;
     bytes32 baseVoxelTypeId = GrassVoxelID;
     ComponentDef[] memory componentDefs = new ComponentDef[](0);
     registerVoxelType(

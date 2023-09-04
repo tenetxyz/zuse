@@ -9,7 +9,7 @@ if [[ "$1" == "run" ]]; then
             elif [[ "$3" == "basic-world" ]]; then
                 concurrently -n anvil,contracts,client -c blue,green,white "./t run dev:anvil" "./t run dev:basic-world"  "./t run dev:client";
             else
-                echo "No example world specified."
+                echo "No/incorrect example world specified."
             fi
             ;;
         "dev-no-client")
@@ -18,7 +18,7 @@ if [[ "$1" == "run" ]]; then
             elif [[ "$3" == "basic-world" ]]; then
                 concurrently -n anvil,contracts -c blue,green,white "./t run dev:anvil" "./t run dev:basic-world"
             else
-                echo "No example world specified."
+                echo "No/incorrect example world specified."
             fi
             ;;
         "dev:anvil")

@@ -6,7 +6,7 @@ import { WorldRegistry } from "@tenet-registry/src/codegen/tables/WorldRegistry.
 import { hasKey } from "@latticexyz/world/src/modules/keysintable/hasKey.sol";
 import { CARegistry } from "@tenet-registry/src/codegen/tables/CARegistry.sol";
 import { REGISTER_WORLD_SIG } from "@tenet-registry/src/Constants.sol";
-import { REGISTRY_ADDRESS, BASE_CA_ADDRESS, LEVEL_2_CA_ADDRESS, LEVEL_3_CA_ADDRESS } from "../Constants.sol";
+import { REGISTRY_ADDRESS, BASE_CA_ADDRESS } from "../Constants.sol";
 import { safeCall } from "@tenet-utils/src/CallUtils.sol";
 
 contract InitSystem is InitWorldSystem {

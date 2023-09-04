@@ -1,27 +1,25 @@
 // SPDX-License-Identifier: MIT
 pragma solidity >=0.8.0;
 
-import { IWorld } from "@tenet-level2-ca/src/codegen/world/IWorld.sol";
+import { IWorld } from "@tenet-level1-ca/src/codegen/world/IWorld.sol";
 import { VoxelType } from "@tenet-base-ca/src/prototypes/VoxelType.sol";
 import { VoxelVariantsRegistryData } from "@tenet-registry/src/codegen/tables/VoxelVariantsRegistry.sol";
 import { NoaBlockType } from "@tenet-registry/src/codegen/Types.sol";
 import { registerVoxelVariant, registerVoxelType, voxelSelectorsForVoxel } from "@tenet-registry/src/Utils.sol";
-import { REGISTRY_ADDRESS, AirVoxelID } from "@tenet-level2-ca/src/Constants.sol";
+import { REGISTRY_ADDRESS, AirVoxelID } from "@tenet-level1-ca/src/Constants.sol";
 import { VoxelCoord, ComponentDef } from "@tenet-utils/src/Types.sol";
 import { AirVoxelID, AirVoxelVariantID } from "@tenet-level1-ca/src/Constants.sol";
 
 contract AirVoxelSystem is VoxelType {
   function registerBody() public override {
     address world = _world();
-    bytes32[] memory airChildVoxelTypes = new bytes32[](8);
-    for (uint i = 0; i < 8; i++) {
-      airChildVoxelTypes[i] = AirVoxelID;
-    }
+    bytes32[] memory airChildVoxelTypes = new bytes32[](1);
+    airChildVoxelTypes[1] = AirVoxelID;
     bytes32 baseVoxelTypeId = AirVoxelID;
     ComponentDef[] memory componentDefs = new ComponentDef[](0);
     registerVoxelType(
       REGISTRY_ADDRESS,
-      "Level 2 Air",
+      "Air",
       AirVoxelID,
       baseVoxelTypeId,
       airChildVoxelTypes,

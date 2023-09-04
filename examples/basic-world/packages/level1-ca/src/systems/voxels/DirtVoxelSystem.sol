@@ -1,12 +1,12 @@
 // SPDX-License-Identifier: MIT
 pragma solidity >=0.8.0;
 
-import { IWorld } from "@tenet-level2-ca/src/codegen/world/IWorld.sol";
+import { IWorld } from "@tenet-level1-ca/src/codegen/world/IWorld.sol";
 import { VoxelType } from "@tenet-base-ca/src/prototypes/VoxelType.sol";
 import { VoxelVariantsRegistryData } from "@tenet-registry/src/codegen/tables/VoxelVariantsRegistry.sol";
 import { NoaBlockType } from "@tenet-registry/src/codegen/Types.sol";
 import { registerVoxelVariant, registerVoxelType, voxelSelectorsForVoxel } from "@tenet-registry/src/Utils.sol";
-import { REGISTRY_ADDRESS, DirtVoxelID } from "@tenet-level2-ca/src/Constants.sol";
+import { REGISTRY_ADDRESS, DirtVoxelID } from "@tenet-level1-ca/src/Constants.sol";
 import { VoxelCoord, ComponentDef } from "@tenet-utils/src/Types.sol";
 import { AirVoxelID } from "@tenet-level1-ca/src/Constants.sol";
 
@@ -27,10 +27,8 @@ contract DirtVoxelSystem is VoxelType {
     dirtVariant.uvWrap = DirtUVWrap;
     registerVoxelVariant(REGISTRY_ADDRESS, DirtVoxelVariantID, dirtVariant);
 
-    bytes32[] memory dirtChildVoxelTypes = new bytes32[](8);
-    for (uint i = 0; i < 8; i++) {
-      dirtChildVoxelTypes[i] = AirVoxelID;
-    }
+    bytes32[] memory dirtChildVoxelTypes = new bytes32[](1);
+    dirtChildVoxelTypes[1] = DirtVoxelID;
     bytes32 baseVoxelTypeId = DirtVoxelID;
     ComponentDef[] memory componentDefs = new ComponentDef[](0);
     registerVoxelType(

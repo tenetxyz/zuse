@@ -3,18 +3,7 @@ import { resolveTableId } from "@latticexyz/config";
 
 export default tenetMudConfig({
   namespace: "ca",
-  tables: {
-    ElectronTunnelSpot: {
-      keySchema: {
-        callerAddress: "address",
-        entity: "bytes32",
-      },
-      schema: {
-        atTop: "bool",
-        sibling: "bytes32",
-      },
-    },
-  },
+  tables: {},
   systems: {
     CASystem: {
       name: "CASystem",
@@ -31,14 +20,13 @@ export default tenetMudConfig({
       name: "CACallerSystem",
       openAccess: false,
       registerAsRoot: true,
-      accessList: ["AirVoxelSystem", "ElectronVoxelSystem", "ElectronSystem"],
+      accessList: ["AirVoxelSystem", "DirtVoxelSystem", "GrassVoxelSystem", "BedrockVoxelSystem"],
+    },
+    CAVoxelRegistrySystem: {
+      name: "CAVoxelRegistryS",
+      openAccess: true,
+      registerAsRoot: true,
     },
   },
-  modules: [
-    {
-      name: "KeysInTableModule",
-      root: true,
-      args: [resolveTableId("ElectronTunnelSpot")],
-    },
-  ],
+  modules: [],
 });

@@ -1,12 +1,12 @@
 // SPDX-License-Identifier: MIT
 pragma solidity >=0.8.0;
 
-import { IWorld } from "@tenet-level2-ca/src/codegen/world/IWorld.sol";
+import { IWorld } from "@tenet-level1-ca/src/codegen/world/IWorld.sol";
 import { VoxelType } from "@tenet-base-ca/src/prototypes/VoxelType.sol";
 import { VoxelVariantsRegistryData } from "@tenet-registry/src/codegen/tables/VoxelVariantsRegistry.sol";
 import { NoaBlockType } from "@tenet-registry/src/codegen/Types.sol";
 import { registerVoxelVariant, registerVoxelType, voxelSelectorsForVoxel } from "@tenet-registry/src/Utils.sol";
-import { REGISTRY_ADDRESS, BedrockVoxelID } from "@tenet-level2-ca/src/Constants.sol";
+import { REGISTRY_ADDRESS, BedrockVoxelID } from "@tenet-level1-ca/src/Constants.sol";
 import { VoxelCoord, ComponentDef } from "@tenet-utils/src/Types.sol";
 import { AirVoxelID } from "@tenet-level1-ca/src/Constants.sol";
 
@@ -27,10 +27,8 @@ contract BedrockVoxelSystem is VoxelType {
     bedrockVariant.uvWrap = BedrockUVWrap;
     registerVoxelVariant(REGISTRY_ADDRESS, BedrockVoxelVariantID, bedrockVariant);
 
-    bytes32[] memory bedrockChildVoxelTypes = new bytes32[](8);
-    for (uint i = 0; i < 8; i++) {
-      bedrockChildVoxelTypes[i] = AirVoxelID;
-    }
+    bytes32[] memory bedrockChildVoxelTypes = new bytes32[](1);
+    bedrockChildVoxelTypes[1] = BedrockVoxelID;
     bytes32 baseVoxelTypeId = BedrockVoxelID;
     ComponentDef[] memory componentDefs = new ComponentDef[](0);
     registerVoxelType(

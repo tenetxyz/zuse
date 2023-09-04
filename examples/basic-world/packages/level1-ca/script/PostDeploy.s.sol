@@ -15,7 +15,9 @@ contract PostDeploy is Script {
 
     // Register the voxel types
     IWorld(worldAddress).ca_AirVoxelSystem_registerBody();
-    IWorld(worldAddress).ca_ElectronVoxelSys_registerBody();
+    IWorld(worldAddress).ca_DirtVoxelSystem_registerBody();
+    IWorld(worldAddress).ca_GrassVoxelSystem_registerBody();
+    IWorld(worldAddress).ca_BedrockVoxelSyst_registerBody();
 
     IWorld(worldAddress).registerCA();
 

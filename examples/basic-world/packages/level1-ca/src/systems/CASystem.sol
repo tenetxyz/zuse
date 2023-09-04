@@ -1,10 +1,10 @@
 // SPDX-License-Identifier: MIT
 pragma solidity >=0.8.0;
 
-import { IWorld } from "@tenet-level2-ca/src/codegen/world/IWorld.sol";
+import { IWorld } from "@tenet-level1-ca/src/codegen/world/IWorld.sol";
 import { CA } from "@tenet-base-ca/src/prototypes/CA.sol";
 import { VoxelCoord } from "@tenet-utils/src/Types.sol";
-import { AirVoxelID, GrassVoxelID, DirtVoxelID, BedrockVoxelID, FighterVoxelID } from "@tenet-level2-ca/src/Constants.sol";
+import { AirVoxelID, GrassVoxelID, DirtVoxelID, BedrockVoxelID } from "@tenet-level1-ca/src/Constants.sol";
 import { getKeysInTable } from "@latticexyz/world/src/modules/keysintable/getKeysInTable.sol";
 import { REGISTER_CA_SIG } from "@tenet-registry/src/Constants.sol";
 import { EMPTY_ID } from "./LibTerrainSystem.sol";

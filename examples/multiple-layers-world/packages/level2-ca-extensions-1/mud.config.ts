@@ -145,6 +145,14 @@ export default mudConfig({
         hasValue: "bool", // TODO: Remove this once we can install non-root modules
       },
     },
+    Health: {
+      keySchema: {
+        entity: "bytes32",
+      },
+      schema: {
+        health: "uint32",
+      },
+    },
   },
   modules: [],
 });

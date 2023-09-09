@@ -13,9 +13,9 @@ contract DecisionRuleRegSystem is System {
     string memory description,
     bytes32 srcVoxelTypeId,
     bytes32 targetVoxelTypeId,
-    DecisionRule memory decisionRule
+    bytes4 decisionRuleSelector
   ) public {
-    registerDecisionRuleForWorld(name, description, srcVoxelTypeId, targetVoxelTypeId, address(0), decisionRule);
+    registerDecisionRuleForWorld(name, description, srcVoxelTypeId, targetVoxelTypeId, address(0), decisionRuleSelector);
   }
 
   function registerDecisionRuleForWorld(
@@ -24,7 +24,7 @@ contract DecisionRuleRegSystem is System {
     bytes32 srcVoxelTypeId,
     bytes32 targetVoxelTypeId,
     address worldAddress,
-    DecisionRule memory decisionRule
+    bytes4 decisionRuleSelector
   ) public {
     require(
       hasKey(VoxelTypeRegistryTableId, VoxelTypeRegistry.encodeKeyTuple(srcVoxelTypeId)),
@@ -42,16 +42,20 @@ contract DecisionRuleRegSystem is System {
     }
 
     CreationSpawns[] memory spawns = new CreationSpawns[](0);
-    decisionRule.creationMetadata = abi.encode(CreationMetadata(msg.sender, name, description, spawns));
-    decisionRule.decisionRuleId = keccak256(
+    bytes32 decisionRuleId = keccak256(
       abi.encodePacked(
         srcVoxelTypeId,
         targetVoxelTypeId,
         worldAddress,
-        decisionRule.decisionRuleSelector,
+        decisionRuleSelector,
         msg.sender
       )
     );
+    DecisionRule memory decisionRule = DecisionRule({
+      decisionRuleId: decisionRuleId,
+      creationMetadata: abi.encode(CreationMetadata(msg.sender, name, description, spawns)),
+      decisionRuleSelector: decisionRuleSelector
+    });
 
     DecisionRule[] memory newDecisionRules;
     if (

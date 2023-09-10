@@ -9,9 +9,26 @@ import { PositionData } from "@tenet-world/src/codegen/tables/Position.sol";
 import { REGISTRY_ADDRESS } from "@tenet-world/src/Constants.sol";
 import { VoxelCoord, VoxelEntity } from "@tenet-utils/src/Types.sol";
 import { BaseCreationInWorld } from "@tenet-utils/src/Types.sol";
+import { VoxelTypeRegistry } from "@tenet-registry/src/codegen/Tables/VoxelTypeRegistry.sol";
 import { registerCreation as registerCreationToRegistry } from "@tenet-registry/src/Utils.sol";
 
 contract CreationSystem is System {
+  // This function is used when we have the coord and the voxelTypeId (but not the voxelVariantId). So we default to the preview voxel variant
+  function registerCreationPlainVoxelTypes(
+    string memory name,
+    string memory description,
+    bytes32[] memory voxelTypeIds,
+    VoxelCoord[] memory voxelCoords,
+    BaseCreationInWorld[] memory baseCreationsInWorld
+  ) public returns (bytes32) {
+    VoxelTypeData[] memory voxelTypes = new VoxelTypeData[](voxelTypeIds.length);
+    for (uint256 i = 0; i < voxelTypeIds.length; i++) {
+      bytes32 voxelVariantId = VoxelTypeRegistry.getPreviewVoxelVariantId(voxelTypeIds[i]);
+      voxelTypes[i] = VoxelTypeData(voxelTypeIds[i], voxelVariantId);
+    }
+    return registerCreationHelper(name, description, voxelTypes, voxelCoords, baseCreationsInWorld);
+  }
+
   function registerCreation(
     string memory name,
     string memory description,
@@ -19,13 +36,23 @@ contract CreationSystem is System {
     BaseCreationInWorld[] memory baseCreationsInWorld
   ) public returns (bytes32) {
     VoxelTypeData[] memory voxelTypes = getVoxelTypes(voxels);
+    VoxelCoord[] memory voxelCoords = getVoxelCoords(voxels); // NOTE: we do not know the relative position of these voxelCoords yet (since we don't know the coords of the voxels in the base creations). So we will reposition them later
+    return registerCreationHelper(name, description, voxelTypes, voxelCoords, baseCreationsInWorld);
+  }
+
+  function registerCreationHelper(
+    string memory name,
+    string memory description,
+    VoxelTypeData[] memory voxelTypes,
+    VoxelCoord[] memory voxelCoords,
+    BaseCreationInWorld[] memory baseCreationsInWorld
+  ) private returns (bytes32) {
     for (uint256 i = 0; i < voxelTypes.length; i++) {
       require(
         IWorld(_world()).isVoxelTypeAllowed(voxelTypes[i].voxelTypeId),
         "Register Voxel type not allowed in this world"
       );
     }
-    VoxelCoord[] memory voxelCoords = getVoxelCoords(voxels); // NOTE: we do not know the relative position of these voxelCoords yet (since we don't know the coords of the voxels in the base creations). So we will reposition them later
 
     // Call registry
     (

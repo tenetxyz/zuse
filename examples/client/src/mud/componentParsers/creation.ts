@@ -64,5 +64,6 @@ export function parseCreation<S extends Schema>(update: ComponentUpdate<S, undef
     numVoxels: rawCreation.numVoxels,
     baseCreations,
   } as Creation;
+  console.log("creation", creation)
   return { entityId: creationId, componentRecord: creation };
 }

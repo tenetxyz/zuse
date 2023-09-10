@@ -19,7 +19,7 @@
     "deploy:ca": "concurrently -n level1 -c blue \"yarn workspace @tenetxyz/level1-ca run deploy:local\"",
     "build:ca": "concurrently -n level1 -c blue \"cd packages/level1-ca && yarn run build:local\"",
     "foundry:up": "curl -L https://foundry.paradigm.xyz | bash && bash $HOME/.foundry/bin/foundryup",
-    "initialize": "yarn workspaces run initialize",
+    "initialize": "yarn workspaces foreach run initialize",
     "mud:up": "yarn workspaces foreach -t run yarn mud set-version -v canary && yarn install",
     "prepare": "(forge --version || yarn foundry:up)",
     "test": "yarn workspaces run test"

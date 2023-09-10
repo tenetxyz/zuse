@@ -65,7 +65,7 @@ contract CreationSystem is System {
     ) = registerCreationToRegistry(REGISTRY_ADDRESS, name, description, voxelTypes, voxelCoords, baseCreationsInWorld);
 
     // revert(voxelCoordToString(lowerSouthwestCorner));
-    revert(bytes32ToString(allVoxelTypes[0].voxelTypeId));
+    // revert(bytes32ToString(allVoxelTypes[0].voxelTypeId));
     // Replace the voxels in the registration with a spawn!
     // delete the voxels at this coord
     for (uint256 i; i < allVoxelCoordsInWorld.length; i++) {

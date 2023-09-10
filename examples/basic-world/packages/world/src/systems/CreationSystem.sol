@@ -12,7 +12,6 @@ import { VoxelCoord, VoxelEntity } from "@tenet-utils/src/Types.sol";
 import { BaseCreationInWorld } from "@tenet-utils/src/Types.sol";
 import { VoxelTypeRegistry } from "@tenet-registry/src/codegen/Tables/VoxelTypeRegistry.sol";
 import { registerCreation as registerCreationToRegistry } from "@tenet-registry/src/Utils.sol";
-import { bytes32ToString } from "@tenet-utils/src/StringUtils.sol";
 
 contract CreationSystem is System {
   // This function is used when we have the coord and the voxelTypeId (but not the voxelVariantId). So we default to the preview voxel variant
@@ -64,8 +63,6 @@ contract CreationSystem is System {
       VoxelCoord[] memory allVoxelCoordsInWorld
     ) = registerCreationToRegistry(REGISTRY_ADDRESS, name, description, voxelTypes, voxelCoords, baseCreationsInWorld);
 
-    // revert(voxelCoordToString(lowerSouthwestCorner));
-    // revert(bytes32ToString(allVoxelTypes[0].voxelTypeId));
     // Replace the voxels in the registration with a spawn!
     // delete the voxels at this coord
     for (uint256 i; i < allVoxelCoordsInWorld.length; i++) {

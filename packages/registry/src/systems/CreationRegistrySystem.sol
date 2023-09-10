@@ -26,7 +26,7 @@ contract CreationRegistrySystem is System {
       );
       require(
         hasKey(VoxelVariantsRegistryTableId, VoxelVariantsRegistry.encodeKeyTuple(voxelTypes[i].voxelVariantId)),
-        "Voxel variant ID has not been registered"
+        "Voxel variant ID has not been registered in the voxel variant registry"
       );
     }
     for (uint256 i = 0; i < baseCreationsInWorld.length; i++) {

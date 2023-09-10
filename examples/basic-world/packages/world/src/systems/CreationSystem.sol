@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: GPL-3.0
 pragma solidity >=0.8.0;
+import { IStore } from "@latticexyz/store/src/IStore.sol";
 import { System } from "@latticexyz/world/src/System.sol";
 import { Strings } from "@openzeppelin/contracts/utils/Strings.sol";
 import { IWorld } from "@tenet-world/src/codegen/world/IWorld.sol";
@@ -23,7 +24,7 @@ contract CreationSystem is System {
   ) public returns (bytes32) {
     VoxelTypeData[] memory voxelTypes = new VoxelTypeData[](voxelTypeIds.length);
     for (uint256 i = 0; i < voxelTypeIds.length; i++) {
-      bytes32 voxelVariantId = VoxelTypeRegistry.getPreviewVoxelVariantId(voxelTypeIds[i]);
+      bytes32 voxelVariantId = VoxelTypeRegistry.getPreviewVoxelVariantId(IStore(REGISTRY_ADDRESS), voxelTypeIds[i]);
       voxelTypes[i] = VoxelTypeData(voxelTypeIds[i], voxelVariantId);
     }
     return registerCreationHelper(name, description, voxelTypes, voxelCoords, baseCreationsInWorld);

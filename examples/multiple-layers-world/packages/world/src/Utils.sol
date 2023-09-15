@@ -4,11 +4,10 @@ pragma solidity >=0.8.0;
 import { SystemRegistry } from "@latticexyz/world/src/modules/core/tables/SystemRegistry.sol";
 import { ResourceSelector } from "@latticexyz/world/src/ResourceSelector.sol";
 import { hasKey } from "@latticexyz/world/src/modules/keysintable/hasKey.sol";
-import { Coord, VoxelCoord } from "@tenet-base-world/src/Types.sol";
+import { Coord, VoxelCoord, BlockDirection } from "@tenet-utils/src/Types.sol";
 import { getKeysWithValue } from "@latticexyz/world/src/modules/keyswithvalue/getKeysWithValue.sol";
 import { Position, PositionData, PositionTableId, VoxelType } from "@tenet-world/src/codegen/Tables.sol";
 import { VoxelTypeData } from "@tenet-utils/src/Types.sol";
-import { BlockDirection } from "@tenet-base-world/src/Types.sol";
 
 function calculateChildCoords(uint32 scale, VoxelCoord memory parentCoord) pure returns (VoxelCoord[] memory) {
   VoxelCoord[] memory childCoords = new VoxelCoord[](uint256(scale * scale * scale));

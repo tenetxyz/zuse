@@ -2,7 +2,7 @@
 pragma solidity >=0.8.0;
 
 import { RunCASystem as RunCAPrototype } from "@tenet-base-world/src/prototypes/RunCASystem.sol";
-import { VoxelCoord } from "@tenet-base-world/src/Types.sol";
+import { VoxelCoord } from "@tenet-utils/src/Types.sol";
 
 contract RunCASystem is RunCAPrototype {
   function enterCA(

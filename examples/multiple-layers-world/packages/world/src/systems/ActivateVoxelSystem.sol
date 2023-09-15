@@ -3,7 +3,7 @@ pragma solidity >=0.8.0;
 
 import { ActivateEvent } from "@tenet-base-world/src/prototypes/ActivateEvent.sol";
 import { IWorld } from "@tenet-world/src/codegen/world/IWorld.sol";
-import { VoxelCoord } from "@tenet-base-world/src/Types.sol";
+import { VoxelCoord } from "@tenet-utils/src/Types.sol";
 import { REGISTRY_ADDRESS } from "@tenet-world/src/Constants.sol";
 
 contract ActivateVoxelSystem is ActivateEvent {

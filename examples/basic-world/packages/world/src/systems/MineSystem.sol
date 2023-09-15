@@ -3,9 +3,8 @@ pragma solidity >=0.8.0;
 
 import { IWorld } from "@tenet-world/src/codegen/world/IWorld.sol";
 import { MineEvent } from "@tenet-base-world/src/prototypes/MineEvent.sol";
-import { VoxelCoord, VoxelEntity } from "@tenet-utils/src/Types.sol";
+import { VoxelCoord, VoxelEntity, VoxelTypeData } from "@tenet-utils/src/Types.sol";
 import { VoxelType, OfSpawn, Spawn, SpawnData } from "@tenet-world/src/codegen/Tables.sol";
-import { VoxelTypeData } from "@tenet-utils/src/Types.sol";
 import { CHUNK_MAX_Y, CHUNK_MIN_Y } from "../Constants.sol";
 import { AirVoxelID } from "@tenet-level1-ca/src/Constants.sol";
 import { getEntityAtCoord } from "@tenet-base-world/src/Utils.sol";
@@ -22,12 +21,12 @@ contract MineSystem is MineEvent {
     bool runEventOnChildren,
     bool runEventOnParent,
     bytes memory eventData
-  ) internal override returns (uint32, bytes32) {
+  ) internal override returns (VoxelEntity memory) {
     return IWorld(_world()).mineVoxelType(voxelTypeId, coord, runEventOnChildren, runEventOnParent, eventData);
   }
 
   // Called by users
-  function mine(bytes32 voxelTypeId, VoxelCoord memory coord) public override returns (uint32, bytes32) {
+  function mine(bytes32 voxelTypeId, VoxelCoord memory coord) public override returns (VoxelEntity memory) {
     require(coord.y <= CHUNK_MAX_Y && coord.y >= CHUNK_MIN_Y, "out of chunk bounds");
     super.runEvent(voxelTypeId, coord, abi.encode(0));
   }
@@ -39,7 +38,7 @@ contract MineSystem is MineEvent {
     bool mineChildren,
     bool mineParent,
     bytes memory eventData
-  ) public override returns (uint32, bytes32) {
+  ) public override returns (VoxelEntity memory) {
     return super.runEventHandler(voxelTypeId, coord, mineChildren, mineParent, eventData);
   }
 
@@ -47,8 +46,7 @@ contract MineSystem is MineEvent {
     address caAddress,
     bytes32 voxelTypeId,
     VoxelCoord memory coord,
-    uint32 scale,
-    bytes32 eventVoxelEntity,
+    VoxelEntity memory eventVoxelEntity,
     bytes memory eventData
   ) internal override {
     if (voxelTypeId != AirVoxelID) {
@@ -56,15 +54,19 @@ contract MineSystem is MineEvent {
       // Can't own it since it became air, so we gift it
       IWorld(_world()).giftVoxel(voxelTypeId);
     }
+    super.postRunCA(caAddress, voxelTypeId, coord, eventVoxelEntity, eventData);
   }
 
-  function clearCoord(uint32 scale, VoxelCoord memory coord) public returns (uint32, bytes32) {
+  function clearCoord(uint32 scale, VoxelCoord memory coord) public returns (VoxelEntity memory) {
     bytes32 entity = getEntityAtCoord(scale, coord);
 
     bytes32 voxelTypeId = VoxelType.getVoxelTypeId(scale, entity);
     if (voxelTypeId == AirVoxelID) {
       // if it's air, then it's already clear
-      return (0, 0);
+      return VoxelEntity({
+        scale: 0,
+        entityId: 0
+      });
     }
 
     return mine(voxelTypeId, coord);

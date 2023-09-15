@@ -1,6 +1,11 @@
 // SPDX-License-Identifier: MIT
 pragma solidity >=0.8.0;
 
+struct VoxelEntity {
+  uint32 scale;
+  bytes32 entityId;
+}
+
 struct VoxelCoord {
   int32 x;
   int32 y;
@@ -105,11 +110,6 @@ struct RangeComponent {
 
 struct StateComponent {
   string[] states;
-}
-
-struct VoxelEntity {
-  uint32 scale;
-  bytes32 entityId;
 }
 
 struct InterfaceVoxel {

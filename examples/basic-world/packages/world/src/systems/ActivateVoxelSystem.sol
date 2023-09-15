@@ -3,7 +3,7 @@ pragma solidity >=0.8.0;
 
 import { ActivateEvent } from "@tenet-base-world/src/prototypes/ActivateEvent.sol";
 import { IWorld } from "@tenet-world/src/codegen/world/IWorld.sol";
-import { VoxelCoord } from "@tenet-base-world/src/Types.sol";
+import { VoxelCoord, VoxelEntity } from "@tenet-utils/src/Types.sol";
 import { REGISTRY_ADDRESS } from "@tenet-world/src/Constants.sol";
 
 contract ActivateVoxelSystem is ActivateEvent {
@@ -17,7 +17,7 @@ contract ActivateVoxelSystem is ActivateEvent {
     bool runEventOnChildren,
     bool runEventOnParent,
     bytes memory eventData
-  ) internal override returns (uint32, bytes32) {
+  ) internal override returns (VoxelEntity memory) {
     return IWorld(_world()).activateVoxelType(voxelTypeId, coord, runEventOnChildren, runEventOnParent, eventData);
   }
 
@@ -26,7 +26,7 @@ contract ActivateVoxelSystem is ActivateEvent {
     bytes32 voxelTypeId,
     VoxelCoord memory coord,
     bytes4 interactionSelector
-  ) public override returns (uint32, bytes32) {
+  ) public override returns (VoxelEntity memory) {
     return super.activate(voxelTypeId, coord, interactionSelector);
   }
 
@@ -37,7 +37,7 @@ contract ActivateVoxelSystem is ActivateEvent {
     bool activateChildren,
     bool activateParent,
     bytes memory eventData
-  ) public override returns (uint32, bytes32) {
+  ) public override returns (VoxelEntity memory) {
     return super.runEventHandler(voxelTypeId, coord, activateChildren, activateParent, eventData);
   }
 }

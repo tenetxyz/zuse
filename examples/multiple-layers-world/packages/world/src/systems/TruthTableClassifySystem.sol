@@ -8,7 +8,7 @@ import { VoxelTypeData } from "@tenet-utils/src/Types.sol";
 import { safeCall } from "@tenet-utils/src/CallUtils.sol";
 import { LEVEL_2_CA_ADDRESS } from "@tenet-world/src/Constants.sol";
 import { IWorld } from "@tenet-world/src/codegen/world/IWorld.sol";
-import { VoxelCoord } from "@tenet-base-world/src/Types.sol";
+import { VoxelCoord } from "@tenet-utils/src/Types.sol";
 import { getVoxelCoordStrict } from "@tenet-base-world/src/Utils.sol";
 import { getUniqueEntity } from "@latticexyz/world/src/modules/uniqueentity/getUniqueEntity.sol";
 import { SignalSourceVoxelID } from "@tenet-level2-ca-extensions-1/src/Constants.sol";

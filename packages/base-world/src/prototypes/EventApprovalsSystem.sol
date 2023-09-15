@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0
 pragma solidity >=0.8.0;
-import { VoxelCoord, EventType } from "@tenet-base-world/src/Types.sol";
+import { EventType } from "@tenet-base-world/src/Types.sol";
+import { VoxelCoord } from "@tenet-utils/src/Types.sol";
 import { System } from "@latticexyz/world/src/System.sol";
 
 abstract contract EventApprovalsSystem is System {

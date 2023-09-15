@@ -38,17 +38,19 @@ contract SpawnSystem is System {
         )
       );
 
-      (uint32 scale, bytes32 newEntity) = IWorld(_world()).buildVoxelType(
+      VoxelEntity memory newEntity = IWorld(_world()).buildVoxelType(
         voxelTypes[i].voxelTypeId,
         spawnVoxelAtCoord,
         true,
         true,
         abi.encode(BuildEventData({ mindSelector: bytes4(0) })) /// TODO: which mind to use during spawns?
       );
+      uint32 scale = newEntity.scale;
+      bytes32 newEntityId = newEntity.entityId;
 
       // update the spawn-related components
-      OfSpawn.set(scale, newEntity, spawnId);
-      spawnVoxels[i] = VoxelEntity({ scale: scale, entityId: newEntity });
+      OfSpawn.set(scale, newEntityId, spawnId);
+      spawnVoxels[i] = newEntity;
     }
 
     // 3) Write the spawnData to the Spawn table

@@ -16,7 +16,6 @@ import { VoxelEntity } from "@tenet-utils/src/Types.sol";
 import { calculateChildCoords, getEntityAtCoord, positionDataToVoxelCoord } from "@tenet-base-world/src/Utils.sol";
 
 abstract contract ActivateEvent is Event {
-  // Called by users
   function activate(
     bytes32 voxelTypeId,
     VoxelCoord memory coord,
@@ -29,14 +28,13 @@ abstract contract ActivateEvent is Event {
     return runEvent(voxelTypeId, coord, eventData);
   }
 
-  // Called by CA
   function activateVoxelType(
     bytes32 voxelTypeId,
     VoxelCoord memory coord,
     bool activateChildren,
     bool activateParent,
     bytes memory eventData
-  ) public virtual returns (VoxelEntity memory);
+  ) internal virtual returns (VoxelEntity memory);
 
   function preEvent(bytes32 voxelTypeId, VoxelCoord memory coord, bytes memory eventData) internal virtual override {
     IWorld(_world()).approveActivate(tx.origin, voxelTypeId, coord, eventData);
@@ -56,6 +54,32 @@ abstract contract ActivateEvent is Event {
     bytes memory eventData
   ) internal virtual override {}
 
+  function getParentEventData(
+    bytes32 voxelTypeId,
+    VoxelCoord memory coord,
+    VoxelEntity memory eventVoxelEntity,
+    bytes memory eventData,
+    bytes32 childVoxelTypeId,
+    VoxelCoord memory childCoord
+  ) internal override returns (bytes memory) {
+    ActivateEventData memory parentActivateEventData = abi.decode(eventData, (ActivateEventData));
+    parentActivateEventData.interactionSelector = bytes4(0);
+    return abi.encode(parentActivateEventData);
+  }
+
+  function getChildEventData(
+    bytes32 voxelTypeId,
+    VoxelCoord memory coord,
+    VoxelEntity memory eventVoxelEntity,
+    bytes memory eventData,
+    bytes32 childVoxelTypeId,
+    VoxelCoord memory childCoord
+  ) internal override returns (bytes memory) {
+    ActivateEventData memory childActivateEventData = abi.decode(eventData, (ActivateEventData));
+    childActivateEventData.interactionSelector = bytes4(0);
+    return abi.encode(childActivateEventData);
+  }
+
   function runEventHandlerForIndividualChildren(
     bytes32 voxelTypeId,
     VoxelCoord memory coord,
@@ -65,14 +89,19 @@ abstract contract ActivateEvent is Event {
     bytes memory eventData
   ) internal virtual override {
     if (childVoxelTypeId != 0) {
-      ActivateEventData memory activateEventData = abi.decode(eventData, (ActivateEventData));
-      // TODO: get child agent entity
       runEventHandler(
         childVoxelTypeId,
         childCoord,
         true,
         false,
-        abi.encode(ActivateEventData({ agentEntity: activateEventData.agentEntity, interactionSelector: bytes4(0) }))
+        getChildEventData(
+          voxelTypeId,
+          coord,
+          eventVoxelEntity,
+          eventData,
+          childVoxelTypeId,
+          childCoord
+        )
       );
     }
   }

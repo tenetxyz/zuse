@@ -5,6 +5,7 @@ import { ActivateEvent } from "@tenet-base-world/src/prototypes/ActivateEvent.so
 import { IWorld } from "@tenet-world/src/codegen/world/IWorld.sol";
 import { VoxelCoord, VoxelEntity } from "@tenet-utils/src/Types.sol";
 import { REGISTRY_ADDRESS } from "@tenet-world/src/Constants.sol";
+import { ActivateWorldEventData } from "@tenet-world/src/Types.sol";
 
 contract ActivateVoxelSystem is ActivateEvent {
   function getRegistryAddress() internal pure override returns (address) {
@@ -22,22 +23,28 @@ contract ActivateVoxelSystem is ActivateEvent {
   }
 
   // Called by users
-  function activate(
+  function activateWithAgent(
     bytes32 voxelTypeId,
     VoxelCoord memory coord,
+    VoxelEntity memory agentEntity,
     bytes4 interactionSelector
-  ) public override returns (VoxelEntity memory) {
-    return super.activate(voxelTypeId, coord, interactionSelector);
+  ) public returns (VoxelEntity memory) {
+    ActivateWorldEventData memory activateEventData = ActivateWorldEventData({
+      agentEntity: agentEntity
+    });
+    return activate(voxelTypeId, coord, abi.encode(ActivateEventData({
+      worldData: abi.encode(activateEventData),
+      interactionSelector: interactionSelector
+    })));
   }
 
-  // Called by CA
   function activateVoxelType(
     bytes32 voxelTypeId,
     VoxelCoord memory coord,
     bool activateChildren,
     bool activateParent,
     bytes memory eventData
-  ) public override returns (VoxelEntity memory) {
+  ) internal override returns (VoxelEntity memory) {
     return super.runEventHandler(voxelTypeId, coord, activateChildren, activateParent, eventData);
   }
 }

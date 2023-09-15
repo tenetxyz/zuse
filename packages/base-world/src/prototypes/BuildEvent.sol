@@ -78,7 +78,6 @@ abstract contract BuildEvent is Event {
     VoxelCoord memory childCoord
   ) internal override returns (bytes memory) {
     BuildEventData memory childBuildEventData = abi.decode(eventData, (BuildEventData));
-    // TODO: get child agent entity
     childBuildEventData.mindSelector = bytes4(0); // TODO: which mind to use for the children?
     return abi.encode(childBuildEventData);
   }

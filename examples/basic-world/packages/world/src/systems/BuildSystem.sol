@@ -8,6 +8,7 @@ import { OwnedBy, VoxelType } from "@tenet-world/src/codegen/Tables.sol";
 import { VoxelCoord, VoxelTypeData, VoxelEntity } from "@tenet-utils/src/Types.sol";
 import { REGISTRY_ADDRESS } from "@tenet-world/src/Constants.sol";
 import { AirVoxelID } from "@tenet-level1-ca/src/Constants.sol";
+import { BuildWorldEventData } from "@tenet-world/src/Types.sol";
 
 contract BuildSystem is BuildEvent {
   function getRegistryAddress() internal pure override returns (address) {
@@ -29,26 +30,16 @@ contract BuildSystem is BuildEvent {
   }
 
   // Called by users
-  function buildVoxel(
-    uint32 scale,
-    bytes32 entity,
-    VoxelCoord memory coord,
-    bytes4 mindSelector
-  ) public returns (VoxelEntity memory) {
-    // Require voxel to be owned by caller
-    require(OwnedBy.get(scale, entity) == tx.origin, "voxel is not owned by player");
-    VoxelTypeData memory voxelType = VoxelType.get(scale, entity);
-
-    return super.runEvent(voxelType.voxelTypeId, coord, abi.encode(BuildEventData({ mindSelector: mindSelector })));
-  }
-
-  function build(
+  function buildWithAgent(
     bytes32 voxelTypeId,
     VoxelCoord memory coord,
+    VoxelEntity memory agentEntity,
     bytes4 mindSelector
-  ) public override returns (VoxelEntity memory) {
-    // TODO: add permission check on ownership
-    return super.runEvent(voxelTypeId, coord, abi.encode(BuildEventData({ mindSelector: mindSelector })));
+  ) public returns (VoxelEntity memory) {
+    BuildWorldEventData memory buildEventData = BuildWorldEventData({
+      agentEntity: agentEntity
+    });
+    return build(voxelTypeId, coord, abi.encode(BuildEventData({ mindSelector: mindSelector, worldData: abi.encode(buildEventData) })));
   }
 
   // Called by CA

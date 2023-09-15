@@ -38,7 +38,9 @@ abstract contract MoveEvent is Event {
     return (newVoxelEntity, oldVoxelEntity);
   }
 
-  function preEvent(bytes32 voxelTypeId, VoxelCoord memory coord, bytes memory eventData) internal virtual override {}
+  function preEvent(bytes32 voxelTypeId, VoxelCoord memory coord, bytes memory eventData) internal virtual override {
+    IWorld(_world()).approveMove(tx.origin, voxelTypeId, coord, eventData);
+  }
 
   function postEvent(
     bytes32 voxelTypeId,

@@ -17,7 +17,7 @@ import { Strings } from "@openzeppelin/contracts/utils/Strings.sol";
 import { getVoxelsInCreation, creationSpawned } from "@tenet-registry/src/Utils.sol";
 
 contract SpawnSystem is System {
-  function spawn(VoxelCoord memory lowerSouthWestCorner, bytes32 creationId) public returns (bytes32) {
+  function spawn(VoxelEntity agentEntity, VoxelCoord memory lowerSouthWestCorner, bytes32 creationId) public returns (bytes32) {
     // 1) get all the voxels in the creation
     (VoxelCoord[] memory relativeVoxelCoords, VoxelTypeData[] memory voxelTypes) = getVoxelsInCreation(
       REGISTRY_ADDRESS,
@@ -43,7 +43,7 @@ contract SpawnSystem is System {
         spawnVoxelAtCoord,
         true,
         true,
-        abi.encode(BuildEventData({ mindSelector: bytes4(0) })) /// TODO: which mind to use during spawns?
+        abi.encode(BuildEventData({ agentEntity: agentEntity, mindSelector: bytes4(0) })) /// TODO: which mind to use during spawns?
       );
       uint32 scale = newEntity.scale;
       bytes32 newEntityId = newEntity.entityId;

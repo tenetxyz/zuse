@@ -20,13 +20,13 @@ abstract contract ActivateEvent is Event {
   function activate(
     bytes32 voxelTypeId,
     VoxelCoord memory coord,
-    bytes4 interactionSelector
-  ) public virtual returns (VoxelEntity memory) {
+    bytes memory eventData
+  ) internal virtual returns (VoxelEntity memory) {
     VoxelTypeRegistryData memory voxelTypeData = VoxelTypeRegistry.get(IStore(getRegistryAddress()), voxelTypeId);
     uint32 scale = voxelTypeData.scale;
     bytes32 voxelEntityId = getEntityAtCoord(scale, coord);
     require(voxelEntityId != 0, "ActivateEvent: no voxel entity at coord");
-    return runEvent(voxelTypeId, coord, abi.encode(ActivateEventData({ interactionSelector: interactionSelector })));
+    return runEvent(voxelTypeId, coord, eventData);
   }
 
   // Called by CA
@@ -39,7 +39,7 @@ abstract contract ActivateEvent is Event {
   ) public virtual returns (VoxelEntity memory);
 
   function preEvent(bytes32 voxelTypeId, VoxelCoord memory coord, bytes memory eventData) internal virtual override {
-    IWorld(_world()).approveActivate(tx.origin, voxelTypeId, coord);
+    IWorld(_world()).approveActivate(tx.origin, voxelTypeId, coord, eventData);
   }
 
   function postEvent(
@@ -65,12 +65,14 @@ abstract contract ActivateEvent is Event {
     bytes memory eventData
   ) internal virtual override {
     if (childVoxelTypeId != 0) {
+      ActivateEventData memory activateEventData = abi.decode(eventData, (ActivateEventData));
+      // TODO: get child agent entity
       runEventHandler(
         childVoxelTypeId,
         childCoord,
         true,
         false,
-        abi.encode(ActivateEventData({ interactionSelector: bytes4(0) }))
+        abi.encode(ActivateEventData({ agentEntity: activateEventData.agentEntity, interactionSelector: bytes4(0) }))
       );
     }
   }

@@ -29,28 +29,14 @@ contract BuildSystem is BuildEvent {
     return IWorld(_world()).buildVoxelType(voxelTypeId, coord, runEventOnChildren, runEventOnParent, eventData);
   }
 
-    function build(
+  // Called by users
+  function buildWithAgent(
     bytes32 voxelTypeId,
     VoxelCoord memory coord,
-    bytes4 mindSelector
-  ) public override returns (VoxelEntity memory) {
-    // TODO: add permission check on ownership
-    return super.runEvent(voxelTypeId, coord, abi.encode(BuildEventData({ mindSelector: mindSelector })));
-  }
-
-
-  // Called by users
-  function buildVoxel(
-    uint32 scale,
-    bytes32 entity,
-    VoxelCoord memory coord,
+    VoxelEntity memory agentEntity,
     bytes4 mindSelector
   ) public returns (VoxelEntity memory) {
-    // Require voxel to be owned by caller
-    require(OwnedBy.get(scale, entity) == tx.origin, "voxel is not owned by player");
-    VoxelTypeData memory voxelType = VoxelType.get(scale, entity);
-
-    return super.runEvent(voxelType.voxelTypeId, coord, abi.encode(BuildEventData({ mindSelector: mindSelector })));
+    return build(voxelTypeId, coord, abi.encode(BuildEventData({ agentEntity: agentEntity, mindSelector: mindSelector })));
   }
 
   // Called by CA

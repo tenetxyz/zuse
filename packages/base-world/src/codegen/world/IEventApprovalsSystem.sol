@@ -6,9 +6,14 @@ pragma solidity >=0.8.0;
 import { VoxelCoord } from "@tenet-utils/src/Types.sol";
 
 interface IEventApprovalsSystem {
-  function approveMine(address caller, bytes32 voxelTypeId, VoxelCoord memory coord) external;
+  function approveMine(address caller, bytes32 voxelTypeId, VoxelCoord memory coord, bytes memory eventData) external;
 
-  function approveBuild(address caller, bytes32 voxelTypeId, VoxelCoord memory coord) external;
+  function approveBuild(address caller, bytes32 voxelTypeId, VoxelCoord memory coord, bytes memory eventData) external;
 
-  function approveActivate(address caller, bytes32 voxelTypeId, VoxelCoord memory coord) external;
+  function approveActivate(
+    address caller,
+    bytes32 voxelTypeId,
+    VoxelCoord memory coord,
+    bytes memory eventData
+  ) external;
 }

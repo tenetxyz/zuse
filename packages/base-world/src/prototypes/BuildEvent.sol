@@ -27,8 +27,10 @@ abstract contract BuildEvent is Event {
   function build(
     bytes32 voxelTypeId,
     VoxelCoord memory coord,
-    bytes4 mindSelector
-  ) public virtual returns (VoxelEntity memory);
+    bytes memory eventData
+  ) internal virtual returns (VoxelEntity memory) {
+    return super.runEvent(voxelTypeId, coord, eventData);
+  }
 
   // Called by CA
   function buildVoxelType(
@@ -50,7 +52,7 @@ abstract contract BuildEvent is Event {
   }
 
   function preEvent(bytes32 voxelTypeId, VoxelCoord memory coord, bytes memory eventData) internal virtual override {
-    IWorld(_world()).approveBuild(tx.origin, voxelTypeId, coord);
+    IWorld(_world()).approveBuild(tx.origin, voxelTypeId, coord, eventData);
   }
 
   function postEvent(
@@ -66,7 +68,21 @@ abstract contract BuildEvent is Event {
     VoxelEntity memory eventVoxelEntity,
     bytes memory eventData
   ) internal virtual override {
-    buildParentVoxel(eventVoxelEntity, coord, eventData);
+    buildParentVoxel(voxelTypeId, eventVoxelEntity, coord, eventData);
+  }
+
+  function getChildEventData(
+    bytes32 voxelTypeId,
+    VoxelCoord memory coord,
+    VoxelEntity memory eventVoxelEntity,
+    bytes memory eventData,
+    bytes32 childVoxelTypeId,
+    VoxelCoord memory childCoord
+  ) internal override returns (bytes memory) {
+    BuildEventData memory childBuildEventData = abi.decode(eventData, (BuildEventData));
+    // TODO: get child agent entity
+    childBuildEventData.mindSelector = bytes4(0); // TODO: which mind to use for the children?
+    return abi.encode(childBuildEventData);
   }
 
   function runEventHandlerForIndividualChildren(
@@ -83,7 +99,14 @@ abstract contract BuildEvent is Event {
         childCoord,
         true,
         false,
-        abi.encode(BuildEventData({ mindSelector: bytes4(0) })) // TODO: which mind to use for the children?
+        getChildEventData(
+          voxelTypeId,
+          coord,
+          eventVoxelEntity,
+          eventData,
+          childVoxelTypeId,
+          childCoord
+        )
       );
     }
   }
@@ -142,7 +165,22 @@ abstract contract BuildEvent is Event {
     return true;
   }
 
+  function getParentEventData(
+    bytes32 voxelTypeId,
+    VoxelCoord memory coord,
+    VoxelEntity memory eventVoxelEntity,
+    bytes memory eventData,
+    bytes32 childVoxelTypeId,
+    VoxelCoord memory childCoord
+  ) internal override returns (bytes memory) {
+    BuildEventData memory parentBuildEventData = abi.decode(eventData, (BuildEventData));
+    // TODO: get parent agent entity
+    parentBuildEventData.mindSelector = bytes4(0); // TODO: which mind to use for the parent?
+    return abi.encode(parentBuildEventData);
+  }
+
   function buildParentVoxel(
+    bytes32 voxelTypeId,
     VoxelEntity memory buildVoxelEntity,
     VoxelCoord memory coord,
     bytes memory eventData
@@ -179,9 +217,16 @@ abstract contract BuildEvent is Event {
             worldVoxelTypeId,
             parentVoxelCoord,
             false,
-            abi.encode(BuildEventData({ mindSelector: bytes4(0) })) // TODO: which mind to use for the parent?
+            getParentEventData(
+              voxelTypeId,
+              coord,
+              buildVoxelEntity,
+              eventData,
+              worldVoxelTypeId,
+              parentVoxelCoord
+            )
           );
-          buildParentVoxel(parentVoxelEntity, parentVoxelCoord, eventData);
+          buildParentVoxel(worldVoxelTypeId, parentVoxelEntity, parentVoxelCoord, eventData);
           break;
         }
       }

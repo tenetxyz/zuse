@@ -80,6 +80,24 @@ abstract contract Event is System {
     bytes memory eventData
   ) internal virtual;
 
+  function getChildEventData(
+    bytes32 voxelTypeId,
+    VoxelCoord memory coord,
+    VoxelEntity memory eventVoxelEntity,
+    bytes memory eventData,
+    bytes32 childVoxelTypeId,
+    VoxelCoord memory childCoord
+  ) internal virtual returns (bytes memory);
+
+  function getParentEventData(
+    bytes32 voxelTypeId,
+    VoxelCoord memory coord,
+    VoxelEntity memory eventVoxelEntity,
+    bytes memory eventData,
+    bytes32 parentVoxelTypeId,
+    VoxelCoord memory parentCoord
+  ) internal virtual returns (bytes memory);
+
   function runEventHandlerForChildren(
     bytes32 voxelTypeId,
     VoxelTypeRegistryData memory voxelTypeData,

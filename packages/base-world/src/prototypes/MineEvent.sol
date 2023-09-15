@@ -29,7 +29,7 @@ abstract contract MineEvent is Event {
   ) public virtual returns (VoxelEntity memory);
 
   function preEvent(bytes32 voxelTypeId, VoxelCoord memory coord, bytes memory eventData) internal virtual override {
-    IWorld(_world()).approveMine(tx.origin, voxelTypeId, coord);
+    IWorld(_world()).approveMine(tx.origin, voxelTypeId, coord, eventData);
   }
 
   function postEvent(

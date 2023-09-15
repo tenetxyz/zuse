@@ -65,6 +65,7 @@ abstract contract MineEvent is Event {
     bytes32 voxelTypeId,
     VoxelCoord memory coord,
     VoxelEntity memory eventVoxelEntity,
+    uint8 childIdx,
     bytes32 childVoxelTypeId,
     VoxelCoord memory childCoord,
     bytes memory eventData

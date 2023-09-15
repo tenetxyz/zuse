@@ -85,6 +85,7 @@ abstract contract Event is System {
     VoxelCoord memory coord,
     VoxelEntity memory eventVoxelEntity,
     bytes memory eventData,
+    uint8 childIdx,
     bytes32 childVoxelTypeId,
     VoxelCoord memory childCoord
   ) internal virtual returns (bytes memory);
@@ -127,6 +128,7 @@ abstract contract Event is System {
     bytes32 voxelTypeId,
     VoxelCoord memory coord,
     VoxelEntity memory eventVoxelEntity,
+    uint8 childIdx,
     bytes32 childVoxelTypeId,
     VoxelCoord memory childCoord,
     bytes memory eventData

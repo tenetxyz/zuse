@@ -56,47 +56,54 @@ abstract contract MoveEvent is Event {
     bytes memory eventData
   ) internal virtual override {}
 
+  function getParentEventData(
+    bytes32 voxelTypeId,
+    VoxelCoord memory coord,
+    VoxelEntity memory eventVoxelEntity,
+    bytes memory eventData,
+    bytes32 childVoxelTypeId,
+    VoxelCoord memory childCoord
+  ) internal override returns (bytes memory) {
+    return eventData;
+  }
+
   function runEventHandlerForIndividualChildren(
     bytes32 voxelTypeId,
     VoxelCoord memory coord,
     VoxelEntity memory eventVoxelEntity,
+    uint8 childIdx,
     bytes32 childVoxelTypeId,
     VoxelCoord memory newChildCoord,
     bytes memory eventData
   ) internal virtual override {
     uint32 scale = eventVoxelEntity.scale;
-    MoveEventData memory moveEventData = abi.decode(eventData, (MoveEventData));
-    bytes32 childVoxelEntity = getEntityAtCoord(scale - 1, moveEventData.oldCoord);
+    MoveEventData memory childMoveEventData = getChildEventData(
+      voxelTypeId,
+      coord,
+      eventVoxelEntity,
+      eventData,
+      childVoxelTypeId,
+      newChildCoord
+    );
+    bytes32 childVoxelEntity = getEntityAtCoord(scale - 1, childMoveEventData.oldCoord);
     if (childVoxelEntity != 0) {
-      runEventHandler(VoxelType.getVoxelTypeId(scale - 1, childVoxelEntity), newChildCoord, true, false, eventData);
+      runEventHandler(VoxelType.getVoxelTypeId(scale - 1, childVoxelEntity), newChildCoord, true, false, childMoveEventData);
     }
   }
 
-  function runEventHandlerForChildren(
+  function getChildEventData(
     bytes32 voxelTypeId,
-    VoxelTypeRegistryData memory voxelTypeData,
-    VoxelCoord memory newCoord,
+    VoxelCoord memory coord,
     VoxelEntity memory eventVoxelEntity,
-    bytes memory eventData
-  ) internal virtual override {
-    // Read the ChildTypes in this CA address
-    bytes32[] memory childVoxelTypeIds = voxelTypeData.childVoxelTypeIds;
-    // TODO: Make this general by using cube root
-    require(childVoxelTypeIds.length == 8, "Invalid length of child voxel type ids");
-    // TODO: move this to a library
-    MoveEventData memory moveEventData = abi.decode(eventData, (MoveEventData));
-    VoxelCoord[] memory eightBlockVoxelCoords = calculateChildCoords(2, moveEventData.oldCoord);
-    VoxelCoord[] memory newEightBlockVoxelCoords = calculateChildCoords(2, newCoord);
-    for (uint8 i = 0; i < 8; i++) {
-      runEventHandlerForIndividualChildren(
-        voxelTypeId,
-        newCoord,
-        eventVoxelEntity,
-        childVoxelTypeIds[i],
-        newEightBlockVoxelCoords[i],
-        abi.encode(MoveEventData({ oldCoord: eightBlockVoxelCoords[i] }))
-      );
-    }
+    bytes memory eventData,
+    uint8 childIdx,
+    bytes32 childVoxelTypeId,
+    VoxelCoord memory childCoord
+  ) internal override returns (bytes memory) {
+    MoveEventData memory childMoveEventData = abi.decode(eventData, (MoveEventData));
+    VoxelCoord[] memory eightBlockVoxelCoords = calculateChildCoords(2, childMoveEventData.oldCoord);
+    childMoveEventData.oldCoord = eightBlockVoxelCoords[childIdx];
+    return abi.encode(childMoveEventData);
   }
 
   function preRunCA(

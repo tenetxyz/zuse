@@ -72,6 +72,7 @@ abstract contract ActivateEvent is Event {
     VoxelCoord memory coord,
     VoxelEntity memory eventVoxelEntity,
     bytes memory eventData,
+    uint8 childIdx,
     bytes32 childVoxelTypeId,
     VoxelCoord memory childCoord
   ) internal override returns (bytes memory) {
@@ -84,6 +85,7 @@ abstract contract ActivateEvent is Event {
     bytes32 voxelTypeId,
     VoxelCoord memory coord,
     VoxelEntity memory eventVoxelEntity,
+    uint8 childIdx,
     bytes32 childVoxelTypeId,
     VoxelCoord memory childCoord,
     bytes memory eventData

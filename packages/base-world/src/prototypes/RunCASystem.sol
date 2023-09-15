@@ -53,7 +53,7 @@ abstract contract RunCASystem is System {
     bytes32[] memory neighbourEntities = IWorld(_world()).calculateNeighbourEntities(entity);
     bytes32[] memory childEntityIds = IWorld(_world()).calculateChildEntities(entity);
     bytes32 parentEntity = IWorld(_world()).calculateParentEntity(entity);
-    exitWorld(caAddress, voxelTypeId, coord, entity.entitId, neighbourEntities, childEntityIds, parentEntity);
+    exitWorld(caAddress, voxelTypeId, coord, entity.entityId, neighbourEntities, childEntityIds, parentEntity);
   }
 
   function activateCA(address caAddress, VoxelEntity memory entity) public virtual {
@@ -79,9 +79,10 @@ abstract contract RunCASystem is System {
 
     while (useStackIdx < MAX_VOXEL_NEIGHBOUR_UPDATE_DEPTH) {
       bytes32 useCenterEntityId = centerEntitiesToCheckStack[useStackIdx];
-      bytes32[] memory useNeighbourEntities = IWorld(_world()).calculateNeighbourEntities(scale, useCenterEntityId);
-      bytes32[] memory childEntityIds = IWorld(_world()).calculateChildEntities(scale, useCenterEntityId);
-      bytes32 parentEntity = IWorld(_world()).calculateParentEntity(scale, useCenterEntityId);
+      VoxelEntity memory centerEntity = VoxelEntity({ entityId: useCenterEntityId, scale: scale });
+      bytes32[] memory useNeighbourEntities = IWorld(_world()).calculateNeighbourEntities(centerEntity);
+      bytes32[] memory childEntityIds = IWorld(_world()).calculateChildEntities(centerEntity);
+      bytes32 parentEntity = IWorld(_world()).calculateParentEntity(centerEntity);
       // if (!hasEntity(useNeighbourEntities)) {
       //   // if no neighbours, then we don't run any voxel interactions because there would be none
       //   break;

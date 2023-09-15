@@ -8,7 +8,7 @@ import { NoaBlockType } from "@tenet-registry/src/codegen/Types.sol";
 import { registerVoxelVariant, registerVoxelType, voxelSelectorsForVoxel } from "@tenet-registry/src/Utils.sol";
 import { CA_ADDRESS, REGISTRY_ADDRESS, WireVoxelID } from "@tenet-level2-ca-extensions-1/src/Constants.sol";
 import { Level2AirVoxelID } from "@tenet-level2-ca/src/Constants.sol";
-import { VoxelCoord, ComponentDef } from "@tenet-utils/src/Types.sol";
+import { VoxelCoord, ComponentDef, VoxelEntity } from "@tenet-utils/src/Types.sol";
 import { ElectronVoxelID } from "@tenet-level1-ca/src/Constants.sol";
 import { AirVoxelID } from "@tenet-level1-ca/src/Constants.sol";
 import { getVoxelTypeFromCaller } from "@tenet-base-ca/src/CallUtils.sol";
@@ -93,16 +93,28 @@ contract WireVoxelSystem is VoxelType {
 
     bytes32 bottomLeftType = childEntityIds[0] == 0
       ? AirVoxelID
-      : getVoxelTypeFromCaller(callerAddress, 1, childEntityIds[0]);
+      : getVoxelTypeFromCaller(callerAddress, VoxelEntity({
+          scale: 1,
+          entityId: childEntityIds[0]
+        }));
     bytes32 bottomRightType = childEntityIds[1] == 0
       ? AirVoxelID
-      : getVoxelTypeFromCaller(callerAddress, 1, childEntityIds[1]);
+      : getVoxelTypeFromCaller(callerAddress, VoxelEntity({
+          scale: 1,
+          entityId: childEntityIds[1]
+        }));
     bytes32 topLeftType = childEntityIds[4] == 0
       ? AirVoxelID
-      : getVoxelTypeFromCaller(callerAddress, 1, childEntityIds[4]);
+      : getVoxelTypeFromCaller(callerAddress, VoxelEntity({
+          scale: 1,
+          entityId: childEntityIds[4]
+        }));
     bytes32 topRightType = childEntityIds[5] == 0
       ? AirVoxelID
-      : getVoxelTypeFromCaller(callerAddress, 1, childEntityIds[5]);
+      : getVoxelTypeFromCaller(callerAddress, VoxelEntity({
+          scale: 1,
+          entityId: childEntityIds[5]
+        }));
 
     if (topLeftType == ElectronVoxelID && bottomRightType == ElectronVoxelID) {
       return WireOffVoxelVariantID;

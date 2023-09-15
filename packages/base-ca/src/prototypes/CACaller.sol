@@ -2,7 +2,7 @@
 pragma solidity >=0.8.0;
 
 import { hasKey } from "@latticexyz/world/src/modules/keysintable/hasKey.sol";
-import { BlockDirection, VoxelCoord } from "@tenet-utils/src/Types.sol";
+import { BlockDirection, VoxelCoord, VoxelEntity } from "@tenet-utils/src/Types.sol";
 import { System } from "@latticexyz/world/src/System.sol";
 import { buildWorld, mineWorld, moveWorld } from "@tenet-base-ca/src/CallUtils.sol";
 import { entityToCAEntity } from "@tenet-base-ca/src/Utils.sol";
@@ -26,7 +26,7 @@ abstract contract CACaller is System {
     // Note: Currently, we only support movements of 1 voxel in any direction
     require(distanceBetween(oldCoord, newCoord) == 1, "Can only move 1 voxel at a time");
     bytes memory returnData = moveWorld(callerAddress, voxelTypeId, oldCoord, newCoord);
-    (, bytes32 oldEntityId, bytes32 newEntityId) = abi.decode(returnData, (uint32, bytes32, bytes32));
-    return (entityToCAEntity(callerAddress, oldEntityId), entityToCAEntity(callerAddress, newEntityId));
+    (VoxelEntity memory oldEntity, VoxelEntity memory newEntity) = abi.decode(returnData, (VoxelEntity, VoxelEntity));
+    return (entityToCAEntity(callerAddress, oldEntity.entityId), entityToCAEntity(callerAddress, newEntity.entityId));
   }
 }

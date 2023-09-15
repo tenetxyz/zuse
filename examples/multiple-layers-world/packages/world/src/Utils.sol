@@ -44,14 +44,6 @@ function calculateParentCoord(uint32 scale, VoxelCoord memory childCoord) pure r
   return VoxelCoord(newX, newY, newZ);
 }
 
-function getEntityPositionStrict(uint32 scale, bytes32 entity) view returns (PositionData memory) {
-  bytes32[] memory positionKeyTuple = new bytes32[](2);
-  positionKeyTuple[0] = bytes32(uint256(scale));
-  positionKeyTuple[1] = (entity);
-  require(hasKey(PositionTableId, positionKeyTuple), "Entity must have a position"); // even if its air, it must have a position
-  return Position.get(scale, entity);
-}
-
 function calculateBlockDirection(
   PositionData memory centerCoord,
   PositionData memory neighborCoord
@@ -100,17 +92,6 @@ function getEntityAtCoord(uint32 scale, VoxelCoord memory coord) view returns (b
   }
 
   return entity;
-}
-
-function increaseVoxelTypeSpawnCount(bytes16 voxelTypeNamespace, bytes32 voxelTypeId) {
-  // VoxelTypeRegistryData memory voxelTypeRegistryData = VoxelTypeRegistry.get(voxelTypeNamespace, voxelTypeId);
-  // voxelTypeRegistryData.numSpawns += 1;
-  // VoxelTypeRegistry.set(voxelTypeNamespace, voxelTypeId, voxelTypeRegistryData);
-}
-
-function getVoxelCoordStrict(uint32 scale, bytes32 entity) view returns (VoxelCoord memory) {
-  PositionData memory position = getEntityPositionStrict(scale, entity);
-  return VoxelCoord(position.x, position.y, position.z);
 }
 
 function entitiesToVoxelCoords(bytes32[] memory entities) view returns (VoxelCoord[] memory) {

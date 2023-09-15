@@ -5,6 +5,7 @@ import { IStore } from "@latticexyz/store/src/IStore.sol";
 import { IWorld } from "@tenet-base-world/src/codegen/world/IWorld.sol";
 import { Event } from "@tenet-base-world/src/prototypes/Event.sol";
 import { VoxelCoord, BuildEventData } from "@tenet-base-world/src/Types.sol";
+import { VoxelEntity } from "@tenet-utils/src/Types.sol";
 import { VoxelTypeRegistry, VoxelTypeRegistryData } from "@tenet-registry/src/codegen/tables/VoxelTypeRegistry.sol";
 import { CARegistry } from "@tenet-registry/src/codegen/tables/CARegistry.sol";
 import { WorldConfig, WorldConfigTableId } from "@tenet-base-world/src/codegen/tables/WorldConfig.sol";
@@ -23,11 +24,10 @@ abstract contract BuildEvent is Event {
 
   // Called by users
   function build(
-    uint32 scale,
-    bytes32 entity,
+    bytes32 voxelTypeId,
     VoxelCoord memory coord,
     bytes4 mindSelector
-  ) public virtual returns (uint32, bytes32);
+  ) public virtual returns (VoxelEntity memory);
 
   // Called by CA
   function buildVoxelType(
@@ -36,8 +36,8 @@ abstract contract BuildEvent is Event {
     bool buildChildren,
     bool buildParent,
     bytes memory eventData
-  ) public virtual returns (uint32, bytes32) {
-    (uint32 scale, bytes32 eventVoxelEntity) = super.runEventHandler(
+  ) public virtual returns (VoxelEntity memory) {
+    VoxelEntity memory eventVoxelEntity = super.runEventHandler(
       voxelTypeId,
       coord,
       buildChildren,
@@ -45,7 +45,7 @@ abstract contract BuildEvent is Event {
       eventData
     );
     voxelSpawned(getRegistryAddress(), voxelTypeId);
-    return (scale, eventVoxelEntity);
+    return eventVoxelEntity;
   }
 
   function preEvent(bytes32 voxelTypeId, VoxelCoord memory coord, bytes memory eventData) internal override {
@@ -55,26 +55,23 @@ abstract contract BuildEvent is Event {
   function postEvent(
     bytes32 voxelTypeId,
     VoxelCoord memory coord,
-    uint32 scale,
-    bytes32 eventVoxelEntity,
+    VoxelEntity memory eventVoxelEntity,
     bytes memory eventData
   ) internal override {}
 
   function runEventHandlerForParent(
     bytes32 voxelTypeId,
     VoxelCoord memory coord,
-    uint32 scale,
-    bytes32 eventVoxelEntity,
+    VoxelEntity memory eventVoxelEntity,
     bytes memory eventData
   ) internal override {
-    buildParentVoxel(scale, eventVoxelEntity, coord, eventData);
+    buildParentVoxel(eventVoxelEntity, coord, eventData);
   }
 
   function runEventHandlerForIndividualChildren(
     bytes32 voxelTypeId,
     VoxelCoord memory coord,
-    uint32 scale,
-    bytes32 eventVoxelEntity,
+    VoxelEntity memory eventVoxelEntity,
     bytes32 childVoxelTypeId,
     VoxelCoord memory childCoord,
     bytes memory eventData
@@ -94,26 +91,30 @@ abstract contract BuildEvent is Event {
     address caAddress,
     bytes32 voxelTypeId,
     VoxelCoord memory coord,
-    uint32 scale,
-    bytes32 eventVoxelEntity,
+    VoxelEntity memory eventVoxelEntity,
     bytes memory eventData
   ) internal override {
     BuildEventData memory buildEventData = abi.decode(eventData, (BuildEventData));
     // Enter World
-    IWorld(_world()).enterCA(caAddress, scale, voxelTypeId, buildEventData.mindSelector, coord, eventVoxelEntity);
+    IWorld(_world()).enterCA(caAddress, eventVoxelEntity, voxelTypeId, buildEventData.mindSelector, coord);
   }
 
   function postRunCA(
     address caAddress,
     bytes32 voxelTypeId,
     VoxelCoord memory coord,
-    uint32 scale,
-    bytes32 eventVoxelEntity,
+    VoxelEntity memory eventVoxelEntity,
     bytes memory eventData
   ) internal override {}
 
-  function runCA(address caAddress, uint32 scale, bytes32 eventVoxelEntity, bytes memory eventData) internal override {
-    IWorld(_world()).runCA(caAddress, scale, eventVoxelEntity, bytes4(0));
+  function runCA(
+    address caAddress,
+    bytes32 voxelTypeId,
+    VoxelCoord memory coord,
+    VoxelEntity memory eventVoxelEntity,
+    bytes memory eventData
+  ) internal override {
+    IWorld(_world()).runCA(caAddress, eventVoxelEntity, bytes4(0));
   }
 
   function hasSameVoxelTypeSchema(
@@ -141,11 +142,11 @@ abstract contract BuildEvent is Event {
   }
 
   function buildParentVoxel(
-    uint32 buildScale,
-    bytes32 buildVoxelEntity,
+    VoxelEntity memory buildVoxelEntity,
     VoxelCoord memory coord,
     bytes memory eventData
   ) internal virtual {
+    uint32 buildScale = buildVoxelEntity.scale;
     // Calculate childVoxelTypes
     VoxelCoord memory parentVoxelCoord = calculateParentCoord(2, coord);
     VoxelCoord[] memory eightBlockVoxelCoords = calculateChildCoords(2, parentVoxelCoord);
@@ -173,13 +174,13 @@ abstract contract BuildEvent is Event {
         );
 
         if (hasSameSchema) {
-          (uint32 parentScale, bytes32 parentVoxelEntity) = super.runEventHandlerHelper(
+          VoxelEntity memory parentVoxelEntity = super.runEventHandlerHelper(
             worldVoxelTypeId,
             parentVoxelCoord,
             false,
             abi.encode(BuildEventData({ mindSelector: bytes4(0) })) // TODO: which mind to use for the parent?
           );
-          buildParentVoxel(parentScale, parentVoxelEntity, parentVoxelCoord, eventData);
+          buildParentVoxel(parentVoxelEntity, parentVoxelCoord, eventData);
           break;
         }
       }

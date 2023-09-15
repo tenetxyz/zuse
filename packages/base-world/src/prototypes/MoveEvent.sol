@@ -22,16 +22,20 @@ abstract contract MoveEvent is Event {
     VoxelCoord memory newCoord,
     bool moveChildren,
     bool moveParent
-  ) public virtual returns (uint32, bytes32, bytes32) {
-    (uint32 scale, bytes32 newEntityId) = super.runEventHandler(
+  ) public virtual returns (VoxelEntity memory, VoxelEntity memory) {
+    VoxelEntity memory newVoxelEntity = super.runEventHandler(
       voxelTypeId,
       newCoord,
       moveChildren,
       moveParent,
       abi.encode(MoveEventData({ oldCoord: oldCoord }))
     );
-    bytes32 oldEntityId = getEntityAtCoord(scale, oldCoord);
-    return (scale, oldEntityId, newEntityId);
+    bytes32 oldEntityId = getEntityAtCoord(newVoxelEntity.scale, oldCoord);
+    VoxelEntity memory oldVoxelEntity = VoxelEntity({
+      scale: newVoxelEntity.scale,
+      entityId: oldEntityId
+    });
+    return (newVoxelEntity, oldVoxelEntity);
   }
 
   function preEvent(bytes32 voxelTypeId, VoxelCoord memory coord, bytes memory eventData) internal override {}
@@ -39,28 +43,26 @@ abstract contract MoveEvent is Event {
   function postEvent(
     bytes32 voxelTypeId,
     VoxelCoord memory coord,
-    uint32 scale,
-    bytes32 eventVoxelEntity,
+    VoxelEntity memory eventVoxelEntity,
     bytes memory eventData
   ) internal override {}
 
   function runEventHandlerForParent(
     bytes32 voxelTypeId,
     VoxelCoord memory coord,
-    uint32 scale,
-    bytes32 eventVoxelEntity,
+    VoxelEntity memory eventVoxelEntity,
     bytes memory eventData
   ) internal override {}
 
   function runEventHandlerForIndividualChildren(
     bytes32 voxelTypeId,
     VoxelCoord memory coord,
-    uint32 scale,
-    bytes32 eventVoxelEntity,
+    VoxelEntity memory eventVoxelEntity,
     bytes32 childVoxelTypeId,
     VoxelCoord memory newChildCoord,
     bytes memory eventData
   ) internal override {
+    uint32 scale = eventVoxelEntity.scale;
     MoveEventData memory moveEventData = abi.decode(eventData, (MoveEventData));
     bytes32 childVoxelEntity = getEntityAtCoord(scale - 1, moveEventData.oldCoord);
     if (childVoxelEntity != 0) {
@@ -72,8 +74,7 @@ abstract contract MoveEvent is Event {
     bytes32 voxelTypeId,
     VoxelTypeRegistryData memory voxelTypeData,
     VoxelCoord memory newCoord,
-    uint32 scale,
-    bytes32 eventVoxelEntity,
+    VoxelEntity memory eventVoxelEntity,
     bytes memory eventData
   ) internal override {
     // Read the ChildTypes in this CA address
@@ -88,7 +89,6 @@ abstract contract MoveEvent is Event {
       runEventHandlerForIndividualChildren(
         voxelTypeId,
         newCoord,
-        scale,
         eventVoxelEntity,
         childVoxelTypeIds[i],
         newEightBlockVoxelCoords[i],
@@ -101,12 +101,12 @@ abstract contract MoveEvent is Event {
     address caAddress,
     bytes32 voxelTypeId,
     VoxelCoord memory newCoord,
-    uint32 scale,
-    bytes32 eventVoxelEntity,
+    VoxelEntity memory eventVoxelEntity,
     bytes memory eventData
   ) internal override {
+    uint32 scale = eventVoxelEntity.scale;
     MoveEventData memory moveEventData = abi.decode(eventData, (MoveEventData));
-    IWorld(_world()).moveCA(caAddress, scale, voxelTypeId, moveEventData.oldCoord, newCoord, eventVoxelEntity);
+    IWorld(_world()).moveCA(caAddress, eventVoxelEntity, voxelTypeId, moveEventData.oldCoord, newCoord);
 
     bytes32 oldVoxelEntity = getEntityAtCoord(scale, moveEventData.oldCoord);
     require(uint256(oldVoxelEntity) != 0, "No voxel entity at old coord");
@@ -115,21 +115,31 @@ abstract contract MoveEvent is Event {
     VoxelType.set(scale, oldVoxelEntity, oldCAVoxelType.voxelTypeId, oldCAVoxelType.voxelVariantId);
   }
 
-  function runCA(address caAddress, uint32 scale, bytes32 eventVoxelEntity, bytes memory eventData) internal override {
+    function runCA(
+    address caAddress,
+    bytes32 voxelTypeId,
+    VoxelCoord memory coord,
+    VoxelEntity memory eventVoxelEntity,
+    bytes memory eventData
+  ) internal override {
+    uint32 scale = eventVoxelEntity.scale;
     MoveEventData memory moveEventData = abi.decode(eventData, (MoveEventData));
-    bytes32 oldVoxelEntity = getEntityAtCoord(scale, moveEventData.oldCoord);
+    bytes32 oldEntityId = getEntityAtCoord(scale, moveEventData.oldCoord);
+    VoxelEntity memory oldVoxelEntity = VoxelEntity({
+      scale: scale,
+      entityId: oldEntityId
+    });
 
     // Need to run 2 interactions because we're moving so two entities are involved
-    IWorld(_world()).runCA(caAddress, scale, oldVoxelEntity, bytes4(0));
-    IWorld(_world()).runCA(caAddress, scale, eventVoxelEntity, bytes4(0));
+    IWorld(_world()).runCA(caAddress, oldVoxelEntity, bytes4(0));
+    IWorld(_world()).runCA(caAddress, eventVoxelEntity, bytes4(0));
   }
 
   function postRunCA(
     address caAddress,
     bytes32 voxelTypeId,
     VoxelCoord memory coord,
-    uint32 scale,
-    bytes32 eventVoxelEntity,
+    VoxelEntity memory eventVoxelEntity,
     bytes memory eventData
   ) internal override {}
 }

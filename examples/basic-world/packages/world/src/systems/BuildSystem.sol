@@ -42,14 +42,13 @@ contract BuildSystem is BuildEvent {
     return build(voxelTypeId, coord, abi.encode(BuildEventData({ mindSelector: mindSelector, worldData: abi.encode(buildEventData) })));
   }
 
-  // Called by CA
   function buildVoxelType(
     bytes32 voxelTypeId,
     VoxelCoord memory coord,
     bool buildChildren,
     bool buildParent,
     bytes memory eventData
-  ) public override returns (VoxelEntity memory) {
+  ) internal override returns (VoxelEntity memory) {
     return super.buildVoxelType(voxelTypeId, coord, buildChildren, buildParent, eventData);
   }
 }

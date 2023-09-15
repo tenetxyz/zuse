@@ -23,7 +23,6 @@ import { voxelSpawned } from "@tenet-registry/src/Utils.sol";
 abstract contract BuildEvent is Event {
   function emptyVoxelId() internal pure virtual returns (bytes32) {}
 
-  // Called by users
   function build(
     bytes32 voxelTypeId,
     VoxelCoord memory coord,
@@ -32,14 +31,13 @@ abstract contract BuildEvent is Event {
     return super.runEvent(voxelTypeId, coord, eventData);
   }
 
-  // Called by CA
   function buildVoxelType(
     bytes32 voxelTypeId,
     VoxelCoord memory coord,
     bool buildChildren,
     bool buildParent,
     bytes memory eventData
-  ) public virtual returns (VoxelEntity memory) {
+  ) internal virtual returns (VoxelEntity memory) {
     VoxelEntity memory eventVoxelEntity = super.runEventHandler(
       voxelTypeId,
       coord,

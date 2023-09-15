@@ -9,6 +9,7 @@ import { OwnedBy, VoxelType } from "@tenet-world/src/codegen/Tables.sol";
 import { VoxelTypeData } from "@tenet-utils/src/Types.sol";
 import { REGISTRY_ADDRESS } from "@tenet-world/src/Constants.sol";
 import { AirVoxelID } from "@tenet-level1-ca/src/Constants.sol";
+import { BuildWorldEventData } from "@tenet-world/src/Types.sol";
 
 contract BuildSystem is BuildEvent {
   function getRegistryAddress() internal pure override returns (address) {
@@ -36,17 +37,19 @@ contract BuildSystem is BuildEvent {
     VoxelEntity memory agentEntity,
     bytes4 mindSelector
   ) public returns (VoxelEntity memory) {
-    return build(voxelTypeId, coord, abi.encode(BuildEventData({ agentEntity: agentEntity, mindSelector: mindSelector })));
+    BuildWorldEventData memory buildEventData = BuildWorldEventData({
+      agentEntity: agentEntity
+    });
+    return build(voxelTypeId, coord, abi.encode(BuildEventData({ mindSelector: mindSelector, worldData: abi.encode(buildEventData) })));
   }
 
-  // Called by CA
   function buildVoxelType(
     bytes32 voxelTypeId,
     VoxelCoord memory coord,
     bool buildChildren,
     bool buildParent,
     bytes memory eventData
-  ) public override returns (VoxelEntity memory) {
+  ) internal override returns (VoxelEntity memory) {
     return super.buildVoxelType(voxelTypeId, coord, buildChildren, buildParent, eventData);
   }
 }

@@ -11,7 +11,7 @@ abstract contract SingleVoxelInteraction is VoxelInteraction {
     bytes32 interactEntity,
     bytes32 neighbourEntityId,
     BlockDirection neighbourBlockDirection
-  ) internal override returns (bool changedEntity) {
+  ) internal virtual override returns (bool changedEntity) {
     changedEntity = runSingleInteraction(callerAddress, interactEntity, neighbourEntityId, neighbourBlockDirection);
     return changedEntity;
   }
@@ -30,7 +30,7 @@ abstract contract SingleVoxelInteraction is VoxelInteraction {
     BlockDirection[] memory neighbourEntityDirections,
     bytes32[] memory childEntityIds,
     bytes32 parentEntity
-  ) internal override returns (bool changedEntity) {
+  ) internal virtual override returns (bool changedEntity) {
     require(
       neighbourEntityIds.length == neighbourEntityDirections.length,
       "neighbourEntityIds and neighbourEntityDirections must be the same length"

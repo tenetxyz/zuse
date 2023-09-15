@@ -2,46 +2,43 @@
 pragma solidity >=0.8.0;
 
 import { RunCASystem as RunCAPrototype } from "@tenet-base-world/src/prototypes/RunCASystem.sol";
-import { VoxelCoord } from "@tenet-utils/src/Types.sol";
+import { VoxelCoord, VoxelEntity } from "@tenet-utils/src/Types.sol";
 
 contract RunCASystem is RunCAPrototype {
   function enterCA(
     address caAddress,
-    uint32 scale,
+    VoxelEntity memory entity,
     bytes32 voxelTypeId,
     bytes4 mindSelector,
-    VoxelCoord memory coord,
-    bytes32 entity
+    VoxelCoord memory coord
   ) public override {
-    super.enterCA(caAddress, scale, voxelTypeId, mindSelector, coord, entity);
+    super.enterCA(caAddress, entity, voxelTypeId, mindSelector, coord);
   }
 
   function moveCA(
     address caAddress,
-    uint32 scale,
+    VoxelEntity memory newEntity,
     bytes32 voxelTypeId,
     VoxelCoord memory oldCoord,
-    VoxelCoord memory newCoord,
-    bytes32 newEntity
+    VoxelCoord memory newCoord
   ) public override {
-    super.moveCA(caAddress, scale, voxelTypeId, oldCoord, newCoord, newEntity);
+    super.moveCA(caAddress, newEntity, voxelTypeId, oldCoord, newCoord);
   }
 
   function exitCA(
     address caAddress,
-    uint32 scale,
+    VoxelEntity memory entity,
     bytes32 voxelTypeId,
-    VoxelCoord memory coord,
-    bytes32 entity
+    VoxelCoord memory coord
   ) public override {
-    super.exitCA(caAddress, scale, voxelTypeId, coord, entity);
+    super.exitCA(caAddress, entity, voxelTypeId, coord);
   }
 
-  function activateCA(address caAddress, uint32 scale, bytes32 entity) public override {
-    super.activateCA(caAddress, scale, entity);
+  function activateCA(address caAddress, VoxelEntity memory entity) public override {
+    super.activateCA(caAddress, entity);
   }
 
-  function runCA(address caAddress, uint32 scale, bytes32 entity, bytes4 interactionSelector) public override {
-    super.runCA(caAddress, scale, entity, interactionSelector);
+  function runCA(address caAddress, VoxelEntity memory entity, bytes4 interactionSelector) public override {
+    super.runCA(caAddress, entity, interactionSelector);
   }
 }

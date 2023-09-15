@@ -364,7 +364,7 @@ export async function setupNetwork() {
     const mindSelector = "0x00000000";
     const fighterMindSelector = "0xa303e6be";
 
-    await callSystem(worldContract.write.build([scaleAsNumber, entityId, coord, mindSelector]));
+    await callSystem(worldContract.write.buildVoxel([scaleAsNumber, entityId, coord, mindSelector]));
 
     // actions.add({
     //   id: `build+${voxelCoordToString(coord)}` as Entity, // used so we don't send the same transaction twice

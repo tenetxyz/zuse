@@ -4,16 +4,14 @@ pragma solidity >=0.8.0;
 import { IStore } from "@latticexyz/store/src/IStore.sol";
 import { System } from "@latticexyz/world/src/System.sol";
 import { WorldConfig, Position, PositionTableId, VoxelType, VoxelTypeTableId, TruthTable, TruthTableData, TruthTableCR, TruthTableCRData, Spawn } from "@tenet-world/src/codegen/Tables.sol";
-import { VoxelTypeData } from "@tenet-utils/src/Types.sol";
+import { VoxelTypeData, VoxelEntity, VoxelCoord, InterfaceVoxel } from "@tenet-utils/src/Types.sol";
 import { safeCall } from "@tenet-utils/src/CallUtils.sol";
 import { LEVEL_2_CA_ADDRESS } from "@tenet-world/src/Constants.sol";
 import { IWorld } from "@tenet-world/src/codegen/world/IWorld.sol";
-import { VoxelCoord } from "@tenet-utils/src/Types.sol";
 import { getVoxelCoordStrict } from "@tenet-base-world/src/Utils.sol";
 import { getUniqueEntity } from "@latticexyz/world/src/modules/uniqueentity/getUniqueEntity.sol";
 import { SignalSourceVoxelID } from "@tenet-level2-ca-extensions-1/src/Constants.sol";
 // import { entityIsActiveSignal, isEntityIsInactiveSignal } from "@tenet-level2-ca/src/InteractionUtils.sol";
-import { InterfaceVoxel } from "@tenet-utils/src/Types.sol";
 import { voxelCoordToString } from "@tenet-utils/src/VoxelCoordUtils.sol";
 import { Signal, SignalData } from "@tenet-level2-ca-extensions-1/src/codegen/tables/Signal.sol";
 import { Strings } from "@openzeppelin/contracts/utils/Strings.sol";
@@ -62,7 +60,10 @@ contract TruthTableClassifySystem is System {
 
     VoxelCoord[] memory inCoords = new VoxelCoord[](inInterfaces.length);
     for (uint i = 0; i < inCoords.length; i++) {
-      inCoords[i] = getVoxelCoordStrict(2, inInterfaces[i].entity.entityId);
+      inCoords[i] = getVoxelCoordStrict(VoxelEntity({
+        scale: 2,
+        entityId: inInterfaces[i].entity.entityId
+      }));
     }
 
     bytes32[] memory outEntities = new bytes32[](outInterfaces.length);
@@ -154,7 +155,7 @@ contract TruthTableClassifySystem is System {
   }
 
   function build(VoxelCoord memory coord, bytes32 entity) private {
-    IWorld(_world()).build(2, entity, coord, bytes4(0));
+    IWorld(_world()).buildVoxel(2, entity, coord, bytes4(0));
   }
 
   function giftVoxel(bytes32 baseVoxelType) private returns (bytes32) {

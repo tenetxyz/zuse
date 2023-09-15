@@ -74,6 +74,25 @@ function voxelSelectorsForVoxel(
     });
 }
 
+function voxelSelectorsForAgent(
+  bytes4 enterWorldSelector,
+  bytes4 exitWorldSelector,
+  bytes4 voxelVariantSelector,
+  bytes4 activateSelector,
+  InteractionSelector[] memory interactionSelectors
+) pure returns (VoxelSelectors memory) {
+  return
+    VoxelSelectors({
+      enterWorldSelector: enterWorldSelector,
+      exitWorldSelector: exitWorldSelector,
+      voxelVariantSelector: voxelVariantSelector,
+      activateSelector: activateSelector,
+      onNewNeighbourSelector: bytes4(0),
+      interactionSelectors: interactionSelectors
+    });
+}
+
+
 function getEnterWorldSelector(IStore store, bytes32 voxelTypeId) view returns (bytes4) {
   bytes memory selectors = VoxelTypeRegistry.getSelectors(store, voxelTypeId);
   return abi.decode(selectors, (VoxelSelectors)).enterWorldSelector;

@@ -8,6 +8,7 @@ bytes32 constant AirVoxelVariantID = bytes32(keccak256("air"));
 bytes32 constant DirtVoxelID = bytes32(keccak256("dirt"));
 bytes32 constant GrassVoxelID = bytes32(keccak256("grass"));
 bytes32 constant BedrockVoxelID = bytes32(keccak256("bedrock"));
+bytes32 constant RockVoxelID = bytes32(keccak256("rock"));
 
 int32 constant CHUNK_MAX_Y = 255;
 int32 constant CHUNK_MIN_Y = -128;

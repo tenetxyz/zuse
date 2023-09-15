@@ -28,7 +28,7 @@ abstract contract MineEvent is Event {
     bytes memory eventData
   ) public virtual returns (VoxelEntity memory);
 
-  function preEvent(bytes32 voxelTypeId, VoxelCoord memory coord, bytes memory eventData) internal override {
+  function preEvent(bytes32 voxelTypeId, VoxelCoord memory coord, bytes memory eventData) internal virtual override {
     IWorld(_world()).approveMine(tx.origin, voxelTypeId, coord);
   }
 
@@ -37,7 +37,7 @@ abstract contract MineEvent is Event {
     VoxelCoord memory coord,
     VoxelEntity memory eventVoxelEntity,
     bytes memory eventData
-  ) internal override {
+  ) internal virtual override {
     bytes32 useParentEntity = IWorld(_world()).calculateParentEntity(eventVoxelEntity);
     uint32 useParentScale = eventVoxelEntity.scale + 1;
     while (useParentEntity != 0) {
@@ -59,7 +59,7 @@ abstract contract MineEvent is Event {
     VoxelCoord memory coord,
     VoxelEntity memory eventVoxelEntity,
     bytes memory eventData
-  ) internal override {}
+  ) internal virtual override {}
 
   function runEventHandlerForIndividualChildren(
     bytes32 voxelTypeId,
@@ -68,7 +68,7 @@ abstract contract MineEvent is Event {
     bytes32 childVoxelTypeId,
     VoxelCoord memory childCoord,
     bytes memory eventData
-  ) internal override {
+  ) internal virtual override {
     uint32 scale = eventVoxelEntity.scale;
     bytes32 childVoxelEntity = getEntityAtCoord(scale - 1, childCoord);
     if (childVoxelEntity != 0) {
@@ -83,7 +83,7 @@ abstract contract MineEvent is Event {
     VoxelCoord memory coord,
     VoxelEntity memory eventVoxelEntity,
     bytes memory eventData
-  ) internal override {
+  ) internal virtual override {
     // Enter World
     IWorld(_world()).exitCA(caAddress, eventVoxelEntity, voxelTypeId, coord);
   }
@@ -94,7 +94,7 @@ abstract contract MineEvent is Event {
     VoxelCoord memory coord,
     VoxelEntity memory eventVoxelEntity,
     bytes memory eventData
-  ) internal override {
+  ) internal virtual override {
     IWorld(_world()).runCA(caAddress, eventVoxelEntity, bytes4(0));
   }
 

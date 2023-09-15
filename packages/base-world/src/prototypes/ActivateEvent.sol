@@ -38,7 +38,7 @@ abstract contract ActivateEvent is Event {
     bytes memory eventData
   ) public virtual returns (VoxelEntity memory);
 
-  function preEvent(bytes32 voxelTypeId, VoxelCoord memory coord, bytes memory eventData) internal override {
+  function preEvent(bytes32 voxelTypeId, VoxelCoord memory coord, bytes memory eventData) internal virtual override {
     IWorld(_world()).approveActivate(tx.origin, voxelTypeId, coord);
   }
 
@@ -47,14 +47,14 @@ abstract contract ActivateEvent is Event {
     VoxelCoord memory coord,
     VoxelEntity memory eventVoxelEntity,
     bytes memory eventData
-  ) internal override {}
+  ) internal virtual override {}
 
   function runEventHandlerForParent(
     bytes32 voxelTypeId,
     VoxelCoord memory coord,
     VoxelEntity memory eventVoxelEntity,
     bytes memory eventData
-  ) internal override {}
+  ) internal virtual override {}
 
   function runEventHandlerForIndividualChildren(
     bytes32 voxelTypeId,
@@ -63,7 +63,7 @@ abstract contract ActivateEvent is Event {
     bytes32 childVoxelTypeId,
     VoxelCoord memory childCoord,
     bytes memory eventData
-  ) internal override {
+  ) internal virtual override {
     if (childVoxelTypeId != 0) {
       runEventHandler(
         childVoxelTypeId,
@@ -81,7 +81,7 @@ abstract contract ActivateEvent is Event {
     VoxelCoord memory coord,
     VoxelEntity memory eventVoxelEntity,
     bytes memory eventData
-  ) internal override {}
+  ) internal virtual override {}
 
   function postRunCA(
     address caAddress,
@@ -89,7 +89,7 @@ abstract contract ActivateEvent is Event {
     VoxelCoord memory coord,
     VoxelEntity memory eventVoxelEntity,
     bytes memory eventData
-  ) internal override {
+  ) internal virtual override {
     IWorld(_world()).activateCA(caAddress, eventVoxelEntity);
   }
 
@@ -99,7 +99,7 @@ abstract contract ActivateEvent is Event {
     VoxelCoord memory coord,
     VoxelEntity memory eventVoxelEntity,
     bytes memory eventData
-  ) internal override {
+  ) internal virtual override {
     ActivateEventData memory activateEventData = abi.decode(eventData, (ActivateEventData));
     IWorld(_world()).runCA(caAddress, eventVoxelEntity, activateEventData.interactionSelector);
   }

@@ -49,7 +49,7 @@ abstract contract BuildEvent is Event {
     return eventVoxelEntity;
   }
 
-  function preEvent(bytes32 voxelTypeId, VoxelCoord memory coord, bytes memory eventData) internal override {
+  function preEvent(bytes32 voxelTypeId, VoxelCoord memory coord, bytes memory eventData) internal virtual override {
     IWorld(_world()).approveBuild(tx.origin, voxelTypeId, coord);
   }
 
@@ -58,14 +58,14 @@ abstract contract BuildEvent is Event {
     VoxelCoord memory coord,
     VoxelEntity memory eventVoxelEntity,
     bytes memory eventData
-  ) internal override {}
+  ) internal virtual override {}
 
   function runEventHandlerForParent(
     bytes32 voxelTypeId,
     VoxelCoord memory coord,
     VoxelEntity memory eventVoxelEntity,
     bytes memory eventData
-  ) internal override {
+  ) internal virtual override {
     buildParentVoxel(eventVoxelEntity, coord, eventData);
   }
 
@@ -76,7 +76,7 @@ abstract contract BuildEvent is Event {
     bytes32 childVoxelTypeId,
     VoxelCoord memory childCoord,
     bytes memory eventData
-  ) internal override {
+  ) internal virtual override {
     if (childVoxelTypeId != 0) {
       runEventHandler(
         childVoxelTypeId,
@@ -94,7 +94,7 @@ abstract contract BuildEvent is Event {
     VoxelCoord memory coord,
     VoxelEntity memory eventVoxelEntity,
     bytes memory eventData
-  ) internal override {
+  ) internal virtual override {
     BuildEventData memory buildEventData = abi.decode(eventData, (BuildEventData));
     // Enter World
     IWorld(_world()).enterCA(caAddress, eventVoxelEntity, voxelTypeId, buildEventData.mindSelector, coord);
@@ -106,7 +106,7 @@ abstract contract BuildEvent is Event {
     VoxelCoord memory coord,
     VoxelEntity memory eventVoxelEntity,
     bytes memory eventData
-  ) internal override {}
+  ) internal virtual override {}
 
   function runCA(
     address caAddress,
@@ -114,7 +114,7 @@ abstract contract BuildEvent is Event {
     VoxelCoord memory coord,
     VoxelEntity memory eventVoxelEntity,
     bytes memory eventData
-  ) internal override {
+  ) internal virtual override {
     IWorld(_world()).runCA(caAddress, eventVoxelEntity, bytes4(0));
   }
 

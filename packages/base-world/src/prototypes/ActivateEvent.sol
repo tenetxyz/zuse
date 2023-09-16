@@ -28,14 +28,6 @@ abstract contract ActivateEvent is Event {
     return runEvent(voxelTypeId, coord, eventData);
   }
 
-  function activateVoxelType(
-    bytes32 voxelTypeId,
-    VoxelCoord memory coord,
-    bool activateChildren,
-    bool activateParent,
-    bytes memory eventData
-  ) internal virtual returns (VoxelEntity memory);
-
   function preEvent(bytes32 voxelTypeId, VoxelCoord memory coord, bytes memory eventData) internal virtual override {
     IWorld(_world()).approveActivate(tx.origin, voxelTypeId, coord, eventData);
   }

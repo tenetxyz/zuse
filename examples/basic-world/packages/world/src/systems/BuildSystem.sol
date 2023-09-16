@@ -19,16 +19,6 @@ contract BuildSystem is BuildEvent {
     return AirVoxelID;
   }
 
-  function callEventHandler(
-    bytes32 voxelTypeId,
-    VoxelCoord memory coord,
-    bool runEventOnChildren,
-    bool runEventOnParent,
-    bytes memory eventData
-  ) internal override returns (VoxelEntity memory) {
-    return IWorld(_world()).buildVoxelType(voxelTypeId, coord, runEventOnChildren, runEventOnParent, eventData);
-  }
-
   // Called by users
   function buildWithAgent(
     bytes32 voxelTypeId,
@@ -40,15 +30,5 @@ contract BuildSystem is BuildEvent {
       agentEntity: agentEntity
     });
     return build(voxelTypeId, coord, abi.encode(BuildEventData({ mindSelector: mindSelector, worldData: abi.encode(buildEventData) })));
-  }
-
-  function buildVoxelType(
-    bytes32 voxelTypeId,
-    VoxelCoord memory coord,
-    bool buildChildren,
-    bool buildParent,
-    bytes memory eventData
-  ) internal override returns (VoxelEntity memory) {
-    return super.buildVoxelType(voxelTypeId, coord, buildChildren, buildParent, eventData);
   }
 }

@@ -19,24 +19,8 @@ abstract contract MoveEvent is Event {
     bytes32 voxelTypeId,
     VoxelCoord memory coord,
     bytes memory eventData
-  ) internal virtual returns (VoxelEntity memory) {
-    return super.runEvent(voxelTypeId, coord, eventData);
-  }
-
-  function moveVoxelType(
-    bytes32 voxelTypeId,
-    VoxelCoord memory coord,
-    bool moveChildren,
-    bool moveParent,
-    bytes memory eventData
   ) internal virtual returns (VoxelEntity memory, VoxelEntity memory) {
-    VoxelEntity memory newVoxelEntity = super.runEventHandler(
-      voxelTypeId,
-      coord,
-      moveChildren,
-      moveParent,
-      eventData
-    );
+    VoxelEntity memory newVoxelEntity = super.runEvent(voxelTypeId, coord, eventData);
     MoveEventData memory moveEventData = abi.decode(eventData, (MoveEventData));
     bytes32 oldEntityId = getEntityAtCoord(newVoxelEntity.scale, moveEventData.oldCoord);
     VoxelEntity memory oldVoxelEntity = VoxelEntity({

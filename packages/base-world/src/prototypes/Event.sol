@@ -27,14 +27,6 @@ abstract contract Event is System {
     bytes memory eventData
   ) internal virtual;
 
-  function callEventHandler(
-    bytes32 voxelTypeId,
-    VoxelCoord memory coord,
-    bool runEventOnChildren,
-    bool runEventOnParent,
-    bytes memory eventData
-  ) internal virtual returns (VoxelEntity memory);
-
   function runEvent(
     bytes32 voxelTypeId,
     VoxelCoord memory coord,
@@ -42,7 +34,7 @@ abstract contract Event is System {
   ) internal virtual returns (VoxelEntity memory) {
     preEvent(voxelTypeId, coord, eventData);
 
-    VoxelEntity memory eventVoxelEntity = callEventHandler(voxelTypeId, coord, true, true, eventData);
+    VoxelEntity memory eventVoxelEntity = runEventHandler(voxelTypeId, coord, true, true, eventData);
 
     postEvent(voxelTypeId, coord, eventVoxelEntity, eventData);
 
@@ -143,10 +135,6 @@ abstract contract Event is System {
     bool runEventOnParent,
     bytes memory eventData
   ) internal virtual returns (VoxelEntity memory) {
-    require(
-      _msgSender() == _world() || IWorld(_world()).isCAAllowed(_msgSender()),
-      "Not allowed to run event handler. Must be world or CA"
-    );
     VoxelEntity memory eventVoxelEntity = runEventHandlerHelper(voxelTypeId, coord, runEventOnChildren, eventData);
 
     if (runEventOnParent) {

@@ -21,15 +21,6 @@ abstract contract MineEvent is Event {
     super.runEvent(voxelTypeId, coord, eventData);
   }
 
-  // Called by CA
-  function mineVoxelType(
-    bytes32 voxelTypeId,
-    VoxelCoord memory coord,
-    bool mineChildren,
-    bool mineParent,
-    bytes memory eventData
-  ) internal virtual returns (VoxelEntity memory);
-
   function preEvent(bytes32 voxelTypeId, VoxelCoord memory coord, bytes memory eventData) internal virtual override {
     IWorld(_world()).approveMine(tx.origin, voxelTypeId, coord, eventData);
   }
@@ -45,7 +36,7 @@ abstract contract MineEvent is Event {
     while (useParentEntity != 0) {
       bytes32 parentVoxelTypeId = VoxelType.getVoxelTypeId(useParentScale, useParentEntity);
       VoxelCoord memory parentCoord = positionDataToVoxelCoord(Position.get(useParentScale, useParentEntity));
-      VoxelEntity memory minedParentEntity = callEventHandler(
+      VoxelEntity memory minedParentEntity = runEventHandler(
         parentVoxelTypeId,
         parentCoord,
         false,

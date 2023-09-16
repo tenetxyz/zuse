@@ -13,16 +13,6 @@ contract ActivateVoxelSystem is ActivateEvent {
     return REGISTRY_ADDRESS;
   }
 
-  function callEventHandler(
-    bytes32 voxelTypeId,
-    VoxelCoord memory coord,
-    bool runEventOnChildren,
-    bool runEventOnParent,
-    bytes memory eventData
-  ) internal override returns (VoxelEntity memory) {
-    return IWorld(_world()).activateVoxelType(voxelTypeId, coord, runEventOnChildren, runEventOnParent, eventData);
-  }
-
   // Called by users
   function activateWithAgent(
     bytes32 voxelTypeId,
@@ -39,13 +29,4 @@ contract ActivateVoxelSystem is ActivateEvent {
     })));
   }
 
-  function activateVoxelType(
-    bytes32 voxelTypeId,
-    VoxelCoord memory coord,
-    bool activateChildren,
-    bool activateParent,
-    bytes memory eventData
-  ) internal override returns (VoxelEntity memory) {
-    return super.runEventHandler(voxelTypeId, coord, activateChildren, activateParent, eventData);
-  }
 }

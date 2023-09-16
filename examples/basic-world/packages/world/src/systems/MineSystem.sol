@@ -17,16 +17,6 @@ contract MineSystem is MineEvent {
     return REGISTRY_ADDRESS;
   }
 
-  function callEventHandler(
-    bytes32 voxelTypeId,
-    VoxelCoord memory coord,
-    bool runEventOnChildren,
-    bool runEventOnParent,
-    bytes memory eventData
-  ) internal override returns (VoxelEntity memory) {
-    return IWorld(_world()).mineVoxelType(voxelTypeId, coord, runEventOnChildren, runEventOnParent, eventData);
-  }
-
   // Called by users
   function mineWithAgent(bytes32 voxelTypeId, VoxelCoord memory coord, VoxelEntity memory agentEntity) public returns (VoxelEntity memory) {
     require(coord.y <= CHUNK_MAX_Y && coord.y >= CHUNK_MIN_Y, "out of chunk bounds");
@@ -34,16 +24,6 @@ contract MineSystem is MineEvent {
       agentEntity: agentEntity
     });
     super.mine(voxelTypeId, coord, abi.encode(MineEventData({ worldData: abi.encode(mineEventData) })));
-  }
-
-  function mineVoxelType(
-    bytes32 voxelTypeId,
-    VoxelCoord memory coord,
-    bool mineChildren,
-    bool mineParent,
-    bytes memory eventData
-  ) internal override returns (VoxelEntity memory) {
-    return super.runEventHandler(voxelTypeId, coord, mineChildren, mineParent, eventData);
   }
 
   function postRunCA(

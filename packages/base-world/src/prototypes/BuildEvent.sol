@@ -28,25 +28,9 @@ abstract contract BuildEvent is Event {
     VoxelCoord memory coord,
     bytes memory eventData
   ) internal virtual returns (VoxelEntity memory) {
-    return super.runEvent(voxelTypeId, coord, eventData);
-  }
-
-  function buildVoxelType(
-    bytes32 voxelTypeId,
-    VoxelCoord memory coord,
-    bool buildChildren,
-    bool buildParent,
-    bytes memory eventData
-  ) internal virtual returns (VoxelEntity memory) {
-    VoxelEntity memory eventVoxelEntity = super.runEventHandler(
-      voxelTypeId,
-      coord,
-      buildChildren,
-      buildParent,
-      eventData
-    );
+    VoxelEntity memory builtEntity = super.runEvent(voxelTypeId, coord, eventData);
     voxelSpawned(getRegistryAddress(), voxelTypeId);
-    return eventVoxelEntity;
+    return builtEntity;
   }
 
   function preEvent(bytes32 voxelTypeId, VoxelCoord memory coord, bytes memory eventData) internal virtual override {

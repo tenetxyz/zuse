@@ -21,24 +21,13 @@ contract MoveSystem is MoveEvent {
     VoxelCoord memory newCoord,
     VoxelEntity memory agentEntity,
     bytes4 mindSelector
-  ) public returns (VoxelEntity memory) {
+  ) public returns (VoxelEntity memory, VoxelEntity memory) {
     MoveWorldEventData memory moveWorldEventData = MoveWorldEventData({
       agentEntity: agentEntity
     });
-    return move(voxelTypeId, newCoord, abi.encode
-    (MoveEventData({
+    return move(voxelTypeId, newCoord, abi.encode(MoveEventData({
       oldCoord: oldCoord,
       worldData: abi.encode(moveWorldEventData)
     })));
-  }
-
-  function moveVoxelType(
-    bytes32 voxelTypeId,
-    VoxelCoord memory coord,
-    bool moveChildren,
-    bool moveParent,
-    bytes memory eventData
-  ) internal override returns (VoxelEntity memory, VoxelEntity memory) {
-    return super.moveVoxelType(voxelTypeId, coord, moveChildren, moveParent, eventData);
   }
 }

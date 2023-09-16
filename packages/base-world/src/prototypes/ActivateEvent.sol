@@ -29,7 +29,7 @@ abstract contract ActivateEvent is Event {
   }
 
   function preEvent(bytes32 voxelTypeId, VoxelCoord memory coord, bytes memory eventData) internal virtual override {
-    IWorld(_world()).approveActivate(tx.origin, voxelTypeId, coord, eventData);
+    IWorld(_world()).approveActivate(_msgSender(), voxelTypeId, coord, eventData);
   }
 
   function postEvent(

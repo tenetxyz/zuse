@@ -34,7 +34,7 @@ abstract contract BuildEvent is Event {
   }
 
   function preEvent(bytes32 voxelTypeId, VoxelCoord memory coord, bytes memory eventData) internal virtual override {
-    IWorld(_world()).approveBuild(tx.origin, voxelTypeId, coord, eventData);
+    IWorld(_world()).approveBuild(_msgSender(), voxelTypeId, coord, eventData);
   }
 
   function postEvent(

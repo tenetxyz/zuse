@@ -152,7 +152,8 @@ contract TruthTableClassifySystem is System {
   }
 
   function build(VoxelCoord memory coord, bytes32 entity) private {
-    IWorld(_world()).buildVoxel(2, entity, coord, bytes4(0));
+    VoxelEntity memory agentEntity;
+    IWorld(_world()).buildWithAgent(VoxelType.getVoxelTypeId(2, entity), coord, agentEntity, bytes4(0));
   }
 
   function giftVoxel(bytes32 baseVoxelType) private returns (bytes32) {

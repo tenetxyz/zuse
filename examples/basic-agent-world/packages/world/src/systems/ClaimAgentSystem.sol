@@ -19,6 +19,8 @@ contract ClaimAgentSystem is System {
       "Agent already owned"
     );
 
+    // Make sure entity is an agent
+
     // Claim agent
     OwnedBy.set(agentEntity.scale, agentEntity.entityId, _msgSender());
   }

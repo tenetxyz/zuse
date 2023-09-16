@@ -19,6 +19,6 @@ contract MineSystem is MineEvent {
   // Called by users
   function mine(bytes32 voxelTypeId, VoxelCoord memory coord) public returns (VoxelEntity memory) {
     require(coord.y <= CHUNK_MAX_Y && coord.y >= CHUNK_MIN_Y, "out of chunk bounds");
-    super.mine(voxelTypeId, coord, abi.encode(MineEventData({ worldData: abi.encode(bytes32(0)) })));
+    return super.mine(voxelTypeId, coord, abi.encode(MineEventData({ worldData: abi.encode(bytes32(0)) })));
   }
 }

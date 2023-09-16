@@ -27,33 +27,4 @@ contract MineSystem is MineEvent {
     MineWorldEventData memory mineEventData = MineWorldEventData({ agentEntity: agentEntity });
     super.mine(voxelTypeId, coord, abi.encode(MineEventData({ worldData: abi.encode(mineEventData) })));
   }
-
-  function postRunCA(
-    address caAddress,
-    bytes32 voxelTypeId,
-    VoxelCoord memory coord,
-    VoxelEntity memory eventVoxelEntity,
-    bytes memory eventData
-  ) internal override {
-    if (voxelTypeId != AirVoxelID) {
-      // TODO: Figure out how to add other airs
-      // Can't own it since it became air, so we gift it
-      IWorld(_world()).giftVoxel(voxelTypeId);
-    }
-    super.postRunCA(caAddress, voxelTypeId, coord, eventVoxelEntity, eventData);
-  }
-
-  function clearCoord(uint32 scale, VoxelCoord memory coord) public returns (VoxelEntity memory) {
-    bytes32 entity = getEntityAtCoord(scale, coord);
-
-    bytes32 voxelTypeId = VoxelType.getVoxelTypeId(scale, entity);
-    if (voxelTypeId == AirVoxelID) {
-      // if it's air, then it's already clear
-      return VoxelEntity({ scale: 0, entityId: 0 });
-    }
-
-    // TODO: Fix agentEntity
-    VoxelEntity memory agentEntity;
-    return mineWithAgent(voxelTypeId, coord, agentEntity);
-  }
 }

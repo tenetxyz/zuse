@@ -6,6 +6,7 @@ import { MoveEvent } from "@tenet-base-world/src/prototypes/MoveEvent.sol";
 import { IWorld } from "@tenet-world/src/codegen/world/IWorld.sol";
 import { VoxelCoord, VoxelEntity } from "@tenet-utils/src/Types.sol";
 import { REGISTRY_ADDRESS } from "@tenet-world/src/Constants.sol";
+import { MoveWorldEventData } from "@tenet-world/src/Types.sol";
 
 contract MoveSystem is MoveEvent {
   function getRegistryAddress() internal pure override returns (address) {
@@ -19,17 +20,35 @@ contract MoveSystem is MoveEvent {
     bool runEventOnParent,
     bytes memory eventData
   ) internal override returns (VoxelEntity memory) {
-    revert("Move can only be called by CA's");
+    return IWorld(_world()).moveVoxelType(voxelTypeId, coord, runEventOnChildren, runEventOnParent, eventData);
   }
 
-  // Called by CA's
+   // Called by users
+  function moveWithAgent(
+    bytes32 voxelTypeId,
+    VoxelCoord memory oldCoord,
+    VoxelCoord memory newCoord,
+    VoxelEntity memory agentEntity,
+    bytes4 mindSelector
+  ) public returns (VoxelEntity memory) {
+    MoveWorldEventData memory moveWorldEventData = MoveWorldEventData({
+      agentEntity: agentEntity
+    });
+    return move(voxelTypeId, newCoord, abi.encode
+    (MoveEventData({
+      oldCoord: oldCoord,
+      worldData: abi.encode(moveWorldEventData)
+    })));
+  }
+
   function moveVoxelType(
     bytes32 voxelTypeId,
     VoxelCoord memory oldCoord,
     VoxelCoord memory newCoord,
     bool moveChildren,
-    bool moveParent
-  ) public override returns (VoxelEntity memory, VoxelEntity memory) {
-    return super.moveVoxelType(voxelTypeId, oldCoord, newCoord, moveChildren, moveParent);
+    bool moveParent,
+    bytes memory eventData
+  ) internal override returns (VoxelEntity memory, VoxelEntity memory) {
+    return super.moveVoxelType(voxelTypeId, oldCoord, newCoord, moveChildren, moveParent, eventData);
   }
 }

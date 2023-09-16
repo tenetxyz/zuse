@@ -15,22 +15,31 @@ import { CAVoxelType, CAVoxelTypeData } from "@tenet-base-ca/src/codegen/tables/
 import { VoxelTypeRegistry, VoxelTypeRegistryData } from "@tenet-registry/src/codegen/tables/VoxelTypeRegistry.sol";
 
 abstract contract MoveEvent is Event {
-  // Called by CA
-  function moveVoxelType(
+  function move(
     bytes32 voxelTypeId,
     VoxelCoord memory oldCoord,
     VoxelCoord memory newCoord,
+    bytes memory eventData
+  ) internal virtual returns (VoxelEntity memory) {
+    return super.runEvent(voxelTypeId, newCoord, eventData);
+  }
+
+  function moveVoxelType(
+    bytes32 voxelTypeId,
+    VoxelCoord memory coord,
     bool moveChildren,
-    bool moveParent
-  ) public virtual returns (VoxelEntity memory, VoxelEntity memory) {
+    bool moveParent,
+    bytes memory eventData
+  ) internal virtual returns (VoxelEntity memory, VoxelEntity memory) {
     VoxelEntity memory newVoxelEntity = super.runEventHandler(
       voxelTypeId,
-      newCoord,
+      coord,
       moveChildren,
       moveParent,
-      abi.encode(MoveEventData({ oldCoord: oldCoord }))
+      eventData
     );
-    bytes32 oldEntityId = getEntityAtCoord(newVoxelEntity.scale, oldCoord);
+    MoveEventData memory moveEventData = abi.decode(eventData, (MoveEventData));
+    bytes32 oldEntityId = getEntityAtCoord(newVoxelEntity.scale, moveEventData.oldCoord);
     VoxelEntity memory oldVoxelEntity = VoxelEntity({
       scale: newVoxelEntity.scale,
       entityId: oldEntityId

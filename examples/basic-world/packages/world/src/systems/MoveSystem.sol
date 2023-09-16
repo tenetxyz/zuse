@@ -6,6 +6,7 @@ import { MoveEvent } from "@tenet-base-world/src/prototypes/MoveEvent.sol";
 import { IWorld } from "@tenet-world/src/codegen/world/IWorld.sol";
 import { VoxelCoord, VoxelEntity } from "@tenet-utils/src/Types.sol";
 import { REGISTRY_ADDRESS } from "@tenet-world/src/Constants.sol";
+import { MoveEventData } from "@tenet-base-world/src/Types.sol";
 import { MoveWorldEventData } from "@tenet-world/src/Types.sol";
 
 contract MoveSystem is MoveEvent {
@@ -43,12 +44,11 @@ contract MoveSystem is MoveEvent {
 
   function moveVoxelType(
     bytes32 voxelTypeId,
-    VoxelCoord memory oldCoord,
-    VoxelCoord memory newCoord,
+    VoxelCoord memory coord,
     bool moveChildren,
     bool moveParent,
     bytes memory eventData
   ) internal override returns (VoxelEntity memory, VoxelEntity memory) {
-    return super.moveVoxelType(voxelTypeId, oldCoord, newCoord, moveChildren, moveParent, eventData);
+    return super.moveVoxelType(voxelTypeId, coord, moveChildren, moveParent, eventData);
   }
 }

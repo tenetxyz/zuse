@@ -103,6 +103,7 @@ abstract contract BuildEvent is Event {
           coord,
           eventVoxelEntity,
           eventData,
+          childIdx,
           childVoxelTypeId,
           childCoord
         )

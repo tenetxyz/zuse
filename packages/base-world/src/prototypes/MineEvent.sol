@@ -17,7 +17,9 @@ import { VoxelTypeRegistry, VoxelTypeRegistryData } from "@tenet-registry/src/co
 
 abstract contract MineEvent is Event {
   // Called by users
-  function mine(bytes32 voxelTypeId, VoxelCoord memory coord) public virtual returns (VoxelEntity memory);
+  function mine(bytes32 voxelTypeId, VoxelCoord memory coord, bytes memory eventData) internal virtual returns (VoxelEntity memory) {
+    super.runEvent(voxelTypeId, coord, eventData);
+  }
 
   // Called by CA
   function mineVoxelType(
@@ -26,7 +28,7 @@ abstract contract MineEvent is Event {
     bool mineChildren,
     bool mineParent,
     bytes memory eventData
-  ) public virtual returns (VoxelEntity memory);
+  ) internal virtual returns (VoxelEntity memory);
 
   function preEvent(bytes32 voxelTypeId, VoxelCoord memory coord, bytes memory eventData) internal virtual override {
     IWorld(_world()).approveMine(tx.origin, voxelTypeId, coord, eventData);
@@ -61,6 +63,30 @@ abstract contract MineEvent is Event {
     bytes memory eventData
   ) internal virtual override {}
 
+  function getParentEventData(
+    bytes32 voxelTypeId,
+    VoxelCoord memory coord,
+    VoxelEntity memory eventVoxelEntity,
+    bytes memory eventData,
+    bytes32 childVoxelTypeId,
+    VoxelCoord memory childCoord
+  ) internal override returns (bytes memory) {
+    return eventData;
+  }
+
+  function getChildEventData(
+    bytes32 voxelTypeId,
+    VoxelCoord memory coord,
+    VoxelEntity memory eventVoxelEntity,
+    bytes memory eventData,
+    uint8 childIdx,
+    bytes32 childVoxelTypeId,
+    VoxelCoord memory childCoord
+  ) internal override returns (bytes memory) {
+    // TODO: Update when using event data. Child event data should be different from parent event data
+    return eventData;
+  }
+
   function runEventHandlerForIndividualChildren(
     bytes32 voxelTypeId,
     VoxelCoord memory coord,
@@ -73,8 +99,9 @@ abstract contract MineEvent is Event {
     uint32 scale = eventVoxelEntity.scale;
     bytes32 childVoxelEntity = getEntityAtCoord(scale - 1, childCoord);
     if (childVoxelEntity != 0) {
-      // TODO: Update when using event data. Child event data should be different from parent event data
-      runEventHandler(VoxelType.getVoxelTypeId(scale - 1, childVoxelEntity), childCoord, true, false, eventData);
+      runEventHandler(VoxelType.getVoxelTypeId(scale - 1, childVoxelEntity), childCoord, true, false,
+        getChildEventData(voxelTypeId, coord, eventVoxelEntity, eventData, childIdx, childVoxelTypeId, childCoord)
+      );
     }
   }
 

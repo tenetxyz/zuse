@@ -91,6 +91,7 @@ abstract contract MoveEvent is Event {
       coord,
       eventVoxelEntity,
       eventData,
+      childIdx,
       childVoxelTypeId,
       newChildCoord
     );

@@ -101,6 +101,7 @@ abstract contract ActivateEvent is Event {
           coord,
           eventVoxelEntity,
           eventData,
+          childIdx,
           childVoxelTypeId,
           childCoord
         )

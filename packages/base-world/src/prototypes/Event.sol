@@ -117,6 +117,7 @@ abstract contract Event is System {
         voxelTypeId,
         coord,
         eventVoxelEntity,
+        i,
         childVoxelTypeIds[i],
         eightBlockVoxelCoords[i],
         eventData

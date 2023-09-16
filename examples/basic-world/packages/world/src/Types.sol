@@ -14,3 +14,7 @@ struct ActivateWorldEventData {
 struct MoveWorldEventData {
   VoxelEntity agentEntity;
 }
+
+struct MineWorldEventData {
+  VoxelEntity agentEntity;
+}

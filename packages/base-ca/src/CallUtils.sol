@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0
 pragma solidity >=0.8.0;
 
-import { VoxelCoord } from "@tenet-utils/src/Types.sol";
+import { VoxelCoord, VoxelEntity } from "@tenet-utils/src/Types.sol";
 import { CA_ENTER_WORLD_SIG, CA_EXIT_WORLD_SIG, CA_RUN_INTERACTION_SIG, CA_ACTIVATE_VOXEL_SIG, CA_REGISTER_VOXEL_SIG, CA_MOVE_WORLD_SIG } from "@tenet-base-ca/src/Constants.sol";
 import { safeCall, safeStaticCall } from "@tenet-utils/src/CallUtils.sol";
 
@@ -217,41 +217,54 @@ function activateVoxel(address caAddress, bytes32 entity) returns (bytes memory)
     );
 }
 
-function getVoxelTypeFromCaller(address callerAddress, uint32 scale, bytes32 entity) view returns (bytes32) {
+function getVoxelTypeFromCaller(address callerAddress, VoxelEntity memory entity) view returns (bytes32) {
   bytes memory returnData = safeStaticCall(
     callerAddress,
-    abi.encodeWithSignature("getVoxelTypeId(uint32,bytes32)", scale, entity),
+    abi.encodeWithSignature("getVoxelTypeId((uint32,bytes32))", entity),
     "getVoxelTypeId"
   );
   return abi.decode(returnData, (bytes32));
 }
 
-function getNeighbourEntitiesFromCaller(
+function shouldRunInteractionForNeighbour(
   address callerAddress,
-  uint32 scale,
-  bytes32 entity
-) returns (bytes32[] memory) {
+  VoxelEntity memory originEntity,
+  VoxelEntity memory neighbourEntity
+) view returns (bool) {
+  bytes memory returnData = safeStaticCall(
+    callerAddress,
+    abi.encodeWithSignature(
+      "shouldRunInteractionForNeighbour((uint32,bytes32),(uint32,bytes32))",
+      originEntity,
+      neighbourEntity
+    ),
+    "shouldRunInteractionForNeighbour"
+  );
+  return abi.decode(returnData, (bool));
+}
+
+function getNeighbourEntitiesFromCaller(address callerAddress, VoxelEntity memory entity) returns (bytes32[] memory) {
   bytes memory returnData = safeCall(
     callerAddress,
-    abi.encodeWithSignature("calculateNeighbourEntities(uint32,bytes32)", scale, entity),
+    abi.encodeWithSignature("calculateNeighbourEntities((uint32,bytes32))", entity),
     "calculateNeighbourEntities"
   );
   return abi.decode(returnData, (bytes32[]));
 }
 
-function getChildEntitiesFromCaller(address callerAddress, uint32 scale, bytes32 entity) returns (bytes32[] memory) {
+function getChildEntitiesFromCaller(address callerAddress, VoxelEntity memory entity) returns (bytes32[] memory) {
   bytes memory returnData = safeCall(
     callerAddress,
-    abi.encodeWithSignature("calculateChildEntities(uint32,bytes32)", scale, entity),
+    abi.encodeWithSignature("calculateChildEntities((uint32,bytes32))", entity),
     "calculateChildEntities"
   );
   return abi.decode(returnData, (bytes32[]));
 }
 
-function getParentEntityFromCaller(address callerAddress, uint32 scale, bytes32 entity) returns (bytes32) {
+function getParentEntityFromCaller(address callerAddress, VoxelEntity memory entity) returns (bytes32) {
   bytes memory returnData = safeCall(
     callerAddress,
-    abi.encodeWithSignature("calculateParentEntity(uint32,bytes32)", scale, entity),
+    abi.encodeWithSignature("calculateParentEntity((uint32,bytes32))", entity),
     "calculateParentEntity"
   );
   return abi.decode(returnData, (bytes32));

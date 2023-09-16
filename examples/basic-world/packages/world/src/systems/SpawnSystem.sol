@@ -5,9 +5,8 @@ import { getUniqueEntity } from "@latticexyz/world/src/modules/uniqueentity/getU
 import { System } from "@latticexyz/world/src/System.sol";
 import { VoxelCoord, VoxelEntity } from "@tenet-utils/src/Types.sol";
 import { BuildEventData } from "@tenet-base-world/src/Types.sol";
-import { OwnedBy, Position, PositionTableId, VoxelType, OfSpawn, Spawn, SpawnData } from "@tenet-world/src/codegen/Tables.sol";
+import { Position, PositionTableId, VoxelType, OfSpawn, Spawn, SpawnData } from "@tenet-world/src/codegen/Tables.sol";
 import { VoxelTypeData } from "@tenet-utils/src/Types.sol";
-import { increaseVoxelTypeSpawnCount } from "@tenet-base-world/src/Utils.sol";
 import { voxelCoordsAreEqual, add } from "@tenet-utils/src/VoxelCoordUtils.sol";
 import { int32ToString } from "@tenet-utils/src/StringUtils.sol";
 import { IWorld } from "@tenet-world/src/codegen/world/IWorld.sol";
@@ -39,17 +38,17 @@ contract SpawnSystem is System {
         )
       );
 
-      (uint32 scale, bytes32 newEntity) = IWorld(_world()).buildVoxelType(
+      VoxelEntity memory newEntity = IWorld(_world()).build(
         voxelTypes[i].voxelTypeId,
         spawnVoxelAtCoord,
-        true,
-        true,
-        abi.encode(BuildEventData({ mindSelector: bytes4(0) })) /// TODO: which mind to use during spawns?
+        bytes4(0) // TODO: which mind to use during spawns?
       );
+      uint32 scale = newEntity.scale;
+      bytes32 newEntityId = newEntity.entityId;
 
       // update the spawn-related components
-      OfSpawn.set(scale, newEntity, spawnId);
-      spawnVoxels[i] = VoxelEntity({ scale: scale, entityId: newEntity });
+      OfSpawn.set(scale, newEntityId, spawnId);
+      spawnVoxels[i] = newEntity;
     }
 
     // 3) Write the spawnData to the Spawn table

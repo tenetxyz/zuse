@@ -12,9 +12,9 @@ import { CAMind, CAMindTableId } from "@tenet-base-ca/src/codegen/tables/CAMind.
 import { CAEntityMapping, CAEntityMappingTableId } from "@tenet-base-ca/src/codegen/tables/CAEntityMapping.sol";
 import { CAEntityReverseMapping } from "@tenet-base-ca/src/codegen/tables/CAEntityReverseMapping.sol";
 import { CAVoxelType, CAVoxelTypeTableId } from "@tenet-base-ca/src/codegen/tables/CAVoxelType.sol";
-import { VoxelCoord, InteractionSelector } from "@tenet-utils/src/Types.sol";
+import { VoxelCoord, InteractionSelector, VoxelEntity } from "@tenet-utils/src/Types.sol";
 import { getEntityAtCoord, entityArrayToCAEntityArray, entityToCAEntity, caEntityArrayToEntityArray } from "@tenet-base-ca/src/Utils.sol";
-import { getNeighbourEntitiesFromCaller, getChildEntitiesFromCaller, getParentEntityFromCaller } from "@tenet-base-ca/src/CallUtils.sol";
+import { getNeighbourEntitiesFromCaller, getChildEntitiesFromCaller, getParentEntityFromCaller, shouldRunInteractionForNeighbour } from "@tenet-base-ca/src/CallUtils.sol";
 import { safeCall, safeStaticCall } from "@tenet-utils/src/CallUtils.sol";
 import { getEnterWorldSelector, getExitWorldSelector, getVoxelVariantSelector, getActivateSelector, getInteractionSelectors, getOnNewNeighbourSelector } from "@tenet-registry/src/Utils.sol";
 
@@ -270,6 +270,21 @@ abstract contract CA is System {
     for (uint256 i = 0; i < neighbourEntityIds.length; i++) {
       if (neighbourEntityIds[i] != 0) {
         bytes32 neighbourVoxelTypeId = CAVoxelType.getVoxelTypeId(callerAddress, neighbourEntityIds[i]);
+        if (
+          !shouldRunInteractionForNeighbour(
+            callerAddress,
+            VoxelEntity({
+              scale: VoxelTypeRegistry.getScale(IStore(getRegistryAddress()), voxelTypeId),
+              entityId: interactEntity
+            }),
+            VoxelEntity({
+              scale: VoxelTypeRegistry.getScale(IStore(getRegistryAddress()), neighbourVoxelTypeId),
+              entityId: neighbourEntityIds[i]
+            })
+          )
+        ) {
+          continue;
+        }
 
         {
           bytes4 onNewNeighbourSelector = getOnNewNeighbourSelector(IStore(getRegistryAddress()), neighbourVoxelTypeId);
@@ -309,21 +324,19 @@ abstract contract CA is System {
 
   function updateVoxelTypes(address callerAddress, bytes32[] memory changedEntities) internal {
     for (uint256 i = 0; i < changedEntities.length; i++) {
-      bytes32 changedEntity = changedEntities[i];
-      if (changedEntity != 0) {
-        bytes32 changedVoxelTypeId = CAVoxelType.getVoxelTypeId(callerAddress, changedEntity);
+      bytes32 changedEntityId = changedEntities[i];
+      if (changedEntityId != 0) {
+        bytes32 changedVoxelTypeId = CAVoxelType.getVoxelTypeId(callerAddress, changedEntityId);
         uint32 scale = VoxelTypeRegistry.getScale(IStore(getRegistryAddress()), changedVoxelTypeId);
+        VoxelEntity memory changedEntity = VoxelEntity({ scale: scale, entityId: changedEntityId });
         bytes32 voxelVariantId = callGetVoxelVariant(
           changedVoxelTypeId,
-          entityToCAEntity(callerAddress, changedEntity),
-          entityArrayToCAEntityArray(
-            callerAddress,
-            getNeighbourEntitiesFromCaller(callerAddress, scale, changedEntity)
-          ),
-          getChildEntitiesFromCaller(callerAddress, scale, changedEntity),
-          getParentEntityFromCaller(callerAddress, scale, changedEntity)
+          entityToCAEntity(callerAddress, changedEntityId),
+          entityArrayToCAEntityArray(callerAddress, getNeighbourEntitiesFromCaller(callerAddress, changedEntity)),
+          getChildEntitiesFromCaller(callerAddress, changedEntity),
+          getParentEntityFromCaller(callerAddress, changedEntity)
         );
-        CAVoxelType.set(callerAddress, changedEntity, changedVoxelTypeId, voxelVariantId);
+        CAVoxelType.set(callerAddress, changedEntityId, changedVoxelTypeId, voxelVariantId);
       }
     }
   }

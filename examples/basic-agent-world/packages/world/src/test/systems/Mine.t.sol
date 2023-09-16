@@ -7,17 +7,14 @@ import { IStore } from "@latticexyz/store/src/IStore.sol";
 import { IWorld } from "@tenet-world/src/codegen/world/IWorld.sol";
 import { VoxelType, OwnedBy } from "@tenet-world/src/codegen/Tables.sol";
 
-import { AirVoxelID } from "@tenet-level1-ca/src/Constants.sol";
-
 import { addressToEntityKey } from "@tenet-utils/src/Utils.sol";
 import { console } from "forge-std/console.sol";
 
-contract GiftVoxelTest is MudTest {
+contract MineTest is MudTest {
   IWorld private world;
   IStore private store;
 
   address payable internal alice;
-  bytes16 namespace;
 
   function setUp() public override {
     super.setUp();

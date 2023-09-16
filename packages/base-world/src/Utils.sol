@@ -4,11 +4,11 @@ pragma solidity >=0.8.0;
 import { SystemRegistry } from "@latticexyz/world/src/modules/core/tables/SystemRegistry.sol";
 import { ResourceSelector } from "@latticexyz/world/src/ResourceSelector.sol";
 import { hasKey } from "@latticexyz/world/src/modules/keysintable/hasKey.sol";
-import { Coord, VoxelCoord } from "@tenet-base-world/src/Types.sol";
+import { Coord, VoxelCoord, BlockDirection } from "@tenet-utils/src/Types.sol";
+import { VoxelEntity } from "@tenet-utils/src/Types.sol";
 import { getKeysWithValue } from "@latticexyz/world/src/modules/keyswithvalue/getKeysWithValue.sol";
 import { Position, PositionData, PositionTableId } from "@tenet-base-world/src/codegen/tables/Position.sol";
 import { VoxelType, VoxelTypeData } from "@tenet-base-world/src/codegen/tables/VoxelType.sol";
-import { BlockDirection } from "@tenet-base-world/src/Types.sol";
 
 function calculateChildCoords(uint32 scale, VoxelCoord memory parentCoord) pure returns (VoxelCoord[] memory) {
   VoxelCoord[] memory childCoords = new VoxelCoord[](uint256(scale * scale * scale));
@@ -42,14 +42,6 @@ function calculateParentCoord(uint32 scale, VoxelCoord memory childCoord) pure r
     newZ -= 1; // We need to do this because Solidity rounds towards 0
   }
   return VoxelCoord(newX, newY, newZ);
-}
-
-function getEntityPositionStrict(uint32 scale, bytes32 entity) view returns (PositionData memory) {
-  bytes32[] memory positionKeyTuple = new bytes32[](2);
-  positionKeyTuple[0] = bytes32(uint256(scale));
-  positionKeyTuple[1] = (entity);
-  require(hasKey(PositionTableId, positionKeyTuple), "Entity must have a position"); // even if its air, it must have a position
-  return Position.get(scale, entity);
 }
 
 function calculateBlockDirection(
@@ -102,15 +94,19 @@ function getEntityAtCoord(uint32 scale, VoxelCoord memory coord) view returns (b
   return entity;
 }
 
-function increaseVoxelTypeSpawnCount(bytes16 voxelTypeNamespace, bytes32 voxelTypeId) {
-  // VoxelTypeRegistryData memory voxelTypeRegistryData = VoxelTypeRegistry.get(voxelTypeNamespace, voxelTypeId);
-  // voxelTypeRegistryData.numSpawns += 1;
-  // VoxelTypeRegistry.set(voxelTypeNamespace, voxelTypeId, voxelTypeRegistryData);
+function getEntityPositionStrict(VoxelEntity memory entity) view returns (PositionData memory) {
+  uint32 scale = entity.scale;
+  bytes32 entityId = entity.entityId;
+  bytes32[] memory positionKeyTuple = new bytes32[](2);
+  positionKeyTuple[0] = bytes32(uint256(scale));
+  positionKeyTuple[1] = (entityId);
+  require(hasKey(PositionTableId, positionKeyTuple), "Entity must have a position"); // even if its air, it must have a position
+  return Position.get(scale, entityId);
 }
 
-function getVoxelCoordStrict(uint32 scale, bytes32 entity) view returns (VoxelCoord memory) {
-  PositionData memory position = getEntityPositionStrict(scale, entity);
-  return VoxelCoord(position.x, position.y, position.z);
+function getVoxelCoordStrict(VoxelEntity memory entity) view returns (VoxelCoord memory) {
+  PositionData memory position = getEntityPositionStrict(entity);
+  return positionDataToVoxelCoord(position);
 }
 
 function entitiesToVoxelCoords(bytes32[] memory entities) view returns (VoxelCoord[] memory) {

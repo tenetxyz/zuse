@@ -14,7 +14,7 @@ import { CAEntityReverseMapping } from "@tenet-base-ca/src/codegen/tables/CAEnti
 import { CAVoxelType, CAVoxelTypeTableId } from "@tenet-base-ca/src/codegen/tables/CAVoxelType.sol";
 import { VoxelCoord, InteractionSelector, VoxelEntity } from "@tenet-utils/src/Types.sol";
 import { getEntityAtCoord, entityArrayToCAEntityArray, entityToCAEntity, caEntityArrayToEntityArray } from "@tenet-base-ca/src/Utils.sol";
-import { getNeighbourEntitiesFromCaller, getChildEntitiesFromCaller, getParentEntityFromCaller } from "@tenet-base-ca/src/CallUtils.sol";
+import { getNeighbourEntitiesFromCaller, getChildEntitiesFromCaller, getParentEntityFromCaller, shouldRunInteractionForNeighbour } from "@tenet-base-ca/src/CallUtils.sol";
 import { safeCall, safeStaticCall } from "@tenet-utils/src/CallUtils.sol";
 import { getEnterWorldSelector, getExitWorldSelector, getVoxelVariantSelector, getActivateSelector, getInteractionSelectors, getOnNewNeighbourSelector } from "@tenet-registry/src/Utils.sol";
 
@@ -270,6 +270,21 @@ abstract contract CA is System {
     for (uint256 i = 0; i < neighbourEntityIds.length; i++) {
       if (neighbourEntityIds[i] != 0) {
         bytes32 neighbourVoxelTypeId = CAVoxelType.getVoxelTypeId(callerAddress, neighbourEntityIds[i]);
+        if (
+          !shouldRunInteractionForNeighbour(
+            callerAddress,
+            VoxelEntity({
+              scale: VoxelTypeRegistry.getScale(IStore(getRegistryAddress()), voxelTypeId),
+              entityId: interactEntity
+            }),
+            VoxelEntity({
+              scale: VoxelTypeRegistry.getScale(IStore(getRegistryAddress()), neighbourVoxelTypeId),
+              entityId: neighbourEntityIds[i]
+            })
+          )
+        ) {
+          continue;
+        }
 
         {
           bytes4 onNewNeighbourSelector = getOnNewNeighbourSelector(IStore(getRegistryAddress()), neighbourVoxelTypeId);
@@ -317,10 +332,7 @@ abstract contract CA is System {
         bytes32 voxelVariantId = callGetVoxelVariant(
           changedVoxelTypeId,
           entityToCAEntity(callerAddress, changedEntityId),
-          entityArrayToCAEntityArray(
-            callerAddress,
-            getNeighbourEntitiesFromCaller(callerAddress, changedEntity)
-          ),
+          entityArrayToCAEntityArray(callerAddress, getNeighbourEntitiesFromCaller(callerAddress, changedEntity)),
           getChildEntitiesFromCaller(callerAddress, changedEntity),
           getParentEntityFromCaller(callerAddress, changedEntity)
         );

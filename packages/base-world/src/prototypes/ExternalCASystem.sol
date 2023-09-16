@@ -21,6 +21,11 @@ abstract contract ExternalCASystem is System {
     return VoxelType.getVoxelTypeId(entity.scale, entity.entityId);
   }
 
+  function shouldRunInteractionForNeighbour(
+    VoxelEntity memory originEntity,
+    VoxelEntity memory neighbourEntity
+  ) internal virtual returns (bool);
+
   function calculateNeighbourEntities(VoxelEntity memory centerEntity) public view virtual returns (bytes32[] memory) {
     uint32 scale = centerEntity.scale;
     bytes32 centerEntityId = centerEntity.entityId;

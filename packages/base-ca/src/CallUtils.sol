@@ -226,10 +226,24 @@ function getVoxelTypeFromCaller(address callerAddress, VoxelEntity memory entity
   return abi.decode(returnData, (bytes32));
 }
 
-function getNeighbourEntitiesFromCaller(
+function shouldRunInteractionForNeighbour(
   address callerAddress,
-  VoxelEntity memory entity
-) returns (bytes32[] memory) {
+  VoxelEntity memory originEntity,
+  VoxelEntity memory neighbourEntity
+) view returns (bool) {
+  bytes memory returnData = safeStaticCall(
+    callerAddress,
+    abi.encodeWithSignature(
+      "shouldRunInteractionForNeighbour((uint32,bytes32),(uint32,bytes32))",
+      originEntity,
+      neighbourEntity
+    ),
+    "shouldRunInteractionForNeighbour"
+  );
+  return abi.decode(returnData, (bool));
+}
+
+function getNeighbourEntitiesFromCaller(address callerAddress, VoxelEntity memory entity) returns (bytes32[] memory) {
   bytes memory returnData = safeCall(
     callerAddress,
     abi.encodeWithSignature("calculateNeighbourEntities((uint32,bytes32))", entity),

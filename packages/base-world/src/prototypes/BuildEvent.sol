@@ -82,15 +82,7 @@ abstract contract BuildEvent is Event {
         childCoord,
         true,
         false,
-        getChildEventData(
-          voxelTypeId,
-          coord,
-          eventVoxelEntity,
-          eventData,
-          childIdx,
-          childVoxelTypeId,
-          childCoord
-        )
+        getChildEventData(voxelTypeId, coord, eventVoxelEntity, eventData, childIdx, childVoxelTypeId, childCoord)
       );
     }
   }
@@ -174,12 +166,10 @@ abstract contract BuildEvent is Event {
     VoxelCoord memory parentVoxelCoord = calculateParentCoord(2, coord);
     VoxelCoord[] memory eightBlockVoxelCoords = calculateChildCoords(2, parentVoxelCoord);
     bytes32[] memory existingChildVoxelTypes = new bytes32[](8);
-    uint32 existingCount = 0;
     for (uint8 i = 0; i < 8; i++) {
       bytes32 siblingEntity = getEntityAtCoord(buildScale, eightBlockVoxelCoords[i]);
       if (siblingEntity != 0) {
         existingChildVoxelTypes[i] = VoxelType.getVoxelTypeId(buildScale, siblingEntity);
-        existingCount += 1;
       }
     }
 
@@ -187,33 +177,58 @@ abstract contract BuildEvent is Event {
     bytes32[][] memory worldVoxelTypeKeys = getKeysInTable(WorldConfigTableId);
     for (uint256 i = 0; i < worldVoxelTypeKeys.length; i++) {
       bytes32 worldVoxelTypeId = worldVoxelTypeKeys[i][0];
-      VoxelTypeRegistryData memory voxelTypeData = VoxelTypeRegistry.get(IStore(getRegistryAddress()), worldVoxelTypeId);
+      VoxelTypeRegistryData memory voxelTypeData = VoxelTypeRegistry.get(
+        IStore(getRegistryAddress()),
+        worldVoxelTypeId
+      );
       if (voxelTypeData.scale == buildScale + 1) {
-        bool hasSameSchema = hasSameVoxelTypeSchema(
-          buildScale,
-          voxelTypeData.schemaVoxelTypeIds,
+        bool foundMatch = buildParentVoxelHelper(
+          voxelTypeId,
+          buildVoxelEntity,
+          coord,
+          eventData,
+          voxelTypeData,
           existingChildVoxelTypes,
-          eightBlockVoxelCoords
+          eightBlockVoxelCoords,
+          worldVoxelTypeId,
+          parentVoxelCoord
         );
-
-        if (hasSameSchema) {
-          VoxelEntity memory parentVoxelEntity = super.runEventHandlerHelper(
-            worldVoxelTypeId,
-            parentVoxelCoord,
-            false,
-            getParentEventData(
-              voxelTypeId,
-              coord,
-              buildVoxelEntity,
-              eventData,
-              worldVoxelTypeId,
-              parentVoxelCoord
-            )
-          );
-          buildParentVoxel(worldVoxelTypeId, parentVoxelEntity, parentVoxelCoord, eventData);
+        if (foundMatch) {
           break;
         }
       }
     }
+  }
+
+  function buildParentVoxelHelper(
+    bytes32 voxelTypeId,
+    VoxelEntity memory buildVoxelEntity,
+    VoxelCoord memory coord,
+    bytes memory eventData,
+    VoxelTypeRegistryData memory voxelTypeData,
+    bytes32[] memory existingChildVoxelTypes,
+    VoxelCoord[] memory eightBlockVoxelCoords,
+    bytes32 worldVoxelTypeId,
+    VoxelCoord memory parentVoxelCoord
+  ) internal returns (bool) {
+    uint32 buildScale = buildVoxelEntity.scale;
+
+    bool hasSameSchema = hasSameVoxelTypeSchema(
+      buildScale,
+      voxelTypeData.schemaVoxelTypeIds,
+      existingChildVoxelTypes,
+      eightBlockVoxelCoords
+    );
+
+    if (hasSameSchema) {
+      VoxelEntity memory parentVoxelEntity = super.runEventHandlerHelper(
+        worldVoxelTypeId,
+        parentVoxelCoord,
+        false,
+        getParentEventData(voxelTypeId, coord, buildVoxelEntity, eventData, worldVoxelTypeId, parentVoxelCoord)
+      );
+      buildParentVoxel(worldVoxelTypeId, parentVoxelEntity, parentVoxelCoord, eventData);
+    }
+    return hasSameSchema;
   }
 }

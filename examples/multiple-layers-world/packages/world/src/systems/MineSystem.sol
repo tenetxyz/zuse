@@ -19,11 +19,13 @@ contract MineSystem is MineEvent {
   }
 
   // Called by users
-  function mineWithAgent(bytes32 voxelTypeId, VoxelCoord memory coord, VoxelEntity memory agentEntity) public returns (VoxelEntity memory) {
+  function mineWithAgent(
+    bytes32 voxelTypeId,
+    VoxelCoord memory coord,
+    VoxelEntity memory agentEntity
+  ) public returns (VoxelEntity memory) {
     require(coord.y <= CHUNK_MAX_Y && coord.y >= CHUNK_MIN_Y, "out of chunk bounds");
-    MineWorldEventData memory mineEventData = MineWorldEventData({
-      agentEntity: agentEntity
-    });
+    MineWorldEventData memory mineEventData = MineWorldEventData({ agentEntity: agentEntity });
     super.mine(voxelTypeId, coord, abi.encode(MineEventData({ worldData: abi.encode(mineEventData) })));
   }
 
@@ -49,10 +51,7 @@ contract MineSystem is MineEvent {
     bytes32 voxelTypeId = VoxelType.getVoxelTypeId(scale, entity);
     if (voxelTypeId == AirVoxelID) {
       // if it's air, then it's already clear
-      return VoxelEntity({
-        scale: 0,
-        entityId: 0
-      });
+      return VoxelEntity({ scale: 0, entityId: 0 });
     }
 
     // TODO: Fix agentEntity

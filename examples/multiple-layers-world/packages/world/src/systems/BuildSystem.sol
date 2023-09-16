@@ -27,9 +27,12 @@ contract BuildSystem is BuildEvent {
     VoxelEntity memory agentEntity,
     bytes4 mindSelector
   ) public returns (VoxelEntity memory) {
-    BuildWorldEventData memory buildEventData = BuildWorldEventData({
-      agentEntity: agentEntity
-    });
-    return build(voxelTypeId, coord, abi.encode(BuildEventData({ mindSelector: mindSelector, worldData: abi.encode(buildEventData) })));
+    BuildWorldEventData memory buildEventData = BuildWorldEventData({ agentEntity: agentEntity });
+    return
+      build(
+        voxelTypeId,
+        coord,
+        abi.encode(BuildEventData({ mindSelector: mindSelector, worldData: abi.encode(buildEventData) }))
+      );
   }
 }

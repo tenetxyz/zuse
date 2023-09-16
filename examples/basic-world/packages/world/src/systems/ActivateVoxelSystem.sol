@@ -20,13 +20,14 @@ contract ActivateVoxelSystem is ActivateEvent {
     VoxelEntity memory agentEntity,
     bytes4 interactionSelector
   ) public returns (VoxelEntity memory) {
-    ActivateWorldEventData memory activateEventData = ActivateWorldEventData({
-      agentEntity: agentEntity
-    });
-    return activate(voxelTypeId, coord, abi.encode(ActivateEventData({
-      worldData: abi.encode(activateEventData),
-      interactionSelector: interactionSelector
-    })));
+    ActivateWorldEventData memory activateEventData = ActivateWorldEventData({ agentEntity: agentEntity });
+    return
+      activate(
+        voxelTypeId,
+        coord,
+        abi.encode(
+          ActivateEventData({ worldData: abi.encode(activateEventData), interactionSelector: interactionSelector })
+        )
+      );
   }
-
 }

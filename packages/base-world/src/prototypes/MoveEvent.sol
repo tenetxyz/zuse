@@ -23,10 +23,7 @@ abstract contract MoveEvent is Event {
     VoxelEntity memory newVoxelEntity = super.runEvent(voxelTypeId, coord, eventData);
     MoveEventData memory moveEventData = abi.decode(eventData, (MoveEventData));
     bytes32 oldEntityId = getEntityAtCoord(newVoxelEntity.scale, moveEventData.oldCoord);
-    VoxelEntity memory oldVoxelEntity = VoxelEntity({
-      scale: newVoxelEntity.scale,
-      entityId: oldEntityId
-    });
+    VoxelEntity memory oldVoxelEntity = VoxelEntity({ scale: newVoxelEntity.scale, entityId: oldEntityId });
     return (newVoxelEntity, oldVoxelEntity);
   }
 
@@ -81,7 +78,13 @@ abstract contract MoveEvent is Event {
     MoveEventData memory childMoveEventData = abi.decode(eventData, (MoveEventData));
     bytes32 childVoxelEntity = getEntityAtCoord(scale - 1, childMoveEventData.oldCoord);
     if (childVoxelEntity != 0) {
-      runEventHandler(VoxelType.getVoxelTypeId(scale - 1, childVoxelEntity), newChildCoord, true, false, rawChildMoveEventData);
+      runEventHandler(
+        VoxelType.getVoxelTypeId(scale - 1, childVoxelEntity),
+        newChildCoord,
+        true,
+        false,
+        rawChildMoveEventData
+      );
     }
   }
 
@@ -128,10 +131,7 @@ abstract contract MoveEvent is Event {
     uint32 scale = eventVoxelEntity.scale;
     MoveEventData memory moveEventData = abi.decode(eventData, (MoveEventData));
     bytes32 oldEntityId = getEntityAtCoord(scale, moveEventData.oldCoord);
-    VoxelEntity memory oldVoxelEntity = VoxelEntity({
-      scale: scale,
-      entityId: oldEntityId
-    });
+    VoxelEntity memory oldVoxelEntity = VoxelEntity({ scale: scale, entityId: oldEntityId });
 
     // Need to run 2 interactions because we're moving so two entities are involved
     IWorld(_world()).runCA(caAddress, oldVoxelEntity, bytes4(0));

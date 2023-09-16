@@ -88,15 +88,7 @@ abstract contract ActivateEvent is Event {
         childCoord,
         true,
         false,
-        getChildEventData(
-          voxelTypeId,
-          coord,
-          eventVoxelEntity,
-          eventData,
-          childIdx,
-          childVoxelTypeId,
-          childCoord
-        )
+        getChildEventData(voxelTypeId, coord, eventVoxelEntity, eventData, childIdx, childVoxelTypeId, childCoord)
       );
     }
   }

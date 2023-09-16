@@ -17,7 +17,11 @@ import { VoxelTypeRegistry, VoxelTypeRegistryData } from "@tenet-registry/src/co
 
 abstract contract MineEvent is Event {
   // Called by users
-  function mine(bytes32 voxelTypeId, VoxelCoord memory coord, bytes memory eventData) internal virtual returns (VoxelEntity memory) {
+  function mine(
+    bytes32 voxelTypeId,
+    VoxelCoord memory coord,
+    bytes memory eventData
+  ) internal virtual returns (VoxelEntity memory) {
     super.runEvent(voxelTypeId, coord, eventData);
   }
 
@@ -36,13 +40,7 @@ abstract contract MineEvent is Event {
     while (useParentEntity != 0) {
       bytes32 parentVoxelTypeId = VoxelType.getVoxelTypeId(useParentScale, useParentEntity);
       VoxelCoord memory parentCoord = positionDataToVoxelCoord(Position.get(useParentScale, useParentEntity));
-      VoxelEntity memory minedParentEntity = runEventHandler(
-        parentVoxelTypeId,
-        parentCoord,
-        false,
-        false,
-        eventData
-      );
+      VoxelEntity memory minedParentEntity = runEventHandler(parentVoxelTypeId, parentCoord, false, false, eventData);
       useParentEntity = IWorld(_world()).calculateParentEntity(minedParentEntity);
     }
   }
@@ -90,7 +88,11 @@ abstract contract MineEvent is Event {
     uint32 scale = eventVoxelEntity.scale;
     bytes32 childVoxelEntity = getEntityAtCoord(scale - 1, childCoord);
     if (childVoxelEntity != 0) {
-      runEventHandler(VoxelType.getVoxelTypeId(scale - 1, childVoxelEntity), childCoord, true, false,
+      runEventHandler(
+        VoxelType.getVoxelTypeId(scale - 1, childVoxelEntity),
+        childCoord,
+        true,
+        false,
         getChildEventData(voxelTypeId, coord, eventVoxelEntity, eventData, childIdx, childVoxelTypeId, childCoord)
       );
     }

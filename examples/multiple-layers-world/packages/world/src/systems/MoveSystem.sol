@@ -14,7 +14,7 @@ contract MoveSystem is MoveEvent {
     return REGISTRY_ADDRESS;
   }
 
-   // Called by users
+  // Called by users
   function moveWithAgent(
     bytes32 voxelTypeId,
     VoxelCoord memory oldCoord,
@@ -22,12 +22,12 @@ contract MoveSystem is MoveEvent {
     VoxelEntity memory agentEntity,
     bytes4 mindSelector
   ) public returns (VoxelEntity memory, VoxelEntity memory) {
-    MoveWorldEventData memory moveWorldEventData = MoveWorldEventData({
-      agentEntity: agentEntity
-    });
-    return move(voxelTypeId, newCoord, abi.encode(MoveEventData({
-      oldCoord: oldCoord,
-      worldData: abi.encode(moveWorldEventData)
-    })));
+    MoveWorldEventData memory moveWorldEventData = MoveWorldEventData({ agentEntity: agentEntity });
+    return
+      move(
+        voxelTypeId,
+        newCoord,
+        abi.encode(MoveEventData({ oldCoord: oldCoord, worldData: abi.encode(moveWorldEventData) }))
+      );
   }
 }

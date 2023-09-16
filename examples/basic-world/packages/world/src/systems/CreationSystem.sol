@@ -16,6 +16,7 @@ import { registerCreation as registerCreationToRegistry } from "@tenet-registry/
 contract CreationSystem is System {
   // This function is used when we have the coord and the voxelTypeId (but not the voxelVariantId). So we default to the preview voxel variant
   function registerCreationPlainVoxelTypes(
+    VoxelEntity memory agentEntity,
     string memory name,
     string memory description,
     bytes32[] memory voxelTypeIds,
@@ -27,10 +28,11 @@ contract CreationSystem is System {
       bytes32 voxelVariantId = VoxelTypeRegistry.getPreviewVoxelVariantId(IStore(REGISTRY_ADDRESS), voxelTypeIds[i]);
       voxelTypes[i] = VoxelTypeData(voxelTypeIds[i], voxelVariantId);
     }
-    return registerCreationHelper(name, description, voxelTypes, voxelCoords, baseCreationsInWorld);
+    return registerCreationHelper(agentEntity, name, description, voxelTypes, voxelCoords, baseCreationsInWorld);
   }
 
   function registerCreation(
+    VoxelEntity memory agentEntity,
     string memory name,
     string memory description,
     VoxelEntity[] memory voxels,
@@ -38,10 +40,11 @@ contract CreationSystem is System {
   ) public returns (bytes32) {
     VoxelTypeData[] memory voxelTypes = getVoxelTypes(voxels);
     VoxelCoord[] memory voxelCoords = getVoxelCoords(voxels); // NOTE: we do not know the relative position of these voxelCoords yet (since we don't know the coords of the voxels in the base creations). So we will reposition them later
-    return registerCreationHelper(name, description, voxelTypes, voxelCoords, baseCreationsInWorld);
+    return registerCreationHelper(agentEntity, name, description, voxelTypes, voxelCoords, baseCreationsInWorld);
   }
 
   function registerCreationHelper(
+    VoxelEntity memory agentEntity,
     string memory name,
     string memory description,
     VoxelTypeData[] memory voxelTypes,
@@ -66,10 +69,10 @@ contract CreationSystem is System {
     // Replace the voxels in the registration with a spawn!
     // delete the voxels at this coord
     for (uint256 i; i < allVoxelCoordsInWorld.length; i++) {
-      IWorld(_world()).mineVoxelType(allVoxelTypes[i].voxelTypeId, allVoxelCoordsInWorld[i], true, true, abi.encode(0));
+      IWorld(_world()).mineWithAgent(allVoxelTypes[i].voxelTypeId, allVoxelCoordsInWorld[i], agentEntity);
     }
 
-    IWorld(_world()).spawn(lowerSouthwestCorner, creationId); // make this creation a spawn
+    IWorld(_world()).spawn(agentEntity, lowerSouthwestCorner, creationId); // make this creation a spawn
     return creationId;
   }
 

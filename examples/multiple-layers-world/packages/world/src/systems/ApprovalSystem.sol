@@ -103,19 +103,39 @@ contract ApprovalSystem is EventApprovalsSystem {
     staminaLimit(caller, staminaCost);
   }
 
-  function approveMine(address caller, bytes32 voxelTypeId, VoxelCoord memory coord, bytes memory eventData) public override {
+  function approveMine(
+    address caller,
+    bytes32 voxelTypeId,
+    VoxelCoord memory coord,
+    bytes memory eventData
+  ) public override {
     super.approveMine(caller, voxelTypeId, coord, eventData);
   }
 
-  function approveBuild(address caller, bytes32 voxelTypeId, VoxelCoord memory coord, bytes memory eventData) public override {
+  function approveBuild(
+    address caller,
+    bytes32 voxelTypeId,
+    VoxelCoord memory coord,
+    bytes memory eventData
+  ) public override {
     super.approveBuild(caller, voxelTypeId, coord, eventData);
   }
 
-  function approveActivate(address caller, bytes32 voxelTypeId, VoxelCoord memory coord, bytes memory eventData) public override {
+  function approveActivate(
+    address caller,
+    bytes32 voxelTypeId,
+    VoxelCoord memory coord,
+    bytes memory eventData
+  ) public override {
     super.approveActivate(caller, voxelTypeId, coord, eventData);
   }
 
-  function approveMove(address caller, bytes32 voxelTypeId, VoxelCoord memory coord, bytes memory eventData) public override {
+  function approveMove(
+    address caller,
+    bytes32 voxelTypeId,
+    VoxelCoord memory coord,
+    bytes memory eventData
+  ) public override {
     super.approveMove(caller, voxelTypeId, coord, eventData);
   }
 }

@@ -60,10 +60,7 @@ contract TruthTableClassifySystem is System {
 
     VoxelCoord[] memory inCoords = new VoxelCoord[](inInterfaces.length);
     for (uint i = 0; i < inCoords.length; i++) {
-      inCoords[i] = getVoxelCoordStrict(VoxelEntity({
-        scale: 2,
-        entityId: inInterfaces[i].entity.entityId
-      }));
+      inCoords[i] = getVoxelCoordStrict(VoxelEntity({ scale: 2, entityId: inInterfaces[i].entity.entityId }));
     }
 
     bytes32[] memory outEntities = new bytes32[](outInterfaces.length);

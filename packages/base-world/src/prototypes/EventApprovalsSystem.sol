@@ -29,25 +29,45 @@ abstract contract EventApprovalsSystem is System {
     bytes memory eventData
   ) internal virtual;
 
-  function approveMine(address caller, bytes32 voxelTypeId, VoxelCoord memory coord, bytes memory eventData) public virtual {
+  function approveMine(
+    address caller,
+    bytes32 voxelTypeId,
+    VoxelCoord memory coord,
+    bytes memory eventData
+  ) public virtual {
     preApproval(EventType.Mine, caller, voxelTypeId, coord, eventData);
     approveEvent(EventType.Mine, caller, voxelTypeId, coord, eventData);
     postApproval(EventType.Mine, caller, voxelTypeId, coord, eventData);
   }
 
-  function approveBuild(address caller, bytes32 voxelTypeId, VoxelCoord memory coord, bytes memory eventData) public virtual {
+  function approveBuild(
+    address caller,
+    bytes32 voxelTypeId,
+    VoxelCoord memory coord,
+    bytes memory eventData
+  ) public virtual {
     preApproval(EventType.Build, caller, voxelTypeId, coord, eventData);
     approveEvent(EventType.Build, caller, voxelTypeId, coord, eventData);
     postApproval(EventType.Build, caller, voxelTypeId, coord, eventData);
   }
 
-  function approveActivate(address caller, bytes32 voxelTypeId, VoxelCoord memory coord, bytes memory eventData) public virtual {
+  function approveActivate(
+    address caller,
+    bytes32 voxelTypeId,
+    VoxelCoord memory coord,
+    bytes memory eventData
+  ) public virtual {
     preApproval(EventType.Activate, caller, voxelTypeId, coord, eventData);
     approveEvent(EventType.Activate, caller, voxelTypeId, coord, eventData);
     postApproval(EventType.Activate, caller, voxelTypeId, coord, eventData);
   }
 
-  function approveMove(address caller, bytes32 voxelTypeId, VoxelCoord memory coord, bytes memory eventData) public virtual {
+  function approveMove(
+    address caller,
+    bytes32 voxelTypeId,
+    VoxelCoord memory coord,
+    bytes memory eventData
+  ) public virtual {
     preApproval(EventType.Activate, caller, voxelTypeId, coord, eventData);
     approveEvent(EventType.Activate, caller, voxelTypeId, coord, eventData);
     postApproval(EventType.Activate, caller, voxelTypeId, coord, eventData);

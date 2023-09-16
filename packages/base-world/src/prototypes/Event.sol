@@ -161,10 +161,7 @@ abstract contract Event is System {
       voxelEntityId = getUniqueEntity();
       Position.set(scale, voxelEntityId, coord.x, coord.y, coord.z);
     }
-    VoxelEntity memory eventVoxelEntity = VoxelEntity({
-      scale: scale,
-      entityId: voxelEntityId
-    });
+    VoxelEntity memory eventVoxelEntity = VoxelEntity({ scale: scale, entityId: voxelEntityId });
 
     if (runEventOnChildren && scale > 1) {
       runEventHandlerForChildren(voxelTypeId, voxelTypeData, coord, eventVoxelEntity, eventData);

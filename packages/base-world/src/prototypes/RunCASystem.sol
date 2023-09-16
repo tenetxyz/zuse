@@ -28,7 +28,16 @@ abstract contract RunCASystem is System {
     bytes32[] memory neighbourEntities = IWorld(_world()).calculateNeighbourEntities(entity);
     bytes32[] memory childEntityIds = IWorld(_world()).calculateChildEntities(entity);
     bytes32 parentEntity = IWorld(_world()).calculateParentEntity(entity);
-    enterWorld(caAddress, voxelTypeId, mindSelector, coord, entity.entityId, neighbourEntities, childEntityIds, parentEntity);
+    enterWorld(
+      caAddress,
+      voxelTypeId,
+      mindSelector,
+      coord,
+      entity.entityId,
+      neighbourEntities,
+      childEntityIds,
+      parentEntity
+    );
   }
 
   function moveCA(
@@ -41,7 +50,16 @@ abstract contract RunCASystem is System {
     bytes32[] memory neighbourEntities = IWorld(_world()).calculateNeighbourEntities(newEntity);
     bytes32[] memory childEntityIds = IWorld(_world()).calculateChildEntities(newEntity);
     bytes32 parentEntity = IWorld(_world()).calculateParentEntity(newEntity);
-    moveLayer(caAddress, voxelTypeId, oldCoord, newCoord, newEntity.entityId, neighbourEntities, childEntityIds, parentEntity);
+    moveLayer(
+      caAddress,
+      voxelTypeId,
+      oldCoord,
+      newCoord,
+      newEntity.entityId,
+      neighbourEntities,
+      childEntityIds,
+      parentEntity
+    );
   }
 
   function exitCA(
@@ -59,7 +77,10 @@ abstract contract RunCASystem is System {
   function activateCA(address caAddress, VoxelEntity memory entity) public virtual {
     bytes memory returnData = activateVoxel(caAddress, entity.entityId);
     string memory activateStr = abi.decode(returnData, (string));
-    VoxelActivated.emitEphemeral(tx.origin, VoxelActivatedData({ scale: entity.scale, entity: entity.entityId, message: activateStr }));
+    VoxelActivated.emitEphemeral(
+      tx.origin,
+      VoxelActivatedData({ scale: entity.scale, entity: entity.entityId, message: activateStr })
+    );
   }
 
   function runCA(address caAddress, VoxelEntity memory entity, bytes4 interactionSelector) public virtual {

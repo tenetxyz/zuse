@@ -364,7 +364,7 @@ export async function setupNetwork() {
     const mindSelector = "0x00000000";
     const fighterMindSelector = "0xa303e6be";
 
-    await callSystem(worldContract.write.buildVoxel([scaleAsNumber, entityId, coord, mindSelector]));
+    await callSystem(worldContract.write.build([scaleAsNumber, entityId, coord, mindSelector]));
 
     // actions.add({
     //   id: `build+${voxelCoordToString(coord)}` as Entity, // used so we don't send the same transaction twice
@@ -541,11 +541,9 @@ export async function setupNetwork() {
       };
     });
 
-    await callSystem(worldContract.write.registerCreation([
-      creationName,
-      creationDescription,
-      voxelEntities,
-      baseCreationsInWorld]));
+    await callSystem(
+      worldContract.write.registerCreation([creationName, creationDescription, voxelEntities, baseCreationsInWorld])
+    );
 
     // actions.add({
     //   id: `RegisterCreation+${creationName}` as Entity,
@@ -654,14 +652,9 @@ export async function setupNetwork() {
     // TODO: Replace Iron NFT with a an register symbol
     const preview = getNftStorageLink("bafkreidkik2uccshptqcskpippfotmusg7algnfh5ozfsga72xyfdrvacm");
 
-    await callSystem(worldContract.write.registerTruthTable([
-          name,
-          description,
-          inputRows,
-          outputRows,
-          numInputBits,
-          numOutputBits
-    ]));
+    await callSystem(
+      worldContract.write.registerTruthTable([name, description, inputRows, outputRows, numInputBits, numOutputBits])
+    );
 
     // actions.add({
     //   id: `registerTruthTableClassifier+name=${name}` as Entity,
@@ -696,7 +689,14 @@ export async function setupNetwork() {
     const inInterfaceVoxels = interfaceVoxels.filter((interfaceVoxel) => interfaceVoxel.name.startsWith("in"));
     const outInterfaceVoxels = interfaceVoxels.filter((interfaceVoxel) => interfaceVoxel.name.startsWith("out"));
 
-    await callSystem(worldContract.write.classifyIfCreationSatisfiesTruthTable([booleanClassifierId, spawnId, inInterfaceVoxels, outInterfaceVoxels]));
+    await callSystem(
+      worldContract.write.classifyIfCreationSatisfiesTruthTable([
+        booleanClassifierId,
+        spawnId,
+        inInterfaceVoxels,
+        outInterfaceVoxels,
+      ])
+    );
     // actions.add({
     //   id: `classifyIfCreationSatisfiesTruthTable+booleanClassifierId=${booleanClassifierId}+spawnId=${spawnId}` as Entity,
     //   metadata: { actionType: "cassifyIfCreationSatisfiesTruthTable", preview },

@@ -12,7 +12,7 @@ contract ExternalCASystem is ExternalCAPrototype {
   function shouldRunInteractionForNeighbour(
     VoxelEntity memory originEntity,
     VoxelEntity memory neighbourEntity
-  ) internal override returns (bool) {
+  ) public view override returns (bool) {
     return true;
   }
 

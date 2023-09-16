@@ -17,11 +17,10 @@ import { VoxelTypeRegistry, VoxelTypeRegistryData } from "@tenet-registry/src/co
 abstract contract MoveEvent is Event {
   function move(
     bytes32 voxelTypeId,
-    VoxelCoord memory oldCoord,
-    VoxelCoord memory newCoord,
+    VoxelCoord memory coord,
     bytes memory eventData
   ) internal virtual returns (VoxelEntity memory) {
-    return super.runEvent(voxelTypeId, newCoord, eventData);
+    return super.runEvent(voxelTypeId, coord, eventData);
   }
 
   function moveVoxelType(

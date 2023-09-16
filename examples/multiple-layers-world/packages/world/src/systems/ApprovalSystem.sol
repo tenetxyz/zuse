@@ -23,7 +23,8 @@ contract ApprovalSystem is EventApprovalsSystem {
     EventType eventType,
     address caller,
     bytes32 voxelTypeId,
-    VoxelCoord memory coord
+    VoxelCoord memory coord,
+    bytes memory eventData
   ) internal override {
     // if there isn't a player entry in the table, then set the default values for the player
     if (!hasKey(PlayerTableId, Player.encodeKeyTuple(caller))) {
@@ -39,7 +40,8 @@ contract ApprovalSystem is EventApprovalsSystem {
     EventType eventType,
     address caller,
     bytes32 voxelTypeId,
-    VoxelCoord memory coord
+    VoxelCoord memory coord,
+    bytes memory eventData
   ) internal override {
     Player.setLastUpdateBlock(caller, block.number);
   }
@@ -86,7 +88,8 @@ contract ApprovalSystem is EventApprovalsSystem {
     EventType eventType,
     address caller,
     bytes32 voxelTypeId,
-    VoxelCoord memory coord
+    VoxelCoord memory coord,
+    bytes memory eventData
   ) internal override {
     movementLimit(caller, coord);
     uint256 staminaCost;
@@ -100,15 +103,19 @@ contract ApprovalSystem is EventApprovalsSystem {
     staminaLimit(caller, staminaCost);
   }
 
-  function approveMine(address caller, bytes32 voxelTypeId, VoxelCoord memory coord) public override {
-    super.approveMine(caller, voxelTypeId, coord);
+  function approveMine(address caller, bytes32 voxelTypeId, VoxelCoord memory coord, bytes memory eventData) public override {
+    super.approveMine(caller, voxelTypeId, coord, eventData);
   }
 
-  function approveBuild(address caller, bytes32 voxelTypeId, VoxelCoord memory coord) public override {
-    super.approveBuild(caller, voxelTypeId, coord);
+  function approveBuild(address caller, bytes32 voxelTypeId, VoxelCoord memory coord, bytes memory eventData) public override {
+    super.approveBuild(caller, voxelTypeId, coord, eventData);
   }
 
-  function approveActivate(address caller, bytes32 voxelTypeId, VoxelCoord memory coord) public override {
-    super.approveActivate(caller, voxelTypeId, coord);
+  function approveActivate(address caller, bytes32 voxelTypeId, VoxelCoord memory coord, bytes memory eventData) public override {
+    super.approveActivate(caller, voxelTypeId, coord, eventData);
+  }
+
+  function approveMove(address caller, bytes32 voxelTypeId, VoxelCoord memory coord, bytes memory eventData) public override {
+    super.approveMove(caller, voxelTypeId, coord, eventData);
   }
 }

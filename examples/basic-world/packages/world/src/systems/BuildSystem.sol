@@ -28,7 +28,7 @@ contract BuildSystem is BuildEvent {
       build(
         voxelTypeId,
         coord,
-        abi.encode(BuildEventData({ mindSelector: mindSelector, worldData: abi.encode(bytes(0)) }))
+        abi.encode(BuildEventData({ mindSelector: mindSelector, worldData: abi.encode(bytes32(0)) }))
       );
   }
 }

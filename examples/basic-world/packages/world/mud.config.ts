@@ -7,7 +7,7 @@ export default tenetMudConfig({
     RunCASystem: {
       name: "RunCASystem",
       openAccess: false,
-      accessList: ["BuildSystem", "MineSystem", "ActivateVoxelSystem", "MoveSystem"],
+      accessList: ["BuildSystem", "MineSystem", "ActivateSystem", "MoveSystem"],
     },
   },
   modules: [],

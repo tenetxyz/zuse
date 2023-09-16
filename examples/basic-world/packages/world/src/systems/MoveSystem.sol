@@ -21,6 +21,6 @@ contract MoveSystem is MoveEvent {
     bytes4 mindSelector
   ) public returns (VoxelEntity memory, VoxelEntity memory) {
     return
-      move(voxelTypeId, newCoord, abi.encode(MoveEventData({ oldCoord: oldCoord, worldData: abi.encode(bytes(0)) })));
+      move(voxelTypeId, newCoord, abi.encode(MoveEventData({ oldCoord: oldCoord, worldData: abi.encode(bytes32(0)) })));
   }
 }

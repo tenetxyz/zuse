@@ -16,4 +16,6 @@ interface IEventApprovalsSystem {
     VoxelCoord memory coord,
     bytes memory eventData
   ) external;
+
+  function approveMove(address caller, bytes32 voxelTypeId, VoxelCoord memory coord, bytes memory eventData) external;
 }

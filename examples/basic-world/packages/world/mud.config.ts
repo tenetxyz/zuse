@@ -3,15 +3,14 @@ import { resolveTableId } from "@latticexyz/config";
 
 export default tenetMudConfig({
   tables: {
-    Player: {
+    BodyPhysics: {
       keySchema: {
-        player: "address",
+        scale: "uint32",
+        entity: "bytes32",
       },
       schema: {
-        health: "uint256",
-        stamina: "uint256",
-        lastUpdateBlock: "uint256",
-        lastUpdateCoord: "bytes", // VoxelCoord
+        mass: "uint256",
+        energy: "uint256",
       },
     },
     OwnedBy: {
@@ -33,14 +32,14 @@ export default tenetMudConfig({
   },
   modules: [
     {
-      name: "KeysWithValueModule",
+      name: "KeysInTableModule",
       root: true,
       args: [resolveTableId("OwnedBy")],
     },
     {
       name: "KeysInTableModule",
       root: true,
-      args: [resolveTableId("Player")],
+      args: [resolveTableId("BodyPhysics")],
     },
   ],
 });

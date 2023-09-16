@@ -5,7 +5,7 @@ import { getUniqueEntity } from "@latticexyz/world/src/modules/uniqueentity/getU
 import { System } from "@latticexyz/world/src/System.sol";
 import { VoxelCoord, VoxelEntity } from "@tenet-utils/src/Types.sol";
 import { BuildEventData } from "@tenet-base-world/src/Types.sol";
-import { Position, PositionTableId, VoxelType, OfSpawn, Spawn, SpawnData } from "@tenet-world/src/codegen/Tables.sol";
+import { OwnedBy, Position, PositionTableId, VoxelType, OfSpawn, Spawn, SpawnData } from "@tenet-world/src/codegen/Tables.sol";
 import { VoxelTypeData } from "@tenet-utils/src/Types.sol";
 import { voxelCoordsAreEqual, add } from "@tenet-utils/src/VoxelCoordUtils.sol";
 import { int32ToString } from "@tenet-utils/src/StringUtils.sol";
@@ -17,7 +17,11 @@ import { Strings } from "@openzeppelin/contracts/utils/Strings.sol";
 import { getVoxelsInCreation, creationSpawned } from "@tenet-registry/src/Utils.sol";
 
 contract SpawnSystem is System {
-  function spawn(VoxelCoord memory lowerSouthWestCorner, bytes32 creationId) public returns (bytes32) {
+  function spawn(
+    VoxelEntity memory agentEntity,
+    VoxelCoord memory lowerSouthWestCorner,
+    bytes32 creationId
+  ) public returns (bytes32) {
     // 1) get all the voxels in the creation
     (VoxelCoord[] memory relativeVoxelCoords, VoxelTypeData[] memory voxelTypes) = getVoxelsInCreation(
       REGISTRY_ADDRESS,
@@ -38,9 +42,10 @@ contract SpawnSystem is System {
         )
       );
 
-      VoxelEntity memory newEntity = IWorld(_world()).build(
+      VoxelEntity memory newEntity = IWorld(_world()).buildWithAgent(
         voxelTypes[i].voxelTypeId,
         spawnVoxelAtCoord,
+        agentEntity,
         bytes4(0) // TODO: which mind to use during spawns?
       );
       uint32 scale = newEntity.scale;

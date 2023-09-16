@@ -10,6 +10,7 @@ import { MineEventData } from "@tenet-base-world/src/Types.sol";
 import { AirVoxelID } from "@tenet-level1-ca/src/Constants.sol";
 import { getEntityAtCoord } from "@tenet-base-world/src/Utils.sol";
 import { REGISTRY_ADDRESS } from "@tenet-world/src/Constants.sol";
+import { MineWorldEventData } from "@tenet-world/src/Types.sol";
 
 contract MineSystem is MineEvent {
   function getRegistryAddress() internal pure override returns (address) {
@@ -17,8 +18,13 @@ contract MineSystem is MineEvent {
   }
 
   // Called by users
-  function mine(bytes32 voxelTypeId, VoxelCoord memory coord) public returns (VoxelEntity memory) {
+  function mineWithAgent(
+    bytes32 voxelTypeId,
+    VoxelCoord memory coord,
+    VoxelEntity memory agentEntity
+  ) public returns (VoxelEntity memory) {
     require(coord.y <= CHUNK_MAX_Y && coord.y >= CHUNK_MIN_Y, "out of chunk bounds");
-    super.mine(voxelTypeId, coord, abi.encode(MineEventData({ worldData: abi.encode(bytes(0)) })));
+    MineWorldEventData memory mineEventData = MineWorldEventData({ agentEntity: agentEntity });
+    super.mine(voxelTypeId, coord, abi.encode(MineEventData({ worldData: abi.encode(mineEventData) })));
   }
 }

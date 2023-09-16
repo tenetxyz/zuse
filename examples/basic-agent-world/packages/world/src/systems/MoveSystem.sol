@@ -7,6 +7,7 @@ import { IWorld } from "@tenet-world/src/codegen/world/IWorld.sol";
 import { VoxelCoord, VoxelEntity } from "@tenet-utils/src/Types.sol";
 import { REGISTRY_ADDRESS } from "@tenet-world/src/Constants.sol";
 import { MoveEventData } from "@tenet-base-world/src/Types.sol";
+import { MoveWorldEventData } from "@tenet-world/src/Types.sol";
 
 contract MoveSystem is MoveEvent {
   function getRegistryAddress() internal pure override returns (address) {
@@ -14,13 +15,19 @@ contract MoveSystem is MoveEvent {
   }
 
   // Called by users
-  function move(
+  function moveWithAgent(
     bytes32 voxelTypeId,
     VoxelCoord memory oldCoord,
     VoxelCoord memory newCoord,
+    VoxelEntity memory agentEntity,
     bytes4 mindSelector
   ) public returns (VoxelEntity memory, VoxelEntity memory) {
+    MoveWorldEventData memory moveWorldEventData = MoveWorldEventData({ agentEntity: agentEntity });
     return
-      move(voxelTypeId, newCoord, abi.encode(MoveEventData({ oldCoord: oldCoord, worldData: abi.encode(bytes(0)) })));
+      move(
+        voxelTypeId,
+        newCoord,
+        abi.encode(MoveEventData({ oldCoord: oldCoord, worldData: abi.encode(moveWorldEventData) }))
+      );
   }
 }

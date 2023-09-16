@@ -182,53 +182,35 @@ abstract contract BuildEvent is Event {
         worldVoxelTypeId
       );
       if (voxelTypeData.scale == buildScale + 1) {
-        bool foundMatch = buildParentVoxelHelper(
-          voxelTypeId,
-          buildVoxelEntity,
-          coord,
-          eventData,
-          voxelTypeData,
+        bool hasSameSchema = hasSameVoxelTypeSchema(
+          buildScale,
+          voxelTypeData.schemaVoxelTypeIds,
           existingChildVoxelTypes,
-          eightBlockVoxelCoords,
-          worldVoxelTypeId,
-          parentVoxelCoord
+          eightBlockVoxelCoords
         );
-        if (foundMatch) {
+
+        if (hasSameSchema) {
+          bytes memory parentEventData;
+          {
+            parentEventData = getParentEventData(
+              voxelTypeId,
+              coord,
+              buildVoxelEntity,
+              eventData,
+              worldVoxelTypeId,
+              parentVoxelCoord
+            );
+          }
+          VoxelEntity memory parentVoxelEntity = super.runEventHandlerHelper(
+            worldVoxelTypeId,
+            parentVoxelCoord,
+            false,
+            parentEventData
+          );
+          buildParentVoxel(worldVoxelTypeId, parentVoxelEntity, parentVoxelCoord, eventData);
           break;
         }
       }
     }
-  }
-
-  function buildParentVoxelHelper(
-    bytes32 voxelTypeId,
-    VoxelEntity memory buildVoxelEntity,
-    VoxelCoord memory coord,
-    bytes memory eventData,
-    VoxelTypeRegistryData memory voxelTypeData,
-    bytes32[] memory existingChildVoxelTypes,
-    VoxelCoord[] memory eightBlockVoxelCoords,
-    bytes32 worldVoxelTypeId,
-    VoxelCoord memory parentVoxelCoord
-  ) internal returns (bool) {
-    uint32 buildScale = buildVoxelEntity.scale;
-
-    bool hasSameSchema = hasSameVoxelTypeSchema(
-      buildScale,
-      voxelTypeData.schemaVoxelTypeIds,
-      existingChildVoxelTypes,
-      eightBlockVoxelCoords
-    );
-
-    if (hasSameSchema) {
-      VoxelEntity memory parentVoxelEntity = super.runEventHandlerHelper(
-        worldVoxelTypeId,
-        parentVoxelCoord,
-        false,
-        getParentEventData(voxelTypeId, coord, buildVoxelEntity, eventData, worldVoxelTypeId, parentVoxelCoord)
-      );
-      buildParentVoxel(worldVoxelTypeId, parentVoxelEntity, parentVoxelCoord, eventData);
-    }
-    return hasSameSchema;
   }
 }

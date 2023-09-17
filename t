@@ -21,6 +21,9 @@ if [[ "$1" == "run" ]]; then
         "dev:basic-agent-world")
             ./t run dev:framework && concurrently -n example -c \#fb8500 "cd examples/basic-agent-world && yarn run dev"
             ;;
+        "dev:basic-conserved-world")
+            ./t run dev:framework && concurrently -n example -c \#fb8500 "cd examples/basic-conserved-world && yarn run dev"
+            ;;
         "dev:multiple-layers-world")
             ./t run dev:framework && concurrently -n example -c \#fb8500 "cd examples/multiple-layers-world && yarn run dev"
             ;;

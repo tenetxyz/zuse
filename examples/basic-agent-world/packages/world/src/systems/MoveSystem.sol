@@ -21,8 +21,7 @@ contract MoveSystem is MoveEvent {
     bytes32 voxelTypeId,
     VoxelCoord memory oldCoord,
     VoxelCoord memory newCoord,
-    VoxelEntity memory agentEntity,
-    bytes4 mindSelector
+    VoxelEntity memory agentEntity
   ) public returns (VoxelEntity memory, VoxelEntity memory) {
     MoveWorldEventData memory moveWorldEventData = MoveWorldEventData({ agentEntity: agentEntity });
     (VoxelEntity memory oldEntity, VoxelEntity memory newEntity) = move(

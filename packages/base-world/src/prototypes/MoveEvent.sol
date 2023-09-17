@@ -24,7 +24,7 @@ abstract contract MoveEvent is Event {
     MoveEventData memory moveEventData = abi.decode(eventData, (MoveEventData));
     bytes32 oldEntityId = getEntityAtCoord(newVoxelEntity.scale, moveEventData.oldCoord);
     VoxelEntity memory oldVoxelEntity = VoxelEntity({ scale: newVoxelEntity.scale, entityId: oldEntityId });
-    return (newVoxelEntity, oldVoxelEntity);
+    return (oldVoxelEntity, newVoxelEntity);
   }
 
   function preEvent(bytes32 voxelTypeId, VoxelCoord memory coord, bytes memory eventData) internal virtual override {

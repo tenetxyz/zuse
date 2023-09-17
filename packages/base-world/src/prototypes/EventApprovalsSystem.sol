@@ -68,8 +68,8 @@ abstract contract EventApprovalsSystem is System {
     VoxelCoord memory coord,
     bytes memory eventData
   ) public virtual {
-    preApproval(EventType.Activate, caller, voxelTypeId, coord, eventData);
-    approveEvent(EventType.Activate, caller, voxelTypeId, coord, eventData);
-    postApproval(EventType.Activate, caller, voxelTypeId, coord, eventData);
+    preApproval(EventType.Move, caller, voxelTypeId, coord, eventData);
+    approveEvent(EventType.Move, caller, voxelTypeId, coord, eventData);
+    postApproval(EventType.Move, caller, voxelTypeId, coord, eventData);
   }
 }

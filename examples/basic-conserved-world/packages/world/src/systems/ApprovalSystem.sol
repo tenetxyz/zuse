@@ -8,10 +8,13 @@ import { EventType } from "@tenet-base-world/src/Types.sol";
 import { VoxelCoord, VoxelEntity } from "@tenet-utils/src/Types.sol";
 import { Strings } from "@openzeppelin/contracts/utils/Strings.sol";
 import { OwnedBy, OwnedByTableId } from "@tenet-world/src/codegen/tables/OwnedBy.sol";
+import { BodyPhysics } from "@tenet-world/src/codegen/tables/BodyPhysics.sol";
 import { MineEventData, BuildEventData, MoveEventData, ActivateEventData } from "@tenet-base-world/src/Types.sol";
 import { MineWorldEventData, BuildWorldEventData, MoveWorldEventData, ActivateWorldEventData } from "@tenet-world/src/Types.sol";
 import { distanceBetween } from "@tenet-utils/src/VoxelCoordUtils.sol";
-import { getEntityPositionStrict, positionDataToVoxelCoord } from "@tenet-base-world/src/Utils.sol";
+import { getEntityAtCoord, getEntityPositionStrict, positionDataToVoxelCoord } from "@tenet-base-world/src/Utils.sol";
+import { VoxelTypeRegistry, VoxelTypeRegistryData } from "@tenet-registry/src/codegen/tables/VoxelTypeRegistry.sol";
+import { REGISTRY_ADDRESS } from "@tenet-world/src/Constants.sol";
 
 uint256 constant MAX_AGENT_ACTION_RADIUS = 1;
 
@@ -80,7 +83,17 @@ contract ApprovalSystem is EventApprovalsSystem {
     bytes32 voxelTypeId,
     VoxelCoord memory coord,
     bytes memory eventData
-  ) internal override {}
+  ) internal override {
+    // TODO: This is duplicated from Event.sol, should consolidate it
+    VoxelTypeRegistryData memory voxelTypeData = VoxelTypeRegistry.get(IStore(REGISTRY_ADDRESS), voxelTypeId);
+    uint32 scale = voxelTypeData.scale;
+    bytes32 entityId = getEntityAtCoord(scale, coord);
+    if (eventType == EventType.Build) {
+      if (uint256(entityId) != 0) {
+        require(BodyPhysics.getMass(scale, entityId) == 0, "Cannot build on top of an entity with mass");
+      } // if the entity doesn't exist, then it's mass is assumed to be 0
+    }
+  }
 
   function approveMine(
     address caller,

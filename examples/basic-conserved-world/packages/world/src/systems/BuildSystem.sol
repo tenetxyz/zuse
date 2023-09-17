@@ -34,4 +34,15 @@ contract BuildSystem is BuildEvent {
         abi.encode(BuildEventData({ mindSelector: mindSelector, worldData: abi.encode(buildEventData) }))
       );
   }
+
+  function postEvent(
+    bytes32 voxelTypeId,
+    VoxelCoord memory coord,
+    VoxelEntity memory eventVoxelEntity,
+    bytes memory eventData
+  ) internal override {
+    // Update the mass of the entity to be the type definition's mass
+    // Calculate how much energy the neighbours should get
+    // and update all the neighbours
+  }
 }

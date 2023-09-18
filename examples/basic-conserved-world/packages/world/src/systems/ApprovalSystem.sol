@@ -94,7 +94,10 @@ contract ApprovalSystem is EventApprovalsSystem {
       if (uint256(entityId) != 0) {
         require(BodyPhysics.getMass(scale, entityId) == 0, "Cannot build on top of an entity with mass");
       } else {
-        BodyPhysicsData memory terrainPhysicsData = IWorld(_world()).getTerrainBodyPhysicsData(caAddress, coord);
+        (bytes32 voxelTypeId, BodyPhysicsData memory terrainPhysicsData) = IWorld(_world()).getTerrainBodyPhysicsData(
+          caAddress,
+          coord
+        );
         require(terrainPhysicsData.mass == 0, "Cannot build on top of terrain with mass");
       }
     }

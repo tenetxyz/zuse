@@ -14,7 +14,6 @@ import { VoxelTypeRegistry, VoxelTypeRegistryData } from "@tenet-registry/src/co
 import { CAVoxelType, CAVoxelTypeData } from "@tenet-base-ca/src/codegen/tables/CAVoxelType.sol";
 import { WorldConfig, WorldConfigTableId } from "@tenet-base-world/src/codegen/tables/WorldConfig.sol";
 import { getUniqueEntity } from "@latticexyz/world/src/modules/uniqueentity/getUniqueEntity.sol";
-import { getTerrainVoxelId } from "@tenet-base-ca/src/CallUtils.sol";
 
 uint256 constant MAXIMUM_ENERGY_OUT = 100;
 
@@ -35,11 +34,16 @@ contract PhysicsSystem is System {
       for (uint256 i = 0; i < useNeighbourEntities.length; i++) {
         if (useNeighbourEntities[i] == bytes32(0)) {
           // create the entities that don't exist from the terrain
+          (bytes32 terrainVoxelTypeId, BodyPhysicsData memory terrainPhysicsData) = IWorld(_world())
+            .getTerrainBodyPhysicsData(caAddress, neighbourCoords[i]);
+          if (terrainPhysicsData.mass == 0) {
+            continue;
+          }
           VoxelEntity memory newTerrainEntity = spawnBody(
-            getTerrainVoxelId(caAddress, neighbourCoords[i]),
+            terrainVoxelTypeId,
             neighbourCoords[i],
             bytes4(0),
-            IWorld(_world()).getTerrainBodyPhysicsData(caAddress, neighbourCoords[i])
+            terrainPhysicsData
           );
           useNeighbourEntities[i] = newTerrainEntity.entityId;
         }

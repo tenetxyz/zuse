@@ -31,7 +31,7 @@ contract CASystem is CA {
     );
   }
 
-  function getTerrainVoxelId(VoxelCoord memory coord) internal pure override returns (bytes32) {
+  function getTerrainVoxelId(VoxelCoord memory coord) internal view override returns (bytes32) {
     revert("Level2CA: Terrain gen not implemented");
   }
 

@@ -62,8 +62,8 @@ function setCAMindSelector(address caAddress, bytes32 entity, bytes4 mindSelecto
     );
 }
 
-function getTerrainVoxelId(address caAddress, VoxelCoord memory coord) returns (bytes32) {
-  bytes memory returnData = safeCall(
+function getTerrainVoxelId(address caAddress, VoxelCoord memory coord) view returns (bytes32) {
+  bytes memory returnData = safeStaticCall(
     caAddress,
     abi.encodeWithSignature(CA_GET_TERRAIN_VOXEL_ID_SIG, coord),
     string(abi.encode("getTerrainVoxelId ", coord))

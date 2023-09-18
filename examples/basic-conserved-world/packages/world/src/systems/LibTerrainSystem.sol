@@ -11,33 +11,25 @@ contract LibTerrainSystem is System {
   function getTerrainBodyPhysicsData(
     address caAddress,
     VoxelCoord memory coord
-  ) public returns (BodyPhysicsData memory) {
+  ) public returns (bytes32, BodyPhysicsData memory) {
     BodyPhysicsData memory data;
 
     bytes32 voxelTypeId = getTerrainVoxelId(caAddress, coord);
 
     if (voxelTypeId == AirVoxelID) {
-      return data;
-    }
-
-    if (voxelTypeId == BedrockVoxelID) {
+      data.mass = 0;
+      data.energy = 0;
+    } else if (voxelTypeId == BedrockVoxelID) {
       data.mass = 100;
       data.energy = 1;
-      return data;
-    }
-
-    if (voxelTypeId == GrassVoxelID) {
+    } else if (voxelTypeId == GrassVoxelID) {
       data.mass = 10;
       data.energy = 100;
-      return data;
-    }
-
-    if (voxelTypeId == DirtVoxelID) {
+    } else if (voxelTypeId == DirtVoxelID) {
       data.mass = 5;
       data.energy = 150;
-      return data;
     }
 
-    return data;
+    return (voxelTypeId, data);
   }
 }

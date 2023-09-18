@@ -46,12 +46,17 @@ abstract contract CA is System {
     bytes32 parentEntity
   ) internal virtual returns (bytes32);
 
+  function getTerrainVoxelId(VoxelCoord memory coord) internal pure virtual returns (bytes32);
+
   function terrainGen(
     address callerAddress,
     bytes32 voxelTypeId,
     VoxelCoord memory coord,
     bytes32 entity
   ) internal virtual {
+    // If there is no entity at this position, try mining the terrain voxel at this position
+    bytes32 terrainVoxelTypeId = getTerrainVoxelId(coord);
+    require(terrainVoxelTypeId != emptyVoxelId() && terrainVoxelTypeId == voxelTypeId, "invalid terrain voxel type");
     CAPosition.set(callerAddress, entity, CAPositionData({ x: coord.x, y: coord.y, z: coord.z }));
     bytes32 caEntity = getUniqueEntity();
     CAEntityMapping.set(callerAddress, entity, caEntity);
@@ -104,6 +109,7 @@ abstract contract CA is System {
       );
       caEntity = entityToCAEntity(callerAddress, entity);
     } else {
+      require(getTerrainVoxelId(coord) == voxelTypeId, "invalid terrain voxel type");
       require(!hasKey(CAEntityMappingTableId, CAEntityMapping.encodeKeyTuple(callerAddress, entity)), "Entity exists");
       CAPosition.set(callerAddress, entity, CAPositionData({ x: coord.x, y: coord.y, z: coord.z }));
       caEntity = getUniqueEntity();

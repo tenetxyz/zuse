@@ -5,7 +5,7 @@ import { VoxelCoord } from "@tenet-utils/src/Types.sol";
 import { System } from "@latticexyz/world/src/System.sol";
 import { AirVoxelID, GrassVoxelID, DirtVoxelID, BedrockVoxelID } from "@tenet-level1-ca/src/Constants.sol";
 import { BodyPhysics, BodyPhysicsData } from "@tenet-world/src/codegen/Tables.sol";
-import { safeCall } from "@tenet-utils/src/CallUtils.sol";
+import { getTerrainVoxelId } from "@tenet-base-ca/src/CallUtils.sol";
 
 contract LibTerrainSystem is System {
   function getTerrainBodyPhysicsData(
@@ -14,12 +14,7 @@ contract LibTerrainSystem is System {
   ) public returns (BodyPhysicsData memory) {
     BodyPhysicsData memory data;
 
-    bytes memory returnData = safeCall(
-      caAddress,
-      abi.encodeWithSignature("ca_LibTerrainSystem_getTerrainVoxel((int32,int32,int32))", coord),
-      string(abi.encode("ca_LibTerrainSystem_getTerrainVoxel ", coord))
-    );
-    bytes32 voxelTypeId = abi.decode(returnData, (bytes32));
+    bytes32 voxelTypeId = getTerrainVoxelId(caAddress, coord);
 
     if (voxelTypeId == AirVoxelID) {
       return data;

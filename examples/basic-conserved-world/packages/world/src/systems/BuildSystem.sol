@@ -4,7 +4,7 @@ pragma solidity >=0.8.0;
 import { IWorld } from "@tenet-world/src/codegen/world/IWorld.sol";
 import { BuildEvent } from "@tenet-base-world/src/prototypes/BuildEvent.sol";
 import { BuildEventData } from "@tenet-base-world/src/Types.sol";
-import { OwnedBy, VoxelType, VoxelTypeProperties, BodyPhysics } from "@tenet-world/src/codegen/Tables.sol";
+import { OwnedBy, VoxelType, VoxelTypeProperties, BodyPhysics, WorldConfig } from "@tenet-world/src/codegen/Tables.sol";
 import { VoxelCoord, VoxelTypeData, VoxelEntity } from "@tenet-utils/src/Types.sol";
 import { min } from "@tenet-utils/src/VoxelCoordUtils.sol";
 import { REGISTRY_ADDRESS } from "@tenet-world/src/Constants.sol";
@@ -46,9 +46,10 @@ contract BuildSystem is BuildEvent {
   ) internal override {
     // Update the mass of the entity to be the type definition's mass
     uint256 bodyMass = VoxelTypeProperties.get(voxelTypeId);
+    address caAddress = WorldConfig.get(voxelTypeId);
     // Calculate how much energy this operation requires
-    uint256 energyRequired = bodyMass * 100;
-    IWorld(_world()).fluxEnergyIn(eventVoxelEntity, energyRequired);
+    uint256 energyRequired = bodyMass * 10;
+    IWorld(_world()).fluxEnergyIn(caAddress, eventVoxelEntity, energyRequired);
     BodyPhysics.setMass(eventVoxelEntity.scale, eventVoxelEntity.entityId, bodyMass);
   }
 }

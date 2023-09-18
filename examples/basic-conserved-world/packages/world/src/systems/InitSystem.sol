@@ -10,14 +10,12 @@ import { CARegistry } from "@tenet-registry/src/codegen/tables/CARegistry.sol";
 import { REGISTER_WORLD_SIG } from "@tenet-registry/src/Constants.sol";
 import { REGISTRY_ADDRESS, BASE_CA_ADDRESS } from "../Constants.sol";
 import { VoxelCoord, VoxelTypeData, VoxelEntity } from "@tenet-utils/src/Types.sol";
-import { getUniqueEntity } from "@latticexyz/world/src/modules/uniqueentity/getUniqueEntity.sol";
 import { safeCall } from "@tenet-utils/src/CallUtils.sol";
 import { FighterVoxelID, GrassVoxelID, AirVoxelID } from "@tenet-level1-ca/src/Constants.sol";
 import { WorldConfig, WorldConfigTableId } from "@tenet-base-world/src/codegen/tables/WorldConfig.sol";
 import { CAVoxelType, CAVoxelTypeData } from "@tenet-base-ca/src/codegen/tables/CAVoxelType.sol";
 import { VoxelType, Position, VoxelTypeProperties, BodyPhysics, BodyPhysicsData } from "@tenet-world/src/codegen/Tables.sol";
 import { BuildEventData } from "@tenet-base-world/src/Types.sol";
-import { VoxelTypeRegistry, VoxelTypeRegistryData } from "@tenet-registry/src/codegen/tables/VoxelTypeRegistry.sol";
 
 contract InitSystem is InitWorldSystem {
   function getRegistryAddress() internal pure override returns (address) {
@@ -45,40 +43,12 @@ contract InitSystem is InitWorldSystem {
 
   function initWorldState() public {
     // TODO: require only called once by world deployer
-    VoxelEntity memory agentEntity = spawnBody(FighterVoxelID, VoxelCoord(10, 2, 10), bytes4(0));
-    BodyPhysics.set(
-      agentEntity.scale,
-      agentEntity.entityId,
+    IWorld(_world()).spawnBody(
+      FighterVoxelID,
+      VoxelCoord(10, 2, 10),
+      bytes4(0),
       BodyPhysicsData({ mass: 5, energy: 10, velocity: abi.encode(bytes32(0)), gravity: abi.encode(bytes32(0)) })
     );
-    VoxelEntity memory airEntity = spawnBody(AirVoxelID, VoxelCoord(10, 2, 11), bytes4(0));
-    BodyPhysics.set(
-      airEntity.scale,
-      airEntity.entityId,
-      BodyPhysicsData({ mass: 0, energy: 10, velocity: abi.encode(bytes32(0)), gravity: abi.encode(bytes32(0)) })
-    );
-  }
-
-  function spawnBody(
-    bytes32 voxelTypeId,
-    VoxelCoord memory coord,
-    bytes4 mindSelector
-  ) internal returns (VoxelEntity memory) {
-    VoxelTypeRegistryData memory voxelTypeData = VoxelTypeRegistry.get(IStore(getRegistryAddress()), voxelTypeId);
-    address caAddress = WorldConfig.get(voxelTypeId);
-
-    // Create new body entity
-    uint32 scale = voxelTypeData.scale;
-    bytes32 newEntityId = getUniqueEntity();
-    VoxelEntity memory eventVoxelEntity = VoxelEntity({ scale: scale, entityId: newEntityId });
-    Position.set(scale, newEntityId, coord.x, coord.y, coord.z);
-
-    // Update layers
-    IWorld(_world()).enterCA(caAddress, eventVoxelEntity, voxelTypeId, mindSelector, coord);
-    CAVoxelTypeData memory entityCAVoxelType = CAVoxelType.get(IStore(caAddress), _world(), newEntityId);
-    VoxelType.set(scale, newEntityId, entityCAVoxelType.voxelTypeId, entityCAVoxelType.voxelVariantId);
-    IWorld(_world()).runCA(caAddress, eventVoxelEntity, bytes4(0));
-    return eventVoxelEntity;
   }
 
   function onNewCAVoxelType(address caAddress, bytes32 voxelTypeId) public override {

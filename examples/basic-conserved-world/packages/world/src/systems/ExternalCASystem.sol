@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0
 pragma solidity >=0.8.0;
 
-import { VoxelEntity } from "@tenet-utils/src/Types.sol";
+import { VoxelCoord, VoxelEntity } from "@tenet-utils/src/Types.sol";
 import { ExternalCASystem as ExternalCAPrototype } from "@tenet-base-world/src/prototypes/ExternalCASystem.sol";
 
 contract ExternalCASystem is ExternalCAPrototype {
@@ -19,7 +19,7 @@ contract ExternalCASystem is ExternalCAPrototype {
   function calculateMooreNeighbourEntities(
     VoxelEntity memory centerEntity,
     uint8 neighbourRadius
-  ) public view override returns (bytes32[] memory) {
+  ) public view override returns (bytes32[] memory, VoxelCoord[] memory) {
     return super.calculateMooreNeighbourEntities(centerEntity, neighbourRadius);
   }
 

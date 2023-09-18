@@ -32,7 +32,7 @@ abstract contract ExternalCASystem is System {
   function calculateMooreNeighbourEntities(
     VoxelEntity memory centerEntity,
     uint8 neighbourRadius
-  ) public view virtual returns (bytes32[] memory) {
+  ) public view virtual returns (bytes32[] memory, VoxelCoord[] memory) {
     uint32 scale = centerEntity.scale;
     bytes32 centerEntityId = centerEntity.entityId;
     VoxelCoord memory centerCoord = positionDataToVoxelCoord(Position.get(scale, centerEntityId));
@@ -46,7 +46,7 @@ abstract contract ExternalCASystem is System {
         neighbourEntities[i] = 0;
       }
     }
-    return neighbourEntities;
+    return (neighbourEntities, neighbourCoords);
   }
 
   function calculateNeighbourEntities(VoxelEntity memory centerEntity) public view virtual returns (bytes32[] memory) {

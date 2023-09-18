@@ -8,7 +8,8 @@ import { EventType } from "@tenet-base-world/src/Types.sol";
 import { VoxelCoord, VoxelEntity } from "@tenet-utils/src/Types.sol";
 import { Strings } from "@openzeppelin/contracts/utils/Strings.sol";
 import { OwnedBy, OwnedByTableId } from "@tenet-world/src/codegen/tables/OwnedBy.sol";
-import { BodyPhysics } from "@tenet-world/src/codegen/tables/BodyPhysics.sol";
+import { BodyPhysics, BodyPhysicsData } from "@tenet-world/src/codegen/tables/BodyPhysics.sol";
+import { WorldConfig } from "@tenet-world/src/codegen/tables/WorldConfig.sol";
 import { MineEventData, BuildEventData, MoveEventData, ActivateEventData } from "@tenet-base-world/src/Types.sol";
 import { MineWorldEventData, BuildWorldEventData, MoveWorldEventData, ActivateWorldEventData } from "@tenet-world/src/Types.sol";
 import { distanceBetween } from "@tenet-utils/src/VoxelCoordUtils.sol";
@@ -86,12 +87,16 @@ contract ApprovalSystem is EventApprovalsSystem {
   ) internal override {
     // TODO: This is duplicated from Event.sol, should consolidate it
     VoxelTypeRegistryData memory voxelTypeData = VoxelTypeRegistry.get(IStore(REGISTRY_ADDRESS), voxelTypeId);
+    address caAddress = WorldConfig.get(voxelTypeId);
     uint32 scale = voxelTypeData.scale;
     bytes32 entityId = getEntityAtCoord(scale, coord);
     if (eventType == EventType.Build) {
       if (uint256(entityId) != 0) {
         require(BodyPhysics.getMass(scale, entityId) == 0, "Cannot build on top of an entity with mass");
-      } // if the entity doesn't exist, then it's mass is assumed to be 0
+      } else {
+        BodyPhysicsData memory terrainPhysicsData = IWorld(_world()).getTerrainBodyPhysicsData(caAddress, coord);
+        require(terrainPhysicsData.mass == 0, "Cannot build on top of terrain with mass");
+      }
     }
   }
 

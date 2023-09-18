@@ -48,9 +48,12 @@ contract BuildSystem is BuildEvent {
     uint256 energyToDissipate = bodyMass * 100;
     // Go through all the neighbours and equally take from each one, up till a maximum threshold for this level
     // if it runs out, go to the next set of neighbours, another radius away
-    uint256 startingRadius = 1;
+    uint8 radius = 1;
     while (energyToDissipate > 0) {
-      bytes32[] memory useNeighbourEntities = IWorld(_world()).calculateNeighbourEntities(eventVoxelEntity);
+      bytes32[] memory useNeighbourEntities = IWorld(_world()).calculateMooreNeighbourEntities(
+        eventVoxelEntity,
+        radius
+      );
     }
 
     // level = 1

@@ -3,9 +3,8 @@ pragma solidity >=0.8.0;
 
 import { IStore } from "@latticexyz/store/src/IStore.sol";
 import { System } from "@latticexyz/world/src/System.sol";
-import { VoxelCoord } from "@tenet-utils/src/Types.sol";
-import { VoxelEntity } from "@tenet-utils/src/Types.sol";
-import { hasEntity } from "@tenet-utils/src/Utils.sol";
+import { VoxelCoord, VoxelEntity } from "@tenet-utils/src/Types.sol";
+import { hasEntity, addressToEntityKey } from "@tenet-utils/src/Utils.sol";
 import { safeCall } from "@tenet-utils/src/CallUtils.sol";
 import { CAVoxelType, CAVoxelTypeData } from "@tenet-base-ca/src/codegen/tables/CAVoxelType.sol";
 import { CAMind } from "@tenet-base-ca/src/codegen/tables/CAMind.sol";
@@ -16,9 +15,9 @@ import { VoxelType, VoxelTypeData, VoxelTypeTableId } from "@tenet-base-world/sr
 import { WorldConfig } from "@tenet-base-world/src/codegen/tables/WorldConfig.sol";
 import { VoxelActivated, VoxelActivatedData } from "@tenet-base-world/src/codegen/tables/VoxelActivated.sol";
 import { VoxelMind, VoxelMindData } from "@tenet-base-world/src/codegen/tables/VoxelMind.sol";
-import { getEntityAtCoord, calculateChildCoords, calculateParentCoord } from "@tenet-base-world/src/Utils.sol";
 import { runInteraction, enterWorld, exitWorld, activateVoxel, moveLayer } from "@tenet-base-ca/src/CallUtils.sol";
-import { addressToEntityKey } from "@tenet-utils/src/Utils.sol";
+import { positionDataToVoxelCoord, getEntityAtCoord, calculateChildCoords, calculateParentCoord } from "@tenet-base-world/src/Utils.sol";
+import { getMooreNeighbours } from "@tenet-utils/src/VoxelCoordUtils.sol";
 
 abstract contract ExternalCASystem is System {
   function getVoxelTypeId(VoxelEntity memory entity) public view virtual returns (bytes32) {
@@ -29,6 +28,26 @@ abstract contract ExternalCASystem is System {
     VoxelEntity memory originEntity,
     VoxelEntity memory neighbourEntity
   ) public view virtual returns (bool);
+
+  function calculateMooreNeighbourEntities(
+    VoxelEntity memory centerEntity,
+    uint8 neighbourRadius
+  ) public view virtual returns (bytes32[] memory) {
+    uint32 scale = centerEntity.scale;
+    bytes32 centerEntityId = centerEntity.entityId;
+    VoxelCoord memory centerCoord = positionDataToVoxelCoord(Position.get(scale, centerEntityId));
+    VoxelCoord[] memory neighbourCoords = getMooreNeighbours(centerCoord, neighbourRadius);
+    bytes32[] memory neighbourEntities = new bytes32[](neighbourCoords.length);
+    for (uint i = 0; i < neighbourCoords.length; i++) {
+      bytes32 neighbourEntity = getEntityAtCoord(scale, neighbourCoords[i]);
+      if (uint256(neighbourEntity) != 0) {
+        neighbourEntities[i] = neighbourEntity;
+      } else {
+        neighbourEntities[i] = 0;
+      }
+    }
+    return neighbourEntities;
+  }
 
   function calculateNeighbourEntities(VoxelEntity memory centerEntity) public view virtual returns (bytes32[] memory) {
     uint32 scale = centerEntity.scale;

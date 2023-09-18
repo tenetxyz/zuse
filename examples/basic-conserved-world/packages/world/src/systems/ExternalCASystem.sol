@@ -16,6 +16,13 @@ contract ExternalCASystem is ExternalCAPrototype {
     return true;
   }
 
+  function calculateMooreNeighbourEntities(
+    VoxelEntity memory centerEntity,
+    uint8 neighbourRadius
+  ) public view override returns (bytes32[] memory) {
+    return super.calculateMooreNeighbourEntities(centerEntity, neighbourRadius);
+  }
+
   function calculateNeighbourEntities(VoxelEntity memory centerEntity) public view override returns (bytes32[] memory) {
     return super.calculateNeighbourEntities(centerEntity);
   }

@@ -24,6 +24,52 @@ function voxelCoordToString(VoxelCoord memory coord) pure returns (string memory
     );
 }
 
+// Helper function to calculate the absolute value of an integer
+function abs(int x) internal pure returns (int) {
+  if (x < 0) {
+    return -x;
+  }
+  return x;
+}
+
+function getMooreNeighbours(
+  VoxelCoord memory centerCoord,
+  uint8 neighbourRadius
+) public pure returns (VoxelCoord[] memory) {
+  // Moore cube of n x n x
+  uint n = 2 * uint(neighbourRadius) + 1;
+  // Calculate the number of neighbours
+  // (2 * n * n) + (2 * n * (n - 2)) + (2 * (n - 2) * (n - 2))
+  uint count = 6 * n * n - 12 * n + 8;
+
+  // Create an array to store the neighbours
+  VoxelCoord[] memory neighbours = new VoxelCoord[](count);
+
+  // Index to keep track of array
+  uint index = 0;
+
+  // Loop through each dimension
+  for (int i = -int(neighbourRadius); i <= int(neighbourRadius); i++) {
+    for (int j = -int(neighbourRadius); j <= int(neighbourRadius); j++) {
+      for (int k = -int(neighbourRadius); k <= int(neighbourRadius); k++) {
+        // Ignore the center
+        if (i == 0 && j == 0 && k == 0) continue;
+
+        // Ignore inner cube (radius less than neighbourRadius)
+        if (abs(i) < int(neighbourRadius) && abs(j) < int(neighbourRadius) && abs(k) < int(neighbourRadius)) continue;
+
+        // This coordinate belongs to the shell, so add it to the array
+        neighbours[index] = VoxelCoord(centerCoord.x + i, centerCoord.y + j, centerCoord.z + k);
+
+        // Increment the index
+        index++;
+      }
+    }
+  }
+
+  return neighbours;
+}
+
 // Using Babylonian method
 function sqrt(uint x) pure returns (uint y) {
   uint z = (x + 1) / 2;

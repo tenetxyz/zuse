@@ -46,7 +46,7 @@ abstract contract CA is System {
     bytes32 parentEntity
   ) internal virtual returns (bytes32);
 
-  function getTerrainVoxelId(VoxelCoord memory coord) internal view virtual returns (bytes32);
+  function getTerrainVoxelId(VoxelCoord memory coord) public view virtual returns (bytes32);
 
   function terrainGen(
     address callerAddress,

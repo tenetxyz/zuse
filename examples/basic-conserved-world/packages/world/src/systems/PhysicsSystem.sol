@@ -78,7 +78,11 @@ contract PhysicsSystem is System {
         BodyPhysics.setEnergy(scale, neighborEntity, neighbourEnergy - energyToTake);
 
         // Decrease the amount of energy left to dissipate
-        energyToFluxIn -= energyToTake;
+        if (energyToTake > energyToFluxIn) {
+          energyToFluxIn = 0;
+        } else {
+          energyToFluxIn -= energyToTake;
+        }
 
         // If we have successfully dissipated all energy, exit the loop
         if (energyToFluxIn == 0) {

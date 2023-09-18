@@ -54,6 +54,7 @@ contract BuildSystem is BuildEvent {
         eventVoxelEntity,
         radius
       );
+      radius += 1;
     }
 
     // level = 1

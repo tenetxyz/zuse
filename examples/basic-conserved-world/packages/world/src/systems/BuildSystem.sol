@@ -4,7 +4,7 @@ pragma solidity >=0.8.0;
 import { IWorld } from "@tenet-world/src/codegen/world/IWorld.sol";
 import { BuildEvent } from "@tenet-base-world/src/prototypes/BuildEvent.sol";
 import { BuildEventData } from "@tenet-base-world/src/Types.sol";
-import { OwnedBy, VoxelType } from "@tenet-world/src/codegen/Tables.sol";
+import { OwnedBy, VoxelType, VoxelTypeProperties, BodyPhysics } from "@tenet-world/src/codegen/Tables.sol";
 import { VoxelCoord, VoxelTypeData, VoxelEntity } from "@tenet-utils/src/Types.sol";
 import { REGISTRY_ADDRESS } from "@tenet-world/src/Constants.sol";
 import { AirVoxelID } from "@tenet-level1-ca/src/Constants.sol";
@@ -42,7 +42,22 @@ contract BuildSystem is BuildEvent {
     bytes memory eventData
   ) internal override {
     // Update the mass of the entity to be the type definition's mass
-    // Calculate how much energy the neighbours should get
-    // and update all the neighbours
+    uint256 bodyMass = VoxelTypeProperties.get(voxelTypeId);
+    BodyPhysics.setMass(eventVoxelEntity.scale, eventVoxelEntity.entityId, bodyMass);
+    // Calculate how much energy this operation requires
+    uint256 energyToDissipate = bodyMass * 100;
+    // Go through all the neighbours and equally take from each one, up till a maximum threshold for this level
+    // if it runs out, go to the next set of neighbours, another radius away
+    uint256 startingRadius = 1;
+    while (energyToDissipate > 0) {
+      bytes32[] memory useNeighbourEntities = IWorld(_world()).calculateNeighbourEntities(eventVoxelEntity);
+    }
+
+    // level = 1
+    // while energy > 0 {
+    // get neighbours at level 1
+    // need to take from each negihbour, up to maximum threshold for this layer
+    // should take more from ones with higher gravity
+    //
   }
 }

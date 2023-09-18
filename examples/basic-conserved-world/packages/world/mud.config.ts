@@ -39,6 +39,11 @@ export default tenetMudConfig({
       openAccess: false,
       accessList: ["BuildSystem", "MineSystem", "ActivateSystem", "MoveSystem"],
     },
+    PhysicsSystem: {
+      name: "PhysicsSystem",
+      openAccess: false,
+      accessList: ["BuildSystem", "MineSystem", "ActivateSystem", "MoveSystem"],
+    },
   },
   modules: [
     {

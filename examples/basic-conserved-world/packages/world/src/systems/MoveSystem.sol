@@ -6,7 +6,7 @@ import { MoveEvent } from "@tenet-base-world/src/prototypes/MoveEvent.sol";
 import { hasKey } from "@latticexyz/world/src/modules/keysintable/hasKey.sol";
 import { IWorld } from "@tenet-world/src/codegen/world/IWorld.sol";
 import { VoxelCoord, VoxelEntity } from "@tenet-utils/src/Types.sol";
-import { abs } from "@tenet-utils/src/VoxelCoordUtils.sol";
+import { abs, absInt32 } from "@tenet-utils/src/VoxelCoordUtils.sol";
 import { REGISTRY_ADDRESS } from "@tenet-world/src/Constants.sol";
 import { MoveEventData } from "@tenet-base-world/src/Types.sol";
 import { OwnedBy, OwnedByTableId, BodyPhysics, BodyPhysicsData, BodyPhysicsTableId, WorldConfig, VoxelTypeProperties } from "@tenet-world/src/codegen/Tables.sol";
@@ -79,20 +79,29 @@ contract MoveSystem is MoveEvent {
       z: currentVelocity.z + (newCoord.z - oldCoord.z)
     });
     VoxelCoord memory velocityDelta = VoxelCoord({
-      x: newVelocity.x - currentVelocity.x,
-      y: newVelocity.y - currentVelocity.y,
-      z: newVelocity.z - currentVelocity.z
+      x: absInt32(newVelocity.x) - absInt32(currentVelocity.x),
+      y: absInt32(newVelocity.y) - absInt32(currentVelocity.y),
+      z: absInt32(newVelocity.z) - absInt32(currentVelocity.z)
     });
 
-    uint256 energyRequiredX = currentVelocity.x != 0 && velocityDelta.x > 0
-      ? bodyMass / uint(abs(int(velocityDelta.x))) // if we're going in the same direction, then it costs less
-      : bodyMass * uint(abs(int(velocityDelta.x))); // if we're going in the opposite direction, then it costs more
-    uint256 energyRequiredY = currentVelocity.y != 0 && velocityDelta.y > 0
-      ? bodyMass / uint(abs(int(velocityDelta.y)))
-      : bodyMass * uint(abs(int(velocityDelta.y)));
-    uint256 energyRequiredZ = currentVelocity.z != 0 && velocityDelta.z > 0
-      ? bodyMass / uint(abs(int(velocityDelta.z)))
-      : bodyMass * uint(abs(int(velocityDelta.z)));
+    uint256 energyRequiredX = bodyMass;
+    if (newVelocity.x != 0) {
+      energyRequiredX = currentVelocity.x != 0 && velocityDelta.x > 0
+        ? bodyMass / uint(abs(int(newVelocity.x))) // if we're going in the same direction, then it costs less
+        : bodyMass * uint(abs(int(newVelocity.x))); // if we're going in the opposite direction, then it costs more
+    }
+    uint256 energyRequiredY = bodyMass;
+    if (newVelocity.y != 0) {
+      energyRequiredY = currentVelocity.y != 0 && velocityDelta.y > 0
+        ? bodyMass / uint(abs(int(newVelocity.y)))
+        : bodyMass * uint(abs(int(newVelocity.y)));
+    }
+    uint256 energyRequiredZ = bodyMass;
+    if (newVelocity.z != 0) {
+      energyRequiredZ = currentVelocity.z != 0 && velocityDelta.z > 0
+        ? bodyMass / uint(abs(int(newVelocity.z)))
+        : bodyMass * uint(abs(int(newVelocity.z)));
+    }
     uint256 energyRequired = energyRequiredX + energyRequiredY + energyRequiredZ;
     return (newVelocity, energyRequired);
   }

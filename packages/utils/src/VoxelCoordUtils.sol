@@ -50,6 +50,13 @@ function abs(int x) pure returns (int) {
   return x;
 }
 
+function absInt32(int32 x) pure returns (int32) {
+  if (x < 0) {
+    return -x;
+  }
+  return x;
+}
+
 function getMooreNeighbours(VoxelCoord memory centerCoord, uint8 neighbourRadius) pure returns (VoxelCoord[] memory) {
   // Moore cube of n x n x
   uint n = 2 * uint(neighbourRadius) + 1;

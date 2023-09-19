@@ -45,12 +45,14 @@ contract PhysicsSystem is System {
     }
     uint256 energyInNewBlock = BodyPhysics.getEnergy(newEntity.scale, newEntity.entityId);
 
+    // Reset the old entity's mass, energy and velocity
     BodyPhysics.setMass(oldEntity.scale, oldEntity.entityId, 0);
     BodyPhysics.setEnergy(oldEntity.scale, oldEntity.entityId, 0);
     BodyPhysics.setVelocity(oldEntity.scale, oldEntity.entityId, abi.encode(VoxelCoord({ x: 0, y: 0, z: 0 })));
 
     fluxEnergy(false, caAddress, newEntity, energyRequired + energyInNewBlock);
 
+    // Update the new entity's energy and velocity
     oldBodyPhysicsData.energy -= energyRequired;
     oldBodyPhysicsData.velocity = abi.encode(newVelocity);
     BodyPhysics.set(newEntity.scale, newEntity.entityId, oldBodyPhysicsData);

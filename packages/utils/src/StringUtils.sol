@@ -1,14 +1,32 @@
 // SPDX-License-Identifier: GPL-3.0
 pragma solidity >=0.8.0;
 
-import { Strings } from "@openzeppelin/contracts/utils/Strings.sol";
+// Try not to use openzeppelin since we'll need to import it when we codegen code that has this file as a dependency
+// import { Strings } from "@openzeppelin/contracts/utils/Strings.sol";
 
-function int32ToString(int32 num) pure returns (string memory) {
-  return Strings.toString(int256(num));
+function int32ToString(int32 _num) pure returns (string memory) {
+  // return Strings.toString(int256(num));
+    bytes4 num = bytes4(uint32(_num));
+    bytes memory array = new bytes(8);
+    bytes memory alphabet = "0123456789abcdef";
+
+    for(uint i = 0; i < 4; i++) {
+      array[i*2] = alphabet[uint(uint8(num[i])/16)];
+      array[1+i*2] = alphabet[uint(uint8(num[i])%16)];
+    }
+    return string(array);
 }
 
 function bytes4ToString(bytes4 num) pure returns (string memory) {
-  return Strings.toString(uint256(uint32(num)));
+  // return Strings.toString(uint256(uint32(num)));
+    bytes memory array = new bytes(8);
+    bytes memory alphabet = "0123456789abcdef";
+
+    for(uint i=0; i<4; i++) {
+      array[i*2] = alphabet[uint(uint8(num[i])/16)];
+      array[1+i*2] = alphabet[uint(uint8(num[i])%16)];
+    }
+    return string(array);
 }
 
 function bytes32ToString(bytes32 _bytes) pure returns (string memory) {

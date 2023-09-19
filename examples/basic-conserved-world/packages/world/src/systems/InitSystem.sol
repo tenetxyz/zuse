@@ -48,7 +48,7 @@ contract InitSystem is InitWorldSystem {
     // TODO: require only called once by world deployer
     BodyPhysicsData memory physicsData;
     physicsData.mass = 5;
-    physicsData.energy = 10;
+    physicsData.energy = 50;
     physicsData.velocity = abi.encode(VoxelCoord({ x: 0, y: 0, z: 0 }));
     IWorld(_world()).spawnBody(FighterVoxelID, VoxelCoord(10, 2, 10), bytes4(0), physicsData);
   }

@@ -6,6 +6,7 @@ import { MoveEvent } from "@tenet-base-world/src/prototypes/MoveEvent.sol";
 import { hasKey } from "@latticexyz/world/src/modules/keysintable/hasKey.sol";
 import { IWorld } from "@tenet-world/src/codegen/world/IWorld.sol";
 import { VoxelCoord, VoxelEntity } from "@tenet-utils/src/Types.sol";
+import { abs } from "@tenet-utils/src/VoxelCoordUtils.sol";
 import { REGISTRY_ADDRESS } from "@tenet-world/src/Constants.sol";
 import { MoveEventData } from "@tenet-base-world/src/Types.sol";
 import { OwnedBy, OwnedByTableId, BodyPhysics, BodyPhysicsData, BodyPhysicsTableId, WorldConfig, VoxelTypeProperties } from "@tenet-world/src/codegen/Tables.sol";
@@ -82,15 +83,15 @@ contract MoveSystem is MoveEvent {
       z: newVelocity.z - currentVelocity.z
     });
 
-    uint256 energyRequiredX = velocityDelta.x > 0
-      ? bodyMass / uint(int(velocityDelta.x)) // if we're going in the same direction, then it costs less
-      : bodyMass * uint(int(velocityDelta.x)); // if we're going in the opposite direction, then it costs more
-    uint256 energyRequiredY = velocityDelta.y > 0
-      ? bodyMass / uint(int(velocityDelta.y))
-      : bodyMass * uint(int(velocityDelta.y));
-    uint256 energyRequiredZ = velocityDelta.z > 0
-      ? bodyMass / uint(int(velocityDelta.z))
-      : bodyMass * uint(int(velocityDelta.z));
+    uint256 energyRequiredX = currentVelocity.x != 0 && velocityDelta.x > 0
+      ? bodyMass / uint(abs(int(velocityDelta.x))) // if we're going in the same direction, then it costs less
+      : bodyMass * uint(abs(int(velocityDelta.x))); // if we're going in the opposite direction, then it costs more
+    uint256 energyRequiredY = currentVelocity.y != 0 && velocityDelta.y > 0
+      ? bodyMass / uint(abs(int(velocityDelta.y)))
+      : bodyMass * uint(abs(int(velocityDelta.y)));
+    uint256 energyRequiredZ = currentVelocity.z != 0 && velocityDelta.z > 0
+      ? bodyMass / uint(abs(int(velocityDelta.z)))
+      : bodyMass * uint(abs(int(velocityDelta.z)));
     uint256 energyRequired = energyRequiredX + energyRequiredY + energyRequiredZ;
     return (newVelocity, energyRequired);
   }

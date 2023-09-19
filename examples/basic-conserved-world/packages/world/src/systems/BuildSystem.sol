@@ -49,7 +49,7 @@ contract BuildSystem is BuildEvent {
     address caAddress = WorldConfig.get(voxelTypeId);
     // Calculate how much energy this operation requires
     uint256 energyRequired = bodyMass * 10;
-    IWorld(_world()).fluxEnergyIn(caAddress, eventVoxelEntity, energyRequired);
+    IWorld(_world()).fluxEnergy(true, caAddress, eventVoxelEntity, energyRequired);
     BodyPhysics.setMass(eventVoxelEntity.scale, eventVoxelEntity.entityId, bodyMass);
   }
 }

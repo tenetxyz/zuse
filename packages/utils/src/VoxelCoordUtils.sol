@@ -36,6 +36,12 @@ function safeSubtract(uint a, uint b) pure returns (uint) {
   return 0;
 }
 
+function safeAdd(uint a, uint b) pure returns (uint) {
+  uint c = a + b;
+  require(c >= a, "Addition overflow");
+  return c;
+}
+
 // Helper function to calculate the absolute value of an integer
 function abs(int x) pure returns (int) {
   if (x < 0) {

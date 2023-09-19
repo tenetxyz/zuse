@@ -6,7 +6,7 @@ import { IWorld } from "@tenet-world/src/codegen/world/IWorld.sol";
 import { System } from "@latticexyz/world/src/System.sol";
 import { OwnedBy, Position, VoxelType, VoxelTypeProperties, BodyPhysics, BodyPhysicsData } from "@tenet-world/src/codegen/Tables.sol";
 import { VoxelCoord, VoxelTypeData, VoxelEntity } from "@tenet-utils/src/Types.sol";
-import { min } from "@tenet-utils/src/VoxelCoordUtils.sol";
+import { min, safeSubtract } from "@tenet-utils/src/VoxelCoordUtils.sol";
 import { REGISTRY_ADDRESS } from "@tenet-world/src/Constants.sol";
 import { AirVoxelID } from "@tenet-level1-ca/src/Constants.sol";
 import { BuildWorldEventData } from "@tenet-world/src/Types.sol";
@@ -26,86 +26,100 @@ contract PhysicsSystem is System {
     uint32 scale = centerVoxelEntity.scale;
     while (energyToFluxIn > 0) {
       if (radius > 255) {
-        revert("Ran out of neighbours to dissipate energy into");
+        revert("Ran out of neighbours to flux energy from");
       }
-      (bytes32[] memory useNeighbourEntities, VoxelCoord[] memory neighbourCoords) = IWorld(_world())
+      (bytes32[] memory neighbourEntities, VoxelCoord[] memory neighbourCoords) = IWorld(_world())
         .calculateMooreNeighbourEntities(centerVoxelEntity, radius);
       uint256 numNeighboursWithValues = 0;
 
-      for (uint256 i = 0; i < useNeighbourEntities.length; i++) {
-        if (uint256(useNeighbourEntities[i]) == 0) {
+      // Initialize an array to store how much energy can still be taken from each neighbor
+      uint256[] memory energyRemaining = new uint256[](neighbourEntities.length);
+
+      for (uint256 i = 0; i < neighbourEntities.length; i++) {
+        if (uint256(neighbourEntities[i]) == 0) {
           // create the entities that don't exist from the terrain
           (bytes32 terrainVoxelTypeId, BodyPhysicsData memory terrainPhysicsData) = IWorld(_world())
             .getTerrainBodyPhysicsData(caAddress, neighbourCoords[i]);
           if (terrainPhysicsData.energy == 0) {
             continue;
           }
-          console.log("spawning body");
           VoxelEntity memory newTerrainEntity = spawnBody(
             terrainVoxelTypeId,
             neighbourCoords[i],
             bytes4(0),
             terrainPhysicsData
           );
-          useNeighbourEntities[i] = newTerrainEntity.entityId;
+          neighbourEntities[i] = newTerrainEntity.entityId;
         }
 
-        if (BodyPhysics.getEnergy(scale, useNeighbourEntities[i]) > 0) {
+        if (BodyPhysics.getEnergy(scale, neighbourEntities[i]) > 0) {
+          energyRemaining[i] = MAXIMUM_ENERGY_OUT;
           numNeighboursWithValues++;
         }
       }
-      console.log("radius");
-      console.log(radius);
-      console.log("numNeighboursWithValues");
-      console.log(numNeighboursWithValues);
 
       if (numNeighboursWithValues == 0) {
         radius += 1;
         continue;
       }
 
-      // Calculate the average amount of energy to give to each neighbor
-      // TODO: This should be based on gravity, not just a flat amount
-      uint energyPerNeighbor = energyToFluxIn / numNeighboursWithValues;
-      if (energyToFluxIn < numNeighboursWithValues) {
-        energyPerNeighbor = energyToFluxIn;
-      }
-
-      for (uint i = 0; i < useNeighbourEntities.length; i++) {
-        bytes32 neighborEntity = useNeighbourEntities[i];
-        if (uint256(neighborEntity) == 0) {
-          continue;
-        }
-        uint256 neighbourEnergy = BodyPhysics.getEnergy(scale, neighborEntity);
-        if (neighbourEnergy == 0) {
-          continue;
+      bool shouldIncreaseRadius = false;
+      while (!shouldIncreaseRadius) {
+        // Calculate the average amount of energy to give to each neighbor
+        // TODO: This should be based on gravity, not just a flat amount
+        uint energyPerNeighbor = energyToFluxIn / numNeighboursWithValues;
+        if (energyToFluxIn < numNeighboursWithValues) {
+          energyPerNeighbor = energyToFluxIn;
         }
 
-        uint256 energyToTake = min(energyPerNeighbor, MAXIMUM_ENERGY_OUT);
-        if (neighbourEnergy < energyToTake) {
-          energyToTake = neighbourEnergy;
+        shouldIncreaseRadius = true;
+        for (uint i = 0; i < neighbourEntities.length; i++) {
+          bytes32 neighborEntity = neighbourEntities[i];
+          if (uint256(neighborEntity) == 0) {
+            continue;
+          }
+          uint256 neighbourEnergy = BodyPhysics.getEnergy(scale, neighborEntity);
+          if (neighbourEnergy == 0) {
+            continue;
+          }
+          if (energyRemaining[i] == 0) {
+            continue;
+          }
+
+          uint256 energyToTake = min(energyPerNeighbor, energyRemaining[i]);
+          if (neighbourEnergy < energyToTake) {
+            energyToTake = neighbourEnergy;
+          }
+
+          // Transfer the energy
+          uint256 newNeighbourEnergy = safeSubtract(neighbourEnergy, energyToTake);
+          BodyPhysics.setEnergy(scale, neighborEntity, newNeighbourEnergy);
+
+          // Decrease the amount of energy left to dissipate
+          energyRemaining[i] = safeSubtract(energyRemaining[i], energyToTake);
+          energyToFluxIn = safeSubtract(energyToFluxIn, energyToTake);
+
+          // If we have successfully dissipated all energy, exit the loop
+          if (energyToFluxIn == 0) {
+            break;
+          }
+
+          if (newNeighbourEnergy == 0) {
+            numNeighboursWithValues -= 1;
+          }
+
+          // If any neighbor still has energy remaining that we can take, don't increase the radius yet.
+          if (energyRemaining[i] > 0) {
+            shouldIncreaseRadius = false;
+          }
         }
 
-        // Transfer the energy
-        BodyPhysics.setEnergy(scale, neighborEntity, neighbourEnergy - energyToTake);
-
-        // Decrease the amount of energy left to dissipate
-        if (energyToTake > energyToFluxIn) {
-          energyToFluxIn = 0;
-        } else {
-          energyToFluxIn -= energyToTake;
-        }
-
-        // If we have successfully dissipated all energy, exit the loop
-        if (energyToFluxIn == 0) {
+        if (numNeighboursWithValues == 0) {
           break;
         }
       }
 
-      // If we've gone through all neighbors and still have energy to dissipate, increase the radius
-      if (energyToFluxIn > 0) {
-        radius += 1;
-      }
+      radius += 1;
     }
   }
 

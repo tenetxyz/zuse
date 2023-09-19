@@ -8,7 +8,7 @@ import { REGISTRY_ADDRESS, FighterVoxelID } from "@tenet-level2-ca/src/Constants
 import { Mind } from "@tenet-utils/src/Types.sol";
 
 contract FighterMindSystem is MindType {
-  function registerMind() public override {
+  function registerMind() public {
     CreationMetadata memory creationMetadata = CreationMetadata({
       creator: tx.origin,
       name: "Fighter",

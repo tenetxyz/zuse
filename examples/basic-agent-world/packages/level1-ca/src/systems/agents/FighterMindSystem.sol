@@ -1,14 +1,15 @@
 // SPDX-License-Identifier: MIT
 pragma solidity >=0.8.0;
-import { IWorld } from "@tenet-level2-ca/src/codegen/world/IWorld.sol";
+
+import { IWorld } from "@tenet-level1-ca/src/codegen/world/IWorld.sol";
 import { MindType } from "@tenet-base-ca/src/prototypes/MindType.sol";
 import { VoxelCoord, CreationMetadata, CreationSpawns } from "@tenet-utils/src/Types.sol";
 import { registerMindIntoRegistry } from "@tenet-registry/src/Utils.sol";
-import { REGISTRY_ADDRESS, FighterVoxelID } from "@tenet-level2-ca/src/Constants.sol";
+import { REGISTRY_ADDRESS, FighterVoxelID } from "@tenet-level1-ca/src/Constants.sol";
 import { Mind } from "@tenet-utils/src/Types.sol";
 
 contract FighterMindSystem is MindType {
-  function registerMind() public {
+  function registerMind() public override {
     CreationMetadata memory creationMetadata = CreationMetadata({
       creator: tx.origin,
       name: "Fighter",

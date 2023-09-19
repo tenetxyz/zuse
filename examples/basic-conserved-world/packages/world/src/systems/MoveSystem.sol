@@ -84,19 +84,19 @@ contract MoveSystem is MoveEvent {
       z: absInt32(newVelocity.z) - absInt32(currentVelocity.z)
     });
 
-    uint256 energyRequiredX = bodyMass;
+    uint256 energyRequiredX = velocityDelta.x == 0 ? 0 : bodyMass;
     if (newVelocity.x != 0) {
       energyRequiredX = currentVelocity.x != 0 && velocityDelta.x > 0
         ? bodyMass / uint(abs(int(newVelocity.x))) // if we're going in the same direction, then it costs less
         : bodyMass * uint(abs(int(newVelocity.x))); // if we're going in the opposite direction, then it costs more
     }
-    uint256 energyRequiredY = bodyMass;
+    uint256 energyRequiredY = velocityDelta.y == 0 ? 0 : bodyMass;
     if (newVelocity.y != 0) {
       energyRequiredY = currentVelocity.y != 0 && velocityDelta.y > 0
         ? bodyMass / uint(abs(int(newVelocity.y)))
         : bodyMass * uint(abs(int(newVelocity.y)));
     }
-    uint256 energyRequiredZ = bodyMass;
+    uint256 energyRequiredZ = velocityDelta.z == 0 ? 0 : bodyMass;
     if (newVelocity.z != 0) {
       energyRequiredZ = currentVelocity.z != 0 && velocityDelta.z > 0
         ? bodyMass / uint(abs(int(newVelocity.z)))

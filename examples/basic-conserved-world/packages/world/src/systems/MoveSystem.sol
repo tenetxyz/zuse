@@ -32,15 +32,15 @@ contract MoveSystem is MoveEvent {
       abi.encode(MoveEventData({ oldCoord: oldCoord, worldData: abi.encode(moveWorldEventData) }))
     );
 
-    BodyPhysicsData memory bodyPhysicsData = BodyPhysics.get(oldEntity.scale, oldEntity.entityId);
-    uint256 bodyMass = bodyPhysicsData.mass;
+    BodyPhysicsData memory oldBodyPhysicsData = BodyPhysics.get(oldEntity.scale, oldEntity.entityId);
+    uint256 bodyMass = oldBodyPhysicsData.mass;
     (VoxelCoord memory newVelocity, uint256 energyRequired) = calculateMovePhysicsValues(
       oldCoord,
       newCoord,
       oldEntity,
       bodyMass
     );
-    require(energyRequired <= bodyPhysicsData.energy, "Not enough energy to move.");
+    require(energyRequired <= oldBodyPhysicsData.energy, "Not enough energy to move.");
 
     address caAddress = WorldConfig.get(voxelTypeId);
     if (!hasKey(BodyPhysicsTableId, BodyPhysics.encodeKeyTuple(newEntity.scale, newEntity.entityId))) {
@@ -53,8 +53,9 @@ contract MoveSystem is MoveEvent {
     BodyPhysics.setEnergy(oldEntity.scale, oldEntity.entityId, 0);
     BodyPhysics.setVelocity(oldEntity.scale, oldEntity.entityId, abi.encode(VoxelCoord({ x: 0, y: 0, z: 0 })));
     IWorld(_world()).fluxEnergy(false, caAddress, newEntity, energyRequired + energyInNewBlock);
-    BodyPhysics.setEnergy(newEntity.scale, newEntity.entityId, bodyPhysicsData.energy - energyRequired);
-    BodyPhysics.setVelocity(newEntity.scale, newEntity.entityId, abi.encode(newVelocity));
+    oldBodyPhysicsData.energy -= energyRequired;
+    oldBodyPhysicsData.velocity = abi.encode(newVelocity);
+    BodyPhysics.set(newEntity.scale, newEntity.entityId, oldBodyPhysicsData);
 
     // Transfer ownership of the oldEntity to the newEntity
     if (hasKey(OwnedByTableId, OwnedBy.encodeKeyTuple(oldEntity.scale, oldEntity.entityId))) {

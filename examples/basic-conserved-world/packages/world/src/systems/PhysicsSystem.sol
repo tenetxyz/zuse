@@ -64,8 +64,11 @@ contract PhysicsSystem is System {
 
       for (uint i = 0; i < useNeighbourEntities.length; i++) {
         bytes32 neighborEntity = useNeighbourEntities[i];
+        if (neighborEntity == bytes32(0)) {
+          continue;
+        }
         uint256 neighbourEnergy = BodyPhysics.getEnergy(scale, neighborEntity);
-        if (neighborEntity == bytes32(0) || neighbourEnergy == 0) {
+        if (neighbourEnergy == 0) {
           continue;
         }
 

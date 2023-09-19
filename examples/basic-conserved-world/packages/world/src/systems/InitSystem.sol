@@ -11,7 +11,7 @@ import { REGISTER_WORLD_SIG } from "@tenet-registry/src/Constants.sol";
 import { REGISTRY_ADDRESS, BASE_CA_ADDRESS } from "../Constants.sol";
 import { VoxelCoord, VoxelTypeData, VoxelEntity } from "@tenet-utils/src/Types.sol";
 import { safeCall } from "@tenet-utils/src/CallUtils.sol";
-import { FighterVoxelID, GrassVoxelID, AirVoxelID } from "@tenet-level1-ca/src/Constants.sol";
+import { FighterVoxelID, GrassVoxelID, AirVoxelID, DirtVoxelID, BedrockVoxelID } from "@tenet-level1-ca/src/Constants.sol";
 import { WorldConfig, WorldConfigTableId } from "@tenet-base-world/src/codegen/tables/WorldConfig.sol";
 import { CAVoxelType, CAVoxelTypeData } from "@tenet-base-ca/src/codegen/tables/CAVoxelType.sol";
 import { VoxelType, Position, VoxelTypeProperties, BodyPhysics, BodyPhysicsData } from "@tenet-world/src/codegen/Tables.sol";
@@ -37,18 +37,19 @@ contract InitSystem is InitWorldSystem {
     super.initWorldVoxelTypes();
 
     // Set mass voxel types for voxels
-    VoxelTypeProperties.set(GrassVoxelID, 5);
+    VoxelTypeProperties.set(AirVoxelID, 0);
+    VoxelTypeProperties.set(GrassVoxelID, 10);
+    VoxelTypeProperties.set(DirtVoxelID, 5);
+    VoxelTypeProperties.set(BedrockVoxelID, 5);
     VoxelTypeProperties.set(FighterVoxelID, 10);
   }
 
   function initWorldState() public {
     // TODO: require only called once by world deployer
-    IWorld(_world()).spawnBody(
-      FighterVoxelID,
-      VoxelCoord(10, 2, 10),
-      bytes4(0),
-      BodyPhysicsData({ mass: 5, energy: 10, velocity: abi.encode(bytes32(0)), gravity: abi.encode(bytes32(0)) })
-    );
+    BodyPhysicsData memory physicsData;
+    physicsData.mass = 5;
+    physicsData.energy = 10;
+    IWorld(_world()).spawnBody(FighterVoxelID, VoxelCoord(10, 2, 10), bytes4(0), physicsData);
   }
 
   function onNewCAVoxelType(address caAddress, bytes32 voxelTypeId) public override {

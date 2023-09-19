@@ -7,11 +7,22 @@ import { MindRegistry, MindRegistryTableId, VoxelTypeRegistryTableId, VoxelTypeR
 import { Mind, CreationMetadata, DecisionRuleKey, CreationSpawns } from "@tenet-utils/src/Types.sol";
 
 contract MindRegistrySystem is System {
-  function registerMind(bytes32 voxelTypeId, string memory name, string memory description, DecisionRuleKey[] memory decisionRules) public {
+  function registerMind(
+    bytes32 voxelTypeId,
+    string memory name,
+    string memory description,
+    DecisionRuleKey[] memory decisionRules
+  ) public {
     registerMindForWorld(voxelTypeId, address(0), name, description, decisionRules);
   }
 
-  function registerMindForWorld(bytes32 voxelTypeId, address worldAddress, string memory name, string memory description, DecisionRuleKey[] memory decisionRules) public {
+  function registerMindForWorld(
+    bytes32 voxelTypeId,
+    address worldAddress,
+    string memory name,
+    string memory description,
+    DecisionRuleKey[] memory decisionRules
+  ) public {
     require(
       hasKey(VoxelTypeRegistryTableId, VoxelTypeRegistry.encodeKeyTuple(voxelTypeId)),
       "Voxel type ID has not been registered"
@@ -25,10 +36,7 @@ contract MindRegistrySystem is System {
     // Set creator
     CreationSpawns[] memory spawns = new CreationSpawns[](0);
     bytes memory creationMetadata = abi.encode(CreationMetadata(tx.origin, name, description, spawns));
-    Mind memory mind = Mind({
-      creationMetadata: creationMetadata,
-      decisionRules: new DecisionRuleKey[](0)
-    });
+    Mind memory mind = Mind({ creationMetadata: creationMetadata, decisionRules: new DecisionRuleKey[](0) });
 
     Mind[] memory newMinds;
     if (hasKey(MindRegistryTableId, MindRegistry.encodeKeyTuple(voxelTypeId, worldAddress))) {
@@ -37,7 +45,7 @@ contract MindRegistrySystem is System {
 
       newMinds = new Mind[](minds.length + 1);
       for (uint256 i = 0; i < minds.length; i++) {
-        require(!areDecisionRulesTheSame(minds[i], mind), "A mind with the same decision rules has already registered");
+        require(minds[i].mindSelector != mind.mindSelector, "Mind already registered");
         newMinds[i] = minds[i];
       }
       newMinds[minds.length] = mind;

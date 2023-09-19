@@ -51,7 +51,7 @@ struct DecisionRule {
 
 struct Mind {
   bytes creationMetadata;
-  DecisionRuleKey[] decisionRules;
+  bytes4 mindSelector;
 }
 
 struct InteractionSelector {
@@ -92,9 +92,9 @@ struct CreationMetadata {
   CreationSpawns[] spawns;
 }
 
-
-enum ComponentType{
- RANGE, STATE
+enum ComponentType {
+  RANGE,
+  STATE
 }
 
 struct ComponentDef {

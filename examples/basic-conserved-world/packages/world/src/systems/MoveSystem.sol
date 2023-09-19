@@ -8,7 +8,7 @@ import { IWorld } from "@tenet-world/src/codegen/world/IWorld.sol";
 import { VoxelCoord, VoxelEntity } from "@tenet-utils/src/Types.sol";
 import { REGISTRY_ADDRESS } from "@tenet-world/src/Constants.sol";
 import { MoveEventData } from "@tenet-base-world/src/Types.sol";
-import { OwnedBy, OwnedByTableId } from "@tenet-world/src/codegen/Tables.sol";
+import { OwnedBy, OwnedByTableId, BodyPhysics, BodyPhysicsData } from "@tenet-world/src/codegen/Tables.sol";
 import { MoveWorldEventData } from "@tenet-world/src/Types.sol";
 
 contract MoveSystem is MoveEvent {
@@ -35,6 +35,11 @@ contract MoveSystem is MoveEvent {
       OwnedBy.set(newEntity.scale, newEntity.entityId, OwnedBy.get(oldEntity.scale, oldEntity.entityId));
       OwnedBy.deleteRecord(oldEntity.scale, oldEntity.entityId);
     }
+
+    // TODO: make proper
+    BodyPhysics.set(newEntity.scale, newEntity.entityId, BodyPhysics.get(oldEntity.scale, oldEntity.entityId));
+    BodyPhysicsData memory bodyPhysicsData;
+    BodyPhysics.set(oldEntity.scale, oldEntity.entityId, bodyPhysicsData);
 
     return (oldEntity, newEntity);
   }

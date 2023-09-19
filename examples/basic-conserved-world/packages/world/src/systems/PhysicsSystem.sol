@@ -74,35 +74,29 @@ contract PhysicsSystem is System {
       z: absInt32(newVelocity.z) - absInt32(currentVelocity.z)
     });
 
-    uint256 energyRequiredX = 0;
-    if (velocityDelta.x != 0) {
-      energyRequiredX = bodyMass;
-      if (newVelocity.x != 0) {
-        energyRequiredX = currentVelocity.x != 0 && velocityDelta.x > 0
-          ? bodyMass / uint(abs(int(newVelocity.x))) // if we're going in the same direction, then it costs less
-          : bodyMass * uint(abs(int(newVelocity.x))); // if we're going in the opposite direction, then it costs more
-      }
-    }
-    uint256 energyRequiredY = 0;
-    if (velocityDelta.y != 0) {
-      energyRequiredY = bodyMass;
-      if (newVelocity.y != 0) {
-        energyRequiredY = currentVelocity.y != 0 && velocityDelta.y > 0
-          ? bodyMass / uint(abs(int(newVelocity.y)))
-          : bodyMass * uint(abs(int(newVelocity.y)));
-      }
-    }
-    uint256 energyRequiredZ = 0;
-    if (velocityDelta.z != 0) {
-      energyRequiredZ = bodyMass;
-      if (newVelocity.z != 0) {
-        energyRequiredZ = currentVelocity.z != 0 && velocityDelta.z > 0
-          ? bodyMass / uint(abs(int(newVelocity.z)))
-          : bodyMass * uint(abs(int(newVelocity.z)));
-      }
-    }
+    uint256 energyRequiredX = calculateEnergyRequired(currentVelocity.x, newVelocity.x, velocityDelta.x, bodyMass);
+    uint256 energyRequiredY = calculateEnergyRequired(currentVelocity.y, newVelocity.y, velocityDelta.y, bodyMass);
+    uint256 energyRequiredZ = calculateEnergyRequired(currentVelocity.z, newVelocity.z, velocityDelta.z, bodyMass);
     uint256 energyRequired = energyRequiredX + energyRequiredY + energyRequiredZ;
     return (newVelocity, energyRequired);
+  }
+
+  function calculateEnergyRequired(
+    int32 currentVelocity,
+    int32 newVelocity,
+    int32 velocityDelta,
+    uint256 bodyMass
+  ) internal pure returns (uint256) {
+    uint256 energyRequired = 0;
+    if (velocityDelta != 0) {
+      energyRequired = bodyMass;
+      if (newVelocity != 0) {
+        energyRequired = velocityDelta > 0
+          ? bodyMass / uint(abs(int(newVelocity))) // if we're going in the same direction, then it costs less
+          : bodyMass * uint(abs(int(newVelocity))); // if we're going in the opposite direction, then it costs more
+      }
+    }
+    return energyRequired;
   }
 
   function fluxEnergy(

@@ -21,7 +21,7 @@ import { Strings } from "@openzeppelin/contracts/utils/Strings.sol";
 import { voxelSpawned } from "@tenet-registry/src/Utils.sol";
 
 abstract contract BuildEvent is Event {
-  function emptyVoxelId() internal pure virtual returns (bytes32) {}
+  function emptyVoxelId() internal pure virtual returns (bytes32);
 
   function build(
     bytes32 voxelTypeId,
@@ -29,7 +29,8 @@ abstract contract BuildEvent is Event {
     bytes memory eventData
   ) internal virtual returns (VoxelEntity memory) {
     VoxelEntity memory builtEntity = super.runEvent(voxelTypeId, coord, eventData);
-    voxelSpawned(getRegistryAddress(), voxelTypeId);
+    // TODO: Where should this be dealt?
+    // voxelSpawned(getRegistryAddress(), voxelTypeId);
     return builtEntity;
   }
 

@@ -126,7 +126,8 @@ abstract contract MineEvent is Event {
     VoxelEntity memory eventVoxelEntity,
     bytes memory eventData
   ) internal virtual override {
-    tryRemoveVoxelFromSpawn(eventVoxelEntity);
+    // TODO: Where should this be dealt?
+    // tryRemoveVoxelFromSpawn(eventVoxelEntity);
   }
 
   function tryRemoveVoxelFromSpawn(VoxelEntity memory entity) internal {

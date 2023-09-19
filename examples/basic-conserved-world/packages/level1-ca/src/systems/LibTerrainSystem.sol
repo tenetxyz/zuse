@@ -42,18 +42,12 @@ function div(int32 a, int32 b) pure returns (int32) {
 
 contract LibTerrainSystem is System {
   function getTerrainVoxel(VoxelCoord memory coord) public view returns (bytes32) {
-    int128[4] memory biome = getBiome(coord.x, coord.z);
-    int32 height = getHeight(coord.x, coord.z, biome);
-    return getTerrainVoxel(coord.x, coord.y, coord.z, height, biome);
+    // int128[4] memory biome = getBiome(coord.x, coord.z);
+    // int32 height = getHeight(coord.x, coord.z, biome);
+    return getTerrainVoxel(coord.x, coord.y, coord.z);
   }
 
-  function getTerrainVoxel(
-    int32 x,
-    int32 y,
-    int32 z,
-    int32 height,
-    int128[4] memory biomeValues
-  ) internal pure returns (bytes32) {
+  function getTerrainVoxel(int32 x, int32 y, int32 z) internal pure returns (bytes32) {
     bytes32 voxelTypeId;
 
     voxelTypeId = Bedrock(y);
@@ -61,10 +55,6 @@ contract LibTerrainSystem is System {
 
     voxelTypeId = Air(y);
     if (voxelTypeId != EMPTY_ID) return voxelTypeId;
-
-    uint8 biome = getMaxBiome(biomeValues);
-
-    int32 distanceFromHeight = height - y;
 
     voxelTypeId = Grass(y);
     if (voxelTypeId != EMPTY_ID) return voxelTypeId;

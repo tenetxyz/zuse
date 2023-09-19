@@ -14,6 +14,7 @@ import { VoxelTypeRegistry, VoxelTypeRegistryData } from "@tenet-registry/src/co
 import { CAVoxelType, CAVoxelTypeData } from "@tenet-base-ca/src/codegen/tables/CAVoxelType.sol";
 import { WorldConfig, WorldConfigTableId } from "@tenet-base-world/src/codegen/tables/WorldConfig.sol";
 import { getUniqueEntity } from "@latticexyz/world/src/modules/uniqueentity/getUniqueEntity.sol";
+import { console } from "forge-std/console.sol";
 
 uint256 constant MAXIMUM_ENERGY_OUT = 100;
 
@@ -36,9 +37,10 @@ contract PhysicsSystem is System {
           // create the entities that don't exist from the terrain
           (bytes32 terrainVoxelTypeId, BodyPhysicsData memory terrainPhysicsData) = IWorld(_world())
             .getTerrainBodyPhysicsData(caAddress, neighbourCoords[i]);
-          if (terrainPhysicsData.mass == 0) {
+          if (terrainPhysicsData.energy == 0) {
             continue;
           }
+          console.log("spawning body");
           VoxelEntity memory newTerrainEntity = spawnBody(
             terrainVoxelTypeId,
             neighbourCoords[i],
@@ -52,6 +54,10 @@ contract PhysicsSystem is System {
           numNeighboursWithValues++;
         }
       }
+      console.log("radius");
+      console.log(radius);
+      console.log("numNeighboursWithValues");
+      console.log(numNeighboursWithValues);
 
       if (numNeighboursWithValues == 0) {
         radius += 1;

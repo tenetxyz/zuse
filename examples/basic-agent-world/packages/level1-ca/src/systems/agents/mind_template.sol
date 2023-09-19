@@ -27,9 +27,10 @@ contract FighterMindSystem is MindType {
       }
 
       address worldAddress = _world();
-      bytes32 targetVoxelTypeId = VoxelType.getVoxelTypeId(worldAddress, 1, targetEntityId);
-      bytes decisionRules = DecisionRuleRegistry.get(REGISTRY_ADDRESS, targetVoxelTypeId, worldAddress, address(0));
-      DecisionRule[] memory rules = abi.decode(decisionRules, (DecisionRule[]));
+      //   bytes32 targetVoxelTypeId = VoxelType.getVoxelTypeId(worldAddress, 1, targetEntityId);
+      //   bytes decisionRules = DecisionRuleRegistry.get(REGISTRY_ADDRESS, targetVoxelTypeId, worldAddress, address(0));
+      // TODO: codegen the decisionRule selectors here
+      //   bytes4[] memory decisionRuleSelectors = new bytes4[](1);
       for (uint8 j = 0; j < rules.length; j++) {
         DecisionRule memory rule = rules[j];
 

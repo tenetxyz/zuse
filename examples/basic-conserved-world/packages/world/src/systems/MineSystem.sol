@@ -4,7 +4,7 @@ pragma solidity >=0.8.0;
 import { IWorld } from "@tenet-world/src/codegen/world/IWorld.sol";
 import { MineEvent } from "@tenet-base-world/src/prototypes/MineEvent.sol";
 import { VoxelCoord, VoxelEntity, VoxelTypeData } from "@tenet-utils/src/Types.sol";
-import { VoxelType, OfSpawn, Spawn, SpawnData } from "@tenet-world/src/codegen/Tables.sol";
+import { VoxelType, OfSpawn, Spawn, SpawnData, BodyPhysics } from "@tenet-world/src/codegen/Tables.sol";
 import { CHUNK_MAX_Y, CHUNK_MIN_Y } from "../Constants.sol";
 import { MineEventData } from "@tenet-base-world/src/Types.sol";
 import { AirVoxelID } from "@tenet-level1-ca/src/Constants.sol";
@@ -26,5 +26,15 @@ contract MineSystem is MineEvent {
     require(coord.y <= CHUNK_MAX_Y && coord.y >= CHUNK_MIN_Y, "out of chunk bounds");
     MineWorldEventData memory mineEventData = MineWorldEventData({ agentEntity: agentEntity });
     return super.mine(voxelTypeId, coord, abi.encode(MineEventData({ worldData: abi.encode(mineEventData) })));
+  }
+
+  function postEvent(
+    bytes32 voxelTypeId,
+    VoxelCoord memory coord,
+    VoxelEntity memory eventVoxelEntity,
+    bytes memory eventData
+  ) internal override {
+    BodyPhysics.setMass(eventVoxelEntity.scale, eventVoxelEntity.entityId, 0);
+    BodyPhysics.setEnergy(eventVoxelEntity.scale, eventVoxelEntity.entityId, 0);
   }
 }

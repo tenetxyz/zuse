@@ -61,6 +61,9 @@ contract PhysicsSystem is System {
       // Calculate the average amount of energy to give to each neighbor
       // TODO: This should be based on gravity, not just a flat amount
       uint energyPerNeighbor = energyToFluxIn / numNeighboursWithValues;
+      if (energyToFluxIn < numNeighboursWithValues) {
+        energyPerNeighbor = energyToFluxIn;
+      }
 
       for (uint i = 0; i < useNeighbourEntities.length; i++) {
         bytes32 neighborEntity = useNeighbourEntities[i];

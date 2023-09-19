@@ -31,32 +31,14 @@ contract MoveSystem is MoveEvent {
       abi.encode(MoveEventData({ oldCoord: oldCoord, worldData: abi.encode(moveWorldEventData) }))
     );
 
-    // Read current velocity
-    VoxelCoord memory currentVelocity = getVelocity(oldEntity);
-    VoxelCoord memory newVelocity = VoxelCoord({
-      x: currentVelocity.x + (newCoord.x - oldCoord.x),
-      y: currentVelocity.y + (newCoord.y - oldCoord.y),
-      z: currentVelocity.z + (newCoord.z - oldCoord.z)
-    });
-    VoxelCoord memory velocityDelta = VoxelCoord({
-      x: newVelocity.x - currentVelocity.x,
-      y: newVelocity.y - currentVelocity.y,
-      z: newVelocity.z - currentVelocity.z
-    });
-
     BodyPhysicsData memory bodyPhysicsData = BodyPhysics.get(oldEntity.scale, oldEntity.entityId);
     uint256 bodyMass = bodyPhysicsData.mass;
-
-    uint256 energyRequiredX = velocityDelta.x > 0
-      ? bodyMass / uint(int(velocityDelta.x)) // if we're going in the same direction, then it costs less
-      : bodyMass * uint(int(velocityDelta.x)); // if we're going in the opposite direction, then it costs more
-    uint256 energyRequiredY = velocityDelta.y > 0
-      ? bodyMass / uint(int(velocityDelta.y))
-      : bodyMass * uint(int(velocityDelta.y));
-    uint256 energyRequiredZ = velocityDelta.z > 0
-      ? bodyMass / uint(int(velocityDelta.z))
-      : bodyMass * uint(int(velocityDelta.z));
-    uint256 energyRequired = energyRequiredX + energyRequiredY + energyRequiredZ;
+    (VoxelCoord memory newVelocity, uint256 energyRequired) = calculateMovePhysicsValues(
+      oldCoord,
+      newCoord,
+      oldEntity,
+      bodyMass
+    );
     require(energyRequired <= bodyPhysicsData.energy, "Not enough energy to move.");
 
     address caAddress = WorldConfig.get(voxelTypeId);
@@ -71,6 +53,7 @@ contract MoveSystem is MoveEvent {
     BodyPhysics.setVelocity(oldEntity.scale, oldEntity.entityId, abi.encode(VoxelCoord({ x: 0, y: 0, z: 0 })));
     IWorld(_world()).fluxEnergy(false, caAddress, newEntity, energyRequired + energyInNewBlock);
     BodyPhysics.setEnergy(newEntity.scale, newEntity.entityId, bodyPhysicsData.energy - energyRequired);
+    BodyPhysics.setVelocity(newEntity.scale, newEntity.entityId, abi.encode(newVelocity));
 
     // Transfer ownership of the oldEntity to the newEntity
     if (hasKey(OwnedByTableId, OwnedBy.encodeKeyTuple(oldEntity.scale, oldEntity.entityId))) {
@@ -79,5 +62,36 @@ contract MoveSystem is MoveEvent {
     }
 
     return (oldEntity, newEntity);
+  }
+
+  function calculateMovePhysicsValues(
+    VoxelCoord memory oldCoord,
+    VoxelCoord memory newCoord,
+    VoxelEntity memory oldEntity,
+    uint256 bodyMass
+  ) internal returns (VoxelCoord memory, uint256) {
+    VoxelCoord memory currentVelocity = getVelocity(oldEntity);
+    VoxelCoord memory newVelocity = VoxelCoord({
+      x: currentVelocity.x + (newCoord.x - oldCoord.x),
+      y: currentVelocity.y + (newCoord.y - oldCoord.y),
+      z: currentVelocity.z + (newCoord.z - oldCoord.z)
+    });
+    VoxelCoord memory velocityDelta = VoxelCoord({
+      x: newVelocity.x - currentVelocity.x,
+      y: newVelocity.y - currentVelocity.y,
+      z: newVelocity.z - currentVelocity.z
+    });
+
+    uint256 energyRequiredX = velocityDelta.x > 0
+      ? bodyMass / uint(int(velocityDelta.x)) // if we're going in the same direction, then it costs less
+      : bodyMass * uint(int(velocityDelta.x)); // if we're going in the opposite direction, then it costs more
+    uint256 energyRequiredY = velocityDelta.y > 0
+      ? bodyMass / uint(int(velocityDelta.y))
+      : bodyMass * uint(int(velocityDelta.y));
+    uint256 energyRequiredZ = velocityDelta.z > 0
+      ? bodyMass / uint(int(velocityDelta.z))
+      : bodyMass * uint(int(velocityDelta.z));
+    uint256 energyRequired = energyRequiredX + energyRequiredY + energyRequiredZ;
+    return (newVelocity, energyRequired);
   }
 }

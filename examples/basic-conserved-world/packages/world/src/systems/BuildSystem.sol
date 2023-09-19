@@ -4,7 +4,8 @@ pragma solidity >=0.8.0;
 import { IWorld } from "@tenet-world/src/codegen/world/IWorld.sol";
 import { BuildEvent } from "@tenet-base-world/src/prototypes/BuildEvent.sol";
 import { BuildEventData } from "@tenet-base-world/src/Types.sol";
-import { OwnedBy, VoxelType, VoxelTypeProperties, BodyPhysics, WorldConfig } from "@tenet-world/src/codegen/Tables.sol";
+import { hasKey } from "@latticexyz/world/src/modules/keysintable/hasKey.sol";
+import { OwnedBy, VoxelType, VoxelTypeProperties, BodyPhysics, BodyPhysicsData, BodyPhysicsTableId, WorldConfig } from "@tenet-world/src/codegen/Tables.sol";
 import { VoxelCoord, VoxelTypeData, VoxelEntity } from "@tenet-utils/src/Types.sol";
 import { min } from "@tenet-utils/src/VoxelCoordUtils.sol";
 import { REGISTRY_ADDRESS } from "@tenet-world/src/Constants.sol";
@@ -50,6 +51,14 @@ contract BuildSystem is BuildEvent {
     // Calculate how much energy this operation requires
     uint256 energyRequired = bodyMass * 10;
     IWorld(_world()).fluxEnergy(true, caAddress, eventVoxelEntity, energyRequired);
-    BodyPhysics.setMass(eventVoxelEntity.scale, eventVoxelEntity.entityId, bodyMass);
+    BodyPhysicsData memory bodyPhysicsData;
+    if (!hasKey(BodyPhysicsTableId, BodyPhysics.encodeKeyTuple(eventVoxelEntity.scale, eventVoxelEntity.entityId))) {
+      bodyPhysicsData.mass = bodyMass;
+      bodyPhysicsData.energy = 0;
+      bodyPhysicsData.velocity = abi.encode(VoxelCoord({ x: 0, y: 0, z: 0 }));
+    } else {
+      bodyPhysicsData.mass = bodyMass;
+    }
+    BodyPhysics.set(eventVoxelEntity.scale, eventVoxelEntity.entityId, bodyPhysicsData);
   }
 }

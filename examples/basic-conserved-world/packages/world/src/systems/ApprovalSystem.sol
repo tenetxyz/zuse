@@ -104,6 +104,13 @@ contract ApprovalSystem is EventApprovalsSystem {
         (, BodyPhysicsData memory terrainPhysicsData) = IWorld(_world()).getTerrainBodyPhysicsData(caAddress, coord);
         require(terrainPhysicsData.mass > 0, "Cannot mine terrain with no mass");
       }
+    } else if (eventType == EventType.Move) {
+      if (uint256(entityId) != 0) {
+        require(BodyPhysics.getMass(scale, entityId) == 0, "Cannot move on top of an entity with mass");
+      } else {
+        (, BodyPhysicsData memory terrainPhysicsData) = IWorld(_world()).getTerrainBodyPhysicsData(caAddress, coord);
+        require(terrainPhysicsData.mass == 0, "Cannot move on top of terrain with mass");
+      }
     }
   }
 

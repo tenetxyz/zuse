@@ -29,6 +29,7 @@ contract LibTerrainSystem is System {
       data.mass = 5;
       data.energy = 150;
     }
+    data.velocity = abi.encode(VoxelCoord({ x: 0, y: 0, z: 0 }));
 
     return (voxelTypeId, data);
   }

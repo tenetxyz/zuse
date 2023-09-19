@@ -102,7 +102,7 @@ abstract contract CA is System {
     // Check if we can set the voxel type at this position
     bytes32 existingEntity = getEntityAtCoord(IStore(_world()), callerAddress, coord);
     bytes32 caEntity;
-    if (existingEntity != 0) {
+    if (uint256(existingEntity) != 0) {
       require(
         CAVoxelType.get(callerAddress, existingEntity).voxelTypeId == emptyVoxelId(),
         "EnterWorld: This position is already occupied by another voxel"

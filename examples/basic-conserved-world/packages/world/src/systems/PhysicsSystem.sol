@@ -32,7 +32,7 @@ contract PhysicsSystem is System {
       uint256 numNeighboursWithValues = 0;
 
       for (uint256 i = 0; i < useNeighbourEntities.length; i++) {
-        if (useNeighbourEntities[i] == bytes32(0)) {
+        if (uint256(useNeighbourEntities[i]) == 0) {
           // create the entities that don't exist from the terrain
           (bytes32 terrainVoxelTypeId, BodyPhysicsData memory terrainPhysicsData) = IWorld(_world())
             .getTerrainBodyPhysicsData(caAddress, neighbourCoords[i]);
@@ -64,7 +64,7 @@ contract PhysicsSystem is System {
 
       for (uint i = 0; i < useNeighbourEntities.length; i++) {
         bytes32 neighborEntity = useNeighbourEntities[i];
-        if (neighborEntity == bytes32(0)) {
+        if (uint256(neighborEntity) == 0) {
           continue;
         }
         uint256 neighbourEnergy = BodyPhysics.getEnergy(scale, neighborEntity);

@@ -11,9 +11,9 @@ contract MindRegistrySystem is System {
     bytes32 voxelTypeId,
     string memory name,
     string memory description,
-    DecisionRuleKey[] memory decisionRules
+    bytes4 mindSelector
   ) public {
-    registerMindForWorld(voxelTypeId, address(0), name, description, decisionRules);
+    registerMindForWorld(voxelTypeId, address(0), name, description, mindSelector);
   }
 
   function registerMindForWorld(
@@ -21,7 +21,7 @@ contract MindRegistrySystem is System {
     address worldAddress,
     string memory name,
     string memory description,
-    DecisionRuleKey[] memory decisionRules
+    bytes4 mindSelector
   ) public {
     require(
       hasKey(VoxelTypeRegistryTableId, VoxelTypeRegistry.encodeKeyTuple(voxelTypeId)),
@@ -36,7 +36,7 @@ contract MindRegistrySystem is System {
     // Set creator
     CreationSpawns[] memory spawns = new CreationSpawns[](0);
     bytes memory creationMetadata = abi.encode(CreationMetadata(tx.origin, name, description, spawns));
-    Mind memory mind = Mind({ creationMetadata: creationMetadata, decisionRules: new DecisionRuleKey[](0) });
+    Mind memory mind = Mind({ creationMetadata: creationMetadata, mindSelector: mindSelector });
 
     Mind[] memory newMinds;
     if (hasKey(MindRegistryTableId, MindRegistry.encodeKeyTuple(voxelTypeId, worldAddress))) {
@@ -55,17 +55,5 @@ contract MindRegistrySystem is System {
     }
 
     MindRegistry.set(voxelTypeId, worldAddress, abi.encode(newMinds));
-  }
-
-  function areDecisionRulesTheSame(Mind memory existingMind, Mind memory newMind) private pure returns (bool) {
-    if (existingMind.decisionRules.length != newMind.decisionRules.length) {
-      return false;
-    }
-    for (uint256 i = 0; i < newMind.decisionRules.length; i++) {
-      if (existingMind.decisionRules[i].decisionRuleId != newMind.decisionRules[i].decisionRuleId) {
-        return false;
-      }
-    }
-    return true;
   }
 }

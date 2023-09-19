@@ -207,6 +207,7 @@ abstract contract CA is System {
       );
       newCAEntity = entityToCAEntity(callerAddress, newEntity);
     } else {
+      require(getTerrainVoxelId(newCoord) == emptyVoxelId(), "cannot move to non-empty terrain");
       require(
         !hasKey(CAEntityMappingTableId, CAEntityMapping.encodeKeyTuple(callerAddress, newEntity)),
         "Entity exists"
@@ -215,8 +216,6 @@ abstract contract CA is System {
       newCAEntity = getUniqueEntity();
       // TODO: should there be a mind for this new entity?
       CAMind.set(newCAEntity, voxelTypeId, bytes4(0));
-      // CAEntityMapping.set(callerAddress, newEntity, newCAEntity);
-      // CAEntityReverseMapping.set(newCAEntity, callerAddress, newEntity);
     }
 
     // Update CA entity mapping from old to new

@@ -3,10 +3,11 @@ pragma solidity >=0.8.0;
 
 import { IStore } from "@latticexyz/store/src/IStore.sol";
 import { IWorld } from "@tenet-world/src/codegen/world/IWorld.sol";
+import { hasKey } from "@latticexyz/world/src/modules/keysintable/hasKey.sol";
 import { System } from "@latticexyz/world/src/System.sol";
-import { OwnedBy, Position, VoxelType, VoxelTypeProperties, BodyPhysics, BodyPhysicsData } from "@tenet-world/src/codegen/Tables.sol";
+import { OwnedBy, Position, VoxelType, VoxelTypeProperties, BodyPhysics, BodyPhysicsData, BodyPhysicsTableId } from "@tenet-world/src/codegen/Tables.sol";
 import { VoxelCoord, VoxelTypeData, VoxelEntity } from "@tenet-utils/src/Types.sol";
-import { min, safeSubtract, safeAdd } from "@tenet-utils/src/VoxelCoordUtils.sol";
+import { min, safeSubtract, safeAdd, abs, absInt32 } from "@tenet-utils/src/VoxelCoordUtils.sol";
 import { REGISTRY_ADDRESS } from "@tenet-world/src/Constants.sol";
 import { AirVoxelID } from "@tenet-level1-ca/src/Constants.sol";
 import { BuildWorldEventData } from "@tenet-world/src/Types.sol";
@@ -15,11 +16,95 @@ import { CAVoxelType, CAVoxelTypeData } from "@tenet-base-ca/src/codegen/tables/
 import { WorldConfig, WorldConfigTableId } from "@tenet-base-world/src/codegen/tables/WorldConfig.sol";
 import { getUniqueEntity } from "@latticexyz/world/src/modules/uniqueentity/getUniqueEntity.sol";
 import { console } from "forge-std/console.sol";
+import { getVelocity } from "@tenet-world/src/Utils.sol";
 
 uint256 constant MAXIMUM_ENERGY_OUT = 100;
 uint256 constant MAXIMUM_ENERGY_IN = 100;
 
 contract PhysicsSystem is System {
+  function updateVelocity(
+    address caAddress,
+    VoxelCoord memory oldCoord,
+    VoxelCoord memory newCoord,
+    VoxelEntity memory oldEntity,
+    VoxelEntity memory newEntity
+  ) public {
+    BodyPhysicsData memory oldBodyPhysicsData = BodyPhysics.get(oldEntity.scale, oldEntity.entityId);
+    uint256 bodyMass = oldBodyPhysicsData.mass;
+    (VoxelCoord memory newVelocity, uint256 energyRequired) = calculateNewVelocity(
+      oldCoord,
+      newCoord,
+      oldEntity,
+      bodyMass
+    );
+    require(energyRequired <= oldBodyPhysicsData.energy, "Not enough energy to move.");
+
+    if (!hasKey(BodyPhysicsTableId, BodyPhysics.encodeKeyTuple(newEntity.scale, newEntity.entityId))) {
+      (, BodyPhysicsData memory terrainPhysicsData) = IWorld(_world()).getTerrainBodyPhysicsData(caAddress, newCoord);
+      BodyPhysics.set(newEntity.scale, newEntity.entityId, terrainPhysicsData);
+    }
+    uint256 energyInNewBlock = BodyPhysics.getEnergy(newEntity.scale, newEntity.entityId);
+
+    BodyPhysics.setMass(oldEntity.scale, oldEntity.entityId, 0);
+    BodyPhysics.setEnergy(oldEntity.scale, oldEntity.entityId, 0);
+    BodyPhysics.setVelocity(oldEntity.scale, oldEntity.entityId, abi.encode(VoxelCoord({ x: 0, y: 0, z: 0 })));
+
+    fluxEnergy(false, caAddress, newEntity, energyRequired + energyInNewBlock);
+
+    oldBodyPhysicsData.energy -= energyRequired;
+    oldBodyPhysicsData.velocity = abi.encode(newVelocity);
+    BodyPhysics.set(newEntity.scale, newEntity.entityId, oldBodyPhysicsData);
+  }
+
+  function calculateNewVelocity(
+    VoxelCoord memory oldCoord,
+    VoxelCoord memory newCoord,
+    VoxelEntity memory oldEntity,
+    uint256 bodyMass
+  ) internal view returns (VoxelCoord memory, uint256) {
+    VoxelCoord memory currentVelocity = getVelocity(oldEntity);
+    VoxelCoord memory newVelocity = VoxelCoord({
+      x: currentVelocity.x + (newCoord.x - oldCoord.x),
+      y: currentVelocity.y + (newCoord.y - oldCoord.y),
+      z: currentVelocity.z + (newCoord.z - oldCoord.z)
+    });
+    VoxelCoord memory velocityDelta = VoxelCoord({
+      x: absInt32(newVelocity.x) - absInt32(currentVelocity.x),
+      y: absInt32(newVelocity.y) - absInt32(currentVelocity.y),
+      z: absInt32(newVelocity.z) - absInt32(currentVelocity.z)
+    });
+
+    uint256 energyRequiredX = 0;
+    if (velocityDelta.x != 0) {
+      energyRequiredX = bodyMass;
+      if (newVelocity.x != 0) {
+        energyRequiredX = currentVelocity.x != 0 && velocityDelta.x > 0
+          ? bodyMass / uint(abs(int(newVelocity.x))) // if we're going in the same direction, then it costs less
+          : bodyMass * uint(abs(int(newVelocity.x))); // if we're going in the opposite direction, then it costs more
+      }
+    }
+    uint256 energyRequiredY = 0;
+    if (velocityDelta.y != 0) {
+      energyRequiredY = bodyMass;
+      if (newVelocity.y != 0) {
+        energyRequiredY = currentVelocity.y != 0 && velocityDelta.y > 0
+          ? bodyMass / uint(abs(int(newVelocity.y)))
+          : bodyMass * uint(abs(int(newVelocity.y)));
+      }
+    }
+    uint256 energyRequiredZ = 0;
+    if (velocityDelta.z != 0) {
+      energyRequiredZ = bodyMass;
+      if (newVelocity.z != 0) {
+        energyRequiredZ = currentVelocity.z != 0 && velocityDelta.z > 0
+          ? bodyMass / uint(abs(int(newVelocity.z)))
+          : bodyMass * uint(abs(int(newVelocity.z)));
+      }
+    }
+    uint256 energyRequired = energyRequiredX + energyRequiredY + energyRequiredZ;
+    return (newVelocity, energyRequired);
+  }
+
   function fluxEnergy(
     bool isFluxIn,
     address caAddress,

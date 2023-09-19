@@ -83,6 +83,8 @@ contract PhysicsSystem is System {
     return (newVelocity, energyRequired);
   }
 
+  // Note: We assume the magnitude of the delta is always 1,
+  // ie the body is moving 1 voxel at a time
   function calculateEnergyRequired(
     int32 currentVelocity,
     int32 newVelocity,

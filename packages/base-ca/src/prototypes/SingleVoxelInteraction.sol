@@ -11,9 +11,8 @@ abstract contract SingleVoxelInteraction is VoxelInteraction {
     bytes32 interactEntity,
     bytes32 neighbourEntityId,
     BlockDirection neighbourBlockDirection
-  ) internal virtual override returns (bool changedEntity) {
-    changedEntity = runSingleInteraction(callerAddress, interactEntity, neighbourEntityId, neighbourBlockDirection);
-    return changedEntity;
+  ) internal virtual override returns (bool changedEntity, bytes memory entityData) {
+    return runSingleInteraction(callerAddress, interactEntity, neighbourEntityId, neighbourBlockDirection);
   }
 
   function runSingleInteraction(
@@ -21,7 +20,7 @@ abstract contract SingleVoxelInteraction is VoxelInteraction {
     bytes32 interactEntity,
     bytes32 neighbourEntityId,
     BlockDirection neighbourEntityDirection
-  ) internal virtual returns (bool changedEntity);
+  ) internal virtual returns (bool changedEntity, bytes memory entityData);
 
   function runInteraction(
     address callerAddress,
@@ -30,7 +29,8 @@ abstract contract SingleVoxelInteraction is VoxelInteraction {
     BlockDirection[] memory neighbourEntityDirections,
     bytes32[] memory childEntityIds,
     bytes32 parentEntity
-  ) internal virtual override returns (bool changedEntity) {
+  ) internal virtual override returns (bool changedEntity, bytes memory) {
+    bytes memory entityData;
     require(
       neighbourEntityIds.length == neighbourEntityDirections.length,
       "neighbourEntityIds and neighbourEntityDirections must be the same length"
@@ -41,16 +41,17 @@ abstract contract SingleVoxelInteraction is VoxelInteraction {
       if (uint256(neighbourEntityId) == 0) {
         continue;
       }
-      bool changedInteractionEntity = runSingleInteraction(
+      (bool changedInteractionEntity, bytes memory interactionEntityData) = runSingleInteraction(
         callerAddress,
         interactEntity,
         neighbourEntityId,
         neighbourEntityDirections[i]
       );
+      entityData = interactionEntityData;
       if (changedInteractionEntity) {
         changedEntity = true;
       }
     }
-    return changedEntity;
+    return (changedEntity, entityData);
   }
 }

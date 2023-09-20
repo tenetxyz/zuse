@@ -21,7 +21,7 @@ contract FighterMindSystem is MindType {
       FighterVoxelID,
       Mind({
         creationMetadata: abi.encode(creationMetadata),
-        mindSelector: IWorld(_world()).ca_FighterMindSyste_mindLogic.selector
+        mindSelector: bytes4(0) //IWorld(_world()).ca_FighterMindSyste_mindLogic.selector
       })
     );
   }

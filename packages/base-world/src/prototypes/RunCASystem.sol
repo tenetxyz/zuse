@@ -4,8 +4,7 @@ pragma solidity >=0.8.0;
 import { IWorld } from "@tenet-base-world/src/codegen/world/IWorld.sol";
 import { IStore } from "@latticexyz/store/src/IStore.sol";
 import { System } from "@latticexyz/world/src/System.sol";
-import { VoxelCoord } from "@tenet-utils/src/Types.sol";
-import { VoxelEntity } from "@tenet-utils/src/Types.sol";
+import { VoxelCoord, VoxelEntity, EntityEventData } from "@tenet-utils/src/Types.sol";
 import { hasEntity } from "@tenet-utils/src/Utils.sol";
 import { safeCall } from "@tenet-utils/src/CallUtils.sol";
 import { CAVoxelType, CAVoxelTypeData } from "@tenet-base-ca/src/codegen/tables/CAVoxelType.sol";
@@ -83,11 +82,17 @@ abstract contract RunCASystem is System {
     );
   }
 
-  function runCA(address caAddress, VoxelEntity memory entity, bytes4 interactionSelector) public virtual {
+  function runCA(
+    address caAddress,
+    VoxelEntity memory entity,
+    bytes4 interactionSelector
+  ) public virtual returns (EntityEventData[] memory) {
     uint32 scale = entity.scale;
     bytes32 entityId = entity.entityId;
     bytes32[] memory centerEntitiesToCheckStack = new bytes32[](MAX_VOXEL_NEIGHBOUR_UPDATE_DEPTH);
+    EntityEventData[] memory allEntitiesEventData = new EntityEventData[](MAX_VOXEL_NEIGHBOUR_UPDATE_DEPTH);
     uint256 centerEntitiesToCheckStackIdx = 0;
+    uint256 entitesEventDataIdx = 0;
     uint256 useStackIdx = 0;
 
     // start with the center entity
@@ -118,7 +123,10 @@ abstract contract RunCASystem is System {
         childEntityIds,
         parentEntity
       );
-      bytes32[] memory changedEntities = abi.decode(returnData, (bytes32[]));
+      (bytes32[] memory changedEntities, bytes[] memory entitiesEventData) = abi.decode(
+        returnData,
+        (bytes32[], bytes[])
+      );
       useInteractionSelector = bytes4(0); // Only use the interaction selector for the first call, then use the Mind
 
       // If there are changed entities, we want to run voxel interactions again but with this new neighbour as the center
@@ -131,6 +139,17 @@ abstract contract RunCASystem is System {
           );
           centerEntitiesToCheckStack[centerEntitiesToCheckStackIdx] = changedEntities[i];
         }
+      }
+
+      for (uint256 i; i < entitiesEventData.length; i++) {
+        if (entitiesEventData[i].length == 0) {
+          continue;
+        }
+        allEntitiesEventData[entitesEventDataIdx] = EntityEventData({
+          entity: VoxelEntity({ scale: scale, entityId: i == 0 ? useCenterEntityId : useNeighbourEntities[i - 1] }),
+          eventData: entitiesEventData[i]
+        });
+        entitesEventDataIdx++;
       }
 
       // at this point, we've consumed the top of the stack,
@@ -160,5 +179,7 @@ abstract contract RunCASystem is System {
       // Position should not change of the entity
       // Position.set(scale, changedEntities[i], coord.x, coord.y, coord.z);
     }
+
+    return allEntitiesEventData;
   }
 }

@@ -15,5 +15,5 @@ abstract contract VoxelType is BodyType {
     bytes32[] memory neighbourEntityIds,
     bytes32[] memory childEntityIds,
     bytes32 parentEntity
-  ) public virtual returns (bytes32, bytes32[] memory);
+  ) public virtual returns (bytes32, bytes32[] memory, bytes[] memory);
 }

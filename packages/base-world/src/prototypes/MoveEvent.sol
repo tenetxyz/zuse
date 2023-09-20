@@ -6,7 +6,7 @@ import { IWorld } from "@tenet-base-world/src/codegen/world/IWorld.sol";
 import { getUniqueEntity } from "@latticexyz/world/src/modules/uniqueentity/getUniqueEntity.sol";
 import { getKeysInTable } from "@latticexyz/world/src/modules/keysintable/getKeysInTable.sol";
 import { Event } from "./Event.sol";
-import { VoxelCoord, VoxelEntity } from "@tenet-utils/src/Types.sol";
+import { VoxelCoord, VoxelEntity, EntityEventData } from "@tenet-utils/src/Types.sol";
 import { MoveEventData } from "@tenet-base-world/src/Types.sol";
 import { Position, PositionTableId } from "@tenet-base-world/src/codegen/tables/Position.sol";
 import { VoxelType, VoxelTypeData } from "@tenet-base-world/src/codegen/tables/VoxelType.sol";
@@ -20,7 +20,11 @@ abstract contract MoveEvent is Event {
     VoxelCoord memory coord,
     bytes memory eventData
   ) internal virtual returns (VoxelEntity memory, VoxelEntity memory) {
-    VoxelEntity memory newVoxelEntity = super.runEvent(voxelTypeId, coord, eventData);
+    (VoxelEntity memory newVoxelEntity, EntityEventData[] memory entitiesEventData) = super.runEvent(
+      voxelTypeId,
+      coord,
+      eventData
+    );
     MoveEventData memory moveEventData = abi.decode(eventData, (MoveEventData));
     bytes32 oldEntityId = getEntityAtCoord(newVoxelEntity.scale, moveEventData.oldCoord);
     VoxelEntity memory oldVoxelEntity = VoxelEntity({ scale: newVoxelEntity.scale, entityId: oldEntityId });
@@ -127,15 +131,16 @@ abstract contract MoveEvent is Event {
     VoxelCoord memory coord,
     VoxelEntity memory eventVoxelEntity,
     bytes memory eventData
-  ) internal virtual override {
+  ) internal virtual override returns (EntityEventData[] memory) {
     uint32 scale = eventVoxelEntity.scale;
     MoveEventData memory moveEventData = abi.decode(eventData, (MoveEventData));
     bytes32 oldEntityId = getEntityAtCoord(scale, moveEventData.oldCoord);
     VoxelEntity memory oldVoxelEntity = VoxelEntity({ scale: scale, entityId: oldEntityId });
 
     // Need to run 2 interactions because we're moving so two entities are involved
+    // Note: for MoveEvents, we're only using the entity event data from where the new entity is placed
     IWorld(_world()).runCA(caAddress, oldVoxelEntity, bytes4(0));
-    IWorld(_world()).runCA(caAddress, eventVoxelEntity, bytes4(0));
+    return IWorld(_world()).runCA(caAddress, eventVoxelEntity, bytes4(0));
   }
 
   function postRunCA(

@@ -6,7 +6,7 @@ import { IWorld } from "@tenet-base-world/src/codegen/world/IWorld.sol";
 import { getUniqueEntity } from "@latticexyz/world/src/modules/uniqueentity/getUniqueEntity.sol";
 import { getKeysInTable } from "@latticexyz/world/src/modules/keysintable/getKeysInTable.sol";
 import { Event } from "@tenet-base-world/src/prototypes/Event.sol";
-import { VoxelCoord, VoxelEntity } from "@tenet-utils/src/Types.sol";
+import { VoxelCoord, VoxelEntity, EntityEventData } from "@tenet-utils/src/Types.sol";
 import { Position, PositionTableId } from "@tenet-base-world/src/codegen/tables/Position.sol";
 import { VoxelType, VoxelTypeData } from "@tenet-base-world/src/codegen/tables/VoxelType.sol";
 import { calculateChildCoords, getEntityAtCoord, positionDataToVoxelCoord } from "@tenet-base-world/src/Utils.sol";
@@ -22,7 +22,12 @@ abstract contract MineEvent is Event {
     VoxelCoord memory coord,
     bytes memory eventData
   ) internal virtual returns (VoxelEntity memory) {
-    return super.runEvent(voxelTypeId, coord, eventData);
+    (VoxelEntity memory mineEntity, EntityEventData[] memory entitiesEventData) = super.runEvent(
+      voxelTypeId,
+      coord,
+      eventData
+    );
+    return mineEntity;
   }
 
   function preEvent(bytes32 voxelTypeId, VoxelCoord memory coord, bytes memory eventData) internal virtual override {
@@ -40,7 +45,13 @@ abstract contract MineEvent is Event {
     while (useParentEntity != 0) {
       bytes32 parentVoxelTypeId = VoxelType.getVoxelTypeId(useParentScale, useParentEntity);
       VoxelCoord memory parentCoord = positionDataToVoxelCoord(Position.get(useParentScale, useParentEntity));
-      VoxelEntity memory minedParentEntity = runEventHandler(parentVoxelTypeId, parentCoord, false, false, eventData);
+      (VoxelEntity memory minedParentEntity, ) = runEventHandler(
+        parentVoxelTypeId,
+        parentCoord,
+        false,
+        false,
+        eventData
+      );
       useParentEntity = IWorld(_world()).calculateParentEntity(minedParentEntity);
     }
   }
@@ -115,8 +126,8 @@ abstract contract MineEvent is Event {
     VoxelCoord memory coord,
     VoxelEntity memory eventVoxelEntity,
     bytes memory eventData
-  ) internal virtual override {
-    IWorld(_world()).runCA(caAddress, eventVoxelEntity, bytes4(0));
+  ) internal virtual override returns (EntityEventData[] memory) {
+    return IWorld(_world()).runCA(caAddress, eventVoxelEntity, bytes4(0));
   }
 
   function postRunCA(

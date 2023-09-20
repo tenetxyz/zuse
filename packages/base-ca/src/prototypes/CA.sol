@@ -29,15 +29,6 @@ abstract contract CA is System {
 
   function callVoxelExitWorld(bytes32 voxelTypeId, VoxelCoord memory coord, bytes32 caEntity) internal virtual;
 
-  function callVoxelRunInteraction(
-    bytes4 interactionSelector,
-    bytes32 voxelTypeId,
-    bytes32 caInteractEntity,
-    bytes32[] memory caNeighbourEntityIds,
-    bytes32[] memory childEntityIds,
-    bytes32 parentEntity
-  ) internal virtual returns (bytes32[] memory, bytes[] memory);
-
   function callGetVoxelVariant(
     bytes32 voxelTypeId,
     bytes32 caEntity,
@@ -240,120 +231,6 @@ abstract contract CA is System {
       parentEntity
     );
     CAVoxelType.set(callerAddress, newEntity, voxelTypeId, voxelVariantId);
-  }
-
-  function runInteraction(
-    bytes4 interactionSelector,
-    bytes32 interactEntity,
-    bytes32[] memory neighbourEntityIds,
-    bytes32[] memory childEntityIds,
-    bytes32 parentEntity
-  ) public returns (bytes32[] memory changedEntities, bytes[] memory) {
-    address callerAddress = _msgSender();
-    require(
-      hasKey(CAVoxelTypeTableId, CAVoxelType.encodeKeyTuple(callerAddress, interactEntity)),
-      "Entity does not exist"
-    );
-    bytes32 voxelTypeId = CAVoxelType.getVoxelTypeId(callerAddress, interactEntity);
-
-    bytes32 caInteractEntity = entityToCAEntity(callerAddress, interactEntity);
-    bytes32[] memory caNeighbourEntityIds = entityArrayToCAEntityArray(callerAddress, neighbourEntityIds);
-
-    // Note: Center and Neighbour could just be different interfaces, but then the user would have to
-    // define two, so instead we just call one interface and pass in the entity ids
-
-    // Center Interaction
-    (bytes32[] memory changedCAEntities, bytes[] memory caEntitiesEventData) = callVoxelRunInteraction(
-      interactionSelector,
-      voxelTypeId,
-      caInteractEntity,
-      caNeighbourEntityIds,
-      childEntityIds,
-      parentEntity
-    );
-
-    // Neighbour Interactions
-    for (uint256 i = 0; i < neighbourEntityIds.length; i++) {
-      if (neighbourEntityIds[i] != 0) {
-        bytes32 neighbourVoxelTypeId = CAVoxelType.getVoxelTypeId(callerAddress, neighbourEntityIds[i]);
-        if (
-          !shouldRunInteractionForNeighbour(
-            callerAddress,
-            VoxelEntity({
-              scale: VoxelTypeRegistry.getScale(IStore(getRegistryAddress()), voxelTypeId),
-              entityId: interactEntity
-            }),
-            VoxelEntity({
-              scale: VoxelTypeRegistry.getScale(IStore(getRegistryAddress()), neighbourVoxelTypeId),
-              entityId: neighbourEntityIds[i]
-            })
-          )
-        ) {
-          continue;
-        }
-
-        {
-          bytes4 onNewNeighbourSelector = getOnNewNeighbourSelector(IStore(getRegistryAddress()), neighbourVoxelTypeId);
-          if (onNewNeighbourSelector != bytes4(0)) {
-            safeCall(
-              _world(),
-              abi.encodeWithSelector(onNewNeighbourSelector, caNeighbourEntityIds[i], caInteractEntity),
-              "onNewNeighbourSelector"
-            );
-          }
-        }
-
-        // Call voxel interaction
-        (
-          bytes32[] memory changedCANeighbourEntities,
-          bytes[] memory caNeighbourEntitiesEventsData
-        ) = callVoxelRunInteraction(
-            bytes4(0),
-            neighbourVoxelTypeId,
-            caInteractEntity,
-            caNeighbourEntityIds,
-            childEntityIds,
-            parentEntity
-          );
-
-        for (uint256 j = 0; j < changedCANeighbourEntities.length; j++) {
-          if (changedCAEntities[j] == 0 && changedCANeighbourEntities[j] != 0) {
-            changedCAEntities[j] = changedCANeighbourEntities[j];
-          }
-        }
-
-        for (uint256 j = 0; j < caNeighbourEntitiesEventsData.length; j++) {
-          if (caEntitiesEventData[j].length == 0 && caNeighbourEntitiesEventsData[j].length != 0) {
-            caEntitiesEventData[j] = caNeighbourEntitiesEventsData[j];
-          }
-        }
-      }
-    }
-
-    changedEntities = caEntityArrayToEntityArray(changedCAEntities);
-    // Update voxel types after interaction
-    updateVoxelTypes(callerAddress, changedEntities);
-
-    return (changedEntities, caEntitiesEventData);
-  }
-
-  function updateVoxelTypes(address callerAddress, bytes32[] memory changedEntities) internal {
-    for (uint256 i = 0; i < changedEntities.length; i++) {
-      bytes32 changedEntityId = changedEntities[i];
-      if (changedEntityId != 0) {
-        bytes32 changedVoxelTypeId = CAVoxelType.getVoxelTypeId(callerAddress, changedEntityId);
-        uint32 scale = VoxelTypeRegistry.getScale(IStore(getRegistryAddress()), changedVoxelTypeId);
-        VoxelEntity memory changedEntity = VoxelEntity({ scale: scale, entityId: changedEntityId });
-        bytes32 voxelVariantId = callGetVoxelVariant(
-          changedVoxelTypeId,
-          entityToCAEntity(callerAddress, changedEntityId),
-          entityArrayToCAEntityArray(callerAddress, getNeighbourEntitiesFromCaller(callerAddress, changedEntity)),
-          getChildEntitiesFromCaller(callerAddress, changedEntity),
-          getParentEntityFromCaller(callerAddress, changedEntity)
-        );
-        CAVoxelType.set(callerAddress, changedEntityId, changedVoxelTypeId, voxelVariantId);
-      }
-    }
   }
 
   function activateVoxel(bytes32 entity) public returns (string memory) {

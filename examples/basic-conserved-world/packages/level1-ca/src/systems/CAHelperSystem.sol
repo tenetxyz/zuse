@@ -28,23 +28,4 @@ contract CAHelperSystem is CAHelper {
   function voxelExitWorld(bytes32 voxelTypeId, VoxelCoord memory coord, bytes32 caEntity) public override {
     super.voxelExitWorld(voxelTypeId, coord, caEntity);
   }
-
-  function voxelRunInteraction(
-    bytes4 interactionSelector,
-    bytes32 voxelTypeId,
-    bytes32 caInteractEntity,
-    bytes32[] memory caNeighbourEntityIds,
-    bytes32[] memory childEntityIds,
-    bytes32 parentEntity
-  ) public override returns (bytes32[] memory) {
-    return
-      super.voxelRunInteraction(
-        interactionSelector,
-        voxelTypeId,
-        caInteractEntity,
-        caNeighbourEntityIds,
-        childEntityIds,
-        parentEntity
-      );
-  }
 }

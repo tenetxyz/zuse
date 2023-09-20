@@ -26,6 +26,11 @@ export default tenetMudConfig({
       openAccess: true,
       registerAsRoot: true,
     },
+    CAInteractionSystem: {
+      name: "CAInteractionSys",
+      openAccess: true,
+      registerAsRoot: true,
+    },
     CAHelperSystem: {
       name: "CAHelperSystem",
       openAccess: false,

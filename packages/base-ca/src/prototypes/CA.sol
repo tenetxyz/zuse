@@ -75,6 +75,13 @@ abstract contract CA is System {
     return CAMind.getMindSelector(caEntity);
   }
 
+  function setMindSelector(bytes32 entity, bytes4 mindSelector) public virtual {
+    address callerAddress = _msgSender();
+    bytes32 caEntity = entityToCAEntity(callerAddress, entity);
+    require(hasKey(CAMindTableId, CAMind.encodeKeyTuple(caEntity)), "Mind does not exist");
+    CAMind.setMindSelector(caEntity, mindSelector);
+  }
+
   function enterWorld(
     bytes32 voxelTypeId,
     bytes4 mindSelector,

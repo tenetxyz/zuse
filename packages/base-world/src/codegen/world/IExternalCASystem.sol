@@ -8,8 +8,6 @@ import { VoxelEntity } from "@tenet-utils/src/Types.sol";
 interface IExternalCASystem {
   function getVoxelTypeId(VoxelEntity memory entity) external view returns (bytes32);
 
-  function getMindSelector(VoxelEntity memory entity) external returns (bytes4);
-
   function shouldRunInteractionForNeighbour(
     VoxelEntity memory originEntity,
     VoxelEntity memory neighbourEntity

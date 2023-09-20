@@ -9,10 +9,6 @@ contract ExternalCASystem is ExternalCAPrototype {
     return super.getVoxelTypeId(entity);
   }
 
-  function getMindSelector(VoxelEntity memory entity) public override returns (bytes4) {
-    return super.getMindSelector(entity);
-  }
-
   function shouldRunInteractionForNeighbour(
     VoxelEntity memory originEntity,
     VoxelEntity memory neighbourEntity

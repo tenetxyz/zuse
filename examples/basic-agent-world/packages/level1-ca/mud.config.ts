@@ -10,6 +10,11 @@ export default tenetMudConfig({
       openAccess: true,
       registerAsRoot: true,
     },
+    CAExternalSystem: {
+      name: "CAExternalSystem",
+      openAccess: true,
+      registerAsRoot: true,
+    },
     CAHelperSystem: {
       name: "CAHelperSystem",
       openAccess: false,

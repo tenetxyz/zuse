@@ -3,11 +3,15 @@ import { resolveTableId } from "@latticexyz/config";
 
 export default tenetMudConfig({
   namespace: "ca",
-  tables: {
-  },
+  tables: {},
   systems: {
     CASystem: {
       name: "CASystem",
+      openAccess: true,
+      registerAsRoot: true,
+    },
+    CAExternalSystem: {
+      name: "CAExternalSystem",
       openAccess: true,
       registerAsRoot: true,
     },

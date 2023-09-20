@@ -30,6 +30,7 @@ abstract contract ActivateEvent is Event {
       coord,
       eventData
     );
+    processCAEvents(entitiesEventData);
     return activateEntity;
   }
 

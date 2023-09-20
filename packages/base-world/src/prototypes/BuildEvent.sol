@@ -32,6 +32,7 @@ abstract contract BuildEvent is Event {
       coord,
       eventData
     );
+    processCAEvents(entitiesEventData);
     // TODO: Where should this be dealt?
     // voxelSpawned(getRegistryAddress(), voxelTypeId);
     return builtEntity;

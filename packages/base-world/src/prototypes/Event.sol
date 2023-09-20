@@ -27,6 +27,8 @@ abstract contract Event is System {
     bytes memory eventData
   ) internal virtual;
 
+  function processCAEvents(EntityEventData[] memory entitiesEventData) internal virtual;
+
   function runEvent(
     bytes32 voxelTypeId,
     VoxelCoord memory coord,

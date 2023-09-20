@@ -4,7 +4,7 @@ pragma solidity >=0.8.0;
 import { IStore } from "@latticexyz/store/src/IStore.sol";
 import { MoveEvent } from "@tenet-base-world/src/prototypes/MoveEvent.sol";
 import { IWorld } from "@tenet-world/src/codegen/world/IWorld.sol";
-import { VoxelCoord, VoxelEntity } from "@tenet-utils/src/Types.sol";
+import { VoxelCoord, VoxelEntity, EntityEventData } from "@tenet-utils/src/Types.sol";
 import { REGISTRY_ADDRESS } from "@tenet-world/src/Constants.sol";
 import { MoveEventData } from "@tenet-base-world/src/Types.sol";
 
@@ -12,6 +12,8 @@ contract MoveSystem is MoveEvent {
   function getRegistryAddress() internal pure override returns (address) {
     return REGISTRY_ADDRESS;
   }
+
+  function processCAEvents(EntityEventData[] memory entitiesEventData) internal override {}
 
   // Called by users
   function move(

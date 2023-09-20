@@ -27,6 +27,7 @@ abstract contract MineEvent is Event {
       coord,
       eventData
     );
+    processCAEvents(entitiesEventData);
     return mineEntity;
   }
 

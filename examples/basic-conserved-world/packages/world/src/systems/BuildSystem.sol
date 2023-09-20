@@ -6,7 +6,7 @@ import { BuildEvent } from "@tenet-base-world/src/prototypes/BuildEvent.sol";
 import { BuildEventData } from "@tenet-base-world/src/Types.sol";
 import { hasKey } from "@latticexyz/world/src/modules/keysintable/hasKey.sol";
 import { OwnedBy, VoxelType, VoxelTypeProperties, BodyPhysics, BodyPhysicsData, BodyPhysicsTableId, WorldConfig } from "@tenet-world/src/codegen/Tables.sol";
-import { VoxelCoord, VoxelTypeData, VoxelEntity } from "@tenet-utils/src/Types.sol";
+import { VoxelCoord, VoxelTypeData, VoxelEntity, EntityEventData } from "@tenet-utils/src/Types.sol";
 import { min } from "@tenet-utils/src/VoxelCoordUtils.sol";
 import { REGISTRY_ADDRESS } from "@tenet-world/src/Constants.sol";
 import { AirVoxelID } from "@tenet-level1-ca/src/Constants.sol";
@@ -18,6 +18,8 @@ contract BuildSystem is BuildEvent {
   function getRegistryAddress() internal pure override returns (address) {
     return REGISTRY_ADDRESS;
   }
+
+  function processCAEvents(EntityEventData[] memory entitiesEventData) internal override {}
 
   function emptyVoxelId() internal pure override returns (bytes32) {
     return AirVoxelID;

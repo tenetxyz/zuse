@@ -25,6 +25,7 @@ abstract contract MoveEvent is Event {
       coord,
       eventData
     );
+    processCAEvents(entitiesEventData);
     MoveEventData memory moveEventData = abi.decode(eventData, (MoveEventData));
     bytes32 oldEntityId = getEntityAtCoord(newVoxelEntity.scale, moveEventData.oldCoord);
     VoxelEntity memory oldVoxelEntity = VoxelEntity({ scale: newVoxelEntity.scale, entityId: oldEntityId });

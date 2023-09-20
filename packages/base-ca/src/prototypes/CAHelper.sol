@@ -20,6 +20,20 @@ import { getEnterWorldSelector, getExitWorldSelector, getVoxelVariantSelector, g
 abstract contract CAHelper is System {
   function getRegistryAddress() internal pure virtual returns (address);
 
+  function getMindSelector(bytes32 entity) public view virtual returns (bytes4) {
+    address callerAddress = _msgSender();
+    bytes32 caEntity = entityToCAEntity(callerAddress, entity);
+    require(hasKey(CAMindTableId, CAMind.encodeKeyTuple(caEntity)), "Mind does not exist");
+    return CAMind.getMindSelector(caEntity);
+  }
+
+  function setMindSelector(bytes32 entity, bytes4 mindSelector) public virtual {
+    address callerAddress = _msgSender();
+    bytes32 caEntity = entityToCAEntity(callerAddress, entity);
+    require(hasKey(CAMindTableId, CAMind.encodeKeyTuple(caEntity)), "Mind does not exist");
+    CAMind.setMindSelector(caEntity, mindSelector);
+  }
+
   function voxelEnterWorld(bytes32 voxelTypeId, VoxelCoord memory coord, bytes32 caEntity) public virtual {
     bytes32 baseVoxelTypeId = VoxelTypeRegistry.getBaseVoxelTypeId(IStore(getRegistryAddress()), voxelTypeId);
     if (baseVoxelTypeId != voxelTypeId) {

@@ -34,6 +34,8 @@ contract PostDeploy is Script {
       IWorld(worldAddress).ca_FighterAgentSyst_moveForwardEventHandler.selector
     );
 
+    IWorld(worldAddress).ca_FighterMindSyste_registerMind();
+
     IWorld(worldAddress).registerCA();
 
     vm.stopBroadcast();

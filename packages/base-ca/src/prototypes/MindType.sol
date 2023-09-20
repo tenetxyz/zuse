@@ -15,9 +15,6 @@ abstract contract MindType is System {
     return callerAddress;
   }
 
-  // Called once to register the mind
-  // abstract function registerMind() public virtual;
-
   function mindLogic(
     bytes32 voxelTypeId,
     bytes32 entity,

@@ -46,6 +46,17 @@ const WORLD_TABLES: Record<string, TableConfig> = {
     },
     ephemeral: true,
   },
+  VoxelMind: {
+    keySchema: {
+      player: "address",
+    },
+    schema: {
+      scale: "uint32",
+      entity: "bytes32",
+      mindSelector: "bytes4",
+    },
+    ephemeral: true,
+  },
   // tables for spawning
   OfSpawn: {
     // maps a voxel spawned in the world -> the entityId representing its spawn
@@ -64,7 +75,7 @@ const WORLD_TABLES: Record<string, TableConfig> = {
       lowerSouthWestCorner: "bytes", // VoxelCoord
       voxels: "bytes", // the voxel entities that have been spawned
     },
-  }
+  },
 };
 
 const WORLD_MODULES = [
@@ -112,15 +123,15 @@ export function tenetMudConfig<
   StaticUserTypes extends ExtractUserTypes<EnumNames> = ExtractUserTypes<EnumNames>
 >(config: MUDUserConfig<T, EnumNames, StaticUserTypes>): ExpandMUDUserConfig<T> {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
- // add layer Tables
- const existingTableNames = new Set(Object.keys(config.tables));
- for (const tableName of Object.keys(WORLD_TABLES)) {
-   if (existingTableNames.has(tableName)) {
-     // TODO: Support overriding tables
-     throw new Error(`Table ${tableName} already exists`);
-   }
-   const table = WORLD_TABLES[tableName];
-   config.tables[tableName] = table;
+  // add layer Tables
+  const existingTableNames = new Set(Object.keys(config.tables));
+  for (const tableName of Object.keys(WORLD_TABLES)) {
+    if (existingTableNames.has(tableName)) {
+      // TODO: Support overriding tables
+      throw new Error(`Table ${tableName} already exists`);
+    }
+    const table = WORLD_TABLES[tableName];
+    config.tables[tableName] = table;
   }
 
   // add layer Modules

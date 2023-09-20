@@ -8,17 +8,33 @@ import { VoxelEntity } from "@tenet-utils/src/Types.sol";
 import { hasEntity } from "@tenet-utils/src/Utils.sol";
 import { safeCall } from "@tenet-utils/src/CallUtils.sol";
 import { CAVoxelType, CAVoxelTypeData } from "@tenet-base-ca/src/codegen/tables/CAVoxelType.sol";
+import { CAMind } from "@tenet-base-ca/src/codegen/tables/CAMind.sol";
 import { NUM_VOXEL_NEIGHBOURS, MAX_VOXEL_NEIGHBOUR_UPDATE_DEPTH } from "@tenet-utils/src/Constants.sol";
+import { hasKey } from "@latticexyz/world/src/modules/keysintable/hasKey.sol";
 import { Position, PositionData } from "@tenet-base-world/src/codegen/tables/Position.sol";
-import { VoxelType, VoxelTypeData } from "@tenet-base-world/src/codegen/tables/VoxelType.sol";
+import { VoxelType, VoxelTypeData, VoxelTypeTableId } from "@tenet-base-world/src/codegen/tables/VoxelType.sol";
+import { WorldConfig } from "@tenet-base-world/src/codegen/tables/WorldConfig.sol";
 import { VoxelActivated, VoxelActivatedData } from "@tenet-base-world/src/codegen/tables/VoxelActivated.sol";
+import { VoxelMind, VoxelMindData } from "@tenet-base-world/src/codegen/tables/VoxelMind.sol";
 import { getEntityAtCoord, calculateChildCoords, calculateParentCoord } from "@tenet-base-world/src/Utils.sol";
-import { runInteraction, enterWorld, exitWorld, activateVoxel, moveLayer } from "@tenet-base-ca/src/CallUtils.sol";
+import { getCAMindSelector, runInteraction, enterWorld, exitWorld, activateVoxel, moveLayer } from "@tenet-base-ca/src/CallUtils.sol";
 import { addressToEntityKey } from "@tenet-utils/src/Utils.sol";
 
 abstract contract ExternalCASystem is System {
   function getVoxelTypeId(VoxelEntity memory entity) public view virtual returns (bytes32) {
     return VoxelType.getVoxelTypeId(entity.scale, entity.entityId);
+  }
+
+  function getMindSelector(VoxelEntity memory entity) public virtual returns (bytes4) {
+    require(hasKey(VoxelTypeTableId, VoxelType.encodeKeyTuple(entity.scale, entity.entityId)), "Entity does not exist");
+    bytes32 voxelTypeId = getVoxelTypeId(entity);
+    address caAddress = WorldConfig.get(voxelTypeId);
+    bytes4 mindSelector = getCAMindSelector(caAddress, entity.entityId);
+    VoxelMind.emitEphemeral(
+      tx.origin,
+      VoxelMindData({ scale: entity.scale, entity: entity.entityId, mindSelector: mindSelector })
+    );
+    return mindSelector;
   }
 
   function shouldRunInteractionForNeighbour(

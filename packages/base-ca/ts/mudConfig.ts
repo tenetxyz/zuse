@@ -106,20 +106,20 @@ export function tenetMudConfig<
   StaticUserTypes extends ExtractUserTypes<EnumNames> = ExtractUserTypes<EnumNames>
 >(config: MUDUserConfig<T, EnumNames, StaticUserTypes>): ExpandMUDUserConfig<T> {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
- // add layer Tables
- const existingTableNames = new Set(Object.keys(config.tables));
- for (const tableName of Object.keys(LAYER_TABLES)) {
-   if (existingTableNames.has(tableName)) {
-     // TODO: Support overriding tables
-     throw new Error(`Table ${tableName} already exists`);
-   }
-   const table = LAYER_TABLES[tableName];
-   config.tables[tableName] = table;
- }
+  // add layer Tables
+  const existingTableNames = new Set(Object.keys(config.tables));
+  for (const tableName of Object.keys(LAYER_TABLES)) {
+    if (existingTableNames.has(tableName)) {
+      // TODO: Support overriding tables
+      throw new Error(`Table ${tableName} already exists`);
+    }
+    const table = LAYER_TABLES[tableName];
+    config.tables[tableName] = table;
+  }
 
- // add layer Modules
- // TODO: Add check on duplicates
- config.modules = config.modules.concat(LAYER_MODULES);
+  // add layer Modules
+  // TODO: Add check on duplicates
+  config.modules = config.modules.concat(LAYER_MODULES);
 
   return mudConfig(config) as any;
 }

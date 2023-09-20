@@ -58,7 +58,7 @@ function setCAMindSelector(address caAddress, bytes32 entity, bytes4 mindSelecto
     safeCall(
       caAddress,
       abi.encodeWithSignature(CA_SET_MIND_SELECTOR_SIG, entity, mindSelector),
-      string(abi.encode("setCAMindSelector ", entity))
+      string(abi.encode("setCAMindSelector ", entity, " ", mindSelector))
     );
 }
 

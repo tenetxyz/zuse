@@ -33,7 +33,22 @@ contract FighterAgentSystem is AgentType {
     fighterChildVoxelTypes[0] = FighterVoxelID;
     bytes32 baseVoxelTypeId = FighterVoxelID;
 
-    ComponentDef[] memory componentDefs = new ComponentDef[](0);
+    ComponentDef[] memory componentDefs = new ComponentDef[](3);
+    componentDefs[0] = ComponentDef(
+      ComponentType.RANGE,
+      "Health",
+      abi.encode(RangeComponent({ rangeStart: 0, rangeEnd: 100 }))
+    );
+    componentDefs[1] = ComponentDef(
+      ComponentType.RANGE,
+      "Stamina",
+      abi.encode(RangeComponent({ rangeStart: 0, rangeEnd: 200 }))
+    );
+    string[] memory states = new string[](3);
+    states[0] = "Running";
+    states[1] = "Defending";
+    states[2] = "Attacking";
+    componentDefs[2] = ComponentDef(ComponentType.STATE, "State", abi.encode(StateComponent(states)));
 
     registerVoxelType(
       REGISTRY_ADDRESS,

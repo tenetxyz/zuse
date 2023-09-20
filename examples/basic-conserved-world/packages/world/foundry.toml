@@ -1,0 +1,23 @@
+[profile.default]
+solc_version = "0.8.13"
+ffi = false
+fuzz_runs = 256
+optimizer = true
+optimizer_runs = 3000
+verbosity = 1
+src = "src"
+test = "test"
+out = "out"
+# not sure what's the difference between libs and allow_list, but it seems to both be the same
+libs = ["../../node_modules", "../../../../../mud"]
+extra_output_files = [
+  "abi",
+  "evm.bytecode"
+]
+fs_permissions = [{ access = "read", path = "./"}]
+
+[profile.lattice-testnet]
+eth_rpc_url = "https://follower.testnet-chain.linfra.xyz"
+
+[profile.hackathon-testnet]
+eth_rpc_url = "https://lattice-goerli-sequencer.optimism.io"

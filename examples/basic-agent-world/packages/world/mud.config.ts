@@ -3,16 +3,6 @@ import { resolveTableId } from "@latticexyz/config";
 
 export default tenetMudConfig({
   tables: {
-    BodyPhysics: {
-      keySchema: {
-        scale: "uint32",
-        entity: "bytes32",
-      },
-      schema: {
-        mass: "uint256",
-        energy: "uint256",
-      },
-    },
     OwnedBy: {
       keySchema: {
         scale: "uint32",
@@ -35,11 +25,6 @@ export default tenetMudConfig({
       name: "KeysInTableModule",
       root: true,
       args: [resolveTableId("OwnedBy")],
-    },
-    {
-      name: "KeysInTableModule",
-      root: true,
-      args: [resolveTableId("BodyPhysics")],
     },
   ],
 });

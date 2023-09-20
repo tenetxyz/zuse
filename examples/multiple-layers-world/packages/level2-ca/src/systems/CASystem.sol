@@ -35,16 +35,8 @@ contract CASystem is CA {
     );
   }
 
-  function terrainGen(
-    address callerAddress,
-    bytes32 voxelTypeId,
-    VoxelCoord memory coord,
-    bytes32 entity
-  ) internal override {
-    // If there is no entity at this position, try mining the terrain voxel at this position
-    bytes32 terrainVoxelTypeId = IWorld(_world()).ca_LibTerrainSystem_getTerrainVoxel(coord);
-    require(terrainVoxelTypeId != EMPTY_ID && terrainVoxelTypeId == voxelTypeId, "invalid terrain voxel type");
-    super.terrainGen(callerAddress, voxelTypeId, coord, entity);
+  function getTerrainVoxelId(VoxelCoord memory coord) public view override returns (bytes32) {
+    return IWorld(_world()).ca_LibTerrainSystem_getTerrainVoxel(coord);
   }
 
   function callVoxelEnterWorld(bytes32 voxelTypeId, VoxelCoord memory coord, bytes32 caEntity) internal override {

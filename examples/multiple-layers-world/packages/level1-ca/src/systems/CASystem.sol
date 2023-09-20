@@ -29,12 +29,7 @@ contract CASystem is CA {
     return AirVoxelID;
   }
 
-  function terrainGen(
-    address callerAddress,
-    bytes32 voxelTypeId,
-    VoxelCoord memory coord,
-    bytes32 entity
-  ) internal override {
+  function getTerrainVoxelId(VoxelCoord memory coord) public view override returns (bytes32) {
     revert("BaseCA: Terrain gen not implemented");
   }
 

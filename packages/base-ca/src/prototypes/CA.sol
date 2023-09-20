@@ -36,7 +36,7 @@ abstract contract CA is System {
     bytes32[] memory caNeighbourEntityIds,
     bytes32[] memory childEntityIds,
     bytes32 parentEntity
-  ) internal virtual returns (bytes32[] memory);
+  ) internal virtual returns (bytes32[] memory, bytes[] memory);
 
   function callGetVoxelVariant(
     bytes32 voxelTypeId,
@@ -248,7 +248,7 @@ abstract contract CA is System {
     bytes32[] memory neighbourEntityIds,
     bytes32[] memory childEntityIds,
     bytes32 parentEntity
-  ) public returns (bytes32[] memory changedEntities) {
+  ) public returns (bytes32[] memory changedEntities, bytes[] memory) {
     address callerAddress = _msgSender();
     require(
       hasKey(CAVoxelTypeTableId, CAVoxelType.encodeKeyTuple(callerAddress, interactEntity)),
@@ -263,7 +263,7 @@ abstract contract CA is System {
     // define two, so instead we just call one interface and pass in the entity ids
 
     // Center Interaction
-    bytes32[] memory changedCAEntities = callVoxelRunInteraction(
+    (bytes32[] memory changedCAEntities, bytes[] memory caEntitiesEventData) = callVoxelRunInteraction(
       interactionSelector,
       voxelTypeId,
       caInteractEntity,
@@ -304,18 +304,27 @@ abstract contract CA is System {
         }
 
         // Call voxel interaction
-        bytes32[] memory changedCANeighbourEntities = callVoxelRunInteraction(
-          bytes4(0),
-          neighbourVoxelTypeId,
-          caInteractEntity,
-          caNeighbourEntityIds,
-          childEntityIds,
-          parentEntity
-        );
+        (
+          bytes32[] memory changedCANeighbourEntities,
+          bytes[] memory caNeighbourEntitiesEventsData
+        ) = callVoxelRunInteraction(
+            bytes4(0),
+            neighbourVoxelTypeId,
+            caInteractEntity,
+            caNeighbourEntityIds,
+            childEntityIds,
+            parentEntity
+          );
 
         for (uint256 j = 0; j < changedCANeighbourEntities.length; j++) {
           if (changedCAEntities[j] == 0 && changedCANeighbourEntities[j] != 0) {
             changedCAEntities[j] = changedCANeighbourEntities[j];
+          }
+        }
+
+        for (uint256 j = 0; j < caNeighbourEntitiesEventsData.length; j++) {
+          if (caEntitiesEventData[j].length == 0 && caNeighbourEntitiesEventsData[j].length != 0) {
+            caEntitiesEventData[j] = caNeighbourEntitiesEventsData[j];
           }
         }
       }
@@ -325,7 +334,7 @@ abstract contract CA is System {
     // Update voxel types after interaction
     updateVoxelTypes(callerAddress, changedEntities);
 
-    return changedEntities;
+    return (changedEntities, caEntitiesEventData);
   }
 
   function updateVoxelTypes(address callerAddress, bytes32[] memory changedEntities) internal {

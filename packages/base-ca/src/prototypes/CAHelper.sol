@@ -62,12 +62,13 @@ abstract contract CAHelper is System {
     bytes32[] memory caNeighbourEntityIds,
     bytes32[] memory childEntityIds,
     bytes32 parentEntity
-  ) public virtual returns (bytes32[] memory) {
+  ) public virtual returns (bytes32[] memory, bytes[] memory) {
     bytes32[] memory changedCAEntities = new bytes32[](caNeighbourEntityIds.length + 1);
+    bytes[] memory caEntitiesEventData = new bytes[](caNeighbourEntityIds.length + 1);
 
     bytes32 baseVoxelTypeId = VoxelTypeRegistry.getBaseVoxelTypeId(IStore(getRegistryAddress()), voxelTypeId);
     if (baseVoxelTypeId != voxelTypeId) {
-      bytes32[] memory insideChangedCAEntityIds = voxelRunInteraction(
+      (bytes32[] memory insideChangedCAEntityIds, bytes[] memory insideCAEntitiesEventData) = voxelRunInteraction(
         bytes4(0),
         baseVoxelTypeId,
         caInteractEntity,
@@ -79,6 +80,12 @@ abstract contract CAHelper is System {
       for (uint256 i = 0; i < insideChangedCAEntityIds.length; i++) {
         if (changedCAEntities[i] == 0 && insideChangedCAEntityIds[i] != 0) {
           changedCAEntities[i] = insideChangedCAEntityIds[i];
+        }
+      }
+
+      for (uint256 i = 0; i < insideCAEntitiesEventData.length; i++) {
+        if (caEntitiesEventData[i].length == 0 && insideCAEntitiesEventData[i].length != 0) {
+          caEntitiesEventData[i] = insideCAEntitiesEventData[i];
         }
       }
     }
@@ -116,7 +123,7 @@ abstract contract CAHelper is System {
         useinteractionSelector = abi.decode(mindReturnData, (bytes4));
         if (useinteractionSelector == bytes4(0)) {
           // The mind has chosen to not run a voxel interaction
-          return changedCAEntities;
+          return (changedCAEntities, caEntitiesEventData);
         }
       } else {
         useinteractionSelector = interactionSelectors[0].interactionSelector; // use the first one
@@ -136,10 +143,11 @@ abstract contract CAHelper is System {
       "voxel interaction selector"
     );
 
-    (bytes32 changedCACenterEntityId, bytes32[] memory changedCANeighbourEntityIds) = abi.decode(
-      returnData,
-      (bytes32, bytes32[])
-    );
+    (
+      bytes32 changedCACenterEntityId,
+      bytes32[] memory changedCANeighbourEntityIds,
+      bytes[] memory entityEventData
+    ) = abi.decode(returnData, (bytes32, bytes32[], bytes[]));
 
     if (changedCAEntities[0] == 0 && changedCACenterEntityId != 0) {
       changedCAEntities[0] = changedCACenterEntityId;
@@ -151,6 +159,12 @@ abstract contract CAHelper is System {
       }
     }
 
-    return changedCAEntities;
+    for (uint256 i = 0; i < entityEventData.length; i++) {
+      if (caEntitiesEventData[i].length == 0 && entityEventData[i].length != 0) {
+        caEntitiesEventData[i] = entityEventData[i];
+      }
+    }
+
+    return (changedCAEntities, caEntitiesEventData);
   }
 }

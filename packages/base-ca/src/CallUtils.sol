@@ -2,7 +2,7 @@
 pragma solidity >=0.8.0;
 
 import { VoxelCoord, VoxelEntity } from "@tenet-utils/src/Types.sol";
-import { CA_GET_MIND_SELECTOR_SIG, CA_ENTER_WORLD_SIG, CA_EXIT_WORLD_SIG, CA_RUN_INTERACTION_SIG, CA_ACTIVATE_VOXEL_SIG, CA_REGISTER_VOXEL_SIG, CA_MOVE_WORLD_SIG } from "@tenet-base-ca/src/Constants.sol";
+import { CA_SET_MIND_SELECTOR_SIG, CA_GET_MIND_SELECTOR_SIG, CA_ENTER_WORLD_SIG, CA_EXIT_WORLD_SIG, CA_RUN_INTERACTION_SIG, CA_ACTIVATE_VOXEL_SIG, CA_REGISTER_VOXEL_SIG, CA_MOVE_WORLD_SIG } from "@tenet-base-ca/src/Constants.sol";
 import { safeCall, safeStaticCall } from "@tenet-utils/src/CallUtils.sol";
 
 function mineWorld(address callerAddress, bytes32 voxelTypeId, VoxelCoord memory coord) returns (bytes memory) {
@@ -48,9 +48,18 @@ function getCAMindSelector(address caAddress, bytes32 entity) view returns (byte
   bytes memory result = safeStaticCall(
     caAddress,
     abi.encodeWithSignature(CA_GET_MIND_SELECTOR_SIG, entity),
-    string(abi.encode("getMindSelector ", entity))
+    string(abi.encode("getCAMindSelector ", entity))
   );
   return abi.decode(result, (bytes4));
+}
+
+function setCAMindSelector(address caAddress, bytes32 entity, bytes4 mindSelector) returns (bytes memory) {
+  return
+    safeCall(
+      caAddress,
+      abi.encodeWithSignature(CA_SET_MIND_SELECTOR_SIG, entity, mindSelector),
+      string(abi.encode("setCAMindSelector ", entity, " ", mindSelector))
+    );
 }
 
 function enterWorld(

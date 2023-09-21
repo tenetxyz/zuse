@@ -15,11 +15,15 @@ contract CAEventsSystem is System {
       if (entityEventData.eventData.length > 0) {
         // process event
         CAEventData memory worldEventData = abi.decode(entityEventData.eventData, (CAEventData));
+        VoxelEntity memory entity = entityEventData.entity;
+        VoxelCoord memory entityCoord = getVoxelCoordStrict(entity);
+        bytes32 voxelTypeId = VoxelType.getVoxelTypeId(entity.scale, entity.entityId);
         if (worldEventData.eventType == CAEventType.Move) {
-          VoxelEntity memory entity = entityEventData.entity;
-          VoxelCoord memory oldCoord = getVoxelCoordStrict(entity);
-          bytes32 voxelTypeId = VoxelType.getVoxelTypeId(entity.scale, entity.entityId);
-          IWorld(_world()).moveWithAgent(voxelTypeId, oldCoord, worldEventData.newCoord, entity);
+          IWorld(_world()).moveWithAgent(voxelTypeId, entityCoord, worldEventData.newCoord, entity);
+        } else if (worldEventData.eventType == CAEventType.FluxEnergy) {
+          IWorld(_world()).fluxEnergyOut(voxelTypeId, entityCoord, worldEventData.fluxAmount, worldEventData.newCoord);
+        } else if (worldEventData.eventType == CAEventType.FluxMass) {
+          IWorld(_world()).fluxMass(voxelTypeId, entityCoord, worldEventData.fluxAmount);
         }
       }
     }

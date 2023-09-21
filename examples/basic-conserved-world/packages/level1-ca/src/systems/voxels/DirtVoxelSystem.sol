@@ -84,11 +84,23 @@ contract DirtVoxelSystem is VoxelType {
         continue;
       }
       VoxelCoord memory baseCoord = getCAEntityPositionStrict(IStore(_world()), centerEntityId);
-      VoxelCoord memory newCoord = VoxelCoord({ x: baseCoord.x, y: baseCoord.y + 1, z: baseCoord.z });
+      VoxelCoord memory neighbourCoord = getCAEntityPositionStrict(IStore(_world()), neighbourEntityIds[i]);
       bytes32 neighbourVoxelTypeId = getCAVoxelType(neighbourEntityIds[i]);
 
       if (neighbourVoxelTypeId == BedrockVoxelID) {
-        entityEventData[0] = abi.encode(CAEventData({ eventType: CAEventType.Move, newCoord: newCoord }));
+        // Example of Move event
+        // VoxelCoord memory newCoord = VoxelCoord({ x: baseCoord.x, y: baseCoord.y + 1, z: baseCoord.z });
+        // entityEventData[0] = abi.encode(CAEventData({ eventType: CAEventType.Move, newCoord: newCoord. fluxAmount: 0 }));
+
+        // Example of flux out energy event
+        entityEventData[0] = abi.encode(
+          CAEventData({ eventType: CAEventType.FluxEnergy, newCoord: neighbourCoord, fluxAmount: 10 })
+        );
+
+        // Example of flux mass event
+        // entityEventData[0] = abi.encode(
+        //   CAEventData({ eventType: CAEventType.FluxMass, newCoord: VoxelCoord({ x: 0, y: 0, z: 0 }), fluxAmount: 5 })
+        // );
       }
     }
 

@@ -44,6 +44,11 @@ export default tenetMudConfig({
       openAccess: false,
       accessList: ["BuildSystem", "MineSystem", "ActivateSystem", "MoveSystem"],
     },
+    FluxSystem: {
+      name: "FluxSystem",
+      openAccess: false,
+      accessList: ["CAEventsSystem"],
+    },
   },
   modules: [
     {

@@ -281,7 +281,7 @@ contract PhysicsSystem is System {
     IWorld(_world()).enterCA(caAddress, eventVoxelEntity, voxelTypeId, mindSelector, coord);
     CAVoxelTypeData memory entityCAVoxelType = CAVoxelType.get(IStore(caAddress), _world(), newEntityId);
     VoxelType.set(scale, newEntityId, entityCAVoxelType.voxelTypeId, entityCAVoxelType.voxelVariantId);
-    IWorld(_world()).runCA(caAddress, eventVoxelEntity, bytes4(0));
+    // IWorld(_world()).runCA(caAddress, eventVoxelEntity, bytes4(0));
 
     BodyPhysics.set(scale, newEntityId, bodyPhysicsData);
 

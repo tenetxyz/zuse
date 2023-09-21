@@ -8,11 +8,12 @@ import { VoxelVariantsRegistryData } from "@tenet-registry/src/codegen/tables/Vo
 import { NoaBlockType } from "@tenet-registry/src/codegen/Types.sol";
 import { registerVoxelVariant, registerVoxelType, voxelSelectorsForVoxel } from "@tenet-registry/src/Utils.sol";
 import { REGISTRY_ADDRESS, DirtVoxelID } from "@tenet-level1-ca/src/Constants.sol";
-import { VoxelCoord, ComponentDef } from "@tenet-utils/src/Types.sol";
+import { VoxelCoord, ComponentDef, VoxelEntity, BodyPhysicsData } from "@tenet-utils/src/Types.sol";
 import { AirVoxelID, BedrockVoxelID } from "@tenet-level1-ca/src/Constants.sol";
 import { CAEventData, CAEventType } from "@tenet-utils/src/Types.sol";
 import { CAVoxelType } from "@tenet-level1-ca/src/codegen/tables/CAVoxelType.sol";
 import { getCAEntityAtCoord, getCAVoxelType, getCAEntityPositionStrict } from "@tenet-base-ca/src/Utils.sol";
+import { getVoxelBodyPhysicsFromCaller } from "@tenet-level1-ca/src/Utils.sol";
 
 bytes32 constant DirtVoxelVariantID = bytes32(keccak256("dirt"));
 string constant DirtTexture = "bafkreihy3pblhqaqquwttcykwlyey3umpou57rkvtncpdrjo7mlgna53g4";
@@ -93,14 +94,22 @@ contract DirtVoxelSystem is VoxelType {
         // entityEventData[0] = abi.encode(CAEventData({ eventType: CAEventType.Move, newCoord: newCoord. fluxAmount: 0 }));
 
         // Example of flux out energy event
-        entityEventData[0] = abi.encode(
-          CAEventData({ eventType: CAEventType.FluxEnergy, newCoord: neighbourCoord, fluxAmount: 10 })
-        );
+        BodyPhysicsData memory entityBodyPhysics = getVoxelBodyPhysicsFromCaller(centerEntityId);
+        console.log("entityBodyPhysics");
+        console.logUint(entityBodyPhysics.energy);
+        console.logUint(entityBodyPhysics.mass);
+        if (entityBodyPhysics.energy == 100) {
+          entityEventData[0] = abi.encode(
+            CAEventData({ eventType: CAEventType.FluxEnergy, newCoord: neighbourCoord, fluxAmount: 10 })
+          );
+        }
 
         // Example of flux mass event
+        // if (entityBodyPhysics.energy == 15) {
         // entityEventData[0] = abi.encode(
         //   CAEventData({ eventType: CAEventType.FluxMass, newCoord: VoxelCoord({ x: 0, y: 0, z: 0 }), fluxAmount: 5 })
         // );
+        // }
       }
     }
 

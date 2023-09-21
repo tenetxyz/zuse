@@ -26,7 +26,7 @@ contract LibTerrainSystem is System {
       data.mass = 10;
       data.energy = 100;
     } else if (voxelTypeId == DirtVoxelID) {
-      data.mass = 5;
+      data.mass = 15;
       data.energy = 150;
     }
     data.velocity = abi.encode(VoxelCoord({ x: 0, y: 0, z: 0 }));

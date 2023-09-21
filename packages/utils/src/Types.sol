@@ -97,6 +97,13 @@ struct VoxelTypeData {
   bytes32 voxelVariantId;
 }
 
+struct BodyPhysicsData {
+  uint256 mass;
+  uint256 energy;
+  bytes velocity;
+  bytes gravity;
+}
+
 struct CreationSpawns {
   address worldAddress;
   uint256 numSpawns;

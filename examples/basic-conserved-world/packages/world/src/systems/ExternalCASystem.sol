@@ -3,10 +3,15 @@ pragma solidity >=0.8.0;
 
 import { VoxelCoord, VoxelEntity } from "@tenet-utils/src/Types.sol";
 import { ExternalCASystem as ExternalCAPrototype } from "@tenet-base-world/src/prototypes/ExternalCASystem.sol";
+import { BodyPhysics, BodyPhysicsData } from "@tenet-world/src/codegen/Tables.sol";
 
 contract ExternalCASystem is ExternalCAPrototype {
   function getVoxelTypeId(VoxelEntity memory entity) public view override returns (bytes32) {
     return super.getVoxelTypeId(entity);
+  }
+
+  function getEntityBodyPhysics(VoxelEntity memory entity) public view returns (BodyPhysicsData memory) {
+    return BodyPhysics.get(entity.scale, entity.entityId);
   }
 
   function shouldRunInteractionForNeighbour(

@@ -26,12 +26,6 @@ export default tenetMudConfig({
       registerAsRoot: true,
       accessList: ["CASystem"],
     },
-    CACallerSystem: {
-      name: "CACallerSystem",
-      openAccess: false,
-      registerAsRoot: true,
-      accessList: ["AirVoxelSystem", "RoadVoxelSystem"],
-    },
   },
   modules: [],
 });

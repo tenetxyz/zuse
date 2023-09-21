@@ -62,7 +62,7 @@ contract ApprovalSystem is EventApprovalsSystem {
   ) internal {
     // Assert that this entity has a position
     VoxelCoord memory agentPosition = positionDataToVoxelCoord(getEntityPositionStrict(agentEntity));
-    require(distanceBetween(agentPosition, coord) == MAX_AGENT_ACTION_RADIUS, "Agent must be adjacent to voxel");
+    require(distanceBetween(agentPosition, coord) <= MAX_AGENT_ACTION_RADIUS, "Agent must be adjacent to voxel");
   }
 
   function postApproval(

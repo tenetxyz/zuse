@@ -95,21 +95,18 @@ contract DirtVoxelSystem is VoxelType {
 
         // Example of flux out energy event
         BodyPhysicsData memory entityBodyPhysics = getVoxelBodyPhysicsFromCaller(centerEntityId);
-        console.log("entityBodyPhysics");
-        console.logUint(entityBodyPhysics.energy);
-        console.logUint(entityBodyPhysics.mass);
-        if (entityBodyPhysics.energy == 100) {
-          entityEventData[0] = abi.encode(
-            CAEventData({ eventType: CAEventType.FluxEnergy, newCoord: neighbourCoord, fluxAmount: 10 })
-          );
-        }
+        // if (entityBodyPhysics.energy == 100) {
+        //   entityEventData[0] = abi.encode(
+        //     CAEventData({ eventType: CAEventType.FluxEnergy, newCoord: neighbourCoord, fluxAmount: 10 })
+        //   );
+        // }
 
         // Example of flux mass event
-        // if (entityBodyPhysics.energy == 15) {
-        // entityEventData[0] = abi.encode(
-        //   CAEventData({ eventType: CAEventType.FluxMass, newCoord: VoxelCoord({ x: 0, y: 0, z: 0 }), fluxAmount: 5 })
-        // );
-        // }
+        if (entityBodyPhysics.mass == 15) {
+          entityEventData[0] = abi.encode(
+            CAEventData({ eventType: CAEventType.FluxMass, newCoord: VoxelCoord({ x: 0, y: 0, z: 0 }), fluxAmount: 15 })
+          );
+        }
       }
     }
 

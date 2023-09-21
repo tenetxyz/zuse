@@ -18,7 +18,9 @@ contract MineSystem is MineEvent {
     return REGISTRY_ADDRESS;
   }
 
-  function processCAEvents(EntityEventData[] memory entitiesEventData) internal override {}
+  function processCAEvents(EntityEventData[] memory entitiesEventData) internal override {
+    IWorld(_world()).processCAEvents(entitiesEventData);
+  }
 
   // Called by users
   function mineWithAgent(

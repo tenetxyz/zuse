@@ -20,8 +20,8 @@ contract LibTerrainSystem is System {
       data.mass = 0;
       data.energy = 0;
     } else if (voxelTypeId == BedrockVoxelID) {
-      data.mass = 100;
-      data.energy = 1;
+      data.mass = 5;
+      data.energy = 100;
     } else if (voxelTypeId == GrassVoxelID) {
       data.mass = 10;
       data.energy = 100;

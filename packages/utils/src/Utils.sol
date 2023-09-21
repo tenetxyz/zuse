@@ -20,6 +20,13 @@ function getCallerNamespace(address caller) view returns (bytes16) {
   return callerNamespace;
 }
 
+function getCallerName(address caller) view returns (bytes16) {
+  require(uint256(SystemRegistry.get(caller)) != 0, "Caller is not a system"); // cannot be called by an EOA
+  bytes32 resourceSelector = SystemRegistry.get(caller);
+  bytes16 callerName = ResourceSelector.getName(resourceSelector);
+  return callerName;
+}
+
 function addressToEntityKey(address addr) pure returns (bytes32) {
   return bytes32(uint256(uint160(addr)));
 }

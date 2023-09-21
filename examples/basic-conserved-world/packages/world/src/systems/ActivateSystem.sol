@@ -13,7 +13,9 @@ contract ActivateSystem is ActivateEvent {
     return REGISTRY_ADDRESS;
   }
 
-  function processCAEvents(EntityEventData[] memory entitiesEventData) internal override {}
+  function processCAEvents(EntityEventData[] memory entitiesEventData) internal override {
+    IWorld(_world()).processCAEvents(entitiesEventData);
+  }
 
   // Called by users
   function activateWithAgent(

@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity >=0.8.0;
 
+import { IStore } from "@latticexyz/store/src/IStore.sol";
 import { IWorld } from "@tenet-level1-ca/src/codegen/world/IWorld.sol";
 import { VoxelType } from "@tenet-base-ca/src/prototypes/VoxelType.sol";
 import { VoxelVariantsRegistryData } from "@tenet-registry/src/codegen/tables/VoxelVariantsRegistry.sol";
@@ -8,7 +9,10 @@ import { NoaBlockType } from "@tenet-registry/src/codegen/Types.sol";
 import { registerVoxelVariant, registerVoxelType, voxelSelectorsForVoxel } from "@tenet-registry/src/Utils.sol";
 import { REGISTRY_ADDRESS, DirtVoxelID } from "@tenet-level1-ca/src/Constants.sol";
 import { VoxelCoord, ComponentDef } from "@tenet-utils/src/Types.sol";
-import { AirVoxelID } from "@tenet-level1-ca/src/Constants.sol";
+import { AirVoxelID, BedrockVoxelID } from "@tenet-level1-ca/src/Constants.sol";
+import { CAEventData, CAEventType } from "@tenet-utils/src/Types.sol";
+import { CAVoxelType } from "@tenet-level1-ca/src/codegen/tables/CAVoxelType.sol";
+import { getCAEntityAtCoord, getCAVoxelType, getCAEntityPositionStrict } from "@tenet-base-ca/src/Utils.sol";
 
 bytes32 constant DirtVoxelVariantID = bytes32(keccak256("dirt"));
 string constant DirtTexture = "bafkreihy3pblhqaqquwttcykwlyey3umpou57rkvtncpdrjo7mlgna53g4";
@@ -70,5 +74,23 @@ contract DirtVoxelSystem is VoxelType {
     bytes32[] memory neighbourEntityIds,
     bytes32[] memory childEntityIds,
     bytes32 parentEntity
-  ) public override returns (bytes32, bytes32[] memory, bytes[] memory) {}
+  ) public override returns (bytes32, bytes32[] memory, bytes[] memory) {
+    bytes32 changedCenterEntityId = 0;
+    bytes32[] memory changedNeighbourEntityIds = new bytes32[](neighbourEntityIds.length);
+    bytes[] memory entityEventData = new bytes[](neighbourEntityIds.length + 1);
+    for (uint8 i; i < neighbourEntityIds.length; i++) {
+      if (neighbourEntityIds[i] == 0) {
+        continue;
+      }
+      VoxelCoord memory baseCoord = getCAEntityPositionStrict(IStore(_world()), centerEntityId);
+      VoxelCoord memory newCoord = VoxelCoord({ x: baseCoord.x, y: baseCoord.y + 1, z: baseCoord.z });
+      bytes32 neighbourVoxelTypeId = getCAVoxelType(neighbourEntityIds[i]);
+
+      if (neighbourVoxelTypeId == BedrockVoxelID) {
+        entityEventData[0] = abi.encode(CAEventData({ eventType: CAEventType.Move, newCoord: newCoord }));
+      }
+    }
+
+    return (changedCenterEntityId, changedNeighbourEntityIds, entityEventData);
+  }
 }

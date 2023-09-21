@@ -19,7 +19,9 @@ contract BuildSystem is BuildEvent {
     return REGISTRY_ADDRESS;
   }
 
-  function processCAEvents(EntityEventData[] memory entitiesEventData) internal override {}
+  function processCAEvents(EntityEventData[] memory entitiesEventData) internal override {
+    IWorld(_world()).processCAEvents(entitiesEventData);
+  }
 
   function emptyVoxelId() internal pure override returns (bytes32) {
     return AirVoxelID;

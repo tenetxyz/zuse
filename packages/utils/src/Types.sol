@@ -41,6 +41,15 @@ struct EntityEventData {
   bytes eventData;
 }
 
+enum CAEventType {
+  Move
+}
+
+struct CAEventData {
+  CAEventType eventType;
+  VoxelCoord newCoord;
+}
+
 struct DecisionRuleKey {
   bytes32 srcVoxelTypeId;
   bytes32 targetVoxelTypeId;

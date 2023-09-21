@@ -75,6 +75,7 @@ contract DirtVoxelSystem is VoxelType {
     bytes32[] memory childEntityIds,
     bytes32 parentEntity
   ) public override returns (bytes32, bytes32[] memory, bytes[] memory) {
+    // TODO: Remove, was for testing only to show how you voxel types can move
     bytes32 changedCenterEntityId = 0;
     bytes32[] memory changedNeighbourEntityIds = new bytes32[](neighbourEntityIds.length);
     bytes[] memory entityEventData = new bytes[](neighbourEntityIds.length + 1);

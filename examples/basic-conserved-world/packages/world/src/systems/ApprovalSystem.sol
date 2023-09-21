@@ -53,14 +53,8 @@ contract ApprovalSystem is EventApprovalsSystem {
     // Assert that this entity is owned by the caller or is a CA
     bool isEOACaller = hasKey(OwnedByTableId, OwnedBy.encodeKeyTuple(agentEntity.scale, agentEntity.entityId)) &&
       OwnedBy.get(agentEntity.scale, agentEntity.entityId) == caller;
-    bool isAllowedWorldSystem = false;
-    if (!isEOACaller) {
-      bytes16 systemName = getCallerName(caller);
-      if (systemName == bytes16("CAEventsSystem")) {
-        isAllowedWorldSystem = true;
-      }
-    }
-    require(isEOACaller || isAllowedWorldSystem, "Agent entity must be owned by caller");
+    bool isWorldCaller = caller == _world(); // any root system can call this
+    require(isEOACaller || isWorldCaller, "Agent entity must be owned by caller or be a root system");
 
     agentEntityChecks(eventType, caller, voxelTypeId, coord, agentEntity);
   }

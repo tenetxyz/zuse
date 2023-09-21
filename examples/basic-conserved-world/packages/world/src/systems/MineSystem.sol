@@ -19,7 +19,7 @@ contract MineSystem is MineEvent {
   }
 
   function processCAEvents(EntityEventData[] memory entitiesEventData) internal override {
-    IWorld(_world()).processCAEvents(entitiesEventData);
+    IWorld(_world()).caEventsHandler(entitiesEventData);
   }
 
   // Called by users

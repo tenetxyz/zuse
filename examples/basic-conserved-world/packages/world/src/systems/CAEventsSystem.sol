@@ -8,8 +8,8 @@ import { VoxelCoord, VoxelEntity, EntityEventData, CAEventData, CAEventType } fr
 import { VoxelType } from "@tenet-world/src/codegen/Tables.sol";
 import { getVoxelCoordStrict } from "@tenet-base-world/src/Utils.sol";
 
-abstract contract CAEventsSystem is System {
-  function processCAEvents(EntityEventData[] memory entitiesEventData) public {
+contract CAEventsSystem is System {
+  function caEventsHandler(EntityEventData[] memory entitiesEventData) public {
     for (uint256 i; i < entitiesEventData.length; i++) {
       EntityEventData memory entityEventData = entitiesEventData[i];
       if (entityEventData.eventData.length > 0) {
@@ -19,12 +19,7 @@ abstract contract CAEventsSystem is System {
           VoxelEntity memory entity = entityEventData.entity;
           VoxelCoord memory oldCoord = getVoxelCoordStrict(entity);
           bytes32 voxelTypeId = VoxelType.getVoxelTypeId(entity.scale, entity.entityId);
-          IWorld(_world()).moveWithAgent(
-            voxelTypeId,
-            oldCoord,
-            worldEventData.newCoord,
-            VoxelEntity({ scale: 0, entityId: 0 }) // We don't need an agent because this is an action by a voxel
-          );
+          IWorld(_world()).moveWithAgent(voxelTypeId, oldCoord, worldEventData.newCoord, entity);
         }
       }
     }

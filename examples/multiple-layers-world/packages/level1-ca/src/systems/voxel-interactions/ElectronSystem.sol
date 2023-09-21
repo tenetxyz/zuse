@@ -200,15 +200,15 @@ contract ElectronSystem is VoxelInteraction {
     VoxelCoord memory otherCoord
   ) internal {
     bool interactAtTop = ElectronTunnelSpot.get(callerAddress, interactEntity).atTop;
-    (bytes32 oldEntityId, bytes32 newEntityId) = IWorld(_world()).moveCAWorld(
-      callerAddress,
-      ElectronVoxelID,
-      baseCoord,
-      otherCoord
-    );
+    // (bytes32 oldEntityId, bytes32 newEntityId) = IWorld(_world()).moveCAWorld(
+    //   callerAddress,
+    //   ElectronVoxelID,
+    //   baseCoord,
+    //   otherCoord
+    // );
     // require(newEntityId == interactEntity, "ElectronSystem: New entity id does not match interact entity");
-    ElectronTunnelSpot.set(callerAddress, interactEntity, !interactAtTop, oldEntityId);
-    ElectronTunnelSpot.set(callerAddress, oldEntityId, interactAtTop, interactEntity);
+    // ElectronTunnelSpot.set(callerAddress, interactEntity, !interactAtTop, oldEntityId);
+    // ElectronTunnelSpot.set(callerAddress, oldEntityId, interactAtTop, interactEntity);
   }
 
   function entityShouldInteract(address callerAddress, bytes32 entityId) internal view override returns (bool) {

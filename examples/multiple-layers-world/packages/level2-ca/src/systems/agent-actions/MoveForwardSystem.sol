@@ -31,7 +31,7 @@ contract MoveForwardSystem is VoxelInteraction {
     VoxelCoord memory newCoord = VoxelCoord({ x: baseCoord.x + 1, y: baseCoord.y, z: baseCoord.z });
     bytes32 entityType = getCAVoxelType(interactEntity);
 
-    IWorld(_world()).moveCAWorld(callerAddress, entityType, baseCoord, newCoord);
+    // IWorld(_world()).moveCAWorld(callerAddress, entityType, baseCoord, newCoord);
 
     return (changedEntity, entityData);
   }
@@ -46,7 +46,7 @@ contract MoveForwardSystem is VoxelInteraction {
     bytes32[] memory neighbourEntityIds,
     bytes32[] memory childEntityIds,
     bytes32 parentEntity
-  ) public returns (bytes32, bytes32[] memory, bytes memory) {
+  ) public returns (bytes32, bytes32[] memory, bytes[] memory) {
     return super.eventHandler(callerAddress, centerEntityId, neighbourEntityIds, childEntityIds, parentEntity);
   }
 }

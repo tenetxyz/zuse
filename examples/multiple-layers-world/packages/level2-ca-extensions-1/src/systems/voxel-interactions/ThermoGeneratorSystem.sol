@@ -50,8 +50,6 @@ contract ThermoGeneratorSystem is VoxelInteraction {
 
     TemperatureEntity[] memory tempDataEntities = new TemperatureEntity[](2);
     uint256 count = 0;
-    bytes32 source1 = bytes32(0);
-    bytes32 source2 = bytes32(0);
     if (
       generatorData.sources.length == 2 &&
       entityHasTemperature(callerAddress, generatorData.sources[0]) &&

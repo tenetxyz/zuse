@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity >=0.8.0;
 
-import { IWorld } from "@tenet-level1-ca/src/codegen/world/IWorld.sol";
+import { IWorld } from "@tenet-level3-ca/src/codegen/world/IWorld.sol";
 import { CAInteraction } from "@tenet-base-ca/src/prototypes/CAInteraction.sol";
 import { VoxelCoord } from "@tenet-utils/src/Types.sol";
 import { REGISTRY_ADDRESS } from "../Constants.sol";

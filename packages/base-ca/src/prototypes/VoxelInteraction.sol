@@ -68,6 +68,20 @@ abstract contract VoxelInteraction is System {
     return (changedCenterEntityId, centerEntityData);
   }
 
+  function onNewNeighbourWrapper(
+    address callerAddress,
+    bytes32 neighbourEntityId,
+    bytes32 centerEntityId,
+    VoxelCoord memory centerPosition
+  ) internal returns (bool, bytes memory) {
+    BlockDirection centerBlockDirection = calculateBlockDirection(
+      centerPosition,
+      getCAEntityPositionStrict(IStore(_world()), neighbourEntityId)
+    );
+
+    return onNewNeighbour(callerAddress, neighbourEntityId, centerEntityId, centerBlockDirection);
+  }
+
   function runCaseTwo(
     address callerAddress,
     bytes32 centerEntityId,
@@ -86,16 +100,11 @@ abstract contract VoxelInteraction is System {
         continue;
       }
 
-      BlockDirection centerBlockDirection = calculateBlockDirection(
-        centerPosition,
-        getCAEntityPositionStrict(IStore(_world()), neighbourEntityId)
-      );
-
-      (bool changedEntity, bytes memory entityData) = onNewNeighbour(
+      (bool changedEntity, bytes memory entityData) = onNewNeighbourWrapper(
         callerAddress,
         neighbourEntityId,
         centerEntityId,
-        centerBlockDirection
+        centerPosition
       );
       neighbourEntitiesData[i] = entityData;
 

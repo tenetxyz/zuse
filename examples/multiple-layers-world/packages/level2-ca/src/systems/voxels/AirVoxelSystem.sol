@@ -58,5 +58,5 @@ contract AirVoxelSystem is VoxelType {
     bytes32[] memory neighbourEntityIds,
     bytes32[] memory childEntityIds,
     bytes32 parentEntity
-  ) public override returns (bytes32, bytes32[] memory) {}
+  ) public override returns (bytes32, bytes32[] memory, bytes[] memory) {}
 }

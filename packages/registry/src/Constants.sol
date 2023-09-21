@@ -13,5 +13,5 @@ string constant CREATION_SPAWNED_SIG = "creationSpawned(bytes32)";
 string constant VOXEL_SPAWNED_SIG = "voxelSpawned(bytes32)";
 string constant REGISTER_DECISION_RULE_SIG = "registerDecisionRule(string,string,bytes32,bytes32,bytes4)";
 string constant REGISTER_DECISION_RULE_WORLD_SIG = "registerDecisionRuleForWorld(string,string,bytes32,bytes32,address,bytes4)";
-string constant REGISTER_MIND_SIG = "registerMind(bytes32,(address,string,string,bytes4))";
-string constant REGISTER_MIND_WORLD_SIG = "registerMindForWorld(bytes32,address,(address,string,string,bytes4))";
+string constant REGISTER_MIND_SIG = "registerMind(bytes32,string,string,bytes4)";
+string constant REGISTER_MIND_WORLD_SIG = "registerMindForWorld(bytes32,address,string,string,bytes4)";

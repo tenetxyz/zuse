@@ -52,8 +52,7 @@ contract ApprovalSystem is EventApprovalsSystem {
     // Assert that this entity is owned by the caller or is a CA
     bool isEOACaller = hasKey(OwnedByTableId, OwnedBy.encodeKeyTuple(agentEntity.scale, agentEntity.entityId)) &&
       OwnedBy.get(agentEntity.scale, agentEntity.entityId) == caller;
-    bool isCACaller = IWorld(_world()).isCAAllowed(caller);
-    require(isEOACaller || isCACaller, "Agent entity must be owned by caller or caller must be a valid CA");
+    require(isEOACaller, "Agent entity must be owned by caller");
 
     agentEntityChecks(eventType, caller, voxelTypeId, coord, agentEntity);
   }

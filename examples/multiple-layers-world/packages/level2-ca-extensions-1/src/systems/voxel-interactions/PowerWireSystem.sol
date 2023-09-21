@@ -244,7 +244,7 @@ contract PowerWireSystem is SingleVoxelInteraction {
     bytes32 powerWireEntity,
     bytes32 compareEntity,
     BlockDirection compareBlockDirection
-  ) internal override returns (bool changedEntity) {
+  ) internal override returns (bool changedEntity, bytes memory entityData) {
     PowerWireData memory powerWireData = PowerWire.get(callerAddress, powerWireEntity);
     changedEntity = false;
 
@@ -254,7 +254,7 @@ contract PowerWireSystem is SingleVoxelInteraction {
       compareBlockDirection == BlockDirection.SouthEast ||
       compareBlockDirection == BlockDirection.SouthWest
     ) {
-      return false;
+      return (false, entityData);
     }
 
     bool isPowerWire = entityIsPowerWire(callerAddress, compareEntity);
@@ -406,7 +406,7 @@ contract PowerWireSystem is SingleVoxelInteraction {
       }
     }
 
-    return changedEntity;
+    return (changedEntity, entityData);
   }
 
   function entityShouldInteract(address callerAddress, bytes32 entityId) internal view override returns (bool) {
@@ -419,7 +419,7 @@ contract PowerWireSystem is SingleVoxelInteraction {
     bytes32[] memory neighbourEntityIds,
     bytes32[] memory childEntityIds,
     bytes32 parentEntity
-  ) public returns (bytes32, bytes32[] memory) {
+  ) public returns (bytes32, bytes32[] memory, bytes[] memory) {
     return super.eventHandler(callerAddress, centerEntityId, neighbourEntityIds, childEntityIds, parentEntity);
   }
 }

@@ -19,7 +19,7 @@ contract ThermoGeneratorSystem is VoxelInteraction {
     bytes32 interactEntity,
     bytes32 neighbourEntityId,
     BlockDirection neighbourBlockDirection
-  ) internal override returns (bool changedEntity) {
+  ) internal override returns (bool changedEntity, bytes memory entityData) {
     GeneratorData memory generatorData = Generator.get(callerAddress, interactEntity);
     bool isSourceDirection = false;
     if (generatorData.sources.length == 2) {
@@ -29,10 +29,12 @@ contract ThermoGeneratorSystem is VoxelInteraction {
         sourceDirections[1] == neighbourBlockDirection;
     }
 
-    return
+    return (
       entityHasTemperature(callerAddress, neighbourEntityId) ||
-      //   entityIsPowerWire(callerAddress, neighbourEntityId) ||
-      isSourceDirection;
+        //   entityIsPowerWire(callerAddress, neighbourEntityId) ||
+        isSourceDirection,
+      entityData
+    );
   }
 
   function runInteraction(
@@ -42,14 +44,12 @@ contract ThermoGeneratorSystem is VoxelInteraction {
     BlockDirection[] memory neighbourEntityDirections,
     bytes32[] memory childEntityIds,
     bytes32 parentEntity
-  ) internal override returns (bool changedEntity) {
+  ) internal override returns (bool changedEntity, bytes memory entityData) {
     GeneratorData memory generatorData = Generator.get(callerAddress, interactEntity);
     changedEntity = false;
 
     TemperatureEntity[] memory tempDataEntities = new TemperatureEntity[](2);
     uint256 count = 0;
-    bytes32 source1 = bytes32(0);
-    bytes32 source2 = bytes32(0);
     if (
       generatorData.sources.length == 2 &&
       entityHasTemperature(callerAddress, generatorData.sources[0]) &&
@@ -96,7 +96,7 @@ contract ThermoGeneratorSystem is VoxelInteraction {
       }
     }
 
-    return changedEntity;
+    return (changedEntity, entityData);
   }
 
   function handleTempDataEntities(
@@ -174,7 +174,7 @@ contract ThermoGeneratorSystem is VoxelInteraction {
     bytes32[] memory neighbourEntityIds,
     bytes32[] memory childEntityIds,
     bytes32 parentEntity
-  ) public returns (bytes32, bytes32[] memory) {
+  ) public returns (bytes32, bytes32[] memory, bytes[] memory) {
     return super.eventHandler(callerAddress, centerEntityId, neighbourEntityIds, childEntityIds, parentEntity);
   }
 }

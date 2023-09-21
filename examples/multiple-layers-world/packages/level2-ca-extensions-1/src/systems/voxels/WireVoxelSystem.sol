@@ -93,28 +93,16 @@ contract WireVoxelSystem is VoxelType {
 
     bytes32 bottomLeftType = childEntityIds[0] == 0
       ? AirVoxelID
-      : getVoxelTypeFromCaller(callerAddress, VoxelEntity({
-          scale: 1,
-          entityId: childEntityIds[0]
-        }));
+      : getVoxelTypeFromCaller(callerAddress, VoxelEntity({ scale: 1, entityId: childEntityIds[0] }));
     bytes32 bottomRightType = childEntityIds[1] == 0
       ? AirVoxelID
-      : getVoxelTypeFromCaller(callerAddress, VoxelEntity({
-          scale: 1,
-          entityId: childEntityIds[1]
-        }));
+      : getVoxelTypeFromCaller(callerAddress, VoxelEntity({ scale: 1, entityId: childEntityIds[1] }));
     bytes32 topLeftType = childEntityIds[4] == 0
       ? AirVoxelID
-      : getVoxelTypeFromCaller(callerAddress, VoxelEntity({
-          scale: 1,
-          entityId: childEntityIds[4]
-        }));
+      : getVoxelTypeFromCaller(callerAddress, VoxelEntity({ scale: 1, entityId: childEntityIds[4] }));
     bytes32 topRightType = childEntityIds[5] == 0
       ? AirVoxelID
-      : getVoxelTypeFromCaller(callerAddress, VoxelEntity({
-          scale: 1,
-          entityId: childEntityIds[5]
-        }));
+      : getVoxelTypeFromCaller(callerAddress, VoxelEntity({ scale: 1, entityId: childEntityIds[5] }));
 
     if (topLeftType == ElectronVoxelID && bottomRightType == ElectronVoxelID) {
       return WireOffVoxelVariantID;
@@ -131,5 +119,5 @@ contract WireVoxelSystem is VoxelType {
     bytes32[] memory neighbourEntityIds,
     bytes32[] memory childEntityIds,
     bytes32 parentEntity
-  ) public override returns (bytes32, bytes32[] memory) {}
+  ) public override returns (bytes32, bytes32[] memory, bytes[] memory) {}
 }

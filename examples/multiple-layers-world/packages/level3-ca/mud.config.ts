@@ -15,17 +15,16 @@ export default tenetMudConfig({
       openAccess: true,
       registerAsRoot: true,
     },
+    CAInteractionSystem: {
+      name: "CAInteractionSys",
+      openAccess: true,
+      registerAsRoot: true,
+    },
     CAHelperSystem: {
       name: "CAHelperSystem",
       openAccess: false,
       registerAsRoot: true,
       accessList: ["CASystem"],
-    },
-    CACallerSystem: {
-      name: "CACallerSystem",
-      openAccess: false,
-      registerAsRoot: true,
-      accessList: ["AirVoxelSystem", "RoadVoxelSystem"],
     },
   },
   modules: [],

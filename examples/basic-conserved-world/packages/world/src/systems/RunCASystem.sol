@@ -2,7 +2,7 @@
 pragma solidity >=0.8.0;
 
 import { RunCASystem as RunCAPrototype } from "@tenet-base-world/src/prototypes/RunCASystem.sol";
-import { VoxelCoord, VoxelEntity } from "@tenet-utils/src/Types.sol";
+import { VoxelCoord, VoxelEntity, EntityEventData } from "@tenet-utils/src/Types.sol";
 
 contract RunCASystem is RunCAPrototype {
   function enterCA(
@@ -38,7 +38,11 @@ contract RunCASystem is RunCAPrototype {
     super.activateCA(caAddress, entity);
   }
 
-  function runCA(address caAddress, VoxelEntity memory entity, bytes4 interactionSelector) public override {
-    super.runCA(caAddress, entity, interactionSelector);
+  function runCA(
+    address caAddress,
+    VoxelEntity memory entity,
+    bytes4 interactionSelector
+  ) public override returns (EntityEventData[] memory) {
+    return super.runCA(caAddress, entity, interactionSelector);
   }
 }

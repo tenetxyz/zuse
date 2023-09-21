@@ -36,6 +36,11 @@ enum BlockDirection {
   Down
 }
 
+struct EntityEventData {
+  VoxelEntity entity;
+  bytes eventData;
+}
+
 struct DecisionRuleKey {
   bytes32 srcVoxelTypeId;
   bytes32 targetVoxelTypeId;

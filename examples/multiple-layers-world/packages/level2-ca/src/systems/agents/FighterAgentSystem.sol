@@ -126,7 +126,7 @@ contract FighterAgentSystem is AgentType {
     bytes32[] memory neighbourEntityIds,
     bytes32[] memory childEntityIds,
     bytes32 parentEntity
-  ) public returns (bytes32, bytes32[] memory) {
+  ) public returns (bytes32, bytes32[] memory, bytes[] memory) {
     address callerAddress = super.getCallerAddress();
 
     return

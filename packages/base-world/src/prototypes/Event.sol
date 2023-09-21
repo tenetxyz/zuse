@@ -7,7 +7,7 @@ import { getUniqueEntity } from "@latticexyz/world/src/modules/uniqueentity/getU
 import { getKeysInTable } from "@latticexyz/world/src/modules/keysintable/getKeysInTable.sol";
 import { System } from "@latticexyz/world/src/System.sol";
 import { EventType } from "@tenet-base-world/src/Types.sol";
-import { VoxelCoord, VoxelEntity } from "@tenet-utils/src/Types.sol";
+import { VoxelCoord, VoxelEntity, EntityEventData } from "@tenet-utils/src/Types.sol";
 import { WorldConfig, WorldConfigTableId } from "@tenet-base-world/src/codegen/tables/WorldConfig.sol";
 import { VoxelType, VoxelTypeData } from "@tenet-base-world/src/codegen/tables/VoxelType.sol";
 import { Position } from "@tenet-base-world/src/codegen/tables/Position.sol";
@@ -27,18 +27,26 @@ abstract contract Event is System {
     bytes memory eventData
   ) internal virtual;
 
+  function processCAEvents(EntityEventData[] memory entitiesEventData) internal virtual;
+
   function runEvent(
     bytes32 voxelTypeId,
     VoxelCoord memory coord,
     bytes memory eventData
-  ) internal virtual returns (VoxelEntity memory) {
+  ) internal virtual returns (VoxelEntity memory, EntityEventData[] memory) {
     preEvent(voxelTypeId, coord, eventData);
 
-    VoxelEntity memory eventVoxelEntity = runEventHandler(voxelTypeId, coord, true, true, eventData);
+    (VoxelEntity memory eventVoxelEntity, EntityEventData[] memory entitiesEventData) = runEventHandler(
+      voxelTypeId,
+      coord,
+      true,
+      true,
+      eventData
+    );
 
     postEvent(voxelTypeId, coord, eventVoxelEntity, eventData);
 
-    return eventVoxelEntity;
+    return (eventVoxelEntity, entitiesEventData);
   }
 
   function preRunCA(
@@ -63,7 +71,7 @@ abstract contract Event is System {
     VoxelCoord memory coord,
     VoxelEntity memory eventVoxelEntity,
     bytes memory eventData
-  ) internal virtual;
+  ) internal virtual returns (EntityEventData[] memory);
 
   function runEventHandlerForParent(
     bytes32 voxelTypeId,
@@ -134,14 +142,19 @@ abstract contract Event is System {
     bool runEventOnChildren,
     bool runEventOnParent,
     bytes memory eventData
-  ) internal virtual returns (VoxelEntity memory) {
-    VoxelEntity memory eventVoxelEntity = runEventHandlerHelper(voxelTypeId, coord, runEventOnChildren, eventData);
+  ) internal virtual returns (VoxelEntity memory, EntityEventData[] memory) {
+    (VoxelEntity memory eventVoxelEntity, EntityEventData[] memory enitiesEventData) = runEventHandlerHelper(
+      voxelTypeId,
+      coord,
+      runEventOnChildren,
+      eventData
+    );
 
     if (runEventOnParent) {
       runEventHandlerForParent(voxelTypeId, coord, eventVoxelEntity, eventData);
     }
 
-    return eventVoxelEntity;
+    return (eventVoxelEntity, enitiesEventData);
   }
 
   function runEventHandlerHelper(
@@ -149,7 +162,7 @@ abstract contract Event is System {
     VoxelCoord memory coord,
     bool runEventOnChildren,
     bytes memory eventData
-  ) internal virtual returns (VoxelEntity memory) {
+  ) internal virtual returns (VoxelEntity memory, EntityEventData[] memory) {
     require(IWorld(_world()).isVoxelTypeAllowed(voxelTypeId), "Voxel type not allowed in this world");
     VoxelTypeRegistryData memory voxelTypeData = VoxelTypeRegistry.get(IStore(getRegistryAddress()), voxelTypeId);
     address caAddress = WorldConfig.get(voxelTypeId);
@@ -173,10 +186,10 @@ abstract contract Event is System {
     CAVoxelTypeData memory entityCAVoxelType = CAVoxelType.get(IStore(caAddress), _world(), voxelEntityId);
     VoxelType.set(scale, voxelEntityId, entityCAVoxelType.voxelTypeId, entityCAVoxelType.voxelVariantId);
 
-    runCA(caAddress, voxelTypeId, coord, eventVoxelEntity, eventData);
+    EntityEventData[] memory entitiesEventData = runCA(caAddress, voxelTypeId, coord, eventVoxelEntity, eventData);
 
     postRunCA(caAddress, voxelTypeId, coord, eventVoxelEntity, eventData);
 
-    return eventVoxelEntity;
+    return (eventVoxelEntity, entitiesEventData);
   }
 }

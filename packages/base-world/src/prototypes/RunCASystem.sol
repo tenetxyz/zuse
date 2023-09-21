@@ -4,8 +4,7 @@ pragma solidity >=0.8.0;
 import { IWorld } from "@tenet-base-world/src/codegen/world/IWorld.sol";
 import { IStore } from "@latticexyz/store/src/IStore.sol";
 import { System } from "@latticexyz/world/src/System.sol";
-import { VoxelCoord } from "@tenet-utils/src/Types.sol";
-import { VoxelEntity } from "@tenet-utils/src/Types.sol";
+import { VoxelCoord, VoxelEntity, EntityEventData } from "@tenet-utils/src/Types.sol";
 import { hasEntity } from "@tenet-utils/src/Utils.sol";
 import { safeCall } from "@tenet-utils/src/CallUtils.sol";
 import { CAVoxelType, CAVoxelTypeData } from "@tenet-base-ca/src/codegen/tables/CAVoxelType.sol";
@@ -83,53 +82,99 @@ abstract contract RunCASystem is System {
     );
   }
 
-  function runCA(address caAddress, VoxelEntity memory entity, bytes4 interactionSelector) public virtual {
-    uint32 scale = entity.scale;
-    bytes32 entityId = entity.entityId;
+  function runInteractionWrapper(
+    address caAddress,
+    uint32 scale,
+    bytes32 centerEntityId,
+    bytes4 useInteractionSelector
+  ) internal returns (bytes32[] memory, EntityEventData[] memory) {
+    VoxelEntity memory centerEntity = VoxelEntity({ entityId: centerEntityId, scale: scale });
+    bytes32[] memory neighbourEntities = IWorld(_world()).calculateNeighbourEntities(centerEntity);
+
+    bytes memory returnData;
+    {
+      bytes32[] memory childEntityIds = IWorld(_world()).calculateChildEntities(centerEntity);
+      bytes32 parentEntity = IWorld(_world()).calculateParentEntity(centerEntity);
+      // Run interaction logic
+      returnData = runInteraction(
+        caAddress,
+        useInteractionSelector,
+        centerEntityId,
+        neighbourEntities,
+        childEntityIds,
+        parentEntity
+      );
+    }
+    (bytes32[] memory changedEntities, bytes[] memory entitiesEventData) = abi.decode(returnData, (bytes32[], bytes[]));
+
+    EntityEventData[] memory allEntitiesEventData = new EntityEventData[](entitiesEventData.length);
+
+    for (uint256 i; i < entitiesEventData.length; i++) {
+      if (entitiesEventData[i].length == 0) {
+        continue;
+      }
+
+      allEntitiesEventData[i] = EntityEventData({
+        entity: VoxelEntity({ scale: scale, entityId: i == 0 ? centerEntityId : neighbourEntities[i - 1] }),
+        eventData: entitiesEventData[i]
+      });
+    }
+
+    return (changedEntities, allEntitiesEventData);
+  }
+
+  function runCA(
+    address caAddress,
+    VoxelEntity memory entity,
+    bytes4 interactionSelector
+  ) public virtual returns (EntityEventData[] memory) {
     bytes32[] memory centerEntitiesToCheckStack = new bytes32[](MAX_VOXEL_NEIGHBOUR_UPDATE_DEPTH);
+    EntityEventData[] memory allEntitiesEventData = new EntityEventData[](MAX_VOXEL_NEIGHBOUR_UPDATE_DEPTH);
     uint256 centerEntitiesToCheckStackIdx = 0;
+    uint256 entitesEventDataIdx = 0;
     uint256 useStackIdx = 0;
 
     // start with the center entity
-    centerEntitiesToCheckStack[centerEntitiesToCheckStackIdx] = entityId;
+    centerEntitiesToCheckStack[centerEntitiesToCheckStackIdx] = entity.entityId;
     useStackIdx = centerEntitiesToCheckStackIdx;
 
     // Keep looping until there is no neighbour to process or we reached max depth
-    // TODO: We need to call parent CA's as well after we're done going over this CA
     bytes4 useInteractionSelector = interactionSelector;
 
     while (useStackIdx < MAX_VOXEL_NEIGHBOUR_UPDATE_DEPTH) {
       bytes32 useCenterEntityId = centerEntitiesToCheckStack[useStackIdx];
-      VoxelEntity memory centerEntity = VoxelEntity({ entityId: useCenterEntityId, scale: scale });
-      bytes32[] memory useNeighbourEntities = IWorld(_world()).calculateNeighbourEntities(centerEntity);
-      bytes32[] memory childEntityIds = IWorld(_world()).calculateChildEntities(centerEntity);
-      bytes32 parentEntity = IWorld(_world()).calculateParentEntity(centerEntity);
-      // if (!hasEntity(useNeighbourEntities)) {
-      //   // if no neighbours, then we don't run any voxel interactions because there would be none
-      //   break;
-      // }
 
-      // Run interaction logic
-      bytes memory returnData = runInteraction(
-        caAddress,
-        useInteractionSelector,
-        useCenterEntityId,
-        useNeighbourEntities,
-        childEntityIds,
-        parentEntity
-      );
-      bytes32[] memory changedEntities = abi.decode(returnData, (bytes32[]));
-      useInteractionSelector = bytes4(0); // Only use the interaction selector for the first call, then use the Mind
+      {
+        (bytes32[] memory changedEntities, EntityEventData[] memory entitiesEventData) = runInteractionWrapper(
+          caAddress,
+          entity.scale,
+          useCenterEntityId,
+          useInteractionSelector
+        );
 
-      // If there are changed entities, we want to run voxel interactions again but with this new neighbour as the center
-      for (uint256 i; i < changedEntities.length; i++) {
-        if (uint256(changedEntities[i]) != 0) {
-          centerEntitiesToCheckStackIdx++;
-          require(
-            centerEntitiesToCheckStackIdx < MAX_VOXEL_NEIGHBOUR_UPDATE_DEPTH,
-            "VoxelInteractionSystem: Reached max depth"
-          );
-          centerEntitiesToCheckStack[centerEntitiesToCheckStackIdx] = changedEntities[i];
+        useInteractionSelector = bytes4(0); // Only use the interaction selector for the first call, then use the Mind
+
+        // If there are changed entities, we want to run voxel interactions again but with this new neighbour as the center
+        for (uint256 i; i < changedEntities.length; i++) {
+          if (uint256(changedEntities[i]) != 0) {
+            centerEntitiesToCheckStackIdx++;
+            require(
+              centerEntitiesToCheckStackIdx < MAX_VOXEL_NEIGHBOUR_UPDATE_DEPTH,
+              "VoxelInteractionSystem: Reached max depth"
+            );
+            centerEntitiesToCheckStack[centerEntitiesToCheckStackIdx] = changedEntities[i];
+          }
+        }
+
+        for (uint256 i; i < entitiesEventData.length; i++) {
+          if (entitiesEventData[i].eventData.length == 0) {
+            continue;
+          }
+          {
+            allEntitiesEventData[entitesEventDataIdx] = entitiesEventData[i];
+          }
+          entitesEventDataIdx++;
+          require(entitesEventDataIdx < MAX_VOXEL_NEIGHBOUR_UPDATE_DEPTH, "VoxelInteractionSystem: Reached max depth");
         }
       }
 
@@ -151,14 +196,15 @@ abstract contract RunCASystem is System {
         continue;
       }
 
-      // Run the CA for each parent now
-
       CAVoxelTypeData memory changedEntityVoxelType = CAVoxelType.get(IStore(caAddress), _world(), changedEntity);
-      // Update VoxelType
-      VoxelType.set(scale, changedEntity, changedEntityVoxelType.voxelTypeId, changedEntityVoxelType.voxelVariantId);
-      // TODO: Do we need this?
-      // Position should not change of the entity
-      // Position.set(scale, changedEntities[i], coord.x, coord.y, coord.z);
+      VoxelType.set(
+        entity.scale,
+        changedEntity,
+        changedEntityVoxelType.voxelTypeId,
+        changedEntityVoxelType.voxelVariantId
+      );
     }
+
+    return allEntitiesEventData;
   }
 }

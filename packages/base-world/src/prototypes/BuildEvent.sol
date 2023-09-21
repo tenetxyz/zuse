@@ -5,8 +5,7 @@ import { IStore } from "@latticexyz/store/src/IStore.sol";
 import { IWorld } from "@tenet-base-world/src/codegen/world/IWorld.sol";
 import { Event } from "@tenet-base-world/src/prototypes/Event.sol";
 import { BuildEventData } from "@tenet-base-world/src/Types.sol";
-import { VoxelCoord } from "@tenet-utils/src/Types.sol";
-import { VoxelEntity } from "@tenet-utils/src/Types.sol";
+import { VoxelCoord, VoxelEntity, EntityEventData } from "@tenet-utils/src/Types.sol";
 import { VoxelTypeRegistry, VoxelTypeRegistryData } from "@tenet-registry/src/codegen/tables/VoxelTypeRegistry.sol";
 import { CARegistry } from "@tenet-registry/src/codegen/tables/CARegistry.sol";
 import { WorldConfig, WorldConfigTableId } from "@tenet-base-world/src/codegen/tables/WorldConfig.sol";
@@ -28,7 +27,12 @@ abstract contract BuildEvent is Event {
     VoxelCoord memory coord,
     bytes memory eventData
   ) internal virtual returns (VoxelEntity memory) {
-    VoxelEntity memory builtEntity = super.runEvent(voxelTypeId, coord, eventData);
+    (VoxelEntity memory builtEntity, EntityEventData[] memory entitiesEventData) = super.runEvent(
+      voxelTypeId,
+      coord,
+      eventData
+    );
+    processCAEvents(entitiesEventData);
     // TODO: Where should this be dealt?
     // voxelSpawned(getRegistryAddress(), voxelTypeId);
     return builtEntity;
@@ -114,8 +118,8 @@ abstract contract BuildEvent is Event {
     VoxelCoord memory coord,
     VoxelEntity memory eventVoxelEntity,
     bytes memory eventData
-  ) internal virtual override {
-    IWorld(_world()).runCA(caAddress, eventVoxelEntity, bytes4(0));
+  ) internal virtual override returns (EntityEventData[] memory) {
+    return IWorld(_world()).runCA(caAddress, eventVoxelEntity, bytes4(0));
   }
 
   function hasSameVoxelTypeSchema(
@@ -202,7 +206,7 @@ abstract contract BuildEvent is Event {
               parentVoxelCoord
             );
           }
-          VoxelEntity memory parentVoxelEntity = super.runEventHandlerHelper(
+          (VoxelEntity memory parentVoxelEntity, ) = super.runEventHandlerHelper(
             worldVoxelTypeId,
             parentVoxelCoord,
             false,

@@ -13,7 +13,7 @@ abstract contract VoxelInteraction is System {
     bytes32 interactEntity,
     bytes32 neighbourEntityId,
     BlockDirection neighbourBlockDirection
-  ) internal virtual returns (bool changedEntity);
+  ) internal virtual returns (bool changedEntity, bytes memory entityData);
 
   function runInteraction(
     address callerAddress,
@@ -22,7 +22,7 @@ abstract contract VoxelInteraction is System {
     BlockDirection[] memory neighbourEntityDirections,
     bytes32[] memory childEntityIds,
     bytes32 parentEntity
-  ) internal virtual returns (bool changedEntity);
+  ) internal virtual returns (bool changedEntity, bytes memory entityData);
 
   function entityShouldInteract(address callerAddress, bytes32 entityId) internal view virtual returns (bool);
 
@@ -33,8 +33,9 @@ abstract contract VoxelInteraction is System {
     bytes32[] memory neighbourEntityIds,
     bytes32[] memory childEntityIds,
     bytes32 parentEntity
-  ) internal returns (bytes32) {
+  ) internal returns (bytes32, bytes memory) {
     bytes32 changedCenterEntityId = 0;
+    bytes memory centerEntityData;
     if (entityShouldInteract(callerAddress, centerEntityId)) {
       BlockDirection[] memory neighbourEntityDirections = new BlockDirection[](neighbourEntityIds.length);
       for (uint8 i = 0; i < neighbourEntityIds.length; i++) {
@@ -50,7 +51,7 @@ abstract contract VoxelInteraction is System {
         );
         neighbourEntityDirections[i] = centerBlockDirection;
       }
-      bool changedEntity = runInteraction(
+      (bool changedEntity, bytes memory entityData) = runInteraction(
         callerAddress,
         centerEntityId,
         neighbourEntityIds,
@@ -58,12 +59,27 @@ abstract contract VoxelInteraction is System {
         childEntityIds,
         parentEntity
       );
+      centerEntityData = entityData;
       if (changedEntity) {
         changedCenterEntityId = centerEntityId;
       }
     }
 
-    return changedCenterEntityId;
+    return (changedCenterEntityId, centerEntityData);
+  }
+
+  function onNewNeighbourWrapper(
+    address callerAddress,
+    bytes32 neighbourEntityId,
+    bytes32 centerEntityId,
+    VoxelCoord memory centerPosition
+  ) internal returns (bool, bytes memory) {
+    BlockDirection centerBlockDirection = calculateBlockDirection(
+      centerPosition,
+      getCAEntityPositionStrict(IStore(_world()), neighbourEntityId)
+    );
+
+    return onNewNeighbour(callerAddress, neighbourEntityId, centerEntityId, centerBlockDirection);
   }
 
   function runCaseTwo(
@@ -73,8 +89,9 @@ abstract contract VoxelInteraction is System {
     bytes32[] memory neighbourEntityIds,
     bytes32[] memory childEntityIds,
     bytes32 parentEntity
-  ) internal returns (bytes32[] memory) {
+  ) internal returns (bytes32[] memory, bytes[] memory) {
     bytes32[] memory changedEntityIds = new bytes32[](neighbourEntityIds.length);
+    bytes[] memory neighbourEntitiesData = new bytes[](neighbourEntityIds.length);
     for (uint8 i = 0; i < neighbourEntityIds.length; i++) {
       bytes32 neighbourEntityId = neighbourEntityIds[i];
 
@@ -83,12 +100,13 @@ abstract contract VoxelInteraction is System {
         continue;
       }
 
-      BlockDirection centerBlockDirection = calculateBlockDirection(
-        centerPosition,
-        getCAEntityPositionStrict(IStore(_world()), neighbourEntityId)
+      (bool changedEntity, bytes memory entityData) = onNewNeighbourWrapper(
+        callerAddress,
+        neighbourEntityId,
+        centerEntityId,
+        centerPosition
       );
-
-      bool changedEntity = onNewNeighbour(callerAddress, neighbourEntityId, centerEntityId, centerBlockDirection);
+      neighbourEntitiesData[i] = entityData;
 
       if (changedEntity) {
         changedEntityIds[i] = neighbourEntityId;
@@ -96,7 +114,7 @@ abstract contract VoxelInteraction is System {
         changedEntityIds[i] = 0;
       }
     }
-    return changedEntityIds;
+    return (changedEntityIds, neighbourEntitiesData);
   }
 
   function eventHandler(
@@ -105,11 +123,11 @@ abstract contract VoxelInteraction is System {
     bytes32[] memory neighbourEntityIds,
     bytes32[] memory childEntityIds,
     bytes32 parentEntity
-  ) internal returns (bytes32, bytes32[] memory) {
+  ) internal returns (bytes32, bytes32[] memory, bytes[] memory) {
     VoxelCoord memory centerPosition = getCAEntityPositionStrict(IStore(_world()), centerEntityId);
 
     // case one: center is the entity we care about, check neighbours to see if things need to change
-    bytes32 changedCenterEntityId = runCaseOne(
+    (bytes32 changedCenterEntityId, bytes memory centerEntityData) = runCaseOne(
       callerAddress,
       centerEntityId,
       centerPosition,
@@ -119,7 +137,7 @@ abstract contract VoxelInteraction is System {
     );
 
     // case two: neighbour is the entity we care about, check center to see if things need to change
-    bytes32[] memory changedEntityIds = runCaseTwo(
+    (bytes32[] memory changedEntityIds, bytes[] memory neighbourEntitiesData) = runCaseTwo(
       callerAddress,
       centerEntityId,
       centerPosition,
@@ -128,6 +146,12 @@ abstract contract VoxelInteraction is System {
       parentEntity
     );
 
-    return (changedCenterEntityId, changedEntityIds);
+    bytes[] memory entityData = new bytes[](neighbourEntityIds.length + 1);
+    entityData[0] = centerEntityData;
+    for (uint8 i = 0; i < neighbourEntityIds.length; i++) {
+      entityData[i + 1] = neighbourEntitiesData[i];
+    }
+
+    return (changedCenterEntityId, changedEntityIds, entityData);
   }
 }

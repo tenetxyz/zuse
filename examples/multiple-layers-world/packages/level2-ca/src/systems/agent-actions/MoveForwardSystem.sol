@@ -14,8 +14,8 @@ contract MoveForwardSystem is VoxelInteraction {
     bytes32 interactEntity,
     bytes32 neighbourEntityId,
     BlockDirection neighbourBlockDirection
-  ) internal override returns (bool changedEntity) {
-    return false;
+  ) internal override returns (bool changedEntity, bytes memory entityData) {
+    return (false, entityData);
   }
 
   function runInteraction(
@@ -25,15 +25,15 @@ contract MoveForwardSystem is VoxelInteraction {
     BlockDirection[] memory neighbourEntityDirections,
     bytes32[] memory childEntityIds,
     bytes32 parentEntity
-  ) internal override returns (bool changedEntity) {
+  ) internal override returns (bool changedEntity, bytes memory entityData) {
     changedEntity = false;
     VoxelCoord memory baseCoord = getCAEntityPositionStrict(IStore(_world()), interactEntity);
     VoxelCoord memory newCoord = VoxelCoord({ x: baseCoord.x + 1, y: baseCoord.y, z: baseCoord.z });
     bytes32 entityType = getCAVoxelType(interactEntity);
 
-    IWorld(_world()).moveCAWorld(callerAddress, entityType, baseCoord, newCoord);
+    // IWorld(_world()).moveCAWorld(callerAddress, entityType, baseCoord, newCoord);
 
-    return changedEntity;
+    return (changedEntity, entityData);
   }
 
   function entityShouldInteract(address callerAddress, bytes32 entityId) internal view override returns (bool) {
@@ -46,7 +46,7 @@ contract MoveForwardSystem is VoxelInteraction {
     bytes32[] memory neighbourEntityIds,
     bytes32[] memory childEntityIds,
     bytes32 parentEntity
-  ) public returns (bytes32, bytes32[] memory) {
+  ) public returns (bytes32, bytes32[] memory, bytes[] memory) {
     return super.eventHandler(callerAddress, centerEntityId, neighbourEntityIds, childEntityIds, parentEntity);
   }
 }

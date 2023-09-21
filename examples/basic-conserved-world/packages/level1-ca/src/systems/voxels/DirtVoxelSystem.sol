@@ -102,11 +102,11 @@ contract DirtVoxelSystem is VoxelType {
         // }
 
         // Example of flux mass event
-        if (entityBodyPhysics.mass == 15) {
-          entityEventData[0] = abi.encode(
-            CAEventData({ eventType: CAEventType.FluxMass, newCoord: VoxelCoord({ x: 0, y: 0, z: 0 }), fluxAmount: 15 })
-          );
-        }
+        // if (entityBodyPhysics.mass == 15) {
+        //   entityEventData[0] = abi.encode(
+        //     CAEventData({ eventType: CAEventType.FluxMass, newCoord: VoxelCoord({ x: 0, y: 0, z: 0 }), fluxAmount: 15 })
+        //   );
+        // }
       }
     }
 

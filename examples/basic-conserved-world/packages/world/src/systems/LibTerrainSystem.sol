@@ -20,13 +20,13 @@ contract LibTerrainSystem is System {
       data.mass = 0;
       data.energy = 0;
     } else if (voxelTypeId == BedrockVoxelID) {
-      data.mass = 5;
-      data.energy = 100;
+      data.mass = 100;
+      data.energy = 1;
     } else if (voxelTypeId == GrassVoxelID) {
       data.mass = 10;
       data.energy = 100;
     } else if (voxelTypeId == DirtVoxelID) {
-      data.mass = 15;
+      data.mass = 5;
       data.energy = 150;
     }
     data.velocity = abi.encode(VoxelCoord({ x: 0, y: 0, z: 0 }));

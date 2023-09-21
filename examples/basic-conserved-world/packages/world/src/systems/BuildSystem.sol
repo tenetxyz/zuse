@@ -56,7 +56,7 @@ contract BuildSystem is BuildEvent {
     BodyPhysicsData memory bodyPhysicsData;
     if (!hasKey(BodyPhysicsTableId, BodyPhysics.encodeKeyTuple(eventVoxelEntity.scale, eventVoxelEntity.entityId))) {
       bodyPhysicsData.mass = bodyMass;
-      bodyPhysicsData.energy = 100;
+      bodyPhysicsData.energy = 0;
       bodyPhysicsData.velocity = abi.encode(VoxelCoord({ x: 0, y: 0, z: 0 }));
     } else {
       bodyPhysicsData.mass = bodyMass;

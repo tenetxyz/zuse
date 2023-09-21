@@ -17,9 +17,9 @@ contract ElectronSystem is VoxelInteraction {
     bytes32 interactEntity,
     bytes32 neighbourEntityId,
     BlockDirection neighbourBlockDirection
-  ) internal override returns (bool changedEntity) {
+  ) internal override returns (bool changedEntity, bytes memory entityData) {
     if (neighbourEntityId == 0) {
-      return false;
+      return (false, entityData);
     }
     VoxelCoord memory baseCoord = getCAEntityPositionStrict(IStore(_world()), interactEntity);
     (bytes32[] memory neighbourEntityIds, BlockDirection[] memory neighbourEntityDirections) = getCANeighbours(
@@ -41,9 +41,9 @@ contract ElectronSystem is VoxelInteraction {
     );
     // return entityShouldInteract(callerAddress, neighbourEntityId);
     if (otherReplusionForce < currentReplusionForce) {
-      return true;
+      return (true, entityData);
     }
-    return false;
+    return (false, entityData);
   }
 
   function calculateReplusionForce(
@@ -166,7 +166,7 @@ contract ElectronSystem is VoxelInteraction {
     BlockDirection[] memory neighbourEntityDirections,
     bytes32[] memory childEntityIds,
     bytes32 parentEntity
-  ) internal override returns (bool changedEntity) {
+  ) internal override returns (bool changedEntity, bytes memory entityData) {
     VoxelCoord memory baseCoord = getCAEntityPositionStrict(IStore(_world()), interactEntity);
 
     requireValidElectronSpot(callerAddress, interactEntity, neighbourEntityIds, neighbourEntityDirections);
@@ -222,7 +222,7 @@ contract ElectronSystem is VoxelInteraction {
     bytes32[] memory neighbourEntityIds,
     bytes32[] memory childEntityIds,
     bytes32 parentEntity
-  ) public returns (bytes32, bytes32[] memory) {
+  ) public returns (bytes32, bytes32[] memory, bytes[] memory) {
     return super.eventHandler(callerAddress, centerEntityId, neighbourEntityIds, childEntityIds, parentEntity);
   }
 }

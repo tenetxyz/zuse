@@ -131,7 +131,7 @@ contract StorageSystem is SingleVoxelInteraction {
     bytes32 storageEntity,
     bytes32 compareEntity,
     BlockDirection compareBlockDirection
-  ) internal override returns (bool changedEntity) {
+  ) internal override returns (bool changedEntity, bytes memory entityData) {
     StorageData memory storageData = Storage.get(callerAddress, storageEntity);
     changedEntity = false;
 
@@ -141,7 +141,7 @@ contract StorageSystem is SingleVoxelInteraction {
       compareBlockDirection == BlockDirection.SouthEast ||
       compareBlockDirection == BlockDirection.SouthWest
     ) {
-      return false;
+      return (false, entityData);
     }
 
     bool isPowerWire = entityIsPowerWire(callerAddress, compareEntity);
@@ -229,7 +229,7 @@ contract StorageSystem is SingleVoxelInteraction {
       }
     }
 
-    return changedEntity;
+    return (changedEntity, entityData);
   }
 
   function entityShouldInteract(address callerAddress, bytes32 entityId) internal view override returns (bool) {
@@ -242,7 +242,7 @@ contract StorageSystem is SingleVoxelInteraction {
     bytes32[] memory neighbourEntityIds,
     bytes32[] memory childEntityIds,
     bytes32 parentEntity
-  ) public returns (bytes32, bytes32[] memory) {
+  ) public returns (bytes32, bytes32[] memory, bytes[] memory) {
     return super.eventHandler(callerAddress, centerEntityId, neighbourEntityIds, childEntityIds, parentEntity);
   }
 }

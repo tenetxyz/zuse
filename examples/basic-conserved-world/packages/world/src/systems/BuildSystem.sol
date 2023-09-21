@@ -12,14 +12,14 @@ import { REGISTRY_ADDRESS } from "@tenet-world/src/Constants.sol";
 import { AirVoxelID } from "@tenet-level1-ca/src/Constants.sol";
 import { BuildWorldEventData } from "@tenet-world/src/Types.sol";
 
-uint256 constant MAXIMUM_ENERGY_OUT = 100;
-
 contract BuildSystem is BuildEvent {
   function getRegistryAddress() internal pure override returns (address) {
     return REGISTRY_ADDRESS;
   }
 
-  function processCAEvents(EntityEventData[] memory entitiesEventData) internal override {}
+  function processCAEvents(EntityEventData[] memory entitiesEventData) internal override {
+    IWorld(_world()).caEventsHandler(entitiesEventData);
+  }
 
   function emptyVoxelId() internal pure override returns (bytes32) {
     return AirVoxelID;

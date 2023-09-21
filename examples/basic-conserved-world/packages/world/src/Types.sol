@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity >=0.8.0;
 
-import { VoxelEntity } from "@tenet-utils/src/Types.sol";
+import { VoxelCoord, VoxelEntity } from "@tenet-utils/src/Types.sol";
 
 struct BuildWorldEventData {
   VoxelEntity agentEntity;
@@ -17,4 +17,10 @@ struct MoveWorldEventData {
 
 struct MineWorldEventData {
   VoxelEntity agentEntity;
+}
+
+struct FluxEventData {
+  uint256 massToFlux;
+  uint256 energyToFlux;
+  VoxelCoord energyReceiver;
 }

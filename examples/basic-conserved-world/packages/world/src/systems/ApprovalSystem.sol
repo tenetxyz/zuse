@@ -11,8 +11,9 @@ import { OwnedBy, OwnedByTableId } from "@tenet-world/src/codegen/tables/OwnedBy
 import { BodyPhysics, BodyPhysicsData } from "@tenet-world/src/codegen/tables/BodyPhysics.sol";
 import { WorldConfig } from "@tenet-world/src/codegen/tables/WorldConfig.sol";
 import { MineEventData, BuildEventData, MoveEventData, ActivateEventData } from "@tenet-base-world/src/Types.sol";
-import { MineWorldEventData, BuildWorldEventData, MoveWorldEventData, ActivateWorldEventData } from "@tenet-world/src/Types.sol";
+import { MineWorldEventData, BuildWorldEventData, MoveWorldEventData, ActivateWorldEventData, FluxEventData } from "@tenet-world/src/Types.sol";
 import { distanceBetween } from "@tenet-utils/src/VoxelCoordUtils.sol";
+import { getCallerName } from "@tenet-utils/src/Utils.sol";
 import { getEntityAtCoord, getEntityPositionStrict, positionDataToVoxelCoord } from "@tenet-base-world/src/Utils.sol";
 import { VoxelTypeRegistry, VoxelTypeRegistryData } from "@tenet-registry/src/codegen/tables/VoxelTypeRegistry.sol";
 import { REGISTRY_ADDRESS } from "@tenet-world/src/Constants.sol";
@@ -52,7 +53,8 @@ contract ApprovalSystem is EventApprovalsSystem {
     // Assert that this entity is owned by the caller or is a CA
     bool isEOACaller = hasKey(OwnedByTableId, OwnedBy.encodeKeyTuple(agentEntity.scale, agentEntity.entityId)) &&
       OwnedBy.get(agentEntity.scale, agentEntity.entityId) == caller;
-    require(isEOACaller, "Agent entity must be owned by caller");
+    bool isWorldCaller = caller == _world(); // any root system can call this
+    require(isEOACaller || isWorldCaller, "Agent entity must be owned by caller or be a root system");
 
     agentEntityChecks(eventType, caller, voxelTypeId, coord, agentEntity);
   }
@@ -66,7 +68,7 @@ contract ApprovalSystem is EventApprovalsSystem {
   ) internal {
     // Assert that this entity has a position
     VoxelCoord memory agentPosition = positionDataToVoxelCoord(getEntityPositionStrict(agentEntity));
-    require(distanceBetween(agentPosition, coord) == MAX_AGENT_ACTION_RADIUS, "Agent must be adjacent to voxel");
+    require(distanceBetween(agentPosition, coord) <= MAX_AGENT_ACTION_RADIUS, "Agent must be adjacent to voxel");
   }
 
   function postApproval(

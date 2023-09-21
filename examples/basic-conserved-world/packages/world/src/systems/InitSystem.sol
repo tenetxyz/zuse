@@ -40,7 +40,7 @@ contract InitSystem is InitWorldSystem {
     VoxelTypeProperties.set(AirVoxelID, 0);
     VoxelTypeProperties.set(GrassVoxelID, 10);
     VoxelTypeProperties.set(DirtVoxelID, 5);
-    VoxelTypeProperties.set(BedrockVoxelID, 5);
+    VoxelTypeProperties.set(BedrockVoxelID, 100);
     VoxelTypeProperties.set(FighterVoxelID, 10);
   }
 

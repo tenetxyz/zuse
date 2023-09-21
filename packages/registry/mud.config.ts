@@ -158,5 +158,15 @@ export default mudConfig({
       root: true,
       args: [resolveTableId("ClassifierRegistry")],
     },
+    {
+      name: "KeysInTableModule",
+      root: true,
+      args: [resolveTableId("DecisionRuleRegistry")],
+    },
+    {
+      name: "KeysInTableModule",
+      root: true,
+      args: [resolveTableId("MindRegistry")],
+    },
   ],
 });

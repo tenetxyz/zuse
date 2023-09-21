@@ -10,6 +10,7 @@ import { abs, absInt32 } from "@tenet-utils/src/VoxelCoordUtils.sol";
 import { REGISTRY_ADDRESS } from "@tenet-world/src/Constants.sol";
 import { MoveEventData } from "@tenet-base-world/src/Types.sol";
 import { OwnedBy, OwnedByTableId, BodyPhysics, BodyPhysicsData, BodyPhysicsTableId, WorldConfig, VoxelTypeProperties } from "@tenet-world/src/codegen/Tables.sol";
+import { getEntityAtCoord } from "@tenet-base-world/src/Utils.sol";
 import { MoveWorldEventData } from "@tenet-world/src/Types.sol";
 
 contract MoveSystem is MoveEvent {
@@ -35,9 +36,6 @@ contract MoveSystem is MoveEvent {
       abi.encode(MoveEventData({ oldCoord: oldCoord, worldData: abi.encode(moveWorldEventData) }))
     );
 
-    address caAddress = WorldConfig.get(voxelTypeId);
-    IWorld(_world()).updateVelocity(caAddress, oldCoord, newCoord, oldEntity, newEntity);
-
     // Transfer ownership of the oldEntity to the newEntity
     if (hasKey(OwnedByTableId, OwnedBy.encodeKeyTuple(oldEntity.scale, oldEntity.entityId))) {
       OwnedBy.set(newEntity.scale, newEntity.entityId, OwnedBy.get(oldEntity.scale, oldEntity.entityId));
@@ -45,5 +43,21 @@ contract MoveSystem is MoveEvent {
     }
 
     return (oldEntity, newEntity);
+  }
+
+  function preRunCA(
+    address caAddress,
+    bytes32 voxelTypeId,
+    VoxelCoord memory newCoord,
+    VoxelEntity memory eventVoxelEntity,
+    bytes memory eventData
+  ) internal override {
+    super.preRunCA(caAddress, voxelTypeId, newCoord, eventVoxelEntity, eventData);
+    MoveEventData memory moveEventData = abi.decode(eventData, (MoveEventData));
+    VoxelCoord memory oldCoord = moveEventData.oldCoord;
+    uint32 scale = eventVoxelEntity.scale;
+    bytes32 oldEntityId = getEntityAtCoord(scale, oldCoord);
+    VoxelEntity memory oldEntity = VoxelEntity({ scale: scale, entityId: oldEntityId });
+    IWorld(_world()).updateVelocity(caAddress, oldCoord, newCoord, oldEntity, eventVoxelEntity);
   }
 }

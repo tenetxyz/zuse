@@ -33,13 +33,14 @@ contract MineSystem is MineEvent {
     return super.mine(voxelTypeId, coord, abi.encode(MineEventData({ worldData: abi.encode(mineEventData) })));
   }
 
-  function postEvent(
+  function preRunCA(
+    address caAddress,
     bytes32 voxelTypeId,
     VoxelCoord memory coord,
     VoxelEntity memory eventVoxelEntity,
     bytes memory eventData
   ) internal override {
-    address caAddress = WorldConfig.get(voxelTypeId);
+    super.preRunCA(caAddress, voxelTypeId, coord, eventVoxelEntity, eventData);
     uint256 bodyMass = VoxelTypeProperties.get(voxelTypeId);
     if (!hasKey(BodyPhysicsTableId, BodyPhysics.encodeKeyTuple(eventVoxelEntity.scale, eventVoxelEntity.entityId))) {
       (bytes32 terrainVoxelTypeId, BodyPhysicsData memory terrainPhysicsData) = IWorld(_world())

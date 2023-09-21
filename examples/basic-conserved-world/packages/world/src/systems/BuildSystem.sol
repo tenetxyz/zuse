@@ -41,15 +41,16 @@ contract BuildSystem is BuildEvent {
       );
   }
 
-  function postEvent(
+  function preRunCA(
+    address caAddress,
     bytes32 voxelTypeId,
     VoxelCoord memory coord,
     VoxelEntity memory eventVoxelEntity,
     bytes memory eventData
   ) internal override {
+    super.preRunCA(caAddress, voxelTypeId, coord, eventVoxelEntity, eventData);
     // Update the mass of the entity to be the type definition's mass
     uint256 bodyMass = VoxelTypeProperties.get(voxelTypeId);
-    address caAddress = WorldConfig.get(voxelTypeId);
     // Calculate how much energy this operation requires
     uint256 energyRequired = bodyMass * 10;
     IWorld(_world()).fluxEnergy(true, caAddress, eventVoxelEntity, energyRequired);

@@ -7,7 +7,7 @@ import { hasKey } from "@latticexyz/world/src/modules/keysintable/hasKey.sol";
 import { System } from "@latticexyz/world/src/System.sol";
 import { OwnedBy, Position, VoxelType, VoxelTypeProperties, BodyPhysics, BodyPhysicsData, BodyPhysicsTableId } from "@tenet-world/src/codegen/Tables.sol";
 import { VoxelCoord, VoxelTypeData, VoxelEntity } from "@tenet-utils/src/Types.sol";
-import { min, safeSubtract, safeAdd, abs, absInt32 } from "@tenet-utils/src/VoxelCoordUtils.sol";
+import { dot, min, sub, safeSubtract, safeAdd, abs, absInt32 } from "@tenet-utils/src/VoxelCoordUtils.sol";
 import { REGISTRY_ADDRESS } from "@tenet-world/src/Constants.sol";
 import { AirVoxelID } from "@tenet-level1-ca/src/Constants.sol";
 import { BuildWorldEventData } from "@tenet-world/src/Types.sol";
@@ -22,8 +22,47 @@ uint256 constant MAXIMUM_ENERGY_OUT = 100;
 uint256 constant MAXIMUM_ENERGY_IN = 100;
 
 contract PhysicsSystem is System {
-  function onCollision(address caAddress, VoxelCoord memory newCoord, VoxelEntity memory newEntity) public {
-    // get neighbours
+  function onCollision(address caAddress, VoxelCoord memory centerCoord, VoxelEntity memory centerVoxelEntity) public {
+    (bytes32[] memory neighbourEntities, VoxelCoord[] memory neighbourCoords) = IWorld(_world())
+      .calculateNeighbourEntities(centerVoxelEntity);
+    VoxelCoord memory primaryVelocity = getVelocity(centerVoxelEntity);
+
+    bytes32[] memory collidingEntities = new bytes32[](neighbourEntities.length);
+
+    // We first compute the dot product to figure out for which coords, do we need to run the collison formula
+    for (uint8 i = 0; i < neighbourCoords.length; i++) {
+      VoxelCoord memory relativePosition = sub(neighbourCoords[i], centerCoord);
+      int dotProduct = dot(primaryVelocity, relativePosition);
+      if (dotProduct > 0) {
+        // this means the primary voxel is moving towards the neighbour
+        if (uint256(neighbourEntities[i]) == 0) {
+          // create the entities that don't exist from the terrain
+          (bytes32 terrainVoxelTypeId, BodyPhysicsData memory terrainPhysicsData) = IWorld(_world())
+            .getTerrainBodyPhysicsData(caAddress, neighbourCoords[i]);
+          VoxelEntity memory newTerrainEntity = spawnBody(
+            terrainVoxelTypeId,
+            neighbourCoords[i],
+            bytes4(0),
+            terrainPhysicsData
+          );
+          neighbourEntities[i] = newTerrainEntity.entityId;
+        }
+        collidingEntities[i] = neighbourEntities[i];
+      } else {
+        collidingEntities[i] = 0;
+      }
+    }
+
+    // Now we run the collision formula for each of the colliding entities
+    uint256 total_impulse = 0;
+    for (uint8 i = 0; i < collidingEntities.length; i++) {
+      if (uint256(collidingEntities[i]) == 0) {
+        continue;
+      }
+      // Calculate the impulse of this neighbour
+
+      // Add to total impulse
+    }
   }
 
   function updateVelocity(

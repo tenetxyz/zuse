@@ -12,6 +12,10 @@ function sub(VoxelCoord memory a, VoxelCoord memory b) pure returns (VoxelCoord 
   return VoxelCoord(a.x - b.x, a.y - b.y, a.z - b.z);
 }
 
+function dot(VoxelCoord memory a, VoxelCoord memory b) pure returns (int) {
+  return a.x * b.x + a.y * b.y + a.z * b.z;
+}
+
 function voxelCoordsAreEqual(VoxelCoord memory c1, VoxelCoord memory c2) pure returns (bool) {
   return c1.x == c2.x && c1.y == c2.y && c1.z == c2.z;
 }

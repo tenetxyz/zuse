@@ -4,6 +4,11 @@ pragma solidity >=0.8.0;
 import { VoxelCoord, BlockDirection } from "@tenet-utils/src/Types.sol";
 import { int32ToString } from "@tenet-utils/src/StringUtils.sol";
 
+function uint256ToInt32(uint256 x) pure returns (int32) {
+  require(x <= uint(int(type(int32).max)), "uint out of bounds");
+  return int32(int(x));
+}
+
 function add(VoxelCoord memory a, VoxelCoord memory b) pure returns (VoxelCoord memory) {
   return VoxelCoord(a.x + b.x, a.y + b.y, a.z + b.z);
 }
@@ -14,6 +19,14 @@ function sub(VoxelCoord memory a, VoxelCoord memory b) pure returns (VoxelCoord 
 
 function dot(VoxelCoord memory a, VoxelCoord memory b) pure returns (int) {
   return a.x * b.x + a.y * b.y + a.z * b.z;
+}
+
+function mulScalar(VoxelCoord memory a, int32 factor) pure returns (VoxelCoord memory) {
+  return VoxelCoord(a.x * factor, a.y * factor, a.z * factor);
+}
+
+function divScalar(VoxelCoord memory a, int32 factor) pure returns (VoxelCoord memory) {
+  return VoxelCoord(a.x / factor, a.y / factor, a.z / factor);
 }
 
 function voxelCoordsAreEqual(VoxelCoord memory c1, VoxelCoord memory c2) pure returns (bool) {

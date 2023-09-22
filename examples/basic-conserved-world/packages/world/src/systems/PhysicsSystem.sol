@@ -7,7 +7,7 @@ import { hasKey } from "@latticexyz/world/src/modules/keysintable/hasKey.sol";
 import { System } from "@latticexyz/world/src/System.sol";
 import { OwnedBy, Position, VoxelType, VoxelTypeProperties, BodyPhysics, BodyPhysicsData, BodyPhysicsTableId } from "@tenet-world/src/codegen/Tables.sol";
 import { VoxelCoord, VoxelTypeData, VoxelEntity } from "@tenet-utils/src/Types.sol";
-import { dot, min, sub, safeSubtract, safeAdd, abs, absInt32 } from "@tenet-utils/src/VoxelCoordUtils.sol";
+import { uint256ToInt32, dot, mulScalar, divScalar, min, add, sub, safeSubtract, safeAdd, abs, absInt32 } from "@tenet-utils/src/VoxelCoordUtils.sol";
 import { REGISTRY_ADDRESS } from "@tenet-world/src/Constants.sol";
 import { AirVoxelID } from "@tenet-level1-ca/src/Constants.sol";
 import { BuildWorldEventData } from "@tenet-world/src/Types.sol";
@@ -53,16 +53,28 @@ contract PhysicsSystem is System {
       }
     }
 
+    int32 mass_primary = uint256ToInt32(BodyPhysics.getMass(centerVoxelEntity.scale, centerVoxelEntity.entityId));
+
     // Now we run the collision formula for each of the colliding entities
-    uint256 total_impulse = 0;
+    VoxelCoord memory total_impulse = VoxelCoord({ x: 0, y: 0, z: 0 });
     for (uint8 i = 0; i < collidingEntities.length; i++) {
       if (uint256(collidingEntities[i]) == 0) {
         continue;
       }
       // Calculate the impulse of this neighbour
-
+      VoxelCoord memory relativeVelocity = sub(
+        getVelocity(VoxelEntity({ scale: centerVoxelEntity.scale, entityId: collidingEntities[i] })),
+        primaryVelocity
+      );
+      int32 mass_neighbour = uint256ToInt32(BodyPhysics.getMass(centerVoxelEntity.scale, collidingEntities[i]));
+      VoxelCoord memory impulse = mulScalar(relativeVelocity, (2 * mass_neighbour) / (mass_primary + mass_neighbour));
       // Add to total impulse
+      total_impulse = add(total_impulse, impulse);
     }
+
+    VoxelCoord memory delta_velocity = divScalar(total_impulse, mass_primary);
+    VoxelCoord memory new_primary_velocity = add(primaryVelocity, delta_velocity);
+    BodyPhysics.setVelocity(centerVoxelEntity.scale, centerVoxelEntity.entityId, abi.encode(new_primary_velocity));
   }
 
   function updateVelocity(

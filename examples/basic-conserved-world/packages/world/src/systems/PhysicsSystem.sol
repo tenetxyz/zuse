@@ -68,6 +68,10 @@ contract PhysicsSystem is System {
             centerEntitiesToCheckStack[centerEntitiesToCheckStackIdx] = neighbourEntities[i];
           }
         }
+      } else {
+        if (useStackIdx == 0) {
+          new_primary_velocity = currentVelocity;
+        }
       }
 
       // at this point, we've consumed the top of the stack,
@@ -89,7 +93,7 @@ contract PhysicsSystem is System {
     VoxelEntity memory centerVoxelEntity,
     VoxelCoord memory primaryVelocity
   )
-    public
+    internal
     returns (
       VoxelCoord memory new_primary_velocity,
       bytes32[] memory neighbourEntities,
@@ -110,6 +114,10 @@ contract PhysicsSystem is System {
           // create the entities that don't exist from the terrain
           (bytes32 terrainVoxelTypeId, BodyPhysicsData memory terrainPhysicsData) = IWorld(_world())
             .getTerrainBodyPhysicsData(caAddress, neighbourCoords[i]);
+          if (terrainPhysicsData.mass == 0) {
+            // can only collide with terrain that has mass
+            continue;
+          }
           VoxelEntity memory newTerrainEntity = spawnBody(
             terrainVoxelTypeId,
             neighbourCoords[i],

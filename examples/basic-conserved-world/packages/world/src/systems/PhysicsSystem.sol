@@ -7,13 +7,15 @@ import { hasKey } from "@latticexyz/world/src/modules/keysintable/hasKey.sol";
 import { System } from "@latticexyz/world/src/System.sol";
 import { OwnedBy, Position, VoxelType, VoxelTypeProperties, BodyPhysics, BodyPhysicsData, BodyPhysicsTableId } from "@tenet-world/src/codegen/Tables.sol";
 import { VoxelCoord, VoxelTypeData, VoxelEntity } from "@tenet-utils/src/Types.sol";
-import { uint256ToInt32, dot, mulScalar, divScalar, min, add, sub, safeSubtract, safeAdd, abs, absInt32 } from "@tenet-utils/src/VoxelCoordUtils.sol";
+import { voxelCoordsAreEqual, uint256ToInt32, dot, mulScalar, divScalar, min, add, sub, safeSubtract, safeAdd, abs, absInt32 } from "@tenet-utils/src/VoxelCoordUtils.sol";
 import { REGISTRY_ADDRESS } from "@tenet-world/src/Constants.sol";
 import { AirVoxelID } from "@tenet-level1-ca/src/Constants.sol";
 import { BuildWorldEventData } from "@tenet-world/src/Types.sol";
 import { VoxelTypeRegistry, VoxelTypeRegistryData } from "@tenet-registry/src/codegen/tables/VoxelTypeRegistry.sol";
 import { CAVoxelType, CAVoxelTypeData } from "@tenet-base-ca/src/codegen/tables/CAVoxelType.sol";
 import { WorldConfig, WorldConfigTableId } from "@tenet-base-world/src/codegen/tables/WorldConfig.sol";
+import { getVoxelCoordStrict } from "@tenet-base-world/src/Utils.sol";
+import { MAX_VOXEL_NEIGHBOUR_UPDATE_DEPTH } from "@tenet-utils/src/Constants.sol";
 import { getUniqueEntity } from "@latticexyz/world/src/modules/uniqueentity/getUniqueEntity.sol";
 import { console } from "forge-std/console.sol";
 import { getVelocity } from "@tenet-world/src/Utils.sol";
@@ -23,9 +25,78 @@ uint256 constant MAXIMUM_ENERGY_IN = 100;
 
 contract PhysicsSystem is System {
   function onCollision(address caAddress, VoxelCoord memory centerCoord, VoxelEntity memory centerVoxelEntity) public {
-    (bytes32[] memory neighbourEntities, VoxelCoord[] memory neighbourCoords) = IWorld(_world())
-      .calculateNeighbourEntities(centerVoxelEntity);
-    VoxelCoord memory primaryVelocity = getVelocity(centerVoxelEntity);
+    bytes32[] memory centerEntitiesToCheckStack = new bytes32[](MAX_VOXEL_NEIGHBOUR_UPDATE_DEPTH);
+    uint256 centerEntitiesToCheckStackIdx = 0;
+    uint256 useStackIdx = 0;
+
+    // start with the center entity
+    centerEntitiesToCheckStack[centerEntitiesToCheckStackIdx] = centerVoxelEntity.entityId;
+    useStackIdx = centerEntitiesToCheckStackIdx;
+
+    VoxelCoord memory new_primary_velocity;
+
+    // Keep looping until there is no neighbour to process or we reached max depth
+    while (useStackIdx < MAX_VOXEL_NEIGHBOUR_UPDATE_DEPTH) {
+      bytes32 useEntityId = centerEntitiesToCheckStack[useStackIdx];
+      VoxelEntity memory useEntity = VoxelEntity({ scale: centerVoxelEntity.scale, entityId: useEntityId });
+      VoxelCoord memory currentVelocity = getVelocity(useEntity);
+      VoxelCoord memory useCoord = getVoxelCoordStrict(useEntity);
+      (VoxelCoord memory newVelocity, bytes32[] memory neighbourEntities, ) = calculateVelocityAfterCollision(
+        caAddress,
+        useCoord,
+        useEntity,
+        currentVelocity
+      );
+
+      if (!voxelCoordsAreEqual(currentVelocity, newVelocity)) {
+        if (useStackIdx == 0) {
+          // Note: We don't set the updated center velocity right away because then it would
+          // change the calculation for the neighbours
+          new_primary_velocity = newVelocity;
+        } else {
+          BodyPhysics.setVelocity(useEntity.scale, useEntity.entityId, abi.encode(newVelocity));
+        }
+
+        // Go through neighbours and add them to the stack for updates
+        for (uint8 i = 0; i < neighbourEntities.length; i++) {
+          if (uint256(neighbourEntities[i]) != 0) {
+            centerEntitiesToCheckStackIdx++;
+            require(
+              centerEntitiesToCheckStackIdx < MAX_VOXEL_NEIGHBOUR_UPDATE_DEPTH,
+              "PhysicsSystem: Reached max depth for collisions"
+            );
+            centerEntitiesToCheckStack[centerEntitiesToCheckStackIdx] = neighbourEntities[i];
+          }
+        }
+      }
+
+      // at this point, we've consumed the top of the stack,
+      // so we can pop it, in this case, we just increment the stack index
+      if (centerEntitiesToCheckStackIdx > useStackIdx) {
+        useStackIdx++;
+      } else {
+        // this means we didnt any any updates, so we can break out of the loop
+        break;
+      }
+    }
+
+    BodyPhysics.setVelocity(centerVoxelEntity.scale, centerVoxelEntity.entityId, abi.encode(new_primary_velocity));
+  }
+
+  function calculateVelocityAfterCollision(
+    address caAddress,
+    VoxelCoord memory centerCoord,
+    VoxelEntity memory centerVoxelEntity,
+    VoxelCoord memory primaryVelocity
+  )
+    public
+    returns (
+      VoxelCoord memory new_primary_velocity,
+      bytes32[] memory neighbourEntities,
+      VoxelCoord[] memory neighbourCoords
+    )
+  {
+    (neighbourEntities, neighbourCoords) = IWorld(_world()).calculateNeighbourEntities(centerVoxelEntity);
 
     bytes32[] memory collidingEntities = new bytes32[](neighbourEntities.length);
 
@@ -73,8 +144,8 @@ contract PhysicsSystem is System {
     }
 
     VoxelCoord memory delta_velocity = divScalar(total_impulse, mass_primary);
-    VoxelCoord memory new_primary_velocity = add(primaryVelocity, delta_velocity);
-    BodyPhysics.setVelocity(centerVoxelEntity.scale, centerVoxelEntity.entityId, abi.encode(new_primary_velocity));
+    new_primary_velocity = add(primaryVelocity, delta_velocity);
+    return (new_primary_velocity, neighbourEntities, neighbourCoords);
   }
 
   function updateVelocity(

@@ -22,6 +22,10 @@ uint256 constant MAXIMUM_ENERGY_OUT = 100;
 uint256 constant MAXIMUM_ENERGY_IN = 100;
 
 contract PhysicsSystem is System {
+  function onCollision(address caAddress, VoxelCoord memory newCoord, VoxelEntity memory newEntity) public {
+    // get neighbours
+  }
+
   function updateVelocity(
     address caAddress,
     VoxelCoord memory oldCoord,

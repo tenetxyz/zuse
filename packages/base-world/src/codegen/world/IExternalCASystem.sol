@@ -18,7 +18,9 @@ interface IExternalCASystem {
     uint8 neighbourRadius
   ) external view returns (bytes32[] memory, VoxelCoord[] memory);
 
-  function calculateNeighbourEntities(VoxelEntity memory centerEntity) external view returns (bytes32[] memory);
+  function calculateNeighbourEntities(
+    VoxelEntity memory centerEntity
+  ) external view returns (bytes32[] memory, VoxelCoord[] memory);
 
   function calculateChildEntities(VoxelEntity memory entity) external view returns (bytes32[] memory);
 

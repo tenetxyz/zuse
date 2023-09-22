@@ -276,7 +276,8 @@ function getNeighbourEntitiesFromCaller(address callerAddress, VoxelEntity memor
     abi.encodeWithSignature("calculateNeighbourEntities((uint32,bytes32))", entity),
     "calculateNeighbourEntities"
   );
-  return abi.decode(returnData, (bytes32[]));
+  (bytes32[] memory entities, ) = abi.decode(returnData, (bytes32[], VoxelCoord[]));
+  return entities;
 }
 
 function getChildEntitiesFromCaller(address callerAddress, VoxelEntity memory entity) returns (bytes32[] memory) {

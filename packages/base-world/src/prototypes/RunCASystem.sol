@@ -8,7 +8,7 @@ import { VoxelCoord, VoxelEntity, EntityEventData } from "@tenet-utils/src/Types
 import { hasEntity } from "@tenet-utils/src/Utils.sol";
 import { safeCall } from "@tenet-utils/src/CallUtils.sol";
 import { CAVoxelType, CAVoxelTypeData } from "@tenet-base-ca/src/codegen/tables/CAVoxelType.sol";
-import { NUM_VOXEL_NEIGHBOURS, MAX_VOXEL_NEIGHBOUR_UPDATE_DEPTH } from "@tenet-utils/src/Constants.sol";
+import { MAX_VOXEL_NEIGHBOUR_UPDATE_DEPTH } from "@tenet-utils/src/Constants.sol";
 import { Position, PositionData } from "@tenet-base-world/src/codegen/tables/Position.sol";
 import { VoxelType, VoxelTypeData } from "@tenet-base-world/src/codegen/tables/VoxelType.sol";
 import { VoxelActivated, VoxelActivatedData } from "@tenet-base-world/src/codegen/tables/VoxelActivated.sol";
@@ -24,7 +24,7 @@ abstract contract RunCASystem is System {
     bytes4 mindSelector,
     VoxelCoord memory coord
   ) public virtual {
-    bytes32[] memory neighbourEntities = IWorld(_world()).calculateNeighbourEntities(entity);
+    (bytes32[] memory neighbourEntities, ) = IWorld(_world()).calculateNeighbourEntities(entity);
     bytes32[] memory childEntityIds = IWorld(_world()).calculateChildEntities(entity);
     bytes32 parentEntity = IWorld(_world()).calculateParentEntity(entity);
     enterWorld(
@@ -46,7 +46,7 @@ abstract contract RunCASystem is System {
     VoxelCoord memory oldCoord,
     VoxelCoord memory newCoord
   ) public virtual {
-    bytes32[] memory neighbourEntities = IWorld(_world()).calculateNeighbourEntities(newEntity);
+    (bytes32[] memory neighbourEntities, ) = IWorld(_world()).calculateNeighbourEntities(newEntity);
     bytes32[] memory childEntityIds = IWorld(_world()).calculateChildEntities(newEntity);
     bytes32 parentEntity = IWorld(_world()).calculateParentEntity(newEntity);
     moveLayer(
@@ -67,7 +67,7 @@ abstract contract RunCASystem is System {
     bytes32 voxelTypeId,
     VoxelCoord memory coord
   ) public virtual {
-    bytes32[] memory neighbourEntities = IWorld(_world()).calculateNeighbourEntities(entity);
+    (bytes32[] memory neighbourEntities, ) = IWorld(_world()).calculateNeighbourEntities(entity);
     bytes32[] memory childEntityIds = IWorld(_world()).calculateChildEntities(entity);
     bytes32 parentEntity = IWorld(_world()).calculateParentEntity(entity);
     exitWorld(caAddress, voxelTypeId, coord, entity.entityId, neighbourEntities, childEntityIds, parentEntity);
@@ -89,7 +89,7 @@ abstract contract RunCASystem is System {
     bytes4 useInteractionSelector
   ) internal returns (bytes32[] memory, EntityEventData[] memory) {
     VoxelEntity memory centerEntity = VoxelEntity({ entityId: centerEntityId, scale: scale });
-    bytes32[] memory neighbourEntities = IWorld(_world()).calculateNeighbourEntities(centerEntity);
+    (bytes32[] memory neighbourEntities, ) = IWorld(_world()).calculateNeighbourEntities(centerEntity);
 
     bytes memory returnData;
     {

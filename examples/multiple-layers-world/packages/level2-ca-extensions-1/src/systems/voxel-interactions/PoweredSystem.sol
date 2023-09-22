@@ -18,15 +18,6 @@ contract PoweredSystem is SingleVoxelInteraction {
     PoweredData memory poweredData = Powered.get(callerAddress, poweredEntity);
     changedEntity = false;
 
-    if (
-      compareBlockDirection == BlockDirection.NorthEast ||
-      compareBlockDirection == BlockDirection.NorthWest ||
-      compareBlockDirection == BlockDirection.SouthEast ||
-      compareBlockDirection == BlockDirection.SouthWest
-    ) {
-      return (false, entityData);
-    }
-
     bool compareIsSignalSource = entityIsSignalSource(callerAddress, compareEntity);
     bool compareIsActiveSignal = entityIsSignal(callerAddress, compareEntity);
     if (compareIsActiveSignal) {

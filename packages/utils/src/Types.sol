@@ -22,16 +22,13 @@ struct Tuple {
   int128 y;
 }
 
+// In 3D, there are 6 von Neumann neighbours
 enum BlockDirection {
   None,
   North,
   South,
   East,
   West,
-  NorthEast,
-  NorthWest,
-  SouthEast,
-  SouthWest,
   Up,
   Down
 }

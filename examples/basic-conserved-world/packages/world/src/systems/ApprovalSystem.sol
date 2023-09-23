@@ -61,6 +61,12 @@ contract ApprovalSystem is EventApprovalsSystem {
     require(isEOACaller || isWorldCaller, "Agent entity must be owned by caller or be a root system");
 
     agentEntityChecks(eventType, caller, voxelTypeId, coord, oldCoord, agentEntity);
+
+    IWorld(_world()).updateVelocityCache(agentEntity);
+    bytes32 entityId = getEntityAtCoord(agentEntity.scale, coord);
+    if (uint256(entityId) != 0 && entityId != agentEntity.entityId) {
+      IWorld(_world()).updateVelocityCache(VoxelEntity({ scale: agentEntity.scale, entityId: entityId }));
+    }
   }
 
   function agentEntityChecks(

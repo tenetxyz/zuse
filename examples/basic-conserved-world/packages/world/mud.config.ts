@@ -11,6 +11,7 @@ export default tenetMudConfig({
       schema: {
         mass: "uint256",
         energy: "uint256",
+        lastUpdateBlock: "uint256",
         velocity: "bytes", // VoxelCoord, 3D vector
         gravity: "bytes", // VoxelCoord, 3D vector
       },

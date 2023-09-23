@@ -62,6 +62,7 @@ contract BuildSystem is BuildEvent {
     } else {
       bodyPhysicsData.mass = bodyMass;
     }
+    bodyPhysicsData.lastUpdateBlock = block.number;
     BodyPhysics.set(eventVoxelEntity.scale, eventVoxelEntity.entityId, bodyPhysicsData);
   }
 }

@@ -59,6 +59,6 @@ contract MoveSystem is MoveEvent {
     bytes32 oldEntityId = getEntityAtCoord(scale, oldCoord);
     VoxelEntity memory oldEntity = VoxelEntity({ scale: scale, entityId: oldEntityId });
     IWorld(_world()).updateVelocity(caAddress, oldCoord, newCoord, oldEntity, eventVoxelEntity);
-    IWorld(_world()).onCollision(caAddress, newCoord, eventVoxelEntity);
+    IWorld(_world()).onCollision(caAddress, eventVoxelEntity);
   }
 }

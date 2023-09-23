@@ -23,22 +23,35 @@ import { getVelocity } from "@tenet-world/src/Utils.sol";
 uint256 constant MAXIMUM_ENERGY_OUT = 100;
 uint256 constant MAXIMUM_ENERGY_IN = 100;
 
+struct CollisionData {
+  VoxelEntity entity;
+  VoxelCoord oldVelocity;
+  VoxelCoord newVelocity;
+}
+
+enum CoordDirection {
+  X,
+  Y,
+  Z
+}
+
 contract PhysicsSystem is System {
-  function onCollision(address caAddress, VoxelCoord memory centerCoord, VoxelEntity memory centerVoxelEntity) public {
-    bytes32[] memory centerEntitiesToCheckStack = new bytes32[](MAX_VOXEL_NEIGHBOUR_UPDATE_DEPTH);
+  function onCollision(address caAddress, VoxelEntity memory centerVoxelEntity) public {
+    CollisionData[] memory centerEntitiesToCheckStack = new CollisionData[](MAX_VOXEL_NEIGHBOUR_UPDATE_DEPTH);
     uint256 centerEntitiesToCheckStackIdx = 0;
     uint256 useStackIdx = 0;
 
-    // start with the center entity
-    centerEntitiesToCheckStack[centerEntitiesToCheckStackIdx] = centerVoxelEntity.entityId;
-    useStackIdx = centerEntitiesToCheckStackIdx;
+    CollisionData memory centerCollisionData;
+    centerCollisionData.entity = centerVoxelEntity;
 
-    VoxelCoord memory new_primary_velocity;
+    // start with the center entity
+    centerEntitiesToCheckStack[centerEntitiesToCheckStackIdx] = centerCollisionData;
+    useStackIdx = centerEntitiesToCheckStackIdx;
 
     // Keep looping until there is no neighbour to process or we reached max depth
     while (useStackIdx < MAX_VOXEL_NEIGHBOUR_UPDATE_DEPTH) {
-      bytes32 useEntityId = centerEntitiesToCheckStack[useStackIdx];
-      VoxelEntity memory useEntity = VoxelEntity({ scale: centerVoxelEntity.scale, entityId: useEntityId });
+      CollisionData memory useCollisionData = centerEntitiesToCheckStack[useStackIdx];
+      VoxelEntity memory useEntity = useCollisionData.entity;
       VoxelCoord memory currentVelocity = getVelocity(useEntity);
       VoxelCoord memory useCoord = getVoxelCoordStrict(useEntity);
       (VoxelCoord memory newVelocity, bytes32[] memory neighbourEntities, ) = calculateVelocityAfterCollision(
@@ -47,30 +60,39 @@ contract PhysicsSystem is System {
         useEntity,
         currentVelocity
       );
+      // Update collision data
+      useCollisionData.oldVelocity = currentVelocity;
+      useCollisionData.newVelocity = newVelocity;
+      centerEntitiesToCheckStack[useStackIdx] = useCollisionData;
 
       if (!voxelCoordsAreEqual(currentVelocity, newVelocity)) {
-        if (useStackIdx == 0) {
-          // Note: We don't set the updated center velocity right away because then it would
-          // change the calculation for the neighbours
-          new_primary_velocity = newVelocity;
-        } else {
+        if (useStackIdx > 0) {
+          // Note: we don't update the first one (index == 0), because it's already been applied in the initial move
           BodyPhysics.setVelocity(useEntity.scale, useEntity.entityId, abi.encode(newVelocity));
         }
 
         // Go through neighbours and add them to the stack for updates
         for (uint8 i = 0; i < neighbourEntities.length; i++) {
           if (uint256(neighbourEntities[i]) != 0) {
-            centerEntitiesToCheckStackIdx++;
-            require(
-              centerEntitiesToCheckStackIdx < MAX_VOXEL_NEIGHBOUR_UPDATE_DEPTH,
-              "PhysicsSystem: Reached max depth for collisions"
-            );
-            centerEntitiesToCheckStack[centerEntitiesToCheckStackIdx] = neighbourEntities[i];
+            // Check if the neighbour is already in the stack
+            bool isAlreadyInStack = false;
+            for (uint8 j = 0; j <= centerEntitiesToCheckStackIdx; j++) {
+              if (centerEntitiesToCheckStack[j].entity.entityId == neighbourEntities[i]) {
+                isAlreadyInStack = true;
+                break;
+              }
+            }
+            if (!isAlreadyInStack) {
+              centerEntitiesToCheckStackIdx++;
+              require(
+                centerEntitiesToCheckStackIdx < MAX_VOXEL_NEIGHBOUR_UPDATE_DEPTH,
+                "PhysicsSystem: Reached max depth for collisions"
+              );
+              CollisionData memory neighbourCollisionData;
+              neighbourCollisionData.entity = VoxelEntity({ scale: useEntity.scale, entityId: neighbourEntities[i] });
+              centerEntitiesToCheckStack[centerEntitiesToCheckStackIdx] = neighbourCollisionData;
+            }
           }
-        }
-      } else {
-        if (useStackIdx == 0) {
-          new_primary_velocity = currentVelocity;
         }
       }
 
@@ -84,7 +106,88 @@ contract PhysicsSystem is System {
       }
     }
 
-    BodyPhysics.setVelocity(centerVoxelEntity.scale, centerVoxelEntity.entityId, abi.encode(new_primary_velocity));
+    // Go through the stack, and reset all the velocities
+    for (uint256 i = 0; i <= centerEntitiesToCheckStackIdx; i++) {
+      CollisionData memory collisionData = centerEntitiesToCheckStack[i];
+      if (!voxelCoordsAreEqual(collisionData.oldVelocity, collisionData.newVelocity)) {
+        BodyPhysics.setVelocity(
+          collisionData.entity.scale,
+          collisionData.entity.entityId,
+          abi.encode(collisionData.oldVelocity)
+        );
+      }
+    }
+    // Go through the stack in reverse order and if old and new velocity are different, create move events accordingly
+    for (uint256 i = centerEntitiesToCheckStackIdx; i >= 0; i--) {
+      CollisionData memory collisionData = centerEntitiesToCheckStack[i];
+      if (!voxelCoordsAreEqual(collisionData.oldVelocity, collisionData.newVelocity)) {
+        VoxelEntity memory workingEntity = collisionData.entity;
+        VoxelCoord memory workingCoord = getVoxelCoordStrict(workingEntity);
+        VoxelCoord memory deltaVelocity = sub(collisionData.newVelocity, collisionData.oldVelocity);
+        // go through each axis, x, y, z and for each one figure out the new coord by adding the unit amount (ie 1), and make the move event call
+        bytes32 voxelTypeId = VoxelType.getVoxelTypeId(workingEntity.scale, workingEntity.entityId);
+        // TODO: Should check if they succeed, and not fail the entire TX if one fails
+        (workingCoord, workingEntity) = moveToReachTargetVelocity(
+          voxelTypeId,
+          workingEntity,
+          workingCoord,
+          deltaVelocity.x,
+          CoordDirection.X
+        );
+        (workingCoord, workingEntity) = moveToReachTargetVelocity(
+          voxelTypeId,
+          workingEntity,
+          workingCoord,
+          deltaVelocity.y,
+          CoordDirection.Y
+        );
+        (workingCoord, workingEntity) = moveToReachTargetVelocity(
+          voxelTypeId,
+          workingEntity,
+          workingCoord,
+          deltaVelocity.z,
+          CoordDirection.Z
+        );
+        // TODO: Should we check to see if the final velocity matches the saved one?
+      }
+    }
+  }
+
+  function moveToReachTargetVelocity(
+    bytes32 voxelTypeId,
+    VoxelEntity memory entity,
+    VoxelCoord memory startingCoord,
+    int32 vDelta,
+    CoordDirection direction
+  ) internal returns (VoxelCoord memory workingCoord, VoxelEntity memory) {
+    workingCoord = startingCoord;
+
+    int32 xDelta = 0;
+    int32 yDelta = 0;
+    int32 zDelta = 0;
+
+    // Determine which dimension to move based on the direction
+    if (direction == CoordDirection.X) {
+      xDelta = (vDelta > 0) ? int32(1) : int32(-1);
+    } else if (direction == CoordDirection.Y) {
+      yDelta = (vDelta > 0) ? int32(1) : int32(-1);
+    } else if (direction == CoordDirection.Z) {
+      zDelta = (vDelta > 0) ? int32(1) : int32(-1);
+    }
+
+    // Create move events based on the delta
+    for (int256 j = 0; j < absInt32(vDelta); j++) {
+      VoxelCoord memory newCoord = VoxelCoord({
+        x: workingCoord.x + xDelta,
+        y: workingCoord.y + yDelta,
+        z: workingCoord.z + zDelta
+      });
+      (, VoxelEntity memory newEntity) = IWorld(_world()).moveWithAgent(voxelTypeId, workingCoord, newCoord, entity);
+      entity = newEntity;
+      require(voxelCoordsAreEqual(getVoxelCoordStrict(entity)) == newCoord, "PhysicsSystem: Move event failed");
+      workingCoord = newCoord;
+    }
+    return (workingCoord, entity);
   }
 
   function calculateVelocityAfterCollision(

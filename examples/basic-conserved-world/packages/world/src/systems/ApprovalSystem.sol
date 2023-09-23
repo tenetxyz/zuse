@@ -8,11 +8,12 @@ import { EventType } from "@tenet-base-world/src/Types.sol";
 import { VoxelCoord, VoxelEntity } from "@tenet-utils/src/Types.sol";
 import { Strings } from "@openzeppelin/contracts/utils/Strings.sol";
 import { OwnedBy, OwnedByTableId } from "@tenet-world/src/codegen/tables/OwnedBy.sol";
+import { VoxelType } from "@tenet-world/src/codegen/tables/VoxelType.sol";
 import { BodyPhysics, BodyPhysicsData } from "@tenet-world/src/codegen/tables/BodyPhysics.sol";
 import { WorldConfig } from "@tenet-world/src/codegen/tables/WorldConfig.sol";
 import { MineEventData, BuildEventData, MoveEventData, ActivateEventData } from "@tenet-base-world/src/Types.sol";
 import { MineWorldEventData, BuildWorldEventData, MoveWorldEventData, ActivateWorldEventData, FluxEventData } from "@tenet-world/src/Types.sol";
-import { distanceBetween } from "@tenet-utils/src/VoxelCoordUtils.sol";
+import { distanceBetween, voxelCoordsAreEqual } from "@tenet-utils/src/VoxelCoordUtils.sol";
 import { getCallerName } from "@tenet-utils/src/Utils.sol";
 import { getEntityAtCoord, getEntityPositionStrict, positionDataToVoxelCoord } from "@tenet-base-world/src/Utils.sol";
 import { VoxelTypeRegistry, VoxelTypeRegistryData } from "@tenet-registry/src/codegen/tables/VoxelTypeRegistry.sol";
@@ -68,7 +69,15 @@ contract ApprovalSystem is EventApprovalsSystem {
   ) internal {
     // Assert that this entity has a position
     VoxelCoord memory agentPosition = positionDataToVoxelCoord(getEntityPositionStrict(agentEntity));
-    require(distanceBetween(agentPosition, coord) <= MAX_AGENT_ACTION_RADIUS, "Agent must be adjacent to voxel");
+    if (eventType == EventType.Move) {
+      require(
+        voxelCoordsAreEqual(agentPosition, coord) &&
+          VoxelType.getVoxelTypeId(agentEntity.scale, agentEntity.entityId) == voxelTypeId,
+        "You can only move yourself"
+      );
+    } else {
+      require(distanceBetween(agentPosition, coord) <= MAX_AGENT_ACTION_RADIUS, "Agent must be adjacent to voxel");
+    }
   }
 
   function postApproval(

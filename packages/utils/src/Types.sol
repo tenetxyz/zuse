@@ -97,6 +97,7 @@ struct VoxelTypeData {
 struct BodyPhysicsData {
   uint256 mass;
   uint256 energy;
+  uint256 lastUpdateBlock;
   bytes velocity;
   bytes gravity;
 }

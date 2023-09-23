@@ -46,7 +46,6 @@ contract MineSystem is MineEvent {
       (bytes32 terrainVoxelTypeId, BodyPhysicsData memory terrainPhysicsData) = IWorld(_world())
         .getTerrainBodyPhysicsData(caAddress, coord);
       require(terrainVoxelTypeId == voxelTypeId, "Terrain voxel type must match event voxel type");
-      terrainPhysicsData.lastUpdateBlock = block.number;
       BodyPhysics.set(eventVoxelEntity.scale, eventVoxelEntity.entityId, terrainPhysicsData);
     }
 

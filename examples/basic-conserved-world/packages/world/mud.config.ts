@@ -49,7 +49,7 @@ export default tenetMudConfig({
       name: "VelocitySystem",
       openAccess: false,
       accessList: [
-        "ApprovalSystem",
+        "ApprovalSystem", // TODO: should this be openAccess: false?
         "RunCASystem",
         "EnergySystem",
         "BuildSystem",

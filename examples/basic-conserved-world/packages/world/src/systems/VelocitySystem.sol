@@ -31,7 +31,7 @@ enum CoordDirection {
   Z
 }
 
-uint256 constant NUM_BLOCKS_BEFORE_REDUCE = 20;
+uint256 constant NUM_BLOCKS_BEFORE_REDUCE = 60;
 
 contract VelocitySystem is System {
   function updateVelocityCache(VoxelEntity memory entity) public {
@@ -72,8 +72,10 @@ contract VelocitySystem is System {
     }
 
     // Update the velocity
-    BodyPhysics.setVelocity(entity.scale, entity.entityId, abi.encode(newVelocity));
-    BodyPhysics.setLastUpdateBlock(entity.scale, entity.entityId, block.number);
+    if (voxelCoordsAreEqual(velocity, newVelocity)) {
+      BodyPhysics.setVelocity(entity.scale, entity.entityId, abi.encode(newVelocity));
+      BodyPhysics.setLastUpdateBlock(entity.scale, entity.entityId, block.number);
+    }
   }
 
   function onCollision(address caAddress, VoxelEntity memory centerVoxelEntity) public {

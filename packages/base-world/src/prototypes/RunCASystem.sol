@@ -82,7 +82,7 @@ abstract contract RunCASystem is System {
     );
   }
 
-  function beforeRunInteraction(VoxelEntity memory entity) internal virtual {};
+  function beforeRunInteraction(VoxelEntity memory entity) internal virtual {}
 
   function runInteractionWrapper(
     address caAddress,

@@ -31,6 +31,7 @@ contract ApprovalSystem is EventApprovalsSystem {
     bytes memory eventData
   ) internal override {
     VoxelEntity memory agentEntity;
+    VoxelCoord memory oldCoord = coord;
     if (eventType == EventType.Mine) {
       MineEventData memory mineEventData = abi.decode(eventData, (MineEventData));
       MineWorldEventData memory mineWorldEventData = abi.decode(mineEventData.worldData, (MineWorldEventData));
@@ -50,6 +51,7 @@ contract ApprovalSystem is EventApprovalsSystem {
       MoveEventData memory moveEventData = abi.decode(eventData, (MoveEventData));
       MoveWorldEventData memory moveWorldEventData = abi.decode(moveEventData.worldData, (MoveWorldEventData));
       agentEntity = moveWorldEventData.agentEntity;
+      oldCoord = moveEventData.oldCoord;
     }
 
     // Assert that this entity is owned by the caller or is a CA
@@ -58,7 +60,7 @@ contract ApprovalSystem is EventApprovalsSystem {
     bool isWorldCaller = caller == _world(); // any root system can call this
     require(isEOACaller || isWorldCaller, "Agent entity must be owned by caller or be a root system");
 
-    agentEntityChecks(eventType, caller, voxelTypeId, coord, agentEntity);
+    agentEntityChecks(eventType, caller, voxelTypeId, coord, oldCoord, agentEntity);
   }
 
   function agentEntityChecks(
@@ -66,19 +68,19 @@ contract ApprovalSystem is EventApprovalsSystem {
     address caller,
     bytes32 voxelTypeId,
     VoxelCoord memory coord,
+    VoxelCoord memory oldCoord,
     VoxelEntity memory agentEntity
   ) internal {
     // Assert that this entity has a position
     VoxelCoord memory agentPosition = positionDataToVoxelCoord(getEntityPositionStrict(agentEntity));
     if (eventType == EventType.Move) {
       require(
-        voxelCoordsAreEqual(agentPosition, coord) &&
+        voxelCoordsAreEqual(agentPosition, oldCoord) &&
           VoxelType.getVoxelTypeId(agentEntity.scale, agentEntity.entityId) == voxelTypeId,
         "You can only move yourself"
       );
-    } else {
-      require(distanceBetween(agentPosition, coord) <= MAX_AGENT_ACTION_RADIUS, "Agent must be adjacent to voxel");
     }
+    require(distanceBetween(agentPosition, coord) <= MAX_AGENT_ACTION_RADIUS, "Agent must be adjacent to voxel");
   }
 
   function postApproval(

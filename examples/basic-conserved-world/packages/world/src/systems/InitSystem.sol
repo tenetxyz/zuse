@@ -49,6 +49,7 @@ contract InitSystem is InitWorldSystem {
     BodyPhysicsData memory physicsData;
     physicsData.mass = 5;
     physicsData.energy = 100;
+    physicsData.lastUpdateBlock = block.number;
     physicsData.velocity = abi.encode(VoxelCoord({ x: 0, y: 0, z: 4 }));
     IWorld(_world()).spawnBody(FighterVoxelID, VoxelCoord(10, 2, 10), bytes4(0), physicsData);
 
@@ -56,6 +57,7 @@ contract InitSystem is InitWorldSystem {
     physicsData.mass = 5;
     physicsData.energy = 100;
     physicsData.velocity = abi.encode(VoxelCoord({ x: 0, y: 0, z: 1 }));
+    physicsData.lastUpdateBlock = block.number;
     VoxelEntity memory grassEntity = IWorld(_world()).spawnBody(
       GrassVoxelID,
       VoxelCoord(10, 2, 11),

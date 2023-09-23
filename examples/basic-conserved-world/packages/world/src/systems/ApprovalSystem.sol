@@ -18,6 +18,7 @@ import { getCallerName } from "@tenet-utils/src/Utils.sol";
 import { getEntityAtCoord, getEntityPositionStrict, positionDataToVoxelCoord } from "@tenet-base-world/src/Utils.sol";
 import { VoxelTypeRegistry, VoxelTypeRegistryData } from "@tenet-registry/src/codegen/tables/VoxelTypeRegistry.sol";
 import { REGISTRY_ADDRESS } from "@tenet-world/src/Constants.sol";
+import { getVelocity } from "@tenet-world/src/Utils.sol";
 
 uint256 constant MAX_AGENT_ACTION_RADIUS = 1;
 
@@ -106,6 +107,21 @@ contract ApprovalSystem is EventApprovalsSystem {
       } else {
         (, BodyPhysicsData memory terrainPhysicsData) = IWorld(_world()).getTerrainBodyPhysicsData(caAddress, coord);
         require(terrainPhysicsData.mass == 0, "Cannot build on top of terrain with mass");
+      }
+    }
+    if (eventType == EventType.Mine) {
+      VoxelCoord memory zeroVelocity = VoxelCoord({ x: 0, y: 0, z: 0 });
+      if (uint256(entityId) != 0) {
+        require(
+          voxelCoordsAreEqual(getVelocity(VoxelEntity({ scale: scale, entityId: entityId })), zeroVelocity),
+          "Cannot mine an entity with velocity"
+        );
+      } else {
+        (, BodyPhysicsData memory terrainPhysicsData) = IWorld(_world()).getTerrainBodyPhysicsData(caAddress, coord);
+        require(
+          voxelCoordsAreEqual(abi.decode(terrainPhysicsData.velocity, (VoxelCoord)), zeroVelocity),
+          "Cannot mine terrain with velocity"
+        );
       }
     } else if (eventType == EventType.Build) {
       if (uint256(entityId) != 0) {

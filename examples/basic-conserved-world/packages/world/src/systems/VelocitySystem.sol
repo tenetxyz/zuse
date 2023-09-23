@@ -46,29 +46,29 @@ contract VelocitySystem is System {
     }
     // Calculate the new velocity
 
-    int32 deltaV = blocksSinceLastUpdate / NUM_BLOCKS_BEFORE_REDUCE;
+    int32 deltaV = uint256ToInt32(blocksSinceLastUpdate / NUM_BLOCKS_BEFORE_REDUCE);
     // We dont want to reduce past 0
     VoxelCoord memory newVelocity = velocity;
 
     // Update x component
     if (newVelocity.x > 0) {
-      newVelocity.x = newVelocity.x > deltaV ? newVelocity.x - deltaV : 0;
+      newVelocity.x = newVelocity.x > deltaV ? newVelocity.x - deltaV : int32(0);
     } else if (newVelocity.x < 0) {
-      newVelocity.x = newVelocity.x < -deltaV ? newVelocity.x + deltaV : 0;
+      newVelocity.x = newVelocity.x < -deltaV ? newVelocity.x + deltaV : int32(0);
     }
 
     // Update y component
     if (newVelocity.y > 0) {
-      newVelocity.y = newVelocity.y > deltaV ? newVelocity.y - deltaV : 0;
+      newVelocity.y = newVelocity.y > deltaV ? newVelocity.y - deltaV : int32(0);
     } else if (newVelocity.y < 0) {
-      newVelocity.y = newVelocity.y < -deltaV ? newVelocity.y + deltaV : 0;
+      newVelocity.y = newVelocity.y < -deltaV ? newVelocity.y + deltaV : int32(0);
     }
 
     // Update z component
     if (newVelocity.z > 0) {
-      newVelocity.z = newVelocity.z > deltaV ? newVelocity.z - deltaV : 0;
+      newVelocity.z = newVelocity.z > deltaV ? newVelocity.z - deltaV : int32(0);
     } else if (newVelocity.z < 0) {
-      newVelocity.z = newVelocity.z < -deltaV ? newVelocity.z + deltaV : 0;
+      newVelocity.z = newVelocity.z < -deltaV ? newVelocity.z + deltaV : int32(0);
     }
 
     // Update the velocity

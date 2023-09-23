@@ -38,6 +38,10 @@ contract RunCASystem is RunCAPrototype {
     super.activateCA(caAddress, entity);
   }
 
+  function beforeRunInteraction(VoxelEntity memory entity) internal override {
+    IWorld(_world()).updateVelocityCache(entity);
+  }
+
   function runCA(
     address caAddress,
     VoxelEntity memory entity,

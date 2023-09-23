@@ -195,9 +195,28 @@ contract VelocitySystem is System {
     for (int256 i = 0; i < absInt32(vDelta); i++) {
       {
         VoxelCoord memory newCoord = add(workingCoord, deltaVelocity);
-        (, workingEntity) = IWorld(_world()).moveWithAgent(voxelTypeId, workingCoord, newCoord, workingEntity);
-        require(voxelCoordsAreEqual(getVoxelCoordStrict(workingEntity), newCoord), "PhysicsSystem: Move event failed");
-        workingCoord = newCoord;
+        // Try moving
+        (bool success, bytes memory returnData) = _world().call(
+          abi.encodeWithSignature(
+            "moveWithAgent(bytes32,(int32,int32,int32),(int32,int32,int32),(uint32,bytes32))",
+            voxelTypeId,
+            workingCoord,
+            newCoord,
+            workingEntity
+          )
+        );
+        if (success) {
+          (, workingEntity) = abi.decode(returnData, (VoxelEntity, VoxelEntity));
+          require(
+            voxelCoordsAreEqual(getVoxelCoordStrict(workingEntity), newCoord),
+            "PhysicsSystem: Move event failed"
+          );
+          workingCoord = newCoord;
+        } else {
+          // Could not move, so we break out of the loop
+          // TODO: In a future iteration, we should dissipate energy from the velocity force that could not be applied
+          break;
+        }
       }
     }
     return (workingCoord, workingEntity);

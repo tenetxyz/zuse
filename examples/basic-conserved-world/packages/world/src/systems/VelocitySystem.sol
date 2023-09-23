@@ -224,6 +224,16 @@ contract VelocitySystem is System {
     for (uint8 i = 0; i < neighbourCoords.length; i++) {
       VoxelCoord memory relativePosition = sub(neighbourCoords[i], centerCoord);
       int dotProduct = dot(primaryVelocity, relativePosition);
+      if (dotProduct <= 0) {
+        if (uint256(neighbourEntities[i]) != 0) {
+          // Check to see if this neighbour has a velocity and is having an impact on us
+          VoxelCoord memory neighbourVelocity = getVelocity(
+            VoxelEntity({ scale: centerVoxelEntity.scale, entityId: neighbourEntities[i] })
+          );
+          relativePosition = sub(centerCoord, neighbourCoords[i]);
+          dotProduct = dot(neighbourVelocity, relativePosition);
+        } // else it's velocity would be zero
+      }
       if (dotProduct > 0) {
         // this means the primary voxel is moving towards the neighbour
         if (uint256(neighbourEntities[i]) == 0) {
@@ -239,7 +249,7 @@ contract VelocitySystem is System {
           console.logInt(neighbourCoords[i].x);
           console.logInt(neighbourCoords[i].y);
           console.logInt(neighbourCoords[i].z);
-          VoxelEntity memory newTerrainEntity = spawnBody(
+          VoxelEntity memory newTerrainEntity = IWorld(_world()).spawnBody(
             terrainVoxelTypeId,
             neighbourCoords[i],
             bytes4(0),

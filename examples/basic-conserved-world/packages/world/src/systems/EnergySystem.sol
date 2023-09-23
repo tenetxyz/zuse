@@ -180,6 +180,7 @@ contract EnergySystem is System {
     return energyToFlux;
   }
 
+  // TODO: This should be in a separate contract
   function spawnBody(
     bytes32 voxelTypeId,
     VoxelCoord memory coord,

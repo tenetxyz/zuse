@@ -140,38 +140,34 @@ contract VelocitySystem is System {
         VoxelCoord memory deltaVelocity = sub(collisionData.newVelocity, collisionData.oldVelocity);
         // go through each axis, x, y, z and for each one figure out the new coord by adding the unit amount (ie 1), and make the move event call
         bytes32 voxelTypeId = VoxelType.getVoxelTypeId(workingEntity.scale, workingEntity.entityId);
-        // TODO: Should check if they succeed, and not fail the entire TX if one fails
-        (workingCoord, workingEntity) = moveToReachTargetVelocity(
+        // TODO: What is the optimal order in which to try these?
+        (workingCoord, workingEntity) = tryToReachTargetVelocity(
           voxelTypeId,
           workingEntity,
           workingCoord,
           deltaVelocity.x,
           CoordDirection.X
         );
-        (workingCoord, workingEntity) = moveToReachTargetVelocity(
+        (workingCoord, workingEntity) = tryToReachTargetVelocity(
           voxelTypeId,
           workingEntity,
           workingCoord,
           deltaVelocity.y,
           CoordDirection.Y
         );
-        (workingCoord, workingEntity) = moveToReachTargetVelocity(
+        (workingCoord, workingEntity) = tryToReachTargetVelocity(
           voxelTypeId,
           workingEntity,
           workingCoord,
           deltaVelocity.z,
           CoordDirection.Z
         );
-        require(
-          voxelCoordsAreEqual(getVelocity(workingEntity), collisionData.newVelocity),
-          "PhysicsSystem: Move event failed"
-        );
       }
     }
     console.log("after second");
   }
 
-  function moveToReachTargetVelocity(
+  function tryToReachTargetVelocity(
     bytes32 voxelTypeId,
     VoxelEntity memory entity,
     VoxelCoord memory startingCoord,
@@ -196,6 +192,10 @@ contract VelocitySystem is System {
       {
         VoxelCoord memory newCoord = add(workingCoord, deltaVelocity);
         // Try moving
+        console.log("call before");
+        console.logInt(newCoord.x);
+        console.logInt(newCoord.y);
+        console.logInt(newCoord.z);
         (bool success, bytes memory returnData) = _world().call(
           abi.encodeWithSignature(
             "moveWithAgent(bytes32,(int32,int32,int32),(int32,int32,int32),(uint32,bytes32))",
@@ -205,8 +205,11 @@ contract VelocitySystem is System {
             workingEntity
           )
         );
-        if (success) {
+        console.logBool(success);
+        if (success && returnData.length > 0) {
+          console.log("success");
           (, workingEntity) = abi.decode(returnData, (VoxelEntity, VoxelEntity));
+          console.logBytes32(workingEntity.entityId);
           require(
             voxelCoordsAreEqual(getVoxelCoordStrict(workingEntity), newCoord),
             "PhysicsSystem: Move event failed"
@@ -214,6 +217,7 @@ contract VelocitySystem is System {
           workingCoord = newCoord;
         } else {
           // Could not move, so we break out of the loop
+          console.log("bro skip it bro");
           // TODO: In a future iteration, we should dissipate energy from the velocity force that could not be applied
           break;
         }

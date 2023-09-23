@@ -92,7 +92,7 @@ contract PhysicsSystem is System {
                 break;
               }
             }
-            if (!isAlreadyInStack) {
+            if (!isAlreadyInStack && BodyPhysics.getMass(useEntity.scale, neighbourEntities[i]) > 0) {
               centerEntitiesToCheckStackIdx++;
               require(
                 centerEntitiesToCheckStackIdx < MAX_VOXEL_NEIGHBOUR_UPDATE_DEPTH,
@@ -279,9 +279,18 @@ contract PhysicsSystem is System {
       );
       int32 mass_neighbour = uint256ToInt32(BodyPhysics.getMass(centerVoxelEntity.scale, collidingEntities[i]));
       console.log("mul scalar");
-      VoxelCoord memory impulse = mulScalar(relativeVelocity, (2 * mass_neighbour) / (mass_primary + mass_neighbour));
+      console.logInt(relativeVelocity.x);
+      console.logInt(relativeVelocity.y);
+      console.logInt(relativeVelocity.z);
+      int32 impulseFactor = (2 * mass_neighbour) / (mass_primary + mass_neighbour);
+      console.log("impulse scalar");
+      console.logInt(impulseFactor);
+      VoxelCoord memory impulse = mulScalar(relativeVelocity, impulseFactor);
       // Add to total impulse
       console.log("add scalar");
+      console.logInt(impulse.x);
+      console.logInt(impulse.y);
+      console.logInt(impulse.z);
       total_impulse = add(total_impulse, impulse);
     }
 
@@ -290,6 +299,9 @@ contract PhysicsSystem is System {
     console.logBytes32(centerVoxelEntity.entityId);
     VoxelCoord memory delta_velocity = divScalar(total_impulse, mass_primary);
     console.log("add scalar 2");
+    console.logInt(delta_velocity.x);
+    console.logInt(delta_velocity.y);
+    console.logInt(delta_velocity.z);
     new_primary_velocity = add(primaryVelocity, delta_velocity);
     return (new_primary_velocity, neighbourEntities, neighbourCoords);
   }

@@ -72,7 +72,7 @@ contract VelocitySystem is System {
     }
 
     // Update the velocity
-    if (voxelCoordsAreEqual(velocity, newVelocity)) {
+    if (!voxelCoordsAreEqual(velocity, newVelocity)) {
       BodyPhysics.setVelocity(entity.scale, entity.entityId, abi.encode(newVelocity));
       BodyPhysics.setLastUpdateBlock(entity.scale, entity.entityId, block.number);
     }

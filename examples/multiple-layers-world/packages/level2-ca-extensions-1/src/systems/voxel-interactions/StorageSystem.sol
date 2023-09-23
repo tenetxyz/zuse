@@ -135,15 +135,6 @@ contract StorageSystem is SingleVoxelInteraction {
     StorageData memory storageData = Storage.get(callerAddress, storageEntity);
     changedEntity = false;
 
-    if (
-      compareBlockDirection == BlockDirection.NorthEast ||
-      compareBlockDirection == BlockDirection.NorthWest ||
-      compareBlockDirection == BlockDirection.SouthEast ||
-      compareBlockDirection == BlockDirection.SouthWest
-    ) {
-      return (false, entityData);
-    }
-
     bool isPowerWire = entityIsPowerWire(callerAddress, compareEntity);
 
     bool isEnergyStored = storageData.energyStored > 0;

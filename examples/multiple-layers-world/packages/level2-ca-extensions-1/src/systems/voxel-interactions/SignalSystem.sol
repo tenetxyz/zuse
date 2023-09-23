@@ -18,15 +18,6 @@ contract SignalSystem is SingleVoxelInteraction {
     SignalData memory signalData = Signal.get(callerAddress, signalEntity);
     changedEntity = false;
 
-    if (
-      compareBlockDirection == BlockDirection.NorthEast ||
-      compareBlockDirection == BlockDirection.NorthWest ||
-      compareBlockDirection == BlockDirection.SouthEast ||
-      compareBlockDirection == BlockDirection.SouthWest
-    ) {
-      return (false, entityData);
-    }
-
     bool compareIsSignalSource = entityIsSignalSource(callerAddress, compareEntity);
     bool compareIsActiveGenerator = entityIsGenerator(callerAddress, compareEntity) &&
       Generator.get(callerAddress, compareEntity).genRate > 0;

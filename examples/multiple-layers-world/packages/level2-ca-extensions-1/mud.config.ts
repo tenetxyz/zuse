@@ -4,7 +4,7 @@ import { resolveTableId } from "@latticexyz/config";
 export default mudConfig({
   namespace: "extension1",
   enums: {
-    BlockDirection: ["None", "North", "South", "East", "West", "NorthEast", "NorthWest", "SouthEast", "SouthWest"],
+    BlockDirection: ["None", "North", "South", "East", "West", "Up", "Down"],
   },
   tables: {
     Signal: {

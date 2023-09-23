@@ -18,15 +18,6 @@ contract InvertedSignalSystem is SingleVoxelInteraction {
     InvertedSignalData memory invertedSignalData = InvertedSignal.get(callerAddress, invertedSignalEntity);
     changedEntity = false;
 
-    if (
-      compareBlockDirection == BlockDirection.NorthEast ||
-      compareBlockDirection == BlockDirection.NorthWest ||
-      compareBlockDirection == BlockDirection.SouthEast ||
-      compareBlockDirection == BlockDirection.SouthWest
-    ) {
-      return (false, entityData);
-    }
-
     bool compareIsPowered = entityIsPowered(callerAddress, compareEntity);
     PoweredData memory comparePoweredData;
     if (compareIsPowered) {

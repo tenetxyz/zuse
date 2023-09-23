@@ -3,8 +3,7 @@ pragma solidity >=0.8.0;
 
 import { IStore } from "@latticexyz/store/src/IStore.sol";
 import { BlockDirection, VoxelCoord } from "@tenet-utils/src/Types.sol";
-import { NUM_VOXEL_NEIGHBOURS } from "@tenet-utils/src/Constants.sol";
-import { getNeighbourCoords, calculateBlockDirection } from "@tenet-utils/src/VoxelCoordUtils.sol";
+import { getVonNeumannNeighbours, calculateBlockDirection } from "@tenet-utils/src/VoxelCoordUtils.sol";
 import { hasKey } from "@latticexyz/world/src/modules/keysintable/hasKey.sol";
 import { getKeysWithValue } from "@latticexyz/world/src/modules/keyswithvalue/getKeysWithValue.sol";
 import { CAPosition, CAPositionData, CAPositionTableId } from "@tenet-base-ca/src/codegen/tables/CAPosition.sol";
@@ -104,9 +103,9 @@ function getCANeighbours(
   address callerAddress,
   VoxelCoord memory centerCoord
 ) returns (bytes32[] memory, BlockDirection[] memory) {
-  bytes32[] memory neighbourEntityIds = new bytes32[](NUM_VOXEL_NEIGHBOURS);
-  BlockDirection[] memory neighbourEntityDirections = new BlockDirection[](NUM_VOXEL_NEIGHBOURS);
-  VoxelCoord[] memory neighbourCoords = getNeighbourCoords(centerCoord);
+  VoxelCoord[] memory neighbourCoords = getVonNeumannNeighbours(centerCoord);
+  bytes32[] memory neighbourEntityIds = new bytes32[](neighbourCoords.length);
+  BlockDirection[] memory neighbourEntityDirections = new BlockDirection[](neighbourCoords.length);
   for (uint8 i = 0; i < neighbourCoords.length; i++) {
     bytes32 entity = getCAEntityAtCoord(store, callerAddress, neighbourCoords[i]);
     neighbourEntityIds[i] = entity;

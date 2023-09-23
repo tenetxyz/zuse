@@ -8,7 +8,7 @@ import { hasEntity, addressToEntityKey } from "@tenet-utils/src/Utils.sol";
 import { safeCall } from "@tenet-utils/src/CallUtils.sol";
 import { CAVoxelType, CAVoxelTypeData } from "@tenet-base-ca/src/codegen/tables/CAVoxelType.sol";
 import { CAMind } from "@tenet-base-ca/src/codegen/tables/CAMind.sol";
-import { NUM_VOXEL_NEIGHBOURS, MAX_VOXEL_NEIGHBOUR_UPDATE_DEPTH } from "@tenet-utils/src/Constants.sol";
+import { MAX_VOXEL_NEIGHBOUR_UPDATE_DEPTH } from "@tenet-utils/src/Constants.sol";
 import { hasKey } from "@latticexyz/world/src/modules/keysintable/hasKey.sol";
 import { Position, PositionData } from "@tenet-base-world/src/codegen/tables/Position.sol";
 import { VoxelType, VoxelTypeData, VoxelTypeTableId } from "@tenet-base-world/src/codegen/tables/VoxelType.sol";
@@ -17,7 +17,7 @@ import { VoxelActivated, VoxelActivatedData } from "@tenet-base-world/src/codege
 import { VoxelMind, VoxelMindData } from "@tenet-base-world/src/codegen/tables/VoxelMind.sol";
 import { runInteraction, enterWorld, exitWorld, activateVoxel, moveLayer } from "@tenet-base-ca/src/CallUtils.sol";
 import { positionDataToVoxelCoord, getEntityAtCoord, calculateChildCoords, calculateParentCoord } from "@tenet-base-world/src/Utils.sol";
-import { getMooreNeighbours } from "@tenet-utils/src/VoxelCoordUtils.sol";
+import { getVonNeumannNeighbours, getMooreNeighbours } from "@tenet-utils/src/VoxelCoordUtils.sol";
 
 abstract contract ExternalCASystem is System {
   function getVoxelTypeId(VoxelEntity memory entity) public view virtual returns (bytes32) {
@@ -49,75 +49,25 @@ abstract contract ExternalCASystem is System {
     return (neighbourEntities, neighbourCoords);
   }
 
-  function calculateNeighbourEntities(VoxelEntity memory centerEntity) public view virtual returns (bytes32[] memory) {
+  function calculateNeighbourEntities(
+    VoxelEntity memory centerEntity
+  ) public view virtual returns (bytes32[] memory, VoxelCoord[] memory) {
     uint32 scale = centerEntity.scale;
     bytes32 centerEntityId = centerEntity.entityId;
+    VoxelCoord memory centerCoord = positionDataToVoxelCoord(Position.get(scale, centerEntityId));
+    VoxelCoord[] memory neighbourCoords = getVonNeumannNeighbours(centerCoord);
+    bytes32[] memory neighbourEntities = new bytes32[](neighbourCoords.length);
 
-    int8[NUM_VOXEL_NEIGHBOURS * 3] memory NEIGHBOUR_COORD_OFFSETS = [
-      int8(0),
-      int8(0),
-      int8(1),
-      // ----
-      int8(0),
-      int8(0),
-      int8(-1),
-      // ----
-      int8(1),
-      int8(0),
-      int8(0),
-      // ----
-      int8(-1),
-      int8(0),
-      int8(0),
-      // ----
-      int8(1),
-      int8(0),
-      int8(1),
-      // ----
-      int8(1),
-      int8(0),
-      int8(-1),
-      // ----
-      int8(-1),
-      int8(0),
-      int8(1),
-      // ----
-      int8(-1),
-      int8(0),
-      int8(-1),
-      // ----
-      int8(0),
-      int8(1),
-      int8(0),
-      // ----
-      int8(0),
-      int8(-1),
-      int8(0)
-    ];
-
-    bytes32[] memory centerNeighbourEntities = new bytes32[](NUM_VOXEL_NEIGHBOURS);
-    PositionData memory baseCoord = Position.get(scale, centerEntityId);
-
-    for (uint8 i = 0; i < centerNeighbourEntities.length; i++) {
-      VoxelCoord memory neighbouringCoord = VoxelCoord(
-        baseCoord.x + NEIGHBOUR_COORD_OFFSETS[i * 3],
-        baseCoord.y + NEIGHBOUR_COORD_OFFSETS[i * 3 + 1],
-        baseCoord.z + NEIGHBOUR_COORD_OFFSETS[i * 3 + 2]
-      );
-
-      bytes32 neighbourEntity = getEntityAtCoord(scale, neighbouringCoord);
-
+    for (uint i = 0; i < neighbourCoords.length; i++) {
+      bytes32 neighbourEntity = getEntityAtCoord(scale, neighbourCoords[i]);
       if (uint256(neighbourEntity) != 0) {
-        // entity exists so add it to the list
-        centerNeighbourEntities[i] = neighbourEntity;
+        neighbourEntities[i] = neighbourEntity;
       } else {
-        // no entity exists so add air
-        // TODO: How do we deal with entities not created yet, but still in the world due to terrain generation
-        centerNeighbourEntities[i] = 0;
+        neighbourEntities[i] = 0;
       }
     }
 
-    return centerNeighbourEntities;
+    return (neighbourEntities, neighbourCoords);
   }
 
   // TODO: Make this general by using cube root

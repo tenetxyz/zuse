@@ -48,9 +48,22 @@ contract InitSystem is InitWorldSystem {
     // TODO: require only called once by world deployer
     BodyPhysicsData memory physicsData;
     physicsData.mass = 5;
-    physicsData.energy = 50;
+    physicsData.energy = 100;
     physicsData.velocity = abi.encode(VoxelCoord({ x: 0, y: 0, z: 0 }));
     IWorld(_world()).spawnBody(FighterVoxelID, VoxelCoord(10, 2, 10), bytes4(0), physicsData);
+
+    // TODO: remove, were used for testing collision
+    // physicsData.mass = 5;
+    // physicsData.energy = 100;
+    // physicsData.velocity = abi.encode(VoxelCoord({ x: 0, y: 0, z: 0 }));
+    // VoxelEntity memory grassEntity = IWorld(_world()).spawnBody(
+    //   GrassVoxelID,
+    //   VoxelCoord(10, 2, 12),
+    //   bytes4(0),
+    //   physicsData
+    // );
+    // IWorld(_world()).spawnBody(GrassVoxelID, VoxelCoord(10, 2, 13), bytes4(0), physicsData);
+    // IWorld(_world()).moveWithAgent(GrassVoxelID, VoxelCoord(10, 2, 15), VoxelCoord(10, 2, 16), grassEntity);
   }
 
   function onNewCAVoxelType(address caAddress, bytes32 voxelTypeId) public override {

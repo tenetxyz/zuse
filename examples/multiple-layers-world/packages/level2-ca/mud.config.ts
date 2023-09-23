@@ -4,7 +4,7 @@ import { resolveTableId } from "@latticexyz/config";
 export default tenetMudConfig({
   namespace: "ca",
   enums: {
-    BlockDirection: ["None", "North", "South", "East", "West", "NorthEast", "NorthWest", "SouthEast", "SouthWest"],
+    BlockDirection: ["None", "North", "South", "East", "West", "Up", "Down"],
   },
   tables: {
     Fighters: {

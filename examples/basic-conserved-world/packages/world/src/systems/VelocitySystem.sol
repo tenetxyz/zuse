@@ -48,27 +48,27 @@ contract VelocitySystem is System {
 
     int32 deltaV = uint256ToInt32(blocksSinceLastUpdate / NUM_BLOCKS_BEFORE_REDUCE);
     // We dont want to reduce past 0
-    VoxelCoord memory newVelocity = velocity;
+    VoxelCoord memory newVelocity = VoxelCoord({ x: 0, y: 0, z: 0 });
 
     // Update x component
-    if (newVelocity.x > 0) {
-      newVelocity.x = newVelocity.x > deltaV ? newVelocity.x - deltaV : int32(0);
-    } else if (newVelocity.x < 0) {
-      newVelocity.x = newVelocity.x < -deltaV ? newVelocity.x + deltaV : int32(0);
+    if (velocity.x > 0) {
+      newVelocity.x = velocity.x > deltaV ? velocity.x - deltaV : int32(0);
+    } else if (velocity.x < 0) {
+      newVelocity.x = velocity.x < -deltaV ? velocity.x + deltaV : int32(0);
     }
 
     // Update y component
-    if (newVelocity.y > 0) {
-      newVelocity.y = newVelocity.y > deltaV ? newVelocity.y - deltaV : int32(0);
-    } else if (newVelocity.y < 0) {
-      newVelocity.y = newVelocity.y < -deltaV ? newVelocity.y + deltaV : int32(0);
+    if (velocity.y > 0) {
+      newVelocity.y = velocity.y > deltaV ? velocity.y - deltaV : int32(0);
+    } else if (velocity.y < 0) {
+      newVelocity.y = velocity.y < -deltaV ? velocity.y + deltaV : int32(0);
     }
 
     // Update z component
-    if (newVelocity.z > 0) {
-      newVelocity.z = newVelocity.z > deltaV ? newVelocity.z - deltaV : int32(0);
-    } else if (newVelocity.z < 0) {
-      newVelocity.z = newVelocity.z < -deltaV ? newVelocity.z + deltaV : int32(0);
+    if (velocity.z > 0) {
+      newVelocity.z = velocity.z > deltaV ? velocity.z - deltaV : int32(0);
+    } else if (velocity.z < 0) {
+      newVelocity.z = velocity.z < -deltaV ? velocity.z + deltaV : int32(0);
     }
 
     // Update the velocity

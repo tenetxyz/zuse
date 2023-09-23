@@ -148,7 +148,10 @@ contract PhysicsSystem is System {
           deltaVelocity.z,
           CoordDirection.Z
         );
-        // TODO: Should we check to see if the final velocity matches the saved one?
+        require(
+          voxelCoordsAreEqual(getVelocity(workingEntity), collisionData.newVelocity),
+          "PhysicsSystem: Move event failed"
+        );
       }
     }
   }
@@ -184,7 +187,7 @@ contract PhysicsSystem is System {
       });
       (, VoxelEntity memory newEntity) = IWorld(_world()).moveWithAgent(voxelTypeId, workingCoord, newCoord, entity);
       entity = newEntity;
-      require(voxelCoordsAreEqual(getVoxelCoordStrict(entity)) == newCoord, "PhysicsSystem: Move event failed");
+      require(voxelCoordsAreEqual(getVoxelCoordStrict(entity), newCoord), "PhysicsSystem: Move event failed");
       workingCoord = newCoord;
     }
     return (workingCoord, entity);

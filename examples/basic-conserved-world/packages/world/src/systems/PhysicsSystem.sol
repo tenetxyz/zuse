@@ -54,6 +54,8 @@ contract PhysicsSystem is System {
       VoxelEntity memory useEntity = useCollisionData.entity;
       VoxelCoord memory currentVelocity = getVelocity(useEntity);
       VoxelCoord memory useCoord = getVoxelCoordStrict(useEntity);
+      console.log("calling");
+      console.logBytes32(useEntity.entityId);
       (VoxelCoord memory newVelocity, bytes32[] memory neighbourEntities, ) = calculateVelocityAfterCollision(
         caAddress,
         useCoord,
@@ -66,6 +68,14 @@ contract PhysicsSystem is System {
       centerEntitiesToCheckStack[useStackIdx] = useCollisionData;
 
       if (!voxelCoordsAreEqual(currentVelocity, newVelocity)) {
+        console.log("velocity change!");
+        console.logBytes32(useEntity.entityId);
+        console.logInt(currentVelocity.x);
+        console.logInt(currentVelocity.y);
+        console.logInt(currentVelocity.z);
+        console.logInt(newVelocity.x);
+        console.logInt(newVelocity.y);
+        console.logInt(newVelocity.z);
         if (useStackIdx > 0) {
           // Note: we don't update the first one (index == 0), because it's already been applied in the initial move
           BodyPhysics.setVelocity(useEntity.scale, useEntity.entityId, abi.encode(newVelocity));
@@ -105,11 +115,14 @@ contract PhysicsSystem is System {
         break;
       }
     }
+    console.log("broke");
+    console.logUint(centerEntitiesToCheckStackIdx);
 
     // Go through the stack, and reset all the velocities
     for (uint256 i = 0; i <= centerEntitiesToCheckStackIdx; i++) {
       CollisionData memory collisionData = centerEntitiesToCheckStack[i];
       if (!voxelCoordsAreEqual(collisionData.oldVelocity, collisionData.newVelocity)) {
+        console.log("setting old");
         BodyPhysics.setVelocity(
           collisionData.entity.scale,
           collisionData.entity.entityId,
@@ -117,10 +130,14 @@ contract PhysicsSystem is System {
         );
       }
     }
+
+    console.log("second");
     // Go through the stack in reverse order and if old and new velocity are different, create move events accordingly
-    for (uint256 i = centerEntitiesToCheckStackIdx; i >= 0; i--) {
-      CollisionData memory collisionData = centerEntitiesToCheckStack[i];
+    // TODO: check for overflow
+    for (uint256 i = centerEntitiesToCheckStackIdx + 1; i > 0; i--) {
+      CollisionData memory collisionData = centerEntitiesToCheckStack[i - 1];
       if (!voxelCoordsAreEqual(collisionData.oldVelocity, collisionData.newVelocity)) {
+        console.log("caling move event");
         VoxelEntity memory workingEntity = collisionData.entity;
         VoxelCoord memory workingCoord = getVoxelCoordStrict(workingEntity);
         VoxelCoord memory deltaVelocity = sub(collisionData.newVelocity, collisionData.oldVelocity);
@@ -154,6 +171,7 @@ contract PhysicsSystem is System {
         );
       }
     }
+    console.log("after second");
   }
 
   function moveToReachTargetVelocity(
@@ -217,8 +235,13 @@ contract PhysicsSystem is System {
             .getTerrainBodyPhysicsData(caAddress, neighbourCoords[i]);
           if (terrainPhysicsData.mass == 0) {
             // can only collide with terrain that has mass
+            collidingEntities[i] = 0;
             continue;
           }
+          console.log("adding new entity");
+          console.logInt(neighbourCoords[i].x);
+          console.logInt(neighbourCoords[i].y);
+          console.logInt(neighbourCoords[i].z);
           VoxelEntity memory newTerrainEntity = spawnBody(
             terrainVoxelTypeId,
             neighbourCoords[i],
@@ -227,11 +250,19 @@ contract PhysicsSystem is System {
           );
           neighbourEntities[i] = newTerrainEntity.entityId;
         }
+
+        if (BodyPhysics.getMass(centerVoxelEntity.scale, neighbourEntities[i]) == 0) {
+          // can only collide with terrain that has mass
+          collidingEntities[i] = 0;
+          continue;
+        }
         collidingEntities[i] = neighbourEntities[i];
       } else {
         collidingEntities[i] = 0;
       }
     }
+
+    console.log("mass calc");
 
     int32 mass_primary = uint256ToInt32(BodyPhysics.getMass(centerVoxelEntity.scale, centerVoxelEntity.entityId));
 
@@ -247,12 +278,18 @@ contract PhysicsSystem is System {
         primaryVelocity
       );
       int32 mass_neighbour = uint256ToInt32(BodyPhysics.getMass(centerVoxelEntity.scale, collidingEntities[i]));
+      console.log("mul scalar");
       VoxelCoord memory impulse = mulScalar(relativeVelocity, (2 * mass_neighbour) / (mass_primary + mass_neighbour));
       // Add to total impulse
+      console.log("add scalar");
       total_impulse = add(total_impulse, impulse);
     }
 
+    console.log("div scalar");
+    console.logInt(mass_primary);
+    console.logBytes32(centerVoxelEntity.entityId);
     VoxelCoord memory delta_velocity = divScalar(total_impulse, mass_primary);
+    console.log("add scalar 2");
     new_primary_velocity = add(primaryVelocity, delta_velocity);
     return (new_primary_velocity, neighbourEntities, neighbourCoords);
   }

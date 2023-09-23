@@ -82,6 +82,8 @@ abstract contract RunCASystem is System {
     );
   }
 
+  function beforeRunInteraction(VoxelEntity memory entity) internal virtual {}
+
   function runInteractionWrapper(
     address caAddress,
     uint32 scale,
@@ -95,6 +97,7 @@ abstract contract RunCASystem is System {
     {
       bytes32[] memory childEntityIds = IWorld(_world()).calculateChildEntities(centerEntity);
       bytes32 parentEntity = IWorld(_world()).calculateParentEntity(centerEntity);
+      beforeRunInteraction(centerEntity);
       // Run interaction logic
       returnData = runInteraction(
         caAddress,

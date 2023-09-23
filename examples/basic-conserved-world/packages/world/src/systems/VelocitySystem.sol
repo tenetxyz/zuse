@@ -31,7 +31,53 @@ enum CoordDirection {
   Z
 }
 
+uint256 constant NUM_BLOCKS_BEFORE_REDUCE = 60;
+
 contract VelocitySystem is System {
+  function updateVelocityCache(VoxelEntity memory entity) public {
+    VoxelCoord memory velocity = getVelocity(entity);
+    if (voxelCoordsAreEqual(velocity, VoxelCoord({ x: 0, y: 0, z: 0 }))) {
+      return;
+    }
+    // Calculate how many blocks have passed since last update
+    uint256 blocksSinceLastUpdate = block.number - BodyPhysics.getLastUpdateBlock(entity.scale, entity.entityId);
+    if (blocksSinceLastUpdate == 0) {
+      return;
+    }
+    // Calculate the new velocity
+
+    int32 deltaV = uint256ToInt32(blocksSinceLastUpdate / NUM_BLOCKS_BEFORE_REDUCE);
+    // We dont want to reduce past 0
+    VoxelCoord memory newVelocity = VoxelCoord({ x: 0, y: 0, z: 0 });
+
+    // Update x component
+    if (velocity.x > 0) {
+      newVelocity.x = velocity.x > deltaV ? velocity.x - deltaV : int32(0);
+    } else if (velocity.x < 0) {
+      newVelocity.x = velocity.x < -deltaV ? velocity.x + deltaV : int32(0);
+    }
+
+    // Update y component
+    if (velocity.y > 0) {
+      newVelocity.y = velocity.y > deltaV ? velocity.y - deltaV : int32(0);
+    } else if (velocity.y < 0) {
+      newVelocity.y = velocity.y < -deltaV ? velocity.y + deltaV : int32(0);
+    }
+
+    // Update z component
+    if (velocity.z > 0) {
+      newVelocity.z = velocity.z > deltaV ? velocity.z - deltaV : int32(0);
+    } else if (velocity.z < 0) {
+      newVelocity.z = velocity.z < -deltaV ? velocity.z + deltaV : int32(0);
+    }
+
+    // Update the velocity
+    if (!voxelCoordsAreEqual(velocity, newVelocity)) {
+      BodyPhysics.setVelocity(entity.scale, entity.entityId, abi.encode(newVelocity));
+      BodyPhysics.setLastUpdateBlock(entity.scale, entity.entityId, block.number);
+    }
+  }
+
   function onCollision(address caAddress, VoxelEntity memory centerVoxelEntity) public {
     CollisionData[] memory centerEntitiesToCheckStack = new CollisionData[](MAX_VOXEL_NEIGHBOUR_UPDATE_DEPTH);
     uint256 centerEntitiesToCheckStackIdx = 0;
@@ -307,6 +353,7 @@ contract VelocitySystem is System {
 
     if (!hasKey(BodyPhysicsTableId, BodyPhysics.encodeKeyTuple(newEntity.scale, newEntity.entityId))) {
       (, BodyPhysicsData memory terrainPhysicsData) = IWorld(_world()).getTerrainBodyPhysicsData(caAddress, newCoord);
+      terrainPhysicsData.lastUpdateBlock = block.number;
       BodyPhysics.set(newEntity.scale, newEntity.entityId, terrainPhysicsData);
     }
     uint256 energyInNewBlock = BodyPhysics.getEnergy(newEntity.scale, newEntity.entityId);
@@ -315,12 +362,14 @@ contract VelocitySystem is System {
     BodyPhysics.setMass(oldEntity.scale, oldEntity.entityId, 0);
     BodyPhysics.setEnergy(oldEntity.scale, oldEntity.entityId, 0);
     BodyPhysics.setVelocity(oldEntity.scale, oldEntity.entityId, abi.encode(VoxelCoord({ x: 0, y: 0, z: 0 })));
+    BodyPhysics.setLastUpdateBlock(oldEntity.scale, oldEntity.entityId, block.number);
 
     IWorld(_world()).fluxEnergy(false, caAddress, newEntity, energyRequired + energyInNewBlock);
 
     // Update the new entity's energy and velocity
     oldBodyPhysicsData.energy -= energyRequired;
     oldBodyPhysicsData.velocity = abi.encode(newVelocity);
+    oldBodyPhysicsData.lastUpdateBlock = block.number;
     BodyPhysics.set(newEntity.scale, newEntity.entityId, oldBodyPhysicsData);
   }
 

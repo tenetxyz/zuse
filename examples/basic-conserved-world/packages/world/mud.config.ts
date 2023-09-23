@@ -11,6 +11,7 @@ export default tenetMudConfig({
       schema: {
         mass: "uint256",
         energy: "uint256",
+        lastUpdateBlock: "uint256", // TODO: Rename to lastUpdateCacheBlock?
         velocity: "bytes", // VoxelCoord, 3D vector
         gravity: "bytes", // VoxelCoord, 3D vector
       },
@@ -47,7 +48,15 @@ export default tenetMudConfig({
     VelocitySystem: {
       name: "VelocitySystem",
       openAccess: false,
-      accessList: ["EnergySystem", "BuildSystem", "MineSystem", "ActivateSystem", "MoveSystem"],
+      accessList: [
+        "ApprovalSystem", // TODO: should this be openAccess: false?
+        "RunCASystem",
+        "EnergySystem",
+        "BuildSystem",
+        "MineSystem",
+        "ActivateSystem",
+        "MoveSystem",
+      ],
     },
     FluxSystem: {
       name: "FluxSystem",

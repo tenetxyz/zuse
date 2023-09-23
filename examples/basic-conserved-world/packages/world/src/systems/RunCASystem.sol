@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0
 pragma solidity >=0.8.0;
 
+import { IWorld } from "@tenet-world/src/codegen/world/IWorld.sol";
 import { RunCASystem as RunCAPrototype } from "@tenet-base-world/src/prototypes/RunCASystem.sol";
 import { VoxelCoord, VoxelEntity, EntityEventData } from "@tenet-utils/src/Types.sol";
 
@@ -36,6 +37,10 @@ contract RunCASystem is RunCAPrototype {
 
   function activateCA(address caAddress, VoxelEntity memory entity) public override {
     super.activateCA(caAddress, entity);
+  }
+
+  function beforeRunInteraction(VoxelEntity memory entity) internal override {
+    IWorld(_world()).updateVelocityCache(entity);
   }
 
   function runCA(

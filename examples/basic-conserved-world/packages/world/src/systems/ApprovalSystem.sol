@@ -8,15 +8,17 @@ import { EventType } from "@tenet-base-world/src/Types.sol";
 import { VoxelCoord, VoxelEntity } from "@tenet-utils/src/Types.sol";
 import { Strings } from "@openzeppelin/contracts/utils/Strings.sol";
 import { OwnedBy, OwnedByTableId } from "@tenet-world/src/codegen/tables/OwnedBy.sol";
+import { VoxelType } from "@tenet-world/src/codegen/tables/VoxelType.sol";
 import { BodyPhysics, BodyPhysicsData } from "@tenet-world/src/codegen/tables/BodyPhysics.sol";
 import { WorldConfig } from "@tenet-world/src/codegen/tables/WorldConfig.sol";
 import { MineEventData, BuildEventData, MoveEventData, ActivateEventData } from "@tenet-base-world/src/Types.sol";
 import { MineWorldEventData, BuildWorldEventData, MoveWorldEventData, ActivateWorldEventData, FluxEventData } from "@tenet-world/src/Types.sol";
-import { distanceBetween } from "@tenet-utils/src/VoxelCoordUtils.sol";
+import { distanceBetween, voxelCoordsAreEqual } from "@tenet-utils/src/VoxelCoordUtils.sol";
 import { getCallerName } from "@tenet-utils/src/Utils.sol";
 import { getEntityAtCoord, getEntityPositionStrict, positionDataToVoxelCoord } from "@tenet-base-world/src/Utils.sol";
 import { VoxelTypeRegistry, VoxelTypeRegistryData } from "@tenet-registry/src/codegen/tables/VoxelTypeRegistry.sol";
 import { REGISTRY_ADDRESS } from "@tenet-world/src/Constants.sol";
+import { getVelocity } from "@tenet-world/src/Utils.sol";
 
 uint256 constant MAX_AGENT_ACTION_RADIUS = 1;
 
@@ -29,6 +31,7 @@ contract ApprovalSystem is EventApprovalsSystem {
     bytes memory eventData
   ) internal override {
     VoxelEntity memory agentEntity;
+    VoxelCoord memory oldCoord = coord;
     if (eventType == EventType.Mine) {
       MineEventData memory mineEventData = abi.decode(eventData, (MineEventData));
       MineWorldEventData memory mineWorldEventData = abi.decode(mineEventData.worldData, (MineWorldEventData));
@@ -48,6 +51,7 @@ contract ApprovalSystem is EventApprovalsSystem {
       MoveEventData memory moveEventData = abi.decode(eventData, (MoveEventData));
       MoveWorldEventData memory moveWorldEventData = abi.decode(moveEventData.worldData, (MoveWorldEventData));
       agentEntity = moveWorldEventData.agentEntity;
+      oldCoord = moveEventData.oldCoord;
     }
 
     // Assert that this entity is owned by the caller or is a CA
@@ -56,7 +60,13 @@ contract ApprovalSystem is EventApprovalsSystem {
     bool isWorldCaller = caller == _world(); // any root system can call this
     require(isEOACaller || isWorldCaller, "Agent entity must be owned by caller or be a root system");
 
-    agentEntityChecks(eventType, caller, voxelTypeId, coord, agentEntity);
+    agentEntityChecks(eventType, caller, voxelTypeId, coord, oldCoord, agentEntity);
+
+    IWorld(_world()).updateVelocityCache(agentEntity);
+    bytes32 entityId = getEntityAtCoord(agentEntity.scale, coord);
+    if (uint256(entityId) != 0 && entityId != agentEntity.entityId) {
+      IWorld(_world()).updateVelocityCache(VoxelEntity({ scale: agentEntity.scale, entityId: entityId }));
+    }
   }
 
   function agentEntityChecks(
@@ -64,10 +74,18 @@ contract ApprovalSystem is EventApprovalsSystem {
     address caller,
     bytes32 voxelTypeId,
     VoxelCoord memory coord,
+    VoxelCoord memory oldCoord,
     VoxelEntity memory agentEntity
   ) internal {
     // Assert that this entity has a position
     VoxelCoord memory agentPosition = positionDataToVoxelCoord(getEntityPositionStrict(agentEntity));
+    if (eventType == EventType.Move) {
+      require(
+        voxelCoordsAreEqual(agentPosition, oldCoord) &&
+          VoxelType.getVoxelTypeId(agentEntity.scale, agentEntity.entityId) == voxelTypeId,
+        "You can only move yourself"
+      );
+    }
     require(distanceBetween(agentPosition, coord) <= MAX_AGENT_ACTION_RADIUS, "Agent must be adjacent to voxel");
   }
 
@@ -97,6 +115,21 @@ contract ApprovalSystem is EventApprovalsSystem {
       } else {
         (, BodyPhysicsData memory terrainPhysicsData) = IWorld(_world()).getTerrainBodyPhysicsData(caAddress, coord);
         require(terrainPhysicsData.mass == 0, "Cannot build on top of terrain with mass");
+      }
+    }
+    if (eventType == EventType.Mine) {
+      VoxelCoord memory zeroVelocity = VoxelCoord({ x: 0, y: 0, z: 0 });
+      if (uint256(entityId) != 0) {
+        require(
+          voxelCoordsAreEqual(getVelocity(VoxelEntity({ scale: scale, entityId: entityId })), zeroVelocity),
+          "Cannot mine an entity with velocity"
+        );
+      } else {
+        (, BodyPhysicsData memory terrainPhysicsData) = IWorld(_world()).getTerrainBodyPhysicsData(caAddress, coord);
+        require(
+          voxelCoordsAreEqual(abi.decode(terrainPhysicsData.velocity, (VoxelCoord)), zeroVelocity),
+          "Cannot mine terrain with velocity"
+        );
       }
     } else if (eventType == EventType.Build) {
       if (uint256(entityId) != 0) {

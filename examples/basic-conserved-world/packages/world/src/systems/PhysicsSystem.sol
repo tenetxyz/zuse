@@ -162,35 +162,30 @@ contract PhysicsSystem is System {
     VoxelCoord memory startingCoord,
     int32 vDelta,
     CoordDirection direction
-  ) internal returns (VoxelCoord memory workingCoord, VoxelEntity memory) {
+  ) internal returns (VoxelCoord memory workingCoord, VoxelEntity memory workingEntity) {
     workingCoord = startingCoord;
-
-    int32 xDelta = 0;
-    int32 yDelta = 0;
-    int32 zDelta = 0;
+    workingEntity = entity;
 
     // Determine which dimension to move based on the direction
+    VoxelCoord memory deltaVelocity = VoxelCoord({ x: 0, y: 0, z: 0 });
     if (direction == CoordDirection.X) {
-      xDelta = (vDelta > 0) ? int32(1) : int32(-1);
+      deltaVelocity.x = (vDelta > 0) ? int32(1) : int32(-1);
     } else if (direction == CoordDirection.Y) {
-      yDelta = (vDelta > 0) ? int32(1) : int32(-1);
+      deltaVelocity.y = (vDelta > 0) ? int32(1) : int32(-1);
     } else if (direction == CoordDirection.Z) {
-      zDelta = (vDelta > 0) ? int32(1) : int32(-1);
+      deltaVelocity.z = (vDelta > 0) ? int32(1) : int32(-1);
     }
 
     // Create move events based on the delta
-    for (int256 j = 0; j < absInt32(vDelta); j++) {
-      VoxelCoord memory newCoord = VoxelCoord({
-        x: workingCoord.x + xDelta,
-        y: workingCoord.y + yDelta,
-        z: workingCoord.z + zDelta
-      });
-      (, VoxelEntity memory newEntity) = IWorld(_world()).moveWithAgent(voxelTypeId, workingCoord, newCoord, entity);
-      entity = newEntity;
-      require(voxelCoordsAreEqual(getVoxelCoordStrict(entity), newCoord), "PhysicsSystem: Move event failed");
-      workingCoord = newCoord;
+    for (int256 i = 0; i < absInt32(vDelta); i++) {
+      {
+        VoxelCoord memory newCoord = add(workingCoord, deltaVelocity);
+        (, workingEntity) = IWorld(_world()).moveWithAgent(voxelTypeId, workingCoord, newCoord, workingEntity);
+        require(voxelCoordsAreEqual(getVoxelCoordStrict(workingEntity), newCoord), "PhysicsSystem: Move event failed");
+        workingCoord = newCoord;
+      }
     }
-    return (workingCoord, entity);
+    return (workingCoord, workingEntity);
   }
 
   function calculateVelocityAfterCollision(

@@ -116,26 +116,20 @@ contract ApprovalSystem is EventApprovalsSystem {
         (, BodyPhysicsData memory terrainPhysicsData) = IWorld(_world()).getTerrainBodyPhysicsData(caAddress, coord);
         require(terrainPhysicsData.mass == 0, "Cannot build on top of terrain with mass");
       }
-    }
-    if (eventType == EventType.Mine) {
+    } else if (eventType == EventType.Mine) {
       VoxelCoord memory zeroVelocity = VoxelCoord({ x: 0, y: 0, z: 0 });
       if (uint256(entityId) != 0) {
         require(
           voxelCoordsAreEqual(getVelocity(VoxelEntity({ scale: scale, entityId: entityId })), zeroVelocity),
           "Cannot mine an entity with velocity"
         );
+        require(BodyPhysics.getMass(scale, entityId) > 0, "Cannot mine an entity with no mass");
       } else {
         (, BodyPhysicsData memory terrainPhysicsData) = IWorld(_world()).getTerrainBodyPhysicsData(caAddress, coord);
         require(
           voxelCoordsAreEqual(abi.decode(terrainPhysicsData.velocity, (VoxelCoord)), zeroVelocity),
           "Cannot mine terrain with velocity"
         );
-      }
-    } else if (eventType == EventType.Build) {
-      if (uint256(entityId) != 0) {
-        require(BodyPhysics.getMass(scale, entityId) > 0, "Cannot mine an entity with no mass");
-      } else {
-        (, BodyPhysicsData memory terrainPhysicsData) = IWorld(_world()).getTerrainBodyPhysicsData(caAddress, coord);
         require(terrainPhysicsData.mass > 0, "Cannot mine terrain with no mass");
       }
     } else if (eventType == EventType.Move) {

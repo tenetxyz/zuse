@@ -31,6 +31,9 @@ if [[ "$1" == "run" ]]; then
         "dev:basic-conserved-world")
             concurrently -n example -c \#fb8500 "cd examples/basic-conserved-world && yarn run dev"
             ;;
+        "dev:basic-conserved-world-with-pokemon")
+            concurrently -n example -c \#fb8500 "cd examples/basic-conserved-world && yarn run dev && yarn run deploy:pokemon"
+            ;;
         "dev:multiple-layers-world")
             concurrently -n example -c \#fb8500 "cd examples/multiple-layers-world && yarn run dev"
             ;;

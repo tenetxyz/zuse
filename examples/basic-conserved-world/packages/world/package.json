@@ -38,6 +38,7 @@
     "@tenetxyz/base-ca": "link:../../../../packages/base-ca",
     "@tenetxyz/base-world": "link:../../../../packages/base-world",
     "@tenetxyz/level1-ca": "workspace:*",
+    "@tenetxyz/pokemon-extension": "workspace:*",
     "@tenetxyz/registry": "link:../../../../packages/registry",
     "@tenetxyz/utils": "link:../../../../packages/utils"
   },

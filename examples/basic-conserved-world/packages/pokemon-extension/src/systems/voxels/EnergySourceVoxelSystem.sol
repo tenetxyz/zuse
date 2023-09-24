@@ -53,7 +53,7 @@ contract EnergySourceVoxelSystem is VoxelType {
   function enterWorld(VoxelCoord memory coord, bytes32 entity) public override {
     address callerAddress = super.getCallerAddress();
     bool hasValue = true;
-    EnergySource.set(callerAddress, entity, hasValue);
+    EnergySource.set(callerAddress, entity, 0, hasValue);
   }
 
   function exitWorld(VoxelCoord memory coord, bytes32 entity) public override {

@@ -64,7 +64,7 @@ contract PlantSystem is SingleVoxelInteraction {
       uint harvestPlantEnergy = entityBodyPhysics.energy;
 
       // If the neighbor is a Pokemon cell
-      if (harvestPlantEnergy > 0 && entityIsPokemon(compareEntity)) {
+      if (harvestPlantEnergy > 0 && entityIsPokemon(callerAddress, compareEntity)) {
         // Transfer all energy to Pokemon
         entityData = abi.encode(transferEnergy(neighbourCoord, harvestPlantEnergy));
         entityBodyPhysics.energy -= harvestPlantEnergy;
@@ -98,7 +98,7 @@ contract PlantSystem is SingleVoxelInteraction {
       if (plantData.stage == PlantStage.Sprout) {
         entityData = abi.encode(die(entityBodyPhysics));
         changedEntity = true;
-      } else if (plantData.stage == PlantStage.Harvest) {
+      } else if (plantData.stage == PlantStage.Flower) {
         plantData.stage = PlantStage.Seed;
         changedEntity = true;
       }

@@ -3,7 +3,7 @@ pragma solidity >=0.8.0;
 import { EnergySource } from "@tenet-pokemon-extension/src/codegen/tables/EnergySource.sol";
 import { Soil } from "@tenet-pokemon-extension/src/codegen/tables/Soil.sol";
 import { Plant } from "@tenet-pokemon-extension/src/codegen/tables/Plant.sol";
-import { Pokemon } from "@tenet-pokemon-extension/src/codegen/tables/Plant.sol";
+import { Pokemon } from "@tenet-pokemon-extension/src/codegen/tables/Pokemon.sol";
 
 function entityIsEnergySource(address callerAddress, bytes32 entity) view returns (bool) {
   return EnergySource.getHasValue(callerAddress, entity);

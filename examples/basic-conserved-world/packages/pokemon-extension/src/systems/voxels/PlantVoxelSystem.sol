@@ -73,7 +73,7 @@ contract PlantVoxelSystem is VoxelType {
     bytes32 parentEntity
   ) public view override returns (bytes32) {
     address callerAddress = super.getCallerAddress();
-    PlantStage plantStage = Plant.get(callerAddress, entity);
+    PlantStage plantStage = Plant.getStage(callerAddress, entity);
     if (plantStage == PlantStage.Seed) {
       return SeedVoxelVariantID;
     } else if (plantStage == PlantStage.Sprout) {

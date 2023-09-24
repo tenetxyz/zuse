@@ -8,7 +8,7 @@ import { getOppositeDirection } from "@tenet-utils/src/VoxelCoordUtils.sol";
 import { EnergySource } from "@tenet-pokemon-extension/src/codegen/tables/EnergySource.sol";
 import { entityIsEnergySource, entityIsSoil } from "@tenet-pokemon-extension/src/InteractionUtils.sol";
 import { getCAEntityAtCoord, getCAVoxelType, getCAEntityPositionStrict } from "@tenet-base-ca/src/Utils.sol";
-import { getVoxelBodyPhysicsFromCaller } from "@tenet-level1-ca/src/Utils.sol";
+import { getVoxelBodyPhysicsFromCaller, transferEnergy } from "@tenet-level1-ca/src/Utils.sol";
 
 uint256 constant ENERGY_SOURCE_WAIT_BLOCKS = 50;
 
@@ -34,9 +34,7 @@ contract EnergySourceSystem is SingleVoxelInteraction {
     if (entityIsSoil(callerAddress, compareEntity)) {
       // Transfer energy to Soil
       VoxelCoord memory neighbourCoord = getCAEntityPositionStrict(IStore(_world()), compareEntity);
-      entityData = abi.encode(
-        CAEventData({ eventType: CAEventType.FluxEnergy, newCoord: neighbourCoord, fluxAmount: emittedEnergy })
-      );
+      entityData = abi.encode(transferEnergy(neighbourCoord, emittedEnergy));
       EnergySource.setLastInteractionBlock(callerAddress, energySourceEntity, block.number);
       changedEntity = true;
     }

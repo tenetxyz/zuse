@@ -5,6 +5,7 @@ export default mudConfig({
   namespace: "pokemon",
   enums: {
     BlockDirection: ["None", "North", "South", "East", "West", "Up", "Down"],
+    PlantStage: ["Seed", "Sprout", "Flower"],
   },
   tables: {
     EnergySource: {
@@ -24,6 +25,16 @@ export default mudConfig({
       },
       schema: {
         lastEnergy: "uint256",
+        hasValue: "bool", // TODO: Remove this once we can install non-root modules
+      },
+    },
+    Plant: {
+      keySchema: {
+        callerAddress: "address",
+        entity: "bytes32",
+      },
+      schema: {
+        stage: "PlantStage",
         hasValue: "bool", // TODO: Remove this once we can install non-root modules
       },
     },

@@ -51,20 +51,20 @@ contract InitSystem is InitWorldSystem {
   function initWorldState() public {
     // TODO: require only called once by world deployer
     BodyPhysicsData memory physicsData;
-    physicsData.mass = 10;
+    physicsData.mass = 5;
     physicsData.energy = 100;
     physicsData.lastUpdateBlock = block.number;
     physicsData.velocity = abi.encode(VoxelCoord({ x: 0, y: 0, z: 0 }));
     IWorld(_world()).spawnBody(FighterVoxelID, VoxelCoord(10, 2, 10), bytes4(0), physicsData);
 
     // TODO: remove, were used for testing collision
-    physicsData.mass = 10;
+    physicsData.mass = 5;
     physicsData.energy = 100;
     physicsData.velocity = abi.encode(VoxelCoord({ x: 0, y: 0, z: 0 }));
     physicsData.lastUpdateBlock = block.number;
     VoxelEntity memory grassEntity = IWorld(_world()).spawnBody(
-      EnergySourceVoxelID,
-      VoxelCoord(10, 2, 11),
+      GrassVoxelID,
+      VoxelCoord(10, 2, 12),
       bytes4(0),
       physicsData
     );

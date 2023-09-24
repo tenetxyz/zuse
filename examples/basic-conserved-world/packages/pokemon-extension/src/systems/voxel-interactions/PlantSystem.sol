@@ -13,45 +13,21 @@ import { entityIsEnergySource, entityIsSoil, entityIsPlant } from "@tenet-pokemo
 import { getCAEntityAtCoord, getCAVoxelType, getCAEntityPositionStrict } from "@tenet-base-ca/src/Utils.sol";
 import { getVoxelBodyPhysicsFromCaller, transferEnergy } from "@tenet-level1-ca/src/Utils.sol";
 
-contract SoilSystem is SingleVoxelInteraction {
+contract PlantSystem is SingleVoxelInteraction {
   function runSingleInteraction(
     address callerAddress,
-    bytes32 soilEntity,
+    bytes32 plantEntity,
     bytes32 compareEntity,
     BlockDirection compareBlockDirection
   ) internal override returns (bool changedEntity, bytes memory entityData) {
     changedEntity = false;
-    uint256 lastEnergy = Soil.getLastEnergy(callerAddress, soilEntity);
-    BodyPhysicsData memory entityBodyPhysics = getVoxelBodyPhysicsFromCaller(soilEntity);
-    if (lastEnergy == entityBodyPhysics.energy) {
-      // No energy change
-      return (changedEntity, entityData);
-    }
-    Soil.setLastEnergy(callerAddress, soilEntity, entityBodyPhysics.energy);
-
-    uint256 transferEnergyToSoil = entityBodyPhysics.energy / 5; // Transfer 20% of its energy to Soil
-    uint256 transferEnergyToPlant = entityBodyPhysics.energy / 10; // Transfer 10% of its energy to Seed or Young Plant
-
-    VoxelCoord memory neighbourCoord = getCAEntityPositionStrict(IStore(_world()), compareEntity);
-
-    // Check if the neighbor is a Soil, Seed, or Young Plant cell
-    if (entityIsSoil(callerAddress, compareEntity)) {
-      // Transfer more energy to neighboring Soil
-      entityData = abi.encode(transferEnergy(neighbourCoord, transferEnergyToSoil));
-    } else if (entityIsPlant(callerAddress, compareEntity) && compareBlockDirection == BlockDirection.Up) {
-      PlantStage plantStage = Plant.getStage(callerAddress, compareEntity);
-      if (plantStage == PlantStage.Seed || plantStage == PlantStage.Sprout) {
-        // Transfer less energy to Seed or Young Plant only if they are on top
-        entityData = abi.encode(transferEnergy(neighbourCoord, transferEnergyToPlant));
-      }
-    }
   }
 
   function entityShouldInteract(address callerAddress, bytes32 entityId) internal view override returns (bool) {
-    return entityIsSoil(callerAddress, entityId);
+    return entityIsPlant(callerAddress, entityId);
   }
 
-  function eventHandlerSoil(
+  function eventHandlerPlant(
     address callerAddress,
     bytes32 centerEntityId,
     bytes32[] memory neighbourEntityIds,

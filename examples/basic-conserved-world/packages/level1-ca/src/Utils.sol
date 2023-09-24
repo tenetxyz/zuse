@@ -17,5 +17,11 @@ function getVoxelBodyPhysicsFromCaller(bytes32 caEntity) view returns (BodyPhysi
 }
 
 function transferEnergy(VoxelCoord memory targetCoord, uint256 targetAmount) pure returns (CAEventData memory) {
-  return CAEventData({ eventType: CAEventType.FluxEnergy, newCoord: targetCoord, fluxAmount: targetAmount });
+  return
+    CAEventData({
+      eventType: CAEventType.FluxEnergy,
+      newCoord: targetCoord,
+      energyFluxAmount: targetAmount,
+      massFluxAmount: 0
+    });
 }

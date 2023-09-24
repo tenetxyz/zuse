@@ -35,7 +35,19 @@ export default mudConfig({
       },
       schema: {
         stage: "PlantStage",
+        lastEnergy: "uint256",
         growthRate: "uint32",
+        hasValue: "bool", // TODO: Remove this once we can install non-root modules
+      },
+    },
+    Pokemon: {
+      keySchema: {
+        callerAddress: "address",
+        entity: "bytes32",
+      },
+      schema: {
+        health: "uint256",
+        stamina: "uint256",
         hasValue: "bool", // TODO: Remove this once we can install non-root modules
       },
     },

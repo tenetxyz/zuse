@@ -41,13 +41,15 @@ struct EntityEventData {
 enum CAEventType {
   Move,
   FluxEnergy,
-  FluxMass
+  FluxMass,
+  FluxEnergyAndMass
 }
 
 struct CAEventData {
   CAEventType eventType;
   VoxelCoord newCoord;
-  uint256 fluxAmount;
+  uint256 energyFluxAmount;
+  uint256 massFluxAmount;
 }
 
 struct DecisionRuleKey {

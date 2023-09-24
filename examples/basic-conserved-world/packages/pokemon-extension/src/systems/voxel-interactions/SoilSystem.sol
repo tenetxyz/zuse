@@ -28,6 +28,7 @@ contract SoilSystem is SingleVoxelInteraction {
       return (changedEntity, entityData);
     }
     Soil.setLastEnergy(callerAddress, soilEntity, entityBodyPhysics.energy);
+    changedEntity = true;
 
     uint256 transferEnergyToSoil = entityBodyPhysics.energy / 5; // Transfer 20% of its energy to Soil
     uint256 transferEnergyToPlant = entityBodyPhysics.energy / 10; // Transfer 10% of its energy to Seed or Young Plant

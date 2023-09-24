@@ -8,12 +8,8 @@ import { VoxelVariantsRegistryData } from "@tenet-registry/src/codegen/tables/Vo
 import { NoaBlockType } from "@tenet-registry/src/codegen/Types.sol";
 import { registerVoxelVariant, registerVoxelType, voxelSelectorsForVoxel } from "@tenet-registry/src/Utils.sol";
 import { REGISTRY_ADDRESS, DirtVoxelID } from "@tenet-level1-ca/src/Constants.sol";
-import { VoxelCoord, ComponentDef, VoxelEntity, BodyPhysicsData } from "@tenet-utils/src/Types.sol";
-import { AirVoxelID, BedrockVoxelID } from "@tenet-level1-ca/src/Constants.sol";
-import { CAEventData, CAEventType } from "@tenet-utils/src/Types.sol";
-import { CAVoxelType } from "@tenet-level1-ca/src/codegen/tables/CAVoxelType.sol";
-import { getCAEntityAtCoord, getCAVoxelType, getCAEntityPositionStrict } from "@tenet-base-ca/src/Utils.sol";
-import { getVoxelBodyPhysicsFromCaller } from "@tenet-level1-ca/src/Utils.sol";
+import { VoxelCoord, ComponentDef, VoxelEntity } from "@tenet-utils/src/Types.sol";
+import { AirVoxelID } from "@tenet-level1-ca/src/Constants.sol";
 
 bytes32 constant DirtVoxelVariantID = bytes32(keccak256("dirt"));
 string constant DirtTexture = "bafkreihy3pblhqaqquwttcykwlyey3umpou57rkvtncpdrjo7mlgna53g4";
@@ -75,41 +71,5 @@ contract DirtVoxelSystem is VoxelType {
     bytes32[] memory neighbourEntityIds,
     bytes32[] memory childEntityIds,
     bytes32 parentEntity
-  ) public override returns (bytes32, bytes32[] memory, bytes[] memory) {
-    // TODO: Remove, was for testing only to show how you voxel types can move
-    bytes32 changedCenterEntityId = 0;
-    bytes32[] memory changedNeighbourEntityIds = new bytes32[](neighbourEntityIds.length);
-    bytes[] memory entityEventData = new bytes[](neighbourEntityIds.length + 1);
-    for (uint8 i; i < neighbourEntityIds.length; i++) {
-      if (neighbourEntityIds[i] == 0) {
-        continue;
-      }
-      VoxelCoord memory baseCoord = getCAEntityPositionStrict(IStore(_world()), centerEntityId);
-      VoxelCoord memory neighbourCoord = getCAEntityPositionStrict(IStore(_world()), neighbourEntityIds[i]);
-      bytes32 neighbourVoxelTypeId = getCAVoxelType(neighbourEntityIds[i]);
-
-      if (neighbourVoxelTypeId == BedrockVoxelID) {
-        // Example of Move event
-        // VoxelCoord memory newCoord = VoxelCoord({ x: baseCoord.x, y: baseCoord.y + 1, z: baseCoord.z });
-        // entityEventData[0] = abi.encode(CAEventData({ eventType: CAEventType.Move, newCoord: newCoord. fluxAmount: 0 }));
-
-        // Example of flux out energy event
-        BodyPhysicsData memory entityBodyPhysics = getVoxelBodyPhysicsFromCaller(centerEntityId);
-        // if (entityBodyPhysics.energy == 100) {
-        //   entityEventData[0] = abi.encode(
-        //     CAEventData({ eventType: CAEventType.FluxEnergy, newCoord: neighbourCoord, fluxAmount: 10 })
-        //   );
-        // }
-
-        // Example of flux mass event
-        // if (entityBodyPhysics.mass == 15) {
-        //   entityEventData[0] = abi.encode(
-        //     CAEventData({ eventType: CAEventType.FluxMass, newCoord: VoxelCoord({ x: 0, y: 0, z: 0 }), fluxAmount: 15 })
-        //   );
-        // }
-      }
-    }
-
-    return (changedCenterEntityId, changedNeighbourEntityIds, entityEventData);
-  }
+  ) public override returns (bytes32, bytes32[] memory, bytes[] memory) {}
 }

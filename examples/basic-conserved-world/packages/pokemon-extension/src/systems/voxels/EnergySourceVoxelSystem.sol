@@ -1,15 +1,14 @@
 // SPDX-License-Identifier: MIT
 pragma solidity >=0.8.0;
 
-import { IWorld } from "@tenet-level1-ca/src/codegen/world/IWorld.sol";
+import { IWorld } from "@tenet-pokemon-extension/src/codegen/world/IWorld.sol";
 import { VoxelType } from "@tenet-base-ca/src/prototypes/VoxelType.sol";
 import { VoxelVariantsRegistryData } from "@tenet-registry/src/codegen/tables/VoxelVariantsRegistry.sol";
 import { NoaBlockType } from "@tenet-registry/src/codegen/Types.sol";
 import { registerVoxelVariant, registerVoxelType, voxelSelectorsForVoxel } from "@tenet-registry/src/Utils.sol";
-import { REGISTRY_ADDRESS, EnergySourceVoxelID } from "@tenet-level1-ca/src/Constants.sol";
-import { DirtTexture } from "@tenet-level1-ca/src/systems/voxels/DirtVoxelSystem.sol";
+import { REGISTRY_ADDRESS, EnergySourceVoxelID } from "@tenet-pokemon-extension/src/Constants.sol";
+import { EnergySource } from "@tenet-pokemon-extension/src/codegen/tables/EnergySource.sol";
 import { VoxelCoord, ComponentDef } from "@tenet-utils/src/Types.sol";
-import { AirVoxelID } from "@tenet-level1-ca/src/Constants.sol";
 
 bytes32 constant EnergySourceVoxelVariantID = bytes32(keccak256("energysource"));
 string constant EnergySourceTexture = "bafkreidtk7vevmnzt6is5dreyoocjkyy56bk66zbm5bx6wzck73iogdl6e";
@@ -41,19 +40,26 @@ contract EnergySourceVoxelSystem is VoxelType {
       energySourceChildVoxelTypes,
       EnergySourceVoxelVariantID,
       voxelSelectorsForVoxel(
-        IWorld(world).ca_EnergySourceVoxe_enterWorld.selector,
-        IWorld(world).ca_EnergySourceVoxe_exitWorld.selector,
-        IWorld(world).ca_EnergySourceVoxe_variantSelector.selector,
-        IWorld(world).ca_EnergySourceVoxe_activate.selector,
-        IWorld(world).ca_EnergySourceVoxe_eventHandler.selector
+        IWorld(world).pokemon_EnergySourceVoxe_enterWorld.selector,
+        IWorld(world).pokemon_EnergySourceVoxe_exitWorld.selector,
+        IWorld(world).pokemon_EnergySourceVoxe_variantSelector.selector,
+        IWorld(world).pokemon_EnergySourceVoxe_activate.selector,
+        IWorld(world).pokemon_EnergySourceVoxe_eventHandler.selector
       ),
       abi.encode(componentDefs)
     );
   }
 
-  function enterWorld(VoxelCoord memory coord, bytes32 entity) public override {}
+  function enterWorld(VoxelCoord memory coord, bytes32 entity) public override {
+    address callerAddress = super.getCallerAddress();
+    bool hasValue = true;
+    EnergySource.set(callerAddress, entity, hasValue);
+  }
 
-  function exitWorld(VoxelCoord memory coord, bytes32 entity) public override {}
+  function exitWorld(VoxelCoord memory coord, bytes32 entity) public override {
+    address callerAddress = super.getCallerAddress();
+    EnergySource.deleteRecord(callerAddress, entity);
+  }
 
   function variantSelector(
     bytes32 entity,
@@ -74,7 +80,7 @@ contract EnergySourceVoxelSystem is VoxelType {
   ) public override returns (bytes32, bytes32[] memory, bytes[] memory) {
     address callerAddress = super.getCallerAddress();
     return
-      IWorld(_world()).ca_EnergySourceSyst_eventHandlerEnergySource(
+      IWorld(_world()).pokemon_EnergySourceSyst_eventHandlerEnergySource(
         callerAddress,
         centerEntityId,
         neighbourEntityIds,

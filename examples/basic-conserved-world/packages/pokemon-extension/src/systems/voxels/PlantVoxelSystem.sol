@@ -6,10 +6,11 @@ import { VoxelType } from "@tenet-base-ca/src/prototypes/VoxelType.sol";
 import { VoxelVariantsRegistryData } from "@tenet-registry/src/codegen/tables/VoxelVariantsRegistry.sol";
 import { NoaBlockType } from "@tenet-registry/src/codegen/Types.sol";
 import { registerVoxelVariant, registerVoxelType, voxelSelectorsForVoxel } from "@tenet-registry/src/Utils.sol";
-import { REGISTRY_ADDRESS, PlantVoxelID } from "@tenet-pokemon-extension/src/Constants.sol";
+import { CA_ADDRESS, REGISTRY_ADDRESS, PlantVoxelID } from "@tenet-pokemon-extension/src/Constants.sol";
 import { Plant } from "@tenet-pokemon-extension/src/codegen/tables/Plant.sol";
 import { PlantStage } from "@tenet-pokemon-extension/src/codegen/Types.sol";
 import { VoxelCoord, ComponentDef } from "@tenet-utils/src/Types.sol";
+import { registerCAVoxelType } from "@tenet-base-ca/src/CallUtils.sol";
 
 bytes32 constant SeedVoxelVariantID = bytes32(keccak256("seed"));
 bytes32 constant SproutVoxelVariantID = bytes32(keccak256("sprout"));
@@ -53,6 +54,8 @@ contract PlantVoxelSystem is VoxelType {
       ),
       abi.encode(componentDefs)
     );
+
+    registerCAVoxelType(CA_ADDRESS, PlantVoxelID);
   }
 
   function enterWorld(VoxelCoord memory coord, bytes32 entity) public override {

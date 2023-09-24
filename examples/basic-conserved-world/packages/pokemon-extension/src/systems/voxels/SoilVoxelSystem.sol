@@ -6,9 +6,10 @@ import { VoxelType } from "@tenet-base-ca/src/prototypes/VoxelType.sol";
 import { VoxelVariantsRegistryData } from "@tenet-registry/src/codegen/tables/VoxelVariantsRegistry.sol";
 import { NoaBlockType } from "@tenet-registry/src/codegen/Types.sol";
 import { registerVoxelVariant, registerVoxelType, voxelSelectorsForVoxel } from "@tenet-registry/src/Utils.sol";
-import { REGISTRY_ADDRESS, SoilVoxelID } from "@tenet-pokemon-extension/src/Constants.sol";
+import { CA_ADDRESS, REGISTRY_ADDRESS, SoilVoxelID } from "@tenet-pokemon-extension/src/Constants.sol";
 import { Soil } from "@tenet-pokemon-extension/src/codegen/tables/Soil.sol";
 import { VoxelCoord, ComponentDef } from "@tenet-utils/src/Types.sol";
+import { registerCAVoxelType } from "@tenet-base-ca/src/CallUtils.sol";
 
 bytes32 constant SoilVoxelVariantID = bytes32(keccak256("soil"));
 string constant SoilTexture = "bafkreidtk7vevmnzt6is5dreyoocjkyy56bk66zbm5bx6wzck73iogdl6e";
@@ -48,6 +49,8 @@ contract SoilVoxelSystem is VoxelType {
       ),
       abi.encode(componentDefs)
     );
+
+    registerCAVoxelType(CA_ADDRESS, SoilVoxelID);
   }
 
   function enterWorld(VoxelCoord memory coord, bytes32 entity) public override {

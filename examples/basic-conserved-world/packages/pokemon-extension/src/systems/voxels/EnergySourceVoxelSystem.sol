@@ -6,9 +6,10 @@ import { VoxelType } from "@tenet-base-ca/src/prototypes/VoxelType.sol";
 import { VoxelVariantsRegistryData } from "@tenet-registry/src/codegen/tables/VoxelVariantsRegistry.sol";
 import { NoaBlockType } from "@tenet-registry/src/codegen/Types.sol";
 import { registerVoxelVariant, registerVoxelType, voxelSelectorsForVoxel } from "@tenet-registry/src/Utils.sol";
-import { REGISTRY_ADDRESS, EnergySourceVoxelID } from "@tenet-pokemon-extension/src/Constants.sol";
+import { CA_ADDRESS, REGISTRY_ADDRESS, EnergySourceVoxelID } from "@tenet-pokemon-extension/src/Constants.sol";
 import { EnergySource } from "@tenet-pokemon-extension/src/codegen/tables/EnergySource.sol";
 import { VoxelCoord, ComponentDef } from "@tenet-utils/src/Types.sol";
+import { registerCAVoxelType } from "@tenet-base-ca/src/CallUtils.sol";
 
 bytes32 constant EnergySourceVoxelVariantID = bytes32(keccak256("energysource"));
 string constant EnergySourceTexture = "bafkreidtk7vevmnzt6is5dreyoocjkyy56bk66zbm5bx6wzck73iogdl6e";
@@ -48,6 +49,8 @@ contract EnergySourceVoxelSystem is VoxelType {
       ),
       abi.encode(componentDefs)
     );
+
+    registerCAVoxelType(CA_ADDRESS, EnergySourceVoxelID);
   }
 
   function enterWorld(VoxelCoord memory coord, bytes32 entity) public override {

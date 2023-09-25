@@ -24,6 +24,7 @@ contract EnergySourceSystem is SingleVoxelInteraction {
     uint256 lastInteractionBlock = EnergySource.getLastInteractionBlock(callerAddress, energySourceEntity);
     if (block.number <= lastInteractionBlock + ENERGY_SOURCE_WAIT_BLOCKS) {
       // Must wait for 50 blocks
+      console.log("skipping bro");
       return (changedEntity, entityData);
     }
 

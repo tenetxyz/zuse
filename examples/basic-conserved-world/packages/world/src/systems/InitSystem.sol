@@ -59,12 +59,12 @@ contract InitSystem is InitWorldSystem {
 
     // TODO: remove, were used for testing collision
     physicsData.mass = 5;
-    physicsData.energy = 100;
+    physicsData.energy = 1000;
     physicsData.velocity = abi.encode(VoxelCoord({ x: 0, y: 0, z: 0 }));
     physicsData.lastUpdateBlock = block.number;
     VoxelEntity memory grassEntity = IWorld(_world()).spawnBody(
       GrassVoxelID,
-      VoxelCoord(10, 2, 12),
+      VoxelCoord(10, 2, 11),
       bytes4(0),
       physicsData
     );

@@ -47,7 +47,9 @@ abstract contract SingleVoxelInteraction is VoxelInteraction {
         neighbourEntityId,
         neighbourEntityDirections[i]
       );
-      entityData = interactionEntityData;
+      if(entityData.length == 0 && interactionEntityData.length > 0){
+        entityData = interactionEntityData;
+      }
       if (changedInteractionEntity) {
         changedEntity = true;
       }

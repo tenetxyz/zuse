@@ -39,7 +39,7 @@ contract SoilSystem is SingleVoxelInteraction {
     if (entityIsSoil(callerAddress, compareEntity)) {
       // Transfer more energy to neighboring Soil
       entityData = abi.encode(transferEnergy(neighbourCoord, transferEnergyToSoil));
-    } else if (entityIsPlant(callerAddress, compareEntity) && compareBlockDirection == BlockDirection.Up) {
+    } else if (entityIsPlant(callerAddress, compareEntity) && compareBlockDirection == BlockDirection.Down) {
       PlantStage plantStage = Plant.getStage(callerAddress, compareEntity);
       if (plantStage == PlantStage.Seed || plantStage == PlantStage.Sprout) {
         // Transfer less energy to Seed or Young Plant only if they are on top

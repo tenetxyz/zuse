@@ -46,6 +46,8 @@ contract SoilSystem is SingleVoxelInteraction {
         entityData = abi.encode(transferEnergy(neighbourCoord, transferEnergyToPlant));
       }
     }
+
+    return (changedEntity, entityData);
   }
 
   function entityShouldInteract(address callerAddress, bytes32 entityId) internal view override returns (bool) {

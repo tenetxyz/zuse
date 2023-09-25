@@ -7,6 +7,7 @@ import { System } from "@latticexyz/world/src/System.sol";
 import { VoxelCoord, VoxelEntity, EntityEventData, CAEventData, CAEventType } from "@tenet-utils/src/Types.sol";
 import { VoxelType, BodyPhysics, WorldConfig } from "@tenet-world/src/codegen/Tables.sol";
 import { getVoxelCoordStrict } from "@tenet-base-world/src/Utils.sol";
+import { console } from "forge-std/console.sol";
 
 contract CAEventsSystem is System {
   function caEventsHandler(EntityEventData[] memory entitiesEventData) public {
@@ -22,6 +23,8 @@ contract CAEventsSystem is System {
         if (worldEventData.eventType == CAEventType.Move) {
           IWorld(_world()).moveWithAgent(voxelTypeId, entityCoord, worldEventData.newCoord, entity);
         } else if (worldEventData.eventType == CAEventType.FluxEnergy) {
+          console.log("flux out");
+          console.logUint(worldEventData.energyFluxAmount);
           IWorld(_world()).fluxEnergyOut(
             voxelTypeId,
             entityCoord,

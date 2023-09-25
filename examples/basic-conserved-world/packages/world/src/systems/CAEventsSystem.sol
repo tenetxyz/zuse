@@ -21,24 +21,33 @@ contract CAEventsSystem is System {
         bytes32 voxelTypeId = VoxelType.getVoxelTypeId(entity.scale, entity.entityId);
         address caAddress = WorldConfig.get(voxelTypeId);
         if (worldEventData.eventType == CAEventType.Move) {
-          IWorld(_world()).moveWithAgent(voxelTypeId, entityCoord, worldEventData.newCoord, entity);
+          require(worldEventData.newCoords.length == 1, "newCoords must be length 1");
+          IWorld(_world()).moveWithAgent(voxelTypeId, entityCoord, worldEventData.newCoords[0], entity);
         } else if (worldEventData.eventType == CAEventType.FluxEnergy) {
-          console.log("flux out");
-          console.logUint(worldEventData.energyFluxAmount);
-          IWorld(_world()).fluxEnergyOut(
-            voxelTypeId,
-            entityCoord,
-            worldEventData.energyFluxAmount,
-            worldEventData.newCoord
+          require(
+            worldEventData.energyFluxAmounts.length == worldEventData.newCoords.length,
+            "energyFluxAmounts must be same length as newCoords"
           );
+          for (uint j = 0; j < worldEventData.newCoords.length; j++) {
+            console.log("flux out");
+            console.logUint(worldEventData.energyFluxAmounts[j]);
+            IWorld(_world()).fluxEnergyOut(
+              voxelTypeId,
+              entityCoord,
+              worldEventData.energyFluxAmounts[j],
+              worldEventData.newCoords[j]
+            );
+          }
         } else if (worldEventData.eventType == CAEventType.FluxMass) {
           IWorld(_world()).fluxMass(voxelTypeId, entityCoord, worldEventData.massFluxAmount);
         } else if (worldEventData.eventType == CAEventType.FluxEnergyAndMass) {
           IWorld(_world()).fluxMass(voxelTypeId, entityCoord, worldEventData.massFluxAmount);
           uint256 currentEnergy = BodyPhysics.getEnergy(entity.scale, entity.entityId);
-          require(currentEnergy >= worldEventData.energyFluxAmount, "Not enough energy to flux");
-          IWorld(_world()).fluxEnergy(false, caAddress, entity, worldEventData.energyFluxAmount);
-          BodyPhysics.setEnergy(entity.scale, entity.entityId, currentEnergy - worldEventData.energyFluxAmount);
+          require(worldEventData.energyFluxAmounts.length == 1, "energyFluxAmounts must be length 1");
+          uint256 energyToFlux = worldEventData.energyFluxAmounts[0];
+          require(currentEnergy >= energyToFlux, "Not enough energy to flux");
+          IWorld(_world()).fluxEnergy(false, caAddress, entity, energyToFlux);
+          BodyPhysics.setEnergy(entity.scale, entity.entityId, currentEnergy - energyToFlux);
         }
       }
     }

@@ -47,8 +47,8 @@ enum CAEventType {
 
 struct CAEventData {
   CAEventType eventType;
-  VoxelCoord newCoord;
-  uint256 energyFluxAmount;
+  VoxelCoord[] newCoords;
+  uint256[] energyFluxAmounts;
   uint256 massFluxAmount;
 }
 

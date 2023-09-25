@@ -80,11 +80,13 @@ contract PlantSystem is SingleVoxelInteraction {
   }
 
   function die(BodyPhysicsData memory bodyPhysicsData) internal returns (CAEventData memory) {
+    uint256[] memory energyFluxAmounts = new uint256[](1);
+    energyFluxAmounts[0] = bodyPhysicsData.energy;
     return
       CAEventData({
         eventType: CAEventType.FluxEnergyAndMass,
-        newCoord: VoxelCoord({ x: 0, y: 0, z: 0 }),
-        energyFluxAmount: bodyPhysicsData.energy,
+        newCoords: new VoxelCoord[](0),
+        energyFluxAmounts: energyFluxAmounts,
         massFluxAmount: bodyPhysicsData.mass
       });
   }

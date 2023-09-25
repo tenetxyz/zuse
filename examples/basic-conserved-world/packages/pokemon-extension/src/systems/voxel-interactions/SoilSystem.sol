@@ -12,6 +12,7 @@ import { PlantStage } from "@tenet-pokemon-extension/src/codegen/Types.sol";
 import { entityIsEnergySource, entityIsSoil, entityIsPlant } from "@tenet-pokemon-extension/src/InteractionUtils.sol";
 import { getCAEntityAtCoord, getCAVoxelType, getCAEntityPositionStrict } from "@tenet-base-ca/src/Utils.sol";
 import { getVoxelBodyPhysicsFromCaller, transferEnergy } from "@tenet-level1-ca/src/Utils.sol";
+import { console } from "forge-std/console.sol";
 
 contract SoilSystem is SingleVoxelInteraction {
   function runSingleInteraction(
@@ -34,16 +35,24 @@ contract SoilSystem is SingleVoxelInteraction {
     uint256 transferEnergyToPlant = entityBodyPhysics.energy / 10; // Transfer 10% of its energy to Seed or Young Plant
 
     VoxelCoord memory neighbourCoord = getCAEntityPositionStrict(IStore(_world()), compareEntity);
+    console.log("ok soil go");
 
     // Check if the neighbor is a Soil, Seed, or Young Plant cell
     if (entityIsSoil(callerAddress, compareEntity)) {
       // Transfer more energy to neighboring Soil
       entityData = abi.encode(transferEnergy(neighbourCoord, transferEnergyToSoil));
-    } else if (entityIsPlant(callerAddress, compareEntity) && compareBlockDirection == BlockDirection.Down) {
-      PlantStage plantStage = Plant.getStage(callerAddress, compareEntity);
-      if (plantStage == PlantStage.Seed || plantStage == PlantStage.Sprout) {
-        // Transfer less energy to Seed or Young Plant only if they are on top
-        entityData = abi.encode(transferEnergy(neighbourCoord, transferEnergyToPlant));
+    } else if (entityIsPlant(callerAddress, compareEntity)) {
+      console.log("is plant");
+      console.logUint(transferEnergyToPlant);
+      console.logBool(compareBlockDirection == BlockDirection.Down);
+      console.logBool(compareBlockDirection == BlockDirection.Up);
+      console.logUint(uint(compareBlockDirection));
+      if (compareBlockDirection == BlockDirection.Down) {
+        PlantStage plantStage = Plant.getStage(callerAddress, compareEntity);
+        if (plantStage == PlantStage.Seed || plantStage == PlantStage.Sprout) {
+          // Transfer less energy to Seed or Young Plant only if they are on top
+          entityData = abi.encode(transferEnergy(neighbourCoord, transferEnergyToPlant));
+        }
       }
     }
 

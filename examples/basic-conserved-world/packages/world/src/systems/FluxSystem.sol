@@ -24,8 +24,8 @@ contract FluxSystem is FluxEvent {
   function fluxEnergyOut(
     bytes32 voxelTypeId,
     VoxelCoord memory coord,
-    uint256 energyToFlux,
-    VoxelCoord memory energyReceiver
+    uint256[] memory energyToFlux,
+    VoxelCoord[] memory energyReceiver
   ) public returns (VoxelEntity memory) {
     FluxEventData memory fluxEventData = FluxEventData({
       massToFlux: 0,
@@ -69,35 +69,44 @@ contract FluxSystem is FluxEvent {
         IWorld(_world()).fluxEnergy(false, caAddress, eventVoxelEntity, energyRequired);
         BodyPhysics.setMass(eventVoxelEntity.scale, eventVoxelEntity.entityId, newMass);
       }
-    } else if (fluxEventData.energyToFlux > 0) {
-      // We're fluxing energy out to in the direction of the receiver
-      // Check if the entity has this energy
-      require(bodyPhysicsData.energy >= fluxEventData.energyToFlux, "FluxEvent: not enough energy to flux");
-      VoxelCoord memory energyReceiverCoord = fluxEventData.energyReceiver;
-      require(distanceBetween(coord, energyReceiverCoord) == 1, "Energy can only be fluxed to a surrounding neighbour");
-
-      bytes32 energyReceiverEntityId = getEntityAtCoord(eventVoxelEntity.scale, energyReceiverCoord);
-      VoxelEntity memory energyReceiverEntity = VoxelEntity({
-        entityId: energyReceiverEntityId,
-        scale: eventVoxelEntity.scale
-      });
-      if (uint256(energyReceiverEntityId) == 0) {
-        (bytes32 terrainVoxelTypeId, BodyPhysicsData memory terrainPhysicsData) = IWorld(_world())
-          .getTerrainBodyPhysicsData(caAddress, energyReceiverCoord);
-        energyReceiverEntity = IWorld(_world()).spawnBody(
-          terrainVoxelTypeId,
-          energyReceiverCoord,
-          bytes4(0),
-          terrainPhysicsData
+    } else if (fluxEventData.energyToFlux.length > 0) {
+      require(fluxEventData.energyToFlux.length == fluxEventData.energyReceiver.length, "FluxEvent: invalid data");
+      for (uint i = 0; i < fluxEventData.energyToFlux.length; i++) {
+        if (fluxEventData.energyToFlux[i] == 0) {
+          continue;
+        }
+        // We're fluxing energy out to in the direction of the receiver
+        // Check if the entity has this energy
+        require(bodyPhysicsData.energy >= fluxEventData.energyToFlux[i], "FluxEvent: not enough energy to flux");
+        VoxelCoord memory energyReceiverCoord = fluxEventData.energyReceiver[i];
+        require(
+          distanceBetween(coord, energyReceiverCoord) == 1,
+          "Energy can only be fluxed to a surrounding neighbour"
         );
+
+        bytes32 energyReceiverEntityId = getEntityAtCoord(eventVoxelEntity.scale, energyReceiverCoord);
+        VoxelEntity memory energyReceiverEntity = VoxelEntity({
+          entityId: energyReceiverEntityId,
+          scale: eventVoxelEntity.scale
+        });
+        if (uint256(energyReceiverEntityId) == 0) {
+          (bytes32 terrainVoxelTypeId, BodyPhysicsData memory terrainPhysicsData) = IWorld(_world())
+            .getTerrainBodyPhysicsData(caAddress, energyReceiverCoord);
+          energyReceiverEntity = IWorld(_world()).spawnBody(
+            terrainVoxelTypeId,
+            energyReceiverCoord,
+            bytes4(0),
+            terrainPhysicsData
+          );
+        }
+        // Increase energy of energyReceiverEntity
+        uint256 newReceiverEnergy = BodyPhysics.getEnergy(energyReceiverEntity.scale, energyReceiverEntity.entityId) +
+          fluxEventData.energyToFlux[i];
+        BodyPhysics.setEnergy(energyReceiverEntity.scale, energyReceiverEntity.entityId, newReceiverEnergy);
+        // Decrease energy of eventEntity
+        uint256 newEnergy = bodyPhysicsData.energy - fluxEventData.energyToFlux[i];
+        BodyPhysics.setEnergy(eventVoxelEntity.scale, eventVoxelEntity.entityId, newEnergy);
       }
-      // Increase energy of energyReceiverEntity
-      uint256 newReceiverEnergy = BodyPhysics.getEnergy(energyReceiverEntity.scale, energyReceiverEntity.entityId) +
-        fluxEventData.energyToFlux;
-      BodyPhysics.setEnergy(energyReceiverEntity.scale, energyReceiverEntity.entityId, newReceiverEnergy);
-      // Decrease energy of eventEntity
-      uint256 newEnergy = bodyPhysicsData.energy - fluxEventData.energyToFlux;
-      BodyPhysics.setEnergy(eventVoxelEntity.scale, eventVoxelEntity.entityId, newEnergy);
     }
   }
 }

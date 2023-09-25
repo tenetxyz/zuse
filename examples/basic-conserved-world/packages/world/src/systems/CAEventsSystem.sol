@@ -28,16 +28,12 @@ contract CAEventsSystem is System {
             worldEventData.energyFluxAmounts.length == worldEventData.newCoords.length,
             "energyFluxAmounts must be same length as newCoords"
           );
-          for (uint j = 0; j < worldEventData.newCoords.length; j++) {
-            console.log("flux out");
-            console.logUint(worldEventData.energyFluxAmounts[j]);
-            IWorld(_world()).fluxEnergyOut(
-              voxelTypeId,
-              entityCoord,
-              worldEventData.energyFluxAmounts[j],
-              worldEventData.newCoords[j]
-            );
-          }
+          IWorld(_world()).fluxEnergyOut(
+            voxelTypeId,
+            entityCoord,
+            worldEventData.energyFluxAmounts,
+            worldEventData.newCoords
+          );
         } else if (worldEventData.eventType == CAEventType.FluxMass) {
           IWorld(_world()).fluxMass(voxelTypeId, entityCoord, worldEventData.massFluxAmount);
         } else if (worldEventData.eventType == CAEventType.FluxEnergyAndMass) {

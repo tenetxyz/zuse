@@ -10,6 +10,7 @@ import { BodyPhysics, BodyPhysicsData } from "@tenet-world/src/codegen/tables/Bo
 import { getEntityAtCoord } from "@tenet-base-world/src/Utils.sol";
 import { distanceBetween } from "@tenet-utils/src/VoxelCoordUtils.sol";
 import { FluxEventData } from "@tenet-world/src/Types.sol";
+import { console } from "forge-std/console.sol";
 
 contract FluxSystem is FluxEvent {
   function getRegistryAddress() internal pure override returns (address) {
@@ -61,6 +62,8 @@ contract FluxSystem is FluxEvent {
       require(bodyPhysicsData.mass >= fluxEventData.massToFlux, "FluxEvent: not enough mass to flux");
       // Update the mass of the entity
       uint256 newMass = bodyPhysicsData.mass - fluxEventData.massToFlux;
+      console.log("newMass");
+      console.logUint(newMass);
       if (newMass == 0) {
         IWorld(_world()).mineWithAgent(voxelTypeId, coord, eventVoxelEntity);
       } else {

@@ -12,6 +12,7 @@ import { PlantStage } from "@tenet-pokemon-extension/src/codegen/Types.sol";
 import { entityIsEnergySource, entityIsSoil, entityIsPlant, entityIsPokemon } from "@tenet-pokemon-extension/src/InteractionUtils.sol";
 import { getCAEntityAtCoord, getCAVoxelType, getCAEntityPositionStrict } from "@tenet-base-ca/src/Utils.sol";
 import { getVoxelBodyPhysicsFromCaller, transferEnergy } from "@tenet-level1-ca/src/Utils.sol";
+import { console } from "forge-std/console.sol";
 
 uint256 constant ENERGY_REQUIRED_FOR_SPROUT = 100;
 uint256 constant ENERGY_REQUIRED_FOR_FLOWER = 1000;
@@ -24,25 +25,26 @@ contract PlantSystem is SingleVoxelInteraction {
     BlockDirection compareBlockDirection
   ) internal override returns (bool changedEntity, bytes memory entityData) {
     changedEntity = false;
-    uint energyThreshold = 100; // Energy threshold to transition to Young Plant
     BodyPhysicsData memory entityBodyPhysics = getVoxelBodyPhysicsFromCaller(plantEntity);
     PlantData memory plantData = Plant.get(callerAddress, plantEntity);
+    if (plantData.lastEnergy == entityBodyPhysics.energy) {
+      // No energy change
+      return (changedEntity, entityData);
+    }
+
     bool isNeighbourPlant = entityIsPlant(callerAddress, compareEntity);
     PlantStage neighbourPlantStage = Plant.getStage(callerAddress, compareEntity);
+    plantData.lastEnergy = entityBodyPhysics.energy;
 
     (plantData, changedEntity, entityData) = updatePlantStage(entityBodyPhysics, plantData, entityData);
     if (entityData.length > 0) {
+      Plant.set(callerAddress, plantEntity, plantData);
       return (changedEntity, entityData);
     }
 
     VoxelCoord memory neighbourCoord = getCAEntityPositionStrict(IStore(_world()), compareEntity);
 
     if (plantData.stage == PlantStage.Sprout) {
-      if (plantData.lastEnergy == entityBodyPhysics.energy) {
-        // No energy change
-        return (changedEntity, entityData);
-      }
-      plantData.lastEnergy = entityBodyPhysics.energy;
       changedEntity = true;
 
       uint256 youngPlantEnergy = entityBodyPhysics.energy;
@@ -98,6 +100,7 @@ contract PlantSystem is SingleVoxelInteraction {
   ) internal returns (PlantData memory, bool changedEntity, bytes memory) {
     if (entityBodyPhysics.energy < ENERGY_REQUIRED_FOR_SPROUT) {
       if (plantData.stage == PlantStage.Sprout) {
+        console.log("die");
         entityData = abi.encode(die(entityBodyPhysics));
         changedEntity = true;
       } else if (plantData.stage == PlantStage.Flower) {

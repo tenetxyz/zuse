@@ -35,7 +35,7 @@ contract MindRegistrySystem is System {
     }
     // Set creator
     CreationSpawns[] memory spawns = new CreationSpawns[](0);
-    CreationMetadata memory creationMetadata = CreationMetadata(tx.origin, name, description, spawns);
+    bytes memory creationMetadata = abi.encode(CreationMetadata(tx.origin, name, description, spawns));
     Mind memory mind = Mind({ creationMetadata: creationMetadata, mindSelector: mindSelector });
 
     Mind[] memory newMinds;

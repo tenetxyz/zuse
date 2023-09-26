@@ -61,12 +61,12 @@ struct DecisionRuleKey {
 
 struct DecisionRule {
   bytes32 decisionRuleId;
-  CreationMetadata creationMetadata;
+  bytes creationMetadata;
   bytes4 decisionRuleSelector;
 }
 
 struct Mind {
-  CreationMetadata creationMetadata;
+  bytes creationMetadata;
   bytes4 mindSelector;
 }
 

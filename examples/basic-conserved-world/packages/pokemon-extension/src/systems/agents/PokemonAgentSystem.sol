@@ -8,14 +8,30 @@ import { NoaBlockType } from "@tenet-registry/src/codegen/Types.sol";
 import { hasKey } from "@latticexyz/world/src/modules/keysintable/hasKey.sol";
 import { registerVoxelVariant, registerVoxelType } from "@tenet-registry/src/Utils.sol";
 import { CA_ADDRESS, REGISTRY_ADDRESS, PokemonVoxelID } from "@tenet-pokemon-extension/src/Constants.sol";
+import { BlockDirection, BodyPhysicsData, CAEventData, CAEventType, VoxelCoord } from "@tenet-utils/src/Types.sol";
 import { VoxelCoord, VoxelSelectors, InteractionSelector, ComponentDef, RangeComponent, StateComponent, ComponentType } from "@tenet-utils/src/Types.sol";
 import { getFirstCaller } from "@tenet-utils/src/Utils.sol";
 import { getCAEntityAtCoord, getCAVoxelType } from "@tenet-base-ca/src/Utils.sol";
+import { entityIsEnergySource, entityIsSoil, entityIsPlant, entityIsPokemon } from "@tenet-pokemon-extension/src/InteractionUtils.sol";
 import { registerCAVoxelType } from "@tenet-base-ca/src/CallUtils.sol";
+import { getVoxelBodyPhysicsFromCaller, transferEnergy } from "@tenet-level1-ca/src/Utils.sol";
 import { Pokemon, PokemonData, PokemonMove } from "@tenet-pokemon-extension/src/codegen/tables/Pokemon.sol";
 
 bytes32 constant PokemonVoxelVariantID = bytes32(keccak256("pokemon"));
 string constant PokemonTexture = "bafkreihpdljsgdltghxehq4cebngtugfj3pduucijxcrvcla4hoy34f7vq";
+
+enum MoveType {
+  Fire,
+  Water,
+  Grass
+}
+
+struct MoveData {
+  uint8 stamina;
+  uint8 damage;
+  uint8 protection;
+  MoveType moveType;
+}
 
 contract PokemonAgentSystem is AgentType {
   function registerBody() public override {
@@ -118,7 +134,88 @@ contract PokemonAgentSystem is AgentType {
 
   function activate(bytes32 entity) public view override returns (string memory) {}
 
-  function onNewNeighbour(bytes32 interactEntity, bytes32 neighbourEntityId) public override {}
+  function onNewNeighbour(bytes32 interactEntity, bytes32 neighbourEntityId) public override {
+    MoveData[] memory movesData = new MoveData[](13); // the first value is for PokemonMove.None
+    movesData[uint(PokemonMove.Ember)] = MoveData(10, 20, 0, MoveType.Fire);
+    movesData[uint(PokemonMove.FlameBurst)] = MoveData(20, 40, 0, MoveType.Fire);
+    movesData[uint(PokemonMove.SmokeScreen)] = MoveData(5, 0, 10, MoveType.Fire);
+    movesData[uint(PokemonMove.FireShield)] = MoveData(15, 0, 30, MoveType.Fire);
+
+    movesData[uint(PokemonMove.WaterGun)] = MoveData(10, 20, 0, MoveType.Water);
+    movesData[uint(PokemonMove.HydroPump)] = MoveData(20, 40, 0, MoveType.Water);
+    movesData[uint(PokemonMove.Bubble)] = MoveData(5, 0, 10, MoveType.Water);
+    movesData[uint(PokemonMove.AquaRing)] = MoveData(15, 0, 30, MoveType.Water);
+
+    movesData[uint(PokemonMove.VineWhip)] = MoveData(10, 20, 0, MoveType.Grass);
+    movesData[uint(PokemonMove.SolarBeam)] = MoveData(20, 40, 0, MoveType.Grass);
+    movesData[uint(PokemonMove.LeechSeed)] = MoveData(5, 0, 10, MoveType.Grass);
+    movesData[uint(PokemonMove.Synthesis)] = MoveData(15, 0, 30, MoveType.Grass);
+
+    address callerAddress = super.getCallerAddress();
+    PokemonData memory pokemonData = Pokemon.get(callerAddress, interactEntity);
+    if (entityIsPokemon(callerAddress, neighbourEntityId)) {
+      PokemonData memory neighbourPokemonData = Pokemon.get(callerAddress, neighbourEntityId);
+      if (pokemonData.move != PokemonMove.None && neighbourPokemonData.move != PokemonMove.None) {
+        // Calculate damage
+        if (pokemonData.lostHealth < pokemonData.health) {
+          // Calculae damage
+
+          MoveData memory myMoveData = movesData[uint(pokemonData.move)];
+          MoveData memory opponentMoveData = movesData[uint(neighbourPokemonData.move)];
+
+          if (opponentMoveData.damage > 0 && myMoveData.protection > 0) {
+            uint256 damage = calculateDamage(myMoveData, opponentMoveData);
+            uint256 protection = calculateProtection(myMoveData, opponentMoveData);
+            pokemonData.lostHealth += (damage - protection);
+          } else if (opponentMoveData.damage > 0) {
+            uint256 damage = calculateDamage(myMoveData, opponentMoveData);
+            pokemonData.lostHealth += damage;
+          }
+        }
+      }
+    }
+
+    Pokemon.set(callerAddress, interactEntity, pokemonData);
+  }
+
+  function calculateDamage(
+    MoveData memory myMoveData,
+    MoveData memory opponentMoveData
+  ) internal pure returns (uint256) {
+    uint256 damage = myMoveData.damage;
+    // TODO: Figure out how to calculate random factor
+    uint256 randomFactor = 1;
+    uint256 typeMultiplier = getTypeMultiplier(myMoveData.moveType, opponentMoveData.moveType) / 100;
+    return damage * typeMultiplier * randomFactor;
+  }
+
+  function calculateProtection(
+    MoveData memory myMoveData,
+    MoveData memory opponentMoveData
+  ) internal pure returns (uint256) {
+    uint256 protection = myMoveData.protection;
+    // TODO: Figure out how to calculate random factor
+    uint256 randomFactor = 1;
+    uint256 typeMultiplier = getTypeMultiplier(myMoveData.moveType, opponentMoveData.moveType) / 100;
+    return protection * typeMultiplier * randomFactor;
+  }
+
+  function getTypeMultiplier(MoveType moveType, MoveType neighbourMoveType) internal pure returns (uint256) {
+    if (moveType == MoveType.Fire) {
+      if (neighbourMoveType == MoveType.Fire) return 100;
+      if (neighbourMoveType == MoveType.Water) return 50;
+      if (neighbourMoveType == MoveType.Grass) return 200;
+    } else if (moveType == MoveType.Water) {
+      if (neighbourMoveType == MoveType.Fire) return 200;
+      if (neighbourMoveType == MoveType.Water) return 100;
+      if (neighbourMoveType == MoveType.Grass) return 50;
+    } else if (moveType == MoveType.Grass) {
+      if (neighbourMoveType == MoveType.Fire) return 50;
+      if (neighbourMoveType == MoveType.Water) return 200;
+      if (neighbourMoveType == MoveType.Grass) return 100;
+    }
+    revert("Invalid move types"); // Revert if none of the valid move types are matched
+  }
 
   function getInteractionSelectors() public override returns (InteractionSelector[] memory) {
     InteractionSelector[] memory voxelInteractionSelectors = new InteractionSelector[](13);

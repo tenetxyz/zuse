@@ -8,6 +8,7 @@ import { Mind, VoxelCoord, VoxelEntity, InteractionSelector, CreationMetadata, C
 import { registerMindIntoRegistry } from "@tenet-registry/src/Utils.sol";
 import { REGISTRY_ADDRESS, PokemonVoxelID } from "@tenet-pokemon-extension/src/Constants.sol";
 import { getInteractionSelectors } from "@tenet-registry/src/Utils.sol";
+import { isStringEqual } from "@tenet-utils/src/StringUtils.sol";
 
 contract PokemonMindSystem is MindType {
   function registerMind() public {
@@ -37,8 +38,8 @@ contract PokemonMindSystem is MindType {
     InteractionSelector[] memory interactionSelectors = getInteractionSelectors(IStore(REGISTRY_ADDRESS), voxelTypeId);
     bytes4 chosenSelector = 0;
     for (uint i = 0; i < interactionSelectors.length; i++) {
-      if (interactionSelectors[i].interactionName == "Replenish Energy") {
-        chosenSelector = interactionSelectors[i].selector;
+      if (isStringEqual(interactionSelectors[i].interactionName, "Replenish Energy")) {
+        chosenSelector = interactionSelectors[i].interactionSelector;
         break;
       }
     }

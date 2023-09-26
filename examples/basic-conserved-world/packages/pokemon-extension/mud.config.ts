@@ -61,8 +61,11 @@ export default mudConfig({
         entity: "bytes32",
       },
       schema: {
+        lastEnergy: "uint256",
         health: "uint256",
+        lostHealth: "uint256",
         stamina: "uint256",
+        lostStamina: "uint256",
         lastUpdatedBlock: "uint256",
         move: "PokemonMove",
         hasValue: "bool", // TODO: Remove this once we can install non-root modules

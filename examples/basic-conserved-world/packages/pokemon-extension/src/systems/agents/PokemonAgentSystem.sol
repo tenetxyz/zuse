@@ -12,7 +12,7 @@ import { VoxelCoord, VoxelSelectors, InteractionSelector, ComponentDef, RangeCom
 import { getFirstCaller } from "@tenet-utils/src/Utils.sol";
 import { getCAEntityAtCoord, getCAVoxelType } from "@tenet-base-ca/src/Utils.sol";
 import { registerCAVoxelType } from "@tenet-base-ca/src/CallUtils.sol";
-import { Pokemon, PokemonMove } from "@tenet-pokemon-extension/src/codegen/tables/Pokemon.sol";
+import { Pokemon, PokemonData, PokemonMove } from "@tenet-pokemon-extension/src/codegen/tables/Pokemon.sol";
 
 bytes32 constant PokemonVoxelVariantID = bytes32(keccak256("pokemon"));
 string constant PokemonTexture = "bafkreihpdljsgdltghxehq4cebngtugfj3pduucijxcrvcla4hoy34f7vq";
@@ -76,7 +76,20 @@ contract PokemonAgentSystem is AgentType {
   function enterWorld(VoxelCoord memory coord, bytes32 entity) public override {
     address callerAddress = super.getCallerAddress();
     bool hasValue = true;
-    Pokemon.set(callerAddress, entity, 0, 0, 0, PokemonMove.None, hasValue);
+    Pokemon.set(
+      callerAddress,
+      entity,
+      PokemonData({
+        lastEnergy: 0,
+        health: 0,
+        lostHealth: 0,
+        stamina: 0,
+        lostStamina: 0,
+        lastUpdatedBlock: 0,
+        move: PokemonMove.None,
+        hasValue: hasValue
+      })
+    );
   }
 
   function exitWorld(VoxelCoord memory coord, bytes32 entity) public override {

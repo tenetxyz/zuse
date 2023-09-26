@@ -11,11 +11,14 @@ import { getEntityAtCoord, getEntityPositionStrict, positionDataToVoxelCoord } f
 import { FighterVoxelID, GrassVoxelID, AirVoxelID, DirtVoxelID, BedrockVoxelID } from "@tenet-level1-ca/src/Constants.sol";
 import { BodyPhysics, BodyPhysicsData } from "@tenet-world/src/codegen/tables/BodyPhysics.sol";
 import { MindRegistry } from "@tenet-registry/src/codegen/tables/MindRegistry.sol";
-import { REGISTRY_ADDRESS } from "@tenet-world/src/Constants.sol";
+import { REGISTRY_ADDRESS, BASE_CA_ADDRESS } from "@tenet-world/src/Constants.sol";
 import { EnergySourceVoxelID, SoilVoxelID, PlantVoxelID, PokemonVoxelID } from "@tenet-pokemon-extension/src/Constants.sol";
-
+import { Pokemon, PokemonData } from "@tenet-pokemon-extension/src/codegen/tables/Pokemon.sol";
+import { Plant, PlantData, PlantStage } from "@tenet-pokemon-extension/src/codegen/tables/Plant.sol";
 import { addressToEntityKey } from "@tenet-utils/src/Utils.sol";
 import { console } from "forge-std/console.sol";
+import { CAEntityMapping, CAEntityMappingTableId } from "@tenet-base-ca/src/codegen/tables/CAEntityMapping.sol";
+import { ENERGY_SOURCE_WAIT_BLOCKS } from "@tenet-pokemon-extension/src/systems/voxel-interactions/EnergySourceSystem.sol";
 
 contract MineTest is MudTest {
   IWorld private world;
@@ -36,18 +39,63 @@ contract MineTest is MudTest {
     VoxelEntity memory agentEntity = VoxelEntity({ scale: 1, entityId: getEntityAtCoord(1, VoxelCoord(10, 2, 10)) });
     world.claimAgent(agentEntity);
 
-    // Mine block with high energy
-    // uint256 beforeEnergy = BodyPhysics.getEnergy(agentEntity.scale, agentEntity.entityId);
-    // world.mineWithAgent(GrassVoxelID, VoxelCoord(10, 2, 11), agentEntity);
-    // uint256 afterEnergy = BodyPhysics.getEnergy(agentEntity.scale, agentEntity.entityId);
-    // assertTrue(afterEnergy > beforeEnergy);
-    bytes memory mindData = MindRegistry.get(IStore(REGISTRY_ADDRESS), PokemonVoxelID, address(0));
-    Mind[] memory minds = abi.decode(mindData, (Mind[]));
-    assertTrue(minds.length == 1);
-    bytes4 mindSelector = minds[0].mindSelector;
+    VoxelCoord memory highEnergyCoord = VoxelCoord(10, 2, 11);
 
-    // Get pokemon mind selector
-    world.buildWithAgent(PokemonVoxelID, VoxelCoord(10, 2, 11), agentEntity, mindSelector);
+    // Mine block with high energy
+    uint256 beforeEnergy = BodyPhysics.getEnergy(agentEntity.scale, agentEntity.entityId);
+    world.mineWithAgent(GrassVoxelID, highEnergyCoord, agentEntity);
+    uint256 afterEnergy = BodyPhysics.getEnergy(agentEntity.scale, agentEntity.entityId);
+    assertTrue(afterEnergy > beforeEnergy);
+
+    // Place down energy source
+    VoxelEntity memory energySourceEntity = world.buildWithAgent(
+      EnergySourceVoxelID,
+      highEnergyCoord,
+      agentEntity,
+      bytes4(0)
+    );
+    // Place down soil beside it
+    VoxelEntity memory soilEntity = world.buildWithAgent(SoilVoxelID, VoxelCoord(9, 2, 11), agentEntity, bytes4(0));
+    uint256 soilEnergy = BodyPhysics.getEnergy(soilEntity.scale, soilEntity.entityId);
+    assertTrue(soilEnergy > 0);
+    // Place down plant on top of soil
+    VoxelEntity memory plantEntity = world.buildWithAgent(PlantVoxelID, VoxelCoord(9, 3, 11), agentEntity, bytes4(0));
+    bytes32 plantCAEntity = CAEntityMapping.get(IStore(BASE_CA_ADDRESS), worldAddress, plantEntity.entityId);
+    PlantData memory plantData = Plant.get(IStore(BASE_CA_ADDRESS), worldAddress, plantCAEntity);
+    uint256 beforePlantEnergy = BodyPhysics.getEnergy(plantEntity.scale, plantEntity.entityId);
+    assertTrue(beforePlantEnergy > 0);
+    assertTrue(plantData.stage == PlantStage.Seed);
+    // Pass blocks then activate energy source
+    vm.roll(block.number + ENERGY_SOURCE_WAIT_BLOCKS + 1);
+    world.activateWithAgent(EnergySourceVoxelID, highEnergyCoord, agentEntity, bytes4(0));
+    plantData = Plant.get(IStore(BASE_CA_ADDRESS), worldAddress, plantCAEntity);
+    uint256 afterPlantEnergy = BodyPhysics.getEnergy(plantEntity.scale, plantEntity.entityId);
+    assertTrue(afterPlantEnergy > beforePlantEnergy);
+    assertTrue(plantData.stage == PlantStage.Sprout);
+
+    vm.roll(block.number + ENERGY_SOURCE_WAIT_BLOCKS + 1);
+    world.activateWithAgent(EnergySourceVoxelID, highEnergyCoord, agentEntity, bytes4(0));
+    plantData = Plant.get(IStore(BASE_CA_ADDRESS), worldAddress, plantCAEntity);
+    uint256 plantEnergy = BodyPhysics.getEnergy(plantEntity.scale, plantEntity.entityId);
+    console.log("plantData");
+    console.logUint(plantEnergy);
+    console.logUint(uint(plantData.stage));
+    assertTrue(plantData.stage == PlantStage.Flower);
+
+    // bytes memory mindData = MindRegistry.get(IStore(REGISTRY_ADDRESS), PokemonVoxelID, address(0));
+    // Mind[] memory minds = abi.decode(mindData, (Mind[]));
+    // assertTrue(minds.length == 1);
+    // bytes4 mindSelector = minds[0].mindSelector;
+
+    // // Get pokemon mind selector
+    // VoxelEntity memory pokemonEntity = world.buildWithAgent(PokemonVoxelID, highEnergyCoord, agentEntity, mindSelector);
+    // bytes32 pokemonCAEntity = CAEntityMapping.get(IStore(BASE_CA_ADDRESS), worldAddress, pokemonEntity.entityId);
+    // PokemonData memory pokemonData = Pokemon.get(IStore(BASE_CA_ADDRESS), worldAddress, pokemonCAEntity);
+    // uint256 pokemonEnergy = BodyPhysics.getEnergy(pokemonEntity.scale, pokemonEntity.entityId);
+    // console.log("pokemonData");
+    // console.logUint(pokemonData.lastEnergy);
+    // console.logUint(pokemonEnergy);
+    // assertTrue(pokemonData.lastEnergy > 0);
 
     vm.stopPrank();
   }

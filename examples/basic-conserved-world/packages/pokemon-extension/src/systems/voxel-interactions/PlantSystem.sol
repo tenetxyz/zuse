@@ -15,7 +15,7 @@ import { getVoxelBodyPhysicsFromCaller, transferEnergy } from "@tenet-level1-ca/
 import { console } from "forge-std/console.sol";
 
 uint256 constant ENERGY_REQUIRED_FOR_SPROUT = 100;
-uint256 constant ENERGY_REQUIRED_FOR_FLOWER = 1000;
+uint256 constant ENERGY_REQUIRED_FOR_FLOWER = 200;
 
 contract PlantSystem is SingleVoxelInteraction {
   function runSingleInteraction(

@@ -21,14 +21,13 @@ contract SoilSystem is VoxelInteraction {
     bytes32 neighbourEntityId,
     BlockDirection neighbourBlockDirection
   ) internal override returns (bool changedEntity, bytes memory entityData) {
-    changedEntity = false;
-    uint256 lastEnergy = Soil.getLastEnergy(callerAddress, interactEntity);
     BodyPhysicsData memory entityBodyPhysics = getVoxelBodyPhysicsFromCaller(interactEntity);
+    uint256 lastEnergy = Soil.getLastEnergy(callerAddress, interactEntity);
     if (lastEnergy == entityBodyPhysics.energy) {
-      // No energy change
+      // No energy change, so don't run
       return (changedEntity, entityData);
     }
-    // otherwise, there's been an energy change
+    // otherwise, there's been an energy change, so run
     changedEntity = true;
 
     return (changedEntity, entityData);
@@ -50,9 +49,10 @@ contract SoilSystem is VoxelInteraction {
       return (changedEntity, entityData);
     }
     Soil.setLastEnergy(callerAddress, interactEntity, entityBodyPhysics.energy);
-    changedEntity = true;
 
     entityData = getEntityData(callerAddress, neighbourEntityIds, neighbourEntityDirections, entityBodyPhysics);
+
+    // Note: we don't need to set changedEntity to true, because we don't need another event
 
     return (changedEntity, entityData);
   }
@@ -66,8 +66,18 @@ contract SoilSystem is VoxelInteraction {
     uint256 transferEnergyToSoil = entityBodyPhysics.energy / 5; // Transfer 20% of its energy to Soil
     uint256 transferEnergyToPlant = entityBodyPhysics.energy / 10; // Transfer 10% of its energy to Seed or Young Plant
 
-    VoxelCoord[] memory transferCoords = new VoxelCoord[](2);
-    uint256[] memory energyFluxAmounts = new uint256[](2);
+    CAEventData memory transferData = CAEventData({
+      eventType: CAEventType.FluxEnergy,
+      newCoords: new VoxelCoord[](neighbourEntityIds.length),
+      energyFluxAmounts: new uint256[](neighbourEntityIds.length),
+      massFluxAmount: 0
+    });
+
+    // Calculate # of soil neighbours
+    uint256 numSoilNeighbours = 0;
+    bool hasTransfer = false;
+    uint plantIdx = 0;
+    bool hasPlant = false;
 
     for (uint i = 0; i < neighbourEntityIds.length; i++) {
       if (uint256(neighbourEntityIds[i]) == 0) {
@@ -75,49 +85,39 @@ contract SoilSystem is VoxelInteraction {
       }
       VoxelCoord memory neighbourCoord = getCAEntityPositionStrict(IStore(_world()), neighbourEntityIds[i]);
       // Check if the neighbor is a Soil, Seed, or Young Plant cell
-      if (entityIsSoil(callerAddress, neighbourEntityIds[i]) && transferEnergyToSoil > 0) {
-        // Transfer more energy to neighboring Soil
-        if (energyFluxAmounts[0] == 0) {
-          transferCoords[0] = neighbourCoord;
-          energyFluxAmounts[0] = transferEnergyToSoil;
-        } else {
-          require(energyFluxAmounts[1] == 0, "Only 2 neighbours can be transferred energy");
-          transferCoords[1] = neighbourCoord;
-          energyFluxAmounts[1] = transferEnergyToSoil;
-        }
+      if (entityIsSoil(callerAddress, neighbourEntityIds[i])) {
+        numSoilNeighbours += 1;
+        transferData.newCoords[i] = neighbourCoord;
+        transferData.energyFluxAmounts[i] = 1;
       } else if (entityIsPlant(callerAddress, neighbourEntityIds[i]) && transferEnergyToPlant > 0) {
-        console.log("is plant");
-        console.logUint(transferEnergyToPlant);
-        console.logUint(uint(neighbourEntityDirections[i]));
         if (neighbourEntityDirections[i] == BlockDirection.Down) {
           PlantStage plantStage = Plant.getStage(callerAddress, neighbourEntityIds[i]);
           if (plantStage == PlantStage.Seed || plantStage == PlantStage.Sprout) {
-            if (energyFluxAmounts[0] == 0) {
-              transferCoords[0] = neighbourCoord;
-              energyFluxAmounts[0] = transferEnergyToPlant;
-            } else {
-              require(energyFluxAmounts[1] == 0, "Only 2 neighbours can be transferred energy");
-              transferCoords[1] = neighbourCoord;
-              energyFluxAmounts[1] = transferEnergyToPlant;
-            }
+            transferData.newCoords[i] = neighbourCoord;
+            transferData.energyFluxAmounts[i] = transferEnergyToPlant;
+            plantIdx = i;
+            hasPlant = true;
           }
         }
       }
     }
 
-    console.log("energyFluxAmounts");
-    console.logUint(energyFluxAmounts[0]);
-    console.logUint(energyFluxAmounts[1]);
-    if (energyFluxAmounts[0] > 0) {
-      return
-        abi.encode(
-          CAEventData({
-            eventType: CAEventType.FluxEnergy,
-            newCoords: transferCoords,
-            energyFluxAmounts: energyFluxAmounts,
-            massFluxAmount: 0
-          })
-        );
+    for (uint i = 0; i < transferData.newCoords.length; i++) {
+      if (hasPlant && i == plantIdx) {
+        hasTransfer = true;
+        continue;
+      }
+      if (transferData.energyFluxAmounts[i] == 1) {
+        transferData.energyFluxAmounts[i] = transferEnergyToSoil / numSoilNeighbours;
+        if (transferData.energyFluxAmounts[i] > 0) {
+          hasTransfer = true;
+        }
+      }
+    }
+
+    // Check if there's at least one transfer
+    if (hasTransfer) {
+      return abi.encode(transferData);
     }
 
     return new bytes(0);

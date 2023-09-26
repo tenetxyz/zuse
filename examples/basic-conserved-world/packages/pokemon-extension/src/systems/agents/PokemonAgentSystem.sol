@@ -7,10 +7,12 @@ import { VoxelVariantsRegistryData } from "@tenet-registry/src/codegen/tables/Vo
 import { NoaBlockType } from "@tenet-registry/src/codegen/Types.sol";
 import { hasKey } from "@latticexyz/world/src/modules/keysintable/hasKey.sol";
 import { registerVoxelVariant, registerVoxelType } from "@tenet-registry/src/Utils.sol";
-import { REGISTRY_ADDRESS, PokemonVoxelID } from "@tenet-pokemon-extension/src/Constants.sol";
+import { CA_ADDRESS, REGISTRY_ADDRESS, PokemonVoxelID } from "@tenet-pokemon-extension/src/Constants.sol";
 import { VoxelCoord, VoxelSelectors, InteractionSelector, ComponentDef, RangeComponent, StateComponent, ComponentType } from "@tenet-utils/src/Types.sol";
 import { getFirstCaller } from "@tenet-utils/src/Utils.sol";
 import { getCAEntityAtCoord, getCAVoxelType } from "@tenet-base-ca/src/Utils.sol";
+import { registerCAVoxelType } from "@tenet-base-ca/src/CallUtils.sol";
+import { Pokemon, PokemonMove } from "@tenet-pokemon-extension/src/codegen/tables/Pokemon.sol";
 
 bytes32 constant PokemonVoxelVariantID = bytes32(keccak256("pokemon"));
 string constant PokemonTexture = "bafkreihpdljsgdltghxehq4cebngtugfj3pduucijxcrvcla4hoy34f7vq";
@@ -58,20 +60,29 @@ contract PokemonAgentSystem is AgentType {
       pokemonChildVoxelTypes,
       PokemonVoxelVariantID,
       VoxelSelectors({
-        enterWorldSelector: IWorld(world).ca_FighterAgentSyst_enterWorld.selector,
-        exitWorldSelector: IWorld(world).ca_FighterAgentSyst_exitWorld.selector,
-        voxelVariantSelector: IWorld(world).ca_FighterAgentSyst_variantSelector.selector,
-        activateSelector: IWorld(world).ca_FighterAgentSyst_activate.selector,
-        onNewNeighbourSelector: IWorld(world).ca_FighterAgentSyst_onNewNeighbour.selector,
+        enterWorldSelector: IWorld(world).pokemon_PokemonAgentSyst_enterWorld.selector,
+        exitWorldSelector: IWorld(world).pokemon_PokemonAgentSyst_exitWorld.selector,
+        voxelVariantSelector: IWorld(world).pokemon_PokemonAgentSyst_variantSelector.selector,
+        activateSelector: IWorld(world).pokemon_PokemonAgentSyst_activate.selector,
+        onNewNeighbourSelector: IWorld(world).pokemon_PokemonAgentSyst_onNewNeighbour.selector,
         interactionSelectors: getInteractionSelectors()
       }),
       abi.encode(componentDefs)
     );
+
+    registerCAVoxelType(CA_ADDRESS, PokemonVoxelID);
   }
 
-  function enterWorld(VoxelCoord memory coord, bytes32 entity) public override {}
+  function enterWorld(VoxelCoord memory coord, bytes32 entity) public override {
+    address callerAddress = super.getCallerAddress();
+    bool hasValue = true;
+    Pokemon.set(callerAddress, entity, 0, 0, 0, PokemonMove.None, hasValue);
+  }
 
-  function exitWorld(VoxelCoord memory coord, bytes32 entity) public override {}
+  function exitWorld(VoxelCoord memory coord, bytes32 entity) public override {
+    address callerAddress = super.getCallerAddress();
+    Pokemon.deleteRecord(callerAddress, entity);
+  }
 
   function variantSelector(
     bytes32 entity,
@@ -89,18 +100,18 @@ contract PokemonAgentSystem is AgentType {
   function getInteractionSelectors() public override returns (InteractionSelector[] memory) {
     InteractionSelector[] memory voxelInteractionSelectors = new InteractionSelector[](3);
     voxelInteractionSelectors[0] = InteractionSelector({
-      interactionSelector: IWorld(_world()).ca_FighterAgentSyst_moveForwardEventHandler.selector,
+      interactionSelector: IWorld(_world()).pokemon_PokemonAgentSyst_moveForwardEventHandler.selector,
       interactionName: "Move Forward",
       interactionDescription: ""
     });
     // TODO: change the selectors so they point to legit contracts
     voxelInteractionSelectors[1] = InteractionSelector({
-      interactionSelector: IWorld(_world()).ca_FighterAgentSyst_moveForwardEventHandler.selector,
+      interactionSelector: IWorld(_world()).pokemon_PokemonAgentSyst_moveForwardEventHandler.selector,
       interactionName: "Attack",
       interactionDescription: ""
     });
     voxelInteractionSelectors[2] = InteractionSelector({
-      interactionSelector: IWorld(_world()).ca_FighterAgentSyst_moveForwardEventHandler.selector,
+      interactionSelector: IWorld(_world()).pokemon_PokemonAgentSyst_moveForwardEventHandler.selector,
       interactionName: "Defend",
       interactionDescription: ""
     });

@@ -12,7 +12,7 @@ import { REGISTRY_ADDRESS, BASE_CA_ADDRESS } from "../Constants.sol";
 import { VoxelCoord, VoxelTypeData, VoxelEntity } from "@tenet-utils/src/Types.sol";
 import { safeCall } from "@tenet-utils/src/CallUtils.sol";
 import { FighterVoxelID, GrassVoxelID, AirVoxelID, DirtVoxelID, BedrockVoxelID } from "@tenet-level1-ca/src/Constants.sol";
-import { EnergySourceVoxelID, SoilVoxelID, PlantVoxelID } from "@tenet-pokemon-extension/src/Constants.sol";
+import { EnergySourceVoxelID, SoilVoxelID, PlantVoxelID, PokemonVoxelID } from "@tenet-pokemon-extension/src/Constants.sol";
 import { WorldConfig, WorldConfigTableId } from "@tenet-base-world/src/codegen/tables/WorldConfig.sol";
 import { CAVoxelType, CAVoxelTypeData } from "@tenet-base-ca/src/codegen/tables/CAVoxelType.sol";
 import { VoxelType, Position, VoxelTypeProperties, BodyPhysics, BodyPhysicsData } from "@tenet-world/src/codegen/Tables.sol";
@@ -42,10 +42,12 @@ contract InitSystem is InitWorldSystem {
     VoxelTypeProperties.set(GrassVoxelID, 10);
     VoxelTypeProperties.set(DirtVoxelID, 5);
     VoxelTypeProperties.set(BedrockVoxelID, 100);
-    VoxelTypeProperties.set(FighterVoxelID, 10);
     VoxelTypeProperties.set(EnergySourceVoxelID, 10);
     VoxelTypeProperties.set(SoilVoxelID, 10);
     VoxelTypeProperties.set(PlantVoxelID, 10);
+
+    VoxelTypeProperties.set(FighterVoxelID, 10);
+    VoxelTypeProperties.set(PokemonVoxelID, 10);
   }
 
   function initWorldState() public {

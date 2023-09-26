@@ -6,6 +6,21 @@ export default mudConfig({
   enums: {
     BlockDirection: ["None", "North", "South", "East", "West", "Up", "Down"],
     PlantStage: ["Seed", "Sprout", "Flower"],
+    PokemonMove: [
+      "None",
+      "Ember",
+      "FlameBurst",
+      "SmokeScreen",
+      "FireShield",
+      "WaterGun",
+      "HydroPump",
+      "Bubble",
+      "AquaRing",
+      "VineWhip",
+      "SolarBeam",
+      "LeechSeed",
+      "Synthesis",
+    ],
   },
   tables: {
     EnergySource: {
@@ -48,6 +63,8 @@ export default mudConfig({
       schema: {
         health: "uint256",
         stamina: "uint256",
+        lastUpdatedBlock: "uint256",
+        move: "PokemonMove",
         hasValue: "bool", // TODO: Remove this once we can install non-root modules
       },
     },

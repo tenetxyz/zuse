@@ -21,7 +21,7 @@ contract PokemonMindSystem is MindType {
       REGISTRY_ADDRESS,
       PokemonVoxelID,
       Mind({
-        creationMetadata: abi.encode(creationMetadata),
+        creationMetadata: creationMetadata,
         mindSelector: IWorld(_world()).pokemon_PokemonMindSyste_mindLogic.selector
       })
     );

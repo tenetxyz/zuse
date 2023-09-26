@@ -61,12 +61,12 @@ struct DecisionRuleKey {
 
 struct DecisionRule {
   bytes32 decisionRuleId;
-  bytes creationMetadata;
+  CreationMetadata creationMetadata;
   bytes4 decisionRuleSelector;
 }
 
 struct Mind {
-  bytes creationMetadata;
+  CreationMetadata creationMetadata;
   bytes4 mindSelector;
 }
 
@@ -101,7 +101,6 @@ struct BodyPhysicsData {
   uint256 energy;
   uint256 lastUpdateBlock;
   bytes velocity;
-  bytes gravity;
 }
 
 struct CreationSpawns {

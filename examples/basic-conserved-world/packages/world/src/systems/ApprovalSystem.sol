@@ -13,7 +13,7 @@ import { BodyPhysics, BodyPhysicsData } from "@tenet-world/src/codegen/tables/Bo
 import { WorldConfig } from "@tenet-world/src/codegen/tables/WorldConfig.sol";
 import { MineEventData, BuildEventData, MoveEventData, ActivateEventData } from "@tenet-base-world/src/Types.sol";
 import { MineWorldEventData, BuildWorldEventData, MoveWorldEventData, ActivateWorldEventData, FluxEventData } from "@tenet-world/src/Types.sol";
-import { distanceBetween, voxelCoordsAreEqual } from "@tenet-utils/src/VoxelCoordUtils.sol";
+import { distanceBetween, voxelCoordsAreEqual, isZeroCoord } from "@tenet-utils/src/VoxelCoordUtils.sol";
 import { getCallerName } from "@tenet-utils/src/Utils.sol";
 import { getEntityAtCoord, getEntityPositionStrict, positionDataToVoxelCoord } from "@tenet-base-world/src/Utils.sol";
 import { VoxelTypeRegistry, VoxelTypeRegistryData } from "@tenet-registry/src/codegen/tables/VoxelTypeRegistry.sol";
@@ -117,17 +117,16 @@ contract ApprovalSystem is EventApprovalsSystem {
         require(terrainPhysicsData.mass == 0, "Cannot build on top of terrain with mass");
       }
     } else if (eventType == EventType.Mine) {
-      VoxelCoord memory zeroVelocity = VoxelCoord({ x: 0, y: 0, z: 0 });
       if (uint256(entityId) != 0) {
         require(
-          voxelCoordsAreEqual(getVelocity(VoxelEntity({ scale: scale, entityId: entityId })), zeroVelocity),
+          isZeroCoord(getVelocity(VoxelEntity({ scale: scale, entityId: entityId }))),
           "Cannot mine an entity with velocity"
         );
         require(BodyPhysics.getMass(scale, entityId) > 0, "Cannot mine an entity with no mass");
       } else {
         (, BodyPhysicsData memory terrainPhysicsData) = IWorld(_world()).getTerrainBodyPhysicsData(caAddress, coord);
         require(
-          voxelCoordsAreEqual(abi.decode(terrainPhysicsData.velocity, (VoxelCoord)), zeroVelocity),
+          isZeroCoord(abi.decode(terrainPhysicsData.velocity, (VoxelCoord))),
           "Cannot mine terrain with velocity"
         );
         require(terrainPhysicsData.mass > 0, "Cannot mine terrain with no mass");

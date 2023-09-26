@@ -33,6 +33,10 @@ function voxelCoordsAreEqual(VoxelCoord memory c1, VoxelCoord memory c2) pure re
   return c1.x == c2.x && c1.y == c2.y && c1.z == c2.z;
 }
 
+function isZeroCoord(VoxelCoord memory coord) pure returns (bool) {
+  return coord.x == 0 && coord.y == 0 && coord.z == 0;
+}
+
 function voxelCoordToString(VoxelCoord memory coord) pure returns (string memory) {
   return
     string(

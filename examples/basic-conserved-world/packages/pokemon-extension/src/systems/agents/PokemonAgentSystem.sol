@@ -45,10 +45,20 @@ contract PokemonAgentSystem is AgentType {
       "Stamina",
       abi.encode(RangeComponent({ rangeStart: 0, rangeEnd: 200 }))
     );
-    string[] memory states = new string[](3);
-    states[0] = "Running";
-    states[1] = "Defending";
-    states[2] = "Attacking";
+    string[] memory states = new string[](13);
+    states[0] = "None";
+    states[1] = "Ember";
+    states[2] = "FlameBurst";
+    states[3] = "SmokeScreen";
+    states[4] = "FireShield";
+    states[5] = "WaterGun";
+    states[6] = "HydroPump";
+    states[7] = "Bubble";
+    states[8] = "AquaRing";
+    states[9] = "VineWhip";
+    states[10] = "SolarBeam";
+    states[11] = "LeechSeed";
+    states[12] = "Synthesis";
     componentDefs[2] = ComponentDef(ComponentType.STATE, "State", abi.encode(StateComponent(states)));
 
     registerVoxelType(
@@ -111,30 +121,307 @@ contract PokemonAgentSystem is AgentType {
   function onNewNeighbour(bytes32 interactEntity, bytes32 neighbourEntityId) public override {}
 
   function getInteractionSelectors() public override returns (InteractionSelector[] memory) {
-    InteractionSelector[] memory voxelInteractionSelectors = new InteractionSelector[](3);
+    InteractionSelector[] memory voxelInteractionSelectors = new InteractionSelector[](13);
     voxelInteractionSelectors[0] = InteractionSelector({
-      interactionSelector: IWorld(_world()).pokemon_PokemonAgentSyst_moveForwardEventHandler.selector,
-      interactionName: "Move Forward",
+      interactionSelector: IWorld(_world()).pokemon_PokemonAgentSyst_replenishEnergyEventHandler.selector,
+      interactionName: "Replenish Energy",
       interactionDescription: ""
     });
-    // TODO: change the selectors so they point to legit contracts
     voxelInteractionSelectors[1] = InteractionSelector({
-      interactionSelector: IWorld(_world()).pokemon_PokemonAgentSyst_moveForwardEventHandler.selector,
-      interactionName: "Attack",
+      interactionSelector: IWorld(_world()).pokemon_PokemonAgentSyst_emberEventHandler.selector,
+      interactionName: "Ember",
       interactionDescription: ""
     });
     voxelInteractionSelectors[2] = InteractionSelector({
-      interactionSelector: IWorld(_world()).pokemon_PokemonAgentSyst_moveForwardEventHandler.selector,
-      interactionName: "Defend",
+      interactionSelector: IWorld(_world()).pokemon_PokemonAgentSyst_flameBurstEventHandler.selector,
+      interactionName: "Flame Burst",
       interactionDescription: ""
     });
+    voxelInteractionSelectors[3] = InteractionSelector({
+      interactionSelector: IWorld(_world()).pokemon_PokemonAgentSyst_smokeScreenEventHandler.selector,
+      interactionName: "Smoke Screen",
+      interactionDescription: ""
+    });
+    voxelInteractionSelectors[4] = InteractionSelector({
+      interactionSelector: IWorld(_world()).pokemon_PokemonAgentSyst_fireShieldEventHandler.selector,
+      interactionName: "Fire Shield",
+      interactionDescription: ""
+    });
+    voxelInteractionSelectors[5] = InteractionSelector({
+      interactionSelector: IWorld(_world()).pokemon_PokemonAgentSyst_waterGunEventHandler.selector,
+      interactionName: "Water Gun",
+      interactionDescription: ""
+    });
+    voxelInteractionSelectors[6] = InteractionSelector({
+      interactionSelector: IWorld(_world()).pokemon_PokemonAgentSyst_hydroPumpEventHandler.selector,
+      interactionName: "Hydro Pump",
+      interactionDescription: ""
+    });
+    voxelInteractionSelectors[7] = InteractionSelector({
+      interactionSelector: IWorld(_world()).pokemon_PokemonAgentSyst_bubbleEventHandler.selector,
+      interactionName: "Bubble",
+      interactionDescription: ""
+    });
+    voxelInteractionSelectors[8] = InteractionSelector({
+      interactionSelector: IWorld(_world()).pokemon_PokemonAgentSyst_aquaRingEventHandler.selector,
+      interactionName: "Aqua Ring",
+      interactionDescription: ""
+    });
+    voxelInteractionSelectors[9] = InteractionSelector({
+      interactionSelector: IWorld(_world()).pokemon_PokemonAgentSyst_vineWhipEventHandler.selector,
+      interactionName: "Vine Whip",
+      interactionDescription: ""
+    });
+    voxelInteractionSelectors[10] = InteractionSelector({
+      interactionSelector: IWorld(_world()).pokemon_PokemonAgentSyst_solarBeamEventHandler.selector,
+      interactionName: "Solar Beam",
+      interactionDescription: ""
+    });
+    voxelInteractionSelectors[11] = InteractionSelector({
+      interactionSelector: IWorld(_world()).pokemon_PokemonAgentSyst_leechSeedEventHandler.selector,
+      interactionName: "Leech Seed",
+      interactionDescription: ""
+    });
+    voxelInteractionSelectors[12] = InteractionSelector({
+      interactionSelector: IWorld(_world()).pokemon_PokemonAgentSyst_synthesisEventHandler.selector,
+      interactionName: "Synthesis",
+      interactionDescription: ""
+    });
+
     return voxelInteractionSelectors;
   }
 
-  function moveForwardEventHandler(
+  function replenishEnergyEventHandler(
     bytes32 centerEntityId,
     bytes32[] memory neighbourEntityIds,
     bytes32[] memory childEntityIds,
     bytes32 parentEntity
-  ) public returns (bytes32, bytes32[] memory) {}
+  ) public returns (bytes32, bytes32[] memory, bytes[] memory) {
+    address callerAddress = super.getCallerAddress();
+    return
+      IWorld(_world()).pokemon_PokemonSystem_eventHandlerPokemon(
+        callerAddress,
+        centerEntityId,
+        neighbourEntityIds,
+        childEntityIds,
+        parentEntity,
+        PokemonMove.None
+      );
+  }
+
+  function emberEventHandler(
+    bytes32 centerEntityId,
+    bytes32[] memory neighbourEntityIds,
+    bytes32[] memory childEntityIds,
+    bytes32 parentEntity
+  ) public returns (bytes32, bytes32[] memory, bytes[] memory) {
+    address callerAddress = super.getCallerAddress();
+    return
+      IWorld(_world()).pokemon_PokemonSystem_eventHandlerPokemon(
+        callerAddress,
+        centerEntityId,
+        neighbourEntityIds,
+        childEntityIds,
+        parentEntity,
+        PokemonMove.Ember
+      );
+  }
+
+  function flameBurstEventHandler(
+    bytes32 centerEntityId,
+    bytes32[] memory neighbourEntityIds,
+    bytes32[] memory childEntityIds,
+    bytes32 parentEntity
+  ) public returns (bytes32, bytes32[] memory, bytes[] memory) {
+    address callerAddress = super.getCallerAddress();
+    return
+      IWorld(_world()).pokemon_PokemonSystem_eventHandlerPokemon(
+        callerAddress,
+        centerEntityId,
+        neighbourEntityIds,
+        childEntityIds,
+        parentEntity,
+        PokemonMove.FlameBurst
+      );
+  }
+
+  function smokeScreenEventHandler(
+    bytes32 centerEntityId,
+    bytes32[] memory neighbourEntityIds,
+    bytes32[] memory childEntityIds,
+    bytes32 parentEntity
+  ) public returns (bytes32, bytes32[] memory, bytes[] memory) {
+    address callerAddress = super.getCallerAddress();
+    return
+      IWorld(_world()).pokemon_PokemonSystem_eventHandlerPokemon(
+        callerAddress,
+        centerEntityId,
+        neighbourEntityIds,
+        childEntityIds,
+        parentEntity,
+        PokemonMove.SmokeScreen
+      );
+  }
+
+  function fireShieldEventHandler(
+    bytes32 centerEntityId,
+    bytes32[] memory neighbourEntityIds,
+    bytes32[] memory childEntityIds,
+    bytes32 parentEntity
+  ) public returns (bytes32, bytes32[] memory, bytes[] memory) {
+    address callerAddress = super.getCallerAddress();
+    return
+      IWorld(_world()).pokemon_PokemonSystem_eventHandlerPokemon(
+        callerAddress,
+        centerEntityId,
+        neighbourEntityIds,
+        childEntityIds,
+        parentEntity,
+        PokemonMove.FireShield
+      );
+  }
+
+  function waterGunEventHandler(
+    bytes32 centerEntityId,
+    bytes32[] memory neighbourEntityIds,
+    bytes32[] memory childEntityIds,
+    bytes32 parentEntity
+  ) public returns (bytes32, bytes32[] memory, bytes[] memory) {
+    address callerAddress = super.getCallerAddress();
+    return
+      IWorld(_world()).pokemon_PokemonSystem_eventHandlerPokemon(
+        callerAddress,
+        centerEntityId,
+        neighbourEntityIds,
+        childEntityIds,
+        parentEntity,
+        PokemonMove.WaterGun
+      );
+  }
+
+  function hydroPumpEventHandler(
+    bytes32 centerEntityId,
+    bytes32[] memory neighbourEntityIds,
+    bytes32[] memory childEntityIds,
+    bytes32 parentEntity
+  ) public returns (bytes32, bytes32[] memory, bytes[] memory) {
+    address callerAddress = super.getCallerAddress();
+    return
+      IWorld(_world()).pokemon_PokemonSystem_eventHandlerPokemon(
+        callerAddress,
+        centerEntityId,
+        neighbourEntityIds,
+        childEntityIds,
+        parentEntity,
+        PokemonMove.HydroPump
+      );
+  }
+
+  function bubbleEventHandler(
+    bytes32 centerEntityId,
+    bytes32[] memory neighbourEntityIds,
+    bytes32[] memory childEntityIds,
+    bytes32 parentEntity
+  ) public returns (bytes32, bytes32[] memory, bytes[] memory) {
+    address callerAddress = super.getCallerAddress();
+    return
+      IWorld(_world()).pokemon_PokemonSystem_eventHandlerPokemon(
+        callerAddress,
+        centerEntityId,
+        neighbourEntityIds,
+        childEntityIds,
+        parentEntity,
+        PokemonMove.Bubble
+      );
+  }
+
+  function aquaRingEventHandler(
+    bytes32 centerEntityId,
+    bytes32[] memory neighbourEntityIds,
+    bytes32[] memory childEntityIds,
+    bytes32 parentEntity
+  ) public returns (bytes32, bytes32[] memory, bytes[] memory) {
+    address callerAddress = super.getCallerAddress();
+    return
+      IWorld(_world()).pokemon_PokemonSystem_eventHandlerPokemon(
+        callerAddress,
+        centerEntityId,
+        neighbourEntityIds,
+        childEntityIds,
+        parentEntity,
+        PokemonMove.AquaRing
+      );
+  }
+
+  function vineWhipEventHandler(
+    bytes32 centerEntityId,
+    bytes32[] memory neighbourEntityIds,
+    bytes32[] memory childEntityIds,
+    bytes32 parentEntity
+  ) public returns (bytes32, bytes32[] memory, bytes[] memory) {
+    address callerAddress = super.getCallerAddress();
+    return
+      IWorld(_world()).pokemon_PokemonSystem_eventHandlerPokemon(
+        callerAddress,
+        centerEntityId,
+        neighbourEntityIds,
+        childEntityIds,
+        parentEntity,
+        PokemonMove.VineWhip
+      );
+  }
+
+  function solarBeamEventHandler(
+    bytes32 centerEntityId,
+    bytes32[] memory neighbourEntityIds,
+    bytes32[] memory childEntityIds,
+    bytes32 parentEntity
+  ) public returns (bytes32, bytes32[] memory, bytes[] memory) {
+    address callerAddress = super.getCallerAddress();
+    return
+      IWorld(_world()).pokemon_PokemonSystem_eventHandlerPokemon(
+        callerAddress,
+        centerEntityId,
+        neighbourEntityIds,
+        childEntityIds,
+        parentEntity,
+        PokemonMove.SolarBeam
+      );
+  }
+
+  function leechSeedEventHandler(
+    bytes32 centerEntityId,
+    bytes32[] memory neighbourEntityIds,
+    bytes32[] memory childEntityIds,
+    bytes32 parentEntity
+  ) public returns (bytes32, bytes32[] memory, bytes[] memory) {
+    address callerAddress = super.getCallerAddress();
+    return
+      IWorld(_world()).pokemon_PokemonSystem_eventHandlerPokemon(
+        callerAddress,
+        centerEntityId,
+        neighbourEntityIds,
+        childEntityIds,
+        parentEntity,
+        PokemonMove.LeechSeed
+      );
+  }
+
+  function synthesisEventHandler(
+    bytes32 centerEntityId,
+    bytes32[] memory neighbourEntityIds,
+    bytes32[] memory childEntityIds,
+    bytes32 parentEntity
+  ) public returns (bytes32, bytes32[] memory, bytes[] memory) {
+    address callerAddress = super.getCallerAddress();
+    return
+      IWorld(_world()).pokemon_PokemonSystem_eventHandlerPokemon(
+        callerAddress,
+        centerEntityId,
+        neighbourEntityIds,
+        childEntityIds,
+        parentEntity,
+        PokemonMove.Synthesis
+      );
+  }
 }

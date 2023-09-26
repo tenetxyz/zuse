@@ -281,16 +281,16 @@ contract PokemonSystem is System {
       return pokemonData;
     }
 
-    if (pokemonData.health == 0 && block.number < pokemonData.lastUpdatedBlock + NUM_BLOCKS_FAINTED) {
-      return pokemonData;
-    }
-
     pokemonData.lastEnergy = entityBodyPhysics.energy;
-    // Allocate percentages to Health and Stamina
-    uint256 healthAllocation = (pokemonData.lastEnergy * 40) / 100; // 40% to Health
-    uint256 staminaAllocation = (pokemonData.lastEnergy * 30) / 100; // 30% to Stamina
-    pokemonData.health = healthAllocation;
-    pokemonData.stamina = staminaAllocation;
+    pokemonData.lastUpdatedBlock = block.number;
+
+    if (pokemonData.health == 0 && block.number < pokemonData.lastUpdatedBlock + NUM_BLOCKS_FAINTED) {
+      // Allocate percentages to Health and Stamina
+      uint256 healthAllocation = (pokemonData.lastEnergy * 40) / 100; // 40% to Health
+      uint256 staminaAllocation = (pokemonData.lastEnergy * 30) / 100; // 30% to Stamina
+      pokemonData.health = healthAllocation;
+      pokemonData.stamina = staminaAllocation;
+    }
     return pokemonData;
   }
 

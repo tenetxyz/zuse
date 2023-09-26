@@ -24,6 +24,21 @@ contract PokemonSystem is VoxelInteraction {
   ) internal override returns (bool changedEntity, bytes memory entityData) {
     changedEntity = false;
 
+    if (!entityIsPlant(callerAddress, neighbourEntityId)) {
+      return (changedEntity, entityData);
+    }
+
+    PlantStage plantStage = Plant.getStage(callerAddress, neighbourEntityId);
+    if (plantStage != PlantStage.Flower) {
+      return (changedEntity, entityData);
+    }
+
+    BodyPhysicsData memory entityBodyPhysics = getVoxelBodyPhysicsFromCaller(interactEntity);
+    PokemonData memory pokemonData = Pokemon.get(callerAddress, interactEntity);
+
+    pokemonData = replenishEnergy(callerAddress, interactEntity, neighbourEntityId, pokemonData, entityBodyPhysics);
+    Pokemon.set(callerAddress, interactEntity, pokemonData);
+
     return (changedEntity, entityData);
   }
 
@@ -46,25 +61,48 @@ contract PokemonSystem is VoxelInteraction {
         continue;
       }
 
-      if (entityIsPlant(callerAddress, neighbourEntityIds[i])) {
-        PlantStage plantStage = Plant.getStage(callerAddress, neighbourEntityIds[i]);
-        if (plantStage == PlantStage.Flower) {
-          uint256 lastEnergy = pokemonData.lastEnergy;
-          if (lastEnergy != entityBodyPhysics.energy) {
-            pokemonData.lastEnergy = entityBodyPhysics.energy;
-            // Allocate percentages to Health and Stamina
-            uint256 healthAllocation = (pokemonData.lastEnergy * 40) / 100; // 40% to Health
-            uint256 staminaAllocation = (pokemonData.lastEnergy * 30) / 100; // 30% to Stamina
-            pokemonData.health = healthAllocation;
-            pokemonData.stamina = staminaAllocation;
-          }
-        }
+      if (!entityIsPlant(callerAddress, neighbourEntityIds[i])) {
+        continue;
       }
+
+      PlantStage plantStage = Plant.getStage(callerAddress, neighbourEntityIds[i]);
+      if (plantStage != PlantStage.Flower) {
+        continue;
+      }
+
+      pokemonData = replenishEnergy(
+        callerAddress,
+        interactEntity,
+        neighbourEntityIds[i],
+        pokemonData,
+        entityBodyPhysics
+      );
     }
 
     Pokemon.set(callerAddress, interactEntity, pokemonData);
 
     return (changedEntity, entityData);
+  }
+
+  function replenishEnergy(
+    address callerAddress,
+    bytes32 interactEntity,
+    bytes32 neighbourEntity,
+    PokemonData memory pokemonData,
+    BodyPhysicsData memory entityBodyPhysics
+  ) internal returns (PokemonData memory) {
+    uint256 lastEnergy = pokemonData.lastEnergy;
+    if (lastEnergy == entityBodyPhysics.energy) {
+      return pokemonData;
+    }
+
+    pokemonData.lastEnergy = entityBodyPhysics.energy;
+    // Allocate percentages to Health and Stamina
+    uint256 healthAllocation = (pokemonData.lastEnergy * 40) / 100; // 40% to Health
+    uint256 staminaAllocation = (pokemonData.lastEnergy * 30) / 100; // 30% to Stamina
+    pokemonData.health = healthAllocation;
+    pokemonData.stamina = staminaAllocation;
+    return pokemonData;
   }
 
   function entityShouldInteract(address callerAddress, bytes32 entityId) internal view override returns (bool) {

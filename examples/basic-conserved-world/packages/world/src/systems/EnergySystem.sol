@@ -124,9 +124,6 @@ contract EnergySystem is System {
       // Calculate the average amount of energy to give/take to/from each neighbor
       // TODO: This should be based on gravity, not just a flat amount
       uint energyPerNeighbor = energyToFlux / numNeighboursToInclude;
-      console.log("energyPerNeighbor");
-      console.logUint(energyPerNeighbor);
-      console.logUint(numNeighboursToInclude);
       if (energyToFlux < numNeighboursToInclude) {
         energyPerNeighbor = energyToFlux;
       }

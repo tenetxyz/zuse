@@ -20,6 +20,13 @@ contract EnergySourceSystem is VoxelInteraction {
     bytes32 neighbourEntityId,
     BlockDirection neighbourBlockDirection
   ) internal override returns (bool changedEntity, bytes memory entityData) {
+    BodyPhysicsData memory entityBodyPhysics = getVoxelBodyPhysicsFromCaller(interactEntity);
+    uint256 lastEnergy = EnergySource.getLastEnergy(callerAddress, interactEntity);
+    if (lastEnergy == entityBodyPhysics.energy) {
+      // No energy change, so don't run
+      return (changedEntity, entityData);
+    }
+
     uint256 lastInteractionBlock = EnergySource.getLastInteractionBlock(callerAddress, interactEntity);
     if (block.number <= lastInteractionBlock + ENERGY_SOURCE_WAIT_BLOCKS) {
       return (changedEntity, entityData);
@@ -39,12 +46,17 @@ contract EnergySourceSystem is VoxelInteraction {
     bytes32[] memory childEntityIds,
     bytes32 parentEntity
   ) internal override returns (bool changedEntity, bytes memory entityData) {
+    BodyPhysicsData memory entityBodyPhysics = getVoxelBodyPhysicsFromCaller(interactEntity);
+    if (EnergySource.getLastEnergy(callerAddress, interactEntity) == entityBodyPhysics.energy) {
+      // No energy change, so don't run
+      return (changedEntity, entityData);
+    }
+    EnergySource.setLastEnergy(callerAddress, interactEntity, entityBodyPhysics.energy);
+
     uint256 lastInteractionBlock = EnergySource.getLastInteractionBlock(callerAddress, interactEntity);
     if (block.number <= lastInteractionBlock + ENERGY_SOURCE_WAIT_BLOCKS) {
       return (changedEntity, entityData);
     }
-
-    BodyPhysicsData memory entityBodyPhysics = getVoxelBodyPhysicsFromCaller(interactEntity);
 
     uint256 emittedEnergy = entityBodyPhysics.energy / 10; // Emit 10% of its energy
     if (emittedEnergy == 0) {

@@ -8,8 +8,6 @@ import { console } from "forge-std/console.sol";
 
 function getVoxelBodyPhysicsFromCaller(bytes32 caEntity) view returns (BodyPhysicsData memory) {
   CAEntityReverseMappingData memory entityData = CAEntityReverseMapping.get(caEntity);
-  console.log("getVoxelBodyPhysicsFromCaller");
-  console.logBytes32(entityData.entity);
   VoxelEntity memory entity = VoxelEntity({ scale: 1, entityId: entityData.entity });
   bytes memory returnData = safeStaticCall(
     entityData.callerAddress,

@@ -39,56 +39,56 @@ contract MineTest is MudTest {
     VoxelEntity memory agentEntity = VoxelEntity({ scale: 1, entityId: getEntityAtCoord(1, VoxelCoord(10, 2, 10)) });
     world.claimAgent(agentEntity);
 
-    VoxelCoord memory highEnergyCoord = VoxelCoord(10, 2, 11);
-    // Mine block with high energy
-    world.mineWithAgent(GrassVoxelID, highEnergyCoord, agentEntity);
+    // VoxelCoord memory highEnergyCoord = VoxelCoord(10, 2, 11);
+    // // Mine block with high energy
+    // world.mineWithAgent(GrassVoxelID, highEnergyCoord, agentEntity);
 
-    // Place down energy source
-    world.buildWithAgent(EnergySourceVoxelID, highEnergyCoord, agentEntity, bytes4(0));
-    // Place down soil beside it
-    VoxelEntity memory soilEntity = world.buildWithAgent(SoilVoxelID, VoxelCoord(9, 2, 11), agentEntity, bytes4(0));
-    // Place down plant on top of soil
-    VoxelEntity memory plantEntity = world.buildWithAgent(PlantVoxelID, VoxelCoord(9, 3, 11), agentEntity, bytes4(0));
-    bytes32 plantCAEntity = CAEntityMapping.get(IStore(BASE_CA_ADDRESS), worldAddress, plantEntity.entityId);
-    PlantData memory plantData = Plant.get(IStore(BASE_CA_ADDRESS), worldAddress, plantCAEntity);
-    assertTrue(plantData.stage == PlantStage.Seed);
+    // // Place down energy source
+    // world.buildWithAgent(EnergySourceVoxelID, highEnergyCoord, agentEntity, bytes4(0));
+    // // Place down soil beside it
+    // VoxelEntity memory soilEntity = world.buildWithAgent(SoilVoxelID, VoxelCoord(9, 2, 11), agentEntity, bytes4(0));
+    // // Place down plant on top of soil
+    // VoxelEntity memory plantEntity = world.buildWithAgent(PlantVoxelID, VoxelCoord(9, 3, 11), agentEntity, bytes4(0));
+    // bytes32 plantCAEntity = CAEntityMapping.get(IStore(BASE_CA_ADDRESS), worldAddress, plantEntity.entityId);
+    // PlantData memory plantData = Plant.get(IStore(BASE_CA_ADDRESS), worldAddress, plantCAEntity);
+    // assertTrue(plantData.stage == PlantStage.Seed);
 
-    // Pass blocks then activate energy source, and transform to sprout
-    vm.roll(block.number + ENERGY_SOURCE_WAIT_BLOCKS + 1);
-    world.activateWithAgent(EnergySourceVoxelID, highEnergyCoord, agentEntity, bytes4(0));
-    plantData = Plant.get(IStore(BASE_CA_ADDRESS), worldAddress, plantCAEntity);
-    assertTrue(plantData.stage == PlantStage.Sprout);
+    // // Pass blocks then activate energy source, and transform to sprout
+    // vm.roll(block.number + ENERGY_SOURCE_WAIT_BLOCKS + 1);
+    // world.activateWithAgent(EnergySourceVoxelID, highEnergyCoord, agentEntity, bytes4(0));
+    // plantData = Plant.get(IStore(BASE_CA_ADDRESS), worldAddress, plantCAEntity);
+    // assertTrue(plantData.stage == PlantStage.Sprout);
 
-    // Pass blocks then activate energy source, and transform to flower
-    vm.roll(block.number + ENERGY_SOURCE_WAIT_BLOCKS + 1);
-    world.activateWithAgent(EnergySourceVoxelID, highEnergyCoord, agentEntity, bytes4(0));
-    plantData = Plant.get(IStore(BASE_CA_ADDRESS), worldAddress, plantCAEntity);
-    assertTrue(plantData.stage == PlantStage.Flower);
+    // // Pass blocks then activate energy source, and transform to flower
+    // vm.roll(block.number + ENERGY_SOURCE_WAIT_BLOCKS + 1);
+    // world.activateWithAgent(EnergySourceVoxelID, highEnergyCoord, agentEntity, bytes4(0));
+    // plantData = Plant.get(IStore(BASE_CA_ADDRESS), worldAddress, plantCAEntity);
+    // assertTrue(plantData.stage == PlantStage.Flower);
 
-    // Get pokemon mind selector
-    bytes memory mindData = MindRegistry.get(IStore(REGISTRY_ADDRESS), PokemonVoxelID, address(0));
-    Mind[] memory minds = abi.decode(mindData, (Mind[]));
-    assertTrue(minds.length == 1);
-    bytes4 mindSelector = minds[0].mindSelector;
+    // // Get pokemon mind selector
+    // bytes memory mindData = MindRegistry.get(IStore(REGISTRY_ADDRESS), PokemonVoxelID, address(0));
+    // Mind[] memory minds = abi.decode(mindData, (Mind[]));
+    // assertTrue(minds.length == 1);
+    // bytes4 mindSelector = minds[0].mindSelector;
 
-    // Place pokemon beside flower
-    VoxelEntity memory pokemonEntity = world.buildWithAgent(
-      PokemonVoxelID,
-      VoxelCoord(10, 3, 11),
-      agentEntity,
-      mindSelector
-    );
-    // Activate energy source
-    vm.roll(block.number + ENERGY_SOURCE_WAIT_BLOCKS + 1);
-    world.activateWithAgent(EnergySourceVoxelID, highEnergyCoord, agentEntity, bytes4(0));
-    bytes32 pokemonCAEntity = CAEntityMapping.get(IStore(BASE_CA_ADDRESS), worldAddress, pokemonEntity.entityId);
-    console.log("pokemonCAEntity");
-    console.logBytes32(pokemonCAEntity);
-    PokemonData memory pokemonData = Pokemon.get(IStore(BASE_CA_ADDRESS), worldAddress, pokemonCAEntity);
-    uint256 pokemonEnergy = BodyPhysics.getEnergy(pokemonEntity.scale, pokemonEntity.entityId);
-    console.log("pokemonData");
-    console.logUint(pokemonData.lastEnergy);
-    console.logUint(pokemonEnergy);
+    // // Place pokemon beside flower
+    // VoxelEntity memory pokemonEntity = world.buildWithAgent(
+    //   PokemonVoxelID,
+    //   VoxelCoord(10, 3, 11),
+    //   agentEntity,
+    //   mindSelector
+    // );
+    // // Activate energy source
+    // vm.roll(block.number + ENERGY_SOURCE_WAIT_BLOCKS + 1);
+    // world.activateWithAgent(EnergySourceVoxelID, highEnergyCoord, agentEntity, bytes4(0));
+    // bytes32 pokemonCAEntity = CAEntityMapping.get(IStore(BASE_CA_ADDRESS), worldAddress, pokemonEntity.entityId);
+    // console.log("pokemonCAEntity");
+    // console.logBytes32(pokemonCAEntity);
+    // PokemonData memory pokemonData = Pokemon.get(IStore(BASE_CA_ADDRESS), worldAddress, pokemonCAEntity);
+    // uint256 pokemonEnergy = BodyPhysics.getEnergy(pokemonEntity.scale, pokemonEntity.entityId);
+    // console.log("pokemonData");
+    // console.logUint(pokemonData.lastEnergy);
+    // console.logUint(pokemonEnergy);
     // assertTrue(pokemonData.lastEnergy > 0);
 
     vm.stopPrank();

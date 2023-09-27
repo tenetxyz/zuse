@@ -46,8 +46,10 @@ contract SoilSystem is VoxelInteraction {
     BodyPhysicsData memory entityBodyPhysics = getVoxelBodyPhysicsFromCaller(interactEntity);
     if (lastEnergy == entityBodyPhysics.energy) {
       // No energy change
+      console.log("skip");
       return (changedEntity, entityData);
     }
+    console.log("go");
     Soil.setLastEnergy(callerAddress, interactEntity, entityBodyPhysics.energy);
 
     entityData = getEntityData(callerAddress, neighbourEntityIds, neighbourEntityDirections, entityBodyPhysics);

@@ -90,7 +90,7 @@ contract PokemonAgentSystem is AgentType {
         exitWorldSelector: IWorld(world).pokemon_PokemonAgentSyst_exitWorld.selector,
         voxelVariantSelector: IWorld(world).pokemon_PokemonAgentSyst_variantSelector.selector,
         activateSelector: IWorld(world).pokemon_PokemonAgentSyst_activate.selector,
-        onNewNeighbourSelector: IWorld(world).pokemon_PokemonAgentSyst_onNewNeighbour.selector,
+        onNewNeighbourSelector: IWorld(world).pokemon_PokemonAgentSyst_neighbourEventHandler.selector,
         interactionSelectors: getInteractionSelectors()
       }),
       abi.encode(componentDefs)
@@ -134,7 +134,10 @@ contract PokemonAgentSystem is AgentType {
 
   function activate(bytes32 entity) public view override returns (string memory) {}
 
-  function onNewNeighbour(bytes32 interactEntity, bytes32 neighbourEntityId) public override {
+  function neighbourEventHandler(
+    bytes32 neighbourEntityId,
+    bytes32 centerEntityId
+  ) public override returns (bool, bytes memory) {
     MoveData[] memory movesData = new MoveData[](13); // the first value is for PokemonMove.None
     movesData[uint(PokemonMove.Ember)] = MoveData(10, 20, 0, MoveType.Fire);
     movesData[uint(PokemonMove.FlameBurst)] = MoveData(20, 40, 0, MoveType.Fire);
@@ -152,9 +155,9 @@ contract PokemonAgentSystem is AgentType {
     movesData[uint(PokemonMove.Synthesis)] = MoveData(15, 0, 30, MoveType.Grass);
 
     address callerAddress = super.getCallerAddress();
-    PokemonData memory pokemonData = Pokemon.get(callerAddress, interactEntity);
-    if (entityIsPokemon(callerAddress, neighbourEntityId)) {
-      PokemonData memory neighbourPokemonData = Pokemon.get(callerAddress, neighbourEntityId);
+    PokemonData memory pokemonData = Pokemon.get(callerAddress, neighbourEntityId);
+    if (entityIsPokemon(callerAddress, centerEntityId)) {
+      PokemonData memory neighbourPokemonData = Pokemon.get(callerAddress, centerEntityId);
       if (pokemonData.move != PokemonMove.None && neighbourPokemonData.move != PokemonMove.None) {
         // Calculate damage
         if (pokemonData.lostHealth < pokemonData.health) {
@@ -175,7 +178,7 @@ contract PokemonAgentSystem is AgentType {
       }
     }
 
-    Pokemon.set(callerAddress, interactEntity, pokemonData);
+    Pokemon.set(callerAddress, neighbourEntityId, pokemonData);
   }
 
   function calculateDamage(
@@ -293,7 +296,7 @@ contract PokemonAgentSystem is AgentType {
     bytes32[] memory neighbourEntityIds,
     bytes32[] memory childEntityIds,
     bytes32 parentEntity
-  ) public returns (bytes32, bytes32[] memory, bytes[] memory) {
+  ) public returns (bool, bytes memory) {
     address callerAddress = super.getCallerAddress();
     return
       IWorld(_world()).pokemon_PokemonSystem_eventHandlerPokemon(
@@ -311,7 +314,7 @@ contract PokemonAgentSystem is AgentType {
     bytes32[] memory neighbourEntityIds,
     bytes32[] memory childEntityIds,
     bytes32 parentEntity
-  ) public returns (bytes32, bytes32[] memory, bytes[] memory) {
+  ) public returns (bool, bytes memory) {
     address callerAddress = super.getCallerAddress();
     return
       IWorld(_world()).pokemon_PokemonSystem_eventHandlerPokemon(
@@ -329,7 +332,7 @@ contract PokemonAgentSystem is AgentType {
     bytes32[] memory neighbourEntityIds,
     bytes32[] memory childEntityIds,
     bytes32 parentEntity
-  ) public returns (bytes32, bytes32[] memory, bytes[] memory) {
+  ) public returns (bool, bytes memory) {
     address callerAddress = super.getCallerAddress();
     return
       IWorld(_world()).pokemon_PokemonSystem_eventHandlerPokemon(
@@ -347,7 +350,7 @@ contract PokemonAgentSystem is AgentType {
     bytes32[] memory neighbourEntityIds,
     bytes32[] memory childEntityIds,
     bytes32 parentEntity
-  ) public returns (bytes32, bytes32[] memory, bytes[] memory) {
+  ) public returns (bool, bytes memory) {
     address callerAddress = super.getCallerAddress();
     return
       IWorld(_world()).pokemon_PokemonSystem_eventHandlerPokemon(
@@ -365,7 +368,7 @@ contract PokemonAgentSystem is AgentType {
     bytes32[] memory neighbourEntityIds,
     bytes32[] memory childEntityIds,
     bytes32 parentEntity
-  ) public returns (bytes32, bytes32[] memory, bytes[] memory) {
+  ) public returns (bool, bytes memory) {
     address callerAddress = super.getCallerAddress();
     return
       IWorld(_world()).pokemon_PokemonSystem_eventHandlerPokemon(
@@ -383,7 +386,7 @@ contract PokemonAgentSystem is AgentType {
     bytes32[] memory neighbourEntityIds,
     bytes32[] memory childEntityIds,
     bytes32 parentEntity
-  ) public returns (bytes32, bytes32[] memory, bytes[] memory) {
+  ) public returns (bool, bytes memory) {
     address callerAddress = super.getCallerAddress();
     return
       IWorld(_world()).pokemon_PokemonSystem_eventHandlerPokemon(
@@ -401,7 +404,7 @@ contract PokemonAgentSystem is AgentType {
     bytes32[] memory neighbourEntityIds,
     bytes32[] memory childEntityIds,
     bytes32 parentEntity
-  ) public returns (bytes32, bytes32[] memory, bytes[] memory) {
+  ) public returns (bool, bytes memory) {
     address callerAddress = super.getCallerAddress();
     return
       IWorld(_world()).pokemon_PokemonSystem_eventHandlerPokemon(
@@ -419,7 +422,7 @@ contract PokemonAgentSystem is AgentType {
     bytes32[] memory neighbourEntityIds,
     bytes32[] memory childEntityIds,
     bytes32 parentEntity
-  ) public returns (bytes32, bytes32[] memory, bytes[] memory) {
+  ) public returns (bool, bytes memory) {
     address callerAddress = super.getCallerAddress();
     return
       IWorld(_world()).pokemon_PokemonSystem_eventHandlerPokemon(
@@ -437,7 +440,7 @@ contract PokemonAgentSystem is AgentType {
     bytes32[] memory neighbourEntityIds,
     bytes32[] memory childEntityIds,
     bytes32 parentEntity
-  ) public returns (bytes32, bytes32[] memory, bytes[] memory) {
+  ) public returns (bool, bytes memory) {
     address callerAddress = super.getCallerAddress();
     return
       IWorld(_world()).pokemon_PokemonSystem_eventHandlerPokemon(
@@ -455,7 +458,7 @@ contract PokemonAgentSystem is AgentType {
     bytes32[] memory neighbourEntityIds,
     bytes32[] memory childEntityIds,
     bytes32 parentEntity
-  ) public returns (bytes32, bytes32[] memory, bytes[] memory) {
+  ) public returns (bool, bytes memory) {
     address callerAddress = super.getCallerAddress();
     return
       IWorld(_world()).pokemon_PokemonSystem_eventHandlerPokemon(
@@ -473,7 +476,7 @@ contract PokemonAgentSystem is AgentType {
     bytes32[] memory neighbourEntityIds,
     bytes32[] memory childEntityIds,
     bytes32 parentEntity
-  ) public returns (bytes32, bytes32[] memory, bytes[] memory) {
+  ) public returns (bool, bytes memory) {
     address callerAddress = super.getCallerAddress();
     return
       IWorld(_world()).pokemon_PokemonSystem_eventHandlerPokemon(
@@ -491,7 +494,7 @@ contract PokemonAgentSystem is AgentType {
     bytes32[] memory neighbourEntityIds,
     bytes32[] memory childEntityIds,
     bytes32 parentEntity
-  ) public returns (bytes32, bytes32[] memory, bytes[] memory) {
+  ) public returns (bool, bytes memory) {
     address callerAddress = super.getCallerAddress();
     return
       IWorld(_world()).pokemon_PokemonSystem_eventHandlerPokemon(
@@ -509,7 +512,7 @@ contract PokemonAgentSystem is AgentType {
     bytes32[] memory neighbourEntityIds,
     bytes32[] memory childEntityIds,
     bytes32 parentEntity
-  ) public returns (bytes32, bytes32[] memory, bytes[] memory) {
+  ) public returns (bool, bytes memory) {
     address callerAddress = super.getCallerAddress();
     return
       IWorld(_world()).pokemon_PokemonSystem_eventHandlerPokemon(

@@ -16,11 +16,4 @@ abstract contract VoxelType is BodyType {
     bytes32[] memory childEntityIds,
     bytes32 parentEntity
   ) public virtual returns (bool, bytes memory);
-
-  // Called by the CA when an even occurs where this voxel
-  // is the neighbour entity of a center entity
-  function neighbourEventHandler(
-    bytes32 neighbourEntityId,
-    bytes32 centerEntityId
-  ) public virtual returns (bool, bytes memory);
 }

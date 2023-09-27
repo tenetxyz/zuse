@@ -63,7 +63,7 @@ contract FighterAgentSystem is AgentType {
         exitWorldSelector: IWorld(world).ca_FighterAgentSyst_exitWorld.selector,
         voxelVariantSelector: IWorld(world).ca_FighterAgentSyst_variantSelector.selector,
         activateSelector: IWorld(world).ca_FighterAgentSyst_activate.selector,
-        onNewNeighbourSelector: IWorld(world).ca_FighterAgentSyst_onNewNeighbour.selector,
+        onNewNeighbourSelector: IWorld(world).ca_FighterAgentSyst_neighbourEventHandler.selector,
         interactionSelectors: getInteractionSelectors()
       }),
       abi.encode(componentDefs)
@@ -85,7 +85,10 @@ contract FighterAgentSystem is AgentType {
 
   function activate(bytes32 entity) public view override returns (string memory) {}
 
-  function onNewNeighbour(bytes32 interactEntity, bytes32 neighbourEntityId) public override {}
+  function neighbourEventHandler(
+    bytes32 neighbourEntityId,
+    bytes32 centerEntityId
+  ) public override returns (bool, bytes memory) {}
 
   function getInteractionSelectors() public override returns (InteractionSelector[] memory) {
     InteractionSelector[] memory voxelInteractionSelectors = new InteractionSelector[](3);
@@ -113,5 +116,5 @@ contract FighterAgentSystem is AgentType {
     bytes32[] memory neighbourEntityIds,
     bytes32[] memory childEntityIds,
     bytes32 parentEntity
-  ) public returns (bytes32, bytes32[] memory) {}
+  ) public returns (bool, bytes memory) {}
 }

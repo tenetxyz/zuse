@@ -36,15 +36,15 @@ abstract contract CAInteraction is System {
     bytes32[] memory caNeighbourEntityIds,
     bytes32[] memory childEntityIds,
     bytes32 parentEntity
-  ) internal virtual returns (bytes32[] memory, bytes[] memory) {
-    bytes32[] memory changedCAEntities = new bytes32[](caNeighbourEntityIds.length + 1);
-    bytes[] memory caEntitiesEventData = new bytes[](caNeighbourEntityIds.length + 1);
+  ) internal virtual returns (bytes32, bytes memory) {
+    bytes32 changedCenterEntityId;
+    bytes memory centerEntityEventData;
 
     {
       // handle base voxel types
       bytes32 baseVoxelTypeId = VoxelTypeRegistry.getBaseVoxelTypeId(IStore(getRegistryAddress()), voxelTypeId);
       if (baseVoxelTypeId != voxelTypeId) {
-        (bytes32[] memory insideChangedCAEntityIds, bytes[] memory insideCAEntitiesEventData) = voxelRunInteraction(
+        (bytes32 insideChangedCenterEntityId, bytes memory insideCenterEntityEventData) = voxelRunInteraction(
           bytes4(0),
           baseVoxelTypeId,
           caInteractEntity,
@@ -53,16 +53,12 @@ abstract contract CAInteraction is System {
           parentEntity
         ); // recursive, so we get the entire stack of russian dolls
 
-        for (uint256 i = 0; i < insideChangedCAEntityIds.length; i++) {
-          if (changedCAEntities[i] == 0 && insideChangedCAEntityIds[i] != 0) {
-            changedCAEntities[i] = insideChangedCAEntityIds[i];
-          }
+        if (changedCenterEntityId == 0 && insideChangedCenterEntityId != 0) {
+          changedCenterEntityId = insideChangedCenterEntityId;
         }
 
-        for (uint256 i = 0; i < insideCAEntitiesEventData.length; i++) {
-          if (caEntitiesEventData[i].length == 0 && insideCAEntitiesEventData[i].length != 0) {
-            caEntitiesEventData[i] = insideCAEntitiesEventData[i];
-          }
+        if (centerEntityEventData.length == 0 && insideCenterEntityEventData.length != 0) {
+          centerEntityEventData = insideCenterEntityEventData;
         }
       }
     }
@@ -101,7 +97,7 @@ abstract contract CAInteraction is System {
           useinteractionSelector = abi.decode(mindReturnData, (bytes4));
           if (useinteractionSelector == bytes4(0)) {
             // The mind has chosen to not run a voxel interaction
-            return (changedCAEntities, caEntitiesEventData);
+            return (changedCenterEntityId, centerEntityEventData);
           }
         } else {
           useinteractionSelector = interactionSelectors[0].interactionSelector; // use the first one
@@ -123,30 +119,18 @@ abstract contract CAInteraction is System {
         "voxel interaction selector"
       );
 
-      (
-        bytes32 changedCACenterEntityId,
-        bytes32[] memory changedCANeighbourEntityIds,
-        bytes[] memory entityEventData
-      ) = abi.decode(returnData, (bytes32, bytes32[], bytes[]));
+      (bool changedCACenterEntityId, bytes memory entityEventData) = abi.decode(returnData, (bool, bytes));
 
-      if (changedCAEntities[0] == 0 && changedCACenterEntityId != 0) {
-        changedCAEntities[0] = changedCACenterEntityId;
+      if (changedCenterEntityId == 0 && changedCACenterEntityId) {
+        changedCenterEntityId = caInteractEntity;
       }
 
-      for (uint256 i = 0; i < changedCANeighbourEntityIds.length; i++) {
-        if (changedCAEntities[i + 1] == 0 && changedCANeighbourEntityIds[i] != 0) {
-          changedCAEntities[i + 1] = changedCANeighbourEntityIds[i];
-        }
-      }
-
-      for (uint256 i = 0; i < entityEventData.length; i++) {
-        if (caEntitiesEventData[i].length == 0 && entityEventData[i].length != 0) {
-          caEntitiesEventData[i] = entityEventData[i];
-        }
+      if (centerEntityEventData.length == 0 && entityEventData.length != 0) {
+        centerEntityEventData = entityEventData;
       }
     }
 
-    return (changedCAEntities, caEntitiesEventData);
+    return (changedCenterEntityId, centerEntityEventData);
   }
 
   function runNeighbourInteractionsHelper(
@@ -176,11 +160,11 @@ abstract contract CAInteraction is System {
     bytes32 caInteractEntity,
     bytes32[] memory caNeighbourEntityIds,
     bytes32[] memory childEntityIds,
-    bytes32 parentEntity,
-    bytes32[] memory changedCAEntities,
-    bytes[] memory caEntitiesEventData
+    bytes32 parentEntity
   ) internal returns (bytes32[] memory, bytes[] memory) {
     address callerAddress = _msgSender();
+    bytes32[] memory changedNeighbourEntities = new bytes32[](neighbourEntityIds.length);
+    bytes[] memory neighbourEntitiesEventData = new bytes[](neighbourEntityIds.length);
     for (uint256 i = 0; i < neighbourEntityIds.length; i++) {
       if (neighbourEntityIds[i] != 0) {
         bytes32 neighbourVoxelTypeId = CAVoxelType.getVoxelTypeId(callerAddress, neighbourEntityIds[i]);
@@ -188,47 +172,25 @@ abstract contract CAInteraction is System {
           continue;
         }
 
-        {
-          bytes4 onNewNeighbourSelector = getOnNewNeighbourSelector(IStore(getRegistryAddress()), neighbourVoxelTypeId);
-          if (onNewNeighbourSelector != bytes4(0)) {
-            safeCall(
-              _world(),
-              abi.encodeWithSelector(onNewNeighbourSelector, caNeighbourEntityIds[i], caInteractEntity),
-              "onNewNeighbourSelector"
-            );
+        bytes4 onNewNeighbourSelector = getOnNewNeighbourSelector(IStore(getRegistryAddress()), neighbourVoxelTypeId);
+        if (onNewNeighbourSelector != bytes4(0)) {
+          bytes memory returnData = safeCall(
+            _world(),
+            abi.encodeWithSelector(onNewNeighbourSelector, caNeighbourEntityIds[i], caInteractEntity),
+            "onNewNeighbourSelector"
+          );
+          (bool changedNeighbour, bytes memory entityEventData) = abi.decode(returnData, (bool, bytes));
+          if (changedNeighbour) {
+            changedNeighbourEntities[i] = caNeighbourEntityIds[i];
           }
-        }
-
-        // Call voxel interaction
-        {
-          (
-            bytes32[] memory changedCANeighbourEntities,
-            bytes[] memory caNeighbourEntitiesEventsData
-          ) = voxelRunInteraction(
-              bytes4(0),
-              neighbourVoxelTypeId,
-              caInteractEntity,
-              caNeighbourEntityIds,
-              childEntityIds,
-              parentEntity
-            );
-
-          for (uint256 j = 0; j < changedCANeighbourEntities.length; j++) {
-            if (changedCAEntities[j] == 0 && changedCANeighbourEntities[j] != 0) {
-              changedCAEntities[j] = changedCANeighbourEntities[j];
-            }
-          }
-
-          for (uint256 j = 0; j < caNeighbourEntitiesEventsData.length; j++) {
-            if (caEntitiesEventData[j].length == 0 && caNeighbourEntitiesEventsData[j].length != 0) {
-              caEntitiesEventData[j] = caNeighbourEntitiesEventsData[j];
-            }
+          if (entityEventData.length != 0) {
+            neighbourEntitiesEventData[i] = entityEventData;
           }
         }
       }
     }
 
-    return (changedCAEntities, caEntitiesEventData);
+    return (changedNeighbourEntities, neighbourEntitiesEventData);
   }
 
   function runInteraction(
@@ -252,7 +214,7 @@ abstract contract CAInteraction is System {
     // define two, so instead we just call one interface and pass in the entity ids
 
     // Center Interaction
-    (bytes32[] memory changedCAEntities, bytes[] memory caEntitiesEventData) = voxelRunInteraction(
+    (bytes32 changedCenterEntityId, bytes memory centerEntityEventData) = voxelRunInteraction(
       interactionSelector,
       voxelTypeId,
       caInteractEntity,
@@ -262,16 +224,25 @@ abstract contract CAInteraction is System {
     );
 
     // Neighbour Interactions
-    (changedCAEntities, caEntitiesEventData) = runNeighbourInteractions(
+    (bytes32[] memory changedNeighbourEntities, bytes[] memory neighbourEntitiesEventData) = runNeighbourInteractions(
       interactEntity,
       neighbourEntityIds,
       caInteractEntity,
       caNeighbourEntityIds,
       childEntityIds,
-      parentEntity,
-      changedCAEntities,
-      caEntitiesEventData
+      parentEntity
     );
+
+    bytes32[] memory changedCAEntities = new bytes32[](changedNeighbourEntities.length + 1);
+    bytes[] memory caEntitiesEventData = new bytes[](neighbourEntitiesEventData.length + 1);
+    changedCAEntities[0] = changedCenterEntityId;
+    for (uint i = 0; i < changedNeighbourEntities.length; i++) {
+      changedCAEntities[i + 1] = changedCAEntities[i];
+    }
+    caEntitiesEventData[0] = centerEntityEventData;
+    for (uint i = 0; i < neighbourEntitiesEventData.length; i++) {
+      caEntitiesEventData[i + 1] = neighbourEntitiesEventData[i];
+    }
 
     changedEntities = caEntityArrayToEntityArray(changedCAEntities);
     // Update voxel types after interaction

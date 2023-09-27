@@ -85,8 +85,10 @@ contract SoilTest is MudTest {
     (, agentEntity) = world.moveWithAgent(FighterVoxelID, agentCoord, newAgentCoord, agentEntity);
 
     // Place down another soil beside it
+    console.log("BUILDING SECOND SOIL");
+    console.logBytes32(soilEntity.entityId);
     VoxelCoord memory soilCoord2 = VoxelCoord({ x: soilCoord.x - 1, y: soilCoord.y, z: soilCoord.z });
-    // VoxelEntity memory soilEntity2 = world.buildWithAgent(SoilVoxelID, soilCoord2, agentEntity, bytes4(0));
+    VoxelEntity memory soilEntity2 = world.buildWithAgent(SoilVoxelID, soilCoord2, agentEntity, bytes4(0));
     // assertTrue(BodyPhysics.getEnergy(soilEntity.scale, soilEntity.entityId) < soil1Energy);
     // uint256 soil2Energy = BodyPhysics.getEnergy(soilEntity.scale, soilEntity.entityId);
     // assertTrue(soil2Energy > 0);

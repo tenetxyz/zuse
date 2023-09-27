@@ -10,9 +10,9 @@ import { getCAEntityPositionStrict } from "@tenet-base-ca/src/Utils.sol";
 abstract contract VoxelInteraction is System {
   function onNewNeighbour(
     address callerAddress,
-    bytes32 interactEntity,
     bytes32 neighbourEntityId,
-    BlockDirection neighbourBlockDirection
+    bytes32 centerEntityId,
+    BlockDirection centerBlockDirection
   ) internal virtual returns (bool changedEntity, bytes memory entityData);
 
   function runInteraction(
@@ -30,10 +30,8 @@ abstract contract VoxelInteraction is System {
     bytes32[] memory neighbourEntityIds,
     bytes32[] memory childEntityIds,
     bytes32 parentEntity
-  ) internal returns (bytes32, bytes memory) {
+  ) internal returns (bool changedCenterEntityId, bytes memory centerEntityData) {
     VoxelCoord memory centerPosition = getCAEntityPositionStrict(IStore(_world()), centerEntityId);
-    bytes32 changedCenterEntityId = 0;
-    bytes memory centerEntityData;
 
     BlockDirection[] memory neighbourEntityDirections = new BlockDirection[](neighbourEntityIds.length);
     for (uint8 i = 0; i < neighbourEntityIds.length; i++) {
@@ -49,7 +47,7 @@ abstract contract VoxelInteraction is System {
       );
       neighbourEntityDirections[i] = centerBlockDirection;
     }
-    (bool changedEntity, bytes memory entityData) = runInteraction(
+    (changedCenterEntityId, centerEntityData) = runInteraction(
       callerAddress,
       centerEntityId,
       neighbourEntityIds,
@@ -57,34 +55,27 @@ abstract contract VoxelInteraction is System {
       childEntityIds,
       parentEntity
     );
-    centerEntityData = entityData;
-    if (changedEntity) {
-      changedCenterEntityId = centerEntityId;
-    }
 
     return (changedCenterEntityId, centerEntityData);
   }
 
   function neighbourEventHandler(
     address callerAddress,
-    bytes32 interactEntity,
-    bytes32 neighbourEntityId
-  ) internal returns (bytes32, bytes memory) {
-    bytes32 changedNeighbourEntityId = 0;
-    bytes memory neighbourEntityData;
-
+    bytes32 neighbourEntityId,
+    bytes32 centerEntityId
+  ) internal returns (bool changedNeighbourEntityId, bytes memory neighbourEntityData) {
     BlockDirection centerBlockDirection = calculateBlockDirection(
-      getCAEntityPositionStrict(IStore(_world()), neighbourEntityId), // center
-      getCAEntityPositionStrict(IStore(_world()), interactEntity) // neighbour
+      getCAEntityPositionStrict(IStore(_world()), centerEntityId),
+      getCAEntityPositionStrict(IStore(_world()), neighbourEntityId)
     );
 
-    (bool changedEntity, bytes memory entityData) = onNewNeighbour(callerAddress, interactEntity, neighbourEntityId, centerBlockDirection);
-    neighbourEntityData = entityData;
-    if(changedEntity){
-      changedNeighbourEntityId = interactEntity;
-    }
+    (changedNeighbourEntityId, neighbourEntityData) = onNewNeighbour(
+      callerAddress,
+      neighbourEntityId,
+      centerEntityId,
+      centerBlockDirection
+    );
 
     return (changedNeighbourEntityId, neighbourEntityData);
   }
-
 }

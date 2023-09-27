@@ -50,7 +50,8 @@ contract PlantVoxelSystem is VoxelType {
         IWorld(world).pokemon_PlantVoxelSystem_exitWorld.selector,
         IWorld(world).pokemon_PlantVoxelSystem_variantSelector.selector,
         IWorld(world).pokemon_PlantVoxelSystem_activate.selector,
-        IWorld(world).pokemon_PlantVoxelSystem_eventHandler.selector
+        IWorld(world).pokemon_PlantVoxelSystem_eventHandler.selector,
+        IWorld(world).pokemon_PlantVoxelSystem_neighbourEventHandler.selector
       ),
       abi.encode(componentDefs)
     );
@@ -93,7 +94,7 @@ contract PlantVoxelSystem is VoxelType {
     bytes32[] memory neighbourEntityIds,
     bytes32[] memory childEntityIds,
     bytes32 parentEntity
-  ) public override returns (bytes32, bytes32[] memory, bytes[] memory) {
+  ) public override returns (bool, bytes memory) {
     address callerAddress = super.getCallerAddress();
     return
       IWorld(_world()).pokemon_PlantSystem_eventHandlerPlant(
@@ -103,5 +104,14 @@ contract PlantVoxelSystem is VoxelType {
         childEntityIds,
         parentEntity
       );
+  }
+
+  function neighbourEventHandler(
+    bytes32 neighbourEntityId,
+    bytes32 centerEntityId
+  ) public override returns (bool, bytes memory) {
+    address callerAddress = super.getCallerAddress();
+    return
+      IWorld(_world()).pokemon_PlantSystem_neighbourEventHandlerPlant(callerAddress, neighbourEntityId, centerEntityId);
   }
 }

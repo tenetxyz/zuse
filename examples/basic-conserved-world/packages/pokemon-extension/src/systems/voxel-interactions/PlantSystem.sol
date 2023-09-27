@@ -20,12 +20,12 @@ uint256 constant ENERGY_REQUIRED_FOR_FLOWER = 200;
 contract PlantSystem is VoxelInteraction {
   function onNewNeighbour(
     address callerAddress,
-    bytes32 interactEntity,
     bytes32 neighbourEntityId,
-    BlockDirection neighbourBlockDirection
+    bytes32 centerEntityId,
+    BlockDirection centerBlockDirection
   ) internal override returns (bool changedEntity, bytes memory entityData) {
-    BodyPhysicsData memory entityBodyPhysics = getVoxelBodyPhysicsFromCaller(interactEntity);
-    uint256 lastEnergy = Plant.getLastEnergy(callerAddress, interactEntity);
+    BodyPhysicsData memory entityBodyPhysics = getVoxelBodyPhysicsFromCaller(neighbourEntityId);
+    uint256 lastEnergy = Plant.getLastEnergy(callerAddress, neighbourEntityId);
     if (lastEnergy == entityBodyPhysics.energy) {
       // No energy change, so don't run
       return (changedEntity, entityData);
@@ -233,17 +233,21 @@ contract PlantSystem is VoxelInteraction {
     return (plantData, changedEntity, entityData);
   }
 
-  function entityShouldInteract(address callerAddress, bytes32 entityId) internal view override returns (bool) {
-    return entityIsPlant(callerAddress, entityId);
-  }
-
   function eventHandlerPlant(
     address callerAddress,
     bytes32 centerEntityId,
     bytes32[] memory neighbourEntityIds,
     bytes32[] memory childEntityIds,
     bytes32 parentEntity
-  ) public returns (bytes32, bytes32[] memory, bytes[] memory) {
+  ) public returns (bool, bytes memory) {
     return super.eventHandler(callerAddress, centerEntityId, neighbourEntityIds, childEntityIds, parentEntity);
+  }
+
+  function neighbourEventHandlerPlant(
+    address callerAddress,
+    bytes32 neighbourEntityId,
+    bytes32 centerEntityId
+  ) public returns (bool, bytes memory) {
+    return super.neighbourEventHandler(callerAddress, neighbourEntityId, centerEntityId);
   }
 }

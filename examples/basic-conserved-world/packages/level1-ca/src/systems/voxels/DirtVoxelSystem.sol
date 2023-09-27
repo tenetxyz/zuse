@@ -1,14 +1,13 @@
 // SPDX-License-Identifier: MIT
 pragma solidity >=0.8.0;
 
-import { IStore } from "@latticexyz/store/src/IStore.sol";
 import { IWorld } from "@tenet-level1-ca/src/codegen/world/IWorld.sol";
 import { VoxelType } from "@tenet-base-ca/src/prototypes/VoxelType.sol";
 import { VoxelVariantsRegistryData } from "@tenet-registry/src/codegen/tables/VoxelVariantsRegistry.sol";
 import { NoaBlockType } from "@tenet-registry/src/codegen/Types.sol";
 import { registerVoxelVariant, registerVoxelType, voxelSelectorsForVoxel } from "@tenet-registry/src/Utils.sol";
 import { REGISTRY_ADDRESS, DirtVoxelID } from "@tenet-level1-ca/src/Constants.sol";
-import { VoxelCoord, ComponentDef, VoxelEntity } from "@tenet-utils/src/Types.sol";
+import { VoxelCoord, ComponentDef } from "@tenet-utils/src/Types.sol";
 import { AirVoxelID } from "@tenet-level1-ca/src/Constants.sol";
 
 bytes32 constant DirtVoxelVariantID = bytes32(keccak256("dirt"));
@@ -45,7 +44,8 @@ contract DirtVoxelSystem is VoxelType {
         IWorld(world).ca_DirtVoxelSystem_exitWorld.selector,
         IWorld(world).ca_DirtVoxelSystem_variantSelector.selector,
         IWorld(world).ca_DirtVoxelSystem_activate.selector,
-        IWorld(world).ca_DirtVoxelSystem_eventHandler.selector
+        IWorld(world).ca_DirtVoxelSystem_eventHandler.selector,
+        IWorld(world).ca_DirtVoxelSystem_neighbourEventHandler.selector
       ),
       abi.encode(componentDefs)
     );
@@ -71,5 +71,10 @@ contract DirtVoxelSystem is VoxelType {
     bytes32[] memory neighbourEntityIds,
     bytes32[] memory childEntityIds,
     bytes32 parentEntity
-  ) public override returns (bytes32, bytes32[] memory, bytes[] memory) {}
+  ) public override returns (bool, bytes memory) {}
+
+  function neighbourEventHandler(
+    bytes32 neighbourEntityId,
+    bytes32 centerEntityId
+  ) public override returns (bool, bytes memory) {}
 }

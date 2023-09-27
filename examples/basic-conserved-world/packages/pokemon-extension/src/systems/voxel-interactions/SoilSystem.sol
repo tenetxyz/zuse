@@ -17,17 +17,17 @@ import { console } from "forge-std/console.sol";
 contract SoilSystem is VoxelInteraction {
   function onNewNeighbour(
     address callerAddress,
-    bytes32 interactEntity,
     bytes32 neighbourEntityId,
-    BlockDirection neighbourBlockDirection
+    bytes32 centerEntityId,
+    BlockDirection centerBlockDirection
   ) internal override returns (bool changedEntity, bytes memory entityData) {
-    uint256 lastInteractionBlock = Soil.getLastInteractionBlock(callerAddress, interactEntity);
+    uint256 lastInteractionBlock = Soil.getLastInteractionBlock(callerAddress, neighbourEntityId);
     if (block.number == lastInteractionBlock) {
       console.log("skip new neighbour soil");
       return (changedEntity, entityData);
     }
 
-    BodyPhysicsData memory entityBodyPhysics = getVoxelBodyPhysicsFromCaller(interactEntity);
+    BodyPhysicsData memory entityBodyPhysics = getVoxelBodyPhysicsFromCaller(neighbourEntityId);
     uint256 transferEnergyToSoil = getEnergyToSoil(entityBodyPhysics.energy);
     uint256 transferEnergyToPlant = getEnergyToPlant(entityBodyPhysics.energy);
     if (transferEnergyToSoil == 0 && transferEnergyToPlant == 0) {
@@ -35,14 +35,14 @@ contract SoilSystem is VoxelInteraction {
     }
 
     if (
-      !entityIsSoil(callerAddress, neighbourEntityId) &&
-      !isValidPlantNeighbour(callerAddress, neighbourEntityId, neighbourBlockDirection)
+      !entityIsSoil(callerAddress, centerEntityId) &&
+      !isValidPlantNeighbour(callerAddress, centerEntityId, centerBlockDirection)
     ) {
       return (changedEntity, entityData);
     }
 
     console.log("on new neighbour go soil");
-    console.logBytes32(interactEntity);
+    console.logBytes32(neighbourEntityId);
 
     // otherwise, we want to run
     changedEntity = true;
@@ -184,17 +184,21 @@ contract SoilSystem is VoxelInteraction {
     return new bytes(0);
   }
 
-  function entityShouldInteract(address callerAddress, bytes32 entityId) internal view override returns (bool) {
-    return entityIsSoil(callerAddress, entityId);
-  }
-
   function eventHandlerSoil(
     address callerAddress,
     bytes32 centerEntityId,
     bytes32[] memory neighbourEntityIds,
     bytes32[] memory childEntityIds,
     bytes32 parentEntity
-  ) public returns (bytes32, bytes32[] memory, bytes[] memory) {
+  ) public returns (bool, bytes memory) {
     return super.eventHandler(callerAddress, centerEntityId, neighbourEntityIds, childEntityIds, parentEntity);
+  }
+
+  function neighbourEventHandlerSoil(
+    address callerAddress,
+    bytes32 neighbourEntityId,
+    bytes32 centerEntityId
+  ) public returns (bool, bytes memory) {
+    return super.neighbourEventHandler(callerAddress, neighbourEntityId, centerEntityId);
   }
 }

@@ -45,7 +45,8 @@ contract SoilVoxelSystem is VoxelType {
         IWorld(world).pokemon_SoilVoxelSystem_exitWorld.selector,
         IWorld(world).pokemon_SoilVoxelSystem_variantSelector.selector,
         IWorld(world).pokemon_SoilVoxelSystem_activate.selector,
-        IWorld(world).pokemon_SoilVoxelSystem_eventHandler.selector
+        IWorld(world).pokemon_SoilVoxelSystem_eventHandler.selector,
+        IWorld(world).pokemon_SoilVoxelSystem_neighbourEventHandler.selector
       ),
       abi.encode(componentDefs)
     );
@@ -80,7 +81,7 @@ contract SoilVoxelSystem is VoxelType {
     bytes32[] memory neighbourEntityIds,
     bytes32[] memory childEntityIds,
     bytes32 parentEntity
-  ) public override returns (bytes32, bytes32[] memory, bytes[] memory) {
+  ) public override returns (bool, bytes memory) {
     address callerAddress = super.getCallerAddress();
     return
       IWorld(_world()).pokemon_SoilSystem_eventHandlerSoil(
@@ -90,5 +91,14 @@ contract SoilVoxelSystem is VoxelType {
         childEntityIds,
         parentEntity
       );
+  }
+
+  function neighbourEventHandler(
+    bytes32 neighbourEntityId,
+    bytes32 centerEntityId
+  ) public override returns (bool, bytes memory) {
+    address callerAddress = super.getCallerAddress();
+    return
+      IWorld(_world()).pokemon_SoilSystem_neighbourEventHandlerSoil(callerAddress, neighbourEntityId, centerEntityId);
   }
 }

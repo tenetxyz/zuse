@@ -8,12 +8,19 @@ import { BodyType } from "@tenet-base-ca/src/prototypes/BodyType.sol";
 
 // Represents a voxel body (or Minecraft block)
 abstract contract VoxelType is BodyType {
-  // Called by the CA when an event occurs that includes the voxel
-  // the voxel could either be the center or a neighbour
+  // Called by the CA when an event occurs where this voxel
+  // is the center entity
   function eventHandler(
     bytes32 centerEntityId,
     bytes32[] memory neighbourEntityIds,
     bytes32[] memory childEntityIds,
     bytes32 parentEntity
-  ) public virtual returns (bytes32, bytes32[] memory, bytes[] memory);
+  ) public virtual returns (bool, bytes memory);
+
+  // Called by the CA when an even occurs where this voxel
+  // is the neighbour entity of a center entity
+  function neighbourEventHandler(
+    bytes32 neighbourEntityId,
+    bytes32 centerEntityId
+  ) public virtual returns (bool, bytes memory);
 }

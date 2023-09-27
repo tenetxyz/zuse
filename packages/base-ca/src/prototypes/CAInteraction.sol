@@ -197,7 +197,7 @@ abstract contract CAInteraction is System {
     bytes32[] memory neighbourEntityIds,
     bytes32[] memory childEntityIds,
     bytes32 parentEntity
-  ) public virtual returns (bytes32[] memory changedEntities, bytes[] memory) {
+  ) public virtual returns (bytes32[] memory, bytes[] memory) {
     address callerAddress = _msgSender();
     require(
       hasKey(CAVoxelTypeTableId, CAVoxelType.encodeKeyTuple(callerAddress, interactEntity)),
@@ -207,9 +207,6 @@ abstract contract CAInteraction is System {
 
     bytes32 caInteractEntity = entityToCAEntity(callerAddress, interactEntity);
     bytes32[] memory caNeighbourEntityIds = entityArrayToCAEntityArray(callerAddress, neighbourEntityIds);
-
-    // Note: Center and Neighbour could just be different interfaces, but then the user would have to
-    // define two, so instead we just call one interface and pass in the entity ids
 
     // Center Interaction
     (bytes32 changedCenterEntityId, bytes memory centerEntityEventData) = voxelRunInteraction(
@@ -232,6 +229,8 @@ abstract contract CAInteraction is System {
 
     bytes32[] memory changedCAEntities = new bytes32[](changedNeighbourEntities.length + 1);
     bytes[] memory caEntitiesEventData = new bytes[](neighbourEntitiesEventData.length + 1);
+    // Note: If the center changes, there will be another event for it again before the neighbours
+    // You could move this to be after the neighbour events
     changedCAEntities[0] = changedCenterEntityId;
     for (uint i = 0; i < changedNeighbourEntities.length; i++) {
       changedCAEntities[i + 1] = changedCAEntities[i];
@@ -241,7 +240,7 @@ abstract contract CAInteraction is System {
       caEntitiesEventData[i + 1] = neighbourEntitiesEventData[i];
     }
 
-    changedEntities = caEntityArrayToEntityArray(changedCAEntities);
+    bytes32[] memory changedEntities = caEntityArrayToEntityArray(changedCAEntities);
     // Update voxel types after interaction
     updateVoxelTypes(callerAddress, changedEntities);
 

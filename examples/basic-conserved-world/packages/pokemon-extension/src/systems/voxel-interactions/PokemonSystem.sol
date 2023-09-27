@@ -22,100 +22,6 @@ import { console } from "forge-std/console.sol";
 uint256 constant NUM_BLOCKS_FAINTED = 50;
 
 contract PokemonSystem is System {
-  function runCaseOne(
-    address callerAddress,
-    bytes32 centerEntityId,
-    VoxelCoord memory centerPosition,
-    bytes32[] memory neighbourEntityIds,
-    bytes32[] memory childEntityIds,
-    bytes32 parentEntity,
-    PokemonMove pokemonMove
-  ) internal returns (bytes32, bytes memory) {
-    bytes32 changedCenterEntityId = 0;
-    bytes memory centerEntityData;
-    if (entityShouldInteract(callerAddress, centerEntityId)) {
-      BlockDirection[] memory neighbourEntityDirections = new BlockDirection[](neighbourEntityIds.length);
-      for (uint8 i = 0; i < neighbourEntityIds.length; i++) {
-        bytes32 neighbourEntityId = neighbourEntityIds[i];
-        if (uint256(neighbourEntityId) == 0) {
-          neighbourEntityDirections[i] = BlockDirection.None;
-          continue;
-        }
-
-        BlockDirection centerBlockDirection = calculateBlockDirection(
-          getCAEntityPositionStrict(IStore(_world()), neighbourEntityId),
-          centerPosition
-        );
-        neighbourEntityDirections[i] = centerBlockDirection;
-      }
-      (bool changedEntity, bytes memory entityData) = runInteraction(
-        callerAddress,
-        centerEntityId,
-        neighbourEntityIds,
-        neighbourEntityDirections,
-        childEntityIds,
-        parentEntity,
-        pokemonMove
-      );
-      centerEntityData = entityData;
-      if (changedEntity) {
-        changedCenterEntityId = centerEntityId;
-      }
-    }
-
-    return (changedCenterEntityId, centerEntityData);
-  }
-
-  function onNewNeighbourWrapper(
-    address callerAddress,
-    bytes32 neighbourEntityId,
-    bytes32 centerEntityId,
-    VoxelCoord memory centerPosition,
-    PokemonMove pokemonMove
-  ) internal returns (bool, bytes memory) {
-    BlockDirection centerBlockDirection = calculateBlockDirection(
-      centerPosition,
-      getCAEntityPositionStrict(IStore(_world()), neighbourEntityId)
-    );
-
-    return onNewNeighbour(callerAddress, neighbourEntityId, centerEntityId, centerBlockDirection, pokemonMove);
-  }
-
-  function runCaseTwo(
-    address callerAddress,
-    bytes32 centerEntityId,
-    VoxelCoord memory centerPosition,
-    bytes32[] memory neighbourEntityIds,
-    bytes32[] memory childEntityIds,
-    bytes32 parentEntity,
-    PokemonMove pokemonMove
-  ) internal returns (bytes32[] memory, bytes[] memory) {
-    bytes32[] memory changedEntityIds = new bytes32[](neighbourEntityIds.length);
-    bytes[] memory neighbourEntitiesData = new bytes[](neighbourEntityIds.length);
-    for (uint8 i = 0; i < neighbourEntityIds.length; i++) {
-      if (uint256(neighbourEntityIds[i]) == 0 || !entityShouldInteract(callerAddress, neighbourEntityIds[i])) {
-        changedEntityIds[i] = 0;
-        continue;
-      }
-
-      (bool changedEntity, bytes memory entityData) = onNewNeighbourWrapper(
-        callerAddress,
-        neighbourEntityIds[i],
-        centerEntityId,
-        centerPosition,
-        pokemonMove
-      );
-      neighbourEntitiesData[i] = entityData;
-
-      if (changedEntity) {
-        changedEntityIds[i] = neighbourEntityIds[i];
-      } else {
-        changedEntityIds[i] = 0;
-      }
-    }
-    return (changedEntityIds, neighbourEntitiesData);
-  }
-
   function eventHandler(
     address callerAddress,
     bytes32 centerEntityId,
@@ -123,38 +29,56 @@ contract PokemonSystem is System {
     bytes32[] memory childEntityIds,
     bytes32 parentEntity,
     PokemonMove pokemonMove
-  ) internal returns (bytes32, bytes32[] memory, bytes[] memory) {
+  ) internal returns (bool changedCenterEntityId, bytes memory centerEntityData) {
     VoxelCoord memory centerPosition = getCAEntityPositionStrict(IStore(_world()), centerEntityId);
 
-    // case one: center is the entity we care about, check neighbours to see if things need to change
-    (bytes32 changedCenterEntityId, bytes memory centerEntityData) = runCaseOne(
-      callerAddress,
-      centerEntityId,
-      centerPosition,
-      neighbourEntityIds,
-      childEntityIds,
-      parentEntity,
-      pokemonMove
-    );
-
-    // case two: neighbour is the entity we care about, check center to see if things need to change
-    (bytes32[] memory changedEntityIds, bytes[] memory neighbourEntitiesData) = runCaseTwo(
-      callerAddress,
-      centerEntityId,
-      centerPosition,
-      neighbourEntityIds,
-      childEntityIds,
-      parentEntity,
-      pokemonMove
-    );
-
-    bytes[] memory entityData = new bytes[](neighbourEntityIds.length + 1);
-    entityData[0] = centerEntityData;
+    BlockDirection[] memory neighbourEntityDirections = new BlockDirection[](neighbourEntityIds.length);
     for (uint8 i = 0; i < neighbourEntityIds.length; i++) {
-      entityData[i + 1] = neighbourEntitiesData[i];
-    }
+      bytes32 neighbourEntityId = neighbourEntityIds[i];
+      if (uint256(neighbourEntityId) == 0) {
+        neighbourEntityDirections[i] = BlockDirection.None;
+        continue;
+      }
 
-    return (changedCenterEntityId, changedEntityIds, entityData);
+      BlockDirection centerBlockDirection = calculateBlockDirection(
+        getCAEntityPositionStrict(IStore(_world()), neighbourEntityId),
+        centerPosition
+      );
+      neighbourEntityDirections[i] = centerBlockDirection;
+    }
+    (changedCenterEntityId, centerEntityData) = runInteraction(
+      callerAddress,
+      centerEntityId,
+      neighbourEntityIds,
+      neighbourEntityDirections,
+      childEntityIds,
+      parentEntity,
+      pokemonMove
+    );
+
+    return (changedCenterEntityId, centerEntityData);
+  }
+
+  function neighbourEventHandler(
+    address callerAddress,
+    bytes32 neighbourEntityId,
+    bytes32 centerEntityId,
+    PokemonMove pokemonMove
+  ) internal returns (bool changedNeighbourEntityId, bytes memory neighbourEntityData) {
+    BlockDirection centerBlockDirection = calculateBlockDirection(
+      getCAEntityPositionStrict(IStore(_world()), centerEntityId),
+      getCAEntityPositionStrict(IStore(_world()), neighbourEntityId)
+    );
+
+    (changedNeighbourEntityId, neighbourEntityData) = onNewNeighbour(
+      callerAddress,
+      neighbourEntityId,
+      centerEntityId,
+      centerBlockDirection,
+      pokemonMove
+    );
+
+    return (changedNeighbourEntityId, neighbourEntityData);
   }
 
   function onNewNeighbour(
@@ -294,10 +218,6 @@ contract PokemonSystem is System {
     return pokemonData;
   }
 
-  function entityShouldInteract(address callerAddress, bytes32 entityId) internal view returns (bool) {
-    return entityIsPokemon(callerAddress, entityId);
-  }
-
   function eventHandlerPokemon(
     address callerAddress,
     bytes32 centerEntityId,
@@ -305,7 +225,16 @@ contract PokemonSystem is System {
     bytes32[] memory childEntityIds,
     bytes32 parentEntity,
     PokemonMove pokemonMove
-  ) public returns (bytes32, bytes32[] memory, bytes[] memory) {
+  ) public returns (bool, bytes memory) {
     return eventHandler(callerAddress, centerEntityId, neighbourEntityIds, childEntityIds, parentEntity, pokemonMove);
+  }
+
+  function neighbourEventHandlerPokemon(
+    address callerAddress,
+    bytes32 neighbourEntityId,
+    bytes32 centerEntityId,
+    PokemonMove pokemonMove
+  ) public returns (bool, bytes memory) {
+    return neighbourEventHandler(callerAddress, neighbourEntityId, centerEntityId, pokemonMove);
   }
 }

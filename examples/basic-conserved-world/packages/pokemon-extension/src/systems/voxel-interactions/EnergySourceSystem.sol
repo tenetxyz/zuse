@@ -20,23 +20,23 @@ contract EnergySourceSystem is VoxelInteraction {
 
   function onNewNeighbour(
     address callerAddress,
-    bytes32 interactEntity,
     bytes32 neighbourEntityId,
-    BlockDirection neighbourBlockDirection
+    bytes32 centerEntityId,
+    BlockDirection centerBlockDirection
   ) internal override returns (bool changedEntity, bytes memory entityData) {
-    uint256 lastInteractionBlock = EnergySource.getLastInteractionBlock(callerAddress, interactEntity);
+    uint256 lastInteractionBlock = EnergySource.getLastInteractionBlock(callerAddress, neighbourEntityId);
     if (block.number <= lastInteractionBlock + ENERGY_SOURCE_WAIT_BLOCKS) {
       console.log("skip energy source");
       return (changedEntity, entityData);
     }
 
-    BodyPhysicsData memory entityBodyPhysics = getVoxelBodyPhysicsFromCaller(interactEntity);
+    BodyPhysicsData memory entityBodyPhysics = getVoxelBodyPhysicsFromCaller(neighbourEntityId);
     uint256 emittedEnergy = getEnergyToSoil(entityBodyPhysics.energy);
     if (emittedEnergy == 0) {
       return (changedEntity, entityData);
     }
 
-    if (!entityIsSoil(callerAddress, neighbourEntityId)) {
+    if (!entityIsSoil(callerAddress, centerEntityId)) {
       return (changedEntity, entityData);
     }
 
@@ -114,17 +114,21 @@ contract EnergySourceSystem is VoxelInteraction {
     return (changedEntity, entityData);
   }
 
-  function entityShouldInteract(address callerAddress, bytes32 entityId) internal view override returns (bool) {
-    return entityIsEnergySource(callerAddress, entityId);
-  }
-
   function eventHandlerEnergySource(
     address callerAddress,
     bytes32 centerEntityId,
     bytes32[] memory neighbourEntityIds,
     bytes32[] memory childEntityIds,
     bytes32 parentEntity
-  ) public returns (bytes32, bytes32[] memory, bytes[] memory) {
+  ) public returns (bool, bytes memory) {
     return super.eventHandler(callerAddress, centerEntityId, neighbourEntityIds, childEntityIds, parentEntity);
+  }
+
+  function neighbourEventHandlerEnergySource(
+    address callerAddress,
+    bytes32 neighbourEntityId,
+    bytes32 centerEntityId
+  ) public returns (bool, bytes memory) {
+    return super.neighbourEventHandler(callerAddress, neighbourEntityId, centerEntityId);
   }
 }

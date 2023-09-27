@@ -45,7 +45,8 @@ contract EnergySourceVoxelSystem is VoxelType {
         IWorld(world).pokemon_EnergySourceVoxe_exitWorld.selector,
         IWorld(world).pokemon_EnergySourceVoxe_variantSelector.selector,
         IWorld(world).pokemon_EnergySourceVoxe_activate.selector,
-        IWorld(world).pokemon_EnergySourceVoxe_eventHandler.selector
+        IWorld(world).pokemon_EnergySourceVoxe_eventHandler.selector,
+        IWorld(world).pokemon_EnergySourceVoxe_neighbourEventHandler.selector
       ),
       abi.encode(componentDefs)
     );
@@ -80,7 +81,7 @@ contract EnergySourceVoxelSystem is VoxelType {
     bytes32[] memory neighbourEntityIds,
     bytes32[] memory childEntityIds,
     bytes32 parentEntity
-  ) public override returns (bytes32, bytes32[] memory, bytes[] memory) {
+  ) public override returns (bool, bytes memory) {
     address callerAddress = super.getCallerAddress();
     return
       IWorld(_world()).pokemon_EnergySourceSyst_eventHandlerEnergySource(
@@ -89,6 +90,19 @@ contract EnergySourceVoxelSystem is VoxelType {
         neighbourEntityIds,
         childEntityIds,
         parentEntity
+      );
+  }
+
+  function neighbourEventHandler(
+    bytes32 neighbourEntityId,
+    bytes32 centerEntityId
+  ) public override returns (bool, bytes memory) {
+    address callerAddress = super.getCallerAddress();
+    return
+      IWorld(_world()).pokemon_EnergySourceSyst_neighbourEventHandlerEnergySource(
+        callerAddress,
+        neighbourEntityId,
+        centerEntityId
       );
   }
 }

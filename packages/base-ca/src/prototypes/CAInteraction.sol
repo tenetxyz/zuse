@@ -155,14 +155,12 @@ abstract contract CAInteraction is System {
   }
 
   function runNeighbourInteractions(
+    address callerAddress,
     bytes32 interactEntity,
     bytes32[] memory neighbourEntityIds,
     bytes32 caInteractEntity,
-    bytes32[] memory caNeighbourEntityIds,
-    bytes32[] memory childEntityIds,
-    bytes32 parentEntity
+    bytes32[] memory caNeighbourEntityIds
   ) internal returns (bytes32[] memory, bytes[] memory) {
-    address callerAddress = _msgSender();
     bytes32[] memory changedNeighbourEntities = new bytes32[](neighbourEntityIds.length);
     bytes[] memory neighbourEntitiesEventData = new bytes[](neighbourEntityIds.length);
     for (uint256 i = 0; i < neighbourEntityIds.length; i++) {
@@ -225,12 +223,11 @@ abstract contract CAInteraction is System {
 
     // Neighbour Interactions
     (bytes32[] memory changedNeighbourEntities, bytes[] memory neighbourEntitiesEventData) = runNeighbourInteractions(
+      callerAddress,
       interactEntity,
       neighbourEntityIds,
       caInteractEntity,
-      caNeighbourEntityIds,
-      childEntityIds,
-      parentEntity
+      caNeighbourEntityIds
     );
 
     bytes32[] memory changedCAEntities = new bytes32[](changedNeighbourEntities.length + 1);

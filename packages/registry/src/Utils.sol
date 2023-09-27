@@ -55,7 +55,8 @@ function voxelSelectorsForVoxel(
   bytes4 exitWorldSelector,
   bytes4 voxelVariantSelector,
   bytes4 activateSelector,
-  bytes4 interactionSelector
+  bytes4 interactionSelector,
+  bytes4 onNewNeighbourSelector
 ) pure returns (VoxelSelectors memory) {
   InteractionSelector[] memory voxelInteractionSelectors = new InteractionSelector[](1);
   voxelInteractionSelectors[0] = InteractionSelector({
@@ -69,7 +70,7 @@ function voxelSelectorsForVoxel(
       exitWorldSelector: exitWorldSelector,
       voxelVariantSelector: voxelVariantSelector,
       activateSelector: activateSelector,
-      onNewNeighbourSelector: bytes4(0),
+      onNewNeighbourSelector: onNewNeighbourSelector,
       interactionSelectors: voxelInteractionSelectors
     });
 }

@@ -21,16 +21,50 @@ contract SoilSystem is VoxelInteraction {
     bytes32 neighbourEntityId,
     BlockDirection neighbourBlockDirection
   ) internal override returns (bool changedEntity, bytes memory entityData) {
-    BodyPhysicsData memory entityBodyPhysics = getVoxelBodyPhysicsFromCaller(interactEntity);
-    uint256 lastEnergy = Soil.getLastEnergy(callerAddress, interactEntity);
-    if (lastEnergy == entityBodyPhysics.energy) {
-      // No energy change, so don't run
+    uint256 lastInteractionBlock = Soil.getLastInteractionBlock(callerAddress, interactEntity);
+    if (block.number == lastInteractionBlock) {
       return (changedEntity, entityData);
     }
-    // otherwise, there's been an energy change, so run
+
+    BodyPhysicsData memory entityBodyPhysics = getVoxelBodyPhysicsFromCaller(interactEntity);
+    uint256 transferEnergyToSoil = getEnergyToSoil(entityBodyPhysics.energy);
+    uint256 transferEnergyToPlant = getEnergyToPlant(entityBodyPhysics.energy);
+    if (transferEnergyToSoil == 0 && transferEnergyToPlant == 0) {
+      return (changedEntity, entityData);
+    }
+
+    if (
+      !entityIsSoil(callerAddress, neighbourEntityId) &&
+      !isValidPlantNeighbour(callerAddress, neighbourEntityId, neighbourBlockDirection)
+    ) {
+      return (changedEntity, entityData);
+    }
+
+    // otherwise, we want to run
     changedEntity = true;
 
     return (changedEntity, entityData);
+  }
+
+  function isValidPlantNeighbour(
+    address callerAddress,
+    bytes32 neighbourEntityId,
+    BlockDirection neighbourBlockDirection
+  ) internal returns (bool) {
+    if (neighbourBlockDirection != BlockDirection.Down) {
+      return false;
+    }
+
+    if (!entityIsPlant(callerAddress, neighbourEntityId)) {
+      return false;
+    }
+
+    PlantStage plantStage = Plant.getStage(callerAddress, neighbourEntityId);
+    if (plantStage != PlantStage.Seed && plantStage != PlantStage.Sprout) {
+      return false;
+    }
+
+    return true;
   }
 
   function runInteraction(
@@ -42,31 +76,45 @@ contract SoilSystem is VoxelInteraction {
     bytes32 parentEntity
   ) internal override returns (bool changedEntity, bytes memory entityData) {
     changedEntity = false;
-    uint256 lastEnergy = Soil.getLastEnergy(callerAddress, interactEntity);
-    BodyPhysicsData memory entityBodyPhysics = getVoxelBodyPhysicsFromCaller(interactEntity);
-    if (lastEnergy == entityBodyPhysics.energy) {
-      // No energy change
-      console.log("skip");
+    uint256 lastInteractionBlock = Soil.getLastInteractionBlock(callerAddress, interactEntity);
+    if (block.number == lastInteractionBlock) {
       return (changedEntity, entityData);
     }
-    console.log("go");
-    Soil.setLastEnergy(callerAddress, interactEntity, entityBodyPhysics.energy);
 
-    entityData = getEntityData(callerAddress, neighbourEntityIds, neighbourEntityDirections, entityBodyPhysics);
+    BodyPhysicsData memory entityBodyPhysics = getVoxelBodyPhysicsFromCaller(interactEntity);
+    entityData = getEntityData(
+      callerAddress,
+      interactEntity,
+      neighbourEntityIds,
+      neighbourEntityDirections,
+      entityBodyPhysics
+    );
 
     // Note: we don't need to set changedEntity to true, because we don't need another event
 
     return (changedEntity, entityData);
   }
 
+  function getEnergyToSoil(uint256 energySourceEnergy) internal pure returns (uint256) {
+    return energySourceEnergy / 5; // Transfer 20% of its energy to Soil
+  }
+
+  function getEnergyToPlant(uint256 energySourceEnergy) internal pure returns (uint256) {
+    return energySourceEnergy / 10; // Transfer 10% of its energy to Seed or Young Plant
+  }
+
   function getEntityData(
     address callerAddress,
+    bytes32 interactEntity,
     bytes32[] memory neighbourEntityIds,
     BlockDirection[] memory neighbourEntityDirections,
     BodyPhysicsData memory entityBodyPhysics
   ) internal returns (bytes memory) {
-    uint256 transferEnergyToSoil = entityBodyPhysics.energy / 5; // Transfer 20% of its energy to Soil
-    uint256 transferEnergyToPlant = entityBodyPhysics.energy / 10; // Transfer 10% of its energy to Seed or Young Plant
+    uint256 transferEnergyToSoil = getEnergyToSoil(entityBodyPhysics.energy);
+    uint256 transferEnergyToPlant = getEnergyToPlant(entityBodyPhysics.energy);
+    if (transferEnergyToSoil == 0 && transferEnergyToPlant == 0) {
+      return new bytes(0);
+    }
 
     CAEventData memory transferData = CAEventData({
       eventType: CAEventType.FluxEnergy,
@@ -91,22 +139,19 @@ contract SoilSystem is VoxelInteraction {
         numSoilNeighbours += 1;
         transferData.newCoords[i] = neighbourCoord;
         transferData.energyFluxAmounts[i] = 1;
-      } else if (entityIsPlant(callerAddress, neighbourEntityIds[i]) && transferEnergyToPlant > 0) {
-        if (neighbourEntityDirections[i] == BlockDirection.Down) {
-          PlantStage plantStage = Plant.getStage(callerAddress, neighbourEntityIds[i]);
-          if (plantStage == PlantStage.Seed || plantStage == PlantStage.Sprout) {
-            transferData.newCoords[i] = neighbourCoord;
-            transferData.energyFluxAmounts[i] = transferEnergyToPlant;
-            plantIdx = i;
-            hasPlant = true;
-          }
-        }
+      } else if (isValidPlantNeighbour(callerAddress, neighbourEntityIds[i], neighbourEntityDirections[i])) {
+        transferData.newCoords[i] = neighbourCoord;
+        transferData.energyFluxAmounts[i] = transferEnergyToPlant;
+        plantIdx = i;
+        hasPlant = true;
       }
     }
 
     for (uint i = 0; i < transferData.newCoords.length; i++) {
       if (hasPlant && i == plantIdx) {
-        hasTransfer = true;
+        if (transferData.energyFluxAmounts[i] > 0) {
+          hasTransfer = true;
+        }
         continue;
       }
       if (transferData.energyFluxAmounts[i] == 1) {
@@ -120,6 +165,9 @@ contract SoilSystem is VoxelInteraction {
     // Check if there's at least one transfer
     if (hasTransfer) {
       return abi.encode(transferData);
+    }
+    if (hasPlant || numSoilNeighbours > 0) {
+      Soil.setLastInteractionBlock(callerAddress, interactEntity, block.number);
     }
 
     return new bytes(0);

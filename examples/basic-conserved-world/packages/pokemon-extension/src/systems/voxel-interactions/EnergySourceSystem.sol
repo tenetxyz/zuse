@@ -14,7 +14,7 @@ import { console } from "forge-std/console.sol";
 uint256 constant ENERGY_SOURCE_WAIT_BLOCKS = 50;
 
 contract EnergySourceSystem is VoxelInteraction {
-  function transferEnergyToSoil(uint256 energySourceEnergy) internal pure returns (uint256) {
+  function getEnergyToSoil(uint256 energySourceEnergy) internal pure returns (uint256) {
     return energySourceEnergy / 10; // Emit 10% of its energy
   }
 
@@ -30,7 +30,7 @@ contract EnergySourceSystem is VoxelInteraction {
     }
 
     BodyPhysicsData memory entityBodyPhysics = getVoxelBodyPhysicsFromCaller(interactEntity);
-    uint256 emittedEnergy = transferEnergyToSoil(entityBodyPhysics.energy);
+    uint256 emittedEnergy = getEnergyToSoil(entityBodyPhysics.energy);
     if (emittedEnergy == 0) {
       return (changedEntity, entityData);
     }
@@ -59,7 +59,7 @@ contract EnergySourceSystem is VoxelInteraction {
     }
 
     BodyPhysicsData memory entityBodyPhysics = getVoxelBodyPhysicsFromCaller(interactEntity);
-    uint256 emittedEnergy = transferEnergyToSoil(entityBodyPhysics.energy);
+    uint256 emittedEnergy = getEnergyToSoil(entityBodyPhysics.energy);
     if (emittedEnergy == 0) {
       return (changedEntity, entityData);
     }

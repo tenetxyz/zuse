@@ -14,25 +14,32 @@ import { console } from "forge-std/console.sol";
 uint256 constant ENERGY_SOURCE_WAIT_BLOCKS = 50;
 
 contract EnergySourceSystem is VoxelInteraction {
+  function transferEnergyToSoil(uint256 energySourceEnergy) internal pure returns (uint256) {
+    return energySourceEnergy / 10; // Emit 10% of its energy
+  }
+
   function onNewNeighbour(
     address callerAddress,
     bytes32 interactEntity,
     bytes32 neighbourEntityId,
     BlockDirection neighbourBlockDirection
   ) internal override returns (bool changedEntity, bytes memory entityData) {
-    BodyPhysicsData memory entityBodyPhysics = getVoxelBodyPhysicsFromCaller(interactEntity);
-    uint256 lastEnergy = EnergySource.getLastEnergy(callerAddress, interactEntity);
-    if (lastEnergy == entityBodyPhysics.energy) {
-      // No energy change, so don't run
-      return (changedEntity, entityData);
-    }
-
     uint256 lastInteractionBlock = EnergySource.getLastInteractionBlock(callerAddress, interactEntity);
     if (block.number <= lastInteractionBlock + ENERGY_SOURCE_WAIT_BLOCKS) {
       return (changedEntity, entityData);
     }
 
-    // otherwise, we can interact, so run
+    BodyPhysicsData memory entityBodyPhysics = getVoxelBodyPhysicsFromCaller(interactEntity);
+    uint256 emittedEnergy = transferEnergyToSoil(entityBodyPhysics.energy);
+    if (emittedEnergy == 0) {
+      return (changedEntity, entityData);
+    }
+
+    if (!entityIsSoil(callerAddress, neighbourEntityId)) {
+      return (changedEntity, entityData);
+    }
+
+    // If we have a soil neighbour and we have energy, then we can transfer energy
     changedEntity = true;
 
     return (changedEntity, entityData);
@@ -46,19 +53,13 @@ contract EnergySourceSystem is VoxelInteraction {
     bytes32[] memory childEntityIds,
     bytes32 parentEntity
   ) internal override returns (bool changedEntity, bytes memory entityData) {
-    BodyPhysicsData memory entityBodyPhysics = getVoxelBodyPhysicsFromCaller(interactEntity);
-    if (EnergySource.getLastEnergy(callerAddress, interactEntity) == entityBodyPhysics.energy) {
-      // No energy change, so don't run
-      return (changedEntity, entityData);
-    }
-    EnergySource.setLastEnergy(callerAddress, interactEntity, entityBodyPhysics.energy);
-
     uint256 lastInteractionBlock = EnergySource.getLastInteractionBlock(callerAddress, interactEntity);
     if (block.number <= lastInteractionBlock + ENERGY_SOURCE_WAIT_BLOCKS) {
       return (changedEntity, entityData);
     }
 
-    uint256 emittedEnergy = entityBodyPhysics.energy / 10; // Emit 10% of its energy
+    BodyPhysicsData memory entityBodyPhysics = getVoxelBodyPhysicsFromCaller(interactEntity);
+    uint256 emittedEnergy = transferEnergyToSoil(entityBodyPhysics.energy);
     if (emittedEnergy == 0) {
       return (changedEntity, entityData);
     }

@@ -94,6 +94,16 @@ contract EnergySourceTest is MudTest {
     uint256 energySourceEnergy = BodyPhysics.getEnergy(energySourceEntity.scale, energySourceEntity.entityId);
     assertTrue(energySourceEnergy < INITIAL_HIGH_ENERGY);
 
+    // Roll forward and activate energy source
+    vm.roll(block.number + ENERGY_SOURCE_WAIT_BLOCKS + 1);
+    world.activateWithAgent(EnergySourceVoxelID, energySourceCoord, agentEntity, bytes4(0));
+    // This should have transferred more energy to the soil
+    uint256 soilEnergy2 = BodyPhysics.getEnergy(soilEntity.scale, soilEntity.entityId);
+    assertTrue(soilEnergy2 > soilEnergy);
+    // Energy source should have lost some energy
+    uint256 energySourceEnergy2 = BodyPhysics.getEnergy(energySourceEntity.scale, energySourceEntity.entityId);
+    assertTrue(energySourceEnergy2 < energySourceEnergy);
+
     vm.stopPrank();
   }
 
@@ -131,6 +141,53 @@ contract EnergySourceTest is MudTest {
     assertTrue(soil1Energy > 0 && soil1Energy <= INITIAL_HIGH_ENERGY);
     assertTrue(soil2Energy > 0 && soil2Energy <= INITIAL_HIGH_ENERGY);
     assertTrue(soil1Energy == soil2Energy);
+
+    vm.stopPrank();
+  }
+
+  function testEnergySourceWithEnergySourceNeighbour() public {
+    (VoxelEntity memory agentEntity, VoxelEntity memory energySourceEntity) = testEnergySourceNoNeighbours();
+    vm.startPrank(alice);
+
+    VoxelCoord memory energySource2Coord = VoxelCoord({
+      x: energySourceCoord.x - 1,
+      y: energySourceCoord.y,
+      z: energySourceCoord.z
+    });
+    world.buildWithAgent(EnergySourceVoxelID, energySource2Coord, agentEntity, bytes4(0));
+
+    vm.stopPrank();
+  }
+
+  function testEnergySourceWithNoEnergy() public {
+    vm.startPrank(alice);
+    VoxelEntity memory agentEntity = setupAgent();
+
+    VoxelCoord memory energySourceNoEnergyCoord = VoxelCoord({
+      x: energySourceCoord.x,
+      y: energySourceCoord.y + 1,
+      z: energySourceCoord.z
+    });
+
+    // Place down energy source
+    VoxelEntity memory energySourceEntity = world.buildWithAgent(
+      EnergySourceVoxelID,
+      energySourceNoEnergyCoord,
+      agentEntity,
+      bytes4(0)
+    );
+    uint256 energySourceEnergy = BodyPhysics.getEnergy(energySourceEntity.scale, energySourceEntity.entityId);
+    assertTrue(energySourceEnergy == 0);
+    // Place down soil beside it
+    VoxelCoord memory soilCoord = VoxelCoord({
+      x: energySourceNoEnergyCoord.x - 1,
+      y: energySourceNoEnergyCoord.y,
+      z: energySourceNoEnergyCoord.z
+    });
+    VoxelEntity memory soilEntity = world.buildWithAgent(SoilVoxelID, soilCoord, agentEntity, bytes4(0));
+    // Soil should have no energy
+    uint256 soilEnergy = BodyPhysics.getEnergy(soilEntity.scale, soilEntity.entityId);
+    assertTrue(soilEnergy == 0);
 
     vm.stopPrank();
   }

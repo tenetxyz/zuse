@@ -153,7 +153,7 @@ contract PlantTest is MudTest {
     vm.startPrank(alice);
 
     VoxelEntity memory agentEntity = setupAgent();
-    VoxelEntity memory energySourceEntity = replaceHighEnergyBlockWithEnergySource(agentEntity);
+    replaceHighEnergyBlockWithEnergySource(agentEntity);
 
     // Place down soil beside it
     VoxelCoord memory soilCoord = VoxelCoord({
@@ -195,12 +195,19 @@ contract PlantTest is MudTest {
     assertTrue(plantData.stage == PlantStage.Flower);
 
     // Place pokemon next to flower
-    VoxelCoord memory pokemonCoord = VoxelCoord({ x: plantCoord.x, y: plantCoord.y, z: plantCoord.z - 1 });
-    VoxelEntity memory pokemonEntity = world.buildWithAgent(PokemonVoxelID, pokemonCoord, agentEntity, bytes4(0));
-    // pokemon entity should have some energy
-    plantEnergy = BodyPhysics.getEnergy(plantEntity.scale, plantEntity.entityId);
-    assertTrue(plantEnergy == 0);
-    assertTrue(BodyPhysics.getEnergy(pokemonEntity.scale, pokemonEntity.entityId) > 0);
+    {
+      uint256 beforePokemonPlantEnergy = plantEnergy;
+      VoxelCoord memory pokemonCoord = VoxelCoord({ x: plantCoord.x, y: plantCoord.y, z: plantCoord.z - 1 });
+      VoxelEntity memory pokemonEntity = world.buildWithAgent(PokemonVoxelID, pokemonCoord, agentEntity, bytes4(0));
+      // pokemon entity should have some energy
+      plantEnergy = BodyPhysics.getEnergy(plantEntity.scale, plantEntity.entityId);
+      assertTrue(plantEnergy == 0);
+      assertTrue(BodyPhysics.getEnergy(pokemonEntity.scale, pokemonEntity.entityId) > 0);
+      vm.roll(block.number + 10);
+      world.activateWithAgent(PokemonVoxelID, pokemonCoord, agentEntity, bytes4(0));
+      plantData = Plant.get(IStore(BASE_CA_ADDRESS), worldAddress, plantCAEntity);
+      assertTrue(plantData.stage != PlantStage.Flower);
+    }
 
     vm.stopPrank();
   }

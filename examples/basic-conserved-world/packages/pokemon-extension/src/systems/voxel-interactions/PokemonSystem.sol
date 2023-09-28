@@ -208,7 +208,7 @@ contract PokemonSystem is System {
       return pokemonData;
     }
 
-    if (pokemonData.health > 0 || block.number >= pokemonData.lastUpdatedBlock + NUM_BLOCKS_FAINTED) {
+    if (pokemonData.round == 0 || block.number >= pokemonData.lastUpdatedBlock + NUM_BLOCKS_FAINTED) {
       pokemonData.lastEnergy = entityBodyPhysics.energy;
       pokemonData.lastUpdatedBlock = block.number;
       // Allocate percentages to Health and Stamina
@@ -216,6 +216,7 @@ contract PokemonSystem is System {
       uint256 staminaAllocation = (pokemonData.lastEnergy * 30) / 100; // 30% to Stamina
       pokemonData.health = healthAllocation;
       pokemonData.stamina = staminaAllocation;
+      pokemonData.round = 0;
     }
 
     return pokemonData;

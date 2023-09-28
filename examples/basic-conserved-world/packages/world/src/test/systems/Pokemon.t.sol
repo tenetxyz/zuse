@@ -72,8 +72,7 @@ contract PokemonTest is MudTest {
     VoxelCoord memory pokemon1Coord = VoxelCoord({ x: agentCoord.x + 1, y: agentCoord.y, z: agentCoord.z + 1 });
     VoxelEntity memory pokemon1Entity = world.buildWithAgent(PokemonVoxelID, pokemon1Coord, agentEntity, mindSelector);
     BodyPhysics.setEnergy(pokemon1Entity.scale, pokemon1Entity.entityId, 500);
-    uint256 pokemon1Energy = BodyPhysics.getEnergy(pokemon1Entity.scale, pokemon1Entity.entityId);
-    assertTrue(pokemon1Energy == 500);
+    assertTrue(BodyPhysics.getEnergy(pokemon1Entity.scale, pokemon1Entity.entityId) == 500);
     // Activate pokemon
     vm.roll(block.number + 1);
     world.activateWithAgent(PokemonVoxelID, pokemon1Coord, agentEntity, bytes4(0));
@@ -96,8 +95,7 @@ contract PokemonTest is MudTest {
     VoxelCoord memory pokemon2Coord = VoxelCoord({ x: agentCoord.x + 1, y: agentCoord.y, z: agentCoord.z - 1 });
     VoxelEntity memory pokemon2Entity = world.buildWithAgent(PokemonVoxelID, pokemon2Coord, agentEntity, mindSelector);
     BodyPhysics.setEnergy(pokemon2Entity.scale, pokemon2Entity.entityId, 500);
-    uint256 pokemon2Energy = BodyPhysics.getEnergy(pokemon2Entity.scale, pokemon2Entity.entityId);
-    assertTrue(pokemon2Energy == 500);
+    assertTrue(BodyPhysics.getEnergy(pokemon2Entity.scale, pokemon2Entity.entityId) == 500);
     // Activate pokemon
     vm.roll(block.number + 1);
     world.activateWithAgent(PokemonVoxelID, pokemon2Coord, agentEntity, bytes4(0));
@@ -121,13 +119,11 @@ contract PokemonTest is MudTest {
 
     // move pokemon1 beside pokemon2
     {
+      VoxelCoord newPokemon1Coord = VoxelCoord({ x: pokemon1Coord.x, y: pokemon1Coord.y, z: pokemon1Coord.z - 1 });
       vm.roll(block.number + 1);
-      world.moveWithAgent(
-        PokemonVoxelID,
-        pokemon1Coord,
-        VoxelCoord({ x: pokemon1Coord.x, y: pokemon1Coord.y, z: pokemon1Coord.z - 1 }),
-        agentEntity
-      );
+      world.moveWithAgent(PokemonVoxelID, pokemon1Coord, newPokemon1Coord, agentEntity);
+
+      // world.activateWithAgent(PokemonVoxelID, newPokemon1Coord, agentEntity, bytes4(0));
     }
 
     vm.stopPrank();

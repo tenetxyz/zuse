@@ -67,6 +67,12 @@ contract PokemonFightSystem is System {
       return (changedEntity, entityData);
     }
 
+    if (pokemonData.move == PokemonMove.None && neighbourPokemonData.move != PokemonMove.None) {
+      console.log("my pokemon move is none");
+      changedEntity = true;
+      return (changedEntity, entityData);
+    }
+
     if (pokemonData.move != PokemonMove.None && neighbourPokemonData.move != PokemonMove.None) {
       // This a new battle is in progress
       // TODO: check if round number is the same?

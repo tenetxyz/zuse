@@ -16,6 +16,7 @@ import { entityIsEnergySource, entityIsSoil, entityIsPlant, entityIsPokemon } fr
 import { registerCAVoxelType } from "@tenet-base-ca/src/CallUtils.sol";
 import { getVoxelBodyPhysicsFromCaller, transferEnergy } from "@tenet-level1-ca/src/Utils.sol";
 import { Pokemon, PokemonData, PokemonMove, PokemonType } from "@tenet-pokemon-extension/src/codegen/tables/Pokemon.sol";
+import { console } from "forge-std/console.sol";
 
 bytes32 constant PokemonVoxelVariantID = bytes32(keccak256("pokemon"));
 string constant PokemonTexture = "bafkreihpdljsgdltghxehq4cebngtugfj3pduucijxcrvcla4hoy34f7vq";
@@ -135,7 +136,8 @@ contract PokemonAgentSystem is AgentType {
     bytes32 centerEntityId
   ) public override returns (bool, bytes memory) {
     address callerAddress = super.getCallerAddress();
-    IWorld(_world()).pokemon_PokemonFightSyst_runBattleLogic(callerAddress, neighbourEntityId, centerEntityId);
+    console.log("pokemon new neighbour event handler");
+    return IWorld(_world()).pokemon_PokemonFightSyst_runBattleLogic(callerAddress, neighbourEntityId, centerEntityId);
   }
 
   function getInteractionSelectors() public override returns (InteractionSelector[] memory) {

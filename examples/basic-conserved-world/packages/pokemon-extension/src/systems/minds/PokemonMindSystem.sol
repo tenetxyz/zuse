@@ -46,14 +46,14 @@ contract PokemonMindSystem is MindType {
     revert("Selector not found");
   }
 
-  function canFight(address callerAddress, bytes32 opponentPokemonEntityId) public view returns (bool) {
-    BodyPhysicsData memory entityBodyPhysics = getVoxelBodyPhysicsFromCaller(opponentPokemonEntityId);
+  function canFight(address callerAddress, bytes32 pokemonEntityId) public view returns (bool) {
+    BodyPhysicsData memory entityBodyPhysics = getVoxelBodyPhysicsFromCaller(pokemonEntityId);
     VoxelCoord memory currentVelocity = abi.decode(entityBodyPhysics.velocity, (VoxelCoord));
     if (!isZeroCoord(currentVelocity)) {
       return false;
     }
-    PokemonData memory opponentPokemonData = Pokemon.get(callerAddress, opponentPokemonEntityId);
-    if (opponentPokemonData.health == 0) {
+    PokemonData memory pokemonData = Pokemon.get(callerAddress, pokemonEntityId);
+    if (pokemonData.health == 0) {
       return false;
     }
     return true;
@@ -61,7 +61,7 @@ contract PokemonMindSystem is MindType {
 
   function mindLogic(
     bytes32 voxelTypeId,
-    bytes32 entity,
+    bytes32 interactEntity,
     bytes32[] memory neighbourEntityIds,
     bytes32[] memory childEntityIds,
     bytes32 parentEntity
@@ -87,11 +87,11 @@ contract PokemonMindSystem is MindType {
     }
 
     if (opponentPokemonEntityId != 0) {
-      if (canFight(callerAddress, opponentPokemonEntityId)) {
+      if (canFight(callerAddress, interactEntity) && canFight(callerAddress, opponentPokemonEntityId)) {
         console.log("pokemon mind selected ember");
         chosenSelector = getSelector(interactionSelectors, "Ember");
       } else {
-        console.log("pokemon oppeonent is busy");
+        console.log("pokemon is busy");
       }
     } else {
       console.log("pokemon mind selected replenish energy");

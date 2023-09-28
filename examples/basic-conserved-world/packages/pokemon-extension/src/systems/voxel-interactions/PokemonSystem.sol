@@ -196,7 +196,10 @@ contract PokemonSystem is System {
 
     console.log("setting move");
     pokemonData.move = pokemonMove;
+    pokemonData.round += 1;
     pokemonData.lostStamina += 1;
+
+    Pokemon.set(callerAddress, interactEntity, pokemonData);
 
     IWorld(_world()).pokemon_PokemonFightSyst_runBattleLogic(callerAddress, interactEntity, neighbourEntity);
   }

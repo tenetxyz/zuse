@@ -185,13 +185,16 @@ contract PokemonSystem is System {
   ) internal returns (PokemonData memory) {
     VoxelCoord memory currentVelocity = abi.decode(entityBodyPhysics.velocity, (VoxelCoord));
     if (!isZeroCoord(currentVelocity)) {
+      console.log("not zero velocity");
       return pokemonData;
     }
 
     if (pokemonData.health == 0 && block.number < pokemonData.lastUpdatedBlock + NUM_BLOCKS_FAINTED) {
+      console.log("fainted");
       return pokemonData;
     }
 
+    console.log("setting move");
     pokemonData.move = pokemonMove;
     pokemonData.lostStamina += 1;
 

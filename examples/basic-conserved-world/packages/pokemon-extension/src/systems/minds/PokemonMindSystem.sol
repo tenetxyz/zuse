@@ -12,6 +12,7 @@ import { isStringEqual } from "@tenet-utils/src/StringUtils.sol";
 import { Pokemon, PokemonData, PokemonMove } from "@tenet-pokemon-extension/src/codegen/tables/Pokemon.sol";
 import { entityIsEnergySource, entityIsSoil, entityIsPlant, entityIsPokemon } from "@tenet-pokemon-extension/src/InteractionUtils.sol";
 import { console } from "forge-std/console.sol";
+import { isZeroCoord, voxelCoordsAreEqual } from "@tenet-utils/src/VoxelCoordUtils.sol";
 
 contract PokemonMindSystem is MindType {
   function registerMind() public {
@@ -43,6 +44,19 @@ contract PokemonMindSystem is MindType {
     revert("Selector not found");
   }
 
+  function canFight(address callerAddress, bytes32 opponentPokemonEntityId) public view returns (bool) {
+    BodyPhysicsData memory entityBodyPhysics = getVoxelBodyPhysicsFromCaller(opponentPokemonEntityId);
+    VoxelCoord memory currentVelocity = abi.decode(entityBodyPhysics.velocity, (VoxelCoord));
+    if (!isZeroCoord(currentVelocity)) {
+      return false;
+    }
+    PokemonData memory opponentPokemonData = Pokemon.get(callerAddress, opponentPokemonEntityId);
+    if (opponentPokemonData.health == 0) {
+      return false;
+    }
+    return true;
+  }
+
   function mindLogic(
     bytes32 voxelTypeId,
     bytes32 entity,
@@ -71,8 +85,12 @@ contract PokemonMindSystem is MindType {
     }
 
     if (opponentPokemonEntityId != 0) {
-      console.log("pokemon mind selected ember");
-      chosenSelector = getSelector(interactionSelectors, "Ember");
+      if (canFight(callerAddress, opponentPokemonEntityId)) {
+        console.log("pokemon mind selected ember");
+        chosenSelector = getSelector(interactionSelectors, "Ember");
+      } else {
+        console.log("pokemon oppeonent is busy");
+      }
     } else {
       console.log("pokemon mind selected replenish energy");
       chosenSelector = getSelector(interactionSelectors, "Replenish Energy");

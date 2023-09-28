@@ -119,6 +119,17 @@ contract PokemonTest is MudTest {
       assertTrue(pokemon2Data.stamina == 150);
     }
 
+    // move pokemon1 beside pokemon2
+    {
+      vm.roll(block.number + 1);
+      world.moveWithAgent(
+        PokemonVoxelID,
+        pokemon1Coord,
+        VoxelCoord({ x: pokemon1Coord.x, y: pokemon1Coord.y, z: pokemon1Coord.z - 1 }),
+        agentEntity
+      );
+    }
+
     vm.stopPrank();
   }
 }

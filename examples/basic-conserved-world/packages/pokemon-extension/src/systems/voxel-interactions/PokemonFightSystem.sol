@@ -51,6 +51,7 @@ contract PokemonFightSystem is System {
     bytes32 interactEntity,
     bytes32 neighbourEntity
   ) public returns (bool changedEntity, bytes memory entityData) {
+    console.log("runBattleLogic");
     if (!entityIsPokemon(callerAddress, neighbourEntity)) {
       return (changedEntity, entityData);
     }
@@ -61,6 +62,7 @@ contract PokemonFightSystem is System {
       // This means battle is over
       // TODO: Run exit logic
       // set our own round to -1
+      console.log("pokemon is dead");
       pokemonData.round = -1;
       return (changedEntity, entityData);
     }
@@ -68,9 +70,11 @@ contract PokemonFightSystem is System {
     if (pokemonData.move != PokemonMove.None && neighbourPokemonData.move != PokemonMove.None) {
       // This a new battle is in progress
       // TODO: check if round number is the same?
+      console.log("both moves picked");
 
       // Calculate damage
       if (pokemonData.lostHealth < pokemonData.health) {
+        console.log("calc damage");
         // Calculae damage
         MoveData[] memory movesData = getMovesData();
         MoveData memory myMoveData = movesData[uint(pokemonData.move)];
@@ -90,6 +94,7 @@ contract PokemonFightSystem is System {
         // Save data
         Pokemon.set(callerAddress, interactEntity, pokemonData);
       } else {
+        console.log("pokemon dead after moves yo");
         // pokemon is dead
         pokemonData.round = -1;
         // TODO: run exit logic

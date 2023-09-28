@@ -11,6 +11,7 @@ import { getEntityAtCoord } from "@tenet-base-world/src/Utils.sol";
 import { distanceBetween } from "@tenet-utils/src/VoxelCoordUtils.sol";
 import { FluxEventData } from "@tenet-world/src/Types.sol";
 import { console } from "forge-std/console.sol";
+import { MAX_VOXEL_NEIGHBOUR_UPDATE_DEPTH } from "@tenet-utils/src/Constants.sol";
 
 contract FluxSystem is FluxEvent {
   function getRegistryAddress() internal pure override returns (address) {
@@ -18,6 +19,7 @@ contract FluxSystem is FluxEvent {
   }
 
   function processCAEvents(EntityEventData[] memory entitiesEventData) internal override {
+    console.log("processCAEvents");
     IWorld(_world()).caEventsHandler(entitiesEventData);
   }
 
@@ -86,6 +88,7 @@ contract FluxSystem is FluxEvent {
           distanceBetween(coord, energyReceiverCoord) == 1,
           "Energy can only be fluxed to a surrounding neighbour"
         );
+        console.log("transferring out");
 
         bytes32 energyReceiverEntityId = getEntityAtCoord(eventVoxelEntity.scale, energyReceiverCoord);
         VoxelEntity memory energyReceiverEntity = VoxelEntity({
@@ -111,5 +114,43 @@ contract FluxSystem is FluxEvent {
         BodyPhysics.setEnergy(eventVoxelEntity.scale, eventVoxelEntity.entityId, newEnergy);
       }
     }
+  }
+
+  function runCA(
+    address caAddress,
+    bytes32 voxelTypeId,
+    VoxelCoord memory coord,
+    VoxelEntity memory eventVoxelEntity,
+    bytes memory eventData
+  ) internal override returns (EntityEventData[] memory) {
+    FluxEventData memory fluxEventData = abi.decode(eventData, (FluxEventData));
+    // TODO: Optimize the length of this array
+    EntityEventData[] memory allEntitiesEventData = new EntityEventData[](
+      MAX_VOXEL_NEIGHBOUR_UPDATE_DEPTH * fluxEventData.energyToFlux.length
+    );
+    uint allEntitiesEventDataIdx = 0;
+    if (fluxEventData.energyToFlux.length > 0) {
+      for (uint i = 0; i < fluxEventData.energyToFlux.length; i++) {
+        if (fluxEventData.energyToFlux[i] == 0) {
+          continue;
+        }
+        VoxelCoord memory energyReceiverCoord = fluxEventData.energyReceiver[i];
+        bytes32 energyReceiverEntityId = getEntityAtCoord(eventVoxelEntity.scale, energyReceiverCoord);
+        VoxelEntity memory energyReceiverEntity = VoxelEntity({
+          scale: eventVoxelEntity.scale,
+          entityId: energyReceiverEntityId
+        });
+        console.log("RUN CA FLUX BRO");
+        EntityEventData[] memory entitiesEventData = IWorld(_world()).runCA(caAddress, energyReceiverEntity, bytes4(0));
+        for (uint j = 0; j < entitiesEventData.length; j++) {
+          if (entitiesEventData[j].eventData.length > 0) {
+            console.log("GOT ONE BRO");
+            allEntitiesEventData[allEntitiesEventDataIdx] = entitiesEventData[j];
+            allEntitiesEventDataIdx++;
+          }
+        }
+      }
+    }
+    return allEntitiesEventData;
   }
 }

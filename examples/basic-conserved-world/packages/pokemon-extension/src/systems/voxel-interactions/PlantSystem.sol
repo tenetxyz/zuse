@@ -14,8 +14,8 @@ import { getCAEntityAtCoord, getCAVoxelType, getCAEntityPositionStrict } from "@
 import { getVoxelBodyPhysicsFromCaller, transferEnergy } from "@tenet-level1-ca/src/Utils.sol";
 import { console } from "forge-std/console.sol";
 
-uint256 constant ENERGY_REQUIRED_FOR_SPROUT = 100;
-uint256 constant ENERGY_REQUIRED_FOR_FLOWER = 200;
+uint256 constant ENERGY_REQUIRED_FOR_SPROUT = 10;
+uint256 constant ENERGY_REQUIRED_FOR_FLOWER = 30;
 
 contract PlantSystem is VoxelInteraction {
   function onNewNeighbour(
@@ -25,6 +25,7 @@ contract PlantSystem is VoxelInteraction {
     BlockDirection centerBlockDirection
   ) internal override returns (bool changedEntity, bytes memory entityData) {
     uint256 lastInteractionBlock = Plant.getLastInteractionBlock(callerAddress, neighbourEntityId);
+    console.log("on new neighbour plant");
     if (block.number == lastInteractionBlock) {
       console.log("skip new neighbour plant");
       return (changedEntity, entityData);
@@ -32,13 +33,27 @@ contract PlantSystem is VoxelInteraction {
 
     BodyPhysicsData memory entityBodyPhysics = getVoxelBodyPhysicsFromCaller(neighbourEntityId);
     PlantData memory plantData = Plant.get(callerAddress, neighbourEntityId);
+    PlantStage oldPlantStage = plantData.stage;
+    console.log(uint(plantData.stage));
+    console.logUint(entityBodyPhysics.energy);
+
+    updatePlantStage(entityBodyPhysics, plantData, entityData);
+    if (plantData.stage != oldPlantStage) {
+      changedEntity = true;
+      console.log("new plant stage");
+      return (changedEntity, entityData);
+    }
+    console.log(uint(plantData.stage));
 
     if (plantData.stage == PlantStage.Sprout) {
       uint256 transferEnergyToSeed = getEnergyToPlant(entityBodyPhysics.energy);
+      console.log("transferEnergyToSeed");
+      console.logUint(transferEnergyToSeed);
       if (transferEnergyToSeed == 0) {
         return (changedEntity, entityData);
       }
       if (!isValidPlantNeighbour(callerAddress, centerEntityId, centerBlockDirection)) {
+        console.log("invalid plant neighbour");
         return (changedEntity, entityData);
       }
 
@@ -78,10 +93,12 @@ contract PlantSystem is VoxelInteraction {
 
     (plantData, changedEntity, entityData) = updatePlantStage(entityBodyPhysics, plantData, entityData);
     if (entityData.length > 0) {
+      console.log("leave dying");
       plantData.lastInteractionBlock = block.number;
       Plant.set(callerAddress, interactEntity, plantData);
       return (changedEntity, entityData);
     }
+    console.log(uint(plantData.stage));
 
     CAEventData memory transferData = CAEventData({
       eventType: CAEventType.FluxEnergy,
@@ -275,6 +292,7 @@ contract PlantSystem is VoxelInteraction {
   ) internal view returns (PlantData memory, bool changedEntity, bytes memory) {
     if (entityBodyPhysics.energy < ENERGY_REQUIRED_FOR_SPROUT) {
       if (plantData.stage == PlantStage.Sprout) {
+        plantData.stage = PlantStage.Seed;
         entityData = abi.encode(dieData(entityBodyPhysics));
       } else if (plantData.stage == PlantStage.Flower) {
         plantData.stage = PlantStage.Seed;

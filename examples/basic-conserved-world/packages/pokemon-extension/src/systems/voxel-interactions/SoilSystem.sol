@@ -162,23 +162,25 @@ contract SoilSystem is VoxelInteraction {
           hasTransfer = true;
         }
         continue;
-      }
-      if (transferData.energyFluxAmounts[i] == 1) {
-        transferData.energyFluxAmounts[i] = transferEnergyToSoil / numSoilNeighbours;
-        if (transferData.energyFluxAmounts[i] > 0) {
-          hasTransfer = true;
+      } else {
+        if (transferData.energyFluxAmounts[i] == 1) {
+          transferData.energyFluxAmounts[i] = transferEnergyToSoil / numSoilNeighbours;
+          if (transferData.energyFluxAmounts[i] > 0) {
+            hasTransfer = true;
+          }
         }
       }
+    }
+
+    if (hasPlant || numSoilNeighbours > 0) {
+      console.log("set last interaction block");
+      Soil.setLastInteractionBlock(callerAddress, interactEntity, block.number);
     }
 
     // Check if there's at least one transfer
     if (hasTransfer) {
       console.log("transferring");
       return abi.encode(transferData);
-    }
-    if (hasPlant || numSoilNeighbours > 0) {
-      console.log("set last interaction block");
-      Soil.setLastInteractionBlock(callerAddress, interactEntity, block.number);
     }
 
     return new bytes(0);

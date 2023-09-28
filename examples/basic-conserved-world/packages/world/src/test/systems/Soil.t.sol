@@ -85,13 +85,89 @@ contract SoilTest is MudTest {
     (, agentEntity) = world.moveWithAgent(FighterVoxelID, agentCoord, newAgentCoord, agentEntity);
 
     // Place down another soil beside it
-    console.log("BUILDING SECOND SOIL");
-    console.logBytes32(soilEntity.entityId);
     VoxelCoord memory soilCoord2 = VoxelCoord({ x: soilCoord.x - 1, y: soilCoord.y, z: soilCoord.z });
-    // VoxelEntity memory soilEntity2 = world.buildWithAgent(SoilVoxelID, soilCoord2, agentEntity, bytes4(0));
-    // assertTrue(BodyPhysics.getEnergy(soilEntity.scale, soilEntity.entityId) < soil1Energy);
-    // uint256 soil2Energy = BodyPhysics.getEnergy(soilEntity.scale, soilEntity.entityId);
-    // assertTrue(soil2Energy > 0);
+    VoxelEntity memory soilEntity2 = world.buildWithAgent(SoilVoxelID, soilCoord2, agentEntity, bytes4(0));
+    assertTrue(BodyPhysics.getEnergy(soilEntity.scale, soilEntity.entityId) < soil1Energy);
+    uint256 soil2Energy = BodyPhysics.getEnergy(soilEntity.scale, soilEntity.entityId);
+    assertTrue(soil2Energy > 0);
+
+    vm.stopPrank();
+
+    return (agentEntity, energySourceEntity);
+  }
+
+  function testSoilWithPlantNeighbour() public returns (VoxelEntity memory, VoxelEntity memory) {
+    vm.startPrank(alice);
+    VoxelEntity memory agentEntity = setupAgent();
+
+    VoxelEntity memory energySourceEntity = replaceHighEnergyBlockWithEnergySource(agentEntity);
+
+    // Place down soil beside it
+    VoxelCoord memory soilCoord = VoxelCoord({
+      x: energySourceCoord.x - 1,
+      y: energySourceCoord.y,
+      z: energySourceCoord.z
+    });
+    VoxelEntity memory soilEntity = world.buildWithAgent(SoilVoxelID, soilCoord, agentEntity, bytes4(0));
+
+    // Some energy should have been transferred to the soil
+    uint256 soilEnergy = BodyPhysics.getEnergy(soilEntity.scale, soilEntity.entityId);
+    assertTrue(soilEnergy > 0);
+
+    // Place down plant on top of it
+    VoxelCoord memory plantCoord = VoxelCoord({ x: soilCoord.x, y: soilCoord.y + 1, z: soilCoord.z });
+    VoxelEntity memory plantEntity = world.buildWithAgent(PlantVoxelID, plantCoord, agentEntity, bytes4(0));
+    uint256 plantEnergy = BodyPhysics.getEnergy(plantEntity.scale, plantEntity.entityId);
+    assertTrue(plantEnergy > 0);
+
+    // Roll forward and activate soil
+    vm.roll(block.number + ENERGY_SOURCE_WAIT_BLOCKS + 1);
+    world.activateWithAgent(SoilVoxelID, soilCoord, agentEntity, bytes4(0));
+    // Plant should have even more energy
+    uint256 plantEnergy2 = BodyPhysics.getEnergy(plantEntity.scale, plantEntity.entityId);
+    assertTrue(plantEnergy2 > plantEnergy);
+
+    vm.stopPrank();
+
+    return (agentEntity, energySourceEntity);
+  }
+
+  function testSoilWithZeroEnergy() public returns (VoxelEntity memory, VoxelEntity memory) {
+    vm.startPrank(alice);
+    VoxelEntity memory agentEntity = setupAgent();
+
+    VoxelCoord memory energySourceNoEnergyCoord = VoxelCoord({
+      x: energySourceCoord.x,
+      y: energySourceCoord.y + 1,
+      z: energySourceCoord.z
+    });
+
+    // Place down energy source
+    VoxelEntity memory energySourceEntity = world.buildWithAgent(
+      EnergySourceVoxelID,
+      energySourceNoEnergyCoord,
+      agentEntity,
+      bytes4(0)
+    );
+    uint256 energySourceEnergy = BodyPhysics.getEnergy(energySourceEntity.scale, energySourceEntity.entityId);
+    assertTrue(energySourceEnergy == 0);
+
+    // Place down soil beside it
+    VoxelCoord memory soilCoord = VoxelCoord({
+      x: energySourceCoord.x - 1,
+      y: energySourceCoord.y,
+      z: energySourceCoord.z
+    });
+    VoxelEntity memory soilEntity = world.buildWithAgent(SoilVoxelID, soilCoord, agentEntity, bytes4(0));
+
+    uint256 soilEnergy = BodyPhysics.getEnergy(soilEntity.scale, soilEntity.entityId);
+    assertTrue(soilEnergy == 0);
+
+    // Place down plant on top of it
+    VoxelCoord memory plantCoord = VoxelCoord({ x: soilCoord.x, y: soilCoord.y + 1, z: soilCoord.z });
+    VoxelEntity memory plantEntity = world.buildWithAgent(PlantVoxelID, plantCoord, agentEntity, bytes4(0));
+    uint256 plantEnergy = BodyPhysics.getEnergy(plantEntity.scale, plantEntity.entityId);
+    assertTrue(plantEnergy == 0);
 
     vm.stopPrank();
 

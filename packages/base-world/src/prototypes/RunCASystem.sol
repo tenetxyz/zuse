@@ -15,7 +15,6 @@ import { VoxelActivated, VoxelActivatedData } from "@tenet-base-world/src/codege
 import { getEntityAtCoord, calculateChildCoords, calculateParentCoord } from "@tenet-base-world/src/Utils.sol";
 import { runInteraction, enterWorld, exitWorld, activateVoxel, moveLayer } from "@tenet-base-ca/src/CallUtils.sol";
 import { addressToEntityKey } from "@tenet-utils/src/Utils.sol";
-import { console } from "forge-std/console.sol";
 
 abstract contract RunCASystem is System {
   function enterCA(
@@ -149,8 +148,6 @@ abstract contract RunCASystem is System {
       bytes32 useCenterEntityId = centerEntitiesToCheckStack[useStackIdx];
 
       {
-        console.log("runInteraction");
-        console.logBytes32(useCenterEntityId);
         (bytes32[] memory changedEntities, EntityEventData[] memory entitiesEventData) = runInteractionWrapper(
           caAddress,
           entity.scale,

@@ -77,7 +77,6 @@ contract EnergySourceTest is MudTest {
   }
 
   function testEnergySourceWithOneSoilNeighbour() public {
-    console.log("build energy source");
     (VoxelEntity memory agentEntity, VoxelEntity memory energySourceEntity) = testEnergySourceNoNeighbours();
     vm.startPrank(alice);
 
@@ -87,24 +86,23 @@ contract EnergySourceTest is MudTest {
       y: energySourceCoord.y,
       z: energySourceCoord.z
     });
-    console.log("build now soil");
     VoxelEntity memory soilEntity = world.buildWithAgent(SoilVoxelID, soilCoord, agentEntity, bytes4(0));
     // Some energy should have been transferred to the soil
     uint256 soilEnergy = BodyPhysics.getEnergy(soilEntity.scale, soilEntity.entityId);
     assertTrue(soilEnergy > 0 && soilEnergy <= INITIAL_HIGH_ENERGY);
-    // // Energy source should have lost some energy
-    // uint256 energySourceEnergy = BodyPhysics.getEnergy(energySourceEntity.scale, energySourceEntity.entityId);
-    // assertTrue(energySourceEnergy < INITIAL_HIGH_ENERGY);
+    // Energy source should have lost some energy
+    uint256 energySourceEnergy = BodyPhysics.getEnergy(energySourceEntity.scale, energySourceEntity.entityId);
+    assertTrue(energySourceEnergy < INITIAL_HIGH_ENERGY);
 
     // Roll forward and activate energy source
-    // vm.roll(block.number + ENERGY_SOURCE_WAIT_BLOCKS + 1);
-    // world.activateWithAgent(EnergySourceVoxelID, energySourceCoord, agentEntity, bytes4(0));
-    // // This should have transferred more energy to the soil
-    // uint256 soilEnergy2 = BodyPhysics.getEnergy(soilEntity.scale, soilEntity.entityId);
-    // assertTrue(soilEnergy2 > soilEnergy);
-    // // Energy source should have lost some energy
-    // uint256 energySourceEnergy2 = BodyPhysics.getEnergy(energySourceEntity.scale, energySourceEntity.entityId);
-    // assertTrue(energySourceEnergy2 < energySourceEnergy);
+    vm.roll(block.number + ENERGY_SOURCE_WAIT_BLOCKS + 1);
+    world.activateWithAgent(EnergySourceVoxelID, energySourceCoord, agentEntity, bytes4(0));
+    // This should have transferred more energy to the soil
+    uint256 soilEnergy2 = BodyPhysics.getEnergy(soilEntity.scale, soilEntity.entityId);
+    assertTrue(soilEnergy2 > soilEnergy);
+    // Energy source should have lost some energy
+    uint256 energySourceEnergy2 = BodyPhysics.getEnergy(energySourceEntity.scale, energySourceEntity.entityId);
+    assertTrue(energySourceEnergy2 < energySourceEnergy);
 
     vm.stopPrank();
   }

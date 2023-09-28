@@ -9,6 +9,8 @@ import { registerMindIntoRegistry } from "@tenet-registry/src/Utils.sol";
 import { REGISTRY_ADDRESS, PokemonVoxelID } from "@tenet-pokemon-extension/src/Constants.sol";
 import { getInteractionSelectors } from "@tenet-registry/src/Utils.sol";
 import { isStringEqual } from "@tenet-utils/src/StringUtils.sol";
+import { Pokemon, PokemonData, PokemonMove } from "@tenet-pokemon-extension/src/codegen/tables/Pokemon.sol";
+import { entityIsEnergySource, entityIsSoil, entityIsPlant, entityIsPokemon } from "@tenet-pokemon-extension/src/InteractionUtils.sol";
 
 contract PokemonMindSystem is MindType {
   function registerMind() public {
@@ -28,6 +30,18 @@ contract PokemonMindSystem is MindType {
     );
   }
 
+  function getSelector(
+    InteractionSelector[] memory interactionSelectors,
+    string memory selectorName
+  ) public pure returns (bytes4) {
+    for (uint i = 0; i < interactionSelectors.length; i++) {
+      if (isStringEqual(interactionSelectors[i].interactionName, selectorName)) {
+        return interactionSelectors[i].interactionSelector;
+      }
+    }
+    revert("Selector not found");
+  }
+
   function mindLogic(
     bytes32 voxelTypeId,
     bytes32 entity,
@@ -35,14 +49,30 @@ contract PokemonMindSystem is MindType {
     bytes32[] memory childEntityIds,
     bytes32 parentEntity
   ) public override returns (bytes4) {
+    address callerAddress = super.getCallerAddress();
     InteractionSelector[] memory interactionSelectors = getInteractionSelectors(IStore(REGISTRY_ADDRESS), voxelTypeId);
     bytes4 chosenSelector = 0;
-    for (uint i = 0; i < interactionSelectors.length; i++) {
-      if (isStringEqual(interactionSelectors[i].interactionName, "Replenish Energy")) {
-        chosenSelector = interactionSelectors[i].interactionSelector;
+    bytes32 opponentPokemonEntityId = 0;
+
+    // Check if neighbour is pokemon
+    for (uint i = 0; i < neighbourEntityIds.length; i++) {
+      if (uint256(neighbourEntityIds[i]) == 0) {
+        continue;
+      }
+
+      if (entityIsPokemon(callerAddress, neighbourEntityIds[i])) {
+        // TODO: Should require that there is only ONE pokemon neighbour
+        opponentPokemonEntityId = neighbourEntityIds[i];
         break;
       }
     }
+
+    if (opponentPokemonEntityId != 0) {
+      chosenSelector = getSelector(interactionSelectors, "Ember");
+    } else {
+      chosenSelector = getSelector(interactionSelectors, "Replenish Energy");
+    }
+
     return chosenSelector;
   }
 }

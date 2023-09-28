@@ -53,6 +53,7 @@ contract PokemonFightSystem is System {
   ) public returns (bool changedEntity, bytes memory entityData) {
     console.log("runBattleLogic");
     if (!entityIsPokemon(callerAddress, neighbourEntity)) {
+      console.log("not pokemon leave");
       return (changedEntity, entityData);
     }
 
@@ -66,6 +67,10 @@ contract PokemonFightSystem is System {
       pokemonData.round = -1;
       return (changedEntity, entityData);
     }
+
+    console.log("pokemon moves");
+    console.logUint(uint(pokemonData.move));
+    console.logUint(uint(neighbourPokemonData.move));
 
     if (pokemonData.move == PokemonMove.None && neighbourPokemonData.move != PokemonMove.None) {
       console.log("my pokemon move is none");
@@ -96,6 +101,9 @@ contract PokemonFightSystem is System {
 
         // Update round number
         pokemonData.round += 1;
+        console.log("new lost health");
+        console.logUint(pokemonData.lostHealth);
+        console.logUint(pokemonData.round);
 
         // Save data
         Pokemon.set(callerAddress, interactEntity, pokemonData);
@@ -106,6 +114,8 @@ contract PokemonFightSystem is System {
         // TODO: run exit logic
         return (changedEntity, entityData);
       }
+    } else {
+      console.log("nothing to do");
     }
 
     return (changedEntity, entityData);

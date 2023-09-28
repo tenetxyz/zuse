@@ -91,20 +91,7 @@ contract PokemonSystem is System {
   ) internal returns (bool changedEntity, bytes memory entityData) {
     changedEntity = false;
 
-    if (!entityIsPlant(callerAddress, neighbourEntityId)) {
-      return (changedEntity, entityData);
-    }
-
-    PlantStage plantStage = Plant.getStage(callerAddress, neighbourEntityId);
-    if (plantStage != PlantStage.Flower) {
-      return (changedEntity, entityData);
-    }
-
-    BodyPhysicsData memory entityBodyPhysics = getVoxelBodyPhysicsFromCaller(interactEntity);
-    PokemonData memory pokemonData = Pokemon.get(callerAddress, interactEntity);
-
-    pokemonData = replenishEnergy(callerAddress, interactEntity, neighbourEntityId, pokemonData, entityBodyPhysics);
-    Pokemon.set(callerAddress, interactEntity, pokemonData);
+    revert("not implemented");
 
     return (changedEntity, entityData);
   }
@@ -121,6 +108,7 @@ contract PokemonSystem is System {
     changedEntity = false;
 
     console.log("pokemon run interaction");
+    console.logBytes32(interactEntity);
 
     BodyPhysicsData memory entityBodyPhysics = getVoxelBodyPhysicsFromCaller(interactEntity);
     PokemonData memory pokemonData = Pokemon.get(callerAddress, interactEntity);
@@ -170,6 +158,7 @@ contract PokemonSystem is System {
       );
     }
 
+    // TODO: optimize so there's only one call of this
     Pokemon.set(callerAddress, interactEntity, pokemonData);
 
     return (changedEntity, entityData);
@@ -195,13 +184,15 @@ contract PokemonSystem is System {
     }
 
     console.log("setting move");
+    console.logBytes32(interactEntity);
     pokemonData.move = pokemonMove;
     pokemonData.round += 1;
     pokemonData.lostStamina += 1;
-
     Pokemon.set(callerAddress, interactEntity, pokemonData);
 
     IWorld(_world()).pokemon_PokemonFightSyst_runBattleLogic(callerAddress, interactEntity, neighbourEntity);
+
+    return pokemonData;
   }
 
   function replenishEnergy(

@@ -97,6 +97,8 @@ contract PokemonAgentSystem is AgentType {
   function enterWorld(VoxelCoord memory coord, bytes32 entity) public override {
     address callerAddress = super.getCallerAddress();
     bool hasValue = true;
+    console.log("pokemon enter world");
+    console.logBytes32(entity);
     Pokemon.set(
       callerAddress,
       entity,
@@ -117,6 +119,7 @@ contract PokemonAgentSystem is AgentType {
 
   function exitWorld(VoxelCoord memory coord, bytes32 entity) public override {
     address callerAddress = super.getCallerAddress();
+    console.log("pokemon exiting");
     Pokemon.deleteRecord(callerAddress, entity);
   }
 

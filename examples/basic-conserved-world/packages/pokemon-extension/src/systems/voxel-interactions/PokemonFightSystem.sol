@@ -50,9 +50,9 @@ contract PokemonFightSystem is System {
     address callerAddress,
     bytes32 interactEntity,
     bytes32 neighbourEntity
-  ) public returns (bool, bytes memory) {
+  ) public returns (bool changedEntity, bytes memory entityData) {
     if (!entityIsPokemon(callerAddress, neighbourEntity)) {
-      return (false, bytes(0));
+      return (changedEntity, entityData);
     }
 
     PokemonData memory pokemonData = Pokemon.get(callerAddress, interactEntity);
@@ -62,7 +62,7 @@ contract PokemonFightSystem is System {
       // TODO: Run exit logic
       // set our own round to -1
       pokemonData.round = -1;
-      return (false, bytes(0));
+      return (changedEntity, entityData);
     }
 
     if (pokemonData.move != PokemonMove.None && neighbourPokemonData.move != PokemonMove.None) {
@@ -84,15 +84,20 @@ contract PokemonFightSystem is System {
           pokemonData.lostHealth += damage;
         }
 
+        // Update round number
+        pokemonData.round += 1;
+
         // Save data
         Pokemon.set(callerAddress, interactEntity, pokemonData);
       } else {
         // pokemon is dead
         pokemonData.round = -1;
         // TODO: run exit logic
-        return (false, bytes(0));
+        return (changedEntity, entityData);
       }
     }
+
+    return (changedEntity, entityData);
   }
 
   function calculateDamage(

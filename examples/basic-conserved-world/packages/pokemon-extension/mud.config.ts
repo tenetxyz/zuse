@@ -74,5 +74,12 @@ export default mudConfig({
       },
     },
   },
+  systems: {
+    PokemonFightSystem: {
+      name: "PokemonFightSyst",
+      openAccess: false,
+      accessList: ["PokemonSystem", "PokemonAgentSystem"],
+    },
+  },
   modules: [],
 });

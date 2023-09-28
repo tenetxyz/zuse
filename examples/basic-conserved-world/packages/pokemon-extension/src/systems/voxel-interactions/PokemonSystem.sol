@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity >=0.8.0;
 
+import { IWorld } from "@tenet-pokemon-extension/src/codegen/world/IWorld.sol";
 import { IStore } from "@latticexyz/store/src/IStore.sol";
 import { System } from "@latticexyz/world/src/System.sol";
 import { calculateBlockDirection } from "@tenet-utils/src/VoxelCoordUtils.sol";
@@ -191,6 +192,8 @@ contract PokemonSystem is System {
 
     pokemonData.move = pokemonMove;
     pokemonData.lostStamina += 1;
+
+    IWorld(_world()).pokemon_PokemonFightSyst_runBattleLogic(callerAddress, interactEntity, neighbourEntity);
   }
 
   function replenishEnergy(

@@ -134,47 +134,8 @@ contract PokemonAgentSystem is AgentType {
     bytes32 neighbourEntityId,
     bytes32 centerEntityId
   ) public override returns (bool, bytes memory) {
-    MoveData[] memory movesData = new MoveData[](13); // the first value is for PokemonMove.None
-    movesData[uint(PokemonMove.Ember)] = MoveData(10, 20, 0, PokemonType.Fire);
-    movesData[uint(PokemonMove.FlameBurst)] = MoveData(20, 40, 0, PokemonType.Fire);
-    movesData[uint(PokemonMove.SmokeScreen)] = MoveData(5, 0, 10, PokemonType.Fire);
-    movesData[uint(PokemonMove.FireShield)] = MoveData(15, 0, 30, PokemonType.Fire);
-
-    movesData[uint(PokemonMove.WaterGun)] = MoveData(10, 20, 0, PokemonType.Water);
-    movesData[uint(PokemonMove.HydroPump)] = MoveData(20, 40, 0, PokemonType.Water);
-    movesData[uint(PokemonMove.Bubble)] = MoveData(5, 0, 10, PokemonType.Water);
-    movesData[uint(PokemonMove.AquaRing)] = MoveData(15, 0, 30, PokemonType.Water);
-
-    movesData[uint(PokemonMove.VineWhip)] = MoveData(10, 20, 0, PokemonType.Grass);
-    movesData[uint(PokemonMove.SolarBeam)] = MoveData(20, 40, 0, PokemonType.Grass);
-    movesData[uint(PokemonMove.LeechSeed)] = MoveData(5, 0, 10, PokemonType.Grass);
-    movesData[uint(PokemonMove.Synthesis)] = MoveData(15, 0, 30, PokemonType.Grass);
-
     address callerAddress = super.getCallerAddress();
-    PokemonData memory pokemonData = Pokemon.get(callerAddress, neighbourEntityId);
-    if (entityIsPokemon(callerAddress, centerEntityId)) {
-      PokemonData memory neighbourPokemonData = Pokemon.get(callerAddress, centerEntityId);
-      if (pokemonData.move != PokemonMove.None && neighbourPokemonData.move != PokemonMove.None) {
-        // Calculate damage
-        if (pokemonData.lostHealth < pokemonData.health) {
-          // Calculae damage
-
-          MoveData memory myMoveData = movesData[uint(pokemonData.move)];
-          MoveData memory opponentMoveData = movesData[uint(neighbourPokemonData.move)];
-
-          if (opponentMoveData.damage > 0 && myMoveData.protection > 0) {
-            uint256 damage = calculateDamage(myMoveData, opponentMoveData);
-            uint256 protection = calculateProtection(myMoveData, opponentMoveData);
-            pokemonData.lostHealth += (damage - protection);
-          } else if (opponentMoveData.damage > 0) {
-            uint256 damage = calculateDamage(myMoveData, opponentMoveData);
-            pokemonData.lostHealth += damage;
-          }
-        }
-      }
-    }
-
-    Pokemon.set(callerAddress, neighbourEntityId, pokemonData);
+    IWorld(_world()).pokemon_PokemonFightSyst_runBattleLogic(callerAddress, neighbourEntityId, centerEntityId);
   }
 
   function getInteractionSelectors() public override returns (InteractionSelector[] memory) {

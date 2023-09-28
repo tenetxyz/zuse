@@ -30,6 +30,7 @@ contract PlantSystem is VoxelInteraction {
       return (changedEntity, entityData);
     }
 
+    BodyPhysicsData memory entityBodyPhysics = getVoxelBodyPhysicsFromCaller(neighbourEntityId);
     PlantData memory plantData = Plant.get(callerAddress, neighbourEntityId);
 
     if (plantData.stage == PlantStage.Sprout) {
@@ -142,7 +143,7 @@ contract PlantSystem is VoxelInteraction {
     }
 
     PlantStage plantStage = Plant.getStage(callerAddress, neighbourEntityId);
-    if (Plant.getStage(callerAddress, neighbourEntityIds[i]) != PlantStage.Seed) {
+    if (Plant.getStage(callerAddress, neighbourEntityId) != PlantStage.Seed) {
       return false;
     }
 
@@ -165,7 +166,7 @@ contract PlantSystem is VoxelInteraction {
     BlockDirection[] memory neighbourEntityDirections,
     BodyPhysicsData memory entityBodyPhysics,
     PlantData memory plantData
-  ) internal view returns (PlantData memory, CAEventData memory) {
+  ) internal returns (PlantData memory, CAEventData memory) {
     CAEventData memory transferData = CAEventData({
       eventType: CAEventType.FluxEnergy,
       newCoords: new VoxelCoord[](neighbourEntityIds.length),
@@ -213,7 +214,7 @@ contract PlantSystem is VoxelInteraction {
     BlockDirection[] memory neighbourEntityDirections,
     BodyPhysicsData memory entityBodyPhysics,
     PlantData memory plantData
-  ) internal view returns (PlantData memory, CAEventData memory) {
+  ) internal returns (PlantData memory, CAEventData memory) {
     CAEventData memory transferData = CAEventData({
       eventType: CAEventType.FluxEnergy,
       newCoords: new VoxelCoord[](neighbourEntityIds.length),

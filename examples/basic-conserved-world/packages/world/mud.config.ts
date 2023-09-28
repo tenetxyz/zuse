@@ -71,6 +71,11 @@ export default tenetMudConfig({
       args: [resolveTableId("OwnedBy")],
     },
     {
+      name: "KeysWithValueModule",
+      root: true,
+      args: [resolveTableId("OwnedBy")],
+    },
+    {
       name: "KeysInTableModule",
       root: true,
       args: [resolveTableId("BodyPhysics")],

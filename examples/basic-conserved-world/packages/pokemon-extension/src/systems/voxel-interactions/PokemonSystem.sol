@@ -187,6 +187,7 @@ contract PokemonSystem is System {
     console.logBytes32(interactEntity);
     pokemonData.move = pokemonMove;
     pokemonData.round += 1;
+    console.logInt(pokemonData.round);
     pokemonData.lostStamina += 1;
     Pokemon.set(callerAddress, interactEntity, pokemonData);
 

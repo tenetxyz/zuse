@@ -68,10 +68,6 @@ contract PokemonFightSystem is System {
       return (changedEntity, entityData);
     }
 
-    console.log("pokemon moves");
-    console.logUint(uint(pokemonData.move));
-    console.logUint(uint(neighbourPokemonData.move));
-
     if (pokemonData.move == PokemonMove.None && neighbourPokemonData.move != PokemonMove.None) {
       console.log("my pokemon move is none");
       changedEntity = true;
@@ -82,6 +78,12 @@ contract PokemonFightSystem is System {
       // This a new battle is in progress
       // TODO: check if round number is the same?
       console.log("both moves picked");
+
+      if (pokemonData.round != neighbourPokemonData.round) {
+        console.log("rounds are not the same");
+        changedEntity = true;
+        return (changedEntity, entityData);
+      }
 
       // Calculate damage
       if (pokemonData.lostHealth < pokemonData.health) {
@@ -100,13 +102,15 @@ contract PokemonFightSystem is System {
         }
 
         // Update round number
-        pokemonData.round += 1;
         console.log("new lost health");
         console.logUint(pokemonData.lostHealth);
-        console.logUint(pokemonData.round);
+        console.logInt(pokemonData.round);
 
         // Save data
         Pokemon.set(callerAddress, interactEntity, pokemonData);
+
+        changedEntity = true;
+        // continue the fight to next round
       } else {
         console.log("pokemon dead after moves yo");
         // pokemon is dead

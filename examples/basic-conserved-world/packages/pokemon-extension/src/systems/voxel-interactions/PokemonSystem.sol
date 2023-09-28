@@ -120,6 +120,8 @@ contract PokemonSystem is System {
   ) internal returns (bool changedEntity, bytes memory entityData) {
     changedEntity = false;
 
+    console.log("pokemon run interaction");
+
     BodyPhysicsData memory entityBodyPhysics = getVoxelBodyPhysicsFromCaller(interactEntity);
     PokemonData memory pokemonData = Pokemon.get(callerAddress, interactEntity);
 

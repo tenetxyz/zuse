@@ -11,6 +11,7 @@ import { getInteractionSelectors } from "@tenet-registry/src/Utils.sol";
 import { isStringEqual } from "@tenet-utils/src/StringUtils.sol";
 import { Pokemon, PokemonData, PokemonMove } from "@tenet-pokemon-extension/src/codegen/tables/Pokemon.sol";
 import { entityIsEnergySource, entityIsSoil, entityIsPlant, entityIsPokemon } from "@tenet-pokemon-extension/src/InteractionUtils.sol";
+import { console } from "forge-std/console.sol";
 
 contract PokemonMindSystem is MindType {
   function registerMind() public {
@@ -54,6 +55,8 @@ contract PokemonMindSystem is MindType {
     bytes4 chosenSelector = 0;
     bytes32 opponentPokemonEntityId = 0;
 
+    console.log("pokemon mind run");
+
     // Check if neighbour is pokemon
     for (uint i = 0; i < neighbourEntityIds.length; i++) {
       if (uint256(neighbourEntityIds[i]) == 0) {
@@ -68,8 +71,10 @@ contract PokemonMindSystem is MindType {
     }
 
     if (opponentPokemonEntityId != 0) {
+      console.log("pokemon mind selected ember");
       chosenSelector = getSelector(interactionSelectors, "Ember");
     } else {
+      console.log("pokemon mind selected replenish energy");
       chosenSelector = getSelector(interactionSelectors, "Replenish Energy");
     }
 

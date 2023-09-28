@@ -183,6 +183,8 @@ contract PokemonSystem is System {
       return pokemonData;
     }
 
+    // TODO: how does round become 0?
+
     console.log("setting move");
     console.logBytes32(interactEntity);
     pokemonData.move = pokemonMove;

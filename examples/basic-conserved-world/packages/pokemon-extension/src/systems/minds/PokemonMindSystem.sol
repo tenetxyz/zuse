@@ -56,6 +56,9 @@ contract PokemonMindSystem is MindType {
     if (pokemonData.health == 0) {
       return false;
     }
+    if (pokemonData.round == -1) {
+      return false;
+    }
     return true;
   }
 

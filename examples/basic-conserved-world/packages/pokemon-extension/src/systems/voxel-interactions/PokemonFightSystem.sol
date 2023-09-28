@@ -64,7 +64,9 @@ contract PokemonFightSystem is System {
       // TODO: Run exit logic
       // set our own round to -1
       console.log("pokemon is dead");
-      pokemonData.round = -1;
+      pokemonData.round = 0;
+      pokemonData.move = PokemonMove.None;
+      changedEntity = true;
       return (changedEntity, entityData);
     }
 
@@ -88,6 +90,7 @@ contract PokemonFightSystem is System {
       // Calculate damage
       if (pokemonData.lostHealth < pokemonData.health) {
         console.log("calc damage");
+        console.logUint(pokemonData.lostHealth);
         // Calculae damage
         MoveData[] memory movesData = getMovesData();
         MoveData memory myMoveData = movesData[uint(pokemonData.move)];
@@ -98,11 +101,13 @@ contract PokemonFightSystem is System {
           pokemonData.lostHealth += (damage - protection);
         } else if (opponentMoveData.damage > 0) {
           uint256 damage = calculateDamage(myMoveData, opponentMoveData);
+          console.log("damage go");
           pokemonData.lostHealth += damage;
         }
 
         // Update round number
         console.log("new lost health");
+        console.logBytes32(interactEntity);
         console.logUint(pokemonData.lostHealth);
         console.logInt(pokemonData.round);
 
@@ -115,6 +120,10 @@ contract PokemonFightSystem is System {
         console.log("pokemon dead after moves yo");
         // pokemon is dead
         pokemonData.round = -1;
+        pokemonData.move = PokemonMove.None;
+        pokemonData.health = 0;
+        pokemonData.lastInteractionBlock = block.number;
+        changedEntity = true;
         // TODO: run exit logic
         return (changedEntity, entityData);
       }

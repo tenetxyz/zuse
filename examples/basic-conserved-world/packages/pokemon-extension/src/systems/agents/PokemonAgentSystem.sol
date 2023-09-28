@@ -106,6 +106,7 @@ contract PokemonAgentSystem is AgentType {
         stamina: 0,
         lostStamina: 0,
         lastUpdatedBlock: 0,
+        round: 0,
         pokemonType: PokemonType.Fire,
         move: PokemonMove.None,
         hasValue: hasValue
@@ -174,45 +175,6 @@ contract PokemonAgentSystem is AgentType {
     }
 
     Pokemon.set(callerAddress, neighbourEntityId, pokemonData);
-  }
-
-  function calculateDamage(
-    MoveData memory myMoveData,
-    MoveData memory opponentMoveData
-  ) internal pure returns (uint256) {
-    uint256 damage = myMoveData.damage;
-    // TODO: Figure out how to calculate random factor
-    uint256 randomFactor = 1;
-    uint256 typeMultiplier = getTypeMultiplier(myMoveData.moveType, opponentMoveData.moveType) / 100;
-    return damage * typeMultiplier * randomFactor;
-  }
-
-  function calculateProtection(
-    MoveData memory myMoveData,
-    MoveData memory opponentMoveData
-  ) internal pure returns (uint256) {
-    uint256 protection = myMoveData.protection;
-    // TODO: Figure out how to calculate random factor
-    uint256 randomFactor = 1;
-    uint256 typeMultiplier = getTypeMultiplier(myMoveData.moveType, opponentMoveData.moveType) / 100;
-    return protection * typeMultiplier * randomFactor;
-  }
-
-  function getTypeMultiplier(PokemonType moveType, PokemonType neighbourPokemonType) internal pure returns (uint256) {
-    if (moveType == PokemonType.Fire) {
-      if (neighbourPokemonType == PokemonType.Fire) return 100;
-      if (neighbourPokemonType == PokemonType.Water) return 50;
-      if (neighbourPokemonType == PokemonType.Grass) return 200;
-    } else if (moveType == PokemonType.Water) {
-      if (neighbourPokemonType == PokemonType.Fire) return 200;
-      if (neighbourPokemonType == PokemonType.Water) return 100;
-      if (neighbourPokemonType == PokemonType.Grass) return 50;
-    } else if (moveType == PokemonType.Grass) {
-      if (neighbourPokemonType == PokemonType.Fire) return 50;
-      if (neighbourPokemonType == PokemonType.Water) return 200;
-      if (neighbourPokemonType == PokemonType.Grass) return 100;
-    }
-    revert("Invalid move types"); // Revert if none of the valid move types are matched
   }
 
   function getInteractionSelectors() public override returns (InteractionSelector[] memory) {

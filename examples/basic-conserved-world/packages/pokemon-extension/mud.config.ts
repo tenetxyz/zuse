@@ -67,6 +67,7 @@ export default mudConfig({
         stamina: "uint256",
         lostStamina: "uint256",
         lastUpdatedBlock: "uint256",
+        round: "int32",
         pokemonType: "PokemonType",
         move: "PokemonMove",
         hasValue: "bool", // TODO: Remove this once we can install non-root modules

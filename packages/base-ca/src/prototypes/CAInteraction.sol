@@ -233,7 +233,7 @@ abstract contract CAInteraction is System {
     // You could move this to be after the neighbour events
     changedCAEntities[0] = changedCenterEntityId;
     for (uint i = 0; i < changedNeighbourEntities.length; i++) {
-      changedCAEntities[i + 1] = changedCAEntities[i];
+      changedCAEntities[i + 1] = changedNeighbourEntities[i];
     }
     caEntitiesEventData[0] = centerEntityEventData;
     for (uint i = 0; i < neighbourEntitiesEventData.length; i++) {

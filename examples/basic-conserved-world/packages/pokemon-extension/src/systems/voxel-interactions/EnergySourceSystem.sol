@@ -40,7 +40,7 @@ contract EnergySourceSystem is VoxelInteraction {
       return (changedEntity, entityData);
     }
 
-    console.log("on new neighbour goo");
+    console.log("on new neighbour go energy source");
 
     // If we have a soil neighbour and we have energy, then we can transfer energy
     changedEntity = true;

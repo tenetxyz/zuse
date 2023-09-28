@@ -62,7 +62,7 @@ contract PlantVoxelSystem is VoxelType {
   function enterWorld(VoxelCoord memory coord, bytes32 entity) public override {
     address callerAddress = super.getCallerAddress();
     bool hasValue = true;
-    Plant.set(callerAddress, entity, PlantStage.Seed, 0, 0, hasValue);
+    Plant.set(callerAddress, entity, PlantStage.Seed, 0, hasValue);
   }
 
   function exitWorld(VoxelCoord memory coord, bytes32 entity) public override {

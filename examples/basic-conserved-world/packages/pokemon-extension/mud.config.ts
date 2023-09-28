@@ -51,7 +51,6 @@ export default mudConfig({
       schema: {
         stage: "PlantStage",
         lastInteractionBlock: "uint256",
-        growthRate: "uint32",
         hasValue: "bool", // TODO: Remove this once we can install non-root modules
       },
     },

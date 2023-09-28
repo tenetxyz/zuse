@@ -15,22 +15,16 @@ import { getCAEntityAtCoord, getCAVoxelType } from "@tenet-base-ca/src/Utils.sol
 import { entityIsEnergySource, entityIsSoil, entityIsPlant, entityIsPokemon } from "@tenet-pokemon-extension/src/InteractionUtils.sol";
 import { registerCAVoxelType } from "@tenet-base-ca/src/CallUtils.sol";
 import { getVoxelBodyPhysicsFromCaller, transferEnergy } from "@tenet-level1-ca/src/Utils.sol";
-import { Pokemon, PokemonData, PokemonMove } from "@tenet-pokemon-extension/src/codegen/tables/Pokemon.sol";
+import { Pokemon, PokemonData, PokemonMove, PokemonType } from "@tenet-pokemon-extension/src/codegen/tables/Pokemon.sol";
 
 bytes32 constant PokemonVoxelVariantID = bytes32(keccak256("pokemon"));
 string constant PokemonTexture = "bafkreihpdljsgdltghxehq4cebngtugfj3pduucijxcrvcla4hoy34f7vq";
-
-enum MoveType {
-  Fire,
-  Water,
-  Grass
-}
 
 struct MoveData {
   uint8 stamina;
   uint8 damage;
   uint8 protection;
-  MoveType moveType;
+  PokemonType moveType;
 }
 
 contract PokemonAgentSystem is AgentType {
@@ -112,6 +106,7 @@ contract PokemonAgentSystem is AgentType {
         stamina: 0,
         lostStamina: 0,
         lastUpdatedBlock: 0,
+        pokemonType: PokemonType.Fire,
         move: PokemonMove.None,
         hasValue: hasValue
       })
@@ -139,20 +134,20 @@ contract PokemonAgentSystem is AgentType {
     bytes32 centerEntityId
   ) public override returns (bool, bytes memory) {
     MoveData[] memory movesData = new MoveData[](13); // the first value is for PokemonMove.None
-    movesData[uint(PokemonMove.Ember)] = MoveData(10, 20, 0, MoveType.Fire);
-    movesData[uint(PokemonMove.FlameBurst)] = MoveData(20, 40, 0, MoveType.Fire);
-    movesData[uint(PokemonMove.SmokeScreen)] = MoveData(5, 0, 10, MoveType.Fire);
-    movesData[uint(PokemonMove.FireShield)] = MoveData(15, 0, 30, MoveType.Fire);
+    movesData[uint(PokemonMove.Ember)] = MoveData(10, 20, 0, PokemonType.Fire);
+    movesData[uint(PokemonMove.FlameBurst)] = MoveData(20, 40, 0, PokemonType.Fire);
+    movesData[uint(PokemonMove.SmokeScreen)] = MoveData(5, 0, 10, PokemonType.Fire);
+    movesData[uint(PokemonMove.FireShield)] = MoveData(15, 0, 30, PokemonType.Fire);
 
-    movesData[uint(PokemonMove.WaterGun)] = MoveData(10, 20, 0, MoveType.Water);
-    movesData[uint(PokemonMove.HydroPump)] = MoveData(20, 40, 0, MoveType.Water);
-    movesData[uint(PokemonMove.Bubble)] = MoveData(5, 0, 10, MoveType.Water);
-    movesData[uint(PokemonMove.AquaRing)] = MoveData(15, 0, 30, MoveType.Water);
+    movesData[uint(PokemonMove.WaterGun)] = MoveData(10, 20, 0, PokemonType.Water);
+    movesData[uint(PokemonMove.HydroPump)] = MoveData(20, 40, 0, PokemonType.Water);
+    movesData[uint(PokemonMove.Bubble)] = MoveData(5, 0, 10, PokemonType.Water);
+    movesData[uint(PokemonMove.AquaRing)] = MoveData(15, 0, 30, PokemonType.Water);
 
-    movesData[uint(PokemonMove.VineWhip)] = MoveData(10, 20, 0, MoveType.Grass);
-    movesData[uint(PokemonMove.SolarBeam)] = MoveData(20, 40, 0, MoveType.Grass);
-    movesData[uint(PokemonMove.LeechSeed)] = MoveData(5, 0, 10, MoveType.Grass);
-    movesData[uint(PokemonMove.Synthesis)] = MoveData(15, 0, 30, MoveType.Grass);
+    movesData[uint(PokemonMove.VineWhip)] = MoveData(10, 20, 0, PokemonType.Grass);
+    movesData[uint(PokemonMove.SolarBeam)] = MoveData(20, 40, 0, PokemonType.Grass);
+    movesData[uint(PokemonMove.LeechSeed)] = MoveData(5, 0, 10, PokemonType.Grass);
+    movesData[uint(PokemonMove.Synthesis)] = MoveData(15, 0, 30, PokemonType.Grass);
 
     address callerAddress = super.getCallerAddress();
     PokemonData memory pokemonData = Pokemon.get(callerAddress, neighbourEntityId);
@@ -203,19 +198,19 @@ contract PokemonAgentSystem is AgentType {
     return protection * typeMultiplier * randomFactor;
   }
 
-  function getTypeMultiplier(MoveType moveType, MoveType neighbourMoveType) internal pure returns (uint256) {
-    if (moveType == MoveType.Fire) {
-      if (neighbourMoveType == MoveType.Fire) return 100;
-      if (neighbourMoveType == MoveType.Water) return 50;
-      if (neighbourMoveType == MoveType.Grass) return 200;
-    } else if (moveType == MoveType.Water) {
-      if (neighbourMoveType == MoveType.Fire) return 200;
-      if (neighbourMoveType == MoveType.Water) return 100;
-      if (neighbourMoveType == MoveType.Grass) return 50;
-    } else if (moveType == MoveType.Grass) {
-      if (neighbourMoveType == MoveType.Fire) return 50;
-      if (neighbourMoveType == MoveType.Water) return 200;
-      if (neighbourMoveType == MoveType.Grass) return 100;
+  function getTypeMultiplier(PokemonType moveType, PokemonType neighbourPokemonType) internal pure returns (uint256) {
+    if (moveType == PokemonType.Fire) {
+      if (neighbourPokemonType == PokemonType.Fire) return 100;
+      if (neighbourPokemonType == PokemonType.Water) return 50;
+      if (neighbourPokemonType == PokemonType.Grass) return 200;
+    } else if (moveType == PokemonType.Water) {
+      if (neighbourPokemonType == PokemonType.Fire) return 200;
+      if (neighbourPokemonType == PokemonType.Water) return 100;
+      if (neighbourPokemonType == PokemonType.Grass) return 50;
+    } else if (moveType == PokemonType.Grass) {
+      if (neighbourPokemonType == PokemonType.Fire) return 50;
+      if (neighbourPokemonType == PokemonType.Water) return 200;
+      if (neighbourPokemonType == PokemonType.Grass) return 100;
     }
     revert("Invalid move types"); // Revert if none of the valid move types are matched
   }

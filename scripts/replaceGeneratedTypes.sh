@@ -27,9 +27,13 @@ find "src/codegen/tables" -type f | while read -r input_file; do
   replacement='import { PokemonMove } from "@tenet-pokemon-extension/src/codegen/Types.sol"'
   awk -v target="$target" -v replacement="$replacement" '{ gsub(target, replacement); print }' $input_file > temp && mv temp $input_file
 
+  target='import { PokemonType } from "./../Types.sol"'
+  replacement='import { PokemonType } from "@tenet-pokemon-extension/src/codegen/Types.sol"'
+  awk -v target="$target" -v replacement="$replacement" '{ gsub(target, replacement); print }' $input_file > temp && mv temp $input_file
+
   target='import { PlantStage } from "./../Types.sol"'
   replacement='import { PlantStage } from "@tenet-pokemon-extension/src/codegen/Types.sol"'
-  awk -v target="$target"
+  awk -v target="$target" -v replacement="$replacement" '{ gsub(target, replacement); print }' $input_file > temp && mv temp $input_file
 
   start_pattern="struct VoxelTypeData {"
   end_pattern="}"

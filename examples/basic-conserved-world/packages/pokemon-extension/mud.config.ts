@@ -21,6 +21,7 @@ export default mudConfig({
       "LeechSeed",
       "Synthesis",
     ],
+    PokemonType: ["Fire", "Water", "Grass"],
   },
   tables: {
     EnergySource: {
@@ -66,6 +67,7 @@ export default mudConfig({
         stamina: "uint256",
         lostStamina: "uint256",
         lastUpdatedBlock: "uint256",
+        pokemonType: "PokemonType",
         move: "PokemonMove",
         hasValue: "bool", // TODO: Remove this once we can install non-root modules
       },

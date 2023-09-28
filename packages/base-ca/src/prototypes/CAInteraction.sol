@@ -100,7 +100,13 @@ abstract contract CAInteraction is System {
             return (changedCenterEntityId, centerEntityEventData);
           }
         } else {
-          useinteractionSelector = interactionSelectors[0].interactionSelector; // use the first one
+          if (interactionSelectors.length == 1) {
+            // use the first one, if there's only one
+            useinteractionSelector = interactionSelectors[0].interactionSelector;
+          } else {
+            // This voxel has no mind and no interaction selector, so we don't run any interaction
+            return (changedCenterEntityId, centerEntityEventData);
+          }
         }
       }
     }

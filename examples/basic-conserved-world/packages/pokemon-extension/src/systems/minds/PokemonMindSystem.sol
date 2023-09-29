@@ -27,10 +27,9 @@ contract PokemonMindSystem is MindType {
     registerMindIntoRegistry(
       REGISTRY_ADDRESS,
       FirePokemonVoxelID,
-      Mind({
-        creationMetadata: abi.encode(creationMetadata),
-        mindSelector: IWorld(_world()).pokemon_PokemonMindSyste_mindLogic.selector
-      })
+      "Pokemon Mind",
+      "Tells us how pokemons fight",
+      IWorld(_world()).pokemon_PokemonMindSyste_mindLogic.selector
     );
   }
 

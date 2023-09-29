@@ -9,19 +9,12 @@ import { Mind } from "@tenet-utils/src/Types.sol";
 
 contract FighterMindSystem is MindType {
   function registerMind() public {
-    CreationMetadata memory creationMetadata = CreationMetadata({
-      creator: tx.origin,
-      name: "Fighter",
-      description: "Fighter Mind",
-      spawns: new CreationSpawns[](0)
-    });
     registerMindIntoRegistry(
       REGISTRY_ADDRESS,
       FighterVoxelID,
-      Mind({
-        creationMetadata: abi.encode(creationMetadata),
-        mindSelector: IWorld(_world()).ca_FighterMindSyste_mindLogic.selector
-      })
+      "Fighter",
+      "Fighter Mind",
+      IWorld(_world()).ca_FighterMindSyste_mindLogic.selector
     );
   }
 

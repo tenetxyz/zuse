@@ -152,12 +152,12 @@ function voxelSpawned(address registryAddress, bytes32 voxelTypeId) returns (uin
 }
 
 function registerDecisionRule(
-    address registryAddress,
-    string memory name,
-    string memory description,
-    bytes32 srcVoxelTypeId,
-    bytes32 targetVoxelTypeId,
-    bytes4 decisionRuleSelector
+  address registryAddress,
+  string memory name,
+  string memory description,
+  bytes32 srcVoxelTypeId,
+  bytes32 targetVoxelTypeId,
+  bytes4 decisionRuleSelector
 ) returns (bytes memory) {
   return
     safeCall(
@@ -177,21 +177,25 @@ function registerDecisionRule(
 function registerMindIntoRegistry(
   address registryAddress,
   bytes32 voxelTypeId,
-  Mind memory mind
+  string memory name,
+  string memory description,
+  bytes4 mindSelector
 ) returns (bytes memory) {
-  return safeCall(registryAddress, abi.encodeWithSignature(REGISTER_MIND_SIG, voxelTypeId, mind), "registerMind");
+  return safeCall(registryAddress, abi.encodeWithSignature(REGISTER_MIND_SIG, voxelTypeId, name, description, mindSelector), "registerMind");
 }
 
 function registerMindForWorld(
   address registryAddress,
   bytes32 voxelTypeId,
   address worldAddress,
-  Mind memory mind
+  string memory name,
+  string memory description,
+  bytes4 mindSelector
 ) returns (bytes memory) {
   return
     safeCall(
       registryAddress,
-      abi.encodeWithSignature(REGISTER_MIND_WORLD_SIG, voxelTypeId, worldAddress, mind),
+      abi.encodeWithSignature(REGISTER_MIND_WORLD_SIG, voxelTypeId, worldAddress, name, description, mindSelector),
       "registerMindForWorld"
     );
 }

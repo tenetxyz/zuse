@@ -33,7 +33,7 @@ contract EnergySourceTest is MudTest {
     super.setUp();
     world = IWorld(worldAddress);
     store = IStore(worldAddress);
-    alice = payable(address(0x1));
+    alice = payable(address(0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266));
     energySourceCoord = VoxelCoord(10, 2, 11);
   }
 
@@ -48,11 +48,6 @@ contract EnergySourceTest is MudTest {
   function replaceHighEnergyBlockWithEnergySource(
     VoxelEntity memory agentEntity
   ) internal returns (VoxelEntity memory) {
-    VoxelEntity memory highEnergyEntity = VoxelEntity({ scale: 1, entityId: getEntityAtCoord(1, energySourceCoord) });
-
-    // Mine block with high energy
-    world.mineWithAgent(GrassVoxelID, energySourceCoord, agentEntity);
-
     // Place down energy source
     VoxelEntity memory energySourceEntity = world.buildWithAgent(
       EnergySourceVoxelID,
@@ -60,6 +55,8 @@ contract EnergySourceTest is MudTest {
       agentEntity,
       bytes4(0)
     );
+    BodyPhysics.setEnergy(energySourceEntity.scale, energySourceEntity.entityId, INITIAL_HIGH_ENERGY);
+    world.activateWithAgent(EnergySourceVoxelID, energySourceCoord, agentEntity, bytes4(0));
     return energySourceEntity;
   }
 

@@ -21,6 +21,8 @@ import { CAEntityMapping, CAEntityMappingTableId } from "@tenet-base-ca/src/code
 import { ENERGY_SOURCE_WAIT_BLOCKS } from "@tenet-pokemon-extension/src/systems/voxel-interactions/EnergySourceSystem.sol";
 import { ENERGY_REQUIRED_FOR_SPROUT, ENERGY_REQUIRED_FOR_FLOWER } from "@tenet-pokemon-extension/src/systems/voxel-interactions/PlantSystem.sol";
 
+uint256 constant INITIAL_HIGH_ENERGY = 1000;
+
 contract PlantTest is MudTest {
   IWorld private world;
   IStore private store;
@@ -33,7 +35,7 @@ contract PlantTest is MudTest {
     super.setUp();
     world = IWorld(worldAddress);
     store = IStore(worldAddress);
-    alice = payable(address(0x1));
+    alice = payable(address(0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266));
     agentCoord = VoxelCoord(10, 2, 10);
     energySourceCoord = VoxelCoord(10, 2, 11);
   }
@@ -48,11 +50,6 @@ contract PlantTest is MudTest {
   function replaceHighEnergyBlockWithEnergySource(
     VoxelEntity memory agentEntity
   ) internal returns (VoxelEntity memory) {
-    VoxelEntity memory highEnergyEntity = VoxelEntity({ scale: 1, entityId: getEntityAtCoord(1, energySourceCoord) });
-
-    // Mine block with high energy
-    world.mineWithAgent(GrassVoxelID, energySourceCoord, agentEntity);
-
     // Place down energy source
     VoxelEntity memory energySourceEntity = world.buildWithAgent(
       EnergySourceVoxelID,
@@ -60,6 +57,8 @@ contract PlantTest is MudTest {
       agentEntity,
       bytes4(0)
     );
+    BodyPhysics.setEnergy(energySourceEntity.scale, energySourceEntity.entityId, INITIAL_HIGH_ENERGY);
+    world.activateWithAgent(EnergySourceVoxelID, energySourceCoord, agentEntity, bytes4(0));
     return energySourceEntity;
   }
 

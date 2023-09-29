@@ -18,7 +18,7 @@ import { getVoxelBodyPhysicsFromCaller, transferEnergy } from "@tenet-level1-ca/
 import { Pokemon, PokemonData, PokemonMove, PokemonType } from "@tenet-pokemon-extension/src/codegen/tables/Pokemon.sol";
 import { console } from "forge-std/console.sol";
 
-bytes32 constant PokemonVoxelVariantID = bytes32(keccak256("pokemon"));
+bytes32 constant PokemonVoxelVariantID = bytes32(keccak256("pokemon-fire"));
 string constant PokemonTexture = "bafkreihpdljsgdltghxehq4cebngtugfj3pduucijxcrvcla4hoy34f7vq";
 
 contract FirePokemonAgentSystem is AgentType {

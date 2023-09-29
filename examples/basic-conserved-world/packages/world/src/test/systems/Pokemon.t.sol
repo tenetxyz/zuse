@@ -26,6 +26,8 @@ contract PokemonTest is MudTest {
   IWorld private world;
   IStore private store;
   VoxelCoord private agentCoord;
+  VoxelCoord private pokemon1Coord;
+  VoxelCoord private pokemon2Coord;
 
   address payable internal alice;
 
@@ -70,7 +72,7 @@ contract PokemonTest is MudTest {
     }
 
     // Place pokemon beside flower
-    VoxelCoord memory pokemon1Coord = VoxelCoord({ x: agentCoord.x + 1, y: agentCoord.y, z: agentCoord.z + 1 });
+    pokemon1Coord = VoxelCoord({ x: agentCoord.x + 1, y: agentCoord.y, z: agentCoord.z + 1 });
     VoxelEntity memory pokemon1Entity = world.buildWithAgent(
       FirePokemonVoxelID,
       pokemon1Coord,
@@ -99,7 +101,7 @@ contract PokemonTest is MudTest {
       assertTrue(plant2Data.stage == PlantStage.Flower);
     }
 
-    VoxelCoord memory pokemon2Coord = VoxelCoord({ x: agentCoord.x + 1, y: agentCoord.y, z: agentCoord.z - 1 });
+    pokemon2Coord = VoxelCoord({ x: agentCoord.x + 1, y: agentCoord.y, z: agentCoord.z - 1 });
     VoxelEntity memory pokemon2Entity = world.buildWithAgent(
       FirePokemonVoxelID,
       pokemon2Coord,
@@ -149,8 +151,17 @@ contract PokemonTest is MudTest {
       (, pokemon1Entity) = world.moveWithAgent(FirePokemonVoxelID, pokemon1Coord, newPokemon1Coord, pokemon1Entity);
       vm.roll(block.number + NUM_BLOCKS_BEFORE_REDUCE + 1);
       console.log("activate commence fight");
-      // BodyPhysics.setVelocity(pokemon1Entity.scale, pokemon1Entity.entityId, abi.encode(VoxelCoord(0, 0, 0)));
+      uint256 pokemon1EnergyBefore = BodyPhysics.getEnergy(pokemon1Entity.scale, pokemon1Entity.entityId);
+      uint256 pokemon2EnergyBefore = BodyPhysics.getEnergy(pokemon2Entity.scale, pokemon2Entity.entityId);
       world.activateWithAgent(FirePokemonVoxelID, newPokemon1Coord, agentEntity, bytes4(0));
+      pokemon1Data = Pokemon.get(IStore(BASE_CA_ADDRESS), worldAddress, pokemon1CAEntity);
+      pokemon2Data = Pokemon.get(IStore(BASE_CA_ADDRESS), worldAddress, pokemon2CAEntity);
+      assertTrue(BodyPhysics.getEnergy(pokemon1Entity.scale, pokemon1Entity.entityId) < pokemon1EnergyBefore);
+      assertTrue(BodyPhysics.getEnergy(pokemon2Entity.scale, pokemon2Entity.entityId) < pokemon2EnergyBefore);
+      assertTrue(pokemon1Data.health == 0);
+      assertTrue(pokemon2Data.health == 0);
+      assertTrue(pokemon1Data.stamina < 150);
+      assertTrue(pokemon2Data.stamina < 150);
     }
 
     vm.stopPrank();

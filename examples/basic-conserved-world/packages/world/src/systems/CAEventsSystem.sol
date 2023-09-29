@@ -37,9 +37,7 @@ contract CAEventsSystem is System {
         } else if (worldEventData.eventType == CAEventType.FluxMass) {
           IWorld(_world()).fluxMass(voxelTypeId, entityCoord, worldEventData.massFluxAmount);
         } else if (worldEventData.eventType == CAEventType.FluxEnergyAndMass) {
-          console.log("FluxEnergyAndMass");
           IWorld(_world()).fluxMass(voxelTypeId, entityCoord, worldEventData.massFluxAmount);
-          console.log("fluxing energy now");
           uint256 currentEnergy = BodyPhysics.getEnergy(entity.scale, entity.entityId);
           require(worldEventData.energyFluxAmounts.length == 1, "energyFluxAmounts must be length 1");
           uint256 energyToFlux = worldEventData.energyFluxAmounts[0];

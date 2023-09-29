@@ -19,7 +19,6 @@ contract FluxSystem is FluxEvent {
   }
 
   function processCAEvents(EntityEventData[] memory entitiesEventData) internal override {
-    console.log("processCAEvents");
     IWorld(_world()).caEventsHandler(entitiesEventData);
   }
 
@@ -64,8 +63,6 @@ contract FluxSystem is FluxEvent {
       require(bodyPhysicsData.mass >= fluxEventData.massToFlux, "FluxEvent: not enough mass to flux");
       // Update the mass of the entity
       uint256 newMass = bodyPhysicsData.mass - fluxEventData.massToFlux;
-      console.log("newMass");
-      console.logUint(newMass);
       if (newMass == 0) {
         IWorld(_world()).mineWithAgent(voxelTypeId, coord, eventVoxelEntity);
       } else {
@@ -88,7 +85,6 @@ contract FluxSystem is FluxEvent {
           distanceBetween(coord, energyReceiverCoord) == 1,
           "Energy can only be fluxed to a surrounding neighbour"
         );
-        console.log("transferring out");
 
         bytes32 energyReceiverEntityId = getEntityAtCoord(eventVoxelEntity.scale, energyReceiverCoord);
         VoxelEntity memory energyReceiverEntity = VoxelEntity({
@@ -140,11 +136,9 @@ contract FluxSystem is FluxEvent {
           scale: eventVoxelEntity.scale,
           entityId: energyReceiverEntityId
         });
-        console.log("RUN CA FLUX BRO");
         EntityEventData[] memory entitiesEventData = IWorld(_world()).runCA(caAddress, energyReceiverEntity, bytes4(0));
         for (uint j = 0; j < entitiesEventData.length; j++) {
           if (entitiesEventData[j].eventData.length > 0) {
-            console.log("GOT ONE BRO");
             allEntitiesEventData[allEntitiesEventDataIdx] = entitiesEventData[j];
             allEntitiesEventDataIdx++;
           }

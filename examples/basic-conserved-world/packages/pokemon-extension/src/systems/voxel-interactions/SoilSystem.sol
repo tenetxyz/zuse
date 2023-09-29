@@ -23,7 +23,6 @@ contract SoilSystem is VoxelInteraction {
   ) internal override returns (bool changedEntity, bytes memory entityData) {
     uint256 lastInteractionBlock = Soil.getLastInteractionBlock(callerAddress, neighbourEntityId);
     if (block.number == lastInteractionBlock) {
-      console.log("skip new neighbour soil");
       return (changedEntity, entityData);
     }
 
@@ -40,9 +39,6 @@ contract SoilSystem is VoxelInteraction {
     ) {
       return (changedEntity, entityData);
     }
-
-    console.log("on new neighbour go soil");
-    console.logBytes32(neighbourEntityId);
 
     // otherwise, we want to run
     changedEntity = true;
@@ -82,12 +78,8 @@ contract SoilSystem is VoxelInteraction {
     changedEntity = false;
     uint256 lastInteractionBlock = Soil.getLastInteractionBlock(callerAddress, interactEntity);
     if (block.number == lastInteractionBlock) {
-      console.log("skip interaction soil");
       return (changedEntity, entityData);
     }
-
-    console.log("run interaction soil");
-    console.logBytes32(interactEntity);
 
     BodyPhysicsData memory entityBodyPhysics = getVoxelBodyPhysicsFromCaller(interactEntity);
     entityData = getEntityData(
@@ -121,7 +113,6 @@ contract SoilSystem is VoxelInteraction {
     uint256 transferEnergyToSoil = getEnergyToSoil(entityBodyPhysics.energy);
     uint256 transferEnergyToPlant = getEnergyToPlant(entityBodyPhysics.energy);
     if (transferEnergyToSoil == 0 && transferEnergyToPlant == 0) {
-      console.log("skip no energy");
       return new bytes(0);
     }
 
@@ -172,13 +163,11 @@ contract SoilSystem is VoxelInteraction {
     }
 
     if (hasPlant || numSoilNeighbours > 0) {
-      console.log("set last interaction block");
       Soil.setLastInteractionBlock(callerAddress, interactEntity, block.number);
     }
 
     // Check if there's at least one transfer
     if (hasTransfer) {
-      console.log("transferring");
       return abi.encode(transferData);
     }
 

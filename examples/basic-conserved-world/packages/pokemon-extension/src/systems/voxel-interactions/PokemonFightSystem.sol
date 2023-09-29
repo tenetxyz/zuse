@@ -69,19 +69,13 @@ contract PokemonFightSystem is System {
     bytes32 neighbourEntity,
     PokemonData memory pokemonData
   ) public view returns (bool changedEntity, bytes memory entityData, PokemonData memory) {
-    console.log("runBattleLogic");
     if (!entityIsPokemon(callerAddress, neighbourEntity)) {
-      console.log("not pokemon leave");
       return (changedEntity, entityData, pokemonData);
     }
 
     PokemonData memory neighbourPokemonData = Pokemon.get(callerAddress, neighbourEntity);
     if (neighbourPokemonData.round == -1) {
       // This means battle is over, the neighbour pokemon is dead
-      console.log("pokemon is dead");
-      console.logBytes32(interactEntity);
-      console.logUint(pokemonData.lostHealth);
-      console.logUint(pokemonData.lostStamina);
       pokemonData.round = 0;
       pokemonData.move = PokemonMove.None;
       pokemonData.health = safeSubtract(pokemonData.health, pokemonData.lostHealth);
@@ -95,16 +89,11 @@ contract PokemonFightSystem is System {
     }
 
     if (pokemonData.move == PokemonMove.None && neighbourPokemonData.move != PokemonMove.None) {
-      console.log("my pokemon move is none");
       changedEntity = true;
       return (changedEntity, entityData, pokemonData);
     }
 
     if (pokemonData.lostHealth >= pokemonData.health || pokemonData.lostStamina >= pokemonData.stamina) {
-      console.log("pokemon dead");
-      console.logBytes32(interactEntity);
-      console.logUint(pokemonData.lostHealth);
-      console.logUint(pokemonData.lostStamina);
       // pokemon is fainted
       pokemonData.round = -1;
       pokemonData.move = PokemonMove.None;
@@ -123,19 +112,12 @@ contract PokemonFightSystem is System {
     }
 
     if (pokemonData.move != PokemonMove.None && neighbourPokemonData.move != PokemonMove.None) {
-      // This a new battle is in progress
-      console.log("both moves picked");
-
       if (pokemonData.round != neighbourPokemonData.round) {
-        console.log("rounds are not the same");
         changedEntity = true;
         return (changedEntity, entityData, pokemonData);
       }
 
       // Calculate damage
-      console.log("calc damage");
-      console.logUint(pokemonData.lostHealth);
-      // Calculae damage
       MoveData[] memory movesData = getMovesData();
       MoveData memory myMoveData = movesData[uint(pokemonData.move)];
       MoveData memory opponentMoveData = movesData[uint(neighbourPokemonData.move)];
@@ -162,11 +144,6 @@ contract PokemonFightSystem is System {
         );
         pokemonData.lostHealth += damage;
       }
-
-      console.log("new lost health");
-      console.logBytes32(interactEntity);
-      console.logUint(pokemonData.lostHealth);
-      console.logInt(pokemonData.round);
 
       changedEntity = true;
     }

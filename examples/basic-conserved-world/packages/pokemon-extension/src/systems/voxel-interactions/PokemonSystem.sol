@@ -89,7 +89,6 @@ contract PokemonSystem is System {
     BlockDirection neighbourBlockDirection,
     PokemonMove pokemonMove
   ) internal returns (bool changedEntity, bytes memory entityData) {
-    console.log("pokemon new neighbour event handler");
     PokemonData memory pokemonData = Pokemon.get(callerAddress, interactEntity);
     (changedEntity, entityData, pokemonData) = IWorld(_world()).pokemon_PokemonFightSyst_runBattleLogic(
       callerAddress,
@@ -111,9 +110,6 @@ contract PokemonSystem is System {
     PokemonMove pokemonMove
   ) internal returns (bool changedEntity, bytes memory entityData) {
     changedEntity = false;
-
-    console.log("pokemon run interaction");
-    console.logBytes32(interactEntity);
 
     BodyPhysicsData memory entityBodyPhysics = getVoxelBodyPhysicsFromCaller(interactEntity);
     PokemonData memory pokemonData = Pokemon.get(callerAddress, interactEntity);
@@ -192,23 +188,15 @@ contract PokemonSystem is System {
   ) internal returns (bytes memory entityData, PokemonData memory) {
     VoxelCoord memory currentVelocity = abi.decode(entityBodyPhysics.velocity, (VoxelCoord));
     if (!isZeroCoord(currentVelocity)) {
-      console.log("not zero velocity");
       return (entityData, pokemonData);
     }
 
     if (pokemonData.health == 0 && block.number < pokemonData.lastUpdatedBlock + NUM_BLOCKS_FAINTED) {
-      console.log("fainted");
       return (entityData, pokemonData);
     }
 
-    console.log("setting move");
-    console.logBytes32(interactEntity);
-    console.logUint(pokemonData.health);
-    console.logUint(pokemonData.lastUpdatedBlock);
-    console.logUint(block.number);
     pokemonData.move = pokemonMove;
     pokemonData.round += 1;
-    console.logInt(pokemonData.round);
     pokemonData.lostStamina += uint(IWorld(_world()).pokemon_PokemonFightSyst_getStaminaCost(pokemonMove));
 
     (, entityData, pokemonData) = IWorld(_world()).pokemon_PokemonFightSyst_runBattleLogic(

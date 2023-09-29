@@ -26,7 +26,6 @@ contract EnergySourceSystem is VoxelInteraction {
   ) internal override returns (bool changedEntity, bytes memory entityData) {
     uint256 lastInteractionBlock = EnergySource.getLastInteractionBlock(callerAddress, neighbourEntityId);
     if (block.number <= lastInteractionBlock + ENERGY_SOURCE_WAIT_BLOCKS) {
-      console.log("skip energy source");
       return (changedEntity, entityData);
     }
 
@@ -39,8 +38,6 @@ contract EnergySourceSystem is VoxelInteraction {
     if (!entityIsSoil(callerAddress, centerEntityId)) {
       return (changedEntity, entityData);
     }
-
-    console.log("on new neighbour go energy source");
 
     // If we have a soil neighbour and we have energy, then we can transfer energy
     changedEntity = true;
@@ -66,8 +63,6 @@ contract EnergySourceSystem is VoxelInteraction {
     if (emittedEnergy == 0) {
       return (changedEntity, entityData);
     }
-
-    console.log("run interaction energy source");
 
     CAEventData memory transferData = CAEventData({
       eventType: CAEventType.FluxEnergy,

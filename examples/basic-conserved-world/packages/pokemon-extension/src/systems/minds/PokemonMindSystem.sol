@@ -83,7 +83,6 @@ contract PokemonMindSystem is MindType {
       }
 
       if (entityIsPokemon(callerAddress, neighbourEntityIds[i])) {
-        // TODO: Should require that there is only ONE pokemon neighbour
         opponentPokemonEntityId = neighbourEntityIds[i];
         break;
       }
@@ -94,7 +93,7 @@ contract PokemonMindSystem is MindType {
         console.log("pokemon mind selected ember");
         chosenSelector = getSelector(interactionSelectors, "Ember");
       } else {
-        console.log("pokemon is busy");
+        console.log("pokemon is busy, chosen no selector to run");
       }
     } else {
       console.log("pokemon mind selected replenish energy");

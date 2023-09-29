@@ -21,13 +21,6 @@ import { console } from "forge-std/console.sol";
 bytes32 constant PokemonVoxelVariantID = bytes32(keccak256("pokemon"));
 string constant PokemonTexture = "bafkreihpdljsgdltghxehq4cebngtugfj3pduucijxcrvcla4hoy34f7vq";
 
-struct MoveData {
-  uint8 stamina;
-  uint8 damage;
-  uint8 protection;
-  PokemonType moveType;
-}
-
 contract PokemonAgentSystem is AgentType {
   function registerBody() public override {
     address world = _world();
@@ -97,8 +90,6 @@ contract PokemonAgentSystem is AgentType {
   function enterWorld(VoxelCoord memory coord, bytes32 entity) public override {
     address callerAddress = super.getCallerAddress();
     bool hasValue = true;
-    console.log("pokemon enter world");
-    console.logBytes32(entity);
     Pokemon.set(
       callerAddress,
       entity,
@@ -119,7 +110,6 @@ contract PokemonAgentSystem is AgentType {
 
   function exitWorld(VoxelCoord memory coord, bytes32 entity) public override {
     address callerAddress = super.getCallerAddress();
-    console.log("pokemon exiting");
     Pokemon.deleteRecord(callerAddress, entity);
   }
 
@@ -139,8 +129,13 @@ contract PokemonAgentSystem is AgentType {
     bytes32 centerEntityId
   ) public override returns (bool, bytes memory) {
     address callerAddress = super.getCallerAddress();
-    console.log("pokemon new neighbour event handler");
-    return IWorld(_world()).pokemon_PokemonFightSyst_runBattleLogic(callerAddress, neighbourEntityId, centerEntityId);
+    return
+      IWorld(_world()).pokemon_PokemonSystem_neighbourEventHandlerPokemon(
+        callerAddress,
+        neighbourEntityId,
+        centerEntityId,
+        PokemonMove.None
+      );
   }
 
   function getInteractionSelectors() public override returns (InteractionSelector[] memory) {

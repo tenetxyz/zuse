@@ -3,7 +3,7 @@ pragma solidity >=0.8.0;
 
 import { IStore } from "@latticexyz/store/src/IStore.sol";
 import { System } from "@latticexyz/world/src/System.sol";
-import { calculateBlockDirection } from "@tenet-utils/src/VoxelCoordUtils.sol";
+import { calculateBlockDirection, safeSubtract } from "@tenet-utils/src/VoxelCoordUtils.sol";
 import { BlockDirection, VoxelCoord } from "@tenet-utils/src/Types.sol";
 import { getCAEntityPositionStrict } from "@tenet-base-ca/src/Utils.sol";
 import { BlockDirection, BodyPhysicsData, CAEventData, CAEventType, VoxelCoord } from "@tenet-utils/src/Types.sol";
@@ -27,7 +27,7 @@ struct MoveData {
 }
 
 contract PokemonFightSystem is System {
-  function getMovesData() internal returns (MoveData[] memory) {
+  function getMovesData() internal pure returns (MoveData[] memory) {
     MoveData[] memory movesData = new MoveData[](13); // the first value is for PokemonMove.None
     movesData[uint(PokemonMove.Ember)] = MoveData(10, 20, 0, PokemonType.Fire);
     movesData[uint(PokemonMove.FlameBurst)] = MoveData(20, 40, 0, PokemonType.Fire);
@@ -46,74 +46,90 @@ contract PokemonFightSystem is System {
     return movesData;
   }
 
-  function getStaminaCost(PokemonMove move) public returns (uint8) {
+  function getStaminaCost(PokemonMove move) public pure returns (uint8) {
     MoveData[] memory movesData = getMovesData();
     return movesData[uint(move)].stamina;
+  }
+
+  function battleEndData(uint256 lostHealth, uint256 lostStamina) internal pure returns (CAEventData memory) {
+    uint256[] memory energyFluxAmounts = new uint256[](1);
+    energyFluxAmounts[0] = lostHealth + lostStamina;
+    return
+      CAEventData({
+        eventType: CAEventType.FluxEnergyAndMass,
+        newCoords: new VoxelCoord[](0),
+        energyFluxAmounts: energyFluxAmounts,
+        massFluxAmount: 0
+      });
   }
 
   function runBattleLogic(
     address callerAddress,
     bytes32 interactEntity,
-    bytes32 neighbourEntity
-  ) public returns (bool changedEntity, bytes memory entityData) {
+    bytes32 neighbourEntity,
+    PokemonData memory pokemonData
+  ) public view returns (bool changedEntity, bytes memory entityData, PokemonData memory) {
     console.log("runBattleLogic");
     if (!entityIsPokemon(callerAddress, neighbourEntity)) {
       console.log("not pokemon leave");
-      return (changedEntity, entityData);
+      return (changedEntity, entityData, pokemonData);
     }
 
-    PokemonData memory pokemonData = Pokemon.get(callerAddress, interactEntity);
     PokemonData memory neighbourPokemonData = Pokemon.get(callerAddress, neighbourEntity);
     if (neighbourPokemonData.round == -1) {
-      // This means battle is over
-      // TODO: Run exit logic
-      // set our own round to -1
+      // This means battle is over, the neighbour pokemon is dead
       console.log("pokemon is dead");
+      console.logBytes32(interactEntity);
+      console.logUint(pokemonData.lostHealth);
+      console.logUint(pokemonData.lostStamina);
       pokemonData.round = 0;
       pokemonData.move = PokemonMove.None;
-      Pokemon.set(callerAddress, interactEntity, pokemonData);
+      pokemonData.health = safeSubtract(pokemonData.health, pokemonData.lostHealth);
+      pokemonData.stamina = safeSubtract(pokemonData.stamina, pokemonData.lostStamina);
+      entityData = abi.encode(battleEndData(pokemonData.lostHealth, pokemonData.lostStamina));
+      pokemonData.lostHealth = 0;
+      pokemonData.lostStamina = 0;
+      pokemonData.lastUpdatedBlock = block.number;
 
-      return (changedEntity, entityData);
+      return (changedEntity, entityData, pokemonData);
     }
 
     if (pokemonData.move == PokemonMove.None && neighbourPokemonData.move != PokemonMove.None) {
       console.log("my pokemon move is none");
       changedEntity = true;
-      return (changedEntity, entityData);
+      return (changedEntity, entityData, pokemonData);
     }
 
     if (pokemonData.lostHealth >= pokemonData.health || pokemonData.lostStamina >= pokemonData.stamina) {
       console.log("pokemon dead");
       console.logBytes32(interactEntity);
-      // pokemon is dead
+      console.logUint(pokemonData.lostHealth);
+      console.logUint(pokemonData.lostStamina);
+      // pokemon is fainted
       pokemonData.round = -1;
       pokemonData.move = PokemonMove.None;
-      // TODO: decrease on or the other
-      pokemonData.health = 0;
+      pokemonData.health = safeSubtract(pokemonData.health, pokemonData.lostHealth);
+      pokemonData.stamina = safeSubtract(pokemonData.stamina, pokemonData.lostStamina);
+      entityData = abi.encode(battleEndData(pokemonData.lostHealth, pokemonData.lostStamina));
       pokemonData.lostHealth = 0;
-      pokemonData.stamina = 0;
       pokemonData.lostStamina = 0;
       pokemonData.lastUpdatedBlock = block.number;
-      console.logUint(pokemonData.lastUpdatedBlock);
-      Pokemon.set(callerAddress, interactEntity, pokemonData);
 
       if (neighbourPokemonData.round != -1) {
         changedEntity = true;
       }
 
-      // TODO: run exit logic
-      return (changedEntity, entityData);
+      return (changedEntity, entityData, pokemonData);
     }
 
     if (pokemonData.move != PokemonMove.None && neighbourPokemonData.move != PokemonMove.None) {
       // This a new battle is in progress
-      // TODO: check if round number is the same?
       console.log("both moves picked");
 
       if (pokemonData.round != neighbourPokemonData.round) {
         console.log("rounds are not the same");
         changedEntity = true;
-        return (changedEntity, entityData);
+        return (changedEntity, entityData, pokemonData);
       }
 
       // Calculate damage
@@ -124,53 +140,66 @@ contract PokemonFightSystem is System {
       MoveData memory myMoveData = movesData[uint(pokemonData.move)];
       MoveData memory opponentMoveData = movesData[uint(neighbourPokemonData.move)];
       if (opponentMoveData.damage > 0 && myMoveData.protection > 0) {
-        uint256 damage = calculateDamage(myMoveData, opponentMoveData);
-        uint256 protection = calculateProtection(myMoveData, opponentMoveData);
+        uint256 damage = calculateDamage(
+          pokemonData.pokemonType,
+          myMoveData,
+          neighbourPokemonData.pokemonType,
+          opponentMoveData
+        );
+        uint256 protection = calculateProtection(
+          pokemonData.pokemonType,
+          myMoveData,
+          neighbourPokemonData.pokemonType,
+          opponentMoveData
+        );
         pokemonData.lostHealth += (damage - protection);
       } else if (opponentMoveData.damage > 0) {
-        uint256 damage = calculateDamage(myMoveData, opponentMoveData);
-        console.log("damage go");
+        uint256 damage = calculateDamage(
+          pokemonData.pokemonType,
+          myMoveData,
+          neighbourPokemonData.pokemonType,
+          opponentMoveData
+        );
         pokemonData.lostHealth += damage;
       }
 
-      // Update round number
       console.log("new lost health");
       console.logBytes32(interactEntity);
       console.logUint(pokemonData.lostHealth);
       console.logInt(pokemonData.round);
 
-      // Save data
-      Pokemon.set(callerAddress, interactEntity, pokemonData);
-
       changedEntity = true;
-      // continue the fight to next round
-    } else {
-      console.log("nothing to do");
     }
 
-    return (changedEntity, entityData);
+    return (changedEntity, entityData, pokemonData);
   }
 
   function calculateDamage(
+    PokemonType myPokemonType,
     MoveData memory myMoveData,
+    PokemonType opponentPokemonType,
     MoveData memory opponentMoveData
   ) internal pure returns (uint256) {
     uint256 damage = myMoveData.damage;
     // TODO: Figure out how to calculate random factor
     uint256 randomFactor = 1;
-    uint256 typeMultiplier = getTypeMultiplier(myMoveData.moveType, opponentMoveData.moveType) / 100;
-    return damage * typeMultiplier * randomFactor;
+    uint256 moveTypeMultiplier = getTypeMultiplier(myPokemonType, opponentMoveData.moveType) / 100;
+    uint256 myPokemonTypeMultiplier = getTypeMultiplier(myPokemonType, opponentPokemonType) / 100;
+    return damage * myPokemonTypeMultiplier * moveTypeMultiplier * randomFactor;
   }
 
   function calculateProtection(
+    PokemonType myPokemonType,
     MoveData memory myMoveData,
+    PokemonType opponentPokemonType,
     MoveData memory opponentMoveData
   ) internal pure returns (uint256) {
     uint256 protection = myMoveData.protection;
     // TODO: Figure out how to calculate random factor
     uint256 randomFactor = 1;
-    uint256 typeMultiplier = getTypeMultiplier(myMoveData.moveType, opponentMoveData.moveType) / 100;
-    return protection * typeMultiplier * randomFactor;
+    uint256 moveTypeMultiplier = getTypeMultiplier(myPokemonType, opponentMoveData.moveType) / 100;
+    uint256 myPokemonTypeMultiplier = getTypeMultiplier(myPokemonType, opponentPokemonType) / 100;
+    return protection * myPokemonTypeMultiplier * moveTypeMultiplier * randomFactor;
   }
 
   function getTypeMultiplier(PokemonType moveType, PokemonType neighbourPokemonType) internal pure returns (uint256) {

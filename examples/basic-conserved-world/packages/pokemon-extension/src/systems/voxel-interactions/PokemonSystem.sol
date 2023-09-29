@@ -89,10 +89,15 @@ contract PokemonSystem is System {
     BlockDirection neighbourBlockDirection,
     PokemonMove pokemonMove
   ) internal returns (bool changedEntity, bytes memory entityData) {
-    changedEntity = false;
-
-    revert("not implemented");
-
+    console.log("pokemon new neighbour event handler");
+    PokemonData memory pokemonData = Pokemon.get(callerAddress, interactEntity);
+    (changedEntity, entityData, pokemonData) = IWorld(_world()).pokemon_PokemonFightSyst_runBattleLogic(
+      callerAddress,
+      neighbourEntityId,
+      centerEntityId,
+      pokemonData
+    );
+    Pokemon.set(callerAddress, interactEntity, pokemonData);
     return (changedEntity, entityData);
   }
 
@@ -113,6 +118,8 @@ contract PokemonSystem is System {
     BodyPhysicsData memory entityBodyPhysics = getVoxelBodyPhysicsFromCaller(interactEntity);
     PokemonData memory pokemonData = Pokemon.get(callerAddress, interactEntity);
 
+    bool foundPlant = false;
+
     // Energy replenish if neighbour is food
     for (uint256 i = 0; i < neighbourEntityIds.length; i++) {
       if (uint256(neighbourEntityIds[i]) == 0) {
@@ -122,6 +129,7 @@ contract PokemonSystem is System {
       if (!entityIsPlant(callerAddress, neighbourEntityIds[i])) {
         continue;
       }
+      foundPlant = true;
 
       PlantStage plantStage = Plant.getStage(callerAddress, neighbourEntityIds[i]);
       if (plantStage != PlantStage.Flower) {
@@ -135,9 +143,12 @@ contract PokemonSystem is System {
         pokemonData,
         entityBodyPhysics
       );
+      Pokemon.set(callerAddress, interactEntity, pokemonData);
+      break; // Only take from one plant
     }
 
     // Check if neighbour is pokemon and run move
+    bool foundPokemon = false;
     for (uint256 i = 0; i < neighbourEntityIds.length; i++) {
       if (uint256(neighbourEntityIds[i]) == 0) {
         continue;
@@ -146,9 +157,15 @@ contract PokemonSystem is System {
       if (!entityIsPokemon(callerAddress, neighbourEntityIds[i])) {
         continue;
       }
+      if (foundPlant) {
+        revert("Pokemon can't fight and eat at the same time");
+      }
+      if (foundPokemon) {
+        revert("Pokemon can't fight more than one pokemon at a time");
+      }
 
-      // TODO: What if there's more than one?
-      pokemonData = runPokemonMove(
+      foundPokemon = true;
+      (entityData, pokemonData) = runPokemonMove(
         callerAddress,
         interactEntity,
         neighbourEntityIds[i],
@@ -156,10 +173,11 @@ contract PokemonSystem is System {
         entityBodyPhysics,
         pokemonMove
       );
+      Pokemon.set(callerAddress, interactEntity, pokemonData);
+      break;
     }
 
-    // TODO: optimize so there's only one call of this
-    Pokemon.set(callerAddress, interactEntity, pokemonData);
+    // Note: we don't need to set changedEntity to true, because we don't need another event
 
     return (changedEntity, entityData);
   }
@@ -171,19 +189,17 @@ contract PokemonSystem is System {
     PokemonData memory pokemonData,
     BodyPhysicsData memory entityBodyPhysics,
     PokemonMove pokemonMove
-  ) internal returns (PokemonData memory) {
+  ) internal returns (bytes memory entityData, PokemonData memory) {
     VoxelCoord memory currentVelocity = abi.decode(entityBodyPhysics.velocity, (VoxelCoord));
     if (!isZeroCoord(currentVelocity)) {
       console.log("not zero velocity");
-      return pokemonData;
+      return (entityData, pokemonData);
     }
 
     if (pokemonData.health == 0 && block.number < pokemonData.lastUpdatedBlock + NUM_BLOCKS_FAINTED) {
       console.log("fainted");
-      return pokemonData;
+      return (entityData, pokemonData);
     }
-
-    // TODO: how does round become 0?
 
     console.log("setting move");
     console.logBytes32(interactEntity);
@@ -194,13 +210,15 @@ contract PokemonSystem is System {
     pokemonData.round += 1;
     console.logInt(pokemonData.round);
     pokemonData.lostStamina += uint(IWorld(_world()).pokemon_PokemonFightSyst_getStaminaCost(pokemonMove));
-    Pokemon.set(callerAddress, interactEntity, pokemonData);
 
-    IWorld(_world()).pokemon_PokemonFightSyst_runBattleLogic(callerAddress, interactEntity, neighbourEntity);
+    (, entityData, pokemonData) = IWorld(_world()).pokemon_PokemonFightSyst_runBattleLogic(
+      callerAddress,
+      interactEntity,
+      neighbourEntity,
+      pokemonData
+    );
 
-    pokemonData = Pokemon.get(callerAddress, interactEntity);
-
-    return pokemonData;
+    return (entityData, pokemonData);
   }
 
   function replenishEnergy(
@@ -215,14 +233,15 @@ contract PokemonSystem is System {
       return pokemonData;
     }
 
-    if (pokemonData.round == 0 || block.number >= pokemonData.lastUpdatedBlock + NUM_BLOCKS_FAINTED) {
+    if (
+      pokemonData.round == 0 ||
+      (pokemonData.round == -1 && block.number >= pokemonData.lastUpdatedBlock + NUM_BLOCKS_FAINTED)
+    ) {
       pokemonData.lastEnergy = entityBodyPhysics.energy;
       pokemonData.lastUpdatedBlock = block.number;
       // Allocate percentages to Health and Stamina
-      uint256 healthAllocation = (pokemonData.lastEnergy * 40) / 100; // 40% to Health
-      uint256 staminaAllocation = (pokemonData.lastEnergy * 30) / 100; // 30% to Stamina
-      pokemonData.health = healthAllocation;
-      pokemonData.stamina = staminaAllocation;
+      pokemonData.health = (pokemonData.lastEnergy * 40) / 100; // 40% to Health
+      pokemonData.stamina = (pokemonData.lastEnergy * 30) / 100; // 30% to Stamina
       pokemonData.round = 0;
     }
 

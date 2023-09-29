@@ -53,7 +53,5 @@ contract MineSystem is MineEvent {
     uint256 energyRequired = bodyMass * 10;
     IWorld(_world()).fluxEnergy(false, caAddress, eventVoxelEntity, energyRequired);
     BodyPhysics.setMass(eventVoxelEntity.scale, eventVoxelEntity.entityId, 0);
-    BodyPhysics.setEnergy(eventVoxelEntity.scale, eventVoxelEntity.entityId, 0);
-    // TODO: set velocity and gravity
   }
 }

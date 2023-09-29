@@ -48,7 +48,8 @@ contract GrassVoxelSystem is VoxelType {
         IWorld(world).ca_GrassVoxelSystem_exitWorld.selector,
         IWorld(world).ca_GrassVoxelSystem_variantSelector.selector,
         IWorld(world).ca_GrassVoxelSystem_activate.selector,
-        IWorld(world).ca_GrassVoxelSystem_eventHandler.selector
+        IWorld(world).ca_GrassVoxelSystem_eventHandler.selector,
+        IWorld(world).ca_GrassVoxelSystem_neighbourEventHandler.selector
       ),
       abi.encode(componentDefs)
     );
@@ -74,5 +75,10 @@ contract GrassVoxelSystem is VoxelType {
     bytes32[] memory neighbourEntityIds,
     bytes32[] memory childEntityIds,
     bytes32 parentEntity
-  ) public override returns (bytes32, bytes32[] memory, bytes[] memory) {}
+  ) public override returns (bool, bytes memory) {}
+
+  function neighbourEventHandler(
+    bytes32 neighbourEntityId,
+    bytes32 centerEntityId
+  ) public override returns (bool, bytes memory) {}
 }

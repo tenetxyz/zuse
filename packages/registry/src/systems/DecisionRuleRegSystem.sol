@@ -54,7 +54,7 @@ contract DecisionRuleRegSystem is System {
     );
     DecisionRule memory decisionRule = DecisionRule({
       decisionRuleId: decisionRuleId,
-      creationMetadata: abi.encode(CreationMetadata(_msgSender(), name, description, spawns)),
+      creationMetadata: abi.encode(CreationMetadata(tx.origin, name, description, spawns)),
       decisionRuleSelector: decisionRuleSelector
     });
 

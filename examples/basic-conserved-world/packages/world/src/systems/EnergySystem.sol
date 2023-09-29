@@ -16,6 +16,7 @@ import { CAVoxelType, CAVoxelTypeData } from "@tenet-base-ca/src/codegen/tables/
 import { WorldConfig, WorldConfigTableId } from "@tenet-base-world/src/codegen/tables/WorldConfig.sol";
 import { getVoxelCoordStrict } from "@tenet-base-world/src/Utils.sol";
 import { getUniqueEntity } from "@latticexyz/world/src/modules/uniqueentity/getUniqueEntity.sol";
+import { console } from "forge-std/console.sol";
 
 uint256 constant MAXIMUM_ENERGY_OUT = 100;
 uint256 constant MAXIMUM_ENERGY_IN = 100;

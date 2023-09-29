@@ -101,7 +101,5 @@ abstract contract FluxEvent is Event {
     VoxelCoord memory coord,
     VoxelEntity memory eventVoxelEntity,
     bytes memory eventData
-  ) internal virtual override returns (EntityEventData[] memory) {
-    return IWorld(_world()).runCA(caAddress, eventVoxelEntity, bytes4(0));
-  }
+  ) internal virtual override returns (EntityEventData[] memory) {}
 }

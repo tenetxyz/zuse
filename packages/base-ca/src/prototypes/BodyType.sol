@@ -34,4 +34,11 @@ abstract contract BodyType is System {
 
   // Called by the CA when the player right clicks it
   function activate(bytes32 entity) public view virtual returns (string memory);
+
+  // Called by the CA when an event occurs where this voxel
+  // is the neighbour entity of a center entity
+  function neighbourEventHandler(
+    bytes32 neighbourEntityId,
+    bytes32 centerEntityId
+  ) public virtual returns (bool, bytes memory);
 }

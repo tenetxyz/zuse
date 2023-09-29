@@ -76,7 +76,8 @@ contract PowerWireVoxelSystem is VoxelType {
         IWorld(world).extension1_PowerWireVoxelSy_exitWorld.selector,
         IWorld(world).extension1_PowerWireVoxelSy_variantSelector.selector,
         IWorld(world).extension1_PowerWireVoxelSy_activate.selector,
-        IWorld(world).extension1_PowerWireVoxelSy_eventHandler.selector
+        IWorld(world).extension1_PowerWireVoxelSy_eventHandler.selector,
+        IWorld(world).extension1_PowerWireVoxelSy_neighbourEventHandler.selector
       ),
       abi.encode(componentDefs)
     );
@@ -137,7 +138,7 @@ contract PowerWireVoxelSystem is VoxelType {
     bytes32[] memory neighbourEntityIds,
     bytes32[] memory childEntityIds,
     bytes32 parentEntity
-  ) public override returns (bytes32, bytes32[] memory, bytes[] memory) {
+  ) public override returns (bool, bytes memory) {
     address callerAddress = super.getCallerAddress();
 
     return
@@ -147,6 +148,20 @@ contract PowerWireVoxelSystem is VoxelType {
         neighbourEntityIds,
         childEntityIds,
         parentEntity
+      );
+  }
+
+  function neighbourEventHandler(
+    bytes32 neighbourEntityId,
+    bytes32 centerEntityId
+  ) public override returns (bool, bytes memory) {
+    address callerAddress = super.getCallerAddress();
+
+    return
+      IWorld(_world()).extension1_PowerWireSystem_neighbourEventHandlerPowerWire(
+        callerAddress,
+        neighbourEntityId,
+        centerEntityId
       );
   }
 }

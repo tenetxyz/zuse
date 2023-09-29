@@ -23,6 +23,18 @@ find "src/codegen/tables" -type f | while read -r input_file; do
   replacement='import { NoaBlockType } from "@tenet-registry/src/codegen/Types.sol"'
   awk -v target="$target" -v replacement="$replacement" '{ gsub(target, replacement); print }' $input_file > temp && mv temp $input_file
 
+  target='import { PokemonMove } from "./../Types.sol"'
+  replacement='import { PokemonMove } from "@tenet-pokemon-extension/src/codegen/Types.sol"'
+  awk -v target="$target" -v replacement="$replacement" '{ gsub(target, replacement); print }' $input_file > temp && mv temp $input_file
+
+  target='import { PokemonType } from "./../Types.sol"'
+  replacement='import { PokemonType } from "@tenet-pokemon-extension/src/codegen/Types.sol"'
+  awk -v target="$target" -v replacement="$replacement" '{ gsub(target, replacement); print }' $input_file > temp && mv temp $input_file
+
+  target='import { PlantStage } from "./../Types.sol"'
+  replacement='import { PlantStage } from "@tenet-pokemon-extension/src/codegen/Types.sol"'
+  awk -v target="$target" -v replacement="$replacement" '{ gsub(target, replacement); print }' $input_file > temp && mv temp $input_file
+
   start_pattern="struct VoxelTypeData {"
   end_pattern="}"
   replacement='import { VoxelTypeData } from "@tenet-utils/src/Types.sol";'

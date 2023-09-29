@@ -7,7 +7,7 @@ import { hasKey } from "@latticexyz/world/src/modules/keysintable/hasKey.sol";
 import { System } from "@latticexyz/world/src/System.sol";
 import { OwnedBy, Position, VoxelType, VoxelTypeProperties, BodyPhysics, BodyPhysicsData, BodyPhysicsTableId } from "@tenet-world/src/codegen/Tables.sol";
 import { VoxelCoord, VoxelTypeData, VoxelEntity } from "@tenet-utils/src/Types.sol";
-import { voxelCoordsAreEqual, uint256ToInt32, dot, mulScalar, divScalar, min, add, sub, safeSubtract, safeAdd, abs, absInt32 } from "@tenet-utils/src/VoxelCoordUtils.sol";
+import { isZeroCoord, voxelCoordsAreEqual, uint256ToInt32, dot, mulScalar, divScalar, min, add, sub, safeSubtract, safeAdd, abs, absInt32 } from "@tenet-utils/src/VoxelCoordUtils.sol";
 import { REGISTRY_ADDRESS } from "@tenet-world/src/Constants.sol";
 import { AirVoxelID } from "@tenet-level1-ca/src/Constants.sol";
 import { BuildWorldEventData } from "@tenet-world/src/Types.sol";
@@ -36,7 +36,7 @@ uint256 constant NUM_BLOCKS_BEFORE_REDUCE = 60;
 contract VelocitySystem is System {
   function updateVelocityCache(VoxelEntity memory entity) public {
     VoxelCoord memory velocity = getVelocity(entity);
-    if (voxelCoordsAreEqual(velocity, VoxelCoord({ x: 0, y: 0, z: 0 }))) {
+    if (isZeroCoord(velocity)) {
       return;
     }
     // Calculate how many blocks have passed since last update

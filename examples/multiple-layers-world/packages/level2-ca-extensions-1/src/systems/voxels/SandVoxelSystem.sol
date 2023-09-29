@@ -54,7 +54,8 @@ contract SandVoxelSystem is VoxelType {
         IWorld(world).extension1_SandVoxelSystem_exitWorld.selector,
         IWorld(world).extension1_SandVoxelSystem_variantSelector.selector,
         IWorld(world).extension1_SandVoxelSystem_activate.selector,
-        IWorld(world).extension1_SandVoxelSystem_eventHandler.selector
+        IWorld(world).extension1_SandVoxelSystem_eventHandler.selector,
+        IWorld(world).extension1_SandVoxelSystem_neighbourEventHandler.selector
       ),
       abi.encode(componentDefs)
     );
@@ -92,7 +93,7 @@ contract SandVoxelSystem is VoxelType {
     bytes32[] memory neighbourEntityIds,
     bytes32[] memory childEntityIds,
     bytes32 parentEntity
-  ) public override returns (bytes32, bytes32[] memory, bytes[] memory) {
+  ) public override returns (bool, bytes memory) {
     address callerAddress = super.getCallerAddress();
     return
       IWorld(_world()).extension1_PoweredSystem_eventHandlerPowered(
@@ -101,6 +102,20 @@ contract SandVoxelSystem is VoxelType {
         neighbourEntityIds,
         childEntityIds,
         parentEntity
+      );
+  }
+
+  function neighbourEventHandler(
+    bytes32 neighbourEntityId,
+    bytes32 centerEntityId
+  ) public override returns (bool, bytes memory) {
+    address callerAddress = super.getCallerAddress();
+
+    return
+      IWorld(_world()).extension1_PoweredSystem_neighbourEventHandlerPowered(
+        callerAddress,
+        neighbourEntityId,
+        centerEntityId
       );
   }
 }

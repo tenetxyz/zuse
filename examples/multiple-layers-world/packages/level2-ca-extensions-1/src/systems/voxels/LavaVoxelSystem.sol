@@ -68,7 +68,8 @@ contract LavaVoxelSystem is VoxelType {
         IWorld(world).extension1_LavaVoxelSystem_exitWorld.selector,
         IWorld(world).extension1_LavaVoxelSystem_variantSelector.selector,
         IWorld(world).extension1_LavaVoxelSystem_activate.selector,
-        IWorld(world).extension1_LavaVoxelSystem_eventHandler.selector
+        IWorld(world).extension1_LavaVoxelSystem_eventHandler.selector,
+        IWorld(world).extension1_LavaVoxelSystem_neighbourEventHandler.selector
       ),
       abi.encode(componentDefs)
     );
@@ -118,7 +119,7 @@ contract LavaVoxelSystem is VoxelType {
     bytes32[] memory neighbourEntityIds,
     bytes32[] memory childEntityIds,
     bytes32 parentEntity
-  ) public override returns (bytes32, bytes32[] memory, bytes[] memory) {
+  ) public override returns (bool, bytes memory) {
     address callerAddress = super.getCallerAddress();
 
     return
@@ -128,6 +129,20 @@ contract LavaVoxelSystem is VoxelType {
         neighbourEntityIds,
         childEntityIds,
         parentEntity
+      );
+  }
+
+  function neighbourEventHandler(
+    bytes32 neighbourEntityId,
+    bytes32 centerEntityId
+  ) public override returns (bool, bytes memory) {
+    address callerAddress = super.getCallerAddress();
+
+    return
+      IWorld(_world()).extension1_TemperatureSyste_neighbourEventHandlerTemperature(
+        callerAddress,
+        neighbourEntityId,
+        centerEntityId
       );
   }
 }

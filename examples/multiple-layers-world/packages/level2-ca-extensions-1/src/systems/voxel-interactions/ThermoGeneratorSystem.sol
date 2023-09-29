@@ -164,17 +164,21 @@ contract ThermoGeneratorSystem is VoxelInteraction {
     return changedEntity;
   }
 
-  function entityShouldInteract(address callerAddress, bytes32 entityId) internal view override returns (bool) {
-    return entityIsGenerator(callerAddress, entityId);
-  }
-
   function eventHandlerThermoGenerator(
     address callerAddress,
     bytes32 centerEntityId,
     bytes32[] memory neighbourEntityIds,
     bytes32[] memory childEntityIds,
     bytes32 parentEntity
-  ) public returns (bytes32, bytes32[] memory, bytes[] memory) {
+  ) public returns (bool, bytes memory) {
     return super.eventHandler(callerAddress, centerEntityId, neighbourEntityIds, childEntityIds, parentEntity);
+  }
+
+  function neighbourEventHandlerThermoGenerator(
+    address callerAddress,
+    bytes32 neighbourEntityId,
+    bytes32 centerEntityId
+  ) public returns (bool, bytes memory) {
+    return super.neighbourEventHandler(callerAddress, neighbourEntityId, centerEntityId);
   }
 }

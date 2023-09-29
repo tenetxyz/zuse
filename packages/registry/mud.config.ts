@@ -49,7 +49,6 @@ export default mudConfig({
         componentDefs: "bytes", // ComponentDef[]
       },
     },
-
     DecisionRuleRegistry: {
       keySchema: {
         srcVoxelTypeId: "bytes32",

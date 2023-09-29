@@ -21,6 +21,6 @@ struct MineWorldEventData {
 
 struct FluxEventData {
   uint256 massToFlux;
-  uint256 energyToFlux;
-  VoxelCoord energyReceiver;
+  uint256[] energyToFlux;
+  VoxelCoord[] energyReceiver;
 }

@@ -8,11 +8,11 @@ import { BlockDirection, VoxelCoord } from "@tenet-utils/src/Types.sol";
 abstract contract SingleVoxelInteraction is VoxelInteraction {
   function onNewNeighbour(
     address callerAddress,
-    bytes32 interactEntity,
     bytes32 neighbourEntityId,
-    BlockDirection neighbourBlockDirection
+    bytes32 centerEntityId,
+    BlockDirection centerBlockDirection
   ) internal virtual override returns (bool changedEntity, bytes memory entityData) {
-    return runSingleInteraction(callerAddress, interactEntity, neighbourEntityId, neighbourBlockDirection);
+    return runSingleInteraction(callerAddress, neighbourEntityId, centerEntityId, centerBlockDirection);
   }
 
   function runSingleInteraction(
@@ -29,8 +29,7 @@ abstract contract SingleVoxelInteraction is VoxelInteraction {
     BlockDirection[] memory neighbourEntityDirections,
     bytes32[] memory childEntityIds,
     bytes32 parentEntity
-  ) internal virtual override returns (bool changedEntity, bytes memory) {
-    bytes memory entityData;
+  ) internal virtual override returns (bool changedEntity, bytes memory entityData) {
     require(
       neighbourEntityIds.length == neighbourEntityDirections.length,
       "neighbourEntityIds and neighbourEntityDirections must be the same length"
@@ -47,7 +46,9 @@ abstract contract SingleVoxelInteraction is VoxelInteraction {
         neighbourEntityId,
         neighbourEntityDirections[i]
       );
-      entityData = interactionEntityData;
+      if (entityData.length == 0 && interactionEntityData.length > 0) {
+        entityData = interactionEntityData;
+      }
       if (changedInteractionEntity) {
         changedEntity = true;
       }

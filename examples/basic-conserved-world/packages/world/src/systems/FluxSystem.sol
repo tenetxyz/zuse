@@ -10,6 +10,8 @@ import { BodyPhysics, BodyPhysicsData } from "@tenet-world/src/codegen/tables/Bo
 import { getEntityAtCoord } from "@tenet-base-world/src/Utils.sol";
 import { distanceBetween } from "@tenet-utils/src/VoxelCoordUtils.sol";
 import { FluxEventData } from "@tenet-world/src/Types.sol";
+import { console } from "forge-std/console.sol";
+import { MAX_VOXEL_NEIGHBOUR_UPDATE_DEPTH } from "@tenet-utils/src/Constants.sol";
 
 contract FluxSystem is FluxEvent {
   function getRegistryAddress() internal pure override returns (address) {
@@ -17,6 +19,7 @@ contract FluxSystem is FluxEvent {
   }
 
   function processCAEvents(EntityEventData[] memory entitiesEventData) internal override {
+    console.log("processCAEvents");
     IWorld(_world()).caEventsHandler(entitiesEventData);
   }
 
@@ -24,8 +27,8 @@ contract FluxSystem is FluxEvent {
   function fluxEnergyOut(
     bytes32 voxelTypeId,
     VoxelCoord memory coord,
-    uint256 energyToFlux,
-    VoxelCoord memory energyReceiver
+    uint256[] memory energyToFlux,
+    VoxelCoord[] memory energyReceiver
   ) public returns (VoxelEntity memory) {
     FluxEventData memory fluxEventData = FluxEventData({
       massToFlux: 0,
@@ -61,6 +64,8 @@ contract FluxSystem is FluxEvent {
       require(bodyPhysicsData.mass >= fluxEventData.massToFlux, "FluxEvent: not enough mass to flux");
       // Update the mass of the entity
       uint256 newMass = bodyPhysicsData.mass - fluxEventData.massToFlux;
+      console.log("newMass");
+      console.logUint(newMass);
       if (newMass == 0) {
         IWorld(_world()).mineWithAgent(voxelTypeId, coord, eventVoxelEntity);
       } else {
@@ -69,35 +74,83 @@ contract FluxSystem is FluxEvent {
         IWorld(_world()).fluxEnergy(false, caAddress, eventVoxelEntity, energyRequired);
         BodyPhysics.setMass(eventVoxelEntity.scale, eventVoxelEntity.entityId, newMass);
       }
-    } else if (fluxEventData.energyToFlux > 0) {
-      // We're fluxing energy out to in the direction of the receiver
-      // Check if the entity has this energy
-      require(bodyPhysicsData.energy >= fluxEventData.energyToFlux, "FluxEvent: not enough energy to flux");
-      VoxelCoord memory energyReceiverCoord = fluxEventData.energyReceiver;
-      require(distanceBetween(coord, energyReceiverCoord) == 1, "Energy can only be fluxed to a surrounding neighbour");
-
-      bytes32 energyReceiverEntityId = getEntityAtCoord(eventVoxelEntity.scale, energyReceiverCoord);
-      VoxelEntity memory energyReceiverEntity = VoxelEntity({
-        entityId: energyReceiverEntityId,
-        scale: eventVoxelEntity.scale
-      });
-      if (uint256(energyReceiverEntityId) == 0) {
-        (bytes32 terrainVoxelTypeId, BodyPhysicsData memory terrainPhysicsData) = IWorld(_world())
-          .getTerrainBodyPhysicsData(caAddress, energyReceiverCoord);
-        energyReceiverEntity = IWorld(_world()).spawnBody(
-          terrainVoxelTypeId,
-          energyReceiverCoord,
-          bytes4(0),
-          terrainPhysicsData
+    } else if (fluxEventData.energyToFlux.length > 0) {
+      require(fluxEventData.energyToFlux.length == fluxEventData.energyReceiver.length, "FluxEvent: invalid data");
+      for (uint i = 0; i < fluxEventData.energyToFlux.length; i++) {
+        if (fluxEventData.energyToFlux[i] == 0) {
+          continue;
+        }
+        // We're fluxing energy out to in the direction of the receiver
+        // Check if the entity has this energy
+        require(bodyPhysicsData.energy >= fluxEventData.energyToFlux[i], "FluxEvent: not enough energy to flux");
+        VoxelCoord memory energyReceiverCoord = fluxEventData.energyReceiver[i];
+        require(
+          distanceBetween(coord, energyReceiverCoord) == 1,
+          "Energy can only be fluxed to a surrounding neighbour"
         );
+        console.log("transferring out");
+
+        bytes32 energyReceiverEntityId = getEntityAtCoord(eventVoxelEntity.scale, energyReceiverCoord);
+        VoxelEntity memory energyReceiverEntity = VoxelEntity({
+          entityId: energyReceiverEntityId,
+          scale: eventVoxelEntity.scale
+        });
+        if (uint256(energyReceiverEntityId) == 0) {
+          (bytes32 terrainVoxelTypeId, BodyPhysicsData memory terrainPhysicsData) = IWorld(_world())
+            .getTerrainBodyPhysicsData(caAddress, energyReceiverCoord);
+          energyReceiverEntity = IWorld(_world()).spawnBody(
+            terrainVoxelTypeId,
+            energyReceiverCoord,
+            bytes4(0),
+            terrainPhysicsData
+          );
+        }
+        // Increase energy of energyReceiverEntity
+        uint256 newReceiverEnergy = BodyPhysics.getEnergy(energyReceiverEntity.scale, energyReceiverEntity.entityId) +
+          fluxEventData.energyToFlux[i];
+        BodyPhysics.setEnergy(energyReceiverEntity.scale, energyReceiverEntity.entityId, newReceiverEnergy);
+        // Decrease energy of eventEntity
+        uint256 newEnergy = bodyPhysicsData.energy - fluxEventData.energyToFlux[i];
+        BodyPhysics.setEnergy(eventVoxelEntity.scale, eventVoxelEntity.entityId, newEnergy);
       }
-      // Increase energy of energyReceiverEntity
-      uint256 newReceiverEnergy = BodyPhysics.getEnergy(energyReceiverEntity.scale, energyReceiverEntity.entityId) +
-        fluxEventData.energyToFlux;
-      BodyPhysics.setEnergy(energyReceiverEntity.scale, energyReceiverEntity.entityId, newReceiverEnergy);
-      // Decrease energy of eventEntity
-      uint256 newEnergy = bodyPhysicsData.energy - fluxEventData.energyToFlux;
-      BodyPhysics.setEnergy(eventVoxelEntity.scale, eventVoxelEntity.entityId, newEnergy);
     }
+  }
+
+  function runCA(
+    address caAddress,
+    bytes32 voxelTypeId,
+    VoxelCoord memory coord,
+    VoxelEntity memory eventVoxelEntity,
+    bytes memory eventData
+  ) internal override returns (EntityEventData[] memory) {
+    FluxEventData memory fluxEventData = abi.decode(eventData, (FluxEventData));
+    // TODO: Optimize the length of this array
+    EntityEventData[] memory allEntitiesEventData = new EntityEventData[](
+      MAX_VOXEL_NEIGHBOUR_UPDATE_DEPTH * fluxEventData.energyToFlux.length
+    );
+    uint allEntitiesEventDataIdx = 0;
+    if (fluxEventData.energyToFlux.length > 0) {
+      for (uint i = 0; i < fluxEventData.energyToFlux.length; i++) {
+        if (fluxEventData.energyToFlux[i] == 0) {
+          continue;
+        }
+        VoxelCoord memory energyReceiverCoord = fluxEventData.energyReceiver[i];
+        bytes32 energyReceiverEntityId = getEntityAtCoord(eventVoxelEntity.scale, energyReceiverCoord);
+        VoxelEntity memory energyReceiverEntity = VoxelEntity({
+          scale: eventVoxelEntity.scale,
+          entityId: energyReceiverEntityId
+        });
+        console.log("RUN CA FLUX BRO");
+        EntityEventData[] memory entitiesEventData = IWorld(_world()).runCA(caAddress, energyReceiverEntity, bytes4(0));
+        for (uint j = 0; j < entitiesEventData.length; j++) {
+          if (entitiesEventData[j].eventData.length > 0) {
+            console.log("GOT ONE BRO");
+            allEntitiesEventData[allEntitiesEventDataIdx] = entitiesEventData[j];
+            allEntitiesEventDataIdx++;
+          }
+        }
+      }
+    }
+    return allEntitiesEventData;
   }
 }

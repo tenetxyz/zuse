@@ -193,7 +193,7 @@ contract PokemonSystem is System {
     pokemonData.move = pokemonMove;
     pokemonData.round += 1;
     console.logInt(pokemonData.round);
-    pokemonData.lostStamina += 1;
+    pokemonData.lostStamina += uint(IWorld(_world()).pokemon_PokemonFightSyst_getStaminaCost(pokemonMove));
     Pokemon.set(callerAddress, interactEntity, pokemonData);
 
     IWorld(_world()).pokemon_PokemonFightSyst_runBattleLogic(callerAddress, interactEntity, neighbourEntity);

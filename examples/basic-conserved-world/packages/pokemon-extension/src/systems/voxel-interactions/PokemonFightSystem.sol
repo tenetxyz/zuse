@@ -46,6 +46,11 @@ contract PokemonFightSystem is System {
     return movesData;
   }
 
+  function getStaminaCost(PokemonMove move) public returns (uint8) {
+    MoveData[] memory movesData = getMovesData();
+    return movesData[uint(move)].stamina;
+  }
+
   function runBattleLogic(
     address callerAddress,
     bytes32 interactEntity,
@@ -77,14 +82,17 @@ contract PokemonFightSystem is System {
       return (changedEntity, entityData);
     }
 
-    if (pokemonData.lostHealth >= pokemonData.health) {
+    if (pokemonData.lostHealth >= pokemonData.health || pokemonData.lostStamina >= pokemonData.stamina) {
       console.log("pokemon dead");
       console.logBytes32(interactEntity);
       // pokemon is dead
       pokemonData.round = -1;
       pokemonData.move = PokemonMove.None;
+      // TODO: decrease on or the other
       pokemonData.health = 0;
       pokemonData.lostHealth = 0;
+      pokemonData.stamina = 0;
+      pokemonData.lostStamina = 0;
       pokemonData.lastUpdatedBlock = block.number;
       console.logUint(pokemonData.lastUpdatedBlock);
       Pokemon.set(callerAddress, interactEntity, pokemonData);

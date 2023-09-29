@@ -12,7 +12,7 @@ import { FighterVoxelID, GrassVoxelID, AirVoxelID, DirtVoxelID, BedrockVoxelID }
 import { BodyPhysics, BodyPhysicsData } from "@tenet-world/src/codegen/tables/BodyPhysics.sol";
 import { MindRegistry } from "@tenet-registry/src/codegen/tables/MindRegistry.sol";
 import { REGISTRY_ADDRESS, BASE_CA_ADDRESS } from "@tenet-world/src/Constants.sol";
-import { EnergySourceVoxelID, SoilVoxelID, PlantVoxelID, PokemonVoxelID } from "@tenet-pokemon-extension/src/Constants.sol";
+import { EnergySourceVoxelID, SoilVoxelID, PlantVoxelID, FirePokemonVoxelID } from "@tenet-pokemon-extension/src/Constants.sol";
 import { Pokemon, PokemonData } from "@tenet-pokemon-extension/src/codegen/tables/Pokemon.sol";
 import { Plant, PlantData, PlantStage } from "@tenet-pokemon-extension/src/codegen/tables/Plant.sol";
 import { addressToEntityKey } from "@tenet-utils/src/Utils.sol";
@@ -198,13 +198,13 @@ contract PlantTest is MudTest {
     {
       uint256 beforePokemonPlantEnergy = plantEnergy;
       VoxelCoord memory pokemonCoord = VoxelCoord({ x: plantCoord.x, y: plantCoord.y, z: plantCoord.z - 1 });
-      VoxelEntity memory pokemonEntity = world.buildWithAgent(PokemonVoxelID, pokemonCoord, agentEntity, bytes4(0));
+      VoxelEntity memory pokemonEntity = world.buildWithAgent(FirePokemonVoxelID, pokemonCoord, agentEntity, bytes4(0));
       // pokemon entity should have some energy
       plantEnergy = BodyPhysics.getEnergy(plantEntity.scale, plantEntity.entityId);
       assertTrue(plantEnergy == 0);
       assertTrue(BodyPhysics.getEnergy(pokemonEntity.scale, pokemonEntity.entityId) > 0);
       vm.roll(block.number + 10);
-      world.activateWithAgent(PokemonVoxelID, pokemonCoord, agentEntity, bytes4(0));
+      world.activateWithAgent(FirePokemonVoxelID, pokemonCoord, agentEntity, bytes4(0));
       plantData = Plant.get(IStore(BASE_CA_ADDRESS), worldAddress, plantCAEntity);
       assertTrue(plantData.stage != PlantStage.Flower);
     }

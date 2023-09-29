@@ -6,7 +6,7 @@ import { IStore } from "@latticexyz/store/src/IStore.sol";
 import { MindType } from "@tenet-base-ca/src/prototypes/MindType.sol";
 import { Mind, VoxelCoord, VoxelEntity, InteractionSelector, CreationMetadata, CreationSpawns } from "@tenet-utils/src/Types.sol";
 import { registerMindIntoRegistry } from "@tenet-registry/src/Utils.sol";
-import { REGISTRY_ADDRESS, PokemonVoxelID } from "@tenet-pokemon-extension/src/Constants.sol";
+import { REGISTRY_ADDRESS, FirePokemonVoxelID } from "@tenet-pokemon-extension/src/Constants.sol";
 import { getInteractionSelectors } from "@tenet-registry/src/Utils.sol";
 import { isStringEqual } from "@tenet-utils/src/StringUtils.sol";
 import { Pokemon, PokemonData, PokemonMove } from "@tenet-pokemon-extension/src/codegen/tables/Pokemon.sol";
@@ -26,7 +26,7 @@ contract PokemonMindSystem is MindType {
     });
     registerMindIntoRegistry(
       REGISTRY_ADDRESS,
-      PokemonVoxelID,
+      FirePokemonVoxelID,
       Mind({
         creationMetadata: abi.encode(creationMetadata),
         mindSelector: IWorld(_world()).pokemon_PokemonMindSyste_mindLogic.selector

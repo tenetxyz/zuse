@@ -12,7 +12,7 @@ import { FighterVoxelID, GrassVoxelID, AirVoxelID, DirtVoxelID, BedrockVoxelID }
 import { BodyPhysics, BodyPhysicsData } from "@tenet-world/src/codegen/tables/BodyPhysics.sol";
 import { MindRegistry } from "@tenet-registry/src/codegen/tables/MindRegistry.sol";
 import { REGISTRY_ADDRESS, BASE_CA_ADDRESS } from "@tenet-world/src/Constants.sol";
-import { EnergySourceVoxelID, SoilVoxelID, PlantVoxelID, PokemonVoxelID } from "@tenet-pokemon-extension/src/Constants.sol";
+import { EnergySourceVoxelID, SoilVoxelID, PlantVoxelID, FirePokemonVoxelID } from "@tenet-pokemon-extension/src/Constants.sol";
 import { Pokemon, PokemonData } from "@tenet-pokemon-extension/src/codegen/tables/Pokemon.sol";
 import { Plant, PlantData, PlantStage } from "@tenet-pokemon-extension/src/codegen/tables/Plant.sol";
 import { addressToEntityKey } from "@tenet-utils/src/Utils.sol";
@@ -63,7 +63,7 @@ contract PokemonTest is MudTest {
     // Get pokemon mind selector
     bytes4 mindSelector;
     {
-      bytes memory mindData = MindRegistry.get(IStore(REGISTRY_ADDRESS), PokemonVoxelID, address(0));
+      bytes memory mindData = MindRegistry.get(IStore(REGISTRY_ADDRESS), FirePokemonVoxelID, address(0));
       Mind[] memory minds = abi.decode(mindData, (Mind[]));
       assertTrue(minds.length == 1);
       mindSelector = minds[0].mindSelector;
@@ -71,13 +71,18 @@ contract PokemonTest is MudTest {
 
     // Place pokemon beside flower
     VoxelCoord memory pokemon1Coord = VoxelCoord({ x: agentCoord.x + 1, y: agentCoord.y, z: agentCoord.z + 1 });
-    VoxelEntity memory pokemon1Entity = world.buildWithAgent(PokemonVoxelID, pokemon1Coord, agentEntity, mindSelector);
+    VoxelEntity memory pokemon1Entity = world.buildWithAgent(
+      FirePokemonVoxelID,
+      pokemon1Coord,
+      agentEntity,
+      mindSelector
+    );
     world.claimAgent(pokemon1Entity);
     BodyPhysics.setEnergy(pokemon1Entity.scale, pokemon1Entity.entityId, 500);
     assertTrue(BodyPhysics.getEnergy(pokemon1Entity.scale, pokemon1Entity.entityId) == 500);
     // Activate pokemon
     vm.roll(block.number + 1);
-    world.activateWithAgent(PokemonVoxelID, pokemon1Coord, agentEntity, bytes4(0));
+    world.activateWithAgent(FirePokemonVoxelID, pokemon1Coord, agentEntity, bytes4(0));
     bytes32 pokemon1CAEntity = CAEntityMapping.get(IStore(BASE_CA_ADDRESS), worldAddress, pokemon1Entity.entityId);
     PokemonData memory pokemon1Data = Pokemon.get(IStore(BASE_CA_ADDRESS), worldAddress, pokemon1CAEntity);
     assertTrue(pokemon1Data.health == 200);
@@ -95,12 +100,17 @@ contract PokemonTest is MudTest {
     }
 
     VoxelCoord memory pokemon2Coord = VoxelCoord({ x: agentCoord.x + 1, y: agentCoord.y, z: agentCoord.z - 1 });
-    VoxelEntity memory pokemon2Entity = world.buildWithAgent(PokemonVoxelID, pokemon2Coord, agentEntity, mindSelector);
+    VoxelEntity memory pokemon2Entity = world.buildWithAgent(
+      FirePokemonVoxelID,
+      pokemon2Coord,
+      agentEntity,
+      mindSelector
+    );
     BodyPhysics.setEnergy(pokemon2Entity.scale, pokemon2Entity.entityId, 500);
     assertTrue(BodyPhysics.getEnergy(pokemon2Entity.scale, pokemon2Entity.entityId) == 500);
     // Activate pokemon
     vm.roll(block.number + 1);
-    world.activateWithAgent(PokemonVoxelID, pokemon2Coord, agentEntity, bytes4(0));
+    world.activateWithAgent(FirePokemonVoxelID, pokemon2Coord, agentEntity, bytes4(0));
     bytes32 pokemon2CAEntity = CAEntityMapping.get(IStore(BASE_CA_ADDRESS), worldAddress, pokemon2Entity.entityId);
     PokemonData memory pokemon2Data = Pokemon.get(IStore(BASE_CA_ADDRESS), worldAddress, pokemon2CAEntity);
     assertTrue(pokemon2Data.health == 200);
@@ -136,11 +146,11 @@ contract PokemonTest is MudTest {
       });
       vm.roll(block.number + 1);
       console.log("moving pokemon");
-      (, pokemon1Entity) = world.moveWithAgent(PokemonVoxelID, pokemon1Coord, newPokemon1Coord, pokemon1Entity);
+      (, pokemon1Entity) = world.moveWithAgent(FirePokemonVoxelID, pokemon1Coord, newPokemon1Coord, pokemon1Entity);
       vm.roll(block.number + NUM_BLOCKS_BEFORE_REDUCE + 1);
       console.log("activate commence fight");
       // BodyPhysics.setVelocity(pokemon1Entity.scale, pokemon1Entity.entityId, abi.encode(VoxelCoord(0, 0, 0)));
-      world.activateWithAgent(PokemonVoxelID, newPokemon1Coord, agentEntity, bytes4(0));
+      world.activateWithAgent(FirePokemonVoxelID, newPokemon1Coord, agentEntity, bytes4(0));
     }
 
     vm.stopPrank();

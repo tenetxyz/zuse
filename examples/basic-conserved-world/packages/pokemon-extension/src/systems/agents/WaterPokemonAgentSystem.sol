@@ -7,7 +7,7 @@ import { VoxelVariantsRegistryData } from "@tenet-registry/src/codegen/tables/Vo
 import { NoaBlockType } from "@tenet-registry/src/codegen/Types.sol";
 import { hasKey } from "@latticexyz/world/src/modules/keysintable/hasKey.sol";
 import { registerVoxelVariant, registerVoxelType } from "@tenet-registry/src/Utils.sol";
-import { CA_ADDRESS, REGISTRY_ADDRESS, PokemonVoxelID } from "@tenet-pokemon-extension/src/Constants.sol";
+import { CA_ADDRESS, REGISTRY_ADDRESS, WaterPokemonVoxelID } from "@tenet-pokemon-extension/src/Constants.sol";
 import { BlockDirection, BodyPhysicsData, CAEventData, CAEventType, VoxelCoord } from "@tenet-utils/src/Types.sol";
 import { VoxelCoord, VoxelSelectors, InteractionSelector, ComponentDef, RangeComponent, StateComponent, ComponentType } from "@tenet-utils/src/Types.sol";
 import { getFirstCaller } from "@tenet-utils/src/Utils.sol";
@@ -21,7 +21,7 @@ import { console } from "forge-std/console.sol";
 bytes32 constant PokemonVoxelVariantID = bytes32(keccak256("pokemon"));
 string constant PokemonTexture = "bafkreihpdljsgdltghxehq4cebngtugfj3pduucijxcrvcla4hoy34f7vq";
 
-contract PokemonAgentSystem is AgentType {
+contract WaterPokemonAgentSystem is AgentType {
   function registerBody() public override {
     address world = _world();
     VoxelVariantsRegistryData memory pokemonVariant;
@@ -35,8 +35,8 @@ contract PokemonAgentSystem is AgentType {
     registerVoxelVariant(REGISTRY_ADDRESS, PokemonVoxelVariantID, pokemonVariant);
 
     bytes32[] memory pokemonChildVoxelTypes = new bytes32[](1);
-    pokemonChildVoxelTypes[0] = PokemonVoxelID;
-    bytes32 baseVoxelTypeId = PokemonVoxelID;
+    pokemonChildVoxelTypes[0] = WaterPokemonVoxelID;
+    bytes32 baseVoxelTypeId = WaterPokemonVoxelID;
 
     ComponentDef[] memory componentDefs = new ComponentDef[](3);
     componentDefs[0] = ComponentDef(
@@ -67,8 +67,8 @@ contract PokemonAgentSystem is AgentType {
 
     registerVoxelType(
       REGISTRY_ADDRESS,
-      "Pokemon",
-      PokemonVoxelID,
+      "Water Pokemon",
+      WaterPokemonVoxelID,
       baseVoxelTypeId,
       pokemonChildVoxelTypes,
       pokemonChildVoxelTypes,
@@ -84,7 +84,7 @@ contract PokemonAgentSystem is AgentType {
       abi.encode(componentDefs)
     );
 
-    registerCAVoxelType(CA_ADDRESS, PokemonVoxelID);
+    registerCAVoxelType(CA_ADDRESS, WaterPokemonVoxelID);
   }
 
   function enterWorld(VoxelCoord memory coord, bytes32 entity) public override {
@@ -101,7 +101,7 @@ contract PokemonAgentSystem is AgentType {
         lostStamina: 0,
         lastUpdatedBlock: 0,
         round: 0,
-        pokemonType: PokemonType.Fire,
+        pokemonType: PokemonType.Water,
         move: PokemonMove.None,
         hasValue: hasValue
       })
@@ -119,6 +119,7 @@ contract PokemonAgentSystem is AgentType {
     bytes32[] memory childEntityIds,
     bytes32 parentEntity
   ) public view override returns (bytes32) {
+    // TODO: show different variants based on health
     return PokemonVoxelVariantID;
   }
 

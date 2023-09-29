@@ -21,7 +21,8 @@
     "initialize": "yarn workspaces run initialize",
     "mud:up": "yarn workspaces foreach -t run yarn mud set-version -v canary && yarn install",
     "prepare": "(forge --version || yarn foundry:up)",
-    "test": "yarn workspaces run test"
+    "test": "yarn workspaces run test",
+    "reinstall-deps": "sh scripts/reinstall_dependencies.sh"
   },
   "devDependencies": {
     "@latticexyz/cli": "link:../mud/packages/cli",

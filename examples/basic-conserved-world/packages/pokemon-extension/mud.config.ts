@@ -4,7 +4,6 @@ import { resolveTableId } from "@latticexyz/config";
 export default mudConfig({
   namespace: "pokemon",
   enums: {
-    BlockDirection: ["None", "North", "South", "East", "West", "Up", "Down"],
     PlantStage: ["Seed", "Sprout", "Flower"],
     PokemonMove: [
       "None",
@@ -78,7 +77,7 @@ export default mudConfig({
     PokemonFightSystem: {
       name: "PokemonFightSyst",
       openAccess: false,
-      accessList: ["PokemonSystem", "PokemonAgentSystem"],
+      accessList: ["PokemonSystem", "FirePokemonAgentSystem", "WaterPokemonAgentSystem", "GrassPokemonAgentSystem"],
     },
   },
   modules: [],

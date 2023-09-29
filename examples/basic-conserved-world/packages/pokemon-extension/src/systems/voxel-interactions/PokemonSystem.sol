@@ -93,8 +93,8 @@ contract PokemonSystem is System {
     PokemonData memory pokemonData = Pokemon.get(callerAddress, interactEntity);
     (changedEntity, entityData, pokemonData) = IWorld(_world()).pokemon_PokemonFightSyst_runBattleLogic(
       callerAddress,
+      interactEntity,
       neighbourEntityId,
-      centerEntityId,
       pokemonData
     );
     Pokemon.set(callerAddress, interactEntity, pokemonData);

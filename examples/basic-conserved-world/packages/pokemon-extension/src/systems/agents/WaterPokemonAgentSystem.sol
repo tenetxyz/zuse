@@ -74,11 +74,11 @@ contract WaterPokemonAgentSystem is AgentType {
       pokemonChildVoxelTypes,
       PokemonVoxelVariantID,
       VoxelSelectors({
-        enterWorldSelector: IWorld(world).pokemon_PokemonAgentSyst_enterWorld.selector,
-        exitWorldSelector: IWorld(world).pokemon_PokemonAgentSyst_exitWorld.selector,
-        voxelVariantSelector: IWorld(world).pokemon_PokemonAgentSyst_variantSelector.selector,
-        activateSelector: IWorld(world).pokemon_PokemonAgentSyst_activate.selector,
-        onNewNeighbourSelector: IWorld(world).pokemon_PokemonAgentSyst_neighbourEventHandler.selector,
+        enterWorldSelector: IWorld(world).pokemon_WaterPokemonAgen_enterWorld.selector,
+        exitWorldSelector: IWorld(world).pokemon_WaterPokemonAgen_exitWorld.selector,
+        voxelVariantSelector: IWorld(world).pokemon_WaterPokemonAgen_variantSelector.selector,
+        activateSelector: IWorld(world).pokemon_WaterPokemonAgen_activate.selector,
+        onNewNeighbourSelector: IWorld(world).pokemon_WaterPokemonAgen_neighbourEventHandler.selector,
         interactionSelectors: getInteractionSelectors()
       }),
       abi.encode(componentDefs)
@@ -142,67 +142,67 @@ contract WaterPokemonAgentSystem is AgentType {
   function getInteractionSelectors() public override returns (InteractionSelector[] memory) {
     InteractionSelector[] memory voxelInteractionSelectors = new InteractionSelector[](13);
     voxelInteractionSelectors[0] = InteractionSelector({
-      interactionSelector: IWorld(_world()).pokemon_PokemonAgentSyst_replenishEnergyEventHandler.selector,
+      interactionSelector: IWorld(_world()).pokemon_WaterPokemonAgen_replenishEnergyEventHandler.selector,
       interactionName: "Replenish Energy",
       interactionDescription: ""
     });
     voxelInteractionSelectors[1] = InteractionSelector({
-      interactionSelector: IWorld(_world()).pokemon_PokemonAgentSyst_emberEventHandler.selector,
+      interactionSelector: IWorld(_world()).pokemon_WaterPokemonAgen_emberEventHandler.selector,
       interactionName: "Ember",
       interactionDescription: ""
     });
     voxelInteractionSelectors[2] = InteractionSelector({
-      interactionSelector: IWorld(_world()).pokemon_PokemonAgentSyst_flameBurstEventHandler.selector,
+      interactionSelector: IWorld(_world()).pokemon_WaterPokemonAgen_flameBurstEventHandler.selector,
       interactionName: "Flame Burst",
       interactionDescription: ""
     });
     voxelInteractionSelectors[3] = InteractionSelector({
-      interactionSelector: IWorld(_world()).pokemon_PokemonAgentSyst_smokeScreenEventHandler.selector,
+      interactionSelector: IWorld(_world()).pokemon_WaterPokemonAgen_smokeScreenEventHandler.selector,
       interactionName: "Smoke Screen",
       interactionDescription: ""
     });
     voxelInteractionSelectors[4] = InteractionSelector({
-      interactionSelector: IWorld(_world()).pokemon_PokemonAgentSyst_fireShieldEventHandler.selector,
+      interactionSelector: IWorld(_world()).pokemon_WaterPokemonAgen_fireShieldEventHandler.selector,
       interactionName: "Fire Shield",
       interactionDescription: ""
     });
     voxelInteractionSelectors[5] = InteractionSelector({
-      interactionSelector: IWorld(_world()).pokemon_PokemonAgentSyst_waterGunEventHandler.selector,
+      interactionSelector: IWorld(_world()).pokemon_WaterPokemonAgen_waterGunEventHandler.selector,
       interactionName: "Water Gun",
       interactionDescription: ""
     });
     voxelInteractionSelectors[6] = InteractionSelector({
-      interactionSelector: IWorld(_world()).pokemon_PokemonAgentSyst_hydroPumpEventHandler.selector,
+      interactionSelector: IWorld(_world()).pokemon_WaterPokemonAgen_hydroPumpEventHandler.selector,
       interactionName: "Hydro Pump",
       interactionDescription: ""
     });
     voxelInteractionSelectors[7] = InteractionSelector({
-      interactionSelector: IWorld(_world()).pokemon_PokemonAgentSyst_bubbleEventHandler.selector,
+      interactionSelector: IWorld(_world()).pokemon_WaterPokemonAgen_bubbleEventHandler.selector,
       interactionName: "Bubble",
       interactionDescription: ""
     });
     voxelInteractionSelectors[8] = InteractionSelector({
-      interactionSelector: IWorld(_world()).pokemon_PokemonAgentSyst_aquaRingEventHandler.selector,
+      interactionSelector: IWorld(_world()).pokemon_WaterPokemonAgen_aquaRingEventHandler.selector,
       interactionName: "Aqua Ring",
       interactionDescription: ""
     });
     voxelInteractionSelectors[9] = InteractionSelector({
-      interactionSelector: IWorld(_world()).pokemon_PokemonAgentSyst_vineWhipEventHandler.selector,
+      interactionSelector: IWorld(_world()).pokemon_WaterPokemonAgen_vineWhipEventHandler.selector,
       interactionName: "Vine Whip",
       interactionDescription: ""
     });
     voxelInteractionSelectors[10] = InteractionSelector({
-      interactionSelector: IWorld(_world()).pokemon_PokemonAgentSyst_solarBeamEventHandler.selector,
+      interactionSelector: IWorld(_world()).pokemon_WaterPokemonAgen_solarBeamEventHandler.selector,
       interactionName: "Solar Beam",
       interactionDescription: ""
     });
     voxelInteractionSelectors[11] = InteractionSelector({
-      interactionSelector: IWorld(_world()).pokemon_PokemonAgentSyst_leechSeedEventHandler.selector,
+      interactionSelector: IWorld(_world()).pokemon_WaterPokemonAgen_leechSeedEventHandler.selector,
       interactionName: "Leech Seed",
       interactionDescription: ""
     });
     voxelInteractionSelectors[12] = InteractionSelector({
-      interactionSelector: IWorld(_world()).pokemon_PokemonAgentSyst_synthesisEventHandler.selector,
+      interactionSelector: IWorld(_world()).pokemon_WaterPokemonAgen_synthesisEventHandler.selector,
       interactionName: "Synthesis",
       interactionDescription: ""
     });

@@ -136,9 +136,10 @@ contract PokemonTest is MudTest {
       });
       vm.roll(block.number + 1);
       console.log("moving pokemon");
-      world.moveWithAgent(PokemonVoxelID, pokemon1Coord, newPokemon1Coord, pokemon1Entity);
+      (, pokemon1Entity) = world.moveWithAgent(PokemonVoxelID, pokemon1Coord, newPokemon1Coord, pokemon1Entity);
       vm.roll(block.number + NUM_BLOCKS_BEFORE_REDUCE + 1);
       console.log("activate commence fight");
+      // BodyPhysics.setVelocity(pokemon1Entity.scale, pokemon1Entity.entityId, abi.encode(VoxelCoord(0, 0, 0)));
       world.activateWithAgent(PokemonVoxelID, newPokemon1Coord, agentEntity, bytes4(0));
     }
 

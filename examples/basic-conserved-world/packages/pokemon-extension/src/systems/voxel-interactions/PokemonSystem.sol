@@ -187,6 +187,9 @@ contract PokemonSystem is System {
 
     console.log("setting move");
     console.logBytes32(interactEntity);
+    console.logUint(pokemonData.health);
+    console.logUint(pokemonData.lastUpdatedBlock);
+    console.logUint(block.number);
     pokemonData.move = pokemonMove;
     pokemonData.round += 1;
     console.logInt(pokemonData.round);
@@ -194,6 +197,8 @@ contract PokemonSystem is System {
     Pokemon.set(callerAddress, interactEntity, pokemonData);
 
     IWorld(_world()).pokemon_PokemonFightSyst_runBattleLogic(callerAddress, interactEntity, neighbourEntity);
+
+    pokemonData = Pokemon.get(callerAddress, interactEntity);
 
     return pokemonData;
   }

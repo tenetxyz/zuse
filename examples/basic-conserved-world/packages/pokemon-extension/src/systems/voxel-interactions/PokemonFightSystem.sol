@@ -66,13 +66,34 @@ contract PokemonFightSystem is System {
       console.log("pokemon is dead");
       pokemonData.round = 0;
       pokemonData.move = PokemonMove.None;
-      changedEntity = true;
+      Pokemon.set(callerAddress, interactEntity, pokemonData);
+
       return (changedEntity, entityData);
     }
 
     if (pokemonData.move == PokemonMove.None && neighbourPokemonData.move != PokemonMove.None) {
       console.log("my pokemon move is none");
       changedEntity = true;
+      return (changedEntity, entityData);
+    }
+
+    if (pokemonData.lostHealth >= pokemonData.health) {
+      console.log("pokemon dead");
+      console.logBytes32(interactEntity);
+      // pokemon is dead
+      pokemonData.round = -1;
+      pokemonData.move = PokemonMove.None;
+      pokemonData.health = 0;
+      pokemonData.lostHealth = 0;
+      pokemonData.lastUpdatedBlock = block.number;
+      console.logUint(pokemonData.lastUpdatedBlock);
+      Pokemon.set(callerAddress, interactEntity, pokemonData);
+
+      if (neighbourPokemonData.round != -1) {
+        changedEntity = true;
+      }
+
+      // TODO: run exit logic
       return (changedEntity, entityData);
     }
 
@@ -88,45 +109,33 @@ contract PokemonFightSystem is System {
       }
 
       // Calculate damage
-      if (pokemonData.lostHealth < pokemonData.health) {
-        console.log("calc damage");
-        console.logUint(pokemonData.lostHealth);
-        // Calculae damage
-        MoveData[] memory movesData = getMovesData();
-        MoveData memory myMoveData = movesData[uint(pokemonData.move)];
-        MoveData memory opponentMoveData = movesData[uint(neighbourPokemonData.move)];
-        if (opponentMoveData.damage > 0 && myMoveData.protection > 0) {
-          uint256 damage = calculateDamage(myMoveData, opponentMoveData);
-          uint256 protection = calculateProtection(myMoveData, opponentMoveData);
-          pokemonData.lostHealth += (damage - protection);
-        } else if (opponentMoveData.damage > 0) {
-          uint256 damage = calculateDamage(myMoveData, opponentMoveData);
-          console.log("damage go");
-          pokemonData.lostHealth += damage;
-        }
-
-        // Update round number
-        console.log("new lost health");
-        console.logBytes32(interactEntity);
-        console.logUint(pokemonData.lostHealth);
-        console.logInt(pokemonData.round);
-
-        // Save data
-        Pokemon.set(callerAddress, interactEntity, pokemonData);
-
-        changedEntity = true;
-        // continue the fight to next round
-      } else {
-        console.log("pokemon dead after moves yo");
-        // pokemon is dead
-        pokemonData.round = -1;
-        pokemonData.move = PokemonMove.None;
-        pokemonData.health = 0;
-        pokemonData.lastInteractionBlock = block.number;
-        changedEntity = true;
-        // TODO: run exit logic
-        return (changedEntity, entityData);
+      console.log("calc damage");
+      console.logUint(pokemonData.lostHealth);
+      // Calculae damage
+      MoveData[] memory movesData = getMovesData();
+      MoveData memory myMoveData = movesData[uint(pokemonData.move)];
+      MoveData memory opponentMoveData = movesData[uint(neighbourPokemonData.move)];
+      if (opponentMoveData.damage > 0 && myMoveData.protection > 0) {
+        uint256 damage = calculateDamage(myMoveData, opponentMoveData);
+        uint256 protection = calculateProtection(myMoveData, opponentMoveData);
+        pokemonData.lostHealth += (damage - protection);
+      } else if (opponentMoveData.damage > 0) {
+        uint256 damage = calculateDamage(myMoveData, opponentMoveData);
+        console.log("damage go");
+        pokemonData.lostHealth += damage;
       }
+
+      // Update round number
+      console.log("new lost health");
+      console.logBytes32(interactEntity);
+      console.logUint(pokemonData.lostHealth);
+      console.logInt(pokemonData.round);
+
+      // Save data
+      Pokemon.set(callerAddress, interactEntity, pokemonData);
+
+      changedEntity = true;
+      // continue the fight to next round
     } else {
       console.log("nothing to do");
     }

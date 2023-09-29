@@ -47,7 +47,8 @@ contract RoadVoxelSystem is VoxelType {
         IWorld(world).ca_RoadVoxelSystem_exitWorld.selector,
         IWorld(world).ca_RoadVoxelSystem_variantSelector.selector,
         IWorld(world).ca_RoadVoxelSystem_activate.selector,
-        IWorld(world).ca_RoadVoxelSystem_eventHandler.selector
+        IWorld(world).ca_RoadVoxelSystem_eventHandler.selector,
+        IWorld(world).ca_RoadVoxelSystem_neighbourEventHandler.selector
       ),
       abi.encode(componentDefs)
     );
@@ -73,5 +74,10 @@ contract RoadVoxelSystem is VoxelType {
     bytes32[] memory neighbourEntityIds,
     bytes32[] memory childEntityIds,
     bytes32 parentEntity
-  ) public override returns (bytes32, bytes32[] memory, bytes[] memory) {}
+  ) public override returns (bool, bytes memory) {}
+
+  function neighbourEventHandler(
+    bytes32 neighbourEntityId,
+    bytes32 centerEntityId
+  ) public override returns (bool, bytes memory) {}
 }

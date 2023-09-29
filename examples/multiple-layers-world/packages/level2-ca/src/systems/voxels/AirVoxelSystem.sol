@@ -32,7 +32,8 @@ contract AirVoxelSystem is VoxelType {
         IWorld(world).ca_AirVoxelSystem_exitWorld.selector,
         IWorld(world).ca_AirVoxelSystem_variantSelector.selector,
         IWorld(world).ca_AirVoxelSystem_activate.selector,
-        IWorld(world).ca_AirVoxelSystem_eventHandler.selector
+        IWorld(world).ca_AirVoxelSystem_eventHandler.selector,
+        IWorld(world).ca_AirVoxelSystem_neighbourEventHandler.selector
       ),
       abi.encode(componentDefs)
     );
@@ -58,5 +59,10 @@ contract AirVoxelSystem is VoxelType {
     bytes32[] memory neighbourEntityIds,
     bytes32[] memory childEntityIds,
     bytes32 parentEntity
-  ) public override returns (bytes32, bytes32[] memory, bytes[] memory) {}
+  ) public override returns (bool, bytes memory) {}
+
+  function neighbourEventHandler(
+    bytes32 neighbourEntityId,
+    bytes32 centerEntityId
+  ) public override returns (bool, bytes memory) {}
 }

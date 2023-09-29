@@ -53,7 +53,8 @@ contract SignalSourceVoxelSystem is VoxelType {
         IWorld(world).extension1_SignalSourceVoxe_exitWorld.selector,
         IWorld(world).extension1_SignalSourceVoxe_variantSelector.selector,
         IWorld(world).extension1_SignalSourceVoxe_activate.selector,
-        IWorld(world).extension1_SignalSourceVoxe_eventHandler.selector
+        IWorld(world).extension1_SignalSourceVoxe_eventHandler.selector,
+        IWorld(world).extension1_SignalSourceVoxe_neighbourEventHandler.selector
       ),
       abi.encode(componentDefs)
     );
@@ -89,5 +90,10 @@ contract SignalSourceVoxelSystem is VoxelType {
     bytes32[] memory neighbourEntityIds,
     bytes32[] memory childEntityIds,
     bytes32 parentEntity
-  ) public override returns (bytes32, bytes32[] memory, bytes[] memory) {}
+  ) public override returns (bool, bytes memory) {}
+
+  function neighbourEventHandler(
+    bytes32 neighbourEntityId,
+    bytes32 centerEntityId
+  ) public override returns (bool, bytes memory) {}
 }

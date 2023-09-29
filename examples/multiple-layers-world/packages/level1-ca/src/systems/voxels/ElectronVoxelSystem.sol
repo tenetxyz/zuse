@@ -47,7 +47,8 @@ contract ElectronVoxelSystem is VoxelType {
         IWorld(world).ca_ElectronVoxelSys_exitWorld.selector,
         IWorld(world).ca_ElectronVoxelSys_variantSelector.selector,
         IWorld(world).ca_ElectronVoxelSys_activate.selector,
-        IWorld(world).ca_ElectronVoxelSys_eventHandler.selector
+        IWorld(world).ca_ElectronVoxelSys_eventHandler.selector,
+        IWorld(world).ca_ElectronVoxelSys_neighbourEventHandler.selector
       ),
       abi.encode(componentDefs)
     );
@@ -117,7 +118,7 @@ contract ElectronVoxelSystem is VoxelType {
     bytes32[] memory neighbourEntityIds,
     bytes32[] memory childEntityIds,
     bytes32 parentEntity
-  ) public override returns (bytes32, bytes32[] memory, bytes[] memory) {
+  ) public override returns (bool, bytes memory) {
     address callerAddress = super.getCallerAddress();
 
     return
@@ -127,6 +128,20 @@ contract ElectronVoxelSystem is VoxelType {
         neighbourEntityIds,
         childEntityIds,
         parentEntity
+      );
+  }
+
+  function neighbourEventHandler(
+    bytes32 neighbourEntityId,
+    bytes32 centerEntityId
+  ) public override returns (bool, bytes memory) {
+    address callerAddress = super.getCallerAddress();
+
+    return
+      IWorld(_world()).ca_ElectronSystem_neighbourEventHandlerElectron(
+        callerAddress,
+        neighbourEntityId,
+        centerEntityId
       );
   }
 }

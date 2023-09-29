@@ -50,7 +50,8 @@ contract FlowerVoxelSystem is VoxelType {
         IWorld(world).extension1_FlowerVoxelSyste_exitWorld.selector,
         IWorld(world).extension1_FlowerVoxelSyste_variantSelector.selector,
         IWorld(world).extension1_FlowerVoxelSyste_activate.selector,
-        IWorld(world).extension1_FlowerVoxelSyste_eventHandler.selector
+        IWorld(world).extension1_FlowerVoxelSyste_eventHandler.selector,
+        IWorld(world).extension1_FlowerVoxelSyste_neighbourEventHandler.selector
       ),
       abi.encode(componentDefs)
     );
@@ -78,5 +79,10 @@ contract FlowerVoxelSystem is VoxelType {
     bytes32[] memory neighbourEntityIds,
     bytes32[] memory childEntityIds,
     bytes32 parentEntity
-  ) public override returns (bytes32, bytes32[] memory, bytes[] memory) {}
+  ) public override returns (bool, bytes memory) {}
+
+  function neighbourEventHandler(
+    bytes32 neighbourEntityId,
+    bytes32 centerEntityId
+  ) public override returns (bool, bytes memory) {}
 }

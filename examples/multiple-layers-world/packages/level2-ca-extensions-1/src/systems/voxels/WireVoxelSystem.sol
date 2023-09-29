@@ -68,7 +68,8 @@ contract WireVoxelSystem is VoxelType {
         IWorld(world).extension1_WireVoxelSystem_exitWorld.selector,
         IWorld(world).extension1_WireVoxelSystem_variantSelector.selector,
         IWorld(world).extension1_WireVoxelSystem_activate.selector,
-        IWorld(world).extension1_WireVoxelSystem_eventHandler.selector
+        IWorld(world).extension1_WireVoxelSystem_eventHandler.selector,
+        IWorld(world).extension1_WireVoxelSystem_neighbourEventHandler.selector
       ),
       abi.encode(componentDefs)
     );
@@ -119,5 +120,10 @@ contract WireVoxelSystem is VoxelType {
     bytes32[] memory neighbourEntityIds,
     bytes32[] memory childEntityIds,
     bytes32 parentEntity
-  ) public override returns (bytes32, bytes32[] memory, bytes[] memory) {}
+  ) public override returns (bool, bytes memory) {}
+
+  function neighbourEventHandler(
+    bytes32 neighbourEntityId,
+    bytes32 centerEntityId
+  ) public override returns (bool, bytes memory) {}
 }

@@ -5,11 +5,14 @@ import { IWorld } from "@tenet-level1-ca/src/codegen/world/IWorld.sol";
 import { CA } from "@tenet-base-ca/src/prototypes/CA.sol";
 import { VoxelCoord } from "@tenet-utils/src/Types.sol";
 import { AirVoxelID, GrassVoxelID, DirtVoxelID, BedrockVoxelID, FighterVoxelID } from "@tenet-level1-ca/src/Constants.sol";
-import { getKeysInTable } from "@latticexyz/world/src/modules/keysintable/getKeysInTable.sol";
+import { hasKey } from "@latticexyz/world/src/modules/keysintable/hasKey.sol";
 import { REGISTER_CA_SIG } from "@tenet-registry/src/Constants.sol";
+import { TerrainSelectors, TerrainSelectorsData, TerrainSelectorsTableId } from "@tenet-level1-ca/src/codegen/tables/TerrainSelectors.sol";
 import { EMPTY_ID } from "./LibTerrainSystem.sol";
 import { REGISTRY_ADDRESS } from "../Constants.sol";
-import { safeCall } from "@tenet-utils/src/CallUtils.sol";
+import { safeCall, safeStaticCall } from "@tenet-utils/src/CallUtils.sol";
+import { coordToShardCoord } from "@tenet-level1-ca/src/Utils.sol";
+import { TerrainGenType } from "@tenet-base-ca/src/Constants.sol";
 
 contract CASystem is CA {
   function getRegistryAddress() internal pure override returns (address) {
@@ -36,7 +39,58 @@ contract CASystem is CA {
   }
 
   function getTerrainVoxelId(VoxelCoord memory coord) public view override returns (bytes32) {
-    return IWorld(_world()).ca_LibTerrainSystem_getTerrainVoxel(coord);
+    address callerAddress = _msgSender();
+    VoxelCoord memory shardCoord = coordToShardCoord(coord);
+    require(
+      hasKey(
+        TerrainSelectorsTableId,
+        TerrainSelectors.encodeKeyTuple(callerAddress, shardCoord.x, shardCoord.y, shardCoord.z)
+      ),
+      "CASystem: Terrain selector for coord not found"
+    );
+    TerrainSelectorsData memory selectorData = TerrainSelectors.get(
+      callerAddress,
+      shardCoord.x,
+      shardCoord.y,
+      shardCoord.z
+    );
+    bytes memory returnData = safeStaticCall(
+      selectorData.contractAddress,
+      abi.encodeWithSelector(selectorData.selector, coord),
+      "terrainSelector"
+    );
+    return abi.decode(returnData, (bytes32));
+  }
+
+  function setTerrainSelector(VoxelCoord memory coord, address contractAddress, bytes4 terrainSelector) public {
+    address callerAddress = _msgSender();
+    VoxelCoord memory shardCoord = coordToShardCoord(coord);
+    require(
+      !hasKey(
+        TerrainSelectorsTableId,
+        TerrainSelectors.encodeKeyTuple(callerAddress, shardCoord.x, shardCoord.y, shardCoord.z)
+      ),
+      "CASystem: Select for coord already exists"
+    );
+    TerrainSelectors.set(callerAddress, shardCoord.x, shardCoord.y, shardCoord.z, contractAddress, terrainSelector);
+  }
+
+  function terrainGen(
+    address callerAddress,
+    TerrainGenType terrainGenType,
+    bytes32 voxelTypeId,
+    VoxelCoord memory coord,
+    bytes32 entity
+  ) internal override returns (bytes32) {
+    bytes32 caEntity = super.terrainGen(callerAddress, terrainGenType, voxelTypeId, coord, entity);
+    // Notify world of terrain gen
+    // TODO: Should this be in base-ca?
+    safeCall(
+      callerAddress,
+      abi.encodeWithSignature("onTerrainGen(bytes32,(int32,int32,int32))", voxelTypeId, coord),
+      "onTerrainGen"
+    );
+    return caEntity;
   }
 
   function callVoxelEnterWorld(bytes32 voxelTypeId, VoxelCoord memory coord, bytes32 caEntity) internal override {

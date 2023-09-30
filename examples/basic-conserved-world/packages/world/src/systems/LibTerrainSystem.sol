@@ -6,12 +6,14 @@ import { System } from "@latticexyz/world/src/System.sol";
 import { AirVoxelID, GrassVoxelID, DirtVoxelID, BedrockVoxelID } from "@tenet-level1-ca/src/Constants.sol";
 import { BodyPhysics, BodyPhysicsData, VoxelTypeProperties } from "@tenet-world/src/codegen/Tables.sol";
 import { getTerrainVoxelId } from "@tenet-base-ca/src/CallUtils.sol";
+import { safeCall } from "@tenet-utils/src/CallUtils.sol";
+import { BASE_CA_ADDRESS } from "@tenet-world/src/Constants.sol";
 
 contract LibTerrainSystem is System {
   function getTerrainBodyPhysicsData(
     address caAddress,
     VoxelCoord memory coord
-  ) public returns (bytes32, BodyPhysicsData memory) {
+  ) public view returns (bytes32, BodyPhysicsData memory) {
     BodyPhysicsData memory data;
 
     bytes32 voxelTypeId = getTerrainVoxelId(caAddress, coord);
@@ -30,5 +32,26 @@ contract LibTerrainSystem is System {
     data.lastUpdateBlock = block.number;
 
     return (voxelTypeId, data);
+  }
+
+  // Called by CA's on terrain gen
+  function onTerrainGen(bytes32 voxelTypeId, VoxelCoord memory coord) public {
+    // address caAddress = _msgSender();
+    // TODO: Check that the mass at this coord matches the mass of the voxel type
+  }
+
+  function setTerrainSelector(VoxelCoord memory coord, address contractAddress, bytes4 terrainSelector) public {
+    // TODO: Make this be any CA address
+    address caAddress = BASE_CA_ADDRESS;
+    safeCall(
+      caAddress,
+      abi.encodeWithSignature(
+        "setTerrainSelector((int32,int32,int32),address,bytes4)",
+        coord,
+        contractAddress,
+        terrainSelector
+      ),
+      string(abi.encode("setTerrainSelector ", coord, " ", terrainSelector))
+    );
   }
 }

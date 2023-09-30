@@ -17,6 +17,7 @@ import { getEntityAtCoord, entityArrayToCAEntityArray, entityToCAEntity, caEntit
 import { getNeighbourEntitiesFromCaller, getChildEntitiesFromCaller, getParentEntityFromCaller, shouldRunInteractionForNeighbour } from "@tenet-base-ca/src/CallUtils.sol";
 import { safeCall, safeStaticCall } from "@tenet-utils/src/CallUtils.sol";
 import { getEnterWorldSelector, getExitWorldSelector, getVoxelVariantSelector, getActivateSelector, getInteractionSelectors, getOnNewNeighbourSelector } from "@tenet-registry/src/Utils.sol";
+import { TerrainGenType } from "@tenet-base-ca/src/Constants.sol";
 
 abstract contract CA is System {
   function getRegistryAddress() internal pure virtual returns (address);
@@ -41,17 +42,25 @@ abstract contract CA is System {
 
   function terrainGen(
     address callerAddress,
+    TerrainGenType terrainGenType,
     bytes32 voxelTypeId,
     VoxelCoord memory coord,
     bytes32 entity
-  ) internal virtual {
-    // If there is no entity at this position, try mining the terrain voxel at this position
+  ) internal virtual returns (bytes32) {
     bytes32 terrainVoxelTypeId = getTerrainVoxelId(coord);
-    require(terrainVoxelTypeId != emptyVoxelId() && terrainVoxelTypeId == voxelTypeId, "invalid terrain voxel type");
+    if (terrainGenType == TerrainGenType.Mine) {
+      require(terrainVoxelTypeId != emptyVoxelId() && terrainVoxelTypeId == voxelTypeId, "invalid terrain voxel type");
+    } else if (terrainGenType == TerrainGenType.Build) {
+      require(terrainVoxelTypeId == emptyVoxelId() || terrainVoxelTypeId == voxelTypeId, "invalid terrain voxel type");
+    } else if (terrainGenType == TerrainGenType.Move) {
+      require(terrainVoxelTypeId == emptyVoxelId(), "cannot move to non-empty terrain");
+    }
+    require(!hasKey(CAEntityMappingTableId, CAEntityMapping.encodeKeyTuple(callerAddress, entity)), "Entity exists");
     CAPosition.set(callerAddress, entity, CAPositionData({ x: coord.x, y: coord.y, z: coord.z }));
     bytes32 caEntity = getUniqueEntity();
     CAEntityMapping.set(callerAddress, entity, caEntity);
     CAEntityReverseMapping.set(caEntity, callerAddress, entity);
+    return caEntity;
   }
 
   function isVoxelTypeAllowed(bytes32 voxelTypeId) public view returns (bool) {
@@ -86,13 +95,7 @@ abstract contract CA is System {
       );
       caEntity = entityToCAEntity(callerAddress, entity);
     } else {
-      bytes32 terrainVoxelTypeId = getTerrainVoxelId(coord);
-      require(terrainVoxelTypeId == emptyVoxelId() || terrainVoxelTypeId == voxelTypeId, "invalid terrain voxel type");
-      require(!hasKey(CAEntityMappingTableId, CAEntityMapping.encodeKeyTuple(callerAddress, entity)), "Entity exists");
-      CAPosition.set(callerAddress, entity, CAPositionData({ x: coord.x, y: coord.y, z: coord.z }));
-      caEntity = getUniqueEntity();
-      CAEntityMapping.set(callerAddress, entity, caEntity);
-      CAEntityReverseMapping.set(caEntity, callerAddress, entity);
+      caEntity = terrainGen(callerAddress, TerrainGenType.Build, voxelTypeId, coord, entity);
     }
     CAMind.set(caEntity, voxelTypeId, mindSelector);
 
@@ -124,7 +127,7 @@ abstract contract CA is System {
 
     address callerAddress = _msgSender();
     if (!hasKey(CAPositionTableId, CAPosition.encodeKeyTuple(callerAddress, entity))) {
-      terrainGen(callerAddress, voxelTypeId, coord, entity);
+      terrainGen(callerAddress, TerrainGenType.Mine, voxelTypeId, coord, entity);
     }
 
     bytes32 caEntity = entityToCAEntity(callerAddress, entity);
@@ -184,13 +187,7 @@ abstract contract CA is System {
       );
       newCAEntity = entityToCAEntity(callerAddress, newEntity);
     } else {
-      require(getTerrainVoxelId(newCoord) == emptyVoxelId(), "cannot move to non-empty terrain");
-      require(
-        !hasKey(CAEntityMappingTableId, CAEntityMapping.encodeKeyTuple(callerAddress, newEntity)),
-        "Entity exists"
-      );
-      CAPosition.set(callerAddress, newEntity, CAPositionData({ x: newCoord.x, y: newCoord.y, z: newCoord.z }));
-      newCAEntity = getUniqueEntity();
+      newCAEntity = terrainGen(callerAddress, TerrainGenType.Move, voxelTypeId, newCoord, newEntity);
       // TODO: should there be a mind for this new entity?
       CAMind.set(newCAEntity, voxelTypeId, bytes4(0));
     }

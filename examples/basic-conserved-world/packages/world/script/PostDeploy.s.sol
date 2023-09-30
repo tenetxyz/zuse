@@ -6,6 +6,9 @@ import { Script } from "forge-std/Script.sol";
 import { console } from "forge-std/console.sol";
 import { IWorld } from "../src/codegen/world/IWorld.sol";
 import { IBaseWorld } from "@latticexyz/world/src/interfaces/IBaseWorld.sol";
+import { VoxelCoord } from "@tenet-utils/src/Types.sol";
+import { SHARD_DIM } from "@tenet-level1-ca/src/Constants.sol";
+import { BASE_CA_ADDRESS } from "@tenet-world/src/Constants.sol";
 
 contract PostDeploy is Script {
   function run(address worldAddress) external {
@@ -20,6 +23,25 @@ contract PostDeploy is Script {
 
     world.registerWorld();
     world.initWorldVoxelTypes();
+
+    // Set the same terrain selector for 8 cubes around the origin
+    VoxelCoord[8] memory specifiedCoords = [
+      VoxelCoord({ x: 0, y: 0, z: 0 }),
+      VoxelCoord({ x: -1, y: 0, z: 0 }),
+      VoxelCoord({ x: 0, y: -1, z: 0 }),
+      VoxelCoord({ x: -1, y: -1, z: 0 }),
+      VoxelCoord({ x: 0, y: 0, z: -1 }),
+      VoxelCoord({ x: -1, y: 0, z: -1 }),
+      VoxelCoord({ x: 0, y: -1, z: -1 }),
+      VoxelCoord({ x: -1, y: -1, z: -1 })
+    ];
+
+    for (uint8 i = 0; i < 8; i++) {
+      // TODO: Don't hardcode the selector
+      bytes4 selector = 0x4fa69375;
+      world.setTerrainSelector(specifiedCoords[i], BASE_CA_ADDRESS, selector);
+    }
+
     world.initWorldState();
 
     vm.stopBroadcast();

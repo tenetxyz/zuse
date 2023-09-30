@@ -41,7 +41,7 @@ function div(int32 a, int32 b) pure returns (int32) {
 }
 
 contract LibTerrainSystem is System {
-  function getTerrainVoxel(VoxelCoord memory coord) public view returns (bytes32) {
+  function getTerrainVoxel(VoxelCoord memory coord) public pure returns (bytes32) {
     // int128[4] memory biome = getBiome(coord.x, coord.z);
     // int32 height = getHeight(coord.x, coord.z, biome);
     return getTerrainVoxel(coord.x, coord.y, coord.z);

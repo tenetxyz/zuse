@@ -9,6 +9,8 @@ import { BodyPhysics, BodyPhysicsData, VoxelTypeProperties } from "@tenet-world/
 import { getTerrainVoxelId } from "@tenet-base-ca/src/CallUtils.sol";
 import { safeCall } from "@tenet-utils/src/CallUtils.sol";
 import { BASE_CA_ADDRESS } from "@tenet-world/src/Constants.sol";
+import { SHARD_DIM } from "@tenet-level1-ca/src/Constants.sol";
+import { coordToShardCoord } from "@tenet-level1-ca/src/Utils.sol";
 
 uint256 constant TOTAL_MASS_IN_CHUNK = 1000;
 uint256 constant TOTAL_ENERGY_IN_CHUNK = 1000;
@@ -33,17 +35,50 @@ contract LibTerrainSystem is System {
     return (voxelTypeId, data);
   }
 
+  function calculateNoiseSum(
+    VoxelCoord memory shardCoord,
+    int256 denom,
+    uint8 precision
+  ) internal view returns (int128, int128) {
+    int128 massNoiseSum = 0;
+    int128 energyNoiseSum = 0;
+    for (int256 x = shardCoord.x * SHARD_DIM; x < (shardCoord.x + 1) * SHARD_DIM; x++) {
+      for (int256 y = shardCoord.y * SHARD_DIM; y < (shardCoord.y + 1) * SHARD_DIM; y++) {
+        for (int256 z = shardCoord.z * SHARD_DIM; z < (shardCoord.z + 1) * SHARD_DIM; z++) {
+          int128 massNoise = IWorld(_world()).noise2d(x, z, denom, precision);
+          int128 energyNoise = IWorld(_world()).noise2d(x + denom, z + denom, denom, precision);
+          massNoiseSum += massNoise;
+          energyNoiseSum += energyNoise;
+        }
+      }
+    }
+    return (massNoiseSum, energyNoiseSum);
+  }
+
+  function calculateScalingFactors(
+    VoxelCoord memory shardCoord,
+    int256 denom,
+    uint8 precision
+  ) public view returns (int128, int128) {
+    (int128 massNoiseSum, int128 energyNoiseSum) = calculateNoiseSum(shardCoord, denom, precision);
+    int128 massScaleFactor = int128(int(TOTAL_MASS_IN_CHUNK)) / massNoiseSum;
+    int128 energyScaleFactor = int128(int(TOTAL_ENERGY_IN_CHUNK)) / energyNoiseSum;
+    return (massScaleFactor, energyScaleFactor);
+  }
+
   function getTerrainProperties(VoxelCoord memory coord) public view returns (uint256, uint256) {
+    // Define some scaling factors for the noise functions
+    int256 denom = 999;
+    uint8 precision = 64;
+
     // Use perlin noise to calculate mass and energy
+    VoxelCoord memory shardCoord = coordToShardCoord(coord);
+    (int128 massScaleFactor, int128 energyScaleFactor) = calculateScalingFactors(shardCoord);
 
     // Convert VoxelCoord to int256 for use with the noise functions
     int256 x = int256(coord.x);
     int256 y = int256(coord.y);
     int256 z = int256(coord.z);
-
-    // Define some scaling factors for the noise functions
-    int256 denom = 999;
-    uint8 precision = 64;
 
     // Step 1: Determine whether we are in air or ground region
     int128 airGroundNoise = IWorld(_world()).noise(x, y, z, denom, precision);
@@ -57,11 +92,13 @@ contract LibTerrainSystem is System {
     if (isGround || isTerrain) {
       // Step 2: Determine the mass of the ground
       int128 massNoise = IWorld(_world()).noise2d(x, z, denom, precision);
-      mass = uint256((massNoise * int128(int(TOTAL_MASS_IN_CHUNK))) / (denom * 2));
+      // Apply the scaling factor
+      mass = uint256(int(massNoise * massScaleFactor));
 
       // Step 3: Determine the energy of the ground
       int128 energyNoise = IWorld(_world()).noise2d(x + denom, z + denom, denom, precision); // Offset coordinates for variation
-      energy = uint256((energyNoise * int128(int(TOTAL_ENERGY_IN_CHUNK))) / (denom * 2)); // Normalize and scale
+      // Apply the scaling factor
+      energy = uint256(int(energyNoise * energyScaleFactor));
     }
 
     return (mass, energy);

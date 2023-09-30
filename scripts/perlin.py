@@ -10,8 +10,10 @@ def generate_perlin_noise_3d(shape, res):
 def visualize_data(data, title):
     fig = plt.figure()
     ax = fig.add_subplot(111, projection='3d')
-    x, y, z = data.nonzero()
-    ax.scatter(x, y, z, alpha=0.6, edgecolors='none', s=20)
+    x, y, z = np.indices(data.shape)
+    colors = data.flatten()  # Convert data to 1D array for coloring
+    colors = plt.cm.viridis(colors / colors.max())  # Normalize and apply color map
+    ax.scatter(x.flatten(), y.flatten(), z.flatten(), c=colors, alpha=0.6, edgecolors='none', s=20)
     ax.set_title(title)
     plt.show()
 
@@ -21,13 +23,7 @@ res = (10, 10, 10)
 mass_distribution = generate_perlin_noise_3d(shape, res)
 energy_distribution = generate_perlin_noise_3d(shape, res)
 
-# Thresholding the data for visualization
-mass_threshold = np.percentile(mass_distribution, 90)  # Adjust threshold level as needed
-energy_threshold = np.percentile(energy_distribution, 90)  # Adjust threshold level as needed
-
-mass_distribution = (mass_distribution > mass_threshold) * 1
-energy_distribution = (energy_distribution > energy_threshold) * 1
-
 # Visualize data
 visualize_data(mass_distribution, "Mass Distribution")
 visualize_data(energy_distribution, "Energy Distribution")
+

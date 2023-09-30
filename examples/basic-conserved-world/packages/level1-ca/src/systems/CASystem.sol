@@ -7,7 +7,7 @@ import { VoxelCoord } from "@tenet-utils/src/Types.sol";
 import { AirVoxelID, GrassVoxelID, DirtVoxelID, BedrockVoxelID, FighterVoxelID } from "@tenet-level1-ca/src/Constants.sol";
 import { hasKey } from "@latticexyz/world/src/modules/keysintable/hasKey.sol";
 import { REGISTER_CA_SIG } from "@tenet-registry/src/Constants.sol";
-import { TerrainSelectors, TerrainSelectorsTableId } from "@tenet-level1-ca/src/codegen/tables/TerrainSelectors.sol";
+import { TerrainSelectors, TerrainSelectorsData, TerrainSelectorsTableId } from "@tenet-level1-ca/src/codegen/tables/TerrainSelectors.sol";
 import { EMPTY_ID } from "./LibTerrainSystem.sol";
 import { REGISTRY_ADDRESS } from "../Constants.sol";
 import { safeCall, safeStaticCall } from "@tenet-utils/src/CallUtils.sol";
@@ -46,18 +46,23 @@ contract CASystem is CA {
         TerrainSelectorsTableId,
         TerrainSelectors.encodeKeyTuple(callerAddress, shardCoord.x, shardCoord.y, shardCoord.z)
       ),
-      "CASystem: Select for coord not found"
+      "CASystem: Terrain selector for coord not found"
     );
-    bytes4 terrainSelector = TerrainSelectors.get(callerAddress, shardCoord.x, shardCoord.y, shardCoord.z);
+    TerrainSelectorsData memory selectorData = TerrainSelectors.get(
+      callerAddress,
+      shardCoord.x,
+      shardCoord.y,
+      shardCoord.z
+    );
     bytes memory returnData = safeStaticCall(
-      _world(),
-      abi.encodeWithSelector(terrainSelector, coord),
+      selectorData.contractAddress,
+      abi.encodeWithSelector(selectorData.selector, coord),
       "terrainSelector"
     );
     return abi.decode(returnData, (bytes32));
   }
 
-  function setTerrainSelector(VoxelCoord memory coord, bytes4 terrainSelector) public {
+  function setTerrainSelector(VoxelCoord memory coord, address contractAddress, bytes4 terrainSelector) public {
     address callerAddress = _msgSender();
     VoxelCoord memory shardCoord = coordToShardCoord(coord);
     require(
@@ -67,7 +72,7 @@ contract CASystem is CA {
       ),
       "CASystem: Select for coord already exists"
     );
-    TerrainSelectors.set(callerAddress, shardCoord.x, shardCoord.y, shardCoord.z, terrainSelector);
+    TerrainSelectors.set(callerAddress, shardCoord.x, shardCoord.y, shardCoord.z, contractAddress, terrainSelector);
   }
 
   function terrainGen(

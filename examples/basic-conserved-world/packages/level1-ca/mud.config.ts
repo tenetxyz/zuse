@@ -13,6 +13,7 @@ export default tenetMudConfig({
         z: "int32",
       },
       schema: {
+        contractAddress: "address",
         selector: "bytes4",
       },
     },

@@ -40,12 +40,17 @@ contract LibTerrainSystem is System {
     // TODO: Check that the mass at this coord matches the mass of the voxel type
   }
 
-  function setTerrainSelector(VoxelCoord memory coord, bytes4 terrainSelector) public {
+  function setTerrainSelector(VoxelCoord memory coord, address contractAddress, bytes4 terrainSelector) public {
     // TODO: Make this be any CA address
     address caAddress = BASE_CA_ADDRESS;
     safeCall(
       caAddress,
-      abi.encodeWithSignature("setTerrainSelector((int32,int32,int32),bytes4)", coord, terrainSelector),
+      abi.encodeWithSignature(
+        "setTerrainSelector((int32,int32,int32),address,bytes4)",
+        coord,
+        contractAddress,
+        terrainSelector
+      ),
       string(abi.encode("setTerrainSelector ", coord, " ", terrainSelector))
     );
   }

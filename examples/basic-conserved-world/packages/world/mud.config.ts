@@ -23,6 +23,17 @@ export default tenetMudConfig({
         mass: "uint256",
       },
     },
+    ShardProperties: {
+      keySchema: {
+        x: "int32",
+        y: "int32",
+        z: "int32",
+      },
+      schema: {
+        massNoiseSum: "int128",
+        energyNoiseSum: "int128",
+      },
+    },
     OwnedBy: {
       keySchema: {
         scale: "uint32",
@@ -78,6 +89,11 @@ export default tenetMudConfig({
       name: "KeysInTableModule",
       root: true,
       args: [resolveTableId("BodyPhysics")],
+    },
+    {
+      name: "KeysInTableModule",
+      root: true,
+      args: [resolveTableId("ShardProperties")],
     },
   ],
 });

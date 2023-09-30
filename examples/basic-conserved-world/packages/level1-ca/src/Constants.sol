@@ -10,6 +10,7 @@ bytes32 constant GrassVoxelID = bytes32(keccak256("grass"));
 bytes32 constant BedrockVoxelID = bytes32(keccak256("bedrock"));
 bytes32 constant FighterVoxelID = bytes32(keccak256("fighter"));
 
+int32 constant SHARD_DIM = 1000;
 int32 constant CHUNK_MAX_Y = 255;
 int32 constant CHUNK_MIN_Y = -128;
 int32 constant TILE_Y = 1;

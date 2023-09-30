@@ -23,17 +23,10 @@ contract LibTerrainSystem is System {
     BodyPhysicsData memory data;
 
     bytes32 voxelTypeId = getTerrainVoxelId(caAddress, coord);
+    (uint256 terrainMass, uint256 terrainEnergy) = getTerrainProperties(coord);
 
-    data.mass = VoxelTypeProperties.get(voxelTypeId);
-    if (voxelTypeId == AirVoxelID) {
-      data.energy = 0;
-    } else if (voxelTypeId == BedrockVoxelID) {
-      data.energy = 1;
-    } else if (voxelTypeId == GrassVoxelID) {
-      data.energy = 100;
-    } else if (voxelTypeId == DirtVoxelID) {
-      data.energy = 150;
-    }
+    data.mass = terrainMass;
+    data.energy = terrainEnergy;
     data.velocity = abi.encode(VoxelCoord({ x: 0, y: 0, z: 0 }));
     data.lastUpdateBlock = block.number;
 
@@ -49,8 +42,8 @@ contract LibTerrainSystem is System {
     int256 z = int256(coord.z);
 
     // Define some scaling factors for the noise functions
-    int256 denom = 100;
-    uint8 precision = 8;
+    int256 denom = 999;
+    uint8 precision = 64;
 
     // Step 1: Determine whether we are in air or ground region
     int128 airGroundNoise = IWorld(_world()).noise(x, y, z, denom, precision);
@@ -77,10 +70,8 @@ contract LibTerrainSystem is System {
   // Called by CA's on terrain gen
   function onTerrainGen(bytes32 voxelTypeId, VoxelCoord memory coord) public {
     // address caAddress = _msgSender();
-    // TODO: Check that the mass at this coord matches the mass of the voxel type
     (uint256 terrainMass, uint256 terrainEnergy) = getTerrainProperties(coord);
     require(terrainMass == VoxelTypeProperties.get(voxelTypeId).mass, "Terrain mass does not match voxel type mass");
-    // TODO: set BodyPhysicsData
   }
 
   function setTerrainSelector(VoxelCoord memory coord, address contractAddress, bytes4 terrainSelector) public {

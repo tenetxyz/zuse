@@ -2,7 +2,7 @@
 pragma solidity >=0.8.0;
 
 import { IWorld } from "@tenet-world/src/codegen/world/IWorld.sol";
-import { VoxelCoord } from "@tenet-utils/src/Types.sol";
+import { VoxelCoord, BucketData } from "@tenet-utils/src/Types.sol";
 import { System } from "@latticexyz/world/src/System.sol";
 import { hasKey } from "@latticexyz/world/src/modules/keysintable/hasKey.sol";
 import { AirVoxelID, GrassVoxelID, DirtVoxelID, BedrockVoxelID } from "@tenet-level1-ca/src/Constants.sol";
@@ -12,13 +12,6 @@ import { safeCall } from "@tenet-utils/src/CallUtils.sol";
 import { BASE_CA_ADDRESS } from "@tenet-world/src/Constants.sol";
 import { SHARD_DIM } from "@tenet-level1-ca/src/Constants.sol";
 import { coordToShardCoord } from "@tenet-level1-ca/src/Utils.sol";
-
-struct BucketData {
-  uint256 minMass;
-  uint256 maxMass;
-  uint256 energy;
-  uint8 priority;
-}
 
 struct FrequencyData {
   uint256 count;
@@ -51,47 +44,40 @@ contract LibTerrainSystem is System {
     return (voxelTypeId, data);
   }
 
-  function calculateMinMaxNosie(
+  function calculateMinMaxNoise(
     VoxelCoord memory shardCoord,
     int256 denom,
-    uint8 precision,
-    FrequencyData[] memory frequencyData
-  ) internal view returns (int128, int128, FrequencyData[] memory) {
-    int128 minNoise = type(int128).max; // Initialize to the maximum possible int128 value
-    int128 maxNoise = type(int128).min; // Initialize to the minimum possible int128 value
+    uint8 precision
+  ) internal view returns (int128 minNoise, int128 maxNoise, int128[] memory perlinValues) {
+    minNoise = type(int128).max; // Initialize to the maximum possible int128 value
+    maxNoise = type(int128).min; // Initialize to the minimum possible int128 value
 
-    int128[] memory perlinValues = new int128[](uint(int(SHARD_DIM * SHARD_DIM * SHARD_DIM)));
+    perlinValues = new int128[](uint(int(SHARD_DIM * SHARD_DIM * SHARD_DIM)));
     uint256 index = 0;
 
     for (int256 x = shardCoord.x * SHARD_DIM; x < (shardCoord.x + 1) * SHARD_DIM; x++) {
       for (int256 y = shardCoord.y * SHARD_DIM; y < (shardCoord.y + 1) * SHARD_DIM; y++) {
         for (int256 z = shardCoord.z * SHARD_DIM; z < (shardCoord.z + 1) * SHARD_DIM; z++) {
-          int128 perlinValue = IWorld(_world()).noise2d(x, z, denom, precision);
-          perlinValues[index] = perlinValue;
-          index++;
-          // Update minNoise and maxNoise if necessary
-          if (perlinValue < minNoise) {
-            minNoise = perlinValue;
-          }
-          if (perlinValue > maxNoise) {
-            maxNoise = perlinValue;
+          {
+            int128 perlinValue = IWorld(_world()).noise2d(x, z, denom, precision);
+            perlinValues[index] = perlinValue;
+            // Update minNoise and maxNoise if necessary
+            if (perlinValue < minNoise) {
+              minNoise = perlinValue;
+            }
+            if (perlinValue > maxNoise) {
+              maxNoise = perlinValue;
+            }
+            index++;
           }
         }
       }
     }
 
-    int128 bucketRange = (maxNoise - minNoise) / int128(frequencyData.length);
-    for (uint i = 0; i < perlinValues.length; i++) {
-      int128 perlinValue = perlinValues[i];
-      uint256 bucketIndex = uint256((perlinValue - minNoise) / bucketRange);
-      frequencyData[bucketIndex].count += 1;
-      frequencyData[bucketIndex].bucketIndex = bucketIndex;
-    }
-
-    return (minNoise, maxNoise, frequencyData);
+    return (minNoise, maxNoise, perlinValues);
   }
 
-  function sortFrequencyData(FrequencyData[] storage frequencyData) internal {
+  function sortFrequencyData(FrequencyData[] memory frequencyData) internal returns (FrequencyData[] memory) {
     uint256 n = frequencyData.length;
     for (uint256 i = 0; i < n; i++) {
       for (uint256 j = 0; j < n - i - 1; j++) {
@@ -103,6 +89,28 @@ contract LibTerrainSystem is System {
         }
       }
     }
+    return frequencyData;
+  }
+
+  function calculateFrequencyData(
+    int128 minNoise,
+    int128 maxNoise,
+    int128[] memory perlinValues,
+    uint256 numBuckets
+  ) internal returns (FrequencyData[] memory frequencyData) {
+    frequencyData = new FrequencyData[](numBuckets);
+    for (uint i = 0; i < frequencyData.length; i++) {
+      frequencyData[i] = FrequencyData({ count: 0, bucketIndex: 0 });
+    }
+    int128 bucketRange = (maxNoise - minNoise) / int128(int(frequencyData.length));
+    for (uint i = 0; i < perlinValues.length; i++) {
+      int128 perlinValue = perlinValues[i];
+      uint256 bucketIndex = uint256(int((perlinValue - minNoise) / bucketRange));
+      frequencyData[bucketIndex].count += 1;
+      frequencyData[bucketIndex].bucketIndex = bucketIndex;
+    }
+    frequencyData = sortFrequencyData(frequencyData);
+    return frequencyData;
   }
 
   function determineBucketIndex(
@@ -111,7 +119,7 @@ contract LibTerrainSystem is System {
     VoxelCoord memory coord,
     int256 denom,
     uint8 precision
-  ) internal pure returns (uint256) {
+  ) internal returns (uint256) {
     int128 minNoise = type(int128).max; // Initialize to the maximum possible int128 value
     int128 maxNoise = type(int128).min; // Initialize to the minimum possible int128 value
     FrequencyData[] memory frequencyData;
@@ -123,12 +131,9 @@ contract LibTerrainSystem is System {
       maxNoise = shardProperties.maxNoise;
       frequencyData = abi.decode(shardProperties.frequencyData, (FrequencyData[]));
     } else {
-      frequencyData = new FrequencyData[](numBuckets);
-      for (uint i = 0; i < frequencyData.length; i++) {
-        frequencyData[i] = FrequencyData({ count: 0, bucketIndex: 0 });
-      }
-      (minNoise, maxNoise, frequencyData) = calculateMinMaxNosie(shardCoord, denom, precision);
-      sortFrequencyData(frequencyData);
+      int128[] memory perlinValues;
+      (minNoise, maxNoise, perlinValues) = calculateMinMaxNoise(shardCoord, denom, precision);
+      frequencyData = calculateFrequencyData(minNoise, maxNoise, perlinValues, numBuckets);
 
       ShardProperties.set(
         shardCoord.x,
@@ -140,11 +145,11 @@ contract LibTerrainSystem is System {
 
     // Step 2: Split up the noise values into buckets
     // Determine the range of values for each bucket based on the min and max values found in Step 1.
-    int128 bucketRange = (maxNoise - minNoise) / int128(numBuckets);
+    int128 bucketRange = (maxNoise - minNoise) / int128(int(numBuckets));
 
     // Step 3: Return which index the massNoise falls into
     // Calculate the bucket index for the given `massNoise` value based on the determined bucket ranges.
-    uint256 bucketIndex = uint256((massNoise - minNoise) / bucketRange);
+    uint256 bucketIndex = uint256(int((massNoise - minNoise) / bucketRange));
     for (uint i = 0; i < frequencyData.length; i++) {
       if (frequencyData[i].bucketIndex == bucketIndex) {
         bucketIndex = i;

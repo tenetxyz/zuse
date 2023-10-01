@@ -157,3 +157,10 @@ struct BaseCreation {
   // Why store deleted coords? Cause it's more space-efficient to store the deleted coords than all the voxels in the creation
   // Also in the future, this could be a "diffs" array.
 }
+
+struct BucketData {
+  uint256 minMass;
+  uint256 maxMass;
+  uint256 energy;
+  uint8 priority;
+}

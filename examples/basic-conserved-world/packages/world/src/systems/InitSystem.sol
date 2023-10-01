@@ -17,6 +17,7 @@ import { WorldConfig, WorldConfigTableId } from "@tenet-base-world/src/codegen/t
 import { CAVoxelType, CAVoxelTypeData } from "@tenet-base-ca/src/codegen/tables/CAVoxelType.sol";
 import { VoxelType, Position, VoxelTypeProperties, BodyPhysics, BodyPhysicsData } from "@tenet-world/src/codegen/Tables.sol";
 import { BuildEventData } from "@tenet-base-world/src/Types.sol";
+import { console } from "forge-std/console.sol";
 
 contract InitSystem is InitWorldSystem {
   function getRegistryAddress() internal pure override returns (address) {
@@ -59,6 +60,12 @@ contract InitSystem is InitWorldSystem {
     physicsData.energy = 1000;
     physicsData.lastUpdateBlock = block.number;
     physicsData.velocity = abi.encode(VoxelCoord({ x: 0, y: 0, z: 0 }));
+    (bytes32 terrainType, BodyPhysicsData memory terrainData) = IWorld(_world()).getTerrainBodyPhysicsData(
+      address(0),
+      VoxelCoord(10, 2, 10)
+    );
+    console.log("init");
+    console.logBytes32(terrainType);
     IWorld(_world()).spawnBody(FighterVoxelID, VoxelCoord(10, 2, 10), bytes4(0), physicsData);
 
     // TODO: remove, were used for testing collision

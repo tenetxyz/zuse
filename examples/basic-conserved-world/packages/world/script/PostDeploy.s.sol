@@ -38,7 +38,8 @@ contract PostDeploy is Script {
 
     for (uint8 i = 0; i < 8; i++) {
       // TODO: Don't hardcode the selector
-      bytes4 selector = 0x4fa69375;
+      // bytes4 selector = 0x4fa69375;
+      bytes4 selector = world.getTerrainVoxel.selector;
       world.setTerrainSelector(specifiedCoords[i], BASE_CA_ADDRESS, selector);
     }
 

@@ -12,6 +12,7 @@ import { safeCall } from "@tenet-utils/src/CallUtils.sol";
 import { BASE_CA_ADDRESS } from "@tenet-world/src/Constants.sol";
 import { SHARD_DIM } from "@tenet-level1-ca/src/Constants.sol";
 import { coordToShardCoord } from "@tenet-level1-ca/src/Utils.sol";
+import { console } from "forge-std/console.sol";
 
 int256 constant Y_AIR_THRESHOLD = 100;
 int256 constant Y_GROUND_THRESHOLD = 0;
@@ -19,6 +20,13 @@ int256 constant Y_GROUND_THRESHOLD = 0;
 contract LibTerrainSystem is System {
   function getTerrainVoxel(VoxelCoord memory coord) public view returns (bytes32) {
     (BucketData memory bucketData, , , ) = getTerrainProperties(coord);
+    return getTerrainVoxelFromBucket(bucketData, coord);
+  }
+
+  function getTerrainVoxelFromBucket(
+    BucketData memory bucketData,
+    VoxelCoord memory coord
+  ) public view returns (bytes32) {
     if (bucketData.maxMass == 0) {
       return AirVoxelID;
     } else if (bucketData.minMass > 0 && bucketData.maxMass < 50) {
@@ -34,8 +42,8 @@ contract LibTerrainSystem is System {
   ) public returns (bytes32, BodyPhysicsData memory) {
     BodyPhysicsData memory data;
 
-    bytes32 voxelTypeId = getTerrainVoxelId(caAddress, coord);
     BucketData memory bucketData = getBucketDataAndSet(coord);
+    bytes32 voxelTypeId = getTerrainVoxelFromBucket(bucketData, coord);
     uint256 voxelMass = VoxelTypeProperties.get(voxelTypeId);
     require(
       voxelMass >= bucketData.minMass && voxelMass <= bucketData.maxMass,

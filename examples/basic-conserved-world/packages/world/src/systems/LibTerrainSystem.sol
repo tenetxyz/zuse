@@ -2,7 +2,7 @@
 pragma solidity >=0.8.0;
 
 import { IWorld } from "@tenet-world/src/codegen/world/IWorld.sol";
-import { VoxelCoord, BucketData } from "@tenet-utils/src/Types.sol";
+import { VoxelCoord, BucketData, FrequencyData } from "@tenet-utils/src/Types.sol";
 import { System } from "@latticexyz/world/src/System.sol";
 import { hasKey } from "@latticexyz/world/src/modules/keysintable/hasKey.sol";
 import { AirVoxelID, GrassVoxelID, DirtVoxelID, BedrockVoxelID } from "@tenet-level1-ca/src/Constants.sol";
@@ -12,11 +12,6 @@ import { safeCall } from "@tenet-utils/src/CallUtils.sol";
 import { BASE_CA_ADDRESS } from "@tenet-world/src/Constants.sol";
 import { SHARD_DIM } from "@tenet-level1-ca/src/Constants.sol";
 import { coordToShardCoord } from "@tenet-level1-ca/src/Utils.sol";
-
-struct FrequencyData {
-  uint256 count;
-  uint256 bucketIndex;
-}
 
 int256 constant Y_AIR_THRESHOLD = 100;
 int256 constant Y_GROUND_THRESHOLD = 0;
@@ -126,11 +121,11 @@ contract LibTerrainSystem is System {
 
   function determineBucketIndex(
     uint256 numBuckets,
-    int128 massNoise,
     VoxelCoord memory coord,
     int256 denom,
     uint8 precision
   ) internal view returns (uint256, int128 minNoise, int128 maxNoise, FrequencyData[] memory frequencyData) {
+    int128 massNoise = IWorld(_world()).noise2d(int256(coord.x), int256(coord.z), denom, precision);
     minNoise = type(int128).max; // Initialize to the maximum possible int128 value
     maxNoise = type(int128).min; // Initialize to the minimum possible int128 value
     // Step 1: Calculate All Perlin Noise Values and Find Min/Max Values
@@ -175,15 +170,11 @@ contract LibTerrainSystem is System {
     int256 denom = 999;
     uint8 precision = 64;
 
-    // Convert VoxelCoord to int256 for use with the noise functions
-    int256 x = int256(coord.x);
-    int256 y = int256(coord.y);
-    int256 z = int256(coord.z);
-
     // Step 1: Determine whether we are in air or ground region
     bool hasMassEnergy = false;
     {
-      int128 airGroundNoise = IWorld(_world()).noise(x, y, z, denom, precision);
+      int256 y = int256(coord.y);
+      int128 airGroundNoise = IWorld(_world()).noise(int256(coord.x), y, int256(coord.z), denom, precision);
       bool isAir = y > Y_AIR_THRESHOLD;
       bool isGround = y < Y_GROUND_THRESHOLD;
       bool isTerrain = !isAir && !isGround && airGroundNoise > 0;
@@ -191,16 +182,13 @@ contract LibTerrainSystem is System {
     }
 
     if (hasMassEnergy) {
-      // Step 2: Determine the mass of the ground
-      int128 massNoise = IWorld(_world()).noise2d(x, z, denom, precision);
-
       // Determine which bucket the voxel falls into based on its mass
       (
         uint256 bucketIndex,
         int128 minNoise,
         int128 maxNoise,
         FrequencyData[] memory frequencyData
-      ) = determineBucketIndex(buckets.length, massNoise, coord, denom, precision);
+      ) = determineBucketIndex(buckets.length, coord, denom, precision);
       require(bucketIndex < buckets.length, "Bucket index out of bounds");
 
       // Return the corresponding BucketData

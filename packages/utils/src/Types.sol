@@ -164,3 +164,8 @@ struct BucketData {
   uint256 energy;
   uint8 priority;
 }
+
+struct FrequencyData {
+  uint256 count;
+  uint256 bucketIndex;
+}

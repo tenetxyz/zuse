@@ -22,6 +22,17 @@ int256 constant Y_AIR_THRESHOLD = 100;
 int256 constant Y_GROUND_THRESHOLD = 0;
 
 contract LibTerrainSystem is System {
+  function getTerrainVoxel(VoxelCoord memory coord) public view returns (bytes32) {
+    (BucketData memory bucketData, , , ) = getTerrainProperties(coord);
+    if (bucketData.maxMass == 0) {
+      return AirVoxelID;
+    } else if (bucketData.minMass > 0 && bucketData.maxMass < 50) {
+      return GrassVoxelID;
+    } else {
+      return BedrockVoxelID;
+    }
+  }
+
   function getTerrainBodyPhysicsData(
     address caAddress,
     VoxelCoord memory coord
@@ -29,7 +40,7 @@ contract LibTerrainSystem is System {
     BodyPhysicsData memory data;
 
     bytes32 voxelTypeId = getTerrainVoxelId(caAddress, coord);
-    BucketData memory bucketData = getTerrainProperties(coord);
+    BucketData memory bucketData = getBucketDataAndSet(coord);
     uint256 voxelMass = VoxelTypeProperties.get(voxelTypeId);
     require(
       voxelMass >= bucketData.minMass && voxelMass <= bucketData.maxMass,
@@ -77,7 +88,7 @@ contract LibTerrainSystem is System {
     return (minNoise, maxNoise, perlinValues);
   }
 
-  function sortFrequencyData(FrequencyData[] memory frequencyData) internal returns (FrequencyData[] memory) {
+  function sortFrequencyData(FrequencyData[] memory frequencyData) internal pure returns (FrequencyData[] memory) {
     uint256 n = frequencyData.length;
     for (uint256 i = 0; i < n; i++) {
       for (uint256 j = 0; j < n - i - 1; j++) {
@@ -97,7 +108,7 @@ contract LibTerrainSystem is System {
     int128 maxNoise,
     int128[] memory perlinValues,
     uint256 numBuckets
-  ) internal returns (FrequencyData[] memory frequencyData) {
+  ) internal pure returns (FrequencyData[] memory frequencyData) {
     frequencyData = new FrequencyData[](numBuckets);
     for (uint i = 0; i < frequencyData.length; i++) {
       frequencyData[i] = FrequencyData({ count: 0, bucketIndex: 0 });
@@ -119,10 +130,9 @@ contract LibTerrainSystem is System {
     VoxelCoord memory coord,
     int256 denom,
     uint8 precision
-  ) internal returns (uint256) {
-    int128 minNoise = type(int128).max; // Initialize to the maximum possible int128 value
-    int128 maxNoise = type(int128).min; // Initialize to the minimum possible int128 value
-    FrequencyData[] memory frequencyData;
+  ) internal view returns (uint256, int128 minNoise, int128 maxNoise, FrequencyData[] memory frequencyData) {
+    minNoise = type(int128).max; // Initialize to the maximum possible int128 value
+    maxNoise = type(int128).min; // Initialize to the minimum possible int128 value
     // Step 1: Calculate All Perlin Noise Values and Find Min/Max Values
     VoxelCoord memory shardCoord = coordToShardCoord(coord);
     if (hasKey(ShardPropertiesTableId, ShardProperties.encodeKeyTuple(shardCoord.x, shardCoord.y, shardCoord.z))) {
@@ -134,13 +144,6 @@ contract LibTerrainSystem is System {
       int128[] memory perlinValues;
       (minNoise, maxNoise, perlinValues) = calculateMinMaxNoise(shardCoord, denom, precision);
       frequencyData = calculateFrequencyData(minNoise, maxNoise, perlinValues, numBuckets);
-
-      ShardProperties.set(
-        shardCoord.x,
-        shardCoord.y,
-        shardCoord.z,
-        ShardPropertiesData({ minNoise: minNoise, maxNoise: maxNoise, frequencyData: abi.encode(frequencyData) })
-      );
     }
 
     // Step 2: Split up the noise values into buckets
@@ -157,10 +160,12 @@ contract LibTerrainSystem is System {
       }
     }
 
-    return bucketIndex;
+    return (bucketIndex, minNoise, maxNoise, frequencyData);
   }
 
-  function getTerrainProperties(VoxelCoord memory coord) public returns (BucketData memory) {
+  function getTerrainProperties(
+    VoxelCoord memory coord
+  ) public view returns (BucketData memory, int128, int128, FrequencyData[] memory) {
     BucketData[] memory buckets = new BucketData[](3);
     buckets[0] = BucketData({ minMass: 0, maxMass: 50, energy: 100, priority: 2 });
     buckets[1] = BucketData({ minMass: 50, maxMass: 100, energy: 50, priority: 1 });
@@ -190,20 +195,47 @@ contract LibTerrainSystem is System {
       int128 massNoise = IWorld(_world()).noise2d(x, z, denom, precision);
 
       // Determine which bucket the voxel falls into based on its mass
-      uint256 bucketIndex = determineBucketIndex(buckets.length, massNoise, coord, denom, precision);
+      (
+        uint256 bucketIndex,
+        int128 minNoise,
+        int128 maxNoise,
+        FrequencyData[] memory frequencyData
+      ) = determineBucketIndex(buckets.length, massNoise, coord, denom, precision);
       require(bucketIndex < buckets.length, "Bucket index out of bounds");
 
       // Return the corresponding BucketData
-      return buckets[bucketIndex];
+      return (buckets[bucketIndex], minNoise, maxNoise, frequencyData);
     }
 
-    return buckets[0];
+    return (BucketData({ minMass: 0, maxMass: 0, energy: 0, priority: 0 }), 0, 0, new FrequencyData[](0));
+  }
+
+  function getBucketDataAndSet(VoxelCoord memory coord) internal returns (BucketData memory) {
+    (
+      BucketData memory bucketData,
+      int128 minNoise,
+      int128 maxNoise,
+      FrequencyData[] memory frequencyData
+    ) = getTerrainProperties(coord);
+    VoxelCoord memory shardCoord = coordToShardCoord(coord);
+    if (
+      frequencyData.length > 0 &&
+      !hasKey(ShardPropertiesTableId, ShardProperties.encodeKeyTuple(shardCoord.x, shardCoord.y, shardCoord.z))
+    ) {
+      ShardProperties.set(
+        shardCoord.x,
+        shardCoord.y,
+        shardCoord.z,
+        ShardPropertiesData({ minNoise: minNoise, maxNoise: maxNoise, frequencyData: abi.encode(frequencyData) })
+      );
+    }
+    return bucketData;
   }
 
   // Called by CA's on terrain gen
   function onTerrainGen(bytes32 voxelTypeId, VoxelCoord memory coord) public {
     // address caAddress = _msgSender();
-    BucketData memory bucketData = getTerrainProperties(coord);
+    BucketData memory bucketData = getBucketDataAndSet(coord);
     uint256 voxelMass = VoxelTypeProperties.get(voxelTypeId);
     require(
       voxelMass >= bucketData.minMass && voxelMass <= bucketData.maxMass,

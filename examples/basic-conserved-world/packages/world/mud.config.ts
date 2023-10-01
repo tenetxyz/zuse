@@ -30,8 +30,8 @@ export default tenetMudConfig({
         z: "int32",
       },
       schema: {
-        massNoiseSum: "int128",
-        energyNoiseSum: "int128",
+        minNoise: "int128",
+        maxNoise: "int128",
       },
     },
     OwnedBy: {

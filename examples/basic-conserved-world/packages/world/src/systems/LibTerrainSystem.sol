@@ -13,8 +13,13 @@ import { BASE_CA_ADDRESS } from "@tenet-world/src/Constants.sol";
 import { SHARD_DIM } from "@tenet-level1-ca/src/Constants.sol";
 import { coordToShardCoord } from "@tenet-level1-ca/src/Utils.sol";
 
-uint256 constant TOTAL_MASS_IN_CHUNK = 1000;
-uint256 constant TOTAL_ENERGY_IN_CHUNK = 1000;
+struct BucketData {
+  uint256 minMass;
+  uint256 maxMass;
+  uint256 energy;
+  uint8 priority;
+}
+
 int256 constant Y_AIR_THRESHOLD = 100;
 int256 constant Y_GROUND_THRESHOLD = 0;
 
@@ -36,52 +41,77 @@ contract LibTerrainSystem is System {
     return (voxelTypeId, data);
   }
 
-  function calculateNoiseSum(
+  function calculateMinMaxNosie(
     VoxelCoord memory shardCoord,
     int256 denom,
     uint8 precision
   ) internal view returns (int128, int128) {
-    int128 massNoiseSum = 0;
-    int128 energyNoiseSum = 0;
+    int128 minNoise = type(int128).max; // Initialize to the maximum possible int128 value
+    int128 maxNoise = type(int128).min; // Initialize to the minimum possible int128 value
+
+    int128[] memory perlinValues = new int128[](uint(int(SHARD_DIM * SHARD_DIM * SHARD_DIM)));
+    uint256 index = 0;
+
     for (int256 x = shardCoord.x * SHARD_DIM; x < (shardCoord.x + 1) * SHARD_DIM; x++) {
       for (int256 y = shardCoord.y * SHARD_DIM; y < (shardCoord.y + 1) * SHARD_DIM; y++) {
         for (int256 z = shardCoord.z * SHARD_DIM; z < (shardCoord.z + 1) * SHARD_DIM; z++) {
-          int128 massNoise = IWorld(_world()).noise2d(x, z, denom, precision);
-          int128 energyNoise = IWorld(_world()).noise2d(x + denom, z + denom, denom, precision);
-          massNoiseSum += massNoise;
-          energyNoiseSum += energyNoise;
+          int128 perlinValue = IWorld(_world()).noise2d(x, z, denom, precision);
+          perlinValues[index] = perlinValue;
+          index++;
+          // Update minNoise and maxNoise if necessary
+          if (perlinValue < minNoise) {
+            minNoise = perlinValue;
+          }
+          if (perlinValue > maxNoise) {
+            maxNoise = perlinValue;
+          }
         }
       }
     }
-    return (massNoiseSum, energyNoiseSum);
+
+    return (minNoise, maxNoise);
   }
 
-  function calculateScalingFactors(
-    VoxelCoord memory shardCoord,
+  function determineBucketIndex(
+    uint256 numBuckets,
+    int128 massNoise,
+    VoxelCoord memory coord,
     int256 denom,
     uint8 precision
-  ) internal returns (int128, int128) {
-    int128 massNoiseSum = 0;
-    int128 energyNoiseSum = 0;
+  ) internal pure returns (uint256) {
+    int128 minNoise = type(int128).max; // Initialize to the maximum possible int128 value
+    int128 maxNoise = type(int128).min; // Initialize to the minimum possible int128 value
+    // Step 1: Calculate All Perlin Noise Values and Find Min/Max Values
+    VoxelCoord memory shardCoord = coordToShardCoord(coord);
     if (hasKey(ShardPropertiesTableId, ShardProperties.encodeKeyTuple(shardCoord.x, shardCoord.y, shardCoord.z))) {
       ShardPropertiesData memory shardProperties = ShardProperties.get(shardCoord.x, shardCoord.y, shardCoord.z);
-      massNoiseSum = shardProperties.massNoiseSum;
-      energyNoiseSum = shardProperties.energyNoiseSum;
+      minNoise = shardProperties.minNoise;
+      maxNoise = shardProperties.maxNoise;
     } else {
-      (massNoiseSum, energyNoiseSum) = calculateNoiseSum(shardCoord, denom, precision);
+      (minNoise, maxNoise) = calculateMinMaxNosie(shardCoord, denom, precision);
       ShardProperties.set(
         shardCoord.x,
         shardCoord.y,
         shardCoord.z,
-        ShardPropertiesData({ massNoiseSum: massNoiseSum, energyNoiseSum: energyNoiseSum })
+        ShardPropertiesData({ minNoise: minNoise, maxNoise: maxNoise })
       );
     }
-    int128 massScaleFactor = int128(int(TOTAL_MASS_IN_CHUNK)) / massNoiseSum;
-    int128 energyScaleFactor = int128(int(TOTAL_ENERGY_IN_CHUNK)) / energyNoiseSum;
-    return (massScaleFactor, energyScaleFactor);
+
+    // Step 2: Split up the noise values into buckets
+    // Determine the range of values for each bucket based on the min and max values found in Step 1.
+    int128 bucketRange = (maxNoise - minNoise) / int128(numBuckets);
+
+    // Step 3: Return which index the massNoise falls into
+    // Calculate the bucket index for the given `massNoise` value based on the determined bucket ranges.
+    uint256 bucketIndex = uint256((massNoise - minNoise) / bucketRange);
+    return bucketIndex;
   }
 
-  function getTerrainProperties(VoxelCoord memory coord) public returns (uint256, uint256) {
+  function getTerrainProperties(VoxelCoord memory coord) public returns (BucketData memory) {
+    BucketData[] memory buckets = new BucketData[](2);
+    buckets[0] = BucketData({ minMass: 10, maxMass: 50, energy: 100, priority: 1 });
+    buckets[1] = BucketData({ minMass: 100, maxMass: 300, energy: 50, priority: 0 });
+
     // Define some scaling factors for the noise functions
     int256 denom = 999;
     uint8 precision = 64;
@@ -101,28 +131,19 @@ contract LibTerrainSystem is System {
       hasMassEnergy = isTerrain || isGround;
     }
 
-    uint256 mass = 0;
-    uint256 energy = 0;
-
     if (hasMassEnergy) {
       // Step 2: Determine the mass of the ground
       int128 massNoise = IWorld(_world()).noise2d(x, z, denom, precision);
-      (int128 massScaleFactor, int128 energyScaleFactor) = calculateScalingFactors(
-        coordToShardCoord(coord),
-        denom,
-        precision
-      );
 
-      // Apply the scaling factor
-      mass = uint256(int(massNoise * massScaleFactor));
+      // Determine which bucket the voxel falls into based on its mass
+      uint256 bucketIndex = determineBucketIndex(buckets.length, massNoise, coord, denom, precision);
+      require(bucketIndex < buckets.length, "Bucket index out of bounds");
 
-      // Step 3: Determine the energy of the ground
-      int128 energyNoise = IWorld(_world()).noise2d(x + denom, z + denom, denom, precision); // Offset coordinates for variation
-      // Apply the scaling factor
-      energy = uint256(int(energyNoise * energyScaleFactor));
+      // Return the corresponding BucketData
+      return buckets[bucketIndex];
     }
 
-    return (mass, energy);
+    return buckets[0];
   }
 
   // Called by CA's on terrain gen

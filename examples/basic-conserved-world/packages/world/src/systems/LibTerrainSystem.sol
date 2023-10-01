@@ -22,7 +22,7 @@ contract LibTerrainSystem is System {
   function getTerrainBodyPhysicsData(
     address caAddress,
     VoxelCoord memory coord
-  ) public view returns (bytes32, BodyPhysicsData memory) {
+  ) public returns (bytes32, BodyPhysicsData memory) {
     BodyPhysicsData memory data;
 
     bytes32 voxelTypeId = getTerrainVoxelId(caAddress, coord);
@@ -60,7 +60,7 @@ contract LibTerrainSystem is System {
     VoxelCoord memory shardCoord,
     int256 denom,
     uint8 precision
-  ) public view returns (int128, int128) {
+  ) internal returns (int128, int128) {
     int128 massNoiseSum = 0;
     int128 energyNoiseSum = 0;
     if (hasKey(ShardPropertiesTableId, ShardProperties.encodeKeyTuple(shardCoord.x, shardCoord.y, shardCoord.z))) {
@@ -81,7 +81,7 @@ contract LibTerrainSystem is System {
     return (massScaleFactor, energyScaleFactor);
   }
 
-  function getTerrainProperties(VoxelCoord memory coord) public view returns (uint256, uint256) {
+  function getTerrainProperties(VoxelCoord memory coord) public returns (uint256, uint256) {
     // Define some scaling factors for the noise functions
     int256 denom = 999;
     uint8 precision = 64;

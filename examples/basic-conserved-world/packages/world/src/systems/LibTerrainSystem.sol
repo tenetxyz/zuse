@@ -20,6 +20,11 @@ struct BucketData {
   uint8 priority;
 }
 
+struct FrequencyData {
+  uint256 count;
+  uint256 bucketIndex;
+}
+
 int256 constant Y_AIR_THRESHOLD = 100;
 int256 constant Y_GROUND_THRESHOLD = 0;
 
@@ -31,10 +36,15 @@ contract LibTerrainSystem is System {
     BodyPhysicsData memory data;
 
     bytes32 voxelTypeId = getTerrainVoxelId(caAddress, coord);
-    (uint256 terrainMass, uint256 terrainEnergy) = getTerrainProperties(coord);
+    BucketData memory bucketData = getTerrainProperties(coord);
+    uint256 voxelMass = VoxelTypeProperties.get(voxelTypeId);
+    require(
+      voxelMass >= bucketData.minMass && voxelMass <= bucketData.maxMass,
+      "Terrain mass does not match voxel type mass"
+    );
 
-    data.mass = terrainMass;
-    data.energy = terrainEnergy;
+    data.mass = voxelMass;
+    data.energy = bucketData.energy;
     data.velocity = abi.encode(VoxelCoord({ x: 0, y: 0, z: 0 }));
     data.lastUpdateBlock = block.number;
 
@@ -44,8 +54,9 @@ contract LibTerrainSystem is System {
   function calculateMinMaxNosie(
     VoxelCoord memory shardCoord,
     int256 denom,
-    uint8 precision
-  ) internal view returns (int128, int128) {
+    uint8 precision,
+    FrequencyData[] memory frequencyData
+  ) internal view returns (int128, int128, FrequencyData[] memory) {
     int128 minNoise = type(int128).max; // Initialize to the maximum possible int128 value
     int128 maxNoise = type(int128).min; // Initialize to the minimum possible int128 value
 
@@ -69,7 +80,29 @@ contract LibTerrainSystem is System {
       }
     }
 
-    return (minNoise, maxNoise);
+    int128 bucketRange = (maxNoise - minNoise) / int128(frequencyData.length);
+    for (uint i = 0; i < perlinValues.length; i++) {
+      int128 perlinValue = perlinValues[i];
+      uint256 bucketIndex = uint256((perlinValue - minNoise) / bucketRange);
+      frequencyData[bucketIndex].count += 1;
+      frequencyData[bucketIndex].bucketIndex = bucketIndex;
+    }
+
+    return (minNoise, maxNoise, frequencyData);
+  }
+
+  function sortFrequencyData(FrequencyData[] storage frequencyData) internal {
+    uint256 n = frequencyData.length;
+    for (uint256 i = 0; i < n; i++) {
+      for (uint256 j = 0; j < n - i - 1; j++) {
+        if (frequencyData[j].count < frequencyData[j + 1].count) {
+          // Swap frequencyData[j] and frequencyData[j + 1]
+          FrequencyData memory temp = frequencyData[j];
+          frequencyData[j] = frequencyData[j + 1];
+          frequencyData[j + 1] = temp;
+        }
+      }
+    }
   }
 
   function determineBucketIndex(
@@ -81,19 +114,27 @@ contract LibTerrainSystem is System {
   ) internal pure returns (uint256) {
     int128 minNoise = type(int128).max; // Initialize to the maximum possible int128 value
     int128 maxNoise = type(int128).min; // Initialize to the minimum possible int128 value
+    FrequencyData[] memory frequencyData;
     // Step 1: Calculate All Perlin Noise Values and Find Min/Max Values
     VoxelCoord memory shardCoord = coordToShardCoord(coord);
     if (hasKey(ShardPropertiesTableId, ShardProperties.encodeKeyTuple(shardCoord.x, shardCoord.y, shardCoord.z))) {
       ShardPropertiesData memory shardProperties = ShardProperties.get(shardCoord.x, shardCoord.y, shardCoord.z);
       minNoise = shardProperties.minNoise;
       maxNoise = shardProperties.maxNoise;
+      frequencyData = abi.decode(shardProperties.frequencyData, (FrequencyData[]));
     } else {
-      (minNoise, maxNoise) = calculateMinMaxNosie(shardCoord, denom, precision);
+      frequencyData = new FrequencyData[](numBuckets);
+      for (uint i = 0; i < frequencyData.length; i++) {
+        frequencyData[i] = FrequencyData({ count: 0, bucketIndex: 0 });
+      }
+      (minNoise, maxNoise, frequencyData) = calculateMinMaxNosie(shardCoord, denom, precision);
+      sortFrequencyData(frequencyData);
+
       ShardProperties.set(
         shardCoord.x,
         shardCoord.y,
         shardCoord.z,
-        ShardPropertiesData({ minNoise: minNoise, maxNoise: maxNoise })
+        ShardPropertiesData({ minNoise: minNoise, maxNoise: maxNoise, frequencyData: abi.encode(frequencyData) })
       );
     }
 
@@ -104,13 +145,21 @@ contract LibTerrainSystem is System {
     // Step 3: Return which index the massNoise falls into
     // Calculate the bucket index for the given `massNoise` value based on the determined bucket ranges.
     uint256 bucketIndex = uint256((massNoise - minNoise) / bucketRange);
+    for (uint i = 0; i < frequencyData.length; i++) {
+      if (frequencyData[i].bucketIndex == bucketIndex) {
+        bucketIndex = i;
+        break;
+      }
+    }
+
     return bucketIndex;
   }
 
   function getTerrainProperties(VoxelCoord memory coord) public returns (BucketData memory) {
-    BucketData[] memory buckets = new BucketData[](2);
-    buckets[0] = BucketData({ minMass: 10, maxMass: 50, energy: 100, priority: 1 });
-    buckets[1] = BucketData({ minMass: 100, maxMass: 300, energy: 50, priority: 0 });
+    BucketData[] memory buckets = new BucketData[](3);
+    buckets[0] = BucketData({ minMass: 0, maxMass: 50, energy: 100, priority: 2 });
+    buckets[1] = BucketData({ minMass: 50, maxMass: 100, energy: 50, priority: 1 });
+    buckets[2] = BucketData({ minMass: 100, maxMass: 300, energy: 300, priority: 0 });
 
     // Define some scaling factors for the noise functions
     int256 denom = 999;
@@ -149,8 +198,12 @@ contract LibTerrainSystem is System {
   // Called by CA's on terrain gen
   function onTerrainGen(bytes32 voxelTypeId, VoxelCoord memory coord) public {
     // address caAddress = _msgSender();
-    (uint256 terrainMass, uint256 terrainEnergy) = getTerrainProperties(coord);
-    require(terrainMass == VoxelTypeProperties.get(voxelTypeId), "Terrain mass does not match voxel type mass");
+    BucketData memory bucketData = getTerrainProperties(coord);
+    uint256 voxelMass = VoxelTypeProperties.get(voxelTypeId);
+    require(
+      voxelMass >= bucketData.minMass && voxelMass <= bucketData.maxMass,
+      "Terrain mass does not match voxel type mass"
+    );
   }
 
   function setTerrainSelector(VoxelCoord memory coord, address contractAddress, bytes4 terrainSelector) public {

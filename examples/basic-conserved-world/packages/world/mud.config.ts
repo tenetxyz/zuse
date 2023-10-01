@@ -32,6 +32,7 @@ export default tenetMudConfig({
       schema: {
         minNoise: "int128",
         maxNoise: "int128",
+        frequencyData: "bytes",
       },
     },
     OwnedBy: {

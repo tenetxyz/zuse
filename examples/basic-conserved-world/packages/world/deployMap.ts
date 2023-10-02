@@ -15,15 +15,13 @@ function runForgeScript(filePath) {
   }
 }
 
-fs.readdir("script/", (err, files) => {
+fs.readdir("script/generated/", (err, files) => {
   if (err) {
     console.error(`Error reading directory: ${err.message}`);
     return;
   }
 
   files.forEach((file) => {
-    if (file.startsWith("TerrainDeploy") && file.endsWith(".s.sol")) {
-      runForgeScript(`script/${file}`);
-    }
+    runForgeScript(`script/generated/${file}`);
   });
 });

@@ -59,6 +59,13 @@ contract LibTerrainSystem is System {
     return (voxelTypeId, data);
   }
 
+  function setTerrainProperties(VoxelCoord[] memory coords, uint8 bucketIndex) public {
+    // TODO: add permissioning check
+    for (uint256 i = 0; i < coords.length; i++) {
+      TerrainProperties.set(coords[i].x, coords[i].y, coords[i].z, bucketIndex);
+    }
+  }
+
   function getTerrainProperties(VoxelCoord memory coord) public view returns (BucketData memory) {
     BucketData[] memory buckets = new BucketData[](4);
     buckets[0] = BucketData({ id: 0, minMass: 0, maxMass: 0, energy: 0, count: 0 });
@@ -84,9 +91,10 @@ contract LibTerrainSystem is System {
       count: uint(int(1 * SHARD_DIM * SHARD_DIM))
     });
 
-    if (!hasKey(TerrainPropertiesTableId, TerrainProperties.encodeKeyTuple(coord.x, coord.y, coord.z))) {
-      revert("No terrain properties found");
-    }
+    // Note; If the key doesn't exists, it'll return 0, and 0 currently maps to mass 0, energy 0 anyways
+    // if (!hasKey(TerrainPropertiesTableId, TerrainProperties.encodeKeyTuple(coord.x, coord.y, coord.z))) {
+    //   revert("No terrain properties found");
+    // }
 
     uint256 bucketIndex = TerrainProperties.get(coord.x, coord.y, coord.z);
     require(bucketIndex < buckets.length, "Bucket index out of range");

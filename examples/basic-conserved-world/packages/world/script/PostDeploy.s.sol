@@ -44,10 +44,8 @@ contract PostDeploy is Script {
       world.setTerrainSelector(specifiedCoords[i], BASE_CA_ADDRESS, selector);
     }
 
-    TerrainProperties.set(10, 2, 10, 0);
-
     // world.initTerrainData();
-    world.initWorldState();
+    // world.initWorldState();
 
     vm.stopBroadcast();
   }

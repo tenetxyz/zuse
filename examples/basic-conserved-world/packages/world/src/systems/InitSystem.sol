@@ -17,6 +17,7 @@ import { WorldConfig, WorldConfigTableId } from "@tenet-base-world/src/codegen/t
 import { CAVoxelType, CAVoxelTypeData } from "@tenet-base-ca/src/codegen/tables/CAVoxelType.sol";
 import { VoxelType, Position, VoxelTypeProperties, BodyPhysics, BodyPhysicsData } from "@tenet-world/src/codegen/Tables.sol";
 import { BuildEventData } from "@tenet-base-world/src/Types.sol";
+import { console } from "forge-std/console.sol";
 
 contract InitSystem is InitWorldSystem {
   function getRegistryAddress() internal pure override returns (address) {
@@ -39,7 +40,7 @@ contract InitSystem is InitWorldSystem {
 
     // Set mass voxel types for voxels
     VoxelTypeProperties.set(AirVoxelID, 0);
-    VoxelTypeProperties.set(GrassVoxelID, 10);
+    VoxelTypeProperties.set(GrassVoxelID, 50);
     VoxelTypeProperties.set(DirtVoxelID, 5);
     VoxelTypeProperties.set(BedrockVoxelID, 100);
     VoxelTypeProperties.set(EnergySourceVoxelID, 10);
@@ -59,7 +60,13 @@ contract InitSystem is InitWorldSystem {
     physicsData.energy = 1000;
     physicsData.lastUpdateBlock = block.number;
     physicsData.velocity = abi.encode(VoxelCoord({ x: 0, y: 0, z: 0 }));
-    IWorld(_world()).spawnBody(FighterVoxelID, VoxelCoord(10, 2, 10), bytes4(0), physicsData);
+    console.log("init");
+    (bytes32 terrainType, BodyPhysicsData memory terrainData) = IWorld(_world()).getTerrainBodyPhysicsData(
+      address(0),
+      VoxelCoord(2, 9, 5)
+    );
+    console.logBytes32(terrainType);
+    IWorld(_world()).spawnBody(FighterVoxelID, VoxelCoord(2, 9, 5), bytes4(0), physicsData);
 
     // TODO: remove, were used for testing collision
     // physicsData.mass = 5;

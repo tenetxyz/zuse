@@ -26,7 +26,8 @@
     "test": "yarn mud test",
     "test-verbose": "yarn initialize && yarn mud test --forgeOptions='-vvv'",
     "worldgen": "yarn mud worldgen",
-    "worldtypes": "rimraf types && typechain --target=ethers-v5 out/IWorld.sol/IWorld.json"
+    "worldtypes": "rimraf types && typechain --target=ethers-v5 out/IWorld.sol/IWorld.json",
+    "deployMap": "node deployMap.ts"
   },
   "dependencies": {
     "@latticexyz/cli": "link:../../../../../mud/packages/cli",

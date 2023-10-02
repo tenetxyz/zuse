@@ -16,7 +16,9 @@ import { console } from "forge-std/console.sol";
 
 contract LibTerrainSystem is System {
   function getTerrainVoxel(VoxelCoord memory coord) public view returns (bytes32) {
+    console.log("getTerrainVoxel");
     BucketData memory bucketData = getTerrainProperties(coord);
+    console.log("got bucket data");
     return getTerrainVoxelFromBucket(bucketData, coord);
   }
 
@@ -31,6 +33,7 @@ contract LibTerrainSystem is System {
     } else if (bucketData.id == 3) {
       return BedrockVoxelID;
     }
+    console.log("return air");
 
     return AirVoxelID;
   }
@@ -98,7 +101,9 @@ contract LibTerrainSystem is System {
     //   revert("No terrain properties found");
     // }
 
+    console.log("getting");
     uint256 bucketIndex = TerrainProperties.get(coord.x, coord.y, coord.z);
+    console.logUint(bucketIndex);
     require(bucketIndex < buckets.length, "Bucket index out of range");
 
     return buckets[bucketIndex];
@@ -110,10 +115,10 @@ contract LibTerrainSystem is System {
     console.log("on terrian gen");
     BucketData memory bucketData = getTerrainProperties(coord);
     uint256 voxelMass = VoxelTypeProperties.get(voxelTypeId);
-    require(
-      voxelMass >= bucketData.minMass && voxelMass <= bucketData.maxMass,
-      "Terrain mass does not match voxel type mass"
-    );
+    // require(
+    //   voxelMass >= bucketData.minMass && voxelMass <= bucketData.maxMass,
+    //   "Terrain mass does not match voxel type mass"
+    // );
   }
 
   function setTerrainSelector(VoxelCoord memory coord, address contractAddress, bytes4 terrainSelector) public {

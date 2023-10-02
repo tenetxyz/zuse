@@ -60,13 +60,13 @@ contract InitSystem is InitWorldSystem {
     physicsData.energy = 1000;
     physicsData.lastUpdateBlock = block.number;
     physicsData.velocity = abi.encode(VoxelCoord({ x: 0, y: 0, z: 0 }));
+    console.log("init");
     (bytes32 terrainType, BodyPhysicsData memory terrainData) = IWorld(_world()).getTerrainBodyPhysicsData(
       address(0),
       VoxelCoord(10, 2, 10)
     );
-    console.log("init");
     console.logBytes32(terrainType);
-    IWorld(_world()).spawnBody(FighterVoxelID, VoxelCoord(10, 2, 10), bytes4(0), physicsData);
+    // IWorld(_world()).spawnBody(FighterVoxelID, VoxelCoord(10, 2, 10), bytes4(0), physicsData);
 
     // TODO: remove, were used for testing collision
     // physicsData.mass = 5;

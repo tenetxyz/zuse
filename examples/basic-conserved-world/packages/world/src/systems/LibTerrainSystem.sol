@@ -19,6 +19,7 @@ int256 constant Y_GROUND_THRESHOLD = 0;
 
 contract LibTerrainSystem is System {
   function getTerrainVoxel(VoxelCoord memory coord) public view returns (bytes32) {
+    console.log("getTerrainVoxel");
     (BucketData memory bucketData, , , ) = getTerrainProperties(coord);
     return getTerrainVoxelFromBucket(bucketData, coord);
   }
@@ -29,7 +30,7 @@ contract LibTerrainSystem is System {
   ) public view returns (bytes32) {
     if (bucketData.maxMass == 0) {
       return AirVoxelID;
-    } else if (bucketData.minMass > 0 && bucketData.maxMass < 50) {
+    } else if (bucketData.minMass >= 0 && bucketData.maxMass <= 50) {
       return GrassVoxelID;
     } else {
       return BedrockVoxelID;
@@ -44,6 +45,10 @@ contract LibTerrainSystem is System {
 
     BucketData memory bucketData = getBucketDataAndSet(coord);
     bytes32 voxelTypeId = getTerrainVoxelFromBucket(bucketData, coord);
+    console.log("voxelTypeId");
+    console.logUint(bucketData.minMass);
+    console.logUint(bucketData.maxMass);
+    console.logBytes32(voxelTypeId);
     uint256 voxelMass = VoxelTypeProperties.get(voxelTypeId);
     require(
       voxelMass >= bucketData.minMass && voxelMass <= bucketData.maxMass,
@@ -66,15 +71,19 @@ contract LibTerrainSystem is System {
     minNoise = type(int128).max; // Initialize to the maximum possible int128 value
     maxNoise = type(int128).min; // Initialize to the minimum possible int128 value
 
-    perlinValues = new int128[](uint(int(SHARD_DIM * SHARD_DIM * SHARD_DIM)));
+    // perlinValues = new int128[](uint(int(SHARD_DIM * SHARD_DIM * SHARD_DIM)));
     uint256 index = 0;
 
+    console.log("loop");
+    console.logInt(SHARD_DIM);
     for (int256 x = shardCoord.x * SHARD_DIM; x < (shardCoord.x + 1) * SHARD_DIM; x++) {
       for (int256 y = shardCoord.y * SHARD_DIM; y < (shardCoord.y + 1) * SHARD_DIM; y++) {
         for (int256 z = shardCoord.z * SHARD_DIM; z < (shardCoord.z + 1) * SHARD_DIM; z++) {
           {
+            // console.log("index");
+            // console.logUint(index);
             int128 perlinValue = IWorld(_world()).noise2d(x, z, denom, precision);
-            perlinValues[index] = perlinValue;
+            // perlinValues[index] = perlinValue;
             // Update minNoise and maxNoise if necessary
             if (perlinValue < minNoise) {
               minNoise = perlinValue;
@@ -87,6 +96,8 @@ contract LibTerrainSystem is System {
         }
       }
     }
+
+    console.log("finished");
 
     return (minNoise, maxNoise, perlinValues);
   }
@@ -123,7 +134,7 @@ contract LibTerrainSystem is System {
       frequencyData[bucketIndex].count += 1;
       frequencyData[bucketIndex].bucketIndex = bucketIndex;
     }
-    frequencyData = sortFrequencyData(frequencyData);
+    // frequencyData = sortFrequencyData(frequencyData);
     return frequencyData;
   }
 
@@ -134,6 +145,8 @@ contract LibTerrainSystem is System {
     uint8 precision
   ) internal view returns (uint256, int128 minNoise, int128 maxNoise, FrequencyData[] memory frequencyData) {
     int128 massNoise = IWorld(_world()).noise2d(int256(coord.x), int256(coord.z), denom, precision);
+    console.log("MassNoise");
+    console.logInt(int(massNoise));
     minNoise = type(int128).max; // Initialize to the maximum possible int128 value
     maxNoise = type(int128).min; // Initialize to the minimum possible int128 value
     // Step 1: Calculate All Perlin Noise Values and Find Min/Max Values
@@ -145,8 +158,11 @@ contract LibTerrainSystem is System {
       frequencyData = abi.decode(shardProperties.frequencyData, (FrequencyData[]));
     } else {
       int128[] memory perlinValues;
+      console.log("computing");
       (minNoise, maxNoise, perlinValues) = calculateMinMaxNoise(shardCoord, denom, precision);
+      console.log("computed min max");
       frequencyData = calculateFrequencyData(minNoise, maxNoise, perlinValues, numBuckets);
+      console.log("got freq data");
     }
 
     // Step 2: Split up the noise values into buckets
@@ -231,6 +247,7 @@ contract LibTerrainSystem is System {
   // Called by CA's on terrain gen
   function onTerrainGen(bytes32 voxelTypeId, VoxelCoord memory coord) public {
     // address caAddress = _msgSender();
+    console.log("on terrian gen");
     BucketData memory bucketData = getBucketDataAndSet(coord);
     uint256 voxelMass = VoxelTypeProperties.get(voxelTypeId);
     require(

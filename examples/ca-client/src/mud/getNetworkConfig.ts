@@ -1,11 +1,9 @@
 import { getBurnerPrivateKey } from "@latticexyz/common";
-import baseCAWorldsJson from "@tenetxyz/base-ca/worlds.json";
-import level2CAWorldsJson from "@tenetxyz/level2-ca/worlds.json";
+import level1CAWorldsJson from "@tenetxyz/level1-ca/worlds.json";
 import registryWorldsJson from "@tenetxyz/registry/worlds.json";
 import { supportedChains } from "./supportedChains";
 
-const baseCAWorlds = baseCAWorldsJson as Partial<Record<string, { address: string; blockNumber?: number }>>;
-const level2CAWorlds = level2CAWorldsJson as Partial<Record<string, { address: string; blockNumber?: number }>>;
+const level1CAWorlds = level1CAWorldsJson as Partial<Record<string, { address: string; blockNumber?: number }>>;
 const registryCAWorlds = registryWorldsJson as Partial<Record<string, { address: string; blockNumber?: number }>>;
 
 export async function getNetworkConfig(worldId: string) {
@@ -18,10 +16,8 @@ export async function getNetworkConfig(worldId: string) {
   }
 
   let world = undefined;
-  if (worldId === "base-ca") {
-    world = baseCAWorlds[chain.id.toString()];
-  } else if (worldId === "level2-ca") {
-    world = level2CAWorlds[chain.id.toString()];
+  if (worldId === "level1-ca") {
+    world = level1CAWorlds[chain.id.toString()];
   } else if (worldId === "registry") {
     world = registryCAWorlds[chain.id.toString()];
   } else {

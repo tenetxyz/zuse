@@ -6,27 +6,22 @@ import { world } from "./world";
 import { createBurnerAccount, createContract, transportObserver, ContractWrite } from "@latticexyz/common";
 import { Subject, share } from "rxjs";
 import { defaultAbiCoder as abi } from "ethers/lib/utils";
-import { IWorld__factory as BaseCAWordl_factory } from "@tenetxyz/base-ca/types/ethers-contracts/factories/IWorld__factory";
-import { IWorld__factory as Level2CAWordl_factory } from "@tenetxyz/level2-ca/types/ethers-contracts/factories/IWorld__factory";
+import { IWorld__factory as Level1CAWordl_factory } from "@tenetxyz/level1-ca/types/ethers-contracts/factories/IWorld__factory";
 import { IWorld__factory as RegistryIWorld__factory } from "@tenetxyz/registry/types/ethers-contracts/factories/IWorld__factory";
-import BaseCaStoreConfig from "@tenetxyz/base-ca/mud.config";
-import Level2CaStoreConfig from "@tenetxyz/level2-ca/mud.config";
+import Level1StoreConfig from "@tenetxyz/level1-ca/mud.config";
 import RegistryStoreConfig from "@tenetxyz/registry/mud.config";
 
 export type SetupNetworkResult = Awaited<ReturnType<typeof setupNetwork>>;
 
 export async function setupNetwork() {
-  const worldId = "level2-ca";
+  const worldId = "level1-ca";
   const networkConfig = await getNetworkConfig(worldId);
 
   let storeConfig = undefined;
   let worldFactory = undefined;
-  if (worldId === "base-ca") {
-    storeConfig = BaseCaStoreConfig;
-    worldFactory = BaseCAWordl_factory;
-  } else if (worldId === "level2-ca") {
-    storeConfig = Level2CaStoreConfig;
-    worldFactory = Level2CAWordl_factory;
+  if (worldId === "level1-ca") {
+    storeConfig = Level1StoreConfig;
+    worldFactory = Level1CAWordl_factory;
   } else if (worldId === "registry") {
     storeConfig = RegistryStoreConfig;
     worldFactory = RegistryIWorld__factory;

@@ -17,6 +17,7 @@ import { getEntityAtCoord, entityArrayToCAEntityArray, entityToCAEntity, caEntit
 import { getNeighbourEntitiesFromCaller, getChildEntitiesFromCaller, getParentEntityFromCaller, shouldRunInteractionForNeighbour } from "@tenet-base-ca/src/CallUtils.sol";
 import { safeCall, safeStaticCall } from "@tenet-utils/src/CallUtils.sol";
 import { getEnterWorldSelector, getExitWorldSelector, getVoxelVariantSelector, getActivateSelector, getInteractionSelectors, getOnNewNeighbourSelector } from "@tenet-registry/src/Utils.sol";
+import { console } from "forge-std/console.sol";
 
 abstract contract CAInteraction is System {
   function getRegistryAddress() internal pure virtual returns (address);
@@ -82,6 +83,8 @@ abstract contract CAInteraction is System {
       } else {
         if (mindSelector != bytes4(0)) {
           // call mind to figure out which interaction selector to use
+          console.log("mindSelector");
+          console.logBytes4(mindSelector);
           bytes memory mindReturnData = safeCall(
             _world(),
             abi.encodeWithSelector(
@@ -92,8 +95,9 @@ abstract contract CAInteraction is System {
               childEntityIds,
               parentEntity
             ),
-            "voxel activate"
+            "mindSelector"
           );
+          console.log("finished running mind selector");
           useinteractionSelector = abi.decode(mindReturnData, (bytes4));
           if (useinteractionSelector == bytes4(0)) {
             // The mind has chosen to not run a voxel interaction

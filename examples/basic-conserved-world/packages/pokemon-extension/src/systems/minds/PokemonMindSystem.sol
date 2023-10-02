@@ -18,12 +18,6 @@ import { isZeroCoord, voxelCoordsAreEqual } from "@tenet-utils/src/VoxelCoordUti
 
 contract PokemonMindSystem is MindType {
   function registerMind() public {
-    CreationMetadata memory creationMetadata = CreationMetadata({
-      creator: tx.origin,
-      name: "Pokemon Mind",
-      description: "",
-      spawns: new CreationSpawns[](0)
-    });
     registerMindIntoRegistry(
       REGISTRY_ADDRESS,
       FirePokemonVoxelID,

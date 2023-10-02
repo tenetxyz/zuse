@@ -24,13 +24,15 @@ contract LibTerrainSystem is System {
     BucketData memory bucketData,
     VoxelCoord memory coord
   ) public view returns (bytes32) {
-    if (bucketData.maxMass == 0) {
-      return AirVoxelID;
-    } else if (bucketData.minMass >= 0 && bucketData.maxMass <= 50) {
+    if (bucketData.id == 1) {
+      return DirtVoxelID;
+    } else if (bucketData.id == 2) {
       return GrassVoxelID;
-    } else {
+    } else if (bucketData.id == 3) {
       return BedrockVoxelID;
     }
+
+    return AirVoxelID;
   }
 
   function getTerrainBodyPhysicsData(

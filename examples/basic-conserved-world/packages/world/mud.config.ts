@@ -15,24 +15,22 @@ export default tenetMudConfig({
         velocity: "bytes", // VoxelCoord, 3D vector
       },
     },
-    VoxelTypeProperties: {
-      keySchema: {
-        voxelTypeId: "bytes32",
-      },
-      schema: {
-        mass: "uint256",
-      },
-    },
-    ShardProperties: {
+    TerrainProperties: {
       keySchema: {
         x: "int32",
         y: "int32",
         z: "int32",
       },
       schema: {
-        minNoise: "int128",
-        maxNoise: "int128",
-        frequencyData: "bytes",
+        bucketIndex: "uint256",
+      },
+    },
+    VoxelTypeProperties: {
+      keySchema: {
+        voxelTypeId: "bytes32",
+      },
+      schema: {
+        mass: "uint256",
       },
     },
     OwnedBy: {

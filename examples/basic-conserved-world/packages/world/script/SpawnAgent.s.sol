@@ -34,7 +34,7 @@ contract PostDeploy is Script {
     //   VoxelCoord(2, 9, 5)
     // );
     // console.logBytes32(terrainType);
-    world.spawnBody(FighterVoxelID, VoxelCoord(2, 9, 5), bytes4(0), physicsData);
+    world.spawnBody(FighterVoxelID, VoxelCoord(-2, -6, 9), bytes4(0), physicsData);
 
     // world.initWorldState();
 

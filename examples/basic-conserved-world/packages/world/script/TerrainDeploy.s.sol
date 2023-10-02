@@ -11,7 +11,7 @@ import { SHARD_DIM } from "@tenet-level1-ca/src/Constants.sol";
 import { BASE_CA_ADDRESS } from "@tenet-world/src/Constants.sol";
 import { TerrainProperties, TerrainPropertiesTableId, BodyPhysics, BodyPhysicsData, VoxelTypeProperties } from "@tenet-world/src/codegen/Tables.sol";
 
-contract PostDeploy is Script {
+contract TerrainDeploy is Script {
   function run(address worldAddress) external {
     // Load the private key from the `PRIVATE_KEY` environment variable (in .env)
     uint256 deployerPrivateKey = vm.envUint("PRIVATE_KEY");
@@ -22,32 +22,7 @@ contract PostDeploy is Script {
     // Call world init function
     IWorld world = IWorld(worldAddress);
 
-    world.registerWorld();
-    world.initWorldVoxelTypes();
-
-    // Set the same terrain selector for 8 cubes around the origin
-    VoxelCoord[8] memory specifiedCoords = [
-      VoxelCoord({ x: 0, y: 0, z: 0 }),
-      VoxelCoord({ x: -1, y: 0, z: 0 }),
-      VoxelCoord({ x: 0, y: -1, z: 0 }),
-      VoxelCoord({ x: -1, y: -1, z: 0 }),
-      VoxelCoord({ x: 0, y: 0, z: -1 }),
-      VoxelCoord({ x: -1, y: 0, z: -1 }),
-      VoxelCoord({ x: 0, y: -1, z: -1 }),
-      VoxelCoord({ x: -1, y: -1, z: -1 })
-    ];
-
-    for (uint8 i = 0; i < 8; i++) {
-      // TODO: Don't hardcode the selector
-      // bytes4 selector = 0x4fa69375;
-      bytes4 selector = world.getTerrainVoxel.selector;
-      world.setTerrainSelector(specifiedCoords[i], BASE_CA_ADDRESS, selector);
-    }
-
-    TerrainProperties.set(10, 2, 10, 0);
-
-    // world.initTerrainData();
-    world.initWorldState();
+    world.initTerrainData();
 
     vm.stopBroadcast();
   }

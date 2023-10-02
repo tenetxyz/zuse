@@ -22,7 +22,7 @@ export default tenetMudConfig({
         z: "int32",
       },
       schema: {
-        bucketIndex: "uint256",
+        bucketIndex: "uint8",
       },
     },
     VoxelTypeProperties: {
@@ -92,7 +92,7 @@ export default tenetMudConfig({
     {
       name: "KeysInTableModule",
       root: true,
-      args: [resolveTableId("ShardProperties")],
+      args: [resolveTableId("TerrainProperties")],
     },
   ],
 });

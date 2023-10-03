@@ -3,34 +3,32 @@ import { resolveTableId } from "@latticexyz/config";
 
 export default mudConfig({
   tables: {
-    BodyPhysics: {
+    Mass: {
       keySchema: {
-        scale: "uint32",
+        callerAddress: "address",
         entity: "bytes32",
       },
       schema: {
         mass: "uint256",
+      },
+    },
+    Energy: {
+      keySchema: {
+        callerAddress: "address",
+        entity: "bytes32",
+      },
+      schema: {
         energy: "uint256",
-        lastUpdateBlock: "uint256", // TODO: Rename to lastUpdateCacheBlock?
+      },
+    },
+    Velocity: {
+      keySchema: {
+        callerAddress: "address",
+        entity: "bytes32",
+      },
+      schema: {
         velocity: "bytes", // VoxelCoord, 3D vector
-      },
-    },
-    TerrainProperties: {
-      keySchema: {
-        x: "int32",
-        y: "int32",
-        z: "int32",
-      },
-      schema: {
-        bucketIndex: "uint8",
-      },
-    },
-    VoxelTypeProperties: {
-      keySchema: {
-        voxelTypeId: "bytes32",
-      },
-      schema: {
-        mass: "uint256",
+        lastUpdateBlock: "uint256",
       },
     },
   },
@@ -39,12 +37,17 @@ export default mudConfig({
     {
       name: "KeysInTableModule",
       root: true,
-      args: [resolveTableId("BodyPhysics")],
+      args: [resolveTableId("Mass")],
     },
     {
       name: "KeysInTableModule",
       root: true,
-      args: [resolveTableId("TerrainProperties")],
+      args: [resolveTableId("Energy")],
+    },
+    {
+      name: "KeysInTableModule",
+      root: true,
+      args: [resolveTableId("Velocity")],
     },
   ],
 });

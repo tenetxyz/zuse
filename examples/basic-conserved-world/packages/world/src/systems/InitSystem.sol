@@ -15,7 +15,7 @@ import { FighterVoxelID, GrassVoxelID, AirVoxelID, DirtVoxelID, BedrockVoxelID }
 import { EnergySourceVoxelID, SoilVoxelID, PlantVoxelID, FirePokemonVoxelID, WaterPokemonVoxelID, GrassPokemonVoxelID } from "@tenet-pokemon-extension/src/Constants.sol";
 import { WorldConfig, WorldConfigTableId } from "@tenet-base-world/src/codegen/tables/WorldConfig.sol";
 import { CAVoxelType, CAVoxelTypeData } from "@tenet-base-ca/src/codegen/tables/CAVoxelType.sol";
-import { VoxelType, Position, VoxelTypeProperties, BodyPhysics, BodyPhysicsData } from "@tenet-world/src/codegen/Tables.sol";
+import { VoxelType, Position, VoxelTypeProperties } from "@tenet-world/src/codegen/Tables.sol";
 import { BuildEventData } from "@tenet-base-world/src/Types.sol";
 import { console } from "forge-std/console.sol";
 
@@ -55,18 +55,7 @@ contract InitSystem is InitWorldSystem {
 
   function initWorldState() public {
     // TODO: require only called once by world deployer
-    BodyPhysicsData memory physicsData;
-    physicsData.mass = 5;
-    physicsData.energy = 1000;
-    physicsData.lastUpdateBlock = block.number;
-    physicsData.velocity = abi.encode(VoxelCoord({ x: 0, y: 0, z: 0 }));
-    console.log("init");
-    (bytes32 terrainType, BodyPhysicsData memory terrainData) = IWorld(_world()).getTerrainBodyPhysicsData(
-      address(0),
-      VoxelCoord(2, 9, 5)
-    );
-    console.logBytes32(terrainType);
-    IWorld(_world()).spawnBody(FighterVoxelID, VoxelCoord(2, 9, 5), bytes4(0), physicsData);
+    IWorld(_world()).spawnBody(FighterVoxelID, VoxelCoord(10, 2, 10), bytes4(0));
 
     // TODO: remove, were used for testing collision
     // physicsData.mass = 5;

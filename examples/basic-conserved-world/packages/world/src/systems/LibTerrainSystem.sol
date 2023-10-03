@@ -6,7 +6,7 @@ import { VoxelCoord, BucketData } from "@tenet-utils/src/Types.sol";
 import { System } from "@latticexyz/world/src/System.sol";
 import { hasKey } from "@latticexyz/world/src/modules/keysintable/hasKey.sol";
 import { AirVoxelID, GrassVoxelID, DirtVoxelID, BedrockVoxelID } from "@tenet-level1-ca/src/Constants.sol";
-import { TerrainProperties, TerrainPropertiesTableId, BodyPhysics, BodyPhysicsData, VoxelTypeProperties } from "@tenet-world/src/codegen/Tables.sol";
+import { TerrainProperties, TerrainPropertiesTableId, VoxelTypeProperties } from "@tenet-world/src/codegen/Tables.sol";
 import { getTerrainVoxelId } from "@tenet-base-ca/src/CallUtils.sol";
 import { safeCall } from "@tenet-utils/src/CallUtils.sol";
 import { BASE_CA_ADDRESS } from "@tenet-world/src/Constants.sol";
@@ -16,10 +16,24 @@ import { console } from "forge-std/console.sol";
 
 contract LibTerrainSystem is System {
   function getTerrainVoxel(VoxelCoord memory coord) public view returns (bytes32) {
-    console.log("getTerrainVoxel");
     BucketData memory bucketData = getTerrainProperties(coord);
-    console.log("got bucket data");
     return getTerrainVoxelFromBucket(bucketData, coord);
+  }
+
+  function getTerrainMass(uint32 scale, VoxelCoord memory coord) public view returns (uint256) {
+    BucketData memory bucketData = getTerrainProperties(coord);
+    bytes32 voxelTypeId = getTerrainVoxelFromBucket(bucketData, coord);
+    uint256 voxelMass = VoxelTypeProperties.get(voxelTypeId);
+    return voxelMass;
+  }
+
+  function getTerrainEnergy(uint32 scale, VoxelCoord memory coord) public view returns (uint256) {
+    BucketData memory bucketData = getTerrainProperties(coord);
+    return bucketData.energy;
+  }
+
+  function getTerrainVelocity(uint32 scale, VoxelCoord memory coord) public view returns (VoxelCoord memory) {
+    return VoxelCoord({ x: 0, y: 0, z: 0 });
   }
 
   function getTerrainVoxelFromBucket(
@@ -36,32 +50,6 @@ contract LibTerrainSystem is System {
     console.log("return air");
 
     return AirVoxelID;
-  }
-
-  function getTerrainBodyPhysicsData(
-    address caAddress,
-    VoxelCoord memory coord
-  ) public returns (bytes32, BodyPhysicsData memory) {
-    BodyPhysicsData memory data;
-
-    BucketData memory bucketData = getTerrainProperties(coord);
-    bytes32 voxelTypeId = getTerrainVoxelFromBucket(bucketData, coord);
-    console.log("voxelTypeId");
-    console.logUint(bucketData.minMass);
-    console.logUint(bucketData.maxMass);
-    console.logBytes32(voxelTypeId);
-    uint256 voxelMass = VoxelTypeProperties.get(voxelTypeId);
-    require(
-      voxelMass >= bucketData.minMass && voxelMass <= bucketData.maxMass,
-      "Terrain mass does not match voxel type mass"
-    );
-
-    data.mass = voxelMass;
-    data.energy = bucketData.energy;
-    data.velocity = abi.encode(VoxelCoord({ x: 0, y: 0, z: 0 }));
-    data.lastUpdateBlock = block.number;
-
-    return (voxelTypeId, data);
   }
 
   function setTerrainProperties(VoxelCoord[] memory coords, uint8 bucketIndex) public {
@@ -115,6 +103,7 @@ contract LibTerrainSystem is System {
     console.log("on terrian gen");
     BucketData memory bucketData = getTerrainProperties(coord);
     uint256 voxelMass = VoxelTypeProperties.get(voxelTypeId);
+    // TODO: Fix
     // require(
     //   voxelMass >= bucketData.minMass && voxelMass <= bucketData.maxMass,
     //   "Terrain mass does not match voxel type mass"

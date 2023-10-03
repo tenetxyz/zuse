@@ -58,8 +58,10 @@ abstract contract CA is System {
     require(!hasKey(CAEntityMappingTableId, CAEntityMapping.encodeKeyTuple(callerAddress, entity)), "Entity exists");
     CAPosition.set(callerAddress, entity, CAPositionData({ x: coord.x, y: coord.y, z: coord.z }));
     bytes32 caEntity = getUniqueEntity();
-    CAEntityMapping.set(callerAddress, entity, caEntity);
-    CAEntityReverseMapping.set(caEntity, callerAddress, entity);
+    if (terrainGenType != TerrainGenType.Move) {
+      CAEntityMapping.set(callerAddress, entity, caEntity);
+      CAEntityReverseMapping.set(caEntity, callerAddress, entity);
+    }
     return caEntity;
   }
 

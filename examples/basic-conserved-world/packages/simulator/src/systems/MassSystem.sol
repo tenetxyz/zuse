@@ -27,6 +27,7 @@ contract MassSystem is System {
         if (currentMass == 0) {
           isBuild = true;
         } else {
+          // Note: we only allow mass to decrease
           require(currentMass > newMass, "Not enough mass to flux");
         }
       } else {

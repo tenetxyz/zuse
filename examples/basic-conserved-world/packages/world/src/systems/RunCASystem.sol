@@ -4,6 +4,8 @@ pragma solidity >=0.8.0;
 import { IWorld } from "@tenet-world/src/codegen/world/IWorld.sol";
 import { RunCASystem as RunCAPrototype } from "@tenet-base-world/src/prototypes/RunCASystem.sol";
 import { VoxelCoord, VoxelEntity, EntityEventData } from "@tenet-utils/src/Types.sol";
+import { REGISTRY_ADDRESS, SIMULATOR_ADDRESS } from "@tenet-world/src/Constants.sol";
+import { updateVelocityCache } from "@tenet-simulator/src/CallUtils.sol";
 
 contract RunCASystem is RunCAPrototype {
   function enterCA(
@@ -40,7 +42,7 @@ contract RunCASystem is RunCAPrototype {
   }
 
   function beforeRunInteraction(VoxelEntity memory entity) internal override {
-    IWorld(_world()).updateVelocityCache(entity);
+    updateVelocityCache(SIMULATOR_ADDRESS, entity);
   }
 
   function runCA(

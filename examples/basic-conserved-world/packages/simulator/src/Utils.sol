@@ -78,3 +78,21 @@ function createTerrainEntity(
   );
   return abi.decode(returnData, (VoxelEntity));
 }
+
+function getVoxelCoordStrict(address callerAddress, VoxelEntity memory entity) view returns (VoxelCoord memory) {
+  bytes memory returnData = safeCall(
+    callerAddress,
+    abi.encodeWithSignature("getVoxelCoordStrict((uint32,bytes32))", entity),
+    string(abi.encode("getVoxelCoordStrict ", callerAddress, " ", entity))
+  );
+  return abi.decode(returnData, (VoxelCoord));
+}
+
+function getVoxelTypeId(address callerAddress, VoxelEntity memory entity) view returns (bytes32) {
+  bytes memory returnData = safeCall(
+    callerAddress,
+    abi.encodeWithSignature("getVoxelTypeId((uint32,bytes32))", entity),
+    string(abi.encode("getVoxelTypeId ", callerAddress, " ", entity))
+  );
+  return abi.decode(returnData, (bytes32));
+}

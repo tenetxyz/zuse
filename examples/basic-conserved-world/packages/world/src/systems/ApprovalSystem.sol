@@ -16,8 +16,9 @@ import { distanceBetween, voxelCoordsAreEqual, isZeroCoord } from "@tenet-utils/
 import { getCallerName } from "@tenet-utils/src/Utils.sol";
 import { getEntityAtCoord, getEntityPositionStrict, positionDataToVoxelCoord } from "@tenet-base-world/src/Utils.sol";
 import { VoxelTypeRegistry, VoxelTypeRegistryData } from "@tenet-registry/src/codegen/tables/VoxelTypeRegistry.sol";
-import { REGISTRY_ADDRESS } from "@tenet-world/src/Constants.sol";
+import { REGISTRY_ADDRESS, SIMULATOR_ADDRESS } from "@tenet-world/src/Constants.sol";
 import { getVelocity } from "@tenet-world/src/Utils.sol";
+import { updateVelocityCache } from "@tenet-simulator/src/CallUtils.sol";
 
 uint256 constant MAX_AGENT_ACTION_RADIUS = 1;
 
@@ -61,10 +62,10 @@ contract ApprovalSystem is EventApprovalsSystem {
 
     agentEntityChecks(eventType, caller, voxelTypeId, coord, oldCoord, agentEntity);
 
-    IWorld(_world()).updateVelocityCache(agentEntity);
+    updateVelocityCache(SIMULATOR_ADDRESS, agentEntity);
     bytes32 entityId = getEntityAtCoord(agentEntity.scale, coord);
     if (uint256(entityId) != 0 && entityId != agentEntity.entityId) {
-      IWorld(_world()).updateVelocityCache(VoxelEntity({ scale: agentEntity.scale, entityId: entityId }));
+      updateVelocityCache(SIMULATOR_ADDRESS, VoxelEntity({ scale: agentEntity.scale, entityId: entityId }));
     }
   }
 

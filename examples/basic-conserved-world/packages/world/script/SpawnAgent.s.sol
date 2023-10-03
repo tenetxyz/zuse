@@ -9,7 +9,7 @@ import { IBaseWorld } from "@latticexyz/world/src/interfaces/IBaseWorld.sol";
 import { VoxelCoord } from "@tenet-utils/src/Types.sol";
 import { SHARD_DIM } from "@tenet-level1-ca/src/Constants.sol";
 import { BASE_CA_ADDRESS } from "@tenet-world/src/Constants.sol";
-import { TerrainProperties, TerrainPropertiesTableId, BodyPhysics, BodyPhysicsData, VoxelTypeProperties } from "@tenet-world/src/codegen/Tables.sol";
+import { TerrainProperties, TerrainPropertiesTableId, VoxelTypeProperties } from "@tenet-world/src/codegen/Tables.sol";
 import { FighterVoxelID, GrassVoxelID, AirVoxelID, DirtVoxelID, BedrockVoxelID } from "@tenet-level1-ca/src/Constants.sol";
 
 contract PostDeploy is Script {
@@ -23,11 +23,11 @@ contract PostDeploy is Script {
     // Call world init function
     IWorld world = IWorld(worldAddress);
 
-    BodyPhysicsData memory physicsData;
-    physicsData.mass = 5;
-    physicsData.energy = 1000;
-    physicsData.lastUpdateBlock = block.number;
-    physicsData.velocity = abi.encode(VoxelCoord({ x: 0, y: 0, z: 0 }));
+    // BodyPhysicsData memory physicsData;
+    // physicsData.mass = 5;
+    // physicsData.energy = 1000;
+    // physicsData.lastUpdateBlock = block.number;
+    // physicsData.velocity = abi.encode(VoxelCoord({ x: 0, y: 0, z: 0 }));
     console.log("init");
     // (bytes32 terrainType, BodyPhysicsData memory terrainData) = IWorld(_world()).getTerrainBodyPhysicsData(
     //   address(0),

@@ -11,7 +11,7 @@ import { isZeroCoord, voxelCoordsAreEqual, uint256ToInt32, dot, mulScalar, divSc
 import { VoxelTypeRegistry, VoxelTypeRegistryData } from "@tenet-registry/src/codegen/tables/VoxelTypeRegistry.sol";
 import { MAX_VOXEL_NEIGHBOUR_UPDATE_DEPTH } from "@tenet-utils/src/Constants.sol";
 import { getUniqueEntity } from "@latticexyz/world/src/modules/uniqueentity/getUniqueEntity.sol";
-import { getVelocity, getTerrainMass, getTerrainEnergy, getTerrainVelocity, getNeighbourEntities, createTerrainEntity } from "@tenet-simulator/src/Utils.sol";
+import { getVoxelTypeId, getVoxelCoordStrict, getVelocity, getTerrainMass, getTerrainEnergy, getTerrainVelocity, getNeighbourEntities, createTerrainEntity } from "@tenet-simulator/src/Utils.sol";
 
 struct CollisionData {
   VoxelEntity entity;
@@ -167,9 +167,10 @@ contract VelocitySystem is System {
         VoxelCoord memory workingCoord = getVoxelCoordStrict(workingEntity);
         VoxelCoord memory deltaVelocity = sub(collisionData.newVelocity, collisionData.oldVelocity);
         // go through each axis, x, y, z and for each one figure out the new coord by adding the unit amount (ie 1), and make the move event call
-        bytes32 voxelTypeId = VoxelType.getVoxelTypeId(workingEntity.scale, workingEntity.entityId);
+        bytes32 voxelTypeId = getVoxelTypeId(workingEntity);
         // TODO: What is the optimal order in which to try these?
         (workingCoord, workingEntity) = tryToReachTargetVelocity(
+          callerAddress,
           voxelTypeId,
           workingEntity,
           workingCoord,
@@ -177,6 +178,7 @@ contract VelocitySystem is System {
           CoordDirection.X
         );
         (workingCoord, workingEntity) = tryToReachTargetVelocity(
+          callerAddress,
           voxelTypeId,
           workingEntity,
           workingCoord,
@@ -184,6 +186,7 @@ contract VelocitySystem is System {
           CoordDirection.Y
         );
         (workingCoord, workingEntity) = tryToReachTargetVelocity(
+          callerAddress,
           voxelTypeId,
           workingEntity,
           workingCoord,
@@ -195,6 +198,7 @@ contract VelocitySystem is System {
   }
 
   function tryToReachTargetVelocity(
+    address callerAddress,
     bytes32 voxelTypeId,
     VoxelEntity memory entity,
     VoxelCoord memory startingCoord,
@@ -219,7 +223,7 @@ contract VelocitySystem is System {
       {
         VoxelCoord memory newCoord = add(workingCoord, deltaVelocity);
         // Try moving
-        (bool success, bytes memory returnData) = _world().call(
+        (bool success, bytes memory returnData) = callerAddress.call(
           abi.encodeWithSignature(
             "moveWithAgent(bytes32,(int32,int32,int32),(int32,int32,int32),(uint32,bytes32))",
             voxelTypeId,
@@ -320,7 +324,7 @@ contract VelocitySystem is System {
     return (new_primary_velocity, neighbourEntities, neighbourCoords);
   }
 
-  function updateVelocity(
+  function velocityChange(
     VoxelCoord memory oldCoord,
     VoxelCoord memory newCoord,
     VoxelEntity memory oldEntity,

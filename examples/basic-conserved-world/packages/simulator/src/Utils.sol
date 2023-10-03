@@ -80,7 +80,7 @@ function createTerrainEntity(
 }
 
 function getVoxelCoordStrict(address callerAddress, VoxelEntity memory entity) view returns (VoxelCoord memory) {
-  bytes memory returnData = safeCall(
+  bytes memory returnData = safeStaticCall(
     callerAddress,
     abi.encodeWithSignature("getVoxelCoordStrict((uint32,bytes32))", entity),
     string(abi.encode("getVoxelCoordStrict ", callerAddress, " ", entity))
@@ -89,7 +89,7 @@ function getVoxelCoordStrict(address callerAddress, VoxelEntity memory entity) v
 }
 
 function getVoxelTypeId(address callerAddress, VoxelEntity memory entity) view returns (bytes32) {
-  bytes memory returnData = safeCall(
+  bytes memory returnData = safeStaticCall(
     callerAddress,
     abi.encodeWithSignature("getVoxelTypeId((uint32,bytes32))", entity),
     string(abi.encode("getVoxelTypeId ", callerAddress, " ", entity))

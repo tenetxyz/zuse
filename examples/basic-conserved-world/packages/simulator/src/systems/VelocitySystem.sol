@@ -96,7 +96,7 @@ contract VelocitySystem is System {
     while (useStackIdx < MAX_VOXEL_NEIGHBOUR_UPDATE_DEPTH) {
       CollisionData memory useCollisionData = centerEntitiesToCheckStack[useStackIdx];
       VoxelEntity memory useEntity = useCollisionData.entity;
-      VoxelCoord memory currentVelocity = getVelocity(callerAddress, useEntity.entityId);
+      VoxelCoord memory currentVelocity = getVelocity(callerAddress, useEntity);
       VoxelCoord memory useCoord = getVoxelCoordStrict(callerAddress, useEntity);
       (VoxelCoord memory newVelocity, bytes32[] memory neighbourEntities, ) = calculateVelocityAfterCollision(
         callerAddress,
@@ -112,7 +112,7 @@ contract VelocitySystem is System {
       if (!voxelCoordsAreEqual(currentVelocity, newVelocity)) {
         if (useStackIdx > 0) {
           // Note: we don't update the first one (index == 0), because it's already been applied in the initial move
-          Velocity.setVelocity(callerAddress, useEntity.entityId, abi.encode(newVelocity));
+          Velocity.setVelocity(callerAddress, useEntity.scale, useEntity.entityId, abi.encode(newVelocity));
         }
 
         // Go through neighbours and add them to the stack for updates
@@ -126,7 +126,7 @@ contract VelocitySystem is System {
                 break;
               }
             }
-            if (!isAlreadyInStack && Mass.get(callerAddress, neighbourEntities[i]) > 0) {
+            if (!isAlreadyInStack && Mass.get(callerAddress, useEntity.scale, neighbourEntities[i]) > 0) {
               centerEntitiesToCheckStackIdx++;
               require(
                 centerEntitiesToCheckStackIdx < MAX_VOXEL_NEIGHBOUR_UPDATE_DEPTH,
@@ -154,7 +154,12 @@ contract VelocitySystem is System {
     for (uint256 i = 0; i <= centerEntitiesToCheckStackIdx; i++) {
       CollisionData memory collisionData = centerEntitiesToCheckStack[i];
       if (!voxelCoordsAreEqual(collisionData.oldVelocity, collisionData.newVelocity)) {
-        Velocity.setVelocity(callerAddress, collisionData.entity.entityId, abi.encode(collisionData.oldVelocity));
+        Velocity.setVelocity(
+          callerAddress,
+          collisionData.entity.scale,
+          collisionData.entity.entityId,
+          abi.encode(collisionData.oldVelocity)
+        );
       }
     }
 
@@ -164,10 +169,10 @@ contract VelocitySystem is System {
       CollisionData memory collisionData = centerEntitiesToCheckStack[i - 1];
       if (!voxelCoordsAreEqual(collisionData.oldVelocity, collisionData.newVelocity)) {
         VoxelEntity memory workingEntity = collisionData.entity;
-        VoxelCoord memory workingCoord = getVoxelCoordStrict(workingEntity);
+        VoxelCoord memory workingCoord = getVoxelCoordStrict(callerAddress, workingEntity);
         VoxelCoord memory deltaVelocity = sub(collisionData.newVelocity, collisionData.oldVelocity);
         // go through each axis, x, y, z and for each one figure out the new coord by adding the unit amount (ie 1), and make the move event call
-        bytes32 voxelTypeId = getVoxelTypeId(workingEntity);
+        bytes32 voxelTypeId = getVoxelTypeId(callerAddress, workingEntity);
         // TODO: What is the optimal order in which to try these?
         (workingCoord, workingEntity) = tryToReachTargetVelocity(
           callerAddress,
@@ -235,7 +240,7 @@ contract VelocitySystem is System {
         if (success && returnData.length > 0) {
           (, workingEntity) = abi.decode(returnData, (VoxelEntity, VoxelEntity));
           require(
-            voxelCoordsAreEqual(getVoxelCoordStrict(workingEntity), newCoord),
+            voxelCoordsAreEqual(getVoxelCoordStrict(callerAddress, workingEntity), newCoord),
             "PhysicsSystem: Move event failed"
           );
           workingCoord = newCoord;
@@ -262,7 +267,7 @@ contract VelocitySystem is System {
       VoxelCoord[] memory neighbourCoords
     )
   {
-    (neighbourEntities, neighbourCoords) = getNeighbourEntities(callerAddress, centerVoxelEntity.entityId);
+    (neighbourEntities, neighbourCoords) = getNeighbourEntities(callerAddress, centerVoxelEntity);
 
     bytes32[] memory collidingEntities = new bytes32[](neighbourEntities.length);
 
@@ -273,7 +278,10 @@ contract VelocitySystem is System {
       if (dotProduct <= 0) {
         if (uint256(neighbourEntities[i]) != 0) {
           // Check to see if this neighbour has a velocity and is having an impact on us
-          VoxelCoord memory neighbourVelocity = getVelocity(callerAddress, neighbourEntities[i]);
+          VoxelCoord memory neighbourVelocity = getVelocity(
+            callerAddress,
+            VoxelEntity({ scale: centerVoxelEntity.scale, entityId: neighbourEntities[i] })
+          );
           relativePosition = sub(centerCoord, neighbourCoords[i]);
           dotProduct = dot(neighbourVelocity, relativePosition);
         } // else it's velocity would be zero
@@ -281,17 +289,21 @@ contract VelocitySystem is System {
       if (dotProduct > 0) {
         // this means the primary voxel is moving towards the neighbour
         if (uint256(neighbourEntities[i]) == 0) {
-          if (getTerrainMass(callerAddress, neighbourCoords[i]) == 0) {
+          if (getTerrainMass(callerAddress, centerVoxelEntity.scale, neighbourCoords[i]) == 0) {
             // can only collide with terrain that has mass
             collidingEntities[i] = 0;
             continue;
           }
           // create the entities that don't exist from the terrain
-          VoxelEntity memory newTerrainEntity = createTerrainEntity(callerAddress, neighbourCoords[i]);
+          VoxelEntity memory newTerrainEntity = createTerrainEntity(
+            callerAddress,
+            centerVoxelEntity.scale,
+            neighbourCoords[i]
+          );
           neighbourEntities[i] = newTerrainEntity.entityId;
         }
 
-        if (Mass.get(callerAddress, neighbourEntities[i]) == 0) {
+        if (Mass.get(callerAddress, centerVoxelEntity.scale, neighbourEntities[i]) == 0) {
           // can only collide with terrain that has mass
           collidingEntities[i] = 0;
           continue;
@@ -302,7 +314,7 @@ contract VelocitySystem is System {
       }
     }
 
-    int32 mass_primary = uint256ToInt32(Mass.get(callerAddress, centerVoxelEntity.entityId));
+    int32 mass_primary = uint256ToInt32(Mass.get(callerAddress, centerVoxelEntity.scale, centerVoxelEntity.entityId));
 
     // Now we run the collision formula for each of the colliding entities
     VoxelCoord memory total_impulse = VoxelCoord({ x: 0, y: 0, z: 0 });
@@ -311,8 +323,11 @@ contract VelocitySystem is System {
         continue;
       }
       // Calculate the impulse of this neighbour
-      VoxelCoord memory relativeVelocity = sub(getVelocity(callerAddress, collidingEntities[i]), primaryVelocity);
-      int32 mass_neighbour = uint256ToInt32(Mass.get(callerAddress, collidingEntities[i]));
+      VoxelCoord memory relativeVelocity = sub(
+        getVelocity(callerAddress, VoxelEntity({ scale: centerVoxelEntity.scale, entityId: collidingEntities[i] })),
+        primaryVelocity
+      );
+      int32 mass_neighbour = uint256ToInt32(Mass.get(callerAddress, centerVoxelEntity.scale, collidingEntities[i]));
       int32 impulseFactor = (2 * mass_neighbour) / (mass_primary + mass_neighbour);
       VoxelCoord memory impulse = mulScalar(relativeVelocity, impulseFactor);
       // Add to total impulse
@@ -335,6 +350,7 @@ contract VelocitySystem is System {
     require(oldEntityExists, "Old entity does not exist");
     uint256 bodyMass = Mass.get(callerAddress, oldEntity.scale, oldEntity.entityId);
     (VoxelCoord memory newVelocity, uint256 energyRequired) = calculateNewVelocity(
+      callerAddress,
       oldCoord,
       newCoord,
       oldEntity,
@@ -350,9 +366,9 @@ contract VelocitySystem is System {
         "Cannot move on top of an entity with mass"
       );
     } else {
-      uint256 terrainMass = getTerrainMass(callerAddress, newCoord);
+      uint256 terrainMass = getTerrainMass(callerAddress, oldEntity.scale, newCoord);
       require(terrainMass == 0, "Cannot move on top of terrain with mass");
-      VoxelEntity memory newTerrainEntity = createTerrainEntity(callerAddress, newCoord);
+      VoxelEntity memory newTerrainEntity = createTerrainEntity(callerAddress, oldEntity.scale, newCoord);
       newEntity = newTerrainEntity;
       newEntityExists = hasKey(
         EnergyTableId,

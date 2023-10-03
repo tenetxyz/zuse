@@ -36,7 +36,7 @@ contract EnergySystem is System {
     );
 
     if (!energyReceiverEntityExists) {
-      VoxelEntity memory newTerrainEntity = createTerrainEntity(callerAddress, energyReceiverCoord);
+      VoxelEntity memory newTerrainEntity = createTerrainEntity(callerAddress, entity.scale, energyReceiverCoord);
       energyReceiverEntity = newTerrainEntity;
       energyReceiverEntityExists = hasKey(
         EnergyTableId,

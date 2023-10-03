@@ -1,17 +1,20 @@
 // SPDX-License-Identifier: MIT
 pragma solidity >=0.8.0;
 
+import { IStore } from "@latticexyz/store/src/IStore.sol";
 import { FluxEvent } from "@tenet-world/src/prototypes/FluxEvent.sol";
 import { IWorld } from "@tenet-world/src/codegen/world/IWorld.sol";
 import { VoxelCoord, VoxelEntity, EntityEventData } from "@tenet-utils/src/Types.sol";
 import { ActivateEventData } from "@tenet-base-world/src/Types.sol";
-import { REGISTRY_ADDRESS } from "@tenet-world/src/Constants.sol";
+import { REGISTRY_ADDRESS, SIMULATOR_ADDRESS } from "@tenet-world/src/Constants.sol";
 import { BodyPhysics, BodyPhysicsData } from "@tenet-world/src/codegen/tables/BodyPhysics.sol";
+import { Mass } from "@tenet-simulator/src/codegen/tables/Mass.sol";
 import { getEntityAtCoord } from "@tenet-base-world/src/Utils.sol";
 import { distanceBetween } from "@tenet-utils/src/VoxelCoordUtils.sol";
 import { FluxEventData } from "@tenet-world/src/Types.sol";
 import { console } from "forge-std/console.sol";
 import { MAX_VOXEL_NEIGHBOUR_UPDATE_DEPTH } from "@tenet-utils/src/Constants.sol";
+import { massChange } from "@tenet-simulator/src/CallUtils.sol";
 
 contract FluxSystem is FluxEvent {
   function getRegistryAddress() internal pure override returns (address) {
@@ -58,18 +61,13 @@ contract FluxSystem is FluxEvent {
     FluxEventData memory fluxEventData = abi.decode(eventData, (FluxEventData));
     BodyPhysicsData memory bodyPhysicsData = BodyPhysics.get(eventVoxelEntity.scale, eventVoxelEntity.entityId);
     if (fluxEventData.massToFlux > 0) {
-      // We're fluxing mass out
-      // Check if the entity has this mass
-      require(bodyPhysicsData.mass >= fluxEventData.massToFlux, "FluxEvent: not enough mass to flux");
       // Update the mass of the entity
-      uint256 newMass = bodyPhysicsData.mass - fluxEventData.massToFlux;
+      uint256 newMass = Mass.get(IStore(SIMULATOR_ADDRESS), _world(), eventVoxelEntity.entityId) -
+        fluxEventData.massToFlux;
       if (newMass == 0) {
         IWorld(_world()).mineWithAgent(voxelTypeId, coord, eventVoxelEntity);
       } else {
-        // Calculate how much energy this operation requires
-        uint256 energyRequired = fluxEventData.massToFlux * 10;
-        IWorld(_world()).fluxEnergy(false, caAddress, eventVoxelEntity, energyRequired);
-        BodyPhysics.setMass(eventVoxelEntity.scale, eventVoxelEntity.entityId, newMass);
+        massChange(SIMULATOR_ADDRESS, eventVoxelEntity.entityId, coord, newMass);
       }
     } else if (fluxEventData.energyToFlux.length > 0) {
       require(fluxEventData.energyToFlux.length == fluxEventData.energyReceiver.length, "FluxEvent: invalid data");

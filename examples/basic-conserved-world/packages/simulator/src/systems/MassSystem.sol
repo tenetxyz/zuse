@@ -21,16 +21,23 @@ contract MassSystem is System {
     bool entityExists = hasKey(MassTableId, Mass.encodeKeyTuple(callerAddress, entityId));
     if (newMass > 0) {
       // this is a build event
+      bool isBuild = false;
       if (entityExists) {
-        require(Mass.get(callerAddress, entityId) == 0, "Cannot build on top of an entity with mass");
+        uint256 currentMass = Mass.get(callerAddress, entityId);
+        if (currentMass == 0) {
+          isBuild = true;
+        } else {
+          require(currentMass > newMass, "Not enough mass to flux");
+        }
       } else {
         uint256 terrainMass = getTerrainMass(callerAddress, coord);
         require(terrainMass == 0, "Cannot build on top of terrain with mass");
+        isBuild = true;
       }
 
       // Calculate how much energy this operation requires
       uint256 energyRequired = newMass * 10;
-      IWorld(_world()).fluxEnergy(true, callerAddress, entityId, energyRequired);
+      IWorld(_world()).fluxEnergy(isBuild, callerAddress, entityId, energyRequired);
       if (!entityExists) {
         Mass.set(callerAddress, entityId, newMass);
         Energy.set(callerAddress, entityId, 0);

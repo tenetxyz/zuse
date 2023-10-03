@@ -25,6 +25,7 @@ contract EnergySystem is System {
     bool entityExists = hasKey(EnergyTableId, Energy.encodeKeyTuple(callerAddress, entityId));
     uint256 currentEnergy = Energy.get(callerAddress, entityId);
     require(entityExists && currentEnergy >= energyToTransfer, "Not enough energy to transfer");
+    require(distanceBetween(coord, energyReceiverCoord) == 1, "Energy can only be fluxed to a surrounding neighbour");
     bool energyReceiverEntityExists = hasKey(
       EnergyTableId,
       Energy.encodeKeyTuple(callerAddress, energyReceiverEntityId)

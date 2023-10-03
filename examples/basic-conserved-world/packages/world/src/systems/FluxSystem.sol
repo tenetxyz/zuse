@@ -7,14 +7,13 @@ import { IWorld } from "@tenet-world/src/codegen/world/IWorld.sol";
 import { VoxelCoord, VoxelEntity, EntityEventData } from "@tenet-utils/src/Types.sol";
 import { ActivateEventData } from "@tenet-base-world/src/Types.sol";
 import { REGISTRY_ADDRESS, SIMULATOR_ADDRESS } from "@tenet-world/src/Constants.sol";
-import { BodyPhysics, BodyPhysicsData } from "@tenet-world/src/codegen/tables/BodyPhysics.sol";
 import { Mass } from "@tenet-simulator/src/codegen/tables/Mass.sol";
 import { getEntityAtCoord } from "@tenet-base-world/src/Utils.sol";
 import { distanceBetween } from "@tenet-utils/src/VoxelCoordUtils.sol";
 import { FluxEventData } from "@tenet-world/src/Types.sol";
 import { console } from "forge-std/console.sol";
 import { MAX_VOXEL_NEIGHBOUR_UPDATE_DEPTH } from "@tenet-utils/src/Constants.sol";
-import { massChange } from "@tenet-simulator/src/CallUtils.sol";
+import { massChange, energyTransfer } from "@tenet-simulator/src/CallUtils.sol";
 
 contract FluxSystem is FluxEvent {
   function getRegistryAddress() internal pure override returns (address) {
@@ -59,7 +58,6 @@ contract FluxSystem is FluxEvent {
   ) internal virtual override {
     // Check and do flux
     FluxEventData memory fluxEventData = abi.decode(eventData, (FluxEventData));
-    BodyPhysicsData memory bodyPhysicsData = BodyPhysics.get(eventVoxelEntity.scale, eventVoxelEntity.entityId);
     if (fluxEventData.massToFlux > 0) {
       // Update the mass of the entity
       uint256 newMass = Mass.get(IStore(SIMULATOR_ADDRESS), _world(), eventVoxelEntity.entityId) -
@@ -77,35 +75,16 @@ contract FluxSystem is FluxEvent {
         }
         // We're fluxing energy out to in the direction of the receiver
         // Check if the entity has this energy
-        require(bodyPhysicsData.energy >= fluxEventData.energyToFlux[i], "FluxEvent: not enough energy to flux");
         VoxelCoord memory energyReceiverCoord = fluxEventData.energyReceiver[i];
-        require(
-          distanceBetween(coord, energyReceiverCoord) == 1,
-          "Energy can only be fluxed to a surrounding neighbour"
-        );
-
         bytes32 energyReceiverEntityId = getEntityAtCoord(eventVoxelEntity.scale, energyReceiverCoord);
-        VoxelEntity memory energyReceiverEntity = VoxelEntity({
-          entityId: energyReceiverEntityId,
-          scale: eventVoxelEntity.scale
-        });
-        if (uint256(energyReceiverEntityId) == 0) {
-          (bytes32 terrainVoxelTypeId, BodyPhysicsData memory terrainPhysicsData) = IWorld(_world())
-            .getTerrainBodyPhysicsData(caAddress, energyReceiverCoord);
-          energyReceiverEntity = IWorld(_world()).spawnBody(
-            terrainVoxelTypeId,
-            energyReceiverCoord,
-            bytes4(0),
-            terrainPhysicsData
-          );
-        }
-        // Increase energy of energyReceiverEntity
-        uint256 newReceiverEnergy = BodyPhysics.getEnergy(energyReceiverEntity.scale, energyReceiverEntity.entityId) +
-          fluxEventData.energyToFlux[i];
-        BodyPhysics.setEnergy(energyReceiverEntity.scale, energyReceiverEntity.entityId, newReceiverEnergy);
-        // Decrease energy of eventEntity
-        uint256 newEnergy = bodyPhysicsData.energy - fluxEventData.energyToFlux[i];
-        BodyPhysics.setEnergy(eventVoxelEntity.scale, eventVoxelEntity.entityId, newEnergy);
+        energyTransfer(
+          SIMULATOR_ADDRESS,
+          eventVoxelEntity.entityId,
+          coord,
+          energyReceiverEntityId,
+          energyReceiverCoord,
+          fluxEventData.energyToFlux[i]
+        );
       }
     }
   }

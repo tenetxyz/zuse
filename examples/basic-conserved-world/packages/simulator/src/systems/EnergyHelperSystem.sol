@@ -17,6 +17,7 @@ uint256 constant MAXIMUM_ENERGY_OUT = 100;
 uint256 constant MAXIMUM_ENERGY_IN = 100;
 
 contract EnergyHelperSystem is System {
+  // Users can call this
   function fluxEnergy(bool isFluxIn, address callerAddress, bytes32 entityId, uint256 energyToFlux) public {
     uint8 radius = 1;
     while (energyToFlux > 0) {

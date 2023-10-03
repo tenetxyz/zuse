@@ -7,6 +7,8 @@ import { System } from "@latticexyz/world/src/System.sol";
 import { VoxelCoord, VoxelEntity, EntityEventData, CAEventData, CAEventType } from "@tenet-utils/src/Types.sol";
 import { VoxelType, BodyPhysics, WorldConfig } from "@tenet-world/src/codegen/Tables.sol";
 import { getVoxelCoordStrict } from "@tenet-base-world/src/Utils.sol";
+import { REGISTRY_ADDRESS, SIMULATOR_ADDRESS } from "@tenet-world/src/Constants.sol";
+import { Energy } from "@tenet-simulator/src/codegen/tables/Energy.sol";
 import { console } from "forge-std/console.sol";
 
 contract CAEventsSystem is System {
@@ -38,7 +40,7 @@ contract CAEventsSystem is System {
           IWorld(_world()).fluxMass(voxelTypeId, entityCoord, worldEventData.massFluxAmount);
         } else if (worldEventData.eventType == CAEventType.FluxEnergyAndMass) {
           IWorld(_world()).fluxMass(voxelTypeId, entityCoord, worldEventData.massFluxAmount);
-          uint256 currentEnergy = BodyPhysics.getEnergy(entity.scale, entity.entityId);
+          uint256 currentEnergy = Energy.get(IStore(SIMULATOR_ADDRESS), _world(), entity.entityId);
           require(worldEventData.energyFluxAmounts.length == 1, "energyFluxAmounts must be length 1");
           uint256 energyToFlux = worldEventData.energyFluxAmounts[0];
           require(currentEnergy >= energyToFlux, "Not enough energy to flux");

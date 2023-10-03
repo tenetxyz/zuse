@@ -14,10 +14,9 @@ import { getVelocity, getTerrainMass, getTerrainEnergy, getTerrainVelocity } fro
 
 contract MassSystem is System {
   // Constraints
-  // Mass has no constraints since voxel types can't modify it right now
 
   // Behaviours
-  function changeMassBehaviour(bytes32 entityId, VoxelCoord memory coord, uint256 newMass) public {
+  function massChange(bytes32 entityId, VoxelCoord memory coord, uint256 newMass) public {
     address callerAddress = _msgSender();
     bool entityExists = hasKey(MassTableId, Mass.encodeKeyTuple(callerAddress, entityId));
     if (newMass > 0) {

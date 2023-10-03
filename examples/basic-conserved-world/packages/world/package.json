@@ -9,7 +9,8 @@
     "clean": "forge clean",
     "setLocalRegistryAddress": "node ../../../../scripts/setRegistryAddress.js 31337 ../../../../packages/registry/worlds.json src/Constants.sol REGISTRY_ADDRESS",
     "setLocalBaseCAAddress": "node ../../../../scripts/setRegistryAddress.js 31337 ../level1-ca/worlds.json src/Constants.sol BASE_CA_ADDRESS",
-    "setAddress": "yarn run setLocalRegistryAddress && yarn run setLocalBaseCAAddress",
+    "setLocalSimulatorAddress": "node ../../../../scripts/setRegistryAddress.js 31337 ../simulator/worlds.json src/Constants.sol SIMULATOR_ADDRESS",
+    "setAddress": "yarn run setLocalRegistryAddress && yarn run setLocalBaseCAAddress && yarn run setLocalSimulatorAddress",
     "build:local": "yarn run setAddress && yarn run initialize",
     "deploy:local": "yarn run setAddress && yarn initialize && yarn mud deploy",
     "deploy": "yarn initialize && yarn mud deploy",
@@ -40,6 +41,7 @@
     "@tenetxyz/base-world": "link:../../../../packages/base-world",
     "@tenetxyz/level1-ca": "workspace:*",
     "@tenetxyz/pokemon-extension": "workspace:*",
+    "@tenetxyz/simulator": "workspace:*",
     "@tenetxyz/registry": "link:../../../../packages/registry",
     "@tenetxyz/utils": "link:../../../../packages/utils"
   },

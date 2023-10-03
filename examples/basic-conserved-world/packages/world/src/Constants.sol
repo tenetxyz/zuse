@@ -3,6 +3,7 @@ pragma solidity >=0.8.0;
 
 address constant REGISTRY_ADDRESS = 0x057ef64E23666F000b34aE31332854aCBd1c8544;
 address constant BASE_CA_ADDRESS = 0x8464135c8F25Da09e49BC8782676a84730C318bC;
+address constant SIMULATOR_ADDRESS = 0x0a0e4Dc0c5E4E2aEeF7b3f6eBbBbBbBbBbBbBbBb;
 
 string constant BUILD_SIG = "build(bytes32,(int32,int32,int32))";
 string constant GIFT_VOXEL_SIG = "giftVoxel(bytes16,bytes32)";

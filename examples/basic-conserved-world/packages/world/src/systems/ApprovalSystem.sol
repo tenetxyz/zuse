@@ -109,29 +109,7 @@ contract ApprovalSystem is EventApprovalsSystem {
     address caAddress = WorldConfig.get(voxelTypeId);
     uint32 scale = voxelTypeData.scale;
     bytes32 entityId = getEntityAtCoord(scale, coord);
-    if (eventType == EventType.Build) {
-      if (uint256(entityId) != 0) {
-        require(BodyPhysics.getMass(scale, entityId) == 0, "Cannot build on top of an entity with mass");
-      } else {
-        (, BodyPhysicsData memory terrainPhysicsData) = IWorld(_world()).getTerrainBodyPhysicsData(caAddress, coord);
-        require(terrainPhysicsData.mass == 0, "Cannot build on top of terrain with mass");
-      }
-    } else if (eventType == EventType.Mine) {
-      if (uint256(entityId) != 0) {
-        require(
-          isZeroCoord(getVelocity(VoxelEntity({ scale: scale, entityId: entityId }))),
-          "Cannot mine an entity with velocity"
-        );
-        require(BodyPhysics.getMass(scale, entityId) > 0, "Cannot mine an entity with no mass");
-      } else {
-        (, BodyPhysicsData memory terrainPhysicsData) = IWorld(_world()).getTerrainBodyPhysicsData(caAddress, coord);
-        require(
-          isZeroCoord(abi.decode(terrainPhysicsData.velocity, (VoxelCoord))),
-          "Cannot mine terrain with velocity"
-        );
-        require(terrainPhysicsData.mass > 0, "Cannot mine terrain with no mass");
-      }
-    } else if (eventType == EventType.Move) {
+    if (eventType == EventType.Move) {
       if (uint256(entityId) != 0) {
         require(BodyPhysics.getMass(scale, entityId) == 0, "Cannot move on top of an entity with mass");
       } else {

@@ -8,9 +8,10 @@ import { hasKey } from "@latticexyz/world/src/modules/keysintable/hasKey.sol";
 import { OwnedBy, VoxelType, VoxelTypeProperties, BodyPhysics, BodyPhysicsData, BodyPhysicsTableId, WorldConfig } from "@tenet-world/src/codegen/Tables.sol";
 import { VoxelCoord, VoxelTypeData, VoxelEntity, EntityEventData } from "@tenet-utils/src/Types.sol";
 import { min } from "@tenet-utils/src/VoxelCoordUtils.sol";
-import { REGISTRY_ADDRESS } from "@tenet-world/src/Constants.sol";
+import { REGISTRY_ADDRESS, SIMULATOR_ADDRESS } from "@tenet-world/src/Constants.sol";
 import { AirVoxelID } from "@tenet-level1-ca/src/Constants.sol";
 import { BuildWorldEventData } from "@tenet-world/src/Types.sol";
+import { massChange } from "@tenet-simulator/src/CallUtils.sol";
 
 contract BuildSystem is BuildEvent {
   function getRegistryAddress() internal pure override returns (address) {
@@ -49,21 +50,8 @@ contract BuildSystem is BuildEvent {
     bytes memory eventData
   ) internal override {
     super.preRunCA(caAddress, voxelTypeId, coord, eventVoxelEntity, eventData);
-    // Update the mass of the entity to be the type definition's mass
+    // Call simulator mass change
     uint256 bodyMass = VoxelTypeProperties.get(voxelTypeId);
-    // Calculate how much energy this operation requires
-    uint256 energyRequired = bodyMass * 10;
-    IWorld(_world()).fluxEnergy(true, caAddress, eventVoxelEntity, energyRequired);
-    BodyPhysicsData memory bodyPhysicsData;
-    if (!hasKey(BodyPhysicsTableId, BodyPhysics.encodeKeyTuple(eventVoxelEntity.scale, eventVoxelEntity.entityId))) {
-      bodyPhysicsData.mass = bodyMass;
-      bodyPhysicsData.energy = 0;
-      bodyPhysicsData.velocity = abi.encode(VoxelCoord({ x: 0, y: 0, z: 0 }));
-    } else {
-      bodyPhysicsData = BodyPhysics.get(eventVoxelEntity.scale, eventVoxelEntity.entityId);
-      bodyPhysicsData.mass = bodyMass;
-    }
-    bodyPhysicsData.lastUpdateBlock = block.number;
-    BodyPhysics.set(eventVoxelEntity.scale, eventVoxelEntity.entityId, bodyPhysicsData);
+    massChange(SIMULATOR_ADDRESS, eventVoxelEntity.entityId, coord, bodyMass);
   }
 }

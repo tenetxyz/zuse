@@ -7,23 +7,23 @@ import { safeCall, safeStaticCall } from "@tenet-utils/src/CallUtils.sol";
 
 function massChange(
   address simAddress,
-  bytes32 entityId,
+  VoxelEntity memory entity,
   VoxelCoord memory coord,
   uint256 newMass
 ) returns (bytes memory) {
   return
     safeCall(
       simAddress,
-      abi.encodeWithSignature(SIM_MASS_CHANGE_SIG, entityId, coord, newMass),
-      string(abi.encode("masssChange ", entityId, " ", coord, " ", newMass))
+      abi.encodeWithSignature(SIM_MASS_CHANGE_SIG, entity, coord, newMass),
+      string(abi.encode("masssChange ", entity, " ", coord, " ", newMass))
     );
 }
 
 function energyTransfer(
   address simAddress,
-  bytes32 entityId,
+  VoxelEntity memory entity,
   VoxelCoord memory coord,
-  bytes32 energyReceiverEntityId,
+  VoxelEntity memory energyReceiverEntity,
   VoxelCoord memory energyReceiverCoord,
   uint256 energyToTransfer
 ) returns (bytes memory) {
@@ -32,20 +32,20 @@ function energyTransfer(
       simAddress,
       abi.encodeWithSignature(
         SIM_ENERGY_TRANSFER_SIG,
-        entityId,
+        entity,
         coord,
-        energyReceiverEntityId,
+        energyReceiverEntity,
         energyReceiverCoord,
         energyToTransfer
       ),
       string(
         abi.encode(
           "masssChange ",
-          entityId,
+          entity,
           " ",
           coord,
           " ",
-          energyReceiverEntityId,
+          energyReceiverEntity,
           " ",
           energyReceiverCoord,
           " ",
@@ -55,11 +55,11 @@ function energyTransfer(
     );
 }
 
-function fluxEnergyOut(address simAddress, bytes32 entityId, uint256 energyToFlux) returns (bytes memory) {
+function fluxEnergyOut(address simAddress, VoxelEntity memory entity, uint256 energyToFlux) returns (bytes memory) {
   return
     safeCall(
       simAddress,
-      abi.encodeWithSignature(SIM_FLUX_ENERGY_OUT_SIG, entityId, energyToFlux),
-      string(abi.encode("fluxEnergy ", entityId, " ", energyToFlux))
+      abi.encodeWithSignature(SIM_FLUX_ENERGY_OUT_SIG, entity, energyToFlux),
+      string(abi.encode("fluxEnergy ", entity, " ", energyToFlux))
     );
 }

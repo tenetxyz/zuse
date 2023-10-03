@@ -6,6 +6,7 @@ export default mudConfig({
     Mass: {
       keySchema: {
         callerAddress: "address",
+        scale: "uint32",
         entity: "bytes32",
       },
       schema: {
@@ -15,6 +16,7 @@ export default mudConfig({
     Energy: {
       keySchema: {
         callerAddress: "address",
+        scale: "uint32",
         entity: "bytes32",
       },
       schema: {
@@ -24,6 +26,7 @@ export default mudConfig({
     Velocity: {
       keySchema: {
         callerAddress: "address",
+        scale: "uint32",
         entity: "bytes32",
       },
       schema: {

@@ -19,38 +19,42 @@ uint256 constant MAXIMUM_ENERGY_IN = 100;
 contract EnergySystem is System {
   // Constraints
   function energyTransfer(
-    bytes32 entityId,
+    VoxelEntity memory entity,
     VoxelCoord memory coord,
-    bytes32 energyReceiverEntityId,
+    VoxelEntity memory energyReceiverEntity,
     VoxelCoord memory energyReceiverCoord,
     uint256 energyToTransfer
   ) public {
     address callerAddress = _msgSender();
-    bool entityExists = hasKey(EnergyTableId, Energy.encodeKeyTuple(callerAddress, entityId));
-    uint256 currentEnergy = Energy.get(callerAddress, entityId);
+    bool entityExists = hasKey(EnergyTableId, Energy.encodeKeyTuple(callerAddress, entity.scale, entity.entityId));
+    uint256 currentEnergy = Energy.get(callerAddress, entity.scale, entity.entityId);
     require(entityExists && currentEnergy >= energyToTransfer, "Not enough energy to transfer");
     require(distanceBetween(coord, energyReceiverCoord) == 1, "Energy can only be fluxed to a surrounding neighbour");
     bool energyReceiverEntityExists = hasKey(
       EnergyTableId,
-      Energy.encodeKeyTuple(callerAddress, energyReceiverEntityId)
+      Energy.encodeKeyTuple(callerAddress, energyReceiverEntity.scale, energyReceiverEntity.entityId)
     );
 
-    if (uint256(energyReceiverEntityId) == 0) {
+    if (!energyReceiverEntityExists) {
       VoxelEntity memory newTerrainEntity = createTerrainEntity(callerAddress, energyReceiverCoord);
-      energyReceiverEntityId = newTerrainEntity.entityId;
-      energyReceiverEntityExists = hasKey(EnergyTableId, Energy.encodeKeyTuple(callerAddress, energyReceiverEntityId));
+      energyReceiverEntity = newTerrainEntity;
+      energyReceiverEntityExists = hasKey(
+        EnergyTableId,
+        Energy.encodeKeyTuple(callerAddress, energyReceiverEntity.scale, energyReceiverEntity.entityId)
+      );
     }
     require(energyReceiverEntityExists, "Energy receiver entity does not exist");
     // Increase energy of energyReceiverEntity
-    uint256 newReceiverEnergy = Energy.get(callerAddress, energyReceiverEntityId) + energyToTransfer;
-    Energy.set(callerAddress, energyReceiverEntityId, newReceiverEnergy);
+    uint256 newReceiverEnergy = Energy.get(callerAddress, energyReceiverEntity.scale, energyReceiverEntity.entityId) +
+      energyToTransfer;
+    Energy.set(callerAddress, energyReceiverEntity.scale, energyReceiverEntity.entityId, newReceiverEnergy);
     // Decrease energy of eventEntity
     uint256 newEnergy = currentEnergy - energyToTransfer;
-    Energy.set(callerAddress, entityId, newEnergy);
+    Energy.set(callerAddress, entity.scale, entity.entityId, newEnergy);
   }
 
-  function fluxEnergyOut(bytes32 entityId, uint256 energyToFlux) public {
+  function fluxEnergyOut(VoxelEntity memory entity, uint256 energyToFlux) public {
     address callerAddress = _msgSender();
-    IWorld(_world()).fluxEnergy(false, callerAddress, entityId, energyToFlux);
+    IWorld(_world()).fluxEnergy(false, callerAddress, entity, energyToFlux);
   }
 }

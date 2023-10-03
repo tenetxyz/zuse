@@ -43,6 +43,6 @@ contract MineSystem is MineEvent {
   ) internal override {
     super.preRunCA(caAddress, voxelTypeId, coord, eventVoxelEntity, eventData);
     // Call simulator mass change
-    massChange(SIMULATOR_ADDRESS, eventVoxelEntity.entityId, coord, 0);
+    massChange(SIMULATOR_ADDRESS, eventVoxelEntity, coord, 0);
   }
 }

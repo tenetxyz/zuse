@@ -52,6 +52,6 @@ contract BuildSystem is BuildEvent {
     super.preRunCA(caAddress, voxelTypeId, coord, eventVoxelEntity, eventData);
     // Call simulator mass change
     uint256 bodyMass = VoxelTypeProperties.get(voxelTypeId);
-    massChange(SIMULATOR_ADDRESS, eventVoxelEntity.entityId, coord, bodyMass);
+    massChange(SIMULATOR_ADDRESS, eventVoxelEntity, coord, bodyMass);
   }
 }

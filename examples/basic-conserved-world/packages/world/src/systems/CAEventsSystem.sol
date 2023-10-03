@@ -42,7 +42,7 @@ contract CAEventsSystem is System {
         } else if (worldEventData.eventType == CAEventType.FluxEnergyAndMass) {
           IWorld(_world()).fluxMass(voxelTypeId, entityCoord, worldEventData.massFluxAmount);
           require(worldEventData.energyFluxAmounts.length == 1, "energyFluxAmounts must be length 1");
-          fluxEnergyOut(SIMULATOR_ADDRESS, entity.entityId, worldEventData.energyFluxAmounts[0]);
+          fluxEnergyOut(SIMULATOR_ADDRESS, entity, worldEventData.energyFluxAmounts[0]);
         }
       }
     }

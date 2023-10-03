@@ -65,7 +65,7 @@ contract FluxSystem is FluxEvent {
       if (newMass == 0) {
         IWorld(_world()).mineWithAgent(voxelTypeId, coord, eventVoxelEntity);
       } else {
-        massChange(SIMULATOR_ADDRESS, eventVoxelEntity.entityId, coord, newMass);
+        massChange(SIMULATOR_ADDRESS, eventVoxelEntity, coord, newMass);
       }
     } else if (fluxEventData.energyToFlux.length > 0) {
       require(fluxEventData.energyToFlux.length == fluxEventData.energyReceiver.length, "FluxEvent: invalid data");
@@ -77,11 +77,15 @@ contract FluxSystem is FluxEvent {
         // Check if the entity has this energy
         VoxelCoord memory energyReceiverCoord = fluxEventData.energyReceiver[i];
         bytes32 energyReceiverEntityId = getEntityAtCoord(eventVoxelEntity.scale, energyReceiverCoord);
+        VoxelEntity memory energyReceiverEntity = VoxelEntity({
+          scale: eventVoxelEntity.scale,
+          entityId: energyReceiverEntityId
+        });
         energyTransfer(
           SIMULATOR_ADDRESS,
-          eventVoxelEntity.entityId,
+          eventVoxelEntity,
           coord,
-          energyReceiverEntityId,
+          energyReceiverEntity,
           energyReceiverCoord,
           fluxEventData.energyToFlux[i]
         );

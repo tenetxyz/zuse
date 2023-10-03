@@ -16,14 +16,14 @@ contract MassSystem is System {
   // Constraints
 
   // Behaviours
-  function massChange(bytes32 entityId, VoxelCoord memory coord, uint256 newMass) public {
+  function massChange(VoxelEntity memory entity, VoxelCoord memory coord, uint256 newMass) public {
     address callerAddress = _msgSender();
-    bool entityExists = hasKey(MassTableId, Mass.encodeKeyTuple(callerAddress, entityId));
+    bool entityExists = hasKey(MassTableId, Mass.encodeKeyTuple(callerAddress, entity.scale, entity.entityId));
     if (newMass > 0) {
       // this is a build event
       bool isBuild = false;
       if (entityExists) {
-        uint256 currentMass = Mass.get(callerAddress, entityId);
+        uint256 currentMass = Mass.get(callerAddress, entity.scale, entity.entityId);
         if (currentMass == 0) {
           isBuild = true;
         } else {
@@ -31,44 +31,50 @@ contract MassSystem is System {
           require(currentMass > newMass, "Not enough mass to flux");
         }
       } else {
-        uint256 terrainMass = getTerrainMass(callerAddress, coord);
+        uint256 terrainMass = getTerrainMass(callerAddress, entity.scale, coord);
         require(terrainMass == 0, "Cannot build on top of terrain with mass");
         isBuild = true;
       }
 
       // Calculate how much energy this operation requires
       uint256 energyRequired = newMass * 10;
-      IWorld(_world()).fluxEnergy(isBuild, callerAddress, entityId, energyRequired);
+      IWorld(_world()).fluxEnergy(isBuild, callerAddress, entity, energyRequired);
       if (!entityExists) {
-        Mass.set(callerAddress, entityId, newMass);
-        Energy.set(callerAddress, entityId, 0);
-        Velocity.set(callerAddress, entityId, block.number, abi.encode(VoxelCoord({ x: 0, y: 0, z: 0 })));
+        Mass.set(callerAddress, entity.scale, entity.entityId, newMass);
+        Energy.set(callerAddress, entity.scale, entity.entityId, 0);
+        Velocity.set(
+          callerAddress,
+          entity.scale,
+          entity.entityId,
+          block.number,
+          abi.encode(VoxelCoord({ x: 0, y: 0, z: 0 }))
+        );
       } else {
-        Mass.set(callerAddress, entityId, newMass);
+        Mass.set(callerAddress, entity.scale, entity.entityId, newMass);
       }
     } else {
       // this is a mine event
       uint256 massToMine;
       if (entityExists) {
-        require(isZeroCoord(getVelocity(callerAddress, entityId)), "Cannot mine an entity with velocity");
-        massToMine = Mass.get(callerAddress, entityId);
+        require(isZeroCoord(getVelocity(callerAddress, entity)), "Cannot mine an entity with velocity");
+        massToMine = Mass.get(callerAddress, entity.scale, entity.entityId);
         require(massToMine > 0, "Cannot mine an entity with no mass");
       } else {
-        VoxelCoord memory terrainVelocity = getTerrainVelocity(callerAddress, coord);
-        uint256 terrainMass = getTerrainMass(callerAddress, coord);
+        VoxelCoord memory terrainVelocity = getTerrainVelocity(callerAddress, entity.scale, coord);
+        uint256 terrainMass = getTerrainMass(callerAddress, entity.scale, coord);
         massToMine = terrainMass;
         require(isZeroCoord(terrainVelocity), "Cannot mine terrain with velocity");
         require(terrainMass > 0, "Cannot mine terrain with no mass");
 
-        Mass.set(callerAddress, entityId, terrainMass);
-        Energy.set(callerAddress, entityId, getTerrainEnergy(callerAddress, coord));
-        Velocity.set(callerAddress, entityId, block.number, abi.encode(terrainVelocity));
+        Mass.set(callerAddress, entity.scale, entity.entityId, terrainMass);
+        Energy.set(callerAddress, entity.scale, entity.entityId, getTerrainEnergy(callerAddress, entity.scale, coord));
+        Velocity.set(callerAddress, entity.scale, entity.entityId, block.number, abi.encode(terrainVelocity));
       }
 
       // Calculate how much energy this operation requires
       uint256 energyRequired = massToMine * 10;
-      IWorld(_world()).fluxEnergy(false, callerAddress, entityId, energyRequired);
-      Mass.set(callerAddress, entityId, 0);
+      IWorld(_world()).fluxEnergy(false, callerAddress, entity, energyRequired);
+      Mass.set(callerAddress, entity.scale, entity.entityId, 0);
     }
   }
 }

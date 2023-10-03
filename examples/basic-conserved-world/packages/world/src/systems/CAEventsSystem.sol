@@ -5,7 +5,7 @@ import { IWorld } from "@tenet-world/src/codegen/world/IWorld.sol";
 import { IStore } from "@latticexyz/store/src/IStore.sol";
 import { System } from "@latticexyz/world/src/System.sol";
 import { VoxelCoord, VoxelEntity, EntityEventData, CAEventData, CAEventType } from "@tenet-utils/src/Types.sol";
-import { VoxelType, BodyPhysics, WorldConfig } from "@tenet-world/src/codegen/Tables.sol";
+import { VoxelType, WorldConfig } from "@tenet-world/src/codegen/Tables.sol";
 import { getVoxelCoordStrict } from "@tenet-base-world/src/Utils.sol";
 import { REGISTRY_ADDRESS, SIMULATOR_ADDRESS } from "@tenet-world/src/Constants.sol";
 import { Energy } from "@tenet-simulator/src/codegen/tables/Energy.sol";

@@ -49,7 +49,6 @@ contract EnergySystem is System {
     Energy.set(callerAddress, entityId, newEnergy);
   }
 
-  // Users can call this
   function fluxEnergyOut(bytes32 entityId, uint256 energyToFlux) public {
     address callerAddress = _msgSender();
     IWorld(_world()).fluxEnergy(false, callerAddress, entityId, energyToFlux);

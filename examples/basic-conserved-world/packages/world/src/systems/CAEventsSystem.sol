@@ -10,6 +10,7 @@ import { getVoxelCoordStrict } from "@tenet-base-world/src/Utils.sol";
 import { REGISTRY_ADDRESS, SIMULATOR_ADDRESS } from "@tenet-world/src/Constants.sol";
 import { Energy } from "@tenet-simulator/src/codegen/tables/Energy.sol";
 import { console } from "forge-std/console.sol";
+import { fluxEnergyOut } from "@tenet-simulator/src/CallUtils.sol";
 
 contract CAEventsSystem is System {
   function caEventsHandler(EntityEventData[] memory entitiesEventData) public {
@@ -40,12 +41,8 @@ contract CAEventsSystem is System {
           IWorld(_world()).fluxMass(voxelTypeId, entityCoord, worldEventData.massFluxAmount);
         } else if (worldEventData.eventType == CAEventType.FluxEnergyAndMass) {
           IWorld(_world()).fluxMass(voxelTypeId, entityCoord, worldEventData.massFluxAmount);
-          uint256 currentEnergy = Energy.get(IStore(SIMULATOR_ADDRESS), _world(), entity.entityId);
           require(worldEventData.energyFluxAmounts.length == 1, "energyFluxAmounts must be length 1");
-          uint256 energyToFlux = worldEventData.energyFluxAmounts[0];
-          require(currentEnergy >= energyToFlux, "Not enough energy to flux");
-          IWorld(_world()).fluxEnergy(false, caAddress, entity, energyToFlux);
-          BodyPhysics.setEnergy(entity.scale, entity.entityId, currentEnergy - energyToFlux);
+          fluxEnergyOut(SIMULATOR_ADDRESS, entity.entityId, worldEventData.energyFluxAmounts[0]);
         }
       }
     }

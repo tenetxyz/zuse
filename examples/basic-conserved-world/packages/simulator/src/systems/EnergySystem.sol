@@ -9,8 +9,12 @@ import { Mass, MassTableId, Energy, EnergyTableId, Velocity, VelocityTableId } f
 import { VoxelCoord, VoxelTypeData, VoxelEntity } from "@tenet-utils/src/Types.sol";
 import { VoxelTypeRegistry, VoxelTypeRegistryData } from "@tenet-registry/src/codegen/tables/VoxelTypeRegistry.sol";
 import { distanceBetween, voxelCoordsAreEqual, isZeroCoord } from "@tenet-utils/src/VoxelCoordUtils.sol";
+import { isZeroCoord, voxelCoordsAreEqual, uint256ToInt32, dot, mulScalar, divScalar, min, add, sub, safeSubtract, safeAdd, abs, absInt32 } from "@tenet-utils/src/VoxelCoordUtils.sol";
 import { console } from "forge-std/console.sol";
 import { getVelocity, getTerrainMass, getTerrainEnergy, getTerrainVelocity, getNeighbourEntities, createTerrainEntity } from "@tenet-simulator/src/Utils.sol";
+
+uint256 constant MAXIMUM_ENERGY_OUT = 100;
+uint256 constant MAXIMUM_ENERGY_IN = 100;
 
 contract EnergySystem is System {
   // Constraints
@@ -43,5 +47,11 @@ contract EnergySystem is System {
     // Decrease energy of eventEntity
     uint256 newEnergy = currentEnergy - energyToTransfer;
     Energy.set(callerAddress, entityId, newEnergy);
+  }
+
+  // Users can call this
+  function fluxEnergyOut(bytes32 entityId, uint256 energyToFlux) public {
+    address callerAddress = _msgSender();
+    IWorld(_world()).fluxEnergy(false, callerAddress, entityId, energyToFlux);
   }
 }

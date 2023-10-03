@@ -19,6 +19,10 @@ uint256 constant MAXIMUM_ENERGY_IN = 100;
 contract EnergyHelperSystem is System {
   // Users can call this
   function fluxEnergy(bool isFluxIn, address callerAddress, bytes32 entityId, uint256 energyToFlux) public {
+    require(hasKey(EnergyTableId, Energy.encodeKeyTuple(callerAddress, entityId)), "Entity does not exist");
+    if (!isFluxIn) {
+      require(Energy.get(callerAddress, entityId) >= energyToFlux, "Cannot flux out more energy than you have");
+    }
     uint8 radius = 1;
     while (energyToFlux > 0) {
       if (radius > 255) {

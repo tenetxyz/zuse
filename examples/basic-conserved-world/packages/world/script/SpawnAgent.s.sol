@@ -23,20 +23,8 @@ contract PostDeploy is Script {
     // Call world init function
     IWorld world = IWorld(worldAddress);
 
-    // BodyPhysicsData memory physicsData;
-    // physicsData.mass = 5;
-    // physicsData.energy = 1000;
-    // physicsData.lastUpdateBlock = block.number;
-    // physicsData.velocity = abi.encode(VoxelCoord({ x: 0, y: 0, z: 0 }));
     console.log("init");
-    // (bytes32 terrainType, BodyPhysicsData memory terrainData) = IWorld(_world()).getTerrainBodyPhysicsData(
-    //   address(0),
-    //   VoxelCoord(2, 9, 5)
-    // );
-    // console.logBytes32(terrainType);
-    world.spawnBody(FighterVoxelID, VoxelCoord(-2, -6, 9), bytes4(0), physicsData);
-
-    // world.initWorldState();
+    world.spawnBody(FighterVoxelID, VoxelCoord(-2, -6, 9), bytes4(0));
 
     vm.stopBroadcast();
   }

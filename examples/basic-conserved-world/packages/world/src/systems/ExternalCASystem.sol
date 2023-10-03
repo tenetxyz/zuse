@@ -1,9 +1,11 @@
 // SPDX-License-Identifier: GPL-3.0
 pragma solidity >=0.8.0;
 
+import { IWorld } from "@tenet-world/src/codegen/world/IWorld.sol";
+import { IStore } from "@latticexyz/store/src/IStore.sol";
 import { VoxelCoord, VoxelEntity, BodyPhysicsData } from "@tenet-utils/src/Types.sol";
 import { ExternalCASystem as ExternalCAPrototype } from "@tenet-base-world/src/prototypes/ExternalCASystem.sol";
-import { getVoxelCoordStrict } from "@tenet-base-world/src/Utils.sol";
+import { getVoxelCoordStrict as utilGetVoxelCoordStrict } from "@tenet-base-world/src/Utils.sol";
 import { REGISTRY_ADDRESS, SIMULATOR_ADDRESS } from "@tenet-world/src/Constants.sol";
 import { Mass } from "@tenet-simulator/src/codegen/tables/Mass.sol";
 import { Energy } from "@tenet-simulator/src/codegen/tables/Energy.sol";
@@ -15,13 +17,13 @@ contract ExternalCASystem is ExternalCAPrototype {
   }
 
   function getVoxelCoordStrict(VoxelEntity memory entity) public view returns (VoxelCoord memory) {
-    return getVoxelCoordStrict(entity);
+    return utilGetVoxelCoordStrict(entity);
   }
 
   function getEntityBodyPhysics(VoxelEntity memory entity) public view returns (BodyPhysicsData memory) {
     uint256 energy = Energy.get(IStore(SIMULATOR_ADDRESS), _world(), entity.scale, entity.entityId);
     uint256 mass = Mass.get(IStore(SIMULATOR_ADDRESS), _world(), entity.scale, entity.entityId);
-    bytes memory rawVelocity = Velocity.getVelocity(IStore(SIMULATOR_ADDRESS), _world(), entity.scale, entity.entityId);
+    bytes memory velocity = Velocity.getVelocity(IStore(SIMULATOR_ADDRESS), _world(), entity.scale, entity.entityId);
     uint256 lastUpdateBlock = Velocity.getLastUpdateBlock(
       IStore(SIMULATOR_ADDRESS),
       _world(),
@@ -29,7 +31,7 @@ contract ExternalCASystem is ExternalCAPrototype {
       entity.entityId
     );
 
-    return BodyPhysicsData({ energy: energy, mass: mass, velocity: rawVelocity, lastUpdateBlock: lastUpdateBlock });
+    return BodyPhysicsData({ energy: energy, mass: mass, velocity: velocity, lastUpdateBlock: lastUpdateBlock });
   }
 
   function shouldRunInteractionForNeighbour(

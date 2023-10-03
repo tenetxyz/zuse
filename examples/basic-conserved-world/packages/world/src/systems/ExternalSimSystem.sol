@@ -1,12 +1,13 @@
 // SPDX-License-Identifier: GPL-3.0
 pragma solidity >=0.8.0;
 
+import { IWorld } from "@tenet-world/src/codegen/world/IWorld.sol";
 import { IStore } from "@latticexyz/store/src/IStore.sol";
 import { VoxelCoord, VoxelEntity } from "@tenet-utils/src/Types.sol";
 import { System } from "@latticexyz/world/src/System.sol";
 import { getVoxelCoordStrict } from "@tenet-base-world/src/Utils.sol";
 import { REGISTRY_ADDRESS, SIMULATOR_ADDRESS } from "@tenet-world/src/Constants.sol";
-import { OwnedBy, Position, VoxelType, VoxelTypeProperties } from "@tenet-world/src/codegen/Tables.sol"
+import { OwnedBy, Position, VoxelType, VoxelTypeProperties } from "@tenet-world/src/codegen/Tables.sol";
 import { Mass } from "@tenet-simulator/src/codegen/tables/Mass.sol";
 import { Energy } from "@tenet-simulator/src/codegen/tables/Energy.sol";
 import { Velocity } from "@tenet-simulator/src/codegen/tables/Velocity.sol";
@@ -23,7 +24,7 @@ contract ExternalSimSystem is System {
       callerAddress == SIMULATOR_ADDRESS || callerAddress == _world(),
       "Only simulator can create terrain entities"
     );
-    bytes32 terrainVoxelTypeId = IWorld(_world).getTerrainVoxel(coord);
+    bytes32 terrainVoxelTypeId = IWorld(_world()).getTerrainVoxel(coord);
     return spawnBody(terrainVoxelTypeId, coord, bytes4(0));
   }
 

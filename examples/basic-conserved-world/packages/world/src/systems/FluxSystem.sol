@@ -60,8 +60,12 @@ contract FluxSystem is FluxEvent {
     FluxEventData memory fluxEventData = abi.decode(eventData, (FluxEventData));
     if (fluxEventData.massToFlux > 0) {
       // Update the mass of the entity
-      uint256 newMass = Mass.get(IStore(SIMULATOR_ADDRESS), _world(), eventVoxelEntity.entityId) -
-        fluxEventData.massToFlux;
+      uint256 newMass = Mass.get(
+        IStore(SIMULATOR_ADDRESS),
+        _world(),
+        eventVoxelEntity.scale,
+        eventVoxelEntity.entityId
+      ) - fluxEventData.massToFlux;
       if (newMass == 0) {
         IWorld(_world()).mineWithAgent(voxelTypeId, coord, eventVoxelEntity);
       } else {

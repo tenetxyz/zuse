@@ -25,8 +25,6 @@ enum CoordDirection {
   Z
 }
 
-uint256 constant NUM_BLOCKS_BEFORE_REDUCE = 60;
-
 contract VelocitySystem is System {
   // Constraints
 
@@ -49,7 +47,7 @@ contract VelocitySystem is System {
     }
     // Calculate the new velocity
 
-    int32 deltaV = uint256ToInt32(blocksSinceLastUpdate / NUM_BLOCKS_BEFORE_REDUCE);
+    int32 deltaV = uint256ToInt32(blocksSinceLastUpdate / NUM_BLOCKS_BEFORE_REDUCE_VELOCITY);
     // We dont want to reduce past 0
     VoxelCoord memory newVelocity = VoxelCoord({ x: 0, y: 0, z: 0 });
 

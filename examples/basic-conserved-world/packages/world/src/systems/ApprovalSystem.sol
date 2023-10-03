@@ -17,7 +17,6 @@ import { getCallerName } from "@tenet-utils/src/Utils.sol";
 import { getEntityAtCoord, getEntityPositionStrict, positionDataToVoxelCoord } from "@tenet-base-world/src/Utils.sol";
 import { VoxelTypeRegistry, VoxelTypeRegistryData } from "@tenet-registry/src/codegen/tables/VoxelTypeRegistry.sol";
 import { REGISTRY_ADDRESS, SIMULATOR_ADDRESS } from "@tenet-world/src/Constants.sol";
-import { getVelocity } from "@tenet-world/src/Utils.sol";
 import { updateVelocityCache } from "@tenet-simulator/src/CallUtils.sol";
 
 uint256 constant MAX_AGENT_ACTION_RADIUS = 1;

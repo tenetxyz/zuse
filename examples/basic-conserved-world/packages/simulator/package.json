@@ -10,7 +10,7 @@
     "setLocalRegistryAddress": "node ../../../../scripts/setRegistryAddress.js 31337 ../../../../packages/registry/worlds.json src/Constants.sol REGISTRY_ADDRESS",
     "setAddress": "yarn run setLocalRegistryAddress",
     "build:local": "yarn run setAddress && yarn run initialize",
-    "deploy:local": "yarn run setAddress && yarn initialize && yarn mud deploy",
+    "deploy:local": "yarn mud deploy",
     "deploy": "yarn initialize && yarn mud deploy",
     "deploy:hackathon": "yarn initialize && yarn mud deploy --profile=hackathon-testnet",
     "deploy:testnet": "yarn initialize && yarn mud deploy --profile=lattice-testnet",

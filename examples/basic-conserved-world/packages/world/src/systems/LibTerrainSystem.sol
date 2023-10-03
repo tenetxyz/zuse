@@ -80,7 +80,7 @@ contract LibTerrainSystem is System {
       id: 3,
       minMass: 100,
       maxMass: 300,
-      energy: 100,
+      energy: 1000,
       count: uint(int(1 * SHARD_DIM * SHARD_DIM))
     });
 

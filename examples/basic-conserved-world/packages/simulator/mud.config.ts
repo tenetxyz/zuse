@@ -27,12 +27,18 @@ export default mudConfig({
         entity: "bytes32",
       },
       schema: {
-        velocity: "bytes", // VoxelCoord, 3D vector
         lastUpdateBlock: "uint256",
+        velocity: "bytes", // VoxelCoord, 3D vector
       },
     },
   },
-  systems: {},
+  systems: {
+    EnergyHelperSystem: {
+      name: "EnergyHelperSyst",
+      openAccess: false,
+      accessList: ["MassSystem"],
+    },
+  },
   modules: [
     {
       name: "KeysInTableModule",

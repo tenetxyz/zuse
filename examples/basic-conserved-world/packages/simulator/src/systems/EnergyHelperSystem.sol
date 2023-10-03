@@ -11,19 +11,14 @@ import { min, add, sub, safeSubtract, safeAdd, abs, absInt32 } from "@tenet-util
 import { VoxelTypeRegistry, VoxelTypeRegistryData } from "@tenet-registry/src/codegen/tables/VoxelTypeRegistry.sol";
 import { getUniqueEntity } from "@latticexyz/world/src/modules/uniqueentity/getUniqueEntity.sol";
 import { console } from "forge-std/console.sol";
+import { getVelocity, getTerrainMass, getTerrainEnergy, getTerrainVelocity, getNeighbourEntities, createTerrainEntity } from "@tenet-simulator/src/Utils.sol";
 
 uint256 constant MAXIMUM_ENERGY_OUT = 100;
 uint256 constant MAXIMUM_ENERGY_IN = 100;
 
-contract EnergySystem is System {
-  function fluxEnergy(
-    bool isFluxIn,
-    address caAddress,
-    VoxelEntity memory centerVoxelEntity,
-    uint256 energyToFlux
-  ) public {
+contract EnergyHelperSystem is System {
+  function fluxEnergy(bool isFluxIn, address callerAddress, bytes32 entityId, uint256 energyToFlux) public {
     uint8 radius = 1;
-    uint32 scale = centerVoxelEntity.scale;
     while (energyToFlux > 0) {
       if (radius > 255) {
         revert("Ran out of neighbours to flux energy from");
@@ -33,7 +28,7 @@ contract EnergySystem is System {
         ,
         uint256 numNeighboursToInclude,
         uint256[] memory neighbourEnergyDelta
-      ) = initializeNeighbours(isFluxIn, caAddress, centerVoxelEntity, radius, scale);
+      ) = initializeNeighbours(isFluxIn, callerAddress, entityId, radius);
 
       if (numNeighboursToInclude == 0) {
         radius += 1;
@@ -42,7 +37,7 @@ contract EnergySystem is System {
 
       energyToFlux = processRadius(
         isFluxIn,
-        scale,
+        callerAddress,
         neighbourEntities,
         energyToFlux,
         numNeighboursToInclude,
@@ -54,10 +49,9 @@ contract EnergySystem is System {
 
   function initializeNeighbours(
     bool isFluxIn,
-    address caAddress,
-    VoxelEntity memory centerVoxelEntity,
-    uint8 radius,
-    uint32 scale
+    address callerAddress,
+    bytes32 entityId,
+    uint8 radius
   )
     internal
     returns (
@@ -67,7 +61,7 @@ contract EnergySystem is System {
       uint256[] memory neighbourEnergyDelta
     )
   {
-    (neighbourEntities, neighbourCoords) = IWorld(_world()).calculateMooreNeighbourEntities(centerVoxelEntity, radius);
+    (neighbourEntities, neighbourCoords) = getNeighbourEntities(callerAddress, entityId, radius);
     numNeighboursToInclude = 0;
 
     // Initialize an array to store how much energy can still be taken/given from/to each neighbor
@@ -75,24 +69,17 @@ contract EnergySystem is System {
 
     for (uint256 i = 0; i < neighbourEntities.length; i++) {
       if (uint256(neighbourEntities[i]) == 0) {
-        // create the entities that don't exist from the terrain
-        (bytes32 terrainVoxelTypeId, BodyPhysicsData memory terrainPhysicsData) = IWorld(_world())
-          .getTerrainBodyPhysicsData(caAddress, neighbourCoords[i]);
-        if (isFluxIn && terrainPhysicsData.energy == 0) {
+        if (isFluxIn && getTerrainEnergy(callerAddress, neighbourCoords[i]) == 0) {
           // if we are taking energy from the terrain, we can't take from terrain that has no energy
           continue;
         }
-        VoxelEntity memory newTerrainEntity = spawnBody(
-          terrainVoxelTypeId,
-          neighbourCoords[i],
-          bytes4(0),
-          terrainPhysicsData
-        );
+        // create the entities that don't exist from the terrain
+        VoxelEntity memory newTerrainEntity = createTerrainEntity(callerAddress, neighbourCoords[i]);
         neighbourEntities[i] = newTerrainEntity.entityId;
       }
 
       if (isFluxIn) {
-        if (BodyPhysics.getEnergy(scale, neighbourEntities[i]) > 0) {
+        if (Energy.get(callerAddress, neighbourEntities[i]) > 0) {
           // we only flux in to neighbours that have energy
           neighbourEnergyDelta[i] = MAXIMUM_ENERGY_OUT;
           numNeighboursToInclude++;
@@ -107,7 +94,7 @@ contract EnergySystem is System {
 
   function processRadius(
     bool isFluxIn,
-    uint32 scale,
+    address callerAddress,
     bytes32[] memory neighbourEntities,
     uint256 energyToFlux,
     uint256 numNeighboursToInclude,
@@ -128,7 +115,7 @@ contract EnergySystem is System {
         if (uint256(neighborEntity) == 0) {
           continue;
         }
-        uint256 neighbourEnergy = BodyPhysics.getEnergy(scale, neighborEntity);
+        uint256 neighbourEnergy = Energy.get(callerAddress, neighborEntity);
         if (isFluxIn && neighbourEnergy == 0) {
           continue;
         }
@@ -146,7 +133,7 @@ contract EnergySystem is System {
         uint256 newNeighbourEnergy = isFluxIn
           ? safeSubtract(neighbourEnergy, energyToTransfer)
           : safeAdd(neighbourEnergy, energyToTransfer);
-        BodyPhysics.setEnergy(scale, neighborEntity, newNeighbourEnergy);
+        Energy.set(callerAddress, neighborEntity, newNeighbourEnergy);
 
         // Decrease the amount of energy left to flux
         neighbourEnergyDelta[i] = safeSubtract(neighbourEnergyDelta[i], energyToTransfer);
@@ -173,33 +160,5 @@ contract EnergySystem is System {
     }
 
     return energyToFlux;
-  }
-
-  // TODO: This should be in a separate contract
-  function spawnBody(
-    bytes32 voxelTypeId,
-    VoxelCoord memory coord,
-    bytes4 mindSelector,
-    BodyPhysicsData memory bodyPhysicsData
-  ) public returns (VoxelEntity memory) {
-    VoxelTypeRegistryData memory voxelTypeData = VoxelTypeRegistry.get(IStore(REGISTRY_ADDRESS), voxelTypeId);
-    address caAddress = WorldConfig.get(voxelTypeId);
-
-    // Create new body entity
-    uint32 scale = voxelTypeData.scale;
-    bytes32 newEntityId = getUniqueEntity();
-    VoxelEntity memory eventVoxelEntity = VoxelEntity({ scale: scale, entityId: newEntityId });
-    Position.set(scale, newEntityId, coord.x, coord.y, coord.z);
-
-    // Update layers
-    IWorld(_world()).enterCA(caAddress, eventVoxelEntity, voxelTypeId, mindSelector, coord);
-    CAVoxelTypeData memory entityCAVoxelType = CAVoxelType.get(IStore(caAddress), _world(), newEntityId);
-    VoxelType.set(scale, newEntityId, entityCAVoxelType.voxelTypeId, entityCAVoxelType.voxelVariantId);
-    // TODO: Should we run this?
-    // IWorld(_world()).runCA(caAddress, eventVoxelEntity, bytes4(0));
-
-    BodyPhysics.set(scale, newEntityId, bodyPhysicsData);
-
-    return eventVoxelEntity;
   }
 }

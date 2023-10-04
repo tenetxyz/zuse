@@ -36,9 +36,6 @@ contract PostDeploy is Script {
 
     IWorld(worldAddress).registerCA();
 
-    console.log("Terrain selector");
-    console.logBytes4(IWorld(worldAddress).ca_LibTerrainSystem_getTerrainVoxel.selector);
-
     vm.stopBroadcast();
   }
 }

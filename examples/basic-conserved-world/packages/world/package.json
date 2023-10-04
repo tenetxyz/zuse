@@ -28,7 +28,8 @@
     "test-verbose": "yarn initialize && yarn mud test --forgeOptions='-vvv'",
     "worldgen": "yarn mud worldgen",
     "worldtypes": "rimraf types && typechain --target=ethers-v5 out/IWorld.sol/IWorld.json",
-    "deployMap": "node deployMap.ts"
+    "deployMap": "node deployMap.ts",
+    "spawnAgent": "forge script script/SpawnAgent.s.sol --sig \"run(address)\" 0xc5a5C42992dECbae36851359345FE25997F5C42d --broadcast --rpc-url http://127.0.0.1:8545"
   },
   "dependencies": {
     "@latticexyz/cli": "link:../../../../../mud/packages/cli",

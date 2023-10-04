@@ -24,8 +24,8 @@ contract LibTerrainSystem is System {
     address caAddress = BASE_CA_ADDRESS;
     bytes memory returnData = safeStaticCall(
       caAddress,
-      abi.encodeWithSignature("getTerrainVoxel((int32,int32,int32))", coord),
-      string(abi.encode("getTerrainVoxel ", coord))
+      abi.encodeWithSignature("ca_LibTerrainSystem_getTerrainVoxel((int32,int32,int32))", coord),
+      string(abi.encode("ca_LibTerrainSystem_getTerrainVoxel ", coord))
     );
     return abi.decode(returnData, (bytes32));
   }

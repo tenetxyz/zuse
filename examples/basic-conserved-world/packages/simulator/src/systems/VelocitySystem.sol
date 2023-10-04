@@ -367,14 +367,13 @@ contract VelocitySystem is System {
     } else {
       uint256 terrainMass = getTerrainMass(callerAddress, oldEntity.scale, newCoord);
       require(terrainMass == 0, "Cannot move on top of terrain with mass");
-      VoxelEntity memory newTerrainEntity = createTerrainEntity(callerAddress, oldEntity.scale, newCoord);
-      newEntity = newTerrainEntity;
-      newEntityExists = hasKey(
-        EnergyTableId,
-        Energy.encodeKeyTuple(callerAddress, newEntity.scale, newEntity.entityId)
+      IWorld(_world()).initEntity(
+        newEntity,
+        terrainMass,
+        getTerrainEnergy(callerAddress, oldEntity.scale, newCoord),
+        getTerrainVelocity(callerAddress, oldEntity.scale, newCoord)
       );
     }
-    require(newEntityExists, "New entity does not exist");
     uint256 energyInNewBlock = Energy.get(callerAddress, newEntity.scale, newEntity.entityId);
 
     // Reset the old entity's mass, energy and velocity

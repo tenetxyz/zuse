@@ -10,6 +10,9 @@ run_example() {
     fi
     echo $command
     concurrently -n example -c \#fb8500 "$command"
+
+    cast rpc evm_snapshot --rpc-url "http://127.0.0.1:8545" > "scripts/rollback/snapshot_id.txt"
+    echo "created snapshot"
 }
 
 # Check if the first argument is "run"

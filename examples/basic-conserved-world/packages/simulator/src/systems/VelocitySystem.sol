@@ -345,21 +345,21 @@ contract VelocitySystem is System {
     VoxelEntity memory newEntity
   ) public {
     address callerAddress = _msgSender();
-    bool oldEntityExists = hasKey(MassTableId, Mass.encodeKeyTuple(callerAddress, oldEntity.scale, oldEntity.entityId));
-    require(oldEntityExists, "Old entity does not exist");
-    uint256 bodyMass = Mass.get(callerAddress, oldEntity.scale, oldEntity.entityId);
+    require(
+      hasKey(MassTableId, Mass.encodeKeyTuple(callerAddress, oldEntity.scale, oldEntity.entityId)),
+      "Old entity does not exist"
+    );
     (VoxelCoord memory newVelocity, uint256 energyRequired) = calculateNewVelocity(
       callerAddress,
       oldCoord,
       newCoord,
       oldEntity,
-      bodyMass
+      Mass.get(callerAddress, oldEntity.scale, oldEntity.entityId)
     );
     uint256 energyInOldBlock = Energy.get(callerAddress, oldEntity.scale, oldEntity.entityId);
     require(energyRequired <= energyInOldBlock, "Not enough energy to move.");
 
-    bool newEntityExists = hasKey(MassTableId, Mass.encodeKeyTuple(callerAddress, newEntity.scale, newEntity.entityId));
-    if (newEntityExists) {
+    if (hasKey(MassTableId, Mass.encodeKeyTuple(callerAddress, newEntity.scale, newEntity.entityId))) {
       require(
         Mass.get(callerAddress, newEntity.scale, newEntity.entityId) == 0,
         "Cannot move on top of an entity with mass"
@@ -367,11 +367,19 @@ contract VelocitySystem is System {
     } else {
       uint256 terrainMass = getTerrainMass(callerAddress, oldEntity.scale, newCoord);
       require(terrainMass == 0, "Cannot move on top of terrain with mass");
-      IWorld(_world()).initEntity(
-        newEntity,
-        terrainMass,
-        getTerrainEnergy(callerAddress, oldEntity.scale, newCoord),
-        getTerrainVelocity(callerAddress, oldEntity.scale, newCoord)
+      Mass.set(callerAddress, newEntity.scale, newEntity.entityId, terrainMass);
+      Energy.set(
+        callerAddress,
+        newEntity.scale,
+        newEntity.entityId,
+        getTerrainEnergy(callerAddress, newEntity.scale, newCoord)
+      );
+      Velocity.set(
+        callerAddress,
+        newEntity.scale,
+        newEntity.entityId,
+        block.number,
+        abi.encode(getTerrainVelocity(callerAddress, newEntity.scale, newCoord))
       );
     }
     uint256 energyInNewBlock = Energy.get(callerAddress, newEntity.scale, newEntity.entityId);

@@ -3,6 +3,7 @@ pragma solidity >=0.8.0;
 
 import { getUniqueEntity } from "@latticexyz/world/src/modules/uniqueentity/getUniqueEntity.sol";
 import { Script } from "forge-std/Script.sol";
+import { IStore } from "@latticexyz/store/src/IStore.sol";
 import { console } from "forge-std/console.sol";
 import { IWorld } from "../src/codegen/world/IWorld.sol";
 import { IBaseWorld } from "@latticexyz/world/src/interfaces/IBaseWorld.sol";
@@ -10,6 +11,7 @@ import { VoxelCoord } from "@tenet-utils/src/Types.sol";
 import { SHARD_DIM } from "@tenet-level1-ca/src/Constants.sol";
 import { BASE_CA_ADDRESS } from "@tenet-world/src/Constants.sol";
 import { TerrainProperties, TerrainPropertiesTableId, VoxelTypeProperties } from "@tenet-world/src/codegen/Tables.sol";
+import { FighterVoxelID, GrassVoxelID, AirVoxelID, DirtVoxelID, BedrockVoxelID } from "@tenet-level1-ca/src/Constants.sol";
 
 contract PostDeploy is Script {
   function run(address worldAddress) external {

@@ -53,20 +53,6 @@ contract InitSystem is InitWorldSystem {
     VoxelTypeProperties.set(GrassPokemonVoxelID, 10);
   }
 
-  function initWorldState() public {
-    // TODO: require only called once by world deployer
-    IWorld(_world()).spawnBody(FighterVoxelID, VoxelCoord(10, 2, 10), bytes4(0));
-
-    // TODO: remove, were used for testing collision
-    // VoxelEntity memory grassEntity = IWorld(_world()).spawnBody(
-    //   GrassVoxelID,
-    //   VoxelCoord(10, 2, 11),
-    //   bytes4(0)
-    // );
-    // IWorld(_world()).spawnBody(GrassVoxelID, VoxelCoord(10, 2, 13), bytes4(0));
-    // IWorld(_world()).moveWithAgent(GrassVoxelID, VoxelCoord(10, 2, 15), VoxelCoord(10, 2, 16), grassEntity);
-  }
-
   function onNewCAVoxelType(address caAddress, bytes32 voxelTypeId) public override {
     super.onNewCAVoxelType(caAddress, voxelTypeId);
   }

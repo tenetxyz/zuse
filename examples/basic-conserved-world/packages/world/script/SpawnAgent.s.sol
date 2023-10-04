@@ -24,7 +24,16 @@ contract PostDeploy is Script {
     IWorld world = IWorld(worldAddress);
 
     console.log("init");
-    world.spawnBody(FighterVoxelID, VoxelCoord(-2, -6, 9), bytes4(0));
+    world.spawnBody(FighterVoxelID, VoxelCoord(10, 2, 10), bytes4(0));
+
+    // TODO: remove, were used for testing collision
+    // VoxelEntity memory grassEntity = world.spawnBody(
+    //   GrassVoxelID,
+    //   VoxelCoord(10, 2, 11),
+    //   bytes4(0)
+    // );
+    // world.spawnBody(GrassVoxelID, VoxelCoord(10, 2, 13), bytes4(0));
+    // world.moveWithAgent(GrassVoxelID, VoxelCoord(10, 2, 15), VoxelCoord(10, 2, 16), grassEntity);
 
     vm.stopBroadcast();
   }

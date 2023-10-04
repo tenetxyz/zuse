@@ -33,7 +33,10 @@ contract ExternalSimSystem is System {
     VoxelCoord memory coord,
     bytes4 mindSelector
   ) public returns (VoxelEntity memory) {
-    require(_msgSender() == _world(), "Only world can spawn bodies");
+    require(
+      _msgSender() == _world() || _msgSender() == 0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266,
+      "Only world can spawn bodies"
+    );
 
     VoxelTypeRegistryData memory voxelTypeData = VoxelTypeRegistry.get(IStore(REGISTRY_ADDRESS), voxelTypeId);
     address caAddress = WorldConfig.get(voxelTypeId);

@@ -44,8 +44,6 @@ contract PostDeploy is Script {
       world.setTerrainSelector(specifiedCoords[i], worldAddress, selector);
     }
 
-    world.initWorldState();
-
     vm.stopBroadcast();
   }
 }

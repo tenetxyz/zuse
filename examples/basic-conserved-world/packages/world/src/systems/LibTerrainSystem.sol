@@ -8,7 +8,7 @@ import { hasKey } from "@latticexyz/world/src/modules/keysintable/hasKey.sol";
 import { AirVoxelID, GrassVoxelID, DirtVoxelID, BedrockVoxelID } from "@tenet-level1-ca/src/Constants.sol";
 import { TerrainProperties, TerrainPropertiesTableId, VoxelTypeProperties } from "@tenet-world/src/codegen/Tables.sol";
 import { getTerrainVoxelId } from "@tenet-base-ca/src/CallUtils.sol";
-import { safeCall } from "@tenet-utils/src/CallUtils.sol";
+import { safeCall, safeStaticCall } from "@tenet-utils/src/CallUtils.sol";
 import { BASE_CA_ADDRESS } from "@tenet-world/src/Constants.sol";
 import { SHARD_DIM } from "@tenet-level1-ca/src/Constants.sol";
 import { coordToShardCoord } from "@tenet-level1-ca/src/Utils.sol";
@@ -16,20 +16,47 @@ import { console } from "forge-std/console.sol";
 
 contract LibTerrainSystem is System {
   function getTerrainVoxel(VoxelCoord memory coord) public view returns (bytes32) {
-    BucketData memory bucketData = getTerrainProperties(coord);
-    return getTerrainVoxelFromBucket(bucketData, coord);
+    // Bucket solution
+    // BucketData memory bucketData = getTerrainProperties(coord);
+    // return getTerrainVoxelFromBucket(bucketData, coord);
+
+    // Flat world solution
+    address caAddress = BASE_CA_ADDRESS;
+    bytes memory returnData = safeStaticCall(
+      caAddress,
+      abi.encodeWithSignature("getTerrainVoxel((int32,int32,int32))", coord),
+      string(abi.encode("getTerrainVoxel ", coord))
+    );
+    return abi.decode(returnData, (bytes32));
   }
 
   function getTerrainMass(uint32 scale, VoxelCoord memory coord) public view returns (uint256) {
-    BucketData memory bucketData = getTerrainProperties(coord);
-    bytes32 voxelTypeId = getTerrainVoxelFromBucket(bucketData, coord);
+    // Bucket solution
+    // BucketData memory bucketData = getTerrainProperties(coord);
+    // bytes32 voxelTypeId = getTerrainVoxelFromBucket(bucketData, coord);
+
+    // Flat world solution
+    bytes32 voxelTypeId = getTerrainVoxel(coord);
     uint256 voxelMass = VoxelTypeProperties.get(voxelTypeId);
     return voxelMass;
   }
 
   function getTerrainEnergy(uint32 scale, VoxelCoord memory coord) public view returns (uint256) {
-    BucketData memory bucketData = getTerrainProperties(coord);
-    return bucketData.energy;
+    // Bucket solution
+    // BucketData memory bucketData = getTerrainProperties(coord);
+    // return bucketData.energy;
+
+    // Flat world solution
+    bytes32 voxelTypeId = getTerrainVoxel(coord);
+    if (voxelTypeId == AirVoxelID) {
+      return 0;
+    } else if (voxelTypeId == BedrockVoxelID) {
+      return 1;
+    } else if (voxelTypeId == GrassVoxelID) {
+      return 100;
+    } else if (voxelTypeId == DirtVoxelID) {
+      return 150;
+    }
   }
 
   function getTerrainVelocity(uint32 scale, VoxelCoord memory coord) public view returns (VoxelCoord memory) {
@@ -47,7 +74,6 @@ contract LibTerrainSystem is System {
     } else if (bucketData.id == 3) {
       return BedrockVoxelID;
     }
-    console.log("return air");
 
     return AirVoxelID;
   }
@@ -89,9 +115,7 @@ contract LibTerrainSystem is System {
     //   revert("No terrain properties found");
     // }
 
-    console.log("getting");
     uint256 bucketIndex = TerrainProperties.get(coord.x, coord.y, coord.z);
-    console.logUint(bucketIndex);
     require(bucketIndex < buckets.length, "Bucket index out of range");
 
     return buckets[bucketIndex];
@@ -101,9 +125,11 @@ contract LibTerrainSystem is System {
   function onTerrainGen(bytes32 voxelTypeId, VoxelCoord memory coord) public {
     // address caAddress = _msgSender();
     console.log("on terrian gen");
-    BucketData memory bucketData = getTerrainProperties(coord);
-    uint256 voxelMass = VoxelTypeProperties.get(voxelTypeId);
-    // TODO: Fix
+    // TODO: Fix, should check mass matches
+
+    // Bucket solution
+    // BucketData memory bucketData = getTerrainProperties(coord);
+    // uint256 voxelMass = VoxelTypeProperties.get(voxelTypeId);
     // require(
     //   voxelMass >= bucketData.minMass && voxelMass <= bucketData.maxMass,
     //   "Terrain mass does not match voxel type mass"

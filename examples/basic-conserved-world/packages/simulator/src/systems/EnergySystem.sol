@@ -55,6 +55,8 @@ contract EnergySystem is System {
 
   function fluxEnergyOut(VoxelEntity memory entity, uint256 energyToFlux) public {
     address callerAddress = _msgSender();
+    uint256 currentEnergy = Energy.get(callerAddress, entity.scale, entity.entityId);
     IWorld(_world()).fluxEnergy(false, callerAddress, entity, energyToFlux);
+    Energy.set(callerAddress, entity.scale, entity.entityId, currentEnergy - energyToFlux);
   }
 }

@@ -30,7 +30,8 @@ contract EnergyHelperSystem is System {
     );
     if (!isFluxIn) {
       require(
-        Energy.get(callerAddress, centerVoxelEntity.scale, centerVoxelEntity.entityId) >= energyToFlux,
+        _msgSender() == _world() ||
+          Energy.get(callerAddress, centerVoxelEntity.scale, centerVoxelEntity.entityId) >= energyToFlux,
         "Cannot flux out more energy than you have"
       );
     }

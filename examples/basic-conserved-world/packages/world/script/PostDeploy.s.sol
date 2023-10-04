@@ -21,6 +21,7 @@ contract PostDeploy is Script {
 
     // Call world init function
     IWorld world = IWorld(worldAddress);
+    IStore store = IStore(worldAddress);
 
     world.registerWorld();
     world.initWorldVoxelTypes();
@@ -41,6 +42,14 @@ contract PostDeploy is Script {
       bytes4 selector = world.getTerrainVoxel.selector;
       world.setTerrainSelector(specifiedCoords[i], worldAddress, selector);
     }
+
+    // TODO: remove when we add buckets
+    bytes32 voxelTypeId = FighterVoxelID;
+    VoxelCoord memory coord = VoxelCoord({ x: 10, y: 2, z: 10 });
+    uint256 initMass = VoxelTypeProperties.get(store, voxelTypeId);
+    uint256 initEnergy = 1000;
+    VoxelCoord memory initVelocity = VoxelCoord({ x: 0, y: 0, z: 0 });
+    world.spawnBody(voxelTypeId, coord, bytes4(0), initMass, initEnergy, initVelocity);
 
     vm.stopBroadcast();
   }

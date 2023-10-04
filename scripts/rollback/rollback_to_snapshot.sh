@@ -1,7 +1,7 @@
 #!/bin/sh
 
 # Specify the directory where you want to check for the file
-directory="./"
+directory="$(cd "$(dirname "$0")" && pwd)"
 
 # Check if the file "snapshot_id.txt" does not exist in the specified directory
 if [ ! -e "$directory/snapshot_id.txt" ]; then

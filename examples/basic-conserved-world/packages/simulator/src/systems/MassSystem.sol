@@ -32,15 +32,9 @@ contract MassSystem is System {
         }
       } else {
         uint256 terrainMass = getTerrainMass(callerAddress, entity.scale, coord);
-        require(terrainMass == 0, "Cannot build on top of terrain with mass");
+        require(terrainMass == 0 || terrainMass == newMass, "Invalid terrain mass");
         isBuild = true;
-      }
-
-      // Calculate how much energy this operation requires
-      uint256 energyRequired = newMass * 10;
-      IWorld(_world()).fluxEnergy(isBuild, callerAddress, entity, energyRequired);
-      if (!entityExists) {
-        Mass.set(callerAddress, entity.scale, entity.entityId, newMass);
+        Mass.set(callerAddress, entity.scale, entity.entityId, terrainMass);
         Energy.set(callerAddress, entity.scale, entity.entityId, 0);
         Velocity.set(
           callerAddress,
@@ -49,9 +43,12 @@ contract MassSystem is System {
           block.number,
           abi.encode(VoxelCoord({ x: 0, y: 0, z: 0 }))
         );
-      } else {
-        Mass.set(callerAddress, entity.scale, entity.entityId, newMass);
       }
+
+      // Calculate how much energy this operation requires
+      uint256 energyRequired = newMass * 10;
+      IWorld(_world()).fluxEnergy(isBuild, callerAddress, entity, energyRequired);
+      Mass.set(callerAddress, entity.scale, entity.entityId, newMass);
     } else {
       // this is a mine event
       uint256 massToMine;

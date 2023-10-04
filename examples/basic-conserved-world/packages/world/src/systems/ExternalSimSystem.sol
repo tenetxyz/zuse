@@ -15,6 +15,7 @@ import { VoxelTypeRegistry, VoxelTypeRegistryData } from "@tenet-registry/src/co
 import { WorldConfig, WorldConfigTableId } from "@tenet-base-world/src/codegen/tables/WorldConfig.sol";
 import { CAVoxelType, CAVoxelTypeData } from "@tenet-base-ca/src/codegen/tables/CAVoxelType.sol";
 import { getUniqueEntity } from "@latticexyz/world/src/modules/uniqueentity/getUniqueEntity.sol";
+import { initEntity } from "@tenet-simulator/src/CallUtils.sol";
 import { console } from "forge-std/console.sol";
 
 contract ExternalSimSystem is System {
@@ -25,24 +26,30 @@ contract ExternalSimSystem is System {
       "Only simulator can create terrain entities"
     );
     bytes32 terrainVoxelTypeId = IWorld(_world()).getTerrainVoxel(coord);
-    return spawnBody(terrainVoxelTypeId, coord, bytes4(0));
+    uint256 initMass = IWorld(_world()).getTerrainMass(scale, coord);
+    uint256 initEnergy = IWorld(_world()).getTerrainEnergy(scale, coord);
+    VoxelCoord memory initVelocity = IWorld(_world()).getTerrainVelocity(scale, coord);
+    return spawnBody(terrainVoxelTypeId, coord, bytes4(0), initMass, initEnergy, initVelocity);
   }
 
   function spawnBody(
     bytes32 voxelTypeId,
     VoxelCoord memory coord,
-    bytes4 mindSelector
+    bytes4 mindSelector,
+    uint256 initMass,
+    uint256 initEnergy,
+    VoxelCoord memory initVelocity
   ) public returns (VoxelEntity memory) {
     require(
-      _msgSender() == _world() || _msgSender() == 0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266,
-      "Only world can spawn bodies"
+      _msgSender() == SIMULATOR_ADDRESS ||
+        _msgSender() == _world() ||
+        _msgSender() == 0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266, // TODO: find a better way to figure out world deployer
+      "Not approved to spawn bodies"
     );
 
-    VoxelTypeRegistryData memory voxelTypeData = VoxelTypeRegistry.get(IStore(REGISTRY_ADDRESS), voxelTypeId);
     address caAddress = WorldConfig.get(voxelTypeId);
-
     // Create new body entity
-    uint32 scale = voxelTypeData.scale;
+    uint32 scale = VoxelTypeRegistry.getScale(IStore(REGISTRY_ADDRESS), voxelTypeId);
     bytes32 newEntityId = getUniqueEntity();
     VoxelEntity memory eventVoxelEntity = VoxelEntity({ scale: scale, entityId: newEntityId });
     Position.set(scale, newEntityId, coord.x, coord.y, coord.z);
@@ -53,6 +60,8 @@ contract ExternalSimSystem is System {
     VoxelType.set(scale, newEntityId, entityCAVoxelType.voxelTypeId, entityCAVoxelType.voxelVariantId);
     // TODO: Should we run this?
     // IWorld(_world()).runCA(caAddress, eventVoxelEntity, bytes4(0));
+
+    initEntity(SIMULATOR_ADDRESS, eventVoxelEntity, initMass, initEnergy, initVelocity);
 
     return eventVoxelEntity;
   }

@@ -7,5 +7,6 @@ string constant SIM_ENERGY_TRANSFER_SIG = "energyTransfer((uint32,bytes32),(int3
 string constant SIM_FLUX_ENERGY_OUT_SIG = "fluxEnergyOut((uint32,bytes32),uint256)";
 string constant SIM_VELOCITY_CHANGE_SIG = "velocityChange((int32,int32,int32),(int32,int32,int32),(uint32,bytes32),(uint32,bytes32))";
 string constant SIM_VELOCITY_CACHE_UPDATE_SIG = "updateVelocityCache((uint32,bytes32))";
+string constant SIM_INIT_ENTITY_SIG = "initEntity((uint32,bytes32),uint256,uint256,(int32,int32,int32))";
 
 uint256 constant NUM_BLOCKS_BEFORE_REDUCE_VELOCITY = 60;

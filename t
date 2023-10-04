@@ -50,6 +50,9 @@ if [[ "$1" == "run" ]]; then
         "dev:multiple-layers-world")
             run_example "multiple-layers-world"
             ;;
+        "dev:spawn-entity")
+            cd examples/basic-conserved-world/packages/world && yarn run spawnEntity
+            ;;
         "dev:client")
             cd examples/client && yarn run dev
             ;;

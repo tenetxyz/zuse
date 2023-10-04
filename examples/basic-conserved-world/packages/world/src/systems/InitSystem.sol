@@ -40,7 +40,7 @@ contract InitSystem is InitWorldSystem {
 
     // Set mass voxel types for voxels
     VoxelTypeProperties.set(AirVoxelID, 0);
-    VoxelTypeProperties.set(GrassVoxelID, 50);
+    VoxelTypeProperties.set(GrassVoxelID, 10);
     VoxelTypeProperties.set(DirtVoxelID, 5);
     VoxelTypeProperties.set(BedrockVoxelID, 100);
     VoxelTypeProperties.set(EnergySourceVoxelID, 10);

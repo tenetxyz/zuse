@@ -2,22 +2,18 @@
 pragma solidity >=0.8.0;
 
 import { IStore } from "@latticexyz/store/src/IStore.sol";
-import { IWorld } from "@tenet-world/src/codegen/world/IWorld.sol";
+import { IWorld } from "@tenet-simulator/src/codegen/world/IWorld.sol";
 import { hasKey } from "@latticexyz/world/src/modules/keysintable/hasKey.sol";
 import { System } from "@latticexyz/world/src/System.sol";
-import { OwnedBy, Position, VoxelType, VoxelTypeProperties, BodyPhysics, BodyPhysicsData, BodyPhysicsTableId } from "@tenet-world/src/codegen/Tables.sol";
 import { VoxelCoord, VoxelTypeData, VoxelEntity } from "@tenet-utils/src/Types.sol";
+import { Mass, MassTableId, Energy, EnergyTableId, Velocity, VelocityTableId } from "@tenet-simulator/src/codegen/Tables.sol";
 import { isZeroCoord, voxelCoordsAreEqual, uint256ToInt32, dot, mulScalar, divScalar, min, add, sub, safeSubtract, safeAdd, abs, absInt32 } from "@tenet-utils/src/VoxelCoordUtils.sol";
-import { REGISTRY_ADDRESS } from "@tenet-world/src/Constants.sol";
-import { AirVoxelID } from "@tenet-level1-ca/src/Constants.sol";
-import { BuildWorldEventData } from "@tenet-world/src/Types.sol";
 import { VoxelTypeRegistry, VoxelTypeRegistryData } from "@tenet-registry/src/codegen/tables/VoxelTypeRegistry.sol";
-import { CAVoxelType, CAVoxelTypeData } from "@tenet-base-ca/src/codegen/tables/CAVoxelType.sol";
-import { WorldConfig, WorldConfigTableId } from "@tenet-base-world/src/codegen/tables/WorldConfig.sol";
-import { getVoxelCoordStrict } from "@tenet-base-world/src/Utils.sol";
 import { MAX_VOXEL_NEIGHBOUR_UPDATE_DEPTH } from "@tenet-utils/src/Constants.sol";
 import { getUniqueEntity } from "@latticexyz/world/src/modules/uniqueentity/getUniqueEntity.sol";
-import { getVelocity } from "@tenet-world/src/Utils.sol";
+import { getVoxelTypeId, getVoxelCoordStrict, getVelocity, getTerrainMass, getTerrainEnergy, getTerrainVelocity, getNeighbourEntities, createTerrainEntity } from "@tenet-simulator/src/Utils.sol";
+import { NUM_BLOCKS_BEFORE_REDUCE_VELOCITY } from "@tenet-simulator/src/Constants.sol";
+import { console } from "forge-std/console.sol";
 
 struct CollisionData {
   VoxelEntity entity;
@@ -31,22 +27,29 @@ enum CoordDirection {
   Z
 }
 
-uint256 constant NUM_BLOCKS_BEFORE_REDUCE = 60;
-
 contract VelocitySystem is System {
+  // Constraints
+
+  // Behaviours
   function updateVelocityCache(VoxelEntity memory entity) public {
-    VoxelCoord memory velocity = getVelocity(entity);
+    address callerAddress = _msgSender();
+    require(
+      hasKey(VelocityTableId, Velocity.encodeKeyTuple(callerAddress, entity.scale, entity.entityId)),
+      "Entity does not exist"
+    );
+    VoxelCoord memory velocity = getVelocity(callerAddress, entity);
     if (isZeroCoord(velocity)) {
       return;
     }
     // Calculate how many blocks have passed since last update
-    uint256 blocksSinceLastUpdate = block.number - BodyPhysics.getLastUpdateBlock(entity.scale, entity.entityId);
+    uint256 blocksSinceLastUpdate = block.number -
+      Velocity.getLastUpdateBlock(callerAddress, entity.scale, entity.entityId);
     if (blocksSinceLastUpdate == 0) {
       return;
     }
     // Calculate the new velocity
 
-    int32 deltaV = uint256ToInt32(blocksSinceLastUpdate / NUM_BLOCKS_BEFORE_REDUCE);
+    int32 deltaV = uint256ToInt32(blocksSinceLastUpdate / NUM_BLOCKS_BEFORE_REDUCE_VELOCITY);
     // We dont want to reduce past 0
     VoxelCoord memory newVelocity = VoxelCoord({ x: 0, y: 0, z: 0 });
 
@@ -73,12 +76,11 @@ contract VelocitySystem is System {
 
     // Update the velocity
     if (!voxelCoordsAreEqual(velocity, newVelocity)) {
-      BodyPhysics.setVelocity(entity.scale, entity.entityId, abi.encode(newVelocity));
-      BodyPhysics.setLastUpdateBlock(entity.scale, entity.entityId, block.number);
+      Velocity.set(callerAddress, entity.scale, entity.entityId, block.number, abi.encode(newVelocity));
     }
   }
 
-  function onCollision(address caAddress, VoxelEntity memory centerVoxelEntity) public {
+  function onCollision(address callerAddress, VoxelEntity memory centerVoxelEntity) internal {
     CollisionData[] memory centerEntitiesToCheckStack = new CollisionData[](MAX_VOXEL_NEIGHBOUR_UPDATE_DEPTH);
     uint256 centerEntitiesToCheckStackIdx = 0;
     uint256 useStackIdx = 0;
@@ -94,10 +96,10 @@ contract VelocitySystem is System {
     while (useStackIdx < MAX_VOXEL_NEIGHBOUR_UPDATE_DEPTH) {
       CollisionData memory useCollisionData = centerEntitiesToCheckStack[useStackIdx];
       VoxelEntity memory useEntity = useCollisionData.entity;
-      VoxelCoord memory currentVelocity = getVelocity(useEntity);
-      VoxelCoord memory useCoord = getVoxelCoordStrict(useEntity);
+      VoxelCoord memory currentVelocity = getVelocity(callerAddress, useEntity);
+      VoxelCoord memory useCoord = getVoxelCoordStrict(callerAddress, useEntity);
       (VoxelCoord memory newVelocity, bytes32[] memory neighbourEntities, ) = calculateVelocityAfterCollision(
-        caAddress,
+        callerAddress,
         useCoord,
         useEntity,
         currentVelocity
@@ -110,7 +112,7 @@ contract VelocitySystem is System {
       if (!voxelCoordsAreEqual(currentVelocity, newVelocity)) {
         if (useStackIdx > 0) {
           // Note: we don't update the first one (index == 0), because it's already been applied in the initial move
-          BodyPhysics.setVelocity(useEntity.scale, useEntity.entityId, abi.encode(newVelocity));
+          Velocity.setVelocity(callerAddress, useEntity.scale, useEntity.entityId, abi.encode(newVelocity));
         }
 
         // Go through neighbours and add them to the stack for updates
@@ -124,7 +126,7 @@ contract VelocitySystem is System {
                 break;
               }
             }
-            if (!isAlreadyInStack && BodyPhysics.getMass(useEntity.scale, neighbourEntities[i]) > 0) {
+            if (!isAlreadyInStack && Mass.get(callerAddress, useEntity.scale, neighbourEntities[i]) > 0) {
               centerEntitiesToCheckStackIdx++;
               require(
                 centerEntitiesToCheckStackIdx < MAX_VOXEL_NEIGHBOUR_UPDATE_DEPTH,
@@ -152,7 +154,8 @@ contract VelocitySystem is System {
     for (uint256 i = 0; i <= centerEntitiesToCheckStackIdx; i++) {
       CollisionData memory collisionData = centerEntitiesToCheckStack[i];
       if (!voxelCoordsAreEqual(collisionData.oldVelocity, collisionData.newVelocity)) {
-        BodyPhysics.setVelocity(
+        Velocity.setVelocity(
+          callerAddress,
           collisionData.entity.scale,
           collisionData.entity.entityId,
           abi.encode(collisionData.oldVelocity)
@@ -166,12 +169,13 @@ contract VelocitySystem is System {
       CollisionData memory collisionData = centerEntitiesToCheckStack[i - 1];
       if (!voxelCoordsAreEqual(collisionData.oldVelocity, collisionData.newVelocity)) {
         VoxelEntity memory workingEntity = collisionData.entity;
-        VoxelCoord memory workingCoord = getVoxelCoordStrict(workingEntity);
+        VoxelCoord memory workingCoord = getVoxelCoordStrict(callerAddress, workingEntity);
         VoxelCoord memory deltaVelocity = sub(collisionData.newVelocity, collisionData.oldVelocity);
         // go through each axis, x, y, z and for each one figure out the new coord by adding the unit amount (ie 1), and make the move event call
-        bytes32 voxelTypeId = VoxelType.getVoxelTypeId(workingEntity.scale, workingEntity.entityId);
+        bytes32 voxelTypeId = getVoxelTypeId(callerAddress, workingEntity);
         // TODO: What is the optimal order in which to try these?
         (workingCoord, workingEntity) = tryToReachTargetVelocity(
+          callerAddress,
           voxelTypeId,
           workingEntity,
           workingCoord,
@@ -179,6 +183,7 @@ contract VelocitySystem is System {
           CoordDirection.X
         );
         (workingCoord, workingEntity) = tryToReachTargetVelocity(
+          callerAddress,
           voxelTypeId,
           workingEntity,
           workingCoord,
@@ -186,6 +191,7 @@ contract VelocitySystem is System {
           CoordDirection.Y
         );
         (workingCoord, workingEntity) = tryToReachTargetVelocity(
+          callerAddress,
           voxelTypeId,
           workingEntity,
           workingCoord,
@@ -197,6 +203,7 @@ contract VelocitySystem is System {
   }
 
   function tryToReachTargetVelocity(
+    address callerAddress,
     bytes32 voxelTypeId,
     VoxelEntity memory entity,
     VoxelCoord memory startingCoord,
@@ -221,7 +228,7 @@ contract VelocitySystem is System {
       {
         VoxelCoord memory newCoord = add(workingCoord, deltaVelocity);
         // Try moving
-        (bool success, bytes memory returnData) = _world().call(
+        (bool success, bytes memory returnData) = callerAddress.call(
           abi.encodeWithSignature(
             "moveWithAgent(bytes32,(int32,int32,int32),(int32,int32,int32),(uint32,bytes32))",
             voxelTypeId,
@@ -233,7 +240,7 @@ contract VelocitySystem is System {
         if (success && returnData.length > 0) {
           (, workingEntity) = abi.decode(returnData, (VoxelEntity, VoxelEntity));
           require(
-            voxelCoordsAreEqual(getVoxelCoordStrict(workingEntity), newCoord),
+            voxelCoordsAreEqual(getVoxelCoordStrict(callerAddress, workingEntity), newCoord),
             "PhysicsSystem: Move event failed"
           );
           workingCoord = newCoord;
@@ -248,7 +255,7 @@ contract VelocitySystem is System {
   }
 
   function calculateVelocityAfterCollision(
-    address caAddress,
+    address callerAddress,
     VoxelCoord memory centerCoord,
     VoxelEntity memory centerVoxelEntity,
     VoxelCoord memory primaryVelocity
@@ -260,7 +267,7 @@ contract VelocitySystem is System {
       VoxelCoord[] memory neighbourCoords
     )
   {
-    (neighbourEntities, neighbourCoords) = IWorld(_world()).calculateNeighbourEntities(centerVoxelEntity);
+    (neighbourEntities, neighbourCoords) = getNeighbourEntities(callerAddress, centerVoxelEntity);
 
     bytes32[] memory collidingEntities = new bytes32[](neighbourEntities.length);
 
@@ -272,6 +279,7 @@ contract VelocitySystem is System {
         if (uint256(neighbourEntities[i]) != 0) {
           // Check to see if this neighbour has a velocity and is having an impact on us
           VoxelCoord memory neighbourVelocity = getVelocity(
+            callerAddress,
             VoxelEntity({ scale: centerVoxelEntity.scale, entityId: neighbourEntities[i] })
           );
           relativePosition = sub(centerCoord, neighbourCoords[i]);
@@ -281,24 +289,21 @@ contract VelocitySystem is System {
       if (dotProduct > 0) {
         // this means the primary voxel is moving towards the neighbour
         if (uint256(neighbourEntities[i]) == 0) {
-          // create the entities that don't exist from the terrain
-          (bytes32 terrainVoxelTypeId, BodyPhysicsData memory terrainPhysicsData) = IWorld(_world())
-            .getTerrainBodyPhysicsData(caAddress, neighbourCoords[i]);
-          if (terrainPhysicsData.mass == 0) {
+          if (getTerrainMass(callerAddress, centerVoxelEntity.scale, neighbourCoords[i]) == 0) {
             // can only collide with terrain that has mass
             collidingEntities[i] = 0;
             continue;
           }
-          VoxelEntity memory newTerrainEntity = IWorld(_world()).spawnBody(
-            terrainVoxelTypeId,
-            neighbourCoords[i],
-            bytes4(0),
-            terrainPhysicsData
+          // create the entities that don't exist from the terrain
+          VoxelEntity memory newTerrainEntity = createTerrainEntity(
+            callerAddress,
+            centerVoxelEntity.scale,
+            neighbourCoords[i]
           );
           neighbourEntities[i] = newTerrainEntity.entityId;
         }
 
-        if (BodyPhysics.getMass(centerVoxelEntity.scale, neighbourEntities[i]) == 0) {
+        if (Mass.get(callerAddress, centerVoxelEntity.scale, neighbourEntities[i]) == 0) {
           // can only collide with terrain that has mass
           collidingEntities[i] = 0;
           continue;
@@ -309,7 +314,7 @@ contract VelocitySystem is System {
       }
     }
 
-    int32 mass_primary = uint256ToInt32(BodyPhysics.getMass(centerVoxelEntity.scale, centerVoxelEntity.entityId));
+    int32 mass_primary = uint256ToInt32(Mass.get(callerAddress, centerVoxelEntity.scale, centerVoxelEntity.entityId));
 
     // Now we run the collision formula for each of the colliding entities
     VoxelCoord memory total_impulse = VoxelCoord({ x: 0, y: 0, z: 0 });
@@ -319,10 +324,10 @@ contract VelocitySystem is System {
       }
       // Calculate the impulse of this neighbour
       VoxelCoord memory relativeVelocity = sub(
-        getVelocity(VoxelEntity({ scale: centerVoxelEntity.scale, entityId: collidingEntities[i] })),
+        getVelocity(callerAddress, VoxelEntity({ scale: centerVoxelEntity.scale, entityId: collidingEntities[i] })),
         primaryVelocity
       );
-      int32 mass_neighbour = uint256ToInt32(BodyPhysics.getMass(centerVoxelEntity.scale, collidingEntities[i]));
+      int32 mass_neighbour = uint256ToInt32(Mass.get(callerAddress, centerVoxelEntity.scale, collidingEntities[i]));
       int32 impulseFactor = (2 * mass_neighbour) / (mass_primary + mass_neighbour);
       VoxelCoord memory impulse = mulScalar(relativeVelocity, impulseFactor);
       // Add to total impulse
@@ -334,52 +339,84 @@ contract VelocitySystem is System {
     return (new_primary_velocity, neighbourEntities, neighbourCoords);
   }
 
-  function updateVelocity(
-    address caAddress,
+  function velocityChange(
     VoxelCoord memory oldCoord,
     VoxelCoord memory newCoord,
     VoxelEntity memory oldEntity,
     VoxelEntity memory newEntity
   ) public {
-    BodyPhysicsData memory oldBodyPhysicsData = BodyPhysics.get(oldEntity.scale, oldEntity.entityId);
-    uint256 bodyMass = oldBodyPhysicsData.mass;
+    address callerAddress = _msgSender();
+    require(
+      hasKey(MassTableId, Mass.encodeKeyTuple(callerAddress, oldEntity.scale, oldEntity.entityId)),
+      "Old entity does not exist"
+    );
+    uint256 bodyMass = Mass.get(callerAddress, oldEntity.scale, oldEntity.entityId);
     (VoxelCoord memory newVelocity, uint256 energyRequired) = calculateNewVelocity(
+      callerAddress,
       oldCoord,
       newCoord,
       oldEntity,
       bodyMass
     );
-    require(energyRequired <= oldBodyPhysicsData.energy, "Not enough energy to move.");
+    uint256 energyInOldBlock = Energy.get(callerAddress, oldEntity.scale, oldEntity.entityId);
+    require(energyRequired <= energyInOldBlock, "Not enough energy to move.");
 
-    if (!hasKey(BodyPhysicsTableId, BodyPhysics.encodeKeyTuple(newEntity.scale, newEntity.entityId))) {
-      (, BodyPhysicsData memory terrainPhysicsData) = IWorld(_world()).getTerrainBodyPhysicsData(caAddress, newCoord);
-      terrainPhysicsData.lastUpdateBlock = block.number;
-      BodyPhysics.set(newEntity.scale, newEntity.entityId, terrainPhysicsData);
+    if (hasKey(MassTableId, Mass.encodeKeyTuple(callerAddress, newEntity.scale, newEntity.entityId))) {
+      require(
+        Mass.get(callerAddress, newEntity.scale, newEntity.entityId) == 0,
+        "Cannot move on top of an entity with mass"
+      );
+    } else {
+      {
+        uint256 terrainMass = getTerrainMass(callerAddress, oldEntity.scale, newCoord);
+        require(terrainMass == 0, "Cannot move on top of terrain with mass");
+        Mass.set(callerAddress, newEntity.scale, newEntity.entityId, terrainMass);
+      }
+      Energy.set(
+        callerAddress,
+        newEntity.scale,
+        newEntity.entityId,
+        getTerrainEnergy(callerAddress, newEntity.scale, newCoord)
+      );
+      Velocity.set(
+        callerAddress,
+        newEntity.scale,
+        newEntity.entityId,
+        block.number,
+        abi.encode(getTerrainVelocity(callerAddress, newEntity.scale, newCoord))
+      );
     }
-    uint256 energyInNewBlock = BodyPhysics.getEnergy(newEntity.scale, newEntity.entityId);
+    uint256 energyInNewBlock = Energy.get(callerAddress, newEntity.scale, newEntity.entityId);
 
     // Reset the old entity's mass, energy and velocity
-    BodyPhysics.setMass(oldEntity.scale, oldEntity.entityId, 0);
-    BodyPhysics.setEnergy(oldEntity.scale, oldEntity.entityId, 0);
-    BodyPhysics.setVelocity(oldEntity.scale, oldEntity.entityId, abi.encode(VoxelCoord({ x: 0, y: 0, z: 0 })));
-    BodyPhysics.setLastUpdateBlock(oldEntity.scale, oldEntity.entityId, block.number);
+    Mass.set(callerAddress, oldEntity.scale, oldEntity.entityId, 0);
+    Energy.set(callerAddress, oldEntity.scale, oldEntity.entityId, 0);
+    Velocity.set(
+      callerAddress,
+      oldEntity.scale,
+      oldEntity.entityId,
+      block.number,
+      abi.encode(VoxelCoord({ x: 0, y: 0, z: 0 }))
+    );
 
-    IWorld(_world()).fluxEnergy(false, caAddress, newEntity, energyRequired + energyInNewBlock);
+    IWorld(_world()).fluxEnergy(false, callerAddress, newEntity, energyRequired + energyInNewBlock);
 
     // Update the new entity's energy and velocity
-    oldBodyPhysicsData.energy -= energyRequired;
-    oldBodyPhysicsData.velocity = abi.encode(newVelocity);
-    oldBodyPhysicsData.lastUpdateBlock = block.number;
-    BodyPhysics.set(newEntity.scale, newEntity.entityId, oldBodyPhysicsData);
+    Mass.set(callerAddress, newEntity.scale, newEntity.entityId, bodyMass);
+    Energy.set(callerAddress, newEntity.scale, newEntity.entityId, energyInOldBlock - energyRequired);
+    Velocity.set(callerAddress, newEntity.scale, newEntity.entityId, block.number, abi.encode(newVelocity));
+
+    onCollision(callerAddress, newEntity);
   }
 
   function calculateNewVelocity(
+    address callerAddress,
     VoxelCoord memory oldCoord,
     VoxelCoord memory newCoord,
     VoxelEntity memory oldEntity,
     uint256 bodyMass
   ) internal view returns (VoxelCoord memory, uint256) {
-    VoxelCoord memory currentVelocity = getVelocity(oldEntity);
+    VoxelCoord memory currentVelocity = getVelocity(callerAddress, oldEntity);
     VoxelCoord memory newVelocity = VoxelCoord({
       x: currentVelocity.x + (newCoord.x - oldCoord.x),
       y: currentVelocity.y + (newCoord.y - oldCoord.y),

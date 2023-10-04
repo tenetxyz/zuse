@@ -1,5 +1,5 @@
 {
-  "name": "@tenetxyz/world",
+  "name": "@tenetxyz/simulator",
   "version": "0.0.1",
   "private": true,
   "license": "MIT",
@@ -8,11 +8,9 @@
     "build": "forge build",
     "clean": "forge clean",
     "setLocalRegistryAddress": "node ../../../../scripts/setRegistryAddress.js 31337 ../../../../packages/registry/worlds.json src/Constants.sol REGISTRY_ADDRESS",
-    "setLocalBaseCAAddress": "node ../../../../scripts/setRegistryAddress.js 31337 ../level1-ca/worlds.json src/Constants.sol BASE_CA_ADDRESS",
-    "setLocalSimulatorAddress": "node ../../../../scripts/setRegistryAddress.js 31337 ../simulator/worlds.json src/Constants.sol SIMULATOR_ADDRESS",
-    "setAddress": "yarn run setLocalRegistryAddress && yarn run setLocalBaseCAAddress && yarn run setLocalSimulatorAddress",
+    "setAddress": "yarn run setLocalRegistryAddress",
     "build:local": "yarn run setAddress && yarn run initialize",
-    "deploy:local": "yarn run setAddress && yarn initialize && yarn mud deploy",
+    "deploy:local": "yarn mud deploy",
     "deploy": "yarn initialize && yarn mud deploy",
     "deploy:hackathon": "yarn initialize && yarn mud deploy --profile=hackathon-testnet",
     "deploy:testnet": "yarn initialize && yarn mud deploy --profile=lattice-testnet",
@@ -27,9 +25,7 @@
     "test": "yarn mud test",
     "test-verbose": "yarn initialize && yarn mud test --forgeOptions='-vvv'",
     "worldgen": "yarn mud worldgen",
-    "worldtypes": "rimraf types && typechain --target=ethers-v5 out/IWorld.sol/IWorld.json",
-    "deployMap": "node deployMap.ts",
-    "spawnEntity": "node spawnEntity.ts"
+    "worldtypes": "rimraf types && typechain --target=ethers-v5 out/IWorld.sol/IWorld.json"
   },
   "dependencies": {
     "@latticexyz/cli": "link:../../../../../mud/packages/cli",
@@ -38,11 +34,6 @@
     "@latticexyz/schema-type": "link:../../../../../mud/packages/schema-type",
     "@latticexyz/store": "link:../../../../../mud/packages/store",
     "@latticexyz/world": "link:../../../../../mud/packages/world",
-    "@tenetxyz/base-ca": "link:../../../../packages/base-ca",
-    "@tenetxyz/base-world": "link:../../../../packages/base-world",
-    "@tenetxyz/level1-ca": "workspace:*",
-    "@tenetxyz/pokemon-extension": "workspace:*",
-    "@tenetxyz/simulator": "workspace:*",
     "@tenetxyz/registry": "link:../../../../packages/registry",
     "@tenetxyz/utils": "link:../../../../packages/utils"
   },

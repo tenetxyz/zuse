@@ -15,7 +15,7 @@ import { FighterVoxelID, GrassVoxelID, AirVoxelID, DirtVoxelID, BedrockVoxelID }
 import { EnergySourceVoxelID, SoilVoxelID, PlantVoxelID, FirePokemonVoxelID, WaterPokemonVoxelID, GrassPokemonVoxelID } from "@tenet-pokemon-extension/src/Constants.sol";
 import { WorldConfig, WorldConfigTableId } from "@tenet-base-world/src/codegen/tables/WorldConfig.sol";
 import { CAVoxelType, CAVoxelTypeData } from "@tenet-base-ca/src/codegen/tables/CAVoxelType.sol";
-import { VoxelType, Position, VoxelTypeProperties, BodyPhysics, BodyPhysicsData } from "@tenet-world/src/codegen/Tables.sol";
+import { VoxelType, Position, VoxelTypeProperties, TerrainProperties, TerrainPropertiesTableId } from "@tenet-world/src/codegen/Tables.sol";
 import { BuildEventData } from "@tenet-base-world/src/Types.sol";
 import { console } from "forge-std/console.sol";
 
@@ -40,47 +40,17 @@ contract InitSystem is InitWorldSystem {
 
     // Set mass voxel types for voxels
     VoxelTypeProperties.set(AirVoxelID, 0);
-    VoxelTypeProperties.set(GrassVoxelID, 50);
+    VoxelTypeProperties.set(GrassVoxelID, 5);
     VoxelTypeProperties.set(DirtVoxelID, 5);
     VoxelTypeProperties.set(BedrockVoxelID, 100);
     VoxelTypeProperties.set(EnergySourceVoxelID, 10);
     VoxelTypeProperties.set(SoilVoxelID, 10);
     VoxelTypeProperties.set(PlantVoxelID, 10);
 
-    VoxelTypeProperties.set(FighterVoxelID, 10);
+    VoxelTypeProperties.set(FighterVoxelID, 5);
     VoxelTypeProperties.set(FirePokemonVoxelID, 10);
     VoxelTypeProperties.set(WaterPokemonVoxelID, 10);
     VoxelTypeProperties.set(GrassPokemonVoxelID, 10);
-  }
-
-  function initWorldState() public {
-    // TODO: require only called once by world deployer
-    BodyPhysicsData memory physicsData;
-    physicsData.mass = 5;
-    physicsData.energy = 1000;
-    physicsData.lastUpdateBlock = block.number;
-    physicsData.velocity = abi.encode(VoxelCoord({ x: 0, y: 0, z: 0 }));
-    console.log("init");
-    (bytes32 terrainType, BodyPhysicsData memory terrainData) = IWorld(_world()).getTerrainBodyPhysicsData(
-      address(0),
-      VoxelCoord(2, 9, 5)
-    );
-    console.logBytes32(terrainType);
-    IWorld(_world()).spawnBody(FighterVoxelID, VoxelCoord(2, 9, 5), bytes4(0), physicsData);
-
-    // TODO: remove, were used for testing collision
-    // physicsData.mass = 5;
-    // physicsData.energy = 1000;
-    // physicsData.velocity = abi.encode(VoxelCoord({ x: 0, y: 0, z: 0 }));
-    // physicsData.lastUpdateBlock = block.number;
-    // VoxelEntity memory grassEntity = IWorld(_world()).spawnBody(
-    //   GrassVoxelID,
-    //   VoxelCoord(10, 2, 11),
-    //   bytes4(0),
-    //   physicsData
-    // );
-    // IWorld(_world()).spawnBody(GrassVoxelID, VoxelCoord(10, 2, 13), bytes4(0), physicsData);
-    // IWorld(_world()).moveWithAgent(GrassVoxelID, VoxelCoord(10, 2, 15), VoxelCoord(10, 2, 16), grassEntity);
   }
 
   function onNewCAVoxelType(address caAddress, bytes32 voxelTypeId) public override {

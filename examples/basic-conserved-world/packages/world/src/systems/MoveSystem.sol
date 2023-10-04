@@ -7,11 +7,12 @@ import { hasKey } from "@latticexyz/world/src/modules/keysintable/hasKey.sol";
 import { IWorld } from "@tenet-world/src/codegen/world/IWorld.sol";
 import { VoxelCoord, VoxelEntity, EntityEventData } from "@tenet-utils/src/Types.sol";
 import { abs, absInt32 } from "@tenet-utils/src/VoxelCoordUtils.sol";
-import { REGISTRY_ADDRESS } from "@tenet-world/src/Constants.sol";
+import { REGISTRY_ADDRESS, SIMULATOR_ADDRESS } from "@tenet-world/src/Constants.sol";
 import { MoveEventData } from "@tenet-base-world/src/Types.sol";
-import { OwnedBy, OwnedByTableId, BodyPhysics, BodyPhysicsData, BodyPhysicsTableId, WorldConfig, VoxelTypeProperties } from "@tenet-world/src/codegen/Tables.sol";
+import { OwnedBy, OwnedByTableId, WorldConfig, VoxelTypeProperties } from "@tenet-world/src/codegen/Tables.sol";
 import { getEntityAtCoord } from "@tenet-base-world/src/Utils.sol";
 import { MoveWorldEventData } from "@tenet-world/src/Types.sol";
+import { velocityChange } from "@tenet-simulator/src/CallUtils.sol";
 
 contract MoveSystem is MoveEvent {
   function getRegistryAddress() internal pure override returns (address) {
@@ -58,7 +59,6 @@ contract MoveSystem is MoveEvent {
     uint32 scale = eventVoxelEntity.scale;
     bytes32 oldEntityId = getEntityAtCoord(scale, oldCoord);
     VoxelEntity memory oldEntity = VoxelEntity({ scale: scale, entityId: oldEntityId });
-    IWorld(_world()).updateVelocity(caAddress, oldCoord, newCoord, oldEntity, eventVoxelEntity);
-    IWorld(_world()).onCollision(caAddress, eventVoxelEntity);
+    velocityChange(SIMULATOR_ADDRESS, oldCoord, newCoord, oldEntity, eventVoxelEntity);
   }
 }

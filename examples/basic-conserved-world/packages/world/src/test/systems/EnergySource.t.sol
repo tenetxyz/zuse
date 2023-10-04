@@ -9,9 +9,8 @@ import { VoxelType, OwnedBy } from "@tenet-world/src/codegen/Tables.sol";
 import { VoxelCoord, VoxelTypeData, VoxelEntity, Mind } from "@tenet-utils/src/Types.sol";
 import { getEntityAtCoord, getEntityPositionStrict, positionDataToVoxelCoord } from "@tenet-base-world/src/Utils.sol";
 import { FighterVoxelID, GrassVoxelID, AirVoxelID, DirtVoxelID, BedrockVoxelID } from "@tenet-level1-ca/src/Constants.sol";
-import { BodyPhysics, BodyPhysicsData } from "@tenet-world/src/codegen/tables/BodyPhysics.sol";
 import { MindRegistry } from "@tenet-registry/src/codegen/tables/MindRegistry.sol";
-import { REGISTRY_ADDRESS, BASE_CA_ADDRESS } from "@tenet-world/src/Constants.sol";
+import { REGISTRY_ADDRESS, BASE_CA_ADDRESS, SIMULATOR_ADDRESS } from "@tenet-world/src/Constants.sol";
 import { EnergySourceVoxelID, SoilVoxelID, PlantVoxelID } from "@tenet-pokemon-extension/src/Constants.sol";
 import { Pokemon, PokemonData } from "@tenet-pokemon-extension/src/codegen/tables/Pokemon.sol";
 import { Plant, PlantData, PlantStage } from "@tenet-pokemon-extension/src/codegen/tables/Plant.sol";
@@ -19,6 +18,9 @@ import { addressToEntityKey } from "@tenet-utils/src/Utils.sol";
 import { console } from "forge-std/console.sol";
 import { CAEntityMapping, CAEntityMappingTableId } from "@tenet-base-ca/src/codegen/tables/CAEntityMapping.sol";
 import { ENERGY_SOURCE_WAIT_BLOCKS } from "@tenet-pokemon-extension/src/systems/voxel-interactions/EnergySourceSystem.sol";
+import { Mass } from "@tenet-simulator/src/codegen/tables/Mass.sol";
+import { Energy } from "@tenet-simulator/src/codegen/tables/Energy.sol";
+import { Velocity } from "@tenet-simulator/src/codegen/tables/Velocity.sol";
 
 uint256 constant INITIAL_HIGH_ENERGY = 1000;
 
@@ -55,7 +57,13 @@ contract EnergySourceTest is MudTest {
       agentEntity,
       bytes4(0)
     );
-    BodyPhysics.setEnergy(energySourceEntity.scale, energySourceEntity.entityId, INITIAL_HIGH_ENERGY);
+    Energy.set(
+      IStore(SIMULATOR_ADDRESS),
+      worldAddress,
+      energySourceEntity.scale,
+      energySourceEntity.entityId,
+      INITIAL_HIGH_ENERGY
+    );
     world.activateWithAgent(EnergySourceVoxelID, energySourceCoord, agentEntity, bytes4(0));
     return energySourceEntity;
   }
@@ -65,7 +73,12 @@ contract EnergySourceTest is MudTest {
     VoxelEntity memory agentEntity = setupAgent();
 
     VoxelEntity memory energySourceEntity = replaceHighEnergyBlockWithEnergySource(agentEntity);
-    uint256 energySourceEnergy = BodyPhysics.getEnergy(energySourceEntity.scale, energySourceEntity.entityId);
+    uint256 energySourceEnergy = Energy.get(
+      IStore(SIMULATOR_ADDRESS),
+      worldAddress,
+      energySourceEntity.scale,
+      energySourceEntity.entityId
+    );
     assertTrue(energySourceEnergy == INITIAL_HIGH_ENERGY);
 
     vm.stopPrank();
@@ -85,20 +98,30 @@ contract EnergySourceTest is MudTest {
     });
     VoxelEntity memory soilEntity = world.buildWithAgent(SoilVoxelID, soilCoord, agentEntity, bytes4(0));
     // Some energy should have been transferred to the soil
-    uint256 soilEnergy = BodyPhysics.getEnergy(soilEntity.scale, soilEntity.entityId);
+    uint256 soilEnergy = Energy.get(IStore(SIMULATOR_ADDRESS), worldAddress, soilEntity.scale, soilEntity.entityId);
     assertTrue(soilEnergy > 0 && soilEnergy <= INITIAL_HIGH_ENERGY);
     // Energy source should have lost some energy
-    uint256 energySourceEnergy = BodyPhysics.getEnergy(energySourceEntity.scale, energySourceEntity.entityId);
+    uint256 energySourceEnergy = Energy.get(
+      IStore(SIMULATOR_ADDRESS),
+      worldAddress,
+      energySourceEntity.scale,
+      energySourceEntity.entityId
+    );
     assertTrue(energySourceEnergy < INITIAL_HIGH_ENERGY);
 
     // Roll forward and activate energy source
     vm.roll(block.number + ENERGY_SOURCE_WAIT_BLOCKS + 1);
     world.activateWithAgent(EnergySourceVoxelID, energySourceCoord, agentEntity, bytes4(0));
     // This should have transferred more energy to the soil
-    uint256 soilEnergy2 = BodyPhysics.getEnergy(soilEntity.scale, soilEntity.entityId);
+    uint256 soilEnergy2 = Energy.get(IStore(SIMULATOR_ADDRESS), worldAddress, soilEntity.scale, soilEntity.entityId);
     assertTrue(soilEnergy2 > soilEnergy);
     // Energy source should have lost some energy
-    uint256 energySourceEnergy2 = BodyPhysics.getEnergy(energySourceEntity.scale, energySourceEntity.entityId);
+    uint256 energySourceEnergy2 = Energy.get(
+      IStore(SIMULATOR_ADDRESS),
+      worldAddress,
+      energySourceEntity.scale,
+      energySourceEntity.entityId
+    );
     assertTrue(energySourceEnergy2 < energySourceEnergy);
 
     vm.stopPrank();
@@ -115,7 +138,7 @@ contract EnergySourceTest is MudTest {
       z: energySourceCoord.z
     });
     VoxelEntity memory soil1Entity = world.buildWithAgent(SoilVoxelID, soil1Coord, agentEntity, bytes4(0));
-    uint256 soil1Energy = BodyPhysics.getEnergy(soil1Entity.scale, soil1Entity.entityId);
+    uint256 soil1Energy = Energy.get(IStore(SIMULATOR_ADDRESS), worldAddress, soil1Entity.scale, soil1Entity.entityId);
     assertTrue(soil1Energy == 0);
     // Place down soil 2
     VoxelCoord memory soil2Coord = VoxelCoord({
@@ -124,16 +147,21 @@ contract EnergySourceTest is MudTest {
       z: energySourceCoord.z
     });
     VoxelEntity memory soil2Entity = world.buildWithAgent(SoilVoxelID, soil2Coord, agentEntity, bytes4(0));
-    uint256 soil2Energy = BodyPhysics.getEnergy(soil2Entity.scale, soil2Entity.entityId);
+    uint256 soil2Energy = Energy.get(IStore(SIMULATOR_ADDRESS), worldAddress, soil2Entity.scale, soil2Entity.entityId);
     assertTrue(soil2Energy == 0);
 
     // Place down energy source
     VoxelEntity memory energySourceEntity = replaceHighEnergyBlockWithEnergySource(agentEntity);
-    uint256 energySourceEnergy = BodyPhysics.getEnergy(energySourceEntity.scale, energySourceEntity.entityId);
+    uint256 energySourceEnergy = Energy.get(
+      IStore(SIMULATOR_ADDRESS),
+      worldAddress,
+      energySourceEntity.scale,
+      energySourceEntity.entityId
+    );
     assertTrue(energySourceEnergy < INITIAL_HIGH_ENERGY);
 
-    soil1Energy = BodyPhysics.getEnergy(soil1Entity.scale, soil1Entity.entityId);
-    soil2Energy = BodyPhysics.getEnergy(soil2Entity.scale, soil2Entity.entityId);
+    soil1Energy = Energy.get(IStore(SIMULATOR_ADDRESS), worldAddress, soil1Entity.scale, soil1Entity.entityId);
+    soil2Energy = Energy.get(IStore(SIMULATOR_ADDRESS), worldAddress, soil2Entity.scale, soil2Entity.entityId);
 
     assertTrue(soil1Energy > 0 && soil1Energy <= INITIAL_HIGH_ENERGY);
     assertTrue(soil2Energy > 0 && soil2Energy <= INITIAL_HIGH_ENERGY);
@@ -173,7 +201,12 @@ contract EnergySourceTest is MudTest {
       agentEntity,
       bytes4(0)
     );
-    uint256 energySourceEnergy = BodyPhysics.getEnergy(energySourceEntity.scale, energySourceEntity.entityId);
+    uint256 energySourceEnergy = Energy.get(
+      IStore(SIMULATOR_ADDRESS),
+      worldAddress,
+      energySourceEntity.scale,
+      energySourceEntity.entityId
+    );
     assertTrue(energySourceEnergy == 0);
     // Place down soil beside it
     VoxelCoord memory soilCoord = VoxelCoord({
@@ -183,7 +216,7 @@ contract EnergySourceTest is MudTest {
     });
     VoxelEntity memory soilEntity = world.buildWithAgent(SoilVoxelID, soilCoord, agentEntity, bytes4(0));
     // Soil should have no energy
-    uint256 soilEnergy = BodyPhysics.getEnergy(soilEntity.scale, soilEntity.entityId);
+    uint256 soilEnergy = Energy.get(IStore(SIMULATOR_ADDRESS), worldAddress, soilEntity.scale, soilEntity.entityId);
     assertTrue(soilEnergy == 0);
 
     vm.stopPrank();

@@ -18,13 +18,4 @@ function runForgeScript(filePath) {
   }
 }
 
-fs.readdir("script/generated/", (err, files) => {
-  if (err) {
-    console.error(`Error reading directory: ${err.message}`);
-    return;
-  }
-
-  files.forEach((file) => {
-    runForgeScript(`script/generated/${file}`);
-  });
-});
+runForgeScript(`script/SpawnEntity.s.sol`);

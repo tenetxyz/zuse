@@ -22,7 +22,8 @@
     "mud:up": "yarn workspaces foreach -t run yarn mud set-version -v canary && yarn install",
     "prepare": "(forge --version || yarn foundry:up)",
     "test": "yarn workspaces run test",
-    "reinstall-deps": "sh scripts/reinstall_dependencies.sh"
+    "reinstall-deps": "sh scripts/reinstall_dependencies.sh",
+    "rollback-to-snapshot": "sh scripts/rollback/rollback_to_snapshot.sh"
   },
   "devDependencies": {
     "@latticexyz/cli": "link:../mud/packages/cli",

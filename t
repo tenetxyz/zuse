@@ -10,6 +10,9 @@ run_example() {
     fi
     echo $command
     concurrently -n example -c \#fb8500 "$command"
+
+    sh scripts/rollback/create_snapshot.sh
+    echo "rollbacked snapshot"
 }
 
 # Check if the first argument is "run"

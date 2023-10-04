@@ -349,12 +349,13 @@ contract VelocitySystem is System {
       hasKey(MassTableId, Mass.encodeKeyTuple(callerAddress, oldEntity.scale, oldEntity.entityId)),
       "Old entity does not exist"
     );
+    uint256 bodyMass = Mass.get(callerAddress, oldEntity.scale, oldEntity.entityId);
     (VoxelCoord memory newVelocity, uint256 energyRequired) = calculateNewVelocity(
       callerAddress,
       oldCoord,
       newCoord,
       oldEntity,
-      Mass.get(callerAddress, oldEntity.scale, oldEntity.entityId)
+      bodyMass
     );
     uint256 energyInOldBlock = Energy.get(callerAddress, oldEntity.scale, oldEntity.entityId);
     require(energyRequired <= energyInOldBlock, "Not enough energy to move.");
@@ -365,9 +366,11 @@ contract VelocitySystem is System {
         "Cannot move on top of an entity with mass"
       );
     } else {
-      uint256 terrainMass = getTerrainMass(callerAddress, oldEntity.scale, newCoord);
-      require(terrainMass == 0, "Cannot move on top of terrain with mass");
-      Mass.set(callerAddress, newEntity.scale, newEntity.entityId, terrainMass);
+      {
+        uint256 terrainMass = getTerrainMass(callerAddress, oldEntity.scale, newCoord);
+        require(terrainMass == 0, "Cannot move on top of terrain with mass");
+        Mass.set(callerAddress, newEntity.scale, newEntity.entityId, terrainMass);
+      }
       Energy.set(
         callerAddress,
         newEntity.scale,
@@ -398,6 +401,7 @@ contract VelocitySystem is System {
     IWorld(_world()).fluxEnergy(false, callerAddress, newEntity, energyRequired + energyInNewBlock);
 
     // Update the new entity's energy and velocity
+    Mass.set(callerAddress, newEntity.scale, newEntity.entityId, bodyMass);
     Energy.set(callerAddress, newEntity.scale, newEntity.entityId, energyInOldBlock - energyRequired);
     Velocity.set(callerAddress, newEntity.scale, newEntity.entityId, block.number, abi.encode(newVelocity));
 

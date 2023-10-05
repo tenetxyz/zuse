@@ -10,6 +10,7 @@ import { VoxelCoord, VoxelTypeData, VoxelEntity } from "@tenet-utils/src/Types.s
 import { VoxelTypeRegistry, VoxelTypeRegistryData } from "@tenet-registry/src/codegen/tables/VoxelTypeRegistry.sol";
 import { distanceBetween, voxelCoordsAreEqual, isZeroCoord } from "@tenet-utils/src/VoxelCoordUtils.sol";
 import { isZeroCoord, voxelCoordsAreEqual, uint256ToInt32, dot, mulScalar, divScalar, min, add, sub, safeSubtract, safeAdd, abs, absInt32 } from "@tenet-utils/src/VoxelCoordUtils.sol";
+import { isEntityEqual } from "@tenet-utils/src/Utils.sol";
 import { console } from "forge-std/console.sol";
 import { getVelocity, getTerrainMass, getTerrainEnergy, getTerrainVelocity, getNeighbourEntities, createTerrainEntity } from "@tenet-simulator/src/Utils.sol";
 
@@ -18,17 +19,56 @@ uint256 constant MAXIMUM_ENERGY_IN = 100;
 
 contract EnergySystem is System {
   // Constraints
+  function setEnergy(
+    VoxelEntity memory senderEntity,
+    VoxelCoord memory senderCoord,
+    uint256 senderEnergy,
+    VoxelEntity memory receiverEntity,
+    VoxelCoord memory receiverCoord,
+    uint256 receiverEnergy
+  ) public {
+    address callerAddress = _msgSender();
+    bool entityExists = hasKey(
+      EnergyTableId,
+      Energy.encodeKeyTuple(callerAddress, senderEntity.scale, senderEntity.entityId)
+    );
+    require(entityExists, "Sender entity does not exist");
+    // If it doesn't exist, it'll be 0
+    uint256 currentReceiverEnergy = Energy.get(callerAddress, receiverEntity.scale, receiverEntity.entityId);
+    if (isEntityEqual(senderEntity, receiverEntity)) {
+      // Transformation
+      require(currentReceiverEnergy >= receiverEnergy, "Not enough energy to transfer");
+      fluxEnergyOut(callerAddress, receiverEntity, currentReceiverEnergy - receiverEnergy);
+    } else {
+      // Transfer
+      require(receiverEnergy >= currentReceiverEnergy, "Cannot take energy from receiver");
+      energyTransfer(
+        callerAddress,
+        senderEntity,
+        senderCoord,
+        receiverEntity,
+        receiverCoord,
+        receiverEnergy - currentReceiverEnergy
+      );
+    }
+  }
+
+  function fluxEnergyOut(address callerAddress, VoxelEntity memory entity, uint256 energyToFlux) internal {
+    uint256 currentEnergy = Energy.get(callerAddress, entity.scale, entity.entityId);
+    IWorld(_world()).fluxEnergy(false, callerAddress, entity, energyToFlux);
+    Energy.set(callerAddress, entity.scale, entity.entityId, currentEnergy - energyToFlux);
+  }
+
   function energyTransfer(
+    address callerAddress,
     VoxelEntity memory entity,
     VoxelCoord memory coord,
     VoxelEntity memory energyReceiverEntity,
     VoxelCoord memory energyReceiverCoord,
     uint256 energyToTransfer
-  ) public {
-    address callerAddress = _msgSender();
-    bool entityExists = hasKey(EnergyTableId, Energy.encodeKeyTuple(callerAddress, entity.scale, entity.entityId));
+  ) internal {
     uint256 currentEnergy = Energy.get(callerAddress, entity.scale, entity.entityId);
-    require(entityExists && currentEnergy >= energyToTransfer, "Not enough energy to transfer");
+    require(currentEnergy >= energyToTransfer, "Not enough energy to transfer");
     require(distanceBetween(coord, energyReceiverCoord) == 1, "Energy can only be fluxed to a surrounding neighbour");
     bool energyReceiverEntityExists = hasKey(
       EnergyTableId,
@@ -51,12 +91,5 @@ contract EnergySystem is System {
     // Decrease energy of eventEntity
     uint256 newEnergy = currentEnergy - energyToTransfer;
     Energy.set(callerAddress, entity.scale, entity.entityId, newEnergy);
-  }
-
-  function fluxEnergyOut(VoxelEntity memory entity, uint256 energyToFlux) public {
-    address callerAddress = _msgSender();
-    uint256 currentEnergy = Energy.get(callerAddress, entity.scale, entity.entityId);
-    IWorld(_world()).fluxEnergy(false, callerAddress, entity, energyToFlux);
-    Energy.set(callerAddress, entity.scale, entity.entityId, currentEnergy - energyToFlux);
   }
 }

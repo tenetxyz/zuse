@@ -26,18 +26,10 @@ contract SpawnEntity is Script {
     IWorld world = IWorld(worldAddress);
     IStore store = IStore(worldAddress);
 
-    VoxelEntity memory faucetEntity = VoxelEntity({
-      scale: 1,
-      entityId: bytes32(0x0000000000000000000000000000000000000000000000000000000000000001)
-    });
-
-    bytes32 voxelTypeId = FighterVoxelID;
-    VoxelCoord memory coord = VoxelCoord({ x: 10, y: 2, z: 11 });
-    world.claimAgentFromFaucet(faucetEntity, voxelTypeId, coord);
-    // uint256 initMass = VoxelTypeProperties.get(store, voxelTypeId);
-    // uint256 initEnergy = 100;
-    // VoxelCoord memory initVelocity = VoxelCoord({ x: 0, y: 0, z: 0 });
-    // world.spawnBody(voxelTypeId, coord, bytes4(0), initMass, initEnergy, initVelocity);
+    uint256 initMass = VoxelTypeProperties.get(store, voxelTypeId);
+    uint256 initEnergy = 100;
+    VoxelCoord memory initVelocity = VoxelCoord({ x: 0, y: 0, z: 0 });
+    world.spawnBody(voxelTypeId, coord, bytes4(0), initMass, initEnergy, initVelocity);
 
     // TODO: remove, were used for testing collision
     // world.spawnBody(GrassVoxelID, VoxelCoord(10, 2, 11), bytes4(0));

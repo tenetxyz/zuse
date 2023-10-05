@@ -53,6 +53,7 @@ struct CAEventData {
 }
 
 enum SimTable {
+  None,
   Mass,
   Energy,
   Velocity

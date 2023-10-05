@@ -20,6 +20,10 @@ contract ExternalCASystem is ExternalCAPrototype {
     return utilGetVoxelCoordStrict(entity);
   }
 
+  function getEntityEnergy(VoxelEntity memory entity) public view returns (uint256) {
+    return Energy.get(IStore(SIMULATOR_ADDRESS), _world(), entity.scale, entity.entityId);
+  }
+
   function getEntityBodyPhysics(VoxelEntity memory entity) public view returns (BodyPhysicsData memory) {
     uint256 energy = Energy.get(IStore(SIMULATOR_ADDRESS), _world(), entity.scale, entity.entityId);
     uint256 mass = Mass.get(IStore(SIMULATOR_ADDRESS), _world(), entity.scale, entity.entityId);

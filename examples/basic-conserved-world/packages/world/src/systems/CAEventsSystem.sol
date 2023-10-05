@@ -10,6 +10,7 @@ import { getVoxelCoordStrict } from "@tenet-base-world/src/Utils.sol";
 import { REGISTRY_ADDRESS, SIMULATOR_ADDRESS } from "@tenet-world/src/Constants.sol";
 import { Energy } from "@tenet-simulator/src/codegen/tables/Energy.sol";
 import { console } from "forge-std/console.sol";
+import { getEntityAtCoord } from "@tenet-base-world/src/Utils.sol";
 import { setSimValue } from "@tenet-simulator/src/CallUtils.sol";
 
 contract CAEventsSystem is System {
@@ -28,6 +29,14 @@ contract CAEventsSystem is System {
       // bytes32 voxelTypeId = VoxelType.getVoxelTypeId(entity.scale, entity.entityId);
       for (uint j; j < allSimEventData.length; j++) {
         SimEventData memory simEventData = allSimEventData[j];
+        if (simEventData.table == SimTable.None) {
+          continue;
+        }
+        if (simEventData.targetEntity.scale == 0 && simEventData.targetEntity.entityId == 0) {
+          // then we need to fill it in
+          bytes32 targetEntityId = getEntityAtCoord(entity.scale, simEventData.targetCoord);
+          simEventData.targetEntity = VoxelEntity({ scale: entity.scale, entityId: targetEntityId });
+        }
         setSimValue(
           SIMULATOR_ADDRESS,
           simEventData.table,

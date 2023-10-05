@@ -3,7 +3,7 @@ pragma solidity >=0.8.0;
 
 import { safeCall, safeStaticCall } from "@tenet-utils/src/CallUtils.sol";
 import { CAEntityReverseMapping, CAEntityReverseMappingTableId, CAEntityReverseMappingData } from "@tenet-base-ca/src/codegen/tables/CAEntityReverseMapping.sol";
-import { VoxelEntity, VoxelCoord, BodyPhysicsData, CAEventData, CAEventType } from "@tenet-utils/src/Types.sol";
+import { VoxelEntity, VoxelCoord, BodyPhysicsData, SimEventData, SimTable } from "@tenet-utils/src/Types.sol";
 import { console } from "forge-std/console.sol";
 import { SHARD_DIM } from "@tenet-level1-ca/src/Constants.sol";
 
@@ -37,16 +37,33 @@ function getVoxelBodyPhysicsFromCaller(bytes32 caEntity) view returns (BodyPhysi
   return abi.decode(returnData, (BodyPhysicsData));
 }
 
-function transferEnergy(VoxelCoord memory targetCoord, uint256 targetAmount) pure returns (CAEventData memory) {
-  VoxelCoord[] memory newCoords = new VoxelCoord[](1);
-  newCoords[0] = targetCoord;
-  uint256[] memory energyFluxAmounts = new uint256[](1);
-  energyFluxAmounts[0] = targetAmount;
+function getVoxelEnergyFromCaller(bytes32 caEntity) view returns (uint256) {
+  CAEntityReverseMappingData memory entityData = CAEntityReverseMapping.get(caEntity);
+  VoxelEntity memory entity = VoxelEntity({ scale: 1, entityId: entityData.entity });
+  bytes memory returnData = safeStaticCall(
+    entityData.callerAddress,
+    abi.encodeWithSignature("getEntityEnergy((uint32,bytes32))", entity),
+    "getEntityEnergy"
+  );
+  return abi.decode(returnData, (uint256));
+}
+
+function transferEnergy(
+  BodyPhysicsData memory senderBodyPhysics,
+  bytes32 targetCAEntity,
+  VoxelCoord memory targetCoord,
+  uint256 energyToTransfer
+) pure returns (SimEventData memory) {
+  uint256 currentTargetEnergy = getVoxelEnergyFromCaller(targetCAEntity);
+  CAEntityReverseMappingData memory entityData = CAEntityReverseMapping.get(targetCAEntity);
+  VoxelEntity memory targetEntity = VoxelEntity({ scale: 1, entityId: entityData.entity });
+  uint256 targetAmount = currentTargetEnergy + energyToTransfer;
   return
-    CAEventData({
-      eventType: CAEventType.FluxEnergy,
-      newCoords: newCoords,
-      energyFluxAmounts: energyFluxAmounts,
-      massFluxAmount: 0
+    SimEventData({
+      table: SimTable.Energy,
+      senderValue: abi.encode(senderBodyPhysics.energy),
+      targetEntity: targetEntity,
+      targetCoord: targetCoord,
+      targetValue: abi.encode(targetAmount)
     });
 }

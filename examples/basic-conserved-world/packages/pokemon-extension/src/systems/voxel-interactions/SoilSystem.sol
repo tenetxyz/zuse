@@ -137,7 +137,6 @@ contract SoilSystem is VoxelInteraction {
     // Calculate # of soil neighbours
     uint256 numSoilNeighbours = calculateNumSoilNeighbours(callerAddress, neighbourEntityIds);
     bool hasTransfer = false;
-    uint plantIdx = 0; // Note: There can only be one valid plant neighbour
     bool hasPlant = false;
 
     // Calculate soil neighbours
@@ -162,7 +161,6 @@ contract SoilSystem is VoxelInteraction {
           neighbourCoord,
           transferEnergyToPlant
         );
-        plantIdx = i;
         hasPlant = true;
       }
     }

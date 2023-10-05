@@ -7,7 +7,7 @@ import { console } from "forge-std/console.sol";
 import { IStore } from "@latticexyz/store/src/IStore.sol";
 import { IWorld } from "../src/codegen/world/IWorld.sol";
 import { IBaseWorld } from "@latticexyz/world/src/interfaces/IBaseWorld.sol";
-import { VoxelCoord } from "@tenet-utils/src/Types.sol";
+import { VoxelCoord, VoxelEntity } from "@tenet-utils/src/Types.sol";
 import { SHARD_DIM } from "@tenet-level1-ca/src/Constants.sol";
 import { BASE_CA_ADDRESS } from "@tenet-world/src/Constants.sol";
 import { TerrainProperties, TerrainPropertiesTableId, VoxelTypeProperties } from "@tenet-world/src/codegen/Tables.sol";

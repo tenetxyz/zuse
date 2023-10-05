@@ -28,6 +28,6 @@ contract AgentSystem is System {
     require(interactionSelectors.length > 1, "Not an agent");
 
     // Claim agent
-    OwnedBy.set(agentEntity.scale, agentEntity.entityId, _msgSender());
+    OwnedBy.set(agentEntity.scale, agentEntity.entityId, tx.origin);
   }
 }

@@ -3,6 +3,16 @@ import { resolveTableId } from "@latticexyz/config";
 
 export default tenetMudConfig({
   tables: {
+    Faucet: {
+      keySchema: {
+        scale: "uint32",
+        entity: "bytes32",
+      },
+      schema: {
+        claimers: "address[]",
+        claimerAmounts: "uint256[]",
+      },
+    },
     TerrainProperties: {
       keySchema: {
         x: "int32",
@@ -44,6 +54,16 @@ export default tenetMudConfig({
     },
   },
   modules: [
+    {
+      name: "KeysInTableModule",
+      root: true,
+      args: [resolveTableId("Faucet")],
+    },
+    {
+      name: "KeysInTableModule",
+      root: true,
+      args: [resolveTableId("VoxelTypeProperties")],
+    },
     {
       name: "KeysInTableModule",
       root: true,

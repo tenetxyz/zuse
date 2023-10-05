@@ -79,6 +79,7 @@ contract FaucetSystem is System {
       !hasKey(FaucetTableId, Faucet.encodeKeyTuple(faucetEntity.scale, faucetEntity.entityId)),
       "Faucet entity already exists"
     );
+    IWorld(_world()).claimAgent(faucetEntity);
     Faucet.set(
       faucetEntity.scale,
       faucetEntity.entityId,

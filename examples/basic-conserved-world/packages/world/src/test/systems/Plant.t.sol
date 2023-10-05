@@ -11,13 +11,12 @@ import { getEntityAtCoord, getEntityPositionStrict, positionDataToVoxelCoord } f
 import { FighterVoxelID, GrassVoxelID, AirVoxelID, DirtVoxelID, BedrockVoxelID } from "@tenet-level1-ca/src/Constants.sol";
 import { MindRegistry } from "@tenet-registry/src/codegen/tables/MindRegistry.sol";
 import { REGISTRY_ADDRESS, BASE_CA_ADDRESS, SIMULATOR_ADDRESS } from "@tenet-world/src/Constants.sol";
-import { EnergySourceVoxelID, SoilVoxelID, PlantVoxelID, FirePokemonVoxelID } from "@tenet-pokemon-extension/src/Constants.sol";
+import { SoilVoxelID, PlantVoxelID, FirePokemonVoxelID } from "@tenet-pokemon-extension/src/Constants.sol";
 import { Pokemon, PokemonData } from "@tenet-pokemon-extension/src/codegen/tables/Pokemon.sol";
 import { Plant, PlantData, PlantStage } from "@tenet-pokemon-extension/src/codegen/tables/Plant.sol";
 import { addressToEntityKey } from "@tenet-utils/src/Utils.sol";
 import { console } from "forge-std/console.sol";
 import { CAEntityMapping, CAEntityMappingTableId } from "@tenet-base-ca/src/codegen/tables/CAEntityMapping.sol";
-import { ENERGY_SOURCE_WAIT_BLOCKS } from "@tenet-pokemon-extension/src/systems/voxel-interactions/EnergySourceSystem.sol";
 import { ENERGY_REQUIRED_FOR_SPROUT, ENERGY_REQUIRED_FOR_FLOWER } from "@tenet-pokemon-extension/src/systems/voxel-interactions/PlantSystem.sol";
 import { Mass } from "@tenet-simulator/src/codegen/tables/Mass.sol";
 import { Energy } from "@tenet-simulator/src/codegen/tables/Energy.sol";
@@ -47,27 +46,6 @@ contract PlantTest is MudTest {
     VoxelEntity memory agentEntity = VoxelEntity({ scale: 1, entityId: getEntityAtCoord(1, agentCoord) });
     world.claimAgent(agentEntity);
     return agentEntity;
-  }
-
-  function replaceHighEnergyBlockWithEnergySource(
-    VoxelEntity memory agentEntity
-  ) internal returns (VoxelEntity memory) {
-    // Place down energy source
-    VoxelEntity memory energySourceEntity = world.buildWithAgent(
-      EnergySourceVoxelID,
-      energySourceCoord,
-      agentEntity,
-      bytes4(0)
-    );
-    Energy.set(
-      IStore(SIMULATOR_ADDRESS),
-      worldAddress,
-      energySourceEntity.scale,
-      energySourceEntity.entityId,
-      INITIAL_HIGH_ENERGY
-    );
-    world.activateWithAgent(EnergySourceVoxelID, energySourceCoord, agentEntity, bytes4(0));
-    return energySourceEntity;
   }
 
   function testPlantSeedStage() public returns (VoxelEntity memory, VoxelEntity memory) {
@@ -130,8 +108,8 @@ contract PlantTest is MudTest {
     assertTrue(plantData.stage == PlantStage.Seed);
 
     // Roll forward and activate energy source
-    vm.roll(block.number + ENERGY_SOURCE_WAIT_BLOCKS + 1);
-    world.activateWithAgent(EnergySourceVoxelID, energySourceCoord, agentEntity, bytes4(0));
+    // vm.roll(block.number + ENERGY_SOURCE_WAIT_BLOCKS + 1);
+    // world.activateWithAgent(EnergySourceVoxelID, energySourceCoord, agentEntity, bytes4(0));
     plantData = Plant.get(IStore(BASE_CA_ADDRESS), worldAddress, plantCAEntity);
     soilEnergy = Energy.get(IStore(SIMULATOR_ADDRESS), worldAddress, soilEntity.scale, soilEntity.entityId);
     plantEnergy = Energy.get(IStore(SIMULATOR_ADDRESS), worldAddress, plantEntity.scale, plantEntity.entityId);
@@ -184,8 +162,8 @@ contract PlantTest is MudTest {
     assertTrue(plantData.stage == PlantStage.Seed);
 
     // Roll forward and activate energy source
-    vm.roll(block.number + ENERGY_SOURCE_WAIT_BLOCKS + 1);
-    world.activateWithAgent(EnergySourceVoxelID, energySourceCoord, agentEntity, bytes4(0));
+    // vm.roll(block.number +  + 1);
+    // world.activateWithAgent(EnergySourceENERGY_SOURCE_WAIT_BLOCKSVoxelID, energySourceCoord, agentEntity, bytes4(0));
     plantData = Plant.get(IStore(BASE_CA_ADDRESS), worldAddress, plantCAEntity);
     soilEnergy = Energy.get(IStore(SIMULATOR_ADDRESS), worldAddress, soilEntity.scale, soilEntity.entityId);
     plantEnergy = Energy.get(IStore(SIMULATOR_ADDRESS), worldAddress, plantEntity.scale, plantEntity.entityId);
@@ -193,8 +171,8 @@ contract PlantTest is MudTest {
     assertTrue(plantData.stage == PlantStage.Sprout);
 
     // Roll forward and activate energy source
-    vm.roll(block.number + ENERGY_SOURCE_WAIT_BLOCKS + 1);
-    world.activateWithAgent(EnergySourceVoxelID, energySourceCoord, agentEntity, bytes4(0));
+    // vm.roll(block.number + ENERGY_SOURCE_WAIT_BLOCKS + 1);
+    // world.activateWithAgent(EnergySourceVoxelID, energySourceCoord, agentEntity, bytes4(0));
     plantData = Plant.get(IStore(BASE_CA_ADDRESS), worldAddress, plantCAEntity);
     soilEnergy = Energy.get(IStore(SIMULATOR_ADDRESS), worldAddress, soilEntity.scale, soilEntity.entityId);
     plantEnergy = Energy.get(IStore(SIMULATOR_ADDRESS), worldAddress, plantEntity.scale, plantEntity.entityId);

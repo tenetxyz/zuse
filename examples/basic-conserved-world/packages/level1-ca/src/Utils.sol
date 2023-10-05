@@ -53,7 +53,7 @@ function transferEnergy(
   bytes32 targetCAEntity,
   VoxelCoord memory targetCoord,
   uint256 energyToTransfer
-) pure returns (SimEventData memory) {
+) view returns (SimEventData memory) {
   uint256 currentTargetEnergy = getVoxelEnergyFromCaller(targetCAEntity);
   CAEntityReverseMappingData memory entityData = CAEntityReverseMapping.get(targetCAEntity);
   VoxelEntity memory targetEntity = VoxelEntity({ scale: 1, entityId: entityData.entity });

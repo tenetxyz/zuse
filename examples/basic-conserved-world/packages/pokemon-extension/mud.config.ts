@@ -23,16 +23,6 @@ export default mudConfig({
     PokemonType: ["Fire", "Water", "Grass"],
   },
   tables: {
-    EnergySource: {
-      keySchema: {
-        callerAddress: "address",
-        entity: "bytes32",
-      },
-      schema: {
-        lastInteractionBlock: "uint256",
-        hasValue: "bool", // TODO: Remove this once we can install non-root modules
-      },
-    },
     Soil: {
       keySchema: {
         callerAddress: "address",

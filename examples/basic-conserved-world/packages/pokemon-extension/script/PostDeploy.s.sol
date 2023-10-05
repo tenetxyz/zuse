@@ -14,7 +14,6 @@ contract PostDeploy is Script {
     vm.startBroadcast(deployerPrivateKey);
 
     // Register the voxel types
-    IWorld(worldAddress).pokemon_EnergySourceVoxe_registerBody();
     IWorld(worldAddress).pokemon_SoilVoxelSystem_registerBody();
     IWorld(worldAddress).pokemon_PlantVoxelSystem_registerBody();
     IWorld(worldAddress).pokemon_FirePokemonAgent_registerBody();

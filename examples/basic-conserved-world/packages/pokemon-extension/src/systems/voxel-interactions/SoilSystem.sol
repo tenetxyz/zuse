@@ -5,11 +5,10 @@ import { IStore } from "@latticexyz/store/src/IStore.sol";
 import { VoxelInteraction } from "@tenet-base-ca/src/prototypes/VoxelInteraction.sol";
 import { BlockDirection, BodyPhysicsData, SimEventData, SimTable, VoxelCoord } from "@tenet-utils/src/Types.sol";
 import { getOppositeDirection } from "@tenet-utils/src/VoxelCoordUtils.sol";
-import { EnergySource } from "@tenet-pokemon-extension/src/codegen/tables/EnergySource.sol";
 import { Soil } from "@tenet-pokemon-extension/src/codegen/tables/Soil.sol";
 import { Plant } from "@tenet-pokemon-extension/src/codegen/tables/Plant.sol";
 import { PlantStage } from "@tenet-pokemon-extension/src/codegen/Types.sol";
-import { entityIsEnergySource, entityIsSoil, entityIsPlant } from "@tenet-pokemon-extension/src/InteractionUtils.sol";
+import { entityIsSoil, entityIsPlant } from "@tenet-pokemon-extension/src/InteractionUtils.sol";
 import { getCAEntityAtCoord, getCAVoxelType, getCAEntityPositionStrict } from "@tenet-base-ca/src/Utils.sol";
 import { getVoxelBodyPhysicsFromCaller, transferEnergy } from "@tenet-level1-ca/src/Utils.sol";
 import { console } from "forge-std/console.sol";
@@ -95,12 +94,12 @@ contract SoilSystem is VoxelInteraction {
     return (changedEntity, entityData);
   }
 
-  function getEnergyToSoil(uint256 energySourceEnergy) internal pure returns (uint256) {
-    return energySourceEnergy / 5; // Transfer 20% of its energy to Soil
+  function getEnergyToSoil(uint256 soilEnergy) internal pure returns (uint256) {
+    return soilEnergy / 5; // Transfer 20% of its energy to Soil
   }
 
-  function getEnergyToPlant(uint256 energySourceEnergy) internal pure returns (uint256) {
-    return energySourceEnergy / 10; // Transfer 10% of its energy to Seed or Young Plant
+  function getEnergyToPlant(uint256 soilEnergy) internal pure returns (uint256) {
+    return soilEnergy / 10; // Transfer 10% of its energy to Seed or Young Plant
   }
 
   function calculateNumSoilNeighbours(

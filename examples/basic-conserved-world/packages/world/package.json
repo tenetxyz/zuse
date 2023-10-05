@@ -42,8 +42,8 @@
     "@tenetxyz/base-world": "link:../../../../packages/base-world",
     "@tenetxyz/level1-ca": "workspace:*",
     "@tenetxyz/pokemon-extension": "workspace:*",
-    "@tenetxyz/simulator": "workspace:*",
     "@tenetxyz/registry": "link:../../../../packages/registry",
+    "@tenetxyz/simulator": "workspace:*",
     "@tenetxyz/utils": "link:../../../../packages/utils"
   },
   "devDependencies": {

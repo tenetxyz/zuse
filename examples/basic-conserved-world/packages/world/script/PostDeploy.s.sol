@@ -49,7 +49,7 @@ contract PostDeploy is Script {
     bytes32 voxelTypeId = FighterVoxelID;
     VoxelCoord memory coord = VoxelCoord({ x: 10, y: 2, z: 10 });
     uint256 initMass = 100000; // Make faucet really high mass so its hard to mine
-    uint256 initEnergy = 1000;
+    uint256 initEnergy = 100000;
     VoxelCoord memory initVelocity = VoxelCoord({ x: 0, y: 0, z: 0 });
     VoxelEntity memory agentEntity = world.spawnBody(voxelTypeId, coord, bytes4(0), initMass, initEnergy, initVelocity);
     world.setFaucetAgent(agentEntity);

@@ -35,6 +35,7 @@ contract FaucetSystem is System {
       if (facuetData.claimers[i] == claimer) {
         numClaims = facuetData.claimerAmounts[i];
         claimIdx = i;
+        break;
       }
     }
     require(numClaims < MAX_CLAIMS, "Max claims reached");
@@ -48,6 +49,8 @@ contract FaucetSystem is System {
       }
       newClaimers[facuetData.claimers.length] = claimer;
       newClaimerAmounts[facuetData.claimerAmounts.length] = 1;
+      facuetData.claimers = newClaimers;
+      facuetData.claimerAmounts = newClaimerAmounts;
     } else {
       // Update existing array
       facuetData.claimerAmounts[claimIdx] = numClaims + 1;
@@ -57,6 +60,8 @@ contract FaucetSystem is System {
     InteractionSelector[] memory interactionSelectors = getInteractionSelectors(IStore(REGISTRY_ADDRESS), voxelTypeId);
     require(interactionSelectors.length > 1, "Not an agent");
 
+    // Note: calling build every time will cause the area around the agent to lose energy
+    // TODO: Fix this if it becomes a problem. One idea is the faucet entity could flux energy back to the surrounding
     VoxelEntity memory newEntity = IWorld(_world()).buildWithAgent(voxelTypeId, coord, faucetEntity, bytes4(0));
     IWorld(_world()).claimAgent(newEntity);
     Faucet.set(faucetEntity.scale, faucetEntity.entityId, facuetData);

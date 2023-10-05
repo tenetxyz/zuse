@@ -26,11 +26,13 @@ contract SpawnEntity is Script {
     IWorld world = IWorld(worldAddress);
     IStore store = IStore(worldAddress);
 
-    bytes32 faucetEntityId = getEntityAtCoord(1, VoxelCoord({ x: 10, y: 2, z: 10 }));
-    VoxelEntity memory faucetEntity = VoxelEntity({ scale: 1, entityId: faucetEntityId });
+    VoxelEntity memory faucetEntity = VoxelEntity({
+      scale: 1,
+      entityId: bytes32(0x0000000000000000000000000000000000000000000000000000000000000001)
+    });
 
-    bytes32 voxelTypeId = GrassVoxelID;
-    VoxelCoord memory coord = VoxelCoord({ x: 11, y: 2, z: 10 });
+    bytes32 voxelTypeId = FighterVoxelID;
+    VoxelCoord memory coord = VoxelCoord({ x: 10, y: 2, z: 11 });
     world.claimAgentFromFaucet(faucetEntity, voxelTypeId, coord);
     // uint256 initMass = VoxelTypeProperties.get(store, voxelTypeId);
     // uint256 initEnergy = 100;

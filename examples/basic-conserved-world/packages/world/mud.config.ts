@@ -62,6 +62,11 @@ export default tenetMudConfig({
     {
       name: "KeysInTableModule",
       root: true,
+      args: [resolveTableId("VoxelTypeProperties")],
+    },
+    {
+      name: "KeysInTableModule",
+      root: true,
       args: [resolveTableId("OwnedBy")],
     },
     {

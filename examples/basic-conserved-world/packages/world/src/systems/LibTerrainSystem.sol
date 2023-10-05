@@ -6,7 +6,7 @@ import { VoxelCoord, BucketData } from "@tenet-utils/src/Types.sol";
 import { System } from "@latticexyz/world/src/System.sol";
 import { hasKey } from "@latticexyz/world/src/modules/keysintable/hasKey.sol";
 import { AirVoxelID, GrassVoxelID, DirtVoxelID, BedrockVoxelID } from "@tenet-level1-ca/src/Constants.sol";
-import { TerrainProperties, TerrainPropertiesTableId, VoxelTypeProperties } from "@tenet-world/src/codegen/Tables.sol";
+import { TerrainProperties, TerrainPropertiesTableId, VoxelTypeProperties, VoxelTypePropertiesTableId } from "@tenet-world/src/codegen/Tables.sol";
 import { getTerrainVoxelId } from "@tenet-base-ca/src/CallUtils.sol";
 import { safeCall, safeStaticCall } from "@tenet-utils/src/CallUtils.sol";
 import { BASE_CA_ADDRESS } from "@tenet-world/src/Constants.sol";
@@ -37,6 +37,10 @@ contract LibTerrainSystem is System {
 
     // Flat world solution
     bytes32 voxelTypeId = getTerrainVoxel(coord);
+    require(
+      hasKey(VoxelTypePropertiesTableId, VoxelTypeProperties.encodeKeyTuple(voxelTypeId)),
+      "Voxel type not found"
+    );
     uint256 voxelMass = VoxelTypeProperties.get(voxelTypeId);
     return voxelMass;
   }

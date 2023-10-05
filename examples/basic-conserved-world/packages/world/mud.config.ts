@@ -9,7 +9,8 @@ export default tenetMudConfig({
         entity: "bytes32",
       },
       schema: {
-        numSpawns: "uint8", // number of times this faucet has been used
+        claimers: "address[]",
+        claimerAmounts: "uint256[]",
       },
     },
     TerrainProperties: {

@@ -86,7 +86,7 @@ contract SoilTest is MudTest {
     vm.startPrank(alice);
     VoxelEntity memory agentEntity = setupAgent();
 
-    VoxelEntity memory energySourceEntity = replaceHighEnergyBlockWithEnergySource(agentEntity);
+    // VoxelEntity memory energySourceEntity = replaceHighEnergyBlockWithEnergySource(agentEntity);
 
     // Place down soil beside it
     VoxelCoord memory soilCoord = VoxelCoord({
@@ -113,8 +113,6 @@ contract SoilTest is MudTest {
     assertTrue(plantEnergy2 > plantEnergy);
 
     vm.stopPrank();
-
-    return (agentEntity, energySourceEntity);
   }
 
   function testSoilWithSoilAndPlantNeighbour() public {
@@ -150,7 +148,7 @@ contract SoilTest is MudTest {
     assertTrue(plantEnergy == 0);
 
     // Place down energy source
-    VoxelEntity memory energySourceEntity = replaceHighEnergyBlockWithEnergySource(agentEntity);
+    // VoxelEntity memory energySourceEntity = replaceHighEnergyBlockWithEnergySource(agentEntity);
     // Soil1 should have energy
     soil1Energy = Energy.get(IStore(SIMULATOR_ADDRESS), worldAddress, soilEntity.scale, soilEntity.entityId);
     assertTrue(soil1Energy > 0);
@@ -217,7 +215,5 @@ contract SoilTest is MudTest {
     }
 
     vm.stopPrank();
-
-    return (agentEntity, energySourceEntity);
   }
 }

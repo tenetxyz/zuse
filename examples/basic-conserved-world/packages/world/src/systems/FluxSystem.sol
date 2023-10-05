@@ -13,7 +13,7 @@ import { distanceBetween } from "@tenet-utils/src/VoxelCoordUtils.sol";
 import { FluxEventData } from "@tenet-world/src/Types.sol";
 import { console } from "forge-std/console.sol";
 import { MAX_VOXEL_NEIGHBOUR_UPDATE_DEPTH } from "@tenet-utils/src/Constants.sol";
-import { massChange, energyTransfer } from "@tenet-simulator/src/CallUtils.sol";
+import { massChange } from "@tenet-simulator/src/CallUtils.sol";
 
 contract FluxSystem is FluxEvent {
   function getRegistryAddress() internal pure override returns (address) {
@@ -85,14 +85,14 @@ contract FluxSystem is FluxEvent {
           scale: eventVoxelEntity.scale,
           entityId: energyReceiverEntityId
         });
-        energyTransfer(
-          SIMULATOR_ADDRESS,
-          eventVoxelEntity,
-          coord,
-          energyReceiverEntity,
-          energyReceiverCoord,
-          fluxEventData.energyToFlux[i]
-        );
+        // energyTransfer(
+        //   SIMULATOR_ADDRESS,
+        //   eventVoxelEntity,
+        //   coord,
+        //   energyReceiverEntity,
+        //   energyReceiverCoord,
+        //   fluxEventData.energyToFlux[i]
+        // );
       }
     }
   }

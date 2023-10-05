@@ -12,11 +12,6 @@ run_example() {
     concurrently -n example -c \#fb8500 "$command"
 }
 
-create_snapshot() {
-    sh scripts/rollback/create_snapshot.sh
-    echo "created snapshot of chain"
-}
-
 # Check if the first argument is "run"
 if [[ "$1" == "run" ]]; then
     case "$2" in
@@ -25,9 +20,6 @@ if [[ "$1" == "run" ]]; then
             ;;
         "dev-no-client")
             concurrently -n anvil,contracts -c blue,green,white "./t run dev:anvil" "./t run dev:framework $4 && ./t run dev:$3 $4 $5"
-            if [[ "$6" == "snapshot" ]]; then
-                create_snapshot
-            fi
             ;;
         "dev:anvil")
             cd scripts && yarn run anvil
@@ -65,7 +57,8 @@ if [[ "$1" == "run" ]]; then
             cd examples/client && yarn run dev
             ;;
         "dev:snapshot")
-            create_snapshot
+            sh scripts/rollback/create_snapshot.sh
+            echo "rollbacked snapshot"
             ;;
         *)
             echo "Invalid command."

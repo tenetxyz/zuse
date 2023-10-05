@@ -7,7 +7,7 @@ import { IStore } from "@latticexyz/store/src/IStore.sol";
 import { console } from "forge-std/console.sol";
 import { IWorld } from "../src/codegen/world/IWorld.sol";
 import { IBaseWorld } from "@latticexyz/world/src/interfaces/IBaseWorld.sol";
-import { VoxelCoord } from "@tenet-utils/src/Types.sol";
+import { VoxelCoord, VoxelEntity } from "@tenet-utils/src/Types.sol";
 import { SHARD_DIM } from "@tenet-level1-ca/src/Constants.sol";
 import { BASE_CA_ADDRESS } from "@tenet-world/src/Constants.sol";
 import { TerrainProperties, TerrainPropertiesTableId, VoxelTypeProperties } from "@tenet-world/src/codegen/Tables.sol";
@@ -48,10 +48,11 @@ contract PostDeploy is Script {
     // TODO: remove when we add buckets
     bytes32 voxelTypeId = FighterVoxelID;
     VoxelCoord memory coord = VoxelCoord({ x: 10, y: 2, z: 10 });
-    uint256 initMass = VoxelTypeProperties.get(store, voxelTypeId);
+    uint256 initMass = 100000; // Make faucet really high mass so its hard to mine
     uint256 initEnergy = 1000;
     VoxelCoord memory initVelocity = VoxelCoord({ x: 0, y: 0, z: 0 });
-    world.spawnBody(voxelTypeId, coord, bytes4(0), initMass, initEnergy, initVelocity);
+    VoxelEntity memory agentEntity = world.spawnBody(voxelTypeId, coord, bytes4(0), initMass, initEnergy, initVelocity);
+    world.setFaucetAgent(agentEntity);
 
     vm.stopBroadcast();
   }

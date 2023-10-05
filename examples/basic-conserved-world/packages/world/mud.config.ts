@@ -3,6 +3,15 @@ import { resolveTableId } from "@latticexyz/config";
 
 export default tenetMudConfig({
   tables: {
+    Faucet: {
+      keySchema: {
+        scale: "uint32",
+        entity: "bytes32",
+      },
+      schema: {
+        numSpawns: "uint8", // number of times this faucet has been used
+      },
+    },
     TerrainProperties: {
       keySchema: {
         x: "int32",
@@ -44,6 +53,11 @@ export default tenetMudConfig({
     },
   },
   modules: [
+    {
+      name: "KeysInTableModule",
+      root: true,
+      args: [resolveTableId("Faucet")],
+    },
     {
       name: "KeysInTableModule",
       root: true,

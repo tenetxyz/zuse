@@ -52,6 +52,19 @@ struct CAEventData {
   uint256 massFluxAmount;
 }
 
+enum SimTable {
+  Mass,
+  Energy,
+  Velocity
+}
+
+struct SimEventData {
+  SimTable table;
+  VoxelEntity targetEntity;
+  VoxelCoord targetCoord;
+  bytes targetValue;
+}
+
 struct DecisionRuleKey {
   bytes32 srcVoxelTypeId;
   bytes32 targetVoxelTypeId;

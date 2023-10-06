@@ -41,7 +41,6 @@ contract CAEventsSystem is System {
         }
 
         if (caEventData.eventType == CAEventType.SimEvent) {
-          console.log("got sim event");
           SimEventData memory simEventData = abi.decode(caEventData.eventData, (SimEventData));
           if (simEventData.senderTable == SimTable.None || simEventData.targetTable == SimTable.None) {
             continue;

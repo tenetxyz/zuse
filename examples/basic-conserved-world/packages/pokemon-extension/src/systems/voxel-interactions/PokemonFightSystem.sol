@@ -56,10 +56,8 @@ contract PokemonFightSystem is System {
     uint256 lostHealth,
     uint256 lostStamina
   ) internal view returns (CAEventData[] memory) {
-    console.log("battleEndData");
     console.logBytes32(entityId);
     if (lostHealth + lostStamina == 0) {
-      console.log("skipping");
       return new CAEventData[](0);
     }
     BodyPhysicsData memory bodyPhysicsData = getVoxelBodyPhysicsFromCaller(entityId);
@@ -91,7 +89,6 @@ contract PokemonFightSystem is System {
     }
 
     PokemonData memory neighbourPokemonData = Pokemon.get(callerAddress, neighbourEntity);
-    console.log("runBattleLogic");
     console.logBytes32(interactEntity);
     console.logInt(neighbourPokemonData.round);
     if (neighbourPokemonData.round == -1) {
@@ -115,7 +112,6 @@ contract PokemonFightSystem is System {
 
     if (pokemonData.lostHealth >= pokemonData.health || pokemonData.lostStamina >= pokemonData.stamina) {
       // pokemon is fainted
-      console.log("fainted");
       pokemonData.round = -1;
       pokemonData.move = PokemonMove.None;
       pokemonData.health = safeSubtract(pokemonData.health, pokemonData.lostHealth);

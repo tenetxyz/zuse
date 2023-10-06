@@ -74,7 +74,6 @@ contract SoilSystem is VoxelInteraction {
     bytes32[] memory childEntityIds,
     bytes32 parentEntity
   ) internal override returns (bool changedEntity, bytes memory entityData) {
-    console.log("soil runInteraction");
     changedEntity = false;
     uint256 lastInteractionBlock = Soil.getLastInteractionBlock(callerAddress, interactEntity);
     if (block.number == lastInteractionBlock) {
@@ -91,8 +90,6 @@ contract SoilSystem is VoxelInteraction {
     );
 
     // Note: we don't need to set changedEntity to true, because we don't need another event
-
-    console.log("soil runInteraction leaving");
 
     return (changedEntity, entityData);
   }
@@ -177,8 +174,6 @@ contract SoilSystem is VoxelInteraction {
     if (hasPlant || numSoilNeighbours > 0) {
       Soil.setLastInteractionBlock(callerAddress, interactEntity, block.number);
     }
-
-    console.log("going through end");
 
     // Check if there's at least one transfer
     if (hasTransfer) {

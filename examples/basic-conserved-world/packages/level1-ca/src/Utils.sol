@@ -43,9 +43,6 @@ function transferEnergy(
   VoxelCoord memory targetCoord,
   uint256 energyToTransfer
 ) view returns (CAEventData memory) {
-  console.log("transferEnergy called");
-  console.logUint(energyToTransfer);
-  console.logUint(senderBodyPhysics.energy);
   CAEntityReverseMappingData memory entityData = CAEntityReverseMapping.get(targetCAEntity);
   VoxelEntity memory targetEntity = VoxelEntity({ scale: 1, entityId: entityData.entity });
   bytes memory returnData = safeStaticCall(
@@ -55,7 +52,6 @@ function transferEnergy(
   );
   uint256 currentTargetEnergy = abi.decode(returnData, (uint256));
   uint256 targetAmount = currentTargetEnergy + energyToTransfer;
-  console.log("return bro");
   SimEventData memory eventData = SimEventData({
     senderTable: SimTable.Energy,
     senderValue: abi.encode(senderBodyPhysics.energy),

@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity >=0.8.0;
 
+import { IStore } from "@latticexyz/store/src/IStore.sol";
 import { IWorld } from "@tenet-world/src/codegen/world/IWorld.sol";
 import { MineEvent } from "@tenet-base-world/src/prototypes/MineEvent.sol";
 import { hasKey } from "@latticexyz/world/src/modules/keysintable/hasKey.sol";
@@ -12,7 +13,7 @@ import { AirVoxelID } from "@tenet-level1-ca/src/Constants.sol";
 import { getEntityAtCoord } from "@tenet-base-world/src/Utils.sol";
 import { REGISTRY_ADDRESS, SIMULATOR_ADDRESS } from "@tenet-world/src/Constants.sol";
 import { MineWorldEventData } from "@tenet-world/src/Types.sol";
-import { massChange } from "@tenet-simulator/src/CallUtils.sol";
+import { onMine } from "@tenet-simulator/src/CallUtils.sol";
 
 contract MineSystem is MineEvent {
   function getRegistryAddress() internal pure override returns (address) {
@@ -43,6 +44,6 @@ contract MineSystem is MineEvent {
   ) internal override {
     super.preRunCA(caAddress, voxelTypeId, coord, eventVoxelEntity, eventData);
     // Call simulator mass change
-    massChange(SIMULATOR_ADDRESS, eventVoxelEntity, coord, 0);
+    onMine(SIMULATOR_ADDRESS, eventVoxelEntity, coord);
   }
 }

@@ -11,13 +11,12 @@ import { getEntityAtCoord, getEntityPositionStrict, positionDataToVoxelCoord } f
 import { FighterVoxelID, GrassVoxelID, AirVoxelID, DirtVoxelID, BedrockVoxelID } from "@tenet-level1-ca/src/Constants.sol";
 import { MindRegistry } from "@tenet-registry/src/codegen/tables/MindRegistry.sol";
 import { REGISTRY_ADDRESS, BASE_CA_ADDRESS, SIMULATOR_ADDRESS } from "@tenet-world/src/Constants.sol";
-import { EnergySourceVoxelID, SoilVoxelID, PlantVoxelID, FirePokemonVoxelID } from "@tenet-pokemon-extension/src/Constants.sol";
+import { SoilVoxelID, PlantVoxelID, FirePokemonVoxelID } from "@tenet-pokemon-extension/src/Constants.sol";
 import { Pokemon, PokemonData } from "@tenet-pokemon-extension/src/codegen/tables/Pokemon.sol";
 import { Plant, PlantData, PlantStage } from "@tenet-pokemon-extension/src/codegen/tables/Plant.sol";
 import { addressToEntityKey } from "@tenet-utils/src/Utils.sol";
 import { console } from "forge-std/console.sol";
 import { CAEntityMapping, CAEntityMappingTableId } from "@tenet-base-ca/src/codegen/tables/CAEntityMapping.sol";
-import { ENERGY_SOURCE_WAIT_BLOCKS } from "@tenet-pokemon-extension/src/systems/voxel-interactions/EnergySourceSystem.sol";
 import { ENERGY_REQUIRED_FOR_SPROUT, ENERGY_REQUIRED_FOR_FLOWER } from "@tenet-pokemon-extension/src/systems/voxel-interactions/PlantSystem.sol";
 import { NUM_BLOCKS_BEFORE_REDUCE_VELOCITY } from "@tenet-simulator/src/Constants.sol";
 import { Mass } from "@tenet-simulator/src/codegen/tables/Mass.sol";
@@ -38,19 +37,18 @@ contract PokemonTest is MudTest {
     world = IWorld(worldAddress);
     store = IStore(worldAddress);
     alice = payable(address(0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266));
-    agentCoord = VoxelCoord(10, 2, 10);
+    agentCoord = VoxelCoord(11, 2, 10);
   }
 
   function setupAgent() internal returns (VoxelEntity memory) {
     // Claim agent
-    VoxelEntity memory agentEntity = VoxelEntity({ scale: 1, entityId: getEntityAtCoord(1, agentCoord) });
-    world.claimAgent(agentEntity);
-
+    VoxelEntity memory faucetEntity = VoxelEntity({ scale: 1, entityId: getEntityAtCoord(1, VoxelCoord(10, 2, 10)) });
+    VoxelEntity memory agentEntity = world.claimAgentFromFaucet(faucetEntity, FighterVoxelID, agentCoord);
     return agentEntity;
   }
 
   function testFight() public {
-    vm.startPrank(alice);
+    vm.startPrank(alice, alice);
     VoxelEntity memory agentEntity = setupAgent();
 
     {

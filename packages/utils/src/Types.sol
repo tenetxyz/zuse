@@ -38,18 +38,40 @@ struct EntityEventData {
   bytes eventData;
 }
 
+enum WorldEventType {
+  Move
+}
+
+struct WorldEventData {
+  WorldEventType eventType;
+  VoxelCoord newCoord;
+}
+
+enum SimTable {
+  None,
+  Mass,
+  Energy,
+  Velocity
+}
+
+struct SimEventData {
+  SimTable senderTable;
+  bytes senderValue;
+  VoxelEntity targetEntity;
+  VoxelCoord targetCoord;
+  SimTable targetTable;
+  bytes targetValue;
+}
+
 enum CAEventType {
-  Move,
-  FluxEnergy,
-  FluxMass,
-  FluxEnergyAndMass
+  None,
+  WorldEvent,
+  SimEvent
 }
 
 struct CAEventData {
   CAEventType eventType;
-  VoxelCoord[] newCoords;
-  uint256[] energyFluxAmounts;
-  uint256 massFluxAmount;
+  bytes eventData;
 }
 
 struct DecisionRuleKey {

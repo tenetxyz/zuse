@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity >=0.8.0;
 
+import { IStore } from "@latticexyz/store/src/IStore.sol";
 import { IWorld } from "@tenet-world/src/codegen/world/IWorld.sol";
 import { BuildEvent } from "@tenet-base-world/src/prototypes/BuildEvent.sol";
 import { BuildEventData } from "@tenet-base-world/src/Types.sol";
@@ -11,7 +12,7 @@ import { min } from "@tenet-utils/src/VoxelCoordUtils.sol";
 import { REGISTRY_ADDRESS, SIMULATOR_ADDRESS } from "@tenet-world/src/Constants.sol";
 import { AirVoxelID } from "@tenet-level1-ca/src/Constants.sol";
 import { BuildWorldEventData } from "@tenet-world/src/Types.sol";
-import { massChange } from "@tenet-simulator/src/CallUtils.sol";
+import { onBuild } from "@tenet-simulator/src/CallUtils.sol";
 
 contract BuildSystem is BuildEvent {
   function getRegistryAddress() internal pure override returns (address) {
@@ -52,6 +53,6 @@ contract BuildSystem is BuildEvent {
     super.preRunCA(caAddress, voxelTypeId, coord, eventVoxelEntity, eventData);
     // Call simulator mass change
     uint256 bodyMass = VoxelTypeProperties.get(voxelTypeId);
-    massChange(SIMULATOR_ADDRESS, eventVoxelEntity, coord, bodyMass);
+    onBuild(SIMULATOR_ADDRESS, eventVoxelEntity, coord, bodyMass);
   }
 }

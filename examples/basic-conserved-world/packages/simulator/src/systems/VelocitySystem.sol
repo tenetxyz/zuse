@@ -4,7 +4,7 @@ pragma solidity >=0.8.0;
 import { IStore } from "@latticexyz/store/src/IStore.sol";
 import { IWorld } from "@tenet-simulator/src/codegen/world/IWorld.sol";
 import { hasKey } from "@latticexyz/world/src/modules/keysintable/hasKey.sol";
-import { System } from "@latticexyz/world/src/System.sol";
+import { SimHandler } from "@tenet-simulator/prototypes/SimHandler.sol";
 import { VoxelCoord, VoxelTypeData, VoxelEntity } from "@tenet-utils/src/Types.sol";
 import { Mass, MassTableId, Energy, EnergyTableId, Velocity, VelocityTableId } from "@tenet-simulator/src/codegen/Tables.sol";
 import { isZeroCoord, voxelCoordsAreEqual, uint256ToInt32, dot, mulScalar, divScalar, min, add, sub, safeSubtract, safeAdd, abs, absInt32 } from "@tenet-utils/src/VoxelCoordUtils.sol";
@@ -27,12 +27,9 @@ enum CoordDirection {
   Z
 }
 
-contract VelocitySystem is System {
-  // Constraints
-
-  // Behaviours
+contract VelocitySystem is SimHandler {
   function updateVelocityCache(VoxelEntity memory entity) public {
-    address callerAddress = _msgSender();
+    address callerAddress = super.getCallerAddress();
     require(
       hasKey(VelocityTableId, Velocity.encodeKeyTuple(callerAddress, entity.scale, entity.entityId)),
       "Entity does not exist"
@@ -345,7 +342,7 @@ contract VelocitySystem is System {
     VoxelEntity memory oldEntity,
     VoxelEntity memory newEntity
   ) public {
-    address callerAddress = _msgSender();
+    address callerAddress = super.getCallerAddress();
     require(
       hasKey(MassTableId, Mass.encodeKeyTuple(callerAddress, oldEntity.scale, oldEntity.entityId)),
       "Old entity does not exist"

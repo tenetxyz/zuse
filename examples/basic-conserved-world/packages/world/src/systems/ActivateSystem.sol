@@ -5,8 +5,9 @@ import { ActivateEvent } from "@tenet-base-world/src/prototypes/ActivateEvent.so
 import { IWorld } from "@tenet-world/src/codegen/world/IWorld.sol";
 import { VoxelCoord, VoxelEntity, EntityEventData } from "@tenet-utils/src/Types.sol";
 import { ActivateEventData } from "@tenet-base-world/src/Types.sol";
-import { REGISTRY_ADDRESS } from "@tenet-world/src/Constants.sol";
+import { REGISTRY_ADDRESS, SIMULATOR_ADDRESS } from "@tenet-world/src/Constants.sol";
 import { ActivateWorldEventData } from "@tenet-world/src/Types.sol";
+import { onActivate } from "@tenet-simulator/src/CallUtils.sol";
 
 contract ActivateSystem is ActivateEvent {
   function getRegistryAddress() internal pure override returns (address) {
@@ -33,5 +34,16 @@ contract ActivateSystem is ActivateEvent {
           ActivateEventData({ worldData: abi.encode(activateEventData), interactionSelector: interactionSelector })
         )
       );
+  }
+
+  function preRunCA(
+    address caAddress,
+    bytes32 voxelTypeId,
+    VoxelCoord memory coord,
+    VoxelEntity memory eventVoxelEntity,
+    bytes memory eventData
+  ) internal override {
+    super.preRunCA(caAddress, voxelTypeId, coord, eventVoxelEntity, eventData);
+    onActivate(SIMULATOR_ADDRESS, eventVoxelEntity, coord);
   }
 }

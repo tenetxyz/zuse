@@ -4,51 +4,78 @@ pragma solidity >=0.8.0;
 import { IStore } from "@latticexyz/store/src/IStore.sol";
 import { IWorld } from "@tenet-simulator/src/codegen/world/IWorld.sol";
 import { hasKey } from "@latticexyz/world/src/modules/keysintable/hasKey.sol";
-import { System } from "@latticexyz/world/src/System.sol";
+import { SimHandler } from "@tenet-simulator/prototypes/SimHandler.sol";
 import { Mass, MassTableId, Energy, EnergyTableId, Velocity, VelocityTableId } from "@tenet-simulator/src/codegen/Tables.sol";
 import { VoxelCoord, VoxelTypeData, VoxelEntity } from "@tenet-utils/src/Types.sol";
 import { VoxelTypeRegistry, VoxelTypeRegistryData } from "@tenet-registry/src/codegen/tables/VoxelTypeRegistry.sol";
 import { distanceBetween, voxelCoordsAreEqual, isZeroCoord } from "@tenet-utils/src/VoxelCoordUtils.sol";
-import { console } from "forge-std/console.sol";
+import { isEntityEqual } from "@tenet-utils/src/Utils.sol";
 import { getVelocity, getTerrainMass, getTerrainEnergy, getTerrainVelocity } from "@tenet-simulator/src/Utils.sol";
+import { console } from "forge-std/console.sol";
 
-contract MassSystem is System {
-  // Constraints
+contract MassSystem is SimHandler {
+  function setMass(
+    VoxelEntity memory senderEntity,
+    VoxelCoord memory senderCoord,
+    uint256 senderMass,
+    VoxelEntity memory receiverEntity,
+    VoxelCoord memory receiverCoord,
+    uint256 receiverMass
+  ) public {
+    address callerAddress = super.getCallerAddress();
+    bool entityExists = hasKey(
+      MassTableId,
+      Mass.encodeKeyTuple(callerAddress, senderEntity.scale, senderEntity.entityId)
+    );
+    if (isEntityEqual(senderEntity, receiverEntity)) {
+      // Transformation
+      uint256 currentMass = Mass.get(callerAddress, receiverEntity.scale, receiverEntity.entityId);
+      bool isMassIncrease = currentMass < receiverMass; // flux in if mass increases
+      uint256 massDelta = massChange(callerAddress, entityExists, receiverEntity, receiverCoord, receiverMass);
+      // Calculate how much energy this operation requires
+      uint256 energyRequired = massDelta * 10;
+      IWorld(_world()).fluxEnergy(isMassIncrease, callerAddress, receiverEntity, energyRequired);
+    } else {
+      revert("You can't transfer mass to another entity");
+    }
+  }
 
-  // Behaviours
-  function massChange(VoxelEntity memory entity, VoxelCoord memory coord, uint256 newMass) public {
-    address callerAddress = _msgSender();
-    bool entityExists = hasKey(MassTableId, Mass.encodeKeyTuple(callerAddress, entity.scale, entity.entityId));
+  function massChange(
+    address callerAddress,
+    bool entityExists,
+    VoxelEntity memory entity,
+    VoxelCoord memory coord,
+    uint256 newMass
+  ) internal returns (uint256 massDelta) {
     if (newMass > 0) {
       // this is a build event
       bool isBuild = false;
+      uint256 currentMass = Mass.get(callerAddress, entity.scale, entity.entityId);
       if (entityExists) {
-        uint256 currentMass = Mass.get(callerAddress, entity.scale, entity.entityId);
         if (currentMass == 0) {
           isBuild = true;
+          massDelta = newMass;
         } else {
           // Note: we only allow mass to decrease
-          require(currentMass > newMass, "Not enough mass to flux");
+          require(currentMass >= newMass, "Cannot increase mass");
+          massDelta = currentMass - newMass;
         }
       } else {
         uint256 terrainMass = getTerrainMass(callerAddress, entity.scale, coord);
         require(terrainMass == 0 || terrainMass == newMass, "Invalid terrain mass");
         isBuild = true;
         Mass.set(callerAddress, entity.scale, entity.entityId, terrainMass);
-        Energy.set(callerAddress, entity.scale, entity.entityId, 0);
+        Energy.set(callerAddress, entity.scale, entity.entityId, getTerrainEnergy(callerAddress, entity.scale, coord));
         Velocity.set(
           callerAddress,
           entity.scale,
           entity.entityId,
           block.number,
-          abi.encode(VoxelCoord({ x: 0, y: 0, z: 0 }))
+          abi.encode(getTerrainVelocity(callerAddress, entity.scale, coord))
         );
-      }
 
-      // Calculate how much energy this operation requires
-      uint256 energyRequired = newMass * 10;
-      IWorld(_world()).fluxEnergy(isBuild, callerAddress, entity, energyRequired);
-      Mass.set(callerAddress, entity.scale, entity.entityId, newMass);
+        massDelta = terrainMass;
+      }
     } else {
       // this is a mine event
       uint256 massToMine;
@@ -68,10 +95,10 @@ contract MassSystem is System {
         Velocity.set(callerAddress, entity.scale, entity.entityId, block.number, abi.encode(terrainVelocity));
       }
 
-      // Calculate how much energy this operation requires
-      uint256 energyRequired = massToMine * 10;
-      IWorld(_world()).fluxEnergy(false, callerAddress, entity, energyRequired);
-      Mass.set(callerAddress, entity.scale, entity.entityId, 0);
+      massDelta = massToMine;
     }
+
+    Mass.set(callerAddress, entity.scale, entity.entityId, newMass);
+    return massDelta;
   }
 }

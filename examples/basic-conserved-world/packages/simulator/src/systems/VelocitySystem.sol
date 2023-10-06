@@ -28,15 +28,6 @@ enum CoordDirection {
 }
 
 contract VelocitySystem is System {
-  function setVelocity(
-    VoxelEntity memory senderEntity,
-    VoxelCoord memory senderCoord,
-    VoxelCoord memory senderVelocity,
-    VoxelEntity memory receiverEntity,
-    VoxelCoord memory receiverCoord,
-    VoxelCoord memory receiverVelocity
-  ) public {}
-
   function updateVelocityCache(VoxelEntity memory entity) public {
     address callerAddress = _msgSender();
     require(

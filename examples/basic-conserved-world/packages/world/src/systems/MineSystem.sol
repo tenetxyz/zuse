@@ -13,8 +13,7 @@ import { AirVoxelID } from "@tenet-level1-ca/src/Constants.sol";
 import { getEntityAtCoord } from "@tenet-base-world/src/Utils.sol";
 import { REGISTRY_ADDRESS, SIMULATOR_ADDRESS } from "@tenet-world/src/Constants.sol";
 import { MineWorldEventData } from "@tenet-world/src/Types.sol";
-import { setSimValue } from "@tenet-simulator/src/CallUtils.sol";
-import { Mass } from "@tenet-simulator/src/codegen/tables/Mass.sol";
+import { onMine } from "@tenet-simulator/src/CallUtils.sol";
 
 contract MineSystem is MineEvent {
   function getRegistryAddress() internal pure override returns (address) {
@@ -45,24 +44,6 @@ contract MineSystem is MineEvent {
   ) internal override {
     super.preRunCA(caAddress, voxelTypeId, coord, eventVoxelEntity, eventData);
     // Call simulator mass change
-    uint256 currentMass = Mass.get(
-      IStore(SIMULATOR_ADDRESS),
-      _world(),
-      eventVoxelEntity.scale,
-      eventVoxelEntity.entityId
-    );
-    if (currentMass > 0) {
-      setSimValue(
-        SIMULATOR_ADDRESS,
-        eventVoxelEntity,
-        coord,
-        SimTable.Mass,
-        abi.encode(currentMass),
-        eventVoxelEntity,
-        coord,
-        SimTable.Mass,
-        abi.encode(uint256(0))
-      );
-    }
+    onMine(SIMULATOR_ADDRESS, eventVoxelEntity, coord);
   }
 }

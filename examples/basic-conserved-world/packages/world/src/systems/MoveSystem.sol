@@ -12,7 +12,7 @@ import { MoveEventData } from "@tenet-base-world/src/Types.sol";
 import { OwnedBy, OwnedByTableId, WorldConfig, VoxelTypeProperties } from "@tenet-world/src/codegen/Tables.sol";
 import { getEntityAtCoord } from "@tenet-base-world/src/Utils.sol";
 import { MoveWorldEventData } from "@tenet-world/src/Types.sol";
-import { velocityChange } from "@tenet-simulator/src/CallUtils.sol";
+import { onMove } from "@tenet-simulator/src/CallUtils.sol";
 
 contract MoveSystem is MoveEvent {
   function getRegistryAddress() internal pure override returns (address) {
@@ -59,6 +59,6 @@ contract MoveSystem is MoveEvent {
     uint32 scale = eventVoxelEntity.scale;
     bytes32 oldEntityId = getEntityAtCoord(scale, oldCoord);
     VoxelEntity memory oldEntity = VoxelEntity({ scale: scale, entityId: oldEntityId });
-    velocityChange(SIMULATOR_ADDRESS, oldCoord, newCoord, oldEntity, eventVoxelEntity);
+    onMove(SIMULATOR_ADDRESS, oldEntity, oldCoord, eventVoxelEntity, newCoord);
   }
 }

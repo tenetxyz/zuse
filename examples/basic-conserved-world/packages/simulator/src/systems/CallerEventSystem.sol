@@ -15,10 +15,18 @@ import { getVelocity, getTerrainMass, getTerrainEnergy, getTerrainVelocity } fro
 contract CallerEventSystem is System {
   function onBuild(VoxelEntity memory entity, VoxelCoord memory coord, uint256 entityMass) public {
     address callerAddress = _msgSender();
+    uint256 currentMass = Mass.get(callerAddress, entity.scale, entity.entityId);
+    if (currentMass != entityMass) {
+      IWorld(_world()).setMass(entity, coord, currentMass, entity, coord, entityMass);
+    }
   }
 
   function onMine(VoxelEntity memory entity, VoxelCoord memory coord) public {
     address callerAddress = _msgSender();
+    uint256 currentMass = Mass.get(callerAddress, entity.scale, entity.entityId);
+    if (currentMass > 0) {
+      IWorld(_world()).setMass(entity, coord, currentMass, entity, coord, 0);
+    }
   }
 
   function onMove(
@@ -30,7 +38,5 @@ contract CallerEventSystem is System {
     address callerAddress = _msgSender();
   }
 
-  function onActivate(VoxelEntity memory entity, VoxelCoord memory coord) public {
-    address callerAddress = _msgSender();
-  }
+  function onActivate(VoxelEntity memory entity, VoxelCoord memory coord) public {}
 }

@@ -4,7 +4,7 @@ pragma solidity >=0.8.0;
 import { IStore } from "@latticexyz/store/src/IStore.sol";
 import { IWorld } from "@tenet-simulator/src/codegen/world/IWorld.sol";
 import { hasKey } from "@latticexyz/world/src/modules/keysintable/hasKey.sol";
-import { System } from "@latticexyz/world/src/System.sol";
+import { SimHandler } from "@tenet-simulator/prototypes/SimHandler.sol";
 import { Mass, MassTableId, Energy, EnergyTableId, Velocity, VelocityTableId } from "@tenet-simulator/src/codegen/Tables.sol";
 import { VoxelCoord, VoxelTypeData, VoxelEntity } from "@tenet-utils/src/Types.sol";
 import { VoxelTypeRegistry, VoxelTypeRegistryData } from "@tenet-registry/src/codegen/tables/VoxelTypeRegistry.sol";
@@ -17,7 +17,7 @@ import { getVelocity, getTerrainMass, getTerrainEnergy, getTerrainVelocity, getN
 uint256 constant MAXIMUM_ENERGY_OUT = 100;
 uint256 constant MAXIMUM_ENERGY_IN = 100;
 
-contract EnergySystem is System {
+contract EnergySystem is SimHandler {
   function setEnergy(
     VoxelEntity memory senderEntity,
     VoxelCoord memory senderCoord,
@@ -26,7 +26,7 @@ contract EnergySystem is System {
     VoxelCoord memory receiverCoord,
     uint256 receiverEnergy
   ) public {
-    address callerAddress = _msgSender();
+    address callerAddress = super.getCallerAddress();
     bool entityExists = hasKey(
       EnergyTableId,
       Energy.encodeKeyTuple(callerAddress, senderEntity.scale, senderEntity.entityId)

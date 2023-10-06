@@ -21,7 +21,7 @@ import { Mass } from "@tenet-simulator/src/codegen/tables/Mass.sol";
 import { Energy } from "@tenet-simulator/src/codegen/tables/Energy.sol";
 import { Velocity } from "@tenet-simulator/src/codegen/tables/Velocity.sol";
 
-uint256 constant INITIAL_HIGH_ENERGY = 1000;
+uint256 constant INITIAL_HIGH_ENERGY = 100;
 
 contract SoilTest is MudTest {
   IWorld private world;

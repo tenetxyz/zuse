@@ -72,6 +72,7 @@ contract CAEventsSystem is System {
         if (!calledWorldEvent) {
           entitiesToRunCA[entitiesToRunCAIdx] = simEventData.targetEntity;
           entitiesToRunCAIdx++;
+          require(entitiesToRunCAIdx < MAX_VOXEL_NEIGHBOUR_UPDATE_DEPTH, "Too many entities to run CA");
         }
       }
 
@@ -106,15 +107,18 @@ contract CAEventsSystem is System {
       }
       bytes32 voxelTypeId = VoxelType.getVoxelTypeId(entity.scale, entity.entityId);
       address caAddress = WorldConfig.get(voxelTypeId);
+      console.log("running ca");
       EntityEventData[] memory newEntitiesEventData = IWorld(_world()).runCA(caAddress, entity, bytes4(0));
       for (uint j = 0; j < newEntitiesEventData.length; j++) {
         if (newEntitiesEventData[j].eventData.length > 0) {
           allNewEntitiesEventData[allNewEntitiesEventDataIdx] = newEntitiesEventData[j];
           allNewEntitiesEventDataIdx++;
+          require(allNewEntitiesEventDataIdx < MAX_VOXEL_NEIGHBOUR_UPDATE_DEPTH, "Too many new entities");
         }
       }
     }
     if (allNewEntitiesEventDataIdx > 0) {
+      console.log("recurse");
       caEventsHandler(allNewEntitiesEventData);
     }
   }

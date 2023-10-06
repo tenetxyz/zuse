@@ -13,7 +13,7 @@ import { Pokemon, PokemonData, PokemonMove } from "@tenet-pokemon-extension/src/
 import { entityIsSoil, entityIsPlant, entityIsPokemon } from "@tenet-pokemon-extension/src/InteractionUtils.sol";
 import { console } from "forge-std/console.sol";
 import { getVoxelBodyPhysicsFromCaller, transferEnergy } from "@tenet-level1-ca/src/Utils.sol";
-import { BlockDirection, BodyPhysicsData, CAEventData, CAEventType, VoxelCoord } from "@tenet-utils/src/Types.sol";
+import { BlockDirection, BodyPhysicsData, VoxelCoord } from "@tenet-utils/src/Types.sol";
 import { isZeroCoord, voxelCoordsAreEqual } from "@tenet-utils/src/VoxelCoordUtils.sol";
 
 contract PokemonMindSystem is MindType {

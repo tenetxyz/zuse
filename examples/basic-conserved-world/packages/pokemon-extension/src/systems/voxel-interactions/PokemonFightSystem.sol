@@ -6,7 +6,7 @@ import { System } from "@latticexyz/world/src/System.sol";
 import { calculateBlockDirection, safeSubtract } from "@tenet-utils/src/VoxelCoordUtils.sol";
 import { BlockDirection, VoxelCoord } from "@tenet-utils/src/Types.sol";
 import { getCAEntityPositionStrict } from "@tenet-base-ca/src/Utils.sol";
-import { BlockDirection, BodyPhysicsData, CAEventData, CAEventType, VoxelCoord } from "@tenet-utils/src/Types.sol";
+import { BlockDirection, BodyPhysicsData, VoxelCoord } from "@tenet-utils/src/Types.sol";
 import { getOppositeDirection } from "@tenet-utils/src/VoxelCoordUtils.sol";
 import { Soil } from "@tenet-pokemon-extension/src/codegen/tables/Soil.sol";
 import { Plant } from "@tenet-pokemon-extension/src/codegen/tables/Plant.sol";
@@ -53,13 +53,13 @@ contract PokemonFightSystem is System {
   function battleEndData(uint256 lostHealth, uint256 lostStamina) internal pure returns (CAEventData memory) {
     uint256[] memory energyFluxAmounts = new uint256[](1);
     energyFluxAmounts[0] = lostHealth + lostStamina;
-    return
-      CAEventData({
-        eventType: CAEventType.FluxEnergyAndMass,
-        newCoords: new VoxelCoord[](0),
-        energyFluxAmounts: energyFluxAmounts,
-        massFluxAmount: 0
-      });
+    // return
+    //   CAEventData({
+    //     eventType: CAEventType.FluxEnergyAndMass,
+    //     newCoords: new VoxelCoord[](0),
+    //     energyFluxAmounts: energyFluxAmounts,
+    //     massFluxAmount: 0
+    //   });
   }
 
   function runBattleLogic(

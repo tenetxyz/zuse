@@ -6,7 +6,7 @@ import { VoxelCoord } from "@tenet-utils/src/Types.sol";
 import { getFirstCaller } from "@tenet-utils/src/Utils.sol";
 
 abstract contract SimHandler is System {
-  function getCallerAddress() public view returns (address) {
+  function getCallerAddress() internal view returns (address) {
     address callerAddress = getFirstCaller();
     if (callerAddress == address(0)) {
       callerAddress = _msgSender();

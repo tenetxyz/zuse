@@ -155,13 +155,6 @@ contract PlantTest is MudTest {
     assertTrue(plantEnergy >= ENERGY_REQUIRED_FOR_FLOWER);
     assertTrue(plantData.stage == PlantStage.Flower);
 
-    // Mine soil
-    vm.roll(block.number + 1);
-    world.mineWithAgent(SoilVoxelID, soilCoord, agentEntity);
-    plantData = Plant.get(IStore(BASE_CA_ADDRESS), worldAddress, plantCAEntity);
-    plantEnergy = Energy.get(IStore(SIMULATOR_ADDRESS), worldAddress, plantEntity.scale, plantEntity.entityId);
-    assertTrue(plantData.stage == PlantStage.Flower);
-
     // Place pokemon next to flower
     {
       uint256 beforePokemonPlantEnergy = plantEnergy;
@@ -169,15 +162,15 @@ contract PlantTest is MudTest {
       VoxelEntity memory pokemonEntity = world.buildWithAgent(FirePokemonVoxelID, pokemonCoord, agentEntity, bytes4(0));
       // pokemon entity should have some energy
       plantEnergy = Energy.get(IStore(SIMULATOR_ADDRESS), worldAddress, plantEntity.scale, plantEntity.entityId);
-      console.logUint(beforePokemonPlantEnergy);
-      console.logUint(plantEnergy);
-      console.logUint(Energy.get(IStore(SIMULATOR_ADDRESS), worldAddress, pokemonEntity.scale, pokemonEntity.entityId));
-      // assertTrue(plantEnergy == 0);
-      // assertTrue(Energy.get(IStore(SIMULATOR_ADDRESS), worldAddress, pokemonEntity.scale, pokemonEntity.entityId) > 0);
-      // vm.roll(block.number + 10);
-      // // world.activateWithAgent(FirePokemonVoxelID, pokemonCoord, agentEntity, bytes4(0));
-      // plantData = Plant.get(IStore(BASE_CA_ADDRESS), worldAddress, plantCAEntity);
-      // assertTrue(plantData.stage != PlantStage.Flower);
+      assertTrue(plantEnergy == 0);
+      assertTrue(
+        Energy.get(IStore(SIMULATOR_ADDRESS), worldAddress, pokemonEntity.scale, pokemonEntity.entityId) ==
+          beforePokemonPlantEnergy
+      );
+      vm.roll(block.number + 10);
+      world.mineWithAgent(SoilVoxelID, soilCoord, agentEntity);
+      plantData = Plant.get(IStore(BASE_CA_ADDRESS), worldAddress, plantCAEntity);
+      assertTrue(plantData.stage != PlantStage.Flower);
     }
 
     vm.stopPrank();

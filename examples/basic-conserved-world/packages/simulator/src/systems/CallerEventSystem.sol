@@ -35,7 +35,7 @@ contract CallerEventSystem is System {
     VoxelEntity memory newEntity,
     VoxelCoord memory newCoord
   ) public {
-    address callerAddress = _msgSender();
+    IWorld(_world()).velocityChange(oldCoord, newCoord, oldEntity, newEntity);
   }
 
   function onActivate(VoxelEntity memory entity, VoxelCoord memory coord) public {}

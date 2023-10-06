@@ -52,6 +52,10 @@ contract PokemonMindSystem is MindType {
       return false;
     }
     PokemonData memory pokemonData = Pokemon.get(callerAddress, pokemonEntityId);
+    console.log("canFight");
+    console.logBytes32(pokemonEntityId);
+    console.logUint(pokemonData.health);
+    console.logInt(pokemonData.round);
     if (pokemonData.health == 0) {
       return false;
     }
@@ -87,6 +91,7 @@ contract PokemonMindSystem is MindType {
 
     if (opponentPokemonEntityId != 0) {
       if (canFight(callerAddress, interactEntity) && canFight(callerAddress, opponentPokemonEntityId)) {
+        console.log("picked move ember");
         chosenSelector = getSelector(interactionSelectors, "Ember");
       }
     } else {

@@ -4,10 +4,11 @@ pragma solidity >=0.8.0;
 import { IStore } from "@latticexyz/store/src/IStore.sol";
 import { System } from "@latticexyz/world/src/System.sol";
 import { calculateBlockDirection, safeSubtract } from "@tenet-utils/src/VoxelCoordUtils.sol";
-import { BlockDirection, VoxelCoord } from "@tenet-utils/src/Types.sol";
+import { BlockDirection, VoxelCoord, VoxelEntity } from "@tenet-utils/src/Types.sol";
 import { getCAEntityPositionStrict } from "@tenet-base-ca/src/Utils.sol";
-import { BlockDirection, BodyPhysicsData, VoxelCoord, CAEventData } from "@tenet-utils/src/Types.sol";
+import { BlockDirection, BodyPhysicsData, VoxelCoord, CAEventData, CAEventType, SimEventData, SimTable } from "@tenet-utils/src/Types.sol";
 import { getOppositeDirection } from "@tenet-utils/src/VoxelCoordUtils.sol";
+import { CAEntityReverseMapping, CAEntityReverseMappingTableId, CAEntityReverseMappingData } from "@tenet-base-ca/src/codegen/tables/CAEntityReverseMapping.sol";
 import { Soil } from "@tenet-pokemon-extension/src/codegen/tables/Soil.sol";
 import { Plant } from "@tenet-pokemon-extension/src/codegen/tables/Plant.sol";
 import { PlantStage } from "@tenet-pokemon-extension/src/codegen/Types.sol";
@@ -50,16 +51,33 @@ contract PokemonFightSystem is System {
     return movesData[uint(move)].stamina;
   }
 
-  function battleEndData(uint256 lostHealth, uint256 lostStamina) internal pure returns (CAEventData memory) {
-    uint256[] memory energyFluxAmounts = new uint256[](1);
-    energyFluxAmounts[0] = lostHealth + lostStamina;
-    // return
-    //   CAEventData({
-    //     eventType: CAEventType.FluxEnergyAndMass,
-    //     newCoords: new VoxelCoord[](0),
-    //     energyFluxAmounts: energyFluxAmounts,
-    //     massFluxAmount: 0
-    //   });
+  function battleEndData(
+    bytes32 entityId,
+    uint256 lostHealth,
+    uint256 lostStamina
+  ) internal view returns (CAEventData[] memory) {
+    console.log("battleEndData");
+    console.logBytes32(entityId);
+    if (lostHealth + lostStamina == 0) {
+      console.log("skipping");
+      return new CAEventData[](0);
+    }
+    BodyPhysicsData memory bodyPhysicsData = getVoxelBodyPhysicsFromCaller(entityId);
+    uint256 newEnergy = safeSubtract(bodyPhysicsData.energy, lostHealth + lostStamina);
+    CAEntityReverseMappingData memory entityData = CAEntityReverseMapping.get(entityId);
+    VoxelEntity memory entity = VoxelEntity({ scale: 1, entityId: entityData.entity });
+    VoxelCoord memory coord = getCAEntityPositionStrict(IStore(_world()), entityId);
+    CAEventData[] memory allCAEventData = new CAEventData[](1);
+    SimEventData memory energyEventData = SimEventData({
+      senderTable: SimTable.Energy,
+      senderValue: abi.encode(bodyPhysicsData.energy),
+      targetEntity: entity,
+      targetCoord: coord,
+      targetTable: SimTable.Energy,
+      targetValue: abi.encode(newEnergy)
+    });
+    allCAEventData[0] = CAEventData({ eventType: CAEventType.SimEvent, eventData: abi.encode(energyEventData) });
+    return allCAEventData;
   }
 
   function runBattleLogic(
@@ -73,13 +91,16 @@ contract PokemonFightSystem is System {
     }
 
     PokemonData memory neighbourPokemonData = Pokemon.get(callerAddress, neighbourEntity);
+    console.log("runBattleLogic");
+    console.logBytes32(interactEntity);
+    console.logInt(neighbourPokemonData.round);
     if (neighbourPokemonData.round == -1) {
       // This means battle is over, the neighbour pokemon is dead
       pokemonData.round = 0;
       pokemonData.move = PokemonMove.None;
       pokemonData.health = safeSubtract(pokemonData.health, pokemonData.lostHealth);
       pokemonData.stamina = safeSubtract(pokemonData.stamina, pokemonData.lostStamina);
-      entityData = abi.encode(battleEndData(pokemonData.lostHealth, pokemonData.lostStamina));
+      entityData = abi.encode(battleEndData(interactEntity, pokemonData.lostHealth, pokemonData.lostStamina));
       pokemonData.lostHealth = 0;
       pokemonData.lostStamina = 0;
       pokemonData.lastUpdatedBlock = block.number;
@@ -94,11 +115,12 @@ contract PokemonFightSystem is System {
 
     if (pokemonData.lostHealth >= pokemonData.health || pokemonData.lostStamina >= pokemonData.stamina) {
       // pokemon is fainted
+      console.log("fainted");
       pokemonData.round = -1;
       pokemonData.move = PokemonMove.None;
       pokemonData.health = safeSubtract(pokemonData.health, pokemonData.lostHealth);
       pokemonData.stamina = safeSubtract(pokemonData.stamina, pokemonData.lostStamina);
-      entityData = abi.encode(battleEndData(pokemonData.lostHealth, pokemonData.lostStamina));
+      entityData = abi.encode(battleEndData(interactEntity, pokemonData.lostHealth, pokemonData.lostStamina));
       pokemonData.lostHealth = 0;
       pokemonData.lostStamina = 0;
       pokemonData.lastUpdatedBlock = block.number;

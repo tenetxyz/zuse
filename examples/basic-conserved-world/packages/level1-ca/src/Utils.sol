@@ -3,7 +3,7 @@ pragma solidity >=0.8.0;
 
 import { safeCall, safeStaticCall } from "@tenet-utils/src/CallUtils.sol";
 import { CAEntityReverseMapping, CAEntityReverseMappingTableId, CAEntityReverseMappingData } from "@tenet-base-ca/src/codegen/tables/CAEntityReverseMapping.sol";
-import { VoxelEntity, VoxelCoord, BodyPhysicsData, SimEventData, SimTable } from "@tenet-utils/src/Types.sol";
+import { VoxelEntity, VoxelCoord, BodyPhysicsData, CAEventData, CAEventType, SimEventData, SimTable } from "@tenet-utils/src/Types.sol";
 import { console } from "forge-std/console.sol";
 import { SHARD_DIM } from "@tenet-level1-ca/src/Constants.sol";
 
@@ -42,7 +42,7 @@ function transferEnergy(
   bytes32 targetCAEntity,
   VoxelCoord memory targetCoord,
   uint256 energyToTransfer
-) view returns (SimEventData memory) {
+) view returns (CAEventData memory) {
   console.log("transferEnergy called");
   console.logUint(energyToTransfer);
   console.logUint(senderBodyPhysics.energy);
@@ -56,13 +56,13 @@ function transferEnergy(
   uint256 currentTargetEnergy = abi.decode(returnData, (uint256));
   uint256 targetAmount = currentTargetEnergy + energyToTransfer;
   console.log("return bro");
-  return
-    SimEventData({
-      senderTable: SimTable.Energy,
-      senderValue: abi.encode(senderBodyPhysics.energy),
-      targetEntity: targetEntity,
-      targetCoord: targetCoord,
-      targetTable: SimTable.Energy,
-      targetValue: abi.encode(targetAmount)
-    });
+  SimEventData memory eventData = SimEventData({
+    senderTable: SimTable.Energy,
+    senderValue: abi.encode(senderBodyPhysics.energy),
+    targetEntity: targetEntity,
+    targetCoord: targetCoord,
+    targetTable: SimTable.Energy,
+    targetValue: abi.encode(targetAmount)
+  });
+  return CAEventData({ eventType: CAEventType.SimEvent, eventData: abi.encode(eventData) });
 }

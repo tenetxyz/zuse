@@ -5,7 +5,7 @@ import { IStore } from "@latticexyz/store/src/IStore.sol";
 import { IWorld } from "@tenet-world/src/codegen/world/IWorld.sol";
 import { MineEvent } from "@tenet-base-world/src/prototypes/MineEvent.sol";
 import { hasKey } from "@latticexyz/world/src/modules/keysintable/hasKey.sol";
-import { VoxelCoord, VoxelEntity, VoxelTypeData, EntityEventData, SimEventData, SimTable } from "@tenet-utils/src/Types.sol";
+import { VoxelCoord, VoxelEntity, VoxelTypeData, EntityEventData } from "@tenet-utils/src/Types.sol";
 import { VoxelType, OfSpawn, Spawn, SpawnData, WorldConfig, VoxelTypeProperties } from "@tenet-world/src/codegen/Tables.sol";
 import { CHUNK_MAX_Y, CHUNK_MIN_Y } from "../Constants.sol";
 import { MineEventData } from "@tenet-base-world/src/Types.sol";

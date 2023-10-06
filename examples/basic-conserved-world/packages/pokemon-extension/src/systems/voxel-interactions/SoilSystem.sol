@@ -3,7 +3,7 @@ pragma solidity >=0.8.0;
 
 import { IStore } from "@latticexyz/store/src/IStore.sol";
 import { VoxelInteraction } from "@tenet-base-ca/src/prototypes/VoxelInteraction.sol";
-import { BlockDirection, BodyPhysicsData, SimEventData, SimTable, VoxelCoord } from "@tenet-utils/src/Types.sol";
+import { BlockDirection, BodyPhysicsData, CAEventData, CAEventType, SimEventData, SimTable, VoxelCoord } from "@tenet-utils/src/Types.sol";
 import { getOppositeDirection } from "@tenet-utils/src/VoxelCoordUtils.sol";
 import { Soil } from "@tenet-pokemon-extension/src/codegen/tables/Soil.sol";
 import { Plant } from "@tenet-pokemon-extension/src/codegen/tables/Plant.sol";
@@ -134,7 +134,7 @@ contract SoilSystem is VoxelInteraction {
       return new bytes(0);
     }
 
-    SimEventData[] memory allSimEventData = new SimEventData[](neighbourEntityIds.length);
+    CAEventData[] memory allCAEventData = new CAEventData[](neighbourEntityIds.length);
 
     // Calculate # of soil neighbours
     uint256 numSoilNeighbours = calculateNumSoilNeighbours(callerAddress, neighbourEntityIds);
@@ -150,19 +150,26 @@ contract SoilSystem is VoxelInteraction {
       VoxelCoord memory neighbourCoord = getCAEntityPositionStrict(IStore(_world()), neighbourEntityIds[i]);
       // Check if the neighbor is a Soil, Seed, or Young Plant cell
       if (entityIsSoil(callerAddress, neighbourEntityIds[i])) {
-        allSimEventData[i] = transferEnergy(
+        uint256 energyTransferAmount = transferEnergyToSoil / numSoilNeighbours;
+        allCAEventData[i] = transferEnergy(
           entityBodyPhysics,
           neighbourEntityIds[i],
           neighbourCoord,
-          transferEnergyToSoil / numSoilNeighbours
+          energyTransferAmount
         );
+        if (energyTransferAmount > 0) {
+          hasTransfer = true;
+        }
       } else if (isValidPlantNeighbour(callerAddress, neighbourEntityIds[i], neighbourEntityDirections[i])) {
-        allSimEventData[i] = transferEnergy(
+        allCAEventData[i] = transferEnergy(
           entityBodyPhysics,
           neighbourEntityIds[i],
           neighbourCoord,
           transferEnergyToPlant
         );
+        if (transferEnergyToPlant > 0) {
+          hasTransfer = true;
+        }
         hasPlant = true;
       }
     }
@@ -173,18 +180,9 @@ contract SoilSystem is VoxelInteraction {
 
     console.log("going through end");
 
-    for (uint i = 0; i < allSimEventData.length; i++) {
-      if (allSimEventData[i].targetTable == SimTable.Energy) {
-        if (abi.decode(allSimEventData[i].targetValue, (uint256)) > 0) {
-          hasTransfer = true;
-          break;
-        }
-      }
-    }
-
     // Check if there's at least one transfer
     if (hasTransfer) {
-      return abi.encode(allSimEventData);
+      return abi.encode(allCAEventData);
     }
 
     return new bytes(0);

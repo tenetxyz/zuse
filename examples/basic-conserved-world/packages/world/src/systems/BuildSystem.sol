@@ -7,7 +7,7 @@ import { BuildEvent } from "@tenet-base-world/src/prototypes/BuildEvent.sol";
 import { BuildEventData } from "@tenet-base-world/src/Types.sol";
 import { hasKey } from "@latticexyz/world/src/modules/keysintable/hasKey.sol";
 import { OwnedBy, VoxelType, VoxelTypeProperties, WorldConfig } from "@tenet-world/src/codegen/Tables.sol";
-import { VoxelCoord, VoxelTypeData, VoxelEntity, EntityEventData, SimEventData, SimTable } from "@tenet-utils/src/Types.sol";
+import { VoxelCoord, VoxelTypeData, VoxelEntity, EntityEventData } from "@tenet-utils/src/Types.sol";
 import { min } from "@tenet-utils/src/VoxelCoordUtils.sol";
 import { REGISTRY_ADDRESS, SIMULATOR_ADDRESS } from "@tenet-world/src/Constants.sol";
 import { AirVoxelID } from "@tenet-level1-ca/src/Constants.sol";

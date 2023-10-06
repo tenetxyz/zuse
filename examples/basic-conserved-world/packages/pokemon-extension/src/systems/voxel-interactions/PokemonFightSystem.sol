@@ -56,7 +56,6 @@ contract PokemonFightSystem is System {
     uint256 lostHealth,
     uint256 lostStamina
   ) internal view returns (CAEventData[] memory) {
-    console.logBytes32(entityId);
     if (lostHealth + lostStamina == 0) {
       return new CAEventData[](0);
     }
@@ -89,8 +88,6 @@ contract PokemonFightSystem is System {
     }
 
     PokemonData memory neighbourPokemonData = Pokemon.get(callerAddress, neighbourEntity);
-    console.logBytes32(interactEntity);
-    console.logInt(neighbourPokemonData.round);
     if (neighbourPokemonData.round == -1) {
       // This means battle is over, the neighbour pokemon is dead
       pokemonData.round = 0;

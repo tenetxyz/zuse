@@ -89,8 +89,6 @@ contract PokemonMindSystem is MindType {
       if (canFight(callerAddress, interactEntity) && canFight(callerAddress, opponentPokemonEntityId)) {
         chosenSelector = getSelector(interactionSelectors, "Ember");
       }
-    } else {
-      chosenSelector = getSelector(interactionSelectors, "Replenish Energy");
     }
 
     return chosenSelector;

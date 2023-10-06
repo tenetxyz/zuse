@@ -141,11 +141,6 @@ contract WaterPokemonAgentSystem is AgentType {
 
   function getInteractionSelectors() public override returns (InteractionSelector[] memory) {
     InteractionSelector[] memory voxelInteractionSelectors = new InteractionSelector[](13);
-    voxelInteractionSelectors[0] = InteractionSelector({
-      interactionSelector: IWorld(_world()).pokemon_WaterPokemonAgen_replenishEnergyEventHandler.selector,
-      interactionName: "Replenish Energy",
-      interactionDescription: ""
-    });
     voxelInteractionSelectors[1] = InteractionSelector({
       interactionSelector: IWorld(_world()).pokemon_WaterPokemonAgen_emberEventHandler.selector,
       interactionName: "Ember",
@@ -208,24 +203,6 @@ contract WaterPokemonAgentSystem is AgentType {
     });
 
     return voxelInteractionSelectors;
-  }
-
-  function replenishEnergyEventHandler(
-    bytes32 centerEntityId,
-    bytes32[] memory neighbourEntityIds,
-    bytes32[] memory childEntityIds,
-    bytes32 parentEntity
-  ) public returns (bool, bytes memory) {
-    address callerAddress = super.getCallerAddress();
-    return
-      IWorld(_world()).pokemon_PokemonSystem_eventHandlerPokemon(
-        callerAddress,
-        centerEntityId,
-        neighbourEntityIds,
-        childEntityIds,
-        parentEntity,
-        PokemonMove.None
-      );
   }
 
   function emberEventHandler(

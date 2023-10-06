@@ -113,35 +113,6 @@ contract PokemonSystem is System {
     BodyPhysicsData memory entityBodyPhysics = getVoxelBodyPhysicsFromCaller(interactEntity);
     PokemonData memory pokemonData = Pokemon.get(callerAddress, interactEntity);
 
-    bool foundPlant = false;
-
-    // Energy replenish if neighbour is food
-    for (uint256 i = 0; i < neighbourEntityIds.length; i++) {
-      if (uint256(neighbourEntityIds[i]) == 0) {
-        continue;
-      }
-
-      if (!entityIsPlant(callerAddress, neighbourEntityIds[i])) {
-        continue;
-      }
-      foundPlant = true;
-
-      PlantStage plantStage = Plant.getStage(callerAddress, neighbourEntityIds[i]);
-      if (plantStage != PlantStage.Flower) {
-        continue;
-      }
-
-      pokemonData = replenishEnergy(
-        callerAddress,
-        interactEntity,
-        neighbourEntityIds[i],
-        pokemonData,
-        entityBodyPhysics
-      );
-      Pokemon.set(callerAddress, interactEntity, pokemonData);
-      break; // Only take from one plant
-    }
-
     // Check if neighbour is pokemon and run move
     bool foundPokemon = false;
     for (uint256 i = 0; i < neighbourEntityIds.length; i++) {
@@ -151,9 +122,6 @@ contract PokemonSystem is System {
 
       if (!entityIsPokemon(callerAddress, neighbourEntityIds[i])) {
         continue;
-      }
-      if (foundPlant) {
-        revert("Pokemon can't fight and eat at the same time");
       }
       if (foundPokemon) {
         revert("Pokemon can't fight more than one pokemon at a time");
@@ -206,33 +174,6 @@ contract PokemonSystem is System {
     );
 
     return (entityData, pokemonData);
-  }
-
-  function replenishEnergy(
-    address callerAddress,
-    bytes32 interactEntity,
-    bytes32 neighbourEntity,
-    PokemonData memory pokemonData,
-    BodyPhysicsData memory entityBodyPhysics
-  ) internal returns (PokemonData memory) {
-    uint256 lastEnergy = pokemonData.lastEnergy;
-    if (lastEnergy == entityBodyPhysics.energy) {
-      return pokemonData;
-    }
-
-    if (
-      pokemonData.round == 0 ||
-      (pokemonData.round == -1 && block.number >= pokemonData.lastUpdatedBlock + NUM_BLOCKS_FAINTED)
-    ) {
-      pokemonData.lastEnergy = entityBodyPhysics.energy;
-      pokemonData.lastUpdatedBlock = block.number;
-      // Allocate percentages to Health and Stamina
-      pokemonData.health = (pokemonData.lastEnergy * 40) / 100; // 40% to Health
-      pokemonData.stamina = (pokemonData.lastEnergy * 30) / 100; // 30% to Stamina
-      pokemonData.round = 0;
-    }
-
-    return pokemonData;
   }
 
   function eventHandlerPokemon(

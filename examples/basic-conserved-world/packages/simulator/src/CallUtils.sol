@@ -2,7 +2,7 @@
 pragma solidity >=0.8.0;
 
 import { VoxelCoord, VoxelEntity, SimTable } from "@tenet-utils/src/Types.sol";
-import { SIM_ON_BUILD_SIG, SIM_ON_MINE_SIG, SIM_ON_MOVE_SIG, SIM_ON_ACTIVATE_SIG, SIM_SET_MASS_SIG, SIM_SET_ENERGY_SIG, SIM_VELOCITY_CACHE_UPDATE_SIG, SIM_INIT_ENTITY_SIG } from "@tenet-simulator/src/Constants.sol";
+import { SIM_SET_HEALTH_SIG, SIM_SET_STAMINA_SIG, SIM_ON_BUILD_SIG, SIM_ON_MINE_SIG, SIM_ON_MOVE_SIG, SIM_ON_ACTIVATE_SIG, SIM_SET_MASS_SIG, SIM_SET_ENERGY_SIG, SIM_VELOCITY_CACHE_UPDATE_SIG, SIM_INIT_ENTITY_SIG } from "@tenet-simulator/src/Constants.sol";
 import { safeCall, safeStaticCall } from "@tenet-utils/src/CallUtils.sol";
 
 function updateVelocityCache(address simAddress, VoxelEntity memory entity) returns (bytes memory) {
@@ -69,6 +69,36 @@ function setSimValue(
           abi.decode(receiverValue, (uint256))
         ),
         "setMass"
+      );
+  } else if (senderTable == SimTable.Energy && receiverTable == SimTable.Health) {
+    return
+      safeCall(
+        simAddress,
+        abi.encodeWithSignature(
+          SIM_SET_HEALTH_SIG,
+          senderEntity,
+          senderCoord,
+          abi.decode(senderValue, (uint256)),
+          receiverEntity,
+          receiverCoord,
+          abi.decode(receiverValue, (uint256))
+        ),
+        "setHealth"
+      );
+  } else if (senderTable == SimTable.Energy && receiverTable == SimTable.Stamina) {
+    return
+      safeCall(
+        simAddress,
+        abi.encodeWithSignature(
+          SIM_SET_STAMINA_SIG,
+          senderEntity,
+          senderCoord,
+          abi.decode(senderValue, (uint256)),
+          receiverEntity,
+          receiverCoord,
+          abi.decode(receiverValue, (uint256))
+        ),
+        "setStamina"
       );
   } else {
     revert("Invalid table");

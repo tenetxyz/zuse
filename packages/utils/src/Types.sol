@@ -51,7 +51,9 @@ enum SimTable {
   None,
   Mass,
   Energy,
-  Velocity
+  Velocity,
+  Health,
+  Stamina
 }
 
 struct SimEventData {

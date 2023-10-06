@@ -49,7 +49,6 @@ contract SoilTest is MudTest {
     vm.startPrank(alice, alice);
     VoxelEntity memory agentEntity = setupAgent();
 
-    // Place down soil beside it
     VoxelCoord memory soilCoord = VoxelCoord({ x: agentCoord.x + 1, y: agentCoord.y, z: agentCoord.z });
     VoxelEntity memory soilEntity = world.buildWithAgent(SoilVoxelID, soilCoord, agentEntity, bytes4(0));
     Energy.set(IStore(SIMULATOR_ADDRESS), worldAddress, soilEntity.scale, soilEntity.entityId, INITIAL_HIGH_ENERGY);

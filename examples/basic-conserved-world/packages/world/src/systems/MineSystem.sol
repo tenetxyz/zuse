@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity >=0.8.0;
 
+import { IStore } from "@latticexyz/store/src/IStore.sol";
 import { IWorld } from "@tenet-world/src/codegen/world/IWorld.sol";
 import { MineEvent } from "@tenet-base-world/src/prototypes/MineEvent.sol";
 import { hasKey } from "@latticexyz/world/src/modules/keysintable/hasKey.sol";
@@ -51,7 +52,16 @@ contract MineSystem is MineEvent {
       eventVoxelEntity.entityId
     );
     if (currentMass > 0) {
-      setSimValue(SIMULATOR_ADDRESS, SimTable.Mass, eventVoxelEntity, coord, currentMass, eventVoxelEntity, coord, 0);
+      setSimValue(
+        SIMULATOR_ADDRESS,
+        SimTable.Mass,
+        eventVoxelEntity,
+        coord,
+        abi.encode(currentMass),
+        eventVoxelEntity,
+        coord,
+        abi.encode(uint256(0))
+      );
     }
   }
 }

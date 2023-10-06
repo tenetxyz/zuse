@@ -9,8 +9,9 @@ import { Mass, MassTableId, Energy, EnergyTableId, Velocity, VelocityTableId } f
 import { VoxelCoord, VoxelTypeData, VoxelEntity } from "@tenet-utils/src/Types.sol";
 import { VoxelTypeRegistry, VoxelTypeRegistryData } from "@tenet-registry/src/codegen/tables/VoxelTypeRegistry.sol";
 import { distanceBetween, voxelCoordsAreEqual, isZeroCoord } from "@tenet-utils/src/VoxelCoordUtils.sol";
-import { console } from "forge-std/console.sol";
+import { isEntityEqual } from "@tenet-utils/src/Utils.sol";
 import { getVelocity, getTerrainMass, getTerrainEnergy, getTerrainVelocity } from "@tenet-simulator/src/Utils.sol";
+import { console } from "forge-std/console.sol";
 
 contract MassSystem is System {
   function setMass(
@@ -31,7 +32,7 @@ contract MassSystem is System {
       // Transformation
       uint256 currentMass = Mass.get(callerAddress, receiverEntity.scale, receiverEntity.entityId);
       bool isMassIncrease = currentMass < receiverMass; // flux in if mass increases
-      uint256 massDelta = massChange(receiverEntity, receiverCoord, receiverMass);
+      uint256 massDelta = massChange(callerAddress, entityExists, receiverEntity, receiverCoord, receiverMass);
       // Calculate how much energy this operation requires
       uint256 energyRequired = massDelta * 10;
       IWorld(_world()).fluxEnergy(isMassIncrease, callerAddress, receiverEntity, energyRequired);
@@ -54,11 +55,11 @@ contract MassSystem is System {
       if (entityExists) {
         if (currentMass == 0) {
           isBuild = true;
-          massChange = newMass;
+          massDelta = newMass;
         } else {
           // Note: we only allow mass to decrease
           require(currentMass >= newMass, "Cannot increase mass");
-          massChange = currentMass - newMass;
+          massDelta = currentMass - newMass;
         }
       } else {
         uint256 terrainMass = getTerrainMass(callerAddress, entity.scale, coord);
@@ -74,7 +75,7 @@ contract MassSystem is System {
           abi.encode(getTerrainVelocity(callerAddress, entity.scale, coord))
         );
 
-        massChange = terrainMass;
+        massDelta = terrainMass;
       }
     } else {
       // this is a mine event
@@ -95,10 +96,10 @@ contract MassSystem is System {
         Velocity.set(callerAddress, entity.scale, entity.entityId, block.number, abi.encode(terrainVelocity));
       }
 
-      massChange = massToMine;
+      massDelta = massToMine;
     }
 
     Mass.set(callerAddress, entity.scale, entity.entityId, newMass);
-    return massChange;
+    return massDelta;
   }
 }

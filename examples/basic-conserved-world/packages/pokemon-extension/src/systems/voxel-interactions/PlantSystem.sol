@@ -6,6 +6,7 @@ import { VoxelInteraction } from "@tenet-base-ca/src/prototypes/VoxelInteraction
 import { VoxelEntity, BlockDirection, BodyPhysicsData, SimEventData, SimTable, VoxelCoord } from "@tenet-utils/src/Types.sol";
 import { getOppositeDirection } from "@tenet-utils/src/VoxelCoordUtils.sol";
 import { Soil } from "@tenet-pokemon-extension/src/codegen/tables/Soil.sol";
+import { CAEntityReverseMapping, CAEntityReverseMappingTableId, CAEntityReverseMappingData } from "@tenet-base-ca/src/codegen/tables/CAEntityReverseMapping.sol";
 import { Plant, PlantData } from "@tenet-pokemon-extension/src/codegen/tables/Plant.sol";
 import { PlantStage } from "@tenet-pokemon-extension/src/codegen/Types.sol";
 import { entityIsSoil, entityIsPlant, entityIsPokemon } from "@tenet-pokemon-extension/src/InteractionUtils.sol";
@@ -32,7 +33,7 @@ contract PlantSystem is VoxelInteraction {
     PlantData memory plantData = Plant.get(callerAddress, neighbourEntityId);
     PlantStage oldPlantStage = plantData.stage;
 
-    updatePlantStage(entityBodyPhysics, plantData, entityData);
+    updatePlantStage(neighbourEntityId, entityBodyPhysics, plantData, entityData);
     if (plantData.stage != oldPlantStage) {
       changedEntity = true;
       return (changedEntity, entityData);
@@ -161,7 +162,8 @@ contract PlantSystem is VoxelInteraction {
 
   function calculateNumSeedNeighbours(
     address callerAddress,
-    bytes32[] memory neighbourEntityIds
+    bytes32[] memory neighbourEntityIds,
+    BlockDirection[] memory neighbourEntityDirections
   ) internal view returns (uint256 numSeedNeighbours) {
     for (uint i = 0; i < neighbourEntityIds.length; i++) {
       if (uint256(neighbourEntityIds[i]) == 0) {
@@ -190,7 +192,11 @@ contract PlantSystem is VoxelInteraction {
       return (plantData, allSimEventData);
     }
 
-    uint256 numSeedNeighbours = calculateNumSeedNeighbours(callerAddress, neighbourEntityIds);
+    uint256 numSeedNeighbours = calculateNumSeedNeighbours(
+      callerAddress,
+      neighbourEntityIds,
+      neighbourEntityDirections
+    );
 
     for (uint i = 0; i < neighbourEntityIds.length; i++) {
       if (uint256(neighbourEntityIds[i]) == 0) {
@@ -286,14 +292,14 @@ contract PlantSystem is VoxelInteraction {
       senderValue: abi.encode(bodyPhysicsData.energy),
       targetEntity: entity,
       targetCoord: coord,
-      targetValue: abi.encode(0)
+      targetValue: abi.encode(uint256(0))
     });
     allSimEventData[1] = SimEventData({
       table: SimTable.Mass,
       senderValue: abi.encode(bodyPhysicsData.mass),
       targetEntity: entity,
       targetCoord: coord,
-      targetValue: abi.encode(0)
+      targetValue: abi.encode(uint256(0))
     });
     return allSimEventData;
   }

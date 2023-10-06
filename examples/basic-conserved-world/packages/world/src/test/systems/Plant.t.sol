@@ -22,7 +22,7 @@ import { Mass } from "@tenet-simulator/src/codegen/tables/Mass.sol";
 import { Energy } from "@tenet-simulator/src/codegen/tables/Energy.sol";
 import { Velocity } from "@tenet-simulator/src/codegen/tables/Velocity.sol";
 
-uint256 constant INITIAL_HIGH_ENERGY = 1000;
+uint256 constant INITIAL_HIGH_ENERGY = 100;
 
 contract PlantTest is MudTest {
   IWorld private world;
@@ -37,14 +37,13 @@ contract PlantTest is MudTest {
     world = IWorld(worldAddress);
     store = IStore(worldAddress);
     alice = payable(address(0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266));
-    agentCoord = VoxelCoord(10, 2, 10);
-    energySourceCoord = VoxelCoord(10, 2, 11);
+    agentCoord = VoxelCoord(11, 2, 10);
   }
 
   function setupAgent() internal returns (VoxelEntity memory) {
     // Claim agent
-    VoxelEntity memory agentEntity = VoxelEntity({ scale: 1, entityId: getEntityAtCoord(1, agentCoord) });
-    world.claimAgent(agentEntity);
+    VoxelEntity memory faucetEntity = VoxelEntity({ scale: 1, entityId: getEntityAtCoord(1, VoxelCoord(10, 2, 10)) });
+    VoxelEntity memory agentEntity = world.claimAgentFromFaucet(faucetEntity, FighterVoxelID, agentCoord);
     return agentEntity;
   }
 
@@ -52,21 +51,15 @@ contract PlantTest is MudTest {
     vm.startPrank(alice, alice);
 
     VoxelEntity memory agentEntity = setupAgent();
-    VoxelEntity memory energySourceEntity = replaceHighEnergyBlockWithEnergySource(agentEntity);
 
-    // Place down soil beside it
-    VoxelCoord memory soilCoord = VoxelCoord({
-      x: energySourceCoord.x - 1,
-      y: energySourceCoord.y,
-      z: energySourceCoord.z
-    });
+    VoxelCoord memory soilCoord = VoxelCoord({ x: agentCoord.x + 1, y: agentCoord.y, z: agentCoord.z });
     VoxelEntity memory soilEntity = world.buildWithAgent(SoilVoxelID, soilCoord, agentEntity, bytes4(0));
-
-    // Some energy should have been transferred to the soil
-    uint256 soilEnergy = Energy.get(IStore(SIMULATOR_ADDRESS), worldAddress, soilEntity.scale, soilEntity.entityId);
-    assertTrue(soilEnergy > 0);
+    Energy.set(IStore(SIMULATOR_ADDRESS), worldAddress, soilEntity.scale, soilEntity.entityId, INITIAL_HIGH_ENERGY);
+    uint256 soil1Energy = Energy.get(IStore(SIMULATOR_ADDRESS), worldAddress, soilEntity.scale, soilEntity.entityId);
+    assertTrue(soil1Energy == INITIAL_HIGH_ENERGY);
 
     // Place down plant on top of it
+    vm.roll(block.number + 1);
     VoxelCoord memory plantCoord = VoxelCoord({ x: soilCoord.x, y: soilCoord.y + 1, z: soilCoord.z });
     VoxelEntity memory plantEntity = world.buildWithAgent(PlantVoxelID, plantCoord, agentEntity, bytes4(0));
     bytes32 plantCAEntity = CAEntityMapping.get(IStore(BASE_CA_ADDRESS), worldAddress, plantEntity.entityId);
@@ -76,15 +69,12 @@ contract PlantTest is MudTest {
     assertTrue(plantData.stage == PlantStage.Seed);
 
     vm.stopPrank();
-
-    return (agentEntity, energySourceEntity);
   }
 
   function testPlantSproutStage() public returns (VoxelEntity memory, VoxelEntity memory) {
     vm.startPrank(alice, alice);
 
     VoxelEntity memory agentEntity = setupAgent();
-    VoxelEntity memory energySourceEntity = replaceHighEnergyBlockWithEnergySource(agentEntity);
 
     // Place down soil beside it
     VoxelCoord memory soilCoord = VoxelCoord({
@@ -130,15 +120,12 @@ contract PlantTest is MudTest {
     assertTrue(VoxelType.getVoxelTypeId(plantEntity.scale, plantEntity.entityId) == AirVoxelID);
 
     vm.stopPrank();
-
-    return (agentEntity, energySourceEntity);
   }
 
   function testPlantFlowerStage() public {
     vm.startPrank(alice, alice);
 
     VoxelEntity memory agentEntity = setupAgent();
-    replaceHighEnergyBlockWithEnergySource(agentEntity);
 
     // Place down soil beside it
     VoxelCoord memory soilCoord = VoxelCoord({

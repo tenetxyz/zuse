@@ -35,14 +35,14 @@ contract TruthTableClassifyTest is MudTest {
 
   // just test that we can register the truth table
   function testRegisterTruthTable() public {
-    vm.startPrank(alice);
+    vm.startPrank(alice, alice);
     registerOnTable();
     vm.stopPrank();
   }
 
   // This test isn't complete yet. see the TODO at the bottom
   function testClassifyLogicGate() public {
-    vm.startPrank(alice);
+    vm.startPrank(alice, alice);
 
     registerOnTable();
 

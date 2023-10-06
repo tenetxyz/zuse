@@ -49,7 +49,7 @@ contract PokemonTest is MudTest {
   }
 
   function testFight() public {
-    vm.startPrank(alice);
+    vm.startPrank(alice, alice);
     VoxelEntity memory agentEntity = setupAgent();
 
     {

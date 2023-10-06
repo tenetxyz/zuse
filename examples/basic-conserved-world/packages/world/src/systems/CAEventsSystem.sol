@@ -37,6 +37,7 @@ contract CAEventsSystem is System {
           bytes32 targetEntityId = getEntityAtCoord(entity.scale, simEventData.targetCoord);
           simEventData.targetEntity = VoxelEntity({ scale: entity.scale, entityId: targetEntityId });
         }
+        console.log("setting sim value");
         setSimValue(
           SIMULATOR_ADDRESS,
           simEventData.table,

@@ -37,27 +37,23 @@ function getVoxelBodyPhysicsFromCaller(bytes32 caEntity) view returns (BodyPhysi
   return abi.decode(returnData, (BodyPhysicsData));
 }
 
-function getVoxelEnergyFromCaller(bytes32 caEntity) view returns (uint256) {
-  CAEntityReverseMappingData memory entityData = CAEntityReverseMapping.get(caEntity);
-  VoxelEntity memory entity = VoxelEntity({ scale: 1, entityId: entityData.entity });
-  bytes memory returnData = safeStaticCall(
-    entityData.callerAddress,
-    abi.encodeWithSignature("getEntityEnergy((uint32,bytes32))", entity),
-    "getEntityEnergy"
-  );
-  return abi.decode(returnData, (uint256));
-}
-
 function transferEnergy(
   BodyPhysicsData memory senderBodyPhysics,
   bytes32 targetCAEntity,
   VoxelCoord memory targetCoord,
   uint256 energyToTransfer
 ) view returns (SimEventData memory) {
-  uint256 currentTargetEnergy = getVoxelEnergyFromCaller(targetCAEntity);
+  console.log("transferEnergy called");
   CAEntityReverseMappingData memory entityData = CAEntityReverseMapping.get(targetCAEntity);
   VoxelEntity memory targetEntity = VoxelEntity({ scale: 1, entityId: entityData.entity });
+  bytes memory returnData = safeStaticCall(
+    entityData.callerAddress,
+    abi.encodeWithSignature("getEntityEnergy((uint32,bytes32))", targetEntity),
+    "getEntityEnergy"
+  );
+  uint256 currentTargetEnergy = abi.decode(returnData, (uint256));
   uint256 targetAmount = currentTargetEnergy + energyToTransfer;
+  console.log("return bro");
   return
     SimEventData({
       table: SimTable.Energy,

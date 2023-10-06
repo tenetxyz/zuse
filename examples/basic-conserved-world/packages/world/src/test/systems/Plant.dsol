@@ -49,7 +49,7 @@ contract PlantTest is MudTest {
   }
 
   function testPlantSeedStage() public returns (VoxelEntity memory, VoxelEntity memory) {
-    vm.startPrank(alice);
+    vm.startPrank(alice, alice);
 
     VoxelEntity memory agentEntity = setupAgent();
     VoxelEntity memory energySourceEntity = replaceHighEnergyBlockWithEnergySource(agentEntity);
@@ -81,7 +81,7 @@ contract PlantTest is MudTest {
   }
 
   function testPlantSproutStage() public returns (VoxelEntity memory, VoxelEntity memory) {
-    vm.startPrank(alice);
+    vm.startPrank(alice, alice);
 
     VoxelEntity memory agentEntity = setupAgent();
     VoxelEntity memory energySourceEntity = replaceHighEnergyBlockWithEnergySource(agentEntity);
@@ -135,7 +135,7 @@ contract PlantTest is MudTest {
   }
 
   function testPlantFlowerStage() public {
-    vm.startPrank(alice);
+    vm.startPrank(alice, alice);
 
     VoxelEntity memory agentEntity = setupAgent();
     replaceHighEnergyBlockWithEnergySource(agentEntity);

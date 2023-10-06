@@ -26,12 +26,12 @@ contract CAEventsSystem is System {
       SimEventData[] memory allSimEventData = abi.decode(entityEventData.eventData, (SimEventData[]));
       VoxelEntity memory entity = entityEventData.entity;
       VoxelCoord memory entityCoord = getVoxelCoordStrict(entity);
-      // bytes32 voxelTypeId = VoxelType.getVoxelTypeId(entity.scale, entity.entityId);
       for (uint j; j < allSimEventData.length; j++) {
         SimEventData memory simEventData = allSimEventData[j];
         if (simEventData.table == SimTable.None) {
           continue;
         }
+
         if (simEventData.targetEntity.scale == 0 && simEventData.targetEntity.entityId == 0) {
           // then we need to fill it in
           bytes32 targetEntityId = getEntityAtCoord(entity.scale, simEventData.targetCoord);
@@ -48,6 +48,17 @@ contract CAEventsSystem is System {
           simEventData.targetCoord,
           simEventData.targetValue
         );
+
+        if (simEventData.table == SimTable.Mass) {
+          uint256 newMass = abi.decode(simEventData.targetValue, (uint256));
+          if (newMass == 0) {
+            bytes32 voxelTypeId = VoxelType.getVoxelTypeId(
+              simEventData.targetEntity.scale,
+              simEventData.targetEntity.entityId
+            );
+            IWorld(_world()).mineWithAgent(voxelTypeId, simEventData.targetCoord, simEventData.targetEntity);
+          }
+        }
       }
 
       // if (worldEventData.eventType == CAEventType.Move) {

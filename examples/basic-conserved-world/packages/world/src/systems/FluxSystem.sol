@@ -13,7 +13,6 @@ import { distanceBetween } from "@tenet-utils/src/VoxelCoordUtils.sol";
 import { FluxEventData } from "@tenet-world/src/Types.sol";
 import { console } from "forge-std/console.sol";
 import { MAX_VOXEL_NEIGHBOUR_UPDATE_DEPTH } from "@tenet-utils/src/Constants.sol";
-import { massChange } from "@tenet-simulator/src/CallUtils.sol";
 
 contract FluxSystem is FluxEvent {
   function getRegistryAddress() internal pure override returns (address) {
@@ -69,7 +68,7 @@ contract FluxSystem is FluxEvent {
       if (newMass == 0) {
         IWorld(_world()).mineWithAgent(voxelTypeId, coord, eventVoxelEntity);
       } else {
-        massChange(SIMULATOR_ADDRESS, eventVoxelEntity, coord, newMass);
+        // massChange(SIMULATOR_ADDRESS, eventVoxelEntity, coord, newMass);
       }
     } else if (fluxEventData.energyToFlux.length > 0) {
       require(fluxEventData.energyToFlux.length == fluxEventData.energyReceiver.length, "FluxEvent: invalid data");

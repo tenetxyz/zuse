@@ -6,12 +6,12 @@ import { BuildEvent } from "@tenet-base-world/src/prototypes/BuildEvent.sol";
 import { BuildEventData } from "@tenet-base-world/src/Types.sol";
 import { hasKey } from "@latticexyz/world/src/modules/keysintable/hasKey.sol";
 import { OwnedBy, VoxelType, VoxelTypeProperties, WorldConfig } from "@tenet-world/src/codegen/Tables.sol";
-import { VoxelCoord, VoxelTypeData, VoxelEntity, EntityEventData } from "@tenet-utils/src/Types.sol";
+import { VoxelCoord, VoxelTypeData, VoxelEntity, EntityEventData, SimEventData, SimTable } from "@tenet-utils/src/Types.sol";
 import { min } from "@tenet-utils/src/VoxelCoordUtils.sol";
 import { REGISTRY_ADDRESS, SIMULATOR_ADDRESS } from "@tenet-world/src/Constants.sol";
 import { AirVoxelID } from "@tenet-level1-ca/src/Constants.sol";
 import { BuildWorldEventData } from "@tenet-world/src/Types.sol";
-import { massChange } from "@tenet-simulator/src/CallUtils.sol";
+import { setSimValue } from "@tenet-simulator/src/CallUtils.sol";
 
 contract BuildSystem is BuildEvent {
   function getRegistryAddress() internal pure override returns (address) {
@@ -52,6 +52,23 @@ contract BuildSystem is BuildEvent {
     super.preRunCA(caAddress, voxelTypeId, coord, eventVoxelEntity, eventData);
     // Call simulator mass change
     uint256 bodyMass = VoxelTypeProperties.get(voxelTypeId);
-    massChange(SIMULATOR_ADDRESS, eventVoxelEntity, coord, bodyMass);
+    uint256 currentMass = Mass.get(
+      IStore(SIMULATOR_ADDRESS),
+      _world(),
+      eventVoxelEntity.scale,
+      eventVoxelEntity.entityId
+    );
+    if (currentMass != bodyMass) {
+      setSimValue(
+        SIMULATOR_ADDRESS,
+        SimTable.Mass,
+        eventVoxelEntity,
+        coord,
+        currentMass,
+        eventVoxelEntity,
+        coord,
+        bodyMass
+      );
+    }
   }
 }

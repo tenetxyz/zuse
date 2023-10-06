@@ -27,7 +27,6 @@ contract MassSystem is System {
       MassTableId,
       Mass.encodeKeyTuple(callerAddress, senderEntity.scale, senderEntity.entityId)
     );
-    require(entityExists, "Sender entity does not exist");
     if (isEntityEqual(senderEntity, receiverEntity)) {
       // Transformation
       uint256 currentMass = Mass.get(callerAddress, receiverEntity.scale, receiverEntity.entityId);

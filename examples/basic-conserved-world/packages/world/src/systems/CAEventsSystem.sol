@@ -30,12 +30,18 @@ contract CAEventsSystem is System {
       }
 
       // process event
+      console.log("process events");
       CAEventData[] memory allCAEventData = abi.decode(entityEventData.eventData, (CAEventData[]));
       VoxelEntity memory entity = entityEventData.entity;
       VoxelCoord memory entityCoord = getVoxelCoordStrict(entity);
       for (uint j; j < allCAEventData.length; j++) {
         CAEventData memory caEventData = allCAEventData[j];
+        if (caEventData.eventType == CAEventType.None) {
+          continue;
+        }
+
         if (caEventData.eventType == CAEventType.SimEvent) {
+          console.log("got sim event");
           SimEventData memory simEventData = abi.decode(caEventData.eventData, (SimEventData));
           if (simEventData.senderTable == SimTable.None || simEventData.targetTable == SimTable.None) {
             continue;

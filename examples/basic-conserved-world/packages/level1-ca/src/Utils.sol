@@ -44,6 +44,8 @@ function transferEnergy(
   uint256 energyToTransfer
 ) view returns (SimEventData memory) {
   console.log("transferEnergy called");
+  console.logUint(energyToTransfer);
+  console.logUint(senderBodyPhysics.energy);
   CAEntityReverseMappingData memory entityData = CAEntityReverseMapping.get(targetCAEntity);
   VoxelEntity memory targetEntity = VoxelEntity({ scale: 1, entityId: entityData.entity });
   bytes memory returnData = safeStaticCall(

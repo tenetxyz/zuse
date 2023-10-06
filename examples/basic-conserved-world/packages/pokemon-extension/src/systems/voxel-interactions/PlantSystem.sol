@@ -50,8 +50,8 @@ contract PlantSystem is VoxelInteraction {
 
       changedEntity = true;
     } else if (plantData.stage == PlantStage.Flower) {
-      uint256 transferEnergyToPokemo = getEnergyToPokemon(entityBodyPhysics.energy);
-      if (transferEnergyToPokemo == 0) {
+      uint256 transferEnergyToPokemon = getEnergyToPokemon(entityBodyPhysics.energy);
+      if (transferEnergyToPokemon == 0) {
         return (changedEntity, entityData);
       }
       if (!entityIsPokemon(callerAddress, centerEntityId)) {
@@ -261,7 +261,6 @@ contract PlantSystem is VoxelInteraction {
 
       // If the neighbor is a Pokemon cell
       if (entityIsPokemon(callerAddress, neighbourEntityIds[i])) {
-        numPokemonNeighbours += 1;
         VoxelCoord memory neighbourCoord = getCAEntityPositionStrict(IStore(_world()), neighbourEntityIds[i]);
         allSimEventData[i] = transferEnergy(
           entityBodyPhysics,

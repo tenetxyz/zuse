@@ -134,7 +134,7 @@ contract PlantSystem is VoxelInteraction {
     address callerAddress,
     bytes32 neighbourEntityId,
     BlockDirection neighbourBlockDirection
-  ) internal returns (bool) {
+  ) internal view returns (bool) {
     if (neighbourBlockDirection == BlockDirection.Down || neighbourBlockDirection == BlockDirection.Up) {
       return false;
     }
@@ -282,7 +282,7 @@ contract PlantSystem is VoxelInteraction {
   function dieData(
     bytes32 interactEntity,
     BodyPhysicsData memory bodyPhysicsData
-  ) internal pure returns (SimEventData[] memory) {
+  ) internal view returns (SimEventData[] memory) {
     SimEventData[] memory allSimEventData = new SimEventData[](2);
     CAEntityReverseMappingData memory entityData = CAEntityReverseMapping.get(interactEntity);
     VoxelEntity memory entity = VoxelEntity({ scale: 1, entityId: entityData.entity });

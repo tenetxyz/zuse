@@ -111,7 +111,7 @@ contract PlantSystem is VoxelInteraction {
     }
 
     for (uint i = 0; i < allSimEventData.length; i++) {
-      if (allSimEventData[i].table == SimTable.Energy) {
+      if (allSimEventData[i].targetTable == SimTable.Energy) {
         if (abi.decode(allSimEventData[i].targetValue, (uint256)) > 0) {
           hasTransfer = true;
           break;
@@ -287,17 +287,19 @@ contract PlantSystem is VoxelInteraction {
     VoxelEntity memory entity = VoxelEntity({ scale: 1, entityId: entityData.entity });
     VoxelCoord memory coord = getCAEntityPositionStrict(IStore(_world()), interactEntity);
     allSimEventData[0] = SimEventData({
-      table: SimTable.Energy,
+      senderTable: SimTable.Energy,
       senderValue: abi.encode(bodyPhysicsData.energy),
       targetEntity: entity,
       targetCoord: coord,
+      targetTable: SimTable.Energy,
       targetValue: abi.encode(uint256(0))
     });
     allSimEventData[1] = SimEventData({
-      table: SimTable.Mass,
+      senderTable: SimTable.Mass,
       senderValue: abi.encode(bodyPhysicsData.mass),
       targetEntity: entity,
       targetCoord: coord,
+      targetTable: SimTable.Mass,
       targetValue: abi.encode(uint256(0))
     });
     return allSimEventData;

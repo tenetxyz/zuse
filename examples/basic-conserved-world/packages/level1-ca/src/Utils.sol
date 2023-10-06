@@ -58,10 +58,11 @@ function transferEnergy(
   console.log("return bro");
   return
     SimEventData({
-      table: SimTable.Energy,
+      senderTable: SimTable.Energy,
       senderValue: abi.encode(senderBodyPhysics.energy),
       targetEntity: targetEntity,
       targetCoord: targetCoord,
+      targetTable: SimTable.Energy,
       targetValue: abi.encode(targetAmount)
     });
 }

@@ -54,12 +54,13 @@ contract MineSystem is MineEvent {
     if (currentMass > 0) {
       setSimValue(
         SIMULATOR_ADDRESS,
-        SimTable.Mass,
         eventVoxelEntity,
         coord,
+        SimTable.Mass,
         abi.encode(currentMass),
         eventVoxelEntity,
         coord,
+        SimTable.Mass,
         abi.encode(uint256(0))
       );
     }

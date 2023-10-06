@@ -35,7 +35,7 @@ contract CAEventsSystem is System {
       VoxelCoord memory entityCoord = getVoxelCoordStrict(entity);
       for (uint j; j < allSimEventData.length; j++) {
         SimEventData memory simEventData = allSimEventData[j];
-        if (simEventData.table == SimTable.None) {
+        if (simEventData.senderTable == SimTable.None || simEventData.targetTable == SimTable.None) {
           continue;
         }
 
@@ -47,17 +47,18 @@ contract CAEventsSystem is System {
         console.log("setting sim value");
         setSimValue(
           SIMULATOR_ADDRESS,
-          simEventData.table,
           entity,
           entityCoord,
+          simEventData.senderTable,
           simEventData.senderValue,
           simEventData.targetEntity,
           simEventData.targetCoord,
+          simEventData.targetTable,
           simEventData.targetValue
         );
 
         bool calledWorldEvent = false;
-        if (simEventData.table == SimTable.Mass) {
+        if (simEventData.targetTable == SimTable.Mass) {
           uint256 newMass = abi.decode(simEventData.targetValue, (uint256));
           if (newMass == 0) {
             bytes32 voxelTypeId = VoxelType.getVoxelTypeId(

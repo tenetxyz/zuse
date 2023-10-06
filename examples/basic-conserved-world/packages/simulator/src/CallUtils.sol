@@ -46,15 +46,16 @@ function initEntity(
 
 function setSimValue(
   address simAddress,
-  SimTable table,
   VoxelEntity memory senderEntity,
   VoxelCoord memory senderCoord,
+  SimTable senderTable,
   bytes memory senderValue,
   VoxelEntity memory receiverEntity,
   VoxelCoord memory receiverCoord,
+  SimTable receiverTable,
   bytes memory receiverValue
 ) returns (bytes memory) {
-  if (table == SimTable.Energy) {
+  if (senderTable == SimTable.Energy && receiverTable == SimTable.Energy) {
     return
       safeCall(
         simAddress,
@@ -69,7 +70,7 @@ function setSimValue(
         ),
         "setEnergy"
       );
-  } else if (table == SimTable.Mass) {
+  } else if (senderTable == SimTable.Mass && receiverTable == SimTable.Mass) {
     return
       safeCall(
         simAddress,

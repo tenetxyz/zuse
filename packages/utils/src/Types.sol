@@ -60,10 +60,11 @@ enum SimTable {
 }
 
 struct SimEventData {
-  SimTable table;
+  SimTable senderTable;
   bytes senderValue;
   VoxelEntity targetEntity;
   VoxelCoord targetCoord;
+  SimTable targetTable;
   bytes targetValue;
 }
 

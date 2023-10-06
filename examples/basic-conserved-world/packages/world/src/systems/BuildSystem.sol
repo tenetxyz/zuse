@@ -63,12 +63,13 @@ contract BuildSystem is BuildEvent {
     if (currentMass != bodyMass) {
       setSimValue(
         SIMULATOR_ADDRESS,
-        SimTable.Mass,
         eventVoxelEntity,
         coord,
+        SimTable.Mass,
         abi.encode(currentMass),
         eventVoxelEntity,
         coord,
+        SimTable.Mass,
         abi.encode(bodyMass)
       );
     }

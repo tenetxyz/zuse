@@ -174,7 +174,7 @@ contract SoilSystem is VoxelInteraction {
     console.log("going through end");
 
     for (uint i = 0; i < allSimEventData.length; i++) {
-      if (allSimEventData[i].table == SimTable.Energy) {
+      if (allSimEventData[i].targetTable == SimTable.Energy) {
         if (abi.decode(allSimEventData[i].targetValue, (uint256)) > 0) {
           hasTransfer = true;
           break;

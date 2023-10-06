@@ -38,12 +38,12 @@ struct EntityEventData {
   bytes eventData;
 }
 
-enum WorldEvent {
+enum WorldEventType {
   Move
 }
 
 struct WorldEventData {
-  WorldEvent eventType;
+  WorldEventType eventType;
   VoxelCoord newCoord;
 }
 

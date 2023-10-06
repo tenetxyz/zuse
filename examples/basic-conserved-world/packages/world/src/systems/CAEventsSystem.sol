@@ -4,7 +4,7 @@ pragma solidity >=0.8.0;
 import { IWorld } from "@tenet-world/src/codegen/world/IWorld.sol";
 import { IStore } from "@latticexyz/store/src/IStore.sol";
 import { System } from "@latticexyz/world/src/System.sol";
-import { VoxelCoord, VoxelEntity, EntityEventData, SimEventData, SimTable } from "@tenet-utils/src/Types.sol";
+import { VoxelCoord, VoxelEntity, EntityEventData, CAEventData, CAEventType, WorldEventType, WorldEventData, SimEventData, SimTable } from "@tenet-utils/src/Types.sol";
 import { VoxelType, WorldConfig } from "@tenet-world/src/codegen/Tables.sol";
 import { getVoxelCoordStrict } from "@tenet-base-world/src/Utils.sol";
 import { REGISTRY_ADDRESS, SIMULATOR_ADDRESS } from "@tenet-world/src/Constants.sol";
@@ -30,74 +30,61 @@ contract CAEventsSystem is System {
       }
 
       // process event
-      SimEventData[] memory allSimEventData = abi.decode(entityEventData.eventData, (SimEventData[]));
+      CAEventData[] memory allCAEventData = abi.decode(entityEventData.eventData, (CAEventData[]));
       VoxelEntity memory entity = entityEventData.entity;
       VoxelCoord memory entityCoord = getVoxelCoordStrict(entity);
-      for (uint j; j < allSimEventData.length; j++) {
-        SimEventData memory simEventData = allSimEventData[j];
-        if (simEventData.senderTable == SimTable.None || simEventData.targetTable == SimTable.None) {
-          continue;
-        }
+      for (uint j; j < allCAEventData.length; j++) {
+        CAEventData memory caEventData = allCAEventData[j];
+        if (caEventData.eventType == CAEventType.SimEvent) {
+          SimEventData memory simEventData = abi.decode(caEventData.eventData, (SimEventData));
+          if (simEventData.senderTable == SimTable.None || simEventData.targetTable == SimTable.None) {
+            continue;
+          }
 
-        if (simEventData.targetEntity.scale == 0 && simEventData.targetEntity.entityId == 0) {
-          // then we need to fill it in
-          bytes32 targetEntityId = getEntityAtCoord(entity.scale, simEventData.targetCoord);
-          simEventData.targetEntity = VoxelEntity({ scale: entity.scale, entityId: targetEntityId });
-        }
-        console.log("setting sim value");
-        setSimValue(
-          SIMULATOR_ADDRESS,
-          entity,
-          entityCoord,
-          simEventData.senderTable,
-          simEventData.senderValue,
-          simEventData.targetEntity,
-          simEventData.targetCoord,
-          simEventData.targetTable,
-          simEventData.targetValue
-        );
+          if (simEventData.targetEntity.scale == 0 && simEventData.targetEntity.entityId == 0) {
+            // then we need to fill it in
+            bytes32 targetEntityId = getEntityAtCoord(entity.scale, simEventData.targetCoord);
+            simEventData.targetEntity = VoxelEntity({ scale: entity.scale, entityId: targetEntityId });
+          }
+          console.log("setting sim value");
+          setSimValue(
+            SIMULATOR_ADDRESS,
+            entity,
+            entityCoord,
+            simEventData.senderTable,
+            simEventData.senderValue,
+            simEventData.targetEntity,
+            simEventData.targetCoord,
+            simEventData.targetTable,
+            simEventData.targetValue
+          );
 
-        bool calledWorldEvent = false;
-        if (simEventData.targetTable == SimTable.Mass) {
-          uint256 newMass = abi.decode(simEventData.targetValue, (uint256));
-          if (newMass == 0) {
-            bytes32 voxelTypeId = VoxelType.getVoxelTypeId(
-              simEventData.targetEntity.scale,
-              simEventData.targetEntity.entityId
-            );
-            IWorld(_world()).mineWithAgent(voxelTypeId, simEventData.targetCoord, simEventData.targetEntity);
-            calledWorldEvent = true;
+          bool calledWorldEvent = false;
+          if (simEventData.targetTable == SimTable.Mass) {
+            uint256 newMass = abi.decode(simEventData.targetValue, (uint256));
+            if (newMass == 0) {
+              bytes32 voxelTypeId = VoxelType.getVoxelTypeId(
+                simEventData.targetEntity.scale,
+                simEventData.targetEntity.entityId
+              );
+              IWorld(_world()).mineWithAgent(voxelTypeId, simEventData.targetCoord, simEventData.targetEntity);
+              calledWorldEvent = true;
+            }
+          }
+
+          if (!calledWorldEvent) {
+            entitiesToRunCA[entitiesToRunCAIdx] = simEventData.targetEntity;
+            entitiesToRunCAIdx++;
+            require(entitiesToRunCAIdx < MAX_VOXEL_NEIGHBOUR_UPDATE_DEPTH, "Too many entities to run CA");
+          }
+        } else if (caEventData.eventType == CAEventType.WorldEvent) {
+          WorldEventData memory worldEventData = abi.decode(caEventData.eventData, (WorldEventData));
+          if (worldEventData.eventType == WorldEventType.Move) {
+            bytes32 voxelTypeId = VoxelType.getVoxelTypeId(entity.scale, entity.entityId);
+            IWorld(_world()).moveWithAgent(voxelTypeId, entityCoord, worldEventData.newCoord, entity);
           }
         }
-
-        if (!calledWorldEvent) {
-          entitiesToRunCA[entitiesToRunCAIdx] = simEventData.targetEntity;
-          entitiesToRunCAIdx++;
-          require(entitiesToRunCAIdx < MAX_VOXEL_NEIGHBOUR_UPDATE_DEPTH, "Too many entities to run CA");
-        }
       }
-
-      // if (worldEventData.eventType == CAEventType.Move) {
-      //   require(worldEventData.newCoords.length == 1, "newCoords must be length 1");
-      //   IWorld(_world()).moveWithAgent(voxelTypeId, entityCoord, worldEventData.newCoords[0], entity);
-      // } else if (worldEventData.eventType == CAEventType.FluxEnergy) {
-      //   require(
-      //     worldEventData.energyFluxAmounts.length == worldEventData.newCoords.length,
-      //     "energyFluxAmounts must be same length as newCoords"
-      //   );
-      //   IWorld(_world()).fluxEnergyOut(
-      //     voxelTypeId,
-      //     entityCoord,
-      //     worldEventData.energyFluxAmounts,
-      //     worldEventData.newCoords
-      //   );
-      // } else if (worldEventData.eventType == CAEventType.FluxMass) {
-      //   IWorld(_world()).fluxMass(voxelTypeId, entityCoord, worldEventData.massFluxAmount);
-      // } else if (worldEventData.eventType == CAEventType.FluxEnergyAndMass) {
-      //   IWorld(_world()).fluxMass(voxelTypeId, entityCoord, worldEventData.massFluxAmount);
-      //   require(worldEventData.energyFluxAmounts.length == 1, "energyFluxAmounts must be length 1");
-      //   fluxEnergyOut(SIMULATOR_ADDRESS, entity, worldEventData.energyFluxAmounts[0]);
-      // }
     }
 
     // Run all the CA's

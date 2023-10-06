@@ -2,22 +2,8 @@
 pragma solidity >=0.8.0;
 
 import { VoxelCoord, VoxelEntity, SimTable } from "@tenet-utils/src/Types.sol";
-import { SIM_MASS_CHANGE_SIG, SIM_SET_ENERGY_SIG, SIM_VELOCITY_CHANGE_SIG, SIM_VELOCITY_CACHE_UPDATE_SIG, SIM_INIT_ENTITY_SIG } from "@tenet-simulator/src/Constants.sol";
+import { SIM_SET_MASS_SIG, SIM_SET_ENERGY_SIG, SIM_VELOCITY_CHANGE_SIG, SIM_VELOCITY_CACHE_UPDATE_SIG, SIM_INIT_ENTITY_SIG } from "@tenet-simulator/src/Constants.sol";
 import { safeCall, safeStaticCall } from "@tenet-utils/src/CallUtils.sol";
-
-function massChange(
-  address simAddress,
-  VoxelEntity memory entity,
-  VoxelCoord memory coord,
-  uint256 newMass
-) returns (bytes memory) {
-  return
-    safeCall(
-      simAddress,
-      abi.encodeWithSignature(SIM_MASS_CHANGE_SIG, entity, coord, newMass),
-      string(abi.encode("masssChange ", entity, " ", coord, " ", newMass))
-    );
-}
 
 function velocityChange(
   address simAddress,
@@ -82,6 +68,21 @@ function setSimValue(
           abi.decode(receiverValue, (uint256))
         ),
         "setEnergy"
+      );
+  } else if (table == SimTable.Mass) {
+    return
+      safeCall(
+        simAddress,
+        abi.encodeWithSignature(
+          SIM_SET_MASS_SIG,
+          senderEntity,
+          senderCoord,
+          abi.decode(senderValue, (uint256)),
+          receiverEntity,
+          receiverCoord,
+          abi.decode(receiverValue, (uint256))
+        ),
+        "setMass"
       );
   } else {
     revert("Invalid table");

@@ -18,7 +18,6 @@ uint256 constant MAXIMUM_ENERGY_OUT = 100;
 uint256 constant MAXIMUM_ENERGY_IN = 100;
 
 contract EnergySystem is System {
-  // Constraints
   function setEnergy(
     VoxelEntity memory senderEntity,
     VoxelCoord memory senderCoord,

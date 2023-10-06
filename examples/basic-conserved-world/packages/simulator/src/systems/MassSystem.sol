@@ -13,42 +13,69 @@ import { console } from "forge-std/console.sol";
 import { getVelocity, getTerrainMass, getTerrainEnergy, getTerrainVelocity } from "@tenet-simulator/src/Utils.sol";
 
 contract MassSystem is System {
-  // Constraints
-
-  // Behaviours
-  function massChange(VoxelEntity memory entity, VoxelCoord memory coord, uint256 newMass) public {
+  function setMass(
+    VoxelEntity memory senderEntity,
+    VoxelCoord memory senderCoord,
+    uint256 senderMass,
+    VoxelEntity memory receiverEntity,
+    VoxelCoord memory receiverCoord,
+    uint256 receiverMass
+  ) public {
     address callerAddress = _msgSender();
-    bool entityExists = hasKey(MassTableId, Mass.encodeKeyTuple(callerAddress, entity.scale, entity.entityId));
+    bool entityExists = hasKey(
+      MassTableId,
+      Mass.encodeKeyTuple(callerAddress, senderEntity.scale, senderEntity.entityId)
+    );
+    require(entityExists, "Sender entity does not exist");
+    if (isEntityEqual(senderEntity, receiverEntity)) {
+      // Transformation
+      uint256 currentMass = Mass.get(callerAddress, receiverEntity.scale, receiverEntity.entityId);
+      bool isMassIncrease = currentMass < receiverMass; // flux in if mass increases
+      uint256 massDelta = massChange(receiverEntity, receiverCoord, receiverMass);
+      // Calculate how much energy this operation requires
+      uint256 energyRequired = massDelta * 10;
+      IWorld(_world()).fluxEnergy(isMassIncrease, callerAddress, receiverEntity, energyRequired);
+    } else {
+      revert("You can't transfer mass to another entity");
+    }
+  }
+
+  function massChange(
+    address callerAddress,
+    bool entityExists,
+    VoxelEntity memory entity,
+    VoxelCoord memory coord,
+    uint256 newMass
+  ) internal returns (uint256 massDelta) {
     if (newMass > 0) {
       // this is a build event
       bool isBuild = false;
+      uint256 currentMass = Mass.get(callerAddress, entity.scale, entity.entityId);
       if (entityExists) {
-        uint256 currentMass = Mass.get(callerAddress, entity.scale, entity.entityId);
         if (currentMass == 0) {
           isBuild = true;
+          massChange = newMass;
         } else {
           // Note: we only allow mass to decrease
-          require(currentMass > newMass, "Not enough mass to flux");
+          require(currentMass >= newMass, "Cannot increase mass");
+          massChange = currentMass - newMass;
         }
       } else {
         uint256 terrainMass = getTerrainMass(callerAddress, entity.scale, coord);
         require(terrainMass == 0 || terrainMass == newMass, "Invalid terrain mass");
         isBuild = true;
         Mass.set(callerAddress, entity.scale, entity.entityId, terrainMass);
-        Energy.set(callerAddress, entity.scale, entity.entityId, 0);
+        Energy.set(callerAddress, entity.scale, entity.entityId, getTerrainEnergy(callerAddress, entity.scale, coord));
         Velocity.set(
           callerAddress,
           entity.scale,
           entity.entityId,
           block.number,
-          abi.encode(VoxelCoord({ x: 0, y: 0, z: 0 }))
+          abi.encode(getTerrainVelocity(callerAddress, entity.scale, coord))
         );
-      }
 
-      // Calculate how much energy this operation requires
-      uint256 energyRequired = newMass * 10;
-      IWorld(_world()).fluxEnergy(isBuild, callerAddress, entity, energyRequired);
-      Mass.set(callerAddress, entity.scale, entity.entityId, newMass);
+        massChange = terrainMass;
+      }
     } else {
       // this is a mine event
       uint256 massToMine;
@@ -68,10 +95,10 @@ contract MassSystem is System {
         Velocity.set(callerAddress, entity.scale, entity.entityId, block.number, abi.encode(terrainVelocity));
       }
 
-      // Calculate how much energy this operation requires
-      uint256 energyRequired = massToMine * 10;
-      IWorld(_world()).fluxEnergy(false, callerAddress, entity, energyRequired);
-      Mass.set(callerAddress, entity.scale, entity.entityId, 0);
+      massChange = massToMine;
     }
+
+    Mass.set(callerAddress, entity.scale, entity.entityId, newMass);
+    return massChange;
   }
 }

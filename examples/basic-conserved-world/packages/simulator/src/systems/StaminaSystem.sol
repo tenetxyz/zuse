@@ -33,10 +33,15 @@ contract StaminaSystem is SimHandler {
     } else {
       uint256 currentSenderEnergy = Energy.get(callerAddress, senderEntity.scale, senderEntity.entityId);
       require(currentSenderEnergy >= senderEnergy, "Sender does not have enough energy");
-      uint256 energyDelta = currentSenderEnergy - senderEnergy;
-      Energy.set(callerAddress, senderEntity.scale, senderEntity.entityId, senderEnergy);
+      require(senderEnergy == receiverStamina, "Sender energy must equal receiver stamina");
+      Energy.set(callerAddress, senderEntity.scale, senderEntity.entityId, currentSenderEnergy - senderEnergy);
       uint256 currentReceiverStamina = Stamina.get(callerAddress, receiverEntity.scale, receiverEntity.entityId);
-      Stamina.set(callerAddress, receiverEntity.scale, receiverEntity.entityId, currentReceiverStamina + energyDelta);
+      Stamina.set(
+        callerAddress,
+        receiverEntity.scale,
+        receiverEntity.entityId,
+        currentReceiverStamina + receiverStamina
+      );
     }
   }
 }

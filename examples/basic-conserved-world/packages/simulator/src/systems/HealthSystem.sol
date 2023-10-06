@@ -33,10 +33,10 @@ contract HealthSystem is SimHandler {
     } else {
       uint256 currentSenderEnergy = Energy.get(callerAddress, senderEntity.scale, senderEntity.entityId);
       require(currentSenderEnergy >= senderEnergy, "Sender does not have enough energy");
-      uint256 energyDelta = currentSenderEnergy - senderEnergy;
-      Energy.set(callerAddress, senderEntity.scale, senderEntity.entityId, senderEnergy);
+      require(senderEnergy == receiverHealth, "Sender energy must equal receiver health");
+      Energy.set(callerAddress, senderEntity.scale, senderEntity.entityId, currentSenderEnergy - senderEnergy);
       uint256 currentReceiverHealth = Health.get(callerAddress, receiverEntity.scale, receiverEntity.entityId);
-      Health.set(callerAddress, receiverEntity.scale, receiverEntity.entityId, currentReceiverHealth + energyDelta);
+      Health.set(callerAddress, receiverEntity.scale, receiverEntity.entityId, currentReceiverHealth + receiverHealth);
     }
   }
 }

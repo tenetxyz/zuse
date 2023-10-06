@@ -3,7 +3,7 @@ pragma solidity >=0.8.0;
 
 import { IStore } from "@latticexyz/store/src/IStore.sol";
 import { VoxelInteraction } from "@tenet-base-ca/src/prototypes/VoxelInteraction.sol";
-import { BlockDirection, BodyPhysicsData, CAEventData, CAEventType, VoxelCoord } from "@tenet-utils/src/Types.sol";
+import { VoxelEntity, BlockDirection, BodyPhysicsData, SimEventData, SimTable, VoxelCoord } from "@tenet-utils/src/Types.sol";
 import { getOppositeDirection } from "@tenet-utils/src/VoxelCoordUtils.sol";
 import { Soil } from "@tenet-pokemon-extension/src/codegen/tables/Soil.sol";
 import { Plant, PlantData } from "@tenet-pokemon-extension/src/codegen/tables/Plant.sol";
@@ -78,24 +78,19 @@ contract PlantSystem is VoxelInteraction {
     BodyPhysicsData memory entityBodyPhysics = getVoxelBodyPhysicsFromCaller(interactEntity);
     PlantData memory plantData = Plant.get(callerAddress, interactEntity);
 
-    (plantData, changedEntity, entityData) = updatePlantStage(entityBodyPhysics, plantData, entityData);
+    (plantData, changedEntity, entityData) = updatePlantStage(interactEntity, entityBodyPhysics, plantData, entityData);
     if (entityData.length > 0) {
       plantData.lastInteractionBlock = block.number;
       Plant.set(callerAddress, interactEntity, plantData);
       return (changedEntity, entityData);
     }
 
-    CAEventData memory transferData = CAEventData({
-      eventType: CAEventType.FluxEnergy,
-      newCoords: new VoxelCoord[](neighbourEntityIds.length),
-      energyFluxAmounts: new uint256[](neighbourEntityIds.length),
-      massFluxAmount: 0
-    });
+    SimEventData[] memory allSimEventData = new SimEventData[](neighbourEntityIds.length);
 
     bool hasTransfer;
 
     if (plantData.stage == PlantStage.Sprout) {
-      (plantData, transferData) = runSproutInteraction(
+      (plantData, allSimEventData) = runSproutInteraction(
         callerAddress,
         interactEntity,
         neighbourEntityIds,
@@ -104,7 +99,7 @@ contract PlantSystem is VoxelInteraction {
         plantData
       );
     } else if (plantData.stage == PlantStage.Flower) {
-      (plantData, transferData) = runFlowerInteraction(
+      (plantData, allSimEventData) = runFlowerInteraction(
         callerAddress,
         interactEntity,
         neighbourEntityIds,
@@ -114,15 +109,18 @@ contract PlantSystem is VoxelInteraction {
       );
     }
 
-    for (uint i = 0; i < transferData.newCoords.length; i++) {
-      if (transferData.energyFluxAmounts[i] > 0) {
-        hasTransfer = true;
+    for (uint i = 0; i < allSimEventData.length; i++) {
+      if (allSimEventData[i].table == SimTable.Energy) {
+        if (abi.decode(allSimEventData[i].targetValue, (uint256)) > 0) {
+          hasTransfer = true;
+          break;
+        }
       }
     }
 
     // Check if there's at least one transfer
     if (hasTransfer) {
-      entityData = abi.encode(transferData);
+      entityData = abi.encode(allSimEventData);
     }
 
     Plant.set(callerAddress, interactEntity, plantData);
@@ -161,6 +159,22 @@ contract PlantSystem is VoxelInteraction {
     return plantEnergy; // Transfer 100% of its energy to Pokemon
   }
 
+  function calculateNumSeedNeighbours(
+    address callerAddress,
+    bytes32[] memory neighbourEntityIds
+  ) internal view returns (uint256 numSeedNeighbours) {
+    for (uint i = 0; i < neighbourEntityIds.length; i++) {
+      if (uint256(neighbourEntityIds[i]) == 0) {
+        continue;
+      }
+      // Check if the neighbor is a Soil, Seed, or Young Plant cell
+      if (isValidPlantNeighbour(callerAddress, neighbourEntityIds[i], neighbourEntityDirections[i])) {
+        numSeedNeighbours += 1;
+      }
+    }
+    return numSeedNeighbours;
+  }
+
   function runSproutInteraction(
     address callerAddress,
     bytes32 interactEntity,
@@ -168,20 +182,15 @@ contract PlantSystem is VoxelInteraction {
     BlockDirection[] memory neighbourEntityDirections,
     BodyPhysicsData memory entityBodyPhysics,
     PlantData memory plantData
-  ) internal returns (PlantData memory, CAEventData memory) {
-    CAEventData memory transferData = CAEventData({
-      eventType: CAEventType.FluxEnergy,
-      newCoords: new VoxelCoord[](neighbourEntityIds.length),
-      energyFluxAmounts: new uint256[](neighbourEntityIds.length),
-      massFluxAmount: 0
-    });
+  ) internal returns (PlantData memory, SimEventData[] memory) {
+    SimEventData[] memory allSimEventData = new SimEventData[](neighbourEntityIds.length);
 
     uint256 transferEnergyToSeed = getEnergyToPlant(entityBodyPhysics.energy);
     if (transferEnergyToSeed == 0) {
-      return (plantData, transferData);
+      return (plantData, allSimEventData);
     }
 
-    uint256 numSeedNeighbours = 0;
+    uint256 numSeedNeighbours = calculateNumSeedNeighbours(callerAddress, neighbourEntityIds);
 
     for (uint i = 0; i < neighbourEntityIds.length; i++) {
       if (uint256(neighbourEntityIds[i]) == 0) {
@@ -189,16 +198,13 @@ contract PlantSystem is VoxelInteraction {
       }
 
       if (isValidPlantNeighbour(callerAddress, neighbourEntityIds[i], neighbourEntityDirections[i])) {
-        numSeedNeighbours += 1;
         VoxelCoord memory neighbourCoord = getCAEntityPositionStrict(IStore(_world()), neighbourEntityIds[i]);
-        transferData.newCoords[i] = neighbourCoord;
-        transferData.energyFluxAmounts[i] = 1;
-      }
-    }
-
-    for (uint i = 0; i < transferData.newCoords.length; i++) {
-      if (transferData.energyFluxAmounts[i] == 1) {
-        transferData.energyFluxAmounts[i] = transferEnergyToSeed / numSeedNeighbours;
+        allSimEventData[i] = transferEnergy(
+          entityBodyPhysics,
+          neighbourEntityIds[i],
+          neighbourCoord,
+          transferEnergyToSeed / numSeedNeighbours
+        );
       }
     }
 
@@ -206,7 +212,23 @@ contract PlantSystem is VoxelInteraction {
       plantData.lastInteractionBlock = block.number;
     }
 
-    return (plantData, transferData);
+    return (plantData, allSimEventData);
+  }
+
+  function calculateNumPokemonNeighbours(
+    address callerAddress,
+    bytes32[] memory neighbourEntityIds
+  ) internal view returns (uint256 numPokemonNeighbours) {
+    for (uint i = 0; i < neighbourEntityIds.length; i++) {
+      if (uint256(neighbourEntityIds[i]) == 0) {
+        continue;
+      }
+      // Check if the neighbor is a Soil, Seed, or Young Plant cell
+      if (entityIsPokemon(callerAddress, neighbourEntityIds[i])) {
+        numPokemonNeighbours += 1;
+      }
+    }
+    return numPokemonNeighbours;
   }
 
   function runFlowerInteraction(
@@ -216,20 +238,15 @@ contract PlantSystem is VoxelInteraction {
     BlockDirection[] memory neighbourEntityDirections,
     BodyPhysicsData memory entityBodyPhysics,
     PlantData memory plantData
-  ) internal returns (PlantData memory, CAEventData memory) {
-    CAEventData memory transferData = CAEventData({
-      eventType: CAEventType.FluxEnergy,
-      newCoords: new VoxelCoord[](neighbourEntityIds.length),
-      energyFluxAmounts: new uint256[](neighbourEntityIds.length),
-      massFluxAmount: 0
-    });
+  ) internal returns (PlantData memory, SimEventData[] memory) {
+    SimEventData[] memory allSimEventData = new SimEventData[](neighbourEntityIds.length);
 
     uint harvestPlantEnergy = getEnergyToPokemon(entityBodyPhysics.energy);
     if (harvestPlantEnergy == 0) {
-      return (plantData, transferData);
+      return (plantData, allSimEventData);
     }
 
-    uint256 numPokemonNeighbours = 0;
+    uint256 numPokemonNeighbours = calculateNumPokemonNeighbours(callerAddress, neighbourEntityIds);
 
     for (uint i = 0; i < neighbourEntityIds.length; i++) {
       if (uint256(neighbourEntityIds[i]) == 0) {
@@ -240,14 +257,12 @@ contract PlantSystem is VoxelInteraction {
       if (entityIsPokemon(callerAddress, neighbourEntityIds[i])) {
         numPokemonNeighbours += 1;
         VoxelCoord memory neighbourCoord = getCAEntityPositionStrict(IStore(_world()), neighbourEntityIds[i]);
-        transferData.newCoords[i] = neighbourCoord;
-        transferData.energyFluxAmounts[i] = 1;
-      }
-    }
-
-    for (uint i = 0; i < transferData.newCoords.length; i++) {
-      if (transferData.energyFluxAmounts[i] == 1) {
-        transferData.energyFluxAmounts[i] = harvestPlantEnergy / numPokemonNeighbours;
+        allSimEventData[i] = transferEnergy(
+          entityBodyPhysics,
+          neighbourEntityIds[i],
+          neighbourCoord,
+          harvestPlantEnergy / numPokemonNeighbours
+        );
       }
     }
 
@@ -255,22 +270,36 @@ contract PlantSystem is VoxelInteraction {
       plantData.lastInteractionBlock = block.number;
     }
 
-    return (plantData, transferData);
+    return (plantData, allSimEventData);
   }
 
-  function dieData(BodyPhysicsData memory bodyPhysicsData) internal pure returns (CAEventData memory) {
-    uint256[] memory energyFluxAmounts = new uint256[](1);
-    energyFluxAmounts[0] = bodyPhysicsData.energy;
-    return
-      CAEventData({
-        eventType: CAEventType.FluxEnergyAndMass,
-        newCoords: new VoxelCoord[](0),
-        energyFluxAmounts: energyFluxAmounts,
-        massFluxAmount: bodyPhysicsData.mass
-      });
+  function dieData(
+    bytes32 interactEntity,
+    BodyPhysicsData memory bodyPhysicsData
+  ) internal pure returns (SimEventData[] memory) {
+    SimEventData[] memory allSimEventData = new SimEventData[](2);
+    CAEntityReverseMappingData memory entityData = CAEntityReverseMapping.get(interactEntity);
+    VoxelEntity memory entity = VoxelEntity({ scale: 1, entityId: entityData.entity });
+    VoxelCoord memory coord = getCAEntityPositionStrict(IStore(_world()), interactEntity);
+    allSimEventData[0] = SimEventData({
+      table: SimTable.Energy,
+      senderValue: abi.encode(bodyPhysicsData.energy),
+      targetEntity: entity,
+      targetCoord: coord,
+      targetValue: abi.encode(0)
+    });
+    allSimEventData[1] = SimEventData({
+      table: SimTable.Mass,
+      senderValue: abi.encode(bodyPhysicsData.mass),
+      targetEntity: entity,
+      targetCoord: coord,
+      targetValue: abi.encode(0)
+    });
+    return allSimEventData;
   }
 
   function updatePlantStage(
+    bytes32 interactEntity,
     BodyPhysicsData memory entityBodyPhysics,
     PlantData memory plantData,
     bytes memory entityData
@@ -278,7 +307,7 @@ contract PlantSystem is VoxelInteraction {
     if (entityBodyPhysics.energy < ENERGY_REQUIRED_FOR_SPROUT) {
       if (plantData.stage == PlantStage.Sprout) {
         plantData.stage = PlantStage.Seed;
-        entityData = abi.encode(dieData(entityBodyPhysics));
+        entityData = abi.encode(dieData(interactEntity, entityBodyPhysics));
       } else if (plantData.stage == PlantStage.Flower) {
         plantData.stage = PlantStage.Seed;
       }

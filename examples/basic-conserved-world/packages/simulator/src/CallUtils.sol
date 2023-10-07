@@ -116,6 +116,42 @@ function setSimValue(
           )
         )
       );
+  } else if (
+    simSelectors.senderValueType == ValueType.Uint256 && simSelectors.receiverValueType == ValueType.ObjectType
+  ) {
+    return
+      safeCall(
+        simAddress,
+        abi.encodeWithSelector(
+          simSelectors.selector,
+          senderEntity,
+          senderCoord,
+          abi.decode(senderValue, (uint256)),
+          receiverEntity,
+          receiverCoord,
+          abi.decode(receiverValue, (ObjectType))
+        ),
+        string(
+          abi.encode(
+            "setSimValue ",
+            senderEntity,
+            " ",
+            senderCoord,
+            " ",
+            senderTable,
+            " ",
+            senderValue,
+            " ",
+            receiverEntity,
+            " ",
+            receiverCoord,
+            " ",
+            receiverTable,
+            " ",
+            receiverValue
+          )
+        )
+      );
   } else {
     revert("Invalid value type");
   }

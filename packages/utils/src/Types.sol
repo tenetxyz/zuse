@@ -139,6 +139,11 @@ struct BodySimData {
   ObjectType objectType;
 }
 
+enum ValueType {
+  Uint256,
+  ObjectType
+}
+
 struct CreationSpawns {
   address worldAddress;
   uint256 numSpawns;

@@ -1,9 +1,11 @@
 // SPDX-License-Identifier: GPL-3.0
 pragma solidity >=0.8.0;
 
-import { VoxelCoord, VoxelEntity, SimTable } from "@tenet-utils/src/Types.sol";
+import { IStore } from "@latticexyz/store/src/IStore.sol";
+import { VoxelCoord, VoxelEntity, SimTable, ValueType } from "@tenet-utils/src/Types.sol";
 import { SIM_SET_OBJECT_TYPE_SIG, SIM_SET_HEALTH_FROM_ENERGY_SIG, SIM_SET_STAMINA_FROM_ENERGY_SIG, SIM_ON_BUILD_SIG, SIM_ON_MINE_SIG, SIM_ON_MOVE_SIG, SIM_ON_ACTIVATE_SIG, SIM_SET_MASS_SIG, SIM_SET_ENERGY_SIG, SIM_VELOCITY_CACHE_UPDATE_SIG, SIM_INIT_ENTITY_SIG } from "@tenet-simulator/src/Constants.sol";
 import { safeCall, safeStaticCall } from "@tenet-utils/src/CallUtils.sol";
+import { SimSelectors, SimSelectorsData } from "@tenet-simulator/src/codegen/tables/SimSelectors.sol";
 
 function updateVelocityCache(address simAddress, VoxelEntity memory entity) returns (bytes memory) {
   return
@@ -40,69 +42,19 @@ function setSimValue(
   SimTable receiverTable,
   bytes memory receiverValue
 ) returns (bytes memory) {
-  // TODO: replace with table lookup
-  if (senderTable == SimTable.Energy && receiverTable == SimTable.Energy) {
+  SimSelectorsData memory simSelectors = SimSelectors.get(IStore(simAddress), senderTable, receiverTable);
+  if (simSelectors.selector == bytes4(0)) {
+    revert("Invalid table")
+  }
+  if(senderValueType == ValueType.Uint256 && receiverValueType == ValueType.Uint256){
     return
       safeCall(
         simAddress,
-        abi.encodeWithSignature(
-          SIM_SET_ENERGY_SIG,
-          senderEntity,
-          senderCoord,
-          abi.decode(senderValue, (uint256)),
-          receiverEntity,
-          receiverCoord,
-          abi.decode(receiverValue, (uint256))
-        ),
-        "setEnergy"
-      );
-  } else if (senderTable == SimTable.Mass && receiverTable == SimTable.Mass) {
-    return
-      safeCall(
-        simAddress,
-        abi.encodeWithSignature(
-          SIM_SET_MASS_SIG,
-          senderEntity,
-          senderCoord,
-          abi.decode(senderValue, (uint256)),
-          receiverEntity,
-          receiverCoord,
-          abi.decode(receiverValue, (uint256))
-        ),
-        "setMass"
-      );
-  } else if (senderTable == SimTable.Energy && receiverTable == SimTable.Health) {
-    return
-      safeCall(
-        simAddress,
-        abi.encodeWithSignature(
-          SIM_SET_HEALTH_FROM_ENERGY_SIG,
-          senderEntity,
-          senderCoord,
-          abi.decode(senderValue, (uint256)),
-          receiverEntity,
-          receiverCoord,
-          abi.decode(receiverValue, (uint256))
-        ),
-        "setHealth"
-      );
-  } else if (senderTable == SimTable.Energy && receiverTable == SimTable.Stamina) {
-    return
-      safeCall(
-        simAddress,
-        abi.encodeWithSignature(
-          SIM_SET_STAMINA_FROM_ENERGY_SIG,
-          senderEntity,
-          senderCoord,
-          abi.decode(senderValue, (uint256)),
-          receiverEntity,
-          receiverCoord,
-          abi.decode(receiverValue, (uint256))
-        ),
-        "setStamina"
+        abi.encodeWithSelector(simSelectors.selector, senderEntity, senderCoord, abi.decode(senderValue, (uint256)), receiverEntity, receiverCoord, abi.decode(receiverValue, (uint256))),
+        string(abi.encode("setSimValue ", senderEntity, " ", senderCoord, " ", senderTable, " ", senderValue, " ", receiverEntity, " ", receiverCoord, " ", receiverTable, " ", receiverValue))
       );
   } else {
-    revert("Invalid table");
+    revert("Invalid value type")
   }
 }
 

@@ -5,8 +5,8 @@ import { IStore } from "@latticexyz/store/src/IStore.sol";
 import { IWorld } from "@tenet-simulator/src/codegen/world/IWorld.sol";
 import { hasKey } from "@latticexyz/world/src/modules/keysintable/hasKey.sol";
 import { SimHandler } from "@tenet-simulator/prototypes/SimHandler.sol";
-import { Health, HealthTableId, Stamina, StaminaTableId, Mass, MassTableId, Energy, EnergyTableId, Velocity, VelocityTableId } from "@tenet-simulator/src/codegen/Tables.sol";
-import { VoxelCoord, VoxelTypeData, VoxelEntity } from "@tenet-utils/src/Types.sol";
+import { SimSelectors, Health, HealthTableId, Stamina, StaminaTableId, Mass, MassTableId, Energy, EnergyTableId, Velocity, VelocityTableId } from "@tenet-simulator/src/codegen/Tables.sol";
+import { VoxelCoord, VoxelTypeData, VoxelEntity, SimTable, ValueType } from "@tenet-utils/src/Types.sol";
 import { VoxelTypeRegistry, VoxelTypeRegistryData } from "@tenet-registry/src/codegen/tables/VoxelTypeRegistry.sol";
 import { distanceBetween, voxelCoordsAreEqual, isZeroCoord } from "@tenet-utils/src/VoxelCoordUtils.sol";
 import { isEntityEqual } from "@tenet-utils/src/Utils.sol";
@@ -14,6 +14,16 @@ import { getVelocity, getTerrainMass, getTerrainEnergy, getTerrainVelocity } fro
 import { console } from "forge-std/console.sol";
 
 contract StaminaSystem is SimHandler {
+  function registerStaminaSelectors() public {
+    SimSelectors.set(
+      SimTable.Energy,
+      SimTable.Stamina,
+      IWorld(_world()).setStaminaFromEnergy.selector,
+      ValueType.Uint256,
+      ValueType.Uint256
+    );
+  }
+
   function setStaminaFromEnergy(
     VoxelEntity memory senderEntity,
     VoxelCoord memory senderCoord,

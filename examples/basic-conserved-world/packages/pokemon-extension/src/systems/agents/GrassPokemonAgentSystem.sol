@@ -141,62 +141,62 @@ contract GrassPokemonAgentSystem is AgentType {
 
   function getInteractionSelectors() public override returns (InteractionSelector[] memory) {
     InteractionSelector[] memory voxelInteractionSelectors = new InteractionSelector[](12);
-    voxelInteractionSelectors[1] = InteractionSelector({
+    voxelInteractionSelectors[0] = InteractionSelector({
       interactionSelector: IWorld(_world()).pokemon_GrassPokemonAgen_emberEventHandler.selector,
       interactionName: "Ember",
       interactionDescription: ""
     });
-    voxelInteractionSelectors[2] = InteractionSelector({
+    voxelInteractionSelectors[1] = InteractionSelector({
       interactionSelector: IWorld(_world()).pokemon_GrassPokemonAgen_flameBurstEventHandler.selector,
       interactionName: "Flame Burst",
       interactionDescription: ""
     });
-    voxelInteractionSelectors[3] = InteractionSelector({
+    voxelInteractionSelectors[2] = InteractionSelector({
       interactionSelector: IWorld(_world()).pokemon_GrassPokemonAgen_smokeScreenEventHandler.selector,
       interactionName: "Smoke Screen",
       interactionDescription: ""
     });
-    voxelInteractionSelectors[4] = InteractionSelector({
+    voxelInteractionSelectors[3] = InteractionSelector({
       interactionSelector: IWorld(_world()).pokemon_GrassPokemonAgen_fireShieldEventHandler.selector,
       interactionName: "Fire Shield",
       interactionDescription: ""
     });
-    voxelInteractionSelectors[5] = InteractionSelector({
+    voxelInteractionSelectors[4] = InteractionSelector({
       interactionSelector: IWorld(_world()).pokemon_GrassPokemonAgen_waterGunEventHandler.selector,
       interactionName: "Water Gun",
       interactionDescription: ""
     });
-    voxelInteractionSelectors[6] = InteractionSelector({
+    voxelInteractionSelectors[5] = InteractionSelector({
       interactionSelector: IWorld(_world()).pokemon_GrassPokemonAgen_hydroPumpEventHandler.selector,
       interactionName: "Hydro Pump",
       interactionDescription: ""
     });
-    voxelInteractionSelectors[7] = InteractionSelector({
+    voxelInteractionSelectors[6] = InteractionSelector({
       interactionSelector: IWorld(_world()).pokemon_GrassPokemonAgen_bubbleEventHandler.selector,
       interactionName: "Bubble",
       interactionDescription: ""
     });
-    voxelInteractionSelectors[8] = InteractionSelector({
+    voxelInteractionSelectors[7] = InteractionSelector({
       interactionSelector: IWorld(_world()).pokemon_GrassPokemonAgen_aquaRingEventHandler.selector,
       interactionName: "Aqua Ring",
       interactionDescription: ""
     });
-    voxelInteractionSelectors[9] = InteractionSelector({
+    voxelInteractionSelectors[8] = InteractionSelector({
       interactionSelector: IWorld(_world()).pokemon_GrassPokemonAgen_vineWhipEventHandler.selector,
       interactionName: "Vine Whip",
       interactionDescription: ""
     });
-    voxelInteractionSelectors[10] = InteractionSelector({
+    voxelInteractionSelectors[9] = InteractionSelector({
       interactionSelector: IWorld(_world()).pokemon_GrassPokemonAgen_solarBeamEventHandler.selector,
       interactionName: "Solar Beam",
       interactionDescription: ""
     });
-    voxelInteractionSelectors[11] = InteractionSelector({
+    voxelInteractionSelectors[10] = InteractionSelector({
       interactionSelector: IWorld(_world()).pokemon_GrassPokemonAgen_leechSeedEventHandler.selector,
       interactionName: "Leech Seed",
       interactionDescription: ""
     });
-    voxelInteractionSelectors[12] = InteractionSelector({
+    voxelInteractionSelectors[11] = InteractionSelector({
       interactionSelector: IWorld(_world()).pokemon_GrassPokemonAgen_synthesisEventHandler.selector,
       interactionName: "Synthesis",
       interactionDescription: ""

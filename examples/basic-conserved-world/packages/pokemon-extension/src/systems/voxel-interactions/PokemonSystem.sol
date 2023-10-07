@@ -139,7 +139,8 @@ contract PokemonSystem is System {
         eventType: CAEventType.SimEvent,
         eventData: abi.encode(setObjectTypeSimEvent)
       });
-      hasEvent = true;
+      entityData = abi.encode(allCAEventData);
+      return (changedEntity, entityData);
     }
 
     // Check if neighbour is pokemon and run move

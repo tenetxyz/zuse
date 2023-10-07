@@ -131,6 +131,7 @@ contract ActionSystem is SimHandler {
       VoxelEntity memory neighbourActionEntity = abi.decode(neighbourActionData.actionEntity, (VoxelEntity));
       if (!isEntityEqual(neighbourActionEntity, entity)) {
         // This means, the neighbour has not done any action on us, so our health is not affected
+        console.log("neighbour has not done any action on us");
         return true;
       }
     }

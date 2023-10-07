@@ -42,13 +42,14 @@ contract ActionSystem is SimHandler {
     require(currentStamina >= senderStamina, "Not enough stamina");
     ObjectType objectType = Object.get(callerAddress, entity.scale, entity.entityId);
     require(objectType != ObjectType.None, "Object type not set");
+    uint256 currentRound = Action.getRound(callerAddress, senderEntity.scale, senderEntity.entityId);
     Action.set(
       callerAddress,
       senderEntity.scale,
       senderEntity.entityId,
       receiverActionType,
       senderStamina,
-      0,
+      currentRound + 1,
       abi.encode(receiverEntity)
     );
     // TODO: decrement stamina, and flux out energy
@@ -79,6 +80,7 @@ contract ActionSystem is SimHandler {
       }
 
       updateHealth(senderEntity, objectType, actionData, neighbourEntity, neighbourObjectType, neighbourActionData);
+      updateHealth(neighbourEntity, neighbourObjectType, neighbourActionData, senderEntity, objectType, actionData);
     }
   }
 
@@ -113,8 +115,14 @@ contract ActionSystem is SimHandler {
         neighbourActionData.actionType
       );
     }
-    uint256 lostHealth = damage - protection;
+    uint256 lostHealth = safeSubtract(damage, protection);
+    if (lostHealth == 0) {
+      return;
+    }
     uint256 newHealth = safeSubtract(Health.get(callerAddress, entity.scale, entity.entityId), lostHealth);
+    if (newHealth == 0) {
+      // TODO: Kill entity
+    }
     Health.set(callerAddress, entity.scale, entity.entityId, newHealth);
   }
 

@@ -88,13 +88,13 @@ contract PokemonSystem is System {
     PokemonMove pokemonMove
   ) internal returns (bool changedEntity, bytes memory entityData) {
     PokemonData memory pokemonData = Pokemon.get(callerAddress, interactEntity);
-    // (changedEntity, entityData, pokemonData) = IWorld(_world()).pokemon_PokemonFightSyst_runBattleLogic(
-    //   callerAddress,
-    //   interactEntity,
-    //   neighbourEntityId,
-    //   pokemonData
-    // );
-    // Pokemon.set(callerAddress, interactEntity, pokemonData);
+    (changedEntity, entityData, pokemonData) = IWorld(_world()).pokemon_PokemonFightSyst_runBattleLogic(
+      callerAddress,
+      interactEntity,
+      neighbourEntityId,
+      pokemonData
+    );
+    Pokemon.set(callerAddress, interactEntity, pokemonData);
     return (changedEntity, entityData);
   }
 

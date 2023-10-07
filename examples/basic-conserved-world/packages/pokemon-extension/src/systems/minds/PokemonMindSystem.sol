@@ -51,13 +51,13 @@ contract PokemonMindSystem is MindType {
     if (!isZeroCoord(currentVelocity)) {
       return false;
     }
-    PokemonData memory pokemonData = Pokemon.get(callerAddress, pokemonEntityId);
+    // PokemonData memory pokemonData = Pokemon.get(callerAddress, pokemonEntityId);
     if (entitySimData.health == 0) {
       return false;
     }
-    if (pokemonData.round == -1) {
-      return false;
-    }
+    // if (pokemonData.round == -1) {
+    //   return false;
+    // }
     return true;
   }
 
@@ -86,7 +86,9 @@ contract PokemonMindSystem is MindType {
     }
 
     if (opponentPokemonEntityId != 0) {
+      console.log("checking can fight");
       if (canFight(callerAddress, interactEntity) && canFight(callerAddress, opponentPokemonEntityId)) {
+        console.log("chosen ember");
         chosenSelector = getSelector(interactionSelectors, "Ember");
       }
     }

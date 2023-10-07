@@ -5,7 +5,7 @@ import { IStore } from "@latticexyz/store/src/IStore.sol";
 import { IWorld } from "@tenet-simulator/src/codegen/world/IWorld.sol";
 import { hasKey } from "@latticexyz/world/src/modules/keysintable/hasKey.sol";
 import { SimHandler } from "@tenet-simulator/prototypes/SimHandler.sol";
-import { Action, ActionData, SimSelectors, Object, ObjectTableId, Health, HealthTableId, Mass, MassTableId, Energy, EnergyTableId, Velocity, VelocityTableId } from "@tenet-simulator/src/codegen/Tables.sol";
+import { Stamina, StaminaTableId, Action, ActionData, SimSelectors, Object, ObjectTableId, Health, HealthTableId, Mass, MassTableId, Energy, EnergyTableId, Velocity, VelocityTableId } from "@tenet-simulator/src/codegen/Tables.sol";
 import { VoxelCoord, VoxelTypeData, VoxelEntity, ObjectType, SimTable, ValueType } from "@tenet-utils/src/Types.sol";
 import { VoxelTypeRegistry, VoxelTypeRegistryData } from "@tenet-registry/src/codegen/tables/VoxelTypeRegistry.sol";
 import { distanceBetween, voxelCoordsAreEqual, isZeroCoord, safeSubtract } from "@tenet-utils/src/VoxelCoordUtils.sol";
@@ -40,9 +40,16 @@ contract ActionSystem is SimHandler {
     require(entityExists, "Stamina entity does not exist");
     uint256 currentStamina = Stamina.get(callerAddress, senderEntity.scale, senderEntity.entityId);
     require(currentStamina >= senderStamina, "Not enough stamina");
-    ObjectType objectType = Object.get(callerAddress, entity.scale, entity.entityId);
+
+    ObjectType objectType = Object.get(callerAddress, senderEntity.scale, senderEntity.entityId);
     require(objectType != ObjectType.None, "Object type not set");
-    uint256 currentRound = Action.getRound(callerAddress, senderEntity.scale, senderEntity.entityId);
+
+    uint256 newStamina = safeSubtract(currentStamina, senderStamina);
+    // Flux out stamina
+    IWorld(_world()).fluxEnergy(false, callerAddress, senderEntity, senderStamina);
+    Stamina.set(callerAddress, senderEntity.scale, senderEntity.entityId, newStamina);
+
+    int32 currentRound = Action.getRound(callerAddress, senderEntity.scale, senderEntity.entityId);
     Action.set(
       callerAddress,
       senderEntity.scale,
@@ -52,13 +59,12 @@ contract ActionSystem is SimHandler {
       currentRound + 1,
       abi.encode(receiverEntity)
     );
-    // TODO: decrement stamina, and flux out energy
     ActionData memory actionData = Action.get(callerAddress, senderEntity.scale, senderEntity.entityId);
 
     // Check if any neighbours are objects with also an action set
     (bytes32[] memory neighbourEntities, VoxelCoord[] memory neighbourCoords) = getNeighbourEntities(
       callerAddress,
-      centerVoxelEntity
+      senderEntity
     );
     for (uint i = 0; i < neighbourEntities.length; i++) {
       if (uint256(neighbourEntities[i]) == 0) {
@@ -79,12 +85,29 @@ contract ActionSystem is SimHandler {
         continue;
       }
 
-      updateHealth(senderEntity, objectType, actionData, neighbourEntity, neighbourObjectType, neighbourActionData);
-      updateHealth(neighbourEntity, neighbourObjectType, neighbourActionData, senderEntity, objectType, actionData);
+      updateHealth(
+        callerAddress,
+        senderEntity,
+        objectType,
+        actionData,
+        neighbourEntity,
+        neighbourObjectType,
+        neighbourActionData
+      );
+      updateHealth(
+        callerAddress,
+        neighbourEntity,
+        neighbourObjectType,
+        neighbourActionData,
+        senderEntity,
+        objectType,
+        actionData
+      );
     }
   }
 
   function updateHealth(
+    address callerAddress,
     VoxelEntity memory entity,
     ObjectType objectType,
     ActionData memory actionData,
@@ -92,7 +115,10 @@ contract ActionSystem is SimHandler {
     ObjectType neighbourObjectType,
     ActionData memory neighbourActionData
   ) internal {
-    require(actionData.actionType != ObjectType.None && neighbourActionData.actionType != None, "Action not set");
+    require(
+      actionData.actionType != ObjectType.None && neighbourActionData.actionType != ObjectType.None,
+      "Action not set"
+    );
     VoxelEntity memory neighbourActionEntity = abi.decode(neighbourActionData.actionEntity, (VoxelEntity));
     if (!isEntityEqual(neighbourActionEntity, entity)) {
       // This means, the neighbour has not done any action on us, so our health is not affected

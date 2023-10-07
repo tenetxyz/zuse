@@ -148,8 +148,8 @@ enum ValueType {
 struct ActionData {
   ObjectType actionType;
   uint256 stamina;
-  bool onSelf;
   int32 round;
+  bytes actionEntity;
 }
 
 struct CreationSpawns {

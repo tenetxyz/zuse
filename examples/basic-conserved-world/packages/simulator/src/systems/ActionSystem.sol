@@ -45,43 +45,37 @@ contract ActionSystem is SimHandler {
     require(objectType != ObjectType.None, "Object type not set");
 
     uint256 newStamina = safeSubtract(currentStamina, senderStamina);
-    // Flux out stamina
+    // Flux out energy proportional to the stamina used
     IWorld(_world()).fluxEnergy(false, callerAddress, senderEntity, senderStamina);
     Stamina.set(callerAddress, senderEntity.scale, senderEntity.entityId, newStamina);
 
     int32 currentRound = Action.getRound(callerAddress, senderEntity.scale, senderEntity.entityId);
-    Action.set(
-      callerAddress,
-      senderEntity.scale,
-      senderEntity.entityId,
-      receiverActionType,
-      senderStamina,
-      currentRound + 1,
-      abi.encode(receiverEntity)
-    );
-    ActionData memory actionData = Action.get(callerAddress, senderEntity.scale, senderEntity.entityId);
+    ActionData memory actionData = ActionData({
+      actionType: receiverActionType,
+      stamina: senderStamina,
+      round: currentRound + 1,
+      actionEntity: abi.encode(receiverEntity)
+    });
+    Action.set(callerAddress, senderEntity.scale, senderEntity.entityId, actionData);
 
     // Check if any neighbours are objects with also an action set
-    (bytes32[] memory neighbourEntities, VoxelCoord[] memory neighbourCoords) = getNeighbourEntities(
-      callerAddress,
-      senderEntity
-    );
+    (bytes32[] memory neighbourEntities, ) = getNeighbourEntities(callerAddress, senderEntity);
     for (uint i = 0; i < neighbourEntities.length; i++) {
       if (uint256(neighbourEntities[i]) == 0) {
         // Note: we assume terrain gen can't have objects with actions
         continue;
       }
       VoxelEntity memory neighbourEntity = VoxelEntity({ scale: senderEntity.scale, entityId: neighbourEntities[i] });
+      ObjectType neighbourObjectType = Object.get(callerAddress, neighbourEntity.scale, neighbourEntity.entityId);
+      if (neighbourObjectType == ObjectType.None) {
+        continue;
+      }
       ActionData memory neighbourActionData = Action.get(
         callerAddress,
         neighbourEntity.scale,
         neighbourEntity.entityId
       );
       if (neighbourActionData.actionType == ObjectType.None) {
-        continue;
-      }
-      ObjectType neighbourObjectType = Object.get(callerAddress, neighbourEntity.scale, neighbourEntity.entityId);
-      if (neighbourObjectType == ObjectType.None) {
         continue;
       }
 
@@ -157,6 +151,8 @@ contract ActionSystem is SimHandler {
         abi.encode(VoxelEntity({ scale: 0, entityId: bytes32(0) }))
       );
     }
+    // Flux out energy proportional to the health lost
+    IWorld(_world()).fluxEnergy(false, callerAddress, entity, lostHealth);
     Health.set(callerAddress, entity.scale, entity.entityId, newHealth);
   }
 

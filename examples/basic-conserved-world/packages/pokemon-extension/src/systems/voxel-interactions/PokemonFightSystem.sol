@@ -125,45 +125,45 @@ contract PokemonFightSystem is System {
     //   return (changedEntity, entityData, pokemonData);
     // }
 
-    if (
-      entitySimData.actionData.actionType != ObjectType.None &&
-      neighbourEntitySimData.actionData.actionType != ObjectType.None
-    ) {
-      if (entitySimData.actionData.round != neighbourEntitySimData.actionData.round) {
-        changedEntity = true;
-        return (changedEntity, entityData, pokemonData);
-      }
+    // if (
+    //   entitySimData.actionData.actionType != ObjectType.None &&
+    //   neighbourEntitySimData.actionData.actionType != ObjectType.None
+    // ) {
+    //   if (entitySimData.actionData.round != neighbourEntitySimData.actionData.round) {
+    //     changedEntity = true;
+    //     return (changedEntity, entityData, pokemonData);
+    //   }
 
-      // Calculate damage
-      // MoveData[] memory movesData = getMovesData();
-      // MoveData memory myMoveData = movesData[uint(pokemonData.move)];
-      // MoveData memory opponentMoveData = movesData[uint(neighbourPokemonData.move)];
-      // if (opponentMoveData.damage > 0 && myMoveData.protection > 0) {
-      //   uint256 damage = calculateDamage(
-      //     pokemonData.pokemonType,
-      //     myMoveData,
-      //     neighbourPokemonData.pokemonType,
-      //     opponentMoveData
-      //   );
-      //   uint256 protection = calculateProtection(
-      //     pokemonData.pokemonType,
-      //     myMoveData,
-      //     neighbourPokemonData.pokemonType,
-      //     opponentMoveData
-      //   );
-      //   pokemonData.lostHealth += (damage - protection);
-      // } else if (opponentMoveData.damage > 0) {
-      //   uint256 damage = calculateDamage(
-      //     pokemonData.pokemonType,
-      //     myMoveData,
-      //     neighbourPokemonData.pokemonType,
-      //     opponentMoveData
-      //   );
-      //   pokemonData.lostHealth += damage;
-      // }
+    // Calculate damage
+    // MoveData[] memory movesData = getMovesData();
+    // MoveData memory myMoveData = movesData[uint(pokemonData.move)];
+    // MoveData memory opponentMoveData = movesData[uint(neighbourPokemonData.move)];
+    // if (opponentMoveData.damage > 0 && myMoveData.protection > 0) {
+    //   uint256 damage = calculateDamage(
+    //     pokemonData.pokemonType,
+    //     myMoveData,
+    //     neighbourPokemonData.pokemonType,
+    //     opponentMoveData
+    //   );
+    //   uint256 protection = calculateProtection(
+    //     pokemonData.pokemonType,
+    //     myMoveData,
+    //     neighbourPokemonData.pokemonType,
+    //     opponentMoveData
+    //   );
+    //   pokemonData.lostHealth += (damage - protection);
+    // } else if (opponentMoveData.damage > 0) {
+    //   uint256 damage = calculateDamage(
+    //     pokemonData.pokemonType,
+    //     myMoveData,
+    //     neighbourPokemonData.pokemonType,
+    //     opponentMoveData
+    //   );
+    //   pokemonData.lostHealth += damage;
+    // }
 
-      // changedEntity = true;
-    }
+    // changedEntity = true;
+    // }
 
     return (changedEntity, entityData, pokemonData);
   }

@@ -190,6 +190,10 @@ contract PokemonSystem is System {
       return (caEventData, pokemonData);
     }
 
+    if (entitySimData.actionData.actionType != ObjectType.None) {
+      return (caEventData, pokemonData);
+    }
+
     MoveData memory moveData = IWorld(_world()).pokemon_PokemonFightSyst_getMoveData(pokemonMove);
     uint staminaAmount = uint(moveData.stamina);
     bool isAttack = moveData.damage > 0;

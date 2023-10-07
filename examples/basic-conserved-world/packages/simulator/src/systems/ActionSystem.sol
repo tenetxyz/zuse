@@ -33,30 +33,38 @@ contract ActionSystem is SimHandler {
     ObjectType receiverActionType
   ) public {
     address callerAddress = super.getCallerAddress();
-    bool entityExists = hasKey(
-      StaminaTableId,
-      Stamina.encodeKeyTuple(callerAddress, senderEntity.scale, senderEntity.entityId)
+    require(
+      hasKey(StaminaTableId, Stamina.encodeKeyTuple(callerAddress, senderEntity.scale, senderEntity.entityId)),
+      "Stamina entity does not exist"
     );
-    require(entityExists, "Stamina entity does not exist");
-    uint256 currentStamina = Stamina.get(callerAddress, senderEntity.scale, senderEntity.entityId);
-    require(currentStamina >= senderStamina, "Not enough stamina");
+    {
+      uint256 currentStamina = Stamina.get(callerAddress, senderEntity.scale, senderEntity.entityId);
+      require(currentStamina >= senderStamina, "Not enough stamina");
 
-    ObjectType objectType = Object.get(callerAddress, senderEntity.scale, senderEntity.entityId);
-    require(objectType != ObjectType.None, "Object type not set");
+      ObjectType objectType = Object.get(callerAddress, senderEntity.scale, senderEntity.entityId);
+      require(objectType != ObjectType.None, "Object type not set");
 
-    uint256 newStamina = safeSubtract(currentStamina, senderStamina);
-    // Flux out energy proportional to the stamina used
-    IWorld(_world()).fluxEnergy(false, callerAddress, senderEntity, senderStamina);
-    Stamina.set(callerAddress, senderEntity.scale, senderEntity.entityId, newStamina);
-
-    int32 currentRound = Action.getRound(callerAddress, senderEntity.scale, senderEntity.entityId);
-    ActionData memory actionData = ActionData({
-      actionType: receiverActionType,
-      stamina: senderStamina,
-      round: currentRound + 1,
-      actionEntity: abi.encode(receiverEntity)
-    });
-    Action.set(callerAddress, senderEntity.scale, senderEntity.entityId, actionData);
+      // Flux out energy proportional to the stamina used
+      IWorld(_world()).fluxEnergy(false, callerAddress, senderEntity, senderStamina);
+      Stamina.set(
+        callerAddress,
+        senderEntity.scale,
+        senderEntity.entityId,
+        safeSubtract(currentStamina, senderStamina)
+      );
+    }
+    // int32 currentRound = Action.getRound(callerAddress, senderEntity.scale, senderEntity.entityId);
+    Action.set(
+      callerAddress,
+      senderEntity.scale,
+      senderEntity.entityId,
+      ActionData({
+        actionType: receiverActionType,
+        stamina: senderStamina,
+        round: 0,
+        actionEntity: abi.encode(receiverEntity)
+      })
+    );
 
     // Check if any neighbours are objects with also an action set
     (bytes32[] memory neighbourEntities, ) = getNeighbourEntities(callerAddress, senderEntity);
@@ -66,53 +74,49 @@ contract ActionSystem is SimHandler {
         continue;
       }
       VoxelEntity memory neighbourEntity = VoxelEntity({ scale: senderEntity.scale, entityId: neighbourEntities[i] });
-      ObjectType neighbourObjectType = Object.get(callerAddress, neighbourEntity.scale, neighbourEntity.entityId);
-      if (neighbourObjectType == ObjectType.None) {
-        continue;
-      }
-      ActionData memory neighbourActionData = Action.get(
+      updateHealth(callerAddress, senderEntity, neighbourEntity);
+      updateHealth(callerAddress, neighbourEntity, senderEntity);
+
+      // set action type to None
+      Action.set(
+        callerAddress,
+        senderEntity.scale,
+        senderEntity.entityId,
+        ObjectType.None,
+        0,
+        0,
+        abi.encode(VoxelEntity({ scale: 0, entityId: bytes32(0) }))
+      );
+      Action.set(
         callerAddress,
         neighbourEntity.scale,
-        neighbourEntity.entityId
-      );
-      if (neighbourActionData.actionType == ObjectType.None) {
-        continue;
-      }
-
-      updateHealth(
-        callerAddress,
-        senderEntity,
-        objectType,
-        actionData,
-        neighbourEntity,
-        neighbourObjectType,
-        neighbourActionData
-      );
-      updateHealth(
-        callerAddress,
-        neighbourEntity,
-        neighbourObjectType,
-        neighbourActionData,
-        senderEntity,
-        objectType,
-        actionData
+        neighbourEntity.entityId,
+        ObjectType.None,
+        0,
+        0,
+        abi.encode(VoxelEntity({ scale: 0, entityId: bytes32(0) }))
       );
     }
+
+    // if (newStamina == 0) {}
   }
 
-  function updateHealth(
-    address callerAddress,
-    VoxelEntity memory entity,
-    ObjectType objectType,
-    ActionData memory actionData,
-    VoxelEntity memory neighbourEntity,
-    ObjectType neighbourObjectType,
-    ActionData memory neighbourActionData
-  ) internal {
+  function updateHealth(address callerAddress, VoxelEntity memory entity, VoxelEntity memory neighbourEntity) internal {
+    ObjectType objectType = Object.get(callerAddress, entity.scale, entity.entityId);
+    ObjectType neighbourObjectType = Object.get(callerAddress, neighbourEntity.scale, neighbourEntity.entityId);
+    if (objectType == ObjectType.None || neighbourObjectType == ObjectType.None) {
+      return;
+    }
+    ActionData memory actionData = Action.get(callerAddress, entity.scale, entity.entityId);
+    ActionData memory neighbourActionData = Action.get(callerAddress, neighbourEntity.scale, neighbourEntity.entityId);
+    if (actionData.actionType == ObjectType.None || neighbourActionData.actionType == ObjectType.None) {
+      return;
+    }
     require(
       actionData.actionType != ObjectType.None && neighbourActionData.actionType != ObjectType.None,
       "Action not set"
     );
+    // require(actionData.round == neighbourActionData.round, "Rounds not equal");
     VoxelEntity memory neighbourActionEntity = abi.decode(neighbourActionData.actionEntity, (VoxelEntity));
     if (!isEntityEqual(neighbourActionEntity, entity)) {
       // This means, the neighbour has not done any action on us, so our health is not affected
@@ -120,10 +124,10 @@ contract ActionSystem is SimHandler {
     }
 
     uint256 damage = calculateDamage(
-      objectType,
-      actionData.stamina,
       neighbourObjectType,
-      neighbourActionData.actionType
+      neighbourActionData.stamina,
+      objectType,
+      actionData.actionType
     );
     uint256 protection = 0;
     VoxelEntity memory actionEntity = abi.decode(actionData.actionEntity, (VoxelEntity));
@@ -140,20 +144,10 @@ contract ActionSystem is SimHandler {
       return;
     }
     uint256 newHealth = safeSubtract(Health.get(callerAddress, entity.scale, entity.entityId), lostHealth);
-    if (newHealth == 0) {
-      Action.set(
-        callerAddress,
-        entity.scale,
-        entity.entityId,
-        ObjectType.None,
-        0,
-        0,
-        abi.encode(VoxelEntity({ scale: 0, entityId: bytes32(0) }))
-      );
-    }
     // Flux out energy proportional to the health lost
     IWorld(_world()).fluxEnergy(false, callerAddress, entity, lostHealth);
     Health.set(callerAddress, entity.scale, entity.entityId, newHealth);
+    // if (newHealth == 0) {}
   }
 
   function calculateDamage(

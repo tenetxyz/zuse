@@ -20,7 +20,54 @@ import { console } from "forge-std/console.sol";
 
 uint256 constant NUM_BLOCKS_FAINTED = 50;
 
+enum PokemonMove {
+  None,
+  Ember,
+  FlameBurst,
+  SmokeScreen,
+  FireShield,
+  WaterGun,
+  HydroPump,
+  Bubble,
+  AquaRing,
+  VineWhip,
+  SolarBeam,
+  LeechSeed,
+  Synthesis
+}
+
+struct MoveData {
+  uint8 stamina;
+  uint8 damage;
+  uint8 protection;
+  ObjectType moveType;
+}
+
 contract PokemonSystem is System {
+  function getMovesData() internal pure returns (MoveData[] memory) {
+    MoveData[] memory movesData = new MoveData[](13); // the first value is for PokemonMove.None
+    movesData[uint(PokemonMove.Ember)] = MoveData(10, 20, 0, ObjectType.Fire);
+    movesData[uint(PokemonMove.FlameBurst)] = MoveData(20, 40, 0, ObjectType.Fire);
+    movesData[uint(PokemonMove.SmokeScreen)] = MoveData(5, 0, 10, ObjectType.Fire);
+    movesData[uint(PokemonMove.FireShield)] = MoveData(15, 0, 30, ObjectType.Fire);
+
+    movesData[uint(PokemonMove.WaterGun)] = MoveData(10, 20, 0, ObjectType.Water);
+    movesData[uint(PokemonMove.HydroPump)] = MoveData(20, 40, 0, ObjectType.Water);
+    movesData[uint(PokemonMove.Bubble)] = MoveData(5, 0, 10, ObjectType.Water);
+    movesData[uint(PokemonMove.AquaRing)] = MoveData(15, 0, 30, ObjectType.Water);
+
+    movesData[uint(PokemonMove.VineWhip)] = MoveData(10, 20, 0, ObjectType.Grass);
+    movesData[uint(PokemonMove.SolarBeam)] = MoveData(20, 40, 0, ObjectType.Grass);
+    movesData[uint(PokemonMove.LeechSeed)] = MoveData(5, 0, 10, ObjectType.Grass);
+    movesData[uint(PokemonMove.Synthesis)] = MoveData(15, 0, 30, ObjectType.Grass);
+    return movesData;
+  }
+
+  function getMoveData(PokemonMove move) internal pure returns (MoveData memory) {
+    MoveData[] memory movesData = getMovesData();
+    return movesData[uint(move)];
+  }
+
   function eventHandler(
     address callerAddress,
     bytes32 centerEntityId,
@@ -90,14 +137,22 @@ contract PokemonSystem is System {
     PokemonData memory pokemonData = Pokemon.get(callerAddress, interactEntity);
     console.log("pokemon onNewNeighbour");
     console.logBytes32(interactEntity);
-    (changedEntity, entityData, pokemonData) = IWorld(_world()).pokemon_PokemonFightSyst_runBattleLogic(
-      callerAddress,
-      interactEntity,
-      neighbourEntityId,
-      pokemonData
-    );
+    if (!entityIsPokemon(callerAddress, neighbourEntityId)) {
+      return (changedEntity, entityData);
+    }
+
+    BodySimData memory entitySimData = getEntitySimData(interactEntity);
+    BodySimData memory neighbourEntitySimData = getEntitySimData(neighbourEntityId);
+
+    if (
+      entitySimData.actionData.actionType == ObjectType.None &&
+      neighbourEntitySimData.actionData.actionType != ObjectType.None
+    ) {
+      // TODO: check actionEntity matches? We need this if we want multiple pokemon to be able to fight at the same time
+      changedEntity = true;
+    }
+
     console.logBool(changedEntity);
-    Pokemon.set(callerAddress, interactEntity, pokemonData);
     return (changedEntity, entityData);
   }
 
@@ -118,11 +173,8 @@ contract PokemonSystem is System {
     BodySimData memory entitySimData = getEntitySimData(interactEntity);
     PokemonData memory pokemonData = Pokemon.get(callerAddress, interactEntity);
 
-    CAEventData[] memory allCAEventData = new CAEventData[](neighbourEntityIds.length + 1);
-
-    bool hasEvent = false;
-
     if (entitySimData.objectType == ObjectType.None) {
+      CAEventData[] memory allCAEventData = new CAEventData[](1);
       VoxelEntity memory entity = VoxelEntity({ scale: 1, entityId: caEntityToEntity(interactEntity) });
       VoxelCoord memory coord = getCAEntityPositionStrict(IStore(_world()), interactEntity);
 
@@ -143,6 +195,9 @@ contract PokemonSystem is System {
       return (changedEntity, entityData);
     }
 
+    CAEventData[] memory allCAEventData = new CAEventData[](neighbourEntityIds.length);
+    bool hasEvent = false;
+
     // Check if neighbour is pokemon and run move
     bool foundPokemon = false;
     for (uint256 i = 0; i < neighbourEntityIds.length; i++) {
@@ -158,7 +213,7 @@ contract PokemonSystem is System {
       }
 
       foundPokemon = true;
-      (allCAEventData[i + 1], pokemonData) = runPokemonMove(
+      (allCAEventData[i], pokemonData) = runPokemonMove(
         callerAddress,
         interactEntity,
         neighbourEntityIds[i],
@@ -167,11 +222,9 @@ contract PokemonSystem is System {
         pokemonMove
       );
       Pokemon.set(callerAddress, interactEntity, pokemonData);
-      if (allCAEventData[i + 1].eventType != CAEventType.None) {
-        console.log("move event");
+      if (allCAEventData[i].eventType != CAEventType.None) {
         hasEvent = true;
       }
-      break;
     }
 
     if (hasEvent) {
@@ -196,16 +249,24 @@ contract PokemonSystem is System {
       return (caEventData, pokemonData);
     }
 
-    // if (entitySimData.health == 0 && block.number < pokemonData.lastUpdatedBlock + NUM_BLOCKS_FAINTED) {
-    //   return (caEventData, pokemonData);
-    // }
+    if (entitySimData.health == 0) {
+      console.log("fainted");
+      pokemonData.lastFaintedBlock = block.number;
+    } else {
+      if (pokemonData.lastFaintedBlock != 0) {
+        pokemonData.lastFaintedBlock = 0;
+      }
+    }
 
-    if (entitySimData.actionData.actionType != ObjectType.None) {
-      console.log("already got move");
+    if (entitySimData.health == 0 || block.number < pokemonData.lastFaintedBlock + NUM_BLOCKS_FAINTED) {
       return (caEventData, pokemonData);
     }
 
-    MoveData memory moveData = IWorld(_world()).pokemon_PokemonFightSyst_getMoveData(pokemonMove);
+    if (entitySimData.actionData.actionType != ObjectType.None) {
+      return (caEventData, pokemonData);
+    }
+
+    MoveData memory moveData = getMoveData(pokemonMove);
     uint staminaAmount = uint(moveData.stamina);
     bool isAttack = moveData.damage > 0;
 
@@ -227,17 +288,6 @@ contract PokemonSystem is System {
       targetValue: abi.encode(moveData.moveType)
     });
     caEventData = CAEventData({ eventType: CAEventType.SimEvent, eventData: abi.encode(moveEventData) });
-
-    // pokemonData.move = pokemonMove;
-    // pokemonData.round += 1;
-    // pokemonData.lostStamina += uint(IWorld(_world()).pokemon_PokemonFightSyst_getStaminaCost(pokemonMove));
-
-    // (, entityData, pokemonData) = IWorld(_world()).pokemon_PokemonFightSyst_runBattleLogic(
-    //   callerAddress,
-    //   interactEntity,
-    //   neighbourEntity,
-    //   pokemonData
-    // );
 
     return (caEventData, pokemonData);
   }

@@ -112,20 +112,12 @@ contract PokemonTest is MudTest {
         Health.get(IStore(SIMULATOR_ADDRESS), worldAddress, pokemon2Entity.scale, pokemon2Entity.entityId)
       );
       // TODO: assert on Object
-      // pokemon1Data = Pokemon.get(IStore(BASE_CA_ADDRESS), worldAddress, pokemon1CAEntity);
-      // pokemon2Data = Pokemon.get(IStore(BASE_CA_ADDRESS), worldAddress, pokemon2CAEntity);
-      // assertTrue(
-      //   Energy.get(IStore(SIMULATOR_ADDRESS), worldAddress, pokemon1Entity.scale, pokemon1Entity.entityId) <
-      //     pokemon1EnergyBefore
-      // );
-      // assertTrue(
-      //   Energy.get(IStore(SIMULATOR_ADDRESS), worldAddress, pokemon2Entity.scale, pokemon2Entity.entityId) <
-      //     pokemon2EnergyBefore
-      // );
-      // assertTrue(pokemon1Data.health == 0);
-      // assertTrue(pokemon2Data.health == 0);
-      // assertTrue(pokemon1Data.stamina < 150);
-      // assertTrue(pokemon2Data.stamina < 150);
+      assertTrue(
+        Health.get(IStore(SIMULATOR_ADDRESS), worldAddress, pokemon1Entity.scale, pokemon1Entity.entityId) == 0
+      );
+      assertTrue(
+        Health.get(IStore(SIMULATOR_ADDRESS), worldAddress, pokemon2Entity.scale, pokemon2Entity.entityId) == 0
+      );
     }
 
     vm.stopPrank();

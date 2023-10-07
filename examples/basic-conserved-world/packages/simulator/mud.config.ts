@@ -4,8 +4,21 @@ import { resolveTableId } from "@latticexyz/config";
 export default mudConfig({
   enums: {
     ObjectType: ["None", "Fire", "Water", "Grass"],
+    SimTable: ["None", "Mass", "Energy", "Velocity", "Health", "Stamina", "Object", "Action"],
+    ValueType: ["Uint256", "ObjectType"],
   },
   tables: {
+    SimSelectors: {
+      keySchema: {
+        senderTable: "SimTable",
+        receiverTable: "SimTable",
+      },
+      schema: {
+        selector: "bytes4",
+        senderValueType: "ValueType",
+        receiverValueType: "ValueType",
+      },
+    },
     Mass: {
       keySchema: {
         callerAddress: "address",

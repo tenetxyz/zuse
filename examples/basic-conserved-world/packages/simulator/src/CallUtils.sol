@@ -2,7 +2,7 @@
 pragma solidity >=0.8.0;
 
 import { VoxelCoord, VoxelEntity, SimTable } from "@tenet-utils/src/Types.sol";
-import { SIM_SET_HEALTH_FROM_ENERGY_SIG, SIM_SET_STAMINA_FROM_ENERGY_SIG, SIM_ON_BUILD_SIG, SIM_ON_MINE_SIG, SIM_ON_MOVE_SIG, SIM_ON_ACTIVATE_SIG, SIM_SET_MASS_SIG, SIM_SET_ENERGY_SIG, SIM_VELOCITY_CACHE_UPDATE_SIG, SIM_INIT_ENTITY_SIG } from "@tenet-simulator/src/Constants.sol";
+import { SIM_SET_OBJECT_TYPE_SIG, SIM_SET_HEALTH_FROM_ENERGY_SIG, SIM_SET_STAMINA_FROM_ENERGY_SIG, SIM_ON_BUILD_SIG, SIM_ON_MINE_SIG, SIM_ON_MOVE_SIG, SIM_ON_ACTIVATE_SIG, SIM_SET_MASS_SIG, SIM_SET_ENERGY_SIG, SIM_VELOCITY_CACHE_UPDATE_SIG, SIM_INIT_ENTITY_SIG } from "@tenet-simulator/src/Constants.sol";
 import { safeCall, safeStaticCall } from "@tenet-utils/src/CallUtils.sol";
 
 function updateVelocityCache(address simAddress, VoxelEntity memory entity) returns (bytes memory) {

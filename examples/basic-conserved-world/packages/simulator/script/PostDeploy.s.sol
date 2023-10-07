@@ -23,6 +23,7 @@ contract PostDeploy is Script {
     world.registerHealthSelectors();
     world.registerStaminaSelectors();
     world.registerObjectSelectors();
+    world.registerActionSelectors();
 
     vm.stopBroadcast();
   }

@@ -121,9 +121,7 @@ contract PokemonSystem is System {
     bool hasEvent = false;
 
     if (entitySimData.objectType == ObjectType.None) {
-      // TODO: Make it general
       VoxelEntity memory entity = VoxelEntity({ scale: 1, entityId: caEntityToEntity(interactEntity) });
-
       VoxelCoord memory coord = getCAEntityPositionStrict(IStore(_world()), interactEntity);
 
       SimEventData memory setObjectTypeSimEvent = SimEventData({
@@ -132,7 +130,7 @@ contract PokemonSystem is System {
         targetEntity: entity,
         targetCoord: coord,
         targetTable: SimTable.Object,
-        targetValue: abi.encode(ObjectType.Fire)
+        targetValue: abi.encode(pokemonData.pokemonType)
       });
       console.log("setObjectTypeSimEvent");
       allCAEventData[0] = CAEventData({

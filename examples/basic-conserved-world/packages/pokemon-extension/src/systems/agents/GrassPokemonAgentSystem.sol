@@ -8,14 +8,14 @@ import { NoaBlockType } from "@tenet-registry/src/codegen/Types.sol";
 import { hasKey } from "@latticexyz/world/src/modules/keysintable/hasKey.sol";
 import { registerVoxelVariant, registerVoxelType } from "@tenet-registry/src/Utils.sol";
 import { CA_ADDRESS, REGISTRY_ADDRESS, GrassPokemonVoxelID } from "@tenet-pokemon-extension/src/Constants.sol";
-import { BlockDirection, BodySimData, VoxelCoord } from "@tenet-utils/src/Types.sol";
+import { BlockDirection, BodySimData, VoxelCoord, ObjectType } from "@tenet-utils/src/Types.sol";
 import { VoxelCoord, VoxelSelectors, InteractionSelector, ComponentDef, RangeComponent, StateComponent, ComponentType } from "@tenet-utils/src/Types.sol";
 import { getFirstCaller } from "@tenet-utils/src/Utils.sol";
 import { getCAEntityAtCoord, getCAVoxelType } from "@tenet-base-ca/src/Utils.sol";
 import { entityIsSoil, entityIsPlant, entityIsPokemon } from "@tenet-pokemon-extension/src/InteractionUtils.sol";
 import { registerCAVoxelType } from "@tenet-base-ca/src/CallUtils.sol";
 import { getEntitySimData, transferEnergy } from "@tenet-level1-ca/src/Utils.sol";
-import { Pokemon, PokemonData, PokemonMove, PokemonType } from "@tenet-pokemon-extension/src/codegen/tables/Pokemon.sol";
+import { Pokemon, PokemonData, PokemonMove } from "@tenet-pokemon-extension/src/codegen/tables/Pokemon.sol";
 import { console } from "forge-std/console.sol";
 
 bytes32 constant PokemonVoxelVariantID = bytes32(keccak256("pokemon-grass"));
@@ -101,7 +101,7 @@ contract GrassPokemonAgentSystem is AgentType {
         lostStamina: 0,
         lastUpdatedBlock: 0,
         round: 0,
-        pokemonType: PokemonType.Grass,
+        pokemonType: ObjectType.Grass,
         move: PokemonMove.None,
         hasValue: hasValue
       })

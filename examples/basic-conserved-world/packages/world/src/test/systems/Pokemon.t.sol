@@ -24,6 +24,7 @@ import { Energy } from "@tenet-simulator/src/codegen/tables/Energy.sol";
 import { Velocity } from "@tenet-simulator/src/codegen/tables/Velocity.sol";
 import { Health } from "@tenet-simulator/src/codegen/tables/Health.sol";
 import { Stamina } from "@tenet-simulator/src/codegen/tables/Stamina.sol";
+import { Object } from "@tenet-simulator/src/codegen/tables/Object.sol";
 
 contract PokemonTest is MudTest {
   IWorld private world;
@@ -110,6 +111,7 @@ contract PokemonTest is MudTest {
       console.logUint(
         Health.get(IStore(SIMULATOR_ADDRESS), worldAddress, pokemon2Entity.scale, pokemon2Entity.entityId)
       );
+      // TODO: assert on Object
       // pokemon1Data = Pokemon.get(IStore(BASE_CA_ADDRESS), worldAddress, pokemon1CAEntity);
       // pokemon2Data = Pokemon.get(IStore(BASE_CA_ADDRESS), worldAddress, pokemon2CAEntity);
       // assertTrue(

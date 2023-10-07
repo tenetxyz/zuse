@@ -52,7 +52,7 @@ contract PokemonMindSystem is MindType {
       return false;
     }
     PokemonData memory pokemonData = Pokemon.get(callerAddress, pokemonEntityId);
-    if (pokemonData.health == 0) {
+    if (entitySimData.health == 0) {
       return false;
     }
     if (pokemonData.round == -1) {

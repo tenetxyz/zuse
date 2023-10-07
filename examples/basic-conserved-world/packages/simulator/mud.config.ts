@@ -89,8 +89,8 @@ export default mudConfig({
       schema: {
         actionType: "ObjectType",
         stamina: "uint256",
-        onSelf: "bool",
         round: "int32",
+        actionEntity: "bytes",
       },
     },
   },
@@ -116,6 +116,26 @@ export default mudConfig({
       name: "KeysInTableModule",
       root: true,
       args: [resolveTableId("Velocity")],
+    },
+    {
+      name: "KeysInTableModule",
+      root: true,
+      args: [resolveTableId("Health")],
+    },
+    {
+      name: "KeysInTableModule",
+      root: true,
+      args: [resolveTableId("Stamina")],
+    },
+    {
+      name: "KeysInTableModule",
+      root: true,
+      args: [resolveTableId("Object")],
+    },
+    {
+      name: "KeysInTableModule",
+      root: true,
+      args: [resolveTableId("Action")],
     },
   ],
 });

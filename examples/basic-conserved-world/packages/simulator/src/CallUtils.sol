@@ -2,8 +2,8 @@
 pragma solidity >=0.8.0;
 
 import { IStore } from "@latticexyz/store/src/IStore.sol";
-import { VoxelCoord, VoxelEntity, SimTable, ValueType } from "@tenet-utils/src/Types.sol";
-import { SIM_SET_OBJECT_TYPE_SIG, SIM_SET_HEALTH_FROM_ENERGY_SIG, SIM_SET_STAMINA_FROM_ENERGY_SIG, SIM_ON_BUILD_SIG, SIM_ON_MINE_SIG, SIM_ON_MOVE_SIG, SIM_ON_ACTIVATE_SIG, SIM_SET_MASS_SIG, SIM_SET_ENERGY_SIG, SIM_VELOCITY_CACHE_UPDATE_SIG, SIM_INIT_ENTITY_SIG } from "@tenet-simulator/src/Constants.sol";
+import { VoxelCoord, VoxelEntity, SimTable, ValueType, ObjectType } from "@tenet-utils/src/Types.sol";
+import { SIM_ON_BUILD_SIG, SIM_ON_MINE_SIG, SIM_ON_MOVE_SIG, SIM_ON_ACTIVATE_SIG, SIM_VELOCITY_CACHE_UPDATE_SIG, SIM_INIT_ENTITY_SIG } from "@tenet-simulator/src/Constants.sol";
 import { safeCall, safeStaticCall } from "@tenet-utils/src/CallUtils.sol";
 import { SimSelectors, SimSelectorsData } from "@tenet-simulator/src/codegen/tables/SimSelectors.sol";
 
@@ -44,17 +44,80 @@ function setSimValue(
 ) returns (bytes memory) {
   SimSelectorsData memory simSelectors = SimSelectors.get(IStore(simAddress), senderTable, receiverTable);
   if (simSelectors.selector == bytes4(0)) {
-    revert("Invalid table")
+    revert("Invalid table");
   }
-  if(senderValueType == ValueType.Uint256 && receiverValueType == ValueType.Uint256){
+  if (simSelectors.senderValueType == ValueType.Uint256 && simSelectors.receiverValueType == ValueType.Uint256) {
     return
       safeCall(
         simAddress,
-        abi.encodeWithSelector(simSelectors.selector, senderEntity, senderCoord, abi.decode(senderValue, (uint256)), receiverEntity, receiverCoord, abi.decode(receiverValue, (uint256))),
-        string(abi.encode("setSimValue ", senderEntity, " ", senderCoord, " ", senderTable, " ", senderValue, " ", receiverEntity, " ", receiverCoord, " ", receiverTable, " ", receiverValue))
+        abi.encodeWithSelector(
+          simSelectors.selector,
+          senderEntity,
+          senderCoord,
+          abi.decode(senderValue, (uint256)),
+          receiverEntity,
+          receiverCoord,
+          abi.decode(receiverValue, (uint256))
+        ),
+        string(
+          abi.encode(
+            "setSimValue ",
+            senderEntity,
+            " ",
+            senderCoord,
+            " ",
+            senderTable,
+            " ",
+            senderValue,
+            " ",
+            receiverEntity,
+            " ",
+            receiverCoord,
+            " ",
+            receiverTable,
+            " ",
+            receiverValue
+          )
+        )
+      );
+  } else if (
+    simSelectors.senderValueType == ValueType.ObjectType && simSelectors.receiverValueType == ValueType.ObjectType
+  ) {
+    return
+      safeCall(
+        simAddress,
+        abi.encodeWithSelector(
+          simSelectors.selector,
+          senderEntity,
+          senderCoord,
+          abi.decode(senderValue, (ObjectType)),
+          receiverEntity,
+          receiverCoord,
+          abi.decode(receiverValue, (ObjectType))
+        ),
+        string(
+          abi.encode(
+            "setSimValue ",
+            senderEntity,
+            " ",
+            senderCoord,
+            " ",
+            senderTable,
+            " ",
+            senderValue,
+            " ",
+            receiverEntity,
+            " ",
+            receiverCoord,
+            " ",
+            receiverTable,
+            " ",
+            receiverValue
+          )
+        )
       );
   } else {
-    revert("Invalid value type")
+    revert("Invalid value type");
   }
 }
 

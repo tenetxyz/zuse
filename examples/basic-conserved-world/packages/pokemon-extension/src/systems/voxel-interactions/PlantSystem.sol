@@ -102,9 +102,7 @@ contract PlantSystem is VoxelInteraction {
     } else if (plantData.stage == PlantStage.Flower) {
       (plantData, allCAEventData, hasTransfer) = runFlowerInteraction(
         callerAddress,
-        interactEntity,
         neighbourEntityIds,
-        neighbourEntityDirections,
         entitySimData,
         plantData
       );
@@ -231,9 +229,7 @@ contract PlantSystem is VoxelInteraction {
 
   function runFlowerInteraction(
     address callerAddress,
-    bytes32 interactEntity,
     bytes32[] memory neighbourEntityIds,
-    BlockDirection[] memory neighbourEntityDirections,
     BodySimData memory entitySimData,
     PlantData memory plantData
   ) internal returns (PlantData memory, CAEventData[] memory, bool) {
@@ -257,33 +253,38 @@ contract PlantSystem is VoxelInteraction {
       if (entityIsPokemon(callerAddress, neighbourEntityIds[i])) {
         VoxelCoord memory neighbourCoord = getCAEntityPositionStrict(IStore(_world()), neighbourEntityIds[i]);
         uint256 transferAmount = harvestPlantEnergy / numPokemonNeighbours;
-        uint256 healthAmount = (transferAmount * 40) / 100; // 40% to Health
-        uint256 staminaAmount = (transferAmount * 30) / 100; // 30% to Stamina
+        VoxelEntity memory targetEntity = VoxelEntity({ scale: 1, entityId: neighbourEntityIds[i] });
 
-        SimEventData memory healthEventData = SimEventData({
-          senderTable: SimTable.Energy,
-          senderValue: abi.encode(healthAmount),
-          targetEntity: targetEntity,
-          targetCoord: targetCoord,
-          targetTable: SimTable.Health,
-          targetValue: abi.encode(healthAmount)
-        });
-        allCAEventData[i * 2] = CAEventData({
-          eventType: CAEventType.SimEvent,
-          eventData: abi.encode(healthEventData)
-        });
-        SimEventData memory staminaEventData = SimEventData({
-          senderTable: SimTable.Energy,
-          senderValue: abi.encode(staminaAmount),
-          targetEntity: targetEntity,
-          targetCoord: targetCoord,
-          targetTable: SimTable.Stamina,
-          targetValue: abi.encode(staminaAmount)
-        });
-        allCAEventData[(i * 2) + 1] = CAEventData({
-          eventType: CAEventType.SimEvent,
-          eventData: abi.encode(staminaEventData)
-        });
+        {
+          uint256 healthAmount = (transferAmount * 40) / 100; // 40% to Health
+          SimEventData memory healthEventData = SimEventData({
+            senderTable: SimTable.Energy,
+            senderValue: abi.encode(healthAmount),
+            targetEntity: targetEntity,
+            targetCoord: neighbourCoord,
+            targetTable: SimTable.Health,
+            targetValue: abi.encode(healthAmount)
+          });
+          allCAEventData[i * 2] = CAEventData({
+            eventType: CAEventType.SimEvent,
+            eventData: abi.encode(healthEventData)
+          });
+        }
+        {
+          uint256 staminaAmount = (transferAmount * 30) / 100; // 30% to Stamina
+          SimEventData memory staminaEventData = SimEventData({
+            senderTable: SimTable.Energy,
+            senderValue: abi.encode(staminaAmount),
+            targetEntity: targetEntity,
+            targetCoord: neighbourCoord,
+            targetTable: SimTable.Stamina,
+            targetValue: abi.encode(staminaAmount)
+          });
+          allCAEventData[(i * 2) + 1] = CAEventData({
+            eventType: CAEventType.SimEvent,
+            eventData: abi.encode(staminaEventData)
+          });
+        }
 
         if (transferAmount > 0) {
           hasTransfer = true;

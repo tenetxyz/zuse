@@ -6,43 +6,37 @@ import { System } from "@latticexyz/world/src/System.sol";
 import { calculateBlockDirection, safeSubtract } from "@tenet-utils/src/VoxelCoordUtils.sol";
 import { BlockDirection, VoxelCoord, VoxelEntity } from "@tenet-utils/src/Types.sol";
 import { getCAEntityPositionStrict } from "@tenet-base-ca/src/Utils.sol";
-import { BlockDirection, BodySimData, VoxelCoord, CAEventData, CAEventType, SimEventData, SimTable } from "@tenet-utils/src/Types.sol";
+import { BlockDirection, BodySimData, VoxelCoord, CAEventData, CAEventType, SimEventData, SimTable, ObjectType } from "@tenet-utils/src/Types.sol";
 import { getOppositeDirection } from "@tenet-utils/src/VoxelCoordUtils.sol";
 import { CAEntityReverseMapping, CAEntityReverseMappingTableId, CAEntityReverseMappingData } from "@tenet-base-ca/src/codegen/tables/CAEntityReverseMapping.sol";
 import { Soil } from "@tenet-pokemon-extension/src/codegen/tables/Soil.sol";
 import { Plant } from "@tenet-pokemon-extension/src/codegen/tables/Plant.sol";
 import { PlantStage } from "@tenet-pokemon-extension/src/codegen/Types.sol";
-import { Pokemon, PokemonData, PokemonMove, PokemonType } from "@tenet-pokemon-extension/src/codegen/tables/Pokemon.sol";
+import { Pokemon, PokemonData, PokemonMove } from "@tenet-pokemon-extension/src/codegen/tables/Pokemon.sol";
 import { entityIsSoil, entityIsPlant, entityIsPokemon } from "@tenet-pokemon-extension/src/InteractionUtils.sol";
 import { getCAEntityAtCoord, getCAVoxelType, getCAEntityPositionStrict } from "@tenet-base-ca/src/Utils.sol";
 import { getEntitySimData, transferEnergy } from "@tenet-level1-ca/src/Utils.sol";
 import { isZeroCoord, voxelCoordsAreEqual } from "@tenet-utils/src/VoxelCoordUtils.sol";
+import { MoveData } from "@tenet-pokemon-extension/src/Types.sol";
 import { console } from "forge-std/console.sol";
-
-struct MoveData {
-  uint8 stamina;
-  uint8 damage;
-  uint8 protection;
-  PokemonType moveType;
-}
 
 contract PokemonFightSystem is System {
   function getMovesData() internal pure returns (MoveData[] memory) {
     MoveData[] memory movesData = new MoveData[](13); // the first value is for PokemonMove.None
-    movesData[uint(PokemonMove.Ember)] = MoveData(10, 20, 0, PokemonType.Fire);
-    movesData[uint(PokemonMove.FlameBurst)] = MoveData(20, 40, 0, PokemonType.Fire);
-    movesData[uint(PokemonMove.SmokeScreen)] = MoveData(5, 0, 10, PokemonType.Fire);
-    movesData[uint(PokemonMove.FireShield)] = MoveData(15, 0, 30, PokemonType.Fire);
+    movesData[uint(PokemonMove.Ember)] = MoveData(10, 20, 0, ObjectType.Fire);
+    movesData[uint(PokemonMove.FlameBurst)] = MoveData(20, 40, 0, ObjectType.Fire);
+    movesData[uint(PokemonMove.SmokeScreen)] = MoveData(5, 0, 10, ObjectType.Fire);
+    movesData[uint(PokemonMove.FireShield)] = MoveData(15, 0, 30, ObjectType.Fire);
 
-    movesData[uint(PokemonMove.WaterGun)] = MoveData(10, 20, 0, PokemonType.Water);
-    movesData[uint(PokemonMove.HydroPump)] = MoveData(20, 40, 0, PokemonType.Water);
-    movesData[uint(PokemonMove.Bubble)] = MoveData(5, 0, 10, PokemonType.Water);
-    movesData[uint(PokemonMove.AquaRing)] = MoveData(15, 0, 30, PokemonType.Water);
+    movesData[uint(PokemonMove.WaterGun)] = MoveData(10, 20, 0, ObjectType.Water);
+    movesData[uint(PokemonMove.HydroPump)] = MoveData(20, 40, 0, ObjectType.Water);
+    movesData[uint(PokemonMove.Bubble)] = MoveData(5, 0, 10, ObjectType.Water);
+    movesData[uint(PokemonMove.AquaRing)] = MoveData(15, 0, 30, ObjectType.Water);
 
-    movesData[uint(PokemonMove.VineWhip)] = MoveData(10, 20, 0, PokemonType.Grass);
-    movesData[uint(PokemonMove.SolarBeam)] = MoveData(20, 40, 0, PokemonType.Grass);
-    movesData[uint(PokemonMove.LeechSeed)] = MoveData(5, 0, 10, PokemonType.Grass);
-    movesData[uint(PokemonMove.Synthesis)] = MoveData(15, 0, 30, PokemonType.Grass);
+    movesData[uint(PokemonMove.VineWhip)] = MoveData(10, 20, 0, ObjectType.Grass);
+    movesData[uint(PokemonMove.SolarBeam)] = MoveData(20, 40, 0, ObjectType.Grass);
+    movesData[uint(PokemonMove.LeechSeed)] = MoveData(5, 0, 10, ObjectType.Grass);
+    movesData[uint(PokemonMove.Synthesis)] = MoveData(15, 0, 30, ObjectType.Grass);
     return movesData;
   }
 
@@ -135,29 +129,29 @@ contract PokemonFightSystem is System {
       MoveData[] memory movesData = getMovesData();
       MoveData memory myMoveData = movesData[uint(pokemonData.move)];
       MoveData memory opponentMoveData = movesData[uint(neighbourPokemonData.move)];
-      if (opponentMoveData.damage > 0 && myMoveData.protection > 0) {
-        uint256 damage = calculateDamage(
-          pokemonData.pokemonType,
-          myMoveData,
-          neighbourPokemonData.pokemonType,
-          opponentMoveData
-        );
-        uint256 protection = calculateProtection(
-          pokemonData.pokemonType,
-          myMoveData,
-          neighbourPokemonData.pokemonType,
-          opponentMoveData
-        );
-        pokemonData.lostHealth += (damage - protection);
-      } else if (opponentMoveData.damage > 0) {
-        uint256 damage = calculateDamage(
-          pokemonData.pokemonType,
-          myMoveData,
-          neighbourPokemonData.pokemonType,
-          opponentMoveData
-        );
-        pokemonData.lostHealth += damage;
-      }
+      // if (opponentMoveData.damage > 0 && myMoveData.protection > 0) {
+      //   uint256 damage = calculateDamage(
+      //     pokemonData.pokemonType,
+      //     myMoveData,
+      //     neighbourPokemonData.pokemonType,
+      //     opponentMoveData
+      //   );
+      //   uint256 protection = calculateProtection(
+      //     pokemonData.pokemonType,
+      //     myMoveData,
+      //     neighbourPokemonData.pokemonType,
+      //     opponentMoveData
+      //   );
+      //   pokemonData.lostHealth += (damage - protection);
+      // } else if (opponentMoveData.damage > 0) {
+      //   uint256 damage = calculateDamage(
+      //     pokemonData.pokemonType,
+      //     myMoveData,
+      //     neighbourPokemonData.pokemonType,
+      //     opponentMoveData
+      //   );
+      //   pokemonData.lostHealth += damage;
+      // }
 
       changedEntity = true;
     }
@@ -166,9 +160,9 @@ contract PokemonFightSystem is System {
   }
 
   function calculateDamage(
-    PokemonType myPokemonType,
+    ObjectType myPokemonType,
     MoveData memory myMoveData,
-    PokemonType opponentPokemonType,
+    ObjectType opponentPokemonType,
     MoveData memory opponentMoveData
   ) internal pure returns (uint256) {
     uint256 damage = myMoveData.damage;
@@ -180,9 +174,9 @@ contract PokemonFightSystem is System {
   }
 
   function calculateProtection(
-    PokemonType myPokemonType,
+    ObjectType myPokemonType,
     MoveData memory myMoveData,
-    PokemonType opponentPokemonType,
+    ObjectType opponentPokemonType,
     MoveData memory opponentMoveData
   ) internal pure returns (uint256) {
     uint256 protection = myMoveData.protection;
@@ -193,19 +187,19 @@ contract PokemonFightSystem is System {
     return protection * myPokemonTypeMultiplier * moveTypeMultiplier * randomFactor;
   }
 
-  function getTypeMultiplier(PokemonType moveType, PokemonType neighbourPokemonType) internal pure returns (uint256) {
-    if (moveType == PokemonType.Fire) {
-      if (neighbourPokemonType == PokemonType.Fire) return 100;
-      if (neighbourPokemonType == PokemonType.Water) return 50;
-      if (neighbourPokemonType == PokemonType.Grass) return 200;
-    } else if (moveType == PokemonType.Water) {
-      if (neighbourPokemonType == PokemonType.Fire) return 200;
-      if (neighbourPokemonType == PokemonType.Water) return 100;
-      if (neighbourPokemonType == PokemonType.Grass) return 50;
-    } else if (moveType == PokemonType.Grass) {
-      if (neighbourPokemonType == PokemonType.Fire) return 50;
-      if (neighbourPokemonType == PokemonType.Water) return 200;
-      if (neighbourPokemonType == PokemonType.Grass) return 100;
+  function getTypeMultiplier(ObjectType moveType, ObjectType neighbourPokemonType) internal pure returns (uint256) {
+    if (moveType == ObjectType.Fire) {
+      if (neighbourPokemonType == ObjectType.Fire) return 100;
+      if (neighbourPokemonType == ObjectType.Water) return 50;
+      if (neighbourPokemonType == ObjectType.Grass) return 200;
+    } else if (moveType == ObjectType.Water) {
+      if (neighbourPokemonType == ObjectType.Fire) return 200;
+      if (neighbourPokemonType == ObjectType.Water) return 100;
+      if (neighbourPokemonType == ObjectType.Grass) return 50;
+    } else if (moveType == ObjectType.Grass) {
+      if (neighbourPokemonType == ObjectType.Fire) return 50;
+      if (neighbourPokemonType == ObjectType.Water) return 200;
+      if (neighbourPokemonType == ObjectType.Grass) return 100;
     }
     revert("Invalid move types"); // Revert if none of the valid move types are matched
   }

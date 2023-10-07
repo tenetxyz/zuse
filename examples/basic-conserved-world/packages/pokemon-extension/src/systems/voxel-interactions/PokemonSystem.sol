@@ -5,7 +5,7 @@ import { IWorld } from "@tenet-pokemon-extension/src/codegen/world/IWorld.sol";
 import { IStore } from "@latticexyz/store/src/IStore.sol";
 import { System } from "@latticexyz/world/src/System.sol";
 import { calculateBlockDirection } from "@tenet-utils/src/VoxelCoordUtils.sol";
-import { BlockDirection, VoxelCoord, BodySimData, CAEventData, CAEventType, ObjectType, SimEventData, SimTable } from "@tenet-utils/src/Types.sol";
+import { VoxelEntity, BlockDirection, VoxelCoord, BodySimData, CAEventData, CAEventType, ObjectType, SimEventData, SimTable } from "@tenet-utils/src/Types.sol";
 import { getOppositeDirection } from "@tenet-utils/src/VoxelCoordUtils.sol";
 import { Soil } from "@tenet-pokemon-extension/src/codegen/tables/Soil.sol";
 import { Plant } from "@tenet-pokemon-extension/src/codegen/tables/Plant.sol";
@@ -15,7 +15,7 @@ import { entityIsSoil, entityIsPlant, entityIsPokemon } from "@tenet-pokemon-ext
 import { getCAEntityAtCoord, getCAVoxelType, getCAEntityPositionStrict } from "@tenet-base-ca/src/Utils.sol";
 import { getEntitySimData, transferEnergy } from "@tenet-level1-ca/src/Utils.sol";
 import { isZeroCoord, voxelCoordsAreEqual } from "@tenet-utils/src/VoxelCoordUtils.sol";
-import { MoveData } from "@tenet-pokemon-extension/src/systems/voxel-interactions/PokemonFightSystem.sol";
+import { MoveData } from "@tenet-pokemon-extension/src/Types.sol";
 import { console } from "forge-std/console.sol";
 
 uint256 constant NUM_BLOCKS_FAINTED = 50;
@@ -151,7 +151,7 @@ contract PokemonSystem is System {
       }
 
       foundPokemon = true;
-      (CAEventData memory pokemonCAEventData, pokemonData) = runPokemonMove(
+      (allCAEventData[i], pokemonData) = runPokemonMove(
         callerAddress,
         interactEntity,
         neighbourEntityIds[i],
@@ -159,13 +159,12 @@ contract PokemonSystem is System {
         entitySimData,
         pokemonMove
       );
-      allCAEventData[i] = pokemonCAEventData;
       Pokemon.set(callerAddress, interactEntity, pokemonData);
       hasEvent = true;
       break;
     }
 
-    if(hasEvent){
+    if (hasEvent) {
       entityData = abi.encode(pokemonData);
     }
 

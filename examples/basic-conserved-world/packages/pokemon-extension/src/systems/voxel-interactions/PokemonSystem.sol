@@ -152,6 +152,11 @@ contract PokemonSystem is System {
       changedEntity = true;
     }
 
+    if (entitySimData.health == 0) {
+      console.log("fainted");
+      Pokemon.setLastFaintedBlock(callerAddress, interactEntity, block.number);
+    }
+
     console.logBool(changedEntity);
     return (changedEntity, entityData);
   }
@@ -173,26 +178,8 @@ contract PokemonSystem is System {
     BodySimData memory entitySimData = getEntitySimData(interactEntity);
     PokemonData memory pokemonData = Pokemon.get(callerAddress, interactEntity);
 
-    if (entitySimData.objectType == ObjectType.None) {
-      CAEventData[] memory allCAEventData = new CAEventData[](1);
-      VoxelEntity memory entity = VoxelEntity({ scale: 1, entityId: caEntityToEntity(interactEntity) });
-      VoxelCoord memory coord = getCAEntityPositionStrict(IStore(_world()), interactEntity);
-
-      SimEventData memory setObjectTypeSimEvent = SimEventData({
-        senderTable: SimTable.Object,
-        senderValue: abi.encode(entitySimData.objectType),
-        targetEntity: entity,
-        targetCoord: coord,
-        targetTable: SimTable.Object,
-        targetValue: abi.encode(pokemonData.pokemonType)
-      });
-      console.log("setObjectTypeSimEvent");
-      allCAEventData[0] = CAEventData({
-        eventType: CAEventType.SimEvent,
-        eventData: abi.encode(setObjectTypeSimEvent)
-      });
-      entityData = abi.encode(allCAEventData);
-      return (changedEntity, entityData);
+    if (pokemonMove == PokemonMove.None) {
+      return runDefaultInteraction(interactEntity, entitySimData, pokemonData);
     }
 
     CAEventData[] memory allCAEventData = new CAEventData[](neighbourEntityIds.length);
@@ -236,6 +223,40 @@ contract PokemonSystem is System {
     return (changedEntity, entityData);
   }
 
+  function runDefaultInteraction(
+    address callerAddress,
+    bytes32 interactEntity,
+    BodySimData memory entitySimData,
+    PokemonData memory pokemonData
+  ) internal returns (bool, bytes memory) {
+    if (entitySimData.objectType == ObjectType.None) {
+      CAEventData[] memory allCAEventData = new CAEventData[](1);
+      VoxelEntity memory entity = VoxelEntity({ scale: 1, entityId: caEntityToEntity(interactEntity) });
+      VoxelCoord memory coord = getCAEntityPositionStrict(IStore(_world()), interactEntity);
+
+      SimEventData memory setObjectTypeSimEvent = SimEventData({
+        senderTable: SimTable.Object,
+        senderValue: abi.encode(entitySimData.objectType),
+        targetEntity: entity,
+        targetCoord: coord,
+        targetTable: SimTable.Object,
+        targetValue: abi.encode(pokemonData.pokemonType)
+      });
+      console.log("setObjectTypeSimEvent");
+      allCAEventData[0] = CAEventData({
+        eventType: CAEventType.SimEvent,
+        eventData: abi.encode(setObjectTypeSimEvent)
+      });
+      entityData = abi.encode(allCAEventData);
+      return (changedEntity, entityData);
+    }
+
+    if (entitySimData.health == 0) {
+      console.log("fainted");
+      Pokemon.setLastFaintedBlock(callerAddress, interactEntity, block.number);
+    }
+  }
+
   function runPokemonMove(
     address callerAddress,
     bytes32 interactEntity,
@@ -251,11 +272,7 @@ contract PokemonSystem is System {
 
     if (entitySimData.health == 0) {
       console.log("fainted");
-      pokemonData.lastFaintedBlock = block.number;
-    } else {
-      if (pokemonData.lastFaintedBlock != 0) {
-        pokemonData.lastFaintedBlock = 0;
-      }
+      Pokemon.setLastFaintedBlock(callerAddress, interactEntity, block.number);
     }
 
     if (entitySimData.health == 0 || block.number < pokemonData.lastFaintedBlock + NUM_BLOCKS_FAINTED) {

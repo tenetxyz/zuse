@@ -61,9 +61,7 @@ contract PokemonMindSystem is MindType {
         return false;
       }
     }
-    // if (pokemonData.round == -1) {
-    //   return false;
-    // }
+
     return true;
   }
 

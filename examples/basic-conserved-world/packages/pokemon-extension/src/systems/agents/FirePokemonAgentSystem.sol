@@ -129,69 +129,92 @@ contract FirePokemonAgentSystem is AgentType {
   }
 
   function getInteractionSelectors() public override returns (InteractionSelector[] memory) {
-    InteractionSelector[] memory voxelInteractionSelectors = new InteractionSelector[](12);
+    InteractionSelector[] memory voxelInteractionSelectors = new InteractionSelector[](13);
     voxelInteractionSelectors[0] = InteractionSelector({
+      interactionSelector: IWorld(_world()).pokemon_FirePokemonAgent_defaultEventHandler.selector,
+      interactionName: "Default",
+      interactionDescription: ""
+    });
+    voxelInteractionSelectors[1] = InteractionSelector({
       interactionSelector: IWorld(_world()).pokemon_FirePokemonAgent_emberEventHandler.selector,
       interactionName: "Ember",
       interactionDescription: ""
     });
-    voxelInteractionSelectors[1] = InteractionSelector({
+    voxelInteractionSelectors[2] = InteractionSelector({
       interactionSelector: IWorld(_world()).pokemon_FirePokemonAgent_flameBurstEventHandler.selector,
       interactionName: "Flame Burst",
       interactionDescription: ""
     });
-    voxelInteractionSelectors[2] = InteractionSelector({
+    voxelInteractionSelectors[3] = InteractionSelector({
       interactionSelector: IWorld(_world()).pokemon_FirePokemonAgent_smokeScreenEventHandler.selector,
       interactionName: "Smoke Screen",
       interactionDescription: ""
     });
-    voxelInteractionSelectors[3] = InteractionSelector({
+    voxelInteractionSelectors[4] = InteractionSelector({
       interactionSelector: IWorld(_world()).pokemon_FirePokemonAgent_fireShieldEventHandler.selector,
       interactionName: "Fire Shield",
       interactionDescription: ""
     });
-    voxelInteractionSelectors[4] = InteractionSelector({
+    voxelInteractionSelectors[5] = InteractionSelector({
       interactionSelector: IWorld(_world()).pokemon_FirePokemonAgent_waterGunEventHandler.selector,
       interactionName: "Water Gun",
       interactionDescription: ""
     });
-    voxelInteractionSelectors[5] = InteractionSelector({
+    voxelInteractionSelectors[6] = InteractionSelector({
       interactionSelector: IWorld(_world()).pokemon_FirePokemonAgent_hydroPumpEventHandler.selector,
       interactionName: "Hydro Pump",
       interactionDescription: ""
     });
-    voxelInteractionSelectors[6] = InteractionSelector({
+    voxelInteractionSelectors[7] = InteractionSelector({
       interactionSelector: IWorld(_world()).pokemon_FirePokemonAgent_bubbleEventHandler.selector,
       interactionName: "Bubble",
       interactionDescription: ""
     });
-    voxelInteractionSelectors[7] = InteractionSelector({
+    voxelInteractionSelectors[8] = InteractionSelector({
       interactionSelector: IWorld(_world()).pokemon_FirePokemonAgent_aquaRingEventHandler.selector,
       interactionName: "Aqua Ring",
       interactionDescription: ""
     });
-    voxelInteractionSelectors[8] = InteractionSelector({
+    voxelInteractionSelectors[9] = InteractionSelector({
       interactionSelector: IWorld(_world()).pokemon_FirePokemonAgent_vineWhipEventHandler.selector,
       interactionName: "Vine Whip",
       interactionDescription: ""
     });
-    voxelInteractionSelectors[9] = InteractionSelector({
+    voxelInteractionSelectors[10] = InteractionSelector({
       interactionSelector: IWorld(_world()).pokemon_FirePokemonAgent_solarBeamEventHandler.selector,
       interactionName: "Solar Beam",
       interactionDescription: ""
     });
-    voxelInteractionSelectors[10] = InteractionSelector({
+    voxelInteractionSelectors[11] = InteractionSelector({
       interactionSelector: IWorld(_world()).pokemon_FirePokemonAgent_leechSeedEventHandler.selector,
       interactionName: "Leech Seed",
       interactionDescription: ""
     });
-    voxelInteractionSelectors[11] = InteractionSelector({
+    voxelInteractionSelectors[12] = InteractionSelector({
       interactionSelector: IWorld(_world()).pokemon_FirePokemonAgent_synthesisEventHandler.selector,
       interactionName: "Synthesis",
       interactionDescription: ""
     });
 
     return voxelInteractionSelectors;
+  }
+
+  function defaultEventHandler(
+    bytes32 centerEntityId,
+    bytes32[] memory neighbourEntityIds,
+    bytes32[] memory childEntityIds,
+    bytes32 parentEntity
+  ) public returns (bool, bytes memory) {
+    address callerAddress = super.getCallerAddress();
+    return
+      IWorld(_world()).pokemon_PokemonSystem_eventHandlerPokemon(
+        callerAddress,
+        centerEntityId,
+        neighbourEntityIds,
+        childEntityIds,
+        parentEntity,
+        PokemonMove.None
+      );
   }
 
   function emberEventHandler(

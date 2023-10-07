@@ -3,21 +3,7 @@ import { resolveTableId } from "@latticexyz/config";
 
 export default mudConfig({
   enums: {
-    PokemonMove: [
-      "None",
-      "Ember",
-      "FlameBurst",
-      "SmokeScreen",
-      "FireShield",
-      "WaterGun",
-      "HydroPump",
-      "Bubble",
-      "AquaRing",
-      "VineWhip",
-      "SolarBeam",
-      "LeechSeed",
-      "Synthesis",
-    ],
+    PokemonType: ["Fire", "Water", "Grass"],
   },
   tables: {
     Mass: {
@@ -71,14 +57,26 @@ export default mudConfig({
         stamina: "uint256",
       },
     },
-    Move: {
+    Object: {
       keySchema: {
         callerAddress: "address",
         scale: "uint32",
         entity: "bytes32",
       },
       schema: {
-        move: "PokemonMove",
+        objectType: "PokemonType",
+      },
+    },
+    Action: {
+      keySchema: {
+        callerAddress: "address",
+        scale: "uint32",
+        entity: "bytes32",
+      },
+      schema: {
+        actionType: "PokemonType",
+        stamina: "uint256",
+        onSelf: "bool",
         round: "int32",
       },
     },

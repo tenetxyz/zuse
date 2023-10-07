@@ -14,8 +14,8 @@ string constant SIM_SET_MASS_SIG = "setMass((uint32,bytes32),(int32,int32,int32)
 string constant SIM_SET_ENERGY_SIG = "setEnergy((uint32,bytes32),(int32,int32,int32),uint256,(uint32,bytes32),(int32,int32,int32),uint256)";
 string constant SIM_VELOCITY_CACHE_UPDATE_SIG = "updateVelocityCache((uint32,bytes32))";
 
-string constant SIM_SET_STAMINA_SIG = "setStamina((uint32,bytes32),(int32,int32,int32),uint256,(uint32,bytes32),(int32,int32,int32),uint256)";
-string constant SIM_SET_HEALTH_SIG = "setHealth((uint32,bytes32),(int32,int32,int32),uint256,(uint32,bytes32),(int32,int32,int32),uint256)";
+string constant SIM_SET_STAMINA_FROM_ENERGY_SIG = "setStaminaFromEnergy((uint32,bytes32),(int32,int32,int32),uint256,(uint32,bytes32),(int32,int32,int32),uint256)";
+string constant SIM_SET_HEALTH_FROM_ENERGY_SIG = "setHealthFromEnergy((uint32,bytes32),(int32,int32,int32),uint256,(uint32,bytes32),(int32,int32,int32),uint256)";
 
 // Other constants
 uint256 constant NUM_BLOCKS_BEFORE_REDUCE_VELOCITY = 60;

@@ -14,7 +14,7 @@ import { getVelocity, getTerrainMass, getTerrainEnergy, getTerrainVelocity } fro
 import { console } from "forge-std/console.sol";
 
 contract HealthSystem is SimHandler {
-  function setHealth(
+  function setHealthFromEnergy(
     VoxelEntity memory senderEntity,
     VoxelCoord memory senderCoord,
     uint256 senderEnergy,

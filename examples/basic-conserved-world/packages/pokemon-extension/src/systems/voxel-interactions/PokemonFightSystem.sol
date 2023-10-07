@@ -6,7 +6,7 @@ import { System } from "@latticexyz/world/src/System.sol";
 import { calculateBlockDirection, safeSubtract } from "@tenet-utils/src/VoxelCoordUtils.sol";
 import { BlockDirection, VoxelCoord, VoxelEntity } from "@tenet-utils/src/Types.sol";
 import { getCAEntityPositionStrict } from "@tenet-base-ca/src/Utils.sol";
-import { BlockDirection, BodyPhysicsData, VoxelCoord, CAEventData, CAEventType, SimEventData, SimTable } from "@tenet-utils/src/Types.sol";
+import { BlockDirection, BodySimData, VoxelCoord, CAEventData, CAEventType, SimEventData, SimTable } from "@tenet-utils/src/Types.sol";
 import { getOppositeDirection } from "@tenet-utils/src/VoxelCoordUtils.sol";
 import { CAEntityReverseMapping, CAEntityReverseMappingTableId, CAEntityReverseMappingData } from "@tenet-base-ca/src/codegen/tables/CAEntityReverseMapping.sol";
 import { Soil } from "@tenet-pokemon-extension/src/codegen/tables/Soil.sol";
@@ -15,7 +15,7 @@ import { PlantStage } from "@tenet-pokemon-extension/src/codegen/Types.sol";
 import { Pokemon, PokemonData, PokemonMove, PokemonType } from "@tenet-pokemon-extension/src/codegen/tables/Pokemon.sol";
 import { entityIsSoil, entityIsPlant, entityIsPokemon } from "@tenet-pokemon-extension/src/InteractionUtils.sol";
 import { getCAEntityAtCoord, getCAVoxelType, getCAEntityPositionStrict } from "@tenet-base-ca/src/Utils.sol";
-import { getVoxelBodyPhysicsFromCaller, transferEnergy } from "@tenet-level1-ca/src/Utils.sol";
+import { getEntitySimData, transferEnergy } from "@tenet-level1-ca/src/Utils.sol";
 import { isZeroCoord, voxelCoordsAreEqual } from "@tenet-utils/src/VoxelCoordUtils.sol";
 import { console } from "forge-std/console.sol";
 
@@ -46,9 +46,9 @@ contract PokemonFightSystem is System {
     return movesData;
   }
 
-  function getStaminaCost(PokemonMove move) public pure returns (uint8) {
+  function getMoveData(PokemonMove move) public pure returns (MoveData memory) {
     MoveData[] memory movesData = getMovesData();
-    return movesData[uint(move)].stamina;
+    return movesData[uint(move)];
   }
 
   function battleEndData(
@@ -59,7 +59,7 @@ contract PokemonFightSystem is System {
     if (lostHealth + lostStamina == 0) {
       return new CAEventData[](0);
     }
-    BodyPhysicsData memory bodyPhysicsData = getVoxelBodyPhysicsFromCaller(entityId);
+    BodySimData memory bodyPhysicsData = getEntitySimData(entityId);
     uint256 newEnergy = safeSubtract(bodyPhysicsData.energy, lostHealth + lostStamina);
     CAEntityReverseMappingData memory entityData = CAEntityReverseMapping.get(entityId);
     VoxelEntity memory entity = VoxelEntity({ scale: 1, entityId: entityData.entity });

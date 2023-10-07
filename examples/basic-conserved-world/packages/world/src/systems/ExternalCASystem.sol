@@ -3,13 +3,16 @@ pragma solidity >=0.8.0;
 
 import { IWorld } from "@tenet-world/src/codegen/world/IWorld.sol";
 import { IStore } from "@latticexyz/store/src/IStore.sol";
-import { VoxelCoord, VoxelEntity, BodyPhysicsData } from "@tenet-utils/src/Types.sol";
+import { VoxelCoord, VoxelEntity, BodySimData, ObjectType } from "@tenet-utils/src/Types.sol";
 import { ExternalCASystem as ExternalCAPrototype } from "@tenet-base-world/src/prototypes/ExternalCASystem.sol";
 import { getVoxelCoordStrict as utilGetVoxelCoordStrict } from "@tenet-base-world/src/Utils.sol";
 import { REGISTRY_ADDRESS, SIMULATOR_ADDRESS } from "@tenet-world/src/Constants.sol";
 import { Mass } from "@tenet-simulator/src/codegen/tables/Mass.sol";
 import { Energy } from "@tenet-simulator/src/codegen/tables/Energy.sol";
 import { Velocity } from "@tenet-simulator/src/codegen/tables/Velocity.sol";
+import { Health } from "@tenet-simulator/src/codegen/tables/Health.sol";
+import { Stamina } from "@tenet-simulator/src/codegen/tables/Stamina.sol";
+import { Object } from "@tenet-simulator/src/codegen/tables/Object.sol";
 
 contract ExternalCASystem is ExternalCAPrototype {
   function getVoxelTypeId(VoxelEntity memory entity) public view override returns (bytes32) {
@@ -24,7 +27,7 @@ contract ExternalCASystem is ExternalCAPrototype {
     return Energy.get(IStore(SIMULATOR_ADDRESS), _world(), entity.scale, entity.entityId);
   }
 
-  function getEntityBodyPhysics(VoxelEntity memory entity) public view returns (BodyPhysicsData memory) {
+  function getEntitySimData(VoxelEntity memory entity) public view returns (BodySimData memory) {
     uint256 energy = Energy.get(IStore(SIMULATOR_ADDRESS), _world(), entity.scale, entity.entityId);
     uint256 mass = Mass.get(IStore(SIMULATOR_ADDRESS), _world(), entity.scale, entity.entityId);
     bytes memory velocity = Velocity.getVelocity(IStore(SIMULATOR_ADDRESS), _world(), entity.scale, entity.entityId);
@@ -34,8 +37,20 @@ contract ExternalCASystem is ExternalCAPrototype {
       entity.scale,
       entity.entityId
     );
+    uint256 health = Health.get(IStore(SIMULATOR_ADDRESS), _world(), entity.scale, entity.entityId);
+    uint256 stamina = Stamina.get(IStore(SIMULATOR_ADDRESS), _world(), entity.scale, entity.entityId);
+    ObjectType objectType = Object.get(IStore(SIMULATOR_ADDRESS), _world(), entity.scale, entity.entityId);
 
-    return BodyPhysicsData({ energy: energy, mass: mass, velocity: velocity, lastUpdateBlock: lastUpdateBlock });
+    return
+      BodySimData({
+        energy: energy,
+        mass: mass,
+        velocity: velocity,
+        lastUpdateBlock: lastUpdateBlock,
+        health: health,
+        stamina: stamina,
+        objectType: objectType
+      });
   }
 
   function shouldRunInteractionForNeighbour(

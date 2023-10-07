@@ -3,7 +3,7 @@ pragma solidity >=0.8.0;
 
 import { IStore } from "@latticexyz/store/src/IStore.sol";
 import { VoxelInteraction } from "@tenet-base-ca/src/prototypes/VoxelInteraction.sol";
-import { VoxelEntity, BlockDirection, BodyPhysicsData, CAEventData, CAEventType, SimEventData, SimTable, VoxelCoord } from "@tenet-utils/src/Types.sol";
+import { VoxelEntity, BlockDirection, BodySimData, CAEventData, CAEventType, SimEventData, SimTable, VoxelCoord } from "@tenet-utils/src/Types.sol";
 import { getOppositeDirection } from "@tenet-utils/src/VoxelCoordUtils.sol";
 import { Soil } from "@tenet-pokemon-extension/src/codegen/tables/Soil.sol";
 import { CAEntityReverseMapping, CAEntityReverseMappingTableId, CAEntityReverseMappingData } from "@tenet-base-ca/src/codegen/tables/CAEntityReverseMapping.sol";
@@ -11,7 +11,7 @@ import { Plant, PlantData } from "@tenet-pokemon-extension/src/codegen/tables/Pl
 import { PlantStage } from "@tenet-pokemon-extension/src/codegen/Types.sol";
 import { entityIsSoil, entityIsPlant, entityIsPokemon } from "@tenet-pokemon-extension/src/InteractionUtils.sol";
 import { getCAEntityAtCoord, getCAVoxelType, getCAEntityPositionStrict } from "@tenet-base-ca/src/Utils.sol";
-import { getVoxelBodyPhysicsFromCaller, transferEnergy } from "@tenet-level1-ca/src/Utils.sol";
+import { getEntitySimData, transferEnergy } from "@tenet-level1-ca/src/Utils.sol";
 import { console } from "forge-std/console.sol";
 
 uint256 constant ENERGY_REQUIRED_FOR_SPROUT = 10;
@@ -29,18 +29,18 @@ contract PlantSystem is VoxelInteraction {
       return (changedEntity, entityData);
     }
 
-    BodyPhysicsData memory entityBodyPhysics = getVoxelBodyPhysicsFromCaller(neighbourEntityId);
+    BodySimData memory entitySimData = getEntitySimData(neighbourEntityId);
     PlantData memory plantData = Plant.get(callerAddress, neighbourEntityId);
     PlantStage oldPlantStage = plantData.stage;
 
-    updatePlantStage(neighbourEntityId, entityBodyPhysics, plantData, entityData);
+    updatePlantStage(neighbourEntityId, entitySimData, plantData, entityData);
     if (plantData.stage != oldPlantStage) {
       changedEntity = true;
       return (changedEntity, entityData);
     }
 
     if (plantData.stage == PlantStage.Sprout) {
-      uint256 transferEnergyToSeed = getEnergyToPlant(entityBodyPhysics.energy);
+      uint256 transferEnergyToSeed = getEnergyToPlant(entitySimData.energy);
       if (transferEnergyToSeed == 0) {
         return (changedEntity, entityData);
       }
@@ -50,7 +50,7 @@ contract PlantSystem is VoxelInteraction {
 
       changedEntity = true;
     } else if (plantData.stage == PlantStage.Flower) {
-      uint256 transferEnergyToPokemon = getEnergyToPokemon(entityBodyPhysics.energy);
+      uint256 transferEnergyToPokemon = getEnergyToPokemon(entitySimData.energy);
       if (transferEnergyToPokemon == 0) {
         return (changedEntity, entityData);
       }
@@ -76,10 +76,10 @@ contract PlantSystem is VoxelInteraction {
     if (block.number == lastInteractionBlock) {
       return (changedEntity, entityData);
     }
-    BodyPhysicsData memory entityBodyPhysics = getVoxelBodyPhysicsFromCaller(interactEntity);
+    BodySimData memory entitySimData = getEntitySimData(interactEntity);
     PlantData memory plantData = Plant.get(callerAddress, interactEntity);
 
-    (plantData, changedEntity, entityData) = updatePlantStage(interactEntity, entityBodyPhysics, plantData, entityData);
+    (plantData, changedEntity, entityData) = updatePlantStage(interactEntity, entitySimData, plantData, entityData);
     if (entityData.length > 0) {
       plantData.lastInteractionBlock = block.number;
       Plant.set(callerAddress, interactEntity, plantData);
@@ -96,7 +96,7 @@ contract PlantSystem is VoxelInteraction {
         interactEntity,
         neighbourEntityIds,
         neighbourEntityDirections,
-        entityBodyPhysics,
+        entitySimData,
         plantData
       );
     } else if (plantData.stage == PlantStage.Flower) {
@@ -105,7 +105,7 @@ contract PlantSystem is VoxelInteraction {
         interactEntity,
         neighbourEntityIds,
         neighbourEntityDirections,
-        entityBodyPhysics,
+        entitySimData,
         plantData
       );
     }
@@ -173,12 +173,12 @@ contract PlantSystem is VoxelInteraction {
     bytes32 interactEntity,
     bytes32[] memory neighbourEntityIds,
     BlockDirection[] memory neighbourEntityDirections,
-    BodyPhysicsData memory entityBodyPhysics,
+    BodySimData memory entitySimData,
     PlantData memory plantData
   ) internal returns (PlantData memory, CAEventData[] memory, bool) {
     CAEventData[] memory allCAEventData = new CAEventData[](neighbourEntityIds.length);
 
-    uint256 transferEnergyToSeed = getEnergyToPlant(entityBodyPhysics.energy);
+    uint256 transferEnergyToSeed = getEnergyToPlant(entitySimData.energy);
     if (transferEnergyToSeed == 0) {
       return (plantData, allCAEventData, false);
     }
@@ -199,7 +199,7 @@ contract PlantSystem is VoxelInteraction {
       if (isValidPlantNeighbour(callerAddress, neighbourEntityIds[i], neighbourEntityDirections[i])) {
         VoxelCoord memory neighbourCoord = getCAEntityPositionStrict(IStore(_world()), neighbourEntityIds[i]);
         uint256 transferAmount = transferEnergyToSeed / numSeedNeighbours;
-        allCAEventData[i] = transferEnergy(entityBodyPhysics, neighbourEntityIds[i], neighbourCoord, transferAmount);
+        allCAEventData[i] = transferEnergy(entitySimData, neighbourEntityIds[i], neighbourCoord, transferAmount);
         if (transferAmount > 0) {
           hasTransfer = true;
         }
@@ -234,12 +234,12 @@ contract PlantSystem is VoxelInteraction {
     bytes32 interactEntity,
     bytes32[] memory neighbourEntityIds,
     BlockDirection[] memory neighbourEntityDirections,
-    BodyPhysicsData memory entityBodyPhysics,
+    BodySimData memory entitySimData,
     PlantData memory plantData
   ) internal returns (PlantData memory, CAEventData[] memory, bool) {
     CAEventData[] memory allCAEventData = new CAEventData[](neighbourEntityIds.length * 2);
 
-    uint harvestPlantEnergy = getEnergyToPokemon(entityBodyPhysics.energy);
+    uint harvestPlantEnergy = getEnergyToPokemon(entitySimData.energy);
     if (harvestPlantEnergy == 0) {
       return (plantData, allCAEventData, false);
     }
@@ -300,7 +300,7 @@ contract PlantSystem is VoxelInteraction {
 
   function dieData(
     bytes32 interactEntity,
-    BodyPhysicsData memory bodyPhysicsData
+    BodySimData memory bodyPhysicsData
   ) internal view returns (CAEventData[] memory) {
     CAEventData[] memory allCAEventData = new CAEventData[](2);
     CAEntityReverseMappingData memory entityData = CAEntityReverseMapping.get(interactEntity);
@@ -330,19 +330,19 @@ contract PlantSystem is VoxelInteraction {
 
   function updatePlantStage(
     bytes32 interactEntity,
-    BodyPhysicsData memory entityBodyPhysics,
+    BodySimData memory entitySimData,
     PlantData memory plantData,
     bytes memory entityData
   ) internal view returns (PlantData memory, bool changedEntity, bytes memory) {
-    if (entityBodyPhysics.energy < ENERGY_REQUIRED_FOR_SPROUT) {
+    if (entitySimData.energy < ENERGY_REQUIRED_FOR_SPROUT) {
       if (plantData.stage == PlantStage.Sprout) {
         plantData.stage = PlantStage.Seed;
-        entityData = abi.encode(dieData(interactEntity, entityBodyPhysics));
+        entityData = abi.encode(dieData(interactEntity, entitySimData));
       } else if (plantData.stage == PlantStage.Flower) {
         plantData.stage = PlantStage.Seed;
       }
     } else if (
-      entityBodyPhysics.energy >= ENERGY_REQUIRED_FOR_SPROUT && entityBodyPhysics.energy < ENERGY_REQUIRED_FOR_FLOWER
+      entitySimData.energy >= ENERGY_REQUIRED_FOR_SPROUT && entitySimData.energy < ENERGY_REQUIRED_FOR_FLOWER
     ) {
       if (plantData.stage == PlantStage.Seed) {
         plantData.stage = PlantStage.Sprout;

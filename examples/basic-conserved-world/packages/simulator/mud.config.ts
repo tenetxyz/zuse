@@ -3,7 +3,7 @@ import { resolveTableId } from "@latticexyz/config";
 
 export default mudConfig({
   enums: {
-    PokemonType: ["Fire", "Water", "Grass"],
+    ObjectType: ["None", "Fire", "Water", "Grass"],
   },
   tables: {
     Mass: {
@@ -64,7 +64,7 @@ export default mudConfig({
         entity: "bytes32",
       },
       schema: {
-        objectType: "PokemonType",
+        objectType: "ObjectType",
       },
     },
     Action: {
@@ -74,7 +74,7 @@ export default mudConfig({
         entity: "bytes32",
       },
       schema: {
-        actionType: "PokemonType",
+        actionType: "ObjectType",
         stamina: "uint256",
         onSelf: "bool",
         round: "int32",

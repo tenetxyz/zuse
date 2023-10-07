@@ -12,8 +12,8 @@ import { isStringEqual } from "@tenet-utils/src/StringUtils.sol";
 import { Pokemon, PokemonData, PokemonMove } from "@tenet-pokemon-extension/src/codegen/tables/Pokemon.sol";
 import { entityIsSoil, entityIsPlant, entityIsPokemon } from "@tenet-pokemon-extension/src/InteractionUtils.sol";
 import { console } from "forge-std/console.sol";
-import { getVoxelBodyPhysicsFromCaller, transferEnergy } from "@tenet-level1-ca/src/Utils.sol";
-import { BlockDirection, BodyPhysicsData, VoxelCoord } from "@tenet-utils/src/Types.sol";
+import { getEntitySimData, transferEnergy } from "@tenet-level1-ca/src/Utils.sol";
+import { BlockDirection, BodySimData, VoxelCoord } from "@tenet-utils/src/Types.sol";
 import { isZeroCoord, voxelCoordsAreEqual } from "@tenet-utils/src/VoxelCoordUtils.sol";
 
 contract PokemonMindSystem is MindType {
@@ -46,8 +46,8 @@ contract PokemonMindSystem is MindType {
   }
 
   function canFight(address callerAddress, bytes32 pokemonEntityId) public view returns (bool) {
-    BodyPhysicsData memory entityBodyPhysics = getVoxelBodyPhysicsFromCaller(pokemonEntityId);
-    VoxelCoord memory currentVelocity = abi.decode(entityBodyPhysics.velocity, (VoxelCoord));
+    BodySimData memory entitySimData = getEntitySimData(pokemonEntityId);
+    VoxelCoord memory currentVelocity = abi.decode(entitySimData.velocity, (VoxelCoord));
     if (!isZeroCoord(currentVelocity)) {
       return false;
     }

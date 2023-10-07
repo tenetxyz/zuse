@@ -3,14 +3,14 @@ pragma solidity >=0.8.0;
 
 import { IStore } from "@latticexyz/store/src/IStore.sol";
 import { VoxelInteraction } from "@tenet-base-ca/src/prototypes/VoxelInteraction.sol";
-import { BlockDirection, BodyPhysicsData, CAEventData, CAEventType, SimEventData, SimTable, VoxelCoord } from "@tenet-utils/src/Types.sol";
+import { BlockDirection, BodySimData, CAEventData, CAEventType, SimEventData, SimTable, VoxelCoord } from "@tenet-utils/src/Types.sol";
 import { getOppositeDirection } from "@tenet-utils/src/VoxelCoordUtils.sol";
 import { Soil } from "@tenet-pokemon-extension/src/codegen/tables/Soil.sol";
 import { Plant } from "@tenet-pokemon-extension/src/codegen/tables/Plant.sol";
 import { PlantStage } from "@tenet-pokemon-extension/src/codegen/Types.sol";
 import { entityIsSoil, entityIsPlant } from "@tenet-pokemon-extension/src/InteractionUtils.sol";
 import { getCAEntityAtCoord, getCAVoxelType, getCAEntityPositionStrict } from "@tenet-base-ca/src/Utils.sol";
-import { getVoxelBodyPhysicsFromCaller, transferEnergy } from "@tenet-level1-ca/src/Utils.sol";
+import { getEntitySimData, transferEnergy } from "@tenet-level1-ca/src/Utils.sol";
 import { console } from "forge-std/console.sol";
 
 contract SoilSystem is VoxelInteraction {
@@ -25,9 +25,9 @@ contract SoilSystem is VoxelInteraction {
       return (changedEntity, entityData);
     }
 
-    BodyPhysicsData memory entityBodyPhysics = getVoxelBodyPhysicsFromCaller(neighbourEntityId);
-    uint256 transferEnergyToSoil = getEnergyToSoil(entityBodyPhysics.energy);
-    uint256 transferEnergyToPlant = getEnergyToPlant(entityBodyPhysics.energy);
+    BodySimData memory entitySimData = getEntitySimData(neighbourEntityId);
+    uint256 transferEnergyToSoil = getEnergyToSoil(entitySimData.energy);
+    uint256 transferEnergyToPlant = getEnergyToPlant(entitySimData.energy);
     if (transferEnergyToSoil == 0 && transferEnergyToPlant == 0) {
       return (changedEntity, entityData);
     }
@@ -80,13 +80,13 @@ contract SoilSystem is VoxelInteraction {
       return (changedEntity, entityData);
     }
 
-    BodyPhysicsData memory entityBodyPhysics = getVoxelBodyPhysicsFromCaller(interactEntity);
+    BodySimData memory entitySimData = getEntitySimData(interactEntity);
     entityData = getEntityData(
       callerAddress,
       interactEntity,
       neighbourEntityIds,
       neighbourEntityDirections,
-      entityBodyPhysics
+      entitySimData
     );
 
     // Note: we don't need to set changedEntity to true, because we don't need another event
@@ -123,10 +123,10 @@ contract SoilSystem is VoxelInteraction {
     bytes32 interactEntity,
     bytes32[] memory neighbourEntityIds,
     BlockDirection[] memory neighbourEntityDirections,
-    BodyPhysicsData memory entityBodyPhysics
+    BodySimData memory entitySimData
   ) internal returns (bytes memory) {
-    uint256 transferEnergyToSoil = getEnergyToSoil(entityBodyPhysics.energy);
-    uint256 transferEnergyToPlant = getEnergyToPlant(entityBodyPhysics.energy);
+    uint256 transferEnergyToSoil = getEnergyToSoil(entitySimData.energy);
+    uint256 transferEnergyToPlant = getEnergyToPlant(entitySimData.energy);
     if (transferEnergyToSoil == 0 && transferEnergyToPlant == 0) {
       return new bytes(0);
     }
@@ -148,22 +148,12 @@ contract SoilSystem is VoxelInteraction {
       // Check if the neighbor is a Soil, Seed, or Young Plant cell
       if (entityIsSoil(callerAddress, neighbourEntityIds[i])) {
         uint256 energyTransferAmount = transferEnergyToSoil / numSoilNeighbours;
-        allCAEventData[i] = transferEnergy(
-          entityBodyPhysics,
-          neighbourEntityIds[i],
-          neighbourCoord,
-          energyTransferAmount
-        );
+        allCAEventData[i] = transferEnergy(entitySimData, neighbourEntityIds[i], neighbourCoord, energyTransferAmount);
         if (energyTransferAmount > 0) {
           hasTransfer = true;
         }
       } else if (isValidPlantNeighbour(callerAddress, neighbourEntityIds[i], neighbourEntityDirections[i])) {
-        allCAEventData[i] = transferEnergy(
-          entityBodyPhysics,
-          neighbourEntityIds[i],
-          neighbourCoord,
-          transferEnergyToPlant
-        );
+        allCAEventData[i] = transferEnergy(entitySimData, neighbourEntityIds[i], neighbourCoord, transferEnergyToPlant);
         if (transferEnergyToPlant > 0) {
           hasTransfer = true;
         }

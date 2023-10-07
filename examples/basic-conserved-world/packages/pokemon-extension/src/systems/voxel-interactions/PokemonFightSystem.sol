@@ -53,15 +53,15 @@ contract PokemonFightSystem is System {
     if (lostHealth + lostStamina == 0) {
       return new CAEventData[](0);
     }
-    BodySimData memory bodyPhysicsData = getEntitySimData(entityId);
-    uint256 newEnergy = safeSubtract(bodyPhysicsData.energy, lostHealth + lostStamina);
+    BodySimData memory entitySimData = getEntitySimData(entityId);
+    uint256 newEnergy = safeSubtract(entitySimData.energy, lostHealth + lostStamina);
     CAEntityReverseMappingData memory entityData = CAEntityReverseMapping.get(entityId);
     VoxelEntity memory entity = VoxelEntity({ scale: 1, entityId: entityData.entity });
     VoxelCoord memory coord = getCAEntityPositionStrict(IStore(_world()), entityId);
     CAEventData[] memory allCAEventData = new CAEventData[](1);
     SimEventData memory energyEventData = SimEventData({
       senderTable: SimTable.Energy,
-      senderValue: abi.encode(bodyPhysicsData.energy),
+      senderValue: abi.encode(entitySimData.energy),
       targetEntity: entity,
       targetCoord: coord,
       targetTable: SimTable.Energy,
@@ -80,55 +80,64 @@ contract PokemonFightSystem is System {
     if (!entityIsPokemon(callerAddress, neighbourEntity)) {
       return (changedEntity, entityData, pokemonData);
     }
+    BodySimData memory entitySimData = getEntitySimData(interactEntity);
+    BodySimData memory neighbourEntitySimData = getEntitySimData(neighbourEntity);
 
-    PokemonData memory neighbourPokemonData = Pokemon.get(callerAddress, neighbourEntity);
-    if (neighbourPokemonData.round == -1) {
-      // This means battle is over, the neighbour pokemon is dead
-      pokemonData.round = 0;
-      pokemonData.move = PokemonMove.None;
-      pokemonData.health = safeSubtract(pokemonData.health, pokemonData.lostHealth);
-      pokemonData.stamina = safeSubtract(pokemonData.stamina, pokemonData.lostStamina);
-      entityData = abi.encode(battleEndData(interactEntity, pokemonData.lostHealth, pokemonData.lostStamina));
-      pokemonData.lostHealth = 0;
-      pokemonData.lostStamina = 0;
-      pokemonData.lastUpdatedBlock = block.number;
+    // PokemonData memory neighbourPokemonData = Pokemon.get(callerAddress, neighbourEntity);
+    // if (neighbourPokemonData.round == -1) {
+    //   // This means battle is over, the neighbour pokemon is dead
+    //   pokemonData.round = 0;
+    //   pokemonData.move = PokemonMove.None;
+    //   pokemonData.health = safeSubtract(pokemonData.health, pokemonData.lostHealth);
+    //   pokemonData.stamina = safeSubtract(pokemonData.stamina, pokemonData.lostStamina);
+    //   entityData = abi.encode(battleEndData(interactEntity, pokemonData.lostHealth, pokemonData.lostStamina));
+    //   pokemonData.lostHealth = 0;
+    //   pokemonData.lostStamina = 0;
+    //   pokemonData.lastUpdatedBlock = block.number;
 
-      return (changedEntity, entityData, pokemonData);
-    }
+    //   return (changedEntity, entityData, pokemonData);
+    // }
 
-    if (pokemonData.move == PokemonMove.None && neighbourPokemonData.move != PokemonMove.None) {
+    if (
+      entitySimData.actionData.actionType == ObjectType.None &&
+      neighbourEntitySimData.actionData.actionType != ObjectType.None
+    ) {
+      // TODO: check actionEntity matches? We need this if we want multiple pokemon to be able to fight at the same time
       changedEntity = true;
       return (changedEntity, entityData, pokemonData);
     }
 
-    if (pokemonData.lostHealth >= pokemonData.health || pokemonData.lostStamina >= pokemonData.stamina) {
-      // pokemon is fainted
-      pokemonData.round = -1;
-      pokemonData.move = PokemonMove.None;
-      pokemonData.health = safeSubtract(pokemonData.health, pokemonData.lostHealth);
-      pokemonData.stamina = safeSubtract(pokemonData.stamina, pokemonData.lostStamina);
-      entityData = abi.encode(battleEndData(interactEntity, pokemonData.lostHealth, pokemonData.lostStamina));
-      pokemonData.lostHealth = 0;
-      pokemonData.lostStamina = 0;
-      pokemonData.lastUpdatedBlock = block.number;
+    // if (pokemonData.lostHealth >= pokemonData.health || pokemonData.lostStamina >= pokemonData.stamina) {
+    //   // pokemon is fainted
+    //   pokemonData.round = -1;
+    //   pokemonData.move = PokemonMove.None;
+    //   pokemonData.health = safeSubtract(pokemonData.health, pokemonData.lostHealth);
+    //   pokemonData.stamina = safeSubtract(pokemonData.stamina, pokemonData.lostStamina);
+    //   entityData = abi.encode(battleEndData(interactEntity, pokemonData.lostHealth, pokemonData.lostStamina));
+    //   pokemonData.lostHealth = 0;
+    //   pokemonData.lostStamina = 0;
+    //   pokemonData.lastUpdatedBlock = block.number;
 
-      if (neighbourPokemonData.round != -1) {
-        changedEntity = true;
-      }
+    //   if (neighbourPokemonData.round != -1) {
+    //     changedEntity = true;
+    //   }
 
-      return (changedEntity, entityData, pokemonData);
-    }
+    //   return (changedEntity, entityData, pokemonData);
+    // }
 
-    if (pokemonData.move != PokemonMove.None && neighbourPokemonData.move != PokemonMove.None) {
-      if (pokemonData.round != neighbourPokemonData.round) {
+    if (
+      entitySimData.actionData.actionType != ObjectType.None &&
+      neighbourEntitySimData.actionData.actionType != ObjectType.None
+    ) {
+      if (entitySimData.actionData.round != neighbourEntitySimData.actionData.round) {
         changedEntity = true;
         return (changedEntity, entityData, pokemonData);
       }
 
       // Calculate damage
-      MoveData[] memory movesData = getMovesData();
-      MoveData memory myMoveData = movesData[uint(pokemonData.move)];
-      MoveData memory opponentMoveData = movesData[uint(neighbourPokemonData.move)];
+      // MoveData[] memory movesData = getMovesData();
+      // MoveData memory myMoveData = movesData[uint(pokemonData.move)];
+      // MoveData memory opponentMoveData = movesData[uint(neighbourPokemonData.move)];
       // if (opponentMoveData.damage > 0 && myMoveData.protection > 0) {
       //   uint256 damage = calculateDamage(
       //     pokemonData.pokemonType,
@@ -153,7 +162,7 @@ contract PokemonFightSystem is System {
       //   pokemonData.lostHealth += damage;
       // }
 
-      changedEntity = true;
+      // changedEntity = true;
     }
 
     return (changedEntity, entityData, pokemonData);

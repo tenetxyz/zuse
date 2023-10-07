@@ -137,11 +137,19 @@ struct BodySimData {
   uint256 health;
   uint256 stamina;
   ObjectType objectType;
+  ActionData actionData;
 }
 
 enum ValueType {
   Uint256,
   ObjectType
+}
+
+struct ActionData {
+  ObjectType actionType;
+  uint256 stamina;
+  bool onSelf;
+  int32 round;
 }
 
 struct CreationSpawns {

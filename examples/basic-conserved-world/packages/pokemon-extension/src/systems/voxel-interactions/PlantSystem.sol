@@ -301,7 +301,7 @@ contract PlantSystem is VoxelInteraction {
 
   function dieData(
     bytes32 interactEntity,
-    BodySimData memory bodyPhysicsData
+    BodySimData memory entitySimData
   ) internal view returns (CAEventData[] memory) {
     CAEventData[] memory allCAEventData = new CAEventData[](2);
     CAEntityReverseMappingData memory entityData = CAEntityReverseMapping.get(interactEntity);
@@ -310,7 +310,7 @@ contract PlantSystem is VoxelInteraction {
 
     SimEventData memory energyEventData = SimEventData({
       senderTable: SimTable.Energy,
-      senderValue: abi.encode(bodyPhysicsData.energy),
+      senderValue: abi.encode(entitySimData.energy),
       targetEntity: entity,
       targetCoord: coord,
       targetTable: SimTable.Energy,
@@ -319,7 +319,7 @@ contract PlantSystem is VoxelInteraction {
     allCAEventData[0] = CAEventData({ eventType: CAEventType.SimEvent, eventData: abi.encode(energyEventData) });
     SimEventData memory massEventData = SimEventData({
       senderTable: SimTable.Mass,
-      senderValue: abi.encode(bodyPhysicsData.mass),
+      senderValue: abi.encode(entitySimData.mass),
       targetEntity: entity,
       targetCoord: coord,
       targetTable: SimTable.Mass,

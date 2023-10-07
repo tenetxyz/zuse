@@ -13,6 +13,7 @@ import { Velocity } from "@tenet-simulator/src/codegen/tables/Velocity.sol";
 import { Health } from "@tenet-simulator/src/codegen/tables/Health.sol";
 import { Stamina } from "@tenet-simulator/src/codegen/tables/Stamina.sol";
 import { Object } from "@tenet-simulator/src/codegen/tables/Object.sol";
+import { Action, ActionData } from "@tenet-simulator/src/codegen/tables/Action.sol";
 
 contract ExternalCASystem is ExternalCAPrototype {
   function getVoxelTypeId(VoxelEntity memory entity) public view override returns (bytes32) {
@@ -40,6 +41,7 @@ contract ExternalCASystem is ExternalCAPrototype {
     uint256 health = Health.get(IStore(SIMULATOR_ADDRESS), _world(), entity.scale, entity.entityId);
     uint256 stamina = Stamina.get(IStore(SIMULATOR_ADDRESS), _world(), entity.scale, entity.entityId);
     ObjectType objectType = Object.get(IStore(SIMULATOR_ADDRESS), _world(), entity.scale, entity.entityId);
+    ActionData memory actionData = Action.get(IStore(SIMULATOR_ADDRESS), _world(), entity.scale, entity.entityId);
 
     return
       BodySimData({
@@ -49,7 +51,8 @@ contract ExternalCASystem is ExternalCAPrototype {
         lastUpdateBlock: lastUpdateBlock,
         health: health,
         stamina: stamina,
-        objectType: objectType
+        objectType: objectType,
+        actionData: actionData
       });
   }
 

@@ -121,7 +121,15 @@ contract ActionSystem is SimHandler {
     }
     uint256 newHealth = safeSubtract(Health.get(callerAddress, entity.scale, entity.entityId), lostHealth);
     if (newHealth == 0) {
-      // TODO: Kill entity
+      Action.set(
+        callerAddress,
+        entity.scale,
+        entity.entityId,
+        ObjectType.None,
+        0,
+        0,
+        abi.encode(VoxelEntity({ scale: 0, entityId: bytes32(0) }))
+      );
     }
     Health.set(callerAddress, entity.scale, entity.entityId, newHealth);
   }

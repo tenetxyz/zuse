@@ -186,11 +186,12 @@ contract PokemonSystem is System {
       return (caEventData, pokemonData);
     }
 
-    if (entitySimData.health == 0 && block.number < pokemonData.lastUpdatedBlock + NUM_BLOCKS_FAINTED) {
-      return (caEventData, pokemonData);
-    }
+    // if (entitySimData.health == 0 && block.number < pokemonData.lastUpdatedBlock + NUM_BLOCKS_FAINTED) {
+    //   return (caEventData, pokemonData);
+    // }
 
     if (entitySimData.actionData.actionType != ObjectType.None) {
+      console.log("already got move");
       return (caEventData, pokemonData);
     }
 
@@ -204,6 +205,8 @@ contract PokemonSystem is System {
     VoxelCoord memory targetCoord = isAttack
       ? getCAEntityPositionStrict(IStore(_world()), neighbourEntity)
       : getCAEntityPositionStrict(IStore(_world()), interactEntity);
+
+    console.log("picked move");
 
     SimEventData memory moveEventData = SimEventData({
       senderTable: SimTable.Stamina,

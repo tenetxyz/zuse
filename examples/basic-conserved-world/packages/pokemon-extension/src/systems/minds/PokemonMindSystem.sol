@@ -4,7 +4,7 @@ pragma solidity >=0.8.0;
 import { IWorld } from "@tenet-pokemon-extension/src/codegen/world/IWorld.sol";
 import { IStore } from "@latticexyz/store/src/IStore.sol";
 import { MindType } from "@tenet-base-ca/src/prototypes/MindType.sol";
-import { Mind, VoxelCoord, VoxelEntity, InteractionSelector, CreationMetadata, CreationSpawns } from "@tenet-utils/src/Types.sol";
+import { Mind, VoxelCoord, VoxelEntity, InteractionSelector, CreationMetadata, CreationSpawns, ObjectType } from "@tenet-utils/src/Types.sol";
 import { registerMindIntoRegistry } from "@tenet-registry/src/Utils.sol";
 import { REGISTRY_ADDRESS, FirePokemonVoxelID } from "@tenet-pokemon-extension/src/Constants.sol";
 import { getInteractionSelectors } from "@tenet-registry/src/Utils.sol";
@@ -45,7 +45,7 @@ contract PokemonMindSystem is MindType {
     revert("Selector not found");
   }
 
-  function canFight(address callerAddress, bytes32 pokemonEntityId) public view returns (bool) {
+  function canFight(address callerAddress, bytes32 pokemonEntityId, bool self) public view returns (bool) {
     BodySimData memory entitySimData = getEntitySimData(pokemonEntityId);
     VoxelCoord memory currentVelocity = abi.decode(entitySimData.velocity, (VoxelCoord));
     if (!isZeroCoord(currentVelocity)) {
@@ -54,6 +54,12 @@ contract PokemonMindSystem is MindType {
     // PokemonData memory pokemonData = Pokemon.get(callerAddress, pokemonEntityId);
     if (entitySimData.health == 0 || entitySimData.stamina == 0) {
       return false;
+    }
+
+    if (self) {
+      if (entitySimData.actionData.actionType != ObjectType.None) {
+        return false;
+      }
     }
     // if (pokemonData.round == -1) {
     //   return false;
@@ -87,7 +93,7 @@ contract PokemonMindSystem is MindType {
 
     if (opponentPokemonEntityId != 0) {
       console.log("checking can fight");
-      if (canFight(callerAddress, interactEntity) && canFight(callerAddress, opponentPokemonEntityId)) {
+      if (canFight(callerAddress, interactEntity, true) && canFight(callerAddress, opponentPokemonEntityId, false)) {
         console.log("chosen ember");
         chosenSelector = getSelector(interactionSelectors, "Ember");
       }

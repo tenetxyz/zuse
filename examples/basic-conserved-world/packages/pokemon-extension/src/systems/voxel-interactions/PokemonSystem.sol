@@ -88,12 +88,14 @@ contract PokemonSystem is System {
     PokemonMove pokemonMove
   ) internal returns (bool changedEntity, bytes memory entityData) {
     PokemonData memory pokemonData = Pokemon.get(callerAddress, interactEntity);
+    console.log("pokemon onNewNeighbour");
     (changedEntity, entityData, pokemonData) = IWorld(_world()).pokemon_PokemonFightSyst_runBattleLogic(
       callerAddress,
       interactEntity,
       neighbourEntityId,
       pokemonData
     );
+    console.logBool(changedEntity);
     Pokemon.set(callerAddress, interactEntity, pokemonData);
     return (changedEntity, entityData);
   }
@@ -108,6 +110,8 @@ contract PokemonSystem is System {
     PokemonMove pokemonMove
   ) internal returns (bool changedEntity, bytes memory entityData) {
     changedEntity = false;
+
+    console.log("pokemon runInteraction");
 
     BodySimData memory entitySimData = getEntitySimData(interactEntity);
     PokemonData memory pokemonData = Pokemon.get(callerAddress, interactEntity);
@@ -129,6 +133,7 @@ contract PokemonSystem is System {
         targetTable: SimTable.Object,
         targetValue: abi.encode(ObjectType.Fire)
       });
+      console.log("setObjectTypeSimEvent");
       allCAEventData[0] = CAEventData({
         eventType: CAEventType.SimEvent,
         eventData: abi.encode(setObjectTypeSimEvent)
@@ -151,7 +156,7 @@ contract PokemonSystem is System {
       }
 
       foundPokemon = true;
-      (allCAEventData[i], pokemonData) = runPokemonMove(
+      (allCAEventData[i + 1], pokemonData) = runPokemonMove(
         callerAddress,
         interactEntity,
         neighbourEntityIds[i],
@@ -160,12 +165,15 @@ contract PokemonSystem is System {
         pokemonMove
       );
       Pokemon.set(callerAddress, interactEntity, pokemonData);
-      hasEvent = true;
+      if (allCAEventData[i + 1].eventType != CAEventType.None) {
+        console.log("move event");
+        hasEvent = true;
+      }
       break;
     }
 
     if (hasEvent) {
-      entityData = abi.encode(pokemonData);
+      entityData = abi.encode(allCAEventData);
     }
 
     // Note: we don't need to set changedEntity to true, because we don't need another event

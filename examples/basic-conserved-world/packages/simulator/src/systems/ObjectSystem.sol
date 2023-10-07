@@ -33,11 +33,9 @@ contract ObjectSystem is SimHandler {
     ObjectType receiverObjectType
   ) public {
     address callerAddress = super.getCallerAddress();
-    bool entityExists = hasKey(
-      ObjectTableId,
-      Object.encodeKeyTuple(callerAddress, receiverEntity.scale, receiverEntity.entityId)
-    );
-    require(!entityExists, "Object type already set");
+    // Note: if the entity does not exist, it will have an empty type
+    ObjectType currentType = Object.get(callerAddress, receiverEntity.scale, receiverEntity.entityId);
+    require(currentType == ObjectType.None, "Object type already set");
     if (isEntityEqual(senderEntity, receiverEntity)) {
       Object.set(callerAddress, receiverEntity.scale, receiverEntity.entityId, receiverObjectType);
     } else {

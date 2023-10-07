@@ -28,7 +28,10 @@ function shardCoordToCoord(VoxelCoord memory coord) pure returns (VoxelCoord mem
 }
 
 function getEntitySimData(bytes32 caEntity) view returns (BodySimData memory) {
+  console.log("getEntitySimData");
+  console.logBytes32(caEntity);
   CAEntityReverseMappingData memory entityData = CAEntityReverseMapping.get(caEntity);
+  console.logBytes32(entityData.entity);
   VoxelEntity memory entity = VoxelEntity({ scale: 1, entityId: entityData.entity });
   bytes memory returnData = safeStaticCall(
     entityData.callerAddress,

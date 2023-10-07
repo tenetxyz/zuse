@@ -89,6 +89,7 @@ contract PokemonSystem is System {
   ) internal returns (bool changedEntity, bytes memory entityData) {
     PokemonData memory pokemonData = Pokemon.get(callerAddress, interactEntity);
     console.log("pokemon onNewNeighbour");
+    console.logBytes32(interactEntity);
     (changedEntity, entityData, pokemonData) = IWorld(_world()).pokemon_PokemonFightSyst_runBattleLogic(
       callerAddress,
       interactEntity,
@@ -112,6 +113,7 @@ contract PokemonSystem is System {
     changedEntity = false;
 
     console.log("pokemon runInteraction");
+    console.logBytes32(interactEntity);
 
     BodySimData memory entitySimData = getEntitySimData(interactEntity);
     PokemonData memory pokemonData = Pokemon.get(callerAddress, interactEntity);

@@ -54,6 +54,8 @@ contract ActionSystem is SimHandler {
       );
     }
     // int32 currentRound = Action.getRound(callerAddress, senderEntity.scale, senderEntity.entityId);
+    console.log("action set");
+    console.logBytes32(senderEntity.entityId);
     Action.set(
       callerAddress,
       senderEntity.scale,
@@ -74,80 +76,104 @@ contract ActionSystem is SimHandler {
         continue;
       }
       VoxelEntity memory neighbourEntity = VoxelEntity({ scale: senderEntity.scale, entityId: neighbourEntities[i] });
-      updateHealth(callerAddress, senderEntity, neighbourEntity);
-      updateHealth(callerAddress, neighbourEntity, senderEntity);
+      bool updatedSender = updateHealth(callerAddress, senderEntity, neighbourEntity);
+      bool updatedNeighbour = updateHealth(callerAddress, neighbourEntity, senderEntity);
+      require((!updatedSender && !updatedSender) || (updatedSender && updatedNeighbour), "Health mismatch");
 
       // set action type to None
-      Action.set(
-        callerAddress,
-        senderEntity.scale,
-        senderEntity.entityId,
-        ObjectType.None,
-        0,
-        0,
-        abi.encode(VoxelEntity({ scale: 0, entityId: bytes32(0) }))
-      );
-      Action.set(
-        callerAddress,
-        neighbourEntity.scale,
-        neighbourEntity.entityId,
-        ObjectType.None,
-        0,
-        0,
-        abi.encode(VoxelEntity({ scale: 0, entityId: bytes32(0) }))
-      );
+      if (updatedSender) {
+        Action.set(
+          callerAddress,
+          senderEntity.scale,
+          senderEntity.entityId,
+          ObjectType.None,
+          0,
+          0,
+          abi.encode(VoxelEntity({ scale: 0, entityId: bytes32(0) }))
+        );
+      }
+      if (updatedNeighbour) {
+        Action.set(
+          callerAddress,
+          neighbourEntity.scale,
+          neighbourEntity.entityId,
+          ObjectType.None,
+          0,
+          0,
+          abi.encode(VoxelEntity({ scale: 0, entityId: bytes32(0) }))
+        );
+      }
     }
-
-    // if (newStamina == 0) {}
   }
 
-  function updateHealth(address callerAddress, VoxelEntity memory entity, VoxelEntity memory neighbourEntity) internal {
+  function updateHealth(
+    address callerAddress,
+    VoxelEntity memory entity,
+    VoxelEntity memory neighbourEntity
+  ) internal returns (bool) {
     ObjectType objectType = Object.get(callerAddress, entity.scale, entity.entityId);
     ObjectType neighbourObjectType = Object.get(callerAddress, neighbourEntity.scale, neighbourEntity.entityId);
     if (objectType == ObjectType.None || neighbourObjectType == ObjectType.None) {
-      return;
+      return false;
     }
     ActionData memory actionData = Action.get(callerAddress, entity.scale, entity.entityId);
     ActionData memory neighbourActionData = Action.get(callerAddress, neighbourEntity.scale, neighbourEntity.entityId);
     if (actionData.actionType == ObjectType.None || neighbourActionData.actionType == ObjectType.None) {
-      return;
+      return false;
     }
     require(
       actionData.actionType != ObjectType.None && neighbourActionData.actionType != ObjectType.None,
       "Action not set"
     );
+    console.log("fighting!");
     // require(actionData.round == neighbourActionData.round, "Rounds not equal");
-    VoxelEntity memory neighbourActionEntity = abi.decode(neighbourActionData.actionEntity, (VoxelEntity));
-    if (!isEntityEqual(neighbourActionEntity, entity)) {
-      // This means, the neighbour has not done any action on us, so our health is not affected
-      return;
+    {
+      VoxelEntity memory neighbourActionEntity = abi.decode(neighbourActionData.actionEntity, (VoxelEntity));
+      if (!isEntityEqual(neighbourActionEntity, entity)) {
+        // This means, the neighbour has not done any action on us, so our health is not affected
+        return true;
+      }
     }
 
-    uint256 damage = calculateDamage(
-      neighbourObjectType,
-      neighbourActionData.stamina,
-      objectType,
-      actionData.actionType
-    );
-    uint256 protection = 0;
-    VoxelEntity memory actionEntity = abi.decode(actionData.actionEntity, (VoxelEntity));
-    if (isEntityEqual(actionEntity, entity)) {
-      protection = calculateProtection(
-        objectType,
-        actionData.stamina,
+    uint256 lostHealth;
+    {
+      uint256 damage = calculateDamage(
         neighbourObjectType,
-        neighbourActionData.actionType
+        neighbourActionData.stamina,
+        objectType,
+        actionData.actionType
       );
+      uint256 protection = 0;
+      VoxelEntity memory actionEntity = abi.decode(actionData.actionEntity, (VoxelEntity));
+      if (isEntityEqual(actionEntity, entity)) {
+        protection = calculateProtection(
+          objectType,
+          actionData.stamina,
+          neighbourObjectType,
+          neighbourActionData.actionType
+        );
+      }
+      lostHealth = safeSubtract(damage, protection);
     }
-    uint256 lostHealth = safeSubtract(damage, protection);
+    console.log("lost health");
+    console.logBytes32(entity.entityId);
+    console.logUint(lostHealth);
     if (lostHealth == 0) {
-      return;
+      return true;
     }
-    uint256 newHealth = safeSubtract(Health.get(callerAddress, entity.scale, entity.entityId), lostHealth);
+
     // Flux out energy proportional to the health lost
     IWorld(_world()).fluxEnergy(false, callerAddress, entity, lostHealth);
-    Health.set(callerAddress, entity.scale, entity.entityId, newHealth);
-    // if (newHealth == 0) {}
+    {
+      Health.set(
+        callerAddress,
+        entity.scale,
+        entity.entityId,
+        safeSubtract(Health.get(callerAddress, entity.scale, entity.entityId), lostHealth)
+      );
+    }
+
+    return true;
   }
 
   function calculateDamage(

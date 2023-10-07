@@ -210,8 +210,8 @@ contract PokemonSystem is System {
     bool isAttack = moveData.damage > 0;
 
     VoxelEntity memory targetEntity = isAttack
-      ? VoxelEntity({ scale: 1, entityId: neighbourEntity })
-      : VoxelEntity({ scale: 1, entityId: interactEntity });
+      ? VoxelEntity({ scale: 1, entityId: caEntityToEntity(neighbourEntity) })
+      : VoxelEntity({ scale: 1, entityId: caEntityToEntity(interactEntity) });
     VoxelCoord memory targetCoord = isAttack
       ? getCAEntityPositionStrict(IStore(_world()), neighbourEntity)
       : getCAEntityPositionStrict(IStore(_world()), interactEntity);

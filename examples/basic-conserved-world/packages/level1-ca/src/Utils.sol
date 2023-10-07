@@ -2,6 +2,7 @@
 pragma solidity >=0.8.0;
 
 import { safeCall, safeStaticCall } from "@tenet-utils/src/CallUtils.sol";
+import { caEntityToEntity } from "@tenet-base-ca/src/Utils.sol";
 import { CAEntityReverseMapping, CAEntityReverseMappingTableId, CAEntityReverseMappingData } from "@tenet-base-ca/src/codegen/tables/CAEntityReverseMapping.sol";
 import { VoxelEntity, VoxelCoord, BodySimData, CAEventData, CAEventType, SimEventData, SimTable } from "@tenet-utils/src/Types.sol";
 import { console } from "forge-std/console.sol";

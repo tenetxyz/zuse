@@ -12,7 +12,7 @@ import { Plant } from "@tenet-pokemon-extension/src/codegen/tables/Plant.sol";
 import { PlantStage } from "@tenet-pokemon-extension/src/codegen/Types.sol";
 import { Pokemon, PokemonData, PokemonMove } from "@tenet-pokemon-extension/src/codegen/tables/Pokemon.sol";
 import { entityIsSoil, entityIsPlant, entityIsPokemon } from "@tenet-pokemon-extension/src/InteractionUtils.sol";
-import { getCAEntityAtCoord, getCAVoxelType, getCAEntityPositionStrict } from "@tenet-base-ca/src/Utils.sol";
+import { getCAEntityAtCoord, getCAVoxelType, getCAEntityPositionStrict, caEntityToEntity } from "@tenet-base-ca/src/Utils.sol";
 import { getEntitySimData, transferEnergy } from "@tenet-level1-ca/src/Utils.sol";
 import { isZeroCoord, voxelCoordsAreEqual } from "@tenet-utils/src/VoxelCoordUtils.sol";
 import { MoveData } from "@tenet-pokemon-extension/src/Types.sol";
@@ -122,7 +122,8 @@ contract PokemonSystem is System {
 
     if (entitySimData.objectType == ObjectType.None) {
       // TODO: Make it general
-      VoxelEntity memory entity = VoxelEntity({ scale: 1, entityId: interactEntity });
+      VoxelEntity memory entity = VoxelEntity({ scale: 1, entityId: caEntityToEntity(interactEntity) });
+
       VoxelCoord memory coord = getCAEntityPositionStrict(IStore(_world()), interactEntity);
 
       SimEventData memory setObjectTypeSimEvent = SimEventData({

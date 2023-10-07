@@ -5,7 +5,6 @@ import { IStore } from "@latticexyz/store/src/IStore.sol";
 import { System } from "@latticexyz/world/src/System.sol";
 import { calculateBlockDirection, safeSubtract } from "@tenet-utils/src/VoxelCoordUtils.sol";
 import { BlockDirection, VoxelCoord, VoxelEntity } from "@tenet-utils/src/Types.sol";
-import { getCAEntityPositionStrict } from "@tenet-base-ca/src/Utils.sol";
 import { BlockDirection, BodySimData, VoxelCoord, CAEventData, CAEventType, SimEventData, SimTable, ObjectType } from "@tenet-utils/src/Types.sol";
 import { getOppositeDirection } from "@tenet-utils/src/VoxelCoordUtils.sol";
 import { CAEntityReverseMapping, CAEntityReverseMappingTableId, CAEntityReverseMappingData } from "@tenet-base-ca/src/codegen/tables/CAEntityReverseMapping.sol";
@@ -14,7 +13,7 @@ import { Plant } from "@tenet-pokemon-extension/src/codegen/tables/Plant.sol";
 import { PlantStage } from "@tenet-pokemon-extension/src/codegen/Types.sol";
 import { Pokemon, PokemonData, PokemonMove } from "@tenet-pokemon-extension/src/codegen/tables/Pokemon.sol";
 import { entityIsSoil, entityIsPlant, entityIsPokemon } from "@tenet-pokemon-extension/src/InteractionUtils.sol";
-import { getCAEntityAtCoord, getCAVoxelType, getCAEntityPositionStrict } from "@tenet-base-ca/src/Utils.sol";
+import { getCAEntityAtCoord, getCAVoxelType, getCAEntityPositionStrict, caEntityToEntity } from "@tenet-base-ca/src/Utils.sol";
 import { getEntitySimData, transferEnergy } from "@tenet-level1-ca/src/Utils.sol";
 import { isZeroCoord, voxelCoordsAreEqual } from "@tenet-utils/src/VoxelCoordUtils.sol";
 import { MoveData } from "@tenet-pokemon-extension/src/Types.sol";
@@ -55,8 +54,7 @@ contract PokemonFightSystem is System {
     }
     BodySimData memory entitySimData = getEntitySimData(entityId);
     uint256 newEnergy = safeSubtract(entitySimData.energy, lostHealth + lostStamina);
-    CAEntityReverseMappingData memory entityData = CAEntityReverseMapping.get(entityId);
-    VoxelEntity memory entity = VoxelEntity({ scale: 1, entityId: entityData.entity });
+    VoxelEntity memory entity = VoxelEntity({ scale: 1, entityId: caEntityToEntity(entityId) });
     VoxelCoord memory coord = getCAEntityPositionStrict(IStore(_world()), entityId);
     CAEventData[] memory allCAEventData = new CAEventData[](1);
     SimEventData memory energyEventData = SimEventData({

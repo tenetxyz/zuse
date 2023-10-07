@@ -10,7 +10,7 @@ import { CAEntityReverseMapping, CAEntityReverseMappingTableId, CAEntityReverseM
 import { Plant, PlantData } from "@tenet-pokemon-extension/src/codegen/tables/Plant.sol";
 import { PlantStage } from "@tenet-pokemon-extension/src/codegen/Types.sol";
 import { entityIsSoil, entityIsPlant, entityIsPokemon } from "@tenet-pokemon-extension/src/InteractionUtils.sol";
-import { getCAEntityAtCoord, getCAVoxelType, getCAEntityPositionStrict } from "@tenet-base-ca/src/Utils.sol";
+import { getCAEntityAtCoord, getCAVoxelType, getCAEntityPositionStrict, caEntityToEntity } from "@tenet-base-ca/src/Utils.sol";
 import { getEntitySimData, transferEnergy } from "@tenet-level1-ca/src/Utils.sol";
 import { console } from "forge-std/console.sol";
 
@@ -235,12 +235,16 @@ contract PlantSystem is VoxelInteraction {
   ) internal returns (PlantData memory, CAEventData[] memory, bool) {
     CAEventData[] memory allCAEventData = new CAEventData[](neighbourEntityIds.length * 2);
 
-    uint harvestPlantEnergy = getEnergyToPokemon(entitySimData.energy);
-    if (harvestPlantEnergy == 0) {
-      return (plantData, allCAEventData, false);
+    uint256 transferAmount;
+    uint256 numPokemonNeighbours;
+    {
+      uint harvestPlantEnergy = getEnergyToPokemon(entitySimData.energy);
+      if (harvestPlantEnergy == 0) {
+        return (plantData, allCAEventData, false);
+      }
+      numPokemonNeighbours = calculateNumPokemonNeighbours(callerAddress, neighbourEntityIds);
+      transferAmount = harvestPlantEnergy / numPokemonNeighbours;
     }
-
-    uint256 numPokemonNeighbours = calculateNumPokemonNeighbours(callerAddress, neighbourEntityIds);
 
     bool hasTransfer = false;
 
@@ -252,8 +256,7 @@ contract PlantSystem is VoxelInteraction {
       // If the neighbor is a Pokemon cell
       if (entityIsPokemon(callerAddress, neighbourEntityIds[i])) {
         VoxelCoord memory neighbourCoord = getCAEntityPositionStrict(IStore(_world()), neighbourEntityIds[i]);
-        uint256 transferAmount = harvestPlantEnergy / numPokemonNeighbours;
-        VoxelEntity memory targetEntity = VoxelEntity({ scale: 1, entityId: neighbourEntityIds[i] });
+        VoxelEntity memory targetEntity = VoxelEntity({ scale: 1, entityId: caEntityToEntity(neighbourEntityIds[i]) });
 
         {
           uint256 healthAmount = (transferAmount * 40) / 100; // 40% to Health
@@ -304,8 +307,7 @@ contract PlantSystem is VoxelInteraction {
     BodySimData memory entitySimData
   ) internal view returns (CAEventData[] memory) {
     CAEventData[] memory allCAEventData = new CAEventData[](2);
-    CAEntityReverseMappingData memory entityData = CAEntityReverseMapping.get(interactEntity);
-    VoxelEntity memory entity = VoxelEntity({ scale: 1, entityId: entityData.entity });
+    VoxelEntity memory entity = VoxelEntity({ scale: 1, entityId: caEntityToEntity(interactEntity) });
     VoxelCoord memory coord = getCAEntityPositionStrict(IStore(_world()), interactEntity);
 
     SimEventData memory energyEventData = SimEventData({

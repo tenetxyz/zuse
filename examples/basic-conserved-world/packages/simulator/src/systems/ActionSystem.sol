@@ -53,19 +53,13 @@ contract ActionSystem is SimHandler {
         safeSubtract(currentStamina, senderStamina)
       );
     }
-    // int32 currentRound = Action.getRound(callerAddress, senderEntity.scale, senderEntity.entityId);
     console.log("action set");
     console.logBytes32(senderEntity.entityId);
     Action.set(
       callerAddress,
       senderEntity.scale,
       senderEntity.entityId,
-      ActionData({
-        actionType: receiverActionType,
-        stamina: senderStamina,
-        round: 0,
-        actionEntity: abi.encode(receiverEntity)
-      })
+      ActionData({ actionType: receiverActionType, stamina: senderStamina, actionEntity: abi.encode(receiverEntity) })
     );
 
     // Check if any neighbours are objects with also an action set
@@ -126,7 +120,6 @@ contract ActionSystem is SimHandler {
       "Action not set"
     );
     console.log("fighting!");
-    // require(actionData.round == neighbourActionData.round, "Rounds not equal");
     {
       VoxelEntity memory neighbourActionEntity = abi.decode(neighbourActionData.actionEntity, (VoxelEntity));
       if (!isEntityEqual(neighbourActionEntity, entity)) {

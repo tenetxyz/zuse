@@ -10,38 +10,15 @@ import { getOppositeDirection } from "@tenet-utils/src/VoxelCoordUtils.sol";
 import { Soil } from "@tenet-pokemon-extension/src/codegen/tables/Soil.sol";
 import { Plant } from "@tenet-pokemon-extension/src/codegen/tables/Plant.sol";
 import { PlantStage } from "@tenet-pokemon-extension/src/codegen/Types.sol";
-import { Pokemon, PokemonData, PokemonMove } from "@tenet-pokemon-extension/src/codegen/tables/Pokemon.sol";
+import { Pokemon, PokemonData } from "@tenet-pokemon-extension/src/codegen/tables/Pokemon.sol";
 import { entityIsSoil, entityIsPlant, entityIsPokemon } from "@tenet-pokemon-extension/src/InteractionUtils.sol";
 import { getCAEntityAtCoord, getCAVoxelType, getCAEntityPositionStrict, caEntityToEntity } from "@tenet-base-ca/src/Utils.sol";
 import { getEntitySimData, transferEnergy } from "@tenet-level1-ca/src/Utils.sol";
 import { isZeroCoord, voxelCoordsAreEqual } from "@tenet-utils/src/VoxelCoordUtils.sol";
-import { MoveData } from "@tenet-pokemon-extension/src/Types.sol";
+import { MoveData, PokemonMove } from "@tenet-pokemon-extension/src/Types.sol";
 import { console } from "forge-std/console.sol";
 
 uint256 constant NUM_BLOCKS_FAINTED = 50;
-
-enum PokemonMove {
-  None,
-  Ember,
-  FlameBurst,
-  SmokeScreen,
-  FireShield,
-  WaterGun,
-  HydroPump,
-  Bubble,
-  AquaRing,
-  VineWhip,
-  SolarBeam,
-  LeechSeed,
-  Synthesis
-}
-
-struct MoveData {
-  uint8 stamina;
-  uint8 damage;
-  uint8 protection;
-  ObjectType moveType;
-}
 
 contract PokemonSystem is System {
   function getMovesData() internal pure returns (MoveData[] memory) {
@@ -179,7 +156,7 @@ contract PokemonSystem is System {
     PokemonData memory pokemonData = Pokemon.get(callerAddress, interactEntity);
 
     if (pokemonMove == PokemonMove.None) {
-      return runDefaultInteraction(interactEntity, entitySimData, pokemonData);
+      return runDefaultInteraction(callerAddress, interactEntity, entitySimData, pokemonData);
     }
 
     CAEventData[] memory allCAEventData = new CAEventData[](neighbourEntityIds.length);
@@ -228,7 +205,7 @@ contract PokemonSystem is System {
     bytes32 interactEntity,
     BodySimData memory entitySimData,
     PokemonData memory pokemonData
-  ) internal returns (bool, bytes memory) {
+  ) internal returns (bool changedEntity, bytes memory entityData) {
     if (entitySimData.objectType == ObjectType.None) {
       CAEventData[] memory allCAEventData = new CAEventData[](1);
       VoxelEntity memory entity = VoxelEntity({ scale: 1, entityId: caEntityToEntity(interactEntity) });
@@ -255,6 +232,8 @@ contract PokemonSystem is System {
       console.log("fainted");
       Pokemon.setLastFaintedBlock(callerAddress, interactEntity, block.number);
     }
+
+    return (changedEntity, entityData);
   }
 
   function runPokemonMove(

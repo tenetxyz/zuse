@@ -148,7 +148,6 @@ enum ValueType {
 struct ActionData {
   ObjectType actionType;
   uint256 stamina;
-  int32 round;
   bytes actionEntity;
 }
 

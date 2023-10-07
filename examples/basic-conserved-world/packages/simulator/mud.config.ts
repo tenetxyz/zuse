@@ -89,7 +89,6 @@ export default mudConfig({
       schema: {
         actionType: "ObjectType",
         stamina: "uint256",
-        round: "int32",
         actionEntity: "bytes",
       },
     },

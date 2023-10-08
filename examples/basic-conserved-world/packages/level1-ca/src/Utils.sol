@@ -29,10 +29,7 @@ function shardCoordToCoord(VoxelCoord memory coord) pure returns (VoxelCoord mem
 }
 
 function getEntitySimData(bytes32 caEntity) view returns (BodySimData memory) {
-  console.log("getEntitySimData");
-  console.logBytes32(caEntity);
   CAEntityReverseMappingData memory entityData = CAEntityReverseMapping.get(caEntity);
-  console.logBytes32(entityData.entity);
   VoxelEntity memory entity = VoxelEntity({ scale: 1, entityId: entityData.entity });
   bytes memory returnData = safeStaticCall(
     entityData.callerAddress,
@@ -50,8 +47,6 @@ function transferEnergy(
 ) view returns (CAEventData memory) {
   CAEntityReverseMappingData memory entityData = CAEntityReverseMapping.get(targetCAEntity);
   VoxelEntity memory targetEntity = VoxelEntity({ scale: 1, entityId: entityData.entity });
-  console.log("transfer");
-  console.logUint(energyToTransfer);
   SimEventData memory eventData = SimEventData({
     senderTable: SimTable.Energy,
     senderValue: abi.encode(uint256ToNegativeInt256(energyToTransfer)),
@@ -60,6 +55,5 @@ function transferEnergy(
     targetTable: SimTable.Energy,
     targetValue: abi.encode(uint256ToInt256(energyToTransfer))
   });
-  console.log("done");
   return CAEventData({ eventType: CAEventType.SimEvent, eventData: abi.encode(eventData) });
 }

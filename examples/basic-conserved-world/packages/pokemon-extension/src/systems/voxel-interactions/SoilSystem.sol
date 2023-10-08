@@ -21,7 +21,6 @@ contract SoilSystem is VoxelInteraction {
     BlockDirection centerBlockDirection
   ) internal override returns (bool changedEntity, bytes memory entityData) {
     uint256 lastInteractionBlock = Soil.getLastInteractionBlock(callerAddress, neighbourEntityId);
-    console.log("soil onNewNeighbour");
     if (block.number == lastInteractionBlock) {
       return (changedEntity, entityData);
     }
@@ -29,7 +28,6 @@ contract SoilSystem is VoxelInteraction {
     BodySimData memory entitySimData = getEntitySimData(neighbourEntityId);
     uint256 transferEnergyToSoil = getEnergyToSoil(entitySimData.energy);
     uint256 transferEnergyToPlant = getEnergyToPlant(entitySimData.energy);
-    console.logUint(entitySimData.energy);
     if (transferEnergyToSoil == 0 && transferEnergyToPlant == 0) {
       return (changedEntity, entityData);
     }
@@ -38,7 +36,6 @@ contract SoilSystem is VoxelInteraction {
       !entityIsSoil(callerAddress, centerEntityId) &&
       !isValidPlantNeighbour(callerAddress, centerEntityId, centerBlockDirection)
     ) {
-      console.log("no bor");
       return (changedEntity, entityData);
     }
 
@@ -78,7 +75,6 @@ contract SoilSystem is VoxelInteraction {
     bytes32 parentEntity
   ) internal override returns (bool changedEntity, bytes memory entityData) {
     changedEntity = false;
-    console.log("soil runInteraction");
     uint256 lastInteractionBlock = Soil.getLastInteractionBlock(callerAddress, interactEntity);
     if (block.number == lastInteractionBlock) {
       return (changedEntity, entityData);
@@ -131,8 +127,6 @@ contract SoilSystem is VoxelInteraction {
   ) internal returns (bytes memory) {
     uint256 transferEnergyToSoil = getEnergyToSoil(entitySimData.energy);
     uint256 transferEnergyToPlant = getEnergyToPlant(entitySimData.energy);
-    console.logUint(transferEnergyToSoil);
-    console.logUint(transferEnergyToPlant);
     if (transferEnergyToSoil == 0 && transferEnergyToPlant == 0) {
       return new bytes(0);
     }
@@ -159,7 +153,6 @@ contract SoilSystem is VoxelInteraction {
           hasTransfer = true;
         }
       } else if (isValidPlantNeighbour(callerAddress, neighbourEntityIds[i], neighbourEntityDirections[i])) {
-        console.log("transfer energy to plant");
         allCAEventData[i] = transferEnergy(entitySimData, neighbourEntityIds[i], neighbourCoord, transferEnergyToPlant);
         if (transferEnergyToPlant > 0) {
           hasTransfer = true;

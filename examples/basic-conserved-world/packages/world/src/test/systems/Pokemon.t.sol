@@ -6,7 +6,7 @@ import { MudTest } from "@latticexyz/store/src/MudTest.sol";
 import { IStore } from "@latticexyz/store/src/IStore.sol";
 import { IWorld } from "@tenet-world/src/codegen/world/IWorld.sol";
 import { VoxelType, OwnedBy } from "@tenet-world/src/codegen/Tables.sol";
-import { VoxelCoord, VoxelTypeData, VoxelEntity, Mind } from "@tenet-utils/src/Types.sol";
+import { VoxelCoord, VoxelTypeData, VoxelEntity, Mind, ObjectType } from "@tenet-utils/src/Types.sol";
 import { getEntityAtCoord, getEntityPositionStrict, positionDataToVoxelCoord } from "@tenet-base-world/src/Utils.sol";
 import { FighterVoxelID, GrassVoxelID, AirVoxelID, DirtVoxelID, BedrockVoxelID } from "@tenet-level1-ca/src/Constants.sol";
 import { MindRegistry } from "@tenet-registry/src/codegen/tables/MindRegistry.sol";
@@ -71,6 +71,10 @@ contract PokemonTest is MudTest {
       agentEntity,
       mindSelector
     );
+    assertTrue(
+      Object.get(IStore(SIMULATOR_ADDRESS), worldAddress, pokemon1Entity.scale, pokemon1Entity.entityId) ==
+        ObjectType.Fire
+    );
     world.claimAgent(pokemon1Entity);
     Energy.set(IStore(SIMULATOR_ADDRESS), worldAddress, pokemon1Entity.scale, pokemon1Entity.entityId, 100);
     Health.set(IStore(SIMULATOR_ADDRESS), worldAddress, pokemon1Entity.scale, pokemon1Entity.entityId, 200);
@@ -85,6 +89,10 @@ contract PokemonTest is MudTest {
       pokemon2Coord,
       agentEntity,
       mindSelector
+    );
+    assertTrue(
+      Object.get(IStore(SIMULATOR_ADDRESS), worldAddress, pokemon2Entity.scale, pokemon2Entity.entityId) ==
+        ObjectType.Fire
     );
     Energy.set(IStore(SIMULATOR_ADDRESS), worldAddress, pokemon2Entity.scale, pokemon2Entity.entityId, 100);
     Health.set(IStore(SIMULATOR_ADDRESS), worldAddress, pokemon2Entity.scale, pokemon2Entity.entityId, 200);
@@ -111,13 +119,16 @@ contract PokemonTest is MudTest {
       console.logUint(
         Health.get(IStore(SIMULATOR_ADDRESS), worldAddress, pokemon2Entity.scale, pokemon2Entity.entityId)
       );
-      // TODO: assert on Object
       assertTrue(
         Health.get(IStore(SIMULATOR_ADDRESS), worldAddress, pokemon1Entity.scale, pokemon1Entity.entityId) == 0
       );
       assertTrue(
         Health.get(IStore(SIMULATOR_ADDRESS), worldAddress, pokemon2Entity.scale, pokemon2Entity.entityId) == 0
       );
+      PokemonData memory pokemon1Data = Pokemon.get(IStore(BASE_CA_ADDRESS), worldAddress, pokemon1CAEntity);
+      assertTrue(pokemon1Data.lastFaintedBlock == block.number);
+      PokemonData memory pokemon2Data = Pokemon.get(IStore(BASE_CA_ADDRESS), worldAddress, pokemon2CAEntity);
+      assertTrue(pokemon2Data.lastFaintedBlock == block.number);
     }
 
     vm.stopPrank();

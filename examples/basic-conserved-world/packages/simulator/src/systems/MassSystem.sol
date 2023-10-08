@@ -39,6 +39,9 @@ contract MassSystem is SimHandler {
       Mass.encodeKeyTuple(callerAddress, senderEntity.scale, senderEntity.entityId)
     );
     require(entityExists, "Sender entity does not exist");
+    if (receiverMassDelta == 0) {
+      return;
+    }
     if (isEntityEqual(senderEntity, receiverEntity)) {
       // Transformation
       uint256 currentMass = Mass.get(callerAddress, receiverEntity.scale, receiverEntity.entityId);

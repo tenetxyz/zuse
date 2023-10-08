@@ -50,6 +50,8 @@ function transferEnergy(
 ) view returns (CAEventData memory) {
   CAEntityReverseMappingData memory entityData = CAEntityReverseMapping.get(targetCAEntity);
   VoxelEntity memory targetEntity = VoxelEntity({ scale: 1, entityId: entityData.entity });
+  console.log("transfer");
+  console.logUint(energyToTransfer);
   SimEventData memory eventData = SimEventData({
     senderTable: SimTable.Energy,
     senderValue: abi.encode(uint256ToNegativeInt256(energyToTransfer)),
@@ -58,5 +60,6 @@ function transferEnergy(
     targetTable: SimTable.Energy,
     targetValue: abi.encode(uint256ToInt256(energyToTransfer))
   });
+  console.log("done");
   return CAEventData({ eventType: CAEventType.SimEvent, eventData: abi.encode(eventData) });
 }

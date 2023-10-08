@@ -20,7 +20,7 @@ function uint256ToInt32(uint256 x) pure returns (int32) {
 }
 
 function uint256ToNegativeInt256(uint256 x) pure returns (int256) {
-  require(x <= uint256(int256(type(int256).max) + 1), "uint out of bounds for negative conversion");
+  require(x <= (uint256(type(int256).max) + 1), "uint out of bounds for negative conversion");
   return -int256(x);
 }
 

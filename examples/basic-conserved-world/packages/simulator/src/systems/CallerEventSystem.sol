@@ -26,7 +26,7 @@ contract CallerEventSystem is System {
       require(terrainMass == 0 || terrainMass == entityMass, "Invalid terrain mass");
 
       // Set initial values
-      Mass.set(callerAddress, entity.scale, entity.entityId, terrainMass);
+      Mass.set(callerAddress, entity.scale, entity.entityId, 0); // Set to zero to prevent double build
       Energy.set(callerAddress, entity.scale, entity.entityId, getTerrainEnergy(callerAddress, entity.scale, coord));
       Velocity.set(
         callerAddress,
@@ -47,19 +47,24 @@ contract CallerEventSystem is System {
     int256 massDelta;
     if (entityExists) {
       require(isZeroCoord(getVelocity(callerAddress, entity)), "Cannot mine an entity with velocity");
-      require(massDelta > 0, "Cannot mine an entity with no mass");
-      massDelta = -1 * uint256ToInt256(Mass.get(callerAddress, entity.scale, entity.entityId));
+      uint256 currentMass = Mass.get(callerAddress, entity.scale, entity.entityId);
+      if (currentMass == 0) {
+        return;
+      }
+      massDelta = -1 * uint256ToInt256(currentMass);
     } else {
       VoxelCoord memory terrainVelocity = getTerrainVelocity(callerAddress, entity.scale, coord);
       uint256 terrainMass = getTerrainMass(callerAddress, entity.scale, coord);
       require(isZeroCoord(terrainVelocity), "Cannot mine terrain with velocity");
-      require(terrainMass > 0, "Cannot mine terrain with no mass");
-      massDelta = -1 * uint256ToInt256(terrainMass);
-
       // Set initial values
       Mass.set(callerAddress, entity.scale, entity.entityId, terrainMass);
       Energy.set(callerAddress, entity.scale, entity.entityId, getTerrainEnergy(callerAddress, entity.scale, coord));
       Velocity.set(callerAddress, entity.scale, entity.entityId, block.number, abi.encode(terrainVelocity));
+
+      if (terrainMass == 0) {
+        return;
+      }
+      massDelta = -1 * uint256ToInt256(terrainMass);
     }
 
     IWorld(_world()).updateMass(entity, coord, massDelta, entity, coord, massDelta);

@@ -5,7 +5,7 @@ import { safeCall, safeStaticCall } from "@tenet-utils/src/CallUtils.sol";
 import { caEntityToEntity } from "@tenet-base-ca/src/Utils.sol";
 import { CAEntityReverseMapping, CAEntityReverseMappingTableId, CAEntityReverseMappingData } from "@tenet-base-ca/src/codegen/tables/CAEntityReverseMapping.sol";
 import { VoxelEntity, VoxelCoord, BodySimData, CAEventData, CAEventType, SimEventData, SimTable } from "@tenet-utils/src/Types.sol";
-import { uint256ToInt256, uint256ToNegativeInt256 } from "@tenet-utils/src/VoxelCoordUtils.sol";
+import { uint256ToInt256, uint256ToNegativeInt256 } from "@tenet-utils/src/TypeUtils.sol";
 import { console } from "forge-std/console.sol";
 import { SHARD_DIM } from "@tenet-level1-ca/src/Constants.sol";
 

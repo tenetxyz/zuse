@@ -6,7 +6,6 @@ import { MoveEvent } from "@tenet-base-world/src/prototypes/MoveEvent.sol";
 import { hasKey } from "@latticexyz/world/src/modules/keysintable/hasKey.sol";
 import { IWorld } from "@tenet-world/src/codegen/world/IWorld.sol";
 import { VoxelCoord, VoxelEntity, EntityEventData } from "@tenet-utils/src/Types.sol";
-import { abs, absInt32 } from "@tenet-utils/src/VoxelCoordUtils.sol";
 import { REGISTRY_ADDRESS, SIMULATOR_ADDRESS } from "@tenet-world/src/Constants.sol";
 import { MoveEventData } from "@tenet-base-world/src/Types.sol";
 import { OwnedBy, OwnedByTableId, WorldConfig, VoxelTypeProperties } from "@tenet-world/src/codegen/Tables.sol";

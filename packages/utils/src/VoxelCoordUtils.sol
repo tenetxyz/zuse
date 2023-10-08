@@ -3,45 +3,7 @@ pragma solidity >=0.8.0;
 
 import { VoxelCoord, BlockDirection } from "@tenet-utils/src/Types.sol";
 import { int32ToString } from "@tenet-utils/src/StringUtils.sol";
-
-function uint256ToInt256(uint256 x) pure returns (int256) {
-  require(x <= uint256(int256(type(int256).max)), "uint out of bounds");
-  return int256(x);
-}
-
-function int256ToUint256(int256 x) pure returns (uint256) {
-  if (x >= 0) {
-    return uint256(x);
-  } else {
-    return negativeInt256ToUint256(x);
-  }
-}
-
-function uint256ToInt32(uint256 x) pure returns (int32) {
-  require(x <= uint(int(type(int32).max)), "uint out of bounds");
-  return int32(int(x));
-}
-
-function uint256ToNegativeInt256(uint256 x) pure returns (int256) {
-  require(x <= uint256(int256(type(int256).max) + 1), "uint out of bounds for negative conversion");
-  return -int256(x);
-}
-
-function negativeInt256ToUint256(int256 x) pure returns (uint256) {
-  require(x < 0, "Value is not negative");
-  require(x >= -int256(type(int256).max), "Negative int out of bounds for uint conversion");
-  return uint256(-x);
-}
-
-function addUint256AndInt256(uint256 a, int256 b) pure returns (uint256) {
-  if (b < 0) {
-    int256 negativeB = -b; // Make b positive
-    require(a >= uint256(negativeB), "Result would be negative");
-    return a - uint256(negativeB); // Subtract b from a
-  } else {
-    return a + int256ToUint256(b); // Add a and b
-  }
-}
+import { min, abs, sqrt } from "@tenet-utils/src/MathUtils.sol";
 
 function add(VoxelCoord memory a, VoxelCoord memory b) pure returns (VoxelCoord memory) {
   return VoxelCoord(a.x + b.x, a.y + b.y, a.z + b.z);
@@ -76,39 +38,6 @@ function voxelCoordToString(VoxelCoord memory coord) pure returns (string memory
     string(
       abi.encodePacked("(", int32ToString(coord.x), ", ", int32ToString(coord.y), ", ", int32ToString(coord.z), ")")
     );
-}
-
-// Helper function to get the minimum of two uints
-function min(uint a, uint b) pure returns (uint) {
-  return a < b ? a : b;
-}
-
-function safeSubtract(uint a, uint b) pure returns (uint) {
-  if (a > b) {
-    return a - b;
-  }
-  return 0;
-}
-
-function safeAdd(uint a, uint b) pure returns (uint) {
-  uint c = a + b;
-  require(c >= a, "Addition overflow");
-  return c;
-}
-
-// Helper function to calculate the absolute value of an integer
-function abs(int x) pure returns (int) {
-  if (x < 0) {
-    return -x;
-  }
-  return x;
-}
-
-function absInt32(int32 x) pure returns (int32) {
-  if (x < 0) {
-    return -x;
-  }
-  return x;
 }
 
 function getMooreNeighbours(VoxelCoord memory centerCoord, uint8 neighbourRadius) pure returns (VoxelCoord[] memory) {
@@ -146,16 +75,6 @@ function getMooreNeighbours(VoxelCoord memory centerCoord, uint8 neighbourRadius
   }
 
   return neighbours;
-}
-
-// Using Babylonian method
-function sqrt(uint x) pure returns (uint y) {
-  uint z = (x + 1) / 2;
-  y = x;
-  while (z < y) {
-    y = z;
-    z = (x / z + z) / 2;
-  }
 }
 
 function distanceBetween(VoxelCoord memory c1, VoxelCoord memory c2) pure returns (uint256) {

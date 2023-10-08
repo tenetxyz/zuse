@@ -92,6 +92,46 @@ export default mudConfig({
         actionEntity: "bytes",
       },
     },
+    Nutrients: {
+      keySchema: {
+        callerAddress: "address",
+        scale: "uint32",
+        entity: "bytes32",
+      },
+      schema: {
+        nutrients: "uint256",
+      },
+    },
+    Nitrogen: {
+      keySchema: {
+        callerAddress: "address",
+        scale: "uint32",
+        entity: "bytes32",
+      },
+      schema: {
+        nitrogen: "uint256",
+      },
+    },
+    Phosphorous: {
+      keySchema: {
+        callerAddress: "address",
+        scale: "uint32",
+        entity: "bytes32",
+      },
+      schema: {
+        phosphorous: "uint256",
+      },
+    },
+    Potassium: {
+      keySchema: {
+        callerAddress: "address",
+        scale: "uint32",
+        entity: "bytes32",
+      },
+      schema: {
+        potassium: "uint256",
+      },
+    },
   },
   systems: {
     EnergyHelperSystem: {
@@ -135,6 +175,31 @@ export default mudConfig({
       name: "KeysInTableModule",
       root: true,
       args: [resolveTableId("Action")],
+    },
+    {
+      name: "KeysInTableModule",
+      root: true,
+      args: [resolveTableId("Action")],
+    },
+    {
+      name: "KeysInTableModule",
+      root: true,
+      args: [resolveTableId("Nutrients")],
+    },
+    {
+      name: "KeysInTableModule",
+      root: true,
+      args: [resolveTableId("Nitrogen")],
+    },
+    {
+      name: "KeysInTableModule",
+      root: true,
+      args: [resolveTableId("Phosphorous")],
+    },
+    {
+      name: "KeysInTableModule",
+      root: true,
+      args: [resolveTableId("Potassium")],
     },
   ],
 });

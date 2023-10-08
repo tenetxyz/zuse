@@ -55,7 +55,11 @@ enum SimTable {
   Health,
   Stamina,
   Object,
-  Action
+  Action,
+  Nutrients,
+  Nitrogen,
+  Phosphorous,
+  Potassium,
 }
 
 struct SimEventData {

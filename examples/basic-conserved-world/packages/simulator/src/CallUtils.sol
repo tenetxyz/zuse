@@ -46,7 +46,7 @@ function setSimValue(
   if (simSelectors.selector == bytes4(0)) {
     revert("Invalid table");
   }
-  if (simSelectors.senderValueType == ValueType.Uint256 && simSelectors.receiverValueType == ValueType.Uint256) {
+  if (simSelectors.senderValueType == ValueType.Int256 && simSelectors.receiverValueType == ValueType.Int256) {
     return
       safeCall(
         simAddress,
@@ -54,10 +54,10 @@ function setSimValue(
           simSelectors.selector,
           senderEntity,
           senderCoord,
-          abi.decode(senderValue, (uint256)),
+          abi.decode(senderValue, (int256)),
           receiverEntity,
           receiverCoord,
-          abi.decode(receiverValue, (uint256))
+          abi.decode(receiverValue, (int256))
         ),
         string(
           abi.encode(
@@ -117,7 +117,7 @@ function setSimValue(
         )
       );
   } else if (
-    simSelectors.senderValueType == ValueType.Uint256 && simSelectors.receiverValueType == ValueType.ObjectType
+    simSelectors.senderValueType == ValueType.Int256 && simSelectors.receiverValueType == ValueType.ObjectType
   ) {
     return
       safeCall(
@@ -126,7 +126,7 @@ function setSimValue(
           simSelectors.selector,
           senderEntity,
           senderCoord,
-          abi.decode(senderValue, (uint256)),
+          abi.decode(senderValue, (int256)),
           receiverEntity,
           receiverCoord,
           abi.decode(receiverValue, (ObjectType))

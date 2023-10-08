@@ -3,11 +3,7 @@ pragma solidity >=0.8.0;
 
 import { VoxelCoord, BlockDirection } from "@tenet-utils/src/Types.sol";
 import { int32ToString } from "@tenet-utils/src/StringUtils.sol";
-
-function uint256ToInt32(uint256 x) pure returns (int32) {
-  require(x <= uint(int(type(int32).max)), "uint out of bounds");
-  return int32(int(x));
-}
+import { min, abs, sqrt } from "@tenet-utils/src/MathUtils.sol";
 
 function add(VoxelCoord memory a, VoxelCoord memory b) pure returns (VoxelCoord memory) {
   return VoxelCoord(a.x + b.x, a.y + b.y, a.z + b.z);
@@ -42,39 +38,6 @@ function voxelCoordToString(VoxelCoord memory coord) pure returns (string memory
     string(
       abi.encodePacked("(", int32ToString(coord.x), ", ", int32ToString(coord.y), ", ", int32ToString(coord.z), ")")
     );
-}
-
-// Helper function to get the minimum of two uints
-function min(uint a, uint b) pure returns (uint) {
-  return a < b ? a : b;
-}
-
-function safeSubtract(uint a, uint b) pure returns (uint) {
-  if (a > b) {
-    return a - b;
-  }
-  return 0;
-}
-
-function safeAdd(uint a, uint b) pure returns (uint) {
-  uint c = a + b;
-  require(c >= a, "Addition overflow");
-  return c;
-}
-
-// Helper function to calculate the absolute value of an integer
-function abs(int x) pure returns (int) {
-  if (x < 0) {
-    return -x;
-  }
-  return x;
-}
-
-function absInt32(int32 x) pure returns (int32) {
-  if (x < 0) {
-    return -x;
-  }
-  return x;
 }
 
 function getMooreNeighbours(VoxelCoord memory centerCoord, uint8 neighbourRadius) pure returns (VoxelCoord[] memory) {
@@ -112,16 +75,6 @@ function getMooreNeighbours(VoxelCoord memory centerCoord, uint8 neighbourRadius
   }
 
   return neighbours;
-}
-
-// Using Babylonian method
-function sqrt(uint x) pure returns (uint y) {
-  uint z = (x + 1) / 2;
-  y = x;
-  while (z < y) {
-    y = z;
-    z = (x / z + z) / 2;
-  }
 }
 
 function distanceBetween(VoxelCoord memory c1, VoxelCoord memory c2) pure returns (uint256) {

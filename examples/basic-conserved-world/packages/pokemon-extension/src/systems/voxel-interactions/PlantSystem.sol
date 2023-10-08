@@ -5,6 +5,7 @@ import { IStore } from "@latticexyz/store/src/IStore.sol";
 import { VoxelInteraction } from "@tenet-base-ca/src/prototypes/VoxelInteraction.sol";
 import { VoxelEntity, BlockDirection, BodySimData, CAEventData, CAEventType, SimEventData, SimTable, VoxelCoord } from "@tenet-utils/src/Types.sol";
 import { getOppositeDirection } from "@tenet-utils/src/VoxelCoordUtils.sol";
+import { uint256ToNegativeInt256, uint256ToInt256 } from "@tenet-utils/src/TypeUtils.sol";
 import { Soil } from "@tenet-pokemon-extension/src/codegen/tables/Soil.sol";
 import { CAEntityReverseMapping, CAEntityReverseMappingTableId, CAEntityReverseMappingData } from "@tenet-base-ca/src/codegen/tables/CAEntityReverseMapping.sol";
 import { Plant, PlantData } from "@tenet-pokemon-extension/src/codegen/tables/Plant.sol";
@@ -265,11 +266,11 @@ contract PlantSystem is VoxelInteraction {
           uint256 healthAmount = (transferAmount * 40) / 100; // 40% to Health
           SimEventData memory healthEventData = SimEventData({
             senderTable: SimTable.Energy,
-            senderValue: abi.encode(healthAmount),
+            senderValue: abi.encode(uint256ToNegativeInt256(healthAmount)),
             targetEntity: targetEntity,
             targetCoord: neighbourCoord,
             targetTable: SimTable.Health,
-            targetValue: abi.encode(healthAmount)
+            targetValue: abi.encode(uint256ToInt256(healthAmount))
           });
           allCAEventData[i * 2] = CAEventData({
             eventType: CAEventType.SimEvent,
@@ -280,11 +281,11 @@ contract PlantSystem is VoxelInteraction {
           uint256 staminaAmount = (transferAmount * 30) / 100; // 30% to Stamina
           SimEventData memory staminaEventData = SimEventData({
             senderTable: SimTable.Energy,
-            senderValue: abi.encode(staminaAmount),
+            senderValue: abi.encode(uint256ToNegativeInt256(staminaAmount)),
             targetEntity: targetEntity,
             targetCoord: neighbourCoord,
             targetTable: SimTable.Stamina,
-            targetValue: abi.encode(staminaAmount)
+            targetValue: abi.encode(uint256ToInt256(staminaAmount))
           });
           allCAEventData[(i * 2) + 1] = CAEventData({
             eventType: CAEventType.SimEvent,
@@ -315,20 +316,20 @@ contract PlantSystem is VoxelInteraction {
 
     SimEventData memory energyEventData = SimEventData({
       senderTable: SimTable.Energy,
-      senderValue: abi.encode(entitySimData.energy),
+      senderValue: abi.encode(uint256ToNegativeInt256(entitySimData.energy)),
       targetEntity: entity,
       targetCoord: coord,
       targetTable: SimTable.Energy,
-      targetValue: abi.encode(uint256(0))
+      targetValue: abi.encode(uint256ToNegativeInt256(entitySimData.energy))
     });
     allCAEventData[0] = CAEventData({ eventType: CAEventType.SimEvent, eventData: abi.encode(energyEventData) });
     SimEventData memory massEventData = SimEventData({
       senderTable: SimTable.Mass,
-      senderValue: abi.encode(entitySimData.mass),
+      senderValue: abi.encode(uint256ToNegativeInt256(entitySimData.mass)),
       targetEntity: entity,
       targetCoord: coord,
       targetTable: SimTable.Mass,
-      targetValue: abi.encode(uint256(0))
+      targetValue: abi.encode(uint256ToNegativeInt256(entitySimData.mass))
     });
     allCAEventData[1] = CAEventData({ eventType: CAEventType.SimEvent, eventData: abi.encode(massEventData) });
     return allCAEventData;

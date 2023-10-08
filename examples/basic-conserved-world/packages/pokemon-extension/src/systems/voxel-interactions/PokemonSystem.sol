@@ -7,6 +7,7 @@ import { System } from "@latticexyz/world/src/System.sol";
 import { calculateBlockDirection } from "@tenet-utils/src/VoxelCoordUtils.sol";
 import { VoxelEntity, BlockDirection, VoxelCoord, BodySimData, CAEventData, CAEventType, ObjectType, SimEventData, SimTable } from "@tenet-utils/src/Types.sol";
 import { getOppositeDirection } from "@tenet-utils/src/VoxelCoordUtils.sol";
+import { uint256ToNegativeInt256 } from "@tenet-utils/src/TypeUtils.sol";
 import { Soil } from "@tenet-pokemon-extension/src/codegen/tables/Soil.sol";
 import { Plant } from "@tenet-pokemon-extension/src/codegen/tables/Plant.sol";
 import { PlantStage } from "@tenet-pokemon-extension/src/codegen/Types.sol";
@@ -277,7 +278,7 @@ contract PokemonSystem is System {
 
     SimEventData memory moveEventData = SimEventData({
       senderTable: SimTable.Stamina,
-      senderValue: abi.encode(staminaAmount),
+      senderValue: abi.encode(uint256ToNegativeInt256(staminaAmount)),
       targetEntity: targetEntity,
       targetCoord: targetCoord,
       targetTable: SimTable.Action,

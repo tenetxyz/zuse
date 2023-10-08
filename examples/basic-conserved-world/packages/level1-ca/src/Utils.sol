@@ -5,6 +5,7 @@ import { safeCall, safeStaticCall } from "@tenet-utils/src/CallUtils.sol";
 import { caEntityToEntity } from "@tenet-base-ca/src/Utils.sol";
 import { CAEntityReverseMapping, CAEntityReverseMappingTableId, CAEntityReverseMappingData } from "@tenet-base-ca/src/codegen/tables/CAEntityReverseMapping.sol";
 import { VoxelEntity, VoxelCoord, BodySimData, CAEventData, CAEventType, SimEventData, SimTable } from "@tenet-utils/src/Types.sol";
+import { uint256ToInt256, uint256ToNegativeInt256 } from "@tenet-utils/src/TypeUtils.sol";
 import { console } from "forge-std/console.sol";
 import { SHARD_DIM } from "@tenet-level1-ca/src/Constants.sol";
 
@@ -28,10 +29,7 @@ function shardCoordToCoord(VoxelCoord memory coord) pure returns (VoxelCoord mem
 }
 
 function getEntitySimData(bytes32 caEntity) view returns (BodySimData memory) {
-  console.log("getEntitySimData");
-  console.logBytes32(caEntity);
   CAEntityReverseMappingData memory entityData = CAEntityReverseMapping.get(caEntity);
-  console.logBytes32(entityData.entity);
   VoxelEntity memory entity = VoxelEntity({ scale: 1, entityId: entityData.entity });
   bytes memory returnData = safeStaticCall(
     entityData.callerAddress,
@@ -49,20 +47,13 @@ function transferEnergy(
 ) view returns (CAEventData memory) {
   CAEntityReverseMappingData memory entityData = CAEntityReverseMapping.get(targetCAEntity);
   VoxelEntity memory targetEntity = VoxelEntity({ scale: 1, entityId: entityData.entity });
-  bytes memory returnData = safeStaticCall(
-    entityData.callerAddress,
-    abi.encodeWithSignature("getEntityEnergy((uint32,bytes32))", targetEntity),
-    "getEntityEnergy"
-  );
-  uint256 currentTargetEnergy = abi.decode(returnData, (uint256));
-  uint256 targetAmount = currentTargetEnergy + energyToTransfer;
   SimEventData memory eventData = SimEventData({
     senderTable: SimTable.Energy,
-    senderValue: abi.encode(senderBodyPhysics.energy),
+    senderValue: abi.encode(uint256ToNegativeInt256(energyToTransfer)),
     targetEntity: targetEntity,
     targetCoord: targetCoord,
     targetTable: SimTable.Energy,
-    targetValue: abi.encode(targetAmount)
+    targetValue: abi.encode(uint256ToInt256(energyToTransfer))
   });
   return CAEventData({ eventType: CAEventType.SimEvent, eventData: abi.encode(eventData) });
 }

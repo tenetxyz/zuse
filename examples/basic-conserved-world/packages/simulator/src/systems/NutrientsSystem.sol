@@ -11,7 +11,7 @@ import { VoxelTypeRegistry, VoxelTypeRegistryData } from "@tenet-registry/src/co
 import { distanceBetween, voxelCoordsAreEqual, isZeroCoord } from "@tenet-utils/src/VoxelCoordUtils.sol";
 import { int256ToUint256 } from "@tenet-utils/src/TypeUtils.sol";
 import { isEntityEqual } from "@tenet-utils/src/Utils.sol";
-import { getVelocity, getTerrainMass, getTerrainEnergy, getTerrainVelocity } from "@tenet-simulator/src/Utils.sol";
+import { getVelocity, getTerrainMass, getTerrainEnergy, getTerrainVelocity, createTerrainEntity } from "@tenet-simulator/src/Utils.sol";
 import { console } from "forge-std/console.sol";
 
 contract NutrientsSystem is SimHandler {
@@ -20,6 +20,13 @@ contract NutrientsSystem is SimHandler {
       SimTable.Energy,
       SimTable.Nutrients,
       IWorld(_world()).updateNutrientsFromEnergy.selector,
+      ValueType.Int256,
+      ValueType.Int256
+    );
+    SimSelectors.set(
+      SimTable.Nutrients,
+      SimTable.Nutrients,
+      IWorld(_world()).updateNutrientsFromNutrients.selector,
       ValueType.Int256,
       ValueType.Int256
     );
@@ -58,6 +65,55 @@ contract NutrientsSystem is SimHandler {
       );
     } else {
       revert("You can't convert other's energy to nutrients");
+    }
+  }
+
+  function updateNutrientsFromNutrients(
+    VoxelEntity memory senderEntity,
+    VoxelCoord memory senderCoord,
+    int256 senderNutrientsDelta,
+    VoxelEntity memory receiverEntity,
+    VoxelCoord memory receiverCoord,
+    int256 receiverNutrientsDelta
+  ) public {
+    address callerAddress = super.getCallerAddress();
+    bool entityExists = hasKey(
+      NutrientsTableId,
+      Nutrients.encodeKeyTuple(callerAddress, senderEntity.scale, senderEntity.entityId)
+    );
+    require(entityExists, "Sender entity does not exist");
+    if (isEntityEqual(senderEntity, receiverEntity)) {
+      revert("You can't convert your own nutrients to nutrients");
+    } else {
+      require(receiverNutrientsDelta > 0, "Cannot decrease someone's nutrients");
+      require(senderNutrientsDelta < 0, "Cannot increase your own nutrients");
+      uint256 senderNutrients = int256ToUint256(receiverNutrientsDelta);
+      uint256 receiverNutrients = int256ToUint256(receiverNutrientsDelta);
+      // TODO: Use NPK to figure out how much nutrients to convert, right now it's 1:1
+      require(senderNutrients == receiverNutrients, "Sender nutrients must equal receiver nutrients");
+
+      uint256 currentSenderNutrients = Nutrients.get(callerAddress, senderEntity.scale, senderEntity.entityId);
+      require(currentSenderNutrients >= senderNutrients, "Not enough nutrients to transfer");
+      bool nutrientsReceiverEntityExists = hasKey(
+        MassTableId,
+        Mass.encodeKeyTuple(callerAddress, receiverEntity.scale, receiverEntity.entityId)
+      );
+      if (!energyReceiverEntityExists) {
+        receiverEntity = createTerrainEntity(callerAddress, receiverEntity.scale, receiverCoord);
+        nutrientsReceiverEntityExists = hasKey(
+          EnergyTableId,
+          Mass.encodeKeyTuple(callerAddress, receiverEntity.scale, receiverEntity.entityId)
+        );
+      }
+      require(nutrientsReceiverEntityExists, "Receiver entity does not exist");
+      uint256 currentReceiverNutrients = Nutrients.get(callerAddress, receiverEntity.scale, receiverEntity.entityId);
+      Nutrients.set(
+        callerAddress,
+        receiverEntity.scale,
+        receiverEntity.entityId,
+        currentReceiverNutrients + receiverNutrients
+      );
+      Nutrients.set(callerAddress, senderEntity.scale, senderEntity.entityId, currentSenderNutrients - senderNutrients);
     }
   }
 }

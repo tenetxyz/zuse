@@ -864,7 +864,7 @@ __metadata:
   languageName: node
   linkType: soft
 
-"@tenetxyz/simulator@workspace:packages/simulator":
+"@tenetxyz/simulator@workspace:*, @tenetxyz/simulator@workspace:packages/simulator":
   version: 0.0.0-use.local
   resolution: "@tenetxyz/simulator@workspace:packages/simulator"
   dependencies:
@@ -940,6 +940,7 @@ __metadata:
     "@tenetxyz/level1-ca": "workspace:*"
     "@tenetxyz/pokemon-extension": "workspace:*"
     "@tenetxyz/registry": "link:../../../../packages/registry"
+    "@tenetxyz/simulator": "workspace:*"
     "@tenetxyz/utils": "link:../../../../packages/utils"
     "@typechain/ethers-v5": ^10.2.0
     "@types/node": ^18.15.11

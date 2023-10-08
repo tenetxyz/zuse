@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+cur_directory="$(cd "$(dirname "$0")" && pwd)"
+
 # Define a function to handle the concurrent command
 run_example() {
     local path="$1"
@@ -19,7 +21,7 @@ if [[ "$1" == "run" ]]; then
             concurrently -n anvil,contracts,client -c blue,green,white "./t run dev:anvil" "./t run dev:framework $4 && ./t run dev:$3"  "./t run dev:client"
             ;;
         "dev-no-client")
-            concurrently -n anvil,contracts -c blue,green,white "./t run dev:anvil" "./t run dev:framework $4 && ./t run dev:$3 $4 $5"
+            concurrently -n anvil,contracts -c blue,green,white "./t run dev:anvil" "./t run dev:framework $4 && ./t run dev:$3 $4 $5 $6"
             ;;
         "dev:anvil")
             cd scripts && yarn run anvil
@@ -41,6 +43,9 @@ if [[ "$1" == "run" ]]; then
             extra_cmd=""
             if [[ "$3" == "--with-pokemon" ]] || [[ "$4" == "--with-pokemon" ]]; then
                 extra_cmd="yarn run deploy:pokemon"
+            fi
+            if [[ "$4" == "--snapshot" ]] || [[ "$5" == "--snapshot" ]]; then
+                extra_cmd="${extra_cmd} && sh ${cur_directory}/scripts/rollback/create_snapshot.sh"
             fi
             run_example "basic-conserved-world" "$extra_cmd"
             ;;

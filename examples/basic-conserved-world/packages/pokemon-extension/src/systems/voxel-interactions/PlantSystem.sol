@@ -243,6 +243,9 @@ contract PlantSystem is VoxelInteraction {
         return (plantData, allCAEventData, false);
       }
       numPokemonNeighbours = calculateNumPokemonNeighbours(callerAddress, neighbourEntityIds);
+      if (numPokemonNeighbours == 0) {
+        return (plantData, allCAEventData, false);
+      }
       transferAmount = harvestPlantEnergy / numPokemonNeighbours;
     }
 

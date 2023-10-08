@@ -37,9 +37,6 @@ if [[ "$1" == "run" ]]; then
         "dev:basic-world")
             run_example "basic-world"
             ;;
-        "dev:basic-agent-world")
-            run_example "basic-agent-world"
-            ;;
         "dev:basic-conserved-world")
             extra_cmd=""
             if [[ "$3" == "--with-pokemon" ]] || [[ "$4" == "--with-pokemon" ]]; then

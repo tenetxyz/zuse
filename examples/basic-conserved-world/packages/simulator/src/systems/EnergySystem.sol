@@ -48,7 +48,6 @@ contract EnergySystem is SimHandler {
     }
     // If it doesn't exist, it'll be 0
     uint256 currentReceiverEnergy = Energy.get(callerAddress, receiverEntity.scale, receiverEntity.entityId);
-    console.log("energy system");
     if (isEntityEqual(senderEntity, receiverEntity)) {
       // Transformation
       require(receiverEnergyDelta < 0, "Cannot increase your own energy");

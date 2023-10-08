@@ -213,7 +213,7 @@ abstract contract CAInteraction is System {
     address callerAddress = _msgSender();
     require(
       hasKey(CAVoxelTypeTableId, CAVoxelType.encodeKeyTuple(callerAddress, interactEntity)),
-      "Entity does not exist"
+      "Entity does not exist for runInteraction"
     );
     bytes32 voxelTypeId = CAVoxelType.getVoxelTypeId(callerAddress, interactEntity);
 

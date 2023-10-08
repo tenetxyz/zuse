@@ -4,7 +4,7 @@ pragma solidity >=0.8.0;
 import { IStore } from "@latticexyz/store/src/IStore.sol";
 import { VoxelInteraction } from "@tenet-base-ca/src/prototypes/VoxelInteraction.sol";
 import { VoxelEntity, BlockDirection, BodySimData, CAEventData, CAEventType, SimEventData, SimTable, VoxelCoord } from "@tenet-utils/src/Types.sol";
-import { getOppositeDirection } from "@tenet-utils/src/VoxelCoordUtils.sol";
+import { getOppositeDirection, uint256ToNegativeInt256 } from "@tenet-utils/src/VoxelCoordUtils.sol";
 import { Soil } from "@tenet-pokemon-extension/src/codegen/tables/Soil.sol";
 import { CAEntityReverseMapping, CAEntityReverseMappingTableId, CAEntityReverseMappingData } from "@tenet-base-ca/src/codegen/tables/CAEntityReverseMapping.sol";
 import { Plant, PlantData } from "@tenet-pokemon-extension/src/codegen/tables/Plant.sol";
@@ -324,11 +324,11 @@ contract PlantSystem is VoxelInteraction {
     allCAEventData[0] = CAEventData({ eventType: CAEventType.SimEvent, eventData: abi.encode(energyEventData) });
     SimEventData memory massEventData = SimEventData({
       senderTable: SimTable.Mass,
-      senderValue: abi.encode(entitySimData.mass),
+      senderValue: abi.encode(uint256ToNegativeInt256(entitySimData.mass)),
       targetEntity: entity,
       targetCoord: coord,
       targetTable: SimTable.Mass,
-      targetValue: abi.encode(uint256(0))
+      targetValue: abi.encode(uint256ToNegativeInt256(entitySimData.mass))
     });
     allCAEventData[1] = CAEventData({ eventType: CAEventType.SimEvent, eventData: abi.encode(massEventData) });
     return allCAEventData;

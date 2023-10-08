@@ -141,7 +141,7 @@ struct BodySimData {
 }
 
 enum ValueType {
-  Uint256,
+  Int256,
   ObjectType
 }
 

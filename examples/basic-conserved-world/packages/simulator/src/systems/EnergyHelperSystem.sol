@@ -19,7 +19,6 @@ uint256 constant MAXIMUM_ENERGY_OUT = 100;
 uint256 constant MAXIMUM_ENERGY_IN = 100;
 
 contract EnergyHelperSystem is System {
-  // Users can call this
   function fluxEnergy(
     bool isFluxIn,
     address callerAddress,
@@ -30,13 +29,6 @@ contract EnergyHelperSystem is System {
       hasKey(EnergyTableId, Energy.encodeKeyTuple(callerAddress, centerVoxelEntity.scale, centerVoxelEntity.entityId)),
       "Entity with energy does not exist"
     );
-    if (!isFluxIn) {
-      require(
-        _msgSender() == _world() ||
-          Energy.get(callerAddress, centerVoxelEntity.scale, centerVoxelEntity.entityId) >= energyToFlux,
-        "Cannot flux out more energy than you have"
-      );
-    }
     uint8 radius = 1;
     while (energyToFlux > 0) {
       if (radius > 255) {
@@ -89,9 +81,17 @@ contract EnergyHelperSystem is System {
 
     for (uint256 i = 0; i < neighbourEntities.length; i++) {
       if (uint256(neighbourEntities[i]) == 0) {
-        if (isFluxIn && getTerrainEnergy(callerAddress, centerVoxelEntity.scale, neighbourCoords[i]) == 0) {
-          // if we are taking energy from the terrain, we can't take from terrain that has no energy
-          continue;
+        if (isFluxIn) {
+          if (getTerrainEnergy(callerAddress, centerVoxelEntity.scale, neighbourCoords[i]) == 0) {
+            // if we are taking energy from the terrain, we can't take from terrain that has no energy
+            continue;
+          }
+        } else {
+          // if we are giving energy to the terrain, we can only give to terrain that has mass
+          // ie air doesn't have mass, and so we can't give energy to it
+          if (getTerrainMass(callerAddress, centerVoxelEntity.scale, neighbourCoords[i]) == 0) {
+            continue;
+          }
         }
         // create the entities that don't exist from the terrain
         VoxelEntity memory newTerrainEntity = createTerrainEntity(
@@ -109,9 +109,11 @@ contract EnergyHelperSystem is System {
           numNeighboursToInclude++;
         }
       } else {
-        // we can flux out to all the neighbours
-        neighbourEnergyDelta[i] = MAXIMUM_ENERGY_IN;
-        numNeighboursToInclude++;
+        if (Mass.get(callerAddress, centerVoxelEntity.scale, neighbourEntities[i]) > 0) {
+          // we only flux out to neighbours that have mass
+          neighbourEnergyDelta[i] = MAXIMUM_ENERGY_IN;
+          numNeighboursToInclude++;
+        }
       }
     }
   }

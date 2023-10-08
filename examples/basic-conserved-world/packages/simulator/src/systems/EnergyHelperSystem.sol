@@ -26,7 +26,7 @@ contract EnergyHelperSystem is System {
   ) public {
     require(
       hasKey(EnergyTableId, Energy.encodeKeyTuple(callerAddress, centerVoxelEntity.scale, centerVoxelEntity.entityId)),
-      "Entity does not exist"
+      "Entity with energy does not exist"
     );
     if (!isFluxIn) {
       require(

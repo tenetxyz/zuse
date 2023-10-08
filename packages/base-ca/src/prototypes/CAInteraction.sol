@@ -96,8 +96,14 @@ abstract contract CAInteraction is System {
           );
           useinteractionSelector = abi.decode(mindReturnData, (bytes4));
           if (useinteractionSelector == bytes4(0)) {
-            // The mind has chosen to not run a voxel interaction
-            return (changedCenterEntityId, centerEntityEventData);
+            if (interactionSelectors.length > 0) {
+              // Note: we could return and not run any if the mind doesn't pick an interaction
+              // however, we run the first one instead for voxel types to ensure specific behaviour always runs
+              useinteractionSelector = interactionSelectors[0].interactionSelector;
+            } else {
+              // This voxel has no interaction selectors, so we don't run any interaction
+              return (changedCenterEntityId, centerEntityEventData);
+            }
           }
         } else {
           if (interactionSelectors.length == 1) {
@@ -207,7 +213,7 @@ abstract contract CAInteraction is System {
     address callerAddress = _msgSender();
     require(
       hasKey(CAVoxelTypeTableId, CAVoxelType.encodeKeyTuple(callerAddress, interactEntity)),
-      "Entity does not exist"
+      "Entity does not exist for runInteraction"
     );
     bytes32 voxelTypeId = CAVoxelType.getVoxelTypeId(callerAddress, interactEntity);
 

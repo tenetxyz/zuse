@@ -8,14 +8,15 @@ import { NoaBlockType } from "@tenet-registry/src/codegen/Types.sol";
 import { hasKey } from "@latticexyz/world/src/modules/keysintable/hasKey.sol";
 import { registerVoxelVariant, registerVoxelType } from "@tenet-registry/src/Utils.sol";
 import { CA_ADDRESS, REGISTRY_ADDRESS, GrassPokemonVoxelID } from "@tenet-pokemon-extension/src/Constants.sol";
-import { BlockDirection, BodyPhysicsData, VoxelCoord } from "@tenet-utils/src/Types.sol";
+import { BlockDirection, BodySimData, VoxelCoord, ObjectType } from "@tenet-utils/src/Types.sol";
 import { VoxelCoord, VoxelSelectors, InteractionSelector, ComponentDef, RangeComponent, StateComponent, ComponentType } from "@tenet-utils/src/Types.sol";
 import { getFirstCaller } from "@tenet-utils/src/Utils.sol";
 import { getCAEntityAtCoord, getCAVoxelType } from "@tenet-base-ca/src/Utils.sol";
 import { entityIsSoil, entityIsPlant, entityIsPokemon } from "@tenet-pokemon-extension/src/InteractionUtils.sol";
 import { registerCAVoxelType } from "@tenet-base-ca/src/CallUtils.sol";
-import { getVoxelBodyPhysicsFromCaller, transferEnergy } from "@tenet-level1-ca/src/Utils.sol";
-import { Pokemon, PokemonData, PokemonMove, PokemonType } from "@tenet-pokemon-extension/src/codegen/tables/Pokemon.sol";
+import { getEntitySimData, transferEnergy } from "@tenet-level1-ca/src/Utils.sol";
+import { Pokemon, PokemonData } from "@tenet-pokemon-extension/src/codegen/tables/Pokemon.sol";
+import { PokemonMove } from "@tenet-pokemon-extension/src/Types.sol";
 import { console } from "forge-std/console.sol";
 
 bytes32 constant PokemonVoxelVariantID = bytes32(keccak256("pokemon-grass"));
@@ -93,18 +94,7 @@ contract GrassPokemonAgentSystem is AgentType {
     Pokemon.set(
       callerAddress,
       entity,
-      PokemonData({
-        lastEnergy: 0,
-        health: 0,
-        lostHealth: 0,
-        stamina: 0,
-        lostStamina: 0,
-        lastUpdatedBlock: 0,
-        round: 0,
-        pokemonType: PokemonType.Grass,
-        move: PokemonMove.None,
-        hasValue: hasValue
-      })
+      PokemonData({ lastFaintedBlock: 0, pokemonType: ObjectType.Grass, hasValue: hasValue })
     );
   }
 
@@ -142,8 +132,8 @@ contract GrassPokemonAgentSystem is AgentType {
   function getInteractionSelectors() public override returns (InteractionSelector[] memory) {
     InteractionSelector[] memory voxelInteractionSelectors = new InteractionSelector[](13);
     voxelInteractionSelectors[0] = InteractionSelector({
-      interactionSelector: IWorld(_world()).pokemon_GrassPokemonAgen_replenishEnergyEventHandler.selector,
-      interactionName: "Replenish Energy",
+      interactionSelector: IWorld(_world()).pokemon_GrassPokemonAgen_defaultEventHandler.selector,
+      interactionName: "Default",
       interactionDescription: ""
     });
     voxelInteractionSelectors[1] = InteractionSelector({
@@ -210,7 +200,7 @@ contract GrassPokemonAgentSystem is AgentType {
     return voxelInteractionSelectors;
   }
 
-  function replenishEnergyEventHandler(
+  function defaultEventHandler(
     bytes32 centerEntityId,
     bytes32[] memory neighbourEntityIds,
     bytes32[] memory childEntityIds,

@@ -21,6 +21,8 @@ import { ENERGY_REQUIRED_FOR_SPROUT, ENERGY_REQUIRED_FOR_FLOWER } from "@tenet-p
 import { Mass } from "@tenet-simulator/src/codegen/tables/Mass.sol";
 import { Energy } from "@tenet-simulator/src/codegen/tables/Energy.sol";
 import { Velocity } from "@tenet-simulator/src/codegen/tables/Velocity.sol";
+import { Health } from "@tenet-simulator/src/codegen/tables/Health.sol";
+import { Stamina } from "@tenet-simulator/src/codegen/tables/Stamina.sol";
 
 contract PlantTest is MudTest {
   IWorld private world;
@@ -162,15 +164,9 @@ contract PlantTest is MudTest {
       VoxelEntity memory pokemonEntity = world.buildWithAgent(FirePokemonVoxelID, pokemonCoord, agentEntity, bytes4(0));
       // pokemon entity should have some energy
       plantEnergy = Energy.get(IStore(SIMULATOR_ADDRESS), worldAddress, plantEntity.scale, plantEntity.entityId);
-      assertTrue(plantEnergy == 0);
-      assertTrue(
-        Energy.get(IStore(SIMULATOR_ADDRESS), worldAddress, pokemonEntity.scale, pokemonEntity.entityId) ==
-          beforePokemonPlantEnergy
-      );
-      vm.roll(block.number + 10);
-      world.mineWithAgent(SoilVoxelID, soilCoord, agentEntity);
-      plantData = Plant.get(IStore(BASE_CA_ADDRESS), worldAddress, plantCAEntity);
-      assertTrue(plantData.stage != PlantStage.Flower);
+      assertTrue(plantEnergy < beforePokemonPlantEnergy);
+      assertTrue(Health.get(IStore(SIMULATOR_ADDRESS), worldAddress, pokemonEntity.scale, pokemonEntity.entityId) > 0);
+      assertTrue(Stamina.get(IStore(SIMULATOR_ADDRESS), worldAddress, pokemonEntity.scale, pokemonEntity.entityId) > 0);
     }
 
     vm.stopPrank();

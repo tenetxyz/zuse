@@ -52,6 +52,8 @@ contract CAEventsSystem is System {
             simEventData.targetEntity = VoxelEntity({ scale: entity.scale, entityId: targetEntityId });
           }
           console.log("setting sim value");
+          console.logUint(uint(simEventData.senderTable));
+          console.logUint(uint(simEventData.targetTable));
           setSimValue(
             SIMULATOR_ADDRESS,
             entity,
@@ -78,9 +80,26 @@ contract CAEventsSystem is System {
           }
 
           if (!calledWorldEvent) {
-            entitiesToRunCA[entitiesToRunCAIdx] = simEventData.targetEntity;
-            entitiesToRunCAIdx++;
-            require(entitiesToRunCAIdx < MAX_VOXEL_NEIGHBOUR_UPDATE_DEPTH, "Too many entities to run CA");
+            if (simEventData.targetEntity.scale == 0 && simEventData.targetEntity.entityId == 0) {
+              continue;
+            }
+
+            console.log("running ca");
+            EntityEventData[] memory newEntitiesEventData = IWorld(_world()).runCA(
+              WorldConfig.get(
+                VoxelType.getVoxelTypeId(simEventData.targetEntity.scale, simEventData.targetEntity.entityId)
+              ),
+              simEventData.targetEntity,
+              bytes4(0)
+            );
+            for (uint k = 0; k < newEntitiesEventData.length; k++) {
+              if (newEntitiesEventData[k].eventData.length > 0) {
+                console.log("new event from post run sim event");
+                allNewEntitiesEventData[allNewEntitiesEventDataIdx] = newEntitiesEventData[k];
+                allNewEntitiesEventDataIdx++;
+                require(allNewEntitiesEventDataIdx < MAX_VOXEL_NEIGHBOUR_UPDATE_DEPTH, "Too many new entities");
+              }
+            }
           }
         } else if (caEventData.eventType == CAEventType.WorldEvent) {
           WorldEventData memory worldEventData = abi.decode(caEventData.eventData, (WorldEventData));
@@ -92,24 +111,7 @@ contract CAEventsSystem is System {
       }
     }
 
-    // Run all the CA's
-    for (uint i; i < entitiesToRunCA.length; i++) {
-      VoxelEntity memory entity = entitiesToRunCA[i];
-      if (entity.scale == 0 && entity.entityId == 0) {
-        continue;
-      }
-      bytes32 voxelTypeId = VoxelType.getVoxelTypeId(entity.scale, entity.entityId);
-      address caAddress = WorldConfig.get(voxelTypeId);
-      console.log("running ca");
-      EntityEventData[] memory newEntitiesEventData = IWorld(_world()).runCA(caAddress, entity, bytes4(0));
-      for (uint j = 0; j < newEntitiesEventData.length; j++) {
-        if (newEntitiesEventData[j].eventData.length > 0) {
-          allNewEntitiesEventData[allNewEntitiesEventDataIdx] = newEntitiesEventData[j];
-          allNewEntitiesEventDataIdx++;
-          require(allNewEntitiesEventDataIdx < MAX_VOXEL_NEIGHBOUR_UPDATE_DEPTH, "Too many new entities");
-        }
-      }
-    }
+    console.log("finished processing");
     if (allNewEntitiesEventDataIdx > 0) {
       console.log("recurse");
       caEventsHandler(allNewEntitiesEventData);

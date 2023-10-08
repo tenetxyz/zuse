@@ -2,8 +2,9 @@
 pragma solidity >=0.8.0;
 
 import { safeCall, safeStaticCall } from "@tenet-utils/src/CallUtils.sol";
+import { caEntityToEntity } from "@tenet-base-ca/src/Utils.sol";
 import { CAEntityReverseMapping, CAEntityReverseMappingTableId, CAEntityReverseMappingData } from "@tenet-base-ca/src/codegen/tables/CAEntityReverseMapping.sol";
-import { VoxelEntity, VoxelCoord, BodyPhysicsData, CAEventData, CAEventType, SimEventData, SimTable } from "@tenet-utils/src/Types.sol";
+import { VoxelEntity, VoxelCoord, BodySimData, CAEventData, CAEventType, SimEventData, SimTable } from "@tenet-utils/src/Types.sol";
 import { console } from "forge-std/console.sol";
 import { SHARD_DIM } from "@tenet-level1-ca/src/Constants.sol";
 
@@ -26,19 +27,22 @@ function shardCoordToCoord(VoxelCoord memory coord) pure returns (VoxelCoord mem
   return VoxelCoord({ x: coord.x * SHARD_DIM, y: coord.y * SHARD_DIM, z: coord.z * SHARD_DIM });
 }
 
-function getVoxelBodyPhysicsFromCaller(bytes32 caEntity) view returns (BodyPhysicsData memory) {
+function getEntitySimData(bytes32 caEntity) view returns (BodySimData memory) {
+  console.log("getEntitySimData");
+  console.logBytes32(caEntity);
   CAEntityReverseMappingData memory entityData = CAEntityReverseMapping.get(caEntity);
+  console.logBytes32(entityData.entity);
   VoxelEntity memory entity = VoxelEntity({ scale: 1, entityId: entityData.entity });
   bytes memory returnData = safeStaticCall(
     entityData.callerAddress,
-    abi.encodeWithSignature("getEntityBodyPhysics((uint32,bytes32))", entity),
-    "getEntityBodyPhysics"
+    abi.encodeWithSignature("getEntitySimData((uint32,bytes32))", entity),
+    "getEntitySimData"
   );
-  return abi.decode(returnData, (BodyPhysicsData));
+  return abi.decode(returnData, (BodySimData));
 }
 
 function transferEnergy(
-  BodyPhysicsData memory senderBodyPhysics,
+  BodySimData memory senderBodyPhysics,
   bytes32 targetCAEntity,
   VoxelCoord memory targetCoord,
   uint256 energyToTransfer

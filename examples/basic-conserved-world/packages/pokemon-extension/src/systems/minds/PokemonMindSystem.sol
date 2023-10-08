@@ -4,16 +4,16 @@ pragma solidity >=0.8.0;
 import { IWorld } from "@tenet-pokemon-extension/src/codegen/world/IWorld.sol";
 import { IStore } from "@latticexyz/store/src/IStore.sol";
 import { MindType } from "@tenet-base-ca/src/prototypes/MindType.sol";
-import { Mind, VoxelCoord, VoxelEntity, InteractionSelector, CreationMetadata, CreationSpawns } from "@tenet-utils/src/Types.sol";
+import { Mind, VoxelCoord, VoxelEntity, InteractionSelector, CreationMetadata, CreationSpawns, ObjectType } from "@tenet-utils/src/Types.sol";
 import { registerMindIntoRegistry } from "@tenet-registry/src/Utils.sol";
 import { REGISTRY_ADDRESS, FirePokemonVoxelID } from "@tenet-pokemon-extension/src/Constants.sol";
 import { getInteractionSelectors } from "@tenet-registry/src/Utils.sol";
 import { isStringEqual } from "@tenet-utils/src/StringUtils.sol";
-import { Pokemon, PokemonData, PokemonMove } from "@tenet-pokemon-extension/src/codegen/tables/Pokemon.sol";
+import { Pokemon, PokemonData } from "@tenet-pokemon-extension/src/codegen/tables/Pokemon.sol";
 import { entityIsSoil, entityIsPlant, entityIsPokemon } from "@tenet-pokemon-extension/src/InteractionUtils.sol";
 import { console } from "forge-std/console.sol";
-import { getVoxelBodyPhysicsFromCaller, transferEnergy } from "@tenet-level1-ca/src/Utils.sol";
-import { BlockDirection, BodyPhysicsData, VoxelCoord } from "@tenet-utils/src/Types.sol";
+import { getEntitySimData, transferEnergy } from "@tenet-level1-ca/src/Utils.sol";
+import { BlockDirection, BodySimData, VoxelCoord } from "@tenet-utils/src/Types.sol";
 import { isZeroCoord, voxelCoordsAreEqual } from "@tenet-utils/src/VoxelCoordUtils.sol";
 
 contract PokemonMindSystem is MindType {
@@ -45,19 +45,23 @@ contract PokemonMindSystem is MindType {
     revert("Selector not found");
   }
 
-  function canFight(address callerAddress, bytes32 pokemonEntityId) public view returns (bool) {
-    BodyPhysicsData memory entityBodyPhysics = getVoxelBodyPhysicsFromCaller(pokemonEntityId);
-    VoxelCoord memory currentVelocity = abi.decode(entityBodyPhysics.velocity, (VoxelCoord));
+  function canFight(address callerAddress, bytes32 pokemonEntityId, bool self) public view returns (bool) {
+    BodySimData memory entitySimData = getEntitySimData(pokemonEntityId);
+    VoxelCoord memory currentVelocity = abi.decode(entitySimData.velocity, (VoxelCoord));
     if (!isZeroCoord(currentVelocity)) {
       return false;
     }
-    PokemonData memory pokemonData = Pokemon.get(callerAddress, pokemonEntityId);
-    if (pokemonData.health == 0) {
+    // PokemonData memory pokemonData = Pokemon.get(callerAddress, pokemonEntityId);
+    if (entitySimData.health == 0 || entitySimData.stamina == 0) {
       return false;
     }
-    if (pokemonData.round == -1) {
-      return false;
+
+    if (self) {
+      if (entitySimData.actionData.actionType != ObjectType.None) {
+        return false;
+      }
     }
+
     return true;
   }
 
@@ -86,11 +90,11 @@ contract PokemonMindSystem is MindType {
     }
 
     if (opponentPokemonEntityId != 0) {
-      if (canFight(callerAddress, interactEntity) && canFight(callerAddress, opponentPokemonEntityId)) {
+      console.log("checking can fight");
+      if (canFight(callerAddress, interactEntity, true) && canFight(callerAddress, opponentPokemonEntityId, false)) {
+        console.log("chosen ember");
         chosenSelector = getSelector(interactionSelectors, "Ember");
       }
-    } else {
-      chosenSelector = getSelector(interactionSelectors, "Replenish Energy");
     }
 
     return chosenSelector;

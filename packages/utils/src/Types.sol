@@ -51,7 +51,11 @@ enum SimTable {
   None,
   Mass,
   Energy,
-  Velocity
+  Velocity,
+  Health,
+  Stamina,
+  Object,
+  Action
 }
 
 struct SimEventData {
@@ -118,11 +122,33 @@ struct VoxelTypeData {
   bytes32 voxelVariantId;
 }
 
-struct BodyPhysicsData {
+enum ObjectType {
+  None,
+  Fire,
+  Water,
+  Grass
+}
+
+struct BodySimData {
   uint256 mass;
   uint256 energy;
   uint256 lastUpdateBlock;
   bytes velocity;
+  uint256 health;
+  uint256 stamina;
+  ObjectType objectType;
+  ActionData actionData;
+}
+
+enum ValueType {
+  Uint256,
+  ObjectType
+}
+
+struct ActionData {
+  ObjectType actionType;
+  uint256 stamina;
+  bytes actionEntity;
 }
 
 struct CreationSpawns {

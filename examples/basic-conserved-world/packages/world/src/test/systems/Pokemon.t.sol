@@ -6,7 +6,7 @@ import { MudTest } from "@latticexyz/store/src/MudTest.sol";
 import { IStore } from "@latticexyz/store/src/IStore.sol";
 import { IWorld } from "@tenet-world/src/codegen/world/IWorld.sol";
 import { VoxelType, OwnedBy } from "@tenet-world/src/codegen/Tables.sol";
-import { VoxelCoord, VoxelTypeData, VoxelEntity, Mind } from "@tenet-utils/src/Types.sol";
+import { VoxelCoord, VoxelTypeData, VoxelEntity, Mind, ObjectType } from "@tenet-utils/src/Types.sol";
 import { getEntityAtCoord, getEntityPositionStrict, positionDataToVoxelCoord } from "@tenet-base-world/src/Utils.sol";
 import { FighterVoxelID, GrassVoxelID, AirVoxelID, DirtVoxelID, BedrockVoxelID } from "@tenet-level1-ca/src/Constants.sol";
 import { MindRegistry } from "@tenet-registry/src/codegen/tables/MindRegistry.sol";
@@ -22,6 +22,9 @@ import { NUM_BLOCKS_BEFORE_REDUCE_VELOCITY } from "@tenet-simulator/src/Constant
 import { Mass } from "@tenet-simulator/src/codegen/tables/Mass.sol";
 import { Energy } from "@tenet-simulator/src/codegen/tables/Energy.sol";
 import { Velocity } from "@tenet-simulator/src/codegen/tables/Velocity.sol";
+import { Health } from "@tenet-simulator/src/codegen/tables/Health.sol";
+import { Stamina } from "@tenet-simulator/src/codegen/tables/Stamina.sol";
+import { Object } from "@tenet-simulator/src/codegen/tables/Object.sol";
 
 contract PokemonTest is MudTest {
   IWorld private world;
@@ -51,17 +54,6 @@ contract PokemonTest is MudTest {
     vm.startPrank(alice, alice);
     VoxelEntity memory agentEntity = setupAgent();
 
-    {
-      VoxelCoord memory flower1Coord = VoxelCoord({ x: agentCoord.x, y: agentCoord.y, z: agentCoord.z + 1 });
-      VoxelEntity memory flower1Entity = world.buildWithAgent(PlantVoxelID, flower1Coord, agentEntity, bytes4(0));
-      Energy.set(IStore(SIMULATOR_ADDRESS), worldAddress, flower1Entity.scale, flower1Entity.entityId, 500);
-      vm.roll(block.number + 1);
-      world.activateWithAgent(PlantVoxelID, flower1Coord, agentEntity, bytes4(0));
-      bytes32 plant1CAEntity = CAEntityMapping.get(IStore(BASE_CA_ADDRESS), worldAddress, flower1Entity.entityId);
-      PlantData memory plant1Data = Plant.get(IStore(BASE_CA_ADDRESS), worldAddress, plant1CAEntity);
-      assertTrue(plant1Data.stage == PlantStage.Flower);
-    }
-
     // Get pokemon mind selector
     bytes4 mindSelector;
     {
@@ -79,29 +71,17 @@ contract PokemonTest is MudTest {
       agentEntity,
       mindSelector
     );
-    world.claimAgent(pokemon1Entity);
-    Energy.set(IStore(SIMULATOR_ADDRESS), worldAddress, pokemon1Entity.scale, pokemon1Entity.entityId, 500);
     assertTrue(
-      Energy.get(IStore(SIMULATOR_ADDRESS), worldAddress, pokemon1Entity.scale, pokemon1Entity.entityId) == 500
+      Object.get(IStore(SIMULATOR_ADDRESS), worldAddress, pokemon1Entity.scale, pokemon1Entity.entityId) ==
+        ObjectType.Fire
     );
-    // Activate pokemon
-    vm.roll(block.number + 1);
-    world.activateWithAgent(FirePokemonVoxelID, pokemon1Coord, agentEntity, bytes4(0));
-    bytes32 pokemon1CAEntity = CAEntityMapping.get(IStore(BASE_CA_ADDRESS), worldAddress, pokemon1Entity.entityId);
-    PokemonData memory pokemon1Data = Pokemon.get(IStore(BASE_CA_ADDRESS), worldAddress, pokemon1CAEntity);
-    assertTrue(pokemon1Data.health == 200);
-    assertTrue(pokemon1Data.stamina == 150);
+    world.claimAgent(pokemon1Entity);
+    Energy.set(IStore(SIMULATOR_ADDRESS), worldAddress, pokemon1Entity.scale, pokemon1Entity.entityId, 100);
+    Health.set(IStore(SIMULATOR_ADDRESS), worldAddress, pokemon1Entity.scale, pokemon1Entity.entityId, 200);
+    Stamina.set(IStore(SIMULATOR_ADDRESS), worldAddress, pokemon1Entity.scale, pokemon1Entity.entityId, 150);
 
-    {
-      VoxelCoord memory flower2Coord = VoxelCoord({ x: agentCoord.x, y: agentCoord.y, z: agentCoord.z - 1 });
-      VoxelEntity memory flower2Entity = world.buildWithAgent(PlantVoxelID, flower2Coord, agentEntity, bytes4(0));
-      Energy.set(IStore(SIMULATOR_ADDRESS), worldAddress, flower2Entity.scale, flower2Entity.entityId, 500);
-      vm.roll(block.number + 1);
-      world.activateWithAgent(PlantVoxelID, flower2Coord, agentEntity, bytes4(0));
-      bytes32 plant2CAEntity = CAEntityMapping.get(IStore(BASE_CA_ADDRESS), worldAddress, flower2Entity.entityId);
-      PlantData memory plant2Data = Plant.get(IStore(BASE_CA_ADDRESS), worldAddress, plant2CAEntity);
-      assertTrue(plant2Data.stage == PlantStage.Flower);
-    }
+    // Activate pokemon
+    bytes32 pokemon1CAEntity = CAEntityMapping.get(IStore(BASE_CA_ADDRESS), worldAddress, pokemon1Entity.entityId);
 
     pokemon2Coord = VoxelCoord({ x: agentCoord.x + 1, y: agentCoord.y, z: agentCoord.z - 1 });
     VoxelEntity memory pokemon2Entity = world.buildWithAgent(
@@ -110,38 +90,16 @@ contract PokemonTest is MudTest {
       agentEntity,
       mindSelector
     );
-    Energy.set(IStore(SIMULATOR_ADDRESS), worldAddress, pokemon2Entity.scale, pokemon2Entity.entityId, 500);
     assertTrue(
-      Energy.get(IStore(SIMULATOR_ADDRESS), worldAddress, pokemon2Entity.scale, pokemon2Entity.entityId) == 500
+      Object.get(IStore(SIMULATOR_ADDRESS), worldAddress, pokemon2Entity.scale, pokemon2Entity.entityId) ==
+        ObjectType.Fire
     );
-    // Activate pokemon
-    vm.roll(block.number + 1);
-    world.activateWithAgent(FirePokemonVoxelID, pokemon2Coord, agentEntity, bytes4(0));
-    bytes32 pokemon2CAEntity = CAEntityMapping.get(IStore(BASE_CA_ADDRESS), worldAddress, pokemon2Entity.entityId);
-    PokemonData memory pokemon2Data = Pokemon.get(IStore(BASE_CA_ADDRESS), worldAddress, pokemon2CAEntity);
-    assertTrue(pokemon2Data.health == 200);
-    assertTrue(pokemon2Data.stamina == 150);
+    Energy.set(IStore(SIMULATOR_ADDRESS), worldAddress, pokemon2Entity.scale, pokemon2Entity.entityId, 100);
+    Health.set(IStore(SIMULATOR_ADDRESS), worldAddress, pokemon2Entity.scale, pokemon2Entity.entityId, 200);
+    Stamina.set(IStore(SIMULATOR_ADDRESS), worldAddress, pokemon2Entity.scale, pokemon2Entity.entityId, 150);
 
-    // Mine both flowers
-    {
-      vm.roll(block.number + 1);
-      world.mineWithAgent(
-        PlantVoxelID,
-        VoxelCoord({ x: agentCoord.x, y: agentCoord.y, z: agentCoord.z - 1 }),
-        agentEntity
-      );
-      world.mineWithAgent(
-        PlantVoxelID,
-        VoxelCoord({ x: agentCoord.x, y: agentCoord.y, z: agentCoord.z + 1 }),
-        agentEntity
-      );
-      pokemon1Data = Pokemon.get(IStore(BASE_CA_ADDRESS), worldAddress, pokemon1CAEntity);
-      assertTrue(pokemon1Data.health == 200);
-      assertTrue(pokemon1Data.stamina == 150);
-      pokemon2Data = Pokemon.get(IStore(BASE_CA_ADDRESS), worldAddress, pokemon2CAEntity);
-      assertTrue(pokemon2Data.health == 200);
-      assertTrue(pokemon2Data.stamina == 150);
-    }
+    // Activate pokemon
+    bytes32 pokemon2CAEntity = CAEntityMapping.get(IStore(BASE_CA_ADDRESS), worldAddress, pokemon2Entity.entityId);
 
     // move pokemon1 beside pokemon2
     {
@@ -153,33 +111,24 @@ contract PokemonTest is MudTest {
       vm.roll(block.number + 1);
       (, pokemon1Entity) = world.moveWithAgent(FirePokemonVoxelID, pokemon1Coord, newPokemon1Coord, pokemon1Entity);
       vm.roll(block.number + NUM_BLOCKS_BEFORE_REDUCE_VELOCITY + 1);
-      uint256 pokemon1EnergyBefore = Energy.get(
-        IStore(SIMULATOR_ADDRESS),
-        worldAddress,
-        pokemon1Entity.scale,
-        pokemon1Entity.entityId
-      );
-      uint256 pokemon2EnergyBefore = Energy.get(
-        IStore(SIMULATOR_ADDRESS),
-        worldAddress,
-        pokemon2Entity.scale,
-        pokemon2Entity.entityId
-      );
+      console.log("commence fight");
       world.activateWithAgent(FirePokemonVoxelID, newPokemon1Coord, agentEntity, bytes4(0));
-      pokemon1Data = Pokemon.get(IStore(BASE_CA_ADDRESS), worldAddress, pokemon1CAEntity);
-      pokemon2Data = Pokemon.get(IStore(BASE_CA_ADDRESS), worldAddress, pokemon2CAEntity);
-      assertTrue(
-        Energy.get(IStore(SIMULATOR_ADDRESS), worldAddress, pokemon1Entity.scale, pokemon1Entity.entityId) <
-          pokemon1EnergyBefore
+      console.logUint(
+        Health.get(IStore(SIMULATOR_ADDRESS), worldAddress, pokemon1Entity.scale, pokemon1Entity.entityId)
+      );
+      console.logUint(
+        Health.get(IStore(SIMULATOR_ADDRESS), worldAddress, pokemon2Entity.scale, pokemon2Entity.entityId)
       );
       assertTrue(
-        Energy.get(IStore(SIMULATOR_ADDRESS), worldAddress, pokemon2Entity.scale, pokemon2Entity.entityId) <
-          pokemon2EnergyBefore
+        Health.get(IStore(SIMULATOR_ADDRESS), worldAddress, pokemon1Entity.scale, pokemon1Entity.entityId) == 0
       );
-      assertTrue(pokemon1Data.health == 0);
-      assertTrue(pokemon2Data.health == 0);
-      assertTrue(pokemon1Data.stamina < 150);
-      assertTrue(pokemon2Data.stamina < 150);
+      assertTrue(
+        Health.get(IStore(SIMULATOR_ADDRESS), worldAddress, pokemon2Entity.scale, pokemon2Entity.entityId) == 0
+      );
+      PokemonData memory pokemon1Data = Pokemon.get(IStore(BASE_CA_ADDRESS), worldAddress, pokemon1CAEntity);
+      assertTrue(pokemon1Data.lastFaintedBlock == block.number);
+      PokemonData memory pokemon2Data = Pokemon.get(IStore(BASE_CA_ADDRESS), worldAddress, pokemon2CAEntity);
+      assertTrue(pokemon2Data.lastFaintedBlock == block.number);
     }
 
     vm.stopPrank();

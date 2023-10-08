@@ -2,7 +2,23 @@ import { mudConfig } from "@latticexyz/world/register";
 import { resolveTableId } from "@latticexyz/config";
 
 export default mudConfig({
+  enums: {
+    ObjectType: ["None", "Fire", "Water", "Grass"],
+    SimTable: ["None", "Mass", "Energy", "Velocity", "Health", "Stamina", "Object", "Action"],
+    ValueType: ["Uint256", "ObjectType"],
+  },
   tables: {
+    SimSelectors: {
+      keySchema: {
+        senderTable: "SimTable",
+        receiverTable: "SimTable",
+      },
+      schema: {
+        selector: "bytes4",
+        senderValueType: "ValueType",
+        receiverValueType: "ValueType",
+      },
+    },
     Mass: {
       keySchema: {
         callerAddress: "address",
@@ -34,12 +50,54 @@ export default mudConfig({
         velocity: "bytes", // VoxelCoord, 3D vector
       },
     },
+    Health: {
+      keySchema: {
+        callerAddress: "address",
+        scale: "uint32",
+        entity: "bytes32",
+      },
+      schema: {
+        health: "uint256",
+      },
+    },
+    Stamina: {
+      keySchema: {
+        callerAddress: "address",
+        scale: "uint32",
+        entity: "bytes32",
+      },
+      schema: {
+        stamina: "uint256",
+      },
+    },
+    Object: {
+      keySchema: {
+        callerAddress: "address",
+        scale: "uint32",
+        entity: "bytes32",
+      },
+      schema: {
+        objectType: "ObjectType",
+      },
+    },
+    Action: {
+      keySchema: {
+        callerAddress: "address",
+        scale: "uint32",
+        entity: "bytes32",
+      },
+      schema: {
+        actionType: "ObjectType",
+        stamina: "uint256",
+        actionEntity: "bytes",
+      },
+    },
   },
   systems: {
     EnergyHelperSystem: {
       name: "EnergyHelperSyst",
       openAccess: false,
-      accessList: ["MassSystem", "EnergySystem"],
+      accessList: ["MassSystem", "EnergySystem", "VelocitySystem", "ActionSystem"],
     },
   },
   modules: [
@@ -57,6 +115,26 @@ export default mudConfig({
       name: "KeysInTableModule",
       root: true,
       args: [resolveTableId("Velocity")],
+    },
+    {
+      name: "KeysInTableModule",
+      root: true,
+      args: [resolveTableId("Health")],
+    },
+    {
+      name: "KeysInTableModule",
+      root: true,
+      args: [resolveTableId("Stamina")],
+    },
+    {
+      name: "KeysInTableModule",
+      root: true,
+      args: [resolveTableId("Object")],
+    },
+    {
+      name: "KeysInTableModule",
+      root: true,
+      args: [resolveTableId("Action")],
     },
   ],
 });

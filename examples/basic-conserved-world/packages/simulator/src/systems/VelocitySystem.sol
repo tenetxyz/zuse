@@ -30,10 +30,10 @@ enum CoordDirection {
 contract VelocitySystem is SimHandler {
   function updateVelocityCache(VoxelEntity memory entity) public {
     address callerAddress = super.getCallerAddress();
-    require(
-      hasKey(VelocityTableId, Velocity.encodeKeyTuple(callerAddress, entity.scale, entity.entityId)),
-      "Entity does not exist"
-    );
+    if (!hasKey(VelocityTableId, Velocity.encodeKeyTuple(callerAddress, entity.scale, entity.entityId))) {
+      return;
+    }
+
     VoxelCoord memory velocity = getVelocity(callerAddress, entity);
     if (isZeroCoord(velocity)) {
       return;

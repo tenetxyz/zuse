@@ -5,8 +5,8 @@ import { IStore } from "@latticexyz/store/src/IStore.sol";
 import { IWorld } from "@tenet-simulator/src/codegen/world/IWorld.sol";
 import { hasKey } from "@latticexyz/world/src/modules/keysintable/hasKey.sol";
 import { System } from "@latticexyz/world/src/System.sol";
-import { Mass, MassTableId, Energy, EnergyTableId, Velocity, VelocityTableId } from "@tenet-simulator/src/codegen/Tables.sol";
-import { VoxelCoord, VoxelTypeData, VoxelEntity } from "@tenet-utils/src/Types.sol";
+import { Health, HealthTableId, Stamina, StaminaTableId, Object, ObjectTableId, Action, ActionData, ActionTableId, Mass, MassTableId, Energy, EnergyTableId, Velocity, VelocityTableId } from "@tenet-simulator/src/codegen/Tables.sol";
+import { VoxelCoord, VoxelTypeData, VoxelEntity, ObjectType } from "@tenet-utils/src/Types.sol";
 import { VoxelTypeRegistry, VoxelTypeRegistryData } from "@tenet-registry/src/codegen/tables/VoxelTypeRegistry.sol";
 import { distanceBetween, voxelCoordsAreEqual, isZeroCoord } from "@tenet-utils/src/VoxelCoordUtils.sol";
 import { console } from "forge-std/console.sol";
@@ -35,7 +35,34 @@ contract CallerEventSystem is System {
     VoxelEntity memory newEntity,
     VoxelCoord memory newCoord
   ) public {
+    address callerAddress = _msgSender();
     IWorld(_world()).velocityChange(oldCoord, newCoord, oldEntity, newEntity);
+
+    // Transfer ownership of other tables
+    if (hasKey(HealthTableId, Health.encodeKeyTuple(callerAddress, oldEntity.scale, oldEntity.entityId))) {
+      uint256 health = Health.get(callerAddress, oldEntity.scale, oldEntity.entityId);
+      Health.set(callerAddress, newEntity.scale, newEntity.entityId, health);
+      Health.set(callerAddress, oldEntity.scale, oldEntity.entityId, 0);
+    }
+
+    if (hasKey(StaminaTableId, Stamina.encodeKeyTuple(callerAddress, oldEntity.scale, oldEntity.entityId))) {
+      uint256 stamina = Stamina.get(callerAddress, oldEntity.scale, oldEntity.entityId);
+      Stamina.set(callerAddress, newEntity.scale, newEntity.entityId, stamina);
+      Stamina.set(callerAddress, oldEntity.scale, oldEntity.entityId, 0);
+    }
+
+    if (hasKey(ObjectTableId, Object.encodeKeyTuple(callerAddress, oldEntity.scale, oldEntity.entityId))) {
+      ObjectType objectType = Object.get(callerAddress, oldEntity.scale, oldEntity.entityId);
+      Object.set(callerAddress, newEntity.scale, newEntity.entityId, objectType);
+      Object.set(callerAddress, oldEntity.scale, oldEntity.entityId, ObjectType.None);
+    }
+
+    if (hasKey(ActionTableId, Action.encodeKeyTuple(callerAddress, oldEntity.scale, oldEntity.entityId))) {
+      ActionData memory actionData = Action.get(callerAddress, oldEntity.scale, oldEntity.entityId);
+      Action.set(callerAddress, newEntity.scale, newEntity.entityId, actionData);
+      ActionData memory emptyActionData;
+      Action.set(callerAddress, oldEntity.scale, oldEntity.entityId, emptyActionData);
+    }
   }
 
   function onActivate(VoxelEntity memory entity, VoxelCoord memory coord) public {}

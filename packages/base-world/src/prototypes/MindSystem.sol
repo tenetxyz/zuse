@@ -14,7 +14,10 @@ import { getCAMindSelector, setCAMindSelector } from "@tenet-base-ca/src/CallUti
 
 abstract contract MindSystem is System {
   function getMindSelector(VoxelEntity memory entity) public virtual returns (bytes4) {
-    require(hasKey(VoxelTypeTableId, VoxelType.encodeKeyTuple(entity.scale, entity.entityId)), "Entity does not exist");
+    require(
+      hasKey(VoxelTypeTableId, VoxelType.encodeKeyTuple(entity.scale, entity.entityId)),
+      "getMindSelector: Entity does not exist"
+    );
     bytes32 voxelTypeId = VoxelType.getVoxelTypeId(entity.scale, entity.entityId);
     address caAddress = WorldConfig.get(voxelTypeId);
     bytes4 mindSelector = getCAMindSelector(caAddress, entity.entityId);
@@ -26,7 +29,10 @@ abstract contract MindSystem is System {
   }
 
   function setMindSelector(VoxelEntity memory entity, bytes4 mindSelector) public virtual {
-    require(hasKey(VoxelTypeTableId, VoxelType.encodeKeyTuple(entity.scale, entity.entityId)), "Entity does not exist");
+    require(
+      hasKey(VoxelTypeTableId, VoxelType.encodeKeyTuple(entity.scale, entity.entityId)),
+      "setMindSelector: Entity does not exist"
+    );
     bytes32 voxelTypeId = VoxelType.getVoxelTypeId(entity.scale, entity.entityId);
     address caAddress = WorldConfig.get(voxelTypeId);
     setCAMindSelector(caAddress, entity.entityId, mindSelector);

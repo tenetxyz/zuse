@@ -5,23 +5,46 @@ import { IWorld } from "@tenet-pokemon-extension/src/codegen/world/IWorld.sol";
 import { IStore } from "@latticexyz/store/src/IStore.sol";
 import { System } from "@latticexyz/world/src/System.sol";
 import { calculateBlockDirection } from "@tenet-utils/src/VoxelCoordUtils.sol";
-import { BlockDirection, VoxelCoord } from "@tenet-utils/src/Types.sol";
-import { getCAEntityPositionStrict } from "@tenet-base-ca/src/Utils.sol";
-import { BlockDirection, BodyPhysicsData, VoxelCoord } from "@tenet-utils/src/Types.sol";
+import { VoxelEntity, BlockDirection, VoxelCoord, BodySimData, CAEventData, CAEventType, ObjectType, SimEventData, SimTable } from "@tenet-utils/src/Types.sol";
 import { getOppositeDirection } from "@tenet-utils/src/VoxelCoordUtils.sol";
 import { Soil } from "@tenet-pokemon-extension/src/codegen/tables/Soil.sol";
 import { Plant } from "@tenet-pokemon-extension/src/codegen/tables/Plant.sol";
 import { PlantStage } from "@tenet-pokemon-extension/src/codegen/Types.sol";
-import { Pokemon, PokemonData, PokemonMove } from "@tenet-pokemon-extension/src/codegen/tables/Pokemon.sol";
+import { Pokemon, PokemonData } from "@tenet-pokemon-extension/src/codegen/tables/Pokemon.sol";
 import { entityIsSoil, entityIsPlant, entityIsPokemon } from "@tenet-pokemon-extension/src/InteractionUtils.sol";
-import { getCAEntityAtCoord, getCAVoxelType, getCAEntityPositionStrict } from "@tenet-base-ca/src/Utils.sol";
-import { getVoxelBodyPhysicsFromCaller, transferEnergy } from "@tenet-level1-ca/src/Utils.sol";
+import { getCAEntityAtCoord, getCAVoxelType, getCAEntityPositionStrict, caEntityToEntity } from "@tenet-base-ca/src/Utils.sol";
+import { getEntitySimData, transferEnergy } from "@tenet-level1-ca/src/Utils.sol";
 import { isZeroCoord, voxelCoordsAreEqual } from "@tenet-utils/src/VoxelCoordUtils.sol";
+import { MoveData, PokemonMove } from "@tenet-pokemon-extension/src/Types.sol";
 import { console } from "forge-std/console.sol";
 
 uint256 constant NUM_BLOCKS_FAINTED = 50;
 
 contract PokemonSystem is System {
+  function getMovesData() internal pure returns (MoveData[] memory) {
+    MoveData[] memory movesData = new MoveData[](13); // the first value is for PokemonMove.None
+    movesData[uint(PokemonMove.Ember)] = MoveData(10, 20, 0, ObjectType.Fire);
+    movesData[uint(PokemonMove.FlameBurst)] = MoveData(20, 40, 0, ObjectType.Fire);
+    movesData[uint(PokemonMove.SmokeScreen)] = MoveData(5, 0, 10, ObjectType.Fire);
+    movesData[uint(PokemonMove.FireShield)] = MoveData(15, 0, 30, ObjectType.Fire);
+
+    movesData[uint(PokemonMove.WaterGun)] = MoveData(10, 20, 0, ObjectType.Water);
+    movesData[uint(PokemonMove.HydroPump)] = MoveData(20, 40, 0, ObjectType.Water);
+    movesData[uint(PokemonMove.Bubble)] = MoveData(5, 0, 10, ObjectType.Water);
+    movesData[uint(PokemonMove.AquaRing)] = MoveData(15, 0, 30, ObjectType.Water);
+
+    movesData[uint(PokemonMove.VineWhip)] = MoveData(10, 20, 0, ObjectType.Grass);
+    movesData[uint(PokemonMove.SolarBeam)] = MoveData(20, 40, 0, ObjectType.Grass);
+    movesData[uint(PokemonMove.LeechSeed)] = MoveData(5, 0, 10, ObjectType.Grass);
+    movesData[uint(PokemonMove.Synthesis)] = MoveData(15, 0, 30, ObjectType.Grass);
+    return movesData;
+  }
+
+  function getMoveData(PokemonMove move) internal pure returns (MoveData memory) {
+    MoveData[] memory movesData = getMovesData();
+    return movesData[uint(move)];
+  }
+
   function eventHandler(
     address callerAddress,
     bytes32 centerEntityId,
@@ -89,13 +112,29 @@ contract PokemonSystem is System {
     PokemonMove pokemonMove
   ) internal returns (bool changedEntity, bytes memory entityData) {
     PokemonData memory pokemonData = Pokemon.get(callerAddress, interactEntity);
-    (changedEntity, entityData, pokemonData) = IWorld(_world()).pokemon_PokemonFightSyst_runBattleLogic(
-      callerAddress,
-      interactEntity,
-      neighbourEntityId,
-      pokemonData
-    );
-    Pokemon.set(callerAddress, interactEntity, pokemonData);
+    console.log("pokemon onNewNeighbour");
+    console.logBytes32(interactEntity);
+    if (!entityIsPokemon(callerAddress, neighbourEntityId)) {
+      return (changedEntity, entityData);
+    }
+
+    BodySimData memory entitySimData = getEntitySimData(interactEntity);
+    BodySimData memory neighbourEntitySimData = getEntitySimData(neighbourEntityId);
+
+    if (
+      entitySimData.actionData.actionType == ObjectType.None &&
+      neighbourEntitySimData.actionData.actionType != ObjectType.None
+    ) {
+      // TODO: check actionEntity matches? We need this if we want multiple pokemon to be able to fight at the same time
+      changedEntity = true;
+    }
+
+    if (entitySimData.health == 0) {
+      console.log("fainted");
+      Pokemon.setLastFaintedBlock(callerAddress, interactEntity, block.number);
+    }
+
+    console.logBool(changedEntity);
     return (changedEntity, entityData);
   }
 
@@ -110,37 +149,18 @@ contract PokemonSystem is System {
   ) internal returns (bool changedEntity, bytes memory entityData) {
     changedEntity = false;
 
-    BodyPhysicsData memory entityBodyPhysics = getVoxelBodyPhysicsFromCaller(interactEntity);
+    console.log("pokemon runInteraction");
+    console.logBytes32(interactEntity);
+
+    BodySimData memory entitySimData = getEntitySimData(interactEntity);
     PokemonData memory pokemonData = Pokemon.get(callerAddress, interactEntity);
 
-    bool foundPlant = false;
-
-    // Energy replenish if neighbour is food
-    for (uint256 i = 0; i < neighbourEntityIds.length; i++) {
-      if (uint256(neighbourEntityIds[i]) == 0) {
-        continue;
-      }
-
-      if (!entityIsPlant(callerAddress, neighbourEntityIds[i])) {
-        continue;
-      }
-      foundPlant = true;
-
-      PlantStage plantStage = Plant.getStage(callerAddress, neighbourEntityIds[i]);
-      if (plantStage != PlantStage.Flower) {
-        continue;
-      }
-
-      pokemonData = replenishEnergy(
-        callerAddress,
-        interactEntity,
-        neighbourEntityIds[i],
-        pokemonData,
-        entityBodyPhysics
-      );
-      Pokemon.set(callerAddress, interactEntity, pokemonData);
-      break; // Only take from one plant
+    if (pokemonMove == PokemonMove.None) {
+      return runDefaultInteraction(callerAddress, interactEntity, entitySimData, pokemonData);
     }
+
+    CAEventData[] memory allCAEventData = new CAEventData[](neighbourEntityIds.length);
+    bool hasEvent = false;
 
     // Check if neighbour is pokemon and run move
     bool foundPokemon = false;
@@ -152,27 +172,66 @@ contract PokemonSystem is System {
       if (!entityIsPokemon(callerAddress, neighbourEntityIds[i])) {
         continue;
       }
-      if (foundPlant) {
-        revert("Pokemon can't fight and eat at the same time");
-      }
       if (foundPokemon) {
         revert("Pokemon can't fight more than one pokemon at a time");
       }
 
       foundPokemon = true;
-      (entityData, pokemonData) = runPokemonMove(
+      (allCAEventData[i], pokemonData) = runPokemonMove(
         callerAddress,
         interactEntity,
         neighbourEntityIds[i],
         pokemonData,
-        entityBodyPhysics,
+        entitySimData,
         pokemonMove
       );
       Pokemon.set(callerAddress, interactEntity, pokemonData);
-      break;
+      if (allCAEventData[i].eventType != CAEventType.None) {
+        hasEvent = true;
+      }
+    }
+
+    if (hasEvent) {
+      entityData = abi.encode(allCAEventData);
     }
 
     // Note: we don't need to set changedEntity to true, because we don't need another event
+
+    return (changedEntity, entityData);
+  }
+
+  function runDefaultInteraction(
+    address callerAddress,
+    bytes32 interactEntity,
+    BodySimData memory entitySimData,
+    PokemonData memory pokemonData
+  ) internal returns (bool changedEntity, bytes memory entityData) {
+    if (entitySimData.objectType == ObjectType.None) {
+      CAEventData[] memory allCAEventData = new CAEventData[](1);
+      VoxelEntity memory entity = VoxelEntity({ scale: 1, entityId: caEntityToEntity(interactEntity) });
+      VoxelCoord memory coord = getCAEntityPositionStrict(IStore(_world()), interactEntity);
+
+      SimEventData memory setObjectTypeSimEvent = SimEventData({
+        senderTable: SimTable.Object,
+        senderValue: abi.encode(entitySimData.objectType),
+        targetEntity: entity,
+        targetCoord: coord,
+        targetTable: SimTable.Object,
+        targetValue: abi.encode(pokemonData.pokemonType)
+      });
+      console.log("setObjectTypeSimEvent");
+      allCAEventData[0] = CAEventData({
+        eventType: CAEventType.SimEvent,
+        eventData: abi.encode(setObjectTypeSimEvent)
+      });
+      entityData = abi.encode(allCAEventData);
+      return (changedEntity, entityData);
+    }
+
+    if (entitySimData.health == 0) {
+      console.log("fainted");
+      Pokemon.setLastFaintedBlock(callerAddress, interactEntity, block.number);
+    }
 
     return (changedEntity, entityData);
   }
@@ -182,57 +241,51 @@ contract PokemonSystem is System {
     bytes32 interactEntity,
     bytes32 neighbourEntity,
     PokemonData memory pokemonData,
-    BodyPhysicsData memory entityBodyPhysics,
+    BodySimData memory entitySimData,
     PokemonMove pokemonMove
-  ) internal returns (bytes memory entityData, PokemonData memory) {
-    VoxelCoord memory currentVelocity = abi.decode(entityBodyPhysics.velocity, (VoxelCoord));
+  ) internal returns (CAEventData memory caEventData, PokemonData memory) {
+    VoxelCoord memory currentVelocity = abi.decode(entitySimData.velocity, (VoxelCoord));
     if (!isZeroCoord(currentVelocity)) {
-      return (entityData, pokemonData);
+      return (caEventData, pokemonData);
     }
 
-    if (pokemonData.health == 0 && block.number < pokemonData.lastUpdatedBlock + NUM_BLOCKS_FAINTED) {
-      return (entityData, pokemonData);
+    if (entitySimData.health == 0) {
+      console.log("fainted");
+      Pokemon.setLastFaintedBlock(callerAddress, interactEntity, block.number);
     }
 
-    pokemonData.move = pokemonMove;
-    pokemonData.round += 1;
-    pokemonData.lostStamina += uint(IWorld(_world()).pokemon_PokemonFightSyst_getStaminaCost(pokemonMove));
-
-    (, entityData, pokemonData) = IWorld(_world()).pokemon_PokemonFightSyst_runBattleLogic(
-      callerAddress,
-      interactEntity,
-      neighbourEntity,
-      pokemonData
-    );
-
-    return (entityData, pokemonData);
-  }
-
-  function replenishEnergy(
-    address callerAddress,
-    bytes32 interactEntity,
-    bytes32 neighbourEntity,
-    PokemonData memory pokemonData,
-    BodyPhysicsData memory entityBodyPhysics
-  ) internal returns (PokemonData memory) {
-    uint256 lastEnergy = pokemonData.lastEnergy;
-    if (lastEnergy == entityBodyPhysics.energy) {
-      return pokemonData;
+    if (entitySimData.health == 0 || block.number < pokemonData.lastFaintedBlock + NUM_BLOCKS_FAINTED) {
+      return (caEventData, pokemonData);
     }
 
-    if (
-      pokemonData.round == 0 ||
-      (pokemonData.round == -1 && block.number >= pokemonData.lastUpdatedBlock + NUM_BLOCKS_FAINTED)
-    ) {
-      pokemonData.lastEnergy = entityBodyPhysics.energy;
-      pokemonData.lastUpdatedBlock = block.number;
-      // Allocate percentages to Health and Stamina
-      pokemonData.health = (pokemonData.lastEnergy * 40) / 100; // 40% to Health
-      pokemonData.stamina = (pokemonData.lastEnergy * 30) / 100; // 30% to Stamina
-      pokemonData.round = 0;
+    if (entitySimData.actionData.actionType != ObjectType.None) {
+      return (caEventData, pokemonData);
     }
 
-    return pokemonData;
+    MoveData memory moveData = getMoveData(pokemonMove);
+    uint staminaAmount = uint(moveData.stamina);
+    bool isAttack = moveData.damage > 0;
+
+    VoxelEntity memory targetEntity = isAttack
+      ? VoxelEntity({ scale: 1, entityId: caEntityToEntity(neighbourEntity) })
+      : VoxelEntity({ scale: 1, entityId: caEntityToEntity(interactEntity) });
+    VoxelCoord memory targetCoord = isAttack
+      ? getCAEntityPositionStrict(IStore(_world()), neighbourEntity)
+      : getCAEntityPositionStrict(IStore(_world()), interactEntity);
+
+    console.log("picked move");
+
+    SimEventData memory moveEventData = SimEventData({
+      senderTable: SimTable.Stamina,
+      senderValue: abi.encode(staminaAmount),
+      targetEntity: targetEntity,
+      targetCoord: targetCoord,
+      targetTable: SimTable.Action,
+      targetValue: abi.encode(moveData.moveType)
+    });
+    caEventData = CAEventData({ eventType: CAEventType.SimEvent, eventData: abi.encode(moveEventData) });
+
+    return (caEventData, pokemonData);
   }
 
   function eventHandlerPokemon(

@@ -48,12 +48,14 @@ contract CAEventsSystem is System {
             continue;
           }
 
-          bytes32 targetEntityId = getEntityAtCoord(entity.scale, simEventData.targetCoord);
-          if (simEventData.targetEntity.scale == 0 && simEventData.targetEntity.entityId == 0) {
-            // then we need to fill it in
-            simEventData.targetEntity = VoxelEntity({ scale: entity.scale, entityId: targetEntityId });
+          {
+            bytes32 targetEntityId = getEntityAtCoord(entity.scale, simEventData.targetCoord);
+            if (simEventData.targetEntity.scale == 0 && simEventData.targetEntity.entityId == 0) {
+              // then we need to fill it in
+              simEventData.targetEntity = VoxelEntity({ scale: entity.scale, entityId: targetEntityId });
+            }
+            require(simEventData.targetEntity.entityId == targetEntityId, "Entity mismatch");
           }
-          require(simEventData.targetEntity.entityId == targetEntityId, "Entity mismatch");
           require(
             distanceBetween(entityCoord, simEventData.targetCoord) <= 1,
             "Target can only be a surrounding neighbour or yourself"

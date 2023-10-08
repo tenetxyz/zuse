@@ -94,18 +94,18 @@ contract NutrientsSystem is SimHandler {
 
       uint256 currentSenderNutrients = Nutrients.get(callerAddress, senderEntity.scale, senderEntity.entityId);
       require(currentSenderNutrients >= senderNutrients, "Not enough nutrients to transfer");
-      bool nutrientsReceiverEntityExists = hasKey(
+      bool receiverEntityExists = hasKey(
         MassTableId,
         Mass.encodeKeyTuple(callerAddress, receiverEntity.scale, receiverEntity.entityId)
       );
-      if (!energyReceiverEntityExists) {
+      if (!receiverEntityExists) {
         receiverEntity = createTerrainEntity(callerAddress, receiverEntity.scale, receiverCoord);
-        nutrientsReceiverEntityExists = hasKey(
+        receiverEntityExists = hasKey(
           EnergyTableId,
           Mass.encodeKeyTuple(callerAddress, receiverEntity.scale, receiverEntity.entityId)
         );
       }
-      require(nutrientsReceiverEntityExists, "Receiver entity does not exist");
+      require(receiverEntityExists, "Receiver entity does not exist");
       uint256 currentReceiverNutrients = Nutrients.get(callerAddress, receiverEntity.scale, receiverEntity.entityId);
       Nutrients.set(
         callerAddress,

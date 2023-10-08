@@ -59,7 +59,7 @@ enum SimTable {
   Nutrients,
   Nitrogen,
   Phosphorous,
-  Potassium,
+  Potassium
 }
 
 struct SimEventData {

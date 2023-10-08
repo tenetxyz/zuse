@@ -94,7 +94,13 @@ contract FirePokemonAgentSystem is AgentType {
     Pokemon.set(
       callerAddress,
       entity,
-      PokemonData({ lastFaintedBlock: 0, pokemonType: ObjectType.Fire, hasValue: hasValue })
+      PokemonData({
+        lastFaintedBlock: 0,
+        pokemonType: ObjectType.Fire,
+        isFainted: false,
+        fightingCAEntity: bytes32(0),
+        hasValue: hasValue
+      })
     );
   }
 

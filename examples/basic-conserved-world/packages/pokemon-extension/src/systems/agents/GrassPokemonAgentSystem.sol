@@ -94,7 +94,13 @@ contract GrassPokemonAgentSystem is AgentType {
     Pokemon.set(
       callerAddress,
       entity,
-      PokemonData({ lastFaintedBlock: 0, pokemonType: ObjectType.Grass, hasValue: hasValue })
+      PokemonData({
+        lastFaintedBlock: 0,
+        pokemonType: ObjectType.Grass,
+        isFainted: false,
+        fightingCAEntity: bytes32(0),
+        hasValue: hasValue
+      })
     );
   }
 

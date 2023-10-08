@@ -19,6 +19,7 @@ import { console } from "forge-std/console.sol";
 import { CAEntityMapping, CAEntityMappingTableId } from "@tenet-base-ca/src/codegen/tables/CAEntityMapping.sol";
 import { ENERGY_REQUIRED_FOR_SPROUT, ENERGY_REQUIRED_FOR_FLOWER } from "@tenet-pokemon-extension/src/systems/voxel-interactions/PlantSystem.sol";
 import { NUM_BLOCKS_BEFORE_REDUCE_VELOCITY } from "@tenet-simulator/src/Constants.sol";
+import { NUM_BLOCKS_FAINTED } from "@tenet-pokemon-extension/src/Constants.sol";
 import { Mass } from "@tenet-simulator/src/codegen/tables/Mass.sol";
 import { Energy } from "@tenet-simulator/src/codegen/tables/Energy.sol";
 import { Velocity } from "@tenet-simulator/src/codegen/tables/Velocity.sol";
@@ -127,8 +128,19 @@ contract PokemonTest is MudTest {
       );
       PokemonData memory pokemon1Data = Pokemon.get(IStore(BASE_CA_ADDRESS), worldAddress, pokemon1CAEntity);
       assertTrue(pokemon1Data.lastFaintedBlock == block.number);
+      assertTrue(pokemon1Data.fightingCAEntity == bytes32(0));
+      assertTrue(pokemon1Data.isFainted == true);
       PokemonData memory pokemon2Data = Pokemon.get(IStore(BASE_CA_ADDRESS), worldAddress, pokemon2CAEntity);
       assertTrue(pokemon2Data.lastFaintedBlock == block.number);
+      assertTrue(pokemon2Data.fightingCAEntity == bytes32(0));
+      assertTrue(pokemon2Data.isFainted == true);
+      // Roll forward NUM_BLOCKS_FAINTED and assert that they can now fight again
+      vm.roll(block.number + NUM_BLOCKS_FAINTED + 1);
+      world.activateWithAgent(FirePokemonVoxelID, newPokemon1Coord, agentEntity, bytes4(0));
+      pokemon1Data = Pokemon.get(IStore(BASE_CA_ADDRESS), worldAddress, pokemon1CAEntity);
+      assertTrue(pokemon1Data.isFainted == false);
+      pokemon2Data = Pokemon.get(IStore(BASE_CA_ADDRESS), worldAddress, pokemon2CAEntity);
+      assertTrue(pokemon2Data.isFainted == false);
     }
 
     vm.stopPrank();

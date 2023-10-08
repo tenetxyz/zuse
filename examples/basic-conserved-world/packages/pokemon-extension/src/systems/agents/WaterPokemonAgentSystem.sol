@@ -94,7 +94,13 @@ contract WaterPokemonAgentSystem is AgentType {
     Pokemon.set(
       callerAddress,
       entity,
-      PokemonData({ lastFaintedBlock: 0, pokemonType: ObjectType.Water, hasValue: hasValue })
+      PokemonData({
+        lastFaintedBlock: 0,
+        pokemonType: ObjectType.Water,
+        isFainted: false,
+        fightingCAEntity: bytes32(0),
+        hasValue: hasValue
+      })
     );
   }
 

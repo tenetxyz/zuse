@@ -8,8 +8,6 @@ import { calculateBlockDirection } from "@tenet-utils/src/VoxelCoordUtils.sol";
 import { VoxelEntity, BlockDirection, VoxelCoord, BodySimData, CAEventData, CAEventType, ObjectType, SimEventData, SimTable } from "@tenet-utils/src/Types.sol";
 import { getOppositeDirection } from "@tenet-utils/src/VoxelCoordUtils.sol";
 import { uint256ToNegativeInt256 } from "@tenet-utils/src/TypeUtils.sol";
-import { Soil } from "@tenet-pokemon-extension/src/codegen/tables/Soil.sol";
-import { Plant } from "@tenet-pokemon-extension/src/codegen/tables/Plant.sol";
 import { PlantStage } from "@tenet-pokemon-extension/src/codegen/Types.sol";
 import { Pokemon, PokemonData } from "@tenet-pokemon-extension/src/codegen/tables/Pokemon.sol";
 import { entityIsSoil, entityIsPlant, entityIsPokemon } from "@tenet-pokemon-extension/src/InteractionUtils.sol";
@@ -19,7 +17,7 @@ import { isZeroCoord, voxelCoordsAreEqual } from "@tenet-utils/src/VoxelCoordUti
 import { MoveData, PokemonMove } from "@tenet-pokemon-extension/src/Types.sol";
 import { console } from "forge-std/console.sol";
 
-uint256 constant NUM_BLOCKS_FAINTED = 50;
+import { NUM_BLOCKS_FAINTED } from "@tenet-pokemon-extension/src/Constants.sol";
 
 contract PokemonSystem is System {
   function getMovesData() internal pure returns (MoveData[] memory) {
@@ -130,9 +128,25 @@ contract PokemonSystem is System {
       changedEntity = true;
     }
 
-    if (entitySimData.health == 0) {
-      console.log("fainted");
-      Pokemon.setLastFaintedBlock(callerAddress, interactEntity, block.number);
+    if (pokemonData.fightingCAEntity != bytes32(0)) {
+      BodySimData memory fightingEntitySimData = getEntitySimData(pokemonData.fightingCAEntity);
+      if (
+        (entitySimData.health == 0 || entitySimData.stamina == 0) ||
+        (fightingEntitySimData.health == 0 || fightingEntitySimData.stamina == 0)
+      ) {
+        if (entitySimData.health == 0 || entitySimData.stamina == 0) {
+          console.log("pokemon fainted");
+          pokemonData.isFainted = true;
+        }
+        pokemonData.fightingCAEntity = bytes32(0);
+        pokemonData.lastFaintedBlock = block.number;
+        Pokemon.set(callerAddress, interactEntity, pokemonData);
+      }
+    }
+
+    if (pokemonData.isFainted && block.number >= pokemonData.lastFaintedBlock + NUM_BLOCKS_FAINTED) {
+      pokemonData.isFainted = false;
+      Pokemon.set(callerAddress, interactEntity, pokemonData);
     }
 
     console.logBool(changedEntity);
@@ -229,9 +243,25 @@ contract PokemonSystem is System {
       return (changedEntity, entityData);
     }
 
-    if (entitySimData.health == 0) {
-      console.log("fainted");
-      Pokemon.setLastFaintedBlock(callerAddress, interactEntity, block.number);
+    if (pokemonData.fightingCAEntity != bytes32(0)) {
+      BodySimData memory fightingEntitySimData = getEntitySimData(pokemonData.fightingCAEntity);
+      if (
+        (entitySimData.health == 0 || entitySimData.stamina == 0) ||
+        (fightingEntitySimData.health == 0 || fightingEntitySimData.stamina == 0)
+      ) {
+        if (entitySimData.health == 0 || entitySimData.stamina == 0) {
+          console.log("pokemon fainted");
+          pokemonData.isFainted = true;
+        }
+        pokemonData.fightingCAEntity = bytes32(0);
+        pokemonData.lastFaintedBlock = block.number;
+        Pokemon.set(callerAddress, interactEntity, pokemonData);
+      }
+    }
+
+    if (pokemonData.isFainted && block.number >= pokemonData.lastFaintedBlock + NUM_BLOCKS_FAINTED) {
+      pokemonData.isFainted = false;
+      Pokemon.set(callerAddress, interactEntity, pokemonData);
     }
 
     return (changedEntity, entityData);
@@ -250,12 +280,30 @@ contract PokemonSystem is System {
       return (caEventData, pokemonData);
     }
 
-    if (entitySimData.health == 0) {
-      console.log("fainted");
-      Pokemon.setLastFaintedBlock(callerAddress, interactEntity, block.number);
+    if (pokemonData.fightingCAEntity != bytes32(0)) {
+      BodySimData memory fightingEntitySimData = getEntitySimData(pokemonData.fightingCAEntity);
+      if (
+        (entitySimData.health == 0 || entitySimData.stamina == 0) ||
+        (fightingEntitySimData.health == 0 || fightingEntitySimData.stamina == 0)
+      ) {
+        if (entitySimData.health == 0 || entitySimData.stamina == 0) {
+          console.log("pokemon fainted");
+          pokemonData.isFainted = true;
+        }
+        pokemonData.fightingCAEntity = bytes32(0);
+        pokemonData.lastFaintedBlock = block.number;
+      }
     }
 
-    if (entitySimData.health == 0 || block.number < pokemonData.lastFaintedBlock + NUM_BLOCKS_FAINTED) {
+    if (pokemonData.isFainted && block.number >= pokemonData.lastFaintedBlock + NUM_BLOCKS_FAINTED) {
+      pokemonData.isFainted = false;
+    }
+
+    if (pokemonData.isFainted || block.number < pokemonData.lastFaintedBlock + NUM_BLOCKS_FAINTED) {
+      return (caEventData, pokemonData);
+    }
+
+    if (entitySimData.health == 0 || entitySimData.stamina == 0) {
       return (caEventData, pokemonData);
     }
 
@@ -285,6 +333,12 @@ contract PokemonSystem is System {
       targetValue: abi.encode(moveData.moveType)
     });
     caEventData = CAEventData({ eventType: CAEventType.SimEvent, eventData: abi.encode(moveEventData) });
+
+    require(
+      pokemonData.fightingCAEntity == bytes32(0) || pokemonData.fightingCAEntity == neighbourEntity,
+      "Pokemon is already fighting"
+    );
+    pokemonData.fightingCAEntity = neighbourEntity;
 
     return (caEventData, pokemonData);
   }

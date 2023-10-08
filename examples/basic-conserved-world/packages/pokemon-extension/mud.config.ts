@@ -36,6 +36,8 @@ export default mudConfig({
       },
       schema: {
         pokemonType: "ObjectType",
+        fightingCAEntity: "bytes32",
+        isFainted: "bool",
         lastFaintedBlock: "uint256",
         hasValue: "bool", // TODO: Remove this once we can install non-root modules
       },

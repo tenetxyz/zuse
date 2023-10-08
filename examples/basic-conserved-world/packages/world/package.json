@@ -29,7 +29,8 @@
     "worldgen": "yarn mud worldgen",
     "worldtypes": "rimraf types && typechain --target=ethers-v5 out/IWorld.sol/IWorld.json",
     "deployMap": "node deployMap.ts",
-    "spawnEntity": "node spawnEntity.ts"
+    "spawnEntity": "node spawnEntity.ts",
+    "runTests": "node runTests.ts"
   },
   "dependencies": {
     "@latticexyz/cli": "link:../../../../../mud/packages/cli",

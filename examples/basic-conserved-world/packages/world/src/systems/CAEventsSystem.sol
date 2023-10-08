@@ -14,6 +14,7 @@ import { getEntityAtCoord } from "@tenet-base-world/src/Utils.sol";
 import { setSimValue } from "@tenet-simulator/src/CallUtils.sol";
 import { Mass } from "@tenet-simulator/src/codegen/tables/Mass.sol";
 import { MAX_VOXEL_NEIGHBOUR_UPDATE_DEPTH } from "@tenet-utils/src/Constants.sol";
+import { distanceBetween } from "@tenet-utils/src/VoxelCoordUtils.sol";
 
 contract CAEventsSystem is System {
   function caEventsHandler(EntityEventData[] memory entitiesEventData) public {
@@ -47,11 +48,16 @@ contract CAEventsSystem is System {
             continue;
           }
 
+          bytes32 targetEntityId = getEntityAtCoord(entity.scale, simEventData.targetCoord);
           if (simEventData.targetEntity.scale == 0 && simEventData.targetEntity.entityId == 0) {
             // then we need to fill it in
-            bytes32 targetEntityId = getEntityAtCoord(entity.scale, simEventData.targetCoord);
             simEventData.targetEntity = VoxelEntity({ scale: entity.scale, entityId: targetEntityId });
           }
+          require(simEventData.targetEntity.entityId == targetEntityId, "Entity mismatch");
+          require(
+            distanceBetween(entityCoord, simEventData.targetCoord) <= 1,
+            "Target can only be a surrounding neighbour or yourself"
+          );
           console.log("setting sim value");
           console.logUint(uint(simEventData.senderTable));
           console.logUint(uint(simEventData.targetTable));

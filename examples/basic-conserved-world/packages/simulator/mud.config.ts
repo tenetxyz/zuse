@@ -4,8 +4,23 @@ import { resolveTableId } from "@latticexyz/config";
 export default mudConfig({
   enums: {
     ObjectType: ["None", "Fire", "Water", "Grass"],
-    SimTable: ["None", "Mass", "Energy", "Velocity", "Health", "Stamina", "Object", "Action"],
-    ValueType: ["Uint256", "ObjectType"],
+    SimTable: [
+      "None",
+      "Mass",
+      "Energy",
+      "Velocity",
+      "Health",
+      "Stamina",
+      "Object",
+      "Action",
+      "Nutrients",
+      "Nitrogen",
+      "Phosphorous",
+      "Potassium",
+      "Elixir",
+      "Protein",
+    ],
+    ValueType: ["Int256", "ObjectType"],
   },
   tables: {
     SimSelectors: {
@@ -132,6 +147,26 @@ export default mudConfig({
         potassium: "uint256",
       },
     },
+    Elixir: {
+      keySchema: {
+        callerAddress: "address",
+        scale: "uint32",
+        entity: "bytes32",
+      },
+      schema: {
+        elixir: "uint256",
+      },
+    },
+    Protein: {
+      keySchema: {
+        callerAddress: "address",
+        scale: "uint32",
+        entity: "bytes32",
+      },
+      schema: {
+        protein: "uint256",
+      },
+    },
   },
   systems: {
     EnergyHelperSystem: {
@@ -200,6 +235,16 @@ export default mudConfig({
       name: "KeysInTableModule",
       root: true,
       args: [resolveTableId("Potassium")],
+    },
+    {
+      name: "KeysInTableModule",
+      root: true,
+      args: [resolveTableId("Elixir")],
+    },
+    {
+      name: "KeysInTableModule",
+      root: true,
+      args: [resolveTableId("Protein")],
     },
   ],
 });

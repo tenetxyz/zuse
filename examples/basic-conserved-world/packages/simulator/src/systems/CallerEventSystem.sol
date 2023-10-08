@@ -37,7 +37,7 @@ contract CallerEventSystem is System {
     }
 
     int256 massDelta = uint256ToInt256(entityMass);
-    IWorld(_world()).setMass(entity, coord, massDelta, entity, coord, massDelta);
+    IWorld(_world()).updateMass(entity, coord, massDelta, entity, coord, massDelta);
   }
 
   function onMine(VoxelEntity memory entity, VoxelCoord memory coord) public {
@@ -61,7 +61,7 @@ contract CallerEventSystem is System {
       Velocity.set(callerAddress, entity.scale, entity.entityId, block.number, abi.encode(terrainVelocity));
     }
 
-    IWorld(_world()).setMass(entity, coord, massDelta, entity, coord, massDelta);
+    IWorld(_world()).updateMass(entity, coord, massDelta, entity, coord, massDelta);
   }
 
   function onMove(

@@ -18,13 +18,13 @@ contract ObjectSystem is SimHandler {
     SimSelectors.set(
       SimTable.Object,
       SimTable.Object,
-      IWorld(_world()).setObjectType.selector,
+      IWorld(_world()).updateObjectType.selector,
       ValueType.ObjectType,
       ValueType.ObjectType
     );
   }
 
-  function setObjectType(
+  function updateObjectType(
     VoxelEntity memory senderEntity,
     VoxelCoord memory senderCoord,
     ObjectType senderObjectType,

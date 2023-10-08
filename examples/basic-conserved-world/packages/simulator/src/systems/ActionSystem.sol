@@ -8,7 +8,7 @@ import { SimHandler } from "@tenet-simulator/prototypes/SimHandler.sol";
 import { Stamina, StaminaTableId, Action, ActionData, SimSelectors, Object, ObjectTableId, Health, HealthTableId, Mass, MassTableId, Energy, EnergyTableId, Velocity, VelocityTableId } from "@tenet-simulator/src/codegen/Tables.sol";
 import { VoxelCoord, VoxelTypeData, VoxelEntity, ObjectType, SimTable, ValueType } from "@tenet-utils/src/Types.sol";
 import { VoxelTypeRegistry, VoxelTypeRegistryData } from "@tenet-registry/src/codegen/tables/VoxelTypeRegistry.sol";
-import { distanceBetween, voxelCoordsAreEqual, isZeroCoord, safeSubtract } from "@tenet-utils/src/VoxelCoordUtils.sol";
+import { distanceBetween, voxelCoordsAreEqual, isZeroCoord, safeSubtract, int256ToUint256 } from "@tenet-utils/src/VoxelCoordUtils.sol";
 import { isEntityEqual } from "@tenet-utils/src/Utils.sol";
 import { getVelocity, getTerrainMass, getTerrainEnergy, getTerrainVelocity, getNeighbourEntities } from "@tenet-simulator/src/Utils.sol";
 import { console } from "forge-std/console.sol";
@@ -18,16 +18,16 @@ contract ActionSystem is SimHandler {
     SimSelectors.set(
       SimTable.Stamina,
       SimTable.Action,
-      IWorld(_world()).setActionFromStamina.selector,
-      ValueType.Uint256,
+      IWorld(_world()).updateActionFromStamina.selector,
+      ValueType.Int256,
       ValueType.ObjectType
     );
   }
 
-  function setActionFromStamina(
+  function updateActionFromStamina(
     VoxelEntity memory senderEntity,
     VoxelCoord memory senderCoord,
-    uint256 senderStamina,
+    int256 senderStaminaDelta,
     VoxelEntity memory receiverEntity,
     VoxelCoord memory receiverCoord,
     ObjectType receiverActionType
@@ -37,6 +37,8 @@ contract ActionSystem is SimHandler {
       hasKey(StaminaTableId, Stamina.encodeKeyTuple(callerAddress, senderEntity.scale, senderEntity.entityId)),
       "Stamina entity does not exist"
     );
+    require(senderStaminaDelta < 0, "Cannot increase your own stamina");
+    uint256 senderStamina = int256ToUint256(senderStaminaDelta);
     {
       uint256 currentStamina = Stamina.get(callerAddress, senderEntity.scale, senderEntity.entityId);
       require(currentStamina >= senderStamina, "Not enough stamina");

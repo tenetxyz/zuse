@@ -8,7 +8,7 @@ import { SimHandler } from "@tenet-simulator/prototypes/SimHandler.sol";
 import { SimSelectors, Mass, MassTableId, Energy, EnergyTableId, Velocity, VelocityTableId } from "@tenet-simulator/src/codegen/Tables.sol";
 import { VoxelCoord, VoxelTypeData, VoxelEntity, SimTable, ValueType } from "@tenet-utils/src/Types.sol";
 import { VoxelTypeRegistry, VoxelTypeRegistryData } from "@tenet-registry/src/codegen/tables/VoxelTypeRegistry.sol";
-import { distanceBetween, voxelCoordsAreEqual, isZeroCoord } from "@tenet-utils/src/VoxelCoordUtils.sol";
+import { distanceBetween, voxelCoordsAreEqual, isZeroCoord, addUint256AndInt256, int256ToUint256 } from "@tenet-utils/src/VoxelCoordUtils.sol";
 import { isZeroCoord, voxelCoordsAreEqual, uint256ToInt32, dot, mulScalar, divScalar, min, add, sub, safeSubtract, safeAdd, abs, absInt32 } from "@tenet-utils/src/VoxelCoordUtils.sol";
 import { isEntityEqual } from "@tenet-utils/src/Utils.sol";
 import { console } from "forge-std/console.sol";
@@ -22,19 +22,19 @@ contract EnergySystem is SimHandler {
     SimSelectors.set(
       SimTable.Energy,
       SimTable.Energy,
-      IWorld(_world()).setEnergy.selector,
-      ValueType.Uint256,
-      ValueType.Uint256
+      IWorld(_world()).updateEnergy.selector,
+      ValueType.Int256,
+      ValueType.Int256
     );
   }
 
-  function setEnergy(
+  function updateEnergy(
     VoxelEntity memory senderEntity,
     VoxelCoord memory senderCoord,
-    uint256 senderEnergy,
+    int256 senderEnergyDelta,
     VoxelEntity memory receiverEntity,
     VoxelCoord memory receiverCoord,
-    uint256 receiverEnergy
+    int256 receiverEnergyDelta
   ) public {
     address callerAddress = super.getCallerAddress();
     bool entityExists = hasKey(
@@ -44,21 +44,20 @@ contract EnergySystem is SimHandler {
     require(entityExists, "Sender entity does not exist");
     // If it doesn't exist, it'll be 0
     uint256 currentReceiverEnergy = Energy.get(callerAddress, receiverEntity.scale, receiverEntity.entityId);
+    uint256 newEnergy = addUint256AndInt256(currentReceiverEnergy, receiverEnergyDelta);
     if (isEntityEqual(senderEntity, receiverEntity)) {
       // Transformation
-      require(currentReceiverEnergy >= receiverEnergy, "Not enough energy to transfer");
-      fluxEnergyOut(callerAddress, receiverEntity, currentReceiverEnergy - receiverEnergy);
+      require(receiverEnergyDelta < 0, "Cannot increase your own energy");
+      uint256 amountToFlux = int256ToUint256(receiverEnergyDelta);
+      require(amountToFlux <= currentReceiverEnergy, "Not enough energy to transfer");
+      fluxEnergyOut(callerAddress, receiverEntity, amountToFlux);
     } else {
       // Transfer
-      require(receiverEnergy >= currentReceiverEnergy, "Cannot take energy from receiver");
-      energyTransfer(
-        callerAddress,
-        senderEntity,
-        senderCoord,
-        receiverEntity,
-        receiverCoord,
-        receiverEnergy - currentReceiverEnergy
-      );
+      uint256 currentSenderEnergy = Energy.get(callerAddress, senderEntity.scale, senderEntity.entityId);
+      require(receiverEnergyDelta > 0, "Cannot decrease others energy");
+      uint256 amountToTransfer = int256ToUint256(receiverEnergyDelta);
+      require(currentSenderEnergy >= amountToTransfer, "Not enough energy to transfer");
+      energyTransfer(callerAddress, senderEntity, senderCoord, receiverEntity, receiverCoord, amountToTransfer);
     }
   }
 
@@ -85,8 +84,7 @@ contract EnergySystem is SimHandler {
     );
 
     if (!energyReceiverEntityExists) {
-      VoxelEntity memory newTerrainEntity = createTerrainEntity(callerAddress, entity.scale, energyReceiverCoord);
-      energyReceiverEntity = newTerrainEntity;
+      energyReceiverEntity = createTerrainEntity(callerAddress, entity.scale, energyReceiverCoord);
       energyReceiverEntityExists = hasKey(
         EnergyTableId,
         Energy.encodeKeyTuple(callerAddress, energyReceiverEntity.scale, energyReceiverEntity.entityId)

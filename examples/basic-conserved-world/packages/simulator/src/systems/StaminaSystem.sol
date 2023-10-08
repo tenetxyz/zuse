@@ -8,7 +8,7 @@ import { SimHandler } from "@tenet-simulator/prototypes/SimHandler.sol";
 import { SimSelectors, Health, HealthTableId, Stamina, StaminaTableId, Mass, MassTableId, Energy, EnergyTableId, Velocity, VelocityTableId } from "@tenet-simulator/src/codegen/Tables.sol";
 import { VoxelCoord, VoxelTypeData, VoxelEntity, SimTable, ValueType } from "@tenet-utils/src/Types.sol";
 import { VoxelTypeRegistry, VoxelTypeRegistryData } from "@tenet-registry/src/codegen/tables/VoxelTypeRegistry.sol";
-import { distanceBetween, voxelCoordsAreEqual, isZeroCoord } from "@tenet-utils/src/VoxelCoordUtils.sol";
+import { distanceBetween, voxelCoordsAreEqual, isZeroCoord, int256ToUint256 } from "@tenet-utils/src/VoxelCoordUtils.sol";
 import { isEntityEqual } from "@tenet-utils/src/Utils.sol";
 import { getVelocity, getTerrainMass, getTerrainEnergy, getTerrainVelocity } from "@tenet-simulator/src/Utils.sol";
 import { console } from "forge-std/console.sol";
@@ -18,19 +18,19 @@ contract StaminaSystem is SimHandler {
     SimSelectors.set(
       SimTable.Energy,
       SimTable.Stamina,
-      IWorld(_world()).setStaminaFromEnergy.selector,
-      ValueType.Uint256,
-      ValueType.Uint256
+      IWorld(_world()).updateStaminaFromEnergy.selector,
+      ValueType.Int256,
+      ValueType.Int256
     );
   }
 
-  function setStaminaFromEnergy(
+  function updateStaminaFromEnergy(
     VoxelEntity memory senderEntity,
     VoxelCoord memory senderCoord,
-    uint256 senderEnergy,
+    int256 senderEnergyDelta,
     VoxelEntity memory receiverEntity,
     VoxelCoord memory receiverCoord,
-    uint256 receiverStamina
+    int256 receiverStaminaDelta
   ) public {
     address callerAddress = super.getCallerAddress();
     bool entityExists = hasKey(
@@ -41,9 +41,13 @@ contract StaminaSystem is SimHandler {
     if (isEntityEqual(senderEntity, receiverEntity)) {
       revert("You can't convert your own energy to stamina");
     } else {
+      require(receiverStaminaDelta > 0, "Cannot decrease others stamina");
+      require(senderEnergyDelta < 0, "Cannot increase your own energy");
+      uint256 senderEnergy = int256ToUint256(senderEnergyDelta);
+      uint256 receiverStamina = int256ToUint256(receiverStaminaDelta);
+      require(senderEnergy == receiverStamina, "Sender energy must equal receiver stamina");
       uint256 currentSenderEnergy = Energy.get(callerAddress, senderEntity.scale, senderEntity.entityId);
       require(currentSenderEnergy >= senderEnergy, "Sender does not have enough energy");
-      require(senderEnergy == receiverStamina, "Sender energy must equal receiver stamina");
       Energy.set(callerAddress, senderEntity.scale, senderEntity.entityId, currentSenderEnergy - senderEnergy);
       uint256 currentReceiverStamina = Stamina.get(callerAddress, receiverEntity.scale, receiverEntity.entityId);
       Stamina.set(

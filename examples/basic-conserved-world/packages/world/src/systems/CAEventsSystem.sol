@@ -12,6 +12,7 @@ import { Energy } from "@tenet-simulator/src/codegen/tables/Energy.sol";
 import { console } from "forge-std/console.sol";
 import { getEntityAtCoord } from "@tenet-base-world/src/Utils.sol";
 import { setSimValue } from "@tenet-simulator/src/CallUtils.sol";
+import { Mass } from "@tenet-simulator/src/codegen/tables/Mass.sol";
 import { MAX_VOXEL_NEIGHBOUR_UPDATE_DEPTH } from "@tenet-utils/src/Constants.sol";
 
 contract CAEventsSystem is System {
@@ -68,7 +69,12 @@ contract CAEventsSystem is System {
 
           bool calledWorldEvent = false;
           if (simEventData.targetTable == SimTable.Mass) {
-            uint256 newMass = abi.decode(simEventData.targetValue, (uint256));
+            uint256 newMass = Mass.get(
+              IStore(SIMULATOR_ADDRESS),
+              _world(),
+              simEventData.targetEntity.scale,
+              simEventData.targetEntity.entityId
+            );
             if (newMass == 0) {
               bytes32 voxelTypeId = VoxelType.getVoxelTypeId(
                 simEventData.targetEntity.scale,

@@ -10,8 +10,11 @@ function uint256ToInt256(uint256 x) pure returns (int256) {
 }
 
 function int256ToUint256(int256 x) pure returns (uint256) {
-  require(x >= 0, "int value is negative");
-  return uint256(x);
+  if (x >= 0) {
+    return uint256(x);
+  } else {
+    return negativeInt256ToUint256(x);
+  }
 }
 
 function uint256ToInt32(uint256 x) pure returns (int32) {
@@ -22,6 +25,12 @@ function uint256ToInt32(uint256 x) pure returns (int32) {
 function uint256ToNegativeInt256(uint256 x) pure returns (int256) {
   require(x <= uint256(int256(type(int256).max) + 1), "uint out of bounds for negative conversion");
   return -int256(x);
+}
+
+function negativeInt256ToUint256(int256 x) pure returns (uint256) {
+  require(x < 0, "Value is not negative");
+  require(x >= -int256(type(int256).max), "Negative int out of bounds for uint conversion");
+  return uint256(-x);
 }
 
 function addUint256AndInt256(uint256 a, int256 b) pure returns (uint256) {

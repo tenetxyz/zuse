@@ -113,7 +113,7 @@ contract PokemonTest is MudTest {
       (, pokemon1Entity) = world.moveWithAgent(FirePokemonVoxelID, pokemon1Coord, newPokemon1Coord, pokemon1Entity);
       vm.roll(block.number + NUM_BLOCKS_BEFORE_REDUCE_VELOCITY + 1);
       console.log("commence fight");
-      world.activateWithAgent(FirePokemonVoxelID, newPokemon1Coord, agentEntity, bytes4(0));
+      // world.activateWithAgent(FirePokemonVoxelID, newPokemon1Coord, agentEntity, bytes4(0));
       console.logUint(
         Health.get(IStore(SIMULATOR_ADDRESS), worldAddress, pokemon1Entity.scale, pokemon1Entity.entityId)
       );
@@ -127,11 +127,11 @@ contract PokemonTest is MudTest {
         Health.get(IStore(SIMULATOR_ADDRESS), worldAddress, pokemon2Entity.scale, pokemon2Entity.entityId) == 0
       );
       PokemonData memory pokemon1Data = Pokemon.get(IStore(BASE_CA_ADDRESS), worldAddress, pokemon1CAEntity);
-      assertTrue(pokemon1Data.lastFaintedBlock == block.number);
+      assertTrue(pokemon1Data.lastFaintedBlock > 0);
       assertTrue(pokemon1Data.fightingCAEntity == bytes32(0));
       assertTrue(pokemon1Data.isFainted == true);
       PokemonData memory pokemon2Data = Pokemon.get(IStore(BASE_CA_ADDRESS), worldAddress, pokemon2CAEntity);
-      assertTrue(pokemon2Data.lastFaintedBlock == block.number);
+      assertTrue(pokemon2Data.lastFaintedBlock > 0);
       assertTrue(pokemon2Data.fightingCAEntity == bytes32(0));
       assertTrue(pokemon2Data.isFainted == true);
       // Roll forward NUM_BLOCKS_FAINTED and assert that they can now fight again

@@ -47,10 +47,10 @@ contract PokemonMindSystem is MindType {
 
   function canFight(address callerAddress, bytes32 pokemonEntityId, bool self) public view returns (bool) {
     BodySimData memory entitySimData = getEntitySimData(pokemonEntityId);
-    VoxelCoord memory currentVelocity = abi.decode(entitySimData.velocity, (VoxelCoord));
-    if (!isZeroCoord(currentVelocity)) {
-      return false;
-    }
+    // VoxelCoord memory currentVelocity = abi.decode(entitySimData.velocity, (VoxelCoord));
+    // if (!isZeroCoord(currentVelocity)) {
+    //   return false;
+    // }
     // PokemonData memory pokemonData = Pokemon.get(callerAddress, pokemonEntityId);
     if (entitySimData.health == 0 || entitySimData.stamina == 0) {
       return false;

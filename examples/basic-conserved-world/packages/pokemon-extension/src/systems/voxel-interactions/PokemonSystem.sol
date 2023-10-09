@@ -275,10 +275,10 @@ contract PokemonSystem is System {
     BodySimData memory entitySimData,
     PokemonMove pokemonMove
   ) internal returns (CAEventData memory caEventData, PokemonData memory) {
-    VoxelCoord memory currentVelocity = abi.decode(entitySimData.velocity, (VoxelCoord));
-    if (!isZeroCoord(currentVelocity)) {
-      return (caEventData, pokemonData);
-    }
+    // VoxelCoord memory currentVelocity = abi.decode(entitySimData.velocity, (VoxelCoord));
+    // if (!isZeroCoord(currentVelocity)) {
+    //   return (caEventData, pokemonData);
+    // }
 
     if (pokemonData.fightingCAEntity != bytes32(0)) {
       BodySimData memory fightingEntitySimData = getEntitySimData(pokemonData.fightingCAEntity);

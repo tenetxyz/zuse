@@ -39,17 +39,7 @@ contract WaterPokemonAgentSystem is AgentType {
     pokemonChildVoxelTypes[0] = WaterPokemonVoxelID;
     bytes32 baseVoxelTypeId = WaterPokemonVoxelID;
 
-    ComponentDef[] memory componentDefs = new ComponentDef[](3);
-    componentDefs[0] = ComponentDef(
-      ComponentType.RANGE,
-      "Health",
-      abi.encode(RangeComponent({ rangeStart: 0, rangeEnd: 100 }))
-    );
-    componentDefs[1] = ComponentDef(
-      ComponentType.RANGE,
-      "Stamina",
-      abi.encode(RangeComponent({ rangeStart: 0, rangeEnd: 200 }))
-    );
+    ComponentDef[] memory componentDefs = new ComponentDef[](1);
     string[] memory states = new string[](13);
     states[0] = "None";
     states[1] = "Ember";
@@ -64,7 +54,7 @@ contract WaterPokemonAgentSystem is AgentType {
     states[10] = "SolarBeam";
     states[11] = "LeechSeed";
     states[12] = "Synthesis";
-    componentDefs[2] = ComponentDef(ComponentType.STATE, "State", abi.encode(StateComponent(states)));
+    componentDefs[0] = ComponentDef(ComponentType.STATE, "State", abi.encode(StateComponent(states)));
 
     registerVoxelType(
       REGISTRY_ADDRESS,

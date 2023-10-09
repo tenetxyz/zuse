@@ -43,7 +43,7 @@ contract SpawnEntity is Script {
     // world.spawnBody(voxelTypeId, coord, bytes4(0), initMass, initEnergy, initVelocity);
     // world.spawnBody(GrassPokemonVoxelID, VoxelCoord(13, 2, 13), bytes4(0), initMass, initEnergy, initVelocity);
     giveComponents(worldAddress, bytes32(uint256(0xc)));
-    giveComponents(worldAddress, bytes32(uint256(0x12)));
+    giveComponents(worldAddress, bytes32(uint256(0x2)));
 
     // TODO: remove, were used for testing collision
     // world.spawnBody(GrassVoxelID, VoxelCoord(10, 2, 13), bytes4(0));

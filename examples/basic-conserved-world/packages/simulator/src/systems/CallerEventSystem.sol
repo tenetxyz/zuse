@@ -65,8 +65,6 @@ contract CallerEventSystem is System {
       }
     }
 
-    console.log("on mine");
-
     if (massDelta > 0) {
       IWorld(_world()).updateMass(entity, coord, massDelta, entity, coord, massDelta);
     }
@@ -96,7 +94,6 @@ contract CallerEventSystem is System {
     }
     uint256 currentNutrients = Nutrients.get(callerAddress, entity.scale, entity.entityId);
     if (currentNutrients > 0) {
-      console.log("transferring nutrients to energy");
       IWorld(_world()).updateNutrientsFromEnergy(
         entity,
         coord,

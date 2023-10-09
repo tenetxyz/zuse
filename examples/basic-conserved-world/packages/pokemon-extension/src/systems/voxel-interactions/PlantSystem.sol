@@ -254,9 +254,6 @@ contract PlantSystem is VoxelInteraction {
     if ((entitySimData.elixir == 0 || entitySimData.protein == 0) && entitySimData.nutrients > 0) {
       allCAEventData = new CAEventData[](2);
       VoxelCoord memory coord = getCAEntityPositionStrict(IStore(_world()), interactEntity);
-      console.log("transferring");
-      console.logUint(entitySimData.nutrients);
-      console.logUint(entitySimData.nutrients / 2);
       allCAEventData[0] = transfer(
         SimTable.Nutrients,
         SimTable.Elixir,
@@ -359,11 +356,6 @@ contract PlantSystem is VoxelInteraction {
       targetValue: abi.encode(uint256ToNegativeInt256(entitySimData.mass))
     });
     allCAEventData[0] = CAEventData({ eventType: CAEventType.SimEvent, eventData: abi.encode(massEventData) });
-
-    console.log("die total");
-    console.logUint(entitySimData.mass);
-    console.logUint(entitySimData.energy);
-    console.logUint(entitySimData.nutrients);
 
     SimEventData memory energyEventData = SimEventData({
       senderTable: SimTable.Energy,

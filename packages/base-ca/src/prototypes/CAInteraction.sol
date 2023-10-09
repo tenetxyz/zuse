@@ -92,7 +92,7 @@ abstract contract CAInteraction is System {
               childEntityIds,
               parentEntity
             ),
-            "voxel activate"
+            "mindSelector"
           );
           useinteractionSelector = abi.decode(mindReturnData, (bytes4));
           if (useinteractionSelector == bytes4(0)) {

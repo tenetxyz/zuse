@@ -106,7 +106,7 @@ abstract contract CAInteraction is System {
             }
           }
         } else {
-          if (interactionSelectors.length == 1) {
+          if (interactionSelectors.length > 0) {
             // use the first one, if there's only one
             useinteractionSelector = interactionSelectors[0].interactionSelector;
           } else {

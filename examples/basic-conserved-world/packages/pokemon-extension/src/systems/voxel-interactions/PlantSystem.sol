@@ -251,7 +251,7 @@ contract PlantSystem is VoxelInteraction {
     BodySimData memory entitySimData,
     PlantData memory plantData
   ) internal returns (PlantData memory, CAEventData[] memory allCAEventData, bool) {
-    if (entitySimData.nutrients > 0) {
+    if ((entitySimData.elixir == 0 || entitySimData.protein == 0) && entitySimData.nutrients > 0) {
       allCAEventData = new CAEventData[](2);
       VoxelCoord memory coord = getCAEntityPositionStrict(IStore(_world()), interactEntity);
       console.log("transferring");

@@ -194,18 +194,45 @@ contract PlantTest is MudTest {
     plantData = Plant.get(IStore(BASE_CA_ADDRESS), worldAddress, plantCAEntity);
     plantNutrients = Nutrients.get(IStore(SIMULATOR_ADDRESS), worldAddress, plantEntity.scale, plantEntity.entityId);
     assertTrue(plantData.stage == PlantStage.Flower);
-    // assertTrue(plantNutrients >= AMOUNT_REQUIRED_FOR_FLOWER);
+    {
+      uint256 plantElixir = Elixir.get(
+        IStore(SIMULATOR_ADDRESS),
+        worldAddress,
+        plantEntity.scale,
+        plantEntity.entityId
+      );
+      uint256 plantProtein = Protein.get(
+        IStore(SIMULATOR_ADDRESS),
+        worldAddress,
+        plantEntity.scale,
+        plantEntity.entityId
+      );
+      assertTrue(plantElixir > 0);
+      assertTrue(plantProtein > 0);
+    }
 
     // Place pokemon next to flower
     {
-      // uint256 beforePokemonPlantEnergy = plantEnergy;
-      // VoxelCoord memory pokemonCoord = VoxelCoord({ x: plantCoord.x, y: plantCoord.y, z: plantCoord.z - 1 });
-      // VoxelEntity memory pokemonEntity = world.buildWithAgent(FirePokemonVoxelID, pokemonCoord, agentEntity, bytes4(0));
-      // // pokemon entity should have some energy
-      // plantEnergy = Energy.get(IStore(SIMULATOR_ADDRESS), worldAddress, plantEntity.scale, plantEntity.entityId);
-      // assertTrue(plantEnergy < beforePokemonPlantEnergy);
-      // assertTrue(Health.get(IStore(SIMULATOR_ADDRESS), worldAddress, pokemonEntity.scale, pokemonEntity.entityId) > 0);
-      // assertTrue(Stamina.get(IStore(SIMULATOR_ADDRESS), worldAddress, pokemonEntity.scale, pokemonEntity.entityId) > 0);
+      vm.roll(block.number + 1);
+      VoxelCoord memory pokemonCoord = VoxelCoord({ x: plantCoord.x, y: plantCoord.y, z: plantCoord.z - 1 });
+      VoxelEntity memory pokemonEntity = world.buildWithAgent(FirePokemonVoxelID, pokemonCoord, agentEntity, bytes4(0));
+      // pokemon entity should have some energy
+      assertTrue(Health.get(IStore(SIMULATOR_ADDRESS), worldAddress, pokemonEntity.scale, pokemonEntity.entityId) > 0);
+      assertTrue(Stamina.get(IStore(SIMULATOR_ADDRESS), worldAddress, pokemonEntity.scale, pokemonEntity.entityId) > 0);
+      uint256 plantElixir = Elixir.get(
+        IStore(SIMULATOR_ADDRESS),
+        worldAddress,
+        plantEntity.scale,
+        plantEntity.entityId
+      );
+      uint256 plantProtein = Protein.get(
+        IStore(SIMULATOR_ADDRESS),
+        worldAddress,
+        plantEntity.scale,
+        plantEntity.entityId
+      );
+      assertTrue(plantElixir == 0);
+      assertTrue(plantProtein == 0);
     }
 
     vm.stopPrank();

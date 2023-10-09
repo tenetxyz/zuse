@@ -392,6 +392,7 @@ contract VelocitySystem is SimHandler {
     // Reset the old entity's mass, energy and velocity
     Mass.set(callerAddress, oldEntity.scale, oldEntity.entityId, 0);
     Energy.set(callerAddress, oldEntity.scale, oldEntity.entityId, 0);
+    Stamina.set(callerAddress, oldEntity.scale, oldEntity.entityId, 0);
     Velocity.set(
       callerAddress,
       oldEntity.scale,

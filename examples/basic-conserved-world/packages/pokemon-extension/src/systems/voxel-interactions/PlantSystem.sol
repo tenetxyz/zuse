@@ -356,13 +356,18 @@ contract PlantSystem is VoxelInteraction {
     });
     allCAEventData[0] = CAEventData({ eventType: CAEventType.SimEvent, eventData: abi.encode(massEventData) });
 
+    console.log("die total");
+    console.logUint(entitySimData.mass);
+    console.logUint(entitySimData.energy);
+    console.logUint(entitySimData.nutrients);
+
     SimEventData memory energyEventData = SimEventData({
       senderTable: SimTable.Energy,
-      senderValue: abi.encode(uint256ToNegativeInt256(entitySimData.energy)),
+      senderValue: abi.encode(uint256ToNegativeInt256(entitySimData.energy + entitySimData.nutrients)),
       targetEntity: entity,
       targetCoord: coord,
       targetTable: SimTable.Energy,
-      targetValue: abi.encode(uint256ToNegativeInt256(entitySimData.energy))
+      targetValue: abi.encode(uint256ToNegativeInt256(entitySimData.energy + entitySimData.nutrients))
     });
     allCAEventData[1] = CAEventData({ eventType: CAEventType.SimEvent, eventData: abi.encode(energyEventData) });
     return allCAEventData;

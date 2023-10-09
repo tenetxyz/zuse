@@ -52,6 +52,9 @@ contract EnergySystem is SimHandler {
       // Transformation
       require(receiverEnergyDelta < 0, "Cannot increase your own energy");
       uint256 amountToFlux = int256ToUint256(receiverEnergyDelta);
+      console.log("flux bro");
+      console.logUint(currentReceiverEnergy);
+      console.logUint(amountToFlux);
       require(amountToFlux <= currentReceiverEnergy, "Not enough energy to transfer");
       fluxEnergyOut(callerAddress, receiverEntity, amountToFlux);
     } else {

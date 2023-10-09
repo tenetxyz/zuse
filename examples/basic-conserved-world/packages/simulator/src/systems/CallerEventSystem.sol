@@ -48,10 +48,9 @@ contract CallerEventSystem is System {
     if (entityExists) {
       require(isZeroCoord(getVelocity(callerAddress, entity)), "Cannot mine an entity with velocity");
       uint256 currentMass = Mass.get(callerAddress, entity.scale, entity.entityId);
-      if (currentMass == 0) {
-        return;
+      if (currentMass > 0) {
+        massDelta = -1 * uint256ToInt256(currentMass);
       }
-      massDelta = -1 * uint256ToInt256(currentMass);
     } else {
       VoxelCoord memory terrainVelocity = getTerrainVelocity(callerAddress, entity.scale, coord);
       uint256 terrainMass = getTerrainMass(callerAddress, entity.scale, coord);
@@ -61,13 +60,16 @@ contract CallerEventSystem is System {
       Energy.set(callerAddress, entity.scale, entity.entityId, getTerrainEnergy(callerAddress, entity.scale, coord));
       Velocity.set(callerAddress, entity.scale, entity.entityId, block.number, abi.encode(terrainVelocity));
 
-      if (terrainMass == 0) {
-        return;
+      if (terrainMass > 0) {
+        massDelta = -1 * uint256ToInt256(terrainMass);
       }
-      massDelta = -1 * uint256ToInt256(terrainMass);
     }
 
-    IWorld(_world()).updateMass(entity, coord, massDelta, entity, coord, massDelta);
+    console.log("on mine");
+
+    if (massDelta > 0) {
+      IWorld(_world()).updateMass(entity, coord, massDelta, entity, coord, massDelta);
+    }
 
     // Update forms of energy to general energy
     uint256 currentHealth = Health.get(callerAddress, entity.scale, entity.entityId);
@@ -94,6 +96,7 @@ contract CallerEventSystem is System {
     }
     uint256 currentNutrients = Nutrients.get(callerAddress, entity.scale, entity.entityId);
     if (currentNutrients > 0) {
+      console.log("transferring nutrients to energy");
       IWorld(_world()).updateNutrientsFromEnergy(
         entity,
         coord,

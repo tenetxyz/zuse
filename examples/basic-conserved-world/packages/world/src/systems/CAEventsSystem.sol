@@ -83,6 +83,8 @@ contract CAEventsSystem is System {
               simEventData.targetEntity.scale,
               simEventData.targetEntity.entityId
             );
+            console.log("mass event");
+            console.logUint(newMass);
             if (newMass == 0) {
               bytes32 voxelTypeId = VoxelType.getVoxelTypeId(
                 simEventData.targetEntity.scale,

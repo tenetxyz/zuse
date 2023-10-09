@@ -40,8 +40,6 @@ contract ElixirSystem is SimHandler {
     );
     require(entityExists, "Sender entity does not exist");
     if (isEntityEqual(senderEntity, receiverEntity)) {
-      revert("You can't convert your own nutrients to elixir");
-    } else {
       require(receiverElixirDelta > 0, "Cannot decrease someone's elixir");
       require(senderNutrientsDelta < 0, "Cannot increase your own nutrients");
       uint256 senderNutrients = int256ToUint256(senderNutrientsDelta);
@@ -65,6 +63,8 @@ contract ElixirSystem is SimHandler {
       uint256 currentReceiverElixir = Elixir.get(callerAddress, receiverEntity.scale, receiverEntity.entityId);
       Elixir.set(callerAddress, receiverEntity.scale, receiverEntity.entityId, currentReceiverElixir + receiverElixir);
       Nutrients.set(callerAddress, senderEntity.scale, senderEntity.entityId, currentSenderNutrients - senderNutrients);
+    } else {
+      revert("You can't transfer your nutrients to someone elses elixir");
     }
   }
 

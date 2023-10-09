@@ -245,9 +245,9 @@ contract PlantSystem is VoxelInteraction {
     bytes32[] memory neighbourEntityIds,
     BodySimData memory entitySimData,
     PlantData memory plantData
-  ) internal returns (PlantData memory, CAEventData[] memory, bool) {
+  ) internal returns (PlantData memory, CAEventData[] memory allCAEventData, bool) {
     if (entitySimData.nutrients > 0) {
-      CAEventData[] memory allCAEventData = new CAEventData[](2);
+      allCAEventData = new CAEventData[](2);
       VoxelCoord memory coord = getCAEntityPositionStrict(IStore(_world()), interactEntity);
       allCAEventData[0] = transfer(
         SimTable.Nutrients,
@@ -268,7 +268,7 @@ contract PlantSystem is VoxelInteraction {
       return (plantData, allCAEventData, true);
     }
 
-    CAEventData[] memory allCAEventData = new CAEventData[](neighbourEntityIds.length * 2);
+    allCAEventData = new CAEventData[](neighbourEntityIds.length * 2);
 
     uint256 elixirTransferAmount;
     uint256 proteinTransferAmount;
@@ -317,7 +317,7 @@ contract PlantSystem is VoxelInteraction {
           );
         }
 
-        if (transferAmount > 0) {
+        if (elixirTransferAmount > 0 || proteinTransferAmount > 0) {
           hasTransfer = true;
         }
       }
@@ -338,15 +338,6 @@ contract PlantSystem is VoxelInteraction {
     VoxelEntity memory entity = VoxelEntity({ scale: 1, entityId: caEntityToEntity(interactEntity) });
     VoxelCoord memory coord = getCAEntityPositionStrict(IStore(_world()), interactEntity);
 
-    SimEventData memory energyEventData = SimEventData({
-      senderTable: SimTable.Energy,
-      senderValue: abi.encode(uint256ToNegativeInt256(entitySimData.energy)),
-      targetEntity: entity,
-      targetCoord: coord,
-      targetTable: SimTable.Energy,
-      targetValue: abi.encode(uint256ToNegativeInt256(entitySimData.energy))
-    });
-    allCAEventData[0] = CAEventData({ eventType: CAEventType.SimEvent, eventData: abi.encode(energyEventData) });
     SimEventData memory massEventData = SimEventData({
       senderTable: SimTable.Mass,
       senderValue: abi.encode(uint256ToNegativeInt256(entitySimData.mass)),
@@ -355,7 +346,17 @@ contract PlantSystem is VoxelInteraction {
       targetTable: SimTable.Mass,
       targetValue: abi.encode(uint256ToNegativeInt256(entitySimData.mass))
     });
-    allCAEventData[1] = CAEventData({ eventType: CAEventType.SimEvent, eventData: abi.encode(massEventData) });
+    allCAEventData[0] = CAEventData({ eventType: CAEventType.SimEvent, eventData: abi.encode(massEventData) });
+
+    SimEventData memory energyEventData = SimEventData({
+      senderTable: SimTable.Energy,
+      senderValue: abi.encode(uint256ToNegativeInt256(entitySimData.energy)),
+      targetEntity: entity,
+      targetCoord: coord,
+      targetTable: SimTable.Energy,
+      targetValue: abi.encode(uint256ToNegativeInt256(entitySimData.energy))
+    });
+    allCAEventData[1] = CAEventData({ eventType: CAEventType.SimEvent, eventData: abi.encode(energyEventData) });
     return allCAEventData;
   }
 

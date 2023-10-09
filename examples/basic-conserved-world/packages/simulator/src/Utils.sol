@@ -88,6 +88,15 @@ function getVoxelCoordStrict(address callerAddress, VoxelEntity memory entity) v
   return abi.decode(returnData, (VoxelCoord));
 }
 
+function getEntityAtCoord(address callerAddress, uint32 scale, VoxelCoord memory coord) view returns (bytes32) {
+  bytes memory returnData = safeStaticCall(
+    callerAddress,
+    abi.encodeWithSignature("getEntityAtCoord(uint32,(int32,int32,int32))", scale, coord),
+    string(abi.encode("getEntityAtCoord ", callerAddress, " ", scale, " ", coord))
+  );
+  return abi.decode(returnData, (bytes32));
+}
+
 function getVoxelTypeId(address callerAddress, VoxelEntity memory entity) view returns (bytes32) {
   bytes memory returnData = safeStaticCall(
     callerAddress,

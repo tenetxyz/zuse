@@ -5,7 +5,7 @@ import { IWorld } from "@tenet-world/src/codegen/world/IWorld.sol";
 import { IStore } from "@latticexyz/store/src/IStore.sol";
 import { VoxelCoord, VoxelEntity, BodySimData, ObjectType } from "@tenet-utils/src/Types.sol";
 import { ExternalCASystem as ExternalCAPrototype } from "@tenet-base-world/src/prototypes/ExternalCASystem.sol";
-import { getVoxelCoordStrict as utilGetVoxelCoordStrict } from "@tenet-base-world/src/Utils.sol";
+import { getVoxelCoordStrict as utilGetVoxelCoordStrict, getEntityAtCoord as utilGetEntityAtCoord } from "@tenet-base-world/src/Utils.sol";
 import { REGISTRY_ADDRESS, SIMULATOR_ADDRESS } from "@tenet-world/src/Constants.sol";
 import { Mass } from "@tenet-simulator/src/codegen/tables/Mass.sol";
 import { Energy } from "@tenet-simulator/src/codegen/tables/Energy.sol";
@@ -22,6 +22,10 @@ contract ExternalCASystem is ExternalCAPrototype {
 
   function getVoxelCoordStrict(VoxelEntity memory entity) public view returns (VoxelCoord memory) {
     return utilGetVoxelCoordStrict(entity);
+  }
+
+  function getEntityAtCoord(uint32 scale, VoxelCoord memory coord) public view returns (bytes32) {
+    return utilGetEntityAtCoord(scale, coord);
   }
 
   function getEntitySimData(VoxelEntity memory entity) public view returns (BodySimData memory) {

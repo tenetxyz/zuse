@@ -254,6 +254,9 @@ contract PlantSystem is VoxelInteraction {
     if (entitySimData.nutrients > 0) {
       allCAEventData = new CAEventData[](2);
       VoxelCoord memory coord = getCAEntityPositionStrict(IStore(_world()), interactEntity);
+      console.log("transferring");
+      console.logUint(entitySimData.nutrients);
+      console.logUint(entitySimData.nutrients / 2);
       allCAEventData[0] = transfer(
         SimTable.Nutrients,
         SimTable.Elixir,
@@ -270,6 +273,7 @@ contract PlantSystem is VoxelInteraction {
         coord,
         entitySimData.nutrients / 2
       );
+      plantData.lastInteractionBlock = block.number;
       return (plantData, allCAEventData, true);
     }
 

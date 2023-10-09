@@ -51,7 +51,10 @@ contract PlantSystem is VoxelInteraction {
 
       changedEntity = true;
     } else if (plantData.stage == PlantStage.Flower) {
-      (uint harvestPlantElixir, uint harvestPlantProtein) = getFoodToPokemon(entitySimData.elixir, entityData.protein);
+      (uint harvestPlantElixir, uint harvestPlantProtein) = getFoodToPokemon(
+        entitySimData.elixir,
+        entitySimData.protein
+      );
       if (harvestPlantElixir == 0 && harvestPlantProtein == 0) {
         return (changedEntity, entityData);
       }
@@ -178,21 +181,29 @@ contract PlantSystem is VoxelInteraction {
     BlockDirection[] memory neighbourEntityDirections,
     BodySimData memory entitySimData,
     PlantData memory plantData
-  ) internal returns (PlantData memory, CAEventData[] memory, bool) {
-    CAEventData[] memory allCAEventData = new CAEventData[](neighbourEntityIds.length);
+  ) internal returns (PlantData memory, CAEventData[] memory allCAEventData, bool hasTransfer) {
+    allCAEventData = new CAEventData[](neighbourEntityIds.length);
 
-    uint256 transferNutrientsToSeed = getNutrientsToPlant(entitySimData.nutrients);
-    if (transferNutrientsToSeed == 0) {
-      return (plantData, allCAEventData, false);
+    uint256 transferAmount;
+    {
+      uint256 transferNutrientsToSeed = getNutrientsToPlant(entitySimData.nutrients);
+      if (transferNutrientsToSeed == 0) {
+        return (plantData, allCAEventData, false);
+      }
+
+      uint256 numSeedNeighbours = calculateNumSeedNeighbours(
+        callerAddress,
+        neighbourEntityIds,
+        neighbourEntityDirections
+      );
+      if (numSeedNeighbours > 0) {
+        plantData.lastInteractionBlock = block.number;
+        transferAmount = transferNutrientsToSeed / numSeedNeighbours;
+      }
+      if (transferAmount == 0) {
+        return (plantData, allCAEventData, false);
+      }
     }
-
-    uint256 numSeedNeighbours = calculateNumSeedNeighbours(
-      callerAddress,
-      neighbourEntityIds,
-      neighbourEntityDirections
-    );
-
-    bool hasTransfer = false;
 
     for (uint i = 0; i < neighbourEntityIds.length; i++) {
       if (uint256(neighbourEntityIds[i]) == 0) {
@@ -200,24 +211,18 @@ contract PlantSystem is VoxelInteraction {
       }
 
       if (isValidPlantNeighbour(callerAddress, neighbourEntityIds[i], neighbourEntityDirections[i])) {
-        VoxelCoord memory neighbourCoord = getCAEntityPositionStrict(IStore(_world()), neighbourEntityIds[i]);
-        uint256 transferAmount = transferNutrientsToSeed / numSeedNeighbours;
-        allCAEventData[i] = transfer(
-          SimTable.Nutrients,
-          SimTable.Nutrients,
-          entitySimData,
-          neighbourEntityIds[i],
-          neighbourCoord,
-          transferAmount
-        );
-        if (transferAmount > 0) {
-          hasTransfer = true;
+        {
+          allCAEventData[i] = transfer(
+            SimTable.Nutrients,
+            SimTable.Nutrients,
+            entitySimData,
+            neighbourEntityIds[i],
+            getCAEntityPositionStrict(IStore(_world()), neighbourEntityIds[i]),
+            transferAmount
+          );
         }
+        hasTransfer = true;
       }
-    }
-
-    if (numSeedNeighbours > 0) {
-      plantData.lastInteractionBlock = block.number;
     }
 
     return (plantData, allCAEventData, hasTransfer);
@@ -274,7 +279,10 @@ contract PlantSystem is VoxelInteraction {
     uint256 proteinTransferAmount;
     uint256 numPokemonNeighbours;
     {
-      (uint harvestPlantElixir, uint harvestPlantProtein) = getFoodToPokemon(entitySimData.elixir, entityData.protein);
+      (uint harvestPlantElixir, uint harvestPlantProtein) = getFoodToPokemon(
+        entitySimData.elixir,
+        entitySimData.protein
+      );
       if (harvestPlantElixir == 0 && harvestPlantProtein == 0) {
         return (plantData, allCAEventData, false);
       }

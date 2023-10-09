@@ -11,7 +11,7 @@ import { getInteractionSelectors } from "@tenet-registry/src/Utils.sol";
 import { Pokemon, PokemonData } from "@tenet-pokemon-extension/src/codegen/tables/Pokemon.sol";
 import { entityIsSoil, entityIsPlant, entityIsPokemon } from "@tenet-pokemon-extension/src/InteractionUtils.sol";
 import { console } from "forge-std/console.sol";
-import { getEntitySimData, transferEnergy } from "@tenet-level1-ca/src/Utils.sol";
+import { getEntitySimData } from "@tenet-level1-ca/src/Utils.sol";
 import { BlockDirection, BodySimData, VoxelCoord } from "@tenet-utils/src/Types.sol";
 import { isZeroCoord, voxelCoordsAreEqual } from "@tenet-utils/src/VoxelCoordUtils.sol";
 

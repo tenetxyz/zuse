@@ -14,7 +14,7 @@ import { getFirstCaller } from "@tenet-utils/src/Utils.sol";
 import { getCAEntityAtCoord, getCAVoxelType, caEntityToEntity, getCAEntityPositionStrict, getCAEntityIsAgent } from "@tenet-base-ca/src/Utils.sol";
 import { AirVoxelID } from "@tenet-level1-ca/src/Constants.sol";
 import { uint256ToNegativeInt256, uint256ToInt256 } from "@tenet-utils/src/TypeUtils.sol";
-import { getEntitySimData, transferEnergy } from "@tenet-level1-ca/src/Utils.sol";
+import { getEntitySimData } from "@tenet-level1-ca/src/Utils.sol";
 
 bytes32 constant FighterVoxelVariantID = bytes32(keccak256("fighter"));
 string constant FighterTexture = "bafkreihpdljsgdltghxehq4cebngtugfj3pduucijxcrvcla4hoy34f7vq";

@@ -35,43 +35,29 @@ contract ExternalCASystem is ExternalCAPrototype {
   }
 
   function getEntitySimData(VoxelEntity memory entity) public view returns (BodySimData memory) {
-    uint256 energy = Energy.get(IStore(SIMULATOR_ADDRESS), _world(), entity.scale, entity.entityId);
-    uint256 mass = Mass.get(IStore(SIMULATOR_ADDRESS), _world(), entity.scale, entity.entityId);
-    bytes memory velocity = Velocity.getVelocity(IStore(SIMULATOR_ADDRESS), _world(), entity.scale, entity.entityId);
-    uint256 lastUpdateBlock = Velocity.getLastUpdateBlock(
+    BodySimData memory entitySimData;
+
+    entitySimData.energy = Energy.get(IStore(SIMULATOR_ADDRESS), _world(), entity.scale, entity.entityId);
+    entitySimData.mass = Mass.get(IStore(SIMULATOR_ADDRESS), _world(), entity.scale, entity.entityId);
+    entitySimData.velocity = Velocity.getVelocity(IStore(SIMULATOR_ADDRESS), _world(), entity.scale, entity.entityId);
+    entitySimData.lastUpdateBlock = Velocity.getLastUpdateBlock(
       IStore(SIMULATOR_ADDRESS),
       _world(),
       entity.scale,
       entity.entityId
     );
-    uint256 health = Health.get(IStore(SIMULATOR_ADDRESS), _world(), entity.scale, entity.entityId);
-    uint256 stamina = Stamina.get(IStore(SIMULATOR_ADDRESS), _world(), entity.scale, entity.entityId);
-    ObjectType objectType = Object.get(IStore(SIMULATOR_ADDRESS), _world(), entity.scale, entity.entityId);
-    ActionData memory actionData = Action.get(IStore(SIMULATOR_ADDRESS), _world(), entity.scale, entity.entityId);
-    uint256 nutrients = Nutrients.get(IStore(SIMULATOR_ADDRESS), _world(), entity.scale, entity.entityId);
-    uint256 nitrogen = Nitrogen.get(IStore(SIMULATOR_ADDRESS), _world(), entity.scale, entity.entityId);
-    uint256 phosphorous = Phosphorous.get(IStore(SIMULATOR_ADDRESS), _world(), entity.scale, entity.entityId);
-    uint256 potassium = Potassium.get(IStore(SIMULATOR_ADDRESS), _world(), entity.scale, entity.entityId);
-    uint256 elixir = Elixir.get(IStore(SIMULATOR_ADDRESS), _world(), entity.scale, entity.entityId);
-    uint256 protein = Protein.get(IStore(SIMULATOR_ADDRESS), _world(), entity.scale, entity.entityId);
+    entitySimData.health = Health.get(IStore(SIMULATOR_ADDRESS), _world(), entity.scale, entity.entityId);
+    entitySimData.stamina = Stamina.get(IStore(SIMULATOR_ADDRESS), _world(), entity.scale, entity.entityId);
+    entitySimData.objectType = Object.get(IStore(SIMULATOR_ADDRESS), _world(), entity.scale, entity.entityId);
+    entitySimData.actionData = Action.get(IStore(SIMULATOR_ADDRESS), _world(), entity.scale, entity.entityId);
+    entitySimData.nutrients = Nutrients.get(IStore(SIMULATOR_ADDRESS), _world(), entity.scale, entity.entityId);
+    entitySimData.nitrogen = Nitrogen.get(IStore(SIMULATOR_ADDRESS), _world(), entity.scale, entity.entityId);
+    entitySimData.phosphorous = Phosphorous.get(IStore(SIMULATOR_ADDRESS), _world(), entity.scale, entity.entityId);
+    entitySimData.potassium = Potassium.get(IStore(SIMULATOR_ADDRESS), _world(), entity.scale, entity.entityId);
+    entitySimData.elixir = Elixir.get(IStore(SIMULATOR_ADDRESS), _world(), entity.scale, entity.entityId);
+    entitySimData.protein = Protein.get(IStore(SIMULATOR_ADDRESS), _world(), entity.scale, entity.entityId);
 
-    return
-      BodySimData({
-        energy: energy,
-        mass: mass,
-        velocity: velocity,
-        lastUpdateBlock: lastUpdateBlock,
-        health: health,
-        stamina: stamina,
-        objectType: objectType,
-        actionData: actionData,
-        nutrients: nutrients,
-        nitrogen: nitrogen,
-        phosphorous: phosphorous,
-        potassium: potassium,
-        elixir: elixir,
-        protein: protein
-      });
+    return entitySimData;
   }
 
   function shouldRunInteractionForNeighbour(

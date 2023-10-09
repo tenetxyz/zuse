@@ -154,16 +154,24 @@ contract SoilSystem is VoxelInteraction {
     BlockDirection[] memory neighbourEntityDirections,
     BodySimData memory entitySimData
   ) internal returns (bytes memory) {
-    uint256 transferNutrientsToSoil = getNutrientsToSoil(entitySimData.nutrients);
-    uint256 transferNutrientsToPlant = getNutrientsToPlant(entitySimData.nutrients);
-    if (transferNutrientsToSoil == 0 && transferNutrientsToPlant == 0) {
-      return new bytes(0);
+    uint256 transferNutrientsToSoil;
+    uint256 transferNutrientsToPlant;
+    {
+      transferNutrientsToSoil = getNutrientsToSoil(entitySimData.nutrients);
+      transferNutrientsToPlant = getNutrientsToPlant(entitySimData.nutrients);
+      if (transferNutrientsToSoil == 0 && transferNutrientsToPlant == 0) {
+        return new bytes(0);
+      }
+      // Calculate # of soil neighbours
+      uint256 numSoilNeighbours = calculateNumSoilNeighbours(callerAddress, neighbourEntityIds);
+      if (numSoilNeighbours > 0) {
+        transferNutrientsToSoil = transferNutrientsToSoil / numSoilNeighbours;
+        Soil.setLastInteractionBlock(callerAddress, interactEntity, block.number);
+      }
     }
 
     CAEventData[] memory allCAEventData = new CAEventData[](neighbourEntityIds.length);
 
-    // Calculate # of soil neighbours
-    uint256 numSoilNeighbours = calculateNumSoilNeighbours(callerAddress, neighbourEntityIds);
     bool hasTransfer = false;
     bool hasPlant = false;
 
@@ -176,16 +184,15 @@ contract SoilSystem is VoxelInteraction {
       VoxelCoord memory neighbourCoord = getCAEntityPositionStrict(IStore(_world()), neighbourEntityIds[i]);
       // Check if the neighbor is a Soil, Seed, or Young Plant cell
       if (entityIsSoil(callerAddress, neighbourEntityIds[i])) {
-        uint256 nutrientTransferAmount = transferNutrientsToSoil / numSoilNeighbours;
         allCAEventData[i] = transfer(
           SimTable.Nutrients,
           SimTable.Nutrients,
           entitySimData,
           neighbourEntityIds[i],
           neighbourCoord,
-          nutrientTransferAmount
+          transferNutrientsToSoil
         );
-        if (nutrientTransferAmount > 0) {
+        if (transferNutrientsToSoil > 0) {
           hasTransfer = true;
         }
       } else if (isValidPlantNeighbour(callerAddress, neighbourEntityIds[i], neighbourEntityDirections[i])) {
@@ -204,7 +211,7 @@ contract SoilSystem is VoxelInteraction {
       }
     }
 
-    if (hasPlant || numSoilNeighbours > 0) {
+    if (hasPlant) {
       Soil.setLastInteractionBlock(callerAddress, interactEntity, block.number);
     }
 

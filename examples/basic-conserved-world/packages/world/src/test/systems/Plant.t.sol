@@ -17,7 +17,7 @@ import { Plant, PlantData, PlantStage } from "@tenet-pokemon-extension/src/codeg
 import { addressToEntityKey } from "@tenet-utils/src/Utils.sol";
 import { console } from "forge-std/console.sol";
 import { CAEntityMapping, CAEntityMappingTableId } from "@tenet-base-ca/src/codegen/tables/CAEntityMapping.sol";
-import { ENERGY_REQUIRED_FOR_SPROUT, ENERGY_REQUIRED_FOR_FLOWER } from "@tenet-pokemon-extension/src/systems/voxel-interactions/PlantSystem.sol";
+import { AMOUNT_REQUIRED_FOR_SPROUT, AMOUNT_REQUIRED_FOR_FLOWER } from "@tenet-pokemon-extension/src/systems/voxel-interactions/PlantSystem.sol";
 import { Mass } from "@tenet-simulator/src/codegen/tables/Mass.sol";
 import { Energy } from "@tenet-simulator/src/codegen/tables/Energy.sol";
 import { Velocity } from "@tenet-simulator/src/codegen/tables/Velocity.sol";
@@ -65,7 +65,7 @@ contract PlantTest is MudTest {
     bytes32 plantCAEntity = CAEntityMapping.get(IStore(BASE_CA_ADDRESS), worldAddress, plantEntity.entityId);
     PlantData memory plantData = Plant.get(IStore(BASE_CA_ADDRESS), worldAddress, plantCAEntity);
     uint256 plantEnergy = Energy.get(IStore(SIMULATOR_ADDRESS), worldAddress, plantEntity.scale, plantEntity.entityId);
-    assertTrue(plantEnergy > 0 && plantEnergy < ENERGY_REQUIRED_FOR_SPROUT);
+    assertTrue(plantEnergy > 0 && plantEnergy < AMOUNT_REQUIRED_FOR_SPROUT);
     assertTrue(plantData.stage == PlantStage.Seed);
 
     vm.stopPrank();
@@ -89,7 +89,7 @@ contract PlantTest is MudTest {
     bytes32 plantCAEntity = CAEntityMapping.get(IStore(BASE_CA_ADDRESS), worldAddress, plantEntity.entityId);
     PlantData memory plantData = Plant.get(IStore(BASE_CA_ADDRESS), worldAddress, plantCAEntity);
     uint256 plantEnergy = Energy.get(IStore(SIMULATOR_ADDRESS), worldAddress, plantEntity.scale, plantEntity.entityId);
-    assertTrue(plantEnergy > 0 && plantEnergy < ENERGY_REQUIRED_FOR_SPROUT);
+    assertTrue(plantEnergy > 0 && plantEnergy < AMOUNT_REQUIRED_FOR_SPROUT);
     assertTrue(plantData.stage == PlantStage.Seed);
 
     vm.roll(block.number + 1);
@@ -99,7 +99,7 @@ contract PlantTest is MudTest {
     soilEnergy = Energy.get(IStore(SIMULATOR_ADDRESS), worldAddress, soilEntity.scale, soilEntity.entityId);
     plantEnergy = Energy.get(IStore(SIMULATOR_ADDRESS), worldAddress, plantEntity.scale, plantEntity.entityId);
     console.logUint(uint(plantData.stage));
-    assertTrue(plantEnergy > ENERGY_REQUIRED_FOR_SPROUT && plantEnergy < ENERGY_REQUIRED_FOR_FLOWER);
+    assertTrue(plantEnergy > AMOUNT_REQUIRED_FOR_SPROUT && plantEnergy < AMOUNT_REQUIRED_FOR_FLOWER);
     assertTrue(plantData.stage == PlantStage.Sprout);
 
     // Mine soil
@@ -136,7 +136,7 @@ contract PlantTest is MudTest {
     bytes32 plantCAEntity = CAEntityMapping.get(IStore(BASE_CA_ADDRESS), worldAddress, plantEntity.entityId);
     PlantData memory plantData = Plant.get(IStore(BASE_CA_ADDRESS), worldAddress, plantCAEntity);
     uint256 plantEnergy = Energy.get(IStore(SIMULATOR_ADDRESS), worldAddress, plantEntity.scale, plantEntity.entityId);
-    assertTrue(plantEnergy > 0 && plantEnergy < ENERGY_REQUIRED_FOR_SPROUT);
+    assertTrue(plantEnergy > 0 && plantEnergy < AMOUNT_REQUIRED_FOR_SPROUT);
     assertTrue(plantData.stage == PlantStage.Seed);
 
     vm.roll(block.number + 1);
@@ -145,7 +145,7 @@ contract PlantTest is MudTest {
     plantData = Plant.get(IStore(BASE_CA_ADDRESS), worldAddress, plantCAEntity);
     soilEnergy = Energy.get(IStore(SIMULATOR_ADDRESS), worldAddress, soilEntity.scale, soilEntity.entityId);
     plantEnergy = Energy.get(IStore(SIMULATOR_ADDRESS), worldAddress, plantEntity.scale, plantEntity.entityId);
-    assertTrue(plantEnergy > ENERGY_REQUIRED_FOR_SPROUT && plantEnergy < ENERGY_REQUIRED_FOR_FLOWER);
+    assertTrue(plantEnergy > AMOUNT_REQUIRED_FOR_SPROUT && plantEnergy < AMOUNT_REQUIRED_FOR_FLOWER);
     assertTrue(plantData.stage == PlantStage.Sprout);
 
     vm.roll(block.number + 1);
@@ -154,7 +154,7 @@ contract PlantTest is MudTest {
     plantData = Plant.get(IStore(BASE_CA_ADDRESS), worldAddress, plantCAEntity);
     soilEnergy = Energy.get(IStore(SIMULATOR_ADDRESS), worldAddress, soilEntity.scale, soilEntity.entityId);
     plantEnergy = Energy.get(IStore(SIMULATOR_ADDRESS), worldAddress, plantEntity.scale, plantEntity.entityId);
-    assertTrue(plantEnergy >= ENERGY_REQUIRED_FOR_FLOWER);
+    assertTrue(plantEnergy >= AMOUNT_REQUIRED_FOR_FLOWER);
     assertTrue(plantData.stage == PlantStage.Flower);
 
     // Place pokemon next to flower

@@ -14,7 +14,7 @@ import { getFirstCaller } from "@tenet-utils/src/Utils.sol";
 import { getCAEntityAtCoord, getCAVoxelType } from "@tenet-base-ca/src/Utils.sol";
 import { entityIsSoil, entityIsPlant, entityIsPokemon } from "@tenet-pokemon-extension/src/InteractionUtils.sol";
 import { registerCAVoxelType } from "@tenet-base-ca/src/CallUtils.sol";
-import { getEntitySimData, transferEnergy } from "@tenet-level1-ca/src/Utils.sol";
+import { getEntitySimData } from "@tenet-level1-ca/src/Utils.sol";
 import { Pokemon, PokemonData } from "@tenet-pokemon-extension/src/codegen/tables/Pokemon.sol";
 import { PokemonMove } from "@tenet-pokemon-extension/src/Types.sol";
 import { console } from "forge-std/console.sol";

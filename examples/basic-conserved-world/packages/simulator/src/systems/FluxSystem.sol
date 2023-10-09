@@ -18,7 +18,7 @@ import { getVelocity, getTerrainMass, getTerrainEnergy, getTerrainVelocity, getM
 uint256 constant MAXIMUM_ENERGY_OUT = 100;
 uint256 constant MAXIMUM_ENERGY_IN = 100;
 
-contract EnergyHelperSystem is System {
+contract FluxSystem is System {
   function fluxEnergy(
     bool isFluxIn,
     address callerAddress,

@@ -169,8 +169,8 @@ export default mudConfig({
     },
   },
   systems: {
-    EnergyHelperSystem: {
-      name: "EnergyHelperSyst",
+    FluxSystem: {
+      name: "FluxSystem",
       openAccess: false,
       accessList: ["MassSystem", "EnergySystem", "VelocitySystem", "ActionSystem"],
     },

@@ -14,6 +14,12 @@ import { Health } from "@tenet-simulator/src/codegen/tables/Health.sol";
 import { Stamina } from "@tenet-simulator/src/codegen/tables/Stamina.sol";
 import { Object } from "@tenet-simulator/src/codegen/tables/Object.sol";
 import { Action, ActionData } from "@tenet-simulator/src/codegen/tables/Action.sol";
+import { Nutrients } from "@tenet-simulator/src/codegen/tables/Nutrients.sol";
+import { Nitrogen } from "@tenet-simulator/src/codegen/tables/Nitrogen.sol";
+import { Phosphorous } from "@tenet-simulator/src/codegen/tables/Phosphorous.sol";
+import { Potassium } from "@tenet-simulator/src/codegen/tables/Potassium.sol";
+import { Elixir } from "@tenet-simulator/src/codegen/tables/Elixir.sol";
+import { Protein } from "@tenet-simulator/src/codegen/tables/Protein.sol";
 
 contract ExternalCASystem is ExternalCAPrototype {
   function getVoxelTypeId(VoxelEntity memory entity) public view override returns (bytes32) {
@@ -42,6 +48,12 @@ contract ExternalCASystem is ExternalCAPrototype {
     uint256 stamina = Stamina.get(IStore(SIMULATOR_ADDRESS), _world(), entity.scale, entity.entityId);
     ObjectType objectType = Object.get(IStore(SIMULATOR_ADDRESS), _world(), entity.scale, entity.entityId);
     ActionData memory actionData = Action.get(IStore(SIMULATOR_ADDRESS), _world(), entity.scale, entity.entityId);
+    uint256 nutrients = Nutrients.get(IStore(SIMULATOR_ADDRESS), _world(), entity.scale, entity.entityId);
+    uint256 nitrogen = Nitrogen.get(IStore(SIMULATOR_ADDRESS), _world(), entity.scale, entity.entityId);
+    uint256 phosphorous = Phosphorous.get(IStore(SIMULATOR_ADDRESS), _world(), entity.scale, entity.entityId);
+    uint256 potassium = Potassium.get(IStore(SIMULATOR_ADDRESS), _world(), entity.scale, entity.entityId);
+    uint256 elixir = Elixir.get(IStore(SIMULATOR_ADDRESS), _world(), entity.scale, entity.entityId);
+    uint256 protein = Protein.get(IStore(SIMULATOR_ADDRESS), _world(), entity.scale, entity.entityId);
 
     return
       BodySimData({
@@ -52,7 +64,13 @@ contract ExternalCASystem is ExternalCAPrototype {
         health: health,
         stamina: stamina,
         objectType: objectType,
-        actionData: actionData
+        actionData: actionData,
+        nutrients: nutrients,
+        nitrogen: nitrogen,
+        phosphorous: phosphorous,
+        potassium: potassium,
+        elixir: elixir,
+        protein: protein
       });
   }
 

@@ -144,6 +144,12 @@ struct BodySimData {
   uint256 stamina;
   ObjectType objectType;
   ActionData actionData;
+  uint256 nutrients;
+  uint256 nitrogen;
+  uint256 phosphorous;
+  uint256 potassium;
+  uint256 elixir;
+  uint256 protein;
 }
 
 enum ValueType {

@@ -2,7 +2,7 @@
 pragma solidity >=0.8.0;
 
 import { safeCall, safeStaticCall } from "@tenet-utils/src/CallUtils.sol";
-import { caEntityToEntity } from "@tenet-base-ca/src/Utils.sol";
+import { caEntityToEntity, caEntityToEntity } from "@tenet-base-ca/src/Utils.sol";
 import { CAEntityReverseMapping, CAEntityReverseMappingTableId, CAEntityReverseMappingData } from "@tenet-base-ca/src/codegen/tables/CAEntityReverseMapping.sol";
 import { VoxelEntity, VoxelCoord, BodySimData, CAEventData, CAEventType, SimEventData, SimTable } from "@tenet-utils/src/Types.sol";
 import { uint256ToInt256, uint256ToNegativeInt256 } from "@tenet-utils/src/TypeUtils.sol";
@@ -39,21 +39,22 @@ function getEntitySimData(bytes32 caEntity) view returns (BodySimData memory) {
   return abi.decode(returnData, (BodySimData));
 }
 
-function transferEnergy(
-  BodySimData memory senderBodyPhysics,
+function transfer(
+  SimTable fromTable,
+  SimTable toTable,
+  BodySimData memory entitySimData,
   bytes32 targetCAEntity,
   VoxelCoord memory targetCoord,
-  uint256 energyToTransfer
+  uint256 amountToTransfer
 ) view returns (CAEventData memory) {
-  CAEntityReverseMappingData memory entityData = CAEntityReverseMapping.get(targetCAEntity);
-  VoxelEntity memory targetEntity = VoxelEntity({ scale: 1, entityId: entityData.entity });
+  VoxelEntity memory targetEntity = VoxelEntity({ scale: 1, entityId: caEntityToEntity(targetCAEntity) });
   SimEventData memory eventData = SimEventData({
-    senderTable: SimTable.Energy,
-    senderValue: abi.encode(uint256ToNegativeInt256(energyToTransfer)),
+    senderTable: fromTable,
+    senderValue: abi.encode(uint256ToNegativeInt256(amountToTransfer)),
     targetEntity: targetEntity,
     targetCoord: targetCoord,
-    targetTable: SimTable.Energy,
-    targetValue: abi.encode(uint256ToInt256(energyToTransfer))
+    targetTable: toTable,
+    targetValue: abi.encode(uint256ToInt256(amountToTransfer))
   });
   return CAEventData({ eventType: CAEventType.SimEvent, eventData: abi.encode(eventData) });
 }

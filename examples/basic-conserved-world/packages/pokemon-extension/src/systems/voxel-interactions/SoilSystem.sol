@@ -9,8 +9,8 @@ import { Soil } from "@tenet-pokemon-extension/src/codegen/tables/Soil.sol";
 import { Plant } from "@tenet-pokemon-extension/src/codegen/tables/Plant.sol";
 import { PlantStage } from "@tenet-pokemon-extension/src/codegen/Types.sol";
 import { entityIsSoil, entityIsPlant } from "@tenet-pokemon-extension/src/InteractionUtils.sol";
-import { getCAEntityAtCoord, getCAVoxelType, getCAEntityPositionStrict } from "@tenet-base-ca/src/Utils.sol";
-import { getEntitySimData, transferEnergy } from "@tenet-level1-ca/src/Utils.sol";
+import { getCAEntityAtCoord, getCAVoxelType, getCAEntityPositionStrict, caEntityToEntity } from "@tenet-base-ca/src/Utils.sol";
+import { getEntitySimData, transfer } from "@tenet-level1-ca/src/Utils.sol";
 import { console } from "forge-std/console.sol";
 
 contract SoilSystem is VoxelInteraction {
@@ -26,9 +26,15 @@ contract SoilSystem is VoxelInteraction {
     }
 
     BodySimData memory entitySimData = getEntitySimData(neighbourEntityId);
-    uint256 transferEnergyToSoil = getEnergyToSoil(entitySimData.energy);
-    uint256 transferEnergyToPlant = getEnergyToPlant(entitySimData.energy);
-    if (transferEnergyToSoil == 0 && transferEnergyToPlant == 0) {
+    if (entitySimData.energy > 0) {
+      // We convert all our general energy to nutrient energy
+      entityData = getNutrientConversion(neighbourEntityId, entitySimData);
+      return (changedEntity, entityData);
+    }
+
+    uint256 transferNutrientsToSoil = getNutrientsToSoil(entitySimData.nutrients);
+    uint256 transferNutrientsToPlant = getNutrientsToPlant(entitySimData.nutrients);
+    if (transferNutrientsToSoil == 0 && transferNutrientsToPlant == 0) {
       return (changedEntity, entityData);
     }
 
@@ -81,6 +87,12 @@ contract SoilSystem is VoxelInteraction {
     }
 
     BodySimData memory entitySimData = getEntitySimData(interactEntity);
+    if (entitySimData.energy > 0) {
+      // We convert all our general energy to nutrient energy
+      entityData = getNutrientConversion(interactEntity, entitySimData);
+      return (changedEntity, entityData);
+    }
+
     entityData = getEntityData(
       callerAddress,
       interactEntity,
@@ -94,12 +106,29 @@ contract SoilSystem is VoxelInteraction {
     return (changedEntity, entityData);
   }
 
-  function getEnergyToSoil(uint256 soilEnergy) internal pure returns (uint256) {
-    return soilEnergy / 5; // Transfer 20% of its energy to Soil
+  function getNutrientConversion(
+    bytes32 interactEntity,
+    BodySimData memory entitySimData
+  ) internal returns (bytes memory) {
+    CAEventData[] memory allCAEventData = new CAEventData[](1);
+    VoxelCoord memory coord = getCAEntityPositionStrict(IStore(_world()), interactEntity);
+    allCAEventData[0] = transfer(
+      SimTable.Energy,
+      SimTable.Nutrients,
+      entitySimData,
+      interactEntity,
+      coord,
+      entitySimData.energy
+    );
+    return abi.encode(allCAEventData);
   }
 
-  function getEnergyToPlant(uint256 soilEnergy) internal pure returns (uint256) {
-    return soilEnergy / 10; // Transfer 10% of its energy to Seed or Young Plant
+  function getNutrientsToSoil(uint256 soilNutrients) internal pure returns (uint256) {
+    return soilNutrients / 5; // Transfer 20% of its energy to Soil
+  }
+
+  function getNutrientsToPlant(uint256 soilNutrients) internal pure returns (uint256) {
+    return soilNutrients / 10; // Transfer 10% of its energy to Seed or Young Plant
   }
 
   function calculateNumSoilNeighbours(
@@ -125,9 +154,9 @@ contract SoilSystem is VoxelInteraction {
     BlockDirection[] memory neighbourEntityDirections,
     BodySimData memory entitySimData
   ) internal returns (bytes memory) {
-    uint256 transferEnergyToSoil = getEnergyToSoil(entitySimData.energy);
-    uint256 transferEnergyToPlant = getEnergyToPlant(entitySimData.energy);
-    if (transferEnergyToSoil == 0 && transferEnergyToPlant == 0) {
+    uint256 transferNutrientsToSoil = getNutrientsToSoil(entitySimData.nutrients);
+    uint256 transferNutrientsToPlant = getNutrientsToPlant(entitySimData.nutrients);
+    if (transferNutrientsToSoil == 0 && transferNutrientsToPlant == 0) {
       return new bytes(0);
     }
 
@@ -147,14 +176,28 @@ contract SoilSystem is VoxelInteraction {
       VoxelCoord memory neighbourCoord = getCAEntityPositionStrict(IStore(_world()), neighbourEntityIds[i]);
       // Check if the neighbor is a Soil, Seed, or Young Plant cell
       if (entityIsSoil(callerAddress, neighbourEntityIds[i])) {
-        uint256 energyTransferAmount = transferEnergyToSoil / numSoilNeighbours;
-        allCAEventData[i] = transferEnergy(entitySimData, neighbourEntityIds[i], neighbourCoord, energyTransferAmount);
-        if (energyTransferAmount > 0) {
+        uint256 nutrientTransferAmount = transferNutrientsToSoil / numSoilNeighbours;
+        allCAEventData[i] = transfer(
+          SimTable.Nutrients,
+          SimTable.Nutrients,
+          entitySimData,
+          neighbourEntityIds[i],
+          neighbourCoord,
+          nutrientTransferAmount
+        );
+        if (nutrientTransferAmount > 0) {
           hasTransfer = true;
         }
       } else if (isValidPlantNeighbour(callerAddress, neighbourEntityIds[i], neighbourEntityDirections[i])) {
-        allCAEventData[i] = transferEnergy(entitySimData, neighbourEntityIds[i], neighbourCoord, transferEnergyToPlant);
-        if (transferEnergyToPlant > 0) {
+        allCAEventData[i] = transfer(
+          SimTable.Nutrients,
+          SimTable.Nutrients,
+          entitySimData,
+          neighbourEntityIds[i],
+          neighbourCoord,
+          transferNutrientsToPlant
+        );
+        if (transferNutrientsToPlant > 0) {
           hasTransfer = true;
         }
         hasPlant = true;

@@ -18,6 +18,12 @@ import { Stamina } from "@tenet-simulator/src/codegen/tables/Stamina.sol";
 import { Energy } from "@tenet-simulator/src/codegen/tables/Energy.sol";
 
 contract SpawnEntity is Script {
+  function giveComponents(address worldAddress, bytes32 entity) private {
+    Health.set(IStore(SIMULATOR_ADDRESS), worldAddress, 1, entity, 90);
+    Energy.set(IStore(SIMULATOR_ADDRESS), worldAddress, 1, entity, 9000);
+    Stamina.set(IStore(SIMULATOR_ADDRESS), worldAddress, 1, entity, 9000);
+  }
+
   function run(address worldAddress) external {
     // Load the private key from the `PRIVATE_KEY` environment variable (in .env)
     uint256 deployerPrivateKey = vm.envUint("PRIVATE_KEY");
@@ -36,13 +42,8 @@ contract SpawnEntity is Script {
     VoxelCoord memory initVelocity = VoxelCoord({ x: 0, y: 0, z: 0 });
     // world.spawnBody(voxelTypeId, coord, bytes4(0), initMass, initEnergy, initVelocity);
     // world.spawnBody(GrassPokemonVoxelID, VoxelCoord(13, 2, 13), bytes4(0), initMass, initEnergy, initVelocity);
-    Energy.set(
-      IStore(SIMULATOR_ADDRESS),
-      worldAddress,
-      1,
-      bytes32(0x000000000000000000000000000000000000000000000000000000000000001c),
-      9000
-    );
+    giveComponents(worldAddress, bytes32(uint256(0xc)));
+    giveComponents(worldAddress, bytes32(uint256(0x12)));
 
     // TODO: remove, were used for testing collision
     // world.spawnBody(GrassVoxelID, VoxelCoord(10, 2, 13), bytes4(0));

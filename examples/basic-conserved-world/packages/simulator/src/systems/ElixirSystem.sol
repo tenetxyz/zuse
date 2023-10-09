@@ -9,7 +9,7 @@ import { Elixir, ElixirTableId, Nutrients, NutrientsTableId, SimSelectors, Healt
 import { VoxelCoord, VoxelTypeData, VoxelEntity, SimTable, ValueType } from "@tenet-utils/src/Types.sol";
 import { VoxelTypeRegistry, VoxelTypeRegistryData } from "@tenet-registry/src/codegen/tables/VoxelTypeRegistry.sol";
 import { distanceBetween, voxelCoordsAreEqual, isZeroCoord } from "@tenet-utils/src/VoxelCoordUtils.sol";
-import { int256ToUint256 } from "@tenet-utils/src/TypeUtils.sol";
+import { int256ToUint256, addUint256AndInt256 } from "@tenet-utils/src/TypeUtils.sol";
 import { isEntityEqual } from "@tenet-utils/src/Utils.sol";
 import { getVelocity, getTerrainMass, getTerrainEnergy, getTerrainVelocity, createTerrainEntity } from "@tenet-simulator/src/Utils.sol";
 import { console } from "forge-std/console.sol";
@@ -65,6 +65,53 @@ contract ElixirSystem is SimHandler {
       uint256 currentReceiverElixir = Elixir.get(callerAddress, receiverEntity.scale, receiverEntity.entityId);
       Elixir.set(callerAddress, receiverEntity.scale, receiverEntity.entityId, currentReceiverElixir + receiverElixir);
       Nutrients.set(callerAddress, senderEntity.scale, senderEntity.entityId, currentSenderNutrients - senderNutrients);
+    }
+  }
+
+  function updateElixirFromEnergy(
+    VoxelEntity memory senderEntity,
+    VoxelCoord memory senderCoord,
+    int256 senderEnergyDelta,
+    VoxelEntity memory receiverEntity,
+    VoxelCoord memory receiverCoord,
+    int256 receiverElixirDelta
+  ) public {
+    address callerAddress = super.getCallerAddress();
+    bool entityExists = hasKey(
+      EnergyTableId,
+      Energy.encodeKeyTuple(callerAddress, senderEntity.scale, senderEntity.entityId)
+    );
+    require(entityExists, "Sender entity does not exist");
+    require(_msgSender() == _world(), "Only the world can update elixir from energy");
+    if ((senderEnergyDelta > 0 && receiverElixirDelta > 0) || (senderEnergyDelta < 0 && receiverElixirDelta < 0)) {
+      revert("Sender energy delta and receiver elixir delta must have opposite signs");
+    }
+    if (isEntityEqual(senderEntity, receiverEntity)) {
+      uint256 senderEnergy = int256ToUint256(senderEnergyDelta);
+      uint256 receiverElixir = int256ToUint256(receiverElixirDelta);
+      require(senderEnergy == receiverElixir, "Sender energy must equal receiver elixir");
+      uint256 currentSenderEnergy = Energy.get(callerAddress, senderEntity.scale, senderEntity.entityId);
+      if (senderEnergyDelta < 0) {
+        require(currentSenderEnergy >= senderEnergy, "Sender does not have enough energy");
+      }
+      Energy.set(
+        callerAddress,
+        senderEntity.scale,
+        senderEntity.entityId,
+        addUint256AndInt256(currentSenderEnergy, senderEnergyDelta)
+      );
+      uint256 currentReceiverElixir = Elixir.get(callerAddress, receiverEntity.scale, receiverEntity.entityId);
+      if (receiverElixirDelta < 0) {
+        require(currentReceiverElixir >= receiverElixir, "Receiver does not have enough elixir");
+      }
+      Elixir.set(
+        callerAddress,
+        receiverEntity.scale,
+        receiverEntity.entityId,
+        addUint256AndInt256(currentReceiverElixir, receiverElixirDelta)
+      );
+    } else {
+      revert("You can't convert other's energy to elixir");
     }
   }
 }

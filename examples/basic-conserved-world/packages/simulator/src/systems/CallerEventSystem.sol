@@ -5,11 +5,11 @@ import { IStore } from "@latticexyz/store/src/IStore.sol";
 import { IWorld } from "@tenet-simulator/src/codegen/world/IWorld.sol";
 import { hasKey } from "@latticexyz/world/src/modules/keysintable/hasKey.sol";
 import { System } from "@latticexyz/world/src/System.sol";
-import { Health, HealthTableId, Stamina, StaminaTableId, Object, ObjectTableId, Action, ActionData, ActionTableId, Mass, MassTableId, Energy, EnergyTableId, Velocity, VelocityTableId } from "@tenet-simulator/src/codegen/Tables.sol";
+import { Nitrogen, NitrogenTableId, Phosphorous, PhosphorousTableId, Potassium, PotassiumTableId, Nutrients, NutrientsTableId, Elixir, ElixirTableId, Protein, ProteinTableId, Health, HealthTableId, Stamina, StaminaTableId, Object, ObjectTableId, Action, ActionData, ActionTableId, Mass, MassTableId, Energy, EnergyTableId, Velocity, VelocityTableId } from "@tenet-simulator/src/codegen/Tables.sol";
 import { VoxelCoord, VoxelTypeData, VoxelEntity, ObjectType } from "@tenet-utils/src/Types.sol";
 import { VoxelTypeRegistry, VoxelTypeRegistryData } from "@tenet-registry/src/codegen/tables/VoxelTypeRegistry.sol";
 import { distanceBetween, voxelCoordsAreEqual, isZeroCoord } from "@tenet-utils/src/VoxelCoordUtils.sol";
-import { uint256ToInt256 } from "@tenet-utils/src/TypeUtils.sol";
+import { uint256ToInt256, uint256ToNegativeInt256 } from "@tenet-utils/src/TypeUtils.sol";
 import { console } from "forge-std/console.sol";
 import { getVelocity, getTerrainMass, getTerrainEnergy, getTerrainVelocity } from "@tenet-simulator/src/Utils.sol";
 
@@ -68,6 +68,76 @@ contract CallerEventSystem is System {
     }
 
     IWorld(_world()).updateMass(entity, coord, massDelta, entity, coord, massDelta);
+
+    // Update forms of energy to general energy
+    uint256 currentHealth = Health.get(callerAddress, entity.scale, entity.entityId);
+    if (currentHealth > 0) {
+      IWorld(_world()).updateHealthFromEnergy(
+        entity,
+        coord,
+        uint256ToInt256(currentHealth),
+        entity,
+        coord,
+        uint256ToNegativeInt256(currentHealth)
+      );
+    }
+    uint256 currentStamina = Stamina.get(callerAddress, entity.scale, entity.entityId);
+    if (currentStamina > 0) {
+      IWorld(_world()).updateStaminaFromEnergy(
+        entity,
+        coord,
+        uint256ToInt256(currentStamina),
+        entity,
+        coord,
+        uint256ToNegativeInt256(currentStamina)
+      );
+    }
+    uint256 currentNutrients = Nutrients.get(callerAddress, entity.scale, entity.entityId);
+    if (currentNutrients > 0) {
+      IWorld(_world()).updateNutrientsFromEnergy(
+        entity,
+        coord,
+        uint256ToInt256(currentNutrients),
+        entity,
+        coord,
+        uint256ToNegativeInt256(currentNutrients)
+      );
+    }
+    uint256 currentElixir = Elixir.get(callerAddress, entity.scale, entity.entityId);
+    if (currentElixir > 0) {
+      IWorld(_world()).updateElixirFromEnergy(
+        entity,
+        coord,
+        uint256ToInt256(currentElixir),
+        entity,
+        coord,
+        uint256ToNegativeInt256(currentElixir)
+      );
+    }
+    uint256 currentProtein = Protein.get(callerAddress, entity.scale, entity.entityId);
+    if (currentProtein > 0) {
+      IWorld(_world()).updateProteinFromEnergy(
+        entity,
+        coord,
+        uint256ToInt256(currentProtein),
+        entity,
+        coord,
+        uint256ToNegativeInt256(currentProtein)
+      );
+    }
+
+    // Delete properties
+    if (hasKey(NitrogenTableId, Nitrogen.encodeKeyTuple(callerAddress, entity.scale, entity.entityId))) {
+      Nitrogen.deleteRecord(callerAddress, entity.scale, entity.entityId);
+    }
+
+    if (hasKey(PhosphorousTableId, Phosphorous.encodeKeyTuple(callerAddress, entity.scale, entity.entityId))) {
+      Phosphorous.deleteRecord(callerAddress, entity.scale, entity.entityId);
+    }
+
+    if (hasKey(PotassiumTableId, Potassium.encodeKeyTuple(callerAddress, entity.scale, entity.entityId))) {
+      Potassium.deleteRecord(callerAddress, entity.scale, entity.entityId);
+    }
   }
 
   function onMove(
@@ -97,6 +167,42 @@ contract CallerEventSystem is System {
       Action.set(callerAddress, newEntity.scale, newEntity.entityId, actionData);
       ActionData memory emptyActionData;
       Action.set(callerAddress, oldEntity.scale, oldEntity.entityId, emptyActionData);
+    }
+
+    if (hasKey(NutrientsTableId, Nutrients.encodeKeyTuple(callerAddress, oldEntity.scale, oldEntity.entityId))) {
+      uint256 nutrients = Nutrients.get(callerAddress, oldEntity.scale, oldEntity.entityId);
+      Nutrients.set(callerAddress, newEntity.scale, newEntity.entityId, nutrients);
+      Nutrients.set(callerAddress, oldEntity.scale, oldEntity.entityId, 0);
+    }
+
+    if (hasKey(ElixirTableId, Elixir.encodeKeyTuple(callerAddress, oldEntity.scale, oldEntity.entityId))) {
+      uint256 elixir = Elixir.get(callerAddress, oldEntity.scale, oldEntity.entityId);
+      Elixir.set(callerAddress, newEntity.scale, newEntity.entityId, elixir);
+      Elixir.set(callerAddress, oldEntity.scale, oldEntity.entityId, 0);
+    }
+
+    if (hasKey(ProteinTableId, Protein.encodeKeyTuple(callerAddress, oldEntity.scale, oldEntity.entityId))) {
+      uint256 protein = Protein.get(callerAddress, oldEntity.scale, oldEntity.entityId);
+      Protein.set(callerAddress, newEntity.scale, newEntity.entityId, protein);
+      Protein.set(callerAddress, oldEntity.scale, oldEntity.entityId, 0);
+    }
+
+    if (hasKey(NitrogenTableId, Nitrogen.encodeKeyTuple(callerAddress, oldEntity.scale, oldEntity.entityId))) {
+      uint256 nitrogen = Nitrogen.get(callerAddress, oldEntity.scale, oldEntity.entityId);
+      Nitrogen.set(callerAddress, newEntity.scale, newEntity.entityId, nitrogen);
+      Nitrogen.set(callerAddress, oldEntity.scale, oldEntity.entityId, 0);
+    }
+
+    if (hasKey(PhosphorousTableId, Phosphorous.encodeKeyTuple(callerAddress, oldEntity.scale, oldEntity.entityId))) {
+      uint256 phosphorous = Phosphorous.get(callerAddress, oldEntity.scale, oldEntity.entityId);
+      Phosphorous.set(callerAddress, newEntity.scale, newEntity.entityId, phosphorous);
+      Phosphorous.set(callerAddress, oldEntity.scale, oldEntity.entityId, 0);
+    }
+
+    if (hasKey(PotassiumTableId, Potassium.encodeKeyTuple(callerAddress, oldEntity.scale, oldEntity.entityId))) {
+      uint256 potassium = Potassium.get(callerAddress, oldEntity.scale, oldEntity.entityId);
+      Potassium.set(callerAddress, newEntity.scale, newEntity.entityId, potassium);
+      Potassium.set(callerAddress, oldEntity.scale, oldEntity.entityId, 0);
     }
   }
 

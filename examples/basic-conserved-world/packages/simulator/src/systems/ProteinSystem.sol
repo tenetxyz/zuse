@@ -9,7 +9,7 @@ import { Protein, ProteinTableId, Elixir, ElixirTableId, Nutrients, NutrientsTab
 import { VoxelCoord, VoxelTypeData, VoxelEntity, SimTable, ValueType } from "@tenet-utils/src/Types.sol";
 import { VoxelTypeRegistry, VoxelTypeRegistryData } from "@tenet-registry/src/codegen/tables/VoxelTypeRegistry.sol";
 import { distanceBetween, voxelCoordsAreEqual, isZeroCoord } from "@tenet-utils/src/VoxelCoordUtils.sol";
-import { int256ToUint256 } from "@tenet-utils/src/TypeUtils.sol";
+import { int256ToUint256, addUint256AndInt256 } from "@tenet-utils/src/TypeUtils.sol";
 import { isEntityEqual } from "@tenet-utils/src/Utils.sol";
 import { getVelocity, getTerrainMass, getTerrainEnergy, getTerrainVelocity, createTerrainEntity } from "@tenet-simulator/src/Utils.sol";
 import { console } from "forge-std/console.sol";
@@ -70,6 +70,53 @@ contract ProteinSystem is SimHandler {
         currentReceiverProtein + receiverProtein
       );
       Nutrients.set(callerAddress, senderEntity.scale, senderEntity.entityId, currentSenderNutrients - senderNutrients);
+    }
+  }
+
+  function updateProteinFromEnergy(
+    VoxelEntity memory senderEntity,
+    VoxelCoord memory senderCoord,
+    int256 senderEnergyDelta,
+    VoxelEntity memory receiverEntity,
+    VoxelCoord memory receiverCoord,
+    int256 receiverProteinDelta
+  ) public {
+    address callerAddress = super.getCallerAddress();
+    bool entityExists = hasKey(
+      EnergyTableId,
+      Energy.encodeKeyTuple(callerAddress, senderEntity.scale, senderEntity.entityId)
+    );
+    require(entityExists, "Sender entity does not exist");
+    require(_msgSender() == _world(), "Only the world can update protein from energy");
+    if ((senderEnergyDelta > 0 && receiverProteinDelta > 0) || (senderEnergyDelta < 0 && receiverProteinDelta < 0)) {
+      revert("Sender energy delta and receiver elixir delta must have opposite signs");
+    }
+    if (isEntityEqual(senderEntity, receiverEntity)) {
+      uint256 senderEnergy = int256ToUint256(senderEnergyDelta);
+      uint256 receiverProtein = int256ToUint256(receiverProteinDelta);
+      require(senderEnergy == receiverProtein, "Sender energy must equal receiver protein");
+      uint256 currentSenderEnergy = Energy.get(callerAddress, senderEntity.scale, senderEntity.entityId);
+      if (senderEnergyDelta < 0) {
+        require(currentSenderEnergy >= senderEnergy, "Sender does not have enough energy");
+      }
+      Energy.set(
+        callerAddress,
+        senderEntity.scale,
+        senderEntity.entityId,
+        addUint256AndInt256(currentSenderEnergy, senderEnergyDelta)
+      );
+      uint256 currentReceiverProtein = Protein.get(callerAddress, receiverEntity.scale, receiverEntity.entityId);
+      if (receiverProteinDelta < 0) {
+        require(currentReceiverProtein >= receiverProtein, "Receiver does not have enough protein");
+      }
+      Protein.set(
+        callerAddress,
+        receiverEntity.scale,
+        receiverEntity.entityId,
+        addUint256AndInt256(currentReceiverProtein, receiverProteinDelta)
+      );
+    } else {
+      revert("You can't convert other's energy to protein");
     }
   }
 }

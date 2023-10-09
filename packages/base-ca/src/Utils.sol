@@ -2,7 +2,7 @@
 pragma solidity >=0.8.0;
 
 import { IStore } from "@latticexyz/store/src/IStore.sol";
-import { BlockDirection, VoxelCoord } from "@tenet-utils/src/Types.sol";
+import { BlockDirection, VoxelCoord, InteractionSelector } from "@tenet-utils/src/Types.sol";
 import { getVonNeumannNeighbours, calculateBlockDirection } from "@tenet-utils/src/VoxelCoordUtils.sol";
 import { hasKey } from "@latticexyz/world/src/modules/keysintable/hasKey.sol";
 import { getKeysWithValue } from "@latticexyz/world/src/modules/keyswithvalue/getKeysWithValue.sol";
@@ -10,6 +10,7 @@ import { CAPosition, CAPositionData, CAPositionTableId } from "@tenet-base-ca/sr
 import { CAVoxelType } from "@tenet-base-ca/src/codegen/tables/CAVoxelType.sol";
 import { CAEntityMapping, CAEntityMappingTableId } from "@tenet-base-ca/src/codegen/tables/CAEntityMapping.sol";
 import { CAEntityReverseMapping, CAEntityReverseMappingTableId, CAEntityReverseMappingData } from "@tenet-base-ca/src/codegen/tables/CAEntityReverseMapping.sol";
+import { getInteractionSelectors } from "@tenet-registry/src/Utils.sol";
 
 function entityToCAEntity(address callerAddress, bytes32 entity) view returns (bytes32) {
   if (uint256(entity) == 0) {
@@ -52,6 +53,13 @@ function caEntityArrayToEntityArray(bytes32[] memory caEntities) view returns (b
 function getCAVoxelType(bytes32 caEntity) view returns (bytes32) {
   CAEntityReverseMappingData memory entityData = CAEntityReverseMapping.get(caEntity);
   return CAVoxelType.getVoxelTypeId(entityData.callerAddress, entityData.entity);
+}
+
+function getCAEntityIsAgent(address registryAddress, bytes32 caEntity) view returns (bool) {
+  CAEntityReverseMappingData memory entityData = CAEntityReverseMapping.get(caEntity);
+  bytes32 voxelTypeId = CAVoxelType.getVoxelTypeId(entityData.callerAddress, entityData.entity);
+  InteractionSelector[] memory interactionSelectors = getInteractionSelectors(IStore(registryAddress), voxelTypeId);
+  return interactionSelectors.length > 1;
 }
 
 function getEntityPositionStrict(IStore store, address callerAddress, bytes32 entity) view returns (VoxelCoord memory) {

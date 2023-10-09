@@ -86,12 +86,6 @@ contract CallerEventSystem is System {
       Health.set(callerAddress, oldEntity.scale, oldEntity.entityId, 0);
     }
 
-    if (hasKey(StaminaTableId, Stamina.encodeKeyTuple(callerAddress, oldEntity.scale, oldEntity.entityId))) {
-      uint256 stamina = Stamina.get(callerAddress, oldEntity.scale, oldEntity.entityId);
-      Stamina.set(callerAddress, newEntity.scale, newEntity.entityId, stamina);
-      Stamina.set(callerAddress, oldEntity.scale, oldEntity.entityId, 0);
-    }
-
     if (hasKey(ObjectTableId, Object.encodeKeyTuple(callerAddress, oldEntity.scale, oldEntity.entityId))) {
       ObjectType objectType = Object.get(callerAddress, oldEntity.scale, oldEntity.entityId);
       Object.set(callerAddress, newEntity.scale, newEntity.entityId, objectType);

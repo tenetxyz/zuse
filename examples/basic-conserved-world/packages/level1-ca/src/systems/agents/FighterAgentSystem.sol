@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity >=0.8.0;
 
+import { IStore } from "@latticexyz/store/src/IStore.sol";
 import { IWorld } from "@tenet-level1-ca/src/codegen/world/IWorld.sol";
 import { AgentType } from "@tenet-base-ca/src/prototypes/AgentType.sol";
 import { VoxelVariantsRegistryData } from "@tenet-registry/src/codegen/tables/VoxelVariantsRegistry.sol";
@@ -8,10 +9,12 @@ import { NoaBlockType } from "@tenet-registry/src/codegen/Types.sol";
 import { hasKey } from "@latticexyz/world/src/modules/keysintable/hasKey.sol";
 import { registerVoxelVariant, registerVoxelType } from "@tenet-registry/src/Utils.sol";
 import { REGISTRY_ADDRESS, FighterVoxelID } from "@tenet-level1-ca/src/Constants.sol";
-import { VoxelCoord, VoxelSelectors, InteractionSelector, ComponentDef, RangeComponent, StateComponent, ComponentType } from "@tenet-utils/src/Types.sol";
+import { VoxelEntity, BodySimData, CAEventData, CAEventType, SimEventData, SimTable, VoxelCoord, VoxelSelectors, InteractionSelector, ComponentDef, RangeComponent, StateComponent, ComponentType } from "@tenet-utils/src/Types.sol";
 import { getFirstCaller } from "@tenet-utils/src/Utils.sol";
-import { getCAEntityAtCoord, getCAVoxelType } from "@tenet-base-ca/src/Utils.sol";
+import { getCAEntityAtCoord, getCAVoxelType, caEntityToEntity, getCAEntityPositionStrict, getCAEntityIsAgent } from "@tenet-base-ca/src/Utils.sol";
 import { AirVoxelID } from "@tenet-level1-ca/src/Constants.sol";
+import { uint256ToNegativeInt256, uint256ToInt256 } from "@tenet-utils/src/TypeUtils.sol";
+import { getEntitySimData, transferEnergy } from "@tenet-level1-ca/src/Utils.sol";
 
 bytes32 constant FighterVoxelVariantID = bytes32(keccak256("fighter"));
 string constant FighterTexture = "bafkreihpdljsgdltghxehq4cebngtugfj3pduucijxcrvcla4hoy34f7vq";
@@ -93,28 +96,52 @@ contract FighterAgentSystem is AgentType {
   function getInteractionSelectors() public override returns (InteractionSelector[] memory) {
     InteractionSelector[] memory voxelInteractionSelectors = new InteractionSelector[](3);
     voxelInteractionSelectors[0] = InteractionSelector({
-      interactionSelector: IWorld(_world()).ca_FighterAgentSyst_moveForwardEventHandler.selector,
-      interactionName: "Move Forward",
-      interactionDescription: ""
-    });
-    // TODO: change the selectors so they point to legit contracts
-    voxelInteractionSelectors[1] = InteractionSelector({
-      interactionSelector: IWorld(_world()).ca_FighterAgentSyst_moveForwardEventHandler.selector,
-      interactionName: "Attack",
-      interactionDescription: ""
-    });
-    voxelInteractionSelectors[2] = InteractionSelector({
-      interactionSelector: IWorld(_world()).ca_FighterAgentSyst_moveForwardEventHandler.selector,
-      interactionName: "Defend",
+      interactionSelector: IWorld(_world()).ca_FighterAgentSyst_giveStaminaEventHandler.selector,
+      interactionName: "Give Stamina",
       interactionDescription: ""
     });
     return voxelInteractionSelectors;
   }
 
-  function moveForwardEventHandler(
+  function giveStaminaEventHandler(
     bytes32 centerEntityId,
     bytes32[] memory neighbourEntityIds,
     bytes32[] memory childEntityIds,
     bytes32 parentEntity
-  ) public returns (bool, bytes memory) {}
+  ) public returns (bool, bytes memory) {
+    CAEventData[] memory allCAEventData = new CAEventData[](neighbourEntityIds.length);
+    BodySimData memory entitySimData = getEntitySimData(centerEntityId);
+    uint256 currentStamina = entitySimData.stamina;
+    if (currentStamina == 0) {
+      return (false, abi.encode(allCAEventData));
+    }
+    for (uint i = 0; i < neighbourEntityIds.length; i++) {
+      if (neighbourEntityIds[i] == 0) {
+        continue;
+      }
+      if (!getCAEntityIsAgent(REGISTRY_ADDRESS, neighbourEntityIds[i])) {
+        continue;
+      }
+      BodySimData memory neighbourSimData = getEntitySimData(neighbourEntityIds[i]);
+      if (neighbourSimData.stamina == 0) {
+        uint256 transferStamina = 100;
+        if (currentStamina < transferStamina) {
+          break;
+        }
+        currentStamina -= transferStamina;
+        VoxelEntity memory targetEntity = VoxelEntity({ scale: 1, entityId: caEntityToEntity(neighbourEntityIds[i]) });
+        VoxelCoord memory targetCoord = getCAEntityPositionStrict(IStore(_world()), neighbourEntityIds[i]);
+        SimEventData memory eventData = SimEventData({
+          senderTable: SimTable.Stamina,
+          senderValue: abi.encode(uint256ToNegativeInt256(transferStamina)),
+          targetEntity: targetEntity,
+          targetCoord: targetCoord,
+          targetTable: SimTable.Stamina,
+          targetValue: abi.encode(uint256ToInt256(transferStamina))
+        });
+        allCAEventData[i] = CAEventData({ eventType: CAEventType.SimEvent, eventData: abi.encode(eventData) });
+      }
+    }
+    return (false, abi.encode(allCAEventData));
+  }
 }

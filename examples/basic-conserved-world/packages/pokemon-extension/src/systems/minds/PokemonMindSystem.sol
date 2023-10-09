@@ -5,10 +5,9 @@ import { IWorld } from "@tenet-pokemon-extension/src/codegen/world/IWorld.sol";
 import { IStore } from "@latticexyz/store/src/IStore.sol";
 import { MindType } from "@tenet-base-ca/src/prototypes/MindType.sol";
 import { Mind, VoxelCoord, VoxelEntity, InteractionSelector, CreationMetadata, CreationSpawns, ObjectType } from "@tenet-utils/src/Types.sol";
-import { registerMindIntoRegistry } from "@tenet-registry/src/Utils.sol";
+import { registerMindIntoRegistry, getSelector } from "@tenet-registry/src/Utils.sol";
 import { REGISTRY_ADDRESS, FirePokemonVoxelID } from "@tenet-pokemon-extension/src/Constants.sol";
 import { getInteractionSelectors } from "@tenet-registry/src/Utils.sol";
-import { isStringEqual } from "@tenet-utils/src/StringUtils.sol";
 import { Pokemon, PokemonData } from "@tenet-pokemon-extension/src/codegen/tables/Pokemon.sol";
 import { entityIsSoil, entityIsPlant, entityIsPokemon } from "@tenet-pokemon-extension/src/InteractionUtils.sol";
 import { console } from "forge-std/console.sol";
@@ -25,18 +24,6 @@ contract PokemonMindSystem is MindType {
       "Tells us how pokemons fight",
       IWorld(_world()).pokemon_PokemonMindSyste_mindLogic.selector
     );
-  }
-
-  function getSelector(
-    InteractionSelector[] memory interactionSelectors,
-    string memory selectorName
-  ) public pure returns (bytes4) {
-    for (uint i = 0; i < interactionSelectors.length; i++) {
-      if (isStringEqual(interactionSelectors[i].interactionName, selectorName)) {
-        return interactionSelectors[i].interactionSelector;
-      }
-    }
-    revert("Selector not found");
   }
 
   function canFight(address callerAddress, bytes32 pokemonEntityId, bool self) public view returns (bool) {

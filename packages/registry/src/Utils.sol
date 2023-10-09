@@ -6,6 +6,7 @@ import { REGISTER_VOXEL_TYPE_SIG, REGISTER_VOXEL_VARIANT_SIG, REGISTER_CREATION_
 import { VoxelVariantsRegistryData } from "@tenet-registry/src/codegen/tables/VoxelVariantsRegistry.sol";
 import { VoxelTypeRegistry } from "@tenet-registry/src/codegen/tables/VoxelTypeRegistry.sol";
 import { VoxelCoord, BaseCreationInWorld, VoxelTypeData, VoxelSelectors, InteractionSelector, Mind } from "@tenet-utils/src/Types.sol";
+import { isStringEqual } from "@tenet-utils/src/StringUtils.sol";
 import { safeCall } from "@tenet-utils/src/CallUtils.sol";
 
 function registerVoxelVariant(
@@ -105,6 +106,18 @@ function getInteractionSelectors(IStore store, bytes32 voxelTypeId) view returns
   return abi.decode(selectors, (VoxelSelectors)).interactionSelectors;
 }
 
+function getSelector(
+  InteractionSelector[] memory interactionSelectors,
+  string memory selectorName
+) pure returns (bytes4) {
+  for (uint i = 0; i < interactionSelectors.length; i++) {
+    if (isStringEqual(interactionSelectors[i].interactionName, selectorName)) {
+      return interactionSelectors[i].interactionSelector;
+    }
+  }
+  revert("Selector not found");
+}
+
 function registerCreation(
   address registryAddress,
   string memory name,
@@ -181,7 +194,12 @@ function registerMindIntoRegistry(
   string memory description,
   bytes4 mindSelector
 ) returns (bytes memory) {
-  return safeCall(registryAddress, abi.encodeWithSignature(REGISTER_MIND_SIG, voxelTypeId, name, description, mindSelector), "registerMind");
+  return
+    safeCall(
+      registryAddress,
+      abi.encodeWithSignature(REGISTER_MIND_SIG, voxelTypeId, name, description, mindSelector),
+      "registerMind"
+    );
 }
 
 function registerMindForWorld(

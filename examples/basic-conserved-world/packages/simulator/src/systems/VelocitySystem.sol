@@ -387,7 +387,7 @@ contract VelocitySystem is SimHandler {
       );
     }
     uint256 staminaInNewBlock = Stamina.get(callerAddress, newEntity.scale, newEntity.entityId);
-    uint256 energyInOldBlock = Energy.get(callerAddress, newEntity.scale, newEntity.entityId);
+    uint256 energyInOldBlock = Energy.get(callerAddress, oldEntity.scale, oldEntity.entityId);
 
     // Reset the old entity's mass, energy and velocity
     Mass.set(callerAddress, oldEntity.scale, oldEntity.entityId, 0);
@@ -406,7 +406,7 @@ contract VelocitySystem is SimHandler {
     Mass.set(callerAddress, newEntity.scale, newEntity.entityId, bodyMass);
     Energy.set(callerAddress, newEntity.scale, newEntity.entityId, energyInOldBlock);
     Velocity.set(callerAddress, newEntity.scale, newEntity.entityId, block.number, abi.encode(newVelocity));
-    Stamina.set(callerAddress, newEntity.scale, newEntity.entityId, staminaInNewBlock - resourceRequired);
+    Stamina.set(callerAddress, newEntity.scale, newEntity.entityId, staminaInOldBlock - resourceRequired);
 
     onCollision(callerAddress, newEntity);
   }

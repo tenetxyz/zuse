@@ -12,7 +12,7 @@ import { REGISTRY_ADDRESS, FighterVoxelID } from "@tenet-level1-ca/src/Constants
 import { VoxelEntity, BodySimData, CAEventData, CAEventType, SimEventData, SimTable, VoxelCoord, VoxelSelectors, InteractionSelector, ComponentDef, RangeComponent, StateComponent, ComponentType } from "@tenet-utils/src/Types.sol";
 import { getFirstCaller } from "@tenet-utils/src/Utils.sol";
 import { getCAEntityAtCoord, getCAVoxelType, caEntityToEntity, getCAEntityPositionStrict, getCAEntityIsAgent } from "@tenet-base-ca/src/Utils.sol";
-import { AirVoxelID } from "@tenet-level1-ca/src/Constants.sol";
+import { AirVoxelID, STARTING_STAMINA_FROM_FAUCET } from "@tenet-level1-ca/src/Constants.sol";
 import { uint256ToNegativeInt256, uint256ToInt256 } from "@tenet-utils/src/TypeUtils.sol";
 import { getEntitySimData } from "@tenet-level1-ca/src/Utils.sol";
 
@@ -124,7 +124,7 @@ contract FighterAgentSystem is AgentType {
       }
       BodySimData memory neighbourSimData = getEntitySimData(neighbourEntityIds[i]);
       if (neighbourSimData.stamina == 0) {
-        uint256 transferStamina = 100;
+        uint256 transferStamina = STARTING_STAMINA_FROM_FAUCET;
         if (currentStamina < transferStamina) {
           break;
         }

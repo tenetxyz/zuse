@@ -127,6 +127,14 @@ contract CallerEventSystem is System {
     }
 
     // Delete properties
+    if (hasKey(ObjectTableId, Object.encodeKeyTuple(callerAddress, entity.scale, entity.entityId))) {
+      Object.deleteRecord(callerAddress, entity.scale, entity.entityId);
+    }
+
+    if (hasKey(ActionTableId, Action.encodeKeyTuple(callerAddress, entity.scale, entity.entityId))) {
+      Action.deleteRecord(callerAddress, entity.scale, entity.entityId);
+    }
+
     if (hasKey(NitrogenTableId, Nitrogen.encodeKeyTuple(callerAddress, entity.scale, entity.entityId))) {
       Nitrogen.deleteRecord(callerAddress, entity.scale, entity.entityId);
     }

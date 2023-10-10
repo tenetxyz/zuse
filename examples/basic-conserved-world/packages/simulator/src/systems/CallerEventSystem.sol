@@ -149,13 +149,14 @@ contract CallerEventSystem is System {
   }
 
   function onMove(
+    VoxelEntity memory actingEntity,
     VoxelEntity memory oldEntity,
     VoxelCoord memory oldCoord,
     VoxelEntity memory newEntity,
     VoxelCoord memory newCoord
   ) public {
     address callerAddress = _msgSender();
-    IWorld(_world()).velocityChange(oldCoord, newCoord, oldEntity, newEntity);
+    IWorld(_world()).velocityChange(actingEntity, oldCoord, newCoord, oldEntity, newEntity);
 
     // Transfer ownership of other tables
     if (hasKey(HealthTableId, Health.encodeKeyTuple(callerAddress, oldEntity.scale, oldEntity.entityId))) {

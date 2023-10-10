@@ -79,14 +79,7 @@ contract ApprovalSystem is EventApprovalsSystem {
   ) internal {
     // Assert that this entity has a position
     VoxelCoord memory agentPosition = positionDataToVoxelCoord(getEntityPositionStrict(agentEntity));
-    if (eventType == EventType.Move) {
-      require(
-        voxelCoordsAreEqual(agentPosition, oldCoord) &&
-          VoxelType.getVoxelTypeId(agentEntity.scale, agentEntity.entityId) == voxelTypeId,
-        "You can only move yourself"
-      );
-    }
-    require(distanceBetween(agentPosition, coord) <= MAX_AGENT_ACTION_RADIUS, "Agent must be adjacent to voxel");
+    require(distanceBetween(agentPosition, oldCoord) <= MAX_AGENT_ACTION_RADIUS, "Agent must be adjacent to voxel");
   }
 
   function postApproval(

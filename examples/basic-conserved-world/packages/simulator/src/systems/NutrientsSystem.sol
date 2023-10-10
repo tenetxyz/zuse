@@ -147,8 +147,65 @@ contract NutrientsSystem is SimHandler {
       require(senderNutrientsDelta < 0, "Cannot increase your own nutrients");
       uint256 senderNutrients = int256ToUint256(receiverNutrientsDelta);
       uint256 receiverNutrients = int256ToUint256(receiverNutrientsDelta);
-      // TODO: Use NPK to figure out how much nutrients to convert, right now it's 1:1
-      require(senderNutrients == receiverNutrients, "Sender nutrients must equal receiver nutrients");
+      require(
+        hasKey(
+          NitrogenTableId,
+          Nitrogen.encodeKeyTuple(callerAddress, senderEntity.scale, senderEntity.entityId),
+          "Sender entity does not have nitrogen"
+        )
+      );
+      require(
+        hasKey(
+          PhosphorousTableId,
+          Phosphorous.encodeKeyTuple(callerAddress, senderEntity.scale, senderEntity.entityId),
+          "Sender entity does not have phosphorous"
+        )
+      );
+      require(
+        hasKey(
+          PotassiumTableId,
+          Potassium.encodeKeyTuple(callerAddress, senderEntity.scale, senderEntity.entityId),
+          "Sender entity does not have potassium"
+        )
+      );
+      require(
+        hasKey(
+          NitrogenTableId,
+          Nitrogen.encodeKeyTuple(callerAddress, receiverEntity.scale, receiverEntity.entityId),
+          "Receiver entity does not have nitrogen"
+        )
+      );
+      require(
+        hasKey(
+          PhosphorousTableId,
+          Phosphorous.encodeKeyTuple(callerAddress, receiverEntity.scale, receiverEntity.entityId),
+          "Receiver entity does not have phosphorous"
+        )
+      );
+      require(
+        hasKey(
+          PotassiumTableId,
+          Potassium.encodeKeyTuple(callerAddress, receiverEntity.scale, receiverEntity.entityId),
+          "Receiver entity does not have potassium"
+        )
+      );
+      {
+        uint256 senderNPK = Nitrogen.get(callerAddress, senderEntity.scale, senderEntity.entityId) +
+          Phosphorous.get(callerAddress, senderEntity.scale, senderEntity.entityId) +
+          Potassium.get(callerAddress, senderEntity.scale, senderEntity.entityId);
+        uint256 receiverNPK = Nitrogen.get(callerAddress, receiverEntity.scale, receiverEntity.entityId) +
+          Phosphorous.get(callerAddress, receiverEntity.scale, receiverEntity.entityId) +
+          Potassium.get(callerAddress, receiverEntity.scale, receiverEntity.entityId);
+        require(receiverNPK >= senderNPK, "Receiver NPK must be greater than or equal to sender NPK");
+      }
+      receiverNutrients =
+        senderNutrients /
+        (1 + (1 / Mass.get(callerAddress, senderEntity.scale, senderEntity.entityId)));
+      if (receiverNutrients == 0) {
+        return;
+      }
+      require(receiverNutrients >= senderNutrients, "Not enough energy to convert to nutrients");
+      uint256 nutrients_cost = senderNutrients - receiverNutrients;
 
       uint256 currentSenderNutrients = Nutrients.get(callerAddress, senderEntity.scale, senderEntity.entityId);
       require(currentSenderNutrients >= senderNutrients, "Not enough nutrients to transfer");
@@ -172,6 +229,9 @@ contract NutrientsSystem is SimHandler {
         currentReceiverNutrients + receiverNutrients
       );
       Nutrients.set(callerAddress, senderEntity.scale, senderEntity.entityId, currentSenderNutrients - senderNutrients);
+      if (nutrients_cost > 0) {
+        IWorld(_world()).fluxEnergy(false, callerAddress, senderEntity, nutrients_cost);
+      }
     }
   }
 }

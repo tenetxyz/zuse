@@ -149,6 +149,7 @@ contract CallerEventSystem is System {
   }
 
   function onMove(
+    VoxelEntity memory actingEntity,
     VoxelEntity memory oldEntity,
     VoxelCoord memory oldCoord,
     VoxelEntity memory newEntity,

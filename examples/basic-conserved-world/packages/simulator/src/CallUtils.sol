@@ -182,6 +182,7 @@ function onMine(address simAddress, VoxelEntity memory entity, VoxelCoord memory
 
 function onMove(
   address simAddress,
+  VoxelEntity memory actingEntity,
   VoxelEntity memory oldEntity,
   VoxelCoord memory oldCoord,
   VoxelEntity memory newEntity,
@@ -190,8 +191,8 @@ function onMove(
   return
     safeCall(
       simAddress,
-      abi.encodeWithSignature(SIM_ON_MOVE_SIG, oldEntity, oldCoord, newEntity, newCoord),
-      string(abi.encode("onMove ", oldEntity, " ", oldCoord, " ", newEntity, " ", newCoord))
+      abi.encodeWithSignature(SIM_ON_MOVE_SIG, actingEntity, oldEntity, oldCoord, newEntity, newCoord),
+      string(abi.encode("onMove ", actingEntity, " ", oldEntity, " ", oldCoord, " ", newEntity, " ", newCoord))
     );
 }
 

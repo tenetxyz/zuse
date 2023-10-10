@@ -340,6 +340,7 @@ contract VelocitySystem is SimHandler {
   }
 
   function velocityChange(
+    VoxelCoord memory actingEntity,
     VoxelCoord memory oldCoord,
     VoxelCoord memory newCoord,
     VoxelEntity memory oldEntity,
@@ -358,8 +359,8 @@ contract VelocitySystem is SimHandler {
       oldEntity,
       bodyMass
     );
-    uint256 staminaInOldBlock = Stamina.get(callerAddress, oldEntity.scale, oldEntity.entityId);
-    require(resourceRequired <= staminaInOldBlock, "Not enough stamina to move.");
+    uint256 staminaInActingEntity = Stamina.get(callerAddress, actingEntity.scale, actingEntity.entityId);
+    require(resourceRequired <= staminaInActingEntity, "Not enough stamina to move.");
 
     if (hasKey(MassTableId, Mass.encodeKeyTuple(callerAddress, newEntity.scale, newEntity.entityId))) {
       require(
@@ -386,13 +387,12 @@ contract VelocitySystem is SimHandler {
         abi.encode(getTerrainVelocity(callerAddress, newEntity.scale, newCoord))
       );
     }
-    uint256 staminaInNewBlock = Stamina.get(callerAddress, newEntity.scale, newEntity.entityId);
+    uint256 energyInNewBlock = Energy.get(callerAddress, newEntity.scale, newEntity.entityId);
     uint256 energyInOldBlock = Energy.get(callerAddress, oldEntity.scale, oldEntity.entityId);
 
     // Reset the old entity's mass, energy and velocity
     Mass.set(callerAddress, oldEntity.scale, oldEntity.entityId, 0);
     Energy.set(callerAddress, oldEntity.scale, oldEntity.entityId, 0);
-    Stamina.set(callerAddress, oldEntity.scale, oldEntity.entityId, 0);
     Velocity.set(
       callerAddress,
       oldEntity.scale,
@@ -400,14 +400,20 @@ contract VelocitySystem is SimHandler {
       block.number,
       abi.encode(VoxelCoord({ x: 0, y: 0, z: 0 }))
     );
+    if (hasKey(StaminaTableId, Stamina.encodeKeyTuple(callerAddress, oldEntity.scale, oldEntity.entityId))) {
+      Stamina.set(callerAddress, oldEntity.scale, oldEntity.entityId, 0);
+    }
 
-    IWorld(_world()).fluxEnergy(false, callerAddress, newEntity, resourceRequired + staminaInNewBlock);
+    IWorld(_world()).fluxEnergy(false, callerAddress, newEntity, resourceRequired + energyInNewBlock);
 
     // Update the new entity's energy and velocity
     Mass.set(callerAddress, newEntity.scale, newEntity.entityId, bodyMass);
     Energy.set(callerAddress, newEntity.scale, newEntity.entityId, energyInOldBlock);
     Velocity.set(callerAddress, newEntity.scale, newEntity.entityId, block.number, abi.encode(newVelocity));
-    Stamina.set(callerAddress, newEntity.scale, newEntity.entityId, staminaInOldBlock - resourceRequired);
+    if (hasKey(StaminaTableId, Stamina.encodeKeyTuple(callerAddress, oldEntity.scale, oldEntity.entityId))) {
+      Stamina.set(callerAddress, newEntity.scale, newEntity.entityId, staminaInActingEntity - resourceRequired);
+    }
+    Stamina.set(callerAddress, actingEntity.scale, actingEntity.entityId, staminaInActingEntity - resourceRequired);
 
     onCollision(callerAddress, newEntity);
   }

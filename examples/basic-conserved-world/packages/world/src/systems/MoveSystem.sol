@@ -58,6 +58,8 @@ contract MoveSystem is MoveEvent {
     uint32 scale = eventVoxelEntity.scale;
     bytes32 oldEntityId = getEntityAtCoord(scale, oldCoord);
     VoxelEntity memory oldEntity = VoxelEntity({ scale: scale, entityId: oldEntityId });
-    onMove(SIMULATOR_ADDRESS, oldEntity, oldCoord, eventVoxelEntity, newCoord);
+
+    MoveWorldEventData memory moveWorldEventData = abi.decode(moveEventData.worldData, (MoveWorldEventData));
+    onMove(SIMULATOR_ADDRESS, moveWorldEventData.agentEntity, oldEntity, oldCoord, eventVoxelEntity, newCoord);
   }
 }

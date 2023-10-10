@@ -31,7 +31,7 @@ contract PlantSystem is VoxelInteraction {
     }
 
     BodySimData memory entitySimData = getEntitySimData(neighbourEntityId);
-    if (entitySimData.nitrogen == 0 || entitySimData.phosphorous == 0 || entitySimData.potassium == 0) {
+    if (entitySimData.nitrogen == 0 && entitySimData.phosphorous == 0 && entitySimData.potassium == 0) {
       return initPlantProperties(neighbourEntityId, entitySimData);
     }
 
@@ -88,7 +88,7 @@ contract PlantSystem is VoxelInteraction {
       return (changedEntity, entityData);
     }
     BodySimData memory entitySimData = getEntitySimData(interactEntity);
-    if (entitySimData.nitrogen == 0 || entitySimData.phosphorous == 0 || entitySimData.potassium == 0) {
+    if (entitySimData.nitrogen == 0 && entitySimData.phosphorous == 0 && entitySimData.potassium == 0) {
       return initPlantProperties(interactEntity, entitySimData);
     }
 
@@ -142,7 +142,7 @@ contract PlantSystem is VoxelInteraction {
     CAEventData[] memory allCAEventData = new CAEventData[](3);
     VoxelEntity memory entity = VoxelEntity({ scale: 1, entityId: caEntityToEntity(interactEntity) });
     VoxelCoord memory coord = getCAEntityPositionStrict(IStore(_world()), interactEntity);
-    console.log("setNPKSimEvent");
+    console.log("setNPKSimEvent plant");
 
     SimEventData memory setNitrogenSimEvent = SimEventData({
       senderTable: SimTable.Nitrogen,
@@ -150,7 +150,7 @@ contract PlantSystem is VoxelInteraction {
       targetEntity: entity,
       targetCoord: coord,
       targetTable: SimTable.Nitrogen,
-      targetValue: abi.encode(100)
+      targetValue: abi.encode(1)
     });
     allCAEventData[0] = CAEventData({ eventType: CAEventType.SimEvent, eventData: abi.encode(setNitrogenSimEvent) });
 
@@ -160,7 +160,7 @@ contract PlantSystem is VoxelInteraction {
       targetEntity: entity,
       targetCoord: coord,
       targetTable: SimTable.Phosphorous,
-      targetValue: abi.encode(100)
+      targetValue: abi.encode(1)
     });
     allCAEventData[1] = CAEventData({ eventType: CAEventType.SimEvent, eventData: abi.encode(setPhosphorousSimEvent) });
 
@@ -170,7 +170,7 @@ contract PlantSystem is VoxelInteraction {
       targetEntity: entity,
       targetCoord: coord,
       targetTable: SimTable.Potassium,
-      targetValue: abi.encode(100)
+      targetValue: abi.encode(1)
     });
     allCAEventData[2] = CAEventData({ eventType: CAEventType.SimEvent, eventData: abi.encode(setPotassiumSimEvent) });
 

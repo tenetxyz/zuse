@@ -38,7 +38,12 @@ contract PhosphorousSystem is SimHandler {
       PhosphorousTableId,
       Phosphorous.encodeKeyTuple(callerAddress, senderEntity.scale, senderEntity.entityId)
     );
-    require(!entityExists, "Phosphorous entity already exists");
+    // Note: we can't have a require here because there can be duplicate events,
+    // and we don't want to revert if we're just replaying events
+    if (entityExists) {
+      return;
+    }
+    // require(!entityExists, "Phosphorous entity already exists");
     if (isEntityEqual(senderEntity, receiverEntity)) {
       require(receiverPhosphorousDelta > 0, "Cannot set a negative phosphorous value");
       Phosphorous.set(

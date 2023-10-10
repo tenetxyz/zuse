@@ -38,7 +38,12 @@ contract PotassiumSystem is SimHandler {
       PotassiumTableId,
       Potassium.encodeKeyTuple(callerAddress, senderEntity.scale, senderEntity.entityId)
     );
-    require(!entityExists, "Potassium entity already exists");
+    // Note: we can't have a require here because there can be duplicate events,
+    // and we don't want to revert if we're just replaying events
+    if (entityExists) {
+      return;
+    }
+    // require(!entityExists, "Potassium entity already exists");
     if (isEntityEqual(senderEntity, receiverEntity)) {
       require(receiverPotassiumDelta > 0, "Cannot set a negative potassium value");
       Potassium.set(

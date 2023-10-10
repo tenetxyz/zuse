@@ -65,10 +65,7 @@ contract ElixirSystem is SimHandler {
       if (receiverElixir == 0) {
         return;
       }
-      require(receiverElixir >= senderNutrients, "Not enough energy to nutrients to convert to elixir");
-
-      // TODO: Use NPK to figure out how much nutrients to convert, right now it's 1:1
-      require(senderNutrients == receiverElixir, "Sender nutrients must equal receiver elixir");
+      require(senderNutrients >= receiverElixir, "Not enough nutrients to convert to elixir");
       uint256 currentSenderNutrients = Nutrients.get(callerAddress, senderEntity.scale, senderEntity.entityId);
       require(currentSenderNutrients >= senderNutrients, "Not enough nutrients to transfer");
       {

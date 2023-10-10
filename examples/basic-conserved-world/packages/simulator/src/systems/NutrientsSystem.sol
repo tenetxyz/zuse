@@ -58,7 +58,7 @@ contract NutrientsSystem is SimHandler {
     // calculate nutrients from energy
     // e_cost = 1/m * (n * p * k) * receiverNutrientsDelta
     // e_net = receiverNutrientsDelta + e_cost
-    return uint256ToInt256(senderEnergy / (1 + ((1 / mass) * nitrogen * phosphorus * potassium)));
+    return uint256ToInt256(senderEnergy / (1 + ((nitrogen * phosphorus * potassium) / mass)));
   }
 
   function updateNutrientsFromEnergy(
@@ -88,6 +88,8 @@ contract NutrientsSystem is SimHandler {
         require(receiverNutrientsDelta > 0, "Cannot decrease your own nutrients");
         require(senderEnergyDelta < 0, "Cannot increase your own energy");
         receiverNutrientsDelta = getNutrientsDelta(callerAddress, senderEntity, senderEnergy);
+        console.log("receiverNutrientsDelta");
+        console.logInt(receiverNutrientsDelta);
         if (receiverNutrientsDelta == 0) {
           return;
         }
@@ -195,7 +197,7 @@ contract NutrientsSystem is SimHandler {
       if (receiverNutrients == 0) {
         return;
       }
-      require(receiverNutrients >= senderNutrients, "Not enough energy to convert to nutrients");
+      require(senderNutrients >= receiverNutrients, "Not enough energy to nutrients to sender");
 
       uint256 currentSenderNutrients = Nutrients.get(callerAddress, senderEntity.scale, senderEntity.entityId);
       require(currentSenderNutrients >= senderNutrients, "Not enough nutrients to transfer");

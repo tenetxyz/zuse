@@ -38,7 +38,12 @@ contract NitrogenSystem is SimHandler {
       NitrogenTableId,
       Nitrogen.encodeKeyTuple(callerAddress, senderEntity.scale, senderEntity.entityId)
     );
-    require(!entityExists, "Nitrogen entity already exists");
+    // Note: we can't have a require here because there can be duplicate events,
+    // and we don't want to revert if we're just replaying events
+    if (entityExists) {
+      return;
+    }
+    // require(!entityExists, "Nitrogen entity already exists");
     if (isEntityEqual(senderEntity, receiverEntity)) {
       require(receiverNitrogenDelta > 0, "Cannot set a negative nitrogen value");
       Nitrogen.set(

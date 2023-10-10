@@ -67,7 +67,7 @@ contract ProteinSystem is SimHandler {
       if (receiverProtein == 0) {
         return;
       }
-      require(receiverProtein >= senderNutrients, "Not enough energy to nutrients to convert to elixir");
+      require(senderNutrients >= receiverProtein, "Not enough energy to nutrients to convert to protein");
 
       uint256 currentSenderNutrients = Nutrients.get(callerAddress, senderEntity.scale, senderEntity.entityId);
       require(currentSenderNutrients >= senderNutrients, "Not enough nutrients to transfer");

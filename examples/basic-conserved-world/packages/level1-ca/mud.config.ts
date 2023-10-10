@@ -5,7 +5,7 @@ export default tenetMudConfig({
   namespace: "ca",
   tables: {
     TerrainSelectors: {
-      registerAsRoot: true,
+      // registerAsRoot: true,
       keySchema: {
         callerAddress: "address",
         x: "int32",
@@ -15,30 +15,6 @@ export default tenetMudConfig({
       schema: {
         contractAddress: "address",
         selector: "bytes4",
-      },
-    },
-    Health: {
-      keySchema: {
-        entity: "bytes32",
-      },
-      schema: {
-        health: "uint32",
-      },
-    },
-    Stamina: {
-      keySchema: {
-        entity: "bytes32",
-      },
-      schema: {
-        stamina: "uint32",
-      },
-    },
-    State: {
-      keySchema: {
-        entity: "bytes32",
-      },
-      schema: {
-        state: "string",
       },
     },
   },

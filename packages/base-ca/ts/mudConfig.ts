@@ -6,7 +6,7 @@ import { ExpandMUDUserConfig } from "@latticexyz/store/register";
 
 const LAYER_TABLES: Record<string, TableConfig> = {
   CAEntityMapping: {
-    registerAsRoot: true,
+    // registerAsRoot: true,
     keySchema: {
       callerAddress: "address",
       entity: "bytes32",
@@ -16,7 +16,7 @@ const LAYER_TABLES: Record<string, TableConfig> = {
     },
   },
   CAEntityReverseMapping: {
-    registerAsRoot: true,
+    // registerAsRoot: true,
     keySchema: {
       caEntity: "bytes32",
     },
@@ -26,7 +26,7 @@ const LAYER_TABLES: Record<string, TableConfig> = {
     },
   },
   CAPosition: {
-    registerAsRoot: true,
+    // registerAsRoot: true,
     keySchema: {
       callerAddress: "address",
       entity: "bytes32",
@@ -39,7 +39,7 @@ const LAYER_TABLES: Record<string, TableConfig> = {
     },
   },
   CAVoxelType: {
-    registerAsRoot: true,
+    // registerAsRoot: true,
     keySchema: {
       callerAddress: "address",
       entity: "bytes32",
@@ -50,7 +50,7 @@ const LAYER_TABLES: Record<string, TableConfig> = {
     },
   },
   CAMind: {
-    registerAsRoot: true,
+    // registerAsRoot: true,
     keySchema: {
       caEntity: "bytes32",
     },

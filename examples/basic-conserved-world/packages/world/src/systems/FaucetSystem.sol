@@ -83,22 +83,4 @@ contract FaucetSystem is System {
 
     return newEntity;
   }
-
-  function setFaucetAgent(VoxelEntity memory faucetEntity) public {
-    // TODO: should be set based on terrain gen
-    require(
-      _msgSender() == 0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266, // TODO: find a better way to figure out world deployer
-      "Not approved to set faucet agent"
-    );
-    require(
-      !hasKey(FaucetTableId, Faucet.encodeKeyTuple(faucetEntity.scale, faucetEntity.entityId)),
-      "Faucet entity already exists"
-    );
-    IWorld(_world()).claimAgent(faucetEntity);
-    Faucet.set(
-      faucetEntity.scale,
-      faucetEntity.entityId,
-      FaucetData({ claimers: new address[](0), claimerAmounts: new uint256[](0) })
-    );
-  }
 }

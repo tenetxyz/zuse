@@ -29,7 +29,7 @@ contract ExternalSimSystem is System {
     uint256 initMass = IWorld(_world()).getTerrainMass(scale, coord);
     uint256 initEnergy = IWorld(_world()).getTerrainEnergy(scale, coord);
     VoxelCoord memory initVelocity = IWorld(_world()).getTerrainVelocity(scale, coord);
-    return spawnBody(terrainVoxelTypeId, coord, bytes4(0), initMass, initEnergy, initVelocity);
+    return spawnBody(terrainVoxelTypeId, coord, bytes4(0), initMass, initEnergy, initVelocity, 0);
   }
 
   function spawnBody(
@@ -38,7 +38,8 @@ contract ExternalSimSystem is System {
     bytes4 mindSelector,
     uint256 initMass,
     uint256 initEnergy,
-    VoxelCoord memory initVelocity
+    VoxelCoord memory initVelocity,
+    uint256 initStamina
   ) public returns (VoxelEntity memory) {
     require(
       _msgSender() == SIMULATOR_ADDRESS ||
@@ -61,7 +62,7 @@ contract ExternalSimSystem is System {
     // TODO: Should we run this?
     // IWorld(_world()).runCA(caAddress, eventVoxelEntity, bytes4(0));
 
-    initEntity(SIMULATOR_ADDRESS, eventVoxelEntity, initMass, initEnergy, initVelocity);
+    initEntity(SIMULATOR_ADDRESS, eventVoxelEntity, initMass, initEnergy, initVelocity, initStamina);
 
     return eventVoxelEntity;
   }

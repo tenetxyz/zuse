@@ -21,13 +21,14 @@ function initEntity(
   VoxelEntity memory entity,
   uint256 initMass,
   uint256 initEnergy,
-  VoxelCoord memory initVelocity
+  VoxelCoord memory initVelocity,
+  uint256 initStamina
 ) returns (bytes memory) {
   return
     safeCall(
       simAddress,
-      abi.encodeWithSignature(SIM_INIT_ENTITY_SIG, entity, initMass, initEnergy, initVelocity),
-      string(abi.encode("initEntity ", entity, " ", initMass, " ", initEnergy, " ", initVelocity))
+      abi.encodeWithSignature(SIM_INIT_ENTITY_SIG, entity, initMass, initEnergy, initVelocity, initStamina),
+      string(abi.encode("initEntity ", entity, " ", initMass, " ", initEnergy, " ", initVelocity, " ", initStamina))
     );
 }
 

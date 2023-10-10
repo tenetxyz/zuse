@@ -22,46 +22,47 @@ uint256 constant MAX_TOTAL_MASS_IN_SHARD = 1000000;
 contract LibTerrainSystem is System {
   function getTerrainVoxel(VoxelCoord memory coord) public view returns (bytes32) {
     // Bucket solution
-    // BucketData memory bucketData = getTerrainProperties(coord);
-    // return getTerrainVoxelFromBucket(bucketData, coord);
+    (ShardData memory shardData, BucketData memory bucketData) = getTerrainProperties(coord);
+    return getTerrainVoxelFromBucket(shardData, coord);
 
     // Flat world solution
-    address caAddress = BASE_CA_ADDRESS;
-    bytes memory returnData = safeStaticCall(
-      caAddress,
-      abi.encodeWithSignature("ca_LibTerrainSystem_getTerrainVoxel((int32,int32,int32))", coord),
-      string(abi.encode("ca_LibTerrainSystem_getTerrainVoxel ", coord))
-    );
-    return abi.decode(returnData, (bytes32));
+    // address caAddress = BASE_CA_ADDRESS;
+    // bytes memory returnData = safeStaticCall(
+    //   caAddress,
+    //   abi.encodeWithSignature("ca_LibTerrainSystem_getTerrainVoxel((int32,int32,int32))", coord),
+    //   string(abi.encode("ca_LibTerrainSystem_getTerrainVoxel ", coord))
+    // );
+    // return abi.decode(returnData, (bytes32));
   }
 
   function getTerrainMass(uint32 scale, VoxelCoord memory coord) public view returns (uint256) {
     // Bucket solution
-    // BucketData memory bucketData = getTerrainProperties(coord);
-    // bytes32 voxelTypeId = getTerrainVoxelFromBucket(bucketData, coord);
+    (ShardData memory shardData, BucketData memory bucketData) = getTerrainProperties(coord);
+    bytes32 voxelTypeId = getTerrainVoxelFromBucket(shardData, coord);
 
     // Flat world solution
-    bytes32 voxelTypeId = getTerrainVoxel(coord);
+    // bytes32 voxelTypeId = getTerrainVoxel(coord);
+
     uint256 voxelMass = VoxelTypeRegistry.getMass(IStore(REGISTRY_ADDRESS), voxelTypeId);
     return voxelMass;
   }
 
   function getTerrainEnergy(uint32 scale, VoxelCoord memory coord) public view returns (uint256) {
     // Bucket solution
-    // BucketData memory bucketData = getTerrainProperties(coord);
-    // return bucketData.energy;
+    BucketData memory bucketData = getTerrainProperties(coord);
+    return bucketData.energy;
 
     // Flat world solution
-    bytes32 voxelTypeId = getTerrainVoxel(coord);
-    if (voxelTypeId == AirVoxelID) {
-      return 0;
-    } else if (voxelTypeId == BedrockVoxelID) {
-      return 1;
-    } else if (voxelTypeId == GrassVoxelID) {
-      return 100;
-    } else if (voxelTypeId == DirtVoxelID) {
-      return 150;
-    }
+    // bytes32 voxelTypeId = getTerrainVoxel(coord);
+    // if (voxelTypeId == AirVoxelID) {
+    //   return 0;
+    // } else if (voxelTypeId == BedrockVoxelID) {
+    //   return 1;
+    // } else if (voxelTypeId == GrassVoxelID) {
+    //   return 100;
+    // } else if (voxelTypeId == DirtVoxelID) {
+    //   return 150;
+    // }
   }
 
   function getTerrainVelocity(uint32 scale, VoxelCoord memory coord) public view returns (VoxelCoord memory) {
@@ -69,69 +70,46 @@ contract LibTerrainSystem is System {
   }
 
   function getTerrainVoxelFromBucket(
-    BucketData memory bucketData,
+    ShardData memory shardData,
     VoxelCoord memory coord
   ) public view returns (bytes32) {
-    if (bucketData.id == 1) {
-      return DirtVoxelID;
-    } else if (bucketData.id == 2) {
-      return GrassVoxelID;
-    } else if (bucketData.id == 3) {
-      return BedrockVoxelID;
-    }
+    // call selector
+    bytes memory returnData = safeStaticCall(
+      shardData.contractAddress,
+      abi.encodeWithSelector(shardData.terrainSelector, coord),
+      "shard terrainSelector"
+    );
 
-    return AirVoxelID;
+    return abi.decode(returnData, (bytes32));
   }
 
-  function getTerrainProperties(VoxelCoord memory coord) public view returns (BucketData memory) {
-    BucketData[] memory buckets = new BucketData[](4);
-    buckets[0] = BucketData({ id: 0, minMass: 0, maxMass: 0, energy: 0, count: 0 });
-    buckets[1] = BucketData({
-      id: 1,
-      minMass: 1,
-      maxMass: 50,
-      energy: 50,
-      count: uint(int(6 * SHARD_DIM * SHARD_DIM))
-    });
-    buckets[2] = BucketData({
-      id: 2,
-      minMass: 50,
-      maxMass: 100,
-      energy: 75,
-      count: uint(int(3 * SHARD_DIM * SHARD_DIM))
-    });
-    buckets[3] = BucketData({
-      id: 3,
-      minMass: 100,
-      maxMass: 300,
-      energy: 1000,
-      count: uint(int(1 * SHARD_DIM * SHARD_DIM))
-    });
+  // if (bucketData.id == 1) {
+  //   return DirtVoxelID;
+  // } else if (bucketData.id == 2) {
+  //   return GrassVoxelID;
+  // } else if (bucketData.id == 3) {
+  //   return BedrockVoxelID;
+  // }
+  // return AirVoxelID;
 
-    // Note; If the key doesn't exists, it'll return 0, and 0 currently maps to mass 0, energy 0 anyways
-    // if (!hasKey(TerrainPropertiesTableId, TerrainProperties.encodeKeyTuple(coord.x, coord.y, coord.z))) {
-    //   revert("No terrain properties found");
-    // }
-
+  function getTerrainProperties(VoxelCoord memory coord) public view returns (ShardData memory, BucketData memory) {
+    VoxelCoord memory shardCoord = coordToShardCoord(coord);
+    require(hasKey(ShardTableId, Shard.encodeKeyTuple(shardCoord.x, shardCoord.y, shardCoord.z)), "Shard not claimed");
+    ShardData memory shardData = Shard.get(shardCoord.x, shardCoord.y, shardCoord.z);
+    require(shardData.verified, "Shard not verified");
     uint256 bucketIndex = TerrainProperties.get(coord.x, coord.y, coord.z);
-    require(bucketIndex < buckets.length, "Bucket index out of range");
-
-    return buckets[bucketIndex];
+    return (shardData, shardData.buckets[bucketIndex]);
   }
 
   // Called by CA's on terrain gen
   function onTerrainGen(bytes32 voxelTypeId, VoxelCoord memory coord) public {
-    // address caAddress = _msgSender();
-    console.log("on terrian gen");
-    // TODO: Fix, should check mass matches
-
     // Bucket solution
-    // BucketData memory bucketData = getTerrainProperties(coord);
-    // uint256 voxelMass = VoxelTypeRegistry.getMass(IStore(REGISTRY_ADDRESS), voxelTypeId);
-    // require(
-    //   voxelMass >= bucketData.minMass && voxelMass <= bucketData.maxMass,
-    //   "Terrain mass does not match voxel type mass"
-    // );
+    (, BucketData memory bucketData) = getTerrainProperties(coord);
+    uint256 voxelMass = VoxelTypeRegistry.getMass(IStore(REGISTRY_ADDRESS), voxelTypeId);
+    require(
+      voxelMass >= bucketData.minMass && voxelMass <= bucketData.maxMass,
+      "Terrain mass does not match voxel type mass"
+    );
   }
 
   function claimShard(
@@ -176,7 +154,7 @@ contract LibTerrainSystem is System {
     }
   }
 
-  function verifyShard(VoxelCoord memory shardCoord) public {
+  function verifyShard(VoxelCoord memory shardCoord, VoxelCoord memory faucetAgentCoord) public {
     address callerAddress = _msgSender();
     require(hasKey(ShardTableId, Shard.encodeKeyTuple(shardCoord.x, shardCoord.y, shardCoord.z)), "Shard not claimed");
     ShardData memory shardData = Shard.get(shardCoord.x, shardCoord.y, shardCoord.z);
@@ -196,8 +174,30 @@ contract LibTerrainSystem is System {
     for (uint256 i = 0; i < shardData.buckets.length; i++) {
       require(bucketCounts[i] == shardData.buckets[i].count, "Terrain properties do not match shard bucket counts");
     }
-
     Shard.setVerified(shardCoord.x, shardCoord.y, shardCoord.z, true);
+
+    // Build a facuet entity at the faucetAgentCoord
+    bytes32 voxelTypeId = FighterVoxelID;
+    uint256 initMass = 1000000000; // Make faucet really high mass so its hard to mine
+    uint256 initEnergy = 0;
+    uint256 initStamina = STARTING_STAMINA_FROM_FAUCET * 100; // faucet entity can spawn 100 agents
+    VoxelCoord memory initVelocity = VoxelCoord({ x: 0, y: 0, z: 0 });
+    // This will place the agent, so it will check if the voxel there is air
+    VoxelEntity memory faucetEntity = IWorld(_world()).spawnBody(
+      voxelTypeId,
+      faucetAgentCoord,
+      bytes4(0),
+      initMass,
+      initEnergy,
+      initVelocity,
+      initStamina
+    );
+    OwnedBy.set(agentEntity.scale, agentEntity.entityId, address(0)); // Set owner to 0 so no one can claim it
+    Faucet.set(
+      faucetEntity.scale,
+      faucetEntity.entityId,
+      FaucetData({ claimers: new address[](0), claimerAmounts: new uint256[](0) })
+    );
   }
 
   function verifyBucketCounts(BucketData[] buckets) internal pure {

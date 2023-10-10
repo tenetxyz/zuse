@@ -17,30 +17,6 @@ export default tenetMudConfig({
         selector: "bytes4",
       },
     },
-    Health: {
-      keySchema: {
-        entity: "bytes32",
-      },
-      schema: {
-        health: "uint32",
-      },
-    },
-    Stamina: {
-      keySchema: {
-        entity: "bytes32",
-      },
-      schema: {
-        stamina: "uint32",
-      },
-    },
-    State: {
-      keySchema: {
-        entity: "bytes32",
-      },
-      schema: {
-        state: "string",
-      },
-    },
   },
   systems: {
     CASystem: {

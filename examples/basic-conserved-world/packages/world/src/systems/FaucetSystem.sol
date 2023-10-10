@@ -6,13 +6,14 @@ import { IWorld } from "@tenet-world/src/codegen/world/IWorld.sol";
 import { VoxelEntity, VoxelCoord, InteractionSelector } from "@tenet-utils/src/Types.sol";
 import { System } from "@latticexyz/world/src/System.sol";
 import { hasKey } from "@latticexyz/world/src/modules/keysintable/hasKey.sol";
-import { Faucet, FaucetData, FaucetTableId, TerrainProperties, TerrainPropertiesTableId, VoxelTypeProperties } from "@tenet-world/src/codegen/Tables.sol";
+import { VoxelType, Faucet, FaucetData, FaucetTableId, TerrainProperties, TerrainPropertiesTableId, VoxelTypeProperties } from "@tenet-world/src/codegen/Tables.sol";
 import { safeCall, safeStaticCall } from "@tenet-utils/src/CallUtils.sol";
 import { REGISTRY_ADDRESS, BASE_CA_ADDRESS } from "@tenet-world/src/Constants.sol";
 import { SHARD_DIM } from "@tenet-level1-ca/src/Constants.sol";
 import { coordToShardCoord } from "@tenet-level1-ca/src/Utils.sol";
 import { VoxelTypeRegistry, VoxelTypeRegistryData } from "@tenet-registry/src/codegen/tables/VoxelTypeRegistry.sol";
-import { getInteractionSelectors } from "@tenet-registry/src/Utils.sol";
+import { getInteractionSelectors, getSelector } from "@tenet-registry/src/Utils.sol";
+import { getVoxelCoordStrict } from "@tenet-base-world/src/Utils.sol";
 import { console } from "forge-std/console.sol";
 
 uint256 constant MAX_CLAIMS = 2;
@@ -57,12 +58,28 @@ contract FaucetSystem is System {
     }
 
     // Make sure entity is an agent
-    InteractionSelector[] memory interactionSelectors = getInteractionSelectors(IStore(REGISTRY_ADDRESS), voxelTypeId);
-    require(interactionSelectors.length > 1, "Not an agent");
+    {
+      InteractionSelector[] memory interactionSelectors = getInteractionSelectors(
+        IStore(REGISTRY_ADDRESS),
+        voxelTypeId
+      );
+      require(interactionSelectors.length > 1, "Not an agent");
+    }
 
     // Note: calling build every time will cause the area around the agent to lose energy
     // TODO: Fix this if it becomes a problem. One idea is the faucet entity could flux energy back to the surrounding
     VoxelEntity memory newEntity = IWorld(_world()).buildWithAgent(voxelTypeId, coord, faucetEntity, bytes4(0));
+    bytes32 faucetVoxelTypeId = VoxelType.getVoxelTypeId(faucetEntity.scale, faucetEntity.entityId);
+    InteractionSelector[] memory faucetInteractionSelectors = getInteractionSelectors(
+      IStore(REGISTRY_ADDRESS),
+      faucetVoxelTypeId
+    );
+    IWorld(_world()).activateWithAgent(
+      faucetVoxelTypeId,
+      getVoxelCoordStrict(faucetEntity),
+      faucetEntity,
+      getSelector(faucetInteractionSelectors, "Give Stamina")
+    );
     IWorld(_world()).claimAgent(newEntity);
     Faucet.set(faucetEntity.scale, faucetEntity.entityId, facuetData);
 

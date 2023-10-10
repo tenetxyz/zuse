@@ -9,9 +9,10 @@ import { IWorld } from "../src/codegen/world/IWorld.sol";
 import { IBaseWorld } from "@latticexyz/world/src/interfaces/IBaseWorld.sol";
 import { VoxelCoord, VoxelEntity } from "@tenet-utils/src/Types.sol";
 import { SHARD_DIM } from "@tenet-level1-ca/src/Constants.sol";
-import { BASE_CA_ADDRESS } from "@tenet-world/src/Constants.sol";
+import { BASE_CA_ADDRESS, SIMULATOR_ADDRESS } from "@tenet-world/src/Constants.sol";
 import { TerrainProperties, TerrainPropertiesTableId, VoxelTypeProperties } from "@tenet-world/src/codegen/Tables.sol";
 import { FighterVoxelID, GrassVoxelID, AirVoxelID, DirtVoxelID, BedrockVoxelID } from "@tenet-level1-ca/src/Constants.sol";
+import { Stamina } from "@tenet-simulator/src/codegen/tables/Stamina.sol";
 
 contract PostDeploy is Script {
   function run(address worldAddress) external {
@@ -52,6 +53,7 @@ contract PostDeploy is Script {
     uint256 initEnergy = 100000;
     VoxelCoord memory initVelocity = VoxelCoord({ x: 0, y: 0, z: 0 });
     VoxelEntity memory agentEntity = world.spawnBody(voxelTypeId, coord, bytes4(0), initMass, initEnergy, initVelocity);
+    Stamina.set(IStore(SIMULATOR_ADDRESS), worldAddress, agentEntity.scale, agentEntity.entityId, 100000);
     world.setFaucetAgent(agentEntity);
 
     vm.stopBroadcast();

@@ -6,14 +6,15 @@ import { IWorld } from "@tenet-simulator/src/codegen/world/IWorld.sol";
 import { hasKey } from "@latticexyz/world/src/modules/keysintable/hasKey.sol";
 import { SimHandler } from "@tenet-simulator/prototypes/SimHandler.sol";
 import { VoxelCoord, VoxelTypeData, VoxelEntity } from "@tenet-utils/src/Types.sol";
-import { Mass, MassTableId, Energy, EnergyTableId, Velocity, VelocityTableId } from "@tenet-simulator/src/codegen/Tables.sol";
+import { Stamina, StaminaTableId, Mass, MassTableId, Energy, EnergyTableId, Velocity, VelocityTableId } from "@tenet-simulator/src/codegen/Tables.sol";
 import { isZeroCoord, voxelCoordsAreEqual, dot, mulScalar, divScalar, add, sub } from "@tenet-utils/src/VoxelCoordUtils.sol";
 import { abs, absInt32 } from "@tenet-utils/src/MathUtils.sol";
-import { uint256ToInt32 } from "@tenet-utils/src/TypeUtils.sol";
+import { uint256ToInt32, int256ToUint256, safeSubtract } from "@tenet-utils/src/TypeUtils.sol";
 import { VoxelTypeRegistry, VoxelTypeRegistryData } from "@tenet-registry/src/codegen/tables/VoxelTypeRegistry.sol";
+import { isEntityEqual } from "@tenet-utils/src/Utils.sol";
 import { MAX_VOXEL_NEIGHBOUR_UPDATE_DEPTH } from "@tenet-utils/src/Constants.sol";
 import { getUniqueEntity } from "@latticexyz/world/src/modules/uniqueentity/getUniqueEntity.sol";
-import { getVoxelTypeId, getVoxelCoordStrict, getVelocity, getTerrainMass, getTerrainEnergy, getTerrainVelocity, getNeighbourEntities, createTerrainEntity } from "@tenet-simulator/src/Utils.sol";
+import { getVoxelTypeId, getVoxelCoordStrict, getVelocity, getTerrainMass, getTerrainEnergy, getTerrainVelocity, getNeighbourEntities, createTerrainEntity, getEntityAtCoord } from "@tenet-simulator/src/Utils.sol";
 import { NUM_BLOCKS_BEFORE_REDUCE_VELOCITY } from "@tenet-simulator/src/Constants.sol";
 import { console } from "forge-std/console.sol";
 
@@ -350,15 +351,15 @@ contract VelocitySystem is SimHandler {
       "Old entity does not exist"
     );
     uint256 bodyMass = Mass.get(callerAddress, oldEntity.scale, oldEntity.entityId);
-    (VoxelCoord memory newVelocity, uint256 energyRequired) = calculateNewVelocity(
+    (VoxelCoord memory newVelocity, uint256 resourceRequired) = calculateNewVelocity(
       callerAddress,
       oldCoord,
       newCoord,
       oldEntity,
       bodyMass
     );
-    uint256 energyInOldBlock = Energy.get(callerAddress, oldEntity.scale, oldEntity.entityId);
-    require(energyRequired <= energyInOldBlock, "Not enough energy to move.");
+    uint256 staminaInOldBlock = Stamina.get(callerAddress, oldEntity.scale, oldEntity.entityId);
+    require(resourceRequired <= staminaInOldBlock, "Not enough stamina to move.");
 
     if (hasKey(MassTableId, Mass.encodeKeyTuple(callerAddress, newEntity.scale, newEntity.entityId))) {
       require(
@@ -385,11 +386,13 @@ contract VelocitySystem is SimHandler {
         abi.encode(getTerrainVelocity(callerAddress, newEntity.scale, newCoord))
       );
     }
-    uint256 energyInNewBlock = Energy.get(callerAddress, newEntity.scale, newEntity.entityId);
+    uint256 staminaInNewBlock = Stamina.get(callerAddress, newEntity.scale, newEntity.entityId);
+    uint256 energyInOldBlock = Energy.get(callerAddress, oldEntity.scale, oldEntity.entityId);
 
     // Reset the old entity's mass, energy and velocity
     Mass.set(callerAddress, oldEntity.scale, oldEntity.entityId, 0);
     Energy.set(callerAddress, oldEntity.scale, oldEntity.entityId, 0);
+    Stamina.set(callerAddress, oldEntity.scale, oldEntity.entityId, 0);
     Velocity.set(
       callerAddress,
       oldEntity.scale,
@@ -398,12 +401,13 @@ contract VelocitySystem is SimHandler {
       abi.encode(VoxelCoord({ x: 0, y: 0, z: 0 }))
     );
 
-    IWorld(_world()).fluxEnergy(false, callerAddress, newEntity, energyRequired + energyInNewBlock);
+    IWorld(_world()).fluxEnergy(false, callerAddress, newEntity, resourceRequired + staminaInNewBlock);
 
     // Update the new entity's energy and velocity
     Mass.set(callerAddress, newEntity.scale, newEntity.entityId, bodyMass);
-    Energy.set(callerAddress, newEntity.scale, newEntity.entityId, energyInOldBlock - energyRequired);
+    Energy.set(callerAddress, newEntity.scale, newEntity.entityId, energyInOldBlock);
     Velocity.set(callerAddress, newEntity.scale, newEntity.entityId, block.number, abi.encode(newVelocity));
+    Stamina.set(callerAddress, newEntity.scale, newEntity.entityId, staminaInOldBlock - resourceRequired);
 
     onCollision(callerAddress, newEntity);
   }
@@ -427,30 +431,30 @@ contract VelocitySystem is SimHandler {
       z: absInt32(newVelocity.z) - absInt32(currentVelocity.z)
     });
 
-    uint256 energyRequiredX = calculateEnergyRequired(currentVelocity.x, newVelocity.x, velocityDelta.x, bodyMass);
-    uint256 energyRequiredY = calculateEnergyRequired(currentVelocity.y, newVelocity.y, velocityDelta.y, bodyMass);
-    uint256 energyRequiredZ = calculateEnergyRequired(currentVelocity.z, newVelocity.z, velocityDelta.z, bodyMass);
-    uint256 energyRequired = energyRequiredX + energyRequiredY + energyRequiredZ;
-    return (newVelocity, energyRequired);
+    uint256 resourceRequiredX = calculateResourceRequired(currentVelocity.x, newVelocity.x, velocityDelta.x, bodyMass);
+    uint256 resourceRequiredY = calculateResourceRequired(currentVelocity.y, newVelocity.y, velocityDelta.y, bodyMass);
+    uint256 resourceRequiredZ = calculateResourceRequired(currentVelocity.z, newVelocity.z, velocityDelta.z, bodyMass);
+    uint256 resourceRequired = resourceRequiredX + resourceRequiredY + resourceRequiredZ;
+    return (newVelocity, resourceRequired);
   }
 
   // Note: We assume the magnitude of the delta is always 1,
   // ie the body is moving 1 voxel at a time
-  function calculateEnergyRequired(
+  function calculateResourceRequired(
     int32 currentVelocity,
     int32 newVelocity,
     int32 velocityDelta,
     uint256 bodyMass
   ) internal pure returns (uint256) {
-    uint256 energyRequired = 0;
+    uint256 resourceRequired = 0;
     if (velocityDelta != 0) {
-      energyRequired = bodyMass;
+      resourceRequired = bodyMass;
       if (newVelocity != 0) {
-        energyRequired = velocityDelta > 0
+        resourceRequired = velocityDelta > 0
           ? bodyMass / uint(abs(int(newVelocity))) // if we're going in the same direction, then it costs less
           : bodyMass * uint(abs(int(newVelocity))); // if we're going in the opposite direction, then it costs more
       }
     }
-    return energyRequired;
+    return resourceRequired;
   }
 }

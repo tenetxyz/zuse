@@ -55,7 +55,13 @@ enum SimTable {
   Health,
   Stamina,
   Object,
-  Action
+  Action,
+  Nutrients,
+  Nitrogen,
+  Phosphorous,
+  Potassium,
+  Elixir,
+  Protein
 }
 
 struct SimEventData {
@@ -138,6 +144,12 @@ struct BodySimData {
   uint256 stamina;
   ObjectType objectType;
   ActionData actionData;
+  uint256 nutrients;
+  uint256 nitrogen;
+  uint256 phosphorous;
+  uint256 potassium;
+  uint256 elixir;
+  uint256 protein;
 }
 
 enum ValueType {

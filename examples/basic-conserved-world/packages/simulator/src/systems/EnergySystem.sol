@@ -80,7 +80,6 @@ contract EnergySystem is SimHandler {
   ) internal {
     uint256 currentEnergy = Energy.get(callerAddress, entity.scale, entity.entityId);
     require(currentEnergy >= energyToTransfer, "Not enough energy to transfer");
-    require(distanceBetween(coord, energyReceiverCoord) == 1, "Energy can only be fluxed to a surrounding neighbour");
     bool energyReceiverEntityExists = hasKey(
       EnergyTableId,
       Energy.encodeKeyTuple(callerAddress, energyReceiverEntity.scale, energyReceiverEntity.entityId)

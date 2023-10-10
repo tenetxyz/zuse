@@ -4,8 +4,23 @@ import { resolveTableId } from "@latticexyz/config";
 export default mudConfig({
   enums: {
     ObjectType: ["None", "Fire", "Water", "Grass"],
-    SimTable: ["None", "Mass", "Energy", "Velocity", "Health", "Stamina", "Object", "Action"],
-    ValueType: ["Uint256", "ObjectType"],
+    SimTable: [
+      "None",
+      "Mass",
+      "Energy",
+      "Velocity",
+      "Health",
+      "Stamina",
+      "Object",
+      "Action",
+      "Nutrients",
+      "Nitrogen",
+      "Phosphorous",
+      "Potassium",
+      "Elixir",
+      "Protein",
+    ],
+    ValueType: ["Int256", "ObjectType"],
   },
   tables: {
     SimSelectors: {
@@ -92,10 +107,70 @@ export default mudConfig({
         actionEntity: "bytes",
       },
     },
+    Nutrients: {
+      keySchema: {
+        callerAddress: "address",
+        scale: "uint32",
+        entity: "bytes32",
+      },
+      schema: {
+        nutrients: "uint256",
+      },
+    },
+    Nitrogen: {
+      keySchema: {
+        callerAddress: "address",
+        scale: "uint32",
+        entity: "bytes32",
+      },
+      schema: {
+        nitrogen: "uint256",
+      },
+    },
+    Phosphorous: {
+      keySchema: {
+        callerAddress: "address",
+        scale: "uint32",
+        entity: "bytes32",
+      },
+      schema: {
+        phosphorous: "uint256",
+      },
+    },
+    Potassium: {
+      keySchema: {
+        callerAddress: "address",
+        scale: "uint32",
+        entity: "bytes32",
+      },
+      schema: {
+        potassium: "uint256",
+      },
+    },
+    Elixir: {
+      keySchema: {
+        callerAddress: "address",
+        scale: "uint32",
+        entity: "bytes32",
+      },
+      schema: {
+        elixir: "uint256",
+      },
+    },
+    Protein: {
+      keySchema: {
+        callerAddress: "address",
+        scale: "uint32",
+        entity: "bytes32",
+      },
+      schema: {
+        protein: "uint256",
+      },
+    },
   },
   systems: {
-    EnergyHelperSystem: {
-      name: "EnergyHelperSyst",
+    FluxSystem: {
+      name: "FluxSystem",
       openAccess: false,
       accessList: ["MassSystem", "EnergySystem", "VelocitySystem", "ActionSystem"],
     },
@@ -135,6 +210,41 @@ export default mudConfig({
       name: "KeysInTableModule",
       root: true,
       args: [resolveTableId("Action")],
+    },
+    {
+      name: "KeysInTableModule",
+      root: true,
+      args: [resolveTableId("Action")],
+    },
+    {
+      name: "KeysInTableModule",
+      root: true,
+      args: [resolveTableId("Nutrients")],
+    },
+    {
+      name: "KeysInTableModule",
+      root: true,
+      args: [resolveTableId("Nitrogen")],
+    },
+    {
+      name: "KeysInTableModule",
+      root: true,
+      args: [resolveTableId("Phosphorous")],
+    },
+    {
+      name: "KeysInTableModule",
+      root: true,
+      args: [resolveTableId("Potassium")],
+    },
+    {
+      name: "KeysInTableModule",
+      root: true,
+      args: [resolveTableId("Elixir")],
+    },
+    {
+      name: "KeysInTableModule",
+      root: true,
+      args: [resolveTableId("Protein")],
     },
   ],
 });

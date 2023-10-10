@@ -17,7 +17,6 @@ import { Plant, PlantData, PlantStage } from "@tenet-pokemon-extension/src/codeg
 import { addressToEntityKey } from "@tenet-utils/src/Utils.sol";
 import { console } from "forge-std/console.sol";
 import { CAEntityMapping, CAEntityMappingTableId } from "@tenet-base-ca/src/codegen/tables/CAEntityMapping.sol";
-import { ENERGY_REQUIRED_FOR_SPROUT, ENERGY_REQUIRED_FOR_FLOWER } from "@tenet-pokemon-extension/src/systems/voxel-interactions/PlantSystem.sol";
 import { NUM_BLOCKS_BEFORE_REDUCE_VELOCITY } from "@tenet-simulator/src/Constants.sol";
 import { NUM_BLOCKS_FAINTED } from "@tenet-pokemon-extension/src/Constants.sol";
 import { Mass } from "@tenet-simulator/src/codegen/tables/Mass.sol";

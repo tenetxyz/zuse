@@ -71,7 +71,8 @@ contract IceVoxelSystem is VoxelType {
         IWorld(world).extension1_IceVoxelSystem_eventHandler.selector,
         IWorld(world).extension1_IceVoxelSystem_neighbourEventHandler.selector
       ),
-      abi.encode(componentDefs)
+      abi.encode(componentDefs),
+      5
     );
 
     registerCAVoxelType(CA_ADDRESS, IceVoxelID);

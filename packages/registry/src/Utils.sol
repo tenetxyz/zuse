@@ -31,7 +31,8 @@ function registerVoxelType(
   bytes32[] memory schemaVoxelTypeIds,
   bytes32 previewVoxelVariantId,
   VoxelSelectors memory voxelSelectors,
-  bytes memory componentDefs
+  bytes memory componentDefs,
+  uint256 voxelMass
 ) returns (bytes memory) {
   return
     safeCall(
@@ -45,7 +46,8 @@ function registerVoxelType(
         schemaVoxelTypeIds,
         previewVoxelVariantId,
         voxelSelectors,
-        componentDefs
+        componentDefs,
+        voxelMass
       ),
       "registerVoxelType"
     );

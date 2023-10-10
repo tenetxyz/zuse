@@ -69,7 +69,8 @@ contract FighterAgentSystem is AgentType {
         onNewNeighbourSelector: IWorld(world).ca_FighterAgentSyst_neighbourEventHandler.selector,
         interactionSelectors: getInteractionSelectors()
       }),
-      abi.encode(componentDefs)
+      abi.encode(componentDefs),
+      5
     );
   }
 

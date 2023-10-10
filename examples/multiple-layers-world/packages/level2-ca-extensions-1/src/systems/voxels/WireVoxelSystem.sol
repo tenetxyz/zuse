@@ -71,7 +71,8 @@ contract WireVoxelSystem is VoxelType {
         IWorld(world).extension1_WireVoxelSystem_eventHandler.selector,
         IWorld(world).extension1_WireVoxelSystem_neighbourEventHandler.selector
       ),
-      abi.encode(componentDefs)
+      abi.encode(componentDefs),
+      5
     );
 
     registerCAVoxelType(CA_ADDRESS, WireVoxelID);

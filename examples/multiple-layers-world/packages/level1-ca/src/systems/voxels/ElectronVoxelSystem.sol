@@ -50,7 +50,8 @@ contract ElectronVoxelSystem is VoxelType {
         IWorld(world).ca_ElectronVoxelSys_eventHandler.selector,
         IWorld(world).ca_ElectronVoxelSys_neighbourEventHandler.selector
       ),
-      abi.encode(componentDefs)
+      abi.encode(componentDefs),
+      1
     );
   }
 

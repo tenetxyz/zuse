@@ -18,9 +18,6 @@ contract PostDeploy is Script {
     IWorld(worldAddress).ca_DirtVoxelSystem_registerBody();
     IWorld(worldAddress).ca_GrassVoxelSystem_registerBody();
     IWorld(worldAddress).ca_BedrockVoxelSyst_registerBody();
-    IWorld(worldAddress).ca_FighterAgentSyst_registerBody();
-
-    IWorld(worldAddress).ca_FighterMindSyste_registerMind();
 
     IWorld(worldAddress).registerCA();
 

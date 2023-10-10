@@ -57,7 +57,8 @@ contract LogVoxelSystem is VoxelType {
         IWorld(world).extension1_LogVoxelSystem_eventHandler.selector,
         IWorld(world).extension1_LogVoxelSystem_neighbourEventHandler.selector
       ),
-      abi.encode(componentDefs)
+      abi.encode(componentDefs),
+      5
     );
 
     registerCAVoxelType(CA_ADDRESS, LogVoxelID);

@@ -50,7 +50,8 @@ contract RoadVoxelSystem is VoxelType {
         IWorld(world).ca_RoadVoxelSystem_eventHandler.selector,
         IWorld(world).ca_RoadVoxelSystem_neighbourEventHandler.selector
       ),
-      abi.encode(componentDefs)
+      abi.encode(componentDefs),
+      5
     );
   }
 

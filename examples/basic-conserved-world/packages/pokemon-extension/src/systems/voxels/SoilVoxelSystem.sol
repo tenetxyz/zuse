@@ -48,7 +48,8 @@ contract SoilVoxelSystem is VoxelType {
         IWorld(world).pokemon_SoilVoxelSystem_eventHandler.selector,
         IWorld(world).pokemon_SoilVoxelSystem_neighbourEventHandler.selector
       ),
-      abi.encode(componentDefs)
+      abi.encode(componentDefs),
+      5
     );
 
     registerCAVoxelType(CA_ADDRESS, SoilVoxelID);

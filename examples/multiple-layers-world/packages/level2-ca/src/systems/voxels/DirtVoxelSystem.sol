@@ -49,7 +49,8 @@ contract DirtVoxelSystem is VoxelType {
         IWorld(world).ca_DirtVoxelSystem_eventHandler.selector,
         IWorld(world).ca_DirtVoxelSystem_neighbourEventHandler.selector
       ),
-      abi.encode(componentDefs)
+      abi.encode(componentDefs),
+      5
     );
   }
 

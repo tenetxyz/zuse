@@ -56,7 +56,8 @@ contract SignalSourceVoxelSystem is VoxelType {
         IWorld(world).extension1_SignalSourceVoxe_eventHandler.selector,
         IWorld(world).extension1_SignalSourceVoxe_neighbourEventHandler.selector
       ),
-      abi.encode(componentDefs)
+      abi.encode(componentDefs),
+      5
     );
 
     registerCAVoxelType(CA_ADDRESS, SignalSourceVoxelID);

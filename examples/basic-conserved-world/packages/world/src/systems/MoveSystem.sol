@@ -8,7 +8,7 @@ import { IWorld } from "@tenet-world/src/codegen/world/IWorld.sol";
 import { VoxelCoord, VoxelEntity, EntityEventData } from "@tenet-utils/src/Types.sol";
 import { REGISTRY_ADDRESS, SIMULATOR_ADDRESS } from "@tenet-world/src/Constants.sol";
 import { MoveEventData } from "@tenet-base-world/src/Types.sol";
-import { OwnedBy, OwnedByTableId, WorldConfig, VoxelTypeProperties } from "@tenet-world/src/codegen/Tables.sol";
+import { OwnedBy, OwnedByTableId, WorldConfig } from "@tenet-world/src/codegen/Tables.sol";
 import { getEntityAtCoord } from "@tenet-base-world/src/Utils.sol";
 import { MoveWorldEventData } from "@tenet-world/src/Types.sol";
 import { onMove } from "@tenet-simulator/src/CallUtils.sol";

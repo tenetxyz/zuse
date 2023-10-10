@@ -57,7 +57,8 @@ contract StorageVoxelSystem is VoxelType {
         IWorld(world).extension1_StorageVoxelSyst_eventHandler.selector,
         IWorld(world).extension1_StorageVoxelSyst_neighbourEventHandler.selector
       ),
-      abi.encode(componentDefs)
+      abi.encode(componentDefs),
+      5
     );
 
     registerCAVoxelType(CA_ADDRESS, StorageVoxelID);

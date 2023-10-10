@@ -79,7 +79,8 @@ contract PowerWireVoxelSystem is VoxelType {
         IWorld(world).extension1_PowerWireVoxelSy_eventHandler.selector,
         IWorld(world).extension1_PowerWireVoxelSy_neighbourEventHandler.selector
       ),
-      abi.encode(componentDefs)
+      abi.encode(componentDefs),
+      5
     );
 
     registerCAVoxelType(CA_ADDRESS, PowerWireVoxelID);

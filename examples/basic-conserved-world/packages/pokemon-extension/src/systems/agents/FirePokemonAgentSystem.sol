@@ -57,7 +57,8 @@ contract FirePokemonAgentSystem is AgentType {
         onNewNeighbourSelector: IWorld(world).pokemon_FirePokemonAgent_neighbourEventHandler.selector,
         interactionSelectors: getInteractionSelectors()
       }),
-      abi.encode(componentDefs)
+      abi.encode(componentDefs),
+      10
     );
 
     registerCAVoxelType(CA_ADDRESS, FirePokemonVoxelID);

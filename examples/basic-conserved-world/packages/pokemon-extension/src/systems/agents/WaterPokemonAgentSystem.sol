@@ -57,7 +57,8 @@ contract WaterPokemonAgentSystem is AgentType {
         onNewNeighbourSelector: IWorld(world).pokemon_WaterPokemonAgen_neighbourEventHandler.selector,
         interactionSelectors: getInteractionSelectors()
       }),
-      abi.encode(componentDefs)
+      abi.encode(componentDefs),
+      10
     );
 
     registerCAVoxelType(CA_ADDRESS, WaterPokemonVoxelID);

@@ -36,7 +36,8 @@ contract AirVoxelSystem is VoxelType {
         IWorld(world).ca_AirVoxelSystem_eventHandler.selector,
         IWorld(world).ca_AirVoxelSystem_neighbourEventHandler.selector
       ),
-      abi.encode(componentDefs)
+      abi.encode(componentDefs),
+      0
     );
   }
 

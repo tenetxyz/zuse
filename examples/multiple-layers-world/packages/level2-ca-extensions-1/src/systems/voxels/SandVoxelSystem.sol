@@ -57,7 +57,8 @@ contract SandVoxelSystem is VoxelType {
         IWorld(world).extension1_SandVoxelSystem_eventHandler.selector,
         IWorld(world).extension1_SandVoxelSystem_neighbourEventHandler.selector
       ),
-      abi.encode(componentDefs)
+      abi.encode(componentDefs),
+      5
     );
 
     registerCAVoxelType(CA_ADDRESS, SandVoxelID);

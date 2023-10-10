@@ -71,7 +71,8 @@ contract LavaVoxelSystem is VoxelType {
         IWorld(world).extension1_LavaVoxelSystem_eventHandler.selector,
         IWorld(world).extension1_LavaVoxelSystem_neighbourEventHandler.selector
       ),
-      abi.encode(componentDefs)
+      abi.encode(componentDefs),
+      5
     );
 
     registerCAVoxelType(CA_ADDRESS, LavaVoxelID);

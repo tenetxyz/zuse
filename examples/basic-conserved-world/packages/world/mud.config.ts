@@ -23,14 +23,6 @@ export default tenetMudConfig({
         bucketIndex: "uint8",
       },
     },
-    VoxelTypeProperties: {
-      keySchema: {
-        voxelTypeId: "bytes32",
-      },
-      schema: {
-        mass: "uint256",
-      },
-    },
     OwnedBy: {
       keySchema: {
         scale: "uint32",
@@ -53,11 +45,6 @@ export default tenetMudConfig({
       name: "KeysInTableModule",
       root: true,
       args: [resolveTableId("Faucet")],
-    },
-    {
-      name: "KeysInTableModule",
-      root: true,
-      args: [resolveTableId("VoxelTypeProperties")],
     },
     {
       name: "KeysInTableModule",

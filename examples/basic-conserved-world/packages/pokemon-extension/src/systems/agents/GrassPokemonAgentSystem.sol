@@ -57,7 +57,8 @@ contract GrassPokemonAgentSystem is AgentType {
         onNewNeighbourSelector: IWorld(world).pokemon_GrassPokemonAgen_neighbourEventHandler.selector,
         interactionSelectors: getInteractionSelectors()
       }),
-      abi.encode(componentDefs)
+      abi.encode(componentDefs),
+      10
     );
 
     registerCAVoxelType(CA_ADDRESS, GrassPokemonVoxelID);

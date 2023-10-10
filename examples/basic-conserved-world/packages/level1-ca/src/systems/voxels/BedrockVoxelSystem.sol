@@ -47,7 +47,8 @@ contract BedrockVoxelSystem is VoxelType {
         IWorld(world).ca_BedrockVoxelSyst_eventHandler.selector,
         IWorld(world).ca_BedrockVoxelSyst_neighbourEventHandler.selector
       ),
-      abi.encode(componentDefs)
+      abi.encode(componentDefs),
+      100
     );
   }
 

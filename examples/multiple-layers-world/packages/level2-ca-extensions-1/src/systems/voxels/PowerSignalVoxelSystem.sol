@@ -78,7 +78,8 @@ contract PowerSignalVoxelSystem is VoxelType {
         IWorld(world).extension1_PowerSignalVoxel_eventHandler.selector,
         IWorld(world).extension1_PowerSignalVoxel_neighbourEventHandler.selector
       ),
-      abi.encode(componentDefs)
+      abi.encode(componentDefs),
+      5
     );
 
     registerCAVoxelType(CA_ADDRESS, PowerSignalVoxelID);

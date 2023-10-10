@@ -42,7 +42,8 @@ contract InvertedSignalVoxelSystem is VoxelType {
         IWorld(world).extension1_InvertedSignalVo_eventHandler.selector,
         IWorld(world).extension1_InvertedSignalVo_neighbourEventHandler.selector
       ),
-      abi.encode(componentDefs)
+      abi.encode(componentDefs),
+      5
     );
 
     registerCAVoxelType(CA_ADDRESS, InvertedSignalVoxelID);

@@ -67,7 +67,8 @@ contract LightBulbVoxelSystem is VoxelType {
         IWorld(world).extension1_LightBulbVoxelSy_eventHandler.selector,
         IWorld(world).extension1_LightBulbVoxelSy_neighbourEventHandler.selector
       ),
-      abi.encode(componentDefs)
+      abi.encode(componentDefs),
+      5
     );
 
     registerCAVoxelType(CA_ADDRESS, LightBulbVoxelID);

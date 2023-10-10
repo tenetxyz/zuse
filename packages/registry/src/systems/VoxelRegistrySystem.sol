@@ -17,7 +17,8 @@ contract VoxelRegistrySystem is System {
     bytes32[] memory schemaVoxelTypeIds,
     bytes32 previewVoxelVariantId,
     VoxelSelectors memory voxelSelectors,
-    bytes memory componentDefs
+    bytes memory componentDefs,
+    uint256 voxelMass
   ) public {
     require(
       !hasKey(VoxelTypeRegistryTableId, VoxelTypeRegistry.encodeKeyTuple(voxelTypeId)),
@@ -105,6 +106,7 @@ contract VoxelRegistrySystem is System {
     voxelTypeData.schemaVoxelTypeIds = schemaVoxelTypeIds;
     voxelTypeData.previewVoxelVariantId = previewVoxelVariantId;
     voxelTypeData.scale = scale;
+    voxelTypeData.mass = voxelMass;
     {
       voxelTypeData.metadata = getMetadata(voxelTypeName);
     }

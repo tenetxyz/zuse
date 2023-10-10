@@ -7,7 +7,7 @@ import { VoxelCoord, VoxelEntity } from "@tenet-utils/src/Types.sol";
 import { System } from "@latticexyz/world/src/System.sol";
 import { getVoxelCoordStrict } from "@tenet-base-world/src/Utils.sol";
 import { REGISTRY_ADDRESS, SIMULATOR_ADDRESS } from "@tenet-world/src/Constants.sol";
-import { OwnedBy, Position, VoxelType, VoxelTypeProperties } from "@tenet-world/src/codegen/Tables.sol";
+import { OwnedBy, Position, VoxelType } from "@tenet-world/src/codegen/Tables.sol";
 import { Mass } from "@tenet-simulator/src/codegen/tables/Mass.sol";
 import { Energy } from "@tenet-simulator/src/codegen/tables/Energy.sol";
 import { Velocity } from "@tenet-simulator/src/codegen/tables/Velocity.sol";

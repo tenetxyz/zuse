@@ -53,7 +53,8 @@ contract PlantVoxelSystem is VoxelType {
         IWorld(world).pokemon_PlantVoxelSystem_eventHandler.selector,
         IWorld(world).pokemon_PlantVoxelSystem_neighbourEventHandler.selector
       ),
-      abi.encode(componentDefs)
+      abi.encode(componentDefs),
+      10
     );
 
     registerCAVoxelType(CA_ADDRESS, PlantVoxelID);

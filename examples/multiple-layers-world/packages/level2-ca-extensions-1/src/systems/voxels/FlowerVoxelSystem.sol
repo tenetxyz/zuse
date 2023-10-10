@@ -53,7 +53,8 @@ contract FlowerVoxelSystem is VoxelType {
         IWorld(world).extension1_FlowerVoxelSyste_eventHandler.selector,
         IWorld(world).extension1_FlowerVoxelSyste_neighbourEventHandler.selector
       ),
-      abi.encode(componentDefs)
+      abi.encode(componentDefs),
+      1
     );
 
     registerCAVoxelType(CA_ADDRESS, OrangeFlowerVoxelID);

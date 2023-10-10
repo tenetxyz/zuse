@@ -38,13 +38,11 @@ contract PotassiumSystem is SimHandler {
       PotassiumTableId,
       Potassium.encodeKeyTuple(callerAddress, senderEntity.scale, senderEntity.entityId)
     );
-    // Note: we can't have a require here because there can be duplicate events,
-    // and we don't want to revert if we're just replaying events
-    if (entityExists) {
-      return;
-    }
     // require(!entityExists, "Potassium entity already exists");
     if (isEntityEqual(senderEntity, receiverEntity)) {
+      if (entityExists) {
+        return;
+      }
       require(receiverPotassiumDelta > 0, "Cannot set a negative potassium value");
       Potassium.set(
         callerAddress,
@@ -53,7 +51,47 @@ contract PotassiumSystem is SimHandler {
         int256ToUint256(receiverPotassiumDelta)
       );
     } else {
-      revert("You can't set the object type of another entity");
+
+      require(receiverPotassiumDelta > 0, "Cannot decrease someone's Potassium");
+      require(senderPotassiumDelta < 0, "Cannot increase your own Potassium");
+      uint256 senderPotassium = int256ToUint256(receiverPotassiumDelta);
+      uint256 receiverPotassium = int256ToUint256(receiverPotassiumDelta);
+
+      {
+        bool receiverEntityExists = hasKey(
+          MassTableId,
+          Mass.encodeKeyTuple(callerAddress, receiverEntity.scale, receiverEntity.entityId)
+        );
+        if (!receiverEntityExists) {
+          receiverEntity = createTerrainEntity(callerAddress, receiverEntity.scale, receiverCoord);
+          receiverEntityExists = hasKey(
+            EnergyTableId,
+            Mass.encodeKeyTuple(callerAddress, receiverEntity.scale, receiverEntity.entityId)
+          );
+        }
+        require(receiverEntityExists, "Receiver entity does not exist");
+      }
+
+      require(
+        Potassium.get(callerAddress, senderEntity.scale, senderEntity.entityId) >= 
+        Potassium.get(callerAddress, receiverEntity.scale, receiverEntity.entityId),
+        "Potassium must flow from high to low concentration"
+      );
+
+      Potassium.set(
+        callerAddress,
+        receiverEntity.scale,
+        receiverEntity.entityId,
+        Potassium.get(callerAddress, receiverEntity.scale, receiverEntity.entityId) + receiverPotassium
+      );
+
+      Potassium.set(
+        callerAddress,
+        senderEntity.scale,
+        senderEntity.entityId,
+        Potassium.get(callerAddress, senderEntity.scale, senderEntity.entityId) - senderPotassium
+      );
+
     }
   }
 }

@@ -44,8 +44,38 @@ contract ProteinSystem is SimHandler {
       require(senderNutrientsDelta < 0, "Cannot increase your own nutrients");
       uint256 senderNutrients = int256ToUint256(senderNutrientsDelta);
       uint256 receiverProtein = int256ToUint256(receiverProteinDelta);
-      // TODO: Use NPK to figure out how much nutrients to convert, right now it's 1:1
-      require(senderNutrients == receiverProtein, "Sender nutrients must equal receiver protein");
+      require(
+        hasKey(
+          NitrogenTableId,
+          Nitrogen.encodeKeyTuple(callerAddress, senderEntity.scale, senderEntity.entityId),
+          "Sender entity does not have nitrogen"
+        )
+      );
+      require(
+        hasKey(
+          PhosphorousTableId,
+          Phosphorous.encodeKeyTuple(callerAddress, senderEntity.scale, senderEntity.entityId),
+          "Sender entity does not have phosphorous"
+        )
+      );
+      require(
+        hasKey(
+          PotassiumTableId,
+          Potassium.encodeKeyTuple(callerAddress, senderEntity.scale, senderEntity.entityId),
+          "Sender entity does not have potassium"
+        )
+      );
+      uint256 nitrogen = Nitrogen.get(callerAddress, senderEntity.scale, senderEntity.entityId);
+      uint256 phosphorus = Phosphorous.get(callerAddress, senderEntity.scale, senderEntity.entityId);
+
+      uint256 potassium = Potassium.get(callerAddress, senderEntity.scale, senderEntity.entityId);
+      receiverProtein = (senderNutrients) / (1 + (nitrogen * phosphorous));
+      if (receiverProtein == 0) {
+        return;
+      }
+      require(receiverProtein >= senderNutrients, "Not enough energy to nutrients to convert to elixir");
+      uint256 nutrients_cost = senderNutrients - receiverProtein;
+
       uint256 currentSenderNutrients = Nutrients.get(callerAddress, senderEntity.scale, senderEntity.entityId);
       require(currentSenderNutrients >= senderNutrients, "Not enough nutrients to transfer");
       bool receiverEntityExists = hasKey(
@@ -68,6 +98,10 @@ contract ProteinSystem is SimHandler {
         currentReceiverProtein + receiverProtein
       );
       Nutrients.set(callerAddress, senderEntity.scale, senderEntity.entityId, currentSenderNutrients - senderNutrients);
+
+      if (nutrients_cost > 0) {
+        IWorld(_world()).fluxEnergy(false, callerAddress, senderEntity, nutrients_cost);
+      }
     } else {
       revert("You can't transfer your nutrients to someone elses protein");
     }

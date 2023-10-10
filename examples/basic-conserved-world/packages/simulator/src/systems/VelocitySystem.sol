@@ -340,7 +340,7 @@ contract VelocitySystem is SimHandler {
   }
 
   function velocityChange(
-    VoxelCoord memory actingEntity,
+    VoxelEntity memory actingEntity,
     VoxelCoord memory oldCoord,
     VoxelCoord memory newCoord,
     VoxelEntity memory oldEntity,
@@ -389,6 +389,7 @@ contract VelocitySystem is SimHandler {
     }
     uint256 energyInNewBlock = Energy.get(callerAddress, newEntity.scale, newEntity.entityId);
     uint256 energyInOldBlock = Energy.get(callerAddress, oldEntity.scale, oldEntity.entityId);
+    uint256 staminaInOldEntity = Stamina.get(callerAddress, oldEntity.scale, oldEntity.entityId);
 
     // Reset the old entity's mass, energy and velocity
     Mass.set(callerAddress, oldEntity.scale, oldEntity.entityId, 0);
@@ -410,10 +411,14 @@ contract VelocitySystem is SimHandler {
     Mass.set(callerAddress, newEntity.scale, newEntity.entityId, bodyMass);
     Energy.set(callerAddress, newEntity.scale, newEntity.entityId, energyInOldBlock);
     Velocity.set(callerAddress, newEntity.scale, newEntity.entityId, block.number, abi.encode(newVelocity));
-    if (hasKey(StaminaTableId, Stamina.encodeKeyTuple(callerAddress, oldEntity.scale, oldEntity.entityId))) {
+    if (isEntityEqual(oldEntity, actingEntity)) {
       Stamina.set(callerAddress, newEntity.scale, newEntity.entityId, staminaInActingEntity - resourceRequired);
+    } else {
+      if (hasKey(StaminaTableId, Stamina.encodeKeyTuple(callerAddress, oldEntity.scale, oldEntity.entityId))) {
+        Stamina.set(callerAddress, newEntity.scale, newEntity.entityId, staminaInOldEntity);
+      }
+      Stamina.set(callerAddress, actingEntity.scale, actingEntity.entityId, staminaInActingEntity - resourceRequired);
     }
-    Stamina.set(callerAddress, actingEntity.scale, actingEntity.entityId, staminaInActingEntity - resourceRequired);
 
     onCollision(callerAddress, newEntity);
   }

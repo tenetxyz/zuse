@@ -38,13 +38,11 @@ contract PhosphorousSystem is SimHandler {
       PhosphorousTableId,
       Phosphorous.encodeKeyTuple(callerAddress, senderEntity.scale, senderEntity.entityId)
     );
-    // Note: we can't have a require here because there can be duplicate events,
-    // and we don't want to revert if we're just replaying events
-    if (entityExists) {
-      return;
-    }
     // require(!entityExists, "Phosphorous entity already exists");
     if (isEntityEqual(senderEntity, receiverEntity)) {
+      if (entityExists) {
+        return;
+      }
       require(receiverPhosphorousDelta > 0, "Cannot set a negative phosphorous value");
       Phosphorous.set(
         callerAddress,
@@ -53,7 +51,47 @@ contract PhosphorousSystem is SimHandler {
         int256ToUint256(receiverPhosphorousDelta)
       );
     } else {
-      revert("You can't set the object type of another entity");
+
+      require(receiverPhosphorousDelta > 0, "Cannot decrease someone's Phosphorous");
+      require(senderPhosphorousDelta < 0, "Cannot increase your own Phosphorous");
+      uint256 senderPhosphorous = int256ToUint256(receiverPhosphorousDelta);
+      uint256 receiverPhosphorous = int256ToUint256(receiverPhosphorousDelta);
+
+      {
+        bool receiverEntityExists = hasKey(
+          MassTableId,
+          Mass.encodeKeyTuple(callerAddress, receiverEntity.scale, receiverEntity.entityId)
+        );
+        if (!receiverEntityExists) {
+          receiverEntity = createTerrainEntity(callerAddress, receiverEntity.scale, receiverCoord);
+          receiverEntityExists = hasKey(
+            EnergyTableId,
+            Mass.encodeKeyTuple(callerAddress, receiverEntity.scale, receiverEntity.entityId)
+          );
+        }
+        require(receiverEntityExists, "Receiver entity does not exist");
+      }
+
+      require(
+        Phosphorous.get(callerAddress, senderEntity.scale, senderEntity.entityId) >= 
+        Phosphorous.get(callerAddress, receiverEntity.scale, receiverEntity.entityId),
+        "Phosphorous must flow from high to low concentration"
+      );
+
+      Phosphorous.set(
+        callerAddress,
+        receiverEntity.scale,
+        receiverEntity.entityId,
+        Phosphorous.get(callerAddress, receiverEntity.scale, receiverEntity.entityId) + receiverPhosphorous
+      );
+
+      Phosphorous.set(
+        callerAddress,
+        senderEntity.scale,
+        senderEntity.entityId,
+        Phosphorous.get(callerAddress, senderEntity.scale, senderEntity.entityId) - senderPhosphorous
+      );
+      
     }
   }
 }

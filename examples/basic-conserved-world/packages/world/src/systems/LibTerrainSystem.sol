@@ -23,7 +23,7 @@ contract LibTerrainSystem is System {
   function getTerrainVoxel(VoxelCoord memory coord) public view returns (bytes32) {
     // Bucket solution
     (ShardData memory shardData, BucketData memory bucketData) = getTerrainProperties(coord);
-    return getTerrainVoxelFromBucket(shardData, coord);
+    return getTerrainVoxelFromShard(shardData, coord);
 
     // Flat world solution
     // address caAddress = BASE_CA_ADDRESS;
@@ -38,7 +38,7 @@ contract LibTerrainSystem is System {
   function getTerrainMass(uint32 scale, VoxelCoord memory coord) public view returns (uint256) {
     // Bucket solution
     (ShardData memory shardData, BucketData memory bucketData) = getTerrainProperties(coord);
-    bytes32 voxelTypeId = getTerrainVoxelFromBucket(shardData, coord);
+    bytes32 voxelTypeId = getTerrainVoxelFromShard(shardData, coord);
 
     // Flat world solution
     // bytes32 voxelTypeId = getTerrainVoxel(coord);
@@ -69,10 +69,7 @@ contract LibTerrainSystem is System {
     return VoxelCoord({ x: 0, y: 0, z: 0 });
   }
 
-  function getTerrainVoxelFromBucket(
-    ShardData memory shardData,
-    VoxelCoord memory coord
-  ) public view returns (bytes32) {
+  function getTerrainVoxelFromShard(ShardData memory shardData, VoxelCoord memory coord) public view returns (bytes32) {
     // call selector
     bytes memory returnData = safeStaticCall(
       shardData.contractAddress,

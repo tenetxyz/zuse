@@ -55,10 +55,15 @@ contract NutrientsSystem is SimHandler {
     uint256 nitrogen = Nitrogen.get(callerAddress, senderEntity.scale, senderEntity.entityId);
     uint256 phosphorus = Phosphorous.get(callerAddress, senderEntity.scale, senderEntity.entityId);
     uint256 potassium = Potassium.get(callerAddress, senderEntity.scale, senderEntity.entityId);
-    // calculate nutrients from energy
-    // e_cost = 1/m * (n * p * k) * receiverNutrientsDelta
-    // e_net = receiverNutrientsDelta + e_cost
-    return uint256ToInt256(senderEnergy / (1 + ((nitrogen * phosphorus * potassium) / mass)));
+
+    // Calculate the efficiency factor
+    // The term (mass + nitrogen + phosphorus + potassium) / senderEnergy normalizes the efficiency factor
+    // The '1 +' in the denominator ensures we're not dividing by zero
+    uint256 efficiencyFactor = 1 + ((mass + nitrogen + phosphorus + potassium) / senderEnergy);
+
+    // Calculate receiverNutrientsDelta
+    // It will be the remaining energy after accounting for the loss defined by efficiencyFactor.
+    return uint256ToInt256(senderEnergy - (senderEnergy / efficiencyFactor));
   }
 
   function updateNutrientsFromEnergy(
@@ -191,9 +196,9 @@ contract NutrientsSystem is SimHandler {
           Potassium.get(callerAddress, receiverEntity.scale, receiverEntity.entityId);
         require(receiverNPK >= senderNPK, "Receiver NPK must be greater than or equal to sender NPK");
       }
-      receiverNutrients =
-        senderNutrients /
-        (1 + (1 / Mass.get(callerAddress, senderEntity.scale, senderEntity.entityId)));
+
+      receiverNutrients = (senderNutrients * receiverNPK) / (senderNPK + receiverNPK);
+
       if (receiverNutrients == 0) {
         return;
       }

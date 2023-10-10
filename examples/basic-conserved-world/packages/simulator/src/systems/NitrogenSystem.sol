@@ -84,7 +84,7 @@ contract NitrogenSystem is SimHandler {
         Nitrogen.get(callerAddress, receiverEntity.scale, receiverEntity.entityId) + receiverNitrogen
       );
 
-      Nutrients.set(
+      Nitrogen.set(
         callerAddress,
         senderEntity.scale,
         senderEntity.entityId,

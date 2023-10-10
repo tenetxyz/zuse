@@ -14,7 +14,10 @@ import { REGISTRY_ADDRESS, BASE_CA_ADDRESS, SHARD_DIM } from "@tenet-world/src/C
 import { coordToShardCoord } from "@tenet-world/src/Utils.sol";
 import { console } from "forge-std/console.sol";
 import { VoxelTypeRegistry, VoxelTypeRegistryData } from "@tenet-registry/src/codegen/tables/VoxelTypeRegistry.sol";
-import { TerrainSelectors, TerrainSelectorsData, TerrainSelectorsTableId } from "@tenet-world/src/codegen/tables/TerrainSelectors.sol";
+import { Shard, ShardData, ShardTableId } from "@tenet-world/src/codegen/tables/Shard.sol";
+
+uint256 constant MAX_TOTAL_ENERGY_IN_SHARD = 1000000;
+uint256 constant MAX_TOTAL_MASS_IN_SHARD = 1000000;
 
 contract LibTerrainSystem is System {
   function getTerrainVoxel(VoxelCoord memory coord) public view returns (bytes32) {
@@ -80,13 +83,6 @@ contract LibTerrainSystem is System {
     return AirVoxelID;
   }
 
-  function setTerrainProperties(VoxelCoord[] memory coords, uint8 bucketIndex) public {
-    // TODO: add permissioning check
-    for (uint256 i = 0; i < coords.length; i++) {
-      TerrainProperties.set(coords[i].x, coords[i].y, coords[i].z, bucketIndex);
-    }
-  }
-
   function getTerrainProperties(VoxelCoord memory coord) public view returns (BucketData memory) {
     BucketData[] memory buckets = new BucketData[](4);
     buckets[0] = BucketData({ id: 0, minMass: 0, maxMass: 0, energy: 0, count: 0 });
@@ -138,16 +134,83 @@ contract LibTerrainSystem is System {
     // );
   }
 
-  function setTerrainSelector(VoxelCoord memory coord, address contractAddress, bytes4 terrainSelector) public {
+  function claimShard(
+    VoxelCoord memory coordInShard,
+    address contractAddress,
+    bytes4 terrainSelector,
+    BucketData[] buckets
+  ) public {
     address callerAddress = _msgSender();
-    VoxelCoord memory shardCoord = coordToShardCoord(coord);
+    VoxelCoord memory shardCoord = coordToShardCoord(coordInShard);
     require(
-      !hasKey(
-        TerrainSelectorsTableId,
-        TerrainSelectors.encodeKeyTuple(callerAddress, shardCoord.x, shardCoord.y, shardCoord.z)
-      ),
-      "CASystem: Select for coord already exists"
+      !hasKey(ShardTableId, Shard.encodeKeyTuple(shardCoord.x, shardCoord.y, shardCoord.z)),
+      "Shard already claimed"
     );
-    TerrainSelectors.set(callerAddress, shardCoord.x, shardCoord.y, shardCoord.z, contractAddress, terrainSelector);
+    verifyBucketCounts(buckets);
+    Shard.set(
+      shardCoord.x,
+      shardCoord.y,
+      shardCoord.z,
+      ShardData({
+        claimer: callerAddress,
+        contractAddress: contractAddress,
+        terrainSelector: terrainSelector,
+        verified: false,
+        buckets: buckets
+      })
+    );
+  }
+
+  function setTerrainProperties(VoxelCoord[] memory coords, uint8 bucketIndex) public {
+    require(coords.length > 0, "Must have at least one coord");
+    address callerAddress = _msgSender();
+    VoxelCoord memory shardCoord = coordToShardCoord(coords[0]);
+    require(hasKey(ShardTableId, Shard.encodeKeyTuple(shardCoord.x, shardCoord.y, shardCoord.z)), "Shard not claimed");
+    ShardData memory shardData = Shard.get(shardCoord.x, shardCoord.y, shardCoord.z);
+    require(shardData.claimer == callerAddress, "Only shard claimer can set terrain properties");
+    require(!shardData.verified, "Shard already verified, cannot set terrain properties now");
+    require(bucketIndex < shardData.buckets.length, "Bucket index out of range");
+    for (uint256 i = 0; i < coords.length; i++) {
+      require(coordToShardCoord(coords[i]) == shardCoord, "All coords must be in the same shard");
+      TerrainProperties.set(coords[i].x, coords[i].y, coords[i].z, bucketIndex);
+    }
+  }
+
+  function verifyShard(VoxelCoord memory shardCoord) public {
+    address callerAddress = _msgSender();
+    require(hasKey(ShardTableId, Shard.encodeKeyTuple(shardCoord.x, shardCoord.y, shardCoord.z)), "Shard not claimed");
+    ShardData memory shardData = Shard.get(shardCoord.x, shardCoord.y, shardCoord.z);
+    require(shardData.claimer == callerAddress, "Only shard claimer can set terrain properties");
+    require(!shardData.verified, "Shard already verified, don't need to verify again");
+    // Go through all the coords in the shard and make sure the counts match
+    uint256[] bucketCounts = new uint256[](shardData.buckets.length);
+    for (uint x = shardCoord.x * SHARD_DIM; x < (shardCoord.x + 1) * SHARD_DIM; x++) {
+      for (uint y = shardCoord.x * SHARD_DIM; y < (shardCoord.x + 1) * SHARD_DIM; y++) {
+        for (uint z = shardCoord.x * SHARD_DIM; z < (shardCoord.x + 1) * SHARD_DIM; z++) {
+          uint256 bucketIndex = TerrainProperties.get(x, y, z);
+          bucketCounts[bucketIndex] += 1;
+        }
+      }
+    }
+
+    for (uint256 i = 0; i < shardData.buckets.length; i++) {
+      require(bucketCounts[i] == shardData.buckets[i].count, "Terrain properties do not match shard bucket counts");
+    }
+
+    Shard.setVerified(shardCoord.x, shardCoord.y, shardCoord.z, true);
+  }
+
+  function verifyBucketCounts(BucketData[] buckets) internal pure {
+    uint256 totalMinMass = 0;
+    uint256 totalMaxMass = 0;
+    uint256 totalEnergy = 0;
+    for (uint256 i = 0; i < buckets.length; i++) {
+      BucketData memory bucket = buckets[i];
+      totalMinMass += bucket.minMass * bucket.count;
+      totalMaxMass += bucket.maxMass * bucket.count;
+      totalEnergy += bucket.energy * bucket.count;
+    }
+    require(totalMaxMass <= MAX_TOTAL_MASS_IN_SHARD, "Total max mass exceeds shard mass limit");
+    require(totalEnergy <= MAX_TOTAL_ENERGY_IN_SHARD, "Total energy exceeds shard energy limit");
   }
 }

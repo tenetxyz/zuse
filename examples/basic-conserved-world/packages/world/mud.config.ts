@@ -13,6 +13,30 @@ export default tenetMudConfig({
         claimerAmounts: "uint256[]",
       },
     },
+    OwnedBy: {
+      keySchema: {
+        scale: "uint32",
+        entity: "bytes32",
+      },
+      schema: {
+        player: "address",
+      },
+    },
+    Shard: {
+      keySchema: {
+        // ShardCoords
+        x: "int32",
+        y: "int32",
+        z: "int32",
+      },
+      schema: {
+        claimer: "address",
+        contractAddress: "address",
+        terrainSelector: "bytes4",
+        verified: "bool",
+        buckets: "bytes", // BucketData[]
+      },
+    },
     TerrainProperties: {
       keySchema: {
         x: "int32",
@@ -21,28 +45,6 @@ export default tenetMudConfig({
       },
       schema: {
         bucketIndex: "uint8",
-      },
-    },
-    TerrainSelectors: {
-      registerAsRoot: true,
-      keySchema: {
-        callerAddress: "address",
-        x: "int32",
-        y: "int32",
-        z: "int32",
-      },
-      schema: {
-        contractAddress: "address",
-        selector: "bytes4",
-      },
-    },
-    OwnedBy: {
-      keySchema: {
-        scale: "uint32",
-        entity: "bytes32",
-      },
-      schema: {
-        player: "address",
       },
     },
   },

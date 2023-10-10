@@ -5,7 +5,7 @@ import { IStore } from "@latticexyz/store/src/IStore.sol";
 import { IWorld } from "@tenet-simulator/src/codegen/world/IWorld.sol";
 import { hasKey } from "@latticexyz/world/src/modules/keysintable/hasKey.sol";
 import { SimHandler } from "@tenet-simulator/prototypes/SimHandler.sol";
-import { Nutrients, NutrientsTableId, SimSelectors, Health, HealthTableId, Mass, MassTableId, Energy, EnergyTableId, Velocity, VelocityTableId } from "@tenet-simulator/src/codegen/Tables.sol";
+import { Nitrogen, NitrogenTableId, Potassium, PotassiumTableId, Phosphorous, PhosphorousTableId, Nutrients, NutrientsTableId, SimSelectors, Health, HealthTableId, Mass, MassTableId, Energy, EnergyTableId, Velocity, VelocityTableId } from "@tenet-simulator/src/codegen/Tables.sol";
 import { VoxelCoord, VoxelTypeData, VoxelEntity, SimTable, ValueType } from "@tenet-utils/src/Types.sol";
 import { VoxelTypeRegistry, VoxelTypeRegistryData } from "@tenet-registry/src/codegen/tables/VoxelTypeRegistry.sol";
 import { distanceBetween, voxelCoordsAreEqual, isZeroCoord } from "@tenet-utils/src/VoxelCoordUtils.sol";
@@ -52,14 +52,51 @@ contract NutrientsSystem is SimHandler {
       revert("Sender energy delta and receiver elixir delta must have opposite signs");
     }
     if (isEntityEqual(senderEntity, receiverEntity)) {
+      uint256 senderEnergy = int256ToUint256(senderEnergyDelta);
+      uint256 receiverNutrients = int256ToUint256(receiverNutrientsDelta);
+      uint256 e_cost = 0;
       if (_msgSender() != _world()) {
         require(receiverNutrientsDelta > 0, "Cannot decrease your own nutrients");
         require(senderEnergyDelta < 0, "Cannot increase your own energy");
+        require(mass > 0, "Sender entity mass must be greater than 0");
+        uint256 mass = Mass.get(callerAddress, senderEntity.scale, senderEntity.entityId);
+        require(
+          hasKey(
+            NitrogenTableId,
+            Nitrogen.encodeKeyTuple(callerAddress, senderEntity.scale, senderEntity.entityId),
+            "Sender entity does not have nitrogen"
+          )
+        );
+        require(
+          hasKey(
+            PhosphorousTableId,
+            Phosphorous.encodeKeyTuple(callerAddress, senderEntity.scale, senderEntity.entityId),
+            "Sender entity does not have phosphorous"
+          )
+        );
+        require(
+          hasKey(
+            PotassiumTableId,
+            Potassium.encodeKeyTuple(callerAddress, senderEntity.scale, senderEntity.entityId),
+            "Sender entity does not have potassium"
+          )
+        );
+        uint256 nitrogen = Nitrogen.get(callerAddress, senderEntity.scale, senderEntity.entityId);
+        uint256 phosphorus = Phosphorous.get(callerAddress, senderEntity.scale, senderEntity.entityId);
+        uint256 potassium = Potassium.get(callerAddress, senderEntity.scale, senderEntity.entityId);
+        // calculate nutrients from energy
+        // e_cost = 1/m * (n * p * k) * receiverNutrientsDelta
+        // e_net = receiverNutrientsDelta + e_cost
+        receiverNutrientsDelta = senderEnergy / (1 + ((1 / mass) * nitrogen * phosphorus * potassium));
+        if (receiverNutrientsDelta == 0) {
+          return;
+        }
+        require(receiverNutrientsDelta >= senderEnergy, "Not enough energy to convert to nutrients");
+        e_cost = senderEnergy - receiverNutrientsDelta;
+      } else {
+        require(senderEnergy == receiverNutrients, "Sender energy must equal receiver nutrients");
       }
-      uint256 senderEnergy = int256ToUint256(senderEnergyDelta);
-      uint256 receiverNutrients = int256ToUint256(receiverNutrientsDelta);
-      // TODO: Use NPK to figure out how much nutrients to convert, right now it's 1:1
-      require(senderEnergy == receiverNutrients, "Sender energy must equal receiver nutrients");
+
       uint256 currentSenderEnergy = Energy.get(callerAddress, senderEntity.scale, senderEntity.entityId);
       if (senderEnergyDelta < 0) {
         require(currentSenderEnergy >= senderEnergy, "Sender does not have enough energy");
@@ -80,6 +117,10 @@ contract NutrientsSystem is SimHandler {
         receiverEntity.entityId,
         addUint256AndInt256(currentReceiverNutrients, receiverNutrientsDelta)
       );
+
+      if (e_cost > 0) {
+        IWorld(_world()).fluxEnergy(false, callerAddress, receiverEntity, e_cost);
+      }
     } else {
       revert("You can't convert other's energy to nutrients");
     }

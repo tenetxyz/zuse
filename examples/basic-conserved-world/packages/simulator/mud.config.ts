@@ -172,7 +172,7 @@ export default mudConfig({
     FluxSystem: {
       name: "FluxSystem",
       openAccess: false,
-      accessList: ["MassSystem", "EnergySystem", "VelocitySystem", "ActionSystem"],
+      accessList: ["MassSystem", "EnergySystem", "VelocitySystem", "ActionSystem", "NutrientsSystem"],
     },
   },
   modules: [

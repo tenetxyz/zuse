@@ -32,7 +32,7 @@ contract PlantSystem is VoxelInteraction {
 
     BodySimData memory entitySimData = getEntitySimData(neighbourEntityId);
     if (entitySimData.nitrogen == 0 || entitySimData.phosphorous == 0 || entitySimData.potassium == 0) {
-      return initPlantProperties(interactEntity, entitySimData);
+      return initPlantProperties(neighbourEntityId, entitySimData);
     }
 
     PlantData memory plantData = Plant.get(callerAddress, neighbourEntityId);

@@ -5,7 +5,7 @@ import { IStore } from "@latticexyz/store/src/IStore.sol";
 import { IWorld } from "@tenet-simulator/src/codegen/world/IWorld.sol";
 import { hasKey } from "@latticexyz/world/src/modules/keysintable/hasKey.sol";
 import { SimHandler } from "@tenet-simulator/prototypes/SimHandler.sol";
-import { Elixir, ElixirTableId, Nutrients, NutrientsTableId, SimSelectors, Health, HealthTableId, Mass, MassTableId, Energy, EnergyTableId, Velocity, VelocityTableId } from "@tenet-simulator/src/codegen/Tables.sol";
+import { Nitrogen, NitrogenTableId, Potassium, PotassiumTableId, Phosphorous, PhosphorousTableId, Elixir, ElixirTableId, Nutrients, NutrientsTableId, SimSelectors, Health, HealthTableId, Mass, MassTableId, Energy, EnergyTableId, Velocity, VelocityTableId } from "@tenet-simulator/src/codegen/Tables.sol";
 import { VoxelCoord, VoxelTypeData, VoxelEntity, SimTable, ValueType } from "@tenet-utils/src/Types.sol";
 import { VoxelTypeRegistry, VoxelTypeRegistryData } from "@tenet-registry/src/codegen/tables/VoxelTypeRegistry.sol";
 import { distanceBetween, voxelCoordsAreEqual, isZeroCoord } from "@tenet-utils/src/VoxelCoordUtils.sol";
@@ -45,56 +45,59 @@ contract ElixirSystem is SimHandler {
       uint256 senderNutrients = int256ToUint256(senderNutrientsDelta);
       uint256 receiverElixir = int256ToUint256(receiverElixirDelta);
       require(
-        hasKey(
-          NitrogenTableId,
-          Nitrogen.encodeKeyTuple(callerAddress, senderEntity.scale, senderEntity.entityId),
-          "Sender entity does not have nitrogen"
-        )
+        hasKey(NitrogenTableId, Nitrogen.encodeKeyTuple(callerAddress, senderEntity.scale, senderEntity.entityId)),
+        "Sender entity does not have nitrogen"
       );
       require(
         hasKey(
           PhosphorousTableId,
-          Phosphorous.encodeKeyTuple(callerAddress, senderEntity.scale, senderEntity.entityId),
-          "Sender entity does not have phosphorous"
-        )
+          Phosphorous.encodeKeyTuple(callerAddress, senderEntity.scale, senderEntity.entityId)
+        ),
+        "Sender entity does not have phosphorous"
       );
       require(
-        hasKey(
-          PotassiumTableId,
-          Potassium.encodeKeyTuple(callerAddress, senderEntity.scale, senderEntity.entityId),
-          "Sender entity does not have potassium"
-        )
+        hasKey(PotassiumTableId, Potassium.encodeKeyTuple(callerAddress, senderEntity.scale, senderEntity.entityId)),
+        "Sender entity does not have potassium"
       );
-      uint256 potassium = Potassium.get(callerAddress, senderEntity.scale, senderEntity.entityId);
-      receiverElixir = (senderNutrients) / (1 + potassium);
+      receiverElixir =
+        (senderNutrients) /
+        (1 + Potassium.get(callerAddress, senderEntity.scale, senderEntity.entityId));
       if (receiverElixir == 0) {
         return;
       }
       require(receiverElixir >= senderNutrients, "Not enough energy to nutrients to convert to elixir");
-      uint256 nutrients_cost = senderNutrients - receiverElixir;
 
       // TODO: Use NPK to figure out how much nutrients to convert, right now it's 1:1
       require(senderNutrients == receiverElixir, "Sender nutrients must equal receiver elixir");
       uint256 currentSenderNutrients = Nutrients.get(callerAddress, senderEntity.scale, senderEntity.entityId);
       require(currentSenderNutrients >= senderNutrients, "Not enough nutrients to transfer");
-      bool receiverEntityExists = hasKey(
-        MassTableId,
-        Mass.encodeKeyTuple(callerAddress, receiverEntity.scale, receiverEntity.entityId)
-      );
-      if (!receiverEntityExists) {
-        receiverEntity = createTerrainEntity(callerAddress, receiverEntity.scale, receiverCoord);
-        receiverEntityExists = hasKey(
-          EnergyTableId,
+      {
+        bool receiverEntityExists = hasKey(
+          MassTableId,
           Mass.encodeKeyTuple(callerAddress, receiverEntity.scale, receiverEntity.entityId)
         );
+        if (!receiverEntityExists) {
+          receiverEntity = createTerrainEntity(callerAddress, receiverEntity.scale, receiverCoord);
+          receiverEntityExists = hasKey(
+            EnergyTableId,
+            Mass.encodeKeyTuple(callerAddress, receiverEntity.scale, receiverEntity.entityId)
+          );
+        }
+        require(receiverEntityExists, "Receiver entity does not exist");
       }
-      require(receiverEntityExists, "Receiver entity does not exist");
-      uint256 currentReceiverElixir = Elixir.get(callerAddress, receiverEntity.scale, receiverEntity.entityId);
-      Elixir.set(callerAddress, receiverEntity.scale, receiverEntity.entityId, currentReceiverElixir + receiverElixir);
+      Elixir.set(
+        callerAddress,
+        receiverEntity.scale,
+        receiverEntity.entityId,
+        Elixir.get(callerAddress, receiverEntity.scale, receiverEntity.entityId) + receiverElixir
+      );
       Nutrients.set(callerAddress, senderEntity.scale, senderEntity.entityId, currentSenderNutrients - senderNutrients);
 
-      if (nutrients_cost > 0) {
-        IWorld(_world()).fluxEnergy(false, callerAddress, senderEntity, nutrients_cost);
+      {
+        uint256 nutrients_cost = senderNutrients - receiverElixir;
+        if (nutrients_cost > 0) {
+          IWorld(_world()).fluxEnergy(false, callerAddress, senderEntity, nutrients_cost);
+        }
       }
     } else {
       revert("You can't transfer your nutrients to someone elses elixir");

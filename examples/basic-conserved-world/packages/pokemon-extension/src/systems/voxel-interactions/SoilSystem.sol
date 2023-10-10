@@ -3,7 +3,7 @@ pragma solidity >=0.8.0;
 
 import { IStore } from "@latticexyz/store/src/IStore.sol";
 import { VoxelInteraction } from "@tenet-base-ca/src/prototypes/VoxelInteraction.sol";
-import { BlockDirection, BodySimData, CAEventData, CAEventType, SimEventData, SimTable, VoxelCoord } from "@tenet-utils/src/Types.sol";
+import { BlockDirection, BodySimData, CAEventData, CAEventType, SimEventData, SimTable, VoxelCoord, VoxelEntity } from "@tenet-utils/src/Types.sol";
 import { getOppositeDirection } from "@tenet-utils/src/VoxelCoordUtils.sol";
 import { Soil } from "@tenet-pokemon-extension/src/codegen/tables/Soil.sol";
 import { Plant } from "@tenet-pokemon-extension/src/codegen/tables/Plant.sol";
@@ -27,7 +27,7 @@ contract SoilSystem is VoxelInteraction {
 
     BodySimData memory entitySimData = getEntitySimData(neighbourEntityId);
     if (entitySimData.nitrogen == 0 || entitySimData.phosphorous == 0 || entitySimData.potassium == 0) {
-      return initSoilProperties(interactEntity, entitySimData);
+      return initSoilProperties(neighbourEntityId, entitySimData);
     }
     if (entitySimData.energy > 0) {
       // We convert all our general energy to nutrient energy

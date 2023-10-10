@@ -38,13 +38,11 @@ contract NitrogenSystem is SimHandler {
       NitrogenTableId,
       Nitrogen.encodeKeyTuple(callerAddress, senderEntity.scale, senderEntity.entityId)
     );
-    // Note: we can't have a require here because there can be duplicate events,
-    // and we don't want to revert if we're just replaying events
-    if (entityExists) {
-      return;
-    }
     // require(!entityExists, "Nitrogen entity already exists");
     if (isEntityEqual(senderEntity, receiverEntity)) {
+      if (entityExists) {
+        return;
+      }
       require(receiverNitrogenDelta > 0, "Cannot set a negative nitrogen value");
       Nitrogen.set(
         callerAddress,
@@ -53,7 +51,46 @@ contract NitrogenSystem is SimHandler {
         int256ToUint256(receiverNitrogenDelta)
       );
     } else {
-      revert("You can't set the object type of another entity");
+      require(receiverNitrogenDelta > 0, "Cannot decrease someone's nitrogen");
+      require(senderNitrogenDelta < 0, "Cannot increase your own nitrogen");
+      uint256 senderNitrogen = int256ToUint256(receiverNitrogenDelta);
+      uint256 receiverNitrogen = int256ToUint256(receiverNitrogenDelta);
+
+      {
+        bool receiverEntityExists = hasKey(
+          MassTableId,
+          Mass.encodeKeyTuple(callerAddress, receiverEntity.scale, receiverEntity.entityId)
+        );
+        if (!receiverEntityExists) {
+          receiverEntity = createTerrainEntity(callerAddress, receiverEntity.scale, receiverCoord);
+          receiverEntityExists = hasKey(
+            EnergyTableId,
+            Mass.encodeKeyTuple(callerAddress, receiverEntity.scale, receiverEntity.entityId)
+          );
+        }
+        require(receiverEntityExists, "Receiver entity does not exist");
+      }
+
+      require(
+        Nitrogen.get(callerAddress, senderEntity.scale, senderEntity.entityId) >= 
+        Nitrogen.get(callerAddress, receiverEntity.scale, receiverEntity.entityId),
+        "Nitrogen must flow from high to low concentration"
+      );
+
+      Nitrogen.set(
+        callerAddress,
+        receiverEntity.scale,
+        receiverEntity.entityId,
+        Nitrogen.get(callerAddress, receiverEntity.scale, receiverEntity.entityId) + receiverNitrogen
+      );
+
+      Nitrogen.set(
+        callerAddress,
+        senderEntity.scale,
+        senderEntity.entityId,
+        Nitrogen.get(callerAddress, senderEntity.scale, senderEntity.entityId) - senderNitrogen
+      );
+
     }
   }
 }

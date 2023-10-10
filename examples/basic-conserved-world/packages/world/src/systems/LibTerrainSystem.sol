@@ -10,11 +10,11 @@ import { AirVoxelID, GrassVoxelID, DirtVoxelID, BedrockVoxelID } from "@tenet-le
 import { TerrainProperties, TerrainPropertiesTableId } from "@tenet-world/src/codegen/Tables.sol";
 import { getTerrainVoxelId } from "@tenet-base-ca/src/CallUtils.sol";
 import { safeCall, safeStaticCall } from "@tenet-utils/src/CallUtils.sol";
-import { REGISTRY_ADDRESS, BASE_CA_ADDRESS } from "@tenet-world/src/Constants.sol";
-import { SHARD_DIM } from "@tenet-level1-ca/src/Constants.sol";
-import { coordToShardCoord } from "@tenet-level1-ca/src/Utils.sol";
+import { REGISTRY_ADDRESS, BASE_CA_ADDRESS, SHARD_DIM } from "@tenet-world/src/Constants.sol";
+import { coordToShardCoord } from "@tenet-world/src/Utils.sol";
 import { console } from "forge-std/console.sol";
 import { VoxelTypeRegistry, VoxelTypeRegistryData } from "@tenet-registry/src/codegen/tables/VoxelTypeRegistry.sol";
+import { TerrainSelectors, TerrainSelectorsData, TerrainSelectorsTableId } from "@tenet-world/src/codegen/tables/TerrainSelectors.sol";
 
 contract LibTerrainSystem is System {
   function getTerrainVoxel(VoxelCoord memory coord) public view returns (bytes32) {
@@ -139,17 +139,15 @@ contract LibTerrainSystem is System {
   }
 
   function setTerrainSelector(VoxelCoord memory coord, address contractAddress, bytes4 terrainSelector) public {
-    // TODO: Make this be any CA address
-    address caAddress = BASE_CA_ADDRESS;
-    safeCall(
-      caAddress,
-      abi.encodeWithSignature(
-        "setTerrainSelector((int32,int32,int32),address,bytes4)",
-        coord,
-        contractAddress,
-        terrainSelector
+    address callerAddress = _msgSender();
+    VoxelCoord memory shardCoord = coordToShardCoord(coord);
+    require(
+      !hasKey(
+        TerrainSelectorsTableId,
+        TerrainSelectors.encodeKeyTuple(callerAddress, shardCoord.x, shardCoord.y, shardCoord.z)
       ),
-      string(abi.encode("setTerrainSelector ", coord, " ", terrainSelector))
+      "CASystem: Select for coord already exists"
     );
+    TerrainSelectors.set(callerAddress, shardCoord.x, shardCoord.y, shardCoord.z, contractAddress, terrainSelector);
   }
 }

@@ -12,7 +12,6 @@ import { int32ToString } from "@tenet-utils/src/StringUtils.sol";
 import { IWorld } from "@tenet-world/src/codegen/world/IWorld.sol";
 import { console } from "forge-std/console.sol";
 import { REGISTRY_ADDRESS } from "@tenet-world/src/Constants.sol";
-import { CHUNK_MAX_Y, CHUNK_MIN_Y } from "@tenet-world/src/Constants.sol";
 import { Strings } from "@openzeppelin/contracts/utils/Strings.sol";
 import { getVoxelsInCreation, creationSpawned } from "@tenet-registry/src/Utils.sol";
 
@@ -35,12 +34,6 @@ contract SpawnSystem is System {
     for (uint i = 0; i < relativeVoxelCoords.length; i++) {
       VoxelCoord memory relativeCoord = relativeVoxelCoords[i];
       VoxelCoord memory spawnVoxelAtCoord = add(lowerSouthWestCorner, relativeCoord);
-      require(
-        spawnVoxelAtCoord.y >= CHUNK_MIN_Y && spawnVoxelAtCoord.y <= CHUNK_MAX_Y,
-        string(
-          abi.encodePacked("Cannot spawn voxel outside of chunk boundaries at y=", int32ToString(spawnVoxelAtCoord.y))
-        )
-      );
 
       VoxelEntity memory newEntity = IWorld(_world()).buildWithAgent(
         voxelTypes[i].voxelTypeId,

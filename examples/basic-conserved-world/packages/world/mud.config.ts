@@ -23,6 +23,19 @@ export default tenetMudConfig({
         bucketIndex: "uint8",
       },
     },
+    TerrainSelectors: {
+      registerAsRoot: true,
+      keySchema: {
+        callerAddress: "address",
+        x: "int32",
+        y: "int32",
+        z: "int32",
+      },
+      schema: {
+        contractAddress: "address",
+        selector: "bytes4",
+      },
+    },
     OwnedBy: {
       keySchema: {
         scale: "uint32",
@@ -60,6 +73,11 @@ export default tenetMudConfig({
       name: "KeysInTableModule",
       root: true,
       args: [resolveTableId("TerrainProperties")],
+    },
+    {
+      name: "KeysInTableModule",
+      root: true,
+      args: [resolveTableId("TerrainSelectors")],
     },
   ],
 });

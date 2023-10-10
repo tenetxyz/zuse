@@ -3,21 +3,7 @@ import { resolveTableId } from "@latticexyz/config";
 
 export default tenetMudConfig({
   namespace: "ca",
-  tables: {
-    TerrainSelectors: {
-      registerAsRoot: true,
-      keySchema: {
-        callerAddress: "address",
-        x: "int32",
-        y: "int32",
-        z: "int32",
-      },
-      schema: {
-        contractAddress: "address",
-        selector: "bytes4",
-      },
-    },
-  },
+  tables: {},
   systems: {
     CASystem: {
       name: "CASystem",
@@ -46,11 +32,5 @@ export default tenetMudConfig({
       registerAsRoot: true,
     },
   },
-  modules: [
-    {
-      name: "KeysInTableModule",
-      root: true,
-      args: [resolveTableId("TerrainSelectors")],
-    },
-  ],
+  modules: [],
 });

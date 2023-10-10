@@ -9,8 +9,6 @@ import { hasKey } from "@latticexyz/world/src/modules/keysintable/hasKey.sol";
 import { VoxelType, Faucet, FaucetData, FaucetTableId, TerrainProperties, TerrainPropertiesTableId } from "@tenet-world/src/codegen/Tables.sol";
 import { safeCall, safeStaticCall } from "@tenet-utils/src/CallUtils.sol";
 import { REGISTRY_ADDRESS, BASE_CA_ADDRESS } from "@tenet-world/src/Constants.sol";
-import { SHARD_DIM } from "@tenet-level1-ca/src/Constants.sol";
-import { coordToShardCoord } from "@tenet-level1-ca/src/Utils.sol";
 import { VoxelTypeRegistry, VoxelTypeRegistryData } from "@tenet-registry/src/codegen/tables/VoxelTypeRegistry.sol";
 import { getInteractionSelectors, getSelector } from "@tenet-registry/src/Utils.sol";
 import { getVoxelCoordStrict } from "@tenet-base-world/src/Utils.sol";

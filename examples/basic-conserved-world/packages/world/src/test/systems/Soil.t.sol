@@ -21,6 +21,9 @@ import { Mass } from "@tenet-simulator/src/codegen/tables/Mass.sol";
 import { Energy } from "@tenet-simulator/src/codegen/tables/Energy.sol";
 import { Velocity } from "@tenet-simulator/src/codegen/tables/Velocity.sol";
 import { Nutrients } from "@tenet-simulator/src/codegen/tables/Nutrients.sol";
+import { Nitrogen } from "@tenet-simulator/src/codegen/tables/Nitrogen.sol";
+import { Phosphorous } from "@tenet-simulator/src/codegen/tables/Phosphorous.sol";
+import { Potassium } from "@tenet-simulator/src/codegen/tables/Potassium.sol";
 
 uint256 constant INITIAL_HIGH_ENERGY = 150;
 
@@ -65,8 +68,11 @@ contract SoilTest is MudTest {
     assertTrue(soil1Nutrients == soil1Energy);
     soil1Energy = Energy.get(IStore(SIMULATOR_ADDRESS), worldAddress, soilEntity.scale, soilEntity.entityId);
     assertTrue(soil1Energy == 0);
+    assertTrue(Nitrogen.get(IStore(SIMULATOR_ADDRESS), worldAddress, soilEntity.scale, soilEntity.entityId) > 0);
+    assertTrue(Phosphorous.get(IStore(SIMULATOR_ADDRESS), worldAddress, soilEntity.scale, soilEntity.entityId) > 0);
+    assertTrue(Potassium.get(IStore(SIMULATOR_ADDRESS), worldAddress, soilEntity.scale, soilEntity.entityId) > 0);
 
-    // Place down another soil beside it
+    // // Place down another soil beside it
     VoxelCoord memory soilCoord2 = VoxelCoord({ x: soilCoord.x, y: soilCoord.y, z: soilCoord.z + 1 });
     VoxelEntity memory soilEntity2 = world.buildWithAgent(SoilVoxelID, soilCoord2, agentEntity, bytes4(0));
     assertTrue(
@@ -79,6 +85,9 @@ contract SoilTest is MudTest {
       soilEntity2.entityId
     );
     assertTrue(soil2Nutrients > 0);
+    assertTrue(Nitrogen.get(IStore(SIMULATOR_ADDRESS), worldAddress, soilEntity2.scale, soilEntity2.entityId) > 0);
+    assertTrue(Phosphorous.get(IStore(SIMULATOR_ADDRESS), worldAddress, soilEntity2.scale, soilEntity2.entityId) > 0);
+    assertTrue(Potassium.get(IStore(SIMULATOR_ADDRESS), worldAddress, soilEntity2.scale, soilEntity2.entityId) > 0);
 
     vm.stopPrank();
   }
@@ -93,6 +102,9 @@ contract SoilTest is MudTest {
     uint256 soil1Energy = Energy.get(IStore(SIMULATOR_ADDRESS), worldAddress, soilEntity.scale, soilEntity.entityId);
     assertTrue(soil1Energy == INITIAL_HIGH_ENERGY);
     world.activateWithAgent(SoilVoxelID, soilCoord, agentEntity, bytes4(0));
+    assertTrue(Nitrogen.get(IStore(SIMULATOR_ADDRESS), worldAddress, soilEntity.scale, soilEntity.entityId) > 0);
+    assertTrue(Phosphorous.get(IStore(SIMULATOR_ADDRESS), worldAddress, soilEntity.scale, soilEntity.entityId) > 0);
+    assertTrue(Potassium.get(IStore(SIMULATOR_ADDRESS), worldAddress, soilEntity.scale, soilEntity.entityId) > 0);
 
     // Place down plant on top of it
     vm.roll(block.number + 1);
@@ -105,6 +117,9 @@ contract SoilTest is MudTest {
       plantEntity.entityId
     );
     assertTrue(plantNutrients > 0);
+    assertTrue(Nitrogen.get(IStore(SIMULATOR_ADDRESS), worldAddress, plantEntity.scale, plantEntity.entityId) > 0);
+    assertTrue(Phosphorous.get(IStore(SIMULATOR_ADDRESS), worldAddress, plantEntity.scale, plantEntity.entityId) > 0);
+    assertTrue(Potassium.get(IStore(SIMULATOR_ADDRESS), worldAddress, plantEntity.scale, plantEntity.entityId) > 0);
 
     // Roll forward and activate soil
     vm.roll(block.number + 1);
@@ -134,6 +149,9 @@ contract SoilTest is MudTest {
       soilEntity.entityId
     );
     assertTrue(soil1Nutrients == 0);
+    assertTrue(Nitrogen.get(IStore(SIMULATOR_ADDRESS), worldAddress, soilEntity.scale, soilEntity.entityId) > 0);
+    assertTrue(Phosphorous.get(IStore(SIMULATOR_ADDRESS), worldAddress, soilEntity.scale, soilEntity.entityId) > 0);
+    assertTrue(Potassium.get(IStore(SIMULATOR_ADDRESS), worldAddress, soilEntity.scale, soilEntity.entityId) > 0);
 
     // Place down another soil beside it
     VoxelCoord memory soilCoord2 = VoxelCoord({ x: soilCoord.x, y: soilCoord.y, z: soilCoord.z + 1 });
@@ -145,6 +163,9 @@ contract SoilTest is MudTest {
       soilEntity2.entityId
     );
     assertTrue(soil2Nutrients == 0);
+    assertTrue(Nitrogen.get(IStore(SIMULATOR_ADDRESS), worldAddress, soilEntity2.scale, soilEntity2.entityId) > 0);
+    assertTrue(Phosphorous.get(IStore(SIMULATOR_ADDRESS), worldAddress, soilEntity2.scale, soilEntity2.entityId) > 0);
+    assertTrue(Potassium.get(IStore(SIMULATOR_ADDRESS), worldAddress, soilEntity2.scale, soilEntity2.entityId) > 0);
 
     // Place down plant on top of it
     VoxelCoord memory plantCoord = VoxelCoord({ x: soilCoord.x, y: soilCoord.y + 1, z: soilCoord.z });
@@ -156,6 +177,9 @@ contract SoilTest is MudTest {
       plantEntity.entityId
     );
     assertTrue(plantNutrients == 0);
+    assertTrue(Nitrogen.get(IStore(SIMULATOR_ADDRESS), worldAddress, plantEntity.scale, plantEntity.entityId) > 0);
+    assertTrue(Phosphorous.get(IStore(SIMULATOR_ADDRESS), worldAddress, plantEntity.scale, plantEntity.entityId) > 0);
+    assertTrue(Potassium.get(IStore(SIMULATOR_ADDRESS), worldAddress, plantEntity.scale, plantEntity.entityId) > 0);
 
     // Set energy and activate
     Energy.set(IStore(SIMULATOR_ADDRESS), worldAddress, soilEntity.scale, soilEntity.entityId, INITIAL_HIGH_ENERGY);
@@ -187,6 +211,9 @@ contract SoilTest is MudTest {
       soilEntity.entityId
     );
     assertTrue(soilNutrients == 0);
+    assertTrue(Nitrogen.get(IStore(SIMULATOR_ADDRESS), worldAddress, soilEntity.scale, soilEntity.entityId) > 0);
+    assertTrue(Phosphorous.get(IStore(SIMULATOR_ADDRESS), worldAddress, soilEntity.scale, soilEntity.entityId) > 0);
+    assertTrue(Potassium.get(IStore(SIMULATOR_ADDRESS), worldAddress, soilEntity.scale, soilEntity.entityId) > 0);
 
     // Place down plant on top of it
     {
@@ -199,6 +226,9 @@ contract SoilTest is MudTest {
         plantEntity.entityId
       );
       assertTrue(plantNutrients == 0);
+      assertTrue(Nitrogen.get(IStore(SIMULATOR_ADDRESS), worldAddress, plantEntity.scale, plantEntity.entityId) > 0);
+      assertTrue(Phosphorous.get(IStore(SIMULATOR_ADDRESS), worldAddress, plantEntity.scale, plantEntity.entityId) > 0);
+      assertTrue(Potassium.get(IStore(SIMULATOR_ADDRESS), worldAddress, plantEntity.scale, plantEntity.entityId) > 0);
     }
 
     // Move agent to soil
@@ -214,6 +244,9 @@ contract SoilTest is MudTest {
         soilEntity2.entityId
       );
       assertTrue(soil2Nutrients == 0);
+      assertTrue(Nitrogen.get(IStore(SIMULATOR_ADDRESS), worldAddress, soilEntity2.scale, soilEntity2.entityId) > 0);
+      assertTrue(Phosphorous.get(IStore(SIMULATOR_ADDRESS), worldAddress, soilEntity2.scale, soilEntity2.entityId) > 0);
+      assertTrue(Potassium.get(IStore(SIMULATOR_ADDRESS), worldAddress, soilEntity2.scale, soilEntity2.entityId) > 0);
     }
 
     vm.stopPrank();

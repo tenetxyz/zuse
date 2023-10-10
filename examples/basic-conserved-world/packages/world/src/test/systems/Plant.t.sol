@@ -26,6 +26,9 @@ import { Stamina } from "@tenet-simulator/src/codegen/tables/Stamina.sol";
 import { Nutrients } from "@tenet-simulator/src/codegen/tables/Nutrients.sol";
 import { Elixir } from "@tenet-simulator/src/codegen/tables/Elixir.sol";
 import { Protein } from "@tenet-simulator/src/codegen/tables/Protein.sol";
+import { Nitrogen } from "@tenet-simulator/src/codegen/tables/Nitrogen.sol";
+import { Phosphorous } from "@tenet-simulator/src/codegen/tables/Phosphorous.sol";
+import { Potassium } from "@tenet-simulator/src/codegen/tables/Potassium.sol";
 
 contract PlantTest is MudTest {
   IWorld private world;
@@ -66,6 +69,9 @@ contract PlantTest is MudTest {
       soilEntity.entityId
     );
     assertTrue(soil1Nutrients == 90);
+    assertTrue(Nitrogen.get(IStore(SIMULATOR_ADDRESS), worldAddress, soilEntity.scale, soilEntity.entityId) > 0);
+    assertTrue(Phosphorous.get(IStore(SIMULATOR_ADDRESS), worldAddress, soilEntity.scale, soilEntity.entityId) > 0);
+    assertTrue(Potassium.get(IStore(SIMULATOR_ADDRESS), worldAddress, soilEntity.scale, soilEntity.entityId) > 0);
 
     // Place down plant on top of it
     vm.roll(block.number + 1);
@@ -81,6 +87,9 @@ contract PlantTest is MudTest {
     );
     assertTrue(plantNutrients > 0 && plantNutrients < AMOUNT_REQUIRED_FOR_SPROUT);
     assertTrue(plantData.stage == PlantStage.Seed);
+    assertTrue(Nitrogen.get(IStore(SIMULATOR_ADDRESS), worldAddress, plantEntity.scale, plantEntity.entityId) > 0);
+    assertTrue(Phosphorous.get(IStore(SIMULATOR_ADDRESS), worldAddress, plantEntity.scale, plantEntity.entityId) > 0);
+    assertTrue(Potassium.get(IStore(SIMULATOR_ADDRESS), worldAddress, plantEntity.scale, plantEntity.entityId) > 0);
 
     vm.stopPrank();
   }
@@ -101,6 +110,9 @@ contract PlantTest is MudTest {
       soilEntity.entityId
     );
     assertTrue(soil1Nutrients == 90);
+    assertTrue(Nitrogen.get(IStore(SIMULATOR_ADDRESS), worldAddress, soilEntity.scale, soilEntity.entityId) > 0);
+    assertTrue(Phosphorous.get(IStore(SIMULATOR_ADDRESS), worldAddress, soilEntity.scale, soilEntity.entityId) > 0);
+    assertTrue(Potassium.get(IStore(SIMULATOR_ADDRESS), worldAddress, soilEntity.scale, soilEntity.entityId) > 0);
 
     // Place down plant on top of it
     vm.roll(block.number + 1);
@@ -116,6 +128,9 @@ contract PlantTest is MudTest {
     );
     assertTrue(plantNutrients > 0 && plantNutrients < AMOUNT_REQUIRED_FOR_SPROUT);
     assertTrue(plantData.stage == PlantStage.Seed);
+    assertTrue(Nitrogen.get(IStore(SIMULATOR_ADDRESS), worldAddress, plantEntity.scale, plantEntity.entityId) > 0);
+    assertTrue(Phosphorous.get(IStore(SIMULATOR_ADDRESS), worldAddress, plantEntity.scale, plantEntity.entityId) > 0);
+    assertTrue(Potassium.get(IStore(SIMULATOR_ADDRESS), worldAddress, plantEntity.scale, plantEntity.entityId) > 0);
 
     vm.roll(block.number + 1);
     Energy.set(IStore(SIMULATOR_ADDRESS), worldAddress, soilEntity.scale, soilEntity.entityId, 110);
@@ -164,6 +179,9 @@ contract PlantTest is MudTest {
       soilEntity.entityId
     );
     assertTrue(soil1Nutrients == 90);
+    assertTrue(Nitrogen.get(IStore(SIMULATOR_ADDRESS), worldAddress, soilEntity.scale, soilEntity.entityId) > 0);
+    assertTrue(Phosphorous.get(IStore(SIMULATOR_ADDRESS), worldAddress, soilEntity.scale, soilEntity.entityId) > 0);
+    assertTrue(Potassium.get(IStore(SIMULATOR_ADDRESS), worldAddress, soilEntity.scale, soilEntity.entityId) > 0);
 
     // Place down plant on top of it
     vm.roll(block.number + 1);
@@ -179,6 +197,9 @@ contract PlantTest is MudTest {
     );
     assertTrue(plantNutrients > 0 && plantNutrients < AMOUNT_REQUIRED_FOR_SPROUT);
     assertTrue(plantData.stage == PlantStage.Seed);
+    assertTrue(Nitrogen.get(IStore(SIMULATOR_ADDRESS), worldAddress, plantEntity.scale, plantEntity.entityId) > 0);
+    assertTrue(Phosphorous.get(IStore(SIMULATOR_ADDRESS), worldAddress, plantEntity.scale, plantEntity.entityId) > 0);
+    assertTrue(Potassium.get(IStore(SIMULATOR_ADDRESS), worldAddress, plantEntity.scale, plantEntity.entityId) > 0);
 
     vm.roll(block.number + 1);
     Energy.set(IStore(SIMULATOR_ADDRESS), worldAddress, soilEntity.scale, soilEntity.entityId, 110);

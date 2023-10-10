@@ -5,7 +5,7 @@ import { IStore } from "@latticexyz/store/src/IStore.sol";
 import { IWorld } from "@tenet-simulator/src/codegen/world/IWorld.sol";
 import { hasKey } from "@latticexyz/world/src/modules/keysintable/hasKey.sol";
 import { SimHandler } from "@tenet-simulator/prototypes/SimHandler.sol";
-import { Protein, ProteinTableId, Elixir, ElixirTableId, Nutrients, NutrientsTableId, SimSelectors, Health, HealthTableId, Mass, MassTableId, Energy, EnergyTableId, Velocity, VelocityTableId } from "@tenet-simulator/src/codegen/Tables.sol";
+import { Nitrogen, NitrogenTableId, Potassium, PotassiumTableId, Phosphorous, PhosphorousTableId, Protein, ProteinTableId, Elixir, ElixirTableId, Nutrients, NutrientsTableId, SimSelectors, Health, HealthTableId, Mass, MassTableId, Energy, EnergyTableId, Velocity, VelocityTableId } from "@tenet-simulator/src/codegen/Tables.sol";
 import { VoxelCoord, VoxelTypeData, VoxelEntity, SimTable, ValueType } from "@tenet-utils/src/Types.sol";
 import { VoxelTypeRegistry, VoxelTypeRegistryData } from "@tenet-registry/src/codegen/tables/VoxelTypeRegistry.sol";
 import { distanceBetween, voxelCoordsAreEqual, isZeroCoord } from "@tenet-utils/src/VoxelCoordUtils.sol";
@@ -44,30 +44,61 @@ contract ProteinSystem is SimHandler {
       require(senderNutrientsDelta < 0, "Cannot increase your own nutrients");
       uint256 senderNutrients = int256ToUint256(senderNutrientsDelta);
       uint256 receiverProtein = int256ToUint256(receiverProteinDelta);
-      // TODO: Use NPK to figure out how much nutrients to convert, right now it's 1:1
-      require(senderNutrients == receiverProtein, "Sender nutrients must equal receiver protein");
+      require(
+        hasKey(NitrogenTableId, Nitrogen.encodeKeyTuple(callerAddress, senderEntity.scale, senderEntity.entityId)),
+        "Sender entity does not have nitrogen"
+      );
+      require(
+        hasKey(
+          PhosphorousTableId,
+          Phosphorous.encodeKeyTuple(callerAddress, senderEntity.scale, senderEntity.entityId)
+        ),
+        "Sender entity does not have phosphorous"
+      );
+      require(
+        hasKey(PotassiumTableId, Potassium.encodeKeyTuple(callerAddress, senderEntity.scale, senderEntity.entityId)),
+        "Sender entity does not have potassium"
+      );
+      {
+        uint256 nitrogen = Nitrogen.get(callerAddress, senderEntity.scale, senderEntity.entityId);
+        uint256 phosphorus = Phosphorous.get(callerAddress, senderEntity.scale, senderEntity.entityId);
+        receiverProtein = (senderNutrients) / (1 + (nitrogen * phosphorus));
+      }
+      if (receiverProtein == 0) {
+        return;
+      }
+      require(senderNutrients >= receiverProtein, "Not enough energy to nutrients to convert to protein");
+
       uint256 currentSenderNutrients = Nutrients.get(callerAddress, senderEntity.scale, senderEntity.entityId);
       require(currentSenderNutrients >= senderNutrients, "Not enough nutrients to transfer");
-      bool receiverEntityExists = hasKey(
-        MassTableId,
-        Mass.encodeKeyTuple(callerAddress, receiverEntity.scale, receiverEntity.entityId)
-      );
-      if (!receiverEntityExists) {
-        receiverEntity = createTerrainEntity(callerAddress, receiverEntity.scale, receiverCoord);
-        receiverEntityExists = hasKey(
-          EnergyTableId,
+      {
+        bool receiverEntityExists = hasKey(
+          MassTableId,
           Mass.encodeKeyTuple(callerAddress, receiverEntity.scale, receiverEntity.entityId)
         );
+        if (!receiverEntityExists) {
+          receiverEntity = createTerrainEntity(callerAddress, receiverEntity.scale, receiverCoord);
+          receiverEntityExists = hasKey(
+            EnergyTableId,
+            Mass.encodeKeyTuple(callerAddress, receiverEntity.scale, receiverEntity.entityId)
+          );
+        }
+        require(receiverEntityExists, "Receiver entity does not exist");
       }
-      require(receiverEntityExists, "Receiver entity does not exist");
-      uint256 currentReceiverProtein = Protein.get(callerAddress, receiverEntity.scale, receiverEntity.entityId);
       Protein.set(
         callerAddress,
         receiverEntity.scale,
         receiverEntity.entityId,
-        currentReceiverProtein + receiverProtein
+        Protein.get(callerAddress, receiverEntity.scale, receiverEntity.entityId) + receiverProtein
       );
       Nutrients.set(callerAddress, senderEntity.scale, senderEntity.entityId, currentSenderNutrients - senderNutrients);
+
+      {
+        uint256 nutrients_cost = senderNutrients - receiverProtein;
+        if (nutrients_cost > 0) {
+          IWorld(_world()).fluxEnergy(false, callerAddress, senderEntity, nutrients_cost);
+        }
+      }
     } else {
       revert("You can't transfer your nutrients to someone elses protein");
     }

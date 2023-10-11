@@ -47,6 +47,8 @@ contract ShardSystem is System {
         buckets: abi.encode(buckets)
       })
     );
+
+    setFaucetAgent(faucetAgentCoord);
   }
 
   function verifyBucketCounts(BucketData[] memory buckets) internal pure {

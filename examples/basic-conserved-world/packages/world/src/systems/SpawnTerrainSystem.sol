@@ -10,8 +10,9 @@ import { AirVoxelID, GrassVoxelID, DirtVoxelID, BedrockVoxelID } from "@tenet-le
 import { TerrainProperties, TerrainPropertiesTableId } from "@tenet-world/src/codegen/Tables.sol";
 import { getTerrainVoxelId } from "@tenet-base-ca/src/CallUtils.sol";
 import { safeCall, safeStaticCall } from "@tenet-utils/src/CallUtils.sol";
-import { REGISTRY_ADDRESS, BASE_CA_ADDRESS, SHARD_DIM } from "@tenet-world/src/Constants.sol";
-import { coordToShardCoord } from "@tenet-world/src/Utils.sol";
+import { REGISTRY_ADDRESS, BASE_CA_ADDRESS } from "@tenet-world/src/Constants.sol";
+import { SHARD_DIM } from "@tenet-utils/src/Constants.sol";
+import { coordToShardCoord } from "@tenet-utils/src/VoxelCoordUtils.sol";
 import { console } from "forge-std/console.sol";
 import { VoxelTypeRegistry, VoxelTypeRegistryData } from "@tenet-registry/src/codegen/tables/VoxelTypeRegistry.sol";
 
@@ -23,8 +24,8 @@ uint256 constant AIR_BUCKET_INDEX = 0;
 uint256 constant DIRT_AND_GRASS_BUCKET_INDEX = 1;
 uint256 constant BEDROCK_BUCKET_INDEX = 2;
 
-contract WorldSpawnSystem is System {
-  function initWorldSpawn() public {
+contract SpawnTerrainSystem is System {
+  function initSpawnTerrain() public {
     VoxelCoord[1] memory spawnCoords = [VoxelCoord({ x: 0, y: 0, z: 0 })];
 
     BucketData[] memory spawnBuckets = new BucketData[](3);

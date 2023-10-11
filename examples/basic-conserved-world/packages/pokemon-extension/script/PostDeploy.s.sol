@@ -22,6 +22,9 @@ contract PostDeploy is Script {
 
     IWorld(worldAddress).pokemon_PokemonMindSyste_registerMind();
 
+    address mainWorldAddress = 0xab16A69A5a8c12C732e0DEFF4BE56A70bb64c926;
+    IWorld(worldAddress).pokemon_PokemonTerrainSy_initPokemonTerrain(mainWorldAddress);
+
     vm.stopBroadcast();
   }
 }

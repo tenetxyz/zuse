@@ -2,8 +2,9 @@
 pragma solidity >=0.8.0;
 
 import { VoxelCoord, BlockDirection } from "@tenet-utils/src/Types.sol";
+import { SHARD_DIM } from "@tenet-utils/src/Constants.sol";
 import { int32ToString } from "@tenet-utils/src/StringUtils.sol";
-import { min, abs, sqrt } from "@tenet-utils/src/MathUtils.sol";
+import { min, abs, sqrt, floorDiv } from "@tenet-utils/src/MathUtils.sol";
 
 function add(VoxelCoord memory a, VoxelCoord memory b) pure returns (VoxelCoord memory) {
   return VoxelCoord(a.x + b.x, a.y + b.y, a.z + b.z);
@@ -38,6 +39,15 @@ function voxelCoordToString(VoxelCoord memory coord) pure returns (string memory
     string(
       abi.encodePacked("(", int32ToString(coord.x), ", ", int32ToString(coord.y), ", ", int32ToString(coord.z), ")")
     );
+}
+
+function coordToShardCoord(VoxelCoord memory coord) pure returns (VoxelCoord memory) {
+  return
+    VoxelCoord({ x: floorDiv(coord.x, SHARD_DIM), y: floorDiv(coord.y, SHARD_DIM), z: floorDiv(coord.z, SHARD_DIM) });
+}
+
+function shardCoordToCoord(VoxelCoord memory coord) pure returns (VoxelCoord memory) {
+  return VoxelCoord({ x: coord.x * SHARD_DIM, y: coord.y * SHARD_DIM, z: coord.z * SHARD_DIM });
 }
 
 function getMooreNeighbours(VoxelCoord memory centerCoord, uint8 neighbourRadius) pure returns (VoxelCoord[] memory) {

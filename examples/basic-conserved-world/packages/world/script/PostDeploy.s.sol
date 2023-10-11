@@ -27,7 +27,7 @@ contract PostDeploy is Script {
 
     world.registerWorld();
     world.initWorldVoxelTypes();
-    world.initWorldSpawn();
+    world.initSpawnTerrain();
 
     vm.stopBroadcast();
   }

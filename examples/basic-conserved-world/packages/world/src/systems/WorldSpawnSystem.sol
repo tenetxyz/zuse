@@ -18,6 +18,7 @@ import { VoxelTypeRegistry, VoxelTypeRegistryData } from "@tenet-registry/src/co
 int32 constant NUM_LAYERS_SPAWN_DIRT = 8;
 int32 constant NUM_LAYERS_SPAWN_BEDROCK = 1;
 int32 constant NUM_LAYERS_SPAWN_GRASS = 1;
+int32 constant NUM_LAYERS_SPAWN_AIR = 60;
 
 uint256 constant AIR_BUCKET_INDEX = 0;
 uint256 constant DIRT_AND_GRASS_BUCKET_INDEX = 1;
@@ -33,21 +34,15 @@ contract WorldSpawnSystem is System {
       minMass: 0,
       maxMass: 0,
       energy: 0,
-      count: uint(
-        int(
-          (SHARD_DIM - (NUM_LAYERS_SPAWN_GRASS + NUM_LAYERS_SPAWN_DIRT + NUM_LAYERS_SPAWN_BEDROCK)) *
-            SHARD_DIM *
-            SHARD_DIM
-        )
-      ),
+      count: uint(int(NUM_LAYERS_SPAWN_AIR * SHARD_DIM * SHARD_DIM)),
       actualCount: 0
     });
     spawnBuckets[DIRT_AND_GRASS_BUCKET_INDEX] = BucketData({
       id: 1,
-      minMass: 1,
+      minMass: 0,
       maxMass: 50,
       energy: 50,
-      count: uint(int((NUM_LAYERS_SPAWN_GRASS + NUM_LAYERS_SPAWN_DIRT) * SHARD_DIM * SHARD_DIM)),
+      count: uint(int((SHARD_DIM - (NUM_LAYERS_SPAWN_AIR + NUM_LAYERS_SPAWN_BEDROCK)) * SHARD_DIM * SHARD_DIM)),
       actualCount: 0
     });
     spawnBuckets[BEDROCK_BUCKET_INDEX] = BucketData({
@@ -80,9 +75,12 @@ contract WorldSpawnSystem is System {
   function getSpawnBucketIndex(VoxelCoord memory coord) public view returns (uint256) {
     VoxelCoord memory shardCoord = coordToShardCoord(coord);
     // check if coord.y is at bottom of shard
-    if (coord.y == shardCoord.y) {
+    if (coord.y == (shardCoord.y * SHARD_DIM)) {
       return BEDROCK_BUCKET_INDEX;
-    } else if (coord.y > shardCoord.y && coord.y <= shardCoord.y + (NUM_LAYERS_SPAWN_GRASS + NUM_LAYERS_SPAWN_DIRT)) {
+    } else if (
+      coord.y > (shardCoord.y * SHARD_DIM) &&
+      coord.y <= (shardCoord.y * SHARD_DIM) + (SHARD_DIM - (NUM_LAYERS_SPAWN_AIR + NUM_LAYERS_SPAWN_BEDROCK))
+    ) {
       return DIRT_AND_GRASS_BUCKET_INDEX;
     } else {
       return AIR_BUCKET_INDEX;
@@ -91,14 +89,16 @@ contract WorldSpawnSystem is System {
 
   function getSpawnVoxelType(BucketData memory bucketData, VoxelCoord memory coord) public view returns (bytes32) {
     VoxelCoord memory shardCoord = coordToShardCoord(coord);
-    if (bucketData.id == 1) {
-      if (coord.y == shardCoord.y + (NUM_LAYERS_SPAWN_GRASS + NUM_LAYERS_SPAWN_DIRT)) {
+    if (bucketData.id == DIRT_AND_GRASS_BUCKET_INDEX) {
+      int32 topLayer = (shardCoord.y * SHARD_DIM) + (NUM_LAYERS_SPAWN_GRASS + NUM_LAYERS_SPAWN_DIRT);
+      if (coord.y == topLayer) {
         return GrassVoxelID;
-      } else {
+      } else if (coord.y < topLayer) {
         return DirtVoxelID;
       }
-    } else if (bucketData.id == 2) {
+    } else if (bucketData.id == BEDROCK_BUCKET_INDEX) {
       return BedrockVoxelID;
     }
+    return AirVoxelID;
   }
 }

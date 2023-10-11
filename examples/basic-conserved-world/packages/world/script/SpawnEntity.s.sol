@@ -20,7 +20,6 @@ contract SpawnEntity is Script {
   function giveComponents(address worldAddress, bytes32 entity) private {
     Health.set(IStore(SIMULATOR_ADDRESS), worldAddress, 1, entity, 90);
     Energy.set(IStore(SIMULATOR_ADDRESS), worldAddress, 1, entity, 9000);
-    Stamina.set(IStore(SIMULATOR_ADDRESS), worldAddress, 1, entity, 9000);
   }
 
   function run(address worldAddress) external {
@@ -39,13 +38,14 @@ contract SpawnEntity is Script {
     uint256 initMass = VoxelTypeRegistry.getMass(IStore(REGISTRY_ADDRESS), voxelTypeId);
     uint256 initEnergy = 100;
     VoxelCoord memory initVelocity = VoxelCoord({ x: 0, y: 0, z: 0 });
-    // world.spawnBody(voxelTypeId, coord, bytes4(0), initMass, initEnergy, initVelocity);
-    // world.spawnBody(GrassPokemonVoxelID, VoxelCoord(13, 2, 13), bytes4(0), initMass, initEnergy, initVelocity);
+    uint256 initStamina = 9000;
+    // world.spawnBody(voxelTypeId, coord, bytes4(0), initMass, initEnergy, initVelocity, initStamina);
+    // world.spawnBody(GrassPokemonVoxelID, VoxelCoord(13, 2, 13), bytes4(0), initMass, initEnergy, initVelocity, initStamina);
     giveComponents(worldAddress, bytes32(uint256(0xc)));
     giveComponents(worldAddress, bytes32(uint256(0x2)));
 
     // TODO: remove, were used for testing collision
-    // world.spawnBody(GrassVoxelID, VoxelCoord(10, 2, 13), bytes4(0));
+    // world.spawnBody(GrassVoxelID, VoxelCoord(10, 2, 13), bytes4(0), 100);
     // world.moveWithAgent(GrassVoxelID, VoxelCoord(10, 2, 15), VoxelCoord(10, 2, 16), grassEntity);
 
     vm.stopBroadcast();

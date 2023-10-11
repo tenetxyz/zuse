@@ -17,22 +17,22 @@ import { VoxelTypeRegistry, VoxelTypeRegistryData } from "@tenet-registry/src/co
 import { Shard, ShardData, ShardTableId } from "@tenet-world/src/codegen/tables/Shard.sol";
 
 contract TerrainSystem is System {
-  function getTerrainVoxel(VoxelCoord memory coord) public view returns (bytes32) {
-    (ShardData memory shardData, ) = getTerrainProperties(coord);
-    return getTerrainVoxelFromShard(shardData, coord);
+  function getTerrainVoxel(VoxelCoord memory coord) public returns (bytes32) {
+    (ShardData memory shardData, BucketData memory bucketData) = getCachedBucketOrSet(coord);
+    return getTerrainVoxelFromShard(shardData, bucketData, coord);
   }
 
-  function getTerrainMass(uint32 scale, VoxelCoord memory coord) public view returns (uint256) {
-    (ShardData memory shardData, ) = getTerrainProperties(coord);
-    bytes32 voxelTypeId = getTerrainVoxelFromShard(shardData, coord);
+  function getTerrainMass(uint32 scale, VoxelCoord memory coord) public returns (uint256) {
+    (ShardData memory shardData, BucketData memory bucketData) = getCachedBucketOrSet(coord);
+    bytes32 voxelTypeId = getTerrainVoxelFromShard(shardData, bucketData, coord);
 
     uint256 voxelMass = VoxelTypeRegistry.getMass(IStore(REGISTRY_ADDRESS), voxelTypeId);
     return voxelMass;
   }
 
-  function getTerrainEnergy(uint32 scale, VoxelCoord memory coord) public view returns (uint256) {
+  function getTerrainEnergy(uint32 scale, VoxelCoord memory coord) public returns (uint256) {
     // Bucket solution
-    (, BucketData memory bucketData) = getTerrainProperties(coord);
+    (, BucketData memory bucketData) = getCachedBucketOrSet(coord);
     return bucketData.energy;
   }
 
@@ -40,29 +40,52 @@ contract TerrainSystem is System {
     return VoxelCoord({ x: 0, y: 0, z: 0 });
   }
 
-  function getTerrainVoxelFromShard(ShardData memory shardData, VoxelCoord memory coord) public view returns (bytes32) {
+  function getTerrainVoxelFromShard(
+    ShardData memory shardData,
+    BucketData memory bucketData,
+    VoxelCoord memory coord
+  ) public view returns (bytes32) {
     bytes memory returnData = safeStaticCall(
       shardData.contractAddress,
-      abi.encodeWithSelector(shardData.terrainSelector, coord),
+      abi.encodeWithSelector(shardData.terrainSelector, bucketData, coord),
       "shard terrainSelector"
     );
     return abi.decode(returnData, (bytes32));
   }
 
-  function getTerrainProperties(VoxelCoord memory coord) public view returns (ShardData memory, BucketData memory) {
+  function getCachedBucketOrSet(VoxelCoord memory coord) public returns (ShardData memory, BucketData memory) {
     VoxelCoord memory shardCoord = coordToShardCoord(coord);
     require(hasKey(ShardTableId, Shard.encodeKeyTuple(shardCoord.x, shardCoord.y, shardCoord.z)), "Shard not claimed");
     ShardData memory shardData = Shard.get(shardCoord.x, shardCoord.y, shardCoord.z);
-    require(shardData.verified, "Shard not verified");
-    uint256 bucketIndex = TerrainProperties.get(coord.x, coord.y, coord.z);
     BucketData[] memory buckets = abi.decode(shardData.buckets, (BucketData[]));
+    bool cachedBucketExists = hasKey(
+      TerrainPropertiesTableId,
+      TerrainProperties.encodeKeyTuple(coord.x, coord.y, coord.z)
+    );
+    if (cachedBucketExists) {
+      uint256 cachedIndex = uint(TerrainProperties.get(coord.x, coord.y, coord.z));
+      return (shardData, buckets[cachedIndex]);
+    }
+    uint256 bucketIndex = safeStaticCall(
+      shardData.contractAddress,
+      abi.encodeWithSelector(shardData.bucketSelector, coord),
+      "shard bucketSelector"
+    );
+    // Check bucket count
+    BucketData memory bucketData = buckets[bucketIndex];
+    require(bucketData.actualCount < bucketData.count, "Bucket count exceeded");
+    TerrainProperties.set(coord.x, coord.y, coord.z, bucketIndex);
+    // update bucket data actual count
+    bucketData.actualCount += 1;
+    buckets[bucketIndex] = bucketData;
+    Shard.setBuckets(shardCoord.x, shardCoord.y, shardCoord.z, abi.encode(buckets));
     return (shardData, buckets[bucketIndex]);
   }
 
   // Called by CA's on terrain gen
   function onTerrainGen(bytes32 voxelTypeId, VoxelCoord memory coord) public {
     // Bucket solution
-    (, BucketData memory bucketData) = getTerrainProperties(coord);
+    (, BucketData memory bucketData) = getCachedBucketOrSet(coord);
     uint256 voxelMass = VoxelTypeRegistry.getMass(IStore(REGISTRY_ADDRESS), voxelTypeId);
     require(
       voxelMass >= bucketData.minMass && voxelMass <= bucketData.maxMass,

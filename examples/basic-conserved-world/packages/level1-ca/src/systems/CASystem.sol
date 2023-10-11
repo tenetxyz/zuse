@@ -36,9 +36,9 @@ contract CASystem is CA {
     );
   }
 
-  function getTerrainVoxelId(VoxelCoord memory coord) public view override returns (bytes32) {
+  function getTerrainVoxelId(VoxelCoord memory coord) public override returns (bytes32) {
     address callerAddress = _msgSender();
-    bytes memory returnData = safeStaticCall(
+    bytes memory returnData = safeCall(
       callerAddress,
       abi.encodeWithSignature("getTerrainVoxel((int32,int32,int32))", coord),
       "terrainSelector"

@@ -224,4 +224,5 @@ struct BucketData {
   uint256 maxMass;
   uint256 energy;
   uint256 count;
+  uint256 actualCount;
 }

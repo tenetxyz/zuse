@@ -19,12 +19,16 @@ int32 constant NUM_LAYERS_SPAWN_DIRT = 8;
 int32 constant NUM_LAYERS_SPAWN_BEDROCK = 1;
 int32 constant NUM_LAYERS_SPAWN_GRASS = 1;
 
+uint256 constant AIR_BUCKET_INDEX = 0;
+uint256 constant DIRT_AND_GRASS_BUCKET_INDEX = 1;
+uint256 constant BEDROCK_BUCKET_INDEX = 2;
+
 contract WorldSpawnSystem is System {
   function initWorldSpawn() public {
     VoxelCoord[1] memory spawnCoords = [VoxelCoord({ x: 0, y: 0, z: 0 })];
 
     BucketData[] memory spawnBuckets = new BucketData[](3);
-    spawnBuckets[0] = BucketData({
+    spawnBuckets[AIR_BUCKET_INDEX] = BucketData({
       id: 0,
       minMass: 0,
       maxMass: 0,
@@ -35,34 +39,60 @@ contract WorldSpawnSystem is System {
             SHARD_DIM *
             SHARD_DIM
         )
-      )
+      ),
+      actualCount: 0
     });
-    spawnBuckets[1] = BucketData({
+    spawnBuckets[DIRT_AND_GRASS_BUCKET_INDEX] = BucketData({
       id: 1,
       minMass: 1,
       maxMass: 50,
       energy: 50,
-      count: uint(int((NUM_LAYERS_SPAWN_GRASS + NUM_LAYERS_SPAWN_DIRT) * SHARD_DIM * SHARD_DIM))
+      count: uint(int((NUM_LAYERS_SPAWN_GRASS + NUM_LAYERS_SPAWN_DIRT) * SHARD_DIM * SHARD_DIM)),
+      actualCount: 0
     });
-    spawnBuckets[2] = BucketData({
+    spawnBuckets[BEDROCK_BUCKET_INDEX] = BucketData({
       id: 2,
       minMass: 100,
       maxMass: 300,
       energy: 100,
-      count: uint(int(NUM_LAYERS_SPAWN_BEDROCK * SHARD_DIM * SHARD_DIM))
+      count: uint(int(NUM_LAYERS_SPAWN_BEDROCK * SHARD_DIM * SHARD_DIM)),
+      actualCount: 0
     });
 
     for (uint8 i = 0; i < spawnCoords.length; i++) {
-      IWorld(_world()).claimShard(spawnCoords[i], _world(), IWorld(_world()).getSpawnVoxelType.selector, spawnBuckets);
+      VoxelCoord memory faucetAgentCoord = VoxelCoord({
+        x: ((spawnCoords[i].x + 1) * SHARD_DIM) / 2,
+        y: NUM_LAYERS_SPAWN_GRASS + NUM_LAYERS_SPAWN_DIRT + NUM_LAYERS_SPAWN_BEDROCK,
+        z: ((spawnCoords[i].z + 1) * SHARD_DIM) / 2
+      });
+
+      IWorld(_world()).claimShard(
+        spawnCoords[i],
+        _world(),
+        IWorld(_world()).getSpawnVoxelType.selector,
+        IWorld(_world()).getSpawnBucketIndex.selector,
+        spawnBuckets,
+        faucetAgentCoord
+      );
     }
   }
 
-  function getSpawnVoxelType(VoxelCoord memory coord) public view returns (bytes32) {
-    (, BucketData memory bucketData) = IWorld(_world()).getTerrainProperties(coord);
+  function getSpawnBucketIndex(VoxelCoord memory coord) public view returns (uint256) {
+    VoxelCoord memory shardCoord = coordToShardCoord(coord);
+    // check if coord.y is at bottom of shard
+    if (coord.y == shardCoord.y) {
+      return BEDROCK_BUCKET_INDEX;
+    } else if (coord.y > shardCoord.y && coord.y <= shardCoord.y + (NUM_LAYERS_SPAWN_GRASS + NUM_LAYERS_SPAWN_DIRT)) {
+      return DIRT_AND_GRASS_BUCKET_INDEX;
+    } else {
+      return AIR_BUCKET_INDEX;
+    }
+  }
+
+  function getSpawnVoxelType(BucketData memory bucketData, VoxelCoord memory coord) public view returns (bytes32) {
+    VoxelCoord memory shardCoord = coordToShardCoord(coord);
     if (bucketData.id == 1) {
-      VoxelCoord memory shardCoord = coordToShardCoord(coord);
-      // check if the coord y is at the top of the shard
-      if (coord.y == (shardCoord.y + 1) * SHARD_DIM - 1) {
+      if (coord.y == shardCoord.y + (NUM_LAYERS_SPAWN_GRASS + NUM_LAYERS_SPAWN_DIRT)) {
         return GrassVoxelID;
       } else {
         return DirtVoxelID;
@@ -70,6 +100,5 @@ contract WorldSpawnSystem is System {
     } else if (bucketData.id == 2) {
       return BedrockVoxelID;
     }
-    return AirVoxelID;
   }
 }

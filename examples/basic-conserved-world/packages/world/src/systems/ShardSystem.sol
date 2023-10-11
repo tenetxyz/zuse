@@ -25,7 +25,9 @@ contract ShardSystem is System {
     VoxelCoord memory coordInShard,
     address contractAddress,
     bytes4 terrainSelector,
-    BucketData[] memory buckets
+    bytes4 bucketSelector,
+    BucketData[] memory buckets,
+    VoxelCoord memory faucetAgentCoord
   ) public {
     VoxelCoord memory shardCoord = coordToShardCoord(coordInShard);
     require(
@@ -41,51 +43,28 @@ contract ShardSystem is System {
         claimer: tx.origin,
         contractAddress: contractAddress,
         terrainSelector: terrainSelector,
-        verified: false,
+        bucketSelector: bucketSelector,
         buckets: abi.encode(buckets)
       })
     );
   }
 
-  function setTerrainProperties(VoxelCoord[] memory coords, uint8 bucketIndex) public {
-    require(coords.length > 0, "Must have at least one coord");
-    address callerAddress = tx.origin;
-    VoxelCoord memory shardCoord = coordToShardCoord(coords[0]);
-    require(hasKey(ShardTableId, Shard.encodeKeyTuple(shardCoord.x, shardCoord.y, shardCoord.z)), "Shard not claimed");
-    ShardData memory shardData = Shard.get(shardCoord.x, shardCoord.y, shardCoord.z);
-    require(shardData.claimer == callerAddress, "Only shard claimer can set terrain properties");
-    require(!shardData.verified, "Shard already verified, cannot set terrain properties now");
-    BucketData[] memory buckets = abi.decode(shardData.buckets, (BucketData[]));
-    require(bucketIndex < buckets.length, "Bucket index out of range");
-    for (uint256 i = 0; i < coords.length; i++) {
-      require(voxelCoordsAreEqual(coordToShardCoord(coords[i]), shardCoord), "All coords must be in the same shard");
-      TerrainProperties.set(coords[i].x, coords[i].y, coords[i].z, bucketIndex);
+  function verifyBucketCounts(BucketData[] memory buckets) internal pure {
+    uint256 totalMinMass = 0;
+    uint256 totalMaxMass = 0;
+    uint256 totalEnergy = 0;
+    for (uint256 i = 0; i < buckets.length; i++) {
+      BucketData memory bucket = buckets[i];
+      totalMinMass += bucket.minMass * bucket.count;
+      totalMaxMass += bucket.maxMass * bucket.count;
+      totalEnergy += bucket.energy * bucket.count;
+      require(bucket.actualCount == 0, "Initial count must be 0");
     }
+    require(totalMaxMass <= MAX_TOTAL_MASS_IN_SHARD, "Total max mass exceeds shard mass limit");
+    require(totalEnergy <= MAX_TOTAL_ENERGY_IN_SHARD, "Total energy exceeds shard energy limit");
   }
 
-  function verifyShard(VoxelCoord memory shardCoord, VoxelCoord memory faucetAgentCoord) public {
-    address callerAddress = tx.origin;
-    require(hasKey(ShardTableId, Shard.encodeKeyTuple(shardCoord.x, shardCoord.y, shardCoord.z)), "Shard not claimed");
-    ShardData memory shardData = Shard.get(shardCoord.x, shardCoord.y, shardCoord.z);
-    require(shardData.claimer == callerAddress, "Only shard claimer can set terrain properties");
-    require(!shardData.verified, "Shard already verified, don't need to verify again");
-    // Go through all the coords in the shard and make sure the counts match
-    BucketData[] memory buckets = abi.decode(shardData.buckets, (BucketData[]));
-    uint256[] memory bucketCounts = new uint256[](buckets.length);
-    for (int32 x = shardCoord.x * SHARD_DIM; x < (shardCoord.x + 1) * SHARD_DIM; x++) {
-      for (int32 y = shardCoord.x * SHARD_DIM; y < (shardCoord.x + 1) * SHARD_DIM; y++) {
-        for (int32 z = shardCoord.x * SHARD_DIM; z < (shardCoord.x + 1) * SHARD_DIM; z++) {
-          uint256 bucketIndex = uint(TerrainProperties.get(x, y, z));
-          bucketCounts[bucketIndex] += 1;
-        }
-      }
-    }
-
-    for (uint256 i = 0; i < buckets.length; i++) {
-      require(bucketCounts[i] == buckets[i].count, "Terrain properties do not match shard bucket counts");
-    }
-    Shard.setVerified(shardCoord.x, shardCoord.y, shardCoord.z, true);
-
+  function setFaucetAgent(VoxelCoord memory faucetAgentCoord) internal {
     // Build a facuet entity at the faucetAgentCoord
     bytes32 voxelTypeId = FighterVoxelID;
     uint256 initMass = 1000000000; // Make faucet really high mass so its hard to mine
@@ -110,17 +89,34 @@ contract ShardSystem is System {
     );
   }
 
-  function verifyBucketCounts(BucketData[] memory buckets) internal pure {
-    uint256 totalMinMass = 0;
-    uint256 totalMaxMass = 0;
-    uint256 totalEnergy = 0;
-    for (uint256 i = 0; i < buckets.length; i++) {
-      BucketData memory bucket = buckets[i];
-      totalMinMass += bucket.minMass * bucket.count;
-      totalMaxMass += bucket.maxMass * bucket.count;
-      totalEnergy += bucket.energy * bucket.count;
+  function setTerrainProperties(VoxelCoord[] memory coords, uint8 bucketIndex) public {
+    require(coords.length > 0, "Must have at least one coord");
+    address callerAddress = tx.origin;
+    VoxelCoord memory shardCoord = coordToShardCoord(coords[0]);
+    require(hasKey(ShardTableId, Shard.encodeKeyTuple(shardCoord.x, shardCoord.y, shardCoord.z)), "Shard not claimed");
+    ShardData memory shardData = Shard.get(shardCoord.x, shardCoord.y, shardCoord.z);
+    require(shardData.claimer == callerAddress, "Only shard claimer can set terrain properties");
+    BucketData[] memory buckets = abi.decode(shardData.buckets, (BucketData[]));
+    require(bucketIndex < buckets.length, "Bucket index out of range");
+    uint256[] memory newBucketCounts = new uint256[](buckets.length);
+    for (uint256 i = 0; i < coords.length; i++) {
+      require(voxelCoordsAreEqual(coordToShardCoord(coords[i]), shardCoord), "All coords must be in the same shard");
+      require(
+        !hasKey(TerrainPropertiesTableId, TerrainProperties.encodeKeyTuple(coords[i].x, coords[i].y, coords[i].z)),
+        "Terrain properties already set"
+      );
+      TerrainProperties.set(coords[i].x, coords[i].y, coords[i].z, bucketIndex);
+      newBucketCounts[bucketIndex] += 1;
     }
-    require(totalMaxMass <= MAX_TOTAL_MASS_IN_SHARD, "Total max mass exceeds shard mass limit");
-    require(totalEnergy <= MAX_TOTAL_ENERGY_IN_SHARD, "Total energy exceeds shard energy limit");
+
+    // Check bucket count
+    for (uint i = 0; i < newBucketCounts.length; i++) {
+      BucketData memory bucketData = buckets[i];
+      require(bucketData.actualCount + newBucketCounts[i] <= bucketData.count, "Bucket count exceeded");
+      bucketData.actualCount += newBucketCounts[i];
+      buckets[i] = bucketData;
+    }
+
+    Shard.setBuckets(shardCoord.x, shardCoord.y, shardCoord.z, abi.encode(buckets));
   }
 }

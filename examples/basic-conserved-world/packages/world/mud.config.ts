@@ -33,7 +33,7 @@ export default tenetMudConfig({
         claimer: "address",
         contractAddress: "address",
         terrainSelector: "bytes4",
-        verified: "bool",
+        bucketSelector: "bytes4",
         buckets: "bytes", // BucketData[]
       },
     },

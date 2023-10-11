@@ -9,7 +9,6 @@ import { IWorld } from "../src/codegen/world/IWorld.sol";
 import { IBaseWorld } from "@latticexyz/world/src/interfaces/IBaseWorld.sol";
 import { VoxelCoord, VoxelEntity } from "@tenet-utils/src/Types.sol";
 import { REGISTRY_ADDRESS, BASE_CA_ADDRESS, SIMULATOR_ADDRESS } from "@tenet-world/src/Constants.sol";
-import { TerrainProperties, TerrainPropertiesTableId } from "@tenet-world/src/codegen/Tables.sol";
 import { FighterVoxelID, GrassVoxelID, AirVoxelID, DirtVoxelID, BedrockVoxelID } from "@tenet-level1-ca/src/Constants.sol";
 import { GrassPokemonVoxelID } from "@tenet-pokemon-extension/src/Constants.sol";
 import { Health } from "@tenet-simulator/src/codegen/tables/Health.sol";

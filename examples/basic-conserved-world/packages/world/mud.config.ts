@@ -74,12 +74,12 @@ export default tenetMudConfig({
     {
       name: "KeysInTableModule",
       root: true,
-      args: [resolveTableId("TerrainProperties")],
+      args: [resolveTableId("Shard")],
     },
     {
       name: "KeysInTableModule",
       root: true,
-      args: [resolveTableId("TerrainSelectors")],
+      args: [resolveTableId("TerrainProperties")],
     },
   ],
 });

@@ -17,8 +17,8 @@ import { coordToShardCoord } from "@tenet-world/src/Utils.sol";
 import { console } from "forge-std/console.sol";
 import { VoxelTypeRegistry, VoxelTypeRegistryData } from "@tenet-registry/src/codegen/tables/VoxelTypeRegistry.sol";
 
-uint256 constant MAX_TOTAL_ENERGY_IN_SHARD = 1000000;
-uint256 constant MAX_TOTAL_MASS_IN_SHARD = 1000000;
+uint256 constant MAX_TOTAL_ENERGY_IN_SHARD = 10000000;
+uint256 constant MAX_TOTAL_MASS_IN_SHARD = 10000000;
 
 contract ShardSystem is System {
   function claimShard(

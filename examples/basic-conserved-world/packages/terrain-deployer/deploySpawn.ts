@@ -1,7 +1,7 @@
 const fs = require("fs");
 const { execSync } = require("child_process");
 
-const worlds = JSON.parse(fs.readFileSync("worlds.json", "utf8"));
+const worlds = JSON.parse(fs.readFileSync("../world/worlds.json", "utf8"));
 const worldAddress = worlds["31337"].address;
 
 function runForgeScript(filePath) {
@@ -25,6 +25,8 @@ fs.readdir("script/generated/", (err, files) => {
   }
 
   files.forEach((file) => {
-    runForgeScript(`script/generated/${file}`);
+    if (file.startsWith("Spawn")) {
+      runForgeScript(`script/generated/${file}`);
+    }
   });
 });

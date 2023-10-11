@@ -44,7 +44,7 @@ export default tenetMudConfig({
         z: "int32",
       },
       schema: {
-        bucketIndex: "uint8",
+        bucketIndex: "uint256",
       },
     },
   },

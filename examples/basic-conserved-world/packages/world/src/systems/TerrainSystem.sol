@@ -63,14 +63,15 @@ contract TerrainSystem is System {
       TerrainProperties.encodeKeyTuple(coord.x, coord.y, coord.z)
     );
     if (cachedBucketExists) {
-      uint256 cachedIndex = uint(TerrainProperties.get(coord.x, coord.y, coord.z));
+      uint256 cachedIndex = TerrainProperties.get(coord.x, coord.y, coord.z);
       return (shardData, buckets[cachedIndex]);
     }
-    uint256 bucketIndex = safeStaticCall(
+    bytes memory returnData = safeStaticCall(
       shardData.contractAddress,
       abi.encodeWithSelector(shardData.bucketSelector, coord),
       "shard bucketSelector"
     );
+    uint256 bucketIndex = abi.decode(returnData, (uint256));
     // Check bucket count
     BucketData memory bucketData = buckets[bucketIndex];
     require(bucketData.actualCount < bucketData.count, "Bucket count exceeded");

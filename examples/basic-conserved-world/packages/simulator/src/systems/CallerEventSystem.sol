@@ -65,7 +65,7 @@ contract CallerEventSystem is System {
       }
     }
 
-    if (massDelta > 0) {
+    if (massDelta != 0) {
       IWorld(_world()).updateMass(entity, coord, massDelta, entity, coord, massDelta);
     }
 

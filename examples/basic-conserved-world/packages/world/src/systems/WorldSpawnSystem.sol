@@ -29,19 +29,46 @@ contract WorldSpawnSystem is System {
       VoxelCoord({ x: -1, y: -1, z: -1 })
     ];
 
+    BucketData[] memory spawnBuckets = new BucketData[](3);
+    spawnBuckets[0] = BucketData({ id: 0, minMass: 0, maxMass: 0, energy: 0, count: 0 });
+    spawnBuckets[1] = BucketData({
+      id: 1,
+      minMass: 1,
+      maxMass: 50,
+      energy: 50,
+      count: uint(int((SHARD_DIM - 1) * SHARD_DIM * SHARD_DIM))
+    });
+    spawnBuckets[3] = BucketData({
+      id: 2,
+      minMass: 100,
+      maxMass: 300,
+      energy: 1000,
+      count: uint(int(1 * SHARD_DIM * SHARD_DIM))
+    });
+
     for (uint8 i = 0; i < 8; i++) {
-      bytes4 selector = world.getTerrainVoxel.selector;
-      world.setTerrainSelector(specifiedCoords[i], worldAddress, selector);
+      IWorld(_world()).claimShard(
+        specifiedCoords[i],
+        _world(),
+        IWorld(_world()).getSpawnVoxelType.selector,
+        spawnBuckets
+      );
     }
+
+    // setTerrainProperties(VoxelCoord[] memory coords, uint8 bucketIndex)
   }
 
   function getSpawnVoxelType(VoxelCoord memory coord) public view returns (bytes32) {
     (, BucketData memory bucketData) = IWorld(_world()).getTerrainProperties(coord);
     if (bucketData.id == 1) {
-      return DirtVoxelID;
+      VoxelCoord memory shardCoord = coordToShardCoord(coord);
+      // check if the coord y is at the top of the shard
+      if (shardCoord.y == SHARD_DIM - 1) {
+        return GrassVoxelID;
+      } else {
+        return DirtVoxelID;
+      }
     } else if (bucketData.id == 2) {
-      return GrassVoxelID;
-    } else if (bucketData.id == 3) {
       return BedrockVoxelID;
     }
     return AirVoxelID;

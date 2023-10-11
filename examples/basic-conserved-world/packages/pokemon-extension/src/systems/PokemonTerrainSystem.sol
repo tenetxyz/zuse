@@ -119,7 +119,7 @@ contract PokemonTerrainSystem is System {
     pokemonBuckets[AIR_BUCKET_INDEX].count = 928814;
     pokemonBuckets[SOIL_BUCKET_INDEX].count = 60229;
     pokemonBuckets[GRASS_BUCKET_INDEX].count = 10957;
-    VoxelCoord memory fourthFaucetAgentCoord = VoxelCoord({ x: 240, y: 5, z: 59 });
+    VoxelCoord memory fourthFaucetAgentCoord = VoxelCoord({ x: 240, y: 5, z: -59 });
     safeCall(
       worldAddress,
       abi.encodeWithSignature(

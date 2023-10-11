@@ -14,6 +14,7 @@ import { safeCall, safeStaticCall } from "@tenet-utils/src/CallUtils.sol";
 import { REGISTRY_ADDRESS, BASE_CA_ADDRESS } from "@tenet-world/src/Constants.sol";
 import { FighterVoxelID, STARTING_STAMINA_FROM_FAUCET } from "@tenet-level1-ca/src/Constants.sol";
 import { coordToShardCoord } from "@tenet-utils/src/VoxelCoordUtils.sol";
+import { SHARD_DIM } from "@tenet-utils/src/Constants.sol";
 import { console } from "forge-std/console.sol";
 import { VoxelTypeRegistry, VoxelTypeRegistryData } from "@tenet-registry/src/codegen/tables/VoxelTypeRegistry.sol";
 
@@ -55,15 +56,18 @@ contract ShardSystem is System {
     uint256 totalMinMass = 0;
     uint256 totalMaxMass = 0;
     uint256 totalEnergy = 0;
+    uint256 totalBucketCount = 0;
     for (uint256 i = 0; i < buckets.length; i++) {
       BucketData memory bucket = buckets[i];
       totalMinMass += bucket.minMass * bucket.count;
       totalMaxMass += bucket.maxMass * bucket.count;
       totalEnergy += bucket.energy * bucket.count;
+      totalBucketCount += bucket.count;
       require(bucket.actualCount == 0, "Initial count must be 0");
     }
     require(totalMaxMass <= MAX_TOTAL_MASS_IN_SHARD, "Total max mass exceeds shard mass limit");
     require(totalEnergy <= MAX_TOTAL_ENERGY_IN_SHARD, "Total energy exceeds shard energy limit");
+    require(totalBucketCount == uint(int(SHARD_DIM * SHARD_DIM * SHARD_DIM)), "Not enough buckets");
   }
 
   function setFaucetAgent(VoxelCoord memory faucetAgentCoord) internal {

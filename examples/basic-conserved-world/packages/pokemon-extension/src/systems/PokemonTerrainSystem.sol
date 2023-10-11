@@ -26,12 +26,11 @@ string constant CLAIM_SHARD_SIG = "claimShard((int32,int32,int32),address,bytes4
 contract PokemonTerrainSystem is System {
   function initPokemonTerrain(address worldAddress) public {
     VoxelCoord[4] memory spawnCoords = [
-      VoxelCoord({ x: 3, y: 0, z: 0 }),
-      VoxelCoord({ x: 2, y: 0, z: 0 }),
-      VoxelCoord({ x: 3, y: 0, z: -1 }),
-      VoxelCoord({ x: 2, y: 0, z: -1 })
+      VoxelCoord({ x: 300, y: 0, z: 0 }),
+      VoxelCoord({ x: 200, y: 0, z: 0 }),
+      VoxelCoord({ x: 300, y: 0, z: -100 }),
+      VoxelCoord({ x: 200, y: 0, z: -100 })
     ];
-    uint256[] memory bucketCounts = new uint256[](spawnCoords.length);
 
     BucketData[] memory pokemonBuckets = new BucketData[](3);
     pokemonBuckets[AIR_BUCKET_INDEX] = BucketData({

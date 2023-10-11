@@ -59,9 +59,9 @@ contract PokemonTerrainSystem is System {
     });
 
     // First shard
-    pokemonBuckets[AIR_BUCKET_INDEX].count = 933251;
-    pokemonBuckets[SOIL_BUCKET_INDEX].count = 59172;
-    pokemonBuckets[GRASS_BUCKET_INDEX].count = 7577;
+    pokemonBuckets[AIR_BUCKET_INDEX].count = 924569;
+    pokemonBuckets[SOIL_BUCKET_INDEX].count = 64305;
+    pokemonBuckets[GRASS_BUCKET_INDEX].count = 11126;
     VoxelCoord memory firstFaucetAgentCoord = VoxelCoord({ x: 354, y: 5, z: 64 });
     safeCall(
       worldAddress,
@@ -78,9 +78,9 @@ contract PokemonTerrainSystem is System {
     );
 
     // Second shard
-    pokemonBuckets[AIR_BUCKET_INDEX].count = 928814;
-    pokemonBuckets[SOIL_BUCKET_INDEX].count = 60229;
-    pokemonBuckets[GRASS_BUCKET_INDEX].count = 10957;
+    pokemonBuckets[AIR_BUCKET_INDEX].count = 910599;
+    pokemonBuckets[SOIL_BUCKET_INDEX].count = 66040;
+    pokemonBuckets[GRASS_BUCKET_INDEX].count = 23361;
     VoxelCoord memory secondFaucetAgentCoord = VoxelCoord({ x: 261, y: 10, z: 65 });
     safeCall(
       worldAddress,
@@ -97,9 +97,9 @@ contract PokemonTerrainSystem is System {
     );
 
     // Third shard
-    pokemonBuckets[AIR_BUCKET_INDEX].count = 933251;
-    pokemonBuckets[SOIL_BUCKET_INDEX].count = 59172;
-    pokemonBuckets[GRASS_BUCKET_INDEX].count = 7577;
+    pokemonBuckets[AIR_BUCKET_INDEX].count = 923230;
+    pokemonBuckets[SOIL_BUCKET_INDEX].count = 66370;
+    pokemonBuckets[GRASS_BUCKET_INDEX].count = 10400;
     VoxelCoord memory thirdFaucetAgentCoord = VoxelCoord({ x: 374, y: 10, z: -60 });
     safeCall(
       worldAddress,
@@ -116,9 +116,9 @@ contract PokemonTerrainSystem is System {
     );
 
     // Fourth shard
-    pokemonBuckets[AIR_BUCKET_INDEX].count = 928814;
-    pokemonBuckets[SOIL_BUCKET_INDEX].count = 60229;
-    pokemonBuckets[GRASS_BUCKET_INDEX].count = 10957;
+    pokemonBuckets[AIR_BUCKET_INDEX].count = 926879;
+    pokemonBuckets[SOIL_BUCKET_INDEX].count = 64243;
+    pokemonBuckets[GRASS_BUCKET_INDEX].count = 8878;
     VoxelCoord memory fourthFaucetAgentCoord = VoxelCoord({ x: 240, y: 5, z: -59 });
     safeCall(
       worldAddress,

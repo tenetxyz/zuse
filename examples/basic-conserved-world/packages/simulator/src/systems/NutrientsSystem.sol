@@ -195,9 +195,8 @@ contract NutrientsSystem is SimHandler {
           Phosphorous.get(callerAddress, receiverEntity.scale, receiverEntity.entityId) +
           Potassium.get(callerAddress, receiverEntity.scale, receiverEntity.entityId);
         require(receiverNPK >= senderNPK, "Receiver NPK must be greater than or equal to sender NPK");
+        receiverNutrients = (senderNutrients * receiverNPK) / (senderNPK + receiverNPK);
       }
-
-      receiverNutrients = (senderNutrients * receiverNPK) / (senderNPK + receiverNPK);
 
       if (receiverNutrients == 0) {
         return;

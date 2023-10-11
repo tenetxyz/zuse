@@ -11,7 +11,7 @@ import { VoxelTypeRegistry, VoxelTypeRegistryData } from "@tenet-registry/src/co
 import { int256ToUint256, addUint256AndInt256 } from "@tenet-utils/src/TypeUtils.sol";
 import { distanceBetween, voxelCoordsAreEqual, isZeroCoord } from "@tenet-utils/src/VoxelCoordUtils.sol";
 import { isEntityEqual } from "@tenet-utils/src/Utils.sol";
-import { getVelocity, getTerrainMass, getTerrainEnergy, getTerrainVelocity } from "@tenet-simulator/src/Utils.sol";
+import { getVelocity, getTerrainMass, getTerrainEnergy, getTerrainVelocity, createTerrainEntity } from "@tenet-simulator/src/Utils.sol";
 import { console } from "forge-std/console.sol";
 
 contract NitrogenSystem is SimHandler {
@@ -51,6 +51,7 @@ contract NitrogenSystem is SimHandler {
         int256ToUint256(receiverNitrogenDelta)
       );
     } else {
+      require(entityExists, "Nitrogen sender entity does not exist");
       require(receiverNitrogenDelta > 0, "Cannot decrease someone's nitrogen");
       require(senderNitrogenDelta < 0, "Cannot increase your own nitrogen");
       uint256 senderNitrogen = int256ToUint256(receiverNitrogenDelta);
@@ -71,26 +72,20 @@ contract NitrogenSystem is SimHandler {
         require(receiverEntityExists, "Receiver entity does not exist");
       }
 
-      require(
-        Nitrogen.get(callerAddress, senderEntity.scale, senderEntity.entityId) >= 
-        Nitrogen.get(callerAddress, receiverEntity.scale, receiverEntity.entityId),
-        "Nitrogen must flow from high to low concentration"
-      );
+      uint256 currentSenderNitrogen = Nitrogen.get(callerAddress, senderEntity.scale, senderEntity.entityId);
+      uint256 currentReceiverNitrogen = Nitrogen.get(callerAddress, receiverEntity.scale, receiverEntity.entityId);
+      require(currentSenderNitrogen >= senderNitrogen, "Sender does not have enough nitrogen");
+
+      require(currentSenderNitrogen >= currentReceiverNitrogen, "Nitrogen must flow from high to low concentration");
 
       Nitrogen.set(
         callerAddress,
         receiverEntity.scale,
         receiverEntity.entityId,
-        Nitrogen.get(callerAddress, receiverEntity.scale, receiverEntity.entityId) + receiverNitrogen
+        currentReceiverNitrogen + receiverNitrogen
       );
 
-      Nitrogen.set(
-        callerAddress,
-        senderEntity.scale,
-        senderEntity.entityId,
-        Nitrogen.get(callerAddress, senderEntity.scale, senderEntity.entityId) - senderNitrogen
-      );
-
+      Nitrogen.set(callerAddress, senderEntity.scale, senderEntity.entityId, currentSenderNitrogen - senderNitrogen);
     }
   }
 }

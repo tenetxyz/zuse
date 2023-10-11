@@ -11,7 +11,7 @@ import { VoxelTypeRegistry, VoxelTypeRegistryData } from "@tenet-registry/src/co
 import { distanceBetween, voxelCoordsAreEqual, isZeroCoord } from "@tenet-utils/src/VoxelCoordUtils.sol";
 import { int256ToUint256, addUint256AndInt256 } from "@tenet-utils/src/TypeUtils.sol";
 import { isEntityEqual } from "@tenet-utils/src/Utils.sol";
-import { getVelocity, getTerrainMass, getTerrainEnergy, getTerrainVelocity } from "@tenet-simulator/src/Utils.sol";
+import { getVelocity, getTerrainMass, getTerrainEnergy, getTerrainVelocity, createTerrainEntity } from "@tenet-simulator/src/Utils.sol";
 import { console } from "forge-std/console.sol";
 
 contract PotassiumSystem is SimHandler {
@@ -51,7 +51,7 @@ contract PotassiumSystem is SimHandler {
         int256ToUint256(receiverPotassiumDelta)
       );
     } else {
-
+      require(entityExists, "Potassium sender entity does not exist");
       require(receiverPotassiumDelta > 0, "Cannot decrease someone's Potassium");
       require(senderPotassiumDelta < 0, "Cannot increase your own Potassium");
       uint256 senderPotassium = int256ToUint256(receiverPotassiumDelta);
@@ -72,26 +72,20 @@ contract PotassiumSystem is SimHandler {
         require(receiverEntityExists, "Receiver entity does not exist");
       }
 
-      require(
-        Potassium.get(callerAddress, senderEntity.scale, senderEntity.entityId) >= 
-        Potassium.get(callerAddress, receiverEntity.scale, receiverEntity.entityId),
-        "Potassium must flow from high to low concentration"
-      );
+      uint256 currentSenderPotassium = Potassium.get(callerAddress, senderEntity.scale, senderEntity.entityId);
+      uint256 currentReceiverPotassium = Potassium.get(callerAddress, receiverEntity.scale, receiverEntity.entityId);
+      require(currentSenderPotassium >= senderPotassium, "Sender does not have enough nitrogen");
+
+      require(currentSenderPotassium >= currentReceiverPotassium, "Potassium must flow from high to low concentration");
 
       Potassium.set(
         callerAddress,
         receiverEntity.scale,
         receiverEntity.entityId,
-        Potassium.get(callerAddress, receiverEntity.scale, receiverEntity.entityId) + receiverPotassium
+        currentReceiverPotassium + receiverPotassium
       );
 
-      Potassium.set(
-        callerAddress,
-        senderEntity.scale,
-        senderEntity.entityId,
-        Potassium.get(callerAddress, senderEntity.scale, senderEntity.entityId) - senderPotassium
-      );
-
+      Potassium.set(callerAddress, senderEntity.scale, senderEntity.entityId, currentSenderPotassium - senderPotassium);
     }
   }
 }

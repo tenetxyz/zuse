@@ -11,7 +11,7 @@ import { VoxelTypeRegistry, VoxelTypeRegistryData } from "@tenet-registry/src/co
 import { distanceBetween, voxelCoordsAreEqual, isZeroCoord } from "@tenet-utils/src/VoxelCoordUtils.sol";
 import { int256ToUint256, addUint256AndInt256 } from "@tenet-utils/src/TypeUtils.sol";
 import { isEntityEqual } from "@tenet-utils/src/Utils.sol";
-import { getVelocity, getTerrainMass, getTerrainEnergy, getTerrainVelocity } from "@tenet-simulator/src/Utils.sol";
+import { getVelocity, getTerrainMass, getTerrainEnergy, getTerrainVelocity, createTerrainEntity } from "@tenet-simulator/src/Utils.sol";
 import { console } from "forge-std/console.sol";
 
 contract PhosphorousSystem is SimHandler {
@@ -51,7 +51,7 @@ contract PhosphorousSystem is SimHandler {
         int256ToUint256(receiverPhosphorousDelta)
       );
     } else {
-
+      require(entityExists, "Phosphorous sender entity does not exist");
       require(receiverPhosphorousDelta > 0, "Cannot decrease someone's Phosphorous");
       require(senderPhosphorousDelta < 0, "Cannot increase your own Phosphorous");
       uint256 senderPhosphorous = int256ToUint256(receiverPhosphorousDelta);
@@ -72,9 +72,16 @@ contract PhosphorousSystem is SimHandler {
         require(receiverEntityExists, "Receiver entity does not exist");
       }
 
+      uint256 currentSenderPhosphorous = Phosphorous.get(callerAddress, senderEntity.scale, senderEntity.entityId);
+      uint256 currentReceiverPhosphorous = Phosphorous.get(
+        callerAddress,
+        receiverEntity.scale,
+        receiverEntity.entityId
+      );
+      require(currentSenderPhosphorous >= senderPhosphorous, "Sender does not have enough nitrogen");
+
       require(
-        Phosphorous.get(callerAddress, senderEntity.scale, senderEntity.entityId) >= 
-        Phosphorous.get(callerAddress, receiverEntity.scale, receiverEntity.entityId),
+        currentSenderPhosphorous >= currentReceiverPhosphorous,
         "Phosphorous must flow from high to low concentration"
       );
 
@@ -82,16 +89,15 @@ contract PhosphorousSystem is SimHandler {
         callerAddress,
         receiverEntity.scale,
         receiverEntity.entityId,
-        Phosphorous.get(callerAddress, receiverEntity.scale, receiverEntity.entityId) + receiverPhosphorous
+        currentReceiverPhosphorous + receiverPhosphorous
       );
 
       Phosphorous.set(
         callerAddress,
         senderEntity.scale,
         senderEntity.entityId,
-        Phosphorous.get(callerAddress, senderEntity.scale, senderEntity.entityId) - senderPhosphorous
+        currentSenderPhosphorous - senderPhosphorous
       );
-      
     }
   }
 }

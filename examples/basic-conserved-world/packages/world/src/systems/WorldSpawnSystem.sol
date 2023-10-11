@@ -17,26 +17,28 @@ import { VoxelTypeRegistry, VoxelTypeRegistryData } from "@tenet-registry/src/co
 
 contract WorldSpawnSystem is System {
   function initWorldSpawn() public {
-    // Set the same terrain selector for 8 cubes around the origin
-    VoxelCoord[8] memory specifiedCoords = [
+    // Set the same terrain selector for 4 cubes around the origin
+    VoxelCoord[4] memory specifiedCoords = [
       VoxelCoord({ x: 0, y: 0, z: 0 }),
       VoxelCoord({ x: -1, y: 0, z: 0 }),
-      VoxelCoord({ x: 0, y: -1, z: 0 }),
-      VoxelCoord({ x: -1, y: -1, z: 0 }),
       VoxelCoord({ x: 0, y: 0, z: -1 }),
-      VoxelCoord({ x: -1, y: 0, z: -1 }),
-      VoxelCoord({ x: 0, y: -1, z: -1 }),
-      VoxelCoord({ x: -1, y: -1, z: -1 })
+      VoxelCoord({ x: -1, y: 0, z: -1 })
     ];
 
     BucketData[] memory spawnBuckets = new BucketData[](3);
-    spawnBuckets[0] = BucketData({ id: 0, minMass: 0, maxMass: 0, energy: 0, count: 0 });
+    spawnBuckets[0] = BucketData({
+      id: 0,
+      minMass: 0,
+      maxMass: 0,
+      energy: 0,
+      count: uint(int((SHARD_DIM - 11) * SHARD_DIM * SHARD_DIM))
+    });
     spawnBuckets[1] = BucketData({
       id: 1,
       minMass: 1,
       maxMass: 50,
       energy: 50,
-      count: uint(int((SHARD_DIM - 1) * SHARD_DIM * SHARD_DIM))
+      count: uint(int(10 * SHARD_DIM * SHARD_DIM))
     });
     spawnBuckets[3] = BucketData({
       id: 2,
@@ -46,7 +48,7 @@ contract WorldSpawnSystem is System {
       count: uint(int(1 * SHARD_DIM * SHARD_DIM))
     });
 
-    for (uint8 i = 0; i < 8; i++) {
+    for (uint8 i = 0; i < specifiedCoords.length; i++) {
       IWorld(_world()).claimShard(
         specifiedCoords[i],
         _world(),
@@ -55,7 +57,10 @@ contract WorldSpawnSystem is System {
       );
     }
 
-    // setTerrainProperties(VoxelCoord[] memory coords, uint8 bucketIndex)
+    for (uint8 i = 0; i < specifiedCoords.length; i++) {
+      VoxelCoord memory shardCoord = specifiedCoords[i];
+      // Make all the layers below y = 10
+    }
   }
 
   function getSpawnVoxelType(VoxelCoord memory coord) public view returns (bytes32) {
@@ -63,7 +68,7 @@ contract WorldSpawnSystem is System {
     if (bucketData.id == 1) {
       VoxelCoord memory shardCoord = coordToShardCoord(coord);
       // check if the coord y is at the top of the shard
-      if (shardCoord.y == SHARD_DIM - 1) {
+      if (coord.y == (shardCoord.y + 1) * SHARD_DIM - 1) {
         return GrassVoxelID;
       } else {
         return DirtVoxelID;

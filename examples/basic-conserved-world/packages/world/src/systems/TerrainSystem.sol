@@ -18,12 +18,12 @@ import { Shard, ShardData, ShardTableId } from "@tenet-world/src/codegen/tables/
 
 contract TerrainSystem is System {
   function getTerrainVoxel(VoxelCoord memory coord) public view returns (bytes32) {
-    (ShardData memory shardData, BucketData memory bucketData) = getTerrainProperties(coord);
+    (ShardData memory shardData, ) = getTerrainProperties(coord);
     return getTerrainVoxelFromShard(shardData, coord);
   }
 
   function getTerrainMass(uint32 scale, VoxelCoord memory coord) public view returns (uint256) {
-    (ShardData memory shardData, BucketData memory bucketData) = getTerrainProperties(coord);
+    (ShardData memory shardData, ) = getTerrainProperties(coord);
     bytes32 voxelTypeId = getTerrainVoxelFromShard(shardData, coord);
 
     uint256 voxelMass = VoxelTypeRegistry.getMass(IStore(REGISTRY_ADDRESS), voxelTypeId);
@@ -32,7 +32,7 @@ contract TerrainSystem is System {
 
   function getTerrainEnergy(uint32 scale, VoxelCoord memory coord) public view returns (uint256) {
     // Bucket solution
-    BucketData memory bucketData = getTerrainProperties(coord);
+    (, BucketData memory bucketData) = getTerrainProperties(coord);
     return bucketData.energy;
   }
 
@@ -55,7 +55,8 @@ contract TerrainSystem is System {
     ShardData memory shardData = Shard.get(shardCoord.x, shardCoord.y, shardCoord.z);
     require(shardData.verified, "Shard not verified");
     uint256 bucketIndex = TerrainProperties.get(coord.x, coord.y, coord.z);
-    return (shardData, shardData.buckets[bucketIndex]);
+    BucketData[] memory buckets = abi.decode(shardData.buckets, (BucketData[]));
+    return (shardData, buckets[bucketIndex]);
   }
 
   // Called by CA's on terrain gen

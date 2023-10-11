@@ -3,18 +3,19 @@ pragma solidity >=0.8.0;
 
 import { IStore } from "@latticexyz/store/src/IStore.sol";
 import { IWorld } from "@tenet-world/src/codegen/world/IWorld.sol";
-import { VoxelCoord, BucketData } from "@tenet-utils/src/Types.sol";
+import { VoxelCoord, BucketData, VoxelEntity } from "@tenet-utils/src/Types.sol";
+import { voxelCoordsAreEqual } from "@tenet-utils/src/VoxelCoordUtils.sol";
 import { System } from "@latticexyz/world/src/System.sol";
 import { hasKey } from "@latticexyz/world/src/modules/keysintable/hasKey.sol";
 import { AirVoxelID, GrassVoxelID, DirtVoxelID, BedrockVoxelID } from "@tenet-level1-ca/src/Constants.sol";
-import { TerrainProperties, TerrainPropertiesTableId } from "@tenet-world/src/codegen/Tables.sol";
+import { Faucet, FaucetData, OwnedBy, Shard, ShardData, ShardTableId, TerrainProperties, TerrainPropertiesTableId } from "@tenet-world/src/codegen/Tables.sol";
 import { getTerrainVoxelId } from "@tenet-base-ca/src/CallUtils.sol";
 import { safeCall, safeStaticCall } from "@tenet-utils/src/CallUtils.sol";
 import { REGISTRY_ADDRESS, BASE_CA_ADDRESS, SHARD_DIM } from "@tenet-world/src/Constants.sol";
+import { FighterVoxelID, STARTING_STAMINA_FROM_FAUCET } from "@tenet-level1-ca/src/Constants.sol";
 import { coordToShardCoord } from "@tenet-world/src/Utils.sol";
 import { console } from "forge-std/console.sol";
 import { VoxelTypeRegistry, VoxelTypeRegistryData } from "@tenet-registry/src/codegen/tables/VoxelTypeRegistry.sol";
-import { Shard, ShardData, ShardTableId } from "@tenet-world/src/codegen/tables/Shard.sol";
 
 uint256 constant MAX_TOTAL_ENERGY_IN_SHARD = 1000000;
 uint256 constant MAX_TOTAL_MASS_IN_SHARD = 1000000;
@@ -24,9 +25,8 @@ contract ShardSystem is System {
     VoxelCoord memory coordInShard,
     address contractAddress,
     bytes4 terrainSelector,
-    BucketData[] buckets
+    BucketData[] memory buckets
   ) public {
-    address callerAddress = _msgSender();
     VoxelCoord memory shardCoord = coordToShardCoord(coordInShard);
     require(
       !hasKey(ShardTableId, Shard.encodeKeyTuple(shardCoord.x, shardCoord.y, shardCoord.z)),
@@ -38,49 +38,51 @@ contract ShardSystem is System {
       shardCoord.y,
       shardCoord.z,
       ShardData({
-        claimer: callerAddress,
+        claimer: tx.origin,
         contractAddress: contractAddress,
         terrainSelector: terrainSelector,
         verified: false,
-        buckets: buckets
+        buckets: abi.encode(buckets)
       })
     );
   }
 
   function setTerrainProperties(VoxelCoord[] memory coords, uint8 bucketIndex) public {
     require(coords.length > 0, "Must have at least one coord");
-    address callerAddress = _msgSender();
+    address callerAddress = tx.origin;
     VoxelCoord memory shardCoord = coordToShardCoord(coords[0]);
     require(hasKey(ShardTableId, Shard.encodeKeyTuple(shardCoord.x, shardCoord.y, shardCoord.z)), "Shard not claimed");
     ShardData memory shardData = Shard.get(shardCoord.x, shardCoord.y, shardCoord.z);
     require(shardData.claimer == callerAddress, "Only shard claimer can set terrain properties");
     require(!shardData.verified, "Shard already verified, cannot set terrain properties now");
-    require(bucketIndex < shardData.buckets.length, "Bucket index out of range");
+    BucketData[] memory buckets = abi.decode(shardData.buckets, (BucketData[]));
+    require(bucketIndex < buckets.length, "Bucket index out of range");
     for (uint256 i = 0; i < coords.length; i++) {
-      require(coordToShardCoord(coords[i]) == shardCoord, "All coords must be in the same shard");
+      require(voxelCoordsAreEqual(coordToShardCoord(coords[i]), shardCoord), "All coords must be in the same shard");
       TerrainProperties.set(coords[i].x, coords[i].y, coords[i].z, bucketIndex);
     }
   }
 
   function verifyShard(VoxelCoord memory shardCoord, VoxelCoord memory faucetAgentCoord) public {
-    address callerAddress = _msgSender();
+    address callerAddress = tx.origin;
     require(hasKey(ShardTableId, Shard.encodeKeyTuple(shardCoord.x, shardCoord.y, shardCoord.z)), "Shard not claimed");
     ShardData memory shardData = Shard.get(shardCoord.x, shardCoord.y, shardCoord.z);
     require(shardData.claimer == callerAddress, "Only shard claimer can set terrain properties");
     require(!shardData.verified, "Shard already verified, don't need to verify again");
     // Go through all the coords in the shard and make sure the counts match
-    uint256[] bucketCounts = new uint256[](shardData.buckets.length);
-    for (uint x = shardCoord.x * SHARD_DIM; x < (shardCoord.x + 1) * SHARD_DIM; x++) {
-      for (uint y = shardCoord.x * SHARD_DIM; y < (shardCoord.x + 1) * SHARD_DIM; y++) {
-        for (uint z = shardCoord.x * SHARD_DIM; z < (shardCoord.x + 1) * SHARD_DIM; z++) {
-          uint256 bucketIndex = TerrainProperties.get(x, y, z);
+    BucketData[] memory buckets = abi.decode(shardData.buckets, (BucketData[]));
+    uint256[] memory bucketCounts = new uint256[](buckets.length);
+    for (int32 x = shardCoord.x * SHARD_DIM; x < (shardCoord.x + 1) * SHARD_DIM; x++) {
+      for (int32 y = shardCoord.x * SHARD_DIM; y < (shardCoord.x + 1) * SHARD_DIM; y++) {
+        for (int32 z = shardCoord.x * SHARD_DIM; z < (shardCoord.x + 1) * SHARD_DIM; z++) {
+          uint256 bucketIndex = uint(TerrainProperties.get(x, y, z));
           bucketCounts[bucketIndex] += 1;
         }
       }
     }
 
-    for (uint256 i = 0; i < shardData.buckets.length; i++) {
-      require(bucketCounts[i] == shardData.buckets[i].count, "Terrain properties do not match shard bucket counts");
+    for (uint256 i = 0; i < buckets.length; i++) {
+      require(bucketCounts[i] == buckets[i].count, "Terrain properties do not match shard bucket counts");
     }
     Shard.setVerified(shardCoord.x, shardCoord.y, shardCoord.z, true);
 
@@ -100,7 +102,7 @@ contract ShardSystem is System {
       initVelocity,
       initStamina
     );
-    OwnedBy.set(agentEntity.scale, agentEntity.entityId, address(0)); // Set owner to 0 so no one can claim it
+    OwnedBy.set(faucetEntity.scale, faucetEntity.entityId, address(0)); // Set owner to 0 so no one can claim it
     Faucet.set(
       faucetEntity.scale,
       faucetEntity.entityId,
@@ -108,7 +110,7 @@ contract ShardSystem is System {
     );
   }
 
-  function verifyBucketCounts(BucketData[] buckets) internal pure {
+  function verifyBucketCounts(BucketData[] memory buckets) internal pure {
     uint256 totalMinMass = 0;
     uint256 totalMaxMass = 0;
     uint256 totalEnergy = 0;

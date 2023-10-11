@@ -40,7 +40,7 @@ contract ExternalSimSystem is System {
     uint256 initEnergy,
     VoxelCoord memory initVelocity,
     uint256 initStamina
-  ) public returns (VoxelEntity memory) {
+  ) public returns (VoxelEntity memory eventVoxelEntity) {
     require(
       _msgSender() == SIMULATOR_ADDRESS ||
         _msgSender() == _world() ||
@@ -51,14 +51,13 @@ contract ExternalSimSystem is System {
     address caAddress = WorldConfig.get(voxelTypeId);
     // Create new body entity
     uint32 scale = VoxelTypeRegistry.getScale(IStore(REGISTRY_ADDRESS), voxelTypeId);
-    bytes32 newEntityId = getUniqueEntity();
-    VoxelEntity memory eventVoxelEntity = VoxelEntity({ scale: scale, entityId: newEntityId });
-    Position.set(scale, newEntityId, coord.x, coord.y, coord.z);
+    eventVoxelEntity = VoxelEntity({ scale: scale, entityId: getUniqueEntity() });
+    Position.set(scale, eventVoxelEntity.entityId, coord.x, coord.y, coord.z);
 
     // Update layers
     IWorld(_world()).enterCA(caAddress, eventVoxelEntity, voxelTypeId, mindSelector, coord);
-    CAVoxelTypeData memory entityCAVoxelType = CAVoxelType.get(IStore(caAddress), _world(), newEntityId);
-    VoxelType.set(scale, newEntityId, entityCAVoxelType.voxelTypeId, entityCAVoxelType.voxelVariantId);
+    CAVoxelTypeData memory entityCAVoxelType = CAVoxelType.get(IStore(caAddress), _world(), eventVoxelEntity.entityId);
+    VoxelType.set(scale, eventVoxelEntity.entityId, entityCAVoxelType.voxelTypeId, entityCAVoxelType.voxelVariantId);
     // TODO: Should we run this?
     // IWorld(_world()).runCA(caAddress, eventVoxelEntity, bytes4(0));
 

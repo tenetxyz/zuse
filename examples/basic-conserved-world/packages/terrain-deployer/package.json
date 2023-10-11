@@ -3,8 +3,10 @@
   "version": "0.0.1",
   "private": true,
   "license": "MIT",
+  "type": "module",
   "scripts": {
-    "deploySpawn": "node deploySpawn.ts"
+    "worldtypes": "rimraf types && typechain --target=ethers-v5 ../world/out/IWorld.sol/IWorld.json",
+    "deploySpawn": "./deploySpawn.bash"
   },
   "dependencies": {
     "@latticexyz/cli": "link:../../../../../mud/packages/cli",
@@ -15,7 +17,9 @@
     "@latticexyz/world": "link:../../../../../mud/packages/world",
     "@tenetxyz/registry": "link:../../../../packages/registry",
     "@tenetxyz/utils": "link:../../../../packages/utils",
-    "@tenetxyz/world": "workspace:*"
+    "@tenetxyz/world": "workspace:*",
+    "dotenv": "^16.3.1",
+    "tsx": "^3.13.0"
   },
   "devDependencies": {
     "@ethersproject/abi": "^5.7.0",

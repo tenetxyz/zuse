@@ -4,7 +4,7 @@ pragma solidity >=0.8.0;
 import { Script } from "forge-std/Script.sol";
 import { IStore } from "@latticexyz/store/src/IStore.sol";
 import { console } from "forge-std/console.sol";
-import { IWorld } from "@tenet-world/src/codegen/world/IWorld.sol";
+import { IShardSystem } from "@tenet-world/src/codegen/world/IShardSystem.sol";
 import { VoxelCoord, VoxelEntity } from "@tenet-utils/src/Types.sol";
 
 contract VerifySpawn is Script {
@@ -16,7 +16,7 @@ contract VerifySpawn is Script {
     vm.startBroadcast(deployerPrivateKey);
 
     // Call world init function
-    IWorld world = IWorld(worldAddress);
+    IShardSystem world = IShardSystem(worldAddress);
     IStore store = IStore(worldAddress);
 
     VoxelCoord memory spawnCoord = VoxelCoord({ x: 0, y: 0, z: 0 });

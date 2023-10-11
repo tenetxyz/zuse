@@ -18,7 +18,6 @@ import { VoxelTypeRegistry, VoxelTypeRegistryData } from "@tenet-registry/src/co
 int32 constant NUM_LAYERS_SPAWN_DIRT = 8;
 int32 constant NUM_LAYERS_SPAWN_BEDROCK = 1;
 int32 constant NUM_LAYERS_SPAWN_GRASS = 1;
-int32 constant NUM_LAYERS_SPAWN_AIR = 60;
 
 uint256 constant AIR_BUCKET_INDEX = 0;
 uint256 constant DIRT_AND_GRASS_BUCKET_INDEX = 1;
@@ -34,15 +33,21 @@ contract WorldSpawnSystem is System {
       minMass: 0,
       maxMass: 0,
       energy: 0,
-      count: uint(int(NUM_LAYERS_SPAWN_AIR * SHARD_DIM * SHARD_DIM)),
+      count: uint(
+        int(
+          (SHARD_DIM - (NUM_LAYERS_SPAWN_GRASS + NUM_LAYERS_SPAWN_DIRT + NUM_LAYERS_SPAWN_BEDROCK)) *
+            SHARD_DIM *
+            SHARD_DIM
+        )
+      ),
       actualCount: 0
     });
     spawnBuckets[DIRT_AND_GRASS_BUCKET_INDEX] = BucketData({
       id: 1,
-      minMass: 0,
+      minMass: 1,
       maxMass: 50,
       energy: 50,
-      count: uint(int((SHARD_DIM - (NUM_LAYERS_SPAWN_AIR + NUM_LAYERS_SPAWN_BEDROCK)) * SHARD_DIM * SHARD_DIM)),
+      count: uint(int((NUM_LAYERS_SPAWN_GRASS + NUM_LAYERS_SPAWN_DIRT) * SHARD_DIM * SHARD_DIM)),
       actualCount: 0
     });
     spawnBuckets[BEDROCK_BUCKET_INDEX] = BucketData({
@@ -79,7 +84,7 @@ contract WorldSpawnSystem is System {
       return BEDROCK_BUCKET_INDEX;
     } else if (
       coord.y > (shardCoord.y * SHARD_DIM) &&
-      coord.y <= (shardCoord.y * SHARD_DIM) + (SHARD_DIM - (NUM_LAYERS_SPAWN_AIR + NUM_LAYERS_SPAWN_BEDROCK))
+      coord.y <= (shardCoord.y * SHARD_DIM) + (NUM_LAYERS_SPAWN_GRASS + NUM_LAYERS_SPAWN_DIRT)
     ) {
       return DIRT_AND_GRASS_BUCKET_INDEX;
     } else {
@@ -90,10 +95,9 @@ contract WorldSpawnSystem is System {
   function getSpawnVoxelType(BucketData memory bucketData, VoxelCoord memory coord) public view returns (bytes32) {
     VoxelCoord memory shardCoord = coordToShardCoord(coord);
     if (bucketData.id == DIRT_AND_GRASS_BUCKET_INDEX) {
-      int32 topLayer = (shardCoord.y * SHARD_DIM) + (NUM_LAYERS_SPAWN_GRASS + NUM_LAYERS_SPAWN_DIRT);
-      if (coord.y == topLayer) {
+      if (coord.y == (shardCoord.y * SHARD_DIM) + (NUM_LAYERS_SPAWN_GRASS + NUM_LAYERS_SPAWN_DIRT)) {
         return GrassVoxelID;
-      } else if (coord.y < topLayer) {
+      } else {
         return DirtVoxelID;
       }
     } else if (bucketData.id == BEDROCK_BUCKET_INDEX) {

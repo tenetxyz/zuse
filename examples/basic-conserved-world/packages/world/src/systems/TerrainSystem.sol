@@ -19,14 +19,14 @@ import { Shard, ShardData, ShardTableId } from "@tenet-world/src/codegen/tables/
 contract TerrainSystem is System {
   function getTerrainVoxel(VoxelCoord memory coord) public returns (bytes32) {
     (ShardData memory shardData, BucketData memory bucketData) = getCachedBucketOrSet(coord);
-    return getTerrainVoxelFromShard(shardData, bucketData, coord);
+    (bytes32 voxelTypeId, ) = getTerrainVoxelFromShard(shardData, bucketData, coord);
+    return voxelTypeId;
   }
 
   function getTerrainMass(uint32 scale, VoxelCoord memory coord) public returns (uint256) {
     (ShardData memory shardData, BucketData memory bucketData) = getCachedBucketOrSet(coord);
-    bytes32 voxelTypeId = getTerrainVoxelFromShard(shardData, bucketData, coord);
+    (, uint256 voxelMass) = getTerrainVoxelFromShard(shardData, bucketData, coord);
 
-    uint256 voxelMass = VoxelTypeRegistry.getMass(IStore(REGISTRY_ADDRESS), voxelTypeId);
     return voxelMass;
   }
 
@@ -44,13 +44,20 @@ contract TerrainSystem is System {
     ShardData memory shardData,
     BucketData memory bucketData,
     VoxelCoord memory coord
-  ) public view returns (bytes32) {
+  ) public view returns (bytes32, uint256) {
     bytes memory returnData = safeStaticCall(
       shardData.contractAddress,
       abi.encodeWithSelector(shardData.terrainSelector, bucketData, coord),
       "shard terrainSelector"
     );
-    return abi.decode(returnData, (bytes32));
+    bytes32 voxelTypeId = abi.decode(returnData, (bytes32));
+
+    uint256 voxelMass = VoxelTypeRegistry.getMass(IStore(REGISTRY_ADDRESS), voxelTypeId);
+    require(
+      voxelMass >= bucketData.minMass && voxelMass <= bucketData.maxMass,
+      "Terrain mass does not match voxel type mass"
+    );
+    return (voxelTypeId, voxelMass);
   }
 
   function getCachedBucketOrSet(VoxelCoord memory coord) public returns (ShardData memory, BucketData memory) {
@@ -84,13 +91,5 @@ contract TerrainSystem is System {
   }
 
   // Called by CA's on terrain gen
-  function onTerrainGen(bytes32 voxelTypeId, VoxelCoord memory coord) public {
-    // Bucket solution
-    (, BucketData memory bucketData) = getCachedBucketOrSet(coord);
-    uint256 voxelMass = VoxelTypeRegistry.getMass(IStore(REGISTRY_ADDRESS), voxelTypeId);
-    require(
-      voxelMass >= bucketData.minMass && voxelMass <= bucketData.maxMass,
-      "Terrain mass does not match voxel type mass"
-    );
-  }
+  function onTerrainGen(bytes32 voxelTypeId, VoxelCoord memory coord) public {}
 }

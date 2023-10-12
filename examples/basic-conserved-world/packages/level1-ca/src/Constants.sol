@@ -8,7 +8,7 @@ bytes32 constant AirVoxelVariantID = bytes32(keccak256("air"));
 bytes32 constant DirtVoxelID = bytes32(keccak256("dirt"));
 bytes32 constant GrassVoxelID = bytes32(keccak256("grass"));
 bytes32 constant BedrockVoxelID = bytes32(keccak256("bedrock"));
-bytes32 constant FighterVoxelID = bytes32(keccak256("fighter"));
+bytes32 constant FaucetVoxelID = bytes32(keccak256("faucet"));
 
 uint256 constant STARTING_STAMINA_FROM_FAUCET = 15000;
 

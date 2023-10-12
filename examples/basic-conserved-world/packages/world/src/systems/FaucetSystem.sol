@@ -67,6 +67,9 @@ contract FaucetSystem is System {
     // Note: calling build every time will cause the area around the agent to lose energy
     // TODO: Fix this if it becomes a problem. One idea is the faucet entity could flux energy back to the surrounding
     VoxelEntity memory newEntity = IWorld(_world()).buildWithAgent(voxelTypeId, coord, faucetEntity, bytes4(0));
+    IWorld(_world()).claimAgent(newEntity);
+    Faucet.set(faucetEntity.scale, faucetEntity.entityId, facuetData);
+
     bytes32 faucetVoxelTypeId = VoxelType.getVoxelTypeId(faucetEntity.scale, faucetEntity.entityId);
     InteractionSelector[] memory faucetInteractionSelectors = getInteractionSelectors(
       IStore(REGISTRY_ADDRESS),
@@ -78,8 +81,6 @@ contract FaucetSystem is System {
       faucetEntity,
       getSelector(faucetInteractionSelectors, "Give Stamina")
     );
-    IWorld(_world()).claimAgent(newEntity);
-    Faucet.set(faucetEntity.scale, faucetEntity.entityId, facuetData);
 
     return newEntity;
   }

@@ -12,7 +12,7 @@ import { Faucet, FaucetData, OwnedBy, Shard, ShardData, ShardTableId, TerrainPro
 import { getTerrainVoxelId } from "@tenet-base-ca/src/CallUtils.sol";
 import { safeCall, safeStaticCall } from "@tenet-utils/src/CallUtils.sol";
 import { REGISTRY_ADDRESS, BASE_CA_ADDRESS } from "@tenet-world/src/Constants.sol";
-import { FighterVoxelID, STARTING_STAMINA_FROM_FAUCET } from "@tenet-level1-ca/src/Constants.sol";
+import { FaucetVoxelID, STARTING_STAMINA_FROM_FAUCET } from "@tenet-level1-ca/src/Constants.sol";
 import { coordToShardCoord } from "@tenet-utils/src/VoxelCoordUtils.sol";
 import { SHARD_DIM } from "@tenet-utils/src/Constants.sol";
 import { console } from "forge-std/console.sol";
@@ -72,7 +72,7 @@ contract ShardSystem is System {
 
   function setFaucetAgent(VoxelCoord memory faucetAgentCoord) internal {
     // Build a facuet entity at the faucetAgentCoord
-    bytes32 voxelTypeId = FighterVoxelID;
+    bytes32 voxelTypeId = FaucetVoxelID;
     uint256 initMass = 1000000000; // Make faucet really high mass so its hard to mine
     uint256 initEnergy = 1000000000;
     uint256 initStamina = STARTING_STAMINA_FROM_FAUCET * 100; // faucet entity can spawn 100 agents

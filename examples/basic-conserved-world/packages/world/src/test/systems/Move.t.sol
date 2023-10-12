@@ -8,7 +8,7 @@ import { IWorld } from "@tenet-world/src/codegen/world/IWorld.sol";
 import { VoxelType, OwnedBy } from "@tenet-world/src/codegen/Tables.sol";
 import { VoxelCoord, VoxelTypeData, VoxelEntity, Mind } from "@tenet-utils/src/Types.sol";
 import { getEntityAtCoord, getEntityPositionStrict, positionDataToVoxelCoord } from "@tenet-base-world/src/Utils.sol";
-import { FighterVoxelID, GrassVoxelID, AirVoxelID, DirtVoxelID, BedrockVoxelID } from "@tenet-level1-ca/src/Constants.sol";
+import { FaucetVoxelID, GrassVoxelID, AirVoxelID, DirtVoxelID, BedrockVoxelID } from "@tenet-level1-ca/src/Constants.sol";
 import { MindRegistry } from "@tenet-registry/src/codegen/tables/MindRegistry.sol";
 import { REGISTRY_ADDRESS, BASE_CA_ADDRESS, SIMULATOR_ADDRESS } from "@tenet-world/src/Constants.sol";
 import { SoilVoxelID, PlantVoxelID, FirePokemonVoxelID } from "@tenet-pokemon-extension/src/Constants.sol";
@@ -49,7 +49,7 @@ contract MoveTest is MudTest {
   function setupAgent() internal returns (VoxelEntity memory) {
     // Claim agent
     VoxelEntity memory faucetEntity = VoxelEntity({ scale: 1, entityId: getEntityAtCoord(1, VoxelCoord(50, 10, 50)) });
-    VoxelEntity memory agentEntity = world.claimAgentFromFaucet(faucetEntity, FighterVoxelID, agentCoord);
+    VoxelEntity memory agentEntity = world.claimAgentFromFaucet(faucetEntity, FaucetVoxelID, agentCoord);
     return agentEntity;
   }
 
@@ -66,7 +66,7 @@ contract MoveTest is MudTest {
     );
 
     VoxelCoord memory newAgentCoord = VoxelCoord({ x: agentCoord.x + 1, y: agentCoord.y, z: agentCoord.z });
-    (, agentEntity) = world.moveWithAgent(FighterVoxelID, agentCoord, newAgentCoord, agentEntity);
+    (, agentEntity) = world.moveWithAgent(FaucetVoxelID, agentCoord, newAgentCoord, agentEntity);
     uint256 staminaAfter = Stamina.get(
       IStore(SIMULATOR_ADDRESS),
       worldAddress,
@@ -131,19 +131,19 @@ contract MoveTest is MudTest {
 
     VoxelEntity memory agentEntity = setupAgent();
 
-    VoxelCoord memory fighterCoord = VoxelCoord({ x: agentCoord.x + 1, y: agentCoord.y, z: agentCoord.z });
-    VoxelEntity memory fighterEntity = world.buildWithAgent(FighterVoxelID, fighterCoord, agentEntity, bytes4(0));
-    Stamina.set(IStore(SIMULATOR_ADDRESS), worldAddress, fighterEntity.scale, fighterEntity.entityId, 100);
+    VoxelCoord memory faucetCoord = VoxelCoord({ x: agentCoord.x + 1, y: agentCoord.y, z: agentCoord.z });
+    VoxelEntity memory faucetEntity = world.buildWithAgent(FaucetVoxelID, faucetCoord, agentEntity, bytes4(0));
+    Stamina.set(IStore(SIMULATOR_ADDRESS), worldAddress, faucetEntity.scale, faucetEntity.entityId, 100);
 
     vm.roll(block.number + 1);
-    VoxelCoord memory newFighterCoord = VoxelCoord({ x: fighterCoord.x, y: fighterCoord.y + 1, z: fighterCoord.z });
+    VoxelCoord memory newfaucetCoord = VoxelCoord({ x: faucetCoord.x, y: faucetCoord.y + 1, z: faucetCoord.z });
     uint256 staminaBefore = Stamina.get(
       IStore(SIMULATOR_ADDRESS),
       worldAddress,
       agentEntity.scale,
       agentEntity.entityId
     );
-    (, fighterEntity) = world.moveWithAgent(FighterVoxelID, fighterCoord, newFighterCoord, agentEntity);
+    (, faucetEntity) = world.moveWithAgent(FaucetVoxelID, faucetCoord, newfaucetCoord, agentEntity);
     uint256 staminaAfter = Stamina.get(
       IStore(SIMULATOR_ADDRESS),
       worldAddress,
@@ -151,9 +151,7 @@ contract MoveTest is MudTest {
       agentEntity.entityId
     );
     assertTrue(staminaBefore > staminaAfter);
-    assertTrue(
-      Stamina.get(IStore(SIMULATOR_ADDRESS), worldAddress, fighterEntity.scale, fighterEntity.entityId) == 100
-    );
+    assertTrue(Stamina.get(IStore(SIMULATOR_ADDRESS), worldAddress, faucetEntity.scale, faucetEntity.entityId) == 100);
 
     vm.stopPrank();
   }

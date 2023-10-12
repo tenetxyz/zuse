@@ -5,7 +5,7 @@ import { IWorld } from "../src/codegen/world/IWorld.sol";
 import { Script } from "forge-std/Script.sol";
 import { console } from "forge-std/console.sol";
 import { registerDecisionRule } from "@tenet-registry/src/Utils.sol";
-import { FighterVoxelID } from "@tenet-level1-ca/src/Constants.sol";
+import { FaucetVoxelID } from "@tenet-level1-ca/src/Constants.sol";
 import { REGISTRY_ADDRESS } from "../src/Constants.sol";
 
 contract PostDeploy is Script {
@@ -21,7 +21,7 @@ contract PostDeploy is Script {
     IWorld(worldAddress).ca_DirtVoxelSystem_registerBody();
     IWorld(worldAddress).ca_GrassVoxelSystem_registerBody();
     IWorld(worldAddress).ca_BedrockVoxelSyst_registerBody();
-    IWorld(worldAddress).ca_FighterAgentSyst_registerBody();
+    IWorld(worldAddress).ca_FaucetAgentSyste_registerBody();
 
     IWorld(worldAddress).registerCA();
 

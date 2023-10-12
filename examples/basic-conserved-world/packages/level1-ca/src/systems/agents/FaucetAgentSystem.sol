@@ -8,65 +8,51 @@ import { VoxelVariantsRegistryData } from "@tenet-registry/src/codegen/tables/Vo
 import { NoaBlockType } from "@tenet-registry/src/codegen/Types.sol";
 import { hasKey } from "@latticexyz/world/src/modules/keysintable/hasKey.sol";
 import { registerVoxelVariant, registerVoxelType } from "@tenet-registry/src/Utils.sol";
-import { REGISTRY_ADDRESS, FighterVoxelID } from "@tenet-level1-ca/src/Constants.sol";
+import { REGISTRY_ADDRESS, FaucetVoxelID } from "@tenet-level1-ca/src/Constants.sol";
 import { VoxelEntity, BodySimData, CAEventData, CAEventType, SimEventData, SimTable, VoxelCoord, VoxelSelectors, InteractionSelector, ComponentDef, RangeComponent, StateComponent, ComponentType } from "@tenet-utils/src/Types.sol";
 import { getFirstCaller } from "@tenet-utils/src/Utils.sol";
 import { getCAEntityAtCoord, getCAVoxelType, caEntityToEntity, getCAEntityPositionStrict, getCAEntityIsAgent } from "@tenet-base-ca/src/Utils.sol";
 import { AirVoxelID, STARTING_STAMINA_FROM_FAUCET } from "@tenet-level1-ca/src/Constants.sol";
 import { uint256ToNegativeInt256, uint256ToInt256 } from "@tenet-utils/src/TypeUtils.sol";
 import { getEntitySimData } from "@tenet-level1-ca/src/Utils.sol";
+import { console } from "forge-std/console.sol";
 
-bytes32 constant FighterVoxelVariantID = bytes32(keccak256("fighter"));
-string constant FighterTexture = "bafkreihpdljsgdltghxehq4cebngtugfj3pduucijxcrvcla4hoy34f7vq";
+bytes32 constant FaucetVoxelVariantID = bytes32(keccak256("faucet"));
+string constant FaucetTexture = "bafkreihpdljsgdltghxehq4cebngtugfj3pduucijxcrvcla4hoy34f7vq";
 
-contract FighterAgentSystem is AgentType {
+contract FaucetAgentSystem is AgentType {
   function registerBody() public override {
     address world = _world();
-    VoxelVariantsRegistryData memory fighterVariant;
-    fighterVariant.blockType = NoaBlockType.MESH;
-    fighterVariant.opaque = false;
-    fighterVariant.solid = false;
-    fighterVariant.frames = 1;
-    string[] memory fighterMaterials = new string[](1);
-    fighterMaterials[0] = FighterTexture;
-    fighterVariant.materials = abi.encode(fighterMaterials);
-    registerVoxelVariant(REGISTRY_ADDRESS, FighterVoxelVariantID, fighterVariant);
+    VoxelVariantsRegistryData memory faucetVariant;
+    faucetVariant.blockType = NoaBlockType.MESH;
+    faucetVariant.opaque = false;
+    faucetVariant.solid = false;
+    faucetVariant.frames = 1;
+    string[] memory faucetMaterials = new string[](1);
+    faucetMaterials[0] = FaucetTexture;
+    faucetVariant.materials = abi.encode(faucetMaterials);
+    registerVoxelVariant(REGISTRY_ADDRESS, FaucetVoxelVariantID, faucetVariant);
 
-    bytes32[] memory fighterChildVoxelTypes = new bytes32[](1);
-    fighterChildVoxelTypes[0] = FighterVoxelID;
-    bytes32 baseVoxelTypeId = FighterVoxelID;
+    bytes32[] memory faucetChildVoxelTypes = new bytes32[](1);
+    faucetChildVoxelTypes[0] = FaucetVoxelID;
+    bytes32 baseVoxelTypeId = FaucetVoxelID;
 
-    ComponentDef[] memory componentDefs = new ComponentDef[](3);
-    componentDefs[0] = ComponentDef(
-      ComponentType.RANGE,
-      "Health",
-      abi.encode(RangeComponent({ rangeStart: 0, rangeEnd: 100 }))
-    );
-    componentDefs[1] = ComponentDef(
-      ComponentType.RANGE,
-      "Stamina",
-      abi.encode(RangeComponent({ rangeStart: 0, rangeEnd: 200 }))
-    );
-    string[] memory states = new string[](3);
-    states[0] = "Running";
-    states[1] = "Defending";
-    states[2] = "Attacking";
-    componentDefs[2] = ComponentDef(ComponentType.STATE, "State", abi.encode(StateComponent(states)));
+    ComponentDef[] memory componentDefs = new ComponentDef[](0);
 
     registerVoxelType(
       REGISTRY_ADDRESS,
-      "Fighter",
-      FighterVoxelID,
+      "Faucet",
+      FaucetVoxelID,
       baseVoxelTypeId,
-      fighterChildVoxelTypes,
-      fighterChildVoxelTypes,
-      FighterVoxelVariantID,
+      faucetChildVoxelTypes,
+      faucetChildVoxelTypes,
+      FaucetVoxelVariantID,
       VoxelSelectors({
-        enterWorldSelector: IWorld(world).ca_FighterAgentSyst_enterWorld.selector,
-        exitWorldSelector: IWorld(world).ca_FighterAgentSyst_exitWorld.selector,
-        voxelVariantSelector: IWorld(world).ca_FighterAgentSyst_variantSelector.selector,
-        activateSelector: IWorld(world).ca_FighterAgentSyst_activate.selector,
-        onNewNeighbourSelector: IWorld(world).ca_FighterAgentSyst_neighbourEventHandler.selector,
+        enterWorldSelector: IWorld(world).ca_FaucetAgentSyste_enterWorld.selector,
+        exitWorldSelector: IWorld(world).ca_FaucetAgentSyste_exitWorld.selector,
+        voxelVariantSelector: IWorld(world).ca_FaucetAgentSyste_variantSelector.selector,
+        activateSelector: IWorld(world).ca_FaucetAgentSyste_activate.selector,
+        onNewNeighbourSelector: IWorld(world).ca_FaucetAgentSyste_neighbourEventHandler.selector,
         interactionSelectors: getInteractionSelectors()
       }),
       abi.encode(componentDefs),
@@ -84,7 +70,7 @@ contract FighterAgentSystem is AgentType {
     bytes32[] memory childEntityIds,
     bytes32 parentEntity
   ) public view override returns (bytes32) {
-    return FighterVoxelVariantID;
+    return FaucetVoxelVariantID;
   }
 
   function activate(bytes32 entity) public view override returns (string memory) {}
@@ -95,14 +81,27 @@ contract FighterAgentSystem is AgentType {
   ) public override returns (bool, bytes memory) {}
 
   function getInteractionSelectors() public override returns (InteractionSelector[] memory) {
-    InteractionSelector[] memory voxelInteractionSelectors = new InteractionSelector[](3);
+    // Agent entities must have more than one interaction to be considered an agent
+    InteractionSelector[] memory voxelInteractionSelectors = new InteractionSelector[](2);
     voxelInteractionSelectors[0] = InteractionSelector({
-      interactionSelector: IWorld(_world()).ca_FighterAgentSyst_giveStaminaEventHandler.selector,
+      interactionSelector: IWorld(_world()).ca_FaucetAgentSyste_defaultEventHandler.selector,
+      interactionName: "Default",
+      interactionDescription: ""
+    });
+    voxelInteractionSelectors[1] = InteractionSelector({
+      interactionSelector: IWorld(_world()).ca_FaucetAgentSyste_giveStaminaEventHandler.selector,
       interactionName: "Give Stamina",
       interactionDescription: ""
     });
     return voxelInteractionSelectors;
   }
+
+  function defaultEventHandler(
+    bytes32 centerEntityId,
+    bytes32[] memory neighbourEntityIds,
+    bytes32[] memory childEntityIds,
+    bytes32 parentEntity
+  ) public returns (bool, bytes memory) {}
 
   function giveStaminaEventHandler(
     bytes32 centerEntityId,

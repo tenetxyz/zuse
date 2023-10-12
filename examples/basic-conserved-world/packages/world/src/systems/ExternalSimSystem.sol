@@ -29,7 +29,7 @@ contract ExternalSimSystem is System {
     uint256 initMass = IWorld(_world()).getTerrainMass(scale, coord);
     uint256 initEnergy = IWorld(_world()).getTerrainEnergy(scale, coord);
     VoxelCoord memory initVelocity = IWorld(_world()).getTerrainVelocity(scale, coord);
-    return spawnBody(terrainVoxelTypeId, coord, bytes4(0), initMass, initEnergy, initVelocity);
+    return spawnBody(terrainVoxelTypeId, coord, bytes4(0), initMass, initEnergy, initVelocity, 0);
   }
 
   function spawnBody(
@@ -38,8 +38,9 @@ contract ExternalSimSystem is System {
     bytes4 mindSelector,
     uint256 initMass,
     uint256 initEnergy,
-    VoxelCoord memory initVelocity
-  ) public returns (VoxelEntity memory) {
+    VoxelCoord memory initVelocity,
+    uint256 initStamina
+  ) public returns (VoxelEntity memory eventVoxelEntity) {
     require(
       _msgSender() == SIMULATOR_ADDRESS ||
         _msgSender() == _world() ||
@@ -50,18 +51,17 @@ contract ExternalSimSystem is System {
     address caAddress = WorldConfig.get(voxelTypeId);
     // Create new body entity
     uint32 scale = VoxelTypeRegistry.getScale(IStore(REGISTRY_ADDRESS), voxelTypeId);
-    bytes32 newEntityId = getUniqueEntity();
-    VoxelEntity memory eventVoxelEntity = VoxelEntity({ scale: scale, entityId: newEntityId });
-    Position.set(scale, newEntityId, coord.x, coord.y, coord.z);
+    eventVoxelEntity = VoxelEntity({ scale: scale, entityId: getUniqueEntity() });
+    Position.set(scale, eventVoxelEntity.entityId, coord.x, coord.y, coord.z);
 
     // Update layers
     IWorld(_world()).enterCA(caAddress, eventVoxelEntity, voxelTypeId, mindSelector, coord);
-    CAVoxelTypeData memory entityCAVoxelType = CAVoxelType.get(IStore(caAddress), _world(), newEntityId);
-    VoxelType.set(scale, newEntityId, entityCAVoxelType.voxelTypeId, entityCAVoxelType.voxelVariantId);
+    CAVoxelTypeData memory entityCAVoxelType = CAVoxelType.get(IStore(caAddress), _world(), eventVoxelEntity.entityId);
+    VoxelType.set(scale, eventVoxelEntity.entityId, entityCAVoxelType.voxelTypeId, entityCAVoxelType.voxelVariantId);
     // TODO: Should we run this?
     // IWorld(_world()).runCA(caAddress, eventVoxelEntity, bytes4(0));
 
-    initEntity(SIMULATOR_ADDRESS, eventVoxelEntity, initMass, initEnergy, initVelocity);
+    initEntity(SIMULATOR_ADDRESS, eventVoxelEntity, initMass, initEnergy, initVelocity, initStamina);
 
     return eventVoxelEntity;
   }

@@ -9,7 +9,7 @@
     "clean": "forge clean",
     "deploy": "yarn run initialize && yarn mud deploy",
     "build:local": "yarn run setLocalRegistryAddress && yarn run setLocalCAAddress && yarn run initialize",
-    "deploy:local": "yarn mud deploy --installDefaultModules false --worldAddress 0x8464135c8F25Da09e49BC8782676a84730C318bC",
+    "deploy:local": "./deployLocal.bash",
     "deploy:hackathon": "yarn run initialize && yarn mud deploy --profile=hackathon-testnet",
     "deploy:testnet": "yarn run initialize && yarn mud deploy --profile=lattice-testnet",
     "dev": "yarn mud dev-contracts --tsgenOutput ../ca-client/src/mud",

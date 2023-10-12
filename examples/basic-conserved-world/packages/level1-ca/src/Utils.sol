@@ -7,26 +7,6 @@ import { CAEntityReverseMapping, CAEntityReverseMappingTableId, CAEntityReverseM
 import { VoxelEntity, VoxelCoord, BodySimData, CAEventData, CAEventType, SimEventData, SimTable } from "@tenet-utils/src/Types.sol";
 import { uint256ToInt256, uint256ToNegativeInt256 } from "@tenet-utils/src/TypeUtils.sol";
 import { console } from "forge-std/console.sol";
-import { SHARD_DIM } from "@tenet-level1-ca/src/Constants.sol";
-
-function floorDiv(int32 a, int32 b) pure returns (int32) {
-  require(b != 0, "Division by zero");
-  if (a >= 0) {
-    return a / b;
-  } else {
-    int32 result = a / b;
-    return (a % b != 0) ? result - 1 : result;
-  }
-}
-
-function coordToShardCoord(VoxelCoord memory coord) pure returns (VoxelCoord memory) {
-  return
-    VoxelCoord({ x: floorDiv(coord.x, SHARD_DIM), y: floorDiv(coord.y, SHARD_DIM), z: floorDiv(coord.z, SHARD_DIM) });
-}
-
-function shardCoordToCoord(VoxelCoord memory coord) pure returns (VoxelCoord memory) {
-  return VoxelCoord({ x: coord.x * SHARD_DIM, y: coord.y * SHARD_DIM, z: coord.z * SHARD_DIM });
-}
 
 function getEntitySimData(bytes32 caEntity) view returns (BodySimData memory) {
   CAEntityReverseMappingData memory entityData = CAEntityReverseMapping.get(caEntity);
@@ -48,6 +28,7 @@ function transfer(
   uint256 amountToTransfer
 ) view returns (CAEventData memory) {
   VoxelEntity memory targetEntity = VoxelEntity({ scale: 1, entityId: caEntityToEntity(targetCAEntity) });
+  console.logBytes32(targetEntity.entityId);
   SimEventData memory eventData = SimEventData({
     senderTable: fromTable,
     senderValue: abi.encode(uint256ToNegativeInt256(amountToTransfer)),

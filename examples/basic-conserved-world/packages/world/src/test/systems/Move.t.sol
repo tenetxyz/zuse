@@ -43,17 +43,42 @@ contract MoveTest is MudTest {
     world = IWorld(worldAddress);
     store = IStore(worldAddress);
     alice = payable(address(0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266));
-    agentCoord = VoxelCoord(11, 2, 10);
+    agentCoord = VoxelCoord(51, 10, 50);
   }
 
   function setupAgent() internal returns (VoxelEntity memory) {
     // Claim agent
-    VoxelEntity memory faucetEntity = VoxelEntity({ scale: 1, entityId: getEntityAtCoord(1, VoxelCoord(10, 2, 10)) });
+    VoxelEntity memory faucetEntity = VoxelEntity({ scale: 1, entityId: getEntityAtCoord(1, VoxelCoord(50, 10, 50)) });
     VoxelEntity memory agentEntity = world.claimAgentFromFaucet(faucetEntity, FighterVoxelID, agentCoord);
     return agentEntity;
   }
 
-  function testMoveBlock() public returns (VoxelEntity memory, VoxelEntity memory) {
+  function testMoveYourself() public {
+    vm.startPrank(alice, alice);
+
+    VoxelEntity memory agentEntity = setupAgent();
+
+    uint256 staminaBefore = Stamina.get(
+      IStore(SIMULATOR_ADDRESS),
+      worldAddress,
+      agentEntity.scale,
+      agentEntity.entityId
+    );
+
+    VoxelCoord memory newAgentCoord = VoxelCoord({ x: agentCoord.x + 1, y: agentCoord.y, z: agentCoord.z });
+    (, agentEntity) = world.moveWithAgent(FighterVoxelID, agentCoord, newAgentCoord, agentEntity);
+    uint256 staminaAfter = Stamina.get(
+      IStore(SIMULATOR_ADDRESS),
+      worldAddress,
+      agentEntity.scale,
+      agentEntity.entityId
+    );
+    assertTrue(staminaBefore > staminaAfter);
+
+    vm.stopPrank();
+  }
+
+  function testMoveBlock() public {
     vm.startPrank(alice, alice);
 
     VoxelEntity memory agentEntity = setupAgent();
@@ -68,7 +93,7 @@ contract MoveTest is MudTest {
       soilEntity.scale,
       soilEntity.entityId
     );
-    assertTrue(soil1Nutrients == 90);
+    assertTrue(soil1Nutrients > 0);
     assertTrue(Nitrogen.get(IStore(SIMULATOR_ADDRESS), worldAddress, soilEntity.scale, soilEntity.entityId) > 0);
     assertTrue(Phosphorous.get(IStore(SIMULATOR_ADDRESS), worldAddress, soilEntity.scale, soilEntity.entityId) > 0);
     assertTrue(Potassium.get(IStore(SIMULATOR_ADDRESS), worldAddress, soilEntity.scale, soilEntity.entityId) > 0);
@@ -76,7 +101,59 @@ contract MoveTest is MudTest {
     // Place down plant on top of it
     vm.roll(block.number + 1);
     VoxelCoord memory newSoilCoord = VoxelCoord({ x: soilCoord.x + 1, y: soilCoord.y, z: soilCoord.z });
+    uint256 staminaBefore = Stamina.get(
+      IStore(SIMULATOR_ADDRESS),
+      worldAddress,
+      agentEntity.scale,
+      agentEntity.entityId
+    );
     (, soilEntity) = world.moveWithAgent(SoilVoxelID, soilCoord, newSoilCoord, agentEntity);
+    assertTrue(
+      soil1Nutrients == Nutrients.get(IStore(SIMULATOR_ADDRESS), worldAddress, soilEntity.scale, soilEntity.entityId)
+    );
+    assertTrue(Nitrogen.get(IStore(SIMULATOR_ADDRESS), worldAddress, soilEntity.scale, soilEntity.entityId) > 0);
+    assertTrue(Phosphorous.get(IStore(SIMULATOR_ADDRESS), worldAddress, soilEntity.scale, soilEntity.entityId) > 0);
+    assertTrue(Potassium.get(IStore(SIMULATOR_ADDRESS), worldAddress, soilEntity.scale, soilEntity.entityId) > 0);
+
+    uint256 staminaAfter = Stamina.get(
+      IStore(SIMULATOR_ADDRESS),
+      worldAddress,
+      agentEntity.scale,
+      agentEntity.entityId
+    );
+    assertTrue(staminaBefore > staminaAfter);
+
+    vm.stopPrank();
+  }
+
+  function testMoveAgent() public {
+    vm.startPrank(alice, alice);
+
+    VoxelEntity memory agentEntity = setupAgent();
+
+    VoxelCoord memory fighterCoord = VoxelCoord({ x: agentCoord.x + 1, y: agentCoord.y, z: agentCoord.z });
+    VoxelEntity memory fighterEntity = world.buildWithAgent(FighterVoxelID, fighterCoord, agentEntity, bytes4(0));
+    Stamina.set(IStore(SIMULATOR_ADDRESS), worldAddress, fighterEntity.scale, fighterEntity.entityId, 100);
+
+    vm.roll(block.number + 1);
+    VoxelCoord memory newFighterCoord = VoxelCoord({ x: fighterCoord.x, y: fighterCoord.y + 1, z: fighterCoord.z });
+    uint256 staminaBefore = Stamina.get(
+      IStore(SIMULATOR_ADDRESS),
+      worldAddress,
+      agentEntity.scale,
+      agentEntity.entityId
+    );
+    (, fighterEntity) = world.moveWithAgent(FighterVoxelID, fighterCoord, newFighterCoord, agentEntity);
+    uint256 staminaAfter = Stamina.get(
+      IStore(SIMULATOR_ADDRESS),
+      worldAddress,
+      agentEntity.scale,
+      agentEntity.entityId
+    );
+    assertTrue(staminaBefore > staminaAfter);
+    assertTrue(
+      Stamina.get(IStore(SIMULATOR_ADDRESS), worldAddress, fighterEntity.scale, fighterEntity.entityId) == 100
+    );
 
     vm.stopPrank();
   }

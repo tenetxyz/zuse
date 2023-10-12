@@ -98,7 +98,7 @@ contract NutrientsSystem is SimHandler {
         if (receiverNutrientsDelta == 0) {
           return;
         }
-        require(int256ToUint256(receiverNutrientsDelta) >= senderEnergy, "Not enough energy to convert to nutrients");
+        require(senderEnergy >= int256ToUint256(receiverNutrientsDelta), "Not enough energy to convert to nutrients");
         e_cost = senderEnergy - int256ToUint256(receiverNutrientsDelta);
       } else {
         require(senderEnergy == receiverNutrients, "Sender energy must equal receiver nutrients");
@@ -106,6 +106,10 @@ contract NutrientsSystem is SimHandler {
 
       uint256 currentSenderEnergy = Energy.get(callerAddress, senderEntity.scale, senderEntity.entityId);
       if (senderEnergyDelta < 0) {
+        console.log("currentSenderEnergy");
+        console.logBytes32(senderEntity.entityId);
+        console.logUint(currentSenderEnergy);
+        console.logUint(senderEnergy);
         require(currentSenderEnergy >= senderEnergy, "Sender does not have enough energy");
       }
       Energy.set(

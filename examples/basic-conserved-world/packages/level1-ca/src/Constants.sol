@@ -12,7 +12,6 @@ bytes32 constant FighterVoxelID = bytes32(keccak256("fighter"));
 
 uint256 constant STARTING_STAMINA_FROM_FAUCET = 15000;
 
-int32 constant SHARD_DIM = 100;
 int32 constant CHUNK_MAX_Y = 255;
 int32 constant CHUNK_MIN_Y = -128;
 int32 constant TILE_Y = 1;

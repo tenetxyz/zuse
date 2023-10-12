@@ -10,8 +10,8 @@ function getVelocity(address callerAddress, VoxelEntity memory entity) view retu
   return abi.decode(velocity, (VoxelCoord));
 }
 
-function getTerrainMass(address callerAddress, uint32 scale, VoxelCoord memory coord) view returns (uint256) {
-  bytes memory returnData = safeStaticCall(
+function getTerrainMass(address callerAddress, uint32 scale, VoxelCoord memory coord) returns (uint256) {
+  bytes memory returnData = safeCall(
     callerAddress,
     abi.encodeWithSignature("getTerrainMass(uint32,(int32,int32,int32))", scale, coord),
     string(abi.encode("getTerrainMass ", callerAddress, " ", scale, " ", coord))
@@ -19,8 +19,8 @@ function getTerrainMass(address callerAddress, uint32 scale, VoxelCoord memory c
   return abi.decode(returnData, (uint256));
 }
 
-function getTerrainEnergy(address callerAddress, uint32 scale, VoxelCoord memory coord) view returns (uint256) {
-  bytes memory returnData = safeStaticCall(
+function getTerrainEnergy(address callerAddress, uint32 scale, VoxelCoord memory coord) returns (uint256) {
+  bytes memory returnData = safeCall(
     callerAddress,
     abi.encodeWithSignature("getTerrainEnergy(uint32,(int32,int32,int32))", scale, coord),
     string(abi.encode("getTerrainEnergy ", callerAddress, " ", scale, " ", coord))

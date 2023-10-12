@@ -14,4 +14,3 @@ deploys/**/*.json
 src/codegen/
 worlds.json
 types/ethers-contracts/
-script/generated/

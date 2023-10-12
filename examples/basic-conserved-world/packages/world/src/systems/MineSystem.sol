@@ -7,7 +7,6 @@ import { MineEvent } from "@tenet-base-world/src/prototypes/MineEvent.sol";
 import { hasKey } from "@latticexyz/world/src/modules/keysintable/hasKey.sol";
 import { VoxelCoord, VoxelEntity, VoxelTypeData, EntityEventData } from "@tenet-utils/src/Types.sol";
 import { VoxelType, OfSpawn, Spawn, SpawnData, WorldConfig } from "@tenet-world/src/codegen/Tables.sol";
-import { CHUNK_MAX_Y, CHUNK_MIN_Y } from "../Constants.sol";
 import { MineEventData } from "@tenet-base-world/src/Types.sol";
 import { AirVoxelID } from "@tenet-level1-ca/src/Constants.sol";
 import { getEntityAtCoord } from "@tenet-base-world/src/Utils.sol";
@@ -30,7 +29,6 @@ contract MineSystem is MineEvent {
     VoxelCoord memory coord,
     VoxelEntity memory agentEntity
   ) public returns (VoxelEntity memory) {
-    require(coord.y <= CHUNK_MAX_Y && coord.y >= CHUNK_MIN_Y, "out of chunk bounds");
     MineWorldEventData memory mineEventData = MineWorldEventData({ agentEntity: agentEntity });
     return super.mine(voxelTypeId, coord, abi.encode(MineEventData({ worldData: abi.encode(mineEventData) })));
   }

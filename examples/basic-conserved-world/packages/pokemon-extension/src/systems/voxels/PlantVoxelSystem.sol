@@ -11,6 +11,7 @@ import { Plant } from "@tenet-pokemon-extension/src/codegen/tables/Plant.sol";
 import { PlantStage } from "@tenet-pokemon-extension/src/codegen/Types.sol";
 import { VoxelCoord, ComponentDef } from "@tenet-utils/src/Types.sol";
 import { registerCAVoxelType } from "@tenet-base-ca/src/CallUtils.sol";
+import { EventType } from "@tenet-pokemon-extension/src/codegen/Types.sol";
 
 bytes32 constant SeedVoxelVariantID = bytes32(keccak256("seed"));
 bytes32 constant SproutVoxelVariantID = bytes32(keccak256("sprout"));
@@ -63,7 +64,7 @@ contract PlantVoxelSystem is VoxelType {
   function enterWorld(VoxelCoord memory coord, bytes32 entity) public override {
     address callerAddress = super.getCallerAddress();
     bool hasValue = true;
-    Plant.set(callerAddress, entity, PlantStage.Seed, 0, hasValue);
+    Plant.set(callerAddress, entity, PlantStage.Seed, EventType.None, 0, hasValue);
   }
 
   function exitWorld(VoxelCoord memory coord, bytes32 entity) public override {

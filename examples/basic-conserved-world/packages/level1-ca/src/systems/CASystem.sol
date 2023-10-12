@@ -7,11 +7,9 @@ import { VoxelCoord } from "@tenet-utils/src/Types.sol";
 import { AirVoxelID, GrassVoxelID, DirtVoxelID, BedrockVoxelID, FighterVoxelID } from "@tenet-level1-ca/src/Constants.sol";
 import { hasKey } from "@latticexyz/world/src/modules/keysintable/hasKey.sol";
 import { REGISTER_CA_SIG } from "@tenet-registry/src/Constants.sol";
-import { TerrainSelectors, TerrainSelectorsData, TerrainSelectorsTableId } from "@tenet-level1-ca/src/codegen/tables/TerrainSelectors.sol";
 import { EMPTY_ID } from "./LibTerrainSystem.sol";
 import { REGISTRY_ADDRESS } from "../Constants.sol";
 import { safeCall, safeStaticCall } from "@tenet-utils/src/CallUtils.sol";
-import { coordToShardCoord } from "@tenet-level1-ca/src/Utils.sol";
 import { TerrainGenType } from "@tenet-base-ca/src/Constants.sol";
 
 contract CASystem is CA {
@@ -38,41 +36,14 @@ contract CASystem is CA {
     );
   }
 
-  function getTerrainVoxelId(VoxelCoord memory coord) public view override returns (bytes32) {
+  function getTerrainVoxelId(VoxelCoord memory coord) public override returns (bytes32) {
     address callerAddress = _msgSender();
-    VoxelCoord memory shardCoord = coordToShardCoord(coord);
-    require(
-      hasKey(
-        TerrainSelectorsTableId,
-        TerrainSelectors.encodeKeyTuple(callerAddress, shardCoord.x, shardCoord.y, shardCoord.z)
-      ),
-      "CASystem: Terrain selector for coord not found"
-    );
-    TerrainSelectorsData memory selectorData = TerrainSelectors.get(
+    bytes memory returnData = safeCall(
       callerAddress,
-      shardCoord.x,
-      shardCoord.y,
-      shardCoord.z
-    );
-    bytes memory returnData = safeStaticCall(
-      selectorData.contractAddress,
-      abi.encodeWithSelector(selectorData.selector, coord),
+      abi.encodeWithSignature("getTerrainVoxel((int32,int32,int32))", coord),
       "terrainSelector"
     );
     return abi.decode(returnData, (bytes32));
-  }
-
-  function setTerrainSelector(VoxelCoord memory coord, address contractAddress, bytes4 terrainSelector) public {
-    address callerAddress = _msgSender();
-    VoxelCoord memory shardCoord = coordToShardCoord(coord);
-    require(
-      !hasKey(
-        TerrainSelectorsTableId,
-        TerrainSelectors.encodeKeyTuple(callerAddress, shardCoord.x, shardCoord.y, shardCoord.z)
-      ),
-      "CASystem: Select for coord already exists"
-    );
-    TerrainSelectors.set(callerAddress, shardCoord.x, shardCoord.y, shardCoord.z, contractAddress, terrainSelector);
   }
 
   function terrainGen(

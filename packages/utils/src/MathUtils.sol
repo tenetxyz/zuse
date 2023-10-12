@@ -30,3 +30,13 @@ function absInt32(int32 x) pure returns (int32) {
   }
   return x;
 }
+
+function floorDiv(int32 a, int32 b) pure returns (int32) {
+  require(b != 0, "Division by zero");
+  if (a >= 0) {
+    return a / b;
+  } else {
+    int32 result = a / b;
+    return (a % b != 0) ? result - 1 : result;
+  }
+}

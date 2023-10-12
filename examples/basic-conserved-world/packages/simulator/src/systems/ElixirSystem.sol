@@ -62,6 +62,10 @@ contract ElixirSystem is SimHandler {
       receiverElixir =
         (senderNutrients) /
         (1 + Potassium.get(callerAddress, senderEntity.scale, senderEntity.entityId));
+      console.log("receiverElixir");
+      console.logBytes32(senderEntity.entityId);
+      console.logUint(senderNutrients);
+      console.logUint(receiverElixir);
       if (receiverElixir == 0) {
         return;
       }

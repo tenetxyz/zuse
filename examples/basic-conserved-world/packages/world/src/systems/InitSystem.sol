@@ -13,7 +13,7 @@ import { VoxelCoord, VoxelTypeData, VoxelEntity } from "@tenet-utils/src/Types.s
 import { safeCall } from "@tenet-utils/src/CallUtils.sol";
 import { WorldConfig, WorldConfigTableId } from "@tenet-base-world/src/codegen/tables/WorldConfig.sol";
 import { CAVoxelType, CAVoxelTypeData } from "@tenet-base-ca/src/codegen/tables/CAVoxelType.sol";
-import { VoxelType, Position, TerrainProperties, TerrainPropertiesTableId } from "@tenet-world/src/codegen/Tables.sol";
+import { VoxelType, Position } from "@tenet-world/src/codegen/Tables.sol";
 import { BuildEventData } from "@tenet-base-world/src/Types.sol";
 import { console } from "forge-std/console.sol";
 

@@ -28,6 +28,7 @@ function transfer(
   uint256 amountToTransfer
 ) view returns (CAEventData memory) {
   VoxelEntity memory targetEntity = VoxelEntity({ scale: 1, entityId: caEntityToEntity(targetCAEntity) });
+  console.logBytes32(targetEntity.entityId);
   SimEventData memory eventData = SimEventData({
     senderTable: fromTable,
     senderValue: abi.encode(uint256ToNegativeInt256(amountToTransfer)),

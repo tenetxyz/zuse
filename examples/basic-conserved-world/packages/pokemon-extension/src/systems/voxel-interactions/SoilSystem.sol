@@ -11,6 +11,7 @@ import { PlantStage } from "@tenet-pokemon-extension/src/codegen/Types.sol";
 import { entityIsSoil, entityIsPlant } from "@tenet-pokemon-extension/src/InteractionUtils.sol";
 import { getCAEntityAtCoord, getCAVoxelType, getCAEntityPositionStrict, caEntityToEntity } from "@tenet-base-ca/src/Utils.sol";
 import { getEntitySimData, transfer } from "@tenet-level1-ca/src/Utils.sol";
+import { EventType } from "@tenet-pokemon-extension/src/codegen/Types.sol";
 import { console } from "forge-std/console.sol";
 
 contract SoilSystem is VoxelInteraction {
@@ -26,13 +27,17 @@ contract SoilSystem is VoxelInteraction {
     }
 
     BodySimData memory entitySimData = getEntitySimData(neighbourEntityId);
-    if (entitySimData.nitrogen == 0 && entitySimData.phosphorous == 0 && entitySimData.potassium == 0) {
-      return initSoilProperties(neighbourEntityId, entitySimData);
+    if (entitySimData.nitrogen == 0 || entitySimData.phosphorous == 0 || entitySimData.potassium == 0) {
+      return initSoilProperties(callerAddress, neighbourEntityId, entitySimData);
     }
     if (entitySimData.energy > 0) {
       // We convert all our general energy to nutrient energy
-      entityData = getNutrientConversion(neighbourEntityId, entitySimData);
+      entityData = getNutrientConversion(callerAddress, neighbourEntityId, entitySimData);
       return (changedEntity, entityData);
+    }
+
+    if (Soil.getLastEvent(callerAddress, neighbourEntityId) != EventType.None) {
+      Soil.setLastEvent(callerAddress, neighbourEntityId, EventType.None);
     }
 
     uint256 transferNutrientsToSoil = getNutrientsToSoil(entitySimData.nutrients);
@@ -90,13 +95,17 @@ contract SoilSystem is VoxelInteraction {
     }
 
     BodySimData memory entitySimData = getEntitySimData(interactEntity);
-    if (entitySimData.nitrogen == 0 && entitySimData.phosphorous == 0 && entitySimData.potassium == 0) {
-      return initSoilProperties(interactEntity, entitySimData);
+    if (entitySimData.nitrogen == 0 || entitySimData.phosphorous == 0 || entitySimData.potassium == 0) {
+      return initSoilProperties(callerAddress, interactEntity, entitySimData);
     }
     if (entitySimData.energy > 0) {
       // We convert all our general energy to nutrient energy
-      entityData = getNutrientConversion(interactEntity, entitySimData);
+      entityData = getNutrientConversion(callerAddress, interactEntity, entitySimData);
       return (changedEntity, entityData);
+    }
+
+    if (Soil.getLastEvent(callerAddress, interactEntity) != EventType.None) {
+      Soil.setLastEvent(callerAddress, interactEntity, EventType.None);
     }
 
     entityData = getEntityData(
@@ -113,65 +122,107 @@ contract SoilSystem is VoxelInteraction {
   }
 
   function initSoilProperties(
+    address callerAddress,
     bytes32 interactEntity,
     BodySimData memory entitySimData
   ) internal returns (bool changedEntity, bytes memory entityData) {
-    CAEventData[] memory allCAEventData = new CAEventData[](3);
+    EventType lastEventType = Soil.getLastEvent(callerAddress, interactEntity);
     VoxelEntity memory entity = VoxelEntity({ scale: 1, entityId: caEntityToEntity(interactEntity) });
     VoxelCoord memory coord = getCAEntityPositionStrict(IStore(_world()), interactEntity);
-    console.log("setNPKSimEvent soil");
-    console.logBytes32(interactEntity);
 
-    SimEventData memory setNitrogenSimEvent = SimEventData({
-      senderTable: SimTable.Nitrogen,
-      senderValue: abi.encode(0),
-      targetEntity: entity,
-      targetCoord: coord,
-      targetTable: SimTable.Nitrogen,
-      targetValue: abi.encode(1)
-    });
-    allCAEventData[0] = CAEventData({ eventType: CAEventType.SimEvent, eventData: abi.encode(setNitrogenSimEvent) });
-
-    SimEventData memory setPhosphorousSimEvent = SimEventData({
-      senderTable: SimTable.Phosphorous,
-      senderValue: abi.encode(0),
-      targetEntity: entity,
-      targetCoord: coord,
-      targetTable: SimTable.Phosphorous,
-      targetValue: abi.encode(1)
-    });
-    allCAEventData[1] = CAEventData({ eventType: CAEventType.SimEvent, eventData: abi.encode(setPhosphorousSimEvent) });
-
-    SimEventData memory setPotassiumSimEvent = SimEventData({
-      senderTable: SimTable.Potassium,
-      senderValue: abi.encode(0),
-      targetEntity: entity,
-      targetCoord: coord,
-      targetTable: SimTable.Potassium,
-      targetValue: abi.encode(1)
-    });
-    allCAEventData[2] = CAEventData({ eventType: CAEventType.SimEvent, eventData: abi.encode(setPotassiumSimEvent) });
-
-    entityData = abi.encode(allCAEventData);
+    if (entitySimData.nitrogen == 0) {
+      if (lastEventType != EventType.SetNitrogen) {
+        console.log("setNPKSimEvent soil nitrogen");
+        console.logBytes32(interactEntity);
+        CAEventData[] memory allCAEventData = new CAEventData[](1);
+        SimEventData memory setNitrogenSimEvent = SimEventData({
+          senderTable: SimTable.Nitrogen,
+          senderValue: abi.encode(0),
+          targetEntity: entity,
+          targetCoord: coord,
+          targetTable: SimTable.Nitrogen,
+          targetValue: abi.encode(1)
+        });
+        allCAEventData[0] = CAEventData({
+          eventType: CAEventType.SimEvent,
+          eventData: abi.encode(setNitrogenSimEvent)
+        });
+        entityData = abi.encode(allCAEventData);
+        Soil.setLastEvent(callerAddress, interactEntity, EventType.SetNitrogen);
+        return (changedEntity, entityData);
+      }
+    } else if (entitySimData.phosphorous == 0) {
+      if (lastEventType != EventType.SetPhosphorous) {
+        console.log("setNPKSimEvent soil Phosphorous");
+        console.logBytes32(interactEntity);
+        CAEventData[] memory allCAEventData = new CAEventData[](1);
+        SimEventData memory setPhosphorousSimEvent = SimEventData({
+          senderTable: SimTable.Phosphorous,
+          senderValue: abi.encode(0),
+          targetEntity: entity,
+          targetCoord: coord,
+          targetTable: SimTable.Phosphorous,
+          targetValue: abi.encode(1)
+        });
+        allCAEventData[0] = CAEventData({
+          eventType: CAEventType.SimEvent,
+          eventData: abi.encode(setPhosphorousSimEvent)
+        });
+        entityData = abi.encode(allCAEventData);
+        Soil.setLastEvent(callerAddress, interactEntity, EventType.SetPhosphorous);
+        return (changedEntity, entityData);
+      }
+    } else if (entitySimData.potassium == 0) {
+      if (lastEventType != EventType.SetPotassium) {
+        console.log("setNPKSimEvent soil potassium");
+        console.logBytes32(interactEntity);
+        CAEventData[] memory allCAEventData = new CAEventData[](1);
+        SimEventData memory setPotassiumSimEvent = SimEventData({
+          senderTable: SimTable.Potassium,
+          senderValue: abi.encode(0),
+          targetEntity: entity,
+          targetCoord: coord,
+          targetTable: SimTable.Potassium,
+          targetValue: abi.encode(1)
+        });
+        allCAEventData[0] = CAEventData({
+          eventType: CAEventType.SimEvent,
+          eventData: abi.encode(setPotassiumSimEvent)
+        });
+        entityData = abi.encode(allCAEventData);
+        Soil.setLastEvent(callerAddress, interactEntity, EventType.SetPotassium);
+        return (changedEntity, entityData);
+      }
+    }
 
     return (changedEntity, entityData);
   }
 
   function getNutrientConversion(
+    address callerAddress,
     bytes32 interactEntity,
     BodySimData memory entitySimData
   ) internal returns (bytes memory) {
-    CAEventData[] memory allCAEventData = new CAEventData[](1);
-    VoxelCoord memory coord = getCAEntityPositionStrict(IStore(_world()), interactEntity);
-    allCAEventData[0] = transfer(
-      SimTable.Energy,
-      SimTable.Nutrients,
-      entitySimData,
-      interactEntity,
-      coord,
-      entitySimData.energy
-    );
-    return abi.encode(allCAEventData);
+    EventType lastEventType = Soil.getLastEvent(callerAddress, interactEntity);
+
+    if (entitySimData.energy > 0 && lastEventType != EventType.SetNutrients) {
+      CAEventData[] memory allCAEventData = new CAEventData[](1);
+      VoxelCoord memory coord = getCAEntityPositionStrict(IStore(_world()), interactEntity);
+      console.log("converting");
+      console.logUint(entitySimData.energy);
+      allCAEventData[0] = transfer(
+        SimTable.Energy,
+        SimTable.Nutrients,
+        entitySimData,
+        interactEntity,
+        coord,
+        entitySimData.energy
+      );
+      Soil.setLastEvent(callerAddress, interactEntity, EventType.SetNutrients);
+      return abi.encode(allCAEventData);
+    }
+
+    return new bytes(0);
   }
 
   function getNutrientsToSoil(uint256 soilNutrients) internal pure returns (uint256) {

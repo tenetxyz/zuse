@@ -106,6 +106,10 @@ contract NutrientsSystem is SimHandler {
 
       uint256 currentSenderEnergy = Energy.get(callerAddress, senderEntity.scale, senderEntity.entityId);
       if (senderEnergyDelta < 0) {
+        console.log("currentSenderEnergy");
+        console.logBytes32(senderEntity.entityId);
+        console.logUint(currentSenderEnergy);
+        console.logUint(senderEnergy);
         require(currentSenderEnergy >= senderEnergy, "Sender does not have enough energy");
       }
       Energy.set(

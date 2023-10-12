@@ -4,6 +4,7 @@ pragma solidity >=0.8.0;
 import { VoxelCoord, VoxelEntity } from "@tenet-utils/src/Types.sol";
 import { CA_GET_TERRAIN_VOXEL_ID_SIG, CA_SET_MIND_SELECTOR_SIG, CA_GET_MIND_SELECTOR_SIG, CA_ENTER_WORLD_SIG, CA_EXIT_WORLD_SIG, CA_RUN_INTERACTION_SIG, CA_ACTIVATE_VOXEL_SIG, CA_REGISTER_VOXEL_SIG, CA_MOVE_WORLD_SIG } from "@tenet-base-ca/src/Constants.sol";
 import { safeCall, safeStaticCall } from "@tenet-utils/src/CallUtils.sol";
+import { CAEntityReverseMapping, CAEntityReverseMappingTableId, CAEntityReverseMappingData } from "@tenet-base-ca/src/codegen/tables/CAEntityReverseMapping.sol";
 
 function mineWorld(address callerAddress, bytes32 voxelTypeId, VoxelCoord memory coord) returns (bytes memory) {
   return
@@ -278,6 +279,20 @@ function getNeighbourEntitiesFromCaller(address callerAddress, VoxelEntity memor
   );
   (bytes32[] memory entities, ) = abi.decode(returnData, (bytes32[], VoxelCoord[]));
   return entities;
+}
+
+function getMooreNeighbourEntities(
+  bytes32 caEntity,
+  uint8 neighbourRadius
+) view returns (bytes32[] memory, VoxelCoord[] memory) {
+  CAEntityReverseMappingData memory entityData = CAEntityReverseMapping.get(caEntity);
+  VoxelEntity memory entity = VoxelEntity({ scale: 1, entityId: entityData.entity });
+  bytes memory returnData = safeStaticCall(
+    entityData.callerAddress,
+    abi.encodeWithSignature("calculateMooreNeighbourEntities((uint32,bytes32),uint8)", entity, neighbourRadius),
+    string(abi.encode("calculateMooreNeighbourEntities ", entityData.callerAddress, " ", entity, " ", neighbourRadius))
+  );
+  return abi.decode(returnData, (bytes32[], VoxelCoord[]));
 }
 
 function getChildEntitiesFromCaller(address callerAddress, VoxelEntity memory entity) returns (bytes32[] memory) {

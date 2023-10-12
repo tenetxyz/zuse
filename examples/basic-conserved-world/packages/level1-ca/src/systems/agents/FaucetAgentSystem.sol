@@ -15,6 +15,8 @@ import { getCAEntityAtCoord, getCAVoxelType, caEntityToEntity, getCAEntityPositi
 import { AirVoxelID, STARTING_STAMINA_FROM_FAUCET } from "@tenet-level1-ca/src/Constants.sol";
 import { uint256ToNegativeInt256, uint256ToInt256 } from "@tenet-utils/src/TypeUtils.sol";
 import { getEntitySimData } from "@tenet-level1-ca/src/Utils.sol";
+import { getMooreNeighbourEntities } from "@tenet-base-ca/src/CallUtils.sol";
+import { entityArrayToCAEntityArray } from "@tenet-base-ca/src/Utils.sol";
 import { console } from "forge-std/console.sol";
 
 bytes32 constant FaucetVoxelVariantID = bytes32(keccak256("faucet"));
@@ -109,28 +111,34 @@ contract FaucetAgentSystem is AgentType {
     bytes32[] memory childEntityIds,
     bytes32 parentEntity
   ) public returns (bool, bytes memory) {
-    CAEventData[] memory allCAEventData = new CAEventData[](neighbourEntityIds.length);
+    address callerAddress = super.getCallerAddress();
     BodySimData memory entitySimData = getEntitySimData(centerEntityId);
     uint256 currentStamina = entitySimData.stamina;
     if (currentStamina == 0) {
-      return (false, abi.encode(allCAEventData));
+      return (false, abi.encode(new bytes(0)));
     }
-    for (uint i = 0; i < neighbourEntityIds.length; i++) {
-      if (neighbourEntityIds[i] == 0) {
+    (bytes32[] memory mooreNeighbourEntities, ) = getMooreNeighbourEntities(centerEntityId, 1);
+    CAEventData[] memory allCAEventData = new CAEventData[](mooreNeighbourEntities.length);
+    bytes32[] memory mooreNeighbourCAEntities = entityArrayToCAEntityArray(callerAddress, mooreNeighbourEntities);
+    for (uint i = 0; i < mooreNeighbourCAEntities.length; i++) {
+      if (uint256(mooreNeighbourCAEntities[i]) == 0) {
         continue;
       }
-      if (!getCAEntityIsAgent(REGISTRY_ADDRESS, neighbourEntityIds[i])) {
+      if (!getCAEntityIsAgent(REGISTRY_ADDRESS, mooreNeighbourCAEntities[i])) {
         continue;
       }
-      BodySimData memory neighbourSimData = getEntitySimData(neighbourEntityIds[i]);
+      BodySimData memory neighbourSimData = getEntitySimData(mooreNeighbourCAEntities[i]);
       if (neighbourSimData.stamina == 0) {
         uint256 transferStamina = STARTING_STAMINA_FROM_FAUCET;
         if (currentStamina < transferStamina) {
           break;
         }
         currentStamina -= transferStamina;
-        VoxelEntity memory targetEntity = VoxelEntity({ scale: 1, entityId: caEntityToEntity(neighbourEntityIds[i]) });
-        VoxelCoord memory targetCoord = getCAEntityPositionStrict(IStore(_world()), neighbourEntityIds[i]);
+        VoxelEntity memory targetEntity = VoxelEntity({
+          scale: 1,
+          entityId: caEntityToEntity(mooreNeighbourCAEntities[i])
+        });
+        VoxelCoord memory targetCoord = getCAEntityPositionStrict(IStore(_world()), mooreNeighbourCAEntities[i]);
         SimEventData memory eventData = SimEventData({
           senderTable: SimTable.Stamina,
           senderValue: abi.encode(uint256ToNegativeInt256(transferStamina)),

@@ -21,8 +21,6 @@ contract CAEventsSystem is System {
     // TODO: Optimize the length of this array
     EntityEventData[] memory allNewEntitiesEventData = new EntityEventData[](MAX_VOXEL_NEIGHBOUR_UPDATE_DEPTH);
     uint allNewEntitiesEventDataIdx = 0;
-    VoxelEntity[] memory entitiesToRunCA = new VoxelEntity[](MAX_VOXEL_NEIGHBOUR_UPDATE_DEPTH);
-    uint entitiesToRunCAIdx = 0;
 
     for (uint256 i; i < entitiesEventData.length; i++) {
       EntityEventData memory entityEventData = entitiesEventData[i];

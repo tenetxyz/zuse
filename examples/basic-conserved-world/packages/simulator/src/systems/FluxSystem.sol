@@ -30,7 +30,10 @@ contract FluxSystem is System {
       "Entity with energy does not exist"
     );
     uint8 radius = 1;
+    console.log("fluxEnergy called");
     while (energyToFlux > 0) {
+      console.log("energyToFlux");
+      console.logUint(energyToFlux);
       if (radius > 255) {
         revert("Ran out of neighbours to flux energy from");
       }
@@ -40,6 +43,8 @@ contract FluxSystem is System {
         uint256 numNeighboursToInclude,
         uint256[] memory neighbourEnergyDelta
       ) = initializeNeighbours(isFluxIn, callerAddress, centerVoxelEntity, radius);
+      console.logUint(radius);
+      console.logUint(numNeighboursToInclude);
 
       if (numNeighboursToInclude == 0) {
         radius += 1;
@@ -94,6 +99,7 @@ contract FluxSystem is System {
           }
         }
         // create the entities that don't exist from the terrain
+        console.log("create terrain entity");
         VoxelEntity memory newTerrainEntity = createTerrainEntity(
           callerAddress,
           centerVoxelEntity.scale,

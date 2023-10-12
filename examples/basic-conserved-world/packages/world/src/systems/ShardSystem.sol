@@ -74,7 +74,7 @@ contract ShardSystem is System {
     // Build a facuet entity at the faucetAgentCoord
     bytes32 voxelTypeId = FighterVoxelID;
     uint256 initMass = 1000000000; // Make faucet really high mass so its hard to mine
-    uint256 initEnergy = 0;
+    uint256 initEnergy = 1000000000;
     uint256 initStamina = STARTING_STAMINA_FROM_FAUCET * 100; // faucet entity can spawn 100 agents
     VoxelCoord memory initVelocity = VoxelCoord({ x: 0, y: 0, z: 0 });
     // This will place the agent, so it will check if the voxel there is air

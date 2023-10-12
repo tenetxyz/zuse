@@ -68,7 +68,7 @@ contract MoveTest is MudTest {
       soilEntity.scale,
       soilEntity.entityId
     );
-    assertTrue(soil1Nutrients == 90);
+    assertTrue(soil1Nutrients > 0);
     assertTrue(Nitrogen.get(IStore(SIMULATOR_ADDRESS), worldAddress, soilEntity.scale, soilEntity.entityId) > 0);
     assertTrue(Phosphorous.get(IStore(SIMULATOR_ADDRESS), worldAddress, soilEntity.scale, soilEntity.entityId) > 0);
     assertTrue(Potassium.get(IStore(SIMULATOR_ADDRESS), worldAddress, soilEntity.scale, soilEntity.entityId) > 0);

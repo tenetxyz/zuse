@@ -17,7 +17,6 @@ import { VoxelActivated, VoxelActivatedData } from "@tenet-base-world/src/codege
 import { getEntityAtCoord, calculateChildCoords, calculateParentCoord } from "@tenet-base-world/src/Utils.sol";
 import { runInteraction, enterWorld, exitWorld, activateVoxel, moveLayer } from "@tenet-base-ca/src/CallUtils.sol";
 import { addressToEntityKey } from "@tenet-utils/src/Utils.sol";
-import { console } from "forge-std/console.sol";
 
 abstract contract RunCASystem is System {
   function enterCA(
@@ -135,10 +134,7 @@ abstract contract RunCASystem is System {
     bytes4 interactionSelector
   ) public virtual returns (EntityEventData[] memory) {
     if (!Interactions.get(entity.scale, entity.entityId)) {
-      console.log("interaction unique entity");
-      console.logBytes32(entity.entityId);
       uint256 numInteractionsRan = KeysInTable.lengthKeys0(InteractionsTableId);
-      console.logUint(numInteractionsRan);
       if (numInteractionsRan + 1 > MAX_UNIQUE_ENTITY_INTERACTIONS_RUN) {
         return new EntityEventData[](0);
       }

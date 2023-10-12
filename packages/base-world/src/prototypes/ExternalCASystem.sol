@@ -20,7 +20,6 @@ import { VoxelMind, VoxelMindData } from "@tenet-base-world/src/codegen/tables/V
 import { runInteraction, enterWorld, exitWorld, activateVoxel, moveLayer } from "@tenet-base-ca/src/CallUtils.sol";
 import { positionDataToVoxelCoord, getEntityAtCoord, calculateChildCoords, calculateParentCoord } from "@tenet-base-world/src/Utils.sol";
 import { getVonNeumannNeighbours, getMooreNeighbours } from "@tenet-utils/src/VoxelCoordUtils.sol";
-import { console } from "forge-std/console.sol";
 
 abstract contract ExternalCASystem is System {
   function getVoxelTypeId(VoxelEntity memory entity) public view virtual returns (bytes32) {
@@ -32,10 +31,7 @@ abstract contract ExternalCASystem is System {
     VoxelEntity memory neighbourEntity
   ) public virtual returns (bool) {
     if (!Interactions.get(neighbourEntity.scale, neighbourEntity.entityId)) {
-      console.log("interaction neighbour unique entity");
-      console.logBytes32(neighbourEntity.entityId);
       uint256 numInteractionsRan = KeysInTable.lengthKeys0(InteractionsTableId);
-      console.logUint(numInteractionsRan);
       if (numInteractionsRan + 1 > MAX_UNIQUE_ENTITY_INTERACTIONS_RUN) {
         return false;
       }

@@ -22,13 +22,7 @@ abstract contract MineEvent is Event {
     VoxelCoord memory coord,
     bytes memory eventData
   ) internal virtual returns (VoxelEntity memory) {
-    (VoxelEntity memory mineEntity, EntityEventData[] memory entitiesEventData) = super.runEvent(
-      voxelTypeId,
-      coord,
-      eventData
-    );
-    processCAEvents(entitiesEventData);
-    return mineEntity;
+    return super.runEvent(voxelTypeId, coord, eventData);
   }
 
   function preEvent(bytes32 voxelTypeId, VoxelCoord memory coord, bytes memory eventData) internal virtual override {
@@ -39,8 +33,10 @@ abstract contract MineEvent is Event {
     bytes32 voxelTypeId,
     VoxelCoord memory coord,
     VoxelEntity memory eventVoxelEntity,
-    bytes memory eventData
+    bytes memory eventData,
+    EntityEventData[] memory entitiesEventData
   ) internal virtual override {
+    super.postEvent(voxelTypeId, coord, eventVoxelEntity, eventData, entitiesEventData);
     bytes32 useParentEntity = IWorld(_world()).calculateParentEntity(eventVoxelEntity);
     uint32 useParentScale = eventVoxelEntity.scale + 1;
     while (useParentEntity != 0) {

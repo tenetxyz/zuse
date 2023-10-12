@@ -20,12 +20,7 @@ abstract contract MoveEvent is Event {
     VoxelCoord memory coord,
     bytes memory eventData
   ) internal virtual returns (VoxelEntity memory, VoxelEntity memory) {
-    (VoxelEntity memory newVoxelEntity, EntityEventData[] memory entitiesEventData) = super.runEvent(
-      voxelTypeId,
-      coord,
-      eventData
-    );
-    processCAEvents(entitiesEventData);
+    VoxelEntity memory newVoxelEntity = super.runEvent(voxelTypeId, coord, eventData);
     MoveEventData memory moveEventData = abi.decode(eventData, (MoveEventData));
     bytes32 oldEntityId = getEntityAtCoord(newVoxelEntity.scale, moveEventData.oldCoord);
     VoxelEntity memory oldVoxelEntity = VoxelEntity({ scale: newVoxelEntity.scale, entityId: oldEntityId });
@@ -35,13 +30,6 @@ abstract contract MoveEvent is Event {
   function preEvent(bytes32 voxelTypeId, VoxelCoord memory coord, bytes memory eventData) internal virtual override {
     IWorld(_world()).approveMove(_msgSender(), voxelTypeId, coord, eventData);
   }
-
-  function postEvent(
-    bytes32 voxelTypeId,
-    VoxelCoord memory coord,
-    VoxelEntity memory eventVoxelEntity,
-    bytes memory eventData
-  ) internal virtual override {}
 
   function runEventHandlerForParent(
     bytes32 voxelTypeId,

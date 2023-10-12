@@ -27,12 +27,7 @@ abstract contract BuildEvent is Event {
     VoxelCoord memory coord,
     bytes memory eventData
   ) internal virtual returns (VoxelEntity memory) {
-    (VoxelEntity memory builtEntity, EntityEventData[] memory entitiesEventData) = super.runEvent(
-      voxelTypeId,
-      coord,
-      eventData
-    );
-    processCAEvents(entitiesEventData);
+    VoxelEntity memory builtEntity = super.runEvent(voxelTypeId, coord, eventData);
     // TODO: Where should this be dealt?
     // voxelSpawned(getRegistryAddress(), voxelTypeId);
     return builtEntity;
@@ -41,13 +36,6 @@ abstract contract BuildEvent is Event {
   function preEvent(bytes32 voxelTypeId, VoxelCoord memory coord, bytes memory eventData) internal virtual override {
     IWorld(_world()).approveBuild(_msgSender(), voxelTypeId, coord, eventData);
   }
-
-  function postEvent(
-    bytes32 voxelTypeId,
-    VoxelCoord memory coord,
-    VoxelEntity memory eventVoxelEntity,
-    bytes memory eventData
-  ) internal virtual override {}
 
   function runEventHandlerForParent(
     bytes32 voxelTypeId,

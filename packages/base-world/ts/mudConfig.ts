@@ -46,6 +46,15 @@ const WORLD_TABLES: Record<string, TableConfig> = {
     },
     ephemeral: true,
   },
+  Interactions: {
+    keySchema: {
+      scale: "uint32",
+      entity: "bytes32",
+    },
+    schema: {
+      ran: "bool",
+    },
+  },
   VoxelMind: {
     keySchema: {
       player: "address",
@@ -113,6 +122,11 @@ const WORLD_MODULES = [
     name: "KeysInTableModule",
     root: true,
     args: [resolveTableId("Spawn")],
+  },
+  {
+    name: "KeysInTableModule",
+    root: true,
+    args: [resolveTableId("Interactions")],
   },
 ];
 

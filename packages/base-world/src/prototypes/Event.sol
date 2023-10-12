@@ -14,6 +14,7 @@ import { Position } from "@tenet-base-world/src/codegen/tables/Position.sol";
 import { calculateChildCoords, getEntityAtCoord, positionDataToVoxelCoord } from "@tenet-base-world/src/Utils.sol";
 import { CAVoxelType, CAVoxelTypeData } from "@tenet-base-ca/src/codegen/tables/CAVoxelType.sol";
 import { VoxelTypeRegistry, VoxelTypeRegistryData } from "@tenet-registry/src/codegen/tables/VoxelTypeRegistry.sol";
+import { Interactions, InteractionsTableId } from "@tenet-base-world/src/codegen/tables/Interactions.sol";
 
 abstract contract Event is System {
   function getRegistryAddress() internal pure virtual returns (address);
@@ -24,8 +25,17 @@ abstract contract Event is System {
     bytes32 voxelTypeId,
     VoxelCoord memory coord,
     VoxelEntity memory eventVoxelEntity,
-    bytes memory eventData
-  ) internal virtual;
+    bytes memory eventData,
+    EntityEventData[] memory entitiesEventData
+  ) internal virtual {
+    processCAEvents(entitiesEventData);
+
+    // Clear all keys in Interactions
+    bytes32[][] memory entitiesRan = getKeysInTable(InteractionsTableId);
+    for (uint256 i = 0; i < entitiesRan.length; i++) {
+      Interactions.deleteRecord(uint32(uint256(entitiesRan[i][0])), entitiesRan[i][1]);
+    }
+  }
 
   function processCAEvents(EntityEventData[] memory entitiesEventData) internal virtual;
 
@@ -33,7 +43,7 @@ abstract contract Event is System {
     bytes32 voxelTypeId,
     VoxelCoord memory coord,
     bytes memory eventData
-  ) internal virtual returns (VoxelEntity memory, EntityEventData[] memory) {
+  ) internal virtual returns (VoxelEntity memory) {
     preEvent(voxelTypeId, coord, eventData);
 
     (VoxelEntity memory eventVoxelEntity, EntityEventData[] memory entitiesEventData) = runEventHandler(
@@ -44,9 +54,9 @@ abstract contract Event is System {
       eventData
     );
 
-    postEvent(voxelTypeId, coord, eventVoxelEntity, eventData);
+    postEvent(voxelTypeId, coord, eventVoxelEntity, eventData, entitiesEventData);
 
-    return (eventVoxelEntity, entitiesEventData);
+    return eventVoxelEntity;
   }
 
   function preRunCA(

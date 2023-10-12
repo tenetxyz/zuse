@@ -25,25 +25,12 @@ abstract contract ActivateEvent is Event {
     uint32 scale = voxelTypeData.scale;
     bytes32 voxelEntityId = getEntityAtCoord(scale, coord);
     require(voxelEntityId != 0, "ActivateEvent: no voxel entity at coord");
-    (VoxelEntity memory activateEntity, EntityEventData[] memory entitiesEventData) = runEvent(
-      voxelTypeId,
-      coord,
-      eventData
-    );
-    processCAEvents(entitiesEventData);
-    return activateEntity;
+    return runEvent(voxelTypeId, coord, eventData);
   }
 
   function preEvent(bytes32 voxelTypeId, VoxelCoord memory coord, bytes memory eventData) internal virtual override {
     IWorld(_world()).approveActivate(_msgSender(), voxelTypeId, coord, eventData);
   }
-
-  function postEvent(
-    bytes32 voxelTypeId,
-    VoxelCoord memory coord,
-    VoxelEntity memory eventVoxelEntity,
-    bytes memory eventData
-  ) internal virtual override {}
 
   function runEventHandlerForParent(
     bytes32 voxelTypeId,

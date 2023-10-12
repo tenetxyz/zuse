@@ -39,15 +39,12 @@ contract SoilTest is MudTest {
     world = IWorld(worldAddress);
     store = IStore(worldAddress);
     alice = payable(address(0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266));
-    agentCoord = VoxelCoord({ x: 354, y: 5, z: 63 });
+    agentCoord = VoxelCoord(51, 10, 50);
   }
 
   function setupAgent() internal returns (VoxelEntity memory) {
     // Claim agent
-    VoxelEntity memory faucetEntity = VoxelEntity({
-      scale: 1,
-      entityId: getEntityAtCoord(1, VoxelCoord({ x: 354, y: 5, z: 64 }))
-    });
+    VoxelEntity memory faucetEntity = VoxelEntity({ scale: 1, entityId: getEntityAtCoord(1, VoxelCoord(50, 10, 50)) });
     VoxelEntity memory agentEntity = world.claimAgentFromFaucet(faucetEntity, FighterVoxelID, agentCoord);
     return agentEntity;
   }
@@ -56,37 +53,39 @@ contract SoilTest is MudTest {
     vm.startPrank(alice, alice);
     VoxelEntity memory agentEntity = setupAgent();
 
-    // VoxelCoord memory soilCoord = VoxelCoord({ x: agentCoord.x + 1, y: agentCoord.y, z: agentCoord.z });
-    // VoxelEntity memory soilEntity = world.buildWithAgent(SoilVoxelID, soilCoord, agentEntity, bytes4(0));
-    // Energy.set(IStore(SIMULATOR_ADDRESS), worldAddress, soilEntity.scale, soilEntity.entityId, INITIAL_HIGH_ENERGY);
-    // uint256 soil1Energy = Energy.get(IStore(SIMULATOR_ADDRESS), worldAddress, soilEntity.scale, soilEntity.entityId);
-    // assertTrue(soil1Energy == INITIAL_HIGH_ENERGY);
-    // world.activateWithAgent(SoilVoxelID, soilCoord, agentEntity, bytes4(0));
-    // uint256 soil1Nutrients = Nutrients.get(
-    //   IStore(SIMULATOR_ADDRESS),
-    //   worldAddress,
-    //   soilEntity.scale,
-    //   soilEntity.entityId
-    // );
-    // assertTrue(soil1Nutrients == soil1Energy);
-    // soil1Energy = Energy.get(IStore(SIMULATOR_ADDRESS), worldAddress, soilEntity.scale, soilEntity.entityId);
-    // assertTrue(soil1Energy == 0);
-    // assertTrue(Nitrogen.get(IStore(SIMULATOR_ADDRESS), worldAddress, soilEntity.scale, soilEntity.entityId) > 0);
-    // assertTrue(Phosphorous.get(IStore(SIMULATOR_ADDRESS), worldAddress, soilEntity.scale, soilEntity.entityId) > 0);
-    // assertTrue(Potassium.get(IStore(SIMULATOR_ADDRESS), worldAddress, soilEntity.scale, soilEntity.entityId) > 0);
+    VoxelCoord memory soilCoord = VoxelCoord({ x: agentCoord.x + 1, y: agentCoord.y, z: agentCoord.z });
+    VoxelEntity memory soilEntity = world.buildWithAgent(SoilVoxelID, soilCoord, agentEntity, bytes4(0));
+    Energy.set(IStore(SIMULATOR_ADDRESS), worldAddress, soilEntity.scale, soilEntity.entityId, INITIAL_HIGH_ENERGY);
+    uint256 soil1Energy = Energy.get(IStore(SIMULATOR_ADDRESS), worldAddress, soilEntity.scale, soilEntity.entityId);
+    assertTrue(soil1Energy == INITIAL_HIGH_ENERGY);
+    world.activateWithAgent(SoilVoxelID, soilCoord, agentEntity, bytes4(0));
+    uint256 soil1Nutrients = Nutrients.get(
+      IStore(SIMULATOR_ADDRESS),
+      worldAddress,
+      soilEntity.scale,
+      soilEntity.entityId
+    );
+    assertTrue(soil1Nutrients == soil1Energy);
+    soil1Energy = Energy.get(IStore(SIMULATOR_ADDRESS), worldAddress, soilEntity.scale, soilEntity.entityId);
+    assertTrue(soil1Energy == 0);
+    assertTrue(Nitrogen.get(IStore(SIMULATOR_ADDRESS), worldAddress, soilEntity.scale, soilEntity.entityId) > 0);
+    assertTrue(Phosphorous.get(IStore(SIMULATOR_ADDRESS), worldAddress, soilEntity.scale, soilEntity.entityId) > 0);
+    assertTrue(Potassium.get(IStore(SIMULATOR_ADDRESS), worldAddress, soilEntity.scale, soilEntity.entityId) > 0);
 
-    // // // Place down another soil beside it
-    // VoxelCoord memory soilCoord2 = VoxelCoord({ x: soilCoord.x, y: soilCoord.y, z: soilCoord.z + 1 });
-    // VoxelEntity memory soilEntity2 = world.buildWithAgent(SoilVoxelID, soilCoord2, agentEntity, bytes4(0));
+    // // Place down another soil beside it
+    VoxelCoord memory soilCoord2 = VoxelCoord({ x: soilCoord.x, y: soilCoord.y, z: soilCoord.z + 1 });
+    console.log("building new soil");
+    VoxelEntity memory soilEntity2 = world.buildWithAgent(SoilVoxelID, soilCoord2, agentEntity, bytes4(0));
     // assertTrue(
     //   Nutrients.get(IStore(SIMULATOR_ADDRESS), worldAddress, soilEntity.scale, soilEntity.entityId) < soil1Nutrients
     // );
-    // uint256 soil2Nutrients = Nutrients.get(
-    //   IStore(SIMULATOR_ADDRESS),
-    //   worldAddress,
-    //   soilEntity2.scale,
-    //   soilEntity2.entityId
-    // );
+    uint256 soil2Nutrients = Nutrients.get(
+      IStore(SIMULATOR_ADDRESS),
+      worldAddress,
+      soilEntity2.scale,
+      soilEntity2.entityId
+    );
+    console.logUint(soil2Nutrients);
     // assertTrue(soil2Nutrients > 0);
     // assertTrue(Nitrogen.get(IStore(SIMULATOR_ADDRESS), worldAddress, soilEntity2.scale, soilEntity2.entityId) > 0);
     // assertTrue(Phosphorous.get(IStore(SIMULATOR_ADDRESS), worldAddress, soilEntity2.scale, soilEntity2.entityId) > 0);
@@ -110,6 +109,7 @@ contract SoilTest is MudTest {
     assertTrue(Potassium.get(IStore(SIMULATOR_ADDRESS), worldAddress, soilEntity.scale, soilEntity.entityId) > 0);
 
     // Place down plant on top of it
+    vm.roll(block.number + 1);
     VoxelCoord memory plantCoord = VoxelCoord({ x: soilCoord.x, y: soilCoord.y + 1, z: soilCoord.z });
     VoxelEntity memory plantEntity = world.buildWithAgent(PlantVoxelID, plantCoord, agentEntity, bytes4(0));
     uint256 plantNutrients = Nutrients.get(

@@ -6,7 +6,16 @@ export default mudConfig({
   enums: {
     ObjectType: ["None", "Fire", "Water", "Grass"],
     PlantStage: ["Seed", "Sprout", "Flower"],
-    EventType: ["None", "SetNitrogen", "SetPhosphorous", "SetPotassium", "SetNutrients"],
+    EventType: [
+      "None",
+      "SetNitrogen",
+      "SetPhosphorous",
+      "SetPotassium",
+      "SetNutrients",
+      "SetElixir",
+      "SetProtein",
+      "Die",
+    ],
   },
   tables: {
     Soil: {
@@ -27,6 +36,7 @@ export default mudConfig({
       },
       schema: {
         stage: "PlantStage",
+        lastEvent: "EventType",
         lastInteractionBlock: "uint256",
         hasValue: "bool", // TODO: Remove this once we can install non-root modules
       },

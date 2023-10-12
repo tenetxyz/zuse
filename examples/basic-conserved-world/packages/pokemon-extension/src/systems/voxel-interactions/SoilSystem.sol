@@ -249,6 +249,11 @@ contract SoilSystem is VoxelInteraction {
     return numSoilNeighbours;
   }
 
+  function entityHasNPK(bytes32 interactEntity) internal returns (bool) {
+    BodySimData memory entitySimData = getEntitySimData(interactEntity);
+    return entitySimData.nitrogen > 0 && entitySimData.phosphorous > 0 && entitySimData.potassium > 0;
+  }
+
   function getEntityData(
     address callerAddress,
     bytes32 interactEntity,
@@ -268,57 +273,53 @@ contract SoilSystem is VoxelInteraction {
       uint256 numSoilNeighbours = calculateNumSoilNeighbours(callerAddress, neighbourEntityIds);
       if (numSoilNeighbours > 0) {
         transferNutrientsToSoil = transferNutrientsToSoil / numSoilNeighbours;
-        Soil.setLastInteractionBlock(callerAddress, interactEntity, block.number);
       }
     }
 
     CAEventData[] memory allCAEventData = new CAEventData[](neighbourEntityIds.length);
 
     bool hasTransfer = false;
-    bool hasPlant = false;
 
     // Calculate soil neighbours
-
     for (uint i = 0; i < neighbourEntityIds.length; i++) {
       if (uint256(neighbourEntityIds[i]) == 0) {
         continue;
       }
       VoxelCoord memory neighbourCoord = getCAEntityPositionStrict(IStore(_world()), neighbourEntityIds[i]);
       // Check if the neighbor is a Soil, Seed, or Young Plant cell
-      if (entityIsSoil(callerAddress, neighbourEntityIds[i])) {
-        allCAEventData[i] = transfer(
-          SimTable.Nutrients,
-          SimTable.Nutrients,
-          entitySimData,
-          neighbourEntityIds[i],
-          neighbourCoord,
-          transferNutrientsToSoil
-        );
+      if (entityIsSoil(callerAddress, neighbourEntityIds[i]) && entityHasNPK(neighbourEntityIds[i])) {
         if (transferNutrientsToSoil > 0) {
+          allCAEventData[i] = transfer(
+            SimTable.Nutrients,
+            SimTable.Nutrients,
+            entitySimData,
+            neighbourEntityIds[i],
+            neighbourCoord,
+            transferNutrientsToSoil
+          );
           hasTransfer = true;
         }
-      } else if (isValidPlantNeighbour(callerAddress, neighbourEntityIds[i], neighbourEntityDirections[i])) {
-        allCAEventData[i] = transfer(
-          SimTable.Nutrients,
-          SimTable.Nutrients,
-          entitySimData,
-          neighbourEntityIds[i],
-          neighbourCoord,
-          transferNutrientsToPlant
-        );
+      } else if (
+        isValidPlantNeighbour(callerAddress, neighbourEntityIds[i], neighbourEntityDirections[i]) &&
+        entityHasNPK(neighbourEntityIds[i])
+      ) {
         if (transferNutrientsToPlant > 0) {
+          allCAEventData[i] = transfer(
+            SimTable.Nutrients,
+            SimTable.Nutrients,
+            entitySimData,
+            neighbourEntityIds[i],
+            neighbourCoord,
+            transferNutrientsToPlant
+          );
           hasTransfer = true;
         }
-        hasPlant = true;
       }
-    }
-
-    if (hasPlant) {
-      Soil.setLastInteractionBlock(callerAddress, interactEntity, block.number);
     }
 
     // Check if there's at least one transfer
     if (hasTransfer) {
+      Soil.setLastInteractionBlock(callerAddress, interactEntity, block.number);
       return abi.encode(allCAEventData);
     }
 

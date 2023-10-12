@@ -62,7 +62,7 @@ contract ProteinSystem is SimHandler {
       {
         uint256 nitrogen = Nitrogen.get(callerAddress, senderEntity.scale, senderEntity.entityId);
         uint256 phosphorus = Phosphorous.get(callerAddress, senderEntity.scale, senderEntity.entityId);
-        receiverProtein = (senderNutrients) / (1 + (nitrogen * phosphorus));
+        receiverProtein = (senderNutrients) / (1 + (nitrogen + phosphorus));
       }
       if (receiverProtein == 0) {
         return;

@@ -98,7 +98,7 @@ contract NutrientsSystem is SimHandler {
         if (receiverNutrientsDelta == 0) {
           return;
         }
-        require(int256ToUint256(receiverNutrientsDelta) >= senderEnergy, "Not enough energy to convert to nutrients");
+        require(senderEnergy >= int256ToUint256(receiverNutrientsDelta), "Not enough energy to convert to nutrients");
         e_cost = senderEnergy - int256ToUint256(receiverNutrientsDelta);
       } else {
         require(senderEnergy == receiverNutrients, "Sender energy must equal receiver nutrients");

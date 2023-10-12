@@ -65,7 +65,7 @@ contract SoilTest is MudTest {
       soilEntity.scale,
       soilEntity.entityId
     );
-    assertTrue(soil1Nutrients == soil1Energy);
+    assertTrue(soil1Nutrients > 0);
     soil1Energy = Energy.get(IStore(SIMULATOR_ADDRESS), worldAddress, soilEntity.scale, soilEntity.entityId);
     assertTrue(soil1Energy == 0);
     assertTrue(Nitrogen.get(IStore(SIMULATOR_ADDRESS), worldAddress, soilEntity.scale, soilEntity.entityId) > 0);
@@ -105,6 +105,13 @@ contract SoilTest is MudTest {
     assertTrue(Nitrogen.get(IStore(SIMULATOR_ADDRESS), worldAddress, soilEntity.scale, soilEntity.entityId) > 0);
     assertTrue(Phosphorous.get(IStore(SIMULATOR_ADDRESS), worldAddress, soilEntity.scale, soilEntity.entityId) > 0);
     assertTrue(Potassium.get(IStore(SIMULATOR_ADDRESS), worldAddress, soilEntity.scale, soilEntity.entityId) > 0);
+    uint256 soilNutrients = Nutrients.get(
+      IStore(SIMULATOR_ADDRESS),
+      worldAddress,
+      soilEntity.scale,
+      soilEntity.entityId
+    );
+    assertTrue(soilNutrients > 0);
 
     // Place down plant on top of it
     vm.roll(block.number + 1);

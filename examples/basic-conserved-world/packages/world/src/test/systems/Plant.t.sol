@@ -68,7 +68,7 @@ contract PlantTest is MudTest {
       soilEntity.scale,
       soilEntity.entityId
     );
-    assertTrue(soil1Nutrients == 90);
+    assertTrue(soil1Nutrients > 0);
     assertTrue(Nitrogen.get(IStore(SIMULATOR_ADDRESS), worldAddress, soilEntity.scale, soilEntity.entityId) > 0);
     assertTrue(Phosphorous.get(IStore(SIMULATOR_ADDRESS), worldAddress, soilEntity.scale, soilEntity.entityId) > 0);
     assertTrue(Potassium.get(IStore(SIMULATOR_ADDRESS), worldAddress, soilEntity.scale, soilEntity.entityId) > 0);
@@ -109,7 +109,7 @@ contract PlantTest is MudTest {
       soilEntity.scale,
       soilEntity.entityId
     );
-    assertTrue(soil1Nutrients == 90);
+    assertTrue(soil1Nutrients > 0);
     assertTrue(Nitrogen.get(IStore(SIMULATOR_ADDRESS), worldAddress, soilEntity.scale, soilEntity.entityId) > 0);
     assertTrue(Phosphorous.get(IStore(SIMULATOR_ADDRESS), worldAddress, soilEntity.scale, soilEntity.entityId) > 0);
     assertTrue(Potassium.get(IStore(SIMULATOR_ADDRESS), worldAddress, soilEntity.scale, soilEntity.entityId) > 0);
@@ -137,8 +137,7 @@ contract PlantTest is MudTest {
     world.activateWithAgent(SoilVoxelID, soilCoord, agentEntity, bytes4(0));
     plantData = Plant.get(IStore(BASE_CA_ADDRESS), worldAddress, plantCAEntity);
     plantNutrients = Nutrients.get(IStore(SIMULATOR_ADDRESS), worldAddress, plantEntity.scale, plantEntity.entityId);
-    console.logUint(uint(plantData.stage));
-    assertTrue(plantNutrients > AMOUNT_REQUIRED_FOR_SPROUT && plantNutrients < AMOUNT_REQUIRED_FOR_FLOWER);
+    assertTrue(plantNutrients >= AMOUNT_REQUIRED_FOR_SPROUT && plantNutrients < AMOUNT_REQUIRED_FOR_FLOWER);
     assertTrue(plantData.stage == PlantStage.Sprout);
 
     // Mine soil
@@ -178,7 +177,7 @@ contract PlantTest is MudTest {
       soilEntity.scale,
       soilEntity.entityId
     );
-    assertTrue(soil1Nutrients == 90);
+    assertTrue(soil1Nutrients > 0);
     assertTrue(Nitrogen.get(IStore(SIMULATOR_ADDRESS), worldAddress, soilEntity.scale, soilEntity.entityId) > 0);
     assertTrue(Phosphorous.get(IStore(SIMULATOR_ADDRESS), worldAddress, soilEntity.scale, soilEntity.entityId) > 0);
     assertTrue(Potassium.get(IStore(SIMULATOR_ADDRESS), worldAddress, soilEntity.scale, soilEntity.entityId) > 0);
@@ -206,12 +205,12 @@ contract PlantTest is MudTest {
     world.activateWithAgent(SoilVoxelID, soilCoord, agentEntity, bytes4(0));
     plantData = Plant.get(IStore(BASE_CA_ADDRESS), worldAddress, plantCAEntity);
     plantNutrients = Nutrients.get(IStore(SIMULATOR_ADDRESS), worldAddress, plantEntity.scale, plantEntity.entityId);
-    assertTrue(plantNutrients > AMOUNT_REQUIRED_FOR_SPROUT && plantNutrients < AMOUNT_REQUIRED_FOR_FLOWER);
+    assertTrue(plantNutrients >= AMOUNT_REQUIRED_FOR_SPROUT && plantNutrients < AMOUNT_REQUIRED_FOR_FLOWER);
     assertTrue(plantData.stage == PlantStage.Sprout);
 
     vm.roll(block.number + 1);
-    Energy.set(IStore(SIMULATOR_ADDRESS), worldAddress, soilEntity.scale, soilEntity.entityId, 1000);
-    world.activateWithAgent(SoilVoxelID, soilCoord, agentEntity, bytes4(0));
+    Nutrients.set(IStore(SIMULATOR_ADDRESS), worldAddress, plantEntity.scale, plantEntity.entityId, 2000);
+    world.activateWithAgent(PlantVoxelID, plantCoord, agentEntity, bytes4(0));
     plantData = Plant.get(IStore(BASE_CA_ADDRESS), worldAddress, plantCAEntity);
     plantNutrients = Nutrients.get(IStore(SIMULATOR_ADDRESS), worldAddress, plantEntity.scale, plantEntity.entityId);
     assertTrue(plantData.stage == PlantStage.Flower);

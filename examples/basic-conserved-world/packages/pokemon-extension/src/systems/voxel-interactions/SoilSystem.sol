@@ -141,7 +141,7 @@ contract SoilSystem is VoxelInteraction {
           targetEntity: entity,
           targetCoord: coord,
           targetTable: SimTable.Nitrogen,
-          targetValue: abi.encode(1)
+          targetValue: abi.encode(150)
         });
         allCAEventData[0] = CAEventData({
           eventType: CAEventType.SimEvent,
@@ -162,7 +162,7 @@ contract SoilSystem is VoxelInteraction {
           targetEntity: entity,
           targetCoord: coord,
           targetTable: SimTable.Phosphorous,
-          targetValue: abi.encode(1)
+          targetValue: abi.encode(150)
         });
         allCAEventData[0] = CAEventData({
           eventType: CAEventType.SimEvent,
@@ -183,7 +183,7 @@ contract SoilSystem is VoxelInteraction {
           targetEntity: entity,
           targetCoord: coord,
           targetTable: SimTable.Potassium,
-          targetValue: abi.encode(1)
+          targetValue: abi.encode(150)
         });
         allCAEventData[0] = CAEventData({
           eventType: CAEventType.SimEvent,

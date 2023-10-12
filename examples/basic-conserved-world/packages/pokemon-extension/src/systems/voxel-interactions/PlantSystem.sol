@@ -36,10 +36,6 @@ contract PlantSystem is VoxelInteraction {
       return initPlantProperties(callerAddress, neighbourEntityId, entitySimData);
     }
 
-    if (Plant.getLastEvent(callerAddress, neighbourEntityId) != EventType.None) {
-      Plant.setLastEvent(callerAddress, neighbourEntityId, EventType.None);
-    }
-
     PlantData memory plantData = Plant.get(callerAddress, neighbourEntityId);
     PlantStage oldPlantStage = plantData.stage;
 
@@ -95,10 +91,6 @@ contract PlantSystem is VoxelInteraction {
     BodySimData memory entitySimData = getEntitySimData(interactEntity);
     if (entitySimData.nitrogen == 0 || entitySimData.phosphorous == 0 || entitySimData.potassium == 0) {
       return initPlantProperties(callerAddress, interactEntity, entitySimData);
-    }
-
-    if (Plant.getLastEvent(callerAddress, interactEntity) != EventType.None) {
-      Plant.setLastEvent(callerAddress, interactEntity, EventType.None);
     }
 
     PlantData memory plantData = Plant.get(callerAddress, interactEntity);
@@ -163,7 +155,7 @@ contract PlantSystem is VoxelInteraction {
           targetEntity: entity,
           targetCoord: coord,
           targetTable: SimTable.Nitrogen,
-          targetValue: abi.encode(1)
+          targetValue: abi.encode(150)
         });
         allCAEventData[0] = CAEventData({
           eventType: CAEventType.SimEvent,
@@ -184,7 +176,7 @@ contract PlantSystem is VoxelInteraction {
           targetEntity: entity,
           targetCoord: coord,
           targetTable: SimTable.Phosphorous,
-          targetValue: abi.encode(1)
+          targetValue: abi.encode(150)
         });
         allCAEventData[0] = CAEventData({
           eventType: CAEventType.SimEvent,
@@ -205,7 +197,7 @@ contract PlantSystem is VoxelInteraction {
           targetEntity: entity,
           targetCoord: coord,
           targetTable: SimTable.Potassium,
-          targetValue: abi.encode(1)
+          targetValue: abi.encode(150)
         });
         allCAEventData[0] = CAEventData({
           eventType: CAEventType.SimEvent,
@@ -281,6 +273,7 @@ contract PlantSystem is VoxelInteraction {
     PlantData memory plantData
   ) internal returns (PlantData memory, CAEventData[] memory allCAEventData, bool hasTransfer) {
     allCAEventData = new CAEventData[](neighbourEntityIds.length);
+    console.log("runSproutInteraction");
 
     uint256 transferAmount;
     {
@@ -353,11 +346,20 @@ contract PlantSystem is VoxelInteraction {
     BodySimData memory entitySimData,
     PlantData memory plantData
   ) internal returns (PlantData memory, CAEventData[] memory allCAEventData, bool) {
-    if ((entitySimData.elixir == 0 || entitySimData.protein == 0) && entitySimData.nutrients > 0) {
-      VoxelCoord memory coord = getCAEntityPositionStrict(IStore(_world()), interactEntity);
-      if (entitySimData.elixir == 0) {
-        if (plantData.lastEvent != EventType.SetElixir) {
+    {
+      console.log("runFlowerInteraction");
+      console.logUint(entitySimData.nutrients);
+      uint256 transferAmount = entitySimData.nutrients / 2;
+      uint256 receivedAmountElixir = transferAmount / (1 + entitySimData.potassium);
+      uint256 receiverAmountProtein = (transferAmount) / (1 + (entitySimData.nitrogen + entitySimData.phosphorous));
+      console.logUint(receivedAmountElixir);
+      console.logUint(receiverAmountProtein);
+
+      if (receivedAmountElixir > 0 || receiverAmountProtein > 0) {
+        VoxelCoord memory coord = getCAEntityPositionStrict(IStore(_world()), interactEntity);
+        if (receivedAmountElixir > 0 && plantData.lastEvent != EventType.SetElixir) {
           console.log("plant set elixir");
+          console.logUint(entitySimData.nutrients / 2);
           allCAEventData = new CAEventData[](1);
           allCAEventData[0] = transfer(
             SimTable.Nutrients,
@@ -365,14 +367,13 @@ contract PlantSystem is VoxelInteraction {
             entitySimData,
             interactEntity,
             coord,
-            entitySimData.nutrients / 2
+            transferAmount
           );
           plantData.lastEvent = EventType.SetElixir;
           return (plantData, allCAEventData, true);
-        }
-      } else if (entitySimData.protein == 0) {
-        if (plantData.lastEvent != EventType.SetProtein) {
+        } else if (receiverAmountProtein > 0 && plantData.lastEvent != EventType.SetProtein) {
           console.log("plant set protein");
+          console.logUint(entitySimData.nutrients / 2);
           allCAEventData = new CAEventData[](1);
           allCAEventData[0] = transfer(
             SimTable.Nutrients,
@@ -380,14 +381,18 @@ contract PlantSystem is VoxelInteraction {
             entitySimData,
             interactEntity,
             coord,
-            entitySimData.nutrients / 2
+            transferAmount
           );
           plantData.lastEvent = EventType.SetProtein;
           return (plantData, allCAEventData, true);
         }
-      }
 
-      return (plantData, allCAEventData, false);
+        return (plantData, allCAEventData, false);
+      }
+    }
+
+    if (plantData.lastEvent != EventType.None) {
+      plantData.lastEvent = EventType.None;
     }
 
     allCAEventData = new CAEventData[](neighbourEntityIds.length * 2);

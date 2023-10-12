@@ -21,8 +21,6 @@ contract CAEventsSystem is System {
     // TODO: Optimize the length of this array
     EntityEventData[] memory allNewEntitiesEventData = new EntityEventData[](MAX_VOXEL_NEIGHBOUR_UPDATE_DEPTH);
     uint allNewEntitiesEventDataIdx = 0;
-    VoxelEntity[] memory entitiesToRunCA = new VoxelEntity[](MAX_VOXEL_NEIGHBOUR_UPDATE_DEPTH);
-    uint entitiesToRunCAIdx = 0;
 
     for (uint256 i; i < entitiesEventData.length; i++) {
       EntityEventData memory entityEventData = entitiesEventData[i];
@@ -42,58 +40,73 @@ contract CAEventsSystem is System {
           continue;
         }
 
-        if (caEventData.eventType == CAEventType.SimEvent) {
-          SimEventData memory simEventData = abi.decode(caEventData.eventData, (SimEventData));
-          if (simEventData.senderTable == SimTable.None || simEventData.targetTable == SimTable.None) {
-            continue;
-          }
-
-          {
-            bytes32 targetEntityId = getEntityAtCoord(entity.scale, simEventData.targetCoord);
-            if (simEventData.targetEntity.scale == 0 && simEventData.targetEntity.entityId == 0) {
-              // then we need to fill it in
-              simEventData.targetEntity = VoxelEntity({ scale: entity.scale, entityId: targetEntityId });
+        if (caEventData.eventType == CAEventType.SimEvent || caEventData.eventType == CAEventType.BatchSimEvent) {
+          SimEventData[] memory allSimEventData;
+          if (caEventData.eventType == CAEventType.BatchSimEvent) {
+            allSimEventData = abi.decode(caEventData.eventData, (SimEventData[]));
+            if (allSimEventData.length == 0) {
+              continue;
             }
-            require(simEventData.targetEntity.entityId == targetEntityId, "Entity mismatch");
+          } else {
+            allSimEventData = new SimEventData[](1);
+            allSimEventData[0] = abi.decode(caEventData.eventData, (SimEventData));
           }
-          require(
-            distanceBetween(entityCoord, simEventData.targetCoord) <= 1,
-            "Target can only be a surrounding neighbour or yourself"
-          );
-          console.log("setting sim value");
-          console.logUint(uint(simEventData.senderTable));
-          console.logUint(uint(simEventData.targetTable));
-          setSimValue(
-            SIMULATOR_ADDRESS,
-            entity,
-            entityCoord,
-            simEventData.senderTable,
-            simEventData.senderValue,
-            simEventData.targetEntity,
-            simEventData.targetCoord,
-            simEventData.targetTable,
-            simEventData.targetValue
-          );
 
           bool calledWorldEvent = false;
-          if (simEventData.targetTable == SimTable.Mass) {
-            uint256 newMass = Mass.get(
-              IStore(SIMULATOR_ADDRESS),
-              _world(),
-              simEventData.targetEntity.scale,
-              simEventData.targetEntity.entityId
+          for (uint k = 0; k < allSimEventData.length; k++) {
+            SimEventData memory simEventData = allSimEventData[k];
+            if (simEventData.senderTable == SimTable.None || simEventData.targetTable == SimTable.None) {
+              continue;
+            }
+
+            {
+              bytes32 targetEntityId = getEntityAtCoord(entity.scale, simEventData.targetCoord);
+              if (simEventData.targetEntity.scale == 0 && simEventData.targetEntity.entityId == 0) {
+                // then we need to fill it in
+                simEventData.targetEntity = VoxelEntity({ scale: entity.scale, entityId: targetEntityId });
+              }
+              require(simEventData.targetEntity.entityId == targetEntityId, "Entity mismatch");
+            }
+            require(
+              distanceBetween(entityCoord, simEventData.targetCoord) <= 1,
+              "Target can only be a surrounding neighbour or yourself"
             );
-            if (newMass == 0) {
-              bytes32 voxelTypeId = VoxelType.getVoxelTypeId(
+            console.log("setting sim value");
+            console.logUint(uint(simEventData.senderTable));
+            console.logUint(uint(simEventData.targetTable));
+            setSimValue(
+              SIMULATOR_ADDRESS,
+              entity,
+              entityCoord,
+              simEventData.senderTable,
+              simEventData.senderValue,
+              simEventData.targetEntity,
+              simEventData.targetCoord,
+              simEventData.targetTable,
+              simEventData.targetValue
+            );
+
+            if (simEventData.targetTable == SimTable.Mass) {
+              uint256 newMass = Mass.get(
+                IStore(SIMULATOR_ADDRESS),
+                _world(),
                 simEventData.targetEntity.scale,
                 simEventData.targetEntity.entityId
               );
-              IWorld(_world()).mineWithAgent(voxelTypeId, simEventData.targetCoord, simEventData.targetEntity);
-              calledWorldEvent = true;
+              if (newMass == 0) {
+                bytes32 voxelTypeId = VoxelType.getVoxelTypeId(
+                  simEventData.targetEntity.scale,
+                  simEventData.targetEntity.entityId
+                );
+                IWorld(_world()).mineWithAgent(voxelTypeId, simEventData.targetCoord, simEventData.targetEntity);
+                calledWorldEvent = true;
+              }
             }
           }
 
           if (!calledWorldEvent) {
+            // In a batch, we only run the first target entity
+            SimEventData memory simEventData = allSimEventData[0];
             if (simEventData.targetEntity.scale == 0 && simEventData.targetEntity.entityId == 0) {
               continue;
             }
@@ -106,10 +119,10 @@ contract CAEventsSystem is System {
               simEventData.targetEntity,
               bytes4(0)
             );
-            for (uint k = 0; k < newEntitiesEventData.length; k++) {
-              if (newEntitiesEventData[k].eventData.length > 0) {
+            for (uint l = 0; l < newEntitiesEventData.length; l++) {
+              if (newEntitiesEventData[l].eventData.length > 0) {
                 console.log("new event from post run sim event");
-                allNewEntitiesEventData[allNewEntitiesEventDataIdx] = newEntitiesEventData[k];
+                allNewEntitiesEventData[allNewEntitiesEventDataIdx] = newEntitiesEventData[l];
                 allNewEntitiesEventDataIdx++;
                 require(allNewEntitiesEventDataIdx < MAX_VOXEL_NEIGHBOUR_UPDATE_DEPTH, "Too many new entities");
               }

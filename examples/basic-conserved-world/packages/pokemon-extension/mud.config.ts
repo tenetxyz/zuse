@@ -6,16 +6,7 @@ export default mudConfig({
   enums: {
     ObjectType: ["None", "Fire", "Water", "Grass"],
     PlantStage: ["Seed", "Sprout", "Flower"],
-    EventType: [
-      "None",
-      "SetNitrogen",
-      "SetPhosphorous",
-      "SetPotassium",
-      "SetNutrients",
-      "SetElixir",
-      "SetProtein",
-      "Die",
-    ],
+    EventType: ["None", "SetNPK", "SetNutrients", "SetElixir", "SetProtein", "Die"],
   },
   tables: {
     Soil: {

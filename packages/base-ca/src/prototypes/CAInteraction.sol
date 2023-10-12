@@ -64,10 +64,6 @@ abstract contract CAInteraction is System {
     }
     bytes4 useinteractionSelector = 0;
     {
-      // Call mind to figure out whch voxel interaction to run
-      require(hasKey(CAMindTableId, CAMind.encodeKeyTuple(caInteractEntity)), "Mind does not exist");
-      bytes4 mindSelector = CAMind.getMindSelector(caInteractEntity);
-
       InteractionSelector[] memory interactionSelectors = getInteractionSelectors(
         IStore(getRegistryAddress()),
         voxelTypeId
@@ -80,6 +76,10 @@ abstract contract CAInteraction is System {
           }
         }
       } else {
+        // Call mind to figure out whch voxel interaction to run
+        require(hasKey(CAMindTableId, CAMind.encodeKeyTuple(caInteractEntity)), "Mind does not exist");
+        bytes4 mindSelector = CAMind.getMindSelector(caInteractEntity);
+
         if (mindSelector != bytes4(0)) {
           // call mind to figure out which interaction selector to use
           bytes memory mindReturnData = safeCall(
@@ -149,7 +149,7 @@ abstract contract CAInteraction is System {
     address callerAddress,
     bytes32 interactEntity,
     bytes32 neighbourEntityId
-  ) internal view returns (bool) {
+  ) internal returns (bool) {
     bytes32 voxelTypeId = CAVoxelType.getVoxelTypeId(callerAddress, interactEntity);
     bytes32 neighbourVoxelTypeId = CAVoxelType.getVoxelTypeId(callerAddress, neighbourEntityId);
     return

@@ -76,7 +76,8 @@ struct SimEventData {
 enum CAEventType {
   None,
   WorldEvent,
-  SimEvent
+  SimEvent,
+  BatchSimEvent
 }
 
 struct CAEventData {

@@ -60,13 +60,6 @@ contract ExternalCASystem is ExternalCAPrototype {
     return entitySimData;
   }
 
-  function shouldRunInteractionForNeighbour(
-    VoxelEntity memory originEntity,
-    VoxelEntity memory neighbourEntity
-  ) public view override returns (bool) {
-    return true;
-  }
-
   function calculateMooreNeighbourEntities(
     VoxelEntity memory centerEntity,
     uint8 neighbourRadius

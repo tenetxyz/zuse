@@ -39,12 +39,15 @@ contract SoilTest is MudTest {
     world = IWorld(worldAddress);
     store = IStore(worldAddress);
     alice = payable(address(0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266));
-    agentCoord = VoxelCoord(51, 10, 50);
+    agentCoord = VoxelCoord({ x: 51, y: 10, z: 50 });
   }
 
   function setupAgent() internal returns (VoxelEntity memory) {
     // Claim agent
-    VoxelEntity memory faucetEntity = VoxelEntity({ scale: 1, entityId: getEntityAtCoord(1, VoxelCoord(50, 10, 50)) });
+    VoxelEntity memory faucetEntity = VoxelEntity({
+      scale: 1,
+      entityId: getEntityAtCoord(1, VoxelCoord({ x: 50, y: 10, z: 50 }))
+    });
     VoxelEntity memory agentEntity = world.claimAgentFromFaucet(faucetEntity, FaucetVoxelID, agentCoord);
     return agentEntity;
   }
@@ -72,7 +75,7 @@ contract SoilTest is MudTest {
     assertTrue(Phosphorous.get(IStore(SIMULATOR_ADDRESS), worldAddress, soilEntity.scale, soilEntity.entityId) > 0);
     assertTrue(Potassium.get(IStore(SIMULATOR_ADDRESS), worldAddress, soilEntity.scale, soilEntity.entityId) > 0);
 
-    // // Place down another soil beside it
+    // Place down another soil beside it
     VoxelCoord memory soilCoord2 = VoxelCoord({ x: soilCoord.x, y: soilCoord.y, z: soilCoord.z + 1 });
     VoxelEntity memory soilEntity2 = world.buildWithAgent(SoilVoxelID, soilCoord2, agentEntity, bytes4(0));
     assertTrue(

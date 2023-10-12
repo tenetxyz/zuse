@@ -8,7 +8,9 @@ import { hasEntity, addressToEntityKey } from "@tenet-utils/src/Utils.sol";
 import { safeCall } from "@tenet-utils/src/CallUtils.sol";
 import { CAVoxelType, CAVoxelTypeData } from "@tenet-base-ca/src/codegen/tables/CAVoxelType.sol";
 import { CAMind } from "@tenet-base-ca/src/codegen/tables/CAMind.sol";
-import { MAX_VOXEL_NEIGHBOUR_UPDATE_DEPTH } from "@tenet-utils/src/Constants.sol";
+import { KeysInTable } from "@latticexyz/world/src/modules/keysintable/tables/KeysInTable.sol";
+import { Interactions, InteractionsTableId } from "@tenet-base-world/src/codegen/tables/Interactions.sol";
+import { MAX_VOXEL_NEIGHBOUR_UPDATE_DEPTH, MAX_UNIQUE_ENTITY_INTERACTIONS_RUN } from "@tenet-utils/src/Constants.sol";
 import { hasKey } from "@latticexyz/world/src/modules/keysintable/hasKey.sol";
 import { Position, PositionData } from "@tenet-base-world/src/codegen/tables/Position.sol";
 import { VoxelType, VoxelTypeData, VoxelTypeTableId } from "@tenet-base-world/src/codegen/tables/VoxelType.sol";
@@ -18,6 +20,7 @@ import { VoxelMind, VoxelMindData } from "@tenet-base-world/src/codegen/tables/V
 import { runInteraction, enterWorld, exitWorld, activateVoxel, moveLayer } from "@tenet-base-ca/src/CallUtils.sol";
 import { positionDataToVoxelCoord, getEntityAtCoord, calculateChildCoords, calculateParentCoord } from "@tenet-base-world/src/Utils.sol";
 import { getVonNeumannNeighbours, getMooreNeighbours } from "@tenet-utils/src/VoxelCoordUtils.sol";
+import { console } from "forge-std/console.sol";
 
 abstract contract ExternalCASystem is System {
   function getVoxelTypeId(VoxelEntity memory entity) public view virtual returns (bytes32) {
@@ -27,7 +30,19 @@ abstract contract ExternalCASystem is System {
   function shouldRunInteractionForNeighbour(
     VoxelEntity memory originEntity,
     VoxelEntity memory neighbourEntity
-  ) public view virtual returns (bool);
+  ) public virtual returns (bool) {
+    if (!Interactions.get(neighbourEntity.scale, neighbourEntity.entityId)) {
+      console.log("interaction neighbour unique entity");
+      console.logBytes32(neighbourEntity.entityId);
+      uint256 numInteractionsRan = KeysInTable.lengthKeys0(InteractionsTableId);
+      console.logUint(numInteractionsRan);
+      if (numInteractionsRan + 1 > MAX_UNIQUE_ENTITY_INTERACTIONS_RUN) {
+        return false;
+      }
+      Interactions.set(neighbourEntity.scale, neighbourEntity.entityId, true);
+    }
+    return true;
+  }
 
   function calculateMooreNeighbourEntities(
     VoxelEntity memory centerEntity,

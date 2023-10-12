@@ -49,7 +49,6 @@ struct WorldEventData {
 
 enum SimTable {
   None,
-  Batch,
   Mass,
   Energy,
   Velocity,

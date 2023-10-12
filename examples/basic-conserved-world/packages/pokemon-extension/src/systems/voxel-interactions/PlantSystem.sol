@@ -144,69 +144,40 @@ contract PlantSystem is VoxelInteraction {
     VoxelEntity memory entity = VoxelEntity({ scale: 1, entityId: caEntityToEntity(interactEntity) });
     VoxelCoord memory coord = getCAEntityPositionStrict(IStore(_world()), interactEntity);
 
-    if (entitySimData.nitrogen == 0) {
-      if (lastEventType != EventType.SetNitrogen) {
-        console.log("setNPKSimEvent plant nitrogen");
-        console.logBytes32(interactEntity);
-        CAEventData[] memory allCAEventData = new CAEventData[](1);
-        SimEventData memory setNitrogenSimEvent = SimEventData({
-          senderTable: SimTable.Nitrogen,
-          senderValue: abi.encode(0),
-          targetEntity: entity,
-          targetCoord: coord,
-          targetTable: SimTable.Nitrogen,
-          targetValue: abi.encode(150)
-        });
-        allCAEventData[0] = CAEventData({
-          eventType: CAEventType.SimEvent,
-          eventData: abi.encode(setNitrogenSimEvent)
-        });
-        entityData = abi.encode(allCAEventData);
-        Plant.setLastEvent(callerAddress, interactEntity, EventType.SetNitrogen);
-        return (changedEntity, entityData);
-      }
-    } else if (entitySimData.phosphorous == 0) {
-      if (lastEventType != EventType.SetPhosphorous) {
-        console.log("setNPKSimEvent plant Phosphorous");
-        console.logBytes32(interactEntity);
-        CAEventData[] memory allCAEventData = new CAEventData[](1);
-        SimEventData memory setPhosphorousSimEvent = SimEventData({
-          senderTable: SimTable.Phosphorous,
-          senderValue: abi.encode(0),
-          targetEntity: entity,
-          targetCoord: coord,
-          targetTable: SimTable.Phosphorous,
-          targetValue: abi.encode(150)
-        });
-        allCAEventData[0] = CAEventData({
-          eventType: CAEventType.SimEvent,
-          eventData: abi.encode(setPhosphorousSimEvent)
-        });
-        entityData = abi.encode(allCAEventData);
-        Plant.setLastEvent(callerAddress, interactEntity, EventType.SetPhosphorous);
-        return (changedEntity, entityData);
-      }
-    } else if (entitySimData.potassium == 0) {
-      if (lastEventType != EventType.SetPotassium) {
-        console.log("setNPKSimEvent plant potassium");
-        console.logBytes32(interactEntity);
-        CAEventData[] memory allCAEventData = new CAEventData[](1);
-        SimEventData memory setPotassiumSimEvent = SimEventData({
-          senderTable: SimTable.Potassium,
-          senderValue: abi.encode(0),
-          targetEntity: entity,
-          targetCoord: coord,
-          targetTable: SimTable.Potassium,
-          targetValue: abi.encode(150)
-        });
-        allCAEventData[0] = CAEventData({
-          eventType: CAEventType.SimEvent,
-          eventData: abi.encode(setPotassiumSimEvent)
-        });
-        entityData = abi.encode(allCAEventData);
-        Plant.setLastEvent(callerAddress, interactEntity, EventType.SetPotassium);
-        return (changedEntity, entityData);
-      }
+    if (lastEventType != EventType.SetNPK) {
+      console.log("setNPKSimEvent soil NPK");
+      console.logBytes32(interactEntity);
+      SimEventData[] memory allSimEventData = new SimEventData[](3);
+      allSimEventData[0] = SimEventData({
+        senderTable: SimTable.Nitrogen,
+        senderValue: abi.encode(0),
+        targetEntity: entity,
+        targetCoord: coord,
+        targetTable: SimTable.Nitrogen,
+        targetValue: abi.encode(150)
+      });
+      allSimEventData[1] = SimEventData({
+        senderTable: SimTable.Phosphorous,
+        senderValue: abi.encode(0),
+        targetEntity: entity,
+        targetCoord: coord,
+        targetTable: SimTable.Phosphorous,
+        targetValue: abi.encode(150)
+      });
+      allSimEventData[2] = SimEventData({
+        senderTable: SimTable.Potassium,
+        senderValue: abi.encode(0),
+        targetEntity: entity,
+        targetCoord: coord,
+        targetTable: SimTable.Potassium,
+        targetValue: abi.encode(150)
+      });
+
+      CAEventData[] memory allCAEventData = new CAEventData[](1);
+      allCAEventData[0] = CAEventData({ eventType: CAEventType.BatchSimEvent, eventData: abi.encode(allSimEventData) });
+      entityData = abi.encode(allCAEventData);
+      Plant.setLastEvent(callerAddress, interactEntity, EventType.SetNPK);
+      return (changedEntity, entityData);
     }
 
     return (changedEntity, entityData);

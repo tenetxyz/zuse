@@ -49,6 +49,7 @@ struct WorldEventData {
 
 enum SimTable {
   None,
+  Batch,
   Mass,
   Energy,
   Velocity,
@@ -76,7 +77,8 @@ struct SimEventData {
 enum CAEventType {
   None,
   WorldEvent,
-  SimEvent
+  SimEvent,
+  BatchSimEvent
 }
 
 struct CAEventData {

@@ -149,7 +149,7 @@ abstract contract CAInteraction is System {
     address callerAddress,
     bytes32 interactEntity,
     bytes32 neighbourEntityId
-  ) internal view returns (bool) {
+  ) internal returns (bool) {
     bytes32 voxelTypeId = CAVoxelType.getVoxelTypeId(callerAddress, interactEntity);
     bytes32 neighbourVoxelTypeId = CAVoxelType.getVoxelTypeId(callerAddress, neighbourEntityId);
     return

@@ -9,13 +9,6 @@ contract ExternalCASystem is ExternalCAPrototype {
     return super.getVoxelTypeId(entity);
   }
 
-  function shouldRunInteractionForNeighbour(
-    VoxelEntity memory originEntity,
-    VoxelEntity memory neighbourEntity
-  ) public view override returns (bool) {
-    return true;
-  }
-
   function calculateNeighbourEntities(
     VoxelEntity memory centerEntity
   ) public view override returns (bytes32[] memory, VoxelCoord[] memory) {

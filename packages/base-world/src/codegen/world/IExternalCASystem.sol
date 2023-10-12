@@ -11,7 +11,7 @@ interface IExternalCASystem {
   function shouldRunInteractionForNeighbour(
     VoxelEntity memory originEntity,
     VoxelEntity memory neighbourEntity
-  ) external view returns (bool);
+  ) external returns (bool);
 
   function calculateMooreNeighbourEntities(
     VoxelEntity memory centerEntity,

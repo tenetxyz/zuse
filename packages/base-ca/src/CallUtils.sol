@@ -258,8 +258,8 @@ function shouldRunInteractionForNeighbour(
   address callerAddress,
   VoxelEntity memory originEntity,
   VoxelEntity memory neighbourEntity
-) view returns (bool) {
-  bytes memory returnData = safeStaticCall(
+) returns (bool) {
+  bytes memory returnData = safeCall(
     callerAddress,
     abi.encodeWithSignature(
       "shouldRunInteractionForNeighbour((uint32,bytes32),(uint32,bytes32))",

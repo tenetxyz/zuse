@@ -25,6 +25,11 @@ contract PostDeploy is Script {
     IWorld(worldAddress).ca_CobblestoneBrick_registerBody();
     IWorld(worldAddress).ca_CobblestoneShing_registerBody();
     IWorld(worldAddress).ca_GlassVoxelSystem_registerBody();
+    IWorld(worldAddress).ca_LightVoxelSystem_registerBody();
+    IWorld(worldAddress).ca_LimestoneVoxelSy_registerBody();
+    IWorld(worldAddress).ca_OakLeafVoxelSyst_registerBody();
+    IWorld(worldAddress).ca_StoneBrickVoxelS_registerBody();
+    IWorld(worldAddress).ca_StoneShinglesVox_registerBody();
 
     IWorld(worldAddress).registerCA();
 

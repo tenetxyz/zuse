@@ -40,12 +40,12 @@ contract StoneBrickVoxelSystem is VoxelType {
       stonebrickChildVoxelTypes,
       StoneBrickVoxelVariantID,
       voxelSelectorsForVoxel(
-        IWorld(world).ca_StoneBrickVoxelSystem_enterWorld.selector,
-        IWorld(world).ca_StoneBrickVoxelSystem_exitWorld.selector,
-        IWorld(world).ca_StoneBrickVoxelSystem_variantSelector.selector,
-        IWorld(world).ca_StoneBrickVoxelSystem_activate.selector,
-        IWorld(world).ca_StoneBrickVoxelSystem_eventHandler.selector,
-        IWorld(world).ca_StoneBrickVoxelSystem_neighbourEventHandler.selector
+        IWorld(world).ca_StoneBrickVoxelS_enterWorld.selector,
+        IWorld(world).ca_StoneBrickVoxelS_exitWorld.selector,
+        IWorld(world).ca_StoneBrickVoxelS_variantSelector.selector,
+        IWorld(world).ca_StoneBrickVoxelS_activate.selector,
+        IWorld(world).ca_StoneBrickVoxelS_eventHandler.selector,
+        IWorld(world).ca_StoneBrickVoxelS_neighbourEventHandler.selector
       ),
       abi.encode(componentDefs),
       5

@@ -40,12 +40,12 @@ contract StoneShinglesVoxelSystem is VoxelType {
       stoneshinglesChildVoxelTypes,
       StoneShinglesVoxelVariantID,
       voxelSelectorsForVoxel(
-        IWorld(world).ca_StoneShinglesVoxelSystem_enterWorld.selector,
-        IWorld(world).ca_StoneShinglesVoxelSystem_exitWorld.selector,
-        IWorld(world).ca_StoneShinglesVoxelSystem_variantSelector.selector,
-        IWorld(world).ca_StoneShinglesVoxelSystem_activate.selector,
-        IWorld(world).ca_StoneShinglesVoxelSystem_eventHandler.selector,
-        IWorld(world).ca_StoneShinglesVoxelSystem_neighbourEventHandler.selector
+        IWorld(world).ca_StoneShinglesVox_enterWorld.selector,
+        IWorld(world).ca_StoneShinglesVox_exitWorld.selector,
+        IWorld(world).ca_StoneShinglesVox_variantSelector.selector,
+        IWorld(world).ca_StoneShinglesVox_activate.selector,
+        IWorld(world).ca_StoneShinglesVox_eventHandler.selector,
+        IWorld(world).ca_StoneShinglesVox_neighbourEventHandler.selector
       ),
       abi.encode(componentDefs),
       5

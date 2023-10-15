@@ -40,12 +40,12 @@ contract LimestoneVoxelSystem is VoxelType {
       limestoneChildVoxelTypes,
       LimestoneVoxelVariantID,
       voxelSelectorsForVoxel(
-        IWorld(world).ca_LimestoneVoxelSystem_enterWorld.selector,
-        IWorld(world).ca_LimestoneVoxelSystem_exitWorld.selector,
-        IWorld(world).ca_LimestoneVoxelSystem_variantSelector.selector,
-        IWorld(world).ca_LimestoneVoxelSystem_activate.selector,
-        IWorld(world).ca_LimestoneVoxelSystem_eventHandler.selector,
-        IWorld(world).ca_LimestoneVoxelSystem_neighbourEventHandler.selector
+        IWorld(world).ca_LimestoneVoxelSy_enterWorld.selector,
+        IWorld(world).ca_LimestoneVoxelSy_exitWorld.selector,
+        IWorld(world).ca_LimestoneVoxelSy_variantSelector.selector,
+        IWorld(world).ca_LimestoneVoxelSy_activate.selector,
+        IWorld(world).ca_LimestoneVoxelSy_eventHandler.selector,
+        IWorld(world).ca_LimestoneVoxelSy_neighbourEventHandler.selector
       ),
       abi.encode(componentDefs),
       5

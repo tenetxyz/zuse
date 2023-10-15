@@ -40,12 +40,12 @@ contract CobblestoneShinglesVoxelSystem is VoxelType {
       cobblestoneshinglesChildVoxelTypes,
       CobblestoneShinglesVoxelVariantID,
       voxelSelectorsForVoxel(
-        IWorld(world).ca_CobblestoneShinglesVoxelSystem_enterWorld.selector,
-        IWorld(world).ca_CobblestoneShinglesVoxelSystem_exitWorld.selector,
-        IWorld(world).ca_CobblestoneShinglesVoxelSystem_variantSelector.selector,
-        IWorld(world).ca_CobblestoneShinglesVoxelSystem_activate.selector,
-        IWorld(world).ca_CobblestoneShinglesVoxelSystem_eventHandler.selector,
-        IWorld(world).ca_CobblestoneShinglesVoxelSystem_neighbourEventHandler.selector
+        IWorld(world).ca_CobblestoneShing_enterWorld.selector,
+        IWorld(world).ca_CobblestoneShing_exitWorld.selector,
+        IWorld(world).ca_CobblestoneShing_variantSelector.selector,
+        IWorld(world).ca_CobblestoneShing_activate.selector,
+        IWorld(world).ca_CobblestoneShing_eventHandler.selector,
+        IWorld(world).ca_CobblestoneShing_neighbourEventHandler.selector
       ),
       abi.encode(componentDefs),
       5

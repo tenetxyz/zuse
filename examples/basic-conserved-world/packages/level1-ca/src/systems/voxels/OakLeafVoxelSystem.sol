@@ -40,12 +40,12 @@ contract OakLeafVoxelSystem is VoxelType {
       oakleafChildVoxelTypes,
       OakLeafVoxelVariantID,
       voxelSelectorsForVoxel(
-        IWorld(world).ca_OakLeafVoxelSystem_enterWorld.selector,
-        IWorld(world).ca_OakLeafVoxelSystem_exitWorld.selector,
-        IWorld(world).ca_OakLeafVoxelSystem_variantSelector.selector,
-        IWorld(world).ca_OakLeafVoxelSystem_activate.selector,
-        IWorld(world).ca_OakLeafVoxelSystem_eventHandler.selector,
-        IWorld(world).ca_OakLeafVoxelSystem_neighbourEventHandler.selector
+        IWorld(world).ca_OakLeafVoxelSyst_enterWorld.selector,
+        IWorld(world).ca_OakLeafVoxelSyst_exitWorld.selector,
+        IWorld(world).ca_OakLeafVoxelSyst_variantSelector.selector,
+        IWorld(world).ca_OakLeafVoxelSyst_activate.selector,
+        IWorld(world).ca_OakLeafVoxelSyst_eventHandler.selector,
+        IWorld(world).ca_OakLeafVoxelSyst_neighbourEventHandler.selector
       ),
       abi.encode(componentDefs),
       5

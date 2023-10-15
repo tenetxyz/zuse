@@ -9,6 +9,14 @@ bytes32 constant DirtVoxelID = bytes32(keccak256("dirt"));
 bytes32 constant GrassVoxelID = bytes32(keccak256("grass"));
 bytes32 constant BedrockVoxelID = bytes32(keccak256("bedrock"));
 bytes32 constant FaucetVoxelID = bytes32(keccak256("faucet"));
+bytes32 constant CobblestoneBrickVoxelID = bytes32(keccak256("cobblestoneBrick"));
+bytes32 constant CobblestoneShinglesVoxelID = bytes32(keccak256("cobblestoneShingles"));
+bytes32 constant GlassVoxelID = bytes32(keccak256("glass"));
+bytes32 constant LightVoxelID = bytes32(keccak256("light"));
+bytes32 constant LimestoneVoxelID = bytes32(keccak256("limestone"));
+bytes32 constant OakLeafVoxelID = bytes32(keccak256("oakLeaf"));
+bytes32 constant StoneBrickVoxelID = bytes32(keccak256("stoneBrick"));
+bytes32 constant StoneShinglesVoxelID = bytes32(keccak256("stoneShingles"));
 
 uint256 constant STARTING_STAMINA_FROM_FAUCET = 15000;
 

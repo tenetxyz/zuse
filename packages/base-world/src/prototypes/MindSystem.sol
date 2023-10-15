@@ -9,25 +9,9 @@ import { CAMind } from "@tenet-base-ca/src/codegen/tables/CAMind.sol";
 import { hasKey } from "@latticexyz/world/src/modules/keysintable/hasKey.sol";
 import { VoxelType, VoxelTypeData, VoxelTypeTableId } from "@tenet-base-world/src/codegen/tables/VoxelType.sol";
 import { WorldConfig } from "@tenet-base-world/src/codegen/tables/WorldConfig.sol";
-import { VoxelMind, VoxelMindData } from "@tenet-base-world/src/codegen/tables/VoxelMind.sol";
 import { getCAMindSelector, setCAMindSelector } from "@tenet-base-ca/src/CallUtils.sol";
 
 abstract contract MindSystem is System {
-  function getMindSelector(VoxelEntity memory entity) public virtual returns (bytes4) {
-    require(
-      hasKey(VoxelTypeTableId, VoxelType.encodeKeyTuple(entity.scale, entity.entityId)),
-      "getMindSelector: Entity does not exist"
-    );
-    bytes32 voxelTypeId = VoxelType.getVoxelTypeId(entity.scale, entity.entityId);
-    address caAddress = WorldConfig.get(voxelTypeId);
-    bytes4 mindSelector = getCAMindSelector(caAddress, entity.entityId);
-    VoxelMind.emitEphemeral(
-      tx.origin,
-      VoxelMindData({ scale: entity.scale, entity: entity.entityId, mindSelector: mindSelector })
-    );
-    return mindSelector;
-  }
-
   function setMindSelector(VoxelEntity memory entity, bytes4 mindSelector) public virtual {
     require(
       hasKey(VoxelTypeTableId, VoxelType.encodeKeyTuple(entity.scale, entity.entityId)),

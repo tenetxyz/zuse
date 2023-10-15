@@ -8,6 +8,5 @@ import { VoxelType, VoxelTypeData, VoxelTypeTableId } from "./tables/VoxelType.s
 import { Position, PositionData, PositionTableId } from "./tables/Position.sol";
 import { VoxelActivated, VoxelActivatedData, VoxelActivatedTableId } from "./tables/VoxelActivated.sol";
 import { Interactions, InteractionsTableId } from "./tables/Interactions.sol";
-import { VoxelMind, VoxelMindData, VoxelMindTableId } from "./tables/VoxelMind.sol";
 import { OfSpawn, OfSpawnTableId } from "./tables/OfSpawn.sol";
 import { Spawn, SpawnData, SpawnTableId } from "./tables/Spawn.sol";

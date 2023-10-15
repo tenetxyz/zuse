@@ -5,10 +5,6 @@ import { VoxelEntity } from "@tenet-utils/src/Types.sol";
 import { MindSystem as MindSystemPrototype } from "@tenet-base-world/src/prototypes/MindSystem.sol";
 
 contract MindSystem is MindSystemPrototype {
-  function getMindSelector(VoxelEntity memory entity) public override returns (bytes4) {
-    return super.getMindSelector(entity);
-  }
-
   function setMindSelector(VoxelEntity memory entity, bytes4 mindSelector) public override {
     super.setMindSelector(entity, mindSelector);
   }

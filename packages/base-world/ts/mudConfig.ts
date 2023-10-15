@@ -55,17 +55,6 @@ const WORLD_TABLES: Record<string, TableConfig> = {
       ran: "bool",
     },
   },
-  VoxelMind: {
-    keySchema: {
-      player: "address",
-    },
-    schema: {
-      scale: "uint32",
-      entity: "bytes32",
-      mindSelector: "bytes4",
-    },
-    ephemeral: true,
-  },
   // tables for spawning
   OfSpawn: {
     // maps a voxel spawned in the world -> the entityId representing its spawn

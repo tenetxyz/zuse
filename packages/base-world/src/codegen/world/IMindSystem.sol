@@ -6,7 +6,5 @@ pragma solidity >=0.8.0;
 import { VoxelEntity } from "@tenet-utils/src/Types.sol";
 
 interface IMindSystem {
-  function getMindSelector(VoxelEntity memory entity) external returns (bytes4);
-
   function setMindSelector(VoxelEntity memory entity, bytes4 mindSelector) external;
 }

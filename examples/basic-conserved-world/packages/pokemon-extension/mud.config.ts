@@ -7,6 +7,7 @@ export default mudConfig({
     ObjectType: ["None", "Fire", "Water", "Grass"],
     PlantStage: ["Seed", "Sprout", "Flower"],
     EventType: ["None", "SetNPK", "SetNutrients", "SetElixir", "SetProtein", "Die"],
+    SoilType: ["ProteinSoil", "ElixirSoil", "Concentrative", "Diffusive"],
   },
   tables: {
     Soil: {
@@ -17,6 +18,7 @@ export default mudConfig({
       schema: {
         lastEvent: "EventType",
         lastInteractionBlock: "uint256",
+        soilType: "SoilType",
         hasValue: "bool", // TODO: Remove this once we can install non-root modules
       },
     },

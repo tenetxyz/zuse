@@ -194,8 +194,10 @@ contract CallerEventSystem is System {
     preEvent(callerAddress, actingEntity);
     IWorld(_world()).velocityChange(actingEntity, oldCoord, newCoord, oldEntity, newEntity);
 
-    if (hasKey(MetadataTableId, Metadata.encodeKeyTuple(callerAddress, entity.scale, entity.entityId))) {
-      Metadata.deleteRecord(callerAddress, entity.scale, entity.entityId);
+    if (hasKey(MetadataTableId, Metadata.encodeKeyTuple(callerAddress, oldEntity.scale, oldEntity.entityId))) {
+      uint256 lastInteractionBlock = Metadata.get(callerAddress, oldEntity.scale, oldEntity.entityId);
+      Metadata.set(callerAddress, newEntity.scale, newEntity.entityId, lastInteractionBlock);
+      Metadata.deleteRecord(callerAddress, oldEntity.scale, oldEntity.entityId);
     }
 
     // Transfer ownership of other tables

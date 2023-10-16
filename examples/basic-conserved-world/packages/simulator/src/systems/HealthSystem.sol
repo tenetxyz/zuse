@@ -11,7 +11,7 @@ import { VoxelTypeRegistry, VoxelTypeRegistryData } from "@tenet-registry/src/co
 import { distanceBetween, voxelCoordsAreEqual, isZeroCoord } from "@tenet-utils/src/VoxelCoordUtils.sol";
 import { int256ToUint256, addUint256AndInt256 } from "@tenet-utils/src/TypeUtils.sol";
 import { isEntityEqual } from "@tenet-utils/src/Utils.sol";
-import { getVelocity, getTerrainMass, getTerrainEnergy, getTerrainVelocity } from "@tenet-simulator/src/Utils.sol";
+import { getVelocity, getTerrainMass, getTerrainEnergy, getTerrainVelocity, createTerrainEntity } from "@tenet-simulator/src/Utils.sol";
 import { console } from "forge-std/console.sol";
 
 contract HealthSystem is SimHandler {
@@ -20,6 +20,14 @@ contract HealthSystem is SimHandler {
       SimTable.Elixir,
       SimTable.Health,
       IWorld(_world()).updateHealthFromElixir.selector,
+      ValueType.Int256,
+      ValueType.Int256
+    );
+
+    SimSelectors.set(
+      SimTable.Health,
+      SimTable.Health,
+      IWorld(_world()).updateHealthFromHealth.selector,
       ValueType.Int256,
       ValueType.Int256
     );
@@ -99,6 +107,49 @@ contract HealthSystem is SimHandler {
       );
     } else {
       revert("You can't convert other's energy to health");
+    }
+  }
+
+  function updateHealthFromHealth(
+    VoxelEntity memory senderEntity,
+    VoxelCoord memory senderCoord,
+    int256 senderHealthDelta,
+    VoxelEntity memory receiverEntity,
+    VoxelCoord memory receiverCoord,
+    int256 receiverHealthDelta
+  ) public {
+    address callerAddress = super.getCallerAddress();
+    bool entityExists = hasKey(
+      HealthTableId,
+      Health.encodeKeyTuple(callerAddress, senderEntity.scale, senderEntity.entityId)
+    );
+    require(entityExists, "Sender entity does not exist");
+    if (isEntityEqual(senderEntity, receiverEntity)) {
+      revert("You can't convert your own health to health");
+    } else {
+      require(receiverHealthDelta > 0, "Cannot decrease someone's health");
+      require(senderHealthDelta < 0, "Cannot increase your own health");
+      uint256 senderHealth = int256ToUint256(receiverHealthDelta);
+      uint256 receiverHealth = int256ToUint256(receiverHealthDelta);
+      require(senderHealth == receiverHealth, "Sender health must equal receiver health");
+
+      uint256 currentSenderHealth = Health.get(callerAddress, senderEntity.scale, senderEntity.entityId);
+      require(currentSenderHealth >= senderHealth, "Not enough health to transfer");
+      bool receiverEntityExists = hasKey(
+        MassTableId,
+        Mass.encodeKeyTuple(callerAddress, receiverEntity.scale, receiverEntity.entityId)
+      );
+      if (!receiverEntityExists) {
+        receiverEntity = createTerrainEntity(callerAddress, receiverEntity.scale, receiverCoord);
+        receiverEntityExists = hasKey(
+          EnergyTableId,
+          Mass.encodeKeyTuple(callerAddress, receiverEntity.scale, receiverEntity.entityId)
+        );
+      }
+      require(receiverEntityExists, "Receiver entity does not exist");
+      uint256 currentReceiverHealth = Health.get(callerAddress, receiverEntity.scale, receiverEntity.entityId);
+      Health.set(callerAddress, receiverEntity.scale, receiverEntity.entityId, currentReceiverHealth + receiverHealth);
+      Health.set(callerAddress, senderEntity.scale, senderEntity.entityId, currentSenderHealth - senderHealth);
     }
   }
 }

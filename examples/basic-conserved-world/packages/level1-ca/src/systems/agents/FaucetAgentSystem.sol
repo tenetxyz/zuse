@@ -12,7 +12,7 @@ import { REGISTRY_ADDRESS, FaucetVoxelID } from "@tenet-level1-ca/src/Constants.
 import { VoxelEntity, BodySimData, CAEventData, CAEventType, SimEventData, SimTable, VoxelCoord, VoxelSelectors, InteractionSelector, ComponentDef, RangeComponent, StateComponent, ComponentType } from "@tenet-utils/src/Types.sol";
 import { getFirstCaller } from "@tenet-utils/src/Utils.sol";
 import { getCAEntityAtCoord, getCAVoxelType, caEntityToEntity, getCAEntityPositionStrict, getCAEntityIsAgent } from "@tenet-base-ca/src/Utils.sol";
-import { AirVoxelID, STARTING_STAMINA_FROM_FAUCET } from "@tenet-level1-ca/src/Constants.sol";
+import { AirVoxelID, STARTING_STAMINA_FROM_FAUCET, STARTING_HEALTH_FROM_FAUCET } from "@tenet-level1-ca/src/Constants.sol";
 import { uint256ToNegativeInt256, uint256ToInt256 } from "@tenet-utils/src/TypeUtils.sol";
 import { getEntitySimData } from "@tenet-level1-ca/src/Utils.sol";
 import { getMooreNeighbourEntities } from "@tenet-base-ca/src/CallUtils.sol";
@@ -91,8 +91,8 @@ contract FaucetAgentSystem is AgentType {
       interactionDescription: ""
     });
     voxelInteractionSelectors[1] = InteractionSelector({
-      interactionSelector: IWorld(_world()).ca_FaucetAgentSyste_giveStaminaEventHandler.selector,
-      interactionName: "Give Stamina",
+      interactionSelector: IWorld(_world()).ca_FaucetAgentSyste_giveStaminaAndHealthEventHandler.selector,
+      interactionName: "Give Stamina and Health",
       interactionDescription: ""
     });
     return voxelInteractionSelectors;
@@ -105,7 +105,7 @@ contract FaucetAgentSystem is AgentType {
     bytes32 parentEntity
   ) public returns (bool, bytes memory) {}
 
-  function giveStaminaEventHandler(
+  function giveStaminaAndHealthEventHandler(
     bytes32 centerEntityId,
     bytes32[] memory neighbourEntityIds,
     bytes32[] memory childEntityIds,
@@ -114,7 +114,8 @@ contract FaucetAgentSystem is AgentType {
     address callerAddress = super.getCallerAddress();
     BodySimData memory entitySimData = getEntitySimData(centerEntityId);
     uint256 currentStamina = entitySimData.stamina;
-    if (currentStamina == 0) {
+    uint256 currentHealth = entitySimData.health;
+    if (currentStamina == 0 || currentHealth == 0) {
       return (false, abi.encode(new bytes(0)));
     }
     (bytes32[] memory mooreNeighbourEntities, ) = getMooreNeighbourEntities(centerEntityId, 1);
@@ -128,18 +129,21 @@ contract FaucetAgentSystem is AgentType {
         continue;
       }
       BodySimData memory neighbourSimData = getEntitySimData(mooreNeighbourCAEntities[i]);
-      if (neighbourSimData.stamina == 0) {
+      if (neighbourSimData.stamina == 0 && neighbourSimData.health == 0) {
         uint256 transferStamina = STARTING_STAMINA_FROM_FAUCET;
-        if (currentStamina < transferStamina) {
+        uint256 transferHealth = STARTING_HEALTH_FROM_FAUCET;
+        if (currentStamina < transferStamina || currentHealth < transferHealth) {
           break;
         }
         currentStamina -= transferStamina;
+        currentHealth -= transferHealth;
+        SimEventData[] memory allSimEventData = new SimEventData[](2);
         VoxelEntity memory targetEntity = VoxelEntity({
           scale: 1,
           entityId: caEntityToEntity(mooreNeighbourCAEntities[i])
         });
         VoxelCoord memory targetCoord = getCAEntityPositionStrict(IStore(_world()), mooreNeighbourCAEntities[i]);
-        SimEventData memory eventData = SimEventData({
+        allSimEventData[0] = SimEventData({
           senderTable: SimTable.Stamina,
           senderValue: abi.encode(uint256ToNegativeInt256(transferStamina)),
           targetEntity: targetEntity,
@@ -147,7 +151,19 @@ contract FaucetAgentSystem is AgentType {
           targetTable: SimTable.Stamina,
           targetValue: abi.encode(uint256ToInt256(transferStamina))
         });
-        allCAEventData[i] = CAEventData({ eventType: CAEventType.SimEvent, eventData: abi.encode(eventData) });
+        allSimEventData[1] = SimEventData({
+          senderTable: SimTable.Health,
+          senderValue: abi.encode(uint256ToNegativeInt256(transferHealth)),
+          targetEntity: targetEntity,
+          targetCoord: targetCoord,
+          targetTable: SimTable.Health,
+          targetValue: abi.encode(uint256ToInt256(transferHealth))
+        });
+
+        allCAEventData[i] = CAEventData({
+          eventType: CAEventType.BatchSimEvent,
+          eventData: abi.encode(allSimEventData)
+        });
       }
     }
     return (false, abi.encode(allCAEventData));

@@ -79,7 +79,7 @@ contract FaucetSystem is System {
       faucetVoxelTypeId,
       getVoxelCoordStrict(faucetEntity),
       faucetEntity,
-      getSelector(faucetInteractionSelectors, "Give Stamina")
+      getSelector(faucetInteractionSelectors, "Give Stamina and Health")
     );
 
     return newEntity;

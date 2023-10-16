@@ -10,7 +10,7 @@ import { CA_ADDRESS, REGISTRY_ADDRESS, SoilVoxelID } from "@tenet-pokemon-extens
 import { Soil } from "@tenet-pokemon-extension/src/codegen/tables/Soil.sol";
 import { VoxelCoord, ComponentDef } from "@tenet-utils/src/Types.sol";
 import { registerCAVoxelType } from "@tenet-base-ca/src/CallUtils.sol";
-import { EventType } from "@tenet-pokemon-extension/src/codegen/Types.sol";
+import { EventType, SoilType } from "@tenet-pokemon-extension/src/codegen/Types.sol";
 
 bytes32 constant SoilVoxelVariantID = bytes32(keccak256("soil"));
 string constant SoilTexture = "bafkreidtk7vevmnzt6is5dreyoocjkyy56bk66zbm5bx6wzck73iogdl6e";
@@ -59,7 +59,7 @@ contract SoilVoxelSystem is VoxelType {
   function enterWorld(VoxelCoord memory coord, bytes32 entity) public override {
     address callerAddress = super.getCallerAddress();
     bool hasValue = true;
-    Soil.set(callerAddress, entity, EventType.None, 0, hasValue);
+    Soil.set(callerAddress, entity, EventType.None, 0, SoilType.ProteinSoil, hasValue);
   }
 
   function exitWorld(VoxelCoord memory coord, bytes32 entity) public override {

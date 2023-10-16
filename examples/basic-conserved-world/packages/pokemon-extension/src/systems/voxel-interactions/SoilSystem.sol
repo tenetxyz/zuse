@@ -279,19 +279,23 @@ contract SoilSystem is VoxelInteraction {
           uint256 convertNutrientsToElixir = entitySimData.nutrients / 2; // Convert all nutrients to protein
           uint256 convertNutrientsToProtein = entitySimData.nutrients / 2; // Convert all nutrients to protein
           SimEventData[] memory foodSimEventData = new SimEventData[](2);
+          VoxelEntity memory targetEntity = VoxelEntity({
+            scale: 1,
+            entityId: caEntityToEntity(neighbourEntityIds[i])
+          });
           foodSimEventData[0] = SimEventData({
             senderTable: SimTable.Nutrients,
             senderValue: abi.encode(uint256ToNegativeInt256(convertNutrientsToElixir)),
-            targetEntity: neighbourEntityIds[i],
-            targetCoord: neighbor,
+            targetEntity: targetEntity,
+            targetCoord: neighbourCoord,
             targetTable: SimTable.Elixir,
             targetValue: abi.encode(uint256ToInt256(convertNutrientsToElixir))
           });
           foodSimEventData[1] = SimEventData({
             senderTable: SimTable.Nutrients,
             senderValue: abi.encode(uint256ToNegativeInt256(convertNutrientsToProtein)),
-            targetEntity: neighbourEntityIds[i],
-            targetCoord: neighbor,
+            targetEntity: targetEntity,
+            targetCoord: neighbourCoord,
             targetTable: SimTable.Protein,
             targetValue: abi.encode(uint256ToInt256(convertNutrientsToProtein))
           });
@@ -348,19 +352,23 @@ contract SoilSystem is VoxelInteraction {
           uint256 convertNutrientsToElixir = entitySimData.nutrients / 2; // Convert all nutrients to protein
           uint256 convertNutrientsToProtein = entitySimData.nutrients / 2; // Convert all nutrients to protein
           SimEventData[] memory foodSimEventData = new SimEventData[](2);
+          VoxelEntity memory targetEntity = VoxelEntity({
+            scale: 1,
+            entityId: caEntityToEntity(neighbourEntityIds[i])
+          });
           foodSimEventData[0] = SimEventData({
             senderTable: SimTable.Nutrients,
             senderValue: abi.encode(uint256ToNegativeInt256(convertNutrientsToElixir)),
-            targetEntity: neighbourEntityIds[i],
-            targetCoord: neighbor,
+            targetEntity: targetEntity,
+            targetCoord: neighbourCoord,
             targetTable: SimTable.Elixir,
             targetValue: abi.encode(uint256ToInt256(convertNutrientsToElixir))
           });
           foodSimEventData[1] = SimEventData({
             senderTable: SimTable.Nutrients,
             senderValue: abi.encode(uint256ToNegativeInt256(convertNutrientsToProtein)),
-            targetEntity: neighbourEntityIds[i],
-            targetCoord: neighbor,
+            targetEntity: targetEntity,
+            targetCoord: neighbourCoord,
             targetTable: SimTable.Protein,
             targetValue: abi.encode(uint256ToInt256(convertNutrientsToProtein))
           });
@@ -393,12 +401,12 @@ contract SoilSystem is VoxelInteraction {
       if (uint256(neighbourEntityIds[i]) == 0) {
         continue;
       }
+      VoxelCoord memory neighbourCoord = getCAEntityPositionStrict(IStore(_world()), neighbourEntityIds[i]);
       if (
         isValidPlantNeighbour(callerAddress, neighbourEntityIds[i], neighbourEntityDirections[i]) &&
         entityHasNPK(neighbourEntityIds[i])
       ) {
         uint256 convertNutrientsToProtein = entitySimData.nutrients; // Convert all nutrients to protein
-        VoxelCoord memory neighbourCoord = getCAEntityPositionStrict(IStore(_world()), neighbourEntityIds[i]);
         if (convertNutrientsToProtein > 0) {
           allCAEventData[i] = transfer(
             SimTable.Nutrients,
@@ -446,12 +454,12 @@ contract SoilSystem is VoxelInteraction {
       if (uint256(neighbourEntityIds[i]) == 0) {
         continue;
       }
+      VoxelCoord memory neighbourCoord = getCAEntityPositionStrict(IStore(_world()), neighbourEntityIds[i]);
       if (
         isValidPlantNeighbour(callerAddress, neighbourEntityIds[i], neighbourEntityDirections[i]) &&
         entityHasNPK(neighbourEntityIds[i])
       ) {
         uint256 convertNutrientsToElixir = entitySimData.nutrients; // Convert all nutrients to protein
-        VoxelCoord memory neighbourCoord = getCAEntityPositionStrict(IStore(_world()), neighbourEntityIds[i]);
         if (convertNutrientsToElixir > 0) {
           allCAEventData[i] = transfer(
             SimTable.Nutrients,

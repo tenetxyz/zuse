@@ -160,6 +160,7 @@ function setSimValue(
 
 function onBuild(
   address simAddress,
+  VoxelEntity memory actingEntity,
   VoxelEntity memory entity,
   VoxelCoord memory coord,
   uint256 entityMass
@@ -167,17 +168,22 @@ function onBuild(
   return
     safeCall(
       simAddress,
-      abi.encodeWithSignature(SIM_ON_BUILD_SIG, entity, coord, entityMass),
-      string(abi.encode("onBuild ", entity, " ", coord, " ", entityMass))
+      abi.encodeWithSignature(SIM_ON_BUILD_SIG, actingEntity, entity, coord, entityMass),
+      string(abi.encode("onBuild ", actingEntity, " ", entity, " ", coord, " ", entityMass))
     );
 }
 
-function onMine(address simAddress, VoxelEntity memory entity, VoxelCoord memory coord) returns (bytes memory) {
+function onMine(
+  address simAddress,
+  VoxelEntity memory actingEntity,
+  VoxelEntity memory entity,
+  VoxelCoord memory coord
+) returns (bytes memory) {
   return
     safeCall(
       simAddress,
-      abi.encodeWithSignature(SIM_ON_MINE_SIG, entity, coord),
-      string(abi.encode("onMine ", entity, " ", coord))
+      abi.encodeWithSignature(SIM_ON_MINE_SIG, actingEntity, entity, coord),
+      string(abi.encode("onMine ", actingEntity, " ", entity, " ", coord))
     );
 }
 
@@ -197,11 +203,16 @@ function onMove(
     );
 }
 
-function onActivate(address simAddress, VoxelEntity memory entity, VoxelCoord memory coord) returns (bytes memory) {
+function onActivate(
+  address simAddress,
+  VoxelEntity memory actingEntity,
+  VoxelEntity memory entity,
+  VoxelCoord memory coord
+) returns (bytes memory) {
   return
     safeCall(
       simAddress,
-      abi.encodeWithSignature(SIM_ON_ACTIVATE_SIG, entity, coord),
-      string(abi.encode("onActivate ", entity, " ", coord))
+      abi.encodeWithSignature(SIM_ON_ACTIVATE_SIG, actingEntity, entity, coord),
+      string(abi.encode("onActivate ", actingEntity, " ", entity, " ", coord))
     );
 }

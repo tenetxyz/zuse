@@ -34,6 +34,16 @@ export default mudConfig({
         receiverValueType: "ValueType",
       },
     },
+    Metadata: {
+      keySchema: {
+        callerAddress: "address",
+        scale: "uint32",
+        entity: "bytes32",
+      },
+      schema: {
+        lastInteractionBlock: "uint256",
+      },
+    },
     Mass: {
       keySchema: {
         callerAddress: "address",
@@ -176,6 +186,11 @@ export default mudConfig({
     },
   },
   modules: [
+    {
+      name: "KeysInTableModule",
+      root: true,
+      args: [resolveTableId("Metadata")],
+    },
     {
       name: "KeysInTableModule",
       root: true,

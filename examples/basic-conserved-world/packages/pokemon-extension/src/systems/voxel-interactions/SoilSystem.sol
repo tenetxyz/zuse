@@ -130,6 +130,14 @@ contract SoilSystem is VoxelInteraction {
         neighbourEntityDirections,
         entitySimData
       );
+    } else if (soilType == SoilType.Diffusive) {
+      entityData = runDiffusiveSoilLogic(
+        callerAddress,
+        interactEntity,
+        neighbourEntityIds,
+        neighbourEntityDirections,
+        entitySimData
+      );
     }
 
     // Note: we don't need to set changedEntity to true, because we don't need another event
@@ -252,7 +260,7 @@ contract SoilSystem is VoxelInteraction {
     BodySimData memory entitySimData
   ) internal returns (bytes memory) {
     // Calculate # of soil neighbours
-    uint256 numSoilNeighbours = calculateNumSoilNeighbours(callerAddress, neighbourEntityIds);
+    // uint256 numSoilNeighbours = calculateNumSoilNeighbours(callerAddress, neighbourEntityIds);
 
     CAEventData[] memory allCAEventData = new CAEventData[](neighbourEntityIds.length);
 
@@ -264,7 +272,22 @@ contract SoilSystem is VoxelInteraction {
       }
       VoxelCoord memory neighbourCoord = getCAEntityPositionStrict(IStore(_world()), neighbourEntityIds[i]);
       // Check if the neighbor is a Soil, Seed, or Young Plant cell
-      if (entityIsSoil(callerAddress, neighbourEntityIds[i]) && entityHasNPK(neighbourEntityIds[i])) {} else if (
+      if (entityIsSoil(callerAddress, neighbourEntityIds[i]) && entityHasNPK(neighbourEntityIds[i])) {
+        BodySimData memory neighbourEntitySimData = getEntitySimData(neighbourEntityIds[i]);
+        if (entitySimData.nutrients < neighbourEntitySimData.nutrients) {
+          uint256 amountToTransfer = entitySimData.nutrients / 10; // 10%
+          allCAEventData[i] = transfer(
+            SimTable.Nutrients,
+            SimTable.Nutrients,
+            entitySimData,
+            neighbourEntityIds[i],
+            neighbourCoord,
+            amountToTransfer
+          );
+          hasTransfer = true;
+          entitySimData.nutrients -= amountToTransfer;
+        }
+      } else if (
         isValidPlantNeighbour(callerAddress, neighbourEntityIds[i], neighbourEntityDirections[i]) &&
         entityHasNPK(neighbourEntityIds[i])
       ) {
@@ -292,6 +315,84 @@ contract SoilSystem is VoxelInteraction {
             eventType: CAEventType.BatchSimEvent,
             eventData: abi.encode(foodSimEventData)
           });
+          entitySimData.nutrients -= convertNutrientsToElixir + convertNutrientsToProtein;
+        }
+        hasTransfer = true;
+      }
+    }
+
+    // Check if there's at least one transfer
+    if (hasTransfer) {
+      Soil.setLastInteractionBlock(callerAddress, interactEntity, block.number);
+      return abi.encode(allCAEventData);
+    }
+
+    return new bytes(0);
+  }
+
+  function runDiffusiveSoilLogic(
+    address callerAddress,
+    bytes32 interactEntity,
+    bytes32[] memory neighbourEntityIds,
+    BlockDirection[] memory neighbourEntityDirections,
+    BodySimData memory entitySimData
+  ) internal returns (bytes memory) {
+    // Calculate # of soil neighbours
+
+    CAEventData[] memory allCAEventData = new CAEventData[](neighbourEntityIds.length);
+
+    bool hasTransfer = false;
+
+    for (uint i = 0; i < neighbourEntityIds.length; i++) {
+      if (uint256(neighbourEntityIds[i]) == 0) {
+        continue;
+      }
+      VoxelCoord memory neighbourCoord = getCAEntityPositionStrict(IStore(_world()), neighbourEntityIds[i]);
+      // Check if the neighbor is a Soil, Seed, or Young Plant cell
+      if (entityIsSoil(callerAddress, neighbourEntityIds[i]) && entityHasNPK(neighbourEntityIds[i])) {
+        BodySimData memory neighbourEntitySimData = getEntitySimData(neighbourEntityIds[i]);
+        if (entitySimData.nutrients > neighbourEntitySimData.nutrients) {
+          uint256 amountToTransfer = entitySimData.nutrients / 10; // 10%
+          allCAEventData[i] = transfer(
+            SimTable.Nutrients,
+            SimTable.Nutrients,
+            entitySimData,
+            neighbourEntityIds[i],
+            neighbourCoord,
+            amountToTransfer
+          );
+          hasTransfer = true;
+          entitySimData.nutrients -= amountToTransfer;
+        }
+      } else if (
+        isValidPlantNeighbour(callerAddress, neighbourEntityIds[i], neighbourEntityDirections[i]) &&
+        entityHasNPK(neighbourEntityIds[i])
+      ) {
+        if (entitySimData.nutrients / 2 > 0) {
+          uint256 convertNutrientsToElixir = entitySimData.nutrients / 2; // Convert all nutrients to protein
+          uint256 convertNutrientsToProtein = entitySimData.nutrients / 2; // Convert all nutrients to protein
+          SimEventData[] memory foodSimEventData = new SimEventData[](2);
+          foodSimEventData[0] = SimEventData({
+            senderTable: SimTable.Nutrients,
+            senderValue: abi.encode(uint256ToNegativeInt256(convertNutrientsToElixir)),
+            targetEntity: neighbourEntityIds[i],
+            targetCoord: neighbor,
+            targetTable: SimTable.Elixir,
+            targetValue: abi.encode(uint256ToInt256(convertNutrientsToElixir))
+          });
+          foodSimEventData[1] = SimEventData({
+            senderTable: SimTable.Nutrients,
+            senderValue: abi.encode(uint256ToNegativeInt256(convertNutrientsToProtein)),
+            targetEntity: neighbourEntityIds[i],
+            targetCoord: neighbor,
+            targetTable: SimTable.Protein,
+            targetValue: abi.encode(uint256ToInt256(convertNutrientsToProtein))
+          });
+          allCAEventData[i] = CAEventData({
+            eventType: CAEventType.BatchSimEvent,
+            eventData: abi.encode(foodSimEventData)
+          });
+          entitySimData.nutrients -= convertNutrientsToElixir + convertNutrientsToProtein;
         }
         hasTransfer = true;
       }

@@ -41,12 +41,6 @@ contract SoilSystem is VoxelInteraction {
       Soil.setLastEvent(callerAddress, neighbourEntityId, EventType.None);
     }
 
-    uint256 transferNutrientsToSoil = getNutrientsToSoil(entitySimData.nutrients);
-    uint256 transferNutrientsToPlant = getNutrientsToPlant(entitySimData.nutrients);
-    if (transferNutrientsToSoil == 0 && transferNutrientsToPlant == 0) {
-      return (changedEntity, entityData);
-    }
-
     if (
       !entityIsSoil(callerAddress, centerEntityId) &&
       !isValidPlantNeighbour(callerAddress, centerEntityId, centerBlockDirection)
@@ -106,8 +100,10 @@ contract SoilSystem is VoxelInteraction {
 
     SoilType soilType = Soil.getSoilType(callerAddress, interactEntity);
 
+    bool hasTransfer = false;
+
     if (soilType == SoilType.ProteinSoil) {
-      entityData = runProteinSoilLogic(
+      (entityData, hasTransfer) = runProteinSoilLogic(
         callerAddress,
         interactEntity,
         neighbourEntityIds,
@@ -115,7 +111,7 @@ contract SoilSystem is VoxelInteraction {
         entitySimData
       );
     } else if (soilType == SoilType.ElixirSoil) {
-      entityData = runElixirSoilLogic(
+      (entityData, hasTransfer) = runElixirSoilLogic(
         callerAddress,
         interactEntity,
         neighbourEntityIds,
@@ -123,7 +119,7 @@ contract SoilSystem is VoxelInteraction {
         entitySimData
       );
     } else if (soilType == SoilType.Concentrative) {
-      entityData = runConcentrativeSoilLogic(
+      (entityData, hasTransfer) = runConcentrativeSoilLogic(
         callerAddress,
         interactEntity,
         neighbourEntityIds,
@@ -131,13 +127,18 @@ contract SoilSystem is VoxelInteraction {
         entitySimData
       );
     } else if (soilType == SoilType.Diffusive) {
-      entityData = runDiffusiveSoilLogic(
+      (entityData, hasTransfer) = runDiffusiveSoilLogic(
         callerAddress,
         interactEntity,
         neighbourEntityIds,
         neighbourEntityDirections,
         entitySimData
       );
+    }
+
+    // Check if there's at least one transfer
+    if (hasTransfer) {
+      Soil.setLastInteractionBlock(callerAddress, interactEntity, block.number);
     }
 
     // Note: we don't need to set changedEntity to true, because we don't need another event
@@ -231,22 +232,6 @@ contract SoilSystem is VoxelInteraction {
     return new bytes(0);
   }
 
-  function calculateNumSoilNeighbours(
-    address callerAddress,
-    bytes32[] memory neighbourEntityIds
-  ) internal view returns (uint256 numSoilNeighbours) {
-    for (uint i = 0; i < neighbourEntityIds.length; i++) {
-      if (uint256(neighbourEntityIds[i]) == 0) {
-        continue;
-      }
-      // Check if the neighbor is a Soil, Seed, or Young Plant cell
-      if (entityIsSoil(callerAddress, neighbourEntityIds[i])) {
-        numSoilNeighbours += 1;
-      }
-    }
-    return numSoilNeighbours;
-  }
-
   function entityHasNPK(bytes32 interactEntity) internal returns (bool) {
     BodySimData memory entitySimData = getEntitySimData(interactEntity);
     return entitySimData.nitrogen > 0 && entitySimData.phosphorous > 0 && entitySimData.potassium > 0;
@@ -258,9 +243,8 @@ contract SoilSystem is VoxelInteraction {
     bytes32[] memory neighbourEntityIds,
     BlockDirection[] memory neighbourEntityDirections,
     BodySimData memory entitySimData
-  ) internal returns (bytes memory) {
+  ) internal returns (bytes memory, bool) {
     // Calculate # of soil neighbours
-    // uint256 numSoilNeighbours = calculateNumSoilNeighbours(callerAddress, neighbourEntityIds);
 
     CAEventData[] memory allCAEventData = new CAEventData[](neighbourEntityIds.length);
 
@@ -321,13 +305,7 @@ contract SoilSystem is VoxelInteraction {
       }
     }
 
-    // Check if there's at least one transfer
-    if (hasTransfer) {
-      Soil.setLastInteractionBlock(callerAddress, interactEntity, block.number);
-      return abi.encode(allCAEventData);
-    }
-
-    return new bytes(0);
+    return (abi.encode(allCAEventData), hasTransfer);
   }
 
   function runDiffusiveSoilLogic(
@@ -336,9 +314,7 @@ contract SoilSystem is VoxelInteraction {
     bytes32[] memory neighbourEntityIds,
     BlockDirection[] memory neighbourEntityDirections,
     BodySimData memory entitySimData
-  ) internal returns (bytes memory) {
-    // Calculate # of soil neighbours
-
+  ) internal returns (bytes memory, bool) {
     CAEventData[] memory allCAEventData = new CAEventData[](neighbourEntityIds.length);
 
     bool hasTransfer = false;
@@ -398,13 +374,7 @@ contract SoilSystem is VoxelInteraction {
       }
     }
 
-    // Check if there's at least one transfer
-    if (hasTransfer) {
-      Soil.setLastInteractionBlock(callerAddress, interactEntity, block.number);
-      return abi.encode(allCAEventData);
-    }
-
-    return new bytes(0);
+    return (abi.encode(allCAEventData), hasTransfer);
   }
 
   function runProteinSoilLogic(
@@ -413,7 +383,7 @@ contract SoilSystem is VoxelInteraction {
     bytes32[] memory neighbourEntityIds,
     BlockDirection[] memory neighbourEntityDirections,
     BodySimData memory entitySimData
-  ) internal returns (bytes memory) {
+  ) internal returns (bytes memory, bool) {
     CAEventData[] memory allCAEventData = new CAEventData[](neighbourEntityIds.length);
 
     bool hasTransfer = false;
@@ -457,13 +427,7 @@ contract SoilSystem is VoxelInteraction {
       }
     }
 
-    // Check if there's at least one transfer
-    if (hasTransfer) {
-      Soil.setLastInteractionBlock(callerAddress, interactEntity, block.number);
-      return abi.encode(allCAEventData);
-    }
-
-    return new bytes(0);
+    return (abi.encode(allCAEventData), hasTransfer);
   }
 
   function runElixirSoilLogic(
@@ -472,7 +436,7 @@ contract SoilSystem is VoxelInteraction {
     bytes32[] memory neighbourEntityIds,
     BlockDirection[] memory neighbourEntityDirections,
     BodySimData memory entitySimData
-  ) internal returns (bytes memory) {
+  ) internal returns (bytes memory, bool) {
     CAEventData[] memory allCAEventData = new CAEventData[](neighbourEntityIds.length);
 
     bool hasTransfer = false;
@@ -516,13 +480,7 @@ contract SoilSystem is VoxelInteraction {
       }
     }
 
-    // Check if there's at least one transfer
-    if (hasTransfer) {
-      Soil.setLastInteractionBlock(callerAddress, interactEntity, block.number);
-      return abi.encode(allCAEventData);
-    }
-
-    return new bytes(0);
+    return (abi.encode(allCAEventData), hasTransfer);
   }
 
   function eventHandlerSoil(

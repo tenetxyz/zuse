@@ -14,3 +14,4 @@ string constant SIM_VELOCITY_CACHE_UPDATE_SIG = "updateVelocityCache((uint32,byt
 
 // Other constants
 uint256 constant NUM_BLOCKS_BEFORE_REDUCE_VELOCITY = 60;
+uint256 constant MAX_INIT_NPK = 100;

@@ -12,6 +12,7 @@ import { int256ToUint256, addUint256AndInt256 } from "@tenet-utils/src/TypeUtils
 import { distanceBetween, voxelCoordsAreEqual, isZeroCoord } from "@tenet-utils/src/VoxelCoordUtils.sol";
 import { isEntityEqual } from "@tenet-utils/src/Utils.sol";
 import { getVelocity, getTerrainMass, getTerrainEnergy, getTerrainVelocity, createTerrainEntity } from "@tenet-simulator/src/Utils.sol";
+import { MAX_INIT_NPK } from "@tenet-simulator/src/Constants.sol";
 import { console } from "forge-std/console.sol";
 
 contract NitrogenSystem is SimHandler {
@@ -45,11 +46,10 @@ contract NitrogenSystem is SimHandler {
       }
       require(receiverNitrogenDelta > 0, "Cannot set a negative nitrogen value");
 
-
-      uint256 senderNPK = Potassium.get(callerAddress, senderEntity.scale, senderEntity.entityId)
-      + uint256(receiverNitrogenDelta) + Phosphorous.get(callerAddress, senderEntity.scale, senderEntity.entityId);
-
-      require(senderNPK <= 100);
+      uint256 senderNPK = Potassium.get(callerAddress, senderEntity.scale, senderEntity.entityId) +
+        uint256(receiverNitrogenDelta) +
+        Phosphorous.get(callerAddress, senderEntity.scale, senderEntity.entityId);
+      require(senderNPK <= MAX_INIT_NPK, "NPK must be less than or equal to the initial NPK constant");
 
       Nitrogen.set(
         callerAddress,

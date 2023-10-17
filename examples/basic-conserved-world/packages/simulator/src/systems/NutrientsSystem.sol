@@ -16,6 +16,8 @@ import { getNeighbourEntities } from "@tenet-simulator/src/Utils.sol";
 import { getVelocity, getTerrainMass, getTerrainEnergy, getTerrainVelocity, createTerrainEntity } from "@tenet-simulator/src/Utils.sol";
 import { console } from "forge-std/console.sol";
 
+uint256 constant NUTRIENT_TRANSFER_MAX_DELTA = 50;
+
 contract NutrientsSystem is SimHandler {
   function registerNutrientsSelectors() public {
     SimSelectors.set(
@@ -221,11 +223,17 @@ contract NutrientsSystem is SimHandler {
       uint256 currentSenderNutrients = Nutrients.get(callerAddress, senderEntity.scale, senderEntity.entityId);
       require(currentSenderNutrients >= senderNutrients, "Not enough nutrients to transfer");
 
+      require(
+        hasKey(
+          NutrientsTableId,
+          Nutrients.encodeKeyTuple(callerAddress, receiverEntity.scale, receiverEntity.entityId)
+        ),
+        "Not a nutrient-holding cell"
+      );
       uint256 currentReceiverNutrients = Nutrients.get(callerAddress, receiverEntity.scale, receiverEntity.entityId);
-      require(currentReceiverNutrients > 0, "Not a nutrient-holding cell");
 
       require(
-        currentSenderNutrients <= currentReceiverNutrients + 50,
+        absoluteDifference(currentSenderNutrients, currentReceiverNutrients) <= NUTRIENT_TRANSFER_MAX_DELTA,
         "Can't transfer from high to low if there's a large difference"
       );
 

@@ -5,7 +5,7 @@ import { IStore } from "@latticexyz/store/src/IStore.sol";
 import { IWorld } from "@tenet-simulator/src/codegen/world/IWorld.sol";
 import { hasKey } from "@latticexyz/world/src/modules/keysintable/hasKey.sol";
 import { SimHandler } from "@tenet-simulator/prototypes/SimHandler.sol";
-import { Nitrogen, NitrogenTableId, SimSelectors, Object, ObjectTableId, Health, HealthTableId, Mass, MassTableId, Energy, EnergyTableId, Velocity, VelocityTableId } from "@tenet-simulator/src/codegen/Tables.sol";
+import { Nitrogen, NitrogenTableId, Potassium, PotassiumTableId, Phosphorous, PhosphorousTableId, SimSelectors, Object, ObjectTableId, Health, HealthTableId, Mass, MassTableId, Energy, EnergyTableId, Velocity, VelocityTableId } from "@tenet-simulator/src/codegen/Tables.sol";
 import { VoxelCoord, VoxelTypeData, VoxelEntity, ObjectType, SimTable, ValueType } from "@tenet-utils/src/Types.sol";
 import { VoxelTypeRegistry, VoxelTypeRegistryData } from "@tenet-registry/src/codegen/tables/VoxelTypeRegistry.sol";
 import { int256ToUint256, addUint256AndInt256 } from "@tenet-utils/src/TypeUtils.sol";
@@ -44,6 +44,13 @@ contract NitrogenSystem is SimHandler {
         return;
       }
       require(receiverNitrogenDelta > 0, "Cannot set a negative nitrogen value");
+
+
+      uint256 senderNPK = Potassium.get(callerAddress, senderEntity.scale, senderEntity.entityId)
+      + uint256(receiverNitrogenDelta) + Phosphorous.get(callerAddress, senderEntity.scale, senderEntity.entityId);
+
+      require(senderNPK <= 100);
+
       Nitrogen.set(
         callerAddress,
         receiverEntity.scale,

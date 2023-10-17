@@ -11,6 +11,7 @@ import { VoxelTypeRegistry, VoxelTypeRegistryData } from "@tenet-registry/src/co
 import { distanceBetween, voxelCoordsAreEqual, isZeroCoord } from "@tenet-utils/src/VoxelCoordUtils.sol";
 import { int256ToUint256, addUint256AndInt256, uint256ToInt256 } from "@tenet-utils/src/TypeUtils.sol";
 import { isEntityEqual } from "@tenet-utils/src/Utils.sol";
+import { getNeighbourEntities } from "@tenet-simulator/src/Utils.sol";
 import { getVelocity, getTerrainMass, getTerrainEnergy, getTerrainVelocity, createTerrainEntity } from "@tenet-simulator/src/Utils.sol";
 import { console } from "forge-std/console.sol";
 
@@ -37,33 +38,47 @@ contract NutrientsSystem is SimHandler {
     VoxelEntity memory senderEntity,
     uint256 senderEnergy
   ) internal view returns (int256) {
-    require(
-      hasKey(NitrogenTableId, Nitrogen.encodeKeyTuple(callerAddress, senderEntity.scale, senderEntity.entityId)),
-      "Sender entity does not have nitrogen"
-    );
-    require(
-      hasKey(PhosphorousTableId, Phosphorous.encodeKeyTuple(callerAddress, senderEntity.scale, senderEntity.entityId)),
-      "Sender entity does not have phosphorous"
-    );
-    require(
-      hasKey(PotassiumTableId, Potassium.encodeKeyTuple(callerAddress, senderEntity.scale, senderEntity.entityId)),
-      "Sender entity does not have potassium"
-    );
 
     uint256 mass = Mass.get(callerAddress, senderEntity.scale, senderEntity.entityId);
     require(mass > 0, "Sender entity mass must be greater than 0");
-    uint256 nitrogen = Nitrogen.get(callerAddress, senderEntity.scale, senderEntity.entityId);
-    uint256 phosphorus = Phosphorous.get(callerAddress, senderEntity.scale, senderEntity.entityId);
-    uint256 potassium = Potassium.get(callerAddress, senderEntity.scale, senderEntity.entityId);
 
-    // Calculate the efficiency factor
-    // The term (mass + nitrogen + phosphorus + potassium) / senderEnergy normalizes the efficiency factor
-    // The '1 +' in the denominator ensures we're not dividing by zero
-    uint256 efficiencyFactor = 1 + ((mass + nitrogen + phosphorus + potassium) / senderEnergy);
+    (bytes32[] memory neighbourEntities, VoxelCoord[] memory neighbourCoords) = getNeighbourEntities(callerAddress, senderEntity);
 
-    // Calculate receiverNutrientsDelta
-    // It will be the remaining energy after accounting for the loss defined by efficiencyFactor.
-    return uint256ToInt256(senderEnergy - (senderEnergy / efficiencyFactor));
+    uint256 totalNutrients = 0;
+    uint256 totalMass = 0;
+
+    for (uint8 i = 0; i < neighbourCoords.length; i++) {
+      if (uint256(neighbourEntities[i]) != 0) {
+        uint256 neighborNutrients = Nutrients.get(callerAddress, senderEntity.scale, neighbourEntities[i]);
+        totalNutrients += neighborNutrients;
+
+        uint256 neighborMass = Mass.get(callerAddress, senderEntity.scale, neighbourEntities[i]);
+        totalMass += neighborMass;
+      }
+    }
+
+    uint256 averageNutrients = totalNutrients / neighbourCoords.length;
+    uint256 averageMass = totalMass / neighbourCoords.length;
+    uint256 selfNutrients = Nutrients.get(callerAddress, senderEntity.scale, senderEntity.entityId);
+    uint256 newSelfNutrients = senderEnergy + selfNutrients;
+
+    uint256 actualEnergyToConvert = 0;
+
+    uint256 massFactor = 100; // start with 100%, i.e., no change
+    if(mass > averageMass) {
+        uint256 massDifference = mass - averageMass;
+        uint256 massPercentAboveAverage = (massDifference * 100) / averageMass;
+        massFactor = 100 - massPercentAboveAverage; // This will reduce the lossFactor
+    }
+
+    if (newSelfNutrients < averageNutrients) {
+      uint256 difference = averageNutrients - newSelfNutrients;
+      uint256 lossFactor = (difference * newSelfNutrients) / 100;
+      lossFactor = (lossFactor * massFactor) / 100; // Adjust loss factor based on mass
+      actualEnergyToConvert = newSelfNutrients - lossFactor;
+    }
+
+    return int256(actualEnergyToConvert);
   }
 
   function updateNutrientsFromEnergy(
@@ -191,6 +206,18 @@ contract NutrientsSystem is SimHandler {
         ),
         "Sender entity does not have potassium"
       );
+
+      //sender, receiver nutrient energy check
+      uint256 currentSenderNutrients = Nutrients.get(callerAddress, senderEntity.scale, senderEntity.entityId);
+      require(currentSenderNutrients >= senderNutrients, "Not enough nutrients to transfer");
+
+      uint256 currentReceiverNutrients = Nutrients.get(callerAddress, receiverEntity.scale, receiverEntity.entityId);
+      require(currentReceiverNutrients > 0, "Not a nutrient-holding cell");
+
+      require(currentSenderNutrients <= currentReceiverNutrients + 50, "Can't transfer from high to low if there's a large difference");
+
+
+      //TODO: efficiency based on NPK
       {
         uint256 senderNPK = Nitrogen.get(callerAddress, senderEntity.scale, senderEntity.entityId) +
           Phosphorous.get(callerAddress, senderEntity.scale, senderEntity.entityId) +
@@ -198,8 +225,23 @@ contract NutrientsSystem is SimHandler {
         uint256 receiverNPK = Nitrogen.get(callerAddress, receiverEntity.scale, receiverEntity.entityId) +
           Phosphorous.get(callerAddress, receiverEntity.scale, receiverEntity.entityId) +
           Potassium.get(callerAddress, receiverEntity.scale, receiverEntity.entityId);
-        require(receiverNPK >= senderNPK, "Receiver NPK must be greater than or equal to sender NPK");
-        receiverNutrients = (senderNutrients * receiverNPK) / (senderNPK + receiverNPK);
+
+
+        uint256 scaledSenderNPK = senderNPK * 1e6;
+        uint256 scaledReceiverNPK = receiverNPK * 1e6;
+        uint256 scaledSenderNutrients = senderNutrients * 1e6;
+
+        uint256 scaledActualTransfer = scaledSenderNutrients * ((scaledSenderNPK * scaledReceiverNPK) / (14000 * 1e6 * 1e6));  
+        uint256 actualTransfer = scaledActualTransfer / 1e6;
+
+        uint256 ninetyFivePercent = (senderNutrients * 95) / 100;
+
+
+        if (actualTransfer > ninetyFivePercent) {
+            actualTransfer = ninetyFivePercent;
+        }
+
+        receiverNutrients = actualTransfer;
       }
 
       if (receiverNutrients == 0) {
@@ -207,8 +249,6 @@ contract NutrientsSystem is SimHandler {
       }
       require(senderNutrients >= receiverNutrients, "Not enough energy to nutrients to sender");
 
-      uint256 currentSenderNutrients = Nutrients.get(callerAddress, senderEntity.scale, senderEntity.entityId);
-      require(currentSenderNutrients >= senderNutrients, "Not enough nutrients to transfer");
       {
         bool receiverEntityExists = hasKey(
           MassTableId,
@@ -227,7 +267,7 @@ contract NutrientsSystem is SimHandler {
         callerAddress,
         receiverEntity.scale,
         receiverEntity.entityId,
-        Nutrients.get(callerAddress, receiverEntity.scale, receiverEntity.entityId) + receiverNutrients
+        currentReceiverNutrients + receiverNutrients
       );
       Nutrients.set(callerAddress, senderEntity.scale, senderEntity.entityId, currentSenderNutrients - senderNutrients);
       {
@@ -238,4 +278,5 @@ contract NutrientsSystem is SimHandler {
       }
     }
   }
+
 }

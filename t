@@ -11,17 +11,17 @@ run_example() {
         command="${command} && ${extra_cmd}"
     fi
     echo $command
-    concurrently -n example -c \#fb8500 "$command"
+    yarn concurrently -n example -c \#fb8500 "$command"
 }
 
 # Check if the first argument is "run"
 if [[ "$1" == "run" ]]; then
     case "$2" in
         "dev")
-            concurrently -n anvil,contracts,client -c blue,green,white "./t run dev:anvil" "./t run dev:framework $4 && ./t run dev:$3"  "./t run dev:client"
+            yarn concurrently -n anvil,contracts,client -c blue,green,white "./t run dev:anvil" "./t run dev:framework $4 && ./t run dev:$3"  "./t run dev:client"
             ;;
         "dev-no-client")
-            concurrently -n anvil,contracts -c blue,green,white "./t run dev:anvil" "./t run dev:framework $4 && ./t run dev:$3 $4 $5 $6"
+            yarn concurrently -n anvil,contracts -c blue,green,white "./t run dev:anvil" "./t run dev:framework $4 && ./t run dev:$3 $4 $5 $6"
             ;;
         "dev:anvil")
             cd scripts && yarn run anvil

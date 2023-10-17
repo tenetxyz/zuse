@@ -13,20 +13,11 @@ import { registerCAVoxelType } from "@tenet-base-ca/src/CallUtils.sol";
 import { EventType, SoilType } from "@tenet-pokemon-extension/src/codegen/Types.sol";
 
 bytes32 constant SoilVoxelVariantID = bytes32(keccak256("soil"));
-string constant SoilTexture = "bafkreidtk7vevmnzt6is5dreyoocjkyy56bk66zbm5bx6wzck73iogdl6e";
-string constant SoilUVWrap = "bafkreiaur4pmmnh3dts6rjtfl5f2z6ykazyuu4e2cbno6drslfelkga3yy";
 
-contract SoilVoxelSystem is VoxelType {
+contract ProteinSoilVoxelSystem is VoxelType {
   function registerBody() public override {
     address world = _world();
     VoxelVariantsRegistryData memory soilVariant;
-    soilVariant.blockType = NoaBlockType.BLOCK;
-    soilVariant.opaque = true;
-    soilVariant.solid = true;
-    string[] memory soilMaterials = new string[](1);
-    soilMaterials[0] = SoilTexture;
-    soilVariant.materials = abi.encode(soilMaterials);
-    soilVariant.uvWrap = SoilUVWrap;
     registerVoxelVariant(REGISTRY_ADDRESS, SoilVoxelVariantID, soilVariant);
 
     bytes32[] memory soilChildVoxelTypes = new bytes32[](1);
@@ -42,12 +33,12 @@ contract SoilVoxelSystem is VoxelType {
       soilChildVoxelTypes,
       SoilVoxelVariantID,
       voxelSelectorsForVoxel(
-        IWorld(world).pokemon_SoilVoxelSystem_enterWorld.selector,
-        IWorld(world).pokemon_SoilVoxelSystem_exitWorld.selector,
-        IWorld(world).pokemon_SoilVoxelSystem_variantSelector.selector,
-        IWorld(world).pokemon_SoilVoxelSystem_activate.selector,
-        IWorld(world).pokemon_SoilVoxelSystem_eventHandler.selector,
-        IWorld(world).pokemon_SoilVoxelSystem_neighbourEventHandler.selector
+        IWorld(world).pokemon_ProteinSoilVoxel_enterWorld.selector,
+        IWorld(world).pokemon_ProteinSoilVoxel_exitWorld.selector,
+        IWorld(world).pokemon_ProteinSoilVoxel_variantSelector.selector,
+        IWorld(world).pokemon_ProteinSoilVoxel_activate.selector,
+        IWorld(world).pokemon_ProteinSoilVoxel_eventHandler.selector,
+        IWorld(world).pokemon_ProteinSoilVoxel_neighbourEventHandler.selector
       ),
       abi.encode(componentDefs),
       5

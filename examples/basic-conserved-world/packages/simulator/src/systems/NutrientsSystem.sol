@@ -102,11 +102,13 @@ contract NutrientsSystem is SimHandler {
     int256 receiverNutrientsDelta
   ) public {
     address callerAddress = super.getCallerAddress();
-    bool entityExists = hasKey(
-      EnergyTableId,
-      Energy.encodeKeyTuple(callerAddress, senderEntity.scale, senderEntity.entityId)
-    );
-    require(entityExists, "Sender entity does not exist");
+    {
+      bool entityExists = hasKey(
+        EnergyTableId,
+        Energy.encodeKeyTuple(callerAddress, senderEntity.scale, senderEntity.entityId)
+      );
+      require(entityExists, "Sender entity does not exist");
+    }
     if (
       (senderEnergyDelta > 0 && receiverNutrientsDelta > 0) || (senderEnergyDelta < 0 && receiverNutrientsDelta < 0)
     ) {
@@ -162,6 +164,30 @@ contract NutrientsSystem is SimHandler {
     } else {
       revert("You can't convert other's energy to nutrients");
     }
+  }
+
+  function calcReceiverNutrients(
+    address callerAddress,
+    VoxelEntity memory senderEntity,
+    VoxelEntity memory receiverEntity,
+    uint256 senderNutrients
+  ) internal returns (uint256) {
+    uint256 senderNPK = Nitrogen.get(callerAddress, senderEntity.scale, senderEntity.entityId) +
+      Phosphorous.get(callerAddress, senderEntity.scale, senderEntity.entityId) +
+      Potassium.get(callerAddress, senderEntity.scale, senderEntity.entityId);
+    uint256 receiverNPK = Nitrogen.get(callerAddress, receiverEntity.scale, receiverEntity.entityId) +
+      Phosphorous.get(callerAddress, receiverEntity.scale, receiverEntity.entityId) +
+      Potassium.get(callerAddress, receiverEntity.scale, receiverEntity.entityId);
+
+    // Calculate the actual transfer amount
+    uint256 actualTransfer = (senderNutrients * senderNPK * receiverNPK) / (14000);
+
+    uint256 ninetyFivePercent = (senderNutrients * 95) / 100;
+    if (actualTransfer > ninetyFivePercent) {
+      actualTransfer = ninetyFivePercent;
+    }
+
+    return actualTransfer;
   }
 
   function updateNutrientsFromNutrients(
@@ -237,27 +263,7 @@ contract NutrientsSystem is SimHandler {
         "Can't transfer from high to low if there's a large difference"
       );
 
-      //TODO: efficiency based on NPK
-      {
-        uint256 senderNPK = Nitrogen.get(callerAddress, senderEntity.scale, senderEntity.entityId) +
-          Phosphorous.get(callerAddress, senderEntity.scale, senderEntity.entityId) +
-          Potassium.get(callerAddress, senderEntity.scale, senderEntity.entityId);
-        uint256 receiverNPK = Nitrogen.get(callerAddress, receiverEntity.scale, receiverEntity.entityId) +
-          Phosphorous.get(callerAddress, receiverEntity.scale, receiverEntity.entityId) +
-          Potassium.get(callerAddress, receiverEntity.scale, receiverEntity.entityId);
-
-        // Calculate the actual transfer amount
-        uint256 actualTransfer = (senderNutrients * senderNPK * receiverNPK) / (14000);
-
-        uint256 ninetyFivePercent = (senderNutrients * 95) / 100;
-
-        if (actualTransfer > ninetyFivePercent) {
-          actualTransfer = ninetyFivePercent;
-        }
-
-        receiverNutrients = actualTransfer;
-      }
-
+      receiverNutrients = calcReceiverNutrients(callerAddress, senderEntity, receiverEntity, senderNutrients);
       if (receiverNutrients == 0) {
         return;
       }

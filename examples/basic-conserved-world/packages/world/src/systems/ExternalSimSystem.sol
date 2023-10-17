@@ -3,7 +3,7 @@ pragma solidity >=0.8.0;
 
 import { IWorld } from "@tenet-world/src/codegen/world/IWorld.sol";
 import { IStore } from "@latticexyz/store/src/IStore.sol";
-import { VoxelCoord, VoxelEntity } from "@tenet-utils/src/Types.sol";
+import { VoxelCoord, VoxelEntity, InteractionSelector } from "@tenet-utils/src/Types.sol";
 import { System } from "@latticexyz/world/src/System.sol";
 import { getVoxelCoordStrict } from "@tenet-base-world/src/Utils.sol";
 import { REGISTRY_ADDRESS, SIMULATOR_ADDRESS } from "@tenet-world/src/Constants.sol";
@@ -15,7 +15,8 @@ import { VoxelTypeRegistry, VoxelTypeRegistryData } from "@tenet-registry/src/co
 import { WorldConfig, WorldConfigTableId } from "@tenet-base-world/src/codegen/tables/WorldConfig.sol";
 import { CAVoxelType, CAVoxelTypeData } from "@tenet-base-ca/src/codegen/tables/CAVoxelType.sol";
 import { getUniqueEntity } from "@latticexyz/world/src/modules/uniqueentity/getUniqueEntity.sol";
-import { initEntity } from "@tenet-simulator/src/CallUtils.sol";
+import { initEntity, initAgent } from "@tenet-simulator/src/CallUtils.sol";
+import { getInteractionSelectors } from "@tenet-registry/src/Utils.sol";
 import { console } from "forge-std/console.sol";
 
 contract ExternalSimSystem is System {
@@ -29,7 +30,7 @@ contract ExternalSimSystem is System {
     uint256 initMass = IWorld(_world()).getTerrainMass(scale, coord);
     uint256 initEnergy = IWorld(_world()).getTerrainEnergy(scale, coord);
     VoxelCoord memory initVelocity = IWorld(_world()).getTerrainVelocity(scale, coord);
-    return spawnBody(terrainVoxelTypeId, coord, bytes4(0), initMass, initEnergy, initVelocity, 0);
+    return spawnBody(terrainVoxelTypeId, coord, bytes4(0), initMass, initEnergy, initVelocity, 0, 0);
   }
 
   function spawnBody(
@@ -39,7 +40,8 @@ contract ExternalSimSystem is System {
     uint256 initMass,
     uint256 initEnergy,
     VoxelCoord memory initVelocity,
-    uint256 initStamina
+    uint256 initStamina,
+    uint256 initHealth
   ) public returns (VoxelEntity memory eventVoxelEntity) {
     require(
       _msgSender() == SIMULATOR_ADDRESS ||
@@ -50,18 +52,40 @@ contract ExternalSimSystem is System {
 
     address caAddress = WorldConfig.get(voxelTypeId);
     // Create new body entity
-    uint32 scale = VoxelTypeRegistry.getScale(IStore(REGISTRY_ADDRESS), voxelTypeId);
-    eventVoxelEntity = VoxelEntity({ scale: scale, entityId: getUniqueEntity() });
-    Position.set(scale, eventVoxelEntity.entityId, coord.x, coord.y, coord.z);
+    eventVoxelEntity = VoxelEntity({
+      scale: VoxelTypeRegistry.getScale(IStore(REGISTRY_ADDRESS), voxelTypeId),
+      entityId: getUniqueEntity()
+    });
+    Position.set(eventVoxelEntity.scale, eventVoxelEntity.entityId, coord.x, coord.y, coord.z);
 
     // Update layers
     IWorld(_world()).enterCA(caAddress, eventVoxelEntity, voxelTypeId, mindSelector, coord);
-    CAVoxelTypeData memory entityCAVoxelType = CAVoxelType.get(IStore(caAddress), _world(), eventVoxelEntity.entityId);
-    VoxelType.set(scale, eventVoxelEntity.entityId, entityCAVoxelType.voxelTypeId, entityCAVoxelType.voxelVariantId);
+    {
+      CAVoxelTypeData memory entityCAVoxelType = CAVoxelType.get(
+        IStore(caAddress),
+        _world(),
+        eventVoxelEntity.entityId
+      );
+      VoxelType.set(
+        eventVoxelEntity.scale,
+        eventVoxelEntity.entityId,
+        entityCAVoxelType.voxelTypeId,
+        entityCAVoxelType.voxelVariantId
+      );
+    }
     // TODO: Should we run this?
     // IWorld(_world()).runCA(caAddress, eventVoxelEntity, bytes4(0));
 
-    initEntity(SIMULATOR_ADDRESS, eventVoxelEntity, initMass, initEnergy, initVelocity, initStamina);
+    initEntity(SIMULATOR_ADDRESS, eventVoxelEntity, initMass, initEnergy, initVelocity);
+    {
+      InteractionSelector[] memory interactionSelectors = getInteractionSelectors(
+        IStore(REGISTRY_ADDRESS),
+        voxelTypeId
+      );
+      if (interactionSelectors.length > 1) {
+        initAgent(SIMULATOR_ADDRESS, eventVoxelEntity, initStamina, initHealth);
+      }
+    }
 
     return eventVoxelEntity;
   }

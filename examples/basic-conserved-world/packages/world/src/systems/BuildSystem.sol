@@ -54,6 +54,8 @@ contract BuildSystem is BuildEvent {
     super.preRunCA(caAddress, voxelTypeId, coord, eventVoxelEntity, eventData);
     // Call simulator mass change
     uint256 bodyMass = VoxelTypeRegistry.getMass(IStore(REGISTRY_ADDRESS), voxelTypeId);
-    onBuild(SIMULATOR_ADDRESS, eventVoxelEntity, coord, bodyMass);
+    BuildEventData memory buildEventData = abi.decode(eventData, (BuildEventData));
+    BuildWorldEventData memory buildWorldEventData = abi.decode(buildEventData.worldData, (BuildWorldEventData));
+    onBuild(SIMULATOR_ADDRESS, buildWorldEventData.agentEntity, eventVoxelEntity, coord, bodyMass);
   }
 }

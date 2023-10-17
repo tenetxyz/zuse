@@ -11,7 +11,7 @@ import { getEntityAtCoord, getEntityPositionStrict, positionDataToVoxelCoord } f
 import { FaucetVoxelID, GrassVoxelID, AirVoxelID, DirtVoxelID, BedrockVoxelID } from "@tenet-level1-ca/src/Constants.sol";
 import { MindRegistry } from "@tenet-registry/src/codegen/tables/MindRegistry.sol";
 import { REGISTRY_ADDRESS, BASE_CA_ADDRESS, SIMULATOR_ADDRESS } from "@tenet-world/src/Constants.sol";
-import { SoilVoxelID, PlantVoxelID, FirePokemonVoxelID } from "@tenet-pokemon-extension/src/Constants.sol";
+import { ProteinSoilVoxelID, PlantVoxelID, FirePokemonVoxelID } from "@tenet-pokemon-extension/src/Constants.sol";
 import { Pokemon, PokemonData } from "@tenet-pokemon-extension/src/codegen/tables/Pokemon.sol";
 import { Plant, PlantData, PlantStage } from "@tenet-pokemon-extension/src/codegen/tables/Plant.sol";
 import { addressToEntityKey } from "@tenet-utils/src/Utils.sol";
@@ -84,9 +84,9 @@ contract MoveTest is MudTest {
     VoxelEntity memory agentEntity = setupAgent();
 
     VoxelCoord memory soilCoord = VoxelCoord({ x: agentCoord.x + 1, y: agentCoord.y, z: agentCoord.z });
-    VoxelEntity memory soilEntity = world.buildWithAgent(SoilVoxelID, soilCoord, agentEntity, bytes4(0));
+    VoxelEntity memory soilEntity = world.buildWithAgent(ProteinSoilVoxelID, soilCoord, agentEntity, bytes4(0));
     Energy.set(IStore(SIMULATOR_ADDRESS), worldAddress, soilEntity.scale, soilEntity.entityId, 90);
-    world.activateWithAgent(SoilVoxelID, soilCoord, agentEntity, bytes4(0));
+    world.activateWithAgent(ProteinSoilVoxelID, soilCoord, agentEntity, bytes4(0));
     uint256 soil1Nutrients = Nutrients.get(
       IStore(SIMULATOR_ADDRESS),
       worldAddress,
@@ -107,7 +107,7 @@ contract MoveTest is MudTest {
       agentEntity.scale,
       agentEntity.entityId
     );
-    (, soilEntity) = world.moveWithAgent(SoilVoxelID, soilCoord, newSoilCoord, agentEntity);
+    (, soilEntity) = world.moveWithAgent(ProteinSoilVoxelID, soilCoord, newSoilCoord, agentEntity);
     assertTrue(
       soil1Nutrients == Nutrients.get(IStore(SIMULATOR_ADDRESS), worldAddress, soilEntity.scale, soilEntity.entityId)
     );

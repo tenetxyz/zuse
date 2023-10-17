@@ -6,32 +6,32 @@ import { VoxelType } from "@tenet-base-ca/src/prototypes/VoxelType.sol";
 import { VoxelVariantsRegistryData } from "@tenet-registry/src/codegen/tables/VoxelVariantsRegistry.sol";
 import { NoaBlockType } from "@tenet-registry/src/codegen/Types.sol";
 import { registerVoxelVariant, registerVoxelType, voxelSelectorsForVoxel } from "@tenet-registry/src/Utils.sol";
-import { CA_ADDRESS, REGISTRY_ADDRESS, SoilVoxelID } from "@tenet-pokemon-extension/src/Constants.sol";
+import { CA_ADDRESS, REGISTRY_ADDRESS, ProteinSoilVoxelID } from "@tenet-pokemon-extension/src/Constants.sol";
 import { Soil } from "@tenet-pokemon-extension/src/codegen/tables/Soil.sol";
 import { VoxelCoord, ComponentDef } from "@tenet-utils/src/Types.sol";
 import { registerCAVoxelType } from "@tenet-base-ca/src/CallUtils.sol";
 import { EventType, SoilType } from "@tenet-pokemon-extension/src/codegen/Types.sol";
 
-bytes32 constant SoilVoxelVariantID = bytes32(keccak256("soil"));
+bytes32 constant ProteinSoilVoxelVariantID = bytes32(keccak256("soil-protein"));
 
 contract ProteinSoilVoxelSystem is VoxelType {
   function registerBody() public override {
     address world = _world();
     VoxelVariantsRegistryData memory soilVariant;
-    registerVoxelVariant(REGISTRY_ADDRESS, SoilVoxelVariantID, soilVariant);
+    registerVoxelVariant(REGISTRY_ADDRESS, ProteinSoilVoxelVariantID, soilVariant);
 
     bytes32[] memory soilChildVoxelTypes = new bytes32[](1);
-    soilChildVoxelTypes[0] = SoilVoxelID;
-    bytes32 baseVoxelTypeId = SoilVoxelID;
+    soilChildVoxelTypes[0] = ProteinSoilVoxelID;
+    bytes32 baseVoxelTypeId = ProteinSoilVoxelID;
     ComponentDef[] memory componentDefs = new ComponentDef[](0);
     registerVoxelType(
       REGISTRY_ADDRESS,
       "Soil",
-      SoilVoxelID,
+      ProteinSoilVoxelID,
       baseVoxelTypeId,
       soilChildVoxelTypes,
       soilChildVoxelTypes,
-      SoilVoxelVariantID,
+      ProteinSoilVoxelVariantID,
       voxelSelectorsForVoxel(
         IWorld(world).pokemon_ProteinSoilVoxel_enterWorld.selector,
         IWorld(world).pokemon_ProteinSoilVoxel_exitWorld.selector,
@@ -44,7 +44,7 @@ contract ProteinSoilVoxelSystem is VoxelType {
       5
     );
 
-    registerCAVoxelType(CA_ADDRESS, SoilVoxelID);
+    registerCAVoxelType(CA_ADDRESS, ProteinSoilVoxelID);
   }
 
   function enterWorld(VoxelCoord memory coord, bytes32 entity) public override {
@@ -64,7 +64,7 @@ contract ProteinSoilVoxelSystem is VoxelType {
     bytes32[] memory childEntityIds,
     bytes32 parentEntity
   ) public view override returns (bytes32) {
-    return SoilVoxelVariantID;
+    return ProteinSoilVoxelVariantID;
   }
 
   function activate(bytes32 entity) public view override returns (string memory) {}

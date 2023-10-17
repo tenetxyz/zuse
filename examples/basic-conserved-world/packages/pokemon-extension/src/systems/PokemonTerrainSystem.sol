@@ -8,7 +8,7 @@ import { VoxelCoord, BucketData } from "@tenet-utils/src/Types.sol";
 import { System } from "@latticexyz/world/src/System.sol";
 import { hasKey } from "@latticexyz/world/src/modules/keysintable/hasKey.sol";
 import { AirVoxelID, GrassVoxelID } from "@tenet-level1-ca/src/Constants.sol";
-import { CA_ADDRESS, REGISTRY_ADDRESS, SoilVoxelID } from "@tenet-pokemon-extension/src/Constants.sol";
+import { CA_ADDRESS, REGISTRY_ADDRESS, ProteinSoilVoxelID } from "@tenet-pokemon-extension/src/Constants.sol";
 import { SHARD_DIM } from "@tenet-utils/src/Constants.sol";
 import { coordToShardCoord } from "@tenet-utils/src/VoxelCoordUtils.sol";
 import { safeCall, safeStaticCall } from "@tenet-utils/src/CallUtils.sol";
@@ -176,7 +176,7 @@ contract PokemonTerrainSystem is System {
     VoxelCoord memory shardCoord = coordToShardCoord(coord);
 
     if (bucketData.id == SOIL_BUCKET_INDEX) {
-      return SoilVoxelID;
+      return ProteinSoilVoxelID;
     } else if (bucketData.id == GRASS_BUCKET_INDEX) {
       return GrassVoxelID;
     }

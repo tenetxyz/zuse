@@ -5,7 +5,7 @@ import { IStore } from "@latticexyz/store/src/IStore.sol";
 import { IWorld } from "@tenet-simulator/src/codegen/world/IWorld.sol";
 import { hasKey } from "@latticexyz/world/src/modules/keysintable/hasKey.sol";
 import { SimHandler } from "@tenet-simulator/prototypes/SimHandler.sol";
-import { Phosphorous, PhosphorousTableId, SimSelectors, Object, ObjectTableId, Health, HealthTableId, Mass, MassTableId, Energy, EnergyTableId, Velocity, VelocityTableId } from "@tenet-simulator/src/codegen/Tables.sol";
+import { Nitrogen, NitrogenTableId, Potassium, PotassiumTableId, Phosphorous, PhosphorousTableId, SimSelectors, Object, ObjectTableId, Health, HealthTableId, Mass, MassTableId, Energy, EnergyTableId, Velocity, VelocityTableId } from "@tenet-simulator/src/codegen/Tables.sol";
 import { VoxelCoord, VoxelTypeData, VoxelEntity, ObjectType, SimTable, ValueType } from "@tenet-utils/src/Types.sol";
 import { VoxelTypeRegistry, VoxelTypeRegistryData } from "@tenet-registry/src/codegen/tables/VoxelTypeRegistry.sol";
 import { distanceBetween, voxelCoordsAreEqual, isZeroCoord } from "@tenet-utils/src/VoxelCoordUtils.sol";
@@ -44,6 +44,13 @@ contract PhosphorousSystem is SimHandler {
         return;
       }
       require(receiverPhosphorousDelta > 0, "Cannot set a negative phosphorous value");
+
+
+      uint256 senderNPK = Nitrogen.get(callerAddress, senderEntity.scale, senderEntity.entityId)
+      + uint256(receiverPhosphorousDelta) + Potassium.get(callerAddress, senderEntity.scale, senderEntity.entityId);
+
+      require(senderNPK <= 100);
+
       Phosphorous.set(
         callerAddress,
         receiverEntity.scale,
@@ -78,7 +85,7 @@ contract PhosphorousSystem is SimHandler {
         receiverEntity.scale,
         receiverEntity.entityId
       );
-      require(currentSenderPhosphorous >= senderPhosphorous, "Sender does not have enough nitrogen");
+      require(currentSenderPhosphorous >= senderPhosphorous, "Sender does not have enough phosphorous");
 
       require(
         currentSenderPhosphorous >= currentReceiverPhosphorous,

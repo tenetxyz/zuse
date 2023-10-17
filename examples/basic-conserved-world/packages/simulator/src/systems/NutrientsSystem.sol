@@ -206,6 +206,18 @@ contract NutrientsSystem is SimHandler {
         ),
         "Sender entity does not have potassium"
       );
+
+      //sender, receiver nutrient energy check
+      uint256 currentSenderNutrients = Nutrients.get(callerAddress, senderEntity.scale, senderEntity.entityId);
+      require(currentSenderNutrients >= senderNutrients, "Not enough nutrients to transfer");
+
+      uint256 currentReceiverNutrients = Nutrients.get(callerAddress, receiverEntity.scale, receiverEntity.entityId);
+      require(currentReceiverNutrients > 0, "Not a nutrient-holding cell");
+
+      require(currentSenderNutrients <= currentReceiverNutrients + 50, "Can't transfer from high to low if there's a large difference");
+
+
+      //TODO: efficiency based on NPK
       {
         uint256 senderNPK = Nitrogen.get(callerAddress, senderEntity.scale, senderEntity.entityId) +
           Phosphorous.get(callerAddress, senderEntity.scale, senderEntity.entityId) +
@@ -213,17 +225,18 @@ contract NutrientsSystem is SimHandler {
         uint256 receiverNPK = Nitrogen.get(callerAddress, receiverEntity.scale, receiverEntity.entityId) +
           Phosphorous.get(callerAddress, receiverEntity.scale, receiverEntity.entityId) +
           Potassium.get(callerAddress, receiverEntity.scale, receiverEntity.entityId);
-        require(receiverNPK >= senderNPK, "Receiver NPK must be greater than or equal to sender NPK");
-        receiverNutrients = (senderNutrients * receiverNPK) / (senderNPK + receiverNPK);
+        receiverNutrients = (senderNutrients * receiverNPK) / (senderNPK + receiverNPK); //TODO
       }
+
+
+
+
 
       if (receiverNutrients == 0) {
         return;
       }
       require(senderNutrients >= receiverNutrients, "Not enough energy to nutrients to sender");
 
-      uint256 currentSenderNutrients = Nutrients.get(callerAddress, senderEntity.scale, senderEntity.entityId);
-      require(currentSenderNutrients >= senderNutrients, "Not enough nutrients to transfer");
       {
         bool receiverEntityExists = hasKey(
           MassTableId,
@@ -242,7 +255,7 @@ contract NutrientsSystem is SimHandler {
         callerAddress,
         receiverEntity.scale,
         receiverEntity.entityId,
-        Nutrients.get(callerAddress, receiverEntity.scale, receiverEntity.entityId) + receiverNutrients
+        currentReceiverNutrients + receiverNutrients
       );
       Nutrients.set(callerAddress, senderEntity.scale, senderEntity.entityId, currentSenderNutrients - senderNutrients);
       {
@@ -254,4 +267,4 @@ contract NutrientsSystem is SimHandler {
     }
   }
 
-  }
+}

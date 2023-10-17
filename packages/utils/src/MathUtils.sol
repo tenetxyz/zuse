@@ -40,3 +40,11 @@ function floorDiv(int32 a, int32 b) pure returns (int32) {
     return (a % b != 0) ? result - 1 : result;
   }
 }
+
+function absoluteDifference(uint256 a, uint256 b) pure returns (uint256) {
+  if (a > b) {
+    return a - b;
+  } else {
+    return b - a;
+  }
+}

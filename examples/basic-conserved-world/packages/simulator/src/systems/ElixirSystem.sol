@@ -60,21 +60,24 @@ contract ElixirSystem is SimHandler {
         "Sender entity does not have potassium"
       );
 
-      uint256 senderNPK = Nitrogen.get(callerAddress, senderEntity.scale, senderEntity.entityId) +
-        Phosphorous.get(callerAddress, senderEntity.scale, senderEntity.entityId) +
-        Potassium.get(callerAddress, senderEntity.scale, senderEntity.entityId);
+      {
+        uint256 senderNPK = Nitrogen.get(callerAddress, senderEntity.scale, senderEntity.entityId) +
+          Phosphorous.get(callerAddress, senderEntity.scale, senderEntity.entityId) +
+          Potassium.get(callerAddress, senderEntity.scale, senderEntity.entityId);
 
-      uint256 actualTransfer = (senderNutrients * senderNPK) / (180);
-      actualTransfer = (actualTransfer * Potassium.get(callerAddress, senderEntity.scale, senderEntity.entityId)) / (40); //if they have lower than 40 P, its bad; else its good
+        uint256 actualTransfer = (senderNutrients * senderNPK) / (180);
+        actualTransfer =
+          (actualTransfer * Potassium.get(callerAddress, senderEntity.scale, senderEntity.entityId)) /
+          (40); //if they have lower than 40 P, its bad; else its good
 
-      uint256 ninetyFivePercent = (senderNutrients * 95) / 100;
+        uint256 ninetyFivePercent = (senderNutrients * 95) / 100;
 
         if (actualTransfer > ninetyFivePercent) {
-            actualTransfer = ninetyFivePercent;
+          actualTransfer = ninetyFivePercent;
         }
 
-      receiverElixir = actualTransfer;
-
+        receiverElixir = actualTransfer;
+      }
 
       console.log("receiverElixir");
       console.logBytes32(senderEntity.entityId);

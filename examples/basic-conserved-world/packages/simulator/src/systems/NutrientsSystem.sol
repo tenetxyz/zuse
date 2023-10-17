@@ -93,9 +93,6 @@ contract NutrientsSystem is SimHandler {
     return int256(actualEnergyToConvert);
   }
 
-
-  
-
   function updateNutrientsFromEnergy(
     VoxelEntity memory senderEntity,
     VoxelCoord memory senderCoord,

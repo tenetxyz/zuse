@@ -53,6 +53,9 @@ contract MassSystem is SimHandler {
       // Calculate how much energy this operation requires
       bool isMassIncrease = receiverMassDelta > 0; // flux in if mass increases
       uint256 energyRequired = int256ToUint256(receiverMassDelta) * 10;
+      if (!isMassIncrease) {
+        energyRequired = energyRequired * 2;
+      }
       IWorld(_world()).fluxEnergy(isMassIncrease, callerAddress, receiverEntity, energyRequired);
     } else {
       revert("You can't transfer mass to another entity");

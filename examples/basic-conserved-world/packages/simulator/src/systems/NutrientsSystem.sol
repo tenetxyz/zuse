@@ -225,12 +225,24 @@ contract NutrientsSystem is SimHandler {
         uint256 receiverNPK = Nitrogen.get(callerAddress, receiverEntity.scale, receiverEntity.entityId) +
           Phosphorous.get(callerAddress, receiverEntity.scale, receiverEntity.entityId) +
           Potassium.get(callerAddress, receiverEntity.scale, receiverEntity.entityId);
-        receiverNutrients = (senderNutrients * receiverNPK) / (senderNPK + receiverNPK); //TODO
+
+
+        uint256 scaledSenderNPK = senderNPK * 1e6;
+        uint256 scaledReceiverNPK = receiverNPK * 1e6;
+        uint256 scaledSenderNutrients = senderNutrients * 1e6;
+
+        uint256 scaledActualTransfer = scaledSenderNutrients * ((scaledSenderNPK * scaledReceiverNPK) / (14000 * 1e6 * 1e6));  
+        uint256 actualTransfer = scaledActualTransfer / 1e6;
+
+        uint256 ninetyFivePercent = (senderNutrients * 95) / 100;
+
+
+        if (actualTransfer > ninetyFivePercent) {
+            actualTransfer = ninetyFivePercent;
+        }
+
+        receiverNutrients = actualTransfer;
       }
-
-
-
-
 
       if (receiverNutrients == 0) {
         return;

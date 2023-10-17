@@ -19,6 +19,7 @@ contract PostDeploy is Script {
     IWorld(worldAddress).pokemon_FirePokemonAgent_registerBody();
     IWorld(worldAddress).pokemon_WaterPokemonAgen_registerBody();
     IWorld(worldAddress).pokemon_GrassPokemonAgen_registerBody();
+    IWorld(worldAddress).pokemon_FarmerAgentSyste_registerBody();
 
     IWorld(worldAddress).pokemon_PokemonMindSyste_registerMind();
 

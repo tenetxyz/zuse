@@ -9,5 +9,6 @@ bytes32 constant PlantVoxelID = bytes32(keccak256("plant"));
 bytes32 constant FirePokemonVoxelID = bytes32(keccak256("pokemon-fire"));
 bytes32 constant WaterPokemonVoxelID = bytes32(keccak256("pokemon-water"));
 bytes32 constant GrassPokemonVoxelID = bytes32(keccak256("pokemon-grass"));
+bytes32 constant FarmerVoxelID = bytes32(keccak256("farmer"));
 
 uint256 constant NUM_BLOCKS_FAINTED = 50;

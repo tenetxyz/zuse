@@ -5,7 +5,7 @@ import { IStore } from "@latticexyz/store/src/IStore.sol";
 import { IWorld } from "@tenet-simulator/src/codegen/world/IWorld.sol";
 import { hasKey } from "@latticexyz/world/src/modules/keysintable/hasKey.sol";
 import { SimHandler } from "@tenet-simulator/prototypes/SimHandler.sol";
-import { Nitrogen, NitrogenTableId, Potassium, PotassiumTableId, Phosphorous, PhosphorousTableId, Protein, ProteinTableId, Elixir, ElixirTableId, Nutrients, NutrientsTableId, SimSelectors, Health, HealthTableId, Mass, MassTableId, Energy, EnergyTableId, Velocity, VelocityTableId } from "@tenet-simulator/src/codegen/Tables.sol";
+import { Metadata, MetadataTableId, Nitrogen, NitrogenTableId, Potassium, PotassiumTableId, Phosphorous, PhosphorousTableId, Protein, ProteinTableId, Elixir, ElixirTableId, Nutrients, NutrientsTableId, SimSelectors, Health, HealthTableId, Mass, MassTableId, Energy, EnergyTableId, Velocity, VelocityTableId } from "@tenet-simulator/src/codegen/Tables.sol";
 import { VoxelCoord, VoxelTypeData, VoxelEntity, SimTable, ValueType } from "@tenet-utils/src/Types.sol";
 import { VoxelTypeRegistry, VoxelTypeRegistryData } from "@tenet-registry/src/codegen/tables/VoxelTypeRegistry.sol";
 import { distanceBetween, voxelCoordsAreEqual, isZeroCoord } from "@tenet-utils/src/VoxelCoordUtils.sol";
@@ -23,6 +23,34 @@ contract ProteinSystem is SimHandler {
       ValueType.Int256,
       ValueType.Int256
     );
+  }
+
+  function calculateFluxPercent(uint256 timePassed) public pure returns (uint256) {
+    // Linear increase: 1% for every 1800 blocks passed, capped at 100%
+    uint256 fluxPercent = (timePassed / 1800);
+    if (fluxPercent > 100) {
+      return 100;
+    }
+    return fluxPercent;
+  }
+
+  function checkProteinDecay(
+    address callerAddress,
+    VoxelEntity memory senderEntity
+  ) public {
+    
+    uint256 protein = Protein.get(callerAddress, senderEntity.scale, senderEntity.entityId);
+
+    uint256 lastBlock = Metadata.get(callerAddress, senderEntity.scale, senderEntity.entityId);
+
+    uint256 timePassed = block.number - lastBlock;
+
+    if (lastBlock != 0) {
+      uint256 fluxPercent = calculateFluxPercent(timePassed);
+      IWorld(_world()).fluxEnergy(false, callerAddress, senderEntity, protein * fluxPercent / 100);
+    }
+
+    Metadata.set(callerAddress, senderEntity.scale, senderEntity.entityId, block.number);
   }
 
   function updateProteinFromNutrients(
@@ -82,6 +110,7 @@ contract ProteinSystem is SimHandler {
       }
       require(senderNutrients >= receiverProtein, "Not enough energy to nutrients to convert to protein");
 
+      checkProteinDecay(callerAddress, senderEntity);
       uint256 currentSenderNutrients = Nutrients.get(callerAddress, senderEntity.scale, senderEntity.entityId);
       require(currentSenderNutrients >= senderNutrients, "Not enough nutrients to transfer");
       {

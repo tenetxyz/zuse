@@ -34,7 +34,7 @@ contract ElixirSystem is SimHandler {
     return fluxPercent;
   }
 
-  function checkDecay(
+  function checkElixirDecay(
     address callerAddress,
     VoxelEntity memory senderEntity
   ) public {
@@ -114,7 +114,7 @@ contract ElixirSystem is SimHandler {
 
       require(senderNutrients >= receiverElixir, "Not enough nutrients to convert to elixir");
 
-      checkDecay(callerAddress, senderEntity);
+      checkElixirDecay(callerAddress, senderEntity);
       uint256 currentSenderNutrients = Nutrients.get(callerAddress, senderEntity.scale, senderEntity.entityId);
       require(currentSenderNutrients >= senderNutrients, "Not enough nutrients to transfer");
       {

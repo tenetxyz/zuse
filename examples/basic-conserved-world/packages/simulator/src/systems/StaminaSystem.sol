@@ -13,6 +13,7 @@ import { int256ToUint256, addUint256AndInt256 } from "@tenet-utils/src/TypeUtils
 import { isEntityEqual } from "@tenet-utils/src/Utils.sol";
 import { getVelocity, getTerrainMass, getTerrainEnergy, getTerrainVelocity, createTerrainEntity } from "@tenet-simulator/src/Utils.sol";
 import { console } from "forge-std/console.sol";
+import { checkProteinDecay } from "@tenet-simulator/src/systems/ElixirSystem.sol";
 
 contract StaminaSystem is SimHandler {
   function registerStaminaSelectors() public {
@@ -49,6 +50,7 @@ contract StaminaSystem is SimHandler {
     if (isEntityEqual(senderEntity, receiverEntity)) {
       revert("You can't convert your own protein to stamina");
     } else {
+      checkProteinDecay(callerAddress, senderEntity);
       require(receiverStaminaDelta > 0, "Cannot decrease others stamina");
       require(senderProteinDelta < 0, "Cannot increase your own protein");
       uint256 senderProtein = int256ToUint256(senderProteinDelta);

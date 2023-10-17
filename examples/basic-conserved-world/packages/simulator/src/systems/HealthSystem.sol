@@ -13,6 +13,7 @@ import { int256ToUint256, addUint256AndInt256 } from "@tenet-utils/src/TypeUtils
 import { isEntityEqual } from "@tenet-utils/src/Utils.sol";
 import { getVelocity, getTerrainMass, getTerrainEnergy, getTerrainVelocity, createTerrainEntity } from "@tenet-simulator/src/Utils.sol";
 import { console } from "forge-std/console.sol";
+import { checkElixirDecay } from "@tenet-simulator/src/systems/ElixirSystem.sol";
 
 contract HealthSystem is SimHandler {
   function registerHealthSelectors() public {
@@ -50,6 +51,8 @@ contract HealthSystem is SimHandler {
     if (isEntityEqual(senderEntity, receiverEntity)) {
       revert("You can't convert your own elixir to health");
     } else {
+      checkElixirDecay(callerAddress, senderEntity);
+
       require(receiverHealthDelta > 0, "Cannot decrease others health");
       require(senderElixirDelta < 0, "Cannot increase your own elixir");
       uint256 senderElixir = int256ToUint256(senderElixirDelta);

@@ -36,6 +36,7 @@ contract CallerEventSystem is System {
         revert("Not enough time has passed since last event based on current health");
       }
     }
+    
   }
 
   function onBuild(

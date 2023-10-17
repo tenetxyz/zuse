@@ -30,7 +30,7 @@ contract CallerEventSystem is System {
       }
       // Check if enough time has passed
       uint256 lastBlock = Metadata.get(callerAddress, actingEntity.scale, actingEntity.entityId);
-      if (lastBlock == 0 || block.number - lastBlock > blocksToWait) {
+      if (lastBlock == 0 || block.number - lastBlock >= blocksToWait) {
         Metadata.set(callerAddress, actingEntity.scale, actingEntity.entityId, block.number);
       } else {
         revert("Not enough time has passed since last event based on current health");

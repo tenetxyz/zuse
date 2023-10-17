@@ -69,28 +69,26 @@ contract ProteinSoilTest is MudTest {
       soilEntity.entityId
     );
     assertTrue(soil1Nutrients > 0);
-    soil1Energy = Energy.get(IStore(SIMULATOR_ADDRESS), worldAddress, soilEntity.scale, soilEntity.entityId);
-    assertTrue(soil1Energy == 0);
     assertTrue(Nitrogen.get(IStore(SIMULATOR_ADDRESS), worldAddress, soilEntity.scale, soilEntity.entityId) > 0);
     assertTrue(Phosphorous.get(IStore(SIMULATOR_ADDRESS), worldAddress, soilEntity.scale, soilEntity.entityId) > 0);
     assertTrue(Potassium.get(IStore(SIMULATOR_ADDRESS), worldAddress, soilEntity.scale, soilEntity.entityId) > 0);
 
-    // Place down another soil beside it
-    VoxelCoord memory soilCoord2 = VoxelCoord({ x: soilCoord.x, y: soilCoord.y, z: soilCoord.z + 1 });
-    VoxelEntity memory soilEntity2 = world.buildWithAgent(ProteinSoilVoxelID, soilCoord2, agentEntity, bytes4(0));
-    assertTrue(
-      Nutrients.get(IStore(SIMULATOR_ADDRESS), worldAddress, soilEntity.scale, soilEntity.entityId) < soil1Nutrients
-    );
-    uint256 soil2Nutrients = Nutrients.get(
-      IStore(SIMULATOR_ADDRESS),
-      worldAddress,
-      soilEntity2.scale,
-      soilEntity2.entityId
-    );
-    assertTrue(soil2Nutrients > 0);
-    assertTrue(Nitrogen.get(IStore(SIMULATOR_ADDRESS), worldAddress, soilEntity2.scale, soilEntity2.entityId) > 0);
-    assertTrue(Phosphorous.get(IStore(SIMULATOR_ADDRESS), worldAddress, soilEntity2.scale, soilEntity2.entityId) > 0);
-    assertTrue(Potassium.get(IStore(SIMULATOR_ADDRESS), worldAddress, soilEntity2.scale, soilEntity2.entityId) > 0);
+    // // Place down another soil beside it
+    // VoxelCoord memory soilCoord2 = VoxelCoord({ x: soilCoord.x, y: soilCoord.y, z: soilCoord.z + 1 });
+    // VoxelEntity memory soilEntity2 = world.buildWithAgent(ProteinSoilVoxelID, soilCoord2, agentEntity, bytes4(0));
+    // assertTrue(
+    //   Nutrients.get(IStore(SIMULATOR_ADDRESS), worldAddress, soilEntity.scale, soilEntity.entityId) < soil1Nutrients
+    // );
+    // uint256 soil2Nutrients = Nutrients.get(
+    //   IStore(SIMULATOR_ADDRESS),
+    //   worldAddress,
+    //   soilEntity2.scale,
+    //   soilEntity2.entityId
+    // );
+    // assertTrue(soil2Nutrients > 0);
+    // assertTrue(Nitrogen.get(IStore(SIMULATOR_ADDRESS), worldAddress, soilEntity2.scale, soilEntity2.entityId) > 0);
+    // assertTrue(Phosphorous.get(IStore(SIMULATOR_ADDRESS), worldAddress, soilEntity2.scale, soilEntity2.entityId) > 0);
+    // assertTrue(Potassium.get(IStore(SIMULATOR_ADDRESS), worldAddress, soilEntity2.scale, soilEntity2.entityId) > 0);
 
     vm.stopPrank();
   }

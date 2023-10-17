@@ -147,8 +147,11 @@ struct BodySimData {
   ActionData actionData;
   uint256 nutrients;
   uint256 nitrogen;
+  bool hasNitrogen;
   uint256 phosphorous;
+  bool hasPhosphorous;
   uint256 potassium;
+  bool hasPotassium;
   uint256 elixir;
   uint256 protein;
 }

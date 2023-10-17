@@ -32,7 +32,7 @@ contract PlantSystem is VoxelInteraction {
     }
 
     BodySimData memory entitySimData = getEntitySimData(neighbourEntityId);
-    if (entitySimData.nitrogen == 0 || entitySimData.phosphorous == 0 || entitySimData.potassium == 0) {
+    if (!entitySimData.hasNitrogen || !entitySimData.hasPhosphorous || !entitySimData.hasPotassium) {
       return initPlantProperties(callerAddress, neighbourEntityId, entitySimData);
     }
 
@@ -89,7 +89,7 @@ contract PlantSystem is VoxelInteraction {
       return (changedEntity, entityData);
     }
     BodySimData memory entitySimData = getEntitySimData(interactEntity);
-    if (entitySimData.nitrogen == 0 || entitySimData.phosphorous == 0 || entitySimData.potassium == 0) {
+    if (!entitySimData.hasNitrogen || !entitySimData.hasPhosphorous || !entitySimData.hasPotassium) {
       return initPlantProperties(callerAddress, interactEntity, entitySimData);
     }
 

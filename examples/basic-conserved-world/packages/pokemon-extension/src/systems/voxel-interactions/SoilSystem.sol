@@ -28,7 +28,7 @@ contract SoilSystem is VoxelInteraction {
     }
 
     BodySimData memory entitySimData = getEntitySimData(neighbourEntityId);
-    if (entitySimData.nitrogen == 0 || entitySimData.phosphorous == 0 || entitySimData.potassium == 0) {
+    if (!entitySimData.hasNitrogen || !entitySimData.hasPhosphorous || !entitySimData.hasPotassium) {
       return initSoilProperties(callerAddress, neighbourEntityId, entitySimData);
     }
     if (entitySimData.energy > 0) {
@@ -85,7 +85,7 @@ contract SoilSystem is VoxelInteraction {
     }
 
     BodySimData memory entitySimData = getEntitySimData(interactEntity);
-    if (entitySimData.nitrogen == 0 || entitySimData.phosphorous == 0 || entitySimData.potassium == 0) {
+    if (!entitySimData.hasNitrogen || !entitySimData.hasPhosphorous || !entitySimData.hasPotassium) {
       return initSoilProperties(callerAddress, interactEntity, entitySimData);
     }
     if (entitySimData.energy > 0) {
@@ -151,6 +151,7 @@ contract SoilSystem is VoxelInteraction {
     bytes32 interactEntity,
     BodySimData memory entitySimData
   ) internal returns (bool changedEntity, bytes memory entityData) {
+    SoilType soilType = Soil.getSoilType(callerAddress, interactEntity);
     EventType lastEventType = Soil.getLastEvent(callerAddress, interactEntity);
     VoxelEntity memory entity = VoxelEntity({ scale: 1, entityId: caEntityToEntity(interactEntity) });
     VoxelCoord memory coord = getCAEntityPositionStrict(IStore(_world()), interactEntity);
@@ -160,13 +161,21 @@ contract SoilSystem is VoxelInteraction {
       console.logBytes32(interactEntity);
       uint256 numSimEvents = entitySimData.energy > 0 ? 4 : 3;
       SimEventData[] memory allSimEventData = new SimEventData[](numSimEvents);
+      uint256 intNitrogen = 0;
+      uint256 initPhosphorous = 0;
+      uint256 initPotassium = 0;
+
+      if (soilType == SoilType.ProteinSoil) {
+        intNitrogen = 100;
+      }
+
       allSimEventData[0] = SimEventData({
         senderTable: SimTable.Nitrogen,
         senderValue: abi.encode(0),
         targetEntity: entity,
         targetCoord: coord,
         targetTable: SimTable.Nitrogen,
-        targetValue: abi.encode(150)
+        targetValue: abi.encode(intNitrogen)
       });
       allSimEventData[1] = SimEventData({
         senderTable: SimTable.Phosphorous,
@@ -174,7 +183,7 @@ contract SoilSystem is VoxelInteraction {
         targetEntity: entity,
         targetCoord: coord,
         targetTable: SimTable.Phosphorous,
-        targetValue: abi.encode(150)
+        targetValue: abi.encode(initPhosphorous)
       });
       allSimEventData[2] = SimEventData({
         senderTable: SimTable.Potassium,
@@ -182,7 +191,7 @@ contract SoilSystem is VoxelInteraction {
         targetEntity: entity,
         targetCoord: coord,
         targetTable: SimTable.Potassium,
-        targetValue: abi.encode(150)
+        targetValue: abi.encode(initPotassium)
       });
       if (entitySimData.energy > 0) {
         allSimEventData[3] = SimEventData({

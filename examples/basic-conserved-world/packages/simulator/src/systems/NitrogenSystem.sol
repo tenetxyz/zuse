@@ -44,7 +44,7 @@ contract NitrogenSystem is SimHandler {
       if (entityExists) {
         return;
       }
-      require(receiverNitrogenDelta > 0, "Cannot set a negative nitrogen value");
+      require(receiverNitrogenDelta >= 0, "Cannot set a negative nitrogen value");
 
       uint256 senderNPK = Potassium.get(callerAddress, senderEntity.scale, senderEntity.entityId) +
         uint256(receiverNitrogenDelta) +

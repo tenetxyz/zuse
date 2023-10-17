@@ -44,7 +44,7 @@ contract PhosphorousSystem is SimHandler {
       if (entityExists) {
         return;
       }
-      require(receiverPhosphorousDelta > 0, "Cannot set a negative phosphorous value");
+      require(receiverPhosphorousDelta >= 0, "Cannot set a negative phosphorous value");
 
       uint256 senderNPK = Nitrogen.get(callerAddress, senderEntity.scale, senderEntity.entityId) +
         uint256(receiverPhosphorousDelta) +

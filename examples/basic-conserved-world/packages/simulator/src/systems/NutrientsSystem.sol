@@ -199,11 +199,13 @@ contract NutrientsSystem is SimHandler {
     int256 receiverNutrientsDelta
   ) public {
     address callerAddress = super.getCallerAddress();
-    bool entityExists = hasKey(
-      NutrientsTableId,
-      Nutrients.encodeKeyTuple(callerAddress, senderEntity.scale, senderEntity.entityId)
-    );
-    require(entityExists, "Sender entity does not exist");
+    {
+      bool entityExists = hasKey(
+        NutrientsTableId,
+        Nutrients.encodeKeyTuple(callerAddress, senderEntity.scale, senderEntity.entityId)
+      );
+      require(entityExists, "Sender entity does not exist");
+    }
     if (isEntityEqual(senderEntity, receiverEntity)) {
       revert("You can't convert your own nutrients to nutrients");
     } else {

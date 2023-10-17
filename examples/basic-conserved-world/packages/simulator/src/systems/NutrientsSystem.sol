@@ -93,6 +93,9 @@ contract NutrientsSystem is SimHandler {
     return int256(actualEnergyToConvert);
   }
 
+
+  
+
   function updateNutrientsFromEnergy(
     VoxelEntity memory senderEntity,
     VoxelCoord memory senderCoord,
@@ -259,13 +262,13 @@ contract NutrientsSystem is SimHandler {
         "Not a nutrient-holding cell"
       );
       uint256 currentReceiverNutrients = Nutrients.get(callerAddress, receiverEntity.scale, receiverEntity.entityId);
-
       require(
         absoluteDifference(currentSenderNutrients, currentReceiverNutrients) <= NUTRIENT_TRANSFER_MAX_DELTA,
         "Can't transfer from high to low if there's a large difference"
       );
 
       receiverNutrients = calcReceiverNutrients(callerAddress, senderEntity, receiverEntity, senderNutrients);
+
       if (receiverNutrients == 0) {
         return;
       }

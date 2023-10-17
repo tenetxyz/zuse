@@ -60,9 +60,22 @@ contract ProteinSystem is SimHandler {
         "Sender entity does not have potassium"
       );
       {
-        uint256 nitrogen = Nitrogen.get(callerAddress, senderEntity.scale, senderEntity.entityId);
-        uint256 phosphorus = Phosphorous.get(callerAddress, senderEntity.scale, senderEntity.entityId);
-        receiverProtein = (senderNutrients) / (1 + (nitrogen + phosphorus));
+
+        uint256 senderNPK = Nitrogen.get(callerAddress, senderEntity.scale, senderEntity.entityId) +
+          Phosphorous.get(callerAddress, senderEntity.scale, senderEntity.entityId) +
+          Potassium.get(callerAddress, senderEntity.scale, senderEntity.entityId);
+
+        uint256 actualTransfer = (senderNutrients * senderNPK) / (180);
+        actualTransfer = (actualTransfer * Nitrogen.get(callerAddress, senderEntity.scale, senderEntity.entityId)) / (40); //if they have lower than 40 P, its bad; else its good
+
+        uint256 ninetyFivePercent = (senderNutrients * 95) / 100;
+
+          if (actualTransfer > ninetyFivePercent) {
+              actualTransfer = ninetyFivePercent;
+          }
+
+        receiverProtein = actualTransfer;
+
       }
       if (receiverProtein == 0) {
         return;

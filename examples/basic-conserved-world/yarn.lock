@@ -787,6 +787,12 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@tenetxyz/base-ca@link:../../../../packages/base-ca::locator=%40tenetxyz%2Fderived%40workspace%3Apackages%2Fderived":
+  version: 0.0.0-use.local
+  resolution: "@tenetxyz/base-ca@link:../../../../packages/base-ca::locator=%40tenetxyz%2Fderived%40workspace%3Apackages%2Fderived"
+  languageName: node
+  linkType: soft
+
 "@tenetxyz/base-ca@link:../../../../packages/base-ca::locator=%40tenetxyz%2Flevel1-ca%40workspace%3Apackages%2Flevel1-ca":
   version: 0.0.0-use.local
   resolution: "@tenetxyz/base-ca@link:../../../../packages/base-ca::locator=%40tenetxyz%2Flevel1-ca%40workspace%3Apackages%2Flevel1-ca"
@@ -802,6 +808,12 @@ __metadata:
 "@tenetxyz/base-ca@link:../../../../packages/base-ca::locator=%40tenetxyz%2Fworld%40workspace%3Apackages%2Fworld":
   version: 0.0.0-use.local
   resolution: "@tenetxyz/base-ca@link:../../../../packages/base-ca::locator=%40tenetxyz%2Fworld%40workspace%3Apackages%2Fworld"
+  languageName: node
+  linkType: soft
+
+"@tenetxyz/base-world@link:../../../../packages/base-world::locator=%40tenetxyz%2Fderived%40workspace%3Apackages%2Fderived":
+  version: 0.0.0-use.local
+  resolution: "@tenetxyz/base-world@link:../../../../packages/base-world::locator=%40tenetxyz%2Fderived%40workspace%3Apackages%2Fderived"
   languageName: node
   linkType: soft
 
@@ -825,8 +837,14 @@ __metadata:
     "@latticexyz/store": "link:../../../../../mud/packages/store"
     "@latticexyz/world": "link:../../../../../mud/packages/world"
     "@openzeppelin/contracts": ^4.9.1
+    "@tenetxyz/base-ca": "link:../../../../packages/base-ca"
+    "@tenetxyz/base-world": "link:../../../../packages/base-world"
+    "@tenetxyz/level1-ca": "workspace:*"
+    "@tenetxyz/pokemon-extension": "workspace:*"
     "@tenetxyz/registry": "link:../../../../packages/registry"
+    "@tenetxyz/simulator": "workspace:*"
     "@tenetxyz/utils": "link:../../../../packages/utils"
+    "@tenetxyz/world": "workspace:*"
     "@typechain/ethers-v5": ^10.2.0
     "@types/node": ^18.15.11
     abdk-libraries-solidity: ^3.2.0
@@ -1003,7 +1021,7 @@ __metadata:
   languageName: node
   linkType: soft
 
-"@tenetxyz/world@workspace:packages/world":
+"@tenetxyz/world@workspace:*, @tenetxyz/world@workspace:packages/world":
   version: 0.0.0-use.local
   resolution: "@tenetxyz/world@workspace:packages/world"
   dependencies:

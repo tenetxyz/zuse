@@ -36,8 +36,14 @@
     "@latticexyz/schema-type": "link:../../../../../mud/packages/schema-type",
     "@latticexyz/store": "link:../../../../../mud/packages/store",
     "@latticexyz/world": "link:../../../../../mud/packages/world",
+    "@tenetxyz/base-ca": "link:../../../../packages/base-ca",
+    "@tenetxyz/base-world": "link:../../../../packages/base-world",
+    "@tenetxyz/level1-ca": "workspace:*",
+    "@tenetxyz/pokemon-extension": "workspace:*",
     "@tenetxyz/registry": "link:../../../../packages/registry",
-    "@tenetxyz/utils": "link:../../../../packages/utils"
+    "@tenetxyz/simulator": "workspace:*",
+    "@tenetxyz/utils": "link:../../../../packages/utils",
+    "@tenetxyz/world": "workspace:*"
   },
   "devDependencies": {
     "@ethersproject/abi": "^5.7.0",

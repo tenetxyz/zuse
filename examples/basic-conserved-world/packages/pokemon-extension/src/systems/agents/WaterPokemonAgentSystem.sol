@@ -75,6 +75,8 @@ contract WaterPokemonAgentSystem is AgentType {
         pokemonType: ObjectType.Water,
         isFainted: false,
         fightingCAEntity: bytes32(0),
+        numWins: 0,
+        numLosses: 0,
         hasValue: hasValue
       })
     );

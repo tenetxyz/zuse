@@ -75,6 +75,8 @@ contract GrassPokemonAgentSystem is AgentType {
         pokemonType: ObjectType.Grass,
         isFainted: false,
         fightingCAEntity: bytes32(0),
+        numWins: 0,
+        numLosses: 0,
         hasValue: hasValue
       })
     );

@@ -128,21 +128,8 @@ contract PokemonSystem is System {
       changedEntity = true;
     }
 
-    if (pokemonData.fightingCAEntity != bytes32(0)) {
-      BodySimData memory fightingEntitySimData = getEntitySimData(pokemonData.fightingCAEntity);
-      if (
-        (entitySimData.health == 0 || entitySimData.stamina == 0) ||
-        (fightingEntitySimData.health == 0 || fightingEntitySimData.stamina == 0)
-      ) {
-        if (entitySimData.health == 0 || entitySimData.stamina == 0) {
-          console.log("pokemon fainted");
-          pokemonData.isFainted = true;
-        }
-        pokemonData.fightingCAEntity = bytes32(0);
-        pokemonData.lastFaintedBlock = block.number;
-        Pokemon.set(callerAddress, interactEntity, pokemonData);
-      }
-    }
+    pokemonData = endOfFightLogic(pokemonData, entitySimData);
+    Pokemon.set(callerAddress, interactEntity, pokemonData);
 
     if (pokemonData.isFainted && block.number >= pokemonData.lastFaintedBlock + NUM_BLOCKS_FAINTED) {
       pokemonData.isFainted = false;
@@ -243,21 +230,8 @@ contract PokemonSystem is System {
       return (changedEntity, entityData);
     }
 
-    if (pokemonData.fightingCAEntity != bytes32(0)) {
-      BodySimData memory fightingEntitySimData = getEntitySimData(pokemonData.fightingCAEntity);
-      if (
-        (entitySimData.health == 0 || entitySimData.stamina == 0) ||
-        (fightingEntitySimData.health == 0 || fightingEntitySimData.stamina == 0)
-      ) {
-        if (entitySimData.health == 0 || entitySimData.stamina == 0) {
-          console.log("pokemon fainted");
-          pokemonData.isFainted = true;
-        }
-        pokemonData.fightingCAEntity = bytes32(0);
-        pokemonData.lastFaintedBlock = block.number;
-        Pokemon.set(callerAddress, interactEntity, pokemonData);
-      }
-    }
+    pokemonData = endOfFightLogic(pokemonData, entitySimData);
+    Pokemon.set(callerAddress, interactEntity, pokemonData);
 
     if (pokemonData.isFainted && block.number >= pokemonData.lastFaintedBlock + NUM_BLOCKS_FAINTED) {
       pokemonData.isFainted = false;
@@ -265,6 +239,37 @@ contract PokemonSystem is System {
     }
 
     return (changedEntity, entityData);
+  }
+
+  function endOfFightLogic(
+    PokemonData memory pokemonData,
+    BodySimData memory entitySimData
+  ) internal returns (PokemonData memory) {
+    if (pokemonData.fightingCAEntity != bytes32(0)) {
+      BodySimData memory fightingEntitySimData = getEntitySimData(pokemonData.fightingCAEntity);
+      if (
+        (entitySimData.health == 0 || entitySimData.stamina == 0) ||
+        (fightingEntitySimData.health == 0 || fightingEntitySimData.stamina == 0)
+      ) {
+        if (
+          (entitySimData.health == 0 || entitySimData.stamina == 0) &&
+          (fightingEntitySimData.health == 0 || fightingEntitySimData.stamina == 0)
+        ) {
+          // both died, no winner
+          pokemonData.isFainted = true;
+        } else if (entitySimData.health == 0 || entitySimData.stamina == 0) {
+          // entity died
+          pokemonData.isFainted = true;
+          pokemonData.numLosses += 1;
+        } else {
+          // fighting entity died
+          pokemonData.numWins += 1;
+        }
+        pokemonData.fightingCAEntity = bytes32(0);
+        pokemonData.lastFaintedBlock = block.number;
+      }
+    }
+    return pokemonData;
   }
 
   function runPokemonMove(
@@ -280,20 +285,7 @@ contract PokemonSystem is System {
     //   return (caEventData, pokemonData);
     // }
 
-    if (pokemonData.fightingCAEntity != bytes32(0)) {
-      BodySimData memory fightingEntitySimData = getEntitySimData(pokemonData.fightingCAEntity);
-      if (
-        (entitySimData.health == 0 || entitySimData.stamina == 0) ||
-        (fightingEntitySimData.health == 0 || fightingEntitySimData.stamina == 0)
-      ) {
-        if (entitySimData.health == 0 || entitySimData.stamina == 0) {
-          console.log("pokemon fainted");
-          pokemonData.isFainted = true;
-        }
-        pokemonData.fightingCAEntity = bytes32(0);
-        pokemonData.lastFaintedBlock = block.number;
-      }
-    }
+    pokemonData = endOfFightLogic(pokemonData, entitySimData);
 
     if (pokemonData.isFainted && block.number >= pokemonData.lastFaintedBlock + NUM_BLOCKS_FAINTED) {
       pokemonData.isFainted = false;

@@ -44,6 +44,8 @@ export default mudConfig({
         fightingCAEntity: "bytes32",
         isFainted: "bool",
         lastFaintedBlock: "uint256",
+        numWins: "uint256",
+        numLosses: "uint256",
         hasValue: "bool", // TODO: Remove this once we can install non-root modules
       },
     },

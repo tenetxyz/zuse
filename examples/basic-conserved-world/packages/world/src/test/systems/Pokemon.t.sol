@@ -11,7 +11,7 @@ import { getEntityAtCoord, getEntityPositionStrict, positionDataToVoxelCoord } f
 import { FaucetVoxelID, GrassVoxelID, AirVoxelID, DirtVoxelID, BedrockVoxelID } from "@tenet-level1-ca/src/Constants.sol";
 import { MindRegistry } from "@tenet-registry/src/codegen/tables/MindRegistry.sol";
 import { REGISTRY_ADDRESS, BASE_CA_ADDRESS, SIMULATOR_ADDRESS } from "@tenet-world/src/Constants.sol";
-import { ProteinSoilVoxelID, PlantVoxelID, FirePokemonVoxelID } from "@tenet-pokemon-extension/src/Constants.sol";
+import { ProteinSoilVoxelID, PlantVoxelID, FirePokemonVoxelID, GrassPokemonVoxelID } from "@tenet-pokemon-extension/src/Constants.sol";
 import { Pokemon, PokemonData } from "@tenet-pokemon-extension/src/codegen/tables/Pokemon.sol";
 import { Plant, PlantData, PlantStage } from "@tenet-pokemon-extension/src/codegen/tables/Plant.sol";
 import { addressToEntityKey } from "@tenet-utils/src/Utils.sol";
@@ -130,10 +130,14 @@ contract PokemonTest is MudTest {
       assertTrue(pokemon1Data.lastFaintedBlock > 0);
       assertTrue(pokemon1Data.fightingCAEntity == bytes32(0));
       assertTrue(pokemon1Data.isFainted == true);
+      assertTrue(pokemon1Data.numWins == 0);
+      assertTrue(pokemon1Data.numLosses == 0);
       PokemonData memory pokemon2Data = Pokemon.get(IStore(BASE_CA_ADDRESS), worldAddress, pokemon2CAEntity);
       assertTrue(pokemon2Data.lastFaintedBlock > 0);
       assertTrue(pokemon2Data.fightingCAEntity == bytes32(0));
       assertTrue(pokemon2Data.isFainted == true);
+      assertTrue(pokemon2Data.numWins == 0);
+      assertTrue(pokemon2Data.numLosses == 0);
       // Roll forward NUM_BLOCKS_FAINTED and assert that they can now fight again
       vm.roll(block.number + NUM_BLOCKS_FAINTED + 1);
       world.activateWithAgent(FirePokemonVoxelID, newPokemon1Coord, agentEntity, bytes4(0));

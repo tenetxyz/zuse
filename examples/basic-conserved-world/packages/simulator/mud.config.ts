@@ -114,7 +114,7 @@ export default mudConfig({
       schema: {
         actionType: "ObjectType",
         stamina: "uint256",
-        actionEntity: "bytes",
+        actionEntity: "bytes", // VoxelEntity
       },
     },
     Nutrients: {

@@ -167,6 +167,16 @@ contract SoilSystem is VoxelInteraction {
 
       if (soilType == SoilType.ProteinSoil) {
         intNitrogen = 100;
+      } else if (soilType == SoilType.ElixirSoil) {
+        initPhosphorous = 100;
+      } else if (soilType == SoilType.Concentrative) {
+        intNitrogen = 30;
+        initPhosphorous = 30;
+        initPotassium = 30;
+      } else if (soilType == SoilType.Diffusive) {
+        intNitrogen = 30;
+        initPhosphorous = 30;
+        initPotassium = 30;
       }
 
       allSimEventData[0] = SimEventData({

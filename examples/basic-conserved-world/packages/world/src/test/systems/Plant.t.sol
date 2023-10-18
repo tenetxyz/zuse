@@ -11,7 +11,7 @@ import { getEntityAtCoord, getEntityPositionStrict, positionDataToVoxelCoord } f
 import { FaucetVoxelID, GrassVoxelID, AirVoxelID, DirtVoxelID, BedrockVoxelID } from "@tenet-level1-ca/src/Constants.sol";
 import { MindRegistry } from "@tenet-registry/src/codegen/tables/MindRegistry.sol";
 import { REGISTRY_ADDRESS, BASE_CA_ADDRESS, SIMULATOR_ADDRESS } from "@tenet-world/src/Constants.sol";
-import { ConcentrativeSoilVoxelID, PlantVoxelID, FirePokemonVoxelID, SeedVoxelVariantID, SproutVoxelVariantID } from "@tenet-pokemon-extension/src/Constants.sol";
+import { ConcentrativeSoilVoxelID, PlantVoxelID, FirePokemonVoxelID, PlantSeedVoxelVariantID, PlantFlowerVoxelVariantID } from "@tenet-pokemon-extension/src/Constants.sol";
 import { Pokemon, PokemonData } from "@tenet-pokemon-extension/src/codegen/tables/Pokemon.sol";
 import { Plant, PlantData, PlantStage } from "@tenet-pokemon-extension/src/codegen/tables/Plant.sol";
 import { addressToEntityKey } from "@tenet-utils/src/Utils.sol";
@@ -210,7 +210,7 @@ contract PlantTest is MudTest {
       assertTrue(plantElixir > 0);
       assertTrue(plantProtein > 0);
     }
-    assertTrue(VoxelType.getVoxelVariantId(plantEntity.scale, plantEntity.entityId) == SproutVoxelVariantID);
+    assertTrue(VoxelType.getVoxelVariantId(plantEntity.scale, plantEntity.entityId) == PlantFlowerVoxelVariantID);
 
     // Place pokemon next to flower
     {
@@ -234,7 +234,7 @@ contract PlantTest is MudTest {
       );
       assertTrue(plantElixir == 0);
       assertTrue(plantProtein == 0);
-      assertTrue(VoxelType.getVoxelVariantId(plantEntity.scale, plantEntity.entityId) == SeedVoxelVariantID);
+      assertTrue(VoxelType.getVoxelVariantId(plantEntity.scale, plantEntity.entityId) == PlantSeedVoxelVariantID);
     }
 
     vm.stopPrank();

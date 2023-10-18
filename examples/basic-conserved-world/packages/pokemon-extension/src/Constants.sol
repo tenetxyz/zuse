@@ -14,8 +14,9 @@ bytes32 constant WaterPokemonVoxelID = bytes32(keccak256("pokemon-water"));
 bytes32 constant GrassPokemonVoxelID = bytes32(keccak256("pokemon-grass"));
 bytes32 constant FarmerVoxelID = bytes32(keccak256("farmer"));
 
-bytes32 constant SeedVoxelVariantID = bytes32(keccak256("seed"));
-bytes32 constant SproutVoxelVariantID = bytes32(keccak256("sprout"));
-bytes32 constant FlowerVoxelVariantID = bytes32(keccak256("flower"));
+bytes32 constant PlantSeedVoxelVariantID = bytes32(keccak256("plant-seed"));
+bytes32 constant PlantProteinVoxelVariantID = bytes32(keccak256("plant-protein"));
+bytes32 constant PlantElixirVoxelVariantID = bytes32(keccak256("plant-elixir"));
+bytes32 constant PlantFlowerVoxelVariantID = bytes32(keccak256("plant-flower"));
 
 uint256 constant NUM_BLOCKS_FAINTED = 50;

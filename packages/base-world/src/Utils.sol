@@ -2,6 +2,7 @@
 pragma solidity >=0.8.0;
 
 import { SystemRegistry } from "@latticexyz/world/src/modules/core/tables/SystemRegistry.sol";
+import { IStore } from "@latticexyz/store/src/IStore.sol";
 import { ResourceSelector } from "@latticexyz/world/src/ResourceSelector.sol";
 import { hasKey } from "@latticexyz/world/src/modules/keysintable/hasKey.sol";
 import { Coord, VoxelCoord, BlockDirection } from "@tenet-utils/src/Types.sol";
@@ -94,6 +95,25 @@ function getEntityAtCoord(uint32 scale, VoxelCoord memory coord) view returns (b
   return entity;
 }
 
+function getEntityAtCoord(IStore store, uint32 scale, VoxelCoord memory coord) view returns (bytes32) {
+  bytes32[][] memory allEntitiesAtCoord = getKeysWithValue(
+    store,
+    PositionTableId,
+    Position.encode(coord.x, coord.y, coord.z)
+  );
+  bytes32 entity;
+  for (uint256 i = 0; i < allEntitiesAtCoord.length; i++) {
+    if (uint256(allEntitiesAtCoord[i][0]) == scale) {
+      if (uint256(entity) != 0) {
+        revert("Found more than one entity at the same position");
+      }
+      entity = allEntitiesAtCoord[i][1];
+    }
+  }
+
+  return entity;
+}
+
 function getEntityPositionStrict(VoxelEntity memory entity) view returns (PositionData memory) {
   uint32 scale = entity.scale;
   bytes32 entityId = entity.entityId;
@@ -104,8 +124,23 @@ function getEntityPositionStrict(VoxelEntity memory entity) view returns (Positi
   return Position.get(scale, entityId);
 }
 
+function getEntityPositionStrict(IStore store, VoxelEntity memory entity) view returns (PositionData memory) {
+  uint32 scale = entity.scale;
+  bytes32 entityId = entity.entityId;
+  bytes32[] memory positionKeyTuple = new bytes32[](2);
+  positionKeyTuple[0] = bytes32(uint256(scale));
+  positionKeyTuple[1] = (entityId);
+  require(hasKey(store, PositionTableId, positionKeyTuple), "Entity must have a position"); // even if its air, it must have a position
+  return Position.get(store, scale, entityId);
+}
+
 function getVoxelCoordStrict(VoxelEntity memory entity) view returns (VoxelCoord memory) {
   PositionData memory position = getEntityPositionStrict(entity);
+  return positionDataToVoxelCoord(position);
+}
+
+function getVoxelCoordStrict(IStore store, VoxelEntity memory entity) view returns (VoxelCoord memory) {
+  PositionData memory position = getEntityPositionStrict(store, entity);
   return positionDataToVoxelCoord(position);
 }
 

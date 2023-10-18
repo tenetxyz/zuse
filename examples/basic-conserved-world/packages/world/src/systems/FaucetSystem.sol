@@ -14,7 +14,7 @@ import { getInteractionSelectors, getSelector } from "@tenet-registry/src/Utils.
 import { getVoxelCoordStrict } from "@tenet-base-world/src/Utils.sol";
 import { console } from "forge-std/console.sol";
 
-uint256 constant MAX_CLAIMS = 2;
+uint256 constant MAX_CLAIMS = 8;
 
 contract FaucetSystem is System {
   function claimAgentFromFaucet(

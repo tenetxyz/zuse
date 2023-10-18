@@ -47,7 +47,7 @@ if [[ "$1" == "run" ]]; then
             if [[ "$4" == "--with-derived" ]] || [[ "$5" == "--with-derived" ]]; then
                 extra_cmd="${extra_cmd} && yarn run deploy:derived"
             fi
-            if [[ "$4" == "--snapshot" ]] || [[ "$5" == "--snapshot" ]]; then
+            if [[ "$4" == "--snapshot" ]] || [[ "$5" == "--snapshot" ]] || [[ "$6" == "--snapshot" ]]; then
                 extra_cmd="${extra_cmd} && sh ${cur_directory}/scripts/rollback/create_snapshot.sh"
             fi
             run_example "basic-conserved-world" "$extra_cmd"

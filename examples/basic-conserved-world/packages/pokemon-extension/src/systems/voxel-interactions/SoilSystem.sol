@@ -12,7 +12,9 @@ import { entityIsSoil, entityIsPlant } from "@tenet-pokemon-extension/src/Intera
 import { getCAEntityAtCoord, getCAVoxelType, getCAEntityPositionStrict, caEntityToEntity } from "@tenet-base-ca/src/Utils.sol";
 import { getEntitySimData, transfer } from "@tenet-level1-ca/src/Utils.sol";
 import { uint256ToInt256, uint256ToNegativeInt256 } from "@tenet-utils/src/TypeUtils.sol";
-import { EventType } from "@tenet-pokemon-extension/src/codegen/Types.sol";
+import { absoluteDifference } from "@tenet-utils/src/MathUtils.sol";
+import { EventType, SoilType } from "@tenet-pokemon-extension/src/codegen/Types.sol";
+import { NUTRIENT_TRANSFER_MAX_DELTA } from "@tenet-simulator/src/Constants.sol";
 import { console } from "forge-std/console.sol";
 
 contract SoilSystem is VoxelInteraction {
@@ -28,7 +30,7 @@ contract SoilSystem is VoxelInteraction {
     }
 
     BodySimData memory entitySimData = getEntitySimData(neighbourEntityId);
-    if (entitySimData.nitrogen == 0 || entitySimData.phosphorous == 0 || entitySimData.potassium == 0) {
+    if (!entitySimData.hasNitrogen || !entitySimData.hasPhosphorous || !entitySimData.hasPotassium) {
       return initSoilProperties(callerAddress, neighbourEntityId, entitySimData);
     }
     if (entitySimData.energy > 0) {
@@ -39,12 +41,6 @@ contract SoilSystem is VoxelInteraction {
 
     if (Soil.getLastEvent(callerAddress, neighbourEntityId) != EventType.None) {
       Soil.setLastEvent(callerAddress, neighbourEntityId, EventType.None);
-    }
-
-    uint256 transferNutrientsToSoil = getNutrientsToSoil(entitySimData.nutrients);
-    uint256 transferNutrientsToPlant = getNutrientsToPlant(entitySimData.nutrients);
-    if (transferNutrientsToSoil == 0 && transferNutrientsToPlant == 0) {
-      return (changedEntity, entityData);
     }
 
     if (
@@ -73,11 +69,6 @@ contract SoilSystem is VoxelInteraction {
       return false;
     }
 
-    PlantStage plantStage = Plant.getStage(callerAddress, neighbourEntityId);
-    if (plantStage != PlantStage.Seed && plantStage != PlantStage.Sprout) {
-      return false;
-    }
-
     return true;
   }
 
@@ -96,7 +87,7 @@ contract SoilSystem is VoxelInteraction {
     }
 
     BodySimData memory entitySimData = getEntitySimData(interactEntity);
-    if (entitySimData.nitrogen == 0 || entitySimData.phosphorous == 0 || entitySimData.potassium == 0) {
+    if (!entitySimData.hasNitrogen || !entitySimData.hasPhosphorous || !entitySimData.hasPotassium) {
       return initSoilProperties(callerAddress, interactEntity, entitySimData);
     }
     if (entitySimData.energy > 0) {
@@ -109,13 +100,48 @@ contract SoilSystem is VoxelInteraction {
       Soil.setLastEvent(callerAddress, interactEntity, EventType.None);
     }
 
-    entityData = getEntityData(
-      callerAddress,
-      interactEntity,
-      neighbourEntityIds,
-      neighbourEntityDirections,
-      entitySimData
-    );
+    SoilType soilType = Soil.getSoilType(callerAddress, interactEntity);
+
+    bool hasTransfer = false;
+
+    if (soilType == SoilType.ProteinSoil) {
+      (entityData, hasTransfer) = runProteinSoilLogic(
+        callerAddress,
+        interactEntity,
+        neighbourEntityIds,
+        neighbourEntityDirections,
+        entitySimData
+      );
+    } else if (soilType == SoilType.ElixirSoil) {
+      (entityData, hasTransfer) = runElixirSoilLogic(
+        callerAddress,
+        interactEntity,
+        neighbourEntityIds,
+        neighbourEntityDirections,
+        entitySimData
+      );
+    } else if (soilType == SoilType.Concentrative) {
+      (entityData, hasTransfer) = runConcentrativeSoilLogic(
+        callerAddress,
+        interactEntity,
+        neighbourEntityIds,
+        neighbourEntityDirections,
+        entitySimData
+      );
+    } else if (soilType == SoilType.Diffusive) {
+      (entityData, hasTransfer) = runDiffusiveSoilLogic(
+        callerAddress,
+        interactEntity,
+        neighbourEntityIds,
+        neighbourEntityDirections,
+        entitySimData
+      );
+    }
+
+    // Check if there's at least one transfer
+    if (hasTransfer) {
+      Soil.setLastInteractionBlock(callerAddress, interactEntity, block.number);
+    }
 
     // Note: we don't need to set changedEntity to true, because we don't need another event
 
@@ -127,6 +153,7 @@ contract SoilSystem is VoxelInteraction {
     bytes32 interactEntity,
     BodySimData memory entitySimData
   ) internal returns (bool changedEntity, bytes memory entityData) {
+    SoilType soilType = Soil.getSoilType(callerAddress, interactEntity);
     EventType lastEventType = Soil.getLastEvent(callerAddress, interactEntity);
     VoxelEntity memory entity = VoxelEntity({ scale: 1, entityId: caEntityToEntity(interactEntity) });
     VoxelCoord memory coord = getCAEntityPositionStrict(IStore(_world()), interactEntity);
@@ -136,13 +163,31 @@ contract SoilSystem is VoxelInteraction {
       console.logBytes32(interactEntity);
       uint256 numSimEvents = entitySimData.energy > 0 ? 4 : 3;
       SimEventData[] memory allSimEventData = new SimEventData[](numSimEvents);
+      uint256 intNitrogen = 0;
+      uint256 initPhosphorous = 0;
+      uint256 initPotassium = 0;
+
+      if (soilType == SoilType.ProteinSoil) {
+        intNitrogen = 100;
+      } else if (soilType == SoilType.ElixirSoil) {
+        initPhosphorous = 100;
+      } else if (soilType == SoilType.Concentrative) {
+        intNitrogen = 30;
+        initPhosphorous = 30;
+        initPotassium = 30;
+      } else if (soilType == SoilType.Diffusive) {
+        intNitrogen = 30;
+        initPhosphorous = 30;
+        initPotassium = 30;
+      }
+
       allSimEventData[0] = SimEventData({
         senderTable: SimTable.Nitrogen,
         senderValue: abi.encode(0),
         targetEntity: entity,
         targetCoord: coord,
         targetTable: SimTable.Nitrogen,
-        targetValue: abi.encode(150)
+        targetValue: abi.encode(intNitrogen)
       });
       allSimEventData[1] = SimEventData({
         senderTable: SimTable.Phosphorous,
@@ -150,7 +195,7 @@ contract SoilSystem is VoxelInteraction {
         targetEntity: entity,
         targetCoord: coord,
         targetTable: SimTable.Phosphorous,
-        targetValue: abi.encode(150)
+        targetValue: abi.encode(initPhosphorous)
       });
       allSimEventData[2] = SimEventData({
         senderTable: SimTable.Potassium,
@@ -158,7 +203,7 @@ contract SoilSystem is VoxelInteraction {
         targetEntity: entity,
         targetCoord: coord,
         targetTable: SimTable.Potassium,
-        targetValue: abi.encode(150)
+        targetValue: abi.encode(initPotassium)
       });
       if (entitySimData.energy > 0) {
         allSimEventData[3] = SimEventData({
@@ -208,57 +253,184 @@ contract SoilSystem is VoxelInteraction {
     return new bytes(0);
   }
 
-  function getNutrientsToSoil(uint256 soilNutrients) internal pure returns (uint256) {
-    return soilNutrients / 5; // Transfer 20% of its energy to Soil
-  }
-
-  function getNutrientsToPlant(uint256 soilNutrients) internal pure returns (uint256) {
-    return soilNutrients / 10; // Transfer 10% of its energy to Seed or Young Plant
-  }
-
-  function calculateNumSoilNeighbours(
-    address callerAddress,
-    bytes32[] memory neighbourEntityIds
-  ) internal view returns (uint256 numSoilNeighbours) {
-    for (uint i = 0; i < neighbourEntityIds.length; i++) {
-      if (uint256(neighbourEntityIds[i]) == 0) {
-        continue;
-      }
-      // Check if the neighbor is a Soil, Seed, or Young Plant cell
-      if (entityIsSoil(callerAddress, neighbourEntityIds[i])) {
-        numSoilNeighbours += 1;
-      }
-    }
-    return numSoilNeighbours;
-  }
-
   function entityHasNPK(bytes32 interactEntity) internal returns (bool) {
     BodySimData memory entitySimData = getEntitySimData(interactEntity);
-    return entitySimData.nitrogen > 0 && entitySimData.phosphorous > 0 && entitySimData.potassium > 0;
+    return entitySimData.hasNitrogen && entitySimData.hasPhosphorous && entitySimData.hasPotassium;
   }
 
-  function getEntityData(
+  function runConcentrativeSoilLogic(
     address callerAddress,
     bytes32 interactEntity,
     bytes32[] memory neighbourEntityIds,
     BlockDirection[] memory neighbourEntityDirections,
     BodySimData memory entitySimData
-  ) internal returns (bytes memory) {
-    uint256 transferNutrientsToSoil;
-    uint256 transferNutrientsToPlant;
-    {
-      transferNutrientsToSoil = getNutrientsToSoil(entitySimData.nutrients);
-      transferNutrientsToPlant = getNutrientsToPlant(entitySimData.nutrients);
-      if (transferNutrientsToSoil == 0 && transferNutrientsToPlant == 0) {
-        return new bytes(0);
+  ) internal returns (bytes memory, bool) {
+    // Calculate # of soil neighbours
+
+    CAEventData[] memory allCAEventData = new CAEventData[](neighbourEntityIds.length);
+
+    bool hasTransfer = false;
+
+    for (uint i = 0; i < neighbourEntityIds.length; i++) {
+      if (uint256(neighbourEntityIds[i]) == 0) {
+        continue;
       }
-      // Calculate # of soil neighbours
-      uint256 numSoilNeighbours = calculateNumSoilNeighbours(callerAddress, neighbourEntityIds);
-      if (numSoilNeighbours > 0) {
-        transferNutrientsToSoil = transferNutrientsToSoil / numSoilNeighbours;
+      VoxelCoord memory neighbourCoord = getCAEntityPositionStrict(IStore(_world()), neighbourEntityIds[i]);
+      // Check if the neighbor is a Soil, Seed, or Young Plant cell
+      if (entityIsSoil(callerAddress, neighbourEntityIds[i]) && entityHasNPK(neighbourEntityIds[i])) {
+        BodySimData memory neighbourEntitySimData = getEntitySimData(neighbourEntityIds[i]);
+        if (
+          entitySimData.nutrients < neighbourEntitySimData.nutrients &&
+          absoluteDifference(entitySimData.nutrients, neighbourEntitySimData.nutrients) <= NUTRIENT_TRANSFER_MAX_DELTA
+        ) {
+          uint256 amountToTransfer = entitySimData.nutrients / 10; // 10%
+          console.log("transfer nutrients");
+          console.logBytes32(interactEntity);
+          console.logBytes32(neighbourEntityIds[i]);
+          console.logUint(amountToTransfer);
+          if (amountToTransfer > 0) {
+            allCAEventData[i] = transfer(
+              SimTable.Nutrients,
+              SimTable.Nutrients,
+              entitySimData,
+              neighbourEntityIds[i],
+              neighbourCoord,
+              amountToTransfer
+            );
+            entitySimData.nutrients -= amountToTransfer;
+          }
+        }
+        hasTransfer = true;
+      } else if (
+        isValidPlantNeighbour(callerAddress, neighbourEntityIds[i], neighbourEntityDirections[i]) &&
+        entityHasNPK(neighbourEntityIds[i])
+      ) {
+        if (entitySimData.nutrients / 2 > 0) {
+          uint256 convertNutrientsToElixir = entitySimData.nutrients / 2; // Convert all nutrients to protein
+          uint256 convertNutrientsToProtein = entitySimData.nutrients / 2; // Convert all nutrients to protein
+          SimEventData[] memory foodSimEventData = new SimEventData[](2);
+          VoxelEntity memory targetEntity = VoxelEntity({
+            scale: 1,
+            entityId: caEntityToEntity(neighbourEntityIds[i])
+          });
+          foodSimEventData[0] = SimEventData({
+            senderTable: SimTable.Nutrients,
+            senderValue: abi.encode(uint256ToNegativeInt256(convertNutrientsToElixir)),
+            targetEntity: targetEntity,
+            targetCoord: neighbourCoord,
+            targetTable: SimTable.Elixir,
+            targetValue: abi.encode(uint256ToInt256(convertNutrientsToElixir))
+          });
+          foodSimEventData[1] = SimEventData({
+            senderTable: SimTable.Nutrients,
+            senderValue: abi.encode(uint256ToNegativeInt256(convertNutrientsToProtein)),
+            targetEntity: targetEntity,
+            targetCoord: neighbourCoord,
+            targetTable: SimTable.Protein,
+            targetValue: abi.encode(uint256ToInt256(convertNutrientsToProtein))
+          });
+          allCAEventData[i] = CAEventData({
+            eventType: CAEventType.BatchSimEvent,
+            eventData: abi.encode(foodSimEventData)
+          });
+          entitySimData.nutrients -= convertNutrientsToElixir + convertNutrientsToProtein;
+        }
+        hasTransfer = true;
       }
     }
 
+    return (abi.encode(allCAEventData), hasTransfer);
+  }
+
+  function runDiffusiveSoilLogic(
+    address callerAddress,
+    bytes32 interactEntity,
+    bytes32[] memory neighbourEntityIds,
+    BlockDirection[] memory neighbourEntityDirections,
+    BodySimData memory entitySimData
+  ) internal returns (bytes memory, bool) {
+    CAEventData[] memory allCAEventData = new CAEventData[](neighbourEntityIds.length);
+
+    bool hasTransfer = false;
+
+    for (uint i = 0; i < neighbourEntityIds.length; i++) {
+      if (uint256(neighbourEntityIds[i]) == 0) {
+        continue;
+      }
+      VoxelCoord memory neighbourCoord = getCAEntityPositionStrict(IStore(_world()), neighbourEntityIds[i]);
+      // Check if the neighbor is a Soil, Seed, or Young Plant cell
+      if (entityIsSoil(callerAddress, neighbourEntityIds[i]) && entityHasNPK(neighbourEntityIds[i])) {
+        BodySimData memory neighbourEntitySimData = getEntitySimData(neighbourEntityIds[i]);
+        if (
+          entitySimData.nutrients > neighbourEntitySimData.nutrients &&
+          absoluteDifference(entitySimData.nutrients, neighbourEntitySimData.nutrients) <= NUTRIENT_TRANSFER_MAX_DELTA
+        ) {
+          uint256 amountToTransfer = entitySimData.nutrients / 10; // 10%
+          console.log("transfer nutrients");
+          console.logBytes32(interactEntity);
+          console.logBytes32(neighbourEntityIds[i]);
+          console.logUint(amountToTransfer);
+          if (amountToTransfer > 0) {
+            allCAEventData[i] = transfer(
+              SimTable.Nutrients,
+              SimTable.Nutrients,
+              entitySimData,
+              neighbourEntityIds[i],
+              neighbourCoord,
+              amountToTransfer
+            );
+            entitySimData.nutrients -= amountToTransfer;
+          }
+        }
+        hasTransfer = true;
+      } else if (
+        isValidPlantNeighbour(callerAddress, neighbourEntityIds[i], neighbourEntityDirections[i]) &&
+        entityHasNPK(neighbourEntityIds[i])
+      ) {
+        if (entitySimData.nutrients / 2 > 0) {
+          uint256 convertNutrientsToElixir = entitySimData.nutrients / 2; // Convert all nutrients to protein
+          uint256 convertNutrientsToProtein = entitySimData.nutrients / 2; // Convert all nutrients to protein
+          SimEventData[] memory foodSimEventData = new SimEventData[](2);
+          VoxelEntity memory targetEntity = VoxelEntity({
+            scale: 1,
+            entityId: caEntityToEntity(neighbourEntityIds[i])
+          });
+          foodSimEventData[0] = SimEventData({
+            senderTable: SimTable.Nutrients,
+            senderValue: abi.encode(uint256ToNegativeInt256(convertNutrientsToElixir)),
+            targetEntity: targetEntity,
+            targetCoord: neighbourCoord,
+            targetTable: SimTable.Elixir,
+            targetValue: abi.encode(uint256ToInt256(convertNutrientsToElixir))
+          });
+          foodSimEventData[1] = SimEventData({
+            senderTable: SimTable.Nutrients,
+            senderValue: abi.encode(uint256ToNegativeInt256(convertNutrientsToProtein)),
+            targetEntity: targetEntity,
+            targetCoord: neighbourCoord,
+            targetTable: SimTable.Protein,
+            targetValue: abi.encode(uint256ToInt256(convertNutrientsToProtein))
+          });
+          allCAEventData[i] = CAEventData({
+            eventType: CAEventType.BatchSimEvent,
+            eventData: abi.encode(foodSimEventData)
+          });
+          entitySimData.nutrients -= convertNutrientsToElixir + convertNutrientsToProtein;
+        }
+        hasTransfer = true;
+      }
+    }
+
+    return (abi.encode(allCAEventData), hasTransfer);
+  }
+
+  function runProteinSoilLogic(
+    address callerAddress,
+    bytes32 interactEntity,
+    bytes32[] memory neighbourEntityIds,
+    BlockDirection[] memory neighbourEntityDirections,
+    BodySimData memory entitySimData
+  ) internal returns (bytes memory, bool) {
     CAEventData[] memory allCAEventData = new CAEventData[](neighbourEntityIds.length);
 
     bool hasTransfer = false;
@@ -269,44 +441,93 @@ contract SoilSystem is VoxelInteraction {
         continue;
       }
       VoxelCoord memory neighbourCoord = getCAEntityPositionStrict(IStore(_world()), neighbourEntityIds[i]);
-      // Check if the neighbor is a Soil, Seed, or Young Plant cell
-      if (entityIsSoil(callerAddress, neighbourEntityIds[i]) && entityHasNPK(neighbourEntityIds[i])) {
-        if (transferNutrientsToSoil > 0) {
-          allCAEventData[i] = transfer(
-            SimTable.Nutrients,
-            SimTable.Nutrients,
-            entitySimData,
-            neighbourEntityIds[i],
-            neighbourCoord,
-            transferNutrientsToSoil
-          );
-          hasTransfer = true;
-        }
-      } else if (
+      if (
         isValidPlantNeighbour(callerAddress, neighbourEntityIds[i], neighbourEntityDirections[i]) &&
         entityHasNPK(neighbourEntityIds[i])
       ) {
-        if (transferNutrientsToPlant > 0) {
+        uint256 convertNutrientsToProtein = entitySimData.nutrients; // Convert all nutrients to protein
+        if (convertNutrientsToProtein > 0) {
           allCAEventData[i] = transfer(
             SimTable.Nutrients,
-            SimTable.Nutrients,
+            SimTable.Protein,
             entitySimData,
             neighbourEntityIds[i],
             neighbourCoord,
-            transferNutrientsToPlant
+            convertNutrientsToProtein
           );
-          hasTransfer = true;
         }
+        hasTransfer = true;
+      } else if (entityIsSoil(callerAddress, neighbourEntityIds[i])) {
+        BodySimData memory neighbourEntitySimData = getEntitySimData(neighbourEntityIds[i]);
+        if (entitySimData.phosphorous > 0 && neighbourEntitySimData.phosphorous < entitySimData.phosphorous) {
+          allCAEventData[i] = transfer(
+            SimTable.Phosphorous,
+            SimTable.Phosphorous,
+            entitySimData,
+            neighbourEntityIds[i],
+            neighbourCoord,
+            entitySimData.phosphorous
+          );
+          entitySimData.phosphorous = 0;
+        }
+        hasTransfer = true;
       }
     }
 
-    // Check if there's at least one transfer
-    if (hasTransfer) {
-      Soil.setLastInteractionBlock(callerAddress, interactEntity, block.number);
-      return abi.encode(allCAEventData);
+    return (abi.encode(allCAEventData), hasTransfer);
+  }
+
+  function runElixirSoilLogic(
+    address callerAddress,
+    bytes32 interactEntity,
+    bytes32[] memory neighbourEntityIds,
+    BlockDirection[] memory neighbourEntityDirections,
+    BodySimData memory entitySimData
+  ) internal returns (bytes memory, bool) {
+    CAEventData[] memory allCAEventData = new CAEventData[](neighbourEntityIds.length);
+
+    bool hasTransfer = false;
+
+    // Calculate soil neighbours
+    for (uint i = 0; i < neighbourEntityIds.length; i++) {
+      if (uint256(neighbourEntityIds[i]) == 0) {
+        continue;
+      }
+      VoxelCoord memory neighbourCoord = getCAEntityPositionStrict(IStore(_world()), neighbourEntityIds[i]);
+      if (
+        isValidPlantNeighbour(callerAddress, neighbourEntityIds[i], neighbourEntityDirections[i]) &&
+        entityHasNPK(neighbourEntityIds[i])
+      ) {
+        uint256 convertNutrientsToElixir = entitySimData.nutrients; // Convert all nutrients to protein
+        if (convertNutrientsToElixir > 0) {
+          allCAEventData[i] = transfer(
+            SimTable.Nutrients,
+            SimTable.Elixir,
+            entitySimData,
+            neighbourEntityIds[i],
+            neighbourCoord,
+            convertNutrientsToElixir
+          );
+        }
+        hasTransfer = true;
+      } else if (entityIsSoil(callerAddress, neighbourEntityIds[i])) {
+        BodySimData memory neighbourEntitySimData = getEntitySimData(neighbourEntityIds[i]);
+        if (entitySimData.nitrogen > 0 && neighbourEntitySimData.nitrogen < entitySimData.nitrogen) {
+          allCAEventData[i] = transfer(
+            SimTable.Nitrogen,
+            SimTable.Nitrogen,
+            entitySimData,
+            neighbourEntityIds[i],
+            neighbourCoord,
+            entitySimData.nitrogen
+          );
+          entitySimData.nitrogen = 0;
+        }
+        hasTransfer = true;
+      }
     }
 
-    return new bytes(0);
+    return (abi.encode(allCAEventData), hasTransfer);
   }
 
   function eventHandlerSoil(

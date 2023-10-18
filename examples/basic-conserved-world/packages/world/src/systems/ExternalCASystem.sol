@@ -7,6 +7,7 @@ import { VoxelCoord, VoxelEntity, BodySimData, ObjectType } from "@tenet-utils/s
 import { ExternalCASystem as ExternalCAPrototype } from "@tenet-base-world/src/prototypes/ExternalCASystem.sol";
 import { getVoxelCoordStrict as utilGetVoxelCoordStrict, getEntityAtCoord as utilGetEntityAtCoord } from "@tenet-base-world/src/Utils.sol";
 import { REGISTRY_ADDRESS, SIMULATOR_ADDRESS } from "@tenet-world/src/Constants.sol";
+import { hasKey } from "@latticexyz/world/src/modules/keysintable/hasKey.sol";
 import { Mass } from "@tenet-simulator/src/codegen/tables/Mass.sol";
 import { Energy } from "@tenet-simulator/src/codegen/tables/Energy.sol";
 import { Velocity } from "@tenet-simulator/src/codegen/tables/Velocity.sol";
@@ -15,9 +16,9 @@ import { Stamina } from "@tenet-simulator/src/codegen/tables/Stamina.sol";
 import { Object } from "@tenet-simulator/src/codegen/tables/Object.sol";
 import { Action, ActionData } from "@tenet-simulator/src/codegen/tables/Action.sol";
 import { Nutrients } from "@tenet-simulator/src/codegen/tables/Nutrients.sol";
-import { Nitrogen } from "@tenet-simulator/src/codegen/tables/Nitrogen.sol";
-import { Phosphorous } from "@tenet-simulator/src/codegen/tables/Phosphorous.sol";
-import { Potassium } from "@tenet-simulator/src/codegen/tables/Potassium.sol";
+import { Nitrogen, NitrogenTableId } from "@tenet-simulator/src/codegen/tables/Nitrogen.sol";
+import { Phosphorous, PhosphorousTableId } from "@tenet-simulator/src/codegen/tables/Phosphorous.sol";
+import { Potassium, PotassiumTableId } from "@tenet-simulator/src/codegen/tables/Potassium.sol";
 import { Elixir } from "@tenet-simulator/src/codegen/tables/Elixir.sol";
 import { Protein } from "@tenet-simulator/src/codegen/tables/Protein.sol";
 
@@ -36,26 +37,38 @@ contract ExternalCASystem is ExternalCAPrototype {
 
   function getEntitySimData(VoxelEntity memory entity) public view returns (BodySimData memory) {
     BodySimData memory entitySimData;
+    address worldAddress = _world();
+    IStore store = IStore(SIMULATOR_ADDRESS);
 
-    entitySimData.energy = Energy.get(IStore(SIMULATOR_ADDRESS), _world(), entity.scale, entity.entityId);
-    entitySimData.mass = Mass.get(IStore(SIMULATOR_ADDRESS), _world(), entity.scale, entity.entityId);
-    entitySimData.velocity = Velocity.getVelocity(IStore(SIMULATOR_ADDRESS), _world(), entity.scale, entity.entityId);
-    entitySimData.lastUpdateBlock = Velocity.getLastUpdateBlock(
-      IStore(SIMULATOR_ADDRESS),
-      _world(),
-      entity.scale,
-      entity.entityId
+    entitySimData.energy = Energy.get(store, worldAddress, entity.scale, entity.entityId);
+    entitySimData.mass = Mass.get(store, worldAddress, entity.scale, entity.entityId);
+    entitySimData.velocity = Velocity.getVelocity(store, worldAddress, entity.scale, entity.entityId);
+    entitySimData.lastUpdateBlock = Velocity.getLastUpdateBlock(store, worldAddress, entity.scale, entity.entityId);
+    entitySimData.health = Health.get(store, worldAddress, entity.scale, entity.entityId);
+    entitySimData.stamina = Stamina.get(store, worldAddress, entity.scale, entity.entityId);
+    entitySimData.objectType = Object.get(store, worldAddress, entity.scale, entity.entityId);
+    entitySimData.actionData = Action.get(store, worldAddress, entity.scale, entity.entityId);
+    entitySimData.nutrients = Nutrients.get(store, worldAddress, entity.scale, entity.entityId);
+    entitySimData.nitrogen = Nitrogen.get(store, worldAddress, entity.scale, entity.entityId);
+    entitySimData.hasNitrogen = hasKey(
+      store,
+      NitrogenTableId,
+      Nitrogen.encodeKeyTuple(worldAddress, entity.scale, entity.entityId)
     );
-    entitySimData.health = Health.get(IStore(SIMULATOR_ADDRESS), _world(), entity.scale, entity.entityId);
-    entitySimData.stamina = Stamina.get(IStore(SIMULATOR_ADDRESS), _world(), entity.scale, entity.entityId);
-    entitySimData.objectType = Object.get(IStore(SIMULATOR_ADDRESS), _world(), entity.scale, entity.entityId);
-    entitySimData.actionData = Action.get(IStore(SIMULATOR_ADDRESS), _world(), entity.scale, entity.entityId);
-    entitySimData.nutrients = Nutrients.get(IStore(SIMULATOR_ADDRESS), _world(), entity.scale, entity.entityId);
-    entitySimData.nitrogen = Nitrogen.get(IStore(SIMULATOR_ADDRESS), _world(), entity.scale, entity.entityId);
-    entitySimData.phosphorous = Phosphorous.get(IStore(SIMULATOR_ADDRESS), _world(), entity.scale, entity.entityId);
-    entitySimData.potassium = Potassium.get(IStore(SIMULATOR_ADDRESS), _world(), entity.scale, entity.entityId);
-    entitySimData.elixir = Elixir.get(IStore(SIMULATOR_ADDRESS), _world(), entity.scale, entity.entityId);
-    entitySimData.protein = Protein.get(IStore(SIMULATOR_ADDRESS), _world(), entity.scale, entity.entityId);
+    entitySimData.phosphorous = Phosphorous.get(store, worldAddress, entity.scale, entity.entityId);
+    entitySimData.hasPhosphorous = hasKey(
+      store,
+      PhosphorousTableId,
+      Phosphorous.encodeKeyTuple(worldAddress, entity.scale, entity.entityId)
+    );
+    entitySimData.potassium = Potassium.get(store, worldAddress, entity.scale, entity.entityId);
+    entitySimData.hasPotassium = hasKey(
+      store,
+      PotassiumTableId,
+      Potassium.encodeKeyTuple(worldAddress, entity.scale, entity.entityId)
+    );
+    entitySimData.elixir = Elixir.get(store, worldAddress, entity.scale, entity.entityId);
+    entitySimData.protein = Protein.get(store, worldAddress, entity.scale, entity.entityId);
 
     return entitySimData;
   }

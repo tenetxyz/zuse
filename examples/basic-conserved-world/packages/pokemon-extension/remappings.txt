@@ -5,4 +5,5 @@ forge-std/=../../node_modules/forge-std/src/
 @tenet-registry/=../../node_modules/@tenetxyz/registry
 @tenet-base-ca/=../../node_modules/@tenetxyz/base-ca
 @tenet-level1-ca/=../../node_modules/@tenetxyz/level1-ca
+@tenet-simulator/=../../node_modules/@tenetxyz/simulator
 @tenet-pokemon-extension/=./

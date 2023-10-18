@@ -15,8 +15,7 @@ import { absoluteDifference } from "@tenet-utils/src/MathUtils.sol";
 import { getNeighbourEntities } from "@tenet-simulator/src/Utils.sol";
 import { getVelocity, getTerrainMass, getTerrainEnergy, getTerrainVelocity, createTerrainEntity } from "@tenet-simulator/src/Utils.sol";
 import { console } from "forge-std/console.sol";
-
-uint256 constant NUTRIENT_TRANSFER_MAX_DELTA = 50;
+import { NUTRIENT_TRANSFER_MAX_DELTA } from "@tenet-simulator/src/Constants.sol";
 
 contract NutrientsSystem is SimHandler {
   function registerNutrientsSelectors() public {
@@ -92,9 +91,6 @@ contract NutrientsSystem is SimHandler {
 
     return int256(actualEnergyToConvert);
   }
-
-
-  
 
   function updateNutrientsFromEnergy(
     VoxelEntity memory senderEntity,
@@ -207,6 +203,8 @@ contract NutrientsSystem is SimHandler {
         NutrientsTableId,
         Nutrients.encodeKeyTuple(callerAddress, senderEntity.scale, senderEntity.entityId)
       );
+      console.log("senderEntity.entityId");
+      console.logBytes32(senderEntity.entityId);
       require(entityExists, "Sender entity does not exist");
     }
     if (isEntityEqual(senderEntity, receiverEntity)) {
@@ -254,13 +252,13 @@ contract NutrientsSystem is SimHandler {
       uint256 currentSenderNutrients = Nutrients.get(callerAddress, senderEntity.scale, senderEntity.entityId);
       require(currentSenderNutrients >= senderNutrients, "Not enough nutrients to transfer");
 
-      require(
-        hasKey(
-          NutrientsTableId,
-          Nutrients.encodeKeyTuple(callerAddress, receiverEntity.scale, receiverEntity.entityId)
-        ),
-        "Not a nutrient-holding cell"
-      );
+      // require(
+      //   hasKey(
+      //     NutrientsTableId,
+      //     Nutrients.encodeKeyTuple(callerAddress, receiverEntity.scale, receiverEntity.entityId)
+      //   ),
+      //   "Not a nutrient-holding cell"
+      // );
       uint256 currentReceiverNutrients = Nutrients.get(callerAddress, receiverEntity.scale, receiverEntity.entityId);
       require(
         absoluteDifference(currentSenderNutrients, currentReceiverNutrients) <= NUTRIENT_TRANSFER_MAX_DELTA,
@@ -268,6 +266,9 @@ contract NutrientsSystem is SimHandler {
       );
 
       receiverNutrients = calcReceiverNutrients(callerAddress, senderEntity, receiverEntity, senderNutrients);
+      console.log("receiverNutrients");
+      console.logUint(currentReceiverNutrients);
+      console.logUint(receiverNutrients);
 
       if (receiverNutrients == 0) {
         return;

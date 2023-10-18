@@ -40,6 +40,8 @@ contract ProteinSystem is SimHandler {
     );
     require(entityExists, "Sender entity does not exist");
     if (isEntityEqual(senderEntity, receiverEntity)) {
+      revert("You can't convert your own nutrients to protein");
+    } else {
       require(receiverProteinDelta > 0, "Cannot decrease someone's protein");
       require(senderNutrientsDelta < 0, "Cannot increase your own nutrients");
       uint256 senderNutrients = int256ToUint256(senderNutrientsDelta);
@@ -60,22 +62,22 @@ contract ProteinSystem is SimHandler {
         "Sender entity does not have potassium"
       );
       {
-
         uint256 senderNPK = Nitrogen.get(callerAddress, senderEntity.scale, senderEntity.entityId) +
           Phosphorous.get(callerAddress, senderEntity.scale, senderEntity.entityId) +
           Potassium.get(callerAddress, senderEntity.scale, senderEntity.entityId);
 
         uint256 actualTransfer = (senderNutrients * senderNPK) / (180);
-        actualTransfer = (actualTransfer * Nitrogen.get(callerAddress, senderEntity.scale, senderEntity.entityId)) / (40); //if they have lower than 40 P, its bad; else its good
+        actualTransfer =
+          (actualTransfer * Nitrogen.get(callerAddress, senderEntity.scale, senderEntity.entityId)) /
+          (40); //if they have lower than 40 P, its bad; else its good
 
         uint256 ninetyFivePercent = (senderNutrients * 95) / 100;
 
-          if (actualTransfer > ninetyFivePercent) {
-              actualTransfer = ninetyFivePercent;
-          }
+        if (actualTransfer > ninetyFivePercent) {
+          actualTransfer = ninetyFivePercent;
+        }
 
         receiverProtein = actualTransfer;
-
       }
       if (receiverProtein == 0) {
         return;
@@ -112,8 +114,6 @@ contract ProteinSystem is SimHandler {
           IWorld(_world()).fluxEnergy(false, callerAddress, senderEntity, nutrients_cost);
         }
       }
-    } else {
-      revert("You can't transfer your nutrients to someone elses protein");
     }
   }
 

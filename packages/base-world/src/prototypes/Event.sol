@@ -32,9 +32,7 @@ abstract contract Event is System {
     processCAEvents(entitiesEventData);
 
     // Clear all keys in Interactions
-    console.log("post event deleting");
     bytes32[][] memory entitiesRan = getKeysInTable(InteractionsTableId);
-    console.logUint(entitiesRan.length);
     for (uint256 i = 0; i < entitiesRan.length; i++) {
       Interactions.deleteRecord(uint32(uint256(entitiesRan[i][0])), entitiesRan[i][1]);
     }

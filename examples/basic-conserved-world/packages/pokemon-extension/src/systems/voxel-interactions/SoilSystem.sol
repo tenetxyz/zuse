@@ -253,7 +253,7 @@ contract SoilSystem is VoxelInteraction {
 
   function entityHasNPK(bytes32 interactEntity) internal returns (bool) {
     BodySimData memory entitySimData = getEntitySimData(interactEntity);
-    return entitySimData.nitrogen > 0 && entitySimData.phosphorous > 0 && entitySimData.potassium > 0;
+    return entitySimData.hasNitrogen && entitySimData.hasPhosphorous && entitySimData.hasPotassium;
   }
 
   function runConcentrativeSoilLogic(
@@ -279,15 +279,21 @@ contract SoilSystem is VoxelInteraction {
         BodySimData memory neighbourEntitySimData = getEntitySimData(neighbourEntityIds[i]);
         if (entitySimData.nutrients < neighbourEntitySimData.nutrients) {
           uint256 amountToTransfer = entitySimData.nutrients / 10; // 10%
-          allCAEventData[i] = transfer(
-            SimTable.Nutrients,
-            SimTable.Nutrients,
-            entitySimData,
-            neighbourEntityIds[i],
-            neighbourCoord,
-            amountToTransfer
-          );
-          entitySimData.nutrients -= amountToTransfer;
+          console.log("transfer nutrients");
+          console.logBytes32(interactEntity);
+          console.logBytes32(neighbourEntityIds[i]);
+          console.logUint(amountToTransfer);
+          if (amountToTransfer > 0) {
+            allCAEventData[i] = transfer(
+              SimTable.Nutrients,
+              SimTable.Nutrients,
+              entitySimData,
+              neighbourEntityIds[i],
+              neighbourCoord,
+              amountToTransfer
+            );
+            entitySimData.nutrients -= amountToTransfer;
+          }
         }
         hasTransfer = true;
       } else if (

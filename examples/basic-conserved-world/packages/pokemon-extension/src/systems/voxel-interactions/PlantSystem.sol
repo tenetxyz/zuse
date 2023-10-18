@@ -240,7 +240,7 @@ contract PlantSystem is VoxelInteraction {
 
   function entityHasNPK(bytes32 interactEntity) internal returns (bool) {
     BodySimData memory entitySimData = getEntitySimData(interactEntity);
-    return entitySimData.nitrogen > 0 && entitySimData.phosphorous > 0 && entitySimData.potassium > 0;
+    return entitySimData.hasNitrogen && entitySimData.hasPhosphorous && entitySimData.hasPotassium;
   }
 
   function runSproutInteraction(

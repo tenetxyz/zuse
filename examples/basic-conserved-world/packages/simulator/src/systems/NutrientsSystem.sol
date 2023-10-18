@@ -204,6 +204,8 @@ contract NutrientsSystem is SimHandler {
         NutrientsTableId,
         Nutrients.encodeKeyTuple(callerAddress, senderEntity.scale, senderEntity.entityId)
       );
+      console.log("senderEntity.entityId");
+      console.logBytes32(senderEntity.entityId);
       require(entityExists, "Sender entity does not exist");
     }
     if (isEntityEqual(senderEntity, receiverEntity)) {

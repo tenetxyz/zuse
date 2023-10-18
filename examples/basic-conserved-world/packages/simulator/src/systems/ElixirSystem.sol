@@ -69,7 +69,7 @@ contract ElixirSystem is SimHandler {
 
         uint256 actualTransfer = (senderNutrients * senderNPK) / (180);
         actualTransfer =
-          (actualTransfer * Potassium.get(callerAddress, senderEntity.scale, senderEntity.entityId)) /
+          (actualTransfer * Phosphorous.get(callerAddress, senderEntity.scale, senderEntity.entityId)) /
           (40); //if they have lower than 40 P, its bad; else its good
 
         uint256 ninetyFivePercent = (senderNutrients * 95) / 100;

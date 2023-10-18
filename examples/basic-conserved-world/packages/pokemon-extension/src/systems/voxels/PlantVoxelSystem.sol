@@ -7,11 +7,12 @@ import { VoxelVariantsRegistryData } from "@tenet-registry/src/codegen/tables/Vo
 import { NoaBlockType } from "@tenet-registry/src/codegen/Types.sol";
 import { registerVoxelVariant, registerVoxelType, voxelSelectorsForVoxel } from "@tenet-registry/src/Utils.sol";
 import { CA_ADDRESS, REGISTRY_ADDRESS, PlantVoxelID } from "@tenet-pokemon-extension/src/Constants.sol";
-import { Plant } from "@tenet-pokemon-extension/src/codegen/tables/Plant.sol";
+import { Plant, PlantData } from "@tenet-pokemon-extension/src/codegen/tables/Plant.sol";
 import { PlantStage } from "@tenet-pokemon-extension/src/codegen/Types.sol";
-import { VoxelCoord, ComponentDef } from "@tenet-utils/src/Types.sol";
+import { VoxelCoord, ComponentDef, BodySimData } from "@tenet-utils/src/Types.sol";
 import { registerCAVoxelType } from "@tenet-base-ca/src/CallUtils.sol";
 import { EventType } from "@tenet-pokemon-extension/src/codegen/Types.sol";
+import { getEntitySimData, transfer } from "@tenet-level1-ca/src/Utils.sol";
 
 bytes32 constant SeedVoxelVariantID = bytes32(keccak256("seed"));
 bytes32 constant SproutVoxelVariantID = bytes32(keccak256("sprout"));
@@ -79,14 +80,23 @@ contract PlantVoxelSystem is VoxelType {
     bytes32 parentEntity
   ) public view override returns (bytes32) {
     address callerAddress = super.getCallerAddress();
-    PlantStage plantStage = Plant.getStage(callerAddress, entity);
-    if (plantStage == PlantStage.Seed) {
+    PlantData memory plantData = Plant.get(callerAddress, entity);
+    // PlantStage plantStage = Plant.getStage(callerAddress, entity);
+    BodySimData memory entitySimData = getEntitySimData(entity);
+    if (entitySimData.elixir == 0 && entitySimData.protein == 0) {
       return SeedVoxelVariantID;
-    } else if (plantStage == PlantStage.Sprout) {
+    } else if (entitySimData.protein > 0) {
       return SproutVoxelVariantID;
-    } else if (plantStage == PlantStage.Flower) {
+    } else {
       return FlowerVoxelVariantID;
     }
+    // if (plantStage == PlantStage.Seed) {
+    //   return SeedVoxelVariantID;
+    // } else if (plantStage == PlantStage.Sprout) {
+    //   return SproutVoxelVariantID;
+    // } else if (plantStage == PlantStage.Flower) {
+    //   return FlowerVoxelVariantID;
+    // }
   }
 
   function activate(bytes32 entity) public view override returns (string memory) {}

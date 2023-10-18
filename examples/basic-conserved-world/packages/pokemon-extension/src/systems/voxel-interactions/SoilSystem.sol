@@ -482,7 +482,7 @@ contract SoilSystem is VoxelInteraction {
         if (convertNutrientsToElixir > 0) {
           allCAEventData[i] = transfer(
             SimTable.Nutrients,
-            SimTable.Protein,
+            SimTable.Elixir,
             entitySimData,
             neighbourEntityIds[i],
             neighbourCoord,

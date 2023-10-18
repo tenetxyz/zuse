@@ -10,8 +10,9 @@ import { Soil } from "@tenet-pokemon-extension/src/codegen/tables/Soil.sol";
 import { CAEntityReverseMapping, CAEntityReverseMappingTableId, CAEntityReverseMappingData } from "@tenet-base-ca/src/codegen/tables/CAEntityReverseMapping.sol";
 import { Plant, PlantData } from "@tenet-pokemon-extension/src/codegen/tables/Plant.sol";
 import { PlantStage } from "@tenet-pokemon-extension/src/codegen/Types.sol";
-import { entityIsSoil, entityIsPlant, entityIsPokemon } from "@tenet-pokemon-extension/src/InteractionUtils.sol";
+import { entityIsSoil, entityIsPlant, entityIsPokemon, entityIsFarmer } from "@tenet-pokemon-extension/src/InteractionUtils.sol";
 import { getCAEntityAtCoord, getCAVoxelType, getCAEntityPositionStrict, caEntityToEntity } from "@tenet-base-ca/src/Utils.sol";
+import { Farmer } from "@tenet-pokemon-extension/src/codegen/tables/Farmer.sol";
 import { getEntitySimData, transfer } from "@tenet-level1-ca/src/Utils.sol";
 import { console } from "forge-std/console.sol";
 import { EventType } from "@tenet-pokemon-extension/src/codegen/Types.sol";
@@ -302,20 +303,24 @@ contract PlantSystem is VoxelInteraction {
     return (plantData, allCAEventData, hasTransfer);
   }
 
-  function calculateNumPokemonNeighbours(
+  function calculateEatingNeighbours(
     address callerAddress,
     bytes32[] memory neighbourEntityIds
-  ) internal view returns (uint256 numPokemonNeighbours) {
+  ) internal view returns (uint256 numEatingNeighbours) {
     for (uint i = 0; i < neighbourEntityIds.length; i++) {
       if (uint256(neighbourEntityIds[i]) == 0) {
         continue;
       }
       // Check if the neighbor is a Soil, Seed, or Young Plant cell
       if (entityIsPokemon(callerAddress, neighbourEntityIds[i])) {
-        numPokemonNeighbours += 1;
+        numEatingNeighbours += 1;
+      } else if (entityIsFarmer(callerAddress, neighbourEntityIds[i])) {
+        if (Farmer.getIsHungry(callerAddress, neighbourEntityIds[i])) {
+          numEatingNeighbours += 1;
+        }
       }
     }
-    return numPokemonNeighbours;
+    return numEatingNeighbours;
   }
 
   function runFlowerInteraction(
@@ -329,7 +334,7 @@ contract PlantSystem is VoxelInteraction {
 
     uint256 elixirTransferAmount;
     uint256 proteinTransferAmount;
-    uint256 numPokemonNeighbours;
+    uint256 numEatingNeighbours;
     {
       (uint harvestPlantElixir, uint harvestPlantProtein) = getFoodToPokemon(
         entitySimData.elixir,
@@ -338,12 +343,12 @@ contract PlantSystem is VoxelInteraction {
       if (harvestPlantElixir == 0 && harvestPlantProtein == 0) {
         return (plantData, allCAEventData, false);
       }
-      numPokemonNeighbours = calculateNumPokemonNeighbours(callerAddress, neighbourEntityIds);
-      if (numPokemonNeighbours == 0) {
+      numEatingNeighbours = calculateEatingNeighbours(callerAddress, neighbourEntityIds);
+      if (numEatingNeighbours == 0) {
         return (plantData, allCAEventData, false);
       }
-      elixirTransferAmount = harvestPlantElixir / numPokemonNeighbours;
-      proteinTransferAmount = harvestPlantProtein / numPokemonNeighbours;
+      elixirTransferAmount = harvestPlantElixir / numEatingNeighbours;
+      proteinTransferAmount = harvestPlantProtein / numEatingNeighbours;
     }
 
     bool hasTransfer = false;
@@ -354,7 +359,11 @@ contract PlantSystem is VoxelInteraction {
       }
 
       // If the neighbor is a Pokemon cell
-      if (entityIsPokemon(callerAddress, neighbourEntityIds[i])) {
+      if (
+        entityIsPokemon(callerAddress, neighbourEntityIds[i]) ||
+        (entityIsFarmer(callerAddress, neighbourEntityIds[i]) &&
+          Farmer.getIsHungry(callerAddress, neighbourEntityIds[i]))
+      ) {
         VoxelCoord memory neighbourCoord = getCAEntityPositionStrict(IStore(_world()), neighbourEntityIds[i]);
         {
           allCAEventData[i * 2] = transfer(
@@ -383,7 +392,7 @@ contract PlantSystem is VoxelInteraction {
       }
     }
 
-    if (numPokemonNeighbours > 0) {
+    if (numEatingNeighbours > 0) {
       plantData.lastInteractionBlock = block.number;
     }
 

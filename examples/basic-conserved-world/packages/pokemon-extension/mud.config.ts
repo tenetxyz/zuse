@@ -47,6 +47,16 @@ export default mudConfig({
         hasValue: "bool", // TODO: Remove this once we can install non-root modules
       },
     },
+    Farmer: {
+      keySchema: {
+        callerAddress: "address",
+        entity: "bytes32",
+      },
+      schema: {
+        isHungry: "bool",
+        hasValue: "bool", // TODO: Remove this once we can install non-root modules
+      },
+    },
   },
   modules: [],
 });

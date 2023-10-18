@@ -15,6 +15,7 @@ import { getCAEntityAtCoord, getCAVoxelType, caEntityToEntity, getCAEntityPositi
 import { uint256ToNegativeInt256, uint256ToInt256 } from "@tenet-utils/src/TypeUtils.sol";
 import { getMooreNeighbourEntities } from "@tenet-base-ca/src/CallUtils.sol";
 import { entityArrayToCAEntityArray } from "@tenet-base-ca/src/Utils.sol";
+import { Farmer } from "@tenet-pokemon-extension/src/codegen/tables/Farmer.sol";
 import { registerCAVoxelType } from "@tenet-base-ca/src/CallUtils.sol";
 import { console } from "forge-std/console.sol";
 
@@ -63,9 +64,16 @@ contract FarmerAgentSystem is AgentType {
     registerCAVoxelType(CA_ADDRESS, FarmerVoxelID);
   }
 
-  function enterWorld(VoxelCoord memory coord, bytes32 entity) public override {}
+  function enterWorld(VoxelCoord memory coord, bytes32 entity) public override {
+    address callerAddress = super.getCallerAddress();
+    bool hasValue = true;
+    Farmer.set(callerAddress, entity, false, hasValue);
+  }
 
-  function exitWorld(VoxelCoord memory coord, bytes32 entity) public override {}
+  function exitWorld(VoxelCoord memory coord, bytes32 entity) public override {
+    address callerAddress = super.getCallerAddress();
+    Farmer.deleteRecord(callerAddress, entity);
+  }
 
   function variantSelector(
     bytes32 entity,
@@ -104,12 +112,20 @@ contract FarmerAgentSystem is AgentType {
     bytes32[] memory neighbourEntityIds,
     bytes32[] memory childEntityIds,
     bytes32 parentEntity
-  ) public returns (bool, bytes memory) {}
+  ) public returns (bool, bytes memory) {
+    address callerAddress = super.getCallerAddress();
+    if (Farmer.getIsHungry(callerAddress, centerEntityId)) {
+      Farmer.setIsHungry(callerAddress, centerEntityId, false);
+    }
+  }
 
   function eatEventHandler(
     bytes32 centerEntityId,
     bytes32[] memory neighbourEntityIds,
     bytes32[] memory childEntityIds,
     bytes32 parentEntity
-  ) public returns (bool, bytes memory) {}
+  ) public returns (bool, bytes memory) {
+    address callerAddress = super.getCallerAddress();
+    Farmer.setIsHungry(callerAddress, centerEntityId, true);
+  }
 }

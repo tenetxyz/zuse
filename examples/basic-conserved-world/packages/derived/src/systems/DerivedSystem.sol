@@ -23,10 +23,6 @@ contract DerivedSystem is System {
     IStore caStore = IStore(BASE_CA_ADDRESS);
     console.log("deriveState");
 
-    // Simulatore data
-    BodySimData memory simData = getEntitySimData(WORLD_ADDRESS, entity);
-    console.logUint(simData.mass);
-
     // Core world data
     bytes32 voxelTypeId = VoxelType.getVoxelTypeId(worldStore, entity.scale, entity.entityId);
     bytes32 entityId = getEntityAtCoord(worldStore, 1, coord);
@@ -36,9 +32,14 @@ contract DerivedSystem is System {
     console.logBytes32(entityId);
     console.logUint(neighbourEntities.length);
 
+    // Simulator data
+    BodySimData memory simData = getEntitySimData(WORLD_ADDRESS, entity);
+    console.logUint(simData.mass);
+
     // CA data
     bytes32 caEntity = CAEntityMapping.get(caStore, WORLD_ADDRESS, entity.entityId);
     PlantData memory plantData = Plant.get(caStore, WORLD_ADDRESS, caEntity);
+    console.logUint(plantData.lastInteractionBlock);
     PokemonData memory pokemonData = Pokemon.get(caStore, WORLD_ADDRESS, caEntity);
     console.logUint(uint(pokemonData.pokemonType));
   }

@@ -15,7 +15,7 @@
     "clean": "concurrently \"yarn workspace @tenetxyz/world run clean\" \"yarn workspace @tenetxyz/level1-ca run clean\" \"yarn workspace @tenetxyz/pokemon-extension run clean\" \"yarn workspace @tenetxyz/simulator run clean\" ",
     "deploy": "concurrently -n contracts,client -c cyan,magenta \"cd packages/contracts && yarn run dev\" \"cd packages/client && yarn run deploy\"",
     "dev": "yarn run clean && yarn run dev-no-clean",
-    "dev-no-clean": "yarn run build:ca-sim && yarn run deploy:ca && yarn run deploy:sim && concurrently -n world -c yellow \"yarn workspace @tenetxyz/world run deploy:local\" && yarn run deploy:derived",
+    "dev-no-clean": "yarn run build:ca-sim && yarn run deploy:ca && yarn run deploy:sim && concurrently -n world -c yellow \"yarn workspace @tenetxyz/world run deploy:local\"",
     "deploy:ca": "concurrently -n level1 -c blue \"yarn workspace @tenetxyz/level1-ca run deploy:local\"",
     "deploy:sim": "concurrently -n sim -c red \"yarn workspace @tenetxyz/simulator run deploy:local\"",
     "deploy:derived": "concurrently -n derived -c #FFA500 \"yarn workspace @tenetxyz/derived run deploy:local\"",

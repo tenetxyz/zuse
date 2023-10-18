@@ -253,13 +253,13 @@ contract NutrientsSystem is SimHandler {
       uint256 currentSenderNutrients = Nutrients.get(callerAddress, senderEntity.scale, senderEntity.entityId);
       require(currentSenderNutrients >= senderNutrients, "Not enough nutrients to transfer");
 
-      require(
-        hasKey(
-          NutrientsTableId,
-          Nutrients.encodeKeyTuple(callerAddress, receiverEntity.scale, receiverEntity.entityId)
-        ),
-        "Not a nutrient-holding cell"
-      );
+      // require(
+      //   hasKey(
+      //     NutrientsTableId,
+      //     Nutrients.encodeKeyTuple(callerAddress, receiverEntity.scale, receiverEntity.entityId)
+      //   ),
+      //   "Not a nutrient-holding cell"
+      // );
       uint256 currentReceiverNutrients = Nutrients.get(callerAddress, receiverEntity.scale, receiverEntity.entityId);
       require(
         absoluteDifference(currentSenderNutrients, currentReceiverNutrients) <= NUTRIENT_TRANSFER_MAX_DELTA,

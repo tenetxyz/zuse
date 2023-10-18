@@ -39,6 +39,7 @@
     "@openzeppelin/contracts": "^4.9.1",
     "@tenetxyz/base-ca": "link:../../../../packages/base-ca",
     "@tenetxyz/level1-ca": "workspace:*",
+    "@tenetxyz/simulator": "workspace:*",
     "@tenetxyz/registry": "link:../../../../packages/registry",
     "@tenetxyz/utils": "link:../../../../packages/utils",
     "ethers": "^5.7.2",

@@ -12,7 +12,9 @@ import { entityIsSoil, entityIsPlant } from "@tenet-pokemon-extension/src/Intera
 import { getCAEntityAtCoord, getCAVoxelType, getCAEntityPositionStrict, caEntityToEntity } from "@tenet-base-ca/src/Utils.sol";
 import { getEntitySimData, transfer } from "@tenet-level1-ca/src/Utils.sol";
 import { uint256ToInt256, uint256ToNegativeInt256 } from "@tenet-utils/src/TypeUtils.sol";
+import { absoluteDifference } from "@tenet-utils/src/MathUtils.sol";
 import { EventType, SoilType } from "@tenet-pokemon-extension/src/codegen/Types.sol";
+import { NUTRIENT_TRANSFER_MAX_DELTA } from "@tenet-simulator/src/Constants.sol";
 import { console } from "forge-std/console.sol";
 
 contract SoilSystem is VoxelInteraction {
@@ -277,7 +279,10 @@ contract SoilSystem is VoxelInteraction {
       // Check if the neighbor is a Soil, Seed, or Young Plant cell
       if (entityIsSoil(callerAddress, neighbourEntityIds[i]) && entityHasNPK(neighbourEntityIds[i])) {
         BodySimData memory neighbourEntitySimData = getEntitySimData(neighbourEntityIds[i]);
-        if (entitySimData.nutrients < neighbourEntitySimData.nutrients) {
+        if (
+          entitySimData.nutrients < neighbourEntitySimData.nutrients &&
+          absoluteDifference(entitySimData.nutrients, neighbourEntitySimData.nutrients) <= NUTRIENT_TRANSFER_MAX_DELTA
+        ) {
           uint256 amountToTransfer = entitySimData.nutrients / 10; // 10%
           console.log("transfer nutrients");
           console.logBytes32(interactEntity);
@@ -356,17 +361,26 @@ contract SoilSystem is VoxelInteraction {
       // Check if the neighbor is a Soil, Seed, or Young Plant cell
       if (entityIsSoil(callerAddress, neighbourEntityIds[i]) && entityHasNPK(neighbourEntityIds[i])) {
         BodySimData memory neighbourEntitySimData = getEntitySimData(neighbourEntityIds[i]);
-        if (entitySimData.nutrients > neighbourEntitySimData.nutrients) {
+        if (
+          entitySimData.nutrients > neighbourEntitySimData.nutrients &&
+          absoluteDifference(entitySimData.nutrients, neighbourEntitySimData.nutrients) <= NUTRIENT_TRANSFER_MAX_DELTA
+        ) {
           uint256 amountToTransfer = entitySimData.nutrients / 10; // 10%
-          allCAEventData[i] = transfer(
-            SimTable.Nutrients,
-            SimTable.Nutrients,
-            entitySimData,
-            neighbourEntityIds[i],
-            neighbourCoord,
-            amountToTransfer
-          );
-          entitySimData.nutrients -= amountToTransfer;
+          console.log("transfer nutrients");
+          console.logBytes32(interactEntity);
+          console.logBytes32(neighbourEntityIds[i]);
+          console.logUint(amountToTransfer);
+          if (amountToTransfer > 0) {
+            allCAEventData[i] = transfer(
+              SimTable.Nutrients,
+              SimTable.Nutrients,
+              entitySimData,
+              neighbourEntityIds[i],
+              neighbourCoord,
+              amountToTransfer
+            );
+            entitySimData.nutrients -= amountToTransfer;
+          }
         }
         hasTransfer = true;
       } else if (

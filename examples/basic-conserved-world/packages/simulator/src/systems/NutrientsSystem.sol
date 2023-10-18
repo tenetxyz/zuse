@@ -15,8 +15,7 @@ import { absoluteDifference } from "@tenet-utils/src/MathUtils.sol";
 import { getNeighbourEntities } from "@tenet-simulator/src/Utils.sol";
 import { getVelocity, getTerrainMass, getTerrainEnergy, getTerrainVelocity, createTerrainEntity } from "@tenet-simulator/src/Utils.sol";
 import { console } from "forge-std/console.sol";
-
-uint256 constant NUTRIENT_TRANSFER_MAX_DELTA = 50;
+import { NUTRIENT_TRANSFER_MAX_DELTA } from "@tenet-simulator/src/Constants.sol";
 
 contract NutrientsSystem is SimHandler {
   function registerNutrientsSelectors() public {
@@ -267,6 +266,9 @@ contract NutrientsSystem is SimHandler {
       );
 
       receiverNutrients = calcReceiverNutrients(callerAddress, senderEntity, receiverEntity, senderNutrients);
+      console.log("receiverNutrients");
+      console.logUint(currentReceiverNutrients);
+      console.logUint(receiverNutrients);
 
       if (receiverNutrients == 0) {
         return;

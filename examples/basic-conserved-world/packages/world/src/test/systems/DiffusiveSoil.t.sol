@@ -86,7 +86,7 @@ contract DiffusiveSoilSoilTest is MudTest {
       soilEntity2.scale,
       soilEntity2.entityId
     );
-    assertTrue(soil2Nutrients > 0);
+    assertTrue(soil2Nutrients == 0);
     assertTrue(Nitrogen.get(IStore(SIMULATOR_ADDRESS), worldAddress, soilEntity2.scale, soilEntity2.entityId) > 0);
     assertTrue(Phosphorous.get(IStore(SIMULATOR_ADDRESS), worldAddress, soilEntity2.scale, soilEntity2.entityId) > 0);
     assertTrue(Potassium.get(IStore(SIMULATOR_ADDRESS), worldAddress, soilEntity2.scale, soilEntity2.entityId) > 0);
@@ -110,6 +110,8 @@ contract DiffusiveSoilSoilTest is MudTest {
       soilEntity.scale,
       soilEntity.entityId
     );
+    console.log("soilNutrients");
+    console.logUint(soilNutrients);
     assertTrue(soilNutrients > 0);
     assertTrue(Nitrogen.get(IStore(SIMULATOR_ADDRESS), worldAddress, soilEntity.scale, soilEntity.entityId) > 0);
     assertTrue(Phosphorous.get(IStore(SIMULATOR_ADDRESS), worldAddress, soilEntity.scale, soilEntity.entityId) > 0);
@@ -237,13 +239,12 @@ contract DiffusiveSoilSoilTest is MudTest {
     vm.roll(block.number + 1);
     console.log("activate");
     world.activateWithAgent(DiffusiveSoilVoxelID, soilCoord2, agentEntity, bytes4(0));
-    console.log("post nutrients");
     assertTrue(
-      Nutrients.get(IStore(SIMULATOR_ADDRESS), worldAddress, soilEntity2.scale, soilEntity2.entityId) >
+      Nutrients.get(IStore(SIMULATOR_ADDRESS), worldAddress, soilEntity2.scale, soilEntity2.entityId) <
         soil2BeforeNutrients
     );
     assertTrue(
-      Nitrogen.get(IStore(SIMULATOR_ADDRESS), worldAddress, soilEntity.scale, soilEntity.entityId) < soil1Nutrients
+      Nutrients.get(IStore(SIMULATOR_ADDRESS), worldAddress, soilEntity.scale, soilEntity.entityId) > soil1Nutrients
     );
 
     vm.stopPrank();

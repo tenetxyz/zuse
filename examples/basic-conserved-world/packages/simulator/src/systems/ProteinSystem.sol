@@ -40,6 +40,8 @@ contract ProteinSystem is SimHandler {
     );
     require(entityExists, "Sender entity does not exist");
     if (isEntityEqual(senderEntity, receiverEntity)) {
+      revert("You can't convert your own nutrients to protein");
+    } else {
       require(receiverProteinDelta > 0, "Cannot decrease someone's protein");
       require(senderNutrientsDelta < 0, "Cannot increase your own nutrients");
       uint256 senderNutrients = int256ToUint256(senderNutrientsDelta);
@@ -112,8 +114,6 @@ contract ProteinSystem is SimHandler {
           IWorld(_world()).fluxEnergy(false, callerAddress, senderEntity, nutrients_cost);
         }
       }
-    } else {
-      revert("You can't transfer your nutrients to someone elses protein");
     }
   }
 

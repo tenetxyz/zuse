@@ -15,6 +15,10 @@ contract PostDeploy is Script {
 
     // Register the voxel types
     IWorld(worldAddress).pokemon_ProteinSoilVoxel_registerBody();
+    IWorld(worldAddress).pokemon_ElixirSoilVoxelS_registerBody();
+    IWorld(worldAddress).pokemon_ConcentrativeSoi_registerBody();
+    IWorld(worldAddress).pokemon_DiffusiveSoilVox_registerBody();
+
     IWorld(worldAddress).pokemon_PlantVoxelSystem_registerBody();
     IWorld(worldAddress).pokemon_FirePokemonAgent_registerBody();
     IWorld(worldAddress).pokemon_WaterPokemonAgen_registerBody();

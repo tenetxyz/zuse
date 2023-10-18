@@ -277,9 +277,9 @@ contract SoilSystem is VoxelInteraction {
             neighbourCoord,
             amountToTransfer
           );
-          hasTransfer = true;
           entitySimData.nutrients -= amountToTransfer;
         }
+        hasTransfer = true;
       } else if (
         isValidPlantNeighbour(callerAddress, neighbourEntityIds[i], neighbourEntityDirections[i]) &&
         entityHasNPK(neighbourEntityIds[i])
@@ -350,9 +350,9 @@ contract SoilSystem is VoxelInteraction {
             neighbourCoord,
             amountToTransfer
           );
-          hasTransfer = true;
           entitySimData.nutrients -= amountToTransfer;
         }
+        hasTransfer = true;
       } else if (
         isValidPlantNeighbour(callerAddress, neighbourEntityIds[i], neighbourEntityDirections[i]) &&
         entityHasNPK(neighbourEntityIds[i])
@@ -425,8 +425,8 @@ contract SoilSystem is VoxelInteraction {
             neighbourCoord,
             convertNutrientsToProtein
           );
-          hasTransfer = true;
         }
+        hasTransfer = true;
       } else if (entityIsSoil(callerAddress, neighbourEntityIds[i])) {
         BodySimData memory neighbourEntitySimData = getEntitySimData(neighbourEntityIds[i]);
         if (entitySimData.phosphorous > 0 && neighbourEntitySimData.phosphorous < entitySimData.phosphorous) {
@@ -439,8 +439,8 @@ contract SoilSystem is VoxelInteraction {
             entitySimData.phosphorous
           );
           entitySimData.phosphorous = 0;
-          hasTransfer = true;
         }
+        hasTransfer = true;
       }
     }
 
@@ -478,8 +478,8 @@ contract SoilSystem is VoxelInteraction {
             neighbourCoord,
             convertNutrientsToElixir
           );
-          hasTransfer = true;
         }
+        hasTransfer = true;
       } else if (entityIsSoil(callerAddress, neighbourEntityIds[i])) {
         BodySimData memory neighbourEntitySimData = getEntitySimData(neighbourEntityIds[i]);
         if (entitySimData.nitrogen > 0 && neighbourEntitySimData.nitrogen < entitySimData.nitrogen) {
@@ -492,8 +492,8 @@ contract SoilSystem is VoxelInteraction {
             entitySimData.nitrogen
           );
           entitySimData.nitrogen = 0;
-          hasTransfer = true;
         }
+        hasTransfer = true;
       }
     }
 

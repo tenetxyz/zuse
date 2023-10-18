@@ -6,7 +6,7 @@ import { VoxelType } from "@tenet-base-ca/src/prototypes/VoxelType.sol";
 import { VoxelVariantsRegistryData } from "@tenet-registry/src/codegen/tables/VoxelVariantsRegistry.sol";
 import { NoaBlockType } from "@tenet-registry/src/codegen/Types.sol";
 import { registerVoxelVariant, registerVoxelType, voxelSelectorsForVoxel } from "@tenet-registry/src/Utils.sol";
-import { CA_ADDRESS, REGISTRY_ADDRESS, PlantVoxelID } from "@tenet-pokemon-extension/src/Constants.sol";
+import { CA_ADDRESS, REGISTRY_ADDRESS, PlantVoxelID, SeedVoxelVariantID, SproutVoxelVariantID, FlowerVoxelVariantID } from "@tenet-pokemon-extension/src/Constants.sol";
 import { Plant, PlantData } from "@tenet-pokemon-extension/src/codegen/tables/Plant.sol";
 import { PlantStage } from "@tenet-pokemon-extension/src/codegen/Types.sol";
 import { VoxelCoord, ComponentDef, BodySimData } from "@tenet-utils/src/Types.sol";
@@ -14,9 +14,6 @@ import { registerCAVoxelType } from "@tenet-base-ca/src/CallUtils.sol";
 import { EventType } from "@tenet-pokemon-extension/src/codegen/Types.sol";
 import { getEntitySimData, transfer } from "@tenet-level1-ca/src/Utils.sol";
 
-bytes32 constant SeedVoxelVariantID = bytes32(keccak256("seed"));
-bytes32 constant SproutVoxelVariantID = bytes32(keccak256("sprout"));
-bytes32 constant FlowerVoxelVariantID = bytes32(keccak256("flower"));
 string constant PlantTexture = "bafkreidtk7vevmnzt6is5dreyoocjkyy56bk66zbm5bx6wzck73iogdl6e";
 string constant PlantUVWrap = "bafkreiaur4pmmnh3dts6rjtfl5f2z6ykazyuu4e2cbno6drslfelkga3yy";
 

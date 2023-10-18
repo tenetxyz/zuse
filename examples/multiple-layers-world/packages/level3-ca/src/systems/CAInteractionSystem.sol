@@ -30,4 +30,8 @@ contract CAInteractionSystem is CAInteraction {
   ) public override returns (bytes32[] memory, bytes[] memory) {
     return super.runInteraction(interactionSelector, interactEntity, neighbourEntityIds, childEntityIds, parentEntity);
   }
+
+  function updateVoxelType(bytes32 entity) public override {
+    super.updateVoxelType(entity);
+  }
 }

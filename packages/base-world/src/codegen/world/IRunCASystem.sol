@@ -31,4 +31,6 @@ interface IRunCASystem {
     VoxelEntity memory entity,
     bytes4 interactionSelector
   ) external returns (EntityEventData[] memory);
+
+  function updateVariant(address caAddress, VoxelEntity memory entity) external;
 }

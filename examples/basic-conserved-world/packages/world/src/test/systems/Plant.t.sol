@@ -11,7 +11,7 @@ import { getEntityAtCoord, getEntityPositionStrict, positionDataToVoxelCoord } f
 import { FaucetVoxelID, GrassVoxelID, AirVoxelID, DirtVoxelID, BedrockVoxelID } from "@tenet-level1-ca/src/Constants.sol";
 import { MindRegistry } from "@tenet-registry/src/codegen/tables/MindRegistry.sol";
 import { REGISTRY_ADDRESS, BASE_CA_ADDRESS, SIMULATOR_ADDRESS } from "@tenet-world/src/Constants.sol";
-import { ConcentrativeSoilVoxelID, PlantVoxelID, FirePokemonVoxelID } from "@tenet-pokemon-extension/src/Constants.sol";
+import { ConcentrativeSoilVoxelID, PlantVoxelID, FirePokemonVoxelID, SeedVoxelVariantID, SproutVoxelVariantID } from "@tenet-pokemon-extension/src/Constants.sol";
 import { Pokemon, PokemonData } from "@tenet-pokemon-extension/src/codegen/tables/Pokemon.sol";
 import { Plant, PlantData, PlantStage } from "@tenet-pokemon-extension/src/codegen/tables/Plant.sol";
 import { addressToEntityKey } from "@tenet-utils/src/Utils.sol";
@@ -170,7 +170,7 @@ contract PlantTest is MudTest {
 
     VoxelCoord memory soilCoord = VoxelCoord({ x: agentCoord.x + 1, y: agentCoord.y, z: agentCoord.z });
     VoxelEntity memory soilEntity = world.buildWithAgent(ConcentrativeSoilVoxelID, soilCoord, agentEntity, bytes4(0));
-    Energy.set(IStore(SIMULATOR_ADDRESS), worldAddress, soilEntity.scale, soilEntity.entityId, 150);
+    Energy.set(IStore(SIMULATOR_ADDRESS), worldAddress, soilEntity.scale, soilEntity.entityId, 100);
     world.activateWithAgent(ConcentrativeSoilVoxelID, soilCoord, agentEntity, bytes4(0));
     uint256 soil1Nutrients = Nutrients.get(
       IStore(SIMULATOR_ADDRESS),
@@ -186,6 +186,7 @@ contract PlantTest is MudTest {
     // Place down plant on top of it
     vm.roll(block.number + 1);
     VoxelCoord memory plantCoord = VoxelCoord({ x: soilCoord.x, y: soilCoord.y + 1, z: soilCoord.z });
+    console.log("build plant");
     VoxelEntity memory plantEntity = world.buildWithAgent(PlantVoxelID, plantCoord, agentEntity, bytes4(0));
     bytes32 plantCAEntity = CAEntityMapping.get(IStore(BASE_CA_ADDRESS), worldAddress, plantEntity.entityId);
     PlantData memory plantData = Plant.get(IStore(BASE_CA_ADDRESS), worldAddress, plantCAEntity);
@@ -209,6 +210,7 @@ contract PlantTest is MudTest {
       assertTrue(plantElixir > 0);
       assertTrue(plantProtein > 0);
     }
+    assertTrue(VoxelType.getVoxelVariantId(plantEntity.scale, plantEntity.entityId) == SproutVoxelVariantID);
 
     // Place pokemon next to flower
     {
@@ -232,6 +234,7 @@ contract PlantTest is MudTest {
       );
       assertTrue(plantElixir == 0);
       assertTrue(plantProtein == 0);
+      assertTrue(VoxelType.getVoxelVariantId(plantEntity.scale, plantEntity.entityId) == SeedVoxelVariantID);
     }
 
     vm.stopPrank();

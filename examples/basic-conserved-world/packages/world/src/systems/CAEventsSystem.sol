@@ -112,10 +112,11 @@ contract CAEventsSystem is System {
             }
 
             console.log("running ca");
+            address caAddress = WorldConfig.get(
+              VoxelType.getVoxelTypeId(simEventData.targetEntity.scale, simEventData.targetEntity.entityId)
+            );
             EntityEventData[] memory newEntitiesEventData = IWorld(_world()).runCA(
-              WorldConfig.get(
-                VoxelType.getVoxelTypeId(simEventData.targetEntity.scale, simEventData.targetEntity.entityId)
-              ),
+              caAddress,
               simEventData.targetEntity,
               bytes4(0)
             );
@@ -127,6 +128,10 @@ contract CAEventsSystem is System {
                 require(allNewEntitiesEventDataIdx < MAX_VOXEL_NEIGHBOUR_UPDATE_DEPTH, "Too many new entities");
               }
             }
+
+            // We know both the sender and receiver will have changed, thus we update both their variants
+            IWorld(_world()).updateVariant(caAddress, entity);
+            IWorld(_world()).updateVariant(caAddress, simEventData.targetEntity);
           }
         } else if (caEventData.eventType == CAEventType.WorldEvent) {
           WorldEventData memory worldEventData = abi.decode(caEventData.eventData, (WorldEventData));

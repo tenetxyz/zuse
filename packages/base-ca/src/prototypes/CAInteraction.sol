@@ -259,21 +259,26 @@ abstract contract CAInteraction is System {
     return (changedEntities, caEntitiesEventData);
   }
 
+  function updateVoxelType(bytes32 entity) public virtual {
+    address callerAddress = _msgSender();
+    bytes32 voxelTypeId = CAVoxelType.getVoxelTypeId(callerAddress, entity);
+    uint32 scale = VoxelTypeRegistry.getScale(IStore(getRegistryAddress()), voxelTypeId);
+    VoxelEntity memory changedEntity = VoxelEntity({ scale: scale, entityId: entity });
+    bytes32 voxelVariantId = callGetVoxelVariant(
+      voxelTypeId,
+      entityToCAEntity(callerAddress, entity),
+      entityArrayToCAEntityArray(callerAddress, getNeighbourEntitiesFromCaller(callerAddress, changedEntity)),
+      getChildEntitiesFromCaller(callerAddress, changedEntity),
+      getParentEntityFromCaller(callerAddress, changedEntity)
+    );
+    CAVoxelType.set(callerAddress, entity, voxelTypeId, voxelVariantId);
+  }
+
   function updateVoxelTypes(address callerAddress, bytes32[] memory changedEntities) internal {
     for (uint256 i = 0; i < changedEntities.length; i++) {
       bytes32 changedEntityId = changedEntities[i];
       if (changedEntityId != 0) {
-        bytes32 changedVoxelTypeId = CAVoxelType.getVoxelTypeId(callerAddress, changedEntityId);
-        uint32 scale = VoxelTypeRegistry.getScale(IStore(getRegistryAddress()), changedVoxelTypeId);
-        VoxelEntity memory changedEntity = VoxelEntity({ scale: scale, entityId: changedEntityId });
-        bytes32 voxelVariantId = callGetVoxelVariant(
-          changedVoxelTypeId,
-          entityToCAEntity(callerAddress, changedEntityId),
-          entityArrayToCAEntityArray(callerAddress, getNeighbourEntitiesFromCaller(callerAddress, changedEntity)),
-          getChildEntitiesFromCaller(callerAddress, changedEntity),
-          getParentEntityFromCaller(callerAddress, changedEntity)
-        );
-        CAVoxelType.set(callerAddress, changedEntityId, changedVoxelTypeId, voxelVariantId);
+        updateVoxelType(changedEntityId);
       }
     }
   }

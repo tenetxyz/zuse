@@ -45,4 +45,8 @@ contract RunCASystem is RunCAPrototype {
   ) public override returns (EntityEventData[] memory) {
     return super.runCA(caAddress, entity, interactionSelector);
   }
+
+  function updateVariant(address caAddress, VoxelEntity memory entity) public override {
+    return super.updateVariant(caAddress, entity);
+  }
 }

@@ -15,7 +15,7 @@ import { Position, PositionData } from "@tenet-base-world/src/codegen/tables/Pos
 import { VoxelType, VoxelTypeData } from "@tenet-base-world/src/codegen/tables/VoxelType.sol";
 import { VoxelActivated, VoxelActivatedData } from "@tenet-base-world/src/codegen/tables/VoxelActivated.sol";
 import { getEntityAtCoord, calculateChildCoords, calculateParentCoord } from "@tenet-base-world/src/Utils.sol";
-import { runInteraction, enterWorld, exitWorld, activateVoxel, moveLayer } from "@tenet-base-ca/src/CallUtils.sol";
+import { runInteraction, enterWorld, exitWorld, activateVoxel, moveLayer, updateVoxelType } from "@tenet-base-ca/src/CallUtils.sol";
 import { addressToEntityKey } from "@tenet-utils/src/Utils.sol";
 
 abstract contract RunCASystem is System {
@@ -219,5 +219,23 @@ abstract contract RunCASystem is System {
     }
 
     return allEntitiesEventData;
+  }
+
+  function updateVariant(address caAddress, VoxelEntity memory entity) public virtual {
+    updateVoxelType(caAddress, entity.entityId);
+    CAVoxelTypeData memory changedEntityVoxelType = CAVoxelType.get(IStore(caAddress), _world(), entity.entityId);
+    VoxelTypeData memory existingEntityVoxelType = VoxelType.get(entity.scale, entity.entityId);
+    if (
+      existingEntityVoxelType.voxelTypeId == changedEntityVoxelType.voxelTypeId &&
+      existingEntityVoxelType.voxelVariantId == changedEntityVoxelType.voxelVariantId
+    ) {
+      return;
+    }
+    VoxelType.set(
+      entity.scale,
+      entity.entityId,
+      changedEntityVoxelType.voxelTypeId,
+      changedEntityVoxelType.voxelVariantId
+    );
   }
 }

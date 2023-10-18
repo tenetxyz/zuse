@@ -69,6 +69,8 @@ contract NutrientsSystem is SimHandler {
     uint256 selfNutrients = Nutrients.get(callerAddress, senderEntity.scale, senderEntity.entityId);
     uint256 newSelfNutrients = senderEnergy + selfNutrients;
     uint256 actualEnergyToConvert = newSelfNutrients;
+    console.log("newSelfNutrients");
+    console.logUint(newSelfNutrients);
     if (numNeighbours == 0 || numNutrientNeighbours == 0) {
       return int256(actualEnergyToConvert);
     }
@@ -87,7 +89,9 @@ contract NutrientsSystem is SimHandler {
     uint256 difference = absoluteDifference(averageNutrients, newSelfNutrients);
     uint256 lossFactor = (difference * newSelfNutrients) / 100;
     lossFactor = (lossFactor * massFactor) / 100; // Adjust loss factor based on mass
-    actualEnergyToConvert -= lossFactor;
+    actualEnergyToConvert = safeSubtract(actualEnergyToConvert, lossFactor);
+    console.log("actualEnergyToConvert");
+    console.logUint(actualEnergyToConvert);
 
     return int256(actualEnergyToConvert);
   }

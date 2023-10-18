@@ -25,3 +25,8 @@ struct MoveData {
   uint8 protection;
   ObjectType moveType;
 }
+
+struct PlantConsumer {
+  bytes32 entityId;
+  uint256 consumedBlockNumber;
+}

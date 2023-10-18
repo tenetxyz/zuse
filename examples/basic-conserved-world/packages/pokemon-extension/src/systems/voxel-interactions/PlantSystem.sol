@@ -9,13 +9,13 @@ import { uint256ToNegativeInt256, uint256ToInt256 } from "@tenet-utils/src/TypeU
 import { Soil } from "@tenet-pokemon-extension/src/codegen/tables/Soil.sol";
 import { CAEntityReverseMapping, CAEntityReverseMappingTableId, CAEntityReverseMappingData } from "@tenet-base-ca/src/codegen/tables/CAEntityReverseMapping.sol";
 import { Plant, PlantData } from "@tenet-pokemon-extension/src/codegen/tables/Plant.sol";
-import { PlantStage } from "@tenet-pokemon-extension/src/codegen/Types.sol";
+import { PlantStage, EventType } from "@tenet-pokemon-extension/src/codegen/Types.sol";
 import { entityIsSoil, entityIsPlant, entityIsPokemon, entityIsFarmer } from "@tenet-pokemon-extension/src/InteractionUtils.sol";
 import { getCAEntityAtCoord, getCAVoxelType, getCAEntityPositionStrict, caEntityToEntity } from "@tenet-base-ca/src/Utils.sol";
 import { Farmer } from "@tenet-pokemon-extension/src/codegen/tables/Farmer.sol";
 import { getEntitySimData, transfer } from "@tenet-level1-ca/src/Utils.sol";
 import { console } from "forge-std/console.sol";
-import { EventType } from "@tenet-pokemon-extension/src/codegen/Types.sol";
+import { PlantConsumer } from "@tenet-pokemon-extension/src/Types.sol";
 
 uint256 constant AMOUNT_REQUIRED_FOR_SPROUT = 10;
 uint256 constant AMOUNT_REQUIRED_FOR_FLOWER = 30;
@@ -323,6 +323,20 @@ contract PlantSystem is VoxelInteraction {
     return numEatingNeighbours;
   }
 
+  function addPlantConsumer(PlantData memory plantData, bytes32 consumerEntity) internal returns (PlantData memory) {
+    PlantConsumer[] memory currentConsumers = abi.decode(plantData.consumers, (PlantConsumer[]));
+    PlantConsumer[] memory newConsumers = new PlantConsumer[](currentConsumers.length + 1);
+    for (uint i = 0; i < currentConsumers.length; i++) {
+      newConsumers[i] = currentConsumers[i];
+    }
+    newConsumers[currentConsumers.length] = PlantConsumer({
+      entityId: consumerEntity,
+      consumedBlockNumber: block.number
+    });
+    plantData.consumers = abi.encode(newConsumers);
+    return plantData;
+  }
+
   function runFlowerInteraction(
     address callerAddress,
     bytes32 interactEntity,
@@ -388,6 +402,7 @@ contract PlantSystem is VoxelInteraction {
 
         if (elixirTransferAmount > 0 || proteinTransferAmount > 0) {
           hasTransfer = true;
+          plantData = addPlantConsumer(plantData, neighbourEntityIds[i]);
         }
       }
     }

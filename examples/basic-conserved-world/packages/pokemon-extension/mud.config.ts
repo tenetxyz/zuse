@@ -32,6 +32,7 @@ export default mudConfig({
         lastEvent: "EventType",
         lastInteractionBlock: "uint256",
         hasValue: "bool", // TODO: Remove this once we can install non-root modules
+        consumers: "bytes", // PlantConsumer[]
       },
     },
     Pokemon: {

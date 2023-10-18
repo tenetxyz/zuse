@@ -14,6 +14,7 @@ import { REGISTRY_ADDRESS, BASE_CA_ADDRESS, SIMULATOR_ADDRESS } from "@tenet-wor
 import { ConcentrativeSoilVoxelID, PlantVoxelID, FirePokemonVoxelID, PlantSeedVoxelVariantID, PlantFlowerVoxelVariantID } from "@tenet-pokemon-extension/src/Constants.sol";
 import { Pokemon, PokemonData } from "@tenet-pokemon-extension/src/codegen/tables/Pokemon.sol";
 import { Plant, PlantData, PlantStage } from "@tenet-pokemon-extension/src/codegen/tables/Plant.sol";
+import { PlantConsumer } from "@tenet-pokemon-extension/src/Types.sol";
 import { addressToEntityKey } from "@tenet-utils/src/Utils.sol";
 import { console } from "forge-std/console.sol";
 import { CAEntityMapping, CAEntityMappingTableId } from "@tenet-base-ca/src/codegen/tables/CAEntityMapping.sol";
@@ -193,6 +194,8 @@ contract PlantTest is MudTest {
     assertTrue(Nitrogen.get(IStore(SIMULATOR_ADDRESS), worldAddress, plantEntity.scale, plantEntity.entityId) > 0);
     assertTrue(Phosphorous.get(IStore(SIMULATOR_ADDRESS), worldAddress, plantEntity.scale, plantEntity.entityId) > 0);
     assertTrue(Potassium.get(IStore(SIMULATOR_ADDRESS), worldAddress, plantEntity.scale, plantEntity.entityId) > 0);
+    PlantConsumer[] memory consumers = abi.decode(plantData.consumers, (PlantConsumer[]));
+    assertTrue(consumers.length == 0);
 
     {
       uint256 plantElixir = Elixir.get(
@@ -235,6 +238,12 @@ contract PlantTest is MudTest {
       assertTrue(plantElixir == 0);
       assertTrue(plantProtein == 0);
       assertTrue(VoxelType.getVoxelVariantId(plantEntity.scale, plantEntity.entityId) == PlantSeedVoxelVariantID);
+      bytes32 pokemonCAEntity = CAEntityMapping.get(IStore(BASE_CA_ADDRESS), worldAddress, pokemonEntity.entityId);
+      plantData = Plant.get(IStore(BASE_CA_ADDRESS), worldAddress, plantCAEntity);
+      consumers = abi.decode(plantData.consumers, (PlantConsumer[]));
+      assertTrue(consumers.length == 1);
+      assertTrue(consumers[0].entityId == pokemonCAEntity);
+      assertTrue(consumers[0].consumedBlockNumber == block.number);
     }
 
     vm.stopPrank();

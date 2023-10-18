@@ -13,6 +13,7 @@ import { VoxelCoord, ComponentDef, BodySimData } from "@tenet-utils/src/Types.so
 import { registerCAVoxelType } from "@tenet-base-ca/src/CallUtils.sol";
 import { EventType } from "@tenet-pokemon-extension/src/codegen/Types.sol";
 import { getEntitySimData, transfer } from "@tenet-level1-ca/src/Utils.sol";
+import { PlantConsumer } from "@tenet-pokemon-extension/src/Types.sol";
 
 string constant PlantTexture = "bafkreidtk7vevmnzt6is5dreyoocjkyy56bk66zbm5bx6wzck73iogdl6e";
 string constant PlantUVWrap = "bafkreiaur4pmmnh3dts6rjtfl5f2z6ykazyuu4e2cbno6drslfelkga3yy";
@@ -56,7 +57,18 @@ contract PlantVoxelSystem is VoxelType {
   function enterWorld(VoxelCoord memory coord, bytes32 entity) public override {
     address callerAddress = super.getCallerAddress();
     bool hasValue = true;
-    Plant.set(callerAddress, entity, PlantStage.Seed, EventType.None, 0, hasValue);
+    PlantConsumer[] memory consumers = new PlantConsumer[](0);
+    Plant.set(
+      callerAddress,
+      entity,
+      PlantData({
+        stage: PlantStage.Seed,
+        lastEvent: EventType.None,
+        lastInteractionBlock: 0,
+        consumers: abi.encode(consumers),
+        hasValue: hasValue
+      })
+    );
   }
 
   function exitWorld(VoxelCoord memory coord, bytes32 entity) public override {

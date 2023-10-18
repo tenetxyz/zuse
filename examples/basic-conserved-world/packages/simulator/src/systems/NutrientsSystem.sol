@@ -92,6 +92,9 @@ contract NutrientsSystem is SimHandler {
     actualEnergyToConvert = safeSubtract(actualEnergyToConvert, lossFactor);
     console.log("actualEnergyToConvert");
     console.logUint(actualEnergyToConvert);
+    if (actualEnergyToConvert > senderEnergy) {
+      actualEnergyToConvert = senderEnergy;
+    }
 
     return int256(actualEnergyToConvert);
   }

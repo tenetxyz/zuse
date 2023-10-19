@@ -27,7 +27,7 @@
     "test": "yarn mud test",
     "test-verbose": "yarn initialize && yarn mud test --forgeOptions='-vvv'",
     "worldgen": "yarn mud worldgen",
-    "worldtypes": "rimraf types && typechain --target=ethers-v5 out/IWorld.sol/IWorld.json",
+    "worldtypes": "rimraf types && typechain --target=ethers-v5 out/world/IWorld.sol/IWorld.json",
     "runScript": "./runScript.bash"
   },
   "dependencies": {

@@ -80,10 +80,10 @@ contract PlantSystem is VoxelInteraction {
 
   function updateTotalProduced(address callerAddress, bytes32 interactEntity) internal {
     uint256 totalProduced = Plant.getTotalProduced(callerAddress, interactEntity);
-    uint256 totalConsumed = Plant.getTotalConsumed(callerAddress, interactEntity);
+    // uint256 totalConsumed = Plant.getTotalConsumed(callerAddress, interactEntity);
     BodySimData memory entitySimData = getEntitySimData(interactEntity);
-    // we add totalConsumed since these were still produced by the plant
-    uint256 currentProduced = entitySimData.elixir + entitySimData.protein + totalConsumed;
+    // TOOD: we need to add totalConsumed since these were still produced by the plant
+    uint256 currentProduced = entitySimData.elixir + entitySimData.protein;
     if (currentProduced > totalProduced) {
       Plant.setTotalProduced(callerAddress, interactEntity, currentProduced);
     }
@@ -441,9 +441,6 @@ contract PlantSystem is VoxelInteraction {
         if (elixirTransferAmount > 0 || proteinTransferAmount > 0) {
           hasTransfer = true;
           plantData = addPlantConsumer(plantData, neighbourEntityIds[i]);
-          // plantData.totalConsumed += elixirTransferAmount + proteinTransferAmount;
-          console.log("new plantData.totalConsumed");
-          console.logUint(plantData.totalConsumed);
         }
       }
     }

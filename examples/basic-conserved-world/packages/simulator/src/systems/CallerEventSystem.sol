@@ -13,7 +13,7 @@ import { uint256ToInt256, uint256ToNegativeInt256 } from "@tenet-utils/src/TypeU
 import { console } from "forge-std/console.sol";
 import { getVelocity, getTerrainMass, getTerrainEnergy, getTerrainVelocity } from "@tenet-simulator/src/Utils.sol";
 
-uint256 constant TX_SPEED_RATIO = 100;
+uint256 constant TX_SPEED_RATIO = 90;
 uint256 constant MAX_BLOCKS_TO_WAIT = 60 * 5; // 5 minutes if 1 block = 1 second
 
 contract CallerEventSystem is System {

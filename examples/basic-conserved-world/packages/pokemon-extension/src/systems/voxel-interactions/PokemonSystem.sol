@@ -257,16 +257,17 @@ contract PokemonSystem is System {
         ) {
           // both died, no winner
           pokemonData.isFainted = true;
+          pokemonData.lastFaintedBlock = block.number;
         } else if (entitySimData.health == 0 || entitySimData.stamina == 0) {
           // entity died
           pokemonData.isFainted = true;
+          pokemonData.lastFaintedBlock = block.number;
           pokemonData.numLosses += 1;
         } else {
           // fighting entity died
           pokemonData.numWins += 1;
         }
         pokemonData.fightingCAEntity = bytes32(0);
-        pokemonData.lastFaintedBlock = block.number;
       }
     }
     return pokemonData;

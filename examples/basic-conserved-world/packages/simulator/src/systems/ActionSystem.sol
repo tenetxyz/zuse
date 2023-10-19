@@ -184,9 +184,10 @@ contract ActionSystem is SimHandler {
     uint256 damage = senderStamina * 2;
     // TODO: Figure out how to calculate random factor
     uint256 randomFactor = 1;
-    uint256 actionTypeMultiplier = getTypeMultiplier(senderObjectType, receiverActionType) / 100;
-    uint256 senderObjectTypeMultiplier = getTypeMultiplier(senderObjectType, receiverObjectType) / 100;
-    return damage * senderObjectTypeMultiplier * actionTypeMultiplier * randomFactor;
+    // We don't divide by 100 here so it doesn't round to zero
+    uint256 actionTypeMultiplier = getTypeMultiplier(senderObjectType, receiverActionType);
+    uint256 senderObjectTypeMultiplier = getTypeMultiplier(senderObjectType, receiverObjectType);
+    return (damage * senderObjectTypeMultiplier * actionTypeMultiplier * randomFactor) / (100 * 100);
   }
 
   function calculateProtection(
@@ -198,9 +199,10 @@ contract ActionSystem is SimHandler {
     uint256 protection = senderStamina * 2;
     // TODO: Figure out how to calculate random factor
     uint256 randomFactor = 1;
-    uint256 actionTypeMultiplier = getTypeMultiplier(senderObjectType, receiverActionType) / 100;
-    uint256 senderObjectTypeMultiplier = getTypeMultiplier(senderObjectType, receiverObjectType) / 100;
-    return protection * senderObjectTypeMultiplier * actionTypeMultiplier * randomFactor;
+    // We don't divide by 100 here so it doesn't round to zero
+    uint256 actionTypeMultiplier = getTypeMultiplier(senderObjectType, receiverActionType);
+    uint256 senderObjectTypeMultiplier = getTypeMultiplier(senderObjectType, receiverObjectType);
+    return (protection * senderObjectTypeMultiplier * actionTypeMultiplier * randomFactor) / (100 * 100);
   }
 
   function getTypeMultiplier(ObjectType actionType, ObjectType neighbourObjectType) internal pure returns (uint256) {

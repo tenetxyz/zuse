@@ -18,7 +18,7 @@ export default mudConfig({
     {
       name: "KeysInTableModule",
       root: true,
-      args: [resolveTableId("Leaderboard")],
+      args: [resolveTableId("PokemonLeaderboard")],
     },
   ],
 });

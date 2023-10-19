@@ -36,7 +36,7 @@ contract PokemonLBSystem is System {
       pokemonDataArray[i] = Pokemon.get(caStore, WORLD_ADDRESS, pokemonEntity);
     }
 
-    bool swapped = flase;
+    bool swapped = false;
     // Sort the pokemon data array based on numWins
     for (uint i = 0; i < pokemonDataArray.length; i++) {
       swapped = false;
@@ -62,7 +62,7 @@ contract PokemonLBSystem is System {
   }
 
   function resetLeaderboard() internal {
-    bytes32[][] memory pokemonLBEntities = getKeysInTable(PokemonLeaderboard);
+    bytes32[][] memory pokemonLBEntities = getKeysInTable(PokemonLeaderboardTableId);
     for (uint i = 0; i < pokemonLBEntities.length; i++) {
       PokemonLeaderboard.deleteRecord(pokemonLBEntities[i][0]);
     }

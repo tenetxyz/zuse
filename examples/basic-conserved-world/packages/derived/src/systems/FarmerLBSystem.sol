@@ -35,7 +35,7 @@ contract FarmerLBSystem is System {
       "FarmerLBSystem: shard already claimed"
     );
     address farmer = _msgSender();
-    FarmLeaderboard.set(shardCoord.x, shardCoord.y, shardCoord.z, 0, farmer);
+    FarmLeaderboard.set(shardCoord.x, shardCoord.y, shardCoord.z, 0, 0, farmer);
   }
 
   function updateFarmerLeaderboard() public {
@@ -105,11 +105,13 @@ contract FarmerLBSystem is System {
     for (uint i = 0; i < totalFarmerScore.length; i++) {
       uint rank = i + 1;
       console.log("set rank");
-      FarmLeaderboard.setRank(
+      FarmLeaderboard.set(
         totalFarmerScore[i].coord.x,
         totalFarmerScore[i].coord.y,
         totalFarmerScore[i].coord.z,
-        rank
+        rank,
+        totalFarmerScore[i].totalProduced,
+        FarmLeaderboard.getFarmer(totalFarmerScore[i].coord.x, totalFarmerScore[i].coord.y, totalFarmerScore[i].coord.z)
       );
     }
   }

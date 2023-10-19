@@ -21,6 +21,7 @@ export default mudConfig({
       },
       schema: {
         rank: "uint256",
+        totalProduction: "uint256",
         farmer: "address",
       },
     },

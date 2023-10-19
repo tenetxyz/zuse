@@ -394,8 +394,10 @@ contract PlantSystem is VoxelInteraction {
           Farmer.getIsHungry(callerAddress, neighbourEntityIds[i]))
       ) {
         VoxelCoord memory neighbourCoord = getCAEntityPositionStrict(IStore(_world()), neighbourEntityIds[i]);
-        SimEventData[] memory allSimEventData = new SimEventData[](2);
-        {
+        SimEventData[] memory allSimEventData = new SimEventData[](
+          elixirTransferAmount > 0 && proteinTransferAmount > 0 ? 2 : 1
+        );
+        if (elixirTransferAmount > 0 && proteinTransferAmount > 0) {
           allSimEventData[0] = transferSimData(
             SimTable.Elixir,
             SimTable.Health,
@@ -404,9 +406,25 @@ contract PlantSystem is VoxelInteraction {
             neighbourCoord,
             elixirTransferAmount
           );
-        }
-        {
           allSimEventData[1] = transferSimData(
+            SimTable.Protein,
+            SimTable.Stamina,
+            entitySimData,
+            neighbourEntityIds[i],
+            neighbourCoord,
+            proteinTransferAmount
+          );
+        } else if (elixirTransferAmount > 0) {
+          allSimEventData[0] = transferSimData(
+            SimTable.Elixir,
+            SimTable.Health,
+            entitySimData,
+            neighbourEntityIds[i],
+            neighbourCoord,
+            elixirTransferAmount
+          );
+        } else {
+          allSimEventData[0] = transferSimData(
             SimTable.Protein,
             SimTable.Stamina,
             entitySimData,

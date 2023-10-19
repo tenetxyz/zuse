@@ -21,8 +21,8 @@ contract TestDerived is Script {
     // VoxelEntity memory entity = VoxelEntity({ scale: 1, entityId: bytes32(uint256(6)) });
     VoxelCoord memory coord = VoxelCoord(50, 10, 49);
     // world.deriveState(entity, coord);
-    world.claimShard(coord);
-    // world.updatePokemonLeaderboard();
+    // world.claimShard(coord);
+    world.updateFarmerLeaderboard();
 
     vm.stopBroadcast();
   }

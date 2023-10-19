@@ -66,14 +66,16 @@ contract NutrientsSystem is SimHandler {
       }
     }
 
+    if (numNeighbours == 0 || numNutrientNeighbours == 0) {
+      console.log("no neighbour entities");
+      return int256(senderEnergy);
+    }
+
     uint256 selfNutrients = Nutrients.get(callerAddress, senderEntity.scale, senderEntity.entityId);
     uint256 newSelfNutrients = senderEnergy + selfNutrients;
     uint256 actualEnergyToConvert = newSelfNutrients;
     console.log("newSelfNutrients");
     console.logUint(newSelfNutrients);
-    if (numNeighbours == 0 || numNutrientNeighbours == 0) {
-      return int256(actualEnergyToConvert);
-    }
 
     uint256 averageNutrients = totalNutrients / numNutrientNeighbours;
     uint256 averageMass = totalMass / numNeighbours;

@@ -65,6 +65,8 @@ contract PlantVoxelSystem is VoxelType {
         stage: PlantStage.Seed,
         lastEvent: EventType.None,
         lastInteractionBlock: 0,
+        totalProduced: 0,
+        totalConsumed: 0,
         consumers: abi.encode(consumers),
         hasValue: hasValue
       })

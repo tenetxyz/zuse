@@ -196,6 +196,9 @@ contract PlantTest is MudTest {
     assertTrue(Potassium.get(IStore(SIMULATOR_ADDRESS), worldAddress, plantEntity.scale, plantEntity.entityId) > 0);
     PlantConsumer[] memory consumers = abi.decode(plantData.consumers, (PlantConsumer[]));
     assertTrue(consumers.length == 0);
+    uint256 produced = plantData.totalProduced;
+    assertTrue(produced > 0);
+    assertTrue(plantData.totalConsumed == 0);
 
     {
       uint256 plantElixir = Elixir.get(
@@ -240,6 +243,12 @@ contract PlantTest is MudTest {
       assertTrue(VoxelType.getVoxelVariantId(plantEntity.scale, plantEntity.entityId) == PlantSeedVoxelVariantID);
       bytes32 pokemonCAEntity = CAEntityMapping.get(IStore(BASE_CA_ADDRESS), worldAddress, pokemonEntity.entityId);
       plantData = Plant.get(IStore(BASE_CA_ADDRESS), worldAddress, plantCAEntity);
+      console.log("total produced");
+      console.log(produced);
+      console.logUint(plantData.totalProduced);
+      console.logUint(plantData.totalConsumed);
+      // assertTrue(plantData.totalProduced == produced);
+      assertTrue(plantData.totalConsumed > 0);
       consumers = abi.decode(plantData.consumers, (PlantConsumer[]));
       assertTrue(consumers.length == 1);
       assertTrue(consumers[0].entityId == pokemonCAEntity);

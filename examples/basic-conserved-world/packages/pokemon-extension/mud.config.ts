@@ -31,6 +31,8 @@ export default mudConfig({
         stage: "PlantStage",
         lastEvent: "EventType",
         lastInteractionBlock: "uint256",
+        totalProduced: "uint256",
+        totalConsumed: "uint256",
         hasValue: "bool", // TODO: Remove this once we can install non-root modules
         consumers: "bytes", // PlantConsumer[]
       },

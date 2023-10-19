@@ -26,6 +26,7 @@ contract PostDeploy is Script {
     IWorld(worldAddress).pokemon_FarmerAgentSyste_registerBody();
 
     IWorld(worldAddress).pokemon_PokemonMindSyste_registerMind();
+    IWorld(worldAddress).pokemon_GrassMindSystem_registerMind();
 
     vm.stopBroadcast();
   }

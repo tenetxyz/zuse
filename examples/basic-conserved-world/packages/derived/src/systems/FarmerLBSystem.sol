@@ -44,7 +44,6 @@ contract FarmerLBSystem is System {
 
     // We reset the leaderboard, so if a pokemon was mined, it will be removed from the leaderboard
     bytes32[][] memory farmerLBEntities = getKeysInTable(FarmLeaderboardTableId);
-    resetLeaderboard(farmerLBEntities);
     PlantDataWithEntity[] memory totalFarmerScore = new PlantDataWithEntity[](farmerLBEntities.length);
     // init shard coords
     for (uint i = 0; i < farmerLBEntities.length; i++) {
@@ -112,16 +111,6 @@ contract FarmerLBSystem is System {
         rank,
         totalFarmerScore[i].totalProduced,
         FarmLeaderboard.getFarmer(totalFarmerScore[i].coord.x, totalFarmerScore[i].coord.y, totalFarmerScore[i].coord.z)
-      );
-    }
-  }
-
-  function resetLeaderboard(bytes32[][] memory farmerLBEntities) internal {
-    for (uint i = 0; i < farmerLBEntities.length; i++) {
-      FarmLeaderboard.deleteRecord(
-        int32(int256(uint256(farmerLBEntities[i][0]))),
-        int32(int256(uint256(farmerLBEntities[i][1]))),
-        int32(int256(uint256(farmerLBEntities[i][2])))
       );
     }
   }

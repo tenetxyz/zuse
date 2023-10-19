@@ -67,11 +67,11 @@ function getEntityPositionStrict(IStore store, address callerAddress, bytes32 en
     hasKey(store, CAPositionTableId, CAPosition.encodeKeyTuple(callerAddress, entity)),
     "Entity must have a position"
   ); // even if its air, it must have a position
-  return positionDataToVoxelCoord(CAPosition.get(callerAddress, entity));
+  return positionDataToVoxelCoord(CAPosition.get(store, callerAddress, entity));
 }
 
 function getCAEntityPositionStrict(IStore store, bytes32 caEntity) view returns (VoxelCoord memory) {
-  CAEntityReverseMappingData memory entityData = CAEntityReverseMapping.get(caEntity);
+  CAEntityReverseMappingData memory entityData = CAEntityReverseMapping.get(store, caEntity);
   return getEntityPositionStrict(store, entityData.callerAddress, entityData.entity);
 }
 

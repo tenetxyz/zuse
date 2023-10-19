@@ -213,6 +213,10 @@ contract PlantTest is MudTest {
         plantEntity.scale,
         plantEntity.entityId
       );
+      console.log("plantElixir");
+      console.logUint(plantElixir);
+      console.log("plantProtein");
+      console.logUint(plantProtein);
       assertTrue(plantElixir > 0);
       assertTrue(plantProtein > 0);
     }

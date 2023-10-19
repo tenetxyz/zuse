@@ -149,4 +149,100 @@ contract PokemonTest is MudTest {
 
     vm.stopPrank();
   }
+
+  function testFightDiffPokemon() public {
+    vm.startPrank(alice, alice);
+    VoxelEntity memory agentEntity = setupAgent();
+
+    // Get pokemon mind selector
+    bytes4 mindSelector;
+    {
+      bytes memory mindData = MindRegistry.get(IStore(REGISTRY_ADDRESS), FirePokemonVoxelID, address(0));
+      Mind[] memory minds = abi.decode(mindData, (Mind[]));
+      assertTrue(minds.length == 1);
+      mindSelector = minds[0].mindSelector;
+    }
+
+    // Grass mind selector
+    bytes4 grassMindSelector;
+    {
+      bytes memory mindData = MindRegistry.get(IStore(REGISTRY_ADDRESS), GrassPokemonVoxelID, address(0));
+      Mind[] memory minds = abi.decode(mindData, (Mind[]));
+      assertTrue(minds.length == 1);
+      grassMindSelector = minds[0].mindSelector;
+    }
+
+    // Place pokemon beside flower
+    pokemon1Coord = VoxelCoord({ x: agentCoord.x + 1, y: agentCoord.y, z: agentCoord.z + 1 });
+    VoxelEntity memory pokemon1Entity = world.buildWithAgent(
+      FirePokemonVoxelID,
+      pokemon1Coord,
+      agentEntity,
+      mindSelector
+    );
+    assertTrue(
+      Object.get(IStore(SIMULATOR_ADDRESS), worldAddress, pokemon1Entity.scale, pokemon1Entity.entityId) ==
+        ObjectType.Fire
+    );
+    world.claimAgent(pokemon1Entity);
+    Energy.set(IStore(SIMULATOR_ADDRESS), worldAddress, pokemon1Entity.scale, pokemon1Entity.entityId, 100);
+    Health.set(IStore(SIMULATOR_ADDRESS), worldAddress, pokemon1Entity.scale, pokemon1Entity.entityId, 200);
+    Stamina.set(IStore(SIMULATOR_ADDRESS), worldAddress, pokemon1Entity.scale, pokemon1Entity.entityId, 150);
+
+    // Activate pokemon
+    bytes32 pokemon1CAEntity = CAEntityMapping.get(IStore(BASE_CA_ADDRESS), worldAddress, pokemon1Entity.entityId);
+    console.log("activated pokemon");
+
+    pokemon2Coord = VoxelCoord({ x: agentCoord.x + 1, y: agentCoord.y, z: agentCoord.z - 1 });
+    VoxelEntity memory pokemon2Entity = world.buildWithAgent(
+      GrassPokemonVoxelID,
+      pokemon2Coord,
+      agentEntity,
+      grassMindSelector
+    );
+    console.log("object type");
+    console.log(
+      Object.get(IStore(SIMULATOR_ADDRESS), worldAddress, pokemon2Entity.scale, pokemon2Entity.entityId) ==
+        ObjectType.None
+    );
+    assertTrue(
+      Object.get(IStore(SIMULATOR_ADDRESS), worldAddress, pokemon2Entity.scale, pokemon2Entity.entityId) ==
+        ObjectType.Grass
+    );
+
+    Energy.set(IStore(SIMULATOR_ADDRESS), worldAddress, pokemon2Entity.scale, pokemon2Entity.entityId, 100);
+    Health.set(IStore(SIMULATOR_ADDRESS), worldAddress, pokemon2Entity.scale, pokemon2Entity.entityId, 200);
+    Stamina.set(IStore(SIMULATOR_ADDRESS), worldAddress, pokemon2Entity.scale, pokemon2Entity.entityId, 150);
+
+    // Activate pokemon
+    bytes32 pokemon2CAEntity = CAEntityMapping.get(IStore(BASE_CA_ADDRESS), worldAddress, pokemon2Entity.entityId);
+
+    // move pokemon1 beside pokemon2
+    {
+      VoxelCoord memory newPokemon1Coord = VoxelCoord({
+        x: pokemon1Coord.x,
+        y: pokemon1Coord.y,
+        z: pokemon1Coord.z - 1
+      });
+      vm.roll(block.number + 1);
+      (, pokemon1Entity) = world.moveWithAgent(FirePokemonVoxelID, pokemon1Coord, newPokemon1Coord, pokemon1Entity);
+      vm.roll(block.number + NUM_BLOCKS_BEFORE_REDUCE_VELOCITY + 1);
+      console.log("commence fight");
+      // world.activateWithAgent(FirePokemonVoxelID, newPokemon1Coord, agentEntity, bytes4(0));
+      console.logUint(
+        Health.get(IStore(SIMULATOR_ADDRESS), worldAddress, pokemon1Entity.scale, pokemon1Entity.entityId)
+      );
+      console.logUint(
+        Health.get(IStore(SIMULATOR_ADDRESS), worldAddress, pokemon2Entity.scale, pokemon2Entity.entityId)
+      );
+      assertTrue(
+        Health.get(IStore(SIMULATOR_ADDRESS), worldAddress, pokemon1Entity.scale, pokemon1Entity.entityId) == 150
+      );
+      assertTrue(
+        Health.get(IStore(SIMULATOR_ADDRESS), worldAddress, pokemon2Entity.scale, pokemon2Entity.entityId) == 0
+      );
+    }
+
+    vm.stopPrank();
+  }
 }

@@ -35,7 +35,8 @@ contract FarmerLBSystem is System {
       "FarmerLBSystem: shard already claimed"
     );
     address farmer = _msgSender();
-    FarmLeaderboard.set(shardCoord.x, shardCoord.y, shardCoord.z, 0, 0, farmer);
+    bytes32[][] memory farmerLBEntities = getKeysInTable(FarmLeaderboardTableId);
+    FarmLeaderboard.set(shardCoord.x, shardCoord.y, shardCoord.z, farmerLBEntities.length + 1, 0, farmer);
   }
 
   function updateFarmerLeaderboard() public {

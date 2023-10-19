@@ -84,12 +84,6 @@ contract PlantSystem is VoxelInteraction {
     BodySimData memory entitySimData = getEntitySimData(interactEntity);
     // we add totalConsumed since these were still produced by the plant
     uint256 currentProduced = entitySimData.elixir + entitySimData.protein + totalConsumed;
-    console.log("updateTotalProduced");
-    console.logUint(totalProduced);
-    console.logUint(totalConsumed);
-    console.logUint(currentProduced);
-    console.logUint(entitySimData.elixir);
-    console.logUint(entitySimData.protein);
     if (currentProduced > totalProduced) {
       Plant.setTotalProduced(callerAddress, interactEntity, currentProduced);
     }

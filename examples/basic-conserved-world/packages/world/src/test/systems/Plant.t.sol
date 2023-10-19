@@ -196,6 +196,8 @@ contract PlantTest is MudTest {
     assertTrue(Potassium.get(IStore(SIMULATOR_ADDRESS), worldAddress, plantEntity.scale, plantEntity.entityId) > 0);
     PlantConsumer[] memory consumers = abi.decode(plantData.consumers, (PlantConsumer[]));
     assertTrue(consumers.length == 0);
+    uint256 produced = plantData.totalProduced;
+    assertTrue(produced > 0);
 
     {
       uint256 plantElixir = Elixir.get(
@@ -210,6 +212,10 @@ contract PlantTest is MudTest {
         plantEntity.scale,
         plantEntity.entityId
       );
+      console.log("plantElixir");
+      console.logUint(plantElixir);
+      console.log("plantProtein");
+      console.logUint(plantProtein);
       assertTrue(plantElixir > 0);
       assertTrue(plantProtein > 0);
     }

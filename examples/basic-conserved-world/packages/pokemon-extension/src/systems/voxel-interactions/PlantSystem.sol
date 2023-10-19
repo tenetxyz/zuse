@@ -13,7 +13,7 @@ import { PlantStage, EventType } from "@tenet-pokemon-extension/src/codegen/Type
 import { entityIsSoil, entityIsPlant, entityIsPokemon, entityIsFarmer } from "@tenet-pokemon-extension/src/InteractionUtils.sol";
 import { getCAEntityAtCoord, getCAVoxelType, getCAEntityPositionStrict, caEntityToEntity } from "@tenet-base-ca/src/Utils.sol";
 import { Farmer } from "@tenet-pokemon-extension/src/codegen/tables/Farmer.sol";
-import { getEntitySimData, transfer } from "@tenet-level1-ca/src/Utils.sol";
+import { getEntitySimData, transfer, transferSimData } from "@tenet-level1-ca/src/Utils.sol";
 import { console } from "forge-std/console.sol";
 import { PlantConsumer } from "@tenet-pokemon-extension/src/Types.sol";
 
@@ -27,6 +27,7 @@ contract PlantSystem is VoxelInteraction {
     bytes32 centerEntityId,
     BlockDirection centerBlockDirection
   ) internal override returns (bool changedEntity, bytes memory entityData) {
+    updateTotalProduced(callerAddress, neighbourEntityId);
     uint256 lastInteractionBlock = Plant.getLastInteractionBlock(callerAddress, neighbourEntityId);
     if (block.number == lastInteractionBlock) {
       return (changedEntity, entityData);
@@ -77,6 +78,17 @@ contract PlantSystem is VoxelInteraction {
     return (changedEntity, entityData);
   }
 
+  function updateTotalProduced(address callerAddress, bytes32 interactEntity) internal {
+    uint256 totalProduced = Plant.getTotalProduced(callerAddress, interactEntity);
+    // uint256 totalConsumed = Plant.getTotalConsumed(callerAddress, interactEntity);
+    BodySimData memory entitySimData = getEntitySimData(interactEntity);
+    // TOOD: we need to add totalConsumed since these were still produced by the plant
+    uint256 currentProduced = entitySimData.elixir + entitySimData.protein;
+    if (currentProduced > totalProduced) {
+      Plant.setTotalProduced(callerAddress, interactEntity, currentProduced);
+    }
+  }
+
   function runInteraction(
     address callerAddress,
     bytes32 interactEntity,
@@ -85,6 +97,7 @@ contract PlantSystem is VoxelInteraction {
     bytes32[] memory childEntityIds,
     bytes32 parentEntity
   ) internal override returns (bool changedEntity, bytes memory entityData) {
+    updateTotalProduced(callerAddress, interactEntity);
     uint256 lastInteractionBlock = Plant.getLastInteractionBlock(callerAddress, interactEntity);
     if (block.number == lastInteractionBlock) {
       return (changedEntity, entityData);
@@ -344,11 +357,10 @@ contract PlantSystem is VoxelInteraction {
     BodySimData memory entitySimData,
     PlantData memory plantData
   ) internal returns (PlantData memory, CAEventData[] memory allCAEventData, bool) {
-    allCAEventData = new CAEventData[](neighbourEntityIds.length * 2);
+    allCAEventData = new CAEventData[](neighbourEntityIds.length);
 
     uint256 elixirTransferAmount;
     uint256 proteinTransferAmount;
-    uint256 numEatingNeighbours;
     {
       (uint harvestPlantElixir, uint harvestPlantProtein) = getFoodToPokemon(
         entitySimData.elixir,
@@ -357,12 +369,15 @@ contract PlantSystem is VoxelInteraction {
       if (harvestPlantElixir == 0 && harvestPlantProtein == 0) {
         return (plantData, allCAEventData, false);
       }
-      numEatingNeighbours = calculateEatingNeighbours(callerAddress, neighbourEntityIds);
+      uint256 numEatingNeighbours = calculateEatingNeighbours(callerAddress, neighbourEntityIds);
       if (numEatingNeighbours == 0) {
         return (plantData, allCAEventData, false);
       }
       elixirTransferAmount = harvestPlantElixir / numEatingNeighbours;
       proteinTransferAmount = harvestPlantProtein / numEatingNeighbours;
+      if (numEatingNeighbours > 0) {
+        plantData.lastInteractionBlock = block.number;
+      }
     }
 
     bool hasTransfer = false;
@@ -379,8 +394,11 @@ contract PlantSystem is VoxelInteraction {
           Farmer.getIsHungry(callerAddress, neighbourEntityIds[i]))
       ) {
         VoxelCoord memory neighbourCoord = getCAEntityPositionStrict(IStore(_world()), neighbourEntityIds[i]);
-        {
-          allCAEventData[i * 2] = transfer(
+        SimEventData[] memory allSimEventData = new SimEventData[](
+          elixirTransferAmount > 0 && proteinTransferAmount > 0 ? 2 : 1
+        );
+        if (elixirTransferAmount > 0 && proteinTransferAmount > 0) {
+          allSimEventData[0] = transferSimData(
             SimTable.Elixir,
             SimTable.Health,
             entitySimData,
@@ -388,9 +406,25 @@ contract PlantSystem is VoxelInteraction {
             neighbourCoord,
             elixirTransferAmount
           );
-        }
-        {
-          allCAEventData[(i * 2) + 1] = transfer(
+          allSimEventData[1] = transferSimData(
+            SimTable.Protein,
+            SimTable.Stamina,
+            entitySimData,
+            neighbourEntityIds[i],
+            neighbourCoord,
+            proteinTransferAmount
+          );
+        } else if (elixirTransferAmount > 0) {
+          allSimEventData[0] = transferSimData(
+            SimTable.Elixir,
+            SimTable.Health,
+            entitySimData,
+            neighbourEntityIds[i],
+            neighbourCoord,
+            elixirTransferAmount
+          );
+        } else {
+          allSimEventData[0] = transferSimData(
             SimTable.Protein,
             SimTable.Stamina,
             entitySimData,
@@ -399,16 +433,16 @@ contract PlantSystem is VoxelInteraction {
             proteinTransferAmount
           );
         }
+        allCAEventData[i] = CAEventData({
+          eventType: CAEventType.BatchSimEvent,
+          eventData: abi.encode(allSimEventData)
+        });
 
         if (elixirTransferAmount > 0 || proteinTransferAmount > 0) {
           hasTransfer = true;
           plantData = addPlantConsumer(plantData, neighbourEntityIds[i]);
         }
       }
-    }
-
-    if (numEatingNeighbours > 0) {
-      plantData.lastInteractionBlock = block.number;
     }
 
     return (plantData, allCAEventData, hasTransfer);

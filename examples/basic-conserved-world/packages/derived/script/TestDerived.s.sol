@@ -18,9 +18,10 @@ contract TestDerived is Script {
 
     // Call world init function
     IWorld world = IWorld(worldAddress);
-    VoxelEntity memory entity = VoxelEntity({ scale: 1, entityId: bytes32(uint256(6)) });
-    VoxelCoord memory coord = VoxelCoord(50, 10, 49);
-    world.deriveState(entity, coord);
+    // VoxelEntity memory entity = VoxelEntity({ scale: 1, entityId: bytes32(uint256(6)) });
+    // VoxelCoord memory coord = VoxelCoord(50, 10, 49);
+    // world.deriveState(entity, coord);
+    world.updatePokemonLeaderboard();
 
     vm.stopBroadcast();
   }

@@ -35,7 +35,6 @@ struct PokemonDataWithEntity {
 }
 
 contract FarmerPokemonSystem is System {
-
   function reportPokemon(address memory pokemonEntity) public {
     PokemonData pokemonData = Pokemon.get(caStore, WORLD_ADDRESS, pokemonEntity);
     ObjectType pokemonFaction = pokemonData.pokemonType;
@@ -54,8 +53,8 @@ contract FarmerPokemonSystem is System {
 
         PlantConsumer[] memory consumers = Plant.getConsumers(caStore, WORLD_ADDRESS, plantEntity);
 
-        for (uint k = 0; k < consumers.length; k++) {    
-          if  (consumers[k].entityId == pokemonEntity) { 
+        for (uint k = 0; k < consumers.length; k++) {
+          if  (consumers[k].entityId == pokemonEntity) {
             for (uint j = 0; j < farmerLBEntities.length; j++) {
               if (
                 shardCoord.x == int32(int256(uint256(farmerLBEntities[j][0]))) &&
@@ -69,7 +68,7 @@ contract FarmerPokemonSystem is System {
                 }
                 break;
               }
-            } 
+            }
           }
         }
       }
@@ -96,8 +95,8 @@ contract FarmerPokemonSystem is System {
 
         PlantConsumer[] memory consumers = Plant.getConsumers(caStore, WORLD_ADDRESS, plantEntity);
 
-        for (uint k = 0; k < consumers.length; k++) {    
-          if  (consumers[k].entityId == farmerEntity) { 
+        for (uint k = 0; k < consumers.length; k++) {
+          if  (consumers[k].entityId == farmerEntity) {
             for (uint j = 0; j < farmerLBEntities.length; j++) {
               if (
                 shardCoord.x == int32(int256(uint256(farmerLBEntities[j][0]))) &&
@@ -111,7 +110,7 @@ contract FarmerPokemonSystem is System {
                 }
                 break;
               }
-            } 
+            }
           }
         }
       }
@@ -119,15 +118,15 @@ contract FarmerPokemonSystem is System {
 
     if (didCheat == true) {
       FarmFactionsLeaderboard.set(
-        shardCoord.x, shardCoord.y, shardCoord.z, 
-        0, 
-        FarmFactionsLeaderboard.getTotalProduction(tshardCoord.x, shardCoord.y, shardCoord.z), 
-        farmerEntity, 
-        FarmFactionsLeaderboard.getFaction(tshardCoord.x, shardCoord.y, shardCoord.z), 
+        shardCoord.x, shardCoord.y, shardCoord.z,
+        0,
+        FarmFactionsLeaderboard.getTotalProduction(tshardCoord.x, shardCoord.y, shardCoord.z),
+        farmerEntity,
+        FarmFactionsLeaderboard.getFaction(tshardCoord.x, shardCoord.y, shardCoord.z),
         true
         );
     }
-  };
+  }
 
   function claimShard(VoxelCoord memory coord, ObjectType memory faction) public {
     VoxelCoord memory shardCoord = coordToShardCoord(coord);
@@ -275,15 +274,15 @@ contract FarmerPokemonSystem is System {
           break;
         }
       }
-  
-    uint rankAdjustment = 0; 
+
+    uint rankAdjustment = 0;
 
     for (uint i = 0; i < pokemonDataArray.length; i++) {
       if (PokemonFactionsLeaderboard.getIsDisqualified(pokemonDataArray[i].entity)) {
         rankAdjustment++;
         continue;
       }
-      
+
       uint rank = i + 1 - rankAdjustment; // Adjust the rank
       console.log("set rank");
       PokemonFactionsLeaderboard.set(pokemonDataArray[i].entity, rank, false);

@@ -22,7 +22,7 @@
     "deploy:pokemon": "concurrently -n pokemon -c green \"yarn workspace @tenetxyz/pokemon-extension run deploy:local\"",
     "deploy:pretty": "concurrently -n pretty -c #BF40BF \"yarn workspace @tenetxyz/pretty-extension run deploy:local\"",
     "deploy:extensions": "yarn run deploy:pokemon && yarn run deploy:pretty",
-    "build:ca-sim": "concurrently -n level1,sim -c blue,red \"cd packages/level1-ca && yarn run build:local && yarn run build:extensions\"\" \"cd packages/simulator && yarn run build:local\"",
+    "build:ca-sim": "concurrently -n level1,sim -c blue,red \"cd packages/level1-ca && yarn run build:local && yarn run build:extensions\" \"cd packages/simulator && yarn run build:local\"",
     "build:extensions": "concurrently -n pokemon,pretty -c green,#BF40BF \"yarn workspace @tenetxyz/pokemon-extension run build:local\" \"yarn workspace @tenetxyz/pretty-extension run build:local\"",
     "foundry:up": "curl -L https://foundry.paradigm.xyz | bash && bash $HOME/.foundry/bin/foundryup",
     "initialize": "yarn workspaces foreach run initialize",

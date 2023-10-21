@@ -9,40 +9,40 @@ import { REGISTRY_ADDRESS, CA_ADDRESS } from "@tenet-pretty-extension/src/Consta
 import { registerCAVoxelType } from "@tenet-base-ca/src/CallUtils.sol";
 import { VoxelCoord, ComponentDef } from "@tenet-utils/src/Types.sol";
 
-bytes32 constant OakLumberSlab169VoxelID = bytes32(keccak256("oak_lumber_slab_169"));
-bytes32 constant OakLumberSlab169VoxelVariantID = bytes32(keccak256("oak_lumber_slab_169"));
+bytes32 constant OakLumberWhiteVoxelID = bytes32(keccak256("oak_lumber_white"));
+bytes32 constant OakLumberWhiteVoxelVariantID = bytes32(keccak256("oak_lumber_white"));
 
-contract OakLumberSlab169VoxelSystem is VoxelType {
+contract OakLumberWhiteVoxelSystem is VoxelType {
   function registerBody() public override {
     address world = _world();
-    VoxelVariantsRegistryData memory oakLumberSlab169Variant;
-    registerVoxelVariant(REGISTRY_ADDRESS, OakLumberSlab169VoxelVariantID, oakLumberSlab169Variant);
+    VoxelVariantsRegistryData memory oakLumberWhiteVariant;
+    registerVoxelVariant(REGISTRY_ADDRESS, OakLumberWhiteVoxelVariantID, oakLumberWhiteVariant);
 
-    bytes32[] memory oakLumberSlab169ChildVoxelTypes = new bytes32[](1);
-    oakLumberSlab169ChildVoxelTypes[0] = OakLumberSlab169VoxelID;
-    bytes32 baseVoxelTypeId = OakLumberSlab169VoxelID;
+    bytes32[] memory oakLumberWhiteChildVoxelTypes = new bytes32[](1);
+    oakLumberWhiteChildVoxelTypes[0] = OakLumberWhiteVoxelID;
+    bytes32 baseVoxelTypeId = OakLumberWhiteVoxelID;
     ComponentDef[] memory componentDefs = new ComponentDef[](0);
     registerVoxelType(
       REGISTRY_ADDRESS,
-      "Oak Lumber Slab169",
-      OakLumberSlab169VoxelID,
+      "Oak Lumber White",
+      OakLumberWhiteVoxelID,
       baseVoxelTypeId,
-      oakLumberSlab169ChildVoxelTypes,
-      oakLumberSlab169ChildVoxelTypes,
-      OakLumberSlab169VoxelVariantID,
+      oakLumberWhiteChildVoxelTypes,
+      oakLumberWhiteChildVoxelTypes,
+      OakLumberWhiteVoxelVariantID,
       voxelSelectorsForVoxel(
-        IWorld(world).pretty_OakLumberSlab169_enterWorld.selector,
-        IWorld(world).pretty_OakLumberSlab169_exitWorld.selector,
-        IWorld(world).pretty_OakLumberSlab169_variantSelector.selector,
-        IWorld(world).pretty_OakLumberSlab169_activate.selector,
-        IWorld(world).pretty_OakLumberSlab169_eventHandler.selector,
-        IWorld(world).pretty_OakLumberSlab169_neighbourEventHandler.selector
+        IWorld(world).pretty_C315_enterWorld.selector,
+        IWorld(world).pretty_C315_exitWorld.selector,
+        IWorld(world).pretty_C315_variantSelector.selector,
+        IWorld(world).pretty_C315_activate.selector,
+        IWorld(world).pretty_C315_eventHandler.selector,
+        IWorld(world).pretty_C315_neighbourEventHandler.selector
       ),
       abi.encode(componentDefs),
       5
     );
 
-    registerCAVoxelType(CA_ADDRESS, OakLumberSlab169VoxelID);
+    registerCAVoxelType(CA_ADDRESS, OakLumberWhiteVoxelID);
   }
 
   function enterWorld(VoxelCoord memory coord, bytes32 entity) public override {}
@@ -55,7 +55,7 @@ contract OakLumberSlab169VoxelSystem is VoxelType {
     bytes32[] memory childEntityIds,
     bytes32 parentEntity
   ) public view override returns (bytes32) {
-    return OakLumberSlab169VoxelVariantID;
+    return OakLumberWhiteVoxelVariantID;
   }
 
   function activate(bytes32 entity) public view override returns (string memory) {}

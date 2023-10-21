@@ -31,12 +31,12 @@ contract StoneVoxelSystem is VoxelType {
       stoneChildVoxelTypes,
       StoneVoxelVariantID,
       voxelSelectorsForVoxel(
-        IWorld(world).pretty_StoneVoxelSystem_enterWorld.selector,
-        IWorld(world).pretty_StoneVoxelSystem_exitWorld.selector,
-        IWorld(world).pretty_StoneVoxelSystem_variantSelector.selector,
-        IWorld(world).pretty_StoneVoxelSystem_activate.selector,
-        IWorld(world).pretty_StoneVoxelSystem_eventHandler.selector,
-        IWorld(world).pretty_StoneVoxelSystem_neighbourEventHandler.selector
+        IWorld(world).pretty_C4_enterWorld.selector,
+        IWorld(world).pretty_C4_exitWorld.selector,
+        IWorld(world).pretty_C4_variantSelector.selector,
+        IWorld(world).pretty_C4_activate.selector,
+        IWorld(world).pretty_C4_eventHandler.selector,
+        IWorld(world).pretty_C4_neighbourEventHandler.selector
       ),
       abi.encode(componentDefs),
       5

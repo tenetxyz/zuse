@@ -31,12 +31,12 @@ contract OakLumberPeg773VoxelSystem is VoxelType {
       oakLumberPeg773ChildVoxelTypes,
       OakLumberPeg773VoxelVariantID,
       voxelSelectorsForVoxel(
-        IWorld(world).pretty_OakLumberPeg773V_enterWorld.selector,
-        IWorld(world).pretty_OakLumberPeg773V_exitWorld.selector,
-        IWorld(world).pretty_OakLumberPeg773V_variantSelector.selector,
-        IWorld(world).pretty_OakLumberPeg773V_activate.selector,
-        IWorld(world).pretty_OakLumberPeg773V_eventHandler.selector,
-        IWorld(world).pretty_OakLumberPeg773V_neighbourEventHandler.selector
+        IWorld(world).pretty_C31773_enterWorld.selector,
+        IWorld(world).pretty_C31773_exitWorld.selector,
+        IWorld(world).pretty_C31773_variantSelector.selector,
+        IWorld(world).pretty_C31773_activate.selector,
+        IWorld(world).pretty_C31773_eventHandler.selector,
+        IWorld(world).pretty_C31773_neighbourEventHandler.selector
       ),
       abi.encode(componentDefs),
       5

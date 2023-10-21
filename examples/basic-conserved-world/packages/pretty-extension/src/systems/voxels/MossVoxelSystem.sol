@@ -31,12 +31,12 @@ contract MossVoxelSystem is VoxelType {
       mossChildVoxelTypes,
       MossVoxelVariantID,
       voxelSelectorsForVoxel(
-        IWorld(world).pretty_MossVoxelSystem_enterWorld.selector,
-        IWorld(world).pretty_MossVoxelSystem_exitWorld.selector,
-        IWorld(world).pretty_MossVoxelSystem_variantSelector.selector,
-        IWorld(world).pretty_MossVoxelSystem_activate.selector,
-        IWorld(world).pretty_MossVoxelSystem_eventHandler.selector,
-        IWorld(world).pretty_MossVoxelSystem_neighbourEventHandler.selector
+        IWorld(world).pretty_C40_enterWorld.selector,
+        IWorld(world).pretty_C40_exitWorld.selector,
+        IWorld(world).pretty_C40_variantSelector.selector,
+        IWorld(world).pretty_C40_activate.selector,
+        IWorld(world).pretty_C40_eventHandler.selector,
+        IWorld(world).pretty_C40_neighbourEventHandler.selector
       ),
       abi.encode(componentDefs),
       5

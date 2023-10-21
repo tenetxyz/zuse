@@ -14,30 +14,34 @@ contract PostDeploy is Script {
     vm.startBroadcast(deployerPrivateKey);
 
     // Register the voxel types
-    IWorld(worldAddress).pretty_OakLogVoxelSyste_registerBody();
-    IWorld(worldAddress).pretty_OakLumberStep236_registerBody();
-    IWorld(worldAddress).pretty_OakLumberVoxelSy_registerBody();
-    IWorld(worldAddress).pretty_OakLumberPeg812V_registerBody();
-    IWorld(worldAddress).pretty_StoneVoxelSystem_registerBody();
-    IWorld(worldAddress).pretty_OakLumberKnob903_registerBody();
-    IWorld(worldAddress).pretty_OakLumberStep235_registerBody();
-    IWorld(worldAddress).pretty_OakLumberKnob942_registerBody();
-    IWorld(worldAddress).pretty_OakLumberStep194_registerBody();
-    IWorld(worldAddress).pretty_OakLumberStep199_registerBody();
-    IWorld(worldAddress).pretty_OakLumberFence32_registerBody();
-    IWorld(worldAddress).pretty_OakLumberKnob939_registerBody();
-    IWorld(worldAddress).pretty_OakLumberStep238_registerBody();
-    IWorld(worldAddress).pretty_MossVoxelSystem_registerBody();
-    IWorld(worldAddress).pretty_OakLogOutset1196_registerBody();
-    IWorld(worldAddress).pretty_OakLogOutset1193_registerBody();
-    IWorld(worldAddress).pretty_OakLogOutset1152_registerBody();
-    IWorld(worldAddress).pretty_OakLumberPeg773V_registerBody();
-    IWorld(worldAddress).pretty_OakLumberSlab172_registerBody();
-    IWorld(worldAddress).pretty_OakLumberSlice74_registerBody();
-    IWorld(worldAddress).pretty_OakLumberSlab133_registerBody();
-    IWorld(worldAddress).pretty_OakLumberSlab169_registerBody();
-    IWorld(worldAddress).pretty_OakLumberSlab128_registerBody();
-    IWorld(worldAddress).pretty_OakLumberSlice70_registerBody();
+    IWorld(worldAddress).pretty_C40_registerBody();
+    IWorld(worldAddress).pretty_C31152_registerBody();
+    IWorld(worldAddress).pretty_C31193_registerBody();
+    IWorld(worldAddress).pretty_C31196_registerBody();
+    IWorld(worldAddress).pretty_C3_registerBody();
+    IWorld(worldAddress).pretty_C319_registerBody();
+    IWorld(worldAddress).pretty_C313259_registerBody();
+    IWorld(worldAddress).pretty_C319039_registerBody();
+    IWorld(worldAddress).pretty_C319399_registerBody();
+    IWorld(worldAddress).pretty_C319429_registerBody();
+    IWorld(worldAddress).pretty_C317734_registerBody();
+    IWorld(worldAddress).pretty_C31773_registerBody();
+    IWorld(worldAddress).pretty_C318124_registerBody();
+    IWorld(worldAddress).pretty_C311289_registerBody();
+    IWorld(worldAddress).pretty_C311339_registerBody();
+    IWorld(worldAddress).pretty_C311699_registerBody();
+    IWorld(worldAddress).pretty_C311729_registerBody();
+    IWorld(worldAddress).pretty_C31709_registerBody();
+    IWorld(worldAddress).pretty_C31748_registerBody();
+    IWorld(worldAddress).pretty_C311949_registerBody();
+    IWorld(worldAddress).pretty_C311999_registerBody();
+    IWorld(worldAddress).pretty_C312359_registerBody();
+    IWorld(worldAddress).pretty_C312369_registerBody();
+    IWorld(worldAddress).pretty_C312365_registerBody();
+    IWorld(worldAddress).pretty_C312389_registerBody();
+    IWorld(worldAddress).pretty_C31_registerBody();
+    IWorld(worldAddress).pretty_C315_registerBody();
+    IWorld(worldAddress).pretty_C4_registerBody();
 
     vm.stopBroadcast();
   }

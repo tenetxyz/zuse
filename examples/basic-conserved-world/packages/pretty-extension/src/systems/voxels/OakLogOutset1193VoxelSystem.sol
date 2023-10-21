@@ -31,12 +31,12 @@ contract OakLogOutset1193VoxelSystem is VoxelType {
       oakLogOutset1193ChildVoxelTypes,
       OakLogOutset1193VoxelVariantID,
       voxelSelectorsForVoxel(
-        IWorld(world).pretty_OakLogOutset1193_enterWorld.selector,
-        IWorld(world).pretty_OakLogOutset1193_exitWorld.selector,
-        IWorld(world).pretty_OakLogOutset1193_variantSelector.selector,
-        IWorld(world).pretty_OakLogOutset1193_activate.selector,
-        IWorld(world).pretty_OakLogOutset1193_eventHandler.selector,
-        IWorld(world).pretty_OakLogOutset1193_neighbourEventHandler.selector
+        IWorld(world).pretty_C31193_enterWorld.selector,
+        IWorld(world).pretty_C31193_exitWorld.selector,
+        IWorld(world).pretty_C31193_variantSelector.selector,
+        IWorld(world).pretty_C31193_activate.selector,
+        IWorld(world).pretty_C31193_eventHandler.selector,
+        IWorld(world).pretty_C31193_neighbourEventHandler.selector
       ),
       abi.encode(componentDefs),
       5

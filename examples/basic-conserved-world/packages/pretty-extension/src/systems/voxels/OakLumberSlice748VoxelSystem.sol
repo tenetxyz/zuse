@@ -31,12 +31,12 @@ contract OakLumberSlice748VoxelSystem is VoxelType {
       oakLumberSlice748ChildVoxelTypes,
       OakLumberSlice748VoxelVariantID,
       voxelSelectorsForVoxel(
-        IWorld(world).pretty_OakLumberSlice74_enterWorld.selector,
-        IWorld(world).pretty_OakLumberSlice74_exitWorld.selector,
-        IWorld(world).pretty_OakLumberSlice74_variantSelector.selector,
-        IWorld(world).pretty_OakLumberSlice74_activate.selector,
-        IWorld(world).pretty_OakLumberSlice74_eventHandler.selector,
-        IWorld(world).pretty_OakLumberSlice74_neighbourEventHandler.selector
+        IWorld(world).pretty_C31748_enterWorld.selector,
+        IWorld(world).pretty_C31748_exitWorld.selector,
+        IWorld(world).pretty_C31748_variantSelector.selector,
+        IWorld(world).pretty_C31748_activate.selector,
+        IWorld(world).pretty_C31748_eventHandler.selector,
+        IWorld(world).pretty_C31748_neighbourEventHandler.selector
       ),
       abi.encode(componentDefs),
       5

@@ -562,6 +562,12 @@ __metadata:
   languageName: node
   linkType: soft
 
+"@latticexyz/cli@link:../../../../../mud/packages/cli::locator=%40tenetxyz%2Fpretty-extension%40workspace%3Apackages%2Fpretty-extension":
+  version: 0.0.0-use.local
+  resolution: "@latticexyz/cli@link:../../../../../mud/packages/cli::locator=%40tenetxyz%2Fpretty-extension%40workspace%3Apackages%2Fpretty-extension"
+  languageName: node
+  linkType: soft
+
 "@latticexyz/cli@link:../../../../../mud/packages/cli::locator=%40tenetxyz%2Fsimulator%40workspace%3Apackages%2Fsimulator":
   version: 0.0.0-use.local
   resolution: "@latticexyz/cli@link:../../../../../mud/packages/cli::locator=%40tenetxyz%2Fsimulator%40workspace%3Apackages%2Fsimulator"
@@ -595,6 +601,12 @@ __metadata:
 "@latticexyz/config@link:../../../../../mud/packages/config::locator=%40tenetxyz%2Fpokemon-extension%40workspace%3Apackages%2Fpokemon-extension":
   version: 0.0.0-use.local
   resolution: "@latticexyz/config@link:../../../../../mud/packages/config::locator=%40tenetxyz%2Fpokemon-extension%40workspace%3Apackages%2Fpokemon-extension"
+  languageName: node
+  linkType: soft
+
+"@latticexyz/config@link:../../../../../mud/packages/config::locator=%40tenetxyz%2Fpretty-extension%40workspace%3Apackages%2Fpretty-extension":
+  version: 0.0.0-use.local
+  resolution: "@latticexyz/config@link:../../../../../mud/packages/config::locator=%40tenetxyz%2Fpretty-extension%40workspace%3Apackages%2Fpretty-extension"
   languageName: node
   linkType: soft
 
@@ -646,6 +658,12 @@ __metadata:
   languageName: node
   linkType: soft
 
+"@latticexyz/schema-type@link:../../../../../mud/packages/schema-type::locator=%40tenetxyz%2Fpretty-extension%40workspace%3Apackages%2Fpretty-extension":
+  version: 0.0.0-use.local
+  resolution: "@latticexyz/schema-type@link:../../../../../mud/packages/schema-type::locator=%40tenetxyz%2Fpretty-extension%40workspace%3Apackages%2Fpretty-extension"
+  languageName: node
+  linkType: soft
+
 "@latticexyz/schema-type@link:../../../../../mud/packages/schema-type::locator=%40tenetxyz%2Fsimulator%40workspace%3Apackages%2Fsimulator":
   version: 0.0.0-use.local
   resolution: "@latticexyz/schema-type@link:../../../../../mud/packages/schema-type::locator=%40tenetxyz%2Fsimulator%40workspace%3Apackages%2Fsimulator"
@@ -670,6 +688,12 @@ __metadata:
   languageName: node
   linkType: soft
 
+"@latticexyz/std-contracts@link:../../../../../mud/packages/std-contracts::locator=%40tenetxyz%2Fpretty-extension%40workspace%3Apackages%2Fpretty-extension":
+  version: 0.0.0-use.local
+  resolution: "@latticexyz/std-contracts@link:../../../../../mud/packages/std-contracts::locator=%40tenetxyz%2Fpretty-extension%40workspace%3Apackages%2Fpretty-extension"
+  languageName: node
+  linkType: soft
+
 "@latticexyz/store@link:../../../../../mud/packages/store::locator=%40tenetxyz%2Fderived%40workspace%3Apackages%2Fderived":
   version: 0.0.0-use.local
   resolution: "@latticexyz/store@link:../../../../../mud/packages/store::locator=%40tenetxyz%2Fderived%40workspace%3Apackages%2Fderived"
@@ -685,6 +709,12 @@ __metadata:
 "@latticexyz/store@link:../../../../../mud/packages/store::locator=%40tenetxyz%2Fpokemon-extension%40workspace%3Apackages%2Fpokemon-extension":
   version: 0.0.0-use.local
   resolution: "@latticexyz/store@link:../../../../../mud/packages/store::locator=%40tenetxyz%2Fpokemon-extension%40workspace%3Apackages%2Fpokemon-extension"
+  languageName: node
+  linkType: soft
+
+"@latticexyz/store@link:../../../../../mud/packages/store::locator=%40tenetxyz%2Fpretty-extension%40workspace%3Apackages%2Fpretty-extension":
+  version: 0.0.0-use.local
+  resolution: "@latticexyz/store@link:../../../../../mud/packages/store::locator=%40tenetxyz%2Fpretty-extension%40workspace%3Apackages%2Fpretty-extension"
   languageName: node
   linkType: soft
 
@@ -715,6 +745,12 @@ __metadata:
 "@latticexyz/world@link:../../../../../mud/packages/world::locator=%40tenetxyz%2Fpokemon-extension%40workspace%3Apackages%2Fpokemon-extension":
   version: 0.0.0-use.local
   resolution: "@latticexyz/world@link:../../../../../mud/packages/world::locator=%40tenetxyz%2Fpokemon-extension%40workspace%3Apackages%2Fpokemon-extension"
+  languageName: node
+  linkType: soft
+
+"@latticexyz/world@link:../../../../../mud/packages/world::locator=%40tenetxyz%2Fpretty-extension%40workspace%3Apackages%2Fpretty-extension":
+  version: 0.0.0-use.local
+  resolution: "@latticexyz/world@link:../../../../../mud/packages/world::locator=%40tenetxyz%2Fpretty-extension%40workspace%3Apackages%2Fpretty-extension"
   languageName: node
   linkType: soft
 
@@ -802,6 +838,12 @@ __metadata:
 "@tenetxyz/base-ca@link:../../../../packages/base-ca::locator=%40tenetxyz%2Fpokemon-extension%40workspace%3Apackages%2Fpokemon-extension":
   version: 0.0.0-use.local
   resolution: "@tenetxyz/base-ca@link:../../../../packages/base-ca::locator=%40tenetxyz%2Fpokemon-extension%40workspace%3Apackages%2Fpokemon-extension"
+  languageName: node
+  linkType: soft
+
+"@tenetxyz/base-ca@link:../../../../packages/base-ca::locator=%40tenetxyz%2Fpretty-extension%40workspace%3Apackages%2Fpretty-extension":
+  version: 0.0.0-use.local
+  resolution: "@tenetxyz/base-ca@link:../../../../packages/base-ca::locator=%40tenetxyz%2Fpretty-extension%40workspace%3Apackages%2Fpretty-extension"
   languageName: node
   linkType: soft
 
@@ -928,6 +970,40 @@ __metadata:
   languageName: unknown
   linkType: soft
 
+"@tenetxyz/pretty-extension@workspace:packages/pretty-extension":
+  version: 0.0.0-use.local
+  resolution: "@tenetxyz/pretty-extension@workspace:packages/pretty-extension"
+  dependencies:
+    "@ethersproject/abi": ^5.7.0
+    "@ethersproject/bytes": ^5.7.0
+    "@ethersproject/providers": ^5.7.2
+    "@latticexyz/cli": "link:../../../../../mud/packages/cli"
+    "@latticexyz/config": "link:../../../../../mud/packages/config"
+    "@latticexyz/schema-type": "link:../../../../../mud/packages/schema-type"
+    "@latticexyz/std-contracts": "link:../../../../../mud/packages/std-contracts"
+    "@latticexyz/store": "link:../../../../../mud/packages/store"
+    "@latticexyz/world": "link:../../../../../mud/packages/world"
+    "@openzeppelin/contracts": ^4.9.1
+    "@tenetxyz/base-ca": "link:../../../../packages/base-ca"
+    "@tenetxyz/level1-ca": "workspace:*"
+    "@tenetxyz/registry": "link:../../../../packages/registry"
+    "@tenetxyz/simulator": "workspace:*"
+    "@tenetxyz/utils": "link:../../../../packages/utils"
+    "@typechain/ethers-v5": ^10.2.0
+    "@types/node": ^18.15.11
+    ds-test: "https://github.com/dapphub/ds-test.git#c9ce3f25bde29fc5eb9901842bf02850dfd2d084"
+    ethers: ^5.7.2
+    forge-std: "https://github.com/foundry-rs/forge-std"
+    prettier: ^2.6.2
+    prettier-plugin-solidity: ^1.0.0-beta.19
+    rimraf: ^5.0.1
+    solhint: ^3.3.7
+    solhint-config-mud: 2.0.0-alpha.1.197+5e6cc0f5
+    solhint-plugin-mud: 2.0.0-alpha.1.197+5e6cc0f5
+    typechain: ^8.1.1
+  languageName: unknown
+  linkType: soft
+
 "@tenetxyz/registry@link:../../../../packages/registry::locator=%40tenetxyz%2Fderived%40workspace%3Apackages%2Fderived":
   version: 0.0.0-use.local
   resolution: "@tenetxyz/registry@link:../../../../packages/registry::locator=%40tenetxyz%2Fderived%40workspace%3Apackages%2Fderived"
@@ -943,6 +1019,12 @@ __metadata:
 "@tenetxyz/registry@link:../../../../packages/registry::locator=%40tenetxyz%2Fpokemon-extension%40workspace%3Apackages%2Fpokemon-extension":
   version: 0.0.0-use.local
   resolution: "@tenetxyz/registry@link:../../../../packages/registry::locator=%40tenetxyz%2Fpokemon-extension%40workspace%3Apackages%2Fpokemon-extension"
+  languageName: node
+  linkType: soft
+
+"@tenetxyz/registry@link:../../../../packages/registry::locator=%40tenetxyz%2Fpretty-extension%40workspace%3Apackages%2Fpretty-extension":
+  version: 0.0.0-use.local
+  resolution: "@tenetxyz/registry@link:../../../../packages/registry::locator=%40tenetxyz%2Fpretty-extension%40workspace%3Apackages%2Fpretty-extension"
   languageName: node
   linkType: soft
 
@@ -1006,6 +1088,12 @@ __metadata:
 "@tenetxyz/utils@link:../../../../packages/utils::locator=%40tenetxyz%2Fpokemon-extension%40workspace%3Apackages%2Fpokemon-extension":
   version: 0.0.0-use.local
   resolution: "@tenetxyz/utils@link:../../../../packages/utils::locator=%40tenetxyz%2Fpokemon-extension%40workspace%3Apackages%2Fpokemon-extension"
+  languageName: node
+  linkType: soft
+
+"@tenetxyz/utils@link:../../../../packages/utils::locator=%40tenetxyz%2Fpretty-extension%40workspace%3Apackages%2Fpretty-extension":
+  version: 0.0.0-use.local
+  resolution: "@tenetxyz/utils@link:../../../../packages/utils::locator=%40tenetxyz%2Fpretty-extension%40workspace%3Apackages%2Fpretty-extension"
   languageName: node
   linkType: soft
 

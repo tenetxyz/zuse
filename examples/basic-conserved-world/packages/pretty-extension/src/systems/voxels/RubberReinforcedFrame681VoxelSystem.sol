@@ -39,7 +39,7 @@ contract RubberReinforcedFrame681VoxelSystem is VoxelType {
         IWorld(world).pretty_C74681_neighbourEventHandler.selector
       ),
       abi.encode(componentDefs),
-      5
+      1
     );
 
     registerCAVoxelType(CA_ADDRESS, RubberReinforcedFrame681VoxelID);

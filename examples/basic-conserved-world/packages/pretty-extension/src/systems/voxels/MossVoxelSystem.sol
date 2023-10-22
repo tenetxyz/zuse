@@ -39,7 +39,7 @@ contract MossVoxelSystem is VoxelType {
         IWorld(world).pretty_C40_neighbourEventHandler.selector
       ),
       abi.encode(componentDefs),
-      5
+      1
     );
 
     registerCAVoxelType(CA_ADDRESS, MossVoxelID);

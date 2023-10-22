@@ -39,7 +39,7 @@ contract LilacFlowerVoxelSystem is VoxelType {
         IWorld(world).pretty_C16777225_neighbourEventHandler.selector
       ),
       abi.encode(componentDefs),
-      5
+      1
     );
 
     registerCAVoxelType(CA_ADDRESS, LilacFlowerVoxelID);

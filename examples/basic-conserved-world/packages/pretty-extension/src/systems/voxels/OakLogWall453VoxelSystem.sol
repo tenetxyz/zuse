@@ -39,7 +39,7 @@ contract OakLogWall453VoxelSystem is VoxelType {
         IWorld(world).pretty_C3453_neighbourEventHandler.selector
       ),
       abi.encode(componentDefs),
-      5
+      1
     );
 
     registerCAVoxelType(CA_ADDRESS, OakLogWall453VoxelID);

@@ -39,7 +39,7 @@ contract OakLumberSlice706OrangeVoxelSystem is VoxelType {
         IWorld(world).pretty_C317064_neighbourEventHandler.selector
       ),
       abi.encode(componentDefs),
-      5
+      1
     );
 
     registerCAVoxelType(CA_ADDRESS, OakLumberSlice706OrangeVoxelID);

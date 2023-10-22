@@ -39,7 +39,7 @@ contract CobblestonePath517VoxelSystem is VoxelType {
         IWorld(world).pretty_C5517_neighbourEventHandler.selector
       ),
       abi.encode(componentDefs),
-      5
+      1
     );
 
     registerCAVoxelType(CA_ADDRESS, CobblestonePath517VoxelID);

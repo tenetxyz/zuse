@@ -39,7 +39,7 @@ contract RubberReinforcedStool1026VoxelSystem is VoxelType {
         IWorld(world).pretty_C741026_neighbourEventHandler.selector
       ),
       abi.encode(componentDefs),
-      5
+      1
     );
 
     registerCAVoxelType(CA_ADDRESS, RubberReinforcedStool1026VoxelID);

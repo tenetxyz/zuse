@@ -39,7 +39,7 @@ contract BoxwoodShrubVoxelSystem is VoxelType {
         IWorld(world).pretty_C16777237_neighbourEventHandler.selector
       ),
       abi.encode(componentDefs),
-      5
+      1
     );
 
     registerCAVoxelType(CA_ADDRESS, BoxwoodShrubVoxelID);

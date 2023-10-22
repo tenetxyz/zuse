@@ -39,7 +39,7 @@ contract MossSlab128VoxelSystem is VoxelType {
         IWorld(world).pretty_C40128_neighbourEventHandler.selector
       ),
       abi.encode(componentDefs),
-      5
+      1
     );
 
     registerCAVoxelType(CA_ADDRESS, MossSlab128VoxelID);

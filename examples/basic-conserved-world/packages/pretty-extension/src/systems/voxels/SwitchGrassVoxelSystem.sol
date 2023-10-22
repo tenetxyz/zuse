@@ -39,7 +39,7 @@ contract SwitchGrassVoxelSystem is VoxelType {
         IWorld(world).pretty_C16777220_neighbourEventHandler.selector
       ),
       abi.encode(componentDefs),
-      5
+      1
     );
 
     registerCAVoxelType(CA_ADDRESS, SwitchGrassVoxelID);

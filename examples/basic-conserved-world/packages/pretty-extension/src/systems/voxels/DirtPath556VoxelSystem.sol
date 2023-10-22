@@ -39,7 +39,7 @@ contract DirtPath556VoxelSystem is VoxelType {
         IWorld(world).pretty_C2556_neighbourEventHandler.selector
       ),
       abi.encode(componentDefs),
-      5
+      1
     );
 
     registerCAVoxelType(CA_ADDRESS, DirtPath556VoxelID);

@@ -39,7 +39,7 @@ contract LedSlab130TanVoxelSystem is VoxelType {
         IWorld(world).pretty_C6413010_neighbourEventHandler.selector
       ),
       abi.encode(componentDefs),
-      5
+      1
     );
 
     registerCAVoxelType(CA_ADDRESS, LedSlab130TanVoxelID);

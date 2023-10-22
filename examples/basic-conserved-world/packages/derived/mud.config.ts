@@ -64,5 +64,15 @@ export default mudConfig({
       root: true,
       args: [resolveTableId("FarmLeaderboard")],
     },
+    {
+      name: "KeysInTableModule",
+      root: true,
+      args: [resolveTableId("FarmFactionsLeaderboard")],
+    },
+    {
+      name: "KeysInTableModule",
+      root: true,
+      args: [resolveTableId("PokemonFactionsLeaderboard")],
+    },
   ],
 });

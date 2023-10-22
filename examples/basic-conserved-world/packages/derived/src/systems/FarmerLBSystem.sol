@@ -36,6 +36,7 @@ contract FarmerLBSystem is System {
     );
     address farmer = _msgSender();
     bytes32[][] memory farmerLBEntities = getKeysInTable(FarmLeaderboardTableId);
+    // Initial rank is the number of farmers + 1, ie last place
     FarmLeaderboard.set(shardCoord.x, shardCoord.y, shardCoord.z, farmerLBEntities.length + 1, 0, farmer);
   }
 
@@ -43,7 +44,7 @@ contract FarmerLBSystem is System {
     IStore worldStore = IStore(WORLD_ADDRESS);
     IStore caStore = IStore(BASE_CA_ADDRESS);
 
-    // We reset the leaderboard, so if a pokemon was mined, it will be removed from the leaderboard
+    // We reset the leaderboard
     bytes32[][] memory farmerLBEntities = getKeysInTable(FarmLeaderboardTableId);
     PlantDataWithEntity[] memory totalFarmerScore = new PlantDataWithEntity[](farmerLBEntities.length);
     // init shard coords
@@ -68,18 +69,16 @@ contract FarmerLBSystem is System {
         VoxelCoord memory entityCoord = getCAEntityPositionStrict(caStore, plantEntity);
         VoxelCoord memory shardCoord = coordToShardCoord(entityCoord);
         // figure out the index of this shardCoord in farmerLBEntities
-        uint256 farmerLBIdx = 0;
         for (uint j = 0; j < farmerLBEntities.length; j++) {
           if (
             shardCoord.x == int32(int256(uint256(farmerLBEntities[j][0]))) &&
             shardCoord.y == int32(int256(uint256(farmerLBEntities[j][1]))) &&
             shardCoord.z == int32(int256(uint256(farmerLBEntities[j][2])))
           ) {
-            farmerLBIdx = j;
+            totalFarmerScore[j].totalProduced += Plant.getTotalProduced(caStore, WORLD_ADDRESS, plantEntity);
             break;
           }
         }
-        totalFarmerScore[farmerLBIdx].totalProduced += Plant.getTotalProduced(caStore, WORLD_ADDRESS, plantEntity);
       }
     }
 

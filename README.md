@@ -35,4 +35,4 @@ development/
 
 ### Running locally
 
-Run `./t run dev-no-client basic-conserved-world --skip-build --with-pokemon --with-derived` in the top directory
+Run `./t run dev-no-client basic-conserved-world --skip-build --with-extensions --with-derived` in the top directory

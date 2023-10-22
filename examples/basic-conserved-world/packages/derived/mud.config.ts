@@ -24,7 +24,7 @@ export default mudConfig({
       schema: {
         rank: "uint256",
         totalProduction: "uint256",
-        farmer: "address",
+        farmerCAEntity: "bytes32",
       },
     },
     FarmFactionsLeaderboard: {
@@ -37,7 +37,7 @@ export default mudConfig({
       schema: {
         rank: "uint256",
         totalProduction: "uint256",
-        farmer: "address",
+        farmerCAEntity: "bytes32",
         faction: "ObjectType",
         isDisqualified: "bool",
       },

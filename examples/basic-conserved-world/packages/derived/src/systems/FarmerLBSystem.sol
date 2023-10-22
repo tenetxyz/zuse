@@ -21,23 +21,20 @@ import { console } from "forge-std/console.sol";
 import { Pokemon, PokemonData, PokemonTableId } from "@tenet-pokemon-extension/src/codegen/tables/Pokemon.sol";
 import { Plant, PlantData, PlantStage } from "@tenet-pokemon-extension/src/codegen/tables/Plant.sol";
 import { FarmLeaderboard, FarmLeaderboardTableId } from "@tenet-derived/src/codegen/Tables.sol";
-
-struct PlantDataWithEntity {
-  VoxelCoord coord;
-  uint256 totalProduced;
-}
+import { PlantDataWithEntity } from "@tenet-derived/src/Types.sol";
 
 contract FarmerLBSystem is System {
-  function claimShard(VoxelCoord memory coord) public {
+  function claimFarmerShard(VoxelEntity memory farmerEntity, VoxelCoord memory coord) public {
+    IStore caStore = IStore(BASE_CA_ADDRESS);
     VoxelCoord memory shardCoord = coordToShardCoord(coord);
     require(
       !hasKey(FarmLeaderboardTableId, FarmLeaderboard.encodeKeyTuple(shardCoord.x, shardCoord.y, shardCoord.z)),
       "FarmerLBSystem: shard already claimed"
     );
-    address farmer = _msgSender();
+    bytes32 farmerCAEntity = CAEntityMapping.get(caStore, WORLD_ADDRESS, farmerEntity.entityId);
     bytes32[][] memory farmerLBEntities = getKeysInTable(FarmLeaderboardTableId);
     // Initial rank is the number of farmers + 1, ie last place
-    FarmLeaderboard.set(shardCoord.x, shardCoord.y, shardCoord.z, farmerLBEntities.length + 1, 0, farmer);
+    FarmLeaderboard.set(shardCoord.x, shardCoord.y, shardCoord.z, farmerLBEntities.length + 1, 0, farmerCAEntity);
   }
 
   function updateFarmerLeaderboard() public {
@@ -110,7 +107,11 @@ contract FarmerLBSystem is System {
         totalFarmerScore[i].coord.z,
         rank,
         totalFarmerScore[i].totalProduced,
-        FarmLeaderboard.getFarmer(totalFarmerScore[i].coord.x, totalFarmerScore[i].coord.y, totalFarmerScore[i].coord.z)
+        FarmLeaderboard.getFarmerCAEntity(
+          totalFarmerScore[i].coord.x,
+          totalFarmerScore[i].coord.y,
+          totalFarmerScore[i].coord.z
+        )
       );
     }
   }

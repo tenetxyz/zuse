@@ -22,28 +22,21 @@ import { Pokemon, PokemonData, PokemonTableId } from "@tenet-pokemon-extension/s
 import { Plant, PlantData, PlantStage } from "@tenet-pokemon-extension/src/codegen/tables/Plant.sol";
 import { FarmFactionsLeaderboard, FarmFactionsLeaderboardTableId, PokemonFactionsLeaderboard, PokemonFactionsLeaderboardTableId } from "@tenet-derived/src/codegen/Tables.sol";
 import { PlantConsumer } from "@tenet-pokemon-extension/src/Types.sol";
-
-
-struct PlantDataWithEntity {
-  VoxelCoord coord;
-  uint256 totalProduced;
-}
-
-struct PokemonDataWithEntity {
-  PokemonData pokemonData;
-  bytes32 entity;
-}
+import { PlantDataWithEntity, PokemonDataWithEntity } from "@tenet-derived/src/Types.sol";
 
 contract FarmerPokemonSystem is System {
-  function reportPokemon(address memory pokemonEntity) public {
-    PokemonData pokemonData = Pokemon.get(caStore, WORLD_ADDRESS, pokemonEntity);
+  function reportPokemon(VoxelEntity memory pokemonEntity) public {
+    IStore worldStore = IStore(WORLD_ADDRESS);
+    IStore caStore = IStore(BASE_CA_ADDRESS);
+
+    bytes32 pokemonCAEntity = CAEntityMapping.get(caStore, WORLD_ADDRESS, pokemonEntity.entityId);
+
+    PokemonData memory pokemonData = Pokemon.get(caStore, WORLD_ADDRESS, pokemonCAEntity);
     ObjectType pokemonFaction = pokemonData.pokemonType;
 
     bytes32[][] memory plantEntities = getKeysInTable(caStore, CAEntityReverseMappingTableId);
     bytes32[][] memory farmerLBEntities = getKeysInTable(FarmFactionsLeaderboardTableId);
 
-    bool memory didCheat = false;
-
     for (uint i = 0; i < plantEntities.length; i++) {
       bytes32 plantEntity = plantEntities[i][0];
       if (Plant.getHasValue(caStore, WORLD_ADDRESS, plantEntity)) {
@@ -51,20 +44,28 @@ contract FarmerPokemonSystem is System {
         VoxelCoord memory entityCoord = getCAEntityPositionStrict(caStore, plantEntity);
         VoxelCoord memory shardCoord = coordToShardCoord(entityCoord);
 
-        PlantConsumer[] memory consumers = Plant.getConsumers(caStore, WORLD_ADDRESS, plantEntity);
+        PlantConsumer[] memory consumers = abi.decode(
+          Plant.getConsumers(caStore, WORLD_ADDRESS, plantEntity),
+          (PlantConsumer[])
+        );
 
         for (uint k = 0; k < consumers.length; k++) {
-          if  (consumers[k].entityId == pokemonEntity) {
+          if (consumers[k].entityId == pokemonCAEntity) {
             for (uint j = 0; j < farmerLBEntities.length; j++) {
               if (
                 shardCoord.x == int32(int256(uint256(farmerLBEntities[j][0]))) &&
                 shardCoord.y == int32(int256(uint256(farmerLBEntities[j][1]))) &&
                 shardCoord.z == int32(int256(uint256(farmerLBEntities[j][2])))
               ) {
-                ObjectType relevantFarmFaction = FarmFactionsLeaderboard.getFaction(shardCoord.x, shardCoord.y, shardCoord.z);
+                ObjectType relevantFarmFaction = FarmFactionsLeaderboard.getFaction(
+                  shardCoord.x,
+                  shardCoord.y,
+                  shardCoord.z
+                );
 
                 if (pokemonFaction != relevantFarmFaction) {
-                  didCheat = true;
+                  PokemonFactionsLeaderboard.setIsDisqualified(pokemonCAEntity, true);
+                  return;
                 }
                 break;
               }
@@ -73,19 +74,17 @@ contract FarmerPokemonSystem is System {
         }
       }
     }
-
-    if (didCheat == true) {
-      PokemonFactionsLeaderboard.set(pokemonEntity, 0, true);
-    }
   }
 
-  function reportFarmer(address memory farmerEntity) public {
+  function reportFarmer(VoxelEntity memory farmerEntity) public {
+    IStore worldStore = IStore(WORLD_ADDRESS);
+    IStore caStore = IStore(BASE_CA_ADDRESS);
+
+    bytes32 farmerCAEntity = CAEntityMapping.get(caStore, WORLD_ADDRESS, farmerEntity.entityId);
 
     bytes32[][] memory plantEntities = getKeysInTable(caStore, CAEntityReverseMappingTableId);
     bytes32[][] memory farmerLBEntities = getKeysInTable(FarmFactionsLeaderboardTableId);
 
-    bool memory didCheat = false;
-
     for (uint i = 0; i < plantEntities.length; i++) {
       bytes32 plantEntity = plantEntities[i][0];
       if (Plant.getHasValue(caStore, WORLD_ADDRESS, plantEntity)) {
@@ -93,20 +92,28 @@ contract FarmerPokemonSystem is System {
         VoxelCoord memory entityCoord = getCAEntityPositionStrict(caStore, plantEntity);
         VoxelCoord memory shardCoord = coordToShardCoord(entityCoord);
 
-        PlantConsumer[] memory consumers = Plant.getConsumers(caStore, WORLD_ADDRESS, plantEntity);
+        PlantConsumer[] memory consumers = abi.decode(
+          Plant.getConsumers(caStore, WORLD_ADDRESS, plantEntity),
+          (PlantConsumer[])
+        );
 
         for (uint k = 0; k < consumers.length; k++) {
-          if  (consumers[k].entityId == farmerEntity) {
+          if (consumers[k].entityId == farmerCAEntity) {
             for (uint j = 0; j < farmerLBEntities.length; j++) {
               if (
                 shardCoord.x == int32(int256(uint256(farmerLBEntities[j][0]))) &&
                 shardCoord.y == int32(int256(uint256(farmerLBEntities[j][1]))) &&
                 shardCoord.z == int32(int256(uint256(farmerLBEntities[j][2])))
               ) {
-                address relevantFarmer = FarmFactionsLeaderboard.getFarmer(shardCoord.x, shardCoord.y, shardCoord.z);
+                bytes32 relevantFarmer = FarmFactionsLeaderboard.getFarmerCAEntity(
+                  shardCoord.x,
+                  shardCoord.y,
+                  shardCoord.z
+                );
 
-                if (farmerEntity != relevantFarmer) {
-                  didCheat = true;
+                if (farmerCAEntity != relevantFarmer) {
+                  FarmFactionsLeaderboard.setIsDisqualified(shardCoord.x, shardCoord.y, shardCoord.z, true);
+                  return;
                 }
                 break;
               }
@@ -115,35 +122,42 @@ contract FarmerPokemonSystem is System {
         }
       }
     }
-
-    if (didCheat == true) {
-      FarmFactionsLeaderboard.set(
-        shardCoord.x, shardCoord.y, shardCoord.z,
-        0,
-        FarmFactionsLeaderboard.getTotalProduction(tshardCoord.x, shardCoord.y, shardCoord.z),
-        farmerEntity,
-        FarmFactionsLeaderboard.getFaction(tshardCoord.x, shardCoord.y, shardCoord.z),
-        true
-        );
-    }
   }
 
-  function claimShard(VoxelCoord memory coord, ObjectType memory faction) public {
+  function claimFarmerFactionsShard(
+    VoxelEntity memory farmerEntity,
+    VoxelCoord memory coord,
+    ObjectType faction
+  ) public {
+    IStore caStore = IStore(BASE_CA_ADDRESS);
     VoxelCoord memory shardCoord = coordToShardCoord(coord);
     require(
-      !hasKey(FarmFactionsLeaderboardTableId, FarmFactionsLeaderboard.encodeKeyTuple(shardCoord.x, shardCoord.y, shardCoord.z)),
+      !hasKey(
+        FarmFactionsLeaderboardTableId,
+        FarmFactionsLeaderboard.encodeKeyTuple(shardCoord.x, shardCoord.y, shardCoord.z)
+      ),
       "FarmerLBSystem: shard already claimed"
     );
-    address farmer = _msgSender();
+    bytes32 farmerCAEntity = CAEntityMapping.get(caStore, WORLD_ADDRESS, farmerEntity.entityId);
     bytes32[][] memory farmerLBEntities = getKeysInTable(FarmFactionsLeaderboardTableId);
-    FarmFactionsLeaderboard.set(shardCoord.x, shardCoord.y, shardCoord.z, farmerLBEntities.length + 1, 0, farmer, faction, false);
+    // Initial rank is the number of farmers + 1, ie last place
+    FarmFactionsLeaderboard.set(
+      shardCoord.x,
+      shardCoord.y,
+      shardCoord.z,
+      farmerLBEntities.length + 1,
+      0,
+      farmerCAEntity,
+      faction,
+      false
+    );
   }
 
-  function updateFarmerLeaderboard() public {
+  function updateFarmerFactionsLeaderboard() public {
     IStore worldStore = IStore(WORLD_ADDRESS);
     IStore caStore = IStore(BASE_CA_ADDRESS);
 
-    // We reset the leaderboard, so if a pokemon was mined, it will be removed from the leaderboard
+    // We reset the leaderboard
     bytes32[][] memory farmerLBEntities = getKeysInTable(FarmFactionsLeaderboardTableId);
     PlantDataWithEntity[] memory totalFarmerScore = new PlantDataWithEntity[](farmerLBEntities.length);
     // init shard coords
@@ -167,18 +181,16 @@ contract FarmerPokemonSystem is System {
         VoxelCoord memory entityCoord = getCAEntityPositionStrict(caStore, plantEntity);
         VoxelCoord memory shardCoord = coordToShardCoord(entityCoord);
         // figure out the index of this shardCoord in farmerLBEntities
-        uint256 farmerLBIdx = 0;
         for (uint j = 0; j < farmerLBEntities.length; j++) {
           if (
             shardCoord.x == int32(int256(uint256(farmerLBEntities[j][0]))) &&
             shardCoord.y == int32(int256(uint256(farmerLBEntities[j][1]))) &&
             shardCoord.z == int32(int256(uint256(farmerLBEntities[j][2])))
           ) {
-            farmerLBIdx = j;
+            totalFarmerScore[j].totalProduced += Plant.getTotalProduced(caStore, WORLD_ADDRESS, plantEntity);
             break;
           }
         }
-        totalFarmerScore[farmerLBIdx].totalProduced += Plant.getTotalProduced(caStore, WORLD_ADDRESS, plantEntity);
       }
     }
 
@@ -200,15 +212,21 @@ contract FarmerPokemonSystem is System {
       }
     }
 
-
     uint rankAdjustment = 0;
 
     // Now, the rank of the shard coord is just its index + 1 in the sorted array
+    // but we need to adjust for disqualified farmers
     for (uint i = 0; i < totalFarmerScore.length; i++) {
-        if (FarmFactionsLeaderboard.getIsDisqualified(totalFarmerScore[i].coord.x, totalFarmerScore[i].coord.y, totalFarmerScore[i].coord.z)) {
-          rankAdjustment++;  // Increase the adjustment factor
-          continue;  // Skip the rest of the loop iteration
-        }
+      if (
+        FarmFactionsLeaderboard.getIsDisqualified(
+          totalFarmerScore[i].coord.x,
+          totalFarmerScore[i].coord.y,
+          totalFarmerScore[i].coord.z
+        )
+      ) {
+        rankAdjustment++; // Increase the adjustment factor
+        continue; // Skip the rest of the loop iteration
+      }
 
       uint rank = i + 1 - rankAdjustment;
       console.log("set rank");
@@ -218,62 +236,70 @@ contract FarmerPokemonSystem is System {
         totalFarmerScore[i].coord.z,
         rank,
         totalFarmerScore[i].totalProduced,
-        FarmFactionsLeaderboard.getFarmer(totalFarmerScore[i].coord.x, totalFarmerScore[i].coord.y, totalFarmerScore[i].coord.z),
-        FarmFactionsLeaderboard.getFaction(totalFarmerScore[i].coord.x, totalFarmerScore[i].coord.y, totalFarmerScore[i].coord.z),
-        false,
+        FarmFactionsLeaderboard.getFarmerCAEntity(
+          totalFarmerScore[i].coord.x,
+          totalFarmerScore[i].coord.y,
+          totalFarmerScore[i].coord.z
+        ),
+        FarmFactionsLeaderboard.getFaction(
+          totalFarmerScore[i].coord.x,
+          totalFarmerScore[i].coord.y,
+          totalFarmerScore[i].coord.z
+        ),
+        false
       );
     }
   }
 
-  function updatePokemonLeaderboard() public {
-      IStore worldStore = IStore(WORLD_ADDRESS);
-      IStore caStore = IStore(BASE_CA_ADDRESS);
+  function updatePokemonFactionsLeaderboard() public {
+    IStore worldStore = IStore(WORLD_ADDRESS);
+    IStore caStore = IStore(BASE_CA_ADDRESS);
 
-      // We reset the leaderboard, so if a pokemon was mined, it will be removed from the leaderboard
-      resetLeaderboard();
+    // We reset the leaderboard, so if a pokemon was mined, it will be removed from the leaderboard
+    resetPokemonFactionsLeaderboard();
 
-      // Get all pokemon entities
-      bytes32[][] memory pokemonEntities = getKeysInTable(caStore, CAEntityReverseMappingTableId);
-      uint256 numPokemon = 0;
-      for (uint i = 0; i < pokemonEntities.length; i++) {
-        if (Pokemon.getHasValue(caStore, WORLD_ADDRESS, pokemonEntities[i][0])) {
-          numPokemon++;
+    // Get all pokemon entities
+    bytes32[][] memory pokemonEntities = getKeysInTable(caStore, CAEntityReverseMappingTableId);
+    uint256 numPokemon = 0;
+    for (uint i = 0; i < pokemonEntities.length; i++) {
+      if (Pokemon.getHasValue(caStore, WORLD_ADDRESS, pokemonEntities[i][0])) {
+        numPokemon++;
+      }
+    }
+    PokemonDataWithEntity[] memory pokemonDataArray = new PokemonDataWithEntity[](numPokemon);
+    console.log("pokemonEntities");
+    console.logUint(numPokemon);
+    uint256 pokemonIdx = 0;
+
+    for (uint i = 0; i < pokemonEntities.length; i++) {
+      bytes32 pokemonEntity = pokemonEntities[i][0];
+      if (Pokemon.getHasValue(caStore, WORLD_ADDRESS, pokemonEntity)) {
+        console.logBytes32(pokemonEntity);
+        pokemonDataArray[pokemonIdx] = PokemonDataWithEntity({
+          pokemonData: Pokemon.get(caStore, WORLD_ADDRESS, pokemonEntity),
+          entity: pokemonEntity
+        });
+        pokemonIdx++;
+      }
+    }
+
+    bool swapped = false;
+    // Sort the pokemon data array based on numWins
+    for (uint i = 0; i < pokemonDataArray.length; i++) {
+      swapped = false;
+      for (uint j = i + 1; j < pokemonDataArray.length; j++) {
+        if (pokemonDataArray[i].pokemonData.numWins < pokemonDataArray[j].pokemonData.numWins) {
+          // Swap
+          PokemonDataWithEntity memory temp = pokemonDataArray[i];
+          pokemonDataArray[i] = pokemonDataArray[j];
+          pokemonDataArray[j] = temp;
+          swapped = true;
         }
       }
-      PokemonDataWithEntity[] memory pokemonDataArray = new PokemonDataWithEntity[](numPokemon);
-      console.log("pokemonEntities");
-      console.logUint(numPokemon);
-      uint256 pokemonIdx = 0;
-
-      for (uint i = 0; i < pokemonEntities.length; i++) {
-        bytes32 pokemonEntity = pokemonEntities[i][0];
-        if (Pokemon.getHasValue(caStore, WORLD_ADDRESS, pokemonEntity)) {
-          console.logBytes32(pokemonEntity);
-          pokemonDataArray[pokemonIdx] = PokemonDataWithEntity({
-            pokemonData: Pokemon.get(caStore, WORLD_ADDRESS, pokemonEntity),
-            entity: pokemonEntity
-          });
-          pokemonIdx++;
-        }
+      if (!swapped) {
+        break;
       }
-
-      bool swapped = false;
-      // Sort the pokemon data array based on numWins
-      for (uint i = 0; i < pokemonDataArray.length; i++) {
-        swapped = false;
-        for (uint j = i + 1; j < pokemonDataArray.length; j++) {
-          if (pokemonDataArray[i].pokemonData.numWins < pokemonDataArray[j].pokemonData.numWins) {
-            // Swap
-            PokemonDataWithEntity memory temp = pokemonDataArray[i];
-            pokemonDataArray[i] = pokemonDataArray[j];
-            pokemonDataArray[j] = temp;
-            swapped = true;
-          }
-        }
-        if (!swapped) {
-          break;
-        }
-      }
+    }
 
     uint rankAdjustment = 0;
 
@@ -289,7 +315,7 @@ contract FarmerPokemonSystem is System {
     }
   }
 
-  function resetLeaderboard() internal {
+  function resetPokemonFactionsLeaderboard() internal {
     bytes32[][] memory pokemonLBEntities = getKeysInTable(PokemonFactionsLeaderboardTableId);
     for (uint i = 0; i < pokemonLBEntities.length; i++) {
       PokemonFactionsLeaderboard.deleteRecord(pokemonLBEntities[i][0]);

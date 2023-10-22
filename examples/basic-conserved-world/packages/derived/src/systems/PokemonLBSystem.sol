@@ -19,11 +19,7 @@ import { console } from "forge-std/console.sol";
 import { Pokemon, PokemonData, PokemonTableId } from "@tenet-pokemon-extension/src/codegen/tables/Pokemon.sol";
 import { Plant, PlantData, PlantStage } from "@tenet-pokemon-extension/src/codegen/tables/Plant.sol";
 import { PokemonLeaderboard, PokemonLeaderboardTableId } from "@tenet-derived/src/codegen/Tables.sol";
-
-struct PokemonDataWithEntity {
-  PokemonData pokemonData;
-  bytes32 entity;
-}
+import { PokemonDataWithEntity } from "@tenet-derived/src/Types.sol";
 
 contract PokemonLBSystem is System {
   function updatePokemonLeaderboard() public {

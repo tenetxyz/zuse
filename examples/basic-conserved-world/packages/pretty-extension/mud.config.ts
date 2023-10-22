@@ -6,36 +6,32 @@ export default mudConfig({
   tables: {},
   systems:
     {
+  "BoxwoodShrubVoxelSystem": {
+    "name": "C16777237",
+    "openAccess": true
+  },
   "CobblestonePath517VoxelSystem": {
     "name": "C5517",
     "openAccess": true
   },
-  "CobblestoneVoxelSystem": {
-    "name": "C5",
+  "CottonBushVoxelSystem": {
+    "name": "C16777227",
     "openAccess": true
   },
-  "DiamondVoxelSystem": {
-    "name": "C21",
+  "DandelionFlowerVoxelSystem": {
+    "name": "C16777223",
     "openAccess": true
   },
   "DirtPath556VoxelSystem": {
     "name": "C2556",
     "openAccess": true
   },
-  "GoldOreVoxelSystem": {
-    "name": "C11",
-    "openAccess": true
-  },
-  "GraniteVoxelSystem": {
-    "name": "C13",
-    "openAccess": true
-  },
   "LedSlab130TanVoxelSystem": {
     "name": "C6413010",
     "openAccess": true
   },
-  "LimestoneVoxelSystem": {
-    "name": "C9",
+  "LilacFlowerVoxelSystem": {
+    "name": "C16777225",
     "openAccess": true
   },
   "MossSlab128VoxelSystem": {
@@ -46,16 +42,8 @@ export default mudConfig({
     "name": "C40",
     "openAccess": true
   },
-  "OakLogOutset1152VoxelSystem": {
-    "name": "C31152",
-    "openAccess": true
-  },
-  "OakLogOutset1193VoxelSystem": {
-    "name": "C31193",
-    "openAccess": true
-  },
-  "OakLogOutset1196VoxelSystem": {
-    "name": "C31196",
+  "OakLeafVoxelSystem": {
+    "name": "C16777217",
     "openAccess": true
   },
   "OakLogVoxelSystem": {
@@ -74,26 +62,6 @@ export default mudConfig({
     "name": "C3492",
     "openAccess": true
   },
-  "OakLumberBlackVoxelSystem": {
-    "name": "C319",
-    "openAccess": true
-  },
-  "OakLumberFence325BlackVoxelSystem": {
-    "name": "C313259",
-    "openAccess": true
-  },
-  "OakLumberKnob903BlackVoxelSystem": {
-    "name": "C319039",
-    "openAccess": true
-  },
-  "OakLumberKnob939BlackVoxelSystem": {
-    "name": "C319399",
-    "openAccess": true
-  },
-  "OakLumberKnob942BlackVoxelSystem": {
-    "name": "C319429",
-    "openAccess": true
-  },
   "OakLumberOutset1196OrangeVoxelSystem": {
     "name": "C3111964",
     "openAccess": true
@@ -102,72 +70,12 @@ export default mudConfig({
     "name": "C317684",
     "openAccess": true
   },
-  "OakLumberPeg773OrangeVoxelSystem": {
-    "name": "C317734",
-    "openAccess": true
-  },
-  "OakLumberPeg773VoxelSystem": {
-    "name": "C31773",
-    "openAccess": true
-  },
-  "OakLumberPeg812OrangeVoxelSystem": {
-    "name": "C318124",
-    "openAccess": true
-  },
-  "OakLumberSlab128BlackVoxelSystem": {
-    "name": "C311289",
-    "openAccess": true
-  },
-  "OakLumberSlab133BlackVoxelSystem": {
-    "name": "C311339",
-    "openAccess": true
-  },
-  "OakLumberSlab169BlackVoxelSystem": {
-    "name": "C311699",
-    "openAccess": true
-  },
-  "OakLumberSlab172BlackVoxelSystem": {
-    "name": "C311729",
-    "openAccess": true
-  },
   "OakLumberSlice706OrangeVoxelSystem": {
     "name": "C317064",
     "openAccess": true
   },
-  "OakLumberSlice709VoxelSystem": {
-    "name": "C31709",
-    "openAccess": true
-  },
-  "OakLumberSlice748VoxelSystem": {
-    "name": "C31748",
-    "openAccess": true
-  },
   "OakLumberSlice750OrangeVoxelSystem": {
     "name": "C317504",
-    "openAccess": true
-  },
-  "OakLumberStep194BlackVoxelSystem": {
-    "name": "C311949",
-    "openAccess": true
-  },
-  "OakLumberStep199BlackVoxelSystem": {
-    "name": "C311999",
-    "openAccess": true
-  },
-  "OakLumberStep235BlackVoxelSystem": {
-    "name": "C312359",
-    "openAccess": true
-  },
-  "OakLumberStep236BlackVoxelSystem": {
-    "name": "C312369",
-    "openAccess": true
-  },
-  "OakLumberStep236WhiteVoxelSystem": {
-    "name": "C312365",
-    "openAccess": true
-  },
-  "OakLumberStep238BlackVoxelSystem": {
-    "name": "C312389",
     "openAccess": true
   },
   "OakLumberStool1024OrangeVoxelSystem": {
@@ -178,16 +86,8 @@ export default mudConfig({
     "name": "C3113444",
     "openAccess": true
   },
-  "OakLumberVoxelSystem": {
-    "name": "C31",
-    "openAccess": true
-  },
-  "OakLumberWhiteVoxelSystem": {
-    "name": "C315",
-    "openAccess": true
-  },
-  "QuartziteVoxelSystem": {
-    "name": "C7",
+  "RedMushroomVoxelSystem": {
+    "name": "C16777229",
     "openAccess": true
   },
   "RubberReinforcedFrame681VoxelSystem": {
@@ -202,8 +102,8 @@ export default mudConfig({
     "name": "C741026",
     "openAccess": true
   },
-  "StoneVoxelSystem": {
-    "name": "C4",
+  "SwitchGrassVoxelSystem": {
+    "name": "C16777220",
     "openAccess": true
   }
 }

@@ -9,40 +9,40 @@ import { REGISTRY_ADDRESS, CA_ADDRESS } from "@tenet-pretty-extension/src/Consta
 import { registerCAVoxelType } from "@tenet-base-ca/src/CallUtils.sol";
 import { VoxelCoord, ComponentDef } from "@tenet-utils/src/Types.sol";
 
-bytes32 constant OakLumberKnob939BlackVoxelID = bytes32(keccak256("oak_lumber_knob_939_black"));
-bytes32 constant OakLumberKnob939BlackVoxelVariantID = bytes32(keccak256("oak_lumber_knob_939_black"));
+bytes32 constant DandelionFlowerVoxelID = bytes32(keccak256("dandelion_flower"));
+bytes32 constant DandelionFlowerVoxelVariantID = bytes32(keccak256("dandelion_flower"));
 
-contract OakLumberKnob939BlackVoxelSystem is VoxelType {
+contract DandelionFlowerVoxelSystem is VoxelType {
   function registerBody() public override {
     address world = _world();
-    VoxelVariantsRegistryData memory oakLumberKnob939BlackVariant;
-    registerVoxelVariant(REGISTRY_ADDRESS, OakLumberKnob939BlackVoxelVariantID, oakLumberKnob939BlackVariant);
+    VoxelVariantsRegistryData memory dandelionFlowerVariant;
+    registerVoxelVariant(REGISTRY_ADDRESS, DandelionFlowerVoxelVariantID, dandelionFlowerVariant);
 
-    bytes32[] memory oakLumberKnob939BlackChildVoxelTypes = new bytes32[](1);
-    oakLumberKnob939BlackChildVoxelTypes[0] = OakLumberKnob939BlackVoxelID;
-    bytes32 baseVoxelTypeId = OakLumberKnob939BlackVoxelID;
+    bytes32[] memory dandelionFlowerChildVoxelTypes = new bytes32[](1);
+    dandelionFlowerChildVoxelTypes[0] = DandelionFlowerVoxelID;
+    bytes32 baseVoxelTypeId = DandelionFlowerVoxelID;
     ComponentDef[] memory componentDefs = new ComponentDef[](0);
     registerVoxelType(
       REGISTRY_ADDRESS,
-      "Oak Lumber Knob939 Black",
-      OakLumberKnob939BlackVoxelID,
+      "Dandelion Flower",
+      DandelionFlowerVoxelID,
       baseVoxelTypeId,
-      oakLumberKnob939BlackChildVoxelTypes,
-      oakLumberKnob939BlackChildVoxelTypes,
-      OakLumberKnob939BlackVoxelVariantID,
+      dandelionFlowerChildVoxelTypes,
+      dandelionFlowerChildVoxelTypes,
+      DandelionFlowerVoxelVariantID,
       voxelSelectorsForVoxel(
-        IWorld(world).pretty_C319399_enterWorld.selector,
-        IWorld(world).pretty_C319399_exitWorld.selector,
-        IWorld(world).pretty_C319399_variantSelector.selector,
-        IWorld(world).pretty_C319399_activate.selector,
-        IWorld(world).pretty_C319399_eventHandler.selector,
-        IWorld(world).pretty_C319399_neighbourEventHandler.selector
+        IWorld(world).pretty_C16777223_enterWorld.selector,
+        IWorld(world).pretty_C16777223_exitWorld.selector,
+        IWorld(world).pretty_C16777223_variantSelector.selector,
+        IWorld(world).pretty_C16777223_activate.selector,
+        IWorld(world).pretty_C16777223_eventHandler.selector,
+        IWorld(world).pretty_C16777223_neighbourEventHandler.selector
       ),
       abi.encode(componentDefs),
       5
     );
 
-    registerCAVoxelType(CA_ADDRESS, OakLumberKnob939BlackVoxelID);
+    registerCAVoxelType(CA_ADDRESS, DandelionFlowerVoxelID);
   }
 
   function enterWorld(VoxelCoord memory coord, bytes32 entity) public override {}
@@ -55,7 +55,7 @@ contract OakLumberKnob939BlackVoxelSystem is VoxelType {
     bytes32[] memory childEntityIds,
     bytes32 parentEntity
   ) public view override returns (bytes32) {
-    return OakLumberKnob939BlackVoxelVariantID;
+    return DandelionFlowerVoxelVariantID;
   }
 
   function activate(bytes32 entity) public view override returns (string memory) {}

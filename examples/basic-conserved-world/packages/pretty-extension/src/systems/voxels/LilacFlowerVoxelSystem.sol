@@ -9,40 +9,40 @@ import { REGISTRY_ADDRESS, CA_ADDRESS } from "@tenet-pretty-extension/src/Consta
 import { registerCAVoxelType } from "@tenet-base-ca/src/CallUtils.sol";
 import { VoxelCoord, ComponentDef } from "@tenet-utils/src/Types.sol";
 
-bytes32 constant OakLumberSlab172BlackVoxelID = bytes32(keccak256("oak_lumber_slab_172_black"));
-bytes32 constant OakLumberSlab172BlackVoxelVariantID = bytes32(keccak256("oak_lumber_slab_172_black"));
+bytes32 constant LilacFlowerVoxelID = bytes32(keccak256("lilac_flower"));
+bytes32 constant LilacFlowerVoxelVariantID = bytes32(keccak256("lilac_flower"));
 
-contract OakLumberSlab172BlackVoxelSystem is VoxelType {
+contract LilacFlowerVoxelSystem is VoxelType {
   function registerBody() public override {
     address world = _world();
-    VoxelVariantsRegistryData memory oakLumberSlab172BlackVariant;
-    registerVoxelVariant(REGISTRY_ADDRESS, OakLumberSlab172BlackVoxelVariantID, oakLumberSlab172BlackVariant);
+    VoxelVariantsRegistryData memory lilacFlowerVariant;
+    registerVoxelVariant(REGISTRY_ADDRESS, LilacFlowerVoxelVariantID, lilacFlowerVariant);
 
-    bytes32[] memory oakLumberSlab172BlackChildVoxelTypes = new bytes32[](1);
-    oakLumberSlab172BlackChildVoxelTypes[0] = OakLumberSlab172BlackVoxelID;
-    bytes32 baseVoxelTypeId = OakLumberSlab172BlackVoxelID;
+    bytes32[] memory lilacFlowerChildVoxelTypes = new bytes32[](1);
+    lilacFlowerChildVoxelTypes[0] = LilacFlowerVoxelID;
+    bytes32 baseVoxelTypeId = LilacFlowerVoxelID;
     ComponentDef[] memory componentDefs = new ComponentDef[](0);
     registerVoxelType(
       REGISTRY_ADDRESS,
-      "Oak Lumber Slab172 Black",
-      OakLumberSlab172BlackVoxelID,
+      "Lilac Flower",
+      LilacFlowerVoxelID,
       baseVoxelTypeId,
-      oakLumberSlab172BlackChildVoxelTypes,
-      oakLumberSlab172BlackChildVoxelTypes,
-      OakLumberSlab172BlackVoxelVariantID,
+      lilacFlowerChildVoxelTypes,
+      lilacFlowerChildVoxelTypes,
+      LilacFlowerVoxelVariantID,
       voxelSelectorsForVoxel(
-        IWorld(world).pretty_C311729_enterWorld.selector,
-        IWorld(world).pretty_C311729_exitWorld.selector,
-        IWorld(world).pretty_C311729_variantSelector.selector,
-        IWorld(world).pretty_C311729_activate.selector,
-        IWorld(world).pretty_C311729_eventHandler.selector,
-        IWorld(world).pretty_C311729_neighbourEventHandler.selector
+        IWorld(world).pretty_C16777225_enterWorld.selector,
+        IWorld(world).pretty_C16777225_exitWorld.selector,
+        IWorld(world).pretty_C16777225_variantSelector.selector,
+        IWorld(world).pretty_C16777225_activate.selector,
+        IWorld(world).pretty_C16777225_eventHandler.selector,
+        IWorld(world).pretty_C16777225_neighbourEventHandler.selector
       ),
       abi.encode(componentDefs),
       5
     );
 
-    registerCAVoxelType(CA_ADDRESS, OakLumberSlab172BlackVoxelID);
+    registerCAVoxelType(CA_ADDRESS, LilacFlowerVoxelID);
   }
 
   function enterWorld(VoxelCoord memory coord, bytes32 entity) public override {}
@@ -55,7 +55,7 @@ contract OakLumberSlab172BlackVoxelSystem is VoxelType {
     bytes32[] memory childEntityIds,
     bytes32 parentEntity
   ) public view override returns (bytes32) {
-    return OakLumberSlab172BlackVoxelVariantID;
+    return LilacFlowerVoxelVariantID;
   }
 
   function activate(bytes32 entity) public view override returns (string memory) {}

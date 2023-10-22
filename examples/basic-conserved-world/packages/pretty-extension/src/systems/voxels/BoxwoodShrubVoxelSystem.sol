@@ -9,40 +9,40 @@ import { REGISTRY_ADDRESS, CA_ADDRESS } from "@tenet-pretty-extension/src/Consta
 import { registerCAVoxelType } from "@tenet-base-ca/src/CallUtils.sol";
 import { VoxelCoord, ComponentDef } from "@tenet-utils/src/Types.sol";
 
-bytes32 constant GraniteVoxelID = bytes32(keccak256("granite"));
-bytes32 constant GraniteVoxelVariantID = bytes32(keccak256("granite"));
+bytes32 constant BoxwoodShrubVoxelID = bytes32(keccak256("boxwood_shrub"));
+bytes32 constant BoxwoodShrubVoxelVariantID = bytes32(keccak256("boxwood_shrub"));
 
-contract GraniteVoxelSystem is VoxelType {
+contract BoxwoodShrubVoxelSystem is VoxelType {
   function registerBody() public override {
     address world = _world();
-    VoxelVariantsRegistryData memory graniteVariant;
-    registerVoxelVariant(REGISTRY_ADDRESS, GraniteVoxelVariantID, graniteVariant);
+    VoxelVariantsRegistryData memory boxwoodShrubVariant;
+    registerVoxelVariant(REGISTRY_ADDRESS, BoxwoodShrubVoxelVariantID, boxwoodShrubVariant);
 
-    bytes32[] memory graniteChildVoxelTypes = new bytes32[](1);
-    graniteChildVoxelTypes[0] = GraniteVoxelID;
-    bytes32 baseVoxelTypeId = GraniteVoxelID;
+    bytes32[] memory boxwoodShrubChildVoxelTypes = new bytes32[](1);
+    boxwoodShrubChildVoxelTypes[0] = BoxwoodShrubVoxelID;
+    bytes32 baseVoxelTypeId = BoxwoodShrubVoxelID;
     ComponentDef[] memory componentDefs = new ComponentDef[](0);
     registerVoxelType(
       REGISTRY_ADDRESS,
-      "Granite",
-      GraniteVoxelID,
+      "Boxwood Shrub",
+      BoxwoodShrubVoxelID,
       baseVoxelTypeId,
-      graniteChildVoxelTypes,
-      graniteChildVoxelTypes,
-      GraniteVoxelVariantID,
+      boxwoodShrubChildVoxelTypes,
+      boxwoodShrubChildVoxelTypes,
+      BoxwoodShrubVoxelVariantID,
       voxelSelectorsForVoxel(
-        IWorld(world).pretty_C13_enterWorld.selector,
-        IWorld(world).pretty_C13_exitWorld.selector,
-        IWorld(world).pretty_C13_variantSelector.selector,
-        IWorld(world).pretty_C13_activate.selector,
-        IWorld(world).pretty_C13_eventHandler.selector,
-        IWorld(world).pretty_C13_neighbourEventHandler.selector
+        IWorld(world).pretty_C16777237_enterWorld.selector,
+        IWorld(world).pretty_C16777237_exitWorld.selector,
+        IWorld(world).pretty_C16777237_variantSelector.selector,
+        IWorld(world).pretty_C16777237_activate.selector,
+        IWorld(world).pretty_C16777237_eventHandler.selector,
+        IWorld(world).pretty_C16777237_neighbourEventHandler.selector
       ),
       abi.encode(componentDefs),
       5
     );
 
-    registerCAVoxelType(CA_ADDRESS, GraniteVoxelID);
+    registerCAVoxelType(CA_ADDRESS, BoxwoodShrubVoxelID);
   }
 
   function enterWorld(VoxelCoord memory coord, bytes32 entity) public override {}
@@ -55,7 +55,7 @@ contract GraniteVoxelSystem is VoxelType {
     bytes32[] memory childEntityIds,
     bytes32 parentEntity
   ) public view override returns (bytes32) {
-    return GraniteVoxelVariantID;
+    return BoxwoodShrubVoxelVariantID;
   }
 
   function activate(bytes32 entity) public view override returns (string memory) {}

@@ -9,40 +9,40 @@ import { REGISTRY_ADDRESS, CA_ADDRESS } from "@tenet-pretty-extension/src/Consta
 import { registerCAVoxelType } from "@tenet-base-ca/src/CallUtils.sol";
 import { VoxelCoord, ComponentDef } from "@tenet-utils/src/Types.sol";
 
-bytes32 constant LimestoneVoxelID = bytes32(keccak256("limestone"));
-bytes32 constant LimestoneVoxelVariantID = bytes32(keccak256("limestone"));
+bytes32 constant OakLeafVoxelID = bytes32(keccak256("oak_leaf"));
+bytes32 constant OakLeafVoxelVariantID = bytes32(keccak256("oak_leaf"));
 
-contract LimestoneVoxelSystem is VoxelType {
+contract OakLeafVoxelSystem is VoxelType {
   function registerBody() public override {
     address world = _world();
-    VoxelVariantsRegistryData memory limestoneVariant;
-    registerVoxelVariant(REGISTRY_ADDRESS, LimestoneVoxelVariantID, limestoneVariant);
+    VoxelVariantsRegistryData memory oakLeafVariant;
+    registerVoxelVariant(REGISTRY_ADDRESS, OakLeafVoxelVariantID, oakLeafVariant);
 
-    bytes32[] memory limestoneChildVoxelTypes = new bytes32[](1);
-    limestoneChildVoxelTypes[0] = LimestoneVoxelID;
-    bytes32 baseVoxelTypeId = LimestoneVoxelID;
+    bytes32[] memory oakLeafChildVoxelTypes = new bytes32[](1);
+    oakLeafChildVoxelTypes[0] = OakLeafVoxelID;
+    bytes32 baseVoxelTypeId = OakLeafVoxelID;
     ComponentDef[] memory componentDefs = new ComponentDef[](0);
     registerVoxelType(
       REGISTRY_ADDRESS,
-      "Limestone",
-      LimestoneVoxelID,
+      "Oak Leaf",
+      OakLeafVoxelID,
       baseVoxelTypeId,
-      limestoneChildVoxelTypes,
-      limestoneChildVoxelTypes,
-      LimestoneVoxelVariantID,
+      oakLeafChildVoxelTypes,
+      oakLeafChildVoxelTypes,
+      OakLeafVoxelVariantID,
       voxelSelectorsForVoxel(
-        IWorld(world).pretty_C9_enterWorld.selector,
-        IWorld(world).pretty_C9_exitWorld.selector,
-        IWorld(world).pretty_C9_variantSelector.selector,
-        IWorld(world).pretty_C9_activate.selector,
-        IWorld(world).pretty_C9_eventHandler.selector,
-        IWorld(world).pretty_C9_neighbourEventHandler.selector
+        IWorld(world).pretty_C16777217_enterWorld.selector,
+        IWorld(world).pretty_C16777217_exitWorld.selector,
+        IWorld(world).pretty_C16777217_variantSelector.selector,
+        IWorld(world).pretty_C16777217_activate.selector,
+        IWorld(world).pretty_C16777217_eventHandler.selector,
+        IWorld(world).pretty_C16777217_neighbourEventHandler.selector
       ),
       abi.encode(componentDefs),
       5
     );
 
-    registerCAVoxelType(CA_ADDRESS, LimestoneVoxelID);
+    registerCAVoxelType(CA_ADDRESS, OakLeafVoxelID);
   }
 
   function enterWorld(VoxelCoord memory coord, bytes32 entity) public override {}
@@ -55,7 +55,7 @@ contract LimestoneVoxelSystem is VoxelType {
     bytes32[] memory childEntityIds,
     bytes32 parentEntity
   ) public view override returns (bytes32) {
-    return LimestoneVoxelVariantID;
+    return OakLeafVoxelVariantID;
   }
 
   function activate(bytes32 entity) public view override returns (string memory) {}

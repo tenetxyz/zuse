@@ -9,40 +9,40 @@ import { REGISTRY_ADDRESS, CA_ADDRESS } from "@tenet-pretty-extension/src/Consta
 import { registerCAVoxelType } from "@tenet-base-ca/src/CallUtils.sol";
 import { VoxelCoord, ComponentDef } from "@tenet-utils/src/Types.sol";
 
-bytes32 constant GoldOreVoxelID = bytes32(keccak256("gold_ore"));
-bytes32 constant GoldOreVoxelVariantID = bytes32(keccak256("gold_ore"));
+bytes32 constant SwitchGrassVoxelID = bytes32(keccak256("switch_grass"));
+bytes32 constant SwitchGrassVoxelVariantID = bytes32(keccak256("switch_grass"));
 
-contract GoldOreVoxelSystem is VoxelType {
+contract SwitchGrassVoxelSystem is VoxelType {
   function registerBody() public override {
     address world = _world();
-    VoxelVariantsRegistryData memory goldOreVariant;
-    registerVoxelVariant(REGISTRY_ADDRESS, GoldOreVoxelVariantID, goldOreVariant);
+    VoxelVariantsRegistryData memory switchGrassVariant;
+    registerVoxelVariant(REGISTRY_ADDRESS, SwitchGrassVoxelVariantID, switchGrassVariant);
 
-    bytes32[] memory goldOreChildVoxelTypes = new bytes32[](1);
-    goldOreChildVoxelTypes[0] = GoldOreVoxelID;
-    bytes32 baseVoxelTypeId = GoldOreVoxelID;
+    bytes32[] memory switchGrassChildVoxelTypes = new bytes32[](1);
+    switchGrassChildVoxelTypes[0] = SwitchGrassVoxelID;
+    bytes32 baseVoxelTypeId = SwitchGrassVoxelID;
     ComponentDef[] memory componentDefs = new ComponentDef[](0);
     registerVoxelType(
       REGISTRY_ADDRESS,
-      "Gold Ore",
-      GoldOreVoxelID,
+      "Switch Grass",
+      SwitchGrassVoxelID,
       baseVoxelTypeId,
-      goldOreChildVoxelTypes,
-      goldOreChildVoxelTypes,
-      GoldOreVoxelVariantID,
+      switchGrassChildVoxelTypes,
+      switchGrassChildVoxelTypes,
+      SwitchGrassVoxelVariantID,
       voxelSelectorsForVoxel(
-        IWorld(world).pretty_C11_enterWorld.selector,
-        IWorld(world).pretty_C11_exitWorld.selector,
-        IWorld(world).pretty_C11_variantSelector.selector,
-        IWorld(world).pretty_C11_activate.selector,
-        IWorld(world).pretty_C11_eventHandler.selector,
-        IWorld(world).pretty_C11_neighbourEventHandler.selector
+        IWorld(world).pretty_C16777220_enterWorld.selector,
+        IWorld(world).pretty_C16777220_exitWorld.selector,
+        IWorld(world).pretty_C16777220_variantSelector.selector,
+        IWorld(world).pretty_C16777220_activate.selector,
+        IWorld(world).pretty_C16777220_eventHandler.selector,
+        IWorld(world).pretty_C16777220_neighbourEventHandler.selector
       ),
       abi.encode(componentDefs),
       5
     );
 
-    registerCAVoxelType(CA_ADDRESS, GoldOreVoxelID);
+    registerCAVoxelType(CA_ADDRESS, SwitchGrassVoxelID);
   }
 
   function enterWorld(VoxelCoord memory coord, bytes32 entity) public override {}
@@ -55,7 +55,7 @@ contract GoldOreVoxelSystem is VoxelType {
     bytes32[] memory childEntityIds,
     bytes32 parentEntity
   ) public view override returns (bytes32) {
-    return GoldOreVoxelVariantID;
+    return SwitchGrassVoxelVariantID;
   }
 
   function activate(bytes32 entity) public view override returns (string memory) {}

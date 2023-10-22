@@ -9,40 +9,40 @@ import { REGISTRY_ADDRESS, CA_ADDRESS } from "@tenet-pretty-extension/src/Consta
 import { registerCAVoxelType } from "@tenet-base-ca/src/CallUtils.sol";
 import { VoxelCoord, ComponentDef } from "@tenet-utils/src/Types.sol";
 
-bytes32 constant OakLogOutset1196VoxelID = bytes32(keccak256("oak_log_outset_1196"));
-bytes32 constant OakLogOutset1196VoxelVariantID = bytes32(keccak256("oak_log_outset_1196"));
+bytes32 constant CottonBushVoxelID = bytes32(keccak256("cotton_bush"));
+bytes32 constant CottonBushVoxelVariantID = bytes32(keccak256("cotton_bush"));
 
-contract OakLogOutset1196VoxelSystem is VoxelType {
+contract CottonBushVoxelSystem is VoxelType {
   function registerBody() public override {
     address world = _world();
-    VoxelVariantsRegistryData memory oakLogOutset1196Variant;
-    registerVoxelVariant(REGISTRY_ADDRESS, OakLogOutset1196VoxelVariantID, oakLogOutset1196Variant);
+    VoxelVariantsRegistryData memory cottonBushVariant;
+    registerVoxelVariant(REGISTRY_ADDRESS, CottonBushVoxelVariantID, cottonBushVariant);
 
-    bytes32[] memory oakLogOutset1196ChildVoxelTypes = new bytes32[](1);
-    oakLogOutset1196ChildVoxelTypes[0] = OakLogOutset1196VoxelID;
-    bytes32 baseVoxelTypeId = OakLogOutset1196VoxelID;
+    bytes32[] memory cottonBushChildVoxelTypes = new bytes32[](1);
+    cottonBushChildVoxelTypes[0] = CottonBushVoxelID;
+    bytes32 baseVoxelTypeId = CottonBushVoxelID;
     ComponentDef[] memory componentDefs = new ComponentDef[](0);
     registerVoxelType(
       REGISTRY_ADDRESS,
-      "Oak Log Outset1196",
-      OakLogOutset1196VoxelID,
+      "Cotton Bush",
+      CottonBushVoxelID,
       baseVoxelTypeId,
-      oakLogOutset1196ChildVoxelTypes,
-      oakLogOutset1196ChildVoxelTypes,
-      OakLogOutset1196VoxelVariantID,
+      cottonBushChildVoxelTypes,
+      cottonBushChildVoxelTypes,
+      CottonBushVoxelVariantID,
       voxelSelectorsForVoxel(
-        IWorld(world).pretty_C31196_enterWorld.selector,
-        IWorld(world).pretty_C31196_exitWorld.selector,
-        IWorld(world).pretty_C31196_variantSelector.selector,
-        IWorld(world).pretty_C31196_activate.selector,
-        IWorld(world).pretty_C31196_eventHandler.selector,
-        IWorld(world).pretty_C31196_neighbourEventHandler.selector
+        IWorld(world).pretty_C16777227_enterWorld.selector,
+        IWorld(world).pretty_C16777227_exitWorld.selector,
+        IWorld(world).pretty_C16777227_variantSelector.selector,
+        IWorld(world).pretty_C16777227_activate.selector,
+        IWorld(world).pretty_C16777227_eventHandler.selector,
+        IWorld(world).pretty_C16777227_neighbourEventHandler.selector
       ),
       abi.encode(componentDefs),
       5
     );
 
-    registerCAVoxelType(CA_ADDRESS, OakLogOutset1196VoxelID);
+    registerCAVoxelType(CA_ADDRESS, CottonBushVoxelID);
   }
 
   function enterWorld(VoxelCoord memory coord, bytes32 entity) public override {}
@@ -55,7 +55,7 @@ contract OakLogOutset1196VoxelSystem is VoxelType {
     bytes32[] memory childEntityIds,
     bytes32 parentEntity
   ) public view override returns (bytes32) {
-    return OakLogOutset1196VoxelVariantID;
+    return CottonBushVoxelVariantID;
   }
 
   function activate(bytes32 entity) public view override returns (string memory) {}

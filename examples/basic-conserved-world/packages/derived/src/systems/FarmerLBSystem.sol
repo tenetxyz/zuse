@@ -22,10 +22,18 @@ import { Pokemon, PokemonData, PokemonTableId } from "@tenet-pokemon-extension/s
 import { Plant, PlantData, PlantStage } from "@tenet-pokemon-extension/src/codegen/tables/Plant.sol";
 import { FarmLeaderboard, FarmLeaderboardTableId } from "@tenet-derived/src/codegen/Tables.sol";
 import { PlantDataWithEntity } from "@tenet-derived/src/Types.sol";
+import { OwnedBy, OwnedByTableId } from "@tenet-world/src/codegen/tables/OwnedBy.sol";
 
 contract FarmerLBSystem is System {
-  function claimFarmerShard(VoxelEntity memory farmerEntity, VoxelCoord memory coord) public {
+  function claimFarmerShard(VoxelEntity memory farmerEntity) public {
+    IStore worldStore = IStore(WORLD_ADDRESS);
     IStore caStore = IStore(BASE_CA_ADDRESS);
+    require(
+      hasKey(worldStore, OwnedByTableId, OwnedBy.encodeKeyTuple(farmerEntity.scale, farmerEntity.entityId)) &&
+        OwnedBy.get(worldStore, farmerEntity.scale, farmerEntity.entityId) == _msgSender(),
+      "You do not own this entity"
+    );
+    VoxelCoord memory coord = getVoxelCoordStrict(worldStore, farmerEntity);
     VoxelCoord memory shardCoord = coordToShardCoord(coord);
     require(
       !hasKey(FarmLeaderboardTableId, FarmLeaderboard.encodeKeyTuple(shardCoord.x, shardCoord.y, shardCoord.z)),

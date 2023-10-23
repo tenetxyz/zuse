@@ -27,6 +27,20 @@ export default mudConfig({
         farmerCAEntity: "bytes32",
       },
     },
+    BuildingLeaderboard: {
+      keySchema: {
+        // ShardCoords
+        x: "int32",
+        y: "int32",
+        z: "int32",
+      },
+      schema: {
+        rank: "uint256",
+        totalLikes: "uint256",
+        agentEntity: "bytes32",
+        likedBy: "address[]",
+      },
+    },
     FarmFactionsLeaderboard: {
       keySchema: {
         // ShardCoords
@@ -73,6 +87,11 @@ export default mudConfig({
       name: "KeysInTableModule",
       root: true,
       args: [resolveTableId("PokemonFactionsLeaderboard")],
+    },
+    {
+      name: "KeysInTableModule",
+      root: true,
+      args: [resolveTableId("BuildingLeaderboard")],
     },
   ],
 });

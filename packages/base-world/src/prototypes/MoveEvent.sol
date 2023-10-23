@@ -13,6 +13,7 @@ import { VoxelType, VoxelTypeData } from "@tenet-base-world/src/codegen/tables/V
 import { calculateChildCoords, getEntityAtCoord, positionDataToVoxelCoord } from "@tenet-base-world/src/Utils.sol";
 import { CAVoxelType, CAVoxelTypeData } from "@tenet-base-ca/src/codegen/tables/CAVoxelType.sol";
 import { VoxelTypeRegistry, VoxelTypeRegistryData } from "@tenet-registry/src/codegen/tables/VoxelTypeRegistry.sol";
+import { console } from "forge-std/console.sol";
 
 abstract contract MoveEvent is Event {
   function move(
@@ -28,7 +29,9 @@ abstract contract MoveEvent is Event {
   }
 
   function preEvent(bytes32 voxelTypeId, VoxelCoord memory coord, bytes memory eventData) internal virtual override {
+    console.log("call approve");
     IWorld(_world()).approveMove(_msgSender(), voxelTypeId, coord, eventData);
+    console.log("approve done");
   }
 
   function runEventHandlerForParent(
@@ -105,13 +108,16 @@ abstract contract MoveEvent is Event {
   ) internal virtual override {
     uint32 scale = eventVoxelEntity.scale;
     MoveEventData memory moveEventData = abi.decode(eventData, (MoveEventData));
+    console.log("calling moveca");
     IWorld(_world()).moveCA(caAddress, eventVoxelEntity, voxelTypeId, moveEventData.oldCoord, newCoord);
+    console.log("cdone alling moveca");
 
     bytes32 oldVoxelEntity = getEntityAtCoord(scale, moveEventData.oldCoord);
     require(uint256(oldVoxelEntity) != 0, "No voxel entity at old coord");
 
     CAVoxelTypeData memory oldCAVoxelType = CAVoxelType.get(IStore(caAddress), _world(), oldVoxelEntity);
     VoxelType.set(scale, oldVoxelEntity, oldCAVoxelType.voxelTypeId, oldCAVoxelType.voxelVariantId);
+    super.preRunCA(caAddress, voxelTypeId, newCoord, eventVoxelEntity, eventData);
   }
 
   function runCA(

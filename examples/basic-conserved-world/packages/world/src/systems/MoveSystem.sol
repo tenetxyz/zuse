@@ -31,12 +31,14 @@ contract MoveSystem is MoveEvent {
     VoxelEntity memory agentEntity
   ) public returns (VoxelEntity memory, VoxelEntity memory) {
     console.log("OK MOVE CALLED");
+    console.logBytes32(voxelTypeId);
     MoveWorldEventData memory moveWorldEventData = MoveWorldEventData({ agentEntity: agentEntity });
     (VoxelEntity memory oldEntity, VoxelEntity memory newEntity) = move(
       voxelTypeId,
       newCoord,
       abi.encode(MoveEventData({ oldCoord: oldCoord, worldData: abi.encode(moveWorldEventData) }))
     );
+    console.log("here");
 
     // Transfer ownership of the oldEntity to the newEntity
     if (hasKey(OwnedByTableId, OwnedBy.encodeKeyTuple(oldEntity.scale, oldEntity.entityId))) {

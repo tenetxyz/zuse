@@ -87,6 +87,7 @@ contract VelocitySystem is SimHandler {
   ) internal {
     console.log("onCollision");
     console.logBytes32(centerVoxelEntity.entityId);
+    console.logBytes32(getVoxelTypeId(callerAddress, centerVoxelEntity));
     CollisionData[] memory centerEntitiesToCheckStack = new CollisionData[](MAX_VOXEL_NEIGHBOUR_UPDATE_DEPTH);
     uint256 centerEntitiesToCheckStackIdx = 0;
     uint256 useStackIdx = 0;
@@ -180,6 +181,9 @@ contract VelocitySystem is SimHandler {
         VoxelCoord memory deltaVelocity = sub(collisionData.newVelocity, collisionData.oldVelocity);
         // go through each axis, x, y, z and for each one figure out the new coord by adding the unit amount (ie 1), and make the move event call
         bytes32 voxelTypeId = getVoxelTypeId(callerAddress, workingEntity);
+        console.log("Not equal, try moving");
+        console.logBytes32(workingEntity.entityId);
+        console.logBytes32(voxelTypeId);
         // TODO: What is the optimal order in which to try these?
         workingCoord = tryToReachTargetVelocity(
           callerAddress,
@@ -235,6 +239,7 @@ contract VelocitySystem is SimHandler {
         VoxelCoord memory newCoord = add(workingCoord, deltaVelocity);
         console.log("moving to new coord");
         console.logBytes32(actingEntity.entityId);
+        console.logBytes32(voxelTypeId);
         console.logInt(workingCoord.x);
         console.logInt(workingCoord.y);
         console.logInt(workingCoord.z);

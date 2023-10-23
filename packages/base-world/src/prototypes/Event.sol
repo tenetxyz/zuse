@@ -66,7 +66,16 @@ abstract contract Event is System {
     VoxelCoord memory coord,
     VoxelEntity memory eventVoxelEntity,
     bytes memory eventData
-  ) internal virtual;
+  ) internal virtual {
+    // Set initial voxel type
+    CAVoxelTypeData memory entityCAVoxelType = CAVoxelType.get(IStore(caAddress), _world(), eventVoxelEntity.entityId);
+    VoxelType.set(
+      eventVoxelEntity.scale,
+      eventVoxelEntity.entityId,
+      entityCAVoxelType.voxelTypeId,
+      entityCAVoxelType.voxelVariantId
+    );
+  }
 
   function postRunCA(
     address caAddress,
@@ -174,28 +183,29 @@ abstract contract Event is System {
     bool runEventOnChildren,
     bytes memory eventData
   ) internal virtual returns (VoxelEntity memory, EntityEventData[] memory) {
+    console.log("runEventHandlerHelper");
     require(IWorld(_world()).isVoxelTypeAllowed(voxelTypeId), "Voxel type not allowed in this world");
     VoxelTypeRegistryData memory voxelTypeData = VoxelTypeRegistry.get(IStore(getRegistryAddress()), voxelTypeId);
     address caAddress = WorldConfig.get(voxelTypeId);
 
     uint32 scale = voxelTypeData.scale;
 
+    console.log("getting");
     bytes32 voxelEntityId = getEntityAtCoord(scale, coord);
     if (uint256(voxelEntityId) == 0) {
       voxelEntityId = getUniqueEntity();
       Position.set(scale, voxelEntityId, coord.x, coord.y, coord.z);
     }
     VoxelEntity memory eventVoxelEntity = VoxelEntity({ scale: scale, entityId: voxelEntityId });
+    console.log("keep going");
 
     if (runEventOnChildren && scale > 1) {
       runEventHandlerForChildren(voxelTypeId, voxelTypeData, coord, eventVoxelEntity, eventData);
     }
 
-    preRunCA(caAddress, voxelTypeId, coord, eventVoxelEntity, eventData);
+    console.log("pre run ca");
 
-    // Set initial voxel type
-    CAVoxelTypeData memory entityCAVoxelType = CAVoxelType.get(IStore(caAddress), _world(), voxelEntityId);
-    VoxelType.set(scale, voxelEntityId, entityCAVoxelType.voxelTypeId, entityCAVoxelType.voxelVariantId);
+    preRunCA(caAddress, voxelTypeId, coord, eventVoxelEntity, eventData);
 
     EntityEventData[] memory entitiesEventData = runCA(caAddress, voxelTypeId, coord, eventVoxelEntity, eventData);
 

@@ -115,6 +115,7 @@ abstract contract MineEvent is Event {
   ) internal virtual override {
     // Enter World
     IWorld(_world()).exitCA(caAddress, eventVoxelEntity, voxelTypeId, coord);
+    super.preRunCA(caAddress, voxelTypeId, coord, eventVoxelEntity, eventData);
   }
 
   function runCA(

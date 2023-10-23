@@ -15,7 +15,7 @@ import { CAVoxelType, CAVoxelTypeTableId } from "@tenet-base-ca/src/codegen/tabl
 import { VoxelCoord, InteractionSelector } from "@tenet-utils/src/Types.sol";
 import { getEntityAtCoord, entityArrayToCAEntityArray, entityToCAEntity, caEntityArrayToEntityArray } from "@tenet-base-ca/src/Utils.sol";
 import { safeCall, safeStaticCall } from "@tenet-utils/src/CallUtils.sol";
-import { getEnterWorldSelector, getExitWorldSelector, getVoxelVariantSelector, getActivateSelector, getInteractionSelectors, getOnNewNeighbourSelector } from "@tenet-registry/src/Utils.sol";
+import { getPreviewVoxelVariantId, getEnterWorldSelector, getExitWorldSelector, getVoxelVariantSelector, getActivateSelector, getInteractionSelectors, getOnNewNeighbourSelector } from "@tenet-registry/src/Utils.sol";
 
 abstract contract CAHelper is System {
   function getRegistryAddress() internal pure virtual returns (address);
@@ -26,7 +26,9 @@ abstract contract CAHelper is System {
       voxelEnterWorld(baseVoxelTypeId, coord, caEntity); // recursive, so we get the entire stack of russian dolls
     }
     bytes4 voxelEnterWorldSelector = getEnterWorldSelector(IStore(getRegistryAddress()), voxelTypeId);
-    safeCall(_world(), abi.encodeWithSelector(voxelEnterWorldSelector, coord, caEntity), "voxel enter world");
+    if (voxelEnterWorldSelector != bytes4(0)) {
+      safeCall(_world(), abi.encodeWithSelector(voxelEnterWorldSelector, coord, caEntity), "voxel enter world");
+    }
   }
 
   function getVoxelVariant(
@@ -37,6 +39,9 @@ abstract contract CAHelper is System {
     bytes32 parentEntity
   ) public virtual returns (bytes32) {
     bytes4 voxelVariantSelector = getVoxelVariantSelector(IStore(getRegistryAddress()), voxelTypeId);
+    if (voxelVariantSelector == bytes4(0)) {
+      return getPreviewVoxelVariantId(IStore(getRegistryAddress()), voxelTypeId);
+    }
     bytes memory returnData = safeStaticCall(
       _world(),
       abi.encodeWithSelector(voxelVariantSelector, caEntity, caNeighbourEntityIds, childEntityIds, parentEntity),
@@ -47,7 +52,9 @@ abstract contract CAHelper is System {
 
   function voxelExitWorld(bytes32 voxelTypeId, VoxelCoord memory coord, bytes32 caEntity) public virtual {
     bytes4 voxelExitWorldSelector = getExitWorldSelector(IStore(getRegistryAddress()), voxelTypeId);
-    safeCall(_world(), abi.encodeWithSelector(voxelExitWorldSelector, coord, caEntity), "voxel exit world");
+    if (voxelExitWorldSelector != bytes4(0)) {
+      safeCall(_world(), abi.encodeWithSelector(voxelExitWorldSelector, coord, caEntity), "voxel exit world");
+    }
 
     bytes32 baseVoxelTypeId = VoxelTypeRegistry.getBaseVoxelTypeId(IStore(getRegistryAddress()), voxelTypeId);
     if (baseVoxelTypeId != voxelTypeId) {

@@ -237,6 +237,9 @@ abstract contract CA is System {
     bytes32 voxelTypeId = CAVoxelType.getVoxelTypeId(callerAddress, entity);
     bytes4 voxelActivateSelector = getActivateSelector(IStore(getRegistryAddress()), voxelTypeId);
     bytes32 caEntity = entityToCAEntity(callerAddress, entity);
+    if (voxelActivateSelector == bytes4(0)) {
+      return "no voxel activate";
+    }
     bytes memory returnData = safeCall(
       _world(),
       abi.encodeWithSelector(voxelActivateSelector, caEntity),

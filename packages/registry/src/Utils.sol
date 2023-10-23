@@ -120,6 +120,10 @@ function getSelector(
   revert("Selector not found");
 }
 
+function getPreviewVoxelVariantId(IStore store, bytes32 voxelTypeId) view returns (bytes32) {
+  return VoxelTypeRegistry.getPreviewVoxelVariantId(store, voxelTypeId);
+}
+
 function registerCreation(
   address registryAddress,
   string memory name,

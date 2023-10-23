@@ -183,27 +183,22 @@ abstract contract Event is System {
     bool runEventOnChildren,
     bytes memory eventData
   ) internal virtual returns (VoxelEntity memory, EntityEventData[] memory) {
-    console.log("runEventHandlerHelper");
     require(IWorld(_world()).isVoxelTypeAllowed(voxelTypeId), "Voxel type not allowed in this world");
     VoxelTypeRegistryData memory voxelTypeData = VoxelTypeRegistry.get(IStore(getRegistryAddress()), voxelTypeId);
     address caAddress = WorldConfig.get(voxelTypeId);
 
     uint32 scale = voxelTypeData.scale;
 
-    console.log("getting");
     bytes32 voxelEntityId = getEntityAtCoord(scale, coord);
     if (uint256(voxelEntityId) == 0) {
       voxelEntityId = getUniqueEntity();
       Position.set(scale, voxelEntityId, coord.x, coord.y, coord.z);
     }
     VoxelEntity memory eventVoxelEntity = VoxelEntity({ scale: scale, entityId: voxelEntityId });
-    console.log("keep going");
 
     if (runEventOnChildren && scale > 1) {
       runEventHandlerForChildren(voxelTypeId, voxelTypeData, coord, eventVoxelEntity, eventData);
     }
-
-    console.log("pre run ca");
 
     preRunCA(caAddress, voxelTypeId, coord, eventVoxelEntity, eventData);
 

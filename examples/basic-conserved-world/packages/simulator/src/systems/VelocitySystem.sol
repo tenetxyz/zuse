@@ -365,7 +365,6 @@ contract VelocitySystem is SimHandler {
     require(resourceRequired <= staminaInActingEntity, "Not enough stamina to move.");
 
     if (hasKey(MassTableId, Mass.encodeKeyTuple(callerAddress, newEntity.scale, newEntity.entityId))) {
-      console.log("entity got mass bro");
       require(
         Mass.get(callerAddress, newEntity.scale, newEntity.entityId) == 0,
         "Cannot move on top of an entity with mass"
@@ -373,7 +372,6 @@ contract VelocitySystem is SimHandler {
     } else {
       {
         uint256 terrainMass = getTerrainMass(callerAddress, oldEntity.scale, newCoord);
-        console.log("terrian got mass bro");
         require(terrainMass == 0, "Cannot move on top of terrain with mass");
         Mass.set(callerAddress, newEntity.scale, newEntity.entityId, terrainMass);
       }

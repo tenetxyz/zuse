@@ -18,6 +18,7 @@ import { getEntityAtCoord, getEntityPositionStrict, positionDataToVoxelCoord } f
 import { VoxelTypeRegistry, VoxelTypeRegistryData } from "@tenet-registry/src/codegen/tables/VoxelTypeRegistry.sol";
 import { REGISTRY_ADDRESS, SIMULATOR_ADDRESS } from "@tenet-world/src/Constants.sol";
 import { updateVelocityCache } from "@tenet-simulator/src/CallUtils.sol";
+import { console } from "forge-std/console.sol";
 
 uint256 constant MAX_AGENT_ACTION_RADIUS = 1;
 
@@ -58,7 +59,9 @@ contract ApprovalSystem is EventApprovalsSystem {
       OwnedBy.get(agentEntity.scale, agentEntity.entityId) == caller;
     bool isWorldCaller = caller == _world(); // any root system can call this
     bool isSimCaller = caller == SIMULATOR_ADDRESS;
+    console.log("approval bro");
     require(isEOACaller || isWorldCaller || isSimCaller, "Agent entity must be owned by caller or be a root system");
+    console.log("approval done");
 
     agentEntityChecks(eventType, caller, voxelTypeId, coord, oldCoord, agentEntity);
 
@@ -79,7 +82,12 @@ contract ApprovalSystem is EventApprovalsSystem {
   ) internal {
     // Assert that this entity has a position
     VoxelCoord memory agentPosition = positionDataToVoxelCoord(getEntityPositionStrict(agentEntity));
-    require(distanceBetween(agentPosition, oldCoord) <= MAX_AGENT_ACTION_RADIUS, "Agent must be adjacent to voxel");
+    // caller == SIMULATOR_ADDRESS is so a chain of collisions can still be approved
+    // in a chain, the agent causing the collision may not be adjacent to the voxel
+    require(
+      distanceBetween(agentPosition, oldCoord) <= MAX_AGENT_ACTION_RADIUS || caller == SIMULATOR_ADDRESS,
+      "Agent must be adjacent to voxel"
+    );
     require(distanceBetween(oldCoord, coord) <= MAX_AGENT_ACTION_RADIUS, "Old coord must be adjacent to new coord");
   }
 

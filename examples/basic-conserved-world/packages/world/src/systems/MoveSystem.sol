@@ -12,6 +12,7 @@ import { OwnedBy, OwnedByTableId, WorldConfig } from "@tenet-world/src/codegen/T
 import { getEntityAtCoord } from "@tenet-base-world/src/Utils.sol";
 import { MoveWorldEventData } from "@tenet-world/src/Types.sol";
 import { onMove } from "@tenet-simulator/src/CallUtils.sol";
+import { console } from "forge-std/console.sol";
 
 contract MoveSystem is MoveEvent {
   function getRegistryAddress() internal pure override returns (address) {
@@ -29,6 +30,7 @@ contract MoveSystem is MoveEvent {
     VoxelCoord memory newCoord,
     VoxelEntity memory agentEntity
   ) public returns (VoxelEntity memory, VoxelEntity memory) {
+    console.log("OK MOVE CALLED");
     MoveWorldEventData memory moveWorldEventData = MoveWorldEventData({ agentEntity: agentEntity });
     (VoxelEntity memory oldEntity, VoxelEntity memory newEntity) = move(
       voxelTypeId,
@@ -52,12 +54,14 @@ contract MoveSystem is MoveEvent {
     VoxelEntity memory eventVoxelEntity,
     bytes memory eventData
   ) internal override {
+    console.log("preRunCA");
     super.preRunCA(caAddress, voxelTypeId, newCoord, eventVoxelEntity, eventData);
     MoveEventData memory moveEventData = abi.decode(eventData, (MoveEventData));
     VoxelCoord memory oldCoord = moveEventData.oldCoord;
     uint32 scale = eventVoxelEntity.scale;
     bytes32 oldEntityId = getEntityAtCoord(scale, oldCoord);
     VoxelEntity memory oldEntity = VoxelEntity({ scale: scale, entityId: oldEntityId });
+    console.log("calling on move now");
 
     MoveWorldEventData memory moveWorldEventData = abi.decode(moveEventData.worldData, (MoveWorldEventData));
     onMove(SIMULATOR_ADDRESS, moveWorldEventData.agentEntity, oldEntity, oldCoord, eventVoxelEntity, newCoord);

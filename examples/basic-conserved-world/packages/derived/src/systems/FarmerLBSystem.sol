@@ -70,7 +70,6 @@ contract FarmerLBSystem is System {
     for (uint i = 0; i < plantEntities.length; i++) {
       bytes32 plantEntity = plantEntities[i][0];
       if (Plant.getHasValue(caStore, WORLD_ADDRESS, plantEntity)) {
-        console.logBytes32(plantEntity);
         VoxelCoord memory entityCoord = getCAEntityPositionStrict(caStore, plantEntity);
         VoxelCoord memory shardCoord = coordToShardCoord(entityCoord);
         // figure out the index of this shardCoord in farmerLBEntities
@@ -108,7 +107,6 @@ contract FarmerLBSystem is System {
     // Now, the rank of the shard coord is just its index + 1 in the sorted array
     for (uint i = 0; i < totalFarmerScore.length; i++) {
       uint rank = i + 1;
-      console.log("set rank");
       FarmLeaderboard.set(
         totalFarmerScore[i].coord.x,
         totalFarmerScore[i].coord.y,

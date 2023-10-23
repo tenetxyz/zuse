@@ -38,14 +38,11 @@ contract PokemonLBSystem is System {
       }
     }
     PokemonDataWithEntity[] memory pokemonDataArray = new PokemonDataWithEntity[](numPokemon);
-    console.log("pokemonEntities");
-    console.logUint(numPokemon);
     uint256 pokemonIdx = 0;
 
     for (uint i = 0; i < pokemonEntities.length; i++) {
       bytes32 pokemonEntity = pokemonEntities[i][0];
       if (Pokemon.getHasValue(caStore, WORLD_ADDRESS, pokemonEntity)) {
-        console.logBytes32(pokemonEntity);
         pokemonDataArray[pokemonIdx] = PokemonDataWithEntity({
           pokemonData: Pokemon.get(caStore, WORLD_ADDRESS, pokemonEntity),
           entity: pokemonEntity
@@ -76,7 +73,6 @@ contract PokemonLBSystem is System {
 
     for (uint i = 0; i < pokemonDataArray.length; i++) {
       uint rank = i + 1;
-      console.log("set rank");
       PokemonLeaderboard.set(pokemonDataArray[i].entity, rank);
     }
   }

@@ -54,7 +54,7 @@ contract PlantSystem is VoxelInteraction {
     ) {
       return (changedEntity, entityData);
     }
-    console.log("go get event");
+    console.log("changed true");
 
     changedEntity = true;
 
@@ -404,7 +404,7 @@ contract PlantSystem is VoxelInteraction {
         SimEventData[] memory allSimEventData = new SimEventData[](
           elixirTransferAmount > 0 && proteinTransferAmount > 0 ? 2 : 1
         );
-        console.log("transfer bro");
+        console.log("transferring");
         if (elixirTransferAmount > 0 && proteinTransferAmount > 0) {
           allSimEventData[0] = transferSimData(
             SimTable.Elixir,

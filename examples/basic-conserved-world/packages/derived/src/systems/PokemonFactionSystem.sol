@@ -20,23 +20,17 @@ import { coordToShardCoord } from "@tenet-utils/src/VoxelCoordUtils.sol";
 import { console } from "forge-std/console.sol";
 import { Pokemon, PokemonData, PokemonTableId } from "@tenet-pokemon-extension/src/codegen/tables/Pokemon.sol";
 import { Plant, PlantData, PlantStage } from "@tenet-pokemon-extension/src/codegen/tables/Plant.sol";
-import { FarmFactionsLeaderboard, FarmFactionsLeaderboardTableId, PokemonFactionsLeaderboard, PokemonFactionsLeaderboardTableId } from "@tenet-derived/src/codegen/Tables.sol";
+import { FarmFactionsLeaderboard, PokemonFactionsLeaderboardData, FarmFactionsLeaderboardTableId, PokemonFactionsLeaderboard, PokemonFactionsLeaderboardTableId } from "@tenet-derived/src/codegen/Tables.sol";
 import { PlantConsumer } from "@tenet-pokemon-extension/src/Types.sol";
 import { PlantDataWithEntity, PokemonDataWithEntity } from "@tenet-derived/src/Types.sol";
 
 contract PokemonFactionSystem is System {
-  function reportPokemon(VoxelEntity memory pokemonEntity) public {
+  function reportPokemon(bytes32 pokemonCAEntity) public {
     IStore worldStore = IStore(WORLD_ADDRESS);
     IStore caStore = IStore(BASE_CA_ADDRESS);
-    console.log("reportPokemon");
-    console.logBytes32(pokemonEntity.entityId);
-
-    bytes32 pokemonCAEntity = CAEntityMapping.get(caStore, WORLD_ADDRESS, pokemonEntity.entityId);
 
     PokemonData memory pokemonData = Pokemon.get(caStore, WORLD_ADDRESS, pokemonCAEntity);
     ObjectType pokemonFaction = pokemonData.pokemonType;
-    console.logBytes32(pokemonCAEntity);
-    console.logUint(uint(pokemonFaction));
 
     bytes32[][] memory plantEntities = getKeysInTable(caStore, CAEntityReverseMappingTableId);
     bytes32[][] memory farmerLBEntities = getKeysInTable(FarmFactionsLeaderboardTableId);
@@ -44,7 +38,6 @@ contract PokemonFactionSystem is System {
     for (uint i = 0; i < plantEntities.length; i++) {
       bytes32 plantEntity = plantEntities[i][0];
       if (Plant.getHasValue(caStore, WORLD_ADDRESS, plantEntity)) {
-        console.logBytes32(plantEntity);
         VoxelCoord memory entityCoord = getCAEntityPositionStrict(caStore, plantEntity);
         VoxelCoord memory shardCoord = coordToShardCoord(entityCoord);
 
@@ -52,8 +45,6 @@ contract PokemonFactionSystem is System {
           Plant.getConsumers(caStore, WORLD_ADDRESS, plantEntity),
           (PlantConsumer[])
         );
-        console.log("consumers");
-        console.logUint(consumers.length);
 
         for (uint k = 0; k < consumers.length; k++) {
           if (consumers[k].entityId == pokemonCAEntity) {
@@ -68,8 +59,6 @@ contract PokemonFactionSystem is System {
                   shardCoord.y,
                   shardCoord.z
                 );
-                console.log("relevantFarmFaction");
-                console.logUint(uint(relevantFarmFaction));
 
                 if (pokemonFaction != relevantFarmFaction) {
                   PokemonFactionsLeaderboard.setIsDisqualified(pokemonCAEntity, true);
@@ -88,8 +77,9 @@ contract PokemonFactionSystem is System {
     IStore worldStore = IStore(WORLD_ADDRESS);
     IStore caStore = IStore(BASE_CA_ADDRESS);
 
-    // We reset the leaderboard, so if a pokemon was mined, it will be removed from the leaderboard
-    resetPokemonFactionsLeaderboard();
+    // We don't reset the leaderboard here because we need to know if a pokemon was disqualified, and that info
+    // would go away if we reset the leaderboard
+    // resetPokemonFactionsLeaderboard();
 
     // Get all pokemon entities
     bytes32[][] memory pokemonEntities = getKeysInTable(caStore, CAEntityReverseMappingTableId);
@@ -100,14 +90,11 @@ contract PokemonFactionSystem is System {
       }
     }
     PokemonDataWithEntity[] memory pokemonDataArray = new PokemonDataWithEntity[](numPokemon);
-    console.log("pokemonEntities");
-    console.logUint(numPokemon);
     uint256 pokemonIdx = 0;
 
     for (uint i = 0; i < pokemonEntities.length; i++) {
       bytes32 pokemonEntity = pokemonEntities[i][0];
       if (Pokemon.getHasValue(caStore, WORLD_ADDRESS, pokemonEntity)) {
-        console.logBytes32(pokemonEntity);
         pokemonDataArray[pokemonIdx] = PokemonDataWithEntity({
           pokemonData: Pokemon.get(caStore, WORLD_ADDRESS, pokemonEntity),
           entity: pokemonEntity
@@ -143,15 +130,26 @@ contract PokemonFactionSystem is System {
       }
 
       uint rank = i + 1 - rankAdjustment; // Adjust the rank
-      console.log("set rank");
       PokemonFactionsLeaderboard.set(pokemonDataArray[i].entity, rank, false);
     }
+
+    cleanPokemonFactionsLeaderboard(pokemonDataArray);
   }
 
-  function resetPokemonFactionsLeaderboard() internal {
+  function cleanPokemonFactionsLeaderboard(PokemonDataWithEntity[] memory pokemonDataArray) internal {
+    // remove any entities in the table not present in the pokemonDataArray
     bytes32[][] memory pokemonLBEntities = getKeysInTable(PokemonFactionsLeaderboardTableId);
     for (uint i = 0; i < pokemonLBEntities.length; i++) {
-      PokemonFactionsLeaderboard.deleteRecord(pokemonLBEntities[i][0]);
+      bool found = false;
+      for (uint j = 0; j < pokemonDataArray.length; j++) {
+        if (pokemonLBEntities[i][0] == pokemonDataArray[j].entity) {
+          found = true;
+          break;
+        }
+      }
+      if (!found) {
+        PokemonFactionsLeaderboard.deleteRecord(pokemonLBEntities[i][0]);
+      }
     }
   }
 }

@@ -26,14 +26,9 @@ import { PlantDataWithEntity, PokemonDataWithEntity } from "@tenet-derived/src/T
 import { OwnedBy, OwnedByTableId } from "@tenet-world/src/codegen/tables/OwnedBy.sol";
 
 contract FarmerFactionSystem is System {
-  function reportFarmer(VoxelEntity memory farmerEntity) public {
+  function reportFarmer(bytes32 farmerCAEntity) public {
     IStore worldStore = IStore(WORLD_ADDRESS);
     IStore caStore = IStore(BASE_CA_ADDRESS);
-    console.log("reportFarmer");
-    console.logBytes32(farmerEntity.entityId);
-
-    bytes32 farmerCAEntity = CAEntityMapping.get(caStore, WORLD_ADDRESS, farmerEntity.entityId);
-    console.logBytes32(farmerCAEntity);
 
     bytes32[][] memory plantEntities = getKeysInTable(caStore, CAEntityReverseMappingTableId);
     bytes32[][] memory farmerLBEntities = getKeysInTable(FarmFactionsLeaderboardTableId);
@@ -41,7 +36,6 @@ contract FarmerFactionSystem is System {
     for (uint i = 0; i < plantEntities.length; i++) {
       bytes32 plantEntity = plantEntities[i][0];
       if (Plant.getHasValue(caStore, WORLD_ADDRESS, plantEntity)) {
-        console.logBytes32(plantEntity);
         VoxelCoord memory entityCoord = getCAEntityPositionStrict(caStore, plantEntity);
         VoxelCoord memory shardCoord = coordToShardCoord(entityCoord);
 
@@ -49,13 +43,9 @@ contract FarmerFactionSystem is System {
           Plant.getConsumers(caStore, WORLD_ADDRESS, plantEntity),
           (PlantConsumer[])
         );
-        console.log("consumers");
-        console.logBytes32(plantEntity);
-        console.logUint(consumers.length);
 
         for (uint k = 0; k < consumers.length; k++) {
           if (consumers[k].entityId == farmerCAEntity) {
-            console.log("match!");
             for (uint j = 0; j < farmerLBEntities.length; j++) {
               if (
                 shardCoord.x == int32(int256(uint256(farmerLBEntities[j][0]))) &&
@@ -67,14 +57,11 @@ contract FarmerFactionSystem is System {
                   shardCoord.y,
                   shardCoord.z
                 );
-                console.logBytes32(relevantFarmer);
 
                 if (farmerCAEntity != relevantFarmer) {
-                  console.log("dis qualified");
                   FarmFactionsLeaderboard.setIsDisqualified(shardCoord.x, shardCoord.y, shardCoord.z, true);
                   return;
                 }
-                console.log("break");
                 break;
               }
             }
@@ -140,7 +127,6 @@ contract FarmerFactionSystem is System {
     for (uint i = 0; i < plantEntities.length; i++) {
       bytes32 plantEntity = plantEntities[i][0];
       if (Plant.getHasValue(caStore, WORLD_ADDRESS, plantEntity)) {
-        console.logBytes32(plantEntity);
         VoxelCoord memory entityCoord = getCAEntityPositionStrict(caStore, plantEntity);
         VoxelCoord memory shardCoord = coordToShardCoord(entityCoord);
         // figure out the index of this shardCoord in farmerLBEntities
@@ -192,7 +178,6 @@ contract FarmerFactionSystem is System {
       }
 
       uint rank = i + 1 - rankAdjustment;
-      console.log("set rank");
       FarmFactionsLeaderboard.set(
         totalFarmerScore[i].coord.x,
         totalFarmerScore[i].coord.y,

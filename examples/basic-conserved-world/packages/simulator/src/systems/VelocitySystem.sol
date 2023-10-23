@@ -110,7 +110,7 @@ contract VelocitySystem is SimHandler {
       useCollisionData.newVelocity = newVelocity;
       centerEntitiesToCheckStack[useStackIdx] = useCollisionData;
 
-      if (!voxelCoordsAreEqual(currentVelocity, newVelocity)) {
+      if (useStackIdx == 0 || !voxelCoordsAreEqual(currentVelocity, newVelocity)) {
         if (useStackIdx > 0) {
           // Note: we don't update the first one (index == 0), because it's already been applied in the initial move
           Velocity.setVelocity(callerAddress, useEntity.scale, useEntity.entityId, abi.encode(newVelocity));
@@ -128,6 +128,8 @@ contract VelocitySystem is SimHandler {
               }
             }
             if (!isAlreadyInStack && Mass.get(callerAddress, useEntity.scale, neighbourEntities[i]) > 0) {
+              console.log("adding neighbur");
+              console.logBytes32(neighbourEntities[i]);
               centerEntitiesToCheckStackIdx++;
               require(
                 centerEntitiesToCheckStackIdx < MAX_VOXEL_NEIGHBOUR_UPDATE_DEPTH,
@@ -228,6 +230,14 @@ contract VelocitySystem is SimHandler {
     for (int256 i = 0; i < absInt32(vDelta); i++) {
       {
         VoxelCoord memory newCoord = add(workingCoord, deltaVelocity);
+        console.log("moving to new coord");
+        console.logBytes32(workingEntity.entityId);
+        console.logInt(workingCoord.x);
+        console.logInt(workingCoord.y);
+        console.logInt(workingCoord.z);
+        console.logInt(newCoord.x);
+        console.logInt(newCoord.y);
+        console.logInt(newCoord.z);
         // Try moving
         (bool success, bytes memory returnData) = callerAddress.call(
           abi.encodeWithSignature(
@@ -278,6 +288,7 @@ contract VelocitySystem is SimHandler {
       int dotProduct = dot(primaryVelocity, relativePosition);
       if (dotProduct <= 0) {
         if (uint256(neighbourEntities[i]) != 0) {
+          console.log("impact on us");
           // Check to see if this neighbour has a velocity and is having an impact on us
           VoxelCoord memory neighbourVelocity = getVelocity(
             callerAddress,
@@ -287,6 +298,8 @@ contract VelocitySystem is SimHandler {
           dotProduct = dot(neighbourVelocity, relativePosition);
         } // else it's velocity would be zero
       }
+      console.log("dot product");
+      console.logInt(dotProduct);
       if (dotProduct > 0) {
         // this means the primary voxel is moving towards the neighbour
         if (uint256(neighbourEntities[i]) == 0) {
@@ -317,6 +330,11 @@ contract VelocitySystem is SimHandler {
 
     int32 mass_primary = uint256ToInt32(Mass.get(callerAddress, centerVoxelEntity.scale, centerVoxelEntity.entityId));
     console.log("mass_primary");
+    console.logBytes32(centerVoxelEntity.entityId);
+    console.logInt(centerCoord.x);
+    console.logInt(centerCoord.y);
+    console.logInt(centerCoord.z);
+    console.logUint(Mass.get(callerAddress, centerVoxelEntity.scale, centerVoxelEntity.entityId));
     console.logInt(mass_primary);
 
     // Now we run the collision formula for each of the colliding entities
@@ -332,12 +350,18 @@ contract VelocitySystem is SimHandler {
       );
       int32 mass_neighbour = uint256ToInt32(Mass.get(callerAddress, centerVoxelEntity.scale, collidingEntities[i]));
       int32 impulseFactor = (2 * mass_neighbour) / (mass_primary + mass_neighbour);
+      console.log("impulseFactor");
+      console.logInt(impulseFactor);
       VoxelCoord memory impulse = mulScalar(relativeVelocity, impulseFactor);
       // Add to total impulse
       total_impulse = add(total_impulse, impulse);
     }
 
     VoxelCoord memory delta_velocity = divScalar(total_impulse, mass_primary);
+    console.log("delta_velocity");
+    console.logInt(delta_velocity.x);
+    console.logInt(delta_velocity.y);
+    console.logInt(delta_velocity.z);
     new_primary_velocity = add(primaryVelocity, delta_velocity);
     return (new_primary_velocity, neighbourEntities, neighbourCoords);
   }
@@ -355,6 +379,9 @@ contract VelocitySystem is SimHandler {
       "Old entity does not exist"
     );
     uint256 bodyMass = Mass.get(callerAddress, oldEntity.scale, oldEntity.entityId);
+    console.log("velocityChange");
+    console.logBytes32(oldEntity.entityId);
+    console.logUint(bodyMass);
     (VoxelCoord memory newVelocity, uint256 resourceRequired) = calculateNewVelocity(
       callerAddress,
       oldCoord,

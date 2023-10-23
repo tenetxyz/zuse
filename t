@@ -8,7 +8,7 @@ run_example() {
     local extra_cmd="$2"
     local command="cd examples/${path} && yarn run dev"
     if [[ -n "$extra_cmd" ]]; then
-        command="${command} && ${extra_cmd}"
+        command="${command} ${extra_cmd}"
     fi
     echo $command
     yarn concurrently -n example -c \#fb8500 "$command"
@@ -21,7 +21,7 @@ if [[ "$1" == "run" ]]; then
             yarn concurrently -n anvil,contracts,client -c blue,green,white "./t run dev:anvil" "./t run dev:framework $4 && ./t run dev:$3"  "./t run dev:client"
             ;;
         "dev-no-client")
-            yarn concurrently -n anvil,contracts -c blue,green,white "./t run dev:anvil" "./t run dev:framework $4 && ./t run dev:$3 $4 $5 $6"
+            yarn concurrently -n anvil,contracts -c blue,green,white "./t run dev:anvil" "./t run dev:framework $4 && ./t run dev:$3 $4 $5 $6 $7"
             ;;
         "dev:anvil")
             cd scripts && yarn run anvil
@@ -42,7 +42,7 @@ if [[ "$1" == "run" ]]; then
         "dev:basic-conserved-world")
             extra_cmd=""
             if [[ "$3" == "--with-extensions" ]] || [[ "$4" == "--with-extensions" ]]; then
-                extra_cmd="yarn run deploy:extensions"
+                extra_cmd="&& yarn run deploy:extensions"
             fi
             if [[ "$4" == "--with-derived" ]] || [[ "$5" == "--with-derived" ]]; then
                 extra_cmd="${extra_cmd} && yarn run deploy:derived"

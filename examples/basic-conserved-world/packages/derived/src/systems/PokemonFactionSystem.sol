@@ -36,7 +36,7 @@ contract PokemonFactionSystem is System {
     PokemonData memory pokemonData = Pokemon.get(caStore, WORLD_ADDRESS, pokemonCAEntity);
     ObjectType pokemonFaction = pokemonData.pokemonType;
     console.logBytes32(pokemonCAEntity);
-    console.logUint(pokemonFaction);
+    console.logUint(uint(pokemonFaction));
 
     bytes32[][] memory plantEntities = getKeysInTable(caStore, CAEntityReverseMappingTableId);
     bytes32[][] memory farmerLBEntities = getKeysInTable(FarmFactionsLeaderboardTableId);
@@ -69,7 +69,7 @@ contract PokemonFactionSystem is System {
                   shardCoord.z
                 );
                 console.log("relevantFarmFaction");
-                console.logUint(relevantFarmFaction);
+                console.logUint(uint(relevantFarmFaction));
 
                 if (pokemonFaction != relevantFarmFaction) {
                   PokemonFactionsLeaderboard.setIsDisqualified(pokemonCAEntity, true);

@@ -47,7 +47,10 @@ contract PlantSystem is VoxelInteraction {
     // if (entitySimData.nutrients == 0) {
     //   return (changedEntity, entityData);
     // }
-    if (!entityIsPokemon(callerAddress, centerEntityId)) {
+    if (
+      !(entityIsPokemon(callerAddress, centerEntityId) ||
+      (entityIsFarmer(callerAddress, centerEntityId) && Farmer.getIsHungry(callerAddress, centerEntityId)))
+    ) {
       return (changedEntity, entityData);
     }
 

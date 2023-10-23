@@ -59,7 +59,6 @@ contract ApprovalSystem is EventApprovalsSystem {
       OwnedBy.get(agentEntity.scale, agentEntity.entityId) == caller;
     bool isWorldCaller = caller == _world(); // any root system can call this
     bool isSimCaller = caller == SIMULATOR_ADDRESS;
-    console.log("approval bro");
     require(isEOACaller || isWorldCaller || isSimCaller, "Agent entity must be owned by caller or be a root system");
 
     agentEntityChecks(eventType, caller, voxelTypeId, coord, oldCoord, agentEntity);
@@ -69,7 +68,6 @@ contract ApprovalSystem is EventApprovalsSystem {
     if (uint256(entityId) != 0 && entityId != agentEntity.entityId) {
       updateVelocityCache(SIMULATOR_ADDRESS, VoxelEntity({ scale: agentEntity.scale, entityId: entityId }));
     }
-    console.log("approval done now");
   }
 
   function agentEntityChecks(

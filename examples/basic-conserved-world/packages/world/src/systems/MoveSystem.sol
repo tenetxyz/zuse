@@ -30,15 +30,12 @@ contract MoveSystem is MoveEvent {
     VoxelCoord memory newCoord,
     VoxelEntity memory agentEntity
   ) public returns (VoxelEntity memory, VoxelEntity memory) {
-    console.log("OK MOVE CALLED");
-    console.logBytes32(voxelTypeId);
     MoveWorldEventData memory moveWorldEventData = MoveWorldEventData({ agentEntity: agentEntity });
     (VoxelEntity memory oldEntity, VoxelEntity memory newEntity) = move(
       voxelTypeId,
       newCoord,
       abi.encode(MoveEventData({ oldCoord: oldCoord, worldData: abi.encode(moveWorldEventData) }))
     );
-    console.log("here");
 
     // Transfer ownership of the oldEntity to the newEntity
     if (hasKey(OwnedByTableId, OwnedBy.encodeKeyTuple(oldEntity.scale, oldEntity.entityId))) {
@@ -56,14 +53,12 @@ contract MoveSystem is MoveEvent {
     VoxelEntity memory eventVoxelEntity,
     bytes memory eventData
   ) internal override {
-    console.log("preRunCA");
     super.preRunCA(caAddress, voxelTypeId, newCoord, eventVoxelEntity, eventData);
     MoveEventData memory moveEventData = abi.decode(eventData, (MoveEventData));
     VoxelCoord memory oldCoord = moveEventData.oldCoord;
     uint32 scale = eventVoxelEntity.scale;
     bytes32 oldEntityId = getEntityAtCoord(scale, oldCoord);
     VoxelEntity memory oldEntity = VoxelEntity({ scale: scale, entityId: oldEntityId });
-    console.log("calling on move now");
 
     MoveWorldEventData memory moveWorldEventData = abi.decode(moveEventData.worldData, (MoveWorldEventData));
     onMove(SIMULATOR_ADDRESS, moveWorldEventData.agentEntity, oldEntity, oldCoord, eventVoxelEntity, newCoord);

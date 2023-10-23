@@ -44,14 +44,14 @@ contract SpawnEntity is Script {
       IStore(SIMULATOR_ADDRESS),
       worldAddress,
       1,
-      bytes32(uint256(0x2db)),
+      bytes32(uint256(0x2a8)),
       abi.encode(VoxelCoord(0, 0, 0))
     );
     Velocity.setVelocity(
       IStore(SIMULATOR_ADDRESS),
       worldAddress,
       1,
-      bytes32(uint256(0x2dd)),
+      bytes32(uint256(0x278)),
       abi.encode(VoxelCoord(0, 0, 0))
     );
     // world.spawnBody(voxelTypeId, coord, bytes4(0), initMass, initEnergy, initVelocity, initStamina);

@@ -29,8 +29,11 @@ contract FarmerFactionSystem is System {
   function reportFarmer(VoxelEntity memory farmerEntity) public {
     IStore worldStore = IStore(WORLD_ADDRESS);
     IStore caStore = IStore(BASE_CA_ADDRESS);
+    console.log("reportFarmer");
+    console.logBytes32(farmerEntity.entityId);
 
     bytes32 farmerCAEntity = CAEntityMapping.get(caStore, WORLD_ADDRESS, farmerEntity.entityId);
+    console.logBytes32(farmerCAEntity);
 
     bytes32[][] memory plantEntities = getKeysInTable(caStore, CAEntityReverseMappingTableId);
     bytes32[][] memory farmerLBEntities = getKeysInTable(FarmFactionsLeaderboardTableId);
@@ -46,9 +49,13 @@ contract FarmerFactionSystem is System {
           Plant.getConsumers(caStore, WORLD_ADDRESS, plantEntity),
           (PlantConsumer[])
         );
+        console.log("consumers");
+        console.logBytes32(plantEntity);
+        console.logUint(consumers.length);
 
         for (uint k = 0; k < consumers.length; k++) {
           if (consumers[k].entityId == farmerCAEntity) {
+            console.log("match!");
             for (uint j = 0; j < farmerLBEntities.length; j++) {
               if (
                 shardCoord.x == int32(int256(uint256(farmerLBEntities[j][0]))) &&
@@ -60,11 +67,14 @@ contract FarmerFactionSystem is System {
                   shardCoord.y,
                   shardCoord.z
                 );
+                console.logBytes32(relevantFarmer);
 
                 if (farmerCAEntity != relevantFarmer) {
+                  console.log("dis qualified");
                   FarmFactionsLeaderboard.setIsDisqualified(shardCoord.x, shardCoord.y, shardCoord.z, true);
                   return;
                 }
+                console.log("break");
                 break;
               }
             }

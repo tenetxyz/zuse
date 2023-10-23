@@ -85,9 +85,6 @@ contract VelocitySystem is SimHandler {
     VoxelEntity memory centerVoxelEntity,
     VoxelEntity memory actingEntity
   ) internal {
-    console.log("onCollision");
-    console.logBytes32(centerVoxelEntity.entityId);
-    console.logBytes32(getVoxelTypeId(callerAddress, centerVoxelEntity));
     CollisionData[] memory centerEntitiesToCheckStack = new CollisionData[](MAX_VOXEL_NEIGHBOUR_UPDATE_DEPTH);
     uint256 centerEntitiesToCheckStackIdx = 0;
     uint256 useStackIdx = 0;
@@ -133,8 +130,6 @@ contract VelocitySystem is SimHandler {
               }
             }
             if (!isAlreadyInStack && Mass.get(callerAddress, useEntity.scale, neighbourEntities[i]) > 0) {
-              console.log("adding neighbur");
-              console.logBytes32(neighbourEntities[i]);
               centerEntitiesToCheckStackIdx++;
               require(
                 centerEntitiesToCheckStackIdx < MAX_VOXEL_NEIGHBOUR_UPDATE_DEPTH,
@@ -181,9 +176,6 @@ contract VelocitySystem is SimHandler {
         VoxelCoord memory deltaVelocity = sub(collisionData.newVelocity, collisionData.oldVelocity);
         // go through each axis, x, y, z and for each one figure out the new coord by adding the unit amount (ie 1), and make the move event call
         bytes32 voxelTypeId = getVoxelTypeId(callerAddress, workingEntity);
-        console.log("Not equal, try moving");
-        console.logBytes32(workingEntity.entityId);
-        console.logBytes32(voxelTypeId);
         // TODO: What is the optimal order in which to try these?
         workingCoord = tryToReachTargetVelocity(
           callerAddress,
@@ -237,15 +229,6 @@ contract VelocitySystem is SimHandler {
     for (int256 i = 0; i < absInt32(vDelta); i++) {
       {
         VoxelCoord memory newCoord = add(workingCoord, deltaVelocity);
-        console.log("moving to new coord");
-        console.logBytes32(actingEntity.entityId);
-        console.logBytes32(voxelTypeId);
-        console.logInt(workingCoord.x);
-        console.logInt(workingCoord.y);
-        console.logInt(workingCoord.z);
-        console.logInt(newCoord.x);
-        console.logInt(newCoord.y);
-        console.logInt(newCoord.z);
         // Try moving
         (bool success, bytes memory returnData) = callerAddress.call(
           abi.encodeWithSignature(
@@ -257,7 +240,6 @@ contract VelocitySystem is SimHandler {
           )
         );
         if (success && returnData.length > 0) {
-          console.log("move success");
           (, VoxelEntity memory workingEntity) = abi.decode(returnData, (VoxelEntity, VoxelEntity));
           require(
             voxelCoordsAreEqual(getVoxelCoordStrict(callerAddress, workingEntity), newCoord),
@@ -265,7 +247,6 @@ contract VelocitySystem is SimHandler {
           );
           workingCoord = newCoord;
         } else {
-          console.log("move failed");
           // Could not move, so we break out of the loop
           // TODO: In a future iteration, we should dissipate energy from the velocity force that could not be applied
           break;
@@ -298,7 +279,6 @@ contract VelocitySystem is SimHandler {
       int dotProduct = dot(primaryVelocity, relativePosition);
       if (dotProduct <= 0) {
         if (uint256(neighbourEntities[i]) != 0) {
-          console.log("impact on us");
           // Check to see if this neighbour has a velocity and is having an impact on us
           VoxelCoord memory neighbourVelocity = getVelocity(
             callerAddress,
@@ -308,8 +288,6 @@ contract VelocitySystem is SimHandler {
           dotProduct = dot(neighbourVelocity, relativePosition);
         } // else it's velocity would be zero
       }
-      console.log("dot product");
-      console.logInt(dotProduct);
       if (dotProduct > 0) {
         // this means the primary voxel is moving towards the neighbour
         if (uint256(neighbourEntities[i]) == 0) {
@@ -339,13 +317,6 @@ contract VelocitySystem is SimHandler {
     }
 
     int32 mass_primary = uint256ToInt32(Mass.get(callerAddress, centerVoxelEntity.scale, centerVoxelEntity.entityId));
-    console.log("mass_primary");
-    console.logBytes32(centerVoxelEntity.entityId);
-    console.logInt(centerCoord.x);
-    console.logInt(centerCoord.y);
-    console.logInt(centerCoord.z);
-    console.logUint(Mass.get(callerAddress, centerVoxelEntity.scale, centerVoxelEntity.entityId));
-    console.logInt(mass_primary);
 
     // Now we run the collision formula for each of the colliding entities
     VoxelCoord memory total_impulse = VoxelCoord({ x: 0, y: 0, z: 0 });
@@ -360,18 +331,12 @@ contract VelocitySystem is SimHandler {
       );
       int32 mass_neighbour = uint256ToInt32(Mass.get(callerAddress, centerVoxelEntity.scale, collidingEntities[i]));
       int32 impulseFactor = (2 * mass_neighbour) / (mass_primary + mass_neighbour);
-      console.log("impulseFactor");
-      console.logInt(impulseFactor);
       VoxelCoord memory impulse = mulScalar(relativeVelocity, impulseFactor);
       // Add to total impulse
       total_impulse = add(total_impulse, impulse);
     }
 
     VoxelCoord memory delta_velocity = divScalar(total_impulse, mass_primary);
-    console.log("delta_velocity");
-    console.logInt(delta_velocity.x);
-    console.logInt(delta_velocity.y);
-    console.logInt(delta_velocity.z);
     new_primary_velocity = add(primaryVelocity, delta_velocity);
     return (new_primary_velocity, neighbourEntities, neighbourCoords);
   }
@@ -389,11 +354,6 @@ contract VelocitySystem is SimHandler {
       "Old entity does not exist"
     );
     uint256 bodyMass = Mass.get(callerAddress, oldEntity.scale, oldEntity.entityId);
-    console.log("velocityChange");
-    console.logAddress(callerAddress);
-    console.logBytes32(oldEntity.entityId);
-    console.logBytes32(newEntity.entityId);
-    console.logUint(bodyMass);
     (VoxelCoord memory newVelocity, uint256 resourceRequired) = calculateNewVelocity(
       callerAddress,
       oldCoord,
@@ -401,13 +361,8 @@ contract VelocitySystem is SimHandler {
       oldEntity,
       bodyMass
     );
-    console.log("check stamina bro");
-    console.logBytes32(actingEntity.entityId);
     uint256 staminaInActingEntity = Stamina.get(callerAddress, actingEntity.scale, actingEntity.entityId);
-    console.logUint(staminaInActingEntity);
-    console.logUint(resourceRequired);
     require(resourceRequired <= staminaInActingEntity, "Not enough stamina to move.");
-    console.log("keep on going brr");
 
     if (hasKey(MassTableId, Mass.encodeKeyTuple(callerAddress, newEntity.scale, newEntity.entityId))) {
       console.log("entity got mass bro");
@@ -439,7 +394,6 @@ contract VelocitySystem is SimHandler {
     uint256 energyInOldBlock = Energy.get(callerAddress, oldEntity.scale, oldEntity.entityId);
     uint256 staminaInOldEntity = Stamina.get(callerAddress, oldEntity.scale, oldEntity.entityId);
 
-    console.log("set osme shit");
     // Reset the old entity's mass, energy and velocity
     Mass.set(callerAddress, oldEntity.scale, oldEntity.entityId, 0);
     Energy.set(callerAddress, oldEntity.scale, oldEntity.entityId, 0);
@@ -454,7 +408,6 @@ contract VelocitySystem is SimHandler {
       Stamina.set(callerAddress, oldEntity.scale, oldEntity.entityId, 0);
     }
 
-    console.log("flux flux flux");
     IWorld(_world()).fluxEnergy(
       false,
       callerAddress,
@@ -468,7 +421,6 @@ contract VelocitySystem is SimHandler {
     Velocity.set(callerAddress, newEntity.scale, newEntity.entityId, block.number, abi.encode(newVelocity));
     VoxelEntity memory newActingEntity = actingEntity;
     if (isEntityEqual(oldEntity, actingEntity)) {
-      console.log("set stamina");
       newActingEntity = newEntity; // moving yourself, so update the acting entity
       Stamina.set(callerAddress, newEntity.scale, newEntity.entityId, staminaInActingEntity - resourceRequired);
     } else {

@@ -31,12 +31,12 @@ contract MossSlab128VoxelSystem is VoxelType {
       mossSlab128ChildVoxelTypes,
       MossSlab128VoxelVariantID,
       voxelSelectorsForVoxel(
-        IWorld(world).pretty_C40128_enterWorld.selector,
-        IWorld(world).pretty_C40128_exitWorld.selector,
-        IWorld(world).pretty_C40128_variantSelector.selector,
-        IWorld(world).pretty_C40128_activate.selector,
-        IWorld(world).pretty_C40128_eventHandler.selector,
-        IWorld(world).pretty_C40128_neighbourEventHandler.selector
+        IWorld(world).pretty_C40D128_enterWorld.selector,
+        IWorld(world).pretty_C40D128_exitWorld.selector,
+        IWorld(world).pretty_C40D128_variantSelector.selector,
+        IWorld(world).pretty_C40D128_activate.selector,
+        IWorld(world).pretty_C40D128_eventHandler.selector,
+        IWorld(world).pretty_C40D128_neighbourEventHandler.selector
       ),
       abi.encode(componentDefs),
       1

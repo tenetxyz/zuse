@@ -48,7 +48,15 @@ contract BuildingLikesSystem is System {
     address[] memory emptyArray = new address[](0);
 
     // Initial rank is the number of buildings + 1, ie last place
-    BuildingLeaderboard.set(shardCoord.x, shardCoord.y, shardCoord.z, buildingLikesEntities.length + 1, 0, agentCAEntity, emptyArray);
+    BuildingLeaderboard.set(
+      shardCoord.x,
+      shardCoord.y,
+      shardCoord.z,
+      buildingLikesEntities.length + 1,
+      0,
+      agentCAEntity,
+      emptyArray
+    );
   }
 
   function likeShard(address user, VoxelCoord memory coord) public {
@@ -79,11 +87,12 @@ contract BuildingLikesSystem is System {
     BuildingLeaderboard.set(
       shardCoord.x,
       shardCoord.y,
-      shardCoord.z, 
+      shardCoord.z,
       BuildingLeaderboard.getRank(shardCoord.x, shardCoord.y, shardCoord.z),
-      totalLikes, 
-      BuildingLeaderboard.getAgentEntity(shardCoord.x, shardCoord.y, shardCoord.z), 
-      newLikedByArray);
+      totalLikes,
+      BuildingLeaderboard.getAgentEntity(shardCoord.x, shardCoord.y, shardCoord.z),
+      newLikedByArray
+    );
   }
 
   function updateBuildingLeaderboard() public {
@@ -95,30 +104,30 @@ contract BuildingLikesSystem is System {
     EntityLikes[] memory allEntitiesLikes = new EntityLikes[](buildingLikesEntities.length);
 
     for (uint i = 0; i < buildingLikesEntities.length; i++) {
-        int32 x = int32(int256(uint256(buildingLikesEntities[i][0])));
-        int32 y = int32(int256(uint256(buildingLikesEntities[i][1])));
-        int32 z = int32(int256(uint256(buildingLikesEntities[i][2])));
-        uint256 likes = BuildingLeaderboard.getTotalLikes(x, y, z);
+      int32 x = int32(int256(uint256(buildingLikesEntities[i][0])));
+      int32 y = int32(int256(uint256(buildingLikesEntities[i][1])));
+      int32 z = int32(int256(uint256(buildingLikesEntities[i][2])));
+      uint256 likes = BuildingLeaderboard.getTotalLikes(x, y, z);
 
-        allEntitiesLikes[i] = EntityLikes(x, y, z, likes);
+      allEntitiesLikes[i] = EntityLikes(x, y, z, likes);
     }
 
     // Sort the array based on likes using Bubble Sort
     bool swapped = false;
     for (uint i = 0; i < allEntitiesLikes.length; i++) {
-        swapped = false;
-        for (uint j = 0; j < allEntitiesLikes.length - i - 1; j++) {
-            if (allEntitiesLikes[j].likes < allEntitiesLikes[j + 1].likes) {
-                // Swap
-                EntityLikes memory temp = allEntitiesLikes[j];
-                allEntitiesLikes[j] = allEntitiesLikes[j + 1];
-                allEntitiesLikes[j + 1] = temp;
-                swapped = true;
-            }
+      swapped = false;
+      for (uint j = 0; j < allEntitiesLikes.length - i - 1; j++) {
+        if (allEntitiesLikes[j].likes < allEntitiesLikes[j + 1].likes) {
+          // Swap
+          EntityLikes memory temp = allEntitiesLikes[j];
+          allEntitiesLikes[j] = allEntitiesLikes[j + 1];
+          allEntitiesLikes[j + 1] = temp;
+          swapped = true;
         }
-        if (!swapped) {
-            break;
-        }
+      }
+      if (!swapped) {
+        break;
+      }
     }
 
     for (uint i = 0; i < allEntitiesLikes.length; i++) {
@@ -130,16 +139,8 @@ contract BuildingLikesSystem is System {
         allEntitiesLikes[i].z,
         rank,
         allEntitiesLikes[i].likes,
-        BuildingLeaderboard.getAgentEntity(
-          allEntitiesLikes[i].x
-          allEntitiesLikes[i].y
-          allEntitiesLikes[i].z
-        ),
-        BuildingLeaderboard.getLikedBy(
-          allEntitiesLikes[i].x
-          allEntitiesLikes[i].y
-          allEntitiesLikes[i].z
-        ),
+        BuildingLeaderboard.getAgentEntity(allEntitiesLikes[i].x, allEntitiesLikes[i].y, allEntitiesLikes[i].z),
+        BuildingLeaderboard.getLikedBy(allEntitiesLikes[i].x, allEntitiesLikes[i].y, allEntitiesLikes[i].z)
       );
     }
   }

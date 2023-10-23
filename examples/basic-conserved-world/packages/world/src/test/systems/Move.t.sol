@@ -79,6 +79,577 @@ contract MoveTest is MudTest {
     vm.stopPrank();
   }
 
+  function testSimpleCollision() public {
+    vm.startPrank(alice, alice);
+
+    VoxelEntity memory agentEntity = setupAgent();
+
+    VoxelEntity memory smallMassEntity;
+    VoxelCoord memory smallMassCoord;
+    {
+      bytes32 voxelTypeId = GrassVoxelID;
+      smallMassCoord = VoxelCoord({ x: agentCoord.x + 2, y: agentCoord.y, z: agentCoord.z });
+      uint256 initMass = 1;
+      uint256 initEnergy = 10;
+      VoxelCoord memory initVelocity = VoxelCoord({ x: 0, y: 0, z: 0 });
+      smallMassEntity = world.spawnBody(
+        voxelTypeId,
+        smallMassCoord,
+        bytes4(0),
+        initMass,
+        initEnergy,
+        initVelocity,
+        0,
+        0
+      );
+    }
+
+    uint256 staminaBefore = Stamina.get(
+      IStore(SIMULATOR_ADDRESS),
+      worldAddress,
+      agentEntity.scale,
+      agentEntity.entityId
+    );
+
+    VoxelCoord memory newAgentCoord = VoxelCoord({ x: agentCoord.x + 1, y: agentCoord.y, z: agentCoord.z });
+    console.log("moving");
+    console.logBytes32(agentEntity.entityId);
+    (, agentEntity) = world.moveWithAgent(FaucetVoxelID, agentCoord, newAgentCoord, agentEntity);
+    uint256 staminaAfter = Stamina.get(
+      IStore(SIMULATOR_ADDRESS),
+      worldAddress,
+      agentEntity.scale,
+      agentEntity.entityId
+    );
+    console.log("staminaAfter");
+    console.logUint(staminaAfter);
+    assertTrue(staminaBefore > staminaAfter);
+
+    VoxelCoord memory agentVelocity = abi.decode(
+      Velocity.getVelocity(IStore(SIMULATOR_ADDRESS), worldAddress, agentEntity.scale, agentEntity.entityId),
+      (VoxelCoord)
+    );
+    console.log("velocity agent");
+    console.logInt(agentVelocity.x);
+    assertTrue(agentVelocity.x == 1);
+    assertTrue(agentVelocity.y == 0);
+    assertTrue(agentVelocity.z == 0);
+    assertTrue(Mass.get(IStore(SIMULATOR_ADDRESS), worldAddress, agentEntity.scale, agentEntity.entityId) > 0);
+
+    smallMassEntity = VoxelEntity({
+      scale: 1,
+      entityId: getEntityAtCoord(1, VoxelCoord(smallMassCoord.x + 1, smallMassCoord.y, smallMassCoord.z))
+    });
+    VoxelCoord memory smallMassVelocity = abi.decode(
+      Velocity.getVelocity(IStore(SIMULATOR_ADDRESS), worldAddress, smallMassEntity.scale, smallMassEntity.entityId),
+      (VoxelCoord)
+    );
+    console.log("velocity small mass");
+    console.logInt(smallMassVelocity.x);
+    assertTrue(smallMassVelocity.x == 1);
+    assertTrue(smallMassVelocity.y == 0);
+    assertTrue(smallMassVelocity.z == 0);
+    assertTrue(Mass.get(IStore(SIMULATOR_ADDRESS), worldAddress, smallMassEntity.scale, smallMassEntity.entityId) > 0);
+
+    vm.stopPrank();
+  }
+
+  function testCollisionBounceBack() public {
+    vm.startPrank(alice, alice);
+
+    VoxelEntity memory agentEntity = setupAgent();
+
+    VoxelEntity memory massEntity;
+    VoxelCoord memory massCoord;
+    {
+      bytes32 voxelTypeId = GrassVoxelID;
+      massCoord = VoxelCoord({ x: agentCoord.x + 2, y: agentCoord.y, z: agentCoord.z });
+      uint256 initMass = 5;
+      uint256 initEnergy = 10;
+      VoxelCoord memory initVelocity = VoxelCoord({ x: 0, y: 0, z: 0 });
+      massEntity = world.spawnBody(voxelTypeId, massCoord, bytes4(0), initMass, initEnergy, initVelocity, 0, 0);
+    }
+
+    uint256 staminaBefore = Stamina.get(
+      IStore(SIMULATOR_ADDRESS),
+      worldAddress,
+      agentEntity.scale,
+      agentEntity.entityId
+    );
+
+    Velocity.setVelocity(
+      IStore(SIMULATOR_ADDRESS),
+      worldAddress,
+      agentEntity.scale,
+      agentEntity.entityId,
+      abi.encode(VoxelCoord({ x: 4, y: 0, z: 0 }))
+    );
+    VoxelCoord memory newAgentCoord = VoxelCoord({ x: agentCoord.x + 1, y: agentCoord.y, z: agentCoord.z });
+    console.log("moving");
+    (, agentEntity) = world.moveWithAgent(FaucetVoxelID, agentCoord, newAgentCoord, agentEntity);
+    uint256 staminaAfter = Stamina.get(
+      IStore(SIMULATOR_ADDRESS),
+      worldAddress,
+      agentEntity.scale,
+      agentEntity.entityId
+    );
+    assertTrue(staminaBefore > staminaAfter);
+
+    agentEntity = VoxelEntity({
+      scale: 1,
+      entityId: getEntityAtCoord(1, VoxelCoord(agentCoord.x, agentCoord.y, agentCoord.z))
+    });
+    VoxelCoord memory agentVelocity = abi.decode(
+      Velocity.getVelocity(IStore(SIMULATOR_ADDRESS), worldAddress, agentEntity.scale, agentEntity.entityId),
+      (VoxelCoord)
+    );
+    console.log("velocity agent");
+    console.logInt(agentVelocity.x);
+    assertTrue(agentVelocity.x == 4);
+    assertTrue(agentVelocity.y == 0);
+    assertTrue(agentVelocity.z == 0);
+    assertTrue(Mass.get(IStore(SIMULATOR_ADDRESS), worldAddress, agentEntity.scale, agentEntity.entityId) > 0);
+
+    massEntity = VoxelEntity({
+      scale: 1,
+      entityId: getEntityAtCoord(1, VoxelCoord(massCoord.x + 1, massCoord.y, massCoord.z))
+    });
+    VoxelCoord memory massVelocity = abi.decode(
+      Velocity.getVelocity(IStore(SIMULATOR_ADDRESS), worldAddress, massEntity.scale, massEntity.entityId),
+      (VoxelCoord)
+    );
+    console.log("velocity mass");
+    console.logInt(massVelocity.x);
+    assertTrue(massVelocity.x == 1);
+    assertTrue(massVelocity.y == 0);
+    assertTrue(massVelocity.z == 0);
+    assertTrue(Mass.get(IStore(SIMULATOR_ADDRESS), worldAddress, massEntity.scale, massEntity.entityId) > 0);
+
+    vm.stopPrank();
+  }
+
+  function testCollisionMoveTwo() public {
+    vm.startPrank(alice, alice);
+
+    VoxelEntity memory agentEntity = setupAgent();
+
+    VoxelEntity memory smallMassEntity1;
+    VoxelCoord memory smallMassCoord1;
+    {
+      bytes32 voxelTypeId = GrassVoxelID;
+      smallMassCoord1 = VoxelCoord({ x: agentCoord.x + 2, y: agentCoord.y, z: agentCoord.z });
+      uint256 initMass = 1;
+      uint256 initEnergy = 10;
+      VoxelCoord memory initVelocity = VoxelCoord({ x: 0, y: 0, z: 0 });
+      smallMassEntity1 = world.spawnBody(
+        voxelTypeId,
+        smallMassCoord1,
+        bytes4(0),
+        initMass,
+        initEnergy,
+        initVelocity,
+        0,
+        0
+      );
+    }
+
+    VoxelEntity memory smallMassEntity2;
+    VoxelCoord memory smallMassCoord2;
+    {
+      bytes32 voxelTypeId = GrassVoxelID;
+      smallMassCoord2 = VoxelCoord({ x: agentCoord.x + 3, y: agentCoord.y, z: agentCoord.z });
+      uint256 initMass = 1;
+      uint256 initEnergy = 10;
+      VoxelCoord memory initVelocity = VoxelCoord({ x: 0, y: 0, z: 0 });
+      smallMassEntity2 = world.spawnBody(
+        voxelTypeId,
+        smallMassCoord2,
+        bytes4(0),
+        initMass,
+        initEnergy,
+        initVelocity,
+        0,
+        0
+      );
+    }
+
+    uint256 staminaBefore = Stamina.get(
+      IStore(SIMULATOR_ADDRESS),
+      worldAddress,
+      agentEntity.scale,
+      agentEntity.entityId
+    );
+
+    VoxelCoord memory newAgentCoord = VoxelCoord({ x: agentCoord.x + 1, y: agentCoord.y, z: agentCoord.z });
+    console.log("moving");
+    console.logBytes32(agentEntity.entityId);
+    (, agentEntity) = world.moveWithAgent(FaucetVoxelID, agentCoord, newAgentCoord, agentEntity);
+    uint256 staminaAfter = Stamina.get(
+      IStore(SIMULATOR_ADDRESS),
+      worldAddress,
+      agentEntity.scale,
+      agentEntity.entityId
+    );
+    console.log("staminaAfter");
+    console.logUint(staminaAfter);
+    assertTrue(staminaBefore > staminaAfter);
+
+    VoxelCoord memory agentVelocity = abi.decode(
+      Velocity.getVelocity(IStore(SIMULATOR_ADDRESS), worldAddress, agentEntity.scale, agentEntity.entityId),
+      (VoxelCoord)
+    );
+    console.log("velocity agent");
+    console.logInt(agentVelocity.x);
+    assertTrue(agentVelocity.x == 1);
+    assertTrue(agentVelocity.y == 0);
+    assertTrue(agentVelocity.z == 0);
+    assertTrue(Mass.get(IStore(SIMULATOR_ADDRESS), worldAddress, agentEntity.scale, agentEntity.entityId) > 0);
+
+    smallMassEntity1 = VoxelEntity({
+      scale: 1,
+      entityId: getEntityAtCoord(1, VoxelCoord(smallMassCoord1.x + 1, smallMassCoord1.y, smallMassCoord1.z))
+    });
+    VoxelCoord memory smallMass1Velocity = abi.decode(
+      Velocity.getVelocity(IStore(SIMULATOR_ADDRESS), worldAddress, smallMassEntity1.scale, smallMassEntity1.entityId),
+      (VoxelCoord)
+    );
+    console.log("velocity small mass 1");
+    console.logInt(smallMass1Velocity.x);
+    assertTrue(smallMass1Velocity.x == 1);
+    assertTrue(smallMass1Velocity.y == 0);
+    assertTrue(smallMass1Velocity.z == 0);
+    assertTrue(
+      Mass.get(IStore(SIMULATOR_ADDRESS), worldAddress, smallMassEntity1.scale, smallMassEntity1.entityId) > 0
+    );
+
+    smallMassEntity2 = VoxelEntity({
+      scale: 1,
+      entityId: getEntityAtCoord(1, VoxelCoord(smallMassCoord2.x + 1, smallMassCoord2.y, smallMassCoord2.z))
+    });
+    VoxelCoord memory smallMass2Velocity = abi.decode(
+      Velocity.getVelocity(IStore(SIMULATOR_ADDRESS), worldAddress, smallMassEntity2.scale, smallMassEntity2.entityId),
+      (VoxelCoord)
+    );
+    console.log("velocity small mass 2");
+    console.logInt(smallMass1Velocity.x);
+    assertTrue(smallMass2Velocity.x == 1);
+    assertTrue(smallMass2Velocity.y == 0);
+    assertTrue(smallMass2Velocity.z == 0);
+    assertTrue(
+      Mass.get(IStore(SIMULATOR_ADDRESS), worldAddress, smallMassEntity2.scale, smallMassEntity2.entityId) > 0
+    );
+
+    vm.stopPrank();
+  }
+
+  function testCollisionNoVelocityChange() public {
+    vm.startPrank(alice, alice);
+
+    VoxelEntity memory agentEntity = setupAgent();
+
+    VoxelEntity memory smallMassEntity;
+    VoxelCoord memory smallMassCoord;
+    {
+      bytes32 voxelTypeId = GrassVoxelID;
+      smallMassCoord = VoxelCoord({ x: agentCoord.x + 2, y: agentCoord.y, z: agentCoord.z });
+      uint256 initMass = 1;
+      uint256 initEnergy = 10;
+      VoxelCoord memory initVelocity = VoxelCoord({ x: 1, y: 0, z: 0 });
+      smallMassEntity = world.spawnBody(
+        voxelTypeId,
+        smallMassCoord,
+        bytes4(0),
+        initMass,
+        initEnergy,
+        initVelocity,
+        0,
+        0
+      );
+    }
+
+    uint256 staminaBefore = Stamina.get(
+      IStore(SIMULATOR_ADDRESS),
+      worldAddress,
+      agentEntity.scale,
+      agentEntity.entityId
+    );
+
+    VoxelCoord memory newAgentCoord = VoxelCoord({ x: agentCoord.x + 1, y: agentCoord.y, z: agentCoord.z });
+    console.log("moving");
+    console.logBytes32(agentEntity.entityId);
+    (, agentEntity) = world.moveWithAgent(FaucetVoxelID, agentCoord, newAgentCoord, agentEntity);
+    uint256 staminaAfter = Stamina.get(
+      IStore(SIMULATOR_ADDRESS),
+      worldAddress,
+      agentEntity.scale,
+      agentEntity.entityId
+    );
+    console.log("staminaAfter");
+    console.logUint(staminaAfter);
+    assertTrue(staminaBefore > staminaAfter);
+
+    VoxelCoord memory agentVelocity = abi.decode(
+      Velocity.getVelocity(IStore(SIMULATOR_ADDRESS), worldAddress, agentEntity.scale, agentEntity.entityId),
+      (VoxelCoord)
+    );
+    console.log("velocity agent");
+    console.logInt(agentVelocity.x);
+    assertTrue(agentVelocity.x == 1);
+    assertTrue(agentVelocity.y == 0);
+    assertTrue(agentVelocity.z == 0);
+    assertTrue(Mass.get(IStore(SIMULATOR_ADDRESS), worldAddress, agentEntity.scale, agentEntity.entityId) > 0);
+
+    smallMassEntity = VoxelEntity({
+      scale: 1,
+      entityId: getEntityAtCoord(1, VoxelCoord(smallMassCoord.x, smallMassCoord.y, smallMassCoord.z))
+    });
+    VoxelCoord memory smallMassVelocity = abi.decode(
+      Velocity.getVelocity(IStore(SIMULATOR_ADDRESS), worldAddress, smallMassEntity.scale, smallMassEntity.entityId),
+      (VoxelCoord)
+    );
+    console.log("velocity small mass");
+    console.logInt(smallMassVelocity.x);
+    assertTrue(smallMassVelocity.x == 1);
+    assertTrue(smallMassVelocity.y == 0);
+    assertTrue(smallMassVelocity.z == 0);
+    assertTrue(Mass.get(IStore(SIMULATOR_ADDRESS), worldAddress, smallMassEntity.scale, smallMassEntity.entityId) > 0);
+
+    vm.stopPrank();
+  }
+
+  function testCollisionSameDirection() public {
+    vm.startPrank(alice, alice);
+
+    VoxelEntity memory agentEntity = setupAgent();
+
+    VoxelEntity memory smallMassEntity;
+    VoxelCoord memory smallMassCoord;
+    {
+      bytes32 voxelTypeId = GrassVoxelID;
+      smallMassCoord = VoxelCoord({ x: agentCoord.x + 2, y: agentCoord.y, z: agentCoord.z });
+      uint256 initMass = 1;
+      uint256 initEnergy = 10;
+      VoxelCoord memory initVelocity = VoxelCoord({ x: 1, y: 0, z: 0 });
+      smallMassEntity = world.spawnBody(
+        voxelTypeId,
+        smallMassCoord,
+        bytes4(0),
+        initMass,
+        initEnergy,
+        initVelocity,
+        0,
+        0
+      );
+    }
+
+    uint256 staminaBefore = Stamina.get(
+      IStore(SIMULATOR_ADDRESS),
+      worldAddress,
+      agentEntity.scale,
+      agentEntity.entityId
+    );
+    Velocity.setVelocity(
+      IStore(SIMULATOR_ADDRESS),
+      worldAddress,
+      agentEntity.scale,
+      agentEntity.entityId,
+      abi.encode(VoxelCoord({ x: 4, y: 0, z: 0 }))
+    );
+
+    VoxelCoord memory newAgentCoord = VoxelCoord({ x: agentCoord.x + 1, y: agentCoord.y, z: agentCoord.z });
+    console.log("moving");
+    console.logBytes32(agentEntity.entityId);
+    (, agentEntity) = world.moveWithAgent(FaucetVoxelID, agentCoord, newAgentCoord, agentEntity);
+    uint256 staminaAfter = Stamina.get(
+      IStore(SIMULATOR_ADDRESS),
+      worldAddress,
+      agentEntity.scale,
+      agentEntity.entityId
+    );
+    console.log("staminaAfter");
+    console.logUint(staminaAfter);
+    assertTrue(staminaBefore > staminaAfter);
+
+    VoxelCoord memory agentVelocity = abi.decode(
+      Velocity.getVelocity(IStore(SIMULATOR_ADDRESS), worldAddress, agentEntity.scale, agentEntity.entityId),
+      (VoxelCoord)
+    );
+    console.log("velocity agent");
+    console.logInt(agentVelocity.x);
+    assertTrue(agentVelocity.x == 5);
+    assertTrue(agentVelocity.y == 0);
+    assertTrue(agentVelocity.z == 0);
+    assertTrue(Mass.get(IStore(SIMULATOR_ADDRESS), worldAddress, agentEntity.scale, agentEntity.entityId) > 0);
+
+    smallMassEntity = VoxelEntity({
+      scale: 1,
+      entityId: getEntityAtCoord(1, VoxelCoord(smallMassCoord.x + 4, smallMassCoord.y, smallMassCoord.z))
+    });
+    VoxelCoord memory smallMassVelocity = abi.decode(
+      Velocity.getVelocity(IStore(SIMULATOR_ADDRESS), worldAddress, smallMassEntity.scale, smallMassEntity.entityId),
+      (VoxelCoord)
+    );
+    console.log("velocity small mass");
+    console.logInt(smallMassVelocity.x);
+    assertTrue(smallMassVelocity.x == 5);
+    assertTrue(smallMassVelocity.y == 0);
+    assertTrue(smallMassVelocity.z == 0);
+    assertTrue(Mass.get(IStore(SIMULATOR_ADDRESS), worldAddress, smallMassEntity.scale, smallMassEntity.entityId) > 0);
+
+    vm.stopPrank();
+  }
+
+  function testCollisionOppositeDirectionEqualVelocityDifferentMass() public {
+    vm.startPrank(alice, alice);
+
+    VoxelEntity memory agentEntity = setupAgent();
+
+    VoxelEntity memory smallMassEntity;
+    VoxelCoord memory smallMassCoord;
+    {
+      bytes32 voxelTypeId = GrassVoxelID;
+      smallMassCoord = VoxelCoord({ x: agentCoord.x + 2, y: agentCoord.y, z: agentCoord.z });
+      uint256 initMass = 1;
+      uint256 initEnergy = 10;
+      VoxelCoord memory initVelocity = VoxelCoord({ x: -1, y: 0, z: 0 });
+      smallMassEntity = world.spawnBody(
+        voxelTypeId,
+        smallMassCoord,
+        bytes4(0),
+        initMass,
+        initEnergy,
+        initVelocity,
+        0,
+        0
+      );
+    }
+
+    uint256 staminaBefore = Stamina.get(
+      IStore(SIMULATOR_ADDRESS),
+      worldAddress,
+      agentEntity.scale,
+      agentEntity.entityId
+    );
+
+    VoxelCoord memory newAgentCoord = VoxelCoord({ x: agentCoord.x + 1, y: agentCoord.y, z: agentCoord.z });
+    console.log("moving");
+    console.logBytes32(agentEntity.entityId);
+    (, agentEntity) = world.moveWithAgent(FaucetVoxelID, agentCoord, newAgentCoord, agentEntity);
+    uint256 staminaAfter = Stamina.get(
+      IStore(SIMULATOR_ADDRESS),
+      worldAddress,
+      agentEntity.scale,
+      agentEntity.entityId
+    );
+    console.log("staminaAfter");
+    console.logUint(staminaAfter);
+    assertTrue(staminaBefore > staminaAfter);
+
+    VoxelCoord memory agentVelocity = abi.decode(
+      Velocity.getVelocity(IStore(SIMULATOR_ADDRESS), worldAddress, agentEntity.scale, agentEntity.entityId),
+      (VoxelCoord)
+    );
+    console.log("velocity agent");
+    console.logInt(agentVelocity.x);
+    assertTrue(agentVelocity.x == 1);
+    assertTrue(agentVelocity.y == 0);
+    assertTrue(agentVelocity.z == 0);
+    assertTrue(Mass.get(IStore(SIMULATOR_ADDRESS), worldAddress, agentEntity.scale, agentEntity.entityId) > 0);
+
+    smallMassEntity = VoxelEntity({
+      scale: 1,
+      entityId: getEntityAtCoord(1, VoxelCoord(smallMassCoord.x + 2, smallMassCoord.y, smallMassCoord.z))
+    });
+    VoxelCoord memory smallMassVelocity = abi.decode(
+      Velocity.getVelocity(IStore(SIMULATOR_ADDRESS), worldAddress, smallMassEntity.scale, smallMassEntity.entityId),
+      (VoxelCoord)
+    );
+    console.log("velocity small mass");
+    console.logInt(smallMassVelocity.x);
+    assertTrue(smallMassVelocity.x == 1);
+    assertTrue(smallMassVelocity.y == 0);
+    assertTrue(smallMassVelocity.z == 0);
+    assertTrue(Mass.get(IStore(SIMULATOR_ADDRESS), worldAddress, smallMassEntity.scale, smallMassEntity.entityId) > 0);
+
+    vm.stopPrank();
+  }
+
+  function testCollisionOppositeDirectionEqualVelocityEqualMass() public {
+    vm.startPrank(alice, alice);
+
+    VoxelEntity memory agentEntity = setupAgent();
+
+    VoxelEntity memory smallMassEntity;
+    VoxelCoord memory smallMassCoord;
+    {
+      bytes32 voxelTypeId = GrassVoxelID;
+      smallMassCoord = VoxelCoord({ x: agentCoord.x + 2, y: agentCoord.y, z: agentCoord.z });
+      uint256 initMass = 10;
+      uint256 initEnergy = 10;
+      VoxelCoord memory initVelocity = VoxelCoord({ x: -1, y: 0, z: 0 });
+      smallMassEntity = world.spawnBody(
+        voxelTypeId,
+        smallMassCoord,
+        bytes4(0),
+        initMass,
+        initEnergy,
+        initVelocity,
+        0,
+        0
+      );
+    }
+
+    uint256 staminaBefore = Stamina.get(
+      IStore(SIMULATOR_ADDRESS),
+      worldAddress,
+      agentEntity.scale,
+      agentEntity.entityId
+    );
+    Mass.set(IStore(SIMULATOR_ADDRESS), worldAddress, agentEntity.scale, agentEntity.entityId, 10);
+
+    VoxelCoord memory newAgentCoord = VoxelCoord({ x: agentCoord.x + 1, y: agentCoord.y, z: agentCoord.z });
+    console.log("moving");
+    console.logBytes32(agentEntity.entityId);
+    (, agentEntity) = world.moveWithAgent(FaucetVoxelID, agentCoord, newAgentCoord, agentEntity);
+    uint256 staminaAfter = Stamina.get(
+      IStore(SIMULATOR_ADDRESS),
+      worldAddress,
+      agentEntity.scale,
+      agentEntity.entityId
+    );
+    console.log("staminaAfter");
+    console.logUint(staminaAfter);
+    assertTrue(staminaBefore > staminaAfter);
+
+    VoxelCoord memory agentVelocity = abi.decode(
+      Velocity.getVelocity(IStore(SIMULATOR_ADDRESS), worldAddress, agentEntity.scale, agentEntity.entityId),
+      (VoxelCoord)
+    );
+    console.log("velocity agent");
+    console.logInt(agentVelocity.x);
+    assertTrue(agentVelocity.x == 1);
+    assertTrue(agentVelocity.y == 0);
+    assertTrue(agentVelocity.z == 0);
+    assertTrue(Mass.get(IStore(SIMULATOR_ADDRESS), worldAddress, agentEntity.scale, agentEntity.entityId) > 0);
+
+    smallMassEntity = VoxelEntity({
+      scale: 1,
+      entityId: getEntityAtCoord(1, VoxelCoord(smallMassCoord.x, smallMassCoord.y, smallMassCoord.z))
+    });
+    VoxelCoord memory smallMassVelocity = abi.decode(
+      Velocity.getVelocity(IStore(SIMULATOR_ADDRESS), worldAddress, smallMassEntity.scale, smallMassEntity.entityId),
+      (VoxelCoord)
+    );
+    console.log("velocity small mass");
+    console.logInt(smallMassVelocity.x);
+    assertTrue(smallMassVelocity.x == -1);
+    assertTrue(smallMassVelocity.y == 0);
+    assertTrue(smallMassVelocity.z == 0);
+    assertTrue(Mass.get(IStore(SIMULATOR_ADDRESS), worldAddress, smallMassEntity.scale, smallMassEntity.entityId) > 0);
+
+    vm.stopPrank();
+  }
+
   function testMoveBlock() public {
     vm.startPrank(alice, alice);
 

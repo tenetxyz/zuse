@@ -12,6 +12,7 @@ import { OwnedBy, OwnedByTableId, WorldConfig } from "@tenet-world/src/codegen/T
 import { getEntityAtCoord } from "@tenet-base-world/src/Utils.sol";
 import { MoveWorldEventData } from "@tenet-world/src/Types.sol";
 import { onMove } from "@tenet-simulator/src/CallUtils.sol";
+import { console } from "forge-std/console.sol";
 
 contract MoveSystem is MoveEvent {
   function getRegistryAddress() internal pure override returns (address) {

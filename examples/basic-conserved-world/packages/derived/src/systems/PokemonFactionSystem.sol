@@ -28,11 +28,15 @@ contract PokemonFactionSystem is System {
   function reportPokemon(VoxelEntity memory pokemonEntity) public {
     IStore worldStore = IStore(WORLD_ADDRESS);
     IStore caStore = IStore(BASE_CA_ADDRESS);
+    console.log("reportPokemon");
+    console.logBytes32(pokemonEntity.entityId);
 
     bytes32 pokemonCAEntity = CAEntityMapping.get(caStore, WORLD_ADDRESS, pokemonEntity.entityId);
 
     PokemonData memory pokemonData = Pokemon.get(caStore, WORLD_ADDRESS, pokemonCAEntity);
     ObjectType pokemonFaction = pokemonData.pokemonType;
+    console.logBytes32(pokemonCAEntity);
+    console.logUint(pokemonFaction);
 
     bytes32[][] memory plantEntities = getKeysInTable(caStore, CAEntityReverseMappingTableId);
     bytes32[][] memory farmerLBEntities = getKeysInTable(FarmFactionsLeaderboardTableId);
@@ -48,6 +52,8 @@ contract PokemonFactionSystem is System {
           Plant.getConsumers(caStore, WORLD_ADDRESS, plantEntity),
           (PlantConsumer[])
         );
+        console.log("consumers");
+        console.logUint(consumers.length);
 
         for (uint k = 0; k < consumers.length; k++) {
           if (consumers[k].entityId == pokemonCAEntity) {
@@ -62,6 +68,8 @@ contract PokemonFactionSystem is System {
                   shardCoord.y,
                   shardCoord.z
                 );
+                console.log("relevantFarmFaction");
+                console.logUint(relevantFarmFaction);
 
                 if (pokemonFaction != relevantFarmFaction) {
                   PokemonFactionsLeaderboard.setIsDisqualified(pokemonCAEntity, true);

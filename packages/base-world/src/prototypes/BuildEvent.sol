@@ -90,6 +90,7 @@ abstract contract BuildEvent is Event {
     BuildEventData memory buildEventData = abi.decode(eventData, (BuildEventData));
     // Enter World
     IWorld(_world()).enterCA(caAddress, eventVoxelEntity, voxelTypeId, buildEventData.mindSelector, coord);
+    super.preRunCA(caAddress, voxelTypeId, coord, eventVoxelEntity, eventData);
   }
 
   function postRunCA(

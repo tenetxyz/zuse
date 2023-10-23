@@ -112,6 +112,7 @@ abstract contract MoveEvent is Event {
 
     CAVoxelTypeData memory oldCAVoxelType = CAVoxelType.get(IStore(caAddress), _world(), oldVoxelEntity);
     VoxelType.set(scale, oldVoxelEntity, oldCAVoxelType.voxelTypeId, oldCAVoxelType.voxelVariantId);
+    super.preRunCA(caAddress, voxelTypeId, newCoord, eventVoxelEntity, eventData);
   }
 
   function runCA(

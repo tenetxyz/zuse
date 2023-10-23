@@ -80,7 +80,11 @@ contract VelocitySystem is SimHandler {
     }
   }
 
-  function onCollision(address callerAddress, VoxelEntity memory centerVoxelEntity) internal {
+  function onCollision(
+    address callerAddress,
+    VoxelEntity memory centerVoxelEntity,
+    VoxelEntity memory actingEntity
+  ) internal {
     CollisionData[] memory centerEntitiesToCheckStack = new CollisionData[](MAX_VOXEL_NEIGHBOUR_UPDATE_DEPTH);
     uint256 centerEntitiesToCheckStackIdx = 0;
     uint256 useStackIdx = 0;
@@ -97,10 +101,9 @@ contract VelocitySystem is SimHandler {
       CollisionData memory useCollisionData = centerEntitiesToCheckStack[useStackIdx];
       VoxelEntity memory useEntity = useCollisionData.entity;
       VoxelCoord memory currentVelocity = getVelocity(callerAddress, useEntity);
-      VoxelCoord memory useCoord = getVoxelCoordStrict(callerAddress, useEntity);
       (VoxelCoord memory newVelocity, bytes32[] memory neighbourEntities, ) = calculateVelocityAfterCollision(
         callerAddress,
-        useCoord,
+        getVoxelCoordStrict(callerAddress, useEntity),
         useEntity,
         currentVelocity
       );
@@ -109,7 +112,7 @@ contract VelocitySystem is SimHandler {
       useCollisionData.newVelocity = newVelocity;
       centerEntitiesToCheckStack[useStackIdx] = useCollisionData;
 
-      if (!voxelCoordsAreEqual(currentVelocity, newVelocity)) {
+      if (useStackIdx == 0 || !voxelCoordsAreEqual(currentVelocity, newVelocity)) {
         if (useStackIdx > 0) {
           // Note: we don't update the first one (index == 0), because it's already been applied in the initial move
           Velocity.setVelocity(callerAddress, useEntity.scale, useEntity.entityId, abi.encode(newVelocity));
@@ -174,26 +177,26 @@ contract VelocitySystem is SimHandler {
         // go through each axis, x, y, z and for each one figure out the new coord by adding the unit amount (ie 1), and make the move event call
         bytes32 voxelTypeId = getVoxelTypeId(callerAddress, workingEntity);
         // TODO: What is the optimal order in which to try these?
-        (workingCoord, workingEntity) = tryToReachTargetVelocity(
+        workingCoord = tryToReachTargetVelocity(
           callerAddress,
           voxelTypeId,
-          workingEntity,
+          actingEntity,
           workingCoord,
           deltaVelocity.x,
           CoordDirection.X
         );
-        (workingCoord, workingEntity) = tryToReachTargetVelocity(
+        workingCoord = tryToReachTargetVelocity(
           callerAddress,
           voxelTypeId,
-          workingEntity,
+          actingEntity,
           workingCoord,
           deltaVelocity.y,
           CoordDirection.Y
         );
-        (workingCoord, workingEntity) = tryToReachTargetVelocity(
+        workingCoord = tryToReachTargetVelocity(
           callerAddress,
           voxelTypeId,
-          workingEntity,
+          actingEntity,
           workingCoord,
           deltaVelocity.z,
           CoordDirection.Z
@@ -205,13 +208,12 @@ contract VelocitySystem is SimHandler {
   function tryToReachTargetVelocity(
     address callerAddress,
     bytes32 voxelTypeId,
-    VoxelEntity memory entity,
+    VoxelEntity memory actingEntity,
     VoxelCoord memory startingCoord,
     int32 vDelta,
     CoordDirection direction
-  ) internal returns (VoxelCoord memory workingCoord, VoxelEntity memory workingEntity) {
+  ) internal returns (VoxelCoord memory workingCoord) {
     workingCoord = startingCoord;
-    workingEntity = entity;
 
     // Determine which dimension to move based on the direction
     VoxelCoord memory deltaVelocity = VoxelCoord({ x: 0, y: 0, z: 0 });
@@ -234,11 +236,11 @@ contract VelocitySystem is SimHandler {
             voxelTypeId,
             workingCoord,
             newCoord,
-            workingEntity
+            actingEntity
           )
         );
         if (success && returnData.length > 0) {
-          (, workingEntity) = abi.decode(returnData, (VoxelEntity, VoxelEntity));
+          (, VoxelEntity memory workingEntity) = abi.decode(returnData, (VoxelEntity, VoxelEntity));
           require(
             voxelCoordsAreEqual(getVoxelCoordStrict(callerAddress, workingEntity), newCoord),
             "PhysicsSystem: Move event failed"
@@ -251,7 +253,7 @@ contract VelocitySystem is SimHandler {
         }
       }
     }
-    return (workingCoord, workingEntity);
+    return workingCoord;
   }
 
   function calculateVelocityAfterCollision(
@@ -387,7 +389,6 @@ contract VelocitySystem is SimHandler {
         abi.encode(getTerrainVelocity(callerAddress, newEntity.scale, newCoord))
       );
     }
-    uint256 energyInNewBlock = Energy.get(callerAddress, newEntity.scale, newEntity.entityId);
     uint256 energyInOldBlock = Energy.get(callerAddress, oldEntity.scale, oldEntity.entityId);
     uint256 staminaInOldEntity = Stamina.get(callerAddress, oldEntity.scale, oldEntity.entityId);
 
@@ -405,13 +406,20 @@ contract VelocitySystem is SimHandler {
       Stamina.set(callerAddress, oldEntity.scale, oldEntity.entityId, 0);
     }
 
-    IWorld(_world()).fluxEnergy(false, callerAddress, newEntity, resourceRequired + energyInNewBlock);
+    IWorld(_world()).fluxEnergy(
+      false,
+      callerAddress,
+      newEntity,
+      resourceRequired + Energy.get(callerAddress, newEntity.scale, newEntity.entityId)
+    );
 
     // Update the new entity's energy and velocity
     Mass.set(callerAddress, newEntity.scale, newEntity.entityId, bodyMass);
     Energy.set(callerAddress, newEntity.scale, newEntity.entityId, energyInOldBlock);
     Velocity.set(callerAddress, newEntity.scale, newEntity.entityId, block.number, abi.encode(newVelocity));
+    VoxelEntity memory newActingEntity = actingEntity;
     if (isEntityEqual(oldEntity, actingEntity)) {
+      newActingEntity = newEntity; // moving yourself, so update the acting entity
       Stamina.set(callerAddress, newEntity.scale, newEntity.entityId, staminaInActingEntity - resourceRequired);
     } else {
       if (hasKey(StaminaTableId, Stamina.encodeKeyTuple(callerAddress, oldEntity.scale, oldEntity.entityId))) {
@@ -420,7 +428,7 @@ contract VelocitySystem is SimHandler {
       Stamina.set(callerAddress, actingEntity.scale, actingEntity.entityId, staminaInActingEntity - resourceRequired);
     }
 
-    onCollision(callerAddress, newEntity);
+    onCollision(callerAddress, newEntity, newActingEntity);
   }
 
   function calculateNewVelocity(

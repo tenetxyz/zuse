@@ -14,6 +14,7 @@ import { GrassPokemonVoxelID } from "@tenet-pokemon-extension/src/Constants.sol"
 import { Health } from "@tenet-simulator/src/codegen/tables/Health.sol";
 import { Stamina } from "@tenet-simulator/src/codegen/tables/Stamina.sol";
 import { Energy } from "@tenet-simulator/src/codegen/tables/Energy.sol";
+import { Velocity } from "@tenet-simulator/src/codegen/tables/Velocity.sol";
 import { VoxelTypeRegistry, VoxelTypeRegistryData } from "@tenet-registry/src/codegen/tables/VoxelTypeRegistry.sol";
 
 contract SpawnEntity is Script {
@@ -39,10 +40,24 @@ contract SpawnEntity is Script {
     uint256 initEnergy = 100;
     VoxelCoord memory initVelocity = VoxelCoord({ x: 0, y: 0, z: 0 });
     uint256 initStamina = 9000;
+    Velocity.setVelocity(
+      IStore(SIMULATOR_ADDRESS),
+      worldAddress,
+      1,
+      bytes32(uint256(0x2a8)),
+      abi.encode(VoxelCoord(0, 0, 0))
+    );
+    Velocity.setVelocity(
+      IStore(SIMULATOR_ADDRESS),
+      worldAddress,
+      1,
+      bytes32(uint256(0x278)),
+      abi.encode(VoxelCoord(0, 0, 0))
+    );
     // world.spawnBody(voxelTypeId, coord, bytes4(0), initMass, initEnergy, initVelocity, initStamina);
     // world.spawnBody(GrassPokemonVoxelID, VoxelCoord(13, 2, 13), bytes4(0), initMass, initEnergy, initVelocity, initStamina);
-    giveComponents(worldAddress, bytes32(uint256(0xc)));
-    giveComponents(worldAddress, bytes32(uint256(0x2)));
+    // giveComponents(worldAddress, bytes32(uint256(0xc)));
+    // giveComponents(worldAddress, bytes32(uint256(0x2)));
 
     // TODO: remove, were used for testing collision
     // world.spawnBody(GrassVoxelID, VoxelCoord(10, 2, 13), bytes4(0), 100);

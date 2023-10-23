@@ -47,9 +47,14 @@ contract PlantSystem is VoxelInteraction {
     // if (entitySimData.nutrients == 0) {
     //   return (changedEntity, entityData);
     // }
-    if (!entityIsPokemon(callerAddress, centerEntityId)) {
+    console.log("checking");
+    if (
+      !(entityIsPokemon(callerAddress, centerEntityId) ||
+        (entityIsFarmer(callerAddress, centerEntityId) && Farmer.getIsHungry(callerAddress, centerEntityId)))
+    ) {
       return (changedEntity, entityData);
     }
+    console.log("go get event");
 
     changedEntity = true;
 
@@ -358,6 +363,7 @@ contract PlantSystem is VoxelInteraction {
     PlantData memory plantData
   ) internal returns (PlantData memory, CAEventData[] memory allCAEventData, bool) {
     allCAEventData = new CAEventData[](neighbourEntityIds.length);
+    console.log("runFlowerInteraction");
 
     uint256 elixirTransferAmount;
     uint256 proteinTransferAmount;
@@ -370,6 +376,7 @@ contract PlantSystem is VoxelInteraction {
         return (plantData, allCAEventData, false);
       }
       uint256 numEatingNeighbours = calculateEatingNeighbours(callerAddress, neighbourEntityIds);
+      console.logUint(numEatingNeighbours);
       if (numEatingNeighbours == 0) {
         return (plantData, allCAEventData, false);
       }
@@ -397,6 +404,7 @@ contract PlantSystem is VoxelInteraction {
         SimEventData[] memory allSimEventData = new SimEventData[](
           elixirTransferAmount > 0 && proteinTransferAmount > 0 ? 2 : 1
         );
+        console.log("transfer bro");
         if (elixirTransferAmount > 0 && proteinTransferAmount > 0) {
           allSimEventData[0] = transferSimData(
             SimTable.Elixir,
@@ -439,6 +447,7 @@ contract PlantSystem is VoxelInteraction {
         });
 
         if (elixirTransferAmount > 0 || proteinTransferAmount > 0) {
+          console.log("set consumer");
           hasTransfer = true;
           plantData = addPlantConsumer(plantData, neighbourEntityIds[i]);
         }

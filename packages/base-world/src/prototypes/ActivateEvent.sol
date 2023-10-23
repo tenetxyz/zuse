@@ -92,7 +92,9 @@ abstract contract ActivateEvent is Event {
     VoxelCoord memory coord,
     VoxelEntity memory eventVoxelEntity,
     bytes memory eventData
-  ) internal virtual override {}
+  ) internal virtual override {
+    super.preRunCA(caAddress, voxelTypeId, coord, eventVoxelEntity, eventData);
+  }
 
   function postRunCA(
     address caAddress,

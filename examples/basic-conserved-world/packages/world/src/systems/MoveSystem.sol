@@ -37,24 +37,12 @@ contract MoveSystem is MoveEvent {
       newCoord,
       abi.encode(MoveEventData({ oldCoord: oldCoord, worldData: abi.encode(moveWorldEventData) }))
     );
-    console.log("post move");
-    console.logBytes32(agentEntity.entityId);
-    console.logInt(oldCoord.x);
-    console.logInt(oldCoord.y);
-    console.logInt(oldCoord.z);
-    console.logBytes32(oldEntity.entityId);
-    console.logInt(newCoord.x);
-    console.logInt(newCoord.y);
-    console.logInt(newCoord.z);
-    console.logBytes32(newEntity.entityId);
 
     // Transfer ownership of the oldEntity to the newEntity
     if (
       hasKey(OwnedByTableId, OwnedBy.encodeKeyTuple(oldEntity.scale, oldEntity.entityId)) &&
       !isEntityEqual(oldEntity, newEntity)
     ) {
-      console.log("ownership transfer");
-      console.logAddress(OwnedBy.get(oldEntity.scale, oldEntity.entityId));
       OwnedBy.set(newEntity.scale, newEntity.entityId, OwnedBy.get(oldEntity.scale, oldEntity.entityId));
       OwnedBy.deleteRecord(oldEntity.scale, oldEntity.entityId);
     }
@@ -76,7 +64,6 @@ contract MoveSystem is MoveEvent {
     VoxelEntity memory oldEntity = VoxelEntity({ scale: scale, entityId: getEntityAtCoord(scale, oldCoord) });
 
     MoveWorldEventData memory moveWorldEventData = abi.decode(moveEventData.worldData, (MoveWorldEventData));
-    console.log("calling sim on move");
     VoxelEntity memory postMoveNewEntity = onMove(
       SIMULATOR_ADDRESS,
       moveWorldEventData.agentEntity,

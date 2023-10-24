@@ -161,25 +161,13 @@ abstract contract CA is System {
     bytes32 parentEntity
   ) public {
     address callerAddress = _msgSender();
-    console.log("moveWorld");
-    console.log("new");
-    console.logInt(newCoord.x);
-    console.logInt(newCoord.y);
-    console.logInt(newCoord.z);
-    console.logBytes32(newEntity);
     require(isVoxelTypeAllowed(voxelTypeId), "CASystem: This voxel type is not allowed in this CA");
 
     bytes32 oldEntity = getEntityAtCoord(IStore(_world()), callerAddress, oldCoord);
     require(oldEntity != 0, "No entity at old coord");
-    console.log("old");
-    console.logInt(oldCoord.x);
-    console.logInt(oldCoord.y);
-    console.logInt(oldCoord.z);
-    console.logBytes32(oldEntity);
 
     // Set to old entity Air
     bytes32 oldCAEntity = entityToCAEntity(callerAddress, oldEntity);
-    console.logBytes32(oldCAEntity);
     // TODO: Note these neighbour, child, and parent are NOT for the old coord
     // But for air, we don't need them.
     {
@@ -201,14 +189,11 @@ abstract contract CA is System {
         "MoveWorld: This position is already occupied by another voxel"
       );
       newCAEntity = entityToCAEntity(callerAddress, newEntity);
-      console.log("exsists");
     } else {
       newCAEntity = terrainGen(callerAddress, TerrainGenType.Move, voxelTypeId, newCoord, newEntity);
       // TODO: should there be a mind for this new entity?
       CAMind.set(newCAEntity, voxelTypeId, bytes4(0));
     }
-    console.log("new CA entity");
-    console.logBytes32(newCAEntity);
 
     // Update CA entity mapping from old to new
     // Note: This is the main move of the pointer

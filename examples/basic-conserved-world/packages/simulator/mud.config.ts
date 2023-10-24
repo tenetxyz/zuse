@@ -184,6 +184,11 @@ export default mudConfig({
       openAccess: false,
       accessList: ["MassSystem", "EnergySystem", "VelocitySystem", "ActionSystem", "NutrientsSystem"],
     },
+    CollisionSystem: {
+      name: "CollisionSystem",
+      openAccess: false,
+      accessList: ["VelocitySystem"],
+    },
   },
   modules: [
     {

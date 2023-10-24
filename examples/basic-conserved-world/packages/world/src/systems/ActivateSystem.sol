@@ -42,13 +42,14 @@ contract ActivateSystem is ActivateEvent {
     VoxelCoord memory coord,
     VoxelEntity memory eventVoxelEntity,
     bytes memory eventData
-  ) internal override {
-    super.preRunCA(caAddress, voxelTypeId, coord, eventVoxelEntity, eventData);
+  ) internal override returns (VoxelEntity memory) {
+    eventVoxelEntity = super.preRunCA(caAddress, voxelTypeId, coord, eventVoxelEntity, eventData);
     ActivateEventData memory activateEventData = abi.decode(eventData, (ActivateEventData));
     ActivateWorldEventData memory activateWorldEventData = abi.decode(
       activateEventData.worldData,
       (ActivateWorldEventData)
     );
     onActivate(SIMULATOR_ADDRESS, activateWorldEventData.agentEntity, eventVoxelEntity, coord);
+    return eventVoxelEntity;
   }
 }

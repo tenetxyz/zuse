@@ -207,13 +207,13 @@ function onMove(
   VoxelCoord memory oldCoord,
   VoxelEntity memory newEntity,
   VoxelCoord memory newCoord
-) returns (bytes memory) {
-  return
-    safeCall(
-      simAddress,
-      abi.encodeWithSignature(SIM_ON_MOVE_SIG, actingEntity, oldEntity, oldCoord, newEntity, newCoord),
-      string(abi.encode("onMove ", actingEntity, " ", oldEntity, " ", oldCoord, " ", newEntity, " ", newCoord))
-    );
+) returns (VoxelEntity memory) {
+  bytes memory returnData = safeCall(
+    simAddress,
+    abi.encodeWithSignature(SIM_ON_MOVE_SIG, actingEntity, oldEntity, oldCoord, newEntity, newCoord),
+    string(abi.encode("onMove ", actingEntity, " ", oldEntity, " ", oldCoord, " ", newEntity, " ", newCoord))
+  );
+  return abi.decode(returnData, (VoxelEntity));
 }
 
 function onActivate(

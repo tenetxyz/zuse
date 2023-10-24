@@ -86,11 +86,11 @@ abstract contract BuildEvent is Event {
     VoxelCoord memory coord,
     VoxelEntity memory eventVoxelEntity,
     bytes memory eventData
-  ) internal virtual override {
+  ) internal virtual override returns (VoxelEntity memory) {
     BuildEventData memory buildEventData = abi.decode(eventData, (BuildEventData));
     // Enter World
     IWorld(_world()).enterCA(caAddress, eventVoxelEntity, voxelTypeId, buildEventData.mindSelector, coord);
-    super.preRunCA(caAddress, voxelTypeId, coord, eventVoxelEntity, eventData);
+    return super.preRunCA(caAddress, voxelTypeId, coord, eventVoxelEntity, eventData);
   }
 
   function postRunCA(

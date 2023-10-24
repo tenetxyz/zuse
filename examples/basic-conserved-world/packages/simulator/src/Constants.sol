@@ -16,3 +16,5 @@ string constant SIM_VELOCITY_CACHE_UPDATE_SIG = "updateVelocityCache((uint32,byt
 uint256 constant NUM_BLOCKS_BEFORE_REDUCE_VELOCITY = 60;
 uint256 constant MAX_INIT_NPK = 100;
 uint256 constant NUTRIENT_TRANSFER_MAX_DELTA = 50;
+uint256 constant TX_SPEED_RATIO = 90;
+uint256 constant MAX_BLOCKS_TO_WAIT = 60 * 5; // 5 minutes if 1 block = 1 second

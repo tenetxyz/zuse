@@ -41,6 +41,9 @@ if [[ "$1" == "run" ]]; then
             ;;
         "dev:basic-conserved-world")
             extra_cmd=""
+            if [[ "$3" == "--with-pokemon" ]] || [[ "$4" == "--with-pokemon" ]]; then
+                extra_cmd="&& yarn run deploy:pokemon"
+            fi
             if [[ "$3" == "--with-extensions" ]] || [[ "$4" == "--with-extensions" ]]; then
                 extra_cmd="&& yarn run deploy:extensions"
             fi

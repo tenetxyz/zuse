@@ -8,6 +8,7 @@ import { IWorld } from "@tenet-world/src/codegen/world/IWorld.sol";
 import { VoxelCoord, VoxelEntity, EntityEventData } from "@tenet-utils/src/Types.sol";
 import { REGISTRY_ADDRESS, SIMULATOR_ADDRESS } from "@tenet-world/src/Constants.sol";
 import { MoveEventData } from "@tenet-base-world/src/Types.sol";
+import { isEntityEqual } from "@tenet-utils/src/Utils.sol";
 import { OwnedBy, OwnedByTableId, WorldConfig } from "@tenet-world/src/codegen/Tables.sol";
 import { getEntityAtCoord } from "@tenet-base-world/src/Utils.sol";
 import { MoveWorldEventData } from "@tenet-world/src/Types.sol";
@@ -38,7 +39,10 @@ contract MoveSystem is MoveEvent {
     );
 
     // Transfer ownership of the oldEntity to the newEntity
-    if (hasKey(OwnedByTableId, OwnedBy.encodeKeyTuple(oldEntity.scale, oldEntity.entityId))) {
+    if (
+      hasKey(OwnedByTableId, OwnedBy.encodeKeyTuple(oldEntity.scale, oldEntity.entityId)) &&
+      !isEntityEqual(oldEntity, newEntity)
+    ) {
       OwnedBy.set(newEntity.scale, newEntity.entityId, OwnedBy.get(oldEntity.scale, oldEntity.entityId));
       OwnedBy.deleteRecord(oldEntity.scale, oldEntity.entityId);
     }
@@ -52,15 +56,22 @@ contract MoveSystem is MoveEvent {
     VoxelCoord memory newCoord,
     VoxelEntity memory eventVoxelEntity,
     bytes memory eventData
-  ) internal override {
-    super.preRunCA(caAddress, voxelTypeId, newCoord, eventVoxelEntity, eventData);
+  ) internal override returns (VoxelEntity memory) {
+    eventVoxelEntity = super.preRunCA(caAddress, voxelTypeId, newCoord, eventVoxelEntity, eventData);
     MoveEventData memory moveEventData = abi.decode(eventData, (MoveEventData));
     VoxelCoord memory oldCoord = moveEventData.oldCoord;
     uint32 scale = eventVoxelEntity.scale;
-    bytes32 oldEntityId = getEntityAtCoord(scale, oldCoord);
-    VoxelEntity memory oldEntity = VoxelEntity({ scale: scale, entityId: oldEntityId });
+    VoxelEntity memory oldEntity = VoxelEntity({ scale: scale, entityId: getEntityAtCoord(scale, oldCoord) });
 
     MoveWorldEventData memory moveWorldEventData = abi.decode(moveEventData.worldData, (MoveWorldEventData));
-    onMove(SIMULATOR_ADDRESS, moveWorldEventData.agentEntity, oldEntity, oldCoord, eventVoxelEntity, newCoord);
+    VoxelEntity memory postMoveNewEntity = onMove(
+      SIMULATOR_ADDRESS,
+      moveWorldEventData.agentEntity,
+      oldEntity,
+      oldCoord,
+      eventVoxelEntity,
+      newCoord
+    );
+    return postMoveNewEntity;
   }
 }

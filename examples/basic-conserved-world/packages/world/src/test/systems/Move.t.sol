@@ -37,12 +37,14 @@ contract MoveTest is MudTest {
   VoxelCoord private agentCoord;
 
   address payable internal alice;
+  address payable internal bob;
 
   function setUp() public override {
     super.setUp();
     world = IWorld(worldAddress);
     store = IStore(worldAddress);
     alice = payable(address(0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266));
+    bob = payable(address(0x70997970C51812dc3A010C7d01b50e0d17dc79C8));
     agentCoord = VoxelCoord(51, 10, 50);
   }
 
@@ -114,6 +116,8 @@ contract MoveTest is MudTest {
     VoxelCoord memory newAgentCoord = VoxelCoord({ x: agentCoord.x + 1, y: agentCoord.y, z: agentCoord.z });
     console.log("moving");
     console.logBytes32(agentEntity.entityId);
+    bytes32 agentCAEntity = CAEntityMapping.get(IStore(BASE_CA_ADDRESS), worldAddress, agentEntity.entityId);
+    address agentOwner = OwnedBy.get(agentEntity.scale, agentEntity.entityId);
     (, agentEntity) = world.moveWithAgent(FaucetVoxelID, agentCoord, newAgentCoord, agentEntity);
     uint256 staminaAfter = Stamina.get(
       IStore(SIMULATOR_ADDRESS),
@@ -124,6 +128,8 @@ contract MoveTest is MudTest {
     console.log("staminaAfter");
     console.logUint(staminaAfter);
     assertTrue(staminaBefore > staminaAfter);
+    assertTrue(CAEntityMapping.get(IStore(BASE_CA_ADDRESS), worldAddress, agentEntity.entityId) == agentCAEntity);
+    assertTrue(OwnedBy.get(agentEntity.scale, agentEntity.entityId) == agentOwner);
 
     VoxelCoord memory agentVelocity = abi.decode(
       Velocity.getVelocity(IStore(SIMULATOR_ADDRESS), worldAddress, agentEntity.scale, agentEntity.entityId),
@@ -184,8 +190,11 @@ contract MoveTest is MudTest {
       agentEntity.entityId,
       abi.encode(VoxelCoord({ x: 4, y: 0, z: 0 }))
     );
+    bytes32 agentCAEntity = CAEntityMapping.get(IStore(BASE_CA_ADDRESS), worldAddress, agentEntity.entityId);
+    address agentOwner = OwnedBy.get(agentEntity.scale, agentEntity.entityId);
     VoxelCoord memory newAgentCoord = VoxelCoord({ x: agentCoord.x + 1, y: agentCoord.y, z: agentCoord.z });
     console.log("moving");
+    console.logBytes32(agentCAEntity);
     (, agentEntity) = world.moveWithAgent(FaucetVoxelID, agentCoord, newAgentCoord, agentEntity);
     uint256 staminaAfter = Stamina.get(
       IStore(SIMULATOR_ADDRESS),
@@ -193,12 +202,12 @@ contract MoveTest is MudTest {
       agentEntity.scale,
       agentEntity.entityId
     );
+    console.log("post move");
+    console.logBytes32(agentEntity.entityId);
     assertTrue(staminaBefore > staminaAfter);
+    assertTrue(CAEntityMapping.get(IStore(BASE_CA_ADDRESS), worldAddress, agentEntity.entityId) == agentCAEntity);
+    assertTrue(OwnedBy.get(agentEntity.scale, agentEntity.entityId) == agentOwner);
 
-    agentEntity = VoxelEntity({
-      scale: 1,
-      entityId: getEntityAtCoord(1, VoxelCoord(agentCoord.x, agentCoord.y, agentCoord.z))
-    });
     VoxelCoord memory agentVelocity = abi.decode(
       Velocity.getVelocity(IStore(SIMULATOR_ADDRESS), worldAddress, agentEntity.scale, agentEntity.entityId),
       (VoxelCoord)
@@ -223,6 +232,81 @@ contract MoveTest is MudTest {
     assertTrue(massVelocity.x == 1);
     assertTrue(massVelocity.y == 0);
     assertTrue(massVelocity.z == 0);
+    assertTrue(Mass.get(IStore(SIMULATOR_ADDRESS), worldAddress, massEntity.scale, massEntity.entityId) > 0);
+
+    vm.stopPrank();
+  }
+
+  function testCollisionMultipleBlocksPushed() public {
+    vm.startPrank(alice, alice);
+
+    VoxelEntity memory agentEntity = setupAgent();
+
+    VoxelEntity memory massEntity;
+    VoxelCoord memory massCoord;
+    {
+      bytes32 voxelTypeId = GrassVoxelID;
+      massCoord = VoxelCoord({ x: agentCoord.x + 1, y: agentCoord.y, z: agentCoord.z - 1 });
+      uint256 initMass = 5;
+      uint256 initEnergy = 10;
+      VoxelCoord memory initVelocity = VoxelCoord({ x: 0, y: 0, z: 10 });
+      massEntity = world.spawnBody(voxelTypeId, massCoord, bytes4(0), initMass, initEnergy, initVelocity, 0, 0);
+    }
+
+    uint256 staminaBefore = Stamina.get(
+      IStore(SIMULATOR_ADDRESS),
+      worldAddress,
+      agentEntity.scale,
+      agentEntity.entityId
+    );
+
+    Velocity.setVelocity(
+      IStore(SIMULATOR_ADDRESS),
+      worldAddress,
+      agentEntity.scale,
+      agentEntity.entityId,
+      abi.encode(VoxelCoord({ x: 0, y: 0, z: 0 }))
+    );
+    bytes32 agentCAEntity = CAEntityMapping.get(IStore(BASE_CA_ADDRESS), worldAddress, agentEntity.entityId);
+    address agentOwner = OwnedBy.get(agentEntity.scale, agentEntity.entityId);
+    VoxelCoord memory newAgentCoord = VoxelCoord({ x: agentCoord.x + 1, y: agentCoord.y, z: agentCoord.z });
+    console.log("moving");
+    console.logBytes32(agentCAEntity);
+    (, agentEntity) = world.moveWithAgent(FaucetVoxelID, agentCoord, newAgentCoord, agentEntity);
+    uint256 staminaAfter = Stamina.get(
+      IStore(SIMULATOR_ADDRESS),
+      worldAddress,
+      agentEntity.scale,
+      agentEntity.entityId
+    );
+    console.log("post move");
+    console.logBytes32(agentEntity.entityId);
+    assertTrue(staminaBefore > staminaAfter);
+    assertTrue(CAEntityMapping.get(IStore(BASE_CA_ADDRESS), worldAddress, agentEntity.entityId) == agentCAEntity);
+    assertTrue(OwnedBy.get(agentEntity.scale, agentEntity.entityId) == agentOwner);
+
+    VoxelCoord memory agentVelocity = abi.decode(
+      Velocity.getVelocity(IStore(SIMULATOR_ADDRESS), worldAddress, agentEntity.scale, agentEntity.entityId),
+      (VoxelCoord)
+    );
+    console.log("velocity agent");
+    assertTrue(agentVelocity.x == 1);
+    assertTrue(agentVelocity.y == 0);
+    assertTrue(agentVelocity.z == 2);
+    assertTrue(Mass.get(IStore(SIMULATOR_ADDRESS), worldAddress, agentEntity.scale, agentEntity.entityId) > 0);
+
+    massEntity = VoxelEntity({
+      scale: 1,
+      entityId: getEntityAtCoord(1, VoxelCoord(massCoord.x, massCoord.y, massCoord.z - 2))
+    });
+    VoxelCoord memory massVelocity = abi.decode(
+      Velocity.getVelocity(IStore(SIMULATOR_ADDRESS), worldAddress, massEntity.scale, massEntity.entityId),
+      (VoxelCoord)
+    );
+    console.log("velocity mass");
+    assertTrue(massVelocity.x == 0);
+    assertTrue(massVelocity.y == 0);
+    assertTrue(massVelocity.z == 8);
     assertTrue(Mass.get(IStore(SIMULATOR_ADDRESS), worldAddress, massEntity.scale, massEntity.entityId) > 0);
 
     vm.stopPrank();
@@ -680,6 +764,13 @@ contract MoveTest is MudTest {
       agentEntity.entityId
     );
     (, soilEntity) = world.moveWithAgent(ConcentrativeSoilVoxelID, soilCoord, newSoilCoord, agentEntity);
+    VoxelCoord memory soilVelocity = abi.decode(
+      Velocity.getVelocity(IStore(SIMULATOR_ADDRESS), worldAddress, soilEntity.scale, soilEntity.entityId),
+      (VoxelCoord)
+    );
+    assertTrue(soilVelocity.x == 1);
+    assertTrue(soilVelocity.y == 0);
+    assertTrue(soilVelocity.z == 0);
     assertTrue(
       soil1Nutrients == Nutrients.get(IStore(SIMULATOR_ADDRESS), worldAddress, soilEntity.scale, soilEntity.entityId)
     );
@@ -698,6 +789,176 @@ contract MoveTest is MudTest {
     vm.stopPrank();
   }
 
+  function testMoveBlockBounceBack() public {
+    vm.startPrank(alice, alice);
+
+    VoxelEntity memory agentEntity = setupAgent();
+
+    VoxelEntity memory smallMassEntity;
+    VoxelCoord memory smallMassCoord;
+    {
+      bytes32 voxelTypeId = GrassVoxelID;
+      smallMassCoord = VoxelCoord({ x: agentCoord.x + 3, y: agentCoord.y, z: agentCoord.z });
+      uint256 initMass = 10;
+      uint256 initEnergy = 10;
+      VoxelCoord memory initVelocity = VoxelCoord({ x: -4, y: 0, z: 0 });
+      smallMassEntity = world.spawnBody(
+        voxelTypeId,
+        smallMassCoord,
+        bytes4(0),
+        initMass,
+        initEnergy,
+        initVelocity,
+        0,
+        0
+      );
+    }
+
+    VoxelCoord memory soilCoord = VoxelCoord({ x: agentCoord.x + 1, y: agentCoord.y, z: agentCoord.z });
+    VoxelEntity memory soilEntity = world.buildWithAgent(ConcentrativeSoilVoxelID, soilCoord, agentEntity, bytes4(0));
+    Energy.set(IStore(SIMULATOR_ADDRESS), worldAddress, soilEntity.scale, soilEntity.entityId, 150);
+    world.activateWithAgent(ConcentrativeSoilVoxelID, soilCoord, agentEntity, bytes4(0));
+    uint256 soil1Nutrients = Nutrients.get(
+      IStore(SIMULATOR_ADDRESS),
+      worldAddress,
+      soilEntity.scale,
+      soilEntity.entityId
+    );
+    assertTrue(soil1Nutrients > 0);
+    assertTrue(Nitrogen.get(IStore(SIMULATOR_ADDRESS), worldAddress, soilEntity.scale, soilEntity.entityId) > 0);
+    assertTrue(Phosphorous.get(IStore(SIMULATOR_ADDRESS), worldAddress, soilEntity.scale, soilEntity.entityId) > 0);
+    assertTrue(Potassium.get(IStore(SIMULATOR_ADDRESS), worldAddress, soilEntity.scale, soilEntity.entityId) > 0);
+
+    // Place down plant on top of it
+    vm.roll(block.number + 1);
+    VoxelCoord memory newSoilCoord = VoxelCoord({ x: soilCoord.x + 1, y: soilCoord.y, z: soilCoord.z });
+    uint256 staminaBefore = Stamina.get(
+      IStore(SIMULATOR_ADDRESS),
+      worldAddress,
+      agentEntity.scale,
+      agentEntity.entityId
+    );
+    console.log("moveWithAgent block go");
+    console.logBytes32(soilEntity.entityId);
+    (, soilEntity) = world.moveWithAgent(ConcentrativeSoilVoxelID, soilCoord, newSoilCoord, agentEntity);
+    console.log("post move entity");
+    console.logBytes32(soilEntity.entityId);
+    VoxelCoord memory soilVelocity = abi.decode(
+      Velocity.getVelocity(IStore(SIMULATOR_ADDRESS), worldAddress, soilEntity.scale, soilEntity.entityId),
+      (VoxelCoord)
+    );
+    assertTrue(getEntityAtCoord(1, VoxelCoord(soilCoord.x, soilCoord.y, soilCoord.z)) == soilEntity.entityId);
+    assertTrue(
+      VoxelType.getVoxelTypeId(1, getEntityAtCoord(1, VoxelCoord(newSoilCoord.x, newSoilCoord.y, newSoilCoord.z))) ==
+        AirVoxelID
+    );
+    assertTrue(soilVelocity.x == 0);
+    assertTrue(soilVelocity.y == 0);
+    assertTrue(soilVelocity.z == 0);
+    assertTrue(Mass.get(IStore(SIMULATOR_ADDRESS), worldAddress, soilEntity.scale, soilEntity.entityId) > 0);
+    assertTrue(
+      soil1Nutrients == Nutrients.get(IStore(SIMULATOR_ADDRESS), worldAddress, soilEntity.scale, soilEntity.entityId)
+    );
+    assertTrue(Nitrogen.get(IStore(SIMULATOR_ADDRESS), worldAddress, soilEntity.scale, soilEntity.entityId) > 0);
+    assertTrue(Phosphorous.get(IStore(SIMULATOR_ADDRESS), worldAddress, soilEntity.scale, soilEntity.entityId) > 0);
+    assertTrue(Potassium.get(IStore(SIMULATOR_ADDRESS), worldAddress, soilEntity.scale, soilEntity.entityId) > 0);
+
+    uint256 staminaAfter = Stamina.get(
+      IStore(SIMULATOR_ADDRESS),
+      worldAddress,
+      agentEntity.scale,
+      agentEntity.entityId
+    );
+    assertTrue(staminaBefore > staminaAfter);
+
+    vm.stopPrank();
+  }
+
+  function testMoveBlockCollisionPushedMultiple() public {
+    vm.startPrank(alice, alice);
+
+    VoxelEntity memory agentEntity = setupAgent();
+
+    VoxelEntity memory massEntity;
+    VoxelCoord memory massCoord;
+    {
+      bytes32 voxelTypeId = GrassVoxelID;
+      massCoord = VoxelCoord({ x: agentCoord.x + 2, y: agentCoord.y, z: agentCoord.z - 1 });
+      uint256 initMass = 5;
+      uint256 initEnergy = 10;
+      VoxelCoord memory initVelocity = VoxelCoord({ x: 0, y: 0, z: 10 });
+      massEntity = world.spawnBody(voxelTypeId, massCoord, bytes4(0), initMass, initEnergy, initVelocity, 0, 0);
+    }
+
+    VoxelCoord memory soilCoord = VoxelCoord({ x: agentCoord.x + 1, y: agentCoord.y, z: agentCoord.z });
+    VoxelEntity memory soilEntity = world.buildWithAgent(ConcentrativeSoilVoxelID, soilCoord, agentEntity, bytes4(0));
+    Energy.set(IStore(SIMULATOR_ADDRESS), worldAddress, soilEntity.scale, soilEntity.entityId, 150);
+    world.activateWithAgent(ConcentrativeSoilVoxelID, soilCoord, agentEntity, bytes4(0));
+    uint256 soil1Nutrients = Nutrients.get(
+      IStore(SIMULATOR_ADDRESS),
+      worldAddress,
+      soilEntity.scale,
+      soilEntity.entityId
+    );
+    assertTrue(soil1Nutrients > 0);
+    assertTrue(Nitrogen.get(IStore(SIMULATOR_ADDRESS), worldAddress, soilEntity.scale, soilEntity.entityId) > 0);
+    assertTrue(Phosphorous.get(IStore(SIMULATOR_ADDRESS), worldAddress, soilEntity.scale, soilEntity.entityId) > 0);
+    assertTrue(Potassium.get(IStore(SIMULATOR_ADDRESS), worldAddress, soilEntity.scale, soilEntity.entityId) > 0);
+
+    // Place down plant on top of it
+    vm.roll(block.number + 1);
+    VoxelCoord memory newSoilCoord = VoxelCoord({ x: soilCoord.x + 1, y: soilCoord.y, z: soilCoord.z });
+    uint256 staminaBefore = Stamina.get(
+      IStore(SIMULATOR_ADDRESS),
+      worldAddress,
+      agentEntity.scale,
+      agentEntity.entityId
+    );
+    console.log("moveWithAgent block go");
+    console.logBytes32(soilEntity.entityId);
+    (, soilEntity) = world.moveWithAgent(ConcentrativeSoilVoxelID, soilCoord, newSoilCoord, agentEntity);
+    console.log("post move entity");
+    console.logBytes32(soilEntity.entityId);
+    VoxelCoord memory soilVelocity = abi.decode(
+      Velocity.getVelocity(IStore(SIMULATOR_ADDRESS), worldAddress, soilEntity.scale, soilEntity.entityId),
+      (VoxelCoord)
+    );
+    assertTrue(soilVelocity.x == 1);
+    assertTrue(soilVelocity.y == 0);
+    assertTrue(soilVelocity.z == 2);
+    assertTrue(Mass.get(IStore(SIMULATOR_ADDRESS), worldAddress, soilEntity.scale, soilEntity.entityId) > 0);
+    assertTrue(
+      soil1Nutrients == Nutrients.get(IStore(SIMULATOR_ADDRESS), worldAddress, soilEntity.scale, soilEntity.entityId)
+    );
+    assertTrue(Nitrogen.get(IStore(SIMULATOR_ADDRESS), worldAddress, soilEntity.scale, soilEntity.entityId) > 0);
+    assertTrue(Phosphorous.get(IStore(SIMULATOR_ADDRESS), worldAddress, soilEntity.scale, soilEntity.entityId) > 0);
+    assertTrue(Potassium.get(IStore(SIMULATOR_ADDRESS), worldAddress, soilEntity.scale, soilEntity.entityId) > 0);
+
+    uint256 staminaAfter = Stamina.get(
+      IStore(SIMULATOR_ADDRESS),
+      worldAddress,
+      agentEntity.scale,
+      agentEntity.entityId
+    );
+    assertTrue(staminaBefore > staminaAfter);
+
+    massEntity = VoxelEntity({
+      scale: 1,
+      entityId: getEntityAtCoord(1, VoxelCoord(massCoord.x, massCoord.y, massCoord.z - 2))
+    });
+    VoxelCoord memory massVelocity = abi.decode(
+      Velocity.getVelocity(IStore(SIMULATOR_ADDRESS), worldAddress, massEntity.scale, massEntity.entityId),
+      (VoxelCoord)
+    );
+    console.log("velocity mass");
+    assertTrue(massVelocity.x == 0);
+    assertTrue(massVelocity.y == 0);
+    assertTrue(massVelocity.z == 8);
+    assertTrue(Mass.get(IStore(SIMULATOR_ADDRESS), worldAddress, massEntity.scale, massEntity.entityId) > 0);
+
+    vm.stopPrank();
+  }
+
   function testMoveAgent() public {
     vm.startPrank(alice, alice);
 
@@ -706,6 +967,10 @@ contract MoveTest is MudTest {
     VoxelCoord memory faucetCoord = VoxelCoord({ x: agentCoord.x + 1, y: agentCoord.y, z: agentCoord.z });
     VoxelEntity memory faucetEntity = world.buildWithAgent(FaucetVoxelID, faucetCoord, agentEntity, bytes4(0));
     Stamina.set(IStore(SIMULATOR_ADDRESS), worldAddress, faucetEntity.scale, faucetEntity.entityId, 100);
+    vm.startPrank(bob, bob);
+    world.claimAgent(faucetEntity);
+    vm.stopPrank();
+    vm.startPrank(alice, alice);
 
     vm.roll(block.number + 1);
     VoxelCoord memory newfaucetCoord = VoxelCoord({ x: faucetCoord.x, y: faucetCoord.y + 1, z: faucetCoord.z });
@@ -715,6 +980,9 @@ contract MoveTest is MudTest {
       agentEntity.scale,
       agentEntity.entityId
     );
+    address agentOwner = OwnedBy.get(faucetEntity.scale, faucetEntity.entityId);
+    console.log("owner before");
+    console.logAddress(agentOwner);
     (, faucetEntity) = world.moveWithAgent(FaucetVoxelID, faucetCoord, newfaucetCoord, agentEntity);
     uint256 staminaAfter = Stamina.get(
       IStore(SIMULATOR_ADDRESS),
@@ -724,6 +992,160 @@ contract MoveTest is MudTest {
     );
     assertTrue(staminaBefore > staminaAfter);
     assertTrue(Stamina.get(IStore(SIMULATOR_ADDRESS), worldAddress, faucetEntity.scale, faucetEntity.entityId) == 100);
+    assertTrue(OwnedBy.get(faucetEntity.scale, faucetEntity.entityId) == agentOwner);
+    VoxelCoord memory faucetVelocity = abi.decode(
+      Velocity.getVelocity(IStore(SIMULATOR_ADDRESS), worldAddress, faucetEntity.scale, faucetEntity.entityId),
+      (VoxelCoord)
+    );
+    assertTrue(faucetVelocity.x == 0);
+    assertTrue(faucetVelocity.y == 1);
+    assertTrue(faucetVelocity.z == 0);
+
+    vm.stopPrank();
+  }
+
+  function testMoveAgentBounceBack() public {
+    vm.startPrank(alice, alice);
+
+    VoxelEntity memory agentEntity = setupAgent();
+
+    VoxelEntity memory smallMassEntity;
+    VoxelCoord memory smallMassCoord;
+    {
+      bytes32 voxelTypeId = GrassVoxelID;
+      smallMassCoord = VoxelCoord({ x: agentCoord.x + 3, y: agentCoord.y, z: agentCoord.z });
+      uint256 initMass = 10;
+      uint256 initEnergy = 10;
+      VoxelCoord memory initVelocity = VoxelCoord({ x: -4, y: 0, z: 0 });
+      smallMassEntity = world.spawnBody(
+        voxelTypeId,
+        smallMassCoord,
+        bytes4(0),
+        initMass,
+        initEnergy,
+        initVelocity,
+        0,
+        0
+      );
+    }
+
+    VoxelCoord memory faucetCoord = VoxelCoord({ x: agentCoord.x + 1, y: agentCoord.y, z: agentCoord.z });
+    VoxelEntity memory faucetEntity = world.buildWithAgent(FaucetVoxelID, faucetCoord, agentEntity, bytes4(0));
+    Stamina.set(IStore(SIMULATOR_ADDRESS), worldAddress, faucetEntity.scale, faucetEntity.entityId, 100);
+    vm.startPrank(bob, bob);
+    world.claimAgent(faucetEntity);
+    vm.stopPrank();
+    vm.startPrank(alice, alice);
+
+    vm.roll(block.number + 1);
+    VoxelCoord memory newfaucetCoord = VoxelCoord({ x: faucetCoord.x + 1, y: faucetCoord.y, z: faucetCoord.z });
+    uint256 staminaBefore = Stamina.get(
+      IStore(SIMULATOR_ADDRESS),
+      worldAddress,
+      agentEntity.scale,
+      agentEntity.entityId
+    );
+    address agentOwner = OwnedBy.get(faucetEntity.scale, faucetEntity.entityId);
+    console.log("owner before");
+    console.logAddress(agentOwner);
+    (, faucetEntity) = world.moveWithAgent(FaucetVoxelID, faucetCoord, newfaucetCoord, agentEntity);
+    uint256 staminaAfter = Stamina.get(
+      IStore(SIMULATOR_ADDRESS),
+      worldAddress,
+      agentEntity.scale,
+      agentEntity.entityId
+    );
+    assertTrue(staminaBefore > staminaAfter);
+    assertTrue(Stamina.get(IStore(SIMULATOR_ADDRESS), worldAddress, faucetEntity.scale, faucetEntity.entityId) == 100);
+    assertTrue(OwnedBy.get(faucetEntity.scale, faucetEntity.entityId) == agentOwner);
+
+    VoxelCoord memory faucetVelocity = abi.decode(
+      Velocity.getVelocity(IStore(SIMULATOR_ADDRESS), worldAddress, faucetEntity.scale, faucetEntity.entityId),
+      (VoxelCoord)
+    );
+    assertTrue(getEntityAtCoord(1, VoxelCoord(faucetCoord.x, faucetCoord.y, faucetCoord.z)) == faucetEntity.entityId);
+    assertTrue(
+      VoxelType.getVoxelTypeId(
+        1,
+        getEntityAtCoord(1, VoxelCoord(newfaucetCoord.x, newfaucetCoord.y, newfaucetCoord.z))
+      ) == AirVoxelID
+    );
+    assertTrue(faucetVelocity.x == 0);
+    assertTrue(faucetVelocity.y == 0);
+    assertTrue(faucetVelocity.z == 0);
+    assertTrue(Mass.get(IStore(SIMULATOR_ADDRESS), worldAddress, faucetEntity.scale, faucetEntity.entityId) > 0);
+
+    vm.stopPrank();
+  }
+
+  function testMoveAgentollisionPushedMultiple() public {
+    vm.startPrank(alice, alice);
+
+    VoxelEntity memory agentEntity = setupAgent();
+
+    VoxelEntity memory massEntity;
+    VoxelCoord memory massCoord;
+    {
+      bytes32 voxelTypeId = GrassVoxelID;
+      massCoord = VoxelCoord({ x: agentCoord.x + 2, y: agentCoord.y, z: agentCoord.z - 1 });
+      uint256 initMass = 5;
+      uint256 initEnergy = 10;
+      VoxelCoord memory initVelocity = VoxelCoord({ x: 0, y: 0, z: 10 });
+      massEntity = world.spawnBody(voxelTypeId, massCoord, bytes4(0), initMass, initEnergy, initVelocity, 0, 0);
+    }
+
+    VoxelCoord memory faucetCoord = VoxelCoord({ x: agentCoord.x + 1, y: agentCoord.y, z: agentCoord.z });
+    VoxelEntity memory faucetEntity = world.buildWithAgent(FaucetVoxelID, faucetCoord, agentEntity, bytes4(0));
+    Stamina.set(IStore(SIMULATOR_ADDRESS), worldAddress, faucetEntity.scale, faucetEntity.entityId, 100);
+    vm.startPrank(bob, bob);
+    world.claimAgent(faucetEntity);
+    vm.stopPrank();
+    vm.startPrank(alice, alice);
+
+    vm.roll(block.number + 1);
+    VoxelCoord memory newfaucetCoord = VoxelCoord({ x: faucetCoord.x + 1, y: faucetCoord.y, z: faucetCoord.z });
+    uint256 staminaBefore = Stamina.get(
+      IStore(SIMULATOR_ADDRESS),
+      worldAddress,
+      agentEntity.scale,
+      agentEntity.entityId
+    );
+    address agentOwner = OwnedBy.get(faucetEntity.scale, faucetEntity.entityId);
+    console.log("owner before");
+    console.logAddress(agentOwner);
+    (, faucetEntity) = world.moveWithAgent(FaucetVoxelID, faucetCoord, newfaucetCoord, agentEntity);
+    uint256 staminaAfter = Stamina.get(
+      IStore(SIMULATOR_ADDRESS),
+      worldAddress,
+      agentEntity.scale,
+      agentEntity.entityId
+    );
+    assertTrue(staminaBefore > staminaAfter);
+    assertTrue(Stamina.get(IStore(SIMULATOR_ADDRESS), worldAddress, faucetEntity.scale, faucetEntity.entityId) == 100);
+    assertTrue(OwnedBy.get(faucetEntity.scale, faucetEntity.entityId) == agentOwner);
+
+    VoxelCoord memory faucetVelocity = abi.decode(
+      Velocity.getVelocity(IStore(SIMULATOR_ADDRESS), worldAddress, faucetEntity.scale, faucetEntity.entityId),
+      (VoxelCoord)
+    );
+    assertTrue(faucetVelocity.x == 1);
+    assertTrue(faucetVelocity.y == 0);
+    assertTrue(faucetVelocity.z == 2);
+    assertTrue(Mass.get(IStore(SIMULATOR_ADDRESS), worldAddress, faucetEntity.scale, faucetEntity.entityId) > 0);
+
+    massEntity = VoxelEntity({
+      scale: 1,
+      entityId: getEntityAtCoord(1, VoxelCoord(massCoord.x, massCoord.y, massCoord.z - 2))
+    });
+    VoxelCoord memory massVelocity = abi.decode(
+      Velocity.getVelocity(IStore(SIMULATOR_ADDRESS), worldAddress, massEntity.scale, massEntity.entityId),
+      (VoxelCoord)
+    );
+    console.log("velocity mass");
+    assertTrue(massVelocity.x == 0);
+    assertTrue(massVelocity.y == 0);
+    assertTrue(massVelocity.z == 8);
+    assertTrue(Mass.get(IStore(SIMULATOR_ADDRESS), worldAddress, massEntity.scale, massEntity.entityId) > 0);
 
     vm.stopPrank();
   }

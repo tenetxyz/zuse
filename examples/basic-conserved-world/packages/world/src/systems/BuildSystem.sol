@@ -50,12 +50,13 @@ contract BuildSystem is BuildEvent {
     VoxelCoord memory coord,
     VoxelEntity memory eventVoxelEntity,
     bytes memory eventData
-  ) internal override {
-    super.preRunCA(caAddress, voxelTypeId, coord, eventVoxelEntity, eventData);
+  ) internal override returns (VoxelEntity memory) {
+    eventVoxelEntity = super.preRunCA(caAddress, voxelTypeId, coord, eventVoxelEntity, eventData);
     // Call simulator mass change
     uint256 bodyMass = VoxelTypeRegistry.getMass(IStore(REGISTRY_ADDRESS), voxelTypeId);
     BuildEventData memory buildEventData = abi.decode(eventData, (BuildEventData));
     BuildWorldEventData memory buildWorldEventData = abi.decode(buildEventData.worldData, (BuildWorldEventData));
     onBuild(SIMULATOR_ADDRESS, buildWorldEventData.agentEntity, eventVoxelEntity, coord, bodyMass);
+    return eventVoxelEntity;
   }
 }

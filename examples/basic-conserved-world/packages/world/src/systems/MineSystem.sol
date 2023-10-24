@@ -39,11 +39,12 @@ contract MineSystem is MineEvent {
     VoxelCoord memory coord,
     VoxelEntity memory eventVoxelEntity,
     bytes memory eventData
-  ) internal override {
-    super.preRunCA(caAddress, voxelTypeId, coord, eventVoxelEntity, eventData);
+  ) internal override returns (VoxelEntity memory) {
+    eventVoxelEntity = super.preRunCA(caAddress, voxelTypeId, coord, eventVoxelEntity, eventData);
     // Call simulator mass change
     MineEventData memory mineEventData = abi.decode(eventData, (MineEventData));
     MineWorldEventData memory mineWorldEventData = abi.decode(mineEventData.worldData, (MineWorldEventData));
     onMine(SIMULATOR_ADDRESS, mineWorldEventData.agentEntity, eventVoxelEntity, coord);
+    return eventVoxelEntity;
   }
 }

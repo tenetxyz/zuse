@@ -18,6 +18,7 @@ import { getNeighbourEntitiesFromCaller, getChildEntitiesFromCaller, getParentEn
 import { safeCall, safeStaticCall } from "@tenet-utils/src/CallUtils.sol";
 import { getEnterWorldSelector, getExitWorldSelector, getVoxelVariantSelector, getActivateSelector, getInteractionSelectors, getOnNewNeighbourSelector } from "@tenet-registry/src/Utils.sol";
 import { TerrainGenType } from "@tenet-base-ca/src/Constants.sol";
+import { console } from "forge-std/console.sol";
 
 abstract contract CA is System {
   function getRegistryAddress() internal pure virtual returns (address);

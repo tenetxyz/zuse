@@ -36,7 +36,6 @@ contract CollisionSystem is System {
     VoxelEntity memory centerVoxelEntity,
     VoxelEntity memory actingEntity
   ) public returns (VoxelEntity memory) {
-    console.log("onCollision");
     CollisionData[] memory centerEntitiesToCheckStack = new CollisionData[](MAX_VOXEL_NEIGHBOUR_UPDATE_DEPTH);
     uint256 centerEntitiesToCheckStackIdx = 0;
     uint256 useStackIdx = 0;
@@ -203,12 +202,6 @@ contract CollisionSystem is System {
         VoxelCoord memory newCoord = add(workingCoord, deltaVelocity);
         // Try moving
         console.log("Trying to move post-collision");
-        console.logInt(workingCoord.x);
-        console.logInt(workingCoord.y);
-        console.logInt(workingCoord.z);
-        console.logInt(newCoord.x);
-        console.logInt(newCoord.y);
-        console.logInt(newCoord.z);
         (bool success, bytes memory returnData) = callerAddress.call(
           abi.encodeWithSignature(
             "moveWithAgent(bytes32,(int32,int32,int32),(int32,int32,int32),(uint32,bytes32))",
@@ -320,12 +313,6 @@ contract CollisionSystem is System {
       );
       int32 mass_neighbour = uint256ToInt32(Mass.get(callerAddress, centerVoxelEntity.scale, collidingEntities[i]));
       int32 impulseFactor = (2 * mass_neighbour) / (mass_primary + mass_neighbour);
-      console.log("impulseFactor");
-      console.logBytes32(centerVoxelEntity.entityId);
-      console.logInt(impulseFactor);
-      console.logInt(relativeVelocity.x);
-      console.logInt(relativeVelocity.y);
-      console.logInt(relativeVelocity.z);
       VoxelCoord memory impulse = mulScalar(relativeVelocity, impulseFactor);
       // Add to total impulse
       total_impulse = add(total_impulse, impulse);

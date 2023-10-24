@@ -51,7 +51,7 @@ contract BuildingLikesSystem is System {
     BuildingLeaderboard.set(shardCoord.x, shardCoord.y, shardCoord.z, buildingLikesEntities.length + 1, 0, agentCAEntity, emptyArray);
   }
 
-  function likeShard(address user, VoxelCoord memory coord) public {
+  function likeShard(VoxelCoord memory coord) public {
     IStore worldStore = IStore(WORLD_ADDRESS);
     IStore caStore = IStore(BASE_CA_ADDRESS);
     VoxelCoord memory shardCoord = coordToShardCoord(coord);
@@ -59,7 +59,7 @@ contract BuildingLikesSystem is System {
     address[] memory likedByArray = BuildingLeaderboard.getLikedBy(shardCoord.x, shardCoord.y, shardCoord.z);
     bool userFound = false;
     for (uint i = 0; i < likedByArray.length; i++) {
-      if (likedByArray[i] == user) {
+      if (likedByArray[i] == _msgSender()) {
         userFound = true;
         break;
       }
@@ -73,7 +73,7 @@ contract BuildingLikesSystem is System {
     }
 
     // Add new user to the last slot of the new array
-    newLikedByArray[likedByArray.length] = user;
+    newLikedByArray[likedByArray.length] = _msgSender();
     uint256 totalLikes = BuildingLeaderboard.getTotalLikes(shardCoord.x, shardCoord.y, shardCoord.z) + 1;
 
     BuildingLeaderboard.set(
@@ -131,15 +131,15 @@ contract BuildingLikesSystem is System {
         rank,
         allEntitiesLikes[i].likes,
         BuildingLeaderboard.getAgentEntity(
-          allEntitiesLikes[i].x
-          allEntitiesLikes[i].y
+          allEntitiesLikes[i].x,
+          allEntitiesLikes[i].y,
           allEntitiesLikes[i].z
         ),
         BuildingLeaderboard.getLikedBy(
-          allEntitiesLikes[i].x
-          allEntitiesLikes[i].y
+          allEntitiesLikes[i].x,
+          allEntitiesLikes[i].y,
           allEntitiesLikes[i].z
-        ),
+        )
       );
     }
   }

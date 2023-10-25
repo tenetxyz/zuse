@@ -45,7 +45,7 @@ contract VelocitySystem is SimHandler {
     // if (isEntityEqual(senderEntity, receiverEntity)) {} else {}
     // You can only spend stamina to decrease velocity
     // To increase, you have to move
-    require(senderStaminaDelta > 0, "Stamina delta must be positive");
+    require(senderStaminaDelta >= 0, "Stamina delta must be positive");
     require(
       receiverVelocityDelta.x <= 0 && receiverVelocityDelta.y <= 0 && receiverVelocityDelta.z <= 0,
       "Velocity delta must be negative"

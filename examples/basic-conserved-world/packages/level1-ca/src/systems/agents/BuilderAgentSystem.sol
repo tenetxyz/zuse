@@ -117,7 +117,7 @@ contract BuilderAgentSystem is AgentType {
     });
     SimEventData memory slowDownEventData = SimEventData({
       senderTable: SimTable.Stamina,
-      senderValue: abi.encode(uint256ToNegativeInt256(transferStamina)),
+      senderValue: abi.encode(uint256ToInt256(transferStamina)),
       targetEntity: entity,
       targetCoord: coord,
       targetTable: SimTable.Velocity,

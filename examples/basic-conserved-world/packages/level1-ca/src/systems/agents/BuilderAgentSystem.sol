@@ -123,7 +123,6 @@ contract BuilderAgentSystem is AgentType {
       targetTable: SimTable.Velocity,
       targetValue: abi.encode(deltaVelocity)
     });
-    return CAEventData({ eventType: CAEventType.SimEvent, eventData: abi.encode(eventData) });
     allCAEventData[0] = CAEventData({ eventType: CAEventType.SimEvent, eventData: abi.encode(slowDownEventData) });
     return (false, abi.encode(allCAEventData));
   }

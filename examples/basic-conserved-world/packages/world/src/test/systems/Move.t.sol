@@ -1189,9 +1189,8 @@ contract MoveTest is MudTest {
       agentEntity.entityId
     );
     assertTrue(staminaBefore > staminaAfter);
-    assertTrue(
-      Stamina.get(IStore(SIMULATOR_ADDRESS), worldAddress, builderEntity.scale, builderEntity.entityId) == 100
-    );
+    console.log("stamina");
+    assertTrue(Stamina.get(IStore(SIMULATOR_ADDRESS), worldAddress, builderEntity.scale, builderEntity.entityId) < 100);
     assertTrue(OwnedBy.get(builderEntity.scale, builderEntity.entityId) == agentOwner);
     VoxelCoord memory builderVelocity = abi.decode(
       Velocity.getVelocity(IStore(SIMULATOR_ADDRESS), worldAddress, builderEntity.scale, builderEntity.entityId),

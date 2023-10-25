@@ -41,6 +41,31 @@ export default mudConfig({
         likedBy: "address[]",
       },
     },
+    FarmDeliveryLeaderboard: {
+      keySchema: {
+        // ShardCoords
+        x: "int32",
+        y: "int32",
+        z: "int32",
+      },
+      schema: {
+        // rank: "uint256", // commented since this can be easily made out-of-date
+        totalPoints: "uint256",
+        numDeliveries: "uint256",
+        agentCAEntity: "bytes32",
+        deliveredTo: "bytes32[]", // list of CaEntites (agents)
+      },
+    },
+    OriginatingChunk: {
+      keySchema: {
+        caEntity: "bytes32",
+      },
+      schema: {
+        x: "int32",
+        y: "int32",
+        z: "int32",
+      },
+    },
     FarmFactionsLeaderboard: {
       keySchema: {
         // ShardCoords
@@ -92,6 +117,11 @@ export default mudConfig({
       name: "KeysInTableModule",
       root: true,
       args: [resolveTableId("BuildingLeaderboard")],
+    },
+    {
+      name: "KeysInTableModule",
+      root: true,
+      args: [resolveTableId("FarmDeliveryLeaderboard")],
     },
   ],
 });

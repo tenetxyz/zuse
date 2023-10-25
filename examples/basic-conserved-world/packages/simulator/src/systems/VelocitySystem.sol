@@ -19,6 +19,97 @@ import { NUM_BLOCKS_BEFORE_REDUCE_VELOCITY } from "@tenet-simulator/src/Constant
 import { console } from "forge-std/console.sol";
 
 contract VelocitySystem is SimHandler {
+  function registerVelocitySelectors() public {
+    SimSelectors.set(
+      SimTable.Stamina,
+      SimTable.Velocity,
+      IWorld(_world()).updateVelocityFromStamina.selector,
+      ValueType.Int256,
+      ValueType.VoxelCoord
+    );
+  }
+
+  function updateVelocityFromStamina(
+    VoxelEntity memory senderEntity,
+    VoxelCoord memory senderCoord,
+    int256 senderStaminaDelta,
+    VoxelEntity memory receiverEntity,
+    VoxelCoord memory receiverCoord,
+    VoxelCoord memory receiverVelocityDelta
+  ) public {
+    address callerAddress = super.getCallerAddress();
+    bool entityExists = hasKey(
+      VelocityTableId,
+      Velocity.encodeKeyTuple(callerAddress, receiverEntity.scale, receiverEntity.entityId)
+    );
+    // if (isEntityEqual(senderEntity, receiverEntity)) {} else {}
+    // You can only spend stamina to decrease velocity
+    // To increase, you have to move
+    require(senderStaminaDelta > 0, "Stamina delta must be positive");
+    require(
+      receiverVelocityDelta.x <= 0 && receiverVelocityDelta.y <= 0 && receiverVelocityDelta.z <= 0,
+      "Velocity delta must be negative"
+    );
+    VoxelCoord memory currentVelocity = getVelocity(callerAddress, receiverEntity);
+    require(
+      absInt32(currentVelocity.x) >= absInt32(receiverVelocityDelta.x) &&
+        absInt32(currentVelocity.y) >= absInt32(receiverVelocityDelta.y) &&
+        absInt32(currentVelocity.z) >= absInt32(receiverVelocityDelta.z),
+      "Velocity delta must be less than current velocity"
+    );
+    VoxelCoord memory newVelocity = VoxelCoord({
+      x: (currentVelocity.x >= 0)
+        ? currentVelocity.x + receiverVelocityDelta.x
+        : currentVelocity.x - receiverVelocityDelta.x,
+      y: (currentVelocity.y >= 0)
+        ? currentVelocity.y + receiverVelocityDelta.y
+        : currentVelocity.y - receiverVelocityDelta.y,
+      z: (currentVelocity.z >= 0)
+        ? currentVelocity.z + receiverVelocityDelta.z
+        : currentVelocity.z - receiverVelocityDelta.z
+    });
+
+    // Since this is always a decrease, the entity is always moving in the opposite direction
+    // which means we do mass * new velocity
+    uint256 resourceRequired = 0;
+    {
+      // Since the new velocity won't just be 1, we need to do a sum
+      uint256 bodyMass = Mass.get(callerAddress, receiverEntity.scale, receiverEntity.entityId);
+      uint256 resourceRequiredX = 0;
+      int32 newVelocityX = currentVelocity.x;
+      int32 currentVelocityX = currentVelocity.x;
+      for (int x = receiverVelocityDelta.x; x < 0; x++) {
+        currentVelocityX = newVelocityX;
+        newVelocityX += newVelocityX.x > 0 ? -1 : 1;
+        resourceRequiredX += calculateResourceRequired(currentVelocityX, newVelocityX, -1, bodyMass);
+      }
+      uint256 resourceRequiredY = 0;
+      int32 newVelocityY = currentVelocity.y;
+      int32 currentVelocityY = currentVelocity.y;
+      for (int y = receiverVelocityDelta.y; y < 0; y++) {
+        currentVelocityY = newVelocityY;
+        newVelocityY += newVelocityY.y > 0 ? -1 : 1;
+        resourceRequiredY += calculateResourceRequired(currentVelocityY, newVelocityY, -1, bodyMass);
+      }
+      uint256 resourceRequiredZ = 0;
+      int32 newVelocityZ = currentVelocity.z;
+      int32 currentVelocityZ = currentVelocity.z;
+      for (int z = receiverVelocityDelta.z; z < 0; z++) {
+        currentVelocityZ = newVelocityZ;
+        newVelocityZ += newVelocityZ.z > 0 ? -1 : 1;
+        resourceRequiredZ += calculateResourceRequired(currentVelocityZ, newVelocityZ, -1, bodyMass);
+      }
+      resourceRequired = resourceRequiredX + resourceRequiredY + resourceRequiredZ;
+    }
+    uint256 currentStamina = Stamina.get(callerAddress, senderEntity.scale, senderEntity.entityId);
+    require(currentStamina >= resourceRequired, "Not enough stamina to spend");
+    Stamina.set(callerAddress, senderEntity.scale, senderEntity.entityId, currentStamina - resourceRequired);
+    IWorld(_world()).fluxEnergy(false, callerAddress, senderEntity, resourceRequired);
+    Velocity.set(callerAddress, receiverEntity.scale, receiverEntity.entityId, block.number, abi.encode(newVelocity));
+  }
+
+  function reduceVelocity(VoxelEntity memory entity, VoxelCoord memory deltaVelocity) internal {}
+
   function updateVelocityCache(VoxelEntity memory entity) public {
     address callerAddress = super.getCallerAddress();
     if (!hasKey(VelocityTableId, Velocity.encodeKeyTuple(callerAddress, entity.scale, entity.entityId))) {

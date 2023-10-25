@@ -75,36 +75,18 @@ contract VelocitySystem is SimHandler {
     {
       // Since the new velocity won't just be 1, we need to do a sum
       uint256 bodyMass = Mass.get(callerAddress, receiverEntity.scale, receiverEntity.entityId);
-      uint256 resourceRequiredX = 0;
-      int32 newVelocityX = currentVelocity.x;
-      int32 currentVelocityX = currentVelocity.x;
-      for (int x = receiverVelocityDelta.x; x < 0; x++) {
-        currentVelocityX = newVelocityX;
-        newVelocityX += newVelocityX.x > 0 ? -1 : 1;
-        resourceRequiredX += calculateResourceRequired(currentVelocityX, newVelocityX, -1, bodyMass);
-      }
-      uint256 resourceRequiredY = 0;
-      int32 newVelocityY = currentVelocity.y;
-      int32 currentVelocityY = currentVelocity.y;
-      for (int y = receiverVelocityDelta.y; y < 0; y++) {
-        currentVelocityY = newVelocityY;
-        newVelocityY += newVelocityY.y > 0 ? -1 : 1;
-        resourceRequiredY += calculateResourceRequired(currentVelocityY, newVelocityY, -1, bodyMass);
-      }
-      uint256 resourceRequiredZ = 0;
-      int32 newVelocityZ = currentVelocity.z;
-      int32 currentVelocityZ = currentVelocity.z;
-      for (int z = receiverVelocityDelta.z; z < 0; z++) {
-        currentVelocityZ = newVelocityZ;
-        newVelocityZ += newVelocityZ.z > 0 ? -1 : 1;
-        resourceRequiredZ += calculateResourceRequired(currentVelocityZ, newVelocityZ, -1, bodyMass);
-      }
+      int32 receiverVelocityDeltaX = currentVelocity.x > 0 ? receiverVelocityDelta.x : -receiverVelocityDelta.x;
+      uint256 resourceRequiredX = calculateResourceRequired(currentVelocity.x, receiverVelocityDeltaX, bodyMass);
+      int32 receiverVelocityDeltaY = currentVelocity.y > 0 ? receiverVelocityDelta.y : -receiverVelocityDelta.y;
+      uint256 resourceRequiredY = calculateResourceRequired(currentVelocity.y, receiverVelocityDeltaY, bodyMass);
+      int32 receiverVelocityDeltaZ = currentVelocity.z > 0 ? receiverVelocityDelta.z : -receiverVelocityDelta.z;
+      uint256 resourceRequiredZ = calculateResourceRequired(currentVelocity.z, receiverVelocityDeltaZ, bodyMass);
       resourceRequired = resourceRequiredX + resourceRequiredY + resourceRequiredZ;
     }
     uint256 currentStamina = Stamina.get(callerAddress, senderEntity.scale, senderEntity.entityId);
     require(currentStamina >= resourceRequired, "Not enough stamina to spend");
     Stamina.set(callerAddress, senderEntity.scale, senderEntity.entityId, currentStamina - resourceRequired);
-    IWorld(_world()).fluxEnergy(false, callerAddress, senderEntity, resourceRequired);
+    IWorld(_world()).fluxEnergy(false, callerAddress, receiverEntity, resourceRequired);
     Velocity.set(callerAddress, receiverEntity.scale, receiverEntity.entityId, block.number, abi.encode(newVelocity));
   }
 
@@ -293,30 +275,38 @@ contract VelocitySystem is SimHandler {
       z: absInt32(newVelocity.z) - absInt32(currentVelocity.z)
     });
 
-    uint256 resourceRequiredX = calculateResourceRequired(currentVelocity.x, newVelocity.x, velocityDelta.x, bodyMass);
-    uint256 resourceRequiredY = calculateResourceRequired(currentVelocity.y, newVelocity.y, velocityDelta.y, bodyMass);
-    uint256 resourceRequiredZ = calculateResourceRequired(currentVelocity.z, newVelocity.z, velocityDelta.z, bodyMass);
+    uint256 resourceRequiredX = calculateResourceRequired(currentVelocity.x, velocityDelta.x, bodyMass);
+    uint256 resourceRequiredY = calculateResourceRequired(currentVelocity.y, velocityDelta.y, bodyMass);
+    uint256 resourceRequiredZ = calculateResourceRequired(currentVelocity.z, velocityDelta.z, bodyMass);
     uint256 resourceRequired = resourceRequiredX + resourceRequiredY + resourceRequiredZ;
     return (newVelocity, resourceRequired);
   }
 
-  // Note: We assume the magnitude of the delta is always 1,
-  // ie the body is moving 1 voxel at a time
   function calculateResourceRequired(
     int32 currentVelocity,
-    int32 newVelocity,
     int32 velocityDelta,
     uint256 bodyMass
   ) internal pure returns (uint256) {
     uint256 resourceRequired = 0;
-    if (velocityDelta != 0) {
-      resourceRequired = bodyMass;
+    int32 newVelocity = currentVelocity;
+
+    // Determine loop direction based on sign of velocityDelta
+    int32 increment = velocityDelta > 0 ? 1 : -1;
+
+    for (int i = 0; i != velocityDelta; i += increment) {
+      currentVelocity = newVelocity;
+      newVelocity += increment;
+
+      uint256 amountRequired = bodyMass;
       if (newVelocity != 0) {
-        resourceRequired = velocityDelta > 0
+        bool sameDirection = (newVelocity > 0 && increment > 0) || (newVelocity < 0 && increment < 0);
+        amountRequired = sameDirection
           ? bodyMass / uint(abs(int(newVelocity))) // if we're going in the same direction, then it costs less
           : bodyMass * uint(abs(int(newVelocity))); // if we're going in the opposite direction, then it costs more
       }
+      resourceRequired += amountRequired;
     }
+
     return resourceRequired;
   }
 }

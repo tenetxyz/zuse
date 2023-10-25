@@ -8,7 +8,7 @@ import { IWorld } from "@tenet-world/src/codegen/world/IWorld.sol";
 import { VoxelType, OwnedBy } from "@tenet-world/src/codegen/Tables.sol";
 import { VoxelCoord, VoxelTypeData, VoxelEntity, Mind } from "@tenet-utils/src/Types.sol";
 import { getEntityAtCoord, getEntityPositionStrict, positionDataToVoxelCoord } from "@tenet-base-world/src/Utils.sol";
-import { FaucetVoxelID, GrassVoxelID, AirVoxelID, DirtVoxelID, BedrockVoxelID } from "@tenet-level1-ca/src/Constants.sol";
+import { FaucetVoxelID, GrassVoxelID, AirVoxelID, DirtVoxelID, BedrockVoxelID, BuilderVoxelID } from "@tenet-level1-ca/src/Constants.sol";
 import { MindRegistry } from "@tenet-registry/src/codegen/tables/MindRegistry.sol";
 import { REGISTRY_ADDRESS, BASE_CA_ADDRESS, SIMULATOR_ADDRESS } from "@tenet-world/src/Constants.sol";
 import { ConcentrativeSoilVoxelID, PlantVoxelID, FirePokemonVoxelID } from "@tenet-pokemon-extension/src/Constants.sol";
@@ -1078,7 +1078,7 @@ contract MoveTest is MudTest {
     vm.stopPrank();
   }
 
-  function testMoveAgentollisionPushedMultiple() public {
+  function testMoveAgentCollisionPushedMultiple() public {
     vm.startPrank(alice, alice);
 
     VoxelEntity memory agentEntity = setupAgent();
@@ -1146,6 +1146,60 @@ contract MoveTest is MudTest {
     assertTrue(massVelocity.y == 0);
     assertTrue(massVelocity.z == 8);
     assertTrue(Mass.get(IStore(SIMULATOR_ADDRESS), worldAddress, massEntity.scale, massEntity.entityId) > 0);
+
+    vm.stopPrank();
+  }
+
+  function testMoveAgentThatAutoSlowsDown() public {
+    vm.startPrank(alice, alice);
+
+    VoxelEntity memory agentEntity = setupAgent();
+
+    VoxelCoord memory builderCoord = VoxelCoord({ x: agentCoord.x + 1, y: agentCoord.y, z: agentCoord.z });
+    VoxelEntity memory builderEntity = world.buildWithAgent(BuilderVoxelID, builderCoord, agentEntity, bytes4(0));
+    Stamina.set(IStore(SIMULATOR_ADDRESS), worldAddress, builderEntity.scale, builderEntity.entityId, 100);
+    vm.startPrank(bob, bob);
+    world.claimAgent(builderEntity);
+    vm.stopPrank();
+    vm.startPrank(alice, alice);
+
+    vm.roll(block.number + 1);
+    VoxelCoord memory newBuilderCoord = VoxelCoord({ x: builderCoord.x, y: builderCoord.y + 1, z: builderCoord.z });
+    uint256 staminaBefore = Stamina.get(
+      IStore(SIMULATOR_ADDRESS),
+      worldAddress,
+      agentEntity.scale,
+      agentEntity.entityId
+    );
+    address agentOwner = OwnedBy.get(builderEntity.scale, builderEntity.entityId);
+    console.log("owner before");
+    console.logAddress(agentOwner);
+    // Velocity.setVelocity(
+    //   IStore(SIMULATOR_ADDRESS),
+    //   worldAddress,
+    //   builderEntity.scale,
+    //   builderEntity.entityId,
+    //   abi.encode(VoxelCoord({ x: 4, y: 0, z: 0 }))
+    // );
+    (, builderEntity) = world.moveWithAgent(BuilderVoxelID, builderCoord, newBuilderCoord, agentEntity);
+    uint256 staminaAfter = Stamina.get(
+      IStore(SIMULATOR_ADDRESS),
+      worldAddress,
+      agentEntity.scale,
+      agentEntity.entityId
+    );
+    assertTrue(staminaBefore > staminaAfter);
+    assertTrue(
+      Stamina.get(IStore(SIMULATOR_ADDRESS), worldAddress, builderEntity.scale, builderEntity.entityId) == 100
+    );
+    assertTrue(OwnedBy.get(builderEntity.scale, builderEntity.entityId) == agentOwner);
+    VoxelCoord memory builderVelocity = abi.decode(
+      Velocity.getVelocity(IStore(SIMULATOR_ADDRESS), worldAddress, builderEntity.scale, builderEntity.entityId),
+      (VoxelCoord)
+    );
+    assertTrue(builderVelocity.x == 0);
+    assertTrue(builderVelocity.y == 0);
+    assertTrue(builderVelocity.z == 0);
 
     vm.stopPrank();
   }

@@ -21,6 +21,7 @@ import { console } from "forge-std/console.sol";
 import { BuildingLeaderboard, BuildingLeaderboardTableId } from "@tenet-derived/src/codegen/Tables.sol";
 import { OwnedBy, OwnedByTableId } from "@tenet-world/src/codegen/tables/OwnedBy.sol";
 import { FarmDeliveryLeaderboard, FarmDeliveryLeaderboardTableId } from "@tenet-derived/src/codegen/Tables.sol";
+import { ClaimedShards } from "@tenet-derived/src/codegen/Tables.sol";
 
 struct EntityLikes {
   int32 x;
@@ -66,6 +67,16 @@ contract BuildingLikesSystem is System {
       agentCAEntity,
       emptyArray
     );
+
+    bytes memory chaimedShardsBytes = ClaimedShards.get(agentCAEntity);
+    VoxelCoord[] memory claimedShards = abi.decode(chaimedShardsBytes, (VoxelCoord[]));
+    VoxelCoord[] memory newClaimedShards = new VoxelCoord[](claimedShards.length + 1);
+    for (uint64 i = 0; i < claimedShards.length; i++) {
+      newClaimedShards[i] = claimedShards[i];
+    }
+    newClaimedShards[claimedShards.length] = shardCoord;
+
+    ClaimedShards.set(agentCAEntity, abi.encode(newClaimedShards));
   }
 
   function likeShard(address user, VoxelCoord memory coord) public {

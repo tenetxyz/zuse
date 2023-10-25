@@ -21,7 +21,8 @@ import { getEntityAtCoord, getVoxelCoordStrict } from "@tenet-base-world/src/Uti
 import { getNeighbourEntities } from "@tenet-simulator/src/Utils.sol";
 import { coordToShardCoord } from "@tenet-utils/src/VoxelCoordUtils.sol";
 import { console } from "forge-std/console.sol";
-import { BuildingLeaderboard, BuildingLeaderboardTableId } from "@tenet-derived/src/codegen/Tables.sol";
+import { BuildingLeaderboard, BuildingLeaderboardTableId, BuildingLeaderboardData } from "@tenet-derived/src/codegen/Tables.sol";
+import { ClaimedShards } from "@tenet-derived/src/codegen/Tables.sol";
 import { FarmDeliveryLeaderboard, FarmDeliveryLeaderboardTableId, FarmDeliveryLeaderboardData } from "@tenet-derived/src/codegen/Tables.sol";
 import { OriginatingChunk, OriginatingChunkTableId } from "@tenet-derived/src/codegen/Tables.sol";
 import { OwnedBy, OwnedByTableId } from "@tenet-world/src/codegen/tables/OwnedBy.sol";
@@ -110,15 +111,11 @@ contract FarmerDeliverySystem is System {
       for (uint j = 0; j < consumers.length; j++) {
         // 3) get the total number of likes that this builder has accrued
         PlantConsumer memory consumer = consumers[j];
-        bytes32 consumerCaEntity = consumer.entityId;
-        BuildingLeaderboard[] memory buildings = getKeysWithValue(
-          worldStore,
-          BuildingLeaderboardTableId,
-          BuildingLeaderboard.encode(consumerCaEntity)
-        );
-
-        for (uint k = 0; k < buildings.length; k++) {
-          totalPoints += buildings[k].likes;
+        bytes memory claimedShardCoords = ClaimedShards.get(consumer.entityId);
+        VoxelCoord[] memory claimedShards = abi.decode(claimedShardCoords, (VoxelCoord[]));
+        for (uint k = 0; k < claimedShards.length; k++) {
+          VoxelCoord memory claimedShard = claimedShards[k];
+          totalPoints += BuildingLeaderboard.getLikedBy(claimedShard.x, claimedShard.y, claimedShard.z).length;
           numDeliveries += 1;
         }
       }
@@ -134,7 +131,8 @@ contract FarmerDeliverySystem is System {
 
     // 4) reward points to the farmer leaderboard
 
-    FarmDeliveryLeaderboard.set(shardX, shardY, shardZ, totalPoints, numDeliveries);
+    FarmDeliveryLeaderboard.setTotalPoints(shardX, shardY, shardZ, totalPoints);
+    FarmDeliveryLeaderboard.setNumDeliveries(shardX, shardY, shardZ, numDeliveries);
 
     // It is ok for the farmer to get more points by waiting longer before calling this function
     // it incentivizes farmers to support builders long-term

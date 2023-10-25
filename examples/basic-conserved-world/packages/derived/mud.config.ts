@@ -53,7 +53,7 @@ export default mudConfig({
         totalPoints: "uint256",
         numDeliveries: "uint256",
         agentCAEntity: "bytes32",
-        deliveredTo: "bytes32[]", // list of CaEntites (agents)
+        // deliveredTo: "bytes32[]", // list of CaEntites (agents) // we can add this later
       },
     },
     OriginatingChunk: {
@@ -119,9 +119,24 @@ export default mudConfig({
       args: [resolveTableId("BuildingLeaderboard")],
     },
     {
+      name: "KeysWithValueModule",
+      root: true,
+      args: [resolveTableId("BuildingLeaderboard")],
+    },
+    {
       name: "KeysInTableModule",
       root: true,
       args: [resolveTableId("FarmDeliveryLeaderboard")],
+    },
+    {
+      name: "KeysInTableModule",
+      root: true,
+      args: [resolveTableId("OriginatingChunk")],
+    },
+    {
+      name: "KeysWithValueModule",
+      root: true,
+      args: [resolveTableId("OriginatingChunk")],
     },
   ],
 });

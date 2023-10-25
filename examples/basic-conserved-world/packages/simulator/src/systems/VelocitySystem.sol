@@ -5,8 +5,8 @@ import { IStore } from "@latticexyz/store/src/IStore.sol";
 import { IWorld } from "@tenet-simulator/src/codegen/world/IWorld.sol";
 import { hasKey } from "@latticexyz/world/src/modules/keysintable/hasKey.sol";
 import { SimHandler } from "@tenet-simulator/prototypes/SimHandler.sol";
-import { VoxelCoord, VoxelTypeData, VoxelEntity } from "@tenet-utils/src/Types.sol";
-import { Stamina, StaminaTableId, Mass, MassTableId, Energy, EnergyTableId, Velocity, VelocityTableId } from "@tenet-simulator/src/codegen/Tables.sol";
+import { VoxelCoord, VoxelTypeData, VoxelEntity, ValueType, SimTable } from "@tenet-utils/src/Types.sol";
+import { SimSelectors, Stamina, StaminaTableId, Mass, MassTableId, Energy, EnergyTableId, Velocity, VelocityTableId } from "@tenet-simulator/src/codegen/Tables.sol";
 import { isZeroCoord, voxelCoordsAreEqual, dot, mulScalar, divScalar, add, sub } from "@tenet-utils/src/VoxelCoordUtils.sol";
 import { abs, absInt32 } from "@tenet-utils/src/MathUtils.sol";
 import { uint256ToInt32, int256ToUint256, safeSubtract } from "@tenet-utils/src/TypeUtils.sol";
@@ -291,7 +291,7 @@ contract VelocitySystem is SimHandler {
     int32 newVelocity = currentVelocity;
 
     // Determine loop direction based on sign of velocityDelta
-    int32 increment = velocityDelta > 0 ? 1 : -1;
+    int32 increment = velocityDelta > 0 ? int32(1) : int32(-1);
 
     for (int i = 0; i != velocityDelta; i += increment) {
       currentVelocity = newVelocity;

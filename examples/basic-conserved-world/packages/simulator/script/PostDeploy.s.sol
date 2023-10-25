@@ -18,8 +18,10 @@ contract PostDeploy is Script {
 
     // Call world init function
     IWorld world = IWorld(worldAddress);
-    world.registerEnergySelectors();
     world.registerMassSelectors();
+    world.registerEnergySelectors();
+    world.registerVelocitySelectors();
+
     world.registerHealthSelectors();
     world.registerStaminaSelectors();
     world.registerObjectSelectors();

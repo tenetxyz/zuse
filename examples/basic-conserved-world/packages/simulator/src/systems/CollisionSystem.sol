@@ -36,6 +36,8 @@ contract CollisionSystem is System {
     VoxelEntity memory centerVoxelEntity,
     VoxelEntity memory actingEntity
   ) public returns (VoxelEntity memory) {
+    console.log("onCollision");
+    console.logBytes32(centerVoxelEntity.entityId);
     CollisionData[] memory centerEntitiesToCheckStack = new CollisionData[](MAX_VOXEL_NEIGHBOUR_UPDATE_DEPTH);
     uint256 centerEntitiesToCheckStackIdx = 0;
     uint256 useStackIdx = 0;
@@ -248,6 +250,7 @@ contract CollisionSystem is System {
       VoxelCoord[] memory neighbourCoords
     )
   {
+    console.log("calculateVelocityAfterCollision");
     (neighbourEntities, neighbourCoords) = getNeighbourEntities(callerAddress, centerVoxelEntity);
 
     bytes32[] memory collidingEntities = new bytes32[](neighbourEntities.length);
@@ -296,6 +299,9 @@ contract CollisionSystem is System {
     }
 
     int32 mass_primary = uint256ToInt32(Mass.get(callerAddress, centerVoxelEntity.scale, centerVoxelEntity.entityId));
+    if (mass_primary == 0) {
+      revert("Trying to move an entity with zero mass");
+    }
 
     // Now we run the collision formula for each of the colliding entities
     VoxelCoord memory total_impulse = VoxelCoord({ x: 0, y: 0, z: 0 });

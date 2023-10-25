@@ -221,12 +221,9 @@ contract CollisionSystem is System {
               newActingEntity = newEntity;
             }
           }
-          require(
-            voxelCoordsAreEqual(getVoxelCoordStrict(callerAddress, newEntity), newCoord),
-            "PhysicsSystem: Move event failed"
-          );
-
-          workingCoord = newCoord;
+          // The entity could have been moved some place else, besides the new coord
+          // so we need to update the working coord
+          workingCoord = getVoxelCoordStrict(callerAddress, newEntity);
         } else {
           console.log("move failed");
           // Could not move, so we break out of the loop

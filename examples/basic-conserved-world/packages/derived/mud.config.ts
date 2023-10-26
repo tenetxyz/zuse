@@ -58,7 +58,6 @@ export default mudConfig({
         z: "int32",
       },
       schema: {
-        // rank: "uint256", // commented since this can be easily made out-of-date. we can also derive it in JS
         totalPoints: "uint256",
         numDeliveries: "uint256",
         agentCAEntity: "bytes32",
@@ -123,11 +122,6 @@ export default mudConfig({
     },
     {
       name: "KeysInTableModule",
-      root: true,
-      args: [resolveTableId("BuildingLeaderboard")],
-    },
-    {
-      name: "KeysWithValueModule",
       root: true,
       args: [resolveTableId("BuildingLeaderboard")],
     },

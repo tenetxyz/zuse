@@ -45,10 +45,6 @@ contract FarmerDeliverySystem is System {
     );
     VoxelCoord memory coord = getVoxelCoordStrict(worldStore, agentEntity);
     VoxelCoord memory shardCoord = coordToShardCoord(coord);
-    require(
-      !hasKey(BuildingLeaderboardTableId, BuildingLeaderboard.encodeKeyTuple(shardCoord.x, shardCoord.y, shardCoord.z)),
-      "FarmerDeliverySystem: A builder already claimed this shard"
-    );
 
     require(
       !hasKey(
@@ -72,6 +68,7 @@ contract FarmerDeliverySystem is System {
       hasKey(CAEntityMappingTableId, CAEntityMapping.encodeKeyTuple(WORLD_ADDRESS, foodEntity.entityId)),
       "packageForDelivery: no CAentity found for foodEntity"
     );
+    // todo: check that the foodEntity is a plant
 
     bytes32 foodCAEntity = CAEntityMapping.get(caStore, WORLD_ADDRESS, foodEntity.entityId);
 
@@ -86,7 +83,7 @@ contract FarmerDeliverySystem is System {
     OriginatingChunk.set(foodCAEntity, shardCoord.x, shardCoord.y, shardCoord.z);
   }
 
-  function attributePoints(int32 shardX, int32 shardY, int32 shardZ) public {
+  function attributePoints(VoxelCoord memory shardCoord) public {
     IStore worldStore = IStore(WORLD_ADDRESS);
     IStore caStore = IStore(BASE_CA_ADDRESS);
 
@@ -94,7 +91,7 @@ contract FarmerDeliverySystem is System {
     bytes32[][] memory plantsOriginatingFromChunk = getKeysWithValue(
       worldStore,
       OriginatingChunkTableId,
-      OriginatingChunk.encode(shardX, shardY, shardZ)
+      OriginatingChunk.encode(shardCoord.x, shardCoord.y, shardCoord.z)
     );
 
     uint256 numDeliveries = 0;
@@ -121,18 +118,10 @@ contract FarmerDeliverySystem is System {
       }
     }
 
-    // 3) get the current builder's likes.
-
-    // FarmDeliveryLeaderboardData memory farmDeliveryLeaderboardData = FarmDeliveryLeaderboard.get(
-    //   shardX,
-    //   shardY,
-    //   shardZ
-    // );
-
     // 4) reward points to the farmer leaderboard
 
-    FarmDeliveryLeaderboard.setTotalPoints(shardX, shardY, shardZ, totalPoints);
-    FarmDeliveryLeaderboard.setNumDeliveries(shardX, shardY, shardZ, numDeliveries);
+    FarmDeliveryLeaderboard.setTotalPoints(shardCoord.x, shardCoord.y, shardCoord.z, totalPoints);
+    FarmDeliveryLeaderboard.setNumDeliveries(shardCoord.x, shardCoord.y, shardCoord.z, numDeliveries);
 
     // It is ok for the farmer to get more points by waiting longer before calling this function
     // it incentivizes farmers to support builders long-term

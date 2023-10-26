@@ -41,6 +41,38 @@ export default mudConfig({
         likedBy: "address[]",
       },
     },
+    // This is like the reverse mapping of claimedShards
+    ClaimedShard: {
+      keySchema: {
+        agentEntity: "bytes32",
+      },
+      schema: {
+        claimedShard: "bytes", // VoxelCoord
+      },
+    },
+    FarmDeliveryLeaderboard: {
+      keySchema: {
+        // ShardCoords
+        x: "int32",
+        y: "int32",
+        z: "int32",
+      },
+      schema: {
+        totalPoints: "uint256",
+        numDeliveries: "uint256",
+        agentCAEntity: "bytes32",
+      },
+    },
+    OriginatingChunk: {
+      keySchema: {
+        caEntity: "bytes32",
+      },
+      schema: {
+        x: "int32",
+        y: "int32",
+        z: "int32",
+      },
+    },
     FarmFactionsLeaderboard: {
       keySchema: {
         // ShardCoords
@@ -92,6 +124,21 @@ export default mudConfig({
       name: "KeysInTableModule",
       root: true,
       args: [resolveTableId("BuildingLeaderboard")],
+    },
+    {
+      name: "KeysInTableModule",
+      root: true,
+      args: [resolveTableId("FarmDeliveryLeaderboard")],
+    },
+    {
+      name: "KeysInTableModule",
+      root: true,
+      args: [resolveTableId("OriginatingChunk")],
+    },
+    {
+      name: "KeysWithValueModule",
+      root: true,
+      args: [resolveTableId("OriginatingChunk")],
     },
   ],
 });

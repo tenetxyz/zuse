@@ -20,6 +20,8 @@ import { coordToShardCoord } from "@tenet-utils/src/VoxelCoordUtils.sol";
 import { console } from "forge-std/console.sol";
 import { BuildingLeaderboard, BuildingLeaderboardTableId } from "@tenet-derived/src/codegen/Tables.sol";
 import { OwnedBy, OwnedByTableId } from "@tenet-world/src/codegen/tables/OwnedBy.sol";
+import { FarmDeliveryLeaderboard, FarmDeliveryLeaderboardTableId } from "@tenet-derived/src/codegen/Tables.sol";
+import { ClaimedShard } from "@tenet-derived/src/codegen/Tables.sol";
 
 struct EntityLikes {
   int32 x;
@@ -41,8 +43,9 @@ contract BuildingLikesSystem is System {
     VoxelCoord memory shardCoord = coordToShardCoord(coord);
     require(
       !hasKey(BuildingLeaderboardTableId, BuildingLeaderboard.encodeKeyTuple(shardCoord.x, shardCoord.y, shardCoord.z)),
-      "BuildingLikesSystem: shard already claimed"
+      "BuildingLikesSystem: A builder already claimed this shard"
     );
+
     bytes32 agentCAEntity = CAEntityMapping.get(caStore, WORLD_ADDRESS, agentEntity.entityId);
     bytes32[][] memory buildingLikesEntities = getKeysInTable(BuildingLeaderboardTableId);
     address[] memory emptyArray = new address[](0);
@@ -57,6 +60,8 @@ contract BuildingLikesSystem is System {
       agentCAEntity,
       emptyArray
     );
+
+    ClaimedShard.set(agentCAEntity, abi.encode(shardCoord));
   }
 
   function likeShard(VoxelCoord memory coord) public {

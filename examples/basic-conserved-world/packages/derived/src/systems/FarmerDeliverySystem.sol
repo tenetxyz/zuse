@@ -96,13 +96,13 @@ contract FarmerDeliverySystem is System {
 
     // 1) get all crops that are from this shard
     bytes32[][] memory plantsOriginatingFromChunk = getKeysWithValue(
-      worldStore,
       OriginatingChunkTableId,
       OriginatingChunk.encode(shardCoord.x, shardCoord.y, shardCoord.z)
     );
 
     uint256 numDeliveries = 0;
     uint256 totalPoints = 0;
+    console.log("hi");
 
     for (uint i = 0; i < plantsOriginatingFromChunk.length; i++) {
       bytes32 plantEntity = plantsOriginatingFromChunk[i][0];
@@ -130,4 +130,4 @@ contract FarmerDeliverySystem is System {
     // It is ok for the farmer to get more points by waiting longer before calling this function
     // it incentivizes farmers to support builders long-term
   }
-
+}

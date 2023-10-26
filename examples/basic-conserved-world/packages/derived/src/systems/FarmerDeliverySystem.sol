@@ -58,7 +58,6 @@ contract FarmerDeliverySystem is System {
     );
 
     bytes32 agentCAEntity = CAEntityMapping.get(caStore, WORLD_ADDRESS, agentEntity.entityId);
-    // bytes32[] memory emptyArray = new bytes32[](0);
 
     FarmDeliveryLeaderboard.set(shardCoord.x, shardCoord.y, shardCoord.z, 0, 0, agentCAEntity);
   }

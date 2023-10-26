@@ -68,19 +68,15 @@ contract FarmerDeliverySystem is System {
 
     for (uint64 i = 0; i < foodEntities.length; i++) {
       VoxelEntity memory foodEntity = foodEntities[i];
-      require(
-        hasKey(CAEntityMappingTableId, CAEntityMapping.encodeKeyTuple(WORLD_ADDRESS, foodEntity.entityId)),
-        "packageForDelivery: no CAentity found for foodEntity"
-      );
 
       bytes32 foodCAEntity = CAEntityMapping.get(caStore, WORLD_ADDRESS, foodEntity.entityId);
 
       bytes32 voxelType = getCAVoxelType(foodCAEntity);
-      require(voxelType == PlantVoxelID, "packageForDelivery: foodEntity is not a food");
+      require(voxelType == PlantVoxelID, "packageForDelivery: foodEntity is not a plant");
 
       require(
         !hasKey(OriginatingChunkTableId, OriginatingChunk.encodeKeyTuple(foodCAEntity)),
-        "packageForDelivery: This food already has an originating chunk"
+        "packageForDelivery: This plant already has an originating chunk"
       );
 
       VoxelCoord memory coord = getVoxelCoordStrict(worldStore, foodEntity);
@@ -102,7 +98,6 @@ contract FarmerDeliverySystem is System {
 
     uint256 numDeliveries = 0;
     uint256 totalPoints = 0;
-    console.log("hi");
 
     for (uint i = 0; i < plantsOriginatingFromChunk.length; i++) {
       bytes32 plantEntity = plantsOriginatingFromChunk[i][0];

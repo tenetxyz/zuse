@@ -58,11 +58,10 @@ export default mudConfig({
         z: "int32",
       },
       schema: {
-        // rank: "uint256", // commented since this can be easily made out-of-date
+        // rank: "uint256", // commented since this can be easily made out-of-date. we can also derive it in JS
         totalPoints: "uint256",
         numDeliveries: "uint256",
         agentCAEntity: "bytes32",
-        // deliveredTo: "bytes32[]", // list of CaEntites (agents) // we can add this later
       },
     },
     OriginatingChunk: {

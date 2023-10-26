@@ -26,6 +26,8 @@ import { ClaimedShards } from "@tenet-derived/src/codegen/Tables.sol";
 import { FarmDeliveryLeaderboard, FarmDeliveryLeaderboardTableId, FarmDeliveryLeaderboardData } from "@tenet-derived/src/codegen/Tables.sol";
 import { OriginatingChunk, OriginatingChunkTableId } from "@tenet-derived/src/codegen/Tables.sol";
 import { OwnedBy, OwnedByTableId } from "@tenet-world/src/codegen/tables/OwnedBy.sol";
+import { getCAVoxelType } from "@tenet-base-ca/src/Utils.sol";
+import { PlantVoxelID } from "@tenet-pokemon-extension/src/Constants.sol";
 
 struct EntityLikes {
   int32 x;
@@ -60,27 +62,32 @@ contract FarmerDeliverySystem is System {
     FarmDeliveryLeaderboard.set(shardCoord.x, shardCoord.y, shardCoord.z, 0, 0, agentCAEntity);
   }
 
-  function packageForDelivery(VoxelEntity memory foodEntity) public {
+  function packageForDelivery(VoxelEntity[] memory foodEntities) public {
     IStore worldStore = IStore(WORLD_ADDRESS);
     IStore caStore = IStore(BASE_CA_ADDRESS);
 
-    require(
-      hasKey(CAEntityMappingTableId, CAEntityMapping.encodeKeyTuple(WORLD_ADDRESS, foodEntity.entityId)),
-      "packageForDelivery: no CAentity found for foodEntity"
-    );
-    // todo: check that the foodEntity is a plant
+    for (uint64 i = 0; i < foodEntities.length; i++) {
+      VoxelEntity memory foodEntity = foodEntities[i];
+      require(
+        hasKey(CAEntityMappingTableId, CAEntityMapping.encodeKeyTuple(WORLD_ADDRESS, foodEntity.entityId)),
+        "packageForDelivery: no CAentity found for foodEntity"
+      );
 
-    bytes32 foodCAEntity = CAEntityMapping.get(caStore, WORLD_ADDRESS, foodEntity.entityId);
+      bytes32 foodCAEntity = CAEntityMapping.get(caStore, WORLD_ADDRESS, foodEntity.entityId);
 
-    require(
-      !hasKey(OriginatingChunkTableId, OriginatingChunk.encodeKeyTuple(foodCAEntity)),
-      "packageForDelivery: This food already has an originating chunk"
-    );
+      bytes32 voxelType = getCAVoxelType(foodCAEntity);
+      require(voxelType == PlantVoxelID, "packageForDelivery: foodEntity is not a food");
 
-    VoxelCoord memory coord = getVoxelCoordStrict(worldStore, foodEntity);
-    VoxelCoord memory shardCoord = coordToShardCoord(coord);
+      require(
+        !hasKey(OriginatingChunkTableId, OriginatingChunk.encodeKeyTuple(foodCAEntity)),
+        "packageForDelivery: This food already has an originating chunk"
+      );
 
-    OriginatingChunk.set(foodCAEntity, shardCoord.x, shardCoord.y, shardCoord.z);
+      VoxelCoord memory coord = getVoxelCoordStrict(worldStore, foodEntity);
+      VoxelCoord memory shardCoord = coordToShardCoord(coord);
+
+      OriginatingChunk.set(foodCAEntity, shardCoord.x, shardCoord.y, shardCoord.z);
+    }
   }
 
   function attributePoints(VoxelCoord memory shardCoord) public {

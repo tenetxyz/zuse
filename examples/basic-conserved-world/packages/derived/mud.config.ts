@@ -42,12 +42,12 @@ export default mudConfig({
       },
     },
     // This is like the reverse mapping of claimedShards
-    ClaimedShards: {
+    ClaimedShard: {
       keySchema: {
         agentEntity: "bytes32",
       },
       schema: {
-        claimedShards: "bytes", // VoxelCoord[]
+        claimedShard: "bytes", // VoxelCoord
       },
     },
     FarmDeliveryLeaderboard: {

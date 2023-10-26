@@ -28,6 +28,7 @@ import { OriginatingChunk, OriginatingChunkTableId } from "@tenet-derived/src/co
 import { OwnedBy, OwnedByTableId } from "@tenet-world/src/codegen/tables/OwnedBy.sol";
 import { getCAVoxelType } from "@tenet-base-ca/src/Utils.sol";
 import { PlantVoxelID } from "@tenet-pokemon-extension/src/Constants.sol";
+import { bytes32ToString } from "@tenet-utils/src/StringUtils.sol";
 
 struct EntityLikes {
   int32 x;
@@ -72,11 +73,19 @@ contract FarmerDeliverySystem is System {
       bytes32 foodCAEntity = CAEntityMapping.get(caStore, WORLD_ADDRESS, foodEntity.entityId);
 
       bytes32 voxelType = getCAVoxelType(foodCAEntity);
-      require(voxelType == PlantVoxelID, "packageForDelivery: foodEntity is not a plant");
+      require(
+        voxelType == PlantVoxelID,
+        string(abi.encodePacked("packageForDelivery: foodEntity is not a plant. Found voxelType=", voxelType))
+      );
 
       require(
         !hasKey(OriginatingChunkTableId, OriginatingChunk.encodeKeyTuple(foodCAEntity)),
-        "packageForDelivery: This plant already has an originating chunk"
+        string(
+          abi.encodePacked(
+            "packageForDelivery: This plant already has an originating chunk. foodCAEntity=",
+            bytes32ToString(foodCAEntity)
+          )
+        )
       );
 
       VoxelCoord memory coord = getVoxelCoordStrict(worldStore, foodEntity);

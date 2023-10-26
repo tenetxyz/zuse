@@ -10,7 +10,8 @@ import { PlantConsumer } from "@tenet-pokemon-extension/src/Types.sol";
 import { getKeysWithValue } from "@latticexyz/world/src/modules/keyswithvalue/getKeysWithValue.sol";
 import { getKeysInTable } from "@latticexyz/world/src/modules/keysintable/getKeysInTable.sol";
 import { CAEntityMapping, CAEntityMappingTableId } from "@tenet-base-ca/src/codegen/tables/CAEntityMapping.sol";
-import { CAEntityReverseMapping, CAEntityReverseMappingTableId } from "@tenet-base-ca/src/codegen/tables/CAEntityReverseMapping.sol";
+import { CAEntityReverseMapping, CAEntityReverseMappingData, CAEntityReverseMappingTableId } from "@tenet-base-ca/src/codegen/tables/CAEntityReverseMapping.sol";
+import { CAVoxelType } from "@tenet-base-ca/src/codegen/tables/CAVoxelType.sol";
 import { getCAEntityPositionStrict } from "@tenet-base-ca/src/Utils.sol";
 import { VoxelCoord, VoxelTypeData, VoxelEntity, BodySimData } from "@tenet-utils/src/Types.sol";
 import { Position, PositionData } from "@tenet-base-world/src/codegen/tables/Position.sol";
@@ -26,7 +27,6 @@ import { ClaimedShard } from "@tenet-derived/src/codegen/Tables.sol";
 import { FarmDeliveryLeaderboard, FarmDeliveryLeaderboardTableId, FarmDeliveryLeaderboardData } from "@tenet-derived/src/codegen/Tables.sol";
 import { OriginatingChunk, OriginatingChunkTableId } from "@tenet-derived/src/codegen/Tables.sol";
 import { OwnedBy, OwnedByTableId } from "@tenet-world/src/codegen/tables/OwnedBy.sol";
-import { getCAVoxelType } from "@tenet-base-ca/src/Utils.sol";
 import { PlantVoxelID } from "@tenet-pokemon-extension/src/Constants.sol";
 import { bytes32ToString } from "@tenet-utils/src/StringUtils.sol";
 
@@ -72,21 +72,17 @@ contract FarmerDeliverySystem is System {
 
       bytes32 foodCAEntity = CAEntityMapping.get(caStore, WORLD_ADDRESS, foodEntity.entityId);
 
-      bytes32 voxelType = getCAVoxelType(foodCAEntity);
+      CAEntityReverseMappingData memory entityData = CAEntityReverseMapping.get(caStore, foodCAEntity);
+      bytes32 voxelType = CAVoxelType.getVoxelTypeId(caStore, entityData.callerAddress, entityData.entity);
       require(
         voxelType == PlantVoxelID,
         string(abi.encodePacked("packageForDelivery: foodEntity is not a plant. Found voxelType=", voxelType))
       );
 
-      require(
-        !hasKey(OriginatingChunkTableId, OriginatingChunk.encodeKeyTuple(foodCAEntity)),
-        string(
-          abi.encodePacked(
-            "packageForDelivery: This plant already has an originating chunk. foodCAEntity=",
-            bytes32ToString(foodCAEntity)
-          )
-        )
-      );
+      if (hasKey(OriginatingChunkTableId, OriginatingChunk.encodeKeyTuple(foodCAEntity))) {
+        // This plant already has an originating chunk. so don't set it's originating chunk again
+        continue;
+      }
 
       VoxelCoord memory coord = getVoxelCoordStrict(worldStore, foodEntity);
       VoxelCoord memory shardCoord = coordToShardCoord(coord);

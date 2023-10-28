@@ -7,7 +7,7 @@
     "mud": "node ../../node_modules/@latticexyz/cli/dist/mud.js",
     "build": "forge build",
     "clean": "forge clean",
-    "setLocalRegistryAddress": "node ../../../../scripts/setRegistryAddress.js 31337 ../../../../packages/registry/worlds.json src/Constants.sol REGISTRY_ADDRESS",
+    "setLocalRegistryAddress": "node ../../../../scripts/setRegistryAddress.js 1337 ../../../../packages/registry/worlds.json src/Constants.sol REGISTRY_ADDRESS",
     "setAddress": "yarn run setLocalRegistryAddress",
     "build:local": "yarn run setAddress && yarn run initialize",
     "deploy:local": "yarn mud deploy",

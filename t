@@ -24,7 +24,10 @@ if [[ "$1" == "run" ]]; then
             yarn concurrently -n anvil,contracts -c blue,green,white "./t run dev:anvil" "./t run dev:framework $4 && ./t run dev:$3 $4 $5 $6 $7"
             ;;
         "dev:anvil")
-            cd scripts && yarn run anvil
+            # cd scripts && yarn run anvil
+            ;;
+        "dev:geth")
+            cd scripts && ./runDevGeth.bash
             ;;
         "dev:framework")
             case "$3" in

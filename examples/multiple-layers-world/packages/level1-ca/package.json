@@ -13,7 +13,7 @@
     "deploy:hackathon": "yarn run initialize && yarn mud deploy --profile=hackathon-testnet",
     "deploy:testnet": "yarn run initialize && yarn mud deploy --profile=lattice-testnet",
     "dev": "yarn mud dev-contracts --tsgenOutput ./client",
-    "setLocalRegistryAddress": "node ../../../../scripts/setRegistryAddress.js 31337 ../../../../packages/registry/worlds.json src/Constants.sol REGISTRY_ADDRESS",
+    "setLocalRegistryAddress": "node ../../../../scripts/setRegistryAddress.js 1337 ../../../../packages/registry/worlds.json src/Constants.sol REGISTRY_ADDRESS",
     "initialize": "yarn run tablegen && yarn run worldgen && yarn run build && yarn run worldtypes",
     "lint": "yarn run prettier && yarn run solhint",
     "prettier": "prettier --write 'src/**/*.sol'",

@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Extract worldAddress using awk
-worldAddress=$(awk -F'"' '/"31337":/{getline; print $4}' worlds.json)
+worldAddress=$(awk -F'"' '/"1337":/{getline; print $4}' worlds.json)
 
 # Start constructing the command
 command="yarn mud test --worldAddress='${worldAddress}' --forgeOptions='-vvv"

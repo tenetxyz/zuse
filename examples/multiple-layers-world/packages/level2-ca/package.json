@@ -14,7 +14,7 @@
     "deploy:testnet": "yarn run initialize && yarn mud deploy --profile=lattice-testnet",
     "dev": "yarn mud dev-contracts --tsgenOutput ../ca-client/src/mud",
     "replaceGeneratedTypes": "../../../../scripts/replaceGeneratedTypes.sh",
-    "setLocalRegistryAddress": "node ../../../../scripts/setRegistryAddress.js 31337 ../../../../packages/registry/worlds.json src/Constants.sol REGISTRY_ADDRESS",
+    "setLocalRegistryAddress": "node ../../../../scripts/setRegistryAddress.js 1337 ../../../../packages/registry/worlds.json src/Constants.sol REGISTRY_ADDRESS",
     "initialize": "yarn run tablegen && yarn run worldgen && yarn run replaceGeneratedTypes && yarn run build && yarn run worldtypes",
     "lint": "yarn run prettier && yarn run solhint",
     "prettier": "prettier --write 'src/**/*.sol'",

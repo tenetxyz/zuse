@@ -1,0 +1,1 @@
+geth --exec "loadScript('transfer.js')" attach ipc:./dev-chain/geth.ipc

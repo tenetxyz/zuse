@@ -21,7 +21,7 @@ def main():
     if sys.argv[1] == "run":
         if sys.argv[2] == "dev":
             subcommands = ["./t run anvil", f"./t run framework {' '.join(sys.argv[3:])} && ./t run {sys.argv[3]} {' '.join(sys.argv[4:])}"]
-            command = ["yarn", "concurrently", "-n", "anvil,contracts", "-c", "blue,green,white"] + subcommands
+            command = ["yarn", "concurrently", "-n", "anvil,contracts", "-c", "blue,green"] + subcommands
             # Copy the current environment and modify it
             env = os.environ.copy()
             env["NODE_ENV"] = "development"
@@ -29,10 +29,10 @@ def main():
 
         if sys.argv[2] == "prod":
             subcommands = [f"./t run framework {' '.join(sys.argv[3:])} && ./t run {sys.argv[3]} {' '.join(sys.argv[4:])}"]
-            command = ["yarn", "concurrently", "-n", "anvil,contracts", "-c", "blue,green,white"] + subcommands
+            command = ["yarn", "concurrently", "-n", "contracts", "-c", "green"] + subcommands
             env = os.environ.copy()
             env["NODE_ENV"] = "production"
-            subprocess.run(command)
+            subprocess.run(command, env=env)
 
         elif sys.argv[2] == "anvil":
             os.chdir("scripts")

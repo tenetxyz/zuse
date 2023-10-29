@@ -13,7 +13,7 @@
     "build": "yarn run clean && yarn workspaces run build",
     "clean": "concurrently \"yarn workspace @tenetxyz/registry run clean\" \"yarn workspace @tenetxyz/base-ca run clean\" \"yarn workspace @tenetxyz/base-world run clean\"",
     "dev": "yarn run clean && yarn run dev-no-clean",
-    "registry": "concurrently -n registry -c red \"yarn workspace @tenetxyz/registry run deploy\"",
+    "registry": "concurrently -n registry -c red \"yarn workspace @tenetxyz/registry run build && yarn workspace @tenetxyz/registry run deploy\"",
     "base:ca": "concurrently -n base-ca -c magenta \"yarn workspace @tenetxyz/base-ca run initialize\"",
     "base:world": "concurrently -n base-world -c cyan \"yarn workspace @tenetxyz/base-world run initialize\"",
     "dev-no-clean": "concurrently -n framework -c white \"yarn run registry && yarn run base:ca && yarn run base:world\"",

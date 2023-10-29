@@ -35,4 +35,4 @@ development/
 
 ### Running locally
 
-Run `NODE_ENV=development && ./t run dev basic-conserved-world --skip-build --with-pokemon --with-derived` in the top directory
+Run `./t run dev basic-conserved-world --skip-build --with-pokemon --with-derived` in the top directory

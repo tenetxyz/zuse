@@ -18,6 +18,12 @@ def main():
         return
     # print(sys.argv)
 
+    if sys.argv[1] == "build":
+        subcommands = [f"&& cd examples/{sys.argv[2]} && yarn run build"]
+        command = ["yarn", "run", "build"] + subcommands
+        env = os.environ.copy()
+        subprocess.run(command, env=env)
+
     if sys.argv[1] == "run":
         if sys.argv[2] == "dev":
             subcommands = ["./t run anvil", f"./t run framework {' '.join(sys.argv[3:])} && ./t run {sys.argv[3]} {' '.join(sys.argv[4:])}"]

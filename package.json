@@ -10,7 +10,7 @@
   },
   "scripts": {
     "mud": "node node_modules/@latticexyz/cli/dist/mud.js",
-    "build": "yarn run clean && yarn workspaces run build",
+    "build": "yarn run clean && yarn workspaces foreach -A run build",
     "clean": "concurrently \"yarn workspace @tenetxyz/registry run clean\" \"yarn workspace @tenetxyz/base-ca run clean\" \"yarn workspace @tenetxyz/base-world run clean\"",
     "dev": "yarn run clean && yarn run dev-no-clean",
     "registry": "concurrently -n registry -c red \"yarn workspace @tenetxyz/registry run build && yarn workspace @tenetxyz/registry run deploy\"",

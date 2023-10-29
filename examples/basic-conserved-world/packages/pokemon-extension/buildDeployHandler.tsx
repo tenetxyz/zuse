@@ -14,9 +14,6 @@ function getAddressFromFile(filePath) {
   }
 }
 
-const worldAddress = getAddressFromFile("../level1-ca/worlds.json");
-const mainWorldAddress = getAddressFromFile("../world/worlds.json");
-
 function executeCommand(command) {
   try {
     execSync(command, {
@@ -46,6 +43,9 @@ if (action == "build") {
     executeCommand(command);
   });
 } else if (action == "deploy") {
+  const worldAddress = getAddressFromFile("../level1-ca/worlds.json");
+  const mainWorldAddress = getAddressFromFile("../world/worlds.json");
+
   let deployCommand = `yarn mud deploy --installDefaultModules false --worldAddress ${worldAddress}`;
   let rpcUrl = "http://127.0.0.1:8545";
   if (process.env.NODE_ENV === "production") {

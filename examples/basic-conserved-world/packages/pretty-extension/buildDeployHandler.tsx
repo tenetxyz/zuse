@@ -15,8 +15,6 @@ function getAddressFromFile(filePath) {
   }
 }
 
-const worldAddress = getAddressFromFile("../level1-ca/worlds.json");
-
 function executeCommand(command) {
   try {
     execSync(command, {
@@ -46,6 +44,8 @@ if (action == "build") {
     executeCommand(command);
   });
 } else if (action == "deploy") {
+  const worldAddress = getAddressFromFile("../level1-ca/worlds.json");
+
   // Loop over all files in script/ and forge script each one
   const scriptDir = "script";
   const files = fs.readdirSync(scriptDir);

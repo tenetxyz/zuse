@@ -27,6 +27,11 @@ function setRegistryAddress() {
         return;
     }
 
+    if (!fs.existsSync(worldsJsonPath)) {
+        console.log('worlds.json does not exist');
+        return;
+    }
+
     const worldsJson = JSON.parse(fs.readFileSync(worldsJsonPath, 'utf8'));
 
     if (worldsJson[chainId] === undefined) {

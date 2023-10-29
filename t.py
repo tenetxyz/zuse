@@ -14,15 +14,19 @@ def run_example(path, extra_cmd=None):
 
 def main():
     if len(sys.argv) < 2:
-        print("Usage: ./t run [command]")
+        print("Usage: ./t build|run [command]")
         return
     # print(sys.argv)
 
     if sys.argv[1] == "build":
-        subcommands = [f"&& cd examples/{sys.argv[2]} && yarn run build"]
-        command = ["yarn", "run", "build"] + subcommands
-        env = os.environ.copy()
-        subprocess.run(command, env=env)
+        command1 = ["yarn", "run", "build"]
+        subprocess.run(command1, env=os.environ.copy())
+
+        example_dir = os.path.join("examples", sys.argv[2])
+        os.chdir(example_dir)
+
+        command2 = ["yarn", "run", "build"]
+        subprocess.run(command2, env=os.environ.copy())
 
     if sys.argv[1] == "run":
         if sys.argv[2] == "dev":

@@ -10,7 +10,7 @@ import { PositionData } from "@tenet-world/src/codegen/tables/Position.sol";
 import { REGISTRY_ADDRESS } from "@tenet-world/src/Constants.sol";
 import { VoxelCoord, VoxelEntity } from "@tenet-utils/src/Types.sol";
 import { BaseCreationInWorld } from "@tenet-utils/src/Types.sol";
-import { VoxelTypeRegistry } from "@tenet-registry/src/codegen/Tables/VoxelTypeRegistry.sol";
+import { VoxelTypeRegistry } from "@tenet-registry/src/codegen/tables/VoxelTypeRegistry.sol";
 import { registerCreation as registerCreationToRegistry } from "@tenet-registry/src/Utils.sol";
 
 contract CreationSystem is System {

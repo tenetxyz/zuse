@@ -3,12 +3,12 @@ pragma solidity >=0.8.0;
 
 import { VoxelCoord, VoxelEntity } from "@tenet-utils/src/Types.sol";
 import { CA_GET_TERRAIN_VOXEL_ID_SIG, CA_SET_MIND_SELECTOR_SIG, CA_GET_MIND_SELECTOR_SIG, CA_ENTER_WORLD_SIG, CA_EXIT_WORLD_SIG, CA_RUN_INTERACTION_SIG, CA_ACTIVATE_VOXEL_SIG, CA_UPDATE_VOXEL_TYPE_SIG, CA_REGISTER_VOXEL_SIG, CA_MOVE_WORLD_SIG } from "@tenet-base-ca/src/Constants.sol";
-import { safeCall, safeStaticCall } from "@tenet-utils/src/CallUtils.sol";
+import { callOrRevert, staticCallOrRevert } from "@tenet-utils/src/CallUtils.sol";
 import { CAEntityReverseMapping, CAEntityReverseMappingTableId, CAEntityReverseMappingData } from "@tenet-base-ca/src/codegen/tables/CAEntityReverseMapping.sol";
 
 function mineWorld(address callerAddress, bytes32 voxelTypeId, VoxelCoord memory coord) returns (bytes memory) {
   return
-    safeCall(
+    callOrRevert(
       callerAddress,
       abi.encodeWithSignature("mineVoxelType(bytes32,(int32,int32,int32),bool,bool)", voxelTypeId, coord, true, false),
       string(abi.encode("mine ", voxelTypeId, " ", coord))
@@ -17,7 +17,7 @@ function mineWorld(address callerAddress, bytes32 voxelTypeId, VoxelCoord memory
 
 function buildWorld(address callerAddress, bytes32 voxelTypeId, VoxelCoord memory coord) returns (bytes memory) {
   return
-    safeCall(
+    callOrRevert(
       callerAddress,
       abi.encodeWithSignature("buildVoxelType(bytes32,(int32,int32,int32),bool,bool)", voxelTypeId, coord, true, false),
       string(abi.encode("buildVoxelType ", voxelTypeId, " ", coord))
@@ -31,7 +31,7 @@ function moveWorld(
   VoxelCoord memory newCoord
 ) returns (bytes memory) {
   return
-    safeCall(
+    callOrRevert(
       callerAddress,
       abi.encodeWithSignature(
         "moveVoxelType(bytes32,(int32,int32,int32),(int32,int32,int32),bool,bool)",
@@ -46,7 +46,7 @@ function moveWorld(
 }
 
 function getCAMindSelector(address caAddress, bytes32 entity) view returns (bytes4) {
-  bytes memory result = safeStaticCall(
+  bytes memory result = staticCallOrRevert(
     caAddress,
     abi.encodeWithSignature(CA_GET_MIND_SELECTOR_SIG, entity),
     string(abi.encode("getCAMindSelector ", entity))
@@ -56,7 +56,7 @@ function getCAMindSelector(address caAddress, bytes32 entity) view returns (byte
 
 function setCAMindSelector(address caAddress, bytes32 entity, bytes4 mindSelector) returns (bytes memory) {
   return
-    safeCall(
+    callOrRevert(
       caAddress,
       abi.encodeWithSignature(CA_SET_MIND_SELECTOR_SIG, entity, mindSelector),
       string(abi.encode("setCAMindSelector ", entity, " ", mindSelector))
@@ -64,7 +64,7 @@ function setCAMindSelector(address caAddress, bytes32 entity, bytes4 mindSelecto
 }
 
 function getTerrainVoxelId(address caAddress, VoxelCoord memory coord) view returns (bytes32) {
-  bytes memory returnData = safeStaticCall(
+  bytes memory returnData = staticCallOrRevert(
     caAddress,
     abi.encodeWithSignature(CA_GET_TERRAIN_VOXEL_ID_SIG, coord),
     string(abi.encode("getTerrainVoxelId ", coord))
@@ -83,7 +83,7 @@ function enterWorld(
   bytes32 parentEntity
 ) returns (bytes memory) {
   return
-    safeCall(
+    callOrRevert(
       caAddress,
       abi.encodeWithSignature(
         CA_ENTER_WORLD_SIG,
@@ -126,7 +126,7 @@ function exitWorld(
   bytes32 parentEntity
 ) returns (bytes memory) {
   return
-    safeCall(
+    callOrRevert(
       caAddress,
       abi.encodeWithSignature(
         CA_EXIT_WORLD_SIG,
@@ -167,7 +167,7 @@ function moveLayer(
   bytes32 parentEntity
 ) returns (bytes memory) {
   return
-    safeCall(
+    callOrRevert(
       caAddress,
       abi.encodeWithSignature(
         CA_MOVE_WORLD_SIG,
@@ -209,7 +209,7 @@ function runInteraction(
   bytes32 parentEntity
 ) returns (bytes memory) {
   return
-    safeCall(
+    callOrRevert(
       caAddress,
       abi.encodeWithSignature(
         CA_RUN_INTERACTION_SIG,
@@ -238,7 +238,7 @@ function runInteraction(
 
 function activateVoxel(address caAddress, bytes32 entity) returns (bytes memory) {
   return
-    safeCall(
+    callOrRevert(
       caAddress,
       abi.encodeWithSignature(CA_ACTIVATE_VOXEL_SIG, entity),
       string(abi.encode("activateVoxel ", entity))
@@ -247,7 +247,7 @@ function activateVoxel(address caAddress, bytes32 entity) returns (bytes memory)
 
 function updateVoxelType(address caAddress, bytes32 entity) returns (bytes memory) {
   return
-    safeCall(
+    callOrRevert(
       caAddress,
       abi.encodeWithSignature(CA_UPDATE_VOXEL_TYPE_SIG, entity),
       string(abi.encode("updateVoxelType ", entity))
@@ -255,7 +255,7 @@ function updateVoxelType(address caAddress, bytes32 entity) returns (bytes memor
 }
 
 function getVoxelTypeFromCaller(address callerAddress, VoxelEntity memory entity) view returns (bytes32) {
-  bytes memory returnData = safeStaticCall(
+  bytes memory returnData = staticCallOrRevert(
     callerAddress,
     abi.encodeWithSignature("getVoxelTypeId((uint32,bytes32))", entity),
     "getVoxelTypeId"
@@ -268,7 +268,7 @@ function shouldRunInteractionForNeighbour(
   VoxelEntity memory originEntity,
   VoxelEntity memory neighbourEntity
 ) returns (bool) {
-  bytes memory returnData = safeCall(
+  bytes memory returnData = callOrRevert(
     callerAddress,
     abi.encodeWithSignature(
       "shouldRunInteractionForNeighbour((uint32,bytes32),(uint32,bytes32))",
@@ -281,7 +281,7 @@ function shouldRunInteractionForNeighbour(
 }
 
 function getNeighbourEntitiesFromCaller(address callerAddress, VoxelEntity memory entity) returns (bytes32[] memory) {
-  bytes memory returnData = safeCall(
+  bytes memory returnData = callOrRevert(
     callerAddress,
     abi.encodeWithSignature("calculateNeighbourEntities((uint32,bytes32))", entity),
     "calculateNeighbourEntities"
@@ -296,7 +296,7 @@ function getMooreNeighbourEntities(
 ) view returns (bytes32[] memory, VoxelCoord[] memory) {
   CAEntityReverseMappingData memory entityData = CAEntityReverseMapping.get(caEntity);
   VoxelEntity memory entity = VoxelEntity({ scale: 1, entityId: entityData.entity });
-  bytes memory returnData = safeStaticCall(
+  bytes memory returnData = staticCallOrRevert(
     entityData.callerAddress,
     abi.encodeWithSignature("calculateMooreNeighbourEntities((uint32,bytes32),uint8)", entity, neighbourRadius),
     string(abi.encode("calculateMooreNeighbourEntities ", entityData.callerAddress, " ", entity, " ", neighbourRadius))
@@ -305,7 +305,7 @@ function getMooreNeighbourEntities(
 }
 
 function getChildEntitiesFromCaller(address callerAddress, VoxelEntity memory entity) returns (bytes32[] memory) {
-  bytes memory returnData = safeCall(
+  bytes memory returnData = callOrRevert(
     callerAddress,
     abi.encodeWithSignature("calculateChildEntities((uint32,bytes32))", entity),
     "calculateChildEntities"
@@ -314,7 +314,7 @@ function getChildEntitiesFromCaller(address callerAddress, VoxelEntity memory en
 }
 
 function getParentEntityFromCaller(address callerAddress, VoxelEntity memory entity) returns (bytes32) {
-  bytes memory returnData = safeCall(
+  bytes memory returnData = callOrRevert(
     callerAddress,
     abi.encodeWithSignature("calculateParentEntity((uint32,bytes32))", entity),
     "calculateParentEntity"
@@ -324,7 +324,7 @@ function getParentEntityFromCaller(address callerAddress, VoxelEntity memory ent
 
 function registerCAVoxelType(address caAddress, bytes32 voxelTypeId) returns (bytes memory) {
   return
-    safeCall(
+    callOrRevert(
       caAddress,
       abi.encodeWithSignature(CA_REGISTER_VOXEL_SIG, voxelTypeId),
       string(abi.encode("registerVoxelType ", voxelTypeId))

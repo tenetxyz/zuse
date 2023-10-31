@@ -4,12 +4,12 @@ pragma solidity >=0.8.0;
 import { IStore } from "@latticexyz/store/src/IStore.sol";
 import { VoxelCoord, VoxelEntity, SimTable, ValueType, ObjectType } from "@tenet-utils/src/Types.sol";
 import { SIM_ON_BUILD_SIG, SIM_ON_MINE_SIG, SIM_ON_MOVE_SIG, SIM_ON_ACTIVATE_SIG, SIM_VELOCITY_CACHE_UPDATE_SIG, SIM_INIT_AGENT_SIG, SIM_INIT_ENTITY_SIG } from "@tenet-simulator/src/Constants.sol";
-import { safeCall, safeStaticCall } from "@tenet-utils/src/CallUtils.sol";
+import { safeCall, callOrRevert, staticCallOrRevert } from "@tenet-utils/src/CallUtils.sol";
 import { SimSelectors, SimSelectorsData } from "@tenet-simulator/src/codegen/tables/SimSelectors.sol";
 
 function updateVelocityCache(address simAddress, VoxelEntity memory entity) returns (bytes memory) {
   return
-    safeCall(
+    callOrRevert(
       simAddress,
       abi.encodeWithSignature(SIM_VELOCITY_CACHE_UPDATE_SIG, entity),
       string(abi.encode("velocityChange ", entity))
@@ -24,7 +24,7 @@ function initEntity(
   VoxelCoord memory initVelocity
 ) returns (bytes memory) {
   return
-    safeCall(
+    callOrRevert(
       simAddress,
       abi.encodeWithSignature(SIM_INIT_ENTITY_SIG, entity, initMass, initEnergy, initVelocity),
       string(abi.encode("initEntity ", entity, " ", initMass, " ", initEnergy, " ", initVelocity))
@@ -38,7 +38,7 @@ function initAgent(
   uint256 initHealth
 ) returns (bytes memory) {
   return
-    safeCall(
+    callOrRevert(
       simAddress,
       abi.encodeWithSignature(SIM_INIT_AGENT_SIG, entity, initStamina, initHealth),
       string(abi.encode("initAgent ", entity, " ", initStamina, " ", initHealth))
@@ -55,10 +55,10 @@ function setSimValue(
   VoxelCoord memory receiverCoord,
   SimTable receiverTable,
   bytes memory receiverValue
-) returns (bytes memory) {
+) returns (bool, bytes memory) {
   SimSelectorsData memory simSelectors = SimSelectors.get(IStore(simAddress), senderTable, receiverTable);
   if (simSelectors.selector == bytes4(0)) {
-    revert("Invalid table");
+    return (false, "");
   }
   if (simSelectors.senderValueType == ValueType.Int256 && simSelectors.receiverValueType == ValueType.Int256) {
     return
@@ -203,7 +203,7 @@ function setSimValue(
         )
       );
   } else {
-    revert("Invalid value type");
+    return (false, "");
   }
 }
 
@@ -215,7 +215,7 @@ function onBuild(
   uint256 entityMass
 ) returns (bytes memory) {
   return
-    safeCall(
+    callOrRevert(
       simAddress,
       abi.encodeWithSignature(SIM_ON_BUILD_SIG, actingEntity, entity, coord, entityMass),
       string(abi.encode("onBuild ", actingEntity, " ", entity, " ", coord, " ", entityMass))
@@ -229,7 +229,7 @@ function onMine(
   VoxelCoord memory coord
 ) returns (bytes memory) {
   return
-    safeCall(
+    callOrRevert(
       simAddress,
       abi.encodeWithSignature(SIM_ON_MINE_SIG, actingEntity, entity, coord),
       string(abi.encode("onMine ", actingEntity, " ", entity, " ", coord))
@@ -244,7 +244,7 @@ function onMove(
   VoxelEntity memory newEntity,
   VoxelCoord memory newCoord
 ) returns (VoxelEntity memory) {
-  bytes memory returnData = safeCall(
+  bytes memory returnData = callOrRevert(
     simAddress,
     abi.encodeWithSignature(SIM_ON_MOVE_SIG, actingEntity, oldEntity, oldCoord, newEntity, newCoord),
     string(abi.encode("onMove ", actingEntity, " ", oldEntity, " ", oldCoord, " ", newEntity, " ", newCoord))
@@ -259,7 +259,7 @@ function onActivate(
   VoxelCoord memory coord
 ) returns (bytes memory) {
   return
-    safeCall(
+    callOrRevert(
       simAddress,
       abi.encodeWithSignature(SIM_ON_ACTIVATE_SIG, actingEntity, entity, coord),
       string(abi.encode("onActivate ", actingEntity, " ", entity, " ", coord))

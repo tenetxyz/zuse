@@ -9,7 +9,7 @@ import { WorldRegistry } from "@tenet-registry/src/codegen/tables/WorldRegistry.
 import { hasKey } from "@latticexyz/world/src/modules/keysintable/hasKey.sol";
 import { CARegistry } from "@tenet-registry/src/codegen/tables/CARegistry.sol";
 import { REGISTER_WORLD_SIG } from "@tenet-registry/src/Constants.sol";
-import { safeCall } from "@tenet-utils/src/CallUtils.sol";
+import { callOrRevert } from "@tenet-utils/src/CallUtils.sol";
 
 abstract contract InitWorldSystem is System {
   function getRegistryAddress() internal pure virtual returns (address);

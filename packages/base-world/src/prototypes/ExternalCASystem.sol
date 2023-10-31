@@ -5,12 +5,12 @@ import { IStore } from "@latticexyz/store/src/IStore.sol";
 import { System } from "@latticexyz/world/src/System.sol";
 import { VoxelCoord, VoxelEntity } from "@tenet-utils/src/Types.sol";
 import { hasEntity, addressToEntityKey } from "@tenet-utils/src/Utils.sol";
-import { safeCall } from "@tenet-utils/src/CallUtils.sol";
+import { callOrRevert } from "@tenet-utils/src/CallUtils.sol";
 import { CAVoxelType, CAVoxelTypeData } from "@tenet-base-ca/src/codegen/tables/CAVoxelType.sol";
 import { CAMind } from "@tenet-base-ca/src/codegen/tables/CAMind.sol";
 import { KeysInTable } from "@latticexyz/world/src/modules/keysintable/tables/KeysInTable.sol";
 import { Interactions, InteractionsTableId } from "@tenet-base-world/src/codegen/tables/Interactions.sol";
-import { MAX_VOXEL_NEIGHBOUR_UPDATE_DEPTH, MAX_UNIQUE_ENTITY_INTERACTIONS_RUN } from "@tenet-utils/src/Constants.sol";
+import { MAX_VOXEL_NEIGHBOUR_UPDATE_DEPTH, MAX_UNIQUE_ENTITY_INTERACTIONS_RUN, MAX_SAME_VOXEL_INTERACTION_RUN } from "@tenet-utils/src/Constants.sol";
 import { hasKey } from "@latticexyz/world/src/modules/keysintable/hasKey.sol";
 import { Position, PositionData } from "@tenet-base-world/src/codegen/tables/Position.sol";
 import { VoxelType, VoxelTypeData, VoxelTypeTableId } from "@tenet-base-world/src/codegen/tables/VoxelType.sol";
@@ -29,13 +29,21 @@ abstract contract ExternalCASystem is System {
     VoxelEntity memory originEntity,
     VoxelEntity memory neighbourEntity
   ) public virtual returns (bool) {
-    if (!Interactions.get(neighbourEntity.scale, neighbourEntity.entityId)) {
-      uint256 numInteractionsRan = KeysInTable.lengthKeys0(InteractionsTableId);
-      if (numInteractionsRan + 1 > MAX_UNIQUE_ENTITY_INTERACTIONS_RUN) {
-        return false;
-      }
-      Interactions.set(neighbourEntity.scale, neighbourEntity.entityId, true);
+    uint256 numInteractionsRan = KeysInTable.lengthKeys0(InteractionsTableId);
+    if (numInteractionsRan + 1 > MAX_UNIQUE_ENTITY_INTERACTIONS_RUN) {
+      return false;
     }
+
+    if (Interactions.get(neighbourEntity.scale, neighbourEntity.entityId) > MAX_SAME_VOXEL_INTERACTION_RUN) {
+      return false;
+    }
+
+    Interactions.set(
+      neighbourEntity.scale,
+      neighbourEntity.entityId,
+      Interactions.get(neighbourEntity.scale, neighbourEntity.entityId) + 1
+    );
+
     return true;
   }
 

@@ -5,7 +5,7 @@ import { IStore } from "@latticexyz/store/src/IStore.sol";
 import { System } from "@latticexyz/world/src/System.sol";
 import { WorldConfig, Position, PositionTableId, VoxelType, VoxelTypeTableId, TruthTable, TruthTableData, TruthTableCR, TruthTableCRData, Spawn } from "@tenet-world/src/codegen/Tables.sol";
 import { VoxelTypeData, VoxelEntity, VoxelCoord, InterfaceVoxel } from "@tenet-utils/src/Types.sol";
-import { safeCall } from "@tenet-utils/src/CallUtils.sol";
+import { callOrRevert } from "@tenet-utils/src/CallUtils.sol";
 import { LEVEL_2_CA_ADDRESS } from "@tenet-world/src/Constants.sol";
 import { IWorld } from "@tenet-world/src/codegen/world/IWorld.sol";
 import { getVoxelCoordStrict } from "@tenet-base-world/src/Utils.sol";

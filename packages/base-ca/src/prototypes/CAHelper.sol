@@ -31,6 +31,10 @@ abstract contract CAHelper is System {
     }
   }
 
+  function decodeToBytes32(bytes memory data) external pure returns (bytes32) {
+    return abi.decode(data, (bytes32));
+  }
+
   function getVoxelVariant(
     bytes32 voxelTypeId,
     bytes32 caEntity,
@@ -39,15 +43,19 @@ abstract contract CAHelper is System {
     bytes32 parentEntity
   ) public virtual returns (bytes32) {
     bytes4 voxelVariantSelector = getVoxelVariantSelector(IStore(getRegistryAddress()), voxelTypeId);
-    if (voxelVariantSelector == bytes4(0)) {
-      return getPreviewVoxelVariantId(IStore(getRegistryAddress()), voxelTypeId);
+    if (voxelVariantSelector != bytes4(0)) {
+      (bool success, bytes memory returnData) = safeStaticCall(
+        _world(),
+        abi.encodeWithSelector(voxelVariantSelector, caEntity, caNeighbourEntityIds, childEntityIds, parentEntity),
+        "voxel variant selector"
+      );
+      if (success) {
+        try this.decodeToBytes32(returnData) returns (bytes32 decodedValue) {
+          return decodedValue;
+        } catch {}
+      }
     }
-    bytes memory returnData = safeStaticCall(
-      _world(),
-      abi.encodeWithSelector(voxelVariantSelector, caEntity, caNeighbourEntityIds, childEntityIds, parentEntity),
-      "voxel variant selector"
-    );
-    return abi.decode(returnData, (bytes32));
+    return getPreviewVoxelVariantId(IStore(getRegistryAddress()), voxelTypeId);
   }
 
   function voxelExitWorld(bytes32 voxelTypeId, VoxelCoord memory coord, bytes32 caEntity) public virtual {

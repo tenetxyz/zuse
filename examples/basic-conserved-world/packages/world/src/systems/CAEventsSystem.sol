@@ -17,6 +17,22 @@ import { MAX_VOXEL_NEIGHBOUR_UPDATE_DEPTH } from "@tenet-utils/src/Constants.sol
 import { distanceBetween } from "@tenet-utils/src/VoxelCoordUtils.sol";
 
 contract CAEventsSystem is System {
+  function decodeToCAEventDataArray(bytes memory data) external pure returns (CAEventData[] memory) {
+    return abi.decode(data, (CAEventData[]));
+  }
+
+  function decodeToSimEventData(bytes memory data) external pure returns (SimEventData memory) {
+    return abi.decode(data, (SimEventData));
+  }
+
+  function decodeToWorldEventData(bytes memory data) external pure returns (WorldEventData memory) {
+    return abi.decode(data, (WorldEventData));
+  }
+
+  function decodeToSimEventDataArray(bytes memory data) external pure returns (SimEventData[] memory) {
+    return abi.decode(data, (SimEventData[]));
+  }
+
   function caEventsHandler(EntityEventData[] memory entitiesEventData) public {
     // TODO: Optimize the length of this array
     EntityEventData[] memory allNewEntitiesEventData = new EntityEventData[](MAX_VOXEL_NEIGHBOUR_UPDATE_DEPTH);
@@ -31,7 +47,12 @@ contract CAEventsSystem is System {
 
       // process event
       console.log("process events");
-      CAEventData[] memory allCAEventData = abi.decode(entityEventData.eventData, (CAEventData[]));
+      CAEventData[] memory allCAEventData;
+      try this.decodeToCAEventDataArray(entityEventData.eventData) returns (CAEventData[] memory decodedValue) {
+        allCAEventData = decodedValue;
+      } catch {
+        continue;
+      }
       VoxelEntity memory entity = entityEventData.entity;
       VoxelCoord memory entityCoord = getVoxelCoordStrict(entity);
       for (uint j; j < allCAEventData.length; j++) {
@@ -43,13 +64,21 @@ contract CAEventsSystem is System {
         if (caEventData.eventType == CAEventType.SimEvent || caEventData.eventType == CAEventType.BatchSimEvent) {
           SimEventData[] memory allSimEventData;
           if (caEventData.eventType == CAEventType.BatchSimEvent) {
-            allSimEventData = abi.decode(caEventData.eventData, (SimEventData[]));
+            try this.decodeToSimEventDataArray(caEventData.eventData) returns (SimEventData[] memory decodedValue) {
+              allSimEventData = decodedValue;
+            } catch {
+              continue;
+            }
             if (allSimEventData.length == 0) {
               continue;
             }
           } else {
             allSimEventData = new SimEventData[](1);
-            allSimEventData[0] = abi.decode(caEventData.eventData, (SimEventData));
+            try this.decodeToSimEventData(caEventData.eventData) returns (SimEventData memory decodedValue) {
+              allSimEventData[0] = decodedValue;
+            } catch {
+              continue;
+            }
           }
 
           bool calledWorldEvent = false;
@@ -134,7 +163,12 @@ contract CAEventsSystem is System {
             IWorld(_world()).updateVariant(caAddress, simEventData.targetEntity);
           }
         } else if (caEventData.eventType == CAEventType.WorldEvent) {
-          WorldEventData memory worldEventData = abi.decode(caEventData.eventData, (WorldEventData));
+          WorldEventData memory worldEventData;
+          try this.decodeToWorldEventData(caEventData.eventData) returns (WorldEventData memory decodedValue) {
+            worldEventData = decodedValue;
+          } catch {
+            continue;
+          }
           if (worldEventData.eventType == WorldEventType.Move) {
             bytes32 voxelTypeId = VoxelType.getVoxelTypeId(entity.scale, entity.entityId);
             IWorld(_world()).moveWithAgent(voxelTypeId, entityCoord, worldEventData.newCoord, entity);

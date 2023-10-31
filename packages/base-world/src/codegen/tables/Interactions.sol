@@ -33,7 +33,7 @@ library Interactions {
   /** Get the table's value schema */
   function getValueSchema() internal pure returns (Schema) {
     SchemaType[] memory _schema = new SchemaType[](1);
-    _schema[0] = SchemaType.BOOL;
+    _schema[0] = SchemaType.UINT32;
 
     return SchemaLib.encode(_schema);
   }
@@ -48,7 +48,7 @@ library Interactions {
   /** Get the table's field names */
   function getFieldNames() internal pure returns (string[] memory fieldNames) {
     fieldNames = new string[](1);
-    fieldNames[0] = "ran";
+    fieldNames[0] = "numRan";
   }
 
   /** Register the table's key schema, value schema, key names and value names */
@@ -61,47 +61,47 @@ library Interactions {
     _store.registerTable(_tableId, getKeySchema(), getValueSchema(), getKeyNames(), getFieldNames());
   }
 
-  /** Get ran */
-  function get(uint32 scale, bytes32 entity) internal view returns (bool ran) {
+  /** Get numRan */
+  function get(uint32 scale, bytes32 entity) internal view returns (uint32 numRan) {
     bytes32[] memory _keyTuple = new bytes32[](2);
     _keyTuple[0] = bytes32(uint256(scale));
     _keyTuple[1] = entity;
 
     bytes memory _blob = StoreSwitch.getField(_tableId, _keyTuple, 0, getValueSchema());
-    return (_toBool(uint8(Bytes.slice1(_blob, 0))));
+    return (uint32(Bytes.slice4(_blob, 0)));
   }
 
-  /** Get ran (using the specified store) */
-  function get(IStore _store, uint32 scale, bytes32 entity) internal view returns (bool ran) {
+  /** Get numRan (using the specified store) */
+  function get(IStore _store, uint32 scale, bytes32 entity) internal view returns (uint32 numRan) {
     bytes32[] memory _keyTuple = new bytes32[](2);
     _keyTuple[0] = bytes32(uint256(scale));
     _keyTuple[1] = entity;
 
     bytes memory _blob = _store.getField(_tableId, _keyTuple, 0, getValueSchema());
-    return (_toBool(uint8(Bytes.slice1(_blob, 0))));
+    return (uint32(Bytes.slice4(_blob, 0)));
   }
 
-  /** Set ran */
-  function set(uint32 scale, bytes32 entity, bool ran) internal {
+  /** Set numRan */
+  function set(uint32 scale, bytes32 entity, uint32 numRan) internal {
     bytes32[] memory _keyTuple = new bytes32[](2);
     _keyTuple[0] = bytes32(uint256(scale));
     _keyTuple[1] = entity;
 
-    StoreSwitch.setField(_tableId, _keyTuple, 0, abi.encodePacked((ran)), getValueSchema());
+    StoreSwitch.setField(_tableId, _keyTuple, 0, abi.encodePacked((numRan)), getValueSchema());
   }
 
-  /** Set ran (using the specified store) */
-  function set(IStore _store, uint32 scale, bytes32 entity, bool ran) internal {
+  /** Set numRan (using the specified store) */
+  function set(IStore _store, uint32 scale, bytes32 entity, uint32 numRan) internal {
     bytes32[] memory _keyTuple = new bytes32[](2);
     _keyTuple[0] = bytes32(uint256(scale));
     _keyTuple[1] = entity;
 
-    _store.setField(_tableId, _keyTuple, 0, abi.encodePacked((ran)), getValueSchema());
+    _store.setField(_tableId, _keyTuple, 0, abi.encodePacked((numRan)), getValueSchema());
   }
 
   /** Tightly pack full data using this table's schema */
-  function encode(bool ran) internal pure returns (bytes memory) {
-    return abi.encodePacked(ran);
+  function encode(uint32 numRan) internal pure returns (bytes memory) {
+    return abi.encodePacked(numRan);
   }
 
   /** Encode keys as a bytes32 array using this table's schema */
@@ -129,11 +129,5 @@ library Interactions {
     _keyTuple[1] = entity;
 
     _store.deleteRecord(_tableId, _keyTuple, getValueSchema());
-  }
-}
-
-function _toBool(uint8 value) pure returns (bool result) {
-  assembly {
-    result := value
   }
 }

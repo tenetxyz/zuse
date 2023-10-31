@@ -13,7 +13,7 @@ import { IWorld } from "@tenet-world/src/codegen/world/IWorld.sol";
 import { ClassifierRegistry, ClassifierRegistryTableId } from "@tenet-registry/src/codegen/tables/ClassifierRegistry.sol";
 import { InterfaceVoxel, VoxelEntity } from "@tenet-utils/src/Types.sol";
 import { SpawnData, OfSpawn } from "@tenet-world/src/codegen/Tables.sol";
-import { safeCall } from "@tenet-utils/src/CallUtils.sol";
+import { callOrRevert } from "@tenet-utils/src/CallUtils.sol";
 
 contract ClassifyCreationSystem is System {
   function classify(bytes32 classifierId, bytes32 spawnId, InterfaceVoxel[] memory input) public {
@@ -37,7 +37,7 @@ contract ClassifyCreationSystem is System {
     SpawnData memory spawn = Spawn.get(spawnId);
 
     // call classifySelector with input
-    safeCall(_world(), abi.encodeWithSelector(classifySelector, spawn, spawnId, input), "classify");
+    callOrRevert(_world(), abi.encodeWithSelector(classifySelector, spawn, spawnId, input), "classify");
   }
 
   function verifyThatAllInterfaceVoxelsExistInSpawn(bytes32 spawnId, InterfaceVoxel[] memory input) internal view {

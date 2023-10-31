@@ -7,7 +7,7 @@ import { VoxelVariantsRegistryData } from "@tenet-registry/src/codegen/tables/Vo
 import { VoxelTypeRegistry } from "@tenet-registry/src/codegen/tables/VoxelTypeRegistry.sol";
 import { VoxelCoord, BaseCreationInWorld, VoxelTypeData, VoxelSelectors, InteractionSelector, Mind } from "@tenet-utils/src/Types.sol";
 import { isStringEqual } from "@tenet-utils/src/StringUtils.sol";
-import { safeCall } from "@tenet-utils/src/CallUtils.sol";
+import { callOrRevert } from "@tenet-utils/src/CallUtils.sol";
 
 function registerVoxelVariant(
   address registryAddress,
@@ -15,7 +15,7 @@ function registerVoxelVariant(
   VoxelVariantsRegistryData memory voxelVariantData
 ) returns (bytes memory) {
   return
-    safeCall(
+    callOrRevert(
       registryAddress,
       abi.encodeWithSignature(REGISTER_VOXEL_VARIANT_SIG, voxelVariantId, voxelVariantData),
       "registerVoxelVariant"
@@ -35,7 +35,7 @@ function registerVoxelType(
   uint256 voxelMass
 ) returns (bytes memory) {
   return
-    safeCall(
+    callOrRevert(
       registryAddress,
       abi.encodeWithSignature(
         REGISTER_VOXEL_TYPE_SIG,
@@ -132,7 +132,7 @@ function registerCreation(
   VoxelCoord[] memory voxelCoords,
   BaseCreationInWorld[] memory baseCreationsInWorld
 ) returns (bytes32, VoxelCoord memory, VoxelTypeData[] memory, VoxelCoord[] memory) {
-  bytes memory result = safeCall(
+  bytes memory result = callOrRevert(
     registryAddress,
     abi.encodeWithSignature(REGISTER_CREATION_SIG, name, description, voxelTypes, voxelCoords, baseCreationsInWorld),
     "registerCreation"
@@ -144,7 +144,7 @@ function getVoxelsInCreation(
   address registryAddress,
   bytes32 creationId
 ) returns (VoxelCoord[] memory, VoxelTypeData[] memory) {
-  bytes memory result = safeCall(
+  bytes memory result = callOrRevert(
     registryAddress,
     abi.encodeWithSignature(GET_VOXELS_IN_CREATION_SIG, creationId),
     "getVoxelsInCreation"
@@ -153,7 +153,7 @@ function getVoxelsInCreation(
 }
 
 function creationSpawned(address registryAddress, bytes32 creationId) returns (uint256) {
-  bytes memory result = safeCall(
+  bytes memory result = callOrRevert(
     registryAddress,
     abi.encodeWithSignature(CREATION_SPAWNED_SIG, creationId),
     "creationSpawned"
@@ -162,7 +162,7 @@ function creationSpawned(address registryAddress, bytes32 creationId) returns (u
 }
 
 function voxelSpawned(address registryAddress, bytes32 voxelTypeId) returns (uint256) {
-  bytes memory result = safeCall(
+  bytes memory result = callOrRevert(
     registryAddress,
     abi.encodeWithSignature(VOXEL_SPAWNED_SIG, voxelTypeId),
     "voxelSpawned"
@@ -179,7 +179,7 @@ function registerDecisionRule(
   bytes4 decisionRuleSelector
 ) returns (bytes memory) {
   return
-    safeCall(
+    callOrRevert(
       registryAddress,
       abi.encodeWithSignature(
         REGISTER_DECISION_RULE_SIG,
@@ -201,7 +201,7 @@ function registerMindIntoRegistry(
   bytes4 mindSelector
 ) returns (bytes memory) {
   return
-    safeCall(
+    callOrRevert(
       registryAddress,
       abi.encodeWithSignature(REGISTER_MIND_SIG, voxelTypeId, name, description, mindSelector),
       "registerMind"
@@ -217,7 +217,7 @@ function registerMindForWorld(
   bytes4 mindSelector
 ) returns (bytes memory) {
   return
-    safeCall(
+    callOrRevert(
       registryAddress,
       abi.encodeWithSignature(REGISTER_MIND_WORLD_SIG, voxelTypeId, worldAddress, name, description, mindSelector),
       "registerMindForWorld"

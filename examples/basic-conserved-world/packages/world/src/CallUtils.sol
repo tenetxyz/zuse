@@ -2,10 +2,10 @@
 pragma solidity >=0.8.0;
 
 import { VoxelCoord, VoxelEntity, BodySimData } from "@tenet-utils/src/Types.sol";
-import { safeCall, safeStaticCall } from "@tenet-utils/src/CallUtils.sol";
+import { callOrRevert, staticCallOrRevert } from "@tenet-utils/src/CallUtils.sol";
 
 function getEntitySimData(address worldAddress, VoxelEntity memory entity) view returns (BodySimData memory) {
-  bytes memory returnData = safeStaticCall(
+  bytes memory returnData = staticCallOrRevert(
     worldAddress,
     abi.encodeWithSignature("getEntitySimData((uint32,bytes32))", entity),
     "getEntitySimData"

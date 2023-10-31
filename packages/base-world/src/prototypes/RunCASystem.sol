@@ -7,10 +7,10 @@ import { System } from "@latticexyz/world/src/System.sol";
 import { VoxelCoord, VoxelEntity, EntityEventData } from "@tenet-utils/src/Types.sol";
 import { hasEntity } from "@tenet-utils/src/Utils.sol";
 import { KeysInTable } from "@latticexyz/world/src/modules/keysintable/tables/KeysInTable.sol";
-import { safeCall } from "@tenet-utils/src/CallUtils.sol";
+import { callOrRevert } from "@tenet-utils/src/CallUtils.sol";
 import { CAVoxelType, CAVoxelTypeData } from "@tenet-base-ca/src/codegen/tables/CAVoxelType.sol";
 import { Interactions, InteractionsTableId } from "@tenet-base-world/src/codegen/tables/Interactions.sol";
-import { MAX_VOXEL_NEIGHBOUR_UPDATE_DEPTH, MAX_UNIQUE_ENTITY_INTERACTIONS_RUN } from "@tenet-utils/src/Constants.sol";
+import { MAX_VOXEL_NEIGHBOUR_UPDATE_DEPTH, MAX_UNIQUE_ENTITY_INTERACTIONS_RUN, MAX_SAME_VOXEL_INTERACTION_RUN } from "@tenet-utils/src/Constants.sol";
 import { Position, PositionData } from "@tenet-base-world/src/codegen/tables/Position.sol";
 import { VoxelType, VoxelTypeData } from "@tenet-base-world/src/codegen/tables/VoxelType.sol";
 import { VoxelActivated, VoxelActivatedData } from "@tenet-base-world/src/codegen/tables/VoxelActivated.sol";
@@ -133,13 +133,14 @@ abstract contract RunCASystem is System {
     VoxelEntity memory entity,
     bytes4 interactionSelector
   ) public virtual returns (EntityEventData[] memory) {
-    if (!Interactions.get(entity.scale, entity.entityId)) {
-      uint256 numInteractionsRan = KeysInTable.lengthKeys0(InteractionsTableId);
-      if (numInteractionsRan + 1 > MAX_UNIQUE_ENTITY_INTERACTIONS_RUN) {
-        return new EntityEventData[](0);
-      }
-      Interactions.set(entity.scale, entity.entityId, true);
+    uint256 numInteractionsRan = KeysInTable.lengthKeys0(InteractionsTableId);
+    if (numInteractionsRan + 1 > MAX_UNIQUE_ENTITY_INTERACTIONS_RUN) {
+      return new EntityEventData[](0);
     }
+    if (Interactions.get(entity.scale, entity.entityId) > MAX_SAME_VOXEL_INTERACTION_RUN) {
+      return new EntityEventData[](0);
+    }
+    Interactions.set(entity.scale, entity.entityId, Interactions.get(entity.scale, entity.entityId) + 1);
 
     bytes32[] memory centerEntitiesToCheckStack = new bytes32[](MAX_VOXEL_NEIGHBOUR_UPDATE_DEPTH);
     EntityEventData[] memory allEntitiesEventData = new EntityEventData[](MAX_VOXEL_NEIGHBOUR_UPDATE_DEPTH);

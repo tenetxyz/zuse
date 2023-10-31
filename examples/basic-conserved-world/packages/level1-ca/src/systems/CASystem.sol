@@ -9,7 +9,7 @@ import { hasKey } from "@latticexyz/world/src/modules/keysintable/hasKey.sol";
 import { REGISTER_CA_SIG } from "@tenet-registry/src/Constants.sol";
 import { EMPTY_ID } from "./LibTerrainSystem.sol";
 import { REGISTRY_ADDRESS } from "../Constants.sol";
-import { safeCall, safeStaticCall } from "@tenet-utils/src/CallUtils.sol";
+import { callOrRevert, staticCallOrRevert } from "@tenet-utils/src/CallUtils.sol";
 import { TerrainGenType } from "@tenet-base-ca/src/Constants.sol";
 
 contract CASystem is CA {
@@ -30,7 +30,7 @@ contract CASystem is CA {
     caVoxelTypes[4] = FaucetVoxelID;
     caVoxelTypes[5] = BuilderVoxelID;
 
-    safeCall(
+    callOrRevert(
       getRegistryAddress(),
       abi.encodeWithSignature(REGISTER_CA_SIG, "Level 1 CA", "Has grass, dirt, bedrock, and faucet", caVoxelTypes),
       "registerCA"
@@ -39,7 +39,7 @@ contract CASystem is CA {
 
   function getTerrainVoxelId(VoxelCoord memory coord) public override returns (bytes32) {
     address callerAddress = _msgSender();
-    bytes memory returnData = safeCall(
+    bytes memory returnData = callOrRevert(
       callerAddress,
       abi.encodeWithSignature("getTerrainVoxel((int32,int32,int32))", coord),
       "terrainSelector"
@@ -57,7 +57,7 @@ contract CASystem is CA {
     bytes32 caEntity = super.terrainGen(callerAddress, terrainGenType, voxelTypeId, coord, entity);
     // Notify world of terrain gen
     // TODO: Should this be in base-ca?
-    safeCall(
+    callOrRevert(
       callerAddress,
       abi.encodeWithSignature("onTerrainGen(bytes32,(int32,int32,int32))", voxelTypeId, coord),
       "onTerrainGen"

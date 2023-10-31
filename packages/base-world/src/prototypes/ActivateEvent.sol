@@ -7,7 +7,7 @@ import { WorldConfig } from "@tenet-base-world/src/codegen/tables/WorldConfig.so
 import { Position, PositionTableId } from "@tenet-base-world/src/codegen/tables/Position.sol";
 import { VoxelType, VoxelTypeTableId, VoxelTypeData } from "@tenet-base-world/src/codegen/tables/VoxelType.sol";
 import { VoxelTypeRegistry, VoxelTypeRegistryData } from "@tenet-registry/src/codegen/tables/VoxelTypeRegistry.sol";
-import { safeCall } from "@tenet-utils/src/CallUtils.sol";
+import { callOrRevert } from "@tenet-utils/src/CallUtils.sol";
 import { Strings } from "@openzeppelin/contracts/utils/Strings.sol";
 import { hasKey } from "@latticexyz/world/src/modules/keysintable/hasKey.sol";
 import { IWorld } from "@tenet-base-world/src/codegen/world/IWorld.sol";

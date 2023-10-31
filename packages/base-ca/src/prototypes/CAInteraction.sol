@@ -29,6 +29,14 @@ abstract contract CAInteraction is System {
     bytes32 parentEntity
   ) internal virtual returns (bytes32);
 
+  function decodeToBytes4(bytes memory data) external pure returns (bytes4) {
+    return abi.decode(data, (bytes4));
+  }
+
+  function decodeToBoolAndBytes(bytes memory data) external pure returns (bool, bytes memory) {
+    return abi.decode(data, (bool, bytes));
+  }
+
   function voxelRunInteraction(
     bytes4 interactionSelector,
     bytes32 voxelTypeId,
@@ -78,14 +86,14 @@ abstract contract CAInteraction is System {
       } else {
         // Call mind to figure out whch voxel interaction to run
         require(hasKey(CAMindTableId, CAMind.encodeKeyTuple(caInteractEntity)), "Mind does not exist");
-        bytes4 mindSelector = CAMind.getMindSelector(caInteractEntity);
+        // bytes4 mindSelector = CAMind.getMindSelector(caInteractEntity);
 
-        if (mindSelector != bytes4(0)) {
+        if (CAMind.getMindSelector(caInteractEntity) != bytes4(0)) {
           // call mind to figure out which interaction selector to use
           (bool mindSuccess, bytes memory mindReturnData) = safeCall(
             _world(),
             abi.encodeWithSelector(
-              mindSelector,
+              CAMind.getMindSelector(caInteractEntity),
               voxelTypeId,
               caInteractEntity,
               caNeighbourEntityIds,
@@ -95,7 +103,9 @@ abstract contract CAInteraction is System {
             "mindSelector"
           );
           if (mindSuccess) {
-            useinteractionSelector = abi.decode(mindReturnData, (bytes4));
+            try this.decodeToBytes4(mindReturnData) returns (bytes4 decodedValue) {
+              useinteractionSelector = decodedValue;
+            } catch {}
           }
           if (useinteractionSelector == bytes4(0)) {
             if (interactionSelectors.length > 0) {
@@ -134,15 +144,15 @@ abstract contract CAInteraction is System {
       );
 
       if (success) {
-        (bool changedCACenterEntityId, bytes memory entityEventData) = abi.decode(returnData, (bool, bytes));
+        try this.decodeToBoolAndBytes(returnData) returns (bool changedCACenterEntityId, bytes memory entityEventData) {
+          if (changedCenterEntityId == 0 && changedCACenterEntityId) {
+            changedCenterEntityId = caInteractEntity;
+          }
 
-        if (changedCenterEntityId == 0 && changedCACenterEntityId) {
-          changedCenterEntityId = caInteractEntity;
-        }
-
-        if (centerEntityEventData.length == 0 && entityEventData.length != 0) {
-          centerEntityEventData = entityEventData;
-        }
+          if (centerEntityEventData.length == 0 && entityEventData.length != 0) {
+            centerEntityEventData = entityEventData;
+          }
+        } catch {}
       }
     }
 
@@ -194,13 +204,14 @@ abstract contract CAInteraction is System {
             "onNewNeighbourSelector"
           );
           if (success) {
-            (bool changedNeighbour, bytes memory entityEventData) = abi.decode(returnData, (bool, bytes));
-            if (changedNeighbour) {
-              changedNeighbourEntities[i] = caNeighbourEntityIds[i];
-            }
-            if (entityEventData.length != 0) {
-              neighbourEntitiesEventData[i] = entityEventData;
-            }
+            try this.decodeToBoolAndBytes(returnData) returns (bool changedNeighbour, bytes memory entityEventData) {
+              if (changedNeighbour) {
+                changedNeighbourEntities[i] = caNeighbourEntityIds[i];
+              }
+              if (entityEventData.length != 0) {
+                neighbourEntitiesEventData[i] = entityEventData;
+              }
+            } catch {}
           }
         }
       }

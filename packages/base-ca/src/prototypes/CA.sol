@@ -233,6 +233,10 @@ abstract contract CA is System {
     CAVoxelType.set(callerAddress, newEntity, voxelTypeId, voxelVariantId);
   }
 
+  function decodeToString(bytes memory data) external pure returns (string memory) {
+    return abi.decode(data, (string));
+  }
+
   function activateVoxel(bytes32 entity) public returns (string memory) {
     address callerAddress = _msgSender();
     bytes32 voxelTypeId = CAVoxelType.getVoxelTypeId(callerAddress, entity);
@@ -249,6 +253,10 @@ abstract contract CA is System {
     if (!success) {
       return "voxel activate failed";
     }
-    return abi.decode(returnData, (string));
+    try this.decodeToString(returnData) returns (string memory decodedValue) {
+      return decodedValue;
+    } catch {
+      return "voxel activate failed";
+    }
   }
 }

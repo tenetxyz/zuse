@@ -52,7 +52,7 @@ const WORLD_TABLES: Record<string, TableConfig> = {
       entity: "bytes32",
     },
     schema: {
-      ran: "bool",
+      numRan: "uint32",
     },
   },
   // tables for spawning

@@ -4,7 +4,7 @@ pragma solidity >=0.8.0;
 import { IStore } from "@latticexyz/store/src/IStore.sol";
 import { VoxelCoord, VoxelEntity, SimTable, ValueType, ObjectType } from "@tenet-utils/src/Types.sol";
 import { SIM_ON_BUILD_SIG, SIM_ON_MINE_SIG, SIM_ON_MOVE_SIG, SIM_ON_ACTIVATE_SIG, SIM_VELOCITY_CACHE_UPDATE_SIG, SIM_INIT_AGENT_SIG, SIM_INIT_ENTITY_SIG } from "@tenet-simulator/src/Constants.sol";
-import { callOrRevert, staticCallOrRevert } from "@tenet-utils/src/CallUtils.sol";
+import { safeCall, callOrRevert, staticCallOrRevert } from "@tenet-utils/src/CallUtils.sol";
 import { SimSelectors, SimSelectorsData } from "@tenet-simulator/src/codegen/tables/SimSelectors.sol";
 
 function updateVelocityCache(address simAddress, VoxelEntity memory entity) returns (bytes memory) {
@@ -55,14 +55,14 @@ function setSimValue(
   VoxelCoord memory receiverCoord,
   SimTable receiverTable,
   bytes memory receiverValue
-) returns (bytes memory) {
+) returns (bool, bytes memory) {
   SimSelectorsData memory simSelectors = SimSelectors.get(IStore(simAddress), senderTable, receiverTable);
   if (simSelectors.selector == bytes4(0)) {
-    revert("Invalid table");
+    return (false, "");
   }
   if (simSelectors.senderValueType == ValueType.Int256 && simSelectors.receiverValueType == ValueType.Int256) {
     return
-      callOrRevert(
+      safeCall(
         simAddress,
         abi.encodeWithSelector(
           simSelectors.selector,
@@ -98,7 +98,7 @@ function setSimValue(
     simSelectors.senderValueType == ValueType.ObjectType && simSelectors.receiverValueType == ValueType.ObjectType
   ) {
     return
-      callOrRevert(
+      safeCall(
         simAddress,
         abi.encodeWithSelector(
           simSelectors.selector,
@@ -134,7 +134,7 @@ function setSimValue(
     simSelectors.senderValueType == ValueType.Int256 && simSelectors.receiverValueType == ValueType.ObjectType
   ) {
     return
-      callOrRevert(
+      safeCall(
         simAddress,
         abi.encodeWithSelector(
           simSelectors.selector,
@@ -170,7 +170,7 @@ function setSimValue(
     simSelectors.senderValueType == ValueType.Int256 && simSelectors.receiverValueType == ValueType.VoxelCoord
   ) {
     return
-      callOrRevert(
+      safeCall(
         simAddress,
         abi.encodeWithSelector(
           simSelectors.selector,
@@ -203,7 +203,7 @@ function setSimValue(
         )
       );
   } else {
-    revert("Invalid value type");
+    return (false, "");
   }
 }
 

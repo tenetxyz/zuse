@@ -2,7 +2,7 @@
 pragma solidity >=0.8.0;
 
 import { Velocity } from "@tenet-simulator/src/codegen/tables/Velocity.sol";
-import { safeCall, safeStaticCall } from "@tenet-utils/src/CallUtils.sol";
+import { callOrRevert, staticCallOrRevert } from "@tenet-utils/src/CallUtils.sol";
 import { VoxelCoord, VoxelEntity } from "@tenet-utils/src/Types.sol";
 
 function getVelocity(address callerAddress, VoxelEntity memory entity) view returns (VoxelCoord memory) {
@@ -11,7 +11,7 @@ function getVelocity(address callerAddress, VoxelEntity memory entity) view retu
 }
 
 function getTerrainMass(address callerAddress, uint32 scale, VoxelCoord memory coord) returns (uint256) {
-  bytes memory returnData = safeCall(
+  bytes memory returnData = callOrRevert(
     callerAddress,
     abi.encodeWithSignature("getTerrainMass(uint32,(int32,int32,int32))", scale, coord),
     string(abi.encode("getTerrainMass ", callerAddress, " ", scale, " ", coord))
@@ -20,7 +20,7 @@ function getTerrainMass(address callerAddress, uint32 scale, VoxelCoord memory c
 }
 
 function getTerrainEnergy(address callerAddress, uint32 scale, VoxelCoord memory coord) returns (uint256) {
-  bytes memory returnData = safeCall(
+  bytes memory returnData = callOrRevert(
     callerAddress,
     abi.encodeWithSignature("getTerrainEnergy(uint32,(int32,int32,int32))", scale, coord),
     string(abi.encode("getTerrainEnergy ", callerAddress, " ", scale, " ", coord))
@@ -33,7 +33,7 @@ function getTerrainVelocity(
   uint32 scale,
   VoxelCoord memory coord
 ) view returns (VoxelCoord memory) {
-  bytes memory returnData = safeStaticCall(
+  bytes memory returnData = staticCallOrRevert(
     callerAddress,
     abi.encodeWithSignature("getTerrainVelocity(uint32,(int32,int32,int32))", scale, coord),
     string(abi.encode("getTerrainVelocity ", callerAddress, " ", scale, " ", coord))
@@ -46,7 +46,7 @@ function getMooreNeighbourEntities(
   VoxelEntity memory entity,
   uint8 neighbourRadius
 ) view returns (bytes32[] memory, VoxelCoord[] memory) {
-  bytes memory returnData = safeStaticCall(
+  bytes memory returnData = staticCallOrRevert(
     callerAddress,
     abi.encodeWithSignature("calculateMooreNeighbourEntities((uint32,bytes32),uint8)", entity, neighbourRadius),
     string(abi.encode("calculateMooreNeighbourEntities ", callerAddress, " ", entity, " ", neighbourRadius))
@@ -58,7 +58,7 @@ function getNeighbourEntities(
   address callerAddress,
   VoxelEntity memory entity
 ) view returns (bytes32[] memory, VoxelCoord[] memory) {
-  bytes memory returnData = safeStaticCall(
+  bytes memory returnData = staticCallOrRevert(
     callerAddress,
     abi.encodeWithSignature("calculateNeighbourEntities((uint32,bytes32))", entity),
     string(abi.encode("calculateNeighbourEntities ", callerAddress, " ", entity))
@@ -71,7 +71,7 @@ function createTerrainEntity(
   uint32 scale,
   VoxelCoord memory terrainCoord
 ) returns (VoxelEntity memory) {
-  bytes memory returnData = safeCall(
+  bytes memory returnData = callOrRevert(
     callerAddress,
     abi.encodeWithSignature("createTerrainEntity(uint32,(int32,int32,int32))", scale, terrainCoord),
     string(abi.encode("createTerrainEntity ", callerAddress, " ", scale, " ", terrainCoord))
@@ -80,7 +80,7 @@ function createTerrainEntity(
 }
 
 function getVoxelCoordStrict(address callerAddress, VoxelEntity memory entity) view returns (VoxelCoord memory) {
-  bytes memory returnData = safeStaticCall(
+  bytes memory returnData = staticCallOrRevert(
     callerAddress,
     abi.encodeWithSignature("getVoxelCoordStrict((uint32,bytes32))", entity),
     string(abi.encode("getVoxelCoordStrict ", callerAddress, " ", entity))
@@ -89,7 +89,7 @@ function getVoxelCoordStrict(address callerAddress, VoxelEntity memory entity) v
 }
 
 function getEntityAtCoord(address callerAddress, uint32 scale, VoxelCoord memory coord) view returns (bytes32) {
-  bytes memory returnData = safeStaticCall(
+  bytes memory returnData = staticCallOrRevert(
     callerAddress,
     abi.encodeWithSignature("getEntityAtCoord(uint32,(int32,int32,int32))", scale, coord),
     string(abi.encode("getEntityAtCoord ", callerAddress, " ", scale, " ", coord))
@@ -98,7 +98,7 @@ function getEntityAtCoord(address callerAddress, uint32 scale, VoxelCoord memory
 }
 
 function getVoxelTypeId(address callerAddress, VoxelEntity memory entity) view returns (bytes32) {
-  bytes memory returnData = safeStaticCall(
+  bytes memory returnData = staticCallOrRevert(
     callerAddress,
     abi.encodeWithSignature("getVoxelTypeId((uint32,bytes32))", entity),
     string(abi.encode("getVoxelTypeId ", callerAddress, " ", entity))

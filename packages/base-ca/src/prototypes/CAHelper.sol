@@ -42,11 +42,14 @@ abstract contract CAHelper is System {
     if (voxelVariantSelector == bytes4(0)) {
       return getPreviewVoxelVariantId(IStore(getRegistryAddress()), voxelTypeId);
     }
-    bytes memory returnData = safeStaticCall(
+    (bool success, bytes memory returnData) = safeStaticCall(
       _world(),
       abi.encodeWithSelector(voxelVariantSelector, caEntity, caNeighbourEntityIds, childEntityIds, parentEntity),
       "voxel variant selector"
     );
+    if (!success) {
+      return getPreviewVoxelVariantId(IStore(getRegistryAddress()), voxelTypeId);
+    }
     return abi.decode(returnData, (bytes32));
   }
 

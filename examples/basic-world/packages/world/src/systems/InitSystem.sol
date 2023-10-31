@@ -7,7 +7,7 @@ import { hasKey } from "@latticexyz/world/src/modules/keysintable/hasKey.sol";
 import { CARegistry } from "@tenet-registry/src/codegen/tables/CARegistry.sol";
 import { REGISTER_WORLD_SIG } from "@tenet-registry/src/Constants.sol";
 import { REGISTRY_ADDRESS, BASE_CA_ADDRESS } from "../Constants.sol";
-import { safeCall } from "@tenet-utils/src/CallUtils.sol";
+import { callOrRevert } from "@tenet-utils/src/CallUtils.sol";
 
 contract InitSystem is InitWorldSystem {
   function getRegistryAddress() internal pure override returns (address) {
@@ -18,7 +18,7 @@ contract InitSystem is InitWorldSystem {
     address[] memory caAddresses = new address[](1);
     caAddresses[0] = BASE_CA_ADDRESS;
 
-    safeCall(
+    callOrRevert(
       REGISTRY_ADDRESS,
       abi.encodeWithSignature(REGISTER_WORLD_SIG, "Tenet Basic World", "Very simple. Very nice.", caAddresses),
       "registerCA"

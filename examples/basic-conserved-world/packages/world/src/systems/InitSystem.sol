@@ -10,7 +10,7 @@ import { CARegistry } from "@tenet-registry/src/codegen/tables/CARegistry.sol";
 import { REGISTER_WORLD_SIG } from "@tenet-registry/src/Constants.sol";
 import { REGISTRY_ADDRESS, BASE_CA_ADDRESS } from "../Constants.sol";
 import { VoxelCoord, VoxelTypeData, VoxelEntity } from "@tenet-utils/src/Types.sol";
-import { safeCall } from "@tenet-utils/src/CallUtils.sol";
+import { callOrRevert } from "@tenet-utils/src/CallUtils.sol";
 import { WorldConfig, WorldConfigTableId } from "@tenet-base-world/src/codegen/tables/WorldConfig.sol";
 import { CAVoxelType, CAVoxelTypeData } from "@tenet-base-ca/src/codegen/tables/CAVoxelType.sol";
 import { VoxelType, Position } from "@tenet-world/src/codegen/Tables.sol";
@@ -26,7 +26,7 @@ contract InitSystem is InitWorldSystem {
     address[] memory caAddresses = new address[](1);
     caAddresses[0] = BASE_CA_ADDRESS;
 
-    safeCall(
+    callOrRevert(
       REGISTRY_ADDRESS,
       abi.encodeWithSignature(REGISTER_WORLD_SIG, "Tenet Basic World", "Very simple. Very nice.", caAddresses),
       "registerCA"

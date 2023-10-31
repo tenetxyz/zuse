@@ -9,7 +9,7 @@ import { hasKey } from "@latticexyz/world/src/modules/keysintable/hasKey.sol";
 import { ElectronTunnelSpot, ElectronTunnelSpotData, ElectronTunnelSpotTableId } from "@tenet-level1-ca/src/codegen/Tables.sol";
 import { AirVoxelID, ElectronVoxelID } from "@tenet-level1-ca/src/Constants.sol";
 import { getCAEntityAtCoord, getCAVoxelType, getCANeighbours, positionDataToVoxelCoord, getCAEntityPositionStrict } from "@tenet-base-ca/src/Utils.sol";
-import { safeCall } from "@tenet-utils/src/CallUtils.sol";
+import { callOrRevert } from "@tenet-utils/src/CallUtils.sol";
 
 contract ElectronSystem is VoxelInteraction {
   function onNewNeighbour(

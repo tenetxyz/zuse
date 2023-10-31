@@ -9,7 +9,7 @@ import { getKeysInTable } from "@latticexyz/world/src/modules/keysintable/getKey
 import { REGISTER_CA_SIG } from "@tenet-registry/src/Constants.sol";
 import { EMPTY_ID } from "./LibTerrainSystem.sol";
 import { REGISTRY_ADDRESS } from "../Constants.sol";
-import { safeCall } from "@tenet-utils/src/CallUtils.sol";
+import { callOrRevert } from "@tenet-utils/src/CallUtils.sol";
 
 contract CASystem is CA {
   function getRegistryAddress() internal pure override returns (address) {
@@ -27,7 +27,7 @@ contract CASystem is CA {
     caVoxelTypes[2] = DirtVoxelID;
     caVoxelTypes[3] = BedrockVoxelID;
 
-    safeCall(
+    callOrRevert(
       getRegistryAddress(),
       abi.encodeWithSignature(REGISTER_CA_SIG, "Level 1 CA", "Has grass, dirt, bedrock", caVoxelTypes),
       "registerCA"

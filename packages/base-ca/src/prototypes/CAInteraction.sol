@@ -15,7 +15,7 @@ import { CAVoxelType, CAVoxelTypeTableId } from "@tenet-base-ca/src/codegen/tabl
 import { VoxelCoord, InteractionSelector, VoxelEntity } from "@tenet-utils/src/Types.sol";
 import { getEntityAtCoord, entityArrayToCAEntityArray, entityToCAEntity, caEntityArrayToEntityArray } from "@tenet-base-ca/src/Utils.sol";
 import { getNeighbourEntitiesFromCaller, getChildEntitiesFromCaller, getParentEntityFromCaller, shouldRunInteractionForNeighbour } from "@tenet-base-ca/src/CallUtils.sol";
-import { safeCall, safeStaticCall } from "@tenet-utils/src/CallUtils.sol";
+import { safeCall } from "@tenet-utils/src/CallUtils.sol";
 import { getEnterWorldSelector, getExitWorldSelector, getVoxelVariantSelector, getActivateSelector, getInteractionSelectors, getOnNewNeighbourSelector } from "@tenet-registry/src/Utils.sol";
 
 abstract contract CAInteraction is System {
@@ -82,7 +82,7 @@ abstract contract CAInteraction is System {
 
         if (mindSelector != bytes4(0)) {
           // call mind to figure out which interaction selector to use
-          bytes memory mindReturnData = safeCall(
+          (bool mindSuccess, bytes memory mindReturnData) = safeCall(
             _world(),
             abi.encodeWithSelector(
               mindSelector,
@@ -94,7 +94,9 @@ abstract contract CAInteraction is System {
             ),
             "mindSelector"
           );
-          useinteractionSelector = abi.decode(mindReturnData, (bytes4));
+          if (mindSuccess) {
+            useinteractionSelector = abi.decode(mindReturnData, (bytes4));
+          }
           if (useinteractionSelector == bytes4(0)) {
             if (interactionSelectors.length > 0) {
               // Note: we could return and not run any if the mind doesn't pick an interaction
@@ -119,7 +121,7 @@ abstract contract CAInteraction is System {
     require(useinteractionSelector != 0, "Interaction selector not found");
 
     {
-      bytes memory returnData = safeCall(
+      (bool success, bytes memory returnData) = safeCall(
         _world(),
         abi.encodeWithSelector(
           useinteractionSelector,
@@ -131,14 +133,16 @@ abstract contract CAInteraction is System {
         "voxel interaction selector"
       );
 
-      (bool changedCACenterEntityId, bytes memory entityEventData) = abi.decode(returnData, (bool, bytes));
+      if (success) {
+        (bool changedCACenterEntityId, bytes memory entityEventData) = abi.decode(returnData, (bool, bytes));
 
-      if (changedCenterEntityId == 0 && changedCACenterEntityId) {
-        changedCenterEntityId = caInteractEntity;
-      }
+        if (changedCenterEntityId == 0 && changedCACenterEntityId) {
+          changedCenterEntityId = caInteractEntity;
+        }
 
-      if (centerEntityEventData.length == 0 && entityEventData.length != 0) {
-        centerEntityEventData = entityEventData;
+        if (centerEntityEventData.length == 0 && entityEventData.length != 0) {
+          centerEntityEventData = entityEventData;
+        }
       }
     }
 
@@ -184,17 +188,19 @@ abstract contract CAInteraction is System {
 
         bytes4 onNewNeighbourSelector = getOnNewNeighbourSelector(IStore(getRegistryAddress()), neighbourVoxelTypeId);
         if (onNewNeighbourSelector != bytes4(0)) {
-          bytes memory returnData = safeCall(
+          (bool success, bytes memory returnData) = safeCall(
             _world(),
             abi.encodeWithSelector(onNewNeighbourSelector, caNeighbourEntityIds[i], caInteractEntity),
             "onNewNeighbourSelector"
           );
-          (bool changedNeighbour, bytes memory entityEventData) = abi.decode(returnData, (bool, bytes));
-          if (changedNeighbour) {
-            changedNeighbourEntities[i] = caNeighbourEntityIds[i];
-          }
-          if (entityEventData.length != 0) {
-            neighbourEntitiesEventData[i] = entityEventData;
+          if (success) {
+            (bool changedNeighbour, bytes memory entityEventData) = abi.decode(returnData, (bool, bytes));
+            if (changedNeighbour) {
+              changedNeighbourEntities[i] = caNeighbourEntityIds[i];
+            }
+            if (entityEventData.length != 0) {
+              neighbourEntitiesEventData[i] = entityEventData;
+            }
           }
         }
       }

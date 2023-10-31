@@ -8,7 +8,7 @@ import { Level3AirVoxelID, RoadVoxelID } from "@tenet-level3-ca/src/Constants.so
 import { getKeysInTable } from "@latticexyz/world/src/modules/keysintable/getKeysInTable.sol";
 import { REGISTER_CA_SIG } from "@tenet-registry/src/Constants.sol";
 import { REGISTRY_ADDRESS } from "../Constants.sol";
-import { safeCall } from "@tenet-utils/src/CallUtils.sol";
+import { callOrRevert } from "@tenet-utils/src/CallUtils.sol";
 
 contract CASystem is CA {
   function getRegistryAddress() internal pure override returns (address) {
@@ -24,7 +24,7 @@ contract CASystem is CA {
     caVoxelTypes[0] = Level3AirVoxelID;
     caVoxelTypes[1] = RoadVoxelID;
 
-    safeCall(
+    callOrRevert(
       getRegistryAddress(),
       abi.encodeWithSignature(REGISTER_CA_SIG, "Level 3 CA", "Has road", caVoxelTypes),
       "registerCA"

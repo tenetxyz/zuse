@@ -7,7 +7,7 @@ import { VoxelEntity, VoxelCoord, InteractionSelector } from "@tenet-utils/src/T
 import { System } from "@latticexyz/world/src/System.sol";
 import { hasKey } from "@latticexyz/world/src/modules/keysintable/hasKey.sol";
 import { VoxelType, Faucet, FaucetData, FaucetTableId } from "@tenet-world/src/codegen/Tables.sol";
-import { safeCall, safeStaticCall } from "@tenet-utils/src/CallUtils.sol";
+import { callOrRevert, staticCallOrRevert } from "@tenet-utils/src/CallUtils.sol";
 import { REGISTRY_ADDRESS, BASE_CA_ADDRESS } from "@tenet-world/src/Constants.sol";
 import { VoxelTypeRegistry, VoxelTypeRegistryData } from "@tenet-registry/src/codegen/tables/VoxelTypeRegistry.sol";
 import { getInteractionSelectors, getSelector } from "@tenet-registry/src/Utils.sol";

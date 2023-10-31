@@ -6,7 +6,7 @@ import { CAHelper } from "@tenet-base-ca/src/prototypes/CAHelper.sol";
 import { VoxelCoord } from "@tenet-utils/src/Types.sol";
 import { REGISTRY_ADDRESS, AirVoxelID, ElectronVoxelID } from "@tenet-level1-ca/src/Constants.sol";
 import { REGISTER_CA_SIG } from "@tenet-registry/src/Constants.sol";
-import { safeCall } from "@tenet-utils/src/CallUtils.sol";
+import { callOrRevert } from "@tenet-utils/src/CallUtils.sol";
 
 contract CAHelperSystem is CAHelper {
   function getRegistryAddress() internal pure override returns (address) {

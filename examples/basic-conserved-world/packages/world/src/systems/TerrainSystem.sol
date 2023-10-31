@@ -9,7 +9,7 @@ import { hasKey } from "@latticexyz/world/src/modules/keysintable/hasKey.sol";
 import { AirVoxelID, GrassVoxelID, DirtVoxelID, BedrockVoxelID } from "@tenet-level1-ca/src/Constants.sol";
 import { TerrainProperties, TerrainPropertiesTableId } from "@tenet-world/src/codegen/Tables.sol";
 import { getTerrainVoxelId } from "@tenet-base-ca/src/CallUtils.sol";
-import { safeCall, safeStaticCall } from "@tenet-utils/src/CallUtils.sol";
+import { callOrRevert, staticCallOrRevert } from "@tenet-utils/src/CallUtils.sol";
 import { REGISTRY_ADDRESS, BASE_CA_ADDRESS } from "@tenet-world/src/Constants.sol";
 import { coordToShardCoord } from "@tenet-utils/src/VoxelCoordUtils.sol";
 import { console } from "forge-std/console.sol";
@@ -45,7 +45,7 @@ contract TerrainSystem is System {
     BucketData memory bucketData,
     VoxelCoord memory coord
   ) public view returns (bytes32, uint256) {
-    bytes memory returnData = safeStaticCall(
+    bytes memory returnData = staticCallOrRevert(
       shardData.contractAddress,
       abi.encodeWithSelector(shardData.terrainSelector, bucketData, coord),
       "shard terrainSelector"
@@ -73,7 +73,7 @@ contract TerrainSystem is System {
       uint256 cachedIndex = TerrainProperties.get(coord.x, coord.y, coord.z);
       return (shardData, buckets[cachedIndex]);
     }
-    bytes memory returnData = safeStaticCall(
+    bytes memory returnData = staticCallOrRevert(
       shardData.contractAddress,
       abi.encodeWithSelector(shardData.bucketSelector, coord),
       "shard bucketSelector"

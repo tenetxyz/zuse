@@ -5,7 +5,7 @@ import { IStore } from "@latticexyz/store/src/IStore.sol";
 import { System } from "@latticexyz/world/src/System.sol";
 import { VoxelCoord, VoxelEntity } from "@tenet-utils/src/Types.sol";
 import { hasEntity, addressToEntityKey } from "@tenet-utils/src/Utils.sol";
-import { safeCall } from "@tenet-utils/src/CallUtils.sol";
+import { callOrRevert } from "@tenet-utils/src/CallUtils.sol";
 import { CAVoxelType, CAVoxelTypeData } from "@tenet-base-ca/src/codegen/tables/CAVoxelType.sol";
 import { CAMind } from "@tenet-base-ca/src/codegen/tables/CAMind.sol";
 import { KeysInTable } from "@latticexyz/world/src/modules/keysintable/tables/KeysInTable.sol";

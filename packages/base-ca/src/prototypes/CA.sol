@@ -15,7 +15,7 @@ import { CAVoxelType, CAVoxelTypeTableId } from "@tenet-base-ca/src/codegen/tabl
 import { VoxelCoord, InteractionSelector, VoxelEntity } from "@tenet-utils/src/Types.sol";
 import { getEntityAtCoord, entityArrayToCAEntityArray, entityToCAEntity, caEntityArrayToEntityArray } from "@tenet-base-ca/src/Utils.sol";
 import { getNeighbourEntitiesFromCaller, getChildEntitiesFromCaller, getParentEntityFromCaller, shouldRunInteractionForNeighbour } from "@tenet-base-ca/src/CallUtils.sol";
-import { safeCall, safeStaticCall } from "@tenet-utils/src/CallUtils.sol";
+import { safeCall } from "@tenet-utils/src/CallUtils.sol";
 import { getEnterWorldSelector, getExitWorldSelector, getVoxelVariantSelector, getActivateSelector, getInteractionSelectors, getOnNewNeighbourSelector } from "@tenet-registry/src/Utils.sol";
 import { TerrainGenType } from "@tenet-base-ca/src/Constants.sol";
 import { console } from "forge-std/console.sol";
@@ -241,11 +241,14 @@ abstract contract CA is System {
     if (voxelActivateSelector == bytes4(0)) {
       return "no voxel activate";
     }
-    bytes memory returnData = safeCall(
+    (bool success, bytes memory returnData) = safeCall(
       _world(),
       abi.encodeWithSelector(voxelActivateSelector, caEntity),
       "voxel activate"
     );
+    if (!success) {
+      return "voxel activate failed";
+    }
     return abi.decode(returnData, (string));
   }
 }

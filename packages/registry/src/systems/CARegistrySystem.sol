@@ -6,7 +6,7 @@ import { System } from "@latticexyz/world/src/System.sol";
 import { CARegistry, CARegistryTableId, CARegistryData, VoxelTypeRegistry, VoxelTypeRegistryTableId, WorldRegistry, WorldRegistryTableId } from "@tenet-registry/src/codegen/Tables.sol";
 import { getKeysInTable } from "@latticexyz/world/src/modules/keysintable/getKeysInTable.sol";
 import { WORLD_NOTIFY_NEW_CA_VOXEL_TYPE_SIG } from "@tenet-registry/src/Constants.sol";
-import { safeCall } from "@tenet-utils/src/CallUtils.sol";
+import { callOrRevert } from "@tenet-utils/src/CallUtils.sol";
 
 contract CARegistrySystem is System {
   // TODO: How do we know this CA is using these voxel types?
@@ -77,7 +77,7 @@ contract CARegistrySystem is System {
       address[] memory worldCAs = WorldRegistry.getCaAddresses(world);
       for (uint256 j = 0; j < worldCAs.length; j++) {
         if (worldCAs[j] == caAddress) {
-          safeCall(
+          callOrRevert(
             world,
             abi.encodeWithSignature(WORLD_NOTIFY_NEW_CA_VOXEL_TYPE_SIG, caAddress, voxelTypeId),
             "addVoxelToCA"

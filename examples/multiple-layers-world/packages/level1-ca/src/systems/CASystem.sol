@@ -6,7 +6,7 @@ import { VoxelCoord } from "@tenet-utils/src/Types.sol";
 import { IWorld } from "@tenet-level1-ca/src/codegen/world/IWorld.sol";
 import { REGISTRY_ADDRESS, AirVoxelID, ElectronVoxelID } from "@tenet-level1-ca/src/Constants.sol";
 import { REGISTER_CA_SIG } from "@tenet-registry/src/Constants.sol";
-import { safeCall } from "@tenet-utils/src/CallUtils.sol";
+import { callOrRevert } from "@tenet-utils/src/CallUtils.sol";
 
 contract CASystem is CA {
   function getRegistryAddress() internal pure override returns (address) {
@@ -18,7 +18,7 @@ contract CASystem is CA {
     caVoxelTypes[0] = AirVoxelID;
     caVoxelTypes[1] = ElectronVoxelID;
 
-    safeCall(
+    callOrRevert(
       getRegistryAddress(),
       abi.encodeWithSignature(REGISTER_CA_SIG, "Base CA", "Has electrons", caVoxelTypes),
       "registerCA"

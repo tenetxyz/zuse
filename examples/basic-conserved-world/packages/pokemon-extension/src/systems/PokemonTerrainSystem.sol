@@ -11,7 +11,7 @@ import { AirVoxelID, GrassVoxelID } from "@tenet-level1-ca/src/Constants.sol";
 import { CA_ADDRESS, REGISTRY_ADDRESS, DiffusiveSoilVoxelID, ConcentrativeSoilVoxelID, ProteinSoilVoxelID, ElixirSoilVoxelID } from "@tenet-pokemon-extension/src/Constants.sol";
 import { SHARD_DIM } from "@tenet-utils/src/Constants.sol";
 import { coordToShardCoord } from "@tenet-utils/src/VoxelCoordUtils.sol";
-import { safeCall, safeStaticCall } from "@tenet-utils/src/CallUtils.sol";
+import { callOrRevert, staticCallOrRevert } from "@tenet-utils/src/CallUtils.sol";
 import { console } from "forge-std/console.sol";
 
 int32 constant Y_AIR_THRESHOLD = 10;
@@ -93,7 +93,7 @@ contract PokemonTerrainSystem is System {
     pokemonBuckets[SOIL_4_BUCKET_INDEX].count = 16611;
     pokemonBuckets[GRASS_BUCKET_INDEX].count = 14233;
     VoxelCoord memory firstFaucetAgentCoord = VoxelCoord({ x: 354, y: 5, z: 64 });
-    safeCall(
+    callOrRevert(
       worldAddress,
       abi.encodeWithSignature(
         CLAIM_SHARD_SIG,
@@ -115,7 +115,7 @@ contract PokemonTerrainSystem is System {
     pokemonBuckets[SOIL_4_BUCKET_INDEX].count = 17399;
     pokemonBuckets[GRASS_BUCKET_INDEX].count = 22833;
     VoxelCoord memory secondFaucetAgentCoord = VoxelCoord({ x: 261, y: 10, z: 65 });
-    safeCall(
+    callOrRevert(
       worldAddress,
       abi.encodeWithSignature(
         CLAIM_SHARD_SIG,
@@ -137,7 +137,7 @@ contract PokemonTerrainSystem is System {
     pokemonBuckets[SOIL_4_BUCKET_INDEX].count = 14158;
     pokemonBuckets[GRASS_BUCKET_INDEX].count = 15197;
     VoxelCoord memory thirdFaucetAgentCoord = VoxelCoord({ x: 374, y: 10, z: -60 });
-    safeCall(
+    callOrRevert(
       worldAddress,
       abi.encodeWithSignature(
         CLAIM_SHARD_SIG,
@@ -159,7 +159,7 @@ contract PokemonTerrainSystem is System {
     pokemonBuckets[SOIL_4_BUCKET_INDEX].count = 13770;
     pokemonBuckets[GRASS_BUCKET_INDEX].count = 14086;
     VoxelCoord memory fourthFaucetAgentCoord = VoxelCoord({ x: 240, y: 5, z: -59 });
-    safeCall(
+    callOrRevert(
       worldAddress,
       abi.encodeWithSignature(
         CLAIM_SHARD_SIG,

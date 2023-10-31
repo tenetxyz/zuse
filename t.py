@@ -80,7 +80,7 @@ def main():
 
             elif sys.argv[2] == "snapshot":
                 subprocess.run([f"sh {cur_directory}/scripts/rollback/create_snapshot.sh"])
-                print("rollbacked snapshot")
+                print("created snapshot")
 
             else:
                 print("Invalid command.")

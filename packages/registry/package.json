@@ -26,7 +26,7 @@
     "build": "node buildDeployHandler.tsx build",
     "deploy": "node buildDeployHandler.tsx deploy",
     "dev": "yarn mud dev-contracts --tsgenOutput ./client",
-    "initialize": "yarn run tablegen && yarn run worldgen && yarn run replaceGeneratedTypes && yarn run forge:build && yarn run worldtypes",
+    "initialize": "yarn run tablegen && yarn run worldgen && yarn run replaceGeneratedTypes && yarn run forge:build && yarn run worldtypes && yarn run build:js",
     "lint": "yarn run prettier && yarn run solhint",
     "prettier": "prettier --write 'src/**/*.sol'",
     "solhint": "solhint --config ./.solhint.json 'src/**/*.sol' --fix",

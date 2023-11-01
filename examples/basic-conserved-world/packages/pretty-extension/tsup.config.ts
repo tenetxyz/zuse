@@ -14,5 +14,8 @@ export default defineConfig({
     "@latticexyz/common/type-utils",
     "@latticexyz/store/config",
     "@latticexyz/store/register",
+    "ethers",
+    "@ethersproject/abi",
+    "@ethersproject/providers",
   ],
 });

@@ -51,7 +51,7 @@ contract BuilderAgentSystem is AgentType {
         interactionSelectors: getInteractionSelectors()
       }),
       abi.encode(componentDefs),
-      1
+      6
     );
   }
 

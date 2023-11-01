@@ -49,7 +49,7 @@ contract PostDeploy500 is Script {
           interactionSelectors: new InteractionSelector[](0)
         }),
         abi.encode(new ComponentDef[](0)),
-        2
+        7
       );
     registerCAVoxelType(CA_ADDRESS, bytes32(keccak256("cobblestone_brick_slab_174")));
     registerVoxelVariant(REGISTRY_ADDRESS, bytes32(keccak256("oak_lumber_corner_876")), getEmptyVariantsRegistryData());
@@ -71,7 +71,7 @@ contract PostDeploy500 is Script {
           interactionSelectors: new InteractionSelector[](0)
         }),
         abi.encode(new ComponentDef[](0)),
-        2
+        7
       );
     registerCAVoxelType(CA_ADDRESS, bytes32(keccak256("oak_lumber_corner_876")));
     registerVoxelVariant(REGISTRY_ADDRESS, bytes32(keccak256("oak_lumber_full_64_orange")), getEmptyVariantsRegistryData());
@@ -93,7 +93,7 @@ contract PostDeploy500 is Script {
           interactionSelectors: new InteractionSelector[](0)
         }),
         abi.encode(new ComponentDef[](0)),
-        2
+        7
       );
     registerCAVoxelType(CA_ADDRESS, bytes32(keccak256("oak_lumber_full_64_orange")));
     registerVoxelVariant(REGISTRY_ADDRESS, bytes32(keccak256("cotton_fabric_step_233_yellow")), getEmptyVariantsRegistryData());
@@ -115,7 +115,7 @@ contract PostDeploy500 is Script {
           interactionSelectors: new InteractionSelector[](0)
         }),
         abi.encode(new ComponentDef[](0)),
-        2
+        7
       );
     registerCAVoxelType(CA_ADDRESS, bytes32(keccak256("cotton_fabric_step_233_yellow")));
     registerVoxelVariant(REGISTRY_ADDRESS, bytes32(keccak256("oak_lumber_frame_684_orange")), getEmptyVariantsRegistryData());
@@ -137,7 +137,7 @@ contract PostDeploy500 is Script {
           interactionSelectors: new InteractionSelector[](0)
         }),
         abi.encode(new ComponentDef[](0)),
-        2
+        7
       );
     registerCAVoxelType(CA_ADDRESS, bytes32(keccak256("oak_lumber_frame_684_orange")));
     registerVoxelVariant(REGISTRY_ADDRESS, bytes32(keccak256("stone")), getEmptyVariantsRegistryData());
@@ -159,7 +159,7 @@ contract PostDeploy500 is Script {
           interactionSelectors: new InteractionSelector[](0)
         }),
         abi.encode(new ComponentDef[](0)),
-        2
+        7
       );
     registerCAVoxelType(CA_ADDRESS, bytes32(keccak256("stone")));
     registerVoxelVariant(REGISTRY_ADDRESS, bytes32(keccak256("oak_lumber_fence_325")), getEmptyVariantsRegistryData());
@@ -181,7 +181,7 @@ contract PostDeploy500 is Script {
           interactionSelectors: new InteractionSelector[](0)
         }),
         abi.encode(new ComponentDef[](0)),
-        2
+        7
       );
     registerCAVoxelType(CA_ADDRESS, bytes32(keccak256("oak_lumber_fence_325")));
     registerVoxelVariant(REGISTRY_ADDRESS, bytes32(keccak256("oak_lumber_fence_320")), getEmptyVariantsRegistryData());
@@ -203,7 +203,7 @@ contract PostDeploy500 is Script {
           interactionSelectors: new InteractionSelector[](0)
         }),
         abi.encode(new ComponentDef[](0)),
-        2
+        7
       );
     registerCAVoxelType(CA_ADDRESS, bytes32(keccak256("oak_lumber_fence_320")));
     registerVoxelVariant(REGISTRY_ADDRESS, bytes32(keccak256("oak_lumber_fence_361")), getEmptyVariantsRegistryData());
@@ -225,7 +225,7 @@ contract PostDeploy500 is Script {
           interactionSelectors: new InteractionSelector[](0)
         }),
         abi.encode(new ComponentDef[](0)),
-        2
+        7
       );
     registerCAVoxelType(CA_ADDRESS, bytes32(keccak256("oak_lumber_fence_361")));
     registerVoxelVariant(REGISTRY_ADDRESS, bytes32(keccak256("oak_lumber_fence_363")), getEmptyVariantsRegistryData());
@@ -247,7 +247,7 @@ contract PostDeploy500 is Script {
           interactionSelectors: new InteractionSelector[](0)
         }),
         abi.encode(new ComponentDef[](0)),
-        2
+        7
       );
     registerCAVoxelType(CA_ADDRESS, bytes32(keccak256("oak_lumber_fence_363")));
     registerVoxelVariant(REGISTRY_ADDRESS, bytes32(keccak256("oak_lumber_fence_366")), getEmptyVariantsRegistryData());
@@ -269,7 +269,7 @@ contract PostDeploy500 is Script {
           interactionSelectors: new InteractionSelector[](0)
         }),
         abi.encode(new ComponentDef[](0)),
-        2
+        7
       );
     registerCAVoxelType(CA_ADDRESS, bytes32(keccak256("oak_lumber_fence_366")));
     registerVoxelVariant(REGISTRY_ADDRESS, bytes32(keccak256("basalt")), getEmptyVariantsRegistryData());
@@ -291,7 +291,7 @@ contract PostDeploy500 is Script {
           interactionSelectors: new InteractionSelector[](0)
         }),
         abi.encode(new ComponentDef[](0)),
-        2
+        7
       );
     registerCAVoxelType(CA_ADDRESS, bytes32(keccak256("basalt")));
     registerVoxelVariant(REGISTRY_ADDRESS, bytes32(keccak256("muckwad_step_236")), getEmptyVariantsRegistryData());
@@ -313,7 +313,7 @@ contract PostDeploy500 is Script {
           interactionSelectors: new InteractionSelector[](0)
         }),
         abi.encode(new ComponentDef[](0)),
-        2
+        7
       );
     registerCAVoxelType(CA_ADDRESS, bytes32(keccak256("muckwad_step_236")));
     registerVoxelVariant(REGISTRY_ADDRESS, bytes32(keccak256("basalt_fence_364")), getEmptyVariantsRegistryData());
@@ -335,7 +335,7 @@ contract PostDeploy500 is Script {
           interactionSelectors: new InteractionSelector[](0)
         }),
         abi.encode(new ComponentDef[](0)),
-        2
+        7
       );
     registerCAVoxelType(CA_ADDRESS, bytes32(keccak256("basalt_fence_364")));
     registerVoxelVariant(REGISTRY_ADDRESS, bytes32(keccak256("basalt_fence_325")), getEmptyVariantsRegistryData());
@@ -357,7 +357,7 @@ contract PostDeploy500 is Script {
           interactionSelectors: new InteractionSelector[](0)
         }),
         abi.encode(new ComponentDef[](0)),
-        2
+        7
       );
     registerCAVoxelType(CA_ADDRESS, bytes32(keccak256("basalt_fence_325")));
     registerVoxelVariant(REGISTRY_ADDRESS, bytes32(keccak256("basalt_fence_320")), getEmptyVariantsRegistryData());
@@ -379,7 +379,7 @@ contract PostDeploy500 is Script {
           interactionSelectors: new InteractionSelector[](0)
         }),
         abi.encode(new ComponentDef[](0)),
-        2
+        7
       );
     registerCAVoxelType(CA_ADDRESS, bytes32(keccak256("basalt_fence_320")));
     registerVoxelVariant(REGISTRY_ADDRESS, bytes32(keccak256("stone_fence_325")), getEmptyVariantsRegistryData());
@@ -401,7 +401,7 @@ contract PostDeploy500 is Script {
           interactionSelectors: new InteractionSelector[](0)
         }),
         abi.encode(new ComponentDef[](0)),
-        2
+        7
       );
     registerCAVoxelType(CA_ADDRESS, bytes32(keccak256("stone_fence_325")));
     registerVoxelVariant(REGISTRY_ADDRESS, bytes32(keccak256("rubber_log")), getEmptyVariantsRegistryData());
@@ -423,7 +423,7 @@ contract PostDeploy500 is Script {
           interactionSelectors: new InteractionSelector[](0)
         }),
         abi.encode(new ComponentDef[](0)),
-        2
+        7
       );
     registerCAVoxelType(CA_ADDRESS, bytes32(keccak256("rubber_log")));
     registerVoxelVariant(REGISTRY_ADDRESS, bytes32(keccak256("sakura_log_step_236")), getEmptyVariantsRegistryData());
@@ -445,7 +445,7 @@ contract PostDeploy500 is Script {
           interactionSelectors: new InteractionSelector[](0)
         }),
         abi.encode(new ComponentDef[](0)),
-        2
+        7
       );
     registerCAVoxelType(CA_ADDRESS, bytes32(keccak256("sakura_log_step_236")));
     registerVoxelVariant(REGISTRY_ADDRESS, bytes32(keccak256("sakura_log_step_197")), getEmptyVariantsRegistryData());
@@ -467,7 +467,7 @@ contract PostDeploy500 is Script {
           interactionSelectors: new InteractionSelector[](0)
         }),
         abi.encode(new ComponentDef[](0)),
-        2
+        7
       );
     registerCAVoxelType(CA_ADDRESS, bytes32(keccak256("sakura_log_step_197")));
     registerVoxelVariant(REGISTRY_ADDRESS, bytes32(keccak256("sakura_log_step_192")), getEmptyVariantsRegistryData());
@@ -489,7 +489,7 @@ contract PostDeploy500 is Script {
           interactionSelectors: new InteractionSelector[](0)
         }),
         abi.encode(new ComponentDef[](0)),
-        2
+        7
       );
     registerCAVoxelType(CA_ADDRESS, bytes32(keccak256("sakura_log_step_192")));
     registerVoxelVariant(REGISTRY_ADDRESS, bytes32(keccak256("sakura_log_step_233")), getEmptyVariantsRegistryData());
@@ -511,7 +511,7 @@ contract PostDeploy500 is Script {
           interactionSelectors: new InteractionSelector[](0)
         }),
         abi.encode(new ComponentDef[](0)),
-        2
+        7
       );
     registerCAVoxelType(CA_ADDRESS, bytes32(keccak256("sakura_log_step_233")));
     registerVoxelVariant(REGISTRY_ADDRESS, bytes32(keccak256("dirt_step_199")), getEmptyVariantsRegistryData());
@@ -533,7 +533,7 @@ contract PostDeploy500 is Script {
           interactionSelectors: new InteractionSelector[](0)
         }),
         abi.encode(new ComponentDef[](0)),
-        2
+        7
       );
     registerCAVoxelType(CA_ADDRESS, bytes32(keccak256("dirt_step_199")));
     registerVoxelVariant(REGISTRY_ADDRESS, bytes32(keccak256("stone_fence_364")), getEmptyVariantsRegistryData());
@@ -555,7 +555,7 @@ contract PostDeploy500 is Script {
           interactionSelectors: new InteractionSelector[](0)
         }),
         abi.encode(new ComponentDef[](0)),
-        2
+        7
       );
     registerCAVoxelType(CA_ADDRESS, bytes32(keccak256("stone_fence_364")));
     registerVoxelVariant(REGISTRY_ADDRESS, bytes32(keccak256("stone_fence_361")), getEmptyVariantsRegistryData());
@@ -577,7 +577,7 @@ contract PostDeploy500 is Script {
           interactionSelectors: new InteractionSelector[](0)
         }),
         abi.encode(new ComponentDef[](0)),
-        2
+        7
       );
     registerCAVoxelType(CA_ADDRESS, bytes32(keccak256("stone_fence_361")));
     registerVoxelVariant(REGISTRY_ADDRESS, bytes32(keccak256("sakura_log")), getEmptyVariantsRegistryData());
@@ -599,7 +599,7 @@ contract PostDeploy500 is Script {
           interactionSelectors: new InteractionSelector[](0)
         }),
         abi.encode(new ComponentDef[](0)),
-        2
+        7
       );
     registerCAVoxelType(CA_ADDRESS, bytes32(keccak256("sakura_log")));
     registerVoxelVariant(REGISTRY_ADDRESS, bytes32(keccak256("sakura_log_slab_174")), getEmptyVariantsRegistryData());
@@ -621,7 +621,7 @@ contract PostDeploy500 is Script {
           interactionSelectors: new InteractionSelector[](0)
         }),
         abi.encode(new ComponentDef[](0)),
-        2
+        7
       );
     registerCAVoxelType(CA_ADDRESS, bytes32(keccak256("sakura_log_slab_174")));
     registerVoxelVariant(REGISTRY_ADDRESS, bytes32(keccak256("dirt_step_197")), getEmptyVariantsRegistryData());
@@ -643,7 +643,7 @@ contract PostDeploy500 is Script {
           interactionSelectors: new InteractionSelector[](0)
         }),
         abi.encode(new ComponentDef[](0)),
-        2
+        7
       );
     registerCAVoxelType(CA_ADDRESS, bytes32(keccak256("dirt_step_197")));
     registerVoxelVariant(REGISTRY_ADDRESS, bytes32(keccak256("sakura_log_slab_171")), getEmptyVariantsRegistryData());
@@ -665,7 +665,7 @@ contract PostDeploy500 is Script {
           interactionSelectors: new InteractionSelector[](0)
         }),
         abi.encode(new ComponentDef[](0)),
-        2
+        7
       );
     registerCAVoxelType(CA_ADDRESS, bytes32(keccak256("sakura_log_slab_171")));
     registerVoxelVariant(REGISTRY_ADDRESS, bytes32(keccak256("quartzite_step_233")), getEmptyVariantsRegistryData());
@@ -687,7 +687,7 @@ contract PostDeploy500 is Script {
           interactionSelectors: new InteractionSelector[](0)
         }),
         abi.encode(new ComponentDef[](0)),
-        2
+        7
       );
     registerCAVoxelType(CA_ADDRESS, bytes32(keccak256("quartzite_step_233")));
     registerVoxelVariant(REGISTRY_ADDRESS, bytes32(keccak256("quartzite_step_236")), getEmptyVariantsRegistryData());
@@ -709,7 +709,7 @@ contract PostDeploy500 is Script {
           interactionSelectors: new InteractionSelector[](0)
         }),
         abi.encode(new ComponentDef[](0)),
-        2
+        7
       );
     registerCAVoxelType(CA_ADDRESS, bytes32(keccak256("quartzite_step_236")));
     registerVoxelVariant(REGISTRY_ADDRESS, bytes32(keccak256("rubber_log_wall_453")), getEmptyVariantsRegistryData());
@@ -731,7 +731,7 @@ contract PostDeploy500 is Script {
           interactionSelectors: new InteractionSelector[](0)
         }),
         abi.encode(new ComponentDef[](0)),
-        2
+        7
       );
     registerCAVoxelType(CA_ADDRESS, bytes32(keccak256("rubber_log_wall_453")));
     registerVoxelVariant(REGISTRY_ADDRESS, bytes32(keccak256("quartzite_slab_133")), getEmptyVariantsRegistryData());
@@ -753,7 +753,7 @@ contract PostDeploy500 is Script {
           interactionSelectors: new InteractionSelector[](0)
         }),
         abi.encode(new ComponentDef[](0)),
-        2
+        7
       );
     registerCAVoxelType(CA_ADDRESS, bytes32(keccak256("quartzite_slab_133")));
     registerVoxelVariant(REGISTRY_ADDRESS, bytes32(keccak256("quartzite_slab_128")), getEmptyVariantsRegistryData());
@@ -775,7 +775,7 @@ contract PostDeploy500 is Script {
           interactionSelectors: new InteractionSelector[](0)
         }),
         abi.encode(new ComponentDef[](0)),
-        2
+        7
       );
     registerCAVoxelType(CA_ADDRESS, bytes32(keccak256("quartzite_slab_128")));
     registerVoxelVariant(REGISTRY_ADDRESS, bytes32(keccak256("dirt_fence_320")), getEmptyVariantsRegistryData());
@@ -797,7 +797,7 @@ contract PostDeploy500 is Script {
           interactionSelectors: new InteractionSelector[](0)
         }),
         abi.encode(new ComponentDef[](0)),
-        2
+        7
       );
     registerCAVoxelType(CA_ADDRESS, bytes32(keccak256("dirt_fence_320")));
     registerVoxelVariant(REGISTRY_ADDRESS, bytes32(keccak256("rubber_log_wall_448")), getEmptyVariantsRegistryData());
@@ -819,7 +819,7 @@ contract PostDeploy500 is Script {
           interactionSelectors: new InteractionSelector[](0)
         }),
         abi.encode(new ComponentDef[](0)),
-        2
+        7
       );
     registerCAVoxelType(CA_ADDRESS, bytes32(keccak256("rubber_log_wall_448")));
     registerVoxelVariant(REGISTRY_ADDRESS, bytes32(keccak256("dirt_fence_364")), getEmptyVariantsRegistryData());
@@ -841,7 +841,7 @@ contract PostDeploy500 is Script {
           interactionSelectors: new InteractionSelector[](0)
         }),
         abi.encode(new ComponentDef[](0)),
-        2
+        7
       );
     registerCAVoxelType(CA_ADDRESS, bytes32(keccak256("dirt_fence_364")));
     registerVoxelVariant(REGISTRY_ADDRESS, bytes32(keccak256("rubber_log_step_199")), getEmptyVariantsRegistryData());
@@ -863,7 +863,7 @@ contract PostDeploy500 is Script {
           interactionSelectors: new InteractionSelector[](0)
         }),
         abi.encode(new ComponentDef[](0)),
-        2
+        7
       );
     registerCAVoxelType(CA_ADDRESS, bytes32(keccak256("rubber_log_step_199")));
     registerVoxelVariant(REGISTRY_ADDRESS, bytes32(keccak256("rubber_log_wall_489")), getEmptyVariantsRegistryData());
@@ -885,7 +885,7 @@ contract PostDeploy500 is Script {
           interactionSelectors: new InteractionSelector[](0)
         }),
         abi.encode(new ComponentDef[](0)),
-        2
+        7
       );
     registerCAVoxelType(CA_ADDRESS, bytes32(keccak256("rubber_log_wall_489")));
     registerVoxelVariant(REGISTRY_ADDRESS, bytes32(keccak256("rubber_log_wall_492")), getEmptyVariantsRegistryData());
@@ -907,7 +907,7 @@ contract PostDeploy500 is Script {
           interactionSelectors: new InteractionSelector[](0)
         }),
         abi.encode(new ComponentDef[](0)),
-        2
+        7
       );
     registerCAVoxelType(CA_ADDRESS, bytes32(keccak256("rubber_log_wall_492")));
     registerVoxelVariant(REGISTRY_ADDRESS, bytes32(keccak256("emberstone_full_64")), getEmptyVariantsRegistryData());
@@ -929,7 +929,7 @@ contract PostDeploy500 is Script {
           interactionSelectors: new InteractionSelector[](0)
         }),
         abi.encode(new ComponentDef[](0)),
-        2
+        7
       );
     registerCAVoxelType(CA_ADDRESS, bytes32(keccak256("emberstone_full_64")));
     registerVoxelVariant(REGISTRY_ADDRESS, bytes32(keccak256("basalt_slab_128")), getEmptyVariantsRegistryData());
@@ -951,7 +951,7 @@ contract PostDeploy500 is Script {
           interactionSelectors: new InteractionSelector[](0)
         }),
         abi.encode(new ComponentDef[](0)),
-        2
+        7
       );
     registerCAVoxelType(CA_ADDRESS, bytes32(keccak256("basalt_slab_128")));
     registerVoxelVariant(REGISTRY_ADDRESS, bytes32(keccak256("rubber_log_step_235")), getEmptyVariantsRegistryData());
@@ -973,7 +973,7 @@ contract PostDeploy500 is Script {
           interactionSelectors: new InteractionSelector[](0)
         }),
         abi.encode(new ComponentDef[](0)),
-        2
+        7
       );
     registerCAVoxelType(CA_ADDRESS, bytes32(keccak256("rubber_log_step_235")));
     registerVoxelVariant(REGISTRY_ADDRESS, bytes32(keccak256("rubber_log_step_233")), getEmptyVariantsRegistryData());
@@ -995,7 +995,7 @@ contract PostDeploy500 is Script {
           interactionSelectors: new InteractionSelector[](0)
         }),
         abi.encode(new ComponentDef[](0)),
-        2
+        7
       );
     registerCAVoxelType(CA_ADDRESS, bytes32(keccak256("rubber_log_step_233")));
     registerVoxelVariant(REGISTRY_ADDRESS, bytes32(keccak256("ultraviolet")), getEmptyVariantsRegistryData());
@@ -1017,7 +1017,7 @@ contract PostDeploy500 is Script {
           interactionSelectors: new InteractionSelector[](0)
         }),
         abi.encode(new ComponentDef[](0)),
-        2
+        7
       );
     registerCAVoxelType(CA_ADDRESS, bytes32(keccak256("ultraviolet")));
     registerVoxelVariant(REGISTRY_ADDRESS, bytes32(keccak256("sakura_leaf")), getEmptyVariantsRegistryData());
@@ -1039,7 +1039,7 @@ contract PostDeploy500 is Script {
           interactionSelectors: new InteractionSelector[](0)
         }),
         abi.encode(new ComponentDef[](0)),
-        2
+        7
       );
     registerCAVoxelType(CA_ADDRESS, bytes32(keccak256("sakura_leaf")));
     registerVoxelVariant(REGISTRY_ADDRESS, bytes32(keccak256("rubber_leaf")), getEmptyVariantsRegistryData());
@@ -1061,7 +1061,7 @@ contract PostDeploy500 is Script {
           interactionSelectors: new InteractionSelector[](0)
         }),
         abi.encode(new ComponentDef[](0)),
-        2
+        7
       );
     registerCAVoxelType(CA_ADDRESS, bytes32(keccak256("rubber_leaf")));
     registerVoxelVariant(REGISTRY_ADDRESS, bytes32(keccak256("corn")), getEmptyVariantsRegistryData());
@@ -1083,7 +1083,7 @@ contract PostDeploy500 is Script {
           interactionSelectors: new InteractionSelector[](0)
         }),
         abi.encode(new ComponentDef[](0)),
-        2
+        7
       );
     registerCAVoxelType(CA_ADDRESS, bytes32(keccak256("corn")));
     registerVoxelVariant(REGISTRY_ADDRESS, bytes32(keccak256("sakura_log_step_199")), getEmptyVariantsRegistryData());
@@ -1105,7 +1105,7 @@ contract PostDeploy500 is Script {
           interactionSelectors: new InteractionSelector[](0)
         }),
         abi.encode(new ComponentDef[](0)),
-        2
+        7
       );
     registerCAVoxelType(CA_ADDRESS, bytes32(keccak256("sakura_log_step_199")));
     registerVoxelVariant(REGISTRY_ADDRESS, bytes32(keccak256("sakura_log_wall_492")), getEmptyVariantsRegistryData());
@@ -1127,7 +1127,7 @@ contract PostDeploy500 is Script {
           interactionSelectors: new InteractionSelector[](0)
         }),
         abi.encode(new ComponentDef[](0)),
-        2
+        7
       );
     registerCAVoxelType(CA_ADDRESS, bytes32(keccak256("sakura_log_wall_492")));
     registerVoxelVariant(REGISTRY_ADDRESS, bytes32(keccak256("sakura_log_slab_135")), getEmptyVariantsRegistryData());
@@ -1149,7 +1149,7 @@ contract PostDeploy500 is Script {
           interactionSelectors: new InteractionSelector[](0)
         }),
         abi.encode(new ComponentDef[](0)),
-        2
+        7
       );
     registerCAVoxelType(CA_ADDRESS, bytes32(keccak256("sakura_log_slab_135")));
     registerVoxelVariant(REGISTRY_ADDRESS, bytes32(keccak256("led_slab_169_purple")), getEmptyVariantsRegistryData());
@@ -1171,7 +1171,7 @@ contract PostDeploy500 is Script {
           interactionSelectors: new InteractionSelector[](0)
         }),
         abi.encode(new ComponentDef[](0)),
-        2
+        7
       );
     registerCAVoxelType(CA_ADDRESS, bytes32(keccak256("led_slab_169_purple")));
     registerVoxelVariant(REGISTRY_ADDRESS, bytes32(keccak256("sakura_log_step_235")), getEmptyVariantsRegistryData());
@@ -1193,7 +1193,7 @@ contract PostDeploy500 is Script {
           interactionSelectors: new InteractionSelector[](0)
         }),
         abi.encode(new ComponentDef[](0)),
-        2
+        7
       );
     registerCAVoxelType(CA_ADDRESS, bytes32(keccak256("sakura_log_step_235")));
     registerVoxelVariant(REGISTRY_ADDRESS, bytes32(keccak256("sakura_log_slab_133")), getEmptyVariantsRegistryData());
@@ -1215,7 +1215,7 @@ contract PostDeploy500 is Script {
           interactionSelectors: new InteractionSelector[](0)
         }),
         abi.encode(new ComponentDef[](0)),
-        2
+        7
       );
     registerCAVoxelType(CA_ADDRESS, bytes32(keccak256("sakura_log_slab_133")));
     registerVoxelVariant(REGISTRY_ADDRESS, bytes32(keccak256("sakura_log_slab_169")), getEmptyVariantsRegistryData());
@@ -1237,7 +1237,7 @@ contract PostDeploy500 is Script {
           interactionSelectors: new InteractionSelector[](0)
         }),
         abi.encode(new ComponentDef[](0)),
-        2
+        7
       );
     registerCAVoxelType(CA_ADDRESS, bytes32(keccak256("sakura_log_slab_169")));
     registerVoxelVariant(REGISTRY_ADDRESS, bytes32(keccak256("oak_log_slab_172")), getEmptyVariantsRegistryData());
@@ -1259,7 +1259,7 @@ contract PostDeploy500 is Script {
           interactionSelectors: new InteractionSelector[](0)
         }),
         abi.encode(new ComponentDef[](0)),
-        2
+        7
       );
     registerCAVoxelType(CA_ADDRESS, bytes32(keccak256("oak_log_slab_172")));
     registerVoxelVariant(REGISTRY_ADDRESS, bytes32(keccak256("oak_log_slab_128")), getEmptyVariantsRegistryData());
@@ -1281,7 +1281,7 @@ contract PostDeploy500 is Script {
           interactionSelectors: new InteractionSelector[](0)
         }),
         abi.encode(new ComponentDef[](0)),
-        2
+        7
       );
     registerCAVoxelType(CA_ADDRESS, bytes32(keccak256("oak_log_slab_128")));
     registerVoxelVariant(REGISTRY_ADDRESS, bytes32(keccak256("oak_log_slab_169")), getEmptyVariantsRegistryData());
@@ -1303,7 +1303,7 @@ contract PostDeploy500 is Script {
           interactionSelectors: new InteractionSelector[](0)
         }),
         abi.encode(new ComponentDef[](0)),
-        2
+        7
       );
     registerCAVoxelType(CA_ADDRESS, bytes32(keccak256("oak_log_slab_169")));
     registerVoxelVariant(REGISTRY_ADDRESS, bytes32(keccak256("simple_glass_wall_489_purple")), getEmptyVariantsRegistryData());
@@ -1325,7 +1325,7 @@ contract PostDeploy500 is Script {
           interactionSelectors: new InteractionSelector[](0)
         }),
         abi.encode(new ComponentDef[](0)),
-        2
+        7
       );
     registerCAVoxelType(CA_ADDRESS, bytes32(keccak256("simple_glass_wall_489_purple")));
     registerVoxelVariant(REGISTRY_ADDRESS, bytes32(keccak256("simple_glass_wall_492_purple")), getEmptyVariantsRegistryData());
@@ -1347,7 +1347,7 @@ contract PostDeploy500 is Script {
           interactionSelectors: new InteractionSelector[](0)
         }),
         abi.encode(new ComponentDef[](0)),
-        2
+        7
       );
     registerCAVoxelType(CA_ADDRESS, bytes32(keccak256("simple_glass_wall_492_purple")));
     registerVoxelVariant(REGISTRY_ADDRESS, bytes32(keccak256("simple_glass_wall_453_purple")), getEmptyVariantsRegistryData());
@@ -1369,7 +1369,7 @@ contract PostDeploy500 is Script {
           interactionSelectors: new InteractionSelector[](0)
         }),
         abi.encode(new ComponentDef[](0)),
-        2
+        7
       );
     registerCAVoxelType(CA_ADDRESS, bytes32(keccak256("simple_glass_wall_453_purple")));
     registerVoxelVariant(REGISTRY_ADDRESS, bytes32(keccak256("simple_glass_wall_491_purple")), getEmptyVariantsRegistryData());
@@ -1391,7 +1391,7 @@ contract PostDeploy500 is Script {
           interactionSelectors: new InteractionSelector[](0)
         }),
         abi.encode(new ComponentDef[](0)),
-        2
+        7
       );
     registerCAVoxelType(CA_ADDRESS, bytes32(keccak256("simple_glass_wall_491_purple")));
     registerVoxelVariant(REGISTRY_ADDRESS, bytes32(keccak256("simple_glass_slab_128_purple")), getEmptyVariantsRegistryData());
@@ -1413,7 +1413,7 @@ contract PostDeploy500 is Script {
           interactionSelectors: new InteractionSelector[](0)
         }),
         abi.encode(new ComponentDef[](0)),
-        2
+        7
       );
     registerCAVoxelType(CA_ADDRESS, bytes32(keccak256("simple_glass_slab_128_purple")));
     registerVoxelVariant(REGISTRY_ADDRESS, bytes32(keccak256("simple_glass_fence_361_purple")), getEmptyVariantsRegistryData());
@@ -1435,7 +1435,7 @@ contract PostDeploy500 is Script {
           interactionSelectors: new InteractionSelector[](0)
         }),
         abi.encode(new ComponentDef[](0)),
-        2
+        7
       );
     registerCAVoxelType(CA_ADDRESS, bytes32(keccak256("simple_glass_fence_361_purple")));
     registerVoxelVariant(REGISTRY_ADDRESS, bytes32(keccak256("simple_glass_wall_448_purple")), getEmptyVariantsRegistryData());
@@ -1457,7 +1457,7 @@ contract PostDeploy500 is Script {
           interactionSelectors: new InteractionSelector[](0)
         }),
         abi.encode(new ComponentDef[](0)),
-        2
+        7
       );
     registerCAVoxelType(CA_ADDRESS, bytes32(keccak256("simple_glass_wall_448_purple")));
     registerVoxelVariant(REGISTRY_ADDRESS, bytes32(keccak256("simple_glass_wall_489")), getEmptyVariantsRegistryData());
@@ -1479,7 +1479,7 @@ contract PostDeploy500 is Script {
           interactionSelectors: new InteractionSelector[](0)
         }),
         abi.encode(new ComponentDef[](0)),
-        2
+        7
       );
     registerCAVoxelType(CA_ADDRESS, bytes32(keccak256("simple_glass_wall_489")));
     registerVoxelVariant(REGISTRY_ADDRESS, bytes32(keccak256("stone_brick")), getEmptyVariantsRegistryData());
@@ -1501,7 +1501,7 @@ contract PostDeploy500 is Script {
           interactionSelectors: new InteractionSelector[](0)
         }),
         abi.encode(new ComponentDef[](0)),
-        2
+        7
       );
     registerCAVoxelType(CA_ADDRESS, bytes32(keccak256("stone_brick")));
     registerVoxelVariant(REGISTRY_ADDRESS, bytes32(keccak256("stone_polished_slab_172")), getEmptyVariantsRegistryData());
@@ -1523,7 +1523,7 @@ contract PostDeploy500 is Script {
           interactionSelectors: new InteractionSelector[](0)
         }),
         abi.encode(new ComponentDef[](0)),
-        2
+        7
       );
     registerCAVoxelType(CA_ADDRESS, bytes32(keccak256("stone_polished_slab_172")));
     registerVoxelVariant(REGISTRY_ADDRESS, bytes32(keccak256("stone_carved")), getEmptyVariantsRegistryData());
@@ -1545,7 +1545,7 @@ contract PostDeploy500 is Script {
           interactionSelectors: new InteractionSelector[](0)
         }),
         abi.encode(new ComponentDef[](0)),
-        2
+        7
       );
     registerCAVoxelType(CA_ADDRESS, bytes32(keccak256("stone_carved")));
     registerVoxelVariant(REGISTRY_ADDRESS, bytes32(keccak256("stone_polished_fence_361")), getEmptyVariantsRegistryData());
@@ -1567,7 +1567,7 @@ contract PostDeploy500 is Script {
           interactionSelectors: new InteractionSelector[](0)
         }),
         abi.encode(new ComponentDef[](0)),
-        2
+        7
       );
     registerCAVoxelType(CA_ADDRESS, bytes32(keccak256("stone_polished_fence_361")));
     registerVoxelVariant(REGISTRY_ADDRESS, bytes32(keccak256("stone_polished")), getEmptyVariantsRegistryData());
@@ -1589,7 +1589,7 @@ contract PostDeploy500 is Script {
           interactionSelectors: new InteractionSelector[](0)
         }),
         abi.encode(new ComponentDef[](0)),
-        2
+        7
       );
     registerCAVoxelType(CA_ADDRESS, bytes32(keccak256("stone_polished")));
     registerVoxelVariant(REGISTRY_ADDRESS, bytes32(keccak256("stone_polished_fence_325")), getEmptyVariantsRegistryData());
@@ -1611,7 +1611,7 @@ contract PostDeploy500 is Script {
           interactionSelectors: new InteractionSelector[](0)
         }),
         abi.encode(new ComponentDef[](0)),
-        2
+        7
       );
     registerCAVoxelType(CA_ADDRESS, bytes32(keccak256("stone_polished_fence_325")));
     registerVoxelVariant(REGISTRY_ADDRESS, bytes32(keccak256("moonstone")), getEmptyVariantsRegistryData());
@@ -1633,7 +1633,7 @@ contract PostDeploy500 is Script {
           interactionSelectors: new InteractionSelector[](0)
         }),
         abi.encode(new ComponentDef[](0)),
-        2
+        7
       );
     registerCAVoxelType(CA_ADDRESS, bytes32(keccak256("moonstone")));
     registerVoxelVariant(REGISTRY_ADDRESS, bytes32(keccak256("rubber_lumber")), getEmptyVariantsRegistryData());
@@ -1655,7 +1655,7 @@ contract PostDeploy500 is Script {
           interactionSelectors: new InteractionSelector[](0)
         }),
         abi.encode(new ComponentDef[](0)),
-        2
+        7
       );
     registerCAVoxelType(CA_ADDRESS, bytes32(keccak256("rubber_lumber")));
     registerVoxelVariant(REGISTRY_ADDRESS, bytes32(keccak256("rubber_lumber_step_192")), getEmptyVariantsRegistryData());
@@ -1677,7 +1677,7 @@ contract PostDeploy500 is Script {
           interactionSelectors: new InteractionSelector[](0)
         }),
         abi.encode(new ComponentDef[](0)),
-        2
+        7
       );
     registerCAVoxelType(CA_ADDRESS, bytes32(keccak256("rubber_lumber_step_192")));
     registerVoxelVariant(REGISTRY_ADDRESS, bytes32(keccak256("rubber_lumber_fence_364")), getEmptyVariantsRegistryData());
@@ -1699,7 +1699,7 @@ contract PostDeploy500 is Script {
           interactionSelectors: new InteractionSelector[](0)
         }),
         abi.encode(new ComponentDef[](0)),
-        2
+        7
       );
     registerCAVoxelType(CA_ADDRESS, bytes32(keccak256("rubber_lumber_fence_364")));
     registerVoxelVariant(REGISTRY_ADDRESS, bytes32(keccak256("oak_lumber_black")), getEmptyVariantsRegistryData());
@@ -1721,7 +1721,7 @@ contract PostDeploy500 is Script {
           interactionSelectors: new InteractionSelector[](0)
         }),
         abi.encode(new ComponentDef[](0)),
-        2
+        7
       );
     registerCAVoxelType(CA_ADDRESS, bytes32(keccak256("oak_lumber_black")));
     registerVoxelVariant(REGISTRY_ADDRESS, bytes32(keccak256("moss_slab_128")), getEmptyVariantsRegistryData());
@@ -1743,7 +1743,7 @@ contract PostDeploy500 is Script {
           interactionSelectors: new InteractionSelector[](0)
         }),
         abi.encode(new ComponentDef[](0)),
-        2
+        7
       );
     registerCAVoxelType(CA_ADDRESS, bytes32(keccak256("moss_slab_128")));
     registerVoxelVariant(REGISTRY_ADDRESS, bytes32(keccak256("oak_lumber_full_64_green")), getEmptyVariantsRegistryData());
@@ -1765,7 +1765,7 @@ contract PostDeploy500 is Script {
           interactionSelectors: new InteractionSelector[](0)
         }),
         abi.encode(new ComponentDef[](0)),
-        2
+        7
       );
     registerCAVoxelType(CA_ADDRESS, bytes32(keccak256("oak_lumber_full_64_green")));
     registerVoxelVariant(REGISTRY_ADDRESS, bytes32(keccak256("rubber_log_outset_1193")), getEmptyVariantsRegistryData());
@@ -1787,7 +1787,7 @@ contract PostDeploy500 is Script {
           interactionSelectors: new InteractionSelector[](0)
         }),
         abi.encode(new ComponentDef[](0)),
-        2
+        7
       );
     registerCAVoxelType(CA_ADDRESS, bytes32(keccak256("rubber_log_outset_1193")));
     registerVoxelVariant(REGISTRY_ADDRESS, bytes32(keccak256("cotton_fabric_step_236_yellow")), getEmptyVariantsRegistryData());
@@ -1809,7 +1809,7 @@ contract PostDeploy500 is Script {
           interactionSelectors: new InteractionSelector[](0)
         }),
         abi.encode(new ComponentDef[](0)),
-        2
+        7
       );
     registerCAVoxelType(CA_ADDRESS, bytes32(keccak256("cotton_fabric_step_236_yellow")));
     registerVoxelVariant(REGISTRY_ADDRESS, bytes32(keccak256("rubber_log_outset_1196")), getEmptyVariantsRegistryData());
@@ -1831,7 +1831,7 @@ contract PostDeploy500 is Script {
           interactionSelectors: new InteractionSelector[](0)
         }),
         abi.encode(new ComponentDef[](0)),
-        2
+        7
       );
     registerCAVoxelType(CA_ADDRESS, bytes32(keccak256("rubber_log_outset_1196")));
     registerVoxelVariant(REGISTRY_ADDRESS, bytes32(keccak256("cotton_fabric_step_236_orange")), getEmptyVariantsRegistryData());
@@ -1853,7 +1853,7 @@ contract PostDeploy500 is Script {
           interactionSelectors: new InteractionSelector[](0)
         }),
         abi.encode(new ComponentDef[](0)),
-        2
+        7
       );
     registerCAVoxelType(CA_ADDRESS, bytes32(keccak256("cotton_fabric_step_236_orange")));
     registerVoxelVariant(REGISTRY_ADDRESS, bytes32(keccak256("cotton_fabric_step_197_orange")), getEmptyVariantsRegistryData());
@@ -1875,7 +1875,7 @@ contract PostDeploy500 is Script {
           interactionSelectors: new InteractionSelector[](0)
         }),
         abi.encode(new ComponentDef[](0)),
-        2
+        7
       );
     registerCAVoxelType(CA_ADDRESS, bytes32(keccak256("cotton_fabric_step_197_orange")));
     registerVoxelVariant(REGISTRY_ADDRESS, bytes32(keccak256("rubber_reinforced_table_425")), getEmptyVariantsRegistryData());
@@ -1897,7 +1897,7 @@ contract PostDeploy500 is Script {
           interactionSelectors: new InteractionSelector[](0)
         }),
         abi.encode(new ComponentDef[](0)),
-        2
+        7
       );
     registerCAVoxelType(CA_ADDRESS, bytes32(keccak256("rubber_reinforced_table_425")));
     registerVoxelVariant(REGISTRY_ADDRESS, bytes32(keccak256("cotton_fabric_step_192_orange")), getEmptyVariantsRegistryData());
@@ -1919,7 +1919,7 @@ contract PostDeploy500 is Script {
           interactionSelectors: new InteractionSelector[](0)
         }),
         abi.encode(new ComponentDef[](0)),
-        2
+        7
       );
     registerCAVoxelType(CA_ADDRESS, bytes32(keccak256("cotton_fabric_step_192_orange")));
     registerVoxelVariant(REGISTRY_ADDRESS, bytes32(keccak256("clay_polished_stool_1024")), getEmptyVariantsRegistryData());
@@ -1941,7 +1941,7 @@ contract PostDeploy500 is Script {
           interactionSelectors: new InteractionSelector[](0)
         }),
         abi.encode(new ComponentDef[](0)),
-        2
+        7
       );
     registerCAVoxelType(CA_ADDRESS, bytes32(keccak256("clay_polished_stool_1024")));
     registerVoxelVariant(REGISTRY_ADDRESS, bytes32(keccak256("oak_lumber_frame_640_white")), getEmptyVariantsRegistryData());
@@ -1963,7 +1963,7 @@ contract PostDeploy500 is Script {
           interactionSelectors: new InteractionSelector[](0)
         }),
         abi.encode(new ComponentDef[](0)),
-        2
+        7
       );
     registerCAVoxelType(CA_ADDRESS, bytes32(keccak256("oak_lumber_frame_640_white")));
     registerVoxelVariant(REGISTRY_ADDRESS, bytes32(keccak256("sunstone_log_256")), getEmptyVariantsRegistryData());
@@ -1985,7 +1985,7 @@ contract PostDeploy500 is Script {
           interactionSelectors: new InteractionSelector[](0)
         }),
         abi.encode(new ComponentDef[](0)),
-        2
+        7
       );
     registerCAVoxelType(CA_ADDRESS, bytes32(keccak256("sunstone_log_256")));
     registerVoxelVariant(REGISTRY_ADDRESS, bytes32(keccak256("oak_lumber_step_199_green")), getEmptyVariantsRegistryData());
@@ -2007,7 +2007,7 @@ contract PostDeploy500 is Script {
           interactionSelectors: new InteractionSelector[](0)
         }),
         abi.encode(new ComponentDef[](0)),
-        2
+        7
       );
     registerCAVoxelType(CA_ADDRESS, bytes32(keccak256("oak_lumber_step_199_green")));
     registerVoxelVariant(REGISTRY_ADDRESS, bytes32(keccak256("oak_lumber_step_194_green")), getEmptyVariantsRegistryData());
@@ -2029,7 +2029,7 @@ contract PostDeploy500 is Script {
           interactionSelectors: new InteractionSelector[](0)
         }),
         abi.encode(new ComponentDef[](0)),
-        2
+        7
       );
     registerCAVoxelType(CA_ADDRESS, bytes32(keccak256("oak_lumber_step_194_green")));
     registerVoxelVariant(REGISTRY_ADDRESS, bytes32(keccak256("cobblestone_brick_slab_172")), getEmptyVariantsRegistryData());
@@ -2051,7 +2051,7 @@ contract PostDeploy500 is Script {
           interactionSelectors: new InteractionSelector[](0)
         }),
         abi.encode(new ComponentDef[](0)),
-        2
+        7
       );
     registerCAVoxelType(CA_ADDRESS, bytes32(keccak256("cobblestone_brick_slab_172")));
     registerVoxelVariant(REGISTRY_ADDRESS, bytes32(keccak256("cotton_fabric_slab_133_orange")), getEmptyVariantsRegistryData());
@@ -2073,7 +2073,7 @@ contract PostDeploy500 is Script {
           interactionSelectors: new InteractionSelector[](0)
         }),
         abi.encode(new ComponentDef[](0)),
-        2
+        7
       );
     registerCAVoxelType(CA_ADDRESS, bytes32(keccak256("cotton_fabric_slab_133_orange")));
     registerVoxelVariant(REGISTRY_ADDRESS, bytes32(keccak256("oak_lumber_fence_325_green")), getEmptyVariantsRegistryData());
@@ -2095,7 +2095,7 @@ contract PostDeploy500 is Script {
           interactionSelectors: new InteractionSelector[](0)
         }),
         abi.encode(new ComponentDef[](0)),
-        2
+        7
       );
     registerCAVoxelType(CA_ADDRESS, bytes32(keccak256("oak_lumber_fence_325_green")));
     registerVoxelVariant(REGISTRY_ADDRESS, bytes32(keccak256("cotton_fabric_slab_169_orange")), getEmptyVariantsRegistryData());
@@ -2117,7 +2117,7 @@ contract PostDeploy500 is Script {
           interactionSelectors: new InteractionSelector[](0)
         }),
         abi.encode(new ComponentDef[](0)),
-        2
+        7
       );
     registerCAVoxelType(CA_ADDRESS, bytes32(keccak256("cotton_fabric_slab_169_orange")));
     registerVoxelVariant(REGISTRY_ADDRESS, bytes32(keccak256("cotton_fabric_step_233_orange")), getEmptyVariantsRegistryData());
@@ -2139,7 +2139,7 @@ contract PostDeploy500 is Script {
           interactionSelectors: new InteractionSelector[](0)
         }),
         abi.encode(new ComponentDef[](0)),
-        2
+        7
       );
     registerCAVoxelType(CA_ADDRESS, bytes32(keccak256("cotton_fabric_step_233_orange")));
     registerVoxelVariant(REGISTRY_ADDRESS, bytes32(keccak256("oak_lumber_peg_773_green")), getEmptyVariantsRegistryData());
@@ -2161,7 +2161,7 @@ contract PostDeploy500 is Script {
           interactionSelectors: new InteractionSelector[](0)
         }),
         abi.encode(new ComponentDef[](0)),
-        2
+        7
       );
     registerCAVoxelType(CA_ADDRESS, bytes32(keccak256("oak_lumber_peg_773_green")));
     registerVoxelVariant(REGISTRY_ADDRESS, bytes32(keccak256("cotton_fabric_outset_1152_yellow")), getEmptyVariantsRegistryData());
@@ -2183,7 +2183,7 @@ contract PostDeploy500 is Script {
           interactionSelectors: new InteractionSelector[](0)
         }),
         abi.encode(new ComponentDef[](0)),
-        2
+        7
       );
     registerCAVoxelType(CA_ADDRESS, bytes32(keccak256("cotton_fabric_outset_1152_yellow")));
     registerVoxelVariant(REGISTRY_ADDRESS, bytes32(keccak256("cotton_fabric_outset_1157_blue")), getEmptyVariantsRegistryData());
@@ -2205,7 +2205,7 @@ contract PostDeploy500 is Script {
           interactionSelectors: new InteractionSelector[](0)
         }),
         abi.encode(new ComponentDef[](0)),
-        2
+        7
       );
     registerCAVoxelType(CA_ADDRESS, bytes32(keccak256("cotton_fabric_outset_1157_blue")));
     registerVoxelVariant(REGISTRY_ADDRESS, bytes32(keccak256("cotton_fabric_slice_709_black")), getEmptyVariantsRegistryData());
@@ -2227,7 +2227,7 @@ contract PostDeploy500 is Script {
           interactionSelectors: new InteractionSelector[](0)
         }),
         abi.encode(new ComponentDef[](0)),
-        2
+        7
       );
     registerCAVoxelType(CA_ADDRESS, bytes32(keccak256("cotton_fabric_slice_709_black")));
 

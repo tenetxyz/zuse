@@ -3,6 +3,20 @@
   "version": "0.0.1",
   "private": true,
   "license": "MIT",
+  "exports": {
+    "./mud.config": {
+      "require": "./dist/mud.config.js",
+      "import": "./dist/mud.config.js"
+    },
+    "./types/ethers-contracts/factories/IWorld__factory": {
+      "require": "./types/ethers-contracts/factories/IWorld__factory.ts",
+      "import": "./types/ethers-contracts/factories/IWorld__factory.ts"
+    },
+    "./worlds.json": {
+      "require": "./worlds.json",
+      "import": "./worlds.json"
+    }
+  },
   "scripts": {
     "mud": "node ../../node_modules/@latticexyz/cli/dist/mud.js",
     "build:js": "tsup",

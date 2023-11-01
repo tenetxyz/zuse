@@ -3,8 +3,23 @@
   "version": "0.0.1",
   "private": true,
   "license": "MIT",
+  "exports": {
+    "./mud.config": {
+      "require": "./dist/mud.config.js",
+      "import": "./dist/mud.config.js"
+    },
+    "./types": {
+      "require": "./dist/types/ethers-contracts/index.js",
+      "import": "./dist/types/ethers-contracts/index.js"
+    },
+    "./worlds.json": {
+      "require": "./worlds.json",
+      "import": "./worlds.json"
+    }
+  },
   "scripts": {
     "mud": "node ../../node_modules/@latticexyz/cli/dist/mud.js",
+    "build:js": "tsup",
     "forge:build": "forge build",
     "clean": "forge clean",
     "replaceGeneratedTypes": "../../scripts/replaceGeneratedTypes.sh",
@@ -46,6 +61,7 @@
     "solhint": "^3.3.7",
     "solhint-config-mud": "2.0.0-alpha.1.197+5e6cc0f5",
     "solhint-plugin-mud": "2.0.0-alpha.1.197+5e6cc0f5",
+    "tsup": "^7.2.0",
     "typechain": "^8.1.1"
   }
 }

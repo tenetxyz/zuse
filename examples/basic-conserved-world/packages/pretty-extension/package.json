@@ -3,15 +3,26 @@
   "version": "0.0.1",
   "private": true,
   "license": "MIT",
+  "exports": {
+    "./mud.config": {
+      "require": "./dist/mud.config.js",
+      "import": "./dist/mud.config.js"
+    },
+    "./worlds.json": {
+      "require": "./worlds.json",
+      "import": "./worlds.json"
+    }
+  },
   "scripts": {
     "mud": "node ../../node_modules/@latticexyz/cli/dist/mud.js",
     "forge:build": "forge build --skip script",
     "clean": "forge clean",
+    "build:js": "tsup",
     "build": "node buildDeployHandler.tsx build",
     "deploy": "node buildDeployHandler.tsx deploy",
     "dev": "yarn mud dev-contracts --tsgenOutput ../ca-client/src/mud",
     "replaceGeneratedTypes": "../../../../scripts/replaceGeneratedTypes.sh",
-    "initialize": "yarn run tablegen && yarn run worldgen && yarn run replaceGeneratedTypes && yarn run forge:build",
+    "initialize": "yarn run tablegen && yarn run worldgen && yarn run replaceGeneratedTypes && yarn run forge:build && yarn run build:js",
     "lint": "yarn run prettier && yarn run solhint",
     "prettier": "prettier --write 'src/**/*.sol'",
     "solhint": "solhint --config ./.solhint.json 'src/**/*.sol' --fix",
@@ -50,6 +61,7 @@
     "solhint": "^3.3.7",
     "solhint-config-mud": "2.0.0-alpha.1.197+5e6cc0f5",
     "solhint-plugin-mud": "2.0.0-alpha.1.197+5e6cc0f5",
+    "tsup": "^7.2.0",
     "typechain": "^8.1.1"
   }
 }

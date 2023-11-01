@@ -8,9 +8,9 @@
       "require": "./dist/mud.config.js",
       "import": "./dist/mud.config.js"
     },
-    "./types/ethers-contracts/factories/IWorld__factory": {
-      "require": "./types/ethers-contracts/factories/IWorld__factory.ts",
-      "import": "./types/ethers-contracts/factories/IWorld__factory.ts"
+    "./types": {
+      "require": "./dist/types/ethers-contracts/index.js",
+      "import": "./dist/types/ethers-contracts/index.js"
     },
     "./worlds.json": {
       "require": "./worlds.json",

@@ -161,7 +161,8 @@ struct BodySimData {
 enum ValueType {
   Int256,
   ObjectType,
-  VoxelCoord
+  VoxelCoord,
+  VoxelCoordArray
 }
 
 struct ActionData {

@@ -50,10 +50,55 @@ contract VelocitySystem is SimHandler {
     VoxelCoord memory receiverCoord,
     VoxelCoord[] memory receiverPositionDelta
   ) public {
-    // for each receiver position
-    // call moveWithAgent
-    // using the sender entity
-    // this wont be an agent though
+    address callerAddress = super.getCallerAddress();
+    {
+      bool entityExists = hasKey(
+        TemperatureTableId,
+        Temperature.encodeKeyTuple(callerAddress, senderEntity.scale, senderEntity.entityId)
+      );
+      require(entityExists, "Sender entity does not exist");
+    }
+    if (isEntityEqual(senderEntity, receiverEntity)) {
+      revert("You can't convert your own temperature to velocity");
+    } else {
+      // for each receiver position
+      // call moveWithAgent
+      // using the sender entity
+      // this wont be an agent though
+      VoxelEntity memory workingEntity = receiverEntity;
+      bytes32 voxelTypeId = getVoxelTypeId(callerAddress, workingEntity);
+      VoxelCoord memory workingCoord = receiverCoord;
+      for (uint i = 0; i < receiverPositionDelta.length; i++) {
+        (bool success, bytes memory returnData) = callerAddress.call(
+          abi.encodeWithSignature(
+            "moveWithAgent(bytes32,(int32,int32,int32),(int32,int32,int32),(uint32,bytes32))",
+            voxelTypeId,
+            workingCoord,
+            receiverPositionDelta[i],
+            senderEntity
+          )
+        );
+        if (success && returnData.length > 0) {
+          console.log("move success");
+          (VoxelEntity memory oldEntity, VoxelEntity memory newEntity) = abi.decode(
+            returnData,
+            (VoxelEntity, VoxelEntity)
+          );
+          workingEntity = newEntity;
+          // The entity could have been moved some place else, besides the new coord
+          // so we need to update the working coord
+          if (!voxelCoordsAreEqual(getVoxelCoordStrict(callerAddress, newEntity), receiverPositionDelta[i])) {
+            // this means some collision happened which caused other movements
+            // for now we just stop the loop
+            break;
+          }
+        } else {
+          console.log("move failed");
+          // Could not move, so we break out of the loop
+          break;
+        }
+      }
+    }
   }
 
   function updateVelocityFromStamina(
@@ -208,6 +253,7 @@ contract VelocitySystem is SimHandler {
     VoxelEntity memory oldEntity,
     VoxelEntity memory newEntity
   ) public returns (VoxelEntity memory) {
+    // TODO: make this only callable by the simulator
     address callerAddress = super.getCallerAddress();
     require(
       hasKey(MassTableId, Mass.encodeKeyTuple(callerAddress, oldEntity.scale, oldEntity.entityId)),

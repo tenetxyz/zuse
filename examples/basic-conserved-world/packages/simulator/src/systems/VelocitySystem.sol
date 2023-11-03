@@ -6,7 +6,7 @@ import { IWorld } from "@tenet-simulator/src/codegen/world/IWorld.sol";
 import { hasKey } from "@latticexyz/world/src/modules/keysintable/hasKey.sol";
 import { SimHandler } from "@tenet-simulator/prototypes/SimHandler.sol";
 import { VoxelCoord, VoxelTypeData, VoxelEntity, ValueType, SimTable } from "@tenet-utils/src/Types.sol";
-import { SimSelectors, Stamina, StaminaTableId, Mass, MassTableId, Energy, EnergyTableId, Velocity, VelocityTableId } from "@tenet-simulator/src/codegen/Tables.sol";
+import { SimSelectors, Temperature, TemperatureTableId, Stamina, StaminaTableId, Mass, MassTableId, Energy, EnergyTableId, Velocity, VelocityTableId } from "@tenet-simulator/src/codegen/Tables.sol";
 import { isZeroCoord, voxelCoordsAreEqual, dot, mulScalar, divScalar, add, sub } from "@tenet-utils/src/VoxelCoordUtils.sol";
 import { abs, absInt32 } from "@tenet-utils/src/MathUtils.sol";
 import { uint256ToInt32, int256ToUint256, safeSubtract } from "@tenet-utils/src/TypeUtils.sol";
@@ -18,6 +18,11 @@ import { getVoxelTypeId, getVoxelCoordStrict, getVelocity, getTerrainMass, getTe
 import { NUM_BLOCKS_BEFORE_REDUCE_VELOCITY } from "@tenet-simulator/src/Constants.sol";
 import { console } from "forge-std/console.sol";
 
+enum MovementResource {
+  Stamina,
+  Temperature
+}
+
 contract VelocitySystem is SimHandler {
   function registerVelocitySelectors() public {
     SimSelectors.set(
@@ -27,6 +32,28 @@ contract VelocitySystem is SimHandler {
       ValueType.Int256,
       ValueType.VoxelCoord
     );
+
+    SimSelectors.set(
+      SimTable.Stamina,
+      SimTable.Velocity,
+      IWorld(_world()).updateVelocityFromTemperature.selector,
+      ValueType.Int256,
+      ValueType.VoxelCoordArray
+    );
+  }
+
+  function updateVelocityFromTemperature(
+    VoxelEntity memory senderEntity,
+    VoxelCoord memory senderCoord,
+    int256 senderTemperatureDelta,
+    VoxelEntity memory receiverEntity,
+    VoxelCoord memory receiverCoord,
+    VoxelCoord[] memory receiverPositionDelta
+  ) public {
+    // for each receiver position
+    // call moveWithAgent
+    // using the sender entity
+    // this wont be an agent though
   }
 
   function updateVelocityFromStamina(
@@ -194,8 +221,16 @@ contract VelocitySystem is SimHandler {
       oldEntity,
       bodyMass
     );
-    uint256 staminaInActingEntity = Stamina.get(callerAddress, actingEntity.scale, actingEntity.entityId);
-    require(resourceRequired <= staminaInActingEntity, "Not enough stamina to move.");
+    MovementResource resourceToConsume = hasKey(
+      StaminaTableId,
+      Stamina.encodeKeyTuple(callerAddress, actingEntity.scale, actingEntity.entityId)
+    )
+      ? MovementResource.Stamina
+      : MovementResource.Temperature;
+    uint256 resourceInActingEntity = resourceToConsume == MovementResource.Stamina
+      ? Stamina.get(callerAddress, actingEntity.scale, actingEntity.entityId)
+      : Temperature.get(callerAddress, actingEntity.scale, actingEntity.entityId);
+    require(resourceRequired <= resourceInActingEntity, "Not enough resources to move.");
 
     if (hasKey(MassTableId, Mass.encodeKeyTuple(callerAddress, newEntity.scale, newEntity.entityId))) {
       require(
@@ -206,7 +241,9 @@ contract VelocitySystem is SimHandler {
       initTerrainEntity(callerAddress, oldEntity.scale, newCoord, newEntity);
     }
     uint256 energyInOldBlock = Energy.get(callerAddress, oldEntity.scale, oldEntity.entityId);
-    uint256 staminaInOldEntity = Stamina.get(callerAddress, oldEntity.scale, oldEntity.entityId);
+    uint256 resourceInOldEntity = resourceToConsume == MovementResource.Stamina
+      ? Stamina.get(callerAddress, oldEntity.scale, oldEntity.entityId)
+      : Temperature.get(callerAddress, oldEntity.scale, oldEntity.entityId);
 
     // Reset the old entity's mass, energy and velocity
     Mass.set(callerAddress, oldEntity.scale, oldEntity.entityId, 0);
@@ -231,12 +268,43 @@ contract VelocitySystem is SimHandler {
     // VoxelEntity memory newActingEntity = actingEntity;
     if (isEntityEqual(oldEntity, actingEntity)) {
       // newActingEntity = newEntity; // moving yourself, so update the acting entity
-      Stamina.set(callerAddress, newEntity.scale, newEntity.entityId, staminaInActingEntity - resourceRequired);
+      if (resourceToConsume == MovementResource.Stamina) {
+        Stamina.set(
+          callerAddress,
+          actingEntity.scale,
+          actingEntity.entityId,
+          resourceInActingEntity - resourceRequired
+        );
+      } else {
+        Temperature.set(
+          callerAddress,
+          actingEntity.scale,
+          actingEntity.entityId,
+          resourceInActingEntity - resourceRequired
+        );
+      }
     } else {
       if (hasKey(StaminaTableId, Stamina.encodeKeyTuple(callerAddress, oldEntity.scale, oldEntity.entityId))) {
-        Stamina.set(callerAddress, newEntity.scale, newEntity.entityId, staminaInOldEntity);
+        Stamina.set(callerAddress, newEntity.scale, newEntity.entityId, resourceInOldEntity);
       }
-      Stamina.set(callerAddress, actingEntity.scale, actingEntity.entityId, staminaInActingEntity - resourceRequired);
+      if (hasKey(TemperatureTableId, Temperature.encodeKeyTuple(callerAddress, oldEntity.scale, oldEntity.entityId))) {
+        Temperature.set(callerAddress, newEntity.scale, newEntity.entityId, resourceInOldEntity);
+      }
+      if (resourceToConsume == MovementResource.Stamina) {
+        Stamina.set(
+          callerAddress,
+          actingEntity.scale,
+          actingEntity.entityId,
+          resourceInActingEntity - resourceRequired
+        );
+      } else {
+        Temperature.set(
+          callerAddress,
+          actingEntity.scale,
+          actingEntity.entityId,
+          resourceInActingEntity - resourceRequired
+        );
+      }
     }
 
     return callOnCollision(callerAddress, actingEntity, oldEntity, newEntity);

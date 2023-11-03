@@ -5,7 +5,7 @@ import { IStore } from "@latticexyz/store/src/IStore.sol";
 import { IWorld } from "@tenet-simulator/src/codegen/world/IWorld.sol";
 import { hasKey } from "@latticexyz/world/src/modules/keysintable/hasKey.sol";
 import { System } from "@latticexyz/world/src/System.sol";
-import { Metadata, MetadataTableId, Nitrogen, NitrogenTableId, Phosphorous, PhosphorousTableId, Potassium, PotassiumTableId, Nutrients, NutrientsTableId, Elixir, ElixirTableId, Protein, ProteinTableId, Health, HealthTableId, Stamina, StaminaTableId, Object, ObjectTableId, Action, ActionData, ActionTableId, Mass, MassTableId, Energy, EnergyTableId, Velocity, VelocityTableId } from "@tenet-simulator/src/codegen/Tables.sol";
+import { Temperature, TemperatureTableId, Metadata, MetadataTableId, Nitrogen, NitrogenTableId, Phosphorous, PhosphorousTableId, Potassium, PotassiumTableId, Nutrients, NutrientsTableId, Elixir, ElixirTableId, Protein, ProteinTableId, Health, HealthTableId, Stamina, StaminaTableId, Object, ObjectTableId, Action, ActionData, ActionTableId, Mass, MassTableId, Energy, EnergyTableId, Velocity, VelocityTableId } from "@tenet-simulator/src/codegen/Tables.sol";
 import { VoxelCoord, VoxelTypeData, VoxelEntity, ObjectType } from "@tenet-utils/src/Types.sol";
 import { VoxelTypeRegistry, VoxelTypeRegistryData } from "@tenet-registry/src/codegen/tables/VoxelTypeRegistry.sol";
 import { distanceBetween, voxelCoordsAreEqual, isZeroCoord } from "@tenet-utils/src/VoxelCoordUtils.sol";
@@ -144,6 +144,15 @@ contract CallerMoveEventSystem is System {
       uint256 potassium = Potassium.get(callerAddress, oldEntity.scale, oldEntity.entityId);
       Potassium.set(callerAddress, postNewEntity.scale, postNewEntity.entityId, potassium);
       Potassium.deleteRecord(callerAddress, oldEntity.scale, oldEntity.entityId);
+    }
+
+    if (
+      hasKey(TemperatureTableId, Temperature.encodeKeyTuple(callerAddress, oldEntity.scale, oldEntity.entityId)) &&
+      !isEntityEqual(oldEntity, postNewEntity)
+    ) {
+      uint256 temperature = Temperature.get(callerAddress, oldEntity.scale, oldEntity.entityId);
+      Temperature.set(callerAddress, postNewEntity.scale, postNewEntity.entityId, temperature);
+      Temperature.deleteRecord(callerAddress, oldEntity.scale, oldEntity.entityId);
     }
 
     return postNewEntity;

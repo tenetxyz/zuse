@@ -5,7 +5,7 @@ import { IStore } from "@latticexyz/store/src/IStore.sol";
 import { IWorld } from "@tenet-simulator/src/codegen/world/IWorld.sol";
 import { hasKey } from "@latticexyz/world/src/modules/keysintable/hasKey.sol";
 import { SimHandler } from "@tenet-simulator/prototypes/SimHandler.sol";
-import { Temperature, TemperatureTableId, Nitrogen, NitrogenTableId, Potassium, PotassiumTableId, Phosphorous, PhosphorousTableId, Nutrients, NutrientsTableId, SimSelectors, Health, HealthTableId, Mass, MassTableId, Energy, EnergyTableId, Velocity, VelocityTableId } from "@tenet-simulator/src/codegen/Tables.sol";
+import { Temperature, TemperatureTableId, Stamina, StaminaTableId, Nitrogen, NitrogenTableId, Potassium, PotassiumTableId, Phosphorous, PhosphorousTableId, Nutrients, NutrientsTableId, SimSelectors, Health, HealthTableId, Mass, MassTableId, Energy, EnergyTableId, Velocity, VelocityTableId } from "@tenet-simulator/src/codegen/Tables.sol";
 import { VoxelCoord, VoxelTypeData, VoxelEntity, SimTable, ValueType } from "@tenet-utils/src/Types.sol";
 import { VoxelTypeRegistry, VoxelTypeRegistryData } from "@tenet-registry/src/codegen/tables/VoxelTypeRegistry.sol";
 import { distanceBetween, voxelCoordsAreEqual, isZeroCoord } from "@tenet-utils/src/VoxelCoordUtils.sol";
@@ -132,6 +132,10 @@ contract TemperatureSystem is SimHandler {
       if (_msgSender() != _world()) {
         require(receiverTemperatureDelta > 0, "Cannot decrease your own temperature");
         require(senderEnergyDelta < 0, "Cannot increase your own energy");
+        require(
+          Stamina.get(callerAddress, receiverEntity.scale, receiverEntity.entityId) == 0,
+          "Can't have both stamina and temperature"
+        );
         receiverTemperatureDelta = getTemperatureDelta(callerAddress, senderEntity, senderEnergy);
         console.log("receiverTemperatureDelta");
         console.logInt(receiverTemperatureDelta);
@@ -226,6 +230,10 @@ contract TemperatureSystem is SimHandler {
     } else {
       require(receiverTemperatureDelta > 0, "Cannot decrease someone's temperature");
       require(senderTemperatureDelta < 0, "Cannot increase your own temperature");
+      require(
+        Stamina.get(callerAddress, receiverEntity.scale, receiverEntity.entityId) == 0,
+        "Can't have both stamina and temperature"
+      );
       uint256 senderTemperature = int256ToUint256(receiverTemperatureDelta);
       uint256 receiverTemperature = int256ToUint256(receiverTemperatureDelta);
 

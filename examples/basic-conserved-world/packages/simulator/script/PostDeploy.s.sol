@@ -32,6 +32,7 @@ contract PostDeploy is Script {
     world.registerNitrogenSelectors();
     world.registerPhosphorousSelectors();
     world.registerPotassiumSelectors();
+    world.registerTemperatureSelectors();
 
     vm.stopBroadcast();
   }

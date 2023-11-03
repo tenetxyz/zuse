@@ -184,23 +184,18 @@ contract TemperatureSystem is SimHandler {
     }
   }
 
-  function calcReceiverNutrients(
+  function calcReceiverTemperature(
     address callerAddress,
     VoxelEntity memory senderEntity,
     VoxelEntity memory receiverEntity,
-    uint256 senderNutrients
+    uint256 senderTemperature
   ) internal returns (uint256) {
-    uint256 senderNPK = Nitrogen.get(callerAddress, senderEntity.scale, senderEntity.entityId) +
-      Phosphorous.get(callerAddress, senderEntity.scale, senderEntity.entityId) +
-      Potassium.get(callerAddress, senderEntity.scale, senderEntity.entityId);
-    uint256 receiverNPK = Nitrogen.get(callerAddress, receiverEntity.scale, receiverEntity.entityId) +
-      Phosphorous.get(callerAddress, receiverEntity.scale, receiverEntity.entityId) +
-      Potassium.get(callerAddress, receiverEntity.scale, receiverEntity.entityId);
+    uint256 mass = Mass.get(callerAddress, senderEntity.scale, senderEntity.entityId);
 
     // Calculate the actual transfer amount
-    uint256 actualTransfer = (senderNutrients * senderNPK * receiverNPK) / (14000);
+    uint256 actualTransfer = (senderTemperature * mass) / (50); //50 is a high mass according to current perlin budgets
 
-    uint256 ninetyFivePercent = (senderNutrients * 95) / 100;
+    uint256 ninetyFivePercent = (senderTemperature * 95) / 100;
     if (actualTransfer > ninetyFivePercent) {
       actualTransfer = ninetyFivePercent;
     }
@@ -211,88 +206,47 @@ contract TemperatureSystem is SimHandler {
   function updateTemperatureFromTemperature(
     VoxelEntity memory senderEntity,
     VoxelCoord memory senderCoord,
-    int256 senderNutrientsDelta,
+    int256 senderTemperatureDelta,
     VoxelEntity memory receiverEntity,
     VoxelCoord memory receiverCoord,
-    int256 receiverNutrientsDelta
+    int256 receiverTemperatureDelta
   ) public {
     address callerAddress = super.getCallerAddress();
     {
       bool entityExists = hasKey(
-        NutrientsTableId,
-        Nutrients.encodeKeyTuple(callerAddress, senderEntity.scale, senderEntity.entityId)
+        TemperatureTableId,
+        Temperature.encodeKeyTuple(callerAddress, senderEntity.scale, senderEntity.entityId)
       );
       console.log("senderEntity.entityId");
       console.logBytes32(senderEntity.entityId);
       require(entityExists, "Sender entity does not exist");
     }
     if (isEntityEqual(senderEntity, receiverEntity)) {
-      revert("You can't convert your own nutrients to nutrients");
+      revert("You can't convert your own temperature to temperature");
     } else {
-      require(receiverNutrientsDelta > 0, "Cannot decrease someone's nutrients");
-      require(senderNutrientsDelta < 0, "Cannot increase your own nutrients");
-      uint256 senderNutrients = int256ToUint256(receiverNutrientsDelta);
-      uint256 receiverNutrients = int256ToUint256(receiverNutrientsDelta);
-      require(
-        hasKey(NitrogenTableId, Nitrogen.encodeKeyTuple(callerAddress, senderEntity.scale, senderEntity.entityId)),
-        "Sender entity does not have nitrogen"
-      );
-      require(
-        hasKey(
-          PhosphorousTableId,
-          Phosphorous.encodeKeyTuple(callerAddress, senderEntity.scale, senderEntity.entityId)
-        ),
-        "Sender entity does not have phosphorous"
-      );
-      require(
-        hasKey(PotassiumTableId, Potassium.encodeKeyTuple(callerAddress, senderEntity.scale, senderEntity.entityId)),
-        "Sender entity does not have potassium"
-      );
-      require(
-        hasKey(NitrogenTableId, Nitrogen.encodeKeyTuple(callerAddress, receiverEntity.scale, receiverEntity.entityId)),
-        "Sender entity does not have nitrogen"
-      );
-      require(
-        hasKey(
-          PhosphorousTableId,
-          Phosphorous.encodeKeyTuple(callerAddress, receiverEntity.scale, receiverEntity.entityId)
-        ),
-        "Sender entity does not have phosphorous"
-      );
-      require(
-        hasKey(
-          PotassiumTableId,
-          Potassium.encodeKeyTuple(callerAddress, receiverEntity.scale, receiverEntity.entityId)
-        ),
-        "Sender entity does not have potassium"
-      );
+      require(receiverTemperatureDelta > 0, "Cannot decrease someone's temperature");
+      require(senderTemperatureDelta < 0, "Cannot increase your own temperature");
+      uint256 senderTemperature = int256ToUint256(receiverTemperatureDelta);
+      uint256 receiverTemperature = int256ToUint256(receiverTemperatureDelta);
 
-      //sender, receiver nutrient energy check
-      uint256 currentSenderNutrients = Nutrients.get(callerAddress, senderEntity.scale, senderEntity.entityId);
-      require(currentSenderNutrients >= senderNutrients, "Not enough nutrients to transfer");
-
-      // require(
-      //   hasKey(
-      //     NutrientsTableId,
-      //     Nutrients.encodeKeyTuple(callerAddress, receiverEntity.scale, receiverEntity.entityId)
-      //   ),
-      //   "Not a nutrient-holding cell"
-      // );
-      uint256 currentReceiverNutrients = Nutrients.get(callerAddress, receiverEntity.scale, receiverEntity.entityId);
-      require(
-        absoluteDifference(currentSenderNutrients, currentReceiverNutrients) <= NUTRIENT_TRANSFER_MAX_DELTA,
-        "Can't transfer from high to low if there's a large difference"
+      uint256 currentSenderTemperature = Temperature.get(callerAddress, senderEntity.scale, senderEntity.entityId);
+      require(currentSenderTemperature >= senderTemperature, "Not enough temperature to transfer");
+      uint256 currentReceiverTemperature = Temperature.get(
+        callerAddress,
+        receiverEntity.scale,
+        receiverEntity.entityId
       );
+      require(currentSenderTemperature >= currentReceiverTemperature, "Can't transfer from low to high");
 
-      receiverNutrients = calcReceiverNutrients(callerAddress, senderEntity, receiverEntity, senderNutrients);
-      console.log("receiverNutrients");
-      console.logUint(currentReceiverNutrients);
-      console.logUint(receiverNutrients);
+      receiverTemperature = calcReceiverTemperature(callerAddress, senderEntity, receiverEntity, senderTemperature);
+      console.log("receiverTemperature");
+      console.logUint(currentReceiverTemperature);
+      console.logUint(receiverTemperature);
 
-      if (receiverNutrients == 0) {
+      if (receiverTemperature == 0) {
         return;
       }
-      require(senderNutrients >= receiverNutrients, "Not enough energy to nutrients to sender");
+      require(senderTemperature >= receiverTemperature, "Not enough energy to temperature to sender");
 
       {
         bool receiverEntityExists = hasKey(
@@ -308,17 +262,22 @@ contract TemperatureSystem is SimHandler {
         }
         require(receiverEntityExists, "Receiver entity does not exist");
       }
-      Nutrients.set(
+      Temperature.set(
         callerAddress,
         receiverEntity.scale,
         receiverEntity.entityId,
-        currentReceiverNutrients + receiverNutrients
+        currentReceiverTemperature + receiverTemperature
       );
-      Nutrients.set(callerAddress, senderEntity.scale, senderEntity.entityId, currentSenderNutrients - senderNutrients);
+      Temperature.set(
+        callerAddress,
+        senderEntity.scale,
+        senderEntity.entityId,
+        currentSenderTemperature - senderTemperature
+      );
       {
-        uint256 nutrients_cost = senderNutrients - receiverNutrients;
-        if (nutrients_cost > 0) {
-          IWorld(_world()).fluxEnergy(false, callerAddress, senderEntity, nutrients_cost);
+        uint256 temperature_cost = senderTemperature - receiverTemperature;
+        if (temperature_cost > 0) {
+          IWorld(_world()).fluxEnergy(false, callerAddress, senderEntity, temperature_cost);
         }
       }
     }

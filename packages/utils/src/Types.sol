@@ -61,7 +61,8 @@ enum SimTable {
   Phosphorous,
   Potassium,
   Elixir,
-  Protein
+  Protein,
+  Temperature
 }
 
 struct SimEventData {
@@ -154,6 +155,7 @@ struct BodySimData {
   bool hasPotassium;
   uint256 elixir;
   uint256 protein;
+  uint256 temperature;
 }
 
 enum ValueType {

@@ -21,6 +21,7 @@ import { Phosphorous, PhosphorousTableId } from "@tenet-simulator/src/codegen/ta
 import { Potassium, PotassiumTableId } from "@tenet-simulator/src/codegen/tables/Potassium.sol";
 import { Elixir } from "@tenet-simulator/src/codegen/tables/Elixir.sol";
 import { Protein } from "@tenet-simulator/src/codegen/tables/Protein.sol";
+import { Temperature } from "@tenet-simulator/src/codegen/tables/Temperature.sol";
 
 contract ExternalCASystem is ExternalCAPrototype {
   function getVoxelTypeId(VoxelEntity memory entity) public view override returns (bytes32) {
@@ -69,6 +70,7 @@ contract ExternalCASystem is ExternalCAPrototype {
     );
     entitySimData.elixir = Elixir.get(store, worldAddress, entity.scale, entity.entityId);
     entitySimData.protein = Protein.get(store, worldAddress, entity.scale, entity.entityId);
+    entitySimData.temperature = Temperature.get(store, worldAddress, entity.scale, entity.entityId);
 
     return entitySimData;
   }

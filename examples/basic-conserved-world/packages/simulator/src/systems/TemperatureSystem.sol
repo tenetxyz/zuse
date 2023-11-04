@@ -37,6 +37,7 @@ contract TemperatureSystem is SimHandler {
 
   function temperatureBehaviour(address callerAddress, VoxelEntity memory behaviourEntity) public {
     require(_msgSender() == _world(), "Only the world can update health");
+    console.log("temperatureBehaviour");
 
     if (
       !hasKey(
@@ -47,6 +48,7 @@ contract TemperatureSystem is SimHandler {
       return;
     }
     uint256 entityTemperature = Temperature.get(callerAddress, behaviourEntity.scale, behaviourEntity.entityId);
+    console.logUint(entityTemperature);
 
     // Get neighbours
     (bytes32[] memory neighbourEntities, ) = getNeighbourEntities(callerAddress, behaviourEntity);
@@ -84,6 +86,10 @@ contract TemperatureSystem is SimHandler {
         newTemperature = safeSubtract(entityTemperature, minSubtract);
         cost_e = 2 * minSubtract;
       }
+      console.log("newHealth");
+      console.logUint(newHealth);
+      console.log("newTemperature");
+      console.logUint(newTemperature);
       Health.set(callerAddress, behaviourEntity.scale, neighbourEntities[i], block.number, newHealth);
       Temperature.set(callerAddress, behaviourEntity.scale, behaviourEntity.entityId, newTemperature);
       IWorld(_world()).fluxEnergy(false, callerAddress, behaviourEntity, cost_e);
@@ -225,6 +231,8 @@ contract TemperatureSystem is SimHandler {
         receiverEntity.scale,
         receiverEntity.entityId
       );
+      console.log("currentReceiverTemperature");
+      console.logUint(currentReceiverTemperature);
       if (receiverTemperatureDelta < 0) {
         require(currentReceiverTemperature >= receiverTemperature, "Receiver does not have enough temperature");
       }
@@ -234,10 +242,12 @@ contract TemperatureSystem is SimHandler {
         receiverEntity.entityId,
         addUint256AndInt256(currentReceiverTemperature, receiverTemperatureDelta)
       );
-
+      console.log("e_cost");
+      console.logUint(e_cost);
       if (e_cost > 0) {
         IWorld(_world()).fluxEnergy(false, callerAddress, receiverEntity, e_cost);
       }
+      IWorld(_world()).temperatureBehaviour(callerAddress, receiverEntity);
     } else {
       revert("You can't convert other's energy to temperature");
     }
@@ -293,12 +303,16 @@ contract TemperatureSystem is SimHandler {
       uint256 receiverTemperature = int256ToUint256(receiverTemperatureDelta);
 
       uint256 currentSenderTemperature = Temperature.get(callerAddress, senderEntity.scale, senderEntity.entityId);
+      console.log("currentSenderTemperature");
+      console.logUint(currentSenderTemperature);
       require(currentSenderTemperature >= senderTemperature, "Not enough temperature to transfer");
       uint256 currentReceiverTemperature = Temperature.get(
         callerAddress,
         receiverEntity.scale,
         receiverEntity.entityId
       );
+      console.log("currentReceiverTemperature");
+      console.logUint(currentReceiverTemperature);
       require(currentSenderTemperature >= currentReceiverTemperature, "Can't transfer from low to high");
 
       receiverTemperature = calcReceiverTemperature(callerAddress, senderEntity, receiverEntity, senderTemperature);
@@ -343,6 +357,7 @@ contract TemperatureSystem is SimHandler {
           IWorld(_world()).fluxEnergy(false, callerAddress, senderEntity, temperature_cost);
         }
       }
+      IWorld(_world()).temperatureBehaviour(callerAddress, receiverEntity);
     }
   }
 }

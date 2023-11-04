@@ -11,7 +11,7 @@ import { CAEntityReverseMapping, CAEntityReverseMappingTableId, CAEntityReverseM
 import { Plant, PlantData } from "@tenet-pokemon-extension/src/codegen/tables/Plant.sol";
 import { Thermo } from "@tenet-pokemon-extension/src/codegen/tables/Thermo.sol";
 import { PlantStage, EventType } from "@tenet-pokemon-extension/src/codegen/Types.sol";
-import { entityIsSoil, entityIsPlant, entityIsPokemon, entityIsFarmer } from "@tenet-pokemon-extension/src/InteractionUtils.sol";
+import { entityIsSoil, entityIsPlant, entityIsPokemon, entityIsFarmer, entityIsThermo } from "@tenet-pokemon-extension/src/InteractionUtils.sol";
 import { getCAEntityAtCoord, getCAVoxelType, getCAEntityPositionStrict, caEntityToEntity } from "@tenet-base-ca/src/Utils.sol";
 import { Farmer } from "@tenet-pokemon-extension/src/codegen/tables/Farmer.sol";
 import { getEntitySimData, transfer, transferSimData } from "@tenet-level1-ca/src/Utils.sol";
@@ -36,7 +36,51 @@ contract ThermoSystem is VoxelInteraction {
       entityData = getTemperatureConversion(callerAddress, neighbourEntityId, entitySimData);
       return (changedEntity, entityData);
     }
+
+    if (Thermo.getLastEvent(callerAddress, neighbourEntityId) != EventType.None) {
+      Thermo.setLastEvent(callerAddress, neighbourEntityId, EventType.None);
+    }
+
+    uint256 transferToThermo = getTemperatureToThermo(entitySimData.temperature);
+    if (transferToThermo == 0) {
+      return (changedEntity, entityData);
+    }
+    console.log("checking");
+    if (
+      !(entityIsThermo(callerAddress, centerEntityId) &&
+        getEntitySimData(centerEntityId).temperature <= entitySimData.temperature)
+    ) {
+      return (changedEntity, entityData);
+    }
+    console.log("changed true");
+
+    changedEntity = true;
+
     return (changedEntity, entityData);
+  }
+
+  function calculateValidThermoNeighbours(
+    address callerAddress,
+    bytes32[] memory neighbourEntityIds,
+    BodySimData memory entitySimData
+  ) internal view returns (uint256 numThermoNeighbours) {
+    for (uint i = 0; i < neighbourEntityIds.length; i++) {
+      if (uint256(neighbourEntityIds[i]) == 0) {
+        continue;
+      }
+      // Check if the neighbor is a Soil, Seed, or Young Plant cell
+      if (
+        entityIsThermo(callerAddress, neighbourEntityIds[i]) &&
+        getEntitySimData(neighbourEntityIds[i]).energy <= entitySimData.energy
+      ) {
+        numThermoNeighbours += 1;
+      }
+    }
+    return numThermoNeighbours;
+  }
+
+  function getTemperatureToThermo(uint256 temperature) internal pure returns (uint256) {
+    return (temperature * 60) / 100; // Transfer 60% of its temperature to neighbouring thermo cells
   }
 
   function runInteraction(
@@ -57,6 +101,47 @@ contract ThermoSystem is VoxelInteraction {
       entityData = getTemperatureConversion(callerAddress, interactEntity, entitySimData);
       return (changedEntity, entityData);
     }
+
+    if (Thermo.getLastEvent(callerAddress, interactEntity) != EventType.None) {
+      Thermo.setLastEvent(callerAddress, interactEntity, EventType.None);
+    }
+
+    CAEventData[] memory allCAEventData = new CAEventData[](neighbourEntityIds.length);
+
+    bool hasTransfer = false;
+
+    uint256 validThermoNeighbours = calculateValidThermoNeighbours(callerAddress, neighbourEntityIds, entitySimData);
+    if (validThermoNeighbours == 0) {
+      return (changedEntity, entityData);
+    }
+    uint256 transferPerThermo = getTemperatureToThermo(entitySimData.temperature) / validThermoNeighbours;
+
+    for (uint i = 0; i < neighbourEntityIds.length; i++) {
+      if (uint256(neighbourEntityIds[i]) == 0) {
+        continue;
+      }
+
+      if (
+        entityIsThermo(callerAddress, neighbourEntityIds[i]) &&
+        getEntitySimData(neighbourEntityIds[i]).energy <= entitySimData.energy
+      ) {
+        allCAEventData[i] = transfer(
+          SimTable.Temperature,
+          SimTable.Temperature,
+          entitySimData,
+          neighbourEntityIds[i],
+          getCAEntityPositionStrict(IStore(_world()), neighbourEntityIds[i]),
+          transferPerThermo
+        );
+        hasTransfer = true;
+      }
+    }
+
+    // Check if there's at least one transfer
+    if (hasTransfer) {
+      Thermo.setLastInteractionBlock(callerAddress, interactEntity, block.number);
+    }
+    entityData = abi.encode(allCAEventData);
 
     return (changedEntity, entityData);
   }

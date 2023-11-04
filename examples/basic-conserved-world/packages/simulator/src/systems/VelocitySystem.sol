@@ -23,6 +23,12 @@ enum MovementResource {
   Temperature
 }
 
+struct EntityData {
+  uint256 mass;
+  uint256 energy;
+  uint256 resource;
+}
+
 contract VelocitySystem is SimHandler {
   function registerVelocitySelectors() public {
     SimSelectors.set(
@@ -66,13 +72,13 @@ contract VelocitySystem is SimHandler {
       // using the sender entity
       // this wont be an agent though
       VoxelEntity memory workingEntity = receiverEntity;
-      bytes32 voxelTypeId = getVoxelTypeId(callerAddress, workingEntity);
+      // bytes32 voxelTypeId = getVoxelTypeId(callerAddress, workingEntity);
       VoxelCoord memory workingCoord = receiverCoord;
       for (uint i = 0; i < receiverPositionDelta.length; i++) {
         (bool success, bytes memory returnData) = callerAddress.call(
           abi.encodeWithSignature(
             "moveWithAgent(bytes32,(int32,int32,int32),(int32,int32,int32),(uint32,bytes32))",
-            voxelTypeId,
+            getVoxelTypeId(callerAddress, workingEntity),
             workingCoord,
             receiverPositionDelta[i],
             senderEntity
@@ -80,10 +86,7 @@ contract VelocitySystem is SimHandler {
         );
         if (success && returnData.length > 0) {
           console.log("move success");
-          (VoxelEntity memory oldEntity, VoxelEntity memory newEntity) = abi.decode(
-            returnData,
-            (VoxelEntity, VoxelEntity)
-          );
+          (, VoxelEntity memory newEntity) = abi.decode(returnData, (VoxelEntity, VoxelEntity));
           workingEntity = newEntity;
           // The entity could have been moved some place else, besides the new coord
           // so we need to update the working coord
@@ -92,6 +95,7 @@ contract VelocitySystem is SimHandler {
             // for now we just stop the loop
             break;
           }
+          workingCoord = receiverPositionDelta[i];
         } else {
           console.log("move failed");
           // Could not move, so we break out of the loop
@@ -259,13 +263,14 @@ contract VelocitySystem is SimHandler {
       hasKey(MassTableId, Mass.encodeKeyTuple(callerAddress, oldEntity.scale, oldEntity.entityId)),
       "Old entity does not exist"
     );
-    uint256 bodyMass = Mass.get(callerAddress, oldEntity.scale, oldEntity.entityId);
+    EntityData memory oldEntityData;
+    oldEntityData.mass = Mass.get(callerAddress, oldEntity.scale, oldEntity.entityId);
     (VoxelCoord memory newVelocity, uint256 resourceRequired) = calculateNewVelocity(
       callerAddress,
       oldCoord,
       newCoord,
       oldEntity,
-      bodyMass
+      oldEntityData.mass
     );
     MovementResource resourceToConsume = hasKey(
       StaminaTableId,
@@ -273,10 +278,10 @@ contract VelocitySystem is SimHandler {
     )
       ? MovementResource.Stamina
       : MovementResource.Temperature;
-    uint256 resourceInActingEntity = resourceToConsume == MovementResource.Stamina
+    oldEntityData.resource = resourceToConsume == MovementResource.Stamina
       ? Stamina.get(callerAddress, actingEntity.scale, actingEntity.entityId)
       : Temperature.get(callerAddress, actingEntity.scale, actingEntity.entityId);
-    require(resourceRequired <= resourceInActingEntity, "Not enough resources to move.");
+    require(resourceRequired <= oldEntityData.resource, "Not enough resources to move.");
 
     if (hasKey(MassTableId, Mass.encodeKeyTuple(callerAddress, newEntity.scale, newEntity.entityId))) {
       require(
@@ -286,7 +291,7 @@ contract VelocitySystem is SimHandler {
     } else {
       initTerrainEntity(callerAddress, oldEntity.scale, newCoord, newEntity);
     }
-    uint256 energyInOldBlock = Energy.get(callerAddress, oldEntity.scale, oldEntity.entityId);
+    oldEntityData.energy = Energy.get(callerAddress, oldEntity.scale, oldEntity.entityId);
     uint256 resourceInOldEntity = resourceToConsume == MovementResource.Stamina
       ? Stamina.get(callerAddress, oldEntity.scale, oldEntity.entityId)
       : Temperature.get(callerAddress, oldEntity.scale, oldEntity.entityId);
@@ -308,8 +313,8 @@ contract VelocitySystem is SimHandler {
     fluxEnergyForMove(callerAddress, newEntity, resourceRequired);
 
     // Update the new entity's energy and velocity
-    Mass.set(callerAddress, newEntity.scale, newEntity.entityId, bodyMass);
-    Energy.set(callerAddress, newEntity.scale, newEntity.entityId, energyInOldBlock);
+    Mass.set(callerAddress, newEntity.scale, newEntity.entityId, oldEntityData.mass);
+    Energy.set(callerAddress, newEntity.scale, newEntity.entityId, oldEntityData.energy);
     Velocity.set(callerAddress, newEntity.scale, newEntity.entityId, block.number, abi.encode(newVelocity));
     // VoxelEntity memory newActingEntity = actingEntity;
     if (isEntityEqual(oldEntity, actingEntity)) {
@@ -319,14 +324,14 @@ contract VelocitySystem is SimHandler {
           callerAddress,
           actingEntity.scale,
           actingEntity.entityId,
-          resourceInActingEntity - resourceRequired
+          oldEntityData.resource - resourceRequired
         );
       } else {
         Temperature.set(
           callerAddress,
           actingEntity.scale,
           actingEntity.entityId,
-          resourceInActingEntity - resourceRequired
+          oldEntityData.resource - resourceRequired
         );
       }
     } else {
@@ -341,14 +346,14 @@ contract VelocitySystem is SimHandler {
           callerAddress,
           actingEntity.scale,
           actingEntity.entityId,
-          resourceInActingEntity - resourceRequired
+          oldEntityData.resource - resourceRequired
         );
       } else {
         Temperature.set(
           callerAddress,
           actingEntity.scale,
           actingEntity.entityId,
-          resourceInActingEntity - resourceRequired
+          oldEntityData.resource - resourceRequired
         );
       }
     }

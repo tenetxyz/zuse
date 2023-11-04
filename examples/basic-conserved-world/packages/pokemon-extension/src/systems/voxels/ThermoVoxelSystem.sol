@@ -8,7 +8,7 @@ import { NoaBlockType } from "@tenet-registry/src/codegen/Types.sol";
 import { registerVoxelVariant, registerVoxelType, voxelSelectorsForVoxel } from "@tenet-registry/src/Utils.sol";
 import { CA_ADDRESS, REGISTRY_ADDRESS, ThermoVoxelID, PlantSeedVoxelVariantID, PlantProteinVoxelVariantID, PlantElixirVoxelVariantID, PlantFlowerVoxelVariantID } from "@tenet-pokemon-extension/src/Constants.sol";
 import { Plant, PlantData } from "@tenet-pokemon-extension/src/codegen/tables/Plant.sol";
-import { Thermo } from "@tenet-pokemon-extension/src/codegen/tables/Thermo.sol";
+import { Thermo, ThermoData } from "@tenet-pokemon-extension/src/codegen/tables/Thermo.sol";
 import { PlantStage } from "@tenet-pokemon-extension/src/codegen/Types.sol";
 import { VoxelCoord, ComponentDef, BodySimData } from "@tenet-utils/src/Types.sol";
 import { registerCAVoxelType } from "@tenet-base-ca/src/CallUtils.sol";
@@ -53,8 +53,11 @@ contract ThermoVoxelSystem is VoxelType {
 
   function enterWorld(VoxelCoord memory coord, bytes32 entity) public override {
     address callerAddress = super.getCallerAddress();
-    bool hasValue = true;
-    Thermo.set(callerAddress, entity, true);
+    Thermo.set(
+      callerAddress,
+      entity,
+      ThermoData({ lastEvent: EventType.None, lastInteractionBlock: 0, hasValue: true })
+    );
   }
 
   function exitWorld(VoxelCoord memory coord, bytes32 entity) public override {

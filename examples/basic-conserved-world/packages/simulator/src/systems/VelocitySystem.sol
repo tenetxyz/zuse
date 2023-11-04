@@ -40,8 +40,8 @@ contract VelocitySystem is SimHandler {
     );
 
     SimSelectors.set(
-      SimTable.Stamina,
       SimTable.Temperature,
+      SimTable.Velocity,
       IWorld(_world()).updateVelocityFromTemperature.selector,
       ValueType.Int256,
       ValueType.VoxelCoordArray

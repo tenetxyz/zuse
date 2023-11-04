@@ -15,6 +15,7 @@ import { entityIsSoil, entityIsPlant, entityIsPokemon, entityIsFarmer, entityIsT
 import { getCAEntityAtCoord, getCAVoxelType, getCAEntityPositionStrict, caEntityToEntity } from "@tenet-base-ca/src/Utils.sol";
 import { Farmer } from "@tenet-pokemon-extension/src/codegen/tables/Farmer.sol";
 import { getEntitySimData, transfer, transferSimData } from "@tenet-level1-ca/src/Utils.sol";
+import { DirtVoxelID } from "@tenet-level1-ca/src/Constants.sol";
 import { console } from "forge-std/console.sol";
 import { PlantConsumer } from "@tenet-pokemon-extension/src/Types.sol";
 
@@ -128,11 +129,12 @@ contract ThermoSystem is VoxelInteraction {
       }
     }
 
-    (bool hasTransfer, CAEventData[] memory allCAEventData) = runTransferLogic(
+    (bool hasTransfer, CAEventData[] memory allCAEventData) = runMainLogic(
       callerAddress,
       transferPerThermo,
       entitySimData,
-      neighbourEntityIds
+      neighbourEntityIds,
+      neighbourEntityDirections
     );
 
     // Check if there's at least one transfer
@@ -144,11 +146,12 @@ contract ThermoSystem is VoxelInteraction {
     return (changedEntity, entityData);
   }
 
-  function runTransferLogic(
+  function runMainLogic(
     address callerAddress,
     uint256 transferPerThermo,
     BodySimData memory entitySimData,
-    bytes32[] memory neighbourEntityIds
+    bytes32[] memory neighbourEntityIds,
+    BlockDirection[] memory neighbourEntityDirections
   ) internal returns (bool, CAEventData[] memory) {
     CAEventData[] memory allCAEventData = new CAEventData[](neighbourEntityIds.length);
     bool hasTransfer = false;
@@ -173,6 +176,31 @@ contract ThermoSystem is VoxelInteraction {
           getCAEntityPositionStrict(IStore(_world()), neighbourEntityIds[i]),
           transferPerThermo
         );
+        hasTransfer = true;
+      } else if (
+        getCAVoxelType(neighbourEntityIds[i]) == DirtVoxelID && neighbourEntityDirections[i] == BlockDirection.Down
+      ) {
+        // launch it!
+        VoxelCoord memory launchCoord = getCAEntityPositionStrict(IStore(_world()), neighbourEntityIds[i]);
+
+        // Parabolic trajectory
+        VoxelCoord[] memory launchTrajectory = new VoxelCoord[](6);
+        launchTrajectory[0] = VoxelCoord({ x: launchCoord.x, y: launchCoord.y + 1, z: launchCoord.z + 1 });
+        launchTrajectory[1] = VoxelCoord({ x: launchCoord.x, y: launchCoord.y + 2, z: launchCoord.z + 2 });
+        launchTrajectory[2] = VoxelCoord({ x: launchCoord.x, y: launchCoord.y + 3, z: launchCoord.z + 3 });
+        launchTrajectory[3] = VoxelCoord({ x: launchCoord.x, y: launchCoord.y + 2, z: launchCoord.z + 4 });
+        launchTrajectory[4] = VoxelCoord({ x: launchCoord.x, y: launchCoord.y + 1, z: launchCoord.z + 5 });
+        launchTrajectory[5] = VoxelCoord({ x: launchCoord.x, y: launchCoord.y, z: launchCoord.z + 6 });
+
+        SimEventData memory launchEventData = SimEventData({
+          senderTable: SimTable.Temperature,
+          senderValue: abi.encode(uint256ToInt256(entitySimData.temperature)),
+          targetEntity: VoxelEntity({ scale: 1, entityId: caEntityToEntity(neighbourEntityIds[i]) }),
+          targetCoord: launchCoord,
+          targetTable: SimTable.Velocity,
+          targetValue: abi.encode(launchTrajectory)
+        });
+        allCAEventData[i] = CAEventData({ eventType: CAEventType.SimEvent, eventData: abi.encode(launchEventData) });
         hasTransfer = true;
       }
     }

@@ -23,7 +23,8 @@ contract ThermoVoxelSystem is VoxelType {
   function registerBody() public override {
     address world = _world();
     VoxelVariantsRegistryData memory thermoVariant;
-    registerVoxelVariant(REGISTRY_ADDRESS, ThermoVoxelID, thermoVariant);
+    registerVoxelVariant(REGISTRY_ADDRESS, ThermoColdVoxelVariantID, thermoVariant);
+    registerVoxelVariant(REGISTRY_ADDRESS, ThermoHotVoxelVariantID, thermoVariant);
 
     bytes32[] memory thermoChildVoxelTypes = new bytes32[](1);
     thermoChildVoxelTypes[0] = ThermoVoxelID;

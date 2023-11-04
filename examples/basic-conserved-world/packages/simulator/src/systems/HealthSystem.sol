@@ -33,35 +33,6 @@ contract HealthSystem is SimHandler {
     );
   }
 
-  function healthBehaviour(address callerAddress, VoxelEntity memory behaviourEntity) public {
-    require(_msgSender() == _world(), "Only the world can update health");
-    // Get neighbours
-    (bytes32[] memory neighbourEntities, ) = getNeighbourEntities(callerAddress, behaviourEntity);
-    // For each neighbour, the ones that have health
-    // Update health if not already updated
-    for (uint i = 0; i < neighbourEntities.length; i++) {
-      if (neighbourEntities[i] == 0) {
-        continue;
-      }
-
-      if (!hasKey(HealthTableId, Health.encodeKeyTuple(callerAddress, behaviourEntity.scale, neighbourEntities[i]))) {
-        continue;
-      }
-
-      HealthData memory healthData = Health.get(callerAddress, behaviourEntity.scale, neighbourEntities[i]);
-      if (healthData.lastUpdatedBlock == block.number) {
-        continue;
-      }
-
-      // Check if element time is fire
-      ObjectType currentType = Object.get(callerAddress, behaviourEntity.scale, neighbourEntities[i]);
-      if (currentType == ObjectType.Fire) {
-        // increase health
-      } else {
-        // decrease health
-      }
-  }
-
   function updateHealthFromElixir(
     VoxelEntity memory senderEntity,
     VoxelCoord memory senderCoord,

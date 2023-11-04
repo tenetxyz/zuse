@@ -5,13 +5,13 @@ import { IStore } from "@latticexyz/store/src/IStore.sol";
 import { IWorld } from "@tenet-simulator/src/codegen/world/IWorld.sol";
 import { hasKey } from "@latticexyz/world/src/modules/keysintable/hasKey.sol";
 import { SimHandler } from "@tenet-simulator/prototypes/SimHandler.sol";
-import { Temperature, TemperatureTableId, Stamina, StaminaTableId, Nitrogen, NitrogenTableId, Potassium, PotassiumTableId, Phosphorous, PhosphorousTableId, Nutrients, NutrientsTableId, SimSelectors, Health, HealthTableId, Mass, MassTableId, Energy, EnergyTableId, Velocity, VelocityTableId } from "@tenet-simulator/src/codegen/Tables.sol";
+import { Temperature, TemperatureTableId, Stamina, StaminaTableId, Nitrogen, NitrogenTableId, Potassium, PotassiumTableId, Phosphorous, PhosphorousTableId, Nutrients, NutrientsTableId, SimSelectors, Health, HealthData, HealthTableId, Mass, MassTableId, Energy, EnergyTableId, Velocity, VelocityTableId } from "@tenet-simulator/src/codegen/Tables.sol";
 import { VoxelCoord, VoxelTypeData, VoxelEntity, SimTable, ValueType } from "@tenet-utils/src/Types.sol";
 import { VoxelTypeRegistry, VoxelTypeRegistryData } from "@tenet-registry/src/codegen/tables/VoxelTypeRegistry.sol";
 import { distanceBetween, voxelCoordsAreEqual, isZeroCoord } from "@tenet-utils/src/VoxelCoordUtils.sol";
 import { safeSubtract, int256ToUint256, addUint256AndInt256, uint256ToInt256 } from "@tenet-utils/src/TypeUtils.sol";
 import { isEntityEqual } from "@tenet-utils/src/Utils.sol";
-import { absoluteDifference } from "@tenet-utils/src/MathUtils.sol";
+import { absoluteDifference, min } from "@tenet-utils/src/MathUtils.sol";
 import { getNeighbourEntities } from "@tenet-simulator/src/Utils.sol";
 import { getVelocity, getTerrainMass, getTerrainEnergy, getTerrainVelocity, createTerrainEntity } from "@tenet-simulator/src/Utils.sol";
 import { console } from "forge-std/console.sol";
@@ -33,6 +33,55 @@ contract TemperatureSystem is SimHandler {
       ValueType.Int256,
       ValueType.Int256
     );
+  }
+
+  function temperatureBehaviour(address callerAddress, VoxelEntity memory behaviourEntity) public {
+    require(_msgSender() == _world(), "Only the world can update health");
+
+    if (
+      !hasKey(
+        TemperatureTableId,
+        Temperature.encodeKeyTuple(callerAddress, behaviourEntity.scale, behaviourEntity.entityId)
+      )
+    ) {
+      return;
+    }
+    uint256 entityTemperature = Temperature.get(callerAddress, behaviourEntity.scale, behaviourEntity.entityId);
+
+    // Get neighbours
+    (bytes32[] memory neighbourEntities, ) = getNeighbourEntities(callerAddress, behaviourEntity);
+    // For each neighbour, the ones that have health
+    // Update health if not already updated
+    for (uint i = 0; i < neighbourEntities.length; i++) {
+      if (neighbourEntities[i] == 0) {
+        continue;
+      }
+
+      if (!hasKey(HealthTableId, Health.encodeKeyTuple(callerAddress, behaviourEntity.scale, neighbourEntities[i]))) {
+        continue;
+      }
+
+      HealthData memory healthData = Health.get(callerAddress, behaviourEntity.scale, neighbourEntities[i]);
+      if (healthData.lastUpdatedBlock == block.number) {
+        continue;
+      }
+
+      // Check if element time is fire
+      ObjectType currentType = Object.get(callerAddress, behaviourEntity.scale, neighbourEntities[i]);
+      if (currentType == ObjectType.Fire) {
+        // increase health
+      } else {
+        // decrease health
+        uint256 difference = absoluteDifference(healthData.health, entityTemperature);
+        uint256 minSubtract = min(healthData.health, min(entityTemperature, difference));
+        uint256 newHealth = safeSubtract(healthData.health, minSubtract);
+        uint256 newTemperature = safeSubtract(entityTemperature, minSubtract);
+        uint256 cost_e = 2 * minSubtract;
+        Health.set(callerAddress, behaviourEntity.scale, neighbourEntities[i], newHealth, block.number);
+        Temperature.set(callerAddress, behaviourEntity.scale, behaviourEntity.entityId, newTemperature);
+        IWorld(_world()).fluxEnergy(false, callerAddress, behaviourEntity, cost_e);
+      }
+    }
   }
 
   function getTemperatureDelta(

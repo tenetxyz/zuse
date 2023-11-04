@@ -82,6 +82,7 @@ export default mudConfig({
         entity: "bytes32",
       },
       schema: {
+        lastUpdateBlock: "uint256",
         health: "uint256",
       },
     },

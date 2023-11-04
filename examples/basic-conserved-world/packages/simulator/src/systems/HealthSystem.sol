@@ -5,7 +5,7 @@ import { IStore } from "@latticexyz/store/src/IStore.sol";
 import { IWorld } from "@tenet-simulator/src/codegen/world/IWorld.sol";
 import { hasKey } from "@latticexyz/world/src/modules/keysintable/hasKey.sol";
 import { SimHandler } from "@tenet-simulator/prototypes/SimHandler.sol";
-import { Elixir, ElixirTableId, SimSelectors, Health, HealthTableId, Mass, MassTableId, Energy, EnergyTableId, Velocity, VelocityTableId } from "@tenet-simulator/src/codegen/Tables.sol";
+import { Elixir, ElixirTableId, SimSelectors, Health, HealthTableId, HealthData, Mass, MassTableId, Energy, EnergyTableId, Velocity, VelocityTableId } from "@tenet-simulator/src/codegen/Tables.sol";
 import { VoxelCoord, VoxelTypeData, VoxelEntity, SimTable, ValueType } from "@tenet-utils/src/Types.sol";
 import { VoxelTypeRegistry, VoxelTypeRegistryData } from "@tenet-registry/src/codegen/tables/VoxelTypeRegistry.sol";
 import { distanceBetween, voxelCoordsAreEqual, isZeroCoord } from "@tenet-utils/src/VoxelCoordUtils.sol";
@@ -31,6 +31,35 @@ contract HealthSystem is SimHandler {
       ValueType.Int256,
       ValueType.Int256
     );
+  }
+
+  function healthBehaviour(address callerAddress, VoxelEntity memory behaviourEntity) public {
+    require(_msgSender() == _world(), "Only the world can update health");
+    // Get neighbours
+    (bytes32[] memory neighbourEntities, ) = getNeighbourEntities(callerAddress, behaviourEntity);
+    // For each neighbour, the ones that have health
+    // Update health if not already updated
+    for (uint i = 0; i < neighbourEntities.length; i++) {
+      if (neighbourEntities[i] == 0) {
+        continue;
+      }
+
+      if (!hasKey(HealthTableId, Health.encodeKeyTuple(callerAddress, behaviourEntity.scale, neighbourEntities[i]))) {
+        continue;
+      }
+
+      HealthData memory healthData = Health.get(callerAddress, behaviourEntity.scale, neighbourEntities[i]);
+      if (healthData.lastUpdatedBlock == block.number) {
+        continue;
+      }
+
+      // Check if element time is fire
+      ObjectType currentType = Object.get(callerAddress, behaviourEntity.scale, neighbourEntities[i]);
+      if (currentType == ObjectType.Fire) {
+        // increase health
+      } else {
+        // decrease health
+      }
   }
 
   function updateHealthFromElixir(

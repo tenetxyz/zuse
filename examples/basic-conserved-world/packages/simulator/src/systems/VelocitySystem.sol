@@ -41,7 +41,7 @@ contract VelocitySystem is SimHandler {
 
     SimSelectors.set(
       SimTable.Stamina,
-      SimTable.Velocity,
+      SimTable.Temperature,
       IWorld(_world()).updateVelocityFromTemperature.selector,
       ValueType.Int256,
       ValueType.VoxelCoordArray
@@ -328,9 +328,9 @@ contract VelocitySystem is SimHandler {
       if (hasKey(StaminaTableId, Stamina.encodeKeyTuple(callerAddress, oldEntity.scale, oldEntity.entityId))) {
         Stamina.set(callerAddress, newEntity.scale, newEntity.entityId, resourceInOldEntity);
       }
-      if (hasKey(TemperatureTableId, Temperature.encodeKeyTuple(callerAddress, oldEntity.scale, oldEntity.entityId))) {
-        Temperature.set(callerAddress, newEntity.scale, newEntity.entityId, resourceInOldEntity);
-      }
+      // if (hasKey(TemperatureTableId, Temperature.encodeKeyTuple(callerAddress, oldEntity.scale, oldEntity.entityId))) {
+      //   Temperature.set(callerAddress, newEntity.scale, newEntity.entityId, resourceInOldEntity);
+      // }
       if (resourceToConsume == MovementResource.Stamina) {
         Stamina.set(
           callerAddress,

@@ -5,8 +5,8 @@ import { IStore } from "@latticexyz/store/src/IStore.sol";
 import { IWorld } from "@tenet-simulator/src/codegen/world/IWorld.sol";
 import { hasKey } from "@latticexyz/world/src/modules/keysintable/hasKey.sol";
 import { SimHandler } from "@tenet-simulator/prototypes/SimHandler.sol";
-import { Temperature, TemperatureTableId, Stamina, StaminaTableId, Nitrogen, NitrogenTableId, Potassium, PotassiumTableId, Phosphorous, PhosphorousTableId, Nutrients, NutrientsTableId, SimSelectors, Health, HealthData, HealthTableId, Mass, MassTableId, Energy, EnergyTableId, Velocity, VelocityTableId } from "@tenet-simulator/src/codegen/Tables.sol";
-import { VoxelCoord, VoxelTypeData, VoxelEntity, SimTable, ValueType } from "@tenet-utils/src/Types.sol";
+import { Object, Temperature, TemperatureTableId, Stamina, StaminaTableId, Nitrogen, NitrogenTableId, Potassium, PotassiumTableId, Phosphorous, PhosphorousTableId, Nutrients, NutrientsTableId, SimSelectors, Health, HealthData, HealthTableId, Mass, MassTableId, Energy, EnergyTableId, Velocity, VelocityTableId } from "@tenet-simulator/src/codegen/Tables.sol";
+import { ObjectType, VoxelCoord, VoxelTypeData, VoxelEntity, SimTable, ValueType } from "@tenet-utils/src/Types.sol";
 import { VoxelTypeRegistry, VoxelTypeRegistryData } from "@tenet-registry/src/codegen/tables/VoxelTypeRegistry.sol";
 import { distanceBetween, voxelCoordsAreEqual, isZeroCoord } from "@tenet-utils/src/VoxelCoordUtils.sol";
 import { safeSubtract, int256ToUint256, addUint256AndInt256, uint256ToInt256 } from "@tenet-utils/src/TypeUtils.sol";
@@ -62,25 +62,31 @@ contract TemperatureSystem is SimHandler {
       }
 
       HealthData memory healthData = Health.get(callerAddress, behaviourEntity.scale, neighbourEntities[i]);
-      if (healthData.lastUpdatedBlock == block.number) {
+      if (healthData.lastUpdateBlock == block.number) {
         continue;
       }
 
       // Check if element time is fire
       ObjectType currentType = Object.get(callerAddress, behaviourEntity.scale, neighbourEntities[i]);
+      uint256 cost_e = 0;
+      uint256 newHealth = healthData.health;
+      uint256 newTemperature = entityTemperature;
+      uint256 difference = absoluteDifference(healthData.health, entityTemperature);
       if (currentType == ObjectType.Fire) {
-        // increase health
+        uint256 minSubtract = min(entityTemperature, difference);
+        newTemperature = safeSubtract(entityTemperature, minSubtract);
+        newHealth = healthData.health + minSubtract;
+        cost_e = minSubtract;
       } else {
         // decrease health
-        uint256 difference = absoluteDifference(healthData.health, entityTemperature);
         uint256 minSubtract = min(healthData.health, min(entityTemperature, difference));
-        uint256 newHealth = safeSubtract(healthData.health, minSubtract);
-        uint256 newTemperature = safeSubtract(entityTemperature, minSubtract);
-        uint256 cost_e = 2 * minSubtract;
-        Health.set(callerAddress, behaviourEntity.scale, neighbourEntities[i], newHealth, block.number);
-        Temperature.set(callerAddress, behaviourEntity.scale, behaviourEntity.entityId, newTemperature);
-        IWorld(_world()).fluxEnergy(false, callerAddress, behaviourEntity, cost_e);
+        newHealth = safeSubtract(healthData.health, minSubtract);
+        newTemperature = safeSubtract(entityTemperature, minSubtract);
+        cost_e = 2 * minSubtract;
       }
+      Health.set(callerAddress, behaviourEntity.scale, neighbourEntities[i], newHealth, block.number);
+      Temperature.set(callerAddress, behaviourEntity.scale, behaviourEntity.entityId, newTemperature);
+      IWorld(_world()).fluxEnergy(false, callerAddress, behaviourEntity, cost_e);
     }
   }
 

@@ -44,7 +44,7 @@ contract ExternalCASystem is ExternalCAPrototype {
     entitySimData.mass = Mass.get(store, worldAddress, entity.scale, entity.entityId);
     entitySimData.velocity = Velocity.getVelocity(store, worldAddress, entity.scale, entity.entityId);
     entitySimData.lastUpdateBlock = Velocity.getLastUpdateBlock(store, worldAddress, entity.scale, entity.entityId);
-    entitySimData.health = Health.get(store, worldAddress, entity.scale, entity.entityId);
+    entitySimData.health = Health.getHealth(store, worldAddress, entity.scale, entity.entityId);
     entitySimData.stamina = Stamina.get(store, worldAddress, entity.scale, entity.entityId);
     entitySimData.objectType = Object.get(store, worldAddress, entity.scale, entity.entityId);
     entitySimData.actionData = Action.get(store, worldAddress, entity.scale, entity.entityId);

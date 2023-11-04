@@ -16,7 +16,8 @@ import { EventType } from "@tenet-pokemon-extension/src/codegen/Types.sol";
 import { getEntitySimData, transfer } from "@tenet-level1-ca/src/Utils.sol";
 import { PlantConsumer } from "@tenet-pokemon-extension/src/Types.sol";
 
-bytes32 constant ThermoVoxelVariantID = bytes32(keccak256("thermo"));
+bytes32 constant ThermoColdVoxelVariantID = bytes32(keccak256("thermo-cold"));
+bytes32 constant ThermoHotVoxelVariantID = bytes32(keccak256("thermo-hot"));
 
 contract ThermoVoxelSystem is VoxelType {
   function registerBody() public override {
@@ -35,7 +36,7 @@ contract ThermoVoxelSystem is VoxelType {
       baseVoxelTypeId,
       thermoChildVoxelTypes,
       thermoChildVoxelTypes,
-      ThermoVoxelVariantID,
+      ThermoColdVoxelVariantID,
       voxelSelectorsForVoxel(
         IWorld(world).pokemon_ThermoVoxelSyste_enterWorld.selector,
         IWorld(world).pokemon_ThermoVoxelSyste_exitWorld.selector,
@@ -72,7 +73,12 @@ contract ThermoVoxelSystem is VoxelType {
     bytes32 parentEntity
   ) public view override returns (bytes32) {
     address callerAddress = super.getCallerAddress();
-    return ThermoVoxelVariantID;
+    BodySimData memory entitySimData = getEntitySimData(entity);
+    if (entitySimData.temperature > 0) {
+      return ThermoHotVoxelVariantID;
+    } else {
+      return ThermoColdVoxelVariantID;
+    }
   }
 
   function activate(bytes32 entity) public view override returns (string memory) {}

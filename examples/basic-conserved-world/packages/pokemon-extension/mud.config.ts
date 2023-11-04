@@ -61,6 +61,15 @@ export default mudConfig({
         hasValue: "bool", // TODO: Remove this once we can install non-root modules
       },
     },
+    Thermo: {
+      keySchema: {
+        callerAddress: "address",
+        entity: "bytes32",
+      },
+      schema: {
+        hasValue: "bool", // TODO: Remove this once we can install non-root modules
+      },
+    },
   },
   modules: [],
 });

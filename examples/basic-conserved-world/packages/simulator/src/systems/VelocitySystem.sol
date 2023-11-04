@@ -320,19 +320,9 @@ contract VelocitySystem is SimHandler {
     if (isEntityEqual(oldEntity, actingEntity)) {
       // newActingEntity = newEntity; // moving yourself, so update the acting entity
       if (resourceToConsume == MovementResource.Stamina) {
-        Stamina.set(
-          callerAddress,
-          actingEntity.scale,
-          actingEntity.entityId,
-          oldEntityData.resource - resourceRequired
-        );
+        Stamina.set(callerAddress, newEntity.scale, newEntity.entityId, oldEntityData.resource - resourceRequired);
       } else {
-        Temperature.set(
-          callerAddress,
-          actingEntity.scale,
-          actingEntity.entityId,
-          oldEntityData.resource - resourceRequired
-        );
+        Temperature.set(callerAddress, newEntity.scale, newEntity.entityId, oldEntityData.resource - resourceRequired);
       }
     } else {
       if (hasKey(StaminaTableId, Stamina.encodeKeyTuple(callerAddress, oldEntity.scale, oldEntity.entityId))) {

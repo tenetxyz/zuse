@@ -30,7 +30,7 @@ import { Elixir } from "@tenet-simulator/src/codegen/tables/Elixir.sol";
 
 uint256 constant INITIAL_HIGH_ENERGY = 150;
 
-contract DiffusiveSoilSoilTest is MudTest {
+contract DiffusiveSoilTest is MudTest {
   IWorld private world;
   IStore private store;
   VoxelCoord private agentCoord;

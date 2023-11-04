@@ -84,7 +84,7 @@ contract TemperatureSystem is SimHandler {
         newTemperature = safeSubtract(entityTemperature, minSubtract);
         cost_e = 2 * minSubtract;
       }
-      Health.set(callerAddress, behaviourEntity.scale, neighbourEntities[i], newHealth, block.number);
+      Health.set(callerAddress, behaviourEntity.scale, neighbourEntities[i], block.number, newHealth);
       Temperature.set(callerAddress, behaviourEntity.scale, behaviourEntity.entityId, newTemperature);
       IWorld(_world()).fluxEnergy(false, callerAddress, behaviourEntity, cost_e);
     }

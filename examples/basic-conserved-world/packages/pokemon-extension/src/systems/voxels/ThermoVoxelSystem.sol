@@ -37,7 +37,7 @@ contract ThermoVoxelSystem is VoxelType {
       baseVoxelTypeId,
       thermoChildVoxelTypes,
       thermoChildVoxelTypes,
-      ThermoColdVoxelVariantID,
+      ThermoHotVoxelVariantID,
       voxelSelectorsForVoxel(
         IWorld(world).pokemon_ThermoVoxelSyste_enterWorld.selector,
         IWorld(world).pokemon_ThermoVoxelSyste_exitWorld.selector,

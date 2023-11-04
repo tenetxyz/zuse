@@ -75,6 +75,10 @@ contract VelocitySystem is SimHandler {
       // bytes32 voxelTypeId = getVoxelTypeId(callerAddress, workingEntity);
       VoxelCoord memory workingCoord = receiverCoord;
       for (uint i = 0; i < receiverPositionDelta.length; i++) {
+        console.log("moving from temp");
+        console.logInt(receiverPositionDelta[i].x);
+        console.logInt(receiverPositionDelta[i].y);
+        console.logInt(receiverPositionDelta[i].z);
         (bool success, bytes memory returnData) = callerAddress.call(
           abi.encodeWithSignature(
             "moveWithAgent(bytes32,(int32,int32,int32),(int32,int32,int32),(uint32,bytes32))",

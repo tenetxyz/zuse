@@ -258,4 +258,60 @@ contract ThermoTest is MudTest {
 
     vm.stopPrank();
   }
+
+  function testThermoLaunch() public returns (VoxelEntity memory, VoxelEntity memory) {
+    vm.startPrank(alice, alice);
+    VoxelEntity memory agentEntity = setupAgent();
+
+    VoxelCoord memory thermoCoord = VoxelCoord({ x: agentCoord.x + 1, y: agentCoord.y, z: agentCoord.z });
+    VoxelEntity memory thermoEntity = world.buildWithAgent(ThermoVoxelID, thermoCoord, agentEntity, bytes4(0));
+    Energy.set(IStore(SIMULATOR_ADDRESS), worldAddress, thermoEntity.scale, thermoEntity.entityId, INITIAL_HIGH_ENERGY);
+    world.activateWithAgent(ThermoVoxelID, thermoCoord, agentEntity, bytes4(0));
+    uint256 temperature = Temperature.get(
+      IStore(SIMULATOR_ADDRESS),
+      worldAddress,
+      thermoEntity.scale,
+      thermoEntity.entityId
+    );
+    console.log("temperature");
+    console.logUint(temperature);
+    assertTrue(temperature > 0);
+    assertTrue(Energy.get(IStore(SIMULATOR_ADDRESS), worldAddress, thermoEntity.scale, thermoEntity.entityId) == 0);
+
+    // Place down dirt on top of it
+    console.log("build neighbour");
+    console.logBytes32(thermoEntity.entityId);
+    VoxelCoord memory dirtCoord = VoxelCoord({ x: thermoCoord.x, y: thermoCoord.y + 1, z: thermoCoord.z });
+    vm.roll(block.number + 1);
+    VoxelEntity memory dirtEntity = world.buildWithAgent(DirtVoxelID, dirtCoord, agentEntity, bytes4(0));
+    console.log("types");
+    console.logInt(thermoCoord.x);
+    console.logInt(thermoCoord.y);
+    console.logInt(thermoCoord.z);
+    VoxelEntity memory accDirtEntity = VoxelEntity({
+      scale: 1,
+      entityId: getEntityAtCoord(1, VoxelCoord(thermoCoord.x, thermoCoord.y + 1, thermoCoord.z + 4))
+    });
+    assertTrue(VoxelType.getVoxelTypeId(accDirtEntity.scale, accDirtEntity.entityId) == DirtVoxelID);
+    VoxelCoord memory dirtVelocity = abi.decode(
+      Velocity.getVelocity(IStore(SIMULATOR_ADDRESS), worldAddress, accDirtEntity.scale, accDirtEntity.entityId),
+      (VoxelCoord)
+    );
+    console.log("dirtVelocity");
+    console.logInt(dirtVelocity.x);
+    console.logInt(dirtVelocity.y);
+    console.logInt(dirtVelocity.z);
+    console.log("temperature");
+    assertTrue(dirtVelocity.x == 0);
+    assertTrue(dirtVelocity.y == 0);
+    assertTrue(dirtVelocity.z == 4);
+    console.logUint(
+      Temperature.get(IStore(SIMULATOR_ADDRESS), worldAddress, thermoEntity.scale, thermoEntity.entityId)
+    );
+    assertTrue(
+      Temperature.get(IStore(SIMULATOR_ADDRESS), worldAddress, thermoEntity.scale, thermoEntity.entityId) < temperature
+    );
+
+    vm.stopPrank();
+  }
 }

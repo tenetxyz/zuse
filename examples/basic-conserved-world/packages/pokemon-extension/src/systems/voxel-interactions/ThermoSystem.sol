@@ -53,8 +53,9 @@ contract ThermoSystem is VoxelInteraction {
     }
     console.log("checking");
     if (
-      !(entityIsThermo(callerAddress, centerEntityId) &&
-        getEntitySimData(centerEntityId).temperature <= entitySimData.temperature)
+      !((getCAVoxelType(centerEntityId) == DirtVoxelID && centerBlockDirection == BlockDirection.Down) ||
+        (entityIsThermo(callerAddress, centerEntityId) &&
+          getEntitySimData(centerEntityId).temperature <= entitySimData.temperature))
     ) {
       return (changedEntity, entityData);
     }
@@ -116,22 +117,8 @@ contract ThermoSystem is VoxelInteraction {
       Thermo.setLastEvent(callerAddress, interactEntity, EventType.None);
     }
 
-    uint256 transferPerThermo;
-    {
-      uint256 validThermoNeighbours = calculateValidThermoNeighbours(callerAddress, neighbourEntityIds, entitySimData);
-      if (validThermoNeighbours == 0) {
-        return (changedEntity, entityData);
-      }
-      transferPerThermo = getTemperatureToThermo(entitySimData.temperature) / validThermoNeighbours;
-
-      if (transferPerThermo == 0) {
-        return (changedEntity, entityData);
-      }
-    }
-
     (bool hasTransfer, CAEventData[] memory allCAEventData) = runMainLogic(
       callerAddress,
-      transferPerThermo,
       entitySimData,
       neighbourEntityIds,
       neighbourEntityDirections
@@ -148,12 +135,19 @@ contract ThermoSystem is VoxelInteraction {
 
   function runMainLogic(
     address callerAddress,
-    uint256 transferPerThermo,
     BodySimData memory entitySimData,
     bytes32[] memory neighbourEntityIds,
     BlockDirection[] memory neighbourEntityDirections
   ) internal returns (bool, CAEventData[] memory) {
     CAEventData[] memory allCAEventData = new CAEventData[](neighbourEntityIds.length);
+    uint256 transferPerThermo = 0;
+    {
+      uint256 validThermoNeighbours = calculateValidThermoNeighbours(callerAddress, neighbourEntityIds, entitySimData);
+      if (validThermoNeighbours > 0) {
+        transferPerThermo = getTemperatureToThermo(entitySimData.temperature) / validThermoNeighbours;
+      }
+    }
+
     bool hasTransfer = false;
     for (uint i = 0; i < neighbourEntityIds.length; i++) {
       if (uint256(neighbourEntityIds[i]) == 0) {
@@ -164,33 +158,36 @@ contract ThermoSystem is VoxelInteraction {
         entityIsThermo(callerAddress, neighbourEntityIds[i]) &&
         getEntitySimData(neighbourEntityIds[i]).temperature <= entitySimData.temperature
       ) {
-        console.log("transfer");
-        console.logBytes32(neighbourEntityIds[i]);
-        console.log("transferPerThermo");
-        console.logUint(transferPerThermo);
-        allCAEventData[i] = transfer(
-          SimTable.Temperature,
-          SimTable.Temperature,
-          entitySimData,
-          neighbourEntityIds[i],
-          getCAEntityPositionStrict(IStore(_world()), neighbourEntityIds[i]),
-          transferPerThermo
-        );
-        hasTransfer = true;
+        if (transferPerThermo > 0) {
+          console.log("transfer");
+          console.logBytes32(neighbourEntityIds[i]);
+          console.log("transferPerThermo");
+          console.logUint(transferPerThermo);
+          allCAEventData[i] = transfer(
+            SimTable.Temperature,
+            SimTable.Temperature,
+            entitySimData,
+            neighbourEntityIds[i],
+            getCAEntityPositionStrict(IStore(_world()), neighbourEntityIds[i]),
+            transferPerThermo
+          );
+          hasTransfer = true;
+        }
       } else if (
         getCAVoxelType(neighbourEntityIds[i]) == DirtVoxelID && neighbourEntityDirections[i] == BlockDirection.Down
       ) {
+        if (entitySimData.temperature == 0) {
+          continue;
+        }
         // launch it!
         VoxelCoord memory launchCoord = getCAEntityPositionStrict(IStore(_world()), neighbourEntityIds[i]);
 
         // Parabolic trajectory
-        VoxelCoord[] memory launchTrajectory = new VoxelCoord[](6);
+        VoxelCoord[] memory launchTrajectory = new VoxelCoord[](4);
         launchTrajectory[0] = VoxelCoord({ x: launchCoord.x, y: launchCoord.y + 1, z: launchCoord.z + 1 });
         launchTrajectory[1] = VoxelCoord({ x: launchCoord.x, y: launchCoord.y + 2, z: launchCoord.z + 2 });
-        launchTrajectory[2] = VoxelCoord({ x: launchCoord.x, y: launchCoord.y + 3, z: launchCoord.z + 3 });
-        launchTrajectory[3] = VoxelCoord({ x: launchCoord.x, y: launchCoord.y + 2, z: launchCoord.z + 4 });
-        launchTrajectory[4] = VoxelCoord({ x: launchCoord.x, y: launchCoord.y + 1, z: launchCoord.z + 5 });
-        launchTrajectory[5] = VoxelCoord({ x: launchCoord.x, y: launchCoord.y, z: launchCoord.z + 6 });
+        launchTrajectory[2] = VoxelCoord({ x: launchCoord.x, y: launchCoord.y + 1, z: launchCoord.z + 3 });
+        launchTrajectory[3] = VoxelCoord({ x: launchCoord.x, y: launchCoord.y, z: launchCoord.z + 4 });
 
         SimEventData memory launchEventData = SimEventData({
           senderTable: SimTable.Temperature,

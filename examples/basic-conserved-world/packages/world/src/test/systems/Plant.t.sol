@@ -51,7 +51,7 @@ contract PlantTest is MudTest {
     // Claim agent
     VoxelEntity memory faucetEntity = VoxelEntity({ scale: 1, entityId: getEntityAtCoord(1, VoxelCoord(50, 10, 50)) });
     VoxelEntity memory agentEntity = world.claimAgentFromFaucet(faucetEntity, FaucetVoxelID, agentCoord);
-    Health.set(IStore(SIMULATOR_ADDRESS), worldAddress, agentEntity.scale, agentEntity.entityId, 500);
+    Health.setHealth(IStore(SIMULATOR_ADDRESS), worldAddress, agentEntity.scale, agentEntity.entityId, 500);
     return agentEntity;
   }
 
@@ -227,7 +227,9 @@ contract PlantTest is MudTest {
       VoxelCoord memory pokemonCoord = VoxelCoord({ x: plantCoord.x, y: plantCoord.y, z: plantCoord.z - 1 });
       VoxelEntity memory pokemonEntity = world.buildWithAgent(FirePokemonVoxelID, pokemonCoord, agentEntity, bytes4(0));
       // pokemon entity should have some energy
-      assertTrue(Health.get(IStore(SIMULATOR_ADDRESS), worldAddress, pokemonEntity.scale, pokemonEntity.entityId) > 0);
+      assertTrue(
+        Health.getHealth(IStore(SIMULATOR_ADDRESS), worldAddress, pokemonEntity.scale, pokemonEntity.entityId) > 0
+      );
       assertTrue(Stamina.get(IStore(SIMULATOR_ADDRESS), worldAddress, pokemonEntity.scale, pokemonEntity.entityId) > 0);
       uint256 plantElixir = Elixir.get(
         IStore(SIMULATOR_ADDRESS),

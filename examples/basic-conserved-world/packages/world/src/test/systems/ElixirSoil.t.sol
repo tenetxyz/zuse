@@ -52,7 +52,7 @@ contract ElixirSoilTest is MudTest {
       entityId: getEntityAtCoord(1, VoxelCoord({ x: 50, y: 10, z: 50 }))
     });
     VoxelEntity memory agentEntity = world.claimAgentFromFaucet(faucetEntity, FaucetVoxelID, agentCoord);
-    Health.set(IStore(SIMULATOR_ADDRESS), worldAddress, agentEntity.scale, agentEntity.entityId, 500);
+    Health.setHealth(IStore(SIMULATOR_ADDRESS), worldAddress, agentEntity.scale, agentEntity.entityId, 500);
     return agentEntity;
   }
 

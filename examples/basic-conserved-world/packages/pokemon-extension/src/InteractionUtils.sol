@@ -4,6 +4,7 @@ import { Soil } from "@tenet-pokemon-extension/src/codegen/tables/Soil.sol";
 import { Plant } from "@tenet-pokemon-extension/src/codegen/tables/Plant.sol";
 import { Pokemon } from "@tenet-pokemon-extension/src/codegen/tables/Pokemon.sol";
 import { Farmer } from "@tenet-pokemon-extension/src/codegen/tables/Farmer.sol";
+import { Thermo } from "@tenet-pokemon-extension/src/codegen/tables/Thermo.sol";
 
 function entityIsSoil(address callerAddress, bytes32 entity) view returns (bool) {
   return Soil.getHasValue(callerAddress, entity);
@@ -19,4 +20,8 @@ function entityIsPokemon(address callerAddress, bytes32 entity) view returns (bo
 
 function entityIsFarmer(address callerAddress, bytes32 entity) view returns (bool) {
   return Farmer.getHasValue(callerAddress, entity);
+}
+
+function entityIsThermo(address callerAddress, bytes32 entity) view returns (bool) {
+  return Thermo.getHasValue(callerAddress, entity);
 }

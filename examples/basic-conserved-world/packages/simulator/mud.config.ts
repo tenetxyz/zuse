@@ -82,6 +82,7 @@ export default mudConfig({
         entity: "bytes32",
       },
       schema: {
+        lastUpdateBlock: "uint256",
         health: "uint256",
       },
     },
@@ -177,6 +178,16 @@ export default mudConfig({
         protein: "uint256",
       },
     },
+    Temperature: {
+      keySchema: {
+        callerAddress: "address",
+        scale: "uint32",
+        entity: "bytes32",
+      },
+      schema: {
+        temperature: "uint256",
+      },
+    },
   },
   systems: {
     FluxSystem: {
@@ -265,6 +276,11 @@ export default mudConfig({
       name: "KeysInTableModule",
       root: true,
       args: [resolveTableId("Protein")],
+    },
+    {
+      name: "KeysInTableModule",
+      root: true,
+      args: [resolveTableId("Temperature")],
     },
   ],
 });

@@ -5,7 +5,7 @@ import { IStore } from "@latticexyz/store/src/IStore.sol";
 import { IWorld } from "@tenet-simulator/src/codegen/world/IWorld.sol";
 import { hasKey } from "@latticexyz/world/src/modules/keysintable/hasKey.sol";
 import { SimHandler } from "@tenet-simulator/prototypes/SimHandler.sol";
-import { Elixir, ElixirTableId, SimSelectors, Health, HealthTableId, Mass, MassTableId, Energy, EnergyTableId, Velocity, VelocityTableId } from "@tenet-simulator/src/codegen/Tables.sol";
+import { Elixir, ElixirTableId, SimSelectors, Health, HealthTableId, HealthData, Mass, MassTableId, Energy, EnergyTableId, Velocity, VelocityTableId } from "@tenet-simulator/src/codegen/Tables.sol";
 import { VoxelCoord, VoxelTypeData, VoxelEntity, SimTable, ValueType } from "@tenet-utils/src/Types.sol";
 import { VoxelTypeRegistry, VoxelTypeRegistryData } from "@tenet-registry/src/codegen/tables/VoxelTypeRegistry.sol";
 import { distanceBetween, voxelCoordsAreEqual, isZeroCoord } from "@tenet-utils/src/VoxelCoordUtils.sol";
@@ -58,8 +58,13 @@ contract HealthSystem is SimHandler {
       uint256 currentSenderElixir = Elixir.get(callerAddress, senderEntity.scale, senderEntity.entityId);
       require(currentSenderElixir >= senderElixir, "Sender does not have enough elixir");
       Elixir.set(callerAddress, senderEntity.scale, senderEntity.entityId, currentSenderElixir - senderElixir);
-      uint256 currentReceiverHealth = Health.get(callerAddress, receiverEntity.scale, receiverEntity.entityId);
-      Health.set(callerAddress, receiverEntity.scale, receiverEntity.entityId, currentReceiverHealth + receiverHealth);
+      uint256 currentReceiverHealth = Health.getHealth(callerAddress, receiverEntity.scale, receiverEntity.entityId);
+      Health.setHealth(
+        callerAddress,
+        receiverEntity.scale,
+        receiverEntity.entityId,
+        currentReceiverHealth + receiverHealth
+      );
     }
   }
 
@@ -95,11 +100,11 @@ contract HealthSystem is SimHandler {
         senderEntity.entityId,
         addUint256AndInt256(currentSenderEnergy, senderEnergyDelta)
       );
-      uint256 currentReceiverHealth = Health.get(callerAddress, receiverEntity.scale, receiverEntity.entityId);
+      uint256 currentReceiverHealth = Health.getHealth(callerAddress, receiverEntity.scale, receiverEntity.entityId);
       if (receiverHealthDelta < 0) {
         require(currentReceiverHealth >= receiverHealth, "Receiver does not have enough health");
       }
-      Health.set(
+      Health.setHealth(
         callerAddress,
         receiverEntity.scale,
         receiverEntity.entityId,
@@ -133,7 +138,7 @@ contract HealthSystem is SimHandler {
       uint256 receiverHealth = int256ToUint256(receiverHealthDelta);
       require(senderHealth == receiverHealth, "Sender health must equal receiver health");
 
-      uint256 currentSenderHealth = Health.get(callerAddress, senderEntity.scale, senderEntity.entityId);
+      uint256 currentSenderHealth = Health.getHealth(callerAddress, senderEntity.scale, senderEntity.entityId);
       require(currentSenderHealth >= senderHealth, "Not enough health to transfer");
       bool receiverEntityExists = hasKey(
         MassTableId,
@@ -147,9 +152,14 @@ contract HealthSystem is SimHandler {
         );
       }
       require(receiverEntityExists, "Receiver entity does not exist");
-      uint256 currentReceiverHealth = Health.get(callerAddress, receiverEntity.scale, receiverEntity.entityId);
-      Health.set(callerAddress, receiverEntity.scale, receiverEntity.entityId, currentReceiverHealth + receiverHealth);
-      Health.set(callerAddress, senderEntity.scale, senderEntity.entityId, currentSenderHealth - senderHealth);
+      uint256 currentReceiverHealth = Health.getHealth(callerAddress, receiverEntity.scale, receiverEntity.entityId);
+      Health.setHealth(
+        callerAddress,
+        receiverEntity.scale,
+        receiverEntity.entityId,
+        currentReceiverHealth + receiverHealth
+      );
+      Health.setHealth(callerAddress, senderEntity.scale, senderEntity.entityId, currentSenderHealth - senderHealth);
     }
   }
 }

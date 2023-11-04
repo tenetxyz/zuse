@@ -6,7 +6,7 @@ export default mudConfig({
   enums: {
     ObjectType: ["None", "Fire", "Water", "Grass"],
     PlantStage: ["Seed", "Sprout", "Flower"],
-    EventType: ["None", "SetNPK", "SetNutrients", "SetElixir", "SetProtein", "Die"],
+    EventType: ["None", "SetNPK", "SetNutrients", "SetTemperature", "SetElixir", "SetProtein", "Die"],
     SoilType: ["ProteinSoil", "ElixirSoil", "Concentrative", "Diffusive"],
   },
   tables: {
@@ -58,6 +58,17 @@ export default mudConfig({
       },
       schema: {
         isHungry: "bool",
+        hasValue: "bool", // TODO: Remove this once we can install non-root modules
+      },
+    },
+    Thermo: {
+      keySchema: {
+        callerAddress: "address",
+        entity: "bytes32",
+      },
+      schema: {
+        lastEvent: "EventType",
+        lastInteractionBlock: "uint256",
         hasValue: "bool", // TODO: Remove this once we can install non-root modules
       },
     },

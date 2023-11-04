@@ -19,7 +19,7 @@ import { VoxelTypeRegistry, VoxelTypeRegistryData } from "@tenet-registry/src/co
 
 contract SpawnEntity is Script {
   function giveComponents(address worldAddress, bytes32 entity) private {
-    Health.set(IStore(SIMULATOR_ADDRESS), worldAddress, 1, entity, 90);
+    Health.setHealth(IStore(SIMULATOR_ADDRESS), worldAddress, 1, entity, 90);
     Energy.set(IStore(SIMULATOR_ADDRESS), worldAddress, 1, entity, 9000);
   }
 

@@ -19,4 +19,6 @@ bytes32 constant PlantProteinVoxelVariantID = bytes32(keccak256("plant-protein")
 bytes32 constant PlantElixirVoxelVariantID = bytes32(keccak256("plant-elixir"));
 bytes32 constant PlantFlowerVoxelVariantID = bytes32(keccak256("plant-flower"));
 
+bytes32 constant ThermoVoxelID = bytes32(keccak256("thermo"));
+
 uint256 constant NUM_BLOCKS_FAINTED = 50;

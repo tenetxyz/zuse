@@ -164,11 +164,11 @@ contract ActionSystem is SimHandler {
     // Flux out energy proportional to the health lost
     IWorld(_world()).fluxEnergy(false, callerAddress, entity, lostHealth);
     {
-      Health.set(
+      Health.setHealth(
         callerAddress,
         entity.scale,
         entity.entityId,
-        safeSubtract(Health.get(callerAddress, entity.scale, entity.entityId), lostHealth)
+        safeSubtract(Health.getHealth(callerAddress, entity.scale, entity.entityId), lostHealth)
       );
     }
 

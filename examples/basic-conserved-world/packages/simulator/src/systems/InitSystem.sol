@@ -39,6 +39,6 @@ contract InitSystem is System {
       "Agent entity already initialized"
     );
     Stamina.set(callerAddress, entity.scale, entity.entityId, initStamina);
-    Health.set(callerAddress, entity.scale, entity.entityId, initHealth);
+    Health.set(callerAddress, entity.scale, entity.entityId, 0, initHealth);
   }
 }

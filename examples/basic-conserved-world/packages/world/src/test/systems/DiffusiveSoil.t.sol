@@ -30,7 +30,7 @@ import { Elixir } from "@tenet-simulator/src/codegen/tables/Elixir.sol";
 
 uint256 constant INITIAL_HIGH_ENERGY = 150;
 
-contract DiffusiveSoilSoilTest is MudTest {
+contract DiffusiveSoilTest is MudTest {
   IWorld private world;
   IStore private store;
   VoxelCoord private agentCoord;
@@ -52,7 +52,7 @@ contract DiffusiveSoilSoilTest is MudTest {
       entityId: getEntityAtCoord(1, VoxelCoord({ x: 50, y: 10, z: 50 }))
     });
     VoxelEntity memory agentEntity = world.claimAgentFromFaucet(faucetEntity, FaucetVoxelID, agentCoord);
-    Health.set(IStore(SIMULATOR_ADDRESS), worldAddress, agentEntity.scale, agentEntity.entityId, 500);
+    Health.setHealth(IStore(SIMULATOR_ADDRESS), worldAddress, agentEntity.scale, agentEntity.entityId, 500);
     return agentEntity;
   }
 

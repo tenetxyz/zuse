@@ -5,7 +5,7 @@ import { IStore } from "@latticexyz/store/src/IStore.sol";
 import { IWorld } from "@tenet-simulator/src/codegen/world/IWorld.sol";
 import { hasKey } from "@latticexyz/world/src/modules/keysintable/hasKey.sol";
 import { System } from "@latticexyz/world/src/System.sol";
-import { Metadata, MetadataTableId, Nitrogen, NitrogenTableId, Phosphorous, PhosphorousTableId, Potassium, PotassiumTableId, Nutrients, NutrientsTableId, Elixir, ElixirTableId, Protein, ProteinTableId, Health, HealthTableId, Stamina, StaminaTableId, Object, ObjectTableId, Action, ActionData, ActionTableId, Mass, MassTableId, Energy, EnergyTableId, Velocity, VelocityTableId } from "@tenet-simulator/src/codegen/Tables.sol";
+import { Temperature, Metadata, MetadataTableId, Nitrogen, NitrogenTableId, Phosphorous, PhosphorousTableId, Potassium, PotassiumTableId, Nutrients, NutrientsTableId, Elixir, ElixirTableId, Protein, ProteinTableId, Health, HealthTableId, Stamina, StaminaTableId, Object, ObjectTableId, Action, ActionData, ActionTableId, Mass, MassTableId, Energy, EnergyTableId, Velocity, VelocityTableId } from "@tenet-simulator/src/codegen/Tables.sol";
 import { VoxelCoord, VoxelTypeData, VoxelEntity, ObjectType } from "@tenet-utils/src/Types.sol";
 import { VoxelTypeRegistry, VoxelTypeRegistryData } from "@tenet-registry/src/codegen/tables/VoxelTypeRegistry.sol";
 import { distanceBetween, voxelCoordsAreEqual, isZeroCoord } from "@tenet-utils/src/VoxelCoordUtils.sol";
@@ -19,7 +19,7 @@ contract CallerEventSystem is System {
   function preEvent(address callerAddress, VoxelEntity memory actingEntity) internal {
     // Check if entity has health
     if (hasKey(HealthTableId, Health.encodeKeyTuple(callerAddress, actingEntity.scale, actingEntity.entityId))) {
-      uint256 health = Health.get(callerAddress, actingEntity.scale, actingEntity.entityId);
+      uint256 health = Health.getHealth(callerAddress, actingEntity.scale, actingEntity.entityId);
       // blocks to wait = K / health
       uint256 blocksToWait;
       if (health == 0) {
@@ -68,6 +68,8 @@ contract CallerEventSystem is System {
 
     int256 massDelta = uint256ToInt256(entityMass);
     IWorld(_world()).updateMass(entity, coord, massDelta, entity, coord, massDelta);
+
+    IWorld(_world()).temperatureBehaviour(callerAddress, entity);
   }
 
   function onMine(VoxelEntity memory actingEntity, VoxelEntity memory entity, VoxelCoord memory coord) public {
@@ -100,7 +102,7 @@ contract CallerEventSystem is System {
     }
 
     // Update forms of energy to general energy
-    uint256 currentHealth = Health.get(callerAddress, entity.scale, entity.entityId);
+    uint256 currentHealth = Health.getHealth(callerAddress, entity.scale, entity.entityId);
     if (currentHealth > 0) {
       IWorld(_world()).updateHealthFromEnergy(
         entity,
@@ -131,6 +133,17 @@ contract CallerEventSystem is System {
         entity,
         coord,
         uint256ToNegativeInt256(currentNutrients)
+      );
+    }
+    uint256 currentTemperature = Temperature.get(callerAddress, entity.scale, entity.entityId);
+    if (currentTemperature > 0) {
+      IWorld(_world()).updateTemperatureFromEnergy(
+        entity,
+        coord,
+        uint256ToInt256(currentTemperature),
+        entity,
+        coord,
+        uint256ToNegativeInt256(currentTemperature)
       );
     }
     uint256 currentElixir = Elixir.get(callerAddress, entity.scale, entity.entityId);
@@ -185,5 +198,6 @@ contract CallerEventSystem is System {
   function onActivate(VoxelEntity memory actingEntity, VoxelEntity memory entity, VoxelCoord memory coord) public {
     address callerAddress = _msgSender();
     preEvent(callerAddress, actingEntity);
+    IWorld(_world()).temperatureBehaviour(callerAddress, entity);
   }
 }

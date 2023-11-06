@@ -36,7 +36,7 @@ contract PokemonTerrainSystem is System {
       VoxelCoord({ x: 200, y: 0, z: -100 })
     ];
     // First shard
-    VoxelCoord memory firstFaucetAgentCoord = VoxelCoord({ x: 354, y: 5, z: 64 });
+    VoxelCoord memory firstFaucetAgentCoord = VoxelCoord({ x: 384, y: 9, z: 63 });
     callOrRevert(
       worldAddress,
       abi.encodeWithSignature(
@@ -50,7 +50,7 @@ contract PokemonTerrainSystem is System {
     );
 
     // Second shard
-    VoxelCoord memory secondFaucetAgentCoord = VoxelCoord({ x: 261, y: 10, z: 65 });
+    VoxelCoord memory secondFaucetAgentCoord = VoxelCoord({ x: 247, y: 8, z: 86 });
     callOrRevert(
       worldAddress,
       abi.encodeWithSignature(
@@ -64,7 +64,7 @@ contract PokemonTerrainSystem is System {
     );
 
     // Third shard
-    VoxelCoord memory thirdFaucetAgentCoord = VoxelCoord({ x: 374, y: 10, z: -60 });
+    VoxelCoord memory thirdFaucetAgentCoord = VoxelCoord({ x: 386, y: 6, z: -44 });
     callOrRevert(
       worldAddress,
       abi.encodeWithSignature(
@@ -78,7 +78,7 @@ contract PokemonTerrainSystem is System {
     );
 
     // Fourth shard
-    VoxelCoord memory fourthFaucetAgentCoord = VoxelCoord({ x: 240, y: 5, z: -59 });
+    VoxelCoord memory fourthFaucetAgentCoord = VoxelCoord({ x: 257, y: 11, z: -88 });
     callOrRevert(
       worldAddress,
       abi.encodeWithSignature(
@@ -92,107 +92,116 @@ contract PokemonTerrainSystem is System {
     );
   }
 
-  function getCustomSections() internal returns (TerrainSectionData[] memory) {
-    TerrainSectionData[5] memory CUSTOM_SECTIONS = [
-      TerrainSectionData({
-        voxelTypeId: StoneVoxelId, // The bucket ID we want to use for this section
-        energy: 10, // The energy cost of this section
-        xCorner: 290, // Starting x-coordinate of the corner
-        yCorner: 0, // Starting y-coordinate of the corner (not used in this condition)
-        zCorner: -10, // Starting z-coordinate of the corner
-        xLength: 20, // Length of the section along the x-axis
-        zLength: 20, // Length of the section along the z-axis
-        yLength: SHARD_DIM, // Height of the section, spans the entire shard height
-        includeAir: false
-      }),
-      TerrainSectionData({
-        useExistingBlock: true,
-        voxelTypeId: AirVoxelID,
-        energy: 500,
-        xCorner: 200,
-        yCorner: 9,
-        zCorner: -100,
-        xLength: 20,
-        zLength: 20,
-        yLength: 15,
-        includeAir: true
-      }),
-      TerrainSectionData({
-        useExistingBlock: true,
-        voxelTypeId: AirVoxelID,
-        energy: 500,
-        xCorner: 380,
-        yCorner: 9,
-        zCorner: 80,
-        xLength: 20,
-        zLength: 20,
-        yLength: 15,
-        includeAir: true
-      }),
-      TerrainSectionData({
-        useExistingBlock: true,
-        voxelTypeId: AirVoxelID,
-        energy: 500,
-        xCorner: 200,
-        yCorner: 8,
-        zCorner: 80,
-        xLength: 20,
-        zLength: 20,
-        yLength: 15,
-        includeAir: true
-      }),
-      TerrainSectionData({
-        useExistingBlock: true,
-        voxelTypeId: AirVoxelID,
-        energy: 500,
-        xCorner: 380,
-        yCorner: 15,
-        zCorner: -100,
-        xLength: 20,
-        zLength: 20,
-        yLength: 15,
-        includeAir: true
-      })
-    ];
+  function getCustomSections() internal pure returns (TerrainSectionData[] memory) {
+    TerrainSectionData[] memory customSections = new TerrainSectionData[](5);
+    customSections[0] = TerrainSectionData({
+      useExistingBlock: false,
+      voxelTypeId: StoneVoxelId,
+      energy: 10,
+      xCorner: 290,
+      yCorner: 0,
+      zCorner: -10,
+      xLength: 20,
+      zLength: 20,
+      yLength: SHARD_DIM,
+      includeAir: false
+    });
+    customSections[1] = TerrainSectionData({
+      useExistingBlock: true,
+      voxelTypeId: AirVoxelID,
+      energy: 500,
+      xCorner: 200,
+      yCorner: 9,
+      zCorner: -100,
+      xLength: 20,
+      zLength: 20,
+      yLength: 15,
+      includeAir: true
+    });
+    customSections[2] = TerrainSectionData({
+      useExistingBlock: true,
+      voxelTypeId: AirVoxelID,
+      energy: 500,
+      xCorner: 380,
+      yCorner: 9,
+      zCorner: 80,
+      xLength: 20,
+      zLength: 20,
+      yLength: 15,
+      includeAir: true
+    });
+    customSections[3] = TerrainSectionData({
+      useExistingBlock: true,
+      voxelTypeId: AirVoxelID,
+      energy: 500,
+      xCorner: 200,
+      yCorner: 8,
+      zCorner: 80,
+      xLength: 20,
+      zLength: 20,
+      yLength: 15,
+      includeAir: true
+    });
+    customSections[4] = TerrainSectionData({
+      useExistingBlock: true,
+      voxelTypeId: AirVoxelID,
+      energy: 500,
+      xCorner: 380,
+      yCorner: 15,
+      zCorner: -100,
+      xLength: 20,
+      zLength: 20,
+      yLength: 15,
+      includeAir: true
+    });
+    return customSections;
   }
 
-  function getPokemonVoxelType(VoxelCoord memory coord) public view returns (TerrainData) {
+  function getPokemonVoxelType(VoxelCoord memory coord) public view returns (TerrainData memory) {
     VoxelCoord memory shardCoord = coordToShardCoord(coord);
 
-    // Adjust the scale for the Perlin noise based on your shard size and preference for terrain variation.
-    int128 noiseScale = Math.div(85, 100); // Smaller for smoother/larger hills, larger for more frequent/smaller hills.
-    int128 heightScaleFactor = 25; // The maximum height difference in your terrain.
+    bool isTerrain = false;
+    {
+      // Adjust the scale for the Perlin noise based on your shard size and preference for terrain variation.
+      int128 noiseScale = Math.div(85, 100); // Smaller for smoother/larger hills, larger for more frequent/smaller hills.
+      int128 heightScaleFactor = 25; // The maximum height difference in your terrain.
 
-    int128 shiftedX = coord.x + 20;
-    int128 shiftedZ = coord.z + 15;
+      int128 shiftedX = coord.x + 20;
+      int128 shiftedZ = coord.z + 15;
 
-    // Generate the Perlin noise value for the current x, z coordinate within the shard.
-    int128 noiseValue = IWorld(_world()).pokemon_PerlinSystem_noise(
-      shiftedX * noiseScale,
-      0, // You can optionally include y to add some vertical variation.
-      shiftedZ * noiseScale,
-      50 // Denominator can be adjusted if necessary to scale the noise frequency.
-    );
+      // Generate the Perlin noise value for the current x, z coordinate within the shard.
+      int128 noiseValue = IWorld(_world()).pokemon_PerlinSystem_noise(
+        shiftedX * noiseScale,
+        0, // You can optionally include y to add some vertical variation.
+        shiftedZ * noiseScale,
+        50, // Denominator can be adjusted if necessary to scale the noise frequency.
+        64 // precision
+      );
 
-    // Calculate the height at the current x, z coordinate within the shard.
-    int128 heightAtCoord = (shardCoord.y * SHARD_DIM) + (noiseValue * heightScaleFactor);
+      // Calculate the height at the current x, z coordinate within the shard.
+      int128 heightAtCoord = (shardCoord.y * SHARD_DIM) + (noiseValue * heightScaleFactor);
 
-    // Determine if the current voxel is terrain (stone) or air.
-    bool isTerrain = coord.y <= heightAtCoord;
+      // Determine if the current voxel is terrain (stone) or air.
+      isTerrain = coord.y <= heightAtCoord;
+    }
+
     if (isTerrain) {
-      // Calculate local coordinates within the shard
-      int128 localX = coord.x - shardCoord.x * CHAIN_SHARD_DIM;
-      int128 localZ = coord.z - shardCoord.z * CHAIN_SHARD_DIM;
-
-      // Calculate the center point of the shard
-      int128 centerX = CHAIN_SHARD_DIM / 2;
-      int128 centerZ = CHAIN_SHARD_DIM / 2;
-
-      // Calculate the distance of the voxel from the center of the shard
-      int128 distanceFromCenter = Math.sqrt(Math.pow(localX - centerX, 2) + Math.pow(localZ - centerZ, 2));
-
+      int128 distanceFromCenter;
       // Define the radius of the central soil area
       int128 soilRadius = 35;
+
+      {
+        // Calculate local coordinates within the shard
+        int128 localX = coord.x - shardCoord.x * SHARD_DIM;
+        int128 localZ = coord.z - shardCoord.z * SHARD_DIM;
+
+        // Calculate the center point of the shard
+        int128 centerX = SHARD_DIM / 2;
+        int128 centerZ = SHARD_DIM / 2;
+
+        // Calculate the distance of the voxel from the center of the shard
+        distanceFromCenter = Math.sqrt(Math.pow(localX - centerX, 2) + Math.pow(localZ - centerZ, 2));
+      }
 
       // Check if the voxel is within the central region (soil)
       bool isInCentralRegion = distanceFromCenter <= soilRadius;
@@ -214,13 +223,13 @@ contract PokemonTerrainSystem is System {
           if (isInCustomSection) {
             return
               TerrainData({
-                voxelTypeId: section.useExistingBlock ? GrassVoxelId : section.voxelTypeId,
+                voxelTypeId: section.useExistingBlock ? GrassVoxelID : section.voxelTypeId,
                 energy: section.energy
               });
           }
         }
 
-        return TerrainData({ voxelTypeId: GrassVoxelId, energy: 50 });
+        return TerrainData({ voxelTypeId: GrassVoxelID, energy: 50 });
       } else {
         // Define a scale for the noise to determine the fuzziness of the border
         int128 borderFuzzinessScale = Math.div(1, 2);
@@ -234,7 +243,8 @@ contract PokemonTerrainSystem is System {
           coord.x * borderFuzzinessScale,
           coord.y, // Y can be used or not, depending on whether you want vertical variation
           coord.z * borderFuzzinessScale,
-          1
+          1,
+          64 // precision
         );
 
         // Calculate the effective border width with noise variation
@@ -244,17 +254,17 @@ contract PokemonTerrainSystem is System {
         // Determine if the current position is within the fuzzy border
         bool isInFuzzyBorder = distanceFromCenter > effectiveRadius;
         if (isInFuzzyBorder) {
-          return TerrainData({ voxelTypeId: GrassVoxelId, energy: 50 });
+          return TerrainData({ voxelTypeId: GrassVoxelID, energy: 50 });
         } else {
           // Voxel is in the central region
           if (voxelCoordsAreEqual(shardCoord, VoxelCoord({ x: 3, y: 0, z: 0 }))) {
             return TerrainData({ voxelTypeId: ProteinSoilVoxelID, energy: 200 });
           } else if (voxelCoordsAreEqual(shardCoord, VoxelCoord({ x: 2, y: 0, z: 0 }))) {
-            return TerrainData({ voxelTypeId: ElixirSoilVoxelId, energy: 200 });
+            return TerrainData({ voxelTypeId: ElixirSoilVoxelID, energy: 200 });
           } else if (voxelCoordsAreEqual(shardCoord, VoxelCoord({ x: 3, y: 0, z: -1 }))) {
-            return TerrainData({ voxelTypeId: ConcentrativeSoilVoxelId, energy: 200 });
+            return TerrainData({ voxelTypeId: ConcentrativeSoilVoxelID, energy: 200 });
           } else if (voxelCoordsAreEqual(shardCoord, VoxelCoord({ x: 2, y: 0, z: -1 }))) {
-            return TerrainData({ voxelTypeId: DiffusiveSoilVoxelId, energy: 200 });
+            return TerrainData({ voxelTypeId: DiffusiveSoilVoxelID, energy: 200 });
           }
         }
       }

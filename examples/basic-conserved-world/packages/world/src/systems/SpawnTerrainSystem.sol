@@ -3,10 +3,10 @@ pragma solidity >=0.8.0;
 
 import { IStore } from "@latticexyz/store/src/IStore.sol";
 import { IWorld } from "@tenet-world/src/codegen/world/IWorld.sol";
-import { VoxelCoord } from "@tenet-utils/src/Types.sol";
+import { VoxelCoord, TerrainData } from "@tenet-utils/src/Types.sol";
 import { System } from "@latticexyz/world/src/System.sol";
 import { hasKey } from "@latticexyz/world/src/modules/keysintable/hasKey.sol";
-import { AirVoxelID, GrassVoxelID, DirtVoxelID, BedrockVoxelID, TerrainData } from "@tenet-level1-ca/src/Constants.sol";
+import { AirVoxelID, GrassVoxelID, DirtVoxelID, BedrockVoxelID } from "@tenet-level1-ca/src/Constants.sol";
 import { TerrainProperties, TerrainPropertiesTableId } from "@tenet-world/src/codegen/Tables.sol";
 import { getTerrainVoxelId } from "@tenet-base-ca/src/CallUtils.sol";
 import { callOrRevert, staticCallOrRevert } from "@tenet-utils/src/CallUtils.sol";
@@ -40,7 +40,7 @@ contract SpawnTerrainSystem is System {
     }
   }
 
-  function getSpawnVoxelType(VoxelCoord memory coord) public view returns (TerrainData) {
+  function getSpawnVoxelType(VoxelCoord memory coord) public view returns (TerrainData memory) {
     VoxelCoord memory shardCoord = coordToShardCoord(coord);
     if (coord.y == (shardCoord.y * SHARD_DIM)) {
       return TerrainData({ voxelTypeId: BedrockVoxelID, energy: 300 });

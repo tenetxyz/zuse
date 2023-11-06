@@ -14,16 +14,6 @@ import { coordToShardCoord, voxelCoordsAreEqual } from "@tenet-utils/src/VoxelCo
 import { callOrRevert, staticCallOrRevert } from "@tenet-utils/src/CallUtils.sol";
 import { console } from "forge-std/console.sol";
 
-int32 constant Y_AIR_THRESHOLD = 10;
-int32 constant Y_GROUND_THRESHOLD = 5;
-
-uint256 constant AIR_BUCKET_INDEX = 0;
-uint256 constant SOIL_1_BUCKET_INDEX = 1;
-uint256 constant SOIL_2_BUCKET_INDEX = 2;
-uint256 constant SOIL_3_BUCKET_INDEX = 3;
-uint256 constant SOIL_4_BUCKET_INDEX = 4;
-uint256 constant GRASS_BUCKET_INDEX = 5;
-
 string constant CLAIM_SHARD_SIG = "claimShard((int32,int32,int32),address,bytes4,(int32,int32,int32))";
 bytes32 constant StoneVoxelId = bytes32(keccak256("stone"));
 
@@ -36,7 +26,7 @@ contract PokemonTerrainSystem is System {
       VoxelCoord({ x: 200, y: 0, z: -100 })
     ];
     // First shard
-    VoxelCoord memory firstFaucetAgentCoord = VoxelCoord({ x: 384, y: 9, z: 63 });
+    VoxelCoord memory firstFaucetAgentCoord = VoxelCoord({ x: 346, y: 15, z: 53 });
     callOrRevert(
       worldAddress,
       abi.encodeWithSignature(
@@ -50,7 +40,7 @@ contract PokemonTerrainSystem is System {
     );
 
     // Second shard
-    VoxelCoord memory secondFaucetAgentCoord = VoxelCoord({ x: 247, y: 8, z: 86 });
+    VoxelCoord memory secondFaucetAgentCoord = VoxelCoord({ x: 259, y: 9, z: 60 });
     callOrRevert(
       worldAddress,
       abi.encodeWithSignature(
@@ -64,7 +54,7 @@ contract PokemonTerrainSystem is System {
     );
 
     // Third shard
-    VoxelCoord memory thirdFaucetAgentCoord = VoxelCoord({ x: 386, y: 6, z: -44 });
+    VoxelCoord memory thirdFaucetAgentCoord = VoxelCoord({ x: 325, y: 15, z: -59 });
     callOrRevert(
       worldAddress,
       abi.encodeWithSignature(
@@ -78,7 +68,7 @@ contract PokemonTerrainSystem is System {
     );
 
     // Fourth shard
-    VoxelCoord memory fourthFaucetAgentCoord = VoxelCoord({ x: 257, y: 11, z: -88 });
+    VoxelCoord memory fourthFaucetAgentCoord = VoxelCoord({ x: 233, y: 15, z: -62 });
     callOrRevert(
       worldAddress,
       abi.encodeWithSignature(
@@ -110,9 +100,9 @@ contract PokemonTerrainSystem is System {
       useExistingBlock: true,
       voxelTypeId: AirVoxelID,
       energy: 500,
-      xCorner: 200,
-      yCorner: 9,
-      zCorner: -100,
+      xCorner: 262,
+      yCorner: 8,
+      zCorner: 50,
       xLength: 20,
       zLength: 20,
       yLength: 15,
@@ -122,9 +112,9 @@ contract PokemonTerrainSystem is System {
       useExistingBlock: true,
       voxelTypeId: AirVoxelID,
       energy: 500,
-      xCorner: 380,
-      yCorner: 9,
-      zCorner: 80,
+      xCorner: 335,
+      yCorner: 12,
+      zCorner: 63,
       xLength: 20,
       zLength: 20,
       yLength: 15,
@@ -134,9 +124,9 @@ contract PokemonTerrainSystem is System {
       useExistingBlock: true,
       voxelTypeId: AirVoxelID,
       energy: 500,
-      xCorner: 200,
-      yCorner: 8,
-      zCorner: 80,
+      xCorner: 306,
+      yCorner: 13,
+      zCorner: -86,
       xLength: 20,
       zLength: 20,
       yLength: 15,
@@ -146,9 +136,9 @@ contract PokemonTerrainSystem is System {
       useExistingBlock: true,
       voxelTypeId: AirVoxelID,
       energy: 500,
-      xCorner: 380,
-      yCorner: 15,
-      zCorner: -100,
+      xCorner: 205,
+      yCorner: 11,
+      zCorner: -70,
       xLength: 20,
       zLength: 20,
       yLength: 15,
@@ -161,10 +151,10 @@ contract PokemonTerrainSystem is System {
     VoxelCoord memory shardCoord = coordToShardCoord(coord);
 
     bool isTerrain = false;
+    int128 noiseScale = Math.div(85, 100); // Smaller for smoother/larger hills, larger for more frequent/smaller hills.
+    int128 heightScaleFactor = 25; // The maximum height difference in your terrain.
     {
       // Adjust the scale for the Perlin noise based on your shard size and preference for terrain variation.
-      int128 noiseScale = Math.div(85, 100); // Smaller for smoother/larger hills, larger for more frequent/smaller hills.
-      int128 heightScaleFactor = 25; // The maximum height difference in your terrain.
 
       int128 shiftedX = coord.x + 20;
       int128 shiftedZ = coord.z + 15;
@@ -186,28 +176,31 @@ contract PokemonTerrainSystem is System {
     }
 
     if (isTerrain) {
-      int128 distanceFromCenter;
-      // Define the radius of the central soil area
-      int128 soilRadius = 35;
+      // Generate a noise value specifically for soil layering
+      int128 soilNoise = IWorld(_world()).pokemon_PerlinSystem_noise(
+        coord.x * noiseScale,
+        coord.y,
+        coord.z * noiseScale,
+        50,
+        64 // precision
+      );
+      int128 maxSoilHeight = SHARD_DIM * Math.div(3, 25); // Adjust this value as needed
+      int128 soilHeight = soilNoise * heightScaleFactor < maxSoilHeight ? soilNoise * heightScaleFactor : maxSoilHeight;
 
-      {
-        // Calculate local coordinates within the shard
-        int128 localX = coord.x - shardCoord.x * SHARD_DIM;
-        int128 localZ = coord.z - shardCoord.z * SHARD_DIM;
-
-        // Calculate the center point of the shard
-        int128 centerX = SHARD_DIM / 2;
-        int128 centerZ = SHARD_DIM / 2;
-
-        // Calculate the distance of the voxel from the center of the shard
-        distanceFromCenter = Math.sqrt(Math.pow(localX - centerX, 2) + Math.pow(localZ - centerZ, 2));
-      }
-
-      // Check if the voxel is within the central region (soil)
-      bool isInCentralRegion = distanceFromCenter <= soilRadius;
-
-      // Determine the voxel type based on the region
-      if (!isInCentralRegion) {
+      // Determine if the current voxel is within the bottommost range of the terrain
+      bool isSoilLayer = coord.y <= soilHeight;
+      if (isSoilLayer) {
+        // Voxel is in the central region
+        if (voxelCoordsAreEqual(shardCoord, VoxelCoord({ x: 3, y: 0, z: 0 }))) {
+          return TerrainData({ voxelTypeId: ProteinSoilVoxelID, energy: 200 });
+        } else if (voxelCoordsAreEqual(shardCoord, VoxelCoord({ x: 2, y: 0, z: 0 }))) {
+          return TerrainData({ voxelTypeId: ElixirSoilVoxelID, energy: 200 });
+        } else if (voxelCoordsAreEqual(shardCoord, VoxelCoord({ x: 3, y: 0, z: -1 }))) {
+          return TerrainData({ voxelTypeId: ConcentrativeSoilVoxelID, energy: 200 });
+        } else if (voxelCoordsAreEqual(shardCoord, VoxelCoord({ x: 2, y: 0, z: -1 }))) {
+          return TerrainData({ voxelTypeId: DiffusiveSoilVoxelID, energy: 200 });
+        }
+      } else {
         TerrainSectionData[] memory customSections = getCustomSections();
         for (uint256 i = 0; i < customSections.length; i++) {
           TerrainSectionData memory section = customSections[i];
@@ -230,43 +223,6 @@ contract PokemonTerrainSystem is System {
         }
 
         return TerrainData({ voxelTypeId: GrassVoxelID, energy: 50 });
-      } else {
-        // Define a scale for the noise to determine the fuzziness of the border
-        int128 borderFuzzinessScale = Math.div(1, 2);
-
-        // Adjust the noise value to be between 0 and some maximum border variation width
-        int128 maxBorderVariation = 10; // Max additional variation for the border width
-
-        // Voxel is in the central region or the rest of the terrain region
-        // Generate a noise value for the current position to add variation to the border
-        int128 borderNoiseValue = IWorld(_world()).pokemon_PerlinSystem_noise(
-          coord.x * borderFuzzinessScale,
-          coord.y, // Y can be used or not, depending on whether you want vertical variation
-          coord.z * borderFuzzinessScale,
-          1,
-          64 // precision
-        );
-
-        // Calculate the effective border width with noise variation
-        int128 borderVariation = borderNoiseValue * maxBorderVariation;
-        int128 effectiveRadius = soilRadius - borderVariation; // Use subtraction to make border fuzzy
-
-        // Determine if the current position is within the fuzzy border
-        bool isInFuzzyBorder = distanceFromCenter > effectiveRadius;
-        if (isInFuzzyBorder) {
-          return TerrainData({ voxelTypeId: GrassVoxelID, energy: 50 });
-        } else {
-          // Voxel is in the central region
-          if (voxelCoordsAreEqual(shardCoord, VoxelCoord({ x: 3, y: 0, z: 0 }))) {
-            return TerrainData({ voxelTypeId: ProteinSoilVoxelID, energy: 200 });
-          } else if (voxelCoordsAreEqual(shardCoord, VoxelCoord({ x: 2, y: 0, z: 0 }))) {
-            return TerrainData({ voxelTypeId: ElixirSoilVoxelID, energy: 200 });
-          } else if (voxelCoordsAreEqual(shardCoord, VoxelCoord({ x: 3, y: 0, z: -1 }))) {
-            return TerrainData({ voxelTypeId: ConcentrativeSoilVoxelID, energy: 200 });
-          } else if (voxelCoordsAreEqual(shardCoord, VoxelCoord({ x: 2, y: 0, z: -1 }))) {
-            return TerrainData({ voxelTypeId: DiffusiveSoilVoxelID, energy: 200 });
-          }
-        }
       }
     }
 

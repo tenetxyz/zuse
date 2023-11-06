@@ -7,7 +7,7 @@ import { VoxelCoord, TerrainData } from "@tenet-utils/src/Types.sol";
 import { System } from "@latticexyz/world/src/System.sol";
 import { hasKey } from "@latticexyz/world/src/modules/keysintable/hasKey.sol";
 import { AirVoxelID, GrassVoxelID, DirtVoxelID, BedrockVoxelID } from "@tenet-level1-ca/src/Constants.sol";
-import { TerrainProperties, TerrainPropertiesTableId } from "@tenet-world/src/codegen/Tables.sol";
+import { TerrainProperties, TerrainPropertiesTableId, TerrainPropertiesData } from "@tenet-world/src/codegen/Tables.sol";
 import { getTerrainVoxelId } from "@tenet-base-ca/src/CallUtils.sol";
 import { callOrRevert, staticCallOrRevert } from "@tenet-utils/src/CallUtils.sol";
 import { REGISTRY_ADDRESS, BASE_CA_ADDRESS } from "@tenet-world/src/Constants.sol";
@@ -21,12 +21,12 @@ uint256 constant MAX_TOTAL_MASS_IN_SHARD = 50000000;
 
 contract TerrainSystem is System {
   function getTerrainVoxel(VoxelCoord memory coord) public returns (bytes32) {
-    (bytes32 voxelTypeId, ) = getTerrainVoxelFromShard(coord);
+    (bytes32 voxelTypeId, , ) = getTerrainVoxelFromShard(coord);
     return voxelTypeId;
   }
 
   function getTerrainMass(uint32 scale, VoxelCoord memory coord) public returns (uint256) {
-    (, uint256 voxelMass) = getTerrainVoxelFromShard(coord);
+    (, uint256 voxelMass, ) = getTerrainVoxelFromShard(coord);
 
     return voxelMass;
   }
@@ -43,7 +43,7 @@ contract TerrainSystem is System {
   function getTerrainVoxelFromShard(VoxelCoord memory coord) public returns (bytes32, uint256, uint256) {
     // use cache if possible
     if (hasKey(TerrainPropertiesTableId, TerrainProperties.encodeKeyTuple(coord.x, coord.y, coord.z))) {
-      TerrainProperties memory terrainProperties = TerrainProperties.get(coord.x, coord.y, coord.z);
+      TerrainPropertiesData memory terrainProperties = TerrainProperties.get(coord.x, coord.y, coord.z);
       uint256 voxelMass = VoxelTypeRegistry.getMass(IStore(REGISTRY_ADDRESS), terrainProperties.voxelTypeId);
       return (terrainProperties.voxelTypeId, voxelMass, terrainProperties.energy);
     }
@@ -58,24 +58,24 @@ contract TerrainSystem is System {
     );
     TerrainData memory terrainData = abi.decode(returnData, (TerrainData));
     uint256 voxelMass = VoxelTypeRegistry.getMass(IStore(REGISTRY_ADDRESS), terrainData.voxelTypeId);
-    if (terrainData.totalGenMass + voxelMass > MAX_TOTAL_MASS_IN_SHARD) {
+    if (shardData.totalGenMass + voxelMass > MAX_TOTAL_MASS_IN_SHARD) {
       voxelMass = 0;
     } else {
       // update shard data total mass
-      terrainData.totalGenMass += voxelMass;
+      shardData.totalGenMass += voxelMass;
     }
-    if (terrainData.totalGenEnergy + terrainData.energy > MAX_TOTAL_ENERGY_IN_SHARD) {
+    if (shardData.totalGenEnergy + terrainData.energy > MAX_TOTAL_ENERGY_IN_SHARD) {
       terrainData.energy = 0;
     } else {
       // update shard data total energy
-      terrainData.totalGenEnergy += terrainData.energy;
+      shardData.totalGenEnergy += terrainData.energy;
     }
     Shard.set(shardCoord.x, shardCoord.y, shardCoord.z, shardData);
     TerrainProperties.set(
       coord.x,
       coord.y,
       coord.z,
-      TerrainProperties({ voxelTypeId: terrainData.voxelTypeId, energy: terrainData.energy })
+      TerrainPropertiesData({ voxelTypeId: terrainData.voxelTypeId, energy: terrainData.energy })
     );
 
     return (terrainData.voxelTypeId, voxelMass, terrainData.energy);

@@ -212,7 +212,6 @@ contract PokemonTerrainSystem is System {
             coord.y >= section.yCorner &&
             coord.y < section.yCorner + section.yLength;
 
-          // If it's within the custom section, return the corresponding bucket.
           if (isInCustomSection) {
             return
               TerrainData({
@@ -240,7 +239,6 @@ contract PokemonTerrainSystem is System {
         coord.y >= section.yCorner &&
         coord.y < section.yCorner + section.yLength;
 
-      // If it's within the custom section, return the corresponding bucket.
       if (isInCustomSection) {
         return
           TerrainData({

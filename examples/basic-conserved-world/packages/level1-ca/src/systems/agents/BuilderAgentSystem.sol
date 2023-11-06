@@ -14,7 +14,7 @@ import { getFirstCaller } from "@tenet-utils/src/Utils.sol";
 import { getCAEntityAtCoord, getCAVoxelType, caEntityToEntity, getCAEntityPositionStrict, getCAEntityIsAgent } from "@tenet-base-ca/src/Utils.sol";
 import { AirVoxelID } from "@tenet-level1-ca/src/Constants.sol";
 import { uint256ToNegativeInt256, uint256ToInt256 } from "@tenet-utils/src/TypeUtils.sol";
-import { getEntitySimData } from "@tenet-level1-ca/src/Utils.sol";
+import { getEntitySimData, stopEvent } from "@tenet-level1-ca/src/Utils.sol";
 import { getMooreNeighbourEntities } from "@tenet-base-ca/src/CallUtils.sol";
 import { entityArrayToCAEntityArray } from "@tenet-base-ca/src/Utils.sol";
 import { console } from "forge-std/console.sol";
@@ -99,32 +99,8 @@ contract BuilderAgentSystem is AgentType {
   ) public returns (bool, bytes memory) {
     address callerAddress = super.getCallerAddress();
     BodySimData memory entitySimData = getEntitySimData(centerEntityId);
-    VoxelCoord memory velocity = abi.decode(entitySimData.velocity, (VoxelCoord));
-    if (velocity.x == 0 && velocity.y == 0 && velocity.z == 0) {
-      return (false, abi.encode(new bytes(0)));
-    }
-
-    VoxelEntity memory entity = VoxelEntity({ scale: 1, entityId: caEntityToEntity(centerEntityId) });
     VoxelCoord memory coord = getCAEntityPositionStrict(IStore(_world()), centerEntityId);
-
-    // Decrease velocity to 0
-    CAEventData[] memory allCAEventData = new CAEventData[](1);
-    uint256 transferStamina = 0; // TODO: calculate and don't send event if we dont have enough stamina
-    VoxelCoord memory deltaVelocity = VoxelCoord({
-      x: velocity.x > 0 ? -velocity.x : velocity.x,
-      y: velocity.y > 0 ? -velocity.y : velocity.y,
-      z: velocity.z > 0 ? -velocity.z : velocity.z
-    });
-    SimEventData memory slowDownEventData = SimEventData({
-      senderTable: SimTable.Stamina,
-      senderValue: abi.encode(uint256ToInt256(transferStamina)),
-      targetEntity: entity,
-      targetCoord: coord,
-      targetTable: SimTable.Velocity,
-      targetValue: abi.encode(deltaVelocity)
-    });
-    allCAEventData[0] = CAEventData({ eventType: CAEventType.SimEvent, eventData: abi.encode(slowDownEventData) });
-    return (false, abi.encode(allCAEventData));
+    return (false, stopEvent(centerEntityId, coord, entitySimData));
   }
 
   function slowDownEventHandler(

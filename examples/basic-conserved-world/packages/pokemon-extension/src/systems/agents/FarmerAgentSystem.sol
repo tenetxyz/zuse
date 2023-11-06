@@ -18,6 +18,7 @@ import { entityArrayToCAEntityArray } from "@tenet-base-ca/src/Utils.sol";
 import { Farmer } from "@tenet-pokemon-extension/src/codegen/tables/Farmer.sol";
 import { registerCAVoxelType } from "@tenet-base-ca/src/CallUtils.sol";
 import { console } from "forge-std/console.sol";
+import { getEntitySimData, stopEvent } from "@tenet-level1-ca/src/Utils.sol";
 
 bytes32 constant FarmerVoxelVariantID = bytes32(keccak256("farmer"));
 string constant FarmerTexture = "bafkreihpdljsgdltghxehq4cebngtugfj3pduucijxcrvcla4hoy34f7vq";
@@ -117,6 +118,9 @@ contract FarmerAgentSystem is AgentType {
     if (Farmer.getIsHungry(callerAddress, centerEntityId)) {
       Farmer.setIsHungry(callerAddress, centerEntityId, false);
     }
+    BodySimData memory entitySimData = getEntitySimData(centerEntityId);
+    VoxelCoord memory coord = getCAEntityPositionStrict(IStore(_world()), centerEntityId);
+    return (false, stopEvent(centerEntityId, coord, entitySimData));
   }
 
   function eatEventHandler(

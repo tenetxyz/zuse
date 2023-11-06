@@ -178,9 +178,9 @@ contract PokemonTerrainSystem is System {
     if (isTerrain) {
       // Generate a noise value specifically for soil layering
       int128 soilNoise = IWorld(_world()).pokemon_PerlinSystem_noise(
-        int256(Math.toInt(Math.mul(coord.x, noiseScale))),
+        int256(Math.toInt(Math.mul(Math.fromInt(coord.x), noiseScale))),
         int256(coord.y),
-        int256(Math.toInt(Math.mul(coord.z, noiseScale))),
+        int256(Math.toInt(Math.mul(Math.fromInt(coord.z), noiseScale))),
         int256(50),
         uint8(64) // precision
       );
@@ -201,6 +201,8 @@ contract PokemonTerrainSystem is System {
           return TerrainData({ voxelTypeId: ConcentrativeSoilVoxelID, energy: 200 });
         } else if (voxelCoordsAreEqual(shardCoord, VoxelCoord({ x: 2, y: 0, z: -1 }))) {
           return TerrainData({ voxelTypeId: DiffusiveSoilVoxelID, energy: 200 });
+        } else {
+          revert("Invalid shard coord");
         }
       } else {
         TerrainSectionData[] memory customSections = getCustomSections();

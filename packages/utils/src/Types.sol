@@ -230,3 +230,16 @@ struct TerrainData {
   bytes32 voxelTypeId;
   uint256 energy;
 }
+
+struct TerrainSectionData {
+  bool useExistingBlock;
+  bytes32 voxelTypeId;
+  uint256 energy;
+  int32 xCorner;
+  int32 yCorner;
+  int32 zCorner;
+  int32 xLength;
+  int32 zLength;
+  int32 yLength;
+  bool includeAir;
+}

@@ -33,8 +33,8 @@ export default tenetMudConfig({
         claimer: "address",
         contractAddress: "address",
         terrainSelector: "bytes4",
-        bucketSelector: "bytes4",
-        buckets: "bytes", // BucketData[]
+        totalGenMass: "uint256",
+        totalGenEnergy: "uint256",
       },
     },
     TerrainProperties: {
@@ -44,7 +44,8 @@ export default tenetMudConfig({
         z: "int32",
       },
       schema: {
-        bucketIndex: "uint256",
+        voxelTypeId: "bytes32",
+        energy: "uint256",
       },
     },
   },

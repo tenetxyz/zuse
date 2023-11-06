@@ -4,7 +4,7 @@ pragma solidity >=0.8.0;
 import { IWorld } from "../src/codegen/world/IWorld.sol";
 import { Script } from "forge-std/Script.sol";
 import { console } from "forge-std/console.sol";
-import { VoxelCoord, BucketData } from "@tenet-utils/src/Types.sol";
+import { VoxelCoord } from "@tenet-utils/src/Types.sol";
 import { SHARD_DIM } from "@tenet-utils/src/Constants.sol";
 import { coordToShardCoord } from "@tenet-utils/src/VoxelCoordUtils.sol";
 

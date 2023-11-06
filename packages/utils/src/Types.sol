@@ -226,11 +226,7 @@ struct BaseCreation {
   // Also in the future, this could be a "diffs" array.
 }
 
-struct BucketData {
-  uint256 id;
-  uint256 minMass;
-  uint256 maxMass;
+struct TerrainData {
+  bytes32 voxelTypeId;
   uint256 energy;
-  uint256 count;
-  uint256 actualCount;
 }

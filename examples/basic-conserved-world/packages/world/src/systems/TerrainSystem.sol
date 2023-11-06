@@ -16,8 +16,8 @@ import { console } from "forge-std/console.sol";
 import { VoxelTypeRegistry, VoxelTypeRegistryData } from "@tenet-registry/src/codegen/tables/VoxelTypeRegistry.sol";
 import { Shard, ShardData, ShardTableId } from "@tenet-world/src/codegen/tables/Shard.sol";
 
-uint256 constant MAX_TOTAL_ENERGY_IN_SHARD = 50000000;
-uint256 constant MAX_TOTAL_MASS_IN_SHARD = 50000000;
+uint256 constant MAX_TOTAL_ENERGY_IN_SHARD = 100000000;
+uint256 constant MAX_TOTAL_MASS_IN_SHARD = 100000000;
 
 contract TerrainSystem is System {
   function getTerrainVoxel(VoxelCoord memory coord) public returns (bytes32) {

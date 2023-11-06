@@ -11,7 +11,7 @@ bytes32 constant BedrockVoxelID = bytes32(keccak256("bedrock"));
 bytes32 constant FaucetVoxelID = bytes32(keccak256("faucet"));
 bytes32 constant BuilderVoxelID = bytes32(keccak256("builder"));
 
-uint256 constant STARTING_STAMINA_FROM_FAUCET = 15000;
+uint256 constant STARTING_STAMINA_FROM_FAUCET = 30000;
 uint256 constant STARTING_HEALTH_FROM_FAUCET = 100;
 
 int32 constant CHUNK_MAX_Y = 255;

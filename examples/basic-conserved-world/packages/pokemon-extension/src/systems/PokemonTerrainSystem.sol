@@ -87,7 +87,7 @@ contract PokemonTerrainSystem is System {
     customSections[0] = TerrainSectionData({
       useExistingBlock: false,
       voxelTypeId: StoneVoxelId,
-      energy: 10,
+      energy: 100,
       xCorner: 290,
       yCorner: 0,
       zCorner: -10,
@@ -99,7 +99,7 @@ contract PokemonTerrainSystem is System {
     customSections[1] = TerrainSectionData({
       useExistingBlock: true,
       voxelTypeId: AirVoxelID,
-      energy: 500,
+      energy: 300,
       xCorner: 262,
       yCorner: 8,
       zCorner: 50,
@@ -111,7 +111,7 @@ contract PokemonTerrainSystem is System {
     customSections[2] = TerrainSectionData({
       useExistingBlock: true,
       voxelTypeId: AirVoxelID,
-      energy: 500,
+      energy: 300,
       xCorner: 335,
       yCorner: 12,
       zCorner: 63,
@@ -123,7 +123,7 @@ contract PokemonTerrainSystem is System {
     customSections[3] = TerrainSectionData({
       useExistingBlock: true,
       voxelTypeId: AirVoxelID,
-      energy: 500,
+      energy: 300,
       xCorner: 306,
       yCorner: 13,
       zCorner: -86,
@@ -135,7 +135,7 @@ contract PokemonTerrainSystem is System {
     customSections[4] = TerrainSectionData({
       useExistingBlock: true,
       voxelTypeId: AirVoxelID,
-      energy: 500,
+      energy: 300,
       xCorner: 205,
       yCorner: 11,
       zCorner: -70,
@@ -194,13 +194,13 @@ contract PokemonTerrainSystem is System {
       if (isSoilLayer) {
         // Voxel is in the central region
         if (voxelCoordsAreEqual(shardCoord, VoxelCoord({ x: 3, y: 0, z: 0 }))) {
-          return TerrainData({ voxelTypeId: ProteinSoilVoxelID, energy: 200 });
+          return TerrainData({ voxelTypeId: ProteinSoilVoxelID, energy: 500 });
         } else if (voxelCoordsAreEqual(shardCoord, VoxelCoord({ x: 2, y: 0, z: 0 }))) {
-          return TerrainData({ voxelTypeId: ElixirSoilVoxelID, energy: 200 });
+          return TerrainData({ voxelTypeId: ElixirSoilVoxelID, energy: 500 });
         } else if (voxelCoordsAreEqual(shardCoord, VoxelCoord({ x: 3, y: 0, z: -1 }))) {
-          return TerrainData({ voxelTypeId: ConcentrativeSoilVoxelID, energy: 200 });
+          return TerrainData({ voxelTypeId: ConcentrativeSoilVoxelID, energy: 500 });
         } else if (voxelCoordsAreEqual(shardCoord, VoxelCoord({ x: 2, y: 0, z: -1 }))) {
-          return TerrainData({ voxelTypeId: DiffusiveSoilVoxelID, energy: 200 });
+          return TerrainData({ voxelTypeId: DiffusiveSoilVoxelID, energy: 500 });
         } else {
           revert("Invalid shard coord");
         }
@@ -225,7 +225,7 @@ contract PokemonTerrainSystem is System {
           }
         }
 
-        return TerrainData({ voxelTypeId: GrassVoxelID, energy: 50 });
+        return TerrainData({ voxelTypeId: GrassVoxelID, energy: 200 });
       }
     }
 

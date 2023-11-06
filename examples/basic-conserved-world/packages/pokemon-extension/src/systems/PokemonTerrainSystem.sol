@@ -148,12 +148,10 @@ contract PokemonTerrainSystem is System {
   }
 
   function getPokemonVoxelType(VoxelCoord memory coord) public view returns (TerrainData memory) {
-    console.log("getPokemonVoxelType");
     VoxelCoord memory shardCoord = coordToShardCoord(coord);
 
     bool isTerrain = false;
     int128 noiseScale = Math.div(85, 100); // Smaller for smoother/larger hills, larger for more frequent/smaller hills.
-    // int128 noiseScale = int128(1);
     int128 heightScaleFactor = Math.fromInt(25); // The maximum height difference in your terrain.
     {
       // Adjust the scale for the Perlin noise based on your shard size and preference for terrain variation.
@@ -162,10 +160,6 @@ contract PokemonTerrainSystem is System {
       int128 shiftedZ = Math.fromInt(coord.z + 15);
 
       // Generate the Perlin noise value for the current x, z coordinate within the shard.
-      console.log("noiseValue");
-      console.logInt(shiftedX);
-      console.logInt(shiftedZ);
-      console.logInt(noiseScale);
       int128 noiseValue = IWorld(_world()).pokemon_PerlinSystem_noise(
         int256(Math.toInt(Math.mul(shiftedX, noiseScale))),
         int256(0),
@@ -173,7 +167,6 @@ contract PokemonTerrainSystem is System {
         int256(50), // Denominator can be adjusted if necessary to scale the noise frequency.
         uint8(64) // precision
       );
-      console.logInt(noiseValue);
 
       // Calculate the height at the current x, z coordinate within the shard.
       int128 heightAtCoord = (shardCoord.y * SHARD_DIM) + Math.toInt(Math.mul(noiseValue, heightScaleFactor));
@@ -183,7 +176,6 @@ contract PokemonTerrainSystem is System {
     }
 
     if (isTerrain) {
-      console.log("isTerrain");
       // Generate a noise value specifically for soil layering
       int128 soilNoise = IWorld(_world()).pokemon_PerlinSystem_noise(
         int256(Math.toInt(Math.mul(coord.x, noiseScale))),
@@ -196,13 +188,10 @@ contract PokemonTerrainSystem is System {
       int128 maxSoilHeight = 12;
       int128 factor = Math.toInt(Math.mul(soilNoise, heightScaleFactor));
       int128 soilHeight = factor < maxSoilHeight ? factor : maxSoilHeight;
-      console.log("soilHeight");
-      console.logInt(soilHeight);
 
       // Determine if the current voxel is within the bottommost range of the terrain
       bool isSoilLayer = coord.y <= soilHeight;
       if (isSoilLayer) {
-        console.log("is soil");
         // Voxel is in the central region
         if (voxelCoordsAreEqual(shardCoord, VoxelCoord({ x: 3, y: 0, z: 0 }))) {
           return TerrainData({ voxelTypeId: ProteinSoilVoxelID, energy: 200 });
@@ -214,7 +203,6 @@ contract PokemonTerrainSystem is System {
           return TerrainData({ voxelTypeId: DiffusiveSoilVoxelID, energy: 200 });
         }
       } else {
-        console.log("is not soil");
         TerrainSectionData[] memory customSections = getCustomSections();
         for (uint256 i = 0; i < customSections.length; i++) {
           TerrainSectionData memory section = customSections[i];
@@ -238,8 +226,6 @@ contract PokemonTerrainSystem is System {
         return TerrainData({ voxelTypeId: GrassVoxelID, energy: 50 });
       }
     }
-
-    console.log("is air");
 
     TerrainSectionData[] memory customSections = getCustomSections();
     for (uint256 i = 0; i < customSections.length; i++) {

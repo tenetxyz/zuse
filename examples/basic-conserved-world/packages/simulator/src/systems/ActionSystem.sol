@@ -38,9 +38,6 @@ contract ActionSystem is SimHandler {
       });
       address callerAddress = address(uint160(uint256(entitiesRan[i][0])));
       ActionData memory actionData = Action.get(callerAddress, actionEntity.scale, actionEntity.entityId);
-      if (actionData.actionType == ObjectType.None) {
-        continue;
-      }
       VoxelEntity memory toActOnEntity = abi.decode(actionData.actionEntity, (VoxelEntity));
       if (!isEntityEqual(actionEntity, toActOnEntity) && actionData.stamina > 0) {
         uint256 currentStamina = Stamina.get(callerAddress, actionEntity.scale, actionEntity.entityId);

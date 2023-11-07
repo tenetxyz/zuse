@@ -201,5 +201,7 @@ contract CallerEventSystem is System {
     IWorld(_world()).temperatureBehaviour(callerAddress, entity);
   }
 
-  function postTx(VoxelEntity memory actingEntity, VoxelEntity memory entity, VoxelCoord memory coord) public {}
+  function postTx(VoxelEntity memory actingEntity, VoxelEntity memory entity, VoxelCoord memory coord) public {
+    IWorld(_world()).postTxActionBehaviour();
+  }
 }

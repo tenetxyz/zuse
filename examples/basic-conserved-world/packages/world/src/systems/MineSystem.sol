@@ -10,9 +10,10 @@ import { VoxelType, OfSpawn, Spawn, SpawnData, WorldConfig } from "@tenet-world/
 import { MineEventData } from "@tenet-base-world/src/Types.sol";
 import { AirVoxelID } from "@tenet-level1-ca/src/Constants.sol";
 import { getEntityAtCoord } from "@tenet-base-world/src/Utils.sol";
-import { REGISTRY_ADDRESS, SIMULATOR_ADDRESS } from "@tenet-world/src/Constants.sol";
+import { REGISTRY_ADDRESS, SIMULATOR_ADDRESS, BASE_CA_ADDRESS } from "@tenet-world/src/Constants.sol";
 import { MineWorldEventData } from "@tenet-world/src/Types.sol";
 import { onMine, postTx } from "@tenet-simulator/src/CallUtils.sol";
+import { CAEntityReverseMapping } from "@tenet-base-ca/src/codegen/tables/CAEntityReverseMapping.sol";
 
 contract MineSystem is MineEvent {
   function getRegistryAddress() internal pure override returns (address) {
@@ -31,6 +32,15 @@ contract MineSystem is MineEvent {
   ) public returns (VoxelEntity memory) {
     MineWorldEventData memory mineEventData = MineWorldEventData({ agentEntity: agentEntity });
     return super.mine(voxelTypeId, coord, abi.encode(MineEventData({ worldData: abi.encode(mineEventData) })));
+  }
+
+  function mineWithAgentCaEntity(
+    bytes32 voxelTypeId,
+    VoxelCoord memory coord,
+    bytes32 caEntity
+  ) public returns (VoxelEntity memory) {
+    bytes32 entity = CAEntityReverseMapping.getEntity(IStore(BASE_CA_ADDRESS), caEntity);
+    return mineWithAgent(voxelTypeId, coord, VoxelEntity({ scale: 1, entityId: entity }));
   }
 
   function postEvent(

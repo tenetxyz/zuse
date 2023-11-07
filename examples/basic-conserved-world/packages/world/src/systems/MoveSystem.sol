@@ -6,7 +6,7 @@ import { MoveEvent } from "@tenet-base-world/src/prototypes/MoveEvent.sol";
 import { hasKey } from "@latticexyz/world/src/modules/keysintable/hasKey.sol";
 import { IWorld } from "@tenet-world/src/codegen/world/IWorld.sol";
 import { VoxelCoord, VoxelEntity, EntityEventData } from "@tenet-utils/src/Types.sol";
-import { REGISTRY_ADDRESS, SIMULATOR_ADDRESS } from "@tenet-world/src/Constants.sol";
+import { REGISTRY_ADDRESS, SIMULATOR_ADDRESS, BASE_CA_ADDRESS } from "@tenet-world/src/Constants.sol";
 import { MoveEventData } from "@tenet-base-world/src/Types.sol";
 import { isEntityEqual } from "@tenet-utils/src/Utils.sol";
 import { OwnedBy, OwnedByTableId, WorldConfig } from "@tenet-world/src/codegen/Tables.sol";
@@ -14,6 +14,7 @@ import { getEntityAtCoord } from "@tenet-base-world/src/Utils.sol";
 import { MoveWorldEventData } from "@tenet-world/src/Types.sol";
 import { onMove, postTx } from "@tenet-simulator/src/CallUtils.sol";
 import { console } from "forge-std/console.sol";
+import { CAEntityReverseMapping } from "@tenet-base-ca/src/codegen/tables/CAEntityReverseMapping.sol";
 
 contract MoveSystem is MoveEvent {
   function getRegistryAddress() internal pure override returns (address) {
@@ -48,6 +49,16 @@ contract MoveSystem is MoveEvent {
     }
 
     return (oldEntity, newEntity);
+  }
+
+  function moveWithAgentCaEntity(
+    bytes32 voxelTypeId,
+    VoxelCoord memory oldCoord,
+    VoxelCoord memory newCoord,
+    bytes32 caEntity
+  ) public returns (VoxelEntity memory, VoxelEntity memory) {
+    bytes32 entity = CAEntityReverseMapping.getEntity(IStore(BASE_CA_ADDRESS), caEntity);
+    return moveWithAgent(voxelTypeId, oldCoord, newCoord, VoxelEntity({ scale: 1, entityId: entity }));
   }
 
   function postEvent(

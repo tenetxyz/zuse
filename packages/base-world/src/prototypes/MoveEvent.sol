@@ -58,27 +58,27 @@ abstract contract MoveEvent is Event {
     VoxelCoord memory newChildCoord,
     bytes memory eventData
   ) internal virtual override {
-    uint32 scale = eventVoxelEntity.scale;
-    bytes memory rawChildMoveEventData = getChildEventData(
-      voxelTypeId,
-      coord,
-      eventVoxelEntity,
-      eventData,
-      childIdx,
-      childVoxelTypeId,
-      newChildCoord
-    );
-    MoveEventData memory childMoveEventData = abi.decode(eventData, (MoveEventData));
-    bytes32 childVoxelEntity = getEntityAtCoord(scale - 1, childMoveEventData.oldCoord);
-    if (childVoxelEntity != 0) {
-      runEventHandler(
-        VoxelType.getVoxelTypeId(scale - 1, childVoxelEntity),
-        newChildCoord,
-        true,
-        false,
-        rawChildMoveEventData
-      );
-    }
+    // uint32 scale = eventVoxelEntity.scale;
+    // bytes memory rawChildMoveEventData = getChildEventData(
+    //   voxelTypeId,
+    //   coord,
+    //   eventVoxelEntity,
+    //   eventData,
+    //   childIdx,
+    //   childVoxelTypeId,
+    //   newChildCoord
+    // );
+    // MoveEventData memory childMoveEventData = abi.decode(eventData, (MoveEventData));
+    // bytes32 childVoxelEntity = getEntityAtCoord(scale - 1, childMoveEventData.oldCoord);
+    // if (childVoxelEntity != 0) {
+    //   runEventHandler(
+    //     VoxelType.getVoxelTypeId(scale - 1, childVoxelEntity),
+    //     newChildCoord,
+    //     true,
+    //     false,
+    //     rawChildMoveEventData
+    //   );
+    // }
   }
 
   function getChildEventData(

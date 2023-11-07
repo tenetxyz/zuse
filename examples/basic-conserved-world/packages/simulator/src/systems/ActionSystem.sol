@@ -66,16 +66,7 @@ contract ActionSystem is SimHandler {
       }
 
       // Set to none
-      Action.set(
-        callerAddress,
-        actionEntity.scale,
-        actionEntity.entityId,
-        ActionData({
-          actionType: ObjectType.None,
-          stamina: 0,
-          actionEntity: abi.encode(VoxelEntity({ scale: 0, entityId: bytes32(0) }))
-        })
-      );
+      Action.deleteRecord(callerAddress, actionEntity.scale, actionEntity.entityId);
     }
   }
 

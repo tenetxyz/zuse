@@ -12,7 +12,7 @@ import { min } from "@tenet-utils/src/VoxelCoordUtils.sol";
 import { REGISTRY_ADDRESS, SIMULATOR_ADDRESS } from "@tenet-world/src/Constants.sol";
 import { AirVoxelID } from "@tenet-level1-ca/src/Constants.sol";
 import { BuildWorldEventData } from "@tenet-world/src/Types.sol";
-import { onBuild } from "@tenet-simulator/src/CallUtils.sol";
+import { onBuild, postTx } from "@tenet-simulator/src/CallUtils.sol";
 import { VoxelTypeRegistry, VoxelTypeRegistryData } from "@tenet-registry/src/codegen/tables/VoxelTypeRegistry.sol";
 
 contract BuildSystem is BuildEvent {
@@ -42,6 +42,19 @@ contract BuildSystem is BuildEvent {
         coord,
         abi.encode(BuildEventData({ mindSelector: mindSelector, worldData: abi.encode(buildEventData) }))
       );
+  }
+
+  function postEvent(
+    bytes32 voxelTypeId,
+    VoxelCoord memory coord,
+    VoxelEntity memory eventVoxelEntity,
+    bytes memory eventData,
+    EntityEventData[] memory entitiesEventData
+  ) internal override {
+    super.postEvent(voxelTypeId, coord, eventVoxelEntity, eventData, entitiesEventData);
+    BuildEventData memory buildEventData = abi.decode(eventData, (BuildEventData));
+    BuildWorldEventData memory buildWorldEventData = abi.decode(buildEventData.worldData, (BuildWorldEventData));
+    postTx(SIMULATOR_ADDRESS, buildWorldEventData.agentEntity, eventVoxelEntity, coord);
   }
 
   function preRunCA(

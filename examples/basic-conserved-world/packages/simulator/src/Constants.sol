@@ -10,6 +10,7 @@ string constant SIM_ON_BUILD_SIG = "onBuild((uint32,bytes32),(uint32,bytes32),(i
 string constant SIM_ON_MINE_SIG = "onMine((uint32,bytes32),(uint32,bytes32),(int32,int32,int32))";
 string constant SIM_ON_MOVE_SIG = "onMove((uint32,bytes32),(uint32,bytes32),(int32,int32,int32),(uint32,bytes32),(int32,int32,int32))";
 string constant SIM_ON_ACTIVATE_SIG = "onActivate((uint32,bytes32),(uint32,bytes32),(int32,int32,int32))";
+string constant SIM_POST_TX_SIG = "postTx((uint32,bytes32),(uint32,bytes32),(int32,int32,int32))";
 string constant SIM_VELOCITY_CACHE_UPDATE_SIG = "updateVelocityCache((uint32,bytes32))";
 
 // Other constants

@@ -3,7 +3,7 @@ pragma solidity >=0.8.0;
 
 import { IStore } from "@latticexyz/store/src/IStore.sol";
 import { VoxelCoord, VoxelEntity, SimTable, ValueType, ObjectType } from "@tenet-utils/src/Types.sol";
-import { SIM_ON_BUILD_SIG, SIM_ON_MINE_SIG, SIM_ON_MOVE_SIG, SIM_ON_ACTIVATE_SIG, SIM_VELOCITY_CACHE_UPDATE_SIG, SIM_INIT_AGENT_SIG, SIM_INIT_ENTITY_SIG } from "@tenet-simulator/src/Constants.sol";
+import { SIM_POST_TX_SIG, SIM_ON_BUILD_SIG, SIM_ON_MINE_SIG, SIM_ON_MOVE_SIG, SIM_ON_ACTIVATE_SIG, SIM_VELOCITY_CACHE_UPDATE_SIG, SIM_INIT_AGENT_SIG, SIM_INIT_ENTITY_SIG } from "@tenet-simulator/src/Constants.sol";
 import { safeCall, callOrRevert, staticCallOrRevert } from "@tenet-utils/src/CallUtils.sol";
 import { SimSelectors, SimSelectorsData } from "@tenet-simulator/src/codegen/tables/SimSelectors.sol";
 
@@ -299,5 +299,19 @@ function onActivate(
       simAddress,
       abi.encodeWithSignature(SIM_ON_ACTIVATE_SIG, actingEntity, entity, coord),
       string(abi.encode("onActivate ", actingEntity, " ", entity, " ", coord))
+    );
+}
+
+function postTx(
+  address simAddress,
+  VoxelEntity memory actingEntity,
+  VoxelEntity memory entity,
+  VoxelCoord memory coord
+) returns (bytes memory) {
+  return
+    callOrRevert(
+      simAddress,
+      abi.encodeWithSignature(SIM_POST_TX_SIG, actingEntity, entity, coord),
+      string(abi.encode("postTx ", actingEntity, " ", entity, " ", coord))
     );
 }

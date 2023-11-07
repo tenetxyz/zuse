@@ -12,7 +12,7 @@ import { AirVoxelID } from "@tenet-level1-ca/src/Constants.sol";
 import { getEntityAtCoord } from "@tenet-base-world/src/Utils.sol";
 import { REGISTRY_ADDRESS, SIMULATOR_ADDRESS } from "@tenet-world/src/Constants.sol";
 import { MineWorldEventData } from "@tenet-world/src/Types.sol";
-import { onMine } from "@tenet-simulator/src/CallUtils.sol";
+import { onMine, postTx } from "@tenet-simulator/src/CallUtils.sol";
 
 contract MineSystem is MineEvent {
   function getRegistryAddress() internal pure override returns (address) {
@@ -31,6 +31,19 @@ contract MineSystem is MineEvent {
   ) public returns (VoxelEntity memory) {
     MineWorldEventData memory mineEventData = MineWorldEventData({ agentEntity: agentEntity });
     return super.mine(voxelTypeId, coord, abi.encode(MineEventData({ worldData: abi.encode(mineEventData) })));
+  }
+
+  function postEvent(
+    bytes32 voxelTypeId,
+    VoxelCoord memory coord,
+    VoxelEntity memory eventVoxelEntity,
+    bytes memory eventData,
+    EntityEventData[] memory entitiesEventData
+  ) internal override {
+    super.postEvent(voxelTypeId, coord, eventVoxelEntity, eventData, entitiesEventData);
+    MineEventData memory mineEventData = abi.decode(eventData, (MineEventData));
+    MineWorldEventData memory mineWorldEventData = abi.decode(mineEventData.worldData, (MineWorldEventData));
+    postTx(SIMULATOR_ADDRESS, mineWorldEventData.agentEntity, eventVoxelEntity, coord);
   }
 
   function preRunCA(

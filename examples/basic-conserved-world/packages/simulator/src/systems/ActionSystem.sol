@@ -41,20 +41,11 @@ contract ActionSystem is SimHandler {
     require(senderStaminaDelta < 0, "Cannot increase your own stamina");
     uint256 senderStamina = int256ToUint256(senderStaminaDelta);
     {
-      uint256 currentStamina = Stamina.get(callerAddress, senderEntity.scale, senderEntity.entityId);
-      require(currentStamina >= senderStamina, "Not enough stamina");
-
       ObjectType objectType = Object.get(callerAddress, senderEntity.scale, senderEntity.entityId);
       require(objectType != ObjectType.None, "Object type not set");
 
-      // Flux out energy proportional to the stamina used
-      IWorld(_world()).fluxEnergy(false, callerAddress, senderEntity, senderStamina);
-      Stamina.set(
-        callerAddress,
-        senderEntity.scale,
-        senderEntity.entityId,
-        safeSubtract(currentStamina, senderStamina)
-      );
+      uint256 currentStamina = Stamina.get(callerAddress, senderEntity.scale, senderEntity.entityId);
+      require(currentStamina >= senderStamina, "Not enough stamina");
     }
     console.log("action set");
     console.logBytes32(senderEntity.entityId);
@@ -161,9 +152,13 @@ contract ActionSystem is SimHandler {
       return true;
     }
 
-    // Flux out energy proportional to the health lost
-    IWorld(_world()).fluxEnergy(false, callerAddress, entity, lostHealth);
+    uint256 currentStamina = Stamina.get(callerAddress, entity.scale, entity.entityId);
+    require(currentStamina >= actionData.stamina, "Not enough stamina");
+
+    // Flux out energy proportional to the health lost and stamina used
+    IWorld(_world()).fluxEnergy(false, callerAddress, entity, lostHealth + actionData.stamina);
     {
+      Stamina.set(callerAddress, entity.scale, entity.entityId, safeSubtract(currentStamina, actionData.stamina));
       Health.setHealth(
         callerAddress,
         entity.scale,

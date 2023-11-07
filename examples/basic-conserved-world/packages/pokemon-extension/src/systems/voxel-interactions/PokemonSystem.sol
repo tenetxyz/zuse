@@ -11,11 +11,12 @@ import { uint256ToNegativeInt256 } from "@tenet-utils/src/TypeUtils.sol";
 import { PlantStage } from "@tenet-pokemon-extension/src/codegen/Types.sol";
 import { Pokemon, PokemonData } from "@tenet-pokemon-extension/src/codegen/tables/Pokemon.sol";
 import { entityIsSoil, entityIsPlant, entityIsPokemon } from "@tenet-pokemon-extension/src/InteractionUtils.sol";
-import { getCAEntityAtCoord, getCAVoxelType, getCAEntityPositionStrict, caEntityToEntity } from "@tenet-base-ca/src/Utils.sol";
+import { getCAEntityAtCoord, getCAVoxelType, getCAEntityPositionStrict, caEntityToEntity, getCAEntityIsAgent } from "@tenet-base-ca/src/Utils.sol";
 import { getEntitySimData, stopEvent } from "@tenet-level1-ca/src/Utils.sol";
 import { isZeroCoord, voxelCoordsAreEqual } from "@tenet-utils/src/VoxelCoordUtils.sol";
 import { MoveData, PokemonMove } from "@tenet-pokemon-extension/src/Types.sol";
 import { console } from "forge-std/console.sol";
+import { REGISTRY_ADDRESS } from "@tenet-level1-ca/src/Constants.sol";
 
 import { NUM_BLOCKS_FAINTED } from "@tenet-pokemon-extension/src/Constants.sol";
 
@@ -199,6 +200,10 @@ contract PokemonSystem is System {
       if (foundPokemon) {
         revert("Pokemon can't fight more than one pokemon at a time");
       }
+      // TODO: handle non-pokemon interaction
+      // if (!getCAEntityIsAgent(REGISTRY_ADDRESS, neighbourEntityIds[i])) {
+      //   continue;
+      // }
 
       foundPokemon = true;
       (allCAEventData[i], pokemonData) = runPokemonMove(

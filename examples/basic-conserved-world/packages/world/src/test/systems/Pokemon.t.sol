@@ -110,9 +110,10 @@ contract PokemonTest is MudTest {
         z: pokemon1Coord.z - 1
       });
       vm.roll(block.number + 1);
+      console.log("commence fight");
       (, pokemon1Entity) = world.moveWithAgent(FirePokemonVoxelID, pokemon1Coord, newPokemon1Coord, pokemon1Entity);
       vm.roll(block.number + NUM_BLOCKS_BEFORE_REDUCE_VELOCITY + 1);
-      console.log("commence fight");
+      console.log("post fight");
       // world.activateWithAgent(FirePokemonVoxelID, newPokemon1Coord, agentEntity, bytes4(0));
       console.logUint(
         Health.getHealth(IStore(SIMULATOR_ADDRESS), worldAddress, pokemon1Entity.scale, pokemon1Entity.entityId)

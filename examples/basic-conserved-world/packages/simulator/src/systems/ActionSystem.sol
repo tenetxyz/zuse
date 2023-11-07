@@ -5,7 +5,8 @@ import { IStore } from "@latticexyz/store/src/IStore.sol";
 import { IWorld } from "@tenet-simulator/src/codegen/world/IWorld.sol";
 import { hasKey } from "@latticexyz/world/src/modules/keysintable/hasKey.sol";
 import { SimHandler } from "@tenet-simulator/prototypes/SimHandler.sol";
-import { Stamina, StaminaTableId, Action, ActionData, SimSelectors, Object, ObjectTableId, Health, HealthTableId, Mass, MassTableId, Energy, EnergyTableId, Velocity, VelocityTableId } from "@tenet-simulator/src/codegen/Tables.sol";
+import { getKeysInTable } from "@latticexyz/world/src/modules/keysintable/getKeysInTable.sol";
+import { Stamina, StaminaTableId, Action, ActionData, ActionTableId, SimSelectors, Object, ObjectTableId, Health, HealthTableId, Mass, MassTableId, Energy, EnergyTableId, Velocity, VelocityTableId } from "@tenet-simulator/src/codegen/Tables.sol";
 import { VoxelCoord, VoxelTypeData, VoxelEntity, ObjectType, SimTable, ValueType } from "@tenet-utils/src/Types.sol";
 import { VoxelTypeRegistry, VoxelTypeRegistryData } from "@tenet-registry/src/codegen/tables/VoxelTypeRegistry.sol";
 import { distanceBetween, voxelCoordsAreEqual, isZeroCoord } from "@tenet-utils/src/VoxelCoordUtils.sol";
@@ -25,6 +26,47 @@ contract ActionSystem is SimHandler {
     );
   }
 
+  function postTxActionBehaviour() public {
+    // go through all actions that are not none, and apply them
+
+    // Clear all keys in Interactions
+    bytes32[][] memory entitiesRan = getKeysInTable(ActionTableId);
+    for (uint256 i = 0; i < entitiesRan.length; i++) {
+      VoxelEntity memory actionEntity = VoxelEntity({
+        scale: uint32(uint256(entitiesRan[i][1])),
+        entityId: entitiesRan[i][2]
+      });
+      address callerAddress = address(uint160(uint256(entitiesRan[i][0])));
+      ActionData memory actionData = Action.get(callerAddress, actionEntity.scale, actionEntity.entityId);
+      VoxelEntity memory toActOnEntity = abi.decode(actionData.actionEntity, (VoxelEntity));
+      if (!isEntityEqual(actionEntity, toActOnEntity) && actionData.stamina > 0) {
+        uint256 currentStamina = Stamina.get(callerAddress, actionEntity.scale, actionEntity.entityId);
+        if (currentStamina > actionData.stamina) {
+          console.log("applying single move");
+          // Flux out energy proportional to the health lost and stamina used
+          uint256 damage = actionData.stamina * 2;
+          uint256 lostHealth = damage;
+          IWorld(_world()).fluxEnergy(false, callerAddress, actionEntity, lostHealth + actionData.stamina);
+          Stamina.set(
+            callerAddress,
+            actionEntity.scale,
+            actionEntity.entityId,
+            safeSubtract(currentStamina, actionData.stamina)
+          );
+          Health.setHealth(
+            callerAddress,
+            toActOnEntity.scale,
+            toActOnEntity.entityId,
+            safeSubtract(Health.getHealth(callerAddress, toActOnEntity.scale, toActOnEntity.entityId), damage)
+          );
+        }
+      }
+
+      // Set to none
+      Action.deleteRecord(callerAddress, actionEntity.scale, actionEntity.entityId);
+    }
+  }
+
   function updateActionFromStamina(
     VoxelEntity memory senderEntity,
     VoxelCoord memory senderCoord,
@@ -41,20 +83,11 @@ contract ActionSystem is SimHandler {
     require(senderStaminaDelta < 0, "Cannot increase your own stamina");
     uint256 senderStamina = int256ToUint256(senderStaminaDelta);
     {
-      uint256 currentStamina = Stamina.get(callerAddress, senderEntity.scale, senderEntity.entityId);
-      require(currentStamina >= senderStamina, "Not enough stamina");
-
       ObjectType objectType = Object.get(callerAddress, senderEntity.scale, senderEntity.entityId);
       require(objectType != ObjectType.None, "Object type not set");
 
-      // Flux out energy proportional to the stamina used
-      IWorld(_world()).fluxEnergy(false, callerAddress, senderEntity, senderStamina);
-      Stamina.set(
-        callerAddress,
-        senderEntity.scale,
-        senderEntity.entityId,
-        safeSubtract(currentStamina, senderStamina)
-      );
+      uint256 currentStamina = Stamina.get(callerAddress, senderEntity.scale, senderEntity.entityId);
+      require(currentStamina >= senderStamina, "Not enough stamina");
     }
     console.log("action set");
     console.logBytes32(senderEntity.entityId);
@@ -79,28 +112,10 @@ contract ActionSystem is SimHandler {
 
       // set action type to None
       if (updatedSender) {
-        Action.set(
-          callerAddress,
-          senderEntity.scale,
-          senderEntity.entityId,
-          ActionData({
-            actionType: ObjectType.None,
-            stamina: 0,
-            actionEntity: abi.encode(VoxelEntity({ scale: 0, entityId: bytes32(0) }))
-          })
-        );
+        Action.deleteRecord(callerAddress, senderEntity.scale, senderEntity.entityId);
       }
       if (updatedNeighbour) {
-        Action.set(
-          callerAddress,
-          neighbourEntity.scale,
-          neighbourEntity.entityId,
-          ActionData({
-            actionType: ObjectType.None,
-            stamina: 0,
-            actionEntity: abi.encode(VoxelEntity({ scale: 0, entityId: bytes32(0) }))
-          })
-        );
+        Action.deleteRecord(callerAddress, neighbourEntity.scale, neighbourEntity.entityId);
       }
     }
   }
@@ -157,19 +172,26 @@ contract ActionSystem is SimHandler {
     console.log("lost health");
     console.logBytes32(entity.entityId);
     console.logUint(lostHealth);
-    if (lostHealth == 0) {
-      return true;
-    }
 
-    // Flux out energy proportional to the health lost
-    IWorld(_world()).fluxEnergy(false, callerAddress, entity, lostHealth);
+    require(Stamina.get(callerAddress, entity.scale, entity.entityId) >= actionData.stamina, "Not enough stamina");
+
+    // Flux out energy proportional to the health lost and stamina used
+    IWorld(_world()).fluxEnergy(false, callerAddress, entity, lostHealth + actionData.stamina);
     {
-      Health.setHealth(
+      Stamina.set(
         callerAddress,
         entity.scale,
         entity.entityId,
-        safeSubtract(Health.getHealth(callerAddress, entity.scale, entity.entityId), lostHealth)
+        safeSubtract(Stamina.get(callerAddress, entity.scale, entity.entityId), actionData.stamina)
       );
+      if (lostHealth > 0) {
+        Health.setHealth(
+          callerAddress,
+          entity.scale,
+          entity.entityId,
+          safeSubtract(Health.getHealth(callerAddress, entity.scale, entity.entityId), lostHealth)
+        );
+      }
     }
 
     return true;

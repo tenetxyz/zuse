@@ -12,7 +12,7 @@ import { isEntityEqual } from "@tenet-utils/src/Utils.sol";
 import { OwnedBy, OwnedByTableId, WorldConfig } from "@tenet-world/src/codegen/Tables.sol";
 import { getEntityAtCoord } from "@tenet-base-world/src/Utils.sol";
 import { MoveWorldEventData } from "@tenet-world/src/Types.sol";
-import { onMove } from "@tenet-simulator/src/CallUtils.sol";
+import { onMove, postTx } from "@tenet-simulator/src/CallUtils.sol";
 import { console } from "forge-std/console.sol";
 
 contract MoveSystem is MoveEvent {
@@ -48,6 +48,19 @@ contract MoveSystem is MoveEvent {
     }
 
     return (oldEntity, newEntity);
+  }
+
+  function postEvent(
+    bytes32 voxelTypeId,
+    VoxelCoord memory coord,
+    VoxelEntity memory eventVoxelEntity,
+    bytes memory eventData,
+    EntityEventData[] memory entitiesEventData
+  ) internal override {
+    super.postEvent(voxelTypeId, coord, eventVoxelEntity, eventData, entitiesEventData);
+    MoveEventData memory moveEventData = abi.decode(eventData, (MoveEventData));
+    MoveWorldEventData memory moveWorldEventData = abi.decode(moveEventData.worldData, (MoveWorldEventData));
+    postTx(SIMULATOR_ADDRESS, moveWorldEventData.agentEntity, eventVoxelEntity, coord);
   }
 
   function preRunCA(

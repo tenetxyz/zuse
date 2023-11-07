@@ -26,7 +26,6 @@ contract ActionSystem is SimHandler {
     );
   }
 
-  // TODO: This is gas intensive, need to find a better way
   function postTxActionBehaviour() public {
     // go through all actions that are not none, and apply them
 
@@ -125,28 +124,10 @@ contract ActionSystem is SimHandler {
 
       // set action type to None
       if (updatedSender) {
-        Action.set(
-          callerAddress,
-          senderEntity.scale,
-          senderEntity.entityId,
-          ActionData({
-            actionType: ObjectType.None,
-            stamina: 0,
-            actionEntity: abi.encode(VoxelEntity({ scale: 0, entityId: bytes32(0) }))
-          })
-        );
+        Action.deleteRecord(callerAddress, senderEntity.scale, senderEntity.entityId);
       }
       if (updatedNeighbour) {
-        Action.set(
-          callerAddress,
-          neighbourEntity.scale,
-          neighbourEntity.entityId,
-          ActionData({
-            actionType: ObjectType.None,
-            stamina: 0,
-            actionEntity: abi.encode(VoxelEntity({ scale: 0, entityId: bytes32(0) }))
-          })
-        );
+        Action.deleteRecord(callerAddress, neighbourEntity.scale, neighbourEntity.entityId);
       }
     }
   }

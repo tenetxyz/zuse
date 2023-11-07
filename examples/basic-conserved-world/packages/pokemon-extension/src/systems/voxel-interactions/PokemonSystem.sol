@@ -193,12 +193,12 @@ contract PokemonSystem is System {
         continue;
       }
 
-      if (!entityIsPokemon(callerAddress, neighbourEntityIds[i])) {
-        continue;
-      }
-      if (foundPokemon) {
-        revert("Pokemon can't fight more than one pokemon at a time");
-      }
+      // if (!entityIsPokemon(callerAddress, neighbourEntityIds[i])) {
+      //   continue;
+      // }
+      // if (foundPokemon) {
+      //   revert("Pokemon can't fight more than one pokemon at a time");
+      // }
 
       foundPokemon = true;
       (allCAEventData[i], pokemonData) = runPokemonMove(

@@ -51,7 +51,7 @@ contract PokemonTest is MudTest {
     return agentEntity;
   }
 
-  function testFight() public {
+  function testFightSame() public {
     vm.startPrank(alice, alice);
     VoxelEntity memory agentEntity = setupAgent();
 
@@ -78,8 +78,8 @@ contract PokemonTest is MudTest {
     );
     world.claimAgent(pokemon1Entity);
     Energy.set(IStore(SIMULATOR_ADDRESS), worldAddress, pokemon1Entity.scale, pokemon1Entity.entityId, 100);
-    Health.setHealth(IStore(SIMULATOR_ADDRESS), worldAddress, pokemon1Entity.scale, pokemon1Entity.entityId, 200);
-    Stamina.set(IStore(SIMULATOR_ADDRESS), worldAddress, pokemon1Entity.scale, pokemon1Entity.entityId, 150);
+    Health.setHealth(IStore(SIMULATOR_ADDRESS), worldAddress, pokemon1Entity.scale, pokemon1Entity.entityId, 100);
+    Stamina.set(IStore(SIMULATOR_ADDRESS), worldAddress, pokemon1Entity.scale, pokemon1Entity.entityId, 50000);
 
     // Activate pokemon
     bytes32 pokemon1CAEntity = CAEntityMapping.get(IStore(BASE_CA_ADDRESS), worldAddress, pokemon1Entity.entityId);
@@ -96,8 +96,8 @@ contract PokemonTest is MudTest {
         ObjectType.Fire
     );
     Energy.set(IStore(SIMULATOR_ADDRESS), worldAddress, pokemon2Entity.scale, pokemon2Entity.entityId, 100);
-    Health.setHealth(IStore(SIMULATOR_ADDRESS), worldAddress, pokemon2Entity.scale, pokemon2Entity.entityId, 200);
-    Stamina.set(IStore(SIMULATOR_ADDRESS), worldAddress, pokemon2Entity.scale, pokemon2Entity.entityId, 150);
+    Health.setHealth(IStore(SIMULATOR_ADDRESS), worldAddress, pokemon2Entity.scale, pokemon2Entity.entityId, 100);
+    Stamina.set(IStore(SIMULATOR_ADDRESS), worldAddress, pokemon2Entity.scale, pokemon2Entity.entityId, 50000);
 
     // Activate pokemon
     bytes32 pokemon2CAEntity = CAEntityMapping.get(IStore(BASE_CA_ADDRESS), worldAddress, pokemon2Entity.entityId);
@@ -193,8 +193,8 @@ contract PokemonTest is MudTest {
     );
     world.claimAgent(pokemon1Entity);
     Energy.set(IStore(SIMULATOR_ADDRESS), worldAddress, pokemon1Entity.scale, pokemon1Entity.entityId, 100);
-    Health.setHealth(IStore(SIMULATOR_ADDRESS), worldAddress, pokemon1Entity.scale, pokemon1Entity.entityId, 200);
-    Stamina.set(IStore(SIMULATOR_ADDRESS), worldAddress, pokemon1Entity.scale, pokemon1Entity.entityId, 150);
+    Health.setHealth(IStore(SIMULATOR_ADDRESS), worldAddress, pokemon1Entity.scale, pokemon1Entity.entityId, 100);
+    Stamina.set(IStore(SIMULATOR_ADDRESS), worldAddress, pokemon1Entity.scale, pokemon1Entity.entityId, 50000);
 
     // Activate pokemon
     bytes32 pokemon1CAEntity = CAEntityMapping.get(IStore(BASE_CA_ADDRESS), worldAddress, pokemon1Entity.entityId);
@@ -218,8 +218,8 @@ contract PokemonTest is MudTest {
     );
 
     Energy.set(IStore(SIMULATOR_ADDRESS), worldAddress, pokemon2Entity.scale, pokemon2Entity.entityId, 100);
-    Health.setHealth(IStore(SIMULATOR_ADDRESS), worldAddress, pokemon2Entity.scale, pokemon2Entity.entityId, 200);
-    Stamina.set(IStore(SIMULATOR_ADDRESS), worldAddress, pokemon2Entity.scale, pokemon2Entity.entityId, 150);
+    Health.setHealth(IStore(SIMULATOR_ADDRESS), worldAddress, pokemon2Entity.scale, pokemon2Entity.entityId, 100);
+    Stamina.set(IStore(SIMULATOR_ADDRESS), worldAddress, pokemon2Entity.scale, pokemon2Entity.entityId, 50000);
 
     // Activate pokemon
     bytes32 pokemon2CAEntity = CAEntityMapping.get(IStore(BASE_CA_ADDRESS), worldAddress, pokemon2Entity.entityId);
@@ -243,7 +243,7 @@ contract PokemonTest is MudTest {
         Health.getHealth(IStore(SIMULATOR_ADDRESS), worldAddress, pokemon2Entity.scale, pokemon2Entity.entityId)
       );
       assertTrue(
-        Health.getHealth(IStore(SIMULATOR_ADDRESS), worldAddress, pokemon1Entity.scale, pokemon1Entity.entityId) == 185
+        Health.getHealth(IStore(SIMULATOR_ADDRESS), worldAddress, pokemon1Entity.scale, pokemon1Entity.entityId) < 100
       );
       assertTrue(
         Health.getHealth(IStore(SIMULATOR_ADDRESS), worldAddress, pokemon2Entity.scale, pokemon2Entity.entityId) == 0

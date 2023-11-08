@@ -114,7 +114,7 @@ contract FirePokemonAgentSystem is AgentType {
   }
 
   function getInteractionSelectors() public override returns (InteractionSelector[] memory) {
-    InteractionSelector[] memory voxelInteractionSelectors = new InteractionSelector[](13);
+    InteractionSelector[] memory voxelInteractionSelectors = new InteractionSelector[](19);
     voxelInteractionSelectors[0] = InteractionSelector({
       interactionSelector: IWorld(_world()).pokemon_FirePokemonAgent_defaultEventHandler.selector,
       interactionName: "Default",
@@ -131,53 +131,83 @@ contract FirePokemonAgentSystem is AgentType {
       interactionDescription: ""
     });
     voxelInteractionSelectors[3] = InteractionSelector({
+      interactionSelector: IWorld(_world()).pokemon_FirePokemonAgent_infernoClashEventHandler.selector,
+      interactionName: "Inferno Clash",
+      interactionDescription: ""
+    });
+    voxelInteractionSelectors[4] = InteractionSelector({
       interactionSelector: IWorld(_world()).pokemon_FirePokemonAgent_smokeScreenEventHandler.selector,
       interactionName: "Smoke Screen",
       interactionDescription: ""
     });
-    voxelInteractionSelectors[4] = InteractionSelector({
+    voxelInteractionSelectors[5] = InteractionSelector({
       interactionSelector: IWorld(_world()).pokemon_FirePokemonAgent_fireShieldEventHandler.selector,
       interactionName: "Fire Shield",
       interactionDescription: ""
     });
-    voxelInteractionSelectors[5] = InteractionSelector({
+    voxelInteractionSelectors[6] = InteractionSelector({
+      interactionSelector: IWorld(_world()).pokemon_FirePokemonAgent_pyroBarrierEventHandler.selector,
+      interactionName: "Pyro Barrier",
+      interactionDescription: ""
+    });
+    voxelInteractionSelectors[7] = InteractionSelector({
       interactionSelector: IWorld(_world()).pokemon_FirePokemonAgent_waterGunEventHandler.selector,
       interactionName: "Water Gun",
       interactionDescription: ""
     });
-    voxelInteractionSelectors[6] = InteractionSelector({
+    voxelInteractionSelectors[8] = InteractionSelector({
       interactionSelector: IWorld(_world()).pokemon_FirePokemonAgent_hydroPumpEventHandler.selector,
       interactionName: "Hydro Pump",
       interactionDescription: ""
     });
-    voxelInteractionSelectors[7] = InteractionSelector({
+    voxelInteractionSelectors[9] = InteractionSelector({
+      interactionSelector: IWorld(_world()).pokemon_FirePokemonAgent_tidalCrashEventHandler.selector,
+      interactionName: "Tidal Crash",
+      interactionDescription: ""
+    });
+    voxelInteractionSelectors[10] = InteractionSelector({
       interactionSelector: IWorld(_world()).pokemon_FirePokemonAgent_bubbleEventHandler.selector,
       interactionName: "Bubble",
       interactionDescription: ""
     });
-    voxelInteractionSelectors[8] = InteractionSelector({
+    voxelInteractionSelectors[11] = InteractionSelector({
       interactionSelector: IWorld(_world()).pokemon_FirePokemonAgent_aquaRingEventHandler.selector,
       interactionName: "Aqua Ring",
       interactionDescription: ""
     });
-    voxelInteractionSelectors[9] = InteractionSelector({
+    voxelInteractionSelectors[12] = InteractionSelector({
+      interactionSelector: IWorld(_world()).pokemon_FirePokemonAgent_mistVeilEventHandler.selector,
+      interactionName: "Mist Veil",
+      interactionDescription: ""
+    });
+    voxelInteractionSelectors[13] = InteractionSelector({
       interactionSelector: IWorld(_world()).pokemon_FirePokemonAgent_vineWhipEventHandler.selector,
       interactionName: "Vine Whip",
       interactionDescription: ""
     });
-    voxelInteractionSelectors[10] = InteractionSelector({
+    voxelInteractionSelectors[14] = InteractionSelector({
       interactionSelector: IWorld(_world()).pokemon_FirePokemonAgent_solarBeamEventHandler.selector,
       interactionName: "Solar Beam",
       interactionDescription: ""
     });
-    voxelInteractionSelectors[11] = InteractionSelector({
+    voxelInteractionSelectors[15] = InteractionSelector({
+      interactionSelector: IWorld(_world()).pokemon_FirePokemonAgent_thornBurstEventHandler.selector,
+      interactionName: "Thorn Burst",
+      interactionDescription: ""
+    });
+    voxelInteractionSelectors[16] = InteractionSelector({
       interactionSelector: IWorld(_world()).pokemon_FirePokemonAgent_leechSeedEventHandler.selector,
       interactionName: "Leech Seed",
       interactionDescription: ""
     });
-    voxelInteractionSelectors[12] = InteractionSelector({
+    voxelInteractionSelectors[17] = InteractionSelector({
       interactionSelector: IWorld(_world()).pokemon_FirePokemonAgent_synthesisEventHandler.selector,
       interactionName: "Synthesis",
+      interactionDescription: ""
+    });
+    voxelInteractionSelectors[18] = InteractionSelector({
+      interactionSelector: IWorld(_world()).pokemon_FirePokemonAgent_verdantGuardEventHandler.selector,
+      interactionName: "Verdant Guard",
       interactionDescription: ""
     });
 
@@ -238,6 +268,24 @@ contract FirePokemonAgentSystem is AgentType {
       );
   }
 
+  function infernoClashEventHandler(
+    bytes32 centerEntityId,
+    bytes32[] memory neighbourEntityIds,
+    bytes32[] memory childEntityIds,
+    bytes32 parentEntity
+  ) public returns (bool, bytes memory) {
+    address callerAddress = super.getCallerAddress();
+    return
+      IWorld(_world()).pokemon_PokemonSystem_eventHandlerPokemon(
+        callerAddress,
+        centerEntityId,
+        neighbourEntityIds,
+        childEntityIds,
+        parentEntity,
+        PokemonMove.InfernoClash
+      );
+  }
+
   function smokeScreenEventHandler(
     bytes32 centerEntityId,
     bytes32[] memory neighbourEntityIds,
@@ -271,6 +319,24 @@ contract FirePokemonAgentSystem is AgentType {
         childEntityIds,
         parentEntity,
         PokemonMove.FireShield
+      );
+  }
+
+  function pyroBarrierEventHandler(
+    bytes32 centerEntityId,
+    bytes32[] memory neighbourEntityIds,
+    bytes32[] memory childEntityIds,
+    bytes32 parentEntity
+  ) public returns (bool, bytes memory) {
+    address callerAddress = super.getCallerAddress();
+    return
+      IWorld(_world()).pokemon_PokemonSystem_eventHandlerPokemon(
+        callerAddress,
+        centerEntityId,
+        neighbourEntityIds,
+        childEntityIds,
+        parentEntity,
+        PokemonMove.PyroBarrier
       );
   }
 
@@ -310,6 +376,24 @@ contract FirePokemonAgentSystem is AgentType {
       );
   }
 
+  function tidalCrashEventHandler(
+    bytes32 centerEntityId,
+    bytes32[] memory neighbourEntityIds,
+    bytes32[] memory childEntityIds,
+    bytes32 parentEntity
+  ) public returns (bool, bytes memory) {
+    address callerAddress = super.getCallerAddress();
+    return
+      IWorld(_world()).pokemon_PokemonSystem_eventHandlerPokemon(
+        callerAddress,
+        centerEntityId,
+        neighbourEntityIds,
+        childEntityIds,
+        parentEntity,
+        PokemonMove.TidalCrash
+      );
+  }
+
   function bubbleEventHandler(
     bytes32 centerEntityId,
     bytes32[] memory neighbourEntityIds,
@@ -343,6 +427,24 @@ contract FirePokemonAgentSystem is AgentType {
         childEntityIds,
         parentEntity,
         PokemonMove.AquaRing
+      );
+  }
+
+  function mistVeilEventHandler(
+    bytes32 centerEntityId,
+    bytes32[] memory neighbourEntityIds,
+    bytes32[] memory childEntityIds,
+    bytes32 parentEntity
+  ) public returns (bool, bytes memory) {
+    address callerAddress = super.getCallerAddress();
+    return
+      IWorld(_world()).pokemon_PokemonSystem_eventHandlerPokemon(
+        callerAddress,
+        centerEntityId,
+        neighbourEntityIds,
+        childEntityIds,
+        parentEntity,
+        PokemonMove.MistVeil
       );
   }
 
@@ -382,6 +484,24 @@ contract FirePokemonAgentSystem is AgentType {
       );
   }
 
+  function thornBurstEventHandler(
+    bytes32 centerEntityId,
+    bytes32[] memory neighbourEntityIds,
+    bytes32[] memory childEntityIds,
+    bytes32 parentEntity
+  ) public returns (bool, bytes memory) {
+    address callerAddress = super.getCallerAddress();
+    return
+      IWorld(_world()).pokemon_PokemonSystem_eventHandlerPokemon(
+        callerAddress,
+        centerEntityId,
+        neighbourEntityIds,
+        childEntityIds,
+        parentEntity,
+        PokemonMove.ThornBurst
+      );
+  }
+
   function leechSeedEventHandler(
     bytes32 centerEntityId,
     bytes32[] memory neighbourEntityIds,
@@ -415,6 +535,24 @@ contract FirePokemonAgentSystem is AgentType {
         childEntityIds,
         parentEntity,
         PokemonMove.Synthesis
+      );
+  }
+
+  function verdantGuardEventHandler(
+    bytes32 centerEntityId,
+    bytes32[] memory neighbourEntityIds,
+    bytes32[] memory childEntityIds,
+    bytes32 parentEntity
+  ) public returns (bool, bytes memory) {
+    address callerAddress = super.getCallerAddress();
+    return
+      IWorld(_world()).pokemon_PokemonSystem_eventHandlerPokemon(
+        callerAddress,
+        centerEntityId,
+        neighbourEntityIds,
+        childEntityIds,
+        parentEntity,
+        PokemonMove.VerdantGuard
       );
   }
 }

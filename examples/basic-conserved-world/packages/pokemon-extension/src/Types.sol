@@ -7,22 +7,28 @@ enum PokemonMove {
   None,
   Ember,
   FlameBurst,
+  InfernoClash,
   SmokeScreen,
   FireShield,
+  PyroBarrier,
   WaterGun,
   HydroPump,
+  TidalCrash,
   Bubble,
   AquaRing,
+  MistVeil,
   VineWhip,
   SolarBeam,
+  ThornBurst,
   LeechSeed,
-  Synthesis
+  Synthesis,
+  VerdantGuard
 }
 
 struct MoveData {
-  uint8 stamina;
-  uint8 damage;
-  uint8 protection;
+  uint256 stamina;
+  uint256 damage;
+  uint256 protection;
   ObjectType moveType;
 }
 

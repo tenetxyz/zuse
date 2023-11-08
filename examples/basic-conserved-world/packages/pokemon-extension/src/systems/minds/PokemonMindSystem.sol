@@ -73,8 +73,8 @@ contract PokemonMindSystem is MindType {
     if (opponentPokemonEntityId != 0) {
       console.log("checking can fight");
       if (canFight(callerAddress, interactEntity, true) && canFight(callerAddress, opponentPokemonEntityId, false)) {
-        console.log("chosen ember");
-        chosenSelector = getSelector(interactionSelectors, "Ember");
+        console.log("chosen Inferno Clash");
+        chosenSelector = getSelector(interactionSelectors, "Flame Burst");
       }
     }
 

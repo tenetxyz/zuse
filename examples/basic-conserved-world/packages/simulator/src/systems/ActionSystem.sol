@@ -26,6 +26,18 @@ contract ActionSystem is SimHandler {
     );
   }
 
+  function getHealthDiff(uint256 staminaSpent) internal view returns (uint256) {
+    uint256 healthDiff = (staminaSpent * 65) / 10000;
+    if (healthDiff > 25) {
+      // apply a larger health diff
+      healthDiff = (staminaSpent * 55) / 10000;
+      if (healthDiff > 50) {
+        healthDiff = (staminaSpent * 45) / 10000;
+      }
+    }
+    return healthDiff;
+  }
+
   function postTxActionBehaviour() public {
     // go through all actions that are not none, and apply them
 
@@ -44,7 +56,7 @@ contract ActionSystem is SimHandler {
         if (currentStamina > actionData.stamina) {
           console.log("applying single move");
           // Flux out energy proportional to the health lost and stamina used
-          uint256 damage = actionData.stamina * 2;
+          uint256 damage = getHealthDiff(actionData.stamina);
           uint256 lostHealth = damage;
           IWorld(_world()).fluxEnergy(false, callerAddress, actionEntity, lostHealth + actionData.stamina);
           Stamina.set(
@@ -202,8 +214,8 @@ contract ActionSystem is SimHandler {
     uint256 senderStamina,
     ObjectType receiverObjectType,
     ObjectType receiverActionType
-  ) internal pure returns (uint256) {
-    uint256 damage = senderStamina * 2;
+  ) internal view returns (uint256) {
+    uint256 damage = getHealthDiff(senderStamina);
     // TODO: Figure out how to calculate random factor
     uint256 randomFactor = 1;
     // We don't divide by 100 here so it doesn't round to zero
@@ -217,8 +229,8 @@ contract ActionSystem is SimHandler {
     uint256 senderStamina,
     ObjectType receiverObjectType,
     ObjectType receiverActionType
-  ) internal pure returns (uint256) {
-    uint256 protection = senderStamina * 2;
+  ) internal view returns (uint256) {
+    uint256 protection = getHealthDiff(senderStamina);
     // TODO: Figure out how to calculate random factor
     uint256 randomFactor = 1;
     // We don't divide by 100 here so it doesn't round to zero

@@ -16,7 +16,7 @@ import { console } from "forge-std/console.sol";
 import { getVelocity, getTerrainMass, getTerrainEnergy, getTerrainVelocity, getMooreNeighbourEntities, createTerrainEntity } from "@tenet-simulator/src/Utils.sol";
 
 uint256 constant MAXIMUM_ENERGY_OUT = 100;
-uint256 constant MAXIMUM_ENERGY_IN = 100;
+uint256 constant MAXIMUM_ENERGY_IN = 2500;
 
 contract FluxSystem is System {
   function fluxEnergy(

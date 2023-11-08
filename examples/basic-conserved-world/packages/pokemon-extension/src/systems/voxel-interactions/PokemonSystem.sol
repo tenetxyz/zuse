@@ -22,21 +22,27 @@ import { NUM_BLOCKS_FAINTED } from "@tenet-pokemon-extension/src/Constants.sol";
 
 contract PokemonSystem is System {
   function getMovesData() internal pure returns (MoveData[] memory) {
-    MoveData[] memory movesData = new MoveData[](13); // the first value is for PokemonMove.None
-    movesData[uint(PokemonMove.Ember)] = MoveData(10, 20, 0, ObjectType.Fire);
-    movesData[uint(PokemonMove.FlameBurst)] = MoveData(20, 40, 0, ObjectType.Fire);
-    movesData[uint(PokemonMove.SmokeScreen)] = MoveData(5, 0, 10, ObjectType.Fire);
-    movesData[uint(PokemonMove.FireShield)] = MoveData(15, 0, 30, ObjectType.Fire);
+    MoveData[] memory movesData = new MoveData[](19); // the first value is for PokemonMove.None
+    movesData[uint(PokemonMove.Ember)] = MoveData(1000, 6, 0, ObjectType.Fire);
+    movesData[uint(PokemonMove.FlameBurst)] = MoveData(5000, 27, 0, ObjectType.Fire);
+    movesData[uint(PokemonMove.InfernoClash)] = MoveData(20000, 90, 0, ObjectType.Fire);
+    movesData[uint(PokemonMove.SmokeScreen)] = MoveData(3000, 0, 19, ObjectType.Fire);
+    movesData[uint(PokemonMove.FireShield)] = MoveData(7000, 0, 38, ObjectType.Fire);
+    movesData[uint(PokemonMove.PyroBarrier)] = MoveData(12000, 0, 54, ObjectType.Fire);
 
-    movesData[uint(PokemonMove.WaterGun)] = MoveData(10, 20, 0, ObjectType.Water);
-    movesData[uint(PokemonMove.HydroPump)] = MoveData(20, 40, 0, ObjectType.Water);
-    movesData[uint(PokemonMove.Bubble)] = MoveData(5, 0, 10, ObjectType.Water);
-    movesData[uint(PokemonMove.AquaRing)] = MoveData(15, 0, 30, ObjectType.Water);
+    movesData[uint(PokemonMove.WaterGun)] = MoveData(1000, 6, 0, ObjectType.Water);
+    movesData[uint(PokemonMove.HydroPump)] = MoveData(5000, 27, 0, ObjectType.Water);
+    movesData[uint(PokemonMove.TidalCrash)] = MoveData(20000, 90, 0, ObjectType.Water);
+    movesData[uint(PokemonMove.Bubble)] = MoveData(3000, 0, 19, ObjectType.Water);
+    movesData[uint(PokemonMove.AquaRing)] = MoveData(7000, 0, 38, ObjectType.Water);
+    movesData[uint(PokemonMove.MistVeil)] = MoveData(12000, 0, 54, ObjectType.Water);
 
-    movesData[uint(PokemonMove.VineWhip)] = MoveData(10, 20, 0, ObjectType.Grass);
-    movesData[uint(PokemonMove.SolarBeam)] = MoveData(20, 40, 0, ObjectType.Grass);
-    movesData[uint(PokemonMove.LeechSeed)] = MoveData(5, 0, 10, ObjectType.Grass);
-    movesData[uint(PokemonMove.Synthesis)] = MoveData(15, 0, 30, ObjectType.Grass);
+    movesData[uint(PokemonMove.VineWhip)] = MoveData(1000, 6, 0, ObjectType.Grass);
+    movesData[uint(PokemonMove.SolarBeam)] = MoveData(5000, 27, 0, ObjectType.Grass);
+    movesData[uint(PokemonMove.ThornBurst)] = MoveData(20000, 90, 0, ObjectType.Grass);
+    movesData[uint(PokemonMove.LeechSeed)] = MoveData(3000, 0, 19, ObjectType.Grass);
+    movesData[uint(PokemonMove.Synthesis)] = MoveData(7000, 0, 38, ObjectType.Grass);
+    movesData[uint(PokemonMove.VerdantGuard)] = MoveData(20000, 90, 0, ObjectType.Grass);
     return movesData;
   }
 
@@ -345,6 +351,10 @@ contract PokemonSystem is System {
     MoveData memory moveData = getMoveData(pokemonMove);
     uint staminaAmount = uint(moveData.stamina);
     bool isAttack = moveData.damage > 0;
+
+    if (entitySimData.stamina < staminaAmount) {
+      return (caEventData, pokemonData);
+    }
 
     VoxelEntity memory targetEntity = isAttack
       ? VoxelEntity({ scale: 1, entityId: caEntityToEntity(neighbourEntity) })

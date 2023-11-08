@@ -7,7 +7,7 @@ cur_directory = os.path.dirname(os.path.abspath(__file__))
 def run_example(path, extra_cmd=None):
     command = f"cd examples/{path} && yarn run dev"
     if extra_cmd:
-        command += f"&& {extra_cmd}"
+        command += f" && {extra_cmd}"
     print(command)
     subprocess.run(["yarn", "concurrently", "-n", "example", "-c", "#fb8500", command])
 

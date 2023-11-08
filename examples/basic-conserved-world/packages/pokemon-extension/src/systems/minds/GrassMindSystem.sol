@@ -30,7 +30,7 @@ contract GrassMindSystem is MindType {
     bytes32[] memory childEntityIds,
     bytes32 parentEntity
   ) public override returns (bytes4) {
-    console.log("attacking 0x70d19e30 grass mind whip");
+    console.log("attacking grass mind VineWhip");
     InteractionSelector[] memory interactionSelectors = getInteractionSelectors(
       IStore(REGISTRY_ADDRESS),
       GrassPokemonVoxelID

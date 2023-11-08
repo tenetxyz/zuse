@@ -66,7 +66,7 @@ function stopEvent(
 ) view returns (bytes memory) {
   VoxelCoord memory velocity = abi.decode(entitySimData.velocity, (VoxelCoord));
   if (velocity.x == 0 && velocity.y == 0 && velocity.z == 0) {
-    return abi.encode(new bytes(0));
+    return new bytes(0);
   }
 
   // Decrease velocity to 0

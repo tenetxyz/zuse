@@ -116,7 +116,7 @@ contract FaucetAgentSystem is AgentType {
     uint256 currentStamina = entitySimData.stamina;
     uint256 currentHealth = entitySimData.health;
     if (currentStamina == 0 || currentHealth == 0) {
-      return (false, abi.encode(new bytes(0)));
+      return (false, new bytes(0));
     }
     (bytes32[] memory mooreNeighbourEntities, ) = getMooreNeighbourEntities(centerEntityId, 1);
     CAEventData[] memory allCAEventData = new CAEventData[](mooreNeighbourEntities.length);

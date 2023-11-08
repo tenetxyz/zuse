@@ -73,7 +73,7 @@ contract PokemonSystem is System {
       callerAddress,
       centerEntityId,
       neighbourEntityIds,
-      neighbourEntityDirections,
+      centerPosition,
       childEntityIds,
       parentEntity,
       pokemonMove
@@ -145,7 +145,7 @@ contract PokemonSystem is System {
     address callerAddress,
     bytes32 interactEntity,
     bytes32[] memory neighbourEntityIds,
-    BlockDirection[] memory neighbourEntityDirections,
+    VoxelCoord memory centerPosition,
     bytes32[] memory childEntityIds,
     bytes32 parentEntity,
     PokemonMove pokemonMove
@@ -180,14 +180,32 @@ contract PokemonSystem is System {
       return (changedEntity, entityData);
     }
 
+    entityData = stopEvent(interactEntity, centerPosition, entitySimData);
+    if (entityData.length > 0) {
+      console.log("stopping");
+      return (false, entityData);
+    }
+
+    pokemonData = resetStaleFightingCAEntity(neighbourEntityIds, pokemonData);
+
     if (pokemonMove == PokemonMove.None) {
+      console.log("default interaction");
       return runDefaultInteraction(callerAddress, interactEntity, entitySimData, pokemonData);
     }
 
     CAEventData[] memory allCAEventData = new CAEventData[](neighbourEntityIds.length);
     bool hasEvent = false;
 
+    pokemonData = endOfFightLogic(pokemonData, entitySimData);
+    Pokemon.set(callerAddress, interactEntity, pokemonData);
+
+    if (pokemonData.isFainted && block.number >= pokemonData.lastFaintedBlock + NUM_BLOCKS_FAINTED) {
+      pokemonData.isFainted = false;
+      Pokemon.set(callerAddress, interactEntity, pokemonData);
+    }
+
     // Check if neighbour is pokemon and run move
+    console.log("try fight");
     bool foundPokemon = false;
     for (uint256 i = 0; i < neighbourEntityIds.length; i++) {
       if (uint256(neighbourEntityIds[i]) == 0) {
@@ -229,6 +247,26 @@ contract PokemonSystem is System {
     return (changedEntity, entityData);
   }
 
+  function resetStaleFightingCAEntity(
+    bytes32[] memory neighbourEntityIds,
+    PokemonData memory pokemonData
+  ) internal returns (PokemonData memory) {
+    if (pokemonData.fightingCAEntity == bytes32(0)) {
+      return pokemonData;
+    }
+    bool foundFightingEntity = false;
+    for (uint256 i = 0; i < neighbourEntityIds.length; i++) {
+      if (neighbourEntityIds[i] == pokemonData.fightingCAEntity) {
+        foundFightingEntity = true;
+        break;
+      }
+    }
+    if (!foundFightingEntity) {
+      pokemonData.fightingCAEntity = bytes32(0);
+    }
+    return pokemonData;
+  }
+
   function runDefaultInteraction(
     address callerAddress,
     bytes32 interactEntity,
@@ -242,9 +280,6 @@ contract PokemonSystem is System {
       pokemonData.isFainted = false;
       Pokemon.set(callerAddress, interactEntity, pokemonData);
     }
-
-    VoxelCoord memory coord = getCAEntityPositionStrict(IStore(_world()), interactEntity);
-    entityData = stopEvent(interactEntity, coord, entitySimData);
 
     return (changedEntity, entityData);
   }
@@ -289,16 +324,11 @@ contract PokemonSystem is System {
     BodySimData memory entitySimData,
     PokemonMove pokemonMove
   ) internal returns (CAEventData memory caEventData, PokemonData memory) {
+    console.log("runPokemonMove");
     // VoxelCoord memory currentVelocity = abi.decode(entitySimData.velocity, (VoxelCoord));
     // if (!isZeroCoord(currentVelocity)) {
     //   return (caEventData, pokemonData);
     // }
-
-    pokemonData = endOfFightLogic(pokemonData, entitySimData);
-
-    if (pokemonData.isFainted && block.number >= pokemonData.lastFaintedBlock + NUM_BLOCKS_FAINTED) {
-      pokemonData.isFainted = false;
-    }
 
     if (pokemonData.isFainted || block.number < pokemonData.lastFaintedBlock + NUM_BLOCKS_FAINTED) {
       return (caEventData, pokemonData);

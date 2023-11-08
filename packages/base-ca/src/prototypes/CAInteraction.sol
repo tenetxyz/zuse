@@ -106,6 +106,16 @@ abstract contract CAInteraction is System {
             try this.decodeToBytes4(mindReturnData) returns (bytes4 decodedValue) {
               useinteractionSelector = decodedValue;
             } catch {}
+            bool validSelector = false;
+            for (uint256 i = 0; i < interactionSelectors.length; i++) {
+              if (interactionSelectors[i].interactionSelector == useinteractionSelector) {
+                validSelector = true;
+                break;
+              }
+            }
+            if (!validSelector) {
+              useinteractionSelector = bytes4(0);
+            }
           }
           if (useinteractionSelector == bytes4(0)) {
             if (interactionSelectors.length > 0) {

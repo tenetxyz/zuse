@@ -10,8 +10,3 @@ cd ../ # move to root
 yarn install
 cd examples/basic-conserved-world
 yarn install
-
-
-# Now generate all the files
-# we're in basic-conserved-world
-yarn initialize

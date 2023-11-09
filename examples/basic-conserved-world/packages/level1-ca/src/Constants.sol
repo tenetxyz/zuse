@@ -8,6 +8,7 @@ bytes32 constant AirVoxelVariantID = bytes32(keccak256("air"));
 bytes32 constant DirtVoxelID = bytes32(keccak256("dirt"));
 bytes32 constant GrassVoxelID = bytes32(keccak256("grass"));
 bytes32 constant BedrockVoxelID = bytes32(keccak256("bedrock"));
+bytes32 constant StoneVoxelID = bytes32(keccak256("stone"));
 bytes32 constant FaucetVoxelID = bytes32(keccak256("faucet"));
 bytes32 constant BuilderVoxelID = bytes32(keccak256("builder"));
 bytes32 constant RunnerVoxelID = bytes32(keccak256("runner"));

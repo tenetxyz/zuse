@@ -52,7 +52,7 @@ contract GrassVoxelSystem is VoxelType {
         IWorld(world).ca_GrassVoxelSystem_neighbourEventHandler.selector
       ),
       abi.encode(componentDefs),
-      5
+      7
     );
   }
 

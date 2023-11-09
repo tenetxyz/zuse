@@ -140,28 +140,6 @@ contract PostDeploy500 is Script {
         7
       );
     registerCAVoxelType(CA_ADDRESS, bytes32(keccak256("oak_lumber_frame_684_orange")));
-    registerVoxelVariant(REGISTRY_ADDRESS, bytes32(keccak256("stone")), getEmptyVariantsRegistryData());
-
-    registerVoxelType(
-        REGISTRY_ADDRESS,
-        "Stone",
-        bytes32(keccak256("stone")),
-        bytes32(keccak256("stone")),
-        getChildVoxelTypes(bytes32(keccak256("stone"))),
-        getChildVoxelTypes(bytes32(keccak256("stone"))),
-        bytes32(keccak256("stone")),
-        VoxelSelectors({
-          enterWorldSelector: bytes4(0),
-          exitWorldSelector: bytes4(0),
-          voxelVariantSelector: bytes4(0),
-          activateSelector: bytes4(0),
-          onNewNeighbourSelector: bytes4(0),
-          interactionSelectors: new InteractionSelector[](0)
-        }),
-        abi.encode(new ComponentDef[](0)),
-        7
-      );
-    registerCAVoxelType(CA_ADDRESS, bytes32(keccak256("stone")));
     registerVoxelVariant(REGISTRY_ADDRESS, bytes32(keccak256("oak_lumber_fence_325")), getEmptyVariantsRegistryData());
 
     registerVoxelType(

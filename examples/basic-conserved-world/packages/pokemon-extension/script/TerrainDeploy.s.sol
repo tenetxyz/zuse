@@ -43,6 +43,7 @@ contract TerrainDeploy is Script {
     // console.logUint(bucketCounts[2]);
 
     IWorld(worldAddress).pokemon_PokemonTerrainSy_initPokemonTerrain(mainWorldAddress);
+    IWorld(worldAddress).pokemon_TempleTerrainSys_initTempleTerrain(mainWorldAddress);
 
     vm.stopBroadcast();
   }

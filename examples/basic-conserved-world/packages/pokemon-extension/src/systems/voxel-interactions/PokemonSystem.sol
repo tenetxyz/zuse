@@ -340,7 +340,14 @@ contract PokemonSystem is System {
       return (caEventData, pokemonData);
     }
 
-    if (entitySimData.health == 0 || entitySimData.stamina == 0) {
+    BodySimData memory neighbourEntitySimData = getEntitySimData(neighbourEntity);
+
+    if (
+      entitySimData.health == 0 ||
+      entitySimData.stamina == 0 ||
+      neighbourEntitySimData.health == 0 ||
+      neighbourEntitySimData.stamina == 0
+    ) {
       return (caEventData, pokemonData);
     }
 

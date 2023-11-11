@@ -43,7 +43,7 @@ contract FirePokemonAgentSystem is AgentType {
 
     registerVoxelType(
       REGISTRY_ADDRESS,
-      "Fire Pokemon",
+      "Fire Creature",
       FirePokemonVoxelID,
       baseVoxelTypeId,
       pokemonChildVoxelTypes,

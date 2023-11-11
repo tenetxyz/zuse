@@ -43,7 +43,7 @@ contract GrassPokemonAgentSystem is AgentType {
 
     registerVoxelType(
       REGISTRY_ADDRESS,
-      "Grass Pokemon",
+      "Grass Creature",
       GrassPokemonVoxelID,
       baseVoxelTypeId,
       pokemonChildVoxelTypes,

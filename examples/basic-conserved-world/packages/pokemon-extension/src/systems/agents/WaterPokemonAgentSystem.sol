@@ -43,7 +43,7 @@ contract WaterPokemonAgentSystem is AgentType {
 
     registerVoxelType(
       REGISTRY_ADDRESS,
-      "Water Pokemon",
+      "Water Creature",
       WaterPokemonVoxelID,
       baseVoxelTypeId,
       pokemonChildVoxelTypes,

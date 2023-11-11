@@ -50,7 +50,7 @@ contract RunnerAgentSystem is AgentType {
         interactionSelectors: getInteractionSelectors()
       }),
       abi.encode(componentDefs),
-      6
+      50
     );
   }
 

@@ -83,7 +83,7 @@ def main():
                 print("created snapshot")
 
             else:
-                print("Invalid command.")
+                print("Invalid command: " + sys.argv[2])
     except KeyboardInterrupt:
         print("\nInterrupted by user. Exiting...")
         sys.exit(1)

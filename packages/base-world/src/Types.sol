@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity >=0.8.0;
-import { VoxelCoord, VoxelEntity } from "@tenet-utils/src/Types.sol";
+
+import { VoxelCoord } from "@tenet-utils/src/Types.sol";
 
 enum EventType {
   Build,
@@ -10,7 +11,6 @@ enum EventType {
 }
 
 struct BuildEventData {
-  bytes4 mindSelector;
   bytes worldData;
 }
 

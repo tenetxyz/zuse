@@ -13,28 +13,41 @@ import { Metadata, MetadataTableId } from "@tenet-base-world/src/codegen/tables/
 import { VoxelCoord, EntityActionData } from "@tenet-utils/src/Types.sol";
 import { getEntityAtCoord } from "@tenet-base-world/src/Utils.sol";
 
+// Note: We pass in actingObjectEntityId due to running on the EVM,
+// but we can use the equivalent of _msgSender() once Zuse is its own computer
+
+// Note: eventData is so custom worlds can have their own data being passed around
+// and we need it for MoveEvent to pass in the oldCoord
 abstract contract Event is System {
   function runEvent(
+    bytes32 actingObjectEntityId,
     bytes32 objectTypeId,
     VoxelCoord memory coord,
     bytes memory eventData
   ) internal virtual returns (bytes32) {
-    preEvent(objectTypeId, coord, eventData);
+    preEvent(actingObjectEntityId, objectTypeId, coord, eventData);
 
     (bytes eventEntityId, EntityActionData[] memory entitiesActionData) = runEventHandler(
+      actingObjectEntityId,
       objectTypeId,
       coord,
       eventData
     );
 
-    postEvent(objectTypeId, coord, eventEntityId, eventData, entitiesActionData);
+    postEvent(actingObjectEntityId, objectTypeId, coord, eventEntityId, eventData, entitiesActionData);
 
     return eventEntityId;
   }
 
-  function preEvent(bytes32 objectTypeId, VoxelCoord memory coord, bytes memory eventData) internal virtual;
+  function preEvent(
+    bytes32 actingObjectEntityId,
+    bytes32 objectTypeId,
+    VoxelCoord memory coord,
+    bytes memory eventData
+  ) internal virtual;
 
   function postEvent(
+    bytes32 actingObjectEntityId,
     bytes32 objectTypeId,
     VoxelCoord memory coord,
     bytes32 eventEntityId,
@@ -53,6 +66,7 @@ abstract contract Event is System {
   function processActions(EntityActionData[] memory entitiesActionData) internal virtual;
 
   function runEventHandler(
+    bytes32 actingObjectEntityId,
     bytes32 objectTypeId,
     VoxelCoord memory coord,
     bytes memory eventData
@@ -67,16 +81,23 @@ abstract contract Event is System {
     // We reset the eventEntityId from preRunObject, giving it a chance to
     // change it. eg this can happen during move
     // TODO: Figure out a cleaner way to handle this
-    eventEntityId = preRunObject(objectTypeId, coord, eventEntityId, eventData);
+    eventEntityId = preRunObject(actingObjectEntityId, objectTypeId, coord, eventEntityId, eventData);
 
-    EntityActionData[] memory entitiesActionData = runObject(objectTypeId, coord, eventEntityId, eventData);
+    EntityActionData[] memory entitiesActionData = runObject(
+      actingObjectEntityId,
+      objectTypeId,
+      coord,
+      eventEntityId,
+      eventData
+    );
 
-    postRunObject(objectTypeId, coord, eventEntityId, eventData);
+    postRunObject(actingObjectEntityId, objectTypeId, coord, eventEntityId, eventData);
 
     return (eventEntityId, entitiesActionData);
   }
 
   function preRunObject(
+    bytes32 actingObjectEntityId,
     bytes32 objectTypeId,
     VoxelCoord memory coord,
     bytes32 eventEntityId,
@@ -84,6 +105,7 @@ abstract contract Event is System {
   ) internal virtual returns (bytes32);
 
   function postRunObject(
+    bytes32 actingObjectEntityId,
     bytes32 objectTypeId,
     VoxelCoord memory coord,
     bytes32 eventEntityId,
@@ -91,6 +113,7 @@ abstract contract Event is System {
   ) internal virtual;
 
   function runObject(
+    bytes32 actingObjectEntityId,
     bytes32 objectTypeId,
     VoxelCoord memory coord,
     bytes32 eventEntityId,

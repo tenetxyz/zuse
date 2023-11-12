@@ -8,7 +8,8 @@ abstract contract EventApprovalsSystem is System {
   function preApproval(
     EventType eventType,
     address caller,
-    bytes32 voxelTypeId,
+    bytes32 actingObjectEntityId,
+    bytes32 objectTypeId,
     VoxelCoord memory coord,
     bytes memory eventData
   ) internal virtual;
@@ -16,7 +17,8 @@ abstract contract EventApprovalsSystem is System {
   function approveEvent(
     EventType eventType,
     address caller,
-    bytes32 voxelTypeId,
+    bytes32 actingObjectEntityId,
+    bytes32 objectTypeId,
     VoxelCoord memory coord,
     bytes memory eventData
   ) internal virtual;
@@ -24,52 +26,57 @@ abstract contract EventApprovalsSystem is System {
   function postApproval(
     EventType eventType,
     address caller,
-    bytes32 voxelTypeId,
+    bytes32 actingObjectEntityId,
+    bytes32 objectTypeId,
     VoxelCoord memory coord,
     bytes memory eventData
   ) internal virtual;
 
   function approveMine(
     address caller,
-    bytes32 voxelTypeId,
+    bytes32 actingObjectEntityId,
+    bytes32 objectTypeId,
     VoxelCoord memory coord,
     bytes memory eventData
   ) public virtual {
-    preApproval(EventType.Mine, caller, voxelTypeId, coord, eventData);
-    approveEvent(EventType.Mine, caller, voxelTypeId, coord, eventData);
-    postApproval(EventType.Mine, caller, voxelTypeId, coord, eventData);
+    preApproval(EventType.Mine, caller, actingObjectEntityId, objectTypeId, coord, eventData);
+    approveEvent(EventType.Mine, caller, actingObjectEntityId, objectTypeId, coord, eventData);
+    postApproval(EventType.Mine, caller, actingObjectEntityId, objectTypeId, coord, eventData);
   }
 
   function approveBuild(
     address caller,
-    bytes32 voxelTypeId,
+    bytes32 actingObjectEntityId,
+    bytes32 objectTypeId,
     VoxelCoord memory coord,
     bytes memory eventData
   ) public virtual {
-    preApproval(EventType.Build, caller, voxelTypeId, coord, eventData);
-    approveEvent(EventType.Build, caller, voxelTypeId, coord, eventData);
-    postApproval(EventType.Build, caller, voxelTypeId, coord, eventData);
+    preApproval(EventType.Build, caller, actingObjectEntityId, objectTypeId, coord, eventData);
+    approveEvent(EventType.Build, caller, actingObjectEntityId, objectTypeId, coord, eventData);
+    postApproval(EventType.Build, caller, actingObjectEntityId, objectTypeId, coord, eventData);
   }
 
   function approveActivate(
     address caller,
-    bytes32 voxelTypeId,
+    bytes32 actingObjectEntityId,
+    bytes32 objectTypeId,
     VoxelCoord memory coord,
     bytes memory eventData
   ) public virtual {
-    preApproval(EventType.Activate, caller, voxelTypeId, coord, eventData);
-    approveEvent(EventType.Activate, caller, voxelTypeId, coord, eventData);
-    postApproval(EventType.Activate, caller, voxelTypeId, coord, eventData);
+    preApproval(EventType.Activate, caller, actingObjectEntityId, objectTypeId, coord, eventData);
+    approveEvent(EventType.Activate, caller, actingObjectEntityId, objectTypeId, coord, eventData);
+    postApproval(EventType.Activate, caller, actingObjectEntityId, objectTypeId, coord, eventData);
   }
 
   function approveMove(
     address caller,
-    bytes32 voxelTypeId,
+    bytes32 actingObjectEntityId,
+    bytes32 objectTypeId,
     VoxelCoord memory coord,
     bytes memory eventData
   ) public virtual {
-    preApproval(EventType.Move, caller, voxelTypeId, coord, eventData);
-    approveEvent(EventType.Move, caller, voxelTypeId, coord, eventData);
-    postApproval(EventType.Move, caller, voxelTypeId, coord, eventData);
+    preApproval(EventType.Move, caller, actingObjectEntityId, objectTypeId, coord, eventData);
+    approveEvent(EventType.Move, caller, actingObjectEntityId, objectTypeId, coord, eventData);
+    postApproval(EventType.Move, caller, actingObjectEntityId, objectTypeId, coord, eventData);
   }
 }

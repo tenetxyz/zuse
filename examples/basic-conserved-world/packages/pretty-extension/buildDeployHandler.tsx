@@ -57,7 +57,7 @@ if (action == "build") {
   files.forEach((file) => {
     if (path.extname(file) === ".sol") {
       const fullPath = path.join(scriptDir, file);
-      const command = `forge script ${fullPath} --sig 'run(address)' '${worldAddress}' --broadcast --rpc-url ${rpcUrl} -vv`;
+      const command = `forge script ${fullPath} --sig 'run(address)' '${worldAddress}' --broadcast --rpc-url ${rpcUrl} --slow -vv`;
 
       console.log("Running command:", command);
 

@@ -80,18 +80,13 @@ function getOppositeDirection(BlockDirection direction) pure returns (BlockDirec
   }
 }
 
-function getEntityAtCoord(uint32 scale, VoxelCoord memory coord) view returns (bytes32) {
+function getEntityAtCoord(VoxelCoord memory coord) view returns (bytes32) {
   bytes32[][] memory allEntitiesAtCoord = getKeysWithValue(PositionTableId, Position.encode(coord.x, coord.y, coord.z));
   bytes32 entity;
-  for (uint256 i = 0; i < allEntitiesAtCoord.length; i++) {
-    if (uint256(allEntitiesAtCoord[i][0]) == scale) {
-      if (uint256(entity) != 0) {
-        revert("Found more than one entity at the same position");
-      }
-      entity = allEntitiesAtCoord[i][1];
-    }
+  require(allEntitiesAtCoord.length <= 1, "Found more than one entity at the same position");
+  if(allEntitiesAtCoord.length == 1){
+    entity = allEntitiesAtCoord[0][0];
   }
-
   return entity;
 }
 

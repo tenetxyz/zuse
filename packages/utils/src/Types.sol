@@ -33,9 +33,9 @@ enum BlockDirection {
   Down
 }
 
-struct EntityEventData {
-  VoxelEntity entity;
-  bytes eventData;
+struct EntityActionData {
+  bytes32 entityId;
+  bytes actionData;
 }
 
 enum WorldEventType {

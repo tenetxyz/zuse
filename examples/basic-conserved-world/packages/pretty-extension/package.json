@@ -19,7 +19,7 @@
     "clean": "forge clean",
     "build:js": "tsup",
     "build": "node buildDeployHandler.tsx build",
-    "deploy": "node buildDeployHandler.tsx deploy",
+    "deploy": "node deployPrettyBlocks.tsx deploy",
     "dev": "yarn mud dev-contracts --tsgenOutput ../ca-client/src/mud",
     "replaceGeneratedTypes": "../../../../scripts/replaceGeneratedTypes.sh",
     "initialize": "yarn run tablegen && yarn run worldgen && yarn run replaceGeneratedTypes && yarn run forge:build && yarn run build:js",
@@ -48,8 +48,11 @@
     "@tenetxyz/registry": "link:../../../../packages/registry",
     "@tenetxyz/simulator": "workspace:*",
     "@tenetxyz/utils": "link:../../../../packages/utils",
+    "dotenv": "^16.3.1",
     "ethers": "^5.7.2",
-    "rimraf": "^5.0.1"
+    "rimraf": "^5.0.1",
+    "ts-node": "^10.9.1",
+    "viem": "^1.19.0"
   },
   "devDependencies": {
     "@typechain/ethers-v5": "^10.2.0",

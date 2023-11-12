@@ -62,8 +62,10 @@ def main():
                 extra_cmd = []
 
                 if "--with-pokemon" in sys.argv:
-                    extra_cmd.append("yarn run deploy:pokemon")
+                    # Note: we need to build pokemon before deploying
+                    extra_cmd.append("yarn run build:extensions && yarn run deploy:pokemon")
                 if "--with-extensions" in sys.argv:
+                    # This auto builds extensions in parallel
                     extra_cmd.append("yarn run deploy:extensions")
                 if "--with-derived" in sys.argv:
                     extra_cmd.append("yarn run deploy:derived")

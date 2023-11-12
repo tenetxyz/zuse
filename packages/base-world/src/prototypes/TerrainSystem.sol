@@ -1,23 +1,13 @@
 // SPDX-License-Identifier: GPL-3.0
 pragma solidity >=0.8.0;
 
-import { IStore } from "@latticexyz/store/src/IStore.sol";
 import { System } from "@latticexyz/world/src/System.sol";
-import { VoxelCoord, VoxelEntity } from "@tenet-utils/src/Types.sol";
-import { hasEntity, addressToEntityKey } from "@tenet-utils/src/Utils.sol";
-import { callOrRevert } from "@tenet-utils/src/CallUtils.sol";
-import { CAVoxelType, CAVoxelTypeData } from "@tenet-base-ca/src/codegen/tables/CAVoxelType.sol";
-import { CAMind } from "@tenet-base-ca/src/codegen/tables/CAMind.sol";
-import { KeysInTable } from "@latticexyz/world/src/modules/keysintable/tables/KeysInTable.sol";
-import { Interactions, InteractionsTableId } from "@tenet-base-world/src/codegen/tables/Interactions.sol";
-import { MAX_VOXEL_NEIGHBOUR_UPDATE_DEPTH, MAX_UNIQUE_ENTITY_INTERACTIONS_RUN, MAX_SAME_VOXEL_INTERACTION_RUN } from "@tenet-utils/src/Constants.sol";
-import { hasKey } from "@latticexyz/world/src/modules/keysintable/hasKey.sol";
+import { getUniqueEntity } from "@latticexyz/world/src/modules/uniqueentity/getUniqueEntity.sol";
+
 import { Position, PositionData } from "@tenet-base-world/src/codegen/tables/Position.sol";
-import { VoxelType, VoxelTypeData, VoxelTypeTableId } from "@tenet-base-world/src/codegen/tables/VoxelType.sol";
-import { WorldConfig } from "@tenet-base-world/src/codegen/tables/WorldConfig.sol";
-import { runInteraction, enterWorld, exitWorld, activateVoxel, moveLayer } from "@tenet-base-ca/src/CallUtils.sol";
-import { positionDataToVoxelCoord, getEntityAtCoord, calculateChildCoords, calculateParentCoord } from "@tenet-base-world/src/Utils.sol";
-import { getVonNeumannNeighbours, getMooreNeighbours } from "@tenet-utils/src/VoxelCoordUtils.sol";
+import { ObjectEntity } from "@tenet-base-world/src/codegen/tables/ObjectEntity.sol";
+
+import { VoxelCoord, ObjectProperties } from "@tenet-utils/src/Types.sol";
 
 abstract contract TerrainSystem is System {
   function emptyObjectId() internal pure virtual returns (bytes32);

@@ -45,7 +45,6 @@ abstract contract BuildEvent is Event {
     bytes32 eventEntityId,
     bytes memory eventData
   ) internal virtual override returns (bytes32) {
-    IWorld(_world()).enterCA(caAddress, eventVoxelEntity, voxelTypeId, coord);
     return eventEntityId;
   }
 

@@ -137,7 +137,7 @@ enum ObjectType {
   Grass
 }
 
-struct BodySimData {
+struct ObjectProperties {
   uint256 mass;
   uint256 energy;
   uint256 lastUpdateBlock;

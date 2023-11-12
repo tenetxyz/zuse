@@ -13,15 +13,6 @@ export default tenetMudConfig({
         claimerAmounts: "uint256[]",
       },
     },
-    OwnedBy: {
-      keySchema: {
-        scale: "uint32",
-        entity: "bytes32",
-      },
-      schema: {
-        player: "address",
-      },
-    },
     Shard: {
       keySchema: {
         // ShardCoords

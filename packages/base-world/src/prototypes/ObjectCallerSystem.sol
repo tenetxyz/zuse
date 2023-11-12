@@ -12,32 +12,56 @@ import { CAVoxelType, CAVoxelTypeData } from "@tenet-base-ca/src/codegen/tables/
 import { Interactions, InteractionsTableId } from "@tenet-base-world/src/codegen/tables/Interactions.sol";
 import { MAX_VOXEL_NEIGHBOUR_UPDATE_DEPTH, MAX_UNIQUE_ENTITY_INTERACTIONS_RUN, MAX_SAME_VOXEL_INTERACTION_RUN } from "@tenet-utils/src/Constants.sol";
 import { Position, PositionData } from "@tenet-base-world/src/codegen/tables/Position.sol";
+import { positionDataToVoxelCoord, getEntityAtCoord, calculateChildCoords, calculateParentCoord } from "@tenet-base-world/src/Utils.sol";
 import { VoxelType, VoxelTypeData } from "@tenet-base-world/src/codegen/tables/VoxelType.sol";
 import { getEntityAtCoord, calculateChildCoords, calculateParentCoord } from "@tenet-base-world/src/Utils.sol";
 import { runInteraction, enterWorld, exitWorld, activateVoxel, moveLayer, updateVoxelType } from "@tenet-base-ca/src/CallUtils.sol";
 import { addressToEntityKey } from "@tenet-utils/src/Utils.sol";
 
-abstract contract RunCASystem is System {
-  function enterCA(
-    address caAddress,
-    VoxelEntity memory entity,
-    bytes32 voxelTypeId,
-    bytes4 mindSelector,
-    VoxelCoord memory coord
-  ) public virtual {
-    (bytes32[] memory neighbourEntities, ) = IWorld(_world()).calculateNeighbourEntities(entity);
-    bytes32[] memory childEntityIds = IWorld(_world()).calculateChildEntities(entity);
-    bytes32 parentEntity = IWorld(_world()).calculateParentEntity(entity);
-    enterWorld(
-      caAddress,
-      voxelTypeId,
-      mindSelector,
-      coord,
-      entity.entityId,
-      neighbourEntities,
-      childEntityIds,
-      parentEntity
+abstract contract ObjectCallerSystem is System {
+  function getRegistryAddress() internal pure override returns (address);
+
+  function calculateVonNeumannNeighbourEntities(
+    bytes32 centerEntityId
+  ) public view virtual returns (bytes32[] memory, VoxelCoord[] memory) {
+    VoxelCoord memory centerCoord = positionDataToVoxelCoord(Position.get(centerEntityId));
+    VoxelCoord[] memory neighbourCoords = getVonNeumannNeighbours(centerCoord);
+    bytes32[] memory neighbourEntities = new bytes32[](neighbourCoords.length);
+
+    for (uint i = 0; i < neighbourCoords.length; i++) {
+      bytes32 neighbourEntity = getEntityAtCoord(neighbourCoords[i]);
+      if (uint256(neighbourEntity) != 0) {
+        neighbourEntities[i] = neighbourEntity;
+      }
+    }
+
+    return (neighbourEntities, neighbourCoords);
+  }
+
+  function decodeToObjectProperties(bytes memory data) external pure returns (ObjectProperties memory) {
+    return abi.decode(data, (ObjectProperties));
+  }
+
+  function enterWorld(
+    bytes32 objectTypeId,
+    VoxelCoord memory coord,
+    bytes32 objectEntityId
+  ) public virtual returns (ObjectProperties memory requestedProperties) {
+    bytes4 objectEnterWorldSelector = getEnterWorldSelector(IStore(getRegistryAddress()), objectTypeId);
+    require(objectEnterWorldSelector != bytes4(0), "Object enterWorld not defined");
+
+    (bool enterWorldSuccess, bytes memory enterWorldReturnData) = safeCall(
+      _world(),
+      abi.encodeWithSelector(objectEnterWorldSelector, coord, objectEntityId),
+      "object enter world"
     );
+    if (enterWorldSuccess) {
+      try this.decodeToObjectProperties(enterWorldReturnData) returns (ObjectProperties memory decodedValue) {
+        requestedProperties = decodedValue;
+      } catch {}
+    }
+
+    return requestedProperties;
   }
 
   function moveCA(

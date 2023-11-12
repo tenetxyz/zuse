@@ -72,17 +72,19 @@ abstract contract Event is System {
     bytes memory eventData
   ) internal virtual returns (bytes32, EntityActionData[] memory) {
     bytes32 eventEntityId = getEntityAtCoord(coord);
+    bytes32 objectEntityId;
     if (uint256(eventEntityId) == 0) {
-      eventEntityId = getUniqueEntity();
-      Position.set(eventEntityId, coord.x, coord.y, coord.z);
+      (eventEntityId, objectEntityId) = IWorld(_world()).createTerrainEntity(objectTypeId, coord);
+    } else {
+      objectEntityId = ObjectEntity.get(eventEntityId);
     }
-    ObjectType.set(eventEntityId, objectTypeId);
 
     // We reset the eventEntityId from preRunObject, giving it a chance to
     // change it. eg this can happen during move
     // TODO: Figure out a cleaner way to handle this
     eventEntityId = preRunObject(actingObjectEntityId, objectTypeId, coord, eventEntityId, eventData);
 
+    ObjectType.set(eventEntityId, objectTypeId);
     EntityActionData[] memory entitiesActionData = runObject(
       actingObjectEntityId,
       objectTypeId,

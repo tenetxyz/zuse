@@ -62,10 +62,7 @@ abstract contract Event is System {
       eventEntityId = getUniqueEntity();
       Position.set(eventEntityId, coord.x, coord.y, coord.z);
     }
-    ObjectType.set(
-      eventEntityId,
-      objectTypeId
-    );
+    ObjectType.set(eventEntityId, objectTypeId);
 
     // We reset the eventEntityId from preRunObject, giving it a chance to
     // change it. eg this can happen during move

@@ -43,6 +43,7 @@ abstract contract BuildEvent is Event {
     bytes32 objectTypeId,
     VoxelCoord memory coord,
     bytes32 eventEntityId,
+    bytes32 objectEntityId,
     bytes memory eventData
   ) internal virtual override returns (bytes32) {
     return eventEntityId;
@@ -53,6 +54,7 @@ abstract contract BuildEvent is Event {
     bytes32 objectTypeId,
     VoxelCoord memory coord,
     bytes32 eventEntityId,
+    bytes32 objectEntityId,
     bytes memory eventData
   ) internal virtual override {}
 
@@ -61,8 +63,9 @@ abstract contract BuildEvent is Event {
     bytes32 objectTypeId,
     VoxelCoord memory coord,
     bytes32 eventEntityId,
+    bytes32 objectEntityId,
     bytes memory eventData
   ) internal virtual override returns (EntityActionData[] memory) {
-    return IWorld(_world()).runCA(eventEntityId);
+    return IWorld(_world()).runObjectEventHandler(eventEntityId);
   }
 }

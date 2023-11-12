@@ -82,7 +82,7 @@ abstract contract Event is System {
     // We reset the eventEntityId from preRunObject, giving it a chance to
     // change it. eg this can happen during move
     // TODO: Figure out a cleaner way to handle this
-    eventEntityId = preRunObject(actingObjectEntityId, objectTypeId, coord, eventEntityId, eventData);
+    eventEntityId = preRunObject(actingObjectEntityId, objectTypeId, coord, eventEntityId, objectEntityId, eventData);
 
     ObjectType.set(eventEntityId, objectTypeId);
     EntityActionData[] memory entitiesActionData = runObject(
@@ -90,10 +90,11 @@ abstract contract Event is System {
       objectTypeId,
       coord,
       eventEntityId,
+      objectEntityId,
       eventData
     );
 
-    postRunObject(actingObjectEntityId, objectTypeId, coord, eventEntityId, eventData);
+    postRunObject(actingObjectEntityId, objectTypeId, coord, eventEntityId, objectEntityId, eventData);
 
     return (eventEntityId, entitiesActionData);
   }
@@ -103,6 +104,7 @@ abstract contract Event is System {
     bytes32 objectTypeId,
     VoxelCoord memory coord,
     bytes32 eventEntityId,
+    bytes32 objectEntityId,
     bytes memory eventData
   ) internal virtual returns (bytes32);
 
@@ -111,6 +113,7 @@ abstract contract Event is System {
     bytes32 objectTypeId,
     VoxelCoord memory coord,
     bytes32 eventEntityId,
+    bytes32 objectEntityId,
     bytes memory eventData
   ) internal virtual;
 
@@ -119,6 +122,7 @@ abstract contract Event is System {
     bytes32 objectTypeId,
     VoxelCoord memory coord,
     bytes32 eventEntityId,
+    bytes32 objectEntityId,
     bytes memory eventData
   ) internal virtual returns (EntityActionData[] memory);
 }

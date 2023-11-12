@@ -1,9 +1,0 @@
-{
-  "extends": ["../../.eslintrc", "plugin:react/recommended", "plugin:react-hooks/recommended"],
-  "plugins": ["react", "react-hooks"],
-  "rules": {
-    "react/react-in-jsx-scope": "off",
-    "react/no-unescaped-entities": 0, // so eslint won't complain about the ' character in: "you're"
-    "eqeqeq": ["error", "always"] // error when we use == over ===
-  }
-}

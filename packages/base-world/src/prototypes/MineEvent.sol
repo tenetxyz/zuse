@@ -12,7 +12,6 @@ import { VoxelType, VoxelTypeData } from "@tenet-base-world/src/codegen/tables/V
 import { calculateChildCoords, getEntityAtCoord, positionDataToVoxelCoord } from "@tenet-base-world/src/Utils.sol";
 import { CAVoxelType, CAVoxelTypeData } from "@tenet-base-ca/src/codegen/tables/CAVoxelType.sol";
 import { Spawn, SpawnData } from "@tenet-base-world/src/codegen/tables/Spawn.sol";
-import { OfSpawn } from "@tenet-base-world/src/codegen/tables/OfSpawn.sol";
 import { VoxelTypeRegistry, VoxelTypeRegistryData } from "@tenet-registry/src/codegen/tables/VoxelTypeRegistry.sol";
 
 abstract contract MineEvent is Event {
@@ -135,42 +134,5 @@ abstract contract MineEvent is Event {
     VoxelEntity memory eventVoxelEntity,
     bytes memory eventData
   ) internal virtual override {
-    // TODO: Where should this be dealt?
-    // tryRemoveVoxelFromSpawn(eventVoxelEntity);
-  }
-
-  function tryRemoveVoxelFromSpawn(VoxelEntity memory entity) internal {
-    uint32 scale = entity.scale;
-    bytes32 entityId = entity.entityId;
-    bytes32 spawnId = OfSpawn.get(scale, entityId);
-    if (spawnId == 0) {
-      return;
-    }
-
-    OfSpawn.deleteRecord(scale, entityId);
-    SpawnData memory spawn = Spawn.get(spawnId);
-
-    // should we check to see if the entity is in the array before trying to remove it?
-    // I think it's ok to assume it's there, since this is the only way to remove a voxel from a spawn
-    VoxelEntity[] memory existingVoxels = abi.decode(spawn.voxels, (VoxelEntity[]));
-    VoxelEntity[] memory newVoxels = new VoxelEntity[](existingVoxels.length - 1);
-    uint index = 0;
-
-    // Copy elements from the original array to the updated array, excluding the entity
-    for (uint i = 0; i < existingVoxels.length; i++) {
-      if (existingVoxels[i].scale != scale || existingVoxels[i].entityId != entityId) {
-        newVoxels[index] = existingVoxels[i];
-        index++;
-      }
-    }
-
-    if (newVoxels.length == 0) {
-      // no more voxels of this spawn are in the world, so delete it
-      Spawn.deleteRecord(spawnId);
-    } else {
-      // This spawn is still in the world, but it has been modified (since a voxel was removed)
-      Spawn.setVoxels(spawnId, abi.encode(newVoxels));
-      Spawn.setIsModified(spawnId, true);
-    }
   }
 }

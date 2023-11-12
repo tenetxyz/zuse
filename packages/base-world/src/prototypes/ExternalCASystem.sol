@@ -15,7 +15,6 @@ import { hasKey } from "@latticexyz/world/src/modules/keysintable/hasKey.sol";
 import { Position, PositionData } from "@tenet-base-world/src/codegen/tables/Position.sol";
 import { VoxelType, VoxelTypeData, VoxelTypeTableId } from "@tenet-base-world/src/codegen/tables/VoxelType.sol";
 import { WorldConfig } from "@tenet-base-world/src/codegen/tables/WorldConfig.sol";
-import { VoxelActivated, VoxelActivatedData } from "@tenet-base-world/src/codegen/tables/VoxelActivated.sol";
 import { runInteraction, enterWorld, exitWorld, activateVoxel, moveLayer } from "@tenet-base-ca/src/CallUtils.sol";
 import { positionDataToVoxelCoord, getEntityAtCoord, calculateChildCoords, calculateParentCoord } from "@tenet-base-world/src/Utils.sol";
 import { getVonNeumannNeighbours, getMooreNeighbours } from "@tenet-utils/src/VoxelCoordUtils.sol";

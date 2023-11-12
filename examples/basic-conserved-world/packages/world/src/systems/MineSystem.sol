@@ -6,7 +6,7 @@ import { IWorld } from "@tenet-world/src/codegen/world/IWorld.sol";
 import { MineEvent } from "@tenet-base-world/src/prototypes/MineEvent.sol";
 import { hasKey } from "@latticexyz/world/src/modules/keysintable/hasKey.sol";
 import { VoxelCoord, VoxelEntity, VoxelTypeData, EntityEventData } from "@tenet-utils/src/Types.sol";
-import { VoxelType, OfSpawn, Spawn, SpawnData, WorldConfig } from "@tenet-world/src/codegen/Tables.sol";
+import { VoxelType, WorldConfig } from "@tenet-world/src/codegen/Tables.sol";
 import { MineEventData } from "@tenet-base-world/src/Types.sol";
 import { AirVoxelID } from "@tenet-level1-ca/src/Constants.sol";
 import { getEntityAtCoord } from "@tenet-base-world/src/Utils.sol";

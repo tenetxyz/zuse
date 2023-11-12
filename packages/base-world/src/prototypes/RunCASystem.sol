@@ -13,7 +13,6 @@ import { Interactions, InteractionsTableId } from "@tenet-base-world/src/codegen
 import { MAX_VOXEL_NEIGHBOUR_UPDATE_DEPTH, MAX_UNIQUE_ENTITY_INTERACTIONS_RUN, MAX_SAME_VOXEL_INTERACTION_RUN } from "@tenet-utils/src/Constants.sol";
 import { Position, PositionData } from "@tenet-base-world/src/codegen/tables/Position.sol";
 import { VoxelType, VoxelTypeData } from "@tenet-base-world/src/codegen/tables/VoxelType.sol";
-import { VoxelActivated, VoxelActivatedData } from "@tenet-base-world/src/codegen/tables/VoxelActivated.sol";
 import { getEntityAtCoord, calculateChildCoords, calculateParentCoord } from "@tenet-base-world/src/Utils.sol";
 import { runInteraction, enterWorld, exitWorld, activateVoxel, moveLayer, updateVoxelType } from "@tenet-base-ca/src/CallUtils.sol";
 import { addressToEntityKey } from "@tenet-utils/src/Utils.sol";
@@ -73,15 +72,6 @@ abstract contract RunCASystem is System {
     bytes32[] memory childEntityIds = IWorld(_world()).calculateChildEntities(entity);
     bytes32 parentEntity = IWorld(_world()).calculateParentEntity(entity);
     exitWorld(caAddress, voxelTypeId, coord, entity.entityId, neighbourEntities, childEntityIds, parentEntity);
-  }
-
-  function activateCA(address caAddress, VoxelEntity memory entity) public virtual {
-    bytes memory returnData = activateVoxel(caAddress, entity.entityId);
-    string memory activateStr = abi.decode(returnData, (string));
-    VoxelActivated.emitEphemeral(
-      tx.origin,
-      VoxelActivatedData({ scale: entity.scale, entity: entity.entityId, message: activateStr })
-    );
   }
 
   function beforeRunInteraction(VoxelEntity memory entity) internal virtual {}

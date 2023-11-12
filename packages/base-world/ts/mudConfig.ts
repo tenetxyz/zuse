@@ -5,73 +5,38 @@ import { MUDUserConfig, TableConfig } from "@latticexyz/store/config";
 import { ExpandMUDUserConfig } from "@latticexyz/store/register";
 
 const WORLD_TABLES: Record<string, TableConfig> = {
-  WorldConfig: {
+  ObjectType: {
     keySchema: {
-      voxelTypeId: "bytes32",
+      entityId: "bytes32",
     },
     schema: {
-      caAddress: "address",
-    },
-  },
-  VoxelType: {
-    keySchema: {
-      scale: "uint32",
-      entity: "bytes32",
-    },
-    schema: {
-      voxelTypeId: "bytes32", // TODO: rename to voxelBaseTypeId
-      voxelVariantId: "bytes32",
+      objectTypeId: "bytes32"
     },
   },
   Position: {
     keySchema: {
-      scale: "uint32",
-      entity: "bytes32",
+      entityId: "bytes32",
     },
     schema: {
-      // VoxelCoord is removed in MUD2, so we need to manually specify x,y,z
       x: "int32",
       y: "int32",
       z: "int32",
     },
   },
-  VoxelActivated: {
+  ObjectEntity: {
     keySchema: {
-      player: "address",
+      entityId: "bytes32",
     },
     schema: {
-      scale: "uint32",
-      entity: "bytes32",
-      message: "string",
-    },
-    ephemeral: true,
-  },
-  Interactions: {
-    keySchema: {
-      scale: "uint32",
-      entity: "bytes32",
-    },
-    schema: {
-      numRan: "uint32",
+      objectEntityId: "bytes32",
     },
   },
-  // tables for spawning
-  OfSpawn: {
-    // maps a voxel spawned in the world -> the entityId representing its spawn
+  Metadata: {
     keySchema: {
-      scale: "uint32",
-      entity: "bytes32",
+      entityId: "bytes32",
     },
     schema: {
-      spawnId: "bytes32",
-    },
-  },
-  Spawn: {
-    schema: {
-      creationId: "bytes32", // the creation that it's a spawn of
-      isModified: "bool", // modified spawns can't be submitted to classifiers
-      lowerSouthWestCorner: "bytes", // VoxelCoord
-      voxels: "bytes", // the voxel entities that have been spawned
+      numTimesRan: "uint32",
     },
   },
 };
@@ -83,14 +48,19 @@ const WORLD_MODULES = [
     args: [],
   },
   {
-    name: "KeysInTableModule",
+    name: "KeysWithValueModule",
     root: true,
-    args: [resolveTableId("Position")],
+    args: [resolveTableId("ObjectType")],
   },
   {
     name: "KeysInTableModule",
     root: true,
-    args: [resolveTableId("WorldConfig")],
+    args: [resolveTableId("ObjectType")],
+  },
+  {
+    name: "KeysInTableModule",
+    root: true,
+    args: [resolveTableId("Position")],
   },
   {
     name: "KeysWithValueModule",
@@ -98,24 +68,19 @@ const WORLD_MODULES = [
     args: [resolveTableId("Position")],
   },
   {
+    name: "KeysInTableModule",
+    root: true,
+    args: [resolveTableId("ObjectEntity")],
+  },
+  {
     name: "KeysWithValueModule",
     root: true,
-    args: [resolveTableId("VoxelType")],
+    args: [resolveTableId("ObjectEntity")],
   },
   {
     name: "KeysInTableModule",
     root: true,
-    args: [resolveTableId("VoxelType")],
-  },
-  {
-    name: "KeysInTableModule",
-    root: true,
-    args: [resolveTableId("Spawn")],
-  },
-  {
-    name: "KeysInTableModule",
-    root: true,
-    args: [resolveTableId("Interactions")],
+    args: [resolveTableId("Metadata")],
   },
 ];
 

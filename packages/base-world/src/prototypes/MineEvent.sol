@@ -133,6 +133,5 @@ abstract contract MineEvent is Event {
     VoxelCoord memory coord,
     VoxelEntity memory eventVoxelEntity,
     bytes memory eventData
-  ) internal virtual override {
-  }
+  ) internal virtual override {}
 }

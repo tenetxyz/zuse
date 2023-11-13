@@ -10,6 +10,7 @@ import { VoxelEntity } from "@tenet-utils/src/Types.sol";
 import { getKeysWithValue } from "@latticexyz/world/src/modules/keyswithvalue/getKeysWithValue.sol";
 import { Position, PositionData, PositionTableId } from "@tenet-base-world/src/codegen/tables/Position.sol";
 import { VoxelType, VoxelTypeData } from "@tenet-base-world/src/codegen/tables/VoxelType.sol";
+import { getVonNeumannNeighbours } from "@tenet-utils/src/VoxelCoordUtils.sol";
 
 function calculateBlockDirection(
   PositionData memory centerCoord,
@@ -46,17 +47,42 @@ function getOppositeDirection(BlockDirection direction) pure returns (BlockDirec
   }
 }
 
-function getEntityAtCoord(VoxelCoord memory coord) view returns (bytes32) {
-  bytes32[][] memory allEntitiesAtCoord = getKeysWithValue(PositionTableId, Position.encode(coord.x, coord.y, coord.z));
-  bytes32 entity;
-  require(allEntitiesAtCoord.length <= 1, "Found more than one entity at the same position");
-  if (allEntitiesAtCoord.length == 1) {
-    entity = allEntitiesAtCoord[0][0];
+function getMooreNeighbourEntities(
+  IStore store,
+  bytes32 centerEntityId
+  uint8 neighbourRadius
+) view returns (bytes32[] memory, VoxelCoord[] memory) {
+  VoxelCoord memory centerCoord = positionDataToVoxelCoord(Position.get(store, centerEntityId));
+  VoxelCoord[] memory neighbourCoords = getMooreNeighbours(centerCoord, neighbourRadius);
+  bytes32[] memory neighbourEntities = new bytes32[](neighbourCoords.length);
+  for (uint i = 0; i < neighbourCoords.length; i++) {
+    bytes32 neighbourEntity = getEntityAtCoord(store, neighbourCoords[i]);
+    if (uint256(neighbourEntity) != 0) {
+      neighbourEntities[i] = neighbourEntity;
+    }
   }
-  return entity;
+  return (neighbourEntities, neighbourCoords);
 }
 
-function getEntityAtCoord(IStore store, uint32 scale, VoxelCoord memory coord) view returns (bytes32) {
+function getVonNeumannNeighbourEntities(
+  IStore store,
+  bytes32 centerEntityId
+) view returns (bytes32[] memory, VoxelCoord[] memory) {
+  VoxelCoord memory centerCoord = positionDataToVoxelCoord(Position.get(store, centerEntityId));
+  VoxelCoord[] memory neighbourCoords = getVonNeumannNeighbours(centerCoord);
+  bytes32[] memory neighbourEntities = new bytes32[](neighbourCoords.length);
+
+  for (uint i = 0; i < neighbourCoords.length; i++) {
+    bytes32 neighbourEntity = getEntityAtCoord(store, neighbourCoords[i]);
+    if (uint256(neighbourEntity) != 0) {
+      neighbourEntities[i] = neighbourEntity;
+    }
+  }
+
+  return (neighbourEntities, neighbourCoords);
+}
+
+function getEntityAtCoord(IStore store, VoxelCoord memory coord) view returns (bytes32) {
   bytes32[][] memory allEntitiesAtCoord = getKeysWithValue(
     store,
     PositionTableId,

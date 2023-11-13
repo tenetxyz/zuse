@@ -71,7 +71,7 @@ abstract contract Event is System {
     VoxelCoord memory coord,
     bytes memory eventData
   ) internal virtual returns (bytes32, EntityActionData[] memory) {
-    bytes32 eventEntityId = getEntityAtCoord(coord);
+    bytes32 eventEntityId = getEntityAtCoord(IStore(_world()), coord);
     bytes32 objectEntityId;
     if (uint256(eventEntityId) == 0) {
       (eventEntityId, objectEntityId) = IWorld(_world()).createTerrainEntity(objectTypeId, coord);

@@ -23,23 +23,6 @@ import { MAX_UNIQUE_OBJECT_EVENT_HANDLERS_RUN, MAX_SAME_OBJECT_EVENT_HANDLERS_RU
 abstract contract ObjectInteractionSystem is System {
   function getRegistryAddress() internal pure override returns (address);
 
-  function calculateVonNeumannNeighbourEntities(
-    bytes32 centerEntityId
-  ) public view virtual returns (bytes32[] memory, VoxelCoord[] memory) {
-    VoxelCoord memory centerCoord = positionDataToVoxelCoord(Position.get(centerEntityId));
-    VoxelCoord[] memory neighbourCoords = getVonNeumannNeighbours(centerCoord);
-    bytes32[] memory neighbourEntities = new bytes32[](neighbourCoords.length);
-
-    for (uint i = 0; i < neighbourCoords.length; i++) {
-      bytes32 neighbourEntity = getEntityAtCoord(neighbourCoords[i]);
-      if (uint256(neighbourEntity) != 0) {
-        neighbourEntities[i] = neighbourEntity;
-      }
-    }
-
-    return (neighbourEntities, neighbourCoords);
-  }
-
   function beforeRunInteraction(
     bytes32 centerObjectEntityId,
     bytes32[] memory neighbourObjectEntityIds
@@ -200,7 +183,7 @@ abstract contract ObjectInteractionSystem is System {
       bytes32 useCenterEntityId = centerEntitiesToRunQueue[useQueueIdx];
 
       {
-        (bytes32[] memory neighbourEntities, ) = calculateVonNeumannNeighbourEntities(useCenterEntityId);
+        (bytes32[] memory neighbourEntities, ) = getVonNeumannNeighbourEntities(useCenterEntityId);
         (bytes32[] memory changedEntities, EntityActionData[] memory entitiesActionData) = runSingleInteraction(
           useCenterEntityId,
           neighbourEntities

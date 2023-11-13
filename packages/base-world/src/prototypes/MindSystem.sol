@@ -14,7 +14,7 @@ import { getCAMindSelector, setCAMindSelector } from "@tenet-base-ca/src/CallUti
 abstract contract MindSystem is System {
   function setMindSelector(VoxelEntity memory entity, bytes4 mindSelector) public virtual {
     require(
-      hasKey(VoxelTypeTableId, VoxelType.encodeKeyTuple(entity.scale, entity.entityId)),
+      VoxelType.getHasValue(entity.scale, entity.entityId),
       "setMindSelector: Entity does not exist"
     );
     bytes32 voxelTypeId = VoxelType.getVoxelTypeId(entity.scale, entity.entityId);

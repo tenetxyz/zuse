@@ -117,20 +117,14 @@ function getEntityAtCoord(IStore store, uint32 scale, VoxelCoord memory coord) v
 function getEntityPositionStrict(VoxelEntity memory entity) view returns (PositionData memory) {
   uint32 scale = entity.scale;
   bytes32 entityId = entity.entityId;
-  bytes32[] memory positionKeyTuple = new bytes32[](2);
-  positionKeyTuple[0] = bytes32(uint256(scale));
-  positionKeyTuple[1] = (entityId);
-  require(hasKey(PositionTableId, positionKeyTuple), "Entity must have a position"); // even if its air, it must have a position
+  require(Position.getHasValue(scale, entityId), "Entity must have a position"); // even if its air, it must have a position
   return Position.get(scale, entityId);
 }
 
 function getEntityPositionStrict(IStore store, VoxelEntity memory entity) view returns (PositionData memory) {
   uint32 scale = entity.scale;
   bytes32 entityId = entity.entityId;
-  bytes32[] memory positionKeyTuple = new bytes32[](2);
-  positionKeyTuple[0] = bytes32(uint256(scale));
-  positionKeyTuple[1] = (entityId);
-  require(hasKey(store, PositionTableId, positionKeyTuple), "Entity must have a position"); // even if its air, it must have a position
+  require(Position.getHasValue(store, scale, entityId), "Entity must have a position"); // even if its air, it must have a position
   return Position.get(store, scale, entityId);
 }
 

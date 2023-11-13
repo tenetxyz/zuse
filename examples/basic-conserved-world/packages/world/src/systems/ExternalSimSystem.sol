@@ -56,7 +56,7 @@ contract ExternalSimSystem is System {
       scale: VoxelTypeRegistry.getScale(IStore(REGISTRY_ADDRESS), voxelTypeId),
       entityId: getUniqueEntity()
     });
-    Position.set(eventVoxelEntity.scale, eventVoxelEntity.entityId, coord.x, coord.y, coord.z);
+    Position.set(eventVoxelEntity.scale, eventVoxelEntity.entityId, coord.x, coord.y, coord.z, true);
 
     // Update layers
     IWorld(_world()).enterCA(caAddress, eventVoxelEntity, voxelTypeId, mindSelector, coord);
@@ -70,7 +70,8 @@ contract ExternalSimSystem is System {
         eventVoxelEntity.scale,
         eventVoxelEntity.entityId,
         entityCAVoxelType.voxelTypeId,
-        entityCAVoxelType.voxelVariantId
+        entityCAVoxelType.voxelVariantId,
+        true
       );
     }
     // TODO: Should we run this?

@@ -64,7 +64,7 @@ function getCAEntityIsAgent(address registryAddress, bytes32 caEntity) view retu
 
 function getEntityPositionStrict(IStore store, address callerAddress, bytes32 entity) view returns (VoxelCoord memory) {
   require(
-    hasKey(store, CAPositionTableId, CAPosition.encodeKeyTuple(callerAddress, entity)),
+    CAPosition.getHasValue(store, callerAddress, entity),
     "Entity must have a position"
   ); // even if its air, it must have a position
   return positionDataToVoxelCoord(CAPosition.get(store, callerAddress, entity));

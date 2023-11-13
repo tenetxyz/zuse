@@ -73,7 +73,8 @@ abstract contract Event is System {
       eventVoxelEntity.scale,
       eventVoxelEntity.entityId,
       entityCAVoxelType.voxelTypeId,
-      entityCAVoxelType.voxelVariantId
+      entityCAVoxelType.voxelVariantId,
+      true
     );
     return eventVoxelEntity;
   }
@@ -193,7 +194,7 @@ abstract contract Event is System {
     bytes32 voxelEntityId = getEntityAtCoord(scale, coord);
     if (uint256(voxelEntityId) == 0) {
       voxelEntityId = getUniqueEntity();
-      Position.set(scale, voxelEntityId, coord.x, coord.y, coord.z);
+      Position.set(scale, voxelEntityId, coord.x, coord.y, coord.z, true);
     }
     VoxelEntity memory eventVoxelEntity = VoxelEntity({ scale: scale, entityId: voxelEntityId });
 

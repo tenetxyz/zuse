@@ -239,7 +239,7 @@ abstract contract CAInteraction is System {
   ) public virtual returns (bytes32[] memory, bytes[] memory) {
     address callerAddress = _msgSender();
     require(
-      hasKey(CAVoxelTypeTableId, CAVoxelType.encodeKeyTuple(callerAddress, interactEntity)),
+      CAVoxelType.getHasValue(callerAddress, interactEntity),
       "Entity does not exist for runInteraction"
     );
     bytes32 voxelTypeId = CAVoxelType.getVoxelTypeId(callerAddress, interactEntity);
@@ -298,7 +298,7 @@ abstract contract CAInteraction is System {
       getChildEntitiesFromCaller(callerAddress, changedEntity),
       getParentEntityFromCaller(callerAddress, changedEntity)
     );
-    CAVoxelType.set(callerAddress, entity, voxelTypeId, voxelVariantId);
+    CAVoxelType.set(callerAddress, entity, voxelTypeId, voxelVariantId, true);
   }
 
   function updateVoxelTypes(address callerAddress, bytes32[] memory changedEntities) internal {

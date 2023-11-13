@@ -215,7 +215,8 @@ abstract contract RunCASystem is System {
         entity.scale,
         changedEntity,
         changedEntityVoxelType.voxelTypeId,
-        changedEntityVoxelType.voxelVariantId
+        changedEntityVoxelType.voxelVariantId,
+        true
       );
     }
 
@@ -236,7 +237,8 @@ abstract contract RunCASystem is System {
       entity.scale,
       entity.entityId,
       changedEntityVoxelType.voxelTypeId,
-      changedEntityVoxelType.voxelVariantId
+      changedEntityVoxelType.voxelVariantId,
+      true
     );
   }
 }

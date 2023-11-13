@@ -36,6 +36,7 @@ const LAYER_TABLES: Record<string, TableConfig> = {
       x: "int32",
       y: "int32",
       z: "int32",
+      hasValue: "bool",
     },
   },
   CAVoxelType: {
@@ -47,6 +48,7 @@ const LAYER_TABLES: Record<string, TableConfig> = {
     schema: {
       voxelTypeId: "bytes32",
       voxelVariantId: "bytes32",
+      hasValue: "bool",
     },
   },
   CAMind: {
@@ -71,16 +73,6 @@ const LAYER_MODULES = [
     name: "KeysWithValueModule",
     root: true,
     args: [resolveTableId("CAPosition")],
-  },
-  {
-    name: "KeysInTableModule",
-    root: true,
-    args: [resolveTableId("CAPosition")],
-  },
-  {
-    name: "KeysInTableModule",
-    root: true,
-    args: [resolveTableId("CAVoxelType")],
   },
   {
     name: "KeysInTableModule",

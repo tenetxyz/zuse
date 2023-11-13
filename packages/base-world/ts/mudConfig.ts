@@ -21,6 +21,7 @@ const WORLD_TABLES: Record<string, TableConfig> = {
     schema: {
       voxelTypeId: "bytes32", // TODO: rename to voxelBaseTypeId
       voxelVariantId: "bytes32",
+      hasValue: "bool",
     },
   },
   Position: {
@@ -33,6 +34,7 @@ const WORLD_TABLES: Record<string, TableConfig> = {
       x: "int32",
       y: "int32",
       z: "int32",
+      hasValue: "bool",
     },
   },
   VoxelActivated: {
@@ -85,11 +87,6 @@ const WORLD_MODULES = [
   {
     name: "KeysInTableModule",
     root: true,
-    args: [resolveTableId("Position")],
-  },
-  {
-    name: "KeysInTableModule",
-    root: true,
     args: [resolveTableId("WorldConfig")],
   },
   {
@@ -99,11 +96,6 @@ const WORLD_MODULES = [
   },
   {
     name: "KeysWithValueModule",
-    root: true,
-    args: [resolveTableId("VoxelType")],
-  },
-  {
-    name: "KeysInTableModule",
     root: true,
     args: [resolveTableId("VoxelType")],
   },

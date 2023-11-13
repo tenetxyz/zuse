@@ -57,7 +57,7 @@ abstract contract CA is System {
       require(terrainVoxelTypeId == emptyVoxelId(), "cannot move to non-empty terrain");
     }
     require(!hasKey(CAEntityMappingTableId, CAEntityMapping.encodeKeyTuple(callerAddress, entity)), "Entity exists");
-    CAPosition.set(callerAddress, entity, CAPositionData({ x: coord.x, y: coord.y, z: coord.z }));
+    CAPosition.set(callerAddress, entity, CAPositionData({ x: coord.x, y: coord.y, z: coord.z }), true);
     bytes32 caEntity = getUniqueEntity();
     if (terrainGenType != TerrainGenType.Move) {
       CAEntityMapping.set(callerAddress, entity, caEntity);
@@ -113,7 +113,7 @@ abstract contract CA is System {
       childEntityIds,
       parentEntity
     );
-    CAVoxelType.set(callerAddress, entity, voxelTypeId, voxelVariantId);
+    CAVoxelType.set(callerAddress, entity, voxelTypeId, voxelVariantId, true);
   }
 
   function exitWorld(
@@ -129,7 +129,7 @@ abstract contract CA is System {
     }
 
     address callerAddress = _msgSender();
-    if (!hasKey(CAPositionTableId, CAPosition.encodeKeyTuple(callerAddress, entity))) {
+    if (!CAPosition.getHasValue(callerAddress, entity)) {
       terrainGen(callerAddress, TerrainGenType.Mine, voxelTypeId, coord, entity);
     }
 
@@ -144,7 +144,7 @@ abstract contract CA is System {
       childEntityIds,
       parentEntity
     );
-    CAVoxelType.set(callerAddress, entity, emptyVoxelId(), airVoxelVariantId);
+    CAVoxelType.set(callerAddress, entity, emptyVoxelId(), airVoxelVariantId, true);
 
     callVoxelExitWorld(voxelTypeId, coord, caEntity);
 
@@ -178,7 +178,7 @@ abstract contract CA is System {
         new bytes32[](0),
         bytes32(0)
       );
-      CAVoxelType.set(callerAddress, oldEntity, emptyVoxelId(), airVoxelVariantId);
+      CAVoxelType.set(callerAddress, oldEntity, emptyVoxelId(), airVoxelVariantId, true);
     }
     // Set new entity to voxel type
     bytes32 existingEntity = getEntityAtCoord(IStore(_world()), callerAddress, newCoord);
@@ -230,7 +230,7 @@ abstract contract CA is System {
       childEntityIds,
       parentEntity
     );
-    CAVoxelType.set(callerAddress, newEntity, voxelTypeId, voxelVariantId);
+    CAVoxelType.set(callerAddress, newEntity, voxelTypeId, voxelVariantId, true);
   }
 
   function decodeToString(bytes memory data) external pure returns (string memory) {

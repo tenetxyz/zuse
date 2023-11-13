@@ -111,7 +111,7 @@ abstract contract MoveEvent is Event {
     require(uint256(oldVoxelEntity) != 0, "No voxel entity at old coord");
 
     CAVoxelTypeData memory oldCAVoxelType = CAVoxelType.get(IStore(caAddress), _world(), oldVoxelEntity);
-    VoxelType.set(scale, oldVoxelEntity, oldCAVoxelType.voxelTypeId, oldCAVoxelType.voxelVariantId);
+    VoxelType.set(scale, oldVoxelEntity, oldCAVoxelType.voxelTypeId, oldCAVoxelType.voxelVariantId, true);
     return super.preRunCA(caAddress, voxelTypeId, newCoord, eventVoxelEntity, eventData);
   }
 

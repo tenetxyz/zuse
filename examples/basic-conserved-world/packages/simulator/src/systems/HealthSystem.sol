@@ -140,10 +140,7 @@ contract HealthSystem is SimHandler {
 
       uint256 currentSenderHealth = Health.getHealth(callerAddress, senderEntity.scale, senderEntity.entityId);
       require(currentSenderHealth >= senderHealth, "Not enough health to transfer");
-      bool receiverEntityExists = hasKey(
-        MassTableId,
-        Mass.encodeKeyTuple(callerAddress, receiverEntity.scale, receiverEntity.entityId)
-      );
+      bool receiverEntityExists = Mass.getHasValue(callerAddress, receiverEntity.scale, receiverEntity.entityId);
       if (!receiverEntityExists) {
         receiverEntity = createTerrainEntity(callerAddress, receiverEntity.scale, receiverCoord);
         receiverEntityExists = hasKey(

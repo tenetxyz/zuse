@@ -42,6 +42,7 @@ export default mudConfig({
       },
       schema: {
         lastInteractionBlock: "uint256",
+        hasValue: "bool",
       },
     },
     Mass: {
@@ -52,6 +53,7 @@ export default mudConfig({
       },
       schema: {
         mass: "uint256",
+        hasValue: "bool",
       },
     },
     Energy: {
@@ -62,6 +64,7 @@ export default mudConfig({
       },
       schema: {
         energy: "uint256",
+        hasValue: "bool",
       },
     },
     Velocity: {
@@ -73,6 +76,7 @@ export default mudConfig({
       schema: {
         lastUpdateBlock: "uint256",
         velocity: "bytes", // VoxelCoord, 3D vector
+        hasValue: "bool",
       },
     },
     Health: {
@@ -205,26 +209,6 @@ export default mudConfig({
     {
       name: "KeysInTableModule",
       root: true,
-      args: [resolveTableId("Metadata")],
-    },
-    {
-      name: "KeysInTableModule",
-      root: true,
-      args: [resolveTableId("Mass")],
-    },
-    {
-      name: "KeysInTableModule",
-      root: true,
-      args: [resolveTableId("Energy")],
-    },
-    {
-      name: "KeysInTableModule",
-      root: true,
-      args: [resolveTableId("Velocity")],
-    },
-    {
-      name: "KeysInTableModule",
-      root: true,
       args: [resolveTableId("Health")],
     },
     {
@@ -236,11 +220,6 @@ export default mudConfig({
       name: "KeysInTableModule",
       root: true,
       args: [resolveTableId("Object")],
-    },
-    {
-      name: "KeysInTableModule",
-      root: true,
-      args: [resolveTableId("Action")],
     },
     {
       name: "KeysInTableModule",

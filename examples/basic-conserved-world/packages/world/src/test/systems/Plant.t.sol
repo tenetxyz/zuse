@@ -157,7 +157,7 @@ contract PlantTest is MudTest {
   //   );
   //   world.activateWithAgent(PlantVoxelID, plantCoord, agentEntity, bytes4(0));
   //   assertTrue(VoxelType.getVoxelTypeId(plantEntity.scale, plantEntity.entityId) == AirVoxelID);
-  //   assertTrue(Mass.get(IStore(SIMULATOR_ADDRESS), worldAddress, plantEntity.scale, plantEntity.entityId) == 0);
+  //   assertTrue(Mass.getMass(IStore(SIMULATOR_ADDRESS), worldAddress, plantEntity.scale, plantEntity.entityId) == 0);
   //   assertTrue(Energy.get(IStore(SIMULATOR_ADDRESS), worldAddress, plantEntity.scale, plantEntity.entityId) == 0);
   //   assertTrue(Nutrients.get(IStore(SIMULATOR_ADDRESS), worldAddress, plantEntity.scale, plantEntity.entityId) == 0);
 

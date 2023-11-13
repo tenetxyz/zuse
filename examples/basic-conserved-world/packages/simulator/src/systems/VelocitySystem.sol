@@ -154,7 +154,7 @@ contract VelocitySystem is SimHandler {
     uint256 resourceRequired = 0;
     {
       // Since the new velocity won't just be 1, we need to do a sum
-      uint256 bodyMass = Mass.get(callerAddress, receiverEntity.scale, receiverEntity.entityId);
+      uint256 bodyMass = Mass.getMass(callerAddress, receiverEntity.scale, receiverEntity.entityId);
       int32 receiverVelocityDeltaX = currentVelocity.x > 0 ? receiverVelocityDelta.x : -receiverVelocityDelta.x;
       uint256 resourceRequiredX = calculateResourceRequired(currentVelocity.x, receiverVelocityDeltaX, bodyMass);
       int32 receiverVelocityDeltaY = currentVelocity.y > 0 ? receiverVelocityDelta.y : -receiverVelocityDelta.y;
@@ -229,7 +229,7 @@ contract VelocitySystem is SimHandler {
   ) internal {
     uint256 terrainMass = getTerrainMass(callerAddress, scale, newCoord);
     require(terrainMass == 0, "Cannot move on top of terrain with mass");
-    Mass.set(callerAddress, newEntity.scale, newEntity.entityId, terrainMass);
+    Mass.set(callerAddress, newEntity.scale, newEntity.entityId, terrainMass, true);
     Energy.set(
       callerAddress,
       newEntity.scale,
@@ -264,11 +264,11 @@ contract VelocitySystem is SimHandler {
     // TODO: make this only callable by the simulator
     address callerAddress = super.getCallerAddress();
     require(
-      hasKey(MassTableId, Mass.encodeKeyTuple(callerAddress, oldEntity.scale, oldEntity.entityId)),
+      Mass.getHasValue(callerAddress, oldEntity.scale, oldEntity.entityId),
       "Old entity does not exist"
     );
     EntityData memory oldEntityData;
-    oldEntityData.mass = Mass.get(callerAddress, oldEntity.scale, oldEntity.entityId);
+    oldEntityData.mass = Mass.getMass(callerAddress, oldEntity.scale, oldEntity.entityId);
     (VoxelCoord memory newVelocity, uint256 resourceRequired) = calculateNewVelocity(
       callerAddress,
       oldCoord,
@@ -287,9 +287,9 @@ contract VelocitySystem is SimHandler {
       : Temperature.get(callerAddress, actingEntity.scale, actingEntity.entityId);
     require(resourceRequired <= oldEntityData.resource, "Not enough resources to move.");
 
-    if (hasKey(MassTableId, Mass.encodeKeyTuple(callerAddress, newEntity.scale, newEntity.entityId))) {
+    if (Mass.getHasValue(callerAddress, newEntity.scale, newEntity.entityId)) {
       require(
-        Mass.get(callerAddress, newEntity.scale, newEntity.entityId) == 0,
+        Mass.getMass(callerAddress, newEntity.scale, newEntity.entityId) == 0,
         "Cannot move on top of an entity with mass"
       );
     } else {
@@ -301,7 +301,7 @@ contract VelocitySystem is SimHandler {
       : Temperature.get(callerAddress, oldEntity.scale, oldEntity.entityId);
 
     // Reset the old entity's mass, energy and velocity
-    Mass.set(callerAddress, oldEntity.scale, oldEntity.entityId, 0);
+    Mass.set(callerAddress, oldEntity.scale, oldEntity.entityId, 0, true);
     Energy.set(callerAddress, oldEntity.scale, oldEntity.entityId, 0);
     Velocity.set(
       callerAddress,
@@ -317,7 +317,7 @@ contract VelocitySystem is SimHandler {
     fluxEnergyForMove(callerAddress, newEntity, resourceRequired);
 
     // Update the new entity's energy and velocity
-    Mass.set(callerAddress, newEntity.scale, newEntity.entityId, oldEntityData.mass);
+    Mass.set(callerAddress, newEntity.scale, newEntity.entityId, oldEntityData.mass, true);
     Energy.set(callerAddress, newEntity.scale, newEntity.entityId, oldEntityData.energy);
     Velocity.set(callerAddress, newEntity.scale, newEntity.entityId, block.number, abi.encode(newVelocity));
     // VoxelEntity memory newActingEntity = actingEntity;

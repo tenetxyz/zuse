@@ -86,7 +86,7 @@ contract CollisionSystem is System {
                 break;
               }
             }
-            if (!isAlreadyInStack && Mass.get(callerAddress, useCollisionData.entity.scale, neighbourEntities[i]) > 0) {
+            if (!isAlreadyInStack && Mass.getMass(callerAddress, useCollisionData.entity.scale, neighbourEntities[i]) > 0) {
               centerEntitiesToCheckStackIdx++;
               require(
                 centerEntitiesToCheckStackIdx < MAX_VOXEL_NEIGHBOUR_UPDATE_DEPTH,
@@ -287,7 +287,7 @@ contract CollisionSystem is System {
           neighbourEntities[i] = newTerrainEntity.entityId;
         }
 
-        if (Mass.get(callerAddress, centerVoxelEntity.scale, neighbourEntities[i]) == 0) {
+        if (Mass.getMass(callerAddress, centerVoxelEntity.scale, neighbourEntities[i]) == 0) {
           // can only collide with terrain that has mass
           collidingEntities[i] = 0;
           continue;
@@ -298,7 +298,7 @@ contract CollisionSystem is System {
       }
     }
 
-    int32 mass_primary = uint256ToInt32(Mass.get(callerAddress, centerVoxelEntity.scale, centerVoxelEntity.entityId));
+    int32 mass_primary = uint256ToInt32(Mass.getMass(callerAddress, centerVoxelEntity.scale, centerVoxelEntity.entityId));
     if (mass_primary == 0) {
       revert("Trying to move an entity with zero mass");
     }
@@ -314,7 +314,7 @@ contract CollisionSystem is System {
         getVelocity(callerAddress, VoxelEntity({ scale: centerVoxelEntity.scale, entityId: collidingEntities[i] })),
         primaryVelocity
       );
-      int32 mass_neighbour = uint256ToInt32(Mass.get(callerAddress, centerVoxelEntity.scale, collidingEntities[i]));
+      int32 mass_neighbour = uint256ToInt32(Mass.getMass(callerAddress, centerVoxelEntity.scale, collidingEntities[i]));
       int32 impulseFactor = (2 * mass_neighbour) / (mass_primary + mass_neighbour);
       VoxelCoord memory impulse = mulScalar(relativeVelocity, impulseFactor);
       // Add to total impulse

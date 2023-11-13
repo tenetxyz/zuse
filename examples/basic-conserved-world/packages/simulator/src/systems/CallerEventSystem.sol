@@ -45,17 +45,17 @@ contract CallerEventSystem is System {
   ) public {
     address callerAddress = _msgSender();
     preEvent(callerAddress, actingEntity);
-    bool entityExists = hasKey(MassTableId, Mass.encodeKeyTuple(callerAddress, entity.scale, entity.entityId));
+    bool entityExists = Mass.getHasValue(callerAddress, entity.scale, entity.entityId);
     require(entityMass > 0, "Mass must be greater than zero to build");
     if (entityExists) {
-      uint256 currentMass = Mass.get(callerAddress, entity.scale, entity.entityId);
+      uint256 currentMass = Mass.getMass(callerAddress, entity.scale, entity.entityId);
       require(currentMass == 0, "Mass must be zero to build");
     } else {
       uint256 terrainMass = getTerrainMass(callerAddress, entity.scale, coord);
       require(terrainMass == 0 || terrainMass == entityMass, "Invalid terrain mass");
 
       // Set initial values
-      Mass.set(callerAddress, entity.scale, entity.entityId, 0); // Set to zero to prevent double build
+      Mass.set(callerAddress, entity.scale, entity.entityId, 0, true); // Set to zero to prevent double build
       Energy.set(callerAddress, entity.scale, entity.entityId, getTerrainEnergy(callerAddress, entity.scale, coord));
       Velocity.set(
         callerAddress,
@@ -75,11 +75,11 @@ contract CallerEventSystem is System {
   function onMine(VoxelEntity memory actingEntity, VoxelEntity memory entity, VoxelCoord memory coord) public {
     address callerAddress = _msgSender();
     preEvent(callerAddress, actingEntity);
-    bool entityExists = hasKey(MassTableId, Mass.encodeKeyTuple(callerAddress, entity.scale, entity.entityId));
+    bool entityExists = Mass.getHasValue(callerAddress, entity.scale, entity.entityId);
     int256 massDelta;
     if (entityExists) {
       require(isZeroCoord(getVelocity(callerAddress, entity)), "Cannot mine an entity with velocity");
-      uint256 currentMass = Mass.get(callerAddress, entity.scale, entity.entityId);
+      uint256 currentMass = Mass.getMass(callerAddress, entity.scale, entity.entityId);
       if (currentMass > 0) {
         massDelta = -1 * uint256ToInt256(currentMass);
       }
@@ -88,7 +88,7 @@ contract CallerEventSystem is System {
       uint256 terrainMass = getTerrainMass(callerAddress, entity.scale, coord);
       require(isZeroCoord(terrainVelocity), "Cannot mine terrain with velocity");
       // Set initial values
-      Mass.set(callerAddress, entity.scale, entity.entityId, terrainMass);
+      Mass.set(callerAddress, entity.scale, entity.entityId, terrainMass, true);
       Energy.set(callerAddress, entity.scale, entity.entityId, getTerrainEnergy(callerAddress, entity.scale, coord));
       Velocity.set(callerAddress, entity.scale, entity.entityId, block.number, abi.encode(terrainVelocity));
 

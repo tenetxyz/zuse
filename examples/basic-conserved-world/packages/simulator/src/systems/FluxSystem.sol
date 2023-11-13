@@ -115,7 +115,7 @@ contract FluxSystem is System {
           numNeighboursToInclude++;
         }
       } else {
-        if (Mass.get(callerAddress, centerVoxelEntity.scale, neighbourEntities[i]) > 0) {
+        if (Mass.getMass(callerAddress, centerVoxelEntity.scale, neighbourEntities[i]) > 0) {
           // we only flux out to neighbours that have mass
           neighbourEnergyDelta[i] = MAXIMUM_ENERGY_IN;
           numNeighboursToInclude++;

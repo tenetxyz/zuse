@@ -34,22 +34,19 @@ contract MassSystem is SimHandler {
     int256 receiverMassDelta
   ) public {
     address callerAddress = super.getCallerAddress();
-    bool entityExists = hasKey(
-      MassTableId,
-      Mass.encodeKeyTuple(callerAddress, senderEntity.scale, senderEntity.entityId)
-    );
+    bool entityExists = Mass.getHasValue(callerAddress, senderEntity.scale, senderEntity.entityId);
     require(entityExists, "Sender entity does not exist");
     if (receiverMassDelta == 0) {
       return;
     }
     if (isEntityEqual(senderEntity, receiverEntity)) {
       // Transformation
-      uint256 currentMass = Mass.get(callerAddress, receiverEntity.scale, receiverEntity.entityId);
+      uint256 currentMass = Mass.getMass(callerAddress, receiverEntity.scale, receiverEntity.entityId);
       uint256 newMass = addUint256AndInt256(currentMass, receiverMassDelta);
       if (currentMass > 0) {
         require(currentMass >= newMass, "Cannot increase mass");
       }
-      Mass.set(callerAddress, receiverEntity.scale, receiverEntity.entityId, newMass);
+      Mass.set(callerAddress, receiverEntity.scale, receiverEntity.entityId, newMass, true);
       // Calculate how much energy this operation requires
       bool isMassIncrease = receiverMassDelta > 0; // flux in if mass increases
       uint256 energyRequired = int256ToUint256(receiverMassDelta) * 10;

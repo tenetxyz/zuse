@@ -140,7 +140,7 @@ contract MoveTest is MudTest {
     assertTrue(agentVelocity.x == 1);
     assertTrue(agentVelocity.y == 0);
     assertTrue(agentVelocity.z == 0);
-    assertTrue(Mass.get(IStore(SIMULATOR_ADDRESS), worldAddress, agentEntity.scale, agentEntity.entityId) > 0);
+    assertTrue(Mass.getMass(IStore(SIMULATOR_ADDRESS), worldAddress, agentEntity.scale, agentEntity.entityId) > 0);
 
     smallMassEntity = VoxelEntity({
       scale: 1,
@@ -155,7 +155,7 @@ contract MoveTest is MudTest {
     assertTrue(smallMassVelocity.x == 1);
     assertTrue(smallMassVelocity.y == 0);
     assertTrue(smallMassVelocity.z == 0);
-    assertTrue(Mass.get(IStore(SIMULATOR_ADDRESS), worldAddress, smallMassEntity.scale, smallMassEntity.entityId) > 0);
+    assertTrue(Mass.getMass(IStore(SIMULATOR_ADDRESS), worldAddress, smallMassEntity.scale, smallMassEntity.entityId) > 0);
 
     vm.stopPrank();
   }
@@ -217,7 +217,7 @@ contract MoveTest is MudTest {
     assertTrue(agentVelocity.x == 4);
     assertTrue(agentVelocity.y == 0);
     assertTrue(agentVelocity.z == 0);
-    assertTrue(Mass.get(IStore(SIMULATOR_ADDRESS), worldAddress, agentEntity.scale, agentEntity.entityId) > 0);
+    assertTrue(Mass.getMass(IStore(SIMULATOR_ADDRESS), worldAddress, agentEntity.scale, agentEntity.entityId) > 0);
 
     massEntity = VoxelEntity({
       scale: 1,
@@ -232,7 +232,7 @@ contract MoveTest is MudTest {
     assertTrue(massVelocity.x == 1);
     assertTrue(massVelocity.y == 0);
     assertTrue(massVelocity.z == 0);
-    assertTrue(Mass.get(IStore(SIMULATOR_ADDRESS), worldAddress, massEntity.scale, massEntity.entityId) > 0);
+    assertTrue(Mass.getMass(IStore(SIMULATOR_ADDRESS), worldAddress, massEntity.scale, massEntity.entityId) > 0);
 
     vm.stopPrank();
   }
@@ -293,7 +293,7 @@ contract MoveTest is MudTest {
     assertTrue(agentVelocity.x == 1);
     assertTrue(agentVelocity.y == 0);
     assertTrue(agentVelocity.z == 2);
-    assertTrue(Mass.get(IStore(SIMULATOR_ADDRESS), worldAddress, agentEntity.scale, agentEntity.entityId) > 0);
+    assertTrue(Mass.getMass(IStore(SIMULATOR_ADDRESS), worldAddress, agentEntity.scale, agentEntity.entityId) > 0);
 
     massEntity = VoxelEntity({
       scale: 1,
@@ -307,7 +307,7 @@ contract MoveTest is MudTest {
     assertTrue(massVelocity.x == 0);
     assertTrue(massVelocity.y == 0);
     assertTrue(massVelocity.z == 8);
-    assertTrue(Mass.get(IStore(SIMULATOR_ADDRESS), worldAddress, massEntity.scale, massEntity.entityId) > 0);
+    assertTrue(Mass.getMass(IStore(SIMULATOR_ADDRESS), worldAddress, massEntity.scale, massEntity.entityId) > 0);
 
     vm.stopPrank();
   }
@@ -387,7 +387,7 @@ contract MoveTest is MudTest {
     assertTrue(agentVelocity.x == 1);
     assertTrue(agentVelocity.y == 0);
     assertTrue(agentVelocity.z == 0);
-    assertTrue(Mass.get(IStore(SIMULATOR_ADDRESS), worldAddress, agentEntity.scale, agentEntity.entityId) > 0);
+    assertTrue(Mass.getMass(IStore(SIMULATOR_ADDRESS), worldAddress, agentEntity.scale, agentEntity.entityId) > 0);
 
     smallMassEntity1 = VoxelEntity({
       scale: 1,
@@ -403,7 +403,7 @@ contract MoveTest is MudTest {
     assertTrue(smallMass1Velocity.y == 0);
     assertTrue(smallMass1Velocity.z == 0);
     assertTrue(
-      Mass.get(IStore(SIMULATOR_ADDRESS), worldAddress, smallMassEntity1.scale, smallMassEntity1.entityId) > 0
+      Mass.getMass(IStore(SIMULATOR_ADDRESS), worldAddress, smallMassEntity1.scale, smallMassEntity1.entityId) > 0
     );
 
     smallMassEntity2 = VoxelEntity({
@@ -420,7 +420,7 @@ contract MoveTest is MudTest {
     assertTrue(smallMass2Velocity.y == 0);
     assertTrue(smallMass2Velocity.z == 0);
     assertTrue(
-      Mass.get(IStore(SIMULATOR_ADDRESS), worldAddress, smallMassEntity2.scale, smallMassEntity2.entityId) > 0
+      Mass.getMass(IStore(SIMULATOR_ADDRESS), worldAddress, smallMassEntity2.scale, smallMassEntity2.entityId) > 0
     );
 
     vm.stopPrank();
@@ -481,7 +481,7 @@ contract MoveTest is MudTest {
     assertTrue(agentVelocity.x == 1);
     assertTrue(agentVelocity.y == 0);
     assertTrue(agentVelocity.z == 0);
-    assertTrue(Mass.get(IStore(SIMULATOR_ADDRESS), worldAddress, agentEntity.scale, agentEntity.entityId) > 0);
+    assertTrue(Mass.getMass(IStore(SIMULATOR_ADDRESS), worldAddress, agentEntity.scale, agentEntity.entityId) > 0);
 
     smallMassEntity = VoxelEntity({
       scale: 1,
@@ -496,7 +496,7 @@ contract MoveTest is MudTest {
     assertTrue(smallMassVelocity.x == 1);
     assertTrue(smallMassVelocity.y == 0);
     assertTrue(smallMassVelocity.z == 0);
-    assertTrue(Mass.get(IStore(SIMULATOR_ADDRESS), worldAddress, smallMassEntity.scale, smallMassEntity.entityId) > 0);
+    assertTrue(Mass.getMass(IStore(SIMULATOR_ADDRESS), worldAddress, smallMassEntity.scale, smallMassEntity.entityId) > 0);
 
     vm.stopPrank();
   }
@@ -563,7 +563,7 @@ contract MoveTest is MudTest {
     assertTrue(agentVelocity.x == 5);
     assertTrue(agentVelocity.y == 0);
     assertTrue(agentVelocity.z == 0);
-    assertTrue(Mass.get(IStore(SIMULATOR_ADDRESS), worldAddress, agentEntity.scale, agentEntity.entityId) > 0);
+    assertTrue(Mass.getMass(IStore(SIMULATOR_ADDRESS), worldAddress, agentEntity.scale, agentEntity.entityId) > 0);
 
     smallMassEntity = VoxelEntity({
       scale: 1,
@@ -578,7 +578,7 @@ contract MoveTest is MudTest {
     assertTrue(smallMassVelocity.x == 5);
     assertTrue(smallMassVelocity.y == 0);
     assertTrue(smallMassVelocity.z == 0);
-    assertTrue(Mass.get(IStore(SIMULATOR_ADDRESS), worldAddress, smallMassEntity.scale, smallMassEntity.entityId) > 0);
+    assertTrue(Mass.getMass(IStore(SIMULATOR_ADDRESS), worldAddress, smallMassEntity.scale, smallMassEntity.entityId) > 0);
 
     vm.stopPrank();
   }
@@ -638,7 +638,7 @@ contract MoveTest is MudTest {
     assertTrue(agentVelocity.x == 1);
     assertTrue(agentVelocity.y == 0);
     assertTrue(agentVelocity.z == 0);
-    assertTrue(Mass.get(IStore(SIMULATOR_ADDRESS), worldAddress, agentEntity.scale, agentEntity.entityId) > 0);
+    assertTrue(Mass.getMass(IStore(SIMULATOR_ADDRESS), worldAddress, agentEntity.scale, agentEntity.entityId) > 0);
 
     smallMassEntity = VoxelEntity({
       scale: 1,
@@ -653,7 +653,7 @@ contract MoveTest is MudTest {
     assertTrue(smallMassVelocity.x == 1);
     assertTrue(smallMassVelocity.y == 0);
     assertTrue(smallMassVelocity.z == 0);
-    assertTrue(Mass.get(IStore(SIMULATOR_ADDRESS), worldAddress, smallMassEntity.scale, smallMassEntity.entityId) > 0);
+    assertTrue(Mass.getMass(IStore(SIMULATOR_ADDRESS), worldAddress, smallMassEntity.scale, smallMassEntity.entityId) > 0);
 
     vm.stopPrank();
   }
@@ -689,7 +689,7 @@ contract MoveTest is MudTest {
       agentEntity.scale,
       agentEntity.entityId
     );
-    Mass.set(IStore(SIMULATOR_ADDRESS), worldAddress, agentEntity.scale, agentEntity.entityId, 10);
+    Mass.set(IStore(SIMULATOR_ADDRESS), worldAddress, agentEntity.scale, agentEntity.entityId, 10, true);
 
     VoxelCoord memory newAgentCoord = VoxelCoord({ x: agentCoord.x + 1, y: agentCoord.y, z: agentCoord.z });
     console.log("moving");
@@ -714,7 +714,7 @@ contract MoveTest is MudTest {
     assertTrue(agentVelocity.x == 1);
     assertTrue(agentVelocity.y == 0);
     assertTrue(agentVelocity.z == 0);
-    assertTrue(Mass.get(IStore(SIMULATOR_ADDRESS), worldAddress, agentEntity.scale, agentEntity.entityId) > 0);
+    assertTrue(Mass.getMass(IStore(SIMULATOR_ADDRESS), worldAddress, agentEntity.scale, agentEntity.entityId) > 0);
 
     smallMassEntity = VoxelEntity({
       scale: 1,
@@ -729,7 +729,7 @@ contract MoveTest is MudTest {
     assertTrue(smallMassVelocity.x == -1);
     assertTrue(smallMassVelocity.y == 0);
     assertTrue(smallMassVelocity.z == 0);
-    assertTrue(Mass.get(IStore(SIMULATOR_ADDRESS), worldAddress, smallMassEntity.scale, smallMassEntity.entityId) > 0);
+    assertTrue(Mass.getMass(IStore(SIMULATOR_ADDRESS), worldAddress, smallMassEntity.scale, smallMassEntity.entityId) > 0);
 
     vm.stopPrank();
   }
@@ -855,7 +855,7 @@ contract MoveTest is MudTest {
     assertTrue(soilVelocity.x == 0);
     assertTrue(soilVelocity.y == 0);
     assertTrue(soilVelocity.z == 0);
-    assertTrue(Mass.get(IStore(SIMULATOR_ADDRESS), worldAddress, soilEntity.scale, soilEntity.entityId) > 0);
+    assertTrue(Mass.getMass(IStore(SIMULATOR_ADDRESS), worldAddress, soilEntity.scale, soilEntity.entityId) > 0);
     assertTrue(
       soil1Nutrients == Nutrients.get(IStore(SIMULATOR_ADDRESS), worldAddress, soilEntity.scale, soilEntity.entityId)
     );
@@ -926,7 +926,7 @@ contract MoveTest is MudTest {
     assertTrue(soilVelocity.x == 1);
     assertTrue(soilVelocity.y == 0);
     assertTrue(soilVelocity.z == 2);
-    assertTrue(Mass.get(IStore(SIMULATOR_ADDRESS), worldAddress, soilEntity.scale, soilEntity.entityId) > 0);
+    assertTrue(Mass.getMass(IStore(SIMULATOR_ADDRESS), worldAddress, soilEntity.scale, soilEntity.entityId) > 0);
     assertTrue(
       soil1Nutrients == Nutrients.get(IStore(SIMULATOR_ADDRESS), worldAddress, soilEntity.scale, soilEntity.entityId)
     );
@@ -954,7 +954,7 @@ contract MoveTest is MudTest {
     assertTrue(massVelocity.x == 0);
     assertTrue(massVelocity.y == 0);
     assertTrue(massVelocity.z == 8);
-    assertTrue(Mass.get(IStore(SIMULATOR_ADDRESS), worldAddress, massEntity.scale, massEntity.entityId) > 0);
+    assertTrue(Mass.getMass(IStore(SIMULATOR_ADDRESS), worldAddress, massEntity.scale, massEntity.entityId) > 0);
 
     vm.stopPrank();
   }
@@ -1073,7 +1073,7 @@ contract MoveTest is MudTest {
     assertTrue(faucetVelocity.x == 0);
     assertTrue(faucetVelocity.y == 0);
     assertTrue(faucetVelocity.z == 0);
-    assertTrue(Mass.get(IStore(SIMULATOR_ADDRESS), worldAddress, faucetEntity.scale, faucetEntity.entityId) > 0);
+    assertTrue(Mass.getMass(IStore(SIMULATOR_ADDRESS), worldAddress, faucetEntity.scale, faucetEntity.entityId) > 0);
 
     vm.stopPrank();
   }
@@ -1131,7 +1131,7 @@ contract MoveTest is MudTest {
     assertTrue(faucetVelocity.x == 1);
     assertTrue(faucetVelocity.y == 0);
     assertTrue(faucetVelocity.z == 2);
-    assertTrue(Mass.get(IStore(SIMULATOR_ADDRESS), worldAddress, faucetEntity.scale, faucetEntity.entityId) > 0);
+    assertTrue(Mass.getMass(IStore(SIMULATOR_ADDRESS), worldAddress, faucetEntity.scale, faucetEntity.entityId) > 0);
 
     massEntity = VoxelEntity({
       scale: 1,
@@ -1145,7 +1145,7 @@ contract MoveTest is MudTest {
     assertTrue(massVelocity.x == 0);
     assertTrue(massVelocity.y == 0);
     assertTrue(massVelocity.z == 8);
-    assertTrue(Mass.get(IStore(SIMULATOR_ADDRESS), worldAddress, massEntity.scale, massEntity.entityId) > 0);
+    assertTrue(Mass.getMass(IStore(SIMULATOR_ADDRESS), worldAddress, massEntity.scale, massEntity.entityId) > 0);
 
     vm.stopPrank();
   }

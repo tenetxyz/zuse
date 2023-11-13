@@ -65,10 +65,7 @@ contract PotassiumSystem is SimHandler {
       uint256 receiverPotassium = int256ToUint256(receiverPotassiumDelta);
 
       {
-        bool receiverEntityExists = hasKey(
-          MassTableId,
-          Mass.encodeKeyTuple(callerAddress, receiverEntity.scale, receiverEntity.entityId)
-        );
+        bool receiverEntityExists = Mass.getHasValue(callerAddress, receiverEntity.scale, receiverEntity.entityId);
         if (!receiverEntityExists) {
           receiverEntity = createTerrainEntity(callerAddress, receiverEntity.scale, receiverCoord);
           receiverEntityExists = hasKey(

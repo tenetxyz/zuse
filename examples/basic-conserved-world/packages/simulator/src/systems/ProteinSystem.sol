@@ -87,10 +87,7 @@ contract ProteinSystem is SimHandler {
       uint256 currentSenderNutrients = Nutrients.get(callerAddress, senderEntity.scale, senderEntity.entityId);
       require(currentSenderNutrients >= senderNutrients, "Not enough nutrients to transfer");
       {
-        bool receiverEntityExists = hasKey(
-          MassTableId,
-          Mass.encodeKeyTuple(callerAddress, receiverEntity.scale, receiverEntity.entityId)
-        );
+        bool receiverEntityExists = Mass.getHasValue(callerAddress, receiverEntity.scale, receiverEntity.entityId);
         if (!receiverEntityExists) {
           receiverEntity = createTerrainEntity(callerAddress, receiverEntity.scale, receiverCoord);
           receiverEntityExists = hasKey(

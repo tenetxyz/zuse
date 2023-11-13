@@ -116,7 +116,7 @@ contract CAEventsSystem is System {
             );
 
             if (simEventData.targetTable == SimTable.Mass) {
-              uint256 newMass = Mass.get(
+              uint256 newMass = Mass.getMass(
                 IStore(SIMULATOR_ADDRESS),
                 _world(),
                 simEventData.targetEntity.scale,

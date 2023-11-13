@@ -101,7 +101,7 @@ contract TemperatureSystem is SimHandler {
     VoxelEntity memory senderEntity,
     uint256 senderEnergy
   ) internal view returns (int256) {
-    uint256 mass = Mass.get(callerAddress, senderEntity.scale, senderEntity.entityId);
+    uint256 mass = Mass.getMass(callerAddress, senderEntity.scale, senderEntity.entityId);
     require(mass > 0, "Sender entity mass must be greater than 0");
 
     (bytes32[] memory neighbourEntities, ) = getNeighbourEntities(callerAddress, senderEntity);
@@ -124,7 +124,7 @@ contract TemperatureSystem is SimHandler {
           totalTemperature += neighborTemperature;
         }
 
-        uint256 neighborMass = Mass.get(callerAddress, senderEntity.scale, neighbourEntities[i]);
+        uint256 neighborMass = Mass.getMass(callerAddress, senderEntity.scale, neighbourEntities[i]);
         totalMass += neighborMass;
         numNeighbours++;
       }
@@ -259,7 +259,7 @@ contract TemperatureSystem is SimHandler {
     VoxelEntity memory receiverEntity,
     uint256 senderTemperature
   ) internal returns (uint256) {
-    uint256 mass = Mass.get(callerAddress, senderEntity.scale, senderEntity.entityId);
+    uint256 mass = Mass.getMass(callerAddress, senderEntity.scale, senderEntity.entityId);
 
     // Calculate the actual transfer amount
     uint256 actualTransfer = (senderTemperature * mass) / (50); //50 is a high mass according to current perlin budgets
@@ -326,10 +326,7 @@ contract TemperatureSystem is SimHandler {
       require(senderTemperature >= receiverTemperature, "Not enough energy to temperature to sender");
 
       {
-        bool receiverEntityExists = hasKey(
-          MassTableId,
-          Mass.encodeKeyTuple(callerAddress, receiverEntity.scale, receiverEntity.entityId)
-        );
+        bool receiverEntityExists = Mass.getHasValue(callerAddress, receiverEntity.scale, receiverEntity.entityId);
         if (!receiverEntityExists) {
           receiverEntity = createTerrainEntity(callerAddress, receiverEntity.scale, receiverCoord);
           receiverEntityExists = hasKey(

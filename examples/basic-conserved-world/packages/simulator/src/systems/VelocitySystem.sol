@@ -214,7 +214,7 @@ contract VelocitySystem is SimHandler {
 
     // Update the velocity
     if (!voxelCoordsAreEqual(velocity, newVelocity)) {
-      Velocity.set(callerAddress, entity.scale, entity.entityId, block.number, abi.encode(newVelocity), true);
+      Velocity.set(callerAddress, entity.scale, entity.entityId, block.number, true, abi.encode(newVelocity));
     }
   }
 
@@ -239,8 +239,8 @@ contract VelocitySystem is SimHandler {
       newEntity.scale,
       newEntity.entityId,
       block.number,
-      abi.encode(getTerrainVelocity(callerAddress, newEntity.scale, newCoord)),
-      true
+      true,
+      abi.encode(getTerrainVelocity(callerAddress, newEntity.scale, newCoord))
     );
   }
 
@@ -307,8 +307,8 @@ contract VelocitySystem is SimHandler {
       oldEntity.scale,
       oldEntity.entityId,
       block.number,
-      abi.encode(VoxelCoord({ x: 0, y: 0, z: 0 })),
-      true
+      true,
+      abi.encode(VoxelCoord({ x: 0, y: 0, z: 0 }))
     );
     if (hasKey(StaminaTableId, Stamina.encodeKeyTuple(callerAddress, oldEntity.scale, oldEntity.entityId))) {
       Stamina.set(callerAddress, oldEntity.scale, oldEntity.entityId, 0);
@@ -319,7 +319,7 @@ contract VelocitySystem is SimHandler {
     // Update the new entity's energy and velocity
     Mass.set(callerAddress, newEntity.scale, newEntity.entityId, oldEntityData.mass, true);
     Energy.set(callerAddress, newEntity.scale, newEntity.entityId, oldEntityData.energy, true);
-    Velocity.set(callerAddress, newEntity.scale, newEntity.entityId, block.number, abi.encode(newVelocity), true);
+    Velocity.set(callerAddress, newEntity.scale, newEntity.entityId, block.number, true, abi.encode(newVelocity));
     // VoxelEntity memory newActingEntity = actingEntity;
     if (isEntityEqual(oldEntity, actingEntity)) {
       // newActingEntity = newEntity; // moving yourself, so update the acting entity

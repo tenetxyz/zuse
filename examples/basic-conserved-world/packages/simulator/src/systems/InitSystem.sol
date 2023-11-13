@@ -28,7 +28,7 @@ contract InitSystem is System {
     );
     Mass.set(callerAddress, entity.scale, entity.entityId, initMass, true);
     Energy.set(callerAddress, entity.scale, entity.entityId, initEnergy, true);
-    Velocity.set(callerAddress, entity.scale, entity.entityId, block.number, abi.encode(initVelocity), true);
+    Velocity.set(callerAddress, entity.scale, entity.entityId, block.number, true, abi.encode(initVelocity));
   }
 
   function initAgent(VoxelEntity memory entity, uint256 initStamina, uint256 initHealth) public {

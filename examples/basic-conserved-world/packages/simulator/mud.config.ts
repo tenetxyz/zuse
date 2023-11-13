@@ -75,8 +75,8 @@ export default mudConfig({
       },
       schema: {
         lastUpdateBlock: "uint256",
-        velocity: "bytes", // VoxelCoord, 3D vector
         hasValue: "bool",
+        velocity: "bytes", // VoxelCoord, 3D vector
       },
     },
     Health: {

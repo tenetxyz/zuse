@@ -62,8 +62,8 @@ contract CallerEventSystem is System {
         entity.scale,
         entity.entityId,
         block.number,
-        abi.encode(getTerrainVelocity(callerAddress, entity.scale, coord)),
-        true
+        true,
+        abi.encode(getTerrainVelocity(callerAddress, entity.scale, coord))
       );
     }
 
@@ -91,7 +91,7 @@ contract CallerEventSystem is System {
       // Set initial values
       Mass.set(callerAddress, entity.scale, entity.entityId, terrainMass, true);
       Energy.set(callerAddress, entity.scale, entity.entityId, getTerrainEnergy(callerAddress, entity.scale, coord), true);
-      Velocity.set(callerAddress, entity.scale, entity.entityId, block.number, abi.encode(terrainVelocity), true);
+      Velocity.set(callerAddress, entity.scale, entity.entityId, block.number, true, abi.encode(terrainVelocity));
 
       if (terrainMass > 0) {
         massDelta = -1 * uint256ToInt256(terrainMass);

@@ -53,6 +53,6 @@ abstract contract BuildEvent is Event {
     bytes32 objectEntityId,
     bytes memory eventData
   ) internal virtual override returns (EntityActionData[] memory) {
-    return IWorld(_world()).runObjectEventHandler(eventEntityId);
+    return IWorld(_world()).runInteractions(eventEntityId);
   }
 }

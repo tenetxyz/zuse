@@ -45,7 +45,7 @@ abstract contract ObjectInteractionSystem is System {
     bytes32[] memory neighbourObjectEntityIds
   ) internal virtual {}
 
-  function shouldRunInteraction(bytes32 objectEntityId) internal virtual returns (bool) {
+  function shouldRunEvent(bytes32 objectEntityId) internal virtual returns (bool) {
     uint256 numUniqueObjectsRan = KeysInTable.lengthKeys0(MetadataTableId);
     if (numUniqueObjectsRan + 1 > MAX_UNIQUE_OBJECT_EVENT_HANDLERS_RUN) {
       return false;
@@ -67,7 +67,7 @@ abstract contract ObjectInteractionSystem is System {
     bytes32 centerObjectEntityId,
     bytes32[] memory neighbourObjectEntityIds
   ) internal virtual returns (bytes memory) {
-    if (!shouldRunInteraction(centerObjectEntityId)) {
+    if (!shouldRunEvent(centerObjectEntityId)) {
       return new bytes(0);
     }
     (address eventHandlerAddress, bytes4 eventHandlerSelector) = getEventHandler(
@@ -94,39 +94,46 @@ abstract contract ObjectInteractionSystem is System {
     bytes32[] memory neighbourEntityIds
   ) internal returns (bytes32[] memory, bytes[] memory) {
     bytes32[] memory changedNeighbourEntities = new bytes32[](neighbourObjectEntityIds.length);
-    bytes[] memory neighbourEntitiesEventData = new bytes[](neighbourObjectEntityIds.length);
+    bytes[] memory neighbourentitiesActionData = new bytes[](neighbourObjectEntityIds.length);
     for (uint256 i = 0; i < neighbourObjectEntityIds.length; i++) {
       if (uint256(neighbourObjectEntityIds[i]) == 0) {
         continue;
       }
 
       bytes32 neighbourObjectTypeId = ObjectType.get(neighbourEntityIds[i]);
-      if (!shouldRunInteraction(neighbourObjectEntityIds[i])) {
+      if (!shouldRunEvent(neighbourObjectEntityIds[i])) {
         continue;
       }
 
-      (bytes32[] memory changedNeighbourEntities, bytes[] memory neighbourEntitiesActionData) =
-      bytes4 onNewNeighbourSelector = getOnNewNeighbourSelector(IStore(getRegistryAddress()), neighbourVoxelTypeId);
-      if (onNewNeighbourSelector != bytes4(0)) {
-        (bool success, bytes memory returnData) = safeCall(
-          _world(),
-          abi.encodeWithSelector(onNewNeighbourSelector, caNeighbourEntityIds[i], caInteractEntity),
-          "onNewNeighbourSelector"
-        );
-        if (success) {
-          try this.decodeToBoolAndBytes(returnData) returns (bool changedNeighbour, bytes memory entityEventData) {
-            if (changedNeighbour) {
-              changedNeighbourEntities[i] = caNeighbourEntityIds[i];
-            }
-            if (entityEventData.length != 0) {
-              neighbourEntitiesEventData[i] = entityEventData;
-            }
-          } catch {}
-        }
+      (address neighbourEventHandlerAddress, bytes4 neighbourEventHandlerSelector) = getNeighbourEventHandler(
+        IStore(getRegistryAddress()),
+        neighbourObjectTypeId
+      );
+      require(
+        neighbourEventHandlerAddress != address(0) && neighbourEventHandlerSelector != bytes4(0),
+        "Object neighbourEventHandler not defined"
+      );
+      (bool neighbourEventHandlerSuccess, bytes memory neighbourEntityActionData) = safeCall(
+        neighbourEventHandlerAddress,
+        abi.encodeWithSelector(neighbourEventHandlerSelector, neighbourObjectEntityIds[i], centerObjectEntityId),
+        "object neighbour event handler selector"
+      );
+      if (neighbourEventHandlerSuccess) {
+        try this.decodeToBoolAndBytes(neighbourEntityActionData) returns (
+          bool changedNeighbour,
+          bytes memory entityEventData
+        ) {
+          if (changedNeighbour) {
+            changedNeighbourEntities[i] = neighbourEntityIds[i];
+          }
+          if (entityEventData.length != 0) {
+            neighbourentitiesActionData[i] = entityEventData;
+          }
+        } catch {}
       }
     }
 
-    return (changedNeighbourEntities, neighbourEntitiesEventData);
+    return (changedNeighbourEntities, neighbourentitiesActionData);
   }
 
   function runSingleInteraction(
@@ -159,22 +166,23 @@ abstract contract ObjectInteractionSystem is System {
       caNeighbourEntityIds
     );
 
-    // (bytes32[] memory changedEntities, bytes[] memory entitiesEventData) = abi.decode(returnData, (bytes32[], bytes[]));
+    // (bytes32[] memory changedEntities, bytes[] memory entitiesActionData) = abi.decode(returnData, (bytes32[], bytes[]));
 
-    // EntityActionData[] memory allEntitiesActionData = new EntityActionData[](entitiesEventData.length);
+    EntityActionData[] memory allEntitiesActionData = new EntityActionData[](neighbourEntitiesActionData.length + 1);
+    allEntitiesActionData[0] = EntityActionData({ entityId: centerEntityId, eventData: centerEntityActionData });
 
-    // for (uint256 i; i < entitiesEventData.length; i++) {
-    //   if (entitiesEventData[i].length == 0) {
-    //     continue;
-    //   }
+    for (uint256 i; i < neighbourEntitiesActionData.length; i++) {
+      if (neighbourEntitiesActionData[i].length == 0) {
+        continue;
+      }
 
-    //   allEntitiesActionData[i] = EntityActionData({
-    //     entity: VoxelEntity({ scale: scale, entityId: i == 0 ? centerEntityId : neighbourEntities[i - 1] }),
-    //     eventData: entitiesEventData[i]
-    //   });
-    // }
+      allEntitiesActionData[i + 1] = EntityActionData({
+        entityId: neighbourEntityIds[i],
+        eventData: neighbourEntitiesActionData[i]
+      });
+    }
 
-    return (changedEntities, allEntitiesActionData);
+    return (changedNeighbourEntities, allEntitiesActionData);
   }
 
   function runInteractions(bytes32 centerEntityId) public virtual returns (EntityActionData[] memory) {
@@ -182,18 +190,18 @@ abstract contract ObjectInteractionSystem is System {
     EntityActionData[] memory allEntitiesActionData = new EntityActionData[](MAX_ENTITY_NEIGHBOUR_UPDATE_DEPTH);
     uint256 centerEntitiesToRunQueueIdx = 0;
     uint256 entitesActionDataIdx = 0;
-    uint256 useStackIdx = 0;
+    uint256 useQueueIdx = 0;
 
     // start with the center entity
     centerEntitiesToRunQueue[centerEntitiesToRunQueueIdx] = centerEntityId;
-    useStackIdx = centerEntitiesToRunQueueIdx;
+    useQueueIdx = centerEntitiesToRunQueueIdx;
 
-    while (useStackIdx < MAX_ENTITY_NEIGHBOUR_UPDATE_DEPTH) {
-      bytes32 useCenterEntityId = centerEntitiesToRunQueue[useStackIdx];
+    while (useQueueIdx < MAX_ENTITY_NEIGHBOUR_UPDATE_DEPTH) {
+      bytes32 useCenterEntityId = centerEntitiesToRunQueue[useQueueIdx];
 
       {
         (bytes32[] memory neighbourEntities, ) = calculateVonNeumannNeighbourEntities(useCenterEntityId);
-        (bytes32[] memory changedEntities, EntityActionData[] memory entitiesEventData) = runSingleInteraction(
+        (bytes32[] memory changedEntities, EntityActionData[] memory entitiesActionData) = runSingleInteraction(
           useCenterEntityId,
           neighbourEntities
         );
@@ -202,6 +210,8 @@ abstract contract ObjectInteractionSystem is System {
         for (uint256 i; i < changedEntities.length; i++) {
           if (uint256(changedEntities[i]) != 0) {
             centerEntitiesToRunQueueIdx++;
+            // TODO: Figure out a better place to do this check
+            // Maybe consider consolidating this and the constants used in shouldRunEvent
             require(
               centerEntitiesToRunQueueIdx < MAX_ENTITY_NEIGHBOUR_UPDATE_DEPTH,
               "ObjectInteractionSystem: Reached max depth"
@@ -210,14 +220,14 @@ abstract contract ObjectInteractionSystem is System {
           }
         }
 
-        for (uint256 i; i < entitiesEventData.length; i++) {
-          if (entitiesEventData[i].eventData.length == 0) {
+        for (uint256 i; i < entitiesActionData.length; i++) {
+          if (entitiesActionData[i].eventData.length == 0) {
             continue;
           }
-          {
-            allEntitiesActionData[entitesActionDataIdx] = entitiesEventData[i];
-          }
+          allEntitiesActionData[entitesActionDataIdx] = entitiesActionData[i];
           entitesActionDataIdx++;
+          // TODO: Figure out a better place to do this check
+          // Maybe consider consolidating this and the constants used in shouldRunEvent
           require(
             entitesActionDataIdx < MAX_ENTITY_NEIGHBOUR_UPDATE_DEPTH,
             "ObjectInteractionSystem: Reached max depth"
@@ -225,10 +235,10 @@ abstract contract ObjectInteractionSystem is System {
         }
       }
 
-      // at this point, we've consumed the top of the stack,
-      // so we can pop it, in this case, we just increment the stack index
-      if (centerEntitiesToRunQueueIdx > useStackIdx) {
-        useStackIdx++;
+      // at this point, we've consumed the front of the queue,
+      // so we can pop it, in this case, we just increment the queue index
+      if (centerEntitiesToRunQueueIdx > useQueueIdx) {
+        useQueueIdx++;
       } else {
         // this means we didnt any any updates, so we can break out of the loop
         break;

@@ -164,7 +164,7 @@ contract VelocitySystem is SimHandler {
     require(currentStamina >= resourceRequired, "Not enough stamina to spend");
     Stamina.set(callerAddress, senderEntity.scale, senderEntity.entityId, currentStamina - resourceRequired);
     IWorld(_world()).fluxEnergy(false, callerAddress, receiverEntity, resourceRequired);
-    Velocity.set(callerAddress, receiverEntity.scale, receiverEntity.entityId, block.number, abi.encode(newVelocity), true);
+    Velocity.set(callerAddress, receiverEntity.scale, receiverEntity.entityId, block.number, true, abi.encode(newVelocity));
   }
 
   function reduceVelocity(VoxelEntity memory entity, VoxelCoord memory deltaVelocity) internal {}

@@ -18,7 +18,7 @@ import { VoxelType, VoxelTypeData } from "@tenet-base-world/src/codegen/tables/V
 import { getEntityAtCoord, calculateChildCoords, calculateParentCoord } from "@tenet-base-world/src/Utils.sol";
 import { runInteraction, enterWorld, exitWorld, activateVoxel, moveLayer, updateVoxelType } from "@tenet-base-ca/src/CallUtils.sol";
 import { addressToEntityKey } from "@tenet-utils/src/Utils.sol";
-import { MAX_UNIQUE_ENTITY_EVENT_HANDLERS_RUN, MAX_SAME_ENTITY_EVENT_HANDLERS_RUN, MAX_ENTITY_NEIGHBOUR_UPDATE_DEPTH } from "@tenet-base-world/src/Constants.sol";
+import { MAX_UNIQUE_OBJECT_EVENT_HANDLERS_RUN, MAX_SAME_OBJECT_EVENT_HANDLERS_RUN, MAX_ENTITY_NEIGHBOUR_UPDATE_DEPTH } from "@tenet-base-world/src/Constants.sol";
 
 abstract contract ObjectInteractionSystem is System {
   function getRegistryAddress() internal pure override returns (address);
@@ -45,6 +45,19 @@ abstract contract ObjectInteractionSystem is System {
     bytes32[] memory neighbourObjectEntityIds
   ) internal virtual {}
 
+  function shouldRunInteraction(bytes32 objectEntityId) internal virtual returns (bool) {
+    uint256 numUniqueObjectsRan = KeysInTable.lengthKeys0(MetadataTableId);
+    if (numUniqueObjectsRan + 1 > MAX_UNIQUE_OBJECT_EVENT_HANDLERS_RUN) {
+      return false;
+    }
+    if (Metadata.get(objectEntityId) > MAX_SAME_OBJECT_EVENT_HANDLERS_RUN) {
+      return false;
+    }
+    Metadata.set(objectEntityId, Metadata.get(objectEntityId) + 1);
+
+    return true;
+  }
+
   function decodeToBoolAndBytes(bytes memory data) external pure returns (bool, bytes memory) {
     return abi.decode(data, (bool, bytes));
   }
@@ -54,6 +67,9 @@ abstract contract ObjectInteractionSystem is System {
     bytes32 centerObjectEntityId,
     bytes32[] memory neighbourObjectEntityIds
   ) internal virtual returns (bytes memory) {
+    if (!shouldRunInteraction(centerObjectEntityId)) {
+      return new bytes(0);
+    }
     (address eventHandlerAddress, bytes4 eventHandlerSelector) = getEventHandler(
       IStore(getRegistryAddress()),
       centerObjectTypeId
@@ -72,60 +88,40 @@ abstract contract ObjectInteractionSystem is System {
     return centerEntityActionData;
   }
 
-  function runNeighbourInteractionsHelper(
-    address callerAddress,
-    bytes32 interactEntity,
-    bytes32 neighbourEntityId
-  ) internal returns (bool) {
-    bytes32 voxelTypeId = CAVoxelType.getVoxelTypeId(callerAddress, interactEntity);
-    bytes32 neighbourVoxelTypeId = CAVoxelType.getVoxelTypeId(callerAddress, neighbourEntityId);
-    return
-      shouldRunInteractionForNeighbour(
-        callerAddress,
-        VoxelEntity({
-          scale: VoxelTypeRegistry.getScale(IStore(getRegistryAddress()), voxelTypeId),
-          entityId: interactEntity
-        }),
-        VoxelEntity({
-          scale: VoxelTypeRegistry.getScale(IStore(getRegistryAddress()), neighbourVoxelTypeId),
-          entityId: neighbourEntityId
-        })
-      );
-  }
-
   function runNeighbourEventHandlers(
-    address callerAddress,
-    bytes32 interactEntity,
-    bytes32[] memory neighbourEntityIds,
-    bytes32 caInteractEntity,
-    bytes32[] memory caNeighbourEntityIds
+    bytes32 centerObjectEntityId,
+    bytes32[] memory neighbourObjectEntityIds,
+    bytes32[] memory neighbourEntityIds
   ) internal returns (bytes32[] memory, bytes[] memory) {
-    bytes32[] memory changedNeighbourEntities = new bytes32[](neighbourEntityIds.length);
-    bytes[] memory neighbourEntitiesEventData = new bytes[](neighbourEntityIds.length);
-    for (uint256 i = 0; i < neighbourEntityIds.length; i++) {
-      if (neighbourEntityIds[i] != 0) {
-        bytes32 neighbourVoxelTypeId = CAVoxelType.getVoxelTypeId(callerAddress, neighbourEntityIds[i]);
-        if (!runNeighbourInteractionsHelper(callerAddress, interactEntity, neighbourEntityIds[i])) {
-          continue;
-        }
+    bytes32[] memory changedNeighbourEntities = new bytes32[](neighbourObjectEntityIds.length);
+    bytes[] memory neighbourEntitiesEventData = new bytes[](neighbourObjectEntityIds.length);
+    for (uint256 i = 0; i < neighbourObjectEntityIds.length; i++) {
+      if (uint256(neighbourObjectEntityIds[i]) == 0) {
+        continue;
+      }
 
-        bytes4 onNewNeighbourSelector = getOnNewNeighbourSelector(IStore(getRegistryAddress()), neighbourVoxelTypeId);
-        if (onNewNeighbourSelector != bytes4(0)) {
-          (bool success, bytes memory returnData) = safeCall(
-            _world(),
-            abi.encodeWithSelector(onNewNeighbourSelector, caNeighbourEntityIds[i], caInteractEntity),
-            "onNewNeighbourSelector"
-          );
-          if (success) {
-            try this.decodeToBoolAndBytes(returnData) returns (bool changedNeighbour, bytes memory entityEventData) {
-              if (changedNeighbour) {
-                changedNeighbourEntities[i] = caNeighbourEntityIds[i];
-              }
-              if (entityEventData.length != 0) {
-                neighbourEntitiesEventData[i] = entityEventData;
-              }
-            } catch {}
-          }
+      bytes32 neighbourObjectTypeId = ObjectType.get(neighbourEntityIds[i]);
+      if (!shouldRunInteraction(neighbourObjectEntityIds[i])) {
+        continue;
+      }
+
+      (bytes32[] memory changedNeighbourEntities, bytes[] memory neighbourEntitiesActionData) =
+      bytes4 onNewNeighbourSelector = getOnNewNeighbourSelector(IStore(getRegistryAddress()), neighbourVoxelTypeId);
+      if (onNewNeighbourSelector != bytes4(0)) {
+        (bool success, bytes memory returnData) = safeCall(
+          _world(),
+          abi.encodeWithSelector(onNewNeighbourSelector, caNeighbourEntityIds[i], caInteractEntity),
+          "onNewNeighbourSelector"
+        );
+        if (success) {
+          try this.decodeToBoolAndBytes(returnData) returns (bool changedNeighbour, bytes memory entityEventData) {
+            if (changedNeighbour) {
+              changedNeighbourEntities[i] = caNeighbourEntityIds[i];
+            }
+            if (entityEventData.length != 0) {
+              neighbourEntitiesEventData[i] = entityEventData;
+            }
+          } catch {}
         }
       }
     }
@@ -182,15 +178,6 @@ abstract contract ObjectInteractionSystem is System {
   }
 
   function runInteractions(bytes32 centerEntityId) public virtual returns (EntityActionData[] memory) {
-    uint256 numUniqueEntitiesRan = KeysInTable.lengthKeys0(MetadataTableId);
-    if (numUniqueEntitiesRan + 1 > MAX_UNIQUE_ENTITY_EVENT_HANDLERS_RUN) {
-      return new EntityActionData[](0);
-    }
-    if (Metadata.get(centerEntityId) > MAX_SAME_ENTITY_EVENT_HANDLERS_RUN) {
-      return new EntityActionData[](0);
-    }
-    Metadata.set(centerEntityId, Metadata.get(centerEntityId) + 1);
-
     bytes32[] memory centerEntitiesToRunQueue = new bytes32[](MAX_ENTITY_NEIGHBOUR_UPDATE_DEPTH);
     EntityActionData[] memory allEntitiesActionData = new EntityActionData[](MAX_ENTITY_NEIGHBOUR_UPDATE_DEPTH);
     uint256 centerEntitiesToRunQueueIdx = 0;

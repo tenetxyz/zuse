@@ -33,7 +33,7 @@ const WORLD_TABLES: Record<string, TableConfig> = {
   },
   Metadata: {
     keySchema: {
-      entityId: "bytes32",
+      objectEntityId: "bytes32",
     },
     schema: {
       numTimesRan: "uint32",

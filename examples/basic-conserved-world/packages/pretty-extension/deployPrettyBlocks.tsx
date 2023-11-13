@@ -79,11 +79,12 @@ async function main() {
 
   // Create a wallet instance with a private key and connect it to the network
   const wallet = new ethers.Wallet(privateKey, provider);
+  console.log("Using wallet", wallet.address);
 
   // Create a typed contract instance
   console.log("Registry World address:", registryWorldAddress);
   const registryWorldContract = Registry__factory.connect(registryWorldAddress, wallet);
-  const caWorldContract = CA__factory.connect(registryWorldAddress, wallet);
+  const caWorldContract = CA__factory.connect(caWorldAddress, wallet);
 
   const currentVoxelMapping = new Map();
   const variantsData = fs.readFileSync(GEN_VARIANTS_PATH, "utf8");
@@ -92,7 +93,10 @@ async function main() {
     currentVoxelMapping.set(key, value);
   }
 
+  const txOptions = { gasLimit: BigInt(1_900_000_000), gasPrice: 1000000 };
+
   // Go through currentVoxelMapping and batch generate postdeploy scripts registering them
+  let allTx = [];
   for (const [rawVoxelTypeId, variantData] of currentVoxelMapping) {
     if (GEN_VOXEL_VARIANT_IDS_BLACKLIST.has(rawVoxelTypeId)) {
       continue;
@@ -115,10 +119,13 @@ async function main() {
       blockType: 0,
       materials: "0x",
       uvWrap: "",
-    });
-    let receipt = await tx.wait();
+    }, txOptions);
+    // let receipt = await tx.wait();
+    console.log(tx.hash);
+    allTx.push(tx.hash);
+
     // Wait for the transaction to be mined
-    console.log(`Transaction mined: ${receipt.transactionHash}`);
+    // console.log(`Transaction mined: ${receipt.transactionHash}`);
 
     tx = await registryWorldContract.registerVoxelType(
       voxelTypeDisplayName,
@@ -136,18 +143,31 @@ async function main() {
         interactionSelectors: [],
       },
       "0x",
-      PRETTY_VOXEL_MASS
+      PRETTY_VOXEL_MASS,
+      txOptions
     );
-    receipt = await tx.wait();
+    console.log(tx.hash);
+    allTx.push(tx.hash);
 
-    tx = await caWorldContract.registerVoxelType(hashedVoxelTypeId);
-    receipt = await tx.wait();
+    tx = await caWorldContract.registerVoxelType(hashedVoxelTypeId, txOptions);
+    console.log(tx.hash);
+    allTx.push(tx.hash);
 
-    // Wait for the transaction to be mined
-    console.log(`Transaction mined: ${receipt.transactionHash}`);
-
-    break;
+    if(allTx.length % 1 == 0){
+      break;
+    }
   }
+
+   // Check the status of each transaction
+   for (const hash of allTx) {
+    const receipt = await provider.waitForTransaction(hash);
+    if (receipt.status === 1) {
+        console.log(`Transaction ${hash} was successful`);
+    } else {
+        console.log(`Transaction ${hash} failed`);
+        console.log(receipt);
+    }
+}
 }
 
 main().catch((error) => {

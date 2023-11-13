@@ -1,10 +1,16 @@
 // SPDX-License-Identifier: GPL-3.0
 pragma solidity >=0.8.0;
-import { EventType } from "@tenet-base-world/src/Types.sol";
-import { VoxelCoord } from "@tenet-utils/src/Types.sol";
+
 import { System } from "@latticexyz/world/src/System.sol";
 
+import { OwnedBy, OwnedByTableId } from "@tenet-base-world/src/codegen/tables/OwnedBy.sol";
+
+import { EventType } from "@tenet-base-world/src/Types.sol";
+import { VoxelCoord } from "@tenet-utils/src/Types.sol";
+
 abstract contract EventApprovalsSystem is System {
+  function getSimulatorAddress() internal pure virtual returns (address);
+
   function preApproval(
     EventType eventType,
     address caller,
@@ -12,7 +18,17 @@ abstract contract EventApprovalsSystem is System {
     bytes32 objectTypeId,
     VoxelCoord memory coord,
     bytes memory eventData
-  ) internal virtual;
+  ) internal virtual {
+    // Assert that this entity is owned by the caller or is a CA
+    bool isEOACaller = hasKey(OwnedByTableId, OwnedBy.encodeKeyTuple(actingObjectEntityId)) &&
+      OwnedBy.get(actingObjectEntityId) == caller;
+    bool isWorldCaller = caller == _world(); // any root system can call this
+    bool isSimCaller = caller == getSimulatorAddress();
+    require(
+      isEOACaller || isWorldCaller || isSimCaller,
+      "Agent entity must be owned by caller or be an approved system"
+    );
+  }
 
   function approveEvent(
     EventType eventType,

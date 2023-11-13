@@ -10,6 +10,8 @@ import { ObjectEntity } from "@tenet-base-world/src/codegen/tables/ObjectEntity.
 import { VoxelCoord, ObjectProperties } from "@tenet-utils/src/Types.sol";
 
 abstract contract TerrainSystem is System {
+  function getSimulatorAddress() internal pure virtual returns (address);
+
   function emptyObjectId() internal pure virtual returns (bytes32);
 
   function getTerrainObjectTypeId(VoxelCoord memory coord) public virtual returns (bytes32);

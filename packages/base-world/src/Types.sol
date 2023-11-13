@@ -10,20 +10,6 @@ enum EventType {
   Move
 }
 
-struct BuildEventData {
-  bytes worldData;
-}
-
-struct MineEventData {
-  bytes worldData;
-}
-
-struct ActivateEventData {
-  bytes4 interactionSelector;
-  bytes worldData;
-}
-
 struct MoveEventData {
   VoxelCoord oldCoord;
-  bytes worldData;
 }

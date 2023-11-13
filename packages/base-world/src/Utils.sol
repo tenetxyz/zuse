@@ -11,40 +11,6 @@ import { getKeysWithValue } from "@latticexyz/world/src/modules/keyswithvalue/ge
 import { Position, PositionData, PositionTableId } from "@tenet-base-world/src/codegen/tables/Position.sol";
 import { VoxelType, VoxelTypeData } from "@tenet-base-world/src/codegen/tables/VoxelType.sol";
 
-function calculateChildCoords(uint32 scale, VoxelCoord memory parentCoord) pure returns (VoxelCoord[] memory) {
-  VoxelCoord[] memory childCoords = new VoxelCoord[](uint256(scale * scale * scale));
-  uint256 index = 0;
-  for (uint32 dz = 0; dz < scale; dz++) {
-    for (uint32 dy = 0; dy < scale; dy++) {
-      for (uint32 dx = 0; dx < scale; dx++) {
-        childCoords[index] = VoxelCoord(
-          parentCoord.x * int32(scale) + int32(dx),
-          parentCoord.y * int32(scale) + int32(dy),
-          parentCoord.z * int32(scale) + int32(dz)
-        );
-        index++;
-      }
-    }
-  }
-  return childCoords;
-}
-
-function calculateParentCoord(uint32 scale, VoxelCoord memory childCoord) pure returns (VoxelCoord memory) {
-  int32 newX = childCoord.x / int32(scale);
-  if (childCoord.x < 0) {
-    newX -= 1; // We need to do this because Solidity rounds towards 0
-  }
-  int32 newY = childCoord.y / int32(scale);
-  if (childCoord.y < 0) {
-    newY -= 1; // We need to do this because Solidity rounds towards 0
-  }
-  int32 newZ = childCoord.z / int32(scale);
-  if (childCoord.z < 0) {
-    newZ -= 1; // We need to do this because Solidity rounds towards 0
-  }
-  return VoxelCoord(newX, newY, newZ);
-}
-
 function calculateBlockDirection(
   PositionData memory centerCoord,
   PositionData memory neighborCoord
@@ -84,7 +50,7 @@ function getEntityAtCoord(VoxelCoord memory coord) view returns (bytes32) {
   bytes32[][] memory allEntitiesAtCoord = getKeysWithValue(PositionTableId, Position.encode(coord.x, coord.y, coord.z));
   bytes32 entity;
   require(allEntitiesAtCoord.length <= 1, "Found more than one entity at the same position");
-  if(allEntitiesAtCoord.length == 1){
+  if (allEntitiesAtCoord.length == 1) {
     entity = allEntitiesAtCoord[0][0];
   }
   return entity;
@@ -97,13 +63,9 @@ function getEntityAtCoord(IStore store, uint32 scale, VoxelCoord memory coord) v
     Position.encode(coord.x, coord.y, coord.z)
   );
   bytes32 entity;
-  for (uint256 i = 0; i < allEntitiesAtCoord.length; i++) {
-    if (uint256(allEntitiesAtCoord[i][0]) == scale) {
-      if (uint256(entity) != 0) {
-        revert("Found more than one entity at the same position");
-      }
-      entity = allEntitiesAtCoord[i][1];
-    }
+  require(allEntitiesAtCoord.length <= 1, "Found more than one entity at the same position");
+  if (allEntitiesAtCoord.length == 1) {
+    entity = allEntitiesAtCoord[0][0];
   }
 
   return entity;

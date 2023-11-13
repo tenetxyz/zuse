@@ -64,7 +64,7 @@ contract ThermoTest is MudTest {
 
     VoxelCoord memory thermoCoord = VoxelCoord({ x: agentCoord.x + 1, y: agentCoord.y, z: agentCoord.z });
     VoxelEntity memory thermoEntity = world.buildWithAgent(ThermoVoxelID, thermoCoord, agentEntity, bytes4(0));
-    Energy.set(IStore(SIMULATOR_ADDRESS), worldAddress, thermoEntity.scale, thermoEntity.entityId, INITIAL_HIGH_ENERGY);
+    Energy.set(IStore(SIMULATOR_ADDRESS), worldAddress, thermoEntity.scale, thermoEntity.entityId, INITIAL_HIGH_ENERGY, true);
     world.activateWithAgent(ThermoVoxelID, thermoCoord, agentEntity, bytes4(0));
     uint256 temperature = Temperature.get(
       IStore(SIMULATOR_ADDRESS),
@@ -75,7 +75,7 @@ contract ThermoTest is MudTest {
     console.log("temperature");
     console.logUint(temperature);
     assertTrue(temperature > 0);
-    assertTrue(Energy.get(IStore(SIMULATOR_ADDRESS), worldAddress, thermoEntity.scale, thermoEntity.entityId) == 0);
+    assertTrue(Energy.getEnergy(IStore(SIMULATOR_ADDRESS), worldAddress, thermoEntity.scale, thermoEntity.entityId) == 0);
 
     // Place down another thermo beside it
     console.log("build neighbour");
@@ -83,7 +83,7 @@ contract ThermoTest is MudTest {
     VoxelCoord memory thermoCoord2 = VoxelCoord({ x: thermoCoord.x, y: thermoCoord.y, z: thermoCoord.z + 1 });
     vm.roll(block.number + 1);
     VoxelEntity memory thermoEntity2 = world.buildWithAgent(ThermoVoxelID, thermoCoord2, agentEntity, bytes4(0));
-    assertTrue(Energy.get(IStore(SIMULATOR_ADDRESS), worldAddress, thermoEntity2.scale, thermoEntity2.entityId) == 0);
+    assertTrue(Energy.getEnergy(IStore(SIMULATOR_ADDRESS), worldAddress, thermoEntity2.scale, thermoEntity2.entityId) == 0);
     uint256 temperature2 = Temperature.get(
       IStore(SIMULATOR_ADDRESS),
       worldAddress,
@@ -102,7 +102,7 @@ contract ThermoTest is MudTest {
 
     VoxelCoord memory thermoCoord = VoxelCoord({ x: agentCoord.x + 1, y: agentCoord.y, z: agentCoord.z });
     VoxelEntity memory thermoEntity = world.buildWithAgent(ThermoVoxelID, thermoCoord, agentEntity, bytes4(0));
-    Energy.set(IStore(SIMULATOR_ADDRESS), worldAddress, thermoEntity.scale, thermoEntity.entityId, INITIAL_HIGH_ENERGY);
+    Energy.set(IStore(SIMULATOR_ADDRESS), worldAddress, thermoEntity.scale, thermoEntity.entityId, INITIAL_HIGH_ENERGY, true);
     world.activateWithAgent(ThermoVoxelID, thermoCoord, agentEntity, bytes4(0));
     uint256 temperature = Temperature.get(
       IStore(SIMULATOR_ADDRESS),
@@ -113,7 +113,7 @@ contract ThermoTest is MudTest {
     console.log("temperature");
     console.logUint(temperature);
     assertTrue(temperature > 0);
-    assertTrue(Energy.get(IStore(SIMULATOR_ADDRESS), worldAddress, thermoEntity.scale, thermoEntity.entityId) == 0);
+    assertTrue(Energy.getEnergy(IStore(SIMULATOR_ADDRESS), worldAddress, thermoEntity.scale, thermoEntity.entityId) == 0);
 
     // Place down another thermo beside it
     console.log("build neighbour");
@@ -121,7 +121,7 @@ contract ThermoTest is MudTest {
     VoxelCoord memory thermoCoord2 = VoxelCoord({ x: thermoCoord.x, y: thermoCoord.y, z: thermoCoord.z + 1 });
     vm.roll(block.number + 1);
     VoxelEntity memory thermoEntity2 = world.buildWithAgent(ThermoVoxelID, thermoCoord2, agentEntity, bytes4(0));
-    assertTrue(Energy.get(IStore(SIMULATOR_ADDRESS), worldAddress, thermoEntity2.scale, thermoEntity2.entityId) == 0);
+    assertTrue(Energy.getEnergy(IStore(SIMULATOR_ADDRESS), worldAddress, thermoEntity2.scale, thermoEntity2.entityId) == 0);
     uint256 temperature2 = Temperature.get(
       IStore(SIMULATOR_ADDRESS),
       worldAddress,
@@ -140,7 +140,7 @@ contract ThermoTest is MudTest {
     VoxelCoord memory thermoCoord3 = VoxelCoord({ x: thermoCoord2.x, y: thermoCoord2.y, z: thermoCoord2.z + 1 });
     vm.roll(block.number + 1);
     VoxelEntity memory thermoEntity3 = world.buildWithAgent(ThermoVoxelID, thermoCoord3, agentEntity, bytes4(0));
-    // assertTrue(Energy.get(IStore(SIMULATOR_ADDRESS), worldAddress, thermoEntity3.scale, thermoEntity3.entityId) == 0);
+    // assertTrue(Energy.getEnergy(IStore(SIMULATOR_ADDRESS), worldAddress, thermoEntity3.scale, thermoEntity3.entityId) == 0);
     uint256 temperature3 = Temperature.get(
       IStore(SIMULATOR_ADDRESS),
       worldAddress,
@@ -178,7 +178,7 @@ contract ThermoTest is MudTest {
     VoxelEntity memory thermoEntity = world.buildWithAgent(ThermoVoxelID, thermoCoord, agentEntity, bytes4(0));
     uint256 difference = 10;
     uint256 initialEnergy = initialHealth.health + difference;
-    Energy.set(IStore(SIMULATOR_ADDRESS), worldAddress, thermoEntity.scale, thermoEntity.entityId, initialEnergy);
+    Energy.set(IStore(SIMULATOR_ADDRESS), worldAddress, thermoEntity.scale, thermoEntity.entityId, initialEnergy, true);
     world.activateWithAgent(ThermoVoxelID, thermoCoord, agentEntity, bytes4(0));
     uint256 temperature = Temperature.get(
       IStore(SIMULATOR_ADDRESS),
@@ -189,7 +189,7 @@ contract ThermoTest is MudTest {
     console.log("temperature");
     console.logUint(temperature);
     assertTrue(temperature == initialEnergy - difference); // ie lost 10
-    assertTrue(Energy.get(IStore(SIMULATOR_ADDRESS), worldAddress, thermoEntity.scale, thermoEntity.entityId) == 0);
+    assertTrue(Energy.getEnergy(IStore(SIMULATOR_ADDRESS), worldAddress, thermoEntity.scale, thermoEntity.entityId) == 0);
 
     HealthData memory newHealth = Health.get(
       IStore(SIMULATOR_ADDRESS),
@@ -231,7 +231,7 @@ contract ThermoTest is MudTest {
     VoxelEntity memory thermoEntity = world.buildWithAgent(ThermoVoxelID, thermoCoord, agentEntity, bytes4(0));
     uint256 difference = 10;
     uint256 initialEnergy = initialHealth.health + difference;
-    Energy.set(IStore(SIMULATOR_ADDRESS), worldAddress, thermoEntity.scale, thermoEntity.entityId, initialEnergy);
+    Energy.set(IStore(SIMULATOR_ADDRESS), worldAddress, thermoEntity.scale, thermoEntity.entityId, initialEnergy, true);
     world.activateWithAgent(ThermoVoxelID, thermoCoord, agentEntity, bytes4(0));
     uint256 temperature = Temperature.get(
       IStore(SIMULATOR_ADDRESS),
@@ -242,7 +242,7 @@ contract ThermoTest is MudTest {
     console.log("temperature");
     console.logUint(temperature);
     assertTrue(temperature == initialEnergy - difference); // ie lost 10
-    assertTrue(Energy.get(IStore(SIMULATOR_ADDRESS), worldAddress, thermoEntity.scale, thermoEntity.entityId) == 0);
+    assertTrue(Energy.getEnergy(IStore(SIMULATOR_ADDRESS), worldAddress, thermoEntity.scale, thermoEntity.entityId) == 0);
 
     HealthData memory newHealth = Health.get(
       IStore(SIMULATOR_ADDRESS),
@@ -265,7 +265,7 @@ contract ThermoTest is MudTest {
 
     VoxelCoord memory thermoCoord = VoxelCoord({ x: agentCoord.x + 1, y: agentCoord.y, z: agentCoord.z });
     VoxelEntity memory thermoEntity = world.buildWithAgent(ThermoVoxelID, thermoCoord, agentEntity, bytes4(0));
-    Energy.set(IStore(SIMULATOR_ADDRESS), worldAddress, thermoEntity.scale, thermoEntity.entityId, INITIAL_HIGH_ENERGY);
+    Energy.set(IStore(SIMULATOR_ADDRESS), worldAddress, thermoEntity.scale, thermoEntity.entityId, INITIAL_HIGH_ENERGY, true);
     world.activateWithAgent(ThermoVoxelID, thermoCoord, agentEntity, bytes4(0));
     uint256 temperature = Temperature.get(
       IStore(SIMULATOR_ADDRESS),
@@ -276,7 +276,7 @@ contract ThermoTest is MudTest {
     console.log("temperature");
     console.logUint(temperature);
     assertTrue(temperature > 0);
-    assertTrue(Energy.get(IStore(SIMULATOR_ADDRESS), worldAddress, thermoEntity.scale, thermoEntity.entityId) == 0);
+    assertTrue(Energy.getEnergy(IStore(SIMULATOR_ADDRESS), worldAddress, thermoEntity.scale, thermoEntity.entityId) == 0);
 
     // Place down dirt on top of it
     console.log("build neighbour");

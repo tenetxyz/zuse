@@ -26,7 +26,7 @@ contract FluxSystem is System {
     uint256 energyToFlux
   ) public {
     require(
-      hasKey(EnergyTableId, Energy.encodeKeyTuple(callerAddress, centerVoxelEntity.scale, centerVoxelEntity.entityId)),
+      Energy.getHasValue(callerAddress, centerVoxelEntity.scale, centerVoxelEntity.entityId),
       "Entity with energy does not exist"
     );
     uint8 radius = 1;
@@ -109,7 +109,7 @@ contract FluxSystem is System {
       }
 
       if (isFluxIn) {
-        if (Energy.get(callerAddress, centerVoxelEntity.scale, neighbourEntities[i]) > 0) {
+        if (Energy.getEnergy(callerAddress, centerVoxelEntity.scale, neighbourEntities[i]) > 0) {
           // we only flux in to neighbours that have energy
           neighbourEnergyDelta[i] = MAXIMUM_ENERGY_OUT;
           numNeighboursToInclude++;
@@ -148,7 +148,7 @@ contract FluxSystem is System {
         if (uint256(neighborEntity) == 0) {
           continue;
         }
-        uint256 neighbourEnergy = Energy.get(callerAddress, scale, neighborEntity);
+        uint256 neighbourEnergy = Energy.getEnergy(callerAddress, scale, neighborEntity);
         if (isFluxIn && neighbourEnergy == 0) {
           continue;
         }
@@ -166,7 +166,7 @@ contract FluxSystem is System {
         uint256 newNeighbourEnergy = isFluxIn
           ? safeSubtract(neighbourEnergy, energyToTransfer)
           : safeAdd(neighbourEnergy, energyToTransfer);
-        Energy.set(callerAddress, scale, neighborEntity, newNeighbourEnergy);
+        Energy.set(callerAddress, scale, neighborEntity, newNeighbourEnergy, true);
 
         // Decrease the amount of energy left to flux
         neighbourEnergyDelta[i] = safeSubtract(neighbourEnergyDelta[i], energyToTransfer);

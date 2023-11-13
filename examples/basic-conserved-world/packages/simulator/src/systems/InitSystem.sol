@@ -22,12 +22,12 @@ contract InitSystem is System {
     address callerAddress = _msgSender();
     require(
       !Mass.getHasValue(callerAddress, entity.scale, entity.entityId) &&
-        !hasKey(EnergyTableId, Energy.encodeKeyTuple(callerAddress, entity.scale, entity.entityId)) &&
+        !Energy.getHasValue(callerAddress, entity.scale, entity.entityId) &&
         !hasKey(VelocityTableId, Velocity.encodeKeyTuple(callerAddress, entity.scale, entity.entityId)),
       "Entity already initialized"
     );
     Mass.set(callerAddress, entity.scale, entity.entityId, initMass, true);
-    Energy.set(callerAddress, entity.scale, entity.entityId, initEnergy);
+    Energy.set(callerAddress, entity.scale, entity.entityId, initEnergy, true);
     Velocity.set(callerAddress, entity.scale, entity.entityId, block.number, abi.encode(initVelocity));
   }
 

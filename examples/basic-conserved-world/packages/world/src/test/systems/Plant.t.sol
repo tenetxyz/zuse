@@ -158,7 +158,7 @@ contract PlantTest is MudTest {
   //   world.activateWithAgent(PlantVoxelID, plantCoord, agentEntity, bytes4(0));
   //   assertTrue(VoxelType.getVoxelTypeId(plantEntity.scale, plantEntity.entityId) == AirVoxelID);
   //   assertTrue(Mass.getMass(IStore(SIMULATOR_ADDRESS), worldAddress, plantEntity.scale, plantEntity.entityId) == 0);
-  //   assertTrue(Energy.get(IStore(SIMULATOR_ADDRESS), worldAddress, plantEntity.scale, plantEntity.entityId) == 0);
+  //   assertTrue(Energy.getEnergy(IStore(SIMULATOR_ADDRESS), worldAddress, plantEntity.scale, plantEntity.entityId) == 0);
   //   assertTrue(Nutrients.get(IStore(SIMULATOR_ADDRESS), worldAddress, plantEntity.scale, plantEntity.entityId) == 0);
 
   //   vm.stopPrank();
@@ -171,7 +171,7 @@ contract PlantTest is MudTest {
 
     VoxelCoord memory soilCoord = VoxelCoord({ x: agentCoord.x + 1, y: agentCoord.y, z: agentCoord.z });
     VoxelEntity memory soilEntity = world.buildWithAgent(ConcentrativeSoilVoxelID, soilCoord, agentEntity, bytes4(0));
-    Energy.set(IStore(SIMULATOR_ADDRESS), worldAddress, soilEntity.scale, soilEntity.entityId, 100);
+    Energy.set(IStore(SIMULATOR_ADDRESS), worldAddress, soilEntity.scale, soilEntity.entityId, 100, true);
     world.activateWithAgent(ConcentrativeSoilVoxelID, soilCoord, agentEntity, bytes4(0));
     uint256 soil1Nutrients = Nutrients.get(
       IStore(SIMULATOR_ADDRESS),

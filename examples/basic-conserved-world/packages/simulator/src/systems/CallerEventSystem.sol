@@ -56,7 +56,7 @@ contract CallerEventSystem is System {
 
       // Set initial values
       Mass.set(callerAddress, entity.scale, entity.entityId, 0, true); // Set to zero to prevent double build
-      Energy.set(callerAddress, entity.scale, entity.entityId, getTerrainEnergy(callerAddress, entity.scale, coord));
+      Energy.set(callerAddress, entity.scale, entity.entityId, getTerrainEnergy(callerAddress, entity.scale, coord), true);
       Velocity.set(
         callerAddress,
         entity.scale,
@@ -89,7 +89,7 @@ contract CallerEventSystem is System {
       require(isZeroCoord(terrainVelocity), "Cannot mine terrain with velocity");
       // Set initial values
       Mass.set(callerAddress, entity.scale, entity.entityId, terrainMass, true);
-      Energy.set(callerAddress, entity.scale, entity.entityId, getTerrainEnergy(callerAddress, entity.scale, coord));
+      Energy.set(callerAddress, entity.scale, entity.entityId, getTerrainEnergy(callerAddress, entity.scale, coord), true);
       Velocity.set(callerAddress, entity.scale, entity.entityId, block.number, abi.encode(terrainVelocity));
 
       if (terrainMass > 0) {

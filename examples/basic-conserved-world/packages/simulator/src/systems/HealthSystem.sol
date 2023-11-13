@@ -77,10 +77,7 @@ contract HealthSystem is SimHandler {
     int256 receiverHealthDelta
   ) public {
     address callerAddress = super.getCallerAddress();
-    bool entityExists = hasKey(
-      EnergyTableId,
-      Energy.encodeKeyTuple(callerAddress, senderEntity.scale, senderEntity.entityId)
-    );
+    bool entityExists = Energy.getHasValue(callerAddress, senderEntity.scale, senderEntity.entityId);
     require(entityExists, "Sender entity does not exist");
     require(_msgSender() == _world(), "Only the world can update health from energy");
     if ((senderEnergyDelta > 0 && receiverHealthDelta > 0) || (senderEnergyDelta < 0 && receiverHealthDelta < 0)) {
@@ -90,7 +87,7 @@ contract HealthSystem is SimHandler {
       uint256 senderEnergy = int256ToUint256(senderEnergyDelta);
       uint256 receiverHealth = int256ToUint256(receiverHealthDelta);
       require(senderEnergy == receiverHealth, "Sender energy must equal receiver health");
-      uint256 currentSenderEnergy = Energy.get(callerAddress, senderEntity.scale, senderEntity.entityId);
+      uint256 currentSenderEnergy = Energy.getEnergy(callerAddress, senderEntity.scale, senderEntity.entityId);
       if (senderEnergyDelta < 0) {
         require(currentSenderEnergy >= senderEnergy, "Sender does not have enough energy");
       }
@@ -98,7 +95,8 @@ contract HealthSystem is SimHandler {
         callerAddress,
         senderEntity.scale,
         senderEntity.entityId,
-        addUint256AndInt256(currentSenderEnergy, senderEnergyDelta)
+        addUint256AndInt256(currentSenderEnergy, senderEnergyDelta),
+        true
       );
       uint256 currentReceiverHealth = Health.getHealth(callerAddress, receiverEntity.scale, receiverEntity.entityId);
       if (receiverHealthDelta < 0) {
@@ -143,10 +141,7 @@ contract HealthSystem is SimHandler {
       bool receiverEntityExists = Mass.getHasValue(callerAddress, receiverEntity.scale, receiverEntity.entityId);
       if (!receiverEntityExists) {
         receiverEntity = createTerrainEntity(callerAddress, receiverEntity.scale, receiverCoord);
-        receiverEntityExists = hasKey(
-          EnergyTableId,
-          Mass.encodeKeyTuple(callerAddress, receiverEntity.scale, receiverEntity.entityId)
-        );
+        receiverEntityExists = Mass.getHasValue(callerAddress, receiverEntity.scale, receiverEntity.entityId);
       }
       require(receiverEntityExists, "Receiver entity does not exist");
       uint256 currentReceiverHealth = Health.getHealth(callerAddress, receiverEntity.scale, receiverEntity.entityId);

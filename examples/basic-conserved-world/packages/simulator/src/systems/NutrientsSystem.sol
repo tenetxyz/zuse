@@ -111,10 +111,7 @@ contract NutrientsSystem is SimHandler {
   ) public {
     address callerAddress = super.getCallerAddress();
     {
-      bool entityExists = hasKey(
-        EnergyTableId,
-        Energy.encodeKeyTuple(callerAddress, senderEntity.scale, senderEntity.entityId)
-      );
+      bool entityExists = Energy.getHasValue(callerAddress, senderEntity.scale, senderEntity.entityId);
       require(entityExists, "Sender entity does not exist");
     }
     if (
@@ -141,7 +138,7 @@ contract NutrientsSystem is SimHandler {
         require(senderEnergy == receiverNutrients, "Sender energy must equal receiver nutrients");
       }
 
-      uint256 currentSenderEnergy = Energy.get(callerAddress, senderEntity.scale, senderEntity.entityId);
+      uint256 currentSenderEnergy = Energy.getEnergy(callerAddress, senderEntity.scale, senderEntity.entityId);
       if (senderEnergyDelta < 0) {
         console.log("currentSenderEnergy");
         console.logBytes32(senderEntity.entityId);
@@ -153,7 +150,8 @@ contract NutrientsSystem is SimHandler {
         callerAddress,
         senderEntity.scale,
         senderEntity.entityId,
-        addUint256AndInt256(currentSenderEnergy, senderEnergyDelta)
+        addUint256AndInt256(currentSenderEnergy, senderEnergyDelta),
+        true
       );
       uint256 currentReceiverNutrients = Nutrients.get(callerAddress, receiverEntity.scale, receiverEntity.entityId);
       if (receiverNutrientsDelta < 0) {
@@ -288,10 +286,7 @@ contract NutrientsSystem is SimHandler {
         bool receiverEntityExists = Mass.getHasValue(callerAddress, receiverEntity.scale, receiverEntity.entityId);
         if (!receiverEntityExists) {
           receiverEntity = createTerrainEntity(callerAddress, receiverEntity.scale, receiverCoord);
-          receiverEntityExists = hasKey(
-            EnergyTableId,
-            Mass.encodeKeyTuple(callerAddress, receiverEntity.scale, receiverEntity.entityId)
-          );
+          receiverEntityExists = Mass.getHasValue(callerAddress, receiverEntity.scale, receiverEntity.entityId);
         }
         require(receiverEntityExists, "Receiver entity does not exist");
       }

@@ -41,7 +41,7 @@ contract ExternalCASystem is ExternalCAPrototype {
     address worldAddress = _world();
     IStore store = IStore(SIMULATOR_ADDRESS);
 
-    entitySimData.energy = Energy.get(store, worldAddress, entity.scale, entity.entityId);
+    entitySimData.energy = Energy.getEnergy(store, worldAddress, entity.scale, entity.entityId);
     entitySimData.mass = Mass.getMass(store, worldAddress, entity.scale, entity.entityId);
     entitySimData.velocity = Velocity.getVelocity(store, worldAddress, entity.scale, entity.entityId);
     entitySimData.lastUpdateBlock = Velocity.getLastUpdateBlock(store, worldAddress, entity.scale, entity.entityId);

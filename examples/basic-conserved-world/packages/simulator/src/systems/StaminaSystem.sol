@@ -95,10 +95,7 @@ contract StaminaSystem is SimHandler {
       bool receiverEntityExists = Mass.getHasValue(callerAddress, receiverEntity.scale, receiverEntity.entityId);
       if (!receiverEntityExists) {
         receiverEntity = createTerrainEntity(callerAddress, receiverEntity.scale, receiverCoord);
-        receiverEntityExists = hasKey(
-          EnergyTableId,
-          Mass.encodeKeyTuple(callerAddress, receiverEntity.scale, receiverEntity.entityId)
-        );
+        receiverEntityExists = Mass.getHasValue(callerAddress, receiverEntity.scale, receiverEntity.entityId);
       }
       require(receiverEntityExists, "Receiver entity does not exist");
       uint256 currentReceiverStamina = Stamina.get(callerAddress, receiverEntity.scale, receiverEntity.entityId);
@@ -121,10 +118,7 @@ contract StaminaSystem is SimHandler {
     int256 receiverStaminaDelta
   ) public {
     address callerAddress = super.getCallerAddress();
-    bool entityExists = hasKey(
-      EnergyTableId,
-      Energy.encodeKeyTuple(callerAddress, senderEntity.scale, senderEntity.entityId)
-    );
+    bool entityExists = Energy.getHasValue(callerAddress, senderEntity.scale, senderEntity.entityId);
     require(entityExists, "Sender entity does not exist");
     require(_msgSender() == _world(), "Only the world can update health from energy");
     if ((senderEnergyDelta > 0 && receiverStaminaDelta > 0) || (senderEnergyDelta < 0 && receiverStaminaDelta < 0)) {
@@ -134,7 +128,7 @@ contract StaminaSystem is SimHandler {
       uint256 senderEnergy = int256ToUint256(senderEnergyDelta);
       uint256 receiverStamina = int256ToUint256(receiverStaminaDelta);
       require(senderEnergy == receiverStamina, "Sender energy must equal receiver stamina");
-      uint256 currentSenderEnergy = Energy.get(callerAddress, senderEntity.scale, senderEntity.entityId);
+      uint256 currentSenderEnergy = Energy.getEnergy(callerAddress, senderEntity.scale, senderEntity.entityId);
       if (senderEnergyDelta < 0) {
         require(currentSenderEnergy >= senderEnergy, "Sender does not have enough energy");
       }
@@ -142,7 +136,8 @@ contract StaminaSystem is SimHandler {
         callerAddress,
         senderEntity.scale,
         senderEntity.entityId,
-        addUint256AndInt256(currentSenderEnergy, senderEnergyDelta)
+        addUint256AndInt256(currentSenderEnergy, senderEnergyDelta),
+        true
       );
       uint256 currentReceiverStamina = Stamina.get(callerAddress, receiverEntity.scale, receiverEntity.entityId);
       if (currentReceiverStamina < 0) {

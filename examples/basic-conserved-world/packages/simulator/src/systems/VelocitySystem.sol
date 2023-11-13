@@ -234,7 +234,8 @@ contract VelocitySystem is SimHandler {
       callerAddress,
       newEntity.scale,
       newEntity.entityId,
-      getTerrainEnergy(callerAddress, newEntity.scale, newCoord)
+      getTerrainEnergy(callerAddress, newEntity.scale, newCoord),
+      true
     );
     Velocity.set(
       callerAddress,
@@ -250,7 +251,7 @@ contract VelocitySystem is SimHandler {
       false,
       callerAddress,
       newEntity,
-      resourceRequired + Energy.get(callerAddress, newEntity.scale, newEntity.entityId)
+      resourceRequired + Energy.getEnergy(callerAddress, newEntity.scale, newEntity.entityId)
     );
   }
 
@@ -295,7 +296,7 @@ contract VelocitySystem is SimHandler {
     } else {
       initTerrainEntity(callerAddress, oldEntity.scale, newCoord, newEntity);
     }
-    oldEntityData.energy = Energy.get(callerAddress, oldEntity.scale, oldEntity.entityId);
+    oldEntityData.energy = Energy.getEnergy(callerAddress, oldEntity.scale, oldEntity.entityId);
     uint256 resourceInOldEntity = resourceToConsume == MovementResource.Stamina
       ? Stamina.get(callerAddress, oldEntity.scale, oldEntity.entityId)
       : Temperature.get(callerAddress, oldEntity.scale, oldEntity.entityId);
@@ -308,7 +309,8 @@ contract VelocitySystem is SimHandler {
       oldEntity.scale,
       oldEntity.entityId,
       block.number,
-      abi.encode(VoxelCoord({ x: 0, y: 0, z: 0 }))
+      abi.encode(VoxelCoord({ x: 0, y: 0, z: 0 })),
+      true
     );
     if (hasKey(StaminaTableId, Stamina.encodeKeyTuple(callerAddress, oldEntity.scale, oldEntity.entityId))) {
       Stamina.set(callerAddress, oldEntity.scale, oldEntity.entityId, 0);
@@ -318,7 +320,7 @@ contract VelocitySystem is SimHandler {
 
     // Update the new entity's energy and velocity
     Mass.set(callerAddress, newEntity.scale, newEntity.entityId, oldEntityData.mass, true);
-    Energy.set(callerAddress, newEntity.scale, newEntity.entityId, oldEntityData.energy);
+    Energy.set(callerAddress, newEntity.scale, newEntity.entityId, oldEntityData.energy, true);
     Velocity.set(callerAddress, newEntity.scale, newEntity.entityId, block.number, abi.encode(newVelocity));
     // VoxelEntity memory newActingEntity = actingEntity;
     if (isEntityEqual(oldEntity, actingEntity)) {

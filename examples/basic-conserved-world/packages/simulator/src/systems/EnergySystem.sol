@@ -38,16 +38,13 @@ contract EnergySystem is SimHandler {
     int256 receiverEnergyDelta
   ) public {
     address callerAddress = super.getCallerAddress();
-    bool entityExists = hasKey(
-      EnergyTableId,
-      Energy.encodeKeyTuple(callerAddress, senderEntity.scale, senderEntity.entityId)
-    );
+    bool entityExists = Energy.getHasValue(callerAddress, senderEntity.scale, senderEntity.entityId);
     require(entityExists, "Sender entity does not exist");
     if (receiverEnergyDelta == 0) {
       return;
     }
     // If it doesn't exist, it'll be 0
-    uint256 currentReceiverEnergy = Energy.get(callerAddress, receiverEntity.scale, receiverEntity.entityId);
+    uint256 currentReceiverEnergy = Energy.getEnergy(callerAddress, receiverEntity.scale, receiverEntity.entityId);
     if (isEntityEqual(senderEntity, receiverEntity)) {
       // Transformation
       require(receiverEnergyDelta < 0, "Cannot increase your own energy");
@@ -56,7 +53,7 @@ contract EnergySystem is SimHandler {
       fluxEnergyOut(callerAddress, receiverEntity, amountToFlux);
     } else {
       // Transfer
-      uint256 currentSenderEnergy = Energy.get(callerAddress, senderEntity.scale, senderEntity.entityId);
+      uint256 currentSenderEnergy = Energy.getEnergy(callerAddress, senderEntity.scale, senderEntity.entityId);
       require(receiverEnergyDelta > 0, "Cannot decrease others energy");
       uint256 amountToTransfer = int256ToUint256(receiverEnergyDelta);
       require(currentSenderEnergy >= amountToTransfer, "Not enough energy to transfer");
@@ -65,9 +62,9 @@ contract EnergySystem is SimHandler {
   }
 
   function fluxEnergyOut(address callerAddress, VoxelEntity memory entity, uint256 energyToFlux) internal {
-    uint256 currentEnergy = Energy.get(callerAddress, entity.scale, entity.entityId);
+    uint256 currentEnergy = Energy.getEnergy(callerAddress, entity.scale, entity.entityId);
     IWorld(_world()).fluxEnergy(false, callerAddress, entity, energyToFlux);
-    Energy.set(callerAddress, entity.scale, entity.entityId, currentEnergy - energyToFlux);
+    Energy.set(callerAddress, entity.scale, entity.entityId, currentEnergy - energyToFlux, true);
   }
 
   function energyTransfer(
@@ -78,27 +75,21 @@ contract EnergySystem is SimHandler {
     VoxelCoord memory energyReceiverCoord,
     uint256 energyToTransfer
   ) internal {
-    uint256 currentEnergy = Energy.get(callerAddress, entity.scale, entity.entityId);
+    uint256 currentEnergy = Energy.getEnergy(callerAddress, entity.scale, entity.entityId);
     require(currentEnergy >= energyToTransfer, "Not enough energy to transfer");
-    bool energyReceiverEntityExists = hasKey(
-      EnergyTableId,
-      Energy.encodeKeyTuple(callerAddress, energyReceiverEntity.scale, energyReceiverEntity.entityId)
-    );
+    bool energyReceiverEntityExists = Energy.getHasValue(callerAddress, energyReceiverEntity.scale, energyReceiverEntity.entityId);
 
     if (!energyReceiverEntityExists) {
       energyReceiverEntity = createTerrainEntity(callerAddress, entity.scale, energyReceiverCoord);
-      energyReceiverEntityExists = hasKey(
-        EnergyTableId,
-        Energy.encodeKeyTuple(callerAddress, energyReceiverEntity.scale, energyReceiverEntity.entityId)
-      );
+      energyReceiverEntityExists = Energy.getHasValue(callerAddress, energyReceiverEntity.scale, energyReceiverEntity.entityId);
     }
     require(energyReceiverEntityExists, "Energy receiver entity does not exist");
     // Increase energy of energyReceiverEntity
-    uint256 newReceiverEnergy = Energy.get(callerAddress, energyReceiverEntity.scale, energyReceiverEntity.entityId) +
+    uint256 newReceiverEnergy = Energy.getEnergy(callerAddress, energyReceiverEntity.scale, energyReceiverEntity.entityId) +
       energyToTransfer;
-    Energy.set(callerAddress, energyReceiverEntity.scale, energyReceiverEntity.entityId, newReceiverEnergy);
+    Energy.set(callerAddress, energyReceiverEntity.scale, energyReceiverEntity.entityId, newReceiverEnergy, true);
     // Decrease energy of eventEntity
     uint256 newEnergy = currentEnergy - energyToTransfer;
-    Energy.set(callerAddress, entity.scale, entity.entityId, newEnergy);
+    Energy.set(callerAddress, entity.scale, entity.entityId, newEnergy, true);
   }
 }

@@ -90,10 +90,7 @@ contract ProteinSystem is SimHandler {
         bool receiverEntityExists = Mass.getHasValue(callerAddress, receiverEntity.scale, receiverEntity.entityId);
         if (!receiverEntityExists) {
           receiverEntity = createTerrainEntity(callerAddress, receiverEntity.scale, receiverCoord);
-          receiverEntityExists = hasKey(
-            EnergyTableId,
-            Mass.encodeKeyTuple(callerAddress, receiverEntity.scale, receiverEntity.entityId)
-          );
+          receiverEntityExists = Mass.getHasValue(callerAddress, receiverEntity.scale, receiverEntity.entityId);
         }
         require(receiverEntityExists, "Receiver entity does not exist");
       }
@@ -123,10 +120,7 @@ contract ProteinSystem is SimHandler {
     int256 receiverProteinDelta
   ) public {
     address callerAddress = super.getCallerAddress();
-    bool entityExists = hasKey(
-      EnergyTableId,
-      Energy.encodeKeyTuple(callerAddress, senderEntity.scale, senderEntity.entityId)
-    );
+    bool entityExists = Energy.getHasValue(callerAddress, senderEntity.scale, senderEntity.entityId);
     require(entityExists, "Sender entity does not exist");
     require(_msgSender() == _world(), "Only the world can update protein from energy");
     if ((senderEnergyDelta > 0 && receiverProteinDelta > 0) || (senderEnergyDelta < 0 && receiverProteinDelta < 0)) {
@@ -136,7 +130,7 @@ contract ProteinSystem is SimHandler {
       uint256 senderEnergy = int256ToUint256(senderEnergyDelta);
       uint256 receiverProtein = int256ToUint256(receiverProteinDelta);
       require(senderEnergy == receiverProtein, "Sender energy must equal receiver protein");
-      uint256 currentSenderEnergy = Energy.get(callerAddress, senderEntity.scale, senderEntity.entityId);
+      uint256 currentSenderEnergy = Energy.getEnergy(callerAddress, senderEntity.scale, senderEntity.entityId);
       if (senderEnergyDelta < 0) {
         require(currentSenderEnergy >= senderEnergy, "Sender does not have enough energy");
       }
@@ -144,7 +138,8 @@ contract ProteinSystem is SimHandler {
         callerAddress,
         senderEntity.scale,
         senderEntity.entityId,
-        addUint256AndInt256(currentSenderEnergy, senderEnergyDelta)
+        addUint256AndInt256(currentSenderEnergy, senderEnergyDelta),
+        true
       );
       uint256 currentReceiverProtein = Protein.get(callerAddress, receiverEntity.scale, receiverEntity.entityId);
       if (receiverProteinDelta < 0) {

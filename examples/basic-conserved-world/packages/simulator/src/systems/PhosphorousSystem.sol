@@ -68,10 +68,7 @@ contract PhosphorousSystem is SimHandler {
         bool receiverEntityExists = Mass.getHasValue(callerAddress, receiverEntity.scale, receiverEntity.entityId);
         if (!receiverEntityExists) {
           receiverEntity = createTerrainEntity(callerAddress, receiverEntity.scale, receiverCoord);
-          receiverEntityExists = hasKey(
-            EnergyTableId,
-            Mass.encodeKeyTuple(callerAddress, receiverEntity.scale, receiverEntity.entityId)
-          );
+          receiverEntityExists = Mass.getHasValue(callerAddress, receiverEntity.scale, receiverEntity.entityId);
         }
         require(receiverEntityExists, "Receiver entity does not exist");
       }

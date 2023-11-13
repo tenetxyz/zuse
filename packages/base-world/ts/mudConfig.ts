@@ -31,14 +31,6 @@ const WORLD_TABLES: Record<string, TableConfig> = {
       objectEntityId: "bytes32",
     },
   },
-  Metadata: {
-    keySchema: {
-      objectEntityId: "bytes32",
-    },
-    schema: {
-      numTimesRan: "uint32",
-    },
-  },
   // Note: We have this table due to running on the EVM,
   // but we can use the equivalent of a public/private key once Zuse is its own computer
   OwnedBy: {
@@ -81,11 +73,6 @@ const WORLD_MODULES = [
     name: "KeysWithValueModule",
     root: true,
     args: [resolveTableId("ObjectEntity")],
-  },
-  {
-    name: "KeysInTableModule",
-    root: true,
-    args: [resolveTableId("Metadata")],
   },
   {
     name: "KeysInTableModule",

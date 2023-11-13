@@ -28,18 +28,9 @@ abstract contract ObjectInteractionSystem is System {
     bytes32[] memory neighbourObjectEntityIds
   ) internal virtual {}
 
-  function shouldRunEvent(bytes32 objectEntityId) internal virtual returns (bool) {
-    uint256 numUniqueObjectsRan = KeysInTable.lengthKeys0(MetadataTableId);
-    if (numUniqueObjectsRan + 1 > MAX_UNIQUE_OBJECT_EVENT_HANDLERS_RUN) {
-      return false;
-    }
-    if (Metadata.get(objectEntityId) > MAX_SAME_OBJECT_EVENT_HANDLERS_RUN) {
-      return false;
-    }
-    Metadata.set(objectEntityId, Metadata.get(objectEntityId) + 1);
+  function shouldRunEvent(bytes32 objectEntityId) internal virtual returns (bool);
 
-    return true;
-  }
+  function getNumMaxObjectsToRun() internal virtual returns (uint256);
 
   function decodeToBoolAndBytes(bytes memory data) external pure returns (bool, bytes memory) {
     return abi.decode(data, (bool, bytes));
@@ -169,8 +160,9 @@ abstract contract ObjectInteractionSystem is System {
   }
 
   function runInteractions(bytes32 centerEntityId) public virtual returns (EntityActionData[] memory) {
-    bytes32[] memory centerEntitiesToRunQueue = new bytes32[](MAX_ENTITY_NEIGHBOUR_UPDATE_DEPTH);
-    EntityActionData[] memory allEntitiesActionData = new EntityActionData[](MAX_ENTITY_NEIGHBOUR_UPDATE_DEPTH);
+    uint256 numMaxObjectsToRun = getNumMaxObjectsToRun();
+    bytes32[] memory centerEntitiesToRunQueue = new bytes32[](numMaxObjectsToRun);
+    EntityActionData[] memory allEntitiesActionData = new EntityActionData[](numMaxObjectsToRun);
     uint256 centerEntitiesToRunQueueIdx = 0;
     uint256 entitesActionDataIdx = 0;
     uint256 useQueueIdx = 0;
@@ -179,7 +171,7 @@ abstract contract ObjectInteractionSystem is System {
     centerEntitiesToRunQueue[centerEntitiesToRunQueueIdx] = centerEntityId;
     useQueueIdx = centerEntitiesToRunQueueIdx;
 
-    while (useQueueIdx < MAX_ENTITY_NEIGHBOUR_UPDATE_DEPTH) {
+    while (useQueueIdx < numMaxObjectsToRun) {
       bytes32 useCenterEntityId = centerEntitiesToRunQueue[useQueueIdx];
 
       {
@@ -193,12 +185,7 @@ abstract contract ObjectInteractionSystem is System {
         for (uint256 i; i < changedEntities.length; i++) {
           if (uint256(changedEntities[i]) != 0) {
             centerEntitiesToRunQueueIdx++;
-            // TODO: Figure out a better place to do this check
-            // Maybe consider consolidating this and the constants used in shouldRunEvent
-            require(
-              centerEntitiesToRunQueueIdx < MAX_ENTITY_NEIGHBOUR_UPDATE_DEPTH,
-              "ObjectInteractionSystem: Reached max depth"
-            );
+            require(centerEntitiesToRunQueueIdx < numMaxObjectsToRun, "ObjectInteractionSystem: Reached max depth");
             centerEntitiesToRunQueue[centerEntitiesToRunQueueIdx] = changedEntities[i];
           }
         }
@@ -209,12 +196,7 @@ abstract contract ObjectInteractionSystem is System {
           }
           allEntitiesActionData[entitesActionDataIdx] = entitiesActionData[i];
           entitesActionDataIdx++;
-          // TODO: Figure out a better place to do this check
-          // Maybe consider consolidating this and the constants used in shouldRunEvent
-          require(
-            entitesActionDataIdx < MAX_ENTITY_NEIGHBOUR_UPDATE_DEPTH,
-            "ObjectInteractionSystem: Reached max depth"
-          );
+          require(entitesActionDataIdx < numMaxObjectsToRun, "ObjectInteractionSystem: Reached max depth");
         }
       }
 

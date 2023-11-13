@@ -8,6 +8,19 @@ import { REGISTRY_ADDRESS, SIMULATOR_ADDRESS } from "@tenet-world/src/Constants.
 import { updateVelocityCache } from "@tenet-simulator/src/CallUtils.sol";
 
 contract RunCASystem is RunCAPrototype {
+  function shouldRunEvent(bytes32 objectEntityId) internal virtual returns (bool) {
+    uint256 numUniqueObjectsRan = KeysInTable.lengthKeys0(MetadataTableId);
+    if (numUniqueObjectsRan + 1 > MAX_UNIQUE_OBJECT_EVENT_HANDLERS_RUN) {
+      return false;
+    }
+    if (Metadata.get(objectEntityId) > MAX_SAME_OBJECT_EVENT_HANDLERS_RUN) {
+      return false;
+    }
+    Metadata.set(objectEntityId, Metadata.get(objectEntityId) + 1);
+
+    return true;
+  }
+
   function enterCA(
     address caAddress,
     VoxelEntity memory entity,

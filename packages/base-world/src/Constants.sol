@@ -1,6 +1,0 @@
-// SPDX-License-Identifier: MIT
-pragma solidity >=0.8.0;
-
-uint256 constant MAX_UNIQUE_OBJECT_EVENT_HANDLERS_RUN = 15;
-uint256 constant MAX_SAME_OBJECT_EVENT_HANDLERS_RUN = 25;
-uint256 constant MAX_ENTITY_NEIGHBOUR_UPDATE_DEPTH = 1000;

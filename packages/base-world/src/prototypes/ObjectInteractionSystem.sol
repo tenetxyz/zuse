@@ -40,142 +40,36 @@ abstract contract ObjectInteractionSystem is System {
     return (neighbourEntities, neighbourCoords);
   }
 
-  function beforeRunInteraction(bytes32 centerEntityId, bytes32[] memory neighbourEntityIds) internal virtual {}
+  function beforeRunInteraction(
+    bytes32 centerObjectEntityId,
+    bytes32[] memory neighbourObjectEntityIds
+  ) internal virtual {}
 
   function decodeToBoolAndBytes(bytes memory data) external pure returns (bool, bytes memory) {
     return abi.decode(data, (bool, bytes));
   }
 
   function runEventHandler(
-    bytes4 interactionSelector,
-    bytes32 voxelTypeId,
-    bytes32 caInteractEntity,
-    bytes32[] memory caNeighbourEntityIds,
-    bytes32[] memory childEntityIds,
-    bytes32 parentEntity
-  ) internal virtual returns (bytes32, bytes memory) {
-    bytes32 changedCenterEntityId;
-    bytes memory centerEntityEventData;
+    bytes32 centerObjectTypeId,
+    bytes32 centerObjectEntityId,
+    bytes32[] memory neighbourObjectEntityIds
+  ) internal virtual returns (bytes memory) {
+    (address eventHandlerAddress, bytes4 eventHandlerSelector) = getEventHandler(
+      IStore(getRegistryAddress()),
+      centerObjectTypeId
+    );
+    require(
+      eventHandlerAddress != address(0) && objectEventHandlerSelector != bytes4(0),
+      "Object eventHandler not defined"
+    );
 
-    {
-      // handle base voxel types
-      bytes32 baseVoxelTypeId = VoxelTypeRegistry.getBaseVoxelTypeId(IStore(getRegistryAddress()), voxelTypeId);
-      if (baseVoxelTypeId != voxelTypeId) {
-        (bytes32 insideChangedCenterEntityId, bytes memory insideCenterEntityEventData) = voxelRunInteraction(
-          bytes4(0),
-          baseVoxelTypeId,
-          caInteractEntity,
-          caNeighbourEntityIds,
-          childEntityIds,
-          parentEntity
-        ); // recursive, so we get the entire stack of russian dolls
+    (bool eventHandlerSuccess, bytes memory centerEntityActionData) = safeCall(
+      eventHandlerAddress,
+      abi.encodeWithSelector(eventHandlerSelector, centerObjectEntityId, neighbourObjectEntityIds),
+      "object event handler selector"
+    );
 
-        if (changedCenterEntityId == 0 && insideChangedCenterEntityId != 0) {
-          changedCenterEntityId = insideChangedCenterEntityId;
-        }
-
-        if (centerEntityEventData.length == 0 && insideCenterEntityEventData.length != 0) {
-          centerEntityEventData = insideCenterEntityEventData;
-        }
-      }
-    }
-    bytes4 useinteractionSelector = 0;
-    {
-      InteractionSelector[] memory interactionSelectors = getInteractionSelectors(
-        IStore(getRegistryAddress()),
-        voxelTypeId
-      );
-      if (interactionSelector != bytes4(0)) {
-        for (uint256 i = 0; i < interactionSelectors.length; i++) {
-          if (interactionSelectors[i].interactionSelector == interactionSelector) {
-            useinteractionSelector = interactionSelector;
-            break;
-          }
-        }
-      } else {
-        // Call mind to figure out whch voxel interaction to run
-        require(hasKey(CAMindTableId, CAMind.encodeKeyTuple(caInteractEntity)), "Mind does not exist");
-        // bytes4 mindSelector = CAMind.getMindSelector(caInteractEntity);
-
-        if (CAMind.getMindSelector(caInteractEntity) != bytes4(0)) {
-          // call mind to figure out which interaction selector to use
-          (bool mindSuccess, bytes memory mindReturnData) = safeCall(
-            _world(),
-            abi.encodeWithSelector(
-              CAMind.getMindSelector(caInteractEntity),
-              voxelTypeId,
-              caInteractEntity,
-              caNeighbourEntityIds,
-              childEntityIds,
-              parentEntity
-            ),
-            "mindSelector"
-          );
-          if (mindSuccess) {
-            try this.decodeToBytes4(mindReturnData) returns (bytes4 decodedValue) {
-              useinteractionSelector = decodedValue;
-            } catch {}
-            bool validSelector = false;
-            for (uint256 i = 0; i < interactionSelectors.length; i++) {
-              if (interactionSelectors[i].interactionSelector == useinteractionSelector) {
-                validSelector = true;
-                break;
-              }
-            }
-            if (!validSelector) {
-              useinteractionSelector = bytes4(0);
-            }
-          }
-          if (useinteractionSelector == bytes4(0)) {
-            if (interactionSelectors.length > 0) {
-              // Note: we could return and not run any if the mind doesn't pick an interaction
-              // however, we run the first one instead for voxel types to ensure specific behaviour always runs
-              useinteractionSelector = interactionSelectors[0].interactionSelector;
-            } else {
-              // This voxel has no interaction selectors, so we don't run any interaction
-              return (changedCenterEntityId, centerEntityEventData);
-            }
-          }
-        } else {
-          if (interactionSelectors.length > 0) {
-            // use the first one, if there's only one
-            useinteractionSelector = interactionSelectors[0].interactionSelector;
-          } else {
-            // This voxel has no mind and no interaction selector, so we don't run any interaction
-            return (changedCenterEntityId, centerEntityEventData);
-          }
-        }
-      }
-    }
-    require(useinteractionSelector != 0, "Interaction selector not found");
-
-    {
-      (bool success, bytes memory returnData) = safeCall(
-        _world(),
-        abi.encodeWithSelector(
-          useinteractionSelector,
-          caInteractEntity,
-          caNeighbourEntityIds,
-          childEntityIds,
-          parentEntity
-        ),
-        "voxel interaction selector"
-      );
-
-      if (success) {
-        try this.decodeToBoolAndBytes(returnData) returns (bool changedCACenterEntityId, bytes memory entityEventData) {
-          if (changedCenterEntityId == 0 && changedCACenterEntityId) {
-            changedCenterEntityId = caInteractEntity;
-          }
-
-          if (centerEntityEventData.length == 0 && entityEventData.length != 0) {
-            centerEntityEventData = entityEventData;
-          }
-        } catch {}
-      }
-    }
-
-    return (changedCenterEntityId, centerEntityEventData);
+    return centerEntityActionData;
   }
 
   function runNeighbourInteractionsHelper(
@@ -243,21 +137,25 @@ abstract contract ObjectInteractionSystem is System {
     bytes32 centerEntityId,
     bytes32[] memory neighbourEntityIds
   ) internal returns (bytes32[] memory, EntityActionData[] memory) {
-    beforeRunInteraction(centerEntityId, neighbourEntityIds);
+    bytes32 centerObjectEntityId = ObjectEntity.get(centerEntityId);
+    bytes32[] memory neighbourObjectEntityIds = new bytes32[](neighbourEntityIds.length);
+    for (uint256 i; i < neighbourEntityIds.length; i++) {
+      if (uint256(neighbourEntityIds[i]) != 0) {
+        neighbourObjectEntityIds[i] = ObjectEntity.get(neighbourEntityIds[i]);
+      }
+    }
+    beforeRunInteraction(centerObjectEntityId, neighbourObjectEntityIds);
+    bytes32 centerObjectTypeId = ObjectType.get(centerEntityId);
 
-    // Run interaction logic
     // Center Interaction
-    (bytes32 changedCenterEntityId, bytes memory centerEntityEventData) = runEventHandler(
-      interactionSelector,
-      voxelTypeId,
-      caInteractEntity,
-      caNeighbourEntityIds,
-      childEntityIds,
-      parentEntity
+    bytes memory centerEntityActionData = runEventHandler(
+      centerObjectTypeId,
+      centerObjectEntityId,
+      neighbourObjectEntityIds
     );
 
     // Neighbour Interactions
-    (bytes32[] memory changedNeighbourEntities, bytes[] memory neighbourEntitiesEventData) = runNeighbourEventHandlers(
+    (bytes32[] memory changedNeighbourEntities, bytes[] memory neighbourEntitiesActionData) = runNeighbourEventHandlers(
       callerAddress,
       interactEntity,
       neighbourEntityIds,

@@ -7,54 +7,26 @@ import { resolveTableId } from "@latticexyz/config";
  */
 
 export default mudConfig({
-  enums: {
-    NoaBlockType: ["BLOCK", "MESH"],
-  },
   tables: {
-    WorldRegistry: {
+    ObjectTypeRegistry: {
       keySchema: {
-        worldAddress: "address",
+        objectTypeId: "bytes32",
       },
       schema: {
         creator: "address",
+        contractAddress: "address",
+        enterWorldSelector: "bytes4",
+        exitWorldSelector: "bytes4",
+        eventHandlerSelector: "bytes4",
+        neighbourEventHandlerSelector: "bytes4",
         name: "string",
         description: "string",
-        caAddresses: "address[]",
-      },
-    },
-    CARegistry: {
-      keySchema: {
-        caAddress: "address",
-      },
-      schema: {
-        scale: "uint32",
-        creator: "address",
-        name: "string",
-        description: "string",
-        voxelTypeIds: "bytes32[]",
-      },
-    },
-    VoxelTypeRegistry: {
-      keySchema: {
-        voxelTypeId: "bytes32",
-      },
-      schema: {
-        scale: "uint32",
-        previewVoxelVariantId: "bytes32",
-        baseVoxelTypeId: "bytes32",
-        mass: "uint256",
-        selectors: "bytes", // VoxelSelectors
-        metadata: "bytes", // CreationMetadata
-        childVoxelTypeIds: "bytes32[]",
-        schemaVoxelTypeIds: "bytes32[]", // This is used when a child is built to figure out if the parent should be built. We can't juse use childVoxelTypeIds, because the child entities may move
-        componentDefs: "bytes", // ComponentDef[]
       },
     },
     DecisionRuleRegistry: {
       keySchema: {
-        srcVoxelTypeId: "bytes32",
-        targetVoxelTypeId: "bytes32",
-        worldAddress: "address",
+        srcObjectTypeId: "bytes32",
+        targetObjectTypeId: "bytes32",
       },
       schema: {
         decisionRules: "bytes", // DecisionRule[]
@@ -62,27 +34,10 @@ export default mudConfig({
     },
     MindRegistry: {
       keySchema: {
-        voxelTypeId: "bytes32", // technically bodyIds
-        worldAddress: "address",
+        objectTypeId: "bytes32",
       },
       schema: {
         minds: "bytes", // Mind[]
-      },
-    },
-    VoxelVariantsRegistry: {
-      keySchema: {
-        voxelVariantId: "bytes32",
-      },
-      schema: {
-        variantId: "uint256", // Used by the client
-        frames: "uint32",
-        opaque: "bool",
-        fluid: "bool",
-        solid: "bool",
-        blockType: "NoaBlockType",
-        // Note: These 2 dynamic fields MUST come at the end of the schema
-        materials: "bytes", // string[]
-        uvWrap: "string", // File ID Hash
       },
     },
     CreationRegistry: {
@@ -90,8 +45,8 @@ export default mudConfig({
         creationId: "bytes32",
       },
       schema: {
-        numVoxels: "uint32", // The total number of voxels in this creation (including the voxels in the base creations). This value is really important to prevent extra computation when determining the voxels in base creations
-        voxelTypes: "bytes", // VoxelTypeData[]
+        numObjects: "uint32", // The total number of voxels in this creation (including the voxels in the base creations). This value is really important to prevent extra computation when determining the voxels in base creations
+        objectTypes: "bytes32[]",
         relativePositions: "bytes", // VoxelCoord[], the relative position for each voxel in the creation
         baseCreations: "bytes", // it is called "base" creation - cause of "base class" in c++. To make composable creations work, root creations are comprised of these base creations.
         metadata: "bytes", // CreationMetadata
@@ -131,22 +86,7 @@ export default mudConfig({
     {
       name: "KeysInTableModule",
       root: true,
-      args: [resolveTableId("WorldRegistry")],
-    },
-    {
-      name: "KeysInTableModule",
-      root: true,
-      args: [resolveTableId("CARegistry")],
-    },
-    {
-      name: "KeysInTableModule",
-      root: true,
-      args: [resolveTableId("VoxelTypeRegistry")],
-    },
-    {
-      name: "KeysInTableModule",
-      root: true,
-      args: [resolveTableId("VoxelVariantsRegistry")],
+      args: [resolveTableId("ObjectTypeRegistry")],
     },
     {
       name: "KeysInTableModule",

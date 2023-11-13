@@ -13,34 +13,18 @@ contract MindRegistrySystem is System {
     string memory description,
     bytes4 mindSelector
   ) public {
-    registerMindForWorld(voxelTypeId, address(0), name, description, mindSelector);
-  }
-
-  function registerMindForWorld(
-    bytes32 voxelTypeId,
-    address worldAddress,
-    string memory name,
-    string memory description,
-    bytes4 mindSelector
-  ) public {
     require(
       hasKey(VoxelTypeRegistryTableId, VoxelTypeRegistry.encodeKeyTuple(voxelTypeId)),
       "Voxel type ID has not been registered"
     );
-    if (worldAddress != address(0)) {
-      require(
-        hasKey(WorldRegistryTableId, WorldRegistry.encodeKeyTuple(worldAddress)),
-        "World address hassources not been registered"
-      );
-    }
     // Set creator
     CreationSpawns[] memory spawns = new CreationSpawns[](0);
     bytes memory creationMetadata = abi.encode(CreationMetadata(tx.origin, name, description, spawns));
     Mind memory mind = Mind({ creationMetadata: creationMetadata, mindSelector: mindSelector });
 
     Mind[] memory newMinds;
-    if (hasKey(MindRegistryTableId, MindRegistry.encodeKeyTuple(voxelTypeId, worldAddress))) {
-      bytes memory mindData = MindRegistry.get(voxelTypeId, worldAddress);
+    if (hasKey(MindRegistryTableId, MindRegistry.encodeKeyTuple(voxelTypeId))) {
+      bytes memory mindData = MindRegistry.get(voxelTypeId);
       Mind[] memory minds = abi.decode(mindData, (Mind[]));
 
       newMinds = new Mind[](minds.length + 1);
@@ -54,6 +38,6 @@ contract MindRegistrySystem is System {
       newMinds[0] = mind;
     }
 
-    MindRegistry.set(voxelTypeId, worldAddress, abi.encode(newMinds));
+    MindRegistry.set(voxelTypeId, abi.encode(newMinds));
   }
 }

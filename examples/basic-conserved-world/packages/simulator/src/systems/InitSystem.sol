@@ -23,12 +23,12 @@ contract InitSystem is System {
     require(
       !Mass.getHasValue(callerAddress, entity.scale, entity.entityId) &&
         !Energy.getHasValue(callerAddress, entity.scale, entity.entityId) &&
-        !hasKey(VelocityTableId, Velocity.encodeKeyTuple(callerAddress, entity.scale, entity.entityId)),
+        !Velocity.getHasValue(callerAddress, entity.scale, entity.entityId),
       "Entity already initialized"
     );
     Mass.set(callerAddress, entity.scale, entity.entityId, initMass, true);
     Energy.set(callerAddress, entity.scale, entity.entityId, initEnergy, true);
-    Velocity.set(callerAddress, entity.scale, entity.entityId, block.number, abi.encode(initVelocity));
+    Velocity.set(callerAddress, entity.scale, entity.entityId, block.number, abi.encode(initVelocity), true);
   }
 
   function initAgent(VoxelEntity memory entity, uint256 initStamina, uint256 initHealth) public {

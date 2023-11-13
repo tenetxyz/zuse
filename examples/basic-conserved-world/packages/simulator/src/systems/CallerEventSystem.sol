@@ -28,9 +28,9 @@ contract CallerEventSystem is System {
         blocksToWait = TX_SPEED_RATIO / health;
       }
       // Check if enough time has passed
-      uint256 lastBlock = Metadata.get(callerAddress, actingEntity.scale, actingEntity.entityId);
+      uint256 lastBlock = Metadata.getLastInteractionBlock(callerAddress, actingEntity.scale, actingEntity.entityId);
       if (lastBlock == 0 || block.number - lastBlock >= blocksToWait) {
-        Metadata.set(callerAddress, actingEntity.scale, actingEntity.entityId, block.number);
+        Metadata.set(callerAddress, actingEntity.scale, actingEntity.entityId, block.number, true);
       } else {
         revert("Not enough time has passed since last event based on current health");
       }
@@ -62,7 +62,8 @@ contract CallerEventSystem is System {
         entity.scale,
         entity.entityId,
         block.number,
-        abi.encode(getTerrainVelocity(callerAddress, entity.scale, coord))
+        abi.encode(getTerrainVelocity(callerAddress, entity.scale, coord)),
+        true
       );
     }
 
@@ -90,7 +91,7 @@ contract CallerEventSystem is System {
       // Set initial values
       Mass.set(callerAddress, entity.scale, entity.entityId, terrainMass, true);
       Energy.set(callerAddress, entity.scale, entity.entityId, getTerrainEnergy(callerAddress, entity.scale, coord), true);
-      Velocity.set(callerAddress, entity.scale, entity.entityId, block.number, abi.encode(terrainVelocity));
+      Velocity.set(callerAddress, entity.scale, entity.entityId, block.number, abi.encode(terrainVelocity), true);
 
       if (terrainMass > 0) {
         massDelta = -1 * uint256ToInt256(terrainMass);
@@ -170,7 +171,7 @@ contract CallerEventSystem is System {
     }
 
     // Delete properties
-    if (hasKey(MetadataTableId, Metadata.encodeKeyTuple(callerAddress, entity.scale, entity.entityId))) {
+    if (Metadata.getHasValue(callerAddress, entity.scale, entity.entityId)) {
       Metadata.deleteRecord(callerAddress, entity.scale, entity.entityId);
     }
 

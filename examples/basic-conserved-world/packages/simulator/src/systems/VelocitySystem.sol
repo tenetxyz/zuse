@@ -118,10 +118,7 @@ contract VelocitySystem is SimHandler {
     VoxelCoord memory receiverVelocityDelta
   ) public {
     address callerAddress = super.getCallerAddress();
-    bool entityExists = hasKey(
-      VelocityTableId,
-      Velocity.encodeKeyTuple(callerAddress, receiverEntity.scale, receiverEntity.entityId)
-    );
+    bool entityExists = Velocity.getHasValue(callerAddress, receiverEntity.scale, receiverEntity.entityId);
     // if (isEntityEqual(senderEntity, receiverEntity)) {} else {}
     // You can only spend stamina to decrease velocity
     // To increase, you have to move
@@ -167,14 +164,14 @@ contract VelocitySystem is SimHandler {
     require(currentStamina >= resourceRequired, "Not enough stamina to spend");
     Stamina.set(callerAddress, senderEntity.scale, senderEntity.entityId, currentStamina - resourceRequired);
     IWorld(_world()).fluxEnergy(false, callerAddress, receiverEntity, resourceRequired);
-    Velocity.set(callerAddress, receiverEntity.scale, receiverEntity.entityId, block.number, abi.encode(newVelocity));
+    Velocity.set(callerAddress, receiverEntity.scale, receiverEntity.entityId, block.number, abi.encode(newVelocity), true);
   }
 
   function reduceVelocity(VoxelEntity memory entity, VoxelCoord memory deltaVelocity) internal {}
 
   function updateVelocityCache(VoxelEntity memory entity) public {
     address callerAddress = super.getCallerAddress();
-    if (!hasKey(VelocityTableId, Velocity.encodeKeyTuple(callerAddress, entity.scale, entity.entityId))) {
+    if (!Velocity.getHasValue(callerAddress, entity.scale, entity.entityId)) {
       return;
     }
 
@@ -217,7 +214,7 @@ contract VelocitySystem is SimHandler {
 
     // Update the velocity
     if (!voxelCoordsAreEqual(velocity, newVelocity)) {
-      Velocity.set(callerAddress, entity.scale, entity.entityId, block.number, abi.encode(newVelocity));
+      Velocity.set(callerAddress, entity.scale, entity.entityId, block.number, abi.encode(newVelocity), true);
     }
   }
 
@@ -242,7 +239,8 @@ contract VelocitySystem is SimHandler {
       newEntity.scale,
       newEntity.entityId,
       block.number,
-      abi.encode(getTerrainVelocity(callerAddress, newEntity.scale, newCoord))
+      abi.encode(getTerrainVelocity(callerAddress, newEntity.scale, newCoord)),
+      true
     );
   }
 
@@ -303,7 +301,7 @@ contract VelocitySystem is SimHandler {
 
     // Reset the old entity's mass, energy and velocity
     Mass.set(callerAddress, oldEntity.scale, oldEntity.entityId, 0, true);
-    Energy.set(callerAddress, oldEntity.scale, oldEntity.entityId, 0);
+    Energy.set(callerAddress, oldEntity.scale, oldEntity.entityId, 0, true);
     Velocity.set(
       callerAddress,
       oldEntity.scale,
@@ -321,7 +319,7 @@ contract VelocitySystem is SimHandler {
     // Update the new entity's energy and velocity
     Mass.set(callerAddress, newEntity.scale, newEntity.entityId, oldEntityData.mass, true);
     Energy.set(callerAddress, newEntity.scale, newEntity.entityId, oldEntityData.energy, true);
-    Velocity.set(callerAddress, newEntity.scale, newEntity.entityId, block.number, abi.encode(newVelocity));
+    Velocity.set(callerAddress, newEntity.scale, newEntity.entityId, block.number, abi.encode(newVelocity), true);
     // VoxelEntity memory newActingEntity = actingEntity;
     if (isEntityEqual(oldEntity, actingEntity)) {
       // newActingEntity = newEntity; // moving yourself, so update the acting entity

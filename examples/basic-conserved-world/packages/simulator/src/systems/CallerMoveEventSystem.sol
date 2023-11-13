@@ -29,9 +29,9 @@ contract CallerMoveEventSystem is System {
         blocksToWait = TX_SPEED_RATIO / health;
       }
       // Check if enough time has passed
-      uint256 lastBlock = Metadata.get(callerAddress, actingEntity.scale, actingEntity.entityId);
+      uint256 lastBlock = Metadata.getLastInteractionBlock(callerAddress, actingEntity.scale, actingEntity.entityId);
       if (lastBlock == 0 || block.number - lastBlock >= blocksToWait) {
-        Metadata.set(callerAddress, actingEntity.scale, actingEntity.entityId, block.number);
+        Metadata.set(callerAddress, actingEntity.scale, actingEntity.entityId, block.number, true);
       } else {
         revert("Not enough time has passed since last event based on current health");
       }
@@ -56,11 +56,11 @@ contract CallerMoveEventSystem is System {
     );
 
     if (
-      hasKey(MetadataTableId, Metadata.encodeKeyTuple(callerAddress, oldEntity.scale, oldEntity.entityId)) &&
+      Metadata.getHasValue(callerAddress, oldEntity.scale, oldEntity.entityId) &&
       !isEntityEqual(oldEntity, postNewEntity)
     ) {
-      uint256 lastInteractionBlock = Metadata.get(callerAddress, oldEntity.scale, oldEntity.entityId);
-      Metadata.set(callerAddress, postNewEntity.scale, postNewEntity.entityId, lastInteractionBlock);
+      uint256 lastInteractionBlock = Metadata.getLastInteractionBlock(callerAddress, oldEntity.scale, oldEntity.entityId);
+      Metadata.set(callerAddress, postNewEntity.scale, postNewEntity.entityId, lastInteractionBlock, true);
       Metadata.deleteRecord(callerAddress, oldEntity.scale, oldEntity.entityId);
     }
 

@@ -121,7 +121,7 @@ async function main() {
       uvWrap: "",
     }, txOptions);
     // let receipt = await tx.wait();
-    console.log(tx.hash);
+    // console.log(tx.hash);
     allTx.push(tx.hash);
 
     // Wait for the transaction to be mined
@@ -146,28 +146,25 @@ async function main() {
       PRETTY_VOXEL_MASS,
       txOptions
     );
-    console.log(tx.hash);
+    // console.log(tx.hash);
     allTx.push(tx.hash);
 
     tx = await caWorldContract.registerVoxelType(hashedVoxelTypeId, txOptions);
-    console.log(tx.hash);
+    // console.log(tx.hash);
     allTx.push(tx.hash);
-
-    if(allTx.length % 1 == 0){
-      break;
-    }
   }
 
    // Check the status of each transaction
    for (const hash of allTx) {
     const receipt = await provider.waitForTransaction(hash);
     if (receipt.status === 1) {
-        console.log(`Transaction ${hash} was successful`);
+        // console.log(`Transaction ${hash} was successful`);
     } else {
         console.log(`Transaction ${hash} failed`);
         console.log(receipt);
     }
-}
+  }
+  console.log("Finished deploying!");
 }
 
 main().catch((error) => {

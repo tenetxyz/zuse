@@ -3,10 +3,11 @@ geth \
   --dev \
   --dev.gaslimit 2000000000 \
   --rpc.gascap 2000000000 \
+  --mine \
   --miner.gaslimit 2000000000 \
   --rpc.txfeecap 0 \
   --http \
-  --http.api eth,web3,net \
+  --http.api eth,web3,net,txpool \
   --http.addr "0.0.0.0" \
   --http.vhosts "*" \
   --http.port 8545 \

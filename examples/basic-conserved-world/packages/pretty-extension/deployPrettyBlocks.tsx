@@ -97,8 +97,8 @@ async function main() {
 
   const txOptions = {
     gasLimit: BigInt(1_900_000_000),
-    maxPriorityFeePerGas: 2000000000,
-    maxFeePerGas: 100000000000,
+    // maxPriorityFeePerGas: 2000000000,
+    // maxFeePerGas: 100000000000,
     nonce: nonce - 1
 };
 
@@ -162,9 +162,9 @@ async function main() {
     tx = await caWorldContract.registerVoxelType(hashedVoxelTypeId, txOptions);
     // console.log(tx.hash);
     allTx.push(tx.hash);
-  }
 
-   // Check the status of each transaction
+       // Check the status of each transaction
+   console.log("Verifying transactions...");
    for (const hash of allTx) {
     const receipt = await provider.waitForTransaction(hash);
     if (receipt.status === 1) {
@@ -174,6 +174,11 @@ async function main() {
         console.log(receipt);
     }
   }
+  console.log("Done verifying transactions!")
+
+  allTx = [];
+  }
+
   console.log("Finished deploying!");
 }
 

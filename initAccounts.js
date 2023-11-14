@@ -7,7 +7,7 @@ const web3 = new Web3("http://127.0.0.1:8545");
 async function initChain() {
     try {
         // Read keystore file from dir
-        const LOCAL_KEYSTORE_DIR = "./data/dev-chain/keystore";
+        const LOCAL_KEYSTORE_DIR = "./geth-datadir/keystore";
         const keystoreFile = fs.readdirSync(LOCAL_KEYSTORE_DIR)[0];
 
         // Continue with the rest of the initAccounts.js logic

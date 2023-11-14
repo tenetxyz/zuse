@@ -4,6 +4,8 @@ geth \
   --dev.gaslimit 2000000000 \
   --rpc.gascap 2000000000 \
   --miner.gaslimit 2000000000 \
+  --rpc.gascap 2000000000 \
+  --rpc.txfeecap 0 \
   --http \
   --http.api eth,web3,net \
   --http.addr "0.0.0.0" \

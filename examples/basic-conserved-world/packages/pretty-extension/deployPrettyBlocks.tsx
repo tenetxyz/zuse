@@ -93,7 +93,7 @@ async function main() {
     currentVoxelMapping.set(key, value);
   }
 
-  const txOptions = { gasLimit: BigInt(1_900_000_000), gasPrice: 1000000,  maxPriorityFeePerGas: 2000000000,
+  const txOptions = { gasLimit: BigInt(1_900_000_000), maxPriorityFeePerGas: 2000000000,
   maxFeePerGas: 100000000000 };
 
   // Go through currentVoxelMapping and batch generate postdeploy scripts registering them

@@ -9,6 +9,7 @@ import { Coord, VoxelCoord, BlockDirection } from "@tenet-utils/src/Types.sol";
 import { VoxelEntity } from "@tenet-utils/src/Types.sol";
 import { getKeysWithValue } from "@latticexyz/world/src/modules/keyswithvalue/getKeysWithValue.sol";
 import { Position, PositionData, PositionTableId } from "@tenet-base-world/src/codegen/tables/Position.sol";
+import { ReversePosition, ReversePositionData, ReversePositionTableId } from "@tenet-base-world/src/codegen/tables/ReversePosition.sol";
 import { VoxelType, VoxelTypeData } from "@tenet-base-world/src/codegen/tables/VoxelType.sol";
 
 function calculateChildCoords(uint32 scale, VoxelCoord memory parentCoord) pure returns (VoxelCoord[] memory) {
@@ -81,36 +82,18 @@ function getOppositeDirection(BlockDirection direction) pure returns (BlockDirec
 }
 
 function getEntityAtCoord(uint32 scale, VoxelCoord memory coord) view returns (bytes32) {
-  bytes32[][] memory allEntitiesAtCoord = getKeysWithValue(PositionTableId, Position.encode(coord.x, coord.y, coord.z, true));
   bytes32 entity;
-  for (uint256 i = 0; i < allEntitiesAtCoord.length; i++) {
-    if (uint256(allEntitiesAtCoord[i][0]) == scale) {
-      if (uint256(entity) != 0) {
-        revert("Found more than one entity at the same position");
-      }
-      entity = allEntitiesAtCoord[i][1];
-    }
+  if(ReversePosition.getHasValue(store, coord.x, coord.y, coord.z, scale)){
+    entity = ReversePosition.getEntity(store, coord.x, coord.y, coord.z, scale);
   }
-
   return entity;
 }
 
 function getEntityAtCoord(IStore store, uint32 scale, VoxelCoord memory coord) view returns (bytes32) {
-  bytes32[][] memory allEntitiesAtCoord = getKeysWithValue(
-    store,
-    PositionTableId,
-    Position.encode(coord.x, coord.y, coord.z, true)
-  );
   bytes32 entity;
-  for (uint256 i = 0; i < allEntitiesAtCoord.length; i++) {
-    if (uint256(allEntitiesAtCoord[i][0]) == scale) {
-      if (uint256(entity) != 0) {
-        revert("Found more than one entity at the same position");
-      }
-      entity = allEntitiesAtCoord[i][1];
-    }
+  if(ReversePosition.getHasValue(store, coord.x, coord.y, coord.z, scale)){
+    entity = ReversePosition.getEntity(store, coord.x, coord.y, coord.z, scale);
   }
-
   return entity;
 }
 

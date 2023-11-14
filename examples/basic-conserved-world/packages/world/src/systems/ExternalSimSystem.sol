@@ -7,7 +7,7 @@ import { VoxelCoord, VoxelEntity, InteractionSelector } from "@tenet-utils/src/T
 import { System } from "@latticexyz/world/src/System.sol";
 import { getVoxelCoordStrict } from "@tenet-base-world/src/Utils.sol";
 import { REGISTRY_ADDRESS, SIMULATOR_ADDRESS } from "@tenet-world/src/Constants.sol";
-import { OwnedBy, Position, VoxelType } from "@tenet-world/src/codegen/Tables.sol";
+import { OwnedBy, Position, ReversePosition, VoxelType } from "@tenet-world/src/codegen/Tables.sol";
 import { Mass } from "@tenet-simulator/src/codegen/tables/Mass.sol";
 import { Energy } from "@tenet-simulator/src/codegen/tables/Energy.sol";
 import { Velocity } from "@tenet-simulator/src/codegen/tables/Velocity.sol";
@@ -57,6 +57,7 @@ contract ExternalSimSystem is System {
       entityId: getUniqueEntity()
     });
     Position.set(eventVoxelEntity.scale, eventVoxelEntity.entityId, coord.x, coord.y, coord.z, true);
+    ReversePosition.set(coord.x, coord.y, coord.z, eventVoxelEntity.scale, eventVoxelEntity.entityId, true);
 
     // Update layers
     IWorld(_world()).enterCA(caAddress, eventVoxelEntity, voxelTypeId, mindSelector, coord);

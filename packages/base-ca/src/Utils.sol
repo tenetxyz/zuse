@@ -7,6 +7,7 @@ import { getVonNeumannNeighbours, calculateBlockDirection } from "@tenet-utils/s
 import { hasKey } from "@latticexyz/world/src/modules/keysintable/hasKey.sol";
 import { getKeysWithValue } from "@latticexyz/world/src/modules/keyswithvalue/getKeysWithValue.sol";
 import { CAPosition, CAPositionData, CAPositionTableId } from "@tenet-base-ca/src/codegen/tables/CAPosition.sol";
+import { CAReversePosition, CAReversePositionData, CAReversePositionTableId } from "@tenet-base-ca/src/codegen/tables/CAReversePosition.sol";
 import { CAVoxelType } from "@tenet-base-ca/src/codegen/tables/CAVoxelType.sol";
 import { CAEntityMapping, CAEntityMappingTableId } from "@tenet-base-ca/src/codegen/tables/CAEntityMapping.sol";
 import { CAEntityReverseMapping, CAEntityReverseMappingTableId, CAEntityReverseMappingData } from "@tenet-base-ca/src/codegen/tables/CAEntityReverseMapping.sol";
@@ -76,21 +77,10 @@ function getCAEntityPositionStrict(IStore store, bytes32 caEntity) view returns 
 }
 
 function getEntityAtCoord(IStore store, address callerAddress, VoxelCoord memory coord) view returns (bytes32) {
-  bytes32[][] memory allEntitiesAtCoord = getKeysWithValue(
-    store,
-    CAPositionTableId,
-    CAPosition.encode(coord.x, coord.y, coord.z, true)
-  );
   bytes32 entity;
-  for (uint256 i = 0; i < allEntitiesAtCoord.length; i++) {
-    if (allEntitiesAtCoord[i][0] == bytes32(uint256(uint160(callerAddress)))) {
-      if (uint256(entity) != 0) {
-        revert("Found more than one entity at the same position");
-      }
-      entity = allEntitiesAtCoord[i][1];
-    }
+  if(CAReversePosition.getHasValue(store, coord.x, coord.y, coord.z, callerAddress)){
+    entity = CAReversePosition.getEntity(store, coord.x, coord.y, coord.z, callerAddress);
   }
-
   return entity;
 }
 

@@ -11,6 +11,7 @@ import { VoxelCoord, VoxelEntity, EntityEventData } from "@tenet-utils/src/Types
 import { WorldConfig, WorldConfigTableId } from "@tenet-base-world/src/codegen/tables/WorldConfig.sol";
 import { VoxelType, VoxelTypeData } from "@tenet-base-world/src/codegen/tables/VoxelType.sol";
 import { Position } from "@tenet-base-world/src/codegen/tables/Position.sol";
+import { ReversePosition } from "@tenet-base-world/src/codegen/tables/ReversePosition.sol";
 import { calculateChildCoords, getEntityAtCoord, positionDataToVoxelCoord } from "@tenet-base-world/src/Utils.sol";
 import { CAVoxelType, CAVoxelTypeData } from "@tenet-base-ca/src/codegen/tables/CAVoxelType.sol";
 import { VoxelTypeRegistry, VoxelTypeRegistryData } from "@tenet-registry/src/codegen/tables/VoxelTypeRegistry.sol";
@@ -195,6 +196,7 @@ abstract contract Event is System {
     if (uint256(voxelEntityId) == 0) {
       voxelEntityId = getUniqueEntity();
       Position.set(scale, voxelEntityId, coord.x, coord.y, coord.z, true);
+      ReversePosition.set(coord.x, coord.y, coord.z, scale, voxelEntityId, true);
     }
     VoxelEntity memory eventVoxelEntity = VoxelEntity({ scale: scale, entityId: voxelEntityId });
 

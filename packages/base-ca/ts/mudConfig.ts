@@ -41,6 +41,19 @@ const LAYER_TABLES: Record<string, TableConfig> = {
       hasValue: "bool",
     },
   },
+  CAReversePosition: {
+    registerAsRoot: true,
+    keySchema: {
+      x: "int32",
+      y: "int32",
+      z: "int32",
+      callerAddress: "address",
+    },
+    schema: {
+      entity: "bytes32",
+      hasValue: "bool",
+    },
+  },
   CAVoxelType: {
     registerAsRoot: true,
     keySchema: {
@@ -71,11 +84,6 @@ const LAYER_MODULES = [
     name: "UniqueEntityModule",
     root: true,
     args: [],
-  },
-  {
-    name: "KeysWithValueModule",
-    root: true,
-    args: [resolveTableId("CAPosition")],
   },
 ];
 

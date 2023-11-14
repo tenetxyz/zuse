@@ -8,6 +8,7 @@ import { getUniqueEntity } from "@latticexyz/world/src/modules/uniqueentity/getU
 import { VoxelTypeRegistry } from "@tenet-registry/src/codegen/tables/VoxelTypeRegistry.sol";
 import { CARegistry } from "@tenet-registry/src/codegen/tables/CARegistry.sol";
 import { CAPosition, CAPositionData, CAPositionTableId } from "@tenet-base-ca/src/codegen/tables/CAPosition.sol";
+import { CAReversePosition, CAReversePositionData, CAReversePositionTableId } from "@tenet-base-ca/src/codegen/tables/CAReversePosition.sol";
 import { CAMind, CAMindTableId } from "@tenet-base-ca/src/codegen/tables/CAMind.sol";
 import { CAEntityMapping, CAEntityMappingTableId } from "@tenet-base-ca/src/codegen/tables/CAEntityMapping.sol";
 import { CAEntityReverseMapping } from "@tenet-base-ca/src/codegen/tables/CAEntityReverseMapping.sol";
@@ -58,6 +59,7 @@ abstract contract CA is System {
     }
     require(!CAEntityMapping.getHasValue(callerAddress, entity), "Entity exists");
     CAPosition.set(callerAddress, entity, CAPositionData({ x: coord.x, y: coord.y, z: coord.z, hasValue: true }));
+    CAReversePosition.set(coord.x, coord.y, coord.z, callerAddress, CAReversePositionData({ entity: entity, hasValue: true }));
     bytes32 caEntity = getUniqueEntity();
     if (terrainGenType != TerrainGenType.Move) {
       CAEntityMapping.set(callerAddress, entity, caEntity, true);

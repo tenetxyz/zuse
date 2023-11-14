@@ -6,6 +6,7 @@ pragma solidity >=0.8.0;
 import { WorldConfig, WorldConfigTableId } from "./tables/WorldConfig.sol";
 import { VoxelType, VoxelTypeData, VoxelTypeTableId } from "./tables/VoxelType.sol";
 import { Position, PositionData, PositionTableId } from "./tables/Position.sol";
+import { ReversePosition, ReversePositionData, ReversePositionTableId } from "./tables/ReversePosition.sol";
 import { VoxelActivated, VoxelActivatedData, VoxelActivatedTableId } from "./tables/VoxelActivated.sol";
 import { Interactions, InteractionsTableId } from "./tables/Interactions.sol";
 import { OfSpawn, OfSpawnTableId } from "./tables/OfSpawn.sol";

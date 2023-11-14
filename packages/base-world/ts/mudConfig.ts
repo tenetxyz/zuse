@@ -37,6 +37,18 @@ const WORLD_TABLES: Record<string, TableConfig> = {
       hasValue: "bool",
     },
   },
+  ReversePosition: {
+    keySchema: {
+      x: "int32",
+      y: "int32",
+      z: "int32",
+      scale: "uint32",
+    },
+    schema: {
+      entity: "bytes32",
+      hasValue: "bool",
+    },
+  },
   VoxelActivated: {
     keySchema: {
       player: "address",
@@ -88,11 +100,6 @@ const WORLD_MODULES = [
     name: "KeysInTableModule",
     root: true,
     args: [resolveTableId("WorldConfig")],
-  },
-  {
-    name: "KeysWithValueModule",
-    root: true,
-    args: [resolveTableId("Position")],
   },
   {
     name: "KeysInTableModule",

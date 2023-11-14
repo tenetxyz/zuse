@@ -1,5 +1,5 @@
 geth \
-  --datadir data/dev-chain \
+  --datadir geth-datadir\
   --dev \
   --dev.gaslimit 2000000000 \
   --rpc.gascap 2000000000 \
@@ -16,4 +16,4 @@ geth \
   --ws.port 8545 \
   --ws.origins "*"
 
-geth --exec "loadScript('initAccounts.js')" attach ipc:data/dev-chain/geth.ipc
+# geth --exec "loadScript('initAccounts.js')" attach ipc:geth-datadir/geth.ipc

@@ -47,23 +47,12 @@ async function initAccounts(keystorePath) {
         // Default dev account
         var sender = account.address;
 
-        const serverFaucet = "0xe67AcfFCe0B542540F1520a9eaD7Aa86ff31196E";
-
         try {
             // Define gas price parameters
             const gasPriceParams = {
                 maxPriorityFeePerGas: web3.utils.toWei("2", "gwei"), // Adjust as needed
                 maxFeePerGas: web3.utils.toWei("100", "gwei"), // Adjust as needed
             };
-
-            // Send initial transaction to serverFaucet
-            let receipt = await web3.eth.sendTransaction({
-                from: sender,
-                to: serverFaucet,
-                value: web3.utils.toWei("1000000000000000", "ether"),
-                ...gasPriceParams,
-            });
-            console.log("Transaction to serverFaucet successful:", receipt);
 
             // List of recipient accounts
             var recipients = [

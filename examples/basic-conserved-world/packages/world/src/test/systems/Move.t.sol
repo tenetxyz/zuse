@@ -116,7 +116,7 @@ contract MoveTest is MudTest {
     VoxelCoord memory newAgentCoord = VoxelCoord({ x: agentCoord.x + 1, y: agentCoord.y, z: agentCoord.z });
     console.log("moving");
     console.logBytes32(agentEntity.entityId);
-    bytes32 agentCAEntity = CAEntityMapping.get(IStore(BASE_CA_ADDRESS), worldAddress, agentEntity.entityId);
+    bytes32 agentCAEntity = CAEntityMapping.getCaEntity(IStore(BASE_CA_ADDRESS), worldAddress, agentEntity.entityId);
     address agentOwner = OwnedBy.get(agentEntity.scale, agentEntity.entityId);
     (, agentEntity) = world.moveWithAgent(FaucetVoxelID, agentCoord, newAgentCoord, agentEntity);
     uint256 staminaAfter = Stamina.get(
@@ -128,7 +128,7 @@ contract MoveTest is MudTest {
     console.log("staminaAfter");
     console.logUint(staminaAfter);
     assertTrue(staminaBefore > staminaAfter);
-    assertTrue(CAEntityMapping.get(IStore(BASE_CA_ADDRESS), worldAddress, agentEntity.entityId) == agentCAEntity);
+    assertTrue(CAEntityMapping.getCaEntity(IStore(BASE_CA_ADDRESS), worldAddress, agentEntity.entityId) == agentCAEntity);
     assertTrue(OwnedBy.get(agentEntity.scale, agentEntity.entityId) == agentOwner);
 
     VoxelCoord memory agentVelocity = abi.decode(
@@ -190,7 +190,7 @@ contract MoveTest is MudTest {
       agentEntity.entityId,
       abi.encode(VoxelCoord({ x: 4, y: 0, z: 0 }))
     );
-    bytes32 agentCAEntity = CAEntityMapping.get(IStore(BASE_CA_ADDRESS), worldAddress, agentEntity.entityId);
+    bytes32 agentCAEntity = CAEntityMapping.getCaEntity(IStore(BASE_CA_ADDRESS), worldAddress, agentEntity.entityId);
     address agentOwner = OwnedBy.get(agentEntity.scale, agentEntity.entityId);
     VoxelCoord memory newAgentCoord = VoxelCoord({ x: agentCoord.x + 1, y: agentCoord.y, z: agentCoord.z });
     console.log("moving");
@@ -205,7 +205,7 @@ contract MoveTest is MudTest {
     console.log("post move");
     console.logBytes32(agentEntity.entityId);
     assertTrue(staminaBefore > staminaAfter);
-    assertTrue(CAEntityMapping.get(IStore(BASE_CA_ADDRESS), worldAddress, agentEntity.entityId) == agentCAEntity);
+    assertTrue(CAEntityMapping.getCaEntity(IStore(BASE_CA_ADDRESS), worldAddress, agentEntity.entityId) == agentCAEntity);
     assertTrue(OwnedBy.get(agentEntity.scale, agentEntity.entityId) == agentOwner);
 
     VoxelCoord memory agentVelocity = abi.decode(
@@ -267,7 +267,7 @@ contract MoveTest is MudTest {
       agentEntity.entityId,
       abi.encode(VoxelCoord({ x: 0, y: 0, z: 0 }))
     );
-    bytes32 agentCAEntity = CAEntityMapping.get(IStore(BASE_CA_ADDRESS), worldAddress, agentEntity.entityId);
+    bytes32 agentCAEntity = CAEntityMapping.getCaEntity(IStore(BASE_CA_ADDRESS), worldAddress, agentEntity.entityId);
     address agentOwner = OwnedBy.get(agentEntity.scale, agentEntity.entityId);
     VoxelCoord memory newAgentCoord = VoxelCoord({ x: agentCoord.x + 1, y: agentCoord.y, z: agentCoord.z });
     console.log("moving");
@@ -282,7 +282,7 @@ contract MoveTest is MudTest {
     console.log("post move");
     console.logBytes32(agentEntity.entityId);
     assertTrue(staminaBefore > staminaAfter);
-    assertTrue(CAEntityMapping.get(IStore(BASE_CA_ADDRESS), worldAddress, agentEntity.entityId) == agentCAEntity);
+    assertTrue(CAEntityMapping.getCaEntity(IStore(BASE_CA_ADDRESS), worldAddress, agentEntity.entityId) == agentCAEntity);
     assertTrue(OwnedBy.get(agentEntity.scale, agentEntity.entityId) == agentOwner);
 
     VoxelCoord memory agentVelocity = abi.decode(

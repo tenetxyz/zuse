@@ -56,12 +56,12 @@ abstract contract CA is System {
     } else if (terrainGenType == TerrainGenType.Move) {
       require(terrainVoxelTypeId == emptyVoxelId(), "cannot move to non-empty terrain");
     }
-    require(!hasKey(CAEntityMappingTableId, CAEntityMapping.encodeKeyTuple(callerAddress, entity)), "Entity exists");
+    require(!CAEntityMapping.getHasValue(callerAddress, entity), "Entity exists");
     CAPosition.set(callerAddress, entity, CAPositionData({ x: coord.x, y: coord.y, z: coord.z, hasValue: true }));
     bytes32 caEntity = getUniqueEntity();
     if (terrainGenType != TerrainGenType.Move) {
-      CAEntityMapping.set(callerAddress, entity, caEntity);
-      CAEntityReverseMapping.set(caEntity, callerAddress, entity);
+      CAEntityMapping.set(callerAddress, entity, caEntity, true);
+      CAEntityReverseMapping.set(caEntity, callerAddress, entity, true);
     }
     return caEntity;
   }
@@ -100,7 +100,7 @@ abstract contract CA is System {
     } else {
       caEntity = terrainGen(callerAddress, TerrainGenType.Build, voxelTypeId, coord, entity);
     }
-    CAMind.set(caEntity, voxelTypeId, mindSelector);
+    CAMind.set(caEntity, voxelTypeId, mindSelector, true);
 
     bytes32[] memory caNeighbourEntityIds = entityArrayToCAEntityArray(callerAddress, neighbourEntityIds);
 
@@ -148,7 +148,7 @@ abstract contract CA is System {
 
     callVoxelExitWorld(voxelTypeId, coord, caEntity);
 
-    CAMind.set(caEntity, voxelTypeId, bytes4(0)); // emoty voxel has no mind
+    CAMind.set(caEntity, voxelTypeId, bytes4(0), true); // emoty voxel has no mind
   }
 
   function moveWorld(
@@ -192,15 +192,15 @@ abstract contract CA is System {
     } else {
       newCAEntity = terrainGen(callerAddress, TerrainGenType.Move, voxelTypeId, newCoord, newEntity);
       // TODO: should there be a mind for this new entity?
-      CAMind.set(newCAEntity, voxelTypeId, bytes4(0));
+      CAMind.set(newCAEntity, voxelTypeId, bytes4(0), true);
     }
 
     // Update CA entity mapping from old to new
     // Note: This is the main move of the pointer
-    CAEntityMapping.set(callerAddress, oldEntity, newCAEntity);
-    CAEntityReverseMapping.set(newCAEntity, callerAddress, oldEntity);
-    CAEntityMapping.set(callerAddress, newEntity, oldCAEntity);
-    CAEntityReverseMapping.set(oldCAEntity, callerAddress, newEntity);
+    CAEntityMapping.set(callerAddress, oldEntity, newCAEntity, true);
+    CAEntityReverseMapping.set(newCAEntity, callerAddress, oldEntity, true);
+    CAEntityMapping.set(callerAddress, newEntity, oldCAEntity, true);
+    CAEntityReverseMapping.set(oldCAEntity, callerAddress, newEntity, true);
 
     moveWorldHelper(
       callerAddress,

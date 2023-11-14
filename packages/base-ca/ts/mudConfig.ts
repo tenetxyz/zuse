@@ -13,6 +13,7 @@ const LAYER_TABLES: Record<string, TableConfig> = {
     },
     schema: {
       caEntity: "bytes32",
+      hasValue: "bool",
     },
   },
   CAEntityReverseMapping: {
@@ -23,6 +24,7 @@ const LAYER_TABLES: Record<string, TableConfig> = {
     schema: {
       callerAddress: "address",
       entity: "bytes32",
+      hasValue: "bool",
     },
   },
   CAPosition: {
@@ -59,6 +61,7 @@ const LAYER_TABLES: Record<string, TableConfig> = {
     schema: {
       voxelTypeId: "bytes32",
       mindSelector: "bytes4",
+      hasValue: "bool",
     },
   },
 };
@@ -73,21 +76,6 @@ const LAYER_MODULES = [
     name: "KeysWithValueModule",
     root: true,
     args: [resolveTableId("CAPosition")],
-  },
-  {
-    name: "KeysInTableModule",
-    root: true,
-    args: [resolveTableId("CAEntityMapping")],
-  },
-  {
-    name: "KeysInTableModule",
-    root: true,
-    args: [resolveTableId("CAEntityReverseMapping")],
-  },
-  {
-    name: "KeysInTableModule",
-    root: true,
-    args: [resolveTableId("CAMind")],
   },
 ];
 

@@ -79,7 +79,7 @@ contract PlantTest is MudTest {
   //   vm.roll(block.number + 1);
   //   VoxelCoord memory plantCoord = VoxelCoord({ x: soilCoord.x, y: soilCoord.y + 1, z: soilCoord.z });
   //   VoxelEntity memory plantEntity = world.buildWithAgent(PlantVoxelID, plantCoord, agentEntity, bytes4(0));
-  //   bytes32 plantCAEntity = CAEntityMapping.get(IStore(BASE_CA_ADDRESS), worldAddress, plantEntity.entityId);
+  //   bytes32 plantCAEntity = CAEntityMapping.getCaEntity(IStore(BASE_CA_ADDRESS), worldAddress, plantEntity.entityId);
   //   PlantData memory plantData = Plant.get(IStore(BASE_CA_ADDRESS), worldAddress, plantCAEntity);
   //   uint256 plantNutrients = Nutrients.get(
   //     IStore(SIMULATOR_ADDRESS),
@@ -120,7 +120,7 @@ contract PlantTest is MudTest {
   //   vm.roll(block.number + 1);
   //   VoxelCoord memory plantCoord = VoxelCoord({ x: soilCoord.x, y: soilCoord.y + 1, z: soilCoord.z });
   //   VoxelEntity memory plantEntity = world.buildWithAgent(PlantVoxelID, plantCoord, agentEntity, bytes4(0));
-  //   bytes32 plantCAEntity = CAEntityMapping.get(IStore(BASE_CA_ADDRESS), worldAddress, plantEntity.entityId);
+  //   bytes32 plantCAEntity = CAEntityMapping.getCaEntity(IStore(BASE_CA_ADDRESS), worldAddress, plantEntity.entityId);
   //   PlantData memory plantData = Plant.get(IStore(BASE_CA_ADDRESS), worldAddress, plantCAEntity);
   //   uint256 plantNutrients = Nutrients.get(
   //     IStore(SIMULATOR_ADDRESS),
@@ -189,7 +189,7 @@ contract PlantTest is MudTest {
     VoxelCoord memory plantCoord = VoxelCoord({ x: soilCoord.x, y: soilCoord.y + 1, z: soilCoord.z });
     console.log("build plant");
     VoxelEntity memory plantEntity = world.buildWithAgent(PlantVoxelID, plantCoord, agentEntity, bytes4(0));
-    bytes32 plantCAEntity = CAEntityMapping.get(IStore(BASE_CA_ADDRESS), worldAddress, plantEntity.entityId);
+    bytes32 plantCAEntity = CAEntityMapping.getCaEntity(IStore(BASE_CA_ADDRESS), worldAddress, plantEntity.entityId);
     PlantData memory plantData = Plant.get(IStore(BASE_CA_ADDRESS), worldAddress, plantCAEntity);
     assertTrue(Nitrogen.get(IStore(SIMULATOR_ADDRESS), worldAddress, plantEntity.scale, plantEntity.entityId) > 0);
     assertTrue(Phosphorous.get(IStore(SIMULATOR_ADDRESS), worldAddress, plantEntity.scale, plantEntity.entityId) > 0);
@@ -246,7 +246,7 @@ contract PlantTest is MudTest {
       assertTrue(plantElixir == 0);
       assertTrue(plantProtein == 0);
       assertTrue(VoxelType.getVoxelVariantId(plantEntity.scale, plantEntity.entityId) == PlantSeedVoxelVariantID);
-      bytes32 pokemonCAEntity = CAEntityMapping.get(IStore(BASE_CA_ADDRESS), worldAddress, pokemonEntity.entityId);
+      bytes32 pokemonCAEntity = CAEntityMapping.getCaEntity(IStore(BASE_CA_ADDRESS), worldAddress, pokemonEntity.entityId);
       plantData = Plant.get(IStore(BASE_CA_ADDRESS), worldAddress, plantCAEntity);
       consumers = abi.decode(plantData.consumers, (PlantConsumer[]));
       assertTrue(consumers.length == 1);

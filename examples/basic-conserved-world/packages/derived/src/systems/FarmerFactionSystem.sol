@@ -88,7 +88,7 @@ contract FarmerFactionSystem is System {
       ),
       "FarmerLBSystem: shard already claimed"
     );
-    bytes32 farmerCAEntity = CAEntityMapping.get(caStore, WORLD_ADDRESS, farmerEntity.entityId);
+    bytes32 farmerCAEntity = CAEntityMapping.getCaEntity(caStore, WORLD_ADDRESS, farmerEntity.entityId);
     bytes32[][] memory farmerLBEntities = getKeysInTable(FarmFactionsLeaderboardTableId);
     // Initial rank is the number of farmers + 1, ie last place
     FarmFactionsLeaderboard.set(

@@ -37,7 +37,7 @@ contract DerivedSystem is System {
     console.logUint(simData.mass);
 
     // CA data
-    bytes32 caEntity = CAEntityMapping.get(caStore, WORLD_ADDRESS, entity.entityId);
+    bytes32 caEntity = CAEntityMapping.getCaEntity(caStore, WORLD_ADDRESS, entity.entityId);
     PlantData memory plantData = Plant.get(caStore, WORLD_ADDRESS, caEntity);
     console.logUint(plantData.lastInteractionBlock);
     PokemonData memory pokemonData = Pokemon.get(caStore, WORLD_ADDRESS, caEntity);

@@ -82,7 +82,7 @@ contract PokemonTest is MudTest {
     Stamina.set(IStore(SIMULATOR_ADDRESS), worldAddress, pokemon1Entity.scale, pokemon1Entity.entityId, 50000);
 
     // Activate pokemon
-    bytes32 pokemon1CAEntity = CAEntityMapping.get(IStore(BASE_CA_ADDRESS), worldAddress, pokemon1Entity.entityId);
+    bytes32 pokemon1CAEntity = CAEntityMapping.getCaEntity(IStore(BASE_CA_ADDRESS), worldAddress, pokemon1Entity.entityId);
 
     pokemon2Coord = VoxelCoord({ x: agentCoord.x + 1, y: agentCoord.y, z: agentCoord.z - 1 });
     VoxelEntity memory pokemon2Entity = world.buildWithAgent(
@@ -100,7 +100,7 @@ contract PokemonTest is MudTest {
     Stamina.set(IStore(SIMULATOR_ADDRESS), worldAddress, pokemon2Entity.scale, pokemon2Entity.entityId, 50000);
 
     // Activate pokemon
-    bytes32 pokemon2CAEntity = CAEntityMapping.get(IStore(BASE_CA_ADDRESS), worldAddress, pokemon2Entity.entityId);
+    bytes32 pokemon2CAEntity = CAEntityMapping.getCaEntity(IStore(BASE_CA_ADDRESS), worldAddress, pokemon2Entity.entityId);
 
     // move pokemon1 beside pokemon2
     {
@@ -197,7 +197,7 @@ contract PokemonTest is MudTest {
     Stamina.set(IStore(SIMULATOR_ADDRESS), worldAddress, pokemon1Entity.scale, pokemon1Entity.entityId, 50000);
 
     // Activate pokemon
-    bytes32 pokemon1CAEntity = CAEntityMapping.get(IStore(BASE_CA_ADDRESS), worldAddress, pokemon1Entity.entityId);
+    bytes32 pokemon1CAEntity = CAEntityMapping.getCaEntity(IStore(BASE_CA_ADDRESS), worldAddress, pokemon1Entity.entityId);
     console.log("activated pokemon");
 
     pokemon2Coord = VoxelCoord({ x: agentCoord.x + 1, y: agentCoord.y, z: agentCoord.z - 1 });
@@ -222,7 +222,7 @@ contract PokemonTest is MudTest {
     Stamina.set(IStore(SIMULATOR_ADDRESS), worldAddress, pokemon2Entity.scale, pokemon2Entity.entityId, 50000);
 
     // Activate pokemon
-    bytes32 pokemon2CAEntity = CAEntityMapping.get(IStore(BASE_CA_ADDRESS), worldAddress, pokemon2Entity.entityId);
+    bytes32 pokemon2CAEntity = CAEntityMapping.getCaEntity(IStore(BASE_CA_ADDRESS), worldAddress, pokemon2Entity.entityId);
 
     // move pokemon1 beside pokemon2
     {

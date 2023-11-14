@@ -57,7 +57,7 @@ contract FarmerDeliverySystem is System {
       "FarmerDeliverySystem: A farmer already claimed this shard"
     );
 
-    bytes32 agentCAEntity = CAEntityMapping.get(caStore, WORLD_ADDRESS, agentEntity.entityId);
+    bytes32 agentCAEntity = CAEntityMapping.getCaEntity(caStore, WORLD_ADDRESS, agentEntity.entityId);
 
     FarmDeliveryLeaderboard.set(shardCoord.x, shardCoord.y, shardCoord.z, 0, 0, agentCAEntity);
   }
@@ -69,7 +69,7 @@ contract FarmerDeliverySystem is System {
     for (uint64 i = 0; i < foodEntities.length; i++) {
       VoxelEntity memory foodEntity = foodEntities[i];
 
-      bytes32 foodCAEntity = CAEntityMapping.get(caStore, WORLD_ADDRESS, foodEntity.entityId);
+      bytes32 foodCAEntity = CAEntityMapping.getCaEntity(caStore, WORLD_ADDRESS, foodEntity.entityId);
 
       CAEntityReverseMappingData memory entityData = CAEntityReverseMapping.get(caStore, foodCAEntity);
       bytes32 voxelType = CAVoxelType.getVoxelTypeId(caStore, entityData.callerAddress, entityData.entity);

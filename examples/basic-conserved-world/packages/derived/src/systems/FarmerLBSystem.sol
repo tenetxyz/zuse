@@ -39,7 +39,7 @@ contract FarmerLBSystem is System {
       !hasKey(FarmLeaderboardTableId, FarmLeaderboard.encodeKeyTuple(shardCoord.x, shardCoord.y, shardCoord.z)),
       "FarmerLBSystem: shard already claimed"
     );
-    bytes32 farmerCAEntity = CAEntityMapping.get(caStore, WORLD_ADDRESS, farmerEntity.entityId);
+    bytes32 farmerCAEntity = CAEntityMapping.getCaEntity(caStore, WORLD_ADDRESS, farmerEntity.entityId);
     bytes32[][] memory farmerLBEntities = getKeysInTable(FarmLeaderboardTableId);
     // Initial rank is the number of farmers + 1, ie last place
     FarmLeaderboard.set(shardCoord.x, shardCoord.y, shardCoord.z, farmerLBEntities.length + 1, 0, farmerCAEntity);

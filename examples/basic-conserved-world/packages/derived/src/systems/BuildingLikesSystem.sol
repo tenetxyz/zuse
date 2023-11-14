@@ -46,7 +46,7 @@ contract BuildingLikesSystem is System {
       "BuildingLikesSystem: A builder already claimed this shard"
     );
 
-    bytes32 agentCAEntity = CAEntityMapping.get(caStore, WORLD_ADDRESS, agentEntity.entityId);
+    bytes32 agentCAEntity = CAEntityMapping.getCaEntity(caStore, WORLD_ADDRESS, agentEntity.entityId);
     bytes32[][] memory buildingLikesEntities = getKeysInTable(BuildingLeaderboardTableId);
     address[] memory emptyArray = new address[](0);
 

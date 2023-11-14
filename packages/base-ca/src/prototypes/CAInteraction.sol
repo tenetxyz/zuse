@@ -85,7 +85,7 @@ abstract contract CAInteraction is System {
         }
       } else {
         // Call mind to figure out whch voxel interaction to run
-        require(hasKey(CAMindTableId, CAMind.encodeKeyTuple(caInteractEntity)), "Mind does not exist");
+        require(CAMind.getHasValue(caInteractEntity), "Mind does not exist");
         // bytes4 mindSelector = CAMind.getMindSelector(caInteractEntity);
 
         if (CAMind.getMindSelector(caInteractEntity) != bytes4(0)) {

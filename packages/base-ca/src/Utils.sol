@@ -17,10 +17,10 @@ function entityToCAEntity(address callerAddress, bytes32 entity) view returns (b
     return entity;
   }
   require(
-    hasKey(CAEntityMappingTableId, CAEntityMapping.encodeKeyTuple(callerAddress, entity)),
+    CAEntityMapping.getHasValue(callerAddress, entity),
     "Entity must be mapped to a CAEntity"
   );
-  return CAEntityMapping.get(callerAddress, entity);
+  return CAEntityMapping.getCaEntity(callerAddress, entity);
 }
 
 function caEntityToEntity(bytes32 caEntity) view returns (bytes32) {
@@ -28,7 +28,7 @@ function caEntityToEntity(bytes32 caEntity) view returns (bytes32) {
     return caEntity;
   }
   require(
-    hasKey(CAEntityReverseMappingTableId, CAEntityReverseMapping.encodeKeyTuple(caEntity)),
+    CAEntityReverseMapping.getHasValue(caEntity),
     "CAEntity must be mapped to an entity"
   );
   return CAEntityReverseMapping.getEntity(caEntity);

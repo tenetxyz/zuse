@@ -93,8 +93,14 @@ async function main() {
     currentVoxelMapping.set(key, value);
   }
 
-  const txOptions = { gasLimit: BigInt(1_900_000_000), maxPriorityFeePerGas: 2000000000,
-  maxFeePerGas: 100000000000 };
+  let nonce = await provider.getTransactionCount(wallet.address);
+
+  const txOptions = {
+    gasLimit: BigInt(1_900_000_000),
+    maxPriorityFeePerGas: 2000000000,
+    maxFeePerGas: 100000000000,
+    nonce: nonce
+};
 
   // Go through currentVoxelMapping and batch generate postdeploy scripts registering them
   let allTx = [];
@@ -111,6 +117,7 @@ async function main() {
     console.log("Registering", voxelTypeId, voxelTypeDisplayName);
 
     // Call setTerrainProperties
+    txOptions.nonce += 1;
     let tx = await registryWorldContract.registerVoxelVariant(hashedVoxelTypeId, {
       variantId: 0,
       frames: 0,
@@ -128,6 +135,7 @@ async function main() {
     // Wait for the transaction to be mined
     // console.log(`Transaction mined: ${receipt.transactionHash}`);
 
+    txOptions.nonce += 1;
     tx = await registryWorldContract.registerVoxelType(
       voxelTypeDisplayName,
       hashedVoxelTypeId,
@@ -150,6 +158,7 @@ async function main() {
     // console.log(tx.hash);
     allTx.push(tx.hash);
 
+    txOptions.nonce += 1;
     tx = await caWorldContract.registerVoxelType(hashedVoxelTypeId, txOptions);
     // console.log(tx.hash);
     allTx.push(tx.hash);

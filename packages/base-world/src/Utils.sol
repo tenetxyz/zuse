@@ -83,8 +83,8 @@ function getOppositeDirection(BlockDirection direction) pure returns (BlockDirec
 
 function getEntityAtCoord(uint32 scale, VoxelCoord memory coord) view returns (bytes32) {
   bytes32 entity;
-  if(ReversePosition.getHasValue(store, coord.x, coord.y, coord.z, scale)){
-    entity = ReversePosition.getEntity(store, coord.x, coord.y, coord.z, scale);
+  if(ReversePosition.getHasValue(coord.x, coord.y, coord.z, scale)){
+    entity = ReversePosition.getEntity(coord.x, coord.y, coord.z, scale);
   }
   return entity;
 }

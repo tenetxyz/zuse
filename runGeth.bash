@@ -16,4 +16,4 @@ geth \
   --ws.port 8545 \
   --ws.origins "*"
 
-# geth --exec "loadScript('initAccounts.js')" attach ipc:geth-datadir/geth.ipc
+# node initAccounts.js

@@ -79,7 +79,7 @@ function getEntityAtCoord(IStore store, address callerAddress, VoxelCoord memory
   bytes32[][] memory allEntitiesAtCoord = getKeysWithValue(
     store,
     CAPositionTableId,
-    CAPosition.encode(coord.x, coord.y, coord.z)
+    CAPosition.encode(coord.x, coord.y, coord.z, true)
   );
   bytes32 entity;
   for (uint256 i = 0; i < allEntitiesAtCoord.length; i++) {
@@ -99,7 +99,7 @@ function getCAEntityAtCoord(IStore store, address callerAddress, VoxelCoord memo
 }
 
 function voxelCoordToPositionData(VoxelCoord memory coord) pure returns (CAPositionData memory) {
-  return CAPositionData(coord.x, coord.y, coord.z);
+  return CAPositionData(coord.x, coord.y, coord.z, true);
 }
 
 function positionDataToVoxelCoord(CAPositionData memory coord) pure returns (VoxelCoord memory) {

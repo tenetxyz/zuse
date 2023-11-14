@@ -25,7 +25,7 @@ contract CreationSystem is System {
     VoxelTypeData[] memory voxelTypes = new VoxelTypeData[](voxelTypeIds.length);
     for (uint256 i = 0; i < voxelTypeIds.length; i++) {
       bytes32 voxelVariantId = VoxelTypeRegistry.getPreviewVoxelVariantId(IStore(REGISTRY_ADDRESS), voxelTypeIds[i]);
-      voxelTypes[i] = VoxelTypeData(voxelTypeIds[i], voxelVariantId);
+      voxelTypes[i] = VoxelTypeData(voxelTypeIds[i], voxelVariantId, true);
     }
     return registerCreationHelper(name, description, voxelTypes, voxelCoords, baseCreationsInWorld);
   }

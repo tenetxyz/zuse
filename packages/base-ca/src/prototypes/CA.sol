@@ -57,7 +57,7 @@ abstract contract CA is System {
       require(terrainVoxelTypeId == emptyVoxelId(), "cannot move to non-empty terrain");
     }
     require(!hasKey(CAEntityMappingTableId, CAEntityMapping.encodeKeyTuple(callerAddress, entity)), "Entity exists");
-    CAPosition.set(callerAddress, entity, CAPositionData({ x: coord.x, y: coord.y, z: coord.z }), true);
+    CAPosition.set(callerAddress, entity, CAPositionData({ x: coord.x, y: coord.y, z: coord.z, hasValue: true }));
     bytes32 caEntity = getUniqueEntity();
     if (terrainGenType != TerrainGenType.Move) {
       CAEntityMapping.set(callerAddress, entity, caEntity);

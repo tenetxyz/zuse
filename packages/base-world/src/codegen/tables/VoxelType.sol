@@ -34,9 +34,10 @@ library VoxelType {
 
   /** Get the table's value schema */
   function getValueSchema() internal pure returns (Schema) {
-    SchemaType[] memory _schema = new SchemaType[](2);
+    SchemaType[] memory _schema = new SchemaType[](3);
     _schema[0] = SchemaType.BYTES32;
     _schema[1] = SchemaType.BYTES32;
+    _schema[2] = SchemaType.BOOL;
 
     return SchemaLib.encode(_schema);
   }
@@ -50,9 +51,10 @@ library VoxelType {
 
   /** Get the table's field names */
   function getFieldNames() internal pure returns (string[] memory fieldNames) {
-    fieldNames = new string[](2);
+    fieldNames = new string[](3);
     fieldNames[0] = "voxelTypeId";
     fieldNames[1] = "voxelVariantId";
+    fieldNames[2] = "hasValue";
   }
 
   /** Register the table's key schema, value schema, key names and value names */
@@ -145,6 +147,44 @@ library VoxelType {
     _store.setField(_tableId, _keyTuple, 1, abi.encodePacked((voxelVariantId)), getValueSchema());
   }
 
+  /** Get hasValue */
+  function getHasValue(uint32 scale, bytes32 entity) internal view returns (bool hasValue) {
+    bytes32[] memory _keyTuple = new bytes32[](2);
+    _keyTuple[0] = bytes32(uint256(scale));
+    _keyTuple[1] = entity;
+
+    bytes memory _blob = StoreSwitch.getField(_tableId, _keyTuple, 2, getValueSchema());
+    return (_toBool(uint8(Bytes.slice1(_blob, 0))));
+  }
+
+  /** Get hasValue (using the specified store) */
+  function getHasValue(IStore _store, uint32 scale, bytes32 entity) internal view returns (bool hasValue) {
+    bytes32[] memory _keyTuple = new bytes32[](2);
+    _keyTuple[0] = bytes32(uint256(scale));
+    _keyTuple[1] = entity;
+
+    bytes memory _blob = _store.getField(_tableId, _keyTuple, 2, getValueSchema());
+    return (_toBool(uint8(Bytes.slice1(_blob, 0))));
+  }
+
+  /** Set hasValue */
+  function setHasValue(uint32 scale, bytes32 entity, bool hasValue) internal {
+    bytes32[] memory _keyTuple = new bytes32[](2);
+    _keyTuple[0] = bytes32(uint256(scale));
+    _keyTuple[1] = entity;
+
+    StoreSwitch.setField(_tableId, _keyTuple, 2, abi.encodePacked((hasValue)), getValueSchema());
+  }
+
+  /** Set hasValue (using the specified store) */
+  function setHasValue(IStore _store, uint32 scale, bytes32 entity, bool hasValue) internal {
+    bytes32[] memory _keyTuple = new bytes32[](2);
+    _keyTuple[0] = bytes32(uint256(scale));
+    _keyTuple[1] = entity;
+
+    _store.setField(_tableId, _keyTuple, 2, abi.encodePacked((hasValue)), getValueSchema());
+  }
+
   /** Get the full data */
   function get(uint32 scale, bytes32 entity) internal view returns (VoxelTypeData memory _table) {
     bytes32[] memory _keyTuple = new bytes32[](2);
@@ -166,8 +206,8 @@ library VoxelType {
   }
 
   /** Set the full data using individual values */
-  function set(uint32 scale, bytes32 entity, bytes32 voxelTypeId, bytes32 voxelVariantId) internal {
-    bytes memory _data = encode(voxelTypeId, voxelVariantId);
+  function set(uint32 scale, bytes32 entity, bytes32 voxelTypeId, bytes32 voxelVariantId, bool hasValue) internal {
+    bytes memory _data = encode(voxelTypeId, voxelVariantId, hasValue);
 
     bytes32[] memory _keyTuple = new bytes32[](2);
     _keyTuple[0] = bytes32(uint256(scale));
@@ -177,8 +217,15 @@ library VoxelType {
   }
 
   /** Set the full data using individual values (using the specified store) */
-  function set(IStore _store, uint32 scale, bytes32 entity, bytes32 voxelTypeId, bytes32 voxelVariantId) internal {
-    bytes memory _data = encode(voxelTypeId, voxelVariantId);
+  function set(
+    IStore _store,
+    uint32 scale,
+    bytes32 entity,
+    bytes32 voxelTypeId,
+    bytes32 voxelVariantId,
+    bool hasValue
+  ) internal {
+    bytes memory _data = encode(voxelTypeId, voxelVariantId, hasValue);
 
     bytes32[] memory _keyTuple = new bytes32[](2);
     _keyTuple[0] = bytes32(uint256(scale));
@@ -189,12 +236,12 @@ library VoxelType {
 
   /** Set the full data using the data struct */
   function set(uint32 scale, bytes32 entity, VoxelTypeData memory _table) internal {
-    set(scale, entity, _table.voxelTypeId, _table.voxelVariantId);
+    set(scale, entity, _table.voxelTypeId, _table.voxelVariantId, _table.hasValue);
   }
 
   /** Set the full data using the data struct (using the specified store) */
   function set(IStore _store, uint32 scale, bytes32 entity, VoxelTypeData memory _table) internal {
-    set(_store, scale, entity, _table.voxelTypeId, _table.voxelVariantId);
+    set(_store, scale, entity, _table.voxelTypeId, _table.voxelVariantId, _table.hasValue);
   }
 
   /** Decode the tightly packed blob using this table's schema */
@@ -202,11 +249,13 @@ library VoxelType {
     _table.voxelTypeId = (Bytes.slice32(_blob, 0));
 
     _table.voxelVariantId = (Bytes.slice32(_blob, 32));
+
+    _table.hasValue = (_toBool(uint8(Bytes.slice1(_blob, 64))));
   }
 
   /** Tightly pack full data using this table's schema */
-  function encode(bytes32 voxelTypeId, bytes32 voxelVariantId) internal pure returns (bytes memory) {
-    return abi.encodePacked(voxelTypeId, voxelVariantId);
+  function encode(bytes32 voxelTypeId, bytes32 voxelVariantId, bool hasValue) internal pure returns (bytes memory) {
+    return abi.encodePacked(voxelTypeId, voxelVariantId, hasValue);
   }
 
   /** Encode keys as a bytes32 array using this table's schema */
@@ -234,5 +283,11 @@ library VoxelType {
     _keyTuple[1] = entity;
 
     _store.deleteRecord(_tableId, _keyTuple, getValueSchema());
+  }
+}
+
+function _toBool(uint8 value) pure returns (bool result) {
+  assembly {
+    result := value
   }
 }

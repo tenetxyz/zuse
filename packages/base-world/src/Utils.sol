@@ -81,7 +81,7 @@ function getOppositeDirection(BlockDirection direction) pure returns (BlockDirec
 }
 
 function getEntityAtCoord(uint32 scale, VoxelCoord memory coord) view returns (bytes32) {
-  bytes32[][] memory allEntitiesAtCoord = getKeysWithValue(PositionTableId, Position.encode(coord.x, coord.y, coord.z));
+  bytes32[][] memory allEntitiesAtCoord = getKeysWithValue(PositionTableId, Position.encode(coord.x, coord.y, coord.z, true));
   bytes32 entity;
   for (uint256 i = 0; i < allEntitiesAtCoord.length; i++) {
     if (uint256(allEntitiesAtCoord[i][0]) == scale) {
@@ -99,7 +99,7 @@ function getEntityAtCoord(IStore store, uint32 scale, VoxelCoord memory coord) v
   bytes32[][] memory allEntitiesAtCoord = getKeysWithValue(
     store,
     PositionTableId,
-    Position.encode(coord.x, coord.y, coord.z)
+    Position.encode(coord.x, coord.y, coord.z, true)
   );
   bytes32 entity;
   for (uint256 i = 0; i < allEntitiesAtCoord.length; i++) {

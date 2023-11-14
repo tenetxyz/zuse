@@ -24,6 +24,7 @@ struct CAPositionData {
   int32 x;
   int32 y;
   int32 z;
+  bool hasValue;
 }
 
 library CAPosition {
@@ -38,10 +39,11 @@ library CAPosition {
 
   /** Get the table's value schema */
   function getValueSchema() internal pure returns (Schema) {
-    SchemaType[] memory _schema = new SchemaType[](3);
+    SchemaType[] memory _schema = new SchemaType[](4);
     _schema[0] = SchemaType.INT32;
     _schema[1] = SchemaType.INT32;
     _schema[2] = SchemaType.INT32;
+    _schema[3] = SchemaType.BOOL;
 
     return SchemaLib.encode(_schema);
   }
@@ -55,10 +57,11 @@ library CAPosition {
 
   /** Get the table's field names */
   function getFieldNames() internal pure returns (string[] memory fieldNames) {
-    fieldNames = new string[](3);
+    fieldNames = new string[](4);
     fieldNames[0] = "x";
     fieldNames[1] = "y";
     fieldNames[2] = "z";
+    fieldNames[3] = "hasValue";
   }
 
   /** Register the table's key schema, value schema, key names and value names */
@@ -185,6 +188,44 @@ library CAPosition {
     _store.setField(_tableId, _keyTuple, 2, abi.encodePacked((z)), getValueSchema());
   }
 
+  /** Get hasValue */
+  function getHasValue(address callerAddress, bytes32 entity) internal view returns (bool hasValue) {
+    bytes32[] memory _keyTuple = new bytes32[](2);
+    _keyTuple[0] = bytes32(uint256(uint160(callerAddress)));
+    _keyTuple[1] = entity;
+
+    bytes memory _blob = StoreSwitch.getField(_tableId, _keyTuple, 3, getValueSchema());
+    return (_toBool(uint8(Bytes.slice1(_blob, 0))));
+  }
+
+  /** Get hasValue (using the specified store) */
+  function getHasValue(IStore _store, address callerAddress, bytes32 entity) internal view returns (bool hasValue) {
+    bytes32[] memory _keyTuple = new bytes32[](2);
+    _keyTuple[0] = bytes32(uint256(uint160(callerAddress)));
+    _keyTuple[1] = entity;
+
+    bytes memory _blob = _store.getField(_tableId, _keyTuple, 3, getValueSchema());
+    return (_toBool(uint8(Bytes.slice1(_blob, 0))));
+  }
+
+  /** Set hasValue */
+  function setHasValue(address callerAddress, bytes32 entity, bool hasValue) internal {
+    bytes32[] memory _keyTuple = new bytes32[](2);
+    _keyTuple[0] = bytes32(uint256(uint160(callerAddress)));
+    _keyTuple[1] = entity;
+
+    StoreSwitch.setField(_tableId, _keyTuple, 3, abi.encodePacked((hasValue)), getValueSchema());
+  }
+
+  /** Set hasValue (using the specified store) */
+  function setHasValue(IStore _store, address callerAddress, bytes32 entity, bool hasValue) internal {
+    bytes32[] memory _keyTuple = new bytes32[](2);
+    _keyTuple[0] = bytes32(uint256(uint160(callerAddress)));
+    _keyTuple[1] = entity;
+
+    _store.setField(_tableId, _keyTuple, 3, abi.encodePacked((hasValue)), getValueSchema());
+  }
+
   /** Get the full data */
   function get(address callerAddress, bytes32 entity) internal view returns (CAPositionData memory _table) {
     bytes32[] memory _keyTuple = new bytes32[](2);
@@ -210,8 +251,8 @@ library CAPosition {
   }
 
   /** Set the full data using individual values */
-  function set(address callerAddress, bytes32 entity, int32 x, int32 y, int32 z) internal {
-    bytes memory _data = encode(x, y, z);
+  function set(address callerAddress, bytes32 entity, int32 x, int32 y, int32 z, bool hasValue) internal {
+    bytes memory _data = encode(x, y, z, hasValue);
 
     bytes32[] memory _keyTuple = new bytes32[](2);
     _keyTuple[0] = bytes32(uint256(uint160(callerAddress)));
@@ -221,8 +262,16 @@ library CAPosition {
   }
 
   /** Set the full data using individual values (using the specified store) */
-  function set(IStore _store, address callerAddress, bytes32 entity, int32 x, int32 y, int32 z) internal {
-    bytes memory _data = encode(x, y, z);
+  function set(
+    IStore _store,
+    address callerAddress,
+    bytes32 entity,
+    int32 x,
+    int32 y,
+    int32 z,
+    bool hasValue
+  ) internal {
+    bytes memory _data = encode(x, y, z, hasValue);
 
     bytes32[] memory _keyTuple = new bytes32[](2);
     _keyTuple[0] = bytes32(uint256(uint160(callerAddress)));
@@ -233,12 +282,12 @@ library CAPosition {
 
   /** Set the full data using the data struct */
   function set(address callerAddress, bytes32 entity, CAPositionData memory _table) internal {
-    set(callerAddress, entity, _table.x, _table.y, _table.z);
+    set(callerAddress, entity, _table.x, _table.y, _table.z, _table.hasValue);
   }
 
   /** Set the full data using the data struct (using the specified store) */
   function set(IStore _store, address callerAddress, bytes32 entity, CAPositionData memory _table) internal {
-    set(_store, callerAddress, entity, _table.x, _table.y, _table.z);
+    set(_store, callerAddress, entity, _table.x, _table.y, _table.z, _table.hasValue);
   }
 
   /** Decode the tightly packed blob using this table's schema */
@@ -248,11 +297,13 @@ library CAPosition {
     _table.y = (int32(uint32(Bytes.slice4(_blob, 4))));
 
     _table.z = (int32(uint32(Bytes.slice4(_blob, 8))));
+
+    _table.hasValue = (_toBool(uint8(Bytes.slice1(_blob, 12))));
   }
 
   /** Tightly pack full data using this table's schema */
-  function encode(int32 x, int32 y, int32 z) internal pure returns (bytes memory) {
-    return abi.encodePacked(x, y, z);
+  function encode(int32 x, int32 y, int32 z, bool hasValue) internal pure returns (bytes memory) {
+    return abi.encodePacked(x, y, z, hasValue);
   }
 
   /** Encode keys as a bytes32 array using this table's schema */
@@ -280,5 +331,11 @@ library CAPosition {
     _keyTuple[1] = entity;
 
     _store.deleteRecord(_tableId, _keyTuple, getValueSchema());
+  }
+}
+
+function _toBool(uint8 value) pure returns (bool result) {
+  assembly {
+    result := value
   }
 }

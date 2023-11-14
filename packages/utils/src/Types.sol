@@ -128,6 +128,7 @@ struct BlockHeightUpdate {
 struct VoxelTypeData {
   bytes32 voxelTypeId;
   bytes32 voxelVariantId;
+  bool hasValue;
 }
 
 enum ObjectType {

@@ -95,11 +95,6 @@ const WORLD_MODULES = [
     args: [resolveTableId("Position")],
   },
   {
-    name: "KeysWithValueModule",
-    root: true,
-    args: [resolveTableId("VoxelType")],
-  },
-  {
     name: "KeysInTableModule",
     root: true,
     args: [resolveTableId("Spawn")],

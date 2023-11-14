@@ -46,7 +46,7 @@ export default tenetMudConfig({
       schema: {
         voxelTypeId: "bytes32",
         energy: "uint256",
-        hasValue: true,
+        hasValue: "bool",
       },
     },
   },

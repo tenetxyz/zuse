@@ -23,6 +23,7 @@ bytes32 constant CAEntityReverseMappingTableId = _tableId;
 struct CAEntityReverseMappingData {
   address callerAddress;
   bytes32 entity;
+  bool hasValue;
 }
 
 library CAEntityReverseMapping {
@@ -36,9 +37,10 @@ library CAEntityReverseMapping {
 
   /** Get the table's value schema */
   function getValueSchema() internal pure returns (Schema) {
-    SchemaType[] memory _schema = new SchemaType[](2);
+    SchemaType[] memory _schema = new SchemaType[](3);
     _schema[0] = SchemaType.ADDRESS;
     _schema[1] = SchemaType.BYTES32;
+    _schema[2] = SchemaType.BOOL;
 
     return SchemaLib.encode(_schema);
   }
@@ -51,9 +53,10 @@ library CAEntityReverseMapping {
 
   /** Get the table's field names */
   function getFieldNames() internal pure returns (string[] memory fieldNames) {
-    fieldNames = new string[](2);
+    fieldNames = new string[](3);
     fieldNames[0] = "callerAddress";
     fieldNames[1] = "entity";
+    fieldNames[2] = "hasValue";
   }
 
   /** Register the table's key schema, value schema, key names and value names */
@@ -134,6 +137,40 @@ library CAEntityReverseMapping {
     _store.setField(_tableId, _keyTuple, 1, abi.encodePacked((entity)), getValueSchema());
   }
 
+  /** Get hasValue */
+  function getHasValue(bytes32 caEntity) internal view returns (bool hasValue) {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = caEntity;
+
+    bytes memory _blob = StoreSwitch.getField(_tableId, _keyTuple, 2, getValueSchema());
+    return (_toBool(uint8(Bytes.slice1(_blob, 0))));
+  }
+
+  /** Get hasValue (using the specified store) */
+  function getHasValue(IStore _store, bytes32 caEntity) internal view returns (bool hasValue) {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = caEntity;
+
+    bytes memory _blob = _store.getField(_tableId, _keyTuple, 2, getValueSchema());
+    return (_toBool(uint8(Bytes.slice1(_blob, 0))));
+  }
+
+  /** Set hasValue */
+  function setHasValue(bytes32 caEntity, bool hasValue) internal {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = caEntity;
+
+    StoreSwitch.setField(_tableId, _keyTuple, 2, abi.encodePacked((hasValue)), getValueSchema());
+  }
+
+  /** Set hasValue (using the specified store) */
+  function setHasValue(IStore _store, bytes32 caEntity, bool hasValue) internal {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = caEntity;
+
+    _store.setField(_tableId, _keyTuple, 2, abi.encodePacked((hasValue)), getValueSchema());
+  }
+
   /** Get the full data */
   function get(bytes32 caEntity) internal view returns (CAEntityReverseMappingData memory _table) {
     bytes32[] memory _keyTuple = new bytes32[](1);
@@ -153,8 +190,8 @@ library CAEntityReverseMapping {
   }
 
   /** Set the full data using individual values */
-  function set(bytes32 caEntity, address callerAddress, bytes32 entity) internal {
-    bytes memory _data = encode(callerAddress, entity);
+  function set(bytes32 caEntity, address callerAddress, bytes32 entity, bool hasValue) internal {
+    bytes memory _data = encode(callerAddress, entity, hasValue);
 
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = caEntity;
@@ -163,8 +200,8 @@ library CAEntityReverseMapping {
   }
 
   /** Set the full data using individual values (using the specified store) */
-  function set(IStore _store, bytes32 caEntity, address callerAddress, bytes32 entity) internal {
-    bytes memory _data = encode(callerAddress, entity);
+  function set(IStore _store, bytes32 caEntity, address callerAddress, bytes32 entity, bool hasValue) internal {
+    bytes memory _data = encode(callerAddress, entity, hasValue);
 
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = caEntity;
@@ -174,12 +211,12 @@ library CAEntityReverseMapping {
 
   /** Set the full data using the data struct */
   function set(bytes32 caEntity, CAEntityReverseMappingData memory _table) internal {
-    set(caEntity, _table.callerAddress, _table.entity);
+    set(caEntity, _table.callerAddress, _table.entity, _table.hasValue);
   }
 
   /** Set the full data using the data struct (using the specified store) */
   function set(IStore _store, bytes32 caEntity, CAEntityReverseMappingData memory _table) internal {
-    set(_store, caEntity, _table.callerAddress, _table.entity);
+    set(_store, caEntity, _table.callerAddress, _table.entity, _table.hasValue);
   }
 
   /** Decode the tightly packed blob using this table's schema */
@@ -187,11 +224,13 @@ library CAEntityReverseMapping {
     _table.callerAddress = (address(Bytes.slice20(_blob, 0)));
 
     _table.entity = (Bytes.slice32(_blob, 20));
+
+    _table.hasValue = (_toBool(uint8(Bytes.slice1(_blob, 52))));
   }
 
   /** Tightly pack full data using this table's schema */
-  function encode(address callerAddress, bytes32 entity) internal pure returns (bytes memory) {
-    return abi.encodePacked(callerAddress, entity);
+  function encode(address callerAddress, bytes32 entity, bool hasValue) internal pure returns (bytes memory) {
+    return abi.encodePacked(callerAddress, entity, hasValue);
   }
 
   /** Encode keys as a bytes32 array using this table's schema */
@@ -216,5 +255,11 @@ library CAEntityReverseMapping {
     _keyTuple[0] = caEntity;
 
     _store.deleteRecord(_tableId, _keyTuple, getValueSchema());
+  }
+}
+
+function _toBool(uint8 value) pure returns (bool result) {
+  assembly {
+    result := value
   }
 }

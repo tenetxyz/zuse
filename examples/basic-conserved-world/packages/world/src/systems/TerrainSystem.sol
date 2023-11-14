@@ -42,7 +42,7 @@ contract TerrainSystem is System {
 
   function getTerrainVoxelFromShard(VoxelCoord memory coord) public returns (bytes32, uint256, uint256) {
     // use cache if possible
-    if (hasKey(TerrainPropertiesTableId, TerrainProperties.encodeKeyTuple(coord.x, coord.y, coord.z))) {
+    if (TerrainProperties.getHasValue(coord.x, coord.y, coord.z)) {
       TerrainPropertiesData memory terrainProperties = TerrainProperties.get(coord.x, coord.y, coord.z);
       uint256 voxelMass = VoxelTypeRegistry.getMass(IStore(REGISTRY_ADDRESS), terrainProperties.voxelTypeId);
       return (terrainProperties.voxelTypeId, voxelMass, terrainProperties.energy);
@@ -75,7 +75,7 @@ contract TerrainSystem is System {
       coord.x,
       coord.y,
       coord.z,
-      TerrainPropertiesData({ voxelTypeId: terrainData.voxelTypeId, energy: terrainData.energy })
+      TerrainPropertiesData({ voxelTypeId: terrainData.voxelTypeId, energy: terrainData.energy, hasValue: true })
     );
 
     return (terrainData.voxelTypeId, voxelMass, terrainData.energy);

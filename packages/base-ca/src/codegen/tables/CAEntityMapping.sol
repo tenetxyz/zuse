@@ -20,6 +20,11 @@ import { PackedCounter, PackedCounterLib } from "@latticexyz/store/src/PackedCou
 bytes32 constant _tableId = bytes32(abi.encodePacked(bytes16(""), bytes16("CAEntityMapping")));
 bytes32 constant CAEntityMappingTableId = _tableId;
 
+struct CAEntityMappingData {
+  bytes32 caEntity;
+  bool hasValue;
+}
+
 library CAEntityMapping {
   /** Get the table's key schema */
   function getKeySchema() internal pure returns (Schema) {
@@ -32,8 +37,9 @@ library CAEntityMapping {
 
   /** Get the table's value schema */
   function getValueSchema() internal pure returns (Schema) {
-    SchemaType[] memory _schema = new SchemaType[](1);
+    SchemaType[] memory _schema = new SchemaType[](2);
     _schema[0] = SchemaType.BYTES32;
+    _schema[1] = SchemaType.BOOL;
 
     return SchemaLib.encode(_schema);
   }
@@ -47,8 +53,9 @@ library CAEntityMapping {
 
   /** Get the table's field names */
   function getFieldNames() internal pure returns (string[] memory fieldNames) {
-    fieldNames = new string[](1);
+    fieldNames = new string[](2);
     fieldNames[0] = "caEntity";
+    fieldNames[1] = "hasValue";
   }
 
   /** Register the table's key schema, value schema, key names and value names */
@@ -62,7 +69,7 @@ library CAEntityMapping {
   }
 
   /** Get caEntity */
-  function get(address callerAddress, bytes32 entity) internal view returns (bytes32 caEntity) {
+  function getCaEntity(address callerAddress, bytes32 entity) internal view returns (bytes32 caEntity) {
     bytes32[] memory _keyTuple = new bytes32[](2);
     _keyTuple[0] = bytes32(uint256(uint160(callerAddress)));
     _keyTuple[1] = entity;
@@ -72,7 +79,7 @@ library CAEntityMapping {
   }
 
   /** Get caEntity (using the specified store) */
-  function get(IStore _store, address callerAddress, bytes32 entity) internal view returns (bytes32 caEntity) {
+  function getCaEntity(IStore _store, address callerAddress, bytes32 entity) internal view returns (bytes32 caEntity) {
     bytes32[] memory _keyTuple = new bytes32[](2);
     _keyTuple[0] = bytes32(uint256(uint160(callerAddress)));
     _keyTuple[1] = entity;
@@ -82,7 +89,7 @@ library CAEntityMapping {
   }
 
   /** Set caEntity */
-  function set(address callerAddress, bytes32 entity, bytes32 caEntity) internal {
+  function setCaEntity(address callerAddress, bytes32 entity, bytes32 caEntity) internal {
     bytes32[] memory _keyTuple = new bytes32[](2);
     _keyTuple[0] = bytes32(uint256(uint160(callerAddress)));
     _keyTuple[1] = entity;
@@ -91,7 +98,7 @@ library CAEntityMapping {
   }
 
   /** Set caEntity (using the specified store) */
-  function set(IStore _store, address callerAddress, bytes32 entity, bytes32 caEntity) internal {
+  function setCaEntity(IStore _store, address callerAddress, bytes32 entity, bytes32 caEntity) internal {
     bytes32[] memory _keyTuple = new bytes32[](2);
     _keyTuple[0] = bytes32(uint256(uint160(callerAddress)));
     _keyTuple[1] = entity;
@@ -99,9 +106,110 @@ library CAEntityMapping {
     _store.setField(_tableId, _keyTuple, 0, abi.encodePacked((caEntity)), getValueSchema());
   }
 
+  /** Get hasValue */
+  function getHasValue(address callerAddress, bytes32 entity) internal view returns (bool hasValue) {
+    bytes32[] memory _keyTuple = new bytes32[](2);
+    _keyTuple[0] = bytes32(uint256(uint160(callerAddress)));
+    _keyTuple[1] = entity;
+
+    bytes memory _blob = StoreSwitch.getField(_tableId, _keyTuple, 1, getValueSchema());
+    return (_toBool(uint8(Bytes.slice1(_blob, 0))));
+  }
+
+  /** Get hasValue (using the specified store) */
+  function getHasValue(IStore _store, address callerAddress, bytes32 entity) internal view returns (bool hasValue) {
+    bytes32[] memory _keyTuple = new bytes32[](2);
+    _keyTuple[0] = bytes32(uint256(uint160(callerAddress)));
+    _keyTuple[1] = entity;
+
+    bytes memory _blob = _store.getField(_tableId, _keyTuple, 1, getValueSchema());
+    return (_toBool(uint8(Bytes.slice1(_blob, 0))));
+  }
+
+  /** Set hasValue */
+  function setHasValue(address callerAddress, bytes32 entity, bool hasValue) internal {
+    bytes32[] memory _keyTuple = new bytes32[](2);
+    _keyTuple[0] = bytes32(uint256(uint160(callerAddress)));
+    _keyTuple[1] = entity;
+
+    StoreSwitch.setField(_tableId, _keyTuple, 1, abi.encodePacked((hasValue)), getValueSchema());
+  }
+
+  /** Set hasValue (using the specified store) */
+  function setHasValue(IStore _store, address callerAddress, bytes32 entity, bool hasValue) internal {
+    bytes32[] memory _keyTuple = new bytes32[](2);
+    _keyTuple[0] = bytes32(uint256(uint160(callerAddress)));
+    _keyTuple[1] = entity;
+
+    _store.setField(_tableId, _keyTuple, 1, abi.encodePacked((hasValue)), getValueSchema());
+  }
+
+  /** Get the full data */
+  function get(address callerAddress, bytes32 entity) internal view returns (CAEntityMappingData memory _table) {
+    bytes32[] memory _keyTuple = new bytes32[](2);
+    _keyTuple[0] = bytes32(uint256(uint160(callerAddress)));
+    _keyTuple[1] = entity;
+
+    bytes memory _blob = StoreSwitch.getRecord(_tableId, _keyTuple, getValueSchema());
+    return decode(_blob);
+  }
+
+  /** Get the full data (using the specified store) */
+  function get(
+    IStore _store,
+    address callerAddress,
+    bytes32 entity
+  ) internal view returns (CAEntityMappingData memory _table) {
+    bytes32[] memory _keyTuple = new bytes32[](2);
+    _keyTuple[0] = bytes32(uint256(uint160(callerAddress)));
+    _keyTuple[1] = entity;
+
+    bytes memory _blob = _store.getRecord(_tableId, _keyTuple, getValueSchema());
+    return decode(_blob);
+  }
+
+  /** Set the full data using individual values */
+  function set(address callerAddress, bytes32 entity, bytes32 caEntity, bool hasValue) internal {
+    bytes memory _data = encode(caEntity, hasValue);
+
+    bytes32[] memory _keyTuple = new bytes32[](2);
+    _keyTuple[0] = bytes32(uint256(uint160(callerAddress)));
+    _keyTuple[1] = entity;
+
+    StoreSwitch.setRecord(_tableId, _keyTuple, _data, getValueSchema());
+  }
+
+  /** Set the full data using individual values (using the specified store) */
+  function set(IStore _store, address callerAddress, bytes32 entity, bytes32 caEntity, bool hasValue) internal {
+    bytes memory _data = encode(caEntity, hasValue);
+
+    bytes32[] memory _keyTuple = new bytes32[](2);
+    _keyTuple[0] = bytes32(uint256(uint160(callerAddress)));
+    _keyTuple[1] = entity;
+
+    _store.setRecord(_tableId, _keyTuple, _data, getValueSchema());
+  }
+
+  /** Set the full data using the data struct */
+  function set(address callerAddress, bytes32 entity, CAEntityMappingData memory _table) internal {
+    set(callerAddress, entity, _table.caEntity, _table.hasValue);
+  }
+
+  /** Set the full data using the data struct (using the specified store) */
+  function set(IStore _store, address callerAddress, bytes32 entity, CAEntityMappingData memory _table) internal {
+    set(_store, callerAddress, entity, _table.caEntity, _table.hasValue);
+  }
+
+  /** Decode the tightly packed blob using this table's schema */
+  function decode(bytes memory _blob) internal pure returns (CAEntityMappingData memory _table) {
+    _table.caEntity = (Bytes.slice32(_blob, 0));
+
+    _table.hasValue = (_toBool(uint8(Bytes.slice1(_blob, 32))));
+  }
+
   /** Tightly pack full data using this table's schema */
-  function encode(bytes32 caEntity) internal pure returns (bytes memory) {
-    return abi.encodePacked(caEntity);
+  function encode(bytes32 caEntity, bool hasValue) internal pure returns (bytes memory) {
+    return abi.encodePacked(caEntity, hasValue);
   }
 
   /** Encode keys as a bytes32 array using this table's schema */
@@ -129,5 +237,11 @@ library CAEntityMapping {
     _keyTuple[1] = entity;
 
     _store.deleteRecord(_tableId, _keyTuple, getValueSchema());
+  }
+}
+
+function _toBool(uint8 value) pure returns (bool result) {
+  assembly {
+    result := value
   }
 }

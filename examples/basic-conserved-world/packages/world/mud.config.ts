@@ -46,6 +46,7 @@ export default tenetMudConfig({
       schema: {
         voxelTypeId: "bytes32",
         energy: "uint256",
+        hasValue: true,
       },
     },
   },
@@ -76,11 +77,6 @@ export default tenetMudConfig({
       name: "KeysInTableModule",
       root: true,
       args: [resolveTableId("Shard")],
-    },
-    {
-      name: "KeysInTableModule",
-      root: true,
-      args: [resolveTableId("TerrainProperties")],
     },
   ],
 });

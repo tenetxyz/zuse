@@ -20,16 +20,16 @@ rmSync(path.join(userHomeDir, ".foundry", "anvil", "tmp"), {
     force: true
 });
 
-// const anvilArgs = [
-//     // "--block-time",
-//     // "1",
-//     "--block-base-fee-per-gas",
-//     "0",
-//     "--host",
-//     "0.0.0.0",
-//     "--chain-id",
-//     "31337",
-//     "--gas-limit",
-//     "2000000000",
-// ];
-// anvil(anvilArgs);
+const anvilArgs = [
+    // "--block-time",
+    // "1",
+    "--block-base-fee-per-gas",
+    "0",
+    "--host",
+    "0.0.0.0",
+    "--chain-id",
+    "31337",
+    "--gas-limit",
+    "2000000000",
+];
+anvil(anvilArgs);

@@ -3,7 +3,7 @@ pragma solidity >=0.8.0;
 
 import { hasKey } from "@latticexyz/world/src/modules/keysintable/hasKey.sol";
 import { System } from "@latticexyz/world/src/System.sol";
-import { MindRegistry, MindRegistryTableId, VoxelTypeRegistryTableId, VoxelTypeRegistry, WorldRegistry, WorldRegistryTableId, WorldRegistryData } from "@tenet-registry/src/codegen/Tables.sol";
+import { MindRegistry, MindRegistryTableId, ObjectTypeRegistryTableId, ObjectTypeRegistry } from "@tenet-registry/src/codegen/Tables.sol";
 import { Mind, CreationMetadata, CreationSpawns } from "@tenet-utils/src/Types.sol";
 
 contract MindRegistrySystem is System {
@@ -14,7 +14,7 @@ contract MindRegistrySystem is System {
     bytes4 mindSelector
   ) public {
     require(
-      hasKey(VoxelTypeRegistryTableId, VoxelTypeRegistry.encodeKeyTuple(voxelTypeId)),
+      hasKey(ObjectTypeRegistryTableId, ObjectTypeRegistry.encodeKeyTuple(voxelTypeId)),
       "Voxel type ID has not been registered"
     );
     // Set creator

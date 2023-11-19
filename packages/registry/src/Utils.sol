@@ -11,6 +11,7 @@ import { callOrRevert } from "@tenet-utils/src/CallUtils.sol";
 function registerObjectType(
   address registryAddress,
   bytes32 objectTypeId,
+  address contractAddress,
   bytes4 enterWorldSelector,
   bytes4 exitWorldSelector,
   bytes4 eventHandlerSelector,
@@ -24,6 +25,7 @@ function registerObjectType(
       abi.encodeWithSignature(
         REGISTER_OBJECT_TYPE_SIG,
         objectTypeId,
+        contractAddress,
         enterWorldSelector,
         exitWorldSelector,
         eventHandlerSelector,

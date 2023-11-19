@@ -8,6 +8,7 @@ import { ObjectTypeRegistry, ObjectTypeRegistryData, ObjectTypeRegistryTableId }
 contract ObjectRegistrySystem is System {
   function registerObjectType(
     bytes32 objectTypeId,
+    address contractAddress,
     bytes4 enterWorldSelector,
     bytes4 exitWorldSelector,
     bytes4 eventHandlerSelector,
@@ -24,8 +25,10 @@ contract ObjectRegistrySystem is System {
     // TODO: Check that the selectors are valid
 
     ObjectTypeRegistry.set(
-      voxelTypeId,
+      objectTypeId,
       ObjectTypeRegistryData({
+        creator: _msgSender(),
+        contractAddress: contractAddress,
         enterWorldSelector: enterWorldSelector,
         exitWorldSelector: exitWorldSelector,
         eventHandlerSelector: eventHandlerSelector,

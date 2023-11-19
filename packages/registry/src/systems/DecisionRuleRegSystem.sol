@@ -3,7 +3,7 @@ pragma solidity >=0.8.0;
 
 import { hasKey } from "@latticexyz/world/src/modules/keysintable/hasKey.sol";
 import { System } from "@latticexyz/world/src/System.sol";
-import { DecisionRuleRegistry, DecisionRuleRegistryTableId, VoxelTypeRegistryTableId, VoxelTypeRegistry, WorldRegistry, WorldRegistryTableId, WorldRegistryData } from "../codegen/Tables.sol";
+import { DecisionRuleRegistry, DecisionRuleRegistryTableId, ObjectTypeRegistryTableId, ObjectTypeRegistry } from "../codegen/Tables.sol";
 import { DecisionRule, CreationMetadata, CreationSpawns } from "@tenet-utils/src/Types.sol";
 
 // not called DecisionRuleRegstrySystem since the name is too long, which makes it cut off, which makes it have the same name as the table
@@ -34,19 +34,13 @@ contract DecisionRuleRegSystem is System {
     bytes4 decisionRuleSelector
   ) public {
     require(
-      hasKey(VoxelTypeRegistryTableId, VoxelTypeRegistry.encodeKeyTuple(srcVoxelTypeId)),
+      hasKey(ObjectTypeRegistryTableId, ObjectTypeRegistry.encodeKeyTuple(srcVoxelTypeId)),
       "srcVoxelTypeId has not been registered"
     );
     require(
-      hasKey(VoxelTypeRegistryTableId, VoxelTypeRegistry.encodeKeyTuple(targetVoxelTypeId)),
+      hasKey(ObjectTypeRegistryTableId, ObjectTypeRegistry.encodeKeyTuple(targetVoxelTypeId)),
       "targetVoxelTypeId has not been registered"
     );
-    if (worldAddress != address(0)) {
-      require(
-        hasKey(WorldRegistryTableId, WorldRegistry.encodeKeyTuple(worldAddress)),
-        "World address has not been registered"
-      );
-    }
 
     CreationSpawns[] memory spawns = new CreationSpawns[](0);
     bytes32 decisionRuleId = keccak256(
@@ -59,13 +53,8 @@ contract DecisionRuleRegSystem is System {
     });
 
     DecisionRule[] memory newDecisionRules;
-    if (
-      hasKey(
-        DecisionRuleRegistryTableId,
-        DecisionRuleRegistry.encodeKeyTuple(srcVoxelTypeId, targetVoxelTypeId, worldAddress)
-      )
-    ) {
-      bytes memory decisionRuleData = DecisionRuleRegistry.get(srcVoxelTypeId, targetVoxelTypeId, worldAddress);
+    if (hasKey(DecisionRuleRegistryTableId, DecisionRuleRegistry.encodeKeyTuple(srcVoxelTypeId, targetVoxelTypeId))) {
+      bytes memory decisionRuleData = DecisionRuleRegistry.get(srcVoxelTypeId, targetVoxelTypeId);
       DecisionRule[] memory decisionRules = abi.decode(decisionRuleData, (DecisionRule[]));
 
       newDecisionRules = new DecisionRule[](decisionRules.length + 1);
@@ -82,6 +71,6 @@ contract DecisionRuleRegSystem is System {
       newDecisionRules[0] = decisionRule;
     }
 
-    DecisionRuleRegistry.set(srcVoxelTypeId, targetVoxelTypeId, worldAddress, abi.encode(newDecisionRules));
+    DecisionRuleRegistry.set(srcVoxelTypeId, targetVoxelTypeId, abi.encode(newDecisionRules));
   }
 }

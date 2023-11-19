@@ -10,12 +10,4 @@ interface IMindRegistrySystem {
     string memory description,
     bytes4 mindSelector
   ) external;
-
-  function registerMindForWorld(
-    bytes32 voxelTypeId,
-    address worldAddress,
-    string memory name,
-    string memory description,
-    bytes4 mindSelector
-  ) external;
 }

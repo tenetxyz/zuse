@@ -24,14 +24,9 @@ abstract contract TerrainSystem is System {
     // TODO: require caller can only be world or sim
     bytes32 terrainObjectTypeId = getTerrainObjectTypeId(coord);
     require(
-      terrainObjectTypeId == emptyVoxelId() || terrainObjectTypeId == objectTypeId,
+      terrainObjectTypeId == emptyObjectId() || terrainObjectTypeId == objectTypeId,
       "Invalid object type id on createTerrainEntity"
     );
-    bytes32 newEntityId = getUniqueEntity();
-    Position.set(newEntityId, coord.x, coord.y, coord.z);
-    bytes32 newObjectEntityId = getUniqueEntity();
-    ObjectEntity.set(newEntityId, newObjectEntityId);
-
     ObjectProperties memory requestedProperties = IWorld(_world()).enterWorld(objectTypeId, coord, newObjectEntityId);
     ObjectProperties memory properties = getTerrainObjectProperties(requestedProperties);
     // Set voxel type

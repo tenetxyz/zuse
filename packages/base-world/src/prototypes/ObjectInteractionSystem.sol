@@ -174,30 +174,28 @@ abstract contract ObjectInteractionSystem is System {
     while (useQueueIdx < numMaxObjectsToRun) {
       bytes32 useCenterEntityId = centerEntitiesToRunQueue[useQueueIdx];
 
-      {
-        (bytes32[] memory neighbourEntities, ) = getVonNeumannNeighbourEntities(useCenterEntityId);
-        (bytes32[] memory changedEntities, EntityActionData[] memory entitiesActionData) = runSingleInteraction(
-          useCenterEntityId,
-          neighbourEntities
-        );
+      (bytes32[] memory neighbourEntities, ) = getVonNeumannNeighbourEntities(useCenterEntityId);
+      (bytes32[] memory changedEntities, EntityActionData[] memory entitiesActionData) = runSingleInteraction(
+        useCenterEntityId,
+        neighbourEntities
+      );
 
-        // If there are changed entities, we want to run object interactions again but with this new neighbour as the center
-        for (uint256 i; i < changedEntities.length; i++) {
-          if (uint256(changedEntities[i]) != 0) {
-            centerEntitiesToRunQueueIdx++;
-            require(centerEntitiesToRunQueueIdx < numMaxObjectsToRun, "ObjectInteractionSystem: Reached max depth");
-            centerEntitiesToRunQueue[centerEntitiesToRunQueueIdx] = changedEntities[i];
-          }
+      // If there are changed entities, we want to run object interactions again but with this new neighbour as the center
+      for (uint256 i; i < changedEntities.length; i++) {
+        if (uint256(changedEntities[i]) != 0) {
+          centerEntitiesToRunQueueIdx++;
+          require(centerEntitiesToRunQueueIdx < numMaxObjectsToRun, "ObjectInteractionSystem: Reached max depth");
+          centerEntitiesToRunQueue[centerEntitiesToRunQueueIdx] = changedEntities[i];
         }
+      }
 
-        for (uint256 i; i < entitiesActionData.length; i++) {
-          if (entitiesActionData[i].eventData.length == 0) {
-            continue;
-          }
-          allEntitiesActionData[entitesActionDataIdx] = entitiesActionData[i];
-          entitesActionDataIdx++;
-          require(entitesActionDataIdx < numMaxObjectsToRun, "ObjectInteractionSystem: Reached max depth");
+      for (uint256 i; i < entitiesActionData.length; i++) {
+        if (entitiesActionData[i].eventData.length == 0) {
+          continue;
         }
+        allEntitiesActionData[entitesActionDataIdx] = entitiesActionData[i];
+        entitesActionDataIdx++;
+        require(entitesActionDataIdx < numMaxObjectsToRun, "ObjectInteractionSystem: Reached max depth");
       }
 
       // at this point, we've consumed the front of the queue,

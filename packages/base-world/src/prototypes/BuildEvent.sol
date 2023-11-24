@@ -25,14 +25,42 @@ abstract contract BuildEvent is Event {
     IWorld(_world()).approveBuild(_msgSender(), actingObjectEntityId, objectTypeId, coord, eventData);
   }
 
+  function emptyObjectId() internal pure virtual returns (bytes32);
+
   function preRunObject(
     bytes32 actingObjectEntityId,
     bytes32 objectTypeId,
     VoxelCoord memory coord,
     bytes32 eventEntityId,
     bytes32 objectEntityId,
+    bool isNewEntity,
     bytes memory eventData
   ) internal virtual override returns (bytes32) {
+    if (isNewEntity) {
+      bytes32 terrainObjectTypeId = getTerrainObjectTypeId(coord);
+      require(
+        terrainObjectTypeId == emptyObjectId() || terrainObjectTypeId == objectTypeId,
+        "BuildEvent: Terrain object type id does not match"
+      );
+    } else {
+      require(ObjectType.get(objectTypeId) == emptyObjectId(), "BuildEvent: Object type id is not empty");
+    }
+    ObjectProperties memory requestedProperties = IWorld(_world()).enterWorld(objectTypeId, coord, objectEntityId);
+    if (isNewEntity) {
+      ObjectProperties memory properties = getTerrainObjectProperties(requestedProperties);
+      // Set voxel type
+      // initEntity(SIMULATOR_ADDRESS, eventVoxelEntity, initMass, initEnergy, initVelocity);
+      // {
+      //   InteractionSelector[] memory interactionSelectors = getInteractionSelectors(
+      //     IStore(REGISTRY_ADDRESS),
+      //     voxelTypeId
+      //   );
+      //   if (interactionSelectors.length > 1) {
+      //     initAgent(SIMULATOR_ADDRESS, eventVoxelEntity, initStamina, initHealth);
+      //   }
+      // }
+    }
+
     return eventEntityId;
   }
 

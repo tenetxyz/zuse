@@ -19,27 +19,4 @@ abstract contract TerrainSystem is System {
   function getTerrainObjectProperties(
     ObjectProperties memory requestedProperties
   ) public virtual returns (ObjectProperties memory);
-
-  function createTerrainEntity(bytes32 objectTypeId, VoxelCoord memory coord) public returns (bytes32, bytes32) {
-    // TODO: require caller can only be world or sim
-    bytes32 terrainObjectTypeId = getTerrainObjectTypeId(coord);
-    require(
-      terrainObjectTypeId == emptyObjectId() || terrainObjectTypeId == objectTypeId,
-      "Invalid object type id on createTerrainEntity"
-    );
-    ObjectProperties memory requestedProperties = IWorld(_world()).enterWorld(objectTypeId, coord, newObjectEntityId);
-    ObjectProperties memory properties = getTerrainObjectProperties(requestedProperties);
-    // Set voxel type
-    // initEntity(SIMULATOR_ADDRESS, eventVoxelEntity, initMass, initEnergy, initVelocity);
-    // {
-    //   InteractionSelector[] memory interactionSelectors = getInteractionSelectors(
-    //     IStore(REGISTRY_ADDRESS),
-    //     voxelTypeId
-    //   );
-    //   if (interactionSelectors.length > 1) {
-    //     initAgent(SIMULATOR_ADDRESS, eventVoxelEntity, initStamina, initHealth);
-    //   }
-    // }
-    return (newEntityId, newObjectEntityId);
-  }
 }

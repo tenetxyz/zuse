@@ -3,7 +3,7 @@ pragma solidity >=0.8.0;
 
 import { IWorld } from "@tenet-base-world/src/codegen/world/IWorld.sol";
 import { Event } from "@tenet-base-world/src/prototypes/Event.sol";
-
+import { ObjectType } from "@tenet-base-world/src/codegen/tables/ObjectType.sol";
 import { VoxelCoord, EntityActionData } from "@tenet-utils/src/Types.sol";
 
 abstract contract BuildEvent is Event {
@@ -37,7 +37,7 @@ abstract contract BuildEvent is Event {
     bytes memory eventData
   ) internal virtual override returns (bytes32) {
     if (isNewEntity) {
-      bytes32 terrainObjectTypeId = getTerrainObjectTypeId(coord);
+      bytes32 terrainObjectTypeId = IWorld(_world()).getTerrainObjectTypeId(coord);
       require(
         terrainObjectTypeId == emptyObjectId() || terrainObjectTypeId == objectTypeId,
         "BuildEvent: Terrain object type id does not match"
@@ -64,15 +64,6 @@ abstract contract BuildEvent is Event {
     return eventEntityId;
   }
 
-  function postRunObject(
-    bytes32 actingObjectEntityId,
-    bytes32 objectTypeId,
-    VoxelCoord memory coord,
-    bytes32 eventEntityId,
-    bytes32 objectEntityId,
-    bytes memory eventData
-  ) internal virtual override {}
-
   function runObject(
     bytes32 actingObjectEntityId,
     bytes32 objectTypeId,
@@ -83,4 +74,13 @@ abstract contract BuildEvent is Event {
   ) internal virtual override returns (EntityActionData[] memory) {
     return IWorld(_world()).runInteractions(eventEntityId);
   }
+
+  function postRunObject(
+    bytes32 actingObjectEntityId,
+    bytes32 objectTypeId,
+    VoxelCoord memory coord,
+    bytes32 eventEntityId,
+    bytes32 objectEntityId,
+    bytes memory eventData
+  ) internal virtual override {}
 }

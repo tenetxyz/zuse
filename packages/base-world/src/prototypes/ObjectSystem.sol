@@ -30,11 +30,14 @@ abstract contract ObjectSystem is System {
     VoxelCoord memory coord,
     bytes32 objectEntityId
   ) public virtual returns (ObjectProperties memory requestedProperties) {
-    bytes4 objectEnterWorldSelector = getEnterWorldSelector(IStore(getRegistryAddress()), objectTypeId);
-    require(objectEnterWorldSelector != bytes4(0), "Object enterWorld not defined");
+    (address objectAddress, bytes4 objectEnterWorldSelector) = getEnterWorldSelector(
+      IStore(getRegistryAddress()),
+      objectTypeId
+    );
+    require(objectAddress != address(0) && objectEnterWorldSelector != bytes4(0), "Object enterWorld not defined");
 
     (bool enterWorldSuccess, bytes memory enterWorldReturnData) = safeCall(
-      _world(),
+      objectAddress,
       abi.encodeWithSelector(objectEnterWorldSelector, coord, objectEntityId),
       "object enter world"
     );
@@ -45,6 +48,20 @@ abstract contract ObjectSystem is System {
     }
 
     return requestedProperties;
+  }
+
+  function exitWorld(bytes32 objectTypeId, VoxelCoord memory coord, bytes32 objectEntityId) public virtual {
+    (address objectAddress, bytes4 objectExitWorldSelector) = getEnterWorldSelector(
+      IStore(getRegistryAddress()),
+      objectTypeId
+    );
+    require(objectAddress != address(0) && objectExitWorldSelector != bytes4(0), "Object exitWorld not defined");
+
+    (bool exitWorldSuccess, bytes memory exitWorldReturnData) = safeCall(
+      objectAddress,
+      abi.encodeWithSelector(objectExitWorldSelector, coord, objectEntityId),
+      "object exit world"
+    );
   }
 
   function moveCA(
@@ -67,17 +84,5 @@ abstract contract ObjectSystem is System {
       childEntityIds,
       parentEntity
     );
-  }
-
-  function exitCA(
-    address caAddress,
-    VoxelEntity memory entity,
-    bytes32 voxelTypeId,
-    VoxelCoord memory coord
-  ) public virtual {
-    (bytes32[] memory neighbourEntities, ) = IWorld(_world()).calculateNeighbourEntities(entity);
-    bytes32[] memory childEntityIds = IWorld(_world()).calculateChildEntities(entity);
-    bytes32 parentEntity = IWorld(_world()).calculateParentEntity(entity);
-    exitWorld(caAddress, voxelTypeId, coord, entity.entityId, neighbourEntities, childEntityIds, parentEntity);
   }
 }

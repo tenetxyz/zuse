@@ -59,7 +59,7 @@ function getVonNeumannNeighbourEntities(
 
 function getMooreNeighbourEntities(
   IStore store,
-  bytes32 centerEntityId
+  bytes32 centerEntityId,
   uint8 neighbourRadius
 ) view returns (bytes32[] memory, VoxelCoord[] memory) {
   VoxelCoord memory centerCoord = positionDataToVoxelCoord(Position.get(store, centerEntityId));

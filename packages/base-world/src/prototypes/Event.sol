@@ -8,7 +8,6 @@ import { getKeysInTable } from "@latticexyz/world/src/modules/keysintable/getKey
 import { IWorld } from "@tenet-base-world/src/codegen/world/IWorld.sol";
 import { ObjectType } from "@tenet-base-world/src/codegen/tables/ObjectType.sol";
 import { Position } from "@tenet-base-world/src/codegen/tables/Position.sol";
-import { Metadata, MetadataTableId } from "@tenet-base-world/src/codegen/tables/Metadata.sol";
 
 import { VoxelCoord, EntityActionData } from "@tenet-utils/src/Types.sol";
 import { getEntityAtCoord } from "@tenet-base-world/src/Utils.sol";
@@ -39,6 +38,8 @@ abstract contract Event is System {
     return eventEntityId;
   }
 
+  function emptyObjectId() internal pure virtual returns (bytes32);
+
   function preEvent(
     bytes32 actingObjectEntityId,
     bytes32 objectTypeId,
@@ -55,12 +56,6 @@ abstract contract Event is System {
     EntityActionData[] memory entitiesActionData
   ) internal virtual {
     processActions(entitiesActionData);
-
-    // Clear all keys in Metadata
-    bytes32[][] memory entitiesRan = getKeysInTable(MetadataTableId);
-    for (uint256 i = 0; i < entitiesRan.length; i++) {
-      Metadata.deleteRecord(entitiesRan[i][0]);
-    }
   }
 
   function processActions(EntityActionData[] memory entitiesActionData) internal virtual;

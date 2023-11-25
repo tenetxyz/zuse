@@ -6,7 +6,6 @@ import { getUniqueEntity } from "@latticexyz/world/src/modules/uniqueentity/getU
 
 import { Position, PositionData } from "@tenet-base-world/src/codegen/tables/Position.sol";
 import { ObjectEntity } from "@tenet-base-world/src/codegen/tables/ObjectEntity.sol";
-
 import { VoxelCoord, ObjectProperties } from "@tenet-utils/src/Types.sol";
 
 abstract contract TerrainSystem is System {

@@ -25,8 +25,6 @@ abstract contract BuildEvent is Event {
     IWorld(_world()).approveBuild(_msgSender(), actingObjectEntityId, objectTypeId, coord, eventData);
   }
 
-  function emptyObjectId() internal pure virtual returns (bytes32);
-
   function preRunObject(
     bytes32 actingObjectEntityId,
     bytes32 objectTypeId,

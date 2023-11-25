@@ -11,6 +11,7 @@ import { ObjectEntity } from "@tenet-base-world/src/codegen/tables/ObjectEntity.
 import { VoxelCoord, EntityActionData } from "@tenet-utils/src/Types.sol";
 import { MoveEventData } from "@tenet-base-world/src/Types.sol";
 import { getEntityAtCoord } from "@tenet-base-world/src/Utils.sol";
+import { IWorldActivateEventSystem } from "@tenet-base-simulator/src/codegen/world/IWorldActivateEventSystem.sol";
 
 abstract contract ActivateEvent is Event {
   function activate(
@@ -33,6 +34,24 @@ abstract contract ActivateEvent is Event {
     bytes memory eventData
   ) internal virtual override {
     IWorld(_world()).approveActivate(_msgSender(), actingObjectEntityId, objectTypeId, coord, eventData);
+    IWorldActivateEventSystem(getSimulatorAddress()).preActivateEvent(actingObjectEntityId, objectTypeId, coord);
+  }
+
+  function postEvent(
+    bytes32 actingObjectEntityId,
+    bytes32 objectTypeId,
+    VoxelCoord memory coord,
+    bytes32 eventEntityId,
+    bytes memory eventData,
+    EntityActionData[] memory entitiesActionData
+  ) internal virtual override {
+    super.postEvent(actingObjectEntityId, objectTypeId, coord, eventEntityId, eventData, entitiesActionData);
+    IWorldActivateEventSystem(getSimulatorAddress()).postActivateEvent(
+      actingObjectEntityId,
+      objectTypeId,
+      coord,
+      eventEntityId
+    );
   }
 
   function preRunObject(
@@ -46,6 +65,14 @@ abstract contract ActivateEvent is Event {
   ) internal virtual override returns (bytes32) {
     require(ObjectType.get(eventEntityId) == objectTypeId, "ActivateEvent: object type id mismatch");
     // Note: if we want objects to return some property data, we could do that here in the future
+
+    IWorldActivateEventSystem(getSimulatorAddress()).onActivateEvent(
+      actingObjectEntityId,
+      objectTypeId,
+      coord,
+      eventEntityId
+    );
+
     return eventEntityId;
   }
 

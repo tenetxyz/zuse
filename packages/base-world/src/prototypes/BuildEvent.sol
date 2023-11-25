@@ -5,6 +5,7 @@ import { IWorld } from "@tenet-base-world/src/codegen/world/IWorld.sol";
 import { Event } from "@tenet-base-world/src/prototypes/Event.sol";
 import { ObjectType } from "@tenet-base-world/src/codegen/tables/ObjectType.sol";
 import { VoxelCoord, EntityActionData, ObjectProperties } from "@tenet-utils/src/Types.sol";
+import { IWorldBuildEventSystem } from "@tenet-base-simulator/src/codegen/world/IWorldBuildEventSystem.sol";
 
 abstract contract BuildEvent is Event {
   function build(
@@ -23,6 +24,24 @@ abstract contract BuildEvent is Event {
     bytes memory eventData
   ) internal virtual override {
     IWorld(_world()).approveBuild(_msgSender(), actingObjectEntityId, objectTypeId, coord, eventData);
+    IWorldBuildEventSystem(getSimulatorAddress()).preBuildEvent(actingObjectEntityId, objectTypeId, coord);
+  }
+
+  function postEvent(
+    bytes32 actingObjectEntityId,
+    bytes32 objectTypeId,
+    VoxelCoord memory coord,
+    bytes32 eventEntityId,
+    bytes memory eventData,
+    EntityActionData[] memory entitiesActionData
+  ) internal virtual override {
+    super.postEvent(actingObjectEntityId, objectTypeId, coord, eventEntityId, eventData, entitiesActionData);
+    IWorldBuildEventSystem(getSimulatorAddress()).postBuildEvent(
+      actingObjectEntityId,
+      objectTypeId,
+      coord,
+      eventEntityId
+    );
   }
 
   function preRunObject(
@@ -58,6 +77,13 @@ abstract contract BuildEvent is Event {
       //   }
       // }
     }
+
+    IWorldBuildEventSystem(getSimulatorAddress()).onBuildEvent(
+      actingObjectEntityId,
+      objectTypeId,
+      coord,
+      eventEntityId
+    );
 
     return eventEntityId;
   }

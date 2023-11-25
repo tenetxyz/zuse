@@ -6,6 +6,7 @@ import { IStore } from "@latticexyz/store/src/IStore.sol";
 import { Event } from "@tenet-base-world/src/prototypes/Event.sol";
 import { ObjectType } from "@tenet-base-world/src/codegen/tables/ObjectType.sol";
 import { VoxelCoord, EntityActionData } from "@tenet-utils/src/Types.sol";
+import { IWorldMineEventSystem } from "@tenet-base-simulator/src/codegen/world/IWorldMineEventSystem.sol";
 
 abstract contract MineEvent is Event {
   function mine(
@@ -24,6 +25,24 @@ abstract contract MineEvent is Event {
     bytes memory eventData
   ) internal virtual override {
     IWorld(_world()).approveMine(_msgSender(), actingObjectEntityId, objectTypeId, coord, eventData);
+    IWorldMineEventSystem(getSimulatorAddress()).preMineEvent(actingObjectEntityId, objectTypeId, coord);
+  }
+
+  function postEvent(
+    bytes32 actingObjectEntityId,
+    bytes32 objectTypeId,
+    VoxelCoord memory coord,
+    bytes32 eventEntityId,
+    bytes memory eventData,
+    EntityActionData[] memory entitiesActionData
+  ) internal virtual override {
+    super.postEvent(actingObjectEntityId, objectTypeId, coord, eventEntityId, eventData, entitiesActionData);
+    IWorldMineEventSystem(getSimulatorAddress()).postMineEvent(
+      actingObjectEntityId,
+      objectTypeId,
+      coord,
+      eventEntityId
+    );
   }
 
   function preRunObject(
@@ -47,6 +66,9 @@ abstract contract MineEvent is Event {
     );
 
     IWorld(_world()).exitWorld(objectTypeId, coord, objectEntityId);
+
+    IWorldMineEventSystem(getSimulatorAddress()).onMineEvent(actingObjectEntityId, objectTypeId, coord, eventEntityId);
+
     return eventEntityId;
   }
 

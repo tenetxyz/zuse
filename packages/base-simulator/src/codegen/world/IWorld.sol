@@ -5,13 +5,23 @@ pragma solidity >=0.8.0;
 
 import { IBaseWorld } from "@latticexyz/world/src/interfaces/IBaseWorld.sol";
 
-import { IWorldEventSystem } from "./IWorldEventSystem.sol";
+import { IWorldActivateEventSystem } from "./IWorldActivateEventSystem.sol";
+import { IWorldBuildEventSystem } from "./IWorldBuildEventSystem.sol";
 import { IWorldInitSystem } from "./IWorldInitSystem.sol";
+import { IWorldMineEventSystem } from "./IWorldMineEventSystem.sol";
+import { IWorldMoveEventSystem } from "./IWorldMoveEventSystem.sol";
 
 /**
  * The IWorld interface includes all systems dynamically added to the World
  * during the deploy process.
  */
-interface IWorld is IBaseWorld, IWorldEventSystem, IWorldInitSystem {
+interface IWorld is
+  IBaseWorld,
+  IWorldActivateEventSystem,
+  IWorldBuildEventSystem,
+  IWorldInitSystem,
+  IWorldMineEventSystem,
+  IWorldMoveEventSystem
+{
 
 }

@@ -11,6 +11,7 @@ import { ObjectEntity } from "@tenet-base-world/src/codegen/tables/ObjectEntity.
 import { MoveEventData } from "@tenet-base-world/src/Types.sol";
 import { VoxelCoord, EntityActionData } from "@tenet-utils/src/Types.sol";
 import { getEntityAtCoord } from "@tenet-base-world/src/Utils.sol";
+import { IWorldMoveEventSystem } from "@tenet-base-simulator/src/codegen/world/IWorldMoveEventSystem.sol";
 
 abstract contract MoveEvent is Event {
   function getOldCoord(bytes memory eventData) internal pure virtual returns (VoxelCoord memory) {
@@ -40,6 +41,30 @@ abstract contract MoveEvent is Event {
     bytes memory eventData
   ) internal virtual override {
     IWorld(_world()).approveMove(_msgSender(), actingObjectEntityId, objectTypeId, coord, eventData);
+    IWorldMoveEventSystem(getSimulatorAddress()).preMoveEvent(
+      actingObjectEntityId,
+      objectTypeId,
+      getOldCoord(eventData),
+      coord
+    );
+  }
+
+  function postEvent(
+    bytes32 actingObjectEntityId,
+    bytes32 objectTypeId,
+    VoxelCoord memory coord,
+    bytes32 eventEntityId,
+    bytes memory eventData,
+    EntityActionData[] memory entitiesActionData
+  ) internal virtual override {
+    super.postEvent(actingObjectEntityId, objectTypeId, coord, eventEntityId, eventData, entitiesActionData);
+    IWorldMoveEventSystem(getSimulatorAddress()).postMoveEvent(
+      actingObjectEntityId,
+      objectTypeId,
+      getOldCoord(eventData),
+      coord,
+      eventEntityId
+    );
   }
 
   function preRunObject(
@@ -59,7 +84,8 @@ abstract contract MoveEvent is Event {
     }
     require(currentObjectTypeId == emptyObjectId(), "MoveEvent: cannot move to non-empty object");
 
-    bytes32 oldEntityId = getEntityAtCoord(IStore(_world()), getOldCoord(eventData));
+    VoxelCoord memory oldCoord = getOldCoord(eventData);
+    bytes32 oldEntityId = getEntityAtCoord(IStore(_world()), oldCoord);
     require(uint256(oldEntityId) != 0, "MoveEvent: old entity does not exist");
     bytes32 oldObjectTypeId = ObjectType.get(oldEntityId);
     require(
@@ -76,6 +102,14 @@ abstract contract MoveEvent is Event {
     // Note: this is the main move of the object pointer
     ObjectEntity.set(oldEntityId, objectEntityId);
     ObjectEntity.set(eventEntityId, oldObjectEntityId);
+
+    IWorldMoveEventSystem(getSimulatorAddress()).onMoveEvent(
+      actingObjectEntityId,
+      objectTypeId,
+      oldCoord,
+      coord,
+      eventEntityId
+    );
 
     return eventEntityId;
   }

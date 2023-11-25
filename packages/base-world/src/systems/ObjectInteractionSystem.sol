@@ -4,15 +4,19 @@ pragma solidity >=0.8.0;
 import { IWorld } from "@tenet-base-world/src/codegen/world/IWorld.sol";
 import { IStore } from "@latticexyz/store/src/IStore.sol";
 import { System } from "@latticexyz/world/src/System.sol";
+
+import { ObjectType } from "@tenet-base-world/src/codegen/tables/ObjectType.sol";
+import { ObjectEntity } from "@tenet-base-world/src/codegen/tables/ObjectEntity.sol";
+
+import { safeCall } from "@tenet-utils/src/CallUtils.sol";
 import { VoxelCoord, EntityActionData } from "@tenet-utils/src/Types.sol";
+import { getEventHandlerSelector, getNeighbourEventHandlerSelector } from "@tenet-registry/src/Utils.sol";
+import { getVonNeumannNeighbourEntities } from "@tenet-base-world/src/Utils.sol";
 
 abstract contract ObjectInteractionSystem is System {
-  function getRegistryAddress() internal pure override returns (address);
+  function getRegistryAddress() internal pure virtual returns (address);
 
-  function beforeRunInteraction(
-    bytes32 centerObjectEntityId,
-    bytes32[] memory neighbourObjectEntityIds
-  ) internal virtual {}
+  function preRunInteraction(bytes32 centerObjectEntityId, bytes32[] memory neighbourObjectEntityIds) internal virtual;
 
   function shouldRunEvent(bytes32 objectEntityId) internal virtual returns (bool);
 
@@ -30,7 +34,7 @@ abstract contract ObjectInteractionSystem is System {
     if (!shouldRunEvent(centerObjectEntityId)) {
       return new bytes(0);
     }
-    (address eventHandlerAddress, bytes4 eventHandlerSelector) = getEventHandler(
+    (address eventHandlerAddress, bytes4 eventHandlerSelector) = getEventHandlerSelector(
       IStore(getRegistryAddress()),
       centerObjectTypeId
     );
@@ -62,7 +66,7 @@ abstract contract ObjectInteractionSystem is System {
         continue;
       }
 
-      (address neighbourEventHandlerAddress, bytes4 neighbourEventHandlerSelector) = getNeighbourEventHandler(
+      (address neighbourEventHandlerAddress, bytes4 neighbourEventHandlerSelector) = getNeighbourEventHandlerSelector(
         IStore(getRegistryAddress()),
         neighbourObjectTypeId
       );
@@ -104,7 +108,7 @@ abstract contract ObjectInteractionSystem is System {
         neighbourObjectEntityIds[i] = ObjectEntity.get(neighbourEntityIds[i]);
       }
     }
-    beforeRunInteraction(centerObjectEntityId, neighbourObjectEntityIds);
+    preRunInteraction(centerObjectEntityId, neighbourObjectEntityIds);
     bytes32 centerObjectTypeId = ObjectType.get(centerEntityId);
 
     // Center Interaction
@@ -116,15 +120,13 @@ abstract contract ObjectInteractionSystem is System {
 
     // Neighbour Interactions
     (bytes32[] memory changedNeighbourEntities, bytes[] memory neighbourEntitiesActionData) = runNeighbourEventHandlers(
-      callerAddress,
-      interactEntity,
-      neighbourEntityIds,
-      caInteractEntity,
-      caNeighbourEntityIds
+      centerObjectEntityId,
+      neighbourObjectEntityIds,
+      neighbourEntityIds
     );
 
     EntityActionData[] memory allEntitiesActionData = new EntityActionData[](neighbourEntitiesActionData.length + 1);
-    allEntitiesActionData[0] = EntityActionData({ entityId: centerEntityId, eventData: centerEntityActionData });
+    allEntitiesActionData[0] = EntityActionData({ entityId: centerEntityId, actionData: centerEntityActionData });
 
     for (uint256 i; i < neighbourEntitiesActionData.length; i++) {
       if (neighbourEntitiesActionData[i].length == 0) {
@@ -133,7 +135,7 @@ abstract contract ObjectInteractionSystem is System {
 
       allEntitiesActionData[i + 1] = EntityActionData({
         entityId: neighbourEntityIds[i],
-        eventData: neighbourEntitiesActionData[i]
+        actionData: neighbourEntitiesActionData[i]
       });
     }
 
@@ -155,7 +157,7 @@ abstract contract ObjectInteractionSystem is System {
     while (useQueueIdx < numMaxObjectsToRun) {
       bytes32 useCenterEntityId = centerEntitiesToRunQueue[useQueueIdx];
 
-      (bytes32[] memory neighbourEntities, ) = getVonNeumannNeighbourEntities(useCenterEntityId);
+      (bytes32[] memory neighbourEntities, ) = getVonNeumannNeighbourEntities(IStore(_world()), useCenterEntityId);
       (bytes32[] memory changedEntities, EntityActionData[] memory entitiesActionData) = runSingleInteraction(
         useCenterEntityId,
         neighbourEntities
@@ -171,7 +173,7 @@ abstract contract ObjectInteractionSystem is System {
       }
 
       for (uint256 i; i < entitiesActionData.length; i++) {
-        if (entitiesActionData[i].eventData.length == 0) {
+        if (entitiesActionData[i].actionData.length == 0) {
           continue;
         }
         allEntitiesActionData[entitesActionDataIdx] = entitiesActionData[i];

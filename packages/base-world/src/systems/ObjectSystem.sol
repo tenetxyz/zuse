@@ -4,10 +4,13 @@ pragma solidity >=0.8.0;
 import { IWorld } from "@tenet-base-world/src/codegen/world/IWorld.sol";
 import { IStore } from "@latticexyz/store/src/IStore.sol";
 import { System } from "@latticexyz/world/src/System.sol";
+
 import { VoxelCoord, ObjectProperties } from "@tenet-utils/src/Types.sol";
+import { safeCall } from "@tenet-utils/src/CallUtils.sol";
+import { getEnterWorldSelector, getExitWorldSelector } from "@tenet-registry/src/Utils.sol";
 
 abstract contract ObjectSystem is System {
-  function getRegistryAddress() internal pure override returns (address);
+  function getRegistryAddress() internal pure virtual returns (address);
 
   function decodeToObjectProperties(bytes memory data) external pure returns (ObjectProperties memory) {
     return abi.decode(data, (ObjectProperties));

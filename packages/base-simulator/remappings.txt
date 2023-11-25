@@ -15,4 +15,4 @@ abdk-libraries-solidity/=../../node_modules/abdk-libraries-solidity/
 @solidstate/=../../node_modules/@solidstate/
 @tenet-utils/=../../node_modules/@tenetxyz/utils
 @tenet-registry/=../../node_modules/@tenetxyz/registry
-@tenet-base-world/=./
+@tenet-base-simulator/=./

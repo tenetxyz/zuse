@@ -1,0 +1,1 @@
+export { tenetMudConfig } from "./mudConfig";

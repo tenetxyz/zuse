@@ -4,8 +4,23 @@ import { ExtractUserTypes, StringForUnion } from "@latticexyz/common/type-utils"
 import { MUDUserConfig, TableConfig } from "@latticexyz/store/config";
 import { ExpandMUDUserConfig } from "@latticexyz/store/register";
 
+enum EventCondition {
+  PreEvent,
+  OnEvent,
+  PostEvent,
+}
+
 const SIMULATOR_TABLES: Record<string, TableConfig> = {
-  SimSelectors: {
+  Behaviours: {
+    keySchema: {
+      triggerEvent: "EventType",
+      triggerCondition: "EventCondition",
+    },
+    schema: {
+      selector: "bytes4",
+    },
+  },
+  Actions: {
     keySchema: {
       senderTable: "SimTable",
       receiverTable: "SimTable",

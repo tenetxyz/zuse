@@ -740,9 +740,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@latticexyz/cli@link:../../../mud/packages/cli::locator=%40tenetxyz%2Fbase-ca%40workspace%3Apackages%2Fbase-ca":
+"@latticexyz/cli@link:../../../mud/packages/cli::locator=%40tenetxyz%2Fbase-simulator%40workspace%3Apackages%2Fbase-simulator":
   version: 0.0.0-use.local
-  resolution: "@latticexyz/cli@link:../../../mud/packages/cli::locator=%40tenetxyz%2Fbase-ca%40workspace%3Apackages%2Fbase-ca"
+  resolution: "@latticexyz/cli@link:../../../mud/packages/cli::locator=%40tenetxyz%2Fbase-simulator%40workspace%3Apackages%2Fbase-simulator"
   languageName: node
   linkType: soft
 
@@ -770,9 +770,9 @@ __metadata:
   languageName: node
   linkType: soft
 
-"@latticexyz/config@link:../../../mud/packages/config::locator=%40tenetxyz%2Fbase-ca%40workspace%3Apackages%2Fbase-ca":
+"@latticexyz/config@link:../../../mud/packages/config::locator=%40tenetxyz%2Fbase-simulator%40workspace%3Apackages%2Fbase-simulator":
   version: 0.0.0-use.local
-  resolution: "@latticexyz/config@link:../../../mud/packages/config::locator=%40tenetxyz%2Fbase-ca%40workspace%3Apackages%2Fbase-ca"
+  resolution: "@latticexyz/config@link:../../../mud/packages/config::locator=%40tenetxyz%2Fbase-simulator%40workspace%3Apackages%2Fbase-simulator"
   languageName: node
   linkType: soft
 
@@ -794,15 +794,21 @@ __metadata:
   languageName: node
   linkType: soft
 
+"@latticexyz/noise@link:../../../mud/packages/noise::locator=%40tenetxyz%2Fbase-simulator%40workspace%3Apackages%2Fbase-simulator":
+  version: 0.0.0-use.local
+  resolution: "@latticexyz/noise@link:../../../mud/packages/noise::locator=%40tenetxyz%2Fbase-simulator%40workspace%3Apackages%2Fbase-simulator"
+  languageName: node
+  linkType: soft
+
 "@latticexyz/noise@link:../../../mud/packages/noise::locator=%40tenetxyz%2Fbase-world%40workspace%3Apackages%2Fbase-world":
   version: 0.0.0-use.local
   resolution: "@latticexyz/noise@link:../../../mud/packages/noise::locator=%40tenetxyz%2Fbase-world%40workspace%3Apackages%2Fbase-world"
   languageName: node
   linkType: soft
 
-"@latticexyz/schema-type@link:../../../mud/packages/schema-type::locator=%40tenetxyz%2Fbase-ca%40workspace%3Apackages%2Fbase-ca":
+"@latticexyz/schema-type@link:../../../mud/packages/schema-type::locator=%40tenetxyz%2Fbase-simulator%40workspace%3Apackages%2Fbase-simulator":
   version: 0.0.0-use.local
-  resolution: "@latticexyz/schema-type@link:../../../mud/packages/schema-type::locator=%40tenetxyz%2Fbase-ca%40workspace%3Apackages%2Fbase-ca"
+  resolution: "@latticexyz/schema-type@link:../../../mud/packages/schema-type::locator=%40tenetxyz%2Fbase-simulator%40workspace%3Apackages%2Fbase-simulator"
   languageName: node
   linkType: soft
 
@@ -824,15 +830,21 @@ __metadata:
   languageName: node
   linkType: soft
 
+"@latticexyz/solecs@link:../../../mud/packages/solecs::locator=%40tenetxyz%2Fbase-simulator%40workspace%3Apackages%2Fbase-simulator":
+  version: 0.0.0-use.local
+  resolution: "@latticexyz/solecs@link:../../../mud/packages/solecs::locator=%40tenetxyz%2Fbase-simulator%40workspace%3Apackages%2Fbase-simulator"
+  languageName: node
+  linkType: soft
+
 "@latticexyz/solecs@link:../../../mud/packages/solecs::locator=%40tenetxyz%2Fbase-world%40workspace%3Apackages%2Fbase-world":
   version: 0.0.0-use.local
   resolution: "@latticexyz/solecs@link:../../../mud/packages/solecs::locator=%40tenetxyz%2Fbase-world%40workspace%3Apackages%2Fbase-world"
   languageName: node
   linkType: soft
 
-"@latticexyz/std-contracts@link:../../../mud/packages/std-contracts::locator=%40tenetxyz%2Fbase-ca%40workspace%3Apackages%2Fbase-ca":
+"@latticexyz/std-contracts@link:../../../mud/packages/std-contracts::locator=%40tenetxyz%2Fbase-simulator%40workspace%3Apackages%2Fbase-simulator":
   version: 0.0.0-use.local
-  resolution: "@latticexyz/std-contracts@link:../../../mud/packages/std-contracts::locator=%40tenetxyz%2Fbase-ca%40workspace%3Apackages%2Fbase-ca"
+  resolution: "@latticexyz/std-contracts@link:../../../mud/packages/std-contracts::locator=%40tenetxyz%2Fbase-simulator%40workspace%3Apackages%2Fbase-simulator"
   languageName: node
   linkType: soft
 
@@ -854,9 +866,9 @@ __metadata:
   languageName: node
   linkType: soft
 
-"@latticexyz/store@link:../../../mud/packages/store::locator=%40tenetxyz%2Fbase-ca%40workspace%3Apackages%2Fbase-ca":
+"@latticexyz/store@link:../../../mud/packages/store::locator=%40tenetxyz%2Fbase-simulator%40workspace%3Apackages%2Fbase-simulator":
   version: 0.0.0-use.local
-  resolution: "@latticexyz/store@link:../../../mud/packages/store::locator=%40tenetxyz%2Fbase-ca%40workspace%3Apackages%2Fbase-ca"
+  resolution: "@latticexyz/store@link:../../../mud/packages/store::locator=%40tenetxyz%2Fbase-simulator%40workspace%3Apackages%2Fbase-simulator"
   languageName: node
   linkType: soft
 
@@ -878,9 +890,9 @@ __metadata:
   languageName: node
   linkType: soft
 
-"@latticexyz/world@link:../../../mud/packages/world::locator=%40tenetxyz%2Fbase-ca%40workspace%3Apackages%2Fbase-ca":
+"@latticexyz/world@link:../../../mud/packages/world::locator=%40tenetxyz%2Fbase-simulator%40workspace%3Apackages%2Fbase-simulator":
   version: 0.0.0-use.local
-  resolution: "@latticexyz/world@link:../../../mud/packages/world::locator=%40tenetxyz%2Fbase-ca%40workspace%3Apackages%2Fbase-ca"
+  resolution: "@latticexyz/world@link:../../../mud/packages/world::locator=%40tenetxyz%2Fbase-simulator%40workspace%3Apackages%2Fbase-simulator"
   languageName: node
   linkType: soft
 
@@ -968,16 +980,18 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@tenetxyz/base-ca@workspace:*, @tenetxyz/base-ca@workspace:packages/base-ca":
+"@tenetxyz/base-simulator@workspace:packages/base-simulator":
   version: 0.0.0-use.local
-  resolution: "@tenetxyz/base-ca@workspace:packages/base-ca"
+  resolution: "@tenetxyz/base-simulator@workspace:packages/base-simulator"
   dependencies:
     "@ethersproject/abi": ^5.7.0
     "@ethersproject/bytes": ^5.7.0
     "@ethersproject/providers": ^5.7.2
     "@latticexyz/cli": "link:../../../mud/packages/cli"
     "@latticexyz/config": "link:../../../mud/packages/config"
+    "@latticexyz/noise": "link:../../../mud/packages/noise"
     "@latticexyz/schema-type": "link:../../../mud/packages/schema-type"
+    "@latticexyz/solecs": "link:../../../mud/packages/solecs"
     "@latticexyz/std-contracts": "link:../../../mud/packages/std-contracts"
     "@latticexyz/store": "link:../../../mud/packages/store"
     "@latticexyz/world": "link:../../../mud/packages/world"
@@ -986,9 +1000,11 @@ __metadata:
     "@tenetxyz/utils": "workspace:*"
     "@typechain/ethers-v5": ^10.2.0
     "@types/node": ^18.15.11
-    ds-test: "https://github.com/dapphub/ds-test.git#c9ce3f25bde29fc5eb9901842bf02850dfd2d084"
+    abdk-libraries-solidity: ^3.2.0
+    ds-test: "https://github.com/dapphub/ds-test.git"
     ethers: ^5.7.2
     forge-std: "https://github.com/foundry-rs/forge-std"
+    memmove: "https://github.com/dk1a/memmove.git"
     prettier: ^2.6.2
     prettier-plugin-solidity: ^1.0.0-beta.19
     rimraf: ^5.0.1
@@ -1016,7 +1032,6 @@ __metadata:
     "@latticexyz/store": "link:../../../mud/packages/store"
     "@latticexyz/world": "link:../../../mud/packages/world"
     "@openzeppelin/contracts": ^4.9.1
-    "@tenetxyz/base-ca": "workspace:*"
     "@tenetxyz/registry": "workspace:*"
     "@tenetxyz/utils": "workspace:*"
     "@typechain/ethers-v5": ^10.2.0

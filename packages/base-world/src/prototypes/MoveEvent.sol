@@ -18,6 +18,7 @@ abstract contract MoveEvent is Event {
     VoxelCoord memory newCoord,
     bytes memory eventData
   ) internal virtual returns (bytes32, bytes32) {
+    // TODO: call build event handler if no entity at coord
     bytes32 newEntityId = super.runEvent(actingObjectEntityId, moveObjectTypeId, newCoord, eventData);
     MoveEventData memory moveEventData = abi.decode(eventData, (MoveEventData));
     bytes32 oldEntityId = getEntityAtCoord(IStore(_world()), moveEventData.oldCoord);

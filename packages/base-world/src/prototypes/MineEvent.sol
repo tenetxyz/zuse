@@ -14,7 +14,7 @@ abstract contract MineEvent is Event {
     VoxelCoord memory mineCoord,
     bytes memory eventData
   ) internal virtual returns (bytes32) {
-    return super.runEvent(actingObjectEntityId, buildObjectTypeId, buildCoord, eventData);
+    return super.runEvent(actingObjectEntityId, mineObjectTypeId, mineCoord, eventData);
   }
 
   function preEvent(

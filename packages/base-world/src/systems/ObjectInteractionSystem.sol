@@ -34,10 +34,7 @@ abstract contract ObjectInteractionSystem is System {
       IStore(getRegistryAddress()),
       centerObjectTypeId
     );
-    require(
-      eventHandlerAddress != address(0) && objectEventHandlerSelector != bytes4(0),
-      "Object eventHandler not defined"
-    );
+    require(eventHandlerAddress != address(0) && eventHandlerSelector != bytes4(0), "Object eventHandler not defined");
 
     (bool eventHandlerSuccess, bytes memory centerEntityActionData) = safeCall(
       eventHandlerAddress,

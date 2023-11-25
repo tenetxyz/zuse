@@ -6,15 +6,14 @@ pragma solidity >=0.8.0;
 import { IBaseWorld } from "@latticexyz/world/src/interfaces/IBaseWorld.sol";
 
 import { IEventApprovalsSystem } from "@tenet-base-world/src/codegen/world/IEventApprovalsSystem.sol";
-import { IExternalCASystem } from "@tenet-base-world/src/codegen/world/IExternalCASystem.sol";
-import { IInitWorldSystem } from "@tenet-base-world/src/codegen/world/IInitWorldSystem.sol";
-import { IMindSystem } from "@tenet-base-world/src/codegen/world/IMindSystem.sol";
-import { IRunCASystem } from "@tenet-base-world/src/codegen/world/IRunCASystem.sol";
+import { IObjectInteractionSystem } from "@tenet-base-world/src/codegen/world/IObjectInteractionSystem.sol";
+import { IObjectSystem } from "@tenet-base-world/src/codegen/world/IObjectSystem.sol";
+import { ITerrainSystem } from "@tenet-base-world/src/codegen/world/ITerrainSystem.sol";
 
 /**
  * The IWorld interface includes all systems dynamically added to the World
  * during the deploy process.
  */
-interface IWorld is IBaseWorld, IEventApprovalsSystem, IExternalCASystem, IInitWorldSystem, IMindSystem, IRunCASystem {
+interface IWorld is IBaseWorld, IEventApprovalsSystem, IObjectInteractionSystem, IObjectSystem, ITerrainSystem {
 
 }

@@ -17,15 +17,14 @@ import { EncodeArray } from "@latticexyz/store/src/tightcoder/EncodeArray.sol";
 import { Schema, SchemaLib } from "@latticexyz/store/src/Schema.sol";
 import { PackedCounter, PackedCounterLib } from "@latticexyz/store/src/PackedCounter.sol";
 
-bytes32 constant _tableId = bytes32(abi.encodePacked(bytes16(""), bytes16("OfSpawn")));
-bytes32 constant OfSpawnTableId = _tableId;
+bytes32 constant _tableId = bytes32(abi.encodePacked(bytes16(""), bytes16("OwnedBy")));
+bytes32 constant OwnedByTableId = _tableId;
 
-library OfSpawn {
+library OwnedBy {
   /** Get the table's key schema */
   function getKeySchema() internal pure returns (Schema) {
-    SchemaType[] memory _schema = new SchemaType[](2);
-    _schema[0] = SchemaType.UINT32;
-    _schema[1] = SchemaType.BYTES32;
+    SchemaType[] memory _schema = new SchemaType[](1);
+    _schema[0] = SchemaType.BYTES32;
 
     return SchemaLib.encode(_schema);
   }
@@ -33,22 +32,21 @@ library OfSpawn {
   /** Get the table's value schema */
   function getValueSchema() internal pure returns (Schema) {
     SchemaType[] memory _schema = new SchemaType[](1);
-    _schema[0] = SchemaType.BYTES32;
+    _schema[0] = SchemaType.ADDRESS;
 
     return SchemaLib.encode(_schema);
   }
 
   /** Get the table's key names */
   function getKeyNames() internal pure returns (string[] memory keyNames) {
-    keyNames = new string[](2);
-    keyNames[0] = "scale";
-    keyNames[1] = "entity";
+    keyNames = new string[](1);
+    keyNames[0] = "objectEntityId";
   }
 
   /** Get the table's field names */
   function getFieldNames() internal pure returns (string[] memory fieldNames) {
     fieldNames = new string[](1);
-    fieldNames[0] = "spawnId";
+    fieldNames[0] = "user";
   }
 
   /** Register the table's key schema, value schema, key names and value names */
@@ -61,72 +59,65 @@ library OfSpawn {
     _store.registerTable(_tableId, getKeySchema(), getValueSchema(), getKeyNames(), getFieldNames());
   }
 
-  /** Get spawnId */
-  function get(uint32 scale, bytes32 entity) internal view returns (bytes32 spawnId) {
-    bytes32[] memory _keyTuple = new bytes32[](2);
-    _keyTuple[0] = bytes32(uint256(scale));
-    _keyTuple[1] = entity;
+  /** Get user */
+  function get(bytes32 objectEntityId) internal view returns (address user) {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = objectEntityId;
 
     bytes memory _blob = StoreSwitch.getField(_tableId, _keyTuple, 0, getValueSchema());
-    return (Bytes.slice32(_blob, 0));
+    return (address(Bytes.slice20(_blob, 0)));
   }
 
-  /** Get spawnId (using the specified store) */
-  function get(IStore _store, uint32 scale, bytes32 entity) internal view returns (bytes32 spawnId) {
-    bytes32[] memory _keyTuple = new bytes32[](2);
-    _keyTuple[0] = bytes32(uint256(scale));
-    _keyTuple[1] = entity;
+  /** Get user (using the specified store) */
+  function get(IStore _store, bytes32 objectEntityId) internal view returns (address user) {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = objectEntityId;
 
     bytes memory _blob = _store.getField(_tableId, _keyTuple, 0, getValueSchema());
-    return (Bytes.slice32(_blob, 0));
+    return (address(Bytes.slice20(_blob, 0)));
   }
 
-  /** Set spawnId */
-  function set(uint32 scale, bytes32 entity, bytes32 spawnId) internal {
-    bytes32[] memory _keyTuple = new bytes32[](2);
-    _keyTuple[0] = bytes32(uint256(scale));
-    _keyTuple[1] = entity;
+  /** Set user */
+  function set(bytes32 objectEntityId, address user) internal {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = objectEntityId;
 
-    StoreSwitch.setField(_tableId, _keyTuple, 0, abi.encodePacked((spawnId)), getValueSchema());
+    StoreSwitch.setField(_tableId, _keyTuple, 0, abi.encodePacked((user)), getValueSchema());
   }
 
-  /** Set spawnId (using the specified store) */
-  function set(IStore _store, uint32 scale, bytes32 entity, bytes32 spawnId) internal {
-    bytes32[] memory _keyTuple = new bytes32[](2);
-    _keyTuple[0] = bytes32(uint256(scale));
-    _keyTuple[1] = entity;
+  /** Set user (using the specified store) */
+  function set(IStore _store, bytes32 objectEntityId, address user) internal {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = objectEntityId;
 
-    _store.setField(_tableId, _keyTuple, 0, abi.encodePacked((spawnId)), getValueSchema());
+    _store.setField(_tableId, _keyTuple, 0, abi.encodePacked((user)), getValueSchema());
   }
 
   /** Tightly pack full data using this table's schema */
-  function encode(bytes32 spawnId) internal pure returns (bytes memory) {
-    return abi.encodePacked(spawnId);
+  function encode(address user) internal pure returns (bytes memory) {
+    return abi.encodePacked(user);
   }
 
   /** Encode keys as a bytes32 array using this table's schema */
-  function encodeKeyTuple(uint32 scale, bytes32 entity) internal pure returns (bytes32[] memory) {
-    bytes32[] memory _keyTuple = new bytes32[](2);
-    _keyTuple[0] = bytes32(uint256(scale));
-    _keyTuple[1] = entity;
+  function encodeKeyTuple(bytes32 objectEntityId) internal pure returns (bytes32[] memory) {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = objectEntityId;
 
     return _keyTuple;
   }
 
   /* Delete all data for given keys */
-  function deleteRecord(uint32 scale, bytes32 entity) internal {
-    bytes32[] memory _keyTuple = new bytes32[](2);
-    _keyTuple[0] = bytes32(uint256(scale));
-    _keyTuple[1] = entity;
+  function deleteRecord(bytes32 objectEntityId) internal {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = objectEntityId;
 
     StoreSwitch.deleteRecord(_tableId, _keyTuple, getValueSchema());
   }
 
   /* Delete all data for given keys (using the specified store) */
-  function deleteRecord(IStore _store, uint32 scale, bytes32 entity) internal {
-    bytes32[] memory _keyTuple = new bytes32[](2);
-    _keyTuple[0] = bytes32(uint256(scale));
-    _keyTuple[1] = entity;
+  function deleteRecord(IStore _store, bytes32 objectEntityId) internal {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = objectEntityId;
 
     _store.deleteRecord(_tableId, _keyTuple, getValueSchema());
   }

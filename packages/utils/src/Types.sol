@@ -33,6 +33,15 @@ enum BlockDirection {
   Down
 }
 
+struct Action {
+  SimTable senderTable;
+  bytes senderValue;
+  VoxelEntity targetEntity;
+  VoxelCoord targetCoord;
+  SimTable targetTable;
+  bytes targetValue;
+}
+
 struct EntityActionData {
   bytes32 entityId;
   bytes actionData;
@@ -128,6 +137,13 @@ struct BlockHeightUpdate {
 struct VoxelTypeData {
   bytes32 voxelTypeId;
   bytes32 voxelVariantId;
+}
+
+enum EventType {
+  Build,
+  Mine,
+  Activate,
+  Move
 }
 
 enum ObjectType {

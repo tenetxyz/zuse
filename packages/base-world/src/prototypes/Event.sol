@@ -2,12 +2,14 @@
 pragma solidity >=0.8.0;
 
 import { System } from "@latticexyz/world/src/System.sol";
+import { IStore } from "@latticexyz/store/src/IStore.sol";
 import { getUniqueEntity } from "@latticexyz/world/src/modules/uniqueentity/getUniqueEntity.sol";
 import { getKeysInTable } from "@latticexyz/world/src/modules/keysintable/getKeysInTable.sol";
 
 import { IWorld } from "@tenet-base-world/src/codegen/world/IWorld.sol";
 import { ObjectType } from "@tenet-base-world/src/codegen/tables/ObjectType.sol";
 import { Position } from "@tenet-base-world/src/codegen/tables/Position.sol";
+import { ObjectEntity } from "@tenet-base-world/src/codegen/tables/ObjectEntity.sol";
 
 import { VoxelCoord, EntityActionData } from "@tenet-utils/src/Types.sol";
 import { getEntityAtCoord } from "@tenet-base-world/src/Utils.sol";
@@ -26,7 +28,7 @@ abstract contract Event is System {
   ) internal virtual returns (bytes32) {
     preEvent(actingObjectEntityId, objectTypeId, coord, eventData);
 
-    (bytes eventEntityId, EntityActionData[] memory entitiesActionData) = runEventHandler(
+    (bytes32 eventEntityId, EntityActionData[] memory entitiesActionData) = runEventHandler(
       actingObjectEntityId,
       objectTypeId,
       coord,
@@ -37,6 +39,8 @@ abstract contract Event is System {
 
     return eventEntityId;
   }
+
+  function getSimulatorAddress() internal pure virtual returns (address);
 
   function emptyObjectId() internal pure virtual returns (bytes32);
 

@@ -4,11 +4,12 @@ pragma solidity >=0.8.0;
 import { IStore } from "@latticexyz/store/src/IStore.sol";
 import { IWorld } from "@tenet-base-world/src/codegen/world/IWorld.sol";
 import { Event } from "@tenet-base-world/src/prototypes/Event.sol";
+
 import { ObjectType } from "@tenet-base-world/src/codegen/tables/ObjectType.sol";
 import { ObjectEntity } from "@tenet-base-world/src/codegen/tables/ObjectEntity.sol";
-import { MoveEventData } from "@tenet-base-world/src/Types.sol";
 
-import { VoxelCoord, EntityEventData } from "@tenet-utils/src/Types.sol";
+import { VoxelCoord, EntityActionData } from "@tenet-utils/src/Types.sol";
+import { MoveEventData } from "@tenet-base-world/src/Types.sol";
 import { getEntityAtCoord } from "@tenet-base-world/src/Utils.sol";
 
 abstract contract ActivateEvent is Event {

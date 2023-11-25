@@ -17,10 +17,10 @@ import { EncodeArray } from "@latticexyz/store/src/tightcoder/EncodeArray.sol";
 import { Schema, SchemaLib } from "@latticexyz/store/src/Schema.sol";
 import { PackedCounter, PackedCounterLib } from "@latticexyz/store/src/PackedCounter.sol";
 
-bytes32 constant _tableId = bytes32(abi.encodePacked(bytes16(""), bytes16("WorldConfig")));
-bytes32 constant WorldConfigTableId = _tableId;
+bytes32 constant _tableId = bytes32(abi.encodePacked(bytes16(""), bytes16("ObjectEntity")));
+bytes32 constant ObjectEntityTableId = _tableId;
 
-library WorldConfig {
+library ObjectEntity {
   /** Get the table's key schema */
   function getKeySchema() internal pure returns (Schema) {
     SchemaType[] memory _schema = new SchemaType[](1);
@@ -32,7 +32,7 @@ library WorldConfig {
   /** Get the table's value schema */
   function getValueSchema() internal pure returns (Schema) {
     SchemaType[] memory _schema = new SchemaType[](1);
-    _schema[0] = SchemaType.ADDRESS;
+    _schema[0] = SchemaType.BYTES32;
 
     return SchemaLib.encode(_schema);
   }
@@ -40,13 +40,13 @@ library WorldConfig {
   /** Get the table's key names */
   function getKeyNames() internal pure returns (string[] memory keyNames) {
     keyNames = new string[](1);
-    keyNames[0] = "voxelTypeId";
+    keyNames[0] = "entityId";
   }
 
   /** Get the table's field names */
   function getFieldNames() internal pure returns (string[] memory fieldNames) {
     fieldNames = new string[](1);
-    fieldNames[0] = "caAddress";
+    fieldNames[0] = "objectEntityId";
   }
 
   /** Register the table's key schema, value schema, key names and value names */
@@ -59,65 +59,65 @@ library WorldConfig {
     _store.registerTable(_tableId, getKeySchema(), getValueSchema(), getKeyNames(), getFieldNames());
   }
 
-  /** Get caAddress */
-  function get(bytes32 voxelTypeId) internal view returns (address caAddress) {
+  /** Get objectEntityId */
+  function get(bytes32 entityId) internal view returns (bytes32 objectEntityId) {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = voxelTypeId;
+    _keyTuple[0] = entityId;
 
     bytes memory _blob = StoreSwitch.getField(_tableId, _keyTuple, 0, getValueSchema());
-    return (address(Bytes.slice20(_blob, 0)));
+    return (Bytes.slice32(_blob, 0));
   }
 
-  /** Get caAddress (using the specified store) */
-  function get(IStore _store, bytes32 voxelTypeId) internal view returns (address caAddress) {
+  /** Get objectEntityId (using the specified store) */
+  function get(IStore _store, bytes32 entityId) internal view returns (bytes32 objectEntityId) {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = voxelTypeId;
+    _keyTuple[0] = entityId;
 
     bytes memory _blob = _store.getField(_tableId, _keyTuple, 0, getValueSchema());
-    return (address(Bytes.slice20(_blob, 0)));
+    return (Bytes.slice32(_blob, 0));
   }
 
-  /** Set caAddress */
-  function set(bytes32 voxelTypeId, address caAddress) internal {
+  /** Set objectEntityId */
+  function set(bytes32 entityId, bytes32 objectEntityId) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = voxelTypeId;
+    _keyTuple[0] = entityId;
 
-    StoreSwitch.setField(_tableId, _keyTuple, 0, abi.encodePacked((caAddress)), getValueSchema());
+    StoreSwitch.setField(_tableId, _keyTuple, 0, abi.encodePacked((objectEntityId)), getValueSchema());
   }
 
-  /** Set caAddress (using the specified store) */
-  function set(IStore _store, bytes32 voxelTypeId, address caAddress) internal {
+  /** Set objectEntityId (using the specified store) */
+  function set(IStore _store, bytes32 entityId, bytes32 objectEntityId) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = voxelTypeId;
+    _keyTuple[0] = entityId;
 
-    _store.setField(_tableId, _keyTuple, 0, abi.encodePacked((caAddress)), getValueSchema());
+    _store.setField(_tableId, _keyTuple, 0, abi.encodePacked((objectEntityId)), getValueSchema());
   }
 
   /** Tightly pack full data using this table's schema */
-  function encode(address caAddress) internal pure returns (bytes memory) {
-    return abi.encodePacked(caAddress);
+  function encode(bytes32 objectEntityId) internal pure returns (bytes memory) {
+    return abi.encodePacked(objectEntityId);
   }
 
   /** Encode keys as a bytes32 array using this table's schema */
-  function encodeKeyTuple(bytes32 voxelTypeId) internal pure returns (bytes32[] memory) {
+  function encodeKeyTuple(bytes32 entityId) internal pure returns (bytes32[] memory) {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = voxelTypeId;
+    _keyTuple[0] = entityId;
 
     return _keyTuple;
   }
 
   /* Delete all data for given keys */
-  function deleteRecord(bytes32 voxelTypeId) internal {
+  function deleteRecord(bytes32 entityId) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = voxelTypeId;
+    _keyTuple[0] = entityId;
 
     StoreSwitch.deleteRecord(_tableId, _keyTuple, getValueSchema());
   }
 
   /* Delete all data for given keys (using the specified store) */
-  function deleteRecord(IStore _store, bytes32 voxelTypeId) internal {
+  function deleteRecord(IStore _store, bytes32 entityId) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = voxelTypeId;
+    _keyTuple[0] = entityId;
 
     _store.deleteRecord(_tableId, _keyTuple, getValueSchema());
   }

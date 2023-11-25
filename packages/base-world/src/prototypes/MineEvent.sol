@@ -4,8 +4,10 @@ pragma solidity >=0.8.0;
 import { IWorld } from "@tenet-base-world/src/codegen/world/IWorld.sol";
 import { IStore } from "@latticexyz/store/src/IStore.sol";
 import { Event } from "@tenet-base-world/src/prototypes/Event.sol";
-import { VoxelCoord, EntityEventData } from "@tenet-utils/src/Types.sol";
+
 import { ObjectType } from "@tenet-base-world/src/codegen/tables/ObjectType.sol";
+
+import { VoxelCoord, EntityActionData } from "@tenet-utils/src/Types.sol";
 
 abstract contract MineEvent is Event {
   function mine(
@@ -46,7 +48,7 @@ abstract contract MineEvent is Event {
       "MineEvent: Object type id mismatch"
     );
 
-    IWorld(_world()).exitWorld(caAddress, eventVoxelEntity, voxelTypeId, coord);
+    IWorld(_world()).exitWorld(objectTypeId, coord, objectEntityId);
     return eventEntityId;
   }
 

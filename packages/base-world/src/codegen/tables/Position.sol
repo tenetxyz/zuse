@@ -29,9 +29,8 @@ struct PositionData {
 library Position {
   /** Get the table's key schema */
   function getKeySchema() internal pure returns (Schema) {
-    SchemaType[] memory _schema = new SchemaType[](2);
-    _schema[0] = SchemaType.UINT32;
-    _schema[1] = SchemaType.BYTES32;
+    SchemaType[] memory _schema = new SchemaType[](1);
+    _schema[0] = SchemaType.BYTES32;
 
     return SchemaLib.encode(_schema);
   }
@@ -48,9 +47,8 @@ library Position {
 
   /** Get the table's key names */
   function getKeyNames() internal pure returns (string[] memory keyNames) {
-    keyNames = new string[](2);
-    keyNames[0] = "scale";
-    keyNames[1] = "entity";
+    keyNames = new string[](1);
+    keyNames[0] = "entityId";
   }
 
   /** Get the table's field names */
@@ -72,169 +70,153 @@ library Position {
   }
 
   /** Get x */
-  function getX(uint32 scale, bytes32 entity) internal view returns (int32 x) {
-    bytes32[] memory _keyTuple = new bytes32[](2);
-    _keyTuple[0] = bytes32(uint256(scale));
-    _keyTuple[1] = entity;
+  function getX(bytes32 entityId) internal view returns (int32 x) {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = entityId;
 
     bytes memory _blob = StoreSwitch.getField(_tableId, _keyTuple, 0, getValueSchema());
     return (int32(uint32(Bytes.slice4(_blob, 0))));
   }
 
   /** Get x (using the specified store) */
-  function getX(IStore _store, uint32 scale, bytes32 entity) internal view returns (int32 x) {
-    bytes32[] memory _keyTuple = new bytes32[](2);
-    _keyTuple[0] = bytes32(uint256(scale));
-    _keyTuple[1] = entity;
+  function getX(IStore _store, bytes32 entityId) internal view returns (int32 x) {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = entityId;
 
     bytes memory _blob = _store.getField(_tableId, _keyTuple, 0, getValueSchema());
     return (int32(uint32(Bytes.slice4(_blob, 0))));
   }
 
   /** Set x */
-  function setX(uint32 scale, bytes32 entity, int32 x) internal {
-    bytes32[] memory _keyTuple = new bytes32[](2);
-    _keyTuple[0] = bytes32(uint256(scale));
-    _keyTuple[1] = entity;
+  function setX(bytes32 entityId, int32 x) internal {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = entityId;
 
     StoreSwitch.setField(_tableId, _keyTuple, 0, abi.encodePacked((x)), getValueSchema());
   }
 
   /** Set x (using the specified store) */
-  function setX(IStore _store, uint32 scale, bytes32 entity, int32 x) internal {
-    bytes32[] memory _keyTuple = new bytes32[](2);
-    _keyTuple[0] = bytes32(uint256(scale));
-    _keyTuple[1] = entity;
+  function setX(IStore _store, bytes32 entityId, int32 x) internal {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = entityId;
 
     _store.setField(_tableId, _keyTuple, 0, abi.encodePacked((x)), getValueSchema());
   }
 
   /** Get y */
-  function getY(uint32 scale, bytes32 entity) internal view returns (int32 y) {
-    bytes32[] memory _keyTuple = new bytes32[](2);
-    _keyTuple[0] = bytes32(uint256(scale));
-    _keyTuple[1] = entity;
+  function getY(bytes32 entityId) internal view returns (int32 y) {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = entityId;
 
     bytes memory _blob = StoreSwitch.getField(_tableId, _keyTuple, 1, getValueSchema());
     return (int32(uint32(Bytes.slice4(_blob, 0))));
   }
 
   /** Get y (using the specified store) */
-  function getY(IStore _store, uint32 scale, bytes32 entity) internal view returns (int32 y) {
-    bytes32[] memory _keyTuple = new bytes32[](2);
-    _keyTuple[0] = bytes32(uint256(scale));
-    _keyTuple[1] = entity;
+  function getY(IStore _store, bytes32 entityId) internal view returns (int32 y) {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = entityId;
 
     bytes memory _blob = _store.getField(_tableId, _keyTuple, 1, getValueSchema());
     return (int32(uint32(Bytes.slice4(_blob, 0))));
   }
 
   /** Set y */
-  function setY(uint32 scale, bytes32 entity, int32 y) internal {
-    bytes32[] memory _keyTuple = new bytes32[](2);
-    _keyTuple[0] = bytes32(uint256(scale));
-    _keyTuple[1] = entity;
+  function setY(bytes32 entityId, int32 y) internal {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = entityId;
 
     StoreSwitch.setField(_tableId, _keyTuple, 1, abi.encodePacked((y)), getValueSchema());
   }
 
   /** Set y (using the specified store) */
-  function setY(IStore _store, uint32 scale, bytes32 entity, int32 y) internal {
-    bytes32[] memory _keyTuple = new bytes32[](2);
-    _keyTuple[0] = bytes32(uint256(scale));
-    _keyTuple[1] = entity;
+  function setY(IStore _store, bytes32 entityId, int32 y) internal {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = entityId;
 
     _store.setField(_tableId, _keyTuple, 1, abi.encodePacked((y)), getValueSchema());
   }
 
   /** Get z */
-  function getZ(uint32 scale, bytes32 entity) internal view returns (int32 z) {
-    bytes32[] memory _keyTuple = new bytes32[](2);
-    _keyTuple[0] = bytes32(uint256(scale));
-    _keyTuple[1] = entity;
+  function getZ(bytes32 entityId) internal view returns (int32 z) {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = entityId;
 
     bytes memory _blob = StoreSwitch.getField(_tableId, _keyTuple, 2, getValueSchema());
     return (int32(uint32(Bytes.slice4(_blob, 0))));
   }
 
   /** Get z (using the specified store) */
-  function getZ(IStore _store, uint32 scale, bytes32 entity) internal view returns (int32 z) {
-    bytes32[] memory _keyTuple = new bytes32[](2);
-    _keyTuple[0] = bytes32(uint256(scale));
-    _keyTuple[1] = entity;
+  function getZ(IStore _store, bytes32 entityId) internal view returns (int32 z) {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = entityId;
 
     bytes memory _blob = _store.getField(_tableId, _keyTuple, 2, getValueSchema());
     return (int32(uint32(Bytes.slice4(_blob, 0))));
   }
 
   /** Set z */
-  function setZ(uint32 scale, bytes32 entity, int32 z) internal {
-    bytes32[] memory _keyTuple = new bytes32[](2);
-    _keyTuple[0] = bytes32(uint256(scale));
-    _keyTuple[1] = entity;
+  function setZ(bytes32 entityId, int32 z) internal {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = entityId;
 
     StoreSwitch.setField(_tableId, _keyTuple, 2, abi.encodePacked((z)), getValueSchema());
   }
 
   /** Set z (using the specified store) */
-  function setZ(IStore _store, uint32 scale, bytes32 entity, int32 z) internal {
-    bytes32[] memory _keyTuple = new bytes32[](2);
-    _keyTuple[0] = bytes32(uint256(scale));
-    _keyTuple[1] = entity;
+  function setZ(IStore _store, bytes32 entityId, int32 z) internal {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = entityId;
 
     _store.setField(_tableId, _keyTuple, 2, abi.encodePacked((z)), getValueSchema());
   }
 
   /** Get the full data */
-  function get(uint32 scale, bytes32 entity) internal view returns (PositionData memory _table) {
-    bytes32[] memory _keyTuple = new bytes32[](2);
-    _keyTuple[0] = bytes32(uint256(scale));
-    _keyTuple[1] = entity;
+  function get(bytes32 entityId) internal view returns (PositionData memory _table) {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = entityId;
 
     bytes memory _blob = StoreSwitch.getRecord(_tableId, _keyTuple, getValueSchema());
     return decode(_blob);
   }
 
   /** Get the full data (using the specified store) */
-  function get(IStore _store, uint32 scale, bytes32 entity) internal view returns (PositionData memory _table) {
-    bytes32[] memory _keyTuple = new bytes32[](2);
-    _keyTuple[0] = bytes32(uint256(scale));
-    _keyTuple[1] = entity;
+  function get(IStore _store, bytes32 entityId) internal view returns (PositionData memory _table) {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = entityId;
 
     bytes memory _blob = _store.getRecord(_tableId, _keyTuple, getValueSchema());
     return decode(_blob);
   }
 
   /** Set the full data using individual values */
-  function set(uint32 scale, bytes32 entity, int32 x, int32 y, int32 z) internal {
+  function set(bytes32 entityId, int32 x, int32 y, int32 z) internal {
     bytes memory _data = encode(x, y, z);
 
-    bytes32[] memory _keyTuple = new bytes32[](2);
-    _keyTuple[0] = bytes32(uint256(scale));
-    _keyTuple[1] = entity;
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = entityId;
 
     StoreSwitch.setRecord(_tableId, _keyTuple, _data, getValueSchema());
   }
 
   /** Set the full data using individual values (using the specified store) */
-  function set(IStore _store, uint32 scale, bytes32 entity, int32 x, int32 y, int32 z) internal {
+  function set(IStore _store, bytes32 entityId, int32 x, int32 y, int32 z) internal {
     bytes memory _data = encode(x, y, z);
 
-    bytes32[] memory _keyTuple = new bytes32[](2);
-    _keyTuple[0] = bytes32(uint256(scale));
-    _keyTuple[1] = entity;
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = entityId;
 
     _store.setRecord(_tableId, _keyTuple, _data, getValueSchema());
   }
 
   /** Set the full data using the data struct */
-  function set(uint32 scale, bytes32 entity, PositionData memory _table) internal {
-    set(scale, entity, _table.x, _table.y, _table.z);
+  function set(bytes32 entityId, PositionData memory _table) internal {
+    set(entityId, _table.x, _table.y, _table.z);
   }
 
   /** Set the full data using the data struct (using the specified store) */
-  function set(IStore _store, uint32 scale, bytes32 entity, PositionData memory _table) internal {
-    set(_store, scale, entity, _table.x, _table.y, _table.z);
+  function set(IStore _store, bytes32 entityId, PositionData memory _table) internal {
+    set(_store, entityId, _table.x, _table.y, _table.z);
   }
 
   /** Decode the tightly packed blob using this table's schema */
@@ -252,28 +234,25 @@ library Position {
   }
 
   /** Encode keys as a bytes32 array using this table's schema */
-  function encodeKeyTuple(uint32 scale, bytes32 entity) internal pure returns (bytes32[] memory) {
-    bytes32[] memory _keyTuple = new bytes32[](2);
-    _keyTuple[0] = bytes32(uint256(scale));
-    _keyTuple[1] = entity;
+  function encodeKeyTuple(bytes32 entityId) internal pure returns (bytes32[] memory) {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = entityId;
 
     return _keyTuple;
   }
 
   /* Delete all data for given keys */
-  function deleteRecord(uint32 scale, bytes32 entity) internal {
-    bytes32[] memory _keyTuple = new bytes32[](2);
-    _keyTuple[0] = bytes32(uint256(scale));
-    _keyTuple[1] = entity;
+  function deleteRecord(bytes32 entityId) internal {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = entityId;
 
     StoreSwitch.deleteRecord(_tableId, _keyTuple, getValueSchema());
   }
 
   /* Delete all data for given keys (using the specified store) */
-  function deleteRecord(IStore _store, uint32 scale, bytes32 entity) internal {
-    bytes32[] memory _keyTuple = new bytes32[](2);
-    _keyTuple[0] = bytes32(uint256(scale));
-    _keyTuple[1] = entity;
+  function deleteRecord(IStore _store, bytes32 entityId) internal {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = entityId;
 
     _store.deleteRecord(_tableId, _keyTuple, getValueSchema());
   }

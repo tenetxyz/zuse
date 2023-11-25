@@ -3,8 +3,10 @@ pragma solidity >=0.8.0;
 
 import { IWorld } from "@tenet-base-world/src/codegen/world/IWorld.sol";
 import { Event } from "@tenet-base-world/src/prototypes/Event.sol";
+
 import { ObjectType } from "@tenet-base-world/src/codegen/tables/ObjectType.sol";
-import { VoxelCoord, EntityActionData } from "@tenet-utils/src/Types.sol";
+
+import { VoxelCoord, EntityActionData, ObjectProperties } from "@tenet-utils/src/Types.sol";
 
 abstract contract BuildEvent is Event {
   function build(
@@ -45,7 +47,7 @@ abstract contract BuildEvent is Event {
     }
     ObjectProperties memory requestedProperties = IWorld(_world()).enterWorld(objectTypeId, coord, objectEntityId);
     if (isNewEntity) {
-      ObjectProperties memory properties = getTerrainObjectProperties(requestedProperties);
+      ObjectProperties memory properties = IWorld(_world()).getTerrainObjectProperties(requestedProperties);
       // Set voxel type
       // initEntity(SIMULATOR_ADDRESS, eventVoxelEntity, initMass, initEnergy, initVelocity);
       // {

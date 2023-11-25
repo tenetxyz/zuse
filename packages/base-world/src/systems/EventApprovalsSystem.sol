@@ -2,11 +2,11 @@
 pragma solidity >=0.8.0;
 
 import { System } from "@latticexyz/world/src/System.sol";
+import { hasKey } from "@latticexyz/world/src/modules/keysintable/hasKey.sol";
 
 import { OwnedBy, OwnedByTableId } from "@tenet-base-world/src/codegen/tables/OwnedBy.sol";
 
-import { EventType } from "@tenet-base-world/src/Types.sol";
-import { VoxelCoord } from "@tenet-utils/src/Types.sol";
+import { VoxelCoord, EventType } from "@tenet-utils/src/Types.sol";
 
 abstract contract EventApprovalsSystem is System {
   function getSimulatorAddress() internal pure virtual returns (address);

@@ -4,42 +4,9 @@ import { ExtractUserTypes, StringForUnion } from "@latticexyz/common/type-utils"
 import { MUDUserConfig, TableConfig } from "@latticexyz/store/config";
 import { ExpandMUDUserConfig } from "@latticexyz/store/register";
 
-enum EventCondition {
-  PreEvent,
-  OnEvent,
-  PostEvent,
-}
+const SIMULATOR_TABLES: Record<string, TableConfig> = {};
 
-const SIMULATOR_TABLES: Record<string, TableConfig> = {
-  Behaviours: {
-    keySchema: {
-      triggerEvent: "EventType",
-      triggerCondition: "EventCondition",
-    },
-    schema: {
-      selector: "bytes4",
-    },
-  },
-  Actions: {
-    keySchema: {
-      senderTable: "SimTable",
-      receiverTable: "SimTable",
-    },
-    schema: {
-      selector: "bytes4",
-      senderValueType: "ValueType",
-      receiverValueType: "ValueType",
-    },
-  },
-};
-
-const WORLD_MODULES = [
-  {
-    name: "UniqueEntityModule",
-    root: true,
-    args: [],
-  },
-];
+const SIMULATOR_MODULES = [];
 
 export function tenetMudConfig<
   T extends MUDCoreUserConfig,
@@ -61,7 +28,7 @@ export function tenetMudConfig<
 
   // add layer Modules
   // TODO: Add check on duplicates
-  config.modules = config.modules.concat(WORLD_MODULES);
+  config.modules = config.modules.concat(SIMULATOR_MODULES);
 
   return mudConfig(config) as any;
 }

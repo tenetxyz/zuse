@@ -136,3 +136,26 @@ function registerMindForWorld(
       "registerMindForWorld"
     );
 }
+
+function getObjectAddress(IStore store, bytes32 objectTypeId) view returns (address) {
+  return ObjectTypeRegistry.getContractAddress(store, objectTypeId);
+}
+
+function getEnterWorldSelector(IStore store, bytes32 objectTypeId) view returns (address, bytes4) {
+  return (getObjectAddress(store, objectTypeId), ObjectTypeRegistry.getEnterWorldSelector(store, objectTypeId));
+}
+
+function getExitWorldSelector(IStore store, bytes32 objectTypeId) view returns (address, bytes4) {
+  return (getObjectAddress(store, objectTypeId), ObjectTypeRegistry.getExitWorldSelector(store, objectTypeId));
+}
+
+function getEventHandlerSelector(IStore store, bytes32 objectTypeId) view returns (address, bytes4) {
+  return (getObjectAddress(store, objectTypeId), ObjectTypeRegistry.getEventHandlerSelector(store, objectTypeId));
+}
+
+function getNeighbourEventHandlerSelector(IStore store, bytes32 objectTypeId) view returns (address, bytes4) {
+  return (
+    getObjectAddress(store, objectTypeId),
+    ObjectTypeRegistry.getNeighbourEventHandlerSelector(store, objectTypeId)
+  );
+}

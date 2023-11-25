@@ -980,7 +980,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@tenetxyz/base-simulator@workspace:packages/base-simulator":
+"@tenetxyz/base-simulator@workspace:*, @tenetxyz/base-simulator@workspace:packages/base-simulator":
   version: 0.0.0-use.local
   resolution: "@tenetxyz/base-simulator@workspace:packages/base-simulator"
   dependencies:
@@ -1032,6 +1032,7 @@ __metadata:
     "@latticexyz/store": "link:../../../mud/packages/store"
     "@latticexyz/world": "link:../../../mud/packages/world"
     "@openzeppelin/contracts": ^4.9.1
+    "@tenetxyz/base-simulator": "workspace:*"
     "@tenetxyz/registry": "workspace:*"
     "@tenetxyz/utils": "workspace:*"
     "@typechain/ethers-v5": ^10.2.0

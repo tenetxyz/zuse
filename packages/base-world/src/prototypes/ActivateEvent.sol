@@ -19,8 +19,9 @@ abstract contract ActivateEvent is Event {
     bytes memory eventData
   ) internal virtual returns (bytes32) {
     bytes32 activateEntityId = getEntityAtCoord(IStore(_world()), activateCoord);
-    require(uint256(activateEntityId) != 0, "ActivateEvent: no entity at coord");
-    // TODO: call build event handler if no entity at coord
+    if (uint256(activateEntityId) == 0) {
+      IWorld(_world()).build(actingObjectEntityId, activateObjectTypeId, activateCoord);
+    }
     return super.runEvent(actingObjectEntityId, activateObjectTypeId, activateCoord, eventData);
   }
 

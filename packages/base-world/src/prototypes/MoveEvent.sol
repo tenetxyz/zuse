@@ -12,17 +12,23 @@ import { VoxelCoord, EntityEventData } from "@tenet-utils/src/Types.sol";
 import { getEntityAtCoord } from "@tenet-base-world/src/Utils.sol";
 
 abstract contract MoveEvent is Event {
+  function getOldCoord(bytes memory eventData) internal pure virtual returns (VoxelCoord memory) {
+    MoveEventData memory moveEventData = abi.decode(eventData, (MoveEventData));
+    return moveEventData.oldCoord;
+  }
+
   function move(
     bytes32 actingObjectEntityId,
     bytes32 moveObjectTypeId,
     VoxelCoord memory newCoord,
     bytes memory eventData
   ) internal virtual returns (bytes32, bytes32) {
-    // TODO: call build event handler if no entity at coord
+    VoxelCoord memory oldCoord = getOldCoord(eventData);
+    bytes32 oldEntityId = getEntityAtCoord(IStore(_world()), oldCoord);
+    if (uint256(oldEntityId) == 0) {
+      IWorld(_world()).build(actingObjectEntityId, moveObjectTypeId, oldCoord);
+    }
     bytes32 newEntityId = super.runEvent(actingObjectEntityId, moveObjectTypeId, newCoord, eventData);
-    MoveEventData memory moveEventData = abi.decode(eventData, (MoveEventData));
-    bytes32 oldEntityId = getEntityAtCoord(IStore(_world()), moveEventData.oldCoord);
-    require(oldEntityId != uint256(0), "MoveEvent: old entity does not exist");
     return (oldEntityId, newEntityId);
   }
 
@@ -52,8 +58,7 @@ abstract contract MoveEvent is Event {
     }
     require(currentObjectTypeId == emptyObjectId(), "MoveEvent: cannot move to non-empty object");
 
-    MoveEventData memory moveEventData = abi.decode(eventData, (MoveEventData));
-    bytes32 oldEntityId = getEntityAtCoord(IStore(_world()), moveEventData.oldCoord);
+    bytes32 oldEntityId = getEntityAtCoord(IStore(_world()), getOldCoord(eventData));
     require(oldEntityId != uint256(0), "MoveEvent: old entity does not exist");
     bytes32 oldObjectTypeId = ObjectType.get(oldEntityId);
     require(
@@ -82,8 +87,7 @@ abstract contract MoveEvent is Event {
     bytes32 objectEntityId,
     bytes memory eventData
   ) internal virtual override returns (EntityActionData[] memory) {
-    MoveEventData memory moveEventData = abi.decode(eventData, (MoveEventData));
-    bytes32 oldEntityId = getEntityAtCoord(IStore(_world()), moveEventData.oldCoord);
+    bytes32 oldEntityId = getEntityAtCoord(IStore(_world()), getOldCoord(eventData));
     require(oldEntityId != uint256(0), "MoveEvent: old entity does not exist");
 
     // Need to run 2 interactions because we're moving so two entities are involved

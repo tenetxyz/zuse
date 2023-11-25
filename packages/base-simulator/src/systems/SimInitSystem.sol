@@ -5,6 +5,6 @@ import { System } from "@latticexyz/world/src/System.sol";
 import { IStore } from "@latticexyz/store/src/IStore.sol";
 import { ObjectProperties } from "@tenet-utils/src/Types.sol";
 
-abstract contract WorldInitSystem is System {
+abstract contract SimInitSystem is System {
   function initObject(bytes32 objectEntityId, ObjectProperties memory initialProperties) public virtual;
 }

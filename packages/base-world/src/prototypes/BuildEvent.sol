@@ -6,6 +6,7 @@ import { Event } from "@tenet-base-world/src/prototypes/Event.sol";
 import { ObjectType } from "@tenet-base-world/src/codegen/tables/ObjectType.sol";
 import { VoxelCoord, EntityActionData, ObjectProperties } from "@tenet-utils/src/Types.sol";
 import { IWorldBuildEventSystem } from "@tenet-base-simulator/src/codegen/world/IWorldBuildEventSystem.sol";
+import { ISimInitSystem } from "@tenet-base-simulator/src/codegen/world/ISimInitSystem.sol";
 
 abstract contract BuildEvent is Event {
   function build(
@@ -65,17 +66,7 @@ abstract contract BuildEvent is Event {
     ObjectProperties memory requestedProperties = IWorld(_world()).enterWorld(objectTypeId, coord, objectEntityId);
     if (isNewEntity) {
       ObjectProperties memory properties = IWorld(_world()).getTerrainObjectProperties(requestedProperties);
-      // Set voxel type
-      // initEntity(SIMULATOR_ADDRESS, eventVoxelEntity, initMass, initEnergy, initVelocity);
-      // {
-      //   InteractionSelector[] memory interactionSelectors = getInteractionSelectors(
-      //     IStore(REGISTRY_ADDRESS),
-      //     voxelTypeId
-      //   );
-      //   if (interactionSelectors.length > 1) {
-      //     initAgent(SIMULATOR_ADDRESS, eventVoxelEntity, initStamina, initHealth);
-      //   }
-      // }
+      ISimInitSystem(getSimulatorAddress()).initObject(objectEntityId, properties);
     }
 
     IWorldBuildEventSystem(getSimulatorAddress()).onBuildEvent(

@@ -5,6 +5,6 @@ pragma solidity >=0.8.0;
 
 import { ObjectProperties } from "@tenet-utils/src/Types.sol";
 
-interface IWorldInitSystem {
+interface ISimInitSystem {
   function initObject(bytes32 objectEntityId, ObjectProperties memory initialProperties) external;
 }

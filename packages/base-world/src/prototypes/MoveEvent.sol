@@ -60,14 +60,14 @@ abstract contract MoveEvent is Event {
     require(currentObjectTypeId == emptyObjectId(), "MoveEvent: cannot move to non-empty object");
 
     bytes32 oldEntityId = getEntityAtCoord(IStore(_world()), getOldCoord(eventData));
-    require(oldEntityId != uint256(0), "MoveEvent: old entity does not exist");
+    require(uint256(oldEntityId) != 0, "MoveEvent: old entity does not exist");
     bytes32 oldObjectTypeId = ObjectType.get(oldEntityId);
     require(
       oldObjectTypeId != emptyObjectId() && oldObjectTypeId == objectTypeId,
       "MoveEvent: object type id mismatch"
     );
     bytes32 oldObjectEntityId = ObjectEntity.get(oldEntityId);
-    require(oldObjectEntityId != uint256(0), "MoveEvent: old object entity does not exist");
+    require(uint256(oldObjectEntityId) != 0, "MoveEvent: old object entity does not exist");
 
     // Update object type of old entity to empty
     ObjectType.set(oldEntityId, emptyObjectId());
@@ -89,7 +89,7 @@ abstract contract MoveEvent is Event {
     bytes memory eventData
   ) internal virtual override returns (EntityActionData[] memory) {
     bytes32 oldEntityId = getEntityAtCoord(IStore(_world()), getOldCoord(eventData));
-    require(oldEntityId != uint256(0), "MoveEvent: old entity does not exist");
+    require(uint256(oldEntityId) != 0, "MoveEvent: old entity does not exist");
 
     // Need to run 2 interactions because we're moving so two entities are involved
     EntityActionData[] memory oldEntityActionData = IWorld(_world()).runInteractions(oldEntityId);

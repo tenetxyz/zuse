@@ -5,7 +5,11 @@ pragma solidity >=0.8.0;
 
 import { IBaseWorld } from "@latticexyz/world/src/interfaces/IBaseWorld.sol";
 
+import { IActivateSystem } from "@tenet-base-world/src/codegen/world/IActivateSystem.sol";
+import { IBuildSystem } from "@tenet-base-world/src/codegen/world/IBuildSystem.sol";
 import { IEventApprovalsSystem } from "@tenet-base-world/src/codegen/world/IEventApprovalsSystem.sol";
+import { IMineSystem } from "@tenet-base-world/src/codegen/world/IMineSystem.sol";
+import { IMoveSystem } from "@tenet-base-world/src/codegen/world/IMoveSystem.sol";
 import { IObjectInteractionSystem } from "@tenet-base-world/src/codegen/world/IObjectInteractionSystem.sol";
 import { IObjectSystem } from "@tenet-base-world/src/codegen/world/IObjectSystem.sol";
 import { ITerrainSystem } from "@tenet-base-world/src/codegen/world/ITerrainSystem.sol";
@@ -14,6 +18,16 @@ import { ITerrainSystem } from "@tenet-base-world/src/codegen/world/ITerrainSyst
  * The IWorld interface includes all systems dynamically added to the World
  * during the deploy process.
  */
-interface IWorld is IBaseWorld, IEventApprovalsSystem, IObjectInteractionSystem, IObjectSystem, ITerrainSystem {
+interface IWorld is
+  IBaseWorld,
+  IActivateSystem,
+  IBuildSystem,
+  IEventApprovalsSystem,
+  IMineSystem,
+  IMoveSystem,
+  IObjectInteractionSystem,
+  IObjectSystem,
+  ITerrainSystem
+{
 
 }

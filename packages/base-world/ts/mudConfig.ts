@@ -111,6 +111,11 @@ const WORLD_SYSTEMS = {
     openAccess: true,
     registerAsRoot: true,
   },
+  AgentSystem: {
+    name: "AgentSystem",
+    openAccess: true,
+    registerAsRoot: true,
+  },
   EventApprovalsSystem: {
     name: "EventApprovalSys",
     openAccess: false,

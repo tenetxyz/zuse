@@ -41,15 +41,16 @@ abstract contract EventApprovalsSystem is System {
       oldCoord = getOldCoord(eventData);
     }
 
-    // Assert that this entity has a position
-    bytes32 actingEntityId = getEntityIdFromObjectEntityId(IStore(_world()), actingObjectEntityId);
-    VoxelCoord memory agentPosition = getVoxelCoordStrict(IStore(_world()), actingEntityId);
-    // Note: Simulator can approve events that are not adjacent to the agent
+    // Note: World/simulator can approve events that are not adjacent to the agent
     // eg. during a chain of collisions, the agent causing the collision may not be adjacent to the object
-    require(
-      distanceBetween(agentPosition, oldCoord) <= getMaxAgentActionRadius() || isSimCaller,
-      "EventApprovalsSystem: Agent and old coord are too far apart"
-    );
+    if (isEOACaller) {
+      bytes32 actingEntityId = getEntityIdFromObjectEntityId(IStore(_world()), actingObjectEntityId);
+      VoxelCoord memory agentPosition = getVoxelCoordStrict(IStore(_world()), actingEntityId);
+      require(
+        distanceBetween(agentPosition, oldCoord) <= getMaxAgentActionRadius(),
+        "EventApprovalsSystem: Agent and old coord are too far apart"
+      );
+    }
     require(
       distanceBetween(oldCoord, coord) <= getMaxAgentActionRadius(),
       "EventApprovalsSystem: Old coord and new coord are too far apart"

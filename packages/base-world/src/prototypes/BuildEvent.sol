@@ -73,7 +73,8 @@ abstract contract BuildEvent is Event {
       actingObjectEntityId,
       objectTypeId,
       coord,
-      eventEntityId
+      eventEntityId,
+      requestedProperties
     );
 
     return eventEntityId;

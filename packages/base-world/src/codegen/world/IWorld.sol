@@ -5,6 +5,7 @@ pragma solidity >=0.8.0;
 
 import { IBaseWorld } from "@latticexyz/world/src/interfaces/IBaseWorld.sol";
 
+import { IActionSystem } from "@tenet-base-world/src/codegen/world/IActionSystem.sol";
 import { IActivateSystem } from "@tenet-base-world/src/codegen/world/IActivateSystem.sol";
 import { IAgentSystem } from "@tenet-base-world/src/codegen/world/IAgentSystem.sol";
 import { IBuildSystem } from "@tenet-base-world/src/codegen/world/IBuildSystem.sol";
@@ -21,6 +22,7 @@ import { ITerrainSystem } from "@tenet-base-world/src/codegen/world/ITerrainSyst
  */
 interface IWorld is
   IBaseWorld,
+  IActionSystem,
   IActivateSystem,
   IAgentSystem,
   IBuildSystem,

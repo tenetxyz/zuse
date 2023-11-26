@@ -9,6 +9,7 @@ interface ITerrainSystem {
   function getTerrainObjectTypeId(VoxelCoord memory coord) external view returns (bytes32);
 
   function getTerrainObjectProperties(
+    VoxelCoord memory coord,
     ObjectProperties memory requestedProperties
   ) external returns (ObjectProperties memory);
 }

@@ -12,6 +12,14 @@ contract PostDeploy is Script {
     // Start broadcasting transactions from the deployer account
     vm.startBroadcast(deployerPrivateKey);
 
+    IWorld world = IWorld(worldAddress);
+
+    world.world_AirObjectSystem_registerBody();
+    world.world_DirtObjectSystem_registerBody();
+    world.world_GrassObjectSyste_registerBody();
+    world.world_BedrockObjectSys_registerBody();
+    world.world_BuilderObjectSys_registerBody();
+
     vm.stopBroadcast();
   }
 }

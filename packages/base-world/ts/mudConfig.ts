@@ -82,20 +82,54 @@ const WORLD_MODULES = [
 ];
 
 const WORLD_SYSTEMS = {
-  ActionSystem: {
-    name: "ActionSystem",
+  BuildSystem: {
+    name: "BuildSystem",
+    openAccess: true,
+    registerAsRoot: true,
+  },
+  MineSystem: {
+    name: "MineSystem",
+    openAccess: true,
+    registerAsRoot: true,
+  },
+  MoveSystem: {
+    name: "MoveSystem",
+    openAccess: true,
+    registerAsRoot: true,
+  },
+  ActivateSystem: {
+    name: "ActivateSystem",
+    openAccess: true,
+    registerAsRoot: true,
+  },
+  TerrainSystem: {
+    name: "TerrainSystem",
+    openAccess: true,
+    registerAsRoot: true,
+  },
+  EventApprovalsSystem: {
+    name: "EventApprovalSys",
     openAccess: false,
-    accessList: ["ObjectInteractionSystem"],
+    accessList: ["BuildSystem", "MineSystem", "MoveSystem", "ActivateSystem"],
+    registerAsRoot: true,
   },
   ObjectSystem: {
     name: "ObjectSystem",
     openAccess: false,
     accessList: ["BuildSystem", "MineSystem", "MoveSystem", "ActivateSystem"],
+    registerAsRoot: true,
   },
   ObjectInteractionSystem: {
     name: "ObjInteracSystem",
     openAccess: false,
     accessList: ["BuildSystem", "MineSystem", "MoveSystem", "ActivateSystem"],
+    registerAsRoot: true,
+  },
+  ActionSystem: {
+    name: "ActionSystem",
+    openAccess: false,
+    accessList: ["ObjectInteractionSystem"],
+    registerAsRoot: true,
   },
 };
 

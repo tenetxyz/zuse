@@ -103,7 +103,10 @@ abstract contract MoveEvent is Event {
     ObjectEntity.set(oldEntityId, objectEntityId);
     ObjectEntity.set(eventEntityId, oldObjectEntityId);
 
-    IWorldMoveEventSystem(getSimulatorAddress()).onMoveEvent(
+    // We reset the eventEntityId from preRunObject
+    // since collisions could have changed the eventEntityId
+    // TODO: Figure out a cleaner way to handle this
+    eventEntityId = IWorldMoveEventSystem(getSimulatorAddress()).onMoveEvent(
       actingObjectEntityId,
       objectTypeId,
       oldCoord,

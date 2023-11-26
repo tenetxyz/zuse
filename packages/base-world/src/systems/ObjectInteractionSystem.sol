@@ -62,19 +62,19 @@ abstract contract ObjectInteractionSystem is System {
     bytes32 centerObjectEntityId,
     bytes32[] memory neighbourObjectEntityIds,
     bytes32[] memory neighbourEntityIds
-  ) internal returns (bytes32[] memory, Action[][] memory) {
-    bytes32[] memory changedNeighbourEntities = new bytes32[](neighbourObjectEntityIds.length);
-    Action[][] memory neighbourentitiesActionData = new Action[][](neighbourObjectEntityIds.length);
+  ) internal returns (bytes32[] memory changedNeighbourEntities, Action[][] memory neighbourentitiesActionData) {
+    changedNeighbourEntities = new bytes32[](neighbourObjectEntityIds.length);
+    neighbourentitiesActionData = new Action[][](neighbourObjectEntityIds.length);
     for (uint256 i = 0; i < neighbourObjectEntityIds.length; i++) {
       if (uint256(neighbourObjectEntityIds[i]) == 0) {
         continue;
       }
 
-      bytes32 neighbourObjectTypeId = ObjectType.get(neighbourEntityIds[i]);
       if (!shouldRunEvent(neighbourObjectEntityIds[i])) {
         continue;
       }
 
+      bytes32 neighbourObjectTypeId = ObjectType.get(neighbourEntityIds[i]);
       (address neighbourEventHandlerAddress, bytes4 neighbourEventHandlerSelector) = getNeighbourEventHandlerSelector(
         IStore(getRegistryAddress()),
         neighbourObjectTypeId

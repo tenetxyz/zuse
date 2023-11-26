@@ -29,6 +29,6 @@ contract MoveSystem is MoveProtoSystem {
     VoxelCoord memory newCoord
   ) public override returns (bytes32, bytes32) {
     MoveEventData memory moveEventData = MoveEventData({ oldCoord: oldCoord });
-    return super.move(actingObjectEntityId, moveObjectTypeId, newCoord, moveEventData);
+    return super.move(actingObjectEntityId, moveObjectTypeId, newCoord, abi.encode(moveEventData));
   }
 }

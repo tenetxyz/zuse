@@ -36,7 +36,7 @@ enum BlockDirection {
 struct Action {
   SimTable senderTable;
   bytes senderValue;
-  VoxelEntity targetEntity;
+  bytes32 targetObjectEntityId;
   VoxelCoord targetCoord;
   SimTable targetTable;
   bytes targetValue;
@@ -44,7 +44,7 @@ struct Action {
 
 struct EntityActionData {
   bytes32 entityId;
-  bytes actionData;
+  Action[] actions;
 }
 
 enum WorldEventType {

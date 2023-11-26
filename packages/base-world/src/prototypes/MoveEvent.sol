@@ -9,7 +9,7 @@ import { ObjectType } from "@tenet-base-world/src/codegen/tables/ObjectType.sol"
 import { ObjectEntity } from "@tenet-base-world/src/codegen/tables/ObjectEntity.sol";
 
 import { MoveEventData } from "@tenet-base-world/src/Types.sol";
-import { VoxelCoord, EntityActionData } from "@tenet-utils/src/Types.sol";
+import { VoxelCoord } from "@tenet-utils/src/Types.sol";
 import { getEntityAtCoord } from "@tenet-base-world/src/Utils.sol";
 import { IWorldMoveEventSystem } from "@tenet-base-simulator/src/codegen/world/IWorldMoveEventSystem.sol";
 
@@ -54,10 +54,8 @@ abstract contract MoveEvent is Event {
     bytes32 objectTypeId,
     VoxelCoord memory coord,
     bytes32 eventEntityId,
-    bytes memory eventData,
-    EntityActionData[] memory entitiesActionData
+    bytes memory eventData
   ) internal virtual override {
-    super.postEvent(actingObjectEntityId, objectTypeId, coord, eventEntityId, eventData, entitiesActionData);
     IWorldMoveEventSystem(getSimulatorAddress()).postMoveEvent(
       actingObjectEntityId,
       objectTypeId,
@@ -124,23 +122,13 @@ abstract contract MoveEvent is Event {
     bytes32 eventEntityId,
     bytes32 objectEntityId,
     bytes memory eventData
-  ) internal virtual override returns (EntityActionData[] memory) {
+  ) internal virtual override {
     bytes32 oldEntityId = getEntityAtCoord(IStore(_world()), getOldCoord(eventData));
     require(uint256(oldEntityId) != 0, "MoveEvent: old entity does not exist");
 
     // Need to run 2 interactions because we're moving so two entities are involved
-    EntityActionData[] memory oldEntityActionData = IWorld(_world()).runInteractions(oldEntityId);
-    EntityActionData[] memory newEntityActionData = IWorld(_world()).runInteractions(eventEntityId);
-    EntityActionData[] memory entityActionData = new EntityActionData[](
-      oldEntityActionData.length + newEntityActionData.length
-    );
-    for (uint256 i = 0; i < oldEntityActionData.length; i++) {
-      entityActionData[i] = oldEntityActionData[i];
-    }
-    for (uint256 i = 0; i < newEntityActionData.length; i++) {
-      entityActionData[i + oldEntityActionData.length] = newEntityActionData[i];
-    }
-    return entityActionData;
+    IWorld(_world()).runInteractions(oldEntityId);
+    IWorld(_world()).runInteractions(eventEntityId);
   }
 
   function postRunObject(

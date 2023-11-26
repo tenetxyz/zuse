@@ -9,7 +9,7 @@ import { ObjectType } from "@tenet-base-world/src/codegen/tables/ObjectType.sol"
 import { ObjectEntity } from "@tenet-base-world/src/codegen/tables/ObjectEntity.sol";
 
 import { safeCall } from "@tenet-utils/src/CallUtils.sol";
-import { VoxelCoord, EntityActionData } from "@tenet-utils/src/Types.sol";
+import { VoxelCoord, EntityActionData, Action } from "@tenet-utils/src/Types.sol";
 import { getEventHandlerSelector, getNeighbourEventHandlerSelector } from "@tenet-registry/src/Utils.sol";
 import { getVonNeumannNeighbourEntities } from "@tenet-base-world/src/Utils.sol";
 
@@ -22,17 +22,21 @@ abstract contract ObjectInteractionSystem is System {
 
   function getNumMaxObjectsToRun() internal virtual returns (uint256);
 
-  function decodeToBoolAndBytes(bytes memory data) external pure returns (bool, bytes memory) {
-    return abi.decode(data, (bool, bytes));
+  function decodeToBoolAndActionArray(bytes memory data) external pure returns (bool, Action[] memory) {
+    return abi.decode(data, (bool, Action[]));
+  }
+
+  function decodeActionArray(bytes memory data) external pure returns (Action[] memory) {
+    return abi.decode(data, (Action[]));
   }
 
   function runEventHandler(
     bytes32 centerObjectTypeId,
     bytes32 centerObjectEntityId,
     bytes32[] memory neighbourObjectEntityIds
-  ) internal virtual returns (bytes memory) {
+  ) internal virtual returns (Action[] memory) {
     if (!shouldRunEvent(centerObjectEntityId)) {
-      return new bytes(0);
+      return new Action[](0);
     }
     (address eventHandlerAddress, bytes4 eventHandlerSelector) = getEventHandlerSelector(
       IStore(getRegistryAddress()),
@@ -45,17 +49,22 @@ abstract contract ObjectInteractionSystem is System {
       abi.encodeWithSelector(eventHandlerSelector, centerObjectEntityId, neighbourObjectEntityIds),
       "object event handler selector"
     );
+    if (eventHandlerSuccess) {
+      try this.decodeActionArray(centerEntityActionData) returns (Action[] memory entityActionData) {
+        return entityActionData;
+      } catch {}
+    }
 
-    return centerEntityActionData;
+    return new Action[](0);
   }
 
   function runNeighbourEventHandlers(
     bytes32 centerObjectEntityId,
     bytes32[] memory neighbourObjectEntityIds,
     bytes32[] memory neighbourEntityIds
-  ) internal returns (bytes32[] memory, bytes[] memory) {
+  ) internal returns (bytes32[] memory, Action[][] memory) {
     bytes32[] memory changedNeighbourEntities = new bytes32[](neighbourObjectEntityIds.length);
-    bytes[] memory neighbourentitiesActionData = new bytes[](neighbourObjectEntityIds.length);
+    Action[][] memory neighbourentitiesActionData = new Action[][](neighbourObjectEntityIds.length);
     for (uint256 i = 0; i < neighbourObjectEntityIds.length; i++) {
       if (uint256(neighbourObjectEntityIds[i]) == 0) {
         continue;
@@ -80,16 +89,14 @@ abstract contract ObjectInteractionSystem is System {
         "object neighbour event handler selector"
       );
       if (neighbourEventHandlerSuccess) {
-        try this.decodeToBoolAndBytes(neighbourEntityActionData) returns (
+        try this.decodeToBoolAndActionArray(neighbourEntityActionData) returns (
           bool changedNeighbour,
-          bytes memory entityEventData
+          Action[] memory entityActionData
         ) {
           if (changedNeighbour) {
             changedNeighbourEntities[i] = neighbourEntityIds[i];
           }
-          if (entityEventData.length != 0) {
-            neighbourentitiesActionData[i] = entityEventData;
-          }
+          neighbourentitiesActionData[i] = entityActionData;
         } catch {}
       }
     }
@@ -100,7 +107,7 @@ abstract contract ObjectInteractionSystem is System {
   function runSingleInteraction(
     bytes32 centerEntityId,
     bytes32[] memory neighbourEntityIds
-  ) internal returns (bytes32[] memory, EntityActionData[] memory) {
+  ) internal returns (bytes32[] memory) {
     bytes32 centerObjectEntityId = ObjectEntity.get(centerEntityId);
     bytes32[] memory neighbourObjectEntityIds = new bytes32[](neighbourEntityIds.length);
     for (uint256 i; i < neighbourEntityIds.length; i++) {
@@ -112,42 +119,46 @@ abstract contract ObjectInteractionSystem is System {
     bytes32 centerObjectTypeId = ObjectType.get(centerEntityId);
 
     // Center Interaction
-    bytes memory centerEntityActionData = runEventHandler(
+    Action[] memory centerEntityActionData = runEventHandler(
       centerObjectTypeId,
       centerObjectEntityId,
       neighbourObjectEntityIds
     );
 
     // Neighbour Interactions
-    (bytes32[] memory changedNeighbourEntities, bytes[] memory neighbourEntitiesActionData) = runNeighbourEventHandlers(
-      centerObjectEntityId,
-      neighbourObjectEntityIds,
-      neighbourEntityIds
-    );
+    (
+      bytes32[] memory changedNeighbourEntities,
+      Action[][] memory neighbourEntitiesActionData
+    ) = runNeighbourEventHandlers(centerObjectEntityId, neighbourObjectEntityIds, neighbourEntityIds);
 
-    EntityActionData[] memory allEntitiesActionData = new EntityActionData[](neighbourEntitiesActionData.length + 1);
-    allEntitiesActionData[0] = EntityActionData({ entityId: centerEntityId, actionData: centerEntityActionData });
+    bytes32[] memory changedEntities = new bytes32[](changedNeighbourEntities.length + 1);
+    bool centerRanActions = IWorld(_world()).actionHandler(
+      EntityActionData({ entityId: centerEntityId, actions: centerEntityActionData })
+    );
+    if (centerRanActions) {
+      changedEntities[0] = centerEntityId;
+    }
 
     for (uint256 i; i < neighbourEntitiesActionData.length; i++) {
       if (neighbourEntitiesActionData[i].length == 0) {
         continue;
       }
 
-      allEntitiesActionData[i + 1] = EntityActionData({
-        entityId: neighbourEntityIds[i],
-        actionData: neighbourEntitiesActionData[i]
-      });
+      bool neighbourRanActions = IWorld(_world()).actionHandler(
+        EntityActionData({ entityId: neighbourEntityIds[i], actions: neighbourEntitiesActionData[i] })
+      );
+      if (neighbourRanActions) {
+        changedEntities[i + 1] = neighbourEntityIds[i];
+      }
     }
 
-    return (changedNeighbourEntities, allEntitiesActionData);
+    return (changedNeighbourEntities);
   }
 
-  function runInteractions(bytes32 centerEntityId) public virtual returns (EntityActionData[] memory) {
+  function runInteractions(bytes32 centerEntityId) public virtual {
     uint256 numMaxObjectsToRun = getNumMaxObjectsToRun();
     bytes32[] memory centerEntitiesToRunQueue = new bytes32[](numMaxObjectsToRun);
-    EntityActionData[] memory allEntitiesActionData = new EntityActionData[](numMaxObjectsToRun);
     uint256 centerEntitiesToRunQueueIdx = 0;
-    uint256 entitesActionDataIdx = 0;
     uint256 useQueueIdx = 0;
 
     // start with the center entity
@@ -158,10 +169,7 @@ abstract contract ObjectInteractionSystem is System {
       bytes32 useCenterEntityId = centerEntitiesToRunQueue[useQueueIdx];
 
       (bytes32[] memory neighbourEntities, ) = getVonNeumannNeighbourEntities(IStore(_world()), useCenterEntityId);
-      (bytes32[] memory changedEntities, EntityActionData[] memory entitiesActionData) = runSingleInteraction(
-        useCenterEntityId,
-        neighbourEntities
-      );
+      bytes32[] memory changedEntities = runSingleInteraction(useCenterEntityId, neighbourEntities);
 
       // If there are changed entities, we want to run object interactions again but with this new neighbour as the center
       for (uint256 i; i < changedEntities.length; i++) {
@@ -170,15 +178,6 @@ abstract contract ObjectInteractionSystem is System {
           require(centerEntitiesToRunQueueIdx < numMaxObjectsToRun, "ObjectInteractionSystem: Reached max depth");
           centerEntitiesToRunQueue[centerEntitiesToRunQueueIdx] = changedEntities[i];
         }
-      }
-
-      for (uint256 i; i < entitiesActionData.length; i++) {
-        if (entitiesActionData[i].actionData.length == 0) {
-          continue;
-        }
-        allEntitiesActionData[entitesActionDataIdx] = entitiesActionData[i];
-        entitesActionDataIdx++;
-        require(entitesActionDataIdx < numMaxObjectsToRun, "ObjectInteractionSystem: Reached max depth");
       }
 
       // at this point, we've consumed the front of the queue,
@@ -190,7 +189,5 @@ abstract contract ObjectInteractionSystem is System {
         break;
       }
     }
-
-    return allEntitiesActionData;
   }
 }

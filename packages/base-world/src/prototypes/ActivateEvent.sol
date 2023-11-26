@@ -8,7 +8,7 @@ import { Event } from "@tenet-base-world/src/prototypes/Event.sol";
 import { ObjectType } from "@tenet-base-world/src/codegen/tables/ObjectType.sol";
 import { ObjectEntity } from "@tenet-base-world/src/codegen/tables/ObjectEntity.sol";
 
-import { VoxelCoord, EntityActionData } from "@tenet-utils/src/Types.sol";
+import { VoxelCoord } from "@tenet-utils/src/Types.sol";
 import { MoveEventData } from "@tenet-base-world/src/Types.sol";
 import { getEntityAtCoord } from "@tenet-base-world/src/Utils.sol";
 import { IWorldActivateEventSystem } from "@tenet-base-simulator/src/codegen/world/IWorldActivateEventSystem.sol";
@@ -42,10 +42,8 @@ abstract contract ActivateEvent is Event {
     bytes32 objectTypeId,
     VoxelCoord memory coord,
     bytes32 eventEntityId,
-    bytes memory eventData,
-    EntityActionData[] memory entitiesActionData
+    bytes memory eventData
   ) internal virtual override {
-    super.postEvent(actingObjectEntityId, objectTypeId, coord, eventEntityId, eventData, entitiesActionData);
     IWorldActivateEventSystem(getSimulatorAddress()).postActivateEvent(
       actingObjectEntityId,
       objectTypeId,
@@ -83,8 +81,8 @@ abstract contract ActivateEvent is Event {
     bytes32 eventEntityId,
     bytes32 objectEntityId,
     bytes memory eventData
-  ) internal virtual override returns (EntityActionData[] memory) {
-    return IWorld(_world()).runInteractions(eventEntityId);
+  ) internal virtual override {
+    IWorld(_world()).runInteractions(eventEntityId);
   }
 
   function postRunObject(

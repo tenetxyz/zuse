@@ -4,7 +4,7 @@ pragma solidity >=0.8.0;
 import { IWorld } from "@tenet-base-world/src/codegen/world/IWorld.sol";
 import { Event } from "@tenet-base-world/src/prototypes/Event.sol";
 import { ObjectType } from "@tenet-base-world/src/codegen/tables/ObjectType.sol";
-import { VoxelCoord, EntityActionData, ObjectProperties } from "@tenet-utils/src/Types.sol";
+import { VoxelCoord, ObjectProperties } from "@tenet-utils/src/Types.sol";
 import { IWorldBuildEventSystem } from "@tenet-base-simulator/src/codegen/world/IWorldBuildEventSystem.sol";
 import { ISimInitSystem } from "@tenet-base-simulator/src/codegen/world/ISimInitSystem.sol";
 
@@ -33,10 +33,8 @@ abstract contract BuildEvent is Event {
     bytes32 objectTypeId,
     VoxelCoord memory coord,
     bytes32 eventEntityId,
-    bytes memory eventData,
-    EntityActionData[] memory entitiesActionData
+    bytes memory eventData
   ) internal virtual override {
-    super.postEvent(actingObjectEntityId, objectTypeId, coord, eventEntityId, eventData, entitiesActionData);
     IWorldBuildEventSystem(getSimulatorAddress()).postBuildEvent(
       actingObjectEntityId,
       objectTypeId,
@@ -87,8 +85,8 @@ abstract contract BuildEvent is Event {
     bytes32 eventEntityId,
     bytes32 objectEntityId,
     bytes memory eventData
-  ) internal virtual override returns (EntityActionData[] memory) {
-    return IWorld(_world()).runInteractions(eventEntityId);
+  ) internal virtual override {
+    IWorld(_world()).runInteractions(eventEntityId);
   }
 
   function postRunObject(

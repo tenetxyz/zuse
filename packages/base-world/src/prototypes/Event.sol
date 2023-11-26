@@ -11,7 +11,7 @@ import { ObjectType } from "@tenet-base-world/src/codegen/tables/ObjectType.sol"
 import { Position } from "@tenet-base-world/src/codegen/tables/Position.sol";
 import { ObjectEntity } from "@tenet-base-world/src/codegen/tables/ObjectEntity.sol";
 
-import { VoxelCoord, EntityActionData } from "@tenet-utils/src/Types.sol";
+import { VoxelCoord } from "@tenet-utils/src/Types.sol";
 import { getEntityAtCoord } from "@tenet-base-world/src/Utils.sol";
 
 // Note: We pass in actingObjectEntityId due to running on the EVM,
@@ -28,14 +28,9 @@ abstract contract Event is System {
   ) internal virtual returns (bytes32) {
     preEvent(actingObjectEntityId, objectTypeId, coord, eventData);
 
-    (bytes32 eventEntityId, EntityActionData[] memory entitiesActionData) = runEventHandler(
-      actingObjectEntityId,
-      objectTypeId,
-      coord,
-      eventData
-    );
+    bytes32 eventEntityId = runEventHandler(actingObjectEntityId, objectTypeId, coord, eventData);
 
-    postEvent(actingObjectEntityId, objectTypeId, coord, eventEntityId, eventData, entitiesActionData);
+    postEvent(actingObjectEntityId, objectTypeId, coord, eventEntityId, eventData);
 
     return eventEntityId;
   }
@@ -56,20 +51,15 @@ abstract contract Event is System {
     bytes32 objectTypeId,
     VoxelCoord memory coord,
     bytes32 eventEntityId,
-    bytes memory eventData,
-    EntityActionData[] memory entitiesActionData
-  ) internal virtual {
-    processActions(entitiesActionData);
-  }
-
-  function processActions(EntityActionData[] memory entitiesActionData) internal virtual;
+    bytes memory eventData
+  ) internal virtual;
 
   function runEventHandler(
     bytes32 actingObjectEntityId,
     bytes32 objectTypeId,
     VoxelCoord memory coord,
     bytes memory eventData
-  ) internal virtual returns (bytes32, EntityActionData[] memory) {
+  ) internal virtual returns (bytes32) {
     bytes32 eventEntityId = getEntityAtCoord(IStore(_world()), coord);
     bytes32 objectEntityId;
     bool isNewEntity = uint256(eventEntityId) == 0;
@@ -96,18 +86,11 @@ abstract contract Event is System {
     );
 
     ObjectType.set(eventEntityId, objectTypeId);
-    EntityActionData[] memory entitiesActionData = runObject(
-      actingObjectEntityId,
-      objectTypeId,
-      coord,
-      eventEntityId,
-      objectEntityId,
-      eventData
-    );
+    runObject(actingObjectEntityId, objectTypeId, coord, eventEntityId, objectEntityId, eventData);
 
     postRunObject(actingObjectEntityId, objectTypeId, coord, eventEntityId, objectEntityId, eventData);
 
-    return (eventEntityId, entitiesActionData);
+    return (eventEntityId);
   }
 
   function preRunObject(
@@ -136,5 +119,5 @@ abstract contract Event is System {
     bytes32 eventEntityId,
     bytes32 objectEntityId,
     bytes memory eventData
-  ) internal virtual returns (EntityActionData[] memory);
+  ) internal virtual;
 }

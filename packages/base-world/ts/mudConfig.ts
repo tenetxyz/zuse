@@ -111,6 +111,7 @@ export function tenetMudConfig<
     const table = WORLD_TABLES[tableName];
     config.tables[tableName] = table;
   }
+  config.systems = config.systems || {};
   const existingSystemNames = new Set(Object.keys(config.systems));
   for (const systemName of Object.keys(WORLD_SYSTEMS)) {
     if (existingSystemNames.has(systemName)) {

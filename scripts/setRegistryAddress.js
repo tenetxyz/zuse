@@ -70,7 +70,7 @@ function setRegistryAddress() {
                 console.error('Error writing to file:', err);
                 return;
             }
-            console.log(`Address variable ${variableName} replaced successfully to ${worldAddress}.`);
+            console.log(`[TENET] Address variable ${variableName} replaced successfully to ${worldAddress}.`);
         });
     });
 }

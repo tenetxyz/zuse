@@ -6,6 +6,7 @@ import { ExpandMUDUserConfig } from "@latticexyz/store/register";
 
 const WORLD_TABLES: Record<string, TableConfig> = {
   ObjectType: {
+    registerAsRoot: true,
     keySchema: {
       entityId: "bytes32",
     },
@@ -14,6 +15,7 @@ const WORLD_TABLES: Record<string, TableConfig> = {
     },
   },
   Position: {
+    registerAsRoot: true,
     keySchema: {
       entityId: "bytes32",
     },
@@ -24,6 +26,7 @@ const WORLD_TABLES: Record<string, TableConfig> = {
     },
   },
   ObjectEntity: {
+    registerAsRoot: true,
     keySchema: {
       entityId: "bytes32",
     },
@@ -34,6 +37,7 @@ const WORLD_TABLES: Record<string, TableConfig> = {
   // Note: We have this table due to running on the EVM,
   // but we can use the equivalent of a public/private key once Zuse is its own computer
   OwnedBy: {
+    registerAsRoot: true,
     keySchema: {
       objectEntityId: "bytes32",
     },

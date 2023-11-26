@@ -11,11 +11,8 @@
   "scripts": {
     "build": "yarn workspaces foreach -p run build",
     "clean": "yarn workspaces foreach -p run clean",
-    "deploy": "concurrently -n contracts,client -c cyan,magenta \"cd packages/contracts && yarn run dev\" \"cd packages/client && yarn run deploy\"",
     "dev": "yarn run clean && yarn run dev-no-clean",
-    "dev-no-clean": "yarn run build:ca && yarn run deploy:ca && concurrently -n world -c yellow \"yarn workspace @tenetxyz/world run deploy:local\"",
-    "deploy:ca": "concurrently -n level1 -c blue \"yarn workspace @tenetxyz/level1-ca run deploy:local\"",
-    "build:ca": "concurrently -n level1 -c blue \"cd packages/level1-ca && yarn run build:local\"",
+    "dev-no-clean": "concurrently -n simulator -c magenta \"yarn workspace @tenetxyz/simulator run build && yarn workspace @tenetxyz/simulator run deploy\" && concurrently -n world -c yellow \"yarn workspace @tenetxyz/world run build && yarn workspace @tenetxyz/world run deploy\"",
     "foundry:up": "curl -L https://foundry.paradigm.xyz | bash && bash $HOME/.foundry/bin/foundryup",
     "initialize": "yarn workspaces foreach run initialize",
     "prepare": "(forge --version || yarn foundry:up)",

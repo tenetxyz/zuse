@@ -1,13 +1,21 @@
 // SPDX-License-Identifier: MIT
 pragma solidity >=0.8.0;
 
+import { IStore } from "@latticexyz/store/src/IStore.sol";
+import { IWorld } from "@tenet-world/src/codegen/world/IWorld.sol";
 import { InitWorldSystem } from "@tenet-base-world/src/prototypes/InitWorldSystem.sol";
 import { WorldRegistry } from "@tenet-registry/src/codegen/tables/WorldRegistry.sol";
 import { hasKey } from "@latticexyz/world/src/modules/keysintable/hasKey.sol";
 import { CARegistry } from "@tenet-registry/src/codegen/tables/CARegistry.sol";
 import { REGISTER_WORLD_SIG } from "@tenet-registry/src/Constants.sol";
 import { REGISTRY_ADDRESS, BASE_CA_ADDRESS } from "../Constants.sol";
+import { VoxelCoord, VoxelTypeData, VoxelEntity } from "@tenet-utils/src/Types.sol";
 import { callOrRevert } from "@tenet-utils/src/CallUtils.sol";
+import { WorldConfig, WorldConfigTableId } from "@tenet-base-world/src/codegen/tables/WorldConfig.sol";
+import { CAVoxelType, CAVoxelTypeData } from "@tenet-base-ca/src/codegen/tables/CAVoxelType.sol";
+import { VoxelType, Position } from "@tenet-world/src/codegen/Tables.sol";
+import { BuildEventData } from "@tenet-base-world/src/Types.sol";
+import { console } from "forge-std/console.sol";
 
 contract InitSystem is InitWorldSystem {
   function getRegistryAddress() internal pure override returns (address) {

@@ -16,3 +16,4 @@ abdk-libraries-solidity/=../../node_modules/abdk-libraries-solidity/
 @tenet-utils/=../../node_modules/@tenetxyz/utils
 @tenet-registry/=../../node_modules/@tenetxyz/registry
 @tenet-base-simulator/=../../node_modules/@tenetxyz/base-simulator
+@tenet-simulator/=./

@@ -1,10 +1,26 @@
 // SPDX-License-Identifier: GPL-3.0
 pragma solidity >=0.8.0;
 
+import { IWorld } from "@tenet-world/src/codegen/world/IWorld.sol";
 import { RunCASystem as RunCAPrototype } from "@tenet-base-world/src/prototypes/RunCASystem.sol";
 import { VoxelCoord, VoxelEntity, EntityEventData } from "@tenet-utils/src/Types.sol";
+import { REGISTRY_ADDRESS, SIMULATOR_ADDRESS } from "@tenet-world/src/Constants.sol";
+import { updateVelocityCache } from "@tenet-simulator/src/CallUtils.sol";
 
 contract RunCASystem is RunCAPrototype {
+  function shouldRunEvent(bytes32 objectEntityId) internal virtual returns (bool) {
+    uint256 numUniqueObjectsRan = KeysInTable.lengthKeys0(MetadataTableId);
+    if (numUniqueObjectsRan + 1 > MAX_UNIQUE_OBJECT_EVENT_HANDLERS_RUN) {
+      return false;
+    }
+    if (Metadata.get(objectEntityId) > MAX_SAME_OBJECT_EVENT_HANDLERS_RUN) {
+      return false;
+    }
+    Metadata.set(objectEntityId, Metadata.get(objectEntityId) + 1);
+
+    return true;
+  }
+
   function enterCA(
     address caAddress,
     VoxelEntity memory entity,
@@ -36,6 +52,10 @@ contract RunCASystem is RunCAPrototype {
 
   function activateCA(address caAddress, VoxelEntity memory entity) public override {
     super.activateCA(caAddress, entity);
+  }
+
+  function beforeRunInteraction(VoxelEntity memory entity) internal override {
+    updateVelocityCache(SIMULATOR_ADDRESS, entity);
   }
 
   function runCA(

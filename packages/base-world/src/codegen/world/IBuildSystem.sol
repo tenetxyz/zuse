@@ -11,4 +11,6 @@ interface IBuildSystem {
     bytes32 buildObjectTypeId,
     VoxelCoord memory buildCoord
   ) external returns (bytes32);
+
+  function buildTerrain(bytes32 actingObjectEntityId, VoxelCoord memory buildCoord) external returns (bytes32);
 }

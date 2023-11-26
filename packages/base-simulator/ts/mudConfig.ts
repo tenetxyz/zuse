@@ -4,7 +4,19 @@ import { ExtractUserTypes, StringForUnion } from "@latticexyz/common/type-utils"
 import { MUDUserConfig, TableConfig } from "@latticexyz/store/config";
 import { ExpandMUDUserConfig } from "@latticexyz/store/register";
 
-const SIMULATOR_TABLES: Record<string, TableConfig> = {};
+const SIMULATOR_TABLES: Record<string, TableConfig> = {
+  SimAction: {
+    keySchema: {
+      senderTable: "SimTable",
+      receiverTable: "SimTable",
+    },
+    schema: {
+      selector: "bytes4",
+      senderValueType: "ValueType",
+      receiverValueType: "ValueType",
+    },
+  },
+};
 
 const SIMULATOR_MODULES = [];
 

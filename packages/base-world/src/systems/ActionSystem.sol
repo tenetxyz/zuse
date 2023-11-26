@@ -10,8 +10,11 @@ import { ObjectEntity } from "@tenet-base-world/src/codegen/tables/ObjectEntity.
 
 import { getEntityAtCoord, getVoxelCoordStrict } from "@tenet-base-world/src/Utils.sol";
 import { distanceBetween } from "@tenet-utils/src/VoxelCoordUtils.sol";
+import { runSimAction } from "@tenet-base-simulator/src/CallUtils.sol";
 
 abstract contract ActionSystem is System {
+  function getSimulatorAddress() internal pure virtual returns (address);
+
   function preRunAction(bytes32 objectEntityId, VoxelCoord memory entityCoord, Action memory action) internal virtual {
     require(
       distanceBetween(entityCoord, action.targetCoord) <= 1,
@@ -19,7 +22,19 @@ abstract contract ActionSystem is System {
     );
   }
 
-  function runAction(bytes32 objectEntityId, VoxelCoord memory entityCoord, Action memory action) internal virtual;
+  function runAction(bytes32 objectEntityId, VoxelCoord memory entityCoord, Action memory action) internal virtual {
+    runSimAction(
+      getSimulatorAddress(),
+      objectEntityId,
+      entityCoord,
+      action.senderTable,
+      action.senderValue,
+      action.targetObjectEntityId,
+      action.targetCoord,
+      action.targetTable,
+      action.targetValue
+    );
+  }
 
   function postRunAction(bytes32 objectEntityId, VoxelCoord memory entityCoord, Action memory action) internal virtual;
 

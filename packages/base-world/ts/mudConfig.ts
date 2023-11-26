@@ -76,6 +76,24 @@ const WORLD_MODULES = [
   },
 ];
 
+const WORLD_SYSTEMS = {
+  ActionSystem: {
+    name: "ActionSystem",
+    openAccess: false,
+    accessList: ["ObjectInteractionSystem"],
+  },
+  ObjectSystem: {
+    name: "ObjectSystem",
+    openAccess: false,
+    accessList: ["BuildSystem", "MineSystem", "MoveSystem", "ActivateSystem"],
+  },
+  ObjectInteractionSystem: {
+    name: "ObjInteracSystem",
+    openAccess: false,
+    accessList: ["BuildSystem", "MineSystem", "MoveSystem", "ActivateSystem"],
+  },
+};
+
 export function tenetMudConfig<
   T extends MUDCoreUserConfig,
   // (`never` is overridden by inference, so only the defined enums can be used by default)
@@ -92,6 +110,15 @@ export function tenetMudConfig<
     }
     const table = WORLD_TABLES[tableName];
     config.tables[tableName] = table;
+  }
+  const existingSystemNames = new Set(Object.keys(config.systems));
+  for (const systemName of Object.keys(WORLD_SYSTEMS)) {
+    if (existingSystemNames.has(systemName)) {
+      // TODO: Support overriding systems
+      throw new Error(`System ${systemName} already exists`);
+    }
+    const system = WORLD_SYSTEMS[systemName];
+    config.systems[systemName] = system;
   }
 
   // add layer Modules

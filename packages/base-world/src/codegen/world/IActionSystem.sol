@@ -6,5 +6,5 @@ pragma solidity >=0.8.0;
 import { EntityActionData } from "@tenet-utils/src/Types.sol";
 
 interface IActionSystem {
-  function actionsHandler(EntityActionData[] memory entitiesEventData) external;
+  function actionHandler(EntityActionData memory entityActionData) external returns (bool ranAction);
 }

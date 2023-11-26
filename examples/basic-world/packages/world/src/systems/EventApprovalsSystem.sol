@@ -4,12 +4,22 @@ pragma solidity >=0.8.0;
 import { System } from "@latticexyz/world/src/System.sol";
 import { VoxelCoord, EventType } from "@tenet-utils/src/Types.sol";
 
-import { SIMULATOR_ADDRESS } from "@tenet-world/src/Constants.sol";
+import { SIMULATOR_ADDRESS, MAX_AGENT_ACTION_RADIUS } from "@tenet-world/src/Constants.sol";
 import { EventApprovalsSystem as EventApprovalsProtoSystem } from "@tenet-base-world/src/systems/EventApprovalsSystem.sol";
+import { MoveEventData } from "@tenet-world/src/Types.sol";
 
 contract EventApprovalsSystem is EventApprovalsProtoSystem {
   function getSimulatorAddress() internal pure override returns (address) {
     return SIMULATOR_ADDRESS;
+  }
+
+  function getMaxAgentActionRadius() internal pure override returns (uint256) {
+    return MAX_AGENT_ACTION_RADIUS;
+  }
+
+  function getOldCoord(bytes memory eventData) internal pure override returns (VoxelCoord memory) {
+    MoveEventData memory moveEventData = abi.decode(eventData, (MoveEventData));
+    return moveEventData.oldCoord;
   }
 
   function preApproval(

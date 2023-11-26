@@ -6,7 +6,7 @@ import { VoxelCoord } from "@tenet-utils/src/Types.sol";
 
 import { SIMULATOR_ADDRESS, AirObjectID } from "@tenet-world/src/Constants.sol";
 import { MoveSystem as MoveProtoSystem } from "@tenet-base-world/src/systems/MoveSystem.sol";
-import { MoveEventData } from "@tenet-world/src/Constants.sol";
+import { MoveEventData } from "@tenet-world/src/Types.sol";
 
 contract MoveSystem is MoveProtoSystem {
   function getOldCoord(bytes memory eventData) internal pure override returns (VoxelCoord memory) {

@@ -70,6 +70,11 @@ const WORLD_MODULES = [
     args: [resolveTableId("ObjectEntity")],
   },
   {
+    name: "KeysWithValueModule",
+    root: true,
+    args: [resolveTableId("ObjectEntity")],
+  },
+  {
     name: "KeysInTableModule",
     root: true,
     args: [resolveTableId("OwnedBy")],

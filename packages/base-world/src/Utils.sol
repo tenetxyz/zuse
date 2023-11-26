@@ -6,12 +6,19 @@ import { getKeysWithValue } from "@latticexyz/world/src/modules/keyswithvalue/ge
 import { hasKey } from "@latticexyz/world/src/modules/keysintable/hasKey.sol";
 
 import { Position, PositionData, PositionTableId } from "@tenet-base-world/src/codegen/tables/Position.sol";
+import { ObjectEntity, ObjectEntityTableId } from "@tenet-base-world/src/codegen/tables/ObjectEntity.sol";
 
 import { VoxelCoord } from "@tenet-utils/src/Types.sol";
 import { getVonNeumannNeighbours, getMooreNeighbours } from "@tenet-utils/src/VoxelCoordUtils.sol";
 
 function positionDataToVoxelCoord(PositionData memory coord) pure returns (VoxelCoord memory) {
   return VoxelCoord(coord.x, coord.y, coord.z);
+}
+
+function getEntityIdFromObjectEntityId(IStore store, bytes32 objectEntityId) view returns (bytes32) {
+  bytes32[][] memory allEntities = getKeysWithValue(store, ObjectEntityTableId, ObjectEntity.encode(objectEntityId));
+  require(allEntities.length == 1, "Found more than one entity with the same objectEntityId");
+  return allEntities[0][0];
 }
 
 function getEntityAtCoord(IStore store, VoxelCoord memory coord) view returns (bytes32) {

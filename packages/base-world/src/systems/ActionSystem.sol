@@ -36,7 +36,11 @@ abstract contract ActionSystem is System {
     );
   }
 
-  function postRunAction(bytes32 objectEntityId, VoxelCoord memory entityCoord, Action memory action) internal virtual;
+  function postRunAction(
+    bytes32 objectEntityId,
+    VoxelCoord memory entityCoord,
+    Action memory action
+  ) internal virtual {}
 
   function actionHandler(EntityActionData memory entityActionData) public virtual returns (bool ranAction) {
     if (entityActionData.actions.length == 0) {

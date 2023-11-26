@@ -18,9 +18,9 @@ abstract contract ObjectInteractionSystem is System {
 
   function preRunInteraction(bytes32 centerObjectEntityId, bytes32[] memory neighbourObjectEntityIds) internal virtual;
 
-  function shouldRunEvent(bytes32 objectEntityId) internal virtual returns (bool);
+  function shouldRunEvent(bytes32 objectEntityId) internal view virtual returns (bool);
 
-  function getNumMaxObjectsToRun() internal virtual returns (uint256);
+  function getNumMaxObjectsToRun() internal pure virtual returns (uint256);
 
   function decodeToBoolAndActionArray(bytes memory data) external pure returns (bool, Action[] memory) {
     return abi.decode(data, (bool, Action[]));

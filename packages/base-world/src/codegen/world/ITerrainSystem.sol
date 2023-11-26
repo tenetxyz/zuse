@@ -6,7 +6,7 @@ pragma solidity >=0.8.0;
 import { VoxelCoord, ObjectProperties } from "@tenet-utils/src/Types.sol";
 
 interface ITerrainSystem {
-  function getTerrainObjectTypeId(VoxelCoord memory coord) external returns (bytes32);
+  function getTerrainObjectTypeId(VoxelCoord memory coord) external view returns (bytes32);
 
   function getTerrainObjectProperties(
     ObjectProperties memory requestedProperties

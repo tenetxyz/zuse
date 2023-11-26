@@ -3,10 +3,40 @@ import { resolveTableId } from "@latticexyz/config";
 
 export default tenetMudConfig({
   enums: {
-    SimTable: ["None"],
+    SimTable: ["None", "Mass", "Energy"],
     ValueType: ["Int256"],
   },
-  tables: {},
+  tables: {
+    Mass: {
+      keySchema: {
+        worldAddress: "address",
+        objectEntityId: "bytes32",
+      },
+      schema: {
+        mass: "uint256",
+      },
+    },
+    Energy: {
+      keySchema: {
+        worldAddress: "address",
+        objectEntityId: "bytes32",
+      },
+      schema: {
+        energy: "uint256",
+      },
+    },
+  },
   systems: {},
-  modules: [],
+  modules: [
+    {
+      name: "KeysInTableModule",
+      root: true,
+      args: [resolveTableId("Mass")],
+    },
+    {
+      name: "KeysInTableModule",
+      root: true,
+      args: [resolveTableId("Energy")],
+    },
+  ],
 });

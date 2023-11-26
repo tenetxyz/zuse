@@ -8,16 +8,12 @@ import { Event } from "@tenet-base-world/src/prototypes/Event.sol";
 import { ObjectType } from "@tenet-base-world/src/codegen/tables/ObjectType.sol";
 import { ObjectEntity } from "@tenet-base-world/src/codegen/tables/ObjectEntity.sol";
 
-import { MoveEventData } from "@tenet-base-world/src/Types.sol";
 import { VoxelCoord } from "@tenet-utils/src/Types.sol";
 import { getEntityAtCoord } from "@tenet-base-world/src/Utils.sol";
 import { IWorldMoveEventSystem } from "@tenet-base-simulator/src/codegen/world/IWorldMoveEventSystem.sol";
 
 abstract contract MoveEvent is Event {
-  function getOldCoord(bytes memory eventData) internal pure virtual returns (VoxelCoord memory) {
-    MoveEventData memory moveEventData = abi.decode(eventData, (MoveEventData));
-    return moveEventData.oldCoord;
-  }
+  function getOldCoord(bytes memory eventData) internal pure virtual returns (VoxelCoord memory);
 
   function move(
     bytes32 actingObjectEntityId,

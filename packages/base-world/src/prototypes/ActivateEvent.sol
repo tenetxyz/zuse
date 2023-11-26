@@ -9,7 +9,6 @@ import { ObjectType } from "@tenet-base-world/src/codegen/tables/ObjectType.sol"
 import { ObjectEntity } from "@tenet-base-world/src/codegen/tables/ObjectEntity.sol";
 
 import { VoxelCoord } from "@tenet-utils/src/Types.sol";
-import { MoveEventData } from "@tenet-base-world/src/Types.sol";
 import { getEntityAtCoord } from "@tenet-base-world/src/Utils.sol";
 import { IWorldActivateEventSystem } from "@tenet-base-simulator/src/codegen/world/IWorldActivateEventSystem.sol";
 

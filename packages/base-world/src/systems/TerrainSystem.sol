@@ -16,6 +16,7 @@ abstract contract TerrainSystem is System {
   function getTerrainObjectTypeId(VoxelCoord memory coord) public view virtual returns (bytes32);
 
   function getTerrainObjectProperties(
+    VoxelCoord memory coord,
     ObjectProperties memory requestedProperties
   ) public virtual returns (ObjectProperties memory);
 }

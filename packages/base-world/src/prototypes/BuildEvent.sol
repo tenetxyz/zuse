@@ -63,7 +63,7 @@ abstract contract BuildEvent is Event {
     }
     ObjectProperties memory requestedProperties = IWorld(_world()).enterWorld(objectTypeId, coord, objectEntityId);
     if (isNewEntity) {
-      ObjectProperties memory properties = IWorld(_world()).getTerrainObjectProperties(requestedProperties);
+      ObjectProperties memory properties = IWorld(_world()).getTerrainObjectProperties(coord, requestedProperties);
       ISimInitSystem(getSimulatorAddress()).initObject(objectEntityId, properties);
     }
 

@@ -20,6 +20,8 @@ contract PostDeploy is Script {
     world.world_BedrockObjectSys_registerBody();
     world.world_BuilderObjectSys_registerBody();
 
+    world.spawnInitialAgents();
+
     vm.stopBroadcast();
   }
 }

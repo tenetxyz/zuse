@@ -17,9 +17,8 @@ import { Energy } from "@tenet-simulator/src/codegen/tables/Energy.sol";
 contract MoveTest is MudTest {
   IWorld private world;
   IStore private store;
-  VoxelCoord initialAgentCoord = VoxelCoord(50, 10, 50);
-
   address payable internal alice;
+  VoxelCoord initialAgentCoord = VoxelCoord(50, 10, 50);
 
   function setUp() public override {
     super.setUp();
@@ -63,6 +62,57 @@ contract MoveTest is MudTest {
     vm.expectRevert();
     VoxelCoord memory newCoord = VoxelCoord(initialAgentCoord.x + 2, initialAgentCoord.y, initialAgentCoord.z);
     world.move(agentObjectEntityId, agentObjectTypeId, initialAgentCoord, newCoord);
+
+    vm.stopPrank();
+  }
+
+  function testMoveTerrainObject() public {
+    vm.startPrank(alice, alice);
+
+    bytes32 initialAgentEntityId = getEntityAtCoord(store, initialAgentCoord);
+    assertTrue(uint256(initialAgentEntityId) != 0, "Agent not found at coord");
+
+    world.claimAgent(initialAgentEntityId);
+    bytes32 agentObjectEntityId = ObjectEntity.get(store, initialAgentEntityId);
+
+    VoxelCoord memory oldCoord = VoxelCoord(initialAgentCoord.x + 1, initialAgentCoord.y - 1, initialAgentCoord.z);
+    VoxelCoord memory newCoord = VoxelCoord(oldCoord.x, oldCoord.y + 1, oldCoord.z);
+    // Old coord should not be air
+    bytes32 moveObjectTypeId = world.getTerrainObjectTypeId(oldCoord);
+    assertTrue(moveObjectTypeId != AirObjectID, "Old coord is air");
+    // New coord should be air
+    assertTrue(world.getTerrainObjectTypeId(newCoord) == AirObjectID, "New coord not air");
+    world.move(agentObjectEntityId, moveObjectTypeId, oldCoord, newCoord);
+    // Old coord should be air
+    assertTrue(ObjectType.get(store, getEntityAtCoord(store, oldCoord)) == AirObjectID, "Old coord not air");
+    // New coord should be moving object
+    assertTrue(ObjectType.get(store, getEntityAtCoord(store, newCoord)) == moveObjectTypeId, "New coord is air");
+
+    vm.stopPrank();
+  }
+
+  function testMoveObject() public {
+    vm.startPrank(alice, alice);
+
+    bytes32 initialAgentEntityId = getEntityAtCoord(store, initialAgentCoord);
+    assertTrue(uint256(initialAgentEntityId) != 0, "Agent not found at coord");
+
+    world.claimAgent(initialAgentEntityId);
+    bytes32 agentObjectEntityId = ObjectEntity.get(store, initialAgentEntityId);
+
+    VoxelCoord memory oldCoord = VoxelCoord(initialAgentCoord.x + 1, initialAgentCoord.y, initialAgentCoord.z);
+    world.build(agentObjectEntityId, GrassObjectID, oldCoord);
+    VoxelCoord memory newCoord = VoxelCoord(oldCoord.x, oldCoord.y + 1, oldCoord.z);
+    // Old coord should not be air
+    bytes32 moveObjectTypeId = ObjectType.get(store, getEntityAtCoord(store, oldCoord));
+    assertTrue(moveObjectTypeId == GrassObjectID, "Old coord is air");
+    // New coord should be air
+    assertTrue(world.getTerrainObjectTypeId(newCoord) == AirObjectID, "New coord not air");
+    world.move(agentObjectEntityId, moveObjectTypeId, oldCoord, newCoord);
+    // Old coord should be air
+    assertTrue(ObjectType.get(store, getEntityAtCoord(store, oldCoord)) == AirObjectID, "Old coord not air");
+    // New coord should be moving object
+    assertTrue(ObjectType.get(store, getEntityAtCoord(store, newCoord)) == moveObjectTypeId, "New coord is air");
 
     vm.stopPrank();
   }

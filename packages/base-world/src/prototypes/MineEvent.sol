@@ -65,6 +65,8 @@ abstract contract MineEvent is Event {
 
     IWorld(_world()).exitWorld(objectTypeId, coord, objectEntityId);
 
+    ObjectType.set(eventEntityId, emptyObjectId());
+
     IWorldMineEventSystem(getSimulatorAddress()).onMineEvent(actingObjectEntityId, objectTypeId, coord, eventEntityId);
 
     return eventEntityId;

@@ -91,6 +91,7 @@ abstract contract MoveEvent is Event {
 
     // Update object type of old entity to empty
     ObjectType.set(oldEntityId, emptyObjectId());
+    ObjectType.set(eventEntityId, objectTypeId);
 
     // Update ObjectEntity to new coord
     // Note: this is the main move of the object pointer

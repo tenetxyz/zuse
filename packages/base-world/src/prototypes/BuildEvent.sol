@@ -67,6 +67,8 @@ abstract contract BuildEvent is Event {
       ISimInitSystem(getSimulatorAddress()).initObject(objectEntityId, properties);
     }
 
+    ObjectType.set(eventEntityId, objectTypeId);
+
     IWorldBuildEventSystem(getSimulatorAddress()).onBuildEvent(
       actingObjectEntityId,
       objectTypeId,

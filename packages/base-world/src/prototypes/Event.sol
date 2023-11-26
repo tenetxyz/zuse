@@ -85,7 +85,6 @@ abstract contract Event is System {
       eventData
     );
 
-    ObjectType.set(eventEntityId, objectTypeId);
     runObject(actingObjectEntityId, objectTypeId, coord, eventEntityId, objectEntityId, eventData);
 
     postRunObject(actingObjectEntityId, objectTypeId, coord, eventEntityId, objectEntityId, eventData);

@@ -33,7 +33,7 @@ abstract contract EventApprovalsSystem is System {
     bool isSimCaller = caller == getSimulatorAddress();
     require(
       isEOACaller || isWorldCaller || isSimCaller,
-      "Agent entity must be owned by caller or be an approved system"
+      "EventApprovalsSystem: Agent entity must be owned by caller or be an approved system"
     );
 
     VoxelCoord memory oldCoord = coord;

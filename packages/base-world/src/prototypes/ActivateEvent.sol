@@ -47,7 +47,7 @@ abstract contract ActivateEvent is Event {
       actingObjectEntityId,
       objectTypeId,
       coord,
-      eventEntityId
+      ObjectEntity.get(eventEntityId)
     );
   }
 
@@ -67,7 +67,7 @@ abstract contract ActivateEvent is Event {
       actingObjectEntityId,
       objectTypeId,
       coord,
-      eventEntityId
+      objectEntityId
     );
 
     return eventEntityId;

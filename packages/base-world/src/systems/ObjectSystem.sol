@@ -25,7 +25,10 @@ abstract contract ObjectSystem is System {
       IStore(getRegistryAddress()),
       objectTypeId
     );
-    require(objectAddress != address(0) && objectEnterWorldSelector != bytes4(0), "Object enterWorld not defined");
+    require(
+      objectAddress != address(0) && objectEnterWorldSelector != bytes4(0),
+      "ObjectSystem: Object enterWorld not defined"
+    );
 
     (bool enterWorldSuccess, bytes memory enterWorldReturnData) = safeCall(
       objectAddress,
@@ -46,7 +49,10 @@ abstract contract ObjectSystem is System {
       IStore(getRegistryAddress()),
       objectTypeId
     );
-    require(objectAddress != address(0) && objectExitWorldSelector != bytes4(0), "Object exitWorld not defined");
+    require(
+      objectAddress != address(0) && objectExitWorldSelector != bytes4(0),
+      "ObjectSystem: Object exitWorld not defined"
+    );
 
     (bool exitWorldSuccess, bytes memory exitWorldReturnData) = safeCall(
       objectAddress,

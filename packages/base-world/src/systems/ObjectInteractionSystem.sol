@@ -7,7 +7,6 @@ import { System } from "@latticexyz/world/src/System.sol";
 
 import { ObjectType } from "@tenet-base-world/src/codegen/tables/ObjectType.sol";
 import { ObjectEntity } from "@tenet-base-world/src/codegen/tables/ObjectEntity.sol";
-
 import { safeCall } from "@tenet-utils/src/CallUtils.sol";
 import { VoxelCoord, EntityActionData, Action } from "@tenet-utils/src/Types.sol";
 import { getEventHandlerSelector, getNeighbourEventHandlerSelector } from "@tenet-registry/src/Utils.sol";
@@ -42,7 +41,10 @@ abstract contract ObjectInteractionSystem is System {
       IStore(getRegistryAddress()),
       centerObjectTypeId
     );
-    require(eventHandlerAddress != address(0) && eventHandlerSelector != bytes4(0), "Object eventHandler not defined");
+    require(
+      eventHandlerAddress != address(0) && eventHandlerSelector != bytes4(0),
+      "ObjectInteractionSystem: Object eventHandler not defined"
+    );
 
     (bool eventHandlerSuccess, bytes memory centerEntityActionData) = safeCall(
       eventHandlerAddress,
@@ -81,7 +83,7 @@ abstract contract ObjectInteractionSystem is System {
       );
       require(
         neighbourEventHandlerAddress != address(0) && neighbourEventHandlerSelector != bytes4(0),
-        "Object neighbourEventHandler not defined"
+        "ObjectInteractionSystem: Object neighbourEventHandler not defined"
       );
       (bool neighbourEventHandlerSuccess, bytes memory neighbourEntityActionData) = safeCall(
         neighbourEventHandlerAddress,

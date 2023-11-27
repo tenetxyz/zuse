@@ -5,6 +5,7 @@ import { IWorld } from "@tenet-base-world/src/codegen/world/IWorld.sol";
 import { IStore } from "@latticexyz/store/src/IStore.sol";
 import { Event } from "@tenet-base-world/src/prototypes/Event.sol";
 import { ObjectType } from "@tenet-base-world/src/codegen/tables/ObjectType.sol";
+import { ObjectEntity } from "@tenet-base-world/src/codegen/tables/ObjectEntity.sol";
 import { VoxelCoord } from "@tenet-utils/src/Types.sol";
 import { IWorldMineEventSystem } from "@tenet-base-simulator/src/codegen/world/IWorldMineEventSystem.sol";
 
@@ -39,7 +40,7 @@ abstract contract MineEvent is Event {
       actingObjectEntityId,
       objectTypeId,
       coord,
-      eventEntityId
+      ObjectEntity.get(eventEntityId)
     );
   }
 
@@ -56,7 +57,7 @@ abstract contract MineEvent is Event {
     if (isNewEntity) {
       currentObjectTypeId = IWorld(_world()).getTerrainObjectTypeId(coord);
     } else {
-      currentObjectTypeId = ObjectType.get(objectTypeId);
+      currentObjectTypeId = ObjectType.get(eventEntityId);
     }
     require(
       currentObjectTypeId != emptyObjectId() && currentObjectTypeId == objectTypeId,
@@ -67,7 +68,7 @@ abstract contract MineEvent is Event {
 
     ObjectType.set(eventEntityId, emptyObjectId());
 
-    IWorldMineEventSystem(getSimulatorAddress()).onMineEvent(actingObjectEntityId, objectTypeId, coord, eventEntityId);
+    IWorldMineEventSystem(getSimulatorAddress()).onMineEvent(actingObjectEntityId, objectTypeId, coord, objectEntityId);
 
     return eventEntityId;
   }

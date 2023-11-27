@@ -57,7 +57,7 @@ abstract contract MoveEvent is Event {
       objectTypeId,
       getOldCoord(eventData),
       coord,
-      eventEntityId
+      ObjectEntity.get(eventEntityId)
     );
   }
 
@@ -74,7 +74,7 @@ abstract contract MoveEvent is Event {
     if (isNewEntity) {
       currentObjectTypeId = IWorld(_world()).getTerrainObjectTypeId(coord);
     } else {
-      currentObjectTypeId = ObjectType.get(objectTypeId);
+      currentObjectTypeId = ObjectType.get(eventEntityId);
     }
     require(currentObjectTypeId == emptyObjectId(), "MoveEvent: cannot move to non-empty object");
 
@@ -106,7 +106,7 @@ abstract contract MoveEvent is Event {
       objectTypeId,
       oldCoord,
       coord,
-      eventEntityId
+      objectEntityId
     );
 
     return eventEntityId;

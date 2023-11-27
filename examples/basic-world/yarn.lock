@@ -865,6 +865,12 @@ __metadata:
   languageName: node
   linkType: soft
 
+"@tenetxyz/base-world@link:../../../../packages/base-world::locator=%40tenetxyz%2Fsimulator%40workspace%3Apackages%2Fsimulator":
+  version: 0.0.0-use.local
+  resolution: "@tenetxyz/base-world@link:../../../../packages/base-world::locator=%40tenetxyz%2Fsimulator%40workspace%3Apackages%2Fsimulator"
+  languageName: node
+  linkType: soft
+
 "@tenetxyz/base-world@link:../../../../packages/base-world::locator=%40tenetxyz%2Fworld%40workspace%3Apackages%2Fworld":
   version: 0.0.0-use.local
   resolution: "@tenetxyz/base-world@link:../../../../packages/base-world::locator=%40tenetxyz%2Fworld%40workspace%3Apackages%2Fworld"
@@ -898,6 +904,7 @@ __metadata:
     "@latticexyz/world": "link:../../../../../mud/packages/world"
     "@openzeppelin/contracts": ^4.9.1
     "@tenetxyz/base-simulator": "link:../../../../packages/base-simulator"
+    "@tenetxyz/base-world": "link:../../../../packages/base-world"
     "@tenetxyz/registry": "link:../../../../packages/registry"
     "@tenetxyz/utils": "link:../../../../packages/utils"
     "@typechain/ethers-v5": ^10.2.0

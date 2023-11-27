@@ -4,6 +4,7 @@ pragma solidity >=0.8.0;
 import { IWorld } from "@tenet-base-world/src/codegen/world/IWorld.sol";
 import { Event } from "@tenet-base-world/src/prototypes/Event.sol";
 import { ObjectType } from "@tenet-base-world/src/codegen/tables/ObjectType.sol";
+import { ObjectEntity } from "@tenet-base-world/src/codegen/tables/ObjectEntity.sol";
 import { VoxelCoord, ObjectProperties } from "@tenet-utils/src/Types.sol";
 import { IWorldBuildEventSystem } from "@tenet-base-simulator/src/codegen/world/IWorldBuildEventSystem.sol";
 import { ISimInitSystem } from "@tenet-base-simulator/src/codegen/world/ISimInitSystem.sol";
@@ -39,7 +40,7 @@ abstract contract BuildEvent is Event {
       actingObjectEntityId,
       objectTypeId,
       coord,
-      eventEntityId
+      ObjectEntity.get(eventEntityId)
     );
   }
 
@@ -59,7 +60,7 @@ abstract contract BuildEvent is Event {
         "BuildEvent: Terrain object type id does not match"
       );
     } else {
-      require(ObjectType.get(objectTypeId) == emptyObjectId(), "BuildEvent: Object type id is not empty");
+      require(ObjectType.get(eventEntityId) == emptyObjectId(), "BuildEvent: Object type id is not empty");
     }
     ObjectProperties memory requestedProperties = IWorld(_world()).enterWorld(objectTypeId, coord, objectEntityId);
     if (isNewEntity) {
@@ -73,7 +74,7 @@ abstract contract BuildEvent is Event {
       actingObjectEntityId,
       objectTypeId,
       coord,
-      eventEntityId,
+      objectEntityId,
       requestedProperties
     );
 

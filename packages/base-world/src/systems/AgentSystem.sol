@@ -16,7 +16,7 @@ abstract contract AgentSystem is System {
 
     // Make sure entity has no owner
     bytes32 agentObjectEntityId = ObjectEntity.get(agentEntityId);
-    require(!hasKey(OwnedByTableId, OwnedBy.encodeKeyTuple(agentObjectEntityId)), "Agent already owned");
+    require(!hasKey(OwnedByTableId, OwnedBy.encodeKeyTuple(agentObjectEntityId)), "AgentSystem: Agent already owned");
 
     // Claim agent
     OwnedBy.set(agentObjectEntityId, _msgSender());

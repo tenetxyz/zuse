@@ -17,6 +17,7 @@ import { Energy } from "@tenet-simulator/src/codegen/tables/Energy.sol";
 contract BuildTest is MudTest {
   IWorld private world;
   IStore private store;
+  IStore private simStore;
   address payable internal alice;
   VoxelCoord initialAgentCoord = VoxelCoord(50, 10, 50);
 
@@ -24,6 +25,7 @@ contract BuildTest is MudTest {
     super.setUp();
     world = IWorld(worldAddress);
     store = IStore(worldAddress);
+    simStore = IStore(SIMULATOR_ADDRESS);
     alice = payable(address(0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266));
   }
 
@@ -40,10 +42,10 @@ contract BuildTest is MudTest {
     bytes32 terraninObjectTypeId = world.getTerrainObjectTypeId(buildCoord);
     assertTrue(terraninObjectTypeId == GrassObjectID, "Terrain object type not grass");
     world.build(agentObjectEntityId, terraninObjectTypeId, buildCoord);
-    assertTrue(
-      ObjectType.get(store, getEntityAtCoord(store, buildCoord)) == terraninObjectTypeId,
-      "Terrain object not built"
-    );
+    bytes32 newEntityId = getEntityAtCoord(store, buildCoord);
+    bytes32 newObjectEntityId = ObjectEntity.get(store, newEntityId);
+    assertTrue(ObjectType.get(store, newEntityId) == terraninObjectTypeId, "Terrain object not built");
+    assertTrue(Mass.get(simStore, worldAddress, newObjectEntityId) > 0, "Terrain object mass not set");
 
     vm.stopPrank();
   }
@@ -61,7 +63,10 @@ contract BuildTest is MudTest {
     bytes32 terraninObjectTypeId = world.getTerrainObjectTypeId(buildCoord);
     assertTrue(terraninObjectTypeId == AirObjectID, "Terrain object type not air");
     world.build(agentObjectEntityId, BedrockObjectID, buildCoord);
-    assertTrue(ObjectType.get(store, getEntityAtCoord(store, buildCoord)) == BedrockObjectID, "Object not built");
+    bytes32 newEntityId = getEntityAtCoord(store, buildCoord);
+    bytes32 newObjectEntityId = ObjectEntity.get(store, newEntityId);
+    assertTrue(ObjectType.get(store, newEntityId) == BedrockObjectID, "Object not built");
+    assertTrue(Mass.get(simStore, worldAddress, newObjectEntityId) > 0, "Terrain object mass not set");
 
     vm.stopPrank();
   }

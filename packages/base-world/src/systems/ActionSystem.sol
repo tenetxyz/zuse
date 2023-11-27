@@ -18,7 +18,7 @@ abstract contract ActionSystem is System {
   function preRunAction(bytes32 objectEntityId, VoxelCoord memory entityCoord, Action memory action) internal virtual {
     require(
       distanceBetween(entityCoord, action.targetCoord) <= 1,
-      "Target can only be a surrounding neighbour or yourself"
+      "ActionSystem: Target can only be a surrounding neighbour or yourself"
     );
   }
 

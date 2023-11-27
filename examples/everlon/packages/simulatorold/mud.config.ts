@@ -1,9 +1,9 @@
-import { tenetMudConfig } from "@tenetxyz/base-simulator";
+import { mudConfig } from "@latticexyz/world/register";
 import { resolveTableId } from "@latticexyz/config";
 
-export default tenetMudConfig({
+export default mudConfig({
   enums: {
-    ElementType: ["None", "Fire", "Water", "Grass"],
+    ObjectType: ["None", "Fire", "Water", "Grass"],
     SimTable: [
       "None",
       "Mass",
@@ -20,13 +20,25 @@ export default tenetMudConfig({
       "Elixir",
       "Protein",
     ],
-    ValueType: ["Int256", "ElementType"],
+    ValueType: ["Int256", "ObjectType"],
   },
   tables: {
+    SimSelectors: {
+      keySchema: {
+        senderTable: "SimTable",
+        receiverTable: "SimTable",
+      },
+      schema: {
+        selector: "bytes4",
+        senderValueType: "ValueType",
+        receiverValueType: "ValueType",
+      },
+    },
     Metadata: {
       keySchema: {
-        worldAddress: "address",
-        objectEntityId: "bytes32",
+        callerAddress: "address",
+        scale: "uint32",
+        entity: "bytes32",
       },
       schema: {
         lastInteractionBlock: "uint256",
@@ -34,8 +46,9 @@ export default tenetMudConfig({
     },
     Mass: {
       keySchema: {
-        worldAddress: "address",
-        objectEntityId: "bytes32",
+        callerAddress: "address",
+        scale: "uint32",
+        entity: "bytes32",
       },
       schema: {
         mass: "uint256",
@@ -43,8 +56,9 @@ export default tenetMudConfig({
     },
     Energy: {
       keySchema: {
-        worldAddress: "address",
-        objectEntityId: "bytes32",
+        callerAddress: "address",
+        scale: "uint32",
+        entity: "bytes32",
       },
       schema: {
         energy: "uint256",
@@ -52,18 +66,20 @@ export default tenetMudConfig({
     },
     Velocity: {
       keySchema: {
-        worldAddress: "address",
-        objectEntityId: "bytes32",
+        callerAddress: "address",
+        scale: "uint32",
+        entity: "bytes32",
       },
       schema: {
         lastUpdateBlock: "uint256",
-        velocity: "bytes", // VoxelCoord
+        velocity: "bytes", // VoxelCoord, 3D vector
       },
     },
     Health: {
       keySchema: {
-        worldAddress: "address",
-        objectEntityId: "bytes32",
+        callerAddress: "address",
+        scale: "uint32",
+        entity: "bytes32",
       },
       schema: {
         lastUpdateBlock: "uint256",
@@ -72,37 +88,41 @@ export default tenetMudConfig({
     },
     Stamina: {
       keySchema: {
-        worldAddress: "address",
-        objectEntityId: "bytes32",
+        callerAddress: "address",
+        scale: "uint32",
+        entity: "bytes32",
       },
       schema: {
         stamina: "uint256",
       },
     },
-    Element: {
+    Object: {
       keySchema: {
-        worldAddress: "address",
-        objectEntityId: "bytes32",
+        callerAddress: "address",
+        scale: "uint32",
+        entity: "bytes32",
       },
       schema: {
-        elementType: "ElementType",
+        objectType: "ObjectType",
       },
     },
-    CombatMove: {
+    Action: {
       keySchema: {
-        worldAddress: "address",
-        objectEntityId: "bytes32",
+        callerAddress: "address",
+        scale: "uint32",
+        entity: "bytes32",
       },
       schema: {
-        moveType: "ElementType",
+        actionType: "ObjectType",
         stamina: "uint256",
-        toObjectEntityId: "bytes32",
+        actionEntity: "bytes", // VoxelEntity
       },
     },
     Nutrients: {
       keySchema: {
-        worldAddress: "address",
-        objectEntityId: "bytes32",
+        callerAddress: "address",
+        scale: "uint32",
+        entity: "bytes32",
       },
       schema: {
         nutrients: "uint256",
@@ -110,8 +130,9 @@ export default tenetMudConfig({
     },
     Nitrogen: {
       keySchema: {
-        worldAddress: "address",
-        objectEntityId: "bytes32",
+        callerAddress: "address",
+        scale: "uint32",
+        entity: "bytes32",
       },
       schema: {
         nitrogen: "uint256",
@@ -119,8 +140,9 @@ export default tenetMudConfig({
     },
     Phosphorous: {
       keySchema: {
-        worldAddress: "address",
-        objectEntityId: "bytes32",
+        callerAddress: "address",
+        scale: "uint32",
+        entity: "bytes32",
       },
       schema: {
         phosphorous: "uint256",
@@ -128,8 +150,9 @@ export default tenetMudConfig({
     },
     Potassium: {
       keySchema: {
-        worldAddress: "address",
-        objectEntityId: "bytes32",
+        callerAddress: "address",
+        scale: "uint32",
+        entity: "bytes32",
       },
       schema: {
         potassium: "uint256",
@@ -137,8 +160,9 @@ export default tenetMudConfig({
     },
     Elixir: {
       keySchema: {
-        worldAddress: "address",
-        objectEntityId: "bytes32",
+        callerAddress: "address",
+        scale: "uint32",
+        entity: "bytes32",
       },
       schema: {
         elixir: "uint256",
@@ -146,8 +170,9 @@ export default tenetMudConfig({
     },
     Protein: {
       keySchema: {
-        worldAddress: "address",
-        objectEntityId: "bytes32",
+        callerAddress: "address",
+        scale: "uint32",
+        entity: "bytes32",
       },
       schema: {
         protein: "uint256",
@@ -155,15 +180,27 @@ export default tenetMudConfig({
     },
     Temperature: {
       keySchema: {
-        worldAddress: "address",
-        objectEntityId: "bytes32",
+        callerAddress: "address",
+        scale: "uint32",
+        entity: "bytes32",
       },
       schema: {
         temperature: "uint256",
       },
     },
   },
-  systems: {},
+  systems: {
+    FluxSystem: {
+      name: "FluxSystem",
+      openAccess: false,
+      accessList: ["MassSystem", "EnergySystem", "VelocitySystem", "ActionSystem", "NutrientsSystem"],
+    },
+    CollisionSystem: {
+      name: "CollisionSystem",
+      openAccess: false,
+      accessList: ["VelocitySystem"],
+    },
+  },
   modules: [
     {
       name: "KeysInTableModule",

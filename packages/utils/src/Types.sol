@@ -146,7 +146,7 @@ enum EventType {
   Move
 }
 
-enum ObjectType {
+enum ElementType {
   None,
   Fire,
   Water,
@@ -160,7 +160,7 @@ struct ObjectProperties {
   bytes velocity;
   uint256 health;
   uint256 stamina;
-  ObjectType objectType;
+  ElementType elementType;
   ActionData actionData;
   uint256 nutrients;
   uint256 nitrogen;
@@ -176,13 +176,13 @@ struct ObjectProperties {
 
 enum ValueType {
   Int256,
-  ObjectType,
+  ElementType,
   VoxelCoord,
   VoxelCoordArray
 }
 
 struct ActionData {
-  ObjectType actionType;
+  ElementType actionType;
   uint256 stamina;
   bytes actionEntity;
 }

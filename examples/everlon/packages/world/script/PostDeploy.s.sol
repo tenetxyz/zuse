@@ -20,7 +20,7 @@ contract PostDeploy is Script {
     world.world_BedrockObjectSys_registerBody();
     world.world_StoneObjectSyste_registerBody();
     world.world_BuilderObjectSys_registerBody();
-    world.world_FaucetObjectSyste_registerBody();
+    world.world_FaucetObjectSyst_registerBody();
 
     vm.stopBroadcast();
   }

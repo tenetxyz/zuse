@@ -8,7 +8,7 @@ import { hasKey } from "@latticexyz/world/src/modules/keysintable/hasKey.sol";
 
 import { Shard, ShardData, ShardTableId, TerrainProperties, TerrainPropertiesTableId } from "@tenet-world/src/codegen/Tables.sol";
 
-import { safeCall } from "@tenet-utils/src/CallUtils.sol";
+import { safeStaticCall, safeCall } from "@tenet-utils/src/CallUtils.sol";
 import { SIMULATOR_ADDRESS, SHARD_DIM, AirObjectID, NUM_MAX_TOTAL_ENERGY_IN_SHARD, NUM_MAX_TOTAL_MASS_IN_SHARD } from "@tenet-world/src/Constants.sol";
 import { TerrainSystem as TerrainProtoSystem } from "@tenet-base-world/src/systems/TerrainSystem.sol";
 import { coordToShardCoord } from "@tenet-utils/src/VoxelCoordUtils.sol";
@@ -37,7 +37,7 @@ contract TerrainSystem is TerrainProtoSystem {
       "TerrainSystem: Shard not claimed"
     );
     ShardData memory shardData = Shard.get(shardCoord.x, shardCoord.y, shardCoord.z);
-    (bool terrainSelectorSuccess, bytes memory terrainSelectorReturnData) = safeCall(
+    (bool terrainSelectorSuccess, bytes memory terrainSelectorReturnData) = safeStaticCall(
       shardData.contractAddress,
       abi.encodeWithSelector(shardData.objectTypeIdSelector, coord),
       "shard terrainSelector"
@@ -62,7 +62,7 @@ contract TerrainSystem is TerrainProtoSystem {
       return abi.decode(encodedTerrainProperties, (ObjectProperties));
     }
 
-    VoxelCoord memory shardCoord = coordToShardCoord(coord);
+    VoxelCoord memory shardCoord = coordToShardCoord(coord, SHARD_DIM);
     require(
       hasKey(ShardTableId, Shard.encodeKeyTuple(shardCoord.x, shardCoord.y, shardCoord.z)),
       "TerrainSystem: Shard not claimed"

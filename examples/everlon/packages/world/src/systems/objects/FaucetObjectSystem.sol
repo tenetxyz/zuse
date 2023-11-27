@@ -18,10 +18,10 @@ contract FaucetObjectSystem is ObjectType {
       REGISTRY_ADDRESS,
       FaucetObjectID,
       world,
-      IWorld(world).world_FaucetObjectSyste_enterWorld.selector,
-      IWorld(world).world_FaucetObjectSyste_exitWorld.selector,
-      IWorld(world).world_FaucetObjectSyste_eventHandler.selector,
-      IWorld(world).world_FaucetObjectSyste_neighbourEventHandler.selector,
+      IWorld(world).world_FaucetObjectSyst_enterWorld.selector,
+      IWorld(world).world_FaucetObjectSyst_exitWorld.selector,
+      IWorld(world).world_FaucetObjectSyst_eventHandler.selector,
+      IWorld(world).world_FaucetObjectSyst_neighbourEventHandler.selector,
       "Faucet",
       ""
     );

@@ -62,7 +62,15 @@ contract FaucetAgentSystem is AgentType {
     );
   }
 
-  function enterWorld(VoxelCoord memory coord, bytes32 entity) public override {}
+  function enterWorld(VoxelCoord memory coord, bytes32 entity) public override {
+    // uint256 constant NUM_AGENTS_PER_FAUCET = 100;
+    // Build a facuet entity at the faucetAgentCoord
+    // uint256 initMass = 1000000000; // Make faucet really high mass so its hard to mine
+    // uint256 initEnergy = 1000000000;
+    // uint256 initStamina = STARTING_STAMINA_FROM_FAUCET * NUM_AGENTS_PER_FAUCET;
+    // uint256 initHealth = STARTING_HEALTH_FROM_FAUCET * NUM_AGENTS_PER_FAUCET;
+    // VoxelCoord memory initVelocity = VoxelCoord({ x: 0, y: 0, z: 0 });
+  }
 
   function exitWorld(VoxelCoord memory coord, bytes32 entity) public override {}
 

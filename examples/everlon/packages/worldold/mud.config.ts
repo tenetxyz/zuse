@@ -2,11 +2,11 @@ import { tenetMudConfig } from "@tenetxyz/base-world";
 import { resolveTableId } from "@latticexyz/config";
 
 export default tenetMudConfig({
-  namespace: "world",
   tables: {
     Faucet: {
       keySchema: {
-        objectEntityId: "bytes32",
+        scale: "uint32",
+        entity: "bytes32",
       },
       schema: {
         claimers: "address[]",
@@ -35,25 +35,33 @@ export default tenetMudConfig({
         z: "int32",
       },
       schema: {
-        objectTypeId: "bytes32",
+        voxelTypeId: "bytes32",
         energy: "uint256",
       },
     },
-    Metadata: {
-      keySchema: {
-        objectEntityId: "bytes32",
-      },
-      schema: {
-        numRan: "uint32",
-      },
+  },
+  systems: {
+    RunCASystem: {
+      name: "RunCASystem",
+      openAccess: false,
+      accessList: ["BuildSystem", "MineSystem", "ActivateSystem", "MoveSystem"],
     },
   },
-  systems: {},
   modules: [
     {
       name: "KeysInTableModule",
       root: true,
       args: [resolveTableId("Faucet")],
+    },
+    {
+      name: "KeysInTableModule",
+      root: true,
+      args: [resolveTableId("OwnedBy")],
+    },
+    {
+      name: "KeysWithValueModule",
+      root: true,
+      args: [resolveTableId("OwnedBy")],
     },
     {
       name: "KeysInTableModule",

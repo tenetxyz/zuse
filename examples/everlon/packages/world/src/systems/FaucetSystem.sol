@@ -1,33 +1,28 @@
 // SPDX-License-Identifier: GPL-3.0
 pragma solidity >=0.8.0;
 
-import { IStore } from "@latticexyz/store/src/IStore.sol";
 import { IWorld } from "@tenet-world/src/codegen/world/IWorld.sol";
-import { VoxelEntity, VoxelCoord, InteractionSelector } from "@tenet-utils/src/Types.sol";
+import { IStore } from "@latticexyz/store/src/IStore.sol";
 import { System } from "@latticexyz/world/src/System.sol";
 import { hasKey } from "@latticexyz/world/src/modules/keysintable/hasKey.sol";
-import { VoxelType, Faucet, FaucetData, FaucetTableId } from "@tenet-world/src/codegen/Tables.sol";
-import { callOrRevert, staticCallOrRevert } from "@tenet-utils/src/CallUtils.sol";
-import { REGISTRY_ADDRESS, BASE_CA_ADDRESS } from "@tenet-world/src/Constants.sol";
-import { VoxelTypeRegistry, VoxelTypeRegistryData } from "@tenet-registry/src/codegen/tables/VoxelTypeRegistry.sol";
-import { getInteractionSelectors, getSelector } from "@tenet-registry/src/Utils.sol";
-import { getVoxelCoordStrict } from "@tenet-base-world/src/Utils.sol";
-import { console } from "forge-std/console.sol";
+
+import { ObjectType, Faucet, FaucetData, FaucetTableId } from "@tenet-world/src/codegen/Tables.sol";
+
+import { VoxelCoord } from "@tenet-utils/src/Types.sol";
+import { getEntityIdFromObjectEntityId, getVoxelCoordStrict } from "@tenet-base-world/src/Utils.sol";
 
 uint256 constant MAX_CLAIMS = 8;
 
 contract FaucetSystem is System {
+  // TODO: Could this just be in the faucet object type code?
   function claimAgentFromFaucet(
-    VoxelEntity memory faucetEntity,
-    bytes32 voxelTypeId,
-    VoxelCoord memory coord
-  ) public returns (VoxelEntity memory) {
-    require(
-      hasKey(FaucetTableId, Faucet.encodeKeyTuple(faucetEntity.scale, faucetEntity.entityId)),
-      "Faucet entity not found"
-    );
-    FaucetData memory facuetData = Faucet.get(faucetEntity.scale, faucetEntity.entityId);
-    address claimer = tx.origin;
+    bytes32 faucetObjectEntityId,
+    bytes32 buildObjectTypeId,
+    VoxelCoord memory buildCoord
+  ) public returns (bytes32) {
+    require(hasKey(FaucetTableId, Faucet.encodeKeyTuple(faucetObjectEntityId)), "Faucet entity not found");
+    FaucetData memory facuetData = Faucet.get(faucetObjectEntityId);
+    address claimer = _msgSender();
     uint256 numClaims = 0;
     uint256 claimIdx = 0;
     for (uint256 i = 0; i < facuetData.claimers.length; i++) {
@@ -37,7 +32,7 @@ contract FaucetSystem is System {
         break;
       }
     }
-    require(numClaims < MAX_CLAIMS, "Max claims reached");
+    require(numClaims < MAX_CLAIMS, "FaucetSystem: Max claims reached");
     if (numClaims == 0) {
       // Create new array
       address[] memory newClaimers = new address[](facuetData.claimers.length + 1);
@@ -55,31 +50,18 @@ contract FaucetSystem is System {
       facuetData.claimerAmounts[claimIdx] = numClaims + 1;
     }
 
-    // Make sure entity is an agent
-    {
-      InteractionSelector[] memory interactionSelectors = getInteractionSelectors(
-        IStore(REGISTRY_ADDRESS),
-        voxelTypeId
-      );
-      require(interactionSelectors.length > 1, "Not an agent");
-    }
-
     // Note: calling build every time will cause the area around the agent to lose energy
     // TODO: Fix this if it becomes a problem. One idea is the faucet entity could flux energy back to the surrounding
-    VoxelEntity memory newEntity = IWorld(_world()).buildWithAgent(voxelTypeId, coord, faucetEntity, bytes4(0));
-    IWorld(_world()).claimAgent(newEntity);
-    Faucet.set(faucetEntity.scale, faucetEntity.entityId, facuetData);
+    bytes32 newEntityId = IWorld(_world()).build(faucetObjectEntityId, buildObjectTypeId, coord);
+    IWorld(_world()).claimAgent(newEntityId);
+    Faucet.set(faucetObjectEntityId, facuetData);
 
-    bytes32 faucetVoxelTypeId = VoxelType.getVoxelTypeId(faucetEntity.scale, faucetEntity.entityId);
-    InteractionSelector[] memory faucetInteractionSelectors = getInteractionSelectors(
-      IStore(REGISTRY_ADDRESS),
-      faucetVoxelTypeId
-    );
-    IWorld(_world()).activateWithAgent(
-      faucetVoxelTypeId,
-      getVoxelCoordStrict(faucetEntity),
-      faucetEntity,
-      getSelector(faucetInteractionSelectors, "Give Stamina and Health")
+    bytes32 faucetEntityId = getEntityIdFromObjectEntityId(IStore(_world()), faucetObjectEntityId);
+
+    IWorld(_world()).activate(
+      faucetObjectEntityId,
+      ObjectType.get(faucetEntityId),
+      getVoxelCoordStrict(faucetEntityId)
     );
 
     return newEntity;

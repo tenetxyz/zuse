@@ -1,5 +1,5 @@
 {
-  "name": "@tenetxyz/world",
+  "name": "@tenetxyz/worldold",
   "version": "0.0.1",
   "private": true,
   "license": "MIT",
@@ -46,8 +46,10 @@
     "@latticexyz/schema-type": "link:../../../../../mud/packages/schema-type",
     "@latticexyz/store": "link:../../../../../mud/packages/store",
     "@latticexyz/world": "link:../../../../../mud/packages/world",
-    "@tenetxyz/base-simulator": "link:../../../../packages/base-simulator",
+    "@tenetxyz/base-ca": "link:../../../../packages/base-ca",
     "@tenetxyz/base-world": "link:../../../../packages/base-world",
+    "@tenetxyz/level1-ca": "workspace:*",
+    "@tenetxyz/pokemon-extension": "workspace:*",
     "@tenetxyz/registry": "link:../../../../packages/registry",
     "@tenetxyz/simulator": "workspace:*",
     "@tenetxyz/utils": "link:../../../../packages/utils"

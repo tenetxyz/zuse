@@ -1,4 +1,8 @@
-# Everlon
+# ZUSE
+
+[MUD](https://github.com/latticexyz/mud) is a framework for building ambitious apps on the EVM, and ZUSE is a framework for building worlds with strong digital physics on MUD.
+
+ZUSE is MIT-licensed, open source and free to use.
 
 ### Architecture
 
@@ -19,7 +23,7 @@
 
 ```
 development/
-   everlon/
+   zuse/
    mud/
 ```
 
@@ -35,4 +39,4 @@ development/
 
 ### Running locally
 
-Run `./t run dev basic-conserved-world --skip-build --with-pokemon --with-derived` in the top directory
+Run `./t run dev everlon --with-extensions --with-derived` in the top directory

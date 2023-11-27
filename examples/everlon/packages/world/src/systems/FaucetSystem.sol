@@ -52,7 +52,7 @@ contract FaucetSystem is System {
 
     // Note: calling build every time will cause the area around the agent to lose energy
     // TODO: Fix this if it becomes a problem. One idea is the faucet entity could flux energy back to the surrounding
-    bytes32 newEntityId = IWorld(_world()).build(faucetObjectEntityId, buildObjectTypeId, coord);
+    bytes32 newEntityId = IWorld(_world()).build(faucetObjectEntityId, buildObjectTypeId, buildCoord);
     IWorld(_world()).claimAgent(newEntityId);
     Faucet.set(faucetObjectEntityId, facuetData);
 
@@ -61,9 +61,9 @@ contract FaucetSystem is System {
     IWorld(_world()).activate(
       faucetObjectEntityId,
       ObjectType.get(faucetEntityId),
-      getVoxelCoordStrict(faucetEntityId)
+      getVoxelCoordStrict(IStore(_world()), faucetEntityId)
     );
 
-    return newEntity;
+    return newEntityId;
   }
 }

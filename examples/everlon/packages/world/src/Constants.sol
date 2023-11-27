@@ -9,10 +9,14 @@ uint256 constant NUM_MAX_UNIQUE_OBJECT_EVENT_HANDLERS_RUN = 15;
 uint256 constant NUM_MAX_SAME_OBJECT_EVENT_HANDLERS_RUN = 25;
 uint256 constant NUM_MAX_AGENT_ACTION_RADIUS = 1;
 
-uint256 constant SHARD_DIM = 100;
+int32 constant SHARD_DIM = 100;
+uint256 constant NUM_MAX_TOTAL_ENERGY_IN_SHARD = 100000000;
+uint256 constant NUM_MAX_TOTAL_MASS_IN_SHARD = 100000000;
 
 bytes32 constant AirObjectID = bytes32(keccak256("air"));
 bytes32 constant DirtObjectID = bytes32(keccak256("dirt"));
 bytes32 constant GrassObjectID = bytes32(keccak256("grass"));
 bytes32 constant BedrockObjectID = bytes32(keccak256("bedrock"));
 bytes32 constant BuilderObjectID = bytes32(keccak256("builder"));
+bytes32 constant StoneObjectID = bytes32(keccak256("stone"));
+bytes32 constant FaucetObjectID = bytes32(keccak256("faucet"));

@@ -23,7 +23,8 @@ export default tenetMudConfig({
       schema: {
         claimer: "address",
         contractAddress: "address",
-        terrainSelector: "bytes4",
+        objectTypeIdSelector: "bytes4",
+        objectPropertiesSelector: "bytes4",
         totalGenMass: "uint256",
         totalGenEnergy: "uint256",
       },
@@ -35,8 +36,7 @@ export default tenetMudConfig({
         z: "int32",
       },
       schema: {
-        objectTypeId: "bytes32",
-        energy: "uint256",
+        properties: "bytes", // ObjectProperties
       },
     },
     Metadata: {

@@ -2,22 +2,24 @@
 pragma solidity >=0.8.0;
 
 import { IWorld } from "@tenet-world/src/codegen/world/IWorld.sol";
-import { System } from "@latticexyz/world/src/System.sol";
 import { IStore } from "@latticexyz/store/src/IStore.sol";
+import { System } from "@latticexyz/world/src/System.sol";
+import { getUniqueEntity } from "@latticexyz/world/src/modules/uniqueentity/getUniqueEntity.sol";
 import { hasKey } from "@latticexyz/world/src/modules/keysintable/hasKey.sol";
 
 import { ISimInitSystem } from "@tenet-base-simulator/src/codegen/world/ISimInitSystem.sol";
-import { Faucet, FaucetData, OwnedBy, Shard, ShardData, ShardTableId } from "@tenet-world/src/codegen/Tables.sol";
+import { Position, ObjectType, ObjectEntity, Faucet, FaucetData, OwnedBy, Shard, ShardData, ShardTableId } from "@tenet-world/src/codegen/Tables.sol";
 
 import { coordToShardCoord } from "@tenet-utils/src/VoxelCoordUtils.sol";
-import { VoxelCoord } from "@tenet-utils/src/Types.sol";
+import { VoxelCoord, ObjectProperties } from "@tenet-utils/src/Types.sol";
 import { SIMULATOR_ADDRESS, SHARD_DIM, FaucetObjectID } from "@tenet-world/src/Constants.sol";
 
 contract ShardSystem is System {
   function claimShard(
     VoxelCoord memory coordInShard,
     address contractAddress,
-    bytes4 terrainSelector,
+    bytes4 objectTypeIdSelector,
+    bytes4 objectPropertiesSelector,
     VoxelCoord memory faucetAgentCoord
   ) public {
     VoxelCoord memory shardCoord = coordToShardCoord(coordInShard, SHARD_DIM);
@@ -32,7 +34,8 @@ contract ShardSystem is System {
       ShardData({
         claimer: _msgSender(),
         contractAddress: contractAddress,
-        terrainSelector: terrainSelector,
+        objectTypeIdSelector: objectTypeIdSelector,
+        objectPropertiesSelector: objectPropertiesSelector,
         totalGenMass: 0,
         totalGenEnergy: 0
       })
@@ -41,7 +44,7 @@ contract ShardSystem is System {
     setFaucetAgent(faucetAgentCoord);
   }
 
-  function setFaucetAgent(VoxelCoord memory faucetAgentCoord) internal {
+  function setFaucetAgent(VoxelCoord memory coord) internal {
     bytes32 objectTypeId = FaucetObjectID;
 
     // Create entity
@@ -52,11 +55,7 @@ contract ShardSystem is System {
     ObjectEntity.set(eventEntityId, objectEntityId);
 
     // This will place the agent, so it will check if the voxel there is air
-    ObjectProperties memory faucetProperties = IWorld(_world()).enterWorld(
-      objectTypeId,
-      faucetAgentCoord,
-      objectEntityId
-    );
+    ObjectProperties memory faucetProperties = IWorld(_world()).enterWorld(objectTypeId, coord, objectEntityId);
     ISimInitSystem(SIMULATOR_ADDRESS).initObject(objectEntityId, faucetProperties);
 
     // TODO: Make this the world contract, so that FaucetSystem can build using it

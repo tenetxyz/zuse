@@ -1,50 +1,46 @@
 // SPDX-License-Identifier: MIT
 pragma solidity >=0.8.0;
 
-import { IStore } from "@latticexyz/store/src/IStore.sol";
 import { IWorld } from "@tenet-simulator/src/codegen/world/IWorld.sol";
+import { IStore } from "@latticexyz/store/src/IStore.sol";
 import { hasKey } from "@latticexyz/world/src/modules/keysintable/hasKey.sol";
 import { System } from "@latticexyz/world/src/System.sol";
-import { Mass, MassTableId, Energy, EnergyTableId, Velocity, VelocityTableId } from "@tenet-simulator/src/codegen/Tables.sol";
-import { VoxelCoord, VoxelTypeData, VoxelEntity } from "@tenet-utils/src/Types.sol";
+
+import { ObjectEntity } from "@tenet-base-world/src/codegen/tables/ObjectEntity.sol";
+import { ITerrainSystem } from "@tenet-base-world/src/codegen/world/ITerrainSystem.sol";
+import { IBuildSystem } from "@tenet-base-world/src/codegen/world/IBuildSystem.sol";
+
+import { Mass, MassTableId } from "@tenet-simulator/src/codegen/tables/Mass.sol";
+import { Energy, EnergyTableId } from "@tenet-simulator/src/codegen/tables/Energy.sol";
+
+import { VoxelCoord, ObjectProperties } from "@tenet-utils/src/Types.sol";
 import { add, sub } from "@tenet-utils/src/VoxelCoordUtils.sol";
 import { min } from "@tenet-utils/src/MathUtils.sol";
 import { safeSubtract, safeAdd } from "@tenet-utils/src/TypeUtils.sol";
-import { VoxelTypeRegistry, VoxelTypeRegistryData } from "@tenet-registry/src/codegen/tables/VoxelTypeRegistry.sol";
-import { getUniqueEntity } from "@latticexyz/world/src/modules/uniqueentity/getUniqueEntity.sol";
-import { console } from "forge-std/console.sol";
-import { getVelocity, getTerrainMass, getTerrainEnergy, getTerrainVelocity, getMooreNeighbourEntities, createTerrainEntity } from "@tenet-simulator/src/Utils.sol";
+import { getMooreNeighbourEntities, getEntityIdFromObjectEntityId } from "@tenet-base-world/src/Utils.sol";
 
 uint256 constant MAXIMUM_ENERGY_OUT = 100;
 uint256 constant MAXIMUM_ENERGY_IN = 2500;
 
+uint256 constant MAX_FLUX_RADIUS = 255;
+
 contract FluxEnergySystem is System {
-  function fluxEnergy(
-    bool isFluxIn,
-    address callerAddress,
-    VoxelEntity memory centerVoxelEntity,
-    uint256 energyToFlux
-  ) public {
+  function fluxEnergy(bool isFluxIn, address worldAddress, bytes32 centerObjectEntityId, uint256 energyToFlux) public {
     require(
-      hasKey(EnergyTableId, Energy.encodeKeyTuple(callerAddress, centerVoxelEntity.scale, centerVoxelEntity.entityId)),
+      hasKey(EnergyTableId, Energy.encodeKeyTuple(worldAddress, centerObjectEntityId)),
       "Entity with energy does not exist"
     );
     uint8 radius = 1;
-    console.log("fluxEnergy called");
     while (energyToFlux > 0) {
-      console.log("energyToFlux");
-      console.logUint(energyToFlux);
-      if (radius > 255) {
-        revert("Ran out of neighbours to flux energy from");
+      if (radius > MAX_FLUX_RADIUS) {
+        revert("FluxEnergySystem: Reached maximum flux radius");
       }
       (
-        bytes32[] memory neighbourEntities,
+        bytes32[] memory neighbourObjectEntities,
         ,
         uint256 numNeighboursToInclude,
         uint256[] memory neighbourEnergyDelta
-      ) = initializeNeighbours(isFluxIn, callerAddress, centerVoxelEntity, radius);
-      console.logUint(radius);
-      console.logUint(numNeighboursToInclude);
+      ) = initializeNeighbours(isFluxIn, worldAddress, centerObjectEntityId, radius);
 
       if (numNeighboursToInclude == 0) {
         radius += 1;
@@ -53,9 +49,8 @@ contract FluxEnergySystem is System {
 
       energyToFlux = processRadius(
         isFluxIn,
-        centerVoxelEntity.scale,
-        callerAddress,
-        neighbourEntities,
+        worldAddress,
+        neighbourObjectEntities,
         energyToFlux,
         numNeighboursToInclude,
         neighbourEnergyDelta
@@ -66,56 +61,67 @@ contract FluxEnergySystem is System {
 
   function initializeNeighbours(
     bool isFluxIn,
-    address callerAddress,
-    VoxelEntity memory centerVoxelEntity,
+    address worldAddress,
+    bytes32 centerObjectEntityId,
     uint8 radius
   )
     internal
     returns (
-      bytes32[] memory neighbourEntities,
+      bytes32[] memory neighbourObjectEntities,
       VoxelCoord[] memory neighbourCoords,
       uint256 numNeighboursToInclude,
       uint256[] memory neighbourEnergyDelta
     )
   {
-    (neighbourEntities, neighbourCoords) = getMooreNeighbourEntities(callerAddress, centerVoxelEntity, radius);
+    bytes32[] memory neighbourEntities;
+    (neighbourEntities, neighbourCoords) = getMooreNeighbourEntities(
+      IStore(worldAddress),
+      getEntityIdFromObjectEntityId(IStore(worldAddress), centerObjectEntityId),
+      radius
+    );
     numNeighboursToInclude = 0;
 
     // Initialize an array to store how much energy can still be taken/given from/to each neighbor
     neighbourEnergyDelta = new uint256[](neighbourEntities.length);
 
+    ObjectProperties memory emptyProperties;
+
     for (uint256 i = 0; i < neighbourEntities.length; i++) {
       if (uint256(neighbourEntities[i]) == 0) {
+        ObjectProperties memory terrainProperties = ITerrainSystem(worldAddress).getTerrainObjectProperties(
+          neighbourCoords[i],
+          emptyProperties
+        );
         if (isFluxIn) {
-          if (getTerrainEnergy(callerAddress, centerVoxelEntity.scale, neighbourCoords[i]) == 0) {
+          if (terrainProperties.energy == 0) {
             // if we are taking energy from the terrain, we can't take from terrain that has no energy
             continue;
           }
         } else {
           // if we are giving energy to the terrain, we can only give to terrain that has mass
           // ie air doesn't have mass, and so we can't give energy to it
-          if (getTerrainMass(callerAddress, centerVoxelEntity.scale, neighbourCoords[i]) == 0) {
+          if (terrainProperties.mass == 0) {
             continue;
           }
         }
         // create the entities that don't exist from the terrain
-        console.log("create terrain entity");
-        VoxelEntity memory newTerrainEntity = createTerrainEntity(
-          callerAddress,
-          centerVoxelEntity.scale,
+        bytes32 newTerrainEntityId = IBuildSystem(worldAddress).buildTerrain(
+          bytes32(0), // No acting object entity, since this is the simulator calling it
           neighbourCoords[i]
         );
-        neighbourEntities[i] = newTerrainEntity.entityId;
+        neighbourObjectEntities[i] = ObjectEntity.get(IStore(worldAddress), newTerrainEntityId);
+      } else {
+        neighbourObjectEntities[i] = ObjectEntity.get(IStore(worldAddress), neighbourEntities[i]);
       }
 
       if (isFluxIn) {
-        if (Energy.get(callerAddress, centerVoxelEntity.scale, neighbourEntities[i]) > 0) {
+        if (Energy.get(worldAddress, neighbourObjectEntities[i]) > 0) {
           // we only flux in to neighbours that have energy
           neighbourEnergyDelta[i] = MAXIMUM_ENERGY_OUT;
           numNeighboursToInclude++;
         }
       } else {
-        if (Mass.get(callerAddress, centerVoxelEntity.scale, neighbourEntities[i]) > 0) {
+        if (Mass.get(worldAddress, neighbourObjectEntities[i]) > 0) {
           // we only flux out to neighbours that have mass
           neighbourEnergyDelta[i] = MAXIMUM_ENERGY_IN;
           numNeighboursToInclude++;
@@ -126,9 +132,8 @@ contract FluxEnergySystem is System {
 
   function processRadius(
     bool isFluxIn,
-    uint32 scale,
-    address callerAddress,
-    bytes32[] memory neighbourEntities,
+    address worldAddress,
+    bytes32[] memory neighbourObjectEntities,
     uint256 energyToFlux,
     uint256 numNeighboursToInclude,
     uint256[] memory neighbourEnergyDelta
@@ -143,12 +148,12 @@ contract FluxEnergySystem is System {
       }
 
       shouldIncreaseRadius = true;
-      for (uint i = 0; i < neighbourEntities.length; i++) {
-        bytes32 neighborEntity = neighbourEntities[i];
-        if (uint256(neighborEntity) == 0) {
+      for (uint i = 0; i < neighbourObjectEntities.length; i++) {
+        bytes32 neighborObjectEntityId = neighbourObjectEntities[i];
+        if (uint256(neighborObjectEntityId) == 0) {
           continue;
         }
-        uint256 neighbourEnergy = Energy.get(callerAddress, scale, neighborEntity);
+        uint256 neighbourEnergy = Energy.get(worldAddress, neighborObjectEntityId);
         if (isFluxIn && neighbourEnergy == 0) {
           continue;
         }
@@ -166,7 +171,7 @@ contract FluxEnergySystem is System {
         uint256 newNeighbourEnergy = isFluxIn
           ? safeSubtract(neighbourEnergy, energyToTransfer)
           : safeAdd(neighbourEnergy, energyToTransfer);
-        Energy.set(callerAddress, scale, neighborEntity, newNeighbourEnergy);
+        Energy.set(worldAddress, neighborObjectEntityId, newNeighbourEnergy);
 
         // Decrease the amount of energy left to flux
         neighbourEnergyDelta[i] = safeSubtract(neighbourEnergyDelta[i], energyToTransfer);

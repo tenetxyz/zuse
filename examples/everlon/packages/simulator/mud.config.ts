@@ -164,7 +164,7 @@ export default tenetMudConfig({
     },
   },
   systems: {
-    FluxSystem: {
+    FluxEnergySystem: {
       name: "FluxEnergySystem",
       openAccess: false,
       accessList: ["MassConstraintSystem"],

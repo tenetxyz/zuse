@@ -55,7 +55,7 @@ contract CollisionSystem is System {
     // Keep looping until there is no neighbour to process or we reached max depth
     while (useQueueIdx < NUM_MAX_COLLISIONS_UPDATE_DEPTH) {
       CollisionData memory useCollisionData = centerEntitiesToCheckQueue[useQueueIdx];
-      VoxelCoord memory currentVelocity = getVelocity(worldAddress, useCollisionData.objectEntityId);
+      useCollisionData.oldVelocity = getVelocity(worldAddress, useCollisionData.objectEntityId);
       (VoxelCoord memory newVelocity, bytes32[] memory neighbourObjectEntities, ) = calculateVelocityAfterCollision(
         worldAddress,
         getVoxelCoordStrict(
@@ -63,14 +63,13 @@ contract CollisionSystem is System {
           getEntityIdFromObjectEntityId(IStore(worldAddress), useCollisionData.objectEntityId)
         ),
         useCollisionData.objectEntityId,
-        currentVelocity
+        useCollisionData.oldVelocity
       );
       // Update collision data
-      useCollisionData.oldVelocity = currentVelocity;
       useCollisionData.newVelocity = newVelocity;
       centerEntitiesToCheckQueue[useQueueIdx] = useCollisionData;
 
-      if (useQueueIdx == 0 || !voxelCoordsAreEqual(currentVelocity, newVelocity)) {
+      if (useQueueIdx == 0 || !voxelCoordsAreEqual(useCollisionData.oldVelocity, newVelocity)) {
         if (useQueueIdx > 0) {
           // Note: we don't update the first one (index == 0), because it's already been applied in the initial move
           Velocity.setVelocity(worldAddress, useCollisionData.objectEntityId, abi.encode(newVelocity));
@@ -193,15 +192,15 @@ contract CollisionSystem is System {
     // Create move events based on the delta
     for (int32 i = 0; i < absInt32(vDelta); i++) {
       {
-        VoxelCoord memory newCoord = add(workingCoord, deltaVelocity);
-        // Try moving, we can't use IMoveSystem here because we need to safe call it
+        // Try moving
+        // Note: we can't use IMoveSystem here because we need to safe call it
         (bool moveSuccess, bytes memory moveReturnData) = worldAddress.call(
           abi.encodeWithSignature(
             "move(bytes32,bytes32,(int32,int32,int32),(int32,int32,int32))", // TODO: Import signature from base-world
             actingObjectEntityId,
             objectTypeId,
             workingCoord,
-            newCoord
+            add(workingCoord, deltaVelocity)
           )
         );
         if (moveSuccess && moveReturnData.length > 0) {
@@ -247,7 +246,6 @@ contract CollisionSystem is System {
     );
 
     bytes32[] memory collidingObjectEntities = new bytes32[](neighbourEntities.length);
-    ObjectProperties memory emptyProperties;
 
     // We first compute the dot product to figure out for which coords, do we need to run the collison formula
     for (uint256 i = 0; i < neighbourCoords.length; i++) {
@@ -267,6 +265,7 @@ contract CollisionSystem is System {
       if (dotProduct > 0) {
         // this means the primary voxel is moving towards the neighbour
         if (uint256(neighbourEntities[i]) == 0) {
+          ObjectProperties memory emptyProperties;
           ObjectProperties memory terrainProperties = ITerrainSystem(worldAddress).getTerrainObjectProperties(
             neighbourCoords[i],
             emptyProperties

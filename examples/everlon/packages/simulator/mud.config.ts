@@ -163,7 +163,18 @@ export default tenetMudConfig({
       },
     },
   },
-  systems: {},
+  systems: {
+    FluxSystem: {
+      name: "FluxEnergySystem",
+      openAccess: false,
+      accessList: ["MassConstraintSystem"],
+    },
+    // CollisionSystem: {
+    //   name: "CollisionSystem",
+    //   openAccess: false,
+    //   accessList: ["VelocitySystem"],
+    // },
+  },
   modules: [
     {
       name: "KeysInTableModule",

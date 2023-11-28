@@ -24,7 +24,7 @@ contract VelocitySystem is System {
     VoxelCoord memory newCoord,
     bytes32 oldObjectEntityId,
     bytes32 objectEntityId
-  ) public returns (bytes32 newEntityId) {
+  ) public returns (bytes32) {
     require(
       hasKey(MassTableId, Mass.encodeKeyTuple(worldAddress, oldObjectEntityId)) &&
         hasKey(MassTableId, Mass.encodeKeyTuple(worldAddress, objectEntityId)),
@@ -41,11 +41,19 @@ contract VelocitySystem is System {
       objectEntityId,
       Mass.get(worldAddress, objectEntityId)
     );
-    bool hasStamina = hasKey(StaminaTableId, Stamina.encodeKeyTuple(worldAddress, actingObjectEntityId));
-    uint256 currentResourceAmount = hasStamina
-      ? Stamina.get(worldAddress, actingObjectEntityId)
-      : Temperature.get(worldAddress, actingObjectEntityId);
-    require(resourceRequired <= currentResourceAmount, "VelocitySystem: Not enough resources to move.");
+    {
+      // Spend resources
+      bool hasStamina = hasKey(StaminaTableId, Stamina.encodeKeyTuple(worldAddress, actingObjectEntityId));
+      uint256 currentResourceAmount = hasStamina
+        ? Stamina.get(worldAddress, actingObjectEntityId)
+        : Temperature.get(worldAddress, actingObjectEntityId);
+      require(resourceRequired <= currentResourceAmount, "VelocitySystem: Not enough resources to move.");
+      if (hasStamina) {
+        Stamina.set(worldAddress, actingObjectEntityId, currentResourceAmount - resourceRequired);
+      } else {
+        Temperature.set(worldAddress, actingObjectEntityId, currentResourceAmount - resourceRequired);
+      }
+    }
 
     // Flux energy
     IWorld(_world()).fluxEnergy(
@@ -61,13 +69,6 @@ contract VelocitySystem is System {
       objectEntityId,
       VelocityData({ lastUpdateBlock: block.number, velocity: abi.encode(newVelocity) })
     );
-
-    // Spend resources
-    if (hasStamina) {
-      Stamina.set(worldAddress, actingObjectEntityId, currentResourceAmount - resourceRequired);
-    } else {
-      Temperature.set(worldAddress, actingObjectEntityId, currentResourceAmount - resourceRequired);
-    }
 
     // Collision rule
     return IWorld(_world()).onCollision(worldAddress, objectEntityId, actingObjectEntityId);

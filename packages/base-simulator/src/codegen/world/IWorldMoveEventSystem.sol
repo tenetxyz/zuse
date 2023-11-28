@@ -18,6 +18,7 @@ interface IWorldMoveEventSystem {
     bytes32 objectTypeId,
     VoxelCoord memory oldCoord,
     VoxelCoord memory newCoord,
+    bytes32 oldObjectEntityId,
     bytes32 objectEntityId
   ) external returns (bytes32);
 

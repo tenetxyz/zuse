@@ -25,6 +25,7 @@ abstract contract ActionSystem is System {
   function runAction(bytes32 objectEntityId, VoxelCoord memory entityCoord, Action memory action) internal virtual {
     runSimAction(
       getSimulatorAddress(),
+      action.actionType,
       objectEntityId,
       entityCoord,
       action.senderTable,

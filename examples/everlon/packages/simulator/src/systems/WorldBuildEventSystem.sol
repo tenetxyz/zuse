@@ -1,13 +1,17 @@
 // SPDX-License-Identifier: MIT
 pragma solidity >=0.8.0;
 
+import { IWorld } from "@tenet-simulator/src/codegen/world/IWorld.sol";
 import { System } from "@latticexyz/world/src/System.sol";
 import { VoxelCoord, EventType, ObjectProperties } from "@tenet-utils/src/Types.sol";
 import { WorldBuildEventSystem as WorldBuildEventProtoSystem } from "@tenet-base-simulator/src/systems/WorldBuildEventSystem.sol";
 import { Mass, MassTableId } from "@tenet-simulator/src/codegen/tables/Mass.sol";
 
 contract WorldBuildEventSystem is WorldBuildEventProtoSystem {
-  function preBuildEvent(bytes32 actingObjectEntityId, bytes32 objectTypeId, VoxelCoord memory coord) public override {}
+  function preBuildEvent(bytes32 actingObjectEntityId, bytes32 objectTypeId, VoxelCoord memory coord) public override {
+    address worldAddress = _msgSender();
+    IWorld(_world()).updateVelocityCache(worldAddress, actingObjectEntityId);
+  }
 
   function onBuildEvent(
     bytes32 actingObjectEntityId,
@@ -16,7 +20,10 @@ contract WorldBuildEventSystem is WorldBuildEventProtoSystem {
     bytes32 objectEntityId,
     ObjectProperties memory objectProperties
   ) public override {
-    address world = _msgSender();
+    address worldAddress = _msgSender();
+    if (objectEntityId != actingObjectEntityId) {
+      IWorld(_world()).updateVelocityCache(worldAddress, objectEntityId);
+    }
 
     // address callerAddress = _msgSender();
     // preEvent(callerAddress, actingEntity);

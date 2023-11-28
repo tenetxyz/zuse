@@ -10,6 +10,7 @@ import { IWorldActivateEventSystem } from "./IWorldActivateEventSystem.sol";
 import { IWorldBuildEventSystem } from "./IWorldBuildEventSystem.sol";
 import { IWorldMineEventSystem } from "./IWorldMineEventSystem.sol";
 import { IWorldMoveEventSystem } from "./IWorldMoveEventSystem.sol";
+import { IWorldObjectEventSystem } from "./IWorldObjectEventSystem.sol";
 
 /**
  * The IWorld interface includes all systems dynamically added to the World
@@ -21,7 +22,8 @@ interface IWorld is
   IWorldActivateEventSystem,
   IWorldBuildEventSystem,
   IWorldMineEventSystem,
-  IWorldMoveEventSystem
+  IWorldMoveEventSystem,
+  IWorldObjectEventSystem
 {
 
 }

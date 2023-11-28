@@ -14,9 +14,63 @@ import { Temperature, TemperatureTableId } from "@tenet-simulator/src/codegen/ta
 
 import { getVelocity } from "@tenet-simulator/src/Utils.sol";
 import { VoxelCoord } from "@tenet-utils/src/Types.sol";
+import { uint256ToInt32 } from "@tenet-utils/src/TypeUtils.sol";
+import { isZeroCoord, voxelCoordsAreEqual } from "@tenet-utils/src/VoxelCoordUtils.sol";
 import { abs, absInt32 } from "@tenet-utils/src/MathUtils.sol";
+import { NUM_BLOCKS_BEFORE_REDUCE_VELOCITY } from "@tenet-simulator/src/Constants.sol";
 
 contract VelocitySystem is System {
+  function updateVelocityCache(address worldAddress, bytes32 objectEntityId) public {
+    if (!hasKey(VelocityTableId, Velocity.encodeKeyTuple(worldAddress, objectEntityId))) {
+      return;
+    }
+
+    VoxelCoord memory velocity = getVelocity(worldAddress, objectEntityId);
+    if (isZeroCoord(velocity)) {
+      return;
+    }
+    // Calculate how many blocks have passed since last update
+    uint256 blocksSinceLastUpdate = block.number - Velocity.getLastUpdateBlock(worldAddress, objectEntityId);
+    if (blocksSinceLastUpdate == 0) {
+      return;
+    }
+    // Calculate the new velocity
+
+    int32 deltaV = uint256ToInt32(blocksSinceLastUpdate / NUM_BLOCKS_BEFORE_REDUCE_VELOCITY);
+    // We dont want to reduce past 0
+    VoxelCoord memory newVelocity = VoxelCoord({ x: 0, y: 0, z: 0 });
+
+    // Update x component
+    if (velocity.x > 0) {
+      newVelocity.x = velocity.x > deltaV ? velocity.x - deltaV : int32(0);
+    } else if (velocity.x < 0) {
+      newVelocity.x = velocity.x < -deltaV ? velocity.x + deltaV : int32(0);
+    }
+
+    // Update y component
+    if (velocity.y > 0) {
+      newVelocity.y = velocity.y > deltaV ? velocity.y - deltaV : int32(0);
+    } else if (velocity.y < 0) {
+      newVelocity.y = velocity.y < -deltaV ? velocity.y + deltaV : int32(0);
+    }
+
+    // Update z component
+    if (velocity.z > 0) {
+      newVelocity.z = velocity.z > deltaV ? velocity.z - deltaV : int32(0);
+    } else if (velocity.z < 0) {
+      newVelocity.z = velocity.z < -deltaV ? velocity.z + deltaV : int32(0);
+    }
+
+    // Update the velocity
+    if (!voxelCoordsAreEqual(velocity, newVelocity)) {
+      Velocity.set(
+        worldAddress,
+        objectEntityId,
+        VelocityData({ lastUpdateBlock: block.number, velocity: abi.encode(newVelocity) })
+      );
+    }
+  }
+
   function velocityChange(
     address worldAddress,
     bytes32 actingObjectEntityId,

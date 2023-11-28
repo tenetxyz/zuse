@@ -33,7 +33,10 @@ contract WorldMoveEventSystem is WorldMoveEventProtoSystem {
     bytes32 objectTypeId,
     VoxelCoord memory oldCoord,
     VoxelCoord memory newCoord
-  ) public override {}
+  ) public override {
+    address worldAddress = _msgSender();
+    IWorld(_world()).updateVelocityCache(worldAddress, actingObjectEntityId);
+  }
 
   function onMoveEvent(
     bytes32 actingObjectEntityId,
@@ -44,6 +47,9 @@ contract WorldMoveEventSystem is WorldMoveEventProtoSystem {
     bytes32 objectEntityId
   ) public override returns (bytes32) {
     address worldAddress = _msgSender();
+    if (objectEntityId != actingObjectEntityId) {
+      IWorld(_world()).updateVelocityCache(worldAddress, objectEntityId);
+    }
     return
       IWorld(_world()).velocityChange(
         worldAddress,

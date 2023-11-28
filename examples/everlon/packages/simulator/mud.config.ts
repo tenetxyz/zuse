@@ -174,6 +174,17 @@ export default tenetMudConfig({
       openAccess: false,
       accessList: ["WorldMoveEventSystem"],
     },
+    VelocitySystem: {
+      name: "VelocitySystem",
+      openAccess: false,
+      accessList: [
+        "WorldMoveEventSystem",
+        "WorldBuildEventSystem",
+        "WorldMineEventSystem",
+        "WorldActivateEventSystem",
+        "WorldObjectEventSystem",
+      ],
+    },
   },
   modules: [
     {

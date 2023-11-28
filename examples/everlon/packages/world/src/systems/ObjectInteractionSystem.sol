@@ -7,7 +7,7 @@ import { System } from "@latticexyz/world/src/System.sol";
 import { Metadata, MetadataTableId } from "@tenet-world/src/codegen/tables/Metadata.sol";
 import { KeysInTable } from "@latticexyz/world/src/modules/keysintable/tables/KeysInTable.sol";
 
-import { REGISTRY_ADDRESS, NUM_MAX_OBJECTS_INTERACTION_RUN, NUM_MAX_UNIQUE_OBJECT_EVENT_HANDLERS_RUN, NUM_MAX_SAME_OBJECT_EVENT_HANDLERS_RUN } from "@tenet-world/src/Constants.sol";
+import { REGISTRY_ADDRESS, SIMULATOR_ADDRESS, NUM_MAX_OBJECTS_INTERACTION_RUN, NUM_MAX_UNIQUE_OBJECT_EVENT_HANDLERS_RUN, NUM_MAX_SAME_OBJECT_EVENT_HANDLERS_RUN } from "@tenet-world/src/Constants.sol";
 import { ObjectInteractionSystem as ObjectInteractionProtoSystem } from "@tenet-base-world/src/systems/ObjectInteractionSystem.sol";
 
 contract ObjectInteractionSystem is ObjectInteractionProtoSystem {
@@ -15,10 +15,9 @@ contract ObjectInteractionSystem is ObjectInteractionProtoSystem {
     return REGISTRY_ADDRESS;
   }
 
-  function preRunInteraction(
-    bytes32 centerObjectEntityId,
-    bytes32[] memory neighbourObjectEntityIds
-  ) internal override {}
+  function getSimulatorAddress() internal pure override returns (address) {
+    return SIMULATOR_ADDRESS;
+  }
 
   function shouldRunEvent(bytes32 objectEntityId) internal override returns (bool) {
     uint256 numUniqueObjectsRan = KeysInTable.lengthKeys0(MetadataTableId);

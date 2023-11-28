@@ -9,13 +9,14 @@ import { Mass, MassTableId } from "@tenet-simulator/src/codegen/tables/Mass.sol"
 import { Velocity, VelocityData, VelocityTableId } from "@tenet-simulator/src/codegen/tables/Velocity.sol";
 
 import { ObjectEntity } from "@tenet-base-world/src/codegen/tables/ObjectEntity.sol";
+import { ObjectType } from "@tenet-base-world/src/codegen/tables/ObjectType.sol";
 import { ITerrainSystem } from "@tenet-base-world/src/codegen/world/ITerrainSystem.sol";
 import { IBuildSystem } from "@tenet-base-world/src/codegen/world/IBuildSystem.sol";
 import { IMoveSystem } from "@tenet-base-world/src/codegen/world/IMoveSystem.sol";
 
 import { getVelocity } from "@tenet-simulator/src/Utils.sol";
-import { VoxelCoord } from "@tenet-utils/src/Types.sol";
-import { getVoxelCoordStrict, getEntityIdFromObjectEntityId, getVonNeumannNeighbourEntities } from "@tenet-base-world/src/Utils.sol";
+import { VoxelCoord, ObjectProperties } from "@tenet-utils/src/Types.sol";
+import { getEntityAtCoord, getVoxelCoordStrict, getEntityIdFromObjectEntityId, getVonNeumannNeighbourEntities } from "@tenet-base-world/src/Utils.sol";
 import { isZeroCoord, voxelCoordsAreEqual, dot, mulScalar, divScalar, add, sub } from "@tenet-utils/src/VoxelCoordUtils.sol";
 import { abs, absInt32 } from "@tenet-utils/src/MathUtils.sol";
 import { uint256ToInt32, int256ToUint256, safeSubtract } from "@tenet-utils/src/TypeUtils.sol";
@@ -57,7 +58,10 @@ contract CollisionSystem is System {
       VoxelCoord memory currentVelocity = getVelocity(worldAddress, useCollisionData.objectEntityId);
       (VoxelCoord memory newVelocity, bytes32[] memory neighbourObjectEntities, ) = calculateVelocityAfterCollision(
         worldAddress,
-        getVoxelCoordStrict(IStore(worldAddress), getEntityIdFromObjectEntityId(useCollisionData.objectEntityId)),
+        getVoxelCoordStrict(
+          IStore(worldAddress),
+          getEntityIdFromObjectEntityId(IStore(worldAddress), useCollisionData.objectEntityId)
+        ),
         useCollisionData.objectEntityId,
         currentVelocity
       );
@@ -118,11 +122,11 @@ contract CollisionSystem is System {
 
     // Go through the stack in reverse order and if old and new velocity are different, create move events accordingly
     // TODO: check for overflow
-    bytes32 centerEntityId = getEntityIdFromObjectEntityId(centerObjectEntityId);
+    bytes32 centerEntityId = getEntityIdFromObjectEntityId(IStore(worldAddress), centerObjectEntityId);
     for (uint256 i = centerEntitiesToCheckQueueIdx + 1; i > 0; i--) {
       CollisionData memory collisionData = centerEntitiesToCheckQueue[i - 1];
       if (!voxelCoordsAreEqual(collisionData.oldVelocity, collisionData.newVelocity)) {
-        bytes32 workingEntityId = getEntityIdFromObjectEntityId(collisionData.objectEntityId);
+        bytes32 workingEntityId = getEntityIdFromObjectEntityId(IStore(worldAddress), collisionData.objectEntityId);
         // go through each axis, x, y, z and for each one figure out the new coord by adding the unit amount (ie 1), and make the move event call
         VoxelCoord memory workingCoord = getVoxelCoordStrict(IStore(worldAddress), workingEntityId);
         {
@@ -206,8 +210,8 @@ contract CollisionSystem is System {
             bytes32 oldEntityId;
             // TODO: Should do safe decoding here
             (oldEntityId, newEntityId) = abi.decode(moveReturnData, (bytes32, bytes32));
-            if (ObjectEntity.get(oldEntityId) == newActingObjectEntityId) {
-              newActingObjectEntityId = ObjectEntity.get(newEntityId);
+            if (ObjectEntity.get(IStore(worldAddress), oldEntityId) == newActingObjectEntityId) {
+              newActingObjectEntityId = ObjectEntity.get(IStore(worldAddress), newEntityId);
             }
           }
           // The entity could have been moved some place else, besides the new coord
@@ -254,7 +258,7 @@ contract CollisionSystem is System {
           // Check to see if this neighbour has a velocity and is having an impact on us
           VoxelCoord memory neighbourVelocity = getVelocity(
             worldAddress,
-            ObjectEntity.get(worldAddress, neighbourEntities[i])
+            ObjectEntity.get(IStore(worldAddress), neighbourEntities[i])
           );
           relativePosition = sub(centerCoord, neighbourCoords[i]);
           dotProduct = dot(neighbourVelocity, relativePosition);

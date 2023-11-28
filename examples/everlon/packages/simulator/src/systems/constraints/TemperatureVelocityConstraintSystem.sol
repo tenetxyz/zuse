@@ -80,14 +80,14 @@ contract TemperatureVelocityConstraintSystem is Constraint {
       hasKey(TemperatureTableId, Temperature.encodeKeyTuple(worldAddress, senderObjectEntityId)),
       "TemperatureVelocityConstraintSystem: Sender entity not initialized"
     );
-    (int256 senderTemperatureDelta, VoxelCoord[] memory receiverPositionDelta) = decodeAmounts(fromAmount, toAmount);
+    (, VoxelCoord[] memory receiverPositionDelta) = decodeAmounts(fromAmount, toAmount);
 
     bytes32 workingEntityId = getEntityIdFromObjectEntityId(IStore(worldAddress), receiverObjectEntityId);
     bytes32 objectTypeId = ObjectType.get(IStore(worldAddress), workingEntityId);
     VoxelCoord memory workingCoord = receiverCoord;
     for (uint256 i = 0; i < receiverPositionDelta.length; i++) {
       // Note: we can't use IMoveSystem here because we need to safe call it
-      (bool success, bytes memory returnData) = worldAddress.call(
+      (bool moveSuccess, bytes memory moveReturnData) = worldAddress.call(
         abi.encodeWithSignature(
           WORLD_MOVE_SIG,
           senderObjectEntityId,
@@ -96,8 +96,8 @@ contract TemperatureVelocityConstraintSystem is Constraint {
           receiverPositionDelta[i]
         )
       );
-      if (success && returnData.length > 0) {
-        (, workingEntityId) = abi.decode(returnData, (bytes32, bytes32));
+      if (moveSuccess && moveReturnData.length > 0) {
+        (, workingEntityId) = abi.decode(moveReturnData, (bytes32, bytes32));
         // The entity could have been moved some place else, besides the new coord
         // so we need to update the working coord
         if (

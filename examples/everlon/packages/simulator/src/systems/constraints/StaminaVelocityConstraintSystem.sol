@@ -64,7 +64,7 @@ contract StaminaVelocityConstraintSystem is Constraint {
       hasKey(VelocityTableId, Velocity.encodeKeyTuple(worldAddress, objectEntityId)),
       "StaminaVelocityConstraintSystem: Receiver entity not initialized"
     );
-    (uint256 senderStaminaDelta, VoxelCoord memory receiverVelocityDelta) = decodeAmounts(fromAmount, toAmount);
+    (int256 senderStaminaDelta, VoxelCoord memory receiverVelocityDelta) = decodeAmounts(fromAmount, toAmount);
     // You can only spend stamina to decrease velocity
     // To increase, you have to move
     require(senderStaminaDelta >= 0, "Stamina delta must be positive");

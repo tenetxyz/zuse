@@ -35,6 +35,17 @@ contract MassConstraintSystem is Constraint {
     return transformation(objectEntityId, coord, fromAmount, toAmount);
   }
 
+  function massTransfer(
+    bytes32 senderObjectEntityId,
+    VoxelCoord memory senderCoord,
+    bytes32 receiverObjectEntityId,
+    VoxelCoord memory receiverCoord,
+    bytes memory fromAmount,
+    bytes memory toAmount
+  ) public {
+    return transfer(senderObjectEntityId, senderCoord, receiverObjectEntityId, receiverCoord, fromAmount, toAmount);
+  }
+
   function transformation(
     bytes32 objectEntityId,
     VoxelCoord memory coord,
@@ -61,17 +72,6 @@ contract MassConstraintSystem is Constraint {
       energyRequired = energyRequired * 2;
     }
     // IWorld(_world()).fluxEnergy(isMassIncrease, worldAddress, objectEntityId, energyRequired);
-  }
-
-  function massTransfer(
-    bytes32 senderObjectEntityId,
-    VoxelCoord memory senderCoord,
-    bytes32 receiverObjectEntityId,
-    VoxelCoord memory receiverCoord,
-    bytes memory fromAmount,
-    bytes memory toAmount
-  ) public {
-    return transfer(senderObjectEntityId, senderCoord, receiverObjectEntityId, receiverCoord, fromAmount, toAmount);
   }
 
   function transfer(

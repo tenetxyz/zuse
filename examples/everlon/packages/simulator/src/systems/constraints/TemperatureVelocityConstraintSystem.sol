@@ -64,6 +64,8 @@ contract TemperatureVelocityConstraintSystem is Constraint {
     bytes memory fromAmount,
     bytes memory toAmount
   ) internal override {
+    // You can do this by calling move though, just not directly
+    // TODO: rethink if this should be consolidated with the on move event in WorldMoveEventSystem
     revert("TemperatureVelocityConstraintSystem: You can't convert your own temperature to velocity");
   }
 

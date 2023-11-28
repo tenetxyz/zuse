@@ -143,7 +143,7 @@ contract StaminaVelocityConstraintSystem is Constraint {
     bytes memory toAmount
   ) internal override {
     // You can do this by calling move though, just not directly
-    // TODO: rethink if this should be consolidated with the on move event
+    // TODO: rethink if this should be consolidated with the on move event in WorldMoveEventSystem
     revert(
       "StaminaVelocityConstraintSystem: You can't spend your stamina to increase/decrease velocity of another entity"
     );

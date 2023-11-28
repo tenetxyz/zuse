@@ -169,11 +169,11 @@ export default tenetMudConfig({
       openAccess: false,
       accessList: ["MassConstraintSystem"],
     },
-    // CollisionSystem: {
-    //   name: "CollisionSystem",
-    //   openAccess: false,
-    //   accessList: ["VelocitySystem"],
-    // },
+    CollisionSystem: {
+      name: "CollisionSystem",
+      openAccess: false,
+      accessList: ["WorldMoveEventSystem"],
+    },
   },
   modules: [
     {

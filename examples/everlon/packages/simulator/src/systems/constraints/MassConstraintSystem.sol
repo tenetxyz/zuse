@@ -13,7 +13,7 @@ import { VoxelCoord, SimTable, ValueType } from "@tenet-utils/src/Types.sol";
 import { addUint256AndInt256, int256ToUint256 } from "@tenet-utils/src/TypeUtils.sol";
 
 contract MassConstraintSystem is Constraint {
-  function registerMassSelectors() public {
+  function registerMassSelector() public {
     SimAction.set(
       SimTable.Mass,
       SimTable.Mass,
@@ -83,6 +83,6 @@ contract MassConstraintSystem is Constraint {
     bytes memory fromAmount,
     bytes memory toAmount
   ) internal override {
-    revert("You can't transfer mass to another entity");
+    revert("MassConstraintSystem: You can't transfer mass to another entity");
   }
 }

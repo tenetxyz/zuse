@@ -61,7 +61,8 @@ contract MassConstraintSystem is Constraint {
     uint256 currentMass = Mass.get(worldAddress, objectEntityId);
     uint256 newMass = addUint256AndInt256(currentMass, receiverMassDelta);
     if (currentMass > 0) {
-      require(currentMass >= newMass, "Cannot increase mass");
+      // World is allowed to increase mass, eg during build
+      require(_msgSender() == _world() || currentMass >= newMass, "MassConstraintSystem: Cannot increase mass");
     }
     Mass.set(worldAddress, objectEntityId, newMass);
 

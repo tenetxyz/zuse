@@ -13,7 +13,8 @@ interface IWorldBuildEventSystem {
     bytes32 objectTypeId,
     VoxelCoord memory coord,
     bytes32 objectEntityId,
-    ObjectProperties memory objectProperties
+    ObjectProperties memory objectProperties,
+    bool isNewEntity
   ) external;
 
   function postBuildEvent(

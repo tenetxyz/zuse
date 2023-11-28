@@ -3,6 +3,7 @@ pragma solidity >=0.8.0;
 
 import { IWorld } from "@tenet-simulator/src/codegen/world/IWorld.sol";
 import { System } from "@latticexyz/world/src/System.sol";
+import { hasKey } from "@latticexyz/world/src/modules/keysintable/hasKey.sol";
 import { VoxelCoord, EventType, ObjectProperties } from "@tenet-utils/src/Types.sol";
 import { WorldBuildEventSystem as WorldBuildEventProtoSystem } from "@tenet-base-simulator/src/systems/WorldBuildEventSystem.sol";
 import { Mass, MassTableId } from "@tenet-simulator/src/codegen/tables/Mass.sol";
@@ -18,40 +19,32 @@ contract WorldBuildEventSystem is WorldBuildEventProtoSystem {
     bytes32 objectTypeId,
     VoxelCoord memory coord,
     bytes32 objectEntityId,
-    ObjectProperties memory objectProperties
+    ObjectProperties memory objectProperties,
+    bool isNewEntity
   ) public override {
     address worldAddress = _msgSender();
     if (objectEntityId != actingObjectEntityId) {
       IWorld(_world()).updateVelocityCache(worldAddress, objectEntityId);
     }
 
-    // address callerAddress = _msgSender();
-    // preEvent(callerAddress, actingEntity);
-    // bool entityExists = hasKey(MassTableId, Mass.encodeKeyTuple(callerAddress, entity.scale, entity.entityId));
-    // require(entityMass > 0, "Mass must be greater than zero to build");
-    // if (entityExists) {
-    //   uint256 currentMass = Mass.get(callerAddress, entity.scale, entity.entityId);
-    //   require(currentMass == 0, "Mass must be zero to build");
-    // } else {
-    //   uint256 terrainMass = getTerrainMass(callerAddress, entity.scale, coord);
-    //   require(terrainMass == 0 || terrainMass == entityMass, "Invalid terrain mass");
+    require(
+      hasKey(MassTableId, Mass.encodeKeyTuple(worldAddress, objectEntityId)),
+      "WorldBuildEventSystem: Entity is not initialized"
+    );
+    uint256 currentMass = Mass.get(worldAddress, objectEntityId);
+    require(objectProperties.mass > 0, "WorldBuildEventSystem: Mass must be greater than zero to build");
+    if (isNewEntity) {
+      require(currentMass == 0 || currentMass == objectProperties.mass, "WorldBuildEventSystem: Invalid terrain mass");
+    } else {
+      require(currentMass == 0, "WorldBuildEventSystem: Mass must be zero to build");
+    }
 
-    //   // Set initial values
-    //   Mass.set(callerAddress, entity.scale, entity.entityId, 0); // Set to zero to prevent double build
-    //   Energy.set(callerAddress, entity.scale, entity.entityId, getTerrainEnergy(callerAddress, entity.scale, coord));
-    //   Velocity.set(
-    //     callerAddress,
-    //     entity.scale,
-    //     entity.entityId,
-    //     block.number,
-    //     abi.encode(getTerrainVelocity(callerAddress, entity.scale, coord))
-    //   );
-    // }
-
-    // int256 massDelta = uint256ToInt256(entityMass);
-    // IWorld(_world()).updateMass(entity, coord, massDelta, entity, coord, massDelta);
-
-    // IWorld(_world()).temperatureBehaviour(callerAddress, entity);
+    IWorld(_world()).massTransformation(
+      objectEntityId,
+      coord,
+      abi.encode(currentMass),
+      abi.encode(objectProperties.mass - currentMass)
+    );
   }
 
   function postBuildEvent(

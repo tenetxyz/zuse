@@ -14,7 +14,8 @@ contract WorldBuildEventSystem is WorldBuildEventProtoSystem {
     bytes32 objectTypeId,
     VoxelCoord memory coord,
     bytes32 objectEntityId,
-    ObjectProperties memory objectProperties
+    ObjectProperties memory objectProperties,
+    bool isNewEntity
   ) public override {
     address world = _msgSender();
     Mass.set(world, objectEntityId, objectProperties.mass);

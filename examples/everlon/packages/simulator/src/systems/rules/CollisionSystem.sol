@@ -19,6 +19,7 @@ import { VoxelCoord, ObjectProperties } from "@tenet-utils/src/Types.sol";
 import { getEntityAtCoord, getVoxelCoordStrict, getEntityIdFromObjectEntityId, getVonNeumannNeighbourEntities } from "@tenet-base-world/src/Utils.sol";
 import { isZeroCoord, voxelCoordsAreEqual, dot, mulScalar, divScalar, add, sub } from "@tenet-utils/src/VoxelCoordUtils.sol";
 import { abs, absInt32 } from "@tenet-utils/src/MathUtils.sol";
+import { WORLD_MOVE_SIG } from "@tenet-base-world/src/Constants.sol";
 import { uint256ToInt32, int256ToUint256, safeSubtract } from "@tenet-utils/src/TypeUtils.sol";
 
 struct CollisionData {
@@ -196,7 +197,7 @@ contract CollisionSystem is System {
         // Note: we can't use IMoveSystem here because we need to safe call it
         (bool moveSuccess, bytes memory moveReturnData) = worldAddress.call(
           abi.encodeWithSignature(
-            "move(bytes32,bytes32,(int32,int32,int32),(int32,int32,int32))", // TODO: Import signature from base-world
+            WORLD_MOVE_SIG,
             actingObjectEntityId,
             objectTypeId,
             workingCoord,

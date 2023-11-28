@@ -19,6 +19,7 @@ import { addUint256AndInt256, int256ToUint256 } from "@tenet-utils/src/TypeUtils
 import { getVelocity } from "@tenet-simulator/src/Utils.sol";
 import { voxelCoordsAreEqual } from "@tenet-utils/src/VoxelCoordUtils.sol";
 import { getEntityIdFromObjectEntityId, getVoxelCoordStrict } from "@tenet-base-world/src/Utils.sol";
+import { WORLD_MOVE_SIG } from "@tenet-base-world/src/Constants.sol";
 
 contract TemperatureVelocityConstraintSystem is Constraint {
   function registerTemperatureVelocitySelector() public {
@@ -88,7 +89,7 @@ contract TemperatureVelocityConstraintSystem is Constraint {
       // Note: we can't use IMoveSystem here because we need to safe call it
       (bool success, bytes memory returnData) = worldAddress.call(
         abi.encodeWithSignature(
-          "move(bytes32,bytes32,(int32,int32,int32),(int32,int32,int32))", // TODO: Import signature from base-world
+          WORLD_MOVE_SIG,
           senderObjectEntityId,
           objectTypeId,
           workingCoord,

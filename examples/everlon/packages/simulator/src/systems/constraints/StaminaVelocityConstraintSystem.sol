@@ -59,7 +59,7 @@ contract StaminaVelocityConstraintSystem is Constraint {
     bytes memory fromAmount,
     bytes memory toAmount
   ) internal override {
-    address worldAddress = super.getworldAddress();
+    address worldAddress = super.getCallerAddress();
     require(
       hasKey(VelocityTableId, Velocity.encodeKeyTuple(worldAddress, objectEntityId)),
       "StaminaVelocityConstraintSystem: Receiver entity not initialized"

@@ -39,7 +39,7 @@ contract CollisionSystem is System {
     address worldAddress,
     bytes32 centerObjectEntityId,
     bytes32 actingObjectEntityId
-  ) public returns (VoxelEntity memory) {
+  ) public returns (bytes32) {
     CollisionData[] memory centerEntitiesToCheckQueue = new CollisionData[](NUM_MAX_COLLISIONS_UPDATE_DEPTH);
     uint256 centerEntitiesToCheckQueueIdx = 0;
     uint256 useQueueIdx = 0;
@@ -168,7 +168,7 @@ contract CollisionSystem is System {
   function tryToReachTargetVelocity(
     address worldAddress,
     bytes32 objectTypeId,
-    VoxelEntity memory actingObjectEntityId,
+    bytes32 actingObjectEntityId,
     VoxelCoord memory startingCoord,
     int32 vDelta,
     CoordDirection direction
@@ -204,7 +204,8 @@ contract CollisionSystem is System {
           bytes32 newEntityId;
           {
             bytes32 oldEntityId;
-            (oldEntityId, newEntityId) = abi.decode(moveReturnData, (VoxelEntity, VoxelEntity));
+            // TODO: Should do safe decoding here
+            (oldEntityId, newEntityId) = abi.decode(moveReturnData, (bytes32, bytes32));
             if (ObjectEntity.get(oldEntityId) == newActingObjectEntityId) {
               newActingObjectEntityId = ObjectEntity.get(newEntityId);
             }

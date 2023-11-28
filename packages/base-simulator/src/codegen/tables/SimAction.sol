@@ -18,15 +18,14 @@ import { Schema, SchemaLib } from "@latticexyz/store/src/Schema.sol";
 import { PackedCounter, PackedCounterLib } from "@latticexyz/store/src/PackedCounter.sol";
 
 // Import user types
-import { SimTable, ValueType } from "@tenet-utils/src/Types.sol";
+import { SimTable } from "@tenet-utils/src/Types.sol";
 
 bytes32 constant _tableId = bytes32(abi.encodePacked(bytes16(""), bytes16("SimAction")));
 bytes32 constant SimActionTableId = _tableId;
 
 struct SimActionData {
-  bytes4 selector;
-  ValueType senderValueType;
-  ValueType receiverValueType;
+  bytes4 transformationSelector;
+  bytes4 transferSelector;
 }
 
 library SimAction {
@@ -41,10 +40,9 @@ library SimAction {
 
   /** Get the table's value schema */
   function getValueSchema() internal pure returns (Schema) {
-    SchemaType[] memory _schema = new SchemaType[](3);
+    SchemaType[] memory _schema = new SchemaType[](2);
     _schema[0] = SchemaType.BYTES4;
-    _schema[1] = SchemaType.UINT8;
-    _schema[2] = SchemaType.UINT8;
+    _schema[1] = SchemaType.BYTES4;
 
     return SchemaLib.encode(_schema);
   }
@@ -58,10 +56,9 @@ library SimAction {
 
   /** Get the table's field names */
   function getFieldNames() internal pure returns (string[] memory fieldNames) {
-    fieldNames = new string[](3);
-    fieldNames[0] = "selector";
-    fieldNames[1] = "senderValueType";
-    fieldNames[2] = "receiverValueType";
+    fieldNames = new string[](2);
+    fieldNames[0] = "transformationSelector";
+    fieldNames[1] = "transferSelector";
   }
 
   /** Register the table's key schema, value schema, key names and value names */
@@ -74,8 +71,11 @@ library SimAction {
     _store.registerTable(_tableId, getKeySchema(), getValueSchema(), getKeyNames(), getFieldNames());
   }
 
-  /** Get selector */
-  function getSelector(SimTable senderTable, SimTable receiverTable) internal view returns (bytes4 selector) {
+  /** Get transformationSelector */
+  function getTransformationSelector(
+    SimTable senderTable,
+    SimTable receiverTable
+  ) internal view returns (bytes4 transformationSelector) {
     bytes32[] memory _keyTuple = new bytes32[](2);
     _keyTuple[0] = bytes32(uint256(uint8(senderTable)));
     _keyTuple[1] = bytes32(uint256(uint8(receiverTable)));
@@ -84,12 +84,12 @@ library SimAction {
     return (Bytes.slice4(_blob, 0));
   }
 
-  /** Get selector (using the specified store) */
-  function getSelector(
+  /** Get transformationSelector (using the specified store) */
+  function getTransformationSelector(
     IStore _store,
     SimTable senderTable,
     SimTable receiverTable
-  ) internal view returns (bytes4 selector) {
+  ) internal view returns (bytes4 transformationSelector) {
     bytes32[] memory _keyTuple = new bytes32[](2);
     _keyTuple[0] = bytes32(uint256(uint8(senderTable)));
     _keyTuple[1] = bytes32(uint256(uint8(receiverTable)));
@@ -98,122 +98,81 @@ library SimAction {
     return (Bytes.slice4(_blob, 0));
   }
 
-  /** Set selector */
-  function setSelector(SimTable senderTable, SimTable receiverTable, bytes4 selector) internal {
+  /** Set transformationSelector */
+  function setTransformationSelector(
+    SimTable senderTable,
+    SimTable receiverTable,
+    bytes4 transformationSelector
+  ) internal {
     bytes32[] memory _keyTuple = new bytes32[](2);
     _keyTuple[0] = bytes32(uint256(uint8(senderTable)));
     _keyTuple[1] = bytes32(uint256(uint8(receiverTable)));
 
-    StoreSwitch.setField(_tableId, _keyTuple, 0, abi.encodePacked((selector)), getValueSchema());
+    StoreSwitch.setField(_tableId, _keyTuple, 0, abi.encodePacked((transformationSelector)), getValueSchema());
   }
 
-  /** Set selector (using the specified store) */
-  function setSelector(IStore _store, SimTable senderTable, SimTable receiverTable, bytes4 selector) internal {
+  /** Set transformationSelector (using the specified store) */
+  function setTransformationSelector(
+    IStore _store,
+    SimTable senderTable,
+    SimTable receiverTable,
+    bytes4 transformationSelector
+  ) internal {
     bytes32[] memory _keyTuple = new bytes32[](2);
     _keyTuple[0] = bytes32(uint256(uint8(senderTable)));
     _keyTuple[1] = bytes32(uint256(uint8(receiverTable)));
 
-    _store.setField(_tableId, _keyTuple, 0, abi.encodePacked((selector)), getValueSchema());
+    _store.setField(_tableId, _keyTuple, 0, abi.encodePacked((transformationSelector)), getValueSchema());
   }
 
-  /** Get senderValueType */
-  function getSenderValueType(
+  /** Get transferSelector */
+  function getTransferSelector(
     SimTable senderTable,
     SimTable receiverTable
-  ) internal view returns (ValueType senderValueType) {
+  ) internal view returns (bytes4 transferSelector) {
     bytes32[] memory _keyTuple = new bytes32[](2);
     _keyTuple[0] = bytes32(uint256(uint8(senderTable)));
     _keyTuple[1] = bytes32(uint256(uint8(receiverTable)));
 
     bytes memory _blob = StoreSwitch.getField(_tableId, _keyTuple, 1, getValueSchema());
-    return ValueType(uint8(Bytes.slice1(_blob, 0)));
+    return (Bytes.slice4(_blob, 0));
   }
 
-  /** Get senderValueType (using the specified store) */
-  function getSenderValueType(
+  /** Get transferSelector (using the specified store) */
+  function getTransferSelector(
     IStore _store,
     SimTable senderTable,
     SimTable receiverTable
-  ) internal view returns (ValueType senderValueType) {
+  ) internal view returns (bytes4 transferSelector) {
     bytes32[] memory _keyTuple = new bytes32[](2);
     _keyTuple[0] = bytes32(uint256(uint8(senderTable)));
     _keyTuple[1] = bytes32(uint256(uint8(receiverTable)));
 
     bytes memory _blob = _store.getField(_tableId, _keyTuple, 1, getValueSchema());
-    return ValueType(uint8(Bytes.slice1(_blob, 0)));
+    return (Bytes.slice4(_blob, 0));
   }
 
-  /** Set senderValueType */
-  function setSenderValueType(SimTable senderTable, SimTable receiverTable, ValueType senderValueType) internal {
+  /** Set transferSelector */
+  function setTransferSelector(SimTable senderTable, SimTable receiverTable, bytes4 transferSelector) internal {
     bytes32[] memory _keyTuple = new bytes32[](2);
     _keyTuple[0] = bytes32(uint256(uint8(senderTable)));
     _keyTuple[1] = bytes32(uint256(uint8(receiverTable)));
 
-    StoreSwitch.setField(_tableId, _keyTuple, 1, abi.encodePacked(uint8(senderValueType)), getValueSchema());
+    StoreSwitch.setField(_tableId, _keyTuple, 1, abi.encodePacked((transferSelector)), getValueSchema());
   }
 
-  /** Set senderValueType (using the specified store) */
-  function setSenderValueType(
+  /** Set transferSelector (using the specified store) */
+  function setTransferSelector(
     IStore _store,
     SimTable senderTable,
     SimTable receiverTable,
-    ValueType senderValueType
+    bytes4 transferSelector
   ) internal {
     bytes32[] memory _keyTuple = new bytes32[](2);
     _keyTuple[0] = bytes32(uint256(uint8(senderTable)));
     _keyTuple[1] = bytes32(uint256(uint8(receiverTable)));
 
-    _store.setField(_tableId, _keyTuple, 1, abi.encodePacked(uint8(senderValueType)), getValueSchema());
-  }
-
-  /** Get receiverValueType */
-  function getReceiverValueType(
-    SimTable senderTable,
-    SimTable receiverTable
-  ) internal view returns (ValueType receiverValueType) {
-    bytes32[] memory _keyTuple = new bytes32[](2);
-    _keyTuple[0] = bytes32(uint256(uint8(senderTable)));
-    _keyTuple[1] = bytes32(uint256(uint8(receiverTable)));
-
-    bytes memory _blob = StoreSwitch.getField(_tableId, _keyTuple, 2, getValueSchema());
-    return ValueType(uint8(Bytes.slice1(_blob, 0)));
-  }
-
-  /** Get receiverValueType (using the specified store) */
-  function getReceiverValueType(
-    IStore _store,
-    SimTable senderTable,
-    SimTable receiverTable
-  ) internal view returns (ValueType receiverValueType) {
-    bytes32[] memory _keyTuple = new bytes32[](2);
-    _keyTuple[0] = bytes32(uint256(uint8(senderTable)));
-    _keyTuple[1] = bytes32(uint256(uint8(receiverTable)));
-
-    bytes memory _blob = _store.getField(_tableId, _keyTuple, 2, getValueSchema());
-    return ValueType(uint8(Bytes.slice1(_blob, 0)));
-  }
-
-  /** Set receiverValueType */
-  function setReceiverValueType(SimTable senderTable, SimTable receiverTable, ValueType receiverValueType) internal {
-    bytes32[] memory _keyTuple = new bytes32[](2);
-    _keyTuple[0] = bytes32(uint256(uint8(senderTable)));
-    _keyTuple[1] = bytes32(uint256(uint8(receiverTable)));
-
-    StoreSwitch.setField(_tableId, _keyTuple, 2, abi.encodePacked(uint8(receiverValueType)), getValueSchema());
-  }
-
-  /** Set receiverValueType (using the specified store) */
-  function setReceiverValueType(
-    IStore _store,
-    SimTable senderTable,
-    SimTable receiverTable,
-    ValueType receiverValueType
-  ) internal {
-    bytes32[] memory _keyTuple = new bytes32[](2);
-    _keyTuple[0] = bytes32(uint256(uint8(senderTable)));
-    _keyTuple[1] = bytes32(uint256(uint8(receiverTable)));
-
-    _store.setField(_tableId, _keyTuple, 2, abi.encodePacked(uint8(receiverValueType)), getValueSchema());
+    _store.setField(_tableId, _keyTuple, 1, abi.encodePacked((transferSelector)), getValueSchema());
   }
 
   /** Get the full data */
@@ -244,11 +203,10 @@ library SimAction {
   function set(
     SimTable senderTable,
     SimTable receiverTable,
-    bytes4 selector,
-    ValueType senderValueType,
-    ValueType receiverValueType
+    bytes4 transformationSelector,
+    bytes4 transferSelector
   ) internal {
-    bytes memory _data = encode(selector, senderValueType, receiverValueType);
+    bytes memory _data = encode(transformationSelector, transferSelector);
 
     bytes32[] memory _keyTuple = new bytes32[](2);
     _keyTuple[0] = bytes32(uint256(uint8(senderTable)));
@@ -262,11 +220,10 @@ library SimAction {
     IStore _store,
     SimTable senderTable,
     SimTable receiverTable,
-    bytes4 selector,
-    ValueType senderValueType,
-    ValueType receiverValueType
+    bytes4 transformationSelector,
+    bytes4 transferSelector
   ) internal {
-    bytes memory _data = encode(selector, senderValueType, receiverValueType);
+    bytes memory _data = encode(transformationSelector, transferSelector);
 
     bytes32[] memory _keyTuple = new bytes32[](2);
     _keyTuple[0] = bytes32(uint256(uint8(senderTable)));
@@ -277,30 +234,24 @@ library SimAction {
 
   /** Set the full data using the data struct */
   function set(SimTable senderTable, SimTable receiverTable, SimActionData memory _table) internal {
-    set(senderTable, receiverTable, _table.selector, _table.senderValueType, _table.receiverValueType);
+    set(senderTable, receiverTable, _table.transformationSelector, _table.transferSelector);
   }
 
   /** Set the full data using the data struct (using the specified store) */
   function set(IStore _store, SimTable senderTable, SimTable receiverTable, SimActionData memory _table) internal {
-    set(_store, senderTable, receiverTable, _table.selector, _table.senderValueType, _table.receiverValueType);
+    set(_store, senderTable, receiverTable, _table.transformationSelector, _table.transferSelector);
   }
 
   /** Decode the tightly packed blob using this table's schema */
   function decode(bytes memory _blob) internal pure returns (SimActionData memory _table) {
-    _table.selector = (Bytes.slice4(_blob, 0));
+    _table.transformationSelector = (Bytes.slice4(_blob, 0));
 
-    _table.senderValueType = ValueType(uint8(Bytes.slice1(_blob, 4)));
-
-    _table.receiverValueType = ValueType(uint8(Bytes.slice1(_blob, 5)));
+    _table.transferSelector = (Bytes.slice4(_blob, 4));
   }
 
   /** Tightly pack full data using this table's schema */
-  function encode(
-    bytes4 selector,
-    ValueType senderValueType,
-    ValueType receiverValueType
-  ) internal pure returns (bytes memory) {
-    return abi.encodePacked(selector, senderValueType, receiverValueType);
+  function encode(bytes4 transformationSelector, bytes4 transferSelector) internal pure returns (bytes memory) {
+    return abi.encodePacked(transformationSelector, transferSelector);
   }
 
   /** Encode keys as a bytes32 array using this table's schema */

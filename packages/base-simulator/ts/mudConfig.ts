@@ -11,9 +11,8 @@ const SIMULATOR_TABLES: Record<string, TableConfig> = {
       receiverTable: "SimTable",
     },
     schema: {
-      selector: "bytes4",
-      senderValueType: "ValueType",
-      receiverValueType: "ValueType",
+      transformationSelector: "bytes4",
+      transferSelector: "bytes4",
     },
   },
 };

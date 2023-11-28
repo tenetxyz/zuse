@@ -70,8 +70,8 @@ find "src/codegen/tables" -type f | while read -r input_file; do
   replacement='import { ObjectType } from "@tenet-utils/src/Types.sol"'
   awk -v target="$target" -v replacement="$replacement" '{ gsub(target, replacement); print }' $input_file > temp && mv temp $input_file
 
-  target='import { SimTable, ValueType } from "./../Types.sol"'
-  replacement='import { SimTable, ValueType } from "@tenet-utils/src/Types.sol"'
+  target='import { SimTable } from "./../Types.sol"'
+  replacement='import { SimTable } from "@tenet-utils/src/Types.sol"'
   awk -v target="$target" -v replacement="$replacement" '{ gsub(target, replacement); print }' $input_file > temp && mv temp $input_file
 
   target='import { PlantStage, EventType } from "./../Types.sol"'

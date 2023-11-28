@@ -5,11 +5,14 @@ import { System } from "@latticexyz/world/src/System.sol";
 import { IStore } from "@latticexyz/store/src/IStore.sol";
 import { hasKey } from "@latticexyz/world/src/modules/keysintable/hasKey.sol";
 import { SimInitSystem as SimInitProtoSystem } from "@tenet-base-simulator/src/systems/SimInitSystem.sol";
+
 import { Mass, MassTableId } from "@tenet-simulator/src/codegen/tables/Mass.sol";
 import { Energy, EnergyTableId } from "@tenet-simulator/src/codegen/tables/Energy.sol";
+import { Velocity, VelocityData, VelocityTableId } from "@tenet-simulator/src/codegen/tables/Velocity.sol";
 import { Health, HealthData, HealthTableId } from "@tenet-simulator/src/codegen/tables/Health.sol";
 import { Stamina, StaminaTableId } from "@tenet-simulator/src/codegen/tables/Stamina.sol";
-import { ObjectProperties } from "@tenet-utils/src/Types.sol";
+
+import { VoxelCoord, ObjectProperties } from "@tenet-utils/src/Types.sol";
 
 contract SimInitSystem is SimInitProtoSystem {
   function initObject(bytes32 objectEntityId, ObjectProperties memory initialProperties) public override {
@@ -22,8 +25,17 @@ contract SimInitSystem is SimInitProtoSystem {
       !hasKey(EnergyTableId, Energy.encodeKeyTuple(world, objectEntityId)),
       "SimInitSystem: Energy for object already initialized"
     );
+    require(
+      !hasKey(EnergyTableId, Energy.encodeKeyTuple(world, objectEntityId)),
+      "SimInitSystem: Energy for object already initialized"
+    );
     Mass.set(world, objectEntityId, initialProperties.mass);
     Energy.set(world, objectEntityId, initialProperties.energy);
+    bytes memory velocity = initialProperties.velocity;
+    if (velocity.length == 0) {
+      velocity = abi.encode(VoxelCoord(0, 0, 0));
+    }
+    Velocity.set(world, objectEntityId, VelocityData({ lastUpdateBlock: block.number, velocity: velocity }));
     if (initialProperties.health > 0) {
       require(
         !hasKey(HealthTableId, Health.encodeKeyTuple(world, objectEntityId)),

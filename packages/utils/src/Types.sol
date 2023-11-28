@@ -33,7 +33,13 @@ enum BlockDirection {
   Down
 }
 
+enum ActionType {
+  Transformation,
+  Transfer
+}
+
 struct Action {
+  ActionType actionType;
   SimTable senderTable;
   bytes senderValue;
   bytes32 targetObjectEntityId;

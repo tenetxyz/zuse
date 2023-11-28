@@ -20,6 +20,7 @@ contract WorldMoveEventSystem is WorldMoveEventProtoSystem {
     bytes32 objectTypeId,
     VoxelCoord memory oldCoord,
     VoxelCoord memory newCoord,
+    bytes32 oldObjectEntityId,
     bytes32 objectEntityId
   ) public override returns (bytes32) {
     address world = _msgSender();

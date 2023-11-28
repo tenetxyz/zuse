@@ -106,6 +106,7 @@ abstract contract MoveEvent is Event {
       objectTypeId,
       oldCoord,
       coord,
+      oldObjectEntityId,
       objectEntityId
     );
 

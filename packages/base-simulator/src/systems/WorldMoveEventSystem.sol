@@ -17,6 +17,7 @@ abstract contract WorldMoveEventSystem is System {
     bytes32 objectTypeId,
     VoxelCoord memory oldCoord,
     VoxelCoord memory newCoord,
+    bytes32 oldObjectEntityId,
     bytes32 objectEntityId
   ) public virtual returns (bytes32);
 

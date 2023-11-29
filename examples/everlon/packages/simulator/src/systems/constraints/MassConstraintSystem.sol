@@ -53,7 +53,10 @@ contract MassConstraintSystem is Constraint {
     bytes memory toAmount
   ) internal override {
     address worldAddress = super.getCallerAddress();
-    require(hasKey(MassTableId, Mass.encodeKeyTuple(worldAddress, objectEntityId)), "Mass must be initialized");
+    require(
+      hasKey(MassTableId, Mass.encodeKeyTuple(worldAddress, objectEntityId)),
+      "MassConstraintSystem: Mass must be initialized"
+    );
     (int256 senderMassDelta, int256 receiverMassDelta) = decodeAmounts(fromAmount, toAmount);
     if (receiverMassDelta == 0) {
       return;

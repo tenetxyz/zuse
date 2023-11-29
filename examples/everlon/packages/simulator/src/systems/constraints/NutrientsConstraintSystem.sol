@@ -80,11 +80,15 @@ contract NutrientsConstraintSystem is Constraint {
       "NutrientsConstraintSystem: Receiver entity must be initialized"
     );
 
-    (int256 senderNutrientsDelta, int256 receiverNutrientsDelta) = decodeAmounts(fromAmount, toAmount);
-    require(receiverNutrientsDelta > 0, "NutrientsConstraintSystem: Cannot decrease someone's nutrients");
-    require(senderNutrientsDelta < 0, "NutrientsConstraintSystem: Cannot increase your own nutrients");
-    uint256 senderNutrients = int256ToUint256(receiverNutrientsDelta);
-    uint256 receiverNutrients = int256ToUint256(receiverNutrientsDelta);
+    uint256 senderNutrients;
+    uint256 receiverNutrients;
+    {
+      (int256 senderNutrientsDelta, int256 receiverNutrientsDelta) = decodeAmounts(fromAmount, toAmount);
+      require(receiverNutrientsDelta > 0, "NutrientsConstraintSystem: Cannot decrease someone's nutrients");
+      require(senderNutrientsDelta < 0, "NutrientsConstraintSystem: Cannot increase your own nutrients");
+      senderNutrients = int256ToUint256(receiverNutrientsDelta);
+      receiverNutrients = int256ToUint256(receiverNutrientsDelta);
+    }
 
     requireHasNPK(worldAddress, senderObjectEntityId);
     requireHasNPK(worldAddress, receiverObjectEntityId);
@@ -114,9 +118,9 @@ contract NutrientsConstraintSystem is Constraint {
 
     Nutrients.set(worldAddress, receiverObjectEntityId, currentReceiverNutrients + receiverNutrients);
     Nutrients.set(worldAddress, senderObjectEntityId, currentSenderNutrients - senderNutrients);
-    uint256 nutrientsCost = senderNutrients - receiverNutrients;
-    if (nutrientsCost > 0) {
-      IWorld(_world()).fluxEnergy(false, worldAddress, senderObjectEntityId, nutrientsCost);
+    uint256 energyCost = senderNutrients - receiverNutrients;
+    if (energyCost > 0) {
+      IWorld(_world()).fluxEnergy(false, worldAddress, senderObjectEntityId, energyCost);
     }
   }
 

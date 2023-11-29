@@ -173,6 +173,8 @@ export default tenetMudConfig({
         "StaminaVelocityConstraintSystem",
         "NutrientsConstraintSystem",
         "EnergyNutrientsConstraintSystem",
+        "NutrientsElixirConstraintSystem",
+        "NutrientsProteinConstraintSystem",
       ],
     },
     CollisionSystem: {

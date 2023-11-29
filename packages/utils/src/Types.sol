@@ -73,7 +73,7 @@ enum SimTable {
   Action,
   Nutrients,
   Nitrogen,
-  Phosphorous,
+  Phosphorus,
   Potassium,
   Elixir,
   Protein,
@@ -171,8 +171,8 @@ struct ObjectProperties {
   uint256 nutrients;
   uint256 nitrogen;
   bool hasNitrogen;
-  uint256 phosphorous;
-  bool hasPhosphorous;
+  uint256 phosphorus;
+  bool hasPhosphorus;
   uint256 potassium;
   bool hasPotassium;
   uint256 elixir;

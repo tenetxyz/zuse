@@ -15,7 +15,7 @@ export default tenetMudConfig({
       "Action",
       "Nutrients",
       "Nitrogen",
-      "Phosphorous",
+      "Phosphorus",
       "Potassium",
       "Elixir",
       "Protein",
@@ -117,13 +117,13 @@ export default tenetMudConfig({
         nitrogen: "uint256",
       },
     },
-    Phosphorous: {
+    Phosphorus: {
       keySchema: {
         worldAddress: "address",
         objectEntityId: "bytes32",
       },
       schema: {
-        phosphorous: "uint256",
+        phosphorus: "uint256",
       },
     },
     Potassium: {
@@ -246,7 +246,7 @@ export default tenetMudConfig({
     {
       name: "KeysInTableModule",
       root: true,
-      args: [resolveTableId("Phosphorous")],
+      args: [resolveTableId("Phosphorus")],
     },
     {
       name: "KeysInTableModule",

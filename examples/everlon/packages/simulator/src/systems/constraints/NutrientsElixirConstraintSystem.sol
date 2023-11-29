@@ -78,11 +78,16 @@ contract NutrientsElixirConstraintSystem is Constraint {
       hasKey(MassTableId, Mass.encodeKeyTuple(worldAddress, receiverObjectEntityId)),
       "NutrientsElixirConstraintSystem: Receiver entity must be initialized"
     );
-    (int256 senderNutrientsDelta, int256 receiverElixirDelta) = decodeAmounts(fromAmount, toAmount);
-    require(receiverElixirDelta > 0, "NutrientsElixirConstraintSystem: Cannot decrease someone's elixir");
-    require(senderNutrientsDelta < 0, "NutrientsElixirConstraintSystem: Cannot increase your own nutrients");
-    uint256 senderNutrients = int256ToUint256(senderNutrientsDelta);
-    uint256 receiverElixir = int256ToUint256(receiverElixirDelta);
+
+    uint256 senderNutrients;
+    uint256 receiverElixir;
+    {
+      (int256 senderNutrientsDelta, int256 receiverElixirDelta) = decodeAmounts(fromAmount, toAmount);
+      require(receiverElixirDelta > 0, "NutrientsElixirConstraintSystem: Cannot decrease someone's elixir");
+      require(senderNutrientsDelta < 0, "NutrientsElixirConstraintSystem: Cannot increase your own nutrients");
+      senderNutrients = int256ToUint256(senderNutrientsDelta);
+      receiverElixir = int256ToUint256(receiverElixirDelta);
+    }
 
     requireHasNPK(worldAddress, senderObjectEntityId);
     {
@@ -117,11 +122,9 @@ contract NutrientsElixirConstraintSystem is Constraint {
     Elixir.set(worldAddress, receiverObjectEntityId, Elixir.get(worldAddress, receiverObjectEntityId) + receiverElixir);
     Nutrients.set(worldAddress, senderObjectEntityId, currentSenderNutrients - senderNutrients);
 
-    {
-      uint256 energyCost = senderNutrients - receiverElixir;
-      if (energyCost > 0) {
-        IWorld(_world()).fluxEnergy(false, worldAddress, senderObjectEntityId, energyCost);
-      }
+    uint256 energyCost = senderNutrients - receiverElixir;
+    if (energyCost > 0) {
+      IWorld(_world()).fluxEnergy(false, worldAddress, senderObjectEntityId, energyCost);
     }
   }
 }

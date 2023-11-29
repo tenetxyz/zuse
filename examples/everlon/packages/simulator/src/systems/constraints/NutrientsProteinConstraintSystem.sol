@@ -78,11 +78,16 @@ contract NutrientsProteinConstraintSystem is Constraint {
       hasKey(MassTableId, Mass.encodeKeyTuple(worldAddress, receiverObjectEntityId)),
       "NutrientsProteinConstraintSystem: Receiver entity must be initialized"
     );
-    (int256 senderNutrientsDelta, int256 receiverProteinDelta) = decodeAmounts(fromAmount, toAmount);
-    require(receiverProteinDelta > 0, "NutrientsProteinConstraintSystem: Cannot decrease someone's elixir");
-    require(senderNutrientsDelta < 0, "NutrientsProteinConstraintSystem: Cannot increase your own nutrients");
-    uint256 senderNutrients = int256ToUint256(senderNutrientsDelta);
-    uint256 receiverProtein = int256ToUint256(receiverProteinDelta);
+
+    uint256 senderNutrients;
+    uint256 receiverProtein;
+    {
+      (int256 senderNutrientsDelta, int256 receiverProteinDelta) = decodeAmounts(fromAmount, toAmount);
+      require(receiverProteinDelta > 0, "NutrientsProteinConstraintSystem: Cannot decrease someone's elixir");
+      require(senderNutrientsDelta < 0, "NutrientsProteinConstraintSystem: Cannot increase your own nutrients");
+      senderNutrients = int256ToUint256(senderNutrientsDelta);
+      receiverProtein = int256ToUint256(receiverProteinDelta);
+    }
 
     requireHasNPK(worldAddress, senderObjectEntityId);
     {
@@ -121,11 +126,9 @@ contract NutrientsProteinConstraintSystem is Constraint {
     );
     Nutrients.set(worldAddress, senderObjectEntityId, currentSenderNutrients - senderNutrients);
 
-    {
-      uint256 energyCost = senderNutrients - receiverProtein;
-      if (energyCost > 0) {
-        IWorld(_world()).fluxEnergy(false, worldAddress, senderObjectEntityId, energyCost);
-      }
+    uint256 energyCost = senderNutrients - receiverProtein;
+    if (energyCost > 0) {
+      IWorld(_world()).fluxEnergy(false, worldAddress, senderObjectEntityId, energyCost);
     }
   }
 }

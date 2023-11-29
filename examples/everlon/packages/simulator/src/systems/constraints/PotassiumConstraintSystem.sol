@@ -89,7 +89,7 @@ contract PotassiumConstraintSystem is Constraint {
   ) internal override {
     address worldAddress = super.getCallerAddress();
     require(
-      hasKey(PotassiumTableId, Potassium.encodeKeyTuple(worldAddress, objectEntityId)),
+      hasKey(PotassiumTableId, Potassium.encodeKeyTuple(worldAddress, senderObjectEntityId)),
       "PotassiumConstraintSystem: Potassium entity not initialized"
     );
     (int256 senderPotassiumDelta, int256 receiverPotassiumDelta) = decodeAmounts(fromAmount, toAmount);

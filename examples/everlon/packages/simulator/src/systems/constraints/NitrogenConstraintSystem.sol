@@ -89,7 +89,7 @@ contract NitrogenConstraintSystem is Constraint {
   ) internal override {
     address worldAddress = super.getCallerAddress();
     require(
-      hasKey(NitrogenTableId, Nitrogen.encodeKeyTuple(worldAddress, objectEntityId)),
+      hasKey(NitrogenTableId, Nitrogen.encodeKeyTuple(worldAddress, senderObjectEntityId)),
       "NitrogenConstraintSystem: Nitrogen entity not initialized"
     );
     (int256 senderNitrogenDelta, int256 receiverNitrogenDelta) = decodeAmounts(fromAmount, toAmount);

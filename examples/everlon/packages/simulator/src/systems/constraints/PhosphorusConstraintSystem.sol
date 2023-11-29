@@ -20,7 +20,7 @@ import { addUint256AndInt256, int256ToUint256 } from "@tenet-utils/src/TypeUtils
 import { NUM_MAX_INIT_NPK } from "@tenet-simulator/src/Constants.sol";
 
 contract PhosphorusConstraintSystem is Constraint {
-  function registerNitrogenSelector() public {
+  function registerPhosphorusSelector() public {
     SimAction.set(
       SimTable.Phosphorus,
       SimTable.Phosphorus,
@@ -89,7 +89,7 @@ contract PhosphorusConstraintSystem is Constraint {
   ) internal override {
     address worldAddress = super.getCallerAddress();
     require(
-      hasKey(PhosphorusTableId, Phosphorus.encodeKeyTuple(worldAddress, objectEntityId)),
+      hasKey(PhosphorusTableId, Phosphorus.encodeKeyTuple(worldAddress, senderObjectEntityId)),
       "PhosphorusConstraintSystem: Phosphorus entity not initialized"
     );
     (int256 senderPhosphorusDelta, int256 receiverPhosphorusDelta) = decodeAmounts(fromAmount, toAmount);

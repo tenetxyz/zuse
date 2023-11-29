@@ -14,74 +14,79 @@ import { Stamina, StaminaTableId } from "@tenet-simulator/src/codegen/tables/Sta
 import { Nitrogen, NitrogenTableId } from "@tenet-simulator/src/codegen/tables/Nitrogen.sol";
 import { Phosphorus, PhosphorusTableId } from "@tenet-simulator/src/codegen/tables/Phosphorus.sol";
 import { Potassium, PotassiumTableId } from "@tenet-simulator/src/codegen/tables/Potassium.sol";
+import { Element, ElementTableId } from "@tenet-simulator/src/codegen/tables/Element.sol";
 
-import { VoxelCoord, ObjectProperties } from "@tenet-utils/src/Types.sol";
+import { VoxelCoord, ObjectProperties, ElementType } from "@tenet-utils/src/Types.sol";
 import { NUM_MAX_INIT_NPK } from "@tenet-simulator/src/Constants.sol";
 
 contract SimInitSystem is SimInitProtoSystem {
   function initObject(bytes32 objectEntityId, ObjectProperties memory initialProperties) public override {
-    address world = _msgSender();
+    address worldAddress = _msgSender();
     require(
-      !hasKey(MassTableId, Mass.encodeKeyTuple(world, objectEntityId)),
+      !hasKey(MassTableId, Mass.encodeKeyTuple(worldAddress, objectEntityId)),
       "SimInitSystem: Mass for object already initialized"
     );
     require(
-      !hasKey(EnergyTableId, Energy.encodeKeyTuple(world, objectEntityId)),
+      !hasKey(EnergyTableId, Energy.encodeKeyTuple(worldAddress, objectEntityId)),
       "SimInitSystem: Energy for object already initialized"
     );
     require(
-      !hasKey(EnergyTableId, Energy.encodeKeyTuple(world, objectEntityId)),
+      !hasKey(EnergyTableId, Energy.encodeKeyTuple(worldAddress, objectEntityId)),
       "SimInitSystem: Energy for object already initialized"
     );
-    Mass.set(world, objectEntityId, initialProperties.mass);
-    Energy.set(world, objectEntityId, initialProperties.energy);
+    Mass.set(worldAddress, objectEntityId, initialProperties.mass);
+    Energy.set(worldAddress, objectEntityId, initialProperties.energy);
     bytes memory velocity = initialProperties.velocity;
     if (velocity.length == 0) {
       velocity = abi.encode(VoxelCoord(0, 0, 0));
     }
-    Velocity.set(world, objectEntityId, VelocityData({ lastUpdateBlock: block.number, velocity: velocity }));
+    Velocity.set(worldAddress, objectEntityId, VelocityData({ lastUpdateBlock: block.number, velocity: velocity }));
     if (initialProperties.health > 0) {
       require(
-        !hasKey(HealthTableId, Health.encodeKeyTuple(world, objectEntityId)),
+        !hasKey(HealthTableId, Health.encodeKeyTuple(worldAddress, objectEntityId)),
         "SimInitSystem: Health for object already initialized"
       );
       Health.set(
-        world,
+        worldAddress,
         objectEntityId,
         HealthData({ lastUpdateBlock: block.number, health: initialProperties.health })
       );
     }
+    if (initialProperties.elementType != ElementType.None) {
+      require(Element.get(worldAddress, objectEntityId) == ElementType.None, "SimInitSystem: Element type already set");
+      Element.set(worldAddress, objectEntityId, initialProperties.elementType);
+    }
     if (initialProperties.stamina > 0) {
       require(
-        !hasKey(StaminaTableId, Stamina.encodeKeyTuple(world, objectEntityId)),
+        !hasKey(StaminaTableId, Stamina.encodeKeyTuple(worldAddress, objectEntityId)),
         "SimInitSystem: Stamina for object already initialized"
       );
-      Stamina.set(world, objectEntityId, initialProperties.stamina);
+      Stamina.set(worldAddress, objectEntityId, initialProperties.stamina);
     }
 
     bool hasNPK = false;
     if (initialProperties.nitrogen > 0) {
       require(
-        !hasKey(NitrogenTableId, Nitrogen.encodeKeyTuple(world, objectEntityId)),
+        !hasKey(NitrogenTableId, Nitrogen.encodeKeyTuple(worldAddress, objectEntityId)),
         "SimInitSystem: Nitrogen for object already initialized"
       );
-      Nitrogen.set(world, objectEntityId, initialProperties.nitrogen);
+      Nitrogen.set(worldAddress, objectEntityId, initialProperties.nitrogen);
       hasNPK = true;
     }
     if (initialProperties.phosphorus > 0) {
       require(
-        !hasKey(PhosphorusTableId, Phosphorus.encodeKeyTuple(world, objectEntityId)),
+        !hasKey(PhosphorusTableId, Phosphorus.encodeKeyTuple(worldAddress, objectEntityId)),
         "SimInitSystem: Phosphorus for object already initialized"
       );
-      Phosphorus.set(world, objectEntityId, initialProperties.phosphorus);
+      Phosphorus.set(worldAddress, objectEntityId, initialProperties.phosphorus);
       hasNPK = true;
     }
     if (initialProperties.potassium > 0) {
       require(
-        !hasKey(PotassiumTableId, Potassium.encodeKeyTuple(world, objectEntityId)),
+        !hasKey(PotassiumTableId, Potassium.encodeKeyTuple(worldAddress, objectEntityId)),
         "SimInitSystem: Potassium for object already initialized"
       );
-      Potassium.set(world, objectEntityId, initialProperties.potassium);
+      Potassium.set(worldAddress, objectEntityId, initialProperties.potassium);
       hasNPK = true;
     }
 

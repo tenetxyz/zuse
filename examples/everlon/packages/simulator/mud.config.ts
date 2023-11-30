@@ -221,7 +221,6 @@ export default tenetMudConfig({
       openAccess: false,
       accessList: ["WorldMoveEventSystem", "WorldBuildEventSystem", "WorldMineEventSystem", "WorldActivateEventSystem"],
     },
-    }
   },
   modules: [
     {

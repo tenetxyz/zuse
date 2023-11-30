@@ -80,11 +80,11 @@ contract WorldMineEventSystem is WorldMineEventProtoSystem {
         objectEntityId,
         coord,
         SimTable.Energy,
-        uint256ToInt256(currentNutrients),
+        abi.encode(uint256ToInt256(currentNutrients)),
         objectEntityId,
         coord,
         SimTable.Nutrients,
-        uint256ToNegativeInt256(currentNutrients)
+        abi.encode(uint256ToNegativeInt256(currentNutrients))
       );
       require(transformSuccess, "WorldMineEventSystem: Failed to transform nutrients to energy");
     }
@@ -96,11 +96,11 @@ contract WorldMineEventSystem is WorldMineEventProtoSystem {
         objectEntityId,
         coord,
         SimTable.Energy,
-        uint256ToInt256(currentElixir),
+        abi.encode(uint256ToInt256(currentElixir)),
         objectEntityId,
         coord,
         SimTable.Elixir,
-        uint256ToNegativeInt256(currentElixir)
+        abi.encode(uint256ToNegativeInt256(currentElixir))
       );
       require(transformSuccess, "WorldMineEventSystem: Failed to transform elixir to energy");
     }
@@ -112,11 +112,11 @@ contract WorldMineEventSystem is WorldMineEventProtoSystem {
         objectEntityId,
         coord,
         SimTable.Energy,
-        uint256ToInt256(currentProtein),
+        abi.encode(uint256ToInt256(currentProtein)),
         objectEntityId,
         coord,
         SimTable.Protein,
-        uint256ToNegativeInt256(currentProtein)
+        abi.encode(uint256ToNegativeInt256(currentProtein))
       );
       require(transformSuccess, "WorldMineEventSystem: Failed to transform protein to energy");
     }
@@ -128,11 +128,11 @@ contract WorldMineEventSystem is WorldMineEventProtoSystem {
         objectEntityId,
         coord,
         SimTable.Energy,
-        uint256ToInt256(currentHealth),
+        abi.encode(uint256ToInt256(currentHealth)),
         objectEntityId,
         coord,
         SimTable.Health,
-        uint256ToNegativeInt256(currentHealth)
+        abi.encode(uint256ToNegativeInt256(currentHealth))
       );
       require(transformSuccess, "WorldMineEventSystem: Failed to transform health to energy");
     }
@@ -144,11 +144,11 @@ contract WorldMineEventSystem is WorldMineEventProtoSystem {
         objectEntityId,
         coord,
         SimTable.Energy,
-        uint256ToInt256(currentStamina),
+        abi.encode(uint256ToInt256(currentStamina)),
         objectEntityId,
         coord,
         SimTable.Stamina,
-        uint256ToNegativeInt256(currentStamina)
+        abi.encode(uint256ToNegativeInt256(currentStamina))
       );
       require(transformSuccess, "WorldMineEventSystem: Failed to transform stamina to energy");
     }
@@ -160,11 +160,11 @@ contract WorldMineEventSystem is WorldMineEventProtoSystem {
         objectEntityId,
         coord,
         SimTable.Energy,
-        uint256ToInt256(currentTemperature),
+        abi.encode(uint256ToInt256(currentTemperature)),
         objectEntityId,
         coord,
         SimTable.Temperature,
-        uint256ToNegativeInt256(currentTemperature)
+        abi.encode(uint256ToNegativeInt256(currentTemperature))
       );
       require(transformSuccess, "WorldMineEventSystem: Failed to transform temperature to energy");
     }

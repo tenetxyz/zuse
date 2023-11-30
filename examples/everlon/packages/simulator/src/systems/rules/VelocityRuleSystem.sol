@@ -19,7 +19,7 @@ import { isZeroCoord, voxelCoordsAreEqual } from "@tenet-utils/src/VoxelCoordUti
 import { abs, absInt32 } from "@tenet-utils/src/MathUtils.sol";
 import { NUM_BLOCKS_BEFORE_REDUCE_VELOCITY } from "@tenet-simulator/src/Constants.sol";
 
-contract VelocitySystem is System {
+contract VelocityRuleSystem is System {
   function updateVelocityCache(address worldAddress, bytes32 objectEntityId) public {
     if (!hasKey(VelocityTableId, Velocity.encodeKeyTuple(worldAddress, objectEntityId))) {
       return;

@@ -36,7 +36,7 @@ enum CoordDirection {
 
 uint256 constant NUM_MAX_COLLISIONS_UPDATE_DEPTH = 50;
 
-contract CollisionSystem is System {
+contract CollisionRuleSystem is System {
   function onCollision(
     address worldAddress,
     bytes32 centerObjectEntityId,

@@ -19,7 +19,7 @@ import { getEntityAtCoord, getVoxelCoordStrict, getEntityIdFromObjectEntityId, g
 import { VoxelCoord, SimTable, ValueType, ElementType } from "@tenet-utils/src/Types.sol";
 import { addUint256AndInt256, int256ToUint256, safeSubtract } from "@tenet-utils/src/TypeUtils.sol";
 
-contract CombatMoveSystem is System {
+contract CombatMoveRuleSystem is System {
   // Go through all combat moves that are not none, and apply them
   // This would happen when an object picks a combat move, and the target object
   // doesn't respond with a combat move

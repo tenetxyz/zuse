@@ -24,7 +24,7 @@ uint256 constant MAXIMUM_ENERGY_IN = 2500;
 
 uint256 constant MAX_FLUX_RADIUS = 255;
 
-contract FluxEnergySystem is System {
+contract FluxEnergyRuleSystem is System {
   function fluxEnergy(bool isFluxIn, address worldAddress, bytes32 centerObjectEntityId, uint256 energyToFlux) public {
     require(
       hasKey(EnergyTableId, Energy.encodeKeyTuple(worldAddress, centerObjectEntityId)),

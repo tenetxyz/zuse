@@ -164,28 +164,29 @@ export default tenetMudConfig({
     },
   },
   systems: {
-    FluxEnergySystem: {
-      name: "FluxEnergySystem",
+    FluxEnergyRuleSystem: {
+      name: "FluxEnergyRuleSy",
       openAccess: false,
       accessList: [
-        "VelocitySystem",
+        "VelocityRuleSystem",
         "MassConstraintSystem",
         "StaminaVelocityConstraintSystem",
         "NutrientsConstraintSystem",
         "EnergyNutrientsConstraintSystem",
         "NutrientsElixirConstraintSystem",
         "NutrientsProteinConstraintSystem",
-        "CombatMoveSystem",
+        "CombatMoveRuleSystem",
         "StaminaCombatMoveConstraintSystem",
+        "TemperatureConstraintSystem",
       ],
     },
-    CollisionSystem: {
-      name: "CollisionSystem",
+    CollisionRuleSystem: {
+      name: "CollisionRuleSys",
       openAccess: false,
       accessList: ["WorldMoveEventSystem"],
     },
-    VelocitySystem: {
-      name: "VelocitySystem",
+    VelocityRuleSystem: {
+      name: "VelocityRuleSyst",
       openAccess: false,
       accessList: [
         "WorldMoveEventSystem",
@@ -196,8 +197,8 @@ export default tenetMudConfig({
         "StaminaVelocityConstraintSystem",
       ],
     },
-    CombatMoveSystem: {
-      name: "CombatMoveSystem",
+    CombatMoveRuleSystem: {
+      name: "CombatMoveRuleSy",
       openAccess: false,
       accessList: ["WorldMoveEventSystem", "WorldBuildEventSystem", "WorldMineEventSystem", "WorldActivateEventSystem"],
     },

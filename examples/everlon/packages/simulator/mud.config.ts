@@ -178,6 +178,7 @@ export default tenetMudConfig({
         "CombatMoveRuleSystem",
         "StaminaCombatMoveConstraintSystem",
         "TemperatureConstraintSystem",
+        "EnergyTemperatureConstraintSystem",
       ],
     },
     CollisionRuleSystem: {

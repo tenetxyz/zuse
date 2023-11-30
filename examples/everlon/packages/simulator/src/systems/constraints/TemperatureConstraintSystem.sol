@@ -81,7 +81,7 @@ contract TemperatureConstraintSystem is Constraint {
       require(receiverTemperatureDelta > 0, "Cannot decrease someone's temperature");
       require(senderTemperatureDelta < 0, "Cannot increase your own temperature");
       require(
-        Stamina.get(worldAddress, receiverObjectEntityId) == 0,
+        !hasKey(StaminaTableId, Stamina.encodeKeyTuple(worldAddress, receiverObjectEntityId)),
         "TemperatureConstraintSystem: Can't have both stamina and temperature"
       );
       senderTemperature = int256ToUint256(receiverTemperatureDelta);

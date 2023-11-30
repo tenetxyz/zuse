@@ -16,17 +16,6 @@ import { getVelocity } from "@tenet-simulator/src/Utils.sol";
 import { VoxelCoord, EventType } from "@tenet-utils/src/Types.sol";
 import { getEntityIdFromObjectEntityId, getEntityAtCoord } from "@tenet-base-world/src/Utils.sol";
 
-enum MovementResource {
-  Stamina,
-  Temperature
-}
-
-struct EntityData {
-  uint256 mass;
-  uint256 energy;
-  uint256 resource;
-}
-
 contract WorldMoveEventSystem is WorldMoveEventProtoSystem {
   function preMoveEvent(
     bytes32 actingObjectEntityId,

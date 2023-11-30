@@ -9,4 +9,6 @@ abstract contract WorldObjectEventSystem is System {
     bytes32 centerObjectEntityId,
     bytes32[] memory neighbourObjectEntityIds
   ) public virtual;
+
+  // Note: add onObjectInteraction and postObjectInteraction as we need them
 }

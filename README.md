@@ -4,10 +4,6 @@
 
 ZUSE is MIT-licensed, open source and free to use.
 
-### Architecture
-
-![architecture](./docs/architecture.png)
-
 ### Installation
 
 1. Run `brew install yarn` to install yarn and `npm i -g concurrently` to install concurrently

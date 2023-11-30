@@ -179,6 +179,7 @@ export default tenetMudConfig({
         "StaminaCombatMoveConstraintSystem",
         "TemperatureConstraintSystem",
         "EnergyTemperatureConstraintSystem",
+        "TemperatureRuleSystem",
       ],
     },
     CollisionRuleSystem: {
@@ -202,6 +203,18 @@ export default tenetMudConfig({
       name: "CombatMoveRuleSy",
       openAccess: false,
       accessList: ["WorldMoveEventSystem", "WorldBuildEventSystem", "WorldMineEventSystem", "WorldActivateEventSystem"],
+    },
+    TemperatureRuleSystem: {
+      name: "TemperatureRuleS",
+      openAccess: false,
+      accessList: [
+        "WorldMoveEventSystem",
+        "WorldBuildEventSystem",
+        "WorldMineEventSystem",
+        "WorldActivateEventSystem",
+        "TemperatureConstraintSystem",
+        "EnergyTemperatureConstraintSystem",
+      ],
     },
   },
   modules: [

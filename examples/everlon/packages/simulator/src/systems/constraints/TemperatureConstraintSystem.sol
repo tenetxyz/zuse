@@ -121,7 +121,7 @@ contract TemperatureConstraintSystem is Constraint {
       IWorld(_world()).fluxEnergy(false, worldAddress, senderObjectEntityId, energyCost);
     }
 
-    // IWorld(_world()).temperatureBehaviour(worldAddress, receiverEntity);
+    IWorld(_world()).applyTemperatureEffects(worldAddress, receiverObjectEntityId);
   }
 
   function calcReceiverTemperature(

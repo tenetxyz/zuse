@@ -39,15 +39,18 @@ contract WorldMoveEventSystem is WorldMoveEventProtoSystem {
     if (objectEntityId != actingObjectEntityId) {
       IWorld(_world()).updateVelocityCache(worldAddress, objectEntityId);
     }
-    return
-      IWorld(_world()).velocityChange(
-        worldAddress,
-        actingObjectEntityId,
-        oldCoord,
-        newCoord,
-        oldObjectEntityId,
-        objectEntityId
-      );
+    bytes32 newEntityId = IWorld(_world()).velocityChange(
+      worldAddress,
+      actingObjectEntityId,
+      oldCoord,
+      newCoord,
+      oldObjectEntityId,
+      objectEntityId
+    );
+    bytes32 newObjectEntityId = ObjectEntity.get(IStore(worldAddress), newEntityId);
+    IWorld(_world()).applyTemperatureEffects(worldAddress, newObjectEntityId);
+
+    return newEntityId;
   }
 
   function postMoveEvent(

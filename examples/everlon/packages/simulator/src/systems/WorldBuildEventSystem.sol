@@ -45,6 +45,8 @@ contract WorldBuildEventSystem is WorldBuildEventProtoSystem {
       abi.encode(currentMass),
       abi.encode(objectProperties.mass - currentMass)
     );
+
+    IWorld(_world()).applyTemperatureEffects(worldAddress, objectEntityId);
   }
 
   function postBuildEvent(

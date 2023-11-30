@@ -116,7 +116,7 @@ contract EnergyTemperatureConstraintSystem is Constraint {
       IWorld(_world()).fluxEnergy(false, worldAddress, objectEntityId, energyCost);
     }
 
-    // IWorld(_world()).temperatureBehaviour(callerAddress, receiverEntity);
+    IWorld(_world()).applyTemperatureEffects(worldAddress, objectEntityId);
   }
 
   function getTemperatureDelta(

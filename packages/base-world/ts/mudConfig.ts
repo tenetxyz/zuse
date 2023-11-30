@@ -116,6 +116,11 @@ const WORLD_SYSTEMS = {
     openAccess: true,
     registerAsRoot: true,
   },
+  ExternalObjectSystem: {
+    name: "ExternalObjectSy",
+    openAccess: true,
+    registerAsRoot: true,
+  },
   EventApprovalsSystem: {
     name: "EventApprovalSys",
     openAccess: false,

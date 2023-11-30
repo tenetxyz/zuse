@@ -167,7 +167,7 @@ struct ObjectProperties {
   uint256 health;
   uint256 stamina;
   ElementType elementType;
-  ActionData actionData;
+  CombatMoveData combatMoveData;
   uint256 nutrients;
   uint256 nitrogen;
   bool hasNitrogen;
@@ -187,10 +187,10 @@ enum ValueType {
   VoxelCoordArray
 }
 
-struct ActionData {
-  ElementType actionType;
+struct CombatMoveData {
+  ElementType moveType;
   uint256 stamina;
-  bytes actionEntity;
+  bytes32 toObjectEntityId;
 }
 
 struct CreationSpawns {

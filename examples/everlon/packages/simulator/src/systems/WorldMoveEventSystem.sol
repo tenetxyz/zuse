@@ -67,5 +67,7 @@ contract WorldMoveEventSystem is WorldMoveEventProtoSystem {
     VoxelCoord memory oldCoord,
     VoxelCoord memory newCoord,
     bytes32 objectEntityId
-  ) public override {}
+  ) public override {
+    IWorld(_world()).resolveCombatMoves();
+  }
 }

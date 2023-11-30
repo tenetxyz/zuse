@@ -54,5 +54,7 @@ contract WorldMineEventSystem is WorldMineEventProtoSystem {
     bytes32 objectTypeId,
     VoxelCoord memory coord,
     bytes32 objectEntityId
-  ) public override {}
+  ) public override {
+    IWorld(_world()).resolveCombatMoves();
+  }
 }

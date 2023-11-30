@@ -185,6 +185,7 @@ contract StaminaCombatMoveConstraintSystem is Constraint {
 
     // Flux out energy proportional to the health lost and stamina used
     IWorld(_world()).fluxEnergy(false, worldAddress, objectEntityId, lostHealth + combatMoveData.stamina);
+
     Stamina.set(
       worldAddress,
       objectEntityId,

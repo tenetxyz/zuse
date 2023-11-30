@@ -175,6 +175,7 @@ export default tenetMudConfig({
         "EnergyNutrientsConstraintSystem",
         "NutrientsElixirConstraintSystem",
         "NutrientsProteinConstraintSystem",
+        "CombatMoveSystem",
         "StaminaCombatMoveConstraintSystem",
       ],
     },
@@ -194,6 +195,11 @@ export default tenetMudConfig({
         "WorldObjectEventSystem",
         "StaminaVelocityConstraintSystem",
       ],
+    },
+    CombatMoveSystem: {
+      name: "CombatMoveSystem",
+      openAccess: false,
+      accessList: ["WorldMoveEventSystem", "WorldBuildEventSystem", "WorldMineEventSystem", "WorldActivateEventSystem"],
     },
   },
   modules: [

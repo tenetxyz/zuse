@@ -17,7 +17,7 @@ abstract contract Constraint is System {
   }
 
   // TODO: Figure out a way to include this in the abstract contract
-  // function decodeAmounts(bytes memory fromAmount, bytes memory ToAmount) internal virtual;
+  // function decodeAmounts(bytes memory fromAmount, bytes memory toAmount) internal virtual;
 
   // Note: these methods are kept internal, as we can't use namespaces
   // until MUD supports modules in namespaces, or KeysInTable is ported to core

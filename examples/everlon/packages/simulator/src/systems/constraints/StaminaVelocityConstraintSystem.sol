@@ -28,9 +28,9 @@ contract StaminaVelocityConstraintSystem is Constraint {
 
   function decodeAmounts(
     bytes memory fromAmount,
-    bytes memory ToAmount
+    bytes memory toAmount
   ) internal pure returns (int256, VoxelCoord memory) {
-    return (abi.decode(fromAmount, (int256)), abi.decode(ToAmount, (VoxelCoord)));
+    return (abi.decode(fromAmount, (int256)), abi.decode(toAmount, (VoxelCoord)));
   }
 
   function staminaVelocityTransformation(

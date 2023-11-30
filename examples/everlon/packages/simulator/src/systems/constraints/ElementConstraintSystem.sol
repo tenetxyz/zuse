@@ -25,9 +25,9 @@ contract ElementConstraintSystem is Constraint {
 
   function decodeAmounts(
     bytes memory fromAmount,
-    bytes memory ToAmount
+    bytes memory toAmount
   ) internal pure returns (ElementType, ElementType) {
-    return (abi.decode(fromAmount, (ElementType)), abi.decode(ToAmount, (ElementType)));
+    return (abi.decode(fromAmount, (ElementType)), abi.decode(toAmount, (ElementType)));
   }
 
   function elementTransformation(

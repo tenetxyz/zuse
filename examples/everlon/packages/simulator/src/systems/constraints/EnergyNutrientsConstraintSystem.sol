@@ -32,8 +32,8 @@ contract EnergyNutrientsConstraintSystem is Constraint {
     );
   }
 
-  function decodeAmounts(bytes memory fromAmount, bytes memory ToAmount) internal pure returns (int256, int256) {
-    return (abi.decode(fromAmount, (int256)), abi.decode(ToAmount, (int256)));
+  function decodeAmounts(bytes memory fromAmount, bytes memory toAmount) internal pure returns (int256, int256) {
+    return (abi.decode(fromAmount, (int256)), abi.decode(toAmount, (int256)));
   }
 
   function energyNutrientsTransformation(

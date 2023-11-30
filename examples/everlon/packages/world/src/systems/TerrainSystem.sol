@@ -70,7 +70,7 @@ contract TerrainSystem is TerrainProtoSystem {
     ShardData memory shardData = Shard.get(shardCoord.x, shardCoord.y, shardCoord.z);
     (bool propertiesSelectorSuccess, bytes memory propertiesSelectorReturnData) = safeCall(
       shardData.contractAddress,
-      abi.encodeWithSelector(shardData.objectPropertiesSelector, coord),
+      abi.encodeWithSelector(shardData.objectPropertiesSelector, coord, requestedProperties),
       "shard terrainSelector"
     );
     if (propertiesSelectorSuccess) {

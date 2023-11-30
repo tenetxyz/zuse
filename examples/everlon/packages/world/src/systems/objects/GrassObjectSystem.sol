@@ -5,7 +5,7 @@ import { IWorld } from "@tenet-world/src/codegen/world/IWorld.sol";
 import { ObjectType } from "@tenet-base-world/src/prototypes/ObjectType.sol";
 import { registerObjectType } from "@tenet-registry/src/Utils.sol";
 import { VoxelCoord, ObjectProperties, Action } from "@tenet-utils/src/Types.sol";
-import { REGISTRY_ADDRESS, GrassObjectID } from "@tenet-world/src/Constants.sol";
+import { REGISTRY_ADDRESS, GrassObjectID, GRASS_MASS } from "@tenet-world/src/Constants.sol";
 
 contract GrassObjectSystem is ObjectType {
   function registerBody() public {
@@ -25,7 +25,7 @@ contract GrassObjectSystem is ObjectType {
 
   function enterWorld(bytes32 entityId, VoxelCoord memory coord) public override returns (ObjectProperties memory) {
     ObjectProperties memory objectProperties;
-    objectProperties.mass = 5;
+    objectProperties.mass = GRASS_MASS;
     return objectProperties;
   }
 

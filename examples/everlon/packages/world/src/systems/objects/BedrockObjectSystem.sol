@@ -5,7 +5,7 @@ import { IWorld } from "@tenet-world/src/codegen/world/IWorld.sol";
 import { ObjectType } from "@tenet-base-world/src/prototypes/ObjectType.sol";
 import { registerObjectType } from "@tenet-registry/src/Utils.sol";
 import { VoxelCoord, ObjectProperties, Action } from "@tenet-utils/src/Types.sol";
-import { REGISTRY_ADDRESS, BedrockObjectID } from "@tenet-world/src/Constants.sol";
+import { REGISTRY_ADDRESS, BedrockObjectID, BEDROCK_MASS } from "@tenet-world/src/Constants.sol";
 
 contract BedrockObjectSystem is ObjectType {
   function registerBody() public {
@@ -25,7 +25,7 @@ contract BedrockObjectSystem is ObjectType {
 
   function enterWorld(bytes32 entityId, VoxelCoord memory coord) public override returns (ObjectProperties memory) {
     ObjectProperties memory objectProperties;
-    objectProperties.mass = 50;
+    objectProperties.mass = BEDROCK_MASS;
     return objectProperties;
   }
 

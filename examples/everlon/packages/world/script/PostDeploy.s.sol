@@ -22,6 +22,8 @@ contract PostDeploy is Script {
     world.world_BuilderObjectSys_registerBody();
     world.world_FaucetObjectSyst_registerBody();
 
+    world.world_SpawnTerrainSyst_initSpawnTerrain();
+
     vm.stopBroadcast();
   }
 }

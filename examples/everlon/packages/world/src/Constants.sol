@@ -20,3 +20,8 @@ bytes32 constant BedrockObjectID = bytes32(keccak256("bedrock"));
 bytes32 constant BuilderObjectID = bytes32(keccak256("builder"));
 bytes32 constant StoneObjectID = bytes32(keccak256("stone"));
 bytes32 constant FaucetObjectID = bytes32(keccak256("faucet"));
+
+uint256 constant AIR_MASS = 0;
+uint256 constant DIRT_MASS = 5;
+uint256 constant GRASS_MASS = 5;
+uint256 constant BEDROCK_MASS = 50;

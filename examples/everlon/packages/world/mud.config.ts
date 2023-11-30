@@ -48,7 +48,18 @@ export default tenetMudConfig({
       },
     },
   },
-  systems: {},
+  systems: {
+    FaucetSystem: {
+      name: "FaucetSystem",
+      openAccess: true,
+      registerAsRoot: true,
+    },
+    ShardSystem: {
+      name: "ShardSystem",
+      openAccess: true,
+      registerAsRoot: true,
+    },
+  },
   modules: [
     {
       name: "KeysInTableModule",

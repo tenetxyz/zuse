@@ -249,8 +249,8 @@ struct BaseCreation {
 }
 
 struct TerrainData {
-  bytes32 voxelTypeId;
-  uint256 energy;
+  bytes32 objectTypeId;
+  ObjectProperties properties;
 }
 
 struct TerrainSectionData {

@@ -15,7 +15,7 @@ import { VoxelCoord, SimTable, ValueType } from "@tenet-utils/src/Types.sol";
 import { addUint256AndInt256, int256ToUint256 } from "@tenet-utils/src/TypeUtils.sol";
 
 contract TemperatureConstraintSystem is Constraint {
-  function registerMassSelector() public {
+  function registerTemperatureSelector() public {
     SimAction.set(
       SimTable.Temperature,
       SimTable.Temperature,

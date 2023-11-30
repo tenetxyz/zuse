@@ -11,8 +11,8 @@ export default tenetMudConfig({
       "Velocity",
       "Health",
       "Stamina",
-      "Object",
-      "Action",
+      "Element",
+      "CombatMove",
       "Nutrients",
       "Nitrogen",
       "Phosphorus",
@@ -216,6 +216,12 @@ export default tenetMudConfig({
         "EnergyTemperatureConstraintSystem",
       ],
     },
+    HealthRuleSystem: {
+      name: "HealthRuleSystem",
+      openAccess: false,
+      accessList: ["WorldMoveEventSystem", "WorldBuildEventSystem", "WorldMineEventSystem", "WorldActivateEventSystem"],
+    },
+    }
   },
   modules: [
     {

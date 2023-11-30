@@ -13,6 +13,7 @@ contract WorldActivateEventSystem is WorldActivateEventProtoSystem {
     VoxelCoord memory coord
   ) public override {
     address worldAddress = _msgSender();
+    IWorld(_world()).checkActingObjectHealth(worldAddress, actingObjectEntityId);
     IWorld(_world()).updateVelocityCache(worldAddress, actingObjectEntityId);
   }
 

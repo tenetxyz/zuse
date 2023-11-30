@@ -24,6 +24,7 @@ contract WorldMoveEventSystem is WorldMoveEventProtoSystem {
     VoxelCoord memory newCoord
   ) public override {
     address worldAddress = _msgSender();
+    IWorld(_world()).checkActingObjectHealth(worldAddress, actingObjectEntityId);
     IWorld(_world()).updateVelocityCache(worldAddress, actingObjectEntityId);
   }
 

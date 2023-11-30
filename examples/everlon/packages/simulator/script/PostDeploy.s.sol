@@ -13,6 +13,32 @@ contract PostDeploy is Script {
     // Start broadcasting transactions from the deployer account
     vm.startBroadcast(deployerPrivateKey);
 
+    IWorld world = IWorld(worldAddress);
+
+    // Register constraints
+    world.registerElementSelector();
+    world.registerElixirHealthSelector();
+    world.registerEnergyElixirSelector();
+    world.registerEnergyHealthSelector();
+    world.registerEnergyNutrientsSelector();
+    world.registerEnergyProteinSelector();
+    world.registerEnergyStaminaSelector();
+    world.registerEnergyTemperatureSelector();
+    world.registerHealthSelector();
+    world.registerMassSelector();
+    world.registerNitrogenSelector();
+    world.registerNutrientsSelector();
+    world.registerNutrientsElixirSelector();
+    world.registerNutrientsProteinSelector();
+    world.registerPhosphorusSelector();
+    world.registerPotassiumSelector();
+    world.registerProteinStaminaSelector();
+    world.registerStaminaCombatMoveSelector();
+    world.registerStaminaSelector();
+    world.registerStaminaVelocitySelector();
+    world.registerTemperatureSelector();
+    world.registerTemperatureVelocitySelector();
+
     vm.stopBroadcast();
   }
 }

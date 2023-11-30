@@ -164,6 +164,7 @@ export default tenetMudConfig({
     },
   },
   systems: {
+    // Rules should only be called by world systems
     FluxEnergyRuleSystem: {
       name: "FluxEnergyRuleSy",
       openAccess: false,

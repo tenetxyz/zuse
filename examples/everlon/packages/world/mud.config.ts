@@ -5,6 +5,7 @@ export default tenetMudConfig({
   namespace: "world",
   tables: {
     Faucet: {
+      registerAsRoot: true,
       keySchema: {
         objectEntityId: "bytes32",
       },
@@ -14,6 +15,7 @@ export default tenetMudConfig({
       },
     },
     Shard: {
+      registerAsRoot: true,
       keySchema: {
         // ShardCoords
         x: "int32",
@@ -30,6 +32,7 @@ export default tenetMudConfig({
       },
     },
     TerrainProperties: {
+      registerAsRoot: true,
       keySchema: {
         x: "int32",
         y: "int32",
@@ -40,11 +43,22 @@ export default tenetMudConfig({
       },
     },
     Metadata: {
+      registerAsRoot: true,
       keySchema: {
         objectEntityId: "bytes32",
       },
       schema: {
         numRan: "uint32",
+      },
+    },
+    // TODO: turn into a module?
+    Mind: {
+      registerAsRoot: true,
+      keySchema: {
+        objectEntityId: "bytes32",
+      },
+      schema: {
+        mindSelector: "bytes4",
       },
     },
   },
@@ -75,6 +89,11 @@ export default tenetMudConfig({
       name: "KeysInTableModule",
       root: true,
       args: [resolveTableId("TerrainProperties")],
+    },
+    {
+      name: "KeysInTableModule",
+      root: true,
+      args: [resolveTableId("Mind")],
     },
   ],
 });

@@ -6,6 +6,6 @@ import { MindSystem as MindProtoSystem } from "@tenet-base-world/src/systems/Min
 
 contract MindSystem is MindProtoSystem {
   function setMindSelector(bytes32 objectEntityId, address mindAddress, bytes4 mindSelector) public override {
-    super.setMindSelector(objectEntityId, mindSelector);
+    super.setMindSelector(objectEntityId, mindAddress, mindSelector);
   }
 }

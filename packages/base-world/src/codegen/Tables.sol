@@ -7,3 +7,4 @@ import { ObjectType, ObjectTypeTableId } from "./tables/ObjectType.sol";
 import { Position, PositionData, PositionTableId } from "./tables/Position.sol";
 import { ObjectEntity, ObjectEntityTableId } from "./tables/ObjectEntity.sol";
 import { OwnedBy, OwnedByTableId } from "./tables/OwnedBy.sol";
+import { Mind, MindData, MindTableId } from "./tables/Mind.sol";

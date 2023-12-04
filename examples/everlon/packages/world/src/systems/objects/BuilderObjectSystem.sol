@@ -21,6 +21,8 @@ contract BuilderObjectSystem is ObjectType {
       "Builder",
       ""
     );
+
+    // register event handlers
   }
 
   function enterWorld(bytes32 entityId, VoxelCoord memory coord) public override returns (ObjectProperties memory) {
@@ -35,6 +37,8 @@ contract BuilderObjectSystem is ObjectType {
     bytes32 centerEntityId,
     bytes32[] memory neighbourEntityIds
   ) public override returns (Action[] memory) {
+    // call mind, and call event handler selected
+    // otherwise, call default event handler
     return new Action[](0);
   }
 

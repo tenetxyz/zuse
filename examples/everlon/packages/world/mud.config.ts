@@ -51,16 +51,6 @@ export default tenetMudConfig({
         numRan: "uint32",
       },
     },
-    // TODO: turn into a module?
-    Mind: {
-      registerAsRoot: true,
-      keySchema: {
-        objectEntityId: "bytes32",
-      },
-      schema: {
-        mindSelector: "bytes4",
-      },
-    },
   },
   systems: {
     FaucetSystem: {

@@ -45,6 +45,17 @@ const WORLD_TABLES: Record<string, TableConfig> = {
       user: "address",
     },
   },
+  // TODO: Turn this into a module, and make it optional
+  Mind: {
+    registerAsRoot: true,
+    keySchema: {
+      objectEntityId: "bytes32",
+    },
+    schema: {
+      mindAddress: "address",
+      mindSelector: "bytes4",
+    },
+  },
 };
 
 const WORLD_MODULES = [
@@ -83,6 +94,11 @@ const WORLD_MODULES = [
     root: true,
     args: [resolveTableId("OwnedBy")],
   },
+  {
+    name: "KeysInTableModule",
+    root: true,
+    args: [resolveTableId("Mind")],
+  },
 ];
 
 const WORLD_SYSTEMS = {
@@ -113,6 +129,11 @@ const WORLD_SYSTEMS = {
   },
   AgentSystem: {
     name: "AgentSystem",
+    openAccess: true,
+    registerAsRoot: true,
+  },
+  MindSystem: {
+    name: "MindSystem",
     openAccess: true,
     registerAsRoot: true,
   },

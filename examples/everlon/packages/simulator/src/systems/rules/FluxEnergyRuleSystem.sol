@@ -28,12 +28,12 @@ contract FluxEnergyRuleSystem is System {
   function fluxEnergy(bool isFluxIn, address worldAddress, bytes32 centerObjectEntityId, uint256 energyToFlux) public {
     require(
       hasKey(EnergyTableId, Energy.encodeKeyTuple(worldAddress, centerObjectEntityId)),
-      "Entity with energy does not exist"
+      "FluxEnergyRuleSystem: Entity with energy does not exist"
     );
     uint8 radius = 1;
     while (energyToFlux > 0) {
       if (radius > MAX_FLUX_RADIUS) {
-        revert("FluxEnergySystem: Reached maximum flux radius");
+        revert("FluxEnergyRuleSystem: Reached maximum flux radius");
       }
       (
         bytes32[] memory neighbourObjectEntities,
@@ -79,6 +79,7 @@ contract FluxEnergyRuleSystem is System {
       getEntityIdFromObjectEntityId(IStore(worldAddress), centerObjectEntityId),
       radius
     );
+    neighbourObjectEntities = new bytes32[](neighbourEntities.length);
     numNeighboursToInclude = 0;
 
     // Initialize an array to store how much energy can still be taken/given from/to each neighbor

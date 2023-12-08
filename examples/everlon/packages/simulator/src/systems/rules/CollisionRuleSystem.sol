@@ -245,6 +245,7 @@ contract CollisionRuleSystem is System {
       IStore(worldAddress),
       getEntityIdFromObjectEntityId(IStore(worldAddress), centerObjectEntityId)
     );
+    neighbourObjectEntities = new bytes32[](neighbourEntities.length);
 
     bytes32[] memory collidingObjectEntities = new bytes32[](neighbourEntities.length);
 

@@ -42,7 +42,7 @@ contract BuilderObjectSystem is AgentType {
     bytes32 centerEntityId,
     bytes32[] memory neighbourEntityIds
   ) public override returns (Action[] memory) {
-    // Builder does not support minds and always stops
+    // Note: Builder does not support minds and always stops
     return stopActionEventHandler(centerEntityId, neighbourEntityIds);
   }
 

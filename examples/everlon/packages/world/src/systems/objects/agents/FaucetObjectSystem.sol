@@ -8,12 +8,13 @@ import { registerObjectType } from "@tenet-registry/src/Utils.sol";
 import { VoxelCoord, ObjectProperties, Action, ActionType, SimTable } from "@tenet-utils/src/Types.sol";
 
 import { Position } from "@tenet-base-world/src/codegen/tables/Position.sol";
+import { ObjectType } from "@tenet-base-world/src/codegen/tables/ObjectType.sol";
 import { ObjectEntity } from "@tenet-base-world/src/codegen/tables/ObjectEntity.sol";
 
-import { REGISTRY_ADDRESS, FaucetObjectID } from "@tenet-world/src/Constants.sol";
+import { REGISTRY_ADDRESS, FaucetObjectID, AirObjectID, DirtObjectID, GrassObjectID, BedrockObjectID, StoneObjectID } from "@tenet-world/src/Constants.sol";
 import { getObjectProperties } from "@tenet-base-world/src/CallUtils.sol";
 import { uint256ToNegativeInt256, uint256ToInt256 } from "@tenet-utils/src/TypeUtils.sol";
-import { positionDataToVoxelCoord, getMooreNeighbourEntities } from "@tenet-base-world/src/Utils.sol";
+import { positionDataToVoxelCoord, getMooreNeighbourEntities, getEntityIdFromObjectEntityId } from "@tenet-base-world/src/Utils.sol";
 
 uint256 constant NUM_AGENTS_PER_FAUCET = 100;
 uint256 constant STARTING_STAMINA_FROM_FAUCET = 30000;
@@ -58,7 +59,7 @@ contract FaucetObjectSystem is AgentType {
     bytes32 centerEntityId,
     bytes32[] memory neighbourEntityIds
   ) public returns (Action[] memory) {
-    address worldAddress = super.getCallerAddress();
+    address worldAddress = _msgSender();
     ObjectProperties memory entityProperties = getObjectProperties(worldAddress, centerEntityId);
 
     uint256 currentStamina = entityProperties.stamina;
@@ -69,7 +70,7 @@ contract FaucetObjectSystem is AgentType {
 
     (bytes32[] memory neighbourEntities, VoxelCoord[] memory neighbourCoords) = getMooreNeighbourEntities(
       IStore(worldAddress),
-      centerEntityId,
+      getEntityIdFromObjectEntityId(IStore(worldAddress), centerEntityId),
       1
     );
     Action[] memory actions = new Action[](neighbourEntities.length * 2); // one action for stamina, one for health
@@ -77,11 +78,17 @@ contract FaucetObjectSystem is AgentType {
       if (uint256(neighbourEntities[i]) == 0) {
         continue;
       }
-      // TODO: Find a way to check if the object is an agent
-      // bytes32 neighbourObjectTypeId = ObjectType.get(IStore(worldAddress), neighbourEntities[i]);
-      // if (isValidAgent(neighbourObjectTypeId)) {
-      //   continue;
-      // }
+      bytes32 neighbourObjectTypeId = ObjectType.get(IStore(worldAddress), neighbourEntities[i]);
+      // TODO: Find a better way to check if the object is an agent
+      if (
+        neighbourObjectTypeId == AirObjectID ||
+        neighbourObjectTypeId == GrassObjectID ||
+        neighbourObjectTypeId == DirtObjectID ||
+        neighbourObjectTypeId == StoneObjectID ||
+        neighbourObjectTypeId == BedrockObjectID
+      ) {
+        continue;
+      }
       bytes32 neighbourObjectEntityId = ObjectEntity.get(IStore(worldAddress), neighbourEntities[i]);
       ObjectProperties memory neighbourEntityProperties = getObjectProperties(worldAddress, neighbourObjectEntityId);
       if (neighbourEntityProperties.stamina == 0 && neighbourEntityProperties.health == 0) {

@@ -37,6 +37,8 @@ contract AgentTest is MudTest {
     bytes32 faucetEntityId = getEntityAtCoord(store, faucetAgentCoord);
     assertTrue(uint256(faucetEntityId) != 0, "Agent not found at coord");
     bytes32 faucetObjectEntityId = ObjectEntity.get(store, faucetEntityId);
+    assertTrue(Health.getHealth(simStore, worldAddress, faucetObjectEntityId) > 0, "Faucet does not have health");
+    assertTrue(Stamina.get(simStore, worldAddress, faucetObjectEntityId) > 0, "Faucet does not have stamina");
 
     VoxelCoord memory buildCoord = VoxelCoord(faucetAgentCoord.x, faucetAgentCoord.y, faucetAgentCoord.z + 1);
     bytes32 agentEntityId = world.claimAgentFromFaucet(faucetObjectEntityId, BuilderObjectID, buildCoord);

@@ -50,6 +50,9 @@ abstract contract ActionSystem is System {
 
     for (uint256 i = 0; i < entityActionData.actions.length; i++) {
       Action memory action = entityActionData.actions[i];
+      if (action.senderTable == SimTable.None || action.targetTable == SimTable.None) {
+        continue;
+      }
       VoxelCoord memory entityCoord = getVoxelCoordStrict(IStore(_world()), entityActionData.entityId);
       bytes32 objectEntityId = ObjectEntity.get(entityActionData.entityId);
       bytes32 targetObjectEntityId = ObjectEntity.get(getEntityAtCoord(IStore(_world()), action.targetCoord));

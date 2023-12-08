@@ -63,8 +63,8 @@ function runSimAction(
           senderCoord,
           receiverObjectEntityId,
           receiverCoord,
-          abi.decode(senderValue, (int256)),
-          abi.decode(receiverValue, (int256))
+          senderValue,
+          receiverValue
         ),
         string(
           abi.encode(

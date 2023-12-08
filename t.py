@@ -58,7 +58,7 @@ def main():
             elif sys.argv[2] == "basic-world":
                 run_example("basic-world")
 
-            elif sys.argv[2] == "basic-conserved-world":
+            elif sys.argv[2] == "everlon":
                 extra_cmd = []
 
                 if "--with-pokemon" in sys.argv:
@@ -75,10 +75,7 @@ def main():
                 # Join the commands with ' && '
                 command_str = " && ".join(extra_cmd)
 
-                run_example("basic-conserved-world", command_str)
-
-            elif sys.argv[2] == "multiple-layers-world":
-                run_example("multiple-layers-world")
+                run_example("everlon", command_str)
 
             elif sys.argv[2] == "snapshot":
                 subprocess.run([f"sh {cur_directory}/scripts/rollback/create_snapshot.sh"])

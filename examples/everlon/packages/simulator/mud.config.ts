@@ -257,17 +257,12 @@ export default tenetMudConfig({
     {
       name: "KeysInTableModule",
       root: true,
-      args: [resolveTableId("Object")],
+      args: [resolveTableId("Element")],
     },
     {
       name: "KeysInTableModule",
       root: true,
-      args: [resolveTableId("Action")],
-    },
-    {
-      name: "KeysInTableModule",
-      root: true,
-      args: [resolveTableId("Action")],
+      args: [resolveTableId("CombatMove")],
     },
     {
       name: "KeysInTableModule",

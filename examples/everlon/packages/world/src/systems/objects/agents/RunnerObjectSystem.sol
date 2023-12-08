@@ -1,38 +1,36 @@
 // SPDX-License-Identifier: MIT
 pragma solidity >=0.8.0;
 
+import { IStore } from "@latticexyz/store/src/IStore.sol";
 import { IWorld } from "@tenet-world/src/codegen/world/IWorld.sol";
 import { AgentType } from "@tenet-base-world/src/prototypes/AgentType.sol";
 import { registerObjectType } from "@tenet-registry/src/Utils.sol";
+
+import { Position } from "@tenet-base-world/src/codegen/tables/Position.sol";
+
 import { VoxelCoord, ObjectProperties, Action } from "@tenet-utils/src/Types.sol";
-import { REGISTRY_ADDRESS, FaucetObjectID } from "@tenet-world/src/Constants.sol";
+import { REGISTRY_ADDRESS, RunnerObjectID } from "@tenet-world/src/Constants.sol";
+import { getObjectProperties } from "@tenet-base-world/src/CallUtils.sol";
 
-uint256 constant NUM_AGENTS_PER_FAUCET = 100;
-uint256 constant STARTING_STAMINA_FROM_FAUCET = 30000;
-uint256 constant STARTING_HEALTH_FROM_FAUCET = 100;
-
-contract FaucetObjectSystem is AgentType {
+contract RunnerObjectSystem is AgentType {
   function registerBody() public {
     address world = _world();
     registerObjectType(
       REGISTRY_ADDRESS,
-      FaucetObjectID,
+      RunnerObjectID,
       world,
-      IWorld(world).world_FaucetObjectSyst_enterWorld.selector,
-      IWorld(world).world_FaucetObjectSyst_exitWorld.selector,
-      IWorld(world).world_FaucetObjectSyst_eventHandler.selector,
-      IWorld(world).world_FaucetObjectSyst_neighbourEventHandler.selector,
-      "Faucet",
+      IWorld(world).world_RunnerObjectSyst_enterWorld.selector,
+      IWorld(world).world_RunnerObjectSyst_exitWorld.selector,
+      IWorld(world).world_RunnerObjectSyst_eventHandler.selector,
+      IWorld(world).world_RunnerObjectSyst_neighbourEventHandler.selector,
+      "Runner",
       ""
     );
   }
 
   function enterWorld(bytes32 entityId, VoxelCoord memory coord) public override returns (ObjectProperties memory) {
     ObjectProperties memory objectProperties;
-    objectProperties.mass = 1000000000; // Make faucet really high mass so its hard to mine
-    objectProperties.energy = 1000000000;
-    objectProperties.stamina = STARTING_STAMINA_FROM_FAUCET * NUM_AGENTS_PER_FAUCET;
-    objectProperties.health = STARTING_HEALTH_FROM_FAUCET * NUM_AGENTS_PER_FAUCET;
+    objectProperties.mass = 50; // high mass so when it collides, it causes objects to move
     return objectProperties;
   }
 

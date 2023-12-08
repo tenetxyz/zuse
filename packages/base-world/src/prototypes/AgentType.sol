@@ -5,9 +5,20 @@ import { ObjectType } from "@tenet-base-world/src/prototypes/ObjectType.sol";
 import { VoxelCoord, ObjectProperties, Action } from "@tenet-utils/src/Types.sol";
 import { Mind, MindData, MindTableId } from "@tenet-base-world/src/codegen/tables/Mind.sol";
 import { callOrRevert } from "@tenet-utils/src/CallUtils.sol";
+import { getFirstCaller } from "@tenet-utils/src/Utils.sol";
 
 // Represents an object
 abstract contract AgentType is ObjectType {
+  // TODO: Remove this function once we know a better way to handle
+  // address forwarding for agents
+  function getCallerAddress() internal view returns (address) {
+    address callerAddress = getFirstCaller();
+    if (callerAddress == address(0)) {
+      callerAddress = _msgSender();
+    }
+    return callerAddress;
+  }
+
   // Called by Zuse when an event occurs where this object is the center entity
   // Returns the actions it wants to invoke
   function eventHandler(

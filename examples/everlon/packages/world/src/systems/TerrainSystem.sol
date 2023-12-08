@@ -26,7 +26,10 @@ contract TerrainSystem is TerrainProtoSystem {
     return abi.decode(data, (bytes32));
   }
 
-  function decodeToObjectProperties(bytes memory data) external pure returns (ObjectProperties memory) {
+  // Note: we cannot call this decodeToObjectProperties because that function
+  // already exists in ObjectSystem
+  // TODO: Find a way to avoid this code duplication
+  function decodeToTerrainObjectProperties(bytes memory data) external pure returns (ObjectProperties memory) {
     return abi.decode(data, (ObjectProperties));
   }
 
@@ -74,7 +77,9 @@ contract TerrainSystem is TerrainProtoSystem {
       "shard terrainSelector"
     );
     if (propertiesSelectorSuccess) {
-      try this.decodeToObjectProperties(propertiesSelectorReturnData) returns (ObjectProperties memory decodedValue) {
+      try this.decodeToTerrainObjectProperties(propertiesSelectorReturnData) returns (
+        ObjectProperties memory decodedValue
+      ) {
         objectProperties = decodedValue;
       } catch {}
     }

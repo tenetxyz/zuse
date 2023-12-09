@@ -21,6 +21,11 @@ function getEntityIdFromObjectEntityId(IStore store, bytes32 objectEntityId) vie
   return allEntities[0][0];
 }
 
+function getVoxelCoord(IStore store, bytes32 objectEntityId) view returns (VoxelCoord memory) {
+  PositionData memory position = Position.get(store, getEntityIdFromObjectEntityId(store, objectEntityId));
+  return positionDataToVoxelCoord(position);
+}
+
 function getEntityAtCoord(IStore store, VoxelCoord memory coord) view returns (bytes32) {
   bytes32[][] memory allEntitiesAtCoord = getKeysWithValue(
     store,

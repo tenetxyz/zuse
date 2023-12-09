@@ -13,7 +13,7 @@ import { VoxelCoord, ObjectProperties, Action } from "@tenet-utils/src/Types.sol
 import { REGISTRY_ADDRESS, FarmerObjectID } from "@tenet-farming/src/Constants.sol";
 import { tryStoppingAction } from "@tenet-world/src/Utils.sol";
 import { getObjectProperties } from "@tenet-base-world/src/CallUtils.sol";
-import { positionDataToVoxelCoord, getEntityIdFromObjectEntityId } from "@tenet-base-world/src/Utils.sol";
+import { positionDataToVoxelCoord, getEntityIdFromObjectEntityId, getVoxelCoord } from "@tenet-base-world/src/Utils.sol";
 
 contract FarmerObjectSystem is AgentType {
   function registerObject() public {
@@ -56,9 +56,7 @@ contract FarmerObjectSystem is AgentType {
 
   function stoppingActions(address worldAddress, bytes32 centerObjectEntityId) internal returns (Action[] memory) {
     ObjectProperties memory entityProperties = getObjectProperties(worldAddress, centerObjectEntityId);
-    VoxelCoord memory coord = positionDataToVoxelCoord(
-      Position.get(IStore(worldAddress), getEntityIdFromObjectEntityId(IStore(worldAddress), centerObjectEntityId))
-    );
+    VoxelCoord memory coord = getVoxelCoord(IStore(worldAddress), centerObjectEntityId);
     (bool hasStopAction, Action memory stopAction) = tryStoppingAction(centerObjectEntityId, coord, entityProperties);
     if (!hasStopAction) {
       return new Action[](0);

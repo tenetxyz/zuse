@@ -23,24 +23,27 @@ contract GrassObjectSystem is ObjectType {
     );
   }
 
-  function enterWorld(bytes32 entityId, VoxelCoord memory coord) public override returns (ObjectProperties memory) {
+  function enterWorld(
+    bytes32 objectEntityId,
+    VoxelCoord memory coord
+  ) public override returns (ObjectProperties memory) {
     ObjectProperties memory objectProperties;
     objectProperties.mass = 5;
     return objectProperties;
   }
 
-  function exitWorld(bytes32 entityId, VoxelCoord memory coord) public override {}
+  function exitWorld(bytes32 objectEntityId, VoxelCoord memory coord) public override {}
 
   function eventHandler(
-    bytes32 centerEntityId,
-    bytes32[] memory neighbourEntityIds
+    bytes32 centerObjectEntityId,
+    bytes32[] memory neighbourObjectEntityIds
   ) public override returns (Action[] memory) {
     return new Action[](0);
   }
 
   function neighbourEventHandler(
-    bytes32 neighbourEntityId,
-    bytes32 centerEntityId
+    bytes32 neighbourObjectEntityId,
+    bytes32 centerObjectEntityId
   ) public override returns (bool, Action[] memory) {
     return (false, new Action[](0));
   }

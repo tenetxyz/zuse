@@ -80,8 +80,9 @@ contract VelocityRuleSystem is System {
     bytes32 objectEntityId
   ) public returns (bytes32) {
     require(
-      hasKey(MassTableId, Mass.encodeKeyTuple(worldAddress, objectEntityId)),
-      "VelocityRuleSystem: Object entity not initialized"
+      hasKey(MassTableId, Mass.encodeKeyTuple(worldAddress, oldObjectEntityId)) &&
+        hasKey(MassTableId, Mass.encodeKeyTuple(worldAddress, objectEntityId)),
+      "VelocityRuleSystem: Object entities not initialized"
     );
     require(
       Mass.get(worldAddress, oldObjectEntityId) == 0,

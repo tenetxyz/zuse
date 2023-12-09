@@ -26,7 +26,11 @@ abstract contract MoveEvent is Event {
     if (uint256(oldEntityId) == 0) {
       IWorld(_world()).build(actingObjectEntityId, moveObjectTypeId, oldCoord);
     }
-    bytes32 newEntityId = super.runEvent(actingObjectEntityId, moveObjectTypeId, newCoord, eventData);
+    bytes32 newEntityId = getEntityAtCoord(IStore(_world()), newCoord);
+    if (uint256(newEntityId) == 0) {
+      IWorld(_world()).buildTerrain(actingObjectEntityId, newCoord);
+    }
+    newEntityId = super.runEvent(actingObjectEntityId, moveObjectTypeId, newCoord, eventData);
     return (oldEntityId, newEntityId);
   }
 
@@ -107,7 +111,8 @@ abstract contract MoveEvent is Event {
       oldCoord,
       coord,
       objectEntityId,
-      oldObjectEntityId
+      oldObjectEntityId // Note: the names here are confusing, but this is the object entity id of the moving object
+      // TODO: Figure out a cleaner way to handle this
     );
 
     return eventEntityId;

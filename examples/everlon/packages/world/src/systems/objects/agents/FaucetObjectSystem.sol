@@ -36,7 +36,10 @@ contract FaucetObjectSystem is AgentType {
     );
   }
 
-  function enterWorld(bytes32 entityId, VoxelCoord memory coord) public override returns (ObjectProperties memory) {
+  function enterWorld(
+    bytes32 objectEntityId,
+    VoxelCoord memory coord
+  ) public override returns (ObjectProperties memory) {
     ObjectProperties memory objectProperties;
     objectProperties.mass = 1000000000; // Make faucet really high mass so its hard to mine
     objectProperties.energy = 1000000000;
@@ -45,22 +48,22 @@ contract FaucetObjectSystem is AgentType {
     return objectProperties;
   }
 
-  function exitWorld(bytes32 entityId, VoxelCoord memory coord) public override {}
+  function exitWorld(bytes32 objectEntityId, VoxelCoord memory coord) public override {}
 
   function eventHandler(
-    bytes32 centerEntityId,
-    bytes32[] memory neighbourEntityIds
+    bytes32 centerObjectEntityId,
+    bytes32[] memory neighbourObjectEntityIds
   ) public override returns (Action[] memory) {
     // Note: Faucet does not support minds and always gives stamina and health
-    return giveStaminaAndHealthEventHandler(centerEntityId, neighbourEntityIds);
+    return giveStaminaAndHealthEventHandler(centerObjectEntityId, neighbourObjectEntityIds);
   }
 
   function giveStaminaAndHealthEventHandler(
-    bytes32 centerEntityId,
-    bytes32[] memory neighbourEntityIds
+    bytes32 centerObjectEntityId,
+    bytes32[] memory neighbourObjectEntityIds
   ) public returns (Action[] memory) {
     address worldAddress = _msgSender();
-    ObjectProperties memory entityProperties = getObjectProperties(worldAddress, centerEntityId);
+    ObjectProperties memory entityProperties = getObjectProperties(worldAddress, centerObjectEntityId);
 
     uint256 currentStamina = entityProperties.stamina;
     uint256 currentHealth = entityProperties.health;
@@ -70,7 +73,7 @@ contract FaucetObjectSystem is AgentType {
 
     (bytes32[] memory neighbourEntities, VoxelCoord[] memory neighbourCoords) = getMooreNeighbourEntities(
       IStore(worldAddress),
-      getEntityIdFromObjectEntityId(IStore(worldAddress), centerEntityId),
+      getEntityIdFromObjectEntityId(IStore(worldAddress), centerObjectEntityId),
       1
     );
     Action[] memory actions = new Action[](neighbourEntities.length * 2); // one action for stamina, one for health
@@ -126,7 +129,7 @@ contract FaucetObjectSystem is AgentType {
 
   function neighbourEventHandler(
     bytes32 neighbourEntityId,
-    bytes32 centerEntityId
+    bytes32 centerObjectEntityId
   ) public override returns (bool, Action[] memory) {
     return (false, new Action[](0));
   }

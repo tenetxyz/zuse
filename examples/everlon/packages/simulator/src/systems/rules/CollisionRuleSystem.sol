@@ -92,7 +92,7 @@ contract CollisionRuleSystem is System {
               centerEntitiesToCheckQueueIdx++;
               require(
                 centerEntitiesToCheckQueueIdx < NUM_MAX_COLLISIONS_UPDATE_DEPTH,
-                "CollisionSystem: Reached max update depth for collisions"
+                "CollisionRuleSystem: Reached max update depth for collisions"
               );
               CollisionData memory neighbourCollisionData;
               neighbourCollisionData.objectEntityId = neighbourObjectEntities[i];
@@ -296,7 +296,7 @@ contract CollisionRuleSystem is System {
 
     int32 massPrimary = uint256ToInt32(Mass.get(worldAddress, centerObjectEntityId));
     if (massPrimary == 0) {
-      revert("CollisionSystem: Trying to collide with an object that has no mass");
+      revert("CollisionRuleSystem: Trying to collide with an object that has no mass");
     }
 
     // Now we run the collision formula for each of the colliding entities

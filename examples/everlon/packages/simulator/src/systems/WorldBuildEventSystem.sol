@@ -33,7 +33,6 @@ contract WorldBuildEventSystem is WorldBuildEventProtoSystem {
       "WorldBuildEventSystem: Entity is not initialized"
     );
     uint256 currentMass = Mass.get(worldAddress, objectEntityId);
-    require(objectProperties.mass > 0, "WorldBuildEventSystem: Mass must be greater than zero to build");
     if (isNewEntity) {
       require(currentMass == 0 || currentMass == objectProperties.mass, "WorldBuildEventSystem: Invalid terrain mass");
     } else {

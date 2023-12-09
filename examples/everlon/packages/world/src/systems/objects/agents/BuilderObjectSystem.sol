@@ -12,7 +12,7 @@ import { VoxelCoord, ObjectProperties, Action } from "@tenet-utils/src/Types.sol
 import { REGISTRY_ADDRESS, BuilderObjectID } from "@tenet-world/src/Constants.sol";
 import { tryStoppingAction } from "@tenet-world/src/Utils.sol";
 import { getObjectProperties } from "@tenet-base-world/src/CallUtils.sol";
-import { positionDataToVoxelCoord } from "@tenet-base-world/src/Utils.sol";
+import { positionDataToVoxelCoord, getEntityIdFromObjectEntityId } from "@tenet-base-world/src/Utils.sol";
 
 contract BuilderObjectSystem is AgentType {
   function registerBody() public {
@@ -30,30 +30,35 @@ contract BuilderObjectSystem is AgentType {
     );
   }
 
-  function enterWorld(bytes32 entityId, VoxelCoord memory coord) public override returns (ObjectProperties memory) {
+  function enterWorld(
+    bytes32 objectEntityId,
+    VoxelCoord memory coord
+  ) public override returns (ObjectProperties memory) {
     ObjectProperties memory objectProperties;
     objectProperties.mass = 10;
     return objectProperties;
   }
 
-  function exitWorld(bytes32 entityId, VoxelCoord memory coord) public override {}
+  function exitWorld(bytes32 objectEntityId, VoxelCoord memory coord) public override {}
 
   function eventHandler(
-    bytes32 centerEntityId,
-    bytes32[] memory neighbourEntityIds
+    bytes32 centerObjectEntityId,
+    bytes32[] memory neighbourObjectEntityIds
   ) public override returns (Action[] memory) {
     // Note: Builder does not support minds and always stops
-    return stopActionEventHandler(centerEntityId, neighbourEntityIds);
+    return stopActionEventHandler(centerObjectEntityId, neighbourObjectEntityIds);
   }
 
   function stopActionEventHandler(
-    bytes32 centerEntityId,
-    bytes32[] memory neighbourEntityIds
+    bytes32 centerObjectEntityId,
+    bytes32[] memory neighbourObjectEntityIds
   ) public returns (Action[] memory) {
-    address worldAddress = super.getCallerAddress();
-    ObjectProperties memory entityProperties = getObjectProperties(worldAddress, centerEntityId);
-    VoxelCoord memory coord = positionDataToVoxelCoord(Position.get(IStore(worldAddress), centerEntityId));
-    (bool hasStopAction, Action memory stopAction) = tryStoppingAction(centerEntityId, coord, entityProperties);
+    address worldAddress = _msgSender();
+    ObjectProperties memory entityProperties = getObjectProperties(worldAddress, centerObjectEntityId);
+    VoxelCoord memory coord = positionDataToVoxelCoord(
+      Position.get(IStore(worldAddress), getEntityIdFromObjectEntityId(IStore(worldAddress), centerObjectEntityId))
+    );
+    (bool hasStopAction, Action memory stopAction) = tryStoppingAction(centerObjectEntityId, coord, entityProperties);
     if (!hasStopAction) {
       return new Action[](0);
     }
@@ -64,7 +69,7 @@ contract BuilderObjectSystem is AgentType {
 
   function neighbourEventHandler(
     bytes32 neighbourEntityId,
-    bytes32 centerEntityId
+    bytes32 centerObjectEntityId
   ) public override returns (bool, Action[] memory) {
     return (false, new Action[](0));
   }

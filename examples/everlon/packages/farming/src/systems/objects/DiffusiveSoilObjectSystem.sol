@@ -22,18 +22,18 @@ import { REGISTRY_ADDRESS, ConcentrativeSoilObjectID } from "@tenet-farming/src/
 
 import { NUTRIENT_TRANSFER_MAX_DELTA } from "@tenet-simulator/src/Constants.sol";
 
-contract ConcentrativeSoilObjectSystem is ObjectType {
+contract DiffusiveSoilObjectSystem is ObjectType {
   function registerObject() public {
     address world = _world();
     registerObjectType(
       REGISTRY_ADDRESS,
-      ConcentrativeSoilObjectID,
+      DiffusiveSoilObjectID,
       world,
-      IWorld(world).farming_ConcentrativeSoi_enterWorld.selector,
-      IWorld(world).farming_ConcentrativeSoi_exitWorld.selector,
-      IWorld(world).farming_ConcentrativeSoi_eventHandler.selector,
-      IWorld(world).farming_ConcentrativeSoi_neighbourEventHandler.selector,
-      "Concentrative Soil",
+      IWorld(world).farming_DiffusiveSoilObj_enterWorld.selector,
+      IWorld(world).farming_DiffusiveSoilObj_exitWorld.selector,
+      IWorld(world).farming_DiffusiveSoilObj_eventHandler.selector,
+      IWorld(world).farming_DiffusiveSoilObj_neighbourEventHandler.selector,
+      "Diffusive Soil",
       ""
     );
   }
@@ -54,7 +54,7 @@ contract ConcentrativeSoilObjectSystem is ObjectType {
     Soil.set(
       worldAddress,
       objectEntityId,
-      SoilData({ lastInteractionBlock: 0, soilType: SoilType.Concentrative, hasValue: true })
+      SoilData({ lastInteractionBlock: 0, soilType: SoilType.Diffusive, hasValue: true })
     );
     return objectProperties;
   }
@@ -92,7 +92,7 @@ contract ConcentrativeSoilObjectSystem is ObjectType {
           neighbourObjectEntityIds[i]
         );
         if (
-          entityProperties.nutrients < neighbourEntityProperties.nutrients &&
+          entityProperties.nutrients > neighbourEntityProperties.nutrients &&
           absoluteDifference(entityProperties.nutrients, neighbourEntityProperties.nutrients) <=
           NUTRIENT_TRANSFER_MAX_DELTA
         ) {

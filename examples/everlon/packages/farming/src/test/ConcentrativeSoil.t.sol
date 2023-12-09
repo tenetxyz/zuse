@@ -80,10 +80,24 @@ contract ConcentrativeSoilTest is MudTest {
     // Initially no energy, so no nutrients
     assertTrue(soil1Nutrients == 0, "Soil nutrients not 0");
 
+    vm.roll(block.number + 1);
+
     Energy.set(simStore, worldAddress, soilObjectEntityId, 150);
     world.activate(agentObjectEntityId, ConcentrativeSoilObjectID, soilCoord);
     soil1Nutrients = Nutrients.get(simStore, worldAddress, soilObjectEntityId);
     assertTrue(soil1Nutrients > 0, "Soil nutrients not > 0");
+
+    vm.roll(block.number + 1);
+
+    // Place down another soil beside it
+    VoxelCoord memory soilCoord2 = VoxelCoord({ x: soilCoord.x, y: soilCoord.y, z: soilCoord.z + 1 });
+    bytes32 soil2EntityId = world.build(agentObjectEntityId, ConcentrativeSoilObjectID, soilCoord2);
+    bytes32 soil2ObjectEntityId = ObjectEntity.get(store, soil2EntityId);
+    uint256 soil2Nutrients = Nutrients.get(simStore, worldAddress, soil2ObjectEntityId);
+    assertTrue(soil2Nutrients == 0);
+    assertTrue(Nitrogen.get(simStore, worldAddress, soil2ObjectEntityId) > 0, "Nitrogen not found for soil 2");
+    assertTrue(Phosphorus.get(simStore, worldAddress, soil2ObjectEntityId) > 0, "Phosphorus not found for soil 2");
+    assertTrue(Potassium.get(simStore, worldAddress, soil2ObjectEntityId) > 0, "Potassium not found for soil 2");
 
     vm.stopPrank();
   }

@@ -165,16 +165,15 @@ struct ObjectProperties {
   uint256 lastUpdateBlock;
   bytes velocity;
   uint256 health;
+  bool hasHealth;
   uint256 stamina;
+  bool hasStamina;
   ElementType elementType;
   CombatMoveData combatMoveData;
   uint256 nutrients;
   uint256 nitrogen;
-  bool hasNitrogen;
   uint256 phosphorus;
-  bool hasPhosphorus;
   uint256 potassium;
-  bool hasPotassium;
   uint256 elixir;
   uint256 protein;
   uint256 temperature;

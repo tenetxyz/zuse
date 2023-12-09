@@ -10,14 +10,14 @@ import { VoxelCoord, ObjectProperties } from "@tenet-utils/src/Types.sol";
 import { Mass } from "@tenet-simulator/src/codegen/tables/Mass.sol";
 import { Energy } from "@tenet-simulator/src/codegen/tables/Energy.sol";
 import { Velocity } from "@tenet-simulator/src/codegen/tables/Velocity.sol";
-import { Health } from "@tenet-simulator/src/codegen/tables/Health.sol";
-import { Stamina } from "@tenet-simulator/src/codegen/tables/Stamina.sol";
+import { Health, HealthTableId } from "@tenet-simulator/src/codegen/tables/Health.sol";
+import { Stamina, StaminaTableId } from "@tenet-simulator/src/codegen/tables/Stamina.sol";
 import { Element } from "@tenet-simulator/src/codegen/tables/Element.sol";
 import { CombatMove } from "@tenet-simulator/src/codegen/tables/CombatMove.sol";
 import { Nutrients } from "@tenet-simulator/src/codegen/tables/Nutrients.sol";
-import { Nitrogen, NitrogenTableId } from "@tenet-simulator/src/codegen/tables/Nitrogen.sol";
-import { Phosphorus, PhosphorusTableId } from "@tenet-simulator/src/codegen/tables/Phosphorus.sol";
-import { Potassium, PotassiumTableId } from "@tenet-simulator/src/codegen/tables/Potassium.sol";
+import { Nitrogen } from "@tenet-simulator/src/codegen/tables/Nitrogen.sol";
+import { Phosphorus } from "@tenet-simulator/src/codegen/tables/Phosphorus.sol";
+import { Potassium } from "@tenet-simulator/src/codegen/tables/Potassium.sol";
 import { Elixir } from "@tenet-simulator/src/codegen/tables/Elixir.sol";
 import { Protein } from "@tenet-simulator/src/codegen/tables/Protein.sol";
 import { Temperature } from "@tenet-simulator/src/codegen/tables/Temperature.sol";
@@ -37,28 +37,15 @@ contract ExternalObjectSystem is ExternalObjectProtoSystem {
     objectProperties.velocity = Velocity.getVelocity(store, worldAddress, objectEntityId);
     objectProperties.lastUpdateBlock = Velocity.getLastUpdateBlock(store, worldAddress, objectEntityId);
     objectProperties.health = Health.getHealth(store, worldAddress, objectEntityId);
+    objectProperties.hasHealth = hasKey(store, HealthTableId, Health.encodeKeyTuple(worldAddress, objectEntityId));
     objectProperties.stamina = Stamina.get(store, worldAddress, objectEntityId);
+    objectProperties.hasStamina = hasKey(store, StaminaTableId, Stamina.encodeKeyTuple(worldAddress, objectEntityId));
     objectProperties.elementType = Element.get(store, worldAddress, objectEntityId);
     objectProperties.combatMoveData = CombatMove.get(store, worldAddress, objectEntityId);
     objectProperties.nutrients = Nutrients.get(store, worldAddress, objectEntityId);
     objectProperties.nitrogen = Nitrogen.get(store, worldAddress, objectEntityId);
-    objectProperties.hasNitrogen = hasKey(
-      store,
-      NitrogenTableId,
-      Nitrogen.encodeKeyTuple(worldAddress, objectEntityId)
-    );
     objectProperties.phosphorus = Phosphorus.get(store, worldAddress, objectEntityId);
-    objectProperties.hasPhosphorus = hasKey(
-      store,
-      PhosphorusTableId,
-      Phosphorus.encodeKeyTuple(worldAddress, objectEntityId)
-    );
     objectProperties.potassium = Potassium.get(store, worldAddress, objectEntityId);
-    objectProperties.hasPotassium = hasKey(
-      store,
-      PotassiumTableId,
-      Potassium.encodeKeyTuple(worldAddress, objectEntityId)
-    );
     objectProperties.elixir = Elixir.get(store, worldAddress, objectEntityId);
     objectProperties.protein = Protein.get(store, worldAddress, objectEntityId);
     objectProperties.temperature = Temperature.get(store, worldAddress, objectEntityId);

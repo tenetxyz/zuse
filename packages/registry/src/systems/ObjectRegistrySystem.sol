@@ -27,7 +27,7 @@ contract ObjectRegistrySystem is System {
     ObjectTypeRegistry.set(
       objectTypeId,
       ObjectTypeRegistryData({
-        creator: _msgSender(),
+        creator: tx.origin,
         contractAddress: contractAddress,
         enterWorldSelector: enterWorldSelector,
         exitWorldSelector: exitWorldSelector,

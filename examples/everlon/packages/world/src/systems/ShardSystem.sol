@@ -32,7 +32,7 @@ contract ShardSystem is System {
       shardCoord.y,
       shardCoord.z,
       ShardData({
-        claimer: _msgSender(),
+        claimer: tx.origin,
         contractAddress: contractAddress,
         objectTypeIdSelector: objectTypeIdSelector,
         objectPropertiesSelector: objectPropertiesSelector,

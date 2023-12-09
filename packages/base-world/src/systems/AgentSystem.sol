@@ -19,6 +19,6 @@ abstract contract AgentSystem is System {
     require(!hasKey(OwnedByTableId, OwnedBy.encodeKeyTuple(agentObjectEntityId)), "AgentSystem: Agent already owned");
 
     // Claim agent
-    OwnedBy.set(agentObjectEntityId, _msgSender());
+    OwnedBy.set(agentObjectEntityId, tx.origin);
   }
 }

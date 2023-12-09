@@ -7,4 +7,4 @@ The following is an overview diagram of the rules and constraints currently in E
 
 ### Running locally
 
-`./t run dev everlon`
+`./t run dev everlon --with-extensions`

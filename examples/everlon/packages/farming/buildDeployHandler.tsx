@@ -46,13 +46,10 @@ if (action == "build") {
   const worldAddress = getAddressFromFile("../world/worlds.json");
 
   let deployCommand = `yarn mud deploy --installDefaultModules false --worldAddress ${worldAddress}`;
-  let rpcUrl = "http://127.0.0.1:8545";
   if (process.env.NODE_ENV === "production") {
     deployCommand += " --profile=tenet-testgrid";
-    rpcUrl = "https://test-grid.everlon.xyz";
   }
-  const forgeCommand = `forge script script/TerrainDeploy.s.sol --sig 'run(address,address)' '${worldAddress}' --broadcast --rpc-url ${rpcUrl} -vv`;
-  const devCommands = [deployCommand, forgeCommand];
+  const devCommands = [deployCommand];
 
   devCommands.forEach((command) => {
     executeCommand(command);

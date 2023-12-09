@@ -9,7 +9,7 @@ def run_example(path, extra_cmd=None):
     if extra_cmd:
         command += f" && {extra_cmd}"
     print(command)
-    subprocess.run(["yarn", "concurrently", "-n", "example", "-c", "#fb8500", command])
+    subprocess.run(["yarn", "concurrently", "-n", path, "-c", "#fb8500", command])
 
 
 def main():
@@ -61,9 +61,9 @@ def main():
             elif sys.argv[2] == "everlon":
                 extra_cmd = []
 
-                if "--with-pokemon" in sys.argv:
+                if "--with-farming" in sys.argv:
                     # Note: we need to build pokemon before deploying
-                    extra_cmd.append("yarn run build:extensions && yarn run deploy:pokemon")
+                    extra_cmd.append("yarn run build:extensions && yarn run deploy:farming")
                 if "--with-extensions" in sys.argv:
                     # This auto builds extensions in parallel
                     extra_cmd.append("yarn run deploy:extensions")

@@ -4,6 +4,8 @@ pragma solidity >=0.8.0;
 address constant REGISTRY_ADDRESS = 0x057ef64E23666F000b34aE31332854aCBd1c8544;
 address constant SIMULATOR_ADDRESS = 0x5FbDB2315678afecb367f032d93F642f64180aa3;
 
+string constant WORLD_CLAIM_SHARD_SIG = "claimShard((int32,int32,int32),address,bytes4,bytes4,(int32,int32,int32))";
+
 uint256 constant NUM_MAX_OBJECTS_INTERACTION_RUN = 1000;
 uint256 constant NUM_MAX_UNIQUE_OBJECT_EVENT_HANDLERS_RUN = 15;
 uint256 constant NUM_MAX_SAME_OBJECT_EVENT_HANDLERS_RUN = 25;
@@ -25,4 +27,5 @@ bytes32 constant RunnerObjectID = bytes32(keccak256("runner"));
 uint256 constant AIR_MASS = 0;
 uint256 constant DIRT_MASS = 5;
 uint256 constant GRASS_MASS = 5;
+uint256 constant STONE_MASS = 5;
 uint256 constant BEDROCK_MASS = 50;

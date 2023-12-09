@@ -5,7 +5,7 @@ import { IWorld } from "@tenet-world/src/codegen/world/IWorld.sol";
 import { ObjectType } from "@tenet-base-world/src/prototypes/ObjectType.sol";
 import { registerObjectType } from "@tenet-registry/src/Utils.sol";
 import { VoxelCoord, ObjectProperties, Action } from "@tenet-utils/src/Types.sol";
-import { REGISTRY_ADDRESS, StoneObjectID } from "@tenet-world/src/Constants.sol";
+import { REGISTRY_ADDRESS, StoneObjectID, STONE_MASS } from "@tenet-world/src/Constants.sol";
 
 contract StoneObjectSystem is ObjectType {
   function registerObject() public {
@@ -28,7 +28,7 @@ contract StoneObjectSystem is ObjectType {
     VoxelCoord memory coord
   ) public override returns (ObjectProperties memory) {
     ObjectProperties memory objectProperties;
-    objectProperties.mass = 5;
+    objectProperties.mass = STONE_MASS;
     return objectProperties;
   }
 

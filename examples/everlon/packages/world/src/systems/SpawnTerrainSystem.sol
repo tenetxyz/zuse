@@ -14,7 +14,7 @@ int32 constant NUM_LAYERS_SPAWN_GRASS = 1;
 int32 constant NUM_LAYERS_SPAWN_DIRT = 8;
 int32 constant NUM_LAYERS_SPAWN_BEDROCK = 1;
 
-// TODO: Make an abstract prototype that has thw two terrain functions
+// TODO: Make an abstract prototype that has the two terrain functions
 contract SpawnTerrainSystem is System {
   function initSpawnTerrain() public {
     VoxelCoord[1] memory spawnCoords = [VoxelCoord({ x: 0, y: 0, z: 0 })];

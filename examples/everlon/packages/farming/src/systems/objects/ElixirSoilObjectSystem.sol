@@ -17,7 +17,7 @@ import { uint256ToInt256, uint256ToNegativeInt256 } from "@tenet-utils/src/TypeU
 
 import { SoilType } from "@tenet-farming/src/codegen/Types.sol";
 import { entityIsSoil, entityIsPlant, getNutrientConversionActions, isValidPlantNeighbour } from "@tenet-farming/src/Utils.sol";
-import { REGISTRY_ADDRESS, ElixirSoilObjectID } from "@tenet-farming/src/Constants.sol";
+import { REGISTRY_ADDRESS, ElixirSoilObjectID, SOIL_MASS } from "@tenet-farming/src/Constants.sol";
 
 contract ElixirSoilObjectSystem is ObjectType {
   function registerObject() public {
@@ -41,7 +41,7 @@ contract ElixirSoilObjectSystem is ObjectType {
   ) public override returns (ObjectProperties memory) {
     address worldAddress = _msgSender();
     ObjectProperties memory objectProperties;
-    objectProperties.mass = 5;
+    objectProperties.mass = SOIL_MASS;
 
     // Init NPK values
     objectProperties.nitrogen = 1;

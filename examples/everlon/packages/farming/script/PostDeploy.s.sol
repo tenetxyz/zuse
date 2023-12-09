@@ -21,6 +21,8 @@ contract PostDeploy is Script {
     world.farming_ProteinSoilObjec_registerObject();
     world.farming_ElixirSoilObject_registerObject();
 
+    world.farming_FarmingTerrainSy_initFarmingTerrain();
+
     vm.stopBroadcast();
   }
 }

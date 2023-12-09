@@ -253,9 +253,10 @@ struct TerrainData {
 }
 
 struct TerrainSectionData {
-  bool useExistingBlock;
-  bytes32 voxelTypeId;
+  bool useExistingObjectTypeId;
+  bytes32 objectTypeId;
   uint256 energy;
+  uint256 mass;
   int32 xCorner;
   int32 yCorner;
   int32 zCorner;

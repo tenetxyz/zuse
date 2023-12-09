@@ -18,7 +18,7 @@ import { absoluteDifference } from "@tenet-utils/src/MathUtils.sol";
 
 import { SoilType } from "@tenet-farming/src/codegen/Types.sol";
 import { entityIsSoil, entityIsPlant, getNutrientConversionActions, isValidPlantNeighbour } from "@tenet-farming/src/Utils.sol";
-import { REGISTRY_ADDRESS, ConcentrativeSoilObjectID } from "@tenet-farming/src/Constants.sol";
+import { REGISTRY_ADDRESS, ConcentrativeSoilObjectID, SOIL_MASS } from "@tenet-farming/src/Constants.sol";
 
 import { NUTRIENT_TRANSFER_MAX_DELTA } from "@tenet-simulator/src/Constants.sol";
 
@@ -44,7 +44,7 @@ contract ConcentrativeSoilObjectSystem is ObjectType {
   ) public override returns (ObjectProperties memory) {
     address worldAddress = _msgSender();
     ObjectProperties memory objectProperties;
-    objectProperties.mass = 5;
+    objectProperties.mass = SOIL_MASS;
 
     // Init NPK values
     objectProperties.nitrogen = 30;

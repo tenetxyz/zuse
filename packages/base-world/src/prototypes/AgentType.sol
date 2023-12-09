@@ -22,18 +22,18 @@ abstract contract AgentType is ObjectType {
   // Called by Zuse when an event occurs where this object is the center entity
   // Returns the actions it wants to invoke
   function eventHandler(
-    bytes32 centerEntityId,
-    bytes32[] memory neighbourEntityIds
+    bytes32 centerObjectEntityId,
+    bytes32[] memory neighbourObjectEntityIds
   ) public virtual override returns (Action[] memory) {
     // Call mind, and call event handler selected
-    MindData memory mindData = Mind.get(centerEntityId);
+    MindData memory mindData = Mind.get(centerObjectEntityId);
     if (mindData.mindAddress == address(0) || mindData.mindSelector == bytes4(0)) {
       return new Action[](0);
     }
 
     bytes memory mindReturnData = callOrRevert(
       mindData.mindAddress,
-      abi.encodeWithSelector(mindData.mindSelector, centerEntityId, neighbourEntityIds),
+      abi.encodeWithSelector(mindData.mindSelector, centerObjectEntityId, neighbourObjectEntityIds),
       "mindSelector"
     );
     (address eventHandlerAddress, bytes4 eventHandlerSelector) = abi.decode(mindReturnData, (address, bytes4));
@@ -43,7 +43,7 @@ abstract contract AgentType is ObjectType {
 
     bytes memory eventHandlerReturnData = callOrRevert(
       eventHandlerAddress,
-      abi.encodeWithSelector(eventHandlerSelector, centerEntityId, neighbourEntityIds),
+      abi.encodeWithSelector(eventHandlerSelector, centerObjectEntityId, neighbourObjectEntityIds),
       "eventHandler"
     );
     return abi.decode(eventHandlerReturnData, (Action[]));

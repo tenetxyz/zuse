@@ -8,7 +8,7 @@ import { VoxelCoord, ObjectProperties, Action } from "@tenet-utils/src/Types.sol
 import { REGISTRY_ADDRESS, StoneObjectID } from "@tenet-world/src/Constants.sol";
 
 contract StoneObjectSystem is ObjectType {
-  function registerBody() public {
+  function registerObject() public {
     address world = _world();
     registerObjectType(
       REGISTRY_ADDRESS,

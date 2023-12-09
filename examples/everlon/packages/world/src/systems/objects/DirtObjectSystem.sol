@@ -8,7 +8,7 @@ import { VoxelCoord, ObjectProperties, Action } from "@tenet-utils/src/Types.sol
 import { REGISTRY_ADDRESS, DirtObjectID, DIRT_MASS } from "@tenet-world/src/Constants.sol";
 
 contract DirtObjectSystem is ObjectType {
-  function registerBody() public {
+  function registerObject() public {
     address world = _world();
     registerObjectType(
       REGISTRY_ADDRESS,

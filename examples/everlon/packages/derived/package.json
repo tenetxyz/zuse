@@ -47,7 +47,6 @@
     "@latticexyz/world": "link:../../../../../mud/packages/world",
     "@tenetxyz/base-ca": "link:../../../../packages/base-ca",
     "@tenetxyz/base-world": "link:../../../../packages/base-world",
-    "@tenetxyz/level1-ca": "workspace:*",
     "@tenetxyz/pokemon-extension": "workspace:*",
     "@tenetxyz/registry": "link:../../../../packages/registry",
     "@tenetxyz/simulator": "workspace:*",

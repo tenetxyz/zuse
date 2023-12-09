@@ -44,7 +44,6 @@
     "@latticexyz/world": "link:../../../../../mud/packages/world",
     "@openzeppelin/contracts": "^4.9.1",
     "@tenetxyz/base-ca": "link:../../../../packages/base-ca",
-    "@tenetxyz/level1-ca": "workspace:*",
     "@tenetxyz/registry": "link:../../../../packages/registry",
     "@tenetxyz/simulator": "workspace:*",
     "@tenetxyz/utils": "link:../../../../packages/utils",

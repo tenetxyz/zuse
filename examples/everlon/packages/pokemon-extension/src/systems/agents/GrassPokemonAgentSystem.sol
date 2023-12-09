@@ -23,7 +23,7 @@ bytes32 constant PokemonVoxelVariantID = bytes32(keccak256("pokemon-grass"));
 string constant PokemonTexture = "bafkreihpdljsgdltghxehq4cebngtugfj3pduucijxcrvcla4hoy34f7vq";
 
 contract GrassPokemonAgentSystem is AgentType {
-  function registerBody() public override {
+  function registerObject() public override {
     address world = _world();
     VoxelVariantsRegistryData memory pokemonVariant;
     pokemonVariant.blockType = NoaBlockType.MESH;

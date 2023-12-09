@@ -13,7 +13,7 @@ import { REGISTRY_ADDRESS, RunnerObjectID } from "@tenet-world/src/Constants.sol
 import { getObjectProperties } from "@tenet-base-world/src/CallUtils.sol";
 
 contract RunnerObjectSystem is AgentType {
-  function registerBody() public {
+  function registerObject() public {
     address world = _world();
     registerObjectType(
       REGISTRY_ADDRESS,
@@ -44,6 +44,13 @@ contract RunnerObjectSystem is AgentType {
     bytes32[] memory neighbourObjectEntityIds
   ) public override returns (Action[] memory) {
     return super.eventHandler(centerObjectEntityId, neighbourObjectEntityIds);
+  }
+
+  function defaultEventHandler(
+    bytes32 centerObjectEntityId,
+    bytes32[] memory neighbourObjectEntityIds
+  ) public override returns (Action[] memory) {
+    return new Action[](0);
   }
 
   function neighbourEventHandler(

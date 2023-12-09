@@ -20,7 +20,7 @@ bytes32 constant ThermoColdVoxelVariantID = bytes32(keccak256("thermo-cold"));
 bytes32 constant ThermoHotVoxelVariantID = bytes32(keccak256("thermo-hot"));
 
 contract ThermoVoxelSystem is VoxelType {
-  function registerBody() public override {
+  function registerObject() public override {
     address world = _world();
     VoxelVariantsRegistryData memory thermoVariant;
     registerVoxelVariant(REGISTRY_ADDRESS, ThermoColdVoxelVariantID, thermoVariant);

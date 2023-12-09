@@ -17,7 +17,7 @@ abdk-libraries-solidity/=../../node_modules/abdk-libraries-solidity/
 @tenet-registry/=../../node_modules/@tenetxyz/registry
 @tenet-base-ca/=../../node_modules/@tenetxyz/base-ca
 @tenet-base-world/=../../node_modules/@tenetxyz/base-world
-@tenet-level1-ca/=../../node_modules/@tenetxyz/level1-ca
+
 @tenet-pokemon-extension/=../../node_modules/@tenetxyz/pokemon-extension
 @tenet-simulator/=../../node_modules/@tenetxyz/simulator
 @tenet-world/=../../node_modules/@tenetxyz/world

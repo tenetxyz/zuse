@@ -15,7 +15,7 @@ import { EventType, SoilType } from "@tenet-pokemon-extension/src/codegen/Types.
 bytes32 constant ConcentrativeSoilVoxelVariantID = bytes32(keccak256("soil-concentrative"));
 
 contract ConcentrativeSoilVoxelSystem is VoxelType {
-  function registerBody() public override {
+  function registerObject() public override {
     address world = _world();
     VoxelVariantsRegistryData memory soilVariant;
     registerVoxelVariant(REGISTRY_ADDRESS, ConcentrativeSoilVoxelVariantID, soilVariant);

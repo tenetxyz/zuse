@@ -19,7 +19,7 @@ string constant PlantTexture = "bafkreidtk7vevmnzt6is5dreyoocjkyy56bk66zbm5bx6wz
 string constant PlantUVWrap = "bafkreiaur4pmmnh3dts6rjtfl5f2z6ykazyuu4e2cbno6drslfelkga3yy";
 
 contract PlantVoxelSystem is VoxelType {
-  function registerBody() public override {
+  function registerObject() public override {
     address world = _world();
     VoxelVariantsRegistryData memory plantVariant;
     registerVoxelVariant(REGISTRY_ADDRESS, PlantSeedVoxelVariantID, plantVariant);

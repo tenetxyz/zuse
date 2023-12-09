@@ -24,7 +24,7 @@ bytes32 constant FarmerVoxelVariantID = bytes32(keccak256("farmer"));
 string constant FarmerTexture = "bafkreihpdljsgdltghxehq4cebngtugfj3pduucijxcrvcla4hoy34f7vq";
 
 contract FarmerAgentSystem is AgentType {
-  function registerBody() public override {
+  function registerObject() public override {
     address world = _world();
     VoxelVariantsRegistryData memory farmerVariant;
     farmerVariant.blockType = NoaBlockType.MESH;

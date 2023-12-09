@@ -1,8 +1,9 @@
 // SPDX-License-Identifier: MIT
 pragma solidity >=0.8.0;
 
-import { Script } from "forge-std/Script.sol";
 import { IWorld } from "../src/codegen/world/IWorld.sol";
+import { Script } from "forge-std/Script.sol";
+import { console } from "forge-std/console.sol";
 
 contract PostDeploy is Script {
   function run(address worldAddress) external {
@@ -14,13 +15,7 @@ contract PostDeploy is Script {
 
     IWorld world = IWorld(worldAddress);
 
-    world.world_AirObjectSystem_registerObject();
-    world.world_DirtObjectSystem_registerObject();
-    world.world_GrassObjectSyste_registerObject();
-    world.world_BedrockObjectSys_registerObject();
-    world.world_BuilderObjectSys_registerObject();
-
-    world.spawnInitialAgents();
+    world.farming_FarmerObjectSyst_registerObject();
 
     vm.stopBroadcast();
   }

@@ -14,18 +14,18 @@ contract PostDeploy is Script {
     vm.startBroadcast(deployerPrivateKey);
 
     // Register the voxel types
-    IWorld(worldAddress).pokemon_ProteinSoilVoxel_registerBody();
-    IWorld(worldAddress).pokemon_ElixirSoilVoxelS_registerBody();
-    IWorld(worldAddress).pokemon_ConcentrativeSoi_registerBody();
-    IWorld(worldAddress).pokemon_DiffusiveSoilVox_registerBody();
+    IWorld(worldAddress).pokemon_ProteinSoilVoxel_registerObject();
+    IWorld(worldAddress).pokemon_ElixirSoilVoxelS_registerObject();
+    IWorld(worldAddress).pokemon_ConcentrativeSoi_registerObject();
+    IWorld(worldAddress).pokemon_DiffusiveSoilVox_registerObject();
 
-    IWorld(worldAddress).pokemon_PlantVoxelSystem_registerBody();
-    IWorld(worldAddress).pokemon_FirePokemonAgent_registerBody();
-    IWorld(worldAddress).pokemon_WaterPokemonAgen_registerBody();
-    IWorld(worldAddress).pokemon_GrassPokemonAgen_registerBody();
-    IWorld(worldAddress).pokemon_FarmerAgentSyste_registerBody();
+    IWorld(worldAddress).pokemon_PlantVoxelSystem_registerObject();
+    IWorld(worldAddress).pokemon_FirePokemonAgent_registerObject();
+    IWorld(worldAddress).pokemon_WaterPokemonAgen_registerObject();
+    IWorld(worldAddress).pokemon_GrassPokemonAgen_registerObject();
+    IWorld(worldAddress).pokemon_FarmerAgentSyste_registerObject();
 
-    IWorld(worldAddress).pokemon_ThermoVoxelSyste_registerBody();
+    IWorld(worldAddress).pokemon_ThermoVoxelSyste_registerObject();
 
     IWorld(worldAddress).pokemon_PokemonMindSyste_registerMind();
     IWorld(worldAddress).pokemon_GrassMindSystem_registerMind();

@@ -21,7 +21,7 @@ uint256 constant STARTING_STAMINA_FROM_FAUCET = 30000;
 uint256 constant STARTING_HEALTH_FROM_FAUCET = 100;
 
 contract FaucetObjectSystem is AgentType {
-  function registerBody() public {
+  function registerObject() public {
     address world = _world();
     registerObjectType(
       REGISTRY_ADDRESS,
@@ -54,7 +54,13 @@ contract FaucetObjectSystem is AgentType {
     bytes32 centerObjectEntityId,
     bytes32[] memory neighbourObjectEntityIds
   ) public override returns (Action[] memory) {
-    // Note: Faucet does not support minds and always gives stamina and health
+    return super.eventHandler(centerObjectEntityId, neighbourObjectEntityIds);
+  }
+
+  function defaultEventHandler(
+    bytes32 centerObjectEntityId,
+    bytes32[] memory neighbourObjectEntityIds
+  ) public override returns (Action[] memory) {
     return giveStaminaAndHealthEventHandler(centerObjectEntityId, neighbourObjectEntityIds);
   }
 

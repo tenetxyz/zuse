@@ -16,6 +16,10 @@ contract PostDeploy is Script {
     IWorld world = IWorld(worldAddress);
 
     world.farming_FarmerObjectSyst_registerObject();
+    world.farming_ConcentrativeSoi_registerObject();
+    world.farming_DiffusiveSoilObj_registerObject();
+    world.farming_ProteinSoilObjec_registerObject();
+    world.farming_ElixirSoilObject_registerObject();
 
     vm.stopBroadcast();
   }

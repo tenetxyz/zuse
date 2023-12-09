@@ -6,7 +6,7 @@ export default mudConfig({
   enums: {
     // TODO: Add plant stages
     // PlantStage: ["Seed", "Sprout", "Flower"],
-    SoilType: ["ProteinSoil", "ElixirSoil", "Concentrative", "Diffusive"],
+    SoilType: ["Protein", "Elixir", "Concentrative", "Diffusive"],
   },
   tables: {
     Soil: {

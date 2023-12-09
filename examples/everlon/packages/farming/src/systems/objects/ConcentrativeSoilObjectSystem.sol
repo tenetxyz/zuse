@@ -12,9 +12,8 @@ import { SoilType } from "@tenet-farming/src/codegen/Types.sol";
 import { getObjectProperties } from "@tenet-base-world/src/CallUtils.sol";
 import { positionDataToVoxelCoord, getEntityIdFromObjectEntityId, getVoxelCoord } from "@tenet-base-world/src/Utils.sol";
 import { uint256ToInt256, uint256ToNegativeInt256 } from "@tenet-utils/src/TypeUtils.sol";
-import { entityIsSoil, entityIsPlant } from "@tenet-farming/src/Utils.sol";
+import { entityIsSoil, entityIsPlant, getNutrientConversionActions, isValidPlantNeighbour } from "@tenet-farming/src/Utils.sol";
 import { absoluteDifference } from "@tenet-utils/src/MathUtils.sol";
-import { calculateBlockDirection } from "@tenet-utils/src/VoxelCoordUtils.sol";
 import { NUTRIENT_TRANSFER_MAX_DELTA } from "@tenet-simulator/src/Constants.sol";
 
 contract ConcentrativeSoilObjectSystem is ObjectType {
@@ -72,7 +71,7 @@ contract ConcentrativeSoilObjectSystem is ObjectType {
     VoxelCoord memory coord = getVoxelCoord(IStore(worldAddress), centerObjectEntityId);
     if (entityProperties.energy > 0) {
       // We convert all our general energy to nutrient energy
-      return getNutrientConversionActions(worldAddress, centerObjectEntityId, coord, entityProperties);
+      return getNutrientConversionActions(centerObjectEntityId, coord, entityProperties);
     }
 
     Action[] memory actions = new Action[](neighbourObjectEntityIds.length * 2);
@@ -139,47 +138,33 @@ contract ConcentrativeSoilObjectSystem is ObjectType {
     return actions;
   }
 
-  function isValidPlantNeighbour(
-    address worldAddress,
-    VoxelCoord memory coord,
-    bytes32 neighbourObjectEntityId,
-    VoxelCoord memory neighbourCoord
-  ) internal returns (bool) {
-    BlockDirection neighbourBlockDirection = calculateBlockDirection(coord, neighbourCoord);
-    if (neighbourBlockDirection != BlockDirection.Up) {
-      return false;
-    }
-
-    if (!entityIsPlant(worldAddress, neighbourObjectEntityId)) {
-      return false;
-    }
-
-    return true;
-  }
-
-  function getNutrientConversionActions(
-    address worldAddress,
-    bytes32 centerObjectEntityId,
-    VoxelCoord memory coord,
-    ObjectProperties memory entityProperties
-  ) internal returns (Action[] memory) {
-    Action[] memory conversionActions = new Action[](1);
-    conversionActions[0] = Action({
-      actionType: ActionType.Transformation,
-      senderTable: SimTable.Energy,
-      senderValue: abi.encode(uint256ToNegativeInt256(entityProperties.energy)),
-      targetObjectEntityId: centerObjectEntityId,
-      targetCoord: coord,
-      targetTable: SimTable.Nutrients,
-      targetValue: abi.encode(uint256ToInt256(entityProperties.energy))
-    });
-    return conversionActions;
-  }
-
   function neighbourEventHandler(
     bytes32 neighbourObjectEntityId,
     bytes32 centerObjectEntityId
   ) public override returns (bool, Action[] memory) {
+    address worldAddress = _msgSender();
+    uint256 lastInteractionBlock = Soil.getLastInteractionBlock(worldAddress, neighbourObjectEntityId);
+    if (block.number == lastInteractionBlock) {
+      return (false, new Action[](0));
+    }
+
+    ObjectProperties memory entityProperties = getObjectProperties(worldAddress, neighbourObjectEntityId);
+    VoxelCoord memory coord = getVoxelCoord(IStore(worldAddress), neighbourObjectEntityId);
+    if (entityProperties.energy > 0) {
+      // We convert all our general energy to nutrient energy
+      // Note: The bool return value is false as we don't request an event here, since the action
+      // will trigger an event anyways. It would just lead to duplicate events.
+      return (false, getNutrientConversionActions(neighbourObjectEntityId, coord, entityProperties));
+    }
+
+    VoxelCoord memory centerCoord = getVoxelCoord(IStore(worldAddress), centerObjectEntityId);
+    if (
+      entityIsSoil(worldAddress, centerObjectEntityId) ||
+      isValidPlantNeighbour(worldAddress, coord, centerObjectEntityId, centerCoord)
+    ) {
+      return (true, new Action[](0));
+    }
+
     return (false, new Action[](0));
   }
 }

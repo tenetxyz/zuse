@@ -80,13 +80,12 @@ contract VelocityRuleSystem is System {
     bytes32 objectEntityId
   ) public returns (bytes32) {
     require(
-      hasKey(MassTableId, Mass.encodeKeyTuple(worldAddress, oldObjectEntityId)) &&
-        hasKey(MassTableId, Mass.encodeKeyTuple(worldAddress, objectEntityId)),
-      "VelocitySystem: Object entities not initialized"
+      hasKey(MassTableId, Mass.encodeKeyTuple(worldAddress, objectEntityId)),
+      "VelocityRuleSystem: Object entity not initialized"
     );
     require(
       Mass.get(worldAddress, oldObjectEntityId) == 0,
-      "VelocitySystem: Cannot move on top of an entity with mass"
+      "VelocityRuleSystem: Cannot move on top of an entity with mass"
     );
     (VoxelCoord memory newVelocity, uint256 resourceRequired) = calculateNewVelocity(
       worldAddress,
@@ -101,7 +100,7 @@ contract VelocityRuleSystem is System {
       uint256 currentResourceAmount = hasStamina
         ? Stamina.get(worldAddress, actingObjectEntityId)
         : Temperature.get(worldAddress, actingObjectEntityId);
-      require(resourceRequired <= currentResourceAmount, "VelocitySystem: Not enough resources to move.");
+      require(resourceRequired <= currentResourceAmount, "VelocityRuleSystem: Not enough resources to move.");
       if (hasStamina) {
         Stamina.set(worldAddress, actingObjectEntityId, currentResourceAmount - resourceRequired);
       } else {

@@ -64,14 +64,12 @@ contract SimInitSystem is SimInitProtoSystem {
       Stamina.set(worldAddress, objectEntityId, initialProperties.stamina);
     }
 
-    bool hasNPK = false;
     if (initialProperties.nitrogen > 0) {
       require(
         !hasKey(NitrogenTableId, Nitrogen.encodeKeyTuple(worldAddress, objectEntityId)),
         "SimInitSystem: Nitrogen for object already initialized"
       );
       Nitrogen.set(worldAddress, objectEntityId, initialProperties.nitrogen);
-      hasNPK = true;
     }
     if (initialProperties.phosphorus > 0) {
       require(
@@ -79,7 +77,6 @@ contract SimInitSystem is SimInitProtoSystem {
         "SimInitSystem: Phosphorus for object already initialized"
       );
       Phosphorus.set(worldAddress, objectEntityId, initialProperties.phosphorus);
-      hasNPK = true;
     }
     if (initialProperties.potassium > 0) {
       require(
@@ -87,7 +84,6 @@ contract SimInitSystem is SimInitProtoSystem {
         "SimInitSystem: Potassium for object already initialized"
       );
       Potassium.set(worldAddress, objectEntityId, initialProperties.potassium);
-      hasNPK = true;
     }
 
     require(

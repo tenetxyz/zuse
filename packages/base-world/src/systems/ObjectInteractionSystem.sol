@@ -162,7 +162,13 @@ abstract contract ObjectInteractionSystem is System {
       }
     }
 
-    return (changedNeighbourEntities);
+    for (uint256 i; i < changedNeighbourEntities.length; i++) {
+      if (uint256(changedNeighbourEntities[i]) != 0) {
+        changedEntities[i + 1] = changedNeighbourEntities[i];
+      }
+    }
+
+    return (changedEntities);
   }
 
   function runInteractions(bytes32 centerEntityId) public virtual {

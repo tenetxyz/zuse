@@ -191,9 +191,9 @@ contract DiffusiveSoilTest is MudTest {
     soil1Nutrients = Nutrients.get(simStore, worldAddress, soilObjectEntityId);
     assertTrue(soil1Nutrients == 0, "Soil nutrients not 0");
 
-    // Soil2 should have no nutrients, since its diffusive soil
+    // Soil2 should have some nutrients from the energy flux
     soil2Nutrients = Nutrients.get(simStore, worldAddress, soil2ObjectEntityId);
-    assertTrue(soil2Nutrients == 0, "Soil 2 nutrients not 0");
+    assertTrue(soil2Nutrients > 0, "Soil 2 nutrients not 0");
 
     // Plant should have elixir and protein
     assertTrue(Elixir.get(simStore, worldAddress, plantObjectEntityId) > 0, "Elixir not found for plant");

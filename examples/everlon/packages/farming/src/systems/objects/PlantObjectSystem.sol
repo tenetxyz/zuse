@@ -231,7 +231,7 @@ contract PlantObjectSystem is ObjectType {
     bytes32 centerObjectEntityId
   ) public override returns (bool, Action[] memory) {
     address worldAddress = _msgSender();
-    updateTotalProduced(worldAddress, centerObjectEntityId);
+    updateTotalProduced(worldAddress, neighbourObjectEntityId);
     uint256 lastInteractionBlock = Plant.getLastInteractionBlock(worldAddress, neighbourObjectEntityId);
     if (block.number == lastInteractionBlock) {
       return (false, new Action[](0));

@@ -160,7 +160,7 @@ contract ProteinSoilTest is MudTest {
 
     // Place down another soil beside it
     VoxelCoord memory soilCoord2 = VoxelCoord({ x: soilCoord.x, y: soilCoord.y, z: soilCoord.z + 1 });
-    bytes32 soil2EntityId = world.build(agentObjectEntityId, ProteinSoilObjectID, soilCoord2);
+    bytes32 soil2EntityId = world.build(agentObjectEntityId, DiffusiveSoilObjectID, soilCoord2);
     bytes32 soil2ObjectEntityId = ObjectEntity.get(store, soil2EntityId);
     assertTrue(Nitrogen.get(simStore, worldAddress, soil2ObjectEntityId) > 0, "Nitrogen not found for soil 2");
     uint256 soil2P = Phosphorus.get(simStore, worldAddress, soil2ObjectEntityId);
@@ -194,7 +194,6 @@ contract ProteinSoilTest is MudTest {
     soil1Nutrients = Nutrients.get(simStore, worldAddress, soilObjectEntityId);
     assertTrue(soil1Nutrients == 0, "Soil nutrients not 0");
 
-    // Soil2 should have no nutrients, since its protein soil
     soil2Nutrients = Nutrients.get(simStore, worldAddress, soil2ObjectEntityId);
     assertTrue(soil2Nutrients == 0, "Soil 2 nutrients not 0");
 

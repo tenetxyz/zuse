@@ -10,16 +10,16 @@ import { Soil } from "@tenet-farming/src/codegen/tables/Soil.sol";
 import { Plant } from "@tenet-farming/src/codegen/tables/Plant.sol";
 import { Farmer } from "@tenet-farming/src/codegen/tables/Farmer.sol";
 
-function entityIsSoil(address callerAddress, bytes32 entity) view returns (bool) {
-  return Soil.getHasValue(callerAddress, entity);
+function entityIsSoil(address worldAddress, bytes32 objectEntityId) view returns (bool) {
+  return Soil.getHasValue(worldAddress, objectEntityId);
 }
 
-function entityIsPlant(address callerAddress, bytes32 entity) view returns (bool) {
-  return Plant.getHasValue(callerAddress, entity);
+function entityIsPlant(address worldAddress, bytes32 objectEntityId) view returns (bool) {
+  return Plant.getHasValue(worldAddress, objectEntityId);
 }
 
-function entityIsFarmer(address callerAddress, bytes32 entity) view returns (bool) {
-  return Farmer.getHasValue(callerAddress, entity);
+function entityIsFarmer(address worldAddress, bytes32 objectEntityId) view returns (bool) {
+  return Farmer.getHasValue(worldAddress, objectEntityId);
 }
 
 function isValidPlantNeighbour(

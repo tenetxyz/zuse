@@ -32,7 +32,7 @@ abstract contract ObjectSystem is System {
 
     (bool enterWorldSuccess, bytes memory enterWorldReturnData) = safeCall(
       objectAddress,
-      abi.encodeWithSelector(objectEnterWorldSelector, coord, objectEntityId),
+      abi.encodeWithSelector(objectEnterWorldSelector, objectEntityId, coord),
       "object enter world"
     );
     if (enterWorldSuccess) {
@@ -56,7 +56,7 @@ abstract contract ObjectSystem is System {
 
     (bool exitWorldSuccess, bytes memory exitWorldReturnData) = safeCall(
       objectAddress,
-      abi.encodeWithSelector(objectExitWorldSelector, coord, objectEntityId),
+      abi.encodeWithSelector(objectExitWorldSelector, objectEntityId, coord),
       "object exit world"
     );
   }

@@ -39,7 +39,7 @@ interface IWorld is IBaseWorld, IBuildSystem, IMineSystem, IMoveSystem, IActivat
 
 }
 
-contract PlantTest is MudTest {
+contract FarmerTest is MudTest {
   IWorld private world;
   IStore private store;
   IStore private simStore;
@@ -61,7 +61,7 @@ contract PlantTest is MudTest {
     assertTrue(uint256(faucetEntityId) != 0, "Agent not found at coord");
     bytes32 faucetObjectEntityId = ObjectEntity.get(store, faucetEntityId);
 
-    bytes32 agentObjectTypeId = BuilderObjectID;
+    bytes32 agentObjectTypeId = FarmerObjectID;
     bytes32 agentEntityId = world.claimAgentFromFaucet(faucetObjectEntityId, agentObjectTypeId, agentCoord);
     assertTrue(uint256(agentEntityId) != 0, "Agent not found at coord");
     bytes32 agentObjectEntityId = ObjectEntity.get(store, agentEntityId);
@@ -69,7 +69,7 @@ contract PlantTest is MudTest {
     return (agentEntityId, agentObjectEntityId);
   }
 
-  function testPlant() public {
+  function testFarmer() public {
     vm.startPrank(alice, alice);
     (, bytes32 agentObjectEntityId) = setupAgent();
 
@@ -110,11 +110,37 @@ contract PlantTest is MudTest {
       assertTrue(plantData.totalProduced > 0, "Produced not > 0");
     }
 
-    // Place consumer next to flower
-    VoxelCoord memory consumerCoord = VoxelCoord({ x: plantCoord.x, y: plantCoord.y, z: plantCoord.z - 1 });
+    // Place farmer next to flower
+    VoxelCoord memory farmerCoord = VoxelCoord({ x: plantCoord.x, y: plantCoord.y, z: plantCoord.z - 1 });
     uint256 healthBefore = Health.getHealth(simStore, worldAddress, agentObjectEntityId);
     uint256 staminaBefore = Stamina.get(simStore, worldAddress, agentObjectEntityId);
-    world.move(agentObjectEntityId, BuilderObjectID, agentCoord, consumerCoord);
+    world.move(agentObjectEntityId, FarmerObjectID, agentCoord, farmerCoord);
+
+    // Since farmer is not set to hungry, it should not eat the plant
+    assertTrue(Health.getHealth(simStore, worldAddress, agentObjectEntityId) == healthBefore, "Health increased");
+    assertTrue(Stamina.get(simStore, worldAddress, agentObjectEntityId) <= staminaBefore, "Stamina increased");
+
+    // Plant should lose all protein and elixir
+    assertTrue(Elixir.get(simStore, worldAddress, plantObjectEntityId) > 0, "Elixir not found for plant");
+    assertTrue(Protein.get(simStore, worldAddress, plantObjectEntityId) > 0, "Protein not found for plant");
+
+    {
+      PlantData memory plantData = Plant.get(store, worldAddress, plantObjectEntityId);
+      PlantConsumer[] memory consumers = abi.decode(plantData.consumers, (PlantConsumer[]));
+      assertTrue(consumers.length == 0, "Consumers not empty");
+    }
+    healthBefore = Health.getHealth(simStore, worldAddress, agentObjectEntityId);
+    staminaBefore = Stamina.get(simStore, worldAddress, agentObjectEntityId);
+
+    // Set farmer to hungry
+    // Note: This is a hack, since the namespace owner is not the same as the world owner
+    vm.startPrank(0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC, 0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC);
+    Farmer.setIsHungry(store, worldAddress, agentObjectEntityId, true);
+    vm.stopPrank();
+    vm.startPrank(alice, alice);
+    world.activate(agentObjectEntityId, PlantObjectID, plantCoord);
+
+    // Farmer should have eaten the plant
     assertTrue(Health.getHealth(simStore, worldAddress, agentObjectEntityId) > healthBefore, "Health not increased");
     assertTrue(Stamina.get(simStore, worldAddress, agentObjectEntityId) > staminaBefore, "Stamina not increased");
 

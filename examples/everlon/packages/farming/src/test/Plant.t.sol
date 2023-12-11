@@ -85,7 +85,7 @@ contract PlantTest is MudTest {
 
     vm.roll(block.number + 1);
 
-    Energy.set(simStore, worldAddress, soilObjectEntityId, 300);
+    Energy.set(simStore, worldAddress, soilObjectEntityId, 500);
     world.activate(agentObjectEntityId, ConcentrativeSoilObjectID, soilCoord);
     soil1Nutrients = Nutrients.get(simStore, worldAddress, soilObjectEntityId);
     assertTrue(soil1Nutrients > 0, "Soil nutrients not > 0");

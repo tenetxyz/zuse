@@ -16,6 +16,9 @@ contract PostDeploy is Script {
     IWorld world = IWorld(worldAddress);
 
     world.creatures_ThermoObjectSyst_registerObject();
+    world.creatures_FireCreatureObje_registerObject();
+    world.creatures_WaterCreatureObj_registerObject();
+    world.creatures_GrassCreatureObj_registerObject();
 
     vm.stopBroadcast();
   }

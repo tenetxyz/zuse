@@ -85,5 +85,10 @@ export default tenetMudConfig({
       root: true,
       args: [resolveTableId("Mind")],
     },
+    {
+      name: "KeysInTableModule",
+      root: true,
+      args: [resolveTableId("Metadata")],
+    },
   ],
 });

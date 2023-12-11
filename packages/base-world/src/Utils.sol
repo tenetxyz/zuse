@@ -5,6 +5,7 @@ import { IStore } from "@latticexyz/store/src/IStore.sol";
 import { getKeysWithValue } from "@latticexyz/world/src/modules/keyswithvalue/getKeysWithValue.sol";
 import { hasKey } from "@latticexyz/world/src/modules/keysintable/hasKey.sol";
 
+import { ObjectType } from "@tenet-base-world/src/codegen/tables/ObjectType.sol";
 import { Position, PositionData, PositionTableId } from "@tenet-base-world/src/codegen/tables/Position.sol";
 import { ObjectEntity, ObjectEntityTableId } from "@tenet-base-world/src/codegen/tables/ObjectEntity.sol";
 
@@ -24,6 +25,10 @@ function getEntityIdFromObjectEntityId(IStore store, bytes32 objectEntityId) vie
 function getVoxelCoord(IStore store, bytes32 objectEntityId) view returns (VoxelCoord memory) {
   PositionData memory position = Position.get(store, getEntityIdFromObjectEntityId(store, objectEntityId));
   return positionDataToVoxelCoord(position);
+}
+
+function getObjectType(IStore store, bytes32 objectEntityId) view returns (bytes32) {
+  return ObjectType.get(store, getEntityIdFromObjectEntityId(store, objectEntityId));
 }
 
 function getEntityAtCoord(IStore store, VoxelCoord memory coord) view returns (bytes32) {

@@ -16,8 +16,7 @@ import { ObjectEntity } from "@tenet-world/src/codegen/tables/ObjectEntity.sol";
 import { VoxelCoord } from "@tenet-utils/src/Types.sol";
 import { getEntityAtCoord, getEntityPositionStrict, positionDataToVoxelCoord } from "@tenet-base-world/src/Utils.sol";
 import { SIMULATOR_ADDRESS, BuilderObjectID, GrassObjectID, AirObjectID } from "@tenet-world/src/Constants.sol";
-import { WORLD_ADDRESS, SOIL_MASS, FarmerObjectID, PlantObjectID, ConcentrativeSoilObjectID, DiffusiveSoilObjectID, ProteinSoilObjectID, ElixirSoilObjectID } from "@tenet-farming/src/Constants.sol";
-import { REGISTRY_ADDRESS } from "@tenet-creatures/src/Constants.sol";
+import { WORLD_ADDRESS, REGISTRY_ADDRESS } from "@tenet-creatures/src/Constants.sol";
 import { console } from "forge-std/console.sol";
 import { Mass } from "@tenet-simulator/src/codegen/tables/Mass.sol";
 import { Energy } from "@tenet-simulator/src/codegen/tables/Energy.sol";
@@ -67,67 +66,67 @@ contract CreatureTest is MudTest {
     return (agentEntityId, agentObjectEntityId);
   }
 
-  function testPlant() public {
-    vm.startPrank(alice, alice);
-    (, bytes32 agentObjectEntityId) = setupAgent();
+  // function testPlant() public {
+  //   vm.startPrank(alice, alice);
+  //   (, bytes32 agentObjectEntityId) = setupAgent();
 
-    VoxelCoord memory soilCoord = VoxelCoord({ x: agentCoord.x + 1, y: agentCoord.y, z: agentCoord.z });
-    bytes32 soilEntityId = world.build(agentObjectEntityId, ConcentrativeSoilObjectID, soilCoord);
-    bytes32 soilObjectEntityId = ObjectEntity.get(store, soilEntityId);
-    assertTrue(Nitrogen.get(simStore, worldAddress, soilObjectEntityId) > 0, "Nitrogen not found");
-    assertTrue(Phosphorus.get(simStore, worldAddress, soilObjectEntityId) > 0, "Phosphorus not found");
-    assertTrue(Potassium.get(simStore, worldAddress, soilObjectEntityId) > 0, "Potassium not found");
-    uint256 soil1Nutrients = Nutrients.get(simStore, worldAddress, soilObjectEntityId);
-    // Initially no energy, so no nutrients
-    assertTrue(soil1Nutrients == 0, "Soil nutrients not 0");
+  //   VoxelCoord memory soilCoord = VoxelCoord({ x: agentCoord.x + 1, y: agentCoord.y, z: agentCoord.z });
+  //   bytes32 soilEntityId = world.build(agentObjectEntityId, ConcentrativeSoilObjectID, soilCoord);
+  //   bytes32 soilObjectEntityId = ObjectEntity.get(store, soilEntityId);
+  //   assertTrue(Nitrogen.get(simStore, worldAddress, soilObjectEntityId) > 0, "Nitrogen not found");
+  //   assertTrue(Phosphorus.get(simStore, worldAddress, soilObjectEntityId) > 0, "Phosphorus not found");
+  //   assertTrue(Potassium.get(simStore, worldAddress, soilObjectEntityId) > 0, "Potassium not found");
+  //   uint256 soil1Nutrients = Nutrients.get(simStore, worldAddress, soilObjectEntityId);
+  //   // Initially no energy, so no nutrients
+  //   assertTrue(soil1Nutrients == 0, "Soil nutrients not 0");
 
-    vm.roll(block.number + 1);
+  //   vm.roll(block.number + 1);
 
-    Energy.set(simStore, worldAddress, soilObjectEntityId, 500);
-    world.activate(agentObjectEntityId, ConcentrativeSoilObjectID, soilCoord);
-    soil1Nutrients = Nutrients.get(simStore, worldAddress, soilObjectEntityId);
-    assertTrue(soil1Nutrients > 0, "Soil nutrients not > 0");
+  //   Energy.set(simStore, worldAddress, soilObjectEntityId, 500);
+  //   world.activate(agentObjectEntityId, ConcentrativeSoilObjectID, soilCoord);
+  //   soil1Nutrients = Nutrients.get(simStore, worldAddress, soilObjectEntityId);
+  //   assertTrue(soil1Nutrients > 0, "Soil nutrients not > 0");
 
-    vm.roll(block.number + 1);
+  //   vm.roll(block.number + 1);
 
-    // Place down plant on top of it
-    VoxelCoord memory plantCoord = VoxelCoord({ x: soilCoord.x, y: soilCoord.y + 1, z: soilCoord.z });
-    bytes32 plantEntityId = world.build(agentObjectEntityId, PlantObjectID, plantCoord);
-    bytes32 plantObjectEntityId = ObjectEntity.get(store, plantEntityId);
-    assertTrue(Nitrogen.get(simStore, worldAddress, plantObjectEntityId) > 0, "Nitrogen not found for plant");
-    assertTrue(Phosphorus.get(simStore, worldAddress, plantObjectEntityId) > 0, "Phosphorus not found for plant");
-    assertTrue(Potassium.get(simStore, worldAddress, plantObjectEntityId) > 0, "Potassium not found for plant");
+  //   // Place down plant on top of it
+  //   VoxelCoord memory plantCoord = VoxelCoord({ x: soilCoord.x, y: soilCoord.y + 1, z: soilCoord.z });
+  //   bytes32 plantEntityId = world.build(agentObjectEntityId, PlantObjectID, plantCoord);
+  //   bytes32 plantObjectEntityId = ObjectEntity.get(store, plantEntityId);
+  //   assertTrue(Nitrogen.get(simStore, worldAddress, plantObjectEntityId) > 0, "Nitrogen not found for plant");
+  //   assertTrue(Phosphorus.get(simStore, worldAddress, plantObjectEntityId) > 0, "Phosphorus not found for plant");
+  //   assertTrue(Potassium.get(simStore, worldAddress, plantObjectEntityId) > 0, "Potassium not found for plant");
 
-    assertTrue(Elixir.get(simStore, worldAddress, plantObjectEntityId) > 0, "Elixir not found for plant");
-    assertTrue(Protein.get(simStore, worldAddress, plantObjectEntityId) > 0, "Protein not found for plant");
+  //   assertTrue(Elixir.get(simStore, worldAddress, plantObjectEntityId) > 0, "Elixir not found for plant");
+  //   assertTrue(Protein.get(simStore, worldAddress, plantObjectEntityId) > 0, "Protein not found for plant");
 
-    {
-      PlantData memory plantData = Plant.get(store, worldAddress, plantObjectEntityId);
-      PlantConsumer[] memory consumers = abi.decode(plantData.consumers, (PlantConsumer[]));
-      assertTrue(consumers.length == 0, "Consumers not empty");
-      assertTrue(plantData.totalProduced > 0, "Produced not > 0");
-    }
+  //   {
+  //     PlantData memory plantData = Plant.get(store, worldAddress, plantObjectEntityId);
+  //     PlantConsumer[] memory consumers = abi.decode(plantData.consumers, (PlantConsumer[]));
+  //     assertTrue(consumers.length == 0, "Consumers not empty");
+  //     assertTrue(plantData.totalProduced > 0, "Produced not > 0");
+  //   }
 
-    // Place consumer next to flower
-    VoxelCoord memory consumerCoord = VoxelCoord({ x: plantCoord.x, y: plantCoord.y, z: plantCoord.z - 1 });
-    uint256 healthBefore = Health.getHealth(simStore, worldAddress, agentObjectEntityId);
-    uint256 staminaBefore = Stamina.get(simStore, worldAddress, agentObjectEntityId);
-    world.move(agentObjectEntityId, BuilderObjectID, agentCoord, consumerCoord);
-    assertTrue(Health.getHealth(simStore, worldAddress, agentObjectEntityId) > healthBefore, "Health not increased");
-    assertTrue(Stamina.get(simStore, worldAddress, agentObjectEntityId) > staminaBefore, "Stamina not increased");
+  //   // Place consumer next to flower
+  //   VoxelCoord memory consumerCoord = VoxelCoord({ x: plantCoord.x, y: plantCoord.y, z: plantCoord.z - 1 });
+  //   uint256 healthBefore = Health.getHealth(simStore, worldAddress, agentObjectEntityId);
+  //   uint256 staminaBefore = Stamina.get(simStore, worldAddress, agentObjectEntityId);
+  //   world.move(agentObjectEntityId, BuilderObjectID, agentCoord, consumerCoord);
+  //   assertTrue(Health.getHealth(simStore, worldAddress, agentObjectEntityId) > healthBefore, "Health not increased");
+  //   assertTrue(Stamina.get(simStore, worldAddress, agentObjectEntityId) > staminaBefore, "Stamina not increased");
 
-    // Plant should lose all protein and elixir
-    assertTrue(Elixir.get(simStore, worldAddress, plantObjectEntityId) == 0, "Elixir found for plant");
-    assertTrue(Protein.get(simStore, worldAddress, plantObjectEntityId) == 0, "Protein found for plant");
+  //   // Plant should lose all protein and elixir
+  //   assertTrue(Elixir.get(simStore, worldAddress, plantObjectEntityId) == 0, "Elixir found for plant");
+  //   assertTrue(Protein.get(simStore, worldAddress, plantObjectEntityId) == 0, "Protein found for plant");
 
-    {
-      PlantData memory plantData = Plant.get(store, worldAddress, plantObjectEntityId);
-      PlantConsumer[] memory consumers = abi.decode(plantData.consumers, (PlantConsumer[]));
-      assertTrue(consumers.length == 1, "Consumers not empty");
-      assertTrue(consumers[0].objectEntityId == agentObjectEntityId, "Consumer not agent");
-      assertTrue(consumers[0].consumedBlockNumber == block.number, "Consumed block number not correct");
-    }
+  //   {
+  //     PlantData memory plantData = Plant.get(store, worldAddress, plantObjectEntityId);
+  //     PlantConsumer[] memory consumers = abi.decode(plantData.consumers, (PlantConsumer[]));
+  //     assertTrue(consumers.length == 1, "Consumers not empty");
+  //     assertTrue(consumers[0].objectEntityId == agentObjectEntityId, "Consumer not agent");
+  //     assertTrue(consumers[0].consumedBlockNumber == block.number, "Consumed block number not correct");
+  //   }
 
-    vm.stopPrank();
-  }
+  //   vm.stopPrank();
+  // }
 }

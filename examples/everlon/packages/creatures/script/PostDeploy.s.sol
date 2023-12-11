@@ -20,6 +20,9 @@ contract PostDeploy is Script {
     world.creatures_WaterCreatureObj_registerObject();
     world.creatures_GrassCreatureObj_registerObject();
 
+    world.creatures_GrassCreatureMin_registerMind();
+    world.creatures_FireCreatureMind_registerMind();
+
     vm.stopBroadcast();
   }
 }

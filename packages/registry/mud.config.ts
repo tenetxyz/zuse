@@ -71,6 +71,10 @@ export default mudConfig({
       name: "ClassifierRegSys",
       openAccess: true,
     },
+    DecisionRuleRegistrySystem: {
+      name: "DecisionRuleRegS",
+      openAccess: true,
+    },
   },
   modules: [
     {

@@ -8,28 +8,36 @@ import { Mind, CreationMetadata, CreationSpawns } from "@tenet-utils/src/Types.s
 
 contract MindRegistrySystem is System {
   function registerMind(
-    bytes32 voxelTypeId,
+    bytes32 objectTypeId,
+    address mindAddress,
+    bytes4 mindSelector,
     string memory name,
-    string memory description,
-    bytes4 mindSelector
+    string memory description
   ) public {
     require(
-      hasKey(ObjectTypeRegistryTableId, ObjectTypeRegistry.encodeKeyTuple(voxelTypeId)),
-      "Voxel type ID has not been registered"
+      hasKey(ObjectTypeRegistryTableId, ObjectTypeRegistry.encodeKeyTuple(objectTypeId)),
+      "MindRegistrySystem: Object type ID has not been registered"
     );
     // Set creator
     CreationSpawns[] memory spawns = new CreationSpawns[](0);
     bytes memory creationMetadata = abi.encode(CreationMetadata(tx.origin, name, description, spawns));
-    Mind memory mind = Mind({ creationMetadata: creationMetadata, mindSelector: mindSelector });
+    Mind memory mind = Mind({
+      creationMetadata: creationMetadata,
+      mindAddress: mindAddress,
+      mindSelector: mindSelector
+    });
 
     Mind[] memory newMinds;
-    if (hasKey(MindRegistryTableId, MindRegistry.encodeKeyTuple(voxelTypeId))) {
-      bytes memory mindData = MindRegistry.get(voxelTypeId);
+    if (hasKey(MindRegistryTableId, MindRegistry.encodeKeyTuple(objectTypeId))) {
+      bytes memory mindData = MindRegistry.get(objectTypeId);
       Mind[] memory minds = abi.decode(mindData, (Mind[]));
 
       newMinds = new Mind[](minds.length + 1);
       for (uint256 i = 0; i < minds.length; i++) {
-        require(minds[i].mindSelector != mind.mindSelector, "Mind already registered");
+        require(
+          minds[i].mindAddress != mind.mindAddress || minds[i].mindSelector != mind.mindSelector,
+          "MindRegistrySystem: Mind already registered"
+        );
         newMinds[i] = minds[i];
       }
       newMinds[minds.length] = mind;
@@ -38,6 +46,6 @@ contract MindRegistrySystem is System {
       newMinds[0] = mind;
     }
 
-    MindRegistry.set(voxelTypeId, abi.encode(newMinds));
+    MindRegistry.set(objectTypeId, abi.encode(newMinds));
   }
 }

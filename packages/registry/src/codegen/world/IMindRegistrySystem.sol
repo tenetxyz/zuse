@@ -5,9 +5,10 @@ pragma solidity >=0.8.0;
 
 interface IMindRegistrySystem {
   function registerMind(
-    bytes32 voxelTypeId,
+    bytes32 objectTypeId,
+    address mindAddress,
+    bytes4 mindSelector,
     string memory name,
-    string memory description,
-    bytes4 mindSelector
+    string memory description
   ) external;
 }

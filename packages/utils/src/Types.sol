@@ -101,21 +101,15 @@ struct CAEventData {
   bytes eventData;
 }
 
-struct DecisionRuleKey {
-  bytes32 srcVoxelTypeId;
-  bytes32 targetVoxelTypeId;
-  address worldAddress;
-  bytes32 decisionRuleId;
-}
-
 struct DecisionRule {
-  bytes32 decisionRuleId;
   bytes creationMetadata;
+  address decisionRuleAddress;
   bytes4 decisionRuleSelector;
 }
 
 struct Mind {
   bytes creationMetadata;
+  address mindAddress;
   bytes4 mindSelector;
 }
 

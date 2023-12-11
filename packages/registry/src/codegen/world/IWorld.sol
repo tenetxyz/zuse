@@ -7,7 +7,7 @@ import { IBaseWorld } from "@latticexyz/world/src/interfaces/IBaseWorld.sol";
 
 import { IClassifierRegistrySystem } from "./IClassifierRegistrySystem.sol";
 import { ICreationRegistrySystem } from "./ICreationRegistrySystem.sol";
-import { IDecisionRuleRegSystem } from "./IDecisionRuleRegSystem.sol";
+import { IDecisionRuleRegistrySystem } from "./IDecisionRuleRegistrySystem.sol";
 import { IMindRegistrySystem } from "./IMindRegistrySystem.sol";
 import { IObjectRegistrySystem } from "./IObjectRegistrySystem.sol";
 
@@ -19,7 +19,7 @@ interface IWorld is
   IBaseWorld,
   IClassifierRegistrySystem,
   ICreationRegistrySystem,
-  IDecisionRuleRegSystem,
+  IDecisionRuleRegistrySystem,
   IMindRegistrySystem,
   IObjectRegistrySystem
 {

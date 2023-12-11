@@ -2,7 +2,7 @@
 pragma solidity >=0.8.0;
 
 import { IStore } from "@latticexyz/store/src/IStore.sol";
-import { REGISTER_OBJECT_TYPE_SIG, REGISTER_CREATION_SIG, GET_VOXELS_IN_CREATION_SIG, CREATION_SPAWNED_SIG, VOXEL_SPAWNED_SIG, REGISTER_DECISION_RULE_SIG, REGISTER_MIND_SIG, REGISTER_MIND_WORLD_SIG } from "@tenet-registry/src/Constants.sol";
+import { REGISTER_OBJECT_TYPE_SIG, REGISTER_CREATION_SIG, GET_VOXELS_IN_CREATION_SIG, CREATION_SPAWNED_SIG, REGISTER_DECISION_RULE_SIG, REGISTER_MIND_SIG } from "@tenet-registry/src/Constants.sol";
 import { ObjectTypeRegistry } from "@tenet-registry/src/codegen/tables/ObjectTypeRegistry.sol";
 import { VoxelCoord, BaseCreationInWorld, VoxelTypeData, VoxelSelectors, InteractionSelector, Mind } from "@tenet-utils/src/Types.sol";
 import { isStringEqual } from "@tenet-utils/src/StringUtils.sol";
@@ -74,33 +74,26 @@ function creationSpawned(address registryAddress, bytes32 creationId) returns (u
   return abi.decode(result, (uint256));
 }
 
-function voxelSpawned(address registryAddress, bytes32 objectTypeId) returns (uint256) {
-  bytes memory result = callOrRevert(
-    registryAddress,
-    abi.encodeWithSignature(VOXEL_SPAWNED_SIG, objectTypeId),
-    "voxelSpawned"
-  );
-  return abi.decode(result, (uint256));
-}
-
 function registerDecisionRule(
   address registryAddress,
+  bytes32 srcObjectTypeId,
+  bytes32 targetObjectTypeId,
+  address decisionRuleAddress,
+  bytes4 decisionRuleSelector,
   string memory name,
-  string memory description,
-  bytes32 srcobjectTypeId,
-  bytes32 targetobjectTypeId,
-  bytes4 decisionRuleSelector
+  string memory description
 ) returns (bytes memory) {
   return
     callOrRevert(
       registryAddress,
       abi.encodeWithSignature(
         REGISTER_DECISION_RULE_SIG,
+        srcObjectTypeId,
+        targetObjectTypeId,
+        decisionRuleAddress,
+        decisionRuleSelector,
         name,
-        description,
-        srcobjectTypeId,
-        targetobjectTypeId,
-        decisionRuleSelector
+        description
       ),
       "registerDecisionRule"
     );
@@ -109,31 +102,16 @@ function registerDecisionRule(
 function registerMindIntoRegistry(
   address registryAddress,
   bytes32 objectTypeId,
+  address mindAddress,
+  bytes4 mindSelector,
   string memory name,
-  string memory description,
-  bytes4 mindSelector
+  string memory description
 ) returns (bytes memory) {
   return
     callOrRevert(
       registryAddress,
-      abi.encodeWithSignature(REGISTER_MIND_SIG, objectTypeId, name, description, mindSelector),
+      abi.encodeWithSignature(REGISTER_MIND_SIG, objectTypeId, mindAddress, mindSelector, name, description),
       "registerMind"
-    );
-}
-
-function registerMindForWorld(
-  address registryAddress,
-  bytes32 objectTypeId,
-  address worldAddress,
-  string memory name,
-  string memory description,
-  bytes4 mindSelector
-) returns (bytes memory) {
-  return
-    callOrRevert(
-      registryAddress,
-      abi.encodeWithSignature(REGISTER_MIND_WORLD_SIG, objectTypeId, worldAddress, name, description, mindSelector),
-      "registerMindForWorld"
     );
 }
 

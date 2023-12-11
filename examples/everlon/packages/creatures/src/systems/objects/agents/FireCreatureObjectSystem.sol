@@ -40,6 +40,8 @@ contract FireCreatureObjectSystem is AgentType {
     ObjectProperties memory objectProperties;
     objectProperties.mass = 10;
 
+    objectProperties.elementType = ElementType.Fire;
+
     Creature.set(
       worldAddress,
       objectEntityId,

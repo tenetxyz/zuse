@@ -40,6 +40,8 @@ contract GrassCreatureObjectSystem is AgentType {
     ObjectProperties memory objectProperties;
     objectProperties.mass = 10;
 
+    objectProperties.elementType = ElementType.Grass;
+
     Creature.set(
       worldAddress,
       objectEntityId,

@@ -40,6 +40,8 @@ contract WaterCreatureObjectSystem is AgentType {
     ObjectProperties memory objectProperties;
     objectProperties.mass = 10;
 
+    objectProperties.elementType = ElementType.Water;
+
     Creature.set(
       worldAddress,
       objectEntityId,

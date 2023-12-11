@@ -33,5 +33,12 @@ export default mudConfig({
       },
     },
   },
+  systems: {
+    CreatureSystem: {
+      name: "CreatureSystem",
+      openAccess: false,
+      accessList: ["FireCreatureObjectSystem", "WaterCreatureObjectSystem", "GrassCreatureObjectSystem"],
+    },
+  },
   modules: [],
 });

@@ -1,5 +1,5 @@
 {
-  "name": "basic-conserved-world-contracts",
+  "name": "everlon",
   "version": "0.0.0",
   "description": "",
   "private": true,
@@ -9,24 +9,18 @@
     ]
   },
   "scripts": {
-    "anvil": "rm -rf ~/.foundry/anvil/tmp && anvil --block-time 1 --block-base-fee-per-gas 0 --host 0.0.0.0 --chain-id 31337 --gas-limit 1000000000",
-    "mud": "node node_modules/@latticexyz/cli/dist/mud.js",
-    "build": "yarn run clean && yarn workspaces foreach -A run build",
-    "clean": "concurrently \"yarn workspace @tenetxyz/world run clean\" \"yarn workspace @tenetxyz/farming run clean\" \"yarn workspace @tenetxyz/simulator run clean\" \"yarn workspace @tenetxyz/derived run clean\" \"yarn workspace @tenetxyz/pretty-extension run clean\"",
-    "deploy": "concurrently -n contracts,client -c cyan,magenta \"cd packages/contracts && yarn run dev\" \"cd packages/client && yarn run deploy\"",
+    "build": "yarn workspaces foreach -p run build",
+    "clean": "yarn workspaces foreach -p run clean",
     "dev": "yarn run clean && yarn run dev-no-clean",
-    "dev-no-clean": "yarn run sim && concurrently -n world -c yellow \"yarn workspace @tenetxyz/world run build && yarn workspace @tenetxyz/world run deploy\"",
-    "deploy:derived": "concurrently -n derived -c #FFA500 \"yarn workspace @tenetxyz/derived run build && yarn workspace @tenetxyz/derived run deploy\"",
+    "dev-no-clean": "yarn run simulator && concurrently -n world -c yellow \"yarn workspace @tenetxyz/world run build && yarn workspace @tenetxyz/world run deploy\"",
+    "simulator": "concurrently -n simulator -c red \"cd packages/simulator && yarn run build && yarn run deploy\"",
     "deploy:farming": "concurrently -n farming -c green \"yarn workspace @tenetxyz/farming run deploy\"",
     "deploy:creatures": "concurrently -n creatures -c white \"yarn workspace @tenetxyz/creatures run deploy\"",
     "deploy:pretty": "concurrently -n pretty -c #BF40BF \"yarn workspace @tenetxyz/pretty-extension run deploy\"",
-    "deploy:extensions": "yarn run build:extensions && yarn run deploy:farming",
-    "sim": "concurrently -n sim -c red \"cd packages/simulator && yarn run build && yarn run deploy\"",
+    "deploy:extensions": "yarn run build:extensions && yarn run deploy:farming && yarn run deploy:creatures",
     "build:extensions": "concurrently -n farming,creatures,pretty -c green,white,#BF40BF \"yarn workspace @tenetxyz/farming run build\" \"yarn workspace @tenetxyz/creatures run build\" \"yarn workspace @tenetxyz/pretty-extension run build\"",
-    "foundry:up": "curl -L https://foundry.paradigm.xyz | bash && bash $HOME/.foundry/bin/foundryup",
+    "deploy:derived": "concurrently -n derived -c #FFA500 \"yarn workspace @tenetxyz/derived run build && yarn workspace @tenetxyz/derived run deploy\"",
     "initialize": "yarn workspaces foreach run initialize",
-    "mud:up": "yarn workspaces foreach -t run yarn mud set-version -v canary && yarn install",
-    "prepare": "(forge --version || yarn foundry:up)",
     "test": "yarn workspaces run test"
   },
   "devDependencies": {

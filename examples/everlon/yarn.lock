@@ -765,9 +765,9 @@ __metadata:
   languageName: node
   linkType: soft
 
-"@latticexyz/cli@link:../../../mud/packages/cli::locator=basic-conserved-world-contracts%40workspace%3A.":
+"@latticexyz/cli@link:../../../mud/packages/cli::locator=everlon%40workspace%3A.":
   version: 0.0.0-use.local
-  resolution: "@latticexyz/cli@link:../../../mud/packages/cli::locator=basic-conserved-world-contracts%40workspace%3A."
+  resolution: "@latticexyz/cli@link:../../../mud/packages/cli::locator=everlon%40workspace%3A."
   languageName: node
   linkType: soft
 
@@ -1858,20 +1858,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"basic-conserved-world-contracts@workspace:.":
-  version: 0.0.0-use.local
-  resolution: "basic-conserved-world-contracts@workspace:."
-  dependencies:
-    "@latticexyz/cli": "link:../../../mud/packages/cli"
-    "@typescript-eslint/eslint-plugin": 5.46.1
-    "@typescript-eslint/parser": 5.46.1
-    concurrently: ^8.0.1
-    eslint: 8.29.0
-    rimraf: ^3.0.2
-    typescript: ^4.9.5
-  languageName: unknown
-  linkType: soft
-
 "bech32@npm:1.1.4":
   version: 1.1.4
   resolution: "bech32@npm:1.1.4"
@@ -2612,6 +2598,20 @@ __metadata:
   checksum: b7c08cf3e257185a7946117dbbf764433b7ba0e77c27298dec6088b3bc871aff711462b0621930c56880ff0a7ceb8b1d3a361ffa259f93377b48e34107f62553
   languageName: node
   linkType: hard
+
+"everlon@workspace:.":
+  version: 0.0.0-use.local
+  resolution: "everlon@workspace:."
+  dependencies:
+    "@latticexyz/cli": "link:../../../mud/packages/cli"
+    "@typescript-eslint/eslint-plugin": 5.46.1
+    "@typescript-eslint/parser": 5.46.1
+    concurrently: ^8.0.1
+    eslint: 8.29.0
+    rimraf: ^3.0.2
+    typescript: ^4.9.5
+  languageName: unknown
+  linkType: soft
 
 "execa@npm:^5.0.0":
   version: 5.1.1

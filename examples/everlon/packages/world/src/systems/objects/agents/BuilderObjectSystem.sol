@@ -13,6 +13,7 @@ import { REGISTRY_ADDRESS, BuilderObjectID } from "@tenet-world/src/Constants.so
 import { tryStoppingAction } from "@tenet-world/src/Utils.sol";
 import { getObjectProperties } from "@tenet-base-world/src/CallUtils.sol";
 import { positionDataToVoxelCoord, getEntityIdFromObjectEntityId, getVoxelCoord } from "@tenet-base-world/src/Utils.sol";
+import { console } from "forge-std/console.sol";
 
 contract BuilderObjectSystem is AgentType {
   function registerObject() public {
@@ -60,12 +61,14 @@ contract BuilderObjectSystem is AgentType {
     bytes32[] memory neighbourObjectEntityIds
   ) public returns (Action[] memory) {
     address worldAddress = _msgSender();
+    console.log("stop");
     ObjectProperties memory entityProperties = getObjectProperties(worldAddress, centerObjectEntityId);
     VoxelCoord memory coord = getVoxelCoord(IStore(worldAddress), centerObjectEntityId);
     (bool hasStopAction, Action memory stopAction) = tryStoppingAction(centerObjectEntityId, coord, entityProperties);
     if (!hasStopAction) {
       return new Action[](0);
     }
+    console.log("stopping!");
     Action[] memory actions = new Action[](1);
     actions[0] = stopAction;
     return actions;

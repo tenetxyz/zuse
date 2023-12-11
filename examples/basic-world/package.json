@@ -13,9 +13,7 @@
     "clean": "yarn workspaces foreach -p run clean",
     "dev": "yarn run clean && yarn run dev-no-clean",
     "dev-no-clean": "concurrently -n simulator -c magenta \"yarn workspace @tenetxyz/simulator run build && yarn workspace @tenetxyz/simulator run deploy\" && concurrently -n world -c yellow \"yarn workspace @tenetxyz/world run build && yarn workspace @tenetxyz/world run deploy\"",
-    "foundry:up": "curl -L https://foundry.paradigm.xyz | bash && bash $HOME/.foundry/bin/foundryup",
     "initialize": "yarn workspaces foreach run initialize",
-    "prepare": "(forge --version || yarn foundry:up)",
     "test": "yarn workspaces foreach run test"
   },
   "devDependencies": {

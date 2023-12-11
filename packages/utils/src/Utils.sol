@@ -13,6 +13,14 @@ function getFirstCaller() view returns (address) {
   return address(0);
 }
 
+function getSecondCaller() view returns (address) {
+  address[] memory worldCallers = Callers.get();
+  if (worldCallers.length > 1) {
+    return worldCallers[1];
+  }
+  return address(0);
+}
+
 function getCallerNamespace(address caller) view returns (bytes16) {
   require(uint256(SystemRegistry.get(caller)) != 0, "Caller is not a system"); // cannot be called by an EOA
   bytes32 resourceSelector = SystemRegistry.get(caller);

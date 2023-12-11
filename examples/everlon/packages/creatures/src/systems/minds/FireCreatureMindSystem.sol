@@ -25,7 +25,7 @@ contract FireCreatureMindSystem is MindType {
     bytes32[] memory neighbourObjectEntityIds
   ) public override returns (address, bytes4) {
     address worldAddress = _world();
-    bytes4 vineWhipSelector = IWorld(worldAddress).creatures_FireCreatureObje_flameBurstEventHandler.selector;
-    return (worldAddress, vineWhipSelector);
+    bytes4 moveSelector = IWorld(worldAddress).creatures_FireCreatureObje_flameBurstEventHandler.selector;
+    return (worldAddress, moveSelector);
   }
 }

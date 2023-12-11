@@ -5,14 +5,15 @@ import { ObjectType } from "@tenet-base-world/src/prototypes/ObjectType.sol";
 import { VoxelCoord, ObjectProperties, Action } from "@tenet-utils/src/Types.sol";
 import { Mind, MindData, MindTableId } from "@tenet-base-world/src/codegen/tables/Mind.sol";
 import { callOrRevert } from "@tenet-utils/src/CallUtils.sol";
-import { getFirstCaller } from "@tenet-utils/src/Utils.sol";
+import { getSecondCaller } from "@tenet-utils/src/Utils.sol";
 
 // Represents an object
 abstract contract AgentType is ObjectType {
   // TODO: Remove this function once we know a better way to handle
   // address forwarding for agents
   function getCallerAddress() internal view returns (address) {
-    address callerAddress = getFirstCaller();
+    // Note: the first caller is the EOA that called the world, so we skip it
+    address callerAddress = getSecondCaller();
     if (callerAddress == address(0)) {
       callerAddress = _msgSender();
     }

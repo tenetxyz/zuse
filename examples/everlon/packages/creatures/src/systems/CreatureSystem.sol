@@ -72,7 +72,7 @@ contract CreatureSystem is System {
     if (creatureData.isFainted && block.number >= creatureData.lastFaintedBlock + NUM_BLOCKS_FAINTED) {
       creatureData.isFainted = false;
     }
-    Creature.set(worldAddress, centerObjectEntityId, creatureData);
+    Creature.set(worldAddress, neighbourObjectEntityId, creatureData);
 
     return (false, new Action[](0));
   }

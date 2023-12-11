@@ -100,7 +100,7 @@ contract FireCreatureObjectSystem is AgentType {
     bytes32 centerObjectEntityId,
     bytes32[] memory neighbourObjectEntityIds
   ) public returns (Action[] memory) {
-    address worldAddress = _msgSender();
+    address worldAddress = super.getCallerAddress();
     return
       IWorld(_world()).creatures_CreatureSystem_moveEventHandler(
         worldAddress,
@@ -114,7 +114,7 @@ contract FireCreatureObjectSystem is AgentType {
     bytes32 centerObjectEntityId,
     bytes32[] memory neighbourObjectEntityIds
   ) public returns (Action[] memory) {
-    address worldAddress = _msgSender();
+    address worldAddress = super.getCallerAddress();
     return
       IWorld(_world()).creatures_CreatureSystem_moveEventHandler(
         worldAddress,
@@ -128,7 +128,7 @@ contract FireCreatureObjectSystem is AgentType {
     bytes32 centerObjectEntityId,
     bytes32[] memory neighbourObjectEntityIds
   ) public returns (Action[] memory) {
-    address worldAddress = _msgSender();
+    address worldAddress = super.getCallerAddress();
     return
       IWorld(_world()).creatures_CreatureSystem_moveEventHandler(
         worldAddress,
@@ -142,7 +142,7 @@ contract FireCreatureObjectSystem is AgentType {
     bytes32 centerObjectEntityId,
     bytes32[] memory neighbourObjectEntityIds
   ) public returns (Action[] memory) {
-    address worldAddress = _msgSender();
+    address worldAddress = super.getCallerAddress();
     return
       IWorld(_world()).creatures_CreatureSystem_moveEventHandler(
         worldAddress,
@@ -156,7 +156,7 @@ contract FireCreatureObjectSystem is AgentType {
     bytes32 centerObjectEntityId,
     bytes32[] memory neighbourObjectEntityIds
   ) public returns (Action[] memory) {
-    address worldAddress = _msgSender();
+    address worldAddress = super.getCallerAddress();
     return
       IWorld(_world()).creatures_CreatureSystem_moveEventHandler(
         worldAddress,
@@ -170,7 +170,7 @@ contract FireCreatureObjectSystem is AgentType {
     bytes32 centerObjectEntityId,
     bytes32[] memory neighbourObjectEntityIds
   ) public returns (Action[] memory) {
-    address worldAddress = _msgSender();
+    address worldAddress = super.getCallerAddress();
     return
       IWorld(_world()).creatures_CreatureSystem_moveEventHandler(
         worldAddress,
@@ -184,7 +184,7 @@ contract FireCreatureObjectSystem is AgentType {
     bytes32 centerObjectEntityId,
     bytes32[] memory neighbourObjectEntityIds
   ) public returns (Action[] memory) {
-    address worldAddress = _msgSender();
+    address worldAddress = super.getCallerAddress();
     return
       IWorld(_world()).creatures_CreatureSystem_moveEventHandler(
         worldAddress,
@@ -198,7 +198,7 @@ contract FireCreatureObjectSystem is AgentType {
     bytes32 centerObjectEntityId,
     bytes32[] memory neighbourObjectEntityIds
   ) public returns (Action[] memory) {
-    address worldAddress = _msgSender();
+    address worldAddress = super.getCallerAddress();
     return
       IWorld(_world()).creatures_CreatureSystem_moveEventHandler(
         worldAddress,
@@ -212,7 +212,7 @@ contract FireCreatureObjectSystem is AgentType {
     bytes32 centerObjectEntityId,
     bytes32[] memory neighbourObjectEntityIds
   ) public returns (Action[] memory) {
-    address worldAddress = _msgSender();
+    address worldAddress = super.getCallerAddress();
     return
       IWorld(_world()).creatures_CreatureSystem_moveEventHandler(
         worldAddress,
@@ -226,7 +226,7 @@ contract FireCreatureObjectSystem is AgentType {
     bytes32 centerObjectEntityId,
     bytes32[] memory neighbourObjectEntityIds
   ) public returns (Action[] memory) {
-    address worldAddress = _msgSender();
+    address worldAddress = super.getCallerAddress();
     return
       IWorld(_world()).creatures_CreatureSystem_moveEventHandler(
         worldAddress,
@@ -240,7 +240,7 @@ contract FireCreatureObjectSystem is AgentType {
     bytes32 centerObjectEntityId,
     bytes32[] memory neighbourObjectEntityIds
   ) public returns (Action[] memory) {
-    address worldAddress = _msgSender();
+    address worldAddress = super.getCallerAddress();
     return
       IWorld(_world()).creatures_CreatureSystem_moveEventHandler(
         worldAddress,
@@ -254,7 +254,7 @@ contract FireCreatureObjectSystem is AgentType {
     bytes32 centerObjectEntityId,
     bytes32[] memory neighbourObjectEntityIds
   ) public returns (Action[] memory) {
-    address worldAddress = _msgSender();
+    address worldAddress = super.getCallerAddress();
     return
       IWorld(_world()).creatures_CreatureSystem_moveEventHandler(
         worldAddress,
@@ -268,7 +268,7 @@ contract FireCreatureObjectSystem is AgentType {
     bytes32 centerObjectEntityId,
     bytes32[] memory neighbourObjectEntityIds
   ) public returns (Action[] memory) {
-    address worldAddress = _msgSender();
+    address worldAddress = super.getCallerAddress();
     return
       IWorld(_world()).creatures_CreatureSystem_moveEventHandler(
         worldAddress,
@@ -282,7 +282,7 @@ contract FireCreatureObjectSystem is AgentType {
     bytes32 centerObjectEntityId,
     bytes32[] memory neighbourObjectEntityIds
   ) public returns (Action[] memory) {
-    address worldAddress = _msgSender();
+    address worldAddress = super.getCallerAddress();
     return
       IWorld(_world()).creatures_CreatureSystem_moveEventHandler(
         worldAddress,
@@ -296,7 +296,7 @@ contract FireCreatureObjectSystem is AgentType {
     bytes32 centerObjectEntityId,
     bytes32[] memory neighbourObjectEntityIds
   ) public returns (Action[] memory) {
-    address worldAddress = _msgSender();
+    address worldAddress = super.getCallerAddress();
     return
       IWorld(_world()).creatures_CreatureSystem_moveEventHandler(
         worldAddress,
@@ -310,7 +310,7 @@ contract FireCreatureObjectSystem is AgentType {
     bytes32 centerObjectEntityId,
     bytes32[] memory neighbourObjectEntityIds
   ) public returns (Action[] memory) {
-    address worldAddress = _msgSender();
+    address worldAddress = super.getCallerAddress();
     return
       IWorld(_world()).creatures_CreatureSystem_moveEventHandler(
         worldAddress,
@@ -324,7 +324,7 @@ contract FireCreatureObjectSystem is AgentType {
     bytes32 centerObjectEntityId,
     bytes32[] memory neighbourObjectEntityIds
   ) public returns (Action[] memory) {
-    address worldAddress = _msgSender();
+    address worldAddress = super.getCallerAddress();
     return
       IWorld(_world()).creatures_CreatureSystem_moveEventHandler(
         worldAddress,
@@ -338,7 +338,7 @@ contract FireCreatureObjectSystem is AgentType {
     bytes32 centerObjectEntityId,
     bytes32[] memory neighbourObjectEntityIds
   ) public returns (Action[] memory) {
-    address worldAddress = _msgSender();
+    address worldAddress = super.getCallerAddress();
     return
       IWorld(_world()).creatures_CreatureSystem_moveEventHandler(
         worldAddress,

@@ -84,14 +84,14 @@ contract FireCreatureObjectSystem is AgentType {
   }
 
   function neighbourEventHandler(
-    bytes32 neighbourEntityId,
+    bytes32 neighbourObjectEntityId,
     bytes32 centerObjectEntityId
   ) public override returns (bool, Action[] memory) {
     address worldAddress = _msgSender();
     return
       IWorld(_world()).creatures_CreatureSystem_neighbourEventHandler(
         worldAddress,
-        neighbourEntityId,
+        neighbourObjectEntityId,
         centerObjectEntityId
       );
   }

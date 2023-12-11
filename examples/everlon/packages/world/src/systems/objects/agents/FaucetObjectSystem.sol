@@ -134,7 +134,7 @@ contract FaucetObjectSystem is AgentType {
   }
 
   function neighbourEventHandler(
-    bytes32 neighbourEntityId,
+    bytes32 neighbourObjectEntityId,
     bytes32 centerObjectEntityId
   ) public override returns (bool, Action[] memory) {
     return (false, new Action[](0));

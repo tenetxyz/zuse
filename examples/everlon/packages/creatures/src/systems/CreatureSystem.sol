@@ -5,7 +5,7 @@ import { IWorld } from "@tenet-creatures/src/codegen/world/IWorld.sol";
 import { IStore } from "@latticexyz/store/src/IStore.sol";
 import { System } from "@latticexyz/world/src/System.sol";
 
-import { VoxelCoord, ObjectProperties, Action, SimTable, ElementType } from "@tenet-utils/src/Types.sol";
+import { VoxelCoord, ObjectProperties, Action, SimTable, ElementType, ActionType } from "@tenet-utils/src/Types.sol";
 import { uint256ToNegativeInt256 } from "@tenet-utils/src/TypeUtils.sol";
 
 import { Creature, CreatureData } from "@tenet-creatures/src/codegen/tables/Creature.sol";
@@ -16,6 +16,7 @@ import { positionDataToVoxelCoord, getEntityIdFromObjectEntityId, getVoxelCoord,
 import { entityIsCreature } from "@tenet-creatures/src/Utils.sol";
 import { CreatureMove, CreatureMoveData } from "@tenet-creatures/src/Types.sol";
 import { NUM_BLOCKS_FAINTED } from "@tenet-creatures/src/Constants.sol";
+import { tryStoppingAction } from "@tenet-world/src/Utils.sol";
 
 contract CreatureSystem is System {
   function getCreatureMovesData() internal pure returns (CreatureMoveData[] memory) {
@@ -50,288 +51,231 @@ contract CreatureSystem is System {
 
   function neighbourEventHandler(
     address worldAddress,
-    bytes32 neighbourEntityId,
+    bytes32 neighbourObjectEntityId,
     bytes32 centerObjectEntityId
   ) public returns (bool, Action[] memory) {
-    // PokemonData memory pokemonData = Pokemon.get(callerAddress, interactEntity);
-    // console.log("pokemon onNewNeighbour");
-    // console.logBytes32(interactEntity);
-    // if (!entityIsPokemon(callerAddress, neighbourEntityId)) {
-    //   return (changedEntity, entityData);
-    // }
-    // BodySimData memory entitySimData = getEntitySimData(interactEntity);
-    // BodySimData memory neighbourEntitySimData = getEntitySimData(neighbourEntityId);
-    // if (
-    //   entitySimData.actionData.actionType == ElementType.None &&
-    //   neighbourEntitySimData.actionData.actionType != ElementType.None
-    // ) {
-    //   // TODO: check actionEntity matches? We need this if we want multiple pokemon to be able to fight at the same time
-    //   changedEntity = true;
-    // }
-    // pokemonData = endOfFightLogic(pokemonData, entitySimData);
-    // Pokemon.set(callerAddress, interactEntity, pokemonData);
-    // if (pokemonData.isFainted && block.number >= pokemonData.lastFaintedBlock + NUM_BLOCKS_FAINTED) {
-    //   pokemonData.isFainted = false;
-    //   Pokemon.set(callerAddress, interactEntity, pokemonData);
-    // }
-    // console.logBool(changedEntity);
-    // return (changedEntity, entityData);
+    CreatureData memory creatureData = Creature.get(worldAddress, neighbourObjectEntityId);
+    if (!entityIsCreature(worldAddress, centerObjectEntityId)) {
+      return (false, new Action[](0));
+    }
+    ObjectProperties memory entityProperties = getObjectProperties(worldAddress, neighbourObjectEntityId);
+    ObjectProperties memory centerEntityProperties = getObjectProperties(worldAddress, centerObjectEntityId);
+    if (
+      entityProperties.combatMoveData.moveType == ElementType.None &&
+      centerEntityProperties.combatMoveData.moveType != ElementType.None
+    ) {
+      // Note: We need to check if fightingObjectEntityId matches if we want multiple creatures to fight at the same time
+      return (true, new Action[](0));
+    }
+
+    creatureData = endOfFightLogic(worldAddress, creatureData, entityProperties);
+    if (creatureData.isFainted && block.number >= creatureData.lastFaintedBlock + NUM_BLOCKS_FAINTED) {
+      creatureData.isFainted = false;
+    }
+    Creature.set(worldAddress, centerObjectEntityId, creatureData);
+
+    return (false, new Action[](0));
   }
 
   function defaultEventHandler(
     address worldAddress,
     bytes32 centerObjectEntityId,
     bytes32[] memory neighbourObjectEntityIds
-  ) public returns (Action[] memory) {}
+  ) public returns (Action[] memory) {
+    ObjectProperties memory entityProperties = getObjectProperties(worldAddress, centerObjectEntityId);
+    VoxelCoord memory coord = getVoxelCoord(IStore(worldAddress), centerObjectEntityId);
+    (bool hasStopAction, Action memory stopAction) = tryStoppingAction(centerObjectEntityId, coord, entityProperties);
+    if (hasStopAction) {
+      Action[] memory actions = new Action[](1);
+      actions[0] = stopAction;
+      return actions;
+    }
+    CreatureData memory creatureData = Creature.get(worldAddress, centerObjectEntityId);
+    creatureData = resetStaleFightingObjectEntityId(neighbourObjectEntityIds, creatureData);
+
+    creatureData = endOfFightLogic(worldAddress, creatureData, entityProperties);
+    if (creatureData.isFainted && block.number >= creatureData.lastFaintedBlock + NUM_BLOCKS_FAINTED) {
+      creatureData.isFainted = false;
+    }
+    Creature.set(worldAddress, centerObjectEntityId, creatureData);
+
+    return new Action[](0);
+  }
 
   function moveEventHandler(
     address worldAddress,
     bytes32 centerObjectEntityId,
     bytes32[] memory neighbourObjectEntityIds,
     CreatureMove creatureMove
-  ) public returns (Action[] memory) {}
+  ) public returns (Action[] memory) {
+    ObjectProperties memory entityProperties = getObjectProperties(worldAddress, centerObjectEntityId);
+    VoxelCoord memory coord = getVoxelCoord(IStore(worldAddress), centerObjectEntityId);
+    {
+      (bool hasStopAction, Action memory stopAction) = tryStoppingAction(centerObjectEntityId, coord, entityProperties);
+      if (hasStopAction) {
+        Action[] memory actions = new Action[](1);
+        actions[0] = stopAction;
+        return actions;
+      }
+    }
+    CreatureData memory creatureData = Creature.get(worldAddress, centerObjectEntityId);
+    creatureData = resetStaleFightingObjectEntityId(neighbourObjectEntityIds, creatureData);
 
-  // function runInteraction(
-  //   address callerAddress,
-  //   bytes32 interactEntity,
-  //   bytes32[] memory neighbourEntityIds,
-  //   VoxelCoord memory centerPosition,
-  //   bytes32[] memory childEntityIds,
-  //   bytes32 parentEntity,
-  //   CreatureMove CreatureMove
-  // ) internal returns (bool changedEntity, bytes memory entityData) {
-  //   changedEntity = false;
+    creatureData = endOfFightLogic(worldAddress, creatureData, entityProperties);
+    if (creatureData.isFainted && block.number >= creatureData.lastFaintedBlock + NUM_BLOCKS_FAINTED) {
+      creatureData.isFainted = false;
+    }
 
-  //   console.log("pokemon runInteraction");
-  //   console.logBytes32(interactEntity);
+    Action[] memory actions = new Action[](neighbourObjectEntityIds.length);
+    bool foundCreature = false;
+    for (uint256 i = 0; i < neighbourObjectEntityIds.length; i++) {
+      if (uint256(neighbourObjectEntityIds[i]) == 0) {
+        continue;
+      }
 
-  //   BodySimData memory entitySimData = getEntitySimData(interactEntity);
-  //   PokemonData memory pokemonData = Pokemon.get(callerAddress, interactEntity);
+      if (!entityIsCreature(worldAddress, neighbourObjectEntityIds[i])) {
+        continue;
+      }
+      if (foundCreature) {
+        // TODO: Support multiple creatures fighting at the same time
+        revert("Creature can't fight more than one creature at a time");
+      }
+      foundCreature = true;
+      (actions[i], creatureData) = runCreatureMove(
+        worldAddress,
+        centerObjectEntityId,
+        coord,
+        neighbourObjectEntityIds[i],
+        creatureData,
+        entityProperties,
+        creatureMove
+      );
+      Creature.set(worldAddress, centerObjectEntityId, creatureData);
+    }
 
-  //   if (entitySimData.ElementType == ElementType.None) {
-  //     CAEventData[] memory allCAEventData = new CAEventData[](1);
-  //     VoxelEntity memory entity = VoxelEntity({ scale: 1, entityId: caEntityToEntity(interactEntity) });
-  //     VoxelCoord memory coord = getCAEntityPositionStrict(IStore(_world()), interactEntity);
+    return actions;
+  }
 
-  //     SimEventData memory setObjectTypeSimEvent = SimEventData({
-  //       senderTable: SimTable.Object,
-  //       senderValue: abi.encode(entitySimData.ElementType),
-  //       targetEntity: entity,
-  //       targetCoord: coord,
-  //       targetTable: SimTable.Object,
-  //       targetValue: abi.encode(pokemonData.pokemonType)
-  //     });
-  //     console.log("setObjectTypeSimEvent");
-  //     allCAEventData[0] = CAEventData({
-  //       eventType: CAEventType.SimEvent,
-  //       eventData: abi.encode(setObjectTypeSimEvent)
-  //     });
-  //     entityData = abi.encode(allCAEventData);
-  //     return (changedEntity, entityData);
-  //   }
+  function resetStaleFightingObjectEntityId(
+    bytes32[] memory neighbourObjectEntityIds,
+    CreatureData memory creatureData
+  ) internal returns (CreatureData memory) {
+    if (creatureData.fightingObjectEntityId == bytes32(0)) {
+      return creatureData;
+    }
+    bool foundFightingObjectEntityId = false;
+    for (uint256 i = 0; i < neighbourObjectEntityIds.length; i++) {
+      if (neighbourObjectEntityIds[i] == creatureData.fightingObjectEntityId) {
+        foundFightingObjectEntityId = true;
+        break;
+      }
+    }
+    if (!foundFightingObjectEntityId) {
+      creatureData.fightingObjectEntityId = bytes32(0);
+    }
+    return creatureData;
+  }
 
-  //   entityData = stopEvent(interactEntity, centerPosition, entitySimData);
-  //   if (entityData.length > 0) {
-  //     console.log("stopping");
-  //     return (false, entityData);
-  //   }
+  function endOfFightLogic(
+    address worldAddress,
+    CreatureData memory creatureData,
+    ObjectProperties memory entityProperties
+  ) internal returns (CreatureData memory) {
+    if (creatureData.fightingObjectEntityId != bytes32(0)) {
+      ObjectProperties memory fightingEntityProperties = getObjectProperties(
+        worldAddress,
+        creatureData.fightingObjectEntityId
+      );
+      if (
+        (entityProperties.health == 0 || entityProperties.stamina == 0) ||
+        (fightingEntityProperties.health == 0 || fightingEntityProperties.stamina == 0)
+      ) {
+        if (
+          (entityProperties.health == 0 || entityProperties.stamina == 0) &&
+          (fightingEntityProperties.health == 0 || fightingEntityProperties.stamina == 0)
+        ) {
+          // both died, no winner
+          creatureData.isFainted = true;
+          creatureData.lastFaintedBlock = block.number;
+        } else if (entityProperties.health == 0 || entityProperties.stamina == 0) {
+          // entity died
+          creatureData.isFainted = true;
+          creatureData.lastFaintedBlock = block.number;
+          creatureData.numLosses += 1;
+        } else {
+          // fighting entity died
+          creatureData.numWins += 1;
+        }
+        creatureData.fightingObjectEntityId = bytes32(0);
+      }
+    }
+    return creatureData;
+  }
 
-  //   pokemonData = resetStaleFightingCAEntity(neighbourEntityIds, pokemonData);
+  function runCreatureMove(
+    address worldAddress,
+    bytes32 centerObjectEntityId,
+    VoxelCoord memory coord,
+    bytes32 neighbourObjectEntityId,
+    CreatureData memory creatureData,
+    ObjectProperties memory entityProperties,
+    CreatureMove creatureMove
+  ) internal returns (Action memory action, CreatureData memory) {
+    if (creatureData.isFainted || block.number < creatureData.lastFaintedBlock + NUM_BLOCKS_FAINTED) {
+      return (action, creatureData);
+    }
 
-  //   if (CreatureMove == CreatureMove.None) {
-  //     console.log("default interaction");
-  //     return runDefaultInteraction(callerAddress, interactEntity, entitySimData, pokemonData);
-  //   }
+    ObjectProperties memory neighbourEntityProperties = getObjectProperties(worldAddress, neighbourObjectEntityId);
+    if (
+      entityProperties.health == 0 ||
+      entityProperties.stamina == 0 ||
+      neighbourEntityProperties.health == 0 ||
+      neighbourEntityProperties.stamina == 0
+    ) {
+      return (action, creatureData);
+    }
 
-  //   CAEventData[] memory allCAEventData = new CAEventData[](neighbourEntityIds.length);
-  //   bool hasEvent = false;
+    if (entityProperties.combatMoveData.moveType != ElementType.None) {
+      return (action, creatureData);
+    }
 
-  //   pokemonData = endOfFightLogic(pokemonData, entitySimData);
-  //   Pokemon.set(callerAddress, interactEntity, pokemonData);
+    CreatureMoveData memory creatureMoveData = getCreatureMoveData(creatureMove);
+    uint staminaAmount = uint(creatureMoveData.stamina);
+    bool isAttack = creatureMoveData.damage > 0;
 
-  //   if (pokemonData.isFainted && block.number >= pokemonData.lastFaintedBlock + NUM_BLOCKS_FAINTED) {
-  //     pokemonData.isFainted = false;
-  //     Pokemon.set(callerAddress, interactEntity, pokemonData);
-  //   }
+    if (entityProperties.stamina < staminaAmount) {
+      return (action, creatureData);
+    }
 
-  //   // Check if neighbour is pokemon and run move
-  //   console.log("try fight");
-  //   bool foundPokemon = false;
-  //   for (uint256 i = 0; i < neighbourEntityIds.length; i++) {
-  //     if (uint256(neighbourEntityIds[i]) == 0) {
-  //       continue;
-  //     }
+    if (isAttack) {
+      action = Action({
+        actionType: ActionType.Transfer,
+        senderTable: SimTable.Stamina,
+        senderValue: abi.encode(uint256ToNegativeInt256(staminaAmount)),
+        targetObjectEntityId: neighbourObjectEntityId,
+        targetCoord: getVoxelCoord(IStore(worldAddress), neighbourObjectEntityId),
+        targetTable: SimTable.CombatMove,
+        targetValue: abi.encode(creatureMoveData.moveType)
+      });
+    } else {
+      action = Action({
+        actionType: ActionType.Transformation,
+        senderTable: SimTable.Stamina,
+        senderValue: abi.encode(uint256ToNegativeInt256(staminaAmount)),
+        targetObjectEntityId: centerObjectEntityId,
+        targetCoord: coord,
+        targetTable: SimTable.CombatMove,
+        targetValue: abi.encode(creatureMoveData.moveType)
+      });
+    }
 
-  //     if (!entityIsPokemon(callerAddress, neighbourEntityIds[i])) {
-  //       continue;
-  //     }
-  //     if (foundPokemon) {
-  //       revert("Pokemon can't fight more than one pokemon at a time");
-  //     }
-  //     // TODO: handle non-pokemon interaction
-  //     // if (!getCAEntityIsAgent(REGISTRY_ADDRESS, neighbourEntityIds[i])) {
-  //     //   continue;
-  //     // }
+    require(
+      creatureData.fightingObjectEntityId == bytes32(0) ||
+        creatureData.fightingObjectEntityId == neighbourObjectEntityId,
+      "CreatureSystem: Creature is already fighting"
+    );
+    creatureData.fightingObjectEntityId = neighbourObjectEntityId;
 
-  //     foundPokemon = true;
-  //     (allCAEventData[i], pokemonData) = runPokemonMove(
-  //       callerAddress,
-  //       interactEntity,
-  //       neighbourEntityIds[i],
-  //       pokemonData,
-  //       entitySimData,
-  //       CreatureMove
-  //     );
-  //     Pokemon.set(callerAddress, interactEntity, pokemonData);
-  //     if (allCAEventData[i].eventType != CAEventType.None) {
-  //       hasEvent = true;
-  //     }
-  //   }
-
-  //   if (hasEvent) {
-  //     entityData = abi.encode(allCAEventData);
-  //   }
-
-  //   // Note: we don't need to set changedEntity to true, because we don't need another event
-
-  //   return (changedEntity, entityData);
-  // }
-
-  // function resetStaleFightingCAEntity(
-  //   bytes32[] memory neighbourEntityIds,
-  //   PokemonData memory pokemonData
-  // ) internal returns (PokemonData memory) {
-  //   if (pokemonData.fightingCAEntity == bytes32(0)) {
-  //     return pokemonData;
-  //   }
-  //   bool foundFightingEntity = false;
-  //   for (uint256 i = 0; i < neighbourEntityIds.length; i++) {
-  //     if (neighbourEntityIds[i] == pokemonData.fightingCAEntity) {
-  //       foundFightingEntity = true;
-  //       break;
-  //     }
-  //   }
-  //   if (!foundFightingEntity) {
-  //     pokemonData.fightingCAEntity = bytes32(0);
-  //   }
-  //   return pokemonData;
-  // }
-
-  // function runDefaultInteraction(
-  //   address callerAddress,
-  //   bytes32 interactEntity,
-  //   BodySimData memory entitySimData,
-  //   PokemonData memory pokemonData
-  // ) internal returns (bool changedEntity, bytes memory entityData) {
-  //   pokemonData = endOfFightLogic(pokemonData, entitySimData);
-  //   Pokemon.set(callerAddress, interactEntity, pokemonData);
-
-  //   if (pokemonData.isFainted && block.number >= pokemonData.lastFaintedBlock + NUM_BLOCKS_FAINTED) {
-  //     pokemonData.isFainted = false;
-  //     Pokemon.set(callerAddress, interactEntity, pokemonData);
-  //   }
-
-  //   return (changedEntity, entityData);
-  // }
-
-  // function endOfFightLogic(
-  //   PokemonData memory pokemonData,
-  //   BodySimData memory entitySimData
-  // ) internal returns (PokemonData memory) {
-  //   if (pokemonData.fightingCAEntity != bytes32(0)) {
-  //     BodySimData memory fightingEntitySimData = getEntitySimData(pokemonData.fightingCAEntity);
-  //     if (
-  //       (entitySimData.health == 0 || entitySimData.stamina == 0) ||
-  //       (fightingEntitySimData.health == 0 || fightingEntitySimData.stamina == 0)
-  //     ) {
-  //       if (
-  //         (entitySimData.health == 0 || entitySimData.stamina == 0) &&
-  //         (fightingEntitySimData.health == 0 || fightingEntitySimData.stamina == 0)
-  //       ) {
-  //         // both died, no winner
-  //         pokemonData.isFainted = true;
-  //         pokemonData.lastFaintedBlock = block.number;
-  //       } else if (entitySimData.health == 0 || entitySimData.stamina == 0) {
-  //         // entity died
-  //         pokemonData.isFainted = true;
-  //         pokemonData.lastFaintedBlock = block.number;
-  //         pokemonData.numLosses += 1;
-  //       } else {
-  //         // fighting entity died
-  //         pokemonData.numWins += 1;
-  //       }
-  //       pokemonData.fightingCAEntity = bytes32(0);
-  //     }
-  //   }
-  //   return pokemonData;
-  // }
-
-  // function runPokemonMove(
-  //   address callerAddress,
-  //   bytes32 interactEntity,
-  //   bytes32 neighbourEntity,
-  //   PokemonData memory pokemonData,
-  //   BodySimData memory entitySimData,
-  //   CreatureMove CreatureMove
-  // ) internal returns (CAEventData memory caEventData, PokemonData memory) {
-  //   console.log("runPokemonMove");
-  //   // VoxelCoord memory currentVelocity = abi.decode(entitySimData.velocity, (VoxelCoord));
-  //   // if (!isZeroCoord(currentVelocity)) {
-  //   //   return (caEventData, pokemonData);
-  //   // }
-
-  //   if (pokemonData.isFainted || block.number < pokemonData.lastFaintedBlock + NUM_BLOCKS_FAINTED) {
-  //     return (caEventData, pokemonData);
-  //   }
-
-  //   BodySimData memory neighbourEntitySimData = getEntitySimData(neighbourEntity);
-
-  //   if (
-  //     entitySimData.health == 0 ||
-  //     entitySimData.stamina == 0 ||
-  //     neighbourEntitySimData.health == 0 ||
-  //     neighbourEntitySimData.stamina == 0
-  //   ) {
-  //     return (caEventData, pokemonData);
-  //   }
-
-  //   if (entitySimData.actionData.actionType != ElementType.None) {
-  //     return (caEventData, pokemonData);
-  //   }
-
-  //   CreatureMove memory CreatureMove = getMoveData(CreatureMove);
-  //   uint staminaAmount = uint(CreatureMove.stamina);
-  //   bool isAttack = CreatureMove.damage > 0;
-
-  //   if (entitySimData.stamina < staminaAmount) {
-  //     return (caEventData, pokemonData);
-  //   }
-
-  //   VoxelEntity memory targetEntity = isAttack
-  //     ? VoxelEntity({ scale: 1, entityId: caEntityToEntity(neighbourEntity) })
-  //     : VoxelEntity({ scale: 1, entityId: caEntityToEntity(interactEntity) });
-  //   VoxelCoord memory targetCoord = isAttack
-  //     ? getCAEntityPositionStrict(IStore(_world()), neighbourEntity)
-  //     : getCAEntityPositionStrict(IStore(_world()), interactEntity);
-
-  //   console.log("picked move");
-
-  //   SimEventData memory moveEventData = SimEventData({
-  //     senderTable: SimTable.Stamina,
-  //     senderValue: abi.encode(uint256ToNegativeInt256(staminaAmount)),
-  //     targetEntity: targetEntity,
-  //     targetCoord: targetCoord,
-  //     targetTable: SimTable.Action,
-  //     targetValue: abi.encode(CreatureMove.moveType)
-  //   });
-  //   caEventData = CAEventData({ eventType: CAEventType.SimEvent, eventData: abi.encode(moveEventData) });
-
-  //   require(
-  //     pokemonData.fightingCAEntity == bytes32(0) || pokemonData.fightingCAEntity == neighbourEntity,
-  //     "Pokemon is already fighting"
-  //   );
-  //   pokemonData.fightingCAEntity = neighbourEntity;
-
-  //   return (caEventData, pokemonData);
-  // }
+    return (action, creatureData);
+  }
 }

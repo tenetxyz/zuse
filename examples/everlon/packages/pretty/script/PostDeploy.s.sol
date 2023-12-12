@@ -15,16 +15,6 @@ contract PostDeploy is Script {
 
     IWorld world = IWorld(worldAddress);
 
-    // TODO: Find a better way to auto get these in deployPrettyBlocks.tsx
-    console.log("Enter World Selector");
-    console.logBytes4(world.pretty_PrettyObjectSyst_enterWorld.selector);
-    console.log("Exit World Selector");
-    console.logBytes4(world.pretty_PrettyObjectSyst_exitWorld.selector);
-    console.log("Event Handler Selector");
-    console.logBytes4(world.pretty_PrettyObjectSyst_eventHandler.selector);
-    console.log("Neighbour Event Handler Selector");
-    console.logBytes4(world.pretty_PrettyObjectSyst_neighbourEventHandler.selector);
-
     vm.stopBroadcast();
   }
 }

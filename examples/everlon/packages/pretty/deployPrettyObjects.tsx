@@ -113,6 +113,7 @@ async function main() {
 
     // Call setTerrainProperties
     const contractAddress = worldAddress;
+    // Read pretty_PrettyObjectSyst_eventHandler from out/IPrettyObjectSystem.sol/IPrettyObjectSystem.json
     const enterWorldSelector = "";
     const exitWorldSelector = "";
     const eventHandlerSelector = "";

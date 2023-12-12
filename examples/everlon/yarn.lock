@@ -1149,6 +1149,7 @@ __metadata:
     "@openzeppelin/contracts": ^4.9.1
     "@tenetxyz/base-simulator": "link:../../../../packages/base-simulator"
     "@tenetxyz/base-world": "link:../../../../packages/base-world"
+    "@tenetxyz/farming": "workspace:*"
     "@tenetxyz/registry": "link:../../../../packages/registry"
     "@tenetxyz/simulator": "workspace:*"
     "@tenetxyz/utils": "link:../../../../packages/utils"
@@ -1207,7 +1208,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@tenetxyz/farming@workspace:packages/farming":
+"@tenetxyz/farming@workspace:*, @tenetxyz/farming@workspace:packages/farming":
   version: 0.0.0-use.local
   resolution: "@tenetxyz/farming@workspace:packages/farming"
   dependencies:

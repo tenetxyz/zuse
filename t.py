@@ -61,15 +61,10 @@ def main():
             elif sys.argv[2] == "everlon":
                 extra_cmd = []
 
-                if "--with-farming" in sys.argv:
-                    # Note: we need to build before deploying
-                    extra_cmd.append("yarn run build:extensions && yarn run deploy:farming")
-                if "--with-creatures" in sys.argv:
-                    # Note: we need to build before deploying
-                    extra_cmd.append("yarn run build:extensions && yarn run deploy:creatures")
                 if "--with-extensions" in sys.argv:
-                    # This auto builds extensions in parallel
                     extra_cmd.append("yarn run deploy:extensions")
+                if "--with-pretty" in sys.argv:
+                    extra_cmd.append("yarn run deploy:pretty")
                 if "--with-derived" in sys.argv:
                     extra_cmd.append("yarn run deploy:derived")
                 if "--snapshot" in sys.argv:

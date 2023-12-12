@@ -7,4 +7,5 @@ forge-std/=../../node_modules/forge-std/src/
 @tenet-base-world/=../../node_modules/@tenetxyz/base-world
 @tenet-simulator/=../../node_modules/@tenetxyz/simulator
 @tenet-world/=../../node_modules/@tenetxyz/world
+@tenet-farming/=../../node_modules/@tenetxyz/farming
 @tenet-creatures/=./

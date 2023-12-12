@@ -79,13 +79,13 @@ contract CollisionTest is MudTest {
     (, bytes32 agentObjectEntityId) = setupAgent();
     Mass.set(simStore, worldAddress, agentObjectEntityId, 5);
 
-    bytes32 smallMassObjectEntityId;
-    VoxelCoord memory smallMassCoord = VoxelCoord({ x: agentCoord.x + 1, y: agentCoord.y, z: agentCoord.z });
+    bytes32 massObjectEntityId;
+    VoxelCoord memory massCoord = VoxelCoord({ x: agentCoord.x + 1, y: agentCoord.y, z: agentCoord.z });
     {
-      bytes32 smallMassEntityId = world.build(agentObjectEntityId, GrassObjectID, smallMassCoord);
-      smallMassObjectEntityId = ObjectEntity.get(store, smallMassEntityId);
-      Mass.set(simStore, worldAddress, smallMassObjectEntityId, 1);
-      Energy.set(simStore, worldAddress, smallMassObjectEntityId, 10);
+      bytes32 massEntityId = world.build(agentObjectEntityId, GrassObjectID, massCoord);
+      massObjectEntityId = ObjectEntity.get(store, massEntityId);
+      Mass.set(simStore, worldAddress, massObjectEntityId, 1);
+      Energy.set(simStore, worldAddress, massObjectEntityId, 10);
     }
     // Move back one
     world.move(
@@ -113,21 +113,15 @@ contract CollisionTest is MudTest {
     );
     assertTrue(agentVelocity.x == 1 && agentVelocity.y == 0 && agentVelocity.z == 0, "Agent velocity not 1,0,0");
 
-    // Small mass should be at x + 1 coord
-    bytes32 smallMassEntityId = getEntityAtCoord(
-      store,
-      VoxelCoord(smallMassCoord.x + 1, smallMassCoord.y, smallMassCoord.z)
-    );
-    smallMassObjectEntityId = ObjectEntity.get(store, smallMassEntityId);
-    assertTrue(ObjectType.get(store, smallMassEntityId) == GrassObjectID, "Mass not found");
-    VoxelCoord memory smallMassVelocity = abi.decode(
-      Velocity.getVelocity(simStore, worldAddress, smallMassObjectEntityId),
+    // Mass should be at x + 1 coord
+    bytes32 massEntityId = getEntityAtCoord(store, VoxelCoord(massCoord.x + 1, massCoord.y, massCoord.z));
+    massObjectEntityId = ObjectEntity.get(store, massEntityId);
+    assertTrue(ObjectType.get(store, massEntityId) == GrassObjectID, "Mass not found");
+    VoxelCoord memory massVelocity = abi.decode(
+      Velocity.getVelocity(simStore, worldAddress, massObjectEntityId),
       (VoxelCoord)
     );
-    assertTrue(
-      smallMassVelocity.x == 1 && smallMassVelocity.y == 0 && smallMassVelocity.z == 0,
-      "Small mass velocity not 1,0,0"
-    );
+    assertTrue(massVelocity.x == 1 && massVelocity.y == 0 && massVelocity.z == 0, "Mass velocity not 1,0,0");
 
     vm.stopPrank();
   }
@@ -171,18 +165,15 @@ contract CollisionTest is MudTest {
     );
     assertTrue(agentVelocity.x == 4 && agentVelocity.y == 0 && agentVelocity.z == 0, "Agent velocity not 4,0,0");
 
-    // Small mass should be at x + 1 coord
+    // Mass should be at x + 1 coord
     bytes32 massEntityId = getEntityAtCoord(store, VoxelCoord(massCoord.x + 1, massCoord.y, massCoord.z));
     massObjectEntityId = ObjectEntity.get(store, massEntityId);
     assertTrue(ObjectType.get(store, massEntityId) == GrassObjectID, "Mass not found");
-    VoxelCoord memory smallMassVelocity = abi.decode(
+    VoxelCoord memory massVelocity = abi.decode(
       Velocity.getVelocity(simStore, worldAddress, massObjectEntityId),
       (VoxelCoord)
     );
-    assertTrue(
-      smallMassVelocity.x == 1 && smallMassVelocity.y == 0 && smallMassVelocity.z == 0,
-      "Small mass velocity not 1,0,0"
-    );
+    assertTrue(massVelocity.x == 1 && massVelocity.y == 0 && massVelocity.z == 0, "Mass velocity not 1,0,0");
 
     vm.stopPrank();
   }
@@ -218,18 +209,15 @@ contract CollisionTest is MudTest {
     );
     assertTrue(agentVelocity.x == 1 && agentVelocity.y == 0 && agentVelocity.z == 2, "Agent velocity not 1,0,2");
 
-    // Small mass should be at x + 1 coord
+    // Mass should be at x + 1 coord
     bytes32 massEntityId = getEntityAtCoord(store, VoxelCoord(massCoord.x, massCoord.y, massCoord.z - 2));
     massObjectEntityId = ObjectEntity.get(store, massEntityId);
     assertTrue(ObjectType.get(store, massEntityId) == GrassObjectID, "Mass not found");
-    VoxelCoord memory smallMassVelocity = abi.decode(
+    VoxelCoord memory massVelocity = abi.decode(
       Velocity.getVelocity(simStore, worldAddress, massObjectEntityId),
       (VoxelCoord)
     );
-    assertTrue(
-      smallMassVelocity.x == 0 && smallMassVelocity.y == 0 && smallMassVelocity.z == 8,
-      "Small mass velocity not 0,0,8"
-    );
+    assertTrue(massVelocity.x == 0 && massVelocity.y == 0 && massVelocity.z == 8, "Mass velocity not 0,0,8");
 
     vm.stopPrank();
   }
@@ -361,14 +349,11 @@ contract CollisionTest is MudTest {
     bytes32 massEntityId = getEntityAtCoord(store, VoxelCoord(massCoord.x, massCoord.y, massCoord.z));
     massObjectEntityId = ObjectEntity.get(store, massEntityId);
     assertTrue(ObjectType.get(store, massEntityId) == GrassObjectID, "Mass not found");
-    VoxelCoord memory smallMassVelocity = abi.decode(
+    VoxelCoord memory massVelocity = abi.decode(
       Velocity.getVelocity(simStore, worldAddress, massObjectEntityId),
       (VoxelCoord)
     );
-    assertTrue(
-      smallMassVelocity.x == 1 && smallMassVelocity.y == 0 && smallMassVelocity.z == 0,
-      "Small mass velocity not 1,0,0"
-    );
+    assertTrue(massVelocity.x == 1 && massVelocity.y == 0 && massVelocity.z == 0, "Mass velocity not 1,0,0");
 
     vm.stopPrank();
   }
@@ -415,14 +400,11 @@ contract CollisionTest is MudTest {
     bytes32 massEntityId = getEntityAtCoord(store, VoxelCoord(massCoord.x + 4, massCoord.y, massCoord.z));
     massObjectEntityId = ObjectEntity.get(store, massEntityId);
     assertTrue(ObjectType.get(store, massEntityId) == GrassObjectID, "Mass not found");
-    VoxelCoord memory smallMassVelocity = abi.decode(
+    VoxelCoord memory massVelocity = abi.decode(
       Velocity.getVelocity(simStore, worldAddress, massObjectEntityId),
       (VoxelCoord)
     );
-    assertTrue(
-      smallMassVelocity.x == 5 && smallMassVelocity.y == 0 && smallMassVelocity.z == 0,
-      "Small mass velocity not 5,0,0"
-    );
+    assertTrue(massVelocity.x == 5 && massVelocity.y == 0 && massVelocity.z == 0, "Mass velocity not 5,0,0");
 
     vm.stopPrank();
   }
@@ -469,14 +451,11 @@ contract CollisionTest is MudTest {
     bytes32 massEntityId = getEntityAtCoord(store, VoxelCoord(massCoord.x + 2, massCoord.y, massCoord.z));
     massObjectEntityId = ObjectEntity.get(store, massEntityId);
     assertTrue(ObjectType.get(store, massEntityId) == GrassObjectID, "Mass not found");
-    VoxelCoord memory smallMassVelocity = abi.decode(
+    VoxelCoord memory massVelocity = abi.decode(
       Velocity.getVelocity(simStore, worldAddress, massObjectEntityId),
       (VoxelCoord)
     );
-    assertTrue(
-      smallMassVelocity.x == 1 && smallMassVelocity.y == 0 && smallMassVelocity.z == 0,
-      "Small mass velocity not 1,0,0"
-    );
+    assertTrue(massVelocity.x == 1 && massVelocity.y == 0 && massVelocity.z == 0, "Mass velocity not 1,0,0");
 
     vm.stopPrank();
   }
@@ -523,14 +502,11 @@ contract CollisionTest is MudTest {
     bytes32 massEntityId = getEntityAtCoord(store, VoxelCoord(massCoord.x, massCoord.y, massCoord.z));
     massObjectEntityId = ObjectEntity.get(store, massEntityId);
     assertTrue(ObjectType.get(store, massEntityId) == GrassObjectID, "Mass not found");
-    VoxelCoord memory smallMassVelocity = abi.decode(
+    VoxelCoord memory massVelocity = abi.decode(
       Velocity.getVelocity(simStore, worldAddress, massObjectEntityId),
       (VoxelCoord)
     );
-    assertTrue(
-      smallMassVelocity.x == -1 && smallMassVelocity.y == 0 && smallMassVelocity.z == 0,
-      "Small mass velocity not -1,0,0"
-    );
+    assertTrue(massVelocity.x == -1 && massVelocity.y == 0 && massVelocity.z == 0, "Mass velocity not -1,0,0");
 
     vm.stopPrank();
   }
@@ -648,7 +624,7 @@ contract CollisionTest is MudTest {
       Velocity.getVelocity(simStore, worldAddress, mass1ObjectEntityId),
       (VoxelCoord)
     );
-    assertTrue(mass1Velocity.x == -4 && mass1Velocity.y == 0 && mass1Velocity.z == 0, "Small mass velocity not -4,0,0");
+    assertTrue(mass1Velocity.x == -4 && mass1Velocity.y == 0 && mass1Velocity.z == 0, "Mass velocity not -4,0,0");
 
     bytes32 mass2EntityId = getEntityAtCoord(store, VoxelCoord(mass2Coord.x, mass2Coord.y, mass2Coord.z));
     mass2ObjectEntityId = ObjectEntity.get(store, mass2EntityId);
@@ -657,7 +633,7 @@ contract CollisionTest is MudTest {
       Velocity.getVelocity(simStore, worldAddress, mass2ObjectEntityId),
       (VoxelCoord)
     );
-    assertTrue(mass2Velocity.x == 0 && mass2Velocity.y == 0 && mass2Velocity.z == 0, "Small mass velocity not 0,0,0");
+    assertTrue(mass2Velocity.x == 0 && mass2Velocity.y == 0 && mass2Velocity.z == 0, "Mass velocity not 0,0,0");
 
     vm.stopPrank();
   }
@@ -725,7 +701,7 @@ contract CollisionTest is MudTest {
       Velocity.getVelocity(simStore, worldAddress, mass1ObjectEntityId),
       (VoxelCoord)
     );
-    assertTrue(mass1Velocity.x == 0 && mass1Velocity.y == 0 && mass1Velocity.z == 8, "Small mass velocity not 0,0,8");
+    assertTrue(mass1Velocity.x == 0 && mass1Velocity.y == 0 && mass1Velocity.z == 8, "Mass velocity not 0,0,8");
 
     bytes32 mass2EntityId = getEntityAtCoord(store, VoxelCoord(mass2Coord.x + 1, mass2Coord.y, mass2Coord.z + 2));
     mass2ObjectEntityId = ObjectEntity.get(store, mass2EntityId);
@@ -734,7 +710,7 @@ contract CollisionTest is MudTest {
       Velocity.getVelocity(simStore, worldAddress, mass2ObjectEntityId),
       (VoxelCoord)
     );
-    assertTrue(mass2Velocity.x == 1 && mass2Velocity.y == 0 && mass2Velocity.z == 2, "Small mass velocity not 1,0,2");
+    assertTrue(mass2Velocity.x == 1 && mass2Velocity.y == 0 && mass2Velocity.z == 2, "Mass velocity not 1,0,2");
 
     vm.stopPrank();
   }
@@ -874,7 +850,7 @@ contract CollisionTest is MudTest {
       Velocity.getVelocity(simStore, worldAddress, mass1ObjectEntityId),
       (VoxelCoord)
     );
-    assertTrue(mass1Velocity.x == -4 && mass1Velocity.y == 0 && mass1Velocity.z == 0, "Small mass velocity not -4,0,0");
+    assertTrue(mass1Velocity.x == -4 && mass1Velocity.y == 0 && mass1Velocity.z == 0, "Mass velocity not -4,0,0");
 
     bytes32 mass2EntityId = getEntityAtCoord(store, VoxelCoord(mass2Coord.x, mass2Coord.y, mass2Coord.z));
     mass2ObjectEntityId = ObjectEntity.get(store, mass2EntityId);
@@ -883,7 +859,7 @@ contract CollisionTest is MudTest {
       Velocity.getVelocity(simStore, worldAddress, mass2ObjectEntityId),
       (VoxelCoord)
     );
-    assertTrue(mass2Velocity.x == 0 && mass2Velocity.y == 0 && mass2Velocity.z == 0, "Small mass velocity not 0,0,0");
+    assertTrue(mass2Velocity.x == 0 && mass2Velocity.y == 0 && mass2Velocity.z == 0, "Mass velocity not 0,0,0");
 
     vm.stopPrank();
   }
@@ -962,7 +938,7 @@ contract CollisionTest is MudTest {
       Velocity.getVelocity(simStore, worldAddress, mass1ObjectEntityId),
       (VoxelCoord)
     );
-    assertTrue(mass1Velocity.x == 0 && mass1Velocity.y == 0 && mass1Velocity.z == 8, "Small mass velocity not 0,0,8");
+    assertTrue(mass1Velocity.x == 0 && mass1Velocity.y == 0 && mass1Velocity.z == 8, "Mass velocity not 0,0,8");
 
     bytes32 mass2EntityId = getEntityAtCoord(store, VoxelCoord(mass2Coord.x + 1, mass2Coord.y, mass2Coord.z + 2));
     mass2ObjectEntityId = ObjectEntity.get(store, mass2EntityId);
@@ -971,7 +947,7 @@ contract CollisionTest is MudTest {
       Velocity.getVelocity(simStore, worldAddress, mass2ObjectEntityId),
       (VoxelCoord)
     );
-    assertTrue(mass2Velocity.x == 1 && mass2Velocity.y == 0 && mass2Velocity.z == 2, "Small mass velocity not 1,0,2");
+    assertTrue(mass2Velocity.x == 1 && mass2Velocity.y == 0 && mass2Velocity.z == 2, "Mass velocity not 1,0,2");
 
     vm.stopPrank();
   }

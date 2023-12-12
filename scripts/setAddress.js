@@ -1,4 +1,3 @@
-// read worlds.json from registry
 import fs from "fs";
 
 const chainId = process.argv[2];
@@ -6,7 +5,7 @@ const worldsJsonPath = process.argv[3];
 const solidityFilePath = process.argv[4];
 const variableName = process.argv[5];
 
-function setRegistryAddress() {
+function setAddress() {
     if (chainId === undefined) {
         console.log('chainId is undefined');
         return;
@@ -41,8 +40,6 @@ function setRegistryAddress() {
 
     const worldAddress = worldsJson[chainId]["address"];
 
-    // set registry address in base-ca
-
     // Read the file
     fs.readFile(solidityFilePath, 'utf8', (err, data) => {
         if (err) {
@@ -75,4 +72,4 @@ function setRegistryAddress() {
     });
 }
 
-setRegistryAddress();
+setAddress();

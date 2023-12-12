@@ -23,8 +23,8 @@ if (!action) {
 
 if (action == "build") {
   // List of dev commands
-  const setRegistryAddressCommand = `node ../../../../scripts/setRegistryAddress.js ${chainId} ../../../../packages/registry/worlds.json src/Constants.sol REGISTRY_ADDRESS`;
-  const setSimAddressCommand = `node ../../../../scripts/setRegistryAddress.js ${chainId} ../simulator/worlds.json src/Constants.sol SIMULATOR_ADDRESS`;
+  const setRegistryAddressCommand = `node ../../../../scripts/setAddress.js ${chainId} ../../../../packages/registry/worlds.json src/Constants.sol REGISTRY_ADDRESS`;
+  const setSimAddressCommand = `node ../../../../scripts/setAddress.js ${chainId} ../simulator/worlds.json src/Constants.sol SIMULATOR_ADDRESS`;
   const devCommands = [setRegistryAddressCommand, setSimAddressCommand, "yarn run initialize"];
 
   devCommands.forEach((command) => {

@@ -68,7 +68,7 @@ def main():
                 if "--with-derived" in sys.argv:
                     extra_cmd.append("yarn run deploy:derived")
                 if "--snapshot" in sys.argv:
-                    extra_cmd.append(f"sh {cur_directory}/scripts/rollback/create_snapshot.sh")
+                    extra_cmd.append(f"sh {cur_directory}/scripts/rollback/createSnapshot.sh")
 
                 # Join the commands with ' && '
                 command_str = " && ".join(extra_cmd)
@@ -76,7 +76,7 @@ def main():
                 run_example("everlon", command_str)
 
             elif sys.argv[2] == "snapshot":
-                subprocess.run([f"sh {cur_directory}/scripts/rollback/create_snapshot.sh"])
+                subprocess.run([f"sh {cur_directory}/scripts/rollback/createSnapshot.sh"])
                 print("created snapshot")
 
             else:

@@ -23,7 +23,7 @@ if (!action) {
 
 if (action == "build") {
   // List of dev commands
-  const setAddressCommand = `node ../../../../scripts/setRegistryAddress.js ${chainId} ../../../../packages/registry/worlds.json src/Constants.sol REGISTRY_ADDRESS`;
+  const setAddressCommand = `node ../../../../scripts/setAddress.js ${chainId} ../../../../packages/registry/worlds.json src/Constants.sol REGISTRY_ADDRESS`;
   const devCommands = [setAddressCommand, "yarn run initialize"];
 
   devCommands.forEach((command) => {

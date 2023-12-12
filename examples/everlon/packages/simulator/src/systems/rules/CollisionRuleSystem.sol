@@ -291,6 +291,10 @@ contract CollisionRuleSystem is System {
           continue;
         }
         collidingObjectEntities[i] = neighbourObjectEntities[i];
+      } else {
+        if (uint256(neighbourEntities[i]) != 0) {
+          neighbourObjectEntities[i] = ObjectEntity.get(IStore(worldAddress), neighbourEntities[i]);
+        }
       }
     }
 
@@ -316,6 +320,6 @@ contract CollisionRuleSystem is System {
 
     VoxelCoord memory deltaVelocity = divScalar(totalImpulse, massPrimary);
     newPrimaryVelocity = add(primaryVelocity, deltaVelocity);
-    return (newPrimaryVelocity, neighbourEntities, neighbourCoords);
+    return (newPrimaryVelocity, neighbourObjectEntities, neighbourCoords);
   }
 }

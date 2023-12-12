@@ -8,7 +8,7 @@ import { IWorld } from "@tenet-world/src/codegen/world/IWorld.sol";
 import { ObjectType, OwnedBy, ObjectEntity } from "@tenet-world/src/codegen/Tables.sol";
 import { VoxelCoord } from "@tenet-utils/src/Types.sol";
 import { getEntityAtCoord, getEntityPositionStrict, positionDataToVoxelCoord } from "@tenet-base-world/src/Utils.sol";
-import { BuilderObjectID, GrassObjectID, AirObjectID } from "@tenet-world/src/Constants.sol";
+import { BuilderObjectID, GrassObjectID, AirObjectID, RunnerObjectID } from "@tenet-world/src/Constants.sol";
 import { REGISTRY_ADDRESS, SIMULATOR_ADDRESS } from "@tenet-world/src/Constants.sol";
 import { console } from "forge-std/console.sol";
 import { Mass } from "@tenet-simulator/src/codegen/tables/Mass.sol";
@@ -22,6 +22,7 @@ contract CollisionTest is MudTest {
   IStore private store;
   IStore private simStore;
   address payable internal alice;
+  address payable internal bob;
   VoxelCoord faucetAgentCoord = VoxelCoord(50, 10, 50);
   VoxelCoord agentCoord;
 
@@ -31,6 +32,7 @@ contract CollisionTest is MudTest {
     store = IStore(worldAddress);
     simStore = IStore(SIMULATOR_ADDRESS);
     alice = payable(address(0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266));
+    bob = payable(address(0x70997970C51812dc3A010C7d01b50e0d17dc79C8));
     agentCoord = VoxelCoord({ x: faucetAgentCoord.x + 1, y: faucetAgentCoord.y, z: faucetAgentCoord.z });
   }
 
@@ -39,10 +41,21 @@ contract CollisionTest is MudTest {
     assertTrue(uint256(faucetEntityId) != 0, "Agent not found at coord");
     bytes32 faucetObjectEntityId = ObjectEntity.get(store, faucetEntityId);
 
-    bytes32 agentObjectTypeId = BuilderObjectID;
+    bytes32 agentObjectTypeId = RunnerObjectID;
     bytes32 agentEntityId = world.claimAgentFromFaucet(faucetObjectEntityId, agentObjectTypeId, agentCoord);
     assertTrue(uint256(agentEntityId) != 0, "Agent not found at coord");
     bytes32 agentObjectEntityId = ObjectEntity.get(store, agentEntityId);
+
+    // Move away from the flag and reset velocity
+    world.move(
+      agentObjectEntityId,
+      RunnerObjectID,
+      agentCoord,
+      VoxelCoord(agentCoord.x + 1, agentCoord.y, agentCoord.z)
+    );
+    agentCoord = VoxelCoord(agentCoord.x + 1, agentCoord.y, agentCoord.z);
+    // Set velocity to 0
+    Velocity.setVelocity(simStore, worldAddress, agentObjectEntityId, abi.encode(VoxelCoord({ x: 0, y: 0, z: 0 })));
 
     return (agentEntityId, agentObjectEntityId);
   }
@@ -52,1134 +65,963 @@ contract CollisionTest is MudTest {
     (, bytes32 agentObjectEntityId) = setupAgent();
 
     VoxelCoord memory newCoord = VoxelCoord(agentCoord.x + 1, agentCoord.y, agentCoord.z);
-    world.move(agentObjectEntityId, BuilderObjectID, agentCoord, newCoord);
+    world.move(agentObjectEntityId, RunnerObjectID, agentCoord, newCoord);
     bytes32 newEntityId = getEntityAtCoord(store, newCoord);
     bytes32 newCoordObjectEntityId = ObjectEntity.get(store, newEntityId);
     assertTrue(newCoordObjectEntityId == agentObjectEntityId, "Agent not moved");
-    assertTrue(ObjectType.get(store, newEntityId) == BuilderObjectID, "Agent not moved");
+    assertTrue(ObjectType.get(store, newEntityId) == RunnerObjectID, "Agent not moved");
 
     vm.stopPrank();
   }
 
-  //  function testSimpleCollision() public {
-  //   vm.startPrank(alice, alice);
-
-  //   VoxelEntity memory agentEntity = setupAgent();
-
-  //   VoxelEntity memory smallMassEntity;
-  //   VoxelCoord memory smallMassCoord;
-  //   {
-  //     bytes32 voxelTypeId = GrassVoxelID;
-  //     smallMassCoord = VoxelCoord({ x: agentCoord.x + 2, y: agentCoord.y, z: agentCoord.z });
-  //     uint256 initMass = 1;
-  //     uint256 initEnergy = 10;
-  //     VoxelCoord memory initVelocity = VoxelCoord({ x: 0, y: 0, z: 0 });
-  //     smallMassEntity = world.spawnBody(
-  //       voxelTypeId,
-  //       smallMassCoord,
-  //       bytes4(0),
-  //       initMass,
-  //       initEnergy,
-  //       initVelocity,
-  //       0,
-  //       0
-  //     );
-  //   }
-
-  //   uint256 staminaBefore = Stamina.get(
-  //     IStore(SIMULATOR_ADDRESS),
-  //     worldAddress,
-  //     agentEntity.scale,
-  //     agentEntity.entityId
-  //   );
-
-  //   VoxelCoord memory newAgentCoord = VoxelCoord({ x: agentCoord.x + 1, y: agentCoord.y, z: agentCoord.z });
-  //   console.log("moving");
-  //   console.logBytes32(agentEntity.entityId);
-  //   bytes32 agentCAEntity = CAEntityMapping.getCaEntity(IStore(BASE_CA_ADDRESS), worldAddress, agentEntity.entityId);
-  //   address agentOwner = OwnedBy.get(agentEntity.scale, agentEntity.entityId);
-  //   (, agentEntity) = world.moveWithAgent(FaucetVoxelID, agentCoord, newAgentCoord, agentEntity);
-  //   uint256 staminaAfter = Stamina.get(
-  //     IStore(SIMULATOR_ADDRESS),
-  //     worldAddress,
-  //     agentEntity.scale,
-  //     agentEntity.entityId
-  //   );
-  //   console.log("staminaAfter");
-  //   console.logUint(staminaAfter);
-  //   assertTrue(staminaBefore > staminaAfter);
-  //   assertTrue(CAEntityMapping.getCaEntity(IStore(BASE_CA_ADDRESS), worldAddress, agentEntity.entityId) == agentCAEntity);
-  //   assertTrue(OwnedBy.get(agentEntity.scale, agentEntity.entityId) == agentOwner);
-
-  //   VoxelCoord memory agentVelocity = abi.decode(
-  //     Velocity.getVelocity(IStore(SIMULATOR_ADDRESS), worldAddress, agentEntity.scale, agentEntity.entityId),
-  //     (VoxelCoord)
-  //   );
-  //   console.log("velocity agent");
-  //   console.logInt(agentVelocity.x);
-  //   assertTrue(agentVelocity.x == 1);
-  //   assertTrue(agentVelocity.y == 0);
-  //   assertTrue(agentVelocity.z == 0);
-  //   assertTrue(Mass.getMass(IStore(SIMULATOR_ADDRESS), worldAddress, agentEntity.scale, agentEntity.entityId) > 0);
-
-  //   smallMassEntity = VoxelEntity({
-  //     scale: 1,
-  //     entityId: getEntityAtCoord(1, VoxelCoord(smallMassCoord.x + 1, smallMassCoord.y, smallMassCoord.z))
-  //   });
-  //   VoxelCoord memory smallMassVelocity = abi.decode(
-  //     Velocity.getVelocity(IStore(SIMULATOR_ADDRESS), worldAddress, smallMassEntity.scale, smallMassEntity.entityId),
-  //     (VoxelCoord)
-  //   );
-  //   console.log("velocity small mass");
-  //   console.logInt(smallMassVelocity.x);
-  //   assertTrue(smallMassVelocity.x == 1);
-  //   assertTrue(smallMassVelocity.y == 0);
-  //   assertTrue(smallMassVelocity.z == 0);
-  //   assertTrue(Mass.getMass(IStore(SIMULATOR_ADDRESS), worldAddress, smallMassEntity.scale, smallMassEntity.entityId) > 0);
-
-  //   vm.stopPrank();
-  // }
-
-  // function testCollisionBounceBack() public {
-  //   vm.startPrank(alice, alice);
-
-  //   VoxelEntity memory agentEntity = setupAgent();
-
-  //   VoxelEntity memory massEntity;
-  //   VoxelCoord memory massCoord;
-  //   {
-  //     bytes32 voxelTypeId = GrassVoxelID;
-  //     massCoord = VoxelCoord({ x: agentCoord.x + 2, y: agentCoord.y, z: agentCoord.z });
-  //     uint256 initMass = 5;
-  //     uint256 initEnergy = 10;
-  //     VoxelCoord memory initVelocity = VoxelCoord({ x: 0, y: 0, z: 0 });
-  //     massEntity = world.spawnBody(voxelTypeId, massCoord, bytes4(0), initMass, initEnergy, initVelocity, 0, 0);
-  //   }
-
-  //   uint256 staminaBefore = Stamina.get(
-  //     IStore(SIMULATOR_ADDRESS),
-  //     worldAddress,
-  //     agentEntity.scale,
-  //     agentEntity.entityId
-  //   );
-
-  //   Velocity.setVelocity(
-  //     IStore(SIMULATOR_ADDRESS),
-  //     worldAddress,
-  //     agentEntity.scale,
-  //     agentEntity.entityId,
-  //     abi.encode(VoxelCoord({ x: 4, y: 0, z: 0 }))
-  //   );
-  //   bytes32 agentCAEntity = CAEntityMapping.getCaEntity(IStore(BASE_CA_ADDRESS), worldAddress, agentEntity.entityId);
-  //   address agentOwner = OwnedBy.get(agentEntity.scale, agentEntity.entityId);
-  //   VoxelCoord memory newAgentCoord = VoxelCoord({ x: agentCoord.x + 1, y: agentCoord.y, z: agentCoord.z });
-  //   console.log("moving");
-  //   console.logBytes32(agentCAEntity);
-  //   (, agentEntity) = world.moveWithAgent(FaucetVoxelID, agentCoord, newAgentCoord, agentEntity);
-  //   uint256 staminaAfter = Stamina.get(
-  //     IStore(SIMULATOR_ADDRESS),
-  //     worldAddress,
-  //     agentEntity.scale,
-  //     agentEntity.entityId
-  //   );
-  //   console.log("post move");
-  //   console.logBytes32(agentEntity.entityId);
-  //   assertTrue(staminaBefore > staminaAfter);
-  //   assertTrue(CAEntityMapping.getCaEntity(IStore(BASE_CA_ADDRESS), worldAddress, agentEntity.entityId) == agentCAEntity);
-  //   assertTrue(OwnedBy.get(agentEntity.scale, agentEntity.entityId) == agentOwner);
-
-  //   VoxelCoord memory agentVelocity = abi.decode(
-  //     Velocity.getVelocity(IStore(SIMULATOR_ADDRESS), worldAddress, agentEntity.scale, agentEntity.entityId),
-  //     (VoxelCoord)
-  //   );
-  //   console.log("velocity agent");
-  //   console.logInt(agentVelocity.x);
-  //   assertTrue(agentVelocity.x == 4);
-  //   assertTrue(agentVelocity.y == 0);
-  //   assertTrue(agentVelocity.z == 0);
-  //   assertTrue(Mass.getMass(IStore(SIMULATOR_ADDRESS), worldAddress, agentEntity.scale, agentEntity.entityId) > 0);
-
-  //   massEntity = VoxelEntity({
-  //     scale: 1,
-  //     entityId: getEntityAtCoord(1, VoxelCoord(massCoord.x + 1, massCoord.y, massCoord.z))
-  //   });
-  //   VoxelCoord memory massVelocity = abi.decode(
-  //     Velocity.getVelocity(IStore(SIMULATOR_ADDRESS), worldAddress, massEntity.scale, massEntity.entityId),
-  //     (VoxelCoord)
-  //   );
-  //   console.log("velocity mass");
-  //   console.logInt(massVelocity.x);
-  //   assertTrue(massVelocity.x == 1);
-  //   assertTrue(massVelocity.y == 0);
-  //   assertTrue(massVelocity.z == 0);
-  //   assertTrue(Mass.getMass(IStore(SIMULATOR_ADDRESS), worldAddress, massEntity.scale, massEntity.entityId) > 0);
-
-  //   vm.stopPrank();
-  // }
-
-  // function testCollisionMultipleBlocksPushed() public {
-  //   vm.startPrank(alice, alice);
-
-  //   VoxelEntity memory agentEntity = setupAgent();
-
-  //   VoxelEntity memory massEntity;
-  //   VoxelCoord memory massCoord;
-  //   {
-  //     bytes32 voxelTypeId = GrassVoxelID;
-  //     massCoord = VoxelCoord({ x: agentCoord.x + 1, y: agentCoord.y, z: agentCoord.z - 1 });
-  //     uint256 initMass = 5;
-  //     uint256 initEnergy = 10;
-  //     VoxelCoord memory initVelocity = VoxelCoord({ x: 0, y: 0, z: 10 });
-  //     massEntity = world.spawnBody(voxelTypeId, massCoord, bytes4(0), initMass, initEnergy, initVelocity, 0, 0);
-  //   }
-
-  //   uint256 staminaBefore = Stamina.get(
-  //     IStore(SIMULATOR_ADDRESS),
-  //     worldAddress,
-  //     agentEntity.scale,
-  //     agentEntity.entityId
-  //   );
-
-  //   Velocity.setVelocity(
-  //     IStore(SIMULATOR_ADDRESS),
-  //     worldAddress,
-  //     agentEntity.scale,
-  //     agentEntity.entityId,
-  //     abi.encode(VoxelCoord({ x: 0, y: 0, z: 0 }))
-  //   );
-  //   bytes32 agentCAEntity = CAEntityMapping.getCaEntity(IStore(BASE_CA_ADDRESS), worldAddress, agentEntity.entityId);
-  //   address agentOwner = OwnedBy.get(agentEntity.scale, agentEntity.entityId);
-  //   VoxelCoord memory newAgentCoord = VoxelCoord({ x: agentCoord.x + 1, y: agentCoord.y, z: agentCoord.z });
-  //   console.log("moving");
-  //   console.logBytes32(agentCAEntity);
-  //   (, agentEntity) = world.moveWithAgent(FaucetVoxelID, agentCoord, newAgentCoord, agentEntity);
-  //   uint256 staminaAfter = Stamina.get(
-  //     IStore(SIMULATOR_ADDRESS),
-  //     worldAddress,
-  //     agentEntity.scale,
-  //     agentEntity.entityId
-  //   );
-  //   console.log("post move");
-  //   console.logBytes32(agentEntity.entityId);
-  //   assertTrue(staminaBefore > staminaAfter);
-  //   assertTrue(CAEntityMapping.getCaEntity(IStore(BASE_CA_ADDRESS), worldAddress, agentEntity.entityId) == agentCAEntity);
-  //   assertTrue(OwnedBy.get(agentEntity.scale, agentEntity.entityId) == agentOwner);
-
-  //   VoxelCoord memory agentVelocity = abi.decode(
-  //     Velocity.getVelocity(IStore(SIMULATOR_ADDRESS), worldAddress, agentEntity.scale, agentEntity.entityId),
-  //     (VoxelCoord)
-  //   );
-  //   console.log("velocity agent");
-  //   assertTrue(agentVelocity.x == 1);
-  //   assertTrue(agentVelocity.y == 0);
-  //   assertTrue(agentVelocity.z == 2);
-  //   assertTrue(Mass.getMass(IStore(SIMULATOR_ADDRESS), worldAddress, agentEntity.scale, agentEntity.entityId) > 0);
-
-  //   massEntity = VoxelEntity({
-  //     scale: 1,
-  //     entityId: getEntityAtCoord(1, VoxelCoord(massCoord.x, massCoord.y, massCoord.z - 2))
-  //   });
-  //   VoxelCoord memory massVelocity = abi.decode(
-  //     Velocity.getVelocity(IStore(SIMULATOR_ADDRESS), worldAddress, massEntity.scale, massEntity.entityId),
-  //     (VoxelCoord)
-  //   );
-  //   console.log("velocity mass");
-  //   assertTrue(massVelocity.x == 0);
-  //   assertTrue(massVelocity.y == 0);
-  //   assertTrue(massVelocity.z == 8);
-  //   assertTrue(Mass.getMass(IStore(SIMULATOR_ADDRESS), worldAddress, massEntity.scale, massEntity.entityId) > 0);
-
-  //   vm.stopPrank();
-  // }
-
-  // function testCollisionMoveTwo() public {
-  //   vm.startPrank(alice, alice);
-
-  //   VoxelEntity memory agentEntity = setupAgent();
-
-  //   VoxelEntity memory smallMassEntity1;
-  //   VoxelCoord memory smallMassCoord1;
-  //   {
-  //     bytes32 voxelTypeId = GrassVoxelID;
-  //     smallMassCoord1 = VoxelCoord({ x: agentCoord.x + 2, y: agentCoord.y, z: agentCoord.z });
-  //     uint256 initMass = 1;
-  //     uint256 initEnergy = 10;
-  //     VoxelCoord memory initVelocity = VoxelCoord({ x: 0, y: 0, z: 0 });
-  //     smallMassEntity1 = world.spawnBody(
-  //       voxelTypeId,
-  //       smallMassCoord1,
-  //       bytes4(0),
-  //       initMass,
-  //       initEnergy,
-  //       initVelocity,
-  //       0,
-  //       0
-  //     );
-  //   }
-
-  //   VoxelEntity memory smallMassEntity2;
-  //   VoxelCoord memory smallMassCoord2;
-  //   {
-  //     bytes32 voxelTypeId = GrassVoxelID;
-  //     smallMassCoord2 = VoxelCoord({ x: agentCoord.x + 3, y: agentCoord.y, z: agentCoord.z });
-  //     uint256 initMass = 1;
-  //     uint256 initEnergy = 10;
-  //     VoxelCoord memory initVelocity = VoxelCoord({ x: 0, y: 0, z: 0 });
-  //     smallMassEntity2 = world.spawnBody(
-  //       voxelTypeId,
-  //       smallMassCoord2,
-  //       bytes4(0),
-  //       initMass,
-  //       initEnergy,
-  //       initVelocity,
-  //       0,
-  //       0
-  //     );
-  //   }
-
-  //   uint256 staminaBefore = Stamina.get(
-  //     IStore(SIMULATOR_ADDRESS),
-  //     worldAddress,
-  //     agentEntity.scale,
-  //     agentEntity.entityId
-  //   );
-
-  //   VoxelCoord memory newAgentCoord = VoxelCoord({ x: agentCoord.x + 1, y: agentCoord.y, z: agentCoord.z });
-  //   console.log("moving");
-  //   console.logBytes32(agentEntity.entityId);
-  //   (, agentEntity) = world.moveWithAgent(FaucetVoxelID, agentCoord, newAgentCoord, agentEntity);
-  //   uint256 staminaAfter = Stamina.get(
-  //     IStore(SIMULATOR_ADDRESS),
-  //     worldAddress,
-  //     agentEntity.scale,
-  //     agentEntity.entityId
-  //   );
-  //   console.log("staminaAfter");
-  //   console.logUint(staminaAfter);
-  //   assertTrue(staminaBefore > staminaAfter);
-
-  //   VoxelCoord memory agentVelocity = abi.decode(
-  //     Velocity.getVelocity(IStore(SIMULATOR_ADDRESS), worldAddress, agentEntity.scale, agentEntity.entityId),
-  //     (VoxelCoord)
-  //   );
-  //   console.log("velocity agent");
-  //   console.logInt(agentVelocity.x);
-  //   assertTrue(agentVelocity.x == 1);
-  //   assertTrue(agentVelocity.y == 0);
-  //   assertTrue(agentVelocity.z == 0);
-  //   assertTrue(Mass.getMass(IStore(SIMULATOR_ADDRESS), worldAddress, agentEntity.scale, agentEntity.entityId) > 0);
-
-  //   smallMassEntity1 = VoxelEntity({
-  //     scale: 1,
-  //     entityId: getEntityAtCoord(1, VoxelCoord(smallMassCoord1.x + 1, smallMassCoord1.y, smallMassCoord1.z))
-  //   });
-  //   VoxelCoord memory smallMass1Velocity = abi.decode(
-  //     Velocity.getVelocity(IStore(SIMULATOR_ADDRESS), worldAddress, smallMassEntity1.scale, smallMassEntity1.entityId),
-  //     (VoxelCoord)
-  //   );
-  //   console.log("velocity small mass 1");
-  //   console.logInt(smallMass1Velocity.x);
-  //   assertTrue(smallMass1Velocity.x == 1);
-  //   assertTrue(smallMass1Velocity.y == 0);
-  //   assertTrue(smallMass1Velocity.z == 0);
-  //   assertTrue(
-  //     Mass.getMass(IStore(SIMULATOR_ADDRESS), worldAddress, smallMassEntity1.scale, smallMassEntity1.entityId) > 0
-  //   );
-
-  //   smallMassEntity2 = VoxelEntity({
-  //     scale: 1,
-  //     entityId: getEntityAtCoord(1, VoxelCoord(smallMassCoord2.x + 1, smallMassCoord2.y, smallMassCoord2.z))
-  //   });
-  //   VoxelCoord memory smallMass2Velocity = abi.decode(
-  //     Velocity.getVelocity(IStore(SIMULATOR_ADDRESS), worldAddress, smallMassEntity2.scale, smallMassEntity2.entityId),
-  //     (VoxelCoord)
-  //   );
-  //   console.log("velocity small mass 2");
-  //   console.logInt(smallMass1Velocity.x);
-  //   assertTrue(smallMass2Velocity.x == 1);
-  //   assertTrue(smallMass2Velocity.y == 0);
-  //   assertTrue(smallMass2Velocity.z == 0);
-  //   assertTrue(
-  //     Mass.getMass(IStore(SIMULATOR_ADDRESS), worldAddress, smallMassEntity2.scale, smallMassEntity2.entityId) > 0
-  //   );
-
-  //   vm.stopPrank();
-  // }
-
-  // function testCollisionNoVelocityChange() public {
-  //   vm.startPrank(alice, alice);
-
-  //   VoxelEntity memory agentEntity = setupAgent();
-
-  //   VoxelEntity memory smallMassEntity;
-  //   VoxelCoord memory smallMassCoord;
-  //   {
-  //     bytes32 voxelTypeId = GrassVoxelID;
-  //     smallMassCoord = VoxelCoord({ x: agentCoord.x + 2, y: agentCoord.y, z: agentCoord.z });
-  //     uint256 initMass = 1;
-  //     uint256 initEnergy = 10;
-  //     VoxelCoord memory initVelocity = VoxelCoord({ x: 1, y: 0, z: 0 });
-  //     smallMassEntity = world.spawnBody(
-  //       voxelTypeId,
-  //       smallMassCoord,
-  //       bytes4(0),
-  //       initMass,
-  //       initEnergy,
-  //       initVelocity,
-  //       0,
-  //       0
-  //     );
-  //   }
-
-  //   uint256 staminaBefore = Stamina.get(
-  //     IStore(SIMULATOR_ADDRESS),
-  //     worldAddress,
-  //     agentEntity.scale,
-  //     agentEntity.entityId
-  //   );
-
-  //   VoxelCoord memory newAgentCoord = VoxelCoord({ x: agentCoord.x + 1, y: agentCoord.y, z: agentCoord.z });
-  //   console.log("moving");
-  //   console.logBytes32(agentEntity.entityId);
-  //   (, agentEntity) = world.moveWithAgent(FaucetVoxelID, agentCoord, newAgentCoord, agentEntity);
-  //   uint256 staminaAfter = Stamina.get(
-  //     IStore(SIMULATOR_ADDRESS),
-  //     worldAddress,
-  //     agentEntity.scale,
-  //     agentEntity.entityId
-  //   );
-  //   console.log("staminaAfter");
-  //   console.logUint(staminaAfter);
-  //   assertTrue(staminaBefore > staminaAfter);
-
-  //   VoxelCoord memory agentVelocity = abi.decode(
-  //     Velocity.getVelocity(IStore(SIMULATOR_ADDRESS), worldAddress, agentEntity.scale, agentEntity.entityId),
-  //     (VoxelCoord)
-  //   );
-  //   console.log("velocity agent");
-  //   console.logInt(agentVelocity.x);
-  //   assertTrue(agentVelocity.x == 1);
-  //   assertTrue(agentVelocity.y == 0);
-  //   assertTrue(agentVelocity.z == 0);
-  //   assertTrue(Mass.getMass(IStore(SIMULATOR_ADDRESS), worldAddress, agentEntity.scale, agentEntity.entityId) > 0);
-
-  //   smallMassEntity = VoxelEntity({
-  //     scale: 1,
-  //     entityId: getEntityAtCoord(1, VoxelCoord(smallMassCoord.x, smallMassCoord.y, smallMassCoord.z))
-  //   });
-  //   VoxelCoord memory smallMassVelocity = abi.decode(
-  //     Velocity.getVelocity(IStore(SIMULATOR_ADDRESS), worldAddress, smallMassEntity.scale, smallMassEntity.entityId),
-  //     (VoxelCoord)
-  //   );
-  //   console.log("velocity small mass");
-  //   console.logInt(smallMassVelocity.x);
-  //   assertTrue(smallMassVelocity.x == 1);
-  //   assertTrue(smallMassVelocity.y == 0);
-  //   assertTrue(smallMassVelocity.z == 0);
-  //   assertTrue(Mass.getMass(IStore(SIMULATOR_ADDRESS), worldAddress, smallMassEntity.scale, smallMassEntity.entityId) > 0);
-
-  //   vm.stopPrank();
-  // }
-
-  // function testCollisionSameDirection() public {
-  //   vm.startPrank(alice, alice);
-
-  //   VoxelEntity memory agentEntity = setupAgent();
-
-  //   VoxelEntity memory smallMassEntity;
-  //   VoxelCoord memory smallMassCoord;
-  //   {
-  //     bytes32 voxelTypeId = GrassVoxelID;
-  //     smallMassCoord = VoxelCoord({ x: agentCoord.x + 2, y: agentCoord.y, z: agentCoord.z });
-  //     uint256 initMass = 1;
-  //     uint256 initEnergy = 10;
-  //     VoxelCoord memory initVelocity = VoxelCoord({ x: 1, y: 0, z: 0 });
-  //     smallMassEntity = world.spawnBody(
-  //       voxelTypeId,
-  //       smallMassCoord,
-  //       bytes4(0),
-  //       initMass,
-  //       initEnergy,
-  //       initVelocity,
-  //       0,
-  //       0
-  //     );
-  //   }
-
-  //   uint256 staminaBefore = Stamina.get(
-  //     IStore(SIMULATOR_ADDRESS),
-  //     worldAddress,
-  //     agentEntity.scale,
-  //     agentEntity.entityId
-  //   );
-  //   Velocity.setVelocity(
-  //     IStore(SIMULATOR_ADDRESS),
-  //     worldAddress,
-  //     agentEntity.scale,
-  //     agentEntity.entityId,
-  //     abi.encode(VoxelCoord({ x: 4, y: 0, z: 0 }))
-  //   );
-
-  //   VoxelCoord memory newAgentCoord = VoxelCoord({ x: agentCoord.x + 1, y: agentCoord.y, z: agentCoord.z });
-  //   console.log("moving");
-  //   console.logBytes32(agentEntity.entityId);
-  //   (, agentEntity) = world.moveWithAgent(FaucetVoxelID, agentCoord, newAgentCoord, agentEntity);
-  //   uint256 staminaAfter = Stamina.get(
-  //     IStore(SIMULATOR_ADDRESS),
-  //     worldAddress,
-  //     agentEntity.scale,
-  //     agentEntity.entityId
-  //   );
-  //   console.log("staminaAfter");
-  //   console.logUint(staminaAfter);
-  //   assertTrue(staminaBefore > staminaAfter);
-
-  //   VoxelCoord memory agentVelocity = abi.decode(
-  //     Velocity.getVelocity(IStore(SIMULATOR_ADDRESS), worldAddress, agentEntity.scale, agentEntity.entityId),
-  //     (VoxelCoord)
-  //   );
-  //   console.log("velocity agent");
-  //   console.logInt(agentVelocity.x);
-  //   assertTrue(agentVelocity.x == 5);
-  //   assertTrue(agentVelocity.y == 0);
-  //   assertTrue(agentVelocity.z == 0);
-  //   assertTrue(Mass.getMass(IStore(SIMULATOR_ADDRESS), worldAddress, agentEntity.scale, agentEntity.entityId) > 0);
-
-  //   smallMassEntity = VoxelEntity({
-  //     scale: 1,
-  //     entityId: getEntityAtCoord(1, VoxelCoord(smallMassCoord.x + 4, smallMassCoord.y, smallMassCoord.z))
-  //   });
-  //   VoxelCoord memory smallMassVelocity = abi.decode(
-  //     Velocity.getVelocity(IStore(SIMULATOR_ADDRESS), worldAddress, smallMassEntity.scale, smallMassEntity.entityId),
-  //     (VoxelCoord)
-  //   );
-  //   console.log("velocity small mass");
-  //   console.logInt(smallMassVelocity.x);
-  //   assertTrue(smallMassVelocity.x == 5);
-  //   assertTrue(smallMassVelocity.y == 0);
-  //   assertTrue(smallMassVelocity.z == 0);
-  //   assertTrue(Mass.getMass(IStore(SIMULATOR_ADDRESS), worldAddress, smallMassEntity.scale, smallMassEntity.entityId) > 0);
-
-  //   vm.stopPrank();
-  // }
-
-  // function testCollisionOppositeDirectionEqualVelocityDifferentMass() public {
-  //   vm.startPrank(alice, alice);
-
-  //   VoxelEntity memory agentEntity = setupAgent();
-
-  //   VoxelEntity memory smallMassEntity;
-  //   VoxelCoord memory smallMassCoord;
-  //   {
-  //     bytes32 voxelTypeId = GrassVoxelID;
-  //     smallMassCoord = VoxelCoord({ x: agentCoord.x + 2, y: agentCoord.y, z: agentCoord.z });
-  //     uint256 initMass = 1;
-  //     uint256 initEnergy = 10;
-  //     VoxelCoord memory initVelocity = VoxelCoord({ x: -1, y: 0, z: 0 });
-  //     smallMassEntity = world.spawnBody(
-  //       voxelTypeId,
-  //       smallMassCoord,
-  //       bytes4(0),
-  //       initMass,
-  //       initEnergy,
-  //       initVelocity,
-  //       0,
-  //       0
-  //     );
-  //   }
-
-  //   uint256 staminaBefore = Stamina.get(
-  //     IStore(SIMULATOR_ADDRESS),
-  //     worldAddress,
-  //     agentEntity.scale,
-  //     agentEntity.entityId
-  //   );
-
-  //   VoxelCoord memory newAgentCoord = VoxelCoord({ x: agentCoord.x + 1, y: agentCoord.y, z: agentCoord.z });
-  //   console.log("moving");
-  //   console.logBytes32(agentEntity.entityId);
-  //   (, agentEntity) = world.moveWithAgent(FaucetVoxelID, agentCoord, newAgentCoord, agentEntity);
-  //   uint256 staminaAfter = Stamina.get(
-  //     IStore(SIMULATOR_ADDRESS),
-  //     worldAddress,
-  //     agentEntity.scale,
-  //     agentEntity.entityId
-  //   );
-  //   console.log("staminaAfter");
-  //   console.logUint(staminaAfter);
-  //   assertTrue(staminaBefore > staminaAfter);
-
-  //   VoxelCoord memory agentVelocity = abi.decode(
-  //     Velocity.getVelocity(IStore(SIMULATOR_ADDRESS), worldAddress, agentEntity.scale, agentEntity.entityId),
-  //     (VoxelCoord)
-  //   );
-  //   console.log("velocity agent");
-  //   console.logInt(agentVelocity.x);
-  //   assertTrue(agentVelocity.x == 1);
-  //   assertTrue(agentVelocity.y == 0);
-  //   assertTrue(agentVelocity.z == 0);
-  //   assertTrue(Mass.getMass(IStore(SIMULATOR_ADDRESS), worldAddress, agentEntity.scale, agentEntity.entityId) > 0);
-
-  //   smallMassEntity = VoxelEntity({
-  //     scale: 1,
-  //     entityId: getEntityAtCoord(1, VoxelCoord(smallMassCoord.x + 2, smallMassCoord.y, smallMassCoord.z))
-  //   });
-  //   VoxelCoord memory smallMassVelocity = abi.decode(
-  //     Velocity.getVelocity(IStore(SIMULATOR_ADDRESS), worldAddress, smallMassEntity.scale, smallMassEntity.entityId),
-  //     (VoxelCoord)
-  //   );
-  //   console.log("velocity small mass");
-  //   console.logInt(smallMassVelocity.x);
-  //   assertTrue(smallMassVelocity.x == 1);
-  //   assertTrue(smallMassVelocity.y == 0);
-  //   assertTrue(smallMassVelocity.z == 0);
-  //   assertTrue(Mass.getMass(IStore(SIMULATOR_ADDRESS), worldAddress, smallMassEntity.scale, smallMassEntity.entityId) > 0);
-
-  //   vm.stopPrank();
-  // }
-
-  // function testCollisionOppositeDirectionEqualVelocityEqualMass() public {
-  //   vm.startPrank(alice, alice);
-
-  //   VoxelEntity memory agentEntity = setupAgent();
-
-  //   VoxelEntity memory smallMassEntity;
-  //   VoxelCoord memory smallMassCoord;
-  //   {
-  //     bytes32 voxelTypeId = GrassVoxelID;
-  //     smallMassCoord = VoxelCoord({ x: agentCoord.x + 2, y: agentCoord.y, z: agentCoord.z });
-  //     uint256 initMass = 10;
-  //     uint256 initEnergy = 10;
-  //     VoxelCoord memory initVelocity = VoxelCoord({ x: -1, y: 0, z: 0 });
-  //     smallMassEntity = world.spawnBody(
-  //       voxelTypeId,
-  //       smallMassCoord,
-  //       bytes4(0),
-  //       initMass,
-  //       initEnergy,
-  //       initVelocity,
-  //       0,
-  //       0
-  //     );
-  //   }
-
-  //   uint256 staminaBefore = Stamina.get(
-  //     IStore(SIMULATOR_ADDRESS),
-  //     worldAddress,
-  //     agentEntity.scale,
-  //     agentEntity.entityId
-  //   );
-  //   Mass.set(IStore(SIMULATOR_ADDRESS), worldAddress, agentEntity.scale, agentEntity.entityId, 10, true);
-
-  //   VoxelCoord memory newAgentCoord = VoxelCoord({ x: agentCoord.x + 1, y: agentCoord.y, z: agentCoord.z });
-  //   console.log("moving");
-  //   console.logBytes32(agentEntity.entityId);
-  //   (, agentEntity) = world.moveWithAgent(FaucetVoxelID, agentCoord, newAgentCoord, agentEntity);
-  //   uint256 staminaAfter = Stamina.get(
-  //     IStore(SIMULATOR_ADDRESS),
-  //     worldAddress,
-  //     agentEntity.scale,
-  //     agentEntity.entityId
-  //   );
-  //   console.log("staminaAfter");
-  //   console.logUint(staminaAfter);
-  //   assertTrue(staminaBefore > staminaAfter);
-
-  //   VoxelCoord memory agentVelocity = abi.decode(
-  //     Velocity.getVelocity(IStore(SIMULATOR_ADDRESS), worldAddress, agentEntity.scale, agentEntity.entityId),
-  //     (VoxelCoord)
-  //   );
-  //   console.log("velocity agent");
-  //   console.logInt(agentVelocity.x);
-  //   assertTrue(agentVelocity.x == 1);
-  //   assertTrue(agentVelocity.y == 0);
-  //   assertTrue(agentVelocity.z == 0);
-  //   assertTrue(Mass.getMass(IStore(SIMULATOR_ADDRESS), worldAddress, agentEntity.scale, agentEntity.entityId) > 0);
-
-  //   smallMassEntity = VoxelEntity({
-  //     scale: 1,
-  //     entityId: getEntityAtCoord(1, VoxelCoord(smallMassCoord.x, smallMassCoord.y, smallMassCoord.z))
-  //   });
-  //   VoxelCoord memory smallMassVelocity = abi.decode(
-  //     Velocity.getVelocity(IStore(SIMULATOR_ADDRESS), worldAddress, smallMassEntity.scale, smallMassEntity.entityId),
-  //     (VoxelCoord)
-  //   );
-  //   console.log("velocity small mass");
-  //   console.logInt(smallMassVelocity.x);
-  //   assertTrue(smallMassVelocity.x == -1);
-  //   assertTrue(smallMassVelocity.y == 0);
-  //   assertTrue(smallMassVelocity.z == 0);
-  //   assertTrue(Mass.getMass(IStore(SIMULATOR_ADDRESS), worldAddress, smallMassEntity.scale, smallMassEntity.entityId) > 0);
-
-  //   vm.stopPrank();
-  // }
-
-  // function testMoveBlock() public {
-  //   vm.startPrank(alice, alice);
-
-  //   VoxelEntity memory agentEntity = setupAgent();
-
-  //   VoxelCoord memory soilCoord = VoxelCoord({ x: agentCoord.x + 1, y: agentCoord.y, z: agentCoord.z });
-  //   VoxelEntity memory soilEntity = world.buildWithAgent(ConcentrativeSoilVoxelID, soilCoord, agentEntity, bytes4(0));
-  //   Energy.set(IStore(SIMULATOR_ADDRESS), worldAddress, soilEntity.scale, soilEntity.entityId, 150, true);
-  //   world.activateWithAgent(ConcentrativeSoilVoxelID, soilCoord, agentEntity, bytes4(0));
-  //   uint256 soil1Nutrients = Nutrients.get(
-  //     IStore(SIMULATOR_ADDRESS),
-  //     worldAddress,
-  //     soilEntity.scale,
-  //     soilEntity.entityId
-  //   );
-  //   assertTrue(soil1Nutrients > 0);
-  //   assertTrue(Nitrogen.get(IStore(SIMULATOR_ADDRESS), worldAddress, soilEntity.scale, soilEntity.entityId) > 0);
-  //   assertTrue(Phosphorous.get(IStore(SIMULATOR_ADDRESS), worldAddress, soilEntity.scale, soilEntity.entityId) > 0);
-  //   assertTrue(Potassium.get(IStore(SIMULATOR_ADDRESS), worldAddress, soilEntity.scale, soilEntity.entityId) > 0);
-
-  //   // Place down plant on top of it
-  //   vm.roll(block.number + 1);
-  //   VoxelCoord memory newSoilCoord = VoxelCoord({ x: soilCoord.x + 1, y: soilCoord.y, z: soilCoord.z });
-  //   uint256 staminaBefore = Stamina.get(
-  //     IStore(SIMULATOR_ADDRESS),
-  //     worldAddress,
-  //     agentEntity.scale,
-  //     agentEntity.entityId
-  //   );
-  //   (, soilEntity) = world.moveWithAgent(ConcentrativeSoilVoxelID, soilCoord, newSoilCoord, agentEntity);
-  //   VoxelCoord memory soilVelocity = abi.decode(
-  //     Velocity.getVelocity(IStore(SIMULATOR_ADDRESS), worldAddress, soilEntity.scale, soilEntity.entityId),
-  //     (VoxelCoord)
-  //   );
-  //   assertTrue(soilVelocity.x == 1);
-  //   assertTrue(soilVelocity.y == 0);
-  //   assertTrue(soilVelocity.z == 0);
-  //   assertTrue(
-  //     soil1Nutrients == Nutrients.get(IStore(SIMULATOR_ADDRESS), worldAddress, soilEntity.scale, soilEntity.entityId)
-  //   );
-  //   assertTrue(Nitrogen.get(IStore(SIMULATOR_ADDRESS), worldAddress, soilEntity.scale, soilEntity.entityId) > 0);
-  //   assertTrue(Phosphorous.get(IStore(SIMULATOR_ADDRESS), worldAddress, soilEntity.scale, soilEntity.entityId) > 0);
-  //   assertTrue(Potassium.get(IStore(SIMULATOR_ADDRESS), worldAddress, soilEntity.scale, soilEntity.entityId) > 0);
-
-  //   uint256 staminaAfter = Stamina.get(
-  //     IStore(SIMULATOR_ADDRESS),
-  //     worldAddress,
-  //     agentEntity.scale,
-  //     agentEntity.entityId
-  //   );
-  //   assertTrue(staminaBefore > staminaAfter);
-
-  //   vm.stopPrank();
-  // }
-
-  // function testMoveBlockBounceBack() public {
-  //   vm.startPrank(alice, alice);
-
-  //   VoxelEntity memory agentEntity = setupAgent();
-
-  //   VoxelEntity memory smallMassEntity;
-  //   VoxelCoord memory smallMassCoord;
-  //   {
-  //     bytes32 voxelTypeId = GrassVoxelID;
-  //     smallMassCoord = VoxelCoord({ x: agentCoord.x + 3, y: agentCoord.y, z: agentCoord.z });
-  //     uint256 initMass = 10;
-  //     uint256 initEnergy = 10;
-  //     VoxelCoord memory initVelocity = VoxelCoord({ x: -4, y: 0, z: 0 });
-  //     smallMassEntity = world.spawnBody(
-  //       voxelTypeId,
-  //       smallMassCoord,
-  //       bytes4(0),
-  //       initMass,
-  //       initEnergy,
-  //       initVelocity,
-  //       0,
-  //       0
-  //     );
-  //   }
-
-  //   VoxelCoord memory soilCoord = VoxelCoord({ x: agentCoord.x + 1, y: agentCoord.y, z: agentCoord.z });
-  //   VoxelEntity memory soilEntity = world.buildWithAgent(ConcentrativeSoilVoxelID, soilCoord, agentEntity, bytes4(0));
-  //   Energy.set(IStore(SIMULATOR_ADDRESS), worldAddress, soilEntity.scale, soilEntity.entityId, 150, true);
-  //   world.activateWithAgent(ConcentrativeSoilVoxelID, soilCoord, agentEntity, bytes4(0));
-  //   uint256 soil1Nutrients = Nutrients.get(
-  //     IStore(SIMULATOR_ADDRESS),
-  //     worldAddress,
-  //     soilEntity.scale,
-  //     soilEntity.entityId
-  //   );
-  //   assertTrue(soil1Nutrients > 0);
-  //   assertTrue(Nitrogen.get(IStore(SIMULATOR_ADDRESS), worldAddress, soilEntity.scale, soilEntity.entityId) > 0);
-  //   assertTrue(Phosphorous.get(IStore(SIMULATOR_ADDRESS), worldAddress, soilEntity.scale, soilEntity.entityId) > 0);
-  //   assertTrue(Potassium.get(IStore(SIMULATOR_ADDRESS), worldAddress, soilEntity.scale, soilEntity.entityId) > 0);
-
-  //   // Place down plant on top of it
-  //   vm.roll(block.number + 1);
-  //   VoxelCoord memory newSoilCoord = VoxelCoord({ x: soilCoord.x + 1, y: soilCoord.y, z: soilCoord.z });
-  //   uint256 staminaBefore = Stamina.get(
-  //     IStore(SIMULATOR_ADDRESS),
-  //     worldAddress,
-  //     agentEntity.scale,
-  //     agentEntity.entityId
-  //   );
-  //   console.log("moveWithAgent block go");
-  //   console.logBytes32(soilEntity.entityId);
-  //   (, soilEntity) = world.moveWithAgent(ConcentrativeSoilVoxelID, soilCoord, newSoilCoord, agentEntity);
-  //   console.log("post move entity");
-  //   console.logBytes32(soilEntity.entityId);
-  //   VoxelCoord memory soilVelocity = abi.decode(
-  //     Velocity.getVelocity(IStore(SIMULATOR_ADDRESS), worldAddress, soilEntity.scale, soilEntity.entityId),
-  //     (VoxelCoord)
-  //   );
-  //   assertTrue(getEntityAtCoord(1, VoxelCoord(soilCoord.x, soilCoord.y, soilCoord.z)) == soilEntity.entityId);
-  //   assertTrue(
-  //     VoxelType.getVoxelTypeId(1, getEntityAtCoord(1, VoxelCoord(newSoilCoord.x, newSoilCoord.y, newSoilCoord.z))) ==
-  //       AirVoxelID
-  //   );
-  //   assertTrue(soilVelocity.x == 0);
-  //   assertTrue(soilVelocity.y == 0);
-  //   assertTrue(soilVelocity.z == 0);
-  //   assertTrue(Mass.getMass(IStore(SIMULATOR_ADDRESS), worldAddress, soilEntity.scale, soilEntity.entityId) > 0);
-  //   assertTrue(
-  //     soil1Nutrients == Nutrients.get(IStore(SIMULATOR_ADDRESS), worldAddress, soilEntity.scale, soilEntity.entityId)
-  //   );
-  //   assertTrue(Nitrogen.get(IStore(SIMULATOR_ADDRESS), worldAddress, soilEntity.scale, soilEntity.entityId) > 0);
-  //   assertTrue(Phosphorous.get(IStore(SIMULATOR_ADDRESS), worldAddress, soilEntity.scale, soilEntity.entityId) > 0);
-  //   assertTrue(Potassium.get(IStore(SIMULATOR_ADDRESS), worldAddress, soilEntity.scale, soilEntity.entityId) > 0);
-
-  //   uint256 staminaAfter = Stamina.get(
-  //     IStore(SIMULATOR_ADDRESS),
-  //     worldAddress,
-  //     agentEntity.scale,
-  //     agentEntity.entityId
-  //   );
-  //   assertTrue(staminaBefore > staminaAfter);
-
-  //   vm.stopPrank();
-  // }
-
-  // function testMoveBlockCollisionPushedMultiple() public {
-  //   vm.startPrank(alice, alice);
-
-  //   VoxelEntity memory agentEntity = setupAgent();
-
-  //   VoxelEntity memory massEntity;
-  //   VoxelCoord memory massCoord;
-  //   {
-  //     bytes32 voxelTypeId = GrassVoxelID;
-  //     massCoord = VoxelCoord({ x: agentCoord.x + 2, y: agentCoord.y, z: agentCoord.z - 1 });
-  //     uint256 initMass = 5;
-  //     uint256 initEnergy = 10;
-  //     VoxelCoord memory initVelocity = VoxelCoord({ x: 0, y: 0, z: 10 });
-  //     massEntity = world.spawnBody(voxelTypeId, massCoord, bytes4(0), initMass, initEnergy, initVelocity, 0, 0);
-  //   }
-
-  //   VoxelCoord memory soilCoord = VoxelCoord({ x: agentCoord.x + 1, y: agentCoord.y, z: agentCoord.z });
-  //   VoxelEntity memory soilEntity = world.buildWithAgent(ConcentrativeSoilVoxelID, soilCoord, agentEntity, bytes4(0));
-  //   Energy.set(IStore(SIMULATOR_ADDRESS), worldAddress, soilEntity.scale, soilEntity.entityId, 150, true);
-  //   world.activateWithAgent(ConcentrativeSoilVoxelID, soilCoord, agentEntity, bytes4(0));
-  //   uint256 soil1Nutrients = Nutrients.get(
-  //     IStore(SIMULATOR_ADDRESS),
-  //     worldAddress,
-  //     soilEntity.scale,
-  //     soilEntity.entityId
-  //   );
-  //   assertTrue(soil1Nutrients > 0);
-  //   assertTrue(Nitrogen.get(IStore(SIMULATOR_ADDRESS), worldAddress, soilEntity.scale, soilEntity.entityId) > 0);
-  //   assertTrue(Phosphorous.get(IStore(SIMULATOR_ADDRESS), worldAddress, soilEntity.scale, soilEntity.entityId) > 0);
-  //   assertTrue(Potassium.get(IStore(SIMULATOR_ADDRESS), worldAddress, soilEntity.scale, soilEntity.entityId) > 0);
-
-  //   // Place down plant on top of it
-  //   vm.roll(block.number + 1);
-  //   VoxelCoord memory newSoilCoord = VoxelCoord({ x: soilCoord.x + 1, y: soilCoord.y, z: soilCoord.z });
-  //   uint256 staminaBefore = Stamina.get(
-  //     IStore(SIMULATOR_ADDRESS),
-  //     worldAddress,
-  //     agentEntity.scale,
-  //     agentEntity.entityId
-  //   );
-  //   console.log("moveWithAgent block go");
-  //   console.logBytes32(soilEntity.entityId);
-  //   (, soilEntity) = world.moveWithAgent(ConcentrativeSoilVoxelID, soilCoord, newSoilCoord, agentEntity);
-  //   console.log("post move entity");
-  //   console.logBytes32(soilEntity.entityId);
-  //   VoxelCoord memory soilVelocity = abi.decode(
-  //     Velocity.getVelocity(IStore(SIMULATOR_ADDRESS), worldAddress, soilEntity.scale, soilEntity.entityId),
-  //     (VoxelCoord)
-  //   );
-  //   assertTrue(soilVelocity.x == 1);
-  //   assertTrue(soilVelocity.y == 0);
-  //   assertTrue(soilVelocity.z == 2);
-  //   assertTrue(Mass.getMass(IStore(SIMULATOR_ADDRESS), worldAddress, soilEntity.scale, soilEntity.entityId) > 0);
-  //   assertTrue(
-  //     soil1Nutrients == Nutrients.get(IStore(SIMULATOR_ADDRESS), worldAddress, soilEntity.scale, soilEntity.entityId)
-  //   );
-  //   assertTrue(Nitrogen.get(IStore(SIMULATOR_ADDRESS), worldAddress, soilEntity.scale, soilEntity.entityId) > 0);
-  //   assertTrue(Phosphorous.get(IStore(SIMULATOR_ADDRESS), worldAddress, soilEntity.scale, soilEntity.entityId) > 0);
-  //   assertTrue(Potassium.get(IStore(SIMULATOR_ADDRESS), worldAddress, soilEntity.scale, soilEntity.entityId) > 0);
-
-  //   uint256 staminaAfter = Stamina.get(
-  //     IStore(SIMULATOR_ADDRESS),
-  //     worldAddress,
-  //     agentEntity.scale,
-  //     agentEntity.entityId
-  //   );
-  //   assertTrue(staminaBefore > staminaAfter);
-
-  //   massEntity = VoxelEntity({
-  //     scale: 1,
-  //     entityId: getEntityAtCoord(1, VoxelCoord(massCoord.x, massCoord.y, massCoord.z - 2))
-  //   });
-  //   VoxelCoord memory massVelocity = abi.decode(
-  //     Velocity.getVelocity(IStore(SIMULATOR_ADDRESS), worldAddress, massEntity.scale, massEntity.entityId),
-  //     (VoxelCoord)
-  //   );
-  //   console.log("velocity mass");
-  //   assertTrue(massVelocity.x == 0);
-  //   assertTrue(massVelocity.y == 0);
-  //   assertTrue(massVelocity.z == 8);
-  //   assertTrue(Mass.getMass(IStore(SIMULATOR_ADDRESS), worldAddress, massEntity.scale, massEntity.entityId) > 0);
-
-  //   vm.stopPrank();
-  // }
-
-  // function testMoveAgent() public {
-  //   vm.startPrank(alice, alice);
-
-  //   VoxelEntity memory agentEntity = setupAgent();
-
-  //   VoxelCoord memory faucetCoord = VoxelCoord({ x: agentCoord.x + 1, y: agentCoord.y, z: agentCoord.z });
-  //   VoxelEntity memory faucetEntity = world.buildWithAgent(FaucetVoxelID, faucetCoord, agentEntity, bytes4(0));
-  //   Stamina.set(IStore(SIMULATOR_ADDRESS), worldAddress, faucetEntity.scale, faucetEntity.entityId, 100);
-  //   vm.startPrank(bob, bob);
-  //   world.claimAgent(faucetEntity);
-  //   vm.stopPrank();
-  //   vm.startPrank(alice, alice);
-
-  //   vm.roll(block.number + 1);
-  //   VoxelCoord memory newfaucetCoord = VoxelCoord({ x: faucetCoord.x, y: faucetCoord.y + 1, z: faucetCoord.z });
-  //   uint256 staminaBefore = Stamina.get(
-  //     IStore(SIMULATOR_ADDRESS),
-  //     worldAddress,
-  //     agentEntity.scale,
-  //     agentEntity.entityId
-  //   );
-  //   address agentOwner = OwnedBy.get(faucetEntity.scale, faucetEntity.entityId);
-  //   console.log("owner before");
-  //   console.logAddress(agentOwner);
-  //   (, faucetEntity) = world.moveWithAgent(FaucetVoxelID, faucetCoord, newfaucetCoord, agentEntity);
-  //   uint256 staminaAfter = Stamina.get(
-  //     IStore(SIMULATOR_ADDRESS),
-  //     worldAddress,
-  //     agentEntity.scale,
-  //     agentEntity.entityId
-  //   );
-  //   assertTrue(staminaBefore > staminaAfter);
-  //   assertTrue(Stamina.get(IStore(SIMULATOR_ADDRESS), worldAddress, faucetEntity.scale, faucetEntity.entityId) == 100);
-  //   assertTrue(OwnedBy.get(faucetEntity.scale, faucetEntity.entityId) == agentOwner);
-  //   VoxelCoord memory faucetVelocity = abi.decode(
-  //     Velocity.getVelocity(IStore(SIMULATOR_ADDRESS), worldAddress, faucetEntity.scale, faucetEntity.entityId),
-  //     (VoxelCoord)
-  //   );
-  //   assertTrue(faucetVelocity.x == 0);
-  //   assertTrue(faucetVelocity.y == 1);
-  //   assertTrue(faucetVelocity.z == 0);
-
-  //   vm.stopPrank();
-  // }
-
-  // function testMoveAgentBounceBack() public {
-  //   vm.startPrank(alice, alice);
-
-  //   VoxelEntity memory agentEntity = setupAgent();
-
-  //   VoxelEntity memory smallMassEntity;
-  //   VoxelCoord memory smallMassCoord;
-  //   {
-  //     bytes32 voxelTypeId = GrassVoxelID;
-  //     smallMassCoord = VoxelCoord({ x: agentCoord.x + 3, y: agentCoord.y, z: agentCoord.z });
-  //     uint256 initMass = 10;
-  //     uint256 initEnergy = 10;
-  //     VoxelCoord memory initVelocity = VoxelCoord({ x: -4, y: 0, z: 0 });
-  //     smallMassEntity = world.spawnBody(
-  //       voxelTypeId,
-  //       smallMassCoord,
-  //       bytes4(0),
-  //       initMass,
-  //       initEnergy,
-  //       initVelocity,
-  //       0,
-  //       0
-  //     );
-  //   }
-
-  //   VoxelCoord memory faucetCoord = VoxelCoord({ x: agentCoord.x + 1, y: agentCoord.y, z: agentCoord.z });
-  //   VoxelEntity memory faucetEntity = world.buildWithAgent(FaucetVoxelID, faucetCoord, agentEntity, bytes4(0));
-  //   Stamina.set(IStore(SIMULATOR_ADDRESS), worldAddress, faucetEntity.scale, faucetEntity.entityId, 100);
-  //   vm.startPrank(bob, bob);
-  //   world.claimAgent(faucetEntity);
-  //   vm.stopPrank();
-  //   vm.startPrank(alice, alice);
-
-  //   vm.roll(block.number + 1);
-  //   VoxelCoord memory newfaucetCoord = VoxelCoord({ x: faucetCoord.x + 1, y: faucetCoord.y, z: faucetCoord.z });
-  //   uint256 staminaBefore = Stamina.get(
-  //     IStore(SIMULATOR_ADDRESS),
-  //     worldAddress,
-  //     agentEntity.scale,
-  //     agentEntity.entityId
-  //   );
-  //   address agentOwner = OwnedBy.get(faucetEntity.scale, faucetEntity.entityId);
-  //   console.log("owner before");
-  //   console.logAddress(agentOwner);
-  //   (, faucetEntity) = world.moveWithAgent(FaucetVoxelID, faucetCoord, newfaucetCoord, agentEntity);
-  //   uint256 staminaAfter = Stamina.get(
-  //     IStore(SIMULATOR_ADDRESS),
-  //     worldAddress,
-  //     agentEntity.scale,
-  //     agentEntity.entityId
-  //   );
-  //   assertTrue(staminaBefore > staminaAfter);
-  //   assertTrue(Stamina.get(IStore(SIMULATOR_ADDRESS), worldAddress, faucetEntity.scale, faucetEntity.entityId) == 100);
-  //   assertTrue(OwnedBy.get(faucetEntity.scale, faucetEntity.entityId) == agentOwner);
-
-  //   VoxelCoord memory faucetVelocity = abi.decode(
-  //     Velocity.getVelocity(IStore(SIMULATOR_ADDRESS), worldAddress, faucetEntity.scale, faucetEntity.entityId),
-  //     (VoxelCoord)
-  //   );
-  //   assertTrue(getEntityAtCoord(1, VoxelCoord(faucetCoord.x, faucetCoord.y, faucetCoord.z)) == faucetEntity.entityId);
-  //   assertTrue(
-  //     VoxelType.getVoxelTypeId(
-  //       1,
-  //       getEntityAtCoord(1, VoxelCoord(newfaucetCoord.x, newfaucetCoord.y, newfaucetCoord.z))
-  //     ) == AirVoxelID
-  //   );
-  //   assertTrue(faucetVelocity.x == 0);
-  //   assertTrue(faucetVelocity.y == 0);
-  //   assertTrue(faucetVelocity.z == 0);
-  //   assertTrue(Mass.getMass(IStore(SIMULATOR_ADDRESS), worldAddress, faucetEntity.scale, faucetEntity.entityId) > 0);
-
-  //   vm.stopPrank();
-  // }
-
-  // function testMoveAgentCollisionPushedMultiple() public {
-  //   vm.startPrank(alice, alice);
-
-  //   VoxelEntity memory agentEntity = setupAgent();
-
-  //   VoxelEntity memory massEntity;
-  //   VoxelCoord memory massCoord;
-  //   {
-  //     bytes32 voxelTypeId = GrassVoxelID;
-  //     massCoord = VoxelCoord({ x: agentCoord.x + 2, y: agentCoord.y, z: agentCoord.z - 1 });
-  //     uint256 initMass = 5;
-  //     uint256 initEnergy = 10;
-  //     VoxelCoord memory initVelocity = VoxelCoord({ x: 0, y: 0, z: 10 });
-  //     massEntity = world.spawnBody(voxelTypeId, massCoord, bytes4(0), initMass, initEnergy, initVelocity, 0, 0);
-  //   }
-
-  //   VoxelCoord memory faucetCoord = VoxelCoord({ x: agentCoord.x + 1, y: agentCoord.y, z: agentCoord.z });
-  //   VoxelEntity memory faucetEntity = world.buildWithAgent(FaucetVoxelID, faucetCoord, agentEntity, bytes4(0));
-  //   Stamina.set(IStore(SIMULATOR_ADDRESS), worldAddress, faucetEntity.scale, faucetEntity.entityId, 100);
-  //   vm.startPrank(bob, bob);
-  //   world.claimAgent(faucetEntity);
-  //   vm.stopPrank();
-  //   vm.startPrank(alice, alice);
-
-  //   vm.roll(block.number + 1);
-  //   VoxelCoord memory newfaucetCoord = VoxelCoord({ x: faucetCoord.x + 1, y: faucetCoord.y, z: faucetCoord.z });
-  //   uint256 staminaBefore = Stamina.get(
-  //     IStore(SIMULATOR_ADDRESS),
-  //     worldAddress,
-  //     agentEntity.scale,
-  //     agentEntity.entityId
-  //   );
-  //   address agentOwner = OwnedBy.get(faucetEntity.scale, faucetEntity.entityId);
-  //   console.log("owner before");
-  //   console.logAddress(agentOwner);
-  //   (, faucetEntity) = world.moveWithAgent(FaucetVoxelID, faucetCoord, newfaucetCoord, agentEntity);
-  //   uint256 staminaAfter = Stamina.get(
-  //     IStore(SIMULATOR_ADDRESS),
-  //     worldAddress,
-  //     agentEntity.scale,
-  //     agentEntity.entityId
-  //   );
-  //   assertTrue(staminaBefore > staminaAfter);
-  //   assertTrue(Stamina.get(IStore(SIMULATOR_ADDRESS), worldAddress, faucetEntity.scale, faucetEntity.entityId) == 100);
-  //   assertTrue(OwnedBy.get(faucetEntity.scale, faucetEntity.entityId) == agentOwner);
-
-  //   VoxelCoord memory faucetVelocity = abi.decode(
-  //     Velocity.getVelocity(IStore(SIMULATOR_ADDRESS), worldAddress, faucetEntity.scale, faucetEntity.entityId),
-  //     (VoxelCoord)
-  //   );
-  //   assertTrue(faucetVelocity.x == 1);
-  //   assertTrue(faucetVelocity.y == 0);
-  //   assertTrue(faucetVelocity.z == 2);
-  //   assertTrue(Mass.getMass(IStore(SIMULATOR_ADDRESS), worldAddress, faucetEntity.scale, faucetEntity.entityId) > 0);
-
-  //   massEntity = VoxelEntity({
-  //     scale: 1,
-  //     entityId: getEntityAtCoord(1, VoxelCoord(massCoord.x, massCoord.y, massCoord.z - 2))
-  //   });
-  //   VoxelCoord memory massVelocity = abi.decode(
-  //     Velocity.getVelocity(IStore(SIMULATOR_ADDRESS), worldAddress, massEntity.scale, massEntity.entityId),
-  //     (VoxelCoord)
-  //   );
-  //   console.log("velocity mass");
-  //   assertTrue(massVelocity.x == 0);
-  //   assertTrue(massVelocity.y == 0);
-  //   assertTrue(massVelocity.z == 8);
-  //   assertTrue(Mass.getMass(IStore(SIMULATOR_ADDRESS), worldAddress, massEntity.scale, massEntity.entityId) > 0);
-
-  //   vm.stopPrank();
-  // }
-
-  // function testMoveAgentThatAutoSlowsDown() public {
-  //   vm.startPrank(alice, alice);
-
-  //   VoxelEntity memory agentEntity = setupAgent();
-
-  //   VoxelCoord memory builderCoord = VoxelCoord({ x: agentCoord.x + 1, y: agentCoord.y, z: agentCoord.z });
-  //   VoxelEntity memory builderEntity = world.buildWithAgent(BuilderVoxelID, builderCoord, agentEntity, bytes4(0));
-  //   Stamina.set(IStore(SIMULATOR_ADDRESS), worldAddress, builderEntity.scale, builderEntity.entityId, 100);
-  //   vm.startPrank(bob, bob);
-  //   world.claimAgent(builderEntity);
-  //   vm.stopPrank();
-  //   vm.startPrank(alice, alice);
-
-  //   vm.roll(block.number + 1);
-  //   VoxelCoord memory newBuilderCoord = VoxelCoord({ x: builderCoord.x, y: builderCoord.y + 1, z: builderCoord.z });
-  //   uint256 staminaBefore = Stamina.get(
-  //     IStore(SIMULATOR_ADDRESS),
-  //     worldAddress,
-  //     agentEntity.scale,
-  //     agentEntity.entityId
-  //   );
-  //   address agentOwner = OwnedBy.get(builderEntity.scale, builderEntity.entityId);
-  //   console.log("owner before");
-  //   console.logAddress(agentOwner);
-  //   // Velocity.setVelocity(
-  //   //   IStore(SIMULATOR_ADDRESS),
-  //   //   worldAddress,
-  //   //   builderEntity.scale,
-  //   //   builderEntity.entityId,
-  //   //   abi.encode(VoxelCoord({ x: 4, y: 0, z: 0 }))
-  //   // );
-  //   (, builderEntity) = world.moveWithAgent(BuilderVoxelID, builderCoord, newBuilderCoord, agentEntity);
-  //   uint256 staminaAfter = Stamina.get(
-  //     IStore(SIMULATOR_ADDRESS),
-  //     worldAddress,
-  //     agentEntity.scale,
-  //     agentEntity.entityId
-  //   );
-  //   assertTrue(staminaBefore > staminaAfter);
-  //   console.log("stamina");
-  //   assertTrue(Stamina.get(IStore(SIMULATOR_ADDRESS), worldAddress, builderEntity.scale, builderEntity.entityId) < 100);
-  //   assertTrue(OwnedBy.get(builderEntity.scale, builderEntity.entityId) == agentOwner);
-  //   VoxelCoord memory builderVelocity = abi.decode(
-  //     Velocity.getVelocity(IStore(SIMULATOR_ADDRESS), worldAddress, builderEntity.scale, builderEntity.entityId),
-  //     (VoxelCoord)
-  //   );
-  //   assertTrue(builderVelocity.x == 0);
-  //   assertTrue(builderVelocity.y == 0);
-  //   assertTrue(builderVelocity.z == 0);
-
-  //   vm.stopPrank();
-  // }
+  function testSimpleCollision() public {
+    vm.startPrank(alice, alice);
+    (, bytes32 agentObjectEntityId) = setupAgent();
+    Mass.set(simStore, worldAddress, agentObjectEntityId, 5);
+
+    bytes32 smallMassObjectEntityId;
+    VoxelCoord memory smallMassCoord = VoxelCoord({ x: agentCoord.x + 1, y: agentCoord.y, z: agentCoord.z });
+    {
+      bytes32 smallMassEntityId = world.build(agentObjectEntityId, GrassObjectID, smallMassCoord);
+      smallMassObjectEntityId = ObjectEntity.get(store, smallMassEntityId);
+      Mass.set(simStore, worldAddress, smallMassObjectEntityId, 1);
+      Energy.set(simStore, worldAddress, smallMassObjectEntityId, 10);
+    }
+    // Move back one
+    world.move(
+      agentObjectEntityId,
+      RunnerObjectID,
+      agentCoord,
+      VoxelCoord(agentCoord.x - 1, agentCoord.y, agentCoord.z)
+    );
+    // Set velocity to 0
+    Velocity.setVelocity(simStore, worldAddress, agentObjectEntityId, abi.encode(VoxelCoord({ x: 0, y: 0, z: 0 })));
+
+    // Now move forward one
+    // This will cause the collision
+    uint256 staminaBefore = Stamina.get(simStore, worldAddress, agentObjectEntityId);
+    world.move(
+      agentObjectEntityId,
+      RunnerObjectID,
+      VoxelCoord(agentCoord.x - 1, agentCoord.y, agentCoord.z),
+      agentCoord
+    );
+    assertTrue(Stamina.get(simStore, worldAddress, agentObjectEntityId) < staminaBefore, "Stamina not reduced");
+    VoxelCoord memory agentVelocity = abi.decode(
+      Velocity.getVelocity(simStore, worldAddress, agentObjectEntityId),
+      (VoxelCoord)
+    );
+    assertTrue(agentVelocity.x == 1 && agentVelocity.y == 0 && agentVelocity.z == 0, "Agent velocity not 1,0,0");
+
+    // Small mass should be at x + 1 coord
+    bytes32 smallMassEntityId = getEntityAtCoord(
+      store,
+      VoxelCoord(smallMassCoord.x + 1, smallMassCoord.y, smallMassCoord.z)
+    );
+    smallMassObjectEntityId = ObjectEntity.get(store, smallMassEntityId);
+    assertTrue(ObjectType.get(store, smallMassEntityId) == GrassObjectID, "Mass not found");
+    VoxelCoord memory smallMassVelocity = abi.decode(
+      Velocity.getVelocity(simStore, worldAddress, smallMassObjectEntityId),
+      (VoxelCoord)
+    );
+    assertTrue(
+      smallMassVelocity.x == 1 && smallMassVelocity.y == 0 && smallMassVelocity.z == 0,
+      "Small mass velocity not 1,0,0"
+    );
+
+    vm.stopPrank();
+  }
+
+  function testCollisionBounceBack() public {
+    vm.startPrank(alice, alice);
+    (, bytes32 agentObjectEntityId) = setupAgent();
+    Mass.set(simStore, worldAddress, agentObjectEntityId, 5);
+
+    bytes32 massObjectEntityId;
+    VoxelCoord memory massCoord = VoxelCoord({ x: agentCoord.x + 1, y: agentCoord.y, z: agentCoord.z });
+    {
+      bytes32 massEntityId = world.build(agentObjectEntityId, GrassObjectID, massCoord);
+      massObjectEntityId = ObjectEntity.get(store, massEntityId);
+      Mass.set(simStore, worldAddress, massObjectEntityId, 5);
+      Energy.set(simStore, worldAddress, massObjectEntityId, 10);
+    }
+    // Move back one
+    world.move(
+      agentObjectEntityId,
+      RunnerObjectID,
+      agentCoord,
+      VoxelCoord(agentCoord.x - 1, agentCoord.y, agentCoord.z)
+    );
+    // Set velocity to 4, 0, 0
+    Velocity.setVelocity(simStore, worldAddress, agentObjectEntityId, abi.encode(VoxelCoord({ x: 4, y: 0, z: 0 })));
+
+    // Now move forward one
+    // This will cause the collision
+    uint256 staminaBefore = Stamina.get(simStore, worldAddress, agentObjectEntityId);
+    world.move(
+      agentObjectEntityId,
+      RunnerObjectID,
+      VoxelCoord(agentCoord.x - 1, agentCoord.y, agentCoord.z),
+      agentCoord
+    );
+    assertTrue(Stamina.get(simStore, worldAddress, agentObjectEntityId) < staminaBefore, "Stamina not reduced");
+    VoxelCoord memory agentVelocity = abi.decode(
+      Velocity.getVelocity(simStore, worldAddress, agentObjectEntityId),
+      (VoxelCoord)
+    );
+    assertTrue(agentVelocity.x == 4 && agentVelocity.y == 0 && agentVelocity.z == 0, "Agent velocity not 4,0,0");
+
+    // Small mass should be at x + 1 coord
+    bytes32 massEntityId = getEntityAtCoord(store, VoxelCoord(massCoord.x + 1, massCoord.y, massCoord.z));
+    massObjectEntityId = ObjectEntity.get(store, massEntityId);
+    assertTrue(ObjectType.get(store, massEntityId) == GrassObjectID, "Mass not found");
+    VoxelCoord memory smallMassVelocity = abi.decode(
+      Velocity.getVelocity(simStore, worldAddress, massObjectEntityId),
+      (VoxelCoord)
+    );
+    assertTrue(
+      smallMassVelocity.x == 1 && smallMassVelocity.y == 0 && smallMassVelocity.z == 0,
+      "Small mass velocity not 1,0,0"
+    );
+
+    vm.stopPrank();
+  }
+
+  function testCollisionMultipleObjectsPushed() public {
+    vm.startPrank(alice, alice);
+    (, bytes32 agentObjectEntityId) = setupAgent();
+    Mass.set(simStore, worldAddress, agentObjectEntityId, 5);
+
+    bytes32 massObjectEntityId;
+    VoxelCoord memory massCoord = VoxelCoord({ x: agentCoord.x + 1, y: agentCoord.y, z: agentCoord.z - 1 });
+    {
+      bytes32 massEntityId = world.build(agentObjectEntityId, GrassObjectID, massCoord);
+      massObjectEntityId = ObjectEntity.get(store, massEntityId);
+      Mass.set(simStore, worldAddress, massObjectEntityId, 5);
+      Energy.set(simStore, worldAddress, massObjectEntityId, 10);
+      Velocity.setVelocity(simStore, worldAddress, massObjectEntityId, abi.encode(VoxelCoord({ x: 0, y: 0, z: 10 })));
+    }
+
+    // Now move forward one
+    // This will cause the collision
+    uint256 staminaBefore = Stamina.get(simStore, worldAddress, agentObjectEntityId);
+    world.move(
+      agentObjectEntityId,
+      RunnerObjectID,
+      agentCoord,
+      VoxelCoord(agentCoord.x + 1, agentCoord.y, agentCoord.z)
+    );
+    assertTrue(Stamina.get(simStore, worldAddress, agentObjectEntityId) < staminaBefore, "Stamina not reduced");
+    VoxelCoord memory agentVelocity = abi.decode(
+      Velocity.getVelocity(simStore, worldAddress, agentObjectEntityId),
+      (VoxelCoord)
+    );
+    assertTrue(agentVelocity.x == 1 && agentVelocity.y == 0 && agentVelocity.z == 2, "Agent velocity not 1,0,2");
+
+    // Small mass should be at x + 1 coord
+    bytes32 massEntityId = getEntityAtCoord(store, VoxelCoord(massCoord.x, massCoord.y, massCoord.z - 2));
+    massObjectEntityId = ObjectEntity.get(store, massEntityId);
+    assertTrue(ObjectType.get(store, massEntityId) == GrassObjectID, "Mass not found");
+    VoxelCoord memory smallMassVelocity = abi.decode(
+      Velocity.getVelocity(simStore, worldAddress, massObjectEntityId),
+      (VoxelCoord)
+    );
+    assertTrue(
+      smallMassVelocity.x == 0 && smallMassVelocity.y == 0 && smallMassVelocity.z == 8,
+      "Small mass velocity not 0,0,8"
+    );
+
+    vm.stopPrank();
+  }
+
+  function testCollisionMoveTwo() public {
+    vm.startPrank(alice, alice);
+    (, bytes32 agentObjectEntityId) = setupAgent();
+    Mass.set(simStore, worldAddress, agentObjectEntityId, 5);
+
+    bytes32 mass1ObjectEntityId;
+    VoxelCoord memory mass1Coord = VoxelCoord({ x: agentCoord.x + 1, y: agentCoord.y, z: agentCoord.z });
+    {
+      bytes32 mass1EntityId = world.build(agentObjectEntityId, GrassObjectID, mass1Coord);
+      mass1ObjectEntityId = ObjectEntity.get(store, mass1EntityId);
+      Mass.set(simStore, worldAddress, mass1ObjectEntityId, 5);
+      Energy.set(simStore, worldAddress, mass1ObjectEntityId, 10);
+    }
+    world.move(
+      agentObjectEntityId,
+      RunnerObjectID,
+      agentCoord,
+      VoxelCoord(agentCoord.x + 1, agentCoord.y, agentCoord.z + 1)
+    );
+    Velocity.setVelocity(simStore, worldAddress, agentObjectEntityId, abi.encode(VoxelCoord({ x: 0, y: 0, z: 0 })));
+
+    bytes32 mass2ObjectEntityId;
+    VoxelCoord memory mass2Coord = VoxelCoord({ x: mass1Coord.x + 1, y: mass1Coord.y, z: mass1Coord.z });
+    {
+      bytes32 mass2EntityId = world.build(agentObjectEntityId, GrassObjectID, mass2Coord);
+      mass2ObjectEntityId = ObjectEntity.get(store, mass2EntityId);
+      Mass.set(simStore, worldAddress, mass2ObjectEntityId, 1);
+      Energy.set(simStore, worldAddress, mass2ObjectEntityId, 10);
+    }
+    world.move(
+      agentObjectEntityId,
+      RunnerObjectID,
+      VoxelCoord(agentCoord.x + 1, agentCoord.y, agentCoord.z + 1),
+      agentCoord
+    );
+    Velocity.setVelocity(simStore, worldAddress, agentObjectEntityId, abi.encode(VoxelCoord({ x: 0, y: 0, z: 0 })));
+    world.move(
+      agentObjectEntityId,
+      RunnerObjectID,
+      agentCoord,
+      VoxelCoord(agentCoord.x - 1, agentCoord.y, agentCoord.z)
+    );
+    Velocity.setVelocity(simStore, worldAddress, agentObjectEntityId, abi.encode(VoxelCoord({ x: 0, y: 0, z: 0 })));
+
+    Mass.set(simStore, worldAddress, mass1ObjectEntityId, 1);
+
+    // Now move forward one
+    // This will cause the collision
+    uint256 staminaBefore = Stamina.get(simStore, worldAddress, agentObjectEntityId);
+    world.move(
+      agentObjectEntityId,
+      RunnerObjectID,
+      VoxelCoord(agentCoord.x - 1, agentCoord.y, agentCoord.z),
+      agentCoord
+    );
+    assertTrue(Stamina.get(simStore, worldAddress, agentObjectEntityId) < staminaBefore, "Stamina not reduced");
+    VoxelCoord memory agentVelocity = abi.decode(
+      Velocity.getVelocity(simStore, worldAddress, agentObjectEntityId),
+      (VoxelCoord)
+    );
+    assertTrue(agentVelocity.x == 1 && agentVelocity.y == 0 && agentVelocity.z == 0, "Agent velocity not 1,0,0");
+
+    // Mass should be at x + 1 coord
+    bytes32 mass1EntityId = getEntityAtCoord(store, VoxelCoord(mass1Coord.x + 1, mass1Coord.y, mass1Coord.z));
+    mass1ObjectEntityId = ObjectEntity.get(store, mass1EntityId);
+    assertTrue(ObjectType.get(store, mass1EntityId) == GrassObjectID, "Mass not found");
+    VoxelCoord memory mass1Velocity = abi.decode(
+      Velocity.getVelocity(simStore, worldAddress, mass1ObjectEntityId),
+      (VoxelCoord)
+    );
+    assertTrue(mass1Velocity.x == 1 && mass1Velocity.y == 0 && mass1Velocity.z == 0, "Mass velocity not 1,0,0");
+
+    // Mass should be at x + 1 coord
+    bytes32 mass2EntityId = getEntityAtCoord(store, VoxelCoord(mass2Coord.x + 1, mass2Coord.y, mass2Coord.z));
+    mass2ObjectEntityId = ObjectEntity.get(store, mass2EntityId);
+    assertTrue(ObjectType.get(store, mass2EntityId) == GrassObjectID, "Mass not found");
+    VoxelCoord memory mass2Velocity = abi.decode(
+      Velocity.getVelocity(simStore, worldAddress, mass2ObjectEntityId),
+      (VoxelCoord)
+    );
+    assertTrue(mass2Velocity.x == 1 && mass2Velocity.y == 0 && mass2Velocity.z == 0, "Mass velocity not 1,0,0");
+
+    vm.stopPrank();
+  }
+
+  function testCollisionNoVelocityChange() public {
+    vm.startPrank(alice, alice);
+    (, bytes32 agentObjectEntityId) = setupAgent();
+    Mass.set(simStore, worldAddress, agentObjectEntityId, 5);
+
+    bytes32 massObjectEntityId;
+    VoxelCoord memory massCoord = VoxelCoord({ x: agentCoord.x + 1, y: agentCoord.y, z: agentCoord.z });
+    {
+      bytes32 massEntityId = world.build(agentObjectEntityId, GrassObjectID, massCoord);
+      massObjectEntityId = ObjectEntity.get(store, massEntityId);
+      Mass.set(simStore, worldAddress, massObjectEntityId, 1);
+      Energy.set(simStore, worldAddress, massObjectEntityId, 10);
+      Velocity.setVelocity(simStore, worldAddress, massObjectEntityId, abi.encode(VoxelCoord({ x: 1, y: 0, z: 0 })));
+    }
+    // Move back one
+    world.move(
+      agentObjectEntityId,
+      RunnerObjectID,
+      agentCoord,
+      VoxelCoord(agentCoord.x - 1, agentCoord.y, agentCoord.z)
+    );
+    Velocity.setVelocity(simStore, worldAddress, agentObjectEntityId, abi.encode(VoxelCoord({ x: 0, y: 0, z: 0 })));
+
+    // Now move forward one
+    // This will cause the collision
+    uint256 staminaBefore = Stamina.get(simStore, worldAddress, agentObjectEntityId);
+    world.move(
+      agentObjectEntityId,
+      RunnerObjectID,
+      VoxelCoord(agentCoord.x - 1, agentCoord.y, agentCoord.z),
+      agentCoord
+    );
+    assertTrue(Stamina.get(simStore, worldAddress, agentObjectEntityId) < staminaBefore, "Stamina not reduced");
+    VoxelCoord memory agentVelocity = abi.decode(
+      Velocity.getVelocity(simStore, worldAddress, agentObjectEntityId),
+      (VoxelCoord)
+    );
+    assertTrue(agentVelocity.x == 1 && agentVelocity.y == 0 && agentVelocity.z == 0, "Agent velocity not 1,0,0");
+
+    bytes32 massEntityId = getEntityAtCoord(store, VoxelCoord(massCoord.x, massCoord.y, massCoord.z));
+    massObjectEntityId = ObjectEntity.get(store, massEntityId);
+    assertTrue(ObjectType.get(store, massEntityId) == GrassObjectID, "Mass not found");
+    VoxelCoord memory smallMassVelocity = abi.decode(
+      Velocity.getVelocity(simStore, worldAddress, massObjectEntityId),
+      (VoxelCoord)
+    );
+    assertTrue(
+      smallMassVelocity.x == 1 && smallMassVelocity.y == 0 && smallMassVelocity.z == 0,
+      "Small mass velocity not 1,0,0"
+    );
+
+    vm.stopPrank();
+  }
+
+  function testCollisionSameDirection() public {
+    vm.startPrank(alice, alice);
+    (, bytes32 agentObjectEntityId) = setupAgent();
+    Mass.set(simStore, worldAddress, agentObjectEntityId, 5);
+
+    bytes32 massObjectEntityId;
+    VoxelCoord memory massCoord = VoxelCoord({ x: agentCoord.x + 1, y: agentCoord.y, z: agentCoord.z });
+    {
+      bytes32 massEntityId = world.build(agentObjectEntityId, GrassObjectID, massCoord);
+      massObjectEntityId = ObjectEntity.get(store, massEntityId);
+      Mass.set(simStore, worldAddress, massObjectEntityId, 1);
+      Energy.set(simStore, worldAddress, massObjectEntityId, 10);
+      Velocity.setVelocity(simStore, worldAddress, massObjectEntityId, abi.encode(VoxelCoord({ x: 1, y: 0, z: 0 })));
+    }
+    // Move back one
+    world.move(
+      agentObjectEntityId,
+      RunnerObjectID,
+      agentCoord,
+      VoxelCoord(agentCoord.x - 1, agentCoord.y, agentCoord.z)
+    );
+    Velocity.setVelocity(simStore, worldAddress, agentObjectEntityId, abi.encode(VoxelCoord({ x: 4, y: 0, z: 0 })));
+
+    // Now move forward one
+    // This will cause the collision
+    uint256 staminaBefore = Stamina.get(simStore, worldAddress, agentObjectEntityId);
+    world.move(
+      agentObjectEntityId,
+      RunnerObjectID,
+      VoxelCoord(agentCoord.x - 1, agentCoord.y, agentCoord.z),
+      agentCoord
+    );
+    assertTrue(Stamina.get(simStore, worldAddress, agentObjectEntityId) < staminaBefore, "Stamina not reduced");
+    VoxelCoord memory agentVelocity = abi.decode(
+      Velocity.getVelocity(simStore, worldAddress, agentObjectEntityId),
+      (VoxelCoord)
+    );
+    assertTrue(agentVelocity.x == 5 && agentVelocity.y == 0 && agentVelocity.z == 0, "Agent velocity not 5,0,0");
+
+    bytes32 massEntityId = getEntityAtCoord(store, VoxelCoord(massCoord.x + 4, massCoord.y, massCoord.z));
+    massObjectEntityId = ObjectEntity.get(store, massEntityId);
+    assertTrue(ObjectType.get(store, massEntityId) == GrassObjectID, "Mass not found");
+    VoxelCoord memory smallMassVelocity = abi.decode(
+      Velocity.getVelocity(simStore, worldAddress, massObjectEntityId),
+      (VoxelCoord)
+    );
+    assertTrue(
+      smallMassVelocity.x == 5 && smallMassVelocity.y == 0 && smallMassVelocity.z == 0,
+      "Small mass velocity not 5,0,0"
+    );
+
+    vm.stopPrank();
+  }
+
+  function testCollisionOppositeDirectionEqualVelocityDifferentMass() public {
+    vm.startPrank(alice, alice);
+    (, bytes32 agentObjectEntityId) = setupAgent();
+    Mass.set(simStore, worldAddress, agentObjectEntityId, 5);
+
+    bytes32 massObjectEntityId;
+    VoxelCoord memory massCoord = VoxelCoord({ x: agentCoord.x + 1, y: agentCoord.y, z: agentCoord.z });
+    {
+      bytes32 massEntityId = world.build(agentObjectEntityId, GrassObjectID, massCoord);
+      massObjectEntityId = ObjectEntity.get(store, massEntityId);
+      Mass.set(simStore, worldAddress, massObjectEntityId, 1);
+      Energy.set(simStore, worldAddress, massObjectEntityId, 10);
+      Velocity.setVelocity(simStore, worldAddress, massObjectEntityId, abi.encode(VoxelCoord({ x: -1, y: 0, z: 0 })));
+    }
+    // Move back one
+    world.move(
+      agentObjectEntityId,
+      RunnerObjectID,
+      agentCoord,
+      VoxelCoord(agentCoord.x - 1, agentCoord.y, agentCoord.z)
+    );
+    Velocity.setVelocity(simStore, worldAddress, agentObjectEntityId, abi.encode(VoxelCoord({ x: 0, y: 0, z: 0 })));
+
+    // Now move forward one
+    // This will cause the collision
+    uint256 staminaBefore = Stamina.get(simStore, worldAddress, agentObjectEntityId);
+    world.move(
+      agentObjectEntityId,
+      RunnerObjectID,
+      VoxelCoord(agentCoord.x - 1, agentCoord.y, agentCoord.z),
+      agentCoord
+    );
+    assertTrue(Stamina.get(simStore, worldAddress, agentObjectEntityId) < staminaBefore, "Stamina not reduced");
+    VoxelCoord memory agentVelocity = abi.decode(
+      Velocity.getVelocity(simStore, worldAddress, agentObjectEntityId),
+      (VoxelCoord)
+    );
+    assertTrue(agentVelocity.x == 1 && agentVelocity.y == 0 && agentVelocity.z == 0, "Agent velocity not 1,0,0");
+
+    bytes32 massEntityId = getEntityAtCoord(store, VoxelCoord(massCoord.x + 2, massCoord.y, massCoord.z));
+    massObjectEntityId = ObjectEntity.get(store, massEntityId);
+    assertTrue(ObjectType.get(store, massEntityId) == GrassObjectID, "Mass not found");
+    VoxelCoord memory smallMassVelocity = abi.decode(
+      Velocity.getVelocity(simStore, worldAddress, massObjectEntityId),
+      (VoxelCoord)
+    );
+    assertTrue(
+      smallMassVelocity.x == 1 && smallMassVelocity.y == 0 && smallMassVelocity.z == 0,
+      "Small mass velocity not 1,0,0"
+    );
+
+    vm.stopPrank();
+  }
+
+  function testCollisionOppositeDirectionEqualVelocityEqualMass() public {
+    vm.startPrank(alice, alice);
+    (, bytes32 agentObjectEntityId) = setupAgent();
+    Mass.set(simStore, worldAddress, agentObjectEntityId, 5);
+
+    bytes32 massObjectEntityId;
+    VoxelCoord memory massCoord = VoxelCoord({ x: agentCoord.x + 1, y: agentCoord.y, z: agentCoord.z });
+    {
+      bytes32 massEntityId = world.build(agentObjectEntityId, GrassObjectID, massCoord);
+      massObjectEntityId = ObjectEntity.get(store, massEntityId);
+      Mass.set(simStore, worldAddress, massObjectEntityId, 5);
+      Energy.set(simStore, worldAddress, massObjectEntityId, 10);
+      Velocity.setVelocity(simStore, worldAddress, massObjectEntityId, abi.encode(VoxelCoord({ x: -1, y: 0, z: 0 })));
+    }
+    // Move back one
+    world.move(
+      agentObjectEntityId,
+      RunnerObjectID,
+      agentCoord,
+      VoxelCoord(agentCoord.x - 1, agentCoord.y, agentCoord.z)
+    );
+    Velocity.setVelocity(simStore, worldAddress, agentObjectEntityId, abi.encode(VoxelCoord({ x: 0, y: 0, z: 0 })));
+
+    // Now move forward one
+    // This will cause the collision
+    uint256 staminaBefore = Stamina.get(simStore, worldAddress, agentObjectEntityId);
+    world.move(
+      agentObjectEntityId,
+      RunnerObjectID,
+      VoxelCoord(agentCoord.x - 1, agentCoord.y, agentCoord.z),
+      agentCoord
+    );
+    assertTrue(Stamina.get(simStore, worldAddress, agentObjectEntityId) < staminaBefore, "Stamina not reduced");
+    VoxelCoord memory agentVelocity = abi.decode(
+      Velocity.getVelocity(simStore, worldAddress, agentObjectEntityId),
+      (VoxelCoord)
+    );
+    assertTrue(agentVelocity.x == 1 && agentVelocity.y == 0 && agentVelocity.z == 0, "Agent velocity not 1,0,0");
+
+    bytes32 massEntityId = getEntityAtCoord(store, VoxelCoord(massCoord.x, massCoord.y, massCoord.z));
+    massObjectEntityId = ObjectEntity.get(store, massEntityId);
+    assertTrue(ObjectType.get(store, massEntityId) == GrassObjectID, "Mass not found");
+    VoxelCoord memory smallMassVelocity = abi.decode(
+      Velocity.getVelocity(simStore, worldAddress, massObjectEntityId),
+      (VoxelCoord)
+    );
+    assertTrue(
+      smallMassVelocity.x == -1 && smallMassVelocity.y == 0 && smallMassVelocity.z == 0,
+      "Small mass velocity not -1,0,0"
+    );
+
+    vm.stopPrank();
+  }
+
+  function testMoveObject() public {
+    vm.startPrank(alice, alice);
+    (, bytes32 agentObjectEntityId) = setupAgent();
+    Mass.set(simStore, worldAddress, agentObjectEntityId, 5);
+
+    VoxelCoord memory oldCoord = VoxelCoord(agentCoord.x + 1, agentCoord.y, agentCoord.z);
+    bytes32 massEntityId = world.build(agentObjectEntityId, GrassObjectID, oldCoord);
+    bytes32 massObjectEntityId = ObjectEntity.get(store, massEntityId);
+    VoxelCoord memory newCoord = VoxelCoord(oldCoord.x + 1, oldCoord.y, oldCoord.z);
+    // Old coord should not be air
+    bytes32 moveObjectTypeId = ObjectType.get(store, getEntityAtCoord(store, oldCoord));
+    assertTrue(moveObjectTypeId == GrassObjectID, "Old coord is air");
+    // New coord should be air
+    assertTrue(world.getTerrainObjectTypeId(newCoord) == AirObjectID, "New coord not air");
+
+    uint256 staminaBefore = Stamina.get(simStore, worldAddress, agentObjectEntityId);
+    world.move(agentObjectEntityId, moveObjectTypeId, oldCoord, newCoord);
+    assertTrue(Stamina.get(simStore, worldAddress, agentObjectEntityId) < staminaBefore, "Stamina not reduced");
+    VoxelCoord memory agentVelocity = abi.decode(
+      Velocity.getVelocity(simStore, worldAddress, agentObjectEntityId),
+      (VoxelCoord)
+    );
+    assertTrue(agentVelocity.x == 0 && agentVelocity.y == 0 && agentVelocity.z == 0, "Agent velocity not 0,0,0");
+
+    // Old coord should be air
+    assertTrue(ObjectType.get(store, getEntityAtCoord(store, oldCoord)) == AirObjectID, "Old coord not air");
+    // New coord should be moving object
+    assertTrue(ObjectType.get(store, getEntityAtCoord(store, newCoord)) == moveObjectTypeId, "New coord is air");
+    VoxelCoord memory massVelocity = abi.decode(
+      Velocity.getVelocity(simStore, worldAddress, massObjectEntityId),
+      (VoxelCoord)
+    );
+
+    assertTrue(massVelocity.x == 1 && massVelocity.y == 0 && massVelocity.z == 0, "Mass velocity not 1,0,0");
+
+    vm.stopPrank();
+  }
+
+  function testMoveObjectBounceBack() public {
+    vm.startPrank(alice, alice);
+    (, bytes32 agentObjectEntityId) = setupAgent();
+    Mass.set(simStore, worldAddress, agentObjectEntityId, 5);
+
+    world.move(
+      agentObjectEntityId,
+      RunnerObjectID,
+      agentCoord,
+      VoxelCoord(agentCoord.x + 1, agentCoord.y, agentCoord.z)
+    );
+    world.move(
+      agentObjectEntityId,
+      RunnerObjectID,
+      VoxelCoord(agentCoord.x + 1, agentCoord.y, agentCoord.z),
+      VoxelCoord(agentCoord.x + 2, agentCoord.y, agentCoord.z)
+    );
+    Velocity.setVelocity(simStore, worldAddress, agentObjectEntityId, abi.encode(VoxelCoord({ x: 0, y: 0, z: 0 })));
+
+    bytes32 mass1ObjectEntityId;
+    VoxelCoord memory mass1Coord = VoxelCoord({ x: agentCoord.x + 3, y: agentCoord.y, z: agentCoord.z });
+    {
+      bytes32 mass1EntityId = world.build(agentObjectEntityId, GrassObjectID, mass1Coord);
+      mass1ObjectEntityId = ObjectEntity.get(store, mass1EntityId);
+      Mass.set(simStore, worldAddress, mass1ObjectEntityId, 10);
+      Energy.set(simStore, worldAddress, mass1ObjectEntityId, 10);
+      Velocity.setVelocity(simStore, worldAddress, mass1ObjectEntityId, abi.encode(VoxelCoord({ x: -4, y: 0, z: 0 })));
+    }
+
+    world.move(
+      agentObjectEntityId,
+      RunnerObjectID,
+      VoxelCoord(agentCoord.x + 2, agentCoord.y, agentCoord.z),
+      VoxelCoord(agentCoord.x + 1, agentCoord.y, agentCoord.z)
+    );
+    world.move(
+      agentObjectEntityId,
+      RunnerObjectID,
+      VoxelCoord(agentCoord.x + 1, agentCoord.y, agentCoord.z),
+      agentCoord
+    );
+    Velocity.setVelocity(simStore, worldAddress, agentObjectEntityId, abi.encode(VoxelCoord({ x: 0, y: 0, z: 0 })));
+
+    bytes32 mass2ObjectEntityId;
+    VoxelCoord memory mass2Coord = VoxelCoord({ x: agentCoord.x + 1, y: agentCoord.y, z: agentCoord.z });
+    {
+      bytes32 mass2EntityId = world.build(agentObjectEntityId, GrassObjectID, mass2Coord);
+      mass2ObjectEntityId = ObjectEntity.get(store, mass2EntityId);
+      Mass.set(simStore, worldAddress, mass2ObjectEntityId, 5);
+      Energy.set(simStore, worldAddress, mass2ObjectEntityId, 10);
+    }
+
+    // Now move forward one
+    // This will cause the collision
+    uint256 staminaBefore = Stamina.get(simStore, worldAddress, agentObjectEntityId);
+    world.move(
+      agentObjectEntityId,
+      GrassObjectID,
+      mass2Coord,
+      VoxelCoord(mass2Coord.x + 1, mass2Coord.y, mass2Coord.z)
+    );
+    assertTrue(Stamina.get(simStore, worldAddress, agentObjectEntityId) < staminaBefore, "Stamina not reduced");
+    VoxelCoord memory agentVelocity = abi.decode(
+      Velocity.getVelocity(simStore, worldAddress, agentObjectEntityId),
+      (VoxelCoord)
+    );
+    assertTrue(agentVelocity.x == 0 && agentVelocity.y == 0 && agentVelocity.z == 0, "Agent velocity not 0,0,0");
+
+    bytes32 mass1EntityId = getEntityAtCoord(store, VoxelCoord(mass1Coord.x, mass1Coord.y, mass1Coord.z));
+    mass1ObjectEntityId = ObjectEntity.get(store, mass1EntityId);
+    assertTrue(ObjectType.get(store, mass1EntityId) == GrassObjectID, "Mass not found");
+    VoxelCoord memory mass1Velocity = abi.decode(
+      Velocity.getVelocity(simStore, worldAddress, mass1ObjectEntityId),
+      (VoxelCoord)
+    );
+    assertTrue(mass1Velocity.x == -4 && mass1Velocity.y == 0 && mass1Velocity.z == 0, "Small mass velocity not -4,0,0");
+
+    bytes32 mass2EntityId = getEntityAtCoord(store, VoxelCoord(mass2Coord.x, mass2Coord.y, mass2Coord.z));
+    mass2ObjectEntityId = ObjectEntity.get(store, mass2EntityId);
+    assertTrue(ObjectType.get(store, mass2EntityId) == GrassObjectID, "Mass not found");
+    VoxelCoord memory mass2Velocity = abi.decode(
+      Velocity.getVelocity(simStore, worldAddress, mass2ObjectEntityId),
+      (VoxelCoord)
+    );
+    assertTrue(mass2Velocity.x == 0 && mass2Velocity.y == 0 && mass2Velocity.z == 0, "Small mass velocity not 0,0,0");
+
+    vm.stopPrank();
+  }
+
+  function testMoveObjectCollisionPushedMultiple() public {
+    vm.startPrank(alice, alice);
+    (, bytes32 agentObjectEntityId) = setupAgent();
+    Mass.set(simStore, worldAddress, agentObjectEntityId, 5);
+
+    world.move(
+      agentObjectEntityId,
+      RunnerObjectID,
+      agentCoord,
+      VoxelCoord(agentCoord.x + 1, agentCoord.y, agentCoord.z)
+    );
+    Velocity.setVelocity(simStore, worldAddress, agentObjectEntityId, abi.encode(VoxelCoord({ x: 0, y: 0, z: 0 })));
+
+    bytes32 mass1ObjectEntityId;
+    VoxelCoord memory mass1Coord = VoxelCoord({ x: agentCoord.x + 2, y: agentCoord.y, z: agentCoord.z - 1 });
+    {
+      bytes32 mass1EntityId = world.build(agentObjectEntityId, GrassObjectID, mass1Coord);
+      mass1ObjectEntityId = ObjectEntity.get(store, mass1EntityId);
+      Mass.set(simStore, worldAddress, mass1ObjectEntityId, 5);
+      Energy.set(simStore, worldAddress, mass1ObjectEntityId, 10);
+      Velocity.setVelocity(simStore, worldAddress, mass1ObjectEntityId, abi.encode(VoxelCoord({ x: 0, y: 0, z: 10 })));
+    }
+
+    world.move(
+      agentObjectEntityId,
+      RunnerObjectID,
+      VoxelCoord(agentCoord.x + 1, agentCoord.y, agentCoord.z),
+      agentCoord
+    );
+    Velocity.setVelocity(simStore, worldAddress, agentObjectEntityId, abi.encode(VoxelCoord({ x: 0, y: 0, z: 0 })));
+
+    bytes32 mass2ObjectEntityId;
+    VoxelCoord memory mass2Coord = VoxelCoord({ x: agentCoord.x + 1, y: agentCoord.y, z: agentCoord.z });
+    {
+      bytes32 mass2EntityId = world.build(agentObjectEntityId, GrassObjectID, mass2Coord);
+      mass2ObjectEntityId = ObjectEntity.get(store, mass2EntityId);
+      Mass.set(simStore, worldAddress, mass2ObjectEntityId, 5);
+      Energy.set(simStore, worldAddress, mass2ObjectEntityId, 10);
+    }
+
+    // Now move forward one
+    // This will cause the collision
+    uint256 staminaBefore = Stamina.get(simStore, worldAddress, agentObjectEntityId);
+    world.move(
+      agentObjectEntityId,
+      GrassObjectID,
+      mass2Coord,
+      VoxelCoord(mass2Coord.x + 1, mass2Coord.y, mass2Coord.z)
+    );
+    assertTrue(Stamina.get(simStore, worldAddress, agentObjectEntityId) < staminaBefore, "Stamina not reduced");
+    VoxelCoord memory agentVelocity = abi.decode(
+      Velocity.getVelocity(simStore, worldAddress, agentObjectEntityId),
+      (VoxelCoord)
+    );
+    assertTrue(agentVelocity.x == 0 && agentVelocity.y == 0 && agentVelocity.z == 0, "Agent velocity not 0,0,0");
+
+    bytes32 mass1EntityId = getEntityAtCoord(store, VoxelCoord(mass1Coord.x, mass1Coord.y, mass1Coord.z - 2));
+    mass1ObjectEntityId = ObjectEntity.get(store, mass1EntityId);
+    assertTrue(ObjectType.get(store, mass1EntityId) == GrassObjectID, "Mass not found");
+    VoxelCoord memory mass1Velocity = abi.decode(
+      Velocity.getVelocity(simStore, worldAddress, mass1ObjectEntityId),
+      (VoxelCoord)
+    );
+    assertTrue(mass1Velocity.x == 0 && mass1Velocity.y == 0 && mass1Velocity.z == 8, "Small mass velocity not 0,0,8");
+
+    bytes32 mass2EntityId = getEntityAtCoord(store, VoxelCoord(mass2Coord.x + 1, mass2Coord.y, mass2Coord.z + 2));
+    mass2ObjectEntityId = ObjectEntity.get(store, mass2EntityId);
+    assertTrue(ObjectType.get(store, mass2EntityId) == GrassObjectID, "Mass not found");
+    VoxelCoord memory mass2Velocity = abi.decode(
+      Velocity.getVelocity(simStore, worldAddress, mass2ObjectEntityId),
+      (VoxelCoord)
+    );
+    assertTrue(mass2Velocity.x == 1 && mass2Velocity.y == 0 && mass2Velocity.z == 2, "Small mass velocity not 1,0,2");
+
+    vm.stopPrank();
+  }
+
+  function testMoveAgent() public {
+    vm.startPrank(alice, alice);
+    (, bytes32 agentObjectEntityId) = setupAgent();
+    Mass.set(simStore, worldAddress, agentObjectEntityId, 5);
+
+    bytes32 massObjectEntityId;
+    VoxelCoord memory massCoord = VoxelCoord({ x: agentCoord.x + 1, y: agentCoord.y, z: agentCoord.z });
+    {
+      bytes32 massEntityId = world.build(agentObjectEntityId, RunnerObjectID, massCoord);
+      massObjectEntityId = ObjectEntity.get(store, massEntityId);
+      Mass.set(simStore, worldAddress, massObjectEntityId, 5);
+      Energy.set(simStore, worldAddress, massObjectEntityId, 10);
+      Health.setHealth(simStore, worldAddress, massObjectEntityId, 100);
+      Stamina.set(simStore, worldAddress, massObjectEntityId, 100);
+
+      // Make the owner of the agent different from the one moving it
+      vm.startPrank(bob, bob);
+      world.claimAgent(massEntityId);
+      assertTrue(OwnedBy.get(store, massObjectEntityId) == bob, "Owner not bob");
+      vm.stopPrank();
+      vm.startPrank(alice, alice);
+    }
+
+    VoxelCoord memory newMassCoord = VoxelCoord(massCoord.x + 1, massCoord.y, massCoord.z);
+
+    uint256 staminaBefore = Stamina.get(simStore, worldAddress, agentObjectEntityId);
+    world.move(agentObjectEntityId, RunnerObjectID, massCoord, newMassCoord);
+    assertTrue(OwnedBy.get(store, massObjectEntityId) == bob, "Owner not bob");
+    assertTrue(Stamina.get(simStore, worldAddress, agentObjectEntityId) < staminaBefore, "Stamina not reduced");
+    assertTrue(Stamina.get(simStore, worldAddress, massObjectEntityId) == 100, "Stamina reduced");
+    VoxelCoord memory agentVelocity = abi.decode(
+      Velocity.getVelocity(simStore, worldAddress, agentObjectEntityId),
+      (VoxelCoord)
+    );
+    assertTrue(agentVelocity.x == 0 && agentVelocity.y == 0 && agentVelocity.z == 0, "Agent velocity not 0,0,0");
+
+    // Old coord should be air
+    assertTrue(ObjectType.get(store, getEntityAtCoord(store, massCoord)) == AirObjectID, "Old coord not air");
+    // New coord should be moving object
+    assertTrue(ObjectType.get(store, getEntityAtCoord(store, newMassCoord)) == RunnerObjectID, "New coord is air");
+    VoxelCoord memory massVelocity = abi.decode(
+      Velocity.getVelocity(simStore, worldAddress, massObjectEntityId),
+      (VoxelCoord)
+    );
+    assertTrue(massVelocity.x == 1 && massVelocity.y == 0 && massVelocity.z == 0, "Mass velocity not 1,0,0");
+
+    vm.stopPrank();
+  }
+
+  function testMoveAgentBounceBack() public {
+    vm.startPrank(alice, alice);
+    (, bytes32 agentObjectEntityId) = setupAgent();
+    Mass.set(simStore, worldAddress, agentObjectEntityId, 5);
+
+    world.move(
+      agentObjectEntityId,
+      RunnerObjectID,
+      agentCoord,
+      VoxelCoord(agentCoord.x + 1, agentCoord.y, agentCoord.z)
+    );
+    world.move(
+      agentObjectEntityId,
+      RunnerObjectID,
+      VoxelCoord(agentCoord.x + 1, agentCoord.y, agentCoord.z),
+      VoxelCoord(agentCoord.x + 2, agentCoord.y, agentCoord.z)
+    );
+    Velocity.setVelocity(simStore, worldAddress, agentObjectEntityId, abi.encode(VoxelCoord({ x: 0, y: 0, z: 0 })));
+
+    bytes32 mass1ObjectEntityId;
+    VoxelCoord memory mass1Coord = VoxelCoord({ x: agentCoord.x + 3, y: agentCoord.y, z: agentCoord.z });
+    {
+      bytes32 mass1EntityId = world.build(agentObjectEntityId, GrassObjectID, mass1Coord);
+      mass1ObjectEntityId = ObjectEntity.get(store, mass1EntityId);
+      Mass.set(simStore, worldAddress, mass1ObjectEntityId, 10);
+      Energy.set(simStore, worldAddress, mass1ObjectEntityId, 10);
+      Velocity.setVelocity(simStore, worldAddress, mass1ObjectEntityId, abi.encode(VoxelCoord({ x: -4, y: 0, z: 0 })));
+    }
+
+    world.move(
+      agentObjectEntityId,
+      RunnerObjectID,
+      VoxelCoord(agentCoord.x + 2, agentCoord.y, agentCoord.z),
+      VoxelCoord(agentCoord.x + 1, agentCoord.y, agentCoord.z)
+    );
+    world.move(
+      agentObjectEntityId,
+      RunnerObjectID,
+      VoxelCoord(agentCoord.x + 1, agentCoord.y, agentCoord.z),
+      agentCoord
+    );
+    Velocity.setVelocity(simStore, worldAddress, agentObjectEntityId, abi.encode(VoxelCoord({ x: 0, y: 0, z: 0 })));
+
+    bytes32 mass2ObjectEntityId;
+    VoxelCoord memory mass2Coord = VoxelCoord({ x: agentCoord.x + 1, y: agentCoord.y, z: agentCoord.z });
+    {
+      bytes32 mass2EntityId = world.build(agentObjectEntityId, RunnerObjectID, mass2Coord);
+      mass2ObjectEntityId = ObjectEntity.get(store, mass2EntityId);
+      Mass.set(simStore, worldAddress, mass2ObjectEntityId, 5);
+      Energy.set(simStore, worldAddress, mass2ObjectEntityId, 10);
+      Health.setHealth(simStore, worldAddress, mass2ObjectEntityId, 100);
+      Stamina.set(simStore, worldAddress, mass2ObjectEntityId, 100);
+
+      // Make the owner of the agent different from the one moving it
+      vm.startPrank(bob, bob);
+      world.claimAgent(mass2EntityId);
+      assertTrue(OwnedBy.get(store, mass2ObjectEntityId) == bob, "Owner not bob");
+      vm.stopPrank();
+      vm.startPrank(alice, alice);
+    }
+
+    // Now move forward one
+    // This will cause the collision
+    uint256 staminaBefore = Stamina.get(simStore, worldAddress, agentObjectEntityId);
+    world.move(
+      agentObjectEntityId,
+      RunnerObjectID,
+      mass2Coord,
+      VoxelCoord(mass2Coord.x + 1, mass2Coord.y, mass2Coord.z)
+    );
+    assertTrue(OwnedBy.get(store, mass2ObjectEntityId) == bob, "Owner not bob");
+    assertTrue(Stamina.get(simStore, worldAddress, agentObjectEntityId) < staminaBefore, "Stamina not reduced");
+    assertTrue(Stamina.get(simStore, worldAddress, mass2ObjectEntityId) == 100, "Stamina reduced");
+    VoxelCoord memory agentVelocity = abi.decode(
+      Velocity.getVelocity(simStore, worldAddress, agentObjectEntityId),
+      (VoxelCoord)
+    );
+    assertTrue(agentVelocity.x == 0 && agentVelocity.y == 0 && agentVelocity.z == 0, "Agent velocity not 0,0,0");
+
+    bytes32 mass1EntityId = getEntityAtCoord(store, VoxelCoord(mass1Coord.x, mass1Coord.y, mass1Coord.z));
+    mass1ObjectEntityId = ObjectEntity.get(store, mass1EntityId);
+    assertTrue(ObjectType.get(store, mass1EntityId) == GrassObjectID, "Mass not found");
+    VoxelCoord memory mass1Velocity = abi.decode(
+      Velocity.getVelocity(simStore, worldAddress, mass1ObjectEntityId),
+      (VoxelCoord)
+    );
+    assertTrue(mass1Velocity.x == -4 && mass1Velocity.y == 0 && mass1Velocity.z == 0, "Small mass velocity not -4,0,0");
+
+    bytes32 mass2EntityId = getEntityAtCoord(store, VoxelCoord(mass2Coord.x, mass2Coord.y, mass2Coord.z));
+    mass2ObjectEntityId = ObjectEntity.get(store, mass2EntityId);
+    assertTrue(ObjectType.get(store, mass2EntityId) == RunnerObjectID, "Mass not found");
+    VoxelCoord memory mass2Velocity = abi.decode(
+      Velocity.getVelocity(simStore, worldAddress, mass2ObjectEntityId),
+      (VoxelCoord)
+    );
+    assertTrue(mass2Velocity.x == 0 && mass2Velocity.y == 0 && mass2Velocity.z == 0, "Small mass velocity not 0,0,0");
+
+    vm.stopPrank();
+  }
+
+  function testMoveAgentCollisionPushedMultiple() public {
+    vm.startPrank(alice, alice);
+    (, bytes32 agentObjectEntityId) = setupAgent();
+    Mass.set(simStore, worldAddress, agentObjectEntityId, 5);
+
+    world.move(
+      agentObjectEntityId,
+      RunnerObjectID,
+      agentCoord,
+      VoxelCoord(agentCoord.x + 1, agentCoord.y, agentCoord.z)
+    );
+    Velocity.setVelocity(simStore, worldAddress, agentObjectEntityId, abi.encode(VoxelCoord({ x: 0, y: 0, z: 0 })));
+
+    bytes32 mass1ObjectEntityId;
+    VoxelCoord memory mass1Coord = VoxelCoord({ x: agentCoord.x + 2, y: agentCoord.y, z: agentCoord.z - 1 });
+    {
+      bytes32 mass1EntityId = world.build(agentObjectEntityId, GrassObjectID, mass1Coord);
+      mass1ObjectEntityId = ObjectEntity.get(store, mass1EntityId);
+      Mass.set(simStore, worldAddress, mass1ObjectEntityId, 5);
+      Energy.set(simStore, worldAddress, mass1ObjectEntityId, 10);
+      Velocity.setVelocity(simStore, worldAddress, mass1ObjectEntityId, abi.encode(VoxelCoord({ x: 0, y: 0, z: 10 })));
+    }
+
+    world.move(
+      agentObjectEntityId,
+      RunnerObjectID,
+      VoxelCoord(agentCoord.x + 1, agentCoord.y, agentCoord.z),
+      agentCoord
+    );
+    Velocity.setVelocity(simStore, worldAddress, agentObjectEntityId, abi.encode(VoxelCoord({ x: 0, y: 0, z: 0 })));
+
+    bytes32 mass2ObjectEntityId;
+    VoxelCoord memory mass2Coord = VoxelCoord({ x: agentCoord.x + 1, y: agentCoord.y, z: agentCoord.z });
+    {
+      bytes32 mass2EntityId = world.build(agentObjectEntityId, RunnerObjectID, mass2Coord);
+      mass2ObjectEntityId = ObjectEntity.get(store, mass2EntityId);
+      Mass.set(simStore, worldAddress, mass2ObjectEntityId, 5);
+      Energy.set(simStore, worldAddress, mass2ObjectEntityId, 10);
+      Health.setHealth(simStore, worldAddress, mass2ObjectEntityId, 100);
+      Stamina.set(simStore, worldAddress, mass2ObjectEntityId, 100);
+
+      // Make the owner of the agent different from the one moving it
+      vm.startPrank(bob, bob);
+      world.claimAgent(mass2EntityId);
+      assertTrue(OwnedBy.get(store, mass2ObjectEntityId) == bob, "Owner not bob");
+      vm.stopPrank();
+      vm.startPrank(alice, alice);
+    }
+
+    // Now move forward one
+    // This will cause the collision
+    uint256 staminaBefore = Stamina.get(simStore, worldAddress, agentObjectEntityId);
+    world.move(
+      agentObjectEntityId,
+      RunnerObjectID,
+      mass2Coord,
+      VoxelCoord(mass2Coord.x + 1, mass2Coord.y, mass2Coord.z)
+    );
+    assertTrue(OwnedBy.get(store, mass2ObjectEntityId) == bob, "Owner not bob");
+    assertTrue(Stamina.get(simStore, worldAddress, agentObjectEntityId) < staminaBefore, "Stamina not reduced");
+    assertTrue(Stamina.get(simStore, worldAddress, mass2ObjectEntityId) == 100, "Stamina reduced");
+    VoxelCoord memory agentVelocity = abi.decode(
+      Velocity.getVelocity(simStore, worldAddress, agentObjectEntityId),
+      (VoxelCoord)
+    );
+    assertTrue(agentVelocity.x == 0 && agentVelocity.y == 0 && agentVelocity.z == 0, "Agent velocity not 0,0,0");
+
+    bytes32 mass1EntityId = getEntityAtCoord(store, VoxelCoord(mass1Coord.x, mass1Coord.y, mass1Coord.z - 2));
+    mass1ObjectEntityId = ObjectEntity.get(store, mass1EntityId);
+    assertTrue(ObjectType.get(store, mass1EntityId) == GrassObjectID, "Mass not found");
+    VoxelCoord memory mass1Velocity = abi.decode(
+      Velocity.getVelocity(simStore, worldAddress, mass1ObjectEntityId),
+      (VoxelCoord)
+    );
+    assertTrue(mass1Velocity.x == 0 && mass1Velocity.y == 0 && mass1Velocity.z == 8, "Small mass velocity not 0,0,8");
+
+    bytes32 mass2EntityId = getEntityAtCoord(store, VoxelCoord(mass2Coord.x + 1, mass2Coord.y, mass2Coord.z + 2));
+    mass2ObjectEntityId = ObjectEntity.get(store, mass2EntityId);
+    assertTrue(ObjectType.get(store, mass2EntityId) == RunnerObjectID, "Mass not found");
+    VoxelCoord memory mass2Velocity = abi.decode(
+      Velocity.getVelocity(simStore, worldAddress, mass2ObjectEntityId),
+      (VoxelCoord)
+    );
+    assertTrue(mass2Velocity.x == 1 && mass2Velocity.y == 0 && mass2Velocity.z == 2, "Small mass velocity not 1,0,2");
+
+    vm.stopPrank();
+  }
+
+  function testMoveAgentThatStops() public {
+    vm.startPrank(alice, alice);
+    (, bytes32 agentObjectEntityId) = setupAgent();
+    Mass.set(simStore, worldAddress, agentObjectEntityId, 5);
+
+    bytes32 massObjectEntityId;
+    VoxelCoord memory massCoord = VoxelCoord({ x: agentCoord.x + 1, y: agentCoord.y, z: agentCoord.z });
+    {
+      bytes32 massEntityId = world.build(agentObjectEntityId, BuilderObjectID, massCoord);
+      massObjectEntityId = ObjectEntity.get(store, massEntityId);
+      Mass.set(simStore, worldAddress, massObjectEntityId, 5);
+      Energy.set(simStore, worldAddress, massObjectEntityId, 10);
+      Health.setHealth(simStore, worldAddress, massObjectEntityId, 100);
+      Stamina.set(simStore, worldAddress, massObjectEntityId, 100);
+
+      // Make the owner of the agent different from the one moving it
+      vm.startPrank(bob, bob);
+      world.claimAgent(massEntityId);
+      assertTrue(OwnedBy.get(store, massObjectEntityId) == bob, "Owner not bob");
+      vm.stopPrank();
+      vm.startPrank(alice, alice);
+    }
+
+    VoxelCoord memory newMassCoord = VoxelCoord(massCoord.x + 1, massCoord.y, massCoord.z);
+
+    uint256 staminaBefore = Stamina.get(simStore, worldAddress, agentObjectEntityId);
+    world.move(agentObjectEntityId, BuilderObjectID, massCoord, newMassCoord);
+    assertTrue(OwnedBy.get(store, massObjectEntityId) == bob, "Owner not bob");
+    assertTrue(Stamina.get(simStore, worldAddress, agentObjectEntityId) < staminaBefore, "Stamina not reduced");
+    assertTrue(Stamina.get(simStore, worldAddress, massObjectEntityId) < 100, "Stamina not reduced");
+    VoxelCoord memory agentVelocity = abi.decode(
+      Velocity.getVelocity(simStore, worldAddress, agentObjectEntityId),
+      (VoxelCoord)
+    );
+    assertTrue(agentVelocity.x == 0 && agentVelocity.y == 0 && agentVelocity.z == 0, "Agent velocity not 0,0,0");
+
+    // Old coord should be air
+    assertTrue(ObjectType.get(store, getEntityAtCoord(store, massCoord)) == AirObjectID, "Old coord not air");
+    // New coord should be moving object
+    assertTrue(ObjectType.get(store, getEntityAtCoord(store, newMassCoord)) == BuilderObjectID, "New coord is air");
+    VoxelCoord memory massVelocity = abi.decode(
+      Velocity.getVelocity(simStore, worldAddress, massObjectEntityId),
+      (VoxelCoord)
+    );
+    assertTrue(massVelocity.x == 0 && massVelocity.y == 0 && massVelocity.z == 0, "Mass velocity not 0,0,0");
+
+    vm.stopPrank();
+  }
 }

@@ -12,13 +12,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@adraffy/ens-normalize@npm:1.9.4":
-  version: 1.9.4
-  resolution: "@adraffy/ens-normalize@npm:1.9.4"
-  checksum: 7d7fff58ebe2c4961f7e5e61dad123aa6a63fec0df5c84af1fa41079dc05d398599690be4427b3a94d2baa94084544bcfdf2d51cbed7504b9b0583b0960ad550
-  languageName: node
-  linkType: hard
-
 "@babel/code-frame@npm:^7.0.0":
   version: 7.22.13
   resolution: "@babel/code-frame@npm:7.22.13"
@@ -53,15 +46,6 @@ __metadata:
   dependencies:
     regenerator-runtime: ^0.14.0
   checksum: 793296df1e41599a935a3d77ec01eb6088410d3fd4dbe4e92f06c6b7bb2f8355024e6d78621a3a35f44e0e23b0b59107f23d585384df4f3123256a1e1492040e
-  languageName: node
-  linkType: hard
-
-"@cspotcode/source-map-support@npm:^0.8.0":
-  version: 0.8.1
-  resolution: "@cspotcode/source-map-support@npm:0.8.1"
-  dependencies:
-    "@jridgewell/trace-mapping": 0.3.9
-  checksum: 5718f267085ed8edb3e7ef210137241775e607ee18b77d95aa5bd7514f47f5019aa2d82d96b3bf342ef7aa890a346fa1044532ff7cc3009e7d24fce3ce6200fa
   languageName: node
   linkType: hard
 
@@ -688,7 +672,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@jridgewell/resolve-uri@npm:^3.0.3, @jridgewell/resolve-uri@npm:^3.1.0":
+"@jridgewell/resolve-uri@npm:^3.1.0":
   version: 3.1.1
   resolution: "@jridgewell/resolve-uri@npm:3.1.1"
   checksum: f5b441fe7900eab4f9155b3b93f9800a916257f4e8563afbcd3b5a5337b55e52bd8ae6735453b1b745457d9f6cdb16d74cd6220bbdd98cf153239e13f6cbb653
@@ -706,16 +690,6 @@ __metadata:
   version: 1.4.15
   resolution: "@jridgewell/sourcemap-codec@npm:1.4.15"
   checksum: b881c7e503db3fc7f3c1f35a1dd2655a188cc51a3612d76efc8a6eb74728bef5606e6758ee77423e564092b4a518aba569bbb21c9bac5ab7a35b0c6ae7e344c8
-  languageName: node
-  linkType: hard
-
-"@jridgewell/trace-mapping@npm:0.3.9":
-  version: 0.3.9
-  resolution: "@jridgewell/trace-mapping@npm:0.3.9"
-  dependencies:
-    "@jridgewell/resolve-uri": ^3.0.3
-    "@jridgewell/sourcemap-codec": ^1.4.10
-  checksum: d89597752fd88d3f3480845691a05a44bd21faac18e2185b6f436c3b0fd0c5a859fbbd9aaa92050c4052caf325ad3e10e2e1d1b64327517471b7d51babc0ddef
   languageName: node
   linkType: hard
 
@@ -747,9 +721,9 @@ __metadata:
   languageName: node
   linkType: soft
 
-"@latticexyz/cli@link:../../../../../mud/packages/cli::locator=%40tenetxyz%2Fpretty-extension%40workspace%3Apackages%2Fpretty-extension":
+"@latticexyz/cli@link:../../../../../mud/packages/cli::locator=%40tenetxyz%2Fpretty%40workspace%3Apackages%2Fpretty":
   version: 0.0.0-use.local
-  resolution: "@latticexyz/cli@link:../../../../../mud/packages/cli::locator=%40tenetxyz%2Fpretty-extension%40workspace%3Apackages%2Fpretty-extension"
+  resolution: "@latticexyz/cli@link:../../../../../mud/packages/cli::locator=%40tenetxyz%2Fpretty%40workspace%3Apackages%2Fpretty"
   languageName: node
   linkType: soft
 
@@ -789,9 +763,9 @@ __metadata:
   languageName: node
   linkType: soft
 
-"@latticexyz/config@link:../../../../../mud/packages/config::locator=%40tenetxyz%2Fpretty-extension%40workspace%3Apackages%2Fpretty-extension":
+"@latticexyz/config@link:../../../../../mud/packages/config::locator=%40tenetxyz%2Fpretty%40workspace%3Apackages%2Fpretty":
   version: 0.0.0-use.local
-  resolution: "@latticexyz/config@link:../../../../../mud/packages/config::locator=%40tenetxyz%2Fpretty-extension%40workspace%3Apackages%2Fpretty-extension"
+  resolution: "@latticexyz/config@link:../../../../../mud/packages/config::locator=%40tenetxyz%2Fpretty%40workspace%3Apackages%2Fpretty"
   languageName: node
   linkType: soft
 
@@ -843,9 +817,9 @@ __metadata:
   languageName: node
   linkType: soft
 
-"@latticexyz/schema-type@link:../../../../../mud/packages/schema-type::locator=%40tenetxyz%2Fpretty-extension%40workspace%3Apackages%2Fpretty-extension":
+"@latticexyz/schema-type@link:../../../../../mud/packages/schema-type::locator=%40tenetxyz%2Fpretty%40workspace%3Apackages%2Fpretty":
   version: 0.0.0-use.local
-  resolution: "@latticexyz/schema-type@link:../../../../../mud/packages/schema-type::locator=%40tenetxyz%2Fpretty-extension%40workspace%3Apackages%2Fpretty-extension"
+  resolution: "@latticexyz/schema-type@link:../../../../../mud/packages/schema-type::locator=%40tenetxyz%2Fpretty%40workspace%3Apackages%2Fpretty"
   languageName: node
   linkType: soft
 
@@ -873,9 +847,9 @@ __metadata:
   languageName: node
   linkType: soft
 
-"@latticexyz/std-contracts@link:../../../../../mud/packages/std-contracts::locator=%40tenetxyz%2Fpretty-extension%40workspace%3Apackages%2Fpretty-extension":
+"@latticexyz/std-contracts@link:../../../../../mud/packages/std-contracts::locator=%40tenetxyz%2Fpretty%40workspace%3Apackages%2Fpretty":
   version: 0.0.0-use.local
-  resolution: "@latticexyz/std-contracts@link:../../../../../mud/packages/std-contracts::locator=%40tenetxyz%2Fpretty-extension%40workspace%3Apackages%2Fpretty-extension"
+  resolution: "@latticexyz/std-contracts@link:../../../../../mud/packages/std-contracts::locator=%40tenetxyz%2Fpretty%40workspace%3Apackages%2Fpretty"
   languageName: node
   linkType: soft
 
@@ -897,9 +871,9 @@ __metadata:
   languageName: node
   linkType: soft
 
-"@latticexyz/store@link:../../../../../mud/packages/store::locator=%40tenetxyz%2Fpretty-extension%40workspace%3Apackages%2Fpretty-extension":
+"@latticexyz/store@link:../../../../../mud/packages/store::locator=%40tenetxyz%2Fpretty%40workspace%3Apackages%2Fpretty":
   version: 0.0.0-use.local
-  resolution: "@latticexyz/store@link:../../../../../mud/packages/store::locator=%40tenetxyz%2Fpretty-extension%40workspace%3Apackages%2Fpretty-extension"
+  resolution: "@latticexyz/store@link:../../../../../mud/packages/store::locator=%40tenetxyz%2Fpretty%40workspace%3Apackages%2Fpretty"
   languageName: node
   linkType: soft
 
@@ -933,9 +907,9 @@ __metadata:
   languageName: node
   linkType: soft
 
-"@latticexyz/world@link:../../../../../mud/packages/world::locator=%40tenetxyz%2Fpretty-extension%40workspace%3Apackages%2Fpretty-extension":
+"@latticexyz/world@link:../../../../../mud/packages/world::locator=%40tenetxyz%2Fpretty%40workspace%3Apackages%2Fpretty":
   version: 0.0.0-use.local
-  resolution: "@latticexyz/world@link:../../../../../mud/packages/world::locator=%40tenetxyz%2Fpretty-extension%40workspace%3Apackages%2Fpretty-extension"
+  resolution: "@latticexyz/world@link:../../../../../mud/packages/world::locator=%40tenetxyz%2Fpretty%40workspace%3Apackages%2Fpretty"
   languageName: node
   linkType: soft
 
@@ -950,22 +924,6 @@ __metadata:
   resolution: "@latticexyz/world@link:../../../../../mud/packages/world::locator=%40tenetxyz%2Fworld%40workspace%3Apackages%2Fworld"
   languageName: node
   linkType: soft
-
-"@noble/curves@npm:1.2.0, @noble/curves@npm:~1.2.0":
-  version: 1.2.0
-  resolution: "@noble/curves@npm:1.2.0"
-  dependencies:
-    "@noble/hashes": 1.3.2
-  checksum: bb798d7a66d8e43789e93bc3c2ddff91a1e19fdb79a99b86cd98f1e5eff0ee2024a2672902c2576ef3577b6f282f3b5c778bebd55761ddbb30e36bf275e83dd0
-  languageName: node
-  linkType: hard
-
-"@noble/hashes@npm:1.3.2, @noble/hashes@npm:~1.3.0, @noble/hashes@npm:~1.3.2":
-  version: 1.3.2
-  resolution: "@noble/hashes@npm:1.3.2"
-  checksum: fe23536b436539d13f90e4b9be843cc63b1b17666a07634a2b1259dded6f490be3d050249e6af98076ea8f2ea0d56f578773c2197f2aa0eeaa5fba5bc18ba474
-  languageName: node
-  linkType: hard
 
 "@nodelib/fs.scandir@npm:2.1.5":
   version: 2.1.5
@@ -1030,34 +988,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@scure/base@npm:~1.1.0, @scure/base@npm:~1.1.2":
-  version: 1.1.3
-  resolution: "@scure/base@npm:1.1.3"
-  checksum: 1606ab8a4db898cb3a1ada16c15437c3bce4e25854fadc8eb03ae93cbbbac1ed90655af4b0be3da37e12056fef11c0374499f69b9e658c9e5b7b3e06353c630c
-  languageName: node
-  linkType: hard
-
-"@scure/bip32@npm:1.3.2":
-  version: 1.3.2
-  resolution: "@scure/bip32@npm:1.3.2"
-  dependencies:
-    "@noble/curves": ~1.2.0
-    "@noble/hashes": ~1.3.2
-    "@scure/base": ~1.1.2
-  checksum: c5ae84fae43490853693b481531132b89e056d45c945fc8b92b9d032577f753dfd79c5a7bbcbf0a7f035951006ff0311b6cf7a389e26c9ec6335e42b20c53157
-  languageName: node
-  linkType: hard
-
-"@scure/bip39@npm:1.2.1":
-  version: 1.2.1
-  resolution: "@scure/bip39@npm:1.2.1"
-  dependencies:
-    "@noble/hashes": ~1.3.0
-    "@scure/base": ~1.1.0
-  checksum: c5bd6f1328fdbeae2dcdd891825b1610225310e5e62a4942714db51066866e4f7bef242c7b06a1b9dcc8043a4a13412cf5c5df76d3b10aa9e36b82e9b6e3eeaa
-  languageName: node
-  linkType: hard
-
 "@solidity-parser/parser@npm:^0.16.0":
   version: 0.16.1
   resolution: "@solidity-parser/parser@npm:0.16.1"
@@ -1073,12 +1003,6 @@ __metadata:
   languageName: node
   linkType: soft
 
-"@tenetxyz/base-ca@link:../../../../packages/base-ca::locator=%40tenetxyz%2Fpretty-extension%40workspace%3Apackages%2Fpretty-extension":
-  version: 0.0.0-use.local
-  resolution: "@tenetxyz/base-ca@link:../../../../packages/base-ca::locator=%40tenetxyz%2Fpretty-extension%40workspace%3Apackages%2Fpretty-extension"
-  languageName: node
-  linkType: soft
-
 "@tenetxyz/base-simulator@link:../../../../packages/base-simulator::locator=%40tenetxyz%2Fcreatures%40workspace%3Apackages%2Fcreatures":
   version: 0.0.0-use.local
   resolution: "@tenetxyz/base-simulator@link:../../../../packages/base-simulator::locator=%40tenetxyz%2Fcreatures%40workspace%3Apackages%2Fcreatures"
@@ -1088,6 +1012,12 @@ __metadata:
 "@tenetxyz/base-simulator@link:../../../../packages/base-simulator::locator=%40tenetxyz%2Ffarming%40workspace%3Apackages%2Ffarming":
   version: 0.0.0-use.local
   resolution: "@tenetxyz/base-simulator@link:../../../../packages/base-simulator::locator=%40tenetxyz%2Ffarming%40workspace%3Apackages%2Ffarming"
+  languageName: node
+  linkType: soft
+
+"@tenetxyz/base-simulator@link:../../../../packages/base-simulator::locator=%40tenetxyz%2Fpretty%40workspace%3Apackages%2Fpretty":
+  version: 0.0.0-use.local
+  resolution: "@tenetxyz/base-simulator@link:../../../../packages/base-simulator::locator=%40tenetxyz%2Fpretty%40workspace%3Apackages%2Fpretty"
   languageName: node
   linkType: soft
 
@@ -1118,6 +1048,12 @@ __metadata:
 "@tenetxyz/base-world@link:../../../../packages/base-world::locator=%40tenetxyz%2Ffarming%40workspace%3Apackages%2Ffarming":
   version: 0.0.0-use.local
   resolution: "@tenetxyz/base-world@link:../../../../packages/base-world::locator=%40tenetxyz%2Ffarming%40workspace%3Apackages%2Ffarming"
+  languageName: node
+  linkType: soft
+
+"@tenetxyz/base-world@link:../../../../packages/base-world::locator=%40tenetxyz%2Fpretty%40workspace%3Apackages%2Fpretty":
+  version: 0.0.0-use.local
+  resolution: "@tenetxyz/base-world@link:../../../../packages/base-world::locator=%40tenetxyz%2Fpretty%40workspace%3Apackages%2Fpretty"
   languageName: node
   linkType: soft
 
@@ -1244,9 +1180,9 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@tenetxyz/pretty-extension@workspace:packages/pretty-extension":
+"@tenetxyz/pretty@workspace:packages/pretty":
   version: 0.0.0-use.local
-  resolution: "@tenetxyz/pretty-extension@workspace:packages/pretty-extension"
+  resolution: "@tenetxyz/pretty@workspace:packages/pretty"
   dependencies:
     "@ethersproject/abi": ^5.7.0
     "@ethersproject/bytes": ^5.7.0
@@ -1258,13 +1194,14 @@ __metadata:
     "@latticexyz/store": "link:../../../../../mud/packages/store"
     "@latticexyz/world": "link:../../../../../mud/packages/world"
     "@openzeppelin/contracts": ^4.9.1
-    "@tenetxyz/base-ca": "link:../../../../packages/base-ca"
+    "@tenetxyz/base-simulator": "link:../../../../packages/base-simulator"
+    "@tenetxyz/base-world": "link:../../../../packages/base-world"
     "@tenetxyz/registry": "link:../../../../packages/registry"
     "@tenetxyz/simulator": "workspace:*"
     "@tenetxyz/utils": "link:../../../../packages/utils"
+    "@tenetxyz/world": "workspace:*"
     "@typechain/ethers-v5": ^10.2.0
     "@types/node": ^18.15.11
-    dotenv: ^16.3.1
     ds-test: "https://github.com/dapphub/ds-test.git#c9ce3f25bde29fc5eb9901842bf02850dfd2d084"
     ethers: ^5.7.2
     forge-std: "https://github.com/foundry-rs/forge-std"
@@ -1274,10 +1211,8 @@ __metadata:
     solhint: ^3.3.7
     solhint-config-mud: 2.0.0-alpha.1.197+5e6cc0f5
     solhint-plugin-mud: 2.0.0-alpha.1.197+5e6cc0f5
-    ts-node: ^10.9.1
     tsup: ^7.2.0
     typechain: ^8.1.1
-    viem: ^1.19.0
   languageName: unknown
   linkType: soft
 
@@ -1299,9 +1234,9 @@ __metadata:
   languageName: node
   linkType: soft
 
-"@tenetxyz/registry@link:../../../../packages/registry::locator=%40tenetxyz%2Fpretty-extension%40workspace%3Apackages%2Fpretty-extension":
+"@tenetxyz/registry@link:../../../../packages/registry::locator=%40tenetxyz%2Fpretty%40workspace%3Apackages%2Fpretty":
   version: 0.0.0-use.local
-  resolution: "@tenetxyz/registry@link:../../../../packages/registry::locator=%40tenetxyz%2Fpretty-extension%40workspace%3Apackages%2Fpretty-extension"
+  resolution: "@tenetxyz/registry@link:../../../../packages/registry::locator=%40tenetxyz%2Fpretty%40workspace%3Apackages%2Fpretty"
   languageName: node
   linkType: soft
 
@@ -1371,9 +1306,9 @@ __metadata:
   languageName: node
   linkType: soft
 
-"@tenetxyz/utils@link:../../../../packages/utils::locator=%40tenetxyz%2Fpretty-extension%40workspace%3Apackages%2Fpretty-extension":
+"@tenetxyz/utils@link:../../../../packages/utils::locator=%40tenetxyz%2Fpretty%40workspace%3Apackages%2Fpretty":
   version: 0.0.0-use.local
-  resolution: "@tenetxyz/utils@link:../../../../packages/utils::locator=%40tenetxyz%2Fpretty-extension%40workspace%3Apackages%2Fpretty-extension"
+  resolution: "@tenetxyz/utils@link:../../../../packages/utils::locator=%40tenetxyz%2Fpretty%40workspace%3Apackages%2Fpretty"
   languageName: node
   linkType: soft
 
@@ -1425,34 +1360,6 @@ __metadata:
     typechain: ^8.1.1
   languageName: unknown
   linkType: soft
-
-"@tsconfig/node10@npm:^1.0.7":
-  version: 1.0.9
-  resolution: "@tsconfig/node10@npm:1.0.9"
-  checksum: a33ae4dc2a621c0678ac8ac4bceb8e512ae75dac65417a2ad9b022d9b5411e863c4c198b6ba9ef659e14b9fb609bbec680841a2e84c1172df7a5ffcf076539df
-  languageName: node
-  linkType: hard
-
-"@tsconfig/node12@npm:^1.0.7":
-  version: 1.0.11
-  resolution: "@tsconfig/node12@npm:1.0.11"
-  checksum: 5ce29a41b13e7897a58b8e2df11269c5395999e588b9a467386f99d1d26f6c77d1af2719e407621412520ea30517d718d5192a32403b8dfcc163bf33e40a338a
-  languageName: node
-  linkType: hard
-
-"@tsconfig/node14@npm:^1.0.0":
-  version: 1.0.3
-  resolution: "@tsconfig/node14@npm:1.0.3"
-  checksum: 19275fe80c4c8d0ad0abed6a96dbf00642e88b220b090418609c4376e1cef81bf16237bf170ad1b341452feddb8115d8dd2e5acdfdea1b27422071163dc9ba9d
-  languageName: node
-  linkType: hard
-
-"@tsconfig/node16@npm:^1.0.2":
-  version: 1.0.4
-  resolution: "@tsconfig/node16@npm:1.0.4"
-  checksum: 202319785901f942a6e1e476b872d421baec20cf09f4b266a1854060efbf78cde16a4d256e8bc949d31e6cd9a90f1e8ef8fb06af96a65e98338a2b6b0de0a0ff
-  languageName: node
-  linkType: hard
 
 "@typechain/ethers-v5@npm:^10.2.0":
   version: 10.2.1
@@ -1632,43 +1539,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"abitype@npm:0.9.8":
-  version: 0.9.8
-  resolution: "abitype@npm:0.9.8"
-  peerDependencies:
-    typescript: ">=5.0.4"
-    zod: ^3 >=3.19.1
-  peerDependenciesMeta:
-    typescript:
-      optional: true
-    zod:
-      optional: true
-  checksum: d7d887f29d6821e3f7a400de9620511b80ead3f85c5c87308aaec97965d3493e6687ed816e88722b4f512249bd66dee9e69231b49af0e1db8f69400a62c87cf6
-  languageName: node
-  linkType: hard
-
 "acorn-jsx@npm:^5.3.2":
   version: 5.3.2
   resolution: "acorn-jsx@npm:5.3.2"
   peerDependencies:
     acorn: ^6.0.0 || ^7.0.0 || ^8.0.0
   checksum: c3d3b2a89c9a056b205b69530a37b972b404ee46ec8e5b341666f9513d3163e2a4f214a71f4dfc7370f5a9c07472d2fd1c11c91c3f03d093e37637d95da98950
-  languageName: node
-  linkType: hard
-
-"acorn-walk@npm:^8.1.1":
-  version: 8.3.0
-  resolution: "acorn-walk@npm:8.3.0"
-  checksum: 15ea56ab6529135be05e7d018f935ca80a572355dd3f6d3cd717e36df3346e0f635a93ae781b1c7942607693e2e5f3ef81af5c6fc697bbadcc377ebda7b7f5f6
-  languageName: node
-  linkType: hard
-
-"acorn@npm:^8.4.1":
-  version: 8.11.2
-  resolution: "acorn@npm:8.11.2"
-  bin:
-    acorn: bin/acorn
-  checksum: 818450408684da89423e3daae24e4dc9b68692db8ab49ea4569c7c5abb7a3f23669438bf129cc81dfdada95e1c9b944ee1bfca2c57a05a4dc73834a612fbf6a7
   languageName: node
   linkType: hard
 
@@ -1800,13 +1676,6 @@ __metadata:
     normalize-path: ^3.0.0
     picomatch: ^2.0.4
   checksum: 3e044fd6d1d26545f235a9fe4d7a534e2029d8e59fa7fd9f2a6eb21230f6b5380ea1eaf55136e60cbf8e613544b3b766e7a6fa2102e2a3a117505466e3025dc2
-  languageName: node
-  linkType: hard
-
-"arg@npm:^4.1.0":
-  version: 4.1.3
-  resolution: "arg@npm:4.1.3"
-  checksum: 544af8dd3f60546d3e4aff084d451b96961d2267d668670199692f8d054f0415d86fc5497d0e641e91546f0aa920e7c29e5250e99fc89f5552a34b5d93b77f43
   languageName: node
   linkType: hard
 
@@ -2153,13 +2022,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"create-require@npm:^1.1.0":
-  version: 1.1.1
-  resolution: "create-require@npm:1.1.1"
-  checksum: a9a1503d4390d8b59ad86f4607de7870b39cad43d929813599a23714831e81c520bddf61bcdd1f8e30f05fd3a2b71ae8538e946eb2786dc65c2bbc520f692eff
-  languageName: node
-  linkType: hard
-
 "cross-spawn@npm:^7.0.0, cross-spawn@npm:^7.0.2, cross-spawn@npm:^7.0.3":
   version: 7.0.3
   resolution: "cross-spawn@npm:7.0.3"
@@ -2206,13 +2068,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"diff@npm:^4.0.1":
-  version: 4.0.2
-  resolution: "diff@npm:4.0.2"
-  checksum: f2c09b0ce4e6b301c221addd83bf3f454c0bc00caa3dd837cf6c127d6edf7223aa2bbe3b688feea110b7f262adbfc845b757c44c8a9f8c0c5b15d8fa9ce9d20d
-  languageName: node
-  linkType: hard
-
 "dir-glob@npm:^3.0.1":
   version: 3.0.1
   resolution: "dir-glob@npm:3.0.1"
@@ -2228,13 +2083,6 @@ __metadata:
   dependencies:
     esutils: ^2.0.2
   checksum: fd7673ca77fe26cd5cba38d816bc72d641f500f1f9b25b83e8ce28827fe2da7ad583a8da26ab6af85f834138cf8dae9f69b0cd6ab925f52ddab1754db44d99ce
-  languageName: node
-  linkType: hard
-
-"dotenv@npm:^16.3.1":
-  version: 16.3.1
-  resolution: "dotenv@npm:16.3.1"
-  checksum: 15d75e7279018f4bafd0ee9706593dd14455ddb71b3bcba9c52574460b7ccaf67d5cf8b2c08a5af1a9da6db36c956a04a1192b101ee102a3e0cf8817bbcf3dfd
   languageName: node
   linkType: hard
 
@@ -3183,15 +3031,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"isows@npm:1.0.3":
-  version: 1.0.3
-  resolution: "isows@npm:1.0.3"
-  peerDependencies:
-    ws: "*"
-  checksum: 9cacd5cf59f67deb51e825580cd445ab1725ecb05a67c704050383fb772856f3cd5e7da8ad08f5a3bd2823680d77d099459d0c6a7037972a74d6429af61af440
-  languageName: node
-  linkType: hard
-
 "jackspeak@npm:^2.0.3":
   version: 2.3.3
   resolution: "jackspeak@npm:2.3.3"
@@ -3401,13 +3240,6 @@ __metadata:
   dependencies:
     yallist: ^4.0.0
   checksum: f97f499f898f23e4585742138a22f22526254fdba6d75d41a1c2526b3b6cc5747ef59c5612ba7375f42aca4f8461950e925ba08c991ead0651b4918b7c978297
-  languageName: node
-  linkType: hard
-
-"make-error@npm:^1.1.1":
-  version: 1.3.6
-  resolution: "make-error@npm:1.3.6"
-  checksum: b86e5e0e25f7f777b77fabd8e2cbf15737972869d852a22b7e73c17623928fccb826d8e46b9951501d3f20e51ad74ba8c59ed584f610526a48f8ccf88aaec402
   languageName: node
   linkType: hard
 
@@ -4476,44 +4308,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"ts-node@npm:^10.9.1":
-  version: 10.9.1
-  resolution: "ts-node@npm:10.9.1"
-  dependencies:
-    "@cspotcode/source-map-support": ^0.8.0
-    "@tsconfig/node10": ^1.0.7
-    "@tsconfig/node12": ^1.0.7
-    "@tsconfig/node14": ^1.0.0
-    "@tsconfig/node16": ^1.0.2
-    acorn: ^8.4.1
-    acorn-walk: ^8.1.1
-    arg: ^4.1.0
-    create-require: ^1.1.0
-    diff: ^4.0.1
-    make-error: ^1.1.1
-    v8-compile-cache-lib: ^3.0.1
-    yn: 3.1.1
-  peerDependencies:
-    "@swc/core": ">=1.2.50"
-    "@swc/wasm": ">=1.2.50"
-    "@types/node": "*"
-    typescript: ">=2.7"
-  peerDependenciesMeta:
-    "@swc/core":
-      optional: true
-    "@swc/wasm":
-      optional: true
-  bin:
-    ts-node: dist/bin.js
-    ts-node-cwd: dist/bin-cwd.js
-    ts-node-esm: dist/bin-esm.js
-    ts-node-script: dist/bin-script.js
-    ts-node-transpile-only: dist/bin-transpile.js
-    ts-script: dist/bin-script-deprecated.js
-  checksum: 090adff1302ab20bd3486e6b4799e90f97726ed39e02b39e566f8ab674fd5bd5f727f43615debbfc580d33c6d9d1c6b1b3ce7d8e3cca3e20530a145ffa232c35
-  languageName: node
-  linkType: hard
-
 "tslib@npm:^1.8.1":
   version: 1.14.1
   resolution: "tslib@npm:1.14.1"
@@ -4681,34 +4475,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"v8-compile-cache-lib@npm:^3.0.1":
-  version: 3.0.1
-  resolution: "v8-compile-cache-lib@npm:3.0.1"
-  checksum: 78089ad549e21bcdbfca10c08850022b22024cdcc2da9b168bcf5a73a6ed7bf01a9cebb9eac28e03cd23a684d81e0502797e88f3ccd27a32aeab1cfc44c39da0
-  languageName: node
-  linkType: hard
-
-"viem@npm:^1.19.0":
-  version: 1.19.0
-  resolution: "viem@npm:1.19.0"
-  dependencies:
-    "@adraffy/ens-normalize": 1.9.4
-    "@noble/curves": 1.2.0
-    "@noble/hashes": 1.3.2
-    "@scure/bip32": 1.3.2
-    "@scure/bip39": 1.2.1
-    abitype: 0.9.8
-    isows: 1.0.3
-    ws: 8.13.0
-  peerDependencies:
-    typescript: ">=5.0.4"
-  peerDependenciesMeta:
-    typescript:
-      optional: true
-  checksum: d48344b20dfb4075493e39b1d173d22bcd3832bce0883ede24953dc6890e7b589f702066227dccbc5bc492a59b4ea33533e68341cf9332b3aeabe682686fd9c5
-  languageName: node
-  linkType: hard
-
 "webidl-conversions@npm:^4.0.2":
   version: 4.0.2
   resolution: "webidl-conversions@npm:4.0.2"
@@ -4803,21 +4569,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"ws@npm:8.13.0":
-  version: 8.13.0
-  resolution: "ws@npm:8.13.0"
-  peerDependencies:
-    bufferutil: ^4.0.1
-    utf-8-validate: ">=5.0.2"
-  peerDependenciesMeta:
-    bufferutil:
-      optional: true
-    utf-8-validate:
-      optional: true
-  checksum: 53e991bbf928faf5dc6efac9b8eb9ab6497c69feeb94f963d648b7a3530a720b19ec2e0ec037344257e05a4f35bd9ad04d9de6f289615ffb133282031b18c61c
-  languageName: node
-  linkType: hard
-
 "y18n@npm:^5.0.5":
   version: 5.0.8
   resolution: "y18n@npm:5.0.8"
@@ -4858,13 +4609,6 @@ __metadata:
     y18n: ^5.0.5
     yargs-parser: ^21.1.1
   checksum: 73b572e863aa4a8cbef323dd911d79d193b772defd5a51aab0aca2d446655216f5002c42c5306033968193bdbf892a7a4c110b0d77954a7fdf563e653967b56a
-  languageName: node
-  linkType: hard
-
-"yn@npm:3.1.1":
-  version: 3.1.1
-  resolution: "yn@npm:3.1.1"
-  checksum: 2c487b0e149e746ef48cda9f8bad10fc83693cd69d7f9dcd8be4214e985de33a29c9e24f3c0d6bcf2288427040a8947406ab27f7af67ee9456e6b84854f02dd6
   languageName: node
   linkType: hard
 

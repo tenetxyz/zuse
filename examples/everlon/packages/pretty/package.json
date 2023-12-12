@@ -1,5 +1,5 @@
 {
-  "name": "@tenetxyz/pretty-extension",
+  "name": "@tenetxyz/pretty",
   "version": "0.0.1",
   "private": true,
   "license": "MIT",
@@ -8,6 +8,10 @@
       "require": "./dist/mud.config.js",
       "import": "./dist/mud.config.js"
     },
+    "./types": {
+      "require": "./dist/types/ethers-contracts/index.js",
+      "import": "./dist/types/ethers-contracts/index.js"
+    },
     "./worlds.json": {
       "require": "./worlds.json",
       "import": "./worlds.json"
@@ -15,14 +19,14 @@
   },
   "scripts": {
     "mud": "node ../../node_modules/@latticexyz/cli/dist/mud.js",
-    "forge:build": "forge build --skip script",
+    "forge:build": "forge build",
     "clean": "forge clean",
     "build:js": "tsup",
     "build": "node buildDeployHandler.tsx build",
-    "deploy": "node deployPrettyBlocks.tsx",
+    "deploy": "node buildDeployHandler.tsx deploy",
     "dev": "yarn mud dev-contracts --tsgenOutput ../ca-client/src/mud",
     "replaceGeneratedTypes": "../../../../scripts/replaceGeneratedTypes.sh",
-    "initialize": "yarn run tablegen && yarn run worldgen && yarn run replaceGeneratedTypes && yarn run forge:build && yarn run build:js",
+    "initialize": "yarn run tablegen && yarn run worldgen && yarn run replaceGeneratedTypes && yarn run forge:build && yarn run worldtypes && yarn run build:js",
     "lint": "yarn run prettier && yarn run solhint",
     "prettier": "prettier --write 'src/**/*.sol'",
     "solhint": "solhint --config ./.solhint.json 'src/**/*.sol' --fix",
@@ -30,7 +34,8 @@
     "test": "yarn mud test",
     "test-verbose": "yarn run initialize && yarn mud test --forgeOptions='-vvv'",
     "worldgen": "yarn mud worldgen",
-    "worldtypes": "rimraf types && typechain --target=ethers-v5 out/world/IWorld.sol/IWorld.json"
+    "worldtypes": "rimraf types && typechain --target=ethers-v5 out/world/IWorld.sol/IWorld.json",
+    "runTests": "./runTests.bash"
   },
   "dependencies": {
     "@ethersproject/abi": "^5.7.0",
@@ -43,15 +48,14 @@
     "@latticexyz/store": "link:../../../../../mud/packages/store",
     "@latticexyz/world": "link:../../../../../mud/packages/world",
     "@openzeppelin/contracts": "^4.9.1",
-    "@tenetxyz/base-ca": "link:../../../../packages/base-ca",
+    "@tenetxyz/base-simulator": "link:../../../../packages/base-simulator",
+    "@tenetxyz/base-world": "link:../../../../packages/base-world",
     "@tenetxyz/registry": "link:../../../../packages/registry",
     "@tenetxyz/simulator": "workspace:*",
     "@tenetxyz/utils": "link:../../../../packages/utils",
-    "dotenv": "^16.3.1",
+    "@tenetxyz/world": "workspace:*",
     "ethers": "^5.7.2",
-    "rimraf": "^5.0.1",
-    "ts-node": "^10.9.1",
-    "viem": "^1.19.0"
+    "rimraf": "^5.0.1"
   },
   "devDependencies": {
     "@typechain/ethers-v5": "^10.2.0",

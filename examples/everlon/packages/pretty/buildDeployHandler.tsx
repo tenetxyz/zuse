@@ -1,6 +1,5 @@
 const { execSync } = require("child_process");
 const fs = require("fs");
-const path = require("path");
 
 const chainId = process.env.NODE_ENV === "production" ? 1337 : 31337;
 
@@ -37,31 +36,24 @@ if (!action) {
 if (action == "build") {
   // List of dev commands
   const setRegistryAddressCommand = `node ../../../../scripts/setRegistryAddress.js ${chainId} ../../../../packages/registry/worlds.json src/Constants.sol REGISTRY_ADDRESS`;
-  const setCAAddressCommand = `node ../../../../scripts/setRegistryAddress.js ${chainId} ../level1-ca/worlds.json src/Constants.sol CA_ADDRESS`;
-  const devCommands = [setRegistryAddressCommand, setCAAddressCommand, "yarn run initialize"];
+  const setWorldAddressCommand = `node ../../../../scripts/setRegistryAddress.js ${chainId} ../world/worlds.json src/Constants.sol WORLD_ADDRESS`;
+  const devCommands = [setRegistryAddressCommand, setWorldAddressCommand, "yarn run initialize"];
 
   devCommands.forEach((command) => {
     executeCommand(command);
   });
 } else if (action == "deploy") {
-  const worldAddress = getAddressFromFile("../level1-ca/worlds.json");
+  const worldAddress = getAddressFromFile("../world/worlds.json");
 
-  // Loop over all files in script/ and forge script each one
-  const scriptDir = "script";
-  const files = fs.readdirSync(scriptDir);
-  let rpcUrl = "http://127.0.0.1:8545";
+  let deployCommand = `yarn mud deploy --installDefaultModules false --worldAddress ${worldAddress}`;
   if (process.env.NODE_ENV === "production") {
-    rpcUrl = "https://test-grid.everlon.xyz";
+    deployCommand += " --profile=tenet-testgrid";
   }
+  const devCommands = [deployCommand];
 
-  files.forEach((file) => {
-    if (path.extname(file) === ".sol") {
-      const fullPath = path.join(scriptDir, file);
-      const command = `forge script ${fullPath} --sig 'run(address)' '${worldAddress}' --broadcast --rpc-url ${rpcUrl} -vv`;
-
-      console.log("Running command:", command);
-
-      executeCommand(command);
-    }
+  devCommands.forEach((command) => {
+    executeCommand(command);
   });
+
+  executeCommand("node deployPrettyBlocks.tsx");
 }

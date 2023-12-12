@@ -38,12 +38,6 @@ find "src/codegen/tables" -type f | while read -r input_file; do
   replacement='import { CreatureMove } from "@tenet-creatures/src/codegen/Types.sol"'
   awk -v target="$target" -v replacement="$replacement" '{ gsub(target, replacement); print }' $input_file > temp && mv temp $input_file
 
-  awk -v start="$start_pattern" -v end="$end_pattern" -v rep="$replacement" '
-    !p && $0 ~ start { p=1; print rep; next }
-    p && $0 ~ end { p=0; next }
-    !p
-  ' "$input_file" > "$temp_file" && mv "$temp_file" "$input_file"
-
   start_pattern="struct CombatMoveData {"
   end_pattern="}"
   replacement='import { CombatMoveData } from "@tenet-utils/src/Types.sol";'

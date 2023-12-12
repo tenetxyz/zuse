@@ -1,0 +1,18 @@
+{
+  "index": "Introduction",
+  
+  "onchain": {
+    "title": "Onchain",
+    "type": "separator"
+  },
+  "spatial_store": "Spatial Store",
+  "space_initialization": "Space Initialization",
+  "space_transition_function": "Space Transition Function",
+
+  "client": {
+    "title": "Client",
+    "type": "separator"
+  },
+  "clients": "Spatial Client",
+  "narrative": "Narrative Contracts"
+}

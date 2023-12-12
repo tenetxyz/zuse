@@ -55,5 +55,5 @@ if (action == "build") {
     executeCommand(command);
   });
 
-  executeCommand("node deployPrettyBlocks.tsx");
+  executeCommand("node deployPrettyObjects.tsx");
 }

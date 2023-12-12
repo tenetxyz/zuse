@@ -5,7 +5,7 @@ import { IWorld } from "@tenet-pretty/src/codegen/world/IWorld.sol";
 import { ObjectType } from "@tenet-base-world/src/prototypes/ObjectType.sol";
 import { registerObjectType } from "@tenet-registry/src/Utils.sol";
 import { VoxelCoord, ObjectProperties, Action } from "@tenet-utils/src/Types.sol";
-import { REGISTRY_ADDRESS, PrettyTemplateObjectID, PRETTY_MASS } from "@tenet-world/src/Constants.sol";
+import { REGISTRY_ADDRESS, PrettyTemplateObjectID, PRETTY_MASS } from "@tenet-pretty/src/Constants.sol";
 
 contract PrettyObjectSystem is ObjectType {
   function registerObject() public {

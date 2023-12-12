@@ -11,7 +11,7 @@ import { Mass, MassTableId } from "@tenet-simulator/src/codegen/tables/Mass.sol"
 import { Protein, ProteinTableId } from "@tenet-simulator/src/codegen/tables/Protein.sol";
 import { Stamina, StaminaTableId } from "@tenet-simulator/src/codegen/tables/Stamina.sol";
 
-import { VoxelCoord, SimTable, ValueType } from "@tenet-utils/src/Types.sol";
+import { VoxelCoord, SimTable } from "@tenet-utils/src/Types.sol";
 import { addUint256AndInt256, int256ToUint256 } from "@tenet-utils/src/TypeUtils.sol";
 
 contract ProteinStaminaConstraintSystem is Constraint {

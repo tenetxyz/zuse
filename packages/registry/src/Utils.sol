@@ -2,10 +2,12 @@
 pragma solidity >=0.8.0;
 
 import { IStore } from "@latticexyz/store/src/IStore.sol";
-import { REGISTER_OBJECT_TYPE_SIG, REGISTER_CREATION_SIG, GET_VOXELS_IN_CREATION_SIG, CREATION_SPAWNED_SIG, REGISTER_DECISION_RULE_SIG, REGISTER_MIND_SIG } from "@tenet-registry/src/Constants.sol";
+
 import { ObjectTypeRegistry } from "@tenet-registry/src/codegen/tables/ObjectTypeRegistry.sol";
-import { VoxelCoord, BaseCreationInWorld, VoxelTypeData, VoxelSelectors, InteractionSelector, Mind } from "@tenet-utils/src/Types.sol";
-import { isStringEqual } from "@tenet-utils/src/StringUtils.sol";
+
+import { REGISTER_OBJECT_TYPE_SIG, REGISTER_DECISION_RULE_SIG, REGISTER_MIND_SIG } from "@tenet-registry/src/Constants.sol";
+
+import { VoxelCoord, Mind } from "@tenet-utils/src/Types.sol";
 import { callOrRevert } from "@tenet-utils/src/CallUtils.sol";
 
 function registerObjectType(
@@ -37,43 +39,6 @@ function registerObjectType(
     );
 }
 
-function registerCreation(
-  address registryAddress,
-  string memory name,
-  string memory description,
-  VoxelTypeData[] memory voxelTypes,
-  VoxelCoord[] memory voxelCoords,
-  BaseCreationInWorld[] memory baseCreationsInWorld
-) returns (bytes32, VoxelCoord memory, VoxelTypeData[] memory, VoxelCoord[] memory) {
-  bytes memory result = callOrRevert(
-    registryAddress,
-    abi.encodeWithSignature(REGISTER_CREATION_SIG, name, description, voxelTypes, voxelCoords, baseCreationsInWorld),
-    "registerCreation"
-  );
-  return abi.decode(result, (bytes32, VoxelCoord, VoxelTypeData[], VoxelCoord[]));
-}
-
-function getVoxelsInCreation(
-  address registryAddress,
-  bytes32 creationId
-) returns (VoxelCoord[] memory, VoxelTypeData[] memory) {
-  bytes memory result = callOrRevert(
-    registryAddress,
-    abi.encodeWithSignature(GET_VOXELS_IN_CREATION_SIG, creationId),
-    "getVoxelsInCreation"
-  );
-  return abi.decode(result, (VoxelCoord[], VoxelTypeData[]));
-}
-
-function creationSpawned(address registryAddress, bytes32 creationId) returns (uint256) {
-  bytes memory result = callOrRevert(
-    registryAddress,
-    abi.encodeWithSignature(CREATION_SPAWNED_SIG, creationId),
-    "creationSpawned"
-  );
-  return abi.decode(result, (uint256));
-}
-
 function registerDecisionRule(
   address registryAddress,
   bytes32 srcObjectTypeId,
@@ -99,7 +64,7 @@ function registerDecisionRule(
     );
 }
 
-function registerMindIntoRegistry(
+function registerMind(
   address registryAddress,
   bytes32 objectTypeId,
   address mindAddress,

@@ -16,7 +16,7 @@ import { Temperature, TemperatureTableId } from "@tenet-simulator/src/codegen/ta
 import { Element, ElementTableId } from "@tenet-simulator/src/codegen/tables/Element.sol";
 
 import { getEntityAtCoord, getVoxelCoordStrict, getEntityIdFromObjectEntityId, getVonNeumannNeighbourEntities } from "@tenet-base-world/src/Utils.sol";
-import { VoxelCoord, SimTable, ValueType, ElementType } from "@tenet-utils/src/Types.sol";
+import { VoxelCoord, SimTable, ElementType } from "@tenet-utils/src/Types.sol";
 import { absoluteDifference, min } from "@tenet-utils/src/MathUtils.sol";
 import { addUint256AndInt256, int256ToUint256, safeSubtract } from "@tenet-utils/src/TypeUtils.sol";
 

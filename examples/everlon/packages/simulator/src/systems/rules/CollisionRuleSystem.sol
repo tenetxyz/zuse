@@ -265,7 +265,7 @@ contract CollisionRuleSystem is System {
         } // else it's velocity would be zero
       }
       if (dotProduct > 0) {
-        // this means the primary voxel is moving towards the neighbour
+        // this means the primary object is moving towards the neighbour
         if (uint256(neighbourEntities[i]) == 0) {
           ObjectProperties memory emptyProperties;
           ObjectProperties memory terrainProperties = ITerrainSystem(worldAddress).getTerrainObjectProperties(

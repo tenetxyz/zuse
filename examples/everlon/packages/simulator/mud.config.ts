@@ -20,7 +20,6 @@ export default tenetMudConfig({
       "Elixir",
       "Protein",
     ],
-    ValueType: ["Int256", "ElementType"],
   },
   tables: {
     Metadata: {

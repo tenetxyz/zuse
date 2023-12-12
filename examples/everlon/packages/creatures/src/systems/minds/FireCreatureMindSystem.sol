@@ -6,7 +6,7 @@ import { IStore } from "@latticexyz/store/src/IStore.sol";
 import { MindType } from "@tenet-base-world/src/prototypes/MindType.sol";
 
 import { REGISTRY_ADDRESS, FireCreatureObjectID } from "@tenet-creatures/src/Constants.sol";
-import { registerMindIntoRegistry } from "@tenet-registry/src/Utils.sol";
+import { registerMind as registerMindIntoRegistry } from "@tenet-registry/src/Utils.sol";
 
 contract FireCreatureMindSystem is MindType {
   function registerMind() public {

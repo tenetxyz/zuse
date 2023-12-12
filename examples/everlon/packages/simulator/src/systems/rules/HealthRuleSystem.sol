@@ -12,7 +12,7 @@ import { Mass, MassTableId } from "@tenet-simulator/src/codegen/tables/Mass.sol"
 import { Health, HealthTableId } from "@tenet-simulator/src/codegen/tables/Health.sol";
 import { Metadata, MetadataTableId } from "@tenet-simulator/src/codegen/tables/Metadata.sol";
 
-import { VoxelCoord, SimTable, ValueType, ElementType } from "@tenet-utils/src/Types.sol";
+import { VoxelCoord, SimTable, ElementType } from "@tenet-utils/src/Types.sol";
 import { NUM_MAX_BLOCKS_TO_WAIT_IF_NO_HEALTH, NUM_MIN_HEALTH_FOR_NO_WAIT } from "@tenet-simulator/src/Constants.sol";
 
 contract HealthRuleSystem is System {

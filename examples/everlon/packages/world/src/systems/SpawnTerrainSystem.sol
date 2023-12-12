@@ -5,7 +5,8 @@ import { IWorld } from "@tenet-world/src/codegen/world/IWorld.sol";
 import { IStore } from "@latticexyz/store/src/IStore.sol";
 import { System } from "@latticexyz/world/src/System.sol";
 
-import { VoxelCoord, ObjectProperties, TerrainData } from "@tenet-utils/src/Types.sol";
+import { VoxelCoord, ObjectProperties } from "@tenet-utils/src/Types.sol";
+import { TerrainData, TerrainSectionData } from "@tenet-world/src/Types.sol";
 import { AIR_MASS, DIRT_MASS, GRASS_MASS, BEDROCK_MASS, AirObjectID, DirtObjectID, GrassObjectID, BedrockObjectID } from "@tenet-world/src/Constants.sol";
 import { SHARD_DIM } from "@tenet-world/src/Constants.sol";
 import { coordToShardCoord } from "@tenet-utils/src/VoxelCoordUtils.sol";

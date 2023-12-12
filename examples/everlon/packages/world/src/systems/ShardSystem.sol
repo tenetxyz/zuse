@@ -54,7 +54,7 @@ contract ShardSystem is System {
     bytes32 objectEntityId = getUniqueEntity();
     ObjectEntity.set(eventEntityId, objectEntityId);
 
-    // This will place the agent, so it will check if the voxel there is air
+    // This will place the agent, so it will check if the object there is air
     ObjectProperties memory faucetProperties = IWorld(_world()).enterWorld(objectTypeId, coord, objectEntityId);
     ISimInitSystem(SIMULATOR_ADDRESS).initObject(objectEntityId, faucetProperties);
 

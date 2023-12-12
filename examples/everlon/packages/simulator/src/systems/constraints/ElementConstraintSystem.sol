@@ -10,7 +10,7 @@ import { SimAction } from "@tenet-simulator/src/codegen/tables/SimAction.sol";
 import { Mass, MassTableId } from "@tenet-simulator/src/codegen/tables/Mass.sol";
 import { Element, ElementTableId } from "@tenet-simulator/src/codegen/tables/Element.sol";
 
-import { VoxelCoord, SimTable, ValueType, ElementType } from "@tenet-utils/src/Types.sol";
+import { VoxelCoord, SimTable, ElementType } from "@tenet-utils/src/Types.sol";
 import { addUint256AndInt256, int256ToUint256 } from "@tenet-utils/src/TypeUtils.sol";
 
 contract ElementConstraintSystem is Constraint {

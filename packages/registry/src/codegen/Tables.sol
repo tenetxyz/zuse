@@ -6,5 +6,3 @@ pragma solidity >=0.8.0;
 import { ObjectTypeRegistry, ObjectTypeRegistryData, ObjectTypeRegistryTableId } from "./tables/ObjectTypeRegistry.sol";
 import { DecisionRuleRegistry, DecisionRuleRegistryTableId } from "./tables/DecisionRuleRegistry.sol";
 import { MindRegistry, MindRegistryTableId } from "./tables/MindRegistry.sol";
-import { CreationRegistry, CreationRegistryData, CreationRegistryTableId } from "./tables/CreationRegistry.sol";
-import { ClassifierRegistry, ClassifierRegistryData, ClassifierRegistryTableId } from "./tables/ClassifierRegistry.sol";

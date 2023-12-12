@@ -6,7 +6,8 @@ import { ABDKMath64x64 as Math } from "@tenet-utils/src/libraries/ABDKMath64x64.
 import { IStore } from "@latticexyz/store/src/IStore.sol";
 import { System } from "@latticexyz/world/src/System.sol";
 
-import { VoxelCoord, ObjectProperties, TerrainData, TerrainSectionData } from "@tenet-utils/src/Types.sol";
+import { VoxelCoord, ObjectProperties } from "@tenet-utils/src/Types.sol";
+import { TerrainData, TerrainSectionData } from "@tenet-world/src/Types.sol";
 import { SHARD_DIM, AIR_MASS, DIRT_MASS, GRASS_MASS, BEDROCK_MASS, STONE_MASS, AirObjectID, DirtObjectID, GrassObjectID, BedrockObjectID, StoneObjectID } from "@tenet-world/src/Constants.sol";
 import { coordToShardCoord, voxelCoordsAreEqual } from "@tenet-utils/src/VoxelCoordUtils.sol";
 import { WORLD_ADDRESS, SOIL_MASS, ConcentrativeSoilObjectID, DiffusiveSoilObjectID, ProteinSoilObjectID, ElixirSoilObjectID } from "@tenet-farming/src/Constants.sol";
@@ -173,7 +174,7 @@ contract FarmingTerrainSystem is System {
       // Calculate the height at the current x, z coordinate within the shard.
       int128 heightAtCoord = (shardCoord.y * SHARD_DIM) + Math.toInt(Math.mul(noiseValue, heightScaleFactor));
 
-      // Determine if the current voxel is terrain (stone) or air.
+      // Determine if the current object is terrain (stone) or air.
       isTerrain = coord.y <= heightAtCoord;
     }
 
@@ -193,11 +194,11 @@ contract FarmingTerrainSystem is System {
         int128 factor = Math.toInt(Math.mul(soilNoise, heightScaleFactor));
         int128 soilHeight = factor < maxSoilHeight ? factor : maxSoilHeight;
 
-        // Determine if the current voxel is within the bottommost range of the terrain
+        // Determine if the current object is within the bottommost range of the terrain
         isSoilLayer = coord.y <= soilHeight;
       }
       if (isSoilLayer) {
-        // Voxel is in the central region
+        // Object is in the central region
         properties.mass = SOIL_MASS;
         properties.energy = 500;
         if (voxelCoordsAreEqual(shardCoord, VoxelCoord({ x: 3, y: 0, z: 0 }))) {

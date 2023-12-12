@@ -5,7 +5,3 @@ pragma solidity >=0.8.0;
 enum SimTable {
   None
 }
-
-enum ValueType {
-  Int256
-}

@@ -16,7 +16,7 @@ import { CombatMove, CombatMoveData, CombatMoveTableId } from "@tenet-simulator/
 import { Element, ElementTableId } from "@tenet-simulator/src/codegen/tables/Element.sol";
 
 import { getEntityAtCoord, getVoxelCoordStrict, getEntityIdFromObjectEntityId, getVonNeumannNeighbourEntities } from "@tenet-base-world/src/Utils.sol";
-import { VoxelCoord, SimTable, ValueType, ElementType } from "@tenet-utils/src/Types.sol";
+import { VoxelCoord, SimTable, ElementType } from "@tenet-utils/src/Types.sol";
 import { addUint256AndInt256, int256ToUint256, safeSubtract } from "@tenet-utils/src/TypeUtils.sol";
 
 contract CombatMoveRuleSystem is System {

@@ -4,7 +4,6 @@ import { resolveTableId } from "@latticexyz/config";
 export default tenetMudConfig({
   enums: {
     SimTable: ["None", "Mass", "Energy"],
-    ValueType: ["Int256"],
   },
   tables: {
     Mass: {

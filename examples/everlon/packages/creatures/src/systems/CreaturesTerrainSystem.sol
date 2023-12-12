@@ -6,7 +6,8 @@ import { ABDKMath64x64 as Math } from "@tenet-utils/src/libraries/ABDKMath64x64.
 import { IStore } from "@latticexyz/store/src/IStore.sol";
 import { System } from "@latticexyz/world/src/System.sol";
 
-import { VoxelCoord, ObjectProperties, TerrainData, TerrainSectionData } from "@tenet-utils/src/Types.sol";
+import { VoxelCoord, ObjectProperties } from "@tenet-utils/src/Types.sol";
+import { TerrainData, TerrainSectionData } from "@tenet-world/src/Types.sol";
 import { SHARD_DIM, AIR_MASS, DIRT_MASS, GRASS_MASS, BEDROCK_MASS, STONE_MASS, AirObjectID, DirtObjectID, GrassObjectID, BedrockObjectID, StoneObjectID } from "@tenet-world/src/Constants.sol";
 import { coordToShardCoord, voxelCoordsAreEqual } from "@tenet-utils/src/VoxelCoordUtils.sol";
 import { WORLD_ADDRESS, SOIL_MASS, ConcentrativeSoilObjectID, DiffusiveSoilObjectID, ProteinSoilObjectID, ElixirSoilObjectID } from "@tenet-farming/src/Constants.sol";
@@ -215,7 +216,7 @@ contract CreaturesTerrainSystem is System {
       );
       // Calculate the height at the current x, z coordinate within the shard.
       int128 heightAtCoord = (shardCoord.y * SHARD_DIM) + Math.toInt(Math.mul(noiseValue, heightScaleFactor));
-      // Determine if the current voxel is terrain (stone) or air.
+      // Determine if the current object is terrain (stone) or air.
       isTerrain = coord.y <= heightAtCoord;
     }
     if (isTerrain) {
@@ -234,12 +235,12 @@ contract CreaturesTerrainSystem is System {
         int128 factor = Math.toInt(Math.mul(soilNoise, heightScaleFactor));
         soilHeight = factor < maxSoilHeight ? factor : maxSoilHeight;
       }
-      // Determine if the current voxel is within the bottommost range of the terrain
+      // Determine if the current object is within the bottommost range of the terrain
       bool isSoilLayer = coord.y <= soilHeight;
       int128 grassHeightAboveSoil = 4; // This is the height above the soil where grass will appear
       int128 maxGrassHeight = soilHeight + grassHeightAboveSoil; // Calculate the maximum height for grass
       if (coord.y > soilHeight && coord.y <= maxGrassHeight) {
-        // The current voxel is in the range for grass blocks
+        // The current object is in the range for grass blocks
         properties.mass = GRASS_MASS;
         properties.energy = 50;
         return TerrainData({ objectTypeId: GrassObjectID, properties: properties });

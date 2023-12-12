@@ -1,42 +1,49 @@
 // SPDX-License-Identifier: GPL-3.0
 pragma solidity >=0.8.0;
 
+import { IStore } from "@latticexyz/store/src/IStore.sol";
 import { System } from "@latticexyz/world/src/System.sol";
 import { hasKey } from "@latticexyz/world/src/modules/keysintable/hasKey.sol";
 import { Strings } from "@openzeppelin/contracts/utils/Strings.sol";
 import { voxelCoordToString, voxelCoordsAreEqual, add, sub } from "@tenet-utils/src/VoxelCoordUtils.sol";
-import { CreationRegistryTableId, CreationRegistry, CreationRegistryData, ObjectTypeRegistryTableId, ObjectTypeRegistry } from "@tenet-registry/src/codegen/Tables.sol";
-import { VoxelCoord, BaseCreation, BaseCreationInWorld, VoxelTypeData } from "@tenet-utils/src/Types.sol";
-import { CreationMetadata, CreationSpawns } from "@tenet-utils/src/Types.sol";
+import { ObjectTypeRegistry, ObjectTypeRegistryTableId } from "@tenet-registry/src/codegen/tables/ObjectTypeRegistry.sol";
+import { CreationRegistryTableId, CreationRegistry, CreationRegistryData } from "@tenet-derived/src/codegen/Tables.sol";
+import { VoxelCoord, CreationMetadata, CreationSpawns } from "@tenet-utils/src/Types.sol";
+import { BaseCreation, BaseCreationInWorld } from "@tenet-derived/src/Types.sol";
+import { REGISTRY_ADDRESS } from "@tenet-derived/src/Constants.sol";
 
 uint256 constant MAX_BLOCKS_IN_CREATION = 100;
 
-contract CreationRegistrySystem is System {
+contract CreationSystem is System {
   function registerCreation(
     string memory name,
     string memory description,
-    VoxelTypeData[] memory voxelTypes,
+    bytes32[] memory objectTypeIds,
     VoxelCoord[] memory voxelCoords,
     BaseCreationInWorld[] memory baseCreationsInWorld
-  ) public returns (bytes32, VoxelCoord memory, VoxelTypeData[] memory, VoxelCoord[] memory) {
-    for (uint256 i = 0; i < voxelTypes.length; i++) {
+  ) public returns (bytes32, VoxelCoord memory, bytes32[] memory, VoxelCoord[] memory) {
+    for (uint256 i = 0; i < objectTypeIds.length; i++) {
       require(
-        hasKey(ObjectTypeRegistryTableId, ObjectTypeRegistry.encodeKeyTuple(voxelTypes[i].voxelTypeId)),
-        "Voxel type ID has not been registered"
+        hasKey(
+          IStore(REGISTRY_ADDRESS),
+          ObjectTypeRegistryTableId,
+          ObjectTypeRegistry.encodeKeyTuple(objectTypeIds[i])
+        ),
+        "CreationSystem: Object type ID has not been registered"
       );
     }
     for (uint256 i = 0; i < baseCreationsInWorld.length; i++) {
       require(
         hasKey(CreationRegistryTableId, CreationRegistry.encodeKeyTuple(baseCreationsInWorld[i].creationId)),
-        "Base creation ID has not been registered"
+        "CreationSystem: Base creation ID has not been registered"
       );
     }
     CreationRegistryData memory creationData;
 
     // 1) get all of the voxelCoords of all voxels in the creation
-    (VoxelCoord[] memory allVoxelCoordsInWorld, VoxelTypeData[] memory allVoxelTypes) = getVoxels(
+    (VoxelCoord[] memory allVoxelCoordsInWorld, bytes32[] memory allObjectTypeIds) = getObjects(
       voxelCoords,
-      voxelTypes,
+      objectTypeIds,
       baseCreationsInWorld
     );
 
@@ -55,10 +62,10 @@ contract CreationRegistrySystem is System {
         lowerSouthwestCorner
       );
       creationData.relativePositions = abi.encode(relativePositions);
-      creationId = getCreationHash(allVoxelTypes, relativePositions);
+      creationId = getCreationHash(allObjectTypeIds, relativePositions);
       require(
         !hasKey(CreationRegistryTableId, CreationRegistry.encodeKeyTuple(creationId)),
-        "Creation has already been registered"
+        "CreationSystem: Creation has already been registered"
       );
     }
 
@@ -73,11 +80,11 @@ contract CreationRegistrySystem is System {
 
     // 6) write all the fields of the creation to the table
     creationData.numObjects = uint32(allVoxelCoordsInWorld.length);
-    // creationData.objectTypes = abi.encode(allVoxelTypes);
+    creationData.objectTypeIds = allObjectTypeIds;
     creationData.metadata = getMetadata(name, description);
     CreationRegistry.set(creationId, creationData);
 
-    return (creationId, lowerSouthwestCorner, allVoxelTypes, allVoxelCoordsInWorld);
+    return (creationId, lowerSouthwestCorner, allObjectTypeIds, allVoxelCoordsInWorld);
   }
 
   function getMetadata(string memory name, string memory description) internal view returns (bytes memory) {
@@ -91,7 +98,7 @@ contract CreationRegistrySystem is System {
     address worldAddress = _msgSender();
     require(
       hasKey(CreationRegistryTableId, CreationRegistry.encodeKeyTuple(creationId)),
-      "Creation has not been registered"
+      "CreationSystem: Creation has not been registered"
     );
     CreationMetadata memory creationMetadata = abi.decode(CreationRegistry.getMetadata(creationId), (CreationMetadata));
     CreationSpawns[] memory creationSpawns = creationMetadata.spawns;
@@ -173,40 +180,40 @@ contract CreationRegistrySystem is System {
   ) internal pure returns (VoxelCoord[] memory) {
     VoxelCoord[] memory repositionedVoxelCoords = new VoxelCoord[](voxelCoords.length);
     for (uint32 i = 0; i < voxelCoords.length; i++) {
-      VoxelCoord memory voxel = voxelCoords[i];
+      VoxelCoord memory voxelCoord = voxelCoords[i];
       repositionedVoxelCoords[i] = VoxelCoord({
-        x: voxel.x - lowerSouthwestCorner.x,
-        y: voxel.y - lowerSouthwestCorner.y,
-        z: voxel.z - lowerSouthwestCorner.z
+        x: voxelCoord.x - lowerSouthwestCorner.x,
+        y: voxelCoord.y - lowerSouthwestCorner.y,
+        z: voxelCoord.z - lowerSouthwestCorner.z
       });
     }
     return (repositionedVoxelCoords);
   }
 
-  // Why not merge this function with getVoxelsInCreation? It's because the coords that are returned by the voxels in a registered creation
+  // Why not merge this function with getObjectsInCreation? It's because the coords that are returned by the objects in a registered creation
   // are RELATIVE to the lowerSouthWestCorner of the creation. But right now, we do NOT know what the lowerSouthWestCorner is, we only know
   // where all the baseCreationsInWorld are in the world.
-  function getVoxels(
+  function getObjects(
     VoxelCoord[] memory rootVoxelCoords,
-    VoxelTypeData[] memory rootVoxelTypes,
+    bytes32[] memory rootObjectTypeIds,
     BaseCreationInWorld[] memory baseCreationsInWorld
-  ) internal view returns (VoxelCoord[] memory, VoxelTypeData[] memory) {
-    uint32 numVoxels = calculateNumVoxelsInComposedCreation(baseCreationsInWorld, rootVoxelTypes.length);
+  ) internal view returns (VoxelCoord[] memory, bytes32[] memory) {
+    uint32 numObjects = calculateNumObjectsInComposedCreation(baseCreationsInWorld, rootObjectTypeIds.length);
 
-    VoxelCoord[] memory allVoxelCoords = new VoxelCoord[](numVoxels); // these are the coords of the voxel in the world. they are NOT relative
-    VoxelTypeData[] memory allVoxelTypes = new VoxelTypeData[](numVoxels);
+    VoxelCoord[] memory allVoxelCoords = new VoxelCoord[](numObjects); // these are the coords of the object in the world. they are NOT relative
+    bytes32[] memory allObjectTypeIds = new bytes32[](numObjects);
 
     // 1) add all the (non-base) voxels in this creation to the arrays
     for (uint32 i = 0; i < rootVoxelCoords.length; i++) {
       allVoxelCoords[i] = rootVoxelCoords[i];
-      allVoxelTypes[i] = rootVoxelTypes[i];
+      allObjectTypeIds[i] = rootObjectTypeIds[i];
     }
 
-    uint32 voxelIdx = uint32(rootVoxelCoords.length);
+    uint32 objectIdx = uint32(rootVoxelCoords.length);
 
     for (uint32 i = 0; i < baseCreationsInWorld.length; i++) {
       BaseCreationInWorld memory baseCreationInWorld = baseCreationsInWorld[i];
-      (VoxelCoord[] memory baseVoxelCoords, VoxelTypeData[] memory baseVoxelTypes) = getVoxelsInCreation(
+      (VoxelCoord[] memory baseVoxelCoords, bytes32[] memory baseObjectTypeIds) = getObjectsInCreation(
         baseCreationInWorld.creationId
       );
 
@@ -218,16 +225,16 @@ contract CreationRegistrySystem is System {
         for (uint32 k = 0; k < baseCreationInWorld.deletedRelativeCoords.length; k++) {
           VoxelCoord memory deletedRelativeCoord = baseCreationInWorld.deletedRelativeCoords[k];
           if (voxelCoordsAreEqual(baseVoxelCoord, deletedRelativeCoord)) {
-            // this voxel is deleted, so don't add it
+            // this object is deleted, so don't add it
             isDeleted = true;
             numDeleted++;
             break;
           }
         }
         if (!isDeleted) {
-          allVoxelCoords[voxelIdx] = add(baseCreationInWorld.lowerSouthWestCornerInWorld, baseVoxelCoord);
-          allVoxelTypes[voxelIdx] = baseVoxelTypes[j];
-          voxelIdx++;
+          allVoxelCoords[objectIdx] = add(baseCreationInWorld.lowerSouthWestCornerInWorld, baseVoxelCoord);
+          allObjectTypeIds[objectIdx] = baseObjectTypeIds[j];
+          objectIdx++;
         }
       }
 
@@ -235,62 +242,61 @@ contract CreationRegistrySystem is System {
         numDeleted == baseCreationInWorld.deletedRelativeCoords.length,
         string(
           abi.encode(
-            "you deleted voxels in baseCreationInWorld.creationId: ",
+            "you deleted objects in baseCreationInWorld.creationId: ",
             baseCreationInWorld.creationId,
             " that don't exist in the creation. Make sure that all baseCreationInWorld.deletedRelativeCoords are actually from the base creation"
           )
         )
       );
     }
-    return (allVoxelCoords, allVoxelTypes);
+    return (allVoxelCoords, allObjectTypeIds);
   }
 
-  function calculateNumVoxelsInComposedCreation(
+  function calculateNumObjectsInComposedCreation(
     BaseCreationInWorld[] memory baseCreationsInWorld,
-    uint256 rootVoxelTypesLength
+    uint256 rootObjectTypesLength
   ) internal view returns (uint32) {
-    uint32 numVoxels = uint32(rootVoxelTypesLength);
+    uint32 numObjects = uint32(rootObjectTypesLength);
     for (uint32 i = 0; i < baseCreationsInWorld.length; i++) {
       BaseCreationInWorld memory baseCreation = baseCreationsInWorld[i];
-      uint256 numVoxelsInBaseCreation = CreationRegistry.getNumObjects(baseCreation.creationId);
-      uint256 numDeleteVoxels = baseCreation.deletedRelativeCoords.length;
+      uint256 numObjectsInBaseCreation = CreationRegistry.getNumObjects(baseCreation.creationId);
+      uint256 numDeleteObjects = baseCreation.deletedRelativeCoords.length;
       require(
-        numVoxelsInBaseCreation > numDeleteVoxels,
+        numObjectsInBaseCreation > numDeleteObjects,
         string(
           abi.encode(
             "You cannot delete ",
-            Strings.toString(uint256(numDeleteVoxels)),
+            Strings.toString(uint256(numDeleteObjects)),
             " voxels, when the base creation has ",
-            Strings.toString(uint256(numVoxelsInBaseCreation)),
+            Strings.toString(uint256(numObjectsInBaseCreation)),
             " voxels"
           )
         )
       );
 
-      numVoxels += uint32(numVoxelsInBaseCreation - numDeleteVoxels);
+      numObjects += uint32(numObjectsInBaseCreation - numDeleteObjects);
     }
-    return numVoxels;
+    return numObjects;
   }
 
   // we need to find out which voxels are not deleted
   // so we just need to compile a list of all the voxels in the base creations
   // then we need to remove the voxels that are deleted
 
-  function getVoxelsInCreation(bytes32 creationId) public view returns (VoxelCoord[] memory, VoxelTypeData[] memory) {
+  function getObjectsInCreation(bytes32 creationId) public view returns (VoxelCoord[] memory, bytes32[] memory) {
     CreationRegistryData memory creation = CreationRegistry.get(creationId);
     VoxelCoord[] memory allRelativeCoords = new VoxelCoord[](creation.numObjects);
-    VoxelTypeData[] memory allVoxelTypes = new VoxelTypeData[](creation.numObjects);
+    bytes32[] memory allObjectTypeIds = new bytes32[](creation.numObjects);
 
     VoxelCoord[] memory creationRelativeCoords = abi.decode(creation.relativePositions, (VoxelCoord[]));
-    // VoxelTypeData[] memory creationVoxelTypes = abi.decode(creation.objectTypes, (VoxelTypeData[]));
-    VoxelTypeData[] memory creationVoxelTypes;
+    bytes32[] memory creationObjectTypeIds = abi.decode(creation.objectTypeIds, (bytes32[]));
 
     // 1) add all the (non-base) voxels in this creation to the arrays
     for (uint32 i = 0; i < creationRelativeCoords.length; i++) {
       allRelativeCoords[i] = creationRelativeCoords[i];
-      allVoxelTypes[i] = creationVoxelTypes[i];
+      allObjectTypeIds[i] = creationObjectTypeIds[i];
     }
-    uint32 voxelIdx = uint32(creationRelativeCoords.length);
+    uint32 objectIdx = uint32(creationRelativeCoords.length);
 
     // 2) for each child base creation, add all of its voxels (and its coords) to our voxels array (minus the deleted voxels)
     BaseCreation[] memory baseCreations = abi.decode(creation.baseCreations, (BaseCreation[]));
@@ -298,30 +304,30 @@ contract CreationRegistrySystem is System {
     for (uint32 i = 0; i < baseCreations.length; i++) {
       BaseCreation memory baseCreation = baseCreations[i];
 
-      (VoxelCoord[] memory childVoxelCoords, VoxelTypeData[] memory childVoxelTypes) = getVoxelsInCreation(
+      (VoxelCoord[] memory childVoxelCoords, bytes32[] memory childObjectTypeIds) = getObjectsInCreation(
         baseCreation.creationId
       );
 
-      // add each child voxel into our array (if it's not deleted)
+      // add each child object into our array (if it's not deleted)
       for (uint32 j = 0; j < childVoxelCoords.length; j++) {
         VoxelCoord memory childVoxelCoord = childVoxelCoords[j];
         bool isDeleted = false;
         for (uint32 k = 0; k < baseCreation.deletedRelativeCoords.length; k++) {
           VoxelCoord memory deletedRelativeCoord = baseCreation.deletedRelativeCoords[k];
           if (voxelCoordsAreEqual(childVoxelCoord, deletedRelativeCoord)) {
-            // this voxel is deleted, so don't add it
+            // this object is deleted, so don't add it
             isDeleted = true;
             break;
           }
         }
         if (!isDeleted) {
-          allRelativeCoords[voxelIdx] = add(baseCreation.coordOffset, childVoxelCoord);
-          allVoxelTypes[voxelIdx] = childVoxelTypes[j];
-          voxelIdx++;
+          allRelativeCoords[objectIdx] = add(baseCreation.coordOffset, childVoxelCoord);
+          allObjectTypeIds[objectIdx] = childObjectTypeIds[j];
+          objectIdx++;
         }
       }
     }
-    return (allRelativeCoords, allVoxelTypes);
+    return (allRelativeCoords, allObjectTypeIds);
   }
 
   function convertBaseCreationsInWorldToBaseCreation(
@@ -354,9 +360,9 @@ contract CreationRegistrySystem is System {
   }
 
   function getCreationHash(
-    VoxelTypeData[] memory voxelTypes,
+    bytes32[] memory objectTypeIds,
     VoxelCoord[] memory relativePositions
   ) internal pure returns (bytes32) {
-    return bytes32(keccak256(abi.encode(voxelTypes, relativePositions)));
+    return bytes32(keccak256(abi.encode(objectTypeIds, relativePositions)));
   }
 }

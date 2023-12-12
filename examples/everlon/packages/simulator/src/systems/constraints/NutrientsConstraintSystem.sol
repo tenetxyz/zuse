@@ -14,7 +14,7 @@ import { Potassium, PotassiumTableId } from "@tenet-simulator/src/codegen/tables
 import { Nutrients, NutrientsTableId } from "@tenet-simulator/src/codegen/tables/Nutrients.sol";
 
 import { absoluteDifference } from "@tenet-utils/src/MathUtils.sol";
-import { VoxelCoord, SimTable, ValueType } from "@tenet-utils/src/Types.sol";
+import { VoxelCoord, SimTable } from "@tenet-utils/src/Types.sol";
 import { addUint256AndInt256, int256ToUint256 } from "@tenet-utils/src/TypeUtils.sol";
 import { requireHasNPK } from "@tenet-simulator/src/Utils.sol";
 import { NUTRIENT_TRANSFER_MAX_DELTA } from "@tenet-simulator/src/Constants.sol";

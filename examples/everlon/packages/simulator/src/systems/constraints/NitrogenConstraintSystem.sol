@@ -14,7 +14,7 @@ import { Phosphorus, PhosphorusTableId } from "@tenet-simulator/src/codegen/tabl
 import { Potassium, PotassiumTableId } from "@tenet-simulator/src/codegen/tables/Potassium.sol";
 import { IBuildSystem } from "@tenet-base-world/src/codegen/world/IBuildSystem.sol";
 
-import { VoxelCoord, SimTable, ValueType } from "@tenet-utils/src/Types.sol";
+import { VoxelCoord, SimTable } from "@tenet-utils/src/Types.sol";
 import { addUint256AndInt256, int256ToUint256 } from "@tenet-utils/src/TypeUtils.sol";
 
 import { NUM_MAX_INIT_NPK } from "@tenet-simulator/src/Constants.sol";

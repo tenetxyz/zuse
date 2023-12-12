@@ -3,12 +3,12 @@ import { resolveTableId } from "@latticexyz/config";
 
 export default mudConfig({
   enums: {
-    ObjectType: ["None", "Fire", "Water", "Grass"],
+    ElementType: ["None", "Fire", "Water", "Grass"],
   },
   tables: {
-    PokemonLeaderboard: {
+    CreatureLeaderboard: {
       keySchema: {
-        caEntity: "bytes32",
+        objectEntityId: "bytes32",
       },
       schema: {
         rank: "uint256",
@@ -24,7 +24,7 @@ export default mudConfig({
       schema: {
         rank: "uint256",
         totalProduction: "uint256",
-        farmerCAEntity: "bytes32",
+        farmerObjectEntityId: "bytes32",
       },
     },
     BuildingLeaderboard: {
@@ -37,14 +37,14 @@ export default mudConfig({
       schema: {
         rank: "uint256",
         totalLikes: "uint256",
-        agentEntity: "bytes32",
+        agentObjectEntityId: "bytes32",
         likedBy: "address[]",
       },
     },
     // This is like the reverse mapping of claimedShards
     ClaimedShard: {
       keySchema: {
-        agentEntity: "bytes32",
+        agentObjectEntityId: "bytes32",
       },
       schema: {
         claimedShard: "bytes", // VoxelCoord
@@ -60,12 +60,12 @@ export default mudConfig({
       schema: {
         totalPoints: "uint256",
         numDeliveries: "uint256",
-        agentCAEntity: "bytes32",
+        agentObjectEntityId: "bytes32",
       },
     },
     OriginatingChunk: {
       keySchema: {
-        caEntity: "bytes32",
+        objectEntityId: "bytes32",
       },
       schema: {
         x: "int32",
@@ -83,14 +83,14 @@ export default mudConfig({
       schema: {
         rank: "uint256",
         totalProduction: "uint256",
-        farmerCAEntity: "bytes32",
+        farmerObjectEntityId: "bytes32",
         faction: "ObjectType",
         isDisqualified: "bool",
       },
     },
-    PokemonFactionsLeaderboard: {
+    CreatureFactionsLeaderboard: {
       keySchema: {
-        caEntity: "bytes32",
+        objectEntityId: "bytes32",
       },
       schema: {
         rank: "uint256",
@@ -103,7 +103,7 @@ export default mudConfig({
     {
       name: "KeysInTableModule",
       root: true,
-      args: [resolveTableId("PokemonLeaderboard")],
+      args: [resolveTableId("CreatureLeaderboard")],
     },
     {
       name: "KeysInTableModule",
@@ -118,7 +118,7 @@ export default mudConfig({
     {
       name: "KeysInTableModule",
       root: true,
-      args: [resolveTableId("PokemonFactionsLeaderboard")],
+      args: [resolveTableId("CreatureFactionsLeaderboard")],
     },
     {
       name: "KeysInTableModule",

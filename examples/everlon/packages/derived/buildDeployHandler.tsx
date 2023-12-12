@@ -24,9 +24,8 @@ if (!action) {
 if (action == "build") {
   // List of dev commands
   const setRegistryAddressCommand = `node ../../../../scripts/setRegistryAddress.js ${chainId} ../../../../packages/registry/worlds.json src/Constants.sol REGISTRY_ADDRESS`;
-  const setCAAddressCommand = `node ../../../../scripts/setRegistryAddress.js ${chainId} ../level1-ca/worlds.json src/Constants.sol CA_ADDRESS`;
   const setWorldAddressCommand = `node ../../../../scripts/setRegistryAddress.js ${chainId} ../world/worlds.json src/Constants.sol WORLD_ADDRESS`;
-  const devCommands = [setRegistryAddressCommand, setCAAddressCommand, setWorldAddressCommand, "yarn run initialize"];
+  const devCommands = [setRegistryAddressCommand, setWorldAddressCommand, "yarn run initialize"];
 
   devCommands.forEach((command) => {
     executeCommand(command);

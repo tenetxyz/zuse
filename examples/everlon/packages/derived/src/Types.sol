@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity >=0.8.0;
 
-import { PokemonData } from "@tenet-pokemon-extension/src/codegen/tables/Pokemon.sol";
+import { CreatureData } from "@tenet-creatures/src/codegen/tables/Creature.sol";
 import { VoxelCoord } from "@tenet-utils/src/Types.sol";
 
 struct PlantDataWithEntity {
@@ -9,7 +9,7 @@ struct PlantDataWithEntity {
   uint256 totalProduced;
 }
 
-struct PokemonDataWithEntity {
-  PokemonData pokemonData;
-  bytes32 entity;
+struct CreatureDataWithEntity {
+  CreatureData creatureData;
+  bytes32 objectEntityId;
 }

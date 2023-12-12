@@ -22,7 +22,7 @@ contract TestDerived is Script {
     VoxelCoord memory coord = VoxelCoord(50, 10, 49);
     // world.deriveState(entity, coord);
     // world.claimShard(coord);
-    world.reportPokemon(bytes32(uint256(0x35)));
+    world.reportCreature(bytes32(uint256(0x35)));
 
     vm.stopBroadcast();
   }

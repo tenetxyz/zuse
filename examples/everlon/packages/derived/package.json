@@ -45,12 +45,14 @@
     "@latticexyz/schema-type": "link:../../../../../mud/packages/schema-type",
     "@latticexyz/store": "link:../../../../../mud/packages/store",
     "@latticexyz/world": "link:../../../../../mud/packages/world",
-    "@tenetxyz/base-ca": "link:../../../../packages/base-ca",
+    "@tenetxyz/base-simulator": "link:../../../../packages/base-simulator",
     "@tenetxyz/base-world": "link:../../../../packages/base-world",
     "@tenetxyz/registry": "link:../../../../packages/registry",
     "@tenetxyz/simulator": "workspace:*",
     "@tenetxyz/utils": "link:../../../../packages/utils",
-    "@tenetxyz/world": "workspace:*"
+    "@tenetxyz/world": "workspace:*",
+    "@tenetxyz/farming": "workspace:*",
+    "@tenetxyz/creatures": "workspace:*"
   },
   "devDependencies": {
     "@ethersproject/abi": "^5.7.0",

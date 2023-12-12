@@ -19,7 +19,7 @@
     "clean": "forge clean",
     "build:js": "tsup",
     "build": "node buildDeployHandler.tsx build",
-    "deploy": "node deployPrettyBlocks.tsx deploy",
+    "deploy": "node deployPrettyBlocks.tsx",
     "dev": "yarn mud dev-contracts --tsgenOutput ../ca-client/src/mud",
     "replaceGeneratedTypes": "../../../../scripts/replaceGeneratedTypes.sh",
     "initialize": "yarn run tablegen && yarn run worldgen && yarn run replaceGeneratedTypes && yarn run forge:build && yarn run build:js",

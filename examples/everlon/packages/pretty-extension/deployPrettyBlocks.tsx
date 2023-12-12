@@ -79,11 +79,12 @@ async function main() {
 
   // Create a wallet instance with a private key and connect it to the network
   const wallet = new ethers.Wallet(privateKey, provider);
+  console.log("Using wallet", wallet.address);
 
   // Create a typed contract instance
   console.log("Registry World address:", registryWorldAddress);
   const registryWorldContract = Registry__factory.connect(registryWorldAddress, wallet);
-  const caWorldContract = CA__factory.connect(registryWorldAddress, wallet);
+  const caWorldContract = CA__factory.connect(caWorldAddress, wallet);
 
   const currentVoxelMapping = new Map();
   const variantsData = fs.readFileSync(GEN_VARIANTS_PATH, "utf8");
@@ -92,7 +93,17 @@ async function main() {
     currentVoxelMapping.set(key, value);
   }
 
+  let nonce = await provider.getTransactionCount(wallet.address);
+
+  const txOptions = {
+    gasLimit: BigInt(1_900_000_000),
+    // maxPriorityFeePerGas: 2000000000,
+    // maxFeePerGas: 100000000000,
+    nonce: nonce - 1,
+  };
+
   // Go through currentVoxelMapping and batch generate postdeploy scripts registering them
+  let allTx = [];
   for (const [rawVoxelTypeId, variantData] of currentVoxelMapping) {
     if (GEN_VOXEL_VARIANT_IDS_BLACKLIST.has(rawVoxelTypeId)) {
       continue;
@@ -106,20 +117,29 @@ async function main() {
     console.log("Registering", voxelTypeId, voxelTypeDisplayName);
 
     // Call setTerrainProperties
-    let tx = await registryWorldContract.registerVoxelVariant(hashedVoxelTypeId, {
-      variantId: 0,
-      frames: 0,
-      opaque: false,
-      fluid: false,
-      solid: false,
-      blockType: 0,
-      materials: "0x",
-      uvWrap: "",
-    });
-    let receipt = await tx.wait();
-    // Wait for the transaction to be mined
-    console.log(`Transaction mined: ${receipt.transactionHash}`);
+    txOptions.nonce += 1;
+    let tx = await registryWorldContract.registerVoxelVariant(
+      hashedVoxelTypeId,
+      {
+        variantId: 0,
+        frames: 0,
+        opaque: false,
+        fluid: false,
+        solid: false,
+        blockType: 0,
+        materials: "0x",
+        uvWrap: "",
+      },
+      txOptions
+    );
+    // let receipt = await tx.wait();
+    // console.log(tx.hash);
+    allTx.push(tx.hash);
 
+    // Wait for the transaction to be mined
+    // console.log(`Transaction mined: ${receipt.transactionHash}`);
+
+    txOptions.nonce += 1;
     tx = await registryWorldContract.registerVoxelType(
       voxelTypeDisplayName,
       hashedVoxelTypeId,
@@ -136,18 +156,34 @@ async function main() {
         interactionSelectors: [],
       },
       "0x",
-      PRETTY_VOXEL_MASS
+      PRETTY_VOXEL_MASS,
+      txOptions
     );
-    receipt = await tx.wait();
+    // console.log(tx.hash);
+    allTx.push(tx.hash);
 
-    tx = await caWorldContract.registerVoxelType(hashedVoxelTypeId);
-    receipt = await tx.wait();
+    txOptions.nonce += 1;
+    tx = await caWorldContract.registerVoxelType(hashedVoxelTypeId, txOptions);
+    // console.log(tx.hash);
+    allTx.push(tx.hash);
 
-    // Wait for the transaction to be mined
-    console.log(`Transaction mined: ${receipt.transactionHash}`);
+    // Check the status of each transaction
+    console.log("Verifying transactions...");
+    for (const hash of allTx) {
+      const receipt = await provider.waitForTransaction(hash);
+      if (receipt.status === 1) {
+        // console.log(`Transaction ${hash} was successful`);
+      } else {
+        console.log(`Transaction ${hash} failed`);
+        console.log(receipt);
+      }
+    }
+    console.log("Done verifying transactions!");
 
-    break;
+    allTx = [];
   }
+
+  console.log("Finished deploying!");
 }
 
 main().catch((error) => {

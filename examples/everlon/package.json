@@ -16,7 +16,7 @@
     "simulator": "concurrently -n simulator -c red \"cd packages/simulator && yarn run build && yarn run deploy\"",
     "deploy:farming": "concurrently -n farming -c green \"yarn workspace @tenetxyz/farming run build && yarn workspace @tenetxyz/farming run deploy\"",
     "deploy:creatures": "concurrently -n creatures -c white \"yarn workspace @tenetxyz/creatures run build && yarn workspace @tenetxyz/creatures run deploy\"",
-    "deploy:pretty": "concurrently -n pretty -c #BF40BF \"yarn workspace @tenetxyz/pretty-extension run build && yarn workspace @tenetxyz/pretty-extension run deploy\"",
+    "deploy:pretty": "concurrently -n pretty -c #BF40BF \"yarn workspace @tenetxyz/pretty run build && yarn workspace @tenetxyz/pretty run deploy\"",
     "deploy:extensions": "yarn run deploy:farming && yarn run deploy:creatures",
     "deploy:derived": "concurrently -n derived -c #FFA500 \"yarn workspace @tenetxyz/derived run build && yarn workspace @tenetxyz/derived run deploy\"",
     "initialize": "yarn workspaces foreach run initialize",

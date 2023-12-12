@@ -120,18 +120,27 @@ async function main() {
 
     // Call setTerrainProperties
     const contractAddress = worldAddress;
-    const enterWorldSelector = prettyTemplateContractDefinition.nodes.find(
-      (node) => node.nodeType === "FunctionDefinition" && node.name === "pretty_PrettyObjectSyst_enterWorld"
-    ).functionSelector;
-    const exitWorldSelector = prettyTemplateContractDefinition.nodes.find(
-      (node) => node.nodeType === "FunctionDefinition" && node.name === "pretty_PrettyObjectSyst_exitWorld"
-    ).functionSelector;
-    const eventHandlerSelector = prettyTemplateContractDefinition.nodes.find(
-      (node) => node.nodeType === "FunctionDefinition" && node.name === "pretty_PrettyObjectSyst_eventHandler"
-    ).functionSelector;
-    const neighbourEventHandlerSelector = prettyTemplateContractDefinition.nodes.find(
-      (node) => node.nodeType === "FunctionDefinition" && node.name === "pretty_PrettyObjectSyst_neighbourEventHandler"
-    ).functionSelector;
+    const enterWorldSelector =
+      "0x" +
+      prettyTemplateContractDefinition.nodes.find(
+        (node) => node.nodeType === "FunctionDefinition" && node.name === "pretty_PrettyObjectSyst_enterWorld"
+      ).functionSelector;
+    const exitWorldSelector =
+      "0x" +
+      prettyTemplateContractDefinition.nodes.find(
+        (node) => node.nodeType === "FunctionDefinition" && node.name === "pretty_PrettyObjectSyst_exitWorld"
+      ).functionSelector;
+    const eventHandlerSelector =
+      "0x" +
+      prettyTemplateContractDefinition.nodes.find(
+        (node) => node.nodeType === "FunctionDefinition" && node.name === "pretty_PrettyObjectSyst_eventHandler"
+      ).functionSelector;
+    const neighbourEventHandlerSelector =
+      "0x" +
+      prettyTemplateContractDefinition.nodes.find(
+        (node) =>
+          node.nodeType === "FunctionDefinition" && node.name === "pretty_PrettyObjectSyst_neighbourEventHandler"
+      ).functionSelector;
 
     txOptions.nonce += 1;
     let tx = await registryWorldContract.registerObjectType(

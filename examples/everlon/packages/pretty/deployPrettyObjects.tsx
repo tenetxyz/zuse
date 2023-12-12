@@ -71,6 +71,13 @@ async function main() {
     throw new Error("Missing worldAddress in worlds.json file");
   }
 
+  const prettyTemplatePath = "out/IPrettyObjectSystem.sol/IPrettyObjectSystem.json";
+  const prettyTemplate = JSON.parse(fs.readFileSync(prettyTemplatePath, "utf8"));
+  const prettyTemplateNodes = prettyTemplate.ast.nodes;
+  const prettyTemplateContractDefinition = prettyTemplateNodes.find(
+    (node) => node.nodeType === "ContractDefinition" && node.name === "IPrettyObjectSystem"
+  );
+
   // Connect to the Ethereum network
   const provider = new ethers.providers.JsonRpcProvider(rpcUrl);
 
@@ -113,11 +120,18 @@ async function main() {
 
     // Call setTerrainProperties
     const contractAddress = worldAddress;
-    // Read pretty_PrettyObjectSyst_eventHandler from out/IPrettyObjectSystem.sol/IPrettyObjectSystem.json
-    const enterWorldSelector = "";
-    const exitWorldSelector = "";
-    const eventHandlerSelector = "";
-    const neighbourEventHandlerSelector = "";
+    const enterWorldSelector = prettyTemplateContractDefinition.nodes.find(
+      (node) => node.nodeType === "FunctionDefinition" && node.name === "pretty_PrettyObjectSyst_enterWorld"
+    ).functionSelector;
+    const exitWorldSelector = prettyTemplateContractDefinition.nodes.find(
+      (node) => node.nodeType === "FunctionDefinition" && node.name === "pretty_PrettyObjectSyst_exitWorld"
+    ).functionSelector;
+    const eventHandlerSelector = prettyTemplateContractDefinition.nodes.find(
+      (node) => node.nodeType === "FunctionDefinition" && node.name === "pretty_PrettyObjectSyst_eventHandler"
+    ).functionSelector;
+    const neighbourEventHandlerSelector = prettyTemplateContractDefinition.nodes.find(
+      (node) => node.nodeType === "FunctionDefinition" && node.name === "pretty_PrettyObjectSyst_neighbourEventHandler"
+    ).functionSelector;
 
     txOptions.nonce += 1;
     let tx = await registryWorldContract.registerObjectType(

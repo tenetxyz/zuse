@@ -30,7 +30,7 @@ const GEN_VOXEL_VARIANT_IDS_BLACKLIST = new Set([
   "runner",
   "farmer",
   "creature-fire",
-  "pokemon-water",
+  "creature-water",
   "creature-grass",
   "thermo",
   "thermo",

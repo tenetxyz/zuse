@@ -41,13 +41,36 @@ export default mudConfig({
         likedBy: "address[]",
       },
     },
-    // This is like the reverse mapping of claimedShards
     ClaimedShard: {
       keySchema: {
         agentObjectEntityId: "bytes32",
       },
       schema: {
         claimedShard: "bytes", // VoxelCoord
+      },
+    },
+    FarmFactionsLeaderboard: {
+      keySchema: {
+        // ShardCoords
+        x: "int32",
+        y: "int32",
+        z: "int32",
+      },
+      schema: {
+        rank: "uint256",
+        totalProduction: "uint256",
+        farmerObjectEntityId: "bytes32",
+        faction: "ElementType",
+        isDisqualified: "bool",
+      },
+    },
+    CreatureFactionsLeaderboard: {
+      keySchema: {
+        objectEntityId: "bytes32",
+      },
+      schema: {
+        rank: "uint256",
+        isDisqualified: "bool",
       },
     },
     FarmDeliveryLeaderboard: {
@@ -71,30 +94,6 @@ export default mudConfig({
         x: "int32",
         y: "int32",
         z: "int32",
-      },
-    },
-    FarmFactionsLeaderboard: {
-      keySchema: {
-        // ShardCoords
-        x: "int32",
-        y: "int32",
-        z: "int32",
-      },
-      schema: {
-        rank: "uint256",
-        totalProduction: "uint256",
-        farmerObjectEntityId: "bytes32",
-        faction: "ObjectType",
-        isDisqualified: "bool",
-      },
-    },
-    CreatureFactionsLeaderboard: {
-      keySchema: {
-        objectEntityId: "bytes32",
-      },
-      schema: {
-        rank: "uint256",
-        isDisqualified: "bool",
       },
     },
   },

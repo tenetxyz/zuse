@@ -70,6 +70,10 @@ contract ThermoObjectSystem is ObjectType {
       return getTemperatureConversionActions(centerObjectEntityId, coord, entityProperties);
     }
 
+    if (entityProperties.temperature == 0) {
+      return new Action[](0);
+    }
+
     uint256 temperatureTransferAmount = 0;
     {
       uint256 validThermoNeighbours = calculateValidThermoNeighbours(
@@ -107,7 +111,6 @@ contract ThermoObjectSystem is ObjectType {
           entityProperties.temperature -= temperatureTransferAmount;
         }
       } else if (
-        entityProperties.temperature > 0 &&
         getObjectType(IStore(worldAddress), neighbourObjectEntityIds[i]) == DirtObjectID &&
         calculateBlockDirection(coord, neighbourCoord) == BlockDirection.Up
       ) {
@@ -135,11 +138,11 @@ contract ThermoObjectSystem is ObjectType {
 
     Thermo.setLastInteractionBlock(worldAddress, centerObjectEntityId, block.number);
 
-    return new Action[](0);
+    return actions;
   }
 
   function getTemperatureConversionActions(
-    bytes32 centerObjectEntityId,
+    bytes32 objectEntityId,
     VoxelCoord memory coord,
     ObjectProperties memory entityProperties
   ) internal pure returns (Action[] memory) {
@@ -148,7 +151,7 @@ contract ThermoObjectSystem is ObjectType {
       actionType: ActionType.Transformation,
       senderTable: SimTable.Energy,
       senderValue: abi.encode(uint256ToNegativeInt256(entityProperties.energy)),
-      targetObjectEntityId: centerObjectEntityId,
+      targetObjectEntityId: objectEntityId,
       targetCoord: coord,
       targetTable: SimTable.Temperature,
       targetValue: abi.encode(uint256ToInt256(entityProperties.energy))
@@ -177,7 +180,7 @@ contract ThermoObjectSystem is ObjectType {
   }
 
   function getTemperatureToThermo(uint256 temperature) internal pure returns (uint256) {
-    return (temperature * 60) / 100; // Transfer 60% of its temperature to neighbouring thermo cells
+    return (temperature * 40) / 100; // Transfer 40% of its temperature to neighbouring thermo cells
   }
 
   function neighbourEventHandler(
@@ -199,13 +202,16 @@ contract ThermoObjectSystem is ObjectType {
       return (false, getTemperatureConversionActions(neighbourObjectEntityId, coord, entityProperties));
     }
 
+    if (entityProperties.temperature == 0) {
+      return (false, new Action[](0));
+    }
+
     VoxelCoord memory centerCoord = getVoxelCoord(IStore(worldAddress), centerObjectEntityId);
     if (
       (getTemperatureToThermo(entityProperties.temperature) > 0 &&
         entityIsThermo(worldAddress, centerObjectEntityId) &&
         getObjectProperties(worldAddress, centerObjectEntityId).temperature < entityProperties.temperature) ||
-      (entityProperties.temperature > 0 &&
-        getObjectType(IStore(worldAddress), centerObjectEntityId) == DirtObjectID &&
+      (getObjectType(IStore(worldAddress), centerObjectEntityId) == DirtObjectID &&
         calculateBlockDirection(coord, getVoxelCoord(IStore(worldAddress), centerObjectEntityId)) == BlockDirection.Up)
     ) {
       return (true, new Action[](0));

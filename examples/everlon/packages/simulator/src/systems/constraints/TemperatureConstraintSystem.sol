@@ -105,9 +105,6 @@ contract TemperatureConstraintSystem is Constraint {
       receiverObjectEntityId,
       senderTemperature
     );
-    if (receiverTemperature == 0) {
-      return;
-    }
     require(
       senderTemperature >= receiverTemperature,
       "TemperatureConstraintSystem: Not enough temperature to transfer"

@@ -108,9 +108,6 @@ contract NutrientsConstraintSystem is Constraint {
       receiverObjectEntityId,
       senderNutrients
     );
-    if (receiverNutrients == 0) {
-      return;
-    }
     require(
       senderNutrients >= receiverNutrients,
       "NutrientsConstraintSystem: Not enough energy to nutrients to sender"

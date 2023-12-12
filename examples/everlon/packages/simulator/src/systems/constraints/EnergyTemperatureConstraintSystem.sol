@@ -80,9 +80,6 @@ contract EnergyTemperatureConstraintSystem is Constraint {
         "EnergyTemperatureConstraintSystem: Can't have both stamina and temperature"
       );
       temperatureDelta = getTemperatureDelta(worldAddress, objectEntityId, objectEnergy);
-      if (temperatureDelta == 0) {
-        return;
-      }
       require(
         objectEnergy >= int256ToUint256(temperatureDelta),
         "EnergyTemperatureConstraintSystem: Not enough energy to convert to temperature"

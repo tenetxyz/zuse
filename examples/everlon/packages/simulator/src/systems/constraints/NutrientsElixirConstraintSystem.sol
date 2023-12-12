@@ -106,9 +106,6 @@ contract NutrientsElixirConstraintSystem is Constraint {
       receiverElixir = actualTransfer;
     }
 
-    if (receiverElixir == 0) {
-      return;
-    }
     require(
       senderNutrients >= receiverElixir,
       "NutrientsElixirConstraintSystem: Not enough nutrients to convert to elixir"

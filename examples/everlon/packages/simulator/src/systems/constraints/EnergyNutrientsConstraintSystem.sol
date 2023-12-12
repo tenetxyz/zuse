@@ -80,9 +80,6 @@ contract EnergyNutrientsConstraintSystem is Constraint {
       require(nutrientsDelta > 0, "EnergyNutrientsConstraintSystem: Cannot decrease your own nutrients");
       require(energyDelta < 0, "EnergyNutrientsConstraintSystem: Cannot increase your own energy");
       nutrientsDelta = getNutrientsDelta(worldAddress, objectEntityId, objectEnergy);
-      if (nutrientsDelta == 0) {
-        return;
-      }
       require(
         objectEnergy >= int256ToUint256(nutrientsDelta),
         "EnergyNutrientsConstraintSystem: Not enough energy to convert to nutrients"

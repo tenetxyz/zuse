@@ -106,9 +106,6 @@ contract NutrientsProteinConstraintSystem is Constraint {
       receiverProtein = actualTransfer;
     }
 
-    if (receiverProtein == 0) {
-      return;
-    }
     require(
       senderNutrients >= receiverProtein,
       "NutrientsProteinConstraintSystem: Not enough nutrients to convert to protein"

@@ -4,7 +4,11 @@
 
 ZUSE is MIT-licensed, open source and free to use.
 
-### Installation
+## Examples
+
+See the `examples/` folder for how to use Zuse.
+
+### Local development setup
 
 1. Run `brew install yarn` to install yarn and `npm i -g concurrently` to install concurrently
 2. Run `yarn set version stable` to generate `.yarnrc.yml` and use the latest stable version of yarn (3.6.0)
@@ -32,7 +36,3 @@ development/
 - If you don't want to build all packages in mud, you can build each individual package by:
   1. `cd`ing into the package (eg `cd packages/recs`)
   2. run `pnpm build`
-
-### Running locally
-
-Run `./t run dev everlon --with-extensions --with-derived` in the top directory

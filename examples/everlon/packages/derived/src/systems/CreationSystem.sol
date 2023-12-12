@@ -289,7 +289,7 @@ contract CreationSystem is System {
     bytes32[] memory allObjectTypeIds = new bytes32[](creation.numObjects);
 
     VoxelCoord[] memory creationRelativeCoords = abi.decode(creation.relativePositions, (VoxelCoord[]));
-    bytes32[] memory creationObjectTypeIds = abi.decode(creation.objectTypeIds, (bytes32[]));
+    bytes32[] memory creationObjectTypeIds = creation.objectTypeIds;
 
     // 1) add all the (non-base) voxels in this creation to the arrays
     for (uint32 i = 0; i < creationRelativeCoords.length; i++) {

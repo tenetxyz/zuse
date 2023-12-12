@@ -3,8 +3,8 @@ pragma solidity >=0.8.0;
 
 import { getUniqueEntity } from "@latticexyz/world/src/modules/uniqueentity/getUniqueEntity.sol";
 import { System } from "@latticexyz/world/src/System.sol";
-import { ClassifierRegistry, ClassifierRegistryData } from "@tenet-registry/src/codegen/Tables.sol";
-import { InterfaceVoxel } from "@tenet-utils/src/Types.sol";
+import { ClassifierRegistry, ClassifierRegistryData } from "@tenet-derived/src/codegen/Tables.sol";
+import { InterfaceVoxel } from "@tenet-derived/src/Types.sol";
 
 contract ClassifierSystem is System {
   function registerClassifier(

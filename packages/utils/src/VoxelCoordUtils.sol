@@ -2,7 +2,6 @@
 pragma solidity >=0.8.0;
 
 import { VoxelCoord, BlockDirection } from "@tenet-utils/src/Types.sol";
-import { SHARD_DIM } from "@tenet-utils/src/Constants.sol";
 import { int32ToString } from "@tenet-utils/src/StringUtils.sol";
 import { min, abs, sqrt, floorDiv } from "@tenet-utils/src/MathUtils.sol";
 
@@ -41,12 +40,12 @@ function voxelCoordToString(VoxelCoord memory coord) pure returns (string memory
     );
 }
 
-function coordToShardCoord(VoxelCoord memory coord) pure returns (VoxelCoord memory) {
+function coordToShardCoord(VoxelCoord memory coord, int32 SHARD_DIM) pure returns (VoxelCoord memory) {
   return
     VoxelCoord({ x: floorDiv(coord.x, SHARD_DIM), y: floorDiv(coord.y, SHARD_DIM), z: floorDiv(coord.z, SHARD_DIM) });
 }
 
-function shardCoordToCoord(VoxelCoord memory coord) pure returns (VoxelCoord memory) {
+function shardCoordToCoord(VoxelCoord memory coord, int32 SHARD_DIM) pure returns (VoxelCoord memory) {
   return VoxelCoord({ x: coord.x * SHARD_DIM, y: coord.y * SHARD_DIM, z: coord.z * SHARD_DIM });
 }
 

@@ -1,26 +1,26 @@
 // SPDX-License-Identifier: MIT
 pragma solidity >=0.8.0;
 
-import { IWorld } from "@tenet-world/src/codegen/world/IWorld.sol";
-import { MineEvent } from "@tenet-base-world/src/prototypes/MineEvent.sol";
-import { VoxelCoord, VoxelEntity, VoxelTypeData, EntityEventData } from "@tenet-utils/src/Types.sol";
-import { VoxelType, OfSpawn, Spawn, SpawnData } from "@tenet-world/src/codegen/Tables.sol";
-import { CHUNK_MAX_Y, CHUNK_MIN_Y } from "../Constants.sol";
-import { MineEventData } from "@tenet-base-world/src/Types.sol";
-import { AirVoxelID } from "@tenet-level1-ca/src/Constants.sol";
-import { getEntityAtCoord } from "@tenet-base-world/src/Utils.sol";
-import { REGISTRY_ADDRESS } from "@tenet-world/src/Constants.sol";
+import { IStore } from "@latticexyz/store/src/IStore.sol";
+import { VoxelCoord } from "@tenet-utils/src/Types.sol";
 
-contract MineSystem is MineEvent {
-  function getRegistryAddress() internal pure override returns (address) {
-    return REGISTRY_ADDRESS;
+import { SIMULATOR_ADDRESS, AirObjectID } from "@tenet-world/src/Constants.sol";
+import { MineSystem as MineProtoSystem } from "@tenet-base-world/src/systems/MineSystem.sol";
+
+contract MineSystem is MineProtoSystem {
+  function getSimulatorAddress() internal pure override returns (address) {
+    return SIMULATOR_ADDRESS;
   }
 
-  function processCAEvents(EntityEventData[] memory entitiesEventData) internal override {}
+  function emptyObjectId() internal pure override returns (bytes32) {
+    return AirObjectID;
+  }
 
-  // Called by users
-  function mine(bytes32 voxelTypeId, VoxelCoord memory coord) public returns (VoxelEntity memory) {
-    require(coord.y <= CHUNK_MAX_Y && coord.y >= CHUNK_MIN_Y, "out of chunk bounds");
-    return super.mine(voxelTypeId, coord, abi.encode(MineEventData({ worldData: abi.encode(bytes32(0)) })));
+  function mine(
+    bytes32 actingObjectEntityId,
+    bytes32 mineObjectTypeId,
+    VoxelCoord memory mineCoord
+  ) public override returns (bytes32) {
+    return super.mine(actingObjectEntityId, mineObjectTypeId, mineCoord, new bytes(0));
   }
 }

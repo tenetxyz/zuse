@@ -12,9 +12,9 @@ awk -v start="$start_pattern" -v end="$end_pattern" -v rep="$replacement" '
   !p
 ' "$input_file" > "$temp_file" && mv "$temp_file" "$input_file"
 
-start_pattern="enum ObjectType {"
+start_pattern="enum ElementType {"
 end_pattern="}"
-replacement='import { ObjectType } from "@tenet-utils/src/Types.sol";'
+replacement='import { ElementType } from "@tenet-utils/src/Types.sol";'
 
 awk -v start="$start_pattern" -v end="$end_pattern" -v rep="$replacement" '
   !p && $0 ~ start { p=1; print rep; next }
@@ -34,21 +34,13 @@ find "src/codegen/tables" -type f | while read -r input_file; do
   replacement='import { NoaBlockType } from "@tenet-registry/src/codegen/Types.sol"'
   awk -v target="$target" -v replacement="$replacement" '{ gsub(target, replacement); print }' $input_file > temp && mv temp $input_file
 
-  target='import { PokemonMove } from "./../Types.sol"'
-  replacement='import { PokemonMove } from "@tenet-pokemon-extension/src/codegen/Types.sol"'
+  target='import { CreatureMove } from "./../Types.sol"'
+  replacement='import { CreatureMove } from "@tenet-creatures/src/codegen/Types.sol"'
   awk -v target="$target" -v replacement="$replacement" '{ gsub(target, replacement); print }' $input_file > temp && mv temp $input_file
 
-  target='import { PokemonType } from "./../Types.sol"'
-  replacement='import { PokemonType } from "@tenet-pokemon-extension/src/codegen/Types.sol"'
-  awk -v target="$target" -v replacement="$replacement" '{ gsub(target, replacement); print }' $input_file > temp && mv temp $input_file
-
-  target='import { PlantStage } from "./../Types.sol"'
-  replacement='import { PlantStage } from "@tenet-pokemon-extension/src/codegen/Types.sol"'
-  awk -v target="$target" -v replacement="$replacement" '{ gsub(target, replacement); print }' $input_file > temp && mv temp $input_file
-
-  start_pattern="struct VoxelTypeData {"
+  start_pattern="struct CombatMoveData {"
   end_pattern="}"
-  replacement='import { VoxelTypeData } from "@tenet-utils/src/Types.sol";'
+  replacement='import { CombatMoveData } from "@tenet-utils/src/Types.sol";'
 
   awk -v start="$start_pattern" -v end="$end_pattern" -v rep="$replacement" '
     !p && $0 ~ start { p=1; print rep; next }
@@ -56,26 +48,12 @@ find "src/codegen/tables" -type f | while read -r input_file; do
     !p
   ' "$input_file" > "$temp_file" && mv "$temp_file" "$input_file"
 
-  start_pattern="struct ActionData {"
-  end_pattern="}"
-  replacement='import { ActionData } from "@tenet-utils/src/Types.sol";'
-
-  awk -v start="$start_pattern" -v end="$end_pattern" -v rep="$replacement" '
-    !p && $0 ~ start { p=1; print rep; next }
-    p && $0 ~ end { p=0; next }
-    !p
-  ' "$input_file" > "$temp_file" && mv "$temp_file" "$input_file"
-
-  target='import { ObjectType } from "./../Types.sol"'
-  replacement='import { ObjectType } from "@tenet-utils/src/Types.sol"'
+  target='import { SimTable } from "./../Types.sol"'
+  replacement='import { SimTable } from "@tenet-utils/src/Types.sol"'
   awk -v target="$target" -v replacement="$replacement" '{ gsub(target, replacement); print }' $input_file > temp && mv temp $input_file
 
-  target='import { SimTable, ValueType } from "./../Types.sol"'
-  replacement='import { SimTable, ValueType } from "@tenet-utils/src/Types.sol"'
-  awk -v target="$target" -v replacement="$replacement" '{ gsub(target, replacement); print }' $input_file > temp && mv temp $input_file
-
-  target='import { PlantStage, EventType } from "./../Types.sol"'
-  replacement='import { PlantStage, EventType } from "@tenet-pokemon-extension/src/codegen/Types.sol"'
+  target='import { ElementType } from "./../Types.sol"'
+  replacement='import { ElementType } from "@tenet-utils/src/Types.sol"'
   awk -v target="$target" -v replacement="$replacement" '{ gsub(target, replacement); print }' $input_file > temp && mv temp $input_file
 
 done

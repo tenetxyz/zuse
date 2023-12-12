@@ -23,10 +23,9 @@ bytes32 constant DecisionRuleRegistryTableId = _tableId;
 library DecisionRuleRegistry {
   /** Get the table's key schema */
   function getKeySchema() internal pure returns (Schema) {
-    SchemaType[] memory _schema = new SchemaType[](3);
+    SchemaType[] memory _schema = new SchemaType[](2);
     _schema[0] = SchemaType.BYTES32;
     _schema[1] = SchemaType.BYTES32;
-    _schema[2] = SchemaType.ADDRESS;
 
     return SchemaLib.encode(_schema);
   }
@@ -41,10 +40,9 @@ library DecisionRuleRegistry {
 
   /** Get the table's key names */
   function getKeyNames() internal pure returns (string[] memory keyNames) {
-    keyNames = new string[](3);
-    keyNames[0] = "srcVoxelTypeId";
-    keyNames[1] = "targetVoxelTypeId";
-    keyNames[2] = "worldAddress";
+    keyNames = new string[](2);
+    keyNames[0] = "srcObjectTypeId";
+    keyNames[1] = "targetObjectTypeId";
   }
 
   /** Get the table's field names */
@@ -64,15 +62,10 @@ library DecisionRuleRegistry {
   }
 
   /** Get decisionRules */
-  function get(
-    bytes32 srcVoxelTypeId,
-    bytes32 targetVoxelTypeId,
-    address worldAddress
-  ) internal view returns (bytes memory decisionRules) {
-    bytes32[] memory _keyTuple = new bytes32[](3);
-    _keyTuple[0] = srcVoxelTypeId;
-    _keyTuple[1] = targetVoxelTypeId;
-    _keyTuple[2] = bytes32(uint256(uint160(worldAddress)));
+  function get(bytes32 srcObjectTypeId, bytes32 targetObjectTypeId) internal view returns (bytes memory decisionRules) {
+    bytes32[] memory _keyTuple = new bytes32[](2);
+    _keyTuple[0] = srcObjectTypeId;
+    _keyTuple[1] = targetObjectTypeId;
 
     bytes memory _blob = StoreSwitch.getField(_tableId, _keyTuple, 0, getValueSchema());
     return (bytes(_blob));
@@ -81,30 +74,22 @@ library DecisionRuleRegistry {
   /** Get decisionRules (using the specified store) */
   function get(
     IStore _store,
-    bytes32 srcVoxelTypeId,
-    bytes32 targetVoxelTypeId,
-    address worldAddress
+    bytes32 srcObjectTypeId,
+    bytes32 targetObjectTypeId
   ) internal view returns (bytes memory decisionRules) {
-    bytes32[] memory _keyTuple = new bytes32[](3);
-    _keyTuple[0] = srcVoxelTypeId;
-    _keyTuple[1] = targetVoxelTypeId;
-    _keyTuple[2] = bytes32(uint256(uint160(worldAddress)));
+    bytes32[] memory _keyTuple = new bytes32[](2);
+    _keyTuple[0] = srcObjectTypeId;
+    _keyTuple[1] = targetObjectTypeId;
 
     bytes memory _blob = _store.getField(_tableId, _keyTuple, 0, getValueSchema());
     return (bytes(_blob));
   }
 
   /** Set decisionRules */
-  function set(
-    bytes32 srcVoxelTypeId,
-    bytes32 targetVoxelTypeId,
-    address worldAddress,
-    bytes memory decisionRules
-  ) internal {
-    bytes32[] memory _keyTuple = new bytes32[](3);
-    _keyTuple[0] = srcVoxelTypeId;
-    _keyTuple[1] = targetVoxelTypeId;
-    _keyTuple[2] = bytes32(uint256(uint160(worldAddress)));
+  function set(bytes32 srcObjectTypeId, bytes32 targetObjectTypeId, bytes memory decisionRules) internal {
+    bytes32[] memory _keyTuple = new bytes32[](2);
+    _keyTuple[0] = srcObjectTypeId;
+    _keyTuple[1] = targetObjectTypeId;
 
     StoreSwitch.setField(_tableId, _keyTuple, 0, bytes((decisionRules)), getValueSchema());
   }
@@ -112,29 +97,22 @@ library DecisionRuleRegistry {
   /** Set decisionRules (using the specified store) */
   function set(
     IStore _store,
-    bytes32 srcVoxelTypeId,
-    bytes32 targetVoxelTypeId,
-    address worldAddress,
+    bytes32 srcObjectTypeId,
+    bytes32 targetObjectTypeId,
     bytes memory decisionRules
   ) internal {
-    bytes32[] memory _keyTuple = new bytes32[](3);
-    _keyTuple[0] = srcVoxelTypeId;
-    _keyTuple[1] = targetVoxelTypeId;
-    _keyTuple[2] = bytes32(uint256(uint160(worldAddress)));
+    bytes32[] memory _keyTuple = new bytes32[](2);
+    _keyTuple[0] = srcObjectTypeId;
+    _keyTuple[1] = targetObjectTypeId;
 
     _store.setField(_tableId, _keyTuple, 0, bytes((decisionRules)), getValueSchema());
   }
 
   /** Get the length of decisionRules */
-  function length(
-    bytes32 srcVoxelTypeId,
-    bytes32 targetVoxelTypeId,
-    address worldAddress
-  ) internal view returns (uint256) {
-    bytes32[] memory _keyTuple = new bytes32[](3);
-    _keyTuple[0] = srcVoxelTypeId;
-    _keyTuple[1] = targetVoxelTypeId;
-    _keyTuple[2] = bytes32(uint256(uint160(worldAddress)));
+  function length(bytes32 srcObjectTypeId, bytes32 targetObjectTypeId) internal view returns (uint256) {
+    bytes32[] memory _keyTuple = new bytes32[](2);
+    _keyTuple[0] = srcObjectTypeId;
+    _keyTuple[1] = targetObjectTypeId;
 
     uint256 _byteLength = StoreSwitch.getFieldLength(_tableId, _keyTuple, 0, getValueSchema());
     unchecked {
@@ -143,16 +121,10 @@ library DecisionRuleRegistry {
   }
 
   /** Get the length of decisionRules (using the specified store) */
-  function length(
-    IStore _store,
-    bytes32 srcVoxelTypeId,
-    bytes32 targetVoxelTypeId,
-    address worldAddress
-  ) internal view returns (uint256) {
-    bytes32[] memory _keyTuple = new bytes32[](3);
-    _keyTuple[0] = srcVoxelTypeId;
-    _keyTuple[1] = targetVoxelTypeId;
-    _keyTuple[2] = bytes32(uint256(uint160(worldAddress)));
+  function length(IStore _store, bytes32 srcObjectTypeId, bytes32 targetObjectTypeId) internal view returns (uint256) {
+    bytes32[] memory _keyTuple = new bytes32[](2);
+    _keyTuple[0] = srcObjectTypeId;
+    _keyTuple[1] = targetObjectTypeId;
 
     uint256 _byteLength = _store.getFieldLength(_tableId, _keyTuple, 0, getValueSchema());
     unchecked {
@@ -165,15 +137,13 @@ library DecisionRuleRegistry {
    * (unchecked, returns invalid data if index overflows)
    */
   function getItem(
-    bytes32 srcVoxelTypeId,
-    bytes32 targetVoxelTypeId,
-    address worldAddress,
+    bytes32 srcObjectTypeId,
+    bytes32 targetObjectTypeId,
     uint256 _index
   ) internal view returns (bytes memory) {
-    bytes32[] memory _keyTuple = new bytes32[](3);
-    _keyTuple[0] = srcVoxelTypeId;
-    _keyTuple[1] = targetVoxelTypeId;
-    _keyTuple[2] = bytes32(uint256(uint160(worldAddress)));
+    bytes32[] memory _keyTuple = new bytes32[](2);
+    _keyTuple[0] = srcObjectTypeId;
+    _keyTuple[1] = targetObjectTypeId;
 
     unchecked {
       bytes memory _blob = StoreSwitch.getFieldSlice(
@@ -194,15 +164,13 @@ library DecisionRuleRegistry {
    */
   function getItem(
     IStore _store,
-    bytes32 srcVoxelTypeId,
-    bytes32 targetVoxelTypeId,
-    address worldAddress,
+    bytes32 srcObjectTypeId,
+    bytes32 targetObjectTypeId,
     uint256 _index
   ) internal view returns (bytes memory) {
-    bytes32[] memory _keyTuple = new bytes32[](3);
-    _keyTuple[0] = srcVoxelTypeId;
-    _keyTuple[1] = targetVoxelTypeId;
-    _keyTuple[2] = bytes32(uint256(uint160(worldAddress)));
+    bytes32[] memory _keyTuple = new bytes32[](2);
+    _keyTuple[0] = srcObjectTypeId;
+    _keyTuple[1] = targetObjectTypeId;
 
     unchecked {
       bytes memory _blob = _store.getFieldSlice(_tableId, _keyTuple, 0, getValueSchema(), _index * 1, (_index + 1) * 1);
@@ -211,47 +179,37 @@ library DecisionRuleRegistry {
   }
 
   /** Push a slice to decisionRules */
-  function push(bytes32 srcVoxelTypeId, bytes32 targetVoxelTypeId, address worldAddress, bytes memory _slice) internal {
-    bytes32[] memory _keyTuple = new bytes32[](3);
-    _keyTuple[0] = srcVoxelTypeId;
-    _keyTuple[1] = targetVoxelTypeId;
-    _keyTuple[2] = bytes32(uint256(uint160(worldAddress)));
+  function push(bytes32 srcObjectTypeId, bytes32 targetObjectTypeId, bytes memory _slice) internal {
+    bytes32[] memory _keyTuple = new bytes32[](2);
+    _keyTuple[0] = srcObjectTypeId;
+    _keyTuple[1] = targetObjectTypeId;
 
     StoreSwitch.pushToField(_tableId, _keyTuple, 0, bytes((_slice)), getValueSchema());
   }
 
   /** Push a slice to decisionRules (using the specified store) */
-  function push(
-    IStore _store,
-    bytes32 srcVoxelTypeId,
-    bytes32 targetVoxelTypeId,
-    address worldAddress,
-    bytes memory _slice
-  ) internal {
-    bytes32[] memory _keyTuple = new bytes32[](3);
-    _keyTuple[0] = srcVoxelTypeId;
-    _keyTuple[1] = targetVoxelTypeId;
-    _keyTuple[2] = bytes32(uint256(uint160(worldAddress)));
+  function push(IStore _store, bytes32 srcObjectTypeId, bytes32 targetObjectTypeId, bytes memory _slice) internal {
+    bytes32[] memory _keyTuple = new bytes32[](2);
+    _keyTuple[0] = srcObjectTypeId;
+    _keyTuple[1] = targetObjectTypeId;
 
     _store.pushToField(_tableId, _keyTuple, 0, bytes((_slice)), getValueSchema());
   }
 
   /** Pop a slice from decisionRules */
-  function pop(bytes32 srcVoxelTypeId, bytes32 targetVoxelTypeId, address worldAddress) internal {
-    bytes32[] memory _keyTuple = new bytes32[](3);
-    _keyTuple[0] = srcVoxelTypeId;
-    _keyTuple[1] = targetVoxelTypeId;
-    _keyTuple[2] = bytes32(uint256(uint160(worldAddress)));
+  function pop(bytes32 srcObjectTypeId, bytes32 targetObjectTypeId) internal {
+    bytes32[] memory _keyTuple = new bytes32[](2);
+    _keyTuple[0] = srcObjectTypeId;
+    _keyTuple[1] = targetObjectTypeId;
 
     StoreSwitch.popFromField(_tableId, _keyTuple, 0, 1, getValueSchema());
   }
 
   /** Pop a slice from decisionRules (using the specified store) */
-  function pop(IStore _store, bytes32 srcVoxelTypeId, bytes32 targetVoxelTypeId, address worldAddress) internal {
-    bytes32[] memory _keyTuple = new bytes32[](3);
-    _keyTuple[0] = srcVoxelTypeId;
-    _keyTuple[1] = targetVoxelTypeId;
-    _keyTuple[2] = bytes32(uint256(uint160(worldAddress)));
+  function pop(IStore _store, bytes32 srcObjectTypeId, bytes32 targetObjectTypeId) internal {
+    bytes32[] memory _keyTuple = new bytes32[](2);
+    _keyTuple[0] = srcObjectTypeId;
+    _keyTuple[1] = targetObjectTypeId;
 
     _store.popFromField(_tableId, _keyTuple, 0, 1, getValueSchema());
   }
@@ -260,17 +218,10 @@ library DecisionRuleRegistry {
    * Update a slice of decisionRules at `_index`
    * (checked only to prevent modifying other tables; can corrupt own data if index overflows)
    */
-  function update(
-    bytes32 srcVoxelTypeId,
-    bytes32 targetVoxelTypeId,
-    address worldAddress,
-    uint256 _index,
-    bytes memory _slice
-  ) internal {
-    bytes32[] memory _keyTuple = new bytes32[](3);
-    _keyTuple[0] = srcVoxelTypeId;
-    _keyTuple[1] = targetVoxelTypeId;
-    _keyTuple[2] = bytes32(uint256(uint160(worldAddress)));
+  function update(bytes32 srcObjectTypeId, bytes32 targetObjectTypeId, uint256 _index, bytes memory _slice) internal {
+    bytes32[] memory _keyTuple = new bytes32[](2);
+    _keyTuple[0] = srcObjectTypeId;
+    _keyTuple[1] = targetObjectTypeId;
 
     unchecked {
       StoreSwitch.updateInField(_tableId, _keyTuple, 0, _index * 1, bytes((_slice)), getValueSchema());
@@ -283,16 +234,14 @@ library DecisionRuleRegistry {
    */
   function update(
     IStore _store,
-    bytes32 srcVoxelTypeId,
-    bytes32 targetVoxelTypeId,
-    address worldAddress,
+    bytes32 srcObjectTypeId,
+    bytes32 targetObjectTypeId,
     uint256 _index,
     bytes memory _slice
   ) internal {
-    bytes32[] memory _keyTuple = new bytes32[](3);
-    _keyTuple[0] = srcVoxelTypeId;
-    _keyTuple[1] = targetVoxelTypeId;
-    _keyTuple[2] = bytes32(uint256(uint160(worldAddress)));
+    bytes32[] memory _keyTuple = new bytes32[](2);
+    _keyTuple[0] = srcObjectTypeId;
+    _keyTuple[1] = targetObjectTypeId;
 
     unchecked {
       _store.updateInField(_tableId, _keyTuple, 0, _index * 1, bytes((_slice)), getValueSchema());
@@ -312,39 +261,30 @@ library DecisionRuleRegistry {
 
   /** Encode keys as a bytes32 array using this table's schema */
   function encodeKeyTuple(
-    bytes32 srcVoxelTypeId,
-    bytes32 targetVoxelTypeId,
-    address worldAddress
+    bytes32 srcObjectTypeId,
+    bytes32 targetObjectTypeId
   ) internal pure returns (bytes32[] memory) {
-    bytes32[] memory _keyTuple = new bytes32[](3);
-    _keyTuple[0] = srcVoxelTypeId;
-    _keyTuple[1] = targetVoxelTypeId;
-    _keyTuple[2] = bytes32(uint256(uint160(worldAddress)));
+    bytes32[] memory _keyTuple = new bytes32[](2);
+    _keyTuple[0] = srcObjectTypeId;
+    _keyTuple[1] = targetObjectTypeId;
 
     return _keyTuple;
   }
 
   /* Delete all data for given keys */
-  function deleteRecord(bytes32 srcVoxelTypeId, bytes32 targetVoxelTypeId, address worldAddress) internal {
-    bytes32[] memory _keyTuple = new bytes32[](3);
-    _keyTuple[0] = srcVoxelTypeId;
-    _keyTuple[1] = targetVoxelTypeId;
-    _keyTuple[2] = bytes32(uint256(uint160(worldAddress)));
+  function deleteRecord(bytes32 srcObjectTypeId, bytes32 targetObjectTypeId) internal {
+    bytes32[] memory _keyTuple = new bytes32[](2);
+    _keyTuple[0] = srcObjectTypeId;
+    _keyTuple[1] = targetObjectTypeId;
 
     StoreSwitch.deleteRecord(_tableId, _keyTuple, getValueSchema());
   }
 
   /* Delete all data for given keys (using the specified store) */
-  function deleteRecord(
-    IStore _store,
-    bytes32 srcVoxelTypeId,
-    bytes32 targetVoxelTypeId,
-    address worldAddress
-  ) internal {
-    bytes32[] memory _keyTuple = new bytes32[](3);
-    _keyTuple[0] = srcVoxelTypeId;
-    _keyTuple[1] = targetVoxelTypeId;
-    _keyTuple[2] = bytes32(uint256(uint160(worldAddress)));
+  function deleteRecord(IStore _store, bytes32 srcObjectTypeId, bytes32 targetObjectTypeId) internal {
+    bytes32[] memory _keyTuple = new bytes32[](2);
+    _keyTuple[0] = srcObjectTypeId;
+    _keyTuple[1] = targetObjectTypeId;
 
     _store.deleteRecord(_tableId, _keyTuple, getValueSchema());
   }

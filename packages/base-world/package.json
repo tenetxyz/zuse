@@ -33,7 +33,7 @@
     "worldtypes": "rimraf types && typechain --target=ethers-v5 out/world/IWorld.sol/IWorld.json"
   },
   "dependencies": {
-    "@tenetxyz/base-ca": "workspace:*",
+    "@tenetxyz/base-simulator": "workspace:*",
     "@tenetxyz/registry": "workspace:*",
     "@tenetxyz/utils": "workspace:*"
   },

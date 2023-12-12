@@ -2,13 +2,8 @@ import { tenetMudConfig } from "@tenetxyz/base-world";
 import { resolveTableId } from "@latticexyz/config";
 
 export default tenetMudConfig({
+  namespace: "world",
   tables: {},
-  systems: {
-    RunCASystem: {
-      name: "RunCASystem",
-      openAccess: false,
-      accessList: ["BuildSystem", "MineSystem", "ActivateSystem", "MoveSystem"],
-    },
-  },
+  systems: {},
   modules: [],
 });

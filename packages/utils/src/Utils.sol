@@ -3,13 +3,20 @@ pragma solidity >=0.8.0;
 
 import { SystemRegistry } from "@latticexyz/world/src/modules/core/tables/SystemRegistry.sol";
 import { ResourceSelector } from "@latticexyz/world/src/ResourceSelector.sol";
-import { VoxelEntity } from "@tenet-utils/src/Types.sol";
 import { Callers } from "@latticexyz/world/src/tables/Callers.sol";
 
 function getFirstCaller() view returns (address) {
   address[] memory worldCallers = Callers.get();
   if (worldCallers.length > 0) {
     return worldCallers[0];
+  }
+  return address(0);
+}
+
+function getSecondCaller() view returns (address) {
+  address[] memory worldCallers = Callers.get();
+  if (worldCallers.length > 1) {
+    return worldCallers[1];
   }
   return address(0);
 }
@@ -30,10 +37,6 @@ function getCallerName(address caller) view returns (bytes16) {
 
 function addressToEntityKey(address addr) pure returns (bytes32) {
   return bytes32(uint256(uint160(addr)));
-}
-
-function isEntityEqual(VoxelEntity memory a, VoxelEntity memory b) pure returns (bool) {
-  return a.scale == b.scale && a.entityId == b.entityId;
 }
 
 function hasEntity(bytes32[] memory entities) pure returns (bool) {

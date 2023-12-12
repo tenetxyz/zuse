@@ -1,5 +1,5 @@
 {
-  "name": "basic-world-contracts",
+  "name": "basic-world",
   "version": "0.0.0",
   "description": "",
   "private": true,
@@ -9,24 +9,15 @@
     ]
   },
   "scripts": {
-    "anvil": "rm -rf ~/.foundry/anvil/tmp && anvil --block-time 1 --block-base-fee-per-gas 0 --host 0.0.0.0 --chain-id 31337 --gas-limit 1000000000",
-    "mud": "node node_modules/@latticexyz/cli/dist/mud.js",
-    "build": "yarn run clean && yarn workspaces run build",
-    "clean": "concurrently \"yarn workspace @tenetxyz/world run clean\" \"yarn workspace @tenetxyz/level1-ca run clean\"",
-    "deploy": "concurrently -n contracts,client -c cyan,magenta \"cd packages/contracts && yarn run dev\" \"cd packages/client && yarn run deploy\"",
+    "build": "yarn workspaces foreach -p run build",
+    "clean": "yarn workspaces foreach -p run clean",
     "dev": "yarn run clean && yarn run dev-no-clean",
-    "dev-no-clean": "yarn run build:ca && yarn run deploy:ca && concurrently -n world -c yellow \"yarn workspace @tenetxyz/world run deploy:local\"",
-    "deploy:ca": "concurrently -n level1 -c blue \"yarn workspace @tenetxyz/level1-ca run deploy:local\"",
-    "build:ca": "concurrently -n level1 -c blue \"cd packages/level1-ca && yarn run build:local\"",
-    "foundry:up": "curl -L https://foundry.paradigm.xyz | bash && bash $HOME/.foundry/bin/foundryup",
+    "dev-no-clean": "concurrently -n simulator -c magenta \"yarn workspace @tenetxyz/simulator run build && yarn workspace @tenetxyz/simulator run deploy\" && concurrently -n world -c yellow \"yarn workspace @tenetxyz/world run build && yarn workspace @tenetxyz/world run deploy\"",
     "initialize": "yarn workspaces foreach run initialize",
-    "mud:up": "yarn workspaces foreach -t run yarn mud set-version -v canary && yarn install",
-    "prepare": "(forge --version || yarn foundry:up)",
-    "test": "yarn workspaces run test"
+    "test": "yarn workspaces foreach run test"
   },
   "devDependencies": {
     "@latticexyz/cli": "link:../../../mud/packages/cli",
-    "@solidstate/contracts": "^0.0.57",
     "@typescript-eslint/eslint-plugin": "5.46.1",
     "@typescript-eslint/parser": "5.46.1",
     "concurrently": "^8.0.1",
@@ -38,10 +29,5 @@
     "node": "18.x",
     "yarn": ">=3.6.0"
   },
-  "packageManager": "yarn@3.6.1",
-  "dependencies": {
-    "@fortawesome/fontawesome-svg-core": "^6.4.0",
-    "@fortawesome/free-brands-svg-icons": "^6.4.0",
-    "@fortawesome/react-fontawesome": "^0.2.0"
-  }
+  "packageManager": "yarn@3.6.1"
 }

@@ -5,27 +5,14 @@ pragma solidity >=0.8.0;
 
 import { IBaseWorld } from "@latticexyz/world/src/interfaces/IBaseWorld.sol";
 
-import { ICARegistrySystem } from "./ICARegistrySystem.sol";
-import { IClassifierRegistrySystem } from "./IClassifierRegistrySystem.sol";
-import { ICreationRegistrySystem } from "./ICreationRegistrySystem.sol";
-import { IDecisionRuleRegSystem } from "./IDecisionRuleRegSystem.sol";
+import { IDecisionRuleRegistrySystem } from "./IDecisionRuleRegistrySystem.sol";
 import { IMindRegistrySystem } from "./IMindRegistrySystem.sol";
-import { IVoxelRegistrySystem } from "./IVoxelRegistrySystem.sol";
-import { IWorldRegistrySystem } from "./IWorldRegistrySystem.sol";
+import { IObjectRegistrySystem } from "./IObjectRegistrySystem.sol";
 
 /**
  * The IWorld interface includes all systems dynamically added to the World
  * during the deploy process.
  */
-interface IWorld is
-  IBaseWorld,
-  ICARegistrySystem,
-  IClassifierRegistrySystem,
-  ICreationRegistrySystem,
-  IDecisionRuleRegSystem,
-  IMindRegistrySystem,
-  IVoxelRegistrySystem,
-  IWorldRegistrySystem
-{
+interface IWorld is IBaseWorld, IDecisionRuleRegistrySystem, IMindRegistrySystem, IObjectRegistrySystem {
 
 }

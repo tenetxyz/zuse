@@ -1,36 +1,30 @@
 // SPDX-License-Identifier: MIT
 pragma solidity >=0.8.0;
 
-import { IWorld } from "@tenet-world/src/codegen/world/IWorld.sol";
-import { BuildEvent } from "@tenet-base-world/src/prototypes/BuildEvent.sol";
-import { BuildEventData } from "@tenet-base-world/src/Types.sol";
-import { VoxelType } from "@tenet-world/src/codegen/Tables.sol";
-import { VoxelCoord, VoxelTypeData, VoxelEntity, EntityEventData } from "@tenet-utils/src/Types.sol";
-import { REGISTRY_ADDRESS } from "@tenet-world/src/Constants.sol";
-import { AirVoxelID } from "@tenet-level1-ca/src/Constants.sol";
+import { IStore } from "@latticexyz/store/src/IStore.sol";
+import { VoxelCoord } from "@tenet-utils/src/Types.sol";
 
-contract BuildSystem is BuildEvent {
-  function getRegistryAddress() internal pure override returns (address) {
-    return REGISTRY_ADDRESS;
+import { SIMULATOR_ADDRESS, AirObjectID } from "@tenet-world/src/Constants.sol";
+import { BuildSystem as BuildProtoSystem } from "@tenet-base-world/src/systems/BuildSystem.sol";
+
+contract BuildSystem is BuildProtoSystem {
+  function getSimulatorAddress() internal pure override returns (address) {
+    return SIMULATOR_ADDRESS;
   }
 
-  function emptyVoxelId() internal pure override returns (bytes32) {
-    return AirVoxelID;
+  function emptyObjectId() internal pure override returns (bytes32) {
+    return AirObjectID;
   }
 
-  function processCAEvents(EntityEventData[] memory entitiesEventData) internal override {}
-
-  // Called by users
   function build(
-    bytes32 voxelTypeId,
-    VoxelCoord memory coord,
-    bytes4 mindSelector
-  ) public returns (VoxelEntity memory) {
-    return
-      build(
-        voxelTypeId,
-        coord,
-        abi.encode(BuildEventData({ mindSelector: mindSelector, worldData: abi.encode(bytes32(0)) }))
-      );
+    bytes32 actingObjectEntityId,
+    bytes32 buildObjectTypeId,
+    VoxelCoord memory buildCoord
+  ) public override returns (bytes32) {
+    return super.build(actingObjectEntityId, buildObjectTypeId, buildCoord, new bytes(0));
+  }
+
+  function buildTerrain(bytes32 actingObjectEntityId, VoxelCoord memory buildCoord) public override returns (bytes32) {
+    return super.buildTerrain(actingObjectEntityId, buildCoord);
   }
 }

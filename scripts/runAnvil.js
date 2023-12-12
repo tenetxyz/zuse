@@ -30,6 +30,6 @@ const anvilArgs = [
     "--chain-id",
     "31337",
     "--gas-limit",
-    "2000000000",
+    "1000000000",
 ];
 anvil(anvilArgs);

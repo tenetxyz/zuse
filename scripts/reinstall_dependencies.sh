@@ -8,5 +8,5 @@ cd scripts
 yarn install # in scripts
 cd ../ # move to root
 yarn install
-cd examples/basic-conserved-world
+cd examples/everlon
 yarn install

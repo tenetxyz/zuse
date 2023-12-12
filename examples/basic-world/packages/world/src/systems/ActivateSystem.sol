@@ -1,30 +1,26 @@
 // SPDX-License-Identifier: MIT
 pragma solidity >=0.8.0;
 
-import { ActivateEvent } from "@tenet-base-world/src/prototypes/ActivateEvent.sol";
-import { IWorld } from "@tenet-world/src/codegen/world/IWorld.sol";
-import { VoxelCoord, VoxelEntity, EntityEventData } from "@tenet-utils/src/Types.sol";
-import { ActivateEventData } from "@tenet-base-world/src/Types.sol";
-import { REGISTRY_ADDRESS } from "@tenet-world/src/Constants.sol";
+import { IStore } from "@latticexyz/store/src/IStore.sol";
+import { VoxelCoord } from "@tenet-utils/src/Types.sol";
 
-contract ActivateSystem is ActivateEvent {
-  function getRegistryAddress() internal pure override returns (address) {
-    return REGISTRY_ADDRESS;
+import { SIMULATOR_ADDRESS, AirObjectID } from "@tenet-world/src/Constants.sol";
+import { ActivateSystem as ActivateProtoSystem } from "@tenet-base-world/src/systems/ActivateSystem.sol";
+
+contract ActivateSystem is ActivateProtoSystem {
+  function getSimulatorAddress() internal pure override returns (address) {
+    return SIMULATOR_ADDRESS;
   }
 
-  function processCAEvents(EntityEventData[] memory entitiesEventData) internal override {}
+  function emptyObjectId() internal pure override returns (bytes32) {
+    return AirObjectID;
+  }
 
-  // Called by users
   function activate(
-    bytes32 voxelTypeId,
-    VoxelCoord memory coord,
-    bytes4 interactionSelector
-  ) public returns (VoxelEntity memory) {
-    return
-      activate(
-        voxelTypeId,
-        coord,
-        abi.encode(ActivateEventData({ worldData: abi.encode(bytes32(0)), interactionSelector: interactionSelector }))
-      );
+    bytes32 actingObjectEntityId,
+    bytes32 activateObjectTypeId,
+    VoxelCoord memory activateCoord
+  ) public override returns (bytes32) {
+    return super.activate(actingObjectEntityId, activateObjectTypeId, activateCoord, new bytes(0));
   }
 }

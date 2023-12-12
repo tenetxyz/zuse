@@ -1,11 +1,8 @@
 // SPDX-License-Identifier: MIT
 pragma solidity >=0.8.0;
 
-import { getUniqueEntity } from "@latticexyz/world/src/modules/uniqueentity/getUniqueEntity.sol";
 import { Script } from "forge-std/Script.sol";
-import { console } from "forge-std/console.sol";
 import { IWorld } from "../src/codegen/world/IWorld.sol";
-import { IBaseWorld } from "@latticexyz/world/src/interfaces/IBaseWorld.sol";
 
 contract PostDeploy is Script {
   function run(address worldAddress) external {
@@ -15,11 +12,15 @@ contract PostDeploy is Script {
     // Start broadcasting transactions from the deployer account
     vm.startBroadcast(deployerPrivateKey);
 
-    // Call world init function
     IWorld world = IWorld(worldAddress);
 
-    world.registerWorld();
-    world.initWorldVoxelTypes();
+    world.world_AirObjectSystem_registerObject();
+    world.world_DirtObjectSystem_registerObject();
+    world.world_GrassObjectSyste_registerObject();
+    world.world_BedrockObjectSys_registerObject();
+    world.world_BuilderObjectSys_registerObject();
+
+    world.spawnInitialAgents();
 
     vm.stopBroadcast();
   }

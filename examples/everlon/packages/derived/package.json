@@ -46,12 +46,12 @@
     "@latticexyz/world": "link:../../../../../mud/packages/world",
     "@tenetxyz/base-simulator": "link:../../../../packages/base-simulator",
     "@tenetxyz/base-world": "link:../../../../packages/base-world",
+    "@tenetxyz/creatures": "workspace:*",
+    "@tenetxyz/farming": "workspace:*",
     "@tenetxyz/registry": "link:../../../../packages/registry",
     "@tenetxyz/simulator": "workspace:*",
     "@tenetxyz/utils": "link:../../../../packages/utils",
-    "@tenetxyz/world": "workspace:*",
-    "@tenetxyz/farming": "workspace:*",
-    "@tenetxyz/creatures": "workspace:*"
+    "@tenetxyz/world": "workspace:*"
   },
   "devDependencies": {
     "@ethersproject/abi": "^5.7.0",

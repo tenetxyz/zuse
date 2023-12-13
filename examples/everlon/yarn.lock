@@ -1055,15 +1055,15 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@tenetxyz/base-ca@link:../../../../packages/base-ca::locator=%40tenetxyz%2Fderived%40workspace%3Apackages%2Fderived":
-  version: 0.0.0-use.local
-  resolution: "@tenetxyz/base-ca@link:../../../../packages/base-ca::locator=%40tenetxyz%2Fderived%40workspace%3Apackages%2Fderived"
-  languageName: node
-  linkType: soft
-
 "@tenetxyz/base-simulator@link:../../../../packages/base-simulator::locator=%40tenetxyz%2Fcreatures%40workspace%3Apackages%2Fcreatures":
   version: 0.0.0-use.local
   resolution: "@tenetxyz/base-simulator@link:../../../../packages/base-simulator::locator=%40tenetxyz%2Fcreatures%40workspace%3Apackages%2Fcreatures"
+  languageName: node
+  linkType: soft
+
+"@tenetxyz/base-simulator@link:../../../../packages/base-simulator::locator=%40tenetxyz%2Fderived%40workspace%3Apackages%2Fderived":
+  version: 0.0.0-use.local
+  resolution: "@tenetxyz/base-simulator@link:../../../../packages/base-simulator::locator=%40tenetxyz%2Fderived%40workspace%3Apackages%2Fderived"
   languageName: node
   linkType: soft
 
@@ -1127,7 +1127,7 @@ __metadata:
   languageName: node
   linkType: soft
 
-"@tenetxyz/creatures@workspace:packages/creatures":
+"@tenetxyz/creatures@workspace:*, @tenetxyz/creatures@workspace:packages/creatures":
   version: 0.0.0-use.local
   resolution: "@tenetxyz/creatures@workspace:packages/creatures"
   dependencies:
@@ -1178,8 +1178,10 @@ __metadata:
     "@latticexyz/store": "link:../../../../../mud/packages/store"
     "@latticexyz/world": "link:../../../../../mud/packages/world"
     "@openzeppelin/contracts": ^4.9.1
-    "@tenetxyz/base-ca": "link:../../../../packages/base-ca"
+    "@tenetxyz/base-simulator": "link:../../../../packages/base-simulator"
     "@tenetxyz/base-world": "link:../../../../packages/base-world"
+    "@tenetxyz/creatures": "workspace:*"
+    "@tenetxyz/farming": "workspace:*"
     "@tenetxyz/registry": "link:../../../../packages/registry"
     "@tenetxyz/simulator": "workspace:*"
     "@tenetxyz/utils": "link:../../../../packages/utils"

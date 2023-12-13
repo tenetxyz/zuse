@@ -6,8 +6,7 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "export": "next export -o build/",
-    "deploy": "npm run build && npm run export && firebase use zuse-docs && firebase deploy"
+    "deploy": "yarn run build && firebase use zuse-docs && firebase deploy"
   },
   "license": "MIT",
   "dependencies": {

@@ -126,6 +126,11 @@ export default mudConfig({
   systems: {},
   modules: [
     {
+      name: "UniqueEntityModule",
+      root: true,
+      args: [],
+    },
+    {
       name: "KeysInTableModule",
       root: true,
       args: [resolveTableId("CreationRegistry")],

@@ -5,14 +5,13 @@ import { IWorld } from "@tenet-farming/src/codegen/world/IWorld.sol";
 import { ABDKMath64x64 as Math } from "@tenet-utils/src/libraries/ABDKMath64x64.sol";
 import { IStore } from "@latticexyz/store/src/IStore.sol";
 import { System } from "@latticexyz/world/src/System.sol";
+import { IShardSystem } from "@tenet-world/src/codegen/world/IShardSystem.sol";
 
 import { VoxelCoord, ObjectProperties } from "@tenet-utils/src/Types.sol";
 import { TerrainData, TerrainSectionData } from "@tenet-world/src/Types.sol";
 import { SHARD_DIM, AIR_MASS, DIRT_MASS, GRASS_MASS, BEDROCK_MASS, STONE_MASS, AirObjectID, DirtObjectID, GrassObjectID, BedrockObjectID, StoneObjectID } from "@tenet-world/src/Constants.sol";
 import { coordToShardCoord, voxelCoordsAreEqual } from "@tenet-utils/src/VoxelCoordUtils.sol";
 import { WORLD_ADDRESS, SOIL_MASS, ConcentrativeSoilObjectID, DiffusiveSoilObjectID, ProteinSoilObjectID, ElixirSoilObjectID } from "@tenet-farming/src/Constants.sol";
-
-import { claimShard } from "@tenet-world/src/CallUtils.sol";
 
 contract FarmingTerrainSystem is System {
   function initFarmingTerrain() public {
@@ -25,8 +24,7 @@ contract FarmingTerrainSystem is System {
 
     // First shard
     VoxelCoord memory firstFaucetAgentCoord = VoxelCoord({ x: 346, y: 15, z: 53 });
-    claimShard(
-      WORLD_ADDRESS,
+    IShardSystem(WORLD_ADDRESS).claimShard(
       farmingTerrainCoords[0],
       _world(),
       IWorld(_world()).farming_FarmingTerrainSy_getFarmingTerrainObjectTypeId.selector,
@@ -36,8 +34,7 @@ contract FarmingTerrainSystem is System {
 
     // Second shard
     VoxelCoord memory secondFaucetAgentCoord = VoxelCoord({ x: 259, y: 9, z: 60 });
-    claimShard(
-      WORLD_ADDRESS,
+    IShardSystem(WORLD_ADDRESS).claimShard(
       farmingTerrainCoords[1],
       _world(),
       IWorld(_world()).farming_FarmingTerrainSy_getFarmingTerrainObjectTypeId.selector,
@@ -47,8 +44,7 @@ contract FarmingTerrainSystem is System {
 
     // Third shard
     VoxelCoord memory thirdFaucetAgentCoord = VoxelCoord({ x: 325, y: 15, z: -59 });
-    claimShard(
-      WORLD_ADDRESS,
+    IShardSystem(WORLD_ADDRESS).claimShard(
       farmingTerrainCoords[2],
       _world(),
       IWorld(_world()).farming_FarmingTerrainSy_getFarmingTerrainObjectTypeId.selector,
@@ -58,8 +54,7 @@ contract FarmingTerrainSystem is System {
 
     // Fourth shard
     VoxelCoord memory fourthFaucetAgentCoord = VoxelCoord({ x: 233, y: 15, z: -62 });
-    claimShard(
-      WORLD_ADDRESS,
+    IShardSystem(WORLD_ADDRESS).claimShard(
       farmingTerrainCoords[3],
       _world(),
       IWorld(_world()).farming_FarmingTerrainSy_getFarmingTerrainObjectTypeId.selector,

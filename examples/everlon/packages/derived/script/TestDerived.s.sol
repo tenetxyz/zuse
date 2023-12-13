@@ -20,7 +20,6 @@ contract TestDerived is Script {
     IWorld world = IWorld(worldAddress);
     VoxelCoord memory coord = VoxelCoord(50, 10, 49);
     // world.deriveState(entity, coord);
-    // world.claimShard(coord);
     world.reportCreature(bytes32(uint256(0x35)));
 
     vm.stopBroadcast();

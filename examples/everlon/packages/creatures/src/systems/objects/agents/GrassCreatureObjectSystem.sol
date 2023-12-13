@@ -4,7 +4,7 @@ pragma solidity >=0.8.0;
 import { IStore } from "@latticexyz/store/src/IStore.sol";
 import { IWorld } from "@tenet-creatures/src/codegen/world/IWorld.sol";
 import { AgentType } from "@tenet-base-world/src/prototypes/AgentType.sol";
-import { registerObjectType } from "@tenet-registry/src/Utils.sol";
+import { IObjectRegistrySystem } from "@tenet-registry/src/codegen/world/IObjectRegistrySystem.sol";
 
 import { Position } from "@tenet-base-world/src/codegen/tables/Position.sol";
 import { Creature, CreatureData } from "@tenet-creatures/src/codegen/tables/Creature.sol";
@@ -19,8 +19,7 @@ import { CreatureMove } from "@tenet-creatures/src/Types.sol";
 contract GrassCreatureObjectSystem is AgentType {
   function registerObject() public {
     address world = _world();
-    registerObjectType(
-      REGISTRY_ADDRESS,
+    IObjectRegistrySystem(REGISTRY_ADDRESS).registerObjectType(
       GrassCreatureObjectID,
       world,
       IWorld(world).creatures_GrassCreatureObj_enterWorld.selector,

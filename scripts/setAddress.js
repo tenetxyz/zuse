@@ -7,34 +7,34 @@ const variableName = process.argv[5];
 
 function setAddress() {
     if (chainId === undefined) {
-        console.log('chainId is undefined');
+        console.log('[ZUSE] chainId is undefined');
         return;
     }
 
     if (worldsJsonPath === undefined) {
-        console.log('worldsJsonPath is undefined');
+        console.log('[ZUSE] worldsJsonPath is undefined');
         return;
     }
 
     if (solidityFilePath === undefined) {
-        console.log('solidityFilePath is undefined');
+        console.log('[ZUSE] solidityFilePath is undefined');
         return;
     }
 
     if (variableName === undefined) {
-        console.log('variableName is undefined');
+        console.log('[ZUSE] variableName is undefined');
         return;
     }
 
     if (!fs.existsSync(worldsJsonPath)) {
-        console.log('worlds.json does not exist');
+        console.log('[ZUSE] worlds.json does not exist');
         return;
     }
 
     const worldsJson = JSON.parse(fs.readFileSync(worldsJsonPath, 'utf8'));
 
     if (worldsJson[chainId] === undefined) {
-        console.log('chainId is not found');
+        console.log('[ZUSE] chainId is not found');
         return;
     }
 
@@ -43,7 +43,7 @@ function setAddress() {
     // Read the file
     fs.readFile(solidityFilePath, 'utf8', (err, data) => {
         if (err) {
-            console.error('Error reading file:', err);
+            console.error('[ZUSE] Error reading file:', err);
             return;
         }
 
@@ -64,10 +64,10 @@ function setAddress() {
         // Write the updated content back to the file
         fs.writeFile(solidityFilePath, updatedContent, 'utf8', (err) => {
             if (err) {
-                console.error('Error writing to file:', err);
+                console.error('[ZUSE] Error writing to file:', err);
                 return;
             }
-            console.log(`[TENET] Address variable ${variableName} replaced successfully to ${worldAddress}.`);
+            console.log(`[ZUSE] Address variable ${variableName} replaced successfully to ${worldAddress}.`);
         });
     });
 }

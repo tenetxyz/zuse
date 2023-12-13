@@ -4,10 +4,9 @@ pragma solidity >=0.8.0;
 import { IStore } from "@latticexyz/store/src/IStore.sol";
 import { IWorld } from "@tenet-creatures/src/codegen/world/IWorld.sol";
 import { ObjectType } from "@tenet-base-world/src/prototypes/ObjectType.sol";
+import { IObjectRegistrySystem } from "@tenet-registry/src/codegen/world/IObjectRegistrySystem.sol";
 
 import { Thermo, ThermoData } from "@tenet-creatures/src/codegen/tables/Thermo.sol";
-
-import { registerObjectType } from "@tenet-registry/src/Utils.sol";
 
 import { getObjectProperties } from "@tenet-base-world/src/CallUtils.sol";
 import { positionDataToVoxelCoord, getEntityIdFromObjectEntityId, getVoxelCoord, getObjectType } from "@tenet-base-world/src/Utils.sol";
@@ -23,8 +22,7 @@ import { REGISTRY_ADDRESS, ThermoObjectID } from "@tenet-creatures/src/Constants
 contract ThermoObjectSystem is ObjectType {
   function registerObject() public {
     address world = _world();
-    registerObjectType(
-      REGISTRY_ADDRESS,
+    IObjectRegistrySystem(REGISTRY_ADDRESS).registerObjectType(
       ThermoObjectID,
       world,
       IWorld(world).creatures_ThermoObjectSyst_enterWorld.selector,

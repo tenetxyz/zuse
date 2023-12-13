@@ -11,6 +11,7 @@
   "scripts": {
     "build": "yarn workspaces foreach -p run build",
     "clean": "yarn workspaces foreach -p run clean",
+    "test": "yarn workspaces foreach run test",
     "dev": "yarn run clean && yarn run dev-no-clean",
     "dev-no-clean": "yarn run simulator && concurrently -n world -c yellow \"yarn workspace @tenetxyz/world run build && yarn workspace @tenetxyz/world run deploy\"",
     "simulator": "concurrently -n simulator -c red \"cd packages/simulator && yarn run build && yarn run deploy\"",
@@ -19,8 +20,7 @@
     "deploy:pretty": "concurrently -n pretty -c #BF40BF \"yarn workspace @tenetxyz/pretty run build && yarn workspace @tenetxyz/pretty run deploy\"",
     "deploy:extensions": "yarn run deploy:farming && yarn run deploy:creatures",
     "deploy:derived": "concurrently -n derived -c #FFA500 \"yarn workspace @tenetxyz/derived run build && yarn workspace @tenetxyz/derived run deploy\"",
-    "initialize": "yarn workspaces foreach run initialize",
-    "test": "yarn workspaces run test"
+    "initialize": "yarn workspaces foreach run initialize"
   },
   "devDependencies": {
     "@latticexyz/cli": "link:../../../mud/packages/cli",

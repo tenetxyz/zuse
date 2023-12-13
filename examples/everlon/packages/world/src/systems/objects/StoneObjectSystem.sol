@@ -3,15 +3,14 @@ pragma solidity >=0.8.0;
 
 import { IWorld } from "@tenet-world/src/codegen/world/IWorld.sol";
 import { ObjectType } from "@tenet-base-world/src/prototypes/ObjectType.sol";
-import { registerObjectType } from "@tenet-registry/src/Utils.sol";
+import { IObjectRegistrySystem } from "@tenet-registry/src/codegen/world/IObjectRegistrySystem.sol";
 import { VoxelCoord, ObjectProperties, Action } from "@tenet-utils/src/Types.sol";
 import { REGISTRY_ADDRESS, StoneObjectID, STONE_MASS } from "@tenet-world/src/Constants.sol";
 
 contract StoneObjectSystem is ObjectType {
   function registerObject() public {
     address world = _world();
-    registerObjectType(
-      REGISTRY_ADDRESS,
+    IObjectRegistrySystem(REGISTRY_ADDRESS).registerObjectType(
       StoneObjectID,
       world,
       IWorld(world).world_StoneObjectSyste_enterWorld.selector,

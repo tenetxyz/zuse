@@ -4,7 +4,7 @@ pragma solidity >=0.8.0;
 import { IStore } from "@latticexyz/store/src/IStore.sol";
 import { IWorld } from "@tenet-farming/src/codegen/world/IWorld.sol";
 import { AgentType } from "@tenet-base-world/src/prototypes/AgentType.sol";
-import { registerObjectType } from "@tenet-registry/src/Utils.sol";
+import { IObjectRegistrySystem } from "@tenet-registry/src/codegen/world/IObjectRegistrySystem.sol";
 
 import { Position } from "@tenet-base-world/src/codegen/tables/Position.sol";
 import { Farmer, FarmerData } from "@tenet-farming/src/codegen/tables/Farmer.sol";
@@ -18,8 +18,7 @@ import { positionDataToVoxelCoord, getEntityIdFromObjectEntityId, getVoxelCoord 
 contract FarmerObjectSystem is AgentType {
   function registerObject() public {
     address world = _world();
-    registerObjectType(
-      REGISTRY_ADDRESS,
+    IObjectRegistrySystem(REGISTRY_ADDRESS).registerObjectType(
       FarmerObjectID,
       world,
       IWorld(world).farming_FarmerObjectSyst_enterWorld.selector,

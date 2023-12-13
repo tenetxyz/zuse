@@ -3,15 +3,14 @@ pragma solidity >=0.8.0;
 
 import { IWorld } from "@tenet-world/src/codegen/world/IWorld.sol";
 import { ObjectType } from "@tenet-base-world/src/prototypes/ObjectType.sol";
-import { registerObjectType } from "@tenet-registry/src/Utils.sol";
+import { IObjectRegistrySystem } from "@tenet-registry/src/codegen/world/IObjectRegistrySystem.sol";
 import { VoxelCoord, ObjectProperties, Action } from "@tenet-utils/src/Types.sol";
 import { REGISTRY_ADDRESS, AirObjectID, AIR_MASS } from "@tenet-world/src/Constants.sol";
 
 contract AirObjectSystem is ObjectType {
   function registerObject() public {
     address world = _world();
-    registerObjectType(
-      REGISTRY_ADDRESS,
+    IObjectRegistrySystem(REGISTRY_ADDRESS).registerObjectType(
       AirObjectID,
       world,
       IWorld(world).world_AirObjectSystem_enterWorld.selector,

@@ -4,14 +4,13 @@ pragma solidity >=0.8.0;
 import { IWorld } from "@tenet-creatures/src/codegen/world/IWorld.sol";
 import { IStore } from "@latticexyz/store/src/IStore.sol";
 import { MindType } from "@tenet-base-world/src/prototypes/MindType.sol";
+import { IMindRegistrySystem } from "@tenet-registry/src/codegen/world/IMindRegistrySystem.sol";
 
 import { REGISTRY_ADDRESS, GrassCreatureObjectID } from "@tenet-creatures/src/Constants.sol";
-import { registerMind as registerMindIntoRegistry } from "@tenet-registry/src/Utils.sol";
 
 contract GrassCreatureMindSystem is MindType {
   function registerMind() public {
-    registerMindIntoRegistry(
-      REGISTRY_ADDRESS,
+    IMindRegistrySystem(REGISTRY_ADDRESS).registerMind(
       GrassCreatureObjectID,
       _world(),
       IWorld(_world()).creatures_GrassCreatureMin_eventHandlerSelector.selector,

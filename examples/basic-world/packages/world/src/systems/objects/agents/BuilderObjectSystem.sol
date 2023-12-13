@@ -2,16 +2,15 @@
 pragma solidity >=0.8.0;
 
 import { IWorld } from "@tenet-world/src/codegen/world/IWorld.sol";
+import { IObjectRegistrySystem } from "@tenet-registry/src/codegen/world/IObjectRegistrySystem.sol";
 import { AgentType } from "@tenet-base-world/src/prototypes/AgentType.sol";
-import { registerObjectType } from "@tenet-registry/src/Utils.sol";
 import { VoxelCoord, ObjectProperties, Action } from "@tenet-utils/src/Types.sol";
 import { REGISTRY_ADDRESS, BuilderObjectID } from "@tenet-world/src/Constants.sol";
 
 contract BuilderObjectSystem is AgentType {
   function registerObject() public {
     address world = _world();
-    registerObjectType(
-      REGISTRY_ADDRESS,
+    IObjectRegistrySystem(REGISTRY_ADDRESS).registerObjectType(
       BuilderObjectID,
       world,
       IWorld(world).world_BuilderObjectSys_enterWorld.selector,

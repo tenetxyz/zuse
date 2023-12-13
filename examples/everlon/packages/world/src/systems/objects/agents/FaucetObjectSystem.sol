@@ -3,8 +3,8 @@ pragma solidity >=0.8.0;
 
 import { IStore } from "@latticexyz/store/src/IStore.sol";
 import { IWorld } from "@tenet-world/src/codegen/world/IWorld.sol";
+import { IObjectRegistrySystem } from "@tenet-registry/src/codegen/world/IObjectRegistrySystem.sol";
 import { AgentType } from "@tenet-base-world/src/prototypes/AgentType.sol";
-import { registerObjectType } from "@tenet-registry/src/Utils.sol";
 import { VoxelCoord, ObjectProperties, Action, ActionType, SimTable } from "@tenet-utils/src/Types.sol";
 
 import { Position } from "@tenet-base-world/src/codegen/tables/Position.sol";
@@ -23,8 +23,7 @@ uint256 constant STARTING_HEALTH_FROM_FAUCET = 100;
 contract FaucetObjectSystem is AgentType {
   function registerObject() public {
     address world = _world();
-    registerObjectType(
-      REGISTRY_ADDRESS,
+    IObjectRegistrySystem(REGISTRY_ADDRESS).registerObjectType(
       FaucetObjectID,
       world,
       IWorld(world).world_FaucetObjectSyst_enterWorld.selector,

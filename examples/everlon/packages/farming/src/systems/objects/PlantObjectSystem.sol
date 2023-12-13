@@ -4,11 +4,10 @@ pragma solidity >=0.8.0;
 import { IStore } from "@latticexyz/store/src/IStore.sol";
 import { IWorld } from "@tenet-farming/src/codegen/world/IWorld.sol";
 import { ObjectType } from "@tenet-base-world/src/prototypes/ObjectType.sol";
+import { IObjectRegistrySystem } from "@tenet-registry/src/codegen/world/IObjectRegistrySystem.sol";
 
 import { Plant, PlantData } from "@tenet-farming/src/codegen/tables/Plant.sol";
 import { Farmer } from "@tenet-farming/src/codegen/tables/Farmer.sol";
-
-import { registerObjectType } from "@tenet-registry/src/Utils.sol";
 
 import { getObjectProperties } from "@tenet-base-world/src/CallUtils.sol";
 import { positionDataToVoxelCoord, getEntityIdFromObjectEntityId, getVoxelCoord } from "@tenet-base-world/src/Utils.sol";
@@ -23,8 +22,7 @@ import { PlantConsumer } from "@tenet-farming/src/Types.sol";
 contract PlantObjectSystem is ObjectType {
   function registerObject() public {
     address world = _world();
-    registerObjectType(
-      REGISTRY_ADDRESS,
+    IObjectRegistrySystem(REGISTRY_ADDRESS).registerObjectType(
       PlantObjectID,
       world,
       IWorld(world).farming_PlantObjectSyste_enterWorld.selector,

@@ -4,10 +4,9 @@ pragma solidity >=0.8.0;
 import { IStore } from "@latticexyz/store/src/IStore.sol";
 import { IWorld } from "@tenet-farming/src/codegen/world/IWorld.sol";
 import { ObjectType } from "@tenet-base-world/src/prototypes/ObjectType.sol";
+import { IObjectRegistrySystem } from "@tenet-registry/src/codegen/world/IObjectRegistrySystem.sol";
 
 import { Soil, SoilData } from "@tenet-farming/src/codegen/tables/Soil.sol";
-
-import { registerObjectType } from "@tenet-registry/src/Utils.sol";
 
 import { getObjectProperties } from "@tenet-base-world/src/CallUtils.sol";
 import { positionDataToVoxelCoord, getEntityIdFromObjectEntityId, getVoxelCoord } from "@tenet-base-world/src/Utils.sol";
@@ -25,8 +24,7 @@ import { NUTRIENT_TRANSFER_MAX_DELTA } from "@tenet-simulator/src/Constants.sol"
 contract DiffusiveSoilObjectSystem is ObjectType {
   function registerObject() public {
     address world = _world();
-    registerObjectType(
-      REGISTRY_ADDRESS,
+    IObjectRegistrySystem(REGISTRY_ADDRESS).registerObjectType(
       DiffusiveSoilObjectID,
       world,
       IWorld(world).farming_DiffusiveSoilObj_enterWorld.selector,

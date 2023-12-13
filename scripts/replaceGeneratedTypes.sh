@@ -30,8 +30,12 @@ find "src/codegen/tables" -type f | while read -r input_file; do
   replacement='import { BlockDirection } from "@tenet-utils/src/Types.sol"'
   awk -v target="$target" -v replacement="$replacement" '{ gsub(target, replacement); print }' $input_file > temp && mv temp $input_file
 
-  target='import { NoaBlockType } from "./../Types.sol"'
-  replacement='import { NoaBlockType } from "@tenet-registry/src/codegen/Types.sol"'
+  target='import { ElementType } from "./../Types.sol"'
+  replacement='import { ElementType } from "@tenet-utils/src/Types.sol"'
+  awk -v target="$target" -v replacement="$replacement" '{ gsub(target, replacement); print }' $input_file > temp && mv temp $input_file
+
+  target='import { SimTable } from "./../Types.sol"'
+  replacement='import { SimTable } from "@tenet-utils/src/Types.sol"'
   awk -v target="$target" -v replacement="$replacement" '{ gsub(target, replacement); print }' $input_file > temp && mv temp $input_file
 
   target='import { CreatureMove } from "./../Types.sol"'
@@ -48,14 +52,6 @@ find "src/codegen/tables" -type f | while read -r input_file; do
     !p
   ' "$input_file" > "$temp_file" && mv "$temp_file" "$input_file"
 
-  target='import { SimTable } from "./../Types.sol"'
-  replacement='import { SimTable } from "@tenet-utils/src/Types.sol"'
-  awk -v target="$target" -v replacement="$replacement" '{ gsub(target, replacement); print }' $input_file > temp && mv temp $input_file
-
-  target='import { ElementType } from "./../Types.sol"'
-  replacement='import { ElementType } from "@tenet-utils/src/Types.sol"'
-  awk -v target="$target" -v replacement="$replacement" '{ gsub(target, replacement); print }' $input_file > temp && mv temp $input_file
-
 done
 
-echo "[TENET] Replaced generated types in Types.sol"
+echo "[ZUSE] Replaced generated types in Types.sol"

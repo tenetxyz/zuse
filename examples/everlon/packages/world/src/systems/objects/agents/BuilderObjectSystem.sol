@@ -3,8 +3,8 @@ pragma solidity >=0.8.0;
 
 import { IStore } from "@latticexyz/store/src/IStore.sol";
 import { IWorld } from "@tenet-world/src/codegen/world/IWorld.sol";
+import { IObjectRegistrySystem } from "@tenet-registry/src/codegen/world/IObjectRegistrySystem.sol";
 import { AgentType } from "@tenet-base-world/src/prototypes/AgentType.sol";
-import { registerObjectType } from "@tenet-registry/src/Utils.sol";
 
 import { Position } from "@tenet-base-world/src/codegen/tables/Position.sol";
 
@@ -17,8 +17,7 @@ import { positionDataToVoxelCoord, getEntityIdFromObjectEntityId, getVoxelCoord 
 contract BuilderObjectSystem is AgentType {
   function registerObject() public {
     address world = _world();
-    registerObjectType(
-      REGISTRY_ADDRESS,
+    IObjectRegistrySystem(REGISTRY_ADDRESS).registerObjectType(
       BuilderObjectID,
       world,
       IWorld(world).world_BuilderObjectSys_enterWorld.selector,

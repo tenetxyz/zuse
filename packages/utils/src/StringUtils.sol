@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: GPL-3.0
+// SPDX-License-Identifier: MIT
 pragma solidity >=0.8.0;
 
 // Try not to use openzeppelin since we'll need to import it when we codegen code that has this file as a dependency

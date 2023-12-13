@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: GPL-3.0
+// SPDX-License-Identifier: MIT
 pragma solidity >=0.8.0;
 
 function uint256ToInt256(uint256 x) pure returns (int256) {

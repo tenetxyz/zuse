@@ -8,6 +8,12 @@ ZUSE is MIT-licensed, open source and free to use.
 
 See the `examples/` folder for how to use Zuse.
 
+## Talks
+
+<div>
+  <a href="https://www.youtube.com/watch?v=oVBgpzrzz-I" target="_blank"><img src="https://img.youtube.com/vi/oVBgpzrzz-I/hqdefault.jpg" alt="Atoms Not Smart Contracts: A New Kind of World Computer" width="50%" /></a>
+</div>
+
 ### Local development setup
 
 1. Run `brew install yarn` to install yarn and `npm i -g concurrently` to install concurrently

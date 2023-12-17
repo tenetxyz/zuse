@@ -5,10 +5,6 @@
  */
 pragma solidity ^0.8.0;
 
-// Curtis copied this file over cause mud2 had this error:
-// [MUDError]: Error deploying OccurrenceSystem: invalid bytecode. Note that linking of public libraries is not supported yet, make sure none of your libraries use "external" functions.
-// more context here: https://discord.com/channels/865335009915961364/1029021674605129728/1102634453202903160
-
 /**
  * Smart contract library of mathematical functions operating with signed
  * 64.64-bit fixed point numbers.  Signed 64.64-bit fixed point number is

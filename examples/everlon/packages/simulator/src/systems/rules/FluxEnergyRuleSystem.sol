@@ -17,7 +17,7 @@ import { VoxelCoord, ObjectProperties } from "@tenet-utils/src/Types.sol";
 import { add, sub } from "@tenet-utils/src/VoxelCoordUtils.sol";
 import { min } from "@tenet-utils/src/MathUtils.sol";
 import { safeSubtract, safeAdd } from "@tenet-utils/src/TypeUtils.sol";
-import { getMooreNeighbourEntities, getEntityIdFromObjectEntityId } from "@tenet-base-world/src/Utils.sol";
+import { getMooreNeighbourEntities, getEntityIdFromObjectEntityId, getEntityAtCoord } from "@tenet-base-world/src/Utils.sol";
 
 uint256 constant MAXIMUM_ENERGY_OUT = 100;
 uint256 constant MAXIMUM_ENERGY_IN = 2500;
@@ -88,6 +88,13 @@ contract FluxEnergyRuleSystem is System {
     ObjectProperties memory emptyProperties;
 
     for (uint256 i = 0; i < neighbourEntities.length; i++) {
+      // We need to reset neighbourEntities[i] because the buildTerrain call may already build those entities
+      // TODO: Find a better way to do this where we don't have this extra call, since it already happens inside of
+      // getMooreNeighbourEntities above
+      if (uint256(neighbourEntities[i]) == 0) {
+        neighbourEntities[i] = getEntityAtCoord(IStore(worldAddress), neighbourCoords[i]);
+      }
+
       if (uint256(neighbourEntities[i]) == 0) {
         ObjectProperties memory terrainProperties = ITerrainSystem(worldAddress).getTerrainObjectProperties(
           neighbourCoords[i],

@@ -40,6 +40,23 @@ contract BuildSystem is BuildProtoSystem {
     }
   }
 
+  function runObject(
+    bytes32 actingObjectEntityId,
+    bytes32 objectTypeId,
+    VoxelCoord memory coord,
+    bytes32 eventEntityId,
+    bytes32 objectEntityId,
+    bytes memory eventData
+  ) internal override {
+    // We don't want to run the object code if the caller is the simulator
+    // eg when the simulator is building terrain
+    // TODO: Make this specific to terrain building not just any build
+    address callerAddress = _msgSender();
+    if (callerAddress != getSimulatorAddress()) {
+      super.runObject(actingObjectEntityId, objectTypeId, coord, eventEntityId, objectEntityId, eventData);
+    }
+  }
+
   function build(
     bytes32 actingObjectEntityId,
     bytes32 buildObjectTypeId,

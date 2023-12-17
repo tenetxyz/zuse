@@ -6,65 +6,14 @@ Traditionally, virtual worlds have been built on computers, and computers are co
 
 This new design paradigm is called digital physics. The world creator just deploys resources and crafts physics for how they interact. Nothing else is defined or enforced by the world. This gives the opportunity to the players to permissionlessly shape everything else: all the objectives and storylines that emerge, and all the creations that get engineered.
 
+Learn More About [Digital Physics](/digital_physics/Motivation) and See [Examples To Date](/digital_physics/Everlon_Case_Studies).
+
 ## Zuse: Framework For Digital Physics
 
 [MUD](https://mud.dev/) is a framework for building ambitious apps on the EVM, and ZUSE is a framework for building worlds with strong digital physics on MUD.
 
-[Spatial Store](/spatial_store) enforces a data model where each position on a Euclidean grid is occupied by an object. Digital physics is the set of rules for how those objects interact. To define it, the world creator can use libraries for [Space Initialization](/space_initialization/introduction) and [Space Transition Function](/space_transition_function/introduction).
+[Spatial Store](/spatial_store) enforces a data model where positions in a 3D space are occupied by objects, some of which are externally controlled by EOAs and initiate state change.  Digital physics is the set of rules for how those objects in space interact. To define it, the world creator can use libraries for [Space Initialization](/space_initialization/introduction) and [Space Transition Function](/space_transition_function/introduction).
 
 Then, the world is deployed and players can permissionlessly shape everything that emerges. They can add new objects which abide by the rules, and write [Narrative Contracts](narrative) which read the world to create objectives and storylines.
 
-## People Think Digital Physics Is The Way Forward
-
-import { TwitterTweetEmbed } from 'react-twitter-embed'
-
-<style>
-{`
-  .css-1dbjc4n.r-1ny4l3l {
-      display: none;
-  }
-`}
-</style>
-
-<div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px', paddingTop: '12px' }}>
-    <div>
-        <TwitterTweetEmbed 
-          tweetId="1537334093918130176" 
-          options={{
-            align: "center",
-            cards: 'hidden',
-            conversation: 'none',
-          }}
-        />
-    </div>
-    <div>
-            <TwitterTweetEmbed
-          tweetId="1630171941599338497"
-          options={{
-            align: "center",
-            cards: 'hidden',
-            conversation: 'none'
-          }}
-        />
-    </div>
-    <div>
-        <TwitterTweetEmbed 
-          tweetId="1614126968487940097" 
-          options={{
-            align: "center",
-            cards: 'hidden',
-            conversation: 'none'
-          }}
-        />
-    </div>
-    <div>
-        <TwitterTweetEmbed
-          tweetId="1629802418505408512"
-          options={{
-            align: "center",
-            cards: 'hidden',
-            conversation: 'none'
-          }}
-        />
-    </div>
-</div>
+Learn More About The [Role of Zuse](/digital_physics/Role_of_Zuse) In Enabling Digital Physics.

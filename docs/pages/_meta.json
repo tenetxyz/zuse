@@ -1,6 +1,8 @@
 {
   "index": "Introduction",
-  
+
+  "digital_physics": "Digital Physics",
+
   "onchain": {
     "title": "Onchain",
     "type": "separator"

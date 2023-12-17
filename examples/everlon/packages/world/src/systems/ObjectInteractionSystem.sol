@@ -24,10 +24,11 @@ contract ObjectInteractionSystem is ObjectInteractionProtoSystem {
     if (numUniqueObjectsRan + 1 > NUM_MAX_UNIQUE_OBJECT_EVENT_HANDLERS_RUN) {
       return false;
     }
-    if (Metadata.get(objectEntityId) > NUM_MAX_SAME_OBJECT_EVENT_HANDLERS_RUN) {
+    uint32 numSameObjectRan = Metadata.get(objectEntityId);
+    if (numSameObjectRan > NUM_MAX_SAME_OBJECT_EVENT_HANDLERS_RUN) {
       return false;
     }
-    Metadata.set(objectEntityId, Metadata.get(objectEntityId) + 1);
+    Metadata.set(objectEntityId, numSameObjectRan + 1);
 
     return true;
   }

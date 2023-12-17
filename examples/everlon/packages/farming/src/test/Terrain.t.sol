@@ -75,30 +75,51 @@ contract TerrainTest is MudTest {
     VoxelCoord memory newCoord = VoxelCoord({ x: oldCoord.x - 1, y: oldCoord.y - 1, z: oldCoord.z });
     world.move(agentObjectEntityId, BuilderObjectID, oldCoord, newCoord);
 
-    vm.roll(block.number + 1);
-    oldCoord = newCoord;
-    newCoord = VoxelCoord({ x: oldCoord.x - 1, y: oldCoord.y, z: oldCoord.z });
-    world.move(agentObjectEntityId, BuilderObjectID, oldCoord, newCoord);
+    VoxelCoord memory agentVelocity = abi.decode(
+      Velocity.getVelocity(simStore, worldAddress, agentObjectEntityId),
+      (VoxelCoord)
+    );
+    assertTrue(agentVelocity.x == 0 && agentVelocity.y == 0 && agentVelocity.z == 0, "Agent has final velocity");
 
     vm.roll(block.number + 1);
     oldCoord = newCoord;
     newCoord = VoxelCoord({ x: oldCoord.x - 1, y: oldCoord.y, z: oldCoord.z });
     world.move(agentObjectEntityId, BuilderObjectID, oldCoord, newCoord);
 
-    vm.roll(block.number + 1);
-    oldCoord = newCoord;
-    newCoord = VoxelCoord({ x: oldCoord.x - 1, y: oldCoord.y, z: oldCoord.z });
-    world.move(agentObjectEntityId, BuilderObjectID, oldCoord, newCoord);
+    agentVelocity = abi.decode(Velocity.getVelocity(simStore, worldAddress, agentObjectEntityId), (VoxelCoord));
+    assertTrue(agentVelocity.x == 0 && agentVelocity.y == 0 && agentVelocity.z == 0, "Agent has final velocity");
 
     vm.roll(block.number + 1);
     oldCoord = newCoord;
     newCoord = VoxelCoord({ x: oldCoord.x - 1, y: oldCoord.y, z: oldCoord.z });
     world.move(agentObjectEntityId, BuilderObjectID, oldCoord, newCoord);
+
+    agentVelocity = abi.decode(Velocity.getVelocity(simStore, worldAddress, agentObjectEntityId), (VoxelCoord));
+    assertTrue(agentVelocity.x == 0 && agentVelocity.y == 0 && agentVelocity.z == 0, "Agent has final velocity");
+
+    vm.roll(block.number + 1);
+    oldCoord = newCoord;
+    newCoord = VoxelCoord({ x: oldCoord.x - 1, y: oldCoord.y, z: oldCoord.z });
+    world.move(agentObjectEntityId, BuilderObjectID, oldCoord, newCoord);
+
+    agentVelocity = abi.decode(Velocity.getVelocity(simStore, worldAddress, agentObjectEntityId), (VoxelCoord));
+    assertTrue(agentVelocity.x == 0 && agentVelocity.y == 0 && agentVelocity.z == 0, "Agent has final velocity");
+
+    vm.roll(block.number + 1);
+    oldCoord = newCoord;
+    newCoord = VoxelCoord({ x: oldCoord.x - 1, y: oldCoord.y, z: oldCoord.z });
+    world.move(agentObjectEntityId, BuilderObjectID, oldCoord, newCoord);
+
+    agentVelocity = abi.decode(Velocity.getVelocity(simStore, worldAddress, agentObjectEntityId), (VoxelCoord));
+    assertTrue(agentVelocity.x == 0 && agentVelocity.y == 0 && agentVelocity.z == 0, "Agent has final velocity");
 
     vm.roll(block.number + 1);
     oldCoord = newCoord;
     newCoord = VoxelCoord({ x: oldCoord.x - 1, y: oldCoord.y - 1, z: oldCoord.z });
     world.move(agentObjectEntityId, BuilderObjectID, oldCoord, newCoord);
+
+    agentVelocity = abi.decode(Velocity.getVelocity(simStore, worldAddress, agentObjectEntityId), (VoxelCoord));
+    assertTrue(agentVelocity.x == 0 && agentVelocity.y == 0 && agentVelocity.z == 0, "Agent has final velocity");
 
     // Next move is over soil
     vm.roll(block.number + 1);
@@ -106,10 +127,31 @@ contract TerrainTest is MudTest {
     newCoord = VoxelCoord({ x: oldCoord.x - 1, y: oldCoord.y, z: oldCoord.z });
     world.move(agentObjectEntityId, BuilderObjectID, oldCoord, newCoord);
 
+    agentVelocity = abi.decode(Velocity.getVelocity(simStore, worldAddress, agentObjectEntityId), (VoxelCoord));
+    assertTrue(agentVelocity.x == 0 && agentVelocity.y == 0 && agentVelocity.z == 0, "Agent has final velocity");
+
     vm.roll(block.number + 1);
     oldCoord = newCoord;
     newCoord = VoxelCoord({ x: oldCoord.x - 1, y: oldCoord.y, z: oldCoord.z });
     world.move(agentObjectEntityId, BuilderObjectID, oldCoord, newCoord);
+
+    agentVelocity = abi.decode(Velocity.getVelocity(simStore, worldAddress, agentObjectEntityId), (VoxelCoord));
+    assertTrue(agentVelocity.x == 0 && agentVelocity.y == 0 && agentVelocity.z == 0, "Agent has final velocity");
+
+    vm.roll(block.number + 1);
+    oldCoord = newCoord;
+    newCoord = VoxelCoord({ x: oldCoord.x - 1, y: oldCoord.y, z: oldCoord.z });
+    world.move(agentObjectEntityId, BuilderObjectID, oldCoord, newCoord);
+    agentVelocity = abi.decode(Velocity.getVelocity(simStore, worldAddress, agentObjectEntityId), (VoxelCoord));
+    assertTrue(agentVelocity.x == 0 && agentVelocity.y == 0 && agentVelocity.z == 0, "Agent has final velocity");
+
+    vm.roll(block.number + 1);
+    oldCoord = newCoord;
+    newCoord = VoxelCoord({ x: oldCoord.x - 1, y: oldCoord.y, z: oldCoord.z - 1 });
+    world.move(agentObjectEntityId, BuilderObjectID, oldCoord, newCoord);
+
+    agentVelocity = abi.decode(Velocity.getVelocity(simStore, worldAddress, agentObjectEntityId), (VoxelCoord));
+    assertTrue(agentVelocity.x == 0 && agentVelocity.y == 0 && agentVelocity.z == 0, "Agent has final velocity");
 
     vm.stopPrank();
   }

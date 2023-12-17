@@ -48,11 +48,11 @@ contract BuildSystem is BuildProtoSystem {
     bytes32 objectEntityId,
     bytes memory eventData
   ) internal override {
-    // We don't want to run the object code if the caller is the simulator
-    // eg when the simulator is building terrain
+    // We don't want to run the object code if the caller is the simulator or the world
+    // eg when the simulator/world is building terrain
     // TODO: Make this specific to terrain building not just any build
     address callerAddress = _msgSender();
-    if (callerAddress != getSimulatorAddress()) {
+    if (callerAddress != _world() && callerAddress != getSimulatorAddress()) {
       super.runObject(actingObjectEntityId, objectTypeId, coord, eventEntityId, objectEntityId, eventData);
     }
   }

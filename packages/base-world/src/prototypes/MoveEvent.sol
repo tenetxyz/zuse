@@ -130,8 +130,8 @@ abstract contract MoveEvent is Event {
     require(uint256(oldEntityId) != 0, "MoveEvent: old entity does not exist");
 
     // Need to run 2 interactions because we're moving so two entities are involved
-    IWorld(_world()).runInteractions(oldEntityId);
     IWorld(_world()).runInteractions(eventEntityId);
+    IWorld(_world()).runInteractions(oldEntityId);
   }
 
   function postRunObject(

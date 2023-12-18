@@ -28,10 +28,32 @@ contract BuildSystem is BuildProtoSystem {
   ) internal override {
     super.postEvent(actingObjectEntityId, objectTypeId, coord, eventEntityId, eventData);
 
-    // Clear all keys in Metadata
-    bytes32[][] memory objectsRan = getKeysInTable(MetadataTableId);
-    for (uint256 i = 0; i < objectsRan.length; i++) {
-      Metadata.deleteRecord(objectsRan[i][0]);
+    address callerAddress = _msgSender();
+    // Clear all keys in Metadata if not called by World or Simulator
+    // This would typically represent the end of a user call, vs the end of
+    // an internal call
+    if (callerAddress != _world() && callerAddress != getSimulatorAddress()) {
+      bytes32[][] memory objectsRan = getKeysInTable(MetadataTableId);
+      for (uint256 i = 0; i < objectsRan.length; i++) {
+        Metadata.deleteRecord(objectsRan[i][0]);
+      }
+    }
+  }
+
+  function runObject(
+    bytes32 actingObjectEntityId,
+    bytes32 objectTypeId,
+    VoxelCoord memory coord,
+    bytes32 eventEntityId,
+    bytes32 objectEntityId,
+    bytes memory eventData
+  ) internal override {
+    // We don't want to run the object code if the caller is the simulator or the world
+    // eg when the simulator/world is building terrain
+    // TODO: Make this specific to terrain building not just any build
+    address callerAddress = _msgSender();
+    if (callerAddress != _world() && callerAddress != getSimulatorAddress()) {
+      super.runObject(actingObjectEntityId, objectTypeId, coord, eventEntityId, objectEntityId, eventData);
     }
   }
 

@@ -5,8 +5,9 @@ import { IWorld } from "@tenet-world/src/codegen/world/IWorld.sol";
 import { IStore } from "@latticexyz/store/src/IStore.sol";
 import { System } from "@latticexyz/world/src/System.sol";
 import { hasKey } from "@latticexyz/world/src/modules/keysintable/hasKey.sol";
+import { getKeysInTable } from "@latticexyz/world/src/modules/keysintable/getKeysInTable.sol";
 
-import { ObjectType, Faucet, FaucetData, FaucetTableId } from "@tenet-world/src/codegen/Tables.sol";
+import { ObjectType, Faucet, FaucetData, FaucetTableId, Metadata, MetadataTableId } from "@tenet-world/src/codegen/Tables.sol";
 
 import { VoxelCoord } from "@tenet-utils/src/Types.sol";
 import { getEntityIdFromObjectEntityId, getVoxelCoordStrict } from "@tenet-base-world/src/Utils.sol";
@@ -63,6 +64,13 @@ contract FaucetSystem is System {
       ObjectType.get(faucetEntityId),
       getVoxelCoordStrict(IStore(_world()), faucetEntityId)
     );
+
+    // We need to clear the metadata table here because the
+    // build and activate event will not clear them since it's an internal call
+    bytes32[][] memory objectsRan = getKeysInTable(MetadataTableId);
+    for (uint256 i = 0; i < objectsRan.length; i++) {
+      Metadata.deleteRecord(objectsRan[i][0]);
+    }
 
     return newEntityId;
   }

@@ -9,6 +9,7 @@ import { getKeysInTable } from "@latticexyz/world/src/modules/keysintable/getKey
 
 import { ObjectType, Faucet, FaucetData, FaucetTableId, Metadata, MetadataTableId } from "@tenet-world/src/codegen/Tables.sol";
 
+import { distanceBetween } from "@tenet-utils/src/VoxelCoordUtils.sol";
 import { VoxelCoord } from "@tenet-utils/src/Types.sol";
 import { getEntityIdFromObjectEntityId, getVoxelCoordStrict } from "@tenet-base-world/src/Utils.sol";
 
@@ -51,18 +52,23 @@ contract FaucetSystem is System {
       facuetData.claimerAmounts[claimIdx] = numClaims + 1;
     }
 
+    bytes32 faucetEntityId = getEntityIdFromObjectEntityId(IStore(_world()), faucetObjectEntityId);
+    VoxelCoord memory faucetPosition = getVoxelCoordStrict(IStore(_world()), faucetEntityId);
+    require(
+      distanceBetween(faucetPosition, buildCoord) <= 1,
+      "FaucetSystem: Cannot claim agent from faucet that is not adjacent to faucet"
+    );
+
     // Note: calling build every time will cause the area around the agent to lose energy
     // TODO: Fix this if it becomes a problem. One idea is the faucet entity could flux energy back to the surrounding
     bytes32 newEntityId = IWorld(_world()).build(faucetObjectEntityId, buildObjectTypeId, buildCoord);
     IWorld(_world()).claimAgent(newEntityId);
     Faucet.set(faucetObjectEntityId, facuetData);
 
-    bytes32 faucetEntityId = getEntityIdFromObjectEntityId(IStore(_world()), faucetObjectEntityId);
-
     IWorld(_world()).activate(
       faucetObjectEntityId,
       ObjectType.get(faucetEntityId),
-      getVoxelCoordStrict(IStore(_world()), faucetEntityId)
+      faucetPosition
     );
 
     // We need to clear the metadata table here because the

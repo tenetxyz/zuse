@@ -51,6 +51,23 @@ contract AgentTest is MudTest {
     vm.stopPrank();
   }
 
+  function testFaucetAgentInvalid() public {
+    vm.startPrank(alice, alice);
+
+    bytes32 faucetEntityId = getEntityAtCoord(store, faucetAgentCoord);
+    assertTrue(uint256(faucetEntityId) != 0, "Agent not found at coord");
+    bytes32 faucetObjectEntityId = ObjectEntity.get(store, faucetEntityId);
+    assertTrue(Health.getHealth(simStore, worldAddress, faucetObjectEntityId) > 0, "Faucet does not have health");
+    assertTrue(Stamina.get(simStore, worldAddress, faucetObjectEntityId) > 0, "Faucet does not have stamina");
+
+    // You can only build one coord away from the faucet
+    VoxelCoord memory initialAgentCoord = VoxelCoord(faucetAgentCoord.x, faucetAgentCoord.y, faucetAgentCoord.z + 2);
+    vm.expectRevert();
+    world.claimAgentFromFaucet(faucetObjectEntityId, BuilderObjectID, initialAgentCoord);
+
+    vm.stopPrank();
+  }
+
   function testBuilderAgent() public {
     vm.startPrank(alice, alice);
 

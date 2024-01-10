@@ -40,6 +40,7 @@ contract MonumentsTest is MudTest {
   IStore private simStore;
   IStore private derivedStore;
   address payable internal alice;
+  address payable internal bob;
   VoxelCoord faucetAgentCoord = VoxelCoord(50, 10, 50);
   VoxelCoord agentCoord;
 
@@ -51,6 +52,7 @@ contract MonumentsTest is MudTest {
     simStore = IStore(SIMULATOR_ADDRESS);
     derivedStore = IStore(worldAddress);
     alice = payable(address(0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266));
+    bob = payable(address(0x70997970C51812dc3A010C7d01b50e0d17dc79C8));
     agentCoord = VoxelCoord({ x: faucetAgentCoord.x + 1, y: faucetAgentCoord.y, z: faucetAgentCoord.z });
   }
 
@@ -86,10 +88,11 @@ contract MonumentsTest is MudTest {
     assertTrue(monumentsLBData.agentObjectEntityId == agentObjectEntityId, "Agent object entity ID not set correctly");
     assertTrue(monumentsLBData.length == int32ToUint32(size.x), "Length not set correctly");
     assertTrue(monumentsLBData.width == int32ToUint32(size.z), "Width not set correctly");
+    assertTrue(monumentsLBData.totalLikes == 0, "TotalLikes not set correctly");
     assertTrue(monumentsLBData.likedBy.length == 0, "LikedBy not set correctly");
 
-    vm.expectRevert();
     // should fail because already claimed
+    vm.expectRevert();
     derivedWorld.claimArea(
       agentObjectEntityId,
       VoxelCoord({ x: lowerSouthwestCorner.x + 1, y: lowerSouthwestCorner.y, z: lowerSouthwestCorner.z }),
@@ -109,6 +112,189 @@ contract MonumentsTest is MudTest {
 
     vm.expectRevert();
     derivedWorld.claimArea(agentObjectEntityId, lowerSouthwestCorner, size);
+
+    vm.stopPrank();
+  }
+
+  function testLikeArea() public {
+    vm.startPrank(alice, alice);
+
+    (, bytes32 agentObjectEntityId) = setupAgent();
+
+    VoxelCoord memory lowerSouthwestCorner = VoxelCoord({ x: agentCoord.x, y: agentCoord.y, z: agentCoord.z });
+    VoxelCoord memory size = VoxelCoord({ x: 10, y: 0, z: 10 });
+
+    derivedWorld.claimArea(agentObjectEntityId, lowerSouthwestCorner, size);
+    MonumentsLeaderboardData memory monumentsLBData = MonumentsLeaderboard.get(
+      derivedStore,
+      lowerSouthwestCorner.x,
+      lowerSouthwestCorner.y,
+      lowerSouthwestCorner.z
+    );
+    assertTrue(monumentsLBData.totalLikes == 0, "TotalLikes not set correctly");
+    assertTrue(monumentsLBData.likedBy.length == 0, "LikedBy not set correctly");
+
+    derivedWorld.likeArea(lowerSouthwestCorner);
+    monumentsLBData = MonumentsLeaderboard.get(
+      derivedStore,
+      lowerSouthwestCorner.x,
+      lowerSouthwestCorner.y,
+      lowerSouthwestCorner.z
+    );
+    assertTrue(monumentsLBData.totalLikes == 1, "TotalLikes not set correctly");
+    assertTrue(monumentsLBData.likedBy.length == 1, "LikedBy not set correctly");
+    assertTrue(monumentsLBData.likedBy[0] == alice, "LikedBy not set correctly");
+
+    // should fail because already liked
+    vm.expectRevert();
+    derivedWorld.likeArea(lowerSouthwestCorner);
+
+    vm.stopPrank();
+  }
+
+  function testInvalidLikeArea() public {
+    vm.startPrank(alice, alice);
+
+    (, bytes32 agentObjectEntityId) = setupAgent();
+
+    VoxelCoord memory lowerSouthwestCorner = VoxelCoord({ x: agentCoord.x, y: agentCoord.y, z: agentCoord.z });
+    // should fail because not claimed
+    vm.expectRevert();
+    derivedWorld.likeArea(lowerSouthwestCorner);
+
+    vm.stopPrank();
+  }
+
+  function testSingleLeaderboard() public {
+    vm.startPrank(alice, alice);
+
+    (, bytes32 agentObjectEntityId) = setupAgent();
+
+    VoxelCoord memory lowerSouthwestCorner = VoxelCoord({ x: agentCoord.x, y: agentCoord.y, z: agentCoord.z });
+    VoxelCoord memory size = VoxelCoord({ x: 10, y: 0, z: 10 });
+
+    derivedWorld.claimArea(agentObjectEntityId, lowerSouthwestCorner, size);
+    MonumentsLeaderboardData memory monumentsLBData = MonumentsLeaderboard.get(
+      derivedStore,
+      lowerSouthwestCorner.x,
+      lowerSouthwestCorner.y,
+      lowerSouthwestCorner.z
+    );
+
+    derivedWorld.likeArea(lowerSouthwestCorner);
+    monumentsLBData = MonumentsLeaderboard.get(
+      derivedStore,
+      lowerSouthwestCorner.x,
+      lowerSouthwestCorner.y,
+      lowerSouthwestCorner.z
+    );
+    assertTrue(monumentsLBData.totalLikes == 1, "TotalLikes not set correctly");
+    vm.stopPrank();
+
+    vm.startPrank(bob, bob);
+    derivedWorld.likeArea(lowerSouthwestCorner);
+    monumentsLBData = MonumentsLeaderboard.get(
+      derivedStore,
+      lowerSouthwestCorner.x,
+      lowerSouthwestCorner.y,
+      lowerSouthwestCorner.z
+    );
+    assertTrue(monumentsLBData.totalLikes == 2, "TotalLikes not set correctly");
+    vm.stopPrank();
+    vm.startPrank(alice, alice);
+
+    derivedWorld.updateMonumentsLeaderboard();
+    monumentsLBData = MonumentsLeaderboard.get(
+      derivedStore,
+      lowerSouthwestCorner.x,
+      lowerSouthwestCorner.y,
+      lowerSouthwestCorner.z
+    );
+    assertTrue(monumentsLBData.rank == 1, "Rank not set correctly");
+
+    vm.stopPrank();
+  }
+
+  function testMultipleLeaderboard() public {
+    vm.startPrank(alice, alice);
+
+    (, bytes32 agentObjectEntityId) = setupAgent();
+    bytes32 agentObjectTypeId = BuilderObjectID;
+
+    VoxelCoord memory lowerSouthwestCorner1 = VoxelCoord({ x: agentCoord.x, y: agentCoord.y, z: agentCoord.z });
+    VoxelCoord memory size = VoxelCoord({ x: 10, y: 0, z: 10 });
+
+    derivedWorld.claimArea(agentObjectEntityId, lowerSouthwestCorner1, size);
+    MonumentsLeaderboardData memory monumentsLBData = MonumentsLeaderboard.get(
+      derivedStore,
+      lowerSouthwestCorner1.x,
+      lowerSouthwestCorner1.y,
+      lowerSouthwestCorner1.z
+    );
+    assertTrue(monumentsLBData.owner == alice, "Owner not set correctly");
+    assertTrue(monumentsLBData.totalLikes == 0, "TotalLikes not set correctly");
+    assertTrue(monumentsLBData.rank == 1, "Default rank not set correctly");
+
+    // move agent to new area (-1 in and x and z ten times) and claim that
+    VoxelCoord memory oldCoord = agentCoord;
+    VoxelCoord memory newCoord = VoxelCoord(oldCoord.x - 1, oldCoord.y, oldCoord.z - 1);
+    for (uint i = 0; i < 10; i++) {
+      world.move(agentObjectEntityId, agentObjectTypeId, oldCoord, newCoord);
+      oldCoord = newCoord;
+      newCoord = VoxelCoord(oldCoord.x - 1, oldCoord.y, oldCoord.z - 1);
+      agentCoord = newCoord;
+    }
+    size = VoxelCoord({ x: 5, y: 0, z: 5 });
+    VoxelCoord memory lowerSouthwestCorner2 = newCoord;
+    derivedWorld.claimArea(agentObjectEntityId, lowerSouthwestCorner2, size);
+    monumentsLBData = MonumentsLeaderboard.get(
+      derivedStore,
+      lowerSouthwestCorner2.x,
+      lowerSouthwestCorner2.y,
+      lowerSouthwestCorner2.z
+    );
+    assertTrue(monumentsLBData.owner == alice, "Owner not set correctly");
+    assertTrue(monumentsLBData.totalLikes == 0, "TotalLikes not set correctly");
+    assertTrue(monumentsLBData.rank == 2, "Default rank not set correctly");
+
+    derivedWorld.likeArea(lowerSouthwestCorner2);
+    monumentsLBData = MonumentsLeaderboard.get(
+      derivedStore,
+      lowerSouthwestCorner2.x,
+      lowerSouthwestCorner2.y,
+      lowerSouthwestCorner2.z
+    );
+    assertTrue(monumentsLBData.totalLikes == 1, "TotalLikes not set correctly");
+    vm.stopPrank();
+
+    vm.startPrank(bob, bob);
+    derivedWorld.likeArea(lowerSouthwestCorner2);
+    monumentsLBData = MonumentsLeaderboard.get(
+      derivedStore,
+      lowerSouthwestCorner2.x,
+      lowerSouthwestCorner2.y,
+      lowerSouthwestCorner2.z
+    );
+    assertTrue(monumentsLBData.totalLikes == 2, "TotalLikes not set correctly");
+    vm.stopPrank();
+    vm.startPrank(alice, alice);
+
+    derivedWorld.updateMonumentsLeaderboard();
+    monumentsLBData = MonumentsLeaderboard.get(
+      derivedStore,
+      lowerSouthwestCorner2.x,
+      lowerSouthwestCorner2.y,
+      lowerSouthwestCorner2.z
+    );
+    assertTrue(monumentsLBData.rank == 1, "Rank not set correctly");
+
+    monumentsLBData = MonumentsLeaderboard.get(
+      derivedStore,
+      lowerSouthwestCorner1.x,
+      lowerSouthwestCorner1.y,
+      lowerSouthwestCorner1.z
+    );
+    assertTrue(monumentsLBData.rank == 2, "Rank not set correctly");
 
     vm.stopPrank();
   }

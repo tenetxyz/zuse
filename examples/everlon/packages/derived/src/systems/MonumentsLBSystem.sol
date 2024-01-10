@@ -53,10 +53,8 @@ contract MonumentsLBSystem is System {
     // Check coord is within the area
     require(
       coord.x >= lowerSouthwestCorner.x &&
-        coord.y >= lowerSouthwestCorner.y &&
         coord.z >= lowerSouthwestCorner.z &&
         coord.x < lowerSouthwestCorner.x + size.x &&
-        coord.y < lowerSouthwestCorner.y + size.y &&
         coord.z < lowerSouthwestCorner.z + size.z,
       "MonumentsLBSystem: Your agent is not within the selected area"
     );

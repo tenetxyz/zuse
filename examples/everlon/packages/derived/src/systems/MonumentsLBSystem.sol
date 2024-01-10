@@ -35,19 +35,19 @@ struct EntityLikes {
   uint256 likes;
 }
 
-contract BuildingLikesSystem is System {
+contract MonumentsLBSystem is System {
   function claimBuildingShard(bytes32 agentObjectEntityId) public {
     IStore worldStore = IStore(WORLD_ADDRESS);
     require(
       hasKey(worldStore, OwnedByTableId, OwnedBy.encodeKeyTuple(agentObjectEntityId)) &&
         OwnedBy.get(worldStore, agentObjectEntityId) == _msgSender(),
-      "BuildingLikesSystem: You do not own this entity"
+      "MonumentsLBSystem: You do not own this entity"
     );
     VoxelCoord memory coord = getVoxelCoord(worldStore, agentObjectEntityId);
     VoxelCoord memory shardCoord = coordToShardCoord(coord, SHARD_DIM);
     require(
       !hasKey(BuildingLeaderboardTableId, BuildingLeaderboard.encodeKeyTuple(shardCoord.x, shardCoord.y, shardCoord.z)),
-      "BuildingLikesSystem: A builder already claimed this shard"
+      "MonumentsLBSystem: A builder already claimed this shard"
     );
 
     bytes32[][] memory buildingLikesEntities = getKeysInTable(BuildingLeaderboardTableId);
@@ -80,7 +80,7 @@ contract BuildingLikesSystem is System {
         break;
       }
     }
-    require(!userFound, "BuildingLikesSystem: User already liked this shard");
+    require(!userFound, "MonumentsLBSystem: User already liked this shard");
 
     // Create a new array with an additional slot and Copy old array to new array
     address[] memory newLikedByArray = new address[](likedByArray.length + 1);

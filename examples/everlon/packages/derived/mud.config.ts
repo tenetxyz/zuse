@@ -6,6 +6,24 @@ export default mudConfig({
     ElementType: ["None", "Fire", "Water", "Grass"],
   },
   tables: {
+    MonumentsLeaderboard: {
+      keySchema: {
+        // claimed area lowermost, southmost coord
+        x: "int32",
+        y: "int32",
+        z: "int32",
+      },
+      schema: {
+        length: "uint32",
+        width: "uint32",
+        height: "uint32",
+        rank: "uint256",
+        totalLikes: "uint256",
+        owner: "address",
+        agentObjectEntityId: "bytes32",
+        likedBy: "address[]",
+      },
+    },
     CreationRegistry: {
       keySchema: {
         creationId: "bytes32",
@@ -51,20 +69,6 @@ export default mudConfig({
         rank: "uint256",
         totalProduction: "uint256",
         farmerObjectEntityId: "bytes32",
-      },
-    },
-    BuildingLeaderboard: {
-      keySchema: {
-        // ShardCoords
-        x: "int32",
-        y: "int32",
-        z: "int32",
-      },
-      schema: {
-        rank: "uint256",
-        totalLikes: "uint256",
-        agentObjectEntityId: "bytes32",
-        likedBy: "address[]",
       },
     },
     ClaimedShard: {
@@ -163,7 +167,7 @@ export default mudConfig({
     {
       name: "KeysInTableModule",
       root: true,
-      args: [resolveTableId("BuildingLeaderboard")],
+      args: [resolveTableId("MonumentsLeaderboard")],
     },
     {
       name: "KeysInTableModule",

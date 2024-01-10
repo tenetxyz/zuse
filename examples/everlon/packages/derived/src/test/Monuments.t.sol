@@ -77,7 +77,7 @@ contract MonumentsTest is MudTest {
     VoxelCoord memory lowerSouthwestCorner = VoxelCoord({ x: agentCoord.x, y: agentCoord.y, z: agentCoord.z });
     VoxelCoord memory size = VoxelCoord({ x: 10, y: 0, z: 10 });
 
-    derivedWorld.claimArea(agentObjectEntityId, lowerSouthwestCorner, size);
+    derivedWorld.claimMonumentsArea(agentObjectEntityId, lowerSouthwestCorner, size);
     MonumentsLeaderboardData memory monumentsLBData = MonumentsLeaderboard.get(
       derivedStore,
       lowerSouthwestCorner.x,
@@ -93,7 +93,7 @@ contract MonumentsTest is MudTest {
 
     // should fail because already claimed
     vm.expectRevert();
-    derivedWorld.claimArea(
+    derivedWorld.claimMonumentsArea(
       agentObjectEntityId,
       VoxelCoord({ x: lowerSouthwestCorner.x + 1, y: lowerSouthwestCorner.y, z: lowerSouthwestCorner.z }),
       size
@@ -111,7 +111,7 @@ contract MonumentsTest is MudTest {
     VoxelCoord memory size = VoxelCoord({ x: 10, y: 0, z: 10 });
 
     vm.expectRevert();
-    derivedWorld.claimArea(agentObjectEntityId, lowerSouthwestCorner, size);
+    derivedWorld.claimMonumentsArea(agentObjectEntityId, lowerSouthwestCorner, size);
 
     vm.stopPrank();
   }
@@ -124,7 +124,7 @@ contract MonumentsTest is MudTest {
     VoxelCoord memory lowerSouthwestCorner = VoxelCoord({ x: agentCoord.x, y: agentCoord.y, z: agentCoord.z });
     VoxelCoord memory size = VoxelCoord({ x: 10, y: 0, z: 10 });
 
-    derivedWorld.claimArea(agentObjectEntityId, lowerSouthwestCorner, size);
+    derivedWorld.claimMonumentsArea(agentObjectEntityId, lowerSouthwestCorner, size);
     MonumentsLeaderboardData memory monumentsLBData = MonumentsLeaderboard.get(
       derivedStore,
       lowerSouthwestCorner.x,
@@ -134,7 +134,7 @@ contract MonumentsTest is MudTest {
     assertTrue(monumentsLBData.totalLikes == 0, "TotalLikes not set correctly");
     assertTrue(monumentsLBData.likedBy.length == 0, "LikedBy not set correctly");
 
-    derivedWorld.likeArea(lowerSouthwestCorner);
+    derivedWorld.likeMonumentsArea(lowerSouthwestCorner);
     monumentsLBData = MonumentsLeaderboard.get(
       derivedStore,
       lowerSouthwestCorner.x,
@@ -147,7 +147,7 @@ contract MonumentsTest is MudTest {
 
     // should fail because already liked
     vm.expectRevert();
-    derivedWorld.likeArea(lowerSouthwestCorner);
+    derivedWorld.likeMonumentsArea(lowerSouthwestCorner);
 
     vm.stopPrank();
   }
@@ -160,7 +160,7 @@ contract MonumentsTest is MudTest {
     VoxelCoord memory lowerSouthwestCorner = VoxelCoord({ x: agentCoord.x, y: agentCoord.y, z: agentCoord.z });
     // should fail because not claimed
     vm.expectRevert();
-    derivedWorld.likeArea(lowerSouthwestCorner);
+    derivedWorld.likeMonumentsArea(lowerSouthwestCorner);
 
     vm.stopPrank();
   }
@@ -173,7 +173,7 @@ contract MonumentsTest is MudTest {
     VoxelCoord memory lowerSouthwestCorner = VoxelCoord({ x: agentCoord.x, y: agentCoord.y, z: agentCoord.z });
     VoxelCoord memory size = VoxelCoord({ x: 10, y: 0, z: 10 });
 
-    derivedWorld.claimArea(agentObjectEntityId, lowerSouthwestCorner, size);
+    derivedWorld.claimMonumentsArea(agentObjectEntityId, lowerSouthwestCorner, size);
     MonumentsLeaderboardData memory monumentsLBData = MonumentsLeaderboard.get(
       derivedStore,
       lowerSouthwestCorner.x,
@@ -181,7 +181,7 @@ contract MonumentsTest is MudTest {
       lowerSouthwestCorner.z
     );
 
-    derivedWorld.likeArea(lowerSouthwestCorner);
+    derivedWorld.likeMonumentsArea(lowerSouthwestCorner);
     monumentsLBData = MonumentsLeaderboard.get(
       derivedStore,
       lowerSouthwestCorner.x,
@@ -192,7 +192,7 @@ contract MonumentsTest is MudTest {
     vm.stopPrank();
 
     vm.startPrank(bob, bob);
-    derivedWorld.likeArea(lowerSouthwestCorner);
+    derivedWorld.likeMonumentsArea(lowerSouthwestCorner);
     monumentsLBData = MonumentsLeaderboard.get(
       derivedStore,
       lowerSouthwestCorner.x,
@@ -224,7 +224,7 @@ contract MonumentsTest is MudTest {
     VoxelCoord memory lowerSouthwestCorner1 = VoxelCoord({ x: agentCoord.x, y: agentCoord.y, z: agentCoord.z });
     VoxelCoord memory size = VoxelCoord({ x: 10, y: 0, z: 10 });
 
-    derivedWorld.claimArea(agentObjectEntityId, lowerSouthwestCorner1, size);
+    derivedWorld.claimMonumentsArea(agentObjectEntityId, lowerSouthwestCorner1, size);
     MonumentsLeaderboardData memory monumentsLBData = MonumentsLeaderboard.get(
       derivedStore,
       lowerSouthwestCorner1.x,
@@ -246,7 +246,7 @@ contract MonumentsTest is MudTest {
     }
     size = VoxelCoord({ x: 5, y: 0, z: 5 });
     VoxelCoord memory lowerSouthwestCorner2 = newCoord;
-    derivedWorld.claimArea(agentObjectEntityId, lowerSouthwestCorner2, size);
+    derivedWorld.claimMonumentsArea(agentObjectEntityId, lowerSouthwestCorner2, size);
     monumentsLBData = MonumentsLeaderboard.get(
       derivedStore,
       lowerSouthwestCorner2.x,
@@ -257,7 +257,7 @@ contract MonumentsTest is MudTest {
     assertTrue(monumentsLBData.totalLikes == 0, "TotalLikes not set correctly");
     assertTrue(monumentsLBData.rank == 2, "Default rank not set correctly");
 
-    derivedWorld.likeArea(lowerSouthwestCorner2);
+    derivedWorld.likeMonumentsArea(lowerSouthwestCorner2);
     monumentsLBData = MonumentsLeaderboard.get(
       derivedStore,
       lowerSouthwestCorner2.x,
@@ -268,7 +268,7 @@ contract MonumentsTest is MudTest {
     vm.stopPrank();
 
     vm.startPrank(bob, bob);
-    derivedWorld.likeArea(lowerSouthwestCorner2);
+    derivedWorld.likeMonumentsArea(lowerSouthwestCorner2);
     monumentsLBData = MonumentsLeaderboard.get(
       derivedStore,
       lowerSouthwestCorner2.x,

@@ -38,7 +38,7 @@ struct AreaLikes {
 
 contract MonumentsLBSystem is System {
   // Note: we only support claiming 2D areas for now, ie all y values are ignored
-  function claimArea(
+  function claimMonumentsArea(
     bytes32 agentObjectEntityId,
     VoxelCoord memory lowerSouthwestCorner,
     VoxelCoord memory size
@@ -122,7 +122,7 @@ contract MonumentsLBSystem is System {
     return monumentsLBEntities.length;
   }
 
-  function likeArea(VoxelCoord memory lowerSouthwestCorner) public {
+  function likeMonumentsArea(VoxelCoord memory lowerSouthwestCorner) public {
     require(
       hasKey(
         MonumentsLeaderboardTableId,

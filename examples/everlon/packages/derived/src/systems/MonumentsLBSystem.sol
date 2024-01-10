@@ -29,7 +29,7 @@ import { Creature, CreatureData } from "@tenet-creatures/src/codegen/tables/Crea
 import { Plant, PlantData } from "@tenet-farming/src/codegen/tables/Plant.sol";
 import { Farmer } from "@tenet-farming/src/codegen/tables/Farmer.sol";
 
-struct EntityLikes {
+struct AreaLikes {
   int32 x;
   int32 y;
   int32 z;
@@ -124,95 +124,91 @@ contract MonumentsLBSystem is System {
     return monumentsLBEntities.length;
   }
 
-  // function likeShard(VoxelCoord memory coord) public {
-  //   IStore worldStore = IStore(WORLD_ADDRESS);
-  //   VoxelCoord memory shardCoord = coordToShardCoord(coord, SHARD_DIM);
+  function likeArea(VoxelCoord memory lowerSouthwestCorner) public {
+    require(
+      hasKey(
+        MonumentsLeaderboardTableId,
+        MonumentsLeaderboard.encodeKeyTuple(lowerSouthwestCorner.x, lowerSouthwestCorner.y, lowerSouthwestCorner.z)
+      ),
+      "MonumentsLBSystem: This area is not claimed"
+    );
+    address[] memory likedByArray = MonumentsLeaderboard.getLikedBy(
+      lowerSouthwestCorner.x,
+      lowerSouthwestCorner.y,
+      lowerSouthwestCorner.z
+    );
+    bool userFound = false;
+    for (uint i = 0; i < likedByArray.length; i++) {
+      if (likedByArray[i] == _msgSender()) {
+        userFound = true;
+        break;
+      }
+    }
+    require(!userFound, "MonumentsLBSystem: User has already liked this shard");
+    // TODO: Add ERC20 token transfer to like
 
-  //   address[] memory likedByArray = MonumentsLeaderboard.getLikedBy(shardCoord.x, shardCoord.y, shardCoord.z);
-  //   bool userFound = false;
-  //   for (uint i = 0; i < likedByArray.length; i++) {
-  //     if (likedByArray[i] == _msgSender()) {
-  //       userFound = true;
-  //       break;
-  //     }
-  //   }
-  //   require(!userFound, "MonumentsLBSystem: User already liked this shard");
+    // Create a new array with an additional slot and copy old array to new array
+    address[] memory newLikedByArray = new address[](likedByArray.length + 1);
+    for (uint i = 0; i < likedByArray.length; i++) {
+      newLikedByArray[i] = likedByArray[i];
+    }
+    // Add new user to the last slot of the new array
+    newLikedByArray[likedByArray.length] = _msgSender();
+    uint256 totalLikes = MonumentsLeaderboard.getTotalLikes(
+      lowerSouthwestCorner.x,
+      lowerSouthwestCorner.y,
+      lowerSouthwestCorner.z
+    ) + 1;
 
-  //   // Create a new array with an additional slot and Copy old array to new array
-  //   address[] memory newLikedByArray = new address[](likedByArray.length + 1);
-  //   for (uint i = 0; i < likedByArray.length; i++) {
-  //     newLikedByArray[i] = likedByArray[i];
-  //   }
+    MonumentsLeaderboard.setTotalLikes(
+      lowerSouthwestCorner.x,
+      lowerSouthwestCorner.y,
+      lowerSouthwestCorner.z,
+      totalLikes
+    );
+    MonumentsLeaderboard.setLikedBy(
+      lowerSouthwestCorner.x,
+      lowerSouthwestCorner.y,
+      lowerSouthwestCorner.z,
+      newLikedByArray
+    );
+  }
 
-  //   // Add new user to the last slot of the new array
-  //   newLikedByArray[likedByArray.length] = _msgSender();
-  //   uint256 totalLikes = MonumentsLeaderboard.getTotalLikes(shardCoord.x, shardCoord.y, shardCoord.z) + 1;
+  function updateMonumentsLeaderboard() public {
+    bytes32[][] memory monumentsLBEntities = getKeysInTable(MonumentsLeaderboardTableId);
 
-  //   MonumentsLeaderboard.set(
-  //     shardCoord.x,
-  //     shardCoord.y,
-  //     shardCoord.z,
-  //     MonumentsLeaderboardData({
-  //       rank: MonumentsLeaderboard.getRank(shardCoord.x, shardCoord.y, shardCoord.z),
-  //       totalLikes: totalLikes,
-  //       agentObjectEntityId: MonumentsLeaderboard.getAgentObjectEntityId(shardCoord.x, shardCoord.y, shardCoord.z),
-  //       likedBy: newLikedByArray
-  //     })
-  //   );
-  // }
+    AreaLikes[] memory allAreaLikes = new AreaLikes[](monumentsLBEntities.length);
 
-  // function updateMonumentsLeaderboard() public {
-  //   IStore worldStore = IStore(WORLD_ADDRESS);
+    for (uint256 i = 0; i < monumentsLBEntities.length; i++) {
+      int32 x = int32(int256(uint256(monumentsLBEntities[i][0])));
+      int32 y = int32(int256(uint256(monumentsLBEntities[i][1])));
+      int32 z = int32(int256(uint256(monumentsLBEntities[i][2])));
+      uint256 likes = MonumentsLeaderboard.getTotalLikes(x, y, z);
 
-  //   bytes32[][] memory buildingLikesEntities = getKeysInTable(MonumentsLeaderboardTableId);
+      allAreaLikes[i] = AreaLikes(x, y, z, likes);
+    }
 
-  //   EntityLikes[] memory allEntitiesLikes = new EntityLikes[](buildingLikesEntities.length);
+    // Sort the array based on likes using Bubble Sort
+    bool swapped = false;
+    for (uint256 i = 0; i < allAreaLikes.length - 1; i++) {
+      swapped = false;
+      for (uint256 j = 0; j < allAreaLikes.length - i - 1; j++) {
+        if (allAreaLikes[j].likes < allAreaLikes[j + 1].likes) {
+          // Swap
+          AreaLikes memory temp = allAreaLikes[j];
+          allAreaLikes[j] = allAreaLikes[j + 1];
+          allAreaLikes[j + 1] = temp;
+          swapped = true;
+        }
+      }
+      if (!swapped) {
+        break;
+      }
+    }
 
-  //   for (uint i = 0; i < buildingLikesEntities.length; i++) {
-  //     int32 x = int32(int256(uint256(buildingLikesEntities[i][0])));
-  //     int32 y = int32(int256(uint256(buildingLikesEntities[i][1])));
-  //     int32 z = int32(int256(uint256(buildingLikesEntities[i][2])));
-  //     uint256 likes = MonumentsLeaderboard.getTotalLikes(x, y, z);
-
-  //     allEntitiesLikes[i] = EntityLikes(x, y, z, likes);
-  //   }
-
-  //   // Sort the array based on likes using Bubble Sort
-  //   bool swapped = false;
-  //   // TODO: Fix sort algorithm, it's not working
-  //   for (uint i = 0; i < allEntitiesLikes.length; i++) {
-  //     swapped = false;
-  //     for (uint j = 0; j < allEntitiesLikes.length - i - 1; j++) {
-  //       if (allEntitiesLikes[j].likes < allEntitiesLikes[j + 1].likes) {
-  //         // Swap
-  //         EntityLikes memory temp = allEntitiesLikes[j];
-  //         allEntitiesLikes[j] = allEntitiesLikes[j + 1];
-  //         allEntitiesLikes[j + 1] = temp;
-  //         swapped = true;
-  //       }
-  //     }
-  //     if (!swapped) {
-  //       break;
-  //     }
-  //   }
-
-  //   for (uint i = 0; i < allEntitiesLikes.length; i++) {
-  //     uint rank = i + 1;
-  //     MonumentsLeaderboard.set(
-  //       allEntitiesLikes[i].x,
-  //       allEntitiesLikes[i].y,
-  //       allEntitiesLikes[i].z,
-  //       MonumentsLeaderboardData({
-  //         rank: rank,
-  //         totalLikes: allEntitiesLikes[i].likes,
-  //         agentObjectEntityId: MonumentsLeaderboard.getAgentObjectEntityId(
-  //           allEntitiesLikes[i].x,
-  //           allEntitiesLikes[i].y,
-  //           allEntitiesLikes[i].z
-  //         ),
-  //         likedBy: MonumentsLeaderboard.getLikedBy(allEntitiesLikes[i].x, allEntitiesLikes[i].y, allEntitiesLikes[i].z)
-  //       })
-  //     );
-  //   }
-  // }
+    for (uint256 i = 0; i < allAreaLikes.length; i++) {
+      uint rank = i + 1;
+      MonumentsLeaderboard.setRank(allAreaLikes[i].x, allAreaLikes[i].y, allAreaLikes[i].z, rank);
+    }
+  }
 }

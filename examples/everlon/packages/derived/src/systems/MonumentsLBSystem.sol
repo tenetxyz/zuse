@@ -9,7 +9,7 @@ import { getKeysInTable } from "@latticexyz/world/src/modules/keysintable/getKey
 
 import { VoxelCoord, ObjectProperties } from "@tenet-utils/src/Types.sol";
 
-import { BuildingLeaderboard, BuildingLeaderboardData, BuildingLeaderboardTableId } from "@tenet-derived/src/codegen/Tables.sol";
+import { MonumentsLeaderboard, MonumentsLeaderboardData, MonumentsLeaderboardTableId } from "@tenet-derived/src/codegen/Tables.sol";
 import { ClaimedShard } from "@tenet-derived/src/codegen/Tables.sol";
 
 import { Position } from "@tenet-base-world/src/codegen/tables/Position.sol";
@@ -36,127 +36,179 @@ struct EntityLikes {
 }
 
 contract MonumentsLBSystem is System {
-  function claimBuildingShard(bytes32 agentObjectEntityId) public {
+  // Note: we only support claiming 2D areas for now, ie all y values are ignored
+  function claimArea(
+    bytes32 agentObjectEntityId,
+    VoxelCoord memory lowerSouthwestCorner,
+    VoxelCoord memory size
+  ) public {
     IStore worldStore = IStore(WORLD_ADDRESS);
     require(
-      hasKey(worldStore, OwnedByTableId, OwnedBy.encodeKeyTuple(agentObjectEntityId)) &&
-        OwnedBy.get(worldStore, agentObjectEntityId) == _msgSender(),
-      "MonumentsLBSystem: You do not own this entity"
+      OwnedBy.get(worldStore, agentObjectEntityId) == _msgSender(),
+      "MonumentsLBSystem: You do not own this agent"
     );
     VoxelCoord memory coord = getVoxelCoord(worldStore, agentObjectEntityId);
-    VoxelCoord memory shardCoord = coordToShardCoord(coord, SHARD_DIM);
+
+    // Check coord is within the area
     require(
-      !hasKey(BuildingLeaderboardTableId, BuildingLeaderboard.encodeKeyTuple(shardCoord.x, shardCoord.y, shardCoord.z)),
-      "MonumentsLBSystem: A builder already claimed this shard"
+      coord.x >= lowerSouthwestCorner.x &&
+        coord.y >= lowerSouthwestCorner.y &&
+        coord.z >= lowerSouthwestCorner.z &&
+        coord.x < lowerSouthwestCorner.x + size.x &&
+        coord.y < lowerSouthwestCorner.y + size.y &&
+        coord.z < lowerSouthwestCorner.z + size.z,
+      "MonumentsLBSystem: Your agent is not within the selected area"
     );
 
-    bytes32[][] memory buildingLikesEntities = getKeysInTable(BuildingLeaderboardTableId);
+    require(
+      !hasKey(
+        MonumentsLeaderboardTableId,
+        MonumentsLeaderboard.encodeKeyTuple(lowerSouthwestCorner.x, lowerSouthwestCorner.y, lowerSouthwestCorner.z)
+      ),
+      "MonumentsLBSystem: This area is already claimed"
+    );
 
-    // Initial rank is the number of buildings + 1, ie last place
-    BuildingLeaderboard.set(
-      shardCoord.x,
-      shardCoord.y,
-      shardCoord.z,
-      BuildingLeaderboardData({
-        rank: buildingLikesEntities.length + 1,
+    VoxelCoord memory topNortheastCorner = VoxelCoord(
+      lowerSouthwestCorner.x + size.x,
+      lowerSouthwestCorner.y + size.y,
+      lowerSouthwestCorner.z + size.z
+    );
+
+    // Check if the area overlaps with another claimed area
+    uint256 numClaimedAreas = requireNoOverlap(lowerSouthwestCorner, topNortheastCorner);
+
+    // TODO: Add spam protection to make it so a user doesn't claim too many areas
+
+    MonumentsLeaderboard.set(
+      lowerSouthwestCorner.x,
+      lowerSouthwestCorner.y,
+      lowerSouthwestCorner.z,
+      MonumentsLeaderboardData({
+        length: size.x,
+        width: size.z,
+        height: size.y,
+        rank: numClaimedAreas + 1, // Initial rank is the number of claimed areas + 1, ie last place
         totalLikes: 0,
+        owner: _msgSender(),
         agentObjectEntityId: agentObjectEntityId,
         likedBy: new address[](0)
       })
     );
-
-    ClaimedShard.set(agentObjectEntityId, abi.encode(shardCoord));
   }
 
-  function likeShard(VoxelCoord memory coord) public {
-    IStore worldStore = IStore(WORLD_ADDRESS);
-    VoxelCoord memory shardCoord = coordToShardCoord(coord, SHARD_DIM);
-
-    address[] memory likedByArray = BuildingLeaderboard.getLikedBy(shardCoord.x, shardCoord.y, shardCoord.z);
-    bool userFound = false;
-    for (uint i = 0; i < likedByArray.length; i++) {
-      if (likedByArray[i] == _msgSender()) {
-        userFound = true;
-        break;
+  // TODO: Find a more gas efficient way to check for overlap, maybe use ZK proofs
+  function requireNoOverlap(VoxelCoord memory lowerCorner, VoxelCoord memory upperCorner) internal returns (uint256) {
+    bytes32[][] memory monumentsLBEntities = getKeysInTable(MonumentsLeaderboardTableId);
+    for (uint i = 0; i < monumentsLBEntities.length; i++) {
+      int32 x = int32(int256(uint256(monumentsLBEntities[i][0])));
+      int32 y = int32(int256(uint256(monumentsLBEntities[i][1])));
+      int32 z = int32(int256(uint256(monumentsLBEntities[i][2])));
+      uint32 length = MonumentsLeaderboard.getLength(x, y, z);
+      uint32 width = MonumentsLeaderboard.getWidth(x, y, z);
+      VoxelCoord memory compareLowerCorner = VoxelCoord(x, y, z);
+      VoxelCoord memory compareUpperCorner = VoxelCoord(x + length, y, z + width);
+      // Check if the area overlaps with the claimed area
+      if (
+        !(upperCorner.x <= compareLowerCorner.x || // to the left of
+          lowerCorner.x >= compareUpperCorner.x || // to the right of
+          lowerCorner.z >= compareUpperCorner.z || // above
+          upperCorner.z <= compareLowerCorner.z) // below
+      ) {
+        revert("MonumentsLBSystem: This area overlaps with another claimed area");
       }
     }
-    require(!userFound, "MonumentsLBSystem: User already liked this shard");
-
-    // Create a new array with an additional slot and Copy old array to new array
-    address[] memory newLikedByArray = new address[](likedByArray.length + 1);
-    for (uint i = 0; i < likedByArray.length; i++) {
-      newLikedByArray[i] = likedByArray[i];
-    }
-
-    // Add new user to the last slot of the new array
-    newLikedByArray[likedByArray.length] = _msgSender();
-    uint256 totalLikes = BuildingLeaderboard.getTotalLikes(shardCoord.x, shardCoord.y, shardCoord.z) + 1;
-
-    BuildingLeaderboard.set(
-      shardCoord.x,
-      shardCoord.y,
-      shardCoord.z,
-      BuildingLeaderboardData({
-        rank: BuildingLeaderboard.getRank(shardCoord.x, shardCoord.y, shardCoord.z),
-        totalLikes: totalLikes,
-        agentObjectEntityId: BuildingLeaderboard.getAgentObjectEntityId(shardCoord.x, shardCoord.y, shardCoord.z),
-        likedBy: newLikedByArray
-      })
-    );
+    return monumentsLBEntities.length;
   }
 
-  function updateBuildingLeaderboard() public {
-    IStore worldStore = IStore(WORLD_ADDRESS);
+  // function likeShard(VoxelCoord memory coord) public {
+  //   IStore worldStore = IStore(WORLD_ADDRESS);
+  //   VoxelCoord memory shardCoord = coordToShardCoord(coord, SHARD_DIM);
 
-    bytes32[][] memory buildingLikesEntities = getKeysInTable(BuildingLeaderboardTableId);
+  //   address[] memory likedByArray = MonumentsLeaderboard.getLikedBy(shardCoord.x, shardCoord.y, shardCoord.z);
+  //   bool userFound = false;
+  //   for (uint i = 0; i < likedByArray.length; i++) {
+  //     if (likedByArray[i] == _msgSender()) {
+  //       userFound = true;
+  //       break;
+  //     }
+  //   }
+  //   require(!userFound, "MonumentsLBSystem: User already liked this shard");
 
-    EntityLikes[] memory allEntitiesLikes = new EntityLikes[](buildingLikesEntities.length);
+  //   // Create a new array with an additional slot and Copy old array to new array
+  //   address[] memory newLikedByArray = new address[](likedByArray.length + 1);
+  //   for (uint i = 0; i < likedByArray.length; i++) {
+  //     newLikedByArray[i] = likedByArray[i];
+  //   }
 
-    for (uint i = 0; i < buildingLikesEntities.length; i++) {
-      int32 x = int32(int256(uint256(buildingLikesEntities[i][0])));
-      int32 y = int32(int256(uint256(buildingLikesEntities[i][1])));
-      int32 z = int32(int256(uint256(buildingLikesEntities[i][2])));
-      uint256 likes = BuildingLeaderboard.getTotalLikes(x, y, z);
+  //   // Add new user to the last slot of the new array
+  //   newLikedByArray[likedByArray.length] = _msgSender();
+  //   uint256 totalLikes = MonumentsLeaderboard.getTotalLikes(shardCoord.x, shardCoord.y, shardCoord.z) + 1;
 
-      allEntitiesLikes[i] = EntityLikes(x, y, z, likes);
-    }
+  //   MonumentsLeaderboard.set(
+  //     shardCoord.x,
+  //     shardCoord.y,
+  //     shardCoord.z,
+  //     MonumentsLeaderboardData({
+  //       rank: MonumentsLeaderboard.getRank(shardCoord.x, shardCoord.y, shardCoord.z),
+  //       totalLikes: totalLikes,
+  //       agentObjectEntityId: MonumentsLeaderboard.getAgentObjectEntityId(shardCoord.x, shardCoord.y, shardCoord.z),
+  //       likedBy: newLikedByArray
+  //     })
+  //   );
+  // }
 
-    // Sort the array based on likes using Bubble Sort
-    bool swapped = false;
-    // TODO: Fix sort algorithm, it's not working
-    for (uint i = 0; i < allEntitiesLikes.length; i++) {
-      swapped = false;
-      for (uint j = 0; j < allEntitiesLikes.length - i - 1; j++) {
-        if (allEntitiesLikes[j].likes < allEntitiesLikes[j + 1].likes) {
-          // Swap
-          EntityLikes memory temp = allEntitiesLikes[j];
-          allEntitiesLikes[j] = allEntitiesLikes[j + 1];
-          allEntitiesLikes[j + 1] = temp;
-          swapped = true;
-        }
-      }
-      if (!swapped) {
-        break;
-      }
-    }
+  // function updateMonumentsLeaderboard() public {
+  //   IStore worldStore = IStore(WORLD_ADDRESS);
 
-    for (uint i = 0; i < allEntitiesLikes.length; i++) {
-      uint rank = i + 1;
-      BuildingLeaderboard.set(
-        allEntitiesLikes[i].x,
-        allEntitiesLikes[i].y,
-        allEntitiesLikes[i].z,
-        BuildingLeaderboardData({
-          rank: rank,
-          totalLikes: allEntitiesLikes[i].likes,
-          agentObjectEntityId: BuildingLeaderboard.getAgentObjectEntityId(
-            allEntitiesLikes[i].x,
-            allEntitiesLikes[i].y,
-            allEntitiesLikes[i].z
-          ),
-          likedBy: BuildingLeaderboard.getLikedBy(allEntitiesLikes[i].x, allEntitiesLikes[i].y, allEntitiesLikes[i].z)
-        })
-      );
-    }
-  }
+  //   bytes32[][] memory buildingLikesEntities = getKeysInTable(MonumentsLeaderboardTableId);
+
+  //   EntityLikes[] memory allEntitiesLikes = new EntityLikes[](buildingLikesEntities.length);
+
+  //   for (uint i = 0; i < buildingLikesEntities.length; i++) {
+  //     int32 x = int32(int256(uint256(buildingLikesEntities[i][0])));
+  //     int32 y = int32(int256(uint256(buildingLikesEntities[i][1])));
+  //     int32 z = int32(int256(uint256(buildingLikesEntities[i][2])));
+  //     uint256 likes = MonumentsLeaderboard.getTotalLikes(x, y, z);
+
+  //     allEntitiesLikes[i] = EntityLikes(x, y, z, likes);
+  //   }
+
+  //   // Sort the array based on likes using Bubble Sort
+  //   bool swapped = false;
+  //   // TODO: Fix sort algorithm, it's not working
+  //   for (uint i = 0; i < allEntitiesLikes.length; i++) {
+  //     swapped = false;
+  //     for (uint j = 0; j < allEntitiesLikes.length - i - 1; j++) {
+  //       if (allEntitiesLikes[j].likes < allEntitiesLikes[j + 1].likes) {
+  //         // Swap
+  //         EntityLikes memory temp = allEntitiesLikes[j];
+  //         allEntitiesLikes[j] = allEntitiesLikes[j + 1];
+  //         allEntitiesLikes[j + 1] = temp;
+  //         swapped = true;
+  //       }
+  //     }
+  //     if (!swapped) {
+  //       break;
+  //     }
+  //   }
+
+  //   for (uint i = 0; i < allEntitiesLikes.length; i++) {
+  //     uint rank = i + 1;
+  //     MonumentsLeaderboard.set(
+  //       allEntitiesLikes[i].x,
+  //       allEntitiesLikes[i].y,
+  //       allEntitiesLikes[i].z,
+  //       MonumentsLeaderboardData({
+  //         rank: rank,
+  //         totalLikes: allEntitiesLikes[i].likes,
+  //         agentObjectEntityId: MonumentsLeaderboard.getAgentObjectEntityId(
+  //           allEntitiesLikes[i].x,
+  //           allEntitiesLikes[i].y,
+  //           allEntitiesLikes[i].z
+  //         ),
+  //         likedBy: MonumentsLeaderboard.getLikedBy(allEntitiesLikes[i].x, allEntitiesLikes[i].y, allEntitiesLikes[i].z)
+  //       })
+  //     );
+  //   }
+  // }
 }

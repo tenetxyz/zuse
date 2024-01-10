@@ -8,7 +8,7 @@ export default mudConfig({
   tables: {
     MonumentsLeaderboard: {
       keySchema: {
-        // claimed area lowermost, southmost coord
+        // claimed area lower southwest coord
         x: "int32",
         y: "int32",
         z: "int32",

@@ -22,6 +22,7 @@ import { positionDataToVoxelCoord, getEntityIdFromObjectEntityId, getVoxelCoord 
 
 import { WORLD_ADDRESS } from "@tenet-derived/src/Constants.sol";
 import { coordToShardCoord } from "@tenet-utils/src/VoxelCoordUtils.sol";
+import { int32ToUint32, uint32ToInt32 } from "@tenet-utils/src/TypeUtils.sol";
 import { SHARD_DIM } from "@tenet-world/src/Constants.sol";
 
 import { Creature, CreatureData } from "@tenet-creatures/src/codegen/tables/Creature.sol";
@@ -84,9 +85,9 @@ contract MonumentsLBSystem is System {
       lowerSouthwestCorner.y,
       lowerSouthwestCorner.z,
       MonumentsLeaderboardData({
-        length: size.x,
-        width: size.z,
-        height: size.y,
+        length: int32ToUint32(size.x),
+        width: int32ToUint32(size.z),
+        height: int32ToUint32(size.y),
         rank: numClaimedAreas + 1, // Initial rank is the number of claimed areas + 1, ie last place
         totalLikes: 0,
         owner: _msgSender(),
@@ -97,7 +98,10 @@ contract MonumentsLBSystem is System {
   }
 
   // TODO: Find a more gas efficient way to check for overlap, maybe use ZK proofs
-  function requireNoOverlap(VoxelCoord memory lowerCorner, VoxelCoord memory upperCorner) internal returns (uint256) {
+  function requireNoOverlap(
+    VoxelCoord memory lowerCorner,
+    VoxelCoord memory upperCorner
+  ) internal view returns (uint256) {
     bytes32[][] memory monumentsLBEntities = getKeysInTable(MonumentsLeaderboardTableId);
     for (uint i = 0; i < monumentsLBEntities.length; i++) {
       int32 x = int32(int256(uint256(monumentsLBEntities[i][0])));
@@ -106,7 +110,7 @@ contract MonumentsLBSystem is System {
       uint32 length = MonumentsLeaderboard.getLength(x, y, z);
       uint32 width = MonumentsLeaderboard.getWidth(x, y, z);
       VoxelCoord memory compareLowerCorner = VoxelCoord(x, y, z);
-      VoxelCoord memory compareUpperCorner = VoxelCoord(x + length, y, z + width);
+      VoxelCoord memory compareUpperCorner = VoxelCoord(x + uint32ToInt32(length), y, z + uint32ToInt32(width));
       // Check if the area overlaps with the claimed area
       if (
         !(upperCorner.x <= compareLowerCorner.x || // to the left of

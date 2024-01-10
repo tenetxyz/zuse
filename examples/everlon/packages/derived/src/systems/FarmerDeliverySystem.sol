@@ -10,7 +10,7 @@ import { getKeysWithValue } from "@latticexyz/world/src/modules/keyswithvalue/ge
 
 import { VoxelCoord, ObjectProperties, ElementType } from "@tenet-utils/src/Types.sol";
 
-import { BuildingLeaderboard, BuildingLeaderboardTableId, BuildingLeaderboardData } from "@tenet-derived/src/codegen/Tables.sol";
+import { MonumentsLeaderboard, MonumentsLeaderboardData, MonumentsLeaderboardTableId } from "@tenet-derived/src/codegen/Tables.sol";
 import { ClaimedShard } from "@tenet-derived/src/codegen/Tables.sol";
 import { FarmDeliveryLeaderboard, FarmDeliveryLeaderboardData, FarmDeliveryLeaderboardTableId } from "@tenet-derived/src/codegen/Tables.sol";
 import { OriginatingChunk, OriginatingChunkTableId } from "@tenet-derived/src/codegen/Tables.sol";
@@ -111,7 +111,7 @@ contract FarmerDeliverySystem is System {
         PlantConsumer memory consumer = consumers[j];
         bytes memory claimedShardBytes = ClaimedShard.get(consumer.objectEntityId);
         VoxelCoord memory claimedShard = abi.decode(claimedShardBytes, (VoxelCoord));
-        totalPoints += BuildingLeaderboard.getLikedBy(claimedShard.x, claimedShard.y, claimedShard.z).length;
+        totalPoints += MonumentsLeaderboard.getLikedBy(claimedShard.x, claimedShard.y, claimedShard.z).length;
         numDeliveries += 1;
       }
     }

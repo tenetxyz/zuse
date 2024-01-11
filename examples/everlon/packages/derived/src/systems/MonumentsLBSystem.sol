@@ -62,14 +62,14 @@ contract MonumentsLBSystem is System {
     require(
       !hasKey(
         MonumentsLeaderboardTableId,
-        MonumentsLeaderboard.encodeKeyTuple(lowerSouthwestCorner.x, lowerSouthwestCorner.y, lowerSouthwestCorner.z)
+        MonumentsLeaderboard.encodeKeyTuple(lowerSouthwestCorner.x, 0, lowerSouthwestCorner.z)
       ),
       "MonumentsLBSystem: This area is already claimed"
     );
 
     VoxelCoord memory topNortheastCorner = VoxelCoord(
       lowerSouthwestCorner.x + size.x,
-      lowerSouthwestCorner.y + size.y,
+      0,
       lowerSouthwestCorner.z + size.z
     );
 
@@ -80,7 +80,7 @@ contract MonumentsLBSystem is System {
 
     MonumentsLeaderboard.set(
       lowerSouthwestCorner.x,
-      lowerSouthwestCorner.y,
+      0,
       lowerSouthwestCorner.z,
       MonumentsLeaderboardData({
         length: int32ToUint32(size.x),
@@ -174,6 +174,9 @@ contract MonumentsLBSystem is System {
 
   function updateMonumentsLeaderboard() public {
     bytes32[][] memory monumentsLBEntities = getKeysInTable(MonumentsLeaderboardTableId);
+    if (monumentsLBEntities.length == 0) {
+      return;
+    }
 
     AreaLikes[] memory allAreaLikes = new AreaLikes[](monumentsLBEntities.length);
 

@@ -10,7 +10,6 @@ import { getKeysInTable } from "@latticexyz/world/src/modules/keysintable/getKey
 import { VoxelCoord, ObjectProperties } from "@tenet-utils/src/Types.sol";
 
 import { MonumentsLeaderboard, MonumentsLeaderboardData, MonumentsLeaderboardTableId } from "@tenet-derived/src/codegen/Tables.sol";
-import { ClaimedShard } from "@tenet-derived/src/codegen/Tables.sol";
 
 import { Position } from "@tenet-base-world/src/codegen/tables/Position.sol";
 import { ObjectEntity, ObjectEntityTableId } from "@tenet-base-world/src/codegen/tables/ObjectEntity.sol";
@@ -142,7 +141,7 @@ contract MonumentsLBSystem is System {
         break;
       }
     }
-    require(!userFound, "MonumentsLBSystem: User has already liked this shard");
+    require(!userFound, "MonumentsLBSystem: User has already liked this area");
     // TODO: Add ERC20 token transfer to like
 
     // Create a new array with an additional slot and copy old array to new array

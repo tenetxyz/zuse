@@ -24,6 +24,20 @@ export default mudConfig({
         likedBy: "address[]",
       },
     },
+    MonumentBounties: {
+      keySchema: {
+        bountyId: "bytes32",
+      },
+      schema: {
+        creator: "address",
+        bountyAmount: "uint256",
+        claimedBy: "address",
+        objectTypeIds: "bytes32[]",
+        relativePositions: "bytes", // VoxelCoord[], the relative position for each object in the monument
+        name: "string",
+        description: "string",
+      },
+    },
     CreationRegistry: {
       keySchema: {
         creationId: "bytes32",
@@ -127,7 +141,13 @@ export default mudConfig({
       },
     },
   },
-  systems: {},
+  systems: {
+    MonumentBountiesSystem: {
+      name: "MTBountiesSystem",
+      openAccess: true,
+      registerAsRoot: true,
+    },
+  },
   modules: [
     {
       name: "UniqueEntityModule",

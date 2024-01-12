@@ -24,10 +24,6 @@ import { coordToShardCoord } from "@tenet-utils/src/VoxelCoordUtils.sol";
 import { int32ToUint32, uint32ToInt32 } from "@tenet-utils/src/TypeUtils.sol";
 import { SHARD_DIM } from "@tenet-world/src/Constants.sol";
 
-import { Creature, CreatureData } from "@tenet-creatures/src/codegen/tables/Creature.sol";
-import { Plant, PlantData } from "@tenet-farming/src/codegen/tables/Plant.sol";
-import { Farmer } from "@tenet-farming/src/codegen/tables/Farmer.sol";
-
 struct AreaLikes {
   int32 x;
   int32 y;

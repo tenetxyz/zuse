@@ -192,6 +192,11 @@ export default mudConfig({
     {
       name: "KeysInTableModule",
       root: true,
+      args: [resolveTableId("MonumentBounties")],
+    },
+    {
+      name: "KeysInTableModule",
+      root: true,
       args: [resolveTableId("FarmDeliveryLeaderboard")],
     },
     {

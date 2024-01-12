@@ -11,6 +11,8 @@ import { getKeysInTable } from "@latticexyz/world/src/modules/keysintable/getKey
 import { VoxelCoord, ObjectProperties } from "@tenet-utils/src/Types.sol";
 
 import { ObjectTypeRegistry, ObjectTypeRegistryTableId } from "@tenet-registry/src/codegen/tables/ObjectTypeRegistry.sol";
+
+import { MonumentsLeaderboard, MonumentsLeaderboardData, MonumentsLeaderboardTableId } from "@tenet-derived/src/codegen/Tables.sol";
 import { MonumentBounties, MonumentBountiesData, MonumentBountiesTableId } from "@tenet-derived/src/codegen/Tables.sol";
 
 import { Position } from "@tenet-base-world/src/codegen/tables/Position.sol";
@@ -19,7 +21,7 @@ import { ObjectType } from "@tenet-base-world/src/codegen/tables/ObjectType.sol"
 import { OwnedBy, OwnedByTableId } from "@tenet-base-world/src/codegen/tables/OwnedBy.sol";
 
 import { getObjectProperties } from "@tenet-base-world/src/CallUtils.sol";
-import { positionDataToVoxelCoord, getEntityIdFromObjectEntityId, getVoxelCoord } from "@tenet-base-world/src/Utils.sol";
+import { positionDataToVoxelCoord, getEntityIdFromObjectEntityId, getVoxelCoord, getEntityAtCoord } from "@tenet-base-world/src/Utils.sol";
 
 import { WORLD_ADDRESS } from "@tenet-derived/src/Constants.sol";
 import { coordToShardCoord } from "@tenet-utils/src/VoxelCoordUtils.sol";
@@ -69,5 +71,57 @@ contract MonumentBountiesSystem is System {
     );
   }
 
-  function claimBounty() public {}
+  function claimBounty(
+    bytes32 bountyId,
+    VoxelCoord memory monumentClaimedArea,
+    VoxelCoord memory baseWorldCoord
+  ) public {
+    IStore worldStore = IStore(WORLD_ADDRESS);
+    require(
+      hasKey(MonumentBountiesTableId, MonumentBounties.encodeKeyTuple(bountyId)),
+      "MonumentBountiesSystem: Bounty ID does not exist"
+    );
+    MonumentBountiesData memory bountyData = MonumentBounties.get(bountyId);
+    require(bountyData.claimedBy == address(0), "MonumentBountiesSystem: Bounty has already been claimed");
+
+    require(
+      hasKey(
+        MonumentsLeaderboardTableId,
+        MonumentsLeaderboard.encodeKeyTuple(monumentClaimedArea.x, monumentClaimedArea.y, monumentClaimedArea.z)
+      ),
+      "MonumentBountiesSystem: Monument claimed area does not exist"
+    );
+
+    // Assert that baseWorldCoord is within the claimed area, ignore Y values
+    require(
+      baseWorldCoord.x >= monumentClaimedArea.x &&
+        baseWorldCoord.x < monumentClaimedArea.x &&
+        baseWorldCoord.z >= monumentClaimedArea.z &&
+        baseWorldCoord.z < monumentClaimedArea.z,
+      "MonumentBountiesSystem: Base world coord is not within the claimed area"
+    );
+
+    VoxelCoord memory relativePositions = abi.decode(bountyData.relativePositions, (VoxelCoord));
+    // Go through each relative position, aplpy it to the base world coord, and check if the object type id matches
+    for (uint256 i = 0; i < bountyData.objectTypeIds.length; i++) {
+      VoxelCoord memory absolutePosition = VoxelCoord({
+        x: baseWorldCoord.x + relativePositions.x,
+        y: baseWorldCoord.y + relativePositions.y,
+        z: baseWorldCoord.z + relativePositions.z
+      });
+      bytes32 entityId = getEntityAtCoord(worldStore, absolutePosition);
+      bytes32 objectTypeId = ObjectType.get(worldStore, entityId);
+      if (objectTypeId != bountyData.objectTypeIds[i]) {
+        revert("MonumentBountiesSystem: Object type ID does not match");
+      }
+    }
+
+    // TODO: transfer the bounty amount to the claimer
+    address claimer = MonumentsLeaderboard.getOwner(
+      monumentClaimedArea.x,
+      monumentClaimedArea.y,
+      monumentClaimedArea.z
+    );
+    MonumentBounties.setClaimedBy(bountyId, claimer);
+  }
 }

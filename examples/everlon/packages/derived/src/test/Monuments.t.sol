@@ -335,7 +335,7 @@ contract MonumentsTest is MudTest {
     relativePositions[3] = VoxelCoord({ x: 1, y: 1, z: 0 });
     relativePositions[4] = VoxelCoord({ x: 1, y: 2, z: 0 });
 
-    bytes32 bountyId = derivedWorld.addBounty(
+    bytes32 bountyId = derivedWorld.addMonumentBounty(
       bountyAmount,
       objectTypeIds,
       relativePositions,
@@ -362,7 +362,7 @@ contract MonumentsTest is MudTest {
 
     // Should fail because doesn't match bounty
     vm.expectRevert();
-    derivedWorld.claimBounty(bountyId, lowerSouthwestCorner, baseWorldCoord);
+    derivedWorld.claimMonumentBounty(bountyId, lowerSouthwestCorner, baseWorldCoord);
 
     newAgentCoord = VoxelCoord({ x: agentCoord.x + 1, y: agentCoord.y, z: agentCoord.z + 1 });
     world.move(agentObjectEntityId, agentObjectTypeId, agentCoord, newAgentCoord);
@@ -417,7 +417,7 @@ contract MonumentsTest is MudTest {
 
     // Should fail because doesn't match bounty
     vm.expectRevert();
-    derivedWorld.claimBounty(bountyId, lowerSouthwestCorner, baseWorldCoord);
+    derivedWorld.claimMonumentBounty(bountyId, lowerSouthwestCorner, baseWorldCoord);
 
     world.mine(
       agentObjectEntityId,
@@ -442,7 +442,7 @@ contract MonumentsTest is MudTest {
     // Even if somebody else does the claim tx, only the claimed area owner
     // gets the bounty
     vm.startPrank(bob, bob);
-    derivedWorld.claimBounty(bountyId, lowerSouthwestCorner, baseWorldCoord);
+    derivedWorld.claimMonumentBounty(bountyId, lowerSouthwestCorner, baseWorldCoord);
     bountyData = MonumentBounties.get(derivedStore, bountyId);
     assertTrue(bountyData.claimedBy == monumentsLBData.owner, "ClaimedBy not set correctly");
     vm.stopPrank();
@@ -450,7 +450,7 @@ contract MonumentsTest is MudTest {
 
     // Should fail because already claimed
     vm.expectRevert();
-    derivedWorld.claimBounty(bountyId, lowerSouthwestCorner, baseWorldCoord);
+    derivedWorld.claimMonumentBounty(bountyId, lowerSouthwestCorner, baseWorldCoord);
 
     vm.stopPrank();
   }

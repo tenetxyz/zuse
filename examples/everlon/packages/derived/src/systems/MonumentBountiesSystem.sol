@@ -30,7 +30,7 @@ import { SHARD_DIM } from "@tenet-world/src/Constants.sol";
 import { REGISTRY_ADDRESS } from "@tenet-derived/src/Constants.sol";
 
 contract MonumentBountiesSystem is System {
-  function addBounty(
+  function addMonumentBounty(
     uint256 bountyAmount,
     bytes32[] memory objectTypeIds,
     VoxelCoord[] memory relativePositions,
@@ -77,7 +77,7 @@ contract MonumentBountiesSystem is System {
     return bountyId;
   }
 
-  function claimBounty(
+  function claimMonumentBounty(
     bytes32 bountyId,
     VoxelCoord memory monumentClaimedArea,
     VoxelCoord memory baseWorldCoord

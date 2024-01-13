@@ -136,7 +136,7 @@ contract MonumentBountiesSystem is System {
         objectTypeId = ObjectType.get(worldStore, entityId);
       }
       if (objectTypeId != bountyData.objectTypeIds[i]) {
-        revert("MonumentBountiesSystem: Object type ID does not match");
+        revert("MonumentBountiesSystem: Submission does not match bounty");
       }
     }
 

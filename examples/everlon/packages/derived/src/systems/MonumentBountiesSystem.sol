@@ -7,6 +7,7 @@ import { hasKey } from "@latticexyz/world/src/modules/keysintable/hasKey.sol";
 import { System } from "@latticexyz/world/src/System.sol";
 import { getUniqueEntity } from "@latticexyz/world/src/modules/uniqueentity/getUniqueEntity.sol";
 import { getKeysInTable } from "@latticexyz/world/src/modules/keysintable/getKeysInTable.sol";
+import { ITerrainSystem } from "@tenet-base-world/src/codegen/world/ITerrainSystem.sol";
 
 import { VoxelCoord, ObjectProperties } from "@tenet-utils/src/Types.sol";
 
@@ -127,7 +128,13 @@ contract MonumentBountiesSystem is System {
         z: baseWorldCoord.z + relativePositions[i].z
       });
       bytes32 entityId = getEntityAtCoord(worldStore, absolutePosition);
-      bytes32 objectTypeId = ObjectType.get(worldStore, entityId);
+      bytes32 objectTypeId;
+      if (entityId == bytes32(0)) {
+        // then it's the terrain
+        objectTypeId = ITerrainSystem(WORLD_ADDRESS).getTerrainObjectTypeId(absolutePosition);
+      } else {
+        objectTypeId = ObjectType.get(worldStore, entityId);
+      }
       if (objectTypeId != bountyData.objectTypeIds[i]) {
         revert("MonumentBountiesSystem: Object type ID does not match");
       }

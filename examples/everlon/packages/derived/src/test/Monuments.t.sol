@@ -321,19 +321,29 @@ contract MonumentsTest is MudTest {
     uint256 bountyAmount = 100;
 
     // T grass shape
-    bytes32[] memory objectTypeIds = new bytes32[](5);
+    bytes32[] memory objectTypeIds = new bytes32[](9);
     objectTypeIds[0] = GrassObjectID;
     objectTypeIds[1] = GrassObjectID;
     objectTypeIds[2] = GrassObjectID;
     objectTypeIds[3] = DirtObjectID;
     objectTypeIds[4] = DirtObjectID;
 
-    VoxelCoord[] memory relativePositions = new VoxelCoord[](5);
+    objectTypeIds[5] = AirObjectID;
+    objectTypeIds[6] = AirObjectID;
+    objectTypeIds[7] = AirObjectID;
+    objectTypeIds[8] = AirObjectID;
+
+    VoxelCoord[] memory relativePositions = new VoxelCoord[](9);
     relativePositions[0] = VoxelCoord({ x: 0, y: 0, z: 0 });
     relativePositions[1] = VoxelCoord({ x: 1, y: 0, z: 0 });
     relativePositions[2] = VoxelCoord({ x: 2, y: 0, z: 0 });
     relativePositions[3] = VoxelCoord({ x: 1, y: 1, z: 0 });
     relativePositions[4] = VoxelCoord({ x: 1, y: 2, z: 0 });
+
+    relativePositions[5] = VoxelCoord({ x: 0, y: 1, z: 0 });
+    relativePositions[6] = VoxelCoord({ x: 0, y: 2, z: 0 });
+    relativePositions[7] = VoxelCoord({ x: 2, y: 1, z: 0 });
+    relativePositions[8] = VoxelCoord({ x: 2, y: 2, z: 0 });
 
     bytes32 bountyId = derivedWorld.addMonumentBounty(
       bountyAmount,
@@ -438,6 +448,9 @@ contract MonumentsTest is MudTest {
         z: baseWorldCoord.z + relativePositions[4].z
       })
     );
+
+    // the rest is air, and we don't need to build/mine it as part of
+    // terrain generation there's already air there
 
     // Even if somebody else does the claim tx, only the claimed area owner
     // gets the bounty

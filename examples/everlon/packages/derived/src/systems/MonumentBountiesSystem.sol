@@ -15,6 +15,7 @@ import { ObjectTypeRegistry, ObjectTypeRegistryTableId } from "@tenet-registry/s
 
 import { MonumentsLeaderboard, MonumentsLeaderboardData, MonumentsLeaderboardTableId } from "@tenet-derived/src/codegen/Tables.sol";
 import { MonumentBounties, MonumentBountiesData, MonumentBountiesTableId } from "@tenet-derived/src/codegen/Tables.sol";
+import { MonumentLikes, MonumentLikesTableId } from "@tenet-derived/src/codegen/Tables.sol";
 
 import { Position } from "@tenet-base-world/src/codegen/tables/Position.sol";
 import { ObjectEntity, ObjectEntityTableId } from "@tenet-base-world/src/codegen/tables/ObjectEntity.sol";
@@ -38,7 +39,10 @@ contract MonumentBountiesSystem is System {
     string memory name,
     string memory description
   ) public returns (bytes32) {
-    require(bountyAmount > 0, "MonumentBountiesSystem: Bounty amount must be greater than 0");
+    require(
+      bountyAmount >= MonumentLikes.get(_msgSender()),
+      "MonumentBountiesSystem: Bounty amount must be greater than or equal to your current likes"
+    );
     require(bytes(name).length > 0, "MonumentBountiesSystem: Name must be non-empty");
 
     require(objectTypeIds.length > 0, "MonumentBountiesSystem: Must specify at least one object type ID");
@@ -75,7 +79,26 @@ contract MonumentBountiesSystem is System {
         description: description
       })
     );
+
+    // transfer out from sender
+    MonumentLikes.set(_msgSender(), MonumentLikes.get(_msgSender()) - bountyAmount);
     return bountyId;
+  }
+
+  function boostMonumentBounty(bytes32 bountyId, uint256 numAmount) public {
+    require(
+      hasKey(MonumentBountiesTableId, MonumentBounties.encodeKeyTuple(bountyId)),
+      "MonumentBountiesSystem: Bounty ID does not exist"
+    );
+    MonumentBountiesData memory bountyData = MonumentBounties.get(bountyId);
+    require(bountyData.claimedBy == address(0), "MonumentBountiesSystem: Bounty has already been claimed");
+    require(
+      MonumentLikes.get(_msgSender()) >= numAmount,
+      "MonumentBountiesSystem: You do not have enough likes to boost this bounty"
+    );
+
+    MonumentBounties.setBountyAmount(bountyId, bountyData.bountyAmount + numAmount);
+    MonumentLikes.set(_msgSender(), MonumentLikes.get(_msgSender()) - numAmount);
   }
 
   function claimMonumentBounty(
@@ -140,12 +163,13 @@ contract MonumentBountiesSystem is System {
       }
     }
 
-    // TODO: transfer the bounty amount to the claimer
     address claimer = MonumentsLeaderboard.getOwner(
       monumentClaimedArea.x,
       monumentClaimedArea.y,
       monumentClaimedArea.z
     );
     MonumentBounties.setClaimedBy(bountyId, claimer);
+
+    MonumentLikes.set(claimer, MonumentLikes.get(claimer) + bountyData.bountyAmount);
   }
 }

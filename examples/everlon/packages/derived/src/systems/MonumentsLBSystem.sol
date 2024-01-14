@@ -10,6 +10,7 @@ import { getKeysInTable } from "@latticexyz/world/src/modules/keysintable/getKey
 import { VoxelCoord, ObjectProperties } from "@tenet-utils/src/Types.sol";
 
 import { MonumentsLeaderboard, MonumentsLeaderboardData, MonumentsLeaderboardTableId } from "@tenet-derived/src/codegen/Tables.sol";
+import { MonumentLikes, MonumentLikesTableId } from "@tenet-derived/src/codegen/Tables.sol";
 
 import { Position } from "@tenet-base-world/src/codegen/tables/Position.sol";
 import { ObjectEntity, ObjectEntityTableId } from "@tenet-base-world/src/codegen/tables/ObjectEntity.sol";
@@ -117,7 +118,7 @@ contract MonumentsLBSystem is System {
     return monumentsLBEntities.length;
   }
 
-  function likeMonumentsArea(VoxelCoord memory lowerSouthwestCorner) public {
+  function likeMonumentsArea(VoxelCoord memory lowerSouthwestCorner, uint256 numLikes) public {
     require(
       hasKey(
         MonumentsLeaderboardTableId,
@@ -125,45 +126,64 @@ contract MonumentsLBSystem is System {
       ),
       "MonumentsLBSystem: This area is not claimed"
     );
-    address[] memory likedByArray = MonumentsLeaderboard.getLikedBy(
+
+    address areaOwner = MonumentsLeaderboard.getOwner(
       lowerSouthwestCorner.x,
       lowerSouthwestCorner.y,
       lowerSouthwestCorner.z
     );
-    bool userFound = false;
-    for (uint i = 0; i < likedByArray.length; i++) {
-      if (likedByArray[i] == _msgSender()) {
-        userFound = true;
-        break;
-      }
-    }
-    require(!userFound, "MonumentsLBSystem: User has already liked this area");
-    // TODO: Add ERC20 token transfer to like
+    require(areaOwner != _msgSender(), "MonumentsLBSystem: You cannot like your own area");
+    // TODO: require valid EOA
 
-    // Create a new array with an additional slot and copy old array to new array
-    address[] memory newLikedByArray = new address[](likedByArray.length + 1);
-    for (uint i = 0; i < likedByArray.length; i++) {
-      newLikedByArray[i] = likedByArray[i];
+    if (numLikes == 0) {
+      address[] memory likedByArray = MonumentsLeaderboard.getLikedBy(
+        lowerSouthwestCorner.x,
+        lowerSouthwestCorner.y,
+        lowerSouthwestCorner.z
+      );
+      bool userFound = false;
+      for (uint i = 0; i < likedByArray.length; i++) {
+        if (likedByArray[i] == _msgSender()) {
+          userFound = true;
+          break;
+        }
+      }
+      require(!userFound, "MonumentsLBSystem: User has already liked this area");
+
+      // Create a new array with an additional slot and copy old array to new array
+      address[] memory newLikedByArray = new address[](likedByArray.length + 1);
+      for (uint i = 0; i < likedByArray.length; i++) {
+        newLikedByArray[i] = likedByArray[i];
+      }
+      // Add new user to the last slot of the new array
+      newLikedByArray[likedByArray.length] = _msgSender();
+      MonumentsLeaderboard.setLikedBy(
+        lowerSouthwestCorner.x,
+        lowerSouthwestCorner.y,
+        lowerSouthwestCorner.z,
+        newLikedByArray
+      );
+
+      // Mint new like
+      MonumentLikes.set(areaOwner, MonumentLikes.get(areaOwner) + 1);
+    } else {
+      require(MonumentLikes.get(_msgSender()) >= numLikes, "MonumentsLBSystem: You do not have enough likes");
+
+      // transfer likes from sender to owner
+      MonumentLikes.set(_msgSender(), MonumentLikes.get(_msgSender()) - numLikes);
+      MonumentLikes.set(areaOwner, MonumentLikes.get(areaOwner) + numLikes);
     }
-    // Add new user to the last slot of the new array
-    newLikedByArray[likedByArray.length] = _msgSender();
+
     uint256 totalLikes = MonumentsLeaderboard.getTotalLikes(
       lowerSouthwestCorner.x,
       lowerSouthwestCorner.y,
       lowerSouthwestCorner.z
-    ) + 1;
-
+    ) + (numLikes == 0 ? 1 : numLikes);
     MonumentsLeaderboard.setTotalLikes(
       lowerSouthwestCorner.x,
       lowerSouthwestCorner.y,
       lowerSouthwestCorner.z,
       totalLikes
-    );
-    MonumentsLeaderboard.setLikedBy(
-      lowerSouthwestCorner.x,
-      lowerSouthwestCorner.y,
-      lowerSouthwestCorner.z,
-      newLikedByArray
     );
   }
 

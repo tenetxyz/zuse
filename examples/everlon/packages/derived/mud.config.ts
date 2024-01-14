@@ -6,6 +6,14 @@ export default mudConfig({
     ElementType: ["None", "Fire", "Water", "Grass"],
   },
   tables: {
+    MonumentLikes: {
+      keySchema: {
+        user: "address",
+      },
+      schema: {
+        likes: "uint256",
+      },
+    },
     MonumentsLeaderboard: {
       keySchema: {
         // claimed area lower southwest coord

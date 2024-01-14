@@ -39,10 +39,8 @@ contract MonumentBountiesSystem is System {
     string memory name,
     string memory description
   ) public returns (bytes32) {
-    require(
-      bountyAmount >= MonumentLikes.get(_msgSender()),
-      "MonumentBountiesSystem: Bounty amount must be greater than or equal to your current likes"
-    );
+    uint256 senderLikes = MonumentLikes.get(_msgSender());
+    require(senderLikes >= bountyAmount, "MonumentBountiesSystem: You do not have enough likes to create this bounty");
     require(bytes(name).length > 0, "MonumentBountiesSystem: Name must be non-empty");
 
     require(objectTypeIds.length > 0, "MonumentBountiesSystem: Must specify at least one object type ID");
@@ -81,7 +79,7 @@ contract MonumentBountiesSystem is System {
     );
 
     // transfer out from sender
-    MonumentLikes.set(_msgSender(), MonumentLikes.get(_msgSender()) - bountyAmount);
+    MonumentLikes.set(_msgSender(), senderLikes - bountyAmount);
     return bountyId;
   }
 

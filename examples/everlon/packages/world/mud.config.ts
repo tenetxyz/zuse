@@ -14,24 +14,8 @@ export default tenetMudConfig({
         claimerAmounts: "uint256[]",
       },
     },
-    Shard: {
-      registerAsRoot: true,
-      keySchema: {
-        // ShardCoords
-        x: "int32",
-        y: "int32",
-        z: "int32",
-      },
-      schema: {
-        claimer: "address",
-        contractAddress: "address",
-        objectTypeIdSelector: "bytes4",
-        objectPropertiesSelector: "bytes4",
-        totalGenMass: "uint256",
-        totalGenEnergy: "uint256",
-      },
-    },
     TerrainProperties: {
+      // cache of terrain properties, used by simulator to save gas
       registerAsRoot: true,
       keySchema: {
         x: "int32",
@@ -58,22 +42,12 @@ export default tenetMudConfig({
       openAccess: true,
       registerAsRoot: true,
     },
-    ShardSystem: {
-      name: "ShardSystem",
-      openAccess: true,
-      registerAsRoot: true,
-    },
   },
   modules: [
     {
       name: "KeysInTableModule",
       root: true,
       args: [resolveTableId("Faucet")],
-    },
-    {
-      name: "KeysInTableModule",
-      root: true,
-      args: [resolveTableId("Shard")],
     },
     {
       name: "KeysInTableModule",

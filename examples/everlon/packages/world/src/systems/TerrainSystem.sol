@@ -31,6 +31,7 @@ struct Tuple {
   int128 y;
 }
 
+// Spline functions and inspiration from https://github.com/latticexyz/opcraft/blob/main/packages/contracts/src/libraries/LibTerrain.sol
 contract TerrainSystem is TerrainProtoSystem {
   function getSimulatorAddress() internal pure override returns (address) {
     return SIMULATOR_ADDRESS;

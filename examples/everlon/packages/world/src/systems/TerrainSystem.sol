@@ -19,7 +19,7 @@ import { TerrainSystem as TerrainProtoSystem } from "@tenet-base-world/src/syste
 import { coordToShardCoord } from "@tenet-utils/src/VoxelCoordUtils.sol";
 
 int128 constant _0 = 0; // 0 * 2**64
-int128 constant _0_5 = 9223372036854775808; // 0.5 * 2**64
+int128 constant _0_3 = 5534023222112865484; // 0.3 * 2**64
 int128 constant _1 = 2 ** 64;
 int128 constant _2 = 2 * 2 ** 64;
 int128 constant _5 = 5 * 2 ** 64;
@@ -45,7 +45,7 @@ contract TerrainSystem is TerrainProtoSystem {
     bytes32[][] memory numFaucets = getKeysInTable(FaucetTableId);
     require(numFaucets.length == 0, "TerrainSystem: Faucets already spawned");
 
-    VoxelCoord memory faucetCoord1 = VoxelCoord(50, 10, 50);
+    VoxelCoord memory faucetCoord1 = VoxelCoord(197, 27, 206);
     setFaucetAgent(faucetCoord1);
   }
 
@@ -60,6 +60,12 @@ contract TerrainSystem is TerrainProtoSystem {
     ObjectEntity.set(eventEntityId, objectEntityId);
 
     // This will place the agent, so it will check if the object there is air
+    bytes32 terrainObjectTypeId = IWorld(_world()).getTerrainObjectTypeId(coord);
+    require(
+      terrainObjectTypeId == emptyObjectId() || terrainObjectTypeId == objectTypeId,
+      "TerrainSystem: Terrain object type id does not match"
+    );
+
     ObjectProperties memory faucetProperties = IWorld(_world()).enterWorld(objectTypeId, coord, objectEntityId);
     ISimInitSystem(SIMULATOR_ADDRESS).initObject(objectEntityId, faucetProperties);
 
@@ -114,10 +120,9 @@ contract TerrainSystem is TerrainProtoSystem {
   }
 
   function continentalness(int128 x) internal view returns (int128) {
-    Tuple[] memory splines = new Tuple[](3);
+    Tuple[] memory splines = new Tuple[](2);
     splines[0] = Tuple(_0, _0);
-    splines[1] = Tuple(_0_5, _0_5);
-    splines[2] = Tuple(_1, _0_5);
+    splines[1] = Tuple(_1, _0_3);
     return applySpline(x, splines);
   }
 

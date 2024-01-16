@@ -20,6 +20,8 @@ const GEN_VOXEL_VARIANT_IDS_BLACKLIST = new Set([
   "dirt",
   "bedrock",
   "stone",
+  "snow",
+  "sand",
   "soil-protein",
   "soil-elixir",
   "soil-concentrative",

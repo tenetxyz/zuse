@@ -17,8 +17,10 @@ contract PostDeploy is Script {
     world.world_AirObjectSystem_registerObject();
     world.world_DirtObjectSystem_registerObject();
     world.world_GrassObjectSyste_registerObject();
+    world.world_SandObjectSystem_registerObject();
     world.world_BedrockObjectSys_registerObject();
     world.world_StoneObjectSyste_registerObject();
+    world.world_SnowObjectSystem_registerObject();
     world.world_BuilderObjectSys_registerObject();
     world.world_FaucetObjectSyst_registerObject();
     world.world_RunnerObjectSyst_registerObject();

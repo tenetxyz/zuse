@@ -26,7 +26,7 @@ import { Health } from "@tenet-simulator/src/codegen/tables/Health.sol";
 import { Stamina } from "@tenet-simulator/src/codegen/tables/Stamina.sol";
 import { Velocity } from "@tenet-simulator/src/codegen/tables/Velocity.sol";
 
-import { MonumentsLeaderboard, MonumentsLeaderboardData, MonumentsLeaderboardTableId } from "@tenet-derived/src/codegen/Tables.sol";
+import { MonumentClaimedArea, MonumentClaimedAreaData, MonumentClaimedAreaTableId } from "@tenet-derived/src/codegen/Tables.sol";
 import { MonumentBounties, MonumentBountiesData, MonumentBountiesTableId } from "@tenet-derived/src/codegen/Tables.sol";
 import { MonumentLikes, MonumentLikesTableId } from "@tenet-derived/src/codegen/Tables.sol";
 
@@ -82,18 +82,18 @@ contract MonumentsTest is MudTest {
     VoxelCoord memory size = VoxelCoord({ x: 10, y: 0, z: 10 });
 
     derivedWorld.claimMonumentsArea(agentObjectEntityId, lowerSouthwestCorner, size);
-    MonumentsLeaderboardData memory monumentsLBData = MonumentsLeaderboard.get(
+    MonumentClaimedAreaData memory monumentsCAData = MonumentClaimedArea.get(
       derivedStore,
       lowerSouthwestCorner.x,
       lowerSouthwestCorner.y,
       lowerSouthwestCorner.z
     );
-    assertTrue(monumentsLBData.owner == alice, "Owner not set correctly");
-    assertTrue(monumentsLBData.agentObjectEntityId == agentObjectEntityId, "Agent object entity ID not set correctly");
-    assertTrue(monumentsLBData.length == int32ToUint32(size.x), "Length not set correctly");
-    assertTrue(monumentsLBData.width == int32ToUint32(size.z), "Width not set correctly");
-    assertTrue(monumentsLBData.totalLikes == 0, "TotalLikes not set correctly");
-    assertTrue(monumentsLBData.likedBy.length == 0, "LikedBy not set correctly");
+    assertTrue(monumentsCAData.owner == alice, "Owner not set correctly");
+    assertTrue(monumentsCAData.agentObjectEntityId == agentObjectEntityId, "Agent object entity ID not set correctly");
+    assertTrue(monumentsCAData.length == int32ToUint32(size.x), "Length not set correctly");
+    assertTrue(monumentsCAData.width == int32ToUint32(size.z), "Width not set correctly");
+    assertTrue(monumentsCAData.totalLikes == 0, "TotalLikes not set correctly");
+    assertTrue(monumentsCAData.likedBy.length == 0, "LikedBy not set correctly");
 
     // should fail because already claimed
     vm.expectRevert();
@@ -129,14 +129,14 @@ contract MonumentsTest is MudTest {
     VoxelCoord memory size = VoxelCoord({ x: 10, y: 0, z: 10 });
 
     derivedWorld.claimMonumentsArea(agentObjectEntityId, lowerSouthwestCorner, size);
-    MonumentsLeaderboardData memory monumentsLBData = MonumentsLeaderboard.get(
+    MonumentClaimedAreaData memory monumentsCAData = MonumentClaimedArea.get(
       derivedStore,
       lowerSouthwestCorner.x,
       lowerSouthwestCorner.y,
       lowerSouthwestCorner.z
     );
-    assertTrue(monumentsLBData.totalLikes == 0, "TotalLikes not set correctly");
-    assertTrue(monumentsLBData.likedBy.length == 0, "LikedBy not set correctly");
+    assertTrue(monumentsCAData.totalLikes == 0, "TotalLikes not set correctly");
+    assertTrue(monumentsCAData.likedBy.length == 0, "LikedBy not set correctly");
     assertTrue(MonumentLikes.get(alice) == 0, "MonumentLikes not set correctly");
 
     // should fail because can't like own monument
@@ -145,15 +145,15 @@ contract MonumentsTest is MudTest {
 
     vm.startPrank(bob, bob);
     derivedWorld.likeMonumentsArea(lowerSouthwestCorner, 0);
-    monumentsLBData = MonumentsLeaderboard.get(
+    monumentsCAData = MonumentClaimedArea.get(
       derivedStore,
       lowerSouthwestCorner.x,
       lowerSouthwestCorner.y,
       lowerSouthwestCorner.z
     );
-    assertTrue(monumentsLBData.totalLikes == 1, "TotalLikes not set correctly");
-    assertTrue(monumentsLBData.likedBy.length == 1, "LikedBy not set correctly");
-    assertTrue(monumentsLBData.likedBy[0] == bob, "LikedBy not set correctly");
+    assertTrue(monumentsCAData.totalLikes == 1, "TotalLikes not set correctly");
+    assertTrue(monumentsCAData.likedBy.length == 1, "LikedBy not set correctly");
+    assertTrue(monumentsCAData.likedBy[0] == bob, "LikedBy not set correctly");
     assertTrue(MonumentLikes.get(alice) == 1, "MonumentLikes not set correctly");
 
     // should fail because already liked
@@ -174,42 +174,42 @@ contract MonumentsTest is MudTest {
     VoxelCoord memory size = VoxelCoord({ x: 10, y: 0, z: 10 });
 
     derivedWorld.claimMonumentsArea(agentObjectEntityId, lowerSouthwestCorner, size);
-    MonumentsLeaderboardData memory monumentsLBData = MonumentsLeaderboard.get(
+    MonumentClaimedAreaData memory monumentsCAData = MonumentClaimedArea.get(
       derivedStore,
       lowerSouthwestCorner.x,
       lowerSouthwestCorner.y,
       lowerSouthwestCorner.z
     );
-    assertTrue(monumentsLBData.totalLikes == 0, "TotalLikes not set correctly");
-    assertTrue(monumentsLBData.likedBy.length == 0, "LikedBy not set correctly");
+    assertTrue(monumentsCAData.totalLikes == 0, "TotalLikes not set correctly");
+    assertTrue(monumentsCAData.likedBy.length == 0, "LikedBy not set correctly");
     assertTrue(MonumentLikes.get(alice) == 0, "MonumentLikes not set correctly");
 
     MonumentLikes.set(bob, 100);
 
     vm.startPrank(bob, bob);
     derivedWorld.likeMonumentsArea(lowerSouthwestCorner, 0);
-    monumentsLBData = MonumentsLeaderboard.get(
+    monumentsCAData = MonumentClaimedArea.get(
       derivedStore,
       lowerSouthwestCorner.x,
       lowerSouthwestCorner.y,
       lowerSouthwestCorner.z
     );
-    assertTrue(monumentsLBData.totalLikes == 1, "TotalLikes not set correctly");
-    assertTrue(monumentsLBData.likedBy.length == 1, "LikedBy not set correctly");
-    assertTrue(monumentsLBData.likedBy[0] == bob, "LikedBy not set correctly");
+    assertTrue(monumentsCAData.totalLikes == 1, "TotalLikes not set correctly");
+    assertTrue(monumentsCAData.likedBy.length == 1, "LikedBy not set correctly");
+    assertTrue(monumentsCAData.likedBy[0] == bob, "LikedBy not set correctly");
     assertTrue(MonumentLikes.get(alice) == 1, "MonumentLikes not set correctly");
     assertTrue(MonumentLikes.get(bob) == 100, "MonumentLikes not set correctly");
 
     derivedWorld.likeMonumentsArea(lowerSouthwestCorner, 9);
-    monumentsLBData = MonumentsLeaderboard.get(
+    monumentsCAData = MonumentClaimedArea.get(
       derivedStore,
       lowerSouthwestCorner.x,
       lowerSouthwestCorner.y,
       lowerSouthwestCorner.z
     );
-    assertTrue(monumentsLBData.totalLikes == 10, "TotalLikes not set correctly");
-    assertTrue(monumentsLBData.likedBy.length == 1, "LikedBy not set correctly");
-    assertTrue(monumentsLBData.likedBy[0] == bob, "LikedBy not set correctly");
+    assertTrue(monumentsCAData.totalLikes == 10, "TotalLikes not set correctly");
+    assertTrue(monumentsCAData.likedBy.length == 1, "LikedBy not set correctly");
+    assertTrue(monumentsCAData.likedBy[0] == bob, "LikedBy not set correctly");
     assertTrue(MonumentLikes.get(alice) == 10, "MonumentLikes not set correctly");
     assertTrue(MonumentLikes.get(bob) == 91, "MonumentLikes not set correctly");
 
@@ -241,7 +241,7 @@ contract MonumentsTest is MudTest {
     VoxelCoord memory size = VoxelCoord({ x: 10, y: 0, z: 10 });
 
     derivedWorld.claimMonumentsArea(agentObjectEntityId, lowerSouthwestCorner, size);
-    MonumentsLeaderboardData memory monumentsLBData = MonumentsLeaderboard.get(
+    MonumentClaimedAreaData memory monumentsCAData = MonumentClaimedArea.get(
       derivedStore,
       lowerSouthwestCorner.x,
       lowerSouthwestCorner.y,
@@ -251,35 +251,35 @@ contract MonumentsTest is MudTest {
     vm.stopPrank();
     vm.startPrank(charlie, charlie);
     derivedWorld.likeMonumentsArea(lowerSouthwestCorner, 0);
-    monumentsLBData = MonumentsLeaderboard.get(
+    monumentsCAData = MonumentClaimedArea.get(
       derivedStore,
       lowerSouthwestCorner.x,
       lowerSouthwestCorner.y,
       lowerSouthwestCorner.z
     );
-    assertTrue(monumentsLBData.totalLikes == 1, "TotalLikes not set correctly");
+    assertTrue(monumentsCAData.totalLikes == 1, "TotalLikes not set correctly");
     vm.stopPrank();
 
     vm.startPrank(bob, bob);
     derivedWorld.likeMonumentsArea(lowerSouthwestCorner, 0);
-    monumentsLBData = MonumentsLeaderboard.get(
+    monumentsCAData = MonumentClaimedArea.get(
       derivedStore,
       lowerSouthwestCorner.x,
       lowerSouthwestCorner.y,
       lowerSouthwestCorner.z
     );
-    assertTrue(monumentsLBData.totalLikes == 2, "TotalLikes not set correctly");
+    assertTrue(monumentsCAData.totalLikes == 2, "TotalLikes not set correctly");
     vm.stopPrank();
     vm.startPrank(alice, alice);
 
-    derivedWorld.updateMonumentsLeaderboard();
-    monumentsLBData = MonumentsLeaderboard.get(
+    derivedWorld.updateMonumentClaimedArea();
+    monumentsCAData = MonumentClaimedArea.get(
       derivedStore,
       lowerSouthwestCorner.x,
       lowerSouthwestCorner.y,
       lowerSouthwestCorner.z
     );
-    assertTrue(monumentsLBData.rank == 1, "Rank not set correctly");
+    assertTrue(monumentsCAData.rank == 1, "Rank not set correctly");
     assertTrue(MonumentLikes.get(alice) == 2, "MonumentLikes not set correctly");
 
     vm.stopPrank();
@@ -295,15 +295,15 @@ contract MonumentsTest is MudTest {
     VoxelCoord memory size = VoxelCoord({ x: 10, y: 0, z: 10 });
 
     derivedWorld.claimMonumentsArea(agentObjectEntityId, lowerSouthwestCorner1, size);
-    MonumentsLeaderboardData memory monumentsLBData = MonumentsLeaderboard.get(
+    MonumentClaimedAreaData memory monumentsCAData = MonumentClaimedArea.get(
       derivedStore,
       lowerSouthwestCorner1.x,
       lowerSouthwestCorner1.y,
       lowerSouthwestCorner1.z
     );
-    assertTrue(monumentsLBData.owner == alice, "Owner not set correctly");
-    assertTrue(monumentsLBData.totalLikes == 0, "TotalLikes not set correctly");
-    assertTrue(monumentsLBData.rank == 1, "Default rank not set correctly");
+    assertTrue(monumentsCAData.owner == alice, "Owner not set correctly");
+    assertTrue(monumentsCAData.totalLikes == 0, "TotalLikes not set correctly");
+    assertTrue(monumentsCAData.rank == 1, "Default rank not set correctly");
 
     // move agent to new area (-1 in and x and z ten times) and claim that
     VoxelCoord memory oldCoord = agentCoord;
@@ -317,58 +317,58 @@ contract MonumentsTest is MudTest {
     size = VoxelCoord({ x: 5, y: 0, z: 5 });
     VoxelCoord memory lowerSouthwestCorner2 = VoxelCoord(newCoord.x, 0, newCoord.z);
     derivedWorld.claimMonumentsArea(agentObjectEntityId, lowerSouthwestCorner2, size);
-    monumentsLBData = MonumentsLeaderboard.get(
+    monumentsCAData = MonumentClaimedArea.get(
       derivedStore,
       lowerSouthwestCorner2.x,
       lowerSouthwestCorner2.y,
       lowerSouthwestCorner2.z
     );
-    assertTrue(monumentsLBData.owner == alice, "Owner not set correctly");
-    assertTrue(monumentsLBData.totalLikes == 0, "TotalLikes not set correctly");
-    assertTrue(monumentsLBData.rank == 2, "Default rank not set correctly");
+    assertTrue(monumentsCAData.owner == alice, "Owner not set correctly");
+    assertTrue(monumentsCAData.totalLikes == 0, "TotalLikes not set correctly");
+    assertTrue(monumentsCAData.rank == 2, "Default rank not set correctly");
 
     vm.stopPrank();
     vm.startPrank(charlie, charlie);
     derivedWorld.likeMonumentsArea(lowerSouthwestCorner2, 0);
-    monumentsLBData = MonumentsLeaderboard.get(
+    monumentsCAData = MonumentClaimedArea.get(
       derivedStore,
       lowerSouthwestCorner2.x,
       lowerSouthwestCorner2.y,
       lowerSouthwestCorner2.z
     );
-    assertTrue(monumentsLBData.totalLikes == 1, "TotalLikes not set correctly");
+    assertTrue(monumentsCAData.totalLikes == 1, "TotalLikes not set correctly");
     vm.stopPrank();
 
     vm.startPrank(bob, bob);
     derivedWorld.likeMonumentsArea(lowerSouthwestCorner2, 0);
-    monumentsLBData = MonumentsLeaderboard.get(
+    monumentsCAData = MonumentClaimedArea.get(
       derivedStore,
       lowerSouthwestCorner2.x,
       lowerSouthwestCorner2.y,
       lowerSouthwestCorner2.z
     );
-    assertTrue(monumentsLBData.totalLikes == 2, "TotalLikes not set correctly");
+    assertTrue(monumentsCAData.totalLikes == 2, "TotalLikes not set correctly");
     vm.stopPrank();
     vm.startPrank(alice, alice);
 
     assertTrue(MonumentLikes.get(alice) == 2, "MonumentLikes not set correctly");
 
-    derivedWorld.updateMonumentsLeaderboard();
-    monumentsLBData = MonumentsLeaderboard.get(
+    derivedWorld.updateMonumentClaimedArea();
+    monumentsCAData = MonumentClaimedArea.get(
       derivedStore,
       lowerSouthwestCorner2.x,
       lowerSouthwestCorner2.y,
       lowerSouthwestCorner2.z
     );
-    assertTrue(monumentsLBData.rank == 1, "Rank not set correctly");
+    assertTrue(monumentsCAData.rank == 1, "Rank not set correctly");
 
-    monumentsLBData = MonumentsLeaderboard.get(
+    monumentsCAData = MonumentClaimedArea.get(
       derivedStore,
       lowerSouthwestCorner1.x,
       lowerSouthwestCorner1.y,
       lowerSouthwestCorner1.z
     );
-    assertTrue(monumentsLBData.rank == 2, "Rank not set correctly");
+    assertTrue(monumentsCAData.rank == 2, "Rank not set correctly");
 
     vm.stopPrank();
   }
@@ -383,13 +383,13 @@ contract MonumentsTest is MudTest {
     VoxelCoord memory size = VoxelCoord({ x: 10, y: 0, z: 10 });
 
     derivedWorld.claimMonumentsArea(agentObjectEntityId, lowerSouthwestCorner, size);
-    MonumentsLeaderboardData memory monumentsLBData = MonumentsLeaderboard.get(
+    MonumentClaimedAreaData memory monumentsCAData = MonumentClaimedArea.get(
       derivedStore,
       lowerSouthwestCorner.x,
       lowerSouthwestCorner.y,
       lowerSouthwestCorner.z
     );
-    assertTrue(monumentsLBData.owner == alice, "Owner not set correctly");
+    assertTrue(monumentsCAData.owner == alice, "Owner not set correctly");
 
     MonumentLikes.set(alice, 100);
 
@@ -532,7 +532,7 @@ contract MonumentsTest is MudTest {
     vm.startPrank(bob, bob);
     derivedWorld.claimMonumentBounty(bountyId, lowerSouthwestCorner, baseWorldCoord);
     bountyData = MonumentBounties.get(derivedStore, bountyId);
-    assertTrue(bountyData.claimedBy == monumentsLBData.owner, "ClaimedBy not set correctly");
+    assertTrue(bountyData.claimedBy == monumentsCAData.owner, "ClaimedBy not set correctly");
     vm.stopPrank();
     vm.startPrank(alice, alice);
 
@@ -553,13 +553,13 @@ contract MonumentsTest is MudTest {
     VoxelCoord memory size = VoxelCoord({ x: 10, y: 0, z: 10 });
 
     derivedWorld.claimMonumentsArea(agentObjectEntityId, lowerSouthwestCorner, size);
-    MonumentsLeaderboardData memory monumentsLBData = MonumentsLeaderboard.get(
+    MonumentClaimedAreaData memory monumentsCAData = MonumentClaimedArea.get(
       derivedStore,
       lowerSouthwestCorner.x,
       lowerSouthwestCorner.y,
       lowerSouthwestCorner.z
     );
-    assertTrue(monumentsLBData.owner == alice, "Owner not set correctly");
+    assertTrue(monumentsCAData.owner == alice, "Owner not set correctly");
 
     uint256 bountyAmount = 0;
     MonumentLikes.set(alice, 0);

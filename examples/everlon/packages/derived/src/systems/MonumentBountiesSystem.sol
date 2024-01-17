@@ -13,7 +13,7 @@ import { VoxelCoord, ObjectProperties } from "@tenet-utils/src/Types.sol";
 
 import { ObjectTypeRegistry, ObjectTypeRegistryTableId } from "@tenet-registry/src/codegen/tables/ObjectTypeRegistry.sol";
 
-import { MonumentsLeaderboard, MonumentsLeaderboardData, MonumentsLeaderboardTableId } from "@tenet-derived/src/codegen/Tables.sol";
+import { MonumentClaimedArea, MonumentClaimedAreaData, MonumentClaimedAreaTableId } from "@tenet-derived/src/codegen/Tables.sol";
 import { MonumentBounties, MonumentBountiesData, MonumentBountiesTableId } from "@tenet-derived/src/codegen/Tables.sol";
 import { MonumentLikes, MonumentLikesTableId } from "@tenet-derived/src/codegen/Tables.sol";
 
@@ -114,8 +114,8 @@ contract MonumentBountiesSystem is System {
 
     require(
       hasKey(
-        MonumentsLeaderboardTableId,
-        MonumentsLeaderboard.encodeKeyTuple(monumentClaimedArea.x, monumentClaimedArea.y, monumentClaimedArea.z)
+        MonumentClaimedAreaTableId,
+        MonumentClaimedArea.encodeKeyTuple(monumentClaimedArea.x, monumentClaimedArea.y, monumentClaimedArea.z)
       ),
       "MonumentBountiesSystem: Monument claimed area does not exist"
     );
@@ -124,13 +124,11 @@ contract MonumentBountiesSystem is System {
     VoxelCoord memory monumentClaimedAreaUpperCorner = VoxelCoord(
       monumentClaimedArea.x +
         uint32ToInt32(
-          MonumentsLeaderboard.getLength(monumentClaimedArea.x, monumentClaimedArea.y, monumentClaimedArea.z)
+          MonumentClaimedArea.getLength(monumentClaimedArea.x, monumentClaimedArea.y, monumentClaimedArea.z)
         ),
       0,
       monumentClaimedArea.z +
-        uint32ToInt32(
-          MonumentsLeaderboard.getWidth(monumentClaimedArea.x, monumentClaimedArea.y, monumentClaimedArea.z)
-        )
+        uint32ToInt32(MonumentClaimedArea.getWidth(monumentClaimedArea.x, monumentClaimedArea.y, monumentClaimedArea.z))
     );
     require(
       baseWorldCoord.x >= monumentClaimedArea.x &&
@@ -161,11 +159,7 @@ contract MonumentBountiesSystem is System {
       }
     }
 
-    address claimer = MonumentsLeaderboard.getOwner(
-      monumentClaimedArea.x,
-      monumentClaimedArea.y,
-      monumentClaimedArea.z
-    );
+    address claimer = MonumentClaimedArea.getOwner(monumentClaimedArea.x, monumentClaimedArea.y, monumentClaimedArea.z);
     MonumentBounties.setClaimedBy(bountyId, claimer);
 
     MonumentLikes.set(claimer, MonumentLikes.get(claimer) + bountyData.bountyAmount);

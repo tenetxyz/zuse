@@ -14,9 +14,9 @@ export default mudConfig({
         likes: "uint256",
       },
     },
-    MonumentsLeaderboard: {
+    MonumentClaimedArea: {
       keySchema: {
-        // claimed area lower southwest coord
+        // lower southwest coord
         x: "int32",
         y: "int32",
         z: "int32",
@@ -195,7 +195,7 @@ export default mudConfig({
     {
       name: "KeysInTableModule",
       root: true,
-      args: [resolveTableId("MonumentsLeaderboard")],
+      args: [resolveTableId("MonumentClaimedArea")],
     },
     {
       name: "KeysInTableModule",

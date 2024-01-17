@@ -9,7 +9,7 @@ import { getKeysInTable } from "@latticexyz/world/src/modules/keysintable/getKey
 
 import { VoxelCoord, ObjectProperties } from "@tenet-utils/src/Types.sol";
 
-import { MonumentsLeaderboard, MonumentsLeaderboardData, MonumentsLeaderboardTableId } from "@tenet-derived/src/codegen/Tables.sol";
+import { MonumentClaimedArea, MonumentClaimedAreaData, MonumentClaimedAreaTableId } from "@tenet-derived/src/codegen/Tables.sol";
 import { MonumentLikes, MonumentLikesTableId } from "@tenet-derived/src/codegen/Tables.sol";
 
 import { Position } from "@tenet-base-world/src/codegen/tables/Position.sol";
@@ -32,7 +32,7 @@ struct AreaLikes {
   uint256 likes;
 }
 
-contract MonumentsLBSystem is System {
+contract MonumentCASystem is System {
   // Note: we only support claiming 2D areas for now, ie all y values are ignored
   function claimMonumentsArea(
     bytes32 agentObjectEntityId,
@@ -42,7 +42,7 @@ contract MonumentsLBSystem is System {
     IStore worldStore = IStore(WORLD_ADDRESS);
     require(
       OwnedBy.get(worldStore, agentObjectEntityId) == _msgSender(),
-      "MonumentsLBSystem: You do not own this agent"
+      "MonumentCASystem: You do not own this agent"
     );
     VoxelCoord memory coord = getVoxelCoord(worldStore, agentObjectEntityId);
 
@@ -52,15 +52,15 @@ contract MonumentsLBSystem is System {
         coord.z >= lowerSouthwestCorner.z &&
         coord.x < lowerSouthwestCorner.x + size.x &&
         coord.z < lowerSouthwestCorner.z + size.z,
-      "MonumentsLBSystem: Your agent is not within the selected area"
+      "MonumentCASystem: Your agent is not within the selected area"
     );
 
     require(
       !hasKey(
-        MonumentsLeaderboardTableId,
-        MonumentsLeaderboard.encodeKeyTuple(lowerSouthwestCorner.x, 0, lowerSouthwestCorner.z)
+        MonumentClaimedAreaTableId,
+        MonumentClaimedArea.encodeKeyTuple(lowerSouthwestCorner.x, 0, lowerSouthwestCorner.z)
       ),
-      "MonumentsLBSystem: This area is already claimed"
+      "MonumentCASystem: This area is already claimed"
     );
 
     VoxelCoord memory topNortheastCorner = VoxelCoord(
@@ -74,11 +74,11 @@ contract MonumentsLBSystem is System {
 
     // TODO: Add spam protection to make it so a user doesn't claim too many areas
 
-    MonumentsLeaderboard.set(
+    MonumentClaimedArea.set(
       lowerSouthwestCorner.x,
       0,
       lowerSouthwestCorner.z,
-      MonumentsLeaderboardData({
+      MonumentClaimedAreaData({
         length: int32ToUint32(size.x),
         width: int32ToUint32(size.z),
         height: int32ToUint32(size.y),
@@ -96,13 +96,13 @@ contract MonumentsLBSystem is System {
     VoxelCoord memory lowerCorner,
     VoxelCoord memory upperCorner
   ) internal view returns (uint256) {
-    bytes32[][] memory monumentsLBEntities = getKeysInTable(MonumentsLeaderboardTableId);
-    for (uint i = 0; i < monumentsLBEntities.length; i++) {
-      int32 x = int32(int256(uint256(monumentsLBEntities[i][0])));
-      int32 y = int32(int256(uint256(monumentsLBEntities[i][1])));
-      int32 z = int32(int256(uint256(monumentsLBEntities[i][2])));
-      uint32 length = MonumentsLeaderboard.getLength(x, y, z);
-      uint32 width = MonumentsLeaderboard.getWidth(x, y, z);
+    bytes32[][] memory monumentsCAEntities = getKeysInTable(MonumentClaimedAreaTableId);
+    for (uint i = 0; i < monumentsCAEntities.length; i++) {
+      int32 x = int32(int256(uint256(monumentsCAEntities[i][0])));
+      int32 y = int32(int256(uint256(monumentsCAEntities[i][1])));
+      int32 z = int32(int256(uint256(monumentsCAEntities[i][2])));
+      uint32 length = MonumentClaimedArea.getLength(x, y, z);
+      uint32 width = MonumentClaimedArea.getWidth(x, y, z);
       VoxelCoord memory compareLowerCorner = VoxelCoord(x, y, z);
       VoxelCoord memory compareUpperCorner = VoxelCoord(x + uint32ToInt32(length), y, z + uint32ToInt32(width));
       // Check if the area overlaps with the claimed area
@@ -112,31 +112,31 @@ contract MonumentsLBSystem is System {
           lowerCorner.z >= compareUpperCorner.z || // above
           upperCorner.z <= compareLowerCorner.z) // below
       ) {
-        revert("MonumentsLBSystem: This area overlaps with another claimed area");
+        revert("MonumentCASystem: This area overlaps with another claimed area");
       }
     }
-    return monumentsLBEntities.length;
+    return monumentsCAEntities.length;
   }
 
   function likeMonumentsArea(VoxelCoord memory lowerSouthwestCorner, uint256 numLikes) public {
     require(
       hasKey(
-        MonumentsLeaderboardTableId,
-        MonumentsLeaderboard.encodeKeyTuple(lowerSouthwestCorner.x, lowerSouthwestCorner.y, lowerSouthwestCorner.z)
+        MonumentClaimedAreaTableId,
+        MonumentClaimedArea.encodeKeyTuple(lowerSouthwestCorner.x, lowerSouthwestCorner.y, lowerSouthwestCorner.z)
       ),
-      "MonumentsLBSystem: This area is not claimed"
+      "MonumentCASystem: This area is not claimed"
     );
 
-    address areaOwner = MonumentsLeaderboard.getOwner(
+    address areaOwner = MonumentClaimedArea.getOwner(
       lowerSouthwestCorner.x,
       lowerSouthwestCorner.y,
       lowerSouthwestCorner.z
     );
-    require(areaOwner != _msgSender(), "MonumentsLBSystem: You cannot like your own area");
+    require(areaOwner != _msgSender(), "MonumentCASystem: You cannot like your own area");
     // TODO: require valid EOA
 
     if (numLikes == 0) {
-      address[] memory likedByArray = MonumentsLeaderboard.getLikedBy(
+      address[] memory likedByArray = MonumentClaimedArea.getLikedBy(
         lowerSouthwestCorner.x,
         lowerSouthwestCorner.y,
         lowerSouthwestCorner.z
@@ -148,7 +148,7 @@ contract MonumentsLBSystem is System {
           break;
         }
       }
-      require(!userFound, "MonumentsLBSystem: User has already liked this area");
+      require(!userFound, "MonumentCASystem: User has already liked this area");
 
       // Create a new array with an additional slot and copy old array to new array
       address[] memory newLikedByArray = new address[](likedByArray.length + 1);
@@ -157,7 +157,7 @@ contract MonumentsLBSystem is System {
       }
       // Add new user to the last slot of the new array
       newLikedByArray[likedByArray.length] = _msgSender();
-      MonumentsLeaderboard.setLikedBy(
+      MonumentClaimedArea.setLikedBy(
         lowerSouthwestCorner.x,
         lowerSouthwestCorner.y,
         lowerSouthwestCorner.z,
@@ -167,19 +167,19 @@ contract MonumentsLBSystem is System {
       // Mint new like
       MonumentLikes.set(areaOwner, MonumentLikes.get(areaOwner) + 1);
     } else {
-      require(MonumentLikes.get(_msgSender()) >= numLikes, "MonumentsLBSystem: You do not have enough likes");
+      require(MonumentLikes.get(_msgSender()) >= numLikes, "MonumentCASystem: You do not have enough likes");
 
       // transfer likes from sender to owner
       MonumentLikes.set(_msgSender(), MonumentLikes.get(_msgSender()) - numLikes);
       MonumentLikes.set(areaOwner, MonumentLikes.get(areaOwner) + numLikes);
     }
 
-    uint256 totalLikes = MonumentsLeaderboard.getTotalLikes(
+    uint256 totalLikes = MonumentClaimedArea.getTotalLikes(
       lowerSouthwestCorner.x,
       lowerSouthwestCorner.y,
       lowerSouthwestCorner.z
     ) + (numLikes == 0 ? 1 : numLikes);
-    MonumentsLeaderboard.setTotalLikes(
+    MonumentClaimedArea.setTotalLikes(
       lowerSouthwestCorner.x,
       lowerSouthwestCorner.y,
       lowerSouthwestCorner.z,
@@ -187,19 +187,19 @@ contract MonumentsLBSystem is System {
     );
   }
 
-  function updateMonumentsLeaderboard() public {
-    bytes32[][] memory monumentsLBEntities = getKeysInTable(MonumentsLeaderboardTableId);
-    if (monumentsLBEntities.length == 0) {
+  function updateMonumentClaimedArea() public {
+    bytes32[][] memory monumentsCAEntities = getKeysInTable(MonumentClaimedAreaTableId);
+    if (monumentsCAEntities.length == 0) {
       return;
     }
 
-    AreaLikes[] memory allAreaLikes = new AreaLikes[](monumentsLBEntities.length);
+    AreaLikes[] memory allAreaLikes = new AreaLikes[](monumentsCAEntities.length);
 
-    for (uint256 i = 0; i < monumentsLBEntities.length; i++) {
-      int32 x = int32(int256(uint256(monumentsLBEntities[i][0])));
-      int32 y = int32(int256(uint256(monumentsLBEntities[i][1])));
-      int32 z = int32(int256(uint256(monumentsLBEntities[i][2])));
-      uint256 likes = MonumentsLeaderboard.getTotalLikes(x, y, z);
+    for (uint256 i = 0; i < monumentsCAEntities.length; i++) {
+      int32 x = int32(int256(uint256(monumentsCAEntities[i][0])));
+      int32 y = int32(int256(uint256(monumentsCAEntities[i][1])));
+      int32 z = int32(int256(uint256(monumentsCAEntities[i][2])));
+      uint256 likes = MonumentClaimedArea.getTotalLikes(x, y, z);
 
       allAreaLikes[i] = AreaLikes(x, y, z, likes);
     }
@@ -224,7 +224,7 @@ contract MonumentsLBSystem is System {
 
     for (uint256 i = 0; i < allAreaLikes.length; i++) {
       uint rank = i + 1;
-      MonumentsLeaderboard.setRank(allAreaLikes[i].x, allAreaLikes[i].y, allAreaLikes[i].z, rank);
+      MonumentClaimedArea.setRank(allAreaLikes[i].x, allAreaLikes[i].y, allAreaLikes[i].z, rank);
     }
   }
 }

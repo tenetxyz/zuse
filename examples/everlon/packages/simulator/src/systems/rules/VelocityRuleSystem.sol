@@ -12,6 +12,7 @@ import { Velocity, VelocityData, VelocityTableId } from "@tenet-simulator/src/co
 import { Stamina, StaminaTableId } from "@tenet-simulator/src/codegen/tables/Stamina.sol";
 import { Temperature, TemperatureTableId } from "@tenet-simulator/src/codegen/tables/Temperature.sol";
 
+import { getEntityIdFromObjectEntityId } from "@tenet-base-world/src/Utils.sol";
 import { getVelocity } from "@tenet-simulator/src/Utils.sol";
 import { VoxelCoord } from "@tenet-utils/src/Types.sol";
 import { uint256ToInt32 } from "@tenet-utils/src/TypeUtils.sol";
@@ -125,7 +126,8 @@ contract VelocityRuleSystem is System {
     );
 
     // Collision rule
-    return IWorld(_world()).onCollision(worldAddress, objectEntityId, actingObjectEntityId);
+    // return IWorld(_world()).onCollision(worldAddress, objectEntityId, actingObjectEntityId);
+    return getEntityIdFromObjectEntityId(IStore(worldAddress), objectEntityId);
   }
 
   function calculateNewVelocity(

@@ -25,11 +25,9 @@ export default mudConfig({
         length: "uint32",
         width: "uint32",
         height: "uint32",
-        rank: "uint256",
-        totalLikes: "uint256",
         owner: "address",
         agentObjectEntityId: "bytes32",
-        likedBy: "address[]",
+        displayName: "string",
       },
     },
     MonumentBounties: {
@@ -40,6 +38,7 @@ export default mudConfig({
         creator: "address",
         bountyAmount: "uint256",
         claimedBy: "address",
+        claimedArea: "bytes", // VoxelCoord
         objectTypeIds: "bytes32[]",
         relativePositions: "bytes", // VoxelCoord[], the relative position for each object in the monument
         name: "string",

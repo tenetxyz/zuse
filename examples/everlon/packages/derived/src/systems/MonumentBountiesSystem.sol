@@ -71,6 +71,7 @@ contract MonumentBountiesSystem is System {
         creator: _msgSender(),
         bountyAmount: bountyAmount,
         claimedBy: address(0),
+        claimedArea: abi.encode(VoxelCoord({ x: 0, y: 0, z: 0 })),
         objectTypeIds: objectTypeIds,
         relativePositions: abi.encode(relativePositions),
         name: name,
@@ -161,6 +162,7 @@ contract MonumentBountiesSystem is System {
 
     address claimer = MonumentClaimedArea.getOwner(monumentClaimedArea.x, monumentClaimedArea.y, monumentClaimedArea.z);
     MonumentBounties.setClaimedBy(bountyId, claimer);
+    MonumentBounties.setClaimedArea(bountyId, abi.encode(monumentClaimedArea));
 
     MonumentLikes.set(claimer, MonumentLikes.get(claimer) + bountyData.bountyAmount);
   }

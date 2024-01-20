@@ -37,7 +37,8 @@ contract MonumentCASystem is System {
   function claimMonumentsArea(
     bytes32 agentObjectEntityId,
     VoxelCoord memory lowerSouthwestCorner,
-    VoxelCoord memory size
+    VoxelCoord memory size,
+    string memory displayName
   ) public {
     IStore worldStore = IStore(WORLD_ADDRESS);
     require(
@@ -82,11 +83,9 @@ contract MonumentCASystem is System {
         length: int32ToUint32(size.x),
         width: int32ToUint32(size.z),
         height: int32ToUint32(size.y),
-        rank: numClaimedAreas + 1, // Initial rank is the number of claimed areas + 1, ie last place
-        totalLikes: 0,
         owner: _msgSender(),
         agentObjectEntityId: agentObjectEntityId,
-        likedBy: new address[](0)
+        displayName: displayName
       })
     );
   }
@@ -116,115 +115,5 @@ contract MonumentCASystem is System {
       }
     }
     return monumentsCAEntities.length;
-  }
-
-  function likeMonumentsArea(VoxelCoord memory lowerSouthwestCorner, uint256 numLikes) public {
-    require(
-      hasKey(
-        MonumentClaimedAreaTableId,
-        MonumentClaimedArea.encodeKeyTuple(lowerSouthwestCorner.x, lowerSouthwestCorner.y, lowerSouthwestCorner.z)
-      ),
-      "MonumentCASystem: This area is not claimed"
-    );
-
-    address areaOwner = MonumentClaimedArea.getOwner(
-      lowerSouthwestCorner.x,
-      lowerSouthwestCorner.y,
-      lowerSouthwestCorner.z
-    );
-    require(areaOwner != _msgSender(), "MonumentCASystem: You cannot like your own area");
-    // TODO: require valid EOA
-
-    if (numLikes == 0) {
-      address[] memory likedByArray = MonumentClaimedArea.getLikedBy(
-        lowerSouthwestCorner.x,
-        lowerSouthwestCorner.y,
-        lowerSouthwestCorner.z
-      );
-      bool userFound = false;
-      for (uint i = 0; i < likedByArray.length; i++) {
-        if (likedByArray[i] == _msgSender()) {
-          userFound = true;
-          break;
-        }
-      }
-      require(!userFound, "MonumentCASystem: User has already liked this area");
-
-      // Create a new array with an additional slot and copy old array to new array
-      address[] memory newLikedByArray = new address[](likedByArray.length + 1);
-      for (uint i = 0; i < likedByArray.length; i++) {
-        newLikedByArray[i] = likedByArray[i];
-      }
-      // Add new user to the last slot of the new array
-      newLikedByArray[likedByArray.length] = _msgSender();
-      MonumentClaimedArea.setLikedBy(
-        lowerSouthwestCorner.x,
-        lowerSouthwestCorner.y,
-        lowerSouthwestCorner.z,
-        newLikedByArray
-      );
-
-      // Mint new like
-      MonumentLikes.set(areaOwner, MonumentLikes.get(areaOwner) + 1);
-    } else {
-      require(MonumentLikes.get(_msgSender()) >= numLikes, "MonumentCASystem: You do not have enough likes");
-
-      // transfer likes from sender to owner
-      MonumentLikes.set(_msgSender(), MonumentLikes.get(_msgSender()) - numLikes);
-      MonumentLikes.set(areaOwner, MonumentLikes.get(areaOwner) + numLikes);
-    }
-
-    uint256 totalLikes = MonumentClaimedArea.getTotalLikes(
-      lowerSouthwestCorner.x,
-      lowerSouthwestCorner.y,
-      lowerSouthwestCorner.z
-    ) + (numLikes == 0 ? 1 : numLikes);
-    MonumentClaimedArea.setTotalLikes(
-      lowerSouthwestCorner.x,
-      lowerSouthwestCorner.y,
-      lowerSouthwestCorner.z,
-      totalLikes
-    );
-  }
-
-  function updateMonumentClaimedArea() public {
-    bytes32[][] memory monumentsCAEntities = getKeysInTable(MonumentClaimedAreaTableId);
-    if (monumentsCAEntities.length == 0) {
-      return;
-    }
-
-    AreaLikes[] memory allAreaLikes = new AreaLikes[](monumentsCAEntities.length);
-
-    for (uint256 i = 0; i < monumentsCAEntities.length; i++) {
-      int32 x = int32(int256(uint256(monumentsCAEntities[i][0])));
-      int32 y = int32(int256(uint256(monumentsCAEntities[i][1])));
-      int32 z = int32(int256(uint256(monumentsCAEntities[i][2])));
-      uint256 likes = MonumentClaimedArea.getTotalLikes(x, y, z);
-
-      allAreaLikes[i] = AreaLikes(x, y, z, likes);
-    }
-
-    // Sort the array based on likes using Bubble Sort
-    bool swapped = false;
-    for (uint256 i = 0; i < allAreaLikes.length - 1; i++) {
-      swapped = false;
-      for (uint256 j = 0; j < allAreaLikes.length - i - 1; j++) {
-        if (allAreaLikes[j].likes < allAreaLikes[j + 1].likes) {
-          // Swap
-          AreaLikes memory temp = allAreaLikes[j];
-          allAreaLikes[j] = allAreaLikes[j + 1];
-          allAreaLikes[j + 1] = temp;
-          swapped = true;
-        }
-      }
-      if (!swapped) {
-        break;
-      }
-    }
-
-    for (uint256 i = 0; i < allAreaLikes.length; i++) {
-      uint rank = i + 1;
-      MonumentClaimedArea.setRank(allAreaLikes[i].x, allAreaLikes[i].y, allAreaLikes[i].z, rank);
-    }
   }
 }

@@ -111,7 +111,7 @@ contract FarmerDeliverySystem is System {
         PlantConsumer memory consumer = consumers[j];
         bytes memory claimedShardBytes = ClaimedShard.get(consumer.objectEntityId);
         VoxelCoord memory claimedShard = abi.decode(claimedShardBytes, (VoxelCoord));
-        totalPoints += MonumentClaimedArea.getLikedBy(claimedShard.x, claimedShard.y, claimedShard.z).length;
+        // totalPoints += MonumentClaimedArea.getLikedBy(claimedShard.x, claimedShard.y, claimedShard.z).length;
         numDeliveries += 1;
       }
     }

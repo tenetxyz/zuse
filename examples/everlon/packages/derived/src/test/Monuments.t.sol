@@ -281,7 +281,9 @@ contract MonumentsTest is MudTest {
     bountyData = MonumentBounties.get(derivedStore, bountyId);
     assertTrue(bountyData.claimedBy == monumentsCAData.owner, "ClaimedBy not set correctly");
     assertTrue(
-      voxelCoordsAreEqual(abi.decode(bountyData.claimedArea, (VoxelCoord)), lowerSouthwestCorner),
+      bountyData.claimedAreaX == lowerSouthwestCorner.x &&
+        bountyData.claimedAreaY == lowerSouthwestCorner.y &&
+        bountyData.claimedAreaZ == lowerSouthwestCorner.z,
       "ClaimedBy not set correctly"
     );
     vm.stopPrank();

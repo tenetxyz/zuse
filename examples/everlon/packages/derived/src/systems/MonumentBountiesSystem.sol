@@ -65,13 +65,17 @@ contract MonumentBountiesSystem is System {
     );
 
     bytes32 bountyId = getUniqueEntity();
+    address[] memory emptyAddressArray;
     MonumentBounties.set(
       bountyId,
       MonumentBountiesData({
         creator: _msgSender(),
         bountyAmount: bountyAmount,
         claimedBy: address(0),
-        claimedArea: abi.encode(VoxelCoord({ x: 0, y: 0, z: 0 })),
+        claimedAreaX: 0,
+        claimedAreaY: 0,
+        claimedAreaZ: 0,
+        mintedBy: emptyAddressArray,
         objectTypeIds: objectTypeIds,
         relativePositions: abi.encode(relativePositions),
         name: name,
@@ -91,13 +95,32 @@ contract MonumentBountiesSystem is System {
     );
     MonumentBountiesData memory bountyData = MonumentBounties.get(bountyId);
     require(bountyData.claimedBy == address(0), "MonumentBountiesSystem: Bounty has already been claimed");
-    require(
-      MonumentLikes.get(_msgSender()) >= numAmount,
-      "MonumentBountiesSystem: You do not have enough likes to boost this bounty"
-    );
+    if (numAmount == 0) {
+      // mint token
+      // check if already minted
+      address minter = tx.origin;
+      for (uint256 i = 0; i < bountyData.mintedBy.length; i++) {
+        if (bountyData.mintedBy[i] == minter) {
+          revert("MonumentBountiesSystem: You have already minted this bounty");
+        }
+      }
+      // add to mintedby array
+      address[] memory newMintedBy = new address[](bountyData.mintedBy.length + 1);
+      for (uint256 i = 0; i < bountyData.mintedBy.length; i++) {
+        newMintedBy[i] = bountyData.mintedBy[i];
+      }
+      newMintedBy[bountyData.mintedBy.length] = minter;
+      MonumentBounties.setMintedBy(bountyId, newMintedBy);
+      MonumentBounties.setBountyAmount(bountyId, bountyData.bountyAmount + 1);
+    } else {
+      require(
+        MonumentLikes.get(_msgSender()) >= numAmount,
+        "MonumentBountiesSystem: You do not have enough likes to boost this bounty"
+      );
 
-    MonumentBounties.setBountyAmount(bountyId, bountyData.bountyAmount + numAmount);
-    MonumentLikes.set(_msgSender(), MonumentLikes.get(_msgSender()) - numAmount);
+      MonumentBounties.setBountyAmount(bountyId, bountyData.bountyAmount + numAmount);
+      MonumentLikes.set(_msgSender(), MonumentLikes.get(_msgSender()) - numAmount);
+    }
   }
 
   function claimMonumentBounty(
@@ -162,7 +185,9 @@ contract MonumentBountiesSystem is System {
 
     address claimer = MonumentClaimedArea.getOwner(monumentClaimedArea.x, monumentClaimedArea.y, monumentClaimedArea.z);
     MonumentBounties.setClaimedBy(bountyId, claimer);
-    MonumentBounties.setClaimedArea(bountyId, abi.encode(monumentClaimedArea));
+    MonumentBounties.setClaimedAreaX(bountyId, monumentClaimedArea.x);
+    MonumentBounties.setClaimedAreaY(bountyId, monumentClaimedArea.y);
+    MonumentBounties.setClaimedAreaZ(bountyId, monumentClaimedArea.z);
 
     MonumentLikes.set(claimer, MonumentLikes.get(claimer) + bountyData.bountyAmount);
   }

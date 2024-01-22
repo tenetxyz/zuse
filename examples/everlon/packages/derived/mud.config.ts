@@ -38,9 +38,12 @@ export default mudConfig({
         creator: "address",
         bountyAmount: "uint256",
         claimedBy: "address",
-        claimedArea: "bytes", // VoxelCoord
+        claimedAreaX: "int32", // VoxelCoord
+        claimedAreaY: "int32", // VoxelCoord
+        claimedAreaZ: "int32", // VoxelCoord
         objectTypeIds: "bytes32[]",
         relativePositions: "bytes", // VoxelCoord[], the relative position for each object in the monument
+        mintedBy: "address[]",
         name: "string",
         description: "string",
       },

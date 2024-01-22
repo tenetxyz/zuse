@@ -29,7 +29,7 @@
     "tablegen": "yarn mud tablegen",
     "test": "yarn mud test",
     "worldgen": "yarn mud worldgen",
-    "worldtypes": "rimraf types && typechain --target=ethers-v5 out/world/IWorld.sol/IWorld.json"
+    "worldtypes": "rimraf types && typechain --target=ethers-v5 out/IWorld.sol/IWorld.json"
   },
   "dependencies": {
     "@tenetxyz/base-simulator": "workspace:*",

@@ -13,7 +13,7 @@ import { distanceBetween } from "@tenet-utils/src/VoxelCoordUtils.sol";
 import { VoxelCoord } from "@tenet-utils/src/Types.sol";
 import { getEntityIdFromObjectEntityId, getVoxelCoordStrict } from "@tenet-base-world/src/Utils.sol";
 
-uint256 constant MAX_CLAIMS = 8;
+uint256 constant MAX_CLAIMS = 1;
 
 contract FaucetSystem is System {
   // TODO: Could this just be in the faucet object type code?

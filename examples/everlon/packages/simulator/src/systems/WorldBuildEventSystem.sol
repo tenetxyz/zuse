@@ -17,9 +17,9 @@ import { NUM_MAX_INIT_NPK } from "@tenet-simulator/src/Constants.sol";
 
 contract WorldBuildEventSystem is WorldBuildEventProtoSystem {
   function preBuildEvent(bytes32 actingObjectEntityId, bytes32 objectTypeId, VoxelCoord memory coord) public override {
-    address worldAddress = _msgSender();
-    IWorld(_world()).checkActingObjectHealth(worldAddress, actingObjectEntityId);
-    IWorld(_world()).updateVelocityCache(worldAddress, actingObjectEntityId);
+    // address worldAddress = _msgSender();
+    // IWorld(_world()).checkActingObjectHealth(worldAddress, actingObjectEntityId);
+    // IWorld(_world()).updateVelocityCache(worldAddress, actingObjectEntityId);
   }
 
   function onBuildEvent(
@@ -31,9 +31,9 @@ contract WorldBuildEventSystem is WorldBuildEventProtoSystem {
     bool isNewEntity
   ) public override {
     address worldAddress = _msgSender();
-    if (objectEntityId != actingObjectEntityId) {
-      IWorld(_world()).updateVelocityCache(worldAddress, objectEntityId);
-    }
+    // if (objectEntityId != actingObjectEntityId) {
+    //   IWorld(_world()).updateVelocityCache(worldAddress, objectEntityId);
+    // }
 
     if (objectProperties.elementType != ElementType.None) {
       require(
@@ -88,7 +88,7 @@ contract WorldBuildEventSystem is WorldBuildEventProtoSystem {
       abi.encode(objectProperties.mass - currentMass)
     );
 
-    IWorld(_world()).applyTemperatureEffects(worldAddress, objectEntityId);
+    // IWorld(_world()).applyTemperatureEffects(worldAddress, objectEntityId);
   }
 
   function postBuildEvent(
@@ -97,6 +97,6 @@ contract WorldBuildEventSystem is WorldBuildEventProtoSystem {
     VoxelCoord memory coord,
     bytes32 objectEntityId
   ) public override {
-    IWorld(_world()).resolveCombatMoves();
+    // IWorld(_world()).resolveCombatMoves();
   }
 }

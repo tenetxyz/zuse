@@ -65,11 +65,7 @@ contract FaucetSystem is System {
     IWorld(_world()).claimAgent(newEntityId);
     Faucet.set(faucetObjectEntityId, facuetData);
 
-    IWorld(_world()).activate(
-      faucetObjectEntityId,
-      ObjectType.get(faucetEntityId),
-      faucetPosition
-    );
+    IWorld(_world()).activate(faucetObjectEntityId, ObjectType.get(faucetEntityId), faucetPosition);
 
     // We need to clear the metadata table here because the
     // build and activate event will not clear them since it's an internal call

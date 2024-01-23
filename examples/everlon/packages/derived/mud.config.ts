@@ -6,12 +6,12 @@ export default mudConfig({
     ElementType: ["None", "Fire", "Water", "Grass"],
   },
   tables: {
-    MonumentLikes: {
+    MonumentToken: {
       keySchema: {
         user: "address",
       },
       schema: {
-        likes: "uint256",
+        tokens: "uint256",
       },
     },
     MonumentClaimedArea: {

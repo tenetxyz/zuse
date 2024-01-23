@@ -28,7 +28,7 @@ import { Velocity } from "@tenet-simulator/src/codegen/tables/Velocity.sol";
 
 import { MonumentClaimedArea, MonumentClaimedAreaData, MonumentClaimedAreaTableId } from "@tenet-derived/src/codegen/Tables.sol";
 import { MonumentBounties, MonumentBountiesData, MonumentBountiesTableId } from "@tenet-derived/src/codegen/Tables.sol";
-import { MonumentLikes, MonumentLikesTableId } from "@tenet-derived/src/codegen/Tables.sol";
+import { MonumentToken, MonumentTokenTableId } from "@tenet-derived/src/codegen/Tables.sol";
 import { voxelCoordsAreEqual } from "@tenet-utils/src/VoxelCoordUtils.sol";
 
 // TODO: Replace relative imports in IWorld.sol, instead of this hack
@@ -138,7 +138,7 @@ contract MonumentsTest is MudTest {
     );
     assertTrue(monumentsCAData.owner == alice, "Owner not set correctly");
 
-    MonumentLikes.set(alice, 100);
+    MonumentToken.set(alice, 100);
 
     uint256 bountyAmount = 100;
 
@@ -315,7 +315,7 @@ contract MonumentsTest is MudTest {
     assertTrue(monumentsCAData.owner == alice, "Owner not set correctly");
 
     uint256 bountyAmount = 0;
-    MonumentLikes.set(alice, 0);
+    MonumentToken.set(alice, 0);
 
     // T grass shape
     bytes32[] memory objectTypeIds = new bytes32[](9);
@@ -361,7 +361,7 @@ contract MonumentsTest is MudTest {
     assertTrue(bytes(bountyData.name).length > 0, "Name not set correctly");
     assertTrue(bytes(bountyData.description).length > 0, "Description not set correctly");
 
-    MonumentLikes.set(bob, 100);
+    MonumentToken.set(bob, 100);
     vm.stopPrank();
     vm.startPrank(bob, bob);
     derivedWorld.boostMonumentBounty(bountyId, 10);

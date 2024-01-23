@@ -10,7 +10,7 @@ import { getKeysInTable } from "@latticexyz/world/src/modules/keysintable/getKey
 import { VoxelCoord, ObjectProperties } from "@tenet-utils/src/Types.sol";
 
 import { MonumentClaimedArea, MonumentClaimedAreaData, MonumentClaimedAreaTableId } from "@tenet-derived/src/codegen/Tables.sol";
-import { MonumentLikes, MonumentLikesTableId } from "@tenet-derived/src/codegen/Tables.sol";
+import { MonumentToken, MonumentTokenTableId } from "@tenet-derived/src/codegen/Tables.sol";
 
 import { Position } from "@tenet-base-world/src/codegen/tables/Position.sol";
 import { ObjectEntity, ObjectEntityTableId } from "@tenet-base-world/src/codegen/tables/ObjectEntity.sol";

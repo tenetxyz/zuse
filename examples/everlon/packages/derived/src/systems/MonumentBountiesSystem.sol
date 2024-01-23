@@ -15,7 +15,7 @@ import { ObjectTypeRegistry, ObjectTypeRegistryTableId } from "@tenet-registry/s
 
 import { MonumentClaimedArea, MonumentClaimedAreaData, MonumentClaimedAreaTableId } from "@tenet-derived/src/codegen/Tables.sol";
 import { MonumentBounties, MonumentBountiesData, MonumentBountiesTableId } from "@tenet-derived/src/codegen/Tables.sol";
-import { MonumentLikes, MonumentLikesTableId } from "@tenet-derived/src/codegen/Tables.sol";
+import { MonumentToken, MonumentTokenTableId } from "@tenet-derived/src/codegen/Tables.sol";
 
 import { Position } from "@tenet-base-world/src/codegen/tables/Position.sol";
 import { ObjectEntity, ObjectEntityTableId } from "@tenet-base-world/src/codegen/tables/ObjectEntity.sol";
@@ -39,8 +39,11 @@ contract MonumentBountiesSystem is System {
     string memory name,
     string memory description
   ) public returns (bytes32) {
-    uint256 senderLikes = MonumentLikes.get(_msgSender());
-    require(senderLikes >= bountyAmount, "MonumentBountiesSystem: You do not have enough likes to create this bounty");
+    uint256 senderTokens = MonumentToken.get(_msgSender());
+    require(
+      senderTokens >= bountyAmount,
+      "MonumentBountiesSystem: You do not have enough tokens to create this bounty"
+    );
     require(bytes(name).length > 0, "MonumentBountiesSystem: Name must be non-empty");
 
     require(objectTypeIds.length > 0, "MonumentBountiesSystem: Must specify at least one object type ID");
@@ -84,7 +87,9 @@ contract MonumentBountiesSystem is System {
     );
 
     // transfer out from sender
-    MonumentLikes.set(_msgSender(), senderLikes - bountyAmount);
+    if (bountyAmount > 0) {
+      MonumentToken.set(_msgSender(), senderTokens - bountyAmount);
+    }
     return bountyId;
   }
 
@@ -96,7 +101,7 @@ contract MonumentBountiesSystem is System {
     MonumentBountiesData memory bountyData = MonumentBounties.get(bountyId);
     require(bountyData.claimedBy == address(0), "MonumentBountiesSystem: Bounty has already been claimed");
     if (numAmount == 0) {
-      // mint token
+      // Mint token
       // check if already minted
       address minter = tx.origin;
       for (uint256 i = 0; i < bountyData.mintedBy.length; i++) {
@@ -114,12 +119,12 @@ contract MonumentBountiesSystem is System {
       MonumentBounties.setBountyAmount(bountyId, bountyData.bountyAmount + 1);
     } else {
       require(
-        MonumentLikes.get(_msgSender()) >= numAmount,
-        "MonumentBountiesSystem: You do not have enough likes to boost this bounty"
+        MonumentToken.get(_msgSender()) >= numAmount,
+        "MonumentBountiesSystem: You do not have enough tokens to boost this bounty"
       );
 
       MonumentBounties.setBountyAmount(bountyId, bountyData.bountyAmount + numAmount);
-      MonumentLikes.set(_msgSender(), MonumentLikes.get(_msgSender()) - numAmount);
+      MonumentToken.set(_msgSender(), MonumentToken.get(_msgSender()) - numAmount);
     }
   }
 
@@ -189,6 +194,6 @@ contract MonumentBountiesSystem is System {
     MonumentBounties.setClaimedAreaY(bountyId, monumentClaimedArea.y);
     MonumentBounties.setClaimedAreaZ(bountyId, monumentClaimedArea.z);
 
-    MonumentLikes.set(claimer, MonumentLikes.get(claimer) + bountyData.bountyAmount);
+    MonumentToken.set(claimer, MonumentToken.get(claimer) + bountyData.bountyAmount);
   }
 }

@@ -5,19 +5,19 @@ import { IWorld } from "@tenet-world/src/codegen/world/IWorld.sol";
 import { ObjectType } from "@tenet-base-world/src/prototypes/ObjectType.sol";
 import { IObjectRegistrySystem } from "@tenet-registry/src/codegen/world/IObjectRegistrySystem.sol";
 import { VoxelCoord, ObjectProperties, Action } from "@tenet-utils/src/Types.sol";
-import { REGISTRY_ADDRESS, SnowObjectID, SIMPLE_BLOCK_MASS } from "@tenet-world/src/Constants.sol";
+import { REGISTRY_ADDRESS, RubberLogObjectID, SIMPLE_BLOCK_MASS } from "@tenet-world/src/Constants.sol";
 
-contract SnowObjectSystem is ObjectType {
+contract RubberLogObjectSystem is ObjectType {
   function registerObject() public {
     address world = _world();
     IObjectRegistrySystem(REGISTRY_ADDRESS).registerObjectType(
-      SnowObjectID,
+      RubberLogObjectID,
       world,
-      IWorld(world).world_SnowObjectSystem_enterWorld.selector,
-      IWorld(world).world_SnowObjectSystem_exitWorld.selector,
-      IWorld(world).world_SnowObjectSystem_eventHandler.selector,
-      IWorld(world).world_SnowObjectSystem_neighbourEventHandler.selector,
-      "Snow",
+      IWorld(world).world_RubberLogObjectS_enterWorld.selector,
+      IWorld(world).world_RubberLogObjectS_exitWorld.selector,
+      IWorld(world).world_RubberLogObjectS_eventHandler.selector,
+      IWorld(world).world_RubberLogObjectS_neighbourEventHandler.selector,
+      "Rubber Log",
       ""
     );
   }

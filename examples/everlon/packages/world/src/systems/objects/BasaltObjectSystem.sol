@@ -5,19 +5,19 @@ import { IWorld } from "@tenet-world/src/codegen/world/IWorld.sol";
 import { ObjectType } from "@tenet-base-world/src/prototypes/ObjectType.sol";
 import { IObjectRegistrySystem } from "@tenet-registry/src/codegen/world/IObjectRegistrySystem.sol";
 import { VoxelCoord, ObjectProperties, Action } from "@tenet-utils/src/Types.sol";
-import { REGISTRY_ADDRESS, SandObjectID, SAND_MASS } from "@tenet-world/src/Constants.sol";
+import { REGISTRY_ADDRESS, BasaltObjectID, SIMPLE_BLOCK_MASS } from "@tenet-world/src/Constants.sol";
 
-contract SandObjectSystem is ObjectType {
+contract BasaltObjectSystem is ObjectType {
   function registerObject() public {
     address world = _world();
     IObjectRegistrySystem(REGISTRY_ADDRESS).registerObjectType(
-      SandObjectID,
+      BasaltObjectID,
       world,
-      IWorld(world).world_SandObjectSystem_enterWorld.selector,
-      IWorld(world).world_SandObjectSystem_exitWorld.selector,
-      IWorld(world).world_SandObjectSystem_eventHandler.selector,
-      IWorld(world).world_SandObjectSystem_neighbourEventHandler.selector,
-      "Sand",
+      IWorld(world).world_BasaltObjectSyst_enterWorld.selector,
+      IWorld(world).world_BasaltObjectSyst_exitWorld.selector,
+      IWorld(world).world_BasaltObjectSyst_eventHandler.selector,
+      IWorld(world).world_BasaltObjectSyst_neighbourEventHandler.selector,
+      "Basalt",
       ""
     );
   }
@@ -27,7 +27,7 @@ contract SandObjectSystem is ObjectType {
     VoxelCoord memory coord
   ) public override returns (ObjectProperties memory) {
     ObjectProperties memory objectProperties;
-    objectProperties.mass = SAND_MASS;
+    objectProperties.mass = SIMPLE_BLOCK_MASS;
     return objectProperties;
   }
 

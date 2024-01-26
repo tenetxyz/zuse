@@ -14,7 +14,7 @@ import { Position, ObjectType, ObjectEntity, Faucet, FaucetData, FaucetTableId, 
 import { TerrainData } from "@tenet-world/src/Types.sol";
 
 import { safeStaticCall, safeCall } from "@tenet-utils/src/CallUtils.sol";
-import { SIMULATOR_ADDRESS, SHARD_DIM, AIR_MASS, DIRT_MASS, GRASS_MASS, BEDROCK_MASS, STONE_MASS, SAND_MASS, SNOW_MASS, AirObjectID, DirtObjectID, GrassObjectID, BedrockObjectID, SandObjectID, SnowObjectID, StoneObjectID, FaucetObjectID } from "@tenet-world/src/Constants.sol";
+import { SIMULATOR_ADDRESS, AIR_MASS, BEDROCK_MASS, SIMPLE_BLOCK_MASS, AirObjectID, DirtObjectID, GrassObjectID, BedrockObjectID, SnowObjectID, StoneObjectID, FaucetObjectID } from "@tenet-world/src/Constants.sol";
 import { TerrainSystem as TerrainProtoSystem } from "@tenet-base-world/src/systems/TerrainSystem.sol";
 import { coordToShardCoord } from "@tenet-utils/src/VoxelCoordUtils.sol";
 
@@ -147,11 +147,11 @@ contract TerrainSystem is TerrainProtoSystem {
     if (coord.y < height) {
       if (coord.y > 30) {
         if (coord.y > 70) {
-          properties.mass = SNOW_MASS;
+          properties.mass = SIMPLE_BLOCK_MASS;
           properties.energy = 200;
           return TerrainData({ objectTypeId: SnowObjectID, properties: properties });
         } else {
-          properties.mass = STONE_MASS;
+          properties.mass = SIMPLE_BLOCK_MASS;
           properties.energy = 100;
           return TerrainData({ objectTypeId: StoneObjectID, properties: properties });
         }
@@ -161,17 +161,17 @@ contract TerrainSystem is TerrainProtoSystem {
           properties.energy = 500;
           return TerrainData({ objectTypeId: BedrockObjectID, properties: properties });
         } else {
-          properties.mass = SAND_MASS;
+          properties.mass = SIMPLE_BLOCK_MASS;
           properties.energy = 50;
-          return TerrainData({ objectTypeId: SandObjectID, properties: properties });
+          return TerrainData({ objectTypeId: GrassObjectID, properties: properties });
         }
       } else {
         if (coord.y == height - 1) {
-          properties.mass = GRASS_MASS;
+          properties.mass = SIMPLE_BLOCK_MASS;
           properties.energy = 100;
           return TerrainData({ objectTypeId: GrassObjectID, properties: properties });
         } else {
-          properties.mass = DIRT_MASS;
+          properties.mass = SIMPLE_BLOCK_MASS;
           properties.energy = 50;
           return TerrainData({ objectTypeId: DirtObjectID, properties: properties });
         }

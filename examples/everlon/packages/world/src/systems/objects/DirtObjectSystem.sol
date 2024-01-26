@@ -5,7 +5,7 @@ import { IWorld } from "@tenet-world/src/codegen/world/IWorld.sol";
 import { ObjectType } from "@tenet-base-world/src/prototypes/ObjectType.sol";
 import { IObjectRegistrySystem } from "@tenet-registry/src/codegen/world/IObjectRegistrySystem.sol";
 import { VoxelCoord, ObjectProperties, Action } from "@tenet-utils/src/Types.sol";
-import { REGISTRY_ADDRESS, DirtObjectID, DIRT_MASS } from "@tenet-world/src/Constants.sol";
+import { REGISTRY_ADDRESS, DirtObjectID, SIMPLE_BLOCK_MASS } from "@tenet-world/src/Constants.sol";
 
 contract DirtObjectSystem is ObjectType {
   function registerObject() public {
@@ -27,7 +27,7 @@ contract DirtObjectSystem is ObjectType {
     VoxelCoord memory coord
   ) public override returns (ObjectProperties memory) {
     ObjectProperties memory objectProperties;
-    objectProperties.mass = DIRT_MASS;
+    objectProperties.mass = SIMPLE_BLOCK_MASS;
     return objectProperties;
   }
 

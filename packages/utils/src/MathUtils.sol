@@ -31,14 +31,12 @@ function absInt32(int32 x) pure returns (int32) {
   return x;
 }
 
+// Divide with rounding down like Math.floor(a/b), not rounding towards zero
 function floorDiv(int32 a, int32 b) pure returns (int32) {
   require(b != 0, "Division by zero");
-  if (a >= 0) {
-    return a / b;
-  } else {
-    int32 result = a / b;
-    return (a % b != 0) ? result - 1 : result;
-  }
+  int32 result = a / b;
+  int32 floor = (a < 0 || b < 0) && !(a < 0 && b < 0) && (a % b != 0) ? int32(1) : int32(0);
+  return result - floor;
 }
 
 function absoluteDifference(uint256 a, uint256 b) pure returns (uint256) {

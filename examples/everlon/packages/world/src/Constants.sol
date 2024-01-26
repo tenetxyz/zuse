@@ -61,3 +61,14 @@ uint256 constant AIR_MASS = 0;
 uint256 constant SIMPLE_LIGHT_BLOCK_MASS = 2;
 uint256 constant SIMPLE_BLOCK_MASS = 5;
 uint256 constant BEDROCK_MASS = 50;
+
+// Terrain
+enum Biome {
+  Mountains,
+  Desert,
+  Forest,
+  Savanna
+}
+
+int32 constant STRUCTURE_CHUNK = 5;
+int32 constant STRUCTURE_CHUNK_CENTER = STRUCTURE_CHUNK / 2 + 1;

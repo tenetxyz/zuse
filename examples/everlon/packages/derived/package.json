@@ -46,8 +46,6 @@
     "@latticexyz/world": "link:../../../../../mud/packages/world",
     "@tenetxyz/base-simulator": "link:../../../../packages/base-simulator",
     "@tenetxyz/base-world": "link:../../../../packages/base-world",
-    "@tenetxyz/creatures": "workspace:*",
-    "@tenetxyz/farming": "workspace:*",
     "@tenetxyz/registry": "link:../../../../packages/registry",
     "@tenetxyz/simulator": "workspace:*",
     "@tenetxyz/utils": "link:../../../../packages/utils",

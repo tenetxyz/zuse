@@ -23,9 +23,9 @@ contract WorldMoveEventSystem is WorldMoveEventProtoSystem {
     VoxelCoord memory oldCoord,
     VoxelCoord memory newCoord
   ) public override {
-    // address worldAddress = _msgSender();
-    // IWorld(_world()).checkActingObjectHealth(worldAddress, actingObjectEntityId);
-    // IWorld(_world()).updateVelocityCache(worldAddress, actingObjectEntityId);
+    address worldAddress = _msgSender();
+    IWorld(_world()).checkActingObjectHealth(worldAddress, actingObjectEntityId);
+    IWorld(_world()).updateVelocityCache(worldAddress, actingObjectEntityId);
   }
 
   function onMoveEvent(
@@ -37,9 +37,9 @@ contract WorldMoveEventSystem is WorldMoveEventProtoSystem {
     bytes32 objectEntityId
   ) public override returns (bytes32) {
     address worldAddress = _msgSender();
-    // if (objectEntityId != actingObjectEntityId) {
-    //   IWorld(_world()).updateVelocityCache(worldAddress, objectEntityId);
-    // }
+    if (objectEntityId != actingObjectEntityId) {
+      IWorld(_world()).updateVelocityCache(worldAddress, objectEntityId);
+    }
     bytes32 newEntityId = IWorld(_world()).velocityChange(
       worldAddress,
       actingObjectEntityId,
@@ -48,8 +48,6 @@ contract WorldMoveEventSystem is WorldMoveEventProtoSystem {
       oldObjectEntityId,
       objectEntityId
     );
-    // bytes32 newObjectEntityId = ObjectEntity.get(IStore(worldAddress), newEntityId);
-    // IWorld(_world()).applyTemperatureEffects(worldAddress, newObjectEntityId);
 
     return newEntityId;
   }
@@ -60,7 +58,5 @@ contract WorldMoveEventSystem is WorldMoveEventProtoSystem {
     VoxelCoord memory oldCoord,
     VoxelCoord memory newCoord,
     bytes32 objectEntityId
-  ) public override {
-    // IWorld(_world()).resolveCombatMoves();
-  }
+  ) public override {}
 }

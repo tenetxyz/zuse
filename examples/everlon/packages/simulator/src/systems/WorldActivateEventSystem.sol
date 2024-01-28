@@ -12,9 +12,9 @@ contract WorldActivateEventSystem is WorldActivateEventProtoSystem {
     bytes32 objectTypeId,
     VoxelCoord memory coord
   ) public override {
-    // address worldAddress = _msgSender();
-    // IWorld(_world()).checkActingObjectHealth(worldAddress, actingObjectEntityId);
-    // IWorld(_world()).updateVelocityCache(worldAddress, actingObjectEntityId);
+    address worldAddress = _msgSender();
+    IWorld(_world()).checkActingObjectHealth(worldAddress, actingObjectEntityId);
+    IWorld(_world()).updateVelocityCache(worldAddress, actingObjectEntityId);
   }
 
   function onActivateEvent(
@@ -23,11 +23,10 @@ contract WorldActivateEventSystem is WorldActivateEventProtoSystem {
     VoxelCoord memory coord,
     bytes32 objectEntityId
   ) public override {
-    // address worldAddress = _msgSender();
-    // if (objectEntityId != actingObjectEntityId) {
-    //   IWorld(_world()).updateVelocityCache(worldAddress, objectEntityId);
-    // }
-    // IWorld(_world()).applyTemperatureEffects(worldAddress, objectEntityId);
+    address worldAddress = _msgSender();
+    if (objectEntityId != actingObjectEntityId) {
+      IWorld(_world()).updateVelocityCache(worldAddress, objectEntityId);
+    }
   }
 
   function postActivateEvent(
@@ -35,7 +34,5 @@ contract WorldActivateEventSystem is WorldActivateEventProtoSystem {
     bytes32 objectTypeId,
     VoxelCoord memory coord,
     bytes32 objectEntityId
-  ) public override {
-    // IWorld(_world()).resolveCombatMoves();
-  }
+  ) public override {}
 }

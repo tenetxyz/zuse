@@ -10,7 +10,6 @@ import { Mass, MassTableId } from "@tenet-simulator/src/codegen/tables/Mass.sol"
 import { Energy, EnergyTableId } from "@tenet-simulator/src/codegen/tables/Energy.sol";
 import { Velocity, VelocityData, VelocityTableId } from "@tenet-simulator/src/codegen/tables/Velocity.sol";
 import { Stamina, StaminaTableId } from "@tenet-simulator/src/codegen/tables/Stamina.sol";
-import { Temperature, TemperatureTableId } from "@tenet-simulator/src/codegen/tables/Temperature.sol";
 
 import { getEntityIdFromObjectEntityId } from "@tenet-base-world/src/Utils.sol";
 import { getVelocity } from "@tenet-simulator/src/Utils.sol";
@@ -98,16 +97,9 @@ contract VelocityRuleSystem is System {
     );
     {
       // Spend resources
-      bool hasStamina = hasKey(StaminaTableId, Stamina.encodeKeyTuple(worldAddress, actingObjectEntityId));
-      uint256 currentResourceAmount = hasStamina
-        ? Stamina.get(worldAddress, actingObjectEntityId)
-        : Temperature.get(worldAddress, actingObjectEntityId);
+      uint256 currentResourceAmount = Stamina.get(worldAddress, actingObjectEntityId);
       require(resourceRequired <= currentResourceAmount, "VelocityRuleSystem: Not enough resources to move.");
-      if (hasStamina) {
-        Stamina.set(worldAddress, actingObjectEntityId, currentResourceAmount - resourceRequired);
-      } else {
-        Temperature.set(worldAddress, actingObjectEntityId, currentResourceAmount - resourceRequired);
-      }
+      Stamina.set(worldAddress, actingObjectEntityId, currentResourceAmount - resourceRequired);
     }
 
     // Flux energy
@@ -126,8 +118,7 @@ contract VelocityRuleSystem is System {
     );
 
     // Collision rule
-    // return IWorld(_world()).onCollision(worldAddress, objectEntityId, actingObjectEntityId);
-    return getEntityIdFromObjectEntityId(IStore(worldAddress), objectEntityId);
+    return IWorld(_world()).onCollision(worldAddress, objectEntityId, actingObjectEntityId);
   }
 
   function calculateNewVelocity(

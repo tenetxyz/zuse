@@ -23,7 +23,7 @@ contract CollisionTest is MudTest {
   IStore private simStore;
   address payable internal alice;
   address payable internal bob;
-  VoxelCoord faucetAgentCoord = VoxelCoord(50, 10, 50);
+  VoxelCoord faucetAgentCoord = VoxelCoord(197, 27, 203);
   VoxelCoord agentCoord;
 
   function setUp() public override {

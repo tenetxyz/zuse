@@ -45,7 +45,7 @@ contract MonumentsTest is MudTest {
   address payable internal alice;
   address payable internal bob;
   address payable internal charlie;
-  VoxelCoord faucetAgentCoord = VoxelCoord(197, 27, 206);
+  VoxelCoord faucetAgentCoord = VoxelCoord(197, 27, 203);
   VoxelCoord agentCoord;
 
   function setUp() public override {

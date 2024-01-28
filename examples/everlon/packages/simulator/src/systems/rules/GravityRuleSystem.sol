@@ -21,6 +21,7 @@ import { isZeroCoord, voxelCoordsAreEqual, dot, mulScalar, divScalar, add, sub, 
 import { abs, absInt32 } from "@tenet-utils/src/MathUtils.sol";
 import { WORLD_MOVE_SIG } from "@tenet-base-world/src/Constants.sol";
 import { uint256ToInt32, int256ToUint256, safeSubtract } from "@tenet-utils/src/TypeUtils.sol";
+import { console } from "forge-std/console.sol";
 
 contract GravityRuleSystem is System {
   function applyGravity(
@@ -30,8 +31,15 @@ contract GravityRuleSystem is System {
     bytes32 actingObjectEntityId
   ) public returns (bytes32) {
     VoxelCoord memory applyCoord;
+    console.log("applyGravity");
+    console.logBytes32(centerObjectEntityId);
+    console.logInt(centerCoord.x);
+    console.logInt(centerCoord.y);
+    console.logInt(centerCoord.z);
 
     uint256 currentMass = Mass.get(worldAddress, centerObjectEntityId);
+    console.log("currentMass");
+    console.logUint(currentMass);
     if (currentMass == 0) {
       // if the center mass is 0, then the block we need to apply gravity to is the one above it
       applyCoord = VoxelCoord({ x: centerCoord.x, y: centerCoord.y + 1, z: centerCoord.z });
@@ -49,8 +57,17 @@ contract GravityRuleSystem is System {
       bytes32 belowEntityId = getEntityAtCoord(IStore(worldAddress), belowCoord);
       if (belowEntityId != bytes32(0)) {
         belowMass = Mass.get(worldAddress, ObjectEntity.get(IStore(worldAddress), belowEntityId));
+      } else {
+        ObjectProperties memory emptyProperties;
+        ObjectProperties memory terrainProperties = ITerrainSystem(worldAddress).getTerrainObjectProperties(
+          belowCoord,
+          emptyProperties
+        );
+        belowMass = terrainProperties.mass;
       }
     }
+    console.log("belowMass");
+    console.logUint(belowMass);
 
     if (belowMass == 0) {
       makeBlockFall = true;
@@ -84,6 +101,8 @@ contract GravityRuleSystem is System {
     }
 
     bytes32 applyEntityId = getEntityAtCoord(IStore(worldAddress), applyCoord);
+    console.log("makeBlockFall");
+    console.logBool(makeBlockFall);
     if (makeBlockFall) {
       // tru moving block down
       // Note: we can't use IMoveSystem here because we need to safe call it

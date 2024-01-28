@@ -30,7 +30,7 @@ contract TerrainSystem is TerrainProtoSystem {
     bytes32[][] memory numFaucets = getKeysInTable(FaucetTableId);
     require(numFaucets.length == 0, "TerrainSystem: Faucets already spawned");
 
-    VoxelCoord memory faucetCoord1 = VoxelCoord(197, 27, 206);
+    VoxelCoord memory faucetCoord1 = VoxelCoord(197, 27, 203);
     setFaucetAgent(faucetCoord1);
   }
 

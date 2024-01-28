@@ -117,8 +117,16 @@ contract VelocityRuleSystem is System {
       VelocityData({ lastUpdateBlock: block.number, velocity: abi.encode(newVelocity) })
     );
 
+    // Apply gravity to old block
+    IWorld(_world()).applyGravity(worldAddress, oldCoord, oldObjectEntityId, actingObjectEntityId);
+
     // Collision rule
-    return IWorld(_world()).onCollision(worldAddress, objectEntityId, actingObjectEntityId);
+    bytes32 entityId = IWorld(_world()).onCollision(worldAddress, objectEntityId, actingObjectEntityId);
+
+    // Apply gravity to new block
+    entityId = IWorld(_world()).applyGravity(worldAddress, newCoord, objectEntityId, actingObjectEntityId);
+
+    return entityId;
   }
 
   function calculateNewVelocity(

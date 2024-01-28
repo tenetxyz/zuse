@@ -75,6 +75,17 @@ export default tenetMudConfig({
       openAccess: false,
       accessList: ["WorldMoveEventSystem"],
     },
+    GravityRuleSystem: {
+      name: "GravityRuleSyste",
+      openAccess: false,
+      accessList: [
+        "VelocityRuleSystem",
+        "WorldMoveEventSystem",
+        "WorldBuildEventSystem",
+        "WorldMineEventSystem",
+        "WorldActivateEventSystem",
+      ],
+    },
     VelocityRuleSystem: {
       name: "VelocityRuleSyst",
       openAccess: false,

@@ -46,6 +46,8 @@ contract WorldBuildEventSystem is WorldBuildEventProtoSystem {
       abi.encode(currentMass),
       abi.encode(objectProperties.mass - currentMass)
     );
+
+    IWorld(_world()).applyGravity(worldAddress, coord, objectEntityId, actingObjectEntityId);
   }
 
   function postBuildEvent(

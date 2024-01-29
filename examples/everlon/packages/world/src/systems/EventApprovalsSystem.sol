@@ -45,7 +45,7 @@ contract EventApprovalsSystem is EventApprovalsProtoSystem {
     bool isSimCaller = caller == getSimulatorAddress();
     if (!isWorldCaller && !isSimCaller) {
       if (eventType == EventType.Build || eventType == EventType.Mine) {
-        revert("EventApprovalsSystem: Only the world or simulator can call build or mine");
+        // revert("EventApprovalsSystem: Only the world or simulator can call build or mine");
       }
     }
   }

@@ -100,6 +100,7 @@ contract CollisionTest is MudTest {
     // Now move forward one
     // This will cause the collision
     uint256 staminaBefore = Stamina.get(simStore, worldAddress, agentObjectEntityId);
+    uint256 healthBefore = Health.getHealth(simStore, worldAddress, agentObjectEntityId);
     world.move(
       agentObjectEntityId,
       RunnerObjectID,
@@ -107,6 +108,7 @@ contract CollisionTest is MudTest {
       agentCoord
     );
     assertTrue(Stamina.get(simStore, worldAddress, agentObjectEntityId) < staminaBefore, "Stamina not reduced");
+    assertTrue(Health.getHealth(simStore, worldAddress, agentObjectEntityId) == healthBefore, "Health reduced");
     VoxelCoord memory agentVelocity = abi.decode(
       Velocity.getVelocity(simStore, worldAddress, agentObjectEntityId),
       (VoxelCoord)
@@ -152,6 +154,7 @@ contract CollisionTest is MudTest {
     // Now move forward one
     // This will cause the collision
     uint256 staminaBefore = Stamina.get(simStore, worldAddress, agentObjectEntityId);
+    uint256 healthBefore = Health.getHealth(simStore, worldAddress, agentObjectEntityId);
     world.move(
       agentObjectEntityId,
       RunnerObjectID,
@@ -159,6 +162,7 @@ contract CollisionTest is MudTest {
       agentCoord
     );
     assertTrue(Stamina.get(simStore, worldAddress, agentObjectEntityId) < staminaBefore, "Stamina not reduced");
+    assertTrue(Health.getHealth(simStore, worldAddress, agentObjectEntityId) < healthBefore, "Health not reduced");
     VoxelCoord memory agentVelocity = abi.decode(
       Velocity.getVelocity(simStore, worldAddress, agentObjectEntityId),
       (VoxelCoord)
@@ -196,6 +200,7 @@ contract CollisionTest is MudTest {
     // Now move forward one
     // This will cause the collision
     uint256 staminaBefore = Stamina.get(simStore, worldAddress, agentObjectEntityId);
+    uint256 healthBefore = Health.getHealth(simStore, worldAddress, agentObjectEntityId);
     world.move(
       agentObjectEntityId,
       RunnerObjectID,
@@ -203,6 +208,7 @@ contract CollisionTest is MudTest {
       VoxelCoord(agentCoord.x + 1, agentCoord.y, agentCoord.z)
     );
     assertTrue(Stamina.get(simStore, worldAddress, agentObjectEntityId) < staminaBefore, "Stamina not reduced");
+    assertTrue(Health.getHealth(simStore, worldAddress, agentObjectEntityId) < healthBefore, "Health not reduced");
     VoxelCoord memory agentVelocity = abi.decode(
       Velocity.getVelocity(simStore, worldAddress, agentObjectEntityId),
       (VoxelCoord)

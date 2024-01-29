@@ -92,6 +92,15 @@ contract VelocityTest is MudTest {
     // should cost more than moving in z
     assertTrue(staminaUsedForMovingUp > staminaUsed, "Stamina not greater");
 
+    Velocity.setVelocity(simStore, worldAddress, agentObjectEntityId, abi.encode(VoxelCoord({ x: 0, y: 0, z: 0 })));
+    // move down, should cost less
+    oldAgentCoord = newAgentCoord;
+    newAgentCoord = VoxelCoord(newAgentCoord.x, newAgentCoord.y - 1, newAgentCoord.z);
+    staminaBefore = Stamina.get(simStore, worldAddress, agentObjectEntityId);
+    world.move(agentObjectEntityId, agentObjectTypeId, oldAgentCoord, newAgentCoord);
+    uint256 staminaUsedForMovingDown = staminaBefore - Stamina.get(simStore, worldAddress, agentObjectEntityId);
+    assertTrue(staminaUsedForMovingDown < staminaUsedForMovingUp, "Stamina not less");
+
     vm.stopPrank();
   }
 }

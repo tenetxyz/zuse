@@ -137,15 +137,15 @@ contract VelocityRuleSystem is System {
     uint256 bodyMass
   ) internal view returns (VoxelCoord memory, uint256) {
     VoxelCoord memory currentVelocity = getVelocity(worldAddress, objectEntityId);
-    VoxelCoord memory newVelocity = VoxelCoord({
-      x: currentVelocity.x + (newCoord.x - oldCoord.x),
-      y: currentVelocity.y + (newCoord.y - oldCoord.y),
-      z: currentVelocity.z + (newCoord.z - oldCoord.z)
-    });
     VoxelCoord memory velocityDelta = VoxelCoord({
-      x: absInt32(newVelocity.x) - absInt32(currentVelocity.x),
-      y: absInt32(newVelocity.y) - absInt32(currentVelocity.y),
-      z: absInt32(newVelocity.z) - absInt32(currentVelocity.z)
+      x: newCoord.x - oldCoord.x,
+      y: newCoord.y - oldCoord.y,
+      z: newCoord.z - oldCoord.z
+    });
+    VoxelCoord memory newVelocity = VoxelCoord({
+      x: currentVelocity.x + velocityDelta.x,
+      y: currentVelocity.y + velocityDelta.y,
+      z: currentVelocity.z + velocityDelta.z
     });
 
     uint256 resourceRequiredX = calculateResourceRequired(

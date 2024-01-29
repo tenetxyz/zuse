@@ -7,3 +7,4 @@ uint256 constant NUM_BLOCKS_BEFORE_REDUCE_VELOCITY = 60; // 1 minute if 1 block 
 uint256 constant NUM_MIN_HEALTH_FOR_NO_WAIT = 10;
 uint256 constant NUM_MAX_BLOCKS_TO_WAIT_IF_NO_HEALTH = 30; // 30 seconds if 1 block == 1 second
 uint256 constant GRAVITY_DAMAGE = 5;
+uint256 constant COLLISION_DAMAGE = 5;

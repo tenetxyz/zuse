@@ -81,10 +81,11 @@ contract GravityRuleSystem is System {
       );
       if (moveSuccess && moveReturnData.length > 0) {
         // Check if the agent has health, and if so, apply damage
-        uint256 currentHealth = Health.getHealth(worldAddress, actingObjectEntityId);
+        bytes32 applyObjectEntityId = ObjectEntity.get(IStore(worldAddress), applyEntityId);
+        uint256 currentHealth = Health.getHealth(worldAddress, applyObjectEntityId);
         if (currentHealth > 0) {
           uint256 newHealth = safeSubtract(currentHealth, GRAVITY_DAMAGE);
-          Health.setHealth(worldAddress, actingObjectEntityId, newHealth);
+          Health.setHealth(worldAddress, applyObjectEntityId, newHealth);
         }
 
         // TODO: Should do safe decoding here

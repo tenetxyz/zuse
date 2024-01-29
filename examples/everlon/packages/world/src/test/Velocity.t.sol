@@ -47,7 +47,7 @@ contract VelocityTest is MudTest {
     return (agentEntityId, agentObjectEntityId);
   }
 
-  function testMovingUp() public {
+  function testMovingCost() public {
     vm.startPrank(alice, alice);
 
     (, bytes32 agentObjectEntityId) = setupAgent();

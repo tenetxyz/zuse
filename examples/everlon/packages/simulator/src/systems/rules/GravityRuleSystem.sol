@@ -26,29 +26,49 @@ import { console } from "forge-std/console.sol";
 contract GravityRuleSystem is System {
   function applyGravity(
     address worldAddress,
-    VoxelCoord memory centerCoord,
-    bytes32 centerObjectEntityId,
+    VoxelCoord memory eventCoord,
+    bytes32 eventObjectEntityId,
     bytes32 actingObjectEntityId
   ) public returns (bytes32) {
-    VoxelCoord memory applyCoord;
     console.log("applyGravity");
-    console.logBytes32(centerObjectEntityId);
-    console.logInt(centerCoord.x);
-    console.logInt(centerCoord.y);
-    console.logInt(centerCoord.z);
+    console.logBytes32(eventObjectEntityId);
+    console.logInt(eventCoord.x);
+    console.logInt(eventCoord.y);
+    console.logInt(eventCoord.z);
 
-    uint256 currentMass = Mass.get(worldAddress, centerObjectEntityId);
+    uint256 currentMass = Mass.get(worldAddress, eventObjectEntityId);
     console.log("currentMass");
     console.logUint(currentMass);
+    bytes32 eventEntityId = getEntityAtCoord(IStore(worldAddress), eventCoord);
     if (currentMass == 0) {
-      // if the center mass is 0, then the block we need to apply gravity to is the one above it
-      applyCoord = VoxelCoord({ x: centerCoord.x, y: centerCoord.y + 1, z: centerCoord.z });
+      (bytes32[] memory neighbourEntities, VoxelCoord[] memory neighbourCoords) = getVonNeumannNeighbourEntities(
+        IStore(worldAddress),
+        eventEntityId
+      );
+      for (uint256 i = 0; i < neighbourEntities.length; i++) {
+        if (neighbourEntities[i] == bytes32(0)) {
+          continue;
+        }
+        BlockDirection blockDirection = calculateBlockDirection(eventCoord, neighbourCoords[i]);
+        if (blockDirection == BlockDirection.Down || blockDirection == BlockDirection.None) {
+          continue;
+        }
+        runGravity(worldAddress, neighbourCoords[i], neighbourEntities[i], actingObjectEntityId);
+      }
+      // if the center mass is 0, then we need to apply gravity to all the blocks around it
+      return eventEntityId;
     } else {
       // else, the gravity is applied to the center block
-      applyCoord = centerCoord;
+      return runGravity(worldAddress, eventCoord, eventEntityId, actingObjectEntityId);
     }
+  }
 
-    bytes32 applyEntityId = getEntityAtCoord(IStore(worldAddress), applyCoord);
+  function runGravity(
+    address worldAddress,
+    VoxelCoord memory applyCoord,
+    bytes32 applyEntityId,
+    bytes32 actingObjectEntityId
+  ) public returns (bytes32) {
     bool makeBlockFall = !supportingBottomBlockExists(worldAddress, applyEntityId, applyCoord) &&
       !supportingSideBlockExists(worldAddress, applyEntityId, applyCoord);
 

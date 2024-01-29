@@ -13,7 +13,7 @@ import { Stamina, StaminaTableId } from "@tenet-simulator/src/codegen/tables/Sta
 
 import { getEntityIdFromObjectEntityId } from "@tenet-base-world/src/Utils.sol";
 import { getVelocity } from "@tenet-simulator/src/Utils.sol";
-import { VoxelCoord } from "@tenet-utils/src/Types.sol";
+import { VoxelCoord, CoordDirection } from "@tenet-utils/src/Types.sol";
 import { uint256ToInt32 } from "@tenet-utils/src/TypeUtils.sol";
 import { isZeroCoord, voxelCoordsAreEqual } from "@tenet-utils/src/VoxelCoordUtils.sol";
 import { abs, absInt32 } from "@tenet-utils/src/MathUtils.sol";
@@ -148,9 +148,24 @@ contract VelocityRuleSystem is System {
       z: absInt32(newVelocity.z) - absInt32(currentVelocity.z)
     });
 
-    uint256 resourceRequiredX = calculateResourceRequired(currentVelocity.x, velocityDelta.x, bodyMass);
-    uint256 resourceRequiredY = calculateResourceRequired(currentVelocity.y, velocityDelta.y, bodyMass);
-    uint256 resourceRequiredZ = calculateResourceRequired(currentVelocity.z, velocityDelta.z, bodyMass);
+    uint256 resourceRequiredX = calculateResourceRequired(
+      currentVelocity.x,
+      velocityDelta.x,
+      CoordDirection.X,
+      bodyMass
+    );
+    uint256 resourceRequiredY = calculateResourceRequired(
+      currentVelocity.y,
+      velocityDelta.y,
+      CoordDirection.Y,
+      bodyMass
+    );
+    uint256 resourceRequiredZ = calculateResourceRequired(
+      currentVelocity.z,
+      velocityDelta.z,
+      CoordDirection.Z,
+      bodyMass
+    );
     uint256 resourceRequired = resourceRequiredX + resourceRequiredY + resourceRequiredZ;
     return (newVelocity, resourceRequired);
   }
@@ -158,6 +173,7 @@ contract VelocityRuleSystem is System {
   function calculateResourceRequired(
     int32 currentVelocity,
     int32 velocityDelta,
+    CoordDirection direction,
     uint256 bodyMass
   ) public pure returns (uint256) {
     uint256 resourceRequired = 0;
@@ -178,6 +194,18 @@ contract VelocityRuleSystem is System {
           : bodyMass * uint(abs(int(newVelocity))); // if we're going in the opposite direction, then it costs more
       }
       resourceRequired += amountRequired;
+    }
+
+    if (direction == CoordDirection.Y) {
+      if (velocityDelta > 0) {
+        // Apply a higher cost to moving up
+        // resourceRequired *= 1.2
+        resourceRequired = (resourceRequired * 120) / 100;
+      } else {
+        // Apply a lower cost to moving down
+        // resourceRequired *= 0.8
+        resourceRequired = (resourceRequired * 80) / 100;
+      }
     }
 
     return resourceRequired;

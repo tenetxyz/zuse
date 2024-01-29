@@ -9,6 +9,12 @@ struct VoxelCoord {
   int32 z;
 }
 
+enum CoordDirection {
+  X,
+  Y,
+  Z
+}
+
 enum EventType {
   Build,
   Mine,

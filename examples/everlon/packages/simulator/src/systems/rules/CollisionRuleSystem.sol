@@ -15,7 +15,7 @@ import { IBuildSystem } from "@tenet-base-world/src/codegen/world/IBuildSystem.s
 import { IMoveSystem } from "@tenet-base-world/src/codegen/world/IMoveSystem.sol";
 
 import { getVelocity } from "@tenet-simulator/src/Utils.sol";
-import { VoxelCoord, ObjectProperties } from "@tenet-utils/src/Types.sol";
+import { VoxelCoord, ObjectProperties, CoordDirection } from "@tenet-utils/src/Types.sol";
 import { getEntityAtCoord, getVoxelCoordStrict, getEntityIdFromObjectEntityId, getVonNeumannNeighbourEntities } from "@tenet-base-world/src/Utils.sol";
 import { isZeroCoord, voxelCoordsAreEqual, dot, mulScalar, divScalar, add, sub } from "@tenet-utils/src/VoxelCoordUtils.sol";
 import { abs, absInt32 } from "@tenet-utils/src/MathUtils.sol";
@@ -26,12 +26,6 @@ struct CollisionData {
   bytes32 objectEntityId;
   VoxelCoord oldVelocity;
   VoxelCoord newVelocity;
-}
-
-enum CoordDirection {
-  X,
-  Y,
-  Z
 }
 
 uint256 constant NUM_MAX_COLLISIONS_UPDATE_DEPTH = 50;

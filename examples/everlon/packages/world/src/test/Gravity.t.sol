@@ -52,6 +52,7 @@ contract GravityTest is MudTest {
 
     (, bytes32 agentObjectEntityId) = setupAgent();
     VoxelCoord memory newCoord = VoxelCoord(initialAgentCoord.x, initialAgentCoord.y, initialAgentCoord.z - 1);
+    uint256 prevHealth = Health.getHealth(simStore, worldAddress, agentObjectEntityId);
     world.move(agentObjectEntityId, agentObjectTypeId, initialAgentCoord, newCoord);
 
     // Assert that the agent is at the new coord
@@ -59,6 +60,7 @@ contract GravityTest is MudTest {
     bytes32 newCoordObjectEntityId = ObjectEntity.get(store, newEntityId);
     assertTrue(newCoordObjectEntityId == agentObjectEntityId, "Agent not moved");
     assertTrue(ObjectType.get(store, newEntityId) == agentObjectTypeId, "Agent not moved");
+    assertTrue(Health.getHealth(simStore, worldAddress, agentObjectEntityId) == prevHealth, "Agent took damage");
 
     vm.stopPrank();
   }
@@ -77,6 +79,7 @@ contract GravityTest is MudTest {
     VoxelCoord memory newCoord = VoxelCoord(oldCoord.x + 1, oldCoord.y + 1, oldCoord.z);
     bytes32 belowEntityId = getEntityAtCoord(store, oldCoord);
     bytes32 belowObjectTypeId = ObjectType.get(store, belowEntityId);
+    uint256 prevHealth = Health.getHealth(simStore, worldAddress, agentObjectEntityId);
     world.move(agentObjectEntityId, belowObjectTypeId, oldCoord, newCoord);
 
     // Assert that the agent is at the old coord, ie it fell
@@ -84,6 +87,7 @@ contract GravityTest is MudTest {
     bytes32 newCoordObjectEntityId = ObjectEntity.get(store, newEntityId);
     assertTrue(newCoordObjectEntityId == agentObjectEntityId, "Agent didnt fall");
     assertTrue(ObjectType.get(store, newEntityId) == agentObjectTypeId, "Agent didnt fall");
+    assertTrue(Health.getHealth(simStore, worldAddress, agentObjectEntityId) < prevHealth, "Agent didnt take damage");
 
     vm.stopPrank();
   }

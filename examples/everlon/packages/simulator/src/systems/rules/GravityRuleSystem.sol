@@ -6,6 +6,7 @@ import { IStore } from "@latticexyz/store/src/IStore.sol";
 import { System } from "@latticexyz/world/src/System.sol";
 
 import { Mass, MassTableId } from "@tenet-simulator/src/codegen/tables/Mass.sol";
+import { Health, HealthTableId } from "@tenet-simulator/src/codegen/tables/Health.sol";
 import { Velocity, VelocityData, VelocityTableId } from "@tenet-simulator/src/codegen/tables/Velocity.sol";
 
 import { ObjectEntity } from "@tenet-base-world/src/codegen/tables/ObjectEntity.sol";
@@ -21,6 +22,7 @@ import { isZeroCoord, voxelCoordsAreEqual, dot, mulScalar, divScalar, add, sub, 
 import { abs, absInt32 } from "@tenet-utils/src/MathUtils.sol";
 import { WORLD_MOVE_SIG } from "@tenet-base-world/src/Constants.sol";
 import { uint256ToInt32, int256ToUint256, safeSubtract } from "@tenet-utils/src/TypeUtils.sol";
+import { GRAVITY_DAMAGE } from "@tenet-simulator/src/Constants.sol";
 import { console } from "forge-std/console.sol";
 
 contract GravityRuleSystem is System {
@@ -92,6 +94,13 @@ contract GravityRuleSystem is System {
         )
       );
       if (moveSuccess && moveReturnData.length > 0) {
+        // Check if the agent has health, and if so, apply damage
+        uint256 currentHealth = Health.getHealth(worldAddress, actingObjectEntityId);
+        if (currentHealth > 0) {
+          uint256 newHealth = safeSubtract(currentHealth, GRAVITY_DAMAGE);
+          Health.setHealth(worldAddress, actingObjectEntityId, newHealth);
+        }
+
         // TODO: Should do safe decoding here
         console.log("move success");
         console.logInt(applyCoord.x);

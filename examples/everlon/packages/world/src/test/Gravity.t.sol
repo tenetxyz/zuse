@@ -210,4 +210,47 @@ contract GravityTest is MudTest {
 
     vm.stopPrank();
   }
+
+  function testFallDouble() public {
+    vm.startPrank(alice, alice);
+
+    (, bytes32 agentObjectEntityId) = setupAgent();
+
+    // move block from ground up one
+    VoxelCoord memory oldCoord = VoxelCoord(initialAgentCoord.x + 1, initialAgentCoord.y - 1, initialAgentCoord.z - 1);
+    VoxelCoord memory newCoord = VoxelCoord(oldCoord.x - 1, oldCoord.y + 1, oldCoord.z);
+    bytes32 belowEntityId = getEntityAtCoord(store, oldCoord);
+    bytes32 objectTypeId = ObjectType.get(store, belowEntityId);
+    world.move(agentObjectEntityId, objectTypeId, oldCoord, newCoord);
+
+    oldCoord = VoxelCoord(initialAgentCoord.x - 1, initialAgentCoord.y - 1, initialAgentCoord.z - 1);
+    newCoord = VoxelCoord(oldCoord.x, oldCoord.y + 1, oldCoord.z);
+    belowEntityId = getEntityAtCoord(store, oldCoord);
+    objectTypeId = ObjectType.get(store, belowEntityId);
+    world.move(agentObjectEntityId, objectTypeId, oldCoord, newCoord);
+
+    oldCoord = newCoord;
+    newCoord = VoxelCoord(oldCoord.x + 1, oldCoord.y + 1, oldCoord.z);
+    world.move(agentObjectEntityId, objectTypeId, oldCoord, newCoord);
+
+    oldCoord = VoxelCoord(initialAgentCoord.x - 1, initialAgentCoord.y - 1, initialAgentCoord.z);
+    newCoord = VoxelCoord(oldCoord.x, oldCoord.y + 1, oldCoord.z);
+    belowEntityId = getEntityAtCoord(store, oldCoord);
+    objectTypeId = ObjectType.get(store, belowEntityId);
+    world.move(agentObjectEntityId, objectTypeId, oldCoord, newCoord);
+
+    // Set mass of blocks to low mass
+    belowEntityId = getEntityAtCoord(store, newCoord);
+    Mass.set(simStore, worldAddress, ObjectEntity.get(store, belowEntityId), 50);
+
+    oldCoord = newCoord;
+    newCoord = VoxelCoord(oldCoord.x, oldCoord.y + 1, oldCoord.z - 1);
+    world.move(agentObjectEntityId, objectTypeId, oldCoord, newCoord);
+
+    // Should fall two blocks
+    belowEntityId = getEntityAtCoord(store, VoxelCoord(newCoord.x, newCoord.y - 2, newCoord.z));
+    assertTrue(ObjectType.get(store, belowEntityId) == objectTypeId, "Object didnt fall");
+
+    vm.stopPrank();
+  }
 }

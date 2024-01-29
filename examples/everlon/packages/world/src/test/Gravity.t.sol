@@ -47,7 +47,7 @@ contract GravityTest is MudTest {
     return (agentEntityId, agentObjectEntityId);
   }
 
-  function testSimpleMoveOnGround() public {
+  function testBottomSupport() public {
     vm.startPrank(alice, alice);
 
     (, bytes32 agentObjectEntityId) = setupAgent();
@@ -63,13 +63,17 @@ contract GravityTest is MudTest {
     vm.stopPrank();
   }
 
-  function testSimpleNeighbourFall() public {
+  function testNeighbourFall() public {
     vm.startPrank(alice, alice);
 
     (, bytes32 agentObjectEntityId) = setupAgent();
 
+    // move agent away from faucet
+    VoxelCoord memory newAgentCoord = VoxelCoord(initialAgentCoord.x, initialAgentCoord.y, initialAgentCoord.z - 1);
+    world.move(agentObjectEntityId, agentObjectTypeId, initialAgentCoord, newAgentCoord);
+
     // move block underneath agent
-    VoxelCoord memory oldCoord = VoxelCoord(initialAgentCoord.x, initialAgentCoord.y - 1, initialAgentCoord.z);
+    VoxelCoord memory oldCoord = VoxelCoord(newAgentCoord.x, newAgentCoord.y - 1, newAgentCoord.z);
     VoxelCoord memory newCoord = VoxelCoord(oldCoord.x + 1, oldCoord.y + 1, oldCoord.z);
     bytes32 belowEntityId = getEntityAtCoord(store, oldCoord);
     bytes32 belowObjectTypeId = ObjectType.get(store, belowEntityId);
@@ -84,7 +88,7 @@ contract GravityTest is MudTest {
     vm.stopPrank();
   }
 
-  function testSimpleFall() public {
+  function testFall() public {
     vm.startPrank(alice, alice);
 
     (, bytes32 agentObjectEntityId) = setupAgent();
@@ -93,16 +97,116 @@ contract GravityTest is MudTest {
     VoxelCoord memory oldCoord = VoxelCoord(initialAgentCoord.x, initialAgentCoord.y - 1, initialAgentCoord.z - 1);
     VoxelCoord memory newCoord = VoxelCoord(oldCoord.x, oldCoord.y + 1, oldCoord.z);
     bytes32 belowEntityId = getEntityAtCoord(store, oldCoord);
-    bytes32 belowObjectTypeId = ObjectType.get(store, belowEntityId);
-    world.move(agentObjectEntityId, belowObjectTypeId, oldCoord, newCoord);
+    bytes32 objectTypeId = ObjectType.get(store, belowEntityId);
+    world.move(agentObjectEntityId, objectTypeId, oldCoord, newCoord);
 
     // Object should not fall because it's beside the agent
     bytes32 oldEntityId = getEntityAtCoord(store, oldCoord);
     assertTrue(ObjectType.get(store, oldEntityId) == AirObjectID, "Object did fall");
     bytes32 newEntityId = getEntityAtCoord(store, newCoord);
-    assertTrue(ObjectType.get(store, newEntityId) == belowObjectTypeId, "Object did fall");
+    assertTrue(ObjectType.get(store, newEntityId) == objectTypeId, "Object did fall");
+
+    oldCoord = newCoord;
+    newCoord = VoxelCoord(newCoord.x - 1, newCoord.y + 1, newCoord.z);
+    world.move(agentObjectEntityId, objectTypeId, oldCoord, newCoord);
 
     // Assert that the object is at the old coord, ie it fell
+    bytes32 fallenEntityId = getEntityAtCoord(store, VoxelCoord(newCoord.x, newCoord.y - 1, newCoord.z));
+    assertTrue(ObjectType.get(store, fallenEntityId) == objectTypeId, "Object didnt fall");
+    oldEntityId = getEntityAtCoord(store, newCoord);
+    assertTrue(ObjectType.get(store, oldEntityId) == AirObjectID, "Object didnt fall");
+    newEntityId = getEntityAtCoord(store, newCoord);
+    assertTrue(ObjectType.get(store, newEntityId) == AirObjectID, "Object didnt fall");
+
+    vm.stopPrank();
+  }
+
+  function testSideSupport() public {
+    vm.startPrank(alice, alice);
+
+    (, bytes32 agentObjectEntityId) = setupAgent();
+
+    // move block from ground up one
+    VoxelCoord memory oldCoord = VoxelCoord(initialAgentCoord.x, initialAgentCoord.y - 1, initialAgentCoord.z - 1);
+    VoxelCoord memory newCoord = VoxelCoord(oldCoord.x, oldCoord.y + 1, oldCoord.z);
+    bytes32 belowEntityId = getEntityAtCoord(store, oldCoord);
+    bytes32 objectTypeId = ObjectType.get(store, belowEntityId);
+    world.move(agentObjectEntityId, objectTypeId, oldCoord, newCoord);
+
+    // Object should not fall because it's beside the agent
+    bytes32 oldEntityId = getEntityAtCoord(store, oldCoord);
+    assertTrue(ObjectType.get(store, oldEntityId) == AirObjectID, "Object did fall");
+    bytes32 newEntityId = getEntityAtCoord(store, newCoord);
+    assertTrue(ObjectType.get(store, newEntityId) == objectTypeId, "Object did fall");
+
+    vm.stopPrank();
+  }
+
+  function testFallWithWeakSideSupport() public {
+    vm.startPrank(alice, alice);
+
+    (, bytes32 agentObjectEntityId) = setupAgent();
+
+    // move agent away from faucet
+    VoxelCoord memory newAgentCoord = VoxelCoord(initialAgentCoord.x, initialAgentCoord.y, initialAgentCoord.z - 1);
+    world.move(agentObjectEntityId, agentObjectTypeId, initialAgentCoord, newAgentCoord);
+
+    // move block from ground up one
+    VoxelCoord memory oldCoord = VoxelCoord(newAgentCoord.x, newAgentCoord.y - 1, newAgentCoord.z - 1);
+    VoxelCoord memory newCoord = VoxelCoord(oldCoord.x, oldCoord.y + 1, oldCoord.z);
+    bytes32 belowEntityId = getEntityAtCoord(store, oldCoord);
+    bytes32 objectTypeId = ObjectType.get(store, belowEntityId);
+    world.move(agentObjectEntityId, objectTypeId, oldCoord, newCoord);
+
+    // Object should not fall because it's beside the agent
+    bytes32 oldEntityId = getEntityAtCoord(store, oldCoord);
+    assertTrue(ObjectType.get(store, oldEntityId) == AirObjectID, "Object did fall");
+    bytes32 newEntityId = getEntityAtCoord(store, newCoord);
+    assertTrue(ObjectType.get(store, newEntityId) == objectTypeId, "Object did fall");
+
+    // move block underneath agent
+    oldCoord = VoxelCoord(newAgentCoord.x, newAgentCoord.y - 1, newAgentCoord.z);
+    newCoord = VoxelCoord(oldCoord.x + 1, oldCoord.y + 1, oldCoord.z);
+    belowEntityId = getEntityAtCoord(store, oldCoord);
+    bytes32 belowObjectTypeId = ObjectType.get(store, belowEntityId);
+    world.move(agentObjectEntityId, belowObjectTypeId, oldCoord, newCoord);
+
+    // Assert that the agent is at the old coord, ie it fell even though beside a block
+    newEntityId = getEntityAtCoord(store, oldCoord);
+    bytes32 newCoordObjectEntityId = ObjectEntity.get(store, newEntityId);
+    assertTrue(newCoordObjectEntityId == agentObjectEntityId, "Agent didnt fall");
+    assertTrue(ObjectType.get(store, newEntityId) == agentObjectTypeId, "Agent didnt fall");
+
+    vm.stopPrank();
+  }
+
+  function testSideSupportMoves() public {
+    vm.startPrank(alice, alice);
+
+    (, bytes32 agentObjectEntityId) = setupAgent();
+
+    // move block from ground up one
+    VoxelCoord memory oldCoord = VoxelCoord(initialAgentCoord.x, initialAgentCoord.y - 1, initialAgentCoord.z - 1);
+    VoxelCoord memory newCoord = VoxelCoord(oldCoord.x, oldCoord.y + 1, oldCoord.z);
+    bytes32 belowEntityId = getEntityAtCoord(store, oldCoord);
+    bytes32 objectTypeId = ObjectType.get(store, belowEntityId);
+    world.move(agentObjectEntityId, objectTypeId, oldCoord, newCoord);
+
+    // Object should not fall because it's beside the agent
+    bytes32 oldEntityId = getEntityAtCoord(store, oldCoord);
+    assertTrue(ObjectType.get(store, oldEntityId) == AirObjectID, "Object did fall");
+    bytes32 newEntityId = getEntityAtCoord(store, newCoord);
+    assertTrue(ObjectType.get(store, newEntityId) == objectTypeId, "Object did fall");
+
+    // move agent away
+    VoxelCoord memory newAgentCoord = VoxelCoord(initialAgentCoord.x + 1, initialAgentCoord.y, initialAgentCoord.z);
+    world.move(agentObjectEntityId, agentObjectTypeId, initialAgentCoord, newAgentCoord);
+
+    // Object should have fallen
+    oldEntityId = getEntityAtCoord(store, oldCoord);
+    assertTrue(ObjectType.get(store, oldEntityId) == objectTypeId, "Object didnt fall");
+    newEntityId = getEntityAtCoord(store, newCoord);
+    assertTrue(ObjectType.get(store, newEntityId) == AirObjectID, "Object didnt fall");
 
     vm.stopPrank();
   }

@@ -78,6 +78,10 @@ contract GravityRuleSystem is System {
       // tru moving block down
       // Note: we can't use IMoveSystem here because we need to safe call it
       bytes32 objectTypeId = ObjectType.get(IStore(worldAddress), applyEntityId);
+      console.log("calling");
+      console.logInt(applyCoord.x);
+      console.logInt(applyCoord.y);
+      console.logInt(applyCoord.z);
       (bool moveSuccess, bytes memory moveReturnData) = worldAddress.call(
         abi.encodeWithSignature(
           WORLD_MOVE_SIG,
@@ -89,8 +93,16 @@ contract GravityRuleSystem is System {
       );
       if (moveSuccess && moveReturnData.length > 0) {
         // TODO: Should do safe decoding here
+        console.log("move success");
+        console.logInt(applyCoord.x);
+        console.logInt(applyCoord.y);
+        console.logInt(applyCoord.z);
         (, applyEntityId) = abi.decode(moveReturnData, (bytes32, bytes32));
       } else {
+        console.log("move failed");
+        console.logInt(applyCoord.x);
+        console.logInt(applyCoord.y);
+        console.logInt(applyCoord.z);
         // Could not move, so we break out of the loop
         // TODO: Should we do something else here?
       }

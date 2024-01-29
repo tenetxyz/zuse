@@ -62,4 +62,48 @@ contract GravityTest is MudTest {
 
     vm.stopPrank();
   }
+
+  function testSimpleNeighbourFall() public {
+    vm.startPrank(alice, alice);
+
+    (, bytes32 agentObjectEntityId) = setupAgent();
+
+    // move block underneath agent
+    VoxelCoord memory oldCoord = VoxelCoord(initialAgentCoord.x, initialAgentCoord.y - 1, initialAgentCoord.z);
+    VoxelCoord memory newCoord = VoxelCoord(oldCoord.x + 1, oldCoord.y + 1, oldCoord.z);
+    bytes32 belowEntityId = getEntityAtCoord(store, oldCoord);
+    bytes32 belowObjectTypeId = ObjectType.get(store, belowEntityId);
+    world.move(agentObjectEntityId, belowObjectTypeId, oldCoord, newCoord);
+
+    // Assert that the agent is at the old coord, ie it fell
+    bytes32 newEntityId = getEntityAtCoord(store, oldCoord);
+    bytes32 newCoordObjectEntityId = ObjectEntity.get(store, newEntityId);
+    assertTrue(newCoordObjectEntityId == agentObjectEntityId, "Agent didnt fall");
+    assertTrue(ObjectType.get(store, newEntityId) == agentObjectTypeId, "Agent didnt fall");
+
+    vm.stopPrank();
+  }
+
+  function testSimpleFall() public {
+    vm.startPrank(alice, alice);
+
+    (, bytes32 agentObjectEntityId) = setupAgent();
+
+    // move block from ground up one
+    VoxelCoord memory oldCoord = VoxelCoord(initialAgentCoord.x, initialAgentCoord.y - 1, initialAgentCoord.z - 1);
+    VoxelCoord memory newCoord = VoxelCoord(oldCoord.x, oldCoord.y + 1, oldCoord.z);
+    bytes32 belowEntityId = getEntityAtCoord(store, oldCoord);
+    bytes32 belowObjectTypeId = ObjectType.get(store, belowEntityId);
+    world.move(agentObjectEntityId, belowObjectTypeId, oldCoord, newCoord);
+
+    // Object should not fall because it's beside the agent
+    bytes32 oldEntityId = getEntityAtCoord(store, oldCoord);
+    assertTrue(ObjectType.get(store, oldEntityId) == AirObjectID, "Object did fall");
+    bytes32 newEntityId = getEntityAtCoord(store, newCoord);
+    assertTrue(ObjectType.get(store, newEntityId) == belowObjectTypeId, "Object did fall");
+
+    // Assert that the object is at the old coord, ie it fell
+
+    vm.stopPrank();
+  }
 }

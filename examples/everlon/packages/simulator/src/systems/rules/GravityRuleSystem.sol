@@ -48,59 +48,10 @@ contract GravityRuleSystem is System {
       applyCoord = centerCoord;
     }
 
-    bool makeBlockFall = false;
-
-    // Check if there is mass below the block we are applying gravity to
-    uint256 belowMass = 0;
-    {
-      VoxelCoord memory belowCoord = VoxelCoord({ x: applyCoord.x, y: applyCoord.y - 1, z: applyCoord.z });
-      bytes32 belowEntityId = getEntityAtCoord(IStore(worldAddress), belowCoord);
-      if (belowEntityId != bytes32(0)) {
-        belowMass = Mass.get(worldAddress, ObjectEntity.get(IStore(worldAddress), belowEntityId));
-      } else {
-        ObjectProperties memory emptyProperties;
-        ObjectProperties memory terrainProperties = ITerrainSystem(worldAddress).getTerrainObjectProperties(
-          belowCoord,
-          emptyProperties
-        );
-        belowMass = terrainProperties.mass;
-      }
-    }
-    console.log("belowMass");
-    console.logUint(belowMass);
-
-    if (belowMass == 0) {
-      makeBlockFall = true;
-
-      // Check if any of the neighbours beside this block have an equal or higher mass
-      (bytes32[] memory neighbourEntities, VoxelCoord[] memory neighbourCoords) = getVonNeumannNeighbourEntities(
-        IStore(worldAddress),
-        getEntityIdFromObjectEntityId(IStore(worldAddress), centerObjectEntityId)
-      );
-      for (uint256 i = 0; i < neighbourEntities.length; i++) {
-        if (neighbourEntities[i] == bytes32(0)) {
-          continue;
-        }
-        {
-          BlockDirection blockDirection = calculateBlockDirection(applyCoord, neighbourCoords[i]);
-          if (
-            blockDirection == BlockDirection.Down ||
-            blockDirection == BlockDirection.Up ||
-            blockDirection == BlockDirection.None
-          ) {
-            continue;
-          }
-        }
-
-        uint256 neighbourMass = Mass.get(worldAddress, ObjectEntity.get(IStore(worldAddress), neighbourEntities[i]));
-        if (neighbourMass >= currentMass) {
-          makeBlockFall = false;
-          break;
-        }
-      }
-    }
-
     bytes32 applyEntityId = getEntityAtCoord(IStore(worldAddress), applyCoord);
+    bool makeBlockFall = !supportingBottomBlockExists(worldAddress, applyEntityId, applyCoord) &&
+      !supportingSideBlockExists(worldAddress, applyEntityId, applyCoord);
+
     console.log("makeBlockFall");
     console.logBool(makeBlockFall);
     if (makeBlockFall) {
@@ -126,5 +77,63 @@ contract GravityRuleSystem is System {
     }
 
     return applyEntityId;
+  }
+
+  function supportingBottomBlockExists(
+    address worldAddress,
+    bytes32 applyEntityId,
+    VoxelCoord memory applyCoord
+  ) internal returns (bool) {
+    // Check if there is mass below the block we are applying gravity to
+    uint256 belowMass = 0;
+    VoxelCoord memory belowCoord = VoxelCoord({ x: applyCoord.x, y: applyCoord.y - 1, z: applyCoord.z });
+    bytes32 belowEntityId = getEntityAtCoord(IStore(worldAddress), belowCoord);
+    if (belowEntityId != bytes32(0)) {
+      belowMass = Mass.get(worldAddress, ObjectEntity.get(IStore(worldAddress), belowEntityId));
+    } else {
+      ObjectProperties memory emptyProperties;
+      ObjectProperties memory terrainProperties = ITerrainSystem(worldAddress).getTerrainObjectProperties(
+        belowCoord,
+        emptyProperties
+      );
+      belowMass = terrainProperties.mass;
+    }
+    console.log("belowMass");
+    console.logUint(belowMass);
+    return belowMass > 0;
+  }
+
+  function supportingSideBlockExists(
+    address worldAddress,
+    bytes32 applyEntityId,
+    VoxelCoord memory applyCoord
+  ) internal view returns (bool) {
+    (bytes32[] memory neighbourEntities, VoxelCoord[] memory neighbourCoords) = getVonNeumannNeighbourEntities(
+      IStore(worldAddress),
+      applyEntityId
+    );
+    uint256 applyMass = Mass.get(worldAddress, ObjectEntity.get(IStore(worldAddress), applyEntityId));
+    for (uint256 i = 0; i < neighbourEntities.length; i++) {
+      if (neighbourEntities[i] == bytes32(0)) {
+        continue;
+      }
+      BlockDirection blockDirection = calculateBlockDirection(applyCoord, neighbourCoords[i]);
+      if (
+        blockDirection == BlockDirection.Down ||
+        blockDirection == BlockDirection.Up ||
+        blockDirection == BlockDirection.None
+      ) {
+        continue;
+      }
+
+      uint256 neighbourMass = Mass.get(worldAddress, ObjectEntity.get(IStore(worldAddress), neighbourEntities[i]));
+      console.log("neighbourMass");
+      console.logUint(neighbourMass);
+      if (neighbourMass >= applyMass) {
+        return true;
+      }
+    }
+
+    return false;
   }
 }

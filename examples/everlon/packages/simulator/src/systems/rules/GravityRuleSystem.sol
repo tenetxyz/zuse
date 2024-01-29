@@ -23,7 +23,6 @@ import { abs, absInt32 } from "@tenet-utils/src/MathUtils.sol";
 import { WORLD_MOVE_SIG } from "@tenet-base-world/src/Constants.sol";
 import { uint256ToInt32, int256ToUint256, safeSubtract } from "@tenet-utils/src/TypeUtils.sol";
 import { GRAVITY_DAMAGE } from "@tenet-simulator/src/Constants.sol";
-import { console } from "forge-std/console.sol";
 
 contract GravityRuleSystem is System {
   function applyGravity(
@@ -32,17 +31,11 @@ contract GravityRuleSystem is System {
     bytes32 eventObjectEntityId,
     bytes32 actingObjectEntityId
   ) public returns (bytes32) {
-    console.log("applyGravity");
-    console.logBytes32(eventObjectEntityId);
-    console.logInt(eventCoord.x);
-    console.logInt(eventCoord.y);
-    console.logInt(eventCoord.z);
-
     uint256 currentMass = Mass.get(worldAddress, eventObjectEntityId);
-    console.log("currentMass");
-    console.logUint(currentMass);
+
     bytes32 eventEntityId = getEntityAtCoord(IStore(worldAddress), eventCoord);
     if (currentMass == 0) {
+      // if the current mass is 0, then we need to apply gravity to all the blocks around it
       (bytes32[] memory neighbourEntities, VoxelCoord[] memory neighbourCoords) = getVonNeumannNeighbourEntities(
         IStore(worldAddress),
         eventEntityId
@@ -57,10 +50,9 @@ contract GravityRuleSystem is System {
         }
         runGravity(worldAddress, neighbourCoords[i], neighbourEntities[i], actingObjectEntityId);
       }
-      // if the center mass is 0, then we need to apply gravity to all the blocks around it
       return eventEntityId;
     } else {
-      // else, the gravity is applied to the center block
+      // else, the gravity is applied to the current block
       return runGravity(worldAddress, eventCoord, eventEntityId, actingObjectEntityId);
     }
   }
@@ -74,16 +66,10 @@ contract GravityRuleSystem is System {
     bool makeBlockFall = !supportingBottomBlockExists(worldAddress, applyEntityId, applyCoord) &&
       !supportingSideBlockExists(worldAddress, applyEntityId, applyCoord);
 
-    console.log("makeBlockFall");
-    console.logBool(makeBlockFall);
     if (makeBlockFall) {
-      // tru moving block down
+      // Try moving block down
       // Note: we can't use IMoveSystem here because we need to safe call it
       bytes32 objectTypeId = ObjectType.get(IStore(worldAddress), applyEntityId);
-      console.log("calling");
-      console.logInt(applyCoord.x);
-      console.logInt(applyCoord.y);
-      console.logInt(applyCoord.z);
       (bool moveSuccess, bytes memory moveReturnData) = worldAddress.call(
         abi.encodeWithSignature(
           WORLD_MOVE_SIG,
@@ -102,16 +88,8 @@ contract GravityRuleSystem is System {
         }
 
         // TODO: Should do safe decoding here
-        console.log("move success");
-        console.logInt(applyCoord.x);
-        console.logInt(applyCoord.y);
-        console.logInt(applyCoord.z);
         (, applyEntityId) = abi.decode(moveReturnData, (bytes32, bytes32));
       } else {
-        console.log("move failed");
-        console.logInt(applyCoord.x);
-        console.logInt(applyCoord.y);
-        console.logInt(applyCoord.z);
         // Could not move, so we break out of the loop
         // TODO: Should we do something else here?
       }
@@ -139,8 +117,6 @@ contract GravityRuleSystem is System {
       );
       belowMass = terrainProperties.mass;
     }
-    console.log("belowMass");
-    console.logUint(belowMass);
     return belowMass > 0;
   }
 
@@ -168,8 +144,6 @@ contract GravityRuleSystem is System {
       }
 
       uint256 neighbourMass = Mass.get(worldAddress, ObjectEntity.get(IStore(worldAddress), neighbourEntities[i]));
-      console.log("neighbourMass");
-      console.logUint(neighbourMass);
       if (neighbourMass >= applyMass) {
         return true;
       }

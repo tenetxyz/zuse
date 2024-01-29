@@ -63,37 +63,39 @@ contract GravityRuleSystem is System {
     bytes32 applyEntityId,
     bytes32 actingObjectEntityId
   ) public returns (bytes32) {
-    bool makeBlockFall = !supportingBottomBlockExists(worldAddress, applyEntityId, applyCoord) &&
-      !supportingSideBlockExists(worldAddress, applyEntityId, applyCoord);
+    if (
+      supportingBottomBlockExists(worldAddress, applyEntityId, applyCoord) ||
+      supportingSideBlockExists(worldAddress, applyEntityId, applyCoord)
+    ) {
+      return applyEntityId;
+    }
 
-    if (makeBlockFall) {
-      // Try moving block down
-      // Note: we can't use IMoveSystem here because we need to safe call it
-      bytes32 objectTypeId = ObjectType.get(IStore(worldAddress), applyEntityId);
-      (bool moveSuccess, bytes memory moveReturnData) = worldAddress.call(
-        abi.encodeWithSignature(
-          WORLD_MOVE_SIG,
-          actingObjectEntityId,
-          objectTypeId,
-          applyCoord,
-          VoxelCoord({ x: applyCoord.x, y: applyCoord.y - 1, z: applyCoord.z })
-        )
-      );
-      if (moveSuccess && moveReturnData.length > 0) {
-        // Check if the agent has health, and if so, apply damage
-        bytes32 applyObjectEntityId = ObjectEntity.get(IStore(worldAddress), applyEntityId);
-        uint256 currentHealth = Health.getHealth(worldAddress, applyObjectEntityId);
-        if (currentHealth > 0) {
-          uint256 newHealth = safeSubtract(currentHealth, GRAVITY_DAMAGE);
-          Health.setHealth(worldAddress, applyObjectEntityId, newHealth);
-        }
-
-        // TODO: Should do safe decoding here
-        (, applyEntityId) = abi.decode(moveReturnData, (bytes32, bytes32));
-      } else {
-        // Could not move, so we break out of the loop
-        // TODO: Should we do something else here?
+    // Try moving block down
+    // Note: we can't use IMoveSystem here because we need to safe call it
+    bytes32 applyObjectTypeId = ObjectType.get(IStore(worldAddress), applyEntityId);
+    bytes32 applyObjectEntityId = ObjectEntity.get(IStore(worldAddress), applyEntityId);
+    (bool moveSuccess, bytes memory moveReturnData) = worldAddress.call(
+      abi.encodeWithSignature(
+        WORLD_MOVE_SIG,
+        actingObjectEntityId,
+        applyObjectTypeId,
+        applyCoord,
+        VoxelCoord({ x: applyCoord.x, y: applyCoord.y - 1, z: applyCoord.z })
+      )
+    );
+    if (moveSuccess && moveReturnData.length > 0) {
+      // Check if the agent has health, and if so, apply damage
+      uint256 currentHealth = Health.getHealth(worldAddress, applyObjectEntityId);
+      if (currentHealth > 0) {
+        uint256 newHealth = safeSubtract(currentHealth, GRAVITY_DAMAGE);
+        Health.setHealth(worldAddress, applyObjectEntityId, newHealth);
       }
+
+      // TODO: Should do safe decoding here
+      (, applyEntityId) = abi.decode(moveReturnData, (bytes32, bytes32));
+    } else {
+      // Could not move
+      // TODO: Should we do something else here?
     }
 
     return applyEntityId;

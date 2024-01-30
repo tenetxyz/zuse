@@ -5,6 +5,8 @@ pragma solidity >=0.8.0;
 
 import { ObjectType, ObjectTypeTableId } from "./tables/ObjectType.sol";
 import { Position, PositionData, PositionTableId } from "./tables/Position.sol";
+import { ReversePosition, ReversePositionTableId } from "./tables/ReversePosition.sol";
 import { ObjectEntity, ObjectEntityTableId } from "./tables/ObjectEntity.sol";
+import { ReverseObjectEntity, ReverseObjectEntityTableId } from "./tables/ReverseObjectEntity.sol";
 import { OwnedBy, OwnedByTableId } from "./tables/OwnedBy.sol";
 import { Mind, MindData, MindTableId } from "./tables/Mind.sol";

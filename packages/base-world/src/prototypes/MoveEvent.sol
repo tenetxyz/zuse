@@ -7,6 +7,7 @@ import { Event } from "@tenet-base-world/src/prototypes/Event.sol";
 
 import { ObjectType } from "@tenet-base-world/src/codegen/tables/ObjectType.sol";
 import { ObjectEntity } from "@tenet-base-world/src/codegen/tables/ObjectEntity.sol";
+import { ReverseObjectEntity } from "@tenet-base-world/src/codegen/tables/ReverseObjectEntity.sol";
 
 import { VoxelCoord } from "@tenet-utils/src/Types.sol";
 import { getEntityAtCoord } from "@tenet-base-world/src/Utils.sol";
@@ -100,7 +101,9 @@ abstract contract MoveEvent is Event {
     // Update ObjectEntity to new coord
     // Note: this is the main move of the object pointer
     ObjectEntity.set(oldEntityId, objectEntityId);
+    ReverseObjectEntity.set(objectEntityId, oldEntityId);
     ObjectEntity.set(eventEntityId, oldObjectEntityId);
+    ReverseObjectEntity.set(oldObjectEntityId, eventEntityId);
 
     // We reset the eventEntityId from preRunObject
     // since collisions could have changed the eventEntityId

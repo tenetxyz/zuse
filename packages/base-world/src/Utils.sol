@@ -2,12 +2,13 @@
 pragma solidity >=0.8.0;
 
 import { IStore } from "@latticexyz/store/src/IStore.sol";
-import { getKeysWithValue } from "@latticexyz/world/src/modules/keyswithvalue/getKeysWithValue.sol";
 import { hasKey } from "@latticexyz/world/src/modules/haskeys/hasKey.sol";
 
 import { ObjectType } from "@tenet-base-world/src/codegen/tables/ObjectType.sol";
 import { Position, PositionData, PositionTableId } from "@tenet-base-world/src/codegen/tables/Position.sol";
+import { ReversePosition, ReversePositionTableId } from "@tenet-base-world/src/codegen/tables/ReversePosition.sol";
 import { ObjectEntity, ObjectEntityTableId } from "@tenet-base-world/src/codegen/tables/ObjectEntity.sol";
+import { ReverseObjectEntity, ReverseObjectEntityTableId } from "@tenet-base-world/src/codegen/tables/ReverseObjectEntity.sol";
 
 import { VoxelCoord } from "@tenet-utils/src/Types.sol";
 import { getVonNeumannNeighbours, getMooreNeighbours } from "@tenet-utils/src/VoxelCoordUtils.sol";
@@ -17,9 +18,7 @@ function positionDataToVoxelCoord(PositionData memory coord) pure returns (Voxel
 }
 
 function getEntityIdFromObjectEntityId(IStore store, bytes32 objectEntityId) view returns (bytes32) {
-  bytes32[][] memory allEntities = getKeysWithValue(store, ObjectEntityTableId, ObjectEntity.encode(objectEntityId));
-  require(allEntities.length == 1, "Found more than one entity with the same objectEntityId");
-  return allEntities[0][0];
+  return ReverseObjectEntity.get(store, objectEntityId);
 }
 
 function getVoxelCoord(IStore store, bytes32 objectEntityId) view returns (VoxelCoord memory) {
@@ -32,18 +31,7 @@ function getObjectType(IStore store, bytes32 objectEntityId) view returns (bytes
 }
 
 function getEntityAtCoord(IStore store, VoxelCoord memory coord) view returns (bytes32) {
-  bytes32[][] memory allEntitiesAtCoord = getKeysWithValue(
-    store,
-    PositionTableId,
-    Position.encode(coord.x, coord.y, coord.z)
-  );
-  bytes32 entity;
-  require(allEntitiesAtCoord.length <= 1, "Found more than one entity at the same position");
-  if (allEntitiesAtCoord.length == 1) {
-    entity = allEntitiesAtCoord[0][0];
-  }
-
-  return entity;
+  return ReversePosition.get(store, coord.x, coord.y, coord.z);
 }
 
 function getEntityPositionStrict(IStore store, bytes32 entityId) view returns (PositionData memory) {

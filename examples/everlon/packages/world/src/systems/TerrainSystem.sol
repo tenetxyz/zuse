@@ -9,7 +9,7 @@ import { getUniqueEntity } from "@latticexyz/world/src/modules/uniqueentity/getU
 import { getKeysInTable } from "@latticexyz/world/src/modules/keysintable/getKeysInTable.sol";
 
 import { ISimInitSystem } from "@tenet-base-simulator/src/codegen/world/ISimInitSystem.sol";
-import { Position, ObjectType, ObjectEntity, Faucet, FaucetData, FaucetTableId, OwnedBy, TerrainProperties, TerrainPropertiesTableId } from "@tenet-world/src/codegen/Tables.sol";
+import { Position, ReversePosition, ObjectType, ObjectEntity, ReverseObjectEntity, Faucet, FaucetData, FaucetTableId, OwnedBy, TerrainProperties, TerrainPropertiesTableId } from "@tenet-world/src/codegen/Tables.sol";
 import { TerrainData } from "@tenet-world/src/Types.sol";
 
 import { safeStaticCall, safeCall } from "@tenet-utils/src/CallUtils.sol";
@@ -40,9 +40,11 @@ contract TerrainSystem is TerrainProtoSystem {
     // Create entity
     bytes32 eventEntityId = getUniqueEntity();
     Position.set(eventEntityId, coord.x, coord.y, coord.z);
+    ReversePosition.set(coord.x, coord.y, coord.z, eventEntityId);
     ObjectType.set(eventEntityId, objectTypeId);
     bytes32 objectEntityId = getUniqueEntity();
     ObjectEntity.set(eventEntityId, objectEntityId);
+    ReverseObjectEntity.set(objectEntityId, eventEntityId);
 
     // This will place the agent, so it will check if the object there is air
     bytes32 terrainObjectTypeId = IWorld(_world()).getTerrainObjectTypeId(coord);

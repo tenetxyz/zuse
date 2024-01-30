@@ -25,6 +25,18 @@ const WORLD_TABLES: Record<string, TableConfig> = {
       z: "int32",
     },
   },
+  ReversePosition: {
+    // TODO: Remove this table once KeyWithValueModule is more gas efficient for single key lookups
+    registerAsRoot: true,
+    keySchema: {
+      x: "int32",
+      y: "int32",
+      z: "int32",
+    },
+    schema: {
+      entityId: "bytes32",
+    },
+  },
   ObjectEntity: {
     registerAsRoot: true,
     keySchema: {
@@ -32,6 +44,16 @@ const WORLD_TABLES: Record<string, TableConfig> = {
     },
     schema: {
       objectEntityId: "bytes32",
+    },
+  },
+  ReverseObjectEntity: {
+    // TODO: Remove this table once KeyWithValueModule is more gas efficient for single key lookups
+    registerAsRoot: true,
+    keySchema: {
+      objectEntityId: "bytes32",
+    },
+    schema: {
+      entityId: "bytes32",
     },
   },
   // Note: We have this table due to running on the EVM,
@@ -75,17 +97,7 @@ const WORLD_MODULES = [
     args: [resolveTableId("Position")],
   },
   {
-    name: "KeysWithValueModule",
-    root: true,
-    args: [resolveTableId("Position")],
-  },
-  {
     name: "HasKeysModule",
-    root: true,
-    args: [resolveTableId("ObjectEntity")],
-  },
-  {
-    name: "KeysWithValueModule",
     root: true,
     args: [resolveTableId("ObjectEntity")],
   },

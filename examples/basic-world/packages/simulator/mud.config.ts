@@ -28,12 +28,12 @@ export default tenetMudConfig({
   systems: {},
   modules: [
     {
-      name: "KeysInTableModule",
+      name: "HasKeysModule",
       root: true,
       args: [resolveTableId("Mass")],
     },
     {
-      name: "KeysInTableModule",
+      name: "HasKeysModule",
       root: true,
       args: [resolveTableId("Energy")],
     },

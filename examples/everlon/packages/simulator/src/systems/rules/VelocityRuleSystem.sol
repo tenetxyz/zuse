@@ -4,7 +4,7 @@ pragma solidity >=0.8.0;
 import { System } from "@latticexyz/world/src/System.sol";
 import { IWorld } from "@tenet-simulator/src/codegen/world/IWorld.sol";
 import { IStore } from "@latticexyz/store/src/IStore.sol";
-import { hasKey } from "@latticexyz/world/src/modules/keysintable/hasKey.sol";
+import { hasKey } from "@latticexyz/world/src/modules/haskeys/hasKey.sol";
 
 import { Mass, MassTableId } from "@tenet-simulator/src/codegen/tables/Mass.sol";
 import { Energy, EnergyTableId } from "@tenet-simulator/src/codegen/tables/Energy.sol";
@@ -118,15 +118,15 @@ contract VelocityRuleSystem is System {
     );
 
     // Apply gravity to old block
-    IWorld(_world()).applyGravity(worldAddress, oldCoord, oldObjectEntityId, actingObjectEntityId);
+    // IWorld(_world()).applyGravity(worldAddress, oldCoord, oldObjectEntityId, actingObjectEntityId);
 
-    // Collision rule
-    bytes32 entityId = IWorld(_world()).onCollision(worldAddress, objectEntityId, actingObjectEntityId);
+    // // Collision rule
+    // bytes32 entityId = IWorld(_world()).onCollision(worldAddress, objectEntityId, actingObjectEntityId);
 
-    // Apply gravity to new block
-    entityId = IWorld(_world()).applyGravity(worldAddress, newCoord, objectEntityId, actingObjectEntityId);
+    // // Apply gravity to new block
+    // entityId = IWorld(_world()).applyGravity(worldAddress, newCoord, objectEntityId, actingObjectEntityId);
 
-    return entityId;
+    return getEntityIdFromObjectEntityId(IStore(worldAddress), objectEntityId);
   }
 
   function calculateNewVelocity(

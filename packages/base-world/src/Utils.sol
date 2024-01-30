@@ -3,7 +3,7 @@ pragma solidity >=0.8.0;
 
 import { IStore } from "@latticexyz/store/src/IStore.sol";
 import { getKeysWithValue } from "@latticexyz/world/src/modules/keyswithvalue/getKeysWithValue.sol";
-import { hasKey } from "@latticexyz/world/src/modules/keysintable/hasKey.sol";
+import { hasKey } from "@latticexyz/world/src/modules/haskeys/hasKey.sol";
 
 import { ObjectType } from "@tenet-base-world/src/codegen/tables/ObjectType.sol";
 import { Position, PositionData, PositionTableId } from "@tenet-base-world/src/codegen/tables/Position.sol";

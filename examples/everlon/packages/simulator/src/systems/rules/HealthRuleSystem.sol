@@ -3,9 +3,8 @@ pragma solidity >=0.8.0;
 
 import { IStore } from "@latticexyz/store/src/IStore.sol";
 import { IWorld } from "@tenet-simulator/src/codegen/world/IWorld.sol";
-import { hasKey } from "@latticexyz/world/src/modules/keysintable/hasKey.sol";
+import { hasKey } from "@latticexyz/world/src/modules/haskeys/hasKey.sol";
 import { System } from "@latticexyz/world/src/System.sol";
-import { getKeysInTable } from "@latticexyz/world/src/modules/keysintable/getKeysInTable.sol";
 
 import { ObjectEntity } from "@tenet-base-world/src/codegen/tables/ObjectEntity.sol";
 import { Mass, MassTableId } from "@tenet-simulator/src/codegen/tables/Mass.sol";

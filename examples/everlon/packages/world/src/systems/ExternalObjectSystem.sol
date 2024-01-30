@@ -2,7 +2,7 @@
 pragma solidity >=0.8.0;
 
 import { IStore } from "@latticexyz/store/src/IStore.sol";
-import { hasKey } from "@latticexyz/world/src/modules/keysintable/hasKey.sol";
+import { hasKey } from "@latticexyz/world/src/modules/haskeys/hasKey.sol";
 import { ExternalObjectSystem as ExternalObjectProtoSystem } from "@tenet-base-world/src/systems/ExternalObjectSystem.sol";
 
 import { SIMULATOR_ADDRESS } from "@tenet-world/src/Constants.sol";

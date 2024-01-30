@@ -65,12 +65,12 @@ const WORLD_MODULES = [
     args: [],
   },
   {
-    name: "KeysInTableModule",
+    name: "HasKeysModule",
     root: true,
     args: [resolveTableId("ObjectType")],
   },
   {
-    name: "KeysInTableModule",
+    name: "HasKeysModule",
     root: true,
     args: [resolveTableId("Position")],
   },
@@ -80,7 +80,7 @@ const WORLD_MODULES = [
     args: [resolveTableId("Position")],
   },
   {
-    name: "KeysInTableModule",
+    name: "HasKeysModule",
     root: true,
     args: [resolveTableId("ObjectEntity")],
   },
@@ -90,12 +90,12 @@ const WORLD_MODULES = [
     args: [resolveTableId("ObjectEntity")],
   },
   {
-    name: "KeysInTableModule",
+    name: "HasKeysModule",
     root: true,
     args: [resolveTableId("OwnedBy")],
   },
   {
-    name: "KeysInTableModule",
+    name: "HasKeysModule",
     root: true,
     args: [resolveTableId("Mind")],
   },

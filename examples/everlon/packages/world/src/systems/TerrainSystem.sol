@@ -4,7 +4,7 @@ pragma solidity >=0.8.0;
 import { IWorld } from "@tenet-world/src/codegen/world/IWorld.sol";
 import { System } from "@latticexyz/world/src/System.sol";
 import { VoxelCoord, ObjectProperties } from "@tenet-utils/src/Types.sol";
-import { hasKey } from "@latticexyz/world/src/modules/keysintable/hasKey.sol";
+import { hasKey } from "@latticexyz/world/src/modules/haskeys/hasKey.sol";
 import { getUniqueEntity } from "@latticexyz/world/src/modules/uniqueentity/getUniqueEntity.sol";
 import { getKeysInTable } from "@latticexyz/world/src/modules/keysintable/getKeysInTable.sol";
 

@@ -50,12 +50,12 @@ export default tenetMudConfig({
       args: [resolveTableId("Faucet")],
     },
     {
-      name: "KeysInTableModule",
+      name: "HasKeysModule",
       root: true,
       args: [resolveTableId("TerrainProperties")],
     },
     {
-      name: "KeysInTableModule",
+      name: "HasKeysModule",
       root: true,
       args: [resolveTableId("Mind")],
     },

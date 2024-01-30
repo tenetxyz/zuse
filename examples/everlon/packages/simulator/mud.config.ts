@@ -106,32 +106,32 @@ export default tenetMudConfig({
   },
   modules: [
     {
-      name: "KeysInTableModule",
+      name: "HasKeysModule",
       root: true,
       args: [resolveTableId("Metadata")],
     },
     {
-      name: "KeysInTableModule",
+      name: "HasKeysModule",
       root: true,
       args: [resolveTableId("Mass")],
     },
     {
-      name: "KeysInTableModule",
+      name: "HasKeysModule",
       root: true,
       args: [resolveTableId("Energy")],
     },
     {
-      name: "KeysInTableModule",
+      name: "HasKeysModule",
       root: true,
       args: [resolveTableId("Velocity")],
     },
     {
-      name: "KeysInTableModule",
+      name: "HasKeysModule",
       root: true,
       args: [resolveTableId("Health")],
     },
     {
-      name: "KeysInTableModule",
+      name: "HasKeysModule",
       root: true,
       args: [resolveTableId("Stamina")],
     },

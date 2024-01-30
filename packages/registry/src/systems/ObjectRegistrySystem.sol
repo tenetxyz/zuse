@@ -2,7 +2,7 @@
 pragma solidity >=0.8.0;
 
 import { System } from "@latticexyz/world/src/System.sol";
-import { hasKey } from "@latticexyz/world/src/modules/keysintable/hasKey.sol";
+import { hasKey } from "@latticexyz/world/src/modules/haskeys/hasKey.sol";
 import { ObjectTypeRegistry, ObjectTypeRegistryData, ObjectTypeRegistryTableId } from "@tenet-registry/src/codegen/Tables.sol";
 
 contract ObjectRegistrySystem is System {

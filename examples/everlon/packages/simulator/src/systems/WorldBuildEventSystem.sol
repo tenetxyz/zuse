@@ -3,7 +3,7 @@ pragma solidity >=0.8.0;
 
 import { IWorld } from "@tenet-simulator/src/codegen/world/IWorld.sol";
 import { System } from "@latticexyz/world/src/System.sol";
-import { hasKey } from "@latticexyz/world/src/modules/keysintable/hasKey.sol";
+import { hasKey } from "@latticexyz/world/src/modules/haskeys/hasKey.sol";
 import { WorldBuildEventSystem as WorldBuildEventProtoSystem } from "@tenet-base-simulator/src/systems/WorldBuildEventSystem.sol";
 
 import { Mass, MassTableId } from "@tenet-simulator/src/codegen/tables/Mass.sol";

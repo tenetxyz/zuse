@@ -82,22 +82,26 @@ contract StaminaHealthConstraintSystem is Constraint {
     require(receiverHealthDelta < 0, "StaminaHealthConstraintSystem: Receiver health delta must be negative");
 
     uint256 receiverDamage = int256ToUint256(receiverHealthDelta);
-
-    // Calculate how much stamina is required to transfer this much health
-    uint256 numberOfMoves = receiverDamage / COLLISION_DAMAGE;
     uint256 primaryMass = Mass.get(worldAddress, senderObjectEntityId);
     uint256 neighbourMass = Mass.get(worldAddress, receiverObjectEntityId);
-
-    // Reverse of the velocity calculation
-    uint256 primaryVelocityNeeded = (numberOfMoves * neighbourMass * (neighbourMass + primaryMass)) / (2 * primaryMass);
-    uint256 staminaRequired = primaryMass * primaryVelocityNeeded;
-
-    // try spending all the stamina
     uint256 currentStamina = Stamina.get(worldAddress, senderObjectEntityId);
-    uint256 staminaSpend = staminaRequired > currentStamina ? currentStamina : staminaRequired;
-    // Update damage to be the actual damage done
-    if (staminaSpend < staminaRequired) {
-      receiverDamage = (staminaSpend * 2 * COLLISION_DAMAGE) / (neighbourMass * (neighbourMass + primaryMass));
+
+    uint256 staminaSpend;
+    {
+      // Calculate how much stamina is required to transfer this much health
+      uint256 numberOfMoves = receiverDamage / COLLISION_DAMAGE;
+
+      // Reverse of the velocity calculation
+      uint256 primaryVelocityNeeded = (numberOfMoves * neighbourMass * (neighbourMass + primaryMass)) /
+        (2 * primaryMass);
+      uint256 staminaRequired = primaryMass * primaryVelocityNeeded;
+
+      // try spending all the stamina
+      staminaSpend = staminaRequired > currentStamina ? currentStamina : staminaRequired;
+      // Update damage to be the actual damage done
+      if (staminaSpend < staminaRequired) {
+        receiverDamage = (staminaSpend * 2 * COLLISION_DAMAGE) / (neighbourMass * (neighbourMass + primaryMass));
+      }
     }
 
     // Spend resources

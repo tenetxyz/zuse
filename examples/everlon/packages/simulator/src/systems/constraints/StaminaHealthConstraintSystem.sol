@@ -8,10 +8,12 @@ import { Constraint } from "@tenet-base-simulator/src/prototypes/Constraint.sol"
 
 import { SimAction } from "@tenet-simulator/src/codegen/tables/SimAction.sol";
 import { Mass, MassTableId } from "@tenet-simulator/src/codegen/tables/Mass.sol";
+import { Health, HealthTableId } from "@tenet-simulator/src/codegen/tables/Health.sol";
 import { Stamina, StaminaTableId } from "@tenet-simulator/src/codegen/tables/Stamina.sol";
 
 import { VoxelCoord, SimTable } from "@tenet-utils/src/Types.sol";
-import { addUint256AndInt256, int256ToUint256 } from "@tenet-utils/src/TypeUtils.sol";
+import { addUint256AndInt256, int256ToUint256, safeSubtract } from "@tenet-utils/src/TypeUtils.sol";
+import { COLLISION_DAMAGE } from "@tenet-simulator/src/Constants.sol";
 
 contract StaminaHealthConstraintSystem is Constraint {
   function registerStaminaHealthSelector() public {
@@ -78,5 +80,29 @@ contract StaminaHealthConstraintSystem is Constraint {
     (int256 senderStaminaDelta, int256 receiverHealthDelta) = decodeAmounts(fromAmount, toAmount);
     require(senderStaminaDelta <= 0, "StaminaHealthConstraintSystem: Sender stamina delta must be negative");
     require(receiverHealthDelta < 0, "StaminaHealthConstraintSystem: Receiver health delta must be negative");
+
+    uint256 receiverDamage = int256ToUint256(receiverHealthDelta);
+
+    // Calculate how much stamina is required to transfer this much health
+    uint256 numberOfMoves = receiverDamage / COLLISION_DAMAGE;
+    uint256 primaryMass = Mass.get(worldAddress, senderObjectEntityId);
+    uint256 neighbourMass = Mass.get(worldAddress, receiverObjectEntityId);
+
+    // Reverse of the velocity calculation
+    uint256 primaryVelocityNeeded = (numberOfMoves * neighbourMass * (neighbourMass + primaryMass)) / (2 * primaryMass);
+    uint256 staminaRequired = primaryMass * primaryVelocityNeeded;
+
+    // try spending all the stamina
+    uint256 currentStamina = Stamina.get(worldAddress, senderObjectEntityId);
+    uint256 staminaSpend = staminaRequired > currentStamina ? currentStamina : staminaRequired;
+    // Update damage to be the actual damage done
+    if (staminaSpend < staminaRequired) {
+      receiverDamage = (staminaSpend * 2 * COLLISION_DAMAGE) / (neighbourMass * (neighbourMass + primaryMass));
+    }
+
+    // Spend resources
+    Stamina.set(worldAddress, senderObjectEntityId, currentStamina - staminaSpend);
+    uint256 newHealth = safeSubtract(Health.getHealth(worldAddress, receiverObjectEntityId), receiverDamage);
+    Health.setHealth(worldAddress, receiverObjectEntityId, newHealth);
   }
 }

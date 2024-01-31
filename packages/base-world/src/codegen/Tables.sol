@@ -9,4 +9,6 @@ import { ReversePosition, ReversePositionTableId } from "./tables/ReversePositio
 import { ObjectEntity, ObjectEntityTableId } from "./tables/ObjectEntity.sol";
 import { ReverseObjectEntity, ReverseObjectEntityTableId } from "./tables/ReverseObjectEntity.sol";
 import { OwnedBy, OwnedByTableId } from "./tables/OwnedBy.sol";
+import { Inventory, InventoryTableId } from "./tables/Inventory.sol";
+import { InventoryObject, InventoryObjectData, InventoryObjectTableId } from "./tables/InventoryObject.sol";
 import { Mind, MindData, MindTableId } from "./tables/Mind.sol";

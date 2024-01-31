@@ -4,9 +4,12 @@ pragma solidity >=0.8.0;
 import { IWorld } from "@tenet-base-world/src/codegen/world/IWorld.sol";
 import { IStore } from "@latticexyz/store/src/IStore.sol";
 import { Event } from "@tenet-base-world/src/prototypes/Event.sol";
+import { getUniqueEntity } from "@latticexyz/world/src/modules/uniqueentity/getUniqueEntity.sol";
 import { ObjectType } from "@tenet-base-world/src/codegen/tables/ObjectType.sol";
+import { Inventory } from "@tenet-base-world/src/codegen/tables/Inventory.sol";
+import { InventoryObject } from "@tenet-base-world/src/codegen/tables/InventoryObject.sol";
 import { ObjectEntity } from "@tenet-base-world/src/codegen/tables/ObjectEntity.sol";
-import { VoxelCoord } from "@tenet-utils/src/Types.sol";
+import { VoxelCoord, ObjectProperties } from "@tenet-utils/src/Types.sol";
 import { IWorldMineEventSystem } from "@tenet-base-simulator/src/codegen/world/IWorldMineEventSystem.sol";
 
 abstract contract MineEvent is Event {
@@ -67,6 +70,18 @@ abstract contract MineEvent is Event {
     IWorld(_world()).exitWorld(objectTypeId, coord, objectEntityId);
 
     ObjectType.set(eventEntityId, emptyObjectId());
+
+    // Add to inventory
+    bytes32 inventoryId = getUniqueEntity();
+    Inventory.set(inventoryId, actingObjectEntityId);
+    ObjectProperties memory inventoryObjectProperties;
+    if (isNewEntity) {
+      ObjectProperties memory requestedProperties = IWorld(_world()).enterWorld(objectTypeId, coord, objectEntityId);
+      inventoryObjectProperties = IWorld(_world()).getTerrainObjectProperties(coord, requestedProperties);
+    } else {
+      inventoryObjectProperties = IWorld(_world()).getObjectProperties(objectEntityId);
+    }
+    InventoryObject.set(inventoryId, objectTypeId, abi.encode(inventoryObjectProperties));
 
     IWorldMineEventSystem(getSimulatorAddress()).onMineEvent(actingObjectEntityId, objectTypeId, coord, objectEntityId);
 

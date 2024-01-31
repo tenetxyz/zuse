@@ -68,6 +68,27 @@ const WORLD_TABLES: Record<string, TableConfig> = {
     },
   },
   // TODO: Turn this into a module, and make it optional
+  Inventory: {
+    registerAsRoot: true,
+    keySchema: {
+      inventoryId: "bytes32",
+    },
+    schema: {
+      agentObjectEntityId: "bytes32",
+    },
+  },
+  InventoryObject: {
+    // TODO: Merge this table with Inventory once MUD supports querying composite values
+    registerAsRoot: true,
+    keySchema: {
+      inventoryId: "bytes32",
+    },
+    schema: {
+      objectTypeId: "bytes32",
+      objectProperties: "bytes", // ObjectProperties
+    },
+  },
+  // TODO: Turn this into a module, and make it optional
   Mind: {
     registerAsRoot: true,
     keySchema: {
@@ -86,21 +107,21 @@ const WORLD_MODULES = [
     root: true,
     args: [],
   },
-  {
-    name: "HasKeysModule",
-    root: true,
-    args: [resolveTableId("ObjectType")],
-  },
-  {
-    name: "HasKeysModule",
-    root: true,
-    args: [resolveTableId("Position")],
-  },
-  {
-    name: "HasKeysModule",
-    root: true,
-    args: [resolveTableId("ObjectEntity")],
-  },
+  // {
+  //   name: "HasKeysModule",
+  //   root: true,
+  //   args: [resolveTableId("ObjectType")],
+  // },
+  // {
+  //   name: "HasKeysModule",
+  //   root: true,
+  //   args: [resolveTableId("Position")],
+  // },
+  // {
+  //   name: "HasKeysModule",
+  //   root: true,
+  //   args: [resolveTableId("ObjectEntity")],
+  // },
   {
     name: "HasKeysModule",
     root: true,

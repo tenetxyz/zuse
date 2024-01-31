@@ -21,7 +21,7 @@ abstract contract ActivateEvent is Event {
   ) internal virtual returns (bytes32) {
     bytes32 activateEntityId = getEntityAtCoord(IStore(_world()), activateCoord);
     if (uint256(activateEntityId) == 0) {
-      IWorld(_world()).build(actingObjectEntityId, activateObjectTypeId, activateCoord);
+      IWorld(_world()).buildTerrain(actingObjectEntityId, activateCoord);
     }
     return super.runEvent(actingObjectEntityId, activateObjectTypeId, activateCoord, eventData);
   }

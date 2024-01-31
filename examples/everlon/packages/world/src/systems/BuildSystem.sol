@@ -9,6 +9,7 @@ import { Metadata, MetadataTableId } from "@tenet-world/src/codegen/tables/Metad
 
 import { SIMULATOR_ADDRESS, AirObjectID } from "@tenet-world/src/Constants.sol";
 import { BuildSystem as BuildProtoSystem } from "@tenet-base-world/src/systems/BuildSystem.sol";
+import { BuildEventData } from "@tenet-world/src/Types.sol";
 
 contract BuildSystem is BuildProtoSystem {
   function getSimulatorAddress() internal pure override returns (address) {
@@ -57,12 +58,27 @@ contract BuildSystem is BuildProtoSystem {
     }
   }
 
+  function getInventoryId(bytes memory eventData) internal pure override returns (bytes32) {
+    BuildEventData memory buildEventData = abi.decode(eventData, (BuildEventData));
+    return buildEventData.inventoryId;
+  }
+
+  function build(
+    bytes32 actingObjectEntityId,
+    bytes32 buildObjectTypeId,
+    VoxelCoord memory buildCoord,
+    bytes32 inventoryId
+  ) public override returns (bytes32) {
+    BuildEventData memory buildEventData = BuildEventData({ inventoryId: inventoryId });
+    return super.build(actingObjectEntityId, buildObjectTypeId, buildCoord, abi.encode(buildEventData));
+  }
+
   function build(
     bytes32 actingObjectEntityId,
     bytes32 buildObjectTypeId,
     VoxelCoord memory buildCoord
   ) public override returns (bytes32) {
-    return super.build(actingObjectEntityId, buildObjectTypeId, buildCoord, new bytes(0));
+    return super.build(actingObjectEntityId, buildObjectTypeId, buildCoord);
   }
 
   function buildTerrain(bytes32 actingObjectEntityId, VoxelCoord memory buildCoord) public override returns (bytes32) {

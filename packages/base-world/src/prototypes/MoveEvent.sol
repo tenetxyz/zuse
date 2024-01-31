@@ -25,7 +25,7 @@ abstract contract MoveEvent is Event {
     VoxelCoord memory oldCoord = getOldCoord(eventData);
     bytes32 oldEntityId = getEntityAtCoord(IStore(_world()), oldCoord);
     if (uint256(oldEntityId) == 0) {
-      IWorld(_world()).build(actingObjectEntityId, moveObjectTypeId, oldCoord);
+      IWorld(_world()).buildTerrain(actingObjectEntityId, oldCoord);
     }
     bytes32 newEntityId = getEntityAtCoord(IStore(_world()), newCoord);
     if (uint256(newEntityId) == 0) {

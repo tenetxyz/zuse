@@ -10,8 +10,21 @@ abstract contract BuildSystem is BuildEvent {
   function build(
     bytes32 actingObjectEntityId,
     bytes32 buildObjectTypeId,
-    VoxelCoord memory buildCoord
+    VoxelCoord memory buildCoord,
+    bytes32 inventoryId
   ) public virtual returns (bytes32);
+
+  function build(
+    bytes32 actingObjectEntityId,
+    bytes32 buildObjectTypeId,
+    VoxelCoord memory buildCoord
+  ) public virtual returns (bytes32) {
+    address caller = _msgSender();
+    if (caller != _world() && caller != getSimulatorAddress()) {
+      revert("BuildSystem: Only the world or simulator can call this function");
+    }
+    return build(actingObjectEntityId, buildObjectTypeId, buildCoord, bytes32(0));
+  }
 
   function buildTerrain(bytes32 actingObjectEntityId, VoxelCoord memory buildCoord) public virtual returns (bytes32) {
     return build(actingObjectEntityId, IWorld(_world()).getTerrainObjectTypeId(buildCoord), buildCoord);

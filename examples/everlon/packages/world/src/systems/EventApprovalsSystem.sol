@@ -6,7 +6,7 @@ import { VoxelCoord, EventType } from "@tenet-utils/src/Types.sol";
 
 import { SIMULATOR_ADDRESS, NUM_MAX_AGENT_ACTION_RADIUS } from "@tenet-world/src/Constants.sol";
 import { EventApprovalsSystem as EventApprovalsProtoSystem } from "@tenet-base-world/src/systems/EventApprovalsSystem.sol";
-import { MoveEventData } from "@tenet-world/src/Types.sol";
+import { BuildEventData, MoveEventData } from "@tenet-world/src/Types.sol";
 
 contract EventApprovalsSystem is EventApprovalsProtoSystem {
   function getSimulatorAddress() internal pure override returns (address) {
@@ -15,6 +15,11 @@ contract EventApprovalsSystem is EventApprovalsProtoSystem {
 
   function getMaxAgentActionRadius() internal pure override returns (uint256) {
     return NUM_MAX_AGENT_ACTION_RADIUS;
+  }
+
+  function getInventoryId(bytes memory eventData) internal pure override returns (bytes32) {
+    BuildEventData memory buildEventData = abi.decode(eventData, (BuildEventData));
+    return buildEventData.inventoryId;
   }
 
   function getOldCoord(bytes memory eventData) internal pure override returns (VoxelCoord memory) {
@@ -40,7 +45,9 @@ contract EventApprovalsSystem is EventApprovalsProtoSystem {
     bytes32 objectTypeId,
     VoxelCoord memory coord,
     bytes memory eventData
-  ) internal override {}
+  ) internal override {
+    return super.approveEvent(eventType, caller, actingObjectEntityId, objectTypeId, coord, eventData);
+  }
 
   function postApproval(
     EventType eventType,

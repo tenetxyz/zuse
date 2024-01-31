@@ -68,7 +68,7 @@ abstract contract EventApprovalsSystem is System {
     bytes32 objectTypeId,
     VoxelCoord memory coord,
     bytes memory eventData
-  ) internal {
+  ) internal virtual {
     bool isWorldCaller = caller == _world(); // any root system can call this
     bool isSimCaller = caller == getSimulatorAddress();
     if (!isWorldCaller && !isSimCaller) {

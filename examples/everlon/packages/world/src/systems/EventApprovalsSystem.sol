@@ -40,15 +40,7 @@ contract EventApprovalsSystem is EventApprovalsProtoSystem {
     bytes32 objectTypeId,
     VoxelCoord memory coord,
     bytes memory eventData
-  ) internal override {
-    bool isWorldCaller = caller == _world(); // any root system can call this
-    bool isSimCaller = caller == getSimulatorAddress();
-    if (!isWorldCaller && !isSimCaller) {
-      if (eventType == EventType.Build || eventType == EventType.Mine) {
-        // revert("EventApprovalsSystem: Only the world or simulator can call build or mine");
-      }
-    }
-  }
+  ) internal override {}
 
   function postApproval(
     EventType eventType,

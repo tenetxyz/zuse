@@ -107,21 +107,16 @@ const WORLD_MODULES = [
     root: true,
     args: [],
   },
-  // {
-  //   name: "HasKeysModule",
-  //   root: true,
-  //   args: [resolveTableId("ObjectType")],
-  // },
-  // {
-  //   name: "HasKeysModule",
-  //   root: true,
-  //   args: [resolveTableId("Position")],
-  // },
-  // {
-  //   name: "HasKeysModule",
-  //   root: true,
-  //   args: [resolveTableId("ObjectEntity")],
-  // },
+  {
+    name: "KeysWithValueModule",
+    root: true,
+    args: [resolveTableId("Inventory")],
+  },
+  {
+    name: "HasKeysModule",
+    root: true,
+    args: [resolveTableId("Position")],
+  },
   {
     name: "HasKeysModule",
     root: true,
@@ -132,6 +127,16 @@ const WORLD_MODULES = [
     root: true,
     args: [resolveTableId("Mind")],
   },
+  // {
+  //   name: "HasKeysModule",
+  //   root: true,
+  //   args: [resolveTableId("ObjectType")],
+  // },
+  // {
+  //   name: "HasKeysModule",
+  //   root: true,
+  //   args: [resolveTableId("ObjectEntity")],
+  // },
 ];
 
 const WORLD_SYSTEMS = {

@@ -28,7 +28,7 @@ contract WorldActivateEventSystem is WorldActivateEventProtoSystem {
       IWorld(_world()).updateVelocityCache(worldAddress, objectEntityId);
     }
 
-    IWorld(_world()).applyGravity(worldAddress, coord, objectEntityId, actingObjectEntityId);
+    // IWorld(_world()).applyGravity(worldAddress, coord, objectEntityId, actingObjectEntityId);
   }
 
   function postActivateEvent(

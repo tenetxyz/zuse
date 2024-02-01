@@ -57,7 +57,7 @@ contract WorldMineEventSystem is WorldMineEventProtoSystem {
     transformEnergyFormsToGeneralEnergy(worldAddress, objectEntityId, coord);
     deleteProperties(worldAddress, objectEntityId);
 
-    IWorld(_world()).applyGravity(worldAddress, coord, objectEntityId, actingObjectEntityId);
+    // IWorld(_world()).applyGravity(worldAddress, coord, objectEntityId, actingObjectEntityId);
   }
 
   function transformEnergyFormsToGeneralEnergy(

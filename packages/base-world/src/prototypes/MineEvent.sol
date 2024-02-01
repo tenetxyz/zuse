@@ -11,6 +11,7 @@ import { InventoryObject } from "@tenet-base-world/src/codegen/tables/InventoryO
 import { ObjectEntity } from "@tenet-base-world/src/codegen/tables/ObjectEntity.sol";
 import { VoxelCoord, ObjectProperties } from "@tenet-utils/src/Types.sol";
 import { IWorldMineEventSystem } from "@tenet-base-simulator/src/codegen/world/IWorldMineEventSystem.sol";
+import { ISimInitSystem } from "@tenet-base-simulator/src/codegen/world/ISimInitSystem.sol";
 
 abstract contract MineEvent is Event {
   function mine(
@@ -67,10 +68,6 @@ abstract contract MineEvent is Event {
       "MineEvent: Object type id mismatch"
     );
 
-    IWorld(_world()).exitWorld(objectTypeId, coord, objectEntityId);
-
-    ObjectType.set(eventEntityId, emptyObjectId());
-
     // Add to inventory
     bytes32 inventoryId = getUniqueEntity();
     Inventory.set(inventoryId, actingObjectEntityId);
@@ -78,10 +75,15 @@ abstract contract MineEvent is Event {
     if (isNewEntity) {
       ObjectProperties memory requestedProperties = IWorld(_world()).enterWorld(objectTypeId, coord, objectEntityId);
       inventoryObjectProperties = IWorld(_world()).getTerrainObjectProperties(coord, requestedProperties);
+      ISimInitSystem(getSimulatorAddress()).initObject(objectEntityId, inventoryObjectProperties);
     } else {
       inventoryObjectProperties = IWorld(_world()).getObjectProperties(objectEntityId);
     }
     InventoryObject.set(inventoryId, objectTypeId, abi.encode(inventoryObjectProperties));
+
+    IWorld(_world()).exitWorld(objectTypeId, coord, objectEntityId);
+
+    ObjectType.set(eventEntityId, emptyObjectId());
 
     IWorldMineEventSystem(getSimulatorAddress()).onMineEvent(actingObjectEntityId, objectTypeId, coord, objectEntityId);
 

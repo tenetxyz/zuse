@@ -93,6 +93,19 @@ function distanceBetween(VoxelCoord memory c1, VoxelCoord memory c2) pure return
   return sqrt(uint256(squaredDistanceX + squaredDistanceY + squaredDistanceZ));
 }
 
+function inSurroundingCube(
+  VoxelCoord memory cubeCenter,
+  int32 halfWidth,
+  VoxelCoord memory checkCoord
+) pure returns (bool) {
+  // Check if `checkCoord` is within the cube in all three dimensions
+  bool isInX = checkCoord.x >= cubeCenter.x - halfWidth && checkCoord.x <= cubeCenter.x + halfWidth;
+  bool isInY = checkCoord.y >= cubeCenter.y - halfWidth && checkCoord.y <= cubeCenter.y + halfWidth;
+  bool isInZ = checkCoord.z >= cubeCenter.z - halfWidth && checkCoord.z <= cubeCenter.z + halfWidth;
+
+  return isInX && isInY && isInZ;
+}
+
 function getVonNeumannNeighbours(VoxelCoord memory centerCoord) pure returns (VoxelCoord[] memory) {
   // In 3D, there are 6 von Neumann neighbours
   uint8 numNeighbours = 6;

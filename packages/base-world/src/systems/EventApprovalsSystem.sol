@@ -9,14 +9,14 @@ import { OwnedBy, OwnedByTableId } from "@tenet-base-world/src/codegen/tables/Ow
 import { Inventory } from "@tenet-base-world/src/codegen/tables/Inventory.sol";
 import { InventoryObject } from "@tenet-base-world/src/codegen/tables/InventoryObject.sol";
 
-import { distanceBetween } from "@tenet-utils/src/VoxelCoordUtils.sol";
+import { inSurroundingCube } from "@tenet-utils/src/VoxelCoordUtils.sol";
 import { VoxelCoord, EventType } from "@tenet-utils/src/Types.sol";
 import { getEntityIdFromObjectEntityId, getVoxelCoordStrict } from "@tenet-base-world/src/Utils.sol";
 
 abstract contract EventApprovalsSystem is System {
   function getSimulatorAddress() internal pure virtual returns (address);
 
-  function getMaxAgentActionRadius() internal pure virtual returns (uint256);
+  function getMaxAgentActionRadius() internal pure virtual returns (int32);
 
   function getOldCoord(bytes memory eventData) internal pure virtual returns (VoxelCoord memory);
 
@@ -51,12 +51,12 @@ abstract contract EventApprovalsSystem is System {
       bytes32 actingEntityId = getEntityIdFromObjectEntityId(IStore(_world()), actingObjectEntityId);
       VoxelCoord memory agentPosition = getVoxelCoordStrict(IStore(_world()), actingEntityId);
       require(
-        distanceBetween(agentPosition, oldCoord) <= getMaxAgentActionRadius(),
+        inSurroundingCube(agentPosition, getMaxAgentActionRadius(), oldCoord),
         "EventApprovalsSystem: Agent and old coord are too far apart"
       );
     }
     require(
-      distanceBetween(oldCoord, coord) <= getMaxAgentActionRadius(),
+      inSurroundingCube(oldCoord, getMaxAgentActionRadius(), coord),
       "EventApprovalsSystem: Old coord and new coord are too far apart"
     );
   }

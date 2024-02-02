@@ -13,7 +13,7 @@ contract EventApprovalsSystem is EventApprovalsProtoSystem {
     return SIMULATOR_ADDRESS;
   }
 
-  function getMaxAgentActionRadius() internal pure override returns (uint256) {
+  function getMaxAgentActionRadius() internal pure override returns (int32) {
     return NUM_MAX_AGENT_ACTION_RADIUS;
   }
 

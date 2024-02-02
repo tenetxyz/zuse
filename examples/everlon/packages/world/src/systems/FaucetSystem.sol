@@ -9,7 +9,7 @@ import { getKeysInTable } from "@latticexyz/world/src/modules/keysintable/getKey
 
 import { ObjectType, Faucet, FaucetData, FaucetTableId, Metadata, MetadataTableId } from "@tenet-world/src/codegen/Tables.sol";
 
-import { distanceBetween } from "@tenet-utils/src/VoxelCoordUtils.sol";
+import { inSurroundingCube } from "@tenet-utils/src/VoxelCoordUtils.sol";
 import { VoxelCoord } from "@tenet-utils/src/Types.sol";
 import { getEntityIdFromObjectEntityId, getVoxelCoordStrict } from "@tenet-base-world/src/Utils.sol";
 
@@ -55,7 +55,7 @@ contract FaucetSystem is System {
     bytes32 faucetEntityId = getEntityIdFromObjectEntityId(IStore(_world()), faucetObjectEntityId);
     VoxelCoord memory faucetPosition = getVoxelCoordStrict(IStore(_world()), faucetEntityId);
     require(
-      distanceBetween(faucetPosition, buildCoord) <= 1,
+      inSurroundingCube(faucetPosition, 1, buildCoord),
       "FaucetSystem: Cannot claim agent from faucet that is not adjacent to faucet"
     );
 

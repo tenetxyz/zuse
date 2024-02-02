@@ -32,6 +32,15 @@ contract TerrainSystem is TerrainProtoSystem {
 
     VoxelCoord memory faucetCoord1 = VoxelCoord(197, 27, 203);
     setFaucetAgent(faucetCoord1);
+
+    VoxelCoord memory faucetCoord2 = VoxelCoord(173, 31, 241);
+    setFaucetAgent(faucetCoord2);
+
+    VoxelCoord memory faucetCoord3 = VoxelCoord(152, 42, 159);
+    setFaucetAgent(faucetCoord3);
+
+    VoxelCoord memory faucetCoord4 = VoxelCoord(263, 28, 115);
+    setFaucetAgent(faucetCoord4);
   }
 
   function setFaucetAgent(VoxelCoord memory coord) internal {

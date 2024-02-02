@@ -12,6 +12,6 @@ abstract contract WorldObjectEventSystem is WorldObjectEventProtoSystem {
     bytes32[] memory neighbourObjectEntityIds
   ) public override {
     address worldAddress = _msgSender();
-    IWorld(_world()).updateVelocityCache(worldAddress, centerObjectEntityId);
+    // IWorld(_world()).updateVelocityCache(worldAddress, centerObjectEntityId);
   }
 }

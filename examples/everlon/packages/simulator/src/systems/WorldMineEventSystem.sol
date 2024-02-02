@@ -20,9 +20,9 @@ import { runSimAction } from "@tenet-base-simulator/src/CallUtils.sol";
 
 contract WorldMineEventSystem is WorldMineEventProtoSystem {
   function preMineEvent(bytes32 actingObjectEntityId, bytes32 objectTypeId, VoxelCoord memory coord) public override {
-    address worldAddress = _msgSender();
-    IWorld(_world()).checkActingObjectHealth(worldAddress, actingObjectEntityId);
-    IWorld(_world()).updateVelocityCache(worldAddress, actingObjectEntityId);
+    // address worldAddress = _msgSender();
+    // IWorld(_world()).checkActingObjectHealth(worldAddress, actingObjectEntityId);
+    // IWorld(_world()).updateVelocityCache(worldAddress, actingObjectEntityId);
   }
 
   function onMineEvent(
@@ -32,9 +32,9 @@ contract WorldMineEventSystem is WorldMineEventProtoSystem {
     bytes32 objectEntityId
   ) public override {
     address worldAddress = _msgSender();
-    if (objectEntityId != actingObjectEntityId) {
-      IWorld(_world()).updateVelocityCache(worldAddress, objectEntityId);
-    }
+    // if (objectEntityId != actingObjectEntityId) {
+    //   IWorld(_world()).updateVelocityCache(worldAddress, objectEntityId);
+    // }
 
     require(
       hasKey(MassTableId, Mass.encodeKeyTuple(worldAddress, objectEntityId)),

@@ -51,7 +51,7 @@ contract BuilderObjectSystem is AgentType {
     bytes32 centerObjectEntityId,
     bytes32[] memory neighbourObjectEntityIds
   ) public override returns (Action[] memory) {
-    return stopActionEventHandler(centerObjectEntityId, neighbourObjectEntityIds);
+    return new Action[](0);
   }
 
   function stopActionEventHandler(

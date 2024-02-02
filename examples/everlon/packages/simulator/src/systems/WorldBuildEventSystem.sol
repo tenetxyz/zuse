@@ -11,9 +11,9 @@ import { VoxelCoord, EventType, ObjectProperties, ElementType } from "@tenet-uti
 
 contract WorldBuildEventSystem is WorldBuildEventProtoSystem {
   function preBuildEvent(bytes32 actingObjectEntityId, bytes32 objectTypeId, VoxelCoord memory coord) public override {
-    address worldAddress = _msgSender();
-    IWorld(_world()).checkActingObjectHealth(worldAddress, actingObjectEntityId);
-    IWorld(_world()).updateVelocityCache(worldAddress, actingObjectEntityId);
+    // address worldAddress = _msgSender();
+    // IWorld(_world()).checkActingObjectHealth(worldAddress, actingObjectEntityId);
+    // IWorld(_world()).updateVelocityCache(worldAddress, actingObjectEntityId);
   }
 
   function onBuildEvent(
@@ -25,9 +25,9 @@ contract WorldBuildEventSystem is WorldBuildEventProtoSystem {
     bool isNewEntity
   ) public override {
     address worldAddress = _msgSender();
-    if (objectEntityId != actingObjectEntityId) {
-      IWorld(_world()).updateVelocityCache(worldAddress, objectEntityId);
-    }
+    // if (objectEntityId != actingObjectEntityId) {
+    //   IWorld(_world()).updateVelocityCache(worldAddress, objectEntityId);
+    // }
 
     require(
       hasKey(MassTableId, Mass.encodeKeyTuple(worldAddress, objectEntityId)),

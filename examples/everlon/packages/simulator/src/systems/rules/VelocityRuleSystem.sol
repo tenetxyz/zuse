@@ -103,19 +103,19 @@ contract VelocityRuleSystem is System {
     }
 
     // Flux energy
-    IWorld(_world()).fluxEnergy(
-      false,
-      worldAddress,
-      objectEntityId,
-      resourceRequired + Energy.get(worldAddress, objectEntityId)
-    );
+    // IWorld(_world()).fluxEnergy(
+    //   false,
+    //   worldAddress,
+    //   objectEntityId,
+    //   resourceRequired + Energy.get(worldAddress, objectEntityId)
+    // );
 
     // Update velocity
-    Velocity.set(
-      worldAddress,
-      objectEntityId,
-      VelocityData({ lastUpdateBlock: block.number, velocity: abi.encode(newVelocity) })
-    );
+    // Velocity.set(
+    //   worldAddress,
+    //   objectEntityId,
+    //   VelocityData({ lastUpdateBlock: block.number, velocity: abi.encode(newVelocity) })
+    // );
 
     // Apply gravity to old block
     // IWorld(_world()).applyGravity(worldAddress, oldCoord, oldObjectEntityId, actingObjectEntityId);

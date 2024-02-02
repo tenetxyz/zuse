@@ -75,7 +75,7 @@ contract MassConstraintSystem is Constraint {
     if (!isMassIncrease) {
       energyRequired = energyRequired * 2;
     }
-    IWorld(_world()).fluxEnergy(isMassIncrease, worldAddress, objectEntityId, energyRequired);
+    // IWorld(_world()).fluxEnergy(isMassIncrease, worldAddress, objectEntityId, energyRequired);
   }
 
   function transfer(

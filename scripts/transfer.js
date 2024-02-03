@@ -42,7 +42,7 @@ export const walletClient = createWalletClient({
   ...clientOptions,
 });
 
-const LOCAL_KEYSTORE_DIR = "dev-chain/keystore";
+const LOCAL_KEYSTORE_DIR = "data/keystore";
 async function initChain() {
   try {
     // Find the keystore file in the LOCAL_KEYSTORE_DIR directory

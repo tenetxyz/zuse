@@ -46,8 +46,9 @@ def main():
                 subprocess.run(command, env=env)
 
             elif sys.argv[2] == "anvil":
-                os.chdir("scripts")
-                subprocess.run(["yarn", "run", "anvil"])
+                # os.chdir("scripts")
+                # subprocess.run(["yarn", "run", "anvil"])
+                pass
 
             elif sys.argv[2] == "geth":
                 os.chdir("scripts")

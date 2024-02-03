@@ -6,5 +6,3 @@
 *.swp
 
 node_modules
-
-dev-chain/

@@ -1,2 +1,4 @@
 venv/
 rollback/snapshot_id.txt
+data/
+dev-chain/

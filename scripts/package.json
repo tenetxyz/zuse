@@ -4,10 +4,12 @@
   "description": "",
   "type": "module",
   "scripts": {
-    "anvil": "node runAnvil.js"
+    "anvil": "node runAnvil.js",
+    "transfer": "node transfer.js"
   },
   "dependencies": {
-    "@latticexyz/common": "link:../../mud/packages/common"
+    "@latticexyz/common": "link:../../mud/packages/common",
+    "web3": "^4.4.0"
   },
   "author": "",
   "license": "ISC"

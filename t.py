@@ -49,6 +49,10 @@ def main():
                 os.chdir("scripts")
                 subprocess.run(["yarn", "run", "anvil"])
 
+            elif sys.argv[2] == "geth":
+                os.chdir("scripts")
+                subprocess.run(["bash", "runDevGeth.bash"])
+
             elif sys.argv[2] == "framework":
                 if "--skip-build" in sys.argv:
                     subprocess.run(["yarn", "run", "registry"])

@@ -9,6 +9,7 @@
   },
   "dependencies": {
     "@latticexyz/common": "link:../../mud/packages/common",
+    "viem": "^2.7.2",
     "web3": "^4.4.0"
   },
   "author": "",

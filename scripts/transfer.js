@@ -1,8 +1,46 @@
 import fs from "fs";
 import { exec } from "child_process";
+import { createWalletClient, fallback, http, parseEther, webSocket } from "viem";
+import { privateKeyToAccount } from "viem/accounts";
+import { transportObserver } from "@latticexyz/common";
+import { defineChain } from "viem";
 import Web3 from "web3";
 
-const web3 = new Web3("https://test-grid.everlon.xyz");
+const web3 = new Web3("http://localhost:8545");
+
+export const localGeth = defineChain(
+  {
+    name: "Local Geth",
+    id: 1337,
+    network: "geth",
+    nativeCurrency: { decimals: 18, name: "Ether", symbol: "ETH" },
+    rpcUrls: {
+      default: {
+        http: ["http://localhost:8545"],
+        webSocket: ["http://localhost:8545"],
+      },
+      public: {
+        http: ["http://localhost:8545"],
+        webSocket: ["http://localhost:8545"],
+      },
+    },
+  },
+  {
+    fees: {
+      defaultPriorityFee: 0n,
+    },
+  }
+);
+
+const clientOptions = {
+  chain: localGeth,
+  transport: transportObserver(fallback([webSocket(), http()])),
+  pollingInterval: 1000,
+};
+
+export const walletClient = createWalletClient({
+  ...clientOptions,
+});
 
 const LOCAL_KEYSTORE_DIR = "dev-chain/keystore";
 async function initChain() {
@@ -59,8 +97,8 @@ async function initAccounts(keystorePath) {
   });
 
   async function initAccounts(privateKey) {
-    // Add the account to web3
-    const account = web3.eth.accounts.privateKeyToAccount(privateKey);
+    // Local Account
+    const account = privateKeyToAccount(privateKey);
 
     // Default dev account
     var sender = account.address;
@@ -87,18 +125,15 @@ async function initAccounts(keystorePath) {
         "0xa0ee7a142d267c1f36714e4a8f75612f20a79720",
       ];
 
-      var amount = web3.utils.toWei("10000", "ether");
-
       // Send transactions to each recipient
       for (const recipient of recipients) {
         console.log(`Sending transaction to ${recipient}...`);
-        receipt = await web3.eth.sendTransaction({
-          from: sender,
+        const hash = await walletClient.sendTransaction({
+          account,
           to: recipient,
-          value: amount,
-          ...gasPriceParams,
+          value: parseEther("10000"),
         });
-        console.log(`Transaction to ${recipient} successful:`, receipt);
+        console.log(`Transaction hash: ${hash}`);
       }
     } catch (error) {
       console.error("Error in transaction:", error);

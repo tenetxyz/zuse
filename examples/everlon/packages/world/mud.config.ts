@@ -37,7 +37,6 @@ export default tenetMudConfig({
     },
     // Object Type Tables
     AgentAction: {
-      registerAsRoot: true,
       keySchema: {
         objectEntityId: "bytes32",
       },

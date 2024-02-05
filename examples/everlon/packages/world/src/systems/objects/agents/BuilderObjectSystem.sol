@@ -74,8 +74,7 @@ contract BuilderObjectSystem is AgentType {
     bytes32 targetObjectEntityId = agentAction.targetObjectEntityId;
     VoxelCoord memory targetCoord = getVoxelCoord(IStore(worldAddress), targetObjectEntityId);
 
-    // TODO: pick based on table
-    uint256 damage = uint256(agentAction.damage);
+    int256 damage = -1 * uint256ToInt256(uint256(agentAction.damage));
 
     uint256 transferStamina = 0; // TODO: calculate and don't send event if we dont have enough stamina
     Action memory hitAction = Action({

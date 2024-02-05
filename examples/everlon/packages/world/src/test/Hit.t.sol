@@ -19,6 +19,7 @@ import { Energy } from "@tenet-simulator/src/codegen/tables/Energy.sol";
 import { Health } from "@tenet-simulator/src/codegen/tables/Health.sol";
 import { Stamina } from "@tenet-simulator/src/codegen/tables/Stamina.sol";
 import { Velocity } from "@tenet-simulator/src/codegen/tables/Velocity.sol";
+import { NUM_BLOCKS_BEFORE_INCREASE_HEALTH } from "@tenet-simulator/src/Constants.sol";
 
 contract HitTest is MudTest {
   IWorld private world;
@@ -73,6 +74,13 @@ contract HitTest is MudTest {
     uint256 bobStaminaAfter = Stamina.get(simStore, worldAddress, bobAgentObjectEntityId);
     assertTrue(healthAfter < healthBefore, "Health did not decrease");
     assertTrue(bobStaminaAfter < bobStaminaBefore, "Stamina did not decrease");
+    vm.stopPrank();
+
+    vm.startPrank(alice, alice);
+    vm.roll(block.number + NUM_BLOCKS_BEFORE_INCREASE_HEALTH);
+    world.activate(agentObjectEntityId, agentObjectTypeId, initialAgentCoord);
+    uint256 healthAfterRecovery = Health.getHealth(simStore, worldAddress, agentObjectEntityId);
+    assertTrue(healthAfterRecovery > healthAfter, "Health did not increase after recovery");
 
     vm.stopPrank();
   }

@@ -20,8 +20,9 @@ import { runSimAction } from "@tenet-base-simulator/src/CallUtils.sol";
 
 contract WorldMineEventSystem is WorldMineEventProtoSystem {
   function preMineEvent(bytes32 actingObjectEntityId, bytes32 objectTypeId, VoxelCoord memory coord) public override {
-    // address worldAddress = _msgSender();
-    // IWorld(_world()).checkActingObjectHealth(worldAddress, actingObjectEntityId);
+    address worldAddress = _msgSender();
+    IWorld(_world()).applyHealthIncrease(worldAddress, actingObjectEntityId);
+    IWorld(_world()).checkActingObjectHealth(worldAddress, actingObjectEntityId);
     // IWorld(_world()).updateVelocityCache(worldAddress, actingObjectEntityId);
   }
 

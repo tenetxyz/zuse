@@ -8,13 +8,38 @@ import { System } from "@latticexyz/world/src/System.sol";
 
 import { ObjectEntity } from "@tenet-base-world/src/codegen/tables/ObjectEntity.sol";
 import { Mass, MassTableId } from "@tenet-simulator/src/codegen/tables/Mass.sol";
-import { Health, HealthTableId } from "@tenet-simulator/src/codegen/tables/Health.sol";
+import { Health, HealthData, HealthTableId } from "@tenet-simulator/src/codegen/tables/Health.sol";
 import { Metadata, MetadataTableId } from "@tenet-simulator/src/codegen/tables/Metadata.sol";
 
 import { VoxelCoord, SimTable, ElementType } from "@tenet-utils/src/Types.sol";
-import { NUM_MAX_BLOCKS_TO_WAIT_IF_NO_HEALTH, NUM_MIN_HEALTH_FOR_NO_WAIT } from "@tenet-simulator/src/Constants.sol";
+import { MAX_AGENT_HEALTH, NUM_BLOCKS_BEFORE_INCREASE_HEALTH, NUM_MAX_BLOCKS_TO_WAIT_IF_NO_HEALTH, NUM_MIN_HEALTH_FOR_NO_WAIT } from "@tenet-simulator/src/Constants.sol";
 
 contract HealthRuleSystem is System {
+  function applyHealthIncrease(address worldAddress, bytes32 objectEntityId) public {
+    if (!hasKey(HealthTableId, Health.encodeKeyTuple(worldAddress, objectEntityId))) {
+      return;
+    }
+
+    HealthData memory healthData = Health.get(worldAddress, objectEntityId);
+    // Calculate how many blocks have passed since last update
+    uint256 blocksSinceLastUpdate = block.number - healthData.lastUpdateBlock;
+    if (blocksSinceLastUpdate <= NUM_BLOCKS_BEFORE_INCREASE_HEALTH) {
+      return;
+    }
+
+    // Calculate the new health
+    uint256 numAddHealth = blocksSinceLastUpdate / NUM_BLOCKS_BEFORE_INCREASE_HEALTH;
+    if (numAddHealth > MAX_AGENT_HEALTH) {
+      numAddHealth = MAX_AGENT_HEALTH;
+    }
+
+    Health.set(
+      worldAddress,
+      objectEntityId,
+      HealthData({ health: healthData.health + numAddHealth, lastUpdateBlock: block.number })
+    );
+  }
+
   function checkActingObjectHealth(address worldAddress, bytes32 actingObjectEntityId) public {
     if (!hasKey(HealthTableId, Health.encodeKeyTuple(worldAddress, actingObjectEntityId))) {
       return;

@@ -12,8 +12,9 @@ contract WorldActivateEventSystem is WorldActivateEventProtoSystem {
     bytes32 objectTypeId,
     VoxelCoord memory coord
   ) public override {
-    // address worldAddress = _msgSender();
-    // IWorld(_world()).checkActingObjectHealth(worldAddress, actingObjectEntityId);
+    address worldAddress = _msgSender();
+    IWorld(_world()).applyHealthIncrease(worldAddress, actingObjectEntityId);
+    IWorld(_world()).checkActingObjectHealth(worldAddress, actingObjectEntityId);
     // IWorld(_world()).updateVelocityCache(worldAddress, actingObjectEntityId);
   }
 

@@ -35,6 +35,18 @@ export default tenetMudConfig({
         numRan: "uint32",
       },
     },
+    // Object Type Tables
+    AgentAction: {
+      registerAsRoot: true,
+      keySchema: {
+        objectEntityId: "bytes32",
+      },
+      schema: {
+        isHit: "bool",
+        targetObjectEntityId: "bytes32",
+        damage: "uint32",
+      },
+    },
   },
   systems: {
     FaucetSystem: {

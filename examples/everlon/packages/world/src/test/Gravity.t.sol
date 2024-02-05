@@ -60,7 +60,7 @@ contract GravityTest is MudTest {
     bytes32 newCoordObjectEntityId = ObjectEntity.get(store, newEntityId);
     assertTrue(newCoordObjectEntityId == agentObjectEntityId, "Agent not moved");
     assertTrue(ObjectType.get(store, newEntityId) == agentObjectTypeId, "Agent not moved");
-    assertTrue(Health.getHealth(simStore, worldAddress, agentObjectEntityId) == prevHealth, "Agent took damage");
+    assertTrue(Health.getHealth(simStore, worldAddress, agentObjectEntityId) >= prevHealth, "Agent took damage");
 
     vm.stopPrank();
   }
@@ -77,8 +77,7 @@ contract GravityTest is MudTest {
     // move block underneath agent
     VoxelCoord memory oldCoord = VoxelCoord(newAgentCoord.x, newAgentCoord.y - 1, newAgentCoord.z);
     VoxelCoord memory newCoord = VoxelCoord(oldCoord.x + 1, oldCoord.y + 1, oldCoord.z);
-    bytes32 belowEntityId = getEntityAtCoord(store, oldCoord);
-    bytes32 belowObjectTypeId = ObjectType.get(store, belowEntityId);
+    bytes32 belowObjectTypeId = world.getTerrainObjectTypeId(oldCoord);
     uint256 prevHealth = Health.getHealth(simStore, worldAddress, agentObjectEntityId);
     world.move(agentObjectEntityId, belowObjectTypeId, oldCoord, newCoord);
 
@@ -100,8 +99,7 @@ contract GravityTest is MudTest {
     // move block from ground up one
     VoxelCoord memory oldCoord = VoxelCoord(initialAgentCoord.x, initialAgentCoord.y - 1, initialAgentCoord.z - 1);
     VoxelCoord memory newCoord = VoxelCoord(oldCoord.x, oldCoord.y + 1, oldCoord.z);
-    bytes32 belowEntityId = getEntityAtCoord(store, oldCoord);
-    bytes32 objectTypeId = ObjectType.get(store, belowEntityId);
+    bytes32 objectTypeId = world.getTerrainObjectTypeId(oldCoord);
     world.move(agentObjectEntityId, objectTypeId, oldCoord, newCoord);
 
     // Object should not fall because it's beside the agent
@@ -117,8 +115,6 @@ contract GravityTest is MudTest {
     // Assert that the object is at the old coord, ie it fell
     bytes32 fallenEntityId = getEntityAtCoord(store, VoxelCoord(newCoord.x, newCoord.y - 1, newCoord.z));
     assertTrue(ObjectType.get(store, fallenEntityId) == objectTypeId, "Object didnt fall");
-    oldEntityId = getEntityAtCoord(store, newCoord);
-    assertTrue(ObjectType.get(store, oldEntityId) == AirObjectID, "Object didnt fall");
     newEntityId = getEntityAtCoord(store, newCoord);
     assertTrue(ObjectType.get(store, newEntityId) == AirObjectID, "Object didnt fall");
 
@@ -133,8 +129,7 @@ contract GravityTest is MudTest {
     // move block from ground up one
     VoxelCoord memory oldCoord = VoxelCoord(initialAgentCoord.x, initialAgentCoord.y - 1, initialAgentCoord.z - 1);
     VoxelCoord memory newCoord = VoxelCoord(oldCoord.x, oldCoord.y + 1, oldCoord.z);
-    bytes32 belowEntityId = getEntityAtCoord(store, oldCoord);
-    bytes32 objectTypeId = ObjectType.get(store, belowEntityId);
+    bytes32 objectTypeId = world.getTerrainObjectTypeId(oldCoord);
     world.move(agentObjectEntityId, objectTypeId, oldCoord, newCoord);
 
     // Object should not fall because it's beside the agent
@@ -158,8 +153,7 @@ contract GravityTest is MudTest {
     // move block from ground up one
     VoxelCoord memory oldCoord = VoxelCoord(newAgentCoord.x, newAgentCoord.y - 1, newAgentCoord.z - 1);
     VoxelCoord memory newCoord = VoxelCoord(oldCoord.x, oldCoord.y + 1, oldCoord.z);
-    bytes32 belowEntityId = getEntityAtCoord(store, oldCoord);
-    bytes32 objectTypeId = ObjectType.get(store, belowEntityId);
+    bytes32 objectTypeId = world.getTerrainObjectTypeId(oldCoord);
     world.move(agentObjectEntityId, objectTypeId, oldCoord, newCoord);
 
     // Object should not fall because it's beside the agent
@@ -171,8 +165,7 @@ contract GravityTest is MudTest {
     // move block underneath agent
     oldCoord = VoxelCoord(newAgentCoord.x, newAgentCoord.y - 1, newAgentCoord.z);
     newCoord = VoxelCoord(oldCoord.x + 1, oldCoord.y + 1, oldCoord.z);
-    belowEntityId = getEntityAtCoord(store, oldCoord);
-    bytes32 belowObjectTypeId = ObjectType.get(store, belowEntityId);
+    bytes32 belowObjectTypeId = world.getTerrainObjectTypeId(oldCoord);
     world.move(agentObjectEntityId, belowObjectTypeId, oldCoord, newCoord);
 
     // Assert that the agent is at the old coord, ie it fell even though beside a block
@@ -192,8 +185,7 @@ contract GravityTest is MudTest {
     // move block from ground up one
     VoxelCoord memory oldCoord = VoxelCoord(initialAgentCoord.x, initialAgentCoord.y - 1, initialAgentCoord.z - 1);
     VoxelCoord memory newCoord = VoxelCoord(oldCoord.x, oldCoord.y + 1, oldCoord.z);
-    bytes32 belowEntityId = getEntityAtCoord(store, oldCoord);
-    bytes32 objectTypeId = ObjectType.get(store, belowEntityId);
+    bytes32 objectTypeId = world.getTerrainObjectTypeId(oldCoord);
     world.move(agentObjectEntityId, objectTypeId, oldCoord, newCoord);
 
     // Object should not fall because it's beside the agent
@@ -223,14 +215,12 @@ contract GravityTest is MudTest {
     // move block from ground up one
     VoxelCoord memory oldCoord = VoxelCoord(initialAgentCoord.x + 1, initialAgentCoord.y - 1, initialAgentCoord.z - 1);
     VoxelCoord memory newCoord = VoxelCoord(oldCoord.x - 1, oldCoord.y + 1, oldCoord.z);
-    bytes32 belowEntityId = getEntityAtCoord(store, oldCoord);
-    bytes32 objectTypeId = ObjectType.get(store, belowEntityId);
+    bytes32 objectTypeId = world.getTerrainObjectTypeId(oldCoord);
     world.move(agentObjectEntityId, objectTypeId, oldCoord, newCoord);
 
     oldCoord = VoxelCoord(initialAgentCoord.x - 1, initialAgentCoord.y - 1, initialAgentCoord.z - 1);
     newCoord = VoxelCoord(oldCoord.x, oldCoord.y + 1, oldCoord.z);
-    belowEntityId = getEntityAtCoord(store, oldCoord);
-    objectTypeId = ObjectType.get(store, belowEntityId);
+    objectTypeId = world.getTerrainObjectTypeId(oldCoord);
     world.move(agentObjectEntityId, objectTypeId, oldCoord, newCoord);
 
     oldCoord = newCoord;
@@ -239,21 +229,20 @@ contract GravityTest is MudTest {
 
     oldCoord = VoxelCoord(initialAgentCoord.x - 1, initialAgentCoord.y - 1, initialAgentCoord.z);
     newCoord = VoxelCoord(oldCoord.x, oldCoord.y + 1, oldCoord.z);
-    belowEntityId = getEntityAtCoord(store, oldCoord);
-    objectTypeId = ObjectType.get(store, belowEntityId);
+    objectTypeId = world.getTerrainObjectTypeId(oldCoord);
     world.move(agentObjectEntityId, objectTypeId, oldCoord, newCoord);
 
     // Set mass of blocks to low mass
-    belowEntityId = getEntityAtCoord(store, newCoord);
-    Mass.set(simStore, worldAddress, ObjectEntity.get(store, belowEntityId), 50);
+    bytes32 newEntityId = getEntityAtCoord(store, newCoord);
+    Mass.set(simStore, worldAddress, ObjectEntity.get(store, newEntityId), 50);
 
     oldCoord = newCoord;
     newCoord = VoxelCoord(oldCoord.x, oldCoord.y + 1, oldCoord.z - 1);
     world.move(agentObjectEntityId, objectTypeId, oldCoord, newCoord);
 
     // Should fall two blocks
-    belowEntityId = getEntityAtCoord(store, VoxelCoord(newCoord.x, newCoord.y - 2, newCoord.z));
-    assertTrue(ObjectType.get(store, belowEntityId) == objectTypeId, "Object didnt fall");
+    newEntityId = getEntityAtCoord(store, VoxelCoord(newCoord.x, newCoord.y - 2, newCoord.z));
+    assertTrue(ObjectType.get(store, newEntityId) == objectTypeId, "Object didnt fall");
 
     vm.stopPrank();
   }

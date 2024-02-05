@@ -15,12 +15,12 @@ import { ITerrainSystem } from "@tenet-base-world/src/codegen/world/ITerrainSyst
 import { IBuildSystem } from "@tenet-base-world/src/codegen/world/IBuildSystem.sol";
 import { IMoveSystem } from "@tenet-base-world/src/codegen/world/IMoveSystem.sol";
 
-import { getVelocity } from "@tenet-simulator/src/Utils.sol";
+import { MoveTrigger } from "@tenet-simulator/src/codegen/Types.sol";
+import { getVelocity, callWorldMove } from "@tenet-simulator/src/Utils.sol";
 import { VoxelCoord, ObjectProperties, CoordDirection } from "@tenet-utils/src/Types.sol";
 import { getEntityAtCoord, getVoxelCoordStrict, getEntityIdFromObjectEntityId, getVonNeumannNeighbourEntities } from "@tenet-base-world/src/Utils.sol";
 import { isZeroCoord, voxelCoordsAreEqual, dot, mulScalar, divScalar, add, sub } from "@tenet-utils/src/VoxelCoordUtils.sol";
 import { abs, absInt32 } from "@tenet-utils/src/MathUtils.sol";
-import { WORLD_MOVE_SIG } from "@tenet-base-world/src/Constants.sol";
 import { uint256ToInt32, int256ToUint256, safeSubtract } from "@tenet-utils/src/TypeUtils.sol";
 import { COLLISION_DAMAGE } from "@tenet-simulator/src/Constants.sol";
 
@@ -191,15 +191,14 @@ contract CollisionRuleSystem is System {
     for (int32 i = 0; i < absInt32(vDelta); i++) {
       {
         // Try moving
-        // Note: we can't use IMoveSystem here because we need to safe call it
-        (bool moveSuccess, bytes memory moveReturnData) = worldAddress.call(
-          abi.encodeWithSignature(
-            WORLD_MOVE_SIG,
-            actingObjectEntityId,
-            collisionData.objectTypeId,
-            workingCoord,
-            add(workingCoord, deltaVelocity)
-          )
+        (bool moveSuccess, bytes memory moveReturnData) = callWorldMove(
+          MoveTrigger.Collision,
+          worldAddress,
+          actingObjectEntityId,
+          collisionData.objectEntityId,
+          collisionData.objectTypeId,
+          workingCoord,
+          add(workingCoord, deltaVelocity)
         );
         if (moveSuccess && moveReturnData.length > 0) {
           // Check if the agent has health, and if so, apply damage

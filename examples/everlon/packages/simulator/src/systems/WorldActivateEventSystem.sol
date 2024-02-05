@@ -24,11 +24,11 @@ contract WorldActivateEventSystem is WorldActivateEventProtoSystem {
     VoxelCoord memory coord,
     bytes32 objectEntityId
   ) public override {
-    // address worldAddress = _msgSender();
+    address worldAddress = _msgSender();
     // if (objectEntityId != actingObjectEntityId) {
     //   IWorld(_world()).updateVelocityCache(worldAddress, objectEntityId);
     // }
-    // IWorld(_world()).applyGravity(worldAddress, coord, objectEntityId, actingObjectEntityId);
+    IWorld(_world()).applyGravity(worldAddress, coord, objectEntityId, actingObjectEntityId);
   }
 
   function postActivateEvent(

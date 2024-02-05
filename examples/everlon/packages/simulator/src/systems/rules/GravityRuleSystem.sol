@@ -8,6 +8,7 @@ import { System } from "@latticexyz/world/src/System.sol";
 import { Mass, MassTableId } from "@tenet-simulator/src/codegen/tables/Mass.sol";
 import { Health, HealthTableId } from "@tenet-simulator/src/codegen/tables/Health.sol";
 import { Velocity, VelocityData, VelocityTableId } from "@tenet-simulator/src/codegen/tables/Velocity.sol";
+import { MoveTrigger } from "@tenet-simulator/src/codegen/Types.sol";
 
 import { ObjectEntity } from "@tenet-base-world/src/codegen/tables/ObjectEntity.sol";
 import { ObjectType } from "@tenet-base-world/src/codegen/tables/ObjectType.sol";
@@ -15,12 +16,11 @@ import { ITerrainSystem } from "@tenet-base-world/src/codegen/world/ITerrainSyst
 import { IBuildSystem } from "@tenet-base-world/src/codegen/world/IBuildSystem.sol";
 import { IMoveSystem } from "@tenet-base-world/src/codegen/world/IMoveSystem.sol";
 
-import { getVelocity } from "@tenet-simulator/src/Utils.sol";
+import { getVelocity, callWorldMove } from "@tenet-simulator/src/Utils.sol";
 import { VoxelCoord, ObjectProperties, BlockDirection } from "@tenet-utils/src/Types.sol";
 import { getEntityAtCoord, getVoxelCoordStrict, getEntityIdFromObjectEntityId, getVonNeumannNeighbourEntities } from "@tenet-base-world/src/Utils.sol";
 import { isZeroCoord, voxelCoordsAreEqual, dot, mulScalar, divScalar, add, sub, calculateBlockDirection } from "@tenet-utils/src/VoxelCoordUtils.sol";
 import { abs, absInt32 } from "@tenet-utils/src/MathUtils.sol";
-import { WORLD_MOVE_SIG } from "@tenet-base-world/src/Constants.sol";
 import { uint256ToInt32, int256ToUint256, safeSubtract } from "@tenet-utils/src/TypeUtils.sol";
 import { GRAVITY_DAMAGE } from "@tenet-simulator/src/Constants.sol";
 
@@ -74,14 +74,16 @@ contract GravityRuleSystem is System {
     // Note: we can't use IMoveSystem here because we need to safe call it
     bytes32 applyObjectTypeId = ObjectType.get(IStore(worldAddress), applyEntityId);
     bytes32 applyObjectEntityId = ObjectEntity.get(IStore(worldAddress), applyEntityId);
-    (bool moveSuccess, bytes memory moveReturnData) = worldAddress.call(
-      abi.encodeWithSignature(
-        WORLD_MOVE_SIG,
-        actingObjectEntityId,
-        applyObjectTypeId,
-        applyCoord,
-        VoxelCoord({ x: applyCoord.x, y: applyCoord.y - 1, z: applyCoord.z })
-      )
+
+    VoxelCoord memory newCoord = VoxelCoord({ x: applyCoord.x, y: applyCoord.y - 1, z: applyCoord.z });
+    (bool moveSuccess, bytes memory moveReturnData) = callWorldMove(
+      MoveTrigger.Gravity,
+      worldAddress,
+      actingObjectEntityId,
+      applyObjectEntityId,
+      applyObjectTypeId,
+      applyCoord,
+      newCoord
     );
     if (moveSuccess && moveReturnData.length > 0) {
       // Check if the agent has health, and if so, apply damage

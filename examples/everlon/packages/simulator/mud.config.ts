@@ -4,6 +4,7 @@ import { resolveTableId } from "@latticexyz/config";
 export default tenetMudConfig({
   enums: {
     SimTable: ["None", "Mass", "Energy", "Velocity", "Health", "Stamina"],
+    MoveTrigger: ["None", "Gravity", "Collision"],
   },
   tables: {
     Metadata: {
@@ -60,6 +61,21 @@ export default tenetMudConfig({
       },
       schema: {
         stamina: "uint256",
+      },
+    },
+    MoveMetadata: {
+      keySchema: {
+        worldAddress: "address",
+        objectEntityId: "bytes32",
+        oldPosX: "int32",
+        oldPosY: "int32",
+        oldPosZ: "int32",
+        newPosX: "int32",
+        newPosY: "int32",
+        newPosZ: "int32",
+      },
+      schema: {
+        moveTrigger: "MoveTrigger",
       },
     },
   },

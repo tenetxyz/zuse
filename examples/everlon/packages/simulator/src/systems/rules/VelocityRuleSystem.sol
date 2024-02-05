@@ -10,6 +10,8 @@ import { Mass, MassTableId } from "@tenet-simulator/src/codegen/tables/Mass.sol"
 import { Energy, EnergyTableId } from "@tenet-simulator/src/codegen/tables/Energy.sol";
 import { Velocity, VelocityData, VelocityTableId } from "@tenet-simulator/src/codegen/tables/Velocity.sol";
 import { Stamina, StaminaTableId } from "@tenet-simulator/src/codegen/tables/Stamina.sol";
+import { MoveMetadata } from "@tenet-simulator/src/codegen/tables/MoveMetadata.sol";
+import { MoveTrigger } from "@tenet-simulator/src/codegen/Types.sol";
 
 import { getEntityIdFromObjectEntityId } from "@tenet-base-world/src/Utils.sol";
 import { getVelocity } from "@tenet-simulator/src/Utils.sol";
@@ -96,10 +98,23 @@ contract VelocityRuleSystem is System {
       Mass.get(worldAddress, objectEntityId)
     );
     {
+      MoveTrigger moveTrigger = MoveMetadata.get(
+        worldAddress,
+        objectEntityId,
+        oldCoord.x,
+        oldCoord.y,
+        oldCoord.z,
+        newCoord.x,
+        newCoord.y,
+        newCoord.z
+      );
       // Spend resources
-      uint256 currentResourceAmount = Stamina.get(worldAddress, actingObjectEntityId);
-      require(resourceRequired <= currentResourceAmount, "VelocityRuleSystem: Not enough resources to move.");
-      Stamina.set(worldAddress, actingObjectEntityId, currentResourceAmount - resourceRequired);
+      if (moveTrigger == MoveTrigger.None || moveTrigger == MoveTrigger.Collision) {
+        uint256 currentResourceAmount = Stamina.get(worldAddress, actingObjectEntityId);
+        require(resourceRequired <= currentResourceAmount, "VelocityRuleSystem: Not enough resources to move.");
+        Stamina.set(worldAddress, actingObjectEntityId, currentResourceAmount - resourceRequired);
+      }
+      // for gravity, we don't want to spend resources
     }
 
     // Flux energy
@@ -118,15 +133,16 @@ contract VelocityRuleSystem is System {
     // );
 
     // Apply gravity to old block
-    // IWorld(_world()).applyGravity(worldAddress, oldCoord, oldObjectEntityId, actingObjectEntityId);
+    IWorld(_world()).applyGravity(worldAddress, oldCoord, oldObjectEntityId, actingObjectEntityId);
 
     // // Collision rule
     // bytes32 entityId = IWorld(_world()).onCollision(worldAddress, objectEntityId, actingObjectEntityId);
 
-    // // Apply gravity to new block
-    // entityId = IWorld(_world()).applyGravity(worldAddress, newCoord, objectEntityId, actingObjectEntityId);
+    // Apply gravity to new block
+    bytes32 entityId = IWorld(_world()).applyGravity(worldAddress, newCoord, objectEntityId, actingObjectEntityId);
 
-    return getEntityIdFromObjectEntityId(IStore(worldAddress), objectEntityId);
+    // return getEntityIdFromObjectEntityId(IStore(worldAddress), objectEntityId);
+    return entityId;
   }
 
   function calculateNewVelocity(

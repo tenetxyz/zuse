@@ -5,6 +5,7 @@ export default tenetMudConfig({
   enums: {
     SimTable: ["None", "Mass", "Energy", "Velocity", "Health", "Stamina"],
     MoveTrigger: ["None", "Gravity", "Collision"],
+    BlockDirection: ["None", "North", "South", "East", "West", "Up", "Down"],
   },
   tables: {
     Metadata: {
@@ -61,6 +62,15 @@ export default tenetMudConfig({
       },
       schema: {
         stamina: "uint256",
+      },
+    },
+    GravityMetadata: {
+      keySchema: {
+        worldAddress: "address",
+        objectEntityId: "bytes32",
+      },
+      schema: {
+        supportingDirection: "BlockDirection",
       },
     },
     MoveMetadata: {

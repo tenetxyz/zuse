@@ -49,6 +49,13 @@ function getVonNeumannNeighbourEntities(
   bytes32 centerEntityId
 ) view returns (bytes32[] memory, VoxelCoord[] memory) {
   VoxelCoord memory centerCoord = positionDataToVoxelCoord(Position.get(store, centerEntityId));
+  return getVonNeumannNeighbourEntities(store, centerCoord);
+}
+
+function getVonNeumannNeighbourEntities(
+  IStore store,
+  VoxelCoord memory centerCoord
+) view returns (bytes32[] memory, VoxelCoord[] memory) {
   VoxelCoord[] memory neighbourCoords = getVonNeumannNeighbours(centerCoord);
   bytes32[] memory neighbourEntities = new bytes32[](neighbourCoords.length);
 

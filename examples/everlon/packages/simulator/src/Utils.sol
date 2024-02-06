@@ -41,6 +41,7 @@ function callWorldMove(
   VoxelCoord memory oldCoord,
   VoxelCoord memory newCoord
 ) returns (bool, bytes memory) {
+  // If MoveMetadata already exists, eg for gravity, then we don't create a new move trigger
   if (
     MoveMetadata.get(
       worldAddress,

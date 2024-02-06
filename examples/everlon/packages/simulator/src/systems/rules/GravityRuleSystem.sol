@@ -8,6 +8,7 @@ import { System } from "@latticexyz/world/src/System.sol";
 import { Mass, MassTableId } from "@tenet-simulator/src/codegen/tables/Mass.sol";
 import { Health, HealthTableId } from "@tenet-simulator/src/codegen/tables/Health.sol";
 import { Velocity, VelocityData, VelocityTableId } from "@tenet-simulator/src/codegen/tables/Velocity.sol";
+import { GravityMetadata } from "@tenet-simulator/src/codegen/tables/GravityMetadata.sol";
 import { MoveTrigger } from "@tenet-simulator/src/codegen/Types.sol";
 
 import { ObjectEntity } from "@tenet-base-world/src/codegen/tables/ObjectEntity.sol";
@@ -19,7 +20,7 @@ import { IMoveSystem } from "@tenet-base-world/src/codegen/world/IMoveSystem.sol
 import { getVelocity, callWorldMove } from "@tenet-simulator/src/Utils.sol";
 import { VoxelCoord, ObjectProperties, BlockDirection } from "@tenet-utils/src/Types.sol";
 import { getEntityAtCoord, getVoxelCoordStrict, getEntityIdFromObjectEntityId, getVonNeumannNeighbourEntities } from "@tenet-base-world/src/Utils.sol";
-import { isZeroCoord, voxelCoordsAreEqual, dot, mulScalar, divScalar, add, sub, calculateBlockDirection } from "@tenet-utils/src/VoxelCoordUtils.sol";
+import { isZeroCoord, voxelCoordsAreEqual, dot, mulScalar, divScalar, add, sub, calculateBlockDirection, getOppositeDirection } from "@tenet-utils/src/VoxelCoordUtils.sol";
 import { abs, absInt32 } from "@tenet-utils/src/MathUtils.sol";
 import { uint256ToInt32, int256ToUint256, safeSubtract } from "@tenet-utils/src/TypeUtils.sol";
 import { GRAVITY_DAMAGE } from "@tenet-simulator/src/Constants.sol";
@@ -46,12 +47,15 @@ contract GravityRuleSystem is System {
           continue;
         }
 
-        if (neighbourEntities[i] == bytes32(0)) {
-          neighbourEntities[i] = IBuildSystem(worldAddress).buildTerrain(
-            bytes32(0), // No acting object entity, since this is the simulator calling it
-            neighbourCoords[i]
-          );
+        if (neighbourEntities[i] != bytes32(0)) {
+          bytes32 neighbourObjectEntityId = ObjectEntity.get(IStore(worldAddress), neighbourEntities[i]);
+          BlockDirection neighbourSupportDirection = GravityMetadata.get(worldAddress, neighbourObjectEntityId);
+          if (blockDirection == neighbourSupportDirection) {
+            // reset the gravity metadata for the neighbour
+            GravityMetadata.set(worldAddress, neighbourObjectEntityId, BlockDirection.None);
+          }
         }
+
         runGravity(worldAddress, neighbourCoords[i], neighbourEntities[i], actingObjectEntityId);
       }
       return eventEntityId;
@@ -73,11 +77,19 @@ contract GravityRuleSystem is System {
     ) {
       return applyEntityId;
     }
+    if (applyEntityId == bytes32(0)) {
+      applyEntityId = IBuildSystem(worldAddress).buildTerrain(
+        bytes32(0), // No acting object entity, since this is the simulator calling it
+        applyCoord
+      );
+    }
 
     // Try moving block down
     // Note: we can't use IMoveSystem here because we need to safe call it
     bytes32 applyObjectTypeId = ObjectType.get(IStore(worldAddress), applyEntityId);
     bytes32 applyObjectEntityId = ObjectEntity.get(IStore(worldAddress), applyEntityId);
+
+    GravityMetadata.set(worldAddress, applyObjectEntityId, BlockDirection.None);
 
     VoxelCoord memory newCoord = VoxelCoord({ x: applyCoord.x, y: applyCoord.y - 1, z: applyCoord.z });
     (bool moveSuccess, bytes memory moveReturnData) = callWorldMove(
@@ -126,6 +138,10 @@ contract GravityRuleSystem is System {
       );
       belowMass = terrainProperties.mass;
     }
+    if (belowMass > 0 && applyEntityId != bytes32(0)) {
+      GravityMetadata.set(worldAddress, ObjectEntity.get(IStore(worldAddress), applyEntityId), BlockDirection.Down);
+    }
+
     return belowMass > 0;
   }
 
@@ -136,9 +152,19 @@ contract GravityRuleSystem is System {
   ) internal returns (bool) {
     (bytes32[] memory neighbourEntities, VoxelCoord[] memory neighbourCoords) = getVonNeumannNeighbourEntities(
       IStore(worldAddress),
-      applyEntityId
+      applyCoord
     );
-    uint256 applyMass = Mass.get(worldAddress, ObjectEntity.get(IStore(worldAddress), applyEntityId));
+    uint256 applyMass = 0;
+    if (applyEntityId != bytes32(0)) {
+      applyMass = Mass.get(worldAddress, ObjectEntity.get(IStore(worldAddress), applyEntityId));
+    } else {
+      ObjectProperties memory emptyProperties;
+      ObjectProperties memory terrainProperties = ITerrainSystem(worldAddress).getTerrainObjectProperties(
+        applyCoord,
+        emptyProperties
+      );
+      applyMass = terrainProperties.mass;
+    }
     for (uint256 i = 0; i < neighbourEntities.length; i++) {
       BlockDirection blockDirection = calculateBlockDirection(applyCoord, neighbourCoords[i]);
       if (
@@ -151,7 +177,14 @@ contract GravityRuleSystem is System {
 
       uint256 neighbourMass = 0;
       if (neighbourEntities[i] != bytes32(0)) {
-        neighbourMass = Mass.get(worldAddress, ObjectEntity.get(IStore(worldAddress), neighbourEntities[i]));
+        bytes32 neighbourObjectEntityId = ObjectEntity.get(IStore(worldAddress), neighbourEntities[i]);
+        neighbourMass = Mass.get(worldAddress, neighbourObjectEntityId);
+        BlockDirection neighbourSupportDirection = GravityMetadata.get(worldAddress, neighbourObjectEntityId);
+        if (neighbourSupportDirection == getOppositeDirection(blockDirection)) {
+          // If the neighbour is being supported by this block, then it can't support this block
+          // it needs to have its own support
+          continue;
+        }
       } else {
         ObjectProperties memory emptyProperties;
         ObjectProperties memory terrainProperties = ITerrainSystem(worldAddress).getTerrainObjectProperties(
@@ -162,6 +195,9 @@ contract GravityRuleSystem is System {
       }
 
       if (neighbourMass >= applyMass) {
+        if (applyEntityId != bytes32(0)) {
+          GravityMetadata.set(worldAddress, ObjectEntity.get(IStore(worldAddress), applyEntityId), blockDirection);
+        }
         return true;
       }
     }

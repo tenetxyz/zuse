@@ -41,12 +41,16 @@ contract GravityRuleSystem is System {
         eventEntityId
       );
       for (uint256 i = 0; i < neighbourEntities.length; i++) {
-        if (neighbourEntities[i] == bytes32(0)) {
-          continue;
-        }
         BlockDirection blockDirection = calculateBlockDirection(eventCoord, neighbourCoords[i]);
         if (blockDirection == BlockDirection.Down || blockDirection == BlockDirection.None) {
           continue;
+        }
+
+        if (neighbourEntities[i] == bytes32(0)) {
+          neighbourEntities[i] = IBuildSystem(worldAddress).buildTerrain(
+            bytes32(0), // No acting object entity, since this is the simulator calling it
+            neighbourCoords[i]
+          );
         }
         runGravity(worldAddress, neighbourCoords[i], neighbourEntities[i], actingObjectEntityId);
       }
@@ -129,16 +133,13 @@ contract GravityRuleSystem is System {
     address worldAddress,
     bytes32 applyEntityId,
     VoxelCoord memory applyCoord
-  ) internal view returns (bool) {
+  ) internal returns (bool) {
     (bytes32[] memory neighbourEntities, VoxelCoord[] memory neighbourCoords) = getVonNeumannNeighbourEntities(
       IStore(worldAddress),
       applyEntityId
     );
     uint256 applyMass = Mass.get(worldAddress, ObjectEntity.get(IStore(worldAddress), applyEntityId));
     for (uint256 i = 0; i < neighbourEntities.length; i++) {
-      if (neighbourEntities[i] == bytes32(0)) {
-        continue;
-      }
       BlockDirection blockDirection = calculateBlockDirection(applyCoord, neighbourCoords[i]);
       if (
         blockDirection == BlockDirection.Down ||
@@ -148,7 +149,18 @@ contract GravityRuleSystem is System {
         continue;
       }
 
-      uint256 neighbourMass = Mass.get(worldAddress, ObjectEntity.get(IStore(worldAddress), neighbourEntities[i]));
+      uint256 neighbourMass = 0;
+      if (neighbourEntities[i] != bytes32(0)) {
+        neighbourMass = Mass.get(worldAddress, ObjectEntity.get(IStore(worldAddress), neighbourEntities[i]));
+      } else {
+        ObjectProperties memory emptyProperties;
+        ObjectProperties memory terrainProperties = ITerrainSystem(worldAddress).getTerrainObjectProperties(
+          neighbourCoords[i],
+          emptyProperties
+        );
+        neighbourMass = terrainProperties.mass;
+      }
+
       if (neighbourMass >= applyMass) {
         return true;
       }

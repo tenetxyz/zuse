@@ -47,6 +47,29 @@ contract VelocityTest is MudTest {
     return (agentEntityId, agentObjectEntityId);
   }
 
+  function testMoveSpeed() public {
+    vm.startPrank(alice, alice);
+    (, bytes32 agentObjectEntityId) = setupAgent();
+
+    uint256 staminaBefore = Stamina.get(simStore, worldAddress, agentObjectEntityId);
+    VoxelCoord memory oldAgentCoord = initialAgentCoord;
+    VoxelCoord memory newAgentCoord = VoxelCoord(oldAgentCoord.x, oldAgentCoord.y, oldAgentCoord.z - 1);
+    world.move(agentObjectEntityId, agentObjectTypeId, oldAgentCoord, newAgentCoord);
+    uint256 staminaUsed = staminaBefore - Stamina.get(simStore, worldAddress, agentObjectEntityId);
+    assertTrue(staminaUsed > 0, "Stamina not used");
+
+    vm.roll(block.number + 1);
+    // Move 2 blocks
+    oldAgentCoord = newAgentCoord;
+    VoxelCoord[] memory newAgentCoords = new VoxelCoord[](2);
+    newAgentCoords[0] = VoxelCoord(oldAgentCoord.x, oldAgentCoord.y, oldAgentCoord.z - 1);
+    newAgentCoords[1] = VoxelCoord(oldAgentCoord.x, oldAgentCoord.y, oldAgentCoord.z - 2);
+    world.move(agentObjectEntityId, agentObjectTypeId, oldAgentCoord, newAgentCoords);
+    // uint256 staminaUsedForTwoBlocks = staminaBefore - Stamina.get(simStore, worldAddress, agentObjectEntityId);
+
+    vm.stopPrank();
+  }
+
   function testMovingCost() public {
     vm.startPrank(alice, alice);
 
@@ -62,20 +85,18 @@ contract VelocityTest is MudTest {
     // move block from ground up one
     VoxelCoord memory oldCoord = VoxelCoord(newAgentCoord.x + 1, newAgentCoord.y - 1, newAgentCoord.z - 1);
     VoxelCoord memory newCoord = VoxelCoord(oldCoord.x - 1, oldCoord.y + 1, oldCoord.z);
-    bytes32 belowEntityId = getEntityAtCoord(store, oldCoord);
-    bytes32 objectTypeId = ObjectType.get(store, belowEntityId);
+    bytes32 objectTypeId = world.getTerrainObjectTypeId(oldCoord);
     world.move(agentObjectEntityId, objectTypeId, oldCoord, newCoord);
 
     oldCoord = VoxelCoord(newAgentCoord.x - 1, newAgentCoord.y - 1, newAgentCoord.z - 1);
     newCoord = VoxelCoord(oldCoord.x, oldCoord.y + 1, oldCoord.z);
-    belowEntityId = getEntityAtCoord(store, oldCoord);
-    objectTypeId = ObjectType.get(store, belowEntityId);
+    objectTypeId = world.getTerrainObjectTypeId(oldCoord);
     world.move(agentObjectEntityId, objectTypeId, oldCoord, newCoord);
 
     oldCoord = newCoord;
     newCoord = VoxelCoord(oldCoord.x + 1, oldCoord.y + 1, oldCoord.z);
     world.move(agentObjectEntityId, objectTypeId, oldCoord, newCoord);
-    belowEntityId = getEntityAtCoord(store, newCoord);
+    bytes32 belowEntityId = getEntityAtCoord(store, newCoord);
     assertTrue(ObjectType.get(store, belowEntityId) == objectTypeId, "Block not moved");
     Mass.set(simStore, worldAddress, ObjectEntity.get(store, belowEntityId), 50);
 

@@ -7,6 +7,7 @@ import { Event } from "@tenet-base-world/src/prototypes/Event.sol";
 
 import { ObjectType } from "@tenet-base-world/src/codegen/tables/ObjectType.sol";
 import { ObjectEntity } from "@tenet-base-world/src/codegen/tables/ObjectEntity.sol";
+import { AgentMetadata } from "@tenet-base-world/src/codegen/tables/AgentMetadata.sol";
 import { ReverseObjectEntity } from "@tenet-base-world/src/codegen/tables/ReverseObjectEntity.sol";
 
 import { VoxelCoord } from "@tenet-utils/src/Types.sol";
@@ -104,6 +105,17 @@ abstract contract MoveEvent is Event {
     ReverseObjectEntity.set(objectEntityId, oldEntityId);
     ObjectEntity.set(eventEntityId, oldObjectEntityId);
     ReverseObjectEntity.set(oldObjectEntityId, eventEntityId);
+
+    // Note: if the simulator calls move, we don't want to count that as a user
+    // move, so we only update the metadata if the caller is not the simulator
+    if (_msgSender() != getSimulatorAddress()) {
+      if (AgentMetadata.getLastUpdateBlock(actingObjectEntityId) != block.number) {
+        AgentMetadata.setLastUpdateBlock(actingObjectEntityId, block.number);
+        AgentMetadata.setNumMoves(actingObjectEntityId, 1);
+      } else {
+        AgentMetadata.setNumMoves(actingObjectEntityId, AgentMetadata.getNumMoves(actingObjectEntityId) + 1);
+      }
+    }
 
     // We reset the eventEntityId from preRunObject
     // since collisions could have changed the eventEntityId

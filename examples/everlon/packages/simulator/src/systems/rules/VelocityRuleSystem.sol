@@ -13,6 +13,7 @@ import { Stamina, StaminaTableId } from "@tenet-simulator/src/codegen/tables/Sta
 import { MoveMetadata } from "@tenet-simulator/src/codegen/tables/MoveMetadata.sol";
 import { MoveTrigger } from "@tenet-simulator/src/codegen/Types.sol";
 
+import { AgentMetadata } from "@tenet-base-world/src/codegen/tables/AgentMetadata.sol";
 import { getEntityIdFromObjectEntityId } from "@tenet-base-world/src/Utils.sol";
 import { getVelocity } from "@tenet-simulator/src/Utils.sol";
 import { VoxelCoord, CoordDirection } from "@tenet-utils/src/Types.sol";
@@ -20,6 +21,7 @@ import { uint256ToInt32 } from "@tenet-utils/src/TypeUtils.sol";
 import { isZeroCoord, voxelCoordsAreEqual } from "@tenet-utils/src/VoxelCoordUtils.sol";
 import { abs, absInt32 } from "@tenet-utils/src/MathUtils.sol";
 import { NUM_BLOCKS_BEFORE_REDUCE_VELOCITY } from "@tenet-simulator/src/Constants.sol";
+import { console } from "forge-std/console.sol";
 
 contract VelocityRuleSystem is System {
   function updateVelocityCache(address worldAddress, bytes32 objectEntityId) public {
@@ -110,6 +112,8 @@ contract VelocityRuleSystem is System {
       );
       // Spend resources
       if (moveTrigger == MoveTrigger.None || moveTrigger == MoveTrigger.Collision) {
+        uint32 numMoves = AgentMetadata.getNumMoves(IStore(worldAddress), actingObjectEntityId);
+        console.log("numMoves", numMoves);
         uint256 currentResourceAmount = Stamina.get(worldAddress, actingObjectEntityId);
         require(resourceRequired <= currentResourceAmount, "VelocityRuleSystem: Not enough resources to move.");
         Stamina.set(worldAddress, actingObjectEntityId, currentResourceAmount - resourceRequired);

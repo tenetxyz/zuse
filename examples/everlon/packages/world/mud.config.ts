@@ -26,7 +26,7 @@ export default tenetMudConfig({
         properties: "bytes", // ObjectProperties
       },
     },
-    Metadata: {
+    ObjectMetadata: {
       registerAsRoot: true,
       keySchema: {
         objectEntityId: "bytes32",
@@ -73,7 +73,7 @@ export default tenetMudConfig({
     {
       name: "KeysInTableModule",
       root: true,
-      args: [resolveTableId("Metadata")],
+      args: [resolveTableId("ObjectMetadata")],
     },
   ],
 });

@@ -9,7 +9,7 @@ import { getKeysInTable } from "@latticexyz/world/src/modules/keysintable/getKey
 
 import { AgentAction, AgentActionData } from "@tenet-world/src/codegen/tables/AgentAction.sol";
 
-import { ObjectType, Faucet, FaucetData, FaucetTableId, Metadata, MetadataTableId } from "@tenet-world/src/codegen/Tables.sol";
+import { ObjectType, Faucet, FaucetData, FaucetTableId } from "@tenet-world/src/codegen/Tables.sol";
 import { OwnedBy, OwnedByTableId } from "@tenet-base-world/src/codegen/tables/OwnedBy.sol";
 
 import { inSurroundingCube } from "@tenet-utils/src/VoxelCoordUtils.sol";

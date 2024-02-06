@@ -88,6 +88,16 @@ const WORLD_TABLES: Record<string, TableConfig> = {
       objectProperties: "bytes", // ObjectProperties
     },
   },
+  AgentMetadata: {
+    registerAsRoot: true,
+    keySchema: {
+      agentObjectEntityId: "bytes32",
+    },
+    schema: {
+      lastUpdateBlock: "uint256",
+      numMoves: "uint32",
+    },
+  },
   // TODO: Turn this into a module, and make it optional
   Mind: {
     registerAsRoot: true,

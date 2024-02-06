@@ -5,7 +5,7 @@ import { IStore } from "@latticexyz/store/src/IStore.sol";
 import { VoxelCoord } from "@tenet-utils/src/Types.sol";
 import { getKeysInTable } from "@latticexyz/world/src/modules/keysintable/getKeysInTable.sol";
 
-import { Metadata, MetadataTableId } from "@tenet-world/src/codegen/tables/Metadata.sol";
+import { ObjectMetadata, ObjectMetadataTableId } from "@tenet-world/src/codegen/tables/ObjectMetadata.sol";
 
 import { SIMULATOR_ADDRESS, AirObjectID } from "@tenet-world/src/Constants.sol";
 import { MineSystem as MineProtoSystem } from "@tenet-base-world/src/systems/MineSystem.sol";
@@ -33,9 +33,9 @@ contract MineSystem is MineProtoSystem {
     // This would typically represent the end of a user call, vs the end of
     // an internal call
     if (callerAddress != _world() && callerAddress != getSimulatorAddress()) {
-      bytes32[][] memory objectsRan = getKeysInTable(MetadataTableId);
+      bytes32[][] memory objectsRan = getKeysInTable(ObjectMetadataTableId);
       for (uint256 i = 0; i < objectsRan.length; i++) {
-        Metadata.deleteRecord(objectsRan[i][0]);
+        ObjectMetadata.deleteRecord(objectsRan[i][0]);
       }
     }
   }

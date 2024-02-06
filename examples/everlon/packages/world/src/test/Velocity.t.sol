@@ -64,8 +64,10 @@ contract VelocityTest is MudTest {
     VoxelCoord[] memory newAgentCoords = new VoxelCoord[](2);
     newAgentCoords[0] = VoxelCoord(oldAgentCoord.x, oldAgentCoord.y, oldAgentCoord.z - 1);
     newAgentCoords[1] = VoxelCoord(oldAgentCoord.x, oldAgentCoord.y, oldAgentCoord.z - 2);
+    staminaBefore = Stamina.get(simStore, worldAddress, agentObjectEntityId);
     world.move(agentObjectEntityId, agentObjectTypeId, oldAgentCoord, newAgentCoords);
-    // uint256 staminaUsedForTwoBlocks = staminaBefore - Stamina.get(simStore, worldAddress, agentObjectEntityId);
+    uint256 staminaUsedForTwoBlocks = staminaBefore - Stamina.get(simStore, worldAddress, agentObjectEntityId);
+    assertTrue(staminaUsedForTwoBlocks > (staminaUsed * 2), "Stamina not greater");
 
     vm.stopPrank();
   }
@@ -82,16 +84,22 @@ contract VelocityTest is MudTest {
     uint256 staminaUsed = staminaBefore - Stamina.get(simStore, worldAddress, agentObjectEntityId);
     assertTrue(staminaUsed > 0, "Stamina not used");
 
+    vm.roll(block.number + 1);
+
     // move block from ground up one
     VoxelCoord memory oldCoord = VoxelCoord(newAgentCoord.x + 1, newAgentCoord.y - 1, newAgentCoord.z - 1);
     VoxelCoord memory newCoord = VoxelCoord(oldCoord.x - 1, oldCoord.y + 1, oldCoord.z);
     bytes32 objectTypeId = world.getTerrainObjectTypeId(oldCoord);
     world.move(agentObjectEntityId, objectTypeId, oldCoord, newCoord);
 
+    vm.roll(block.number + 1);
+
     oldCoord = VoxelCoord(newAgentCoord.x - 1, newAgentCoord.y - 1, newAgentCoord.z - 1);
     newCoord = VoxelCoord(oldCoord.x, oldCoord.y + 1, oldCoord.z);
     objectTypeId = world.getTerrainObjectTypeId(oldCoord);
     world.move(agentObjectEntityId, objectTypeId, oldCoord, newCoord);
+
+    vm.roll(block.number + 1);
 
     oldCoord = newCoord;
     newCoord = VoxelCoord(oldCoord.x + 1, oldCoord.y + 1, oldCoord.z);
@@ -99,6 +107,8 @@ contract VelocityTest is MudTest {
     bytes32 belowEntityId = getEntityAtCoord(store, newCoord);
     assertTrue(ObjectType.get(store, belowEntityId) == objectTypeId, "Block not moved");
     Mass.set(simStore, worldAddress, ObjectEntity.get(store, belowEntityId), 50);
+
+    vm.roll(block.number + 1);
 
     // Now I can move self up
     VoxelCoord memory oldAgentCoord = newAgentCoord;
@@ -112,6 +122,8 @@ contract VelocityTest is MudTest {
     uint256 staminaUsedForMovingUp = staminaBefore - Stamina.get(simStore, worldAddress, agentObjectEntityId);
     // should cost more than moving in z
     assertTrue(staminaUsedForMovingUp > staminaUsed, "Stamina not greater");
+
+    vm.roll(block.number + 1);
 
     Velocity.setVelocity(simStore, worldAddress, agentObjectEntityId, abi.encode(VoxelCoord({ x: 0, y: 0, z: 0 })));
     // move down, should cost less

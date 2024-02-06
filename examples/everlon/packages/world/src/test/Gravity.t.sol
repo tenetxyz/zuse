@@ -53,7 +53,10 @@ contract GravityTest is MudTest {
     (, bytes32 agentObjectEntityId) = setupAgent();
     VoxelCoord memory newCoord = VoxelCoord(initialAgentCoord.x, initialAgentCoord.y, initialAgentCoord.z - 1);
     uint256 prevHealth = Health.getHealth(simStore, worldAddress, agentObjectEntityId);
+    uint256 staminaBefore = Stamina.get(simStore, worldAddress, agentObjectEntityId);
     world.move(agentObjectEntityId, agentObjectTypeId, initialAgentCoord, newCoord);
+    uint256 staminaAfter = Stamina.get(simStore, worldAddress, agentObjectEntityId);
+    assertTrue(staminaAfter < staminaBefore, "Stamina not used");
 
     // Assert that the agent is at the new coord
     bytes32 newEntityId = getEntityAtCoord(store, newCoord);

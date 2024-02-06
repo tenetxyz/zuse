@@ -21,7 +21,6 @@ import { uint256ToInt32 } from "@tenet-utils/src/TypeUtils.sol";
 import { isZeroCoord, voxelCoordsAreEqual } from "@tenet-utils/src/VoxelCoordUtils.sol";
 import { abs, absInt32 } from "@tenet-utils/src/MathUtils.sol";
 import { NUM_BLOCKS_BEFORE_REDUCE_VELOCITY } from "@tenet-simulator/src/Constants.sol";
-import { console } from "forge-std/console.sol";
 
 contract VelocityRuleSystem is System {
   function updateVelocityCache(address worldAddress, bytes32 objectEntityId) public {
@@ -113,7 +112,8 @@ contract VelocityRuleSystem is System {
       // Spend resources
       if (moveTrigger == MoveTrigger.None || moveTrigger == MoveTrigger.Collision) {
         uint32 numMoves = AgentMetadata.getNumMoves(IStore(worldAddress), actingObjectEntityId);
-        console.log("numMoves", numMoves);
+        // Scale resourceRequired based on numMoves with an exponential relationship
+        resourceRequired = resourceRequired * (2 ** uint256(numMoves));
         uint256 currentResourceAmount = Stamina.get(worldAddress, actingObjectEntityId);
         require(resourceRequired <= currentResourceAmount, "VelocityRuleSystem: Not enough resources to move.");
         Stamina.set(worldAddress, actingObjectEntityId, currentResourceAmount - resourceRequired);

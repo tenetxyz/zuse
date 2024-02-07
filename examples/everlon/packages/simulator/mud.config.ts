@@ -61,6 +61,7 @@ export default tenetMudConfig({
         objectEntityId: "bytes32",
       },
       schema: {
+        lastUpdateBlock: "uint256",
         stamina: "uint256",
       },
     },
@@ -126,6 +127,11 @@ export default tenetMudConfig({
     },
     HealthRuleSystem: {
       name: "HealthRuleSystem",
+      openAccess: false,
+      accessList: ["WorldMoveEventSystem", "WorldBuildEventSystem", "WorldMineEventSystem", "WorldActivateEventSystem"],
+    },
+    StaminaRuleSystem: {
+      name: "StaminaRuleSyste",
       openAccess: false,
       accessList: ["WorldMoveEventSystem", "WorldBuildEventSystem", "WorldMineEventSystem", "WorldActivateEventSystem"],
     },

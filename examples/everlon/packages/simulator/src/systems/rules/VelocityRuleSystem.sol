@@ -114,9 +114,9 @@ contract VelocityRuleSystem is System {
         uint32 numMoves = AgentMetadata.getNumMoves(IStore(worldAddress), actingObjectEntityId);
         // Scale resourceRequired based on numMoves with an exponential relationship
         resourceRequired = resourceRequired * (2 ** uint256(numMoves));
-        uint256 currentResourceAmount = Stamina.get(worldAddress, actingObjectEntityId);
+        uint256 currentResourceAmount = Stamina.getStamina(worldAddress, actingObjectEntityId);
         require(resourceRequired <= currentResourceAmount, "VelocityRuleSystem: Not enough resources to move.");
-        Stamina.set(worldAddress, actingObjectEntityId, currentResourceAmount - resourceRequired);
+        Stamina.setStamina(worldAddress, actingObjectEntityId, currentResourceAmount - resourceRequired);
       }
       // for gravity, we don't want to spend resources
     }

@@ -122,9 +122,9 @@ contract StaminaVelocityConstraintSystem is Constraint {
     }
 
     // Consume stamina
-    uint256 currentStamina = Stamina.get(worldAddress, objectEntityId);
+    uint256 currentStamina = Stamina.getStamina(worldAddress, objectEntityId);
     require(currentStamina >= resourceRequired, "Not enough stamina to spend");
-    Stamina.set(worldAddress, objectEntityId, currentStamina - resourceRequired);
+    Stamina.setStamina(worldAddress, objectEntityId, currentStamina - resourceRequired);
 
     // Flux energy
     IWorld(_world()).fluxEnergy(false, worldAddress, objectEntityId, resourceRequired);

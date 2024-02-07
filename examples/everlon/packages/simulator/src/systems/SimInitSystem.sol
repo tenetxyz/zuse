@@ -10,7 +10,7 @@ import { Mass, MassTableId } from "@tenet-simulator/src/codegen/tables/Mass.sol"
 import { Energy, EnergyTableId } from "@tenet-simulator/src/codegen/tables/Energy.sol";
 import { Velocity, VelocityData, VelocityTableId } from "@tenet-simulator/src/codegen/tables/Velocity.sol";
 import { Health, HealthData, HealthTableId } from "@tenet-simulator/src/codegen/tables/Health.sol";
-import { Stamina, StaminaTableId } from "@tenet-simulator/src/codegen/tables/Stamina.sol";
+import { Stamina, StaminaData, StaminaTableId } from "@tenet-simulator/src/codegen/tables/Stamina.sol";
 
 import { VoxelCoord, ObjectProperties, ElementType } from "@tenet-utils/src/Types.sol";
 
@@ -52,7 +52,11 @@ contract SimInitSystem is SimInitProtoSystem {
         !hasKey(StaminaTableId, Stamina.encodeKeyTuple(worldAddress, objectEntityId)),
         "SimInitSystem: Stamina for object already initialized"
       );
-      Stamina.set(worldAddress, objectEntityId, initialProperties.stamina);
+      Stamina.set(
+        worldAddress,
+        objectEntityId,
+        StaminaData({ lastUpdateBlock: block.number, stamina: initialProperties.stamina })
+      );
     }
   }
 }

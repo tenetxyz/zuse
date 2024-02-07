@@ -99,7 +99,7 @@ contract CollisionTest is MudTest {
 
     // Now move forward one
     // This will cause the collision
-    uint256 staminaBefore = Stamina.get(simStore, worldAddress, agentObjectEntityId);
+    uint256 staminaBefore = Stamina.getStamina(simStore, worldAddress, agentObjectEntityId);
     uint256 healthBefore = Health.getHealth(simStore, worldAddress, agentObjectEntityId);
     world.move(
       agentObjectEntityId,
@@ -107,7 +107,7 @@ contract CollisionTest is MudTest {
       VoxelCoord(agentCoord.x - 1, agentCoord.y, agentCoord.z),
       agentCoord
     );
-    assertTrue(Stamina.get(simStore, worldAddress, agentObjectEntityId) < staminaBefore, "Stamina not reduced");
+    assertTrue(Stamina.getStamina(simStore, worldAddress, agentObjectEntityId) < staminaBefore, "Stamina not reduced");
     assertTrue(Health.getHealth(simStore, worldAddress, agentObjectEntityId) == healthBefore, "Health reduced");
     VoxelCoord memory agentVelocity = abi.decode(
       Velocity.getVelocity(simStore, worldAddress, agentObjectEntityId),
@@ -153,7 +153,7 @@ contract CollisionTest is MudTest {
 
     // Now move forward one
     // This will cause the collision
-    uint256 staminaBefore = Stamina.get(simStore, worldAddress, agentObjectEntityId);
+    uint256 staminaBefore = Stamina.getStamina(simStore, worldAddress, agentObjectEntityId);
     uint256 healthBefore = Health.getHealth(simStore, worldAddress, agentObjectEntityId);
     world.move(
       agentObjectEntityId,
@@ -161,7 +161,7 @@ contract CollisionTest is MudTest {
       VoxelCoord(agentCoord.x - 1, agentCoord.y, agentCoord.z),
       agentCoord
     );
-    assertTrue(Stamina.get(simStore, worldAddress, agentObjectEntityId) < staminaBefore, "Stamina not reduced");
+    assertTrue(Stamina.getStamina(simStore, worldAddress, agentObjectEntityId) < staminaBefore, "Stamina not reduced");
     assertTrue(Health.getHealth(simStore, worldAddress, agentObjectEntityId) < healthBefore, "Health not reduced");
     VoxelCoord memory agentVelocity = abi.decode(
       Velocity.getVelocity(simStore, worldAddress, agentObjectEntityId),
@@ -199,7 +199,7 @@ contract CollisionTest is MudTest {
 
     // Now move forward one
     // This will cause the collision
-    uint256 staminaBefore = Stamina.get(simStore, worldAddress, agentObjectEntityId);
+    uint256 staminaBefore = Stamina.getStamina(simStore, worldAddress, agentObjectEntityId);
     uint256 healthBefore = Health.getHealth(simStore, worldAddress, agentObjectEntityId);
     world.move(
       agentObjectEntityId,
@@ -207,7 +207,7 @@ contract CollisionTest is MudTest {
       agentCoord,
       VoxelCoord(agentCoord.x + 1, agentCoord.y, agentCoord.z)
     );
-    assertTrue(Stamina.get(simStore, worldAddress, agentObjectEntityId) < staminaBefore, "Stamina not reduced");
+    assertTrue(Stamina.getStamina(simStore, worldAddress, agentObjectEntityId) < staminaBefore, "Stamina not reduced");
     assertTrue(Health.getHealth(simStore, worldAddress, agentObjectEntityId) < healthBefore, "Health not reduced");
     VoxelCoord memory agentVelocity = abi.decode(
       Velocity.getVelocity(simStore, worldAddress, agentObjectEntityId),
@@ -276,14 +276,14 @@ contract CollisionTest is MudTest {
 
     // Now move forward one
     // This will cause the collision
-    uint256 staminaBefore = Stamina.get(simStore, worldAddress, agentObjectEntityId);
+    uint256 staminaBefore = Stamina.getStamina(simStore, worldAddress, agentObjectEntityId);
     world.move(
       agentObjectEntityId,
       RunnerObjectID,
       VoxelCoord(agentCoord.x - 1, agentCoord.y, agentCoord.z),
       agentCoord
     );
-    assertTrue(Stamina.get(simStore, worldAddress, agentObjectEntityId) < staminaBefore, "Stamina not reduced");
+    assertTrue(Stamina.getStamina(simStore, worldAddress, agentObjectEntityId) < staminaBefore, "Stamina not reduced");
     VoxelCoord memory agentVelocity = abi.decode(
       Velocity.getVelocity(simStore, worldAddress, agentObjectEntityId),
       (VoxelCoord)
@@ -338,14 +338,14 @@ contract CollisionTest is MudTest {
 
     // Now move forward one
     // This will cause the collision
-    uint256 staminaBefore = Stamina.get(simStore, worldAddress, agentObjectEntityId);
+    uint256 staminaBefore = Stamina.getStamina(simStore, worldAddress, agentObjectEntityId);
     world.move(
       agentObjectEntityId,
       RunnerObjectID,
       VoxelCoord(agentCoord.x - 1, agentCoord.y, agentCoord.z),
       agentCoord
     );
-    assertTrue(Stamina.get(simStore, worldAddress, agentObjectEntityId) < staminaBefore, "Stamina not reduced");
+    assertTrue(Stamina.getStamina(simStore, worldAddress, agentObjectEntityId) < staminaBefore, "Stamina not reduced");
     VoxelCoord memory agentVelocity = abi.decode(
       Velocity.getVelocity(simStore, worldAddress, agentObjectEntityId),
       (VoxelCoord)
@@ -389,14 +389,14 @@ contract CollisionTest is MudTest {
 
     // Now move forward one
     // This will cause the collision
-    uint256 staminaBefore = Stamina.get(simStore, worldAddress, agentObjectEntityId);
+    uint256 staminaBefore = Stamina.getStamina(simStore, worldAddress, agentObjectEntityId);
     world.move(
       agentObjectEntityId,
       RunnerObjectID,
       VoxelCoord(agentCoord.x - 1, agentCoord.y, agentCoord.z),
       agentCoord
     );
-    assertTrue(Stamina.get(simStore, worldAddress, agentObjectEntityId) < staminaBefore, "Stamina not reduced");
+    assertTrue(Stamina.getStamina(simStore, worldAddress, agentObjectEntityId) < staminaBefore, "Stamina not reduced");
     VoxelCoord memory agentVelocity = abi.decode(
       Velocity.getVelocity(simStore, worldAddress, agentObjectEntityId),
       (VoxelCoord)
@@ -440,14 +440,14 @@ contract CollisionTest is MudTest {
 
     // Now move forward one
     // This will cause the collision
-    uint256 staminaBefore = Stamina.get(simStore, worldAddress, agentObjectEntityId);
+    uint256 staminaBefore = Stamina.getStamina(simStore, worldAddress, agentObjectEntityId);
     world.move(
       agentObjectEntityId,
       RunnerObjectID,
       VoxelCoord(agentCoord.x - 1, agentCoord.y, agentCoord.z),
       agentCoord
     );
-    assertTrue(Stamina.get(simStore, worldAddress, agentObjectEntityId) < staminaBefore, "Stamina not reduced");
+    assertTrue(Stamina.getStamina(simStore, worldAddress, agentObjectEntityId) < staminaBefore, "Stamina not reduced");
     VoxelCoord memory agentVelocity = abi.decode(
       Velocity.getVelocity(simStore, worldAddress, agentObjectEntityId),
       (VoxelCoord)
@@ -491,14 +491,14 @@ contract CollisionTest is MudTest {
 
     // Now move forward one
     // This will cause the collision
-    uint256 staminaBefore = Stamina.get(simStore, worldAddress, agentObjectEntityId);
+    uint256 staminaBefore = Stamina.getStamina(simStore, worldAddress, agentObjectEntityId);
     world.move(
       agentObjectEntityId,
       RunnerObjectID,
       VoxelCoord(agentCoord.x - 1, agentCoord.y, agentCoord.z),
       agentCoord
     );
-    assertTrue(Stamina.get(simStore, worldAddress, agentObjectEntityId) < staminaBefore, "Stamina not reduced");
+    assertTrue(Stamina.getStamina(simStore, worldAddress, agentObjectEntityId) < staminaBefore, "Stamina not reduced");
     VoxelCoord memory agentVelocity = abi.decode(
       Velocity.getVelocity(simStore, worldAddress, agentObjectEntityId),
       (VoxelCoord)
@@ -532,9 +532,9 @@ contract CollisionTest is MudTest {
     // New coord should be air
     assertTrue(world.getTerrainObjectTypeId(newCoord) == AirObjectID, "New coord not air");
 
-    uint256 staminaBefore = Stamina.get(simStore, worldAddress, agentObjectEntityId);
+    uint256 staminaBefore = Stamina.getStamina(simStore, worldAddress, agentObjectEntityId);
     world.move(agentObjectEntityId, moveObjectTypeId, oldCoord, newCoord);
-    assertTrue(Stamina.get(simStore, worldAddress, agentObjectEntityId) < staminaBefore, "Stamina not reduced");
+    assertTrue(Stamina.getStamina(simStore, worldAddress, agentObjectEntityId) < staminaBefore, "Stamina not reduced");
     VoxelCoord memory agentVelocity = abi.decode(
       Velocity.getVelocity(simStore, worldAddress, agentObjectEntityId),
       (VoxelCoord)
@@ -609,14 +609,14 @@ contract CollisionTest is MudTest {
 
     // Now move forward one
     // This will cause the collision
-    uint256 staminaBefore = Stamina.get(simStore, worldAddress, agentObjectEntityId);
+    uint256 staminaBefore = Stamina.getStamina(simStore, worldAddress, agentObjectEntityId);
     world.move(
       agentObjectEntityId,
       GrassObjectID,
       mass2Coord,
       VoxelCoord(mass2Coord.x + 1, mass2Coord.y, mass2Coord.z)
     );
-    assertTrue(Stamina.get(simStore, worldAddress, agentObjectEntityId) < staminaBefore, "Stamina not reduced");
+    assertTrue(Stamina.getStamina(simStore, worldAddress, agentObjectEntityId) < staminaBefore, "Stamina not reduced");
     VoxelCoord memory agentVelocity = abi.decode(
       Velocity.getVelocity(simStore, worldAddress, agentObjectEntityId),
       (VoxelCoord)
@@ -686,14 +686,14 @@ contract CollisionTest is MudTest {
 
     // Now move forward one
     // This will cause the collision
-    uint256 staminaBefore = Stamina.get(simStore, worldAddress, agentObjectEntityId);
+    uint256 staminaBefore = Stamina.getStamina(simStore, worldAddress, agentObjectEntityId);
     world.move(
       agentObjectEntityId,
       GrassObjectID,
       mass2Coord,
       VoxelCoord(mass2Coord.x + 1, mass2Coord.y, mass2Coord.z)
     );
-    assertTrue(Stamina.get(simStore, worldAddress, agentObjectEntityId) < staminaBefore, "Stamina not reduced");
+    assertTrue(Stamina.getStamina(simStore, worldAddress, agentObjectEntityId) < staminaBefore, "Stamina not reduced");
     VoxelCoord memory agentVelocity = abi.decode(
       Velocity.getVelocity(simStore, worldAddress, agentObjectEntityId),
       (VoxelCoord)
@@ -734,7 +734,7 @@ contract CollisionTest is MudTest {
       Mass.set(simStore, worldAddress, massObjectEntityId, 5);
       Energy.set(simStore, worldAddress, massObjectEntityId, 10);
       Health.setHealth(simStore, worldAddress, massObjectEntityId, 100);
-      Stamina.set(simStore, worldAddress, massObjectEntityId, 100);
+      Stamina.setStamina(simStore, worldAddress, massObjectEntityId, 100);
 
       // Make the owner of the agent different from the one moving it
       vm.startPrank(bob, bob);
@@ -746,11 +746,11 @@ contract CollisionTest is MudTest {
 
     VoxelCoord memory newMassCoord = VoxelCoord(massCoord.x + 1, massCoord.y, massCoord.z);
 
-    uint256 staminaBefore = Stamina.get(simStore, worldAddress, agentObjectEntityId);
+    uint256 staminaBefore = Stamina.getStamina(simStore, worldAddress, agentObjectEntityId);
     world.move(agentObjectEntityId, RunnerObjectID, massCoord, newMassCoord);
     assertTrue(OwnedBy.get(store, massObjectEntityId) == bob, "Owner not bob");
-    assertTrue(Stamina.get(simStore, worldAddress, agentObjectEntityId) < staminaBefore, "Stamina not reduced");
-    assertTrue(Stamina.get(simStore, worldAddress, massObjectEntityId) == 100, "Stamina reduced");
+    assertTrue(Stamina.getStamina(simStore, worldAddress, agentObjectEntityId) < staminaBefore, "Stamina not reduced");
+    assertTrue(Stamina.getStamina(simStore, worldAddress, massObjectEntityId) == 100, "Stamina reduced");
     VoxelCoord memory agentVelocity = abi.decode(
       Velocity.getVelocity(simStore, worldAddress, agentObjectEntityId),
       (VoxelCoord)
@@ -821,7 +821,7 @@ contract CollisionTest is MudTest {
       Mass.set(simStore, worldAddress, mass2ObjectEntityId, 5);
       Energy.set(simStore, worldAddress, mass2ObjectEntityId, 10);
       Health.setHealth(simStore, worldAddress, mass2ObjectEntityId, 100);
-      Stamina.set(simStore, worldAddress, mass2ObjectEntityId, 100);
+      Stamina.setStamina(simStore, worldAddress, mass2ObjectEntityId, 100);
 
       // Make the owner of the agent different from the one moving it
       vm.startPrank(bob, bob);
@@ -833,7 +833,7 @@ contract CollisionTest is MudTest {
 
     // Now move forward one
     // This will cause the collision
-    uint256 staminaBefore = Stamina.get(simStore, worldAddress, agentObjectEntityId);
+    uint256 staminaBefore = Stamina.getStamina(simStore, worldAddress, agentObjectEntityId);
     world.move(
       agentObjectEntityId,
       RunnerObjectID,
@@ -841,8 +841,8 @@ contract CollisionTest is MudTest {
       VoxelCoord(mass2Coord.x + 1, mass2Coord.y, mass2Coord.z)
     );
     assertTrue(OwnedBy.get(store, mass2ObjectEntityId) == bob, "Owner not bob");
-    assertTrue(Stamina.get(simStore, worldAddress, agentObjectEntityId) < staminaBefore, "Stamina not reduced");
-    assertTrue(Stamina.get(simStore, worldAddress, mass2ObjectEntityId) == 100, "Stamina reduced");
+    assertTrue(Stamina.getStamina(simStore, worldAddress, agentObjectEntityId) < staminaBefore, "Stamina not reduced");
+    assertTrue(Stamina.getStamina(simStore, worldAddress, mass2ObjectEntityId) == 100, "Stamina reduced");
     VoxelCoord memory agentVelocity = abi.decode(
       Velocity.getVelocity(simStore, worldAddress, agentObjectEntityId),
       (VoxelCoord)
@@ -909,7 +909,7 @@ contract CollisionTest is MudTest {
       Mass.set(simStore, worldAddress, mass2ObjectEntityId, 5);
       Energy.set(simStore, worldAddress, mass2ObjectEntityId, 10);
       Health.setHealth(simStore, worldAddress, mass2ObjectEntityId, 100);
-      Stamina.set(simStore, worldAddress, mass2ObjectEntityId, 100);
+      Stamina.setStamina(simStore, worldAddress, mass2ObjectEntityId, 100);
 
       // Make the owner of the agent different from the one moving it
       vm.startPrank(bob, bob);
@@ -921,7 +921,7 @@ contract CollisionTest is MudTest {
 
     // Now move forward one
     // This will cause the collision
-    uint256 staminaBefore = Stamina.get(simStore, worldAddress, agentObjectEntityId);
+    uint256 staminaBefore = Stamina.getStamina(simStore, worldAddress, agentObjectEntityId);
     world.move(
       agentObjectEntityId,
       RunnerObjectID,
@@ -929,8 +929,8 @@ contract CollisionTest is MudTest {
       VoxelCoord(mass2Coord.x + 1, mass2Coord.y, mass2Coord.z)
     );
     assertTrue(OwnedBy.get(store, mass2ObjectEntityId) == bob, "Owner not bob");
-    assertTrue(Stamina.get(simStore, worldAddress, agentObjectEntityId) < staminaBefore, "Stamina not reduced");
-    assertTrue(Stamina.get(simStore, worldAddress, mass2ObjectEntityId) == 100, "Stamina reduced");
+    assertTrue(Stamina.getStamina(simStore, worldAddress, agentObjectEntityId) < staminaBefore, "Stamina not reduced");
+    assertTrue(Stamina.getStamina(simStore, worldAddress, mass2ObjectEntityId) == 100, "Stamina reduced");
     VoxelCoord memory agentVelocity = abi.decode(
       Velocity.getVelocity(simStore, worldAddress, agentObjectEntityId),
       (VoxelCoord)
@@ -971,7 +971,7 @@ contract CollisionTest is MudTest {
       Mass.set(simStore, worldAddress, massObjectEntityId, 5);
       Energy.set(simStore, worldAddress, massObjectEntityId, 10);
       Health.setHealth(simStore, worldAddress, massObjectEntityId, 100);
-      Stamina.set(simStore, worldAddress, massObjectEntityId, 100);
+      Stamina.setStamina(simStore, worldAddress, massObjectEntityId, 100);
 
       // Make the owner of the agent different from the one moving it
       vm.startPrank(bob, bob);
@@ -983,11 +983,11 @@ contract CollisionTest is MudTest {
 
     VoxelCoord memory newMassCoord = VoxelCoord(massCoord.x + 1, massCoord.y, massCoord.z);
 
-    uint256 staminaBefore = Stamina.get(simStore, worldAddress, agentObjectEntityId);
+    uint256 staminaBefore = Stamina.getStamina(simStore, worldAddress, agentObjectEntityId);
     world.move(agentObjectEntityId, BuilderObjectID, massCoord, newMassCoord);
     assertTrue(OwnedBy.get(store, massObjectEntityId) == bob, "Owner not bob");
-    assertTrue(Stamina.get(simStore, worldAddress, agentObjectEntityId) < staminaBefore, "Stamina not reduced");
-    assertTrue(Stamina.get(simStore, worldAddress, massObjectEntityId) < 100, "Stamina not reduced");
+    assertTrue(Stamina.getStamina(simStore, worldAddress, agentObjectEntityId) < staminaBefore, "Stamina not reduced");
+    assertTrue(Stamina.getStamina(simStore, worldAddress, massObjectEntityId) < 100, "Stamina not reduced");
     VoxelCoord memory agentVelocity = abi.decode(
       Velocity.getVelocity(simStore, worldAddress, agentObjectEntityId),
       (VoxelCoord)

@@ -16,6 +16,7 @@ import { Energy } from "@tenet-simulator/src/codegen/tables/Energy.sol";
 import { Health } from "@tenet-simulator/src/codegen/tables/Health.sol";
 import { Stamina } from "@tenet-simulator/src/codegen/tables/Stamina.sol";
 import { Velocity } from "@tenet-simulator/src/codegen/tables/Velocity.sol";
+import { NUM_BLOCKS_BEFORE_INCREASE_STAMINA } from "@tenet-simulator/src/Constants.sol";
 
 contract VelocityTest is MudTest {
   IWorld private world;
@@ -51,11 +52,13 @@ contract VelocityTest is MudTest {
     vm.startPrank(alice, alice);
     (, bytes32 agentObjectEntityId) = setupAgent();
 
-    uint256 staminaBefore = Stamina.get(simStore, worldAddress, agentObjectEntityId);
+    world.activate(agentObjectEntityId, agentObjectTypeId, initialAgentCoord);
+
+    uint256 staminaBefore = Stamina.getStamina(simStore, worldAddress, agentObjectEntityId);
     VoxelCoord memory oldAgentCoord = initialAgentCoord;
     VoxelCoord memory newAgentCoord = VoxelCoord(oldAgentCoord.x, oldAgentCoord.y, oldAgentCoord.z - 1);
     world.move(agentObjectEntityId, agentObjectTypeId, oldAgentCoord, newAgentCoord);
-    uint256 staminaUsed = staminaBefore - Stamina.get(simStore, worldAddress, agentObjectEntityId);
+    uint256 staminaUsed = staminaBefore - Stamina.getStamina(simStore, worldAddress, agentObjectEntityId);
     assertTrue(staminaUsed > 0, "Stamina not used");
 
     vm.roll(block.number + 1);
@@ -64,10 +67,16 @@ contract VelocityTest is MudTest {
     VoxelCoord[] memory newAgentCoords = new VoxelCoord[](2);
     newAgentCoords[0] = VoxelCoord(oldAgentCoord.x, oldAgentCoord.y, oldAgentCoord.z - 1);
     newAgentCoords[1] = VoxelCoord(oldAgentCoord.x, oldAgentCoord.y, oldAgentCoord.z - 2);
-    staminaBefore = Stamina.get(simStore, worldAddress, agentObjectEntityId);
+    staminaBefore = Stamina.getStamina(simStore, worldAddress, agentObjectEntityId);
     world.move(agentObjectEntityId, agentObjectTypeId, oldAgentCoord, newAgentCoords);
-    uint256 staminaUsedForTwoBlocks = staminaBefore - Stamina.get(simStore, worldAddress, agentObjectEntityId);
+    uint256 currentStamina = Stamina.getStamina(simStore, worldAddress, agentObjectEntityId);
+    uint256 staminaUsedForTwoBlocks = staminaBefore - currentStamina;
     assertTrue(staminaUsedForTwoBlocks > (staminaUsed * 2), "Stamina not greater");
+
+    vm.roll(block.number + NUM_BLOCKS_BEFORE_INCREASE_STAMINA);
+    world.activate(agentObjectEntityId, agentObjectTypeId, newAgentCoords[1]);
+    uint256 staminaAfter = Stamina.getStamina(simStore, worldAddress, agentObjectEntityId);
+    assertTrue(staminaAfter > currentStamina, "Stamina not increased");
 
     vm.stopPrank();
   }
@@ -76,12 +85,15 @@ contract VelocityTest is MudTest {
     vm.startPrank(alice, alice);
 
     (, bytes32 agentObjectEntityId) = setupAgent();
-    uint256 staminaBefore = Stamina.get(simStore, worldAddress, agentObjectEntityId);
+
+    world.activate(agentObjectEntityId, agentObjectTypeId, initialAgentCoord);
+
+    uint256 staminaBefore = Stamina.getStamina(simStore, worldAddress, agentObjectEntityId);
 
     // move in z direction
     VoxelCoord memory newAgentCoord = VoxelCoord(initialAgentCoord.x, initialAgentCoord.y, initialAgentCoord.z - 1);
     world.move(agentObjectEntityId, agentObjectTypeId, initialAgentCoord, newAgentCoord);
-    uint256 staminaUsed = staminaBefore - Stamina.get(simStore, worldAddress, agentObjectEntityId);
+    uint256 staminaUsed = staminaBefore - Stamina.getStamina(simStore, worldAddress, agentObjectEntityId);
     assertTrue(staminaUsed > 0, "Stamina not used");
 
     vm.roll(block.number + 1);
@@ -113,13 +125,13 @@ contract VelocityTest is MudTest {
     // Now I can move self up
     VoxelCoord memory oldAgentCoord = newAgentCoord;
     newAgentCoord = VoxelCoord(newAgentCoord.x, newAgentCoord.y + 1, newAgentCoord.z);
-    staminaBefore = Stamina.get(simStore, worldAddress, agentObjectEntityId);
+    staminaBefore = Stamina.getStamina(simStore, worldAddress, agentObjectEntityId);
     Velocity.setVelocity(simStore, worldAddress, agentObjectEntityId, abi.encode(VoxelCoord({ x: 0, y: 0, z: 0 })));
     world.move(agentObjectEntityId, agentObjectTypeId, oldAgentCoord, newAgentCoord);
     // make sure agent didnt fall
     assertTrue(ObjectEntity.get(store, getEntityAtCoord(store, newAgentCoord)) == agentObjectEntityId, "Agent fell");
 
-    uint256 staminaUsedForMovingUp = staminaBefore - Stamina.get(simStore, worldAddress, agentObjectEntityId);
+    uint256 staminaUsedForMovingUp = staminaBefore - Stamina.getStamina(simStore, worldAddress, agentObjectEntityId);
     // should cost more than moving in z
     assertTrue(staminaUsedForMovingUp > staminaUsed, "Stamina not greater");
 
@@ -129,9 +141,9 @@ contract VelocityTest is MudTest {
     // move down, should cost less
     oldAgentCoord = newAgentCoord;
     newAgentCoord = VoxelCoord(newAgentCoord.x, newAgentCoord.y - 1, newAgentCoord.z);
-    staminaBefore = Stamina.get(simStore, worldAddress, agentObjectEntityId);
+    staminaBefore = Stamina.getStamina(simStore, worldAddress, agentObjectEntityId);
     world.move(agentObjectEntityId, agentObjectTypeId, oldAgentCoord, newAgentCoord);
-    uint256 staminaUsedForMovingDown = staminaBefore - Stamina.get(simStore, worldAddress, agentObjectEntityId);
+    uint256 staminaUsedForMovingDown = staminaBefore - Stamina.getStamina(simStore, worldAddress, agentObjectEntityId);
     assertTrue(staminaUsedForMovingDown < staminaUsedForMovingUp, "Stamina not less");
 
     vm.stopPrank();

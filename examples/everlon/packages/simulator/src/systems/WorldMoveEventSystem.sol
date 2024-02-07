@@ -25,7 +25,8 @@ contract WorldMoveEventSystem is WorldMoveEventProtoSystem {
   ) public override {
     address worldAddress = _msgSender();
     IWorld(_world()).applyHealthIncrease(worldAddress, actingObjectEntityId);
-    IWorld(_world()).checkActingObjectHealth(worldAddress, actingObjectEntityId);
+    IWorld(_world()).applyStaminaIncrease(worldAddress, actingObjectEntityId);
+    // IWorld(_world()).checkActingObjectHealth(worldAddress, actingObjectEntityId);
     // IWorld(_world()).updateVelocityCache(worldAddress, actingObjectEntityId);
   }
 

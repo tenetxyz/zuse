@@ -65,13 +65,15 @@ contract HitTest is MudTest {
     bytes32 bobAgentObjectEntityId = ObjectEntity.get(store, agentEntityId);
     assertTrue(uint256(bobAgentObjectEntityId) != 0, "Agent not found at coord");
 
+    world.activate(bobAgentObjectEntityId, agentObjectTypeId, bobAgentCoord);
+
     // Apply hit
     uint256 healthBefore = Health.getHealth(simStore, worldAddress, agentObjectEntityId);
-    uint256 bobStaminaBefore = Stamina.get(simStore, worldAddress, bobAgentObjectEntityId);
+    uint256 bobStaminaBefore = Stamina.getStamina(simStore, worldAddress, bobAgentObjectEntityId);
     world.world_AgentActionSyste_hit(bobAgentObjectEntityId, agentObjectEntityId, 10);
     world.activate(bobAgentObjectEntityId, agentObjectTypeId, bobAgentCoord);
     uint256 healthAfter = Health.getHealth(simStore, worldAddress, agentObjectEntityId);
-    uint256 bobStaminaAfter = Stamina.get(simStore, worldAddress, bobAgentObjectEntityId);
+    uint256 bobStaminaAfter = Stamina.getStamina(simStore, worldAddress, bobAgentObjectEntityId);
     assertTrue(healthAfter < healthBefore, "Health did not decrease");
     assertTrue(bobStaminaAfter < bobStaminaBefore, "Stamina did not decrease");
     vm.stopPrank();

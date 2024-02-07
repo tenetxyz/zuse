@@ -84,7 +84,7 @@ contract StaminaHealthConstraintSystem is Constraint {
     uint256 receiverDamage = int256ToUint256(receiverHealthDelta);
     uint256 primaryMass = Mass.get(worldAddress, senderObjectEntityId);
     uint256 neighbourMass = Mass.get(worldAddress, receiverObjectEntityId);
-    uint256 currentStamina = Stamina.get(worldAddress, senderObjectEntityId);
+    uint256 currentStamina = Stamina.getStamina(worldAddress, senderObjectEntityId);
 
     uint256 staminaSpend;
     {
@@ -105,7 +105,7 @@ contract StaminaHealthConstraintSystem is Constraint {
     }
 
     // Spend resources
-    Stamina.set(worldAddress, senderObjectEntityId, currentStamina - staminaSpend);
+    Stamina.setStamina(worldAddress, senderObjectEntityId, currentStamina - staminaSpend);
     uint256 newHealth = safeSubtract(Health.getHealth(worldAddress, receiverObjectEntityId), receiverDamage);
     Health.setHealth(worldAddress, receiverObjectEntityId, newHealth);
   }

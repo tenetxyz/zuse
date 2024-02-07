@@ -22,7 +22,8 @@ contract WorldMineEventSystem is WorldMineEventProtoSystem {
   function preMineEvent(bytes32 actingObjectEntityId, bytes32 objectTypeId, VoxelCoord memory coord) public override {
     address worldAddress = _msgSender();
     IWorld(_world()).applyHealthIncrease(worldAddress, actingObjectEntityId);
-    IWorld(_world()).checkActingObjectHealth(worldAddress, actingObjectEntityId);
+    IWorld(_world()).applyStaminaIncrease(worldAddress, actingObjectEntityId);
+    // IWorld(_world()).checkActingObjectHealth(worldAddress, actingObjectEntityId);
     // IWorld(_world()).updateVelocityCache(worldAddress, actingObjectEntityId);
   }
 
@@ -82,7 +83,7 @@ contract WorldMineEventSystem is WorldMineEventProtoSystem {
       );
       require(transformSuccess, "WorldMineEventSystem: Failed to transform health to energy");
     }
-    uint256 currentStamina = Stamina.get(worldAddress, objectEntityId);
+    uint256 currentStamina = Stamina.getStamina(worldAddress, objectEntityId);
     if (currentStamina > 0) {
       (bool transformSuccess, ) = runSimAction(
         _world(),

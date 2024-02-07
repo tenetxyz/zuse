@@ -29,7 +29,7 @@ contract ExternalObjectSystem is ExternalObjectProtoSystem {
     objectProperties.lastUpdateBlock = Velocity.getLastUpdateBlock(store, worldAddress, objectEntityId);
     objectProperties.health = Health.getHealth(store, worldAddress, objectEntityId);
     objectProperties.hasHealth = hasKey(store, HealthTableId, Health.encodeKeyTuple(worldAddress, objectEntityId));
-    objectProperties.stamina = Stamina.get(store, worldAddress, objectEntityId);
+    objectProperties.stamina = Stamina.getStamina(store, worldAddress, objectEntityId);
     objectProperties.hasStamina = hasKey(store, StaminaTableId, Stamina.encodeKeyTuple(worldAddress, objectEntityId));
 
     return objectProperties;

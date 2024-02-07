@@ -51,11 +51,13 @@ contract GravityTest is MudTest {
     vm.startPrank(alice, alice);
 
     (, bytes32 agentObjectEntityId) = setupAgent();
+    world.activate(agentObjectEntityId, agentObjectTypeId, initialAgentCoord);
+
     VoxelCoord memory newCoord = VoxelCoord(initialAgentCoord.x, initialAgentCoord.y, initialAgentCoord.z - 1);
     uint256 prevHealth = Health.getHealth(simStore, worldAddress, agentObjectEntityId);
-    uint256 staminaBefore = Stamina.get(simStore, worldAddress, agentObjectEntityId);
+    uint256 staminaBefore = Stamina.getStamina(simStore, worldAddress, agentObjectEntityId);
     world.move(agentObjectEntityId, agentObjectTypeId, initialAgentCoord, newCoord);
-    uint256 staminaAfter = Stamina.get(simStore, worldAddress, agentObjectEntityId);
+    uint256 staminaAfter = Stamina.getStamina(simStore, worldAddress, agentObjectEntityId);
     assertTrue(staminaAfter < staminaBefore, "Stamina not used");
 
     // Assert that the agent is at the new coord
@@ -72,6 +74,7 @@ contract GravityTest is MudTest {
     vm.startPrank(alice, alice);
 
     (, bytes32 agentObjectEntityId) = setupAgent();
+    world.activate(agentObjectEntityId, agentObjectTypeId, initialAgentCoord);
 
     // move agent away from faucet
     VoxelCoord memory newAgentCoord = VoxelCoord(initialAgentCoord.x, initialAgentCoord.y, initialAgentCoord.z - 1);
@@ -98,6 +101,7 @@ contract GravityTest is MudTest {
     vm.startPrank(alice, alice);
 
     (, bytes32 agentObjectEntityId) = setupAgent();
+    world.activate(agentObjectEntityId, agentObjectTypeId, initialAgentCoord);
 
     // move block from ground up one
     VoxelCoord memory oldCoord = VoxelCoord(initialAgentCoord.x, initialAgentCoord.y - 1, initialAgentCoord.z - 1);
@@ -128,6 +132,7 @@ contract GravityTest is MudTest {
     vm.startPrank(alice, alice);
 
     (, bytes32 agentObjectEntityId) = setupAgent();
+    world.activate(agentObjectEntityId, agentObjectTypeId, initialAgentCoord);
 
     // move block from ground up one
     VoxelCoord memory oldCoord = VoxelCoord(initialAgentCoord.x, initialAgentCoord.y - 1, initialAgentCoord.z - 1);
@@ -148,6 +153,7 @@ contract GravityTest is MudTest {
     vm.startPrank(alice, alice);
 
     (, bytes32 agentObjectEntityId) = setupAgent();
+    world.activate(agentObjectEntityId, agentObjectTypeId, initialAgentCoord);
 
     // move agent away from faucet
     VoxelCoord memory newAgentCoord = VoxelCoord(initialAgentCoord.x, initialAgentCoord.y, initialAgentCoord.z - 1);
@@ -184,6 +190,7 @@ contract GravityTest is MudTest {
     vm.startPrank(alice, alice);
 
     (, bytes32 agentObjectEntityId) = setupAgent();
+    world.activate(agentObjectEntityId, agentObjectTypeId, initialAgentCoord);
 
     // move block from ground up one
     VoxelCoord memory oldCoord = VoxelCoord(initialAgentCoord.x, initialAgentCoord.y - 1, initialAgentCoord.z - 1);
@@ -214,6 +221,7 @@ contract GravityTest is MudTest {
     vm.startPrank(alice, alice);
 
     (, bytes32 agentObjectEntityId) = setupAgent();
+    world.activate(agentObjectEntityId, agentObjectTypeId, initialAgentCoord);
 
     // move block from ground up one
     VoxelCoord memory oldCoord = VoxelCoord(initialAgentCoord.x + 1, initialAgentCoord.y - 1, initialAgentCoord.z - 1);

@@ -22,6 +22,7 @@ contract HealthRuleSystem is System {
 
     HealthData memory healthData = Health.get(worldAddress, objectEntityId);
     if (healthData.health >= MAX_AGENT_HEALTH) {
+      Health.setLastUpdateBlock(worldAddress, objectEntityId, block.number);
       return;
     }
 

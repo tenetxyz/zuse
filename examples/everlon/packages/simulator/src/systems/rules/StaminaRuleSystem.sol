@@ -23,6 +23,7 @@ contract StaminaRuleSystem is System {
 
     StaminaData memory staminaData = Stamina.get(worldAddress, objectEntityId);
     if (staminaData.stamina >= MAX_AGENT_STAMINA) {
+      Stamina.setLastUpdateBlock(worldAddress, objectEntityId, block.number);
       return;
     }
     // Calculate how many blocks have passed since last update

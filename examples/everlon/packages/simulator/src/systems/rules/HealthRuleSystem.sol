@@ -21,6 +21,10 @@ contract HealthRuleSystem is System {
     }
 
     HealthData memory healthData = Health.get(worldAddress, objectEntityId);
+    if (healthData.health >= MAX_AGENT_HEALTH) {
+      return;
+    }
+
     // Calculate how many blocks have passed since last update
     uint256 blocksSinceLastUpdate = block.number - healthData.lastUpdateBlock;
     if (blocksSinceLastUpdate <= NUM_BLOCKS_BEFORE_INCREASE_HEALTH) {

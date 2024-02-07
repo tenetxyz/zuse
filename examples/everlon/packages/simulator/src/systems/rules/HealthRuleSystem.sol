@@ -29,15 +29,12 @@ contract HealthRuleSystem is System {
 
     // Calculate the new health
     uint256 numAddHealth = blocksSinceLastUpdate / NUM_BLOCKS_BEFORE_INCREASE_HEALTH;
-    if (numAddHealth > MAX_AGENT_HEALTH) {
-      numAddHealth = MAX_AGENT_HEALTH;
+    uint256 newHealth = healthData.health + numAddHealth;
+    if (newHealth > MAX_AGENT_HEALTH) {
+      newHealth = MAX_AGENT_HEALTH;
     }
 
-    Health.set(
-      worldAddress,
-      objectEntityId,
-      HealthData({ health: healthData.health + numAddHealth, lastUpdateBlock: block.number })
-    );
+    Health.set(worldAddress, objectEntityId, HealthData({ health: newHealth, lastUpdateBlock: block.number }));
   }
 
   function checkActingObjectHealth(address worldAddress, bytes32 actingObjectEntityId) public {

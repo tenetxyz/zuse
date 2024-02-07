@@ -30,14 +30,11 @@ contract StaminaRuleSystem is System {
 
     // Calculate the new stamina
     uint256 numAddStamina = (blocksSinceLastUpdate / NUM_BLOCKS_BEFORE_INCREASE_STAMINA) * 60;
-    if (numAddStamina > MAX_AGENT_STAMINA) {
-      numAddStamina = MAX_AGENT_STAMINA;
+    uint256 newStamina = staminaData.stamina + numAddStamina;
+    if (newStamina > MAX_AGENT_STAMINA) {
+      newStamina = MAX_AGENT_STAMINA;
     }
 
-    Stamina.set(
-      worldAddress,
-      objectEntityId,
-      StaminaData({ stamina: staminaData.stamina + numAddStamina, lastUpdateBlock: block.number })
-    );
+    Stamina.set(worldAddress, objectEntityId, StaminaData({ stamina: newStamina, lastUpdateBlock: block.number }));
   }
 }

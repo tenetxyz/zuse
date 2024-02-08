@@ -33,7 +33,7 @@ contract StaminaRuleSystem is System {
     }
 
     // Calculate the new stamina
-    uint256 numAddStamina = (blocksSinceLastUpdate / NUM_BLOCKS_BEFORE_INCREASE_STAMINA) * 60;
+    uint256 numAddStamina = (blocksSinceLastUpdate / NUM_BLOCKS_BEFORE_INCREASE_STAMINA) * 4;
     uint256 newStamina = staminaData.stamina + numAddStamina;
     if (newStamina > MAX_AGENT_STAMINA) {
       newStamina = MAX_AGENT_STAMINA;

@@ -7,7 +7,7 @@ uint256 constant MAX_AGENT_HEALTH = 100;
 uint256 constant MAX_AGENT_STAMINA = 30000;
 
 uint256 constant NUM_BLOCKS_BEFORE_REDUCE_VELOCITY = 60; // 1 minute if 1 block == 1 second
-uint256 constant NUM_BLOCKS_BEFORE_INCREASE_STAMINA = 60; // 1 minute if 1 block == 1 second
+uint256 constant NUM_BLOCKS_BEFORE_INCREASE_STAMINA = 1; // 1 minute if 1 block == 1 second
 uint256 constant NUM_BLOCKS_BEFORE_INCREASE_HEALTH = 60; // 1 minute if 1 block == 1 second
 uint256 constant NUM_MIN_HEALTH_FOR_NO_WAIT = 10;
 uint256 constant NUM_MAX_BLOCKS_TO_WAIT_IF_NO_HEALTH = 30; // 30 seconds if 1 block == 1 second

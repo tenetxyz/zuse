@@ -113,7 +113,7 @@ contract VelocityRuleSystem is System {
       if (moveTrigger == MoveTrigger.None || moveTrigger == MoveTrigger.Collision) {
         uint32 numMoves = AgentMetadata.getNumMoves(IStore(worldAddress), actingObjectEntityId);
         // Scale resourceRequired based on numMoves with an exponential relationship
-        resourceRequired = resourceRequired * (2 ** uint256(numMoves));
+        resourceRequired = resourceRequired * (uint256(numMoves) ** 2);
         uint256 currentResourceAmount = Stamina.getStamina(worldAddress, actingObjectEntityId);
         require(resourceRequired <= currentResourceAmount, "VelocityRuleSystem: Not enough resources to move.");
         Stamina.setStamina(worldAddress, actingObjectEntityId, currentResourceAmount - resourceRequired);

@@ -86,4 +86,86 @@ contract HitTest is MudTest {
 
     vm.stopPrank();
   }
+
+  function testFatalHit() public {
+    vm.startPrank(alice, alice);
+    (, bytes32 agentObjectEntityId) = setupAgent();
+
+    // mine block
+    VoxelCoord memory mineCoord = VoxelCoord(initialAgentCoord.x, initialAgentCoord.y - 1, initialAgentCoord.z - 1);
+    bytes32 objectTypeId = world.getTerrainObjectTypeId(mineCoord);
+    world.mine(agentObjectEntityId, objectTypeId, mineCoord);
+    // get the inventory of the agent
+    {
+      bytes32[][] memory agentObjects = getKeysWithValue(
+        store,
+        InventoryTableId,
+        Inventory.encode(agentObjectEntityId)
+      );
+      assertTrue(agentObjects.length == 1, "Agent does not have inventory");
+      assertTrue(agentObjects[0].length == 1, "Agent does not have inventory");
+      bytes32 agentInventoryId = agentObjects[0][0];
+      bytes32 agentInventoryObjectTypeId = InventoryObject.getObjectTypeId(store, agentInventoryId);
+      assertTrue(agentInventoryObjectTypeId == objectTypeId, "Agent does not have mined object in inventory");
+    }
+
+    vm.stopPrank();
+
+    vm.startPrank(bob, bob);
+    VoxelCoord memory bobAgentCoord = VoxelCoord(faucetAgentCoord.x - 1, faucetAgentCoord.y, faucetAgentCoord.z - 1);
+    bytes32 agentEntityId = world.claimAgentFromFaucet(faucetObjectEntityId, agentObjectTypeId, bobAgentCoord);
+    bytes32 bobAgentObjectEntityId = ObjectEntity.get(store, agentEntityId);
+    assertTrue(uint256(bobAgentObjectEntityId) != 0, "Agent not found at coord");
+
+    {
+      bytes32[][] memory agentObjects = getKeysWithValue(
+        store,
+        InventoryTableId,
+        Inventory.encode(bobAgentObjectEntityId)
+      );
+      assertTrue(agentObjects.length == 0, "Agent does not have empty inventory");
+    }
+
+    world.activate(bobAgentObjectEntityId, agentObjectTypeId, bobAgentCoord);
+
+    // Apply hit
+    uint256 healthBefore = Health.getHealth(simStore, worldAddress, agentObjectEntityId);
+    uint256 bobStaminaBefore = Stamina.getStamina(simStore, worldAddress, bobAgentObjectEntityId);
+    world.world_AgentActionSyste_hit(bobAgentObjectEntityId, agentObjectEntityId, uint32(healthBefore));
+    world.activate(bobAgentObjectEntityId, agentObjectTypeId, bobAgentCoord);
+    uint256 healthAfter = Health.getHealth(simStore, worldAddress, agentObjectEntityId);
+    uint256 bobStaminaAfter = Stamina.getStamina(simStore, worldAddress, bobAgentObjectEntityId);
+    assertTrue(healthAfter == 0, "Health did not decrease");
+    assertTrue(bobStaminaAfter < bobStaminaBefore, "Stamina did not decrease");
+
+    {
+      bytes32[][] memory originalAgentObjects = getKeysWithValue(
+        store,
+        InventoryTableId,
+        Inventory.encode(agentObjectEntityId)
+      );
+      assertTrue(originalAgentObjects.length == 0, "Agent did not lose inventory");
+
+      bytes32[][] memory agentObjects = getKeysWithValue(
+        store,
+        InventoryTableId,
+        Inventory.encode(bobAgentObjectEntityId)
+      );
+      assertTrue(agentObjects.length == 1, "Agent does not have inventory");
+      assertTrue(agentObjects[0].length == 1, "Agent does not have inventory");
+      bytes32 agentInventoryId = agentObjects[0][0];
+      bytes32 agentInventoryObjectTypeId = InventoryObject.getObjectTypeId(store, agentInventoryId);
+      assertTrue(agentInventoryObjectTypeId == objectTypeId, "Agent does not have mined object in inventory");
+    }
+
+    vm.stopPrank();
+
+    vm.startPrank(alice, alice);
+    vm.roll(block.number + NUM_BLOCKS_BEFORE_INCREASE_HEALTH + 1);
+    world.activate(agentObjectEntityId, agentObjectTypeId, initialAgentCoord);
+    uint256 healthAfterRecovery = Health.getHealth(simStore, worldAddress, agentObjectEntityId);
+    assertTrue(healthAfterRecovery > healthAfter, "Health did not increase after recovery");
+
+    vm.stopPrank();
+  }
 }

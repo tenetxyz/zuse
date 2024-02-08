@@ -13,7 +13,8 @@ import { inSurroundingCube } from "@tenet-utils/src/VoxelCoordUtils.sol";
 import { VoxelCoord } from "@tenet-utils/src/Types.sol";
 import { getEntityIdFromObjectEntityId, getVoxelCoordStrict } from "@tenet-base-world/src/Utils.sol";
 
-uint256 constant MAX_CLAIMS = 1;
+uint256 constant MAX_CLAIMS_PER_FAUCET = 1;
+uint256 constant MAX_TOTAL_CLAIMS = 1;
 
 contract FaucetSystem is System {
   // TODO: Could this just be in the faucet object type code?
@@ -23,33 +24,26 @@ contract FaucetSystem is System {
     VoxelCoord memory buildCoord
   ) public returns (bytes32) {
     require(hasKey(FaucetTableId, Faucet.encodeKeyTuple(faucetObjectEntityId)), "Faucet entity not found");
-    FaucetData memory facuetData = Faucet.get(faucetObjectEntityId);
     address claimer = _msgSender();
-    uint256 numClaims = 0;
-    uint256 claimIdx = 0;
-    for (uint256 i = 0; i < facuetData.claimers.length; i++) {
-      if (facuetData.claimers[i] == claimer) {
-        numClaims = facuetData.claimerAmounts[i];
-        claimIdx = i;
-        break;
-      }
-    }
-    require(numClaims < MAX_CLAIMS, "FaucetSystem: Max claims reached");
+    (FaucetData memory faucetData, uint256 numClaims, uint256 claimIdx) = requireNotClaimed(
+      faucetObjectEntityId,
+      claimer
+    );
     if (numClaims == 0) {
       // Create new array
-      address[] memory newClaimers = new address[](facuetData.claimers.length + 1);
-      uint256[] memory newClaimerAmounts = new uint256[](facuetData.claimerAmounts.length + 1);
-      for (uint256 i = 0; i < facuetData.claimers.length; i++) {
-        newClaimers[i] = facuetData.claimers[i];
-        newClaimerAmounts[i] = facuetData.claimerAmounts[i];
+      address[] memory newClaimers = new address[](faucetData.claimers.length + 1);
+      uint256[] memory newClaimerAmounts = new uint256[](faucetData.claimerAmounts.length + 1);
+      for (uint256 i = 0; i < faucetData.claimers.length; i++) {
+        newClaimers[i] = faucetData.claimers[i];
+        newClaimerAmounts[i] = faucetData.claimerAmounts[i];
       }
-      newClaimers[facuetData.claimers.length] = claimer;
-      newClaimerAmounts[facuetData.claimerAmounts.length] = 1;
-      facuetData.claimers = newClaimers;
-      facuetData.claimerAmounts = newClaimerAmounts;
+      newClaimers[faucetData.claimers.length] = claimer;
+      newClaimerAmounts[faucetData.claimerAmounts.length] = 1;
+      faucetData.claimers = newClaimers;
+      faucetData.claimerAmounts = newClaimerAmounts;
     } else {
       // Update existing array
-      facuetData.claimerAmounts[claimIdx] = numClaims + 1;
+      faucetData.claimerAmounts[claimIdx] = numClaims + 1;
     }
 
     bytes32 faucetEntityId = getEntityIdFromObjectEntityId(IStore(_world()), faucetObjectEntityId);
@@ -63,7 +57,7 @@ contract FaucetSystem is System {
     // TODO: Fix this if it becomes a problem. One idea is the faucet entity could flux energy back to the surrounding
     bytes32 newEntityId = IWorld(_world()).build(faucetObjectEntityId, buildObjectTypeId, buildCoord);
     IWorld(_world()).claimAgent(newEntityId);
-    Faucet.set(faucetObjectEntityId, facuetData);
+    Faucet.set(faucetObjectEntityId, faucetData);
 
     IWorld(_world()).activate(faucetObjectEntityId, ObjectType.get(faucetEntityId), faucetPosition);
 
@@ -75,5 +69,33 @@ contract FaucetSystem is System {
     }
 
     return newEntityId;
+  }
+
+  function requireNotClaimed(
+    bytes32 selectedFaucetObjectEntityId,
+    address claimer
+  ) internal view returns (FaucetData memory selectedfaucetData, uint256 numClaims, uint256 claimIdx) {
+    bytes32[][] memory allFaucets = getKeysInTable(FaucetTableId);
+    uint256 totalClaims = 0;
+    for (uint256 i = 0; i < allFaucets.length; i++) {
+      bytes32 faucetObjectEntityId = allFaucets[i][0];
+      FaucetData memory faucetData = Faucet.get(faucetObjectEntityId);
+      if (faucetObjectEntityId == selectedFaucetObjectEntityId) {
+        selectedfaucetData = faucetData;
+      }
+      for (uint256 j = 0; j < faucetData.claimers.length; j++) {
+        if (faucetData.claimers[j] == claimer) {
+          if (faucetObjectEntityId == selectedFaucetObjectEntityId) {
+            numClaims = faucetData.claimerAmounts[j];
+            claimIdx = j;
+            require(numClaims < MAX_CLAIMS_PER_FAUCET, "FaucetSystem: Max claims reached");
+          }
+          totalClaims += faucetData.claimerAmounts[j];
+          break;
+        }
+      }
+    }
+    require(totalClaims < MAX_TOTAL_CLAIMS, "FaucetSystem: Max claims reached");
+    return (selectedfaucetData, numClaims, claimIdx);
   }
 }

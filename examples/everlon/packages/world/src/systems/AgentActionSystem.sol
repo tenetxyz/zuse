@@ -33,4 +33,13 @@ contract AgentActionSystem is System {
     // bytes32 activateObjectTypeId = ObjectType.get(agentEntityId);
     // IWorld(_world()).activate(agentObjectEntityId, activateObjectTypeId, agentCoord);
   }
+
+  function clearAction(bytes32 agentObjectEntityId) public {
+    require(
+      hasKey(OwnedByTableId, OwnedBy.encodeKeyTuple(agentObjectEntityId)),
+      "AgentActionSystem: entity has no owner"
+    );
+    require(OwnedBy.get(agentObjectEntityId) == _msgSender(), "AgentActionSystem: caller does not own entity");
+    AgentAction.deleteRecord(agentObjectEntityId);
+  }
 }

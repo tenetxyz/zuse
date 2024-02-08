@@ -67,7 +67,14 @@ contract TerrainSystem is TerrainProtoSystem {
 
     // TODO: Make this the world contract, so that FaucetSystem can build using it
     OwnedBy.set(objectEntityId, address(0)); // Set owner to 0 so no one can claim it
-    Faucet.set(objectEntityId, FaucetData({ claimers: new address[](0), claimerAmounts: new uint256[](0) }));
+    Faucet.set(
+      objectEntityId,
+      FaucetData({
+        claimers: new address[](0),
+        claimerAmounts: new uint256[](0),
+        claimerObjectEntityIds: abi.encode(new bytes32[][](0))
+      })
+    );
   }
 
   function getTerrainObjectTypeId(VoxelCoord memory coord) public view override returns (bytes32) {

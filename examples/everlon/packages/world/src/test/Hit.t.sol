@@ -137,6 +137,7 @@ contract HitTest is MudTest {
     uint256 bobStaminaAfter = Stamina.getStamina(simStore, worldAddress, bobAgentObjectEntityId);
     assertTrue(healthAfter == 0, "Health did not decrease");
     assertTrue(bobStaminaAfter < bobStaminaBefore, "Stamina did not decrease");
+    assertTrue(ObjectType.get(store, getEntityAtCoord(store, initialAgentCoord)) == AirObjectID, "Agent did not die");
 
     {
       bytes32[][] memory originalAgentObjects = getKeysWithValue(
@@ -161,10 +162,9 @@ contract HitTest is MudTest {
     vm.stopPrank();
 
     vm.startPrank(alice, alice);
-    vm.roll(block.number + NUM_BLOCKS_BEFORE_INCREASE_HEALTH + 1);
-    world.activate(agentObjectEntityId, agentObjectTypeId, initialAgentCoord);
-    uint256 healthAfterRecovery = Health.getHealth(simStore, worldAddress, agentObjectEntityId);
-    assertTrue(healthAfterRecovery > healthAfter, "Health did not increase after recovery");
+
+    // claim new agent, should not revert
+    setupAgent();
 
     vm.stopPrank();
   }

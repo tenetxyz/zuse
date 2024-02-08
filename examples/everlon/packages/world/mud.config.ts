@@ -12,6 +12,16 @@ export default tenetMudConfig({
       schema: {
         claimers: "address[]",
         claimerAmounts: "uint256[]",
+        claimerObjectEntityIds: "bytes", // bytes32[][]
+      },
+    },
+    AgentFaucet: {
+      registerAsRoot: true,
+      keySchema: {
+        agentObjectEntityId: "bytes32",
+      },
+      schema: {
+        faucetObjectEntityId: "bytes32",
       },
     },
     TerrainProperties: {

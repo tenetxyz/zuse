@@ -40,7 +40,12 @@ contract BuilderObjectSystem is AgentType {
     return objectProperties;
   }
 
-  function exitWorld(bytes32 objectEntityId, VoxelCoord memory coord) public override {}
+  function exitWorld(bytes32 objectEntityId, VoxelCoord memory coord) public override {
+    AgentActionData memory agentAction = AgentAction.get(objectEntityId);
+    if (agentAction.isHit) {
+      AgentAction.deleteRecord(objectEntityId);
+    }
+  }
 
   function eventHandler(
     bytes32 centerObjectEntityId,

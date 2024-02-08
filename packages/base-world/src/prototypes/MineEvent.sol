@@ -69,17 +69,19 @@ abstract contract MineEvent is Event {
     );
 
     // Add to inventory
-    bytes32 inventoryId = getUniqueEntity();
-    Inventory.set(inventoryId, actingObjectEntityId);
-    ObjectProperties memory inventoryObjectProperties;
-    if (isNewEntity) {
-      ObjectProperties memory requestedProperties = IWorld(_world()).enterWorld(objectTypeId, coord, objectEntityId);
-      inventoryObjectProperties = IWorld(_world()).getTerrainObjectProperties(coord, requestedProperties);
-      ISimInitSystem(getSimulatorAddress()).initObject(objectEntityId, inventoryObjectProperties);
-    } else {
-      inventoryObjectProperties = IWorld(_world()).getObjectProperties(objectEntityId);
+    if (actingObjectEntityId != bytes32(0)) {
+      bytes32 inventoryId = getUniqueEntity();
+      Inventory.set(inventoryId, actingObjectEntityId);
+      ObjectProperties memory inventoryObjectProperties;
+      if (isNewEntity) {
+        ObjectProperties memory requestedProperties = IWorld(_world()).enterWorld(objectTypeId, coord, objectEntityId);
+        inventoryObjectProperties = IWorld(_world()).getTerrainObjectProperties(coord, requestedProperties);
+        ISimInitSystem(getSimulatorAddress()).initObject(objectEntityId, inventoryObjectProperties);
+      } else {
+        inventoryObjectProperties = IWorld(_world()).getObjectProperties(objectEntityId);
+      }
+      InventoryObject.set(inventoryId, objectTypeId, abi.encode(inventoryObjectProperties));
     }
-    InventoryObject.set(inventoryId, objectTypeId, abi.encode(inventoryObjectProperties));
 
     IWorld(_world()).exitWorld(objectTypeId, coord, objectEntityId);
 

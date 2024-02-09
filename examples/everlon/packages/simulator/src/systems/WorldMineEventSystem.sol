@@ -56,6 +56,13 @@ contract WorldMineEventSystem is WorldMineEventProtoSystem {
       abi.encode(-1 * uint256ToInt256(currentMass))
     );
 
+    if (actingObjectEntityId != bytes32(0)) {
+      uint256 currentResourceAmount = Stamina.getStamina(worldAddress, actingObjectEntityId);
+      uint256 resourceRequired = currentMass * 10;
+      require(resourceRequired <= currentResourceAmount, "WorldMineEventSystem: Not enough resources to mine.");
+      Stamina.setStamina(worldAddress, actingObjectEntityId, currentResourceAmount - resourceRequired);
+    }
+
     transformEnergyFormsToGeneralEnergy(worldAddress, objectEntityId, coord);
     deleteProperties(worldAddress, objectEntityId);
 

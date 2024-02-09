@@ -7,6 +7,7 @@ import { hasKey } from "@latticexyz/world/src/modules/haskeys/hasKey.sol";
 import { WorldBuildEventSystem as WorldBuildEventProtoSystem } from "@tenet-base-simulator/src/systems/WorldBuildEventSystem.sol";
 
 import { Mass, MassTableId } from "@tenet-simulator/src/codegen/tables/Mass.sol";
+import { Stamina, StaminaTableId } from "@tenet-simulator/src/codegen/tables/Stamina.sol";
 import { VoxelCoord, EventType, ObjectProperties, ElementType } from "@tenet-utils/src/Types.sol";
 
 contract WorldBuildEventSystem is WorldBuildEventProtoSystem {
@@ -48,6 +49,13 @@ contract WorldBuildEventSystem is WorldBuildEventProtoSystem {
       abi.encode(currentMass),
       abi.encode(objectProperties.mass - currentMass)
     );
+
+    if (actingObjectEntityId != bytes32(0)) {
+      uint256 currentResourceAmount = Stamina.getStamina(worldAddress, actingObjectEntityId);
+      uint256 resourceRequired = (objectProperties.mass - currentMass) * 10;
+      require(resourceRequired <= currentResourceAmount, "WorldBuildEventSystem: Not enough resources to build.");
+      Stamina.setStamina(worldAddress, actingObjectEntityId, currentResourceAmount - resourceRequired);
+    }
 
     IWorld(_world()).applyGravity(worldAddress, coord, objectEntityId, actingObjectEntityId);
   }

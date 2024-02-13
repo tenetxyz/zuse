@@ -89,18 +89,22 @@ contract StaminaHealthConstraintSystem is Constraint {
     uint256 staminaSpend;
     {
       // Calculate how much stamina is required to transfer this much health
-      uint256 numberOfMoves = receiverDamage / COLLISION_DAMAGE;
+      // uint256 numberOfMoves = receiverDamage / COLLISION_DAMAGE;
 
-      // Reverse of the velocity calculation
-      uint256 primaryVelocityNeeded = (numberOfMoves * neighbourMass * (neighbourMass + primaryMass)) /
-        (2 * primaryMass);
-      uint256 staminaRequired = primaryMass * primaryVelocityNeeded;
+      // // Reverse of the velocity calculation
+      // uint256 primaryVelocityNeeded = (numberOfMoves * neighbourMass * (neighbourMass + primaryMass)) /
+      //   (2 * primaryMass);
+      // uint256 staminaRequired = primaryMass * primaryVelocityNeeded;
+      // TODO: Remove hardcoding
+      uint256 staminaRequired = 250;
 
       // try spending all the stamina
       staminaSpend = staminaRequired > currentStamina ? currentStamina : staminaRequired;
       // Update damage to be the actual damage done
       if (staminaSpend < staminaRequired) {
-        receiverDamage = (staminaSpend * 2 * COLLISION_DAMAGE) / (neighbourMass * (neighbourMass + primaryMass));
+        // receiverDamage = (staminaSpend * 2 * COLLISION_DAMAGE) / (neighbourMass * (neighbourMass + primaryMass));
+        // just scale this with the fact that 250 stamina = 10 damage
+        receiverDamage = (staminaSpend * 10) / 250;
       }
     }
 

@@ -12,7 +12,7 @@ import { Health, HealthData, HealthTableId } from "@tenet-simulator/src/codegen/
 import { Metadata, MetadataTableId } from "@tenet-simulator/src/codegen/tables/Metadata.sol";
 
 import { VoxelCoord, SimTable, ElementType } from "@tenet-utils/src/Types.sol";
-import { MAX_AGENT_HEALTH, NUM_BLOCKS_BEFORE_INCREASE_HEALTH, NUM_MAX_BLOCKS_TO_WAIT_IF_NO_HEALTH, NUM_MIN_HEALTH_FOR_NO_WAIT } from "@tenet-simulator/src/Constants.sol";
+import { MAX_AGENT_HEALTH, HEALTH_INCREASE_RATE, NUM_BLOCKS_BEFORE_INCREASE_HEALTH, NUM_MAX_BLOCKS_TO_WAIT_IF_NO_HEALTH, NUM_MIN_HEALTH_FOR_NO_WAIT } from "@tenet-simulator/src/Constants.sol";
 
 contract HealthRuleSystem is System {
   function applyHealthIncrease(address worldAddress, bytes32 objectEntityId) public {
@@ -33,7 +33,7 @@ contract HealthRuleSystem is System {
     }
 
     // Calculate the new health
-    uint256 numAddHealth = blocksSinceLastUpdate / NUM_BLOCKS_BEFORE_INCREASE_HEALTH;
+    uint256 numAddHealth = (blocksSinceLastUpdate / NUM_BLOCKS_BEFORE_INCREASE_HEALTH) * HEALTH_INCREASE_RATE;
     uint256 newHealth = healthData.health + numAddHealth;
     if (newHealth > MAX_AGENT_HEALTH) {
       newHealth = MAX_AGENT_HEALTH;

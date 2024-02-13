@@ -50,12 +50,13 @@ contract WorldBuildEventSystem is WorldBuildEventProtoSystem {
       abi.encode(objectProperties.mass - currentMass)
     );
 
-    if (actingObjectEntityId != bytes32(0)) {
-      uint256 currentResourceAmount = Stamina.getStamina(worldAddress, actingObjectEntityId);
-      uint256 resourceRequired = (objectProperties.mass - currentMass) * 10;
-      require(resourceRequired <= currentResourceAmount, "WorldBuildEventSystem: Not enough resources to build.");
-      Stamina.setStamina(worldAddress, actingObjectEntityId, currentResourceAmount - resourceRequired);
-    }
+    // Building costs 0 stamina
+    // if (actingObjectEntityId != bytes32(0)) {
+    //   uint256 currentResourceAmount = Stamina.getStamina(worldAddress, actingObjectEntityId);
+    //   uint256 resourceRequired = (objectProperties.mass - currentMass) * 10;
+    //   require(resourceRequired <= currentResourceAmount, "WorldBuildEventSystem: Not enough resources to build.");
+    //   Stamina.setStamina(worldAddress, actingObjectEntityId, currentResourceAmount - resourceRequired);
+    // }
 
     IWorld(_world()).applyGravity(worldAddress, coord, objectEntityId, actingObjectEntityId);
   }

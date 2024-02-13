@@ -5,6 +5,10 @@ import { System } from "@latticexyz/world/src/System.sol";
 import { IWorld } from "@tenet-simulator/src/codegen/world/IWorld.sol";
 import { IStore } from "@latticexyz/store/src/IStore.sol";
 import { hasKey } from "@latticexyz/world/src/modules/haskeys/hasKey.sol";
+import { getKeysWithValue } from "@latticexyz/world/src/modules/keyswithvalue/getKeysWithValue.sol";
+
+import { Inventory, InventoryTableId } from "@tenet-base-world/src/codegen/tables/Inventory.sol";
+import { InventoryObject } from "@tenet-base-world/src/codegen/tables/InventoryObject.sol";
 
 import { Mass, MassTableId } from "@tenet-simulator/src/codegen/tables/Mass.sol";
 import { Energy, EnergyTableId } from "@tenet-simulator/src/codegen/tables/Energy.sol";
@@ -16,7 +20,7 @@ import { MoveTrigger } from "@tenet-simulator/src/codegen/Types.sol";
 import { AgentMetadata } from "@tenet-base-world/src/codegen/tables/AgentMetadata.sol";
 import { getEntityIdFromObjectEntityId } from "@tenet-base-world/src/Utils.sol";
 import { getVelocity } from "@tenet-simulator/src/Utils.sol";
-import { VoxelCoord, CoordDirection } from "@tenet-utils/src/Types.sol";
+import { VoxelCoord, CoordDirection, ObjectProperties } from "@tenet-utils/src/Types.sol";
 import { uint256ToInt32 } from "@tenet-utils/src/TypeUtils.sol";
 import { isZeroCoord, voxelCoordsAreEqual } from "@tenet-utils/src/VoxelCoordUtils.sol";
 import { abs, absInt32 } from "@tenet-utils/src/MathUtils.sol";
@@ -111,9 +115,26 @@ contract VelocityRuleSystem is System {
       );
       // Spend resources
       if (moveTrigger == MoveTrigger.None || moveTrigger == MoveTrigger.Collision) {
+        bytes32[][] memory inventoryIds = getKeysWithValue(
+          IStore(worldAddress),
+          InventoryTableId,
+          Inventory.encode(actingObjectEntityId)
+        );
+        uint256 inventoryMass = 0;
+        for (uint256 i = 0; i < inventoryIds.length; i++) {
+          ObjectProperties memory objectProperties = abi.decode(
+            InventoryObject.getObjectProperties(IStore(worldAddress), inventoryIds[i][0]),
+            (ObjectProperties)
+          );
+          inventoryMass += objectProperties.mass;
+        }
+        // add inventory mass to resourceRequired
+        resourceRequired += (inventoryMass / 50);
+
         uint32 numMoves = AgentMetadata.getNumMoves(IStore(worldAddress), actingObjectEntityId);
         // Scale resourceRequired based on numMoves with an exponential relationship
         resourceRequired = resourceRequired * (uint256(numMoves) ** 2);
+
         uint256 currentResourceAmount = Stamina.getStamina(worldAddress, actingObjectEntityId);
         require(resourceRequired <= currentResourceAmount, "VelocityRuleSystem: Not enough resources to move.");
         Stamina.setStamina(worldAddress, actingObjectEntityId, currentResourceAmount - resourceRequired);

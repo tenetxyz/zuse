@@ -13,7 +13,7 @@ import { Stamina, StaminaData, StaminaTableId } from "@tenet-simulator/src/codeg
 import { Metadata, MetadataTableId } from "@tenet-simulator/src/codegen/tables/Metadata.sol";
 
 import { VoxelCoord, SimTable, ElementType } from "@tenet-utils/src/Types.sol";
-import { MAX_AGENT_STAMINA, NUM_BLOCKS_BEFORE_INCREASE_STAMINA } from "@tenet-simulator/src/Constants.sol";
+import { MAX_AGENT_STAMINA, NUM_BLOCKS_BEFORE_INCREASE_STAMINA, STAMINA_INCREASE_RATE } from "@tenet-simulator/src/Constants.sol";
 
 contract StaminaRuleSystem is System {
   function applyStaminaIncrease(address worldAddress, bytes32 objectEntityId) public {
@@ -33,7 +33,7 @@ contract StaminaRuleSystem is System {
     }
 
     // Calculate the new stamina
-    uint256 numAddStamina = (blocksSinceLastUpdate / NUM_BLOCKS_BEFORE_INCREASE_STAMINA) * 4;
+    uint256 numAddStamina = (blocksSinceLastUpdate / NUM_BLOCKS_BEFORE_INCREASE_STAMINA) * STAMINA_INCREASE_RATE;
     uint256 newStamina = staminaData.stamina + numAddStamina;
     if (newStamina > MAX_AGENT_STAMINA) {
       newStamina = MAX_AGENT_STAMINA;

@@ -58,7 +58,7 @@ contract WorldMineEventSystem is WorldMineEventProtoSystem {
 
     if (actingObjectEntityId != bytes32(0)) {
       uint256 currentResourceAmount = Stamina.getStamina(worldAddress, actingObjectEntityId);
-      uint256 resourceRequired = currentMass * 10;
+      uint256 resourceRequired = currentMass * 5;
       require(resourceRequired <= currentResourceAmount, "WorldMineEventSystem: Not enough resources to mine.");
       Stamina.setStamina(worldAddress, actingObjectEntityId, currentResourceAmount - resourceRequired);
     }

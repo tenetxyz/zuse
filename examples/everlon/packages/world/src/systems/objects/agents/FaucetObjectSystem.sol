@@ -16,8 +16,8 @@ import { getObjectProperties } from "@tenet-base-world/src/CallUtils.sol";
 import { uint256ToNegativeInt256, uint256ToInt256 } from "@tenet-utils/src/TypeUtils.sol";
 import { positionDataToVoxelCoord, getMooreNeighbourEntities, getEntityIdFromObjectEntityId } from "@tenet-base-world/src/Utils.sol";
 
-uint256 constant NUM_AGENTS_PER_FAUCET = 500;
-uint256 constant STARTING_STAMINA_FROM_FAUCET = 30000;
+uint256 constant NUM_AGENTS_PER_FAUCET = 300;
+uint256 constant STARTING_STAMINA_FROM_FAUCET = 200000;
 uint256 constant STARTING_HEALTH_FROM_FAUCET = 100;
 
 contract FaucetObjectSystem is AgentType {

@@ -9,8 +9,6 @@ uint256 constant NUM_MAX_UNIQUE_OBJECT_EVENT_HANDLERS_RUN = 15;
 uint256 constant NUM_MAX_SAME_OBJECT_EVENT_HANDLERS_RUN = 25;
 int32 constant NUM_MAX_AGENT_ACTION_RADIUS = 5;
 
-int32 constant SHARD_DIM = 100;
-
 bytes32 constant AirObjectID = bytes32(keccak256("air"));
 bytes32 constant SnowObjectID = bytes32(keccak256("snow"));
 bytes32 constant AsphaltObjectID = bytes32(keccak256("asphalt"));
@@ -58,9 +56,52 @@ bytes32 constant FaucetObjectID = bytes32(keccak256("faucet"));
 bytes32 constant RunnerObjectID = bytes32(keccak256("runner"));
 
 uint256 constant AIR_MASS = 0;
-uint256 constant SIMPLE_LIGHT_BLOCK_MASS = 2;
-uint256 constant SIMPLE_BLOCK_MASS = 5;
-uint256 constant BEDROCK_MASS = 50;
+uint256 constant PLAYER_MASS = 10;
+uint256 constant SOIL_MASS = 3;
+uint256 constant GRAVEL_MASS = 5;
+uint256 constant CLAY_MASS = 6;
+uint256 constant LAVA_MASS = 2;
+uint256 constant BEDROCK_MASS = 1000;
+uint256 constant MOSS_GRASS_MASS = 1;
+uint256 constant SWITCH_GRASS_MASS = 1;
+uint256 constant COTTON_BUSH_MASS = 1;
+uint256 constant MOSS_MASS = 1;
+uint256 constant MUCK_GRASS_MASS = 1;
+uint256 constant GRASS_MASS = 1;
+uint256 constant MUCK_DIRT_MASS = 4;
+uint256 constant DIRT_MASS = 4;
+
+uint256 constant COAL_ORE_MASS = 7;
+uint256 constant SILVER_ORE_MASS = 9;
+uint256 constant GOLD_ORE_MASS = 10;
+uint256 constant DIAMOND_ORE_MASS = 15;
+uint256 constant NEPTUNIUM_ORE_MASS = 20;
+
+uint256 constant SNOW_MASS = 1;
+uint256 constant ASPHALT_MASS = 8;
+uint256 constant BASALT_MASS = 9;
+uint256 constant CLAY_BRICK_MASS = 8;
+uint256 constant COTTON_MASS = 1;
+
+uint256 constant STONE_MASS = 7;
+uint256 constant COBBLESTONE_MASS = 7;
+uint256 constant GRANITE_MASS = 11;
+uint256 constant LIMESTONE_MASS = 7;
+
+uint256 constant EMBERSTONE_MASS = 15;
+uint256 constant MOONSTONE_MASS = 15;
+uint256 constant QUARTZITE_MASS = 10;
+uint256 constant SUNSTONE_MASS = 15;
+
+uint256 constant OAK_LOG_MASS = 4;
+uint256 constant BIRCH_LOG_MASS = 4;
+uint256 constant SAKURA_LOG_MASS = 4;
+uint256 constant RUBBER_LOG_MASS = 4;
+
+uint256 constant OAK_LEAF_MASS = 1;
+uint256 constant BIRCH_LEAF_MASS = 1;
+uint256 constant SAKURA_LEAF_MASS = 1;
+uint256 constant RUBBER_LEAF_MASS = 1;
 
 // Terrain
 enum Biome {

@@ -29,7 +29,6 @@ import { positionDataToVoxelCoord, getEntityIdFromObjectEntityId, getVoxelCoord,
 import { WORLD_ADDRESS } from "@tenet-derived/src/Constants.sol";
 import { coordToShardCoord, voxelCoordsAreEqual } from "@tenet-utils/src/VoxelCoordUtils.sol";
 import { int32ToUint32, uint32ToInt32 } from "@tenet-utils/src/TypeUtils.sol";
-import { SHARD_DIM } from "@tenet-world/src/Constants.sol";
 import { REGISTRY_ADDRESS } from "@tenet-derived/src/Constants.sol";
 
 contract MonumentBountiesSystem is System {

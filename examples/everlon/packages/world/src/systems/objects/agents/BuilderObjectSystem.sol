@@ -10,7 +10,7 @@ import { Position } from "@tenet-base-world/src/codegen/tables/Position.sol";
 import { AgentAction, AgentActionData } from "@tenet-world/src/codegen/tables/AgentAction.sol";
 
 import { VoxelCoord, ObjectProperties, Action, ActionType, SimTable } from "@tenet-utils/src/Types.sol";
-import { REGISTRY_ADDRESS, BuilderObjectID } from "@tenet-world/src/Constants.sol";
+import { REGISTRY_ADDRESS, BuilderObjectID, PLAYER_MASS } from "@tenet-world/src/Constants.sol";
 import { tryStoppingAction } from "@tenet-world/src/Utils.sol";
 import { getObjectProperties } from "@tenet-base-world/src/CallUtils.sol";
 import { positionDataToVoxelCoord, getEntityIdFromObjectEntityId, getVoxelCoord } from "@tenet-base-world/src/Utils.sol";
@@ -36,7 +36,7 @@ contract BuilderObjectSystem is AgentType {
     VoxelCoord memory coord
   ) public override returns (ObjectProperties memory) {
     ObjectProperties memory objectProperties;
-    objectProperties.mass = 10;
+    objectProperties.mass = PLAYER_MASS;
     return objectProperties;
   }
 

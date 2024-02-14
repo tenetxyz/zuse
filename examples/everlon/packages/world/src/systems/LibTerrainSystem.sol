@@ -8,7 +8,7 @@ import { ABDKMath64x64 as Math } from "@tenet-utils/src/libraries/ABDKMath64x64.
 
 import { AirObjectID, SnowObjectID, AsphaltObjectID, BasaltObjectID, ClayBrickObjectID, CottonObjectID, StoneObjectID, EmberstoneObjectID, CobblestoneObjectID, MoonstoneObjectID, GraniteObjectID, QuartziteObjectID, LimestoneObjectID, SunstoneObjectID, SoilObjectID, GravelObjectID, ClayObjectID, BedrockObjectID, LavaObjectID, DiamondOreObjectID, GoldOreObjectID, CoalOreObjectID, SilverOreObjectID, NeptuniumOreObjectID, GrassObjectID, MuckGrassObjectID, DirtObjectID, MuckDirtObjectID, MossObjectID, CottonBushObjectID, MossGrassObjectID, SwitchGrassObjectID, OakLogObjectID, BirchLogObjectID, SakuraLogObjectID, RubberLogObjectID, OakLeafObjectID, BirchLeafObjectID, SakuraLeafObjectID, RubberLeafObjectID } from "@tenet-world/src/Constants.sol";
 
-import { Biome, STRUCTURE_CHUNK, STRUCTURE_CHUNK_CENTER, AIR_MASS, SIMPLE_BLOCK_MASS, SIMPLE_LIGHT_BLOCK_MASS, BEDROCK_MASS } from "@tenet-world/src/Constants.sol";
+import { Biome, STRUCTURE_CHUNK, STRUCTURE_CHUNK_CENTER, AIR_MASS, SOIL_MASS, GRAVEL_MASS, CLAY_MASS, LAVA_MASS, BEDROCK_MASS, MOSS_GRASS_MASS, SWITCH_GRASS_MASS, COTTON_BUSH_MASS, MOSS_MASS, MUCK_GRASS_MASS, GRASS_MASS, MUCK_DIRT_MASS, DIRT_MASS, COAL_ORE_MASS, SILVER_ORE_MASS, GOLD_ORE_MASS, DIAMOND_ORE_MASS, NEPTUNIUM_ORE_MASS, SNOW_MASS, ASPHALT_MASS, BASALT_MASS, CLAY_BRICK_MASS, COTTON_MASS, STONE_MASS, COBBLESTONE_MASS, GRANITE_MASS, LIMESTONE_MASS, EMBERSTONE_MASS, MOONSTONE_MASS, QUARTZITE_MASS, SUNSTONE_MASS, OAK_LOG_MASS, BIRCH_LOG_MASS, SAKURA_LOG_MASS, RUBBER_LOG_MASS, OAK_LEAF_MASS, BIRCH_LEAF_MASS, SAKURA_LEAF_MASS, RUBBER_LEAF_MASS, BEDROCK_MASS } from "@tenet-world/src/Constants.sol";
 import { VoxelCoord, ObjectProperties } from "@tenet-utils/src/Types.sol";
 import { floorDiv } from "@tenet-utils/src/MathUtils.sol";
 import { TerrainData } from "@tenet-world/src/Types.sol";
@@ -311,15 +311,18 @@ contract LibTerrainSystem is System {
 
     if (hash >= 50) return TerrainData({ objectTypeId: bytes32(0), properties: properties });
 
-    properties.mass = SIMPLE_BLOCK_MASS;
     properties.energy = 100;
     if (biome == uint8(Biome.Mountains)) {
+      properties.mass = ASPHALT_MASS;
       return TerrainData({ objectTypeId: AsphaltObjectID, properties: properties });
     } else if (biome == uint8(Biome.Desert)) {
+      properties.mass = BASALT_MASS;
       return TerrainData({ objectTypeId: BasaltObjectID, properties: properties });
     } else if (biome == uint8(Biome.Forest)) {
+      properties.mass = CLAY_BRICK_MASS;
       return TerrainData({ objectTypeId: ClayBrickObjectID, properties: properties });
     } else if (biome == uint8(Biome.Savanna)) {
+      properties.mass = COTTON_MASS;
       return TerrainData({ objectTypeId: CottonObjectID, properties: properties });
     }
 
@@ -339,35 +342,45 @@ contract LibTerrainSystem is System {
 
     if (y <= 30) return TerrainData({ objectTypeId: bytes32(0), properties: properties });
 
-    properties.mass = SIMPLE_BLOCK_MASS;
     properties.energy = 100;
-    if (y > 70) return TerrainData({ objectTypeId: SnowObjectID, properties: properties });
+    if (y > 70) {
+      properties.mass = SNOW_MASS;
+      return TerrainData({ objectTypeId: SnowObjectID, properties: properties });
+    }
 
     TerrainData memory patchBlock = TopPatches(x, y, z, height, biome, distanceFromHeight);
     if (patchBlock.objectTypeId != bytes32(0)) return patchBlock;
 
     if (biome == uint8(Biome.Mountains)) {
       if (distanceFromHeight <= 3) {
+        properties.mass = STONE_MASS;
         return TerrainData({ objectTypeId: StoneObjectID, properties: properties });
       } else {
+        properties.mass = EMBERSTONE_MASS;
         return TerrainData({ objectTypeId: EmberstoneObjectID, properties: properties });
       }
     } else if (biome == uint8(Biome.Desert)) {
       if (distanceFromHeight <= 3) {
+        properties.mass = COBBLESTONE_MASS;
         return TerrainData({ objectTypeId: CobblestoneObjectID, properties: properties });
       } else {
+        properties.mass = MOONSTONE_MASS;
         return TerrainData({ objectTypeId: MoonstoneObjectID, properties: properties });
       }
     } else if (biome == uint8(Biome.Forest)) {
       if (distanceFromHeight <= 3) {
+        properties.mass = GRANITE_MASS;
         return TerrainData({ objectTypeId: GraniteObjectID, properties: properties });
       } else {
+        properties.mass = QUARTZITE_MASS;
         return TerrainData({ objectTypeId: QuartziteObjectID, properties: properties });
       }
     } else if (biome == uint8(Biome.Savanna)) {
       if (distanceFromHeight <= 3) {
+        properties.mass = LIMESTONE_MASS;
         return TerrainData({ objectTypeId: LimestoneObjectID, properties: properties });
       } else {
+        properties.mass = SUNSTONE_MASS;
         return TerrainData({ objectTypeId: SunstoneObjectID, properties: properties });
       }
     }
@@ -388,19 +401,22 @@ contract LibTerrainSystem is System {
 
     if (y > 30 || y < 5) return TerrainData({ objectTypeId: bytes32(0), properties: properties });
 
-    properties.mass = SIMPLE_BLOCK_MASS;
     properties.energy = 100;
     if (distanceFromHeight <= 3) {
       if (distanceFromHeight == 1) {
         if (biome == uint8(Biome.Mountains)) {
+          properties.mass = MUCK_GRASS_MASS;
           return TerrainData({ objectTypeId: MuckGrassObjectID, properties: properties });
         } else if (biome == uint8(Biome.Desert)) {
+          properties.mass = MUCK_GRASS_MASS;
           return TerrainData({ objectTypeId: MuckGrassObjectID, properties: properties });
         } else if (biome == uint8(Biome.Forest)) {
+          properties.mass = GRASS_MASS;
           return TerrainData({ objectTypeId: GrassObjectID, properties: properties });
         }
       }
       if (biome == uint8(Biome.Savanna)) {
+        properties.mass = MOSS_MASS;
         return TerrainData({ objectTypeId: MossObjectID, properties: properties });
       }
     }
@@ -409,19 +425,25 @@ contract LibTerrainSystem is System {
     uint16 hash2 = getCoordHash(y, z + z);
     if (hash1 > 10 && hash1 <= 60 && hash2 > 10 && hash2 <= 60) {
       if (biome == uint8(Biome.Mountains)) {
+        properties.mass = COAL_ORE_MASS;
         return TerrainData({ objectTypeId: CoalOreObjectID, properties: properties });
       } else if (biome == uint8(Biome.Desert)) {
+        properties.mass = NEPTUNIUM_ORE_MASS;
         return TerrainData({ objectTypeId: NeptuniumOreObjectID, properties: properties });
       } else if (biome == uint8(Biome.Forest)) {
+        properties.mass = SILVER_ORE_MASS;
         return TerrainData({ objectTypeId: SilverOreObjectID, properties: properties });
       } else if (biome == uint8(Biome.Savanna)) {
+        properties.mass = GOLD_ORE_MASS;
         return TerrainData({ objectTypeId: GoldOreObjectID, properties: properties });
       }
     }
 
     if (biome == uint8(Biome.Mountains) || biome == uint8(Biome.Desert)) {
+      properties.mass = MUCK_DIRT_MASS;
       return TerrainData({ objectTypeId: MuckDirtObjectID, properties: properties });
     } else {
+      properties.mass = DIRT_MASS;
       return TerrainData({ objectTypeId: DirtObjectID, properties: properties });
     }
   }
@@ -439,31 +461,46 @@ contract LibTerrainSystem is System {
 
     if (y >= 5) return TerrainData({ objectTypeId: bytes32(0), properties: properties });
 
-    properties.mass = BEDROCK_MASS;
     properties.energy = 100;
-    if (y < -60) return TerrainData({ objectTypeId: BedrockObjectID, properties: properties });
+    if (y < -60) {
+      properties.mass = BEDROCK_MASS;
+      return TerrainData({ objectTypeId: BedrockObjectID, properties: properties });
+    }
 
-    properties.mass = SIMPLE_BLOCK_MASS;
-    if (y < -50) return TerrainData({ objectTypeId: LavaObjectID, properties: properties });
+    if (y < -50) {
+      properties.mass = LAVA_MASS;
+      return TerrainData({ objectTypeId: LavaObjectID, properties: properties });
+    }
 
-    if (y >= 0) return TerrainData({ objectTypeId: SoilObjectID, properties: properties });
-    if (y == -1) return TerrainData({ objectTypeId: GravelObjectID, properties: properties });
+    if (y >= 0) {
+      properties.mass = SOIL_MASS;
+      return TerrainData({ objectTypeId: SoilObjectID, properties: properties });
+    }
+    if (y == -1) {
+      properties.mass = GRAVEL_MASS;
+      return TerrainData({ objectTypeId: GravelObjectID, properties: properties });
+    }
 
     uint16 hash1 = getCoordHash(x, z);
     uint16 hash2 = getCoordHash(y, z + z);
     if (hash1 <= 10 || hash1 > 50) {
       if (hash1 <= 10 && hash2 <= 10) {
+        properties.mass = DIAMOND_ORE_MASS;
         return TerrainData({ objectTypeId: DiamondOreObjectID, properties: properties });
       }
     } else {
       if (hash2 > 10 && hash2 <= 50) {
         if (biome == uint8(Biome.Mountains)) {
+          properties.mass = COAL_ORE_MASS;
           return TerrainData({ objectTypeId: CoalOreObjectID, properties: properties });
         } else if (biome == uint8(Biome.Desert)) {
+          properties.mass = NEPTUNIUM_ORE_MASS;
           return TerrainData({ objectTypeId: NeptuniumOreObjectID, properties: properties });
         } else if (biome == uint8(Biome.Forest)) {
+          properties.mass = SILVER_ORE_MASS;
           return TerrainData({ objectTypeId: SilverOreObjectID, properties: properties });
         } else if (biome == uint8(Biome.Savanna)) {
+          properties.mass = GOLD_ORE_MASS;
           return TerrainData({ objectTypeId: GoldOreObjectID, properties: properties });
         }
       }
@@ -485,22 +522,25 @@ contract LibTerrainSystem is System {
 
     if (y != height) return TerrainData({ objectTypeId: bytes32(0), properties: properties });
 
-    properties.mass = SIMPLE_LIGHT_BLOCK_MASS;
     properties.energy = 50;
     uint16 hash1 = getCoordHash(x, z);
 
     if (biome == uint8(Biome.Mountains)) {
       if (hash1 < 10) {
+        properties.mass = COTTON_BUSH_MASS;
         return TerrainData({ objectTypeId: CottonBushObjectID, properties: properties });
       }
     } else if (biome == uint8(Biome.Desert)) {
       if (hash1 < 10) {
+        properties.mass = COTTON_BUSH_MASS;
         return TerrainData({ objectTypeId: CottonBushObjectID, properties: properties });
       }
     } else if (biome == uint8(Biome.Forest)) {
       if (hash1 < 10) {
+        properties.mass = MOSS_GRASS_MASS;
         return TerrainData({ objectTypeId: MossGrassObjectID, properties: properties });
       } else if (hash1 < 25) {
+        properties.mass = SWITCH_GRASS_MASS;
         return TerrainData({ objectTypeId: SwitchGrassObjectID, properties: properties });
       }
     } else if (biome == uint8(Biome.Savanna)) {}
@@ -527,31 +567,19 @@ contract LibTerrainSystem is System {
     if (hash >= 100) return TerrainData({ objectTypeId: bytes32(0), properties: properties });
 
     bytes32 structObjectTypeId = bytes32(0);
+    ObjectProperties memory structObjectProperties;
     if (biome == uint8(Biome.Mountains)) {
-      structObjectTypeId = RubberTree(chunkOffset);
+      (structObjectTypeId, structObjectProperties) = RubberTree(chunkOffset);
     } else if (biome == uint8(Biome.Desert)) {
-      structObjectTypeId = SakuraTree(chunkOffset);
+      (structObjectTypeId, structObjectProperties) = SakuraTree(chunkOffset);
     } else if (biome == uint8(Biome.Forest)) {
-      structObjectTypeId = OakTree(chunkOffset);
+      (structObjectTypeId, structObjectProperties) = OakTree(chunkOffset);
     } else if (biome == uint8(Biome.Savanna)) {
-      structObjectTypeId = BirchTree(chunkOffset);
+      (structObjectTypeId, structObjectProperties) = BirchTree(chunkOffset);
     }
 
     if (structObjectTypeId != bytes32(0)) {
-      if (
-        structObjectTypeId == OakLeafObjectID ||
-        structObjectTypeId == BirchLeafObjectID ||
-        structObjectTypeId == SakuraLeafObjectID ||
-        structObjectTypeId == RubberLeafObjectID
-      ) {
-        properties.mass = SIMPLE_LIGHT_BLOCK_MASS;
-        properties.energy = 50;
-      } else {
-        properties.mass = SIMPLE_BLOCK_MASS;
-        properties.energy = 100;
-      }
-
-      return TerrainData({ objectTypeId: structObjectTypeId, properties: properties });
+      return TerrainData({ objectTypeId: structObjectTypeId, properties: structObjectProperties });
     }
 
     return TerrainData({ objectTypeId: bytes32(0), properties: properties });
@@ -561,103 +589,127 @@ contract LibTerrainSystem is System {
   // Structures
   //////////////////////////////////////////////////////////////////////////////////////
 
-  function OakTree(VoxelCoord memory offset) internal view returns (bytes32) {
+  function OakTree(VoxelCoord memory offset) internal view returns (bytes32, ObjectProperties memory) {
+    ObjectProperties memory properties;
+
+    properties.mass = OAK_LOG_MASS;
+    properties.energy = 100;
     // Trunk
-    if (coordEq(offset, [3, 0, 3])) return OakLogObjectID;
-    if (coordEq(offset, [3, 1, 3])) return OakLogObjectID;
-    if (coordEq(offset, [3, 2, 3])) return OakLogObjectID;
-    if (coordEq(offset, [3, 3, 3])) return OakLogObjectID;
+    if (coordEq(offset, [3, 0, 3])) return (OakLogObjectID, properties);
+    if (coordEq(offset, [3, 1, 3])) return (OakLogObjectID, properties);
+    if (coordEq(offset, [3, 2, 3])) return (OakLogObjectID, properties);
+    if (coordEq(offset, [3, 3, 3])) return (OakLogObjectID, properties);
 
+    properties.mass = OAK_LEAF_MASS;
+    properties.energy = 50;
     // Leaves
-    if (coordEq(offset, [2, 3, 3])) return OakLeafObjectID;
-    if (coordEq(offset, [3, 3, 2])) return OakLeafObjectID;
-    if (coordEq(offset, [4, 3, 3])) return OakLeafObjectID;
-    if (coordEq(offset, [3, 3, 4])) return OakLeafObjectID;
-    if (coordEq(offset, [2, 3, 2])) return OakLeafObjectID;
-    if (coordEq(offset, [4, 3, 4])) return OakLeafObjectID;
-    if (coordEq(offset, [2, 3, 4])) return OakLeafObjectID;
-    if (coordEq(offset, [4, 3, 2])) return OakLeafObjectID;
-    if (coordEq(offset, [2, 4, 3])) return OakLeafObjectID;
-    if (coordEq(offset, [3, 4, 2])) return OakLeafObjectID;
-    if (coordEq(offset, [4, 4, 3])) return OakLeafObjectID;
-    if (coordEq(offset, [3, 4, 4])) return OakLeafObjectID;
-    if (coordEq(offset, [3, 4, 3])) return OakLeafObjectID;
+    if (coordEq(offset, [2, 3, 3])) return (OakLeafObjectID, properties);
+    if (coordEq(offset, [3, 3, 2])) return (OakLeafObjectID, properties);
+    if (coordEq(offset, [4, 3, 3])) return (OakLeafObjectID, properties);
+    if (coordEq(offset, [3, 3, 4])) return (OakLeafObjectID, properties);
+    if (coordEq(offset, [2, 3, 2])) return (OakLeafObjectID, properties);
+    if (coordEq(offset, [4, 3, 4])) return (OakLeafObjectID, properties);
+    if (coordEq(offset, [2, 3, 4])) return (OakLeafObjectID, properties);
+    if (coordEq(offset, [4, 3, 2])) return (OakLeafObjectID, properties);
+    if (coordEq(offset, [2, 4, 3])) return (OakLeafObjectID, properties);
+    if (coordEq(offset, [3, 4, 2])) return (OakLeafObjectID, properties);
+    if (coordEq(offset, [4, 4, 3])) return (OakLeafObjectID, properties);
+    if (coordEq(offset, [3, 4, 4])) return (OakLeafObjectID, properties);
+    if (coordEq(offset, [3, 4, 3])) return (OakLeafObjectID, properties);
 
-    return bytes32(0);
+    return (bytes32(0), properties);
   }
 
-  function BirchTree(VoxelCoord memory offset) internal view returns (bytes32) {
+  function BirchTree(VoxelCoord memory offset) internal view returns (bytes32, ObjectProperties memory) {
+    ObjectProperties memory properties;
+
+    properties.mass = BIRCH_LOG_MASS;
+    properties.energy = 100;
     // Trunk
-    if (coordEq(offset, [3, 0, 3])) return BirchLogObjectID;
-    if (coordEq(offset, [3, 1, 3])) return BirchLogObjectID;
-    if (coordEq(offset, [3, 2, 3])) return BirchLogObjectID;
-    if (coordEq(offset, [3, 3, 3])) return BirchLogObjectID;
+    if (coordEq(offset, [3, 0, 3])) return (BirchLogObjectID, properties);
+    if (coordEq(offset, [3, 1, 3])) return (BirchLogObjectID, properties);
+    if (coordEq(offset, [3, 2, 3])) return (BirchLogObjectID, properties);
+    if (coordEq(offset, [3, 3, 3])) return (BirchLogObjectID, properties);
 
+    properties.mass = BIRCH_LEAF_MASS;
+    properties.energy = 50;
     // Leaves
-    if (coordEq(offset, [2, 3, 3])) return BirchLeafObjectID;
-    if (coordEq(offset, [3, 3, 2])) return BirchLeafObjectID;
-    if (coordEq(offset, [4, 3, 3])) return BirchLeafObjectID;
-    if (coordEq(offset, [3, 3, 4])) return BirchLeafObjectID;
-    if (coordEq(offset, [2, 3, 2])) return BirchLeafObjectID;
-    if (coordEq(offset, [4, 3, 4])) return BirchLeafObjectID;
-    if (coordEq(offset, [2, 3, 4])) return BirchLeafObjectID;
-    if (coordEq(offset, [4, 3, 2])) return BirchLeafObjectID;
-    if (coordEq(offset, [2, 4, 3])) return BirchLeafObjectID;
-    if (coordEq(offset, [3, 4, 2])) return BirchLeafObjectID;
-    if (coordEq(offset, [4, 4, 3])) return BirchLeafObjectID;
-    if (coordEq(offset, [3, 4, 4])) return BirchLeafObjectID;
-    if (coordEq(offset, [3, 4, 3])) return BirchLeafObjectID;
+    if (coordEq(offset, [2, 3, 3])) return (BirchLeafObjectID, properties);
+    if (coordEq(offset, [3, 3, 2])) return (BirchLeafObjectID, properties);
+    if (coordEq(offset, [4, 3, 3])) return (BirchLeafObjectID, properties);
+    if (coordEq(offset, [3, 3, 4])) return (BirchLeafObjectID, properties);
+    if (coordEq(offset, [2, 3, 2])) return (BirchLeafObjectID, properties);
+    if (coordEq(offset, [4, 3, 4])) return (BirchLeafObjectID, properties);
+    if (coordEq(offset, [2, 3, 4])) return (BirchLeafObjectID, properties);
+    if (coordEq(offset, [4, 3, 2])) return (BirchLeafObjectID, properties);
+    if (coordEq(offset, [2, 4, 3])) return (BirchLeafObjectID, properties);
+    if (coordEq(offset, [3, 4, 2])) return (BirchLeafObjectID, properties);
+    if (coordEq(offset, [4, 4, 3])) return (BirchLeafObjectID, properties);
+    if (coordEq(offset, [3, 4, 4])) return (BirchLeafObjectID, properties);
+    if (coordEq(offset, [3, 4, 3])) return (BirchLeafObjectID, properties);
 
-    return bytes32(0);
+    return (bytes32(0), properties);
   }
 
-  function SakuraTree(VoxelCoord memory offset) internal view returns (bytes32) {
+  function SakuraTree(VoxelCoord memory offset) internal view returns (bytes32, ObjectProperties memory) {
+    ObjectProperties memory properties;
+
+    properties.mass = SAKURA_LOG_MASS;
+    properties.energy = 100;
     // Trunk
-    if (coordEq(offset, [3, 0, 3])) return SakuraLogObjectID;
-    if (coordEq(offset, [3, 1, 3])) return SakuraLogObjectID;
-    if (coordEq(offset, [3, 2, 3])) return SakuraLogObjectID;
-    if (coordEq(offset, [3, 3, 3])) return SakuraLogObjectID;
+    if (coordEq(offset, [3, 0, 3])) return (SakuraLogObjectID, properties);
+    if (coordEq(offset, [3, 1, 3])) return (SakuraLogObjectID, properties);
+    if (coordEq(offset, [3, 2, 3])) return (SakuraLogObjectID, properties);
+    if (coordEq(offset, [3, 3, 3])) return (SakuraLogObjectID, properties);
 
+    properties.mass = SAKURA_LEAF_MASS;
+    properties.energy = 50;
     // Leaves
-    if (coordEq(offset, [2, 3, 3])) return SakuraLeafObjectID;
-    if (coordEq(offset, [3, 3, 2])) return SakuraLeafObjectID;
-    if (coordEq(offset, [4, 3, 3])) return SakuraLeafObjectID;
-    if (coordEq(offset, [3, 3, 4])) return SakuraLeafObjectID;
-    if (coordEq(offset, [2, 3, 2])) return SakuraLeafObjectID;
-    if (coordEq(offset, [4, 3, 4])) return SakuraLeafObjectID;
-    if (coordEq(offset, [2, 3, 4])) return SakuraLeafObjectID;
-    if (coordEq(offset, [4, 3, 2])) return SakuraLeafObjectID;
-    if (coordEq(offset, [2, 4, 3])) return SakuraLeafObjectID;
-    if (coordEq(offset, [3, 4, 2])) return SakuraLeafObjectID;
-    if (coordEq(offset, [4, 4, 3])) return SakuraLeafObjectID;
-    if (coordEq(offset, [3, 4, 4])) return SakuraLeafObjectID;
-    if (coordEq(offset, [3, 4, 3])) return SakuraLeafObjectID;
+    if (coordEq(offset, [2, 3, 3])) return (SakuraLeafObjectID, properties);
+    if (coordEq(offset, [3, 3, 2])) return (SakuraLeafObjectID, properties);
+    if (coordEq(offset, [4, 3, 3])) return (SakuraLeafObjectID, properties);
+    if (coordEq(offset, [3, 3, 4])) return (SakuraLeafObjectID, properties);
+    if (coordEq(offset, [2, 3, 2])) return (SakuraLeafObjectID, properties);
+    if (coordEq(offset, [4, 3, 4])) return (SakuraLeafObjectID, properties);
+    if (coordEq(offset, [2, 3, 4])) return (SakuraLeafObjectID, properties);
+    if (coordEq(offset, [4, 3, 2])) return (SakuraLeafObjectID, properties);
+    if (coordEq(offset, [2, 4, 3])) return (SakuraLeafObjectID, properties);
+    if (coordEq(offset, [3, 4, 2])) return (SakuraLeafObjectID, properties);
+    if (coordEq(offset, [4, 4, 3])) return (SakuraLeafObjectID, properties);
+    if (coordEq(offset, [3, 4, 4])) return (SakuraLeafObjectID, properties);
+    if (coordEq(offset, [3, 4, 3])) return (SakuraLeafObjectID, properties);
 
-    return bytes32(0);
+    return (bytes32(0), properties);
   }
 
-  function RubberTree(VoxelCoord memory offset) internal view returns (bytes32) {
+  function RubberTree(VoxelCoord memory offset) internal view returns (bytes32, ObjectProperties memory) {
+    ObjectProperties memory properties;
+
+    properties.mass = RUBBER_LOG_MASS;
+    properties.energy = 100;
     // Trunk
-    if (coordEq(offset, [3, 0, 3])) return RubberLogObjectID;
-    if (coordEq(offset, [3, 1, 3])) return RubberLogObjectID;
-    if (coordEq(offset, [3, 2, 3])) return RubberLogObjectID;
-    if (coordEq(offset, [3, 3, 3])) return RubberLogObjectID;
+    if (coordEq(offset, [3, 0, 3])) return (RubberLogObjectID, properties);
+    if (coordEq(offset, [3, 1, 3])) return (RubberLogObjectID, properties);
+    if (coordEq(offset, [3, 2, 3])) return (RubberLogObjectID, properties);
+    if (coordEq(offset, [3, 3, 3])) return (RubberLogObjectID, properties);
 
+    properties.mass = RUBBER_LEAF_MASS;
+    properties.energy = 50;
     // Leaves
-    if (coordEq(offset, [2, 3, 3])) return RubberLeafObjectID;
-    if (coordEq(offset, [3, 3, 2])) return RubberLeafObjectID;
-    if (coordEq(offset, [4, 3, 3])) return RubberLeafObjectID;
-    if (coordEq(offset, [3, 3, 4])) return RubberLeafObjectID;
-    if (coordEq(offset, [2, 3, 2])) return RubberLeafObjectID;
-    if (coordEq(offset, [4, 3, 4])) return RubberLeafObjectID;
-    if (coordEq(offset, [2, 3, 4])) return RubberLeafObjectID;
-    if (coordEq(offset, [4, 3, 2])) return RubberLeafObjectID;
-    if (coordEq(offset, [2, 4, 3])) return RubberLeafObjectID;
-    if (coordEq(offset, [3, 4, 2])) return RubberLeafObjectID;
-    if (coordEq(offset, [4, 4, 3])) return RubberLeafObjectID;
-    if (coordEq(offset, [3, 4, 4])) return RubberLeafObjectID;
-    if (coordEq(offset, [3, 4, 3])) return RubberLeafObjectID;
+    if (coordEq(offset, [2, 3, 3])) return (RubberLeafObjectID, properties);
+    if (coordEq(offset, [3, 3, 2])) return (RubberLeafObjectID, properties);
+    if (coordEq(offset, [4, 3, 3])) return (RubberLeafObjectID, properties);
+    if (coordEq(offset, [3, 3, 4])) return (RubberLeafObjectID, properties);
+    if (coordEq(offset, [2, 3, 2])) return (RubberLeafObjectID, properties);
+    if (coordEq(offset, [4, 3, 4])) return (RubberLeafObjectID, properties);
+    if (coordEq(offset, [2, 3, 4])) return (RubberLeafObjectID, properties);
+    if (coordEq(offset, [4, 3, 2])) return (RubberLeafObjectID, properties);
+    if (coordEq(offset, [2, 4, 3])) return (RubberLeafObjectID, properties);
+    if (coordEq(offset, [3, 4, 2])) return (RubberLeafObjectID, properties);
+    if (coordEq(offset, [4, 4, 3])) return (RubberLeafObjectID, properties);
+    if (coordEq(offset, [3, 4, 4])) return (RubberLeafObjectID, properties);
+    if (coordEq(offset, [3, 4, 3])) return (RubberLeafObjectID, properties);
 
-    return bytes32(0);
+    return (bytes32(0), properties);
   }
 }

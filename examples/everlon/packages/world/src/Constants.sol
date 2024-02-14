@@ -55,8 +55,9 @@ bytes32 constant BuilderObjectID = bytes32(keccak256("builder"));
 bytes32 constant FaucetObjectID = bytes32(keccak256("faucet"));
 bytes32 constant RunnerObjectID = bytes32(keccak256("runner"));
 
-uint256 constant AIR_MASS = 0;
 uint256 constant PLAYER_MASS = 10;
+
+uint256 constant AIR_MASS = 0;
 uint256 constant SOIL_MASS = 3;
 uint256 constant GRAVEL_MASS = 5;
 uint256 constant CLAY_MASS = 6;
@@ -65,9 +66,9 @@ uint256 constant BEDROCK_MASS = 1000;
 uint256 constant MOSS_GRASS_MASS = 1;
 uint256 constant SWITCH_GRASS_MASS = 1;
 uint256 constant COTTON_BUSH_MASS = 1;
-uint256 constant MOSS_MASS = 1;
-uint256 constant MUCK_GRASS_MASS = 1;
-uint256 constant GRASS_MASS = 1;
+uint256 constant MOSS_MASS = 4;
+uint256 constant MUCK_GRASS_MASS = 4;
+uint256 constant GRASS_MASS = 4;
 uint256 constant MUCK_DIRT_MASS = 4;
 uint256 constant DIRT_MASS = 4;
 

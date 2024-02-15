@@ -5,8 +5,11 @@ import { IWorld } from "@tenet-base-world/src/codegen/world/IWorld.sol";
 import { IStore } from "@latticexyz/store/src/IStore.sol";
 import { Event } from "@tenet-base-world/src/prototypes/Event.sol";
 import { getUniqueEntity } from "@latticexyz/world/src/modules/uniqueentity/getUniqueEntity.sol";
+import { getKeysWithValue } from "@latticexyz/world/src/modules/keyswithvalue/getKeysWithValue.sol";
+
+import { OwnedBy, OwnedByTableId } from "@tenet-base-world/src/codegen/tables/OwnedBy.sol";
 import { ObjectType } from "@tenet-base-world/src/codegen/tables/ObjectType.sol";
-import { Inventory } from "@tenet-base-world/src/codegen/tables/Inventory.sol";
+import { Inventory, InventoryTableId } from "@tenet-base-world/src/codegen/tables/Inventory.sol";
 import { InventoryObject } from "@tenet-base-world/src/codegen/tables/InventoryObject.sol";
 import { ObjectEntity } from "@tenet-base-world/src/codegen/tables/ObjectEntity.sol";
 import { VoxelCoord, ObjectProperties } from "@tenet-utils/src/Types.sol";
@@ -110,5 +113,19 @@ abstract contract MineEvent is Event {
     bytes32 eventEntityId,
     bytes32 objectEntityId,
     bytes memory eventData
-  ) internal virtual override {}
+  ) internal virtual override {
+    bool hasOwner = OwnedBy.get(objectEntityId) != address(0);
+    if (hasOwner) {
+      // Delete all inventory items
+      bytes32[][] memory inventoryIds = getKeysWithValue(InventoryTableId, Inventory.encode(objectEntityId));
+      for (uint256 i = 0; i < inventoryIds.length; i++) {
+        bytes32 inventoryId = inventoryIds[i][0];
+        Inventory.deleteRecord(inventoryId);
+        InventoryObject.deleteRecord(inventoryId);
+      }
+
+      // Remove owner
+      OwnedBy.deleteRecord(objectEntityId);
+    }
+  }
 }

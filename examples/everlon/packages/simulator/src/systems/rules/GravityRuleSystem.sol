@@ -12,14 +12,16 @@ import { GravityMetadata } from "@tenet-simulator/src/codegen/tables/GravityMeta
 import { MoveTrigger } from "@tenet-simulator/src/codegen/Types.sol";
 
 import { ObjectEntity } from "@tenet-base-world/src/codegen/tables/ObjectEntity.sol";
+import { Position } from "@tenet-base-world/src/codegen/tables/Position.sol";
 import { ObjectType } from "@tenet-base-world/src/codegen/tables/ObjectType.sol";
 import { ITerrainSystem } from "@tenet-base-world/src/codegen/world/ITerrainSystem.sol";
 import { IBuildSystem } from "@tenet-base-world/src/codegen/world/IBuildSystem.sol";
+import { IMineSystem } from "@tenet-base-world/src/codegen/world/IMineSystem.sol";
 import { IMoveSystem } from "@tenet-base-world/src/codegen/world/IMoveSystem.sol";
 
 import { getVelocity, callWorldMove } from "@tenet-simulator/src/Utils.sol";
 import { VoxelCoord, ObjectProperties, BlockDirection } from "@tenet-utils/src/Types.sol";
-import { getEntityAtCoord, getVoxelCoordStrict, getEntityIdFromObjectEntityId, getVonNeumannNeighbourEntities } from "@tenet-base-world/src/Utils.sol";
+import { positionDataToVoxelCoord, getEntityAtCoord, getVoxelCoordStrict, getEntityIdFromObjectEntityId, getVonNeumannNeighbourEntities } from "@tenet-base-world/src/Utils.sol";
 import { isZeroCoord, voxelCoordsAreEqual, dot, mulScalar, divScalar, add, sub, calculateBlockDirection, getOppositeDirection } from "@tenet-utils/src/VoxelCoordUtils.sol";
 import { abs, absInt32 } from "@tenet-utils/src/MathUtils.sol";
 import { uint256ToInt32, int256ToUint256, safeSubtract } from "@tenet-utils/src/TypeUtils.sol";
@@ -91,6 +93,22 @@ contract GravityRuleSystem is System {
 
     GravityMetadata.set(worldAddress, applyObjectEntityId, BlockDirection.None);
 
+    // Check if the agent has health, and if so, apply damage
+    uint256 currentHealth = Health.getHealth(worldAddress, applyObjectEntityId);
+    if (currentHealth > 0) {
+      uint256 newHealth = safeSubtract(currentHealth, GRAVITY_DAMAGE);
+      Health.setHealth(worldAddress, applyObjectEntityId, newHealth);
+
+      if (newHealth == 0) {
+        IMineSystem(worldAddress).mine(
+          bytes32(0), // No acting object entity, since this is the simulator calling it
+          applyObjectTypeId,
+          positionDataToVoxelCoord(Position.get(IStore(worldAddress), applyEntityId))
+        );
+        return applyEntityId;
+      }
+    }
+
     VoxelCoord memory newCoord = VoxelCoord({ x: applyCoord.x, y: applyCoord.y - 1, z: applyCoord.z });
     (bool moveSuccess, bytes memory moveReturnData) = callWorldMove(
       MoveTrigger.Gravity,
@@ -102,13 +120,6 @@ contract GravityRuleSystem is System {
       newCoord
     );
     if (moveSuccess && moveReturnData.length > 0) {
-      // Check if the agent has health, and if so, apply damage
-      uint256 currentHealth = Health.getHealth(worldAddress, applyObjectEntityId);
-      if (currentHealth > 0) {
-        uint256 newHealth = safeSubtract(currentHealth, GRAVITY_DAMAGE);
-        Health.setHealth(worldAddress, applyObjectEntityId, newHealth);
-      }
-
       // TODO: Should do safe decoding here
       (, applyEntityId) = abi.decode(moveReturnData, (bytes32, bytes32));
     } else {

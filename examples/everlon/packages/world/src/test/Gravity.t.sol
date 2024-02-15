@@ -4,8 +4,11 @@ pragma solidity >=0.8.0;
 import "forge-std/Test.sol";
 import { MudTest } from "@latticexyz/store/src/MudTest.sol";
 import { IStore } from "@latticexyz/store/src/IStore.sol";
+import { getKeysWithValue } from "@latticexyz/world/src/modules/keyswithvalue/getKeysWithValue.sol";
 import { IWorld } from "@tenet-world/src/codegen/world/IWorld.sol";
 import { ObjectType, OwnedBy, ObjectEntity } from "@tenet-world/src/codegen/Tables.sol";
+import { Inventory, InventoryTableId } from "@tenet-base-world/src/codegen/tables/Inventory.sol";
+import { InventoryObject } from "@tenet-base-world/src/codegen/tables/InventoryObject.sol";
 import { VoxelCoord } from "@tenet-utils/src/Types.sol";
 import { getEntityAtCoord, getEntityPositionStrict, positionDataToVoxelCoord } from "@tenet-base-world/src/Utils.sol";
 import { BuilderObjectID, GrassObjectID, AirObjectID } from "@tenet-world/src/Constants.sol";
@@ -76,9 +79,29 @@ contract GravityTest is MudTest {
     (, bytes32 agentObjectEntityId) = setupAgent();
     world.activate(agentObjectEntityId, agentObjectTypeId, initialAgentCoord);
 
+    // mine block
+    VoxelCoord memory mineCoord = VoxelCoord(initialAgentCoord.x - 1, initialAgentCoord.y - 1, initialAgentCoord.z + 1);
+    bytes32 objectTypeId = world.getTerrainObjectTypeId(mineCoord);
+    world.mine(agentObjectEntityId, objectTypeId, mineCoord);
+    // get the inventory of the agent
+    {
+      bytes32[][] memory agentObjects = getKeysWithValue(
+        store,
+        InventoryTableId,
+        Inventory.encode(agentObjectEntityId)
+      );
+      assertTrue(agentObjects.length == 1, "Agent does not have inventory");
+      assertTrue(agentObjects[0].length == 1, "Agent does not have inventory");
+      bytes32 agentInventoryId = agentObjects[0][0];
+      bytes32 agentInventoryObjectTypeId = InventoryObject.getObjectTypeId(store, agentInventoryId);
+      assertTrue(agentInventoryObjectTypeId == objectTypeId, "Agent does not have mined object in inventory");
+    }
+
     // move agent away from faucet
     VoxelCoord memory newAgentCoord = VoxelCoord(initialAgentCoord.x, initialAgentCoord.y, initialAgentCoord.z - 1);
     world.move(agentObjectEntityId, agentObjectTypeId, initialAgentCoord, newAgentCoord);
+
+    Health.setHealth(simStore, worldAddress, agentObjectEntityId, 10);
 
     // move block underneath agent
     VoxelCoord memory oldCoord = VoxelCoord(newAgentCoord.x, newAgentCoord.y - 1, newAgentCoord.z);
@@ -90,9 +113,17 @@ contract GravityTest is MudTest {
     // Assert that the agent is at the old coord, ie it fell
     bytes32 newEntityId = getEntityAtCoord(store, oldCoord);
     bytes32 newCoordObjectEntityId = ObjectEntity.get(store, newEntityId);
-    assertTrue(newCoordObjectEntityId == agentObjectEntityId, "Agent didnt fall");
-    assertTrue(ObjectType.get(store, newEntityId) == agentObjectTypeId, "Agent didnt fall");
+    assertTrue(ObjectType.get(store, newEntityId) == AirObjectID, "Agent didnt fall");
     assertTrue(Health.getHealth(simStore, worldAddress, agentObjectEntityId) < prevHealth, "Agent didnt take damage");
+
+    {
+      bytes32[][] memory originalAgentObjects = getKeysWithValue(
+        store,
+        InventoryTableId,
+        Inventory.encode(agentObjectEntityId)
+      );
+      assertTrue(originalAgentObjects.length == 0, "Agent did not lose inventory");
+    }
 
     vm.stopPrank();
   }

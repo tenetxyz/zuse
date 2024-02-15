@@ -79,6 +79,32 @@ contract GravityTest is MudTest {
     (, bytes32 agentObjectEntityId) = setupAgent();
     world.activate(agentObjectEntityId, agentObjectTypeId, initialAgentCoord);
 
+    // move agent away from faucet
+    VoxelCoord memory newAgentCoord = VoxelCoord(initialAgentCoord.x, initialAgentCoord.y, initialAgentCoord.z - 1);
+    world.move(agentObjectEntityId, agentObjectTypeId, initialAgentCoord, newAgentCoord);
+
+    // move block underneath agent
+    VoxelCoord memory oldCoord = VoxelCoord(newAgentCoord.x, newAgentCoord.y - 1, newAgentCoord.z);
+    VoxelCoord memory newCoord = VoxelCoord(oldCoord.x + 1, oldCoord.y + 1, oldCoord.z);
+    bytes32 belowObjectTypeId = world.getTerrainObjectTypeId(oldCoord);
+    uint256 prevHealth = Health.getHealth(simStore, worldAddress, agentObjectEntityId);
+    world.move(agentObjectEntityId, belowObjectTypeId, oldCoord, newCoord);
+
+    // Assert that the agent is at the old coord, ie it fell
+    bytes32 newEntityId = getEntityAtCoord(store, oldCoord);
+    bytes32 newCoordObjectEntityId = ObjectEntity.get(store, newEntityId);
+    assertTrue(ObjectType.get(store, newEntityId) == agentObjectTypeId, "Agent didnt fall");
+    assertTrue(Health.getHealth(simStore, worldAddress, agentObjectEntityId) < prevHealth, "Agent didnt take damage");
+
+    vm.stopPrank();
+  }
+
+  function testNeighbourFallFatal() public {
+    vm.startPrank(alice, alice);
+
+    (, bytes32 agentObjectEntityId) = setupAgent();
+    world.activate(agentObjectEntityId, agentObjectTypeId, initialAgentCoord);
+
     // mine block
     VoxelCoord memory mineCoord = VoxelCoord(initialAgentCoord.x - 1, initialAgentCoord.y - 1, initialAgentCoord.z + 1);
     bytes32 objectTypeId = world.getTerrainObjectTypeId(mineCoord);
@@ -114,16 +140,34 @@ contract GravityTest is MudTest {
     bytes32 newEntityId = getEntityAtCoord(store, oldCoord);
     bytes32 newCoordObjectEntityId = ObjectEntity.get(store, newEntityId);
     assertTrue(ObjectType.get(store, newEntityId) == AirObjectID, "Agent didnt fall");
+    assertTrue(ObjectType.get(store, getEntityAtCoord(store, newAgentCoord)) == AirObjectID, "Agent didnt fall");
     assertTrue(Health.getHealth(simStore, worldAddress, agentObjectEntityId) < prevHealth, "Agent didnt take damage");
 
     {
       bytes32[][] memory originalAgentObjects = getKeysWithValue(
         store,
         InventoryTableId,
-        Inventory.encode(agentObjectEntityId)
+        Inventory.encode(newCoordObjectEntityId)
       );
-      assertTrue(originalAgentObjects.length == 0, "Agent did not lose inventory");
+      assertTrue(originalAgentObjects.length == 1, "Item not dropped");
     }
+
+    (, agentObjectEntityId) = setupAgent();
+    mineCoord = VoxelCoord(initialAgentCoord.x + 1, initialAgentCoord.y - 1, initialAgentCoord.z + 1);
+    objectTypeId = world.getTerrainObjectTypeId(mineCoord);
+    world.mine(agentObjectEntityId, objectTypeId, mineCoord);
+    // get the inventory of the agent
+    bytes32[][] memory agentObjects = getKeysWithValue(store, InventoryTableId, Inventory.encode(agentObjectEntityId));
+    assertTrue(agentObjects.length == 1, "Agent does not have inventory");
+    assertTrue(agentObjects[0].length == 1, "Agent does not have inventory");
+    bytes32 agentInventoryId = agentObjects[0][0];
+    bytes32 agentInventoryObjectTypeId = InventoryObject.getObjectTypeId(store, agentInventoryId);
+    assertTrue(agentInventoryObjectTypeId == objectTypeId, "Agent does not have mined object in inventory");
+
+    // try building in the spot where the agent died, where there is a dropped item
+    // should fail because there is a dropped item
+    vm.expectRevert();
+    world.build(agentObjectEntityId, objectTypeId, oldCoord, agentInventoryId);
 
     vm.stopPrank();
   }

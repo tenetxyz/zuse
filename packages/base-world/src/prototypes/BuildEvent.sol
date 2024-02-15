@@ -3,8 +3,11 @@ pragma solidity >=0.8.0;
 
 import { IWorld } from "@tenet-base-world/src/codegen/world/IWorld.sol";
 import { Event } from "@tenet-base-world/src/prototypes/Event.sol";
+
+import { getKeysWithValue } from "@latticexyz/world/src/modules/keyswithvalue/getKeysWithValue.sol";
+
 import { ObjectType } from "@tenet-base-world/src/codegen/tables/ObjectType.sol";
-import { Inventory } from "@tenet-base-world/src/codegen/tables/Inventory.sol";
+import { Inventory, InventoryTableId } from "@tenet-base-world/src/codegen/tables/Inventory.sol";
 import { InventoryObject } from "@tenet-base-world/src/codegen/tables/InventoryObject.sol";
 import { ObjectEntity } from "@tenet-base-world/src/codegen/tables/ObjectEntity.sol";
 import { VoxelCoord, ObjectProperties } from "@tenet-utils/src/Types.sol";
@@ -65,6 +68,9 @@ abstract contract BuildEvent is Event {
       );
     } else {
       require(ObjectType.get(eventEntityId) == emptyObjectId(), "BuildEvent: Object type id is not empty");
+
+      bytes32[][] memory inventoryIds = getKeysWithValue(InventoryTableId, Inventory.encode(objectEntityId));
+      require(inventoryIds.length == 0, "BuildEvent: Cannot build where there are dropped items");
     }
     ObjectProperties memory requestedProperties = IWorld(_world()).enterWorld(objectTypeId, coord, objectEntityId);
     if (isNewEntity) {

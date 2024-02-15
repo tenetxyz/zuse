@@ -4,6 +4,7 @@ pragma solidity >=0.8.0;
 import { IWorld } from "@tenet-simulator/src/codegen/world/IWorld.sol";
 import { IStore } from "@latticexyz/store/src/IStore.sol";
 import { System } from "@latticexyz/world/src/System.sol";
+import { hasKey } from "@latticexyz/world/src/modules/haskeys/hasKey.sol";
 
 import { Mass, MassTableId } from "@tenet-simulator/src/codegen/tables/Mass.sol";
 import { Health, HealthTableId } from "@tenet-simulator/src/codegen/tables/Health.sol";
@@ -37,6 +38,20 @@ contract GravityRuleSystem is System {
     uint256 currentMass = Mass.get(worldAddress, eventObjectEntityId);
 
     bytes32 eventEntityId = getEntityAtCoord(IStore(worldAddress), eventCoord);
+
+    // If the block has 0 health, and it has a health key, then it should be mined
+    if (
+      Health.getHealth(worldAddress, eventObjectEntityId) == 0 &&
+      hasKey(HealthTableId, Health.encodeKeyTuple(worldAddress, eventObjectEntityId))
+    ) {
+      IMineSystem(worldAddress).mine(
+        bytes32(0), // No acting object entity, since this is the simulator calling it
+        ObjectType.get(IStore(worldAddress), eventEntityId),
+        eventCoord
+      );
+      return eventEntityId;
+    }
+
     if (currentMass == 0) {
       // if the current mass is 0, then we need to apply gravity to all the blocks around it
       (bytes32[] memory neighbourEntities, VoxelCoord[] memory neighbourCoords) = getVonNeumannNeighbourEntities(
@@ -98,15 +113,6 @@ contract GravityRuleSystem is System {
     if (currentHealth > 0) {
       uint256 newHealth = safeSubtract(currentHealth, GRAVITY_DAMAGE);
       Health.setHealth(worldAddress, applyObjectEntityId, newHealth);
-
-      if (newHealth == 0) {
-        IMineSystem(worldAddress).mine(
-          bytes32(0), // No acting object entity, since this is the simulator calling it
-          applyObjectTypeId,
-          positionDataToVoxelCoord(Position.get(IStore(worldAddress), applyEntityId))
-        );
-        return applyEntityId;
-      }
     }
 
     VoxelCoord memory newCoord = VoxelCoord({ x: applyCoord.x, y: applyCoord.y - 1, z: applyCoord.z });

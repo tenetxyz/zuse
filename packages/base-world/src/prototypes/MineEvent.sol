@@ -116,14 +116,6 @@ abstract contract MineEvent is Event {
   ) internal virtual override {
     bool hasOwner = OwnedBy.get(objectEntityId) != address(0);
     if (hasOwner) {
-      // Delete all inventory items
-      bytes32[][] memory inventoryIds = getKeysWithValue(InventoryTableId, Inventory.encode(objectEntityId));
-      for (uint256 i = 0; i < inventoryIds.length; i++) {
-        bytes32 inventoryId = inventoryIds[i][0];
-        Inventory.deleteRecord(inventoryId);
-        InventoryObject.deleteRecord(inventoryId);
-      }
-
       // Remove owner
       OwnedBy.deleteRecord(objectEntityId);
     }

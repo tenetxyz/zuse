@@ -74,7 +74,7 @@ const WORLD_TABLES: Record<string, TableConfig> = {
       inventoryId: "bytes32",
     },
     schema: {
-      agentObjectEntityId: "bytes32",
+      objectEntityId: "bytes32",
     },
   },
   InventoryObject: {

@@ -44,16 +44,6 @@ contract ActionSystem is ActionProtoSystem {
     } else if (action.targetTable == SimTable.Health) {
       uint256 newHealth = Health.getHealth(IStore(getSimulatorAddress()), _world(), action.targetObjectEntityId);
       if (newHealth == 0) {
-        // transfer inventory to sender
-        bytes32[][] memory inventoryIds = getKeysWithValue(
-          InventoryTableId,
-          Inventory.encode(action.targetObjectEntityId)
-        );
-        for (uint256 i = 0; i < inventoryIds.length; i++) {
-          bytes32 inventoryId = inventoryIds[i][0];
-          Inventory.set(inventoryId, objectEntityId);
-        }
-
         // mine the object
         bytes32 targetObjectTypeId = ObjectType.get(
           getEntityIdFromObjectEntityId(IStore(_world()), action.targetObjectEntityId)

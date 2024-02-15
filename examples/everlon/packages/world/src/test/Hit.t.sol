@@ -139,6 +139,11 @@ contract HitTest is MudTest {
     assertTrue(bobStaminaAfter < bobStaminaBefore, "Stamina did not decrease");
     assertTrue(ObjectType.get(store, getEntityAtCoord(store, initialAgentCoord)) == AirObjectID, "Agent did not die");
 
+    // Move agent to new coord to pick up dropped inventory
+    world.move(bobAgentObjectEntityId, agentObjectTypeId, bobAgentCoord, initialAgentCoord);
+    // move back
+    world.move(bobAgentObjectEntityId, agentObjectTypeId, initialAgentCoord, bobAgentCoord);
+
     {
       bytes32[][] memory originalAgentObjects = getKeysWithValue(
         store,

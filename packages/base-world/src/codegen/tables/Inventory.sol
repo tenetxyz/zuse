@@ -46,7 +46,7 @@ library Inventory {
   /** Get the table's field names */
   function getFieldNames() internal pure returns (string[] memory fieldNames) {
     fieldNames = new string[](1);
-    fieldNames[0] = "agentObjectEntityId";
+    fieldNames[0] = "objectEntityId";
   }
 
   /** Register the table's key schema, value schema, key names and value names */
@@ -59,8 +59,8 @@ library Inventory {
     _store.registerTable(_tableId, getKeySchema(), getValueSchema(), getKeyNames(), getFieldNames());
   }
 
-  /** Get agentObjectEntityId */
-  function get(bytes32 inventoryId) internal view returns (bytes32 agentObjectEntityId) {
+  /** Get objectEntityId */
+  function get(bytes32 inventoryId) internal view returns (bytes32 objectEntityId) {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = inventoryId;
 
@@ -68,8 +68,8 @@ library Inventory {
     return (Bytes.slice32(_blob, 0));
   }
 
-  /** Get agentObjectEntityId (using the specified store) */
-  function get(IStore _store, bytes32 inventoryId) internal view returns (bytes32 agentObjectEntityId) {
+  /** Get objectEntityId (using the specified store) */
+  function get(IStore _store, bytes32 inventoryId) internal view returns (bytes32 objectEntityId) {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = inventoryId;
 
@@ -77,25 +77,25 @@ library Inventory {
     return (Bytes.slice32(_blob, 0));
   }
 
-  /** Set agentObjectEntityId */
-  function set(bytes32 inventoryId, bytes32 agentObjectEntityId) internal {
+  /** Set objectEntityId */
+  function set(bytes32 inventoryId, bytes32 objectEntityId) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = inventoryId;
 
-    StoreSwitch.setField(_tableId, _keyTuple, 0, abi.encodePacked((agentObjectEntityId)), getValueSchema());
+    StoreSwitch.setField(_tableId, _keyTuple, 0, abi.encodePacked((objectEntityId)), getValueSchema());
   }
 
-  /** Set agentObjectEntityId (using the specified store) */
-  function set(IStore _store, bytes32 inventoryId, bytes32 agentObjectEntityId) internal {
+  /** Set objectEntityId (using the specified store) */
+  function set(IStore _store, bytes32 inventoryId, bytes32 objectEntityId) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = inventoryId;
 
-    _store.setField(_tableId, _keyTuple, 0, abi.encodePacked((agentObjectEntityId)), getValueSchema());
+    _store.setField(_tableId, _keyTuple, 0, abi.encodePacked((objectEntityId)), getValueSchema());
   }
 
   /** Tightly pack full data using this table's schema */
-  function encode(bytes32 agentObjectEntityId) internal pure returns (bytes memory) {
-    return abi.encodePacked(agentObjectEntityId);
+  function encode(bytes32 objectEntityId) internal pure returns (bytes memory) {
+    return abi.encodePacked(objectEntityId);
   }
 
   /** Encode keys as a bytes32 array using this table's schema */

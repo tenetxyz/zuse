@@ -4,10 +4,13 @@ pragma solidity >=0.8.0;
 import { IStore } from "@latticexyz/store/src/IStore.sol";
 import { IWorld } from "@tenet-base-world/src/codegen/world/IWorld.sol";
 import { Event } from "@tenet-base-world/src/prototypes/Event.sol";
+import { getKeysWithValue } from "@latticexyz/world/src/modules/keyswithvalue/getKeysWithValue.sol";
 
+import { OwnedBy, OwnedByTableId } from "@tenet-base-world/src/codegen/tables/OwnedBy.sol";
 import { ObjectType } from "@tenet-base-world/src/codegen/tables/ObjectType.sol";
 import { ObjectEntity } from "@tenet-base-world/src/codegen/tables/ObjectEntity.sol";
 import { AgentMetadata } from "@tenet-base-world/src/codegen/tables/AgentMetadata.sol";
+import { Inventory, InventoryTableId } from "@tenet-base-world/src/codegen/tables/Inventory.sol";
 import { ReverseObjectEntity } from "@tenet-base-world/src/codegen/tables/ReverseObjectEntity.sol";
 
 import { VoxelCoord } from "@tenet-utils/src/Types.sol";
@@ -114,6 +117,20 @@ abstract contract MoveEvent is Event {
         AgentMetadata.setNumMoves(actingObjectEntityId, 1);
       } else {
         AgentMetadata.setNumMoves(actingObjectEntityId, AgentMetadata.getNumMoves(actingObjectEntityId) + 1);
+      }
+    }
+
+    {
+      // Transfer any dropped items to the new object
+      bool hasOwner = OwnedBy.get(oldObjectEntityId) != address(0);
+      bytes32[][] memory inventoryIds = getKeysWithValue(InventoryTableId, Inventory.encode(objectEntityId));
+      if (hasOwner) {
+        for (uint256 i = 0; i < inventoryIds.length; i++) {
+          bytes32 inventoryId = inventoryIds[i][0];
+          Inventory.set(inventoryId, oldObjectEntityId);
+        }
+      } else {
+        require(inventoryIds.length == 0, "MoveEvent: Cannot move non-agent where there are dropped items");
       }
     }
 

@@ -90,6 +90,12 @@ export default tenetMudConfig({
   },
   modules: [
     {
+      // TODO: This is only needed for tests, so we should remove it from production
+      name: "KeysInTableModule",
+      root: true,
+      args: [resolveTableId("Recipes")],
+    },
+    {
       name: "KeysInTableModule",
       root: true,
       args: [resolveTableId("Faucet")],

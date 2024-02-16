@@ -18,6 +18,7 @@ import { OakLogObjectID, OakLumberObjectID, OAK_LUMBER_MASS } from "@tenet-world
 import { VoxelCoord, ObjectProperties } from "@tenet-utils/src/Types.sol";
 
 contract RecipeSystem is System {
+  // TODO: Make this only callable once
   function initRecipes() public {
     // Oak Log -> Oak Lumber
 

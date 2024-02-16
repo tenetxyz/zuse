@@ -42,6 +42,7 @@ bytes32 constant CottonBushObjectID = bytes32(keccak256("cotton-bush"));
 bytes32 constant MossGrassObjectID = bytes32(keccak256("moss-grass"));
 bytes32 constant SwitchGrassObjectID = bytes32(keccak256("switch-grass"));
 bytes32 constant OakLogObjectID = bytes32(keccak256("oak-log"));
+bytes32 constant OakLumberObjectID = bytes32(keccak256("oak-lumber"));
 bytes32 constant BirchLogObjectID = bytes32(keccak256("birch-log"));
 bytes32 constant SakuraLogObjectID = bytes32(keccak256("sakura-log"));
 bytes32 constant RubberLogObjectID = bytes32(keccak256("rubber-log"));
@@ -98,6 +99,8 @@ uint256 constant OAK_LOG_MASS = 4;
 uint256 constant BIRCH_LOG_MASS = 4;
 uint256 constant SAKURA_LOG_MASS = 4;
 uint256 constant RUBBER_LOG_MASS = 4;
+
+uint256 constant OAK_LUMBER_MASS = 4;
 
 uint256 constant OAK_LEAF_MASS = 1;
 uint256 constant BIRCH_LEAF_MASS = 1;

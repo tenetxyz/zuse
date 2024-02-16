@@ -10,7 +10,15 @@ function hasEntity(bytes32[] memory entities) pure returns (bool) {
   return false;
 }
 
-function initializeArray(uint256 x, uint256 y) pure returns (uint256[][] memory) {
+function initializeBytes32Array(uint256 x, uint256 y) pure returns (bytes32[][] memory) {
+  bytes32[][] memory arr = new bytes32[][](x);
+  for (uint256 i; i < x; i++) {
+    arr[i] = new bytes32[](y);
+  }
+  return arr;
+}
+
+function initializeUint256Array(uint256 x, uint256 y) pure returns (uint256[][] memory) {
   uint256[][] memory arr = new uint256[][](x);
   for (uint256 i; i < x; i++) {
     arr[i] = new uint256[](y);

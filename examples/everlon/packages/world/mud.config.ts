@@ -69,6 +69,16 @@ export default tenetMudConfig({
     },
   },
   systems: {
+    RecipeSystem: {
+      name: "RecipeSystem",
+      openAccess: true,
+      registerAsRoot: true,
+    },
+    CraftSystem: {
+      name: "CraftSystem",
+      openAccess: true,
+      registerAsRoot: true,
+    },
     FaucetSystem: {
       name: "FaucetSystem",
       openAccess: true,

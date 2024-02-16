@@ -6,6 +6,7 @@ import { IStore } from "@latticexyz/store/src/IStore.sol";
 import { System } from "@latticexyz/world/src/System.sol";
 import { hasKey } from "@latticexyz/world/src/modules/keysintable/hasKey.sol";
 import { getKeysInTable } from "@latticexyz/world/src/modules/keysintable/getKeysInTable.sol";
+import { getUniqueEntity } from "@latticexyz/world/src/modules/uniqueentity/getUniqueEntity.sol";
 
 import { Recipes, RecipesData, RecipesTableId } from "@tenet-world/src/codegen/tables/Recipes.sol";
 import { OwnedBy, OwnedByTableId } from "@tenet-base-world/src/codegen/tables/OwnedBy.sol";
@@ -18,15 +19,34 @@ import { VoxelCoord, ObjectProperties } from "@tenet-utils/src/Types.sol";
 
 contract RecipeSystem is System {
   function initRecipes() public {
-    // Log to Planks
-    bytes32[][] memory recipe = initializeBytes32Array(1, 1);
-    recipe[0][0] = OakLogObjectID;
+    // Oak Log -> Oak Lumber
 
-    ObjectProperties memory outputProperties;
-    outputProperties.mass = OAK_LUMBER_MASS;
+    // Recipe inputs
+    bytes32[] memory inputObjectTypeIds = new bytes32[](1);
+    inputObjectTypeIds[0] = OakLogObjectID;
+    uint32[] memory inputObjectTypeAmounts = new uint32[](1);
+    inputObjectTypeAmounts[0] = 1;
+
+    // Recipe outputs
+    bytes32[] memory outputObjectTypeIds = new bytes32[](1);
+    outputObjectTypeIds[0] = OakLumberObjectID;
+    uint32[] memory outputObjectTypeAmounts = new uint32[](1);
+    outputObjectTypeAmounts[0] = 1;
+    ObjectProperties[] memory outputObjectProperties = new ObjectProperties[](1);
+    ObjectProperties memory lumberOutputProperties;
+    lumberOutputProperties.mass = OAK_LUMBER_MASS;
+    outputObjectProperties[0] = lumberOutputProperties;
+
+    bytes32 newRecipeId = getUniqueEntity();
     Recipes.set(
-      keccak256(abi.encode(recipe)),
-      RecipesData({ objectTypeId: OakLumberObjectID, objectProperties: abi.encode(outputProperties) })
+      newRecipeId,
+      RecipesData({
+        inputObjectTypeIds: inputObjectTypeIds,
+        inputObjectTypeAmounts: inputObjectTypeAmounts,
+        outputObjectTypeIds: outputObjectTypeIds,
+        outputObjectTypeAmounts: outputObjectTypeAmounts,
+        outputObjectProperties: abi.encode(outputObjectProperties)
+      })
     );
   }
 }

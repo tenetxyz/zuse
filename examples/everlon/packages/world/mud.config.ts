@@ -8,11 +8,14 @@ export default tenetMudConfig({
     Recipes: {
       registerAsRoot: true,
       keySchema: {
-        objectTypeIdsHash: "bytes32",
+        recipeId: "bytes32",
       },
       schema: {
-        objectTypeId: "bytes32",
-        objectProperties: "bytes", // ObjectProperties
+        inputObjectTypeIds: "bytes32[]",
+        inputObjectTypeAmounts: "uint32[]",
+        outputObjectTypeIds: "bytes32[]",
+        outputObjectTypeAmounts: "uint32[]",
+        outputObjectProperties: "bytes", // ObjectProperties[]
       },
     },
     Faucet: {

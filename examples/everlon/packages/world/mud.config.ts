@@ -4,6 +4,17 @@ import { resolveTableId } from "@latticexyz/config";
 export default tenetMudConfig({
   namespace: "world",
   tables: {
+    // TODO: Move into base-world
+    Recipes: {
+      registerAsRoot: true,
+      keySchema: {
+        objectTypeIdsHash: "bytes32",
+      },
+      schema: {
+        objectTypeId: "bytes32",
+        objectProperties: "bytes", // ObjectProperties
+      },
+    },
     Faucet: {
       registerAsRoot: true,
       keySchema: {

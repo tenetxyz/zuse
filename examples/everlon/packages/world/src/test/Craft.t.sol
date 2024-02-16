@@ -51,7 +51,7 @@ contract CraftTest is MudTest {
     return (agentEntityId, agentObjectEntityId);
   }
 
-  function testSingleCraft() public {
+  function testSingleInputMultipleOutputCraft() public {
     vm.startPrank(alice, alice);
 
     (, bytes32 agentObjectEntityId) = setupAgent();
@@ -80,11 +80,12 @@ contract CraftTest is MudTest {
 
     // Assert that the inventory has the crafted item
     agentObjects = getKeysWithValue(store, InventoryTableId, Inventory.encode(agentObjectEntityId));
-    assertTrue(agentObjects.length == 1, "Agent does not have inventory");
-    assertTrue(agentObjects[0].length == 1, "Agent does not have inventory");
-    agentInventoryId = agentObjects[0][0];
-    agentInventoryObjectTypeId = InventoryObject.getObjectTypeId(store, agentInventoryId);
-    assertTrue(agentInventoryObjectTypeId == OakLumberObjectID, "Agent does not have crafted object in inventory");
+    assertTrue(agentObjects.length == 4, "Agent does not have inventory");
+    for (uint i = 0; i < agentObjects.length; i++) {
+      agentInventoryId = agentObjects[i][0];
+      agentInventoryObjectTypeId = InventoryObject.getObjectTypeId(store, agentInventoryId);
+      assertTrue(agentInventoryObjectTypeId == OakLumberObjectID, "Agent does not have crafted object in inventory");
+    }
 
     // Try crafting again
     vm.expectRevert();

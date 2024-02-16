@@ -32,7 +32,7 @@ contract RecipeSystem is System {
     bytes32[] memory outputObjectTypeIds = new bytes32[](1);
     outputObjectTypeIds[0] = OakLumberObjectID;
     uint32[] memory outputObjectTypeAmounts = new uint32[](1);
-    outputObjectTypeAmounts[0] = 1;
+    outputObjectTypeAmounts[0] = 4;
     ObjectProperties[] memory outputObjectProperties = new ObjectProperties[](1);
     ObjectProperties memory lumberOutputProperties;
     lumberOutputProperties.mass = OAK_LUMBER_MASS;

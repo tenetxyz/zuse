@@ -19,4 +19,11 @@ abstract contract EquipSystem is System {
 
     Equipped.set(actingObjectEntityId, inventoryId);
   }
+
+  function unequip(bytes32 actingObjectEntityId) public virtual {
+    require(hasKey(OwnedByTableId, OwnedBy.encodeKeyTuple(actingObjectEntityId)), "EquipSystem: entity has no owner");
+    require(OwnedBy.get(actingObjectEntityId) == _msgSender(), "EquipSystem: caller does not own entity");
+
+    Equipped.deleteRecord(actingObjectEntityId);
+  }
 }

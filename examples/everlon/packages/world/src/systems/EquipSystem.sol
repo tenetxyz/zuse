@@ -9,4 +9,8 @@ contract EquipSystem is EquipProtoSystem {
   function equip(bytes32 actingObjectEntityId, bytes32 inventoryId) public override {
     super.equip(actingObjectEntityId, inventoryId);
   }
+
+  function unequip(bytes32 actingObjectEntityId) public override {
+    super.unequip(actingObjectEntityId);
+  }
 }

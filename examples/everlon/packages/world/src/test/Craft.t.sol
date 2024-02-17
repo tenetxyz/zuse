@@ -130,6 +130,18 @@ contract CraftTest is MudTest {
       "Agent is not equipped with the inventory"
     );
 
+    world.unequip(agentObjectEntityId);
+    assertTrue(
+      Equipped.get(store, agentObjectEntityId) == bytes32(uint256(0)),
+      "Agent is still equipped with the inventory"
+    );
+
+    world.equip(agentObjectEntityId, agentInventoryId);
+    assertTrue(
+      Equipped.get(store, agentObjectEntityId) == agentInventoryId,
+      "Agent is not equipped with the inventory"
+    );
+
     world.build(
       agentObjectEntityId,
       objectTypeId,

@@ -88,6 +88,15 @@ const WORLD_TABLES: Record<string, TableConfig> = {
       objectProperties: "bytes", // ObjectProperties
     },
   },
+  Equipped: {
+    registerAsRoot: true,
+    keySchema: {
+      objectEntityId: "bytes32",
+    },
+    schema: {
+      inventoryId: "bytes32",
+    },
+  },
   AgentMetadata: {
     registerAsRoot: true,
     keySchema: {
@@ -187,6 +196,11 @@ const WORLD_SYSTEMS = {
   },
   ExternalObjectSystem: {
     name: "ExternalObjectSy",
+    openAccess: true,
+    registerAsRoot: true,
+  },
+  EquipSystem: {
+    name: "EquipSystem",
     openAccess: true,
     registerAsRoot: true,
   },

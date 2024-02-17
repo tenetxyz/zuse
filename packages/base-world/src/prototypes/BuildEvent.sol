@@ -9,6 +9,7 @@ import { getKeysWithValue } from "@latticexyz/world/src/modules/keyswithvalue/ge
 import { ObjectType } from "@tenet-base-world/src/codegen/tables/ObjectType.sol";
 import { Inventory, InventoryTableId } from "@tenet-base-world/src/codegen/tables/Inventory.sol";
 import { InventoryObject } from "@tenet-base-world/src/codegen/tables/InventoryObject.sol";
+import { Equipped } from "@tenet-base-world/src/codegen/tables/Equipped.sol";
 import { ObjectEntity } from "@tenet-base-world/src/codegen/tables/ObjectEntity.sol";
 import { VoxelCoord, ObjectProperties } from "@tenet-utils/src/Types.sol";
 import { IWorldBuildEventSystem } from "@tenet-base-simulator/src/codegen/world/IWorldBuildEventSystem.sol";
@@ -85,6 +86,11 @@ abstract contract BuildEvent is Event {
       bytes32 inventoryId = getInventoryId(eventData);
       Inventory.deleteRecord(inventoryId);
       InventoryObject.deleteRecord(inventoryId);
+
+      bytes32 equippedInventoryId = Equipped.get(actingObjectEntityId);
+      if (equippedInventoryId == inventoryId) {
+        Equipped.deleteRecord(actingObjectEntityId);
+      }
     }
 
     IWorldBuildEventSystem(getSimulatorAddress()).onBuildEvent(

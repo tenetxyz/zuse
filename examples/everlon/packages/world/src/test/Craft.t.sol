@@ -7,7 +7,7 @@ import { IStore } from "@latticexyz/store/src/IStore.sol";
 import { IWorld } from "@tenet-world/src/codegen/world/IWorld.sol";
 import { getKeysInTable } from "@latticexyz/world/src/modules/keysintable/getKeysInTable.sol";
 import { getKeysWithValue } from "@latticexyz/world/src/modules/keyswithvalue/getKeysWithValue.sol";
-import { ObjectType, OwnedBy, ObjectEntity, Recipes, RecipesData, RecipesTableId } from "@tenet-world/src/codegen/Tables.sol";
+import { ObjectType, OwnedBy, ObjectEntity, Recipes, RecipesData, RecipesTableId, Equipped } from "@tenet-world/src/codegen/Tables.sol";
 import { Inventory, InventoryTableId } from "@tenet-base-world/src/codegen/tables/Inventory.sol";
 import { InventoryObject } from "@tenet-base-world/src/codegen/tables/InventoryObject.sol";
 import { VoxelCoord } from "@tenet-utils/src/Types.sol";
@@ -103,6 +103,46 @@ contract CraftTest is MudTest {
 
     vm.expectRevert();
     world.craft(agentObjectEntityId, bytes32(uint256(300000)), ingredientIds);
+
+    vm.stopPrank();
+  }
+
+  function testEquip() public {
+    vm.startPrank(alice, alice);
+
+    (, bytes32 agentObjectEntityId) = setupAgent();
+
+    VoxelCoord memory mineCoord = VoxelCoord(198, 27, 208); // hard coded to oak log
+    bytes32 objectTypeId = world.getTerrainObjectTypeId(mineCoord);
+    assertTrue(objectTypeId == OakLogObjectID, "Terrain object is not oak log");
+    world.mine(agentObjectEntityId, objectTypeId, mineCoord);
+    // get the inventory of the agent
+    bytes32[][] memory agentObjects = getKeysWithValue(store, InventoryTableId, Inventory.encode(agentObjectEntityId));
+    assertTrue(agentObjects.length == 1, "Agent does not have inventory");
+    assertTrue(agentObjects[0].length == 1, "Agent does not have inventory");
+    bytes32 agentInventoryId = agentObjects[0][0];
+    bytes32 agentInventoryObjectTypeId = InventoryObject.getObjectTypeId(store, agentInventoryId);
+    assertTrue(agentInventoryObjectTypeId == objectTypeId, "Agent does not have mined object in inventory");
+
+    world.equip(agentObjectEntityId, agentInventoryId);
+    assertTrue(
+      Equipped.get(store, agentObjectEntityId) == agentInventoryId,
+      "Agent is not equipped with the inventory"
+    );
+
+    world.build(
+      agentObjectEntityId,
+      objectTypeId,
+      VoxelCoord(initialAgentCoord.x, initialAgentCoord.y, initialAgentCoord.z + 1),
+      agentInventoryId
+    );
+    assertTrue(
+      Equipped.get(store, agentObjectEntityId) == bytes32(uint256(0)),
+      "Agent is still equipped with the inventory"
+    );
+
+    vm.expectRevert();
+    world.equip(agentObjectEntityId, agentInventoryId);
 
     vm.stopPrank();
   }

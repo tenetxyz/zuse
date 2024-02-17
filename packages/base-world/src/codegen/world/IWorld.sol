@@ -9,6 +9,7 @@ import { IActionSystem } from "@tenet-base-world/src/codegen/world/IActionSystem
 import { IActivateSystem } from "@tenet-base-world/src/codegen/world/IActivateSystem.sol";
 import { IAgentSystem } from "@tenet-base-world/src/codegen/world/IAgentSystem.sol";
 import { IBuildSystem } from "@tenet-base-world/src/codegen/world/IBuildSystem.sol";
+import { IEquipSystem } from "@tenet-base-world/src/codegen/world/IEquipSystem.sol";
 import { IEventApprovalsSystem } from "@tenet-base-world/src/codegen/world/IEventApprovalsSystem.sol";
 import { IExternalObjectSystem } from "@tenet-base-world/src/codegen/world/IExternalObjectSystem.sol";
 import { IMindSystem } from "@tenet-base-world/src/codegen/world/IMindSystem.sol";
@@ -28,6 +29,7 @@ interface IWorld is
   IActivateSystem,
   IAgentSystem,
   IBuildSystem,
+  IEquipSystem,
   IEventApprovalsSystem,
   IExternalObjectSystem,
   IMindSystem,

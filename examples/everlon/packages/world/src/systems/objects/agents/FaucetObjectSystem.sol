@@ -11,13 +11,13 @@ import { Position } from "@tenet-base-world/src/codegen/tables/Position.sol";
 import { ObjectType } from "@tenet-base-world/src/codegen/tables/ObjectType.sol";
 import { ObjectEntity } from "@tenet-base-world/src/codegen/tables/ObjectEntity.sol";
 
-import { REGISTRY_ADDRESS, FaucetObjectID, AirObjectID, DirtObjectID, GrassObjectID, BedrockObjectID, StoneObjectID } from "@tenet-world/src/Constants.sol";
+import { REGISTRY_ADDRESS, FaucetObjectID, BuilderObjectID, RunnerObjectID } from "@tenet-world/src/Constants.sol";
 import { getObjectProperties } from "@tenet-base-world/src/CallUtils.sol";
 import { uint256ToNegativeInt256, uint256ToInt256 } from "@tenet-utils/src/TypeUtils.sol";
 import { positionDataToVoxelCoord, getMooreNeighbourEntities, getEntityIdFromObjectEntityId } from "@tenet-base-world/src/Utils.sol";
 
-uint256 constant NUM_AGENTS_PER_FAUCET = 100;
-uint256 constant STARTING_STAMINA_FROM_FAUCET = 30000;
+uint256 constant NUM_AGENTS_PER_FAUCET = 300;
+uint256 constant STARTING_STAMINA_FROM_FAUCET = 200000;
 uint256 constant STARTING_HEALTH_FROM_FAUCET = 100;
 
 contract FaucetObjectSystem is AgentType {
@@ -88,13 +88,7 @@ contract FaucetObjectSystem is AgentType {
       }
       bytes32 neighbourObjectTypeId = ObjectType.get(IStore(worldAddress), neighbourEntities[i]);
       // TODO: Find a better way to check if the object is an agent
-      if (
-        neighbourObjectTypeId == AirObjectID ||
-        neighbourObjectTypeId == GrassObjectID ||
-        neighbourObjectTypeId == DirtObjectID ||
-        neighbourObjectTypeId == StoneObjectID ||
-        neighbourObjectTypeId == BedrockObjectID
-      ) {
+      if (neighbourObjectTypeId != BuilderObjectID && neighbourObjectTypeId != RunnerObjectID) {
         continue;
       }
       bytes32 neighbourObjectEntityId = ObjectEntity.get(IStore(worldAddress), neighbourEntities[i]);

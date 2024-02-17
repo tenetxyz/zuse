@@ -4,7 +4,7 @@ pragma solidity >=0.8.0;
 import { IWorld } from "@tenet-simulator/src/codegen/world/IWorld.sol";
 import { IStore } from "@latticexyz/store/src/IStore.sol";
 import { System } from "@latticexyz/world/src/System.sol";
-import { hasKey } from "@latticexyz/world/src/modules/keysintable/hasKey.sol";
+import { hasKey } from "@latticexyz/world/src/modules/haskeys/hasKey.sol";
 
 import { WorldMoveEventSystem as WorldMoveEventProtoSystem } from "@tenet-base-simulator/src/systems/WorldMoveEventSystem.sol";
 import { ObjectEntity } from "@tenet-base-world/src/codegen/tables/ObjectEntity.sol";
@@ -24,8 +24,10 @@ contract WorldMoveEventSystem is WorldMoveEventProtoSystem {
     VoxelCoord memory newCoord
   ) public override {
     address worldAddress = _msgSender();
-    IWorld(_world()).checkActingObjectHealth(worldAddress, actingObjectEntityId);
-    IWorld(_world()).updateVelocityCache(worldAddress, actingObjectEntityId);
+    IWorld(_world()).applyHealthIncrease(worldAddress, actingObjectEntityId);
+    IWorld(_world()).applyStaminaIncrease(worldAddress, actingObjectEntityId);
+    // IWorld(_world()).checkActingObjectHealth(worldAddress, actingObjectEntityId);
+    // IWorld(_world()).updateVelocityCache(worldAddress, actingObjectEntityId);
   }
 
   function onMoveEvent(
@@ -37,9 +39,9 @@ contract WorldMoveEventSystem is WorldMoveEventProtoSystem {
     bytes32 objectEntityId
   ) public override returns (bytes32) {
     address worldAddress = _msgSender();
-    if (objectEntityId != actingObjectEntityId) {
-      IWorld(_world()).updateVelocityCache(worldAddress, objectEntityId);
-    }
+    // if (objectEntityId != actingObjectEntityId) {
+    //   IWorld(_world()).updateVelocityCache(worldAddress, objectEntityId);
+    // }
     bytes32 newEntityId = IWorld(_world()).velocityChange(
       worldAddress,
       actingObjectEntityId,
@@ -48,8 +50,6 @@ contract WorldMoveEventSystem is WorldMoveEventProtoSystem {
       oldObjectEntityId,
       objectEntityId
     );
-    bytes32 newObjectEntityId = ObjectEntity.get(IStore(worldAddress), newEntityId);
-    IWorld(_world()).applyTemperatureEffects(worldAddress, newObjectEntityId);
 
     return newEntityId;
   }
@@ -60,7 +60,5 @@ contract WorldMoveEventSystem is WorldMoveEventProtoSystem {
     VoxelCoord memory oldCoord,
     VoxelCoord memory newCoord,
     bytes32 objectEntityId
-  ) public override {
-    IWorld(_world()).resolveCombatMoves();
-  }
+  ) public override {}
 }

@@ -12,26 +12,20 @@ export default tenetMudConfig({
       schema: {
         claimers: "address[]",
         claimerAmounts: "uint256[]",
+        claimerObjectEntityIds: "bytes", // bytes32[][]
       },
     },
-    Shard: {
+    AgentFaucet: {
       registerAsRoot: true,
       keySchema: {
-        // ShardCoords
-        x: "int32",
-        y: "int32",
-        z: "int32",
+        agentObjectEntityId: "bytes32",
       },
       schema: {
-        claimer: "address",
-        contractAddress: "address",
-        objectTypeIdSelector: "bytes4",
-        objectPropertiesSelector: "bytes4",
-        totalGenMass: "uint256",
-        totalGenEnergy: "uint256",
+        faucetObjectEntityId: "bytes32",
       },
     },
     TerrainProperties: {
+      // cache of terrain properties, used by simulator to save gas
       registerAsRoot: true,
       keySchema: {
         x: "int32",
@@ -42,7 +36,7 @@ export default tenetMudConfig({
         properties: "bytes", // ObjectProperties
       },
     },
-    Metadata: {
+    ObjectMetadata: {
       registerAsRoot: true,
       keySchema: {
         objectEntityId: "bytes32",
@@ -51,15 +45,21 @@ export default tenetMudConfig({
         numRan: "uint32",
       },
     },
+    // Object Type Tables
+    AgentAction: {
+      keySchema: {
+        objectEntityId: "bytes32",
+      },
+      schema: {
+        isHit: "bool",
+        targetObjectEntityId: "bytes32",
+        damage: "uint32",
+      },
+    },
   },
   systems: {
     FaucetSystem: {
       name: "FaucetSystem",
-      openAccess: true,
-      registerAsRoot: true,
-    },
-    ShardSystem: {
-      name: "ShardSystem",
       openAccess: true,
       registerAsRoot: true,
     },
@@ -71,24 +71,19 @@ export default tenetMudConfig({
       args: [resolveTableId("Faucet")],
     },
     {
-      name: "KeysInTableModule",
-      root: true,
-      args: [resolveTableId("Shard")],
-    },
-    {
-      name: "KeysInTableModule",
+      name: "HasKeysModule",
       root: true,
       args: [resolveTableId("TerrainProperties")],
     },
     {
-      name: "KeysInTableModule",
+      name: "HasKeysModule",
       root: true,
       args: [resolveTableId("Mind")],
     },
     {
       name: "KeysInTableModule",
       root: true,
-      args: [resolveTableId("Metadata")],
+      args: [resolveTableId("ObjectMetadata")],
     },
   ],
 });

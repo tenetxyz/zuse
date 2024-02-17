@@ -4,15 +4,19 @@ pragma solidity >=0.8.0;
 import { IWorld } from "@tenet-world/src/codegen/world/IWorld.sol";
 import { System } from "@latticexyz/world/src/System.sol";
 import { VoxelCoord, ObjectProperties } from "@tenet-utils/src/Types.sol";
-import { hasKey } from "@latticexyz/world/src/modules/keysintable/hasKey.sol";
+import { hasKey } from "@latticexyz/world/src/modules/haskeys/hasKey.sol";
+import { getUniqueEntity } from "@latticexyz/world/src/modules/uniqueentity/getUniqueEntity.sol";
+import { getKeysInTable } from "@latticexyz/world/src/modules/keysintable/getKeysInTable.sol";
 
-import { Shard, ShardData, ShardTableId, TerrainProperties, TerrainPropertiesTableId } from "@tenet-world/src/codegen/Tables.sol";
+import { ISimInitSystem } from "@tenet-base-simulator/src/codegen/world/ISimInitSystem.sol";
+import { Position, ReversePosition, ObjectType, ObjectEntity, ReverseObjectEntity, Faucet, FaucetData, FaucetTableId, OwnedBy, TerrainProperties, TerrainPropertiesTableId } from "@tenet-world/src/codegen/Tables.sol";
+import { TerrainData } from "@tenet-world/src/Types.sol";
 
 import { safeStaticCall, safeCall } from "@tenet-utils/src/CallUtils.sol";
-import { SIMULATOR_ADDRESS, SHARD_DIM, AirObjectID, NUM_MAX_TOTAL_ENERGY_IN_SHARD, NUM_MAX_TOTAL_MASS_IN_SHARD } from "@tenet-world/src/Constants.sol";
+import { SIMULATOR_ADDRESS, AirObjectID, FaucetObjectID } from "@tenet-world/src/Constants.sol";
 import { TerrainSystem as TerrainProtoSystem } from "@tenet-base-world/src/systems/TerrainSystem.sol";
-import { coordToShardCoord } from "@tenet-utils/src/VoxelCoordUtils.sol";
 
+// Spline functions and inspiration from https://github.com/latticexyz/opcraft/blob/main/packages/contracts/src/libraries/LibTerrain.sol
 contract TerrainSystem is TerrainProtoSystem {
   function getSimulatorAddress() internal pure override returns (address) {
     return SIMULATOR_ADDRESS;
@@ -22,36 +26,59 @@ contract TerrainSystem is TerrainProtoSystem {
     return AirObjectID;
   }
 
-  function decodeToBytes32(bytes memory data) external pure returns (bytes32) {
-    return abi.decode(data, (bytes32));
+  function spawnInitialFaucets() public {
+    bytes32[][] memory numFaucets = getKeysInTable(FaucetTableId);
+    require(numFaucets.length == 0, "TerrainSystem: Faucets already spawned");
+
+    VoxelCoord memory faucetCoord1 = VoxelCoord(197, 27, 203);
+    setFaucetAgent(faucetCoord1);
+
+    VoxelCoord memory faucetCoord2 = VoxelCoord(173, 31, 241);
+    setFaucetAgent(faucetCoord2);
+
+    VoxelCoord memory faucetCoord3 = VoxelCoord(152, 42, 159);
+    setFaucetAgent(faucetCoord3);
+
+    VoxelCoord memory faucetCoord4 = VoxelCoord(263, 28, 115);
+    setFaucetAgent(faucetCoord4);
   }
 
-  // Note: we cannot call this decodeToObjectProperties because that function
-  // already exists in ObjectSystem
-  // TODO: Find a way to avoid this code duplication
-  function decodeToTerrainObjectProperties(bytes memory data) external pure returns (ObjectProperties memory) {
-    return abi.decode(data, (ObjectProperties));
+  function setFaucetAgent(VoxelCoord memory coord) internal {
+    bytes32 objectTypeId = FaucetObjectID;
+
+    // Create entity
+    bytes32 eventEntityId = getUniqueEntity();
+    Position.set(eventEntityId, coord.x, coord.y, coord.z);
+    ReversePosition.set(coord.x, coord.y, coord.z, eventEntityId);
+    ObjectType.set(eventEntityId, objectTypeId);
+    bytes32 objectEntityId = getUniqueEntity();
+    ObjectEntity.set(eventEntityId, objectEntityId);
+    ReverseObjectEntity.set(objectEntityId, eventEntityId);
+
+    // This will place the agent, so it will check if the object there is air
+    bytes32 terrainObjectTypeId = IWorld(_world()).getTerrainObjectTypeId(coord);
+    require(
+      terrainObjectTypeId == emptyObjectId() || terrainObjectTypeId == objectTypeId,
+      "TerrainSystem: Terrain object type id does not match"
+    );
+
+    ObjectProperties memory faucetProperties = IWorld(_world()).enterWorld(objectTypeId, coord, objectEntityId);
+    ISimInitSystem(SIMULATOR_ADDRESS).initObject(objectEntityId, faucetProperties);
+
+    // TODO: Make this the world contract, so that FaucetSystem can build using it
+    OwnedBy.set(objectEntityId, address(0)); // Set owner to 0 so no one can claim it
+    Faucet.set(
+      objectEntityId,
+      FaucetData({
+        claimers: new address[](0),
+        claimerAmounts: new uint256[](0),
+        claimerObjectEntityIds: abi.encode(new bytes32[][](0))
+      })
+    );
   }
 
   function getTerrainObjectTypeId(VoxelCoord memory coord) public view override returns (bytes32) {
-    VoxelCoord memory shardCoord = coordToShardCoord(coord, SHARD_DIM);
-    require(
-      hasKey(ShardTableId, Shard.encodeKeyTuple(shardCoord.x, shardCoord.y, shardCoord.z)),
-      "TerrainSystem: Shard not claimed"
-    );
-    ShardData memory shardData = Shard.get(shardCoord.x, shardCoord.y, shardCoord.z);
-    (bool terrainSelectorSuccess, bytes memory terrainSelectorReturnData) = safeStaticCall(
-      shardData.contractAddress,
-      abi.encodeWithSelector(shardData.objectTypeIdSelector, coord),
-      "shard terrainSelector"
-    );
-    if (terrainSelectorSuccess) {
-      try this.decodeToBytes32(terrainSelectorReturnData) returns (bytes32 terrainObjectTypeId) {
-        return terrainObjectTypeId;
-      } catch {}
-    }
-
-    return AirObjectID;
+    return getTerrainObjectData(coord).objectTypeId;
   }
 
   function getTerrainObjectProperties(
@@ -65,43 +92,14 @@ contract TerrainSystem is TerrainProtoSystem {
       return abi.decode(encodedTerrainProperties, (ObjectProperties));
     }
 
-    VoxelCoord memory shardCoord = coordToShardCoord(coord, SHARD_DIM);
-    require(
-      hasKey(ShardTableId, Shard.encodeKeyTuple(shardCoord.x, shardCoord.y, shardCoord.z)),
-      "TerrainSystem: Shard not claimed"
-    );
-    ShardData memory shardData = Shard.get(shardCoord.x, shardCoord.y, shardCoord.z);
-    (bool propertiesSelectorSuccess, bytes memory propertiesSelectorReturnData) = safeCall(
-      shardData.contractAddress,
-      abi.encodeWithSelector(shardData.objectPropertiesSelector, coord, requestedProperties),
-      "shard terrainSelector"
-    );
-    if (propertiesSelectorSuccess) {
-      try this.decodeToTerrainObjectProperties(propertiesSelectorReturnData) returns (
-        ObjectProperties memory decodedValue
-      ) {
-        objectProperties = decodedValue;
-      } catch {}
-    }
+    objectProperties = getTerrainObjectData(coord).properties;
 
-    // Enforce constraints on terrain
-    if (shardData.totalGenMass + objectProperties.mass > NUM_MAX_TOTAL_MASS_IN_SHARD) {
-      // Override mass
-      objectProperties.mass = 0;
-    } else {
-      // Update shard data total mass
-      shardData.totalGenMass += objectProperties.mass;
-    }
-    if (shardData.totalGenEnergy + objectProperties.energy > NUM_MAX_TOTAL_ENERGY_IN_SHARD) {
-      // Override energy
-      objectProperties.energy = 0;
-    } else {
-      // Update shard data total energy
-      shardData.totalGenEnergy += objectProperties.energy;
-    }
-    Shard.set(shardCoord.x, shardCoord.y, shardCoord.z, shardData);
     TerrainProperties.set(coord.x, coord.y, coord.z, abi.encode(objectProperties));
 
     return objectProperties;
+  }
+
+  function getTerrainObjectData(VoxelCoord memory coord) internal view returns (TerrainData memory) {
+    return IWorld(_world()).world_LibTerrainSystem_getTerrainBlock(coord);
   }
 }

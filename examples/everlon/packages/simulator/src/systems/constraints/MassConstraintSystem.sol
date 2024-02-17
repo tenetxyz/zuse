@@ -3,7 +3,7 @@ pragma solidity >=0.8.0;
 
 import { IStore } from "@latticexyz/store/src/IStore.sol";
 import { IWorld } from "@tenet-simulator/src/codegen/world/IWorld.sol";
-import { hasKey } from "@latticexyz/world/src/modules/keysintable/hasKey.sol";
+import { hasKey } from "@latticexyz/world/src/modules/haskeys/hasKey.sol";
 import { Constraint } from "@tenet-base-simulator/src/prototypes/Constraint.sol";
 
 import { SimAction } from "@tenet-simulator/src/codegen/tables/SimAction.sol";
@@ -75,7 +75,7 @@ contract MassConstraintSystem is Constraint {
     if (!isMassIncrease) {
       energyRequired = energyRequired * 2;
     }
-    IWorld(_world()).fluxEnergy(isMassIncrease, worldAddress, objectEntityId, energyRequired);
+    // IWorld(_world()).fluxEnergy(isMassIncrease, worldAddress, objectEntityId, energyRequired);
   }
 
   function transfer(

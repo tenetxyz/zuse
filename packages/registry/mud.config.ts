@@ -49,17 +49,17 @@ export default mudConfig({
       args: [],
     },
     {
-      name: "KeysInTableModule",
+      name: "HasKeysModule",
       root: true,
       args: [resolveTableId("ObjectTypeRegistry")],
     },
     {
-      name: "KeysInTableModule",
+      name: "HasKeysModule",
       root: true,
       args: [resolveTableId("DecisionRuleRegistry")],
     },
     {
-      name: "KeysInTableModule",
+      name: "HasKeysModule",
       root: true,
       args: [resolveTableId("MindRegistry")],
     },

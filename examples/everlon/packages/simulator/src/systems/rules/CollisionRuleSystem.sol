@@ -6,6 +6,7 @@ import { IStore } from "@latticexyz/store/src/IStore.sol";
 import { System } from "@latticexyz/world/src/System.sol";
 
 import { Mass, MassTableId } from "@tenet-simulator/src/codegen/tables/Mass.sol";
+import { Health, HealthTableId } from "@tenet-simulator/src/codegen/tables/Health.sol";
 import { Velocity, VelocityData, VelocityTableId } from "@tenet-simulator/src/codegen/tables/Velocity.sol";
 
 import { ObjectEntity } from "@tenet-base-world/src/codegen/tables/ObjectEntity.sol";
@@ -14,24 +15,20 @@ import { ITerrainSystem } from "@tenet-base-world/src/codegen/world/ITerrainSyst
 import { IBuildSystem } from "@tenet-base-world/src/codegen/world/IBuildSystem.sol";
 import { IMoveSystem } from "@tenet-base-world/src/codegen/world/IMoveSystem.sol";
 
-import { getVelocity } from "@tenet-simulator/src/Utils.sol";
-import { VoxelCoord, ObjectProperties } from "@tenet-utils/src/Types.sol";
+import { MoveTrigger } from "@tenet-simulator/src/codegen/Types.sol";
+import { getVelocity, callWorldMove } from "@tenet-simulator/src/Utils.sol";
+import { VoxelCoord, ObjectProperties, CoordDirection } from "@tenet-utils/src/Types.sol";
 import { getEntityAtCoord, getVoxelCoordStrict, getEntityIdFromObjectEntityId, getVonNeumannNeighbourEntities } from "@tenet-base-world/src/Utils.sol";
 import { isZeroCoord, voxelCoordsAreEqual, dot, mulScalar, divScalar, add, sub } from "@tenet-utils/src/VoxelCoordUtils.sol";
 import { abs, absInt32 } from "@tenet-utils/src/MathUtils.sol";
-import { WORLD_MOVE_SIG } from "@tenet-base-world/src/Constants.sol";
 import { uint256ToInt32, int256ToUint256, safeSubtract } from "@tenet-utils/src/TypeUtils.sol";
+import { COLLISION_DAMAGE } from "@tenet-simulator/src/Constants.sol";
 
 struct CollisionData {
   bytes32 objectEntityId;
+  bytes32 objectTypeId;
   VoxelCoord oldVelocity;
   VoxelCoord newVelocity;
-}
-
-enum CoordDirection {
-  X,
-  Y,
-  Z
 }
 
 uint256 constant NUM_MAX_COLLISIONS_UPDATE_DEPTH = 50;
@@ -131,11 +128,11 @@ contract CollisionRuleSystem is System {
         VoxelCoord memory workingCoord = getVoxelCoordStrict(IStore(worldAddress), workingEntityId);
         {
           VoxelCoord memory deltaVelocity = sub(collisionData.newVelocity, collisionData.oldVelocity);
-          bytes32 objectTypeId = ObjectType.get(IStore(worldAddress), workingEntityId);
+          collisionData.objectTypeId = ObjectType.get(IStore(worldAddress), workingEntityId);
           // TODO: What is the optimal order in which to try these?
           (workingCoord, actingObjectEntityId) = tryToReachTargetVelocity(
             worldAddress,
-            objectTypeId,
+            collisionData,
             actingObjectEntityId,
             workingCoord,
             deltaVelocity.x,
@@ -143,7 +140,7 @@ contract CollisionRuleSystem is System {
           );
           (workingCoord, actingObjectEntityId) = tryToReachTargetVelocity(
             worldAddress,
-            objectTypeId,
+            collisionData,
             actingObjectEntityId,
             workingCoord,
             deltaVelocity.y,
@@ -151,7 +148,7 @@ contract CollisionRuleSystem is System {
           );
           (workingCoord, actingObjectEntityId) = tryToReachTargetVelocity(
             worldAddress,
-            objectTypeId,
+            collisionData,
             actingObjectEntityId,
             workingCoord,
             deltaVelocity.z,
@@ -171,7 +168,7 @@ contract CollisionRuleSystem is System {
 
   function tryToReachTargetVelocity(
     address worldAddress,
-    bytes32 objectTypeId,
+    CollisionData memory collisionData,
     bytes32 actingObjectEntityId,
     VoxelCoord memory startingCoord,
     int32 vDelta,
@@ -194,17 +191,25 @@ contract CollisionRuleSystem is System {
     for (int32 i = 0; i < absInt32(vDelta); i++) {
       {
         // Try moving
-        // Note: we can't use IMoveSystem here because we need to safe call it
-        (bool moveSuccess, bytes memory moveReturnData) = worldAddress.call(
-          abi.encodeWithSignature(
-            WORLD_MOVE_SIG,
-            actingObjectEntityId,
-            objectTypeId,
-            workingCoord,
-            add(workingCoord, deltaVelocity)
-          )
+        (bool moveSuccess, bytes memory moveReturnData) = callWorldMove(
+          MoveTrigger.Collision,
+          worldAddress,
+          actingObjectEntityId,
+          collisionData.objectEntityId,
+          collisionData.objectTypeId,
+          workingCoord,
+          add(workingCoord, deltaVelocity)
         );
         if (moveSuccess && moveReturnData.length > 0) {
+          // Check if the agent has health, and if so, apply damage
+          {
+            uint256 currentHealth = Health.getHealth(worldAddress, collisionData.objectEntityId);
+            if (currentHealth > 0) {
+              uint256 newHealth = safeSubtract(currentHealth, COLLISION_DAMAGE);
+              Health.setHealth(worldAddress, collisionData.objectEntityId, newHealth);
+            }
+          }
+
           bytes32 newEntityId;
           {
             bytes32 oldEntityId;

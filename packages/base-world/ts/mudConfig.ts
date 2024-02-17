@@ -25,6 +25,18 @@ const WORLD_TABLES: Record<string, TableConfig> = {
       z: "int32",
     },
   },
+  ReversePosition: {
+    // TODO: Remove this table once KeyWithValueModule is more gas efficient for single key lookups
+    registerAsRoot: true,
+    keySchema: {
+      x: "int32",
+      y: "int32",
+      z: "int32",
+    },
+    schema: {
+      entityId: "bytes32",
+    },
+  },
   ObjectEntity: {
     registerAsRoot: true,
     keySchema: {
@@ -32,6 +44,16 @@ const WORLD_TABLES: Record<string, TableConfig> = {
     },
     schema: {
       objectEntityId: "bytes32",
+    },
+  },
+  ReverseObjectEntity: {
+    // TODO: Remove this table once KeyWithValueModule is more gas efficient for single key lookups
+    registerAsRoot: true,
+    keySchema: {
+      objectEntityId: "bytes32",
+    },
+    schema: {
+      entityId: "bytes32",
     },
   },
   // Note: We have this table due to running on the EVM,
@@ -43,6 +65,37 @@ const WORLD_TABLES: Record<string, TableConfig> = {
     },
     schema: {
       user: "address",
+    },
+  },
+  // TODO: Turn this into a module, and make it optional
+  Inventory: {
+    registerAsRoot: true,
+    keySchema: {
+      inventoryId: "bytes32",
+    },
+    schema: {
+      objectEntityId: "bytes32",
+    },
+  },
+  InventoryObject: {
+    // TODO: Merge this table with Inventory once MUD supports querying composite values
+    registerAsRoot: true,
+    keySchema: {
+      inventoryId: "bytes32",
+    },
+    schema: {
+      objectTypeId: "bytes32",
+      objectProperties: "bytes", // ObjectProperties
+    },
+  },
+  AgentMetadata: {
+    registerAsRoot: true,
+    keySchema: {
+      agentObjectEntityId: "bytes32",
+    },
+    schema: {
+      lastUpdateBlock: "uint256",
+      numMoves: "uint32",
     },
   },
   // TODO: Turn this into a module, and make it optional
@@ -65,40 +118,35 @@ const WORLD_MODULES = [
     args: [],
   },
   {
-    name: "KeysInTableModule",
+    name: "KeysWithValueModule",
     root: true,
-    args: [resolveTableId("ObjectType")],
+    args: [resolveTableId("Inventory")],
   },
   {
-    name: "KeysInTableModule",
+    name: "HasKeysModule",
     root: true,
     args: [resolveTableId("Position")],
   },
   {
-    name: "KeysWithValueModule",
-    root: true,
-    args: [resolveTableId("Position")],
-  },
-  {
-    name: "KeysInTableModule",
-    root: true,
-    args: [resolveTableId("ObjectEntity")],
-  },
-  {
-    name: "KeysWithValueModule",
-    root: true,
-    args: [resolveTableId("ObjectEntity")],
-  },
-  {
-    name: "KeysInTableModule",
+    name: "HasKeysModule",
     root: true,
     args: [resolveTableId("OwnedBy")],
   },
   {
-    name: "KeysInTableModule",
+    name: "HasKeysModule",
     root: true,
     args: [resolveTableId("Mind")],
   },
+  // {
+  //   name: "HasKeysModule",
+  //   root: true,
+  //   args: [resolveTableId("ObjectType")],
+  // },
+  // {
+  //   name: "HasKeysModule",
+  //   root: true,
+  //   args: [resolveTableId("ObjectEntity")],
+  // },
 ];
 
 const WORLD_SYSTEMS = {

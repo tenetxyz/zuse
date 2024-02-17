@@ -4,12 +4,13 @@ pragma solidity >=0.8.0;
 import { System } from "@latticexyz/world/src/System.sol";
 import { IStore } from "@latticexyz/store/src/IStore.sol";
 import { getUniqueEntity } from "@latticexyz/world/src/modules/uniqueentity/getUniqueEntity.sol";
-import { getKeysInTable } from "@latticexyz/world/src/modules/keysintable/getKeysInTable.sol";
 import { IWorld } from "@tenet-base-world/src/codegen/world/IWorld.sol";
 
 import { ObjectType } from "@tenet-base-world/src/codegen/tables/ObjectType.sol";
 import { Position } from "@tenet-base-world/src/codegen/tables/Position.sol";
+import { ReversePosition } from "@tenet-base-world/src/codegen/tables/ReversePosition.sol";
 import { ObjectEntity } from "@tenet-base-world/src/codegen/tables/ObjectEntity.sol";
+import { ReverseObjectEntity } from "@tenet-base-world/src/codegen/tables/ReverseObjectEntity.sol";
 
 import { VoxelCoord } from "@tenet-utils/src/Types.sol";
 import { getEntityAtCoord } from "@tenet-base-world/src/Utils.sol";
@@ -66,8 +67,10 @@ abstract contract Event is System {
     if (isNewEntity) {
       eventEntityId = getUniqueEntity();
       Position.set(eventEntityId, coord.x, coord.y, coord.z);
+      ReversePosition.set(coord.x, coord.y, coord.z, eventEntityId);
       objectEntityId = getUniqueEntity();
       ObjectEntity.set(eventEntityId, objectEntityId);
+      ReverseObjectEntity.set(objectEntityId, eventEntityId);
     } else {
       objectEntityId = ObjectEntity.get(eventEntityId);
     }

@@ -3,7 +3,7 @@ pragma solidity >=0.8.0;
 
 import { System } from "@latticexyz/world/src/System.sol";
 import { IStore } from "@latticexyz/store/src/IStore.sol";
-import { hasKey } from "@latticexyz/world/src/modules/keysintable/hasKey.sol";
+import { hasKey } from "@latticexyz/world/src/modules/haskeys/hasKey.sol";
 import { SimInitSystem as SimInitProtoSystem } from "@tenet-base-simulator/src/systems/SimInitSystem.sol";
 import { Mass, MassTableId } from "@tenet-simulator/src/codegen/tables/Mass.sol";
 import { Energy, EnergyTableId } from "@tenet-simulator/src/codegen/tables/Energy.sol";

@@ -3,7 +3,7 @@ pragma solidity >=0.8.0;
 
 import { IStore } from "@latticexyz/store/src/IStore.sol";
 import { IWorld } from "@tenet-simulator/src/codegen/world/IWorld.sol";
-import { hasKey } from "@latticexyz/world/src/modules/keysintable/hasKey.sol";
+import { hasKey } from "@latticexyz/world/src/modules/haskeys/hasKey.sol";
 import { Constraint } from "@tenet-base-simulator/src/prototypes/Constraint.sol";
 
 import { SimAction } from "@tenet-simulator/src/codegen/tables/SimAction.sol";
@@ -80,11 +80,11 @@ contract StaminaConstraintSystem is Constraint {
     uint256 receiverStamina = int256ToUint256(receiverStaminaDelta);
     require(senderStamina == receiverStamina, "StaminaConstraintSystem: Sender stamina must equal receiver stamina");
 
-    uint256 currentSenderStamina = Stamina.get(worldAddress, senderObjectEntityId);
+    uint256 currentSenderStamina = Stamina.getStamina(worldAddress, senderObjectEntityId);
     require(currentSenderStamina >= senderStamina, "StaminaConstraintSystem: Not enough stamina to transfer");
 
-    uint256 currentReceiverStamina = Stamina.get(worldAddress, receiverObjectEntityId);
-    Stamina.set(worldAddress, receiverObjectEntityId, currentReceiverStamina + receiverStamina);
-    Stamina.set(worldAddress, senderObjectEntityId, currentSenderStamina - senderStamina);
+    uint256 currentReceiverStamina = Stamina.getStamina(worldAddress, receiverObjectEntityId);
+    Stamina.setStamina(worldAddress, receiverObjectEntityId, currentReceiverStamina + receiverStamina);
+    Stamina.setStamina(worldAddress, senderObjectEntityId, currentSenderStamina - senderStamina);
   }
 }

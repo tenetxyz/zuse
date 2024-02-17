@@ -3,23 +3,9 @@ import { resolveTableId } from "@latticexyz/config";
 
 export default tenetMudConfig({
   enums: {
-    ElementType: ["None", "Fire", "Water", "Grass"],
-    SimTable: [
-      "None",
-      "Mass",
-      "Energy",
-      "Velocity",
-      "Health",
-      "Stamina",
-      "Element",
-      "CombatMove",
-      "Nutrients",
-      "Nitrogen",
-      "Phosphorus",
-      "Potassium",
-      "Elixir",
-      "Protein",
-    ],
+    SimTable: ["None", "Mass", "Energy", "Velocity", "Health", "Stamina"],
+    MoveTrigger: ["None", "Gravity", "Collision"],
+    BlockDirection: ["None", "North", "South", "East", "West", "Up", "Down"],
   },
   tables: {
     Metadata: {
@@ -75,90 +61,32 @@ export default tenetMudConfig({
         objectEntityId: "bytes32",
       },
       schema: {
+        lastUpdateBlock: "uint256",
         stamina: "uint256",
       },
     },
-    Element: {
+    GravityMetadata: {
       keySchema: {
         worldAddress: "address",
         objectEntityId: "bytes32",
       },
       schema: {
-        elementType: "ElementType",
+        supportingDirection: "BlockDirection",
       },
     },
-    CombatMove: {
+    MoveMetadata: {
       keySchema: {
         worldAddress: "address",
         objectEntityId: "bytes32",
+        oldPosX: "int32",
+        oldPosY: "int32",
+        oldPosZ: "int32",
+        newPosX: "int32",
+        newPosY: "int32",
+        newPosZ: "int32",
       },
       schema: {
-        moveType: "ElementType",
-        stamina: "uint256",
-        toObjectEntityId: "bytes32",
-      },
-    },
-    Nutrients: {
-      keySchema: {
-        worldAddress: "address",
-        objectEntityId: "bytes32",
-      },
-      schema: {
-        nutrients: "uint256",
-      },
-    },
-    Nitrogen: {
-      keySchema: {
-        worldAddress: "address",
-        objectEntityId: "bytes32",
-      },
-      schema: {
-        nitrogen: "uint256",
-      },
-    },
-    Phosphorus: {
-      keySchema: {
-        worldAddress: "address",
-        objectEntityId: "bytes32",
-      },
-      schema: {
-        phosphorus: "uint256",
-      },
-    },
-    Potassium: {
-      keySchema: {
-        worldAddress: "address",
-        objectEntityId: "bytes32",
-      },
-      schema: {
-        potassium: "uint256",
-      },
-    },
-    Elixir: {
-      keySchema: {
-        worldAddress: "address",
-        objectEntityId: "bytes32",
-      },
-      schema: {
-        elixir: "uint256",
-      },
-    },
-    Protein: {
-      keySchema: {
-        worldAddress: "address",
-        objectEntityId: "bytes32",
-      },
-      schema: {
-        protein: "uint256",
-      },
-    },
-    Temperature: {
-      keySchema: {
-        worldAddress: "address",
-        objectEntityId: "bytes32",
-      },
-      schema: {
-        temperature: "uint256",
+        moveTrigger: "MoveTrigger",
       },
     },
   },
@@ -167,25 +95,23 @@ export default tenetMudConfig({
     FluxEnergyRuleSystem: {
       name: "FluxEnergyRuleSy",
       openAccess: false,
-      accessList: [
-        "VelocityRuleSystem",
-        "MassConstraintSystem",
-        "StaminaVelocityConstraintSystem",
-        "NutrientsConstraintSystem",
-        "EnergyNutrientsConstraintSystem",
-        "NutrientsElixirConstraintSystem",
-        "NutrientsProteinConstraintSystem",
-        "CombatMoveRuleSystem",
-        "StaminaCombatMoveConstraintSystem",
-        "TemperatureConstraintSystem",
-        "EnergyTemperatureConstraintSystem",
-        "TemperatureRuleSystem",
-      ],
+      accessList: ["VelocityRuleSystem", "MassConstraintSystem", "StaminaVelocityConstraintSystem"],
     },
     CollisionRuleSystem: {
       name: "CollisionRuleSys",
       openAccess: false,
       accessList: ["WorldMoveEventSystem"],
+    },
+    GravityRuleSystem: {
+      name: "GravityRuleSyste",
+      openAccess: false,
+      accessList: [
+        "VelocityRuleSystem",
+        "WorldMoveEventSystem",
+        "WorldBuildEventSystem",
+        "WorldMineEventSystem",
+        "WorldActivateEventSystem",
+      ],
     },
     VelocityRuleSystem: {
       name: "VelocityRuleSyst",
@@ -199,104 +125,47 @@ export default tenetMudConfig({
         "StaminaVelocityConstraintSystem",
       ],
     },
-    CombatMoveRuleSystem: {
-      name: "CombatMoveRuleSy",
+    HealthRuleSystem: {
+      name: "HealthRuleSystem",
       openAccess: false,
       accessList: ["WorldMoveEventSystem", "WorldBuildEventSystem", "WorldMineEventSystem", "WorldActivateEventSystem"],
     },
-    TemperatureRuleSystem: {
-      name: "TemperatureRuleS",
-      openAccess: false,
-      accessList: [
-        "WorldMoveEventSystem",
-        "WorldBuildEventSystem",
-        "WorldMineEventSystem",
-        "WorldActivateEventSystem",
-        "TemperatureConstraintSystem",
-        "EnergyTemperatureConstraintSystem",
-      ],
-    },
-    HealthRuleSystem: {
-      name: "HealthRuleSystem",
+    StaminaRuleSystem: {
+      name: "StaminaRuleSyste",
       openAccess: false,
       accessList: ["WorldMoveEventSystem", "WorldBuildEventSystem", "WorldMineEventSystem", "WorldActivateEventSystem"],
     },
   },
   modules: [
     {
-      name: "KeysInTableModule",
+      name: "HasKeysModule",
       root: true,
       args: [resolveTableId("Metadata")],
     },
     {
-      name: "KeysInTableModule",
+      name: "HasKeysModule",
       root: true,
       args: [resolveTableId("Mass")],
     },
     {
-      name: "KeysInTableModule",
+      name: "HasKeysModule",
       root: true,
       args: [resolveTableId("Energy")],
     },
     {
-      name: "KeysInTableModule",
+      name: "HasKeysModule",
       root: true,
       args: [resolveTableId("Velocity")],
     },
     {
-      name: "KeysInTableModule",
+      name: "HasKeysModule",
       root: true,
       args: [resolveTableId("Health")],
     },
     {
-      name: "KeysInTableModule",
+      name: "HasKeysModule",
       root: true,
       args: [resolveTableId("Stamina")],
-    },
-    {
-      name: "KeysInTableModule",
-      root: true,
-      args: [resolveTableId("Element")],
-    },
-    {
-      name: "KeysInTableModule",
-      root: true,
-      args: [resolveTableId("CombatMove")],
-    },
-    {
-      name: "KeysInTableModule",
-      root: true,
-      args: [resolveTableId("Nutrients")],
-    },
-    {
-      name: "KeysInTableModule",
-      root: true,
-      args: [resolveTableId("Nitrogen")],
-    },
-    {
-      name: "KeysInTableModule",
-      root: true,
-      args: [resolveTableId("Phosphorus")],
-    },
-    {
-      name: "KeysInTableModule",
-      root: true,
-      args: [resolveTableId("Potassium")],
-    },
-    {
-      name: "KeysInTableModule",
-      root: true,
-      args: [resolveTableId("Elixir")],
-    },
-    {
-      name: "KeysInTableModule",
-      root: true,
-      args: [resolveTableId("Protein")],
-    },
-    {
-      name: "KeysInTableModule",
-      root: true,
-      args: [resolveTableId("Temperature")],
     },
   ],
 });

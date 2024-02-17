@@ -3,7 +3,7 @@ pragma solidity >=0.8.0;
 
 import { IStore } from "@latticexyz/store/src/IStore.sol";
 import { IWorld } from "@tenet-simulator/src/codegen/world/IWorld.sol";
-import { hasKey } from "@latticexyz/world/src/modules/keysintable/hasKey.sol";
+import { hasKey } from "@latticexyz/world/src/modules/haskeys/hasKey.sol";
 import { Constraint } from "@tenet-base-simulator/src/prototypes/Constraint.sol";
 
 import { SimAction } from "@tenet-simulator/src/codegen/tables/SimAction.sol";
@@ -79,14 +79,14 @@ contract EnergyStaminaConstraintSystem is Constraint {
       require(currentObjectEnergy >= objectEnergy, "EnergyStaminaConstraintSystem: Object does not have enough energy");
     }
     Energy.set(worldAddress, objectEntityId, addUint256AndInt256(currentObjectEnergy, energyDelta));
-    uint256 currentObjectStamina = Stamina.get(worldAddress, objectEntityId);
+    uint256 currentObjectStamina = Stamina.getStamina(worldAddress, objectEntityId);
     if (staminaDelta < 0) {
       require(
         currentObjectStamina >= objectStamina,
         "EnergyStaminaConstraintSystem: Object does not have enough stamina"
       );
     }
-    Stamina.set(worldAddress, objectEntityId, addUint256AndInt256(currentObjectStamina, staminaDelta));
+    Stamina.setStamina(worldAddress, objectEntityId, addUint256AndInt256(currentObjectStamina, staminaDelta));
   }
 
   function transfer(

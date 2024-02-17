@@ -22,7 +22,7 @@ contract AgentTest is MudTest {
   IStore private store;
   IStore private simStore;
   address payable internal alice;
-  VoxelCoord faucetAgentCoord = VoxelCoord(50, 10, 50);
+  VoxelCoord faucetAgentCoord = VoxelCoord(197, 27, 203);
 
   function setUp() public override {
     super.setUp();
@@ -39,14 +39,14 @@ contract AgentTest is MudTest {
     assertTrue(uint256(faucetEntityId) != 0, "Agent not found at coord");
     bytes32 faucetObjectEntityId = ObjectEntity.get(store, faucetEntityId);
     assertTrue(Health.getHealth(simStore, worldAddress, faucetObjectEntityId) > 0, "Faucet does not have health");
-    assertTrue(Stamina.get(simStore, worldAddress, faucetObjectEntityId) > 0, "Faucet does not have stamina");
+    assertTrue(Stamina.getStamina(simStore, worldAddress, faucetObjectEntityId) > 0, "Faucet does not have stamina");
 
-    VoxelCoord memory initialAgentCoord = VoxelCoord(faucetAgentCoord.x, faucetAgentCoord.y, faucetAgentCoord.z + 1);
+    VoxelCoord memory initialAgentCoord = VoxelCoord(faucetAgentCoord.x, faucetAgentCoord.y, faucetAgentCoord.z - 1);
     bytes32 agentEntityId = world.claimAgentFromFaucet(faucetObjectEntityId, BuilderObjectID, initialAgentCoord);
     assertTrue(uint256(agentEntityId) != 0, "Agent not found at coord");
     bytes32 agentObjectEntityId = ObjectEntity.get(store, agentEntityId);
     assertTrue(Health.getHealth(simStore, worldAddress, agentObjectEntityId) > 0, "Faucet did not transfer health");
-    assertTrue(Stamina.get(simStore, worldAddress, agentObjectEntityId) > 0, "Faucet did not transfer stamina");
+    assertTrue(Stamina.getStamina(simStore, worldAddress, agentObjectEntityId) > 0, "Faucet did not transfer stamina");
 
     vm.stopPrank();
   }
@@ -58,7 +58,7 @@ contract AgentTest is MudTest {
     assertTrue(uint256(faucetEntityId) != 0, "Agent not found at coord");
     bytes32 faucetObjectEntityId = ObjectEntity.get(store, faucetEntityId);
     assertTrue(Health.getHealth(simStore, worldAddress, faucetObjectEntityId) > 0, "Faucet does not have health");
-    assertTrue(Stamina.get(simStore, worldAddress, faucetObjectEntityId) > 0, "Faucet does not have stamina");
+    assertTrue(Stamina.getStamina(simStore, worldAddress, faucetObjectEntityId) > 0, "Faucet does not have stamina");
 
     // You can only build one coord away from the faucet
     VoxelCoord memory initialAgentCoord = VoxelCoord(faucetAgentCoord.x, faucetAgentCoord.y, faucetAgentCoord.z + 2);
@@ -75,13 +75,13 @@ contract AgentTest is MudTest {
     assertTrue(uint256(faucetEntityId) != 0, "Agent not found at coord");
     bytes32 faucetObjectEntityId = ObjectEntity.get(store, faucetEntityId);
 
-    VoxelCoord memory initialAgentCoord = VoxelCoord(faucetAgentCoord.x, faucetAgentCoord.y, faucetAgentCoord.z + 1);
+    VoxelCoord memory initialAgentCoord = VoxelCoord(faucetAgentCoord.x, faucetAgentCoord.y, faucetAgentCoord.z - 1);
     bytes32 agentObjectTypeId = BuilderObjectID;
     bytes32 agentEntityId = world.claimAgentFromFaucet(faucetObjectEntityId, agentObjectTypeId, initialAgentCoord);
     assertTrue(uint256(agentEntityId) != 0, "Agent not found at coord");
     bytes32 agentObjectEntityId = ObjectEntity.get(store, agentEntityId);
 
-    VoxelCoord memory newCoord = VoxelCoord(initialAgentCoord.x, initialAgentCoord.y, initialAgentCoord.z + 1);
+    VoxelCoord memory newCoord = VoxelCoord(initialAgentCoord.x, initialAgentCoord.y, initialAgentCoord.z - 1);
     VoxelCoord memory initialVelocity = abi.decode(
       Velocity.getVelocity(simStore, worldAddress, agentObjectEntityId),
       (VoxelCoord)

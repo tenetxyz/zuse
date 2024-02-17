@@ -9,6 +9,13 @@ interface IBuildSystem {
   function build(
     bytes32 actingObjectEntityId,
     bytes32 buildObjectTypeId,
+    VoxelCoord memory buildCoord,
+    bytes32 inventoryId
+  ) external returns (bytes32);
+
+  function build(
+    bytes32 actingObjectEntityId,
+    bytes32 buildObjectTypeId,
     VoxelCoord memory buildCoord
   ) external returns (bytes32);
 

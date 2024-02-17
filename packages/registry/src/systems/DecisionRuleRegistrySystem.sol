@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity >=0.8.0;
 
-import { hasKey } from "@latticexyz/world/src/modules/keysintable/hasKey.sol";
+import { hasKey } from "@latticexyz/world/src/modules/haskeys/hasKey.sol";
 import { System } from "@latticexyz/world/src/System.sol";
 import { DecisionRuleRegistry, DecisionRuleRegistryTableId, ObjectTypeRegistryTableId, ObjectTypeRegistry } from "../codegen/Tables.sol";
 import { DecisionRule, CreationMetadata, CreationSpawns } from "@tenet-utils/src/Types.sol";

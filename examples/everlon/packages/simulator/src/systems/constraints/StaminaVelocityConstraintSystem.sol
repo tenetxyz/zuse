@@ -3,7 +3,7 @@ pragma solidity >=0.8.0;
 
 import { IStore } from "@latticexyz/store/src/IStore.sol";
 import { IWorld } from "@tenet-simulator/src/codegen/world/IWorld.sol";
-import { hasKey } from "@latticexyz/world/src/modules/keysintable/hasKey.sol";
+import { hasKey } from "@latticexyz/world/src/modules/haskeys/hasKey.sol";
 import { Constraint } from "@tenet-base-simulator/src/prototypes/Constraint.sol";
 
 import { SimAction } from "@tenet-simulator/src/codegen/tables/SimAction.sol";
@@ -12,7 +12,7 @@ import { Velocity, VelocityData, VelocityTableId } from "@tenet-simulator/src/co
 import { Stamina, StaminaTableId } from "@tenet-simulator/src/codegen/tables/Stamina.sol";
 import { absInt32 } from "@tenet-utils/src/MathUtils.sol";
 
-import { VoxelCoord, SimTable } from "@tenet-utils/src/Types.sol";
+import { VoxelCoord, SimTable, CoordDirection } from "@tenet-utils/src/Types.sol";
 import { addUint256AndInt256, int256ToUint256 } from "@tenet-utils/src/TypeUtils.sol";
 import { getVelocity } from "@tenet-simulator/src/Utils.sol";
 
@@ -101,27 +101,30 @@ contract StaminaVelocityConstraintSystem is Constraint {
       uint256 resourceRequiredX = IWorld(_world()).calculateResourceRequired(
         currentVelocity.x,
         receiverVelocityDeltaX,
+        CoordDirection.X,
         bodyMass
       );
       int32 receiverVelocityDeltaY = currentVelocity.y > 0 ? receiverVelocityDelta.y : -receiverVelocityDelta.y;
       uint256 resourceRequiredY = IWorld(_world()).calculateResourceRequired(
         currentVelocity.y,
         receiverVelocityDeltaY,
+        CoordDirection.Y,
         bodyMass
       );
       int32 receiverVelocityDeltaZ = currentVelocity.z > 0 ? receiverVelocityDelta.z : -receiverVelocityDelta.z;
       uint256 resourceRequiredZ = IWorld(_world()).calculateResourceRequired(
         currentVelocity.z,
         receiverVelocityDeltaZ,
+        CoordDirection.Z,
         bodyMass
       );
       resourceRequired = resourceRequiredX + resourceRequiredY + resourceRequiredZ;
     }
 
     // Consume stamina
-    uint256 currentStamina = Stamina.get(worldAddress, objectEntityId);
+    uint256 currentStamina = Stamina.getStamina(worldAddress, objectEntityId);
     require(currentStamina >= resourceRequired, "Not enough stamina to spend");
-    Stamina.set(worldAddress, objectEntityId, currentStamina - resourceRequired);
+    Stamina.setStamina(worldAddress, objectEntityId, currentStamina - resourceRequired);
 
     // Flux energy
     IWorld(_world()).fluxEnergy(false, worldAddress, objectEntityId, resourceRequired);

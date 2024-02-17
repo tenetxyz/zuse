@@ -3,20 +3,24 @@ pragma solidity >=0.8.0;
 
 import { System } from "@latticexyz/world/src/System.sol";
 import { IStore } from "@latticexyz/store/src/IStore.sol";
-import { hasKey } from "@latticexyz/world/src/modules/keysintable/hasKey.sol";
+import { hasKey } from "@latticexyz/world/src/modules/haskeys/hasKey.sol";
 
 import { OwnedBy, OwnedByTableId } from "@tenet-base-world/src/codegen/tables/OwnedBy.sol";
+import { Inventory } from "@tenet-base-world/src/codegen/tables/Inventory.sol";
+import { InventoryObject } from "@tenet-base-world/src/codegen/tables/InventoryObject.sol";
 
-import { distanceBetween } from "@tenet-utils/src/VoxelCoordUtils.sol";
+import { inSurroundingCube } from "@tenet-utils/src/VoxelCoordUtils.sol";
 import { VoxelCoord, EventType } from "@tenet-utils/src/Types.sol";
 import { getEntityIdFromObjectEntityId, getVoxelCoordStrict } from "@tenet-base-world/src/Utils.sol";
 
 abstract contract EventApprovalsSystem is System {
   function getSimulatorAddress() internal pure virtual returns (address);
 
-  function getMaxAgentActionRadius() internal pure virtual returns (uint256);
+  function getMaxAgentActionRadius() internal pure virtual returns (int32);
 
   function getOldCoord(bytes memory eventData) internal pure virtual returns (VoxelCoord memory);
+
+  function getInventoryId(bytes memory eventData) internal pure virtual returns (bytes32);
 
   function preApproval(
     EventType eventType,
@@ -47,12 +51,12 @@ abstract contract EventApprovalsSystem is System {
       bytes32 actingEntityId = getEntityIdFromObjectEntityId(IStore(_world()), actingObjectEntityId);
       VoxelCoord memory agentPosition = getVoxelCoordStrict(IStore(_world()), actingEntityId);
       require(
-        distanceBetween(agentPosition, oldCoord) <= getMaxAgentActionRadius(),
+        inSurroundingCube(agentPosition, getMaxAgentActionRadius(), oldCoord),
         "EventApprovalsSystem: Agent and old coord are too far apart"
       );
     }
     require(
-      distanceBetween(oldCoord, coord) <= getMaxAgentActionRadius(),
+      inSurroundingCube(oldCoord, getMaxAgentActionRadius(), coord),
       "EventApprovalsSystem: Old coord and new coord are too far apart"
     );
   }
@@ -64,7 +68,23 @@ abstract contract EventApprovalsSystem is System {
     bytes32 objectTypeId,
     VoxelCoord memory coord,
     bytes memory eventData
-  ) internal virtual;
+  ) internal virtual {
+    bool isWorldCaller = caller == _world(); // any root system can call this
+    bool isSimCaller = caller == getSimulatorAddress();
+    if (!isWorldCaller && !isSimCaller) {
+      if (eventType == EventType.Build) {
+        bytes32 inventoryId = getInventoryId(eventData);
+        require(
+          InventoryObject.getObjectTypeId(inventoryId) == objectTypeId,
+          "EventApprovalsSystem: Inventory object type id does not match"
+        );
+        require(
+          Inventory.get(inventoryId) == actingObjectEntityId,
+          "EventApprovalsSystem: Inventory object is not owned by agent"
+        );
+      }
+    }
+  }
 
   function postApproval(
     EventType eventType,

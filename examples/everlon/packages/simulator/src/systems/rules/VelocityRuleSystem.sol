@@ -4,16 +4,23 @@ pragma solidity >=0.8.0;
 import { System } from "@latticexyz/world/src/System.sol";
 import { IWorld } from "@tenet-simulator/src/codegen/world/IWorld.sol";
 import { IStore } from "@latticexyz/store/src/IStore.sol";
-import { hasKey } from "@latticexyz/world/src/modules/keysintable/hasKey.sol";
+import { hasKey } from "@latticexyz/world/src/modules/haskeys/hasKey.sol";
+import { getKeysWithValue } from "@latticexyz/world/src/modules/keyswithvalue/getKeysWithValue.sol";
+
+import { Inventory, InventoryTableId } from "@tenet-base-world/src/codegen/tables/Inventory.sol";
+import { InventoryObject } from "@tenet-base-world/src/codegen/tables/InventoryObject.sol";
 
 import { Mass, MassTableId } from "@tenet-simulator/src/codegen/tables/Mass.sol";
 import { Energy, EnergyTableId } from "@tenet-simulator/src/codegen/tables/Energy.sol";
 import { Velocity, VelocityData, VelocityTableId } from "@tenet-simulator/src/codegen/tables/Velocity.sol";
 import { Stamina, StaminaTableId } from "@tenet-simulator/src/codegen/tables/Stamina.sol";
-import { Temperature, TemperatureTableId } from "@tenet-simulator/src/codegen/tables/Temperature.sol";
+import { MoveMetadata } from "@tenet-simulator/src/codegen/tables/MoveMetadata.sol";
+import { MoveTrigger } from "@tenet-simulator/src/codegen/Types.sol";
 
+import { AgentMetadata } from "@tenet-base-world/src/codegen/tables/AgentMetadata.sol";
+import { getEntityIdFromObjectEntityId } from "@tenet-base-world/src/Utils.sol";
 import { getVelocity } from "@tenet-simulator/src/Utils.sol";
-import { VoxelCoord } from "@tenet-utils/src/Types.sol";
+import { VoxelCoord, CoordDirection, ObjectProperties } from "@tenet-utils/src/Types.sol";
 import { uint256ToInt32 } from "@tenet-utils/src/TypeUtils.sol";
 import { isZeroCoord, voxelCoordsAreEqual } from "@tenet-utils/src/VoxelCoordUtils.sol";
 import { abs, absInt32 } from "@tenet-utils/src/MathUtils.sol";
@@ -96,36 +103,71 @@ contract VelocityRuleSystem is System {
       Mass.get(worldAddress, objectEntityId)
     );
     {
+      MoveTrigger moveTrigger = MoveMetadata.get(
+        worldAddress,
+        objectEntityId,
+        oldCoord.x,
+        oldCoord.y,
+        oldCoord.z,
+        newCoord.x,
+        newCoord.y,
+        newCoord.z
+      );
       // Spend resources
-      bool hasStamina = hasKey(StaminaTableId, Stamina.encodeKeyTuple(worldAddress, actingObjectEntityId));
-      uint256 currentResourceAmount = hasStamina
-        ? Stamina.get(worldAddress, actingObjectEntityId)
-        : Temperature.get(worldAddress, actingObjectEntityId);
-      require(resourceRequired <= currentResourceAmount, "VelocityRuleSystem: Not enough resources to move.");
-      if (hasStamina) {
-        Stamina.set(worldAddress, actingObjectEntityId, currentResourceAmount - resourceRequired);
-      } else {
-        Temperature.set(worldAddress, actingObjectEntityId, currentResourceAmount - resourceRequired);
+      if (moveTrigger == MoveTrigger.None || moveTrigger == MoveTrigger.Collision) {
+        bytes32[][] memory inventoryIds = getKeysWithValue(
+          IStore(worldAddress),
+          InventoryTableId,
+          Inventory.encode(actingObjectEntityId)
+        );
+        uint256 inventoryMass = 0;
+        for (uint256 i = 0; i < inventoryIds.length; i++) {
+          ObjectProperties memory objectProperties = abi.decode(
+            InventoryObject.getObjectProperties(IStore(worldAddress), inventoryIds[i][0]),
+            (ObjectProperties)
+          );
+          inventoryMass += objectProperties.mass;
+        }
+        // add inventory mass to resourceRequired
+        resourceRequired += (inventoryMass / 50);
+
+        uint32 numMoves = AgentMetadata.getNumMoves(IStore(worldAddress), actingObjectEntityId);
+        // Scale resourceRequired based on numMoves with an exponential relationship
+        resourceRequired = resourceRequired * (uint256(numMoves) ** 2);
+
+        uint256 currentResourceAmount = Stamina.getStamina(worldAddress, actingObjectEntityId);
+        require(resourceRequired <= currentResourceAmount, "VelocityRuleSystem: Not enough resources to move.");
+        Stamina.setStamina(worldAddress, actingObjectEntityId, currentResourceAmount - resourceRequired);
       }
+      // for gravity, we don't want to spend resources
     }
 
     // Flux energy
-    IWorld(_world()).fluxEnergy(
-      false,
-      worldAddress,
-      objectEntityId,
-      resourceRequired + Energy.get(worldAddress, objectEntityId)
-    );
+    // IWorld(_world()).fluxEnergy(
+    //   false,
+    //   worldAddress,
+    //   objectEntityId,
+    //   resourceRequired + Energy.get(worldAddress, objectEntityId)
+    // );
 
     // Update velocity
-    Velocity.set(
-      worldAddress,
-      objectEntityId,
-      VelocityData({ lastUpdateBlock: block.number, velocity: abi.encode(newVelocity) })
-    );
+    // Velocity.set(
+    //   worldAddress,
+    //   objectEntityId,
+    //   VelocityData({ lastUpdateBlock: block.number, velocity: abi.encode(newVelocity) })
+    // );
 
-    // Collision rule
-    return IWorld(_world()).onCollision(worldAddress, objectEntityId, actingObjectEntityId);
+    // Apply gravity to old block
+    IWorld(_world()).applyGravity(worldAddress, oldCoord, oldObjectEntityId, actingObjectEntityId);
+
+    // // Collision rule
+    // bytes32 entityId = IWorld(_world()).onCollision(worldAddress, objectEntityId, actingObjectEntityId);
+
+    // Apply gravity to new block
+    bytes32 entityId = IWorld(_world()).applyGravity(worldAddress, newCoord, objectEntityId, actingObjectEntityId);
+
+    // return getEntityIdFromObjectEntityId(IStore(worldAddress), objectEntityId);
+    return entityId;
   }
 
   function calculateNewVelocity(
@@ -136,20 +178,35 @@ contract VelocityRuleSystem is System {
     uint256 bodyMass
   ) internal view returns (VoxelCoord memory, uint256) {
     VoxelCoord memory currentVelocity = getVelocity(worldAddress, objectEntityId);
-    VoxelCoord memory newVelocity = VoxelCoord({
-      x: currentVelocity.x + (newCoord.x - oldCoord.x),
-      y: currentVelocity.y + (newCoord.y - oldCoord.y),
-      z: currentVelocity.z + (newCoord.z - oldCoord.z)
-    });
     VoxelCoord memory velocityDelta = VoxelCoord({
-      x: absInt32(newVelocity.x) - absInt32(currentVelocity.x),
-      y: absInt32(newVelocity.y) - absInt32(currentVelocity.y),
-      z: absInt32(newVelocity.z) - absInt32(currentVelocity.z)
+      x: newCoord.x - oldCoord.x,
+      y: newCoord.y - oldCoord.y,
+      z: newCoord.z - oldCoord.z
+    });
+    VoxelCoord memory newVelocity = VoxelCoord({
+      x: currentVelocity.x + velocityDelta.x,
+      y: currentVelocity.y + velocityDelta.y,
+      z: currentVelocity.z + velocityDelta.z
     });
 
-    uint256 resourceRequiredX = calculateResourceRequired(currentVelocity.x, velocityDelta.x, bodyMass);
-    uint256 resourceRequiredY = calculateResourceRequired(currentVelocity.y, velocityDelta.y, bodyMass);
-    uint256 resourceRequiredZ = calculateResourceRequired(currentVelocity.z, velocityDelta.z, bodyMass);
+    uint256 resourceRequiredX = calculateResourceRequired(
+      currentVelocity.x,
+      velocityDelta.x,
+      CoordDirection.X,
+      bodyMass
+    );
+    uint256 resourceRequiredY = calculateResourceRequired(
+      currentVelocity.y,
+      velocityDelta.y,
+      CoordDirection.Y,
+      bodyMass
+    );
+    uint256 resourceRequiredZ = calculateResourceRequired(
+      currentVelocity.z,
+      velocityDelta.z,
+      CoordDirection.Z,
+      bodyMass
+    );
     uint256 resourceRequired = resourceRequiredX + resourceRequiredY + resourceRequiredZ;
     return (newVelocity, resourceRequired);
   }
@@ -157,6 +214,7 @@ contract VelocityRuleSystem is System {
   function calculateResourceRequired(
     int32 currentVelocity,
     int32 velocityDelta,
+    CoordDirection direction,
     uint256 bodyMass
   ) public pure returns (uint256) {
     uint256 resourceRequired = 0;
@@ -177,6 +235,18 @@ contract VelocityRuleSystem is System {
           : bodyMass * uint(abs(int(newVelocity))); // if we're going in the opposite direction, then it costs more
       }
       resourceRequired += amountRequired;
+    }
+
+    if (direction == CoordDirection.Y) {
+      if (velocityDelta > 0) {
+        // Apply a higher cost to moving up
+        // resourceRequired *= 1.2
+        resourceRequired = (resourceRequired * 120) / 100;
+      } else {
+        // Apply a lower cost to moving down
+        // resourceRequired *= 0.8
+        resourceRequired = (resourceRequired * 80) / 100;
+      }
     }
 
     return resourceRequired;

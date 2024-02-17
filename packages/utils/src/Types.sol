@@ -9,6 +9,12 @@ struct VoxelCoord {
   int32 z;
 }
 
+enum CoordDirection {
+  X,
+  Y,
+  Z
+}
+
 enum EventType {
   Build,
   Mine,
@@ -60,16 +66,7 @@ enum SimTable {
   Energy,
   Velocity,
   Health,
-  Stamina,
-  Element,
-  CombatMove,
-  Nutrients,
-  Nitrogen,
-  Phosphorus,
-  Potassium,
-  Elixir,
-  Protein,
-  Temperature
+  Stamina
 }
 
 struct ObjectProperties {
@@ -81,15 +78,6 @@ struct ObjectProperties {
   bool hasHealth;
   uint256 stamina;
   bool hasStamina;
-  ElementType elementType;
-  CombatMoveData combatMoveData;
-  uint256 nutrients;
-  uint256 nitrogen;
-  uint256 phosphorus;
-  uint256 potassium;
-  uint256 elixir;
-  uint256 protein;
-  uint256 temperature;
 }
 
 struct CombatMoveData {

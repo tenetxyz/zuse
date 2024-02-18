@@ -5,12 +5,13 @@ import "forge-std/Test.sol";
 import { MudTest } from "@latticexyz/store/src/MudTest.sol";
 import { IStore } from "@latticexyz/store/src/IStore.sol";
 import { IWorld } from "@tenet-world/src/codegen/world/IWorld.sol";
+import { getUniqueEntity } from "@latticexyz/world/src/modules/uniqueentity/getUniqueEntity.sol";
 import { getKeysWithValue } from "@latticexyz/world/src/modules/keyswithvalue/getKeysWithValue.sol";
 import { ObjectTypeRegistry, ObjectTypeRegistryTableId } from "@tenet-registry/src/codegen/tables/ObjectTypeRegistry.sol";
 import { ObjectType, OwnedBy, ObjectEntity } from "@tenet-world/src/codegen/Tables.sol";
 import { Inventory, InventoryTableId } from "@tenet-base-world/src/codegen/tables/Inventory.sol";
 import { InventoryObject } from "@tenet-base-world/src/codegen/tables/InventoryObject.sol";
-import { VoxelCoord } from "@tenet-utils/src/Types.sol";
+import { VoxelCoord, ObjectProperties } from "@tenet-utils/src/Types.sol";
 import { getEntityAtCoord, getEntityPositionStrict, positionDataToVoxelCoord } from "@tenet-base-world/src/Utils.sol";
 import { BuilderObjectID, RunnerObjectID, GrassObjectID, AirObjectID } from "@tenet-world/src/Constants.sol";
 import { REGISTRY_ADDRESS, SIMULATOR_ADDRESS } from "@tenet-world/src/Constants.sol";
@@ -20,6 +21,7 @@ import { Energy } from "@tenet-simulator/src/codegen/tables/Energy.sol";
 import { Health } from "@tenet-simulator/src/codegen/tables/Health.sol";
 import { Stamina } from "@tenet-simulator/src/codegen/tables/Stamina.sol";
 import { Velocity } from "@tenet-simulator/src/codegen/tables/Velocity.sol";
+import { NUM_MAX_INVENTORY_SLOTS } from "@tenet-base-world/src/Constants.sol";
 
 contract BuildMineTest is MudTest {
   IWorld private world;
@@ -206,6 +208,38 @@ contract BuildMineTest is MudTest {
       InventoryObject.getNumObjects(store, agentInventoryId2) == 1,
       "Agent does not have correct number of mined objects in inventory"
     );
+
+    vm.stopPrank();
+  }
+
+  function testFullInventory() public {
+    vm.startPrank(alice, alice);
+
+    (, bytes32 agentObjectEntityId) = setupAgent();
+
+    VoxelCoord memory mineCoord = VoxelCoord(initialAgentCoord.x, initialAgentCoord.y - 1, initialAgentCoord.z - 1);
+    bytes32 objectTypeId = world.getTerrainObjectTypeId(mineCoord);
+    ObjectTypeRegistry.setStackable(registryStore, objectTypeId, 1);
+
+    bytes32 inventoryId;
+    for (uint i = 0; i < NUM_MAX_INVENTORY_SLOTS; i++) {
+      inventoryId = getUniqueEntity();
+      Inventory.set(inventoryId, agentObjectEntityId);
+      ObjectProperties memory objectProperties;
+      InventoryObject.set(inventoryId, objectTypeId, 1, abi.encode(objectProperties));
+    }
+
+    vm.expectRevert();
+    world.mine(agentObjectEntityId, objectTypeId, mineCoord);
+
+    world.build(
+      agentObjectEntityId,
+      objectTypeId,
+      VoxelCoord(initialAgentCoord.x, initialAgentCoord.y + 1, initialAgentCoord.z + 1),
+      inventoryId
+    );
+
+    world.mine(agentObjectEntityId, objectTypeId, mineCoord);
 
     vm.stopPrank();
   }

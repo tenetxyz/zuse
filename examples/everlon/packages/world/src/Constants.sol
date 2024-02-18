@@ -53,6 +53,7 @@ bytes32 constant OakLeafObjectID = bytes32(keccak256("oak-leaf"));
 bytes32 constant BirchLeafObjectID = bytes32(keccak256("birch-leaf"));
 bytes32 constant SakuraLeafObjectID = bytes32(keccak256("sakura-leaf"));
 bytes32 constant RubberLeafObjectID = bytes32(keccak256("rubber-leaf"));
+bytes32 constant WoodenPickObjectID = bytes32(keccak256("wooden-pick"));
 
 // Agents
 bytes32 constant BuilderObjectID = bytes32(keccak256("builder"));
@@ -109,6 +110,8 @@ uint256 constant OAK_LEAF_MASS = 1;
 uint256 constant BIRCH_LEAF_MASS = 1;
 uint256 constant SAKURA_LEAF_MASS = 1;
 uint256 constant RUBBER_LEAF_MASS = 1;
+
+uint256 constant WOODEN_PICK_MASS = 2;
 
 // Terrain
 enum Biome {

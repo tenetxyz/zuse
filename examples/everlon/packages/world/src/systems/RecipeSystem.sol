@@ -14,7 +14,7 @@ import { Inventory, InventoryTableId } from "@tenet-base-world/src/codegen/table
 import { InventoryObject } from "@tenet-base-world/src/codegen/tables/InventoryObject.sol";
 
 import { initializeBytes32Array } from "@tenet-utils/src/ArrayUtils.sol";
-import { OakLogObjectID, OakLumberObjectID, OAK_LUMBER_MASS } from "@tenet-world/src/Constants.sol";
+import { OakLogObjectID, OakLumberObjectID, OAK_LUMBER_MASS, WoodenPickObjectID, WOODEN_PICK_MASS } from "@tenet-world/src/Constants.sol";
 import { VoxelCoord, ObjectProperties } from "@tenet-utils/src/Types.sol";
 
 contract RecipeSystem is System {
@@ -34,11 +34,39 @@ contract RecipeSystem is System {
     uint8[] memory outputObjectTypeAmounts = new uint8[](1);
     outputObjectTypeAmounts[0] = 4;
     ObjectProperties[] memory outputObjectProperties = new ObjectProperties[](1);
-    ObjectProperties memory lumberOutputProperties;
-    lumberOutputProperties.mass = OAK_LUMBER_MASS;
-    outputObjectProperties[0] = lumberOutputProperties;
+    ObjectProperties memory outputOutputProperties;
+    outputOutputProperties.mass = OAK_LUMBER_MASS;
+    outputObjectProperties[0] = outputOutputProperties;
 
     bytes32 newRecipeId = getUniqueEntity();
+    Recipes.set(
+      newRecipeId,
+      RecipesData({
+        inputObjectTypeIds: inputObjectTypeIds,
+        inputObjectTypeAmounts: inputObjectTypeAmounts,
+        outputObjectTypeIds: outputObjectTypeIds,
+        outputObjectTypeAmounts: outputObjectTypeAmounts,
+        outputObjectProperties: abi.encode(outputObjectProperties)
+      })
+    );
+
+    // Oak Lumber x4 -> Wooden Pick
+
+    inputObjectTypeIds = new bytes32[](1);
+    inputObjectTypeIds[0] = OakLogObjectID;
+    inputObjectTypeAmounts = new uint8[](1);
+    inputObjectTypeAmounts[0] = 4;
+
+    // Recipe outputs
+    outputObjectTypeIds = new bytes32[](1);
+    outputObjectTypeIds[0] = WoodenPickObjectID;
+    outputObjectTypeAmounts = new uint8[](1);
+    outputObjectTypeAmounts[0] = 1;
+    outputObjectProperties = new ObjectProperties[](1);
+    outputOutputProperties.mass = WOODEN_PICK_MASS;
+    outputObjectProperties[0] = outputOutputProperties;
+
+    newRecipeId = getUniqueEntity();
     Recipes.set(
       newRecipeId,
       RecipesData({

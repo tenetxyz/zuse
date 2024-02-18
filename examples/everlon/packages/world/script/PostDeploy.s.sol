@@ -66,6 +66,9 @@ contract PostDeploy is Script {
     world.world_LavaObjectSystem_registerObject();
     world.world_BedrockObjectSys_registerObject();
 
+    // Items
+    world.world_WoodenPickObject_registerObject();
+
     // Agents
     world.world_BuilderObjectSys_registerObject();
     world.world_FaucetObjectSyst_registerObject();

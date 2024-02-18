@@ -6,6 +6,7 @@ import { MudTest } from "@latticexyz/store/src/MudTest.sol";
 import { IStore } from "@latticexyz/store/src/IStore.sol";
 import { IWorld } from "@tenet-world/src/codegen/world/IWorld.sol";
 import { getKeysWithValue } from "@latticexyz/world/src/modules/keyswithvalue/getKeysWithValue.sol";
+import { ObjectTypeRegistry, ObjectTypeRegistryTableId } from "@tenet-registry/src/codegen/tables/ObjectTypeRegistry.sol";
 import { ObjectType, OwnedBy, ObjectEntity } from "@tenet-world/src/codegen/Tables.sol";
 import { Inventory, InventoryTableId } from "@tenet-base-world/src/codegen/tables/Inventory.sol";
 import { InventoryObject } from "@tenet-base-world/src/codegen/tables/InventoryObject.sol";
@@ -23,6 +24,7 @@ import { Velocity } from "@tenet-simulator/src/codegen/tables/Velocity.sol";
 contract BuildMineTest is MudTest {
   IWorld private world;
   IStore private store;
+  IStore private registryStore;
   IStore private simStore;
   address payable internal alice;
   VoxelCoord faucetAgentCoord = VoxelCoord(197, 27, 203);
@@ -33,6 +35,7 @@ contract BuildMineTest is MudTest {
     super.setUp();
     world = IWorld(worldAddress);
     store = IStore(worldAddress);
+    registryStore = IStore(REGISTRY_ADDRESS);
     simStore = IStore(SIMULATOR_ADDRESS);
     alice = payable(address(0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266));
   }
@@ -159,6 +162,50 @@ contract BuildMineTest is MudTest {
 
     vm.expectRevert();
     world.build(agentObjectEntityId, GrassObjectID, buildCoord);
+
+    vm.stopPrank();
+  }
+
+  function testMultipleStack() public {
+    vm.startPrank(alice, alice);
+
+    (, bytes32 agentObjectEntityId) = setupAgent();
+
+    VoxelCoord memory mineCoord1 = VoxelCoord(initialAgentCoord.x, initialAgentCoord.y - 1, initialAgentCoord.z - 1);
+    VoxelCoord memory mineCoord2 = VoxelCoord(
+      initialAgentCoord.x - 1,
+      initialAgentCoord.y - 1,
+      initialAgentCoord.z - 1
+    );
+    bytes32 objectTypeId1 = world.getTerrainObjectTypeId(mineCoord1);
+
+    ObjectTypeRegistry.setStackable(registryStore, objectTypeId1, 1);
+
+    world.mine(agentObjectEntityId, objectTypeId1, mineCoord1);
+
+    bytes32 objectTypeId2 = world.getTerrainObjectTypeId(mineCoord2);
+    world.mine(agentObjectEntityId, objectTypeId2, mineCoord2);
+    assertTrue(objectTypeId1 == objectTypeId2, "Mined objects are not the same");
+
+    // get the inventory of the agent
+    bytes32[][] memory agentObjects = getKeysWithValue(store, InventoryTableId, Inventory.encode(agentObjectEntityId));
+    assertTrue(agentObjects.length == 2, "Agent does not have inventory");
+    assertTrue(agentObjects[0].length == 1, "Agent does not have inventory");
+    bytes32 agentInventoryId1 = agentObjects[0][0];
+    bytes32 agentInventoryObjectTypeId1 = InventoryObject.getObjectTypeId(store, agentInventoryId1);
+    assertTrue(agentInventoryObjectTypeId1 == objectTypeId1, "Agent does not have mined object in inventory");
+    assertTrue(
+      InventoryObject.getNumObjects(store, agentInventoryId1) == 1,
+      "Agent does not have correct number of mined objects in inventory"
+    );
+    assertTrue(agentObjects[1].length == 1, "Agent does not have inventory");
+    bytes32 agentInventoryId2 = agentObjects[1][0];
+    bytes32 agentInventoryObjectTypeId2 = InventoryObject.getObjectTypeId(store, agentInventoryId2);
+    assertTrue(agentInventoryObjectTypeId2 == objectTypeId2, "Agent does not have mined object in inventory");
+    assertTrue(
+      InventoryObject.getNumObjects(store, agentInventoryId2) == 1,
+      "Agent does not have correct number of mined objects in inventory"
+    );
 
     vm.stopPrank();
   }

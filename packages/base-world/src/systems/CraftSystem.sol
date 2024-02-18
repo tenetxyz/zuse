@@ -26,6 +26,7 @@ abstract contract CraftSystem is System {
     // Require that the acting object has all the ingredients in its inventory
     // And delete the ingredients from the inventory as they are used
     for (uint256 i = 0; i < recipeData.inputObjectTypeIds.length; i++) {
+      bool hasIngredient = false;
       for (uint256 j = 0; j < ingredientIds.length; j++) {
         if (Inventory.get(ingredientIds[j]) == actingObjectEntityId) {
           bytes32 ingredientObjectTypeId = InventoryObject.getObjectTypeId(ingredientIds[j]);
@@ -33,10 +34,13 @@ abstract contract CraftSystem is System {
             uint8 numObjects = InventoryObject.getNumObjects(ingredientIds[j]);
             require(numObjects >= recipeData.inputObjectTypeAmounts[i], "CraftSystem: not enough ingredients");
 
+            hasIngredient = true;
             IWorld(_world()).removeObjectFromInventory(ingredientIds[j], recipeData.inputObjectTypeAmounts[i]);
           }
         }
       }
+
+      require(hasIngredient, "CraftSystem: missing ingredient");
     }
 
     // Create the crafted objects

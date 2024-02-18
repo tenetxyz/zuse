@@ -67,6 +67,10 @@ contract CraftTest is MudTest {
     bytes32 agentInventoryId = agentObjects[0][0];
     bytes32 agentInventoryObjectTypeId = InventoryObject.getObjectTypeId(store, agentInventoryId);
     assertTrue(agentInventoryObjectTypeId == objectTypeId, "Agent does not have mined object in inventory");
+    assertTrue(
+      InventoryObject.getNumObjects(store, agentInventoryId) == 1,
+      "Agent does not have correct number of mined objects in inventory"
+    );
 
     bytes32[][] memory allRecipes = getKeysInTable(store, RecipesTableId);
     // First recipe is for oak
@@ -80,12 +84,15 @@ contract CraftTest is MudTest {
 
     // Assert that the inventory has the crafted item
     agentObjects = getKeysWithValue(store, InventoryTableId, Inventory.encode(agentObjectEntityId));
-    assertTrue(agentObjects.length == 4, "Agent does not have inventory");
-    for (uint i = 0; i < agentObjects.length; i++) {
-      agentInventoryId = agentObjects[i][0];
-      agentInventoryObjectTypeId = InventoryObject.getObjectTypeId(store, agentInventoryId);
-      assertTrue(agentInventoryObjectTypeId == OakLumberObjectID, "Agent does not have crafted object in inventory");
-    }
+    assertTrue(agentObjects.length == 1, "Agent does not have inventory");
+    assertTrue(agentObjects[0].length == 1, "Agent does not have inventory");
+    agentInventoryId = agentObjects[0][0];
+    agentInventoryObjectTypeId = InventoryObject.getObjectTypeId(store, agentInventoryId);
+    assertTrue(agentInventoryObjectTypeId == OakLumberObjectID, "Agent does not have mined object in inventory");
+    assertTrue(
+      InventoryObject.getNumObjects(store, agentInventoryId) == 4,
+      "Agent does not have correct number of mined objects in inventory"
+    );
 
     // Try crafting again
     vm.expectRevert();
@@ -123,6 +130,10 @@ contract CraftTest is MudTest {
     bytes32 agentInventoryId = agentObjects[0][0];
     bytes32 agentInventoryObjectTypeId = InventoryObject.getObjectTypeId(store, agentInventoryId);
     assertTrue(agentInventoryObjectTypeId == objectTypeId, "Agent does not have mined object in inventory");
+    assertTrue(
+      InventoryObject.getNumObjects(store, agentInventoryId) == 1,
+      "Agent does not have correct number of mined objects in inventory"
+    );
 
     world.equip(agentObjectEntityId, agentInventoryId);
     assertTrue(

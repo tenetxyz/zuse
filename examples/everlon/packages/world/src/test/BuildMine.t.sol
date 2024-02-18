@@ -65,6 +65,10 @@ contract BuildMineTest is MudTest {
     bytes32 agentInventoryId = agentObjects[0][0];
     bytes32 agentInventoryObjectTypeId = InventoryObject.getObjectTypeId(store, agentInventoryId);
     assertTrue(agentInventoryObjectTypeId == objectTypeId, "Agent does not have mined object in inventory");
+    assertTrue(
+      InventoryObject.getNumObjects(store, agentInventoryId) == 1,
+      "Agent does not have correct number of mined objects in inventory"
+    );
 
     VoxelCoord memory buildCoord = VoxelCoord(initialAgentCoord.x - 1, initialAgentCoord.y, initialAgentCoord.z - 1);
     world.build(agentObjectEntityId, objectTypeId, buildCoord, agentInventoryId);
@@ -82,6 +86,10 @@ contract BuildMineTest is MudTest {
     agentInventoryId = agentObjects[0][0];
     agentInventoryObjectTypeId = InventoryObject.getObjectTypeId(store, agentInventoryId);
     assertTrue(agentInventoryObjectTypeId == objectTypeId, "Agent does not have mined object in inventory");
+    assertTrue(
+      InventoryObject.getNumObjects(store, agentInventoryId) == 1,
+      "Agent does not have correct number of mined objects in inventory"
+    );
 
     vm.stopPrank();
   }
@@ -101,17 +109,18 @@ contract BuildMineTest is MudTest {
     world.mine(agentObjectEntityId, objectTypeId1, mineCoord1);
     bytes32 objectTypeId2 = world.getTerrainObjectTypeId(mineCoord2);
     world.mine(agentObjectEntityId, objectTypeId2, mineCoord2);
+    assertTrue(objectTypeId1 == objectTypeId2, "Mined objects are not the same");
     // get the inventory of the agent
     bytes32[][] memory agentObjects = getKeysWithValue(store, InventoryTableId, Inventory.encode(agentObjectEntityId));
-    assertTrue(agentObjects.length == 2, "Agent does not have inventory");
+    assertTrue(agentObjects.length == 1, "Agent does not have inventory");
     assertTrue(agentObjects[0].length == 1, "Agent does not have inventory");
     bytes32 agentInventoryId1 = agentObjects[0][0];
     bytes32 agentInventoryObjectTypeId1 = InventoryObject.getObjectTypeId(store, agentInventoryId1);
     assertTrue(agentInventoryObjectTypeId1 == objectTypeId1, "Agent does not have mined object in inventory");
-    assertTrue(agentObjects[1].length == 1, "Agent does not have inventory");
-    bytes32 agentInventoryId2 = agentObjects[1][0];
-    bytes32 agentInventoryObjectTypeId2 = InventoryObject.getObjectTypeId(store, agentInventoryId2);
-    assertTrue(agentInventoryObjectTypeId2 == objectTypeId2, "Agent does not have mined object in inventory");
+    assertTrue(
+      InventoryObject.getNumObjects(store, agentInventoryId1) == 2,
+      "Agent does not have correct number of mined objects in inventory"
+    );
 
     VoxelCoord memory newAgentCoord = VoxelCoord(initialAgentCoord.x, initialAgentCoord.y, initialAgentCoord.z - 1);
     world.move(agentObjectEntityId, agentObjectTypeId, initialAgentCoord, newAgentCoord);
@@ -124,7 +133,7 @@ contract BuildMineTest is MudTest {
       assertTrue(agentObjects.length == 1, "Agent still has inventory");
 
       VoxelCoord memory buildCoord2 = VoxelCoord(newAgentCoord.x - 1, newAgentCoord.y + 1, newAgentCoord.z - 1);
-      world.build(agentObjectEntityId, objectTypeId1, buildCoord2, agentInventoryId2);
+      world.build(agentObjectEntityId, objectTypeId1, buildCoord2, agentInventoryId1);
 
       bytes32 buildEntityId1 = getEntityAtCoord(store, buildCoord1);
       assertTrue(uint256(buildEntityId1) != 0, "Build object not found at coord");

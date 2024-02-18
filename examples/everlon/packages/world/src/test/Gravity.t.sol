@@ -121,6 +121,10 @@ contract GravityTest is MudTest {
       bytes32 agentInventoryId = agentObjects[0][0];
       bytes32 agentInventoryObjectTypeId = InventoryObject.getObjectTypeId(store, agentInventoryId);
       assertTrue(agentInventoryObjectTypeId == objectTypeId, "Agent does not have mined object in inventory");
+      assertTrue(
+        InventoryObject.getNumObjects(store, agentInventoryId) == 1,
+        "Agent does not have correct number of mined objects in inventory"
+      );
     }
 
     // move agent away from faucet
@@ -163,6 +167,10 @@ contract GravityTest is MudTest {
     bytes32 agentInventoryId = agentObjects[0][0];
     bytes32 agentInventoryObjectTypeId = InventoryObject.getObjectTypeId(store, agentInventoryId);
     assertTrue(agentInventoryObjectTypeId == objectTypeId, "Agent does not have mined object in inventory");
+    assertTrue(
+      InventoryObject.getNumObjects(store, agentInventoryId) == 1,
+      "Agent does not have correct number of mined objects in inventory"
+    );
 
     // try building in the spot where the agent died, where there is a dropped item
     // should fail because there is a dropped item

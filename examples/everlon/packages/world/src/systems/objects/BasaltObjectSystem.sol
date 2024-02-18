@@ -18,8 +18,8 @@ contract BasaltObjectSystem is ObjectType {
       IWorld(world).world_BasaltObjectSyst_eventHandler.selector,
       IWorld(world).world_BasaltObjectSyst_neighbourEventHandler.selector,
       NUM_BLOCK_STACKABLE,
-      "Basalt",
-      ""
+      0,
+      "Basalt"
     );
   }
 

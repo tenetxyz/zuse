@@ -18,8 +18,8 @@ contract QuartziteObjectSystem is ObjectType {
       IWorld(world).world_QuartziteObjectS_eventHandler.selector,
       IWorld(world).world_QuartziteObjectS_neighbourEventHandler.selector,
       NUM_BLOCK_STACKABLE,
-      "Quartzite",
-      ""
+      0,
+      "Quartzite"
     );
   }
 

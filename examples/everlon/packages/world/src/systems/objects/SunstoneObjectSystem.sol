@@ -18,8 +18,8 @@ contract SunstoneObjectSystem is ObjectType {
       IWorld(world).world_SunstoneObjectSy_eventHandler.selector,
       IWorld(world).world_SunstoneObjectSy_neighbourEventHandler.selector,
       NUM_BLOCK_STACKABLE,
-      "Sunstone",
-      ""
+      0,
+      "Sunstone"
     );
   }
 

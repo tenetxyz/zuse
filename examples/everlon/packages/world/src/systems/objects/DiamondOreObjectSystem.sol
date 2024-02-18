@@ -18,8 +18,8 @@ contract DiamondOreObjectSystem is ObjectType {
       IWorld(world).world_DiamondOreObject_eventHandler.selector,
       IWorld(world).world_DiamondOreObject_neighbourEventHandler.selector,
       NUM_BLOCK_STACKABLE,
-      "Diamond Ore",
-      ""
+      0,
+      "Diamond Ore"
     );
   }
 

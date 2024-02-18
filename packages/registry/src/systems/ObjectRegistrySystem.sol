@@ -14,8 +14,8 @@ contract ObjectRegistrySystem is System {
     bytes4 eventHandlerSelector,
     bytes4 neighbourEventHandlerSelector,
     uint8 stackable,
-    string memory name,
-    string memory description
+    uint16 maxUses,
+    string memory name
   ) public {
     require(
       !hasKey(ObjectTypeRegistryTableId, ObjectTypeRegistry.encodeKeyTuple(objectTypeId)),
@@ -35,8 +35,8 @@ contract ObjectRegistrySystem is System {
         eventHandlerSelector: eventHandlerSelector,
         neighbourEventHandlerSelector: neighbourEventHandlerSelector,
         stackable: stackable,
-        name: name,
-        description: description
+        maxUses: maxUses,
+        name: name
       })
     );
   }

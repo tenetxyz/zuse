@@ -18,8 +18,8 @@ contract MossGrassObjectSystem is ObjectType {
       IWorld(world).world_MossGrassObjectS_eventHandler.selector,
       IWorld(world).world_MossGrassObjectS_neighbourEventHandler.selector,
       NUM_BLOCK_STACKABLE,
-      "Moss Grass",
-      ""
+      0,
+      "Moss Grass"
     );
   }
 

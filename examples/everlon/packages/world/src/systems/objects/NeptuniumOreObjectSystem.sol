@@ -18,8 +18,8 @@ contract NeptuniumOreObjectSystem is ObjectType {
       IWorld(world).world_NeptuniumOreObje_eventHandler.selector,
       IWorld(world).world_NeptuniumOreObje_neighbourEventHandler.selector,
       NUM_BLOCK_STACKABLE,
-      "Neptunium Ore",
-      ""
+      0,
+      "Neptunium Ore"
     );
   }
 

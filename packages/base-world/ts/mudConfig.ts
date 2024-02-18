@@ -86,6 +86,7 @@ const WORLD_TABLES: Record<string, TableConfig> = {
     schema: {
       objectTypeId: "bytes32",
       numObjects: "uint8",
+      numUsesLeft: "uint16", // 0 = infinite
       objectProperties: "bytes", // ObjectProperties
     },
   },

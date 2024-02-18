@@ -226,7 +226,7 @@ contract BuildMineTest is MudTest {
       inventoryId = getUniqueEntity();
       Inventory.set(inventoryId, agentObjectEntityId);
       ObjectProperties memory objectProperties;
-      InventoryObject.set(inventoryId, objectTypeId, 1, abi.encode(objectProperties));
+      InventoryObject.set(inventoryId, objectTypeId, 1, 1, abi.encode(objectProperties));
     }
 
     vm.expectRevert();

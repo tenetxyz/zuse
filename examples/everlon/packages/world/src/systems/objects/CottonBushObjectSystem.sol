@@ -18,8 +18,8 @@ contract CottonBushObjectSystem is ObjectType {
       IWorld(world).world_CottonBushObject_eventHandler.selector,
       IWorld(world).world_CottonBushObject_neighbourEventHandler.selector,
       NUM_BLOCK_STACKABLE,
-      "Cotton Bush",
-      ""
+      0,
+      "Cotton Bush"
     );
   }
 

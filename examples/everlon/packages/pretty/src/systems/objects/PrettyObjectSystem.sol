@@ -17,8 +17,9 @@ contract PrettyObjectSystem is ObjectType {
       IWorld(world).pretty_PrettyObjectSyst_exitWorld.selector,
       IWorld(world).pretty_PrettyObjectSyst_eventHandler.selector,
       IWorld(world).pretty_PrettyObjectSyst_neighbourEventHandler.selector,
-      "Pretty Template",
-      ""
+      99,
+      0,
+      "Pretty Template"
     );
   }
 

@@ -18,8 +18,8 @@ contract MuckGrassObjectSystem is ObjectType {
       IWorld(world).world_MuckGrassObjectS_eventHandler.selector,
       IWorld(world).world_MuckGrassObjectS_neighbourEventHandler.selector,
       NUM_BLOCK_STACKABLE,
-      "Muck Grass",
-      ""
+      0,
+      "Muck Grass"
     );
   }
 

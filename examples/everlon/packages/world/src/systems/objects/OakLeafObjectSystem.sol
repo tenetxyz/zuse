@@ -18,8 +18,8 @@ contract OakLeafObjectSystem is ObjectType {
       IWorld(world).world_OakLeafObjectSys_eventHandler.selector,
       IWorld(world).world_OakLeafObjectSys_neighbourEventHandler.selector,
       NUM_BLOCK_STACKABLE,
-      "Oak Leaf",
-      ""
+      0,
+      "Oak Leaf"
     );
   }
 

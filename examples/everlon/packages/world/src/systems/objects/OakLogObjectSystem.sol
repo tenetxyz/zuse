@@ -18,8 +18,8 @@ contract OakLogObjectSystem is ObjectType {
       IWorld(world).world_OakLogObjectSyst_eventHandler.selector,
       IWorld(world).world_OakLogObjectSyst_neighbourEventHandler.selector,
       NUM_BLOCK_STACKABLE,
-      "Oak Log",
-      ""
+      0,
+      "Oak Log"
     );
   }
 

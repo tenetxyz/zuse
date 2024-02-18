@@ -18,8 +18,8 @@ contract SnowObjectSystem is ObjectType {
       IWorld(world).world_SnowObjectSystem_eventHandler.selector,
       IWorld(world).world_SnowObjectSystem_neighbourEventHandler.selector,
       NUM_BLOCK_STACKABLE,
-      "Snow",
-      ""
+      0,
+      "Snow"
     );
   }
 

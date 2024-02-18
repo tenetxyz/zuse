@@ -18,8 +18,8 @@ contract SakuraLogObjectSystem is ObjectType {
       IWorld(world).world_SakuraLogObjectS_eventHandler.selector,
       IWorld(world).world_SakuraLogObjectS_neighbourEventHandler.selector,
       NUM_BLOCK_STACKABLE,
-      "Sakura Log",
-      ""
+      0,
+      "Sakura Log"
     );
   }
 

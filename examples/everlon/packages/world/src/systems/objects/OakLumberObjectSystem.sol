@@ -18,8 +18,8 @@ contract OakLumberObjectSystem is ObjectType {
       IWorld(world).world_OakLumberObjectS_eventHandler.selector,
       IWorld(world).world_OakLumberObjectS_neighbourEventHandler.selector,
       NUM_BLOCK_STACKABLE,
-      "Oak Lumber",
-      ""
+      0,
+      "Oak Lumber"
     );
   }
 

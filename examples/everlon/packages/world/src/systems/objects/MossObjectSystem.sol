@@ -18,8 +18,8 @@ contract MossObjectSystem is ObjectType {
       IWorld(world).world_MossObjectSystem_eventHandler.selector,
       IWorld(world).world_MossObjectSystem_neighbourEventHandler.selector,
       NUM_BLOCK_STACKABLE,
-      "Moss",
-      ""
+      0,
+      "Moss"
     );
   }
 

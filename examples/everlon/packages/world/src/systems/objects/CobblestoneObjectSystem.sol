@@ -18,8 +18,8 @@ contract CobblestoneObjectSystem is ObjectType {
       IWorld(world).world_CobblestoneObjec_eventHandler.selector,
       IWorld(world).world_CobblestoneObjec_neighbourEventHandler.selector,
       NUM_BLOCK_STACKABLE,
-      "Cobblestone",
-      ""
+      0,
+      "Cobblestone"
     );
   }
 

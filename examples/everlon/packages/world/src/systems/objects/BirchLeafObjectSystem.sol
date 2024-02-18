@@ -18,8 +18,8 @@ contract BirchLeafObjectSystem is ObjectType {
       IWorld(world).world_BirchLeafObjectS_eventHandler.selector,
       IWorld(world).world_BirchLeafObjectS_neighbourEventHandler.selector,
       NUM_BLOCK_STACKABLE,
-      "Birch Leaf",
-      ""
+      0,
+      "Birch Leaf"
     );
   }
 

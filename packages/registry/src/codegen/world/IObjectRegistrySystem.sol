@@ -12,7 +12,7 @@ interface IObjectRegistrySystem {
     bytes4 eventHandlerSelector,
     bytes4 neighbourEventHandlerSelector,
     uint8 stackable,
-    string memory name,
-    string memory description
+    uint16 maxUses,
+    string memory name
   ) external;
 }

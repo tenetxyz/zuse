@@ -63,6 +63,8 @@ abstract contract ActivateEvent is Event {
     require(ObjectType.get(eventEntityId) == objectTypeId, "ActivateEvent: object type id mismatch");
     // Note: if we want objects to return some property data, we could do that here in the future
 
+    IWorld(_world()).useEquipped(actingObjectEntityId);
+
     IWorldActivateEventSystem(getSimulatorAddress()).onActivateEvent(
       actingObjectEntityId,
       objectTypeId,

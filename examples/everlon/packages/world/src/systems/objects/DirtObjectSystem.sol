@@ -18,8 +18,8 @@ contract DirtObjectSystem is ObjectType {
       IWorld(world).world_DirtObjectSystem_eventHandler.selector,
       IWorld(world).world_DirtObjectSystem_neighbourEventHandler.selector,
       NUM_BLOCK_STACKABLE,
-      "Dirt",
-      ""
+      0,
+      "Dirt"
     );
   }
 

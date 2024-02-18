@@ -7,6 +7,10 @@ import { InventorySystem as InventoryProtoSystem } from "@tenet-base-world/src/s
 import { VoxelCoord, ObjectProperties } from "@tenet-utils/src/Types.sol";
 
 contract InventorySystem is InventoryProtoSystem {
+  function useEquipped(bytes32 actingObjectEntityId) public override {
+    super.useEquipped(actingObjectEntityId);
+  }
+
   function addObjectToInventory(
     bytes32 objectEntityId,
     bytes32 objectTypeId,

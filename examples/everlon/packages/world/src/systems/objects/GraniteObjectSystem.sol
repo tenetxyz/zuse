@@ -18,8 +18,8 @@ contract GraniteObjectSystem is ObjectType {
       IWorld(world).world_GraniteObjectSys_eventHandler.selector,
       IWorld(world).world_GraniteObjectSys_neighbourEventHandler.selector,
       NUM_BLOCK_STACKABLE,
-      "Granite",
-      ""
+      0,
+      "Granite"
     );
   }
 

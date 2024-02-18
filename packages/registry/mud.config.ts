@@ -15,8 +15,8 @@ export default mudConfig({
         eventHandlerSelector: "bytes4",
         neighbourEventHandlerSelector: "bytes4",
         stackable: "uint8",
+        maxUses: "uint16",
         name: "string",
-        description: "string",
       },
     },
     DecisionRuleRegistry: {

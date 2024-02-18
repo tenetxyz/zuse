@@ -18,8 +18,8 @@ contract LavaObjectSystem is ObjectType {
       IWorld(world).world_LavaObjectSystem_eventHandler.selector,
       IWorld(world).world_LavaObjectSystem_neighbourEventHandler.selector,
       NUM_BLOCK_STACKABLE,
-      "Lava",
-      ""
+      0,
+      "Lava"
     );
   }
 

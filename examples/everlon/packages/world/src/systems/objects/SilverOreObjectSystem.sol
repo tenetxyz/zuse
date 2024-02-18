@@ -18,8 +18,8 @@ contract SilverOreObjectSystem is ObjectType {
       IWorld(world).world_SilverOreObjectS_eventHandler.selector,
       IWorld(world).world_SilverOreObjectS_neighbourEventHandler.selector,
       NUM_BLOCK_STACKABLE,
-      "Silver Ore",
-      ""
+      0,
+      "Silver Ore"
     );
   }
 

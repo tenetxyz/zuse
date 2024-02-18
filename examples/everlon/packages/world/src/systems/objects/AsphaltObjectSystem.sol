@@ -18,8 +18,8 @@ contract AsphaltObjectSystem is ObjectType {
       IWorld(world).world_AsphaltObjectSys_eventHandler.selector,
       IWorld(world).world_AsphaltObjectSys_neighbourEventHandler.selector,
       NUM_BLOCK_STACKABLE,
-      "Asphalt",
-      ""
+      0,
+      "Asphalt"
     );
   }
 

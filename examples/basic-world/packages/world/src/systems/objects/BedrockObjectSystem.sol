@@ -18,8 +18,8 @@ contract BedrockObjectSystem is ObjectType {
       IWorld(world).world_BedrockObjectSys_eventHandler.selector,
       IWorld(world).world_BedrockObjectSys_neighbourEventHandler.selector,
       99,
-      "Bedrock",
-      ""
+      0,
+      "Bedrock"
     );
   }
 

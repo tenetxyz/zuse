@@ -18,8 +18,8 @@ contract RubberLeafObjectSystem is ObjectType {
       IWorld(world).world_RubberLeafObject_eventHandler.selector,
       IWorld(world).world_RubberLeafObject_neighbourEventHandler.selector,
       NUM_BLOCK_STACKABLE,
-      "Rubber Leaf",
-      ""
+      0,
+      "Rubber Leaf"
     );
   }
 

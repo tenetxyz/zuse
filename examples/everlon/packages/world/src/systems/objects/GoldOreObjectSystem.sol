@@ -18,8 +18,8 @@ contract GoldOreObjectSystem is ObjectType {
       IWorld(world).world_GoldOreObjectSys_eventHandler.selector,
       IWorld(world).world_GoldOreObjectSys_neighbourEventHandler.selector,
       NUM_BLOCK_STACKABLE,
-      "Gold Ore",
-      ""
+      0,
+      "Gold Ore"
     );
   }
 

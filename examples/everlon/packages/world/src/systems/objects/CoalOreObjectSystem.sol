@@ -18,8 +18,8 @@ contract CoalOreObjectSystem is ObjectType {
       IWorld(world).world_CoalOreObjectSys_eventHandler.selector,
       IWorld(world).world_CoalOreObjectSys_neighbourEventHandler.selector,
       NUM_BLOCK_STACKABLE,
-      "Coal Ore",
-      ""
+      0,
+      "Coal Ore"
     );
   }
 

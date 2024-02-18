@@ -18,8 +18,8 @@ contract MoonstoneObjectSystem is ObjectType {
       IWorld(world).world_MoonstoneObjectS_eventHandler.selector,
       IWorld(world).world_MoonstoneObjectS_neighbourEventHandler.selector,
       NUM_BLOCK_STACKABLE,
-      "Moonstone",
-      ""
+      0,
+      "Moonstone"
     );
   }
 

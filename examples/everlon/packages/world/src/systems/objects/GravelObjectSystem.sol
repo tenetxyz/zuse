@@ -18,8 +18,8 @@ contract GravelObjectSystem is ObjectType {
       IWorld(world).world_GravelObjectSyst_eventHandler.selector,
       IWorld(world).world_GravelObjectSyst_neighbourEventHandler.selector,
       NUM_BLOCK_STACKABLE,
-      "Gravel",
-      ""
+      0,
+      "Gravel"
     );
   }
 

@@ -11,13 +11,31 @@ import { getKeysWithValue } from "@latticexyz/world/src/modules/keyswithvalue/ge
 import { OwnedBy, OwnedByTableId } from "@tenet-base-world/src/codegen/tables/OwnedBy.sol";
 import { Inventory, InventoryTableId } from "@tenet-base-world/src/codegen/tables/Inventory.sol";
 import { InventoryObject, InventoryObjectData } from "@tenet-base-world/src/codegen/tables/InventoryObject.sol";
+import { Equipped } from "@tenet-base-world/src/codegen/tables/Equipped.sol";
 
 import { REGISTRY_ADDRESS, NUM_MAX_INVENTORY_SLOTS } from "@tenet-base-world/src/Constants.sol";
-import { getObjectStackable } from "@tenet-registry/src/Utils.sol";
+import { getStackable, getMaxUses } from "@tenet-registry/src/Utils.sol";
 
 import { VoxelCoord, ObjectProperties } from "@tenet-utils/src/Types.sol";
 
 abstract contract InventorySystem is System {
+  function useEquipped(bytes32 actingObjectEntityId) public virtual {
+    bytes32 equippedInventoryId = Equipped.get(actingObjectEntityId);
+    if (equippedInventoryId != bytes32(0)) {
+      InventoryObjectData memory equippedInventoryObjectData = InventoryObject.get(equippedInventoryId);
+      if (equippedInventoryObjectData.numUsesLeft > 0) {
+        if (equippedInventoryObjectData.numUsesLeft == 1) {
+          // Destroy equipped item
+          Equipped.deleteRecord(equippedInventoryId);
+          Inventory.deleteRecord(equippedInventoryId);
+          InventoryObject.deleteRecord(equippedInventoryId);
+        } else {
+          InventoryObject.setNumUsesLeft(equippedInventoryId, equippedInventoryObjectData.numUsesLeft - 1);
+        }
+      } // 0 = unlimited uses
+    }
+  }
+
   function addObjectToInventory(
     bytes32 objectEntityId,
     bytes32 objectTypeId,
@@ -26,8 +44,10 @@ abstract contract InventorySystem is System {
   ) public virtual {
     bytes32[][] memory inventoryIds = getKeysWithValue(InventoryTableId, Inventory.encode(objectEntityId));
 
-    uint8 stackable = getObjectStackable(IStore(REGISTRY_ADDRESS), objectTypeId);
+    uint8 stackable = getStackable(IStore(REGISTRY_ADDRESS), objectTypeId);
     require(stackable > 0, "InventorySystem: Object type is not stackable");
+
+    uint16 numUsesLeft = getMaxUses(IStore(REGISTRY_ADDRESS), objectTypeId);
 
     // Check if this object type is already in the inventory, otherwise add a new one
     uint8 remainingObjectsToAdd = numObjectsToAdd;
@@ -67,7 +87,7 @@ abstract contract InventorySystem is System {
         remainingObjectsToAdd = 0;
       }
 
-      InventoryObject.set(inventoryId, objectTypeId, newNumObjects, abi.encode(objectProperties));
+      InventoryObject.set(inventoryId, objectTypeId, newNumObjects, numUsesLeft, abi.encode(objectProperties));
     }
   }
 

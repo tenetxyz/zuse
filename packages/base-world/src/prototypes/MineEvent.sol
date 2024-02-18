@@ -83,6 +83,8 @@ abstract contract MineEvent is Event {
       }
 
       IWorld(_world()).addObjectToInventory(actingObjectEntityId, objectTypeId, 1, inventoryObjectProperties);
+
+      IWorld(_world()).useEquipped(actingObjectEntityId);
     }
 
     IWorld(_world()).exitWorld(objectTypeId, coord, objectEntityId);

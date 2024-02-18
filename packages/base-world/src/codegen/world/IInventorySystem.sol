@@ -6,6 +6,8 @@ pragma solidity >=0.8.0;
 import { ObjectProperties } from "@tenet-utils/src/Types.sol";
 
 interface IInventorySystem {
+  function useEquipped(bytes32 actingObjectEntityId) external;
+
   function addObjectToInventory(
     bytes32 objectEntityId,
     bytes32 objectTypeId,

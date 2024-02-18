@@ -18,8 +18,8 @@ contract ClayBrickObjectSystem is ObjectType {
       IWorld(world).world_ClayBrickObjectS_eventHandler.selector,
       IWorld(world).world_ClayBrickObjectS_neighbourEventHandler.selector,
       NUM_BLOCK_STACKABLE,
-      "Clay Brick",
-      ""
+      0,
+      "Clay Brick"
     );
   }
 

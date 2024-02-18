@@ -18,8 +18,8 @@ contract SakuraLeafObjectSystem is ObjectType {
       IWorld(world).world_SakuraLeafObject_eventHandler.selector,
       IWorld(world).world_SakuraLeafObject_neighbourEventHandler.selector,
       NUM_BLOCK_STACKABLE,
-      "Sakura Leaf",
-      ""
+      0,
+      "Sakura Leaf"
     );
   }
 

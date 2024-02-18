@@ -18,8 +18,8 @@ contract SwitchGrassObjectSystem is ObjectType {
       IWorld(world).world_SwitchGrassObjec_eventHandler.selector,
       IWorld(world).world_SwitchGrassObjec_neighbourEventHandler.selector,
       NUM_BLOCK_STACKABLE,
-      "Switch Grass",
-      ""
+      0,
+      "Switch Grass"
     );
   }
 

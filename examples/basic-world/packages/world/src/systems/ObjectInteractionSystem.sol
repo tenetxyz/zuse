@@ -4,14 +4,10 @@ pragma solidity >=0.8.0;
 import { IStore } from "@latticexyz/store/src/IStore.sol";
 import { System } from "@latticexyz/world/src/System.sol";
 
-import { REGISTRY_ADDRESS, SIMULATOR_ADDRESS, NUM_MAX_OBJECTS_INTERACTION_RUN } from "@tenet-world/src/Constants.sol";
+import { SIMULATOR_ADDRESS, NUM_MAX_OBJECTS_INTERACTION_RUN } from "@tenet-world/src/Constants.sol";
 import { ObjectInteractionSystem as ObjectInteractionProtoSystem } from "@tenet-base-world/src/systems/ObjectInteractionSystem.sol";
 
 contract ObjectInteractionSystem is ObjectInteractionProtoSystem {
-  function getRegistryAddress() internal pure override returns (address) {
-    return REGISTRY_ADDRESS;
-  }
-
   function getSimulatorAddress() internal pure override returns (address) {
     return SIMULATOR_ADDRESS;
   }

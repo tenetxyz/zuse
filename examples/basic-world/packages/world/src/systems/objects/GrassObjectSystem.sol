@@ -17,6 +17,7 @@ contract GrassObjectSystem is ObjectType {
       IWorld(world).world_GrassObjectSyste_exitWorld.selector,
       IWorld(world).world_GrassObjectSyste_eventHandler.selector,
       IWorld(world).world_GrassObjectSyste_neighbourEventHandler.selector,
+      99,
       "Grass",
       ""
     );

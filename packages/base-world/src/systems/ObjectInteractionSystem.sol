@@ -12,10 +12,9 @@ import { VoxelCoord, EntityActionData, Action } from "@tenet-utils/src/Types.sol
 import { getEventHandlerSelector, getNeighbourEventHandlerSelector } from "@tenet-registry/src/Utils.sol";
 import { getVonNeumannNeighbourEntities } from "@tenet-base-world/src/Utils.sol";
 import { IWorldObjectEventSystem } from "@tenet-base-simulator/src/codegen/world/IWorldObjectEventSystem.sol";
+import { REGISTRY_ADDRESS } from "@tenet-base-world/src/Constants.sol";
 
 abstract contract ObjectInteractionSystem is System {
-  function getRegistryAddress() internal pure virtual returns (address);
-
   function getSimulatorAddress() internal pure virtual returns (address);
 
   function preRunInteraction(bytes32 centerObjectEntityId, bytes32[] memory neighbourObjectEntityIds) internal virtual {
@@ -46,7 +45,7 @@ abstract contract ObjectInteractionSystem is System {
       return new Action[](0);
     }
     (address eventHandlerAddress, bytes4 eventHandlerSelector) = getEventHandlerSelector(
-      IStore(getRegistryAddress()),
+      IStore(REGISTRY_ADDRESS),
       centerObjectTypeId
     );
     require(
@@ -86,7 +85,7 @@ abstract contract ObjectInteractionSystem is System {
 
       bytes32 neighbourObjectTypeId = ObjectType.get(neighbourEntityIds[i]);
       (address neighbourEventHandlerAddress, bytes4 neighbourEventHandlerSelector) = getNeighbourEventHandlerSelector(
-        IStore(getRegistryAddress()),
+        IStore(REGISTRY_ADDRESS),
         neighbourObjectTypeId
       );
       require(

@@ -5,7 +5,7 @@ import { IWorld } from "@tenet-world/src/codegen/world/IWorld.sol";
 import { ObjectType } from "@tenet-base-world/src/prototypes/ObjectType.sol";
 import { IObjectRegistrySystem } from "@tenet-registry/src/codegen/world/IObjectRegistrySystem.sol";
 import { VoxelCoord, ObjectProperties, Action } from "@tenet-utils/src/Types.sol";
-import { REGISTRY_ADDRESS, GrassObjectID, GRASS_MASS } from "@tenet-world/src/Constants.sol";
+import { NUM_BLOCK_STACKABLE, REGISTRY_ADDRESS, GrassObjectID, GRASS_MASS } from "@tenet-world/src/Constants.sol";
 
 contract GrassObjectSystem is ObjectType {
   function registerObject() public {
@@ -17,6 +17,7 @@ contract GrassObjectSystem is ObjectType {
       IWorld(world).world_GrassObjectSyste_exitWorld.selector,
       IWorld(world).world_GrassObjectSyste_eventHandler.selector,
       IWorld(world).world_GrassObjectSyste_neighbourEventHandler.selector,
+      NUM_BLOCK_STACKABLE,
       "Grass",
       ""
     );

@@ -17,6 +17,7 @@ contract AirObjectSystem is ObjectType {
       IWorld(world).world_AirObjectSystem_exitWorld.selector,
       IWorld(world).world_AirObjectSystem_eventHandler.selector,
       IWorld(world).world_AirObjectSystem_neighbourEventHandler.selector,
+      0,
       "Air",
       ""
     );

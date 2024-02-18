@@ -5,7 +5,7 @@ import { IWorld } from "@tenet-world/src/codegen/world/IWorld.sol";
 import { ObjectType } from "@tenet-base-world/src/prototypes/ObjectType.sol";
 import { IObjectRegistrySystem } from "@tenet-registry/src/codegen/world/IObjectRegistrySystem.sol";
 import { VoxelCoord, ObjectProperties, Action } from "@tenet-utils/src/Types.sol";
-import { REGISTRY_ADDRESS, SilverOreObjectID, SILVER_ORE_MASS } from "@tenet-world/src/Constants.sol";
+import { REGISTRY_ADDRESS, NUM_BLOCK_STACKABLE, SilverOreObjectID, SILVER_ORE_MASS } from "@tenet-world/src/Constants.sol";
 
 contract SilverOreObjectSystem is ObjectType {
   function registerObject() public {
@@ -17,6 +17,7 @@ contract SilverOreObjectSystem is ObjectType {
       IWorld(world).world_SilverOreObjectS_exitWorld.selector,
       IWorld(world).world_SilverOreObjectS_eventHandler.selector,
       IWorld(world).world_SilverOreObjectS_neighbourEventHandler.selector,
+      NUM_BLOCK_STACKABLE,
       "Silver Ore",
       ""
     );

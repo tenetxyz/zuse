@@ -10,6 +10,10 @@ function getObjectAddress(IStore store, bytes32 objectTypeId) view returns (addr
   return ObjectTypeRegistry.getContractAddress(store, objectTypeId);
 }
 
+function getObjectStackable(IStore store, bytes32 objectTypeId) view returns (uint8) {
+  return ObjectTypeRegistry.getStackable(store, objectTypeId);
+}
+
 function getEnterWorldSelector(IStore store, bytes32 objectTypeId) view returns (address, bytes4) {
   return (getObjectAddress(store, objectTypeId), ObjectTypeRegistry.getEnterWorldSelector(store, objectTypeId));
 }

@@ -26,6 +26,7 @@ contract BuilderObjectSystem is AgentType {
       IWorld(world).world_BuilderObjectSys_exitWorld.selector,
       IWorld(world).world_BuilderObjectSys_eventHandler.selector,
       IWorld(world).world_BuilderObjectSys_neighbourEventHandler.selector,
+      1,
       "Builder",
       ""
     );

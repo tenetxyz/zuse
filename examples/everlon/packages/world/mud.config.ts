@@ -4,20 +4,6 @@ import { resolveTableId } from "@latticexyz/config";
 export default tenetMudConfig({
   namespace: "world",
   tables: {
-    // TODO: Move into base-world
-    Recipes: {
-      registerAsRoot: true,
-      keySchema: {
-        recipeId: "bytes32",
-      },
-      schema: {
-        inputObjectTypeIds: "bytes32[]",
-        inputObjectTypeAmounts: "uint8[]",
-        outputObjectTypeIds: "bytes32[]",
-        outputObjectTypeAmounts: "uint8[]",
-        outputObjectProperties: "bytes", // ObjectProperties[]
-      },
-    },
     Faucet: {
       registerAsRoot: true,
       keySchema: {
@@ -77,11 +63,6 @@ export default tenetMudConfig({
       openAccess: true,
       registerAsRoot: true,
     },
-    CraftSystem: {
-      name: "CraftSystem",
-      openAccess: true,
-      registerAsRoot: true,
-    },
     FaucetSystem: {
       name: "FaucetSystem",
       openAccess: true,
@@ -89,12 +70,6 @@ export default tenetMudConfig({
     },
   },
   modules: [
-    {
-      // TODO: This is only needed for tests, so we should remove it from production
-      name: "KeysInTableModule",
-      root: true,
-      args: [resolveTableId("Recipes")],
-    },
     {
       name: "KeysInTableModule",
       root: true,

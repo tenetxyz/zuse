@@ -17,6 +17,7 @@ contract DirtObjectSystem is ObjectType {
       IWorld(world).world_DirtObjectSystem_exitWorld.selector,
       IWorld(world).world_DirtObjectSystem_eventHandler.selector,
       IWorld(world).world_DirtObjectSystem_neighbourEventHandler.selector,
+      99,
       "Dirt",
       ""
     );

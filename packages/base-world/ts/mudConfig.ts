@@ -98,6 +98,19 @@ const WORLD_TABLES: Record<string, TableConfig> = {
       inventoryId: "bytes32",
     },
   },
+  Recipes: {
+    registerAsRoot: true,
+    keySchema: {
+      recipeId: "bytes32",
+    },
+    schema: {
+      inputObjectTypeIds: "bytes32[]",
+      inputObjectTypeAmounts: "uint8[]",
+      outputObjectTypeIds: "bytes32[]",
+      outputObjectTypeAmounts: "uint8[]",
+      outputObjectProperties: "bytes", // ObjectProperties[]
+    },
+  },
   AgentMetadata: {
     registerAsRoot: true,
     keySchema: {
@@ -141,6 +154,12 @@ const WORLD_MODULES = [
     name: "HasKeysModule",
     root: true,
     args: [resolveTableId("OwnedBy")],
+  },
+  {
+    // TODO: This is only needed for tests, so we should remove it from production
+    name: "KeysInTableModule",
+    root: true,
+    args: [resolveTableId("Recipes")],
   },
   {
     name: "HasKeysModule",
@@ -203,6 +222,17 @@ const WORLD_SYSTEMS = {
   EquipSystem: {
     name: "EquipSystem",
     openAccess: true,
+    registerAsRoot: true,
+  },
+  CraftSystem: {
+    name: "CraftSystem",
+    openAccess: true,
+    registerAsRoot: true,
+  },
+  InventorySystem: {
+    name: "InventorySystem",
+    openAccess: false,
+    accessList: ["BuildSystem", "MineSystem", "MoveSystem", "ActivateSystem", "CraftSystem"],
     registerAsRoot: true,
   },
   EventApprovalsSystem: {

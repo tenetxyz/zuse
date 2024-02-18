@@ -7,14 +7,10 @@ import { System } from "@latticexyz/world/src/System.sol";
 import { ObjectMetadata, ObjectMetadataTableId } from "@tenet-world/src/codegen/tables/ObjectMetadata.sol";
 import { KeysInTable } from "@latticexyz/world/src/modules/keysintable/tables/KeysInTable.sol";
 
-import { REGISTRY_ADDRESS, SIMULATOR_ADDRESS, NUM_MAX_OBJECTS_INTERACTION_RUN, NUM_MAX_UNIQUE_OBJECT_EVENT_HANDLERS_RUN, NUM_MAX_SAME_OBJECT_EVENT_HANDLERS_RUN } from "@tenet-world/src/Constants.sol";
+import { SIMULATOR_ADDRESS, NUM_MAX_OBJECTS_INTERACTION_RUN, NUM_MAX_UNIQUE_OBJECT_EVENT_HANDLERS_RUN, NUM_MAX_SAME_OBJECT_EVENT_HANDLERS_RUN } from "@tenet-world/src/Constants.sol";
 import { ObjectInteractionSystem as ObjectInteractionProtoSystem } from "@tenet-base-world/src/systems/ObjectInteractionSystem.sol";
 
 contract ObjectInteractionSystem is ObjectInteractionProtoSystem {
-  function getRegistryAddress() internal pure override returns (address) {
-    return REGISTRY_ADDRESS;
-  }
-
   function getSimulatorAddress() internal pure override returns (address) {
     return SIMULATOR_ADDRESS;
   }

@@ -13,6 +13,7 @@ contract ObjectRegistrySystem is System {
     bytes4 exitWorldSelector,
     bytes4 eventHandlerSelector,
     bytes4 neighbourEventHandlerSelector,
+    uint8 stackable,
     string memory name,
     string memory description
   ) public {
@@ -33,6 +34,7 @@ contract ObjectRegistrySystem is System {
         exitWorldSelector: exitWorldSelector,
         eventHandlerSelector: eventHandlerSelector,
         neighbourEventHandlerSelector: neighbourEventHandlerSelector,
+        stackable: stackable,
         name: name,
         description: description
       })

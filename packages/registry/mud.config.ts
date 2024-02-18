@@ -14,6 +14,7 @@ export default mudConfig({
         exitWorldSelector: "bytes4",
         eventHandlerSelector: "bytes4",
         neighbourEventHandlerSelector: "bytes4",
+        stackable: "uint8",
         name: "string",
         description: "string",
       },

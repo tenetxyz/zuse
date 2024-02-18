@@ -5,7 +5,7 @@ import { IWorld } from "@tenet-world/src/codegen/world/IWorld.sol";
 import { ObjectType } from "@tenet-base-world/src/prototypes/ObjectType.sol";
 import { IObjectRegistrySystem } from "@tenet-registry/src/codegen/world/IObjectRegistrySystem.sol";
 import { VoxelCoord, ObjectProperties, Action } from "@tenet-utils/src/Types.sol";
-import { REGISTRY_ADDRESS, CottonObjectID, COTTON_MASS } from "@tenet-world/src/Constants.sol";
+import { REGISTRY_ADDRESS, NUM_BLOCK_STACKABLE, CottonObjectID, COTTON_MASS } from "@tenet-world/src/Constants.sol";
 
 contract CottonObjectSystem is ObjectType {
   function registerObject() public {
@@ -17,6 +17,7 @@ contract CottonObjectSystem is ObjectType {
       IWorld(world).world_CottonObjectSyst_exitWorld.selector,
       IWorld(world).world_CottonObjectSyst_eventHandler.selector,
       IWorld(world).world_CottonObjectSyst_neighbourEventHandler.selector,
+      NUM_BLOCK_STACKABLE,
       "Cotton",
       ""
     );

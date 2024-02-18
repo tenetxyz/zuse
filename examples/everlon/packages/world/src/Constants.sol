@@ -1,13 +1,16 @@
 // SPDX-License-Identifier: MIT
 pragma solidity >=0.8.0;
 
-address constant REGISTRY_ADDRESS = 0x057ef64E23666F000b34aE31332854aCBd1c8544;
+import { REGISTRY_ADDRESS } from "@tenet-base-world/src/Constants.sol";
+
 address constant SIMULATOR_ADDRESS = 0x5FbDB2315678afecb367f032d93F642f64180aa3;
 
 uint256 constant NUM_MAX_OBJECTS_INTERACTION_RUN = 1000;
 uint256 constant NUM_MAX_UNIQUE_OBJECT_EVENT_HANDLERS_RUN = 15;
 uint256 constant NUM_MAX_SAME_OBJECT_EVENT_HANDLERS_RUN = 25;
 int32 constant NUM_MAX_AGENT_ACTION_RADIUS = 5;
+
+uint8 constant NUM_BLOCK_STACKABLE = 99;
 
 bytes32 constant AirObjectID = bytes32(keccak256("air"));
 bytes32 constant SnowObjectID = bytes32(keccak256("snow"));

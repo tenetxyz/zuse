@@ -15,7 +15,6 @@ import { ObjectEntity } from "@tenet-base-world/src/codegen/tables/ObjectEntity.
 import { VoxelCoord, ObjectProperties } from "@tenet-utils/src/Types.sol";
 import { IWorldMineEventSystem } from "@tenet-base-simulator/src/codegen/world/IWorldMineEventSystem.sol";
 import { ISimInitSystem } from "@tenet-base-simulator/src/codegen/world/ISimInitSystem.sol";
-import { addObjectToInventory } from "@tenet-base-world/src/Utils.sol";
 
 abstract contract MineEvent is Event {
   function mine(
@@ -83,7 +82,7 @@ abstract contract MineEvent is Event {
         inventoryObjectProperties = IWorld(_world()).getObjectProperties(objectEntityId);
       }
 
-      addObjectToInventory(IStore(_world()), actingObjectEntityId, objectTypeId, 1, inventoryObjectProperties);
+      IWorld(_world()).addObjectToInventory(actingObjectEntityId, objectTypeId, 1, inventoryObjectProperties);
     }
 
     IWorld(_world()).exitWorld(objectTypeId, coord, objectEntityId);

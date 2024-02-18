@@ -14,6 +14,7 @@ import { Inventory, InventoryTableId } from "@tenet-base-world/src/codegen/table
 import { InventoryObject } from "@tenet-base-world/src/codegen/tables/InventoryObject.sol";
 
 import { VoxelCoord, ObjectProperties } from "@tenet-utils/src/Types.sol";
+import { removeObjectFromInventory, addObjectToInventory } from "@tenet-base-world/src/Utils.sol";
 
 contract CraftSystem is System {
   function craft(bytes32 actingObjectEntityId, bytes32 recipeId, bytes32[] memory ingredientIds) public {
@@ -26,18 +27,17 @@ contract CraftSystem is System {
     // Require that the acting object has all the ingredients in its inventory
     // And delete the ingredients from the inventory as they are used
     for (uint256 i = 0; i < recipeData.inputObjectTypeIds.length; i++) {
-      uint32 numFound = 0;
       for (uint256 j = 0; j < ingredientIds.length; j++) {
         if (Inventory.get(ingredientIds[j]) == actingObjectEntityId) {
           bytes32 ingredientObjectTypeId = InventoryObject.getObjectTypeId(ingredientIds[j]);
           if (ingredientObjectTypeId == recipeData.inputObjectTypeIds[i]) {
-            numFound++;
-            Inventory.deleteRecord(ingredientIds[j]);
-            InventoryObject.deleteRecord(ingredientIds[j]);
+            uint8 numObjects = InventoryObject.getNumObjects(ingredientIds[j]);
+            require(numObjects >= recipeData.inputObjectTypeAmounts[i], "CraftSystem: not enough ingredients");
+
+            removeObjectFromInventory(IStore(_world()), ingredientIds[j], recipeData.inputObjectTypeAmounts[i]);
           }
         }
       }
-      require(numFound == recipeData.inputObjectTypeAmounts[i], "CraftSystem: not enough ingredients");
     }
 
     // Create the crafted objects
@@ -46,11 +46,13 @@ contract CraftSystem is System {
       (ObjectProperties[])
     );
     for (uint256 i = 0; i < recipeData.outputObjectTypeIds.length; i++) {
-      for (uint256 j = 0; j < recipeData.outputObjectTypeAmounts[i]; j++) {
-        bytes32 inventoryId = getUniqueEntity();
-        Inventory.set(inventoryId, actingObjectEntityId);
-        InventoryObject.set(inventoryId, recipeData.outputObjectTypeIds[i], abi.encode(outputObjectProperties[i]));
-      }
+      addObjectToInventory(
+        IStore(_world()),
+        actingObjectEntityId,
+        recipeData.outputObjectTypeIds[i],
+        recipeData.outputObjectTypeAmounts[i],
+        outputObjectProperties[i]
+      );
     }
   }
 }

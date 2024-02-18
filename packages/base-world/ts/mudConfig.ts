@@ -85,6 +85,7 @@ const WORLD_TABLES: Record<string, TableConfig> = {
     },
     schema: {
       objectTypeId: "bytes32",
+      numObjects: "uint8",
       objectProperties: "bytes", // ObjectProperties
     },
   },

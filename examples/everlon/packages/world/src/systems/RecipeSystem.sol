@@ -25,13 +25,13 @@ contract RecipeSystem is System {
     // Recipe inputs
     bytes32[] memory inputObjectTypeIds = new bytes32[](1);
     inputObjectTypeIds[0] = OakLogObjectID;
-    uint32[] memory inputObjectTypeAmounts = new uint32[](1);
+    uint8[] memory inputObjectTypeAmounts = new uint8[](1);
     inputObjectTypeAmounts[0] = 1;
 
     // Recipe outputs
     bytes32[] memory outputObjectTypeIds = new bytes32[](1);
     outputObjectTypeIds[0] = OakLumberObjectID;
-    uint32[] memory outputObjectTypeAmounts = new uint32[](1);
+    uint8[] memory outputObjectTypeAmounts = new uint8[](1);
     outputObjectTypeAmounts[0] = 4;
     ObjectProperties[] memory outputObjectProperties = new ObjectProperties[](1);
     ObjectProperties memory lumberOutputProperties;

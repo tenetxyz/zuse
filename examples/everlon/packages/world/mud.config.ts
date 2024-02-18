@@ -12,9 +12,9 @@ export default tenetMudConfig({
       },
       schema: {
         inputObjectTypeIds: "bytes32[]",
-        inputObjectTypeAmounts: "uint32[]",
+        inputObjectTypeAmounts: "uint8[]",
         outputObjectTypeIds: "bytes32[]",
-        outputObjectTypeAmounts: "uint32[]",
+        outputObjectTypeAmounts: "uint8[]",
         outputObjectProperties: "bytes", // ObjectProperties[]
       },
     },

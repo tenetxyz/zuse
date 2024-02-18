@@ -75,7 +75,8 @@ abstract contract EventApprovalsSystem is System {
       if (eventType == EventType.Build) {
         bytes32 inventoryId = getInventoryId(eventData);
         require(
-          InventoryObject.getObjectTypeId(inventoryId) == objectTypeId,
+          InventoryObject.getObjectTypeId(inventoryId) == objectTypeId &&
+            InventoryObject.getNumObjects(inventoryId) > 0,
           "EventApprovalsSystem: Inventory object type id does not match"
         );
         require(

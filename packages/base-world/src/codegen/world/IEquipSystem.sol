@@ -5,4 +5,6 @@ pragma solidity >=0.8.0;
 
 interface IEquipSystem {
   function equip(bytes32 actingObjectEntityId, bytes32 inventoryId) external;
+
+  function unequip(bytes32 actingObjectEntityId) external;
 }

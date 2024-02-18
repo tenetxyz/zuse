@@ -10,11 +10,12 @@ import { getKeysWithValue } from "@latticexyz/world/src/modules/keyswithvalue/ge
 import { OwnedBy, OwnedByTableId } from "@tenet-base-world/src/codegen/tables/OwnedBy.sol";
 import { ObjectType } from "@tenet-base-world/src/codegen/tables/ObjectType.sol";
 import { Inventory, InventoryTableId } from "@tenet-base-world/src/codegen/tables/Inventory.sol";
-import { InventoryObject } from "@tenet-base-world/src/codegen/tables/InventoryObject.sol";
+import { InventoryObject, InventoryObjectData } from "@tenet-base-world/src/codegen/tables/InventoryObject.sol";
 import { ObjectEntity } from "@tenet-base-world/src/codegen/tables/ObjectEntity.sol";
 import { VoxelCoord, ObjectProperties } from "@tenet-utils/src/Types.sol";
 import { IWorldMineEventSystem } from "@tenet-base-simulator/src/codegen/world/IWorldMineEventSystem.sol";
 import { ISimInitSystem } from "@tenet-base-simulator/src/codegen/world/ISimInitSystem.sol";
+import { addObjectToInventory } from "@tenet-base-world/src/Utils.sol";
 
 abstract contract MineEvent is Event {
   function mine(
@@ -73,8 +74,6 @@ abstract contract MineEvent is Event {
 
     // Add to inventory
     if (actingObjectEntityId != bytes32(0)) {
-      bytes32 inventoryId = getUniqueEntity();
-      Inventory.set(inventoryId, actingObjectEntityId);
       ObjectProperties memory inventoryObjectProperties;
       if (isNewEntity) {
         ObjectProperties memory requestedProperties = IWorld(_world()).enterWorld(objectTypeId, coord, objectEntityId);
@@ -83,7 +82,8 @@ abstract contract MineEvent is Event {
       } else {
         inventoryObjectProperties = IWorld(_world()).getObjectProperties(objectEntityId);
       }
-      InventoryObject.set(inventoryId, objectTypeId, abi.encode(inventoryObjectProperties));
+
+      addObjectToInventory(IStore(_world()), actingObjectEntityId, objectTypeId, 1, inventoryObjectProperties);
     }
 
     IWorld(_world()).exitWorld(objectTypeId, coord, objectEntityId);

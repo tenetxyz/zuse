@@ -14,13 +14,12 @@ import { Inventory, InventoryTableId } from "@tenet-base-world/src/codegen/table
 import { InventoryObject } from "@tenet-base-world/src/codegen/tables/InventoryObject.sol";
 
 import { initializeBytes32Array } from "@tenet-utils/src/ArrayUtils.sol";
-import { BirchLogObjectID, ReinforcedBirchLumberObjectID, REINFORCED_BIRCH_LUMBER_MASS, BirchLumberObjectID, SilverOreObjectID, BIRCH_LUMBER_MASS, OakLogObjectID, OakLumberObjectID, OAK_LUMBER_MASS, BASALT_BRICK_MASS, BASALT_CARVED_MASS, BASALT_POLISHED_MASS, BASALT_SHINGLES_MASS, WoodenPickObjectID, WOODEN_PICK_MASS, BasaltObjectID, PaperObjectID, BasaltBrickObjectID, BasaltCarvedObjectID, BasaltPolishedObjectID, BasaltShinglesObjectID, PAPER_MASS } from "@tenet-world/src/Constants.sol";
+import { ChestObjectID, CHEST_MASS, BirchLogObjectID, ReinforcedBirchLumberObjectID, REINFORCED_BIRCH_LUMBER_MASS, BirchLumberObjectID, SilverOreObjectID, BIRCH_LUMBER_MASS, OakLogObjectID, OakLumberObjectID, OAK_LUMBER_MASS, BASALT_BRICK_MASS, BASALT_CARVED_MASS, BASALT_POLISHED_MASS, BASALT_SHINGLES_MASS, WoodenPickObjectID, WOODEN_PICK_MASS, BasaltObjectID, PaperObjectID, BasaltBrickObjectID, BasaltCarvedObjectID, BasaltPolishedObjectID, BasaltShinglesObjectID, PAPER_MASS } from "@tenet-world/src/Constants.sol";
 import { VoxelCoord, ObjectProperties } from "@tenet-utils/src/Types.sol";
 
 contract RecipeSystem is System {
   // TODO: Make this only callable once
   function initRecipes() public {
-
     // 1 Oak Log -> 4 Oak Lumber
 
     // Recipe inputs
@@ -79,9 +78,34 @@ contract RecipeSystem is System {
       })
     );
 
+    inputObjectTypeIds = new bytes32[](1);
+    inputObjectTypeIds[0] = OakLumberObjectID;
+    inputObjectTypeAmounts = new uint8[](1);
+    inputObjectTypeAmounts[0] = 24;
+
+    // Recipe outputs
+    outputObjectTypeIds = new bytes32[](1);
+    outputObjectTypeIds[0] = ChestObjectID;
+    outputObjectTypeAmounts = new uint8[](1);
+    outputObjectTypeAmounts[0] = 1;
+    outputObjectProperties = new ObjectProperties[](1);
+    outputOutputProperties.mass = CHEST_MASS;
+    outputObjectProperties[0] = outputOutputProperties;
+
+    newRecipeId = getUniqueEntity();
+    Recipes.set(
+      newRecipeId,
+      RecipesData({
+        inputObjectTypeIds: inputObjectTypeIds,
+        inputObjectTypeAmounts: inputObjectTypeAmounts,
+        outputObjectTypeIds: outputObjectTypeIds,
+        outputObjectTypeAmounts: outputObjectTypeAmounts,
+        outputObjectProperties: abi.encode(outputObjectProperties)
+      })
+    );
 
     // recipeBasaltBrick
-    
+
     // Recipe inputs
     inputObjectTypeIds = new bytes32[](2);
     inputObjectTypeIds[0] = BasaltObjectID;
@@ -102,19 +126,18 @@ contract RecipeSystem is System {
 
     newRecipeId = getUniqueEntity();
     Recipes.set(
-        newRecipeId,
-        RecipesData({
-            inputObjectTypeIds: inputObjectTypeIds,
-            inputObjectTypeAmounts: inputObjectTypeAmounts,
-            outputObjectTypeIds: outputObjectTypeIds,
-            outputObjectTypeAmounts: outputObjectTypeAmounts,
-            outputObjectProperties: abi.encode(outputObjectProperties)
-        })
+      newRecipeId,
+      RecipesData({
+        inputObjectTypeIds: inputObjectTypeIds,
+        inputObjectTypeAmounts: inputObjectTypeAmounts,
+        outputObjectTypeIds: outputObjectTypeIds,
+        outputObjectTypeAmounts: outputObjectTypeAmounts,
+        outputObjectProperties: abi.encode(outputObjectProperties)
+      })
     );
-    
 
     // recipeBasaltCarved
-    
+
     // Recipe inputs
     inputObjectTypeIds = new bytes32[](2);
     inputObjectTypeIds[0] = BasaltBrickObjectID;
@@ -135,19 +158,18 @@ contract RecipeSystem is System {
 
     newRecipeId = getUniqueEntity();
     Recipes.set(
-        newRecipeId,
-        RecipesData({
-            inputObjectTypeIds: inputObjectTypeIds,
-            inputObjectTypeAmounts: inputObjectTypeAmounts,
-            outputObjectTypeIds: outputObjectTypeIds,
-            outputObjectTypeAmounts: outputObjectTypeAmounts,
-            outputObjectProperties: abi.encode(outputObjectProperties)
-        })
+      newRecipeId,
+      RecipesData({
+        inputObjectTypeIds: inputObjectTypeIds,
+        inputObjectTypeAmounts: inputObjectTypeAmounts,
+        outputObjectTypeIds: outputObjectTypeIds,
+        outputObjectTypeAmounts: outputObjectTypeAmounts,
+        outputObjectProperties: abi.encode(outputObjectProperties)
+      })
     );
 
-
     // recipeBasaltPolished
-    
+
     // Identical structure to recipeBasaltCarved, with adjusted output type
     // Recipe inputs
     inputObjectTypeIds = new bytes32[](2);
@@ -169,16 +191,15 @@ contract RecipeSystem is System {
 
     newRecipeId = getUniqueEntity();
     Recipes.set(
-        newRecipeId,
-        RecipesData({
-            inputObjectTypeIds: inputObjectTypeIds,
-            inputObjectTypeAmounts: inputObjectTypeAmounts,
-            outputObjectTypeIds: outputObjectTypeIds,
-            outputObjectTypeAmounts: outputObjectTypeAmounts,
-            outputObjectProperties: abi.encode(outputObjectProperties)
-        })
+      newRecipeId,
+      RecipesData({
+        inputObjectTypeIds: inputObjectTypeIds,
+        inputObjectTypeAmounts: inputObjectTypeAmounts,
+        outputObjectTypeIds: outputObjectTypeIds,
+        outputObjectTypeAmounts: outputObjectTypeAmounts,
+        outputObjectProperties: abi.encode(outputObjectProperties)
+      })
     );
-    
 
     // recipeBasaltShingles
 
@@ -201,16 +222,15 @@ contract RecipeSystem is System {
 
     newRecipeId = getUniqueEntity();
     Recipes.set(
-        newRecipeId,
-        RecipesData({
-            inputObjectTypeIds: inputObjectTypeIds,
-            inputObjectTypeAmounts: inputObjectTypeAmounts,
-            outputObjectTypeIds: outputObjectTypeIds,
-            outputObjectTypeAmounts: outputObjectTypeAmounts,
-            outputObjectProperties: abi.encode(outputObjectProperties)
-        })
+      newRecipeId,
+      RecipesData({
+        inputObjectTypeIds: inputObjectTypeIds,
+        inputObjectTypeAmounts: inputObjectTypeAmounts,
+        outputObjectTypeIds: outputObjectTypeIds,
+        outputObjectTypeAmounts: outputObjectTypeAmounts,
+        outputObjectProperties: abi.encode(outputObjectProperties)
+      })
     );
-
 
     // recipePaper0
 
@@ -231,17 +251,15 @@ contract RecipeSystem is System {
 
     newRecipeId = getUniqueEntity();
     Recipes.set(
-        newRecipeId,
-        RecipesData({
-            inputObjectTypeIds: inputObjectTypeIds,
-            inputObjectTypeAmounts: inputObjectTypeAmounts,
-            outputObjectTypeIds: outputObjectTypeIds,
-            outputObjectTypeAmounts: outputObjectTypeAmounts,
-            outputObjectProperties: abi.encode(outputObjectProperties)
-        })
+      newRecipeId,
+      RecipesData({
+        inputObjectTypeIds: inputObjectTypeIds,
+        inputObjectTypeAmounts: inputObjectTypeAmounts,
+        outputObjectTypeIds: outputObjectTypeIds,
+        outputObjectTypeAmounts: outputObjectTypeAmounts,
+        outputObjectProperties: abi.encode(outputObjectProperties)
+      })
     );
-
-
 
     // recipeBirchLumber
 
@@ -252,26 +270,25 @@ contract RecipeSystem is System {
 
     // Recipe outputs
     outputObjectTypeIds = new bytes32[](1);
-    outputObjectTypeIds[0] = BirchLumberObjectID; 
+    outputObjectTypeIds[0] = BirchLumberObjectID;
     outputObjectTypeAmounts = new uint8[](1);
     outputObjectTypeAmounts[0] = 4;
 
     outputObjectProperties = new ObjectProperties[](1);
-    outputOutputProperties.mass = BIRCH_LUMBER_MASS; 
+    outputOutputProperties.mass = BIRCH_LUMBER_MASS;
     outputObjectProperties[0] = outputOutputProperties;
 
     newRecipeId = getUniqueEntity();
     Recipes.set(
-        newRecipeId,
-        RecipesData({
-            inputObjectTypeIds: inputObjectTypeIds,
-            inputObjectTypeAmounts: inputObjectTypeAmounts,
-            outputObjectTypeIds: outputObjectTypeIds,
-            outputObjectTypeAmounts: outputObjectTypeAmounts,
-            outputObjectProperties: abi.encode(outputObjectProperties)
-        })
+      newRecipeId,
+      RecipesData({
+        inputObjectTypeIds: inputObjectTypeIds,
+        inputObjectTypeAmounts: inputObjectTypeAmounts,
+        outputObjectTypeIds: outputObjectTypeIds,
+        outputObjectTypeAmounts: outputObjectTypeAmounts,
+        outputObjectProperties: abi.encode(outputObjectProperties)
+      })
     );
-
 
     // recipeBirchReinforced
 
@@ -294,22 +311,14 @@ contract RecipeSystem is System {
 
     newRecipeId = getUniqueEntity();
     Recipes.set(
-        newRecipeId,
-        RecipesData({
-            inputObjectTypeIds: inputObjectTypeIds,
-            inputObjectTypeAmounts: inputObjectTypeAmounts,
-            outputObjectTypeIds: outputObjectTypeIds,
-            outputObjectTypeAmounts: outputObjectTypeAmounts,
-            outputObjectProperties: abi.encode(outputObjectProperties)
-        })
+      newRecipeId,
+      RecipesData({
+        inputObjectTypeIds: inputObjectTypeIds,
+        inputObjectTypeAmounts: inputObjectTypeAmounts,
+        outputObjectTypeIds: outputObjectTypeIds,
+        outputObjectTypeAmounts: outputObjectTypeAmounts,
+        outputObjectProperties: abi.encode(outputObjectProperties)
+      })
     );
-
-
-
-
-
-
-
-    
   }
 }
